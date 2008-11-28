@@ -1,0 +1,29 @@
+/****************************************************************************
+
+rxtconst.res
+
+Delphi VCL Extensions (RX)
+Copyright (c) 1995 AO ROSNO
+Copyright (c) 1997 Master-Bank
+
+*****************************************************************************/
+
+#include "rxtconst.pas"
+
+STRINGTABLE 
+{
+ SDualListSrcCaption, "&Source"
+ SDualListDestCaption, "&Destination"
+ SClipbrdUnknown, "Cannot display. Data in Clipboard is in an unknown format."
+ SClipbrdEmpty, "Clipboard is empty"
+ SCustomizeSpeedbar, "Customize Speedbar"
+ SAvailButtons, "&Available buttons:"
+ SSpeedbarCategories, "&Categories:"
+ SSpeedbarEditHint, "To add command buttons, drag and drop buttons onto the SpeedBar. To remove command buttons, drag them off of the SpeedBar."
+ SParseSyntaxError, "Syntax error"
+ SParseNotCramp, "Invalid condition (no cramp)"
+ SParseDivideByZero, "Divide by zero"
+ SParseSqrError, "Invalid floating point operation"
+ SParseLogError, "Invalid floating point operation"
+ SParseInvalidFloatOperation, "Invalid floating point operation"
+}

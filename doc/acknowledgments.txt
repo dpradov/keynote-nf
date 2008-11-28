@@ -1,0 +1,44 @@
+KEYNOTE - ACKNOWLEDGMENTS
+----------------------------------------------------------
+
+KeyNote uses several freeware libraries and components, without which writing the program would have been immensely more difficult. The authors of those libraries provide fantastic free code to the Delphi community. Thank you all!
+
+In particular, I'd like to thank the following:
+
+* Brad Stowers, maintainer of Delphi Free Stuff web site (http://www.delphifreestuff.com) for several wonderfully useful components he wrote and is giving away for free:
+		TdfsBrowseDirectoryDlg
+		TdfsMRUFileList
+		TdfsStatusBar
+
+* The authors of the RX Library (http://www.rxlib.com/);
+
+* Ryan J. Mills, for his TPage95Control, a vast improvement over the standard Delhi 3 page control;
+
+* Wim Coetzee, for the cool TGFXListBox with checkboxes and icons;
+
+* Jordan Russell, for his absolutely amazing Toolbar97 control (the MS-Office-like toolbar): http://www.jordanr.dhs.org/
+
+* Mike Lischke (http://www.lischke-online.de/) for the advanced TreeNT component, which adds lots of features and fixes that Borland and Microsoft just happened to omit...
+
+* David Barton for his Delphi cryptographic components package, DCPCrypt (http://www.devarchive.com/DCPcrypt.html)
+
+* The BitSoft team for the TMathParser component (http://www.bitsoft.com)
+
+* Antony Lewis for the TFreeWordWeb, the WordWeb integration component
+
+* Francois Piette, for his Internet Component Suite (http://overbyte.alexid.fr/frame_index.html)
+
+* Gerrit Wolsink for the TRichPrinter component
+
+* Enzo Costantini, for the supercool MS Office 2000-like Color Picker button.
+
+* Andrew Baylis, for the AJBSpeller component which interfaces with MS Word 97 or 2000 spellchecker.
+
+Most of all, thanks to Andre v.d. Merwe for his original Dart Notes program, and for inspiration.
+
+Finally, I want to thank all the fearless KeyNote users who sent me bug reports, feature suggestions and other comments. Keep them coming!
+
+-----------------------------------------------------------
+Questions, comments, suggestions: email
+<marekjed@pobox.com>
+No HTML-formatted email please!

@@ -1,0 +1,64 @@
+Toolbar97 License Agreement v2.0
+================================
+
+"Author" herein refers to Jordan Russell (the creator of the Toolbar97
+components).
+"Software" refers to all files and source code included with Toolbar97
+(typically extracted from a .zip archive), and all content in them,
+regardless of whether any modifications have been made.
+
+Except where otherwise noted, all of the documentation and Software included
+in the Toolbar97 package is copyrighted by Jordan Russell (the Author).
+
+Copyright (C) 1998-2002 Jordan Russell. All rights reserved.
+
+This software is provided "as-is," without any express or implied warranty.
+In no event shall the author be held liable for any damages arising from the
+use of this software.
+
+Permission is granted for anyone to use this software provided that the
+following conditions are met:
+
+1. All redistributions of the Software's files must be in their original,
+   unmodified form. Distributions of modified versions of the files is not
+   permitted without express written permission of the Author.
+
+2. All redistributions of the Software's files must retain all copyright
+   notices and web site addresses that are currently in place, and must
+   include this list of conditions without modification.
+
+3. None of the Software's files may be redistributed for profit or as part
+   of another commercial or shareware software package without express
+   written permission of the Author.
+
+4. You are permitted to Compile the Software into any kind of applications.
+   ("Compile" here refers to the automatic process of translating the
+   Software's source code into executable Intel x86 machine code by the
+   Borland Delphi or C++Builder compilers.)
+   However, compilation into commercial or shareware applications, or any
+   applications you are profiting from, requires registration (payment) of
+   the software.
+   For information on registering, see the Toolbar97 Documentation or this
+   web page:
+   http://www.jrsoftware.org/tb97reg.php
+
+5. Redistribution of any of the Software's files in object form (including
+   but not limited to .DCU and .OBJ formats) is strictly prohibited without
+   express written permission of the Author.
+
+6. Full backward compatibility in future versions of the Software is not
+   guaranteed. In no event shall the Author be held liable for any
+   inconvenience or damages arising from lack of backward compatibility.
+
+7. The Author reserves the right to, at any time, impose additional
+   restrictions on how the Software may be used.
+
+If you do not agree to any of these terms, you are not permitted to use the
+Software in any way, and all copies of it must be deleted from your
+system(s).
+
+
+Jordan Russell
+jr@jrsoftware.org
+http://www.jrsoftware.org/
+alternate address: http://www.jordanr.cjb.net/

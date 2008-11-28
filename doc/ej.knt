@@ -1,0 +1,113 @@
+#!GFKNT 2.0
+# This is an automatically generated file. Do not edit.
+#/
+#?
+#$0
+#C17-07-2008 21:06:11
+#^010000000000000000000000
+%+
+NN=New note
+ID=1
+II=0
+DC=17-07-2008 21:06:11
+TI=0
+TS=4
+CX=0
+CY=0
+BG=clWindow
+CH=1
+FC=clWindowText
+FN=MS Sans Serif
+FS=8
+LN=3082
+ST=
+FL=101110000000210001000000
+SN=0
+TW=188
+EN=(%D) -
+TB=clWindow
+TH=1
+TC=clWindowText
+TN=MS Sans Serif
+TZ=8
+TY=
+%-
+LV=0
+ND=(17 jul 08) - A
+DI=2
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\fswiss\fprq2\fcharset0 Arial;}{\f2\fnil Arial;}{\f3\fnil\fcharset0 Arial;}{\f4\fswiss\fprq2\fcharset0 Verdana;}{\f5\fnil MS Sans Serif;}}
+{\colortbl ;\red0\green0\blue0;\red255\green153\blue0;\red255\green255\blue153;\red0\green0\blue255;\red0\green255\blue255;\red204\green204\blue204;}
+{\stylesheet{ Normal;}{\s1 heading 1;}{\s2 heading 2;}{\s3 heading 3;}}
+{\*\generator Msftedit 5.41.15.1507;}\viewkind4\uc1\pard\lang3082\f0\fs24\par
+\trowd\trgaph70\trleft-108\trbrdrl\brdrs\brdrw10 \trbrdrt\brdrs\brdrw10 \trbrdrr\brdrs\brdrw10 \trbrdrb\brdrs\brdrw10 \trpaddl70\trpaddr70\trpaddfl3\trpaddfr3
+\clcbpat2\clbrdrl\brdrw10\brdrs\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw10\brdrs\clbrdrb\brdrw10\brdrs \cellx1985\clcbpat3\clbrdrl\brdrw10\brdrs\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw10\brdrs\clbrdrb\brdrw10\brdrs \cellx3686\clcbpat3\clbrdrl\brdrw10\brdrs\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw10\brdrs\clbrdrb\brdrw10\brdrs \cellx7938\pard\intbl\lang2057\f1\fs20 Now, you can use and show \b\i\fs26 tables\b0\i0  \fs20 correctly inside \b\fs22 KeyNote\b0\f0\fs24\cell\cf1\f2\fs20 E\lang3082\f3 n un lugar de La Mancha de cuyo nombre no quiero acordarme ...\lang2057\f2   \cf0\lang1033\f4\fs18 After specifying the RTF version, you must ..\lang2057\f0\fs24\cell\pard\intbl\itap2\keepn\lang1033\expndtw-10\kerning20\b\f4\fs16 Control word\nestcell Character set\nestcell{\*\nesttableprops\trowd\trgaph10\trleft-414\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clbrdrb\brdrw15\brdrs \cellx851\clbrdrb\brdrw15\brdrs \cellx3402\nestrow}{\nonesttables\par}
+\pard\intbl\itap2\keepn\sl200\slmult0\expndtw0\kerning0\b0\\ansi\nestcell ANSI (the default)\nestcell{\*\nesttableprops\trowd\trgaph10\trleft-414\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx851\cellx3402\nestrow}{\nonesttables\par}
+\pard\intbl\itap2\keepn\sl200\slmult0\\mac\nestcell Apple Macintosh\nestcell{\*\nesttableprops\trowd\trgaph10\trleft-414\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx851\cellx3402\nestrow}{\nonesttables\par}
+\pard\intbl\itap2\keepn\sl200\slmult0\\pc\nestcell IBM PC code page 437\nestcell{\*\nesttableprops\trowd\trgaph10\trleft-414\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx851\cellx3402\nestrow}{\nonesttables\par}
+\pard\intbl\itap2\keepn\sl200\slmult0\\pca\nestcell IBM PC code page 850, used by IBM Personal System/2 (not implemented in version 1 of Microsoft Word for OS/2)\nestcell{\*\nesttableprops\trowd\trgaph10\trleft-414\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx851\cellx3402\nestrow}{\nonesttables\par}
+\pard\intbl\lang2057\f0\fs24\cell\trowd\trgaph70\trleft-108\trbrdrl\brdrs\brdrw10 \trbrdrt\brdrs\brdrw10 \trbrdrr\brdrs\brdrw10 \trbrdrb\brdrs\brdrw10 \clcbpat2\clbrdrl\brdrw10\brdrs\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw10\brdrs\clbrdrb\brdrw10\brdrs \cellx1985\clcbpat3\clbrdrl\brdrw10\brdrs\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw10\brdrs\clbrdrb\brdrw10\brdrs \cellx3686\clcbpat3\clbrdrl\brdrw10\brdrs\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw10\brdrs\clbrdrb\brdrw10\brdrs \cellx7938\row\trowd\trgaph70\trleft-108\trbrdrl\brdrs\brdrw10 \trbrdrt\brdrs\brdrw10 \trbrdrr\brdrs\brdrw10 \trbrdrb\brdrs\brdrw10 \trpaddl70\trpaddr70\trpaddfl3\trpaddfr3
+\clcbpat3\clbrdrl\brdrw10\brdrs\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw10\brdrs\clbrdrb\brdrw30\brdrs \cellx1985\clcbpat3\clbrdrl\brdrw10\brdrs\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw10\brdrs\clbrdrb\brdrw30\brdrs \cellx3686\clcbpat3\clbrdrl\brdrw10\brdrs\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw10\brdrs\clbrdrb\brdrw30\brdrs \cellx7938\pard\intbl\cell\cell\cell\row\trowd\trgaph70\trleft-108\trbrdrl\brdrs\brdrw10 \trbrdrt\brdrs\brdrw10 \trbrdrr\brdrs\brdrw10 \trbrdrb\brdrs\brdrw10 \trpaddl70\trpaddr70\trpaddfl3\trpaddfr3
+\clcbpat6\clbrdrl\brdrw30\brdrs\clbrdrt\brdrw30\brdrs\clbrdrr\brdrw30\brdrs\clbrdrb\brdrw30\brdrs \cellx1985\clcbpat6\clbrdrl\brdrw30\brdrs\clbrdrt\brdrw30\brdrs\clbrdrr\brdrw30\brdrs\clbrdrb\brdrw30\brdrs \cellx3686\clcbpat6\clbrdrl\brdrw30\brdrs\clbrdrt\brdrw30\brdrs\clbrdrr\brdrw30\brdrs\clbrdrb\brdrw30\brdrs \cellx7938\pard\intbl\cell\cell\pard\intbl\qc\lang3082\f1\fs18 However, at the moment, to control the design of these tables you must use other programs like Excel or Word and paste then into your keynote file.\fs24\cell\row\pard\f0\par
+\pard\keepn\noline\hyphpar0\s3\sb120\sa40\sl-220\slmult0\lang1033\kerning20\b\f4\fs20 Character Set\par
+\pard\sa120\kerning0\b0\fs18 After specifying the RTF version, you must declare the character set used in this document. The control word for the character set must precede any plain text or any table control words. The RTF Specification currently supports the following character sets.\par
+\trowd\trgaph10\trleft440\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clbrdrb\brdrw15\brdrs \cellx2168\clbrdrb\brdrw15\brdrs \cellx7797\pard\intbl\keepn\expndtw-10\kerning20\b\fs16 Control word\cell Character set\cell\row\trowd\trgaph10\trleft440\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2168\cellx7797\pard\intbl\keepn\sl200\slmult0\expndtw0\kerning0\b0\\ansi\cell ANSI (the default)\cell\row\trowd\trgaph10\trleft440\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2168\cellx7797\pard\intbl\keepn\sl200\slmult0\\mac\cell Apple Macintosh\cell\row\trowd\trgaph10\trleft440\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2168\cellx7797\pard\intbl\keepn\sl200\slmult0\\pc\cell IBM PC code page 437\cell\row\trowd\trgaph10\trleft440\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2168\cellx7797\pard\intbl\keepn\sl200\slmult0\\pca\cell IBM PC code page 850, used by IBM Personal System/2 (not implemented in version 1 of Microsoft Word for OS/2)\cell\row\pard\lang3082\f5\par
+\par
+}
+%-
+LV=0
+ND=(17 jul 08) - b1
+DI=1
+NF=000000100010000000000000
+BC=clWindow
+IX=0
+SS=53
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}{\f1\fnil\fcharset0 MS Sans Serif;}}
+{\*\generator Msftedit 5.41.15.1507;}\viewkind4\uc1\pard\lang3082\f0\fs16 17 jul 08 - 21:07 \par
+----------------------\par
+\f1 HOLA MUNDO\par
+\par
+}
+%-
+LV=1
+ND=(17 jul 08) - b1
+DI=6
+NF=100000000000000000000000
+BC=clWindow
+IX=0
+SS=42
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}{\f1\fswiss\fprq2\fcharset0 Arial;}}
+{\*\generator Msftedit 5.41.15.1507;}\viewkind4\uc1\pard\lang3082\f0\fs16 17 jul 08 - 22:31 \par
+----------------------\par
+\lang2057\f1\fs20\par
+}
+%-
+LV=0
+ND=(17 jul 08) - C
+DI=3
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=42
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+{\*\generator Msftedit 5.41.15.1507;}\viewkind4\uc1\pard\lang3082\f0\fs16 17 jul 08 - 22:31 \par
+----------------------\par
+\par
+}
+%%

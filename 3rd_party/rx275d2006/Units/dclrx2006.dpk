@@ -1,0 +1,66 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{*******************************************************}
+
+package DclRx2006;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $30400000}
+{$DESCRIPTION 'RX Library Controls and Tools'}
+{$DESIGNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  dclstd,
+  designide,
+  RxCtl2006,
+  rtl,
+  vcl,
+  vclx,
+  VclSmp;
+
+contains
+  RxLConst in 'RxLConst.pas',
+  HintProp in 'HintProp.pas',
+  CheckItm in 'CheckItm.pas',
+  StrLEdit in 'StrLEdit.pas',
+  RxColors in 'RxColors.pas',
+  RxDsgn in 'RxDsgn.pas',
+  PresrDsn in 'PresrDsn.pas',
+  MinMaxEd in 'MinMaxEd.pas',
+  PgMngrEd in 'PgMngrEd.pas',
+  TimLstEd in 'TimLstEd.pas',
+  IcoLEdit in 'IcoLEdit.pas',
+  RxResExp in 'RxResExp.pas',
+  PictEdit in 'PictEdit.pas',
+  RxDirFrm in 'RxDirFrm.pas',
+  GradEdit in 'GradEdit.pas',
+  RxCtlReg in 'RxCtlReg.pas',
+  RxTooReg in 'RxTooReg.pas',
+  SPEEDBAR in 'SPEEDBAR.PAS';
+
+end.

@@ -1,0 +1,98 @@
+package ComponentesTerceros;
+
+{$R *.res}
+{$R '..\ajbspeller\AJBSpeller.dcr'}
+{$R '..\browsedr\BrowseDrReg.dcr'}
+{$R '..\colorpicker\ColorPicker.dcr'}
+{$R '..\extlistview\ELV_Reg.dcr'}
+{$R '..\langcombo\LCCombo.dcr'}
+{$R '..\tb97_178a\Source\TB97Reg.dcr'}
+{$R '..\topmostwindow\TopWnd.dcr'}
+{$R '..\wordweb\FreeWordWeb.dcr'}
+{$R '..\richprint\RichPrint.dcr'}
+{$R '..\ComCtrls95\ComCtrls95.dcr'}
+{$R '..\..\GFLog.dcr'}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Componentes de Terceros (3rd Party Components)'}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl,
+  vcl,
+  DesignIDE,
+  vclx;
+
+contains
+  DFSKb in '..\dfsstatusbar\DFSKb.pas',
+  DFSStatusBar in '..\dfsstatusbar\DFSStatusBar.pas',
+  DFSStatusBarReg in '..\dfsstatusbar\DFSStatusBarReg.pas',
+  DFSAbout in '..\DFSStatusBar\DFSAbout.pas',
+  AJBSpellerReg in '..\ajbspeller\AJBSpellerReg.pas',
+  AJBSpeller in '..\ajbspeller\AJBSpeller.pas',
+  cmpGFXListBox in '..\gfxlbcb\cmpGFXListBox.pas',
+  cmpGFXComboBox in '..\gfxlbcb\cmpGFXComboBox.pas',
+  BrowseDrReg in '..\browsedr\BrowseDrReg.pas',
+  BrowseDr in '..\browsedr\BrowseDr.pas',
+  ColorPicker in '..\colorpicker\ColorPicker.pas',
+  Parser in '..\expression_evaluator\Parser.pas',
+  ExtListView in '..\extlistview\ExtListView.pas',
+  ELV_Reg in '..\extlistview\ELV_Reg.pas',
+  EnhListView in '..\extlistview\EnhListView.pas',
+  ExtColEd in '..\extlistview\ExtColEd.pas',
+  LCCombo in '..\langcombo\LCCombo.pas',
+  Langs in '..\langcombo\Langs.pas',
+  MRUFLReg in '..\mruflist\MRUFLReg.pas',
+  MRUFList in '..\mruflist\MRUFList.pas',
+  SystemImageListReg in '..\sysimglist\SystemImageListReg.pas',
+  SystemImageList in '..\sysimglist\SystemImageList.pas',
+  TB97Vers in '..\tb97_178a\Source\TB97Vers.pas',
+  TB97 in '..\tb97_178a\Source\TB97.pas',
+  TB97Cmn in '..\tb97_178a\Source\TB97Cmn.pas',
+  TB97Cnst in '..\tb97_178a\Source\TB97Cnst.pas',
+  TB97Ctls in '..\tb97_178a\Source\TB97Ctls.pas',
+  TB97Reg in '..\tb97_178a\Source\TB97Reg.pas',
+  TB97Tlbr in '..\tb97_178a\Source\TB97Tlbr.pas',
+  TB97Tlwn in '..\tb97_178a\Source\TB97Tlwn.pas',
+  TopWnd in '..\topmostwindow\TopWnd.pas',
+  TreeNTRegister in '..\treent\TreeNTRegister.pas',
+  CommCtrl98 in '..\treent\CommCtrl98.pas',
+  TNTEditor in '..\treent\TNTEditor.pas',
+  TreeNT in '..\treent\TreeNT.pas',
+  FreeWordWeb in '..\wordweb\FreeWordWeb.pas',
+  arrowbtn in '..\richprint\arrowbtn.pas',
+  Converters in '..\richprint\Converters.pas',
+  OLERichEdit in '..\richprint\OLERichEdit.pas',
+  RichOle in '..\richprint\RichOle.pas',
+  RichPreview2 in '..\richprint\RichPreview2.pas',
+  RichPreview in '..\richprint\RichPreview.pas',
+  RichPrint in '..\richprint\RichPrint.pas',
+  ComCtrls95 in '..\ComCtrls95\ComCtrls95.pas',
+  CC95_Register in '..\ComCtrls95\CC95_Register.pas',
+  LangsReg in '..\langcombo\LangsReg.pas',
+  SmtpProt in '..\SmtpProt.pas',
+  GFLog in '..\..\GFLog.pas',
+  WSocket in '..\WSocket.pas',
+  MD5 in '..\MD5.pas',
+  gf_misc in '..\..\gf_misc.pas';
+
+end.
