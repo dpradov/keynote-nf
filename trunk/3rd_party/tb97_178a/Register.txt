@@ -1,0 +1,2 @@
+Please see the "Registering Toolbar97" section of the Toolbar97 Documentation
+for information on registering.

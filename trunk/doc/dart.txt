@@ -1,0 +1,23 @@
+-----------------------------------------------------------
+KEYNOTE - COMPATIBILITY WITH DARTNOTES
+-----------------------------------------------------------
+
+The concept of KeyNote is based on a similar tabbed notebook application I have been using for several years: DaRT Notes, by Andrew v.d. Merwe. The URL for DaRT Notes is http://users.iafrica.com/d/da/dart/DaRT/Software/Notes/Notes.html
+
+DaRT Notes is an excellent and free program. I have gotten used to it so much that I never, literally never use pen and paper anymore. The author was very responsive to all comments, and for a long time the program grew in features and functionality.
+
+However, the development of DaRT Notes ultimately stopped. I have finally decided to create a similar program, one that would have most of the original DaRT Notes features, and then some more. Hence KeyNote.
+
+KeyNote is NOT a "clone" of DaRT Notes, though. It is similar, but not a one-to-one equivalent. It is a bit slower :) but more featureful, I hope.
+
+IMPORTANT NOTE TO DART NOTES USERS:
+KeyNote can read and save files in the format used by DaRT Notes. Since KeyNote has some additional functionality, certain features or properties will not be preserved across sessions. For instance, DaRT Notes has no tab icons, so whatever icons you specify for the tabs in the file, will be lost after you save and reopen the file in the DaRT Notes format. However, if you would like to try out KeyNote without having to transfer all your notes, you can. If you open a DaRT Notes file, it will be automatically saved in that format, too. If you wish to change the format in which the file will be saved, open the File properties dialog box and in the "Format" list choose "Keynote text file". Note that the file extension will be automatically changed depending on the format in which the file is being saved, so there is no danger of accidentally overwriting your DaRT Notes file.
+
+If you are using a version of KeyNote later than 0.90, please note that KeyNote now supports two major features which Dart Notes doean't have: encryption and tree-type notes. A file which uses these features (e.g. a file which contains at least one tree-type note) CANNOT be saved in Dart Notes format.
+
+Many thanks to the author of DaRT Notes, Andre v.d. Merwe, for providing a very reliable and useful application, and for inspiration. Also, many thanks for documenting the file format used by DaRT Notes.
+
+-----------------------------------------------------------
+Questions, comments, suggestions: email
+<marekjed@pobox.com>
+No HTML-formatted email please!

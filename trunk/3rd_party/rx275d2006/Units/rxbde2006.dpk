@@ -1,0 +1,59 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{*******************************************************}
+
+package RxBDE2006;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $30400000}
+{$DESCRIPTION 'RX Library BDE DB Component Package'}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  vcldb,
+  bdertl,
+  dsnap,
+  RxCtl2006,
+  RxDb2006;
+
+contains
+  DBQBE in 'DBQBE.pas',
+  DBFilter in 'DBFilter.pas',
+  DBLists in 'DBLists.pas',
+  DBIndex in 'DBIndex.pas',
+  DBPrgrss in 'DBPrgrss.pas',
+  LoginDlg in 'LoginDlg.pas',
+  DBSecur in 'DBSecur.pas',
+  RxRemLog in 'RxRemLog.pas',
+  ChPswDlg in 'ChPswDlg.pas',
+  BdeUtils in 'BdeUtils.pas',
+  RxQuery in 'RxQuery.pas',
+  MemTable in 'MemTable.pas',
+  DBExcpt in 'DBExcpt.pas';
+
+end.

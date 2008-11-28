@@ -1,0 +1,517 @@
+<html>
+<head>
+   <title>Toolbar97 Revision History</title>
+</head>
+<body text="#000000" bgcolor="#ffffff" link="#264b99" vlink="#5e85d7" alink="#7799dd">
+
+<!-- $Id: Revision\040History.htm,v 1.9 2002/05/12 19:43:59 jr Exp $ -->
+
+<font face="verdana,arial" size=2>
+
+<table width="100%" border=0 cellpadding=5 cellspacing=0>
+   <tr>
+   <td align=center bgcolor="#264b99"><font face="verdana,arial" size=6 color="#FFFFFF"><b>Toolbar97</b></font><br>
+<font face="verdana,arial" size=4 color="#FFFFFF"><b>Revision History</b><br>
+</font></td>
+   </tr>
+</table>
+
+<p><b>1.78a</b> <font size=1>(5/12/02)</font>
+<ul>
+   <li>Added C++Builder 6 support. Use the new <i>TB97_cb6</i> package for C++Builder 6.
+</ul>
+
+<p><b>1.78</b> <font size=1>(6/18/01)</font>
+<ul>
+   <li>Added Delphi 6 support. Use the new <i>TB97_d6</i> package for Delphi 6.
+   <li><i>Fix:</i> TEdit97: Fixed problem with border not redrawing properly when Enabled was toggled at design time.
+</ul>
+
+<p><b>1.77</b> <font size=1>(2/26/01)</font>
+<ul>
+   <li>Added new OrderedControls property to TToolbar97.
+   <li>Made TToolbarButton97.Canvas a public property.
+   <li>Revised the <a href="License.txt">Toolbar97 License</a>.
+   <li><i>Fix:</i> There was a possible AV problem in TB97Ctls' internal TDropdownList class.
+</ul>
+
+<p><b>1.76b</b> <font size=1>(1/5/01)</font>
+<ul>
+   <li><i>Fix:</i> If a toolbar on an MDI child form was floating, and the MDI parent form was minimized, the application would freeze up. A workaround for this has been added. I'm inclined to call this an OS bug because the freeze only occured on Windows 9x (not NT/2000).
+   <li><i>Fix:</i> On TToolbarButton97, when DropdownCombo and Down were both True, opening the dropdown menu would make the button temporarily redraw itself with an "up" appearance.
+   <li><i>Fix:</i> If a TToolWindow97 changed from a floating to a docked state when it had no handle, child controls may not have realigned properly.
+   <li>TToolbar97.OnClose, OnCloseQuery, and OnVisibleChanged weren't documented. Fixed.
+</ul>
+
+<p><b>1.76a</b> <font size=1>(9/11/00)</font>
+<ul>
+   <li><i>Fix:</i> When the ButtonsStayDown variable was set to False, clicking on a TToolbarButton97 that had a dropdown menu would cause the button to be redraw in an "up" state immediately. Buttons that have dropdown menus now always behave as if ButtonsStayDown were set to True.
+   <li><i>Fix:</i> Fixed TDock97.RemoveBlankRows. Previously, if you tried to set the DockRow property of a toolbar to a number more than one past the last actual row number on the dock, it would erroneously clip it to half that number. For example, if you set DockRow to 1000, it would clip DockRow to 500. Now it properly clips to 0.
+</ul>
+
+<p><b>1.76</b> <font size=1>(6/23/00)</font>
+<ul>
+   <li>Fixed an issue with the <i>OrderIndex</i> property of TToolbar97. Previously, <i>all</i> child controls on a TToolbar97 were added to the <i>OrderIndex</i> array, including those that weren't immediate children of the toolbar. That was not how I intended it to function. It now only includes controls that are immediate children (those which have their <i>Parent</i> properties set to the toolbar).
+   <li>On TToolbar97/TToolWindow97, the OnMouseUp event handler is now triggered with X,Y coordinates of (-1, -1) when the user releases the left mouse button after dragging a toolbar. Previously, the OnMouseUp handler was never called when that happened.
+   <li>Published <i>Font</i> and <i>ParentFont</i> properties on TToolbar97 and TToolWindow97. These properties aren't directly used for anything in Toolbar97, but child controls will inherit the toolbar's font if their <i>ParentFont</i> properties are set to True.
+   <li>Made the <i>GetHighestRow</i> function on TDock97 public (a user request).
+   <li>Setting "Position := Position" on a dock that contained docked toolbars resulted in the "Cannot change Position of a TDock97 if it already contains controls" exception. It now checks if <i>Position</i> is actually being assigned a different value before raising the exception.
+   <li>Fixed a little problem with the <i>TB97_cb5</i> C++Builder 5 package: it was compiling into a package named "TB97_cb4.bpl" instead of "TB97_cb5.bpl".
+   <li>It turns out that Delphi 5's command line compiler has the same bug as Delphi 4 -- no EXE is created if the code contains an {$ObjExportAll On} compiler directive. TB97Ver.inc has been updated to not include that directive on Delphi 5.
+</ul>
+
+<p><b>1.75e</b> <font size=1>(3/10/00)</font>
+<ul>
+   <li>Added new package source file <i>TB97_cb5</i> for C++Builder 5.
+</ul>
+
+<p><b>1.75d</b> <font size=1>(1/27/00)</font>
+<ul>
+   <li>Floating toolbars no longer draw their non-client area while loading; the calls are deferred until after the component has finished loading. There were no confirmed reports of anyone needing this change, but I decided to implement it anyway. It may give a slight speed increase.
+</ul>
+
+<p><b>1.75c</b> <font size=1>(1/5/00)</font>
+<ul>
+   <li>Added <i>OnMouseDown</i>, <i>OnMouseDown</i>, and <i>OnMouseUp</i> events to TDock97. <i>(Modified TDock97 declaration and TDock97.Create.)</i>
+   <li><i>Fix:</i> In very specific cases, after being clicked a flat TToolbarButton97 button may have still displayed its raised border even when the mouse cursor was no longer inside the button. <i>(Modified TToolbarButton97.Click.)</i>
+   <li><i>Fix:</i> In rare cases where there was an unusually tall control on a floating toolbar, the toolbar couldn't be resized to be as thin as possible. <i>(Modified TCustomToolbar97.BuildPotentialSizesList.)</i>
+</ul>
+
+<p><b>1.75b</b> <font size=1>(11/9/99)</font>
+<ul>
+   <li><i>Fix:</i> Continuing on version 1.75a's fix, changing the <i>FullSize</i> property of a toolbar docked to a TDock97 that has <i>Parent</i> set to <i>nil</i> no longer raises an exception.
+</ul>
+
+<p><b>1.75a</b> <font size=1>(10/26/99)</font>
+<ul>
+   <li><i>Fix:</i> Toolbars can now be docked to TDock97's that have <i>Parent</i> set to <i>nil</i>, without an exception being raised.
+</ul>
+
+<p><b>1.75</b> <font size=1>(10/20/99)</font>
+<ul>
+   <li>Toolbars can now be docked to TDock97's inside other TDock97's.
+   <li>Added new <i>HighlightWhenDown</i> property to TToolbarButton97. By default this property is True. When False, the dithered pattern will not be shown when the button's <i>Down</i> property is True.
+   <li><i>Fix:</i> On the first line of TB97_d5.dpk, it read "package TB97_d4".
+</ul>
+
+<p><b>1.74d</b> <font size=1>(9/11/99)</font>
+<ul>
+   <li>Added a package file, TB97_d5.dpk, for Delphi 5. No changes had to be made to the Toolbar97 source code for it to be Delphi 5-compatible. Please see the Toolbar97 Documentation for complete installation instructions.
+</ul>
+
+<p><b>1.74c</b> <font size=1>(9/8/99)</font>
+<ul>
+   <li>Added <i>DoMove</i> protected method to TCustomToolWindow97 for compatibility with Andrew Cher's TToolbar97withMenu2000.
+</ul>
+
+<p><b>1.74b</b> <font size=1>(8/24/99)</font>
+<ul>
+   <li><i>Fix:</i> A very minor glitch introduced in 1.71 has been corrected: in certain cases, if you clicked the right side of a docked toolbar and released the mouse button without moving the mouse, the toolbar would shift left a few pixels.
+</ul>
+
+<p><b>1.74a</b> <font size=1>(8/23/99)</font>
+<ul>
+   <li>Added <i>{$I TB97Ver.inc}</i> to top of <i>TB97Reg.pas</i> and <i>TB97Vers.pas</i> so they have the necessary compiler options.
+   <li>On Delphi/C++Builder 3 and higher, the constants in <i>TB97Cnst.pas</i> are now <i>resourcestring</i>s.
+</ul>
+
+<p><b>1.74</b> <font size=1>(8/19/99)</font>
+<ul>
+   <li>TToolbarButton97 no longer references TCustomToolWindow97, resulting in a 30KB size drop if TToolbar97 or TToolWindow97 isn't used in a project.
+   <li>The <i>IniLoadToolbarPositions</i> and <i>IniSaveToolbarPositions</i> functions now have <i>SectionNamePrefix</i> parameters, which allow you to customize the name of the sections the toolbar data is written to. See the documentation for more information.
+   <li><i>Fix:</i> Two problems dealing with toolbars on <i>FormStyle=fsStayOnTop</i> forms fixed. First, if a toolbar was initially floating on a <i>FormStyle=fsStayOnTop</i> form, it would appear behind the form when the program was started. Also, toolbars on <i>FormStyle=fsStayOnTop</i> forms in certain cases would cause the form to lose its topmost style.
+   <li>Code size optimizations made to <i>TToolbarButton97.Paint</i> which trimmed off 268 bytes.
+</ul>
+
+<p><b>1.73</b> <font size=1>(8/2/99)</font>
+<ul>
+   <li>Added <i>Version</i> property to all the components.
+   <li>Added <i>OnCloseQuery</i> event to TToolbar97/TToolWindow97. This event is declared and operates the same way as a form's OnCloseQuery event.
+   <li>Added <i>DropdownArrowWidth</i> property to TToolbarButton97, which lets you customize the width of the arrow portion of a button which has <i>DropdownCombo</i> set to True.
+   <li>Added <i>OnMouseDown</i>, <i>OnMouseMove</i>, and <i>OnMouseUp</i> events to TToolbar97 and TToolWindow97.
+   <li>Added <i>ControlIs97Control</i>, <i>Register97ControlClass</i>, <i>Unregister97ControlClass</i> procedures to <i>TB97Ctls.pas</i>. These should only be useful to component developers. Normally when a <i>TEdit97</i> control has the focus, moving the mouse over other <i>TEdit97</i> controls will not change the appearance of their border. If you need to know if a <i>TEdit97</i> or other "97" control registered with <i>Register97ControlClass</i> has the focus, you can call <i>ControlIs97Control(Screen.ActiveControl)</i>.
+   <li>Added WM_PRINT and PRINTCLIENT handlers to TDock97, TCustomToolWindow97, and TEdit97 for full compatibility with the component <a href="http://www.teechart.com/formcontainer/">Transition Effects</a>.
+</ul>
+
+<p><b>1.72</b> <font size=1>(7/26/99)</font>
+<ul>
+   <li>Added <i>BeginMoving</i> and <i>BeginSizing</i> public methods to TToolbar97/TToolWindow97. See the documentation for information.
+   <li>Two modifications made for compatibility with an upcoming version of AnimatedMenus/2000: added <i>BuildPotentialSizesList</i> protected method to TToolbar97, and added new overridable <i>DoDockChangingHidden</i> method to TToolbar97.
+   <li>Floating tool windows now assign a unique <i>Name</i> to the internally created <i>TFloatingWindowParent</i> components. In previous versions, reading in components at run-time that had no name caused them to get assigned names like "_1" because a component with no name -- the TFloatingWindowParent form -- already existed.
+</ul>
+
+<p><b>1.71</b> <font size=1>(6/9/99)</font>
+<ul>
+   <li>Added new <i>CloseButtonWhenDocked</i> property to TToolbar97/TToolWindow97. When True, a Close button is displayed when the toolbar is docked.
+   <li><i>Fix:</i> When <i>FixAlign</i> was True on a TDock97, the one-pixel strip displayed when no toolbars are docked was not being painted properly in certain cases. <i>(Modified TDock97.WMNCPaint.)</i>
+   <li><i>Fix:</i> When a dropdown menu was assigned to a TToolbarButton97, if <i>GroupIndex</i> was nonzero the <i>Down</i> property would be toggled whenever the dropdown menu was displayed. Now it only toggles the <i>Down</i> property if <i>DropdownCombo</i> is True and the left side of the button is clicked. <i>(Modified TToolbarButton97.Click.)</i>
+</ul>
+
+<p><b>1.7c</b> <font size=1>(5/29/99)</font>
+<ul>
+   <li>The RegLoadToolbarPositionsEx and RegSaveToolbarPositionsEx were not callable on C++Builder. This was because in C++ code the <i>HKEY</i> type is declared as a pointer, but in Pascal <i>HKEY</i> is an integer. So this caused a conflict. The RootKey parameter has been changed from type <i>HKEY</i> to <i>DWORD</i> to work around this problem. In C++Builder you will still have to use a <i>DWORD</i> typecast to call it, for example:<br><font face="Courier New">RegSaveToolbarPositionsEx(this, (DWORD)HKEY_LOCAL_MACHINE, "Software\Test");</font>
+   <li><i>Fix:</i> RegLoadToolbarPositionsEx and RegSaveToolbarPositionsEx were creating empty keys under HKEY_CURRENT_USER if the <i>RootKey</i> parameter wasn't HKEY_CURRENT_USER.
+   <li>Optimized TCustomToolWindow97.DrawDraggingOutline.CreateHalftoneBrush. 40 bytes less code now! :-)
+</ul>
+
+<p><b>1.7b</b> <font size=1>(5/21/99)</font>
+<ul>
+   <li><i>Fix:</i> The <i>OnInsertRemoveBar</i> event of TDock97 did not work properly in 1.7a. Fixed.
+</ul>
+
+<p><b>1.7a</b> <font size=1>(5/20/99)</font>
+<ul>
+   <li>Many major improvements have been made regarding the dock code:
+   <ul>
+      <li>TToolbar97/TToolWindow97 now have a <i>LastDock</i> property. When a toolbar is docked this property is synchronized with DockedTo, but when a toolbar changes to a floating state it points to the dock it was docked to last. Double-clicking a floating toolbar will restore it to the dock specified by <i>LastDock</i>, and at the same position it previously was docked at. This property overrides and is meant to be a replacement for <i>DefaultDock</i>. If you want, you can have it not use the new <i>LastDock</i> property by setting the <i>UseLastDock</i> property to False.
+      <li>If a docked toolbar is hidden and then shown again, its position remains the same.
+      <li>When the form is resized to where some docked toolbars had to be shifted left to remain fully visible, increasing the width of the form back now restores the toolbars' original positions (like Office 97).
+   </ul>
+   <li>Added <i>ShowCaption</i> property TToolbar97/TToolWindow97.
+   <li>Docked toolbars with the <i>FullSize</i> property set to True no longer flicker while the form is being resized.
+   <li>ShowHint is now set to True on the internal class TFloatingWindowParent. This way you no longer have to explicitly set ShowHint to True on your toolbars or the controls on them to get their hints to appear when the toolbar is floating.
+   <li>Added a special handler for WM_QUIT to TB97Ctls.pas's PeekMessage call, as was done with ValidateDockedNCArea in TB97.pas in Toolbar97 1.69c.
+   <li>Various code optimizations and tweaks.
+</ul>
+
+<p><b>1.69d</b> <font size=1>(5/4/99)</font>
+<ul>
+   <li><i>Fix:</i> RegLoadToolbarPositionsEx and RegSaveToolbarPositionsEx did not work if their RootKey parameters weren't HKEY_CURRENT_USER. I wasn't aware that on TRegIniFile if RootKey is changed, OpenKey must be called to reopen the registry key. <i>(Changed RegLoadToolbarPositionsEx & RegSaveToolbarPositionsEx.)</i>
+</ul>
+
+<p><b>1.69c</b> <font size=1>(5/4/99)</font>
+<ul>
+   <li><i>Fix:</i> A call to PeekMessage during the painting of the non-client area of TToolbar97/TToolWindow97 was removing WM_QUIT messages from the message queue, meaning a request to close if the application would be ignored if the non-client area was painting at that time. It now reposts WM_QUIT messages if it encounters one. <i>(Changed TCustomToolWindow97.ValidateDockedNCArea.)</i>
+</ul>
+
+<p><b>1.69b</b> <font size=1>(5/2/99)</font>
+<ul>
+   <li><i>Fix:</i> In certain cases, the SetSlaveControl method of TToolbar97 did not work -- it was getting the top/bottom and left/right versions backwards. <i>(Changed TToolbar97.SetControlVisible and optimized TToolbar97.OrderControls.)</i>
+</ul>
+
+<p><b>1.69a</b> <font size=1>(4/6/99)</font>
+<ul>
+   <li><i>Fix:</i> Fixed a nasty problem introduced in yesterday's version 1.69, related to the addition of the new FloatingMode property. It seems there is an undocumented difference (or should I say bug?) in the way the Win32 function SetWindowPos behaves on Windows 95/98 as opposed to NT. This was causing, in certain cases, the application to not activate properly or even appear to hang when multiple toolbars were floating. I do most of my development and testing on Windows NT and wasn't aware of this until now. Sorry for the inconvenience. <i>(Changed TCustomToolWindow97.UpdateTopmostFlag.)</i>
+</ul>
+
+<p><b>1.69</b> <font size=1>(4/5/99)</font>
+<ul>
+   <li>Added DockMode property to TToolbar97/TToolWindow97. Using this property you can now prevent toolbars from being undocked while still permitting them to be moved.
+   <li>Added FloatingMode property to TToolbar97/TToolWindow97. You can have a floating toolbar stay on top of all forms by setting this property to <i>fmOnTopOfAllForms</i>.
+   <li><i>Fix:</i> On NT, if another process took the focus while you were in the middle of dragging a toolbar, remnants of the dragging rectangle might have been left behind on the screen. Obviously that's rarely encountered and not a biggie, but it was still worthy of a fix. :-) <i>(Changed TCustomToolWindow97.BeginMoving & BeginSizing.)</i>
+</ul>
+
+<p><b>1.68a</b> <font size=1>(3/4/99)</font>
+<ul>
+   <li>Added new package source file <i>TB97_cb4</i> for C++Builder 4.
+</ul>
+
+<p><b>1.68</b> <font size=1>(2/20/99)</font>
+<ul>
+   <li>Added DropdownAlways property and OnDropdown event to TToolbarButton97. <i>(Changed TToolbarButton97 declaration, TToolbarButton97.Click, and TToolbarButton97.SetDropdownMenu. Added TToolbarButton97.SetDropdownAlways.)</i>
+   <li>Added OnDockChangingEx and OnDockChangingHidden events to TToolbar97/TToolWindow97. <i>(Changed TToolbar97, TToolWindow97 declarations, and TCustomToolWindow97.SetParent.)</i>
+   <li>TToolbar97.SetSlaveControl can now be called with <i>nil</i> in one of the parameters. This can be useful if you want a top/bottom docked version of a control, but no left/right version. <i>(Changed TCustomToolbar97.SetControlVisible.)</i>
+   <li><i>Fix:</i> Added workaround for Delphi 2 & C++Builder 1 TBitmap bug that, in certain cases, caused backgrounds on docks to not be displayed properly. <i>(Changed TDock97.DrawBackground.)</i>
+</ul>
+
+<p><b>1.67b</b>
+<ul>
+   <li>Multiple display monitors under Windows 98 are now properly supported. In previous versions, it wasn't letting floating toolbars be dragged outside the primary display monitor. I haven't tested the multiple monitor support on NT 5 since I don't have it, but it should work since NT 5 shares the same set of multiple monitor APIs as Windows 98.
+   <li>TB97Ver.inc modified to work around an apparent bug in the Delphi 4 command line compiler. The {$ObjExportAll On} directive which was put in for C++Builder 3 caused the Delphi 4 command line compiler to not generate an output .EXE for some reason. Now it has an {$IFNDEF VER120} directive around it so that it isn't included when compiling on Delphi 4.
+</ul>
+
+<p><b>1.67a</b>
+<ul>
+   <li>On Delphi 4, the HelpContext property of TToolbarButton97 is now properly synchronized with the action's HelpContext property.
+   <li>Removed the TToolWindowArrangeType declaration in tb97.pas. It was causing a conflict with TurboPower's Async Pro since it declares an <i>atNone</i> too, and wasn't being used by anything anyway.
+</ul>
+
+<p><b>1.67</b>
+<ul>
+   <li>Improved ActiveX compatibility. Thanks to Alan Bellingham for providing me with the fixes. <i>(Changed GetToolWindowParentForm and added TFloatingWindowParent.CreateParams.)</i>
+   <li>Publicized the DockedTo, DockPos, and DockRow properties of TCustomToolWindow97. This way when you reference a toolbar using the Toolbars property of a dock, you don't have to use a typecast to use these properties.
+   <li>Added new RegLoadToolbarPositionsEx and RegSaveToolbarPositionsEx functions. These add a new root key parameter (RootKey) than the non-Ex versions don't have. There is no reason I can think of why you'd want to save toolbar settings to a key other than HKEY_CURRENT_USER (as this would classify as a "per-user" setting), but this capability was requested.
+   <li>Added new public property FloatingWidth to TToolbar97 which allows you to get or set the current width of a floating toolbar in your own code.
+   <li>Published Anchors and Constraints properties in TToolbarButton97 on Delphi 4.
+   <li>Published Anchors, BiDiMode, Constraints, DragKind, ParentBiDiMode, and OnEndDock properties in TEdit97 on Delphi 4.
+</ul>
+
+<p><b>1.66e</b>
+<ul>
+   <li><i>Fix:</i> When compiling on Delphi 4 with range checking enabled, a range check error may have occured in the CBTHook procedure of TB97Cmn.pas. Fixed by adding an HWND typecast. (Don't we just hate Delphi 4 and its unsigned integers?)
+</ul>
+
+<p><b>1.66d</b>
+<ul>
+   <li><i>Fix:</i> On TDock97's with a border, two OnResize events (instead of one) were getting fired whenever a tool window was docked for the first time. <i>(Changed TDock97.WMNCCalcSize, TDock97.WMNCPaint, and TCustomToolWindow97.BeginMoving.MouseMove.CheckIfCanDockTo.)</i>
+</ul>
+
+<p><b>1.66c</b>
+<ul>
+   <li><i>Fix:</i> Problem with using Toolbar97 as a run-time package in C++Builder 3 finally solved. It turns out there's a special compiler directive that must be used when compiling Pascal code into a C++Builder 3 package. <i>(Modified TB97Ver.inc.)</i>
+</ul>
+
+<p><b>1.66b</b>
+<ul>
+   <li><i>Fix:</i> OnResize events on TDock97 and TCustomToolWindow97 descendants are now only called once the component is finished loading. In certain cases earlier versions had been calling these events <i>before</i> the parent form's OnCreate event handler was called. <i>(Changed TDock97.WMSize and TCustomToolWindow97.WMSize.)</i>
+</ul>
+
+<p><b>1.66a</b>
+<ul>
+   <li><i>Fix:</i> On certain situations, a runtime error 216 may have been raised if you called Halt while the Toolbar97 controls were being used. <i>(Changed TB97Cmn.pas finalization section.)</i>
+</ul>
+
+<p><b>1.66</b>
+<ul>
+   <li>Replaced DragHandle property on TCustomToolWindow97 and descendants with a new property called DragHandleStyle, which adds the ability to create IE4-style single drag handle toolbars.
+   <li>Added Default and Cancel properties to TToolbarButton97.
+   <li>Added BorderStyle property to TCustomToolWindow97 and descendants. Useless for most purposes, but several had requested a property like this.
+   <li><i>Fix:</i> When 256-color glyphs were used on a TToolbarButton97 control the bitmaps were being converted to device-dependent bitmaps when the form was saved, resulting in loss of the bitmap's palette if the display was set to a non-palettized mode (e.g. 16- or 24-bit color). This bug affected <i>only</i> Delphi 2 and C++Builder 1.
+</ul>
+
+<p><b>1.65f</b>
+<ul>
+   <li><i>Fix:</i> After the change to fix Action synchronization in 1.65d, a new problem surfaced. On Windows 95/98, a "Stack Overflow" error occured in certain cases if the form was closed while a floating tool window was focused.
+</ul>
+
+<p><b>1.65e</b>
+<ul>
+   <li><i>Fix:</i> If Repeating was set to True on a TToolbarButton97 control and Flat and Opaque were not True, the control was not being repainted correctly.
+   <li>On Repeating=True buttons, TToolbarButton97 now calls the Click method instead of "inherited Click". This change only affects TToolbarButton97 descendants.
+</ul>
+
+<p><b>1.65d</b>
+<ul>
+   <li>Added Color property to TToolbarButton97.
+   <li><i>Fix:</i> Controls that used Actions on floating toolbars were not being properly synchronized in certain cases. <i>(Changed TFloatingWindowParent.CMShowingChanged.)</i>
+   <li><i>Fix:</i> Having a TPageControl on a floating TToolWindow97 caused an exception when the form was closed. The "bug" is actually in TPageControl -- I wasn't aware of it when testing version 1.65. <i>(Removed TCustomToolWindow97.CreateWnd.)</i>
+   <li><i>Fix:</i> If a TToolbarButton97 was disabled and its Down property was then set to True, it would be redrawn as if it were enabled. <i>(Changed TToolbarButton97.SetDown.)</i>
+   <li><i>Fix:</i> When Escape was pressed while a floating toolbar was focused, it would make a beep sound after focusing the form. <i>(Changed TFloatingWindowParent.CMDialogKey.)</i>
+</ul>
+
+<p><b>1.65c</b>
+<ul>
+   <li>Fixed a bug in TToolbarButton97 that might having been causing an access violation on program exit. Only one person has reported this, so I don't think it was a widespread problem. <i>(Modified TToolbarButton97.Destroy & TToolbarButton97.Notification.)</i>
+   <li>Moved compiler options from TB97.pas to TB97Ver.inc so they can be included in all units, and added {$I TB97Ver.inc} to the units that didn't already have it.
+</ul>
+
+<p><b>1.65b</b>
+<ul>
+   <li>Fixed (rarely encountered) problem repainting problem on floating toolbars introduced in 1.65. <i>(Removed TCustomToolbar97.CreateParams/WMSize methods.)</i>
+   <li>Fixed problem introduced in 1.65 with floating toolbars not being loaded with the correct size.
+</ul>
+
+<p><b>1.65a</b>
+<ul>
+   <li>Fixed two bugs that were introduced in version 1.65's TToolbarButton97 component. Buttons with DropdownCombo=True were calling their OnClick handler when the dropdown menu is displayed, and text wasn't showing on buttons with DisplayMode=bmTextOnly. (Sorry about that!)
+   <li>A reported problem regarding a "list index out of bounds" error in TDock97.ArrangeToolbars should also be fixed. (I haven't gotten confirmation on this yet though.)
+   <li>Two minor changes: TToolbarParams record has been moved from TB97.pas to TB97Tlbr.pas where it should be, and the MoveOnScreen(True) call has been removed from TCustomToolWindow97.SetParent's UpdateFloatingToolWindows procedure.
+</ul>
+
+<p><b>1.65</b>
+<ul>
+   <li>To make things easier to manage, the source code to the Toolbar97 components has been split into seven smaller .pas files instead of one big file. Please read the <i>Installation</i> section of the documentation for revised installation instructions.
+   <li>Added Action property to TToolbarButton97 (Delphi 4 only).
+   <li>Image lists can now be used with TToolbarButton97 through the new Images and ImageIndex properties.
+   <li>Added AddDockForm and RemoveDockForm methods to TCustomToolWindow97 and descendants.
+   <li>Added BeginUpdate and EndUpdate methods to TDock97.
+   <li>Added Visible property to TToolbarSep97.
+   <li>Added global variable ButtonsStayDown.
+   <li>Floating tool windows are now drawn with gradient captions under Windows 98 & NT 5.
+   <li>TCustomToolWindow97's can now be placed on non-TForm forms, like ActiveForms.
+   <li>ClientWidth and ClientHeight properties of TToolWindow97 renamed to ClientAreaWidth and ClientAreaHeight. Internal changes to the code necessitated this.
+   <li>TCustomToolWindow97 and descendants are now initially created with a Parent of nil, like other VCL controls. This means that dynamically created toolbars will not appear on the screen until you assign to either Parent or DockedTo. Previous versions automatically set DockedTo to nil and assigned a parent.
+   <li>Assigning to TCustomToolWindow97.Parent and TCustomToolWindow97.DockedTo is now interchangable.
+   <li>Floating TCustomToolWindow97's no longer appear in the parent form's tab order.
+   <li>At design time, when the Visible property of a control on a TToolbar97 is set to False, it no longer loses its position in the toolbar's control arrangement.
+   <li>When Esc is pressed while a control on a TCustomToolWindow97 is focused, activation now returns to the form.
+   <li>Public FloatingPosition property added to TCustomToolWindow97.
+   <li>On TCustomToolWindow97, CreateWnd now fails if Parent=nil.
+   <li><i>Fix:</i> TCustomToolWindow97's internal FloatParents are now freed upon Destroy. In previous versions, they were not freed which may have resulted in a memory leak if your application created and freed toolbars dynamically.
+   <li><i>Fix:</i> A WS_THICKFRAME style is no longer set on TCustomToolWindow97's whose Resizable property is set to False. Previous versions were allowing the user to resize tool windows even when Resizable=False by using the size grip.
+   <li><i>Fix:</i> There was a serious but rarely encountered bug in TToolbarButton97's glyph routines. If a glyph had more than 16 colors and a width that was not a multiple of 8, the resulting button would look corrupted and/or a crash of the program would occur. <i>(Changed the internal procedure GenerateMaskBitmapFromDIB.)</i>
+   <li>Many other minor tweaks and fixes.
+</ul>
+
+<p><b>1.63</b>
+<ul>
+   <li>TToolbarButton97 now consumes amount the same amount of GDI resources as Toolbar97 versions prior to 1.6 did. In versions 1.6-1.62 I had the TBitmap.Dormant calls taken out because of a little quirk in Delphi 3's TBitmap (bitmaps are converted to bmDIBs after a call to Dormant), but it turns out this was causing more problems than it was solving. In certain cases on Windows 95 this was causing "low on resources" messages in applications with a <i>lot</i> of buttons. If you desire, you can still disable the Dormant call in 1.63 at run-time by setting the TToolbarButton97's new CallDormant property to False before assigning a new Glyph.
+</ul>
+
+<p><b>1.62</b>
+<ul>
+   <li>Added DragHandle property to TToolbar97.
+   <li>Added Repeating, RepeatDelay, and RepeatInterval properties to TToolbarButton97.
+   <li>Added OnRequestDock event to TDock97.
+   <li>Renamed all references of "TToolbar97" to "TCustomToolbar97".
+   <li>TToolbar97 is now a descendant of TCustomToolbar97.
+   <li>Fixed a little problem with 1.61's new FullSize property: Resetting FullSize to False on a TToolbar97 now properly restores its size.
+</ul>
+
+<p><b>1.61</b>
+<ul>
+   <li>Added FullSize property and OnResize event to TToolbar97 and TToolWindow97.
+   <li>Floating TToolbar97's and TToolWindow97's can no longer be dragged off the top of the screen. It now ensures that at least a portion of the title bar is always visible.
+   <li>Redisabled child control alignment on TToolbar97's, like it was in 1.53 and earlier. (I inadvertently enabled it in 1.6, but it was never meant to work.)
+   <li>Fixed a couple of places where invalid parameters were being passed to API calls.
+</ul>
+
+<p><b>1.6</b>
+<ul>
+   <li>Added a new component, TToolWindow97.
+   <li>Added ActivateParent and HideWhenInactive properties to TToolbar97 and TToolWindow97, replaced the CanDockLeftRight property with the more flexible DockableTo, and published the TabOrder property.
+Added GlyphMask, ModalResult, NoBorder, and ShowBorderWhenInactive properties to TToolbarButton97.
+   <li>Added BackgroundOnToolbars property to TDock97.
+   <li>TToolbarButton97 now properly supports 16- and 24-bit glyphs on Delphi 3 only. (It now includes workaround code in order to be compatible with all video drivers.) But it is recommended that you stick to 16 color bitmaps on Delphi 2 and C++Builder, because of limitations of their VCLs.
+   <li>The DropdownMenu support in TToolbarButton97 improved to allow selection of menu items without having to click and release the button.
+   <li>Changing a form's properties such as BorderIcons or Position at run-time no longer cause the toolbars to behave strangely. (In more technical terms, this was because changing those properties caused the form to call RecreateWnd, causing the toolbar's hook to be removed. It now uses a different method of trapping form messages.)
+   <li>Fixed the momentary flickering problem that was visible while dynamically creating an MDI child form that contained an initially floating toolbar. This fix also corrects a reported problem dealing with toolbars on modal forms.
+   <li>Many other minor fixes, modifications, and optimizations.
+</ul>
+
+<p><b>1.53</b>
+<ul>
+   <li>A last minute release to fix the access violation problem introduced in 1.52 when you tried deleting a TToolbar97.
+</ul>
+
+<p><b>1.52</b>
+<ul>
+   <li>TToolbarButton97 now supports buttons split into two parts (like the Undo and Redo buttons in Office 97) through the new DropdownCombo property.
+   <li>Now includes a good selection of "standard" glyphs that I've collected. See the Glyphs.zip file.
+   <li>Disabled glyphs are now generated differently. They now look just like Office 97 (and MFC). But for backward compatibility, you can still use the "old" TSpeedButton disabled look by setting the new OldDisabledStyle property to True.
+   <li>Finally has support for a new fifth "mouse in" glyph, if you want to add an IE or Communicator look to your buttons. See the updated description of the Glyph property of TToolbarButton97.
+   <li>Added ToolbarCount and Toolbars properties to TDock97.
+   <li>Added a Flat property to TToolbarButton97.
+   <li>Added SizeHorz and SizeVert property to TToolbarSep97.
+   <li>Numerous small improvements and minor fixes. See the source code for details.
+</ul>
+
+<p><b>1.51</b>
+<ul>
+   <li>Added new OnMouseEnter and OnMouseExit events to TToolbarButton97.  
+   <li>In certain custom color schemes, buttons glyphs were invisible (very rare though). This wasn't a bug in Toolbar97, but is a bug in the VCL class TCustomImageList. It now works around it.
+   <li>No longer calls the OnRecreating/OnRecreated events while a toolbar is being destroyed.
+   <li>Now should be fully compatible with Warren Young's TMSOfficeCaption component, but <i>only </i>with version 1.41 or later of it. If you have an earlier version, go to <a href="http://www.ee.ed.ac.uk/~wfy/components.html">http://www.ee.ed.ac.uk/~wfy/components.html</a> and get the latest.
+   <li>A few more minor improvements.
+</ul>
+
+<p><b>1.5</b>
+<ul>
+   <li>OrderIndex property added to TToolbar97 to make arranging controls at run-time much easier.
+   <li>Delphi 1 support had to be removed, since it wasn't compatible with the new arranging method. Sorry, but it's time to move on.
+   <li>Added an AllowDrag property to TDock97.
+   <li>Added a Blank property to TToolbarSep97.
+   <li>Added an OnResize event to TDock97.
+   <li>Docks can now be placed inside controls other than a form. I can't think of a reason why you'd want to do this, but some people have requested this.
+   <li>All known problems fixed, and a couple of small improvements.
+</ul>
+
+<p><b>1.47</b>
+<ul>
+   <li>Rewrote most of moving and resizing routines to make it work exactly like Office 97.
+   <li>Added a DisplayMode property to TToolbarButton97.
+   <li>Toolbars now work flawlessly on MDI child forms.
+   <li>A few other minor improvements and fixes.
+</ul>
+
+<p><b>1.46</b>
+<ul>
+   <li>Added a LimitToOneRow property to TDock97.
+   <li>C++Builder transparency problems in 1.45 fixed.
+   <li>A minor disabled glyph transparency problem that affected Delphi 2 and C++Builder fixed.
+   <li>Some minor improvements.
+</ul>
+
+<p><b>1.45</b>
+<ul>
+   <li>Dropdown menus now fully supported on TToolbarButton97.
+   <li>Backgrounds on TDock97's now supported. See Background property.
+   <li>Added a FixAlign property to TDock97.
+   <li>Added a WordWrap property to TToolbarButton97.
+   <li>The problems in 1.4 fixed.
+   <li>A lot of little problems that have been around since 1.3 fixed (see source code for details).
+</ul>
+
+<p><b>1.4</b>
+<ul>
+   <li>Now supports Delphi 1 also.
+   <li>Loading and saving toolbars' positions is now done with procedures called RegLoadToolbarPositions and RegSaveToolbarPositions for loading and saving to the registry, and IniLoadToolbarPositions and IniSaveToolbarPositions for loading and saving to .INI files. This corrects a problem that sometimes caused toolbars to be loaded incorrectly.
+   <li>Fixed minor flickering problem while dragging.
+   <li>Now prevents you from dropping a toolbar under the taskbar (32-bit only).
+   <li>Several minor, but annoying, problems fixed. See source code for details.
+   <li>A lot of tweaks to the source code.
+</ul>
+
+<p><b>1.37</b>
+<ul>
+   <li>Fixed problem of floating toolbars sometimes reappearing (without the program telling them to) after you closed them.
+</ul>
+
+<p><b>1.36</b>
+<ul>
+   <li>Fixed a couple of very minor and insignificant cosmetic problems. See the source code for details.
+</ul>
+
+<p><b>1.35</b>
+<ul>
+   <li>Fixes all known problems, including the rather serious problem in TToolbarButton97 of it sometimes displaying the wrong glyphs in Delphi 2.
+   <li>Several more problems fixed. See the source code for details.
+</ul>
+
+<p><b>1.33</b>
+<ul>
+   <li>Added a TEdit97 component.
+   <li>Fixed a lot of minor but noteworthy problems. See the source code for details.
+</ul>
+
+<p><b>1.32</b>
+<ul>
+   <li>Fixed another minor problem in TToolbar97 that caused it to sometimes incorrectly reorder the controls.
+</ul>
+
+<p><b>1.31</b>
+<ul>
+   <li>Fixed problems with loading the demo application.
+   <li>Fixed a very minor problem in TToolbarButton97.
+</ul>
+
+<p><b>1.3</b>
+<ul>
+   <li>Floating toolbars are now resizable. Like Office 97, they also now hide themselves when the application is deactivated.
+   <li>Separators are no longer automatically created. You now create them using the TToolbarSep97 component.
+   <li>Added a CanDockLeftRight property to TToolbar97.
+   <li>Added an Opaque property to TToolbarButton97. Also made the buttons now stay down until it returns from the OnClick handler, like Office 97.
+   <li>A <i>lot</i> of small fixes on all of the controls (too many to mention) to make them work more like Office 97.
+   <li>C++Builder now supported.
+</ul>
+
+<p><b>1.2</b>
+<ul>
+   <li>Left and right side docking now supported. A SetSlaveControl method added to TToolbar97 for designating top/bottom docked and left/right docked versions of controls on the toolbar. 
+   <li>A lot of little problems fixed.
+</ul>
+
+<p><b>1.11</b>
+<ul>
+   <li>Added a CloseButton property to TToolbar97.
+   <li>More bug fixes.
+</ul>
+
+<p><b>1.1</b>
+<ul>
+   <li>Delphi 3 now supported!
+   <li>TToolbarButton97 component completely redesigned. Now it works exactly like a TSpeedButton. I also borrowed some of the glyph caching techniques used in Delphi 3 to make it much faster.
+   <li>Added a Color property to the TDock97 and TToolbar97 controls so it now looks right in MDI forms.
+   <li>TToolbar97's BarHeight property is no longer global to the whole application, as this sometimes caused problems. Now each toolbar has an individual BarHeight setting, which allows for greater flexibility.
+   <li>Many design mode problems fixed. (And you can now move docked toolbars!)
+</ul>
+
+<p><b>1.0</b>
+<ul>
+   <li>First release.
+</ul>
+
+</font>
+
+</body>
+</html>

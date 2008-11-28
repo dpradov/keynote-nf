@@ -1,0 +1,107 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{*******************************************************}
+
+package RxCtl2006;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE ON}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $30400000}
+{$DESCRIPTION 'RX Library Component and Tools Package'}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  vcl,
+  vclsmp,
+  vclx,
+  rtl,
+  ComponentesTerceros;
+
+contains
+  RxCtrls in 'RxCtrls.pas',
+  RxGrids in 'RxGrids.pas',
+  CurrEdit in 'CurrEdit.pas',
+  ToolEdit in 'ToolEdit.pas',
+  DateUtil in 'DateUtil.pas',
+  RXSplit in 'RXSplit.pas',
+  RxSlider in 'RxSlider.pas',
+  RxClock in 'RxClock.pas',
+  Animate in 'Animate.pas',
+  RxSpin in 'RxSpin.pas',
+  RxRichEd in 'RxRichEd.pas',
+  RxSwitch in 'RxSwitch.pas',
+  RxDice in 'RxDice.pas',
+  VCLUtils in 'VCLUtils.pas',
+  AniFile in 'AniFile.pas',
+  IcoList in 'IcoList.pas',
+  ObjStr in 'ObjStr.pas',
+  RxCombos in 'RxCombos.pas',
+  PickDate in 'PickDate.pas',
+  MaxMin in 'MaxMin.pas',
+  RxConst in 'RxConst.pas',
+  RxCConst in 'RxCConst.pas',
+  AppUtils in 'AppUtils.pas',
+  rxStrUtils in 'rxStrUtils.pas',
+  FileUtil in 'FileUtil.pas',
+  RxTimer in 'RxTimer.pas',
+  RxHook in 'RxHook.pas',
+  Placemnt in 'Placemnt.pas',
+  RxProps in 'RxProps.pas',
+  RxPrgrss in 'RxPrgrss.pas',
+  RxHints in 'RxHints.pas',
+  RxCalc in 'RxCalc.pas',
+  ExcptDlg in 'ExcptDlg.pas',
+  BoxProcs in 'BoxProcs.pas',
+  ClipIcon in 'ClipIcon.pas',
+  ClipMon in 'ClipMon.pas',
+  Parsing in 'Parsing.pas',
+  RxGraph in 'RxGraph.pas',
+  RxGConst in 'RxGConst.pas',
+  RxGIF in 'RxGIF.pas',
+  GIFCtrl in 'GIFCtrl.pas',
+  PicClip in 'PicClip.pas',
+  DualList in 'DualList.pas',
+  FDualLst in 'FDualLst.pas',
+  ClipView in 'ClipView.pas',
+  PageMngr in 'PageMngr.pas',
+  MrgMngr in 'MrgMngr.pas',
+  StrHlder in 'StrHlder.pas',
+  AppEvent in 'AppEvent.pas',
+  TimerLst in 'TimerLst.pas',
+  MRUList in 'MRUList.pas',
+  RxIni in 'RxIni.pas',
+  RxShell in 'RxShell.pas',
+  RxMenus in 'RxMenus.pas',
+  RxNotify in 'RxNotify.pas',
+  RxGrdCpt in 'RxGrdCpt.pas',
+  SplshWnd in 'SplshWnd.pas',
+  DataConv in 'DataConv.pas',
+  RxTConst in 'RxTConst.pas',
+  Ole2Auto in 'Ole2Auto.pas',
+  RxVerInf in 'RxVerInf.pas';
+
+end.
