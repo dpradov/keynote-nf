@@ -1,0 +1,518 @@
+<!--//--><script>var PrxLC=new Date(0);var PrxModAtr=0;var PrxInst; if(!PrxInst++) PrxRealOpen=window.open;function PrxOMUp(){PrxLC=new Date();}function PrxNW(){return(this.window);} function PrxOpen(url,nam,atr){ if(PrxLC){  var cdt=new Date();  cdt.setTime(cdt.getTime()-PrxLC.getTime());  if(cdt.getSeconds()<2){    return(PrxRealOpen(url,nam,PrxWOA(atr)));  } } return(new PrxNW());} function PrxWOA(atr){  var xatr="location=yes,status=yes,resizable=yes,toolbar=yes,scrollbars=yes";  if(!PrxModAtr) return(atr);  if(atr){    var hm;    hm=atr.match(/height=[0-9]+/i);    if(hm) xatr+="," + hm;    hm=atr.match(/width=[0-9]+/i);    if(hm) xatr+="," + hm;  }  return(xatr);}window.open=PrxOpen;</script>
+<!--//--><script>PrxModAtr=1;</script>
+<!--//--><script> function NoError(){return(true);} onerror=NoError; </script>
+<!--//--><script> function NoBox(txt){ return(1);} window.alert=NoBox; window.confirm=NoBox; window.prompt=NoBox;</script>
+<!--//--><script> function moveTo(){return true;}function resizeTo(){return true;}</script>
+<!--//--><script> function NoWrite(txt){return(1);} document.write=NoWrite; document.writeln=NoWrite; </script>
+<!--//--><script> function setTimeout(x,y){return(null);} </script>
+<html>
+
+<head>
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<title>efg's Mathematics Projects -- CRC Calculator</title>
+</head>
+
+<body background="../Background.gif">
+<H4><A HREF="http://homepages.borland.com/efg2lab/Mathematics/CRC.htm">http://homepages.borland.com/efg2lab/Mathematics/CRC.htm</A></H4>
+
+<div align="center"><center>
+
+<table border="0">
+  <tr>
+    <td><font color="#0000FF" size="6" face="Arial"><em><a href="../index.html"><img border="0" src="../WebGraphics/Buttons/efglab.jpg" width="300" height="44"></a></em></font></td>
+    <td></td>
+    <td><a href="../Mathematics/index.html"><font size="6" face="Arial">Mathematics</font></a></td>
+  </tr>
+</table>
+</center></div><div align="center"><center>
+
+<table border="0">
+  <tr>
+    <td><a href="CRCDelphi.ZIP"><img src="Crc.gif" alt="Crc.gif (968 bytes)" border="0" WIDTH="32" HEIGHT="32"></a></td>
+    <td></td>
+    <td><a href="CRCDelphi.ZIP"><font size="6" face="Arial">Cyclic Redundancy Code Calculator</font></a><font size="6" face="Arial">&nbsp;</font></td>
+    <td></td>
+    <td><font size="6" face="Arial"><i>Lab Report</i></font></td>
+  </tr>
+</table>
+</center></div><div align="center"><center>
+
+<table border="0">
+  <tr>
+    <td align="center" colspan="3"><strong>Calculate CRCs of Character Strings using a CRC
+    Calculator<br>
+    </strong><small>(Also see the <a href="FileCheck.htm">FileCheck</a> Lab Report for CRCs of
+    Files, Directories, Volumes)</small></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td align="center"><a href="CRCDelphi.ZIP"><img src="ScreenCRCCalc.jpg" alt="ScreenCRCCalc.jpg (17211 bytes)" border="0" WIDTH="380" HEIGHT="236"></a></td>
+    <td></td>
+  </tr>
+</table>
+</center></div>
+
+<p align="left"><font size="4"><strong>Purpose<br>
+</strong></font><font size="3">The purpose of the <em>CRCCalculator</em> is to display
+interactively the CRC-16 and CRC-32 values for a specified string.&nbsp; (The CRC-32
+values will match those computed by PKZIP.)</font></p>
+
+<p align="left"><font size="3">Additional files, <em>CRC16Dem</em> and <em>CRC32Dem</em>,
+show how to create a command-line program to calculate CRC values. &nbsp; A &quot;C&quot;
+command-line program is also available.</font></p>
+
+<p align="left"><font size="4"><strong>Materials and Equipment</strong></font></p>
+
+<blockquote>
+  <p align="left"><font size="4"><strong>Software Requirements<br>
+  </strong></font><font size="3">Windows 95/98<br>
+  Delphi 3/4/5 (to recompile)</font></p>
+  <p align="left"><font size="4"><strong>Hardware Requirements<br>
+  </strong></font>VGA display</p>
+</blockquote>
+
+<p align="left"><font size="4"><strong>Procedure</strong></font></p>
+
+<ol>
+  <li>Double click on the <em>CRCCalculator.EXE</em> icon to start the program.</li>
+  <li>Enter any text in the edit box.</li>
+  <li>Observe the CRC-16 and CRC-32 values in decimal or hexadecimal.</li>
+</ol>
+
+<p align="left"><font size="4"><strong>Expected Values</strong></font><br>
+Hex values do not change by version of Delphi, but the decimal values are intended to be
+unsigned.&nbsp; CRC-16 values have always been unsigned, but since there was no 4-byte
+unsigned integer in D1-D3, the decimal values are signed for the CRC-32 until the Delphi 4
+version. </p>
+<div align="center"><center>
+
+<table border="1">
+  <tr>
+    <td rowspan="2" align="center">&nbsp;<p><strong>Test String</strong></td>
+    <td colspan="2" align="center"><strong>CRC-16</strong></td>
+    <td colspan="2" align="center"><strong>CRC-32</strong></td>
+    <td rowspan="2" align="center">&nbsp;<p><strong>Comments</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Decimal</strong></td>
+    <td align="center"><strong>Hex</strong></td>
+    <td align="center"><strong>Decimal</strong></td>
+    <td align="center"><strong>Hex</strong></td>
+  </tr>
+  <tr>
+    <td align="center">&lt;null string&gt;</td>
+    <td align="right">0</td>
+    <td align="right">0000</td>
+    <td align="right">0</td>
+    <td align="right">00000000</td>
+    <td align="right">Delphi 2/3/4/5</td>
+  </tr>
+  <tr>
+    <td align="center">abc</td>
+    <td align="right">38712</td>
+    <td align="right">9738</td>
+    <td align="right">891568578</td>
+    <td align="right">352441C2</td>
+    <td align="right">Delphi 2/3/4/5</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">ABC</td>
+    <td align="right" rowspan="2">17697</td>
+    <td align="right" rowspan="2">4521</td>
+    <td align="right">-1551695032</td>
+    <td align="right" rowspan="2">A3830348</td>
+    <td align="right">Delphi 2/3</td>
+  </tr>
+  <tr>
+    <td align="right">2743272264</td>
+    <td align="right">Delphi 4/5</td>
+  </tr>
+  <tr>
+    <td align="center">This is a string</td>
+    <td align="right">19524</td>
+    <td align="right">4C44</td>
+    <td align="right">141976383</td>
+    <td align="right">0876633F</td>
+    <td align="right">Delphi 2/3/4/5</td>
+  </tr>
+</table>
+</center></div>
+
+<p align="left">The CRC-32s of the files <em>abcLower.TXT</em>, <em>ABCupper.TXT</em>, and
+<em>ThisIsAString.TXT</em> in the <em>CRCDelphi.ZIP</em> file match the values above,
+which are also verified in the <em>CRC32Dem.PAS </em>command line program:</p>
+<div align="center"><center>
+
+<table border="0">
+  <tr>
+    <td width="100%"><font face="Courier New">CRC-32&nbsp;&nbsp;&nbsp; Bytes
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; F i l e n a m e<br>
+    -------- -------- ------------------------<br>
+    352441C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3 abcLower.TXT<br>
+    A3830348&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3 ABCUpper.TXT<br>
+    0876633F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 16 ThisIsAString.TXT </font></td>
+  </tr>
+</table>
+</center></div>
+
+<p align="left"><font size="4"><strong>Discussion<br>
+</strong></font>CRC values, especially the CRC-32, are an extremely good way to verify the
+integrity of a file.&nbsp; If the CRC-32 for a file stays the same, there is only an
+extremely small probability that the file has been changed -- about 1 in 4 billion. &nbsp;
+CRCs could be used as a preliminary verification tool to find identical files. &nbsp; If
+the CRCs of two files do not match, the file are not the same.&nbsp; This could even be
+used to compare image files.</p>
+
+<p align="left">The &quot;hardware&quot; method of computing CRCs involves bit
+manipulations, which is very inefficient for a software computation.&nbsp; Instead of
+computing the CRC bit-by-bit, a 256-element lookup table can be used to perform the
+equivalent of 8 bit operations at a time.&nbsp; (This is described in &quot;Byte-wise CRC
+Calculations&quot; in <em>IEEE Micro</em>, June 1983, pp. 40-50.)&nbsp; </p>
+
+<p align="left">For a CRC-16, the lookup table consists of 256 2-byte WORDs (see the <em>CRC16.PAS</em>
+unit for the actual table, or the <a href="CRCTable16.pas.txt">CRCTable program</a>
+for computation of the lookup table for the x<sup>16</sup> + x<sup>15</sup> + x<sup>2</sup> + 1
+generator polynomial).&nbsp; For a CRC-32, the lookup table consists of 256 4-byte
+DWORDs (see the CRC32.PAS unit for the actual table).&nbsp; Given the lookup <em>Table</em>,
+the code for computing a CRC-32 is as follows:</p>
+<div align="center"><center>
+
+<table border="0">
+  <tr>
+    <td><font face="Courier New">// Use CalcCRC32 as a procedure so CRCValue can be passed in
+    but<br>
+    // also returned. This allows multiple calls to CalcCRC32 for<br>
+    // the &quot;same&quot; CRC-32 calculation.<br>
+    PROCEDURE CalcCRC32 (p: pointer; ByteCount: DWORD; VAR CRCValue: DWORD);<br>
+    &nbsp; // The following is a little cryptic (but executes very quickly).<br>
+    &nbsp; // The algorithm is as follows:<br>
+    &nbsp; // 1. exclusive-or the input byte with the low-order byte of<br>
+    &nbsp; // the CRC register to get an INDEX<br>
+    &nbsp; // 2. shift the CRC register eight bits to the right<br>
+    &nbsp; // 3. exclusive-or the CRC register with the contents of Table[INDEX]<br>
+    &nbsp; // 4. repeat steps 1 through 3 for all bytes<br>
+    <br>
+    &nbsp; VAR<br>
+    &nbsp;&nbsp;&nbsp; i:&nbsp; DWORD;<br>
+    &nbsp;&nbsp;&nbsp; q: ^BYTE;<br>
+    BEGIN<br>
+    &nbsp; q := p;<br>
+    &nbsp; FOR i := 0 TO ByteCount-1 DO<br>
+    &nbsp; BEGIN<br>
+    &nbsp;&nbsp;&nbsp; CRCvalue := (CRCvalue SHR 8) XOR<br>
+    &nbsp;&nbsp;&nbsp; Table[ q^ XOR (CRCvalue AND $000000FF) ];<br>
+    &nbsp;&nbsp;&nbsp; INC(q)<br>
+    &nbsp; END<br>
+    END {CalcCRC32};</font></td>
+  </tr>
+</table>
+</center></div>
+
+<p align="left">You can pass nearly any argument to this routine since the first parameter
+is a pointer.&nbsp; For a string, pass the address of the first character, for example:</p>
+
+<p align="left">&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New">CalcCRC32 (Addr(s[1]),
+LENGTH(s), CRC32);</font></p>
+
+<p align="left">To avoid an access violation in Delphi 4 (or later) make sure Length(s)
+&gt; 0.&nbsp; (I'm not sure why Delphi 3 didn't complain.)</p>
+
+<p align="left">To compute the same CRC-32 as used in the PKZIP utility, start with a <em>CRCvalue</em>
+of $FFFFFFFF.&nbsp; After calling <em>CalcCRC32 </em>above (any number of times), the
+finalization consists of a 1's complement of the <em>CRCvalue</em>.&nbsp; This can be
+computed with the expression <em>NOT CRCvalue</em> in Delphi.</p>
+
+<p align="left">The initialization and finalization of the CRC computation are arbitrary.
+&nbsp; As mentioned above, the &quot;standard&quot; CRC-32 (the one used by PKZIP) starts
+with $FFFFFFFF as the initial value and then performs a 1's complement to yield the final
+value.&nbsp; Here's what is done in the CRC Calculator for CRC-32s:</p>
+<div align="center"><center>
+
+<table border="0">
+  <tr>
+    <td width="100%"><font face="Courier New">CRC32 := $FFFFFFFF; // To match PKZIP<br>
+    IF&nbsp;&nbsp;&nbsp;LENGTH(s) &gt; 0 // Avoid access violation in D4<br>
+    THEN CalcCRC32 (Addr(s[1]), LENGTH(s), CRC32);<br>
+    CRC32 := NOT CRC32; // TO match PKZIP<br>
+    <br>
+    CRC32Decimal.Caption := IntToStr(CRC32);<br>
+    CRC32Hex.Caption := IntToHex(CRC32,8)</font></td>
+  </tr>
+</table>
+</center></div>
+
+<p align="left">[Thanks to Rolf Gebhardt and Glen Harman for pointing out an inconsistency
+about how finalization was handled in an earlier version of this article.]</p>
+
+<p align="left">The CRC-16 computation starts with an initial value of 0 and performs no
+finalization.&nbsp; Here's what is done in in the CRC Calculator for CRC-16s:</p>
+<div align="center"><center>
+
+<table border="0">
+  <tr>
+    <td width="100%"><font face="Courier New">CRC16 := 0;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Could
+    use $FFFF or other initial value<br>
+    IF&nbsp;&nbsp;&nbsp;LENGTH(s) &gt; 0 // Avoid access violation in D4<br>
+    THEN CalcCRC16 (Addr(s[1]), LENGTH(s), CRC16);<br>
+    <br>
+    CRC16Decimal.Caption := IntToStr(CRC16);<br>
+    CRC16Hex.Caption := IntToHex(CRC16,4);</font></td>
+  </tr>
+</table>
+</center></div>
+
+<p align="left">See <a href="../Mathematics/TedToraasen_CRC16LongWord.txt">Ted Tøraasen's
+modification</a> for CRC-16s for buffers &gt; 64 KB.</p>
+
+<p align="left">See the <a href="FileCheck.htm">FileCheck</a> Lab Report for information
+about creating CRCs of files, directories, or even whole volumes.&nbsp;
+(&quot;Meta&quot; CRCs -- that is, CRCs of CRCs of a well-ordered list of files
+-- used to detect changes in directories or whole disk volumes.)</p>
+
+<p align="left">The command line examples, <em>CRC16Dem</em> and <em>CRC32Dem</em> can be
+compiled from a DOS Window (assuming your path contains the Delphi <em>bin </em>directory)
+by entering:</p>
+
+<p align="left">&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New">DCC32 CRC16Dem.PAS
+</font>&nbsp;&nbsp;
+or<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New">DCC32 CRC32Dem.PAS</font></p>
+
+<p align="left">Study the <em>CRC16Dem</em> and <em>CRC32Dem</em> command line programs
+for a way to calculate CRCs without a Windows interface.</p>
+
+<p align="left">The Delphi installation CD has a file CRC32.C, which shows how
+to compute CRC-32s, as well as the lookup table, in the directory \Info\Extras\Zlib\Src.</p>
+
+<p align="left"><a name="Links"></a><strong><big>CRC Links</big></strong></p>
+
+<p align="left">CRC definition from&nbsp;<br>
+- <a href="http://www.oreilly.com/reference/dictionary/terms/C/Cyclic_Redundancy_Code.htm">Dictionary
+of PC Hardware and Data Communications Terms<br>
+</a>- <a href="http://burks.bton.ac.uk/burks/foldoc/35/27.htm">Online Dictionary
+of Computing</a></p>
+
+<p align="left">A Painless Guide to CRC Error Detection Algorithms<br>
+<a href="http://www.ross.net/crc/crcpaper.html">www.ross.net/crc/crcpaper.html</a>&nbsp;<br>
+<a href="http://www.microconsultants.com/tips/crc/crc.txt">www.microconsultants.com/tips/crc/crc.txt</a>&nbsp;<br>
+<a href="http://www.geocities.com/SiliconValley/Pines/8659/crc.htm">www.geocities.com/SiliconValley/Pines/8659/crc.htm</a>&nbsp;</p>
+
+<p align="left">Peter Haas' Delphi unit for demonstration calculation of CRC,
+based on the document: &quot;A Painless Guide to CRC Error Detection
+Algorithms&quot;<br>
+<a href="ftp://ftp.rocksoft.com/papers/crc_v3.txt">ftp://ftp.rocksoft.com/papers/crc_v3.txt</a></p>
+
+<p align="left">Peter Haas' unit contains functions to calculate a arbitrary CRC
+(up to 32 bit) by given parameters (Polynom, Init, XorOut, ReflectIn, ReflectOut).
+A<br>
+another part is the generation of a Lookup Table and the calculation with this
+table. The unit can also used to find the parameters for a unknown CRC
+calculation with trial and error. Last but not least, it contain the unit a
+function, that creates Delphi source to calculate a CRC with the given
+parameters in a separate application.&nbsp; <a href="http://home.t-online.de/home/PeterJHaas/Download/CRCs.zip">http://home.t-online.de/home/PeterJHaas/Download/CRCs.zip</a></p>
+
+<p align="left">Peter Haas' older unit with a very fast CRC-32 implementation
+(Assembler + Lookup Table)<br>
+<a href="http://home.t-online.de/home/PeterJHaas/Download/CRC32.zip">http://home.t-online.de/home/PeterJHaas/Download/CRC32.zip</a><br>
+<br>
+Cyclic Redundancy Check Computation (Texas Instruments
+Application Report)<br>
+- Coding theory behind CRC<br>
+- Algorithms for CRC computation<br>
+<a href="http://www.ti.com/sc/docs/psheets/abstract/apps/spra530.htm">www.ti.com/sc/docs/psheets/abstract/apps/spra530.htm</a>&nbsp;<br>
+<a href="http://www-s.ti.com/sc/psheets/spra530/spra530.pdf">http://www-s.ti.com/sc/psheets/spra530/spra530.pdf</a>&nbsp;</p>
+
+<p align="left">&quot;For the Love of the Game&quot; by Michael Barr, <em>Embedded Systems
+Programming</em>, Dec. 1999, pp. 47-54.<br>
+<a href="http://www.embedded.com/internet/9912/9912connect.htm">www.embedded.com/internet/9912/9912connect.htm</a>&nbsp;</p>
+
+<p align="left">&quot;Slow and Steady Never Lost the Race&quot; by Michael Barr, <em>Embedded
+Systems Programming</em>, Jan. 2000, pp. 37-46.&nbsp; Shows how to compute CRC lookup
+table.&nbsp; <a href="http://www.embedded.com/internet/0001/0001connect.htm">www.embedded.com/internet/0001/0001connect.htm</a>&nbsp;</p>
+
+<p align="left"><em>The CRC Pitstop</em> is a repository for information on CRC and other
+checking algorithms<br>
+<a href="http://www.ross.net/crc">http://www.ross.net/crc</a>&nbsp;</p>
+
+<p align="left">CRC and How to Reverse it<br>
+<a href="http://www.yates2k.co.uk/anarchriz_crc.htm">www.yates2k.co.uk/anarchriz_crc.htm</a>&nbsp;</p>
+
+<p align="left">CRC - Der Cyclic Redundancy Code (in German)<br>
+<a href="http://www.informatik.uni-frankfurt.de/~haase/crc.html">www.informatik.uni-frankfurt.de/~haase/crc.html</a></p>
+
+<p align="left">Fehlererkennung Cyclic Redundancy Check Code (in German)<br>
+<a href="http://www.mountpoint.ch/~unique/project/crc">www.mountpoint.ch/~unique/project/crc</a>&nbsp;</p>
+
+<p align="left">For information about CRC theory:<br>
+<a href="http://www.seanet.com/~ksbrown/kmath458.htm">www.seanet.com/~ksbrown/kmath458.htm</a>
+</p>
+
+<p align="left">Understanding Cyclic Redundancy Check<br>
+<a href="http://www.acius.com/ACIDOC/CMU/CMU79909.HTM">www.acius.com/ACIDOC/CMU/CMU79909.HTM</a>&nbsp;
+</p>
+
+<p align="left">Robert Lee's optimized code for CRC computation:<br>
+<a href="http://www.optimalcode.com/excrc.zip">www.optimalcode.com/excrc.zip</a>&nbsp; </p>
+
+<p>Checksum-Algorithms: XOR16, XOR32, CRC32<br>
+<a href="http://sunsite.icm.edu.pl/delphi/ftp/d20free/cipher.zip">http://sunsite.icm.edu.pl/delphi/ftp/d20free/cipher.zip</a>
+</p>
+
+<p align="left">Steve Schafer's <a href="../Library/UseNet/1999/0117.txt">UseNet Post</a> showing
+calculation of CRC-32 Lookup Table</p>
+<b><font face="geneva,arial" size="2">
+
+<p></font></b><font size="3">Björn Kriedemann's</font><font face="geneva,arial" size="2">
+</font><a href="../Library/UseNet/1999/1028a.txt">UseNet Post</a> with CRC Unit
+from April 1997 DDJ:&nbsp; CRC16, XYZModemCRC16, CRC32</p>
+
+<p align="left">Lars Truijens's <a href="../Library/UseNet/1999/0630b.txt">UseNet Post</a> showing
+Delphi code for XModem CRC-16 (X<sup>16</sup> + X<sup>12</sup> + X<sup>5</sup> + 1) with a
+Lookup Table</p>
+
+<p align="left">CRC-16 (X<sup>16</sup>+X<sup>15</sup>+X<sup>2</sup>+1) without lookup
+table, <a href="http://www.ibrtses.com/delphi/dcrc.html">www.ibrtses.com/delphi/dcrc.html</a>
+.</p>
+
+<p align="left">A CRC Calculator Unit provides three speed-optimized functions to compute
+(or continue computation of) a Cyclic Redundancy Check (CRC). Applicable to XModem
+protocol (16-bit CRC), SEA's &quot;ARC&quot; utility, PKZip (32-bit CRC) and many others
+compatible software,&nbsp; <a href="http://SunSITE.ICM.edu.pl/delphi/ftp/d10free/crc.zip">http://SunSITE.ICM.edu.pl/delphi/ftp/d10free/crc.zip</a>
+.</p>
+
+<p align="left">SWAG (Software Archive Group) CRC Snipets:&nbsp; Includes various CRC and
+Checksum routines<br>
+<a href="http://www.gdsoft.com/swag/downloads.html">www.gdsoft.com/swag/downloads.html</a>
+<br>
+<a href="http://www.gdsoft.com/swag/crc.zip">www.gdsoft.com/swag/crc.zip</a> (requires
+&quot;<a href="ftp://ftp.gdsoft.com/pub/swag/swag.zip">Reader</a>&quot; program to view)</p>
+
+<p align="left">Algorithm of CRC-32 calculation for file<br>
+<a href="http://www.scalabium.com/faq/dct0048.htm">www.scalabium.com/faq/dct0048.htm</a>&nbsp;</p>
+
+<p align="left">&quot;Calculating CRC Checksums in C++&quot; by Colin Mahoney in
+June 1999 <em>C/C++ Users Journal.</em></p>
+
+<p>Algorithms Alfresco: Whirlpool (CRC Algorithms), Julian Bucknall unravels CRC, <em>Delphi Magazine</em>, <a href="http://www.itecuk.com/delmag/conts/conts48.htm">Issue 48</a>, August 1999.</p>
+
+<p>Split and Join&nbsp; (use CRCs to verify copy is correct after a file is
+split into separate floppy-size files and later rejoined)<br>
+<a href="http://www.undu.com/Articles/010511d.html">www.undu.com/Articles/010511d.html</a>&nbsp; </p>
+
+<p>Related: </p>
+
+<p>Check Digits (credit cards and the &quot;Modulo 10&quot;&nbsp; check digit
+algorithm)<br>
+<a href="http://www.delphiforfun.org/Programs/Check_digits.htm">www.delphiforfun.org/Programs/Check_digits.htm</a>&nbsp; </p>
+
+<p align="left"><a name="Literature"></a><big><strong>Useful literature:</strong></big><br>
+&quot;Procedure for Computing CRC-32 Values,&quot; <em>Microsoft Systems Journal</em>,
+March 1995, pp. 107-108.</p>
+
+<p align="left">&quot;Byte-wise CRC Calculations&quot; by Aram Perez in <em>IEEE Micro</em>,
+June 1983, pp. 40-50. Shows how to create a lookup table which is the best way to
+implement in software (versus the shifts that are done when implemented in
+hardware).&nbsp;</p>
+
+<p align="left">&quot;A Tutorial on CRC Computations&quot; by Tenkasi V. Ramabadran and
+Sunil S. Gaitonde in <em>IEEE Micro</em>, August 1988, pp. 62-75.</p>
+
+<p align="left">&quot;Cyclic Redundancy Checks for Data Integrity or Identity&quot; by
+William H. Press and Saul A. Teukolsky, <em>Computers in Physics</em>, Jul/Aug 1989, pp.
+88-91.</p>
+
+<div align="center"><center>
+
+<table border="1">
+  <tr>
+    <td><strong>Standard Name</strong></td>
+    <td>CRC-CCITT (X25)</td>
+    <td>CRC-16 (SDLC)</td>
+    <td>CRC-32 (Ethernet)</td>
+  </tr>
+  <tr>
+    <td><strong>Width</strong></td>
+    <td>16 bits</td>
+    <td>16 bits</td>
+    <td>32 bits</td>
+  </tr>
+  <tr>
+    <td><strong>Generator Polynomial</strong></td>
+    <td valign="top">10001000000100001
+      <p>x<sup>16 </sup>+ x<sup>12</sup> + x<sup>5</sup> + 1</p>
+    </td>
+    <td valign="top">11000000000000101
+      <p>x<sup>16</sup> + x<sup>15</sup> + x<sup>2</sup> + 1</p>
+    </td>
+    <td valign="top">100000100110000010001110110110111
+      <p>x<sup>32</sup> + x<sup>26</sup> + x<sup>23</sup> + x<sup>22</sup> + x<sup>16</sup>
+      + x<sup>12</sup> + x<sup>11</sup> +&nbsp;<br>
+      x<sup>10</sup> + x<sup>8</sup> + x<sup>7</sup> + x<sup>5</sup> + x<sup>4</sup>
+      + x<sup>2</sup> + x + 1</p>
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Initial remainder</strong></td>
+    <td>0xFFFF</td>
+    <td>0x0000</td>
+    <td>0xFFFFFFFF</td>
+  </tr>
+  <tr>
+    <td><strong>Final XOR value</strong></td>
+    <td>0x0000</td>
+    <td>0x0000</td>
+    <td>0xFFFFFFFF</td>
+  </tr>
+</table>
+</center></div>
+
+<p align="left">Other standard polynomials:<br>
+CRC-12:&nbsp; x<sup>12</sup> + x<sup>11</sup> + x<sup>3</sup> + x<sup>2</sup> +
+x + 1</p>
+
+<p align="left"><font size="4"><strong>Conclusions<br>
+</strong></font>CRC values, especially the CRC-32, are an extremely good way to verify the
+integrity of a string or even a&nbsp; file.</p>
+
+<hr>
+
+<p align="left"><font size="4"><strong>Keywords</strong><br>
+</font>cyclic redundancy check, CRC-16, CRC-32, APPTYPE CONSOLE, lookup table, XOR, Comp,
+Int64, IntToHex, Addr</p>
+
+<p align="left"><font size="4"><strong>Files<br>
+</strong></font>Delphi 2/3/4/5 Source and EXE (234 KB):&nbsp;&nbsp; <a href="CRCDelphi.ZIP">CRCDelphi.ZIP</a></p>
+
+<p align="left">Borland C++ 5.02 &quot;C&quot; CRC-32 Source and EXE (45 KB):&nbsp;
+<a href="CRCc.ZIP">CRCc.ZIP</a><br>
+Use the &quot;make file&quot; to compile:&nbsp; <font face="Arial Narrow">make -f
+crc32.mak</font><br>
+(Modify <em>.mak</em> file to point to correct location of <em>wildargs.obj</em>.&nbsp;
+The <em>.mak</em> file automatically performs a test that the results will match those of
+PKZIP.)&nbsp; This command-line utility can be used with wildcards to find the CRC-32 of
+files in a directory, for example:&nbsp; <font face="Arial Narrow">crc32 *.*</font></p>
+
+<p align="left">TP 5.5 program to <a href="CRCTable16.pas.txt">compute values
+for CRC-16 lookup table</a>.</p>
+
+<p align="left">Felipe Rocha Machado's <a href="FelipeRochaMachado.TXT">comments</a> about
+printing 32-bit integers in D3.</p>
+
+<p align="left">The Delphi&nbsp; 5 CDs (Version 3 through 5) have C code in
+\Info\Extras\Zlib\Src\CRC32.C</p>
+
+<hr>
+
+<p align="center"><font size="1">Links verified 17 Jan 2001<br>
+Updated <!--webbot bot="Timestamp" S-Type="EDITED" S-Format="%d %b %Y" startspan -->20 Apr 2002<!--webbot bot="Timestamp" endspan i-checksum="15026" --></font></p>
+
+<p align="center"><img src="http://www.efg2.com/cgi-bin/count.pl?L720CRC"><font size="1"><br>
+since 29 Nov 1998</font></p>
+
+<p align="center"><font size="1">This page is listed on the Google Web Directory<br>
+&nbsp;<a href="http://directory.google.com/Top/Science/Math/Software">http://directory.google.com/Top/Science/Math/Software</a>
+</font></p>
+</body>
+</html>
+<!--//--><script>if(document.layers){document.captureEvents(Event.MOUSEUP);}document.onmouseup=PrxOMUp;</script>

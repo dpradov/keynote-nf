@@ -1,0 +1,172 @@
+
+                               DCPcrypt v1.3
+                                     -                              
+                    David Barton (davebarton@bigfoot.com)
+
+TDCP_blockcipher
+================
+type
+  TDCP_blockcipher= class(TComponent)
+  public
+    procedure Init(var Key; Size: longint; IVector: pointer);
+    procedure InitStr(const Key: string);
+    procedure Reset;
+    procedure Burn;
+    procedure EncryptECB(const InBlock; var OutBlock);
+    procedure DecryptECB(const InBlock; var OutBlock);
+    procedure EncryptCBC(const InData; var OutData; Size: longint);
+    procedure DecryptCBC(const InData; var OutData; Size: longint);
+    procedure EncryptCFB(const InData; var OutData; Size: longint);
+    procedure DecryptCFB(const InData; var OutData; Size: longint);
+  published
+    property ID;
+    property Algorithm;
+    property BlockSize;
+    property MaxKeySize;
+  end;
+
+procedure TDCP_blockcipher.Init - Use this proc to initialize the cipher with
+the key data. Size is the size of the key data you are supplying in BITS.
+IVector is a pointer to the initialization vector needed for the chaining
+modes, the data supplied for this must equal to the blocksize. If nil is
+specified then an IV is generated automatically.
+
+procedure TDCP_blockcipher.InitStr - Use this proc to initialize the cipher
+with a string. The size of the key produced is equal to the digest size of the
+hash algorithm used. The default hash is SHA1 with a digest size of 160bits.
+The default hash can be changed in the DCPcrypt.pas file.
+
+procedure TDCP_blockcipher.Reset - Use this proc to reset the chaining mode
+information. This is necessary after each block of encryptions and
+decryptions.
+eg.
+EncryptCFB(Buffer1,Buffer1,Sizeof(Buffer1));
+EncryptCFB(Buffer2,Buffer2,Sizeof(Buffer2));
+Reset;
+DecryptCFB(Buffer1,Buffer1,Sizeof(Buffer1));
+DecryptCFB(Buffer2,Buffer2,Sizeof(Buffer2));
+This will work fine.
+
+However
+EncryptCFB(Buffer1,Buffer1,Sizeof(Buffer1));
+EncryptCFB(Buffer2,Buffer2,Sizeof(Buffer2));
+Reset;
+DecryptCFB(Buffer2,Buffer2,Sizeof(Buffer2));
+This will not work as the chaining mode information is set to decrypt Buffer1.
+
+procedure TDCP_blockcipher.Burn - Use this proc when you have finished
+encrypting and decrypting to erase any key data.
+
+procedure TDCP_blockcipher.EncryptECB
+procedure TDCP_blockcipher.DecryptECB - Use these two functions to encrypt
+and decrypt blocks of data in ECB mode. The blocks of data supplied must be
+the same size as the algorithms blocksize. eg. 64 bits (8 bytes) for blowfish.
+
+procedure TDCP_blockcipher.EncryptCBC
+procedure TDCP_blockcipher.DecryptCBC - Use these two functions to encrypt and
+decrypt data in CFB mode. This is a chaining mode and so Reset must be used
+between encrypt and decryptions. You can encrypt any amount of data using this
+procedure as short blocks are encrypted using the IV, size of data to be
+encrypted is in bytes. Note: You cannot use CBC mode to decrypt something
+encrypted using CFB mode.
+
+procedure TDCP_blockcipher.EncryptCFB
+procedure TDCP_blockcipher.DecryptCFB - Use these two functions to encrypt and
+decrypt data in CFB mode. This is a chaining mode and so Reset must be used
+between encrypt and decryptions. You can encrypt any amount of data using this
+procedure, size of data to be encrypted is in bytes. Note: You cannot use CFB
+mode to decrypt something encrypted using CFB mode.
+
+property ID - This is a unique ID assigned by me used to identify the
+algorithm within DCPcrypt, it has no meaning to the algorithm its self.
+
+property Algorithm - This is the name of the algorithm.
+
+property BlockSize - This is the block size of the algorithm (in BITS).
+
+property MaxKeySize - This is the maximum size of the key you can pass the
+algorithm.
+
+Example Usage
+-------------
+var
+  Cipher: TDCP_blowfish;
+  Key: array[0..15] of byte; // key can be any size upto 448bits with blowfish (56bytes)
+  Buffer: array[0..19] of byte; // buffer can be any size
+  s: string;
+begin
+  s:= '!!!Hello World!!!';
+  Cipher:= TDCP_blowfish.Create(nil);
+  Cipher.Init(Key,Sizeof(Key)*8,nil);  // remember key size is in BITS
+  Cipher.EncryptCBC(Buffer,Buffer,Sizeof(Buffer));
+  Cipher.EncryptCBC(s[1],s[1],Length(s)); // when encrypting strings you must point the algorithm to the first character
+  Cipher.Reset;
+  Cipher.DecryptCBC(Buffer,Buffer,Sizeof(Buffer));
+  Cipher.DecryptCBC(s[1],s[1],Length(s));
+  Cipher.Burn;
+  Cipher.Free;
+  ShowMessage(s);
+end;
+
+
+
+TDCP_hash
+=========
+type
+  TDCP_hash= class(TComponent)
+  public
+    procedure Init;
+    procedure Burn;
+    procedure Update(const Buffer; Size: longint);
+    procedure UpdateStr(const S: string);
+    procedure Final(var Digest);
+  published
+    property ID;
+    property Algorithm;
+    property DigestSize;
+  end;
+
+procedure TDCP_hash.Init - Use this proc first to initialize the hash.
+
+procedure TDCP_hash.Burn - Destroy any stored hash information, you do not
+need to call this if you call Final.
+
+procedure TDCP_hash.Update - Update the hash with the data specified. Size
+is in bytes.
+
+procedure TDCP_hash.UpdateStr - Update the hash with the string specified.
+
+procedure TDCP_hash.Final - Produce the final digest. The variable you supply
+must be able to hold the entire digest of size DigestSize (see published
+properties). All stored hash data is clear after this.
+
+property ID - This is a unique ID assigned by me used to identify the
+algorithm within DCPcrypt, it has no meaning to the algorithm its self.
+
+property Algorithm - This is the name of the algorithm.
+
+property DigestSize - The size of the digest produced in BITS.
+
+Example Usage
+-------------
+var
+  Hash: TDCP_sha1;
+  Buffer: array[0..8191] of byte; // buffer can be any size
+  s: string;
+  Digest: array[0..19] of byte; // sha1 produces a 160bit digest (20bytes)
+begin
+  s:= '!!!Hello World!!!';
+  Hash:= TDCP_sha1.Create(nil);
+  Hash.Init;
+  Hash.Update(Buffer,Sizeof(Buffer));
+  Hash.UpdateStr(s);
+  Hash.Final(Digest);
+  Hash.Free;
+  // do what ever with the digest produced
+end;
+
+
+David Barton (davebarton@bigfoot.com)
+http://www.scramdisk.clara.net/
+Home of Scramdisk and the Delphi Cryptography Page
+23/03/1999

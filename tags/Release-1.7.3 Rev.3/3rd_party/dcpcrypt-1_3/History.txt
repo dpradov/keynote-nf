@@ -1,0 +1,46 @@
+
+                               DCPcrypt v1.3
+                                     -                              
+                    David Barton (davebarton@bigfoot.com)
+
+DCPcrypt History
+================
+
+25/03/1999 - v1.31 Bug fix to DCPcrypt
+  Fixes:
+    Corrected endianess problem with Cast-256.
+
+23/03/1999 - v1.3 Update to DCPcrypt
+  Block Ciphers:
+    Cast256.
+  Misc:
+    Speed up of Twofish.
+    Can now compile in non-component form.
+    Added Base64 and UU encoding units to enable string encryption.
+    Updated demo to show string encrypting.
+    All components are now Delphi 1 compatable.
+
+14/02/1999 - v1.2 Bug fix and update to DCPcrypt
+  Hash Algorithms:
+    Haval.
+  Fixes:
+    To all block ciphers bug with supplying an IV in initialize proc.
+    To all block ciphers when specifying an invalid key length.
+    To demo passing key too long for some algorithms.
+
+20/01/1999 - v1.1 Bug fix in DCPcrypt
+  Fixes:
+    RipeMD-160 incorrect hashing.
+
+18/01/1999 - v1.0 Initial release of DCPcrypt
+  Block Ciphers:
+    Blowfish, Cast128, Gost, IDEA, Mars, Misty1, RC2, RC5, RC6, Rijndael,
+    Twofish.
+  Hash Algorithms:
+    RipeMD-160, SHA1.
+
+
+David Barton (davebarton@bigfoot.com)
+http://www.scramdisk.clara.net/
+Home of Scramdisk and the Delphi Cryptography Page
+23/03/1999

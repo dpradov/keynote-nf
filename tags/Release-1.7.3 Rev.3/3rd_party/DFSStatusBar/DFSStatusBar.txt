@@ -1,0 +1,309 @@
+TDFSStatusBar v1.23
+
+A status bar that provides many common specialized panels.  The main features
+are key lock indicators (caps, num, scroll), gauges, images, ellipsis text, and
+date/time.  Also, the status bar can own other components (i.e. you can drop
+something on it in the IDE).
+
+
+Contact Information:
+--------------------
+  The lateset version will always be available on the web at:
+    http://www.delphifreestuff.com
+  If you have any questions, comments or suggestions, please use the Delphi
+  Free Stuff Support Forum at: 
+    http://www.delphifreestuff.com/discus/
+  If, for some reason, you can not use the web-based support forum, you can
+  email me at bstowers@delphifreestuff.com.  However, the support forum will
+  always take precedence over direct email since it provides a resource that
+  others can use when they have a problem.  Every message posted to the forum
+  is emailed directly to this account, so emailing me directly will not get 
+  your message to me any faster.  It will only make the message less important
+  for me to respond to since only one person (you) is benefiting from it
+  instead of everyone interested.  Having said all that, please do email me 
+  directly if it is regarding something that isn't really support related, 
+  i.e. just to say thanks (as novel as that idea is).  
+
+
+Installation:
+-------------
+  Delphi 1, Delphi 2, C++Builder 1:
+    * This component is not compatible with Delphi 1, 2, or C++Builder 1.
+  
+  Delphi 3 and up, C++Builder 3 and up:
+    * Do one of the following:
+      + Create a new package by selecting File | New and choosing Package from
+        the New tab in the dialog.
+      + Open an existing package file.  I suggest you do this if you already 
+        have a package that you like to use for small, third party components.
+        I specifically have a package named "3rdParty.dpk" that I use for
+        small components that come from other people.  Or, if you are using
+        several of my components, you might create a "DFS.dpk" package and 
+        use it for all of my DFS components.
+    * In the resulting package window, click the Add button.
+    * In the Add dialog, on the Add Unit tab, enter the full path name of the 
+      component's registration unit (the unit that ends with 'Reg.pas', i.e. 
+      'BrowseDrReg.pas') and click OK.
+    * You may want to add the other source files (*.pas) to the package as 
+      well in the same manner as you did the registration unit.  While this is
+      not required, not doing it will cause compiler warnings when the package
+      is compiled.  The component will function fine either way, but I 
+      personally find the warnings very irritating and am not happy until
+      every compiler warning and hint is gone.
+    * If this package is new, or it has never been installed, click the
+      Install button in the package window.  If this package is already
+      installed in Delphi, click the Compile button.
+
+  C++Builder 5 and up:
+    * Perform the "Delphi 3 and up, C++Builder 3 and up" steps above, except
+      for the last step (Compile or Install).
+    * Select the package the component has been added to, and choose 
+      Project | Edit Option Source to open the package options in the editor.
+    * In the entry for PFLAGS, add the "-LUvcl50" option.  For example:
+        <PFLAGS value="-$YD -$W -$O -v -JPHNE -M -LUvcl50"/>
+    * Perform the final step from above, Compile or Install.
+    * For Borland's official word on this situation, open the C++Builder help
+      file and search the index for "dsgnintf.dcu" and see the "Compiling
+      packages with DsgnIntf" section.
+
+
+Documentation:
+--------------
+
+TDFSStatusBar:
+
+  procedure InvalidatePanel(Index: integer);
+    This method causes only the specific panel identified by Index to be
+    redrawn.
+  property UseMonitorDLL: boolean;
+    This property indicates whether the indicator keys (Caps, Num & Scroll lock)
+    should be monitored system wide or in the app only.  If set to true, your
+    app will require the DFSKbMon.DLL to be present.  See the Implementation
+    Notes section for more information, including how to rename the DLL.
+
+
+TDFSStatusPanel:
+
+  procedure Invalidate(RefreshNow: boolean);
+    This method causes the panel to be invalidated. RefreshNow indicates whether
+    the repaint should take place immediately or later when the next WM_PAINT
+    message is processed.
+
+  property StatusBar: TDFSStatusBar;
+    The TDFSStatusBar that owns this panel.
+
+  property PanelType: TDFSStatusPanelType;
+    sptNormal - Nothing special, same as a regular TStatusPanel.
+    sptCapsLock - Caps lock indicator.  Normal color if on, gray if off.
+    sptNumLock - Num lock indicator.  Normal color if on, gray if off.
+    sptScrollLock - Scroll lock indicator.  Normal color if on, gray if off.
+    sptDate - Current date.  Uses DateFormat property for format of text.
+    sptTime - Current time.  Uses TimeFormat property for format of text.
+    sptDateTime - Current date and time.  Uses DateFormat and TimeFormat
+        properties for format of text.
+    sptTimeDate - Current time and date.  Uses DateFormat and TimeFormat
+        properties for format of text.
+    sptEllipsisText - Shorten text at the end with '...' when it won't fit.
+    sptEllipsisPath - Shorten by removing path info with '...' when it won't fit.
+    sptGlyph - Displays a TPicture object in the panel along with a string from
+      the Text property (if any).
+    sptGauge - A progress meter.  Use GaugeAttrs to customize it.
+    sptOwnerDraw - Same as the old TStatusPanel.Style = psOwnerDraw.
+
+  property GaugeAttrs: TDFSGaugeAttrs;
+    property Style: TDFSGaugeStyle;
+      gsPercent - Your basic progress meter.
+      gsIndeterminate - A progress indicator where the min/max are not known.
+        That is, you want to show something going on, but don't know how long
+        it will take.  Same concept as the Netscape status panel gauge when you
+        are connecting to a site.  Use the Enabled property to start and stop
+        the gauge.  This one looks like a little ball bouncing back and forth.
+      gsIndeterminate2 - Same as last, but looks like Netscapes (a gradient
+        bar bouncing).
+    property Position: TPercent;
+      A value from 0 to 100 indicating the current percentage to display for
+      sptGauge panel types when the Style is gsPercent.  It the Text property
+      is blank, this value will be displayed within the gauge (i.e. "51%").
+      If Text is not blank, it's value will be drawn inside the gauge.  If you
+      don't want any text within the gauge, just set Text to a space character.
+      This property has no meaning for any other panel types.
+    property Color: TColor;
+      The color to paint the "filled" area of the gauge with.
+    property TextColor: TColor;
+      Only for gsPercent.  Color of text painted in the "filled" area.
+    property Speed: integer;
+      How fast the movement occurs for indeterminate styles.
+
+  property AutoFit: boolean;
+    Automatically adjust the width of the panel to be wide enough to display
+    the information.  Note that this property has no meaning to some panel
+    types, and setting it will likely result in the panel's width becoming very
+    small.  For example, sptGauge has no idea how big you would want it to
+    automatically become.
+
+  property Glyph: TPicture;
+    The image to show on the panel for sptGlyph panel types.  This property has
+    no meaning for any other panel type.
+
+  property DateFormat: string;
+    For use with sptDate, sptTimeDate and sptDateTime PanelTypes.  This property
+    has no meaning for any other panel types.  Use the same format as described
+    in the Delphi Help, FormatDateTime function.  You can leave this property
+    blank, and the user's short date format setting will be used.
+
+  property TimeFormat: string;
+    For use with sptTime, sptTimeDate and sptDateTime PanelTypes.  This property
+    has no meaning for any other panel types.  Use the same format as described
+    in the Delphi Help, FormatDateTime function.  You can leave this property
+    blank, and the user's long time format setting will be used.
+
+  property Enabled: boolean;
+    Whether the panel should be enabled or not.  Disabled panels are blank.  The
+    one exception to this is sptOwnerDraw.  The OnDrawPanel event fires
+    regardless of the Enabled state, that way you can draw it however you like
+    based on the Enabled property.
+
+  property Hint: string;
+    Hint text to be displayed for the panel.  If blank, the hint text displayed
+    will be the bar's hint (if any).  For sptEllipsisText and sptEllipsisPath
+    panels, the hint will be the full value of Text if this value is set to
+    '...'.  You can override the value of this property by using the OnHintText
+    event (see below).
+
+  property BorderWidth: TBorderWidth;
+    Use BorderWidth to specify how wide the border around the panel should be.
+    A value of 0 means no border should appear. The border of a panel is the
+    area between the outer shading rectangle and the data that apears within.
+
+  property Text: string;
+    The text to display in the panel.  For some panel types, this is controlled
+    automatically (sptCapsLock, sptDateTime, etc.).  For sptGlyph, text is
+    displayed to the right of the glyph (if there is any text), except for
+    right justified panels which display text to the left of the glyph.
+
+  property OnDrawPanel: TDFSDrawPanelEvent;
+    This event fires when the panel needs to be redrawn, and PanelType is
+    sptOwnerDraw.  Note that TDFSStatusBar also has this event and it fires for
+    any panel that needs to be drawn.  This event is intended for seperating out
+    owner drawing code into events tied to a single panel, rather than having
+    one big event that has to know how to draw every panel.
+
+  property OnHintText: TDFSPanelHintTextEvent;
+    This event fires when hint text is being retrieved for the panel.  When the
+    event handler is entered, the current hint text, if any, will be in the
+    HintText parameter.
+
+
+Implementation Notes:
+---------------------
+  * For owner draw panels (sptOwnerDraw PanelType), the status bar's OnDrawPanel
+    event fires first, and then the individual panels' OnDrawPanel events are
+    fired.  You can paint the panels in whichever handler you prefer.
+
+  * The lock indicators (caps, scroll, num) operate by using a windows hook
+    (SetWindowsHookEx).  Every effort has been made to reduce the impact this
+    will have on the user's system.  The hook is only active if it is needed
+    (there are indicator panels), and only if the panels are enabled.  If
+    multiple indicators exist (even across multiple status bars), there is still
+    only one hook installed, not one hook for each.  The hook is active for the
+    thread that contains the status bar, not system wide, if UseMonitorDLL is
+    false; otherwise, the hook is system wide.  Setting UseMonitorDLL to false
+    will lessen the impact on the user's system, but it has the side effect of
+    causing the indicators to function only within the thread.  That is, if you
+    switch to another app and change the Num Lock, it will not be reflected
+    until you switch back. Also, if UseMonitorDLL is set to true, the
+    DFSKbMon.DLL is required to be present on the system.
+
+  * If you will be using the UseMonitorDLL property, you must include the
+    monitoring DLL with your application.  It is strongly suggested that you
+    rename the DLL to something specific to your app so as not to conflict with
+    any others that may be on the users' system.  If you do rename the DLL, you
+    need to add a line of code to your main form's or project source (DPR) file
+    like this:
+
+      DFSKbDLLName := 'MyMonitorDLL.DLL';
+
+    You will also need the DFSKb unit in the uses clause for this to compile.
+    You can include path information, but it is not necessary if the DLL will
+    be in the system path or in the app's directory (suggested).  If
+    UseMonitorDLL will never be set to true, you can ignore this DLL and it will
+    NOT be needed by applications using TDFSStatusBar.
+
+  * The sptDate, sptTime, sptTimeDate, sptDateTime, and sptGauge
+    (GaugeAttrs.Style = gsIndeterminate only) panels require the use of a timer.
+    Every effort has been made to be conservative with the resources, however.
+    The timer is only created when there is a panel that needs it, and then only
+    if the panel is enabled.  The timer is shared across all panels on a status
+    bar that need it, so if you have a sptDate, sptTime and
+    sptIndeterminateGauge on a status bar, there is still only one timer active.
+    Also, the interval of the timer event firing is adjusted according to what
+    kind of panels need it.  That is, if you have a sptTime and a sptDate panel,
+    the timer will fire once per second.  But, if you have only a sptDate (or
+    you disable sptTime), the timer interval is adjusted to fire less often.
+
+  * Collection properties (i.e. TDFSStatusPanels) don't have a built-in Object
+    Inspector interface in Delphi 2 or C++Builder 1.   I'm really screwed here
+    because I DON'T want to write a big monster property editor for all of the
+    TDFSStatusPanel class just for D2/C1.  During beta testing, no one
+    complained about this, so I have decided not to do it.  If enough people
+    ask for a D2/C1 version, I will reconsider.
+
+
+Known Issues:
+-------------
+  * Key lock indicators don't get updated correctly when they are changed from
+    outside the app.  That is, if you change the state of the caps lock from
+    Notepad and then switch to the app with the statusbar, it does not update to
+    show the new state.  As best I can tell, this is a problem at the Windows
+    API level; more a design flaw than a bug.  GetKeyState (which is used to
+    find the toggled state of the indicator keys) is only updated as a thread
+    reads key messages from its queue, it does not actually go out and find out
+    what the real state is.  GetAsyncKeyState will go find the real state of
+    the key at the time of the call, but it will not return any information
+    about they toggled state; only up/down state and whether it has changed
+    since the last time it was called.  I experimented with using
+    GetAsyncKeyState when the app was deactivated and activated and checking to
+    see if the key state had changed, but there are problems with that as well.
+    GetAsyncKeyState seems to be system-wide, so it's only going to tell you if
+    the key state has changed since the last time ANYTHING called it, not just
+    your app.  The best I can do is force the indicator panels to update when
+    a key is pressed after the app is deactivaed and then activated again.  The
+    really strange part of all this is that it only happens if you use Alt-Tab
+    to task switch.  If you switch apps using the mouse, it works fine.  In my
+    defense, I offer this:  MS WordPad has this same bug.  :)  This only applies
+    if UseMonitorDLL is false.  If using the system wide hook (the DLL), the
+    indicators are monitored in every process, so the problem does not occur.
+
+
+Revision History:
+-----------------
+
+1.23: + Updated for C++Builder 5 compatibility.
+1.22: + Fixed problem with taLeftJustify panel Alignment when used with the
+        last panel on a status bar.
+      + The resize grip will now draw in the same color as the status bar.
+        Before, it would only draw in clBtnFace (system) color regardless of
+        what color the rest of the status bar was.  Thanks to Eric Bole-Feysot
+        for sending me this code from a Usenet post. 
+1.21: + sptDate, sptTime, sptDateTime, and sptTimeDate PanelTypes no longer
+        store the value of the Text property in the form file.  There was no
+        reason to store them, and one user reported it actually causing a
+        problem although I couldn't duplicate it.
+1.20: + Added new panel type, sptTimeDate, and changed behavior of sptDateTime.
+        Now, sptDateTime shows the date and time in that order.  sptTimeDate
+        shows it in time/date order.  If you had panels of sptDateTime type,
+        you might want to change them to sptTimeDate.  sptDateTime was added by
+        Lars Black because it is often displayed that way where he's from.
+      + Added BorderWidth property to panels.  See docs above.
+      + sptGlyph panels now support text.  See docs above.
+1.12: + It's *really* D5 compatible now.  Small change between the D5 eval
+        version and the real, shipping D5 version broke it.
+1.11: + D5 compatibility.
+1.10: + Added a new panel style gsIndeterminate2, and added three new GaugeAttrs
+        properties: Color, TextColor, and Speed.  See documentation above.
+        This is based on code sent to me by David Wright.  Many thanks to him
+        for sharing.
+      + Font.Color property was not honored.
+1.01: + Right aligned text would draw right up to a panel's shadow.  It now
+        keeps a 1 pixel border between the text and the shadow.
+1.00: + Initial public release
