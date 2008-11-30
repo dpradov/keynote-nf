@@ -25,6 +25,8 @@ Errores corregidos:
 
  * Issue #9: Al pulsar Intro sobre una línea vacía con estilo de lista (viñetas o numerada) debería eliminarse el estilo de lista de esa línea. 
 
+ * Issue #13: Comportamiento de listas (viñetas o lista numerada): La indentación no se establece siempre de la manera esperada.
+
 
 -----------------------------------------------------------
 03 octubre 2008 - version 1.7.3.3

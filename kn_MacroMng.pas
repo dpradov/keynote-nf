@@ -1647,6 +1647,37 @@ var
   myTreeNode : TTreeNTNode;
   myPara : TParaFormat2;
 
+    Procedure CmdNumbering(tipo : TRxNumbering);
+    var
+      actualNumbering : TRxNumbering;
+      clearIndent: integer;
+    begin
+        actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
+        If actualNumbering = tipo Then begin
+            ActiveNote.Editor.Paragraph.Numbering := nsNone;
+            If actualNumbering = nsBullet Then
+                ActiveNote.Editor.Paragraph.FirstIndentRelative:= -2
+            Else
+                ActiveNote.Editor.Paragraph.FirstIndentRelative:= -4;
+        end
+        Else begin
+            clearIndent := 0;
+            If actualNumbering = nsBullet Then  // if convert from bullet to numbering
+                clearIndent := -2
+            Else If actualNumbering <> nsNone Then
+                clearIndent := -4;
+
+            If tipo = nsBullet Then
+                ActiveNote.Editor.Paragraph.FirstIndentRelative := 2 + clearIndent
+            Else
+                ActiveNote.Editor.Paragraph.FirstIndentRelative := 4 + clearIndent;
+
+            ActiveNote.Editor.Paragraph.Numbering := tipo;
+            ActiveNote.Editor.Paragraph.NumberingStyle := nsEnclosed;
+            ActiveNote.Editor.Paragraph.NumberingStart := 1;
+        End
+    End;
+
 begin
   // Perform command on ActiveNote.
   // The command MODIFIES the note,
@@ -1711,10 +1742,7 @@ begin
             ActiveNote.Editor.Perform( WM_CLEAR, 0, 0 );
           end;
           ecBullets : begin
-            if ( ActiveNote.Editor.Paragraph.Numbering = nsNone ) then
-              ActiveNote.Editor.Paragraph.Numbering := nsBullet
-            else
-              ActiveNote.Editor.Paragraph.Numbering := nsNone;
+            CmdNumbering(nsBullet);
             (* riched20.dll v. 3.0 supports numbering. E.g.:
             if ( ActiveNote.Editor.Paragraph.Numbering = nsNone ) then
               ActiveNote.Editor.Paragraph.Numbering := nsBullet
@@ -1727,22 +1755,7 @@ begin
 
           end;
           ecNumbers : begin
-            if ( ActiveNote.Editor.Paragraph.Numbering = nsNone ) then
-            begin
-
-              ActiveNote.Editor.Paragraph.NumberingStart := 1;
-              ActiveNote.Editor.Paragraph.Numbering := KeyOptions.LastNumbering;
-              ActiveNote.Editor.Paragraph.NumberingStyle := nsEnclosed;
-              ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent + EditorOptions.IndentInc;
-            end
-            else
-            begin
-              ActiveNote.Editor.Paragraph.Numbering := nsNone;
-              if ( ActiveNote.Editor.Paragraph.LeftIndent >= EditorOptions.IndentInc ) then
-                ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent - EditorOptions.IndentInc
-              else
-                ActiveNote.Editor.Paragraph.LeftIndent := 0;
-            end;
+            CmdNumbering(KeyOptions.LastNumbering);
           end;
           ecSpace1 : begin
             ActiveNote.Editor.Paragraph.LineSpacingRule := lsSingle;

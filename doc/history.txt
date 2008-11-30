@@ -25,6 +25,8 @@ Bugfixes:
 
  * Issue #9: Pressing Intro in an empty line with bullet or numbering list style, should cause list style to be removed.. 
 
+ * Issue #13: Behaviour of lists styles: When applying list styles, the first indent of list (bullet or numbering) is not homogeneous
+
 
 =============================
 03 october 2008 - version 1.7.3.3
