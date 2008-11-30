@@ -70,7 +70,7 @@ Workaround: When you want to change the layout, save the file first *and reload 
 
 * When renaming a tree node, standard clipboard-related keyboard shortcuts (Ctrl+C/X/V) do not work, because they are already taken by the main menu and apply only to the text area. Use alternate clipboard shortcuts, such as Ctrl+Insert (Copy), Shift+Del (Cut) and Shift+Insert (Paste).
 
-* Occasionally (rarely!) KeyNote refuses to paste the text you have just copied to clipboard. I think this only affects Windows NT/2000/XP systems. You can verify that the text was indeed copied to clipboard, because the "Pase as text" command does work. What doens't work is the "standard" Paste. The only workaround is to use "Paste as text" instead, or cut the text instead of copying it (you can cut then immediately paste it back, to simulate "Copy"; you will then be able to paste the text correctly where you want it).
+* RESOLVED (1.7.3.2) Occasionally (rarely!) KeyNote refuses to paste the text you have just copied to clipboard. I think this only affects Windows NT/2000/XP systems. You can verify that the text was indeed copied to clipboard, because the "Pase as text" command does work. What doens't work is the "standard" Paste. The only workaround is to use "Paste as text" instead, or cut the text instead of copying it (you can cut then immediately paste it back, to simulate "Copy"; you will then be able to paste the text correctly where you want it).
 
 * RESOLVED (1.7.0): When moving tree nodes with checkboxes, the state of the checkbox
   	            is lost (i.e. a moved node always ends up unchecked).

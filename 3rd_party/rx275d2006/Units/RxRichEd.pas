@@ -206,6 +206,7 @@ type
     procedure SetAlignment(Value: TParaAlignment);
     procedure SetAttributes(var Paragraph: TParaFormat2);
     procedure SetFirstIndent(Value: Longint);
+    procedure SetFirstIndentRelative(Value: Longint);
     procedure SetHeadingStyle(Value: THeadingStyle);
     procedure SetLeftIndent(Value: Longint);
     procedure SetRightIndent(Value: Longint);
@@ -228,6 +229,7 @@ type
     procedure Assign(Source: TPersistent); override;
     property Alignment: TParaAlignment read GetAlignment write SetAlignment;
     property FirstIndent: Longint read GetFirstIndent write SetFirstIndent;
+    property FirstIndentRelative: Longint write SetFirstIndentRelative;
     property HeadingStyle: THeadingStyle read GetHeadingStyle write SetHeadingStyle;
     property LeftIndent: Longint read GetLeftIndent write SetLeftIndent;
     property LineSpacing: Longint read GetLineSpacing write SetLineSpacing;
@@ -1638,6 +1640,8 @@ begin
   Result := Paragraph.dxStartIndent div 20;
 end;
 
+// Indentation of the paragraph's first line, in points. The indentation of subsequent lines depends on the dxOffset member (LeftIndent property).
+// The indentation specified is an absolute indentation from the left margin.
 procedure TRxParaAttributes.SetFirstIndent(Value: Longint);
 var
   Paragraph: TParaFormat2;
@@ -1646,6 +1650,21 @@ begin
   with Paragraph do
   begin
     dwMask := PFM_STARTINDENT;
+    dxStartIndent := Value * 20;
+  end;
+  SetAttributes(Paragraph);
+end;
+
+// Indentation of the paragraph's first line, in points. The indentation of subsequent lines depends on the dxOffset member (LeftIndent property).
+// The indentation specified is relative to the paragraph's current indentation.
+procedure TRxParaAttributes.SetFirstIndentRelative(Value: Longint);
+var
+  Paragraph: TParaFormat2;
+begin
+  InitPara(Paragraph);
+  with Paragraph do
+  begin
+    dwMask := PFM_OFFSETINDENT;
     dxStartIndent := Value * 20;
   end;
   SetAttributes(Paragraph);
