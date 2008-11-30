@@ -5290,9 +5290,15 @@ begin
           do
             Inc( indent );
 
-          if (indent = length(S)) and (TRxRichEdit(sender).Paragraph.Numbering <> nsNone) then
-             TRxRichEdit(sender).Paragraph.Numbering :=  nsNone
+          if (indent = length(S)) and (TRxRichEdit(sender).Paragraph.Numbering <> nsNone) then begin
 
+             If TRxRichEdit(sender).Paragraph.Numbering = nsBullet Then
+                ActiveNote.Editor.Paragraph.FirstIndentRelative:= -2
+             Else
+                ActiveNote.Editor.Paragraph.FirstIndentRelative:= -4;
+
+             TRxRichEdit(sender).Paragraph.Numbering :=  nsNone;
+             end
           else begin
             key := 0;
             // insert a linebreak followed by the substring of blanks and tabs
