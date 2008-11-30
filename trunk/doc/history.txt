@@ -11,8 +11,20 @@ KEYNOTE - RELEASE HISTORY
    http://groups.google.com/group/keynote-nf
 
 
+Issue #tracker at http://code.google.com/p/keynote-nf/issues/list
 
------------------------------------------------------------
+=============================
+Version: 1.7.4 -  date: XX/XX/XXXX
+
+Enhancements:
+
+Bugfixes:
+
+ * Issue #10: Changing First Indent of selection with several lines. 
+ 	      Resolved in a better way, using PFM_OFFSETINDENT in RichEdit, instead of PFM_STARTINDENT
+
+
+=============================
 03 october 2008 - version 1.7.3.3
 
 * Fixed problem with function "Insert URL..." and "Insert Link to file...": it didn't

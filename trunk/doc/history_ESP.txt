@@ -11,6 +11,18 @@ KEYNOTE - RELEASE HISTORY
    http://groups.google.com/group/keynote-nf
 
 
+Seguimiento de incidencias (issues) en http://code.google.com/p/keynote-nf/issues/list
+
+=============================
+Versión: 1.7.4 -  fecha: XX/XX/XXXX
+
+Mejoras:
+
+Errores corregidos:
+
+ * Issue #10: Modificar 'First Indent' en una selección de múltiples líneas.
+ 	      Resuelto de una manera más correcta, utilizando PFM_OFFSETINDENT en el control RichEdit, en lugar de PFM_STARTINDENT
+
 
 -----------------------------------------------------------
 03 octubre 2008 - version 1.7.3.3

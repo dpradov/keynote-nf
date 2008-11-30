@@ -1647,34 +1647,6 @@ var
   myTreeNode : TTreeNTNode;
   myPara : TParaFormat2;
 
-      procedure ApplyFirstIndent;         // [dpv]
-      var
-        sel: TCharRange;
-        point: TPoint;
-        I: integer;
-      begin
-         with ActiveNote.Editor do begin
-             sel:= GetSelection;
-             point.x:= 0;
-             SetSelection(sel.cpMin, sel.cpMin, false);
-             for I:= LineFromChar(sel.cpMin) to LineFromChar(sel.cpMax) do begin
-                 point.Y:= I;
-                 CaretPos:= point;
-                 if aCmd = ecFirstIndent then
-                    Paragraph.FirstIndent := Paragraph.FirstIndent + EditorOptions.IndentInc
-                 else begin
-                    if Paragraph.FirstIndent >= EditorOptions.IndentInc then
-                      Paragraph.FirstIndent := Paragraph.FirstIndent - EditorOptions.IndentInc
-                    else
-                      Paragraph.FirstIndent := 0;
-                 end;
-
-             end;
-             SetSelection(sel.cpMin, sel.cpMax, true);
-         end;
-
-      end;
-
 begin
   // Perform command on ActiveNote.
   // The command MODIFIES the note,
@@ -1812,8 +1784,7 @@ begin
               ActiveNote.Editor.Paragraph.LeftIndent := 0;
           end;
           ecFirstIndent : begin
-               //ActiveNote.Editor.Paragraph.FirstIndent := ActiveNote.Editor.Paragraph.FirstIndent + EditorOptions.IndentInc;   [dpv]
-               ApplyFirstIndent;  // [dpv]
+               ActiveNote.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
           end;
           ecFirstOutdent : begin
             (*  [dpv]
@@ -1822,7 +1793,7 @@ begin
             else
               ActiveNote.Editor.Paragraph.FirstIndent := 0;
             *)
-            ApplyFirstIndent;  // [dpv]
+            ActiveNote.Editor.Paragraph.FirstIndentRelative := - EditorOptions.IndentInc;
           end;
           ecRightIndent : begin
             ActiveNote.Editor.Paragraph.RightIndent := ActiveNote.Editor.Paragraph.RightIndent + EditorOptions.IndentInc;
