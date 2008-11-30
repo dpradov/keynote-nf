@@ -5274,7 +5274,6 @@ begin
               and (TRxRichEdit(sender).Paragraph.TableStyle = tsNone)  // DPV
            then
       begin
-        key := 0;
         with ( sender as TRxRichEdit ) do
         begin
           // figure out line and column position of caret
@@ -5291,9 +5290,16 @@ begin
           do
             Inc( indent );
 
-          // insert a linebreak followed by the substring of blanks and tabs
-          SelText := #13#10+Copy(S, 1, indent);
-          SelStart := ( SelStart+SelLength ) -1;
+          if (indent = length(S)) and (TRxRichEdit(sender).Paragraph.Numbering <> nsNone) then
+             TRxRichEdit(sender).Paragraph.Numbering :=  nsNone
+
+          else begin
+            key := 0;
+            // insert a linebreak followed by the substring of blanks and tabs
+            SelText := #13#10+Copy(S, 1, indent);
+            SelStart := ( SelStart+SelLength ) -1;
+          end;
+
         end;
       end;
     end;
