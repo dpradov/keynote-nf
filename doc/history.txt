@@ -23,6 +23,8 @@ Bugfixes:
  * Issue #10: Changing First Indent of selection with several lines. 
  	      Resolved in a better way, using PFM_OFFSETINDENT in RichEdit, instead of PFM_STARTINDENT
 
+ * Issue #9: Pressing Intro in an empty line with bullet or numbering list style, should cause list style to be removed.. 
+
 
 =============================
 03 october 2008 - version 1.7.3.3

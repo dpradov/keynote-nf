@@ -23,6 +23,8 @@ Errores corregidos:
  * Issue #10: Modificar 'First Indent' en una selección de múltiples líneas.
  	      Resuelto de una manera más correcta, utilizando PFM_OFFSETINDENT en el control RichEdit, en lugar de PFM_STARTINDENT
 
+ * Issue #9: Al pulsar Intro sobre una línea vacía con estilo de lista (viñetas o numerada) debería eliminarse el estilo de lista de esa línea. 
+
 
 -----------------------------------------------------------
 03 octubre 2008 - version 1.7.3.3
