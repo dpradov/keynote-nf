@@ -1,7 +1,7 @@
 unit kn_FindReplaceMng;
 
 interface
-uses     
+uses
     TreeNT, RxRichEd,
     kn_LocationObj, kn_Info, kn_Find, kn_Replace;
 
@@ -48,7 +48,7 @@ uses Classes, Dialogs, Forms, SysUtils, Controls,     Windows,
      kn_Global, Kn_const, kn_NoteObj,
      kn_NoteMng, kn_Main, kn_NodeList, kn_Cmd,
      //kn_tmpRTF,   // [dpv]  (002)
-     kn_TreeNoteMng, kn_MacroMng;
+     kn_TreeNoteMng, kn_MacroMng, kn_LinksMng;
 
 
 procedure RunFinder;
@@ -271,13 +271,13 @@ begin
   if SelectedOnly then
   begin
     i := Form_Main.List_ResFind.ItemIndex;
-    s := Form_Main.BuildKNTLocationText( TLocation( Form_Main.List_ResFind.Items.Objects[i] )) + #32;
+    s := BuildKNTLocationText( TLocation( Form_Main.List_ResFind.Items.Objects[i] )) + #32;
   end
   else
   begin
     for i := 1 to cnt do
     begin
-      s := s + Format( '%d. ', [i] ) + Form_Main.BuildKNTLocationText( TLocation( Location_List.Objects[pred( i )] )) + #13;
+      s := s + Format( '%d. ', [i] ) + BuildKNTLocationText( TLocation( Location_List.Objects[pred( i )] )) + #13;
     end;
   end;
   ActiveNote.Editor.SelText := s;

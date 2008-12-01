@@ -236,7 +236,8 @@ uses
   kn_FavoritesMng in 'kn_FavoritesMng.pas',
   kn_VirtualNodeMng in 'kn_VirtualNodeMng.pas',
   kn_BookmarksMng in 'kn_BookmarksMng.pas',
-  kn_AlertMng in 'kn_AlertMng.pas' {Form_Alarm};
+  kn_AlertMng in 'kn_AlertMng.pas' {Form_Alarm},
+  kn_LinksMng in 'kn_LinksMng.pas';
 
 {$R *.RES}
 
