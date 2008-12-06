@@ -120,7 +120,7 @@
 		</Linker>
 		<Directories>
 			<Directories Name="OutputDir"></Directories>
-			<Directories Name="UnitOutputDir"></Directories>
+			<Directories Name="UnitOutputDir">..\..\..\..\Output\Dcu</Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
 			<Directories Name="SearchPath"></Directories>
@@ -150,7 +150,7 @@
 			<Language Name="RootDir"></Language>
 		</Language>
 		<VersionInfo>
-			<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+			<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
 			<VersionInfo Name="AutoIncBuild">False</VersionInfo>
 			<VersionInfo Name="MajorVer">1</VersionInfo>
 			<VersionInfo Name="MinorVer">0</VersionInfo>

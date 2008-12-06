@@ -24,7 +24,7 @@ In the case of commiting to subversion, clients must be configured
 to ignore certain files and folders. I use Tortoise, and in the 
 "Global Ignore Pattern" I have set the following value:
 
-*.identcache *.~* *.dcu *.dsk *.dll *.exe *.bdsproj.local  */ModelSupport_keynote 
+*.identcache *.~* *.dcu *.dsk *.dll *.exe *.bdsproj.local *.cfg */ModelSupport_keynote 
  ModelSupport_keynote */__history __history
 
 
