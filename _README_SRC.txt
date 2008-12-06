@@ -34,6 +34,65 @@ Updated: 13 Nov 2007
 Version: 1.7.0
 Developer: Daniel Prado Velasco  (dprado.keynote@gmail.com)
 ============================================================
+From the source code provided by Marek Jedlinski, corresponding 
+to version 1.6.5 I've made the necessary corrections in order to
+compile it with Delphi 2006. Among other things, it have been 
+necessary to locate on the Internet some of the units of third 
+party that were not included in the source code. This code is still 
+being distributed under the terms of the Mozilla Public License (MPL), 
+to apply to units written by Marek Jedlinski, as well as those written 
+or edited by me (Daniel Prado). Third party's code is governed 
+by their own licenses.
+
+The projects "Keynote.bdsproj" and "kntutils.bdsproj" exclusively 
+use files in the folder "keynote_source" as well as a large part 
+of those in "keynote_source\3rd_party". Files originally in 
+'modified_3rdparty_units',' misc_files' and 'support_units' have 
+been kept in "Other". Some were already in the folder keynote_source,
+others have been taken into account when updating some units in '3rd_party'.
+
+So at this project as at "kntutil.bdsproj" are made explicit the 
+search folders of units (not defined as a configuration of IDE).
+
+Apart from the necessary corrections to the compilation in Delphi 2006 
+and from changes made to add new features or correct some mistakes, I 
+have made the following modification in order to facilitate understanding 
+of source code: 
+I have fragmented the file 'kn_main.pas' into multiple files, based 
+on a criterion of functionality (possibly I'll make some more changes):
+kn_Global.pas, kn_BookmarksMng.pas, kn_ConfigFileMng.pas, kn_NoteMng.pas, ...
+(kn_...Mng.pas)
+
+Third party's Units and components
+----------------------------------
+In the folder '3rd_party' it have been decompressed files in the folder
+3rd_party_distributable, replacing those files included in 
+modified_3rdparty_units (edited by Marek)
+
+There have been some minor changes to files to be compiled in Delphi 2006.
+Has taken advantage of one of the files "DFS.INC", slightly modified to 
+accommodate new versions of Delphi; for it, it has been copied to the 
+folders of other components and has been added the line {$ I DFS.INC} 
+to the necessary .pas files.
+
+Before opening Keynote projects is needed to install the following components:
+
+*Most of the components are included in a packet named "_PaqueteTerceros"
+
+*RX Library 2.75 port to Delphi 2006 (Win32), v1.0 (by Oleg Fedorov)
+   --> 'rx275d2006. Follow the signs for the file "readme.txt" for installation
+
+*DCPcrypt v1.3      David Barton (davebarton@bigfoot.com)
+   --> 'dcpcrypt-1_3'  (It has been installed package DCP_d4.bdsproj)
+
+Inside the folder "3rd_party_distributable" has been included the original
+source code of individual components and units used in KeyNote. They are 
+all the used.
+
+
+
+================================================
+================================================
 
 A partir del código fuente facilitado por Marek Jedlinski,
 correspondiente a la versión 1.6.5 he realizado las correcciones
