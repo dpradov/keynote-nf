@@ -120,10 +120,10 @@
 		</Linker>
 		<Directories>
 			<Directories Name="OutputDir"></Directories>
-			<Directories Name="UnitOutputDir"></Directories>
-			<Directories Name="PackageDLLOutputDir"></Directories>
+			<Directories Name="UnitOutputDir">..\..\..\Output\Dcu</Directories>
+			<Directories Name="PackageDLLOutputDir">..\..\..\Output\Bpl</Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">$(BDS)\source\ToolsAPI</Directories>
+			<Directories Name="SearchPath">$(BDS)\source\ToolsAPI;..</Directories>
 			<Directories Name="Packages"></Directories>
 			<Directories Name="Conditionals"></Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
