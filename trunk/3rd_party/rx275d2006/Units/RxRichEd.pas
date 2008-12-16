@@ -120,6 +120,7 @@ type
     function GetLanguage : TLanguage;
     procedure SetLanguage(Value: TLanguage);
     function GetDisabled: Boolean;
+    function GetLink2: Integer;
     function GetLink: Boolean;
     function GetName: TFontName;
     function GetOffset: Integer;
@@ -160,6 +161,7 @@ type
     property Hidden: Boolean read GetHidden write SetHidden;
     property Language: TLanguage read GetLanguage write SetLanguage;
     property Link: Boolean read GetLink write SetLink;
+    property Link2: Integer read GetLink2;
     property Name: TFontName read GetName write SetName;
     property Offset: Integer read GetOffset write SetOffset;
     property Pitch: TFontPitch read GetPitch write SetPitch;
@@ -267,7 +269,7 @@ type
   TRichStreamFormat = (sfDefault, sfRichText, sfPlainText);
   TRichStreamMode = (smSelection, smPlainRtf, smNoObjects, smUnicode);
   TRichStreamModes = set of TRichStreamMode;
-  TRichEditURLClickEvent = procedure(Sender: TObject; const URLText: string;
+  TRichEditURLClickEvent = procedure(Sender: TObject; const URLText: string; chrg: TCharRange;
     Button: TMouseButton) of object;
   TRichEditProtectChangeEx = procedure(Sender: TObject; const Message: TMessage;
     StartPos, EndPos: Integer; var AllowChange: Boolean) of object;
@@ -406,7 +408,7 @@ type
     function ProtectChange(const Message: TMessage; StartPos,
       EndPos: Integer): Boolean; dynamic;
     function SaveClipboard(NumObj, NumChars: Integer): Boolean; dynamic;
-    procedure URLClick(const URLText: string; Button: TMouseButton); dynamic;
+    procedure URLClick(const URLText: string; chrg: _charrange; Button: TMouseButton); dynamic;
     procedure SetPlainText(Value: Boolean); virtual;
 {$IFDEF RX_D3}
     procedure CloseFindDialog(Dialog: TFindDialog); virtual;
@@ -456,6 +458,7 @@ type
     destructor Destroy; override;
     procedure Clear; {$IFDEF RX_D3} override; {$ENDIF}
     procedure SetSelection(StartPos, EndPos: Longint; ScrollCaret: Boolean);
+    function TextLength: integer;
     function GetSelection: TCharRange;
     function GetTextRange(StartPos, EndPos: Longint): string;
     function LineFromChar(CharIndex: Integer): Integer;
@@ -1024,6 +1027,20 @@ begin
     if Value then dwEffects := CFE_PROTECTED;
   end;
   SetAttributes(Format);
+end;
+
+function TRxTextAttributes.GetLink2: integer;
+var
+  Format: TCharFormat2;
+begin
+  Result := 0;
+  if RichEditVersion < 2 then Exit;
+  GetAttributes(Format);
+  if (Format.dwMask and CFE_LINK) = 0 then
+      Result:= -1
+  else
+      if (Format.dwEffects and CFE_LINK) <> 0 then
+        Result:= 1;
 end;
 
 function TRxTextAttributes.GetLink: Boolean;
@@ -4627,12 +4644,26 @@ begin
   end;
 end;
 
+function TRxCustomRichEdit.TextLength: integer;
+var
+  TextLenEx: TGetTextLengthEx;
+begin
+    if RichEditVersion >= 2 then begin
+      with TextLenEx do begin
+        flags := GTL_DEFAULT;
+        codepage := CP_ACP;
+      end;
+      Result := Perform(EM_GETTEXTLENGTHEX, WParam(@TextLenEx), 0);
+    end
+    else
+      Result := GetTextLen;
+end;
+
 procedure TRxCustomRichEdit.Print(const Caption: string);
 var
   Range: TFormatRange;
   LastChar, MaxLen, LogX, LogY, OldMap: Integer;
   SaveRect: TRect;
-  TextLenEx: TGetTextLengthEx;
 begin
   FillChar(Range, SizeOf(TFormatRange), 0);
   with Printer, Range do begin
@@ -4655,14 +4686,7 @@ begin
     rcPage := rc;
     SaveRect := rc;
     LastChar := 0;
-    if RichEditVersion >= 2 then begin
-      with TextLenEx do begin
-        flags := GTL_DEFAULT;
-        codepage := CP_ACP;
-      end;
-      MaxLen := Perform(EM_GETTEXTLENGTHEX, WParam(@TextLenEx), 0);
-    end
-    else MaxLen := GetTextLen;
+    MaxLen:= TextLength;
     chrg.cpMax := -1;
     { ensure printer DC is in text map mode }
     OldMap := SetMapMode(hdc, MM_TEXT);
@@ -4774,7 +4798,7 @@ begin
               begin
                 if (FClickBtn = mbRight) and (FClickRange.cpMin = chrg.cpMin) and
                   (FClickRange.cpMax = chrg.cpMax) then
-                  URLClick(GetTextRange(chrg.cpMin, chrg.cpMax), mbRight);
+                  URLClick(GetTextRange(chrg.cpMin, chrg.cpMax), chrg, mbRight);
                 with FClickRange do begin
                   cpMin := -1;
                   cpMax := -1;
@@ -4789,7 +4813,7 @@ begin
               begin
                 if (FClickBtn = mbLeft) and (FClickRange.cpMin = chrg.cpMin) and
                   (FClickRange.cpMax = chrg.cpMax) then
-                  URLClick(GetTextRange(chrg.cpMin, chrg.cpMax), mbLeft);
+                  URLClick(GetTextRange(chrg.cpMin, chrg.cpMax), chrg, mbLeft);
                 with FClickRange do begin
                   cpMin := -1;
                   cpMax := -1;
@@ -4831,12 +4855,10 @@ begin
   if Assigned(OnResizeRequest) then OnResizeRequest(Self, Rect);
 end;
 
-procedure TRxCustomRichEdit.URLClick(const URLText: string; Button: TMouseButton);
-var
-  URLTextStr: string;
+procedure TRxCustomRichEdit.URLClick(const URLText: string; chrg: _charrange; Button: TMouseButton);
 begin
   if Assigned(OnURLClick) then
-   OnURLClick(Self, URLText, Button);
+   OnURLClick(Self, URLText, chrg, Button);
 end;
 
 function TRxCustomRichEdit.FindText(const SearchStr: string;

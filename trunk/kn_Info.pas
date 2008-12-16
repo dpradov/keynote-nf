@@ -49,8 +49,8 @@ uses Windows, Messages, Classes, Graphics, SysUtils,
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_VerStr   = '1.7.3.3';
-  Program_Version  = '1.7.3'; //Program_VerStr; // + ' beta';
+  Program_VerStr   = '1.7.4';
+  Program_Version  = '1.7.4'; //Program_VerStr; // + ' beta';
   Program_License  = 'Freeware / Open Source';
   {$IFDEF DLA_DUNI}
   Program_Desc     = 'Wersja specjalna dla mojej Ukochanej';
@@ -346,13 +346,13 @@ type
 
 type
   TURLAction = (
-    urlOpen, urlOpenNew, urlCopy, urlBoth, urlAsk, urlNothing
+    urlOpen, urlOpenNew, urlCopy, urlBoth, urlAsk, urlNothing, urlCreateOrModify
   );
 
 const
   URL_ACTIONS : array[TURLAction] of string = (
     'Open', 'Open in new window', 'Copy to clipboard',
-    'Both (open and copy)', 'Prompt', 'Do nothing'
+    'Both (open and copy)', 'Prompt', 'Do nothing', 'Create or Modify'
   );
 
 (*

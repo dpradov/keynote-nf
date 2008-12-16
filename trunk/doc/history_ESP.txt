@@ -18,6 +18,11 @@ Versión: 1.7.4 -  fecha: XX/XX/XXXX
 
 Mejoras:
 
+ * Issue #12: Mejora en la gestión de hipervínculos. Para las nuevas versiones del control Rich Edit se usa
+     	      el comando RTF:
+	     {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
+	     Ahora los hipervínculos pueden mostrar textos diferentes a la propia URL.
+
 Errores corregidos:
 
  * Issue #10: Modificar 'First Indent' en una selección de múltiples líneas.

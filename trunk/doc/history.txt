@@ -17,6 +17,10 @@ Issue #tracker at http://code.google.com/p/keynote-nf/issues/list
 Version: 1.7.4 -  date: XX/XX/XXXX
 
 Enhancements:
+ 
+ * Issue #12: Improving the way links are managed. In new versions of Rich Edit is used the command RTF:
+	     {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
+	     Now hyperlinks can show a text different to the URL.
 
 Bugfixes:
 
