@@ -914,7 +914,7 @@ type
       const Message: TMessage; StartPos, EndPos: Integer;
       var AllowChange: Boolean);
     procedure RxRTFSelectionChange(Sender: TObject);
-    procedure RxRTFURLClick(Sender: TObject; const URLText: String; Button: TMouseButton);
+    procedure RxRTFURLClick(Sender: TObject; const URLText: String; chrg: _charrange; Button: TMouseButton);
     procedure RxRTFKeyPress(Sender: TObject; var Key: Char);
     procedure MMEditSelectAllClick(Sender: TObject);
     procedure MMFormatWordWrapClick(Sender: TObject);
@@ -5288,12 +5288,13 @@ begin
 
              TRxRichEdit(sender).Paragraph.Numbering :=  nsNone;
              end
-          else begin
-            key := 0;
-            // insert a linebreak followed by the substring of blanks and tabs
-            SelText := #13#10+Copy(S, 1, indent);
-            SelStart := ( SelStart+SelLength ) -1;
-          end;
+          else
+            if indent > 0 then begin
+              key := 0;
+              // insert a linebreak followed by the substring of blanks and tabs
+              SelText := #13#10+Copy(S, 1, indent);
+              SelStart := ( SelStart+SelLength ) -1;
+            end;
 
         end;
       end;
@@ -11757,7 +11758,7 @@ end;
 
 procedure TForm_Main.MMInsertURLClick(Sender: TObject);
 begin
-  InsertURL();
+  InsertURL('', '');   // Ask the user
 end; // Insert URL
 
 
@@ -11918,12 +11919,12 @@ end;
 
 procedure TForm_Main.MMInsertMarkLocationClick(Sender: TObject);
 begin
-  InsertOrMarkKNTLink( nil, false );
+  InsertOrMarkKNTLink( nil, false, '' );
 end;
 
 procedure TForm_Main.MMInsertKNTLinkClick(Sender: TObject);
 begin
-  InsertOrMarkKNTLink( nil, true );
+  InsertOrMarkKNTLink( nil, true, '');
 end;
 
 
@@ -12330,9 +12331,9 @@ begin
   // CreateHyperlink;
 end;
 
-procedure TForm_Main.RxRTFURLClick(Sender: TObject; const URLText: String;  Button: TMouseButton);
+procedure TForm_Main.RxRTFURLClick(Sender: TObject; const URLText: String; chrg: _charrange; Button: TMouseButton);
 begin
-  ClickOnURL (URLText);
+  ClickOnURL (URLText, chrg);
 end;
 
 procedure TForm_Main.MMViewResPanelClick(Sender: TObject);

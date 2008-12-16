@@ -254,6 +254,7 @@ procedure FindResultsToEditor( const SelectedOnly : boolean );
 var
   i, cnt : integer;
   s : string;
+  aLocation: TLocation;
 begin
   if ( not Form_Main.Pages_Res.Visible ) then exit;
   if ( not assigned( ActiveNote )) then exit;
@@ -271,16 +272,19 @@ begin
   if SelectedOnly then
   begin
     i := Form_Main.List_ResFind.ItemIndex;
-    s := BuildKNTLocationText( TLocation( Form_Main.List_ResFind.Items.Objects[i] )) + #32;
+    aLocation:= TLocation( Form_Main.List_ResFind.Items.Objects[i]);
+    InsertOrMarkKNTLink(aLocation, true, '');
   end
   else
   begin
     for i := 1 to cnt do
     begin
-      s := s + Format( '%d. ', [i] ) + BuildKNTLocationText( TLocation( Location_List.Objects[pred( i )] )) + #13;
+      aLocation:= TLocation( TLocation( Location_List.Objects[pred( i )] ));
+      ActiveNote.Editor.SelText := #13 + Format( '%d. ', [i] );
+      ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
+      InsertOrMarkKNTLink(aLocation, true, '');
     end;
   end;
-  ActiveNote.Editor.SelText := s;
   ActiveNote.Editor.SelLength := 0;
 
 end; // FindResultsToEditor
@@ -315,30 +319,14 @@ var
         var
           path : string;
         begin
-
           if assigned( myTreeNode ) then
           begin
             if ApplyFilter and (not nodesSelected) then      // [dpv] Only once per note
                MarkAllFiltered(myTNote);           // There will be at least one node in the selection
             nodeToFilter:= false;      // [dpv]
             nodesSelected:= true;      // [dpv]
-
-            if TreeOptions.ShowFullPathSearch then
-              path := GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, TreeOptions.PathTopToBottom ) // {N}
-            else
-              path := myTreeNode.Text; // {N}
-
-            if TreeOptions.PathTopToBottom then
-              path := Format( '%s%s%s', [myNote.Name, TreeOptions.NodeDelimiter, path] )
-            else
-              path := Format( '%s%s%s', [path, TreeOptions.NodeDelimiter, myNote.Name] );
-          end
-          else
-          begin
-            path := myNote.Name;
           end;
-
-          path := Format( '%d. %s %d', [Counter, path, location.CaretPos] );
+          path := Format( '%d. %s', [Counter, PathOfKNTLink(myTreeNode, myNote, location.CaretPos)] );
 
           Location_List.AddObject(
             path,

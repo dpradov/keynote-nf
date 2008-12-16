@@ -59,6 +59,12 @@ type
     Button_Open: TButton;
     Button_OpenNew: TButton;
     Edit_URL: TEdit;
+    Label2: TLabel;
+    Edit_TextURL: TEdit;
+    Button_Modify: TButton;
+    procedure Edit_URLExit(Sender: TObject);
+    procedure Button_ModifyClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button_CopyClick(Sender: TObject);
     procedure Button_OpenClick(Sender: TObject);
@@ -71,6 +77,7 @@ type
   public
     { Public declarations }
     URLAction : TURLAction;
+    AllowURLModification: boolean;      // URL, not the text associated
   end;
 
 
@@ -81,6 +88,8 @@ function HTTPEncode(const AStr: String): String;
 function StripFileURLPrefix( const AStr : string ) : string;
 
 implementation
+uses
+  RxRichEd;
 
 {$R *.DFM}
 
@@ -169,12 +178,27 @@ begin
   Edit_URL.Font.Name := 'Verdana';
   // Edit_URL.Font.Style := [fsBold];
   if ( Edit_URL.Font.Size < 10 ) then
-   Edit_URL.Font.Size := 10;
+      Edit_URL.Font.Size := 10;
+
+  Edit_TextURL.Font.Name := 'Verdana';
+  if ( Edit_TextURL.Font.Size < 10 ) then
+      Edit_TextURL.Font.Size := 10;
+
+  if RichEditVersion < 4 then begin
+    Edit_TextURL.Enabled := false;
+    label2.Enabled := false;
+  end;
+  AllowURLModification:= True;
 end;
 
 procedure TForm_URLAction.Button_CopyClick(Sender: TObject);
 begin
   URLAction := urlCopy;
+end;
+
+procedure TForm_URLAction.Button_ModifyClick(Sender: TObject);
+begin
+     URLAction := urlCreateOrModify;
 end;
 
 procedure TForm_URLAction.Button_OpenClick(Sender: TObject);
@@ -192,7 +216,44 @@ begin
       Close;
     end;
   end;
-end; // KEY DOWN
+end;
+
+procedure TForm_URLAction.FormShow(Sender: TObject);
+begin
+
+   // Look to the default, initial action
+     if URLAction = urlCreateOrModify then begin
+        Button_Copy.Visible := false;
+        Button_Open.Visible := false;
+        Button_OpenNew.Visible := false;
+        Button_Modify.Caption := 'OK';
+        Button_Modify.Default := true;
+        Caption:= 'Create Hyperlink';
+     end
+     else begin
+        Button_Copy.Visible := true;
+        Button_Open.Visible := true;
+        Button_OpenNew.Visible := true;
+        Button_Modify.Caption := 'Modify';
+        Button_Open.Default := true;
+        Caption:= 'Choose Action for Hyperlink';
+     end;
+
+      if AllowURLModification then begin
+        Edit_URL.ReadOnly:= False;
+        Edit_URL.SetFocus;
+        Edit_URL.SelectAll;
+      end
+      else begin
+        Edit_URL.Text:= '(KNT Location) ' + Edit_URL.Text;
+        Edit_URL.ReadOnly:= True;
+        Edit_TextURL.SetFocus;
+        Edit_TextURL.SelectAll;
+      end;
+
+end;
+
+// KEY DOWN
 
 
 procedure TForm_URLAction.Button_OpenNewClick(Sender: TObject);
@@ -200,6 +261,19 @@ begin
   URLAction := urlOpenNew;
 end;
 
+
+procedure TForm_URLAction.Edit_URLExit(Sender: TObject);
+var
+  cad: string;
+begin
+ if Edit_TextURL.Text = '' then begin
+    cad:= Edit_URL.Text;
+    if ( pos('(KNT Location)', cad) = 1 ) then
+        delete( cad, 1, length( '(KNT Location)' ));
+
+    Edit_TextURL.Text := trim(cad);
+ end;
+end;
 
 procedure TForm_URLAction.Label_URLClick(Sender: TObject);
 begin

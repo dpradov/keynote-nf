@@ -47,8 +47,8 @@ interface
 Based on "CR_UORichEdit.pas";
 Enhanced TRichEdit support for DelphiDrop by UnitOOPS SOftware.
 Based on code examples by Peter Below and Ralph Friedman (TeamB).
-*)               
-                     
+*)
+
 uses Windows, Messages, Controls, Classes,
      ComCtrls, SysUtils, RichEdit, RxRichEd;
 
@@ -63,7 +63,9 @@ function GetRichText(
     const aRichEdit : TRxRichEdit;
     const asRTF, selectionOnly : boolean
   ) : string;
-                               
+
+function URLToRTF( fn : string; enTextoURL: boolean ) : string;
+function URLFromRTF( fn : string ) : string;
 
 implementation
 
@@ -122,6 +124,9 @@ begin
     Write(pbBuff^, cb);
   end;
 end;
+
+//Note: It would be possible to use directly the following message: EM_SETTEXTEX Message
+// See: http://msdn.microsoft.com/en-us/library/bb774284(VS.85).aspx
 
 procedure PutRichText(
     const aRTFString: string;
@@ -221,5 +226,29 @@ begin
     end;
   end; // with
 end; // GetRichText;
+
+// To use the filename in {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
+// we must convert each '\' to four '\' or to '/'. Example: D:\kk.txt -> D:\\\\kk.txt or D:/kk.txt
+// In "hyperlink" \\192.168.0.1\folder\leeme.txt -> "\\\\\\\\192.168.0.1/folder/leeme.txt" or "\\\\\\\\192.168.0.1\\folder\\leeme.txt"
+// In textOfHyperlink \\192.168.0.1\folder\leeme.txt -> "\\\\192.168.0.1\\folder\\leeme.txt"
+function URLToRTF( fn : string; enTextoURL: boolean ) : string;
+begin
+  if enTextoURL then begin
+      result:= StringReplace(fn,'\','\\', [rfReplaceAll]);
+      end
+  else begin
+      result:= StringReplace(fn,'\\',chr(1), [rfReplaceAll]);
+      result:= StringReplace(result,'\','\\', [rfReplaceAll]);
+      result:= StringReplace(result,chr(1),'\\\\\\\\', [rfReplaceAll]);
+  end;
+end; // URLToRTF
+
+function URLFromRTF( fn : string ) : string;
+begin
+  result:= StringReplace(fn,'\\\\',chr(1), [rfReplaceAll]);
+  result:= StringReplace(result,'\\','\', [rfReplaceAll]);
+  result:= StringReplace(result, chr(1), '\\\\', [rfReplaceAll]);
+end; // URLFromRTF
+
 
 end.
