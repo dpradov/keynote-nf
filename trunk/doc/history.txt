@@ -31,6 +31,8 @@ Bugfixes:
 
  * Issue #13: Behaviour of lists styles: When applying list styles, the first indent of list (bullet or numbering) is not homogeneous
 
+ * Issue #14: Context menu for Note tabs didn't appear under cursor
+
 
 =============================
 03 october 2008 - version 1.7.3.3
