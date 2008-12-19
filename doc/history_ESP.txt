@@ -32,6 +32,7 @@ Errores corregidos:
 
  * Issue #13: Comportamiento de listas (viñetas o lista numerada): La indentación no se establece siempre de la manera esperada.
 
+ * Issue #14: El menú contextual correspondiente a las notas (pestañas) no aparecía bajo el cursor
 
 -----------------------------------------------------------
 03 octubre 2008 - version 1.7.3.3
