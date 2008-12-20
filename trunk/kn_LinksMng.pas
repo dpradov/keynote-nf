@@ -4,7 +4,7 @@ interface
 uses
   Controls, kn_LocationObj, RichEdit, TreeNT, kn_NoteObj;
 
-   // Links related routines         (initially in kn_main.pas)
+   // Links related routines
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string);
     function BuildKNTLocationText( const aLocation : TLocation ) : string;
@@ -15,11 +15,16 @@ uses
     function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer): string;
     procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TTabNote; var myTreeNode: TTreeNTNode);
 
+    // Navigation history
+    procedure AddHistoryLocation( const aNote : TTreeNote );
+    procedure NavigateInHistory( const GoForward : boolean );
+    procedure UpdateHistoryCommands;
+
 implementation
 uses
     Windows, Classes, Forms, SysUtils, Dialogs, StdCtrls, Clipbrd, ShellApi,
-    gf_misc, gf_miscvcl, RxRichEd, kn_TreeNoteMng,
-    kn_Global, kn_Main, kn_Info, kn_Const, kn_URL, kn_RTFUtils;
+    gf_misc, gf_miscvcl, RxRichEd, kn_TreeNoteMng, kn_History, kn_FindReplaceMng,
+    kn_Global, kn_Main, kn_Info, kn_Const, kn_URL, kn_RTFUtils, kn_NoteFileMng;
 
 var
    INVALID_CHARS_FN : array[0..8] of string = (
@@ -248,7 +253,7 @@ begin
     end;
 
     NoteFile.Modified := true;
-    Form_Main.UpdateNoteFileState( [fscModified] );
+    UpdateNoteFileState( [fscModified] );
 
 end; // InsertFileOrLink
 
@@ -530,7 +535,7 @@ begin
       if ( Location.FileName <> '' ) then
       begin
         if (( not fileexists( Location.FileName )) or
-         ( Form_Main.NoteFileOpen( Location.FileName ) <> 0 )) then
+         ( NoteFileOpen( Location.FileName ) <> 0 )) then
         begin
           Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Failed to open location';
           raise Exception.CreateFmt( 'Location does not exist or file cannot be opened: "%s"', [origLocationStr] );
@@ -1050,6 +1055,125 @@ begin
     end;
 
 end; // Insert URL
+
+
+//=========================================
+// AddHistoryLocation
+//=========================================
+procedure AddHistoryLocation( const aNote : TTreeNote );
+var
+  myLocation : TLocation;
+begin
+  if (( not assigned( aNote )) or ( not assigned( aNote.SelectedNode ))) then
+    exit;
+  myLocation := TLocation.Create;
+
+  try
+
+    myLocation.FileName := notefile.FileName;
+    myLocation.NoteName := aNote.Name;
+    myLocation.NodeName := aNote.SelectedNode.Name;
+    myLocation.CaretPos := aNote.Editor.SelStart;
+    myLocation.SelLength := 0;
+    myLocation.NoteID := aNote.ID;
+    myLocation.NodeID := aNote.SelectedNode.ID;
+    aNote.History.AddLocation( myLocation );
+
+  except
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' History error';
+    aNote.History.Clear;
+    myLocation.Free;
+  end;
+
+end; // AddHistoryLocation
+
+
+//=========================================
+// NavigateInHistory
+//=========================================
+procedure NavigateInHistory( const GoForward : boolean );
+var
+  myLocation : TLocation;
+  myHistory : TKNTHistory;
+begin
+  if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
+  begin
+    myHistory := TTreeNote( ActiveNote ).History;
+    try
+      if GoForward then
+      begin
+        myLocation := myHistory.GoForward;
+      end
+      else
+      begin
+        if ( not _LastMoveWasHistory ) then
+        begin
+          AddHistoryLocation( TTreeNote( ActiveNote ));
+          myHistory.GoBack;
+        end;
+        myLocation := myHistory.GoBack;
+      end;
+      try
+        _Executing_History_Jump := true;
+        if ( not ( assigned( myLocation ) and JumpToLocation( myLocation ))) then
+        begin
+          if GoForward then
+          begin
+            while myHistory.CanGoForward do
+            begin
+              myLocation := myHistory.GoForward;
+              if JumpToLocation( myLocation ) then
+                break;
+            end;
+          end
+          else
+          begin
+            while myHistory.CanGoBack do
+            begin
+              myLocation := myHistory.GoBack;
+              if JumpToLocation( myLocation ) then
+                break;
+            end;
+          end;
+        end
+        else
+        begin
+          Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Cannot navigate to history location';
+        end;
+      finally
+        _Executing_History_Jump := false;
+        _LastMoveWasHistory := true;
+      end;
+    except
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' History navigation error';
+      myHistory.Clear;
+    end;
+  end;
+end; // NavigateInHistory
+
+
+//=========================================
+// UpdateHistoryCommands
+//=========================================
+procedure UpdateHistoryCommands;
+begin
+  with Form_Main do begin
+      if ( assigned( activenote ) and ( ActiveNote.Kind = ntTree )) then
+      begin
+        MMTreeGoBack.Enabled := TTreeNote( ActiveNote ).History.CanGoBack;
+        MMTreeGoForward.Enabled := TTreeNote( ActiveNote ).History.CanGoForward;
+        TB_GoBack.Enabled := MMTreeGoBack.Enabled;
+        TB_GoForward.Enabled := MMTreeGoForward.Enabled;
+      end
+      else
+      begin
+        TB_GoBack.Enabled := false;
+        TB_GoForward.Enabled := false;
+        MMTreeGoBack.Enabled := false;
+        MMTreeGoForward.Enabled := false;
+      end;
+  end;
+end; // UpdateHistoryCommands
 
 
 (*

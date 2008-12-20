@@ -58,7 +58,7 @@ uses
    Controls, Graphics, Clipbrd,
    gf_strings, gf_miscvcl, gf_misc,
    kn_Global, kn_MacroMng, kn_Main, kn_Chest, kn_NodeNum, kn_RTFUtils, kn_ImagePicker,
-   kn_VirtualNodeMng, kn_Macro, kn_FindReplaceMng;
+   kn_VirtualNodeMng, kn_Macro, kn_FindReplaceMng, kn_NoteFileMng, kn_LinksMng;
 
 var
    __NodeChangeCounter : longint;
@@ -287,7 +287,7 @@ begin
     myNote.TV.OnChange := Form_Main.TVChange;
     VirtualNodeUpdateMenu( false );
     NoteFile.Modified := true;
-    Form_Main.UpdateNoteFileState( [fscModified] );
+    UpdateNoteFileState( [fscModified] );
   end;
 
   if (( not aDefaultNode ) and assigned( myTreeNode ) and TreeOptions.EditNewNodes ) then
@@ -469,7 +469,7 @@ begin
       myNote.TV.Items.EndUpdate;
       myNote.TV.Selected := masternode;
       NoteFile.Modified := true;
-      Form_Main.UpdateNoteFileState( [fscModified] );
+      UpdateNoteFileState( [fscModified] );
     end;
 
   end;
@@ -747,7 +747,7 @@ begin
       finally
         myTNote.TV.Items.EndUpdate;
         NoteFile.Modified := true;
-        Form_Main.UpdateNoteFileState( [fscModified] );
+        UpdateNoteFileState( [fscModified] );
       end;
     end;
   finally
@@ -909,7 +909,7 @@ begin
     FNodeMoving:= false;       // [dpv]
     NoteFile.Modified := true;
     myTNote.TV.OnChange := Form_Main.TVChange;
-    Form_Main.UpdateNoteFileState( [fscModified] );
+    UpdateNoteFileState( [fscModified] );
     // {N}
     s := Format( 'Node "%s" %smoved %s', [MovingNode.Text,t,DIRECTION_NAMES[aDir]] );
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := s;
@@ -982,7 +982,7 @@ begin
       TNoteNode( myTreeNode.Data ).Name := myNewName;
     finally
       NoteFile.Modified := true;
-      Form_Main.UpdateNoteFileState( [fscModified] );
+      UpdateNoteFileState( [fscModified] );
     end;
   end;
 
@@ -1233,7 +1233,7 @@ begin
 
   finally
     NoteFile.Modified := true;
-    Form_Main.UpdateNoteFileState( [fscModified] );
+    UpdateNoteFileState( [fscModified] );
   end;
 end; // SetTreeNodeColor
 
@@ -1287,7 +1287,7 @@ begin
   end;
 
   NoteFile.Modified := true;
-  Form_Main.UpdateNoteFileState( [fscModified] );
+  UpdateNoteFileState( [fscModified] );
 end; // SetTreeNodeBold
 
 
@@ -1334,7 +1334,7 @@ begin
 
     finally
       NoteFile.Modified := true;
-      Form_Main.UpdateNoteFileState( [fscModified] );
+      UpdateNoteFileState( [fscModified] );
     end;
   end;
 end; // SetTreeNodeCustomImage
@@ -1397,7 +1397,7 @@ begin
 
   finally
     NoteFile.Modified := true;
-    Form_Main.UpdateNoteFileState( [fscModified] );
+    UpdateNoteFileState( [fscModified] );
   end;
 
 
@@ -1729,7 +1729,7 @@ begin
     finally
       myNote.TV.Items.EndUpdate;
       NoteFile.Modified := true;
-      Form_Main.UpdateNoteFileState( [fscModified] );
+      UpdateNoteFileState( [fscModified] );
     end;
   end;
 
@@ -2044,7 +2044,7 @@ begin
   finally
     screen.Cursor := crDefault;
     NoteFile.Modified := true;
-    Form_Main.UpdateNoteFileState( [fscModified] );
+    UpdateNoteFileState( [fscModified] );
   end;
 
 end; // TreeTransferProc

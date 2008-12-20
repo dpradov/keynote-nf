@@ -21,7 +21,7 @@ implementation
 
 uses
    Dialogs, Controls, SysUtils,
-   gf_files, gf_misc, kn_Global, kn_Main, kn_Info, kn_NoteObj, Kn_TreeNoteMng;
+   gf_files, gf_misc, kn_Global, kn_Main, kn_Info, kn_NoteObj, Kn_TreeNoteMng, kn_NoteFileMng;
 
 {$IFDEF WITH_IE}
 function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : string ) : boolean;
@@ -329,7 +329,7 @@ begin
       SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
     finally
       NoteFile.Modified := true;
-      Form_Main.UpdateNoteFileState( [fscModified] );
+      UpdateNoteFileState( [fscModified] );
     end;
   end;
 

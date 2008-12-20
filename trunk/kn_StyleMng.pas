@@ -22,7 +22,7 @@ implementation
 uses
   Graphics, Dialogs, Controls, Menus, SysUtils,
   RxRichEd,
-  kn_Cmd, kn_Global,kn_Main,
+  kn_Cmd, kn_Global,kn_Main,kn_NoteFileMng,
   kn_MacroMng;
 
 procedure StyleDescribe( const FromEditor, LongDesc : boolean );

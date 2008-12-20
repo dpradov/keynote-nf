@@ -18,8 +18,8 @@ uses
    Windows, Forms, Dialogs, SysUtils, Controls,
    dfsStatusBar, comCtrls95,
    kn_Global, gf_miscvcl, gf_strings, kn_Defaults,
-   kn_Macro, kn_NewNote, kn_TreeNoteMng, kn_Main, kn_FileMgr,
-   kn_MacroMng, kn_BookmarksMng, kn_ConfigFileMng;
+   kn_Macro, kn_NewNote, kn_TreeNoteMng, kn_Main, kn_FileMgr, kn_EditorUtils,
+   kn_MacroMng, kn_BookmarksMng, kn_ConfigFileMng, kn_NoteFileMng;
 
 function NewNote(
   const DefaultNote, CanFocus : boolean;
@@ -140,7 +140,7 @@ begin
     Form_Main.Timer.Enabled := TimerWasEnabled;
     FileIsBusy := FileWasBusy;
     NoteFile.Modified := true;
-    Form_Main.UpdateNoteFileState( [fscModified] );
+    UpdateNoteFileState( [fscModified] );
     result := assigned( myNote );
     {$IFDEF MJ_DEBUG}
     if assigned( myNote ) then

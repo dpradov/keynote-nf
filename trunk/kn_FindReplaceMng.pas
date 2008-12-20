@@ -47,8 +47,7 @@ uses Classes, Dialogs, Forms, SysUtils, Controls,     Windows,
      gf_miscvcl, gf_strings,
      kn_Global, Kn_const, kn_NoteObj,
      kn_NoteMng, kn_Main, kn_NodeList, kn_Cmd,
-     //kn_tmpRTF,   // [dpv]  (002)
-     kn_TreeNoteMng, kn_MacroMng, kn_LinksMng;
+     kn_TreeNoteMng, kn_MacroMng, kn_LinksMng, kn_NoteFileMng;
 
 
 procedure RunFinder;
@@ -172,7 +171,7 @@ begin
       begin
         ActiveNote.Editor.SelText := FindOptions.ReplaceWith;
         NoteFile.Modified := true;
-        Form_Main.UpdateNoteFileState( [fscModified] );
+        UpdateNoteFileState( [fscModified] );
       end;
     end
     else
@@ -699,7 +698,7 @@ begin
            ActiveNote:= oldActiveNote;
 
            NoteFile.Modified := true;
-           Form_Main.UpdateNoteFileState( [fscModified] );
+           UpdateNoteFileState( [fscModified] );
         end;
 
 
@@ -1230,7 +1229,7 @@ begin
   if ( ReplaceCnt > 0 ) then
   begin
     NoteFile.Modified := true;
-    Form_Main.UpdateNoteFileState( [fscModified] );
+    UpdateNoteFileState( [fscModified] );
   end
   else
   begin

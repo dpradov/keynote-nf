@@ -22,7 +22,7 @@ implementation
 uses
     Windows, Forms, SysUtils, Dialogs, Controls, StdCtrls,
     cmpGFXListbox,
-    kn_Global, kn_Main, kn_Info, kn_Const, kn_RTFUtils, kn_NoteObj,
+    kn_Global, kn_Main, kn_Info, kn_Const, kn_RTFUtils, kn_NoteObj, kn_NoteFileMng,
     kn_TreeNoteMng;
 
 var
