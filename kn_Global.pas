@@ -176,7 +176,7 @@ uses Classes, Messages, Graphics, Dialogs, Forms, Menus, Controls, SysUtils,
      kn_const, kn_msgs, kn_ini, kn_ExpandObj, kn_plugins, kn_fileMgr,
      kn_StyleObj, kn_Chest,
      kn_ConfigFileMng, kn_MacroMng, kn_FindReplaceMng,
-     kn_TemplateMng, kn_StyleMng;
+     kn_TemplateMng, kn_StyleMng, kn_NoteFileMng;
 
 
 //====================================================================

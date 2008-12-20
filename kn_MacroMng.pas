@@ -60,7 +60,8 @@ uses Windows, Messages, SysUtils, Forms, Dialogs, Graphics, StdCtrls, Controls, 
      kn_MacroCmd, kn_MacroCmdSelect, kn_MacroEdit, kn_Main, kn_Global, 
      kn_Const, kn_NodeList, kn_DateTime, kn_LanguageSel, kn_Paragraph,
      kn_FindReplaceMng, kn_StyleMng, kn_FavoritesMng, kn_BookmarksMng,
-     kn_TreeNoteMng, kn_NoteMng,kn_PluginsMng, kn_TemplateMng;
+     kn_TreeNoteMng, kn_NoteMng,kn_PluginsMng, kn_TemplateMng, kn_NoteFileMng,
+     kn_EditorUtils;
 
 var
     RecallingCommand : boolean; // if TRUE, we use information in CommandRecall
@@ -123,7 +124,7 @@ begin
   if ( not Form_Main.HaveNotes( true, true )) then exit;
   if ( not assigned( ActiveNote )) then exit;
 
-  if ( not Form_Main.CheckFolder( 'Macro', Macro_Folder, true, true )) then exit;
+  if ( not CheckFolder( 'Macro', Macro_Folder, true, true )) then exit;
 
   EditMacro( true ); // create a new macro
   if ( ActiveMacro = nil ) then exit;
@@ -618,7 +619,7 @@ begin
     Form_Main.SelectStatusbarGlyph( true );
     if wasreadonly then
       ActiveNote.ReadOnly := true;
-    Form_Main.UpdateNoteFileState( [fscModified] );
+    UpdateNoteFileState( [fscModified] );
   end;
 
   try
@@ -1566,7 +1567,7 @@ begin
           Form_Main.ShowInsMode;
         end;
         ecMatchBracket : begin
-          Form_Main.MatchBracket;
+          MatchBracket;
         end;
         ecSelectWord : begin
           ActiveNote.Editor.GetWordAtCursorNew( true );
@@ -2401,10 +2402,10 @@ begin
             ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
           end;
           ecExpandTerm : begin
-            Form_Main.ExpandTermProc;
+            ExpandTermProc;
           end;
           ecEvaluateExpression : begin
-            Form_Main.EvaluateExpression;
+            EvaluateExpression;
           end;
           else
           begin
@@ -2451,7 +2452,7 @@ begin
         NoteFile.Modified := true;
       end;
       Form_Main.RxRTFSelectionChange( ActiveNote.Editor );
-      Form_Main.UpdateNoteFileState( [fscModified] );
+      UpdateNoteFileState( [fscModified] );
     end;
 
 end; // PerformCmd
@@ -2610,7 +2611,7 @@ var
   fn, oldFilter : string;
 begin
 
-  if ( not Form_Main.CheckFolder( 'Macro', Macro_Folder, false, true )) then exit;
+  if ( not CheckFolder( 'Macro', Macro_Folder, false, true )) then exit;
 
   with Form_Main.OpenDlg do
   begin

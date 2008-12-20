@@ -19,7 +19,7 @@ implementation
 uses
     Forms, Classes, Controls, Dialogs, StdCtrls, SysUtils,
     gf_misc, gf_files,
-    kn_Global, kn_Const, kn_Info, kn_Main, kn_RTFUtils, kn_NewTemplate;
+    kn_Global, kn_Const, kn_Info, kn_Main, kn_RTFUtils, kn_NewTemplate, kn_NoteFileMng;
 
 
 
