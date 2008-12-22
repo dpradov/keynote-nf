@@ -26,7 +26,7 @@ uses
    TB97Ctls, TB97Tlbr,
    kn_Main, dll_Keyboard, kn_Dllmng, kn_DLLinterface,
    kn_global, kn_Info, kn_INI, kn_Const, kn_OptionsNew, kn_Chest,
-   kn_FindReplaceMng, kn_MacroMng;
+   kn_FindReplaceMng, kn_MacroMng, kn_VCLControlsMng;
 
 procedure ReadCmdLine;
 var
@@ -621,7 +621,7 @@ begin
 
             if ( assigned( NoteFile ) and assigned( NoteFile.ClipCapNote )) then
             begin
-              Form_Main.LoadTrayIcon( ClipOptions.SwitchIcon );
+              LoadTrayIcon( ClipOptions.SwitchIcon );
             end;
 
           finally
@@ -632,7 +632,7 @@ begin
         begin
           if Form_Options.Icon_Change_Canceled then
           begin
-            Form_Main.LoadTabImages( true );
+            LoadTabImages( true );
           end;
         end;
       finally

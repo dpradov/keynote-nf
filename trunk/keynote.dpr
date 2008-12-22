@@ -238,7 +238,8 @@ uses
   kn_BookmarksMng in 'kn_BookmarksMng.pas',
   kn_AlertMng in 'kn_AlertMng.pas' {Form_Alarm},
   kn_LinksMng in 'kn_LinksMng.pas',
-  kn_EditorUtils in 'kn_EditorUtils.pas';
+  kn_EditorUtils in 'kn_EditorUtils.pas',
+  kn_VCLControlsMng in 'kn_VCLControlsMng.pas';
 
 {$R *.RES}
 

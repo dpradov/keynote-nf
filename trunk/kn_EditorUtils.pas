@@ -9,6 +9,9 @@ uses
     procedure AddGlossaryTerm;
     procedure EditGlossaryTerms;
 
+    function GetWordCount( const t : string ) : longint;
+    procedure UpdateWordCount;
+
     procedure MatchBracket;
     procedure TrimBlanks( const TrimWhat : integer );
     procedure CompressWhiteSpace;
@@ -33,14 +36,24 @@ uses
     procedure PasteAsWebClip;
     procedure PasteIntoNew( const AsNewNote : boolean );
 
+    procedure PrintRTFNote;
+
+    procedure RunSpellcheckerForNote;
+
+    function GetEditorZoom : integer;
+    procedure SetEditorZoom( ZoomValue : integer; ZoomString : string );
+
+    procedure ShowTipOfTheDay;
+
 implementation
 uses
   { Borland units }
   Windows, Messages, SysUtils, Classes,
-  Controls, Forms, Dialogs,Clipbrd,
+  Controls, Forms, Dialogs, Clipbrd,ComCtrls,
   RichEdit, mmsystem, Graphics,ExtDlgs,
   { 3rd-party units }
-  BrowseDr, TreeNT, Parser,FreeWordWeb, UAS, RxGIF,
+  BrowseDr, TreeNT, Parser,FreeWordWeb, UAS, RxGIF,RichPrint,
+  RxRichEd,AJBSpeller,
   { Own units - covered by KeyNote's MPL}
   gf_misc, gf_files, gf_Const,
   gf_strings, gf_miscvcl,
@@ -48,8 +61,8 @@ uses
   kn_Info, kn_FileObj, kn_NewNote,
   kn_NodeList, kn_ExpandObj, kn_MacroMng,
   Kn_Global, kn_Chars, kn_NoteMng, kn_ClipUtils,
-  kn_ExpTermDef, kn_Glossary,
-  kn_NoteFileMng, kn_Main, kn_TreeNoteMng;
+  kn_ExpTermDef, kn_Glossary, kn_VCLControlsMng,
+  kn_NoteFileMng, kn_Main, kn_TreeNoteMng, GFTipDlg;
 
 
 //=================================================================
@@ -189,6 +202,87 @@ begin
     Form_Glossary.Free;
   end;
 end; // EditGlossaryTerms
+
+
+//=================================================================
+// GetWordCount
+//=================================================================
+function GetWordCount( const t : string ) : longint;
+const
+  WordDelimiters = [#9, #10, #13, #32];
+var
+  i, len : longint;
+begin
+  len := length( t );
+  result := 0;
+  if ( len > 0 ) then
+  begin
+    i := 1;
+    repeat
+      if ( t[i] in WordDelimiters ) then
+      begin
+        inc( i );
+        continue;
+      end
+      else
+        inc( result );
+
+      // scan to end of word
+      while (( i <= len ) and ( not ( t[i] in WordDelimiters ))) do
+      begin
+        inc( i );
+      end;
+    until ( i > len );
+  end;
+end; // GetWordCount
+
+//=================================================================
+// UpdateWordCount
+//=================================================================
+procedure UpdateWordCount;
+var
+  p, s : string;
+  wc : longint;
+begin
+  if ( not assigned( ActiveNote )) then exit;
+
+  if EditorOptions.WordCountTrack then
+  begin
+
+    if ( ActiveNote.Editor.SelLength = 0 ) then
+      wc := GetWordCount( ActiveNote.Editor.Lines.Text )
+    else
+      wc := GetWordCount( ActiveNote.Editor.SelText );
+
+    if ( wc > 0 ) then
+    begin
+      if ( EditorOptions.WordsPerPage > 0 ) then
+      begin
+        p := ' / ' + FloatToStr( wc / EditorOptions.WordsPerPage );
+      end
+      else
+      begin
+        p := '';
+      end;
+      s := Format( ' W: %d', [wc] ) + p;
+    end
+    else
+    begin
+      s := ' W: 0';
+    end;
+
+    Form_Main.StatusBar.Panels[PANEL_CARETPOS].Text := s;
+  end
+  else
+  begin
+    if ( not EditorOptions.TrackCaretPos ) then
+    begin
+      Form_Main.StatusBar.Panels[PANEL_CARETPOS].Text := '';
+      exit;
+    end;
+  end;
+
+end; // UpdateWordCount
 
 
 //=================================================================
@@ -1453,5 +1547,275 @@ begin
   end;
 
 end; // PasteIntoNew
+
+
+//=================================================================
+// PrintRTFNote
+//=================================================================
+procedure PrintRTFNote;
+var
+  PrintRE : TRichEdit;
+  MS : TMemoryStream;
+  PrintAllNodes : boolean;
+  tNote : TTreeNote;
+  myTreeNode : TTreeNTNode;
+  myNoteNode : TNoteNode;
+begin
+  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( Form_Main.RichPrinter )) then    // [dpv]
+  begin
+      try                                     // [DPV]
+         Form_Main.RichPrinter := TRichPrinter.Create(Form_Main);
+      except
+        On E : Exception do
+        begin
+          showmessage( E.Message );
+          exit;
+        end;
+      end;
+  end;
+  PrintAllNodes := false;
+
+  if (( ActiveNote.Kind = ntTree ) and ( TTreeNote( ActiveNote ).TV.Items.Count > 1 )) then
+  case messagedlg(
+      'Current note is a Tree-type note and contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.',
+      mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
+    mrYes : PrintAllNodes := true;
+    mrNo : PrintAllNodes := false;
+    else
+      exit;
+  end;
+
+  if Form_Main.PrintDlg.Execute then
+  begin
+    Form_Main.RichPrinter.Title := RemoveAccelChar( ActiveNote.Name );
+
+    PrintRe := TRichEdit.Create( nil );
+    MS := TMemoryStream.Create;
+
+    try
+
+      screen.Cursor := crHourGlass;
+
+      with PrintRe do
+      begin
+        parent := Form_Main;
+        visible := false;
+        WordWrap := false;
+      end;
+
+      if (( ActiveNote.Kind = ntRTF ) or ( not PrintAllNodes )) then
+      begin
+
+        if KeyOptions.SafePrint then
+        begin
+          ActiveNote.Editor.Print( RemoveAccelChar( ActiveNote.Name ));
+          (*
+          ActiveNote.Editor.Lines.SaveToStream( MS );
+          MS.Position := 0;
+          PrintRE.Lines.LoadFromStream( MS );
+          if ( ActiveNote.Editor.SelLength > 0 ) then
+          begin
+            PrintRE.SelStart := ActiveNote.Editor.SelStart;
+            PrintRE.SelLength := ActiveNote.Editor.SelLength;
+          end;
+          RichPrinter.PrintRichEdit( TCustomRichEdit( PrintRE ), 1 );
+          *)
+        end
+        else
+        begin
+          Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( ActiveNote.Editor ), 1 );
+        end;
+      end
+      else
+      begin
+        tNote := TTreeNote( ActiveNote );
+        myTreeNode := tNote.TV.Items.GetFirstNode;
+        if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;   // [dpv]
+        while assigned( myTreeNode ) do
+        begin
+          myNoteNode := TNoteNode( myTreeNode.Data );
+          if assigned( myNoteNode ) then
+          begin
+            myNoteNode.Stream.Position := 0;
+            PrintRE.Lines.LoadFromStream( myNoteNode.Stream );
+            if KeyOptions.SafePrint then
+              PrintRE.Print( RemoveAccelChar( ActiveNote.Name ))
+            else
+              Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( PrintRE ), 1 );
+          end;
+          //myTreeNode := myTreeNode.GetNext;          // [dpv]
+          myTreeNode := myTreeNode.GetNextNotHidden;   // [dpv]
+        end;
+      end;
+
+    finally
+      screen.Cursor := crDefault;
+      if assigned( PrintRE ) then PrintRE.Free;
+      if assigned( MS ) then MS.Free;
+    end;
+
+  end;
+end; // PrintRTFNote
+
+
+//=================================================================
+// PrintRTFNote
+//=================================================================
+procedure RunSpellcheckerForNote;
+var
+  AJBSpell : TAJBSpell;
+begin
+  if ( not assigned( ActiveNote )) then exit;
+  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+
+  AJBSpell := TAJBSpell.Create( Form_Main );
+  try
+    try
+      ActiveNote.Editor.SelectAll;
+      ActiveNote.Editor.CopyToClipboard;
+      if AJBSpell.CheckClipboardSpell then
+      begin
+        if ( messagedlg( 'Replace editor contents with result from spellchecker?',
+          mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
+        begin
+          ActiveNote.Editor.PasteFromClipboard;
+        end;
+      end;
+    except
+      on E : Exception do
+      begin
+        messagedlg( E.Message, mtError, [mbOK], 0 );
+      end;
+    end;
+  finally
+    AJBSpell.Free;
+  end;
+end; // RunSpellcheckerForNote
+
+
+function GetEditorZoom : integer;
+var
+  W, L : integer;
+begin
+  result := 100;
+  if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
+  if ( not assigned( ActiveNote )) then exit;
+  SendMessage( ActiveNote.Editor.Handle, EM_GETZOOM, integer(@w), integer(@l) );
+  if ( w = 0 ) then w := 1;
+  if ( l = 0 ) then l := 1;
+  result := makepercentage( w, l );
+end; // GetEditorZoom
+
+procedure SetEditorZoom( ZoomValue : integer; ZoomString : string );
+var
+  CurrentZoom : integer;
+  NewZoom : integer;
+  p : integer;
+begin
+  if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
+  if ( not assigned( ActiveNote )) then exit;
+
+  CurrentZoom := GetEditorZoom;
+  NewZoom := 100; // initialize
+
+  // if integer argument is greater than zero, use the integer as zoom value.
+  // if integer is 0, reset zoom to 100%.
+  // if integer is less than 0, derive zoom value from the string argument.
+  // if string argument is an empty string, reset zoom to 100% (this allows
+  // user to delete the text in combobox and press Enter to reset zoom)
+
+  try
+
+    if ( ZoomValue > 0 ) then
+      NewZoom := ZoomValue
+    else
+    if ( ZoomValue = 0 ) then
+      NewZoom := 100
+    else
+    begin
+      ZoomString := trim( ZoomString );
+      if ( ZoomString = '' ) then
+      begin
+        NewZoom := 100; // reset is empty string passed
+      end
+      else
+      begin
+        p := pos( '%', ZoomString );
+        if ( p > 0 ) then
+          delete( ZoomString, p, 1 );
+        try
+          NewZoom := strtoint( ZoomString );
+        except
+          on E : Exception do
+          begin
+            messagedlg( 'Invalid zoom ratio: ' + E.Message, mtError, [mbOK], 0 );
+            NewZoom := CurrentZoom;
+          end;
+        end;
+      end;
+    end;
+
+
+    // Sanity check:
+    if ( NewZoom > 1000 ) then
+      NewZoom := 1000 // max zoom
+    else
+    if ( NewZoom <= 0 ) then
+      NewZoom := _ZOOM_MIN; // min zoom
+    SendMessage( ActiveNote.Editor.Handle, EM_SETZOOM, NewZoom, 100 );
+
+  finally
+    _LastZoomValue := GetEditorZoom;
+    Form_Main.Combo_Zoom.Text := Format(
+      '%d%%',
+      [_LastZoomValue] );
+  end;
+
+end; // ZoomEditor
+
+procedure ShowTipOfTheDay;
+var
+  TipDlg : TGFTipDlg;
+  wasiconic : boolean;
+begin
+  if ( not fileexists( TIP_FN )) then
+  begin
+    PopupMessage( Format(
+      'Cannot display Tip of the Day: file "%s" not found.',
+      [extractfilename( TIP_FN )] ), mtInformation, [mbOK], 0 );
+    // turn tips off, so that we don't get this error message
+    // every time KeyNote starts. (e.g. if user deleted the .tip file)
+    KeyOptions.TipOfTheDay := false;
+    exit;
+  end;
+  wasiconic := ( IsIconic(Application.Handle) = TRUE );
+  if wasiconic then
+    Application.Restore;
+  Application.BringToFront;
+
+  TipDlg := TGFTipDlg.Create( Form_Main );
+  try
+    with TipDlg do
+    begin
+      ShowAtStartup := KeyOptions.TipOfTheDay;
+      TipFile := TIP_FN;
+      DlgCaption := Program_Name + ': Tip of the Day';
+      PanelColor := _GF_CLWINDOW;
+      TipFont.Size := 10;
+      TipTitleFont.Size := 12;
+      SelectedTip := KeyOptions.TipOfTheDayIdx;
+      Execute;
+      KeyOptions.TipOfTheDayIdx := SelectedTip;
+      KeyOptions.TipOfTheDay := ShowAtStartup;
+    end;
+  finally
+    TipDlg.Free;
+  end;
+  if wasiconic then
+    Application.Minimize;
+end; // ShowTipOfTheDay
+
 
 end.

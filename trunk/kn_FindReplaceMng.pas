@@ -42,11 +42,11 @@ num: integer;
 function SearchTree( var StartTreeNode : TTreeNTNode; SearchStart : integer; const SearchOpts : TRichSearchTypes ) : integer;
 
 implementation
-uses Classes, Dialogs, Forms, SysUtils, Controls,     Windows,
+uses Classes, Dialogs, Forms, SysUtils, Controls, Windows,
      RichEdit,
      gf_miscvcl, gf_strings,
      kn_Global, Kn_const, kn_NoteObj,
-     kn_NoteMng, kn_Main, kn_NodeList, kn_Cmd,
+     kn_NoteMng, kn_Main, kn_NodeList, kn_Cmd, kn_VCLControlsMng,
      kn_TreeNoteMng, kn_MacroMng, kn_LinksMng, kn_NoteFileMng;
 
 
@@ -772,7 +772,7 @@ begin
     end;
   finally
     ActiveNote:= oldActiveNote;   // [dpv]
-    Form_Main.UpdateNoteDisplay;  // [dpv]
+    UpdateNoteDisplay;  // [dpv]
 
     // restore previous FindOptions settings
     Form_Main.List_ResFind.Items.EndUpdate;

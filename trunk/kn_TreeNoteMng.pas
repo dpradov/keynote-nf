@@ -58,7 +58,8 @@ uses
    Controls, Graphics, Clipbrd,
    gf_strings, gf_miscvcl, gf_misc,
    kn_Global, kn_MacroMng, kn_Main, kn_Chest, kn_NodeNum, kn_RTFUtils, kn_ImagePicker,
-   kn_VirtualNodeMng, kn_Macro, kn_FindReplaceMng, kn_NoteFileMng, kn_LinksMng;
+   kn_VirtualNodeMng, kn_Macro, kn_FindReplaceMng, kn_NoteFileMng, kn_LinksMng,
+   kn_EditorUtils;
 
 var
    __NodeChangeCounter : longint;
