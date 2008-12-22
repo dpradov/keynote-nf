@@ -9,6 +9,7 @@ uses
     function NoteFileSave( FN : string ) : integer; // save current KNT file
     function NoteFileClose : boolean; // close current KNT file
 
+    procedure NewFileRequest( FN : string );
     procedure NoteFileCopy;
     procedure MergeFromKNTFile( MergeFN : string );
 
@@ -28,6 +29,12 @@ uses
     procedure NoteFileProperties;
     procedure UpdateNoteFileState( AState : TFileStateChangeSet );
 
+    procedure AutoCloseFile;
+    procedure RunFileManager;
+
+    function CanRegisterFileType : boolean;
+    procedure AssociateKeyNoteFile;
+
 implementation
 
 uses
@@ -38,7 +45,7 @@ uses
   BrowseDr, TreeNT,
   { Own units - covered by KeyNote's MPL}
   gf_misc, gf_files, gf_Const,
-  gf_strings, gf_miscvcl,
+  gf_strings, gf_miscvcl, gf_FileAssoc,
   kn_INI, kn_Cmd, kn_Msgs,
   kn_NoteObj, kn_FileObj, kn_NewNote,
   kn_FileInfo,kn_FileDropAction,
@@ -54,7 +61,7 @@ uses
   kn_NoteMng, kn_EditorUtils,
   kn_BookmarksMng,
   kn_TabSelect,
-  kn_Main,kn_DLLmng, kn_LinksMng, kn_PluginsMng, kn_TreeNoteMng;
+  kn_Main,kn_DLLmng, kn_LinksMng, kn_PluginsMng, kn_TreeNoteMng, kn_VCLControlsMng;
 
 
 //=================================================================
@@ -848,6 +855,75 @@ begin
   end;
 end; // NoteFileClose
 
+
+procedure NewFileRequest( FN : string );
+var
+  p : integer;
+  tmps : string;
+begin
+  FN := ansilowercase( FN );
+
+  tmps := '';
+  p := pos( '.exe', FN );
+  if ( p = 0 ) then exit;
+  delete( FN, 1, p+3 );
+  while (( FN <> '' ) and ( FN[1] = '"' )) do
+    delete( FN, 1, 1 );
+  while (( FN <> '' ) and ( FN[1] = #32 )) do
+    delete( FN, 1, 1 );
+
+  while ( FN <> '' ) do
+  begin
+    if ( FN[1] = '"' ) then
+    begin
+      delete( FN, 1, 1 );
+      p := pos( '"', FN );
+      if ( p = 0 ) then
+      begin
+        tmps := FN;
+        FN := '';
+      end
+      else
+      begin
+        tmps := copy( FN, 1, p-1 );
+        delete( FN, 1, p );
+      end;
+    end
+    else
+    begin
+      p := pos( #32, FN );
+      if ( p = 0 ) then
+      begin
+        tmps := FN;
+        FN := '';
+      end
+      else
+      begin
+        tmps := copy( FN, 1, p-1 );
+        delete( FN, 1, p );
+      end;
+    end;
+    if (( tmps = '' ) or ( tmps[1] in ['-','/'] )) then
+    begin
+      tmps := '';
+      continue;
+    end;
+    break;
+  end;
+
+  if ( tmps = '' ) then exit;
+  if Form_Main.HaveNotes( false, false ) then
+  begin
+    if ( tmps = NoteFile.FileName ) then
+    begin
+      if ( PopupMessage( 'Revert to last saved version of' + #13 + NoteFile.Filename + '?', mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+      NoteFile.Modified := false; // to prevent automatic save if modified
+    end;
+  end;
+
+  NoteFileOpen( tmps );
+
+end; // NewFileRequest
 
 
 procedure NoteFileCopy;
@@ -2140,6 +2216,212 @@ begin
   end;
 
 end; // UpdateNoteFileState
+
+
+//=================================================================
+// AutoCloseFile
+//=================================================================
+procedure AutoCloseFile;
+var
+  i : integer;
+begin
+
+  // CAUTION: With KeyOptions.TimerCloseDialogs set,
+  // we have a bug of major inconvenience.
+  // AppLastActiveTime is NOT updated when a modal
+  // dialog is open, so as long as a dialog is open,
+  // KeyNote thinks it is inactive. It may lead to
+  // a situation where we close file and minimize
+  // while user is busy clicking stuff in a dialog box.
+  // OTOH, if TimerCloseDialogs is set to false, the
+  // file will not be autoclosed id any modal dialog
+  // is open, leading to a potential security breach.
+
+  if ( TransferNodes <> nil ) then
+  begin
+    try
+      TransferNodes.Free;
+    except
+    end;
+    TransferNodes := nil;
+  end;
+
+  if FileIsBusy then exit;
+  if ( not ( KeyOptions.TimerClose and
+             Form_Main.HaveNotes( false, false ) and
+             KeyOptions.AutoSave
+           )) then exit;
+
+
+  // CloseNonModalDialogs;
+
+  // Check if any modal dialog box is open, and close it, unless
+  // config setting prevents us from doing so. If we cannot close
+  // all modal forms, we will not auto-close the file.
+
+  // Notes:
+  // 1. We can close our own custom forms directly, by issuing
+  //    a .Close to each form in Screen.Forms.
+  // 2. The above won't let us close any standard Windows dialog
+  //    boxes that may be open (FileOpen, FileSave, ColorDlg, etc.)
+  //    For these, we can send a WM_CLOSE, but it won't work if
+  //    the application (as a whole) is not active. So, once we
+  //    know we are auto-closing anyway, we do the rude thing and
+  //    grab focus for a short while, so that we can send WM_CLOSE
+  //    to whatever dialog (belonging to us) is active. Then we
+  //    minimize.
+
+  // IsWindowEnabled( self.Handle )
+  // when TRUE, we do not have any modal dialog open.
+  // when FALSE, we do have one or more modal dialogs open.
+
+  // GetActiveWindow = self.Handle
+  // when TRUE, we do not have any modal dialog open, and
+  //            the application is active (has focus)
+  // when FALSE, we have one or more modal dialogs open,
+  //             and/or the application is not active.
+
+
+  if (( NoteFile.FileFormat = nffEncrypted ) or ( not KeyOptions.TimerCloseEncOnly )) then
+  begin
+    // only under these conditions do we try to autoclose...
+
+    // First, do our own forms
+    if ( Screen.FormCount > 1 ) then
+    begin
+      if KeyOptions.TimerCloseDialogs then
+      begin
+        for i := pred( Screen.FormCount ) downto 0 do
+          if ( Screen.Forms[i] <> Form_Main ) then
+            Screen.Forms[i].Close;
+      end
+      else
+        exit; // config setting prevents us from forcing
+              // our forms to close, so we must bail out
+    end;
+
+
+    // now, if the main form is still not "enabled",
+    // it means we have some system dialog open
+    if ( not IsWindowEnabled( Form_Main.Handle )) then
+    begin
+      if KeyOptions.TimerCloseDialogs then
+      begin
+        // there can only be one system dialog open,
+        // unlike our own forms, of which there may be a few
+        // on top of one another. But first, we must be the
+        // active application, otherwise we'll send WM_CLOSE
+        // to nowhere.
+        Application.BringToFront;
+        // we KNOW we have a modal dialog open, so this is safe,
+        // i.e. we won't be sending WM_CLOSE to main form
+        SendMessage( GetActiveWindow, WM_CLOSE, 0, 0 ); // close the modal window!
+      end
+      else
+        exit; // bail out, if we haven't already
+    end;
+
+    // if the file was encrypted, we optionally want to be able to
+    // automatically prompt for password and reopen the file when
+    // user returns to the program. So, set a flag here.
+    if ( NoteFile.FileFormat = nffEncrypted ) then
+    begin
+      _REOPEN_AUTOCLOSED_FILE := KeyOptions.TimerCloseAutoReopen;
+    end;
+
+    NoteFileClose;
+    Application.Minimize;
+  end;
+
+end; // AutoCloseFile
+
+//=================================================================
+// RunFileManager
+//=================================================================
+procedure RunFileManager;
+var
+  MGR : TForm_FileMgr;
+  s, olds : string;
+  MGROK : boolean;
+begin
+  try
+    MGROK := false;
+    s := '';
+    MGR := TForm_FileMgr.Create( Form_Main );
+    try
+      with MGR do
+      begin
+        MgrFileName := MGR_FN;
+        ShowFullPaths := KeyOptions.MgrFullPaths;
+        ShowHint := KeyOptions.ShowTooltips;
+        if assigned( NoteFile ) then
+          SelectedFileName := NoteFile.FileName;
+      end;
+      MGROK := ( MGR.ShowModal = mrOK );
+      s := MGR.SelectedFileName;
+      KeyOptions.MgrFullPaths := MGR.ShowFullPaths;
+    finally
+      MGR.Free;
+    end;
+
+    if Form_Main.HaveNotes( false, false ) then
+      olds := NoteFile.Filename
+    else
+      olds := '';
+
+    if MGROK then
+    begin
+      if (( s <> '' ) and ( s <> olds )) then
+        NoteFileOpen( s );
+    end;
+
+  except
+    on E : Exception do // [xx]
+    begin
+      messagedlg( 'Debug message: Error in RunFileManager.', mtWarning, [mbOK], 0 );
+    end;
+  end;
+
+end; // RunFileManager
+
+function CanRegisterFileType : boolean;
+begin
+  result := true;
+  if opt_RegExt then
+    exit;
+  if KeyOptions.AutoRegisterFileType then
+    if ( not FiletypeIsRegistered( ext_KeyNote, _KNT_FILETYPE )) then
+      if ( not IsDriveRemovable( ParamStr( 0 ))) then
+        exit;
+  result := false;
+end; // CanRegisterFileType
+
+procedure AssociateKeyNoteFile;
+begin
+
+  if CanRegisterFileType then
+  begin
+    try
+      RegisterFiletype( ext_KeyNote, _KNT_FILETYPE, _KNT_FILETYPE, 'open', '', '' );
+      RegisterFileIcon( _KNT_FILETYPE, ParamStr( 0 ), 0 );
+
+      RegisterFiletype( ext_Encrypted, _KNE_FILETYPE, _KNE_FILETYPE, 'open', '', '' );
+      RegisterFileIcon( _KNE_FILETYPE, ParamStr( 0 ), 0 );
+
+      RegisterFiletype( ext_Macro, _KNM_FILETYPE, _KNM_FILETYPE, 'open', '', '' );
+      RegisterFileIcon( _KNM_FILETYPE, ParamStr( 0 ), 0 );
+
+      RegisterFiletype( ext_Macro, _KNL_FILETYPE, _KNL_FILETYPE, 'open', '', '' );
+      RegisterFileIcon( _KNL_FILETYPE, ParamStr( 0 ), 0 );
+
+      if KeyOptions.AutoRegisterPrompt then
+        messagedlg( Format( 'Successfully created %s registry entries', [ext_KeyNote] ), mtInformation, [mbOK], 0 );
+    except
+      on E : Exception do
+        MessageDlg( 'There was an error while creating file type associations: ' + e.Message, mtWarning, [mbOK], 0 );
+    end;
+  end;
+end; // AssociateKeyNoteFile
 
 
 end.

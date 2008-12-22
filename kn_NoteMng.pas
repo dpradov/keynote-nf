@@ -19,7 +19,7 @@ uses
    dfsStatusBar, comCtrls95,
    kn_Global, gf_miscvcl, gf_strings, kn_Defaults,
    kn_Macro, kn_NewNote, kn_TreeNoteMng, kn_Main, kn_FileMgr, kn_EditorUtils,
-   kn_MacroMng, kn_BookmarksMng, kn_ConfigFileMng, kn_NoteFileMng;
+   kn_MacroMng, kn_BookmarksMng, kn_ConfigFileMng, kn_NoteFileMng, kn_VCLControlsMng;
 
 function NewNote(
   const DefaultNote, CanFocus : boolean;
@@ -120,10 +120,10 @@ begin
         if ( myNote.Kind = ntTree ) then
           TreeNoteNewNode( nil, tnTop, nil, '', true );
         Form_Main.Pages.ActivePage := myNote.TabSheet;
-        Form_Main.UpdateNoteDisplay;
+        UpdateNoteDisplay;
         if CanFocus then
         begin
-          Form_Main.FocusActiveNote;
+          FocusActiveNote;
         end;
 
       end;

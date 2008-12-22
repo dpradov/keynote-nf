@@ -57,11 +57,11 @@ implementation
 uses Windows, Messages, SysUtils, Forms, Dialogs, Graphics, StdCtrls, Controls, Clipbrd,
      TreeNT, RichEdit, RxStrUtils, RxRichEd,
      gf_miscvcl, gf_strings, gf_misc,
-     kn_MacroCmd, kn_MacroCmdSelect, kn_MacroEdit, kn_Main, kn_Global, 
+     kn_MacroCmd, kn_MacroCmdSelect, kn_MacroEdit, kn_Main, kn_Global,
      kn_Const, kn_NodeList, kn_DateTime, kn_LanguageSel, kn_Paragraph,
      kn_FindReplaceMng, kn_StyleMng, kn_FavoritesMng, kn_BookmarksMng,
      kn_TreeNoteMng, kn_NoteMng,kn_PluginsMng, kn_TemplateMng, kn_NoteFileMng,
-     kn_EditorUtils;
+     kn_EditorUtils, kn_VCLControlsMng;
 
 var
     RecallingCommand : boolean; // if TRUE, we use information in CommandRecall
@@ -551,7 +551,7 @@ begin
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(
     'Running macro "%s"', [Macro.Name] );
   screen.Cursor := crAppStart;
-  Form_Main.SelectStatusbarGlyph( true );
+  SelectStatusbarGlyph( true );
 
   try
     ActiveNote.FocusMemory := focRTF;
@@ -616,7 +616,7 @@ begin
     MacroAbortRequest := false;
     IsRunningMacro := false;
     screen.Cursor := crDefault;
-    Form_Main.SelectStatusbarGlyph( true );
+    SelectStatusbarGlyph( true );
     if wasreadonly then
       ActiveNote.ReadOnly := true;
     UpdateNoteFileState( [fscModified] );
@@ -1451,7 +1451,7 @@ function GetCurrentMacro( const DoWarn : boolean ) : TMacro;
 begin
   result := nil;
 
-  if ( not Form_Main.CheckResourcePanelVisible( true )) then exit;
+  if ( not CheckResourcePanelVisible( true )) then exit;
 
   if (( Form_Main.ListBox_ResMacro.Items.Count = 0 ) or ( Form_Main.ListBox_ResMacro.ItemIndex < 0 )) then
   begin
@@ -1542,8 +1542,8 @@ begin
           else
           begin
             ActiveNote.ReadOnly := ( not ActiveNote.ReadOnly );
-            Form_Main.UpdateNoteDisplay;
-            Form_Main.UpdateCursorPos;
+            UpdateNoteDisplay;
+            UpdateCursorPos;
           end;
         end;
         ecFontFormatCopy : begin
@@ -1971,7 +1971,7 @@ begin
               Form_Main.TB_Color.ActiveColor := CommandRecall.Font.Color;
             Form_Main.NoteSelText.Color := Form_Main.TB_Color.ActiveColor;
             CommandRecall.Font.Color := Form_Main.TB_Color.ActiveColor;
-            Form_Main.FocusActiveNote; // DFSColorBtn steals focus
+            FocusActiveNote; // DFSColorBtn steals focus
             KeyOptions.InitFontColor := CommandRecall.Font.Color;
           end;
           ecHighlightBtn : begin
@@ -1979,7 +1979,7 @@ begin
               Form_Main.TB_Hilite.ActiveColor := CommandRecall.Color;
             Form_Main.NoteSelText.BackColor := Form_Main.TB_Hilite.ActiveColor;
             CommandRecall.Color := Form_Main.TB_Hilite.ActiveColor;
-            Form_Main.FocusActiveNote; // DFSColorBtn steals focus
+            FocusActiveNote; // DFSColorBtn steals focus
             KeyOptions.InitHiColor := CommandRecall.Color;
           end;
           ecFontColorDlg : begin
@@ -2100,7 +2100,7 @@ begin
                 end;
               end;
             end;
-            Form_Main.UpdateNoteDisplay;
+            UpdateNoteDisplay;
           end;
           ecSelectAll : begin
             ActiveNote.Editor.SelectAll;
