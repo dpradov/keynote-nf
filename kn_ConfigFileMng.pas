@@ -455,12 +455,13 @@ begin
                 keyvalue := 0;
               end;
 
+              // Don't allow shortcuts CTR-C, Ctrl-V, Ctrl-X. This combinations will be managed indepently
+              if (keyvalue = 16451) or (keyvalue=16470) or (keyvalue = 16472) then
+                 keyvalue:= 0;
+
               myMenuItem := TMenuItem( Form_Main.FindComponent( itemname ));
               if assigned( myMenuItem ) then
-              begin
-                myMenuItem.ShortCut := keyvalue;
-              end;
-
+                 myMenuItem.ShortCut := keyvalue;
             end;
           end;
         end;
@@ -492,6 +493,14 @@ begin
   DllHandle := ObtainDLLHandle;
   if ( DllHandle <= 0 ) then exit;
 
+  //Restore these shortcuts momentarily to show them in the configuration screen
+  if TMenuItem( Form_Main.FindComponent( 'MMEditPaste' )).ShortCut = 0 then
+     TMenuItem( Form_Main.FindComponent( 'MMEditPaste' )).ShortCut:= ShortCut(Ord('V'), [ssCtrl]); // 16470;
+  if TMenuItem( Form_Main.FindComponent( 'MMEditCopy' )).ShortCut = 0 then
+     TMenuItem( Form_Main.FindComponent( 'MMEditCopy' )).ShortCut:= ShortCut(Ord('C'), [ssCtrl]); // 16451;
+  if TMenuItem( Form_Main.FindComponent( 'MMEditCut' )).ShortCut = 0 then
+     TMenuItem( Form_Main.FindComponent( 'MMEditCut' )).ShortCut:= ShortCut(Ord('X'), [ssCtrl]);  // 16472;
+
   KeyCustomMenus[ckmMain] := Form_Main.Menu_Main;
   KeyCustomMenus[ckmTree] := Form_Main.Menu_TV;
 
@@ -520,6 +529,10 @@ begin
           screen.Cursor := crDefault;
         end;
       end;
+
+      TMenuItem( Form_Main.FindComponent( 'MMEditPaste' )).ShortCut := 0;
+      TMenuItem( Form_Main.FindComponent( 'MMEditCopy' )).ShortCut := 0;
+      TMenuItem( Form_Main.FindComponent( 'MMEditCut' )).ShortCut := 0;
 
     except
       on E : Exception do

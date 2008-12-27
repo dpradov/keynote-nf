@@ -51,6 +51,9 @@ var
     function RunParagraphDialog : boolean;
     function RunLanguageDialog : boolean;
 
+    function CmdPaste(const fromButton: boolean): boolean;
+    Function CmdCopy: boolean;
+    Function CmdCut: boolean;
 
 implementation
 
@@ -2727,4 +2730,104 @@ begin
       end;
     end;
 end;
+
+Function CmdPaste(const fromButton: boolean): boolean;
+var
+   executed: Boolean;
+begin
+    executed:= False;
+    if ( assigned( NoteFile ) and assigned( ActiveNote )) then
+       if Form_Main.Res_RTF.Focused then begin
+          executed:= true;
+          Form_Main.Res_RTF.PasteFromClipboard;
+       end
+       else
+       if ActiveNote.Editor.Focused then begin
+          executed:= true;
+          if ShiftDown then
+            PerformCmd( ecPastePlain )
+          else
+          if CtrlDown and fromButton then
+            PasteIntoNew( true )
+          else
+          if AltDown then
+            Form_Main.MMEditPasteSpecialClick( nil )
+          else
+            PerformCmd( ecPaste );
+       end
+       else if ActiveNote.Kind = ntTree then begin
+           if TTreeNote( ActiveNote ).TV.IsEditing then begin
+              if Form_Main.NoteIsReadOnly( ActiveNote, true ) then
+                 executed:= true;
+           end
+           else if TTreeNote( ActiveNote ).TV.Focused then begin
+              executed:= true;
+              if assigned(MovingTreeNode) then begin
+                 if MoveSubtree( MovingTreeNode ) then
+                    MovingTreeNode:= nil;
+                 end
+              else
+                 TreeTransferProc(1, nil, KeyOptions.ConfirmTreePaste );  // Graft Subtree
+           end;
+       end;
+
+    Result:= Executed;
+end;
+
+Function CmdCopy: boolean;
+var
+   executed: Boolean;
+begin
+    executed:= False;
+    if ( assigned( NoteFile ) and assigned( ActiveNote )) then
+       if Form_Main.Res_RTF.Focused then begin
+          executed:= true;
+          Form_Main.Res_RTF.CopyToClipboard
+       end
+       else
+       if ActiveNote.Editor.Focused then begin
+           executed:= true;
+           PerformCmdEx(ecCopy);
+       end
+       else if ActiveNote.Kind = ntTree then begin
+           if TTreeNote( ActiveNote ).TV.IsEditing then begin
+              executed:= false;       // will be managed by the TreeNT component
+           end
+           else if TTreeNote( ActiveNote ).TV.Focused then begin
+              executed:= true;
+              MovingTreeNode:= nil;
+              TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste );  // Lift Subtree
+           end;
+       end;
+    Result:= Executed;
+end;
+
+Function CmdCut: boolean;
+var
+   executed: Boolean;
+begin
+    executed:= False;
+    if ( assigned( NoteFile ) and assigned( ActiveNote )) then
+       if Form_Main.Res_RTF.Focused then begin
+          executed:= true;
+          Form_Main.Res_RTF.CutToClipboard
+       end
+       else
+       if ActiveNote.Editor.Focused then begin
+           executed:= true;
+           PerformCmd(ecCut);
+       end
+       else if ActiveNote.Kind = ntTree then begin
+           if TTreeNote( ActiveNote ).TV.IsEditing then begin
+              executed:= false;     // will be managed by the TreeNT component
+           end
+           else if TTreeNote( ActiveNote ).TV.Focused then begin
+                MovingTreeNode:= TTreeNote( ActiveNote ).TV.Selected;
+                TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste );  // Lift Subtree
+                executed:= true;
+           end;
+       end;
+    Result:= Executed;
+end;
+
 end.

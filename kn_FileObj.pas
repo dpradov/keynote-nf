@@ -49,7 +49,7 @@ uses Windows, Classes, Graphics,
   SysUtils, IniFiles, FileCtrl,
   controls, comctrls95, gf_misc,
   kn_NoteObj, kn_Info, kn_Const,
-  kn_NodeList, gf_files,
+  kn_NodeList, gf_files, TreeNT,
   IDEA, DCPcrypt, Blowfish, SHA1,
   Dialogs, RxRichEd, StreamIO;
 
@@ -179,7 +179,7 @@ type
 
     function GetNoteByID( const aID : integer ) : TTabNote; // identifies note UNIQUELY
     function GetNoteByName( const aName : string ) : TTabNote; // will return the first note whose name matches aName. If more notes have the same name, function will only return the first one.
-
+    function GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TTabNote;  // return the note that contains the tree with the passed node
   end;
 
 
@@ -1433,6 +1433,24 @@ begin
     end;
   end;
 end; // GetNoteByID
+
+function TNoteFile.GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TTabNote;
+var
+  i, cnt : integer;
+  myTV: TTreeNT;
+begin
+  result := nil;
+  myTV := TTreeNT(myTreeNode.TreeView);
+  cnt := FNotes.Count;
+  for i := 1 to cnt do
+  begin
+    if ( TTreeNote(FNotes[pred( i )]).TV = myTV ) then
+    begin
+      result := FNotes[pred( i )];
+      break;
+    end;
+  end;
+end; // GetNoteByTreeNode
 
 function TNoteFile.GetNoteByName( const aName : string ) : TTabNote;
 // aName is NOT case-sensitive
