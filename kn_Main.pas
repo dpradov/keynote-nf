@@ -2593,6 +2593,7 @@ begin
               and (TRxRichEdit(sender).Paragraph.TableStyle = tsNone)  // DPV
            then
       begin
+        if NoteIsReadOnly( ActiveNote, true ) then exit;
         with ( sender as TRxRichEdit ) do
         begin
           // figure out line and column position of caret
