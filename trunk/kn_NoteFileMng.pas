@@ -773,6 +773,8 @@ end; // NoteFileSave
 //=================================================================
 function NoteFileClose : boolean;
 begin
+  MovingTreeNode:= nil;
+
   with Form_Main do begin
 
       result := true;

@@ -852,6 +852,7 @@ type
     TB_AlarmNode: TToolbarButton97;
     N114: TMenuItem;
     TVAlarmNode: TMenuItem;
+    procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure TVAlarmNodeClick(Sender: TObject);
     procedure TB_AlarmNodeMouseEnter(Sender: TObject);
     procedure TB_AlarmNodeClick(Sender: TObject);
@@ -2343,6 +2344,9 @@ end;
 
 procedure TForm_Main.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+//var
+//  myKey: Word;
+//  myShift: TShiftState;
 begin
   case key of
 
@@ -2481,13 +2485,47 @@ begin
     end;
 
     VK_INSERT:
-       if ( shift = [ssShift] ) then begin        // dpv
-         key:= 0;
-         PerformCmd( ecPaste );
+       if ( shift = [ssShift] ) then begin
+         if CmdPaste(false) then key:= 0;
+       end
+       else if shift = [ssCtrl] then begin
+         if CmdCopy then key:= 0;
        end;
+
+    VK_DELETE:
+       if ( shift = [ssShift] ) then begin
+         if CmdCut then key:= 0;
+       end;
+
+// We'll manage CTR-V,CTR-C,CTR-X from FormShortCut. From this only CTR-V can be intercepted
+//    ELSE BEGIN
+//        ShortCutToKey(16470, myKey, myShift);
+//        if (myKey=key) and (myShift=Shift) then begin
+//            if CmdPaste(false) then key:= 0;
+//        end
+//    END;
   end;
 
 end; // KEY DOWN
+
+procedure TForm_Main.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
+var
+  myKey: Word;
+  myShift: TShiftState;
+begin
+   if (GetKeyState(VK_CONTROL) < 0) then
+   begin
+      if Msg.CharCode = Ord('C') then begin
+          if CmdCopy then Handled:= true;
+      end
+      else if Msg.CharCode = Ord('V') then begin
+          if CmdPaste(false) then Handled:= true;
+      end
+      else if Msg.CharCode = Ord('X') then begin
+          if CmdCut then Handled:= true;
+      end;
+   end;
+end;
 
 procedure TForm_Main.Combo_StyleChange(Sender: TObject);
 var
@@ -2924,37 +2962,17 @@ end; // TAB SHIFT
 
 procedure TForm_Main.MMEditCutClick(Sender: TObject);
 begin
-  {if Res_RTF.Focused then
-    Res_RTF.CutToClipboard
-  else}
-    PerformCmd( ecCut );
+    CmdCut;
 end; // CUT
 
 procedure TForm_Main.MMEditCopyClick(Sender: TObject);
 begin
-  {if Res_RTF.Focused then
-    Res_RTF.CopyToClipboard
-  else}
-    PerformCmdEx( ecCopy );
+    CmdCopy;
 end; // COPY
 
 procedure TForm_Main.MMEditPasteClick(Sender: TObject);
 begin
-  {if Res_RTF.Focused then
-    Res_RTF.PasteFromClipboard
-  else}
-  begin
-    if ShiftDown then
-      PerformCmd( ecPastePlain )
-    else
-    if ( CtrlDown and ( sender is TToolbarButton97 )) then
-      PasteIntoNew( true )
-    else
-    if AltDown then
-      MMEditPasteSpecialClick( MMEditPasteSpecial )
-    else
-      PerformCmd( ecPaste );
-  end;
+    CmdPaste(sender is TToolbarButton97);
 end; // PASTE
 
 procedure TForm_Main.MMEditDeleteClick(Sender: TObject);
@@ -4218,12 +4236,17 @@ end; // TVBeforeItemPaint
 *)
 
 procedure TForm_Main.TVDeletion(Sender: TObject; Node: TTreeNTNode);
+var
+   myTNote : TTreeNote;
 begin
-  if ( assigned( Node ) and assigned( ActiveNote )) then begin
+  if not assigned( Node ) then exit;
+
+  myTNote:= TTreeNote(NoteFile.GetNoteByTreeNode(Node));
+  if assigned( myTNote ) then begin
     if TNoteNode( Node.Data ).Alarm <> 0 then                     // [dpv*]
        AlarmManager.RemoveAlarmNode(Node);
 
-    TTreeNote( ActiveNote ).RemoveNode( TNoteNode( Node.Data ));
+    myTNote.RemoveNode( TNoteNode( Node.Data ));
   end;
 end;
 

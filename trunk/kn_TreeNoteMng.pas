@@ -16,6 +16,7 @@ var
     function TreeNoteNewNode( const aTreeNote : TTreeNote; aInsMode : TNodeInsertMode; const aOriginNode : TTreeNTNode; const aNewNodeName : string; const aDefaultNode : boolean ) : TTreeNTNode;
     procedure TreeNodeSelected( Node : TTreeNTNode );
     procedure DeleteTreeNode( const DeleteFocusedNode : boolean );
+    function MoveSubtree( myTreeNode : TTreeNTNode ): boolean;
     procedure UpdateTreeNode( const aTreeNode : TTreeNTNode );
     procedure CreateMasterNode;
     procedure OutlineNumberNodes;
@@ -1623,6 +1624,78 @@ begin
 
 end; // DeleteTreeNode
 
+function MoveSubtree( myTreeNode : TTreeNTNode ): boolean;
+var
+  myTreeParent : TTreeNTNode;
+  myTV : TTreeNT;
+  myTNote : TTreeNote;
+  selectedNode: TTreeNTNode;
+begin
+  Result:= false;
+  with Form_Main do begin
+      if ( not assigned( myTreeNode )) then exit;
+      if NoteIsReadOnly( ActiveNote, true ) then exit;
+      selectedNode := TTreeNote(ActiveNote).TV.Selected;
+      if not assigned( selectedNode ) then begin
+        showmessage( 'No tree node available for copying or pasting data.' );
+        exit;
+      end;
+      if ( myTreeNode = selectedNode ) then exit;
+
+      myTNote:= TTreeNote(NoteFile.GetNoteByTreeNode(myTreeNode));
+      if NoteIsReadOnly( myTNote, true ) then exit;
+
+      myTV := myTNote.TV;
+      myTreeParent := myTreeNode.Parent;
+
+      if ( messagedlg( Format(
+        'OK to move %d nodes from node "%s" to current node "%s"?',
+        [TransferNodes.Count, myTreeNode.Text, selectedNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+          exit;
+
+      // Cut..
+      with myTV do
+      begin
+        OnChange := nil;
+        OnDeletion := TVDeletion;
+        Items.BeginUpdate;
+      end;
+      try
+        try
+            myTV.Items.Delete( myTreeNode );
+            SelectIconForNode( myTreeParent, myTNote.IconKind );
+        except
+          on E : Exception do
+          begin
+            messagedlg( 'Error deleting node: ' + #13 + E.Message, mtError, [mbOK], 0 );
+          end;
+        end;
+      finally
+        with myTV do
+        begin
+          OnDeletion := nil;
+          OnChange := TVChange;
+          Items.EndUpdate;
+        end;
+        if assigned( myTNote.TV.Selected ) then
+          myTNote.SelectedNode := TNoteNode( myTNote.TV.Selected.Data )
+        else
+          myTNote.SelectedNode := nil;
+
+        myTNote.DataStreamToEditor;
+      end;
+
+      // ... and Paste
+      TreeTransferProc(1, nil, false );  // Graft Subtree
+
+      NoteFile.Modified := true;
+      UpdateNoteFileState( [fscModified] );
+      Result:= true;
+  end;
+
+end; // MoveSubtree
+
+
 procedure UpdateTreeNode( const aTreeNode : TTreeNTNode );
 var
   myNoteNode : TNoteNode;
@@ -2023,6 +2096,8 @@ begin
             end;
           finally
             tNote.TV.Items.EndUpdate;
+            tNote.TV.Selected := myTreeNode;
+            TreeNodeSelected( myTreeNode );
             // myTreeNode.Expand( true );
             if ( VirtualNodesConverted > 0 ) then
             begin
@@ -2044,8 +2119,10 @@ begin
 
   finally
     screen.Cursor := crDefault;
-    NoteFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    if (XferAction = 1) and Result then begin
+       NoteFile.Modified := true;
+       UpdateNoteFileState( [fscModified] );
+    end;
   end;
 
 end; // TreeTransferProc

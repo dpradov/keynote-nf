@@ -141,6 +141,7 @@ var
 
 
     //================================================== TREE
+    MovingTreeNode: TTreeNTNode;            // To use with Paste, after applying Cut on a Tree Node.
 
     //================================================== VARIOS
 
@@ -187,6 +188,7 @@ var
   sm : TSearchMode;
   V : TOSVersionInfo;
 begin
+  MovingTreeNode:= nil;
 
   with Form_Main do begin
       {$IFDEF WITH_TIMER}
