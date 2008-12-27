@@ -2894,6 +2894,10 @@ end;
 procedure TTreeNTNode.Delete;
 
 begin
+  // First we assure that this node and all the children are visible, so the delete mechanism works ok
+  if FItemId <> nil then
+     Hide(false, true, true);
+
   if not FDeleting then Free;
 end;
 
@@ -3199,6 +3203,10 @@ procedure TTreeNTNodes.Delete(Node: TTreeNTNode);
 
 begin
   if (Node.ItemId = nil) and assigned(Owner.FOnDeletion) then FOwner.FOnDeletion(Self, Node);
+
+  // First we assure that this node and all the children are visible, so the delete mechanism works ok
+  if Node.ItemId <> nil then
+     Node.Hide(false, true, true);
   Node.Delete;
 end;
 
