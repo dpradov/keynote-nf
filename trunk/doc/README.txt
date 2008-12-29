@@ -1,13 +1,16 @@
 ============================================================
- 28 Nov 2008       (Actual version is 1.7.3 Rev.3)
+ 29 Dic 2008       (Version: 1.7.4)
+============================================================
+From version 1.7.4 the program is renamed as "KeyNote NF"
+					      ==========
+
+============================================================
+ 28 Nov 2008       (Version: 1.7.3 Rev.3)
 ============================================================
 Issues and posts have already been migrated to Google Code. There is also a discussion group.
                                                -----------
   http://code.google.com/p/keynote-nf/  
   http://groups.google.com/group/keynote-nf  
-
-Program will be renamed to "KeyNote NF", from next version 1.7.4
-                            ==========
 
 
 The project is still available in SourceForge, but only to host new binaries:
