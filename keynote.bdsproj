@@ -168,7 +168,7 @@
 			<VersionInfoKeys Name="LegalTrademarks">Freeware</VersionInfoKeys>
 			<VersionInfoKeys Name="OriginalFilename">keynote.exe</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName">KeyNote NF</VersionInfoKeys>
-			<VersionInfoKeys Name="ProductVersion">1.7.3.3</VersionInfoKeys>
+			<VersionInfoKeys Name="ProductVersion">1.7.4.1</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments">Improvements over version 1.6.5 of Marek's KeyNote</VersionInfoKeys>
 			<VersionInfoKeys Name="X-Fnord"></VersionInfoKeys>
 			<VersionInfoKeys Name="X-URL">http://code.google.com/p/keynote-nf/</VersionInfoKeys>

@@ -1,5 +1,14 @@
-This is the last edition of KeyNote in the current series. I will now concentrate on KeyNote 2.0, a complete rewrite. Please see the website for details.
-Before emailing for support, please read the FAQ (Frequently Asked Questions) at http://keynote.prv.pl
+In KeyNote NF website (http://code.google.com/p/keynote-nf/), you can download the latest version of the program, submit bug reports or feature requests, among other things.
+From KeyNote NF website you can access to a discussion mailing list where you can post questions and discuss about the program.
+You can find more information (FAQ, for example) about the program in the website of the original version (1.6.5): http://keynote.prv.pl
+You can work with hidden nodes in two ways: automatically hiding checked nodes, filtering one or all notes based on a searching criterion
+It is possible to show checkboxes for all nodes (View/All nodes Checkboxes) and only on children of selected nodes: (Children Checkbox)
+You can copy, cut and paste nodes and subtrees using usual clipboard shortcuts (Ctrl-C, CTRL-V, Ctrl-X or Ctrl-Ins, Shift-Ins, Shift-Supr).
+You can use and show tables correctly inside KeyNote if installed on Windows XP SP1 or upper, by means of "msftedit.dll".
+You can set alarms, associated to nodes. Behaviour is similar to that offered by Outlook: postpone, discard, ...
+Activating a mode wich automatically hides checked nodes (Show or Hide checked nodes) can be useful to play with tasks.
+Filtering nodes based on a searching criterion (Filter Tree Note) can be useful to work with a subset of information. For example tagging some nodes with text like [MILESTONE:1.7.4]
+You can change the text shown for a link (internal or not): press Shift while clicking the URL to show options.
 See the file "bugs.txt" (in "doc" subdirectory). It contains a current list of known problems and limitations. The FAQ has also been updated on the website.
 You can configure the keyboard shortcuts used to invoke various KeyNote functions: See the "Configuring keyboard shortcuts" Help topic.
 You can configure the toolbars: See the "Configuring toolbars" Help topic.
@@ -84,8 +93,6 @@ The file SAMPLE.KNT distributed with the program contains many additional hints 
 You can move the toolbars by clicking and dragging them to a new location. Toolbars will remember the new position.
 If the note tabs take too much space and don't all fit on one line, you can shrink them by turning off their icons. See Options (F5), "Chrome" tab.
 No Help file is available at this time. (Sorry.) You have the status bar hints, though!
-Questions? Suggestions? Email me at <marekjed@pobox.com>. No HTML-formatted email PLEASE!
-The author of KeyNote is hopeless with graphics and design. If you have an idea for a cool logo for the program, please make one and let me know! :)
 This program will always be distributed as Freeware. If you paid for it, you were cheated.
 It is the author's very strong opinion that advertising sponsored programs are NOT free. This program will never use such a scheme.
 You can send E-mail directly from Keynote: choose "Email note" from the "Note" menu.

@@ -1076,7 +1076,7 @@ type
     procedure MMToolsGlosEditClick(Sender: TObject);
     procedure TVRefreshVirtualNodeClick(Sender: TObject);
     procedure MMHelpVisitWebsiteClick(Sender: TObject);
-    procedure MMHelpEmailAuthorClick(Sender: TObject);
+    //procedure MMHelpEmailAuthorClick(Sender: TObject);
     procedure Combo_FontSizeKeyPress(Sender: TObject; var Key: Char);
     procedure Combo_FontSizeClick(Sender: TObject);
     procedure MMInsertMarkLocationClick(Sender: TObject);
@@ -5460,9 +5460,9 @@ end;
 procedure TForm_Main.MMHelpVisitWebsiteClick(Sender: TObject);
 begin
   if messagedlg(
-    'This command will start your browser and direct it to the author''s website, where ' +
-    'you can download the latest version of the program, read the FAQ, and find more ' +
-    'information about KeyNote and other freeware programs. Continue?',
+    'This command will start your browser and direct it to KeyNote NF website, where ' +
+    'you can download the latest version of the program, read the FAQ, submit bug reports or feature requests with the Issue Manager. ' +  #13+#13+
+    'There is also a discussion mailing list where you can post questions and discuss about the program.' + #13+#13 + 'Continue?',
     mtConfirmation, [mbOK,mbCancel], 0
     ) <> mrOK then exit;
 
@@ -5471,17 +5471,17 @@ begin
   screen.Cursor := crDefault;
 end;
 
-procedure TForm_Main.MMHelpEmailAuthorClick(Sender: TObject);
-begin
-  if messagedlg(
-    'Feel free to send questions, bug reports or feature suggestions for KeyNote. PLEASE DO NOT SEND EMAIL IN HTML FORMAT! Continue?',
-    mtConfirmation, [mbOK,mbCancel], 0
-    ) <> mrOK then exit;
-
-  screen.Cursor := crHourGlass;
-  ShellExecute( 0, 'open', PChar( 'mailto:' + Program_Email ), nil, nil, SW_NORMAL );
-  screen.Cursor := crDefault;
-end;
+//procedure TForm_Main.MMHelpEmailAuthorClick(Sender: TObject);
+//begin
+//  if messagedlg(
+//    'Feel free to send questions, bug reports or feature suggestions for KeyNote. PLEASE DO NOT SEND EMAIL IN HTML FORMAT! Continue?',
+//    mtConfirmation, [mbOK,mbCancel], 0
+//    ) <> mrOK then exit;
+//
+//  screen.Cursor := crHourGlass;
+//  ShellExecute( 0, 'open', PChar( 'mailto:' + Program_Email ), nil, nil, SW_NORMAL );
+//  screen.Cursor := crDefault;
+//end;
 
 
 procedure TForm_Main.MMInsertMarkLocationClick(Sender: TObject);
