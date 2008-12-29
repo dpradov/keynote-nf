@@ -3393,7 +3393,7 @@ begin
     begin
       ParentNode := Node.FParent;
       if assigned(ParentNode) then Item := ParentNode.ItemId;
-      Node := Node.GetPrevSibling;
+      Node := Node.GetPrevSiblingNotHidden;
       if assigned(Node) then ItemId := Node.ItemId
                         else AddMode := taAddFirst;
     end;
