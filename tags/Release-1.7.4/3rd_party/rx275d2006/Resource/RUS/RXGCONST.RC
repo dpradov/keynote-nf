@@ -1,0 +1,23 @@
+/****************************************************************************
+
+rxgconst.res
+
+Delphi VCL Extensions (RX)
+Copyright (c) 1997 Master-Bank
+
+*****************************************************************************/
+
+#include "rxgconst.pas"
+
+STRINGTABLE
+{
+  SGIFImage, "CompuServe GIF Image"
+  SChangeGIFSize, "Невозможно изменить размер изображения GIF"
+  SNoGIFData, "Нет данных для записи в формате GIF"
+  SUnrecognizedGIFExt, "Неопределенное расширение GIF: %.2x"
+  SWrongGIFColors, "Неверное число цветов; должно быть степенью числа 2"
+  SBadGIFCodeSize, "Размер кода GIF не принадлежит диапазону от 2 до 9"
+  SGIFDecodeError, "Неверные данные в формате GIF"
+  SGIFEncodeError, "Ошибка кодировки данных в формат GIF"
+  SGIFVersion, "Неизвестная версия изображения GIF"
+}

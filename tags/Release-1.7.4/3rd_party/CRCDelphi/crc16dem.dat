@@ -1,0 +1,16 @@
+CRC-16 code of bit string 101011 is 7D00
+CRC-16 code of 'This is a sample string' is 08D6
+CRC-16 code of 'This is a string' is 4C44
+CRC-16 code of real array 1 is 3557
+CRC-16 code of real array 2 is F781
+CRC-16 code of real array 3 is 0000
+
+File CRC-16 Codes:     <<== CRCs below may vary by machine
+
+ CRC-16       F i l e n a m e
+--------  ------------------------
+  8FAC    C:\COMMAND.COM
+  1CB7    C:\MSDOS.SYS
+  CB7C    C:\IO.SYS
+  8A71    C:\TEMP\CRC16DEM.EXE
+          ()[]{}.,/?*&$  <File not found>

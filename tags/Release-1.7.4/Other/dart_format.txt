@@ -1,0 +1,47 @@
+This file describes the format of the Dart Notes files.
+KeyNote can open and save files in this format.
+(This is NOT KeyNote's own file format.)
+
+STOP = 0x07
+
+   +-----+-----------------------------------------------
+   +     +
+   +  H  +  Length of block (starting after next STOP)
+   +  e  +  STOP
+   +  a  +  'Notes'
+   +  d  +  STOP
+   +  e  +  Ver * 1000
+   +  r  +  STOP
+   +     +  Min ver required to read this file  (error)
+   +     +  STOP
+   +     +  Min ver to read all options in this file  (warning)
+   +     +  STOP
+   +     +  Last active tab
+   +     +  STOP
+   +     +          <--------- new header options here
+   +     +
+   +-----+-----------------------------------------------
+
+
+            685417To-Do1361915116832{\rtf1\
+
+   +     +
+   +  1  +  lenght of block  (starting after *!* )
+   +     +  stop
+   +  s  +  offset to start of rtf block (starting after *!* )
+   +  e  +  stop  ( *!*   <----- len + offset from here)
+   +  c  +  tab name
+   +  t  +  stop
+   +  i  +  background color
+   +  o  +  stop
+   +  n  +  word wrap
+   +     +  stop
+   +  p  +          <-------- new options here
+   +  e  +
+   +  r  +  length of rtf  <----- start of rtf block
+   +     +  stop
+   +  r  +  rtf
+   +  t  +  stop
+   +  f  +          <-------- new options could be added here too
+   +     +
+   +-----+-----------------------------------------------
