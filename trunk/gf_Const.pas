@@ -18,11 +18,11 @@ uses Graphics;
 
 const
   // VANITY INFO FOR ALL SOFTWARE
-  Program_URL     = 'http://keynote.prv.pl';
-  Program_Email   = 'marekjed@users.sourceforge.net';
+  Program_URL     = 'http://code.google.com/p/keynote-nf/'; //'http://keynote.prv.pl';
+  Program_Email   = 'dprado.keynote@gmail.com'; //'marekjed@users.sourceforge.net';
   Program_License = 'This program is Freeware';
-  Program_Credit  = 'Copyright (c) Marek Jedlinski, 2000-2002';
-
+  Program_Credit  = 'Copyright (c) Daniel Prado Velasco, 2007-2009' + #13 +
+                    'Copyright (c) Marek Jedlinski, 2000-2002';
 
 const
    // APP NOTIFY IDs FOR ALL SOFTWARE

@@ -23,21 +23,36 @@ Mejoras:
 	     {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
 	     Ahora los hipervínculos pueden mostrar textos diferentes a la propia URL.
 
+ * Issue #7: Mejora y generalización del manejo de las teclas usuales del portapapeles:
+             Ctrl-C, CTRL-V, Ctrl-X / Ctrl-Ins, Shift-Ins, Shift-Supr
+             Mediante estas funciones es posible también copiar y pegar nodos y subárboles, así como moverlos
+             (cortar y pegar) dentro del archivo.
+
+
 Errores corregidos:
 
- * Issue #10: Modificar 'First Indent' en una selección de múltiples líneas.
- 	      Resuelto de una manera más correcta, utilizando PFM_OFFSETINDENT en el control RichEdit, en lugar de PFM_STARTINDENT
+ * Issue #10: Modificar 'First Indent' en una selección de múltiples líneas. Resuelto de una manera 
+	      más correcta, utilizando PFM_OFFSETINDENT en el control RichEdit, en lugar de PFM_STARTINDENT
+              Ahora funciona de manera correcta, además de no "consumir" los "deshacer".
 
- * Issue #9: Al pulsar Intro sobre una línea vacía con estilo de lista (viñetas o numerada) debería eliminarse el estilo de lista de esa línea. 
+ * Issue #9: Al pulsar Intro sobre una línea vacía con estilo de lista (viñetas o numerada) debería
+	     eliminarse el estilo de lista de esa línea.
 
- * Issue #13: Comportamiento de listas (viñetas o lista numerada): La indentación no se establece siempre de la manera esperada.
+ * Issue #13: Comportamiento de listas (viñetas o lista numerada): 
+	      La indentación no se establece siempre de la manera esperada.
 
  * Issue #14: El menú contextual correspondiente a las notas (pestañas) no aparecía bajo el cursor
+
+ * Issue #15: Se está permitiendo introducir RETURN incluso en modo de sólo lectura
+
+ * Issue #16: Error al salvar el archivo tras haber eliminado previamente un nodo con hijos ocultos
+
+ * Issue #18: Al insertar un nodo éste puede no mostrarse en la posición correcta si el hermano previo está oculto 
 
 -----------------------------------------------------------
 03 octubre 2008 - version 1.7.3.3
 
-* Corregido problema con la inserción de URL o enlace a fichero: al hacer click en 
+* Corregido problema con la inserción de URL o enlace a fichero: al hacer click en
   ellos no se recuperaba más que una parte de la dirección.
   El origen de este error estaba relacionado con el hecho de que el control RTF que 
   se está usando es Unicode. Al corregirlo, se ha solucionado el problema que 

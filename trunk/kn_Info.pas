@@ -49,8 +49,8 @@ uses Windows, Messages, Classes, Graphics, SysUtils,
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_VerStr   = '1.7.4';
-  Program_Version  = '1.7.4'; //Program_VerStr; // + ' beta';
+  Program_VerStr   = '1.7.4 (rev.1)';
+  Program_Version  = '1.7.4';  // Used in program caption
   Program_License  = 'Freeware / Open Source';
   {$IFDEF DLA_DUNI}
   Program_Desc     = 'Wersja specjalna dla mojej Ukochanej';

@@ -17,21 +17,34 @@ Issue #tracker at http://code.google.com/p/keynote-nf/issues/list
 Version: 1.7.4 -  date: XX/XX/XXXX
 
 Enhancements:
- 
+
  * Issue #12: Improving the way links are managed. In new versions of Rich Edit is used the command RTF:
 	     {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
 	     Now hyperlinks can show a text different to the URL.
 
+ * Issue #7: More general and improved use of usual clipboard's shortcuts:
+             Ctrl-C, CTRL-V, Ctrl-X  / Ctrl-Ins, Shift-Ins, Shift-Supr.
+             That way is possible to copy and paste nodes and subtrees, and move (cut and paste) inside the file.
+
 Bugfixes:
 
- * Issue #10: Changing First Indent of selection with several lines. 
+ * Issue #10: Changing First Indent of selection with several lines.
  	      Resolved in a better way, using PFM_OFFSETINDENT in RichEdit, instead of PFM_STARTINDENT
+              Now works ok, and don't consume the 'undo' mechanism.
 
- * Issue #9: Pressing Intro in an empty line with bullet or numbering list style, should cause list style to be removed.. 
+ * Issue #9: Pressing Intro in an empty line with bullet or numbering list style,
+	     should cause list style to be removed..
 
- * Issue #13: Behaviour of lists styles: When applying list styles, the first indent of list (bullet or numbering) is not homogeneous
+ * Issue #13: Behaviour of lists styles: When applying list styles, the first indent of list 
+	      (bullet or numbering) is not homogeneous
 
  * Issue #14: Context menu for Note tabs didn't appear under cursor
+
+ * Issue #15: It is allowing RETURN even in read-only mode
+
+ * Issue #16: Failed to save after erasing a node with hidden childs
+
+ * Issue #18: Inserting a node doesn't always shows ok if the previous one is hidden.  
 
 
 =============================
