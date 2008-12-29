@@ -14,7 +14,7 @@ KEYNOTE - RELEASE HISTORY
 Issue #tracker at http://code.google.com/p/keynote-nf/issues/list
 
 =============================
-Version: 1.7.4 -  date: XX/XX/XXXX
+Version: 1.7.4 -  date: 29/Dec/2008
 
 Enhancements:
 

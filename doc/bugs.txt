@@ -10,9 +10,7 @@ in Google Code project:
 Note: 
 Please, be specific; it is preferable to create several issues instead of only one very 
 heterogeneous, with many questions.
-Don't create 'macro' issues with many different questions. If you want to suggest several
-new features or to report independent bugs, create several issues. That way it can be managed
-much better.
+If you want to suggest several new features or to report independent bugs, create several issues. That way it can be managed much better.
 
 There you can discuss about issues itselves, too.
 
@@ -68,7 +66,7 @@ Workaround: When you want to change the layout, save the file first *and reload 
 
 * The wordcount value shown in the statusbar (if enabled) differs from the wordcount reported when you use the Tools|Text Statistics command. The latter value is correct; the value shown on the statusbar is off.
 
-* When renaming a tree node, standard clipboard-related keyboard shortcuts (Ctrl+C/X/V) do not work, because they are already taken by the main menu and apply only to the text area. Use alternate clipboard shortcuts, such as Ctrl+Insert (Copy), Shift+Del (Cut) and Shift+Insert (Paste).
+* RESOLVED (1.7.4) When renaming a tree node, standard clipboard-related keyboard shortcuts (Ctrl+C/X/V) do not work, because they are already taken by the main menu and apply only to the text area. Use alternate clipboard shortcuts, such as Ctrl+Insert (Copy), Shift+Del (Cut) and Shift+Insert (Paste).
 
 * RESOLVED (1.7.3.2) Occasionally (rarely!) KeyNote refuses to paste the text you have just copied to clipboard. I think this only affects Windows NT/2000/XP systems. You can verify that the text was indeed copied to clipboard, because the "Pase as text" command does work. What doens't work is the "standard" Paste. The only workaround is to use "Paste as text" instead, or cut the text instead of copying it (you can cut then immediately paste it back, to simulate "Copy"; you will then be able to paste the text correctly where you want it).
 
@@ -79,7 +77,7 @@ Workaround: When you want to change the layout, save the file first *and reload 
 -----------------------------------------------------------
 LIMITATIONS
 
-* If you rename a note or a node, hyperlinks pointing to that note or node will no longer be valid. This could only be worked around by using unique IDs in hyperlinks (instead of names), but then the hyperlinks themselves would not be readable.
+* RESOLVED (1.7.4) If you rename a note or a node, hyperlinks pointing to that note or node will no longer be valid. This could only be worked around by using unique IDs in hyperlinks (instead of names), but then the hyperlinks themselves would not be readable.
 
 * It is not possible to indent the first line of a paragraph; use TAB instead. (The "First line indent" creates a hanging indent, which is the opposite to what many users expect.)
 
