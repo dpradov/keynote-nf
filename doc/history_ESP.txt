@@ -14,6 +14,15 @@ KEYNOTE - RELEASE HISTORY
 Seguimiento de incidencias (issues) en http://code.google.com/p/keynote-nf/issues/list
 
 =============================
+Versión: 1.7.4 Rev.2 -  date: 02/Jan/2009
+
+Errores corregidos:
+
+ * Issue #20: Pegar desde teclado con Shift-Insert: está funcionando como "Paste as Text" (sin formato)
+
+ * Issue #21: Cambiar el estilo de fuente de una selección, sin perder estilos ya aplicados
+
+=============================
 Versión: 1.7.4 -  fecha: 29/Dic/2008
 
 Mejoras:
@@ -31,7 +40,7 @@ Mejoras:
 
 Errores corregidos:
 
- * Issue #10: Modificar 'First Indent' en una selección de múltiples líneas. Resuelto de una manera 
+ * Issue #10: Modificar 'First Indent' en una selección de múltiples líneas. Resuelto de una manera
 	      más correcta, utilizando PFM_OFFSETINDENT en el control RichEdit, en lugar de PFM_STARTINDENT
               Ahora funciona de manera correcta, además de no "consumir" los "deshacer".
 

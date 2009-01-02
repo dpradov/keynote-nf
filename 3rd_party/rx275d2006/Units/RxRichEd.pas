@@ -172,6 +172,10 @@ type
     property Style: TFontStyles read GetStyle write SetStyle;
     property Height: Integer read GetHeight write SetHeight;
     property UnderlineType: TUnderlineType read GetUnderlineType write SetUnderlineType;
+    procedure SetBold(Value: boolean);
+    procedure SetItalic(Value: boolean);
+    procedure SetUnderline(Value: boolean);
+    procedure SetStrikeOut(Value: boolean);
   end;
 
 { TRxParaAttributes }
@@ -1258,6 +1262,54 @@ begin
     if fsItalic in Value then dwEffects := dwEffects or CFE_ITALIC;
     if fsUnderline in Value then dwEffects := dwEffects or CFE_UNDERLINE;
     if fsStrikeOut in Value then dwEffects := dwEffects or CFE_STRIKEOUT;
+  end;
+  SetAttributes(Format);
+end;
+
+procedure TRxTextAttributes.SetBold(Value: boolean);
+var
+  Format: TCharFormat2;
+begin
+  InitFormat(Format);
+  with Format do begin
+    dwMask := CFM_BOLD;
+    if Value then dwEffects := CFE_BOLD;
+  end;
+  SetAttributes(Format);
+end;
+
+procedure TRxTextAttributes.SetItalic(Value: boolean);
+var
+  Format: TCharFormat2;
+begin
+  InitFormat(Format);
+  with Format do begin
+    dwMask := CFM_ITALIC;
+    if Value then dwEffects := CFE_ITALIC;
+  end;
+  SetAttributes(Format);
+end;
+
+procedure TRxTextAttributes.SetUnderline(Value: boolean);
+var
+  Format: TCharFormat2;
+begin
+  InitFormat(Format);
+  with Format do begin
+    dwMask := CFM_UNDERLINE;
+    if Value then dwEffects := CFE_UNDERLINE;
+  end;
+  SetAttributes(Format);
+end;
+
+procedure TRxTextAttributes.SetStrikeOut(Value: boolean);
+var
+  Format: TCharFormat2;
+begin
+  InitFormat(Format);
+  with Format do begin
+    dwMask := CFM_STRIKEOUT;
+    if Value then dwEffects := CFE_STRIKEOUT;
   end;
   SetAttributes(Format);
 end;
