@@ -1695,36 +1695,22 @@ begin
     try
       try
         case aCMD of
-          ecBold : begin
+          ecBold :
             with Form_Main.NoteSelText do
-            begin
-              if fsBold in Style then
-                Style := Style - [fsBold]
-              else
-                Style := Style + [fsBold];
-            end;
-          end;
-          ecUnderline : with Form_Main.NoteSelText do
-          begin
-            if fsUnderline in Style then
-              Style := Style - [fsUnderline]
-            else
-              Style := Style + [fsUnderline];
-          end;
-          ecItalics : with Form_Main.NoteSelText do
-          begin
-            if fsItalic in Style then
-              Style := Style - [fsItalic]
-            else
-              Style := Style + [fsItalic];
-          end;
-          ecStrikeOut : with Form_Main.NoteSelText do
-          begin
-            if fsStrikeOut in Style then
-              Style := Style - [fsStrikeOut]
-            else
-              Style := Style + [fsStrikeOut];
-          end;
+               SetBold(not (fsBold in Style));
+
+          ecUnderline :
+            with Form_Main.NoteSelText do
+               SetUnderline(not (fsUnderline in Style));
+
+          ecItalics :
+            with Form_Main.NoteSelText do
+               SetItalic(not (fsItalic in Style));
+
+          ecStrikeOut :
+            with Form_Main.NoteSelText do
+               SetStrikeOut(not (fsStrikeout in Style));
+
           ecCut : begin
             ActiveNote.Editor.CutToClipboard;
           end;
@@ -2744,14 +2730,16 @@ begin
        else
        if ActiveNote.Editor.Focused then begin
           executed:= true;
-          if ShiftDown then
-            PerformCmd( ecPastePlain )
-          else
-          if CtrlDown and fromButton then
-            PasteIntoNew( true )
-          else
-          if AltDown then
-            Form_Main.MMEditPasteSpecialClick( nil )
+          if fromButton then begin
+              if ShiftDown then
+                PerformCmd( ecPastePlain )
+              else
+              if CtrlDown then
+                PasteIntoNew( true )
+              else
+              if AltDown then
+                Form_Main.MMEditPasteSpecialClick( nil );
+          end
           else
             PerformCmd( ecPaste );
        end
