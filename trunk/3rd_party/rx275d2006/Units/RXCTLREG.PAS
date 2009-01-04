@@ -36,7 +36,7 @@ implementation
 
 uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, {$ENDIF} Classes, SysUtils,
   RTLConsts, DesignIntf, DesignEditors, VCLEditors, TypInfo, Controls, Graphics, ExtCtrls, Tabs, Dialogs, Forms,
-  {$IFDEF RX_D3} DsnConst, ExtDlgs, {$ELSE} LibConst, {$ENDIF} 
+  {$IFDEF RX_D3} DsnConst, ExtDlgs, {$ELSE} LibConst, {$ENDIF}
 {$IFDEF DCS}
   {$IFDEF RX_D4} ImgEdit, {$ENDIF} {$IFDEF WIN32} ImgList, {$ENDIF}
 {$ENDIF DCS}
@@ -45,7 +45,7 @@ uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, {$ENDIF} Classes, SysUtils,
   PickDate, RxSplit, RxSlider, RxClock, Animate, RxCombos, RxSpin, Consts,
   RxDice, RxSwitch, CheckItm, VCLUtils, RxColors, AniFile, RxGraph,
   {$IFDEF USE_RX_GIF} RxGIF, GIFCtrl, {$ENDIF} RxHints, ExcptDlg, RxCConst,
-  FileUtil, RxDsgn;
+  FileUtil, RxDsgn, spin;
 
 {$IFNDEF RX_D3}
 
@@ -431,6 +431,8 @@ const
   BaseClass: TClass = TComponent;
 {$ENDIF}
 begin
+  RegisterComponents('Samples', [TSpinEdit]);
+
   RegisterComponents(LoadStr(srRXControls), [TComboEdit, TFilenameEdit,
     TDirectoryEdit, TDateEdit, TRxCalcEdit, TCurrencyEdit, TTextListBox,
     TRxCheckListBox, TFontComboBox, TColorComboBox, TRxSplitter, TRxSlider,
