@@ -263,6 +263,8 @@ type
     RB_URLSystemBrowser: TRadioButton;
     RB_URLAltBrowser: TRadioButton;
     Edit_URLAltBrowserPath: TFilenameEdit;
+    Label18: TLabel;
+    Combo_Language: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -342,6 +344,7 @@ type
 
 
 implementation
+uses kn_LanguagesMng;
 
 {$R *.DFM}
 
@@ -353,12 +356,18 @@ var
   tp : TTabOrientation;
   txm : TTreeExpandMode;
   cln : TClipNodeNaming;
+  Language : TLanguageInfo;
 begin
   Initializing := true;
   OK_Click := false;
   Pages.PageINdex := 0;
   AutoCloseWarned := false;
   List_Icn.CheckBoxes := false;
+
+  for i := 0 to LanguagesAvailables.Count -1 do begin
+    Language := TLanguageInfo( LanguagesAvailables.Objects[i] );
+    Combo_Language.Items.Add( Language.Name );
+  end;
 
   with Combo_Divider.Items do
   begin
@@ -725,6 +734,8 @@ begin
     UserFile := normalFN( Edit_UserFile.text );
     HotKey := Edit_HotKey.HotKey;
     HotkeyActivate := ( CheckBox_HotkeyActivate.Checked and ( HotKey > 0 ));
+
+    LanguageUI := Combo_Language.Items[Combo_Language.ItemIndex];
   end;
 
   with myTabOpts do
@@ -784,6 +795,8 @@ begin
 end; // FormToOptions
 
 procedure TForm_OptionsNew.OptionsToForm;
+var
+  i: integer;
 begin
 
   with myOpts do
@@ -923,6 +936,15 @@ begin
     Edit_HotKey.HotKey := HotKey;
     CheckBox_HotkeyActivate.Checked := ( HotkeyActivate and ( HotKey > 0 ));
     Edit_HotKey.Enabled := CheckBox_HotkeyActivate.Checked;
+
+    Combo_Language.ItemIndex := 0;
+    for i := 0 to Combo_Language.Items.Count -1 do begin
+      if Combo_Language.Items[i] = LanguageUI then begin
+         Combo_Language.ItemIndex := i;
+         break;
+      end;
+    end;
+
   end;
 
   with myTabOpts do
