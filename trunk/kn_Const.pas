@@ -45,6 +45,10 @@ unit kn_Const;
 interface
 uses Windows, ShellAPI, Graphics, Messages;
 
+const
+  LANGUAGE_DEFAULT = 'English (Internal)';
+  LANGUAGE_DIR = 'Lang\';
+
 { Experimental stuff for RichEdit v.3 }
 const
   EM_GETZOOM = WM_USER+224;

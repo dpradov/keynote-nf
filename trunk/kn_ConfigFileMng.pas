@@ -26,7 +26,7 @@ uses
    TB97Ctls, TB97Tlbr,
    kn_Main, dll_Keyboard, kn_Dllmng, kn_DLLinterface,
    kn_global, kn_Info, kn_INI, kn_Const, kn_OptionsNew, kn_Chest,
-   kn_FindReplaceMng, kn_MacroMng, kn_VCLControlsMng;
+   kn_FindReplaceMng, kn_MacroMng, kn_VCLControlsMng, kn_LanguagesMng;
 
 procedure ReadCmdLine;
 var
@@ -553,6 +553,8 @@ var
   Form_Options : TForm_OptionsNew;
   tmpicnfn : string;
   oldHotKey : Word;
+  oldLanguageUI : string;
+  FN: string;
 begin
   with Form_Options do
   begin
@@ -590,6 +592,7 @@ begin
           try
 
             oldHotKey := KeyOptions.HotKey; // save previous state
+            oldLanguageUI := KeyOptions.LanguageUI;
 
             KeyOptions := Form_Options.myOpts;
             TabOptions := Form_Options.myTabOpts;
@@ -622,6 +625,9 @@ begin
                 SaveCategoryBitmapsUser( ICN_FN );
               end;
             end;
+
+            if oldLanguageUI <> KeyOptions.LanguageUI then
+               ApplyLanguageUI (KeyOptions.LanguageUI);
 
             SaveOptions;
             with Form_Main do

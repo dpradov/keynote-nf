@@ -112,7 +112,7 @@
 			<Linker Name="ConsoleApp">1</Linker>
 			<Linker Name="DebugInfo">False</Linker>
 			<Linker Name="RemoteSymbols">False</Linker>
-			<Linker Name="GenerateDRC">False</Linker>
+			<Linker Name="GenerateDRC">True</Linker>
 			<Linker Name="MinStackSize">16384</Linker>
 			<Linker Name="MaxStackSize">1048576</Linker>
 			<Linker Name="ImageBase">4194304</Linker>

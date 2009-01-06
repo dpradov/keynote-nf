@@ -239,7 +239,10 @@ uses
   kn_AlertMng in 'kn_AlertMng.pas' {Form_Alarm},
   kn_LinksMng in 'kn_LinksMng.pas',
   kn_EditorUtils in 'kn_EditorUtils.pas',
-  kn_VCLControlsMng in 'kn_VCLControlsMng.pas';
+  kn_VCLControlsMng in 'kn_VCLControlsMng.pas',
+  uStringUtils in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uStringUtils.pas',
+  uFreeLocalizer in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uFreeLocalizer.pas',
+  kn_LanguagesMng in 'kn_LanguagesMng.pas';
 
 {$R *.RES}
 
@@ -281,6 +284,9 @@ begin
     end;
   end;
   *)
+
+  InitializeOptions;
+  ApplyLanguageUI (KeyOptions.LanguageUI);
 
   Application.CreateForm(TChest, Chest);
   Application.CreateForm(TForm_Main, Form_Main);

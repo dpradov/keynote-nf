@@ -339,6 +339,7 @@ type
     InsCharKeepFont,
     InsCharWinClose,
     KeyReplayDelay,
+    LanguageUI,
     LastCopyPath,
     LastExportPath,
     LastExportFormat,
@@ -475,6 +476,7 @@ const
     InsCharKeepFont : 'InsCharKeepFont';
     InsCharWinClose : 'InsCharWinClose';
     KeyReplayDelay : 'KeyReplayDelay';
+    LanguageUI : 'LanguageUI';
     LastCopyPath : 'LastCopyPath';
     LastExportPath : 'LastExportPath';
     LastExportFormat : 'LastExportFormat';
@@ -923,6 +925,7 @@ begin
     InsCharFullSet := false;
     InsCharKeepFont := true;
     InsCharWinClose := false;
+    LanguageUI := LANGUAGE_DEFAULT;   // Default (English Internal)
     LastCopyPath := '';
     LastExportPath := '';
     LastExportFormat := low( TExportFmt );
@@ -1178,6 +1181,7 @@ begin
       writebool( section, KeyOptionsIniStr.InsCharFullSet, KeyOptions.InsCharFullSet );
       writebool( section, KeyOptionsIniStr.InsCharKeepFont, KeyOptions.InsCharKeepFont );
       writebool( section, KeyOptionsIniStr.InsCharWinClose, KeyOptions.InsCharWinClose );
+      writestring( section, KeyOptionsIniStr.LanguageUI, KeyOptions.LanguageUI );
       writestring( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );
       writestring( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
       writeinteger( section, KeyOptionsIniStr.LastExportFormat, ord( KeyOptions.LastExportFormat ));
@@ -1462,6 +1466,7 @@ begin
       KeyOptions.InsCharFullSet := readbool( section, KeyOptionsIniStr.InsCharFullSet, KeyOptions.InsCharFullSet );
       KeyOptions.InsCharKeepFont := readbool( section, KeyOptionsIniStr.InsCharKeepFont, KeyOptions.InsCharKeepFont );
       KeyOptions.InsCharWinClose := readbool( section, KeyOptionsIniStr.InsCharWinClose, KeyOptions.InsCharWinClose );
+      KeyOptions.LanguageUI := readstring( section, KeyOptionsIniStr.LanguageUI, KeyOptions.LanguageUI );
       KeyOptions.LastCopyPath := readstring( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );
 
       KeyOptions.LastExportPath := readstring( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );

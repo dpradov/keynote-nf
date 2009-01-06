@@ -22,6 +22,7 @@ const
 
    procedure InitializeKeynote (Form_Main: TForm_Main);
    procedure CheckEmpty (var RTFAux: TRxRichEdit);
+   procedure InitializeOptions;
 
 var
 
@@ -237,9 +238,6 @@ begin
       FolderMon.Active := false;
       Ntbk_ResFind.PageIndex := 1;
 
-
-      NoteFileToLoad := '';
-      CmdLineFileName := '';
       ActiveNote := nil;
       ClipCapNextInChain := 0;
       RTFUpdating := false;
@@ -353,12 +351,6 @@ begin
       RxRTFKeyProcessed := false;
       SearchNode_Text := '';
       SearchNode_TextPrev := '';
-      DEF_FN := '';
-      MGR_FN := '';
-      ICN_FN := '';
-      MRU_FN := '';
-      KEY_FN := '';
-      Keyboard_FN := '';
 
       Timer.Enabled := false;
       Timer_Tick := 0;
@@ -368,28 +360,6 @@ begin
 
       // Register message ID for DLL (plugin) notifications
       _KNT_WINMSG_ID := RegisterWindowMessage( KeyNote_WinMsgIdStr );
-
-      // figure oout INI file name, initially
-      INI_FN := normalFN( changefileext( Application.ExeName, ext_INI ));
-
-      // These are always located in .exe directory
-      TIP_FN := normalFN( changefileext( Application.ExeName, ext_TIP ));
-      LOG_FN := normalFN( changefileext( Application.ExeName, ext_LOG ));
-
-      FirstTimeRun := false;
-
-      opt_Minimize := false;
-      opt_Setup := false;
-      opt_Debug := false;
-      opt_NoRegistry := false;
-      opt_NoReadOpt := false;
-      opt_NoSaveOpt := false;
-      opt_NoDefaults := false;
-      opt_RegExt := false;
-      opt_SaveDefaultIcons  := false;
-      opt_NoUserIcons := false;
-      opt_SaveToolbars := false;
-      opt_SaveMenus := false;
 
       UAS_Window_Handle := 0;
       LAST_CASE_CYCLE := low( LAST_CASE_CYCLE );
@@ -408,74 +378,25 @@ begin
       Application.HelpFile := normalFN( changefileext( Application.ExeName, ext_CHM ));
       OpenDlg.Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
 
-      // set up default values for all config options
-      InitializeKeyOptions( KeyOptions );
-      InitializeTabOptions( TabOptions );
-      InitializeFindOptions( FindOptions );
-      InitializeClipOptions( ClipOptions );
-      InitializeEditorOptions( EditorOptions );
-      InitializeResPanelOptions( ResPanelOptions );
-
-      InitializeChrome( DefaultEditorChrome );
-      InitializeNoteEditorProperties( DefaultEditorProperties );
-      InitializeNoteTabProperties( DefaultTabproperties );
-
-      InitializeChrome( DefaultTreeChrome );
-      InitializeTreeOptions( TreeOptions );
-      InitializeNoteTreeProperties( DefaultTreeProperties );
-      //_OLD_NODE_NAME := DEFAULT_NEW_NODE_NAME;
-
-      // [x] PRE-RELEASE FIXES
-      // MMNotePrintPreview_.Visible := false;
-
       for sm := low( TSearchMode ) to high( TSearchMode ) do
       begin
         RG_ResFind_Type.Items.Add( SEARCH_MODES[sm] );
       end;
       RG_ResFind_Type.ItemIndex := 0;
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End init - Begin config', GetTickCount );
-      {$ENDIF}
-
-      ReadCmdLine;
-
-      // Adjust location of all config files to that of the INI file
-      // (alternate INI file may have been given on command line)
-      if ( MRU_FN = '' ) then
-        MRU_FN := changefileext( INI_FN, ext_MRU );
-      if ( KEY_FN = '' ) then
-        KEY_FN := changefileext( INI_FN, ext_Key );
-      if ( ICN_FN = '' ) then
-        ICN_FN := changefileext( INI_FN, ext_ICN );
-      if ( DEF_FN = '' ) then
-        DEF_FN := changefileext( INI_FN, ext_DEFAULTS );
-      FAV_FN := changefileext( INI_FN, ext_Favorites );
-      OrigDEF_FN := DEF_FN;
-      if ( MGR_FN = '' ) then
-        MGR_FN := changefileext( INI_FN, ext_MGR );
-      Style_FN := changefileext( INI_FN, ext_Style );
-      Glossary_FN := changefileext( INI_FN, ext_Expand );
-      Scratch_FN := extractfilepath( INI_FN ) + 'scratch.rtf';
-      Toolbar_FN := extractfilepath( INI_FN ) + ToolbarFileName;
-      Keyboard_FN := extractfilepath( INI_FN ) + KeyboardFileName;
-
-      MailINI_FN := extractfilepath( INI_FN ) + 'keymail' + ext_INI;
-
-      if ( StartupMacroFile = '' ) then // was not given on commandline
-        StartupMacroFile := _MACRO_AUTORUN_STARTUP;
-
-      Plugin_Folder := properfoldername( extractfilepath( application.exename ) + _PLUGIN_FOLDER );
-
       Form_Chars := nil;
       InsCharFont.Name := '';
       InsCharFont.Size := 0;
       InsCharFont.Charset := DEFAULT_CHARSET;
 
+      // [x] PRE-RELEASE FIXES
+      // MMNotePrintPreview_.Visible := false;
+
+      {$IFDEF WITH_TIMER}
+      StoreTick( 'End init - Begin config', GetTickCount );
+      {$ENDIF}
+
       try
-
-        ReadOptions; // keynote.ini (this is decalred in kn_INI.pas)
-
         if opt_SaveMenus then
           SaveMenusAndButtons;
         if opt_SaveToolbars then
@@ -795,6 +716,100 @@ begin
   end;
 
 end; // CREATE
+
+// We want to read LanguageUI before creating Form_Main
+procedure InitializeOptions;
+begin
+      FirstTimeRun := false;
+
+      NoteFileToLoad := '';
+      CmdLineFileName := '';
+
+      DEF_FN := '';
+      MGR_FN := '';
+      ICN_FN := '';
+      MRU_FN := '';
+      KEY_FN := '';
+      Keyboard_FN := '';
+
+      INI_FN := normalFN( changefileext( Application.ExeName, ext_INI ));
+
+      // This is always located in .exe directory
+      LOG_FN := normalFN( changefileext( Application.ExeName, ext_LOG ));
+
+      opt_Minimize := false;
+      opt_Setup := false;
+      opt_Debug := false;
+      opt_NoRegistry := false;
+      opt_NoReadOpt := false;
+      opt_NoSaveOpt := false;
+      opt_NoDefaults := false;
+      opt_RegExt := false;
+      opt_SaveDefaultIcons  := false;
+      opt_NoUserIcons := false;
+      opt_SaveToolbars := false;
+      opt_SaveMenus := false;
+
+      // set up default values for all config options
+      InitializeKeyOptions( KeyOptions );
+      InitializeTabOptions( TabOptions );
+      InitializeFindOptions( FindOptions );
+      InitializeClipOptions( ClipOptions );
+      InitializeEditorOptions( EditorOptions );
+      InitializeResPanelOptions( ResPanelOptions );
+
+      InitializeChrome( DefaultEditorChrome );
+      InitializeNoteEditorProperties( DefaultEditorProperties );
+      InitializeNoteTabProperties( DefaultTabproperties );
+
+      InitializeChrome( DefaultTreeChrome );
+      InitializeTreeOptions( TreeOptions );
+      InitializeNoteTreeProperties( DefaultTreeProperties );
+      //_OLD_NODE_NAME := DEFAULT_NEW_NODE_NAME;
+
+      ReadCmdLine;
+
+      // Adjust location of all config files to that of the INI file
+      // (alternate INI file may have been given on command line)
+      if ( MRU_FN = '' ) then
+        MRU_FN := changefileext( INI_FN, ext_MRU );
+      if ( KEY_FN = '' ) then
+        KEY_FN := changefileext( INI_FN, ext_Key );
+      if ( ICN_FN = '' ) then
+        ICN_FN := changefileext( INI_FN, ext_ICN );
+      if ( DEF_FN = '' ) then
+        DEF_FN := changefileext( INI_FN, ext_DEFAULTS );
+      FAV_FN := changefileext( INI_FN, ext_Favorites );
+      OrigDEF_FN := DEF_FN;
+      if ( MGR_FN = '' ) then
+        MGR_FN := changefileext( INI_FN, ext_MGR );
+      Style_FN := changefileext( INI_FN, ext_Style );
+      Glossary_FN := changefileext( INI_FN, ext_Expand );
+      Scratch_FN := extractfilepath( INI_FN ) + 'scratch.rtf';
+      Toolbar_FN := extractfilepath( INI_FN ) + ToolbarFileName;
+      Keyboard_FN := extractfilepath( INI_FN ) + KeyboardFileName;
+
+      MailINI_FN := extractfilepath( INI_FN ) + 'keymail' + ext_INI;
+
+      if ( StartupMacroFile = '' ) then // was not given on commandline
+        StartupMacroFile := _MACRO_AUTORUN_STARTUP;
+
+      Plugin_Folder := properfoldername( extractfilepath( application.exename ) + _PLUGIN_FOLDER );
+
+      try
+        ReadOptions; // keynote.ini (this is decalred in kn_INI.pas)
+      except
+        on E : Exception do
+        begin
+          {$IFDEF MJ_DEBUG}
+          Log.Add( 'Exception from ReadOptions:' + E.Message );
+          {$ENDIF}
+          PopupMessage( 'There was a non-fatal error while loading program configuration: ' + #13 + e.Message + #13#13 + 'Some options may have been reset to factory default values. The application will now continue.', mtInformation, [mbOK], 0 );
+        end;
+      end;
+
+end;
+
 
 {$IFDEF WITH_TIMER}
 procedure StoreTick( const Msg : string; const Tick : integer );

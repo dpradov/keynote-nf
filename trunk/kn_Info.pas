@@ -102,6 +102,7 @@ const
   ext_Favorites  = '.fvr'; // Favorites list
   ext_CNV        = '.cnv'; // code page conversion table
   ext_Shortcut   = '.lnk'; // Windows shortcuts
+  ext_LAN        = '.lan'; // Languages available
 
   KeyboardFileName = 'keyboard.ini'; // custom keyboard config
   ToolbarFileName  = 'toolbar.ini'; // custom toolbar config
@@ -516,6 +517,7 @@ type
     InsCharKeepFont : boolean;
     InsCharWinClose : boolean;
     KeyReplayDelay : integer; // MILIseconds { OBSOLETE, unused }
+    LanguageUI : string;    // Language of ther user interface. Must be in keynote.lan
     LastCopyPath : string;
     LastExportPath : string;
     LastExportFormat : TExportFmt;

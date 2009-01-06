@@ -2634,8 +2634,6 @@ begin
     MacroAbortRequest := false;
     MacroErrorAbort := false;
     ActiveMacro := nil;
-    StartupMacroFile := '';
-    StartupPluginFile := '';
     Form_Main.MacMMacroUserCommand.Enabled := false;
 
 
@@ -2817,5 +2815,9 @@ begin
        end;
     Result:= Executed;
 end;
+
+Initialization
+    StartupMacroFile := '';
+    StartupPluginFile := '';
 
 end.
