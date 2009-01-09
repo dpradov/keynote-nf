@@ -11,7 +11,6 @@ unit RxRichEd;
 {$I RX.INC}
 
 {.$DEFINE RICHEDIT_VER_10}
-{$DEFINE RICHEDIT_VER_41}    // DPV. Particulariy: UNICODE
 
 {$R-}
 
@@ -471,8 +470,6 @@ type
     function WordAtCursor: string;
     function FindText(const SearchStr: string;
       StartPos, LengthSearch: Integer; Options: TRichSearchTypes): Integer;
-//  function FindTextW(const SearchStr: string;            // dpv
-//    StartPos, LengthSearch: Integer; Options: TRichSearchTypes): Integer;
     function GetSelTextBuf(Buffer: PChar; BufSize: Integer): Integer;
       {$IFDEF RX_D3} override; {$ENDIF}
     function GetCaretPos: TPoint; {$IFDEF RX_V110} override; {$ENDIF}
@@ -642,13 +639,10 @@ const
   RICHEDIT_CLASS       = RICHEDIT_CLASSA;
 {$ENDIF}
 
-{$IFDEF RICHEDIT_VER_41}
   RichEdit41ModuleName = 'MSFTEDIT.DLL';    // RTF v.4.1
   RICHEDIT_CLASS41W    = 'RichEdit50W';
-  RICHEDIT_CLASS       = RICHEDIT_CLASS41W;
   EM_FINDTEXTW         = WM_USER + 123;
   EM_FINDTEXTEXW       = WM_USER + 124;
-{$ENDIF}
 
 
 {$IFNDEF RX_D3}
@@ -890,11 +884,7 @@ const
 type
   PENLink = ^TENLink;
   PENOleOpFailed = ^TENOleOpFailed;
-{$IFDEF RICHEDIT_VER_41}               // dpv
-  TFindTextEx = TFindTextExW;          // Unicode..
-{$ELSE}
   TFindTextEx = TFindTextExA;
-{$ENDIF}
 
 
   TTextRangeA = record
@@ -3654,6 +3644,7 @@ begin
   inherited CreateParams(Params);
   case RichEditVersion of
     1: CreateSubClass(Params, RICHEDIT_CLASS10A);
+    4: CreateSubClass(Params, RICHEDIT_CLASS41W);
     else CreateSubClass(Params, RICHEDIT_CLASS);
   end;
   with Params do begin
@@ -4171,24 +4162,22 @@ var
   TextRange: TTextRange;
   longSel: integer;
 begin
-{$IFDEF RICHEDIT_VER_41}    // DPV
-  SetLength(Result, 2 * (EndPos - StartPos + 1) );
-{$ELSE}
-  SetLength(Result, EndPos - StartPos + 1);
-{$ENDIF}
+  if RichEditVersion >=4 then
+     SetLength(Result, 2 * (EndPos - StartPos + 1) )
+  else
+     SetLength(Result, EndPos - StartPos + 1);
 
   TextRange.chrg.cpMin := StartPos;
   TextRange.chrg.cpMax := EndPos;
   TextRange.lpstrText := PAnsiChar(Result);
 
-{$IFDEF RICHEDIT_VER_41}    // DPV
-  longSel:= SendMessage(Handle, EM_GETTEXTRANGE, 0, Longint(@TextRange));
-  Result:= WideCharToString( PWideChar(Result) );
-  SetLength(Result, longSel);
-{$ELSE}
-  SetLength(Result, SendMessage(Handle, EM_GETTEXTRANGE, 0, Longint(@TextRange)));
-{$ENDIF}
-
+  if RichEditVersion >=4 then begin
+    longSel:= SendMessage(Handle, EM_GETTEXTRANGE, 0, Longint(@TextRange));
+    Result:= WideCharToString( PWideChar(Result) );
+    SetLength(Result, longSel);
+    end
+  else
+    SetLength(Result, SendMessage(Handle, EM_GETTEXTRANGE, 0, Longint(@TextRange)));
 end;
 
 function TRxCustomRichEdit.WordAtCursor: string;
@@ -4917,6 +4906,8 @@ function TRxCustomRichEdit.FindText(const SearchStr: string;
   StartPos, LengthSearch: Integer; Options: TRichSearchTypes): Integer;
 var
   Find: TFindTextEx;
+  FindW: TFindTextExW;
+  PChrg: Longint;
   Flags: Integer;
   SearchStrUnicode: PWideChar;   // dpv
 begin
@@ -4935,53 +4926,25 @@ begin
   if stWholeWord in Options then Flags := Flags or FT_WHOLEWORD;
   if stMatchCase in Options then Flags := Flags or FT_MATCHCASE;
 
-{$IFDEF RICHEDIT_VER_41}
-  SearchStrUnicode := SysGetMem(1+Length(SearchStr)*2);
-  StringToWideChar( SearchStr, PWideChar(SearchStrUnicode), Length(SearchStr)+1);
-  Find.lpstrText := PWideChar(SearchStrUnicode);
-  Result := SendMessage(Handle, EM_FINDTEXTEXW, Flags, Longint(@Find));
-  SysFreeMem(SearchStrUnicode);
-{$ELSE}
-  Find.lpstrText := PChar(SearchStr);
-  Result := SendMessage(Handle, EM_FINDTEXTEX, Flags, Longint(@Find));
-{$ENDIF}
-
-  if (Result >= 0) and (stSetSelection in Options) then begin
-    SendMessage(Handle, EM_EXSETSEL, 0, Longint(@Find.chrgText));
-    SendMessage(Handle, EM_SCROLLCARET, 0, 0);
-  end;
-end;
-
-(* Posible optimizacion:
-function TRxCustomRichEdit.FindTextW(const SearchStr: PWideChar;
-  StartPos, LengthSearch: Integer; Options: TRichSearchTypes): Integer;
-var
-  Find: TFindTextEx;
-  Flags: Integer;
-begin
-  with Find.chrg do begin
-    cpMin := StartPos;
-    cpMax := cpMin + Abs(LengthSearch);
-  end;
-  if RichEditVersion >= 2 then begin
-    if not (stBackward in Options) then Flags := FT_DOWN
-    else Flags := 0;
+  if RichEditVersion >= 4 then begin
+      SearchStrUnicode := SysGetMem(1+Length(SearchStr)*2);
+      StringToWideChar( SearchStr, PWideChar(SearchStrUnicode), Length(SearchStr)+1);
+      FindW.lpstrText := PWideChar(SearchStrUnicode);
+      Result := SendMessage(Handle, EM_FINDTEXTEXW, Flags, Longint(@FindW));
+      SysFreeMem(SearchStrUnicode);
+      PChrg:= Longint(@FindW.chrgText);
   end
   else begin
-    Options := Options - [stBackward];
-    Flags := 0;
+      Find.lpstrText := PChar(SearchStr);
+      Result := SendMessage(Handle, EM_FINDTEXTEX, Flags, Longint(@Find));
+      PChrg:= Longint(@Find.chrgText);
   end;
-  if stWholeWord in Options then Flags := Flags or FT_WHOLEWORD;
-  if stMatchCase in Options then Flags := Flags or FT_MATCHCASE;
 
-  Find.lpstrText := SearchStr;
-  Result := SendMessage(Handle, EM_FINDTEXTEXW, Flags, Longint(@Find));
   if (Result >= 0) and (stSetSelection in Options) then begin
-    SendMessage(Handle, EM_EXSETSEL, 0, Longint(@Find.chrgText));
-    SendMessage(Handle, EM_SCROLLCARET, 0, 0);
+     SendMessage(Handle, EM_EXSETSEL, 0, PChrg);
+     SendMessage(Handle, EM_SCROLLCARET, 0, 0);
   end;
 end;
-*)
 
 procedure TRxCustomRichEdit.ClearUndo;
 begin
@@ -5261,26 +5224,18 @@ initialization
   RichEditVersion := 1;
   OldError := SetErrorMode(SEM_NOOPENFILEERRORBOX);
   try
-{$IFDEF RICHEDIT_VER_41}
+{$IFNDEF RICHEDIT_VER_10}
     FLibHandle := LoadLibrary(RichEdit41ModuleName);
-    if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
-    if FLibHandle <> 0 then
-        RichEditVersion := 4
-    else begin
-       FLibHandle := LoadLibrary(RichEdit20ModuleName);
-       if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
-    end;
+    if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR)  then
+        FLibHandle := 0
+    else
+        RichEditVersion := 4;
 
-{$ELSE IFNDEF RICHEDIT_VER_10}
-    FLibHandle := LoadLibrary(RichEdit20ModuleName);
-    if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
-{$ENDIF}
     if FLibHandle = 0 then begin
-      FLibHandle := LoadLibrary(RichEdit10ModuleName);
-      if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
-    end
-    else begin
-       if RichEditVersion = 1 then begin
+        FLibHandle := LoadLibrary(RichEdit20ModuleName);
+        if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then
+            FLibHandle := 0
+        else begin
           RichEditVersion := 2;
           Ver.dwOSVersionInfoSize := SizeOf(Ver);
           GetVersionEx(Ver);
@@ -5289,7 +5244,12 @@ initialization
               (dwMajorVersion >= 5) then
               RichEditVersion := 3;
           end;
-      end;
+        end;
+    end;
+{$ENDIF}
+    if FLibHandle = 0 then begin
+      FLibHandle := LoadLibrary(RichEdit10ModuleName);
+      if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
     end;
   finally
     SetErrorMode(OldError);
