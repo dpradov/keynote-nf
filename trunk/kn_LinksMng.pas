@@ -101,25 +101,34 @@ end;
 //----------------------------------------
 // InsertHyperlink
 //----------------------------------------
-procedure InsertHyperlink(URLStr: string; TextURL : string);
+procedure InsertHyperlink(URLStr: string; TextURL : string; KNTLink: boolean);
 var
   _selectStart: integer;
   _selectionLenght: integer;
   sep: string;
 begin
-     _selectStart := ActiveNote.Editor.SelStart;
-     _selectionLenght := ActiveNote.Editor.SelLength;
-     sep:= '';
-     ActiveNote.Editor.SetSelection(_selectStart-1, _selectStart-1, false);
-     if ActiveNote.Editor.SelAttributes.Link then
-        sep:= ' ';
-     ActiveNote.Editor.SelStart:= _selectStart;
-     ActiveNote.Editor.SelLength:= _selectionLenght;
+      if (RichEditVersion >= 4) and (not ActiveNote.PlainText) then begin
+         _selectStart := ActiveNote.Editor.SelStart;
+         _selectionLenght := ActiveNote.Editor.SelLength;
+         sep:= '';
+         ActiveNote.Editor.SetSelection(_selectStart-1, _selectStart-1, false);
+         if ActiveNote.Editor.SelAttributes.Link then
+            sep:= ' ';
+         ActiveNote.Editor.SelStart:= _selectStart;
+         ActiveNote.Editor.SelLength:= _selectionLenght;
 
-     PutRichText('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sep + '\field{\*\fldinst{HYPERLINK "'
-        + URLToRTF(URLStr, false ) + '"}}{\fldrslt{\cf1\ul '
-        + URLToRTF(TextURL, true) + '}}\cf0\ulnone}',
-        ActiveNote.Editor, true, true );
+         PutRichText('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sep + '\field{\*\fldinst{HYPERLINK "'
+            + URLToRTF(URLStr, false ) + '"}}{\fldrslt{\cf1\ul '
+            + URLToRTF(TextURL, true) + '}}\cf0\ulnone}',
+            ActiveNote.Editor, true, true );
+         end
+      else begin
+          if not KNTLink then
+             URLStr := FileNameToURL( URLStr );
+          ActiveNote.Editor.SelText := URLStr + #32;
+      end;
+
+      ActiveNote.Editor.SelLength := 0;
 end;
 
 //===============================================================
@@ -180,14 +189,7 @@ begin
       if pos( 'FILE:', AnsiUpperCase(FN) ) = 0 then
          FN := 'file:///' + FN;
 
-      if RichEditVersion >= 4 then begin
-          InsertHyperlink(FN, StripFileURLPrefix(FN));
-         end
-      else begin
-          FN := FileNameToURL( FN );
-          ActiveNote.Editor.SelText := FN + #32;
-      end;
-      ActiveNote.Editor.SelLength := 0;
+      InsertHyperlink(FN, StripFileURLPrefix(FN), false);
     end
 
     else
@@ -274,8 +276,7 @@ begin
   begin
     // insert link to previously marked location
     if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
-    //if ( aLocation.FileName = '' ) then
-    if ( aLocation.NodeName = '') and (aLocation.NodeID = 0) then
+    if ( aLocation.NoteName = '') and (aLocation.NoteID = 0) then
     begin
       showmessage( 'Cannot insert link to a KeyNote location, because no location has been marked. First, mark a location to which you want to link.' );
       exit;
@@ -285,8 +286,7 @@ begin
        GetTreeNodeFromLocation (aLocation, Note, TreeNode);
        TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos);
     end;
-    InsertHyperlink(BuildKNTLocationText(aLocation),  TextURL);
-    ActiveNote.Editor.SelLength := 0;
+    InsertHyperlink(BuildKNTLocationText(aLocation),  TextURL, true);
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Location inserted';
 
   end
@@ -336,7 +336,7 @@ begin
     // [x] this does not handle files on another computer, i.e.
     // we cannot do file://computername/pathname/file.knt
 
-    if RichEditVersion >= 4 then begin
+    if (RichEditVersion >= 4) and (not ActiveNote.PlainText) then begin
       LocationString := 'file:///' + LocationString + KNTLOCATION_MARK_NEW +
         inttostr( aLocation.NoteID ) + KNTLINK_SEPARATOR +
         inttostr( aLocation.NodeID ) + KNTLINK_SEPARATOR +
@@ -1042,16 +1042,8 @@ begin
       if (URLType = urlFile) and ( pos( 'FILE:', AnsiUpperCase(URLStr) ) = 0 ) then
          URLStr := 'file:///' + URLStr;
 
-      if RichEditVersion >= 4 then
-      begin
-          if TextURL = '' then TextURL:= StripFileURLPrefix(URLStr);
-          InsertHyperlink(URLStr, TextURL);
-      end
-      else begin
-          URLStr := FileNameToURL( URLStr );
-          ActiveNote.Editor.SelText := URLStr + #32;
-      end;
-      ActiveNote.Editor.SelLength := 0;
+      if TextURL = '' then TextURL:= StripFileURLPrefix(URLStr);
+      InsertHyperlink(URLStr, TextURL, false);
     end;
 
 end; // Insert URL
