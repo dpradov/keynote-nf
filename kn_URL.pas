@@ -89,7 +89,7 @@ function StripFileURLPrefix( const AStr : string ) : string;
 
 implementation
 uses
-  RxRichEd;
+  RxRichEd, kn_Global;
 
 {$R *.DFM}
 
@@ -251,6 +251,13 @@ begin
         Edit_TextURL.SelectAll;
       end;
 
+      if (RichEditVersion < 4) or (ActiveNote.PlainText) then begin
+        Edit_TextURL.Text:= '';
+        Label2.Enabled:= false;
+        Edit_TextURL.Enabled:= false;
+        if not AllowURLModification then Button_Modify.Enabled:= false;
+      end;
+
 end;
 
 // KEY DOWN
@@ -266,6 +273,8 @@ procedure TForm_URLAction.Edit_URLExit(Sender: TObject);
 var
   cad: string;
 begin
+ if not Edit_TextURL.Enabled then exit;
+
  if Edit_TextURL.Text = '' then begin
     cad:= Edit_URL.Text;
     if ( pos('(KNT Location)', cad) = 1 ) then
