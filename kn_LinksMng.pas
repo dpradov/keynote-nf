@@ -24,7 +24,7 @@ implementation
 uses
     Windows, Classes, Forms, SysUtils, Dialogs, StdCtrls, Clipbrd, ShellApi,
     gf_misc, gf_miscvcl, RxRichEd, kn_TreeNoteMng, kn_History, kn_FindReplaceMng,
-    kn_Global, kn_Main, kn_Info, kn_Const, kn_URL, kn_RTFUtils, kn_NoteFileMng;
+    kn_Global, kn_Main, kn_Info, kn_Const, kn_URL, kn_RTFUtils, kn_NoteFileMng, kn_NodeList;
 
 var
    INVALID_CHARS_FN : array[0..8] of string = (
@@ -367,6 +367,8 @@ var
   Location : TLocation;
   NewFormatURL : boolean;
   origLocationStr : string;
+  Note: TTabNote;
+  myTreeNode: TTreeNTNode;
 begin
 
   // Handles links that point to a "KNT location" rather than normal file:// URLs.
@@ -448,6 +450,17 @@ begin
       end;
     end;
 
+    if Location.NoteID <> 0 then
+       Note := notefile.GetNoteByID( Location.NoteID )
+    else
+       Note := notefile.GetNoteByName( Location.NoteName );
+
+    if  assigned(Note) then begin
+        Location.NoteID:= Note.ID;
+        Location.NoteName:= Note.Name;
+    end;
+
+
     p := pos( KNTLINK_SEPARATOR, LocationStr );
     case p of
       0 : begin
@@ -470,6 +483,22 @@ begin
       end;
     end;
     delete( LocationStr, 1, p );
+
+    if assigned(Note) then
+      if ( Note.Kind = ntTree ) then
+      begin
+        if ( Location.NodeID <> 0 ) then
+          myTreeNode := TTreeNote( Note ).GetTreeNodeByID( Location.NodeID )
+        else
+          myTreeNode := TTreeNote( Note ).TV.Items.FindNode( [ffText], Location.NodeName, nil );
+
+        if assigned(myTreeNode) then
+            if assigned( myTreeNode.Data ) then begin
+               Location.NodeID:= TNoteNode( myTreeNode.Data ).ID;
+               Location.NoteName:= TNoteNode( myTreeNode.Data ).Name;
+            end;
+      end;
+
 
     if ( LocationStr <> '' ) then
     begin
