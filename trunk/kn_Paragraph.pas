@@ -71,9 +71,10 @@ type
     Label3: TLabel;
     Label2: TLabel;
     Label1: TLabel;
+    GroupBox3: TGroupBox;
     CB_Bullets: TCheckBox;
-    Bevel1: TBevel;
     CB_Numbers: TCheckBox;
+    procedure GroupBox1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -234,7 +235,12 @@ begin
       3 : Alignment := paJustify;
     end;
   end;
-end; // FormToPara
+end; procedure TForm_Para.GroupBox1Click(Sender: TObject);
+begin
+
+end;
+
+// FormToPara
 
 procedure TForm_Para.Button_OKClick(Sender: TObject);
 begin

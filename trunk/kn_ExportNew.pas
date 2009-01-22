@@ -91,6 +91,7 @@ type
     CB_HTMLNoFormatting: TCheckBox;
     RG_TreePadMaster: TRadioGroup;
     CheckBox_ExcludeHiddenNodes: TCheckBox;
+    procedure RG_NodeModeClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -146,6 +147,33 @@ implementation
 uses kn_Main, kn_DLLmng, kn_TreeNoteMng;
 
 {$R *.DFM}
+
+resourcestring
+  STR_01 = 'Exporting is underway. OK to abort?';
+  STR_02 = 'Please select a valid directory for exported files.';
+  STR_03 = 'Specified output directory does not not exit. Please select a valid directory.';
+  STR_04 = 'You did not select any notes for exporting.';
+  STR_05 = 'Exported file: ';
+  STR_06 = 'File description: ';
+  STR_07 = 'File comment: ';
+  STR_08 = 'Date created: ';
+  STR_09 = 'Date exported: ';
+  STR_10 = 'Exported note: ';
+  STR_11 = 'Error while exporting notes: ';
+  STR_12 = 'Exported  %d notes (%d nodes).';
+  STR_13 = 'Exporting was aborted due to an error.';
+  STR_14 = 'Exporting was aborted at user request.';
+  STR_15 = 'The following token can be used in headings:' + #13#13 +
+                  '%s%s - Filename%s'  + #13 +
+                  '%s%s - Note name%s' + #13 +
+                  '%s%s - Node name%s' + #13 +
+                  '%s%s - Node level%s' + #13 +
+                  '%s%s - Node index%s';
+  STR_16 = 'No active tree node: select a node first.';
+  STR_17 = 'Current node has no text: nothing to export.';
+  STR_18 = ' Node exported to ';
+  STR_19 = 'Error exporting node: ';
+
 
 function ExpandExpTokenString(
   const tpl, filename, notename, nodename : string;
@@ -312,7 +340,7 @@ end; // ACTIVATE
 
 function TForm_ExportNew.ConfirmAbort : boolean;
 begin
-  result := ( messagedlg( 'Exporting is underway. OK to abort?', mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK );
+  result := ( messagedlg( STR_01, mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK );
   DoAbort := result;
 end; // ConfirmAbort
 
@@ -401,7 +429,12 @@ begin
     IniFile.Free;
   end;
 
-end; // ReadConfig
+end; procedure TForm_ExportNew.RG_NodeModeClick(Sender: TObject);
+begin
+
+end;
+
+// ReadConfig
 
 procedure TForm_ExportNew.WriteConfig;
 var
@@ -560,12 +593,12 @@ begin
   result := false;
   if ( ExportOptions.ExportPath = '' ) then
   begin
-    messagedlg( 'Please select a valid directory for exported files.', mtError, [mbOK], 0 );
+    messagedlg( STR_02, mtError, [mbOK], 0 );
     exit;
   end;
   if ( not directoryexists( ExportOptions.ExportPath )) then
   begin
-    messagedlg( 'Specified output directory does not not exit. Please select a valid directory.', mtError, [mbOK], 0 );
+    messagedlg( STR_03, mtError, [mbOK], 0 );
     exit;
   end;
   result := true;
@@ -622,7 +655,7 @@ begin
   end;
   if ( cnt = 0 ) then
   begin
-    messagedlg( 'You did not select any notes for exporting.', mtError, [mbOK], 0 );
+    messagedlg( STR_04, mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -889,15 +922,15 @@ begin
                     writeln( TreePadFile, '0' ); // top node level
 
                     // some node text:
-                    writeln( TreePadFile, 'Exported file: ', extractfilename( myNotes.Filename ));
+                    writeln( TreePadFile, STR_05, extractfilename( myNotes.Filename ));
                     if ( myNotes.Description <> '' ) then
-                      writeln( TreePadFile, 'File description: ', myNotes.Description );
+                      writeln( TreePadFile, STR_06, myNotes.Description );
                     if ( myNotes.Comment <> '' ) then
-                      writeln( TreePadFile, 'File comment: ', myNotes.Comment );
-                    writeln( TreePadFile, 'Date created: ', DateTimeToStr( myNotes.DateCreated ));
-                    writeln( TreePadFile, 'Date exported: ', DateTimeToStr( now ));
+                      writeln( TreePadFile, STR_07, myNotes.Comment );
+                    writeln( TreePadFile, STR_08, DateTimeToStr( myNotes.DateCreated ));
+                    writeln( TreePadFile, STR_09, DateTimeToStr( now ));
                     if ( not ExportOptions.TreePadSingleFile ) then
-                      writeln( TreePadFile, 'Exported note: ', RemoveAccelChar( myNote.Name ));
+                      writeln( TreePadFile, STR_10, RemoveAccelChar( myNote.Name ));
 
                     writeln( TreePadFile, _TREEPAD_ENDNODE );
 
@@ -963,7 +996,7 @@ begin
       on E : Exception do
       begin
         WasError := true;
-        messagedlg( 'Error while exporting notes: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_11 + E.Message, mtError, [mbOK], 0 );
       end;
     end;
 
@@ -972,13 +1005,13 @@ begin
     Screen.Cursor := crDefault;
     RTFAux.Free;
     ExitMessage := Format(
-        'Exported  %d notes (%d nodes).',
+        STR_12,
         [ExportedNotes, ExportedNodes] );
     if WasError then
-      ExitMessage := ExitMessage + #13 + 'Exporting was aborted due to an error.'
+      ExitMessage := ExitMessage + #13 + STR_13
     else
     if DoAbort then
-      ExitMessage := ExitMessage + #13 + 'Exporting was aborted at user request.';
+      ExitMessage := ExitMessage + #13 + STR_14;
 
     if ( messagedlg( ExitMessage, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
       ModalResult := mrCancel; // close dialog box is Cancel clicked
@@ -1144,13 +1177,11 @@ end; // BUTTON SELECT CLICK
 
 procedure TForm_ExportNew.Btn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg(
-    'The following token can be used in headings:' + #13#13 +
-  format( '%s%s - Filename', [_TokenChar,EXP_FILENAME] ) + #13 +
-  format( '%s%s - Note name', [_TokenChar,EXP_NOTENAME] ) + #13 +
-  format( '%s%s - Node name', [_TokenChar,EXP_NODENAME] ) + #13 +
-  format( '%s%s - Node level', [_TokenChar,EXP_NODELEVEL] ) + #13 +
-  format( '%s%s - Node index', [_TokenChar,EXP_NODEINDEX] ),
+  messagedlg(format(STR_15,[_TokenChar,EXP_FILENAME,
+                                   _TokenChar,EXP_NOTENAME,
+                                   _TokenChar,EXP_NODENAME,
+                                   _TokenChar,EXP_NODELEVEL,
+                                   _TokenChar,EXP_NODEINDEX ]),
     mtInformation, [mbOK], 0 );
 end;
 
@@ -1173,13 +1204,13 @@ begin
   myTreeNode := GetCurrentTreeNode;
   if ( not assigned( myTreeNode )) then
   begin
-    showmessage( 'No active tree node: select a node first.' );
+    showmessage( STR_16 );
     exit;
   end;
 
   if ( ActiveNote.Editor.Lines.Count = 0 ) then
   begin
-    showmessage( 'Current node has no text: nothing to export.' );
+    showmessage( STR_17 );
     exit;
   end;
 
@@ -1265,12 +1296,12 @@ begin
       end;
     end;
 
-    Form_Main.Statusbar.Panels[PANEL_HINT].Text := ' Node exported to ' + extractfilename( ExportFN );
+    Form_Main.Statusbar.Panels[PANEL_HINT].Text := STR_18 + extractfilename( ExportFN );
 
   except
     on E : Exception do
     begin
-      messagedlg( 'Error exporting node: ' + E.Message, mtError, [mbOK], 0 );
+      messagedlg( STR_19 + E.Message, mtError, [mbOK], 0 );
     end;
   end;
 

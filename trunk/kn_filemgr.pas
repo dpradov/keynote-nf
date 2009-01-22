@@ -127,8 +127,18 @@ function AddToFileManager( const FN : string; const aFile : TNoteFile ) : boolea
 procedure ClearFileManager;
 
 implementation
-
 {$R *.DFM}
+
+resourcestring
+  STR_01 = 'Loading file manager from "';
+  STR_02 = 'Error initializing FileManager: ';
+  STR_03 = 'Notes file manager: %d file(s)';
+  STR_04 = 'This file cannot be selected because it does not exist or contains data in a format that %s does not support. Please select another file.';
+  STR_05 = 'FileManager list is empty. This dialog box will now close.';
+  STR_06 = 'never';
+  STR_07 = 'No information is available about this file.';
+  STR_08 = 'This file does not exist or cannot be accessed.';
+
 
 constructor TFileInfo.Create;
 begin
@@ -261,7 +271,7 @@ begin
     except
       on E : Exception do
       begin
-        messagedlg( 'Loading file manager from "' + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_01 + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -373,7 +383,7 @@ begin
     except
       on E : Exception do
       begin
-        messagedlg( 'Error initializing FileManager: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_02 + E.Message, mtError, [mbOK], 0 );
         ModalResult := mrCancel;
       end;
     end;
@@ -389,14 +399,14 @@ begin
       TVmgr.OnChange := nil;
       CheckBox_FullPaths.OnClick := nil;
     end;
-    Caption := Format( 'Notes file manager: %d file(s)', [TVmgr.Items.Count] );
+    Caption := Format( STR_03, [TVmgr.Items.Count] );
   end;
 end; // FORM_ACTIVATE
 
 procedure TForm_FileMgr.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 var
-  Info : TFileInfo;  
+  Info : TFileInfo;
 begin
   SelectedFileName := '';
   if OK_Click then
@@ -405,7 +415,7 @@ begin
     begin
       if ( TVmgr.Selected.ImageIndex = NODEIMG_INVALID ) then
       begin
-        messagedlg( 'This file cannot be selected because it does not exist or contains data in a format that ' + Program_Name + ' does not support. Please select another file.', mtInformation, [mbOK], 0 );
+        messagedlg( format(STR_04,[Program_Name]), mtInformation, [mbOK], 0 );
         CanClose := false;
       end
       else
@@ -503,7 +513,7 @@ begin
 
   if ( FileManager.Count = 0 ) then
   begin
-    messagedlg( 'FileManager list is empty. This dialog box will now close.', mtInformation, [mbOK], 0 );
+    messagedlg( STR_05, mtInformation, [mbOK], 0 );
     PostMessage( Self.Handle, WM_CLOSE, 0, 0 );
     exit;
   end;
@@ -595,8 +605,8 @@ begin
     if ( ModDate <> 0 ) then
       L_Modified.Caption := FormatDateTime( ShortDateFormat + #32 + ShortTimeFormat, ModDate )
     else
-      L_Modified.Caption := 'never';
-      
+      L_Modified.Caption := STR_06;
+
     {
     if ( Info.Version <> '' ) then
       L_Version.Caption := Info.Version
@@ -624,11 +634,11 @@ begin
     HaveErrors := 0;
     case Node.ImageIndex of
       NODEIMG_TKN, NODEIMG_DART, NODEIMG_ENC : begin
-        L_Desc.Caption := 'No information is available about this file.';
+        L_Desc.Caption := STR_07;
       end;
       else
       begin
-        L_Desc.Caption := 'This file does not exist or cannot be accessed.';
+        L_Desc.Caption := STR_08;
       end;
     end;
 
@@ -675,11 +685,6 @@ begin
   ShowFullPaths := CheckBox_FullPaths.Checked;
   RefreshFileList;
 end;
-
-
-
-
-
 
 
 

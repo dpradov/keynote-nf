@@ -103,6 +103,12 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = '<no icon>';
+  STR_02 = 'Rename note';
+  STR_03 = 'Note name cannot be blank. Please enter a name.';
+  STR_04 = 'Note name cannot contain the "%s" character';
+
 procedure TForm_NewNote.FormCreate(Sender: TObject);
 var
   i : integer;
@@ -131,7 +137,7 @@ begin
     Combo_TabType.Items.Add( TABNOTE_KIND_NAMES[t] );
 
   Combo_Icons.ImageList := Chest.IMG_Categories;
-  Combo_Icons.AddItem( '<no icon>', -1 );
+  Combo_Icons.AddItem( STR_01, -1 );
   for i := 0 to pred( Chest.IMG_Categories.Count ) do
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
@@ -144,7 +150,7 @@ begin
   Initializing := false;
   if ( not TAB_CHANGEABLE ) then
   begin
-    Caption := 'Rename note';
+    Caption := STR_02;
   end;
 
   Combo_TabName.Items.BeginUpdate;
@@ -181,17 +187,14 @@ begin
   result := false;
   if ( trim( Combo_TabName.Text ) = '' ) then
   begin
-    messagedlg( 'Note name cannot be blank. Please enter a name.', mtError, [mbOK], 0 );
+    messagedlg( STR_03, mtError, [mbOK], 0 );
     Combo_TabName.SetFocus;
     exit;
   end;
 
   if ( pos( KNTLINK_SEPARATOR, Combo_TabName.Text ) > 0 ) then
   begin
-    messagedlg( Format(
-      'Note name cannot contain the "%s" character',
-      [KNTLINK_SEPARATOR]
-    ), mtError, [mbOK], 0 );
+    messagedlg( Format(STR_04,[KNTLINK_SEPARATOR]), mtError, [mbOK], 0 );
     Combo_TabName.SetFocus;
     exit;
   end;

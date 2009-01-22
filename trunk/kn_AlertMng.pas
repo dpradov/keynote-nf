@@ -144,6 +144,14 @@ uses  DateUtils, ComCtrls95,
 
 {$R *.DFM}
 
+resourcestring
+  STR_Num = '%d Alarms';
+  STR_NoSelected = '0 alarms selected';
+  STR_Apply = '&Apply';
+  STR_Postpone = '&Postpone';
+  STR_CaptionSet = 'Set Alarm  (%d Alarms created)';
+
+
 constructor TAlarmManager.Create;
 begin
    inherited Create;
@@ -414,7 +422,7 @@ begin
   else begin
      TV.Selected:= nodePrev;
      FNumberAlarms:= FNumberAlarms-1;
-     Caption:= Format('%d Alarms', [FNumberAlarms]);
+     Caption:= Format(STR_Num, [FNumberAlarms]);
   end;
 end;
 
@@ -499,7 +507,7 @@ begin
       else begin
         NodeSelected:= nil;
         TV.Items.Clear;
-        Label_Selected.Caption := '0 alarms selected';
+        Label_Selected.Caption := STR_NoSelected;
         Label_Selected_Alarm.Caption := '';
         EnableControls (false);
       end;
@@ -525,12 +533,12 @@ begin
         TV.Selected := GetFirstNode.GetNext;
 
         if modeEdit then begin
-          Button_Postpone.Caption:= '&Apply';
-          Caption:= 'Set Alarm';
+          Button_Postpone.Caption:= STR_Apply;
+          Caption:= Format(STR_CaptionSet, [FAlarmList.Count]);
         end
         else begin
-          Button_Postpone.Caption:= '&Postpone';
-          Caption:= Format('%d Alarms', [FSelectedAlarmList.Count]);
+          Button_Postpone.Caption:= STR_Postpone;
+          Caption:= Format(STR_Num, [FSelectedAlarmList.Count]);
         end;
       end;
    end;
@@ -597,7 +605,7 @@ begin
     myNode:= nil;
     if not assigned(Node) or not assigned(Node.Data) then begin
        NodeSelected:= nil;
-       Label_Selected.Caption := '0 alarms selected';
+       Label_Selected.Caption := STR_NoSelected;
        Label_Selected_Alarm.Caption := '';
        EnableControls (false);
     end

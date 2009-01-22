@@ -93,6 +93,14 @@ uses
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = 'OK';
+  STR_02 = 'Create Hyperlink';
+  STR_03 = 'Modify';
+  STR_04 = 'Choose Action for Hyperlink';
+  STR_05 = '(KNT Location)';
+
+
 function FileNameToURL( fn : string ) : string;
 var
   i : integer;
@@ -226,17 +234,19 @@ begin
         Button_Copy.Visible := false;
         Button_Open.Visible := false;
         Button_OpenNew.Visible := false;
-        Button_Modify.Caption := 'OK';
+        Button_Modify.Caption := STR_01;
         Button_Modify.Default := true;
-        Caption:= 'Create Hyperlink';
+        Caption:= STR_02;
+        Height:= 142;
      end
      else begin
         Button_Copy.Visible := true;
         Button_Open.Visible := true;
         Button_OpenNew.Visible := true;
-        Button_Modify.Caption := 'Modify';
+        Button_Modify.Caption := STR_03;
         Button_Open.Default := true;
-        Caption:= 'Choose Action for Hyperlink';
+        Caption:= STR_04;
+        Height:= 179;
      end;
 
       if AllowURLModification then begin
@@ -245,7 +255,7 @@ begin
         Edit_URL.SelectAll;
       end
       else begin
-        Edit_URL.Text:= '(KNT Location) ' + Edit_URL.Text;
+        Edit_URL.Text:= STR_05 + ' ' + Edit_URL.Text;
         Edit_URL.ReadOnly:= True;
         Edit_TextURL.SetFocus;
         Edit_TextURL.SelectAll;
@@ -277,8 +287,8 @@ begin
 
  if Edit_TextURL.Text = '' then begin
     cad:= Edit_URL.Text;
-    if ( pos('(KNT Location)', cad) = 1 ) then
-        delete( cad, 1, length( '(KNT Location)' ));
+    if ( pos(STR_05, cad) = 1 ) then
+        delete( cad, 1, length( STR_05 ));
 
     Edit_TextURL.Text := trim(cad);
  end;

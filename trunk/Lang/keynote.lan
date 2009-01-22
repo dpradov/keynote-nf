@@ -1,0 +1,13 @@
+[English]
+Comment="Initially: identical to text incrusted in .exe"
+Name="English"
+LangFile="Keynote.english.lng"
+TipFile="Keynote.english.tip"
+Translator=""
+
+[Spanish]
+Comment="Partially translated"
+Name="Spanish (Castellano)"
+LangFile="Keynote.spanish.lng"
+TipFile="Keynote.spanish.tip"
+Translator="dprado.keynote@gmail.com"

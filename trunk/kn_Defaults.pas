@@ -163,6 +163,36 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = 'Note Properties: %s';
+  STR_02 = 'Close';
+  STR_03 = 'Note is Read-Only: cannot change properties';
+  STR_04 = ' [RO]';
+  STR_05 = ' View properties for current note ';
+  STR_06 = ' Change properties for current note ';
+  STR_07 = '&Save as default for "%s"';
+  STR_08 = 'Defaults for ';
+  STR_09 = ' Defaults for notes in ';
+  STR_10 = 'Defaults for all files';
+  STR_11 = ' Change default properties for all new notes ';
+  STR_12 = 'Note name cannot be blank. Please enter a name.';
+  STR_13 = 'Note name cannot contain the "%s" character';
+  STR_14 = 'Node name cannot contain the "%s" character';
+  STR_15 = 'OK to reset Editor font and color settings to default values?';
+  STR_16 = 'OK to reset Tree font and color settings to default values?';
+  STR_17 = 'Tokens for autonaming tree nodes:';
+  STR_18 = '(must be UPPERCASE)';
+  STR_19 = ' = current date';
+  STR_20 = ' = current time';
+  STR_21 = ' = total number of nodes';
+  STR_22 = ' = new node''s level';
+  STR_23 = ' = new node''s index';
+  STR_24 = ' = new node''s absolute index';
+  STR_25 = ' = parent node''s name';
+  STR_26 = ' = name of active note';
+  STR_27 = ' = name of currently open file';
+  STR_28 = '<no icon>';
+
 procedure TForm_Defaults.FormCreate(Sender: TObject);
 var
   i : integer;
@@ -207,7 +237,7 @@ begin
   Combo_TreeImages.ItemIndex := 1;
 
   Combo_Icons.ImageList := Chest.IMG_Categories;
-  Combo_Icons.AddItem( '<no icon>', -1 );
+  Combo_Icons.AddItem( STR_28, -1 );
   for i := 0 to pred( Chest.IMG_Categories.Count ) do
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
@@ -231,20 +261,20 @@ begin
         LB_PlainText.Enabled := true;
         CB_PlainText.Enabled := true;
 
-        Caption := Format( 'Note Properties: %s', [RemoveAccelChar( myTabProperties.Name )] );
+        Caption := Format( STR_01, [RemoveAccelChar( myTabProperties.Name )] );
 
         if myNoteIsReadOnly then
         begin
           Button_OK.ModalResult := mrCancel;
-          Button_OK.Caption := 'Close';
-          Button_OK.Hint := 'Note is Read-Only: cannot change properties';
+          Button_OK.Caption := STR_02;
+          Button_OK.Hint := STR_03;
           Button_Cancel.Visible := false;
-          Caption := Caption + ' [RO]';
-          GBox_Note.Caption := ' View properties for current note ';
+          Caption := Caption + STR_04;
+          GBox_Note.Caption := STR_05;
         end
         else
         begin
-          GBox_Note.Caption := ' Change properties for current note ';
+          GBox_Note.Caption := STR_06;
         end;
       end;
       propDefaults : begin
@@ -254,7 +284,7 @@ begin
 
         if ( myCurrentFileName <> '' ) then
         begin
-          CB_SaveAsDef.Caption := Format( '&Save as default for "%s"', [myCurrentFileName] );
+          CB_SaveAsDef.Caption := Format( STR_07, [myCurrentFileName] );
           // Tab_Adv.TabVisible := true;
           LB_SaveAsDef.Enabled := true;
           CB_SaveAsDef.Enabled := true;
@@ -268,13 +298,13 @@ begin
         if ( CB_SaveAsDef.Enabled and mySaveFileDefaults ) then
         begin
           CB_SaveAsDef.Checked := true;
-          Caption := 'Defaults for ' + myCurrentFileName;
-          GBox_Note.Caption := ' Defaults for notes in ' + myCurrentFileName + ' ';
+          Caption := STR_08 + myCurrentFileName;
+          GBox_Note.Caption := STR_09 + myCurrentFileName + ' ';
         end
         else
         begin
-          Caption := 'Defaults for all files';
-          GBox_Note.Caption := ' Change default properties for all new notes ';
+          Caption := STR_10;
+          GBox_Note.Caption := STR_11;
         end;
       end;
     end;
@@ -341,7 +371,7 @@ begin
     if ( Edit_NoteName.Text = '' ) then
     begin
       CanClose := false;
-      messagedlg( 'Note name cannot be blank. Please enter a name.', mtError, [mbOK], 0 );
+      messagedlg( STR_12, mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Main;
       Edit_NoteName.SetFocus;
       exit;
@@ -351,7 +381,7 @@ begin
     begin
       CanClose := false;
       messagedlg( Format(
-        'Note name cannot contain the "%s" character',
+        STR_13,
         [KNTLINK_SEPARATOR]
       ), mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Main;
@@ -363,7 +393,7 @@ begin
     begin
       CanClose := false;
       messagedlg( Format(
-        'Node name cannot contain the "%s" character',
+        STR_14,
         [KNTLINK_SEPARATOR]
       ), mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Tree;
@@ -579,7 +609,7 @@ begin
   ShiftWasDown := ShiftDown;
   if ( Pages.ActivePage = Tab_Main ) then
   begin
-    if ( messagedlg( 'OK to reset Editor font and color settings to default values?', mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+    if ( messagedlg( STR_15, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
     InitializeChrome( myEditorChrome );
 
@@ -601,7 +631,7 @@ begin
   end
   else
   begin
-    if ( messagedlg( 'OK to reset Tree font and color settings to default values?', mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+    if ( messagedlg( STR_16, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
     InitializeChrome( myTreeChrome );
     InitializeChrome( tmpChrome );
 
@@ -633,17 +663,17 @@ end;
 procedure TForm_Defaults.BitBtn_TknHlpClick(Sender: TObject);
 begin
   messagedlg(
-    'Tokens for autonaming tree nodes:' +#13+
-    '(must be UPPERCASE)' +#13#13+
-     NODEINSDATE  + ' = current date' +#13+
-     NODEINSTIME  + ' = current time' +#13+
-     NODECOUNT    + ' = total number of nodes' +#13+
-     NODELEVEL    + ' = new node''s level' +#13+
-     NODEINDEX    + ' = new node''s index' +#13+
-     NODEABSINDEX + ' = new node''s absolute index'+#13+
-     NODEPARENT   + ' = parent node''s name'+#13+
-     NODENOTENAME + ' = name of active note'+#13+
-     NODEFILENAME + ' = name of currently open file',
+    STR_17 +#13+
+    STR_18 +#13#13+
+     NODEINSDATE  + STR_19 +#13+
+     NODEINSTIME  + STR_20 +#13+
+     NODECOUNT    + STR_21 +#13+
+     NODELEVEL    + STR_22 +#13+
+     NODEINDEX    + STR_23 +#13+
+     NODEABSINDEX + STR_24 +#13+
+     NODEPARENT   + STR_25 +#13+
+     NODENOTENAME + STR_26 +#13+
+     NODEFILENAME + STR_27,
 
     mtInformation, [mbOK], 0
   );

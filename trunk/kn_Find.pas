@@ -72,6 +72,7 @@ type
     CB_AllTabs: TCheckBox;
     CB_AllNodes: TCheckBox;
     CB_HiddenNodes: TCheckBox;
+    procedure Label1Click(Sender: TObject);
     procedure CB_AllNodesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -188,7 +189,12 @@ begin
     // Combo_Text.Enabled := true;
     Combo_Text.SetFocus;
   end;
-end; // HistoryToCombo
+end; procedure TForm_Find.Label1Click(Sender: TObject);
+begin
+
+end;
+
+// HistoryToCombo
 
 procedure TForm_Find.CB_AllNodesClick(Sender: TObject);
 begin

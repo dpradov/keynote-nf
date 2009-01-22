@@ -62,6 +62,33 @@ uses
    kn_VirtualNodeMng, kn_Macro, kn_FindReplaceMng, kn_NoteFileMng, kn_LinksMng,
    kn_EditorUtils;
 
+resourcestring
+  STR_01 = 'Error creating node: ';
+  STR_02 = ' Virtual: ';
+  STR_03 = 'Auto-detect and strip numbering from all nodes?';
+  STR_04 = 'Initial node not assigned - select a node and retry.';
+  STR_05 = 'cannot be ';
+  STR_06 = 'Error moving node: ';
+  STR_07 = 'Node "%s" %smoved %s';
+  STR_08 = #13#10 + 'This operation cannot be undone.';
+  STR_09 = 'Node "%s" has %d child nodes. Delete these child nodes too?';
+  STR_10 = 'Warning';
+  STR_11 = 'OK to delete node "%s"?';
+  STR_12 = 'OK to delete %d CHILD NODES of node "%s"?';
+  STR_13 = 'Selected node has no children.';
+  STR_14 = 'Error deleting node: ';
+  STR_15 = 'No tree node available for copying or pasting data.';
+  STR_16 = 'OK to move %d nodes from node "%s" to current node "%s"?';
+  STR_17 = ' No node is selected';
+  STR_18 = 'OK to forget %d copied nodes?';
+  STR_19 = 'No nodes were copied.';
+  STR_20 = ' %d nodes copied for transfer';
+  STR_21 = 'No data to paste. Select "Transfer|Copy Subtree" first.';
+  STR_22 = 'One or more nodes being transferred is a Virtual Node. Each such node will be pasted as normal (non-virtual) node, if another virtual node in this file is already linked to the same file.' + #13#13 + 'Continue?';
+  STR_23 = 'OK to paste %d nodes below current node "%s"?';
+  STR_24 = ' Pasted %d nodes';
+  STR_25 = '%d virtual nodes have been converted to normal nodes, because other virtual nodes in current file already link to the same files.';
+
 var
    __NodeChangeCounter : longint;
    FNodeMoving: boolean;             // [dpv]
@@ -278,7 +305,7 @@ begin
     except
       on E : Exception do
       begin
-        messagedlg( 'Error creating node: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
         // if assigned( myTreeNode ) then myTreeNode.Free;
         // if assigned( myNode ) then myNode.Free;
       end;
@@ -379,7 +406,7 @@ begin
             begin
               VirtualNodeUpdateMenu( true );
               if ( not EditorOptions.TrackStyle ) then
-                StatusBar.Panels[PANEL_HINT].Text := ' Virtual: ' + myNode.VirtualFN;
+                StatusBar.Panels[PANEL_HINT].Text := STR_02 + myNode.VirtualFN;
             end;
             TVCheckNode.Checked := myNode.Checked;
             TVBoldNode.Checked := myNode.Bold;
@@ -623,7 +650,7 @@ begin
 
       if ( ModalResponse = mrYesToAll ) then
       begin
-        if ( messagedlg( 'Auto-detect and strip numbering from all nodes?', mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
+        if ( messagedlg( STR_03, mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
           exit;
       end;
 
@@ -645,7 +672,7 @@ begin
 
       if ( not assigned( StartNode )) then
       begin
-        messagedlg( 'Initial node not assigned - select a node and retry.', mtError, [mbOK], 0 );
+        messagedlg( STR_04, mtError, [mbOK], 0 );
         exit;
       end;
 
@@ -833,7 +860,7 @@ begin
     exit;
 
   s := '';
-  t := 'cannot be ';
+  t := STR_05;
   myTNote := TTreeNote( ActiveNote );
   myTNote.TV.OnChange := nil;
 
@@ -903,7 +930,7 @@ begin
     except
       on E : Exception do
       begin
-        messagedlg( 'Error moving node: ' + #13 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_06 + #13 + E.Message, mtError, [mbOK], 0 );
         s := 'Error moving node!';
       end;
     end;
@@ -913,7 +940,7 @@ begin
     myTNote.TV.OnChange := Form_Main.TVChange;
     UpdateNoteFileState( [fscModified] );
     // {N}
-    s := Format( 'Node "%s" %smoved %s', [MovingNode.Text,t,DIRECTION_NAMES[aDir]] );
+    s := Format( STR_07, [MovingNode.Text,t,DIRECTION_NAMES[aDir]] );
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := s;
   end;
 
@@ -1504,8 +1531,6 @@ begin
 end; // SelectIconForNode
 
 procedure DeleteTreeNode( const DeleteFocusedNode : boolean );
-const
-  NOUNDO = #13#10 + 'This operation cannot be undone.';
 var
   myTreeNode, myTreeParent, myTreeChild, myNextChild : TTreeNTNode;
   myTV : TTreeNT;
@@ -1532,8 +1557,8 @@ begin
         begin
           // ALWAYS warn if node has children
           case Application.MessageBox(
-            PChar( Format( 'Node "%s" has %d child nodes. Delete these child nodes too?', [myTreeNode.Text, myTreeNode.Count] ) + NOUNDO ),
-            'Warning',
+            PChar( Format( STR_09, [myTreeNode.Text, myTreeNode.Count] ) + STR_08 ),
+            PChar(STR_10),
               MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL ) of
             ID_YES : KeepChildNodes := false;
             ID_NO : KeepChildNodes := true;
@@ -1546,7 +1571,7 @@ begin
           if TreeOptions.ConfirmNodeDelete then
           begin
             // {N}
-            if ( messagedlg( Format( 'OK to delete node "%s"?', [myTreeNode.Text] ) + NOUNDO, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+            if ( messagedlg( Format( STR_11, [myTreeNode.Text] ) + STR_08, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
           end;
         end;
 
@@ -1558,13 +1583,13 @@ begin
         begin
           if ( Application.MessageBox(
             // {N}
-            PChar( Format( 'OK to delete %d CHILD NODES of node "%s"?', [myTreeNode.Count, myTreeNode.Text] ) + NOUNDO ),
-            'Warning',
+            PChar( Format( STR_12, [myTreeNode.Count, myTreeNode.Text] ) + STR_08 ),
+            PChar(STR_10),
             MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
          end
         else
         begin
-          showmessage( 'Selected node has no children.' );
+          showmessage( STR_13 );
           exit;
         end;
       end;
@@ -1602,7 +1627,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( 'Error deleting node: ' + #13 + E.Message, mtError, [mbOK], 0 );
+            messagedlg( STR_14 + #13 + E.Message, mtError, [mbOK], 0 );
           end;
         end;
       finally
@@ -1637,7 +1662,7 @@ begin
       if NoteIsReadOnly( ActiveNote, true ) then exit;
       selectedNode := TTreeNote(ActiveNote).TV.Selected;
       if not assigned( selectedNode ) then begin
-        showmessage( 'No tree node available for copying or pasting data.' );
+        showmessage( STR_15 );
         exit;
       end;
       if ( myTreeNode = selectedNode ) then exit;
@@ -1649,7 +1674,7 @@ begin
       myTreeParent := myTreeNode.Parent;
 
       if ( messagedlg( Format(
-        'OK to move %d nodes from node "%s" to current node "%s"?',
+        STR_16,
         [TransferNodes.Count, myTreeNode.Text, selectedNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
           exit;
 
@@ -1667,7 +1692,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( 'Error deleting node: ' + #13 + E.Message, mtError, [mbOK], 0 );
+            messagedlg( STR_14 + #13 + E.Message, mtError, [mbOK], 0 );
           end;
         end;
       finally
@@ -1763,7 +1788,7 @@ begin
   SelectedNode := myNote.TV.Selected;
   if ( not assigned( SelectedNode )) then
   begin
-    Form_Main.Statusbar.Panels[PANEL_HINT].Text := ' No node is selected';
+    Form_Main.Statusbar.Panels[PANEL_HINT].Text := STR_17;
     exit;
   end;
 
@@ -1923,7 +1948,7 @@ begin
     if assigned( TransferNodes ) then
     begin
       if ( messagedlg( Format(
-        'OK to forget %d copied nodes?',
+        STR_18,
         [TransferNodes.Count] ), mtConfirmation, [mbYes,mbNo], 0 ) = mrYes ) then
         TransferNodes.Free;
       TransferNodes := nil;
@@ -1941,7 +1966,7 @@ begin
 
   if ( myTreeNode = nil ) then
   begin
-    showmessage( 'No tree node available for copying or pasting data.' );
+    showmessage( STR_15 );
     exit;
   end;
 
@@ -1971,14 +1996,14 @@ begin
 
             if ( TransferNodes.Count = 0 ) then
             begin
-              showmessage( 'No nodes were copied.' );
+              showmessage( STR_19 );
               TransferNodes.Free;
               TransferNodes := nil;
             end
             else
             begin
               result := true;
-              Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( ' %d nodes copied for transfer', [TransferNodes.Count] );
+              Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_20, [TransferNodes.Count] );
             end;
           end;
         end;
@@ -1986,14 +2011,14 @@ begin
         1 : begin // PASTE subtree
           if ( not assigned( TransferNodes )) then
           begin
-            showmessage( 'No data to paste. Select "Transfer|Copy Subtree" first.' );
+            showmessage( STR_21 );
             exit;
           end;
 
           if TransferNodes.HasVirtualNodes then
           begin
             if ( messagedlg(
-              'One or more nodes being transferred is a Virtual Node. Each such node will be pasted as normal (non-virtual) node, if another virtual node in this file is already linked to the same file.' + #13#13 + 'Continue?',
+              STR_22,
               mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
                 exit;
           end
@@ -2001,7 +2026,7 @@ begin
           begin
           if Prompt then
             if ( messagedlg( Format(
-              'OK to paste %d nodes below current node "%s"?',
+              STR_23,
               [TransferNodes.Count,myTreeNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then // {N}
                 exit;
           end;
@@ -2087,7 +2112,7 @@ begin
                 newTreeNode := nil; // end of subtree; break out of loop
             end;
             result := true;
-            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( ' Pasted %d nodes', [PasteCount] );
+            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_24, [PasteCount] );
             if assigned( FirstCopiedNode ) then
             begin
               FirstCopiedNode.Collapse( true );
@@ -2102,7 +2127,7 @@ begin
             if ( VirtualNodesConverted > 0 ) then
             begin
               showmessage( Format(
-                '%d virtual nodes have been converted to normal nodes, because other virtual nodes in current file already link to the same files.',
+                STR_25,
                 [VirtualNodesConverted]
               ));
             end;

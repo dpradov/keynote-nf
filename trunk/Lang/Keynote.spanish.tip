@@ -1,15 +1,15 @@
-Since version 1.7.5 KeyNote NF can be displayed in multiple languages. Included as an example a partial translation into Spanish (Castilian). Will be added to the official version new languages with the help of the community.
-In KeyNote NF website (http://code.google.com/p/keynote-nf/), you can download the latest version of the program, submit bug reports or feature requests, among other things.
-From KeyNote NF website you can access to a discussion mailing list where you can post questions and discuss about the program.
-You can find more information (FAQ, for example) about the program in the website of the original version (1.6.5): http://keynote.prv.pl
-You can work with hidden nodes in two ways: automatically hiding checked nodes, filtering one or all notes based on a searching criterion
-It is possible to show checkboxes for all nodes (View/All nodes Checkboxes) and only on children of selected nodes: (Children Checkbox)
-You can copy, cut and paste nodes and subtrees using usual clipboard shortcuts (Ctrl-C, CTRL-V, Ctrl-X or Ctrl-Ins, Shift-Ins, Shift-Supr).
-You can use and show tables correctly inside KeyNote if installed on Windows XP SP1 or upper, by means of "msftedit.dll".
-You can set alarms, associated to nodes. Behaviour is similar to that offered by Outlook: postpone, discard, ...
-Activating a mode wich automatically hides checked nodes (Show or Hide checked nodes) can be useful to play with tasks.
-Filtering nodes based on a searching criterion (Filter Tree Note) can be useful to work with a subset of information. For example tagging some nodes with text like [MILESTONE:1.7.4]
-You can change the text shown for a link (internal or not): press Shift while clicking the URL to show options.
+Desde la versión 1.7.5 KeyNote NF puede mostrarse en múltiples idiomas. Se incluye a modo de ejemplo una traducción parcial al español (castellano). Se irán incorporando idiomas a la versión oficial con la ayuda de la comunidad.
+Desde la página web de KeyNote NF (http://code.google.com/p/keynote-nf/), puede descargarse la última versión del programa, comunicar errores o solicitar nueva funcionalidad, entre otras cosas.
+Desde la página web de KeyNote NF puede acceder a un grupo de discusión en el que puede enviar preguntas y discutir sobre el programa.
+Puede encontrar más información (FAQ, por ejemplo) sobre el programa en la página web de la versión original (16.5): http://keynote.prv.pl
+Puede trabajar con nodos ocultos de dos maneras: ocultando automáticamente los nodos marcados, filtrando una o todas las notas en base a un criterio de búsqueda.
+Es posible mostrar las casillas de verificación para todos los nodos (View/All nodes Checkboxes) y también para todos los hijos de nodos seleccionados: (Children Checkbox)
+Puede copiar, cortar y pegar nodos y subárboles con las teclas de portapapeles usuales (Ctrl-C, CTRL-V, Ctrl-X or Ctrl-Ins, Shift-Ins, Shift-Supr).
+Puede usar y mostrar tablas correctamente en KeyNote NF si se instala sobre Windows XP SP1 o superior, por medio de "msftedit.dll".
+Puede establecer alarmas, asociadas a nodos. El comportamiento es similar al ofrecido por Outlook: posponer, descartar, ...
+Activar un modo que oculte automáticamente los nodos chequeados (Show or Hide checked nodes) puede ser útil al trabajar con listas de tareas.
+Filtrar nodos en base a un criterio de búsqueda (Filter Tree Note) puede ser útil para trabajar con un subconjunto de información. Por ejemplo etiquetando algunos nodos con texto de la forma [MILESTONE:1.7.4] [Todo] ..
+Puede modificar el texto mostrado para un enlace o hipervínculo (interno o no): pulse Shift mientras hace clic sobre el hipervínculo (URL) para mostrar las opciones posibles.
 See the file "bugs.txt" (in "doc" subdirectory). It contains a current list of known problems and limitations. The FAQ has also been updated on the website.
 You can configure the keyboard shortcuts used to invoke various KeyNote functions: See the "Configuring keyboard shortcuts" Help topic.
 You can configure the toolbars: See the "Configuring toolbars" Help topic.

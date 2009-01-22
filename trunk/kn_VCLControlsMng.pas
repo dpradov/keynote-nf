@@ -57,6 +57,22 @@ uses
   kn_PluginsMng, kn_FavoritesMng, kn_TemplateMng,
   kn_Chest, kn_EditorUtils, kn_NoteFileMng, kn_Main;
 
+resourcestring
+  STR_00 = 'Click and drag to resize panels';
+  STR_01 = 'Error destroying tabsheet ';
+  STR_02 = 'Select text color';
+  STR_03 = 'Select &Highlight...';
+  STR_04 = 'Select highlight color';
+  STR_05 = 'Apply current font color to text';
+  STR_06 = 'Apply &Highlight';
+  STR_07 = 'Apply current highlight color to text';
+  STR_08 = 'Minimize application';
+  STR_09 = 'Exit application';
+  STR_10 = ' L %d / %d  C %d';
+  STR_11 = ' Sel: %d  W: %d';
+  STR_12 = 'Hide &Resource Panel';
+  STR_13 = 'Show &Resource Panel';
+  STR_14 = 'The Resource panel must be visible to use this command. Show the Resource panel now?';
 
 //=================================================================
 // SetUpVCLControls
@@ -358,7 +374,7 @@ begin
                 Cursor := crHSplit;
                 Width := 4;
               end;
-              Hint := 'Click and drag to resize panels';
+              Hint := STR_00;
             end;
 
             tNote.Splitter := mySplitter;
@@ -709,7 +725,7 @@ begin
                 except
                   on E : Exception do
                   begin
-                    showmessage( 'Error destroying tabsheet ' + s + #13#13 +
+                    showmessage( STR_01 + s + #13#13 +
                      E.Message );
                   end;
                 end;
@@ -788,15 +804,15 @@ begin
 
           if UseOldColorDlg then
           begin
-            MMFormatTextColor.Hint := 'Select text color';
-            MMFormatHighlight.Caption := 'Select &Highlight...';
-            MMFormatHighlight.Hint := 'Select highlight color';
+            MMFormatTextColor.Hint := STR_02;
+            MMFormatHighlight.Caption := STR_03;
+            MMFormatHighlight.Hint := STR_04;
           end
           else
           begin
-            MMFormatTextColor.Hint := 'Apply current font color to text';
-            MMFormatHighlight.Caption := 'Apply &Highlight';
-            MMFormatHighlight.Hint := 'Apply current highlight color to text';
+            MMFormatTextColor.Hint := STR_05;
+            MMFormatHighlight.Caption := STR_06;
+            MMFormatHighlight.Hint := STR_07;
           end;
 
           AppLastActiveTime := now;
@@ -827,9 +843,9 @@ begin
           MMViewTBStyle.Checked := ToolbarStyleShow;
 
           if MinimizeOnClose then
-            TB_Exit.Hint := 'Minimize application'
+            TB_Exit.Hint := STR_08
           else
-            TB_Exit.Hint := 'Exit application';
+            TB_Exit.Hint := STR_09;
 
         end;
 
@@ -1088,11 +1104,11 @@ begin
             if ( ActiveNote.Editor.SelLength = 0 ) then begin
               //p := ActiveNote.Editor.CaretPos;
               StatusBar.Panels[PANEL_CARETPOS].Text :=
-                Format( ' L %d / %d  C %d', [succ( p.y ), ActiveNote.Editor.Lines.Count, succ( p.x )] );
+                Format( STR_10, [succ( p.y ), ActiveNote.Editor.Lines.Count, succ( p.x )] );
               end
             else begin
                 StatusBar.Panels[PANEL_CARETPOS].Text :=
-                Format( ' Sel: %d  W: %d', [ActiveNote.Editor.SelLength, GetWordCount( ActiveNote.Editor.SelText )] );
+                Format( STR_11, [ActiveNote.Editor.SelLength, GetWordCount( ActiveNote.Editor.SelText )] );
             end;
           end
           else begin
@@ -1263,9 +1279,9 @@ begin
 
         MMViewResPanel.Checked := KeyOptions.ResPanelShow;
         if KeyOptions.ResPanelShow then
-          ResMHidepanel.Caption := 'Hide &Resource Panel'
+          ResMHidepanel.Caption := STR_12
         else
-          ResMHidepanel.Caption := 'Show &Resource Panel';
+          ResMHidepanel.Caption := STR_13;
         TB_ResPanel.Down := MMViewResPanel.Checked;
   end;
 
@@ -1460,9 +1476,7 @@ begin
   begin
     if DoWarn then
     begin
-      case messagedlg(
-        'The Resource panel must be visible to use this command. Show the Resource panel now?',
-        mtConfirmation, [mbYes,mbNo], 0 ) of
+      case messagedlg(STR_14, mtConfirmation, [mbYes,mbNo], 0 ) of
         mrYes : begin
           Form_Main.MMViewResPanelClick( Form_Main.MMViewResPanel );
         end;

@@ -156,6 +156,24 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = ' file';
+  STR_02 = 'File properties: ';
+  STR_03 = ' bytes';
+  STR_04 = '(file not saved)';
+  STR_05 = 'never';
+  STR_06 = 'Open "%s" as &Read-Only';
+  STR_07 = '(none)';
+  STR_08 = 'You chose to save the file using DartNotes format. However, this file contains tree-type notes, which are incompatible with DartNotes.' + #13#13+
+                     'If you click OK, the file will revert to using KeyNote format. Continue?';
+  STR_09 = 'The passphrase you entered is too short: Minimum passphrase length is %d characters';
+  STR_10 = 'The passphrases you entered do not match. Please enter the exact same passphrase twice.';
+  STR_11 = 'You chose to encrypt a file that contains virtual nodes. ' +
+                     'Note that the disk files linked to virtual nodes ' +
+                     'will NOT be encrypted.' + #13#13 + 'Continue?';
+  STR_12 = 'File "%s" was open in READ-ONLY mode. If you uncheck this box, the read-only mode will be turned OFF. Continue?';
+
+
 procedure TForm_FileInfo.FormCreate(Sender: TObject);
 var
   cm : TCryptMethod;
@@ -188,7 +206,7 @@ begin
     Combo_Method.Items.Add( CRYPT_METHOD_NAMES[cm] );
   Combo_Method.ItemIndex := ord( low( TCryptMethod ));
   for ff := low( TNoteFileFormat ) to high( TNoteFileFormat ) do
-    Combo_Format.Items.Add( FILE_FORMAT_NAMES[ff] + ' file' );
+    Combo_Format.Items.Add( FILE_FORMAT_NAMES[ff] + STR_01 );
   Combo_Format.ItemIndex := 0;
   Edit_Comment.MaxLength := MAX_COMMENT_LENGTH;
   Edit_Description.MaxLength := MAX_COMMENT_LENGTH;
@@ -202,7 +220,7 @@ begin
   if assigned( myNotes ) then
   begin
     // TAB_MAIN
-    Caption := 'File properties: ' + extractfilename( myNotes.FileName );
+    Caption := STR_02 + extractfilename( myNotes.FileName );
     Edit_FileName.Text := myNotes.FileName;
     Label_Count.Caption := inttostr( myNotes.NoteCount );
     Edit_Comment.Text := myNotes.Comment;
@@ -213,7 +231,7 @@ begin
     begin
       fs := GetFileSize( myNotes.FileName );
       if ( fs < 1025 ) then
-        Label_FileSize.Caption := inttostr( fs ) + ' bytes'
+        Label_FileSize.Caption := inttostr( fs ) + STR_03
       else
         Label_FileSize.Caption := inttostr( fs DIV 1024 ) + ' Kb';
       label_Modified.Caption := FormatDateTime( LongDateFormat + #32 + LongTimeFormat, GetFileDateStamp( myNotes.FileName ));
@@ -225,12 +243,12 @@ begin
     end
     else
     begin
-      Label_FileSize.Caption := '(file not saved)';
+      Label_FileSize.Caption := STR_04;
       Edit_FileName.Visible := false;
       Label_FileNotFound.Visible := true;
-      label_Modified.Caption := 'never';
+      label_Modified.Caption := STR_05;
     end;
-    CB_AsReadOnly.Caption := Format( 'Open "%s" as &Read-Only', [extractfilename( myNotes.FileName )] );
+    CB_AsReadOnly.Caption := Format( STR_06, [extractfilename( myNotes.FileName )] );
     CB_AsReadOnly.Checked := ( myNotes.OpenAsReadOnly or myNotes.ReadOnly );
     Label_IsReadOnly.Visible := myNotes.ReadOnly;
     CB_NoMultiBackup.Checked := myNotes.NoMultiBackup;
@@ -281,12 +299,12 @@ begin
   end
   else
   begin
-    Edit_FileName.Text := '(none)';
+    Edit_FileName.Text := STR_07;
     Label_Count.Caption := '0';
     Edit_Comment.Text := '';
     Edit_Description.Text := '';
-    label_Created.Caption := 'never';
-    label_Modified.Caption := 'never';
+    label_Created.Caption := STR_05;
+    label_Modified.Caption := STR_05;
     Label_FileSize.Caption := '';
     Label_IsReadOnly.Visible := false;
 
@@ -313,7 +331,7 @@ begin
   CB_AsReadOnly.OnClick := CheckBox_AsReadOnlyClick;
   _FILE_TABIMAGES_SELECTION_CHANGED := false;
 
-end; // ACTIVATE                             
+end; // ACTIVATE
 
 
 procedure TForm_FileInfo.Combo_MethodChange(Sender: TObject);
@@ -329,10 +347,7 @@ begin
 
   if (( Combo_Format.ItemIndex = ord( nffDartNotes )) and myNotes.HasExtendedNotes ) then
   begin
-    case messagedlg(
-      'You chose to save the file using DartNotes format. However, this file contains tree-type notes, which are incompatible with DartNotes.' + #13#13+
-      'If you click OK, the file will revert to using KeyNote format. Continue?',
-      mtWarning, [mbOK,mbCancel], 0 ) of
+    case messagedlg(STR_08, mtWarning, [mbOK,mbCancel], 0 ) of
       mrOK : Combo_Format.ItemIndex := ord( nffKeyNote );
       mrCancel : begin
         result := false;
@@ -349,14 +364,14 @@ begin
 
   if length( Edit_Pass.Text ) < MinPassLen then
   begin
-    s := Format( 'The passphrase you entered is too short: Minimum passphrase length is %d characters', [MinPassLen] );
+    s := Format( STR_09, [MinPassLen] );
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
   end
   else
   if ( Edit_Pass.Text <> Edit_Confirm.Text ) then
   begin
-    s := 'The passphrases you entered do not match. Please enter the exact same passphrase twice.';
+    s := STR_10;
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
   end;
@@ -371,11 +386,7 @@ begin
 
   if myNotes.HasVirtualNodes then
   begin
-    result := ( messagedlg(
-      'You chose to encrypt a file that contains virtual nodes. ' +
-      'Note that the disk files linked to virtual nodes ' +
-      'will NOT be encrypted.' + #13#13 + 'Continue?',
-      mtWarning, [mbYes,mbNo], 0 ) = mrYes );
+    result := ( messagedlg(STR_11, mtWarning, [mbYes,mbNo], 0 ) = mrYes );
   end;
 
 
@@ -454,7 +465,7 @@ begin
   begin
     if (( not CB_AsReadOnly.Checked ) and myNotes.ReadOnly ) then
     begin
-      if ( messagedlg( 'File "' + extractfilename( myNotes.FileName ) + '" was open in READ-ONLY mode. If you uncheck this box, the read-only mode will be turned OFF. Continue?', mtWarning, [mbYes,mbNo], 0 ) = mrYes ) then
+      if ( messagedlg( format(STR_12,[extractfilename( myNotes.FileName )]), mtWarning, [mbYes,mbNo], 0 ) = mrYes ) then
         CB_AsReadOnly.OnClick := nil
       else
         CB_AsReadOnly.Checked := true;

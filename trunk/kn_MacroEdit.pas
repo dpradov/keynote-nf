@@ -92,6 +92,11 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = 'New macro';
+  STR_02 = 'Macro name cannot be blank.';
+  STR_03 = 'Another macro with this name already exists. Macro names must be unique.';
+
 
 procedure TForm_Macro.FormCreate(Sender: TObject);
 begin
@@ -109,7 +114,7 @@ procedure TForm_Macro.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   if myNewMacro then
-    Caption := 'New macro';
+    Caption := STR_01;
   Edit_Name.Text := MName;
   OriginalName := MName;
   Edit_Desc.text := MDesc;
@@ -171,7 +176,7 @@ begin
 
     if ( MName = '' ) then
     begin
-      messagedlg( 'Macro name cannot be blank.', mtError, [mbOK], 0 );
+      messagedlg( STR_02, mtError, [mbOK], 0 );
       Edit_Name.SetFocus;
       CanClose := false;
       exit;
@@ -186,7 +191,7 @@ begin
                   ( Macro_List.IndexOf( OriginalName ) = i ));
     if ( not CanClose ) then
     begin
-      messagedlg( 'Another macro with this name already exists. Macro names must be unique.', mtError, [mbOK], 0 );
+      messagedlg( STR_03, mtError, [mbOK], 0 );
       Edit_Name.SetFocus;
       exit;
     end;

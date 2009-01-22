@@ -21,6 +21,18 @@ Uses Windows, SysUtils, Controls, Dialogs, ShellAPI, StdCtrls,
      kn_Global, kn_Main, kn_Info, kn_NoteObj, kn_NodeList, kn_FavExtDlg,
      kn_TreeNoteMng, kn_FindReplaceMng;
 
+resourcestring
+  STR_01 = 'Error loading Favorites: ';
+  STR_02 = 'Rename favorite location';
+  STR_03 = 'Enter new name:';
+  STR_04 = 'A location named "%s" already exists. Choose another name and try again.';
+  STR_05 = 'Error renaming favorite location: ';
+  STR_06 = 'Favorite KeyNote location';
+  STR_07 = 'Enter location name:';
+  STR_08 = 'Location named "%s" already exists. Click OK to choose another name, or click Cancel to abort.';
+  STR_09 = 'Delete selected location "%s" from Favorites?';
+  STR_10 = 'Error deleting Favorite: ';
+  STR_11 = 'Favorites list error: ';
 
 procedure DisplayFavorites;
 var
@@ -34,7 +46,7 @@ begin
     except
       On E : Exception do
       begin
-        showmessage( 'Error loading Favorites: ' + E.Message );
+        showmessage( STR_01 + E.Message );
         exit;
       end;
     end;
@@ -117,14 +129,14 @@ begin
   case myFav.ExternalDoc of
     false : begin
 
-      if InputQuery( 'Rename favorite location', 'Enter new name:', newname ) then
+      if InputQuery( STR_02, STR_03, newname ) then
       begin
         newname := trim( newname );
         if (( newname = '' ) or ( ANSICompareText( newname, myFav.Name ) = 0 )) then exit;
         if ( Form_Main.ListBox_ResFav.Items.IndexOf( newname ) >= 0 ) then
         begin
           messagedlg( Format(
-            'A location named "%s" already exists. Choose another name and try again.',
+            STR_04,
             [newname] ), mtError, [mbOK], 0 );
           exit;
         end;
@@ -182,7 +194,7 @@ begin
   except
     on E : Exception do
     begin
-      messagedlg( 'Error renaming favorite location: ' + E.Message, mtError, [mbOK], 0 );
+      messagedlg( STR_05 + E.Message, mtError, [mbOK], 0 );
     end;
   end;
 
@@ -204,7 +216,7 @@ var
     function GetFavName( const AName : string ) : string;
     begin
       result := AName;
-      if ( not InputQuery( 'Favorite KeyNote location', 'Enter location name:', result )) then
+      if ( not InputQuery( STR_06, STR_07, result )) then
         result := '';
     end; // GetFavName
 
@@ -259,7 +271,7 @@ begin
     if ( i >= 0 ) then
     begin
       case messagedlg( Format(
-        'Location named "%s" already exists. Click OK to choose another name, or click Cancel to abort.',
+        STR_08,
         [name] ), mtError, [mbOK,mbCancel], 0 ) of
         mrOK : name := GetFavName( name );
         else
@@ -338,7 +350,7 @@ begin
   name := Form_Main.ListBox_ResFav.Items[i];
 
   if ( messagedlg( Format(
-    'Delete selected location "%s" from Favorites?',
+    STR_09,
     [name] ), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
   begin
     try
@@ -359,7 +371,7 @@ begin
     except
       on E : Exception do
       begin
-        messagedlg( 'Error deleting Favorite: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_10 + E.Message, mtError, [mbOK], 0 );
       end;
     end;
   end;
@@ -375,7 +387,7 @@ begin
     except
       on E : Exception do
       begin
-        messagedlg( 'Favorites list error: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_11 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;

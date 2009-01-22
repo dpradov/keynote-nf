@@ -99,6 +99,7 @@ type
 
 
 implementation
+uses kn_const;
 
 {$R *.DFM}
 
@@ -148,6 +149,12 @@ begin
   Caption := 'About ' + uppercase( Program_Name );
   Label_Name.Caption := Program_Name + '  v.' + Program_VerStr;
   Label_Desc.Caption := Program_Desc;
+
+  Label2.Caption := Program_Credit1;
+  Label1.Caption := Program_Credit2;
+  Label_Mailto2.Caption := Program_Email1;
+  Label_Mailto.Caption := Program_Email2;
+  Label_URL.Caption :=  Program_URL;
 end;
 
 procedure TAboutBox.BTN_CloseClick(Sender: TObject);

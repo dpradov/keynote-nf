@@ -82,6 +82,11 @@ implementation
 
 uses GFTipDlgForm;
 
+resourcestring
+  STR_01  = 'Tip of the day';
+  STR_02  ='Did you know...';
+  STR_03  = '(Tips not found.)';
+
 constructor TGFTipDlg.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -113,14 +118,14 @@ begin
       if FDlgCaption <> '' then
         ADlg.OriginalCaptionText := FDlgCaption
       else
-        ADlg.OriginalCaptionText := 'Tip of the day';
+        ADlg.OriginalCaptionText := STR_01;
       ADlg.Caption := ADlg.OriginalCaptionText;
       ReadFromFile;
 
       if FTipTitle <> '' then
         ADlg.TipTitleLbl.Caption := FTipTitle
       else
-        ADlg.TipTitleLbl.Caption := 'Did you know...';
+        ADlg.TipTitleLbl.Caption := STR_02;
       ADlg.ShowChk.Checked := FShowAtStartup;
       ADlg.TipLbl.Font.Assign(FTipFont);
       ADlg.TipTitleLbl.Font.Assign(FTipTitleFont);
@@ -137,7 +142,7 @@ begin
       end
       else
       begin
-       ADlg.TipLbl.Caption := '(Tips not found.)';
+       ADlg.TipLbl.Caption := STR_03;
        ADlg.Button_Next.Enabled := False;
        ADlg.Button_Prev.Enabled := False;
       end;

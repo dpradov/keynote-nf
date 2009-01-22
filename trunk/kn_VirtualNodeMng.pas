@@ -23,6 +23,30 @@ uses
    Dialogs, Controls, SysUtils,
    gf_files, gf_misc, kn_Global, kn_Main, kn_Info, kn_NoteObj, Kn_TreeNoteMng, kn_NoteFileMng;
 
+resourcestring
+  STR_01 = 'Virtual node "%s" is currently linked to file "%s". Do you want to link the node to a different file?';
+  STR_02 = 'Node "%s" contains text. Do you want to flush this text to a file and make the node virtual?';
+  STR_03 = 'This KeyNote file is encrypted, but ' +
+           'disk files linked to virtual nodes ' +
+           'will NOT be encrypted.' + #13#13 + 'Continue?';
+  STR_04 = 'Select file for virtual node';
+  STR_05 = 'Only RTF, Text and HTML files can be linked to virtual nodes.';
+  STR_06 = 'Cannot link virtual node to a file on removable drive %s:\ ';
+  STR_07 = 'You are creating a virtual node linked to file on removable drive %s\. The file may not be available at a later time. Continue anyway?';
+  STR_08 = 'Selected file is already linked to a virtual node.';
+  STR_09 = 'Virtual node error: ';
+  STR_10 = 'Node "%s" represents an Internet Explorer node and cannot be unlinked. Nodes of this type can only be deleted.';
+  STR_11 = 'Unlink virtual node "%s"? The contents of the node will be retained, but the link with the file on disk (%s) will be removed.';
+  STR_12 = 'Virtual node %s HAS BEEN modified within KeyNote. ' +
+           'If the node is refreshed, the changes will be lost. ' +
+           'OK to reload the node from file %s?';
+  STR_13 = 'Virtual node %s has NOT been modified within KeyNote. ' +
+           'OK to reload the node from file %s?';
+  STR_14 = 'Error refreshing virtual node: ';
+  STR_15 = ' Virtual node refreshed.';
+  STR_16 = ' Error refreshing node';
+  STR_17 = 'Selected node "%s" is not a virtual node.';
+
 {$IFDEF WITH_IE}
 function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : string ) : boolean;
 var
@@ -82,9 +106,7 @@ begin
     end
     else
     begin
-      if ( messagedlg( Format(
-      'Virtual node "%s" is currently linked to file "%s". Do you want to link the node to a different file?',
-      [myNoteNode.Name, myNoteNode.VirtualFN] ),
+      if ( messagedlg( Format(STR_01, [myNoteNode.Name, myNoteNode.VirtualFN] ),
       mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
         IsChangingFile := true;
     end;
@@ -102,9 +124,7 @@ begin
     // not a virtual node. If it has text, we have to have an additional prompt
     if ( ActiveNote.Editor.Lines.Count > 0 ) then
     begin
-      if ( messagedlg( Format(
-        'Node "%s" contains text. Do you want to flush this text to a file and make the node virtual?',
-        [myNoteNode.Name] ),
+      if ( messagedlg( Format(STR_02, [myNoteNode.Name] ),
         mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
       exit;
       IsFlushingData := true; // needs a SaveDlg, not an OpenDlg
@@ -115,11 +135,7 @@ begin
   with Form_Main do begin
       if (( NoteFile.FileFormat = nffEncrypted ) and ( not Virtual_UnEncrypt_Warning_Done )) then
       begin
-        if ( messagedlg(
-          'This KeyNote file is encrypted, but ' +
-          'disk files linked to virtual nodes ' +
-          'will NOT be encrypted.' + #13#13 + 'Continue?',
-          mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+        if ( messagedlg(STR_03, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
         Virtual_UnEncrypt_Warning_Done := true;
       end;
 
@@ -132,7 +148,7 @@ begin
           // never true for vmIELocal or vmIERemote
           oldDlgFilter := SaveDlg.Filter;
           SaveDlg.Filter := FILTER_RTFFILES + '|' + FILTER_TEXTFILES + '|' + FILTER_HTMLFILES + '|' + FILTER_ALLFILES;
-          SaveDlg.Title := 'Select file for virtual node';
+          SaveDlg.Title := STR_04;
           SaveDlg.Filename := myNoteNode.Name;
 
           try
@@ -152,7 +168,7 @@ begin
           // use OpenDlg
           oldDlgFilter := OpenDlg.Filter;
           OpenDlg.Filter := FILTER_RTFFILES + '|' + FILTER_TEXTFILES + '|' + FILTER_HTMLFILES + '|' + FILTER_ALLFILES;
-          OpenDlg.Title := 'Select file for virtual node';
+          OpenDlg.Title := STR_04;
           if IsVNError then
             OpenDlg.Filename := copy( myNoteNode.VirtualFN, 2, length( myNoteNode.VirtualFN ))
           else
@@ -183,7 +199,7 @@ begin
         ext := extractfileext( VirtFN );
         if ( not ( ExtIsRTF( ext ) or ExtIsText( ext ) or ExtIsHTML( ext ))) then
         begin
-          messagedlg( 'Only RTF, Text and HTML files can be linked to virtual nodes.', mtError, [mbOK], 0 );
+          messagedlg( STR_05, mtError, [mbOK], 0 );
           exit;
         end;
 
@@ -193,14 +209,11 @@ begin
         begin
           case TreeOptions.RemovableMediaVNodes of
             _REMOVABLE_MEDIA_VNODES_DENY : begin
-              MessageDlg( Format(
-                'Cannot link virtual node to a file on removable drive %s:\ ',
-                [Extractfiledrive( VirtFN )] ), mtError, [mbOK], 0 );
+              MessageDlg( Format(STR_06,[Extractfiledrive( VirtFN )] ), mtError, [mbOK], 0 );
               exit;
             end;
             _REMOVABLE_MEDIA_VNODES_WARN : begin
-              if ( messagedlg( Format(
-                'You are creating a virtual node linked to file on removable drive %s\. The file may not be available at a later time. Continue anyway?',
+              if ( messagedlg( Format(STR_07,
                 [Extractfiledrive( VirtFN )] ), mtWarning, [mbOK,mbCancel], 0 ) <> mrOK ) then
                   exit;
             end;
@@ -214,7 +227,7 @@ begin
         // exists as a virtual node in the currently open KNT file.
         if NoteFile.HasVirtualNodeByFileName( myNoteNode, VirtFN ) then
         begin
-          messagedlg( 'Selected file is already linked to a virtual node.', mtError, [mbOK], 0 );
+          messagedlg( STR_08, mtError, [mbOK], 0 );
           exit;
         end;
 
@@ -278,7 +291,7 @@ begin
           on E : Exception do
           begin
             myNoteNode.VirtualFN := '';
-            messagedlg( 'Virtual node error: ' + E.Message,
+            messagedlg( STR_09 + E.Message,
               mtError, [mbOK], 0 );
           end;
         end;
@@ -310,15 +323,11 @@ begin
 
   if ( myNoteNode.VirtualMode in [vmIELocal, vmIERemote] ) then
   begin
-    messagedlg( Format(
-      'Node "%s" represents an Internet Explorer node and cannot be unlinked. Nodes of this type can only be deleted.',
-      [myNoteNode.Name] ), mtError, [mbOK], 0 );
+    messagedlg( Format(STR_10, [myNoteNode.Name] ), mtError, [mbOK], 0 );
     exit;
   end;
 
-  if ( messagedlg( Format(
-    'Unlink virtual node "%s"? The contents of the node will be retained, but the link with the file on disk (%s) will be removed.',
-    [myNoteNode.Name, myNoteNode.VirtualFN] ),
+  if ( messagedlg( Format(STR_11, [myNoteNode.Name, myNoteNode.VirtualFN] ),
     mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
   begin
     try
@@ -346,10 +355,7 @@ begin
 
   if myNoteNode.RTFModified then
   begin
-    if ( messagedlg( Format(
-      'Virtual node %s HAS BEEN modified within KeyNote. ' +
-      'If the node is refreshed, the changes will be lost. ' +
-      'OK to reload the node from file %s?',
+    if ( messagedlg( Format(STR_12,
       [myNoteNode.Name, extractfilename( myNoteNode.VirtualFN )] ),
       mtWarning, [mbOK,mbCancel], 0 ) <> mrOK ) then
     exit;
@@ -357,9 +363,7 @@ begin
   else
   if DoPrompt then
   begin
-    if ( messagedlg( Format(
-      'Virtual node %s has NOT been modified within KeyNote. ' +
-      'OK to reload the node from file %s?',
+    if ( messagedlg( Format(STR_13,
       [myNoteNode.Name, extractfilename( myNoteNode.VirtualFN )] ),
       mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
     exit;
@@ -374,7 +378,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( 'Error refreshing virtual node: ' + E.Message, mtError, [mbOK] , 0 );
+            messagedlg( STR_14 + E.Message, mtError, [mbOK] , 0 );
             exit;
           end;
         end;
@@ -383,9 +387,9 @@ begin
           ActiveNote.Editor.Clear;
           ActiveNote.Editor.ClearUndo;
           ActiveNote.DataStreamToEditor;
-          StatusBar.Panels[PANEL_HINT].Text := ' Virtual node refreshed.';
+          StatusBar.Panels[PANEL_HINT].Text := STR_15;
         except
-          StatusBar.Panels[PANEL_HINT].Text := ' Error refreshing node';
+          StatusBar.Panels[PANEL_HINT].Text := STR_16;
         end;
 
       finally
@@ -414,7 +418,7 @@ begin
   if ( result.VirtualMode = vmNone ) then
   begin
     messagedlg( Format(
-      'Selected node "%s" is not a virtual node.',
+      STR_17,
       [result.Name] ), mtError, [mbOK], 0 );
     result := nil;
   end;

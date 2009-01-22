@@ -24,6 +24,11 @@ uses
   Windows, Forms, SysUtils, Dialogs,
   kn_DLLInterface, kn_Info ;
 
+resourcestring
+  STR_01 = 'Error while attempting to load runtime library "%s". Please reinstall KeyNote.';
+  STR_02 = 'Procedure "%s" not found in runtime library "%s". Please reinstall KeyNote.';
+
+
 function DllConvertRTFToHTML(
     const aFilename : string;
     const RTFText : string;
@@ -129,7 +134,7 @@ begin
   begin
     Application.MessageBox(
       PChar( Format(
-        'Error while attempting to load runtime library "%s". Please reinstall KeyNote.', [extractfilename( _KNTUtilsDLL_FN )] )),
+        STR_01, [extractfilename( _KNTUtilsDLL_FN )] )),
         'Failed to load library', MB_OK+MB_ICONHAND+MB_DEFBUTTON1+MB_APPLMODAL);
     exit;
   end;
@@ -139,7 +144,7 @@ procedure DllProcNotFoundMsg( const ProcName : string );
 begin
   Application.MessageBox(
     PChar( Format(
-      'Procedure "%s" not found in runtime library "%s". Please reinstall KeyNote.', [ProcName, extractfilename( _KNTUtilsDLL_FN )] )),
+      STR_02, [ProcName, extractfilename( _KNTUtilsDLL_FN )] )),
       'Procedure not in library', MB_OK+MB_ICONHAND+MB_DEFBUTTON1+MB_APPLMODAL);
 end; // DllProcNotFoundMsg
 

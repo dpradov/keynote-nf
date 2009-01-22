@@ -49,6 +49,18 @@ uses Classes, Dialogs, Forms, SysUtils, Controls, Windows,
      kn_NoteMng, kn_Main, kn_NodeList, kn_Cmd, kn_VCLControlsMng,
      kn_TreeNoteMng, kn_MacroMng, kn_LinksMng, kn_NoteFileMng;
 
+resourcestring
+  STR_01 = 'Replace this occurrence?';
+  STR_02 = 'Pattern not found: "%s"';
+  STR_03 = 'Note "%s" does not exist in this file.';
+  STR_04 = 'Tree node "%s" does not exist in note "%s".';
+  STR_05 = 'Search results are not available.';
+  STR_06 = 'Options';
+  STR_07 = ' Searching - press ESC to abort.';
+  STR_08 = 'An error occurred during search:';
+  STR_09 = ' Pattern found at pos ';
+  STR_10 = ' Pattern not found.';
+  STR_11 = ' Replaced %d occurrence(s)';
 
 procedure RunFinder;
 begin
@@ -155,7 +167,7 @@ begin
   result := true;
   if FindOptions.ReplaceConfirm then
   begin
-    result := ( messagedlg( 'Replace this occurrence?', mtConfirmation, [mbYes,mbNo], 0 ) = mrYes );
+    result := ( messagedlg( STR_01, mtConfirmation, [mbYes,mbNo], 0 ) = mrYes );
   end;
 end;
 
@@ -176,7 +188,7 @@ begin
     end
     else
     begin
-      messagedlg( Format( 'Pattern not found: "%s"', [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
+      messagedlg( Format( STR_02, [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
     end;
   finally
     Is_Replacing := false;
@@ -207,7 +219,7 @@ begin
     else
     begin
       messagedlg( Format(
-        'Note "%s" does not exist in this file.',
+        STR_03,
         [aLocation.NoteName] ), mtWarning, [mbOK], 0 );
       exit;
     end;
@@ -224,7 +236,7 @@ begin
     else
     begin
       messagedlg( Format(
-        'Tree node "%s" does not exist in note "%s".',
+        STR_04,
         [aLocation.NodeName, aLocation.NoteName] ), mtWarning, [mbOK], 0 );
       exit;
     end;
@@ -264,7 +276,7 @@ begin
   cnt := Location_List.Count;
   if ( cnt = 0 ) then
   begin
-    showmessage( 'Search results are not available.' );
+    showmessage( STR_05 );
     exit;
   end;
 
@@ -752,7 +764,7 @@ begin
         begin
           List_ResFind.ItemIndex := 0;
           try
-            Btn_ResFlip.Caption := 'Options';
+            Btn_ResFlip.Caption := STR_06;
             Ntbk_ResFind.PageIndex := 0;
             List_ResFind.SetFocus;
           except
@@ -761,7 +773,7 @@ begin
       end
       else
       begin
-        messagedlg( Format( 'Pattern not found: "%s"', [FindOptions.Pattern] ), mtInformation, [mbOK] , 0 );
+        messagedlg( Format( STR_02, [FindOptions.Pattern] ), mtInformation, [mbOK] , 0 );
       end;
 
     except
@@ -820,7 +832,7 @@ begin
   if FindOptions.MatchCase then
     SearchOpts := SearchOpts + [stMatchCase];
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].text := ' Searching - press ESC to abort.';
+  Form_Main.StatusBar.Panels[PANEL_HINT].text := STR_07;
 
   if ( FindOptions.FindNew and FindOptions.EntireScope ) then
   begin
@@ -1001,7 +1013,7 @@ begin
     except
       on E : Exception do
       begin
-        PopupMessage( 'An error occurred during search:' +#13+ E.Message, mtError, [mbOK], 0 );
+        PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -1012,7 +1024,7 @@ begin
 
     if Found then
     begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].text := ' Pattern found at pos ' + inttostr( PatternPos );
+      Form_Main.StatusBar.Panels[PANEL_HINT].text := STR_09 + inttostr( PatternPos );
 
       if IsRecordingMacro then
       begin
@@ -1022,9 +1034,9 @@ begin
     end
     else
     begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Pattern not found.';
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
       if ( not ( UserBreak or Is_Replacing )) then
-        messagedlg( Format( 'Pattern not found: "%s"', [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
+        messagedlg( Format( STR_02, [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
     end;
 
     UserBreak := false;
@@ -1178,7 +1190,7 @@ begin
           ReplaceOK := false;
           if FindOptions.ReplaceConfirm then
           begin
-            case messagedlg( 'Replace this occurrence?',
+            case messagedlg( STR_01,
               mtConfirmation, [mbYes,mbNo,mbAll,mbCancel], 0 ) of
               mrYes : ReplaceOK := true;
               mrNo : ReplaceOK := false;
@@ -1225,7 +1237,7 @@ begin
     FindOptions.EntireScope := Original_EntireScope;
   end;
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( ' Replaced %d occurrence(s)', [ReplaceCnt] );
+  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_11, [ReplaceCnt] );
   if ( ReplaceCnt > 0 ) then
   begin
     NoteFile.Modified := true;
@@ -1233,7 +1245,7 @@ begin
   end
   else
   begin
-    messagedlg( Format( 'Pattern not found: "%s"', [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
+    messagedlg( Format( STR_02, [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
   end;
 
 end; // ReplaceEventProc

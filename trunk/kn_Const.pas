@@ -45,9 +45,66 @@ unit kn_Const;
 interface
 uses Windows, ShellAPI, Graphics, Messages;
 
-const
+resourcestring
+  FILTER_ALLFILES    = 'All files (*.*)|*.*';
+  FILTER_EXECUTABLES = 'Programs|*.exe;*.com';
   LANGUAGE_DEFAULT = 'English (Internal)';
-  LANGUAGE_DIR = 'Lang\';
+
+  STR_01_Defaults = 'New note';
+  STR_02_Defaults = 'New node';
+  STR_03_Formats = 'Keynote native';
+  STR_04_Formats = 'Keynote encrypted';
+  STR_05_Formats = 'Dart Notes';
+  STR_06_TabnoteKind = 'Standard Rich text editor';
+  STR_07_TabnoteKind = 'Multi-level tree';
+  STR_08_SearchMode = 'Exact phrase';
+  STR_09_SearchMode = 'All the words';
+  STR_10_SearchMode = 'Any of the words';
+  STR_11_TreeSelection = 'Current node';
+  STR_12_TreeSelection = 'Current node and subtree';
+  STR_13_TreeSelection = 'Checked nodes';
+  STR_14_TreeSelection = 'Full tree';
+  STR_15_ExportFormat = 'Plain text';
+  STR_16_ExportFormat = 'Rich text (RTF)';
+  STR_17_IconKind = 'None';
+  STR_18_IconKind = 'Standard icons';
+  STR_19_IconKind = 'Custom icons';
+  STR_20_LinkType = 'Internet address';
+  STR_21_LinkType = 'Email address';
+  STR_22_LinkType = 'File or folder';
+  STR_23_LinkType = 'KeyNote location';
+  STR_24_ExpandMode = 'Show tree fully collapsed';
+  STR_25_ExpandMode = 'Expand only last active node';
+  STR_26_ExpandMode = 'Expand only top level nodes';
+  STR_27_ExpandMode = 'Restore expanded state of all nodes';
+  STR_28_ExpandMode = 'Show tree fully expanded';
+  STR_29_ClipNodeNaming = 'Default node name';
+  STR_30_ClipNodeNaming = 'Use clipboard text';
+  STR_31_ClipNodeNaming = 'Use current date and time';
+  STR_32_FactStr = 'Open file in KeyNote';
+  STR_33_FactStr = 'Execute (macro or plugin)';
+  STR_34_FactStr = 'Merge notes into current file';
+  STR_35_FactStr = 'Import as a new note';
+  STR_36_FactStr = 'Create hyperlink to file';
+  STR_37_FactStr = 'Import as tree nodes';
+  STR_38_FactStr = 'Import as virtual tree nodes';
+  STR_39_FactStr = 'Import as Internet Explorer virtual node';
+  STR_40_ImportHTML = 'No conversion (import HTML source)';
+  STR_41_ImportHTML = 'Convert using Windows native converters';
+  STR_42_ImportHTML = 'Convert using MS Office converters';
+  STR_43_ImportHTML = 'Convert using Internet Explorer';
+  STR_44_Symb = 'Euro';
+  STR_45_Symb = 'Copyright';
+  STR_46_Symb = 'Registered trademark';
+  STR_47_Symb = 'Trademark';
+  STR_48_Symb = 'Paragraph';
+  STR_49_Symb = 'Degree';
+  STR_50_Symb = 'Plus/minus';
+  STR_51_Symb = 'Dots';
+  STR_52_Symb = 'French parenthesis (left)';
+  STR_53_Symb = 'French parenthesis (right)';
+
+procedure DefineConst;
 
 { Experimental stuff for RichEdit v.3 }
 const
@@ -72,6 +129,7 @@ const
   _PLUGIN_FOLDER     = 'plugins\';
   _MACRO_FOLDER      = 'macros\';
   _TEMPLATE_FOLDER   = 'templates\';
+  _LANGUAGE_FOLDER   = 'Lang\';
 
 const
   // help file topics
@@ -131,7 +189,7 @@ const
 const
   BOOLEANSTR            : array[false..true] of char = ( '0', '1' );
   DEF_INDENT_LEN        = 12;
-  MIN_COMBO_LENGTH      = 15;    
+  MIN_COMBO_LENGTH      = 15;
   DEF_TAB_SIZE          = 4;  // default tab size
   DEF_UNDO_LIMIT        = 32; // undo levels
   TABNOTE_NAME_LENGTH   = 50; // max name length for the note title (ie Tab caption)
@@ -140,8 +198,8 @@ const
   MAX_FILENAME_LENGTH   = 127;
   MAX_BOOKMARKS         = 9; // ZERO-based!
   DEFAULT_CAPACITY      = 255; // default capacity for RTF Lines property (to speed up loading)
-  DEFAULT_NEW_NOTE_NAME : string = 'New note'; // default name for new notes
-  DEFAULT_NEW_NODE_NAME : string = 'New node'; // default name for new tree nodes
+  DEFAULT_NEW_NOTE_NAME : string = STR_01_Defaults; // default name for new notes
+  DEFAULT_NEW_NODE_NAME : string = STR_02_Defaults; // default name for new tree nodes
   DEFAULT_NODE_IMGINDEX : integer = 0;
   TRRENODE_SELIDX       = 4;
   MIN_PASS_LEN          = 5; // minimum length of file access passphrase
@@ -314,13 +372,6 @@ type
     nffKeyNote, nffEncrypted, nffDartNotes
   );
 
-const
-  FILE_FORMAT_NAMES : array[TNoteFileFormat] of string = (
-    'Keynote native',
-    'Keynote encrypted',
-    'Dart Notes'
-  );
-
 type
   TNoteType = (
     ntRTF, // standard RichEdit control
@@ -329,11 +380,6 @@ type
   TNoteNameStr = string[TABNOTE_NAME_LENGTH];
 
 const
-  TABNOTE_KIND_NAMES : array[TNoteType] of string = (
-    'Standard Rich text editor',
-    'Multi-level tree'
-  );
-
   TABNOTE_KIND_IDS : array[TNoteType] of string = (
     'RTF',
     'TRN'
@@ -354,11 +400,6 @@ type
     pnnClipboard, pnnDate, pnnTime, pnnDateTime, pnnSelection
   );
 
-const
-  SEARCH_MODES : array[TSearchMode] of string = (
-    'Exact phrase', 'All the words', 'Any of the words'
-  );
-
 type
   TTreeSelection = (
     tsNode, tsSubtree, tsCheckedNodes, tsFullTree
@@ -366,7 +407,7 @@ type
 
 const
   TREE_SELECTION_NAMES : array[TTreeSelection] of string = (
-    'Current node', 'Current node and subtree', 'Checked nodes', 'Full tree'
+    STR_11_TreeSelection, STR_12_TreeSelection, STR_13_TreeSelection, STR_14_TreeSelection
   );
 
 type
@@ -377,8 +418,8 @@ type
 
 const
   EXPORT_FORMAT_NAMES : array[TExportFmt] of string = (
-    'Plain text',
-    'Rich text (RTF)',
+    STR_15_ExportFormat,
+    STR_16_ExportFormat,
     'HTML',
     'TreePad'
   );
@@ -395,7 +436,7 @@ type
 
 const
   NODE_ICON_KINDS : array[TNodeIconKind] of string = (
-    'None', 'Standard icons', 'Custom icons'
+    STR_17_IconKind, STR_18_IconKind, STR_19_IconKind
   );
 
 {
@@ -413,10 +454,10 @@ type
 
 const
   LINK_TYPES : array[TLinkType] of string = (
-    'Internet address',
-    'Email address',
-    'File or folder',
-    'KeyNote location'
+    STR_20_LinkType,
+    STR_21_LinkType,
+    STR_22_LinkType,
+    STR_23_LinkType
   );
 
 
@@ -492,11 +533,11 @@ type
 
 const
   TREE_EXPAND_MODES : array[TTreeExpandMode] of string = (
-    'Show tree fully collapsed',
-    'Expand only last active node',
-    'Expand only top level nodes',
-    'Restore expanded state of all nodes',
-    'Show tree fully expanded'
+    STR_24_ExpandMode,
+    STR_25_ExpandMode,
+    STR_26_ExpandMode,
+    STR_27_ExpandMode,
+    STR_28_ExpandMode
   );
 
 type
@@ -506,9 +547,9 @@ type
 
 const
   CLIP_NODE_NAMINGS : array[TClipNodeNaming] of string = (
-    'Default node name',
-    'Use clipboard text',
-    'Use current date and time'
+    STR_29_ClipNodeNaming,
+    STR_30_ClipNodeNaming,
+    STR_31_ClipNodeNaming
   );
 
 
@@ -547,16 +588,16 @@ type
 const
   FactStrings : array[TDropFileAction] of string = (
     '',
-    'Open file in KeyNote',
-    'Execute (macro or plugin)',
-    'Merge notes into current file',
-    'Import as a new note',
-    'Create hyperlink to file',
-    'Import as tree nodes',
-    'Import as virtual tree nodes'
+    STR_32_FactStr,
+    STR_33_FactStr,
+    STR_34_FactStr,
+    STR_35_FactStr,
+    STR_36_FactStr,
+    STR_37_FactStr,
+    STR_38_FactStr
     {$IFDEF WITH_IE}
     ,
-    'Import as Internet Explorer virtual node'
+    STR_39_FactStr
     {$ENDIF}
 
   );
@@ -565,14 +606,6 @@ const
 type
   THTMLImportMethod = (
     htmlSource, htmlWindowsNative, htmlOffice, htmlIE
-  );
-
-const
-  HTMLImportMethods : array[THTMLImportMethod] of string = (
-    'No conversion (import HTML source)',
-    'Convert using Windows native converters',
-    'Convert using MS Office converters',
-    'Convert using Internet Explorer'
   );
 
 type
@@ -722,18 +755,6 @@ type
   end;
 
 const
-  SYMBOL_NAME_LIST : array[1..10] of string = (
-    'Euro',
-    'Copyright',
-    'Registered trademark',
-    'Trademark',
-    'Paragraph',
-    'Degree',
-    'Plus/minus',
-    'Dots',
-    'French parenthesis (left)',
-    'French parenthesis (right)'
-  );
   SYMBOL_CODE_LIST : array[1..10] of char = (
     #128, // Euro
     #169, // copy
@@ -747,7 +768,47 @@ const
     #187 // right french brace
   );
 
+var
+  FILE_FORMAT_NAMES : array[TNoteFileFormat] of string;
+  TABNOTE_KIND_NAMES : array[TNoteType] of string;
+  SEARCH_MODES : array[TSearchMode] of string;
+  SYMBOL_NAME_LIST : array[1..10] of string;
+  HTMLImportMethods : array[THTMLImportMethod] of string;
+
 implementation
+
+procedure DefineConst;
+begin
+  FILE_FORMAT_NAMES[nffKeyNote]:=  STR_03_Formats;
+  FILE_FORMAT_NAMES[nffEncrypted]:=    STR_04_Formats;
+  FILE_FORMAT_NAMES[nffDartNotes]:=    STR_05_Formats;
+
+  TABNOTE_KIND_NAMES[ntRTF]:=    STR_06_TabnoteKind;
+  TABNOTE_KIND_NAMES[ntTree]:=   STR_07_TabnoteKind;
+
+  SEARCH_MODES[smPhrase] := STR_08_SearchMode;
+  SEARCH_MODES[smAll] := STR_09_SearchMode;
+  SEARCH_MODES[smAny] := STR_10_SearchMode;
+
+  SYMBOL_NAME_LIST[1]:=   STR_44_Symb;
+  SYMBOL_NAME_LIST[2]:=   STR_45_Symb;
+  SYMBOL_NAME_LIST[3]:=   STR_46_Symb;
+  SYMBOL_NAME_LIST[4]:=   STR_47_Symb;
+  SYMBOL_NAME_LIST[5]:=   STR_48_Symb;
+  SYMBOL_NAME_LIST[6]:=   STR_49_Symb;
+  SYMBOL_NAME_LIST[7]:=   STR_50_Symb;
+  SYMBOL_NAME_LIST[8]:=   STR_51_Symb;
+  SYMBOL_NAME_LIST[9]:=   STR_52_Symb;
+  SYMBOL_NAME_LIST[10]:=  STR_53_Symb;
+
+  HTMLImportMethods[htmlSource]:=        STR_40_ImportHTML;
+  HTMLImportMethods[htmlWindowsNative]:= STR_41_ImportHTML;
+  HTMLImportMethods[htmlOffice]:=        STR_42_ImportHTML;
+  HTMLImportMethods[htmlIE]:=            STR_43_ImportHTML;
+end;
+
+Initialization
+  DefineConst;
 
 end.
 

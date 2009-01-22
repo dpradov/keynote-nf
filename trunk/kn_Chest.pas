@@ -89,6 +89,12 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_FailedLoadBuiltin = 'Failed to load built-in category images from resource.';
+  STR_FailedLoad = 'Failed to load category images from ';
+  STR_FailedSave  = 'Failed to save category images to ';
+
+
 procedure SaveDefaultBitmaps;
 var
   b : TBitmap;
@@ -129,13 +135,13 @@ begin
   else
   begin
     _LOADED_ICON_FILE := '';
-    Messagedlg( 'Failed to load built-in category images from resource.', mtError, [mbOK], 0 );
+    Messagedlg( STR_FailedLoadBuiltin, mtError, [mbOK], 0 );
   end;
 end; // LoadCategoryBitmapsBuiltIn
 
 function LoadCategoryBitmapsUser( const FN : string ) : boolean;
 var
-  s : TFileStream;      
+  s : TFileStream;
 begin
   result := false;
   if ( not fileexists( fn )) then exit;
@@ -152,7 +158,7 @@ begin
       begin
         _LOADED_ICON_FILE := '';
         result := false;
-        Messagedlg( 'Failed to load category images from ' + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
+        Messagedlg( STR_FailedLoad + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end
@@ -176,7 +182,7 @@ begin
     except
       on E : Exception do
       begin
-        Messagedlg( 'Failed to save category images to ' + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
+        Messagedlg( STR_FailedSave + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;

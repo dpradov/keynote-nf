@@ -15,6 +15,12 @@ uses SysUtils, Messages,
      TreeNT, gf_strings,
      kn_Global, kn_Main, kn_NoteObj, kn_NodeList, kn_Const, kn_Info;
 
+resourcestring
+  STR_Assigned = ' Bookmark %d assigned.';
+  STR_NotAssigned = ' Bookmark %d not assigned!';
+  STR_CannotAccess = ' Cannot access bookmark %d - Cleared';
+  STR_Jumped = ' Jumped to bookmark %d';
+
 procedure BookmarkAdd( const Number : integer );
 begin
   if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
@@ -33,7 +39,7 @@ begin
   end;
   with BookmarkGetMenuItem( Number ) do
     Enabled := true;
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( ' Bookmark %d assigned.', [Number] );
+  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Assigned, [Number] );
 
 end; // BookmarkAdd
 
@@ -93,7 +99,7 @@ var
     procedure ClearBookmark;
     begin
       BookmarkClear( Number );
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( ' Cannot access bookmark %d - Cleared', [Number] );
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_CannotAccess, [Number] );
     end;
 
 begin
@@ -131,7 +137,7 @@ begin
         Perform( EM_SCROLLCARET, 0, 0 );
       end;
 
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( ' Jumped to bookmark %d', [Number] );
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Jumped, [Number] );
 
     except
       on E : Exception do
@@ -144,7 +150,7 @@ begin
   end
   else
   begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( ' Bookmark %d not assigned!', [Number] );
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_NotAssigned, [Number] );
   end;
 
 end; // BookmarkGoTo

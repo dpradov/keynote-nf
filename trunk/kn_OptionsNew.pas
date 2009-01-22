@@ -348,6 +348,28 @@ uses kn_LanguagesMng;
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = ' Custom icons are DISABLED ';
+  STR_02 = 'Maximum size for clipboard capture text is not a valid integer value.';
+  STR_03 = '(invalid date format)';
+  STR_04 = '(invalid time format)';
+  STR_05 = 'OK to reset tab fonts and colors to default state?';
+  STR_06 = ' icon %d ';
+  STR_07 = 'Icons: %d';
+  STR_08 = 'Failed to get icon from ';
+  STR_09 = 'Failed to get bitmap from "%s"';
+//'Failed to get icon from ';
+  STR_10 = 'Cannot delete this icon: List must contain at least 1 icon.';
+  STR_11 = 'OK to delete the selected icon?';
+  STR_12 = 'Failed to delete icon: ';
+  STR_13 = 'OK to restore factory default icons?';
+  STR_14 = 'Divider string can contain the following tokens:' +#13+
+    '(must be UPPERCASE)' +#13#13+
+     '%s = current date' +#13+
+     '%s = current time' +#13+
+     '%s = replaced with a blank line';
+  STR_15 = 'The Auto-Close function will work ONLY if Auto-Save is turned ON, and if no dialog box is open at the time KeyNote tries to automatically close the file. (Auto-Save is currently DISABLED.)';
+  STR_16 = 'Error in TVChange: PageIndex %d  Node.AbsIdx %d';
 
 procedure TForm_OptionsNew.FormCreate(Sender: TObject);
 var
@@ -441,7 +463,7 @@ begin
 
   if Icons_Change_Disable then
   begin
-    GroupBox_ICN.Caption := ' Custom icons are DISABLED ';
+    GroupBox_ICN.Caption := STR_01;
     GroupBox_ICN.Enabled := false;
     List_ICN.Enabled := false;
     Label_ICN.Enabled := false;
@@ -555,7 +577,7 @@ begin
       myClipOpts.MaxSize := strtoint( Combo_Size.Text );
     except
       Combo_Size.SetFocus;
-      messagedlg( 'Maximum size for clipboard capture text is not a valid integer value.', mtError, [mbOK], 0 );
+      messagedlg( STR_02, mtError, [mbOK], 0 );
       result := false;
     end;
 end; // FormToClipCap
@@ -1054,7 +1076,7 @@ begin
   try
     Label_SampleDate.Caption := GetDateTimeFormatted( Edit_DateFormat.Text, now );
   except
-    Label_SampleDate.Caption := '(invalid date format)';
+    Label_SampleDate.Caption := STR_03;
   end;
 end; // UpdateDateFmt
 
@@ -1063,7 +1085,7 @@ begin
   try
     Label_SampleTime.Caption := GetDateTimeFormatted( Edit_TimeFormat.Text, now );
   except
-    Label_SampleTime.Caption := '(invalid time format)';
+    Label_SampleTime.Caption := STR_04;
   end;
 end; // UpdateTimeFmt
 
@@ -1089,7 +1111,7 @@ end;
 
 procedure TForm_OptionsNew.ResetChromeDefaults;
 begin
-  if ( messagedlg( 'OK to reset tab fonts and colors to default state?', mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( messagedlg( STR_05, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
   with myTabOpts.Font do
   begin
@@ -1188,13 +1210,13 @@ begin
     for i := 0 to pred( Chest.IMG_Categories.Count ) do
     begin
       // List_ICN.AddItem( Format( ' icon %d ', [succ( i )]), i );
-      List_ICN.AddItem( Format( ' icon %d ', [succ( i )]), cbUnchecked, i );
+      List_ICN.AddItem( Format( STR_06, [succ( i )]), cbUnchecked, i );
     end;
   finally
     List_ICN.Items.EndUpdate;
   end;
 
-  Label_ICN.Caption := Format( 'Icons: %d', [Chest.IMG_Categories.Count] );
+  Label_ICN.Caption := Format( STR_07, [Chest.IMG_Categories.Count] );
 
 end; // LoadIcons
 
@@ -1241,7 +1263,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( 'Failed to get icon from ' + fn + #13 + E.Message, mtError, [mbOK], 0 );
+            messagedlg( STR_08 + fn + #13 + E.Message, mtError, [mbOK], 0 );
             exit;
           end;
         end;
@@ -1271,7 +1293,7 @@ begin
           on E : Exception do
           begin
             messagedlg( Format(
-              'Failed to get bitmap from "%s"' + #13 + E.Message,
+              STR_09 + #13 + E.Message,
               [fn] ), mtError, [mbOK], 0 );
             exit;
           end;
@@ -1302,7 +1324,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( 'Failed to get icon from ' + fn + #13 + E.Message, mtError, [mbOK], 0 );
+            messagedlg( STR_08 + fn + #13 + E.Message, mtError, [mbOK], 0 );
             exit;
           end;
         end;
@@ -1333,11 +1355,11 @@ begin
 
   if ( Chest.IMG_Categories.Count < 2 ) then
   begin
-    showmessage( 'Cannot delete this icon: List must contain at least 1 icon.' );
+    showmessage( STR_10 );
     exit;
   end;
 
-  if ( messagedlg( 'OK to delete the selected icon?', mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( messagedlg( STR_11, mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
   try
     i := List_ICN.ItemIndex;
@@ -1346,7 +1368,7 @@ begin
   except
     on E : Exception do
     begin
-      messagedlg( 'Failed to delete icon: ' + #13#13 + E.Message, mtError, [mbOK], 0 );
+      messagedlg( STR_11 + #13#13 + E.Message, mtError, [mbOK], 0 );
       exit;
     end;
   end;
@@ -1365,7 +1387,7 @@ procedure TForm_OptionsNew.ResetIcons;
 var
   i : integer;
 begin
-  if ( messagedlg( 'OK to restore factory default icons?', mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( messagedlg( STR_13, mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
   Icons_RefList.Clear;
   LoadCategoryBitmapsBuiltIn;
@@ -1373,7 +1395,7 @@ begin
     Icons_RefList.Add( '-1' );
   Icons_Changed := true;
   LoadIcons;
-  List_ICN.ItemIndex := 0;   
+  List_ICN.ItemIndex := 0;
 end; // ResetIcons
 
 
@@ -1400,12 +1422,7 @@ end;
 
 procedure TForm_OptionsNew.BitBtn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg(
-    'Divider string can contain the following tokens:' +#13+
-    '(must be UPPERCASE)' +#13#13+
-     CLIPDATECHAR  + ' = current date' +#13+
-     CLIPTIMECHAR  + ' = current time' +#13+
-     CLIPDIVCHAR   + ' = replaced with a blank line',
+  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR]),
     mtInformation, [mbOK], 0
   );
 
@@ -1444,9 +1461,7 @@ begin
     if (( not Checkbox_AutoSave.Checked ) and ( not AutoCloseWarned )) then
     begin
       AutoCloseWarned := true;
-      messagedlg(
-        'The Auto-Close function will work ONLY if Auto-Save is turned ON, and if no dialog box is open at the time KeyNote tries to automatically close the file. (Auto-Save is currently DISABLED.)',
-        mtWarning, [mbOK], 0 );
+      messagedlg( STR_15, mtWarning, [mbOK], 0 );
     end;
   end;
 end;
@@ -1465,10 +1480,7 @@ begin
     Pages.PageIndex := Node.AbsoluteIndex;
     self.HelpContext := 205 + succ( Pages.PageIndex );
   except
-    messagedlg( Format(
-      'Error in TVChange: PageIndex %d  Node.AbsIdx %d',
-      [Pages.PageIndex, Node.AbsoluteIndex]
-    ), mtError, [mbOK], 0 );
+    messagedlg( Format( STR_16, [Pages.PageIndex, Node.AbsoluteIndex]), mtError, [mbOK], 0 );
   end;
 end;
 

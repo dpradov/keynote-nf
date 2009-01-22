@@ -82,6 +82,9 @@ var
 
 implementation
 
+resourcestring
+  STR_01 = 'Unexpected error from DLL: ';
+
 
 function GetPluginInfo(
   const FN : string;
@@ -152,7 +155,7 @@ begin
     except
       On E : Exception do
       begin
-        messagedlg( 'Unexpected error from DLL: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -185,7 +188,7 @@ begin
     except
       On E : Exception do
       begin
-        messagedlg( 'Unexpected error from DLL: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -218,7 +221,7 @@ begin
     except
       On E : Exception do
       begin
-        messagedlg( 'Unexpected error from DLL: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;

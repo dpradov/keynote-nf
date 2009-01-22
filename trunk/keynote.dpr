@@ -213,7 +213,6 @@ uses
   kn_FavExtDlg in 'kn_FavExtDlg.pas' {Form_FavExt},
   kn_SendMail in 'kn_SendMail.pas' {Form_Mail},
   kn_ClipUtils in 'kn_ClipUtils.pas',
-  knx_resourcebar in 'knx_resourcebar.pas',
   kn_DateTime in 'kn_DateTime.pas',
   kn_about in 'kn_about.pas' {AboutBox},
   dll_Keyboard in 'dll_Keyboard.pas',

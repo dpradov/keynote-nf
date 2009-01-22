@@ -821,6 +821,10 @@ const
 implementation
 uses Windows, SysUtils, Graphics, Menus, IniFiles, kn_NoteObj;
 
+resourcestring
+  STR_INIMail_01 = 'Attached file: %F';
+
+
 procedure InitializeClipOptions( var Struct : TClipOptions );
 begin
   with Struct do
@@ -1072,7 +1076,7 @@ begin
     AddrBook := '';
     AsPlainText := true;
     CCAddr := '';
-    FirstLine := 'Attached file: %F';
+    FirstLine := STR_INIMail_01;
     FromAddr := '';
     History := '';
     KeepLog := true;
@@ -1083,7 +1087,7 @@ begin
     TextCharSet := 'iso-8859-1';
     Timeout := 30;
     ToAddr := '';
-    XMailer := Program_Name + ' ' + Program_VerStr + ' (Win95/NT) http://go.to/generalfrenetics/';
+    XMailer := Program_Name + ' ' + Program_VerStr + '  http://code.google.com/p/keynote-nf/';
   end;
 end; // InitializeMailOptions
 

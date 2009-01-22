@@ -19,10 +19,15 @@ uses Graphics;
 const
   // VANITY INFO FOR ALL SOFTWARE
   Program_URL     = 'http://code.google.com/p/keynote-nf/'; //'http://keynote.prv.pl';
-  Program_Email   = 'dprado.keynote@gmail.com'; //'marekjed@users.sourceforge.net';
+  Program_Email1  = 'dprado.keynote@gmail.com';
+  Program_Email2  = 'marekjed@users.sourceforge.net';
   Program_License = 'This program is Freeware';
-  Program_Credit  = 'Copyright (c) Daniel Prado Velasco, 2007-2009' + #13 +
-                    'Copyright (c) Marek Jedlinski, 2000-2002';
+  Program_Credit1 = 'Copyright (c) Daniel Prado Velasco, 2007-09 (New functionality since v1.7.0)';
+  Program_Credit2 = 'Copyright (c) Marek Jedlinski, 2000-03';
+
+const
+  URL_Issues = 'http://code.google.com/p/keynote-nf/issues/list';
+
 
 const
    // APP NOTIFY IDs FOR ALL SOFTWARE
@@ -47,10 +52,6 @@ const
    UniqueAppName_KEYNOTE10   = 'GFKeyNote10';
    UniqueAppName_KNTVIEW10   = 'GFKNTView10';
    UniqueAppName_KOOKIEJAR60 = 'GFKookieJar60';
-
-const
-  FILTER_ALLFILES    = 'All files (*.*)|*.*';
-  FILTER_EXECUTABLES = 'Programs|*.exe;*.com';
 
 const
   _GF_CLWINDOW = $D0D0D0;
