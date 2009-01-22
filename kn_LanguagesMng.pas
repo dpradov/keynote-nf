@@ -26,6 +26,12 @@ uses
   uFreeLocalizer,
   gf_misc, kn_info, kn_Const, IniFiles, kn_global;
 
+resourcestring
+  STR_01 = 'Internal Language (English) will be established next time you start KeyNote NF';
+  STR_02 = 'Language file not found: ';
+  STR_03 = 'Tip file not found: ';
+  STR_04 = 'Applying Language file  "';
+
 function LoadLanguagesAvailable( FN : string ): boolean;
 var
   IniFile : TIniFile;
@@ -49,7 +55,7 @@ begin
   FN := normalFN( FN );
   if ( not fileexists( FN )) then exit;
 
-  path:= ExtractFilePath( Application.ExeName ) + LANGUAGE_DIR;
+  path:= ExtractFilePath( Application.ExeName ) + _LANGUAGE_FOLDER;
 
   IniFile := TIniFile.Create( fn );
   sections := TStringList.Create;
@@ -103,7 +109,7 @@ begin
   result := false;
   if ( not assigned( LanguagesAvailables )) then exit;
 
-  path:= ExtractFilePath( Application.ExeName ) + LANGUAGE_DIR;
+  path:= ExtractFilePath( Application.ExeName ) + _LANGUAGE_FOLDER;
 
 
   try
@@ -112,7 +118,7 @@ begin
 
       if (LanguageUI = LANGUAGE_DEFAULT) or (LanguageUI = '') then begin
          if FreeLocalizer.LanguageFile <> '' then
-            messagedlg( 'Internal Language (English) will be established next time you start KeyNote NF', mtInformation, [mbOK], 0 );
+            messagedlg( STR_01, mtInformation, [mbOK], 0 );
          result:= True;
       end
       else begin
@@ -128,16 +134,19 @@ begin
 
           if FN <> '' then begin
              if not fileexists( path + FN ) then
-                messagedlg( 'Language file not found: ' + path + FN, mtError, [mbOK], 0 )
+                messagedlg( STR_02 + path + FN, mtError, [mbOK], 0 )
              else begin
-                 if FreeLocalizer.LanguageFile <> path + FN then
+                 if FreeLocalizer.LanguageFile <> path + FN then begin
                     FreeLocalizer.LanguageFile:= path + FN;
+                    DefineConst;
+                    AddSearchModes;
+                 end;
                  result:= True;
              end;
           end;
           if TipFile <> '' then begin
              if not fileexists( path + TipFile ) then
-                messagedlg( 'Tip file not found: ' + path + TipFile, mtError, [mbOK], 0 )
+                messagedlg( STR_03 + path + TipFile, mtError, [mbOK], 0 )
              else
                 TIP_FN := path + TipFile;
           end;
@@ -149,7 +158,7 @@ begin
   except
     on E : Exception do
     begin
-      messagedlg( 'Applying Language file  "' + path + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
+      messagedlg( STR_04 + path + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
       exit;
     end;
   end;

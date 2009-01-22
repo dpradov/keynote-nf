@@ -21,6 +21,11 @@ uses
     gf_misc, gf_files,
     kn_Global, kn_Const, kn_Info, kn_Main, kn_RTFUtils, kn_NewTemplate, kn_NoteFileMng;
 
+resourcestring
+  STR_01 = 'Template "%s" already exists. Overwrite existing template?';
+  STR_02 = 'Template "%s" created.';
+  STR_03 = 'Select template to insert';
+  STR_04 = 'OK to delete selected template "%s"?';
 
 
 procedure LoadTemplateList;
@@ -134,7 +139,7 @@ begin
           if fileexists( fn ) then
           begin
             if ( messagedlg( Format(
-                'Template "%s" already exists. Overwrite existing template?',
+                STR_01,
                 [extractfilename( fn )]
               ), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
               exit
@@ -181,7 +186,7 @@ begin
                   ListBox_ResTpl.ItemIndex := i;
                 end;
                 StatusBar.Panels[PANEL_HINT].Text := Format(
-                    'Template "%s" created.',
+                    STR_02,
                     [extractfilename( fn )]
                   );
               except
@@ -230,7 +235,7 @@ begin
           oldFilter := Filter;
           Filter := FILTER_TEMPLATES;
           FilterIndex := 1;
-          Title := 'Select template to insert';
+          Title := STR_03;
           Options := Options - [ofAllowMultiSelect];
           InitialDir := Template_Folder;
           FileName := LastTemplateUsed;
@@ -293,7 +298,7 @@ begin
       if ( i < 0 ) then exit;
       fn := Template_Folder + ListBox_ResTpl.Items[i];
       if ( messagedlg( Format(
-        'OK to delete selected template "%s"?',
+        STR_04,
         [ListBox_ResTpl.Items[i]]
       ), mtConfirmation, [mbOK, mbCancel], 0 ) <> mrOK ) then exit;
 

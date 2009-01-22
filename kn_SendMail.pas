@@ -151,24 +151,59 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = 'Service not available';
+  STR_02 = 'Requested mail action not taken: mailbox unavailable';
+  STR_03 = 'Requested action aborted: local error in processing';
+  STR_04 = 'Requested action not taken: insufficient system storage';
+  STR_05 = 'Syntax error, command unrecognized';
+  STR_06 = 'Command not implemented';
+  STR_07 = 'Bad sequence of commands';
+  STR_08 = 'Command parameter not implemented';
+  STR_09 = 'Requested action not taken: mailbox unavailable';
+  STR_10 = 'User not local';
+  STR_11 = 'Requested mail action aborted: exceeded storage allocation';
+  STR_12 = 'Requested action not taken: mailbox name not allowed';
+  STR_13 = 'Transaction failed';
+  STR_14 = 'Unknown error or no error condition';
+  STR_15 = 'Transaction aborted by user';
+  STR_16 = 'SMTP server must be specified';
+  STR_17 = 'SMTP port must be specified';
+  STR_18 = '"From" address (your email address) must be specified';
+  STR_19 = '"To" address (recipient) must be specified';
+  STR_20 = 'Cannot send email message: ';
+  STR_21 = 'The Subject line is empty. Send anyway?';
+  STR_22 = 'File format and note selection conflict. Bug?';
+  STR_23 = 'Connecting...';
+  STR_24 = '&Abort';
+  STR_25 = 'Close';
+  STR_26 = 'Error';
+  STR_28 = 'Error: code ';
+  STR_29 = 'Sending...';
+  STR_30 = 'Closing connection...';
+  STR_31 = 'Mail sent.';
+  STR_32 = 'Connection timed out';
+  STR_33 = 'Tree-type notes cannot be sent as RTF files and will be skipped.';
+  STR_34 = 'Ready.';
+
 function SMTPErrorDesc( Error : integer ) : string;
 begin
   case Error of
-    421 : result := 'Service not available';
-    450 : result := 'Requested mail action not taken: mailbox unavailable';
-    451 : result := 'Requested action aborted: local error in processing';
-    452 : result := 'Requested action not taken: insufficient system storage';
-    500 : result := 'Syntax error, command unrecognized';
-    502 : result := 'Command not implemented';
-    503 : result := 'Bad sequence of commands';
-    504 : result := 'Command parameter not implemented';
-    550 : result := 'Requested action not taken: mailbox unavailable';
-    551 : result := 'User not local';
-    552 : result := 'Requested mail action aborted: exceeded storage allocation';
-    553 : result := 'Requested action not taken: mailbox name not allowed';
-    554 : result := 'Transaction failed';
+    421 : result := STR_01;
+    450 : result := STR_02;
+    451 : result := STR_03;
+    452 : result := STR_04;
+    500 : result := STR_05;
+    502 : result := STR_06;
+    503 : result := STR_07;
+    504 : result := STR_08;
+    550 : result := STR_09;
+    551 : result := STR_10;
+    552 : result := STR_11;
+    553 : result := STR_12;
+    554 : result := STR_13;
     else
-      result := 'Unknown error or no error condition';
+      result := STR_14;
   end;
 end; // SMTPErrorDesc
 
@@ -265,7 +300,7 @@ begin
   begin
     SMTPCli.Abort;
     AfterMail;
-    Label_Status.Caption := 'Transaction aborted by user';
+    Label_Status.Caption := STR_15;
     CanClose := false;
   end
   else
@@ -315,20 +350,20 @@ begin
   s := '';
 
   if Edit_SMTPServer.text = '' then
-    s := 'SMTP server must be specified'
+    s := STR_16
   else
   if Edit_Port.text = '' then
-    s := 'SMTP port must be specified'
+    s := STR_17
   else
   if Edit_From.text = '' then
-    s := '"From" address (your email address) must be specified'
+    s := STR_18
   else
   if Combo_To.text = '' then
-    s := '"To" address (recipient) must be specified';
+    s := STR_19;
 
   if s <> ''  then
   begin
-    case messagedlg( 'Cannot send email message: ' + #13 + s, mtError, [mbOK, mbCancel], 0 ) of
+    case messagedlg( STR_20 + #13 + s, mtError, [mbOK, mbCancel], 0 ) of
       mrOK : begin end;
       else
         OK_Click := false;
@@ -339,7 +374,7 @@ begin
 
   if Edit_Subject.Text = '' then
   begin
-    case messagedlg( 'The Subject line is empty. Send anyway?', mtConfirmation, [mbYes,mbNo], 0 ) of
+    case messagedlg( STR_21, mtConfirmation, [mbYes,mbNo], 0 ) of
       mrOK : begin end;
       else
       begin
@@ -611,7 +646,7 @@ begin
         end
         else
         begin
-          ShowMessage( 'File format and note selection conflict. Bug?' );
+          ShowMessage( STR_22 );
         end;
       end;
 
@@ -636,7 +671,7 @@ begin
     Lines.Free;
   end;
 
-  Label_Status.Caption := 'Connecting...';
+  Label_Status.Caption := STR_23;
   // Timer.Enabled := true;
 
   SMTPCli.Open;
@@ -662,7 +697,7 @@ begin
   IsBusy := true;
   Button_OK.Enabled := false;
   Pages.Enabled := false;
-  Button_Cancel.Caption := '&Abort';
+  Button_Cancel.Caption := STR_24;
   Button_Cancel.SetFocus;
   TimerTick := 0;
 
@@ -674,7 +709,7 @@ begin
   IsBusy := false;
   Button_OK.Enabled := true;
   Pages.Enabled := true;
-  Button_Cancel.Caption := 'Close';
+  Button_Cancel.Caption := STR_25;
   UserFieldsAdded := false;
   HadError := false;
   TimerTick := 0;
@@ -684,7 +719,7 @@ end; // AfterMail
 
 procedure TForm_Mail.ShowException( Sender : TObject; E : Exception );
 begin
-  Label_Status.Caption := 'Error: ' + E.Message;
+  Label_Status.Caption := STR_26 + ': ' + E.Message;
   if ( IsBusy and ( not( SmtpCli.State in [smtpReady,smtpAbort] ))) then
     SMTPCli.Abort;
   HadError := true;
@@ -697,29 +732,29 @@ begin
   if ( Error <> 0 ) then
   begin
     if ( Error >= 1000 ) then
-      Label_Status.Caption := 'Error ' + inttostr( Error ) +
+      Label_Status.Caption := STR_26 + ' ' + inttostr( Error ) +
         ' (' + WSocketErrorDesc( Error ) + ')'
     else
     if ( Error >= 400 ) then
-      Label_Status.Caption := 'Error ' + inttostr( Error ) +
+      Label_Status.Caption := STR_26 + ' ' + inttostr( Error ) +
         ' (' + SMTPErrorDesc( Error ) + ')'
     else
-      Label_Status.Caption := 'Error: code ' + inttostr( Error );
+      Label_Status.Caption := STR_28 + inttostr( Error );
     AfterMail;
     exit;
   end;
 
   case RqType of
     smtpOpen : begin
-      Label_Status.Caption := 'Sending...';
+      Label_Status.Caption := STR_29;
       SmtpCli.Mail;
     end;
     smtpMail : begin
-      Label_Status.Caption := 'Closing connection...';
+      Label_Status.Caption := STR_30;
       SMTPCli.Quit;
     end;
     smtpQuit : begin
-      Label_Status.Caption := 'Mail sent.';
+      Label_Status.Caption := STR_31;
       Aftermail;
     end;
 
@@ -735,7 +770,7 @@ begin
   begin
     if ( IsBusy and ( not( SmtpCli.State in [smtpReady,smtpAbort] ))) then
       SMTPCli.Abort;
-    Label_Status.Caption := 'Connection timed out';
+    Label_Status.Caption := STR_32;
     AfterMail;
   end;
 end;
@@ -754,16 +789,16 @@ begin
   begin
     if ( assigned( myNotes ) and myNotes.HasExtendedNotes ) then
     begin
-      Label_Status.Caption := 'Tree-type notes cannot be sent as RTF files and will be skipped.';
+      Label_Status.Caption := STR_33;
     end
     else
     begin
-      Label_Status.Caption := 'Ready.'
+      Label_Status.Caption := STR_34
     end;
   end
   else
   begin
-    Label_Status.Caption := 'Ready.'
+    Label_Status.Caption := STR_34
   end;
 end;
 

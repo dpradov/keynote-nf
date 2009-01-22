@@ -28,6 +28,11 @@ uses
    kn_global, kn_Info, kn_INI, kn_Const, kn_OptionsNew, kn_Chest,
    kn_FindReplaceMng, kn_MacroMng, kn_VCLControlsMng, kn_LanguagesMng;
 
+resourcestring
+  STR_KeybdError = 'Error in keyboard customization procedure: ';
+  STR_TabIcons = ' Customize Tab icons (%s) ';
+
+
 procedure ReadCmdLine;
 var
   i : integer;
@@ -537,7 +542,7 @@ begin
     except
       on E : Exception do
       begin
-        messagedlg( 'Error in keyboard customization procedure: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_KeybdError + E.Message, mtError, [mbOK], 0 );
       end;
     end;
   finally
@@ -583,7 +588,7 @@ begin
                 tmpicnfn := extractfilename( NoteFile.TabIconsFN );
             end;
             GroupBox_ICN.Caption :=
-              Format( ' Customize Tab icons (%s) ', [tmpicnfn] );
+              Format( STR_TabIcons, [tmpicnfn] );
           end;
 
         if ( Form_Options.ShowModal = mrOK ) then

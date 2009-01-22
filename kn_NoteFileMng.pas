@@ -64,6 +64,86 @@ uses
   kn_Main,kn_DLLmng, kn_LinksMng, kn_PluginsMng, kn_TreeNoteMng, kn_VCLControlsMng;
 
 
+resourcestring
+  STR_01 = 'Cannot create a new file: ';
+  STR_02 = ' New Note file created.';
+  STR_03 = '(none)';
+  STR_04 = 'A new Note file has been created. Would you like to save the new file now?' +#13#13+ '(The Auto Save function will not work until the file is named and saved first.)';
+  STR_05 = 'Open Keynote file';
+  STR_06 = ' Opening ';
+  STR_07 = 'One or more errors occurred while loading the file. The file may not have loaded completely. To minimize the risk of data loss, ' +
+                          'the file was opened in Read-Only mode. Use the "Save As..." command to save the file.';
+  STR_08 = ' <unknown> ';
+  STR_09 = ' diskette ';
+  STR_10 = ' network ';
+  STR_11 = ' CD-ROM ';
+  STR_12 = ' RAM ';
+  STR_13 = 'File "%s" was opened in Read-Only mode, because it resides on a %s drive "%s".';
+  STR_14 = ' File opened.';
+  STR_15 = ' Error.';
+  STR_16 = 'Folder monitor error: ';
+  STR_17 = ' ERROR %d opening file';
+  STR_18 = 'This file will be saved as a %s file. This format does not support some features which are unique to %s.' + #13#13 +
+                                     'OK to save the file in Dart Notes format? If you answer NO, the file will be saved as a %s file.';
+  STR_19 = ' Saving ';
+  STR_20 = 'Specified backup directory "%s" does not exist. Backup files will be created in the original file''s directory.';
+  STR_21 = 'Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?';
+  STR_22 = ' File saved.';
+  STR_23 = ' Error %d while saving file.';
+  STR_24 = 'Error %d occurred while saving file "%s". The file is probably damaged. ';
+  STR_25 = 'You should be able to restore data from the backup file "%s". ';
+  STR_26 = 'The Auto-Save option was turned OFF, to prevent KeyNote from automatically saving the damaged file.';
+  STR_27 = ' ERROR saving file';
+  STR_28 = 'Saving "';
+  STR_29 = 'Folder monitoring has been disabled due to the following error: ';
+  STR_30 = ' File closed.';
+  STR_31 = 'Revert to last saved version of' + #13 + '%s?';
+  STR_32 = 'Select backup folder';
+  STR_33 = 'Cannot copy file to its own directory.';
+  STR_34 = 'The file %s already exists. OK to overwrite existing file?';
+  STR_35 = ' Copying file...';
+  STR_36 = ' File copied.';
+  STR_37 = 'Successfully copied Notes file to';
+  STR_38 = 'Copying failed (';
+  STR_39 = 'Select file to merge notes from';
+  STR_40 = 'There was an error while loading merge file.';
+  STR_41 = 'The file you selected does not contain any notes.';
+  STR_42 = 'Error while loading merge file: ';
+  STR_43 = 'Notes in %s';
+  STR_44 = 'You did not select any notes: nothing to merge.';
+  STR_45 = ' Merging notes...';
+  STR_46 = 'Error while adding notes: ';
+  STR_47 = 'Merged %d notes from "%s"';
+  STR_48 = 'No notes were merged';
+  STR_49 = 'Another application has modified the note file %s. Reload the file from disk?';
+  STR_50 = '%s folder "%s" does not exist';
+  STR_51 = '. Create the folder now?';
+  STR_52 = 'Could not create folder: %s';
+  STR_53 = ' File modified by external application.';
+  STR_54 = 'Notes were modified. Save file before continuing?' +#13+ 'If you answer No, you will lose all changes made since last save.';
+  STR_55 = 'Current file has not been saved. If you continue, changes will be lost.'+ #13 + 'Proceed anyway?';
+  STR_56 = 'Warning!';
+  STR_57 = 'Select files for importing';
+  STR_58 = 'The file "%s" does not appear to be a text file. The result of importing it may be unpredictable.' + #13#13 +
+                'Import as a plain text file, anyway?';
+  STR_59 = ' Importing ';
+  STR_60 = 'Failed to convert HTML file "%s" to RTF (code: %d).';
+  STR_61 = 'Error importing ';
+  STR_62 = ' Finished importing.';
+  STR_63 = 'Cannot select methods for handling files.';
+  STR_64 = 'Files you are trying to import are of more than one type. Please select only files of one type for importing.';
+  STR_65 = 'Cannot import a directory "%s"';
+  STR_67 = 'Unknown or unexpected file action (%d)';
+  STR_68 = 'Error while importing files: ';
+  STR_69 = 'Untitled';
+  STR_70 = ' No file ';
+  STR_71 = ' (no file)';
+  STR_72 = ' Auto';
+  STR_73 = ' MOD';
+  STR_74 = ' Saved';
+  STR_75 = 'Successfully created %s registry entries';
+  STR_76 = 'There was an error while creating file type associations: ';
+
 //=================================================================
 // NoteFileNew
 //=================================================================
@@ -112,7 +192,7 @@ begin
               {$IFDEF MJ_DEBUG}
               Log.Add( 'Exception in NoteFileNew: ' + E.Message );
               {$ENDIF}
-              Popupmessage( 'Cannot create a new file: ' + E.Message, mtError, [mbOK], 0 );
+              Popupmessage( STR_01 + E.Message, mtError, [mbOK], 0 );
               result := 1;
               exit;
             end;
@@ -123,7 +203,7 @@ begin
           RTFMRepeatCmd.Enabled := false;
           TB_Repeat.ENabled := false;
 
-          StatusBar.Panels[PANEL_HINT].Text := ' New Note file created.';
+          StatusBar.Panels[PANEL_HINT].Text := STR_02;
 
           UpdateNoteFileState( [fscNew,fscModified] );
           {$IFDEF MJ_DEBUG}
@@ -139,7 +219,7 @@ begin
           else
           begin
             ActiveNote := nil;
-            TAM_ActiveName.Caption := '(none)';
+            TAM_ActiveName.Caption := STR_03;
           end;
           UpdateNoteDisplay;
 
@@ -164,7 +244,7 @@ begin
 
         if ( KeyOptions.AutoSave and ( not KeyOptions.SkipNewFilePrompt )) then
         begin
-          if ( PopupMessage( 'A new Note file has been created. Would you like to save the new file now?' +#13#13+ '(The Auto Save function will not work until the file is named and saved first.)', mtConfirmation, [mbYes,mbNo], 0 ) = mrYes ) then
+          if ( PopupMessage( STR_04, mtConfirmation, [mbYes,mbNo], 0 ) = mrYes ) then
             NoteFileSave( NoteFile.FileName );
         end;
   end;
@@ -200,7 +280,7 @@ begin
             begin
               with OpenDlg do
               begin
-                Title := 'Open Keynote file';
+                Title := STR_05;
                 Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
                 Options := Options - [ofHideReadOnly];
                 Options := Options - [ofAllowMultiSelect];
@@ -229,7 +309,7 @@ begin
 
             if assigned( NoteFile ) then
               if ( not NoteFileClose ) then exit;
-            StatusBar.Panels[PANEL_HINT].Text := ' Opening ' + FN;
+            StatusBar.Panels[PANEL_HINT].Text := STR_06 + FN;
 
             Timer.Enabled := false;
             screen.Cursor := crHourGlass;
@@ -246,8 +326,7 @@ begin
             begin
               NoteFile.ReadOnly := true;
               result := 0;
-              messagedlg( 'One or more errors occurred while loading the file. The file may not have loaded completely. To minimize the risk of data loss, ' +
-                          'the file was opened in Read-Only mode. Use the "Save As..." command to save the file.', mtWarning, [mbOK] , 0 );
+              messagedlg( STR_07, mtWarning, [mbOK] , 0 );
             end;
 
             if fileexists( NoteFile.FileName + ext_DEFAULTS ) then
@@ -259,21 +338,21 @@ begin
             NastyDriveType := '';
             case GetDriveType( PChar( ExtractFileDrive( NoteFile.FileName ) + '\' )) of
               0, 1 : begin
-                NastyDriveType := ' <unknown> ';
+                NastyDriveType := STR_08;
               end;
               DRIVE_REMOVABLE : begin
                 if KeyOptions.OpenFloppyReadOnly then
-                  NastyDriveType := ' diskette ';
+                  NastyDriveType := STR_09;
               end;
               DRIVE_REMOTE : begin
                 if KeyOptions.OpenNetworkReadOnly then
-                  NastyDriveType := ' network ';
+                  NastyDriveType := STR_10;
               end;
               DRIVE_CDROM : begin
-                NastyDriveType := ' CD-ROM ';
+                NastyDriveType := STR_11;
               end;
               DRIVE_RAMDISK : begin
-                NastyDriveType := ' RAM ';
+                NastyDriveType := STR_12;
               end;
             end;
             if ( NastyDriveType <> '' ) then
@@ -281,7 +360,7 @@ begin
               NoteFile.ReadOnly := true;
               if KeyOptions.OpenReadOnlyWarn then
                 popupmessage( Format(
-                  'File "%s" was opened in Read-Only mode, because it resides on a %s drive "%s".',
+                  STR_13,
                   [extractfilename( NoteFile.FileName ), NastyDriveType, ExtractFileDrive( NoteFile.FileName )] ),
                   mtInformation, [mbOK], 0 );
             end;
@@ -298,7 +377,7 @@ begin
 
             opensuccess := true;
 
-            StatusBar.Panels[PANEL_HINT].Text := ' File opened.';
+            StatusBar.Panels[PANEL_HINT].Text := STR_14;
 
             try
               if EditorOptions.SaveCaretPos then
@@ -340,7 +419,7 @@ begin
             on E : Exception do
             begin
               opensuccess := false;
-              StatusBar.Panels[PANEL_HINT].Text := ' Error.';
+              StatusBar.Panels[PANEL_HINT].Text := STR_15;
               {$IFDEF MJ_DEBUG}
               Log.Add( 'Error while opening file: ' + E.Message );
               {$ENDIF}
@@ -370,7 +449,7 @@ begin
               {$IFDEF MJ_DEBUG}
               Log.Add( 'Folder monitor error: ' + E.Message );
               {$ENDIF}
-              PopupMessage( 'Folder monitor error: ' + E.Message, mtError, [mbOK], 0 );
+              PopupMessage( STR_16 + E.Message, mtError, [mbOK], 0 );
             end;
           end;
 
@@ -393,7 +472,7 @@ begin
             end
             else
             begin
-              TAM_ActiveName.Caption := '(none)';
+              TAM_ActiveName.Caption := STR_03;
               ActiveNote := nil;
             end;
             UpdateNoteDisplay;
@@ -413,7 +492,7 @@ begin
         end
         else
         begin
-          StatusBar.Panels[PANEL_HINT].Text := Format( ' ERROR %d opening file', [result] );
+          StatusBar.Panels[PANEL_HINT].Text := Format( STR_17, [result] );
         end;
 
         {$IFDEF MJ_DEBUG}
@@ -499,9 +578,7 @@ begin
 
                 if (( NoteFile.FileFormat = nffDartNotes ) and KeyOptions.SaveDARTWarn ) then
                 begin
-                  case PopupMessage( 'This file will be saved as a ' + FILE_FORMAT_NAMES[nffDartNotes] +
-                                     ' file. This format does not support some features which are unique to ' + Program_Name + '.' + #13#13 +
-                                     'OK to save the file in Dart Notes format? If you answer NO, the file will be saved as a ' + FILE_FORMAT_NAMES[nffKeyNote] + ' file.',
+                  case PopupMessage( format(STR_18, [FILE_FORMAT_NAMES[nffDartNotes], Program_Name, FILE_FORMAT_NAMES[nffKeyNote]]),
                                      mtWarning, [mbYes,mbNo,mbCancel], 0 ) of
                     mrNo : NoteFile.FileFormat := nffKeyNote;
                     mrCancel : exit;
@@ -515,7 +592,7 @@ begin
             end;
 
             screen.Cursor := crHourGlass;
-            StatusBar.Panels[PANEL_HINT].text := ' Saving ' + FN;
+            StatusBar.Panels[PANEL_HINT].text := STR_19 + FN;
 
             DoBackup := false;
             if ( KeyOptions.Backup and fileexists( FN )) then
@@ -543,7 +620,7 @@ begin
                   if ( not directoryexists( KeyOptions.BackupDir )) then
                   begin
                     PopupMessage(
-                      Format( 'Specified backup directory "%s" does not exist. Backup files will be created in the original file''s directory.', [KeyOptions.BackupDir] ),
+                      Format( STR_20, [KeyOptions.BackupDir] ),
                       mtWarning, [mbOK], 0
                     );
                     KeyOptions.BackupDir := '';
@@ -646,7 +723,7 @@ begin
                   Log.Add( 'Backup failed; code ' + inttostr( copyresult ));
                   {$ENDIF}
                   if ( messagedlg( Format(
-                    'Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?',
+                    STR_21,
                     [copyresult, SysErrorMessage( copyresult )] ),
                     mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
                     exit;
@@ -687,31 +764,23 @@ begin
 
             if ( result = 0 ) then
             begin
-              StatusBar.Panels[PANEL_HINT].Text := ' File saved.';
+              StatusBar.Panels[PANEL_HINT].Text := STR_22;
             end
             else
             begin
-              StatusBar.Panels[PANEL_HINT].Text := Format(
-                ' Error %d while saving file.',
-                [result] );
+              StatusBar.Panels[PANEL_HINT].Text := Format(STR_23, [result] );
 
 
-              errstr := Format(
-                'Error %d occurred while saving file "%s". The file is probably damaged. ',
-                [result,extractfilename( FN )]
-              );
+              errstr := Format(STR_24, [result,extractfilename( FN )] );
 
               if DoBackup then
-                errstr := errstr + Format(
-                  'You should be able to restore data from the backup file "%s". ',
-                  [extractfilename( bakFN )]
+                errstr := errstr + Format(STR_25, [extractfilename( bakFN )]
               );
 
               if KeyOptions.AutoSave then
               begin
                 KeyOptions.AutoSave := false;
-                errstr := errstr +
-                  'The Auto-Save option was turned OFF, to prevent KeyNote from automatically saving the damaged file.';
+                errstr := errstr + STR_26;
               end;
 
               messagedlg( errstr, mtError, [mbOK], 0 );
@@ -723,8 +792,8 @@ begin
               {$IFDEF MJ_DEBUG}
               Log.Add( 'Exception in NoteFileSave: ' + E.Message );
               {$ENDIF}
-              StatusBar.Panels[PANEL_HINT].Text := ' ERROR saving file';
-              PopupMessage( 'Saving "' + extractfilename( FN ) + '": ' + #13#13 + E.Message, mtError, [mbOK], 0 );
+              StatusBar.Panels[PANEL_HINT].Text := STR_27;
+              PopupMessage( STR_28 + extractfilename( FN ) + '": ' + #13#13 + E.Message, mtError, [mbOK], 0 );
               result := 1;
             end;
           end;
@@ -743,7 +812,7 @@ begin
             on E : Exception do
             begin
               FolderMon.Active := false;
-              PopupMessage( 'Folder monitoring has been disabled due to the following error: ' + E.Message, mtError, [mbOK], 0 );
+              PopupMessage( STR_29 + E.Message, mtError, [mbOK], 0 );
             end;
           end;
 
@@ -844,7 +913,7 @@ begin
 
         TAM_ActiveName.Caption := '';
         UpdateNoteFileState( [fscClose,fscModified] );
-        StatusBar.Panels[PANEL_HINT].Text := ' File closed.';
+        StatusBar.Panels[PANEL_HINT].Text := STR_30;
       finally
         FileIsBusy := false;
         PagesChange( Form_Main );
@@ -918,7 +987,7 @@ begin
   begin
     if ( tmps = NoteFile.FileName ) then
     begin
-      if ( PopupMessage( 'Revert to last saved version of' + #13 + NoteFile.Filename + '?', mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+      if ( PopupMessage( format(STR_31, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
       NoteFile.Modified := false; // to prevent automatic save if modified
     end;
   end;
@@ -945,7 +1014,7 @@ begin
 
           DirDlg.Root := idDesktop;
           DirDlg.ShowSelectionInStatus := true;
-          DirDlg.Title := 'Select backup folder';
+          DirDlg.Title := STR_32;
           DirDlg.Center := true;
 
           currentFN := NoteFile.FileName;
@@ -957,7 +1026,7 @@ begin
             if ( not DirDlg.Execute ) then exit;
             if ( properfoldername( extractfilepath( currentFN )) = properfoldername( DirDlg.Selection )) then
             begin
-              PopupMessage( 'Cannot copy file to its own directory.', mtError, [mbOK], 0 );
+              PopupMessage( STR_33, mtError, [mbOK], 0 );
               exit;
             end;
 
@@ -965,9 +1034,10 @@ begin
 
             newFN := KeyOptions.LastCopyPath + extractfilename( currentFN );
             if fileexists( newFN ) then
-              if ( Popupmessage( 'The file ' + newFN + ' already exists. OK to overwrite existing file?', mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
-            StatusBar.Panels[PANEL_HINT].Text := ' Copying file...';
+              if ( Popupmessage( format(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+
+            StatusBar.Panels[PANEL_HINT].Text := STR_35;
 
 
           oldModified := NoteFile.Modified;
@@ -977,12 +1047,12 @@ begin
             cr := NoteFile.Save( newFN );
             if ( cr = 0 ) then
             begin
-              StatusBar.Panels[PANEL_HINT].Text := ' File copied.';
-              PopUpMessage( 'Successfully copied Notes file to' +#13 + NewFN, mtInformation, [mbOK], 0 );
+              StatusBar.Panels[PANEL_HINT].Text := STR_36;
+              PopUpMessage( STR_37 +#13 + NewFN, mtInformation, [mbOK], 0 );
             end
             else
             begin
-              Popupmessage( 'Copying failed (' + inttostr( cr ) + ')', mtError, [mbOK], 0 );
+              Popupmessage( STR_38 + inttostr( cr ) + ')', mtError, [mbOK], 0 );
               {$IFDEF MJ_DEBUG}
               Log.Add( 'Copying failed (' + inttostr( cr ) + ')' );
               {$ENDIF}
@@ -990,7 +1060,7 @@ begin
             except
               on E : Exception do
               begin
-                StatusBar.Panels[PANEL_HINT].Text := ' Error.';
+                StatusBar.Panels[PANEL_HINT].Text := STR_15;
                 {$IFDEF MJ_DEBUG}
                 Log.Add( 'Exception in NoteFileSave: ' + E.Message );
                 {$ENDIF}
@@ -1034,7 +1104,7 @@ begin
 
           if ( KeyOptions.LastExportPath <> '' ) then
             OpenDlg.InitialDir := KeyOptions.LastExportPath;
-          OpenDlg.Title := 'Select file to merge notes from';
+          OpenDlg.Title := STR_39;
 
           if ( not OpenDlg.Execute ) then exit;
           MergeFN := OpenDlg.FileName;
@@ -1062,13 +1132,13 @@ begin
             LoadResult := MergeFile.Load( MergeFN );
             if ( LoadResult <> 0 ) then
             begin
-              messagedlg( 'There was an error while loading merge file.', mtError, [mbOK], 0 );
+              messagedlg( STR_40, mtError, [mbOK], 0 );
               exit;
             end;
 
             if ( MergeFile.NoteCount = 0 ) then
             begin
-              messagedlg( 'The file you selected does not contain any notes.', mtInformation, [mbOK], 0 );
+              messagedlg( STR_41, mtInformation, [mbOK], 0 );
               exit;
             end;
 
@@ -1081,7 +1151,7 @@ begin
           except
             on E : Exception do
             begin
-              messagedlg( 'Error while loading merge file: ' + E.Message, mtError, [mbOK], 0 );
+              messagedlg( STR_42 + E.Message, mtError, [mbOK], 0 );
               exit;
             end;
           end;
@@ -1089,7 +1159,7 @@ begin
           TabSelector := TForm_SelectTab.Create( Form_Main );
           try
             TabSelector.myNotes := MergeFile;
-            TabSelector.Caption := Format( 'Notes in %s', [extractfilename( MergeFile.FileName )] );
+            TabSelector.Caption := Format( STR_43, [extractfilename( MergeFile.FileName )] );
             if ( not ( TabSelector.ShowModal = mrOK )) then exit;
           finally
             TabSelector.Free;
@@ -1104,12 +1174,12 @@ begin
 
           if ( mergecnt = 0 ) then
           begin
-            messagedlg( 'You did not select any notes: nothing to merge.', mtInformation, [mbOK], 0 );
+            messagedlg( STR_44, mtInformation, [mbOK], 0 );
             exit;
           end;
           mergecnt := 0;
 
-          StatusBar.Panels[PANEL_HINT].Text := ' Merging notes...';
+          StatusBar.Panels[PANEL_HINT].Text := STR_45;
 
           screen.Cursor := crHourGlass;
 
@@ -1190,7 +1260,7 @@ begin
           except
             On E : Exception do
             begin
-              messagedlg( 'Error while adding notes: ' + E.Message, mtError, [mbOK], 0 );
+              messagedlg( STR_46 + E.Message, mtError, [mbOK], 0 );
               exit;
             end;
           end;
@@ -1201,9 +1271,9 @@ begin
           NoteFile.Modified := true;
           UpdateNoteFileState( [fscModified] );
           if ( mergecnt > 0 ) then
-            StatusBar.Panels[PANEL_HINT].Text := Format( 'Merged %d notes from "%s"', [mergecnt, extractfilename( MergeFN )] )
+            StatusBar.Panels[PANEL_HINT].Text := Format( STR_47, [mergecnt, extractfilename( MergeFN )] )
           else
-            StatusBar.Panels[PANEL_HINT].Text := 'No notes were merged';
+            StatusBar.Panels[PANEL_HINT].Text := STR_48;
         end;
   end;
 
@@ -1218,8 +1288,7 @@ begin
   Application.BringToFront;
   Form_Main.FolderMon.Active := false;
   try
-    case messagedlg( 'Another application has modified the note file ' + FileState.Name + '. Reload the file from disk?',
-          mtWarning, [mbYes,mbNo], 0 ) of
+    case messagedlg( format(STR_49, [FileState.Name]), mtWarning, [mbYes,mbNo], 0 ) of
       mrYes : begin
         NoteFile.Modified := false;
         NoteFileOpen( NoteFile.FileName );
@@ -1250,7 +1319,7 @@ begin
   begin
     if Prompt then
       messagedlg( Format(
-        '%s folder "%s" does not exist',
+        STR_50,
         [name,folder]
       ), mtError, [mbOK], 0 );
     exit;
@@ -1258,9 +1327,8 @@ begin
 
   if Prompt then
   begin
-    if ( messagedlg( Format(
-        '%s folder "%s" does not exist. Create the folder now?',
-        [name,folder]
+    if ( messagedlg( Format(STR_50 + STR_51,
+          [name,folder]
       ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
       exit;
   end;
@@ -1274,7 +1342,7 @@ begin
       result := false;
       if Prompt then
         messagedlg( Format(
-            'Could not create folder: %s',
+            STR_52,
             [E.Message]
           ), mtError, [mbOK], 0 );
     end;
@@ -1321,7 +1389,7 @@ begin
         if Changed then
         begin
           FileChangedOnDisk := true;
-          StatusBar.Panels[PANEL_HINT].Text := ' File modified by external application.';
+          StatusBar.Panels[PANEL_HINT].Text := STR_53;
           {$IFDEF MJ_DEBUG}
           Log.Add( 'FileChangedOnDisk: ' + s );
           {$ENDIF}
@@ -1348,7 +1416,7 @@ begin
         if ( not NoteFile.Modified ) then exit;
         if Warn then
         begin
-          case messagedlg( 'Notes were modified. Save file before continuing?' +#13+ 'If you answer No, you will lose all changes made since last save.', mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
+          case messagedlg( STR_54, mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
             mrYes : begin
               // fall through and save file
             end;
@@ -1369,7 +1437,7 @@ begin
         if ( NoteFileSave( NoteFile.FileName ) = 0 ) then
           result := true
         else
-          result := ( Application.MessageBox( 'Current file has not been saved. If you continue, changes will be lost.'+ #13 + 'Proceed anyway?', 'Warning!', MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) = ID_YES );
+          result := ( Application.MessageBox( PChar(STR_55), PChar(STR_56), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) = ID_YES );
       finally
         {$IFDEF MJ_DEBUG}
         Log.Add( 'CheckModified result: ' + BOOLARRAY[result] );
@@ -1400,7 +1468,7 @@ begin
           oldFilter := Filter;
           Filter := FILTER_IMPORT;
           FilterIndex := LastImportFilter;
-          Title := 'Select files for importing';
+          Title := STR_57;
           Options := Options + [ofAllowMultiSelect];
           OpenDlg.FileName := '';
           if ( KeyOptions.LastImportPath <> '' ) then
@@ -1475,10 +1543,7 @@ begin
               ImportFileType := itText
             else
             begin
-              case messagedlg(
-                'The file "' + extractfilename( FN ) + '" does not appear to be a text file. ' +
-                'The result of importing it may be unpredictable.' + #13#13 +
-                'Import as a plain text file, anyway?',
+              case messagedlg( format(STR_58, [extractfilename( FN )]),
                 mtWarning, [mbYes,mbNo], 0 ) of
               mrYes : ImportFileType := itText;
               else
@@ -1491,7 +1556,7 @@ begin
 
             try
 
-              StatusBar.Panels[PANEL_HINT].Text := ' Importing ' + extractfilename( FN );
+              StatusBar.Panels[PANEL_HINT].Text := STR_59 + extractfilename( FN );
 
               if ( ImportFileType = itHTML ) then
               begin
@@ -1501,7 +1566,7 @@ begin
                 if (( tmpFN = '' ) or ( not fileexists( tmpFN ))) then
                 begin
                   messagedlg( Format(
-                    'Failed to convert HTML file "%s" to RTF (code: %d).', [FN,ConvertCode] ),
+                    STR_60, [FN,ConvertCode] ),
                     mtWarning, [mbOK], 0 );
                   exit;
                 end;
@@ -1568,7 +1633,7 @@ begin
               except
                 on E : Exception do
                 begin
-                  messagedlg( 'Error importing ' + FN + #13#13 + E.Message, mtError, [mbOK], 0 );
+                  messagedlg( STR_61 + FN + #13#13 + E.Message, mtError, [mbOK], 0 );
                   exit;
                 end;
               end;
@@ -1577,7 +1642,7 @@ begin
               screen.Cursor := crDefault;
               AddToFileManager( NoteFile.FileName, NoteFile ); // update manager (number of notes has changed)
               PagesChange( Form_Main );
-              StatusBar.Panels[PANEL_HINT].text := ' Finished importing.';
+              StatusBar.Panels[PANEL_HINT].text := STR_62;
               NoteFile.Modified := true;
               UpdateNoteFileState( [fscModified] );
             end;
@@ -1715,7 +1780,7 @@ begin
               end
               else
               begin
-                messagedlg( 'Cannot select methods for handling files.', mtError, [mbOK], 0 );
+                messagedlg( STR_63, mtError, [mbOK], 0 );
                 exit;
               end;
             finally
@@ -1832,7 +1897,7 @@ begin
 
             if ( not ConsistentFileType( FileList )) then
             begin
-              Messagedlg( 'Files you are trying to import are of more than one type. Please select only files of one type for importing.', mtError, [mbOK], 0 );
+              Messagedlg( STR_64, mtError, [mbOK], 0 );
               exit;
             end;
 
@@ -1883,7 +1948,7 @@ begin
                     FName := FileList[i];
                     if DirectoryExists( FName ) then
                     begin
-                      if ( messagedlg( Format( 'Cannot import a directory "%s"', [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                      if ( messagedlg( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
                         exit
                       else
                         continue;
@@ -1897,7 +1962,7 @@ begin
                       if (( ConvertCode <> 0 ) or ( not fileexists( tmpFN ))) then
                       begin
                         messagedlg( Format(
-                          'Failed to convert HTML file "%s" to RTF (code: %d).', [FName,ConvertCode] ),
+                          STR_60, [FName,ConvertCode] ),
                           mtWarning, [mbOK], 0 );
                         continue;
                       end;
@@ -1946,7 +2011,7 @@ begin
                     FName := FileList[i];
                     if DirectoryExists( FName ) then
                     begin
-                      if ( messagedlg( Format( 'Cannot import a directory "%s"', [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                      if ( messagedlg( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
                         exit
                       else
                         continue;
@@ -1968,7 +2033,7 @@ begin
                     FName := FileList[i];
                     if DirectoryExists( FName ) then
                     begin
-                      if ( messagedlg( Format( 'Cannot import a directory "%s"', [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                      if ( messagedlg( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
                         exit
                       else
                         continue;
@@ -1988,7 +2053,7 @@ begin
               end;
               else
               begin
-                messagedlg( Format( 'Unknown or unexpected file action (%d)', [ord( myAction )] ), mtError, [mbOK], 0 );
+                messagedlg( Format( STR_67, [ord( myAction )] ), mtError, [mbOK], 0 );
                 exit;
               end;
 
@@ -1997,7 +2062,7 @@ begin
           except
             on E : Exception do
             begin
-              messagedlg( 'Error while importing files: ' + E.Message, mtError, [mbOK], 0 );
+              messagedlg( STR_68 + E.Message, mtError, [mbOK], 0 );
               exit;
             end;
           end;
@@ -2146,7 +2211,7 @@ begin
           end
           else
           begin
-            s := 'Untitled';
+            s := STR_69;
           end;
 
           StatusBar.Panels.BeginUpdate;
@@ -2168,7 +2233,7 @@ begin
           Pages.OnDblClick := nil;
           StatusBar.Panels.BeginUpdate;
           try
-            StatusBar.Panels[PANEL_FILENAME].Text := ' No file ';
+            StatusBar.Panels[PANEL_FILENAME].Text := STR_70;
             StatusBar.Panels[PANEL_CARETPOS].Text := '';
             StatusBar.Panels[PANEL_NOTEINFO].Text := '';
             StatusBar.Panels[PANEL_STATUS].Text := '';
@@ -2180,8 +2245,8 @@ begin
             StatusBar.Panels.EndUpdate;
           end;
           StatusBar.Hint := '';
-          TrayIcon.Hint := Program_Name + ' (no file)';
-          Caption := Format( '%s  %s - (no file)',
+          TrayIcon.Hint := Program_Name + STR_71;
+          Caption := Format( '%s  %s -' + STR_71,
             [Program_Name, Program_Version] );
           Application.Title := Program_Name;
         end;
@@ -2196,17 +2261,17 @@ begin
           WasModified := NoteFile.Modified;
           if KeyOptions.AutoSave then
           begin
-            Statusbar.Panels[PANEL_STATUS].Text := ' Auto';
+            Statusbar.Panels[PANEL_STATUS].Text := STR_72;
           end
           else
           begin
             if WasModified then
             begin
-              Statusbar.Panels[PANEL_STATUS].Text := ' MOD';
+              Statusbar.Panels[PANEL_STATUS].Text := STR_73;
             end
             else
             begin
-              Statusbar.Panels[PANEL_STATUS].Text := ' Saved';
+              Statusbar.Panels[PANEL_STATUS].Text := STR_74;
             end;
           end;
         end
@@ -2417,10 +2482,10 @@ begin
       RegisterFileIcon( _KNL_FILETYPE, ParamStr( 0 ), 0 );
 
       if KeyOptions.AutoRegisterPrompt then
-        messagedlg( Format( 'Successfully created %s registry entries', [ext_KeyNote] ), mtInformation, [mbOK], 0 );
+        messagedlg( Format( STR_75, [ext_KeyNote] ), mtInformation, [mbOK], 0 );
     except
       on E : Exception do
-        MessageDlg( 'There was an error while creating file type associations: ' + e.Message, mtWarning, [mbOK], 0 );
+        MessageDlg( STR_76 + e.Message, mtWarning, [mbOK], 0 );
     end;
   end;
 end; // AssociateKeyNoteFile

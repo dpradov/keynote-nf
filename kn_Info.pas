@@ -47,16 +47,14 @@ interface
 uses Windows, Messages, Classes, Graphics, SysUtils,
   RxRichEd, langs, gf_misc, gf_Const, kn_Const;
 
+resourcestring
+  Program_Desc     = 'Tabbed notebook for Windows 95/98/NT/2000/XP';
+
 const
   Program_Name     = 'KeyNote NF';
   Program_VerStr   = '1.7.4 (rev.2)';
   Program_Version  = '1.7.4';  // Used in program caption
   Program_License  = 'Freeware / Open Source';
-  {$IFDEF DLA_DUNI}
-  Program_Desc     = 'Wersja specjalna dla mojej Ukochanej';
-  {$ELSE}
-  Program_Desc     = 'Tabbed notebook for Windows 95/98/NT/2000/XP';
-  {$ENDIF}
   {
   // these are now stored in GF_Const.pas
   Program_License  = 'This program is Freeware';

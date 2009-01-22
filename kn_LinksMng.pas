@@ -26,6 +26,31 @@ uses
     gf_misc, gf_miscvcl, RxRichEd, kn_TreeNoteMng, kn_History, kn_FindReplaceMng,
     kn_Global, kn_Main, kn_Info, kn_Const, kn_URL, kn_RTFUtils, kn_NoteFileMng, kn_NodeList;
 
+resourcestring
+  STR_01 = 'Note ID not found: %d';
+  STR_02 = 'Note name not found: %s';
+  STR_03 = 'Node ID not found: %d';
+  STR_04 = 'Node name not found: %s';
+  STR_05 = 'Select file to link to';
+  STR_06 = 'Select file to insert';
+  STR_07 = 'The file you selected is not a plain-text or RTF file and cannot be inserted.';
+  STR_08 = 'Cannot insert link to a KeyNote location, because no location has been marked. First, mark a location to which you want to link.';
+  STR_09 = ' Location inserted';
+  STR_10 = ' Current location marked';
+  STR_11 = ' Failed to open location';
+  STR_12 = 'Location does not exist or file cannot be opened: "%s"';
+  STR_13 = 'Invalid location string: %s';
+  STR_14 = ' Invalid location';
+  STR_15 = 'Error executing hyperlink: %s';
+  STR_16 = ' Hold down SHIFT while clicking the URL:  ';
+  STR_17 = ' URL modified';
+  STR_18 = ' URL action canceled';
+  STR_19 = ' URL copied to clipboard';
+  STR_20 = 'Error %d executing hyperlink %s: "%s"';
+  STR_21 = ' History error';
+  STR_22 = ' Cannot navigate to history location';
+  STR_23 = ' History navigation error';
+
 var
    INVALID_CHARS_FN : array[0..8] of string = (
     '*', '?', '"', '<', '>', '|',
@@ -70,12 +95,12 @@ begin
       begin
         Note := notefile.GetNoteByID( NoteID );
         if ( Note = nil ) then
-          raise Exception.CreateFmt( 'Note ID not found: %d', [NoteID] );
+          raise Exception.CreateFmt( STR_01, [NoteID] );
       end
       else begin
         Note := notefile.GetNoteByName( NoteName );
         if ( Note = nil ) then
-          raise Exception.CreateFmt( 'Note name not found: %s', [NoteName] );
+          raise Exception.CreateFmt( STR_02, [NoteName] );
       end;
 
 
@@ -86,12 +111,12 @@ begin
         if ( NodeID <> 0 ) then begin // new format
           myTreeNode := TTreeNote( Note ).GetTreeNodeByID( NodeID );
           if ( myTreeNode = nil ) then
-            raise Exception.CreateFmt( 'Node ID not found: %d', [NodeID] );
+            raise Exception.CreateFmt( STR_03, [NodeID] );
         end
         else begin
           myTreeNode := TTreeNote( Note ).TV.Items.FindNode( [ffText], NodeName, nil );
           if ( myTreeNode = nil ) then
-            raise Exception.CreateFmt( 'Node name not found: %s', [NodeName] );
+            raise Exception.CreateFmt( STR_04, [NodeName] );
         end;
       end;
    end;
@@ -159,9 +184,9 @@ begin
                   FILTER_ALLFILES;
       FilterIndex := 1;
       if AsLink then
-        Title := 'Select file to link to'
+        Title := STR_05
       else
-        Title := 'Select file to insert';
+        Title := STR_06;
       Options := Options - [ofAllowMultiSelect];
       Form_Main.OpenDlg.FileName := '';
       if ( KeyOptions.LastImportPath <> '' ) then
@@ -206,7 +231,7 @@ begin
         ImportFileType := itText
       else
       begin
-        messagedlg( 'The file you selected is not a plain-text or RTF file and cannot be inserted.',
+        messagedlg( STR_07,
           mtError, [mbOK], 0 );
         exit;
       end;
@@ -278,7 +303,7 @@ begin
     if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
     if ( aLocation.NoteName = '') and (aLocation.NoteID = 0) then
     begin
-      showmessage( 'Cannot insert link to a KeyNote location, because no location has been marked. First, mark a location to which you want to link.' );
+      showmessage( STR_08 );
       exit;
     end;
 
@@ -287,7 +312,7 @@ begin
        TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos);
     end;
     InsertHyperlink(BuildKNTLocationText(aLocation),  TextURL, true);
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Location inserted';
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_09;
 
   end
   else
@@ -314,7 +339,7 @@ begin
       SelLength := ActiveNote.Editor.SelLength;
     end;
 
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Current location marked';
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
 
   end;
 
@@ -566,8 +591,8 @@ begin
         if (( not fileexists( Location.FileName )) or
          ( NoteFileOpen( Location.FileName ) <> 0 )) then
         begin
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Failed to open location';
-          raise Exception.CreateFmt( 'Location does not exist or file cannot be opened: "%s"', [origLocationStr] );
+          Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11;
+          raise Exception.CreateFmt( STR_12, [origLocationStr] );
         end;
       end;
 
@@ -604,13 +629,13 @@ begin
     except
       on E : EInvalidLocation do
       begin
-        messagedlg( Format( 'Invalid location string: %s', [E.Message] ), mtError, [mbOK], 0 );
+        messagedlg( Format( STR_13, [E.Message] ), mtError, [mbOK], 0 );
         exit;
       end;
       on E : Exception do
       begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Invalid location';
-        messagedlg( Format( 'Error executing hyperlink: %s', [E.Message] ), mtError, [mbOK], 0 );
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_14;
+        messagedlg( Format( STR_15, [E.Message] ), mtError, [mbOK], 0 );
         exit;
       end;
   end;
@@ -808,7 +833,7 @@ begin
              myURL:= '(KNT) ' + KNTPathFromString(URLstr)
           else
              myURL:= URLstr;
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Hold down SHIFT while clicking the URL:  ' + myURL;
+          Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_16 + myURL;
           exit;
         end;
       end;
@@ -896,20 +921,20 @@ begin
         else
            InsertURL(myURL, TextURL);
 
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' URL modified';
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_17;
         exit;
       end;
 
       if ( myURLAction = urlNothing ) then
       begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' URL action canceled';
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_18;
         exit;
       end;
 
       if ( myURLAction in [urlCopy, urlBoth] ) then
       begin
         Clipboard.SetTextBuf( PChar( myURL ));
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' URL copied to clipboard';
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_19;
       end;
 
       // urlOpenNew is only for HTTP and HTTPS protocols
@@ -978,7 +1003,7 @@ begin
         begin
           if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
           PopupMessage( Format(
-            'Error %d executing hyperlink %s: "%s"',
+            STR_20,
             [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK], 0 );
         end
         else
@@ -1101,7 +1126,7 @@ begin
     aNote.History.AddLocation( myLocation );
 
   except
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' History error';
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_21;
     aNote.History.Clear;
     myLocation.Free;
   end;
@@ -1159,14 +1184,14 @@ begin
         end
         else
         begin
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Cannot navigate to history location';
+          Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_22;
         end;
       finally
         _Executing_History_Jump := false;
         _LastMoveWasHistory := true;
       end;
     except
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' History navigation error';
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_23;
       myHistory.Clear;
     end;
   end;

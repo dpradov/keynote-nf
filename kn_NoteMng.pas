@@ -21,6 +21,13 @@ uses
    kn_Macro, kn_NewNote, kn_TreeNoteMng, kn_Main, kn_FileMgr, kn_EditorUtils,
    kn_MacroMng, kn_BookmarksMng, kn_ConfigFileMng, kn_NoteFileMng, kn_VCLControlsMng;
 
+resourcestring
+  STR_01 = ' New note.';
+  STR_02 = 'Are you sure you want to delete note "%s"?' + #13 + 'This operation cannot be undone.';
+  STR_03 = 'Confirm deleting note';
+  STR_04 = ' Note deleted.';
+  STR_05 = ' Note renamed.';
+
 function NewNote(
   const DefaultNote, CanFocus : boolean;
   const aKind : TNoteType ) : boolean;
@@ -104,7 +111,7 @@ begin
       if assigned( myNote ) then
       begin
         NoteFile.AddNote( myNote );
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' New note.';
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_01;
         try
           with Form_Main do begin
           CreateVCLControlsForNote( myNote );
@@ -164,8 +171,8 @@ begin
       if KeyOptions.ConfirmTabDelete then
       begin
         if ( Application.MessageBox(
-          PChar( Format( 'Are you sure you want to delete note "%s"?' + #13 + 'This operation cannot be undone.', [RemoveAccelChar( ActiveNote.Name )] )),
-            'Confirm deleting note',
+          PChar( Format( STR_02, [RemoveAccelChar( ActiveNote.Name )] )),
+            PChar(STR_03),
             MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
       end;
 
@@ -223,7 +230,7 @@ begin
         except
         end;
         Pages.OnChange := PagesChange;
-        StatusBar.Panels[PANEL_HINT].text := ' Note deleted.';
+        StatusBar.Panels[PANEL_HINT].text := STR_04;
         NoteFile.Modified := true;
         UpdateNoteFileState( [fscModified] );
       end;
@@ -280,7 +287,7 @@ begin
           NoteFile.Modified := true;
           ActiveNote.Name := Form_NewNote.myTabProperties.Name;
           ActiveNote.ImageIndex := Form_NewNote.myTabProperties.ImageIndex;
-          StatusBar.Panels[PANEL_HINT].Text := ' Note renamed.';
+          StatusBar.Panels[PANEL_HINT].Text := STR_05;
         end;
       finally
         Form_NewNote.Free;

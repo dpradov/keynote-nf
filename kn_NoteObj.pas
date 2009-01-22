@@ -387,6 +387,21 @@ var
 
 implementation
 
+resourcestring
+  STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
+  STR_02 = '"%s" is a %s note and cannot be saved using %s format';
+  STR_03 = 'Stream not assigned in LoadDartNotesFormat';
+  STR_04 = 'LoadDartNotes: file format error or file damaged.';
+  STR_05 = 'Problem while saving tree-type note "%s": Node count mismatch (Tree: %d  Internal: %d) ' +
+      'The note may not be saved correctly. Continue?';
+  STR_06 = 'Warning: "%s"';
+  STR_07 = 'Node count mismatch.';
+  STR_08 = 'Virtual node "%s" in note "%s" cannot write file ';
+  STR_09 = 'Note contains %d nodes, but only %d were saved.';
+  STR_10 = 'Could not load Virtual Node file:';
+  STR_11 = 'Failed to open TreePad file ';
+
+
 function LoadedRichEditVersion : integer;
 var
   ModuleHandle : HMODULE;
@@ -838,7 +853,7 @@ begin
 
   if ( FKind <> ntRTF ) then
     raise ETabNoteError.Create(
-      'Fatal: attempted to save an extended note as a simple RTF note.'
+      STR_01
     );
 
   List := TStringList.Create;
@@ -908,7 +923,7 @@ begin
   // Only simple RTF notes are compatible with DartNotes format.
   // If FKind is not ntRTF, bail out
   if ( FKind <> ntRTF ) then
-    raise ETabNoteError.CreateFmt( '"%s" is a %s note and cannot be saved using %s format', [FName, TABNOTE_KIND_NAMES[FKind], FILE_FORMAT_NAMES[nffDartNotes]] );
+    raise ETabNoteError.CreateFmt( STR_02, [FName, TABNOTE_KIND_NAMES[FKind], FILE_FORMAT_NAMES[nffDartNotes]] );
 
   HaveVCLControls := ( CheckTabSheet and CheckEditor );
   if HaveVCLControls then
@@ -1195,7 +1210,7 @@ var
   p, blocklen, rtfoffset : integer;
 begin
   if ( not assigned( Stream )) then
-    raise ETabNoteError.Create( 'Stream not assigned in LoadDartNotesFormat' );
+    raise ETabNoteError.Create( STR_03 );
 
   with FDataStream do
   begin
@@ -1242,7 +1257,7 @@ begin
     except
       on E : EConvertError do
       begin
-        raise Exception.Create( 'LoadDartNotes: file format error or file damaged.' );
+        raise Exception.Create( STR_04 );
       end;
       on E : Exception do raise;
     end;
@@ -2005,18 +2020,16 @@ begin
   wasmismatch := ( HaveVCLControls and (( FTV.Items.Count ) <> ( FNodes.Count )));
   if wasmismatch then
   begin
-    if ( MessageBox( _MainFormHandle, PChar( Format(
-      'Problem while saving tree-type note "%s": Node count mismatch (Tree: %d  Internal: %d) ' +
-      'The note may not be saved correctly. Continue?',
+    if ( MessageBox( _MainFormHandle, PChar( Format(STR_05,
       [FName,FTV.Items.Count,FNodes.Count]
     )),
     PChar( Format(
-      'Warning: "%s"',
+      STR_06,
       [FName]
      )), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON1+MB_APPLMODAL ) <> ID_YES ) then
     begin
       raise ETabNoteError.Create(
-        'Node count mismatch.'
+        STR_07
       );
     end;
   end;
@@ -2142,7 +2155,7 @@ begin
               // We should allow user to ABORT here or
               // to skip subsequent error messages
               messagedlg( Format(
-                'Virtual node "%s" in note "%s" cannot write file ' + #13 + '%s' + #13#13 + '%s',
+                STR_08 + #13 + '%s' + #13#13 + '%s',
                 [notenode.Name, self.Name, notenode.VirtualFN, E.Message ] ),
                 mtError, [mbOK], 0 );
             end;
@@ -2176,7 +2189,7 @@ begin
     if ( nodessaved <> FNodes.Count ) then
     begin
       raise ETabNoteError.CreateFmt(
-        'Note contains %d nodes, but only %d were saved.',
+        STR_09,
         [FNodes.Count, nodessaved]
       );
     end;
@@ -2323,7 +2336,7 @@ begin
           except
             on E : Exception do
             begin
-              List.Add( 'Could not load Virtual Node file:' );
+              List.Add( STR_10 );
               List.Add( myNode.VirtualFN );
               List.Add( E.Message );
               myNode.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + myNode.VirtualFN;
@@ -2661,7 +2674,7 @@ begin
   try
     reset( tf );
   except
-    messagedlg( 'Failed to open TreePad file ' + FN, mtError, [mbOK], 0 );
+    messagedlg( STR_11 + FN, mtError, [mbOK], 0 );
     exit;
   end;
 

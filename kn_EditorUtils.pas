@@ -65,6 +65,68 @@ uses
   kn_NoteFileMng, kn_Main, kn_TreeNoteMng, GFTipDlg;
 
 
+resourcestring
+  STR_Gloss_01 = ' Function not available';
+  STR_Gloss_02 = ' No word at cursor';
+  STR_Gloss_03 = ' Word not in glossary. Use Shift+F7 to add.';
+  STR_Gloss_04 = 'Term expansion glossary "%s" is not loaded.';
+  STR_Gloss_05 = 'Glossary term already exists: "%s" -> "%s". OK to redefine term as "%s"?';
+  STR_Gloss_06 = ' Added to glossary: "%s" -> "%s"';
+  STR_Bracket_01 = ' No valid bracket at cursor position ';
+  STR_Bracket_02 = ' Matching bracket FOUND';
+  STR_Bracket_03 = ' Matching bracket NOT FOUND';
+  STR_Trim_01 = 'OK to trim white space characters in whole note?';
+  STR_Compress_01 = 'OK to compress white space characters in whole note?';
+  STR_Eval_01 = ' Result: ';
+  STR_Eval_02 = 'Paste last eval result: ';
+  STR_Eval_03 = 'Expression %s evaluates to: %s' + #13#13 + 'Result was copied to clipboard. Click OK to insert.';
+  STR_Img_01 = 'Select image to insert';
+  STR_ConvDec_01 = 'Convert decimal to Roman';
+  STR_ConvDec_02 = 'Enter a decimal number:';
+  STR_ConvDec_03 = '%s is not a valid number';
+  STR_ConvRoman_01 = 'Convert Roman to decimal';
+  STR_ConvRoman_02 = 'Enter a Roman number:';
+  STR_ConvRoman_03 = '%s is not a valid Roman number';
+  STR_Statistics_01 = ' Calculating statistics... Please wait';
+  STR_Statistics_02 = 'Selected text';
+  STR_Statistics_03 = 'Note text';
+  STR_Statistics_04 = '%s statistics' + #13#13 +
+       'Characters: %s' + #13 +
+       'Alphabetic: %s' + #13 +
+       'Whitespace: %s' + #13#13 +
+       'Words: %s' + #13 +
+       'Lines: %s';
+  STR_Statistics_05 = 'Number of nodes in tree: %d';
+  STR_Statistics_06 = 'Chars: %d  Alph: %d  Words: %d';
+  STR_Statistics_07 = 'Clik OK to copy information to clipboard.';
+  STR_WordWeb_01 = 'Lookup in WordWeb';
+  STR_WordWeb_02 = 'Enter word to look up:';
+  STR_WordWeb_03 = 'Error loading WordWeb. The program may not be installed ' +
+            'on your computer. See file "wordweb.txt" for more information.' +
+            #13#13 +
+            'Error message: ';
+  STR_UAS_01 = 'UAS path';
+  STR_UAS_02 = 'Please specify full path to uas.exe';
+  STR_UAS_03 = 'KeyNote cannot find the location of uas.exe. UltimaShell Autocompletion Server will not be loaded.';
+  STR_UAS_04 = ' UltimaShell Autocompletion Server loaded.';
+  STR_UAS_05 = 'Cannot load UltimaShell Autocompletion Server. It may not be installed. Would you like to go to the UAS website and download the application?';
+  STR_UAS_06 = ' UltimaShell Autocompletion Server unloaded.';
+  STR_UAS_07 = ' UltimaShell Autocompletion Server is not loaded.';
+  STR_ClipCap_01 = 'A Read-Only note cannot be used for clipboard capture.';
+  STR_ClipCap_02 = 'a new node';
+  STR_ClipCap_03 = 'whichever node is currently selected';
+  STR_ClipCap_04 = 'This is a %s note. Each copied item will be pasted into %s in the tree. Continue?';
+  STR_ClipCap_05 = ' Clipboard capture is now ';
+  STR_ClipCap_06 = ' Capturing text from clipboard';
+  STR_ClipCap_07 = 'Cannot obtain tree node for pasting data.';
+  STR_ClipCap_08 = '[source: ';
+  STR_ClipCap_09 = ' Clipboard capture done';
+  STR_Print_01 = 'Current note is a Tree-type note and contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.';
+  STR_Print_02 = 'Replace editor contents with result from spellchecker?';
+  STR_Zoom_01 = 'Invalid zoom ratio: ';
+  STR_Tip_01 = 'Cannot display Tip of the Day: file "%s" not found.';
+  STR_Tip_02 = ': Tip of the Day';
+
 //=================================================================
 // ExpandTermProc
 //=================================================================
@@ -76,7 +138,7 @@ begin
   with Form_Main do begin
       if ( not ( assigned( GlossaryList ) and assigned( ActiveNote ) and ( ActiveNote.FocusMemory = focRTF ))) then
       begin
-        StatusBar.Panels[PANEL_HINT].Text := ' Function not available';
+        StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_01;
         exit;
       end;
       if NoteIsReadOnly( ActiveNote, true ) then exit;
@@ -93,7 +155,7 @@ begin
 
       if ( length( w ) = 0 ) then
       begin
-        StatusBar.Panels[PANEL_HINT].Text := ' No word at cursor';
+        StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_02;
         exit;
       end;
 
@@ -101,7 +163,7 @@ begin
 
       if ( replw = '' ) then
       begin
-        StatusBar.Panels[PANEL_HINT].Text := ' Word not in glossary. Use Shift+F7 to add.';
+        StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_03;
         exit;
       end;
 
@@ -127,8 +189,7 @@ var
 begin
   if ( not assigned( GlossaryList )) then
   begin
-    showmessage( Format(
-      'Term expansion glossary "%s" is not loaded.', [Glossary_FN] ));
+    showmessage( Format(STR_Gloss_04, [Glossary_FN] ));
     exit;
   end;
 
@@ -161,8 +222,7 @@ begin
 
           if ( GlossaryList.IndexOfName( nstr ) >= 0 ) then
           begin
-            if ( messagedlg( Format(
-              'Glossary term already exists: "%s" -> "%s". OK to redefine term as "%s"?',
+            if ( messagedlg( Format(STR_Gloss_05,
               [nstr,GlossaryList.Values[nstr],vstr] ),
               mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
           end;
@@ -175,9 +235,7 @@ begin
               GlossaryList.Sorted := true;
             end;
             GlossaryList.SaveToFile( Glossary_FN );
-            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(
-              ' Added to glossary: "%s" -> "%s"',
-              [nstr,vstr] );
+            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Gloss_06, [nstr,vstr] );
           except
             on E : Exception do
               showmessage( E.Message );
@@ -330,7 +388,7 @@ begin
     end
     else
     begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' No valid bracket at cursor position ';
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Bracket_01;
       exit;
     end;
   end;
@@ -415,7 +473,7 @@ begin
 
   if Found then
   begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Matching bracket FOUND';
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Bracket_02;
     with ActiveNote.Editor do
     begin
       SelStart := Perform( EM_LINEINDEX, p.y, 0 );
@@ -426,7 +484,7 @@ begin
   end
   else
   begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Matching bracket NOT FOUND';
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Bracket_03;
   end;
 end; // MatchBracket
 
@@ -445,7 +503,7 @@ begin
 
   if ( ActiveNote.Editor.SelLength = 0 ) then
   begin
-    if ( messagedlg( 'OK to trim white space characters in whole note?',
+    if ( messagedlg( STR_Trim_01,
       mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
   end;
 
@@ -525,7 +583,7 @@ begin
 
   if ( ActiveNote.Editor.SelLength = 0 ) then
   begin
-    if ( messagedlg( 'OK to compress white space characters in whole note?',
+    if ( messagedlg( STR_Compress_01,
       mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
   end;
 
@@ -654,8 +712,8 @@ begin
         if ( not MathParser.ParseError ) then
         begin
           Clipboard.SetTextBuf( PChar( LastEvalExprResult ));
-          StatusBar.Panels[PANEL_HINT].Text := ' Result: ' + LastEvalExprResult;
-          MMEditPasteEval.Hint := 'Paste last eval result: ' + LastEvalExprResult;
+          StatusBar.Panels[PANEL_HINT].Text := STR_Eval_01 + LastEvalExprResult;
+          MMEditPasteEval.Hint := STR_Eval_02 + LastEvalExprResult;
 
           if ( KeyOptions.AutoPasteEval and ( not NoteIsReadOnly( ActiveNote, false ))) then
           begin
@@ -666,7 +724,7 @@ begin
           end
           else
           begin
-            if ( messagedlg( 'Expression ' + src + ' evaluates to: ' + LastEvalExprResult + #13#13 + 'Result was copied to clipboard. Click OK to insert.', mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
+            if ( messagedlg( Format( STR_Eval_03, [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
             begin
               if ( not NoteIsReadOnly( ActiveNote, true )) then
               begin
@@ -759,7 +817,7 @@ begin
       with OpenPictureDlg do
       begin
         Options := [ofHideReadOnly,ofPathMustExist,ofFileMustExist];
-        Title := 'Select image to insert';
+        Title := STR_Img_01;
         Filter := Format( '%s|%s|%s', [
           GraphicFilter(TBitmap),
           GraphicFilter(TGIFImage),
@@ -811,7 +869,7 @@ begin
 
   s := ActiveNote.Editor.SelText;
   if ( s = '' ) then
-    InputQuery( 'Convert decimal to Roman', 'Enter a decimal number:', s );
+    InputQuery( STR_ConvDec_01, STR_ConvDec_02, s );
   if ( s = '' ) then exit;
 
   try
@@ -819,7 +877,7 @@ begin
     i := strtoint( s );
     s := DecToRoman( i );
   except
-    messagedlg( Format( '%s is not a valid number', [s] ), mtError, [mbOK], 0 );
+    messagedlg( Format( STR_ConvDec_03, [s] ), mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -841,14 +899,14 @@ begin
 
   s := ActiveNote.Editor.SelText;
   if ( s = '' ) then
-    InputQuery( 'Convert Roman to decimal', 'Enter a Roman number:', s );
+    InputQuery( STR_ConvRoman_01, STR_ConvRoman_02, s );
   if ( s = '' ) then exit;
 
   try
     s := uppercase( trim( s ));
     i := RomanToDec( s );
   except
-    messagedlg( Format( '%s is not a valid Roman number', [s] ), mtError, [mbOK], 0 );
+    messagedlg( Format( STR_ConvRoman_03, [s] ), mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -872,7 +930,7 @@ var
 begin
   if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Calculating statistics... Please wait';
+  Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Statistics_01;
 
   screen.Cursor := crHourGlass;
 
@@ -883,12 +941,12 @@ begin
     if ( ActiveNote.Editor.SelLength > 0 ) then
     begin
       lista.Text := ActiveNote.Editor.SelText;
-      title := 'Selected text';
+      title := STR_Statistics_02;
     end
     else
     begin
       lista.Text := ActiveNote.Editor.Lines.Text;
-      title := 'Note text';
+      title := STR_Statistics_03;
     end;
 
     numLines := lista.count;
@@ -932,26 +990,19 @@ begin
     screen.Cursor := crDefault;
   end;
 
-  s := Title + ' statistics' + #13#13 +
-       'Characters: ' + inttostr( numChars ) + #13 +
-       'Alphabetic: ' + inttostr( numAlpChars ) + #13 +
-       'Whitespace: ' + inttostr( numSpaces ) + #13#13 +
-       'Words: ' + inttostr( numWords ) + #13 +
-       'Lines: ' + inttostr( numLines );
+  s := format(STR_Statistics_04,[Title,inttostr( numChars ),inttostr( numAlpChars ),
+                inttostr( numSpaces ),inttostr( numWords ),inttostr( numLines )]);
 
   if ( ActiveNote.Kind = ntTree ) then
   begin
     numNodes := TTreeNote( ActiveNote ).TV.Items.Count;
-    s := s + #13#13 + Format( 'Number of nodes in tree: %d',
-      [numNodes] );
+    s := s + #13#13 + Format( STR_Statistics_05,  [numNodes] );
   end;
 
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(
-    'Chars: %d  Alph: %d  Words: %d',
-    [numChars, numAlpChars, numWords]
-  );
+    STR_Statistics_06, [numChars, numAlpChars, numWords] );
 
-  if ( messagedlg( s + #13#13 + 'Clik OK to copy information to clipboard.', mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
+  if ( messagedlg( s + #13#13 + STR_Statistics_07, mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
     Clipboard.SetTextBuf( Pchar( s ));
 
 end; // ShowStatistics
@@ -982,14 +1033,11 @@ begin
 
   if ( myWord = '' ) then
   begin
-    if ( not InputQuery( 'Lookup in WordWeb', 'Enter word to look up:', myWord )) then
+    if ( not InputQuery( STR_WordWeb_01, STR_WordWeb_02, myWord )) then
       exit;
   end;
 
-  errmsg := 'Error loading WordWeb. The program may not be installed ' +
-            'on your computer. See file "wordweb.txt" for more information.' +
-            #13#13 +
-            'Error message: ';
+  errmsg := STR_WordWeb_03;
 
   WordWeb := nil;
   try
@@ -1052,7 +1100,7 @@ begin
         if ( not fileexists( UASPath )) then
         begin
           // ...we don't so ask user and check answer
-          if ( InputQuery( 'UAS path', 'Please specify full path to uas.exe', UASPath ) and
+          if ( InputQuery( STR_UAS_01, STR_UAS_02, UASPath ) and
                fileexists( UASPath )) then
           begin
             KeyOptions.UASPath := UASPath; // found it, so store it for later
@@ -1060,7 +1108,7 @@ begin
           else
           begin
             // user canceled or entered invalid path, so bail out
-            messagedlg( 'KeyNote cannot find the location of uas.exe. UltimaShell Autocompletion Server will not be loaded.', mtError, [mbOK], 0 );
+            messagedlg( STR_UAS_03, mtError, [mbOK], 0 );
             KeyOptions.UASEnable := false;
             exit;
           end;
@@ -1081,13 +1129,13 @@ begin
       if KeyOptions.UASEnable then
       begin
         // success
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' UltimaShell Autocompletion Server loaded.';
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_04;
       end
       else
       begin
         // something went wrong
         KeyOptions.UASEnable := false;
-        if ( messagedlg( 'Cannot load UltimaShell Autocompletion Server. It may not be installed. Would you like to go to the UAS website and download the application?', mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
+        if ( messagedlg( STR_UAS_05, mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
         begin
           GoDownloadUAS;
         end;
@@ -1098,7 +1146,7 @@ begin
       if ( UAS_Window_Handle <> 0 ) then
       begin
         SendMessage(GetUASWnd,WM_CLOSE,0,0);
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' UltimaShell Autocompletion Server unloaded.';
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_06;
       end;
     end;
 
@@ -1121,7 +1169,7 @@ var
 begin
   if ( UAS_Window_Handle = 0 ) then
   begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' UltimaShell Autocompletion Server is not loaded.';
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_07;
     exit;
   end;
 
@@ -1154,7 +1202,7 @@ begin
             if aNote.ReadOnly then
             begin
               TB_ClipCap.Down := false;
-              PopupMessage( 'A Read-Only note cannot be used for clipboard capture.', mtInformation, [mbOK], 0 );
+              PopupMessage( STR_ClipCap_01, mtInformation, [mbOK], 0 );
               exit;
             end;
 
@@ -1167,11 +1215,11 @@ begin
               else
               begin
                 if ClipOptions.PasteAsNewNode then
-                  nodemode := 'a new node'
+                  nodemode := STR_ClipCap_02
                 else
-                  nodemode := 'whichever node is currently selected';
+                  nodemode := STR_ClipCap_03;
                 case MessageDlg( Format(
-                  'This is a %s note. Each copied item will be pasted into %s in the tree. Continue?',
+                  STR_ClipCap_04,
                   [TABNOTE_KIND_NAMES[aNote.Kind], nodemode] ), mtConfirmation, [mbOK,mbCancel], 0 ) of
                   mrOK : begin
                     ClipCapNode := GetCurrentNoteNode;
@@ -1232,7 +1280,7 @@ begin
         Pages.Invalidate; // force redraw to update "MarkedPage" tab color
         MMNoteClipCapture.Checked := ( NoteFile.ClipCapNote <> nil );
         TMClipCap.Checked := MMNoteClipCapture.Checked;
-        StatusBar.Panels[PANEL_HINT].Text := ' Clipboard capture is now ' + TOGGLEARRAY[(NoteFile.ClipCapNote <> nil)];
+        StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_05 + TOGGLEARRAY[(NoteFile.ClipCapNote <> nil)];
       end;
   end;
 
@@ -1306,7 +1354,7 @@ begin
 
         PasteOK := true;
         try
-          StatusBar.Panels[PANEL_HINT].Text := ' Capturing text from clipboard';
+          StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_06;
           if ClipOptions.URLOnly then
           begin
             // [x] NOT IMPLEMENTED
@@ -1373,7 +1421,7 @@ begin
               if ( not assigned( myTreeNode )) then
               begin
                 PasteOK := false;
-                PopupMessage( 'Cannot obtain tree node for pasting data.', mtError, [mbOK], 0 );
+                PopupMessage( STR_ClipCap_07, mtError, [mbOK], 0 );
                 exit;
               end;
             end;
@@ -1390,7 +1438,7 @@ begin
 
             if ( SourceURLStr <> '' ) then
             begin
-              AuxStr := '[source: ' + SourceURLStr + ']' + #13;
+              AuxStr := STR_ClipCap_08 + SourceURLStr + ']' + #13;
               with NoteFile.ClipCapNote.Editor do
               begin
                 SelText := AuxStr;
@@ -1427,7 +1475,7 @@ begin
               TNoteNode( myTreeNode.Data ).RTFModified := true;
             end;
 
-            StatusBar.Panels[PANEL_HINT].Text := ' Clipboard capture done';
+            StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_09;
             wavfn := extractfilepath( application.exename ) + 'clip.wav';
             if ( ClipOptions.PlaySound and fileexists( wavfn )) then
             begin
@@ -1578,8 +1626,7 @@ begin
   PrintAllNodes := false;
 
   if (( ActiveNote.Kind = ntTree ) and ( TTreeNote( ActiveNote ).TV.Items.Count > 1 )) then
-  case messagedlg(
-      'Current note is a Tree-type note and contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.',
+  case messagedlg(STR_Print_01,
       mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
     mrYes : PrintAllNodes := true;
     mrNo : PrintAllNodes := false;
@@ -1677,8 +1724,7 @@ begin
       ActiveNote.Editor.CopyToClipboard;
       if AJBSpell.CheckClipboardSpell then
       begin
-        if ( messagedlg( 'Replace editor contents with result from spellchecker?',
-          mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
+        if ( messagedlg( STR_Print_02, mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
         begin
           ActiveNote.Editor.PasteFromClipboard;
         end;
@@ -1750,7 +1796,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( 'Invalid zoom ratio: ' + E.Message, mtError, [mbOK], 0 );
+            messagedlg( STR_Zoom_01 + E.Message, mtError, [mbOK], 0 );
             NewZoom := CurrentZoom;
           end;
         end;
@@ -1782,9 +1828,7 @@ var
 begin
   if ( not fileexists( TIP_FN )) then
   begin
-    PopupMessage( Format(
-      'Cannot display Tip of the Day: file "%s" not found.',
-      [extractfilename( TIP_FN )] ), mtInformation, [mbOK], 0 );
+    PopupMessage( Format(STR_Tip_01, [extractfilename( TIP_FN )] ), mtInformation, [mbOK], 0 );
     // turn tips off, so that we don't get this error message
     // every time KeyNote starts. (e.g. if user deleted the .tip file)
     KeyOptions.TipOfTheDay := false;
@@ -1801,7 +1845,7 @@ begin
     begin
       ShowAtStartup := KeyOptions.TipOfTheDay;
       TipFile := TIP_FN;
-      DlgCaption := Program_Name + ': Tip of the Day';
+      DlgCaption := Program_Name + STR_Tip_02;
       PanelColor := _GF_CLWINDOW;
       TipFont.Size := 10;
       TipTitleFont.Size := 12;

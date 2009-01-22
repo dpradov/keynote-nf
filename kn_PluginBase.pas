@@ -46,6 +46,21 @@ unit kn_PluginBase;
 interface
 uses Windows;
 
+resourcestring
+  STR_01 = 'StatusOK';
+  STR_02 = 'Gets data';
+  STR_03 = 'Gets RTF';
+  STR_04 = 'Gets selection';
+  STR_05 = 'Returns data';
+  STR_06 = 'Returns RTF';
+  STR_07 = 'Returns clipboard';
+  STR_08 = 'Needs selection';
+  STR_09 = 'Wants new note';
+  STR_10 = 'Wants dialog box';
+  STR_11 = 'Wants saved file';
+  STR_12 = 'Reload file';
+  STR_13 = 'Stays resident';
+
 const
   // arbitrary, maximum length of text that KeyNote will
   // display in a dialog box. If plugin wants KeyNote
@@ -188,19 +203,19 @@ const
   // in KeyNote, to notify user about the features of
   // each installed plugins. The plugins themselves do
   // not use these constants.
-    'StatusOK',
-    'Gets data',
-    'Gets RTF',
-    'Gets selection',
-    'Returns data',
-    'Returns RTF',
-    'Returns clipboard',
-    'Needs selection',
-    'Wants new note',
-    'Wants dialog box',
-    'Wants saved file',
-    'Reload file',
-    'Stays resident'
+    STR_01,
+    STR_02,
+    STR_03,
+    STR_04,
+    STR_05,
+    STR_06,
+    STR_07,
+    STR_08,
+    STR_09,
+    STR_10,
+    STR_11,
+    STR_12,
+    STR_13
   );
 
 

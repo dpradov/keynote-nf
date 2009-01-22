@@ -1344,6 +1344,112 @@ uses RxGIF{, jpeg}, kn_Global, kn_ExportNew,
 {$R *.DFM}
 {$R catimages}
 
+resourcestring
+  STR_01 = 'Unable to assign "%s" as activation hotkey.';
+  STR_02 = 'Unexpcted error while turning %s Activation hotkey "%s": %s';
+  STR_03 = '&Restore (%s)';
+  STR_04 = '&Restore';
+  STR_05 = 'Function key assignment updated';
+  STR_06 = 'Revert to last saved version of' + #13 + '%s?';  ////
+  STR_07 = 'OK to quit %s?';   ///
+  STR_08 = 'Unexpected error:  %s' + #13#13 +      ///
+    'This message may indicate a bug in KeyNote NF. If the problem persists, please submit a bug reports with the Issue Manager' +
+    ' available in KeyNote NF website: %s' + #13#13 +
+    'You can continue working or terminate KeyNote NF. ' + #13 +
+    'Terminate application?';
+  STR_09 = 'KeyNote NF Error';
+  STR_10 = 'Function not implemented. ';
+  STR_11 = ' INS';
+  STR_12 = ' OVR';
+  STR_13 = ' Overwrite mode disabled through INI file';
+  STR_14 = 'Tree node not assigned. Text will be lost.' + #13 + 'Please create a tree node first.';
+  STR_15_ActiveNote = '(none)';
+  STR_16 = ' Select some text before issuing this command.';
+  STR_17 = 'You seem to have upgraded KeyNote from version %s to %s.' + #13 +
+    'Files "history.txt" and "%s" contain information about ' +
+    'the latest changes and additions.' + #13#13 +
+    'Do you want to view the file "history.txt" now?';
+  STR_18 = 'History file not found: "%s"';
+  STR_19 = 'Custom date formats reloaded (%d)';
+  STR_20 = 'Cannot load custom date formats from %s. Check if the file exists.';
+  STR_21 = 'Custom time formats reloaded (%d)';
+  STR_22 = 'Cannot load custom time formats from %s. Check if the file exists.';
+  STR_23 = 'Remove Filter on tree note';
+  STR_24 = 'Apply Filter on tree note';
+  STR_25 = 'This operation cannot be performed because no file is open.';
+  STR_26 = 'This operation cannot be performed because the currently open file has no notes.';
+  STR_27 = ' Cannot perform operation: Note is Read-Only';
+  STR_28 = 'CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message: ';
+  STR_29 = ' Printing note...';
+  STR_30 = ' Finished printing note.';
+  STR_31 = ' Preparing to send note via email...';
+  STR_32 = ' Note sent';
+  STR_33 = ' Note not sent';
+  STR_34 = 'Alarm set at: ';
+  STR_35 = 'Set alarm...';
+  STR_36 = 'Drag: ';
+  STR_37 = 'TV dragover';
+  STR_38_Dragged = '<nothing>';
+  STR_39 = 'Cannot drop node %s on itself';
+  STR_41= 'Cannot drop node %s - invalid source';
+  STR_42= 'Cannot drop node %s onto its child %s';
+  STR_43= 'Node "%s" promoted to TOP';
+  STR_44= 'Node "%s" promoted to parent''s level';
+  STR_45= 'Node "%s" moved to top of siblings';
+  STR_46= 'Node "%s" inserted after node "%s"';
+  STR_47= 'Node "%s" made child of node "%s"';
+  STR_48= 'Nothing to drop or invalid drop target';
+  STR_49= 'OK to sort the entire tree?';
+  STR_50= ' Node name cannot be blank!';
+  STR_51= ' Node renamed.';
+  STR_52= ' Cannot edit: Note is read-only.';
+  STR_53= 'Edit node name';
+  STR_54= 'Enter new name:';
+  STR_55= 'Node name cannot be blank!';
+  STR_56= 'Parser stack overflow';
+  STR_57= 'Bad cell range';
+  STR_58= 'Expected expression';
+  STR_59= 'Expected operator';
+  STR_60= 'Expected opening parenthesis';
+  STR_61= 'Expected operator or closing parenthesis';
+  STR_62= 'Invalid numeric expression';
+  STR_63= 'Cannot evaluate: ';
+  STR_64= 'Error at position ';
+  STR_65= 'No notes in file, or current note is not a Tree-type note.';
+  STR_66= 'Find tree node';
+  STR_67= 'Find node containing text:';
+  STR_68= ' Node not found!';
+  STR_69= 'The Style toolbar must be visible to use this command. Show the Style toolbar now?';
+  STR_70= 'No style available or none selected';
+  STR_71= 'Error: StyleManager does not exist.';
+  STR_72= 'Tree nodes can only be dropped on the tree, or on another tab.';
+  STR_73= 'Cannot transfer nodes to "%s", because it is not a Tree-type note.';
+  STR_74= 'Cannot transfer nodes to "%s", because target note is Read-Only.';
+  STR_75= 'Move';
+  STR_76= 'Copy';
+  STR_77= '%s dragged nodes to tab "%s"?';
+  STR_78= 'Failed to acquire source nodes.';
+  STR_79= ' Tab %d: %s';
+  STR_80= 'Unexpected error.';
+  STR_81= 'Could not open KeyNote file "%s"';
+  STR_82= 'This command will start your browser and direct it to KeyNote NF website, where ' +
+    'you can download the latest version of the program, read the FAQ, submit bug reports or feature requests with the Issue Manager. ' +  #13+#13+
+    'There is also a discussion mailing list where you can post questions and discuss about the program.' + #13+#13 + 'Continue?';
+  STR_82B= 'Save tree structure to file';
+  STR_83= 'Hide &Resource Panel';
+  STR_84= 'Show &Resource Panel';
+  STR_85= 'Results';
+  STR_86= 'Options';
+  STR_87= 'Cannot hide the last visible tab. At least one tab must remain visible on the resource panel.';
+  STR_88= 'Resource panel position will be updated after KeyNote is restarted.';
+  STR_89= 'External: %s';
+  STR_90= ' File: ';
+  STR_91= ' Node: ';
+  STR_92= '%s Note: %s%s';
+  STR_93= 'Double-click to insert selected template';
+  STR_94= 'Toolbar configuration file "%s" not found. Default toolbar configuration file has been created.';
+  STR_95= 'Saved toolbar layout to "%s".';
+
 const
   _TIMER_INTERVAL = 10000; // ten seconds
 
@@ -1394,7 +1500,7 @@ begin
             // because only the first instance will be able to register the hotkey,
             // so we would ALWAYS be getting the damn warning on each subsequent instance.
             Messagedlg( Format(
-              'Unable to assign "%s" as activation hotkey.',
+              STR_01,
               [ShortCutToText( KeyOptions.HotKey )] ),
               mtWarning, [mbOK], 0 );
           end;
@@ -1413,7 +1519,7 @@ begin
     begin
       HotKeySuccess := false;
       messagedlg( Format(
-        'Unexpcted error while turning %s Activation hotkey "%s": %s',
+        STR_02,
         [TOGGLEARRAY[TurnOn], ShortCutToText( KeyOptions.HotKey ), E.Message]
         ), mtError, [mbOK], 0 );
 
@@ -1422,10 +1528,10 @@ begin
 
   if HotKeySuccess then
     TMRestore.Caption := Format(
-      '&Restore (%s)', [ShortCutToText( KeyOptions.HotKey )]
+      STR_03, [ShortCutToText( KeyOptions.HotKey )]
     )
   else
-    TMRestore.Caption := '&Restore';
+    TMRestore.Caption := STR_04;
 
 end; // HotKeyProc
 
@@ -1629,7 +1735,7 @@ begin
         end;
         _CFG_RELOAD_KEYS : begin
           ReadFuncKeys;
-          StatusBar.Panels[PANEL_HINT].Text := 'Function key assignment updated';
+          StatusBar.Panels[PANEL_HINT].Text := STR_05;
         end;
       end;
     end;
@@ -1682,7 +1788,7 @@ begin
     begin
       if ( NoteFileToLoad = NoteFile.FileName ) then
       begin
-        if ( PopupMessage( 'Revert to last saved version of' + #13 + NoteFile.Filename + '?', mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+        if ( PopupMessage( format(STR_06, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
         NoteFile.Modified := false; // to prevent automatic save if modified
       end;
     end;
@@ -1745,7 +1851,7 @@ begin
 
   if CanClose then
     if ( KeyOptions.ConfirmExit and ( not ClosedByWindows )) then
-      CanClose := ( PopupMessage( 'OK to quit ' + Program_Name + '?', mtConfirmation, [mbYes,mbNo], 0 ) = mrYes );
+      CanClose := ( PopupMessage( format(STR_07, [Program_Name]), mtConfirmation, [mbYes,mbNo], 0 ) = mrYes );
   { note: if windows is closing, we do not honor the "Confirm exit" config option }
 
   try
@@ -2186,13 +2292,7 @@ begin
   {$ENDIF}
 
   If Application.MessageBox(
-    PChar( 'Unexpected error:  ' +
-    E.Message + #13#13 +
-    'This message may indicate a bug in KeyNote. If the problem persists, please contact the author at <' +
-    Program_Email + '>.' + #13#13 +
-    'You can continue working or terminate KeyNote. ' + #13 +
-    'Terminate application?' ),
-    'KeyNote Error',
+    PChar(format(STR_08, [E.Message, URL_Issues])), PChar(STR_09),
     MB_YESNO+MB_SYSTEMMODAL+MB_ICONHAND+MB_DEFBUTTON2) = ID_YES Then
   begin
     ClosedByWindows := true; // means: don't display exit confirmation dialog
@@ -2204,7 +2304,7 @@ end; // ShowException
 
 procedure TForm_Main.NotImplemented( const aStr : string );
 begin
-  PopupMessage( 'Function not implemented. ' + aStr, mtInformation, [mbOK], 0 );
+  PopupMessage( STR_10 + aStr, mtInformation, [mbOK], 0 );
   {$IFDEF MJ_DEBUG}
   Log.Add( 'Not implemented call: ' + aStr );
   {$ENDIF}
@@ -2322,9 +2422,9 @@ end; // AnotherInstance
 procedure TForm_Main.ShowInsMode;
 begin
   if ActiveNote.IsInsertMode then
-    StatusBar.Panels[PANEL_INS].Text := ' INS'
+    StatusBar.Panels[PANEL_INS].Text := STR_11
   else
-    StatusBar.Panels[PANEL_INS].Text := ' OVR';
+    StatusBar.Panels[PANEL_INS].Text := STR_12;
 end; // ShowInsMode
 
 procedure TForm_Main.PagesDblClick(Sender: TObject );
@@ -2583,7 +2683,7 @@ begin
         if EditorOptions.DisableINSKey then
         begin
           key := 0;
-          StatusBar.Panels[PANEL_HINT].Text := ' Overwrite mode disabled through INI file';
+          StatusBar.Panels[PANEL_HINT].Text := STR_13;
         end
         else
           PerformCmdEx( ecInsOvrToggle );
@@ -2843,7 +2943,7 @@ begin
         if assigned( SelectedNode ) then
           SelectedNode.RTFModified := true
         else
-          messagedlg( 'Tree node not assigned. Text will be lost.' + #13 + 'Please create a tree node first.', mtError, [mbOK], 0 );
+          messagedlg( STR_14, mtError, [mbOK], 0 );
       end;
     end;
   end;
@@ -2930,7 +3030,7 @@ begin
     begin
       ActiveNote := nil;
       TB_Color.AutomaticColor := clWindowText;
-      TAM_ActiveName.Caption := '(none)';
+      TAM_ActiveName.Caption := STR_15_ActiveNote;
     end;
   finally
     UpdateNoteDisplay;
@@ -3025,7 +3125,7 @@ end; // NoteSelText
 
 procedure TForm_Main.ErrNoTextSelected;
 begin
-  StatusBar.Panels[PANEL_HINT].Text := ' Select some text before issuing this command.';
+  StatusBar.Panels[PANEL_HINT].Text := STR_16;
 end;
 
 procedure TForm_Main.NewVersionInformation;
@@ -3035,11 +3135,7 @@ begin
   KeyOptions.TipOfTheDay := true;
   KeyOptions.TipOfTheDayIdx := -1;
   case messagedlg(
-    Format(
-    'You seem to have upgraded KeyNote from version %s to %s.' + #13 +
-    'Files "history.txt" and "%s" contain information about ' +
-    'the latest changes and additions.' + #13#13 +
-    'Do you want to view the file "history.txt" now?'
+    Format(STR_17
     , [KeyOptions.LastVersion, Program_VerStr, SampleFileName] ),
     mtInformation, [mbYes,mbNo], 0
   ) of
@@ -3058,7 +3154,7 @@ begin
   if fileexists( fn ) then
     ShellExecute( 0, 'open', PChar( fn ), nil, nil, SW_NORMAL )
   else
-    messagedlg( Format( 'History file not found: "%s"', [fn] ), mtError, [mbOK], 0 );
+    messagedlg( Format( STR_18, [fn] ), mtError, [mbOK], 0 );
 end; // DisplayHistoryFile
 
 procedure TForm_Main.Combo_FontChange(Sender: TObject);
@@ -3607,9 +3703,9 @@ begin
   if ShiftDown and ( sender is TToolbarButton97 ) then
   begin
     if LoadDateFormatsList then
-      messagedlg( Format( 'Custom date formats reloaded (%d)', [DATE_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
+      messagedlg( Format( STR_19, [DATE_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
     else
-      messagedlg( Format( 'Cannot load custom date formats from %s. Check if the file exists.', [_DateFormatsFile] ), mtError, [mbOK], 0 );
+      messagedlg( Format( STR_20, [_DateFormatsFile] ), mtError, [mbOK], 0 );
   end
   else
     PerformCmd( ecInsDate );
@@ -3620,9 +3716,9 @@ begin
   if ShiftDown and ( sender is TTOolbarButton97 ) then
   begin
     if LoadTimeFormatsList then
-      messagedlg( Format( 'Custom time formats reloaded (%d)', [TIME_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
+      messagedlg( Format( STR_21, [TIME_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
     else
-      messagedlg( Format( 'Cannot load custom time formats from %s. Check if the file exists.', [_TimeFormatsFile] ), mtError, [mbOK], 0 );
+      messagedlg( Format( STR_22, [_TimeFormatsFile] ), mtError, [mbOK], 0 );
   end
   else
     PerformCmd( ecInsTime );
@@ -3726,7 +3822,7 @@ begin
     if note = ActiveNote then begin
       TB_FilterTree.Down:= true;
       MMViewFilterTree.Checked:= true;
-      TB_FilterTree.Hint:= 'Remove Filter on tree note';
+      TB_FilterTree.Hint:= STR_23;
     end;
 end;
 procedure TForm_Main.FilterRemoved (note: TTreeNote);   // [dpv]
@@ -3735,7 +3831,7 @@ begin
     if note = ActiveNote then begin
       TB_FilterTree.Down:= false;
       MMViewFilterTree.Checked:= false;
-      TB_FilterTree.Hint:= 'Apply Filter on tree note';
+      TB_FilterTree.Hint:= STR_24;
     end;
 end;
 
@@ -3801,7 +3897,7 @@ begin
   begin
     result := false;
     if Warn then
-      msg := 'This operation cannot be performed because no file is open.';
+      msg := STR_25;
   end
   else
   begin
@@ -3809,7 +3905,7 @@ begin
     begin
       result := false;
       if Warn then
-        msg := 'This operation cannot be performed because the currently open file has no notes.';
+        msg := STR_26;
     end;
   end;
 
@@ -3822,7 +3918,7 @@ function TForm_Main.NoteIsReadOnly( const aNote : TTabNote; const Warn : boolean
 begin
   result := assigned( ANote ) and ANote.ReadOnly;
   if ( result and Warn ) then
-    StatusBar.Panels[PANEL_HINT].Text := ' Cannot perform operation: Note is Read-Only';
+    StatusBar.Panels[PANEL_HINT].Text := STR_27;
 end; // NoteIsReadOnly
 
 
@@ -3964,7 +4060,7 @@ begin
             except
               on E : Exception do
               begin
-                messagedlg( 'CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message: ' + E.Message, mtError, [mbOK], 0 );
+                messagedlg( STR_28 + E.Message, mtError, [mbOK], 0 );
                 ClipOptions.TestDupClips := false;
                 exit;
               end;
@@ -4015,12 +4111,12 @@ end;
 
 procedure TForm_Main.RichPrinterBeginDoc(Sender: TObject);
 begin
-  StatusBar.Panels[PANEL_HINT].Text := ' Printing note...';
+  StatusBar.Panels[PANEL_HINT].Text := STR_29;
 end;
 
 procedure TForm_Main.RichPrinterEndDoc(Sender: TObject);
 begin
-  StatusBar.Panels[PANEL_HINT].Text := ' Finished printing note.';
+  StatusBar.Panels[PANEL_HINT].Text := STR_30;
 end;
 
 procedure TForm_Main.MMNotePrintPreview_Click(Sender: TObject);
@@ -4093,7 +4189,7 @@ begin
   if ( not HaveNotes( true, true )) then exit;
   if ( not assigned( ActiveNote )) then exit;
 
-  StatusBar.Panels[PANEL_HINT].Text := ' Preparing to send note via email...';
+  StatusBar.Panels[PANEL_HINT].Text := STR_31;
   Form_Mail := TForm_Mail.Create( self );
   try
     with Form_Mail do
@@ -4104,9 +4200,9 @@ begin
       myINI_FN := MailINI_FN;
     end;
     case Form_Mail.ShowModal of
-      mrOK : StatusBar.Panels[PANEL_HINT].Text := ' Note sent';
+      mrOK : StatusBar.Panels[PANEL_HINT].Text := STR_32;
       else
-        StatusBar.Panels[PANEL_HINT].Text := ' Note not sent';
+        StatusBar.Panels[PANEL_HINT].Text := STR_33;
     end;
   finally
     Application.OnException := ShowException;
@@ -4139,9 +4235,9 @@ begin
     if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) and (assigned(TTreeNote(ActiveNote).TV.Selected)) then begin
        node:= TNoteNode( TTreeNote(ActiveNote).TV.Selected.Data );
        if (node.Alarm <> 0) then
-           TB_AlarmNode.Hint:= 'Alarm set at: ' + FormatDateTime( 'dddd, d MMMM yyyy ' + #32 + 'HH:mm', node.Alarm )
+           TB_AlarmNode.Hint:= STR_34 + FormatDateTime( 'dddd, d MMMM yyyy ' + #32 + 'HH:mm', node.Alarm )
        else
-           TB_AlarmNode.Hint:= 'Set alarm...';
+           TB_AlarmNode.Hint:= STR_35;
     end
 end;
 
@@ -4284,7 +4380,7 @@ begin
   if assigned( DraggedTreeNode ) then
   begin
      // {N}
-    StatusBar.Panels[PANEL_HINT].Text := 'Drag: ' + DraggedTreeNode.Text;
+    StatusBar.Panels[PANEL_HINT].Text := STR_36 + DraggedTreeNode.Text;
   end;
 end; // TVStartDrag
 
@@ -4295,7 +4391,7 @@ var
   ThisNode : TTreeNTNode;
 begin
 
-  StatusBar.Panels[0].Text := 'TV dragover';
+  StatusBar.Panels[0].Text := STR_37;
 
   if (( source is TRxRichEdit )) then
   begin
@@ -4358,7 +4454,7 @@ begin
     exit;
   end;
 
-  s := '<nothing>';
+  s := STR_38_Dragged;
   DropTreeNode := ( sender as TTreeNT ).GetNodeAt( X, Y );
 
   myTNote := TTreeNote( ActiveNote );
@@ -4373,21 +4469,21 @@ begin
       if ( DropTreeNode = DraggedTreeNode ) then
       begin
         // {N}
-        s := Format( 'Cannot drop node %s on itself', [DraggedTreeNode.Text] );
+        s := Format( STR_39, [DraggedTreeNode.Text] );
         exit;
       end;
       // 2. Cannot drop between treeviews
       if ( DropTreeNode.TreeView <> DraggedTreeNode.TreeView ) then
       begin
         // {N}
-        s := Format( 'Cannot drop node %s - invalid source', [DraggedTreeNode.Text] );
+        s := Format( STR_41, [DraggedTreeNode.Text] );
         exit;
       end;
       // 3. Cannot drop a node onto its own child
       if IsAParentOf( DraggedTreeNode, DropTreeNode ) then
       begin
         // {N}
-        s := Format( 'Cannot drop node %s onto its child %s', [DraggedTreeNode.Text, DropTreeNode.Text] );
+        s := Format( STR_42, [DraggedTreeNode.Text, DropTreeNode.Text] );
         exit;
       end;
 
@@ -4407,7 +4503,7 @@ begin
         // make TOP node
         DraggedTreeNode.MoveTo( nil, naAddFirst );
         // {N}
-        s := Format( 'Node "%s" promoted to TOP', [DraggedTreeNode.Text] );
+        s := Format( STR_43, [DraggedTreeNode.Text] );
       end
       else
       if ( DraggedTreeNode.Parent = DropTreeNode ) then
@@ -4416,13 +4512,13 @@ begin
         begin
           DraggedTreeNode.MoveTo( DropTreeNode, naInsert );
           // {N}
-          s := Format( 'Node "%s" promoted to parent''s level', [DraggedTreeNode.Text] );
+          s := Format( STR_44, [DraggedTreeNode.Text] );
         end
         else
         begin
           DraggedTreeNode.MoveTo( DropTreeNode, naAddChildFirst );
           // {N}
-          s := Format( 'Node "%s" moved to top of siblings', [DraggedTreeNode.Text] );
+          s := Format( STR_45, [DraggedTreeNode.Text] );
         end;
       end
       else
@@ -4431,13 +4527,13 @@ begin
         begin
           DraggedTreeNode.MoveTo( DropTreeNode, naInsert );
           // {N}
-          s := Format( 'Node "%s" inserted after node "%s"', [DraggedTreeNode.Text, DropTreeNode.Text] );
+          s := Format( STR_46, [DraggedTreeNode.Text, DropTreeNode.Text] );
         end
         else
         begin
           DraggedTreeNode.MoveTo( DropTreeNode, naAddChildFirst );
           // {N}
-          s := Format( 'Node "%s" made child of node "%s"', [DraggedTreeNode.Text, DropTreeNode.Text] );
+          s := Format( STR_47, [DraggedTreeNode.Text, DropTreeNode.Text] );
         end;
       end;
 
@@ -4450,7 +4546,7 @@ begin
     end
     else
     begin
-      s := 'Nothing to drop or invalid drop target';
+      s := STR_48;
       DraggedTreeNode := nil;
       if ( Sender is TTreeNT ) then
         ( sender as TTreeNT ).EndDrag( false );
@@ -4637,7 +4733,7 @@ begin
   begin
 
     if ( messagedlg(
-      'OK to sort the entire tree?',
+      STR_49,
       mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
     TTreeNote( ActiveNote ).TV.OnChange := nil;
@@ -4660,7 +4756,7 @@ begin
   S := trim( copy( S, 1, TREENODE_NAME_LENGTH ));
   if ( S = '' ) then
   begin
-    StatusBar.Panels[PANEL_HINT].Text := ' Node name cannot be blank!';
+    StatusBar.Panels[PANEL_HINT].Text := STR_50;
     S := _OLD_NODE_NAME;
     exit;
   end;
@@ -4668,7 +4764,7 @@ begin
   try
     if assigned( TNoteNode( Node.Data )) then
       TNoteNode( Node.Data ).Name := S;  // {N} must add outline numbering, if any
-    StatusBar.Panels[PANEL_HINT].Text := ' Node renamed.';
+    StatusBar.Panels[PANEL_HINT].Text := STR_51;
     ActiveNote.Modified := true;
   finally
     _ALLOW_VCL_UPDATES := true;
@@ -4693,7 +4789,7 @@ begin
   end
   else
   begin
-    StatusBar.Panels[PANEL_HINT].Text := ' Cannot edit: Note is read-only.';
+    StatusBar.Panels[PANEL_HINT].Text := STR_52;
     AllowEdit := false;
   end;
 end; // TVEditing
@@ -4717,7 +4813,7 @@ begin
     begin
       myName := myNode.Name;
       _OLD_NODE_NAME := myName;
-      if InputQuery( 'Edit node name', 'Enter new name:', myName ) then
+      if InputQuery( STR_53, STR_54, myName ) then
       begin
         myName := trim( myName );
         if ( myName <> '' ) then
@@ -4730,7 +4826,7 @@ begin
         end
         else
         begin
-          messagedlg( 'Node name cannot be blank!', mtError, [mbOK], 0 );
+          messagedlg( STR_55, mtError, [mbOK], 0 );
         end;
       end;
     end;
@@ -4865,15 +4961,15 @@ begin
   if ( not ( sender is TMathParser )) then exit;
 
   case ParseError of
-    1 : Msg := 'Parser stack overflow';
-    2 : Msg := 'Bad cell range';
-    3 : Msg := 'Expected expression';
-    4 : Msg := 'Expected operator';
-    5 : Msg := 'Expected opening parenthesis';
-    6 : Msg := 'Expected operator or closing parenthesis';
-    7 : Msg := 'Invalid numeric expression';
+    1 : Msg := STR_56;
+    2 : Msg := STR_57;
+    3 : Msg := STR_58;
+    4 : Msg := STR_59;
+    5 : Msg := STR_60;
+    6 : Msg := STR_61;
+    7 : Msg := STR_62;
   end; { case }
-  Msg := 'Cannot evaluate: ' + Msg + #13 + 'Error at position ' + IntToStr(( sender as TMathParser ).Position);
+  Msg := STR_63 + Msg + #13 + STR_64 + IntToStr(( sender as TMathParser ).Position);
   MessageDlg( Msg, mtError, [mbOk], 0 );
   LastEvalExprResult := '#ERROR';
 end; // MathParserParseError
@@ -4906,14 +5002,14 @@ begin
   myNode := GetCurrentTreeNode;
   if not assigned( myNode ) then
   begin
-    showmessage( 'No notes in file, or current note is not a Tree-type note.' );
+    showmessage( STR_65 );
     exit;
   end;
 
   if ( SearchNode_Text = '' ) then
   begin
     SearchNode_Text := SearchNode_TextPrev;
-    if InputQuery( 'Find tree node', 'Find node containing text:', SearchNode_Text ) then
+    if InputQuery( STR_66, STR_67, SearchNode_Text ) then
       SearchNode_Text := ansilowercase( SearchNode_Text )
     else
       exit;
@@ -4935,7 +5031,7 @@ begin
   end;
 
   if ( not found ) then
-    statusbar.panels[PANEL_HINT].Text := ' Node not found!';
+    statusbar.panels[PANEL_HINT].Text := STR_68;
 
 
 end; // FindTreeNode
@@ -4984,7 +5080,7 @@ begin
   if ( not Toolbar_Style.Visible ) then
   begin
     case messagedlg(
-      'The Style toolbar must be visible to use this command. Show the Style toolbar now?',
+      STR_69,
       mtConfirmation, [mbYes,mbNo], 0 ) of
       mrYes : begin
         // [x] this assumes .Visible is always synced with KeyOptions.ShowStyleToolbar
@@ -4997,12 +5093,12 @@ begin
   end;
   if ( Combo_Style.ItemIndex < 0 ) then
   begin
-    messagedlg( 'No style available or none selected', mtInformation, [mbOK], 0 );
+    messagedlg( STR_70, mtInformation, [mbOK], 0 );
     exit;
   end;
   if ( not assigned( StyleManager )) then
   begin
-    messagedlg( 'Error: StyleManager does not exist.', mtError, [mbOK], 0 );
+    messagedlg( STR_71, mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -5051,16 +5147,13 @@ begin
 
   if ( DropTab = Pages.ActivePage ) then
   begin
-    showmessage( 'Tree nodes can only be dropped on the tree, or on another tab.' );
+    showmessage( STR_72 );
     exit;
   end;
 
   if ( TTabNote( DropTab.PrimaryObject ).Kind <> ntTree ) then
   begin
-    messagedlg( Format(
-      'Cannot transfer nodes to "%s", because it is not a Tree-type note.',
-      [DropTab.Caption]
-      ), mtError, [mbOK], 0 );
+    messagedlg( Format(STR_73, [DropTab.Caption]), mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -5069,22 +5162,17 @@ begin
 
   if tNote.ReadOnly then
   begin
-    messagedlg( Format(
-      'Cannot transfer nodes to "%s", because target note is Read-Only.',
-      [DropTab.Caption]
-    ), mtError, [mbOK], 0 );
+    messagedlg( Format(STR_74, [DropTab.Caption]), mtError, [mbOK], 0 );
     exit;
   end;
 
   if KeyOptions.DropNodesOnTabPrompt then
   begin
     if DoMoveNodes then
-      s := 'Move'
+      s := STR_75
     else
-      s := 'Copy';
-    if ( messagedlg( Format(
-      '%s dragged nodes to tab "%s"?',
-      [s, DropTab.Caption]
+      s := STR_76;
+    if ( messagedlg( Format(STR_77, [s, DropTab.Caption]
       ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
       exit;
   end;
@@ -5106,7 +5194,7 @@ begin
     end
     else
     begin
-      messagedlg( 'Failed to acquire source nodes.', mtError, [mbOK], 0 );
+      messagedlg( STR_78, mtError, [mbOK], 0 );
     end;
   finally
     if ( TransferNodes <> nil ) then
@@ -5131,7 +5219,7 @@ begin
     myTab := Pages.Pages[i];
     if assigned( myTab ) then
       StatusBar.Panels[PANEL_HINT].Text := Format(
-        ' Tab %d: %s', [i, myTab.Caption] );
+        STR_79, [i, myTab.Caption] );
   end;
 end;
 
@@ -5305,7 +5393,7 @@ begin
     UpdateNoteFileState( [fscModified] );
 
   except
-    showmessage( 'Unexpected error.' );
+    showmessage( STR_80 );
   end;
 
 end; // CharInsertProc
@@ -5419,9 +5507,7 @@ begin
         if (( not fileexists( _Global_Location.Filename )) or
            ( NoteFileOpen( _Global_Location.Filename ) <> 0 )) then
         begin
-          messagedlg( Format(
-            'Could not open KeyNote file "%s"',
-            [_Global_Location.Filename] ), mtError, [mbOK], 0 );
+          messagedlg( Format(STR_81,[_Global_Location.Filename] ), mtError, [mbOK], 0 );
           exit;
         end;
       end;
@@ -5459,12 +5545,7 @@ end;
 
 procedure TForm_Main.MMHelpVisitWebsiteClick(Sender: TObject);
 begin
-  if messagedlg(
-    'This command will start your browser and direct it to KeyNote NF website, where ' +
-    'you can download the latest version of the program, read the FAQ, submit bug reports or feature requests with the Issue Manager. ' +  #13+#13+
-    'There is also a discussion mailing list where you can post questions and discuss about the program.' + #13+#13 + 'Continue?',
-    mtConfirmation, [mbOK,mbCancel], 0
-    ) <> mrOK then exit;
+  if messagedlg(STR_82, mtConfirmation, [mbOK,mbCancel], 0) <> mrOK then exit;
 
   screen.Cursor := crHourGlass;
   ShellExecute( 0, 'open', PChar( Program_URL ), nil, nil, SW_NORMAL );
@@ -5636,7 +5717,7 @@ begin
     oldFilter := Filter;
     Filter := FILTER_TEXTFILES;
     FilterIndex := 1;
-    Title := 'Save tree structure to file';
+    Title := STR_82B;
     Options := Options - [ofAllowMultiSelect];
   end;
 
@@ -5753,7 +5834,7 @@ begin
   if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
   begin
     MMViewTree.Checked := ( not MMViewTree.Checked );
-                                              
+
     TTreeNote( ActiveNote ).TreeHidden := ( not MMViewTree.Checked );
     UpdateTreeVisible( TTreeNote( ActiveNote ));
 
@@ -5814,9 +5895,9 @@ begin
   HideOrShowResPanel( KeyOptions.ResPanelShow );
   MMViewResPanel.Checked := KeyOptions.ResPanelShow;
   if KeyOptions.ResPanelShow then
-    ResMHidepanel.Caption := 'Hide &Resource Panel'
+    ResMHidepanel.Caption := STR_83
   else
-    ResMHidepanel.Caption := 'Show &Resource Panel';
+    ResMHidepanel.Caption := STR_84;
   TB_ResPanel.Down := MMViewResPanel.Checked;
   if KeyOptions.ResPanelShow then
     FocusResourcePanel
@@ -5870,12 +5951,12 @@ procedure TForm_Main.Btn_ResFlipClick(Sender: TObject);
 begin
   if Ntbk_ResFind.PageIndex = 0 then
   begin
-    Btn_ResFlip.Caption := 'Results';
+    Btn_ResFlip.Caption := STR_85;
     Ntbk_ResFind.PageIndex := 1;
   end
   else
   begin
-    Btn_ResFlip.Caption := 'Options';
+    Btn_ResFlip.Caption := STR_86;
     Ntbk_ResFind.PageIndex := 0;
   end;
 end;
@@ -5964,7 +6045,7 @@ var
 
   procedure CannotHideTabMsg;
   begin
-    messagedlg( 'Cannot hide the last visible tab. At least one tab must remain visible on the resource panel.', mtInformation, [mbOK], 0 );
+    messagedlg( STR_87, mtInformation, [mbOK], 0 );
   end;
 
 begin
@@ -6195,7 +6276,7 @@ begin
     end;
     if WillChange then
     begin
-      messagedlg( 'Resource panel position will be updated after KeyNote is restarted.', mtInformation, [mbOK], 0 );
+      messagedlg( STR_88, mtInformation, [mbOK], 0 );
     end;
   end;
 end; // ResMPanelRightClick
@@ -6426,7 +6507,7 @@ begin
   if myFav.ExternalDoc then
   begin
     StatusBar.Panels[PANEL_HINT].Text := Format(
-      'External: %s',
+      STR_89,
       [myFav.Filename] );
     exit;
   end;
@@ -6434,7 +6515,7 @@ begin
   if (( not HaveNotes( false, false )) or
      ( AnsiCompareText( NoteFile.FileName, myFav.FileName ) <> 0 )) then
   begin
-    fn := ' File: ' + extractfilename( myFav.Filename );
+    fn := STR_90 + extractfilename( myFav.Filename );
   end
   else
   begin
@@ -6443,23 +6524,20 @@ begin
 
   if ( myFav.NodeID > 0 ) then
   begin
-    nn := ' Node: ' + myFav.NodeName;
+    nn := STR_91 + myFav.NodeName;
   end
   else
   begin
     nn := '';
   end;
 
-  StatusBar.Panels[PANEL_HINT].Text := Format(
-    '%s Note: %s%s',
-    [fn, myFav.NoteName, nn]
-  );
+  StatusBar.Panels[PANEL_HINT].Text := Format(STR_92, [fn, myFav.NoteName, nn]);
 
 end; // ListBox_ResFavClick
 
 procedure TForm_Main.ListBox_ResTplClick(Sender: TObject);
 begin
-  StatusBar.Panels[PANEL_HINT].Text := 'Double-click to insert selected template';
+  StatusBar.Panels[PANEL_HINT].Text := STR_93;
 end;
 
 procedure TForm_Main.TVUnlinkVirtualNodeClick(Sender: TObject);
@@ -6511,7 +6589,7 @@ begin
   begin
     SaveToolbars;
     messagedlg( Format(
-      'Toolbar configuration file "%s" not found. Default toolbar configuration file has been created.', [Toolbar_FN] ), mtError, [mbOK], 0 );
+      STR_94, [Toolbar_FN] ), mtError, [mbOK], 0 );
   end;
 end;
 
@@ -6519,7 +6597,7 @@ procedure TForm_Main.MMViewTBSaveConfigClick(Sender: TObject);
 begin
   SaveToolbars;
   messagedlg( Format(
-    'Saved toolbar layout to "%s".', [Toolbar_FN] ), mtInformation, [mbOK], 0 );
+    STR_95, [Toolbar_FN] ), mtInformation, [mbOK], 0 );
 end;
 
 procedure TForm_Main.TVSelectNodeImageClick(Sender: TObject);

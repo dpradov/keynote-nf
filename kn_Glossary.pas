@@ -88,6 +88,12 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_10 = 'No item selected.';
+  STR_11 = 'Shortcut term and its expanded definition cannot be blank.';
+  STR_12 = 'Glossary term already exists: "%s" -> "%s". OK to redefine term as "%s"?';
+  STR_13 = 'Error saving Glossary list: ';
+  STR_14 = 'Glossary terms: %d';
 
 procedure TForm_Glossary.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -160,7 +166,7 @@ begin
     if (( not assigned( item )) or
         ( LV.Items.Count = 0 )) then
     begin
-      messagedlg( 'No item selected.', mtInformation, [mbOK], 0 );
+      messagedlg( STR_10, mtInformation, [mbOK], 0 );
       exit;
     end;
 
@@ -186,7 +192,7 @@ begin
       end;
       if (( namestr = '' ) or ( valuestr = '' )) then
       begin
-        messagedlg( 'Shortcut term and its expanded definition cannot be blank.', mtError, [mbOK], 0 );
+        messagedlg( STR_11, mtError, [mbOK], 0 );
         exit;
       end;
 
@@ -207,7 +213,7 @@ begin
         if assigned( dupItem ) then
         begin
           if ( messagedlg( Format(
-              'Glossary term already exists: "%s" -> "%s". OK to redefine term as "%s"?',
+              STR_12,
               [namestr,dupItem.subitems[0] ,valuestr] ),
               mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
           exit;
@@ -245,7 +251,7 @@ begin
 
   if ( not assigned( item )) then
   begin
-    messagedlg( 'No item selected.', mtInformation, [mbOK], 0 );
+    messagedlg( STR_10, mtInformation, [mbOK], 0 );
     exit;
   end;
 
@@ -294,7 +300,7 @@ begin
       GlossaryList.SaveToFile( Glossary_FN );
     except
       on E : Exception do
-        messagedlg( 'Error saving Glossary list: ' +
+        messagedlg( STR_13 +
           E.Message, mtError, [mbOK], 0 );
     end;
 
@@ -309,7 +315,7 @@ end;
 
 procedure TForm_Glossary.UpdateCount;
 begin
-  Caption := Format( 'Glossary terms: %d', [LV.Items.Count] );
+  Caption := Format( STR_14, [LV.Items.Count] );
 end; // UpdateCount
 
 

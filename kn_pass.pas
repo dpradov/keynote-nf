@@ -79,6 +79,10 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = 'Passphrase cannot be blank.';
+  STR_02 = 'File "%s" is encrypted';
+
 procedure TForm_Password.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
@@ -121,7 +125,7 @@ begin
   if ( not result ) then
   begin
     Edit_Pass.SetFocus;
-    messagedlg( 'Passphrase cannot be blank.', mtError, [mbOK], 0 );
+    messagedlg( STR_01, mtError, [mbOK], 0 );
   end;
 end; // VerifyPass
 
@@ -129,7 +133,7 @@ procedure TForm_Password.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   Label_FileName.Caption := myFileName;
-  Caption := 'File "' + extractfilename( myFileName ) + '" is encrypted';
+  Caption:= format(STR_02, [extractfilename( myFileName )]);
 
   // when auto-reopening previously auto-closed encrypted files,
   // (see TForm_Main.AutoCloseFile) the password window does not

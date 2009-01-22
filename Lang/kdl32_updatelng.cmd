@@ -6,8 +6,8 @@ cd ..\..\Output\bin
 
 
 del Keynote.spanish.lng.bak
-copy Keynote.spanish.lng   Keynote.spanish.lng.bak
-"..\..\src\3rd_party\kdl32_Kryvich's Delphi Localizer\lngupdate.exe" Keynote.spanish.lng  Keynote.lng -! -x
+copy Lang\Keynote.spanish.lng   Lang\Keynote.spanish.lng.bak
+"..\..\src\3rd_party\kdl32_Kryvich's Delphi Localizer\lngupdate.exe" Lang\Keynote.spanish.lng  Keynote.lng -! -x
 
 
 pause

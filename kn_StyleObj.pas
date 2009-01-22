@@ -80,6 +80,37 @@ function TextInfoToStr( const ti : TTextInfo ) : string;
 
 implementation
 
+resourcestring
+  STR_01 = 'Face: %s' + #13 +
+            'Size: %s'  + #13 +
+            'Style: %s' + #13 +
+            'Color: %s' + #13 +
+            'Other: %s';
+  STR_02 = ' %s, %s space, %s, L:%d F:%d R:%d, Bef:%d Aft:%d';
+  STR_03 = 'Alignment: %s'    + #13 +
+            'Line spacing: %s' + #13 +
+            'Numbering: %s'    + #13 +
+            'Left indent: %s'  + #13 +
+            'First indent: %s' + #13 +
+            'Right indent: %s' + #13 +
+            'Space before: %s' + #13 +
+            'Space after: %s';
+  STR_04_LineSpac = 'Single';
+  STR_05_LineSpac = 'Double';
+  STR_06 = 'other';
+  STR_07_Numb = 'Bullets';
+  STR_08_Alig = 'Left';
+  STR_09_Alig = 'Right';
+  STR_10_Alig = 'Center';
+  STR_11_Alig = 'Justify';
+  STR_12_Subsc = 'superscript';
+  STR_13_Subsc = 'subscript';
+  STR_14_TextInfo = 'Subscript ';
+  STR_15_TextInfo = 'Supercript ';
+  STR_16_TextInfo = 'Disabled ';
+  STR_17_TextInfo = 'Highlighted ';
+
+
 function TStyle.FontInfoToStr( const short : boolean ) : string;
 begin
   if short then
@@ -89,18 +120,16 @@ begin
       [Font.Name,
        Font.Size,
        FontStyleToStr( Font.Style ),
-       ColorToString( Font.Color ), 
+       ColorToString( Font.Color ),
        TextInfoToStr( Text )]
     );          
 
   end
   else
   begin
-    result := 'Face: ' + Font.Name + #13 +
-              'Size: ' + inttostr( Font.Size ) + #13 +
-              'Style: ' + FontStyleToStr( Font.Style ) + #13 +
-              'Color: ' + ColorToString( Font.Color ) + #13 +
-              'Other: ' + TextInfoToStr( Text );
+    result:= format(STR_01,
+                [Font.Name, inttostr( Font.Size ), FontStyleToStr( Font.Style ),
+                 ColorToString( Font.Color ), TextInfoToStr( Text )]);
   end;
 end; // FontInfoToStr
 
@@ -109,7 +138,7 @@ begin
   if short then
   begin
   result := Format(
-  ' %s, %s space, %s, L:%d F:%d R:%d, Bef:%d Aft:%d',
+  STR_02,
   [
     AlignmentToStr( Para.Alignment ),
     LineSpacingRuleToStr( Para.SpacingRule ),
@@ -123,14 +152,11 @@ begin
   end
   else
   begin
-    result := 'Alignment: ' + AlignmentToStr( Para.Alignment ) + #13 +
-              'Line spacing: ' + LineSpacingRuleToStr( Para.SpacingRule ) + #13 +
-              'Numbering: ' + NumberingToStr( Para.Numbering ) + #13 +
-              'Left indent: ' + inttostr( Para.LIndent ) + #13 +
-              'First indent: ' + inttostr( Para.FIndent ) + #13 +
-              'Right indent: ' + inttostr( Para.RIndent ) + #13 +
-              'Space before: ' + inttostr( Para.SpaceBefore ) + #13 +
-              'Space after: ' + inttostr( Para.SpaceAfter );
+    result:= format(STR_03,
+                        [AlignmentToStr( Para.Alignment ), LineSpacingRuleToStr( Para.SpacingRule ),
+                         NumberingToStr( Para.Numbering ), inttostr( Para.LIndent ),
+                         inttostr( Para.FIndent ), inttostr( Para.RIndent ),
+                         inttostr( Para.SpaceBefore ), inttostr( Para.SpaceAfter )]);
   end;
 end; // ParaInfoToStr
 
@@ -364,17 +390,17 @@ begin
   except
     // drop exceptions
   end;
-                                        
+
 end; // AddToStyleManager
 
 function LineSpacingToStr( const spc : integer ) : string;
 begin
   case spc of
-    0 : result := 'Single';
+    0 : result := STR_04_LineSpac;
     1 : result := '1.5';
-    2 : result := 'Double';
+    2 : result := STR_05_LineSpac;
     else
-      result := 'other';
+      result := STR_06;
   end;
 end; // LineSpacingToStr
 
@@ -396,12 +422,12 @@ end; // LineSpacingRuleToStr
 function NumberingToStr( const num : TRxNumbering ) : string;
 begin
   case num of
-    nsBullet : result := 'Bullets';
+    nsBullet : result := STR_07_Numb;
     nsArabicNumbers,
     nsLoCaseLetter,
     nsUpCaseLetter,
     nsLoCaseRoman,
-    nsUpCaseRoman : result := 'other';
+    nsUpCaseRoman : result := STR_06;
     else
       result := '';
   end;
@@ -410,20 +436,20 @@ end; // NumberingToStr
 function AlignmentToStr( const al : TParaAlignment ) : string;
 begin
   case al of
-    paLeftJustify : result := 'Left';
-    paRightJustify : result := 'Right';
-    paCenter : result := 'Center';
-    paJustify : result := 'Justify';
+    paLeftJustify : result := STR_08_Alig;
+    paRightJustify : result := STR_09_Alig;
+    paCenter : result := STR_10_Alig;
+    paJustify : result := STR_11_Alig;
     else
-      result := 'other';
+      result := STR_06;
   end;
 end; // AlignmentToStr
 
 function SubscriptStyleToStr( const ssStyle : TSubscriptStyle ) : string;
 begin
   case ssStyle of
-    ssSuperscript : result := 'superscript';
-    ssSubscript : result := 'subscript';
+    ssSuperscript : result := STR_12_Subsc;
+    ssSubscript : result := STR_13_Subsc;
     else
       result := '';
   end;
@@ -435,14 +461,14 @@ begin
   with ti do
   begin
     case SubscriptStyle of
-      ssSubscript : result := 'Subscript ';
-      ssSuperscript : result := 'Supercript ';
+      ssSubscript : result := STR_14_TextInfo;
+      ssSuperscript : result := STR_15_TextInfo;
     end;
 
     if Disabled then
-      result := result + 'Disabled ';
+      result := result + STR_16_TextInfo;
     if HasHighlight then
-      result := result + 'Highlighted ';
+      result := result + STR_17_TextInfo;
 
   end;
 

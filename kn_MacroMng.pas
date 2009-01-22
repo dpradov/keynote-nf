@@ -66,6 +66,71 @@ uses Windows, Messages, SysUtils, Forms, Dialogs, Graphics, StdCtrls, Controls, 
      kn_TreeNoteMng, kn_NoteMng,kn_PluginsMng, kn_TemplateMng, kn_NoteFileMng,
      kn_EditorUtils, kn_VCLControlsMng;
 
+resourcestring
+  STR_01 = 'Stop recording macro';
+  STR_02 = '&Stop Recording Macro';
+  STR_03 = ' Recording macro "%s"';
+  STR_04 = 'Command "%s" cannot be included in macros. This command has been executed but will not be recorded in the macro.';
+  STR_05 = 'You have executed a command which opens a dialog box. KeyNote can ' +
+      'remember the values you have just selected and use them when ' +
+      'replaying the macro, OR KeyNote can display the dialog box again to let you select values ' +
+      'each time the macro is executed. Do you want KeyNote to remember current values?' + #13#13 +
+      'Click YES to save current values. Click NO to always open the dialog box. Click CANCEL to ' +
+      'skip this command and continue recording macro.';
+  STR_06 = ' Macro recording PAUSED';
+  STR_07 = ' Macro recording RESUMED';
+  STR_08 = 'Macro "%s" contains no commands and will be discarded.';
+  STR_09 = 'Save new macro "%s" (%d lines)?';
+  STR_10 = 'Error saving macro "%s": %s';
+  STR_11 = ' Macro recorded and saved.';
+  STR_12 = ' Macro discarded.';
+  STR_13 = ' Macro error';
+  STR_14 = 'Error adding new macro "%s": %s';
+  STR_15 = 'Record a new macro';
+  STR_16 = '&Record Macro...';
+  STR_17 = 'Active note "%s" is Read-only. Running the macro may cause the note to be modified. Do you want the macro to run anyway?';
+  STR_18 = 'Cannot load macro file "%s". Reason: %s';
+  STR_19 = 'Running macro "%s"';
+  STR_20 = 'Execute most recent macro "%s"';
+  STR_21 = 'Error loading macro "%s": %s';
+  STR_22 = 'Cannot execute macro "%s": This macro requires a newer version of KeyNote.';
+  STR_23 = ' Unexpected error while executing macro';
+  STR_24 = ' Macro was aborted by user';
+  STR_25 = ' Macro done';
+  STR_26 = 'OK to delete selected macro "%s"?';
+  STR_27 = 'Cannot delete macro file "%s"';
+  STR_28 = 'Error while deleting macro: ';
+  STR_29 = 'Macro aborted on line %d: "%s"' + #13 + 'Reason: %s';
+  STR_30 = 'unknown command';
+  STR_31 = 'syntax error';
+  STR_32 = 'unknown user command';
+  STR_33 = 'string argument required';
+  STR_34 = 'integer argument required';
+  STR_35 = 'Cannot run embedded macro "%s". Reason: %s';
+  STR_36 = 'Note creation failed';
+  STR_37 = 'Invalid font style argument';
+  STR_38 = 'Unexpected error while executing macro: %s' + #13#13 +
+          'Last macro line was: "%s" (line %d)';
+  STR_39 = 'This command cannot be executed while macro is being recorded or replayed.';
+  STR_40 = 'Macro "%s" not found.';
+  STR_41 = 'No macros available or none selected.';
+  STR_42 = 'Could not access current macro.';
+  STR_43 = ' This command cannot be repeated';
+  STR_44 = 'This action cannot be performed, because there is no active note (%d)';
+  STR_45 = 'This note cannot be set as Read-only, because it is being used for clipboard capture.';
+  STR_46 = 'Failed to assign font attributes.';
+  STR_47 = 'Failed to assign paragraph attributes.';
+  STR_48 = 'Go to line';
+  STR_49 = 'Enter line number or increment (+-):';
+  STR_50 = 'Unexpected or not implemented command: ';
+  STR_51 = 'Cannot perform command:';
+  STR_52 = 'No font attributes to paste from: Use "Copy font attributes" first.';
+  STR_53 = 'No paragraph attributes to paste from: Use "Copy paragraph attributes" first.';
+  STR_54 = '"%s" is not a valid number';
+  STR_55 = 'New background color will be assigned to ALL TREE NODES in note %s' + #13 + 'Continue?';
+  STR_56 = 'Repeat %s';
+  STR_57 = 'Select macro to execute';
+
 var
     RecallingCommand : boolean; // if TRUE, we use information in CommandRecall
 
@@ -147,12 +212,12 @@ begin
   with Form_Main do
   begin
     TB_MacroRecord.ImageIndex := TB_MacroRecord.ImageIndex + 1;
-    TB_MacroRecord.Hint := 'Stop recording macro';
-    MacMMacro_Record.Caption := '&Stop Recording Macro';
+    TB_MacroRecord.Hint := STR_01;
+    MacMMacro_Record.Caption := STR_02;
     MacMMacro_Record.Hint := TB_MacroRecord.Hint;
     MacMMacroUserCommand.Enabled := true;
 
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( ' Recording macro "%s"', [ActiveMacro.Name] );
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_03, [ActiveMacro.Name] );
     SelectStatusbarGlyph( true );
   end;
 
@@ -181,7 +246,7 @@ begin
   if ( aCmd in CommandsProhibitedInMacros ) then
   begin
     messagedlg( Format(
-      'Command "%s" cannot be included in macros. This command has been executed but will not be recorded in the macro.',
+      STR_04,
       [EDITCMD_NAMES[aCmd]]
       ), mtWarning, [mbOK], 0 );
     exit;
@@ -197,13 +262,7 @@ begin
   else
   if ( aCMD in EditCommandsWithDialogs ) then
   begin
-    case messagedlg(
-      'You have executed a command which opens a dialog box. KeyNote can ' +
-      'remember the values you have just selected and use them when ' +
-      'replaying the macro, OR KeyNote can display the dialog box again to let you select values ' +
-      'each time the macro is executed. Do you want KeyNote to remember current values?' + #13#13 +
-      'Click YES to save current values. Click NO to always open the dialog box. Click CANCEL to ' +
-      'skip this command and continue recording macro.',
+    case messagedlg( STR_05,
       mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
         mrYes : OnPlayShowDlg := false;
         mrNo : OnPlayShowDlg := true;
@@ -403,9 +462,9 @@ begin
   MacroRecordingPaused := ( not MacroRecordingPaused );
   Form_Main.TB_MacroPause.Down := MacroRecordingPaused;
   if MacroRecordingPaused then
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Macro recording PAUSED'
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_06
   else
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Macro recording RESUMED';
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_07;
 end; // PauseRecordingMacro
 
 procedure StopRecordingMacro;
@@ -421,7 +480,7 @@ begin
       if ( ActiveMacro.Lines.Count = 0 ) then
       begin
         Messagedlg( Format(
-          'Macro "%s" contains no commands and will be discarded.',
+          STR_08,
           [ActiveMacro.Name]
         ), mtInformation, [mbOK], 0 );
         ActiveMacro.Free;
@@ -429,14 +488,14 @@ begin
       end;
 
       if ( messagedlg( Format(
-        'Save new macro "%s" (%d lines)?',
+        STR_09,
         [ActiveMacro.Name,ActiveMacro.Lines.Count]
         ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrNo ) then
       begin
         if ( not ActiveMacro.Save ) then
         begin
           messagedlg( Format(
-            'Error saving macro "%s": %s', [ActiveMacro.FileName,ActiveMacro.LastError]
+            STR_10, [ActiveMacro.FileName,ActiveMacro.LastError]
             ), mtError, [mbOK], 0 );
           ActiveMacro.Free;
           exit;
@@ -444,19 +503,19 @@ begin
         // Combo_Macro.ItemIndex := Combo_Macro.AddItem( ActiveMacro.Name, GetMacroIconIndex( ActiveMacro ));
         Form_Main.ListBox_ResMacro.ItemIndex := Form_Main.ListBox_ResMacro.AddItem( ActiveMacro.Name, cbUnchecked, GetMacroIconIndex( ActiveMacro ));
         Macro_List.AddObject( ActiveMacro.Name, ActiveMacro );
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Macro recorded and saved.'
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11
       end
       else
       begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Macro discarded.';
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_12;
         ActiveMacro.Free;
       end;
     except
       on E : Exception do
       begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Macro error';
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_13;
         messagedlg( Format(
-          'Error adding new macro "%s": %s',
+          STR_14,
           [ActiveMacro.Name,E.Message] ), mtError, [mbOK], 0 );
         ActiveMacro.Free;
       end;
@@ -469,8 +528,8 @@ begin
     begin
 SelectStatusbarGlyph( true );
 TB_MacroRecord.ImageIndex := TB_MacroRecord.ImageIndex - 1;
-TB_MacroRecord.Hint := 'Record a new macro';
-MacMMacro_Record.Caption := '&Record Macro...';
+TB_MacroRecord.Hint := STR_15;
+MacMMacro_Record.Caption := STR_16;
 MacMMacro_Record.Hint := TB_MacroRecord.Hint;
     end;
   end;
@@ -507,7 +566,7 @@ begin
   if wasreadonly then
   begin
     if ( messagedlg( Format(
-      'Active note "%s" is Read-only. Running the macro may cause the note to be modified. Do you want the macro to run anyway?',
+      STR_17,
       [ActiveNote.Name] ),
       mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
     ActiveNote.ReadOnly := false;
@@ -524,7 +583,7 @@ begin
     if ( not Macro.Load ) then
     begin
       messagedlg( Format(
-        'Cannot load macro file "%s". Reason: %s',
+        STR_18,
         [aFileName,Macro.LastError]
       ), mtError, [mbOK], 0 );
       Macro.Free;
@@ -552,7 +611,7 @@ begin
   MacroAbortRequest := false;
   MacroErrorAbort := false;
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(
-    'Running macro "%s"', [Macro.Name] );
+    STR_19, [Macro.Name] );
   screen.Cursor := crAppStart;
   SelectStatusbarGlyph( true );
 
@@ -564,7 +623,7 @@ begin
 
   LastMacroFN := extractfilename( Macro.FileName );
   Form_Main.MMToolsMacroRunLast.Hint := Format(
-    'Execute most recent macro "%s"',
+    STR_20,
     [extractfilename( LastMacroFN )]
   );
 
@@ -573,14 +632,14 @@ begin
       if ( not Macro.Load ) then
       begin
         messagedlg( Format(
-          'Error loading macro "%s": %s', [Macro.FileName,Macro.LastError]
+          STR_21, [Macro.FileName,Macro.LastError]
           ), mtError, [mbOK], 0 );
       end;
 
       if ( Macro.Version.Major > _MACRO_VERSION_MAJOR ) then
       begin
         messagedlg( Format(
-          'Cannot execute macro "%s": This macro requires a newer version of KeyNote.', [Macro.FileName]
+          STR_22, [Macro.FileName]
           ), mtError, [mbOK], 0 );
       end;
 
@@ -598,16 +657,16 @@ begin
 
     if MacroErrorAbort then
     begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Unexpected error while executing macro';
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_23;
     end
     else
     if MacroAbortRequest then
     begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Macro was aborted by user';
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_24;
     end
     else
     begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' Macro done';
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_25;
     end;
     try
       if wasNewMacro then
@@ -654,7 +713,7 @@ begin
 
     if ( not Macro.Load ) then
     begin
-      messagedlg( Format( 'Error loading macro "%s": %s', [Macro.FileName,Macro.LastError] ), mtError, [mbOK], 0 );
+      messagedlg( Format( STR_21, [Macro.FileName,Macro.LastError] ), mtError, [mbOK], 0 );
       Macro.Free;
       exit;
     end;
@@ -703,7 +762,7 @@ begin
           if ( not Macro.Save ) then
           begin
             messagedlg( Format(
-              'Error saving macro "%s": %s', [Macro.FileName,Macro.LastError]
+              STR_10, [Macro.FileName,Macro.LastError]
               ), mtError, [mbOK], 0 );
             exit;
           end;
@@ -736,7 +795,7 @@ begin
   if ( macro = nil ) then exit;
 
   if ( messagedlg( Format(
-    'OK to delete selected macro "%s"?',
+    STR_26,
     [Macro.Name]
     ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
@@ -747,7 +806,7 @@ begin
       begin
         DeleteSuccess := false;
         messagedlg( Format(
-          'Cannot delete macro file "%s"',
+          STR_27,
           [Macro.Filename] ), mtError, [mbOK], 0 );
         exit;
       end;
@@ -765,7 +824,7 @@ begin
       on E : Exception do
       begin
         DeleteSuccess := false;
-        messagedlg( 'Error while deleting macro: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_28 + E.Message, mtError, [mbOK], 0 );
       end;
     end;
   finally
@@ -798,8 +857,7 @@ var
       procedure AbortMacro( const s : string; i : integer; const line : string );
       begin
         messagedlg( Format(
-          'Macro aborted on line %d: "%s"' + #13 +
-          'Reason: %s',
+          STR_29,
           [i,copy( line, 1, 127 ),s]
         ), mtError, [mbOK], 0 );
         MacroFinished := true;
@@ -875,7 +933,7 @@ begin
               begin
                 if Macro.AbortOnError then
                 begin
-                  AbortMacro( 'unknown command', i, Macro.Lines[pred( i )] );
+                  AbortMacro( STR_30, i, Macro.Lines[pred( i )] );
                   break;
                 end
                 else
@@ -1055,7 +1113,7 @@ begin
                 begin
                   if Macro.AbortOnError then
                   begin
-                    AbortMacro( 'syntax error', i, Macro.Lines[pred( i )] );
+                    AbortMacro( STR_31, i, Macro.Lines[pred( i )] );
                     break;
                   end
                   else
@@ -1075,7 +1133,7 @@ begin
               begin
                 if Macro.AbortOnError then
                 begin
-                  AbortMacro( 'unknown user command', i, Macro.Lines[pred( i )] );
+                  AbortMacro( STR_32, i, Macro.Lines[pred( i )] );
                   break;
                 end
                 else
@@ -1097,7 +1155,7 @@ begin
                   begin
                     if Macro.AbortOnError then
                     begin
-                      AbortMacro( 'string argument required', i, Macro.Lines[pred( i )] );
+                      AbortMacro( STR_33, i, Macro.Lines[pred( i )] );
                       break;
                     end
                     else
@@ -1115,7 +1173,7 @@ begin
                   except
                     if Macro.AbortOnError then
                     begin
-                      AbortMacro( 'integer argument required', i, Macro.Lines[pred( i )] );
+                      AbortMacro( STR_34, i, Macro.Lines[pred( i )] );
                       break;
                     end
                     else
@@ -1180,7 +1238,7 @@ begin
                       if Macro.AbortOnError then
                       begin
                         AbortMacro( Format(
-                          'Cannot run embedded macro "%s". Reason: %s',
+                          STR_35,
                           [argstr, Macro.LastError]
                         ), i, Macro.Lines[pred( i )] );
                         break;
@@ -1214,7 +1272,7 @@ begin
                   // always abort if fail
                   if ( not NewNote( true, true, ntRTF )) then
                   begin
-                    AbortMacro( 'Note creation failed', i, Macro.Lines[pred( i )] );
+                    AbortMacro( STR_36, i, Macro.Lines[pred( i )] );
                     break;
                   end;
                 end;
@@ -1222,7 +1280,7 @@ begin
                   // always abort if fail
                   if ( not NewNote( true, true, ntTree )) then
                   begin
-                    AbortMacro( 'Note creation failed', i, Macro.Lines[pred( i )] );
+                    AbortMacro( STR_36, i, Macro.Lines[pred( i )] );
                     break;
                   end;
                 end;
@@ -1255,7 +1313,7 @@ begin
                     if Macro.AbortOnError then
                     begin
                       AbortMacro(
-                       'Invalid font style argument',
+                       STR_37,
                         i, Macro.Lines[pred( i )] );
                       break;
                     end
@@ -1374,9 +1432,7 @@ begin
       begin
         MacroFinished := true;
         MacroErrorAbort := true;
-        messagedlg( Format(
-          'Unexpected error while executing macro: %s' + #13#13 +
-          'Last macro line was: "%s" (line %d)',
+        messagedlg( Format(STR_38,
           [E.Message,copy( Macro.Lines[pred(linecnt)], 1, 127 ),linecnt]
         ), mtError, [mbOK], 0 );
       end;
@@ -1392,7 +1448,7 @@ function MacroProcess( const DoWarn : boolean ) : boolean;
 begin
   result := ( IsRunningMacro or IsRecordingMacro );
   if ( result and DoWarn ) then
-    messagedlg( 'This command cannot be executed while macro is being recorded or replayed.',
+    messagedlg( STR_39,
       mtInformation, [mbOK], 0 );
 end; // MacroProcess
 
@@ -1445,7 +1501,7 @@ begin
   else
   begin
     if DoWarn then
-      messagedlg( Format( 'Macro "%s" not found.', [aName] ), mtError, [mbOK], 0 );
+      messagedlg( Format( STR_40, [aName] ), mtError, [mbOK], 0 );
   end;
 
 end; // GetMacroByName
@@ -1459,7 +1515,7 @@ begin
   if (( Form_Main.ListBox_ResMacro.Items.Count = 0 ) or ( Form_Main.ListBox_ResMacro.ItemIndex < 0 )) then
   begin
     if DoWarn then
-      messagedlg( 'No macros available or none selected.', mtError, [mbOK], 0 );
+      messagedlg( STR_41, mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -1474,7 +1530,7 @@ begin
 
   finally
     if (( result = nil ) and DoWarn ) then
-      messagedlg( 'Could not access current macro.', mtError, [mbOK], 0 );
+      messagedlg( STR_42, mtError, [mbOK], 0 );
   end;
 end; // GetCurrentMacro
 
@@ -1504,7 +1560,7 @@ begin
   end
   else
   begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := ' This command cannot be repeated';
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_43;
   end;
 
 end; // RepeatLastCommand
@@ -1525,7 +1581,7 @@ begin
       {$IFDEF MJ_DEBUG}
       Log.Add( 'ActiveNote not assigned in PerformCmd (' + inttostr( ord( aCmd )) + ')' );
       {$ENDIF}
-      PopupMessage( Format( 'This action cannot be performed, because there is no active note (%d)', [ord( aCmd )] ), mtError, [mbOK], 0 );
+      PopupMessage( Format( STR_44, [ord( aCmd )] ), mtError, [mbOK], 0 );
     end;
     exit;
   end;
@@ -1539,7 +1595,7 @@ begin
         ecReadOnly : begin
           if ( ActiveNote = NoteFile.ClipCapNote ) then
           begin
-            PopupMessage( 'This note cannot be set as Read-only, because it is being used for clipboard capture.', mtError, [mbOK], 0 );
+            PopupMessage( STR_45, mtError, [mbOK], 0 );
             aCmd := ecNone;
           end
           else
@@ -1553,7 +1609,7 @@ begin
           try
             FontAttrsRx2KNT( ActiveNote.Editor.SelAttributes, FontFormatToCopy );
           except
-            Popupmessage( 'Failed to assign font attributes.', mtError, [mbOK], 0 );
+            Popupmessage( STR_46, mtError, [mbOK], 0 );
             aCmd := ecNone;
           end;
         end;
@@ -1561,7 +1617,7 @@ begin
           try
             ParaAttrsRX2KNT( ActiveNote.Editor.Paragraph, ParaFormatToCopy );
           except
-            Popupmessage( 'Failed to assign paragraph attributes.', mtError, [mbOK], 0 );
+            Popupmessage( STR_47, mtError, [mbOK], 0 );
             aCmd := ecNone;
           end;
         end;
@@ -1579,7 +1635,7 @@ begin
           s := CommandRecall.GoToIdx;
           if ( not RecallingCommand ) then
           begin
-            if ( not InputQuery( 'Go to line', 'Enter line number or increment (+-):', s )) then
+            if ( not InputQuery( STR_48, STR_49, s )) then
             begin
               s := '';
             end;
@@ -1615,7 +1671,7 @@ begin
           end
           else
           begin
-            Form_Main.NotImplemented( 'Unexpected or not implemented command: ' + EDITCMD_NAMES[aCMD] );
+            Form_Main.NotImplemented( STR_50 + EDITCMD_NAMES[aCMD] );
             aCmd := ecNone;
           end;
         end;
@@ -1629,7 +1685,7 @@ begin
     except
       on E : Exception do
       begin
-        PopupMessage( 'Cannot perform command:' + #13 + E.Message, mtError, [mbOK], 0 );
+        PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
         {$IFDEF MJ_DEBUG}
         Log.Add( 'Exception in PerformCmdEx (' + inttostr( ord( aCMD )) + '): ' + E.Message );
         {$ENDIF}
@@ -1811,7 +1867,7 @@ begin
             if ( FontFormatToCopy.Name <> '' ) then
               FontAttrsKNT2RX( FontFormatToCopy, ActiveNote.Editor.SelAttributes )
             else
-              popupmessage( 'No font attributes to paste from: Use "Copy font attributes" first.', mtError, [mbOK], 0 );
+              popupmessage( STR_52, mtError, [mbOK], 0 );
           end;
           ecParaFormatPaste : begin
             if ( ParaFormatToCopy.SpaceBefore >= 0 ) then // if negative, user has not yet COPIED para format
@@ -1821,7 +1877,7 @@ begin
             end
             else
             begin
-              popupmessage( 'No paragraph attributes to paste from: Use "Copy paragraph attributes" first.', mtError, [mbOK], 0 );
+              popupmessage( STR_53, mtError, [mbOK], 0 );
             end;
           end;
           ecAlignLeft : begin
@@ -1926,7 +1982,7 @@ begin
                 Form_Main.NoteSelText.Size := strtoint( Form_Main.Combo_FontSize.Text );
                 CommandRecall.Font.Size := Form_Main.NoteSelText.Size;
               except
-                messagedlg( Format( '"%s" is not a valid number', [Form_Main.Combo_FontSize.Text] ), mtError, [mbOK], 0 );
+                messagedlg( Format( STR_54, [Form_Main.Combo_FontSize.Text] ), mtError, [mbOK], 0 );
                 aCmd := ecNone;
               end;
             end;
@@ -2043,7 +2099,7 @@ begin
 
                   if ShiftWasDown then
                   begin
-                    if ( messagedlg( 'New background color will be assigned to ALL TREE NODES in note ' + ActiveNote.Name + #13 + 'Continue?',
+                    if ( messagedlg( format(STR_55, [ActiveNote.Name]),
                         mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK ) then
                     begin
                       try
@@ -2413,7 +2469,7 @@ begin
                 else
                 begin
                   // we cannot handle this comand here
-                  Form_Main.NotImplemented( 'Unexpected or not implemented command: ' + EDITCMD_NAMES[aCMD] );
+                  Form_Main.NotImplemented( STR_50 + EDITCMD_NAMES[aCMD] );
                   aCmd := ecNone;
                 end;
               end;
@@ -2428,7 +2484,7 @@ begin
       except
         on E : Exception do
         begin
-          PopupMessage( 'Cannot perform command:' + #13 + E.Message, mtError, [mbOK], 0 );
+          PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
           {$IFDEF MJ_DEBUG}
           Log.Add( 'Exception in PerformCmd (' + inttostr( ord( aCMD )) + '): ' + E.Message );
           {$ENDIF}
@@ -2463,7 +2519,7 @@ begin
       RTFMRepeatCmd.Enabled := MMEditRepeat.Enabled;
       TB_Repeat.Enabled := MMEditRepeat.Enabled;
 
-      MMEditRepeat.Caption := Format( 'Repeat %s', [EDITCMD_NAMES[LastEditCmd]] );
+      MMEditRepeat.Caption := Format( STR_56, [EDITCMD_NAMES[LastEditCmd]] );
       RTFMRepeatCmd.Caption := MMEditRepeat.Caption;
       TB_Repeat.Hint := MMEditRepeat.Caption;
   end;
@@ -2607,7 +2663,7 @@ begin
     oldFilter := Filter;
     Filter := FILTER_MACROS;
     FilterIndex := 1;
-    Title := 'Select macro to execute';
+    Title := STR_57;
     Options := Options - [ofAllowMultiSelect];
     InitialDir := Macro_Folder;
     FileName := LastMacroFN;

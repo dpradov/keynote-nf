@@ -23,6 +23,7 @@ const
    procedure InitializeKeynote (Form_Main: TForm_Main);
    procedure CheckEmpty (var RTFAux: TRxRichEdit);
    procedure InitializeOptions;
+   procedure AddSearchModes;
 
 var
 
@@ -180,6 +181,21 @@ uses Classes, Messages, Graphics, Dialogs, Forms, Menus, Controls, SysUtils,
      kn_ConfigFileMng, kn_MacroMng, kn_FindReplaceMng,
      kn_TemplateMng, kn_StyleMng, kn_NoteFileMng, kn_VCLControlsMng;
 
+
+procedure AddSearchModes;
+var
+   sm : TSearchMode;
+begin
+  if not assigned(Form_Main) then exit;
+  with Form_Main do begin
+      RG_ResFind_Type.Items.Clear;
+      for sm := low( TSearchMode ) to high( TSearchMode ) do
+      begin
+        RG_ResFind_Type.Items.Add( SEARCH_MODES[sm] );
+      end;
+      RG_ResFind_Type.ItemIndex := 0;
+  end;
+end;
 
 //====================================================================
 procedure InitializeKeynote (Form_Main: TForm_Main);
@@ -378,11 +394,7 @@ begin
       Application.HelpFile := normalFN( changefileext( Application.ExeName, ext_CHM ));
       OpenDlg.Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
 
-      for sm := low( TSearchMode ) to high( TSearchMode ) do
-      begin
-        RG_ResFind_Type.Items.Add( SEARCH_MODES[sm] );
-      end;
-      RG_ResFind_Type.ItemIndex := 0;
+      AddSearchModes;
 
       Form_Chars := nil;
       InsCharFont.Name := '';
@@ -809,7 +821,6 @@ begin
       end;
 
 end;
-
 
 {$IFDEF WITH_TIMER}
 procedure StoreTick( const Msg : string; const Tick : integer );

@@ -74,6 +74,14 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = 'file';
+  STR_02 = 'files';
+  STR_03 = 'Select import method (%d *%s %s)';
+  STR_04 = '&General options';
+  STR_05 = '&Virtual node...';
+  STR_06 = '&HTML options';
+
 procedure TForm_DropFile.FormCreate(Sender: TObject);
 var
   m : THTMLImportMethod;
@@ -95,11 +103,11 @@ var
 begin
   OnActivate := nil;
   if ( NumberOfFiles < 2 ) then
-    s := 'file'
+    s := STR_01
   else
-    s := 'files';
+    s := STR_02;
   Caption := Format(
-    'Select import method (%d *%s %s)',
+    STR_03,
     [NumberOfFiles, FileExt, s] );
 
   try
@@ -117,12 +125,12 @@ procedure TForm_DropFile.Btn_HTMLClick(Sender: TObject);
 begin
   case PagesImp.PageIndex of
     0 : begin
-      Btn_HTML.Caption := '&General options';
+      Btn_HTML.Caption := STR_04;
       PagesImp.PageIndex := 1;
     end;
     1 : begin
       PagesImp.PageIndex := 0;
-      Btn_HTML.Caption := '&Virtual node...'
+      Btn_HTML.Caption := STR_05
     end;
   end;
 end;
@@ -132,7 +140,7 @@ begin
   if Btn_HTML.Visible then
   begin
     Btn_HTML.Enabled := true;
-    Btn_HTML.Caption := '&HTML options';
+    Btn_HTML.Caption := STR_06;
   end;
 end;
 

@@ -109,6 +109,11 @@ function MakeMacroFileName( const s : string ) : string;
 
 implementation
 
+resourcestring
+  STR_Macro_01 = 'Invalid macro header';
+  STR_Macro_02 = 'Invalid macro version information';
+  STR_Macro_03 = 'Error while loading macro "%s": %s' + #13#13 + 'Continue loading macros?';
+  STR_Macro_04 = 'Unexpected error while loading macro "%s": %s';
 
 constructor TMacro.Create;
 begin
@@ -256,7 +261,7 @@ begin
   ;Version|Macro Name|Description|Date modified
   }
 
-  ErrStr := 'Invalid macro header';
+  ErrStr := STR_Macro_01;
   if ( infostr = '' ) then exit;
   if ( infostr[1] <> _MACRO_COMMENT_CHAR ) then exit;
   delete( infostr, 1, 1 );
@@ -268,7 +273,7 @@ begin
   delete( infostr, 1, p );
 
   // validate version string
-  ErrStr := 'Invalid macro version information';
+  ErrStr := STR_Macro_02;
   if ( length( s ) < 3 ) then exit;
   q := pos( '.', s );
   if ( q = 0 ) then exit;
@@ -340,10 +345,7 @@ begin
         end
         else
         begin
-          if ( messagedlg( Format(
-              'Error while loading macro "%s": %s',
-              [DirInfo.Name, Macro.LastError]
-            ) + #13#13 + 'Continue loading macros?',
+          if ( messagedlg( Format(STR_Macro_03,[DirInfo.Name, Macro.LastError]),
             mtWarning, [mbYes, mbNo], 0 ) <> mrYes ) then
               FindResult := -1; // will abort loop
           Macro.Free;
@@ -354,13 +356,11 @@ begin
     except
       ON E : Exception do
       begin
-        messagedlg( Format(
-          'Unexpected error while loading macro "%s": %s',
-          [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
+        messagedlg( Format(STR_Macro_04, [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
       end;
     end;
 
-  finally 
+  finally
     Macro_List.EndUpdate;
     SysUtils.FindClose( DirInfo );
   end;

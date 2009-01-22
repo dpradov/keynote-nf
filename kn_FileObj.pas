@@ -185,6 +185,29 @@ type
 
 implementation
 
+resourcestring
+  STR_01 = 'Cannot open "%s": File not found';
+  STR_02 = 'Invalid file header in "%s" (not a KeyNote file)';
+  STR_03 = 'Access passphrase not specified: cannot open encrypted file.';
+  STR_04 = 'The passphrase is invalid. Try again?';
+  STR_05 = '%s: This file was created with a version of KeyNote later than the version you are using. ' +
+                'Expected version ID: "%s.%s" This file version ID: "%s.%s"  You need the latest version of KeyNote to open this file.';
+  STR_06 = ': This file was created with a version of KeyNote newer than the version you are using. ' +
+                'The file can be opened, but some information can be lost or misinterpreted. As a safety measure, the file should be opened in Read-Only mode. ' +
+                'Would you like to open the file as Read-Only?';
+  STR_07 = '%s: Invalid file header or version, or corrupt file.';
+  STR_08 = 'Error loading note ';
+  STR_09 = '%s: Invalid DartNotes file header: ';
+  STR_10 = 'This file contains notes which are not compatible with %s format. Only %s notes can be saved in this format.';
+  STR_11 = 'This file is Read-Only. Use "Save As" command to save it with a new name.';
+  STR_12 = 'Error: Filename not specified.';
+  STR_13 = 'Error while saving note "%s": %s';
+  STR_14 = 'Cannot save: Passphrase not set';
+  STR_15 = 'Failed to create output file "%s". Temporary savefile "%s" contains file data.';
+  STR_16 = 'Failed to create output file "%s". Temporary file "%s" contains saved data.';
+  STR_17 = 'Stream size error: Encrypted file is invalid or corrupt.';
+  STR_18 = 'Invalid passphrase: Cannot open encrypted file.';
+
 constructor TNoteList.Create;
 begin
   inherited Create;
@@ -510,7 +533,7 @@ begin
 
   if ( not FileExists( FN )) then
   begin
-    raise Exception.CreateFmt( 'Cannot open "%s": File not found', [FN] );
+    raise Exception.CreateFmt( STR_01, [FN] );
   end;
 
   _VNKeyNoteFileName := FN;
@@ -565,7 +588,7 @@ begin
     end
     else
     begin
-      raise Exception.CreateFmt( 'Invalid file header in "%s" (not a KeyNote file)', [FN] );
+      raise Exception.CreateFmt( STR_02, [FN] );
       exit;
     end;
 
@@ -586,7 +609,7 @@ begin
 
         repeat // repeatedly prompt for passphrase, unless other action chosen
           if ( not GetPassphrase( FN )) then
-            raise EKeyNoteFileError.Create( 'Access passphrase not specified: cannot open encrypted file.' );
+            raise EKeyNoteFileError.Create( STR_03 );
 
           try
             DecryptFileToStream( FN, MemStream );
@@ -596,7 +619,7 @@ begin
             begin
               HasLoadError := false;
               if ( messagedlg(
-                'The passphrase is invalid. Try again?',
+                STR_04,
                 mtError, [mbYes,mbNo], 0  ) <> mrYes ) then raise;
             end;
           end;
@@ -624,16 +647,13 @@ begin
                 if ( VerID.Major > NFILEVERSION_MAJOR ) then
                 begin
                   raise EKeyNoteFileError.CreateFmt(
-                    '%s: This file was created with a version of KeyNote later than the version you are using. ' +
-                    'Expected version ID: "%s.%s" This file version ID: "%s.%s"  You need the latest version of KeyNote to open this file.',
+                    STR_05,
                     [extractfilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] );
                 end;
 
                 if ( VerID.Minor > NFILEVERSION_MINOR ) then
                 begin
-                  case messagedlg( extractfilename( FN ) + ': This file was created with a version of KeyNote newer than the version you are using. ' +
-                                   'The file can be opened, but some information can be lost or misinterpreted. As a safety measure, the file should be opened in Read-Only mode. ' +
-                                   'Would you like to open the file as Read-Only?', mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
+                  case messagedlg( extractfilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
                     mrNo : begin
                       // nothing, just fall through
                     end;
@@ -659,7 +679,7 @@ begin
 
           if FileIDTestFailed then
           begin
-            raise EKeyNoteFileError.CreateFmt( '%s: Invalid file header or version, or corrupt file.', [extractfilename( FN )] );
+            raise EKeyNoteFileError.CreateFmt( STR_07, [extractfilename( FN )] );
           end;
 
           InHead := true;
@@ -792,7 +812,7 @@ begin
                 On E : Exception do
                 begin
                   HasLoadError := true;
-                  messagedlg( 'Error loading note ' + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                  messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
                   Note.Free;
                   // raise;
                 end;
@@ -873,7 +893,7 @@ begin
           end;
 
           if FileIDTestFailed then
-            raise Exception.CreateFmt( '%s: Invalid DartNotes file header: ' + VerID.ID, [extractfilename( FN )] );
+            raise Exception.CreateFmt( STR_09 + VerID.ID, [extractfilename( FN )] );
 
           // initialize some stuff we got from the file already,
           // and some stuff that is not present in Dart file header
@@ -895,7 +915,7 @@ begin
               On E : Exception do
               begin
                 HasLoadError := true;
-                messagedlg( 'Error loading note ' + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
                 Note.Free;
                 // raise;
               end;
@@ -937,7 +957,7 @@ begin
   FSavedWithRichEdit3 := ( _LoadedRichEditVersion = 3 );
 
   if (( FFileFormat in [nffDartNotes] ) and HasExtendedNotes ) then
-    raise EKeyNoteFileError.CreateFmt( 'This file contains notes which are not compatible with %s format. Only %s notes can be saved in this format.', [FILE_FORMAT_NAMES[FFileFormat], TABNOTE_KIND_NAMES[ntRTF]] );
+    raise EKeyNoteFileError.CreateFmt( STR_10, [FILE_FORMAT_NAMES[FFileFormat], TABNOTE_KIND_NAMES[ntRTF]] );
 
   if ( FN = '' ) then
     FN := FFileName;
@@ -948,16 +968,16 @@ begin
   {$I+}
 
   if FReadOnly then
-    raise EKeyNoteFileError.Create( 'This file is Read-Only. Use "Save As" command to save it with a new name.' );
+    raise EKeyNoteFileError.Create( STR_11 );
 
   if ( FN = '' ) then
-    raise EKeyNoteFileError.Create( 'Error: Filename not specified.' );
+    raise EKeyNoteFileError.Create( STR_12 );
 
   {
   if ( not assigned( FPageCtrl )) then
     raise EKeyNoteFileError.Create( 'Error: PageCtrl not assigned.' );
   }
-  
+
   // get a random temp file name. For safety, we will write data
   // to the temp file, and only overwrite the actual keynote file
   // after the save process is complete.
@@ -1016,7 +1036,7 @@ begin
                   begin
                     result := 3;
                     messagedlg( Format(
-                      'Error while saving note "%s": %s',
+                      STR_13,
                       [myNote.Name, E.Message]
                       ), mtError, [mbOK], 0 );
                       exit;
@@ -1044,7 +1064,7 @@ begin
                   begin
                     result := 3;
                     messagedlg( Format(
-                      'Error while saving note "%s": %s',
+                      STR_13,
                       [myNote.Name, E.Message]
                       ), mtError, [mbOK], 0 );
                       exit;
@@ -1064,7 +1084,7 @@ begin
         nffEncrypted : begin
 
           if ( FPassphrase = '' ) then
-            raise EKeyNoteFileError.Create( 'Cannot save: Passphrase not set' );
+            raise EKeyNoteFileError.Create( STR_14 );
 
           CryptStream := TMemoryStream.Create;
           try
@@ -1107,7 +1127,7 @@ begin
                     begin
                       result := 3;
                       messagedlg( Format(
-                        'Error while saving note "%s": %s',
+                        STR_13,
                         [myNote.Name, E.Message]
                         ), mtError, [mbOK], 0 );
                       exit;
@@ -1133,7 +1153,7 @@ begin
                     begin
                       result := 3;
                       messagedlg( Format(
-                        'Error while saving note "%s": %s',
+                        STR_13,
                         [myNote.Name, E.Message]
                         ), mtError, [mbOK], 0 );
                       exit;
@@ -1199,7 +1219,7 @@ begin
       begin
         if ( not MoveFileEx( PChar( tempFN ), PChar( FN ), MOVEFILE_REPLACE_EXISTING )) then
         begin
-          raise EKeyNoteFileError.CreateFmt( 'Failed to create output file "%s". Temporary savefile "%s" contains file data.', [FN, tempFN] );
+          raise EKeyNoteFileError.CreateFmt( STR_15, [FN, tempFN] );
         end;
       end
       else
@@ -1207,7 +1227,7 @@ begin
         if CopyFile( PChar( tempFN ), PChar( FN ), false ) then
           deletefile( tempFN )
         else
-          raise EKeyNoteFileError.CreateFmt( 'Failed to create output file "%s". Temporary file "%s" contains saved data.', [FN, tempFN] );
+          raise EKeyNoteFileError.CreateFmt( STR_16, [FN, tempFN] );
       end;
 
     except
@@ -1319,7 +1339,7 @@ end; // EncryptFileInStream
 
 procedure RaiseStreamReadError;
 begin
-  raise EKeyNoteFileError.Create( 'Stream size error: Encrypted file is invalid or corrupt.' );
+  raise EKeyNoteFileError.Create( STR_17 );
 end; // RaiseStreamReadError
 
 procedure TNoteFile.DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
@@ -1389,7 +1409,7 @@ begin
       if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
       if ( not CompareMem( @HashRead, @HashDigest, Sizeof( HashRead ))) then
-        raise EPassphraseError.Create( 'Invalid passphrase: Cannot open encrypted file.' );
+        raise EPassphraseError.Create( STR_18 );
 
       getmem( dataptr, Info.DataSize );
 

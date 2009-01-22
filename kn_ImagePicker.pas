@@ -75,6 +75,9 @@ function PickImage( const CurrentIdx : integer; var DoChildren : boolean ) : int
 implementation
 
 {$R *.DFM}
+resourcestring
+  STR_01 = ' icon %d ';
+
 
 function PickImage( const CurrentIdx : integer; var DoChildren : boolean ) : integer;
 var
@@ -145,7 +148,7 @@ begin
     for i := 0 to pred( Chest.IMG_Categories.Count ) do
     begin
       // List_ICN.AddItem( Format( ' icon %d ', [succ( i )]), i );
-      List_ICN.AddItem( Format( ' icon %d ', [succ( i )]), cbUnchecked, i );
+      List_ICN.AddItem( Format( STR_01, [succ( i )]), cbUnchecked, i );
     end;
   finally
     List_ICN.Items.EndUpdate;

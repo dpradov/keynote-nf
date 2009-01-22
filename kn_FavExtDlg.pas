@@ -73,6 +73,8 @@ implementation
 
 {$R *.DFM}
 
+resourcestring
+  STR_01 = 'The specified file does not exist. Do you want to use the filename anyway?';
 
 
 
@@ -99,7 +101,7 @@ begin
   if ( ModalResult = mrOK ) then
   begin
     if ( not fileexists( NormalFN( Edit_FN.Text ))) then
-      CanClose := ( messagedlg( 'The specified file does not exist. Do you want to use te filename anyway?', mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
+      CanClose := ( messagedlg( STR_01, mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
   end;
 end;
 

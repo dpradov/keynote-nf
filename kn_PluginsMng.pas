@@ -25,6 +25,32 @@ uses
     kn_Global, kn_Main, kn_Info, kn_Const, kn_RTFUtils, kn_NoteObj, kn_NoteFileMng,
     kn_TreeNoteMng, kn_VCLControlsMng;
 
+resourcestring
+  STR_01 = 'Select plugin to display information';
+  STR_02 = '(version %d)';
+  STR_03 = 'Filename: ';
+  STR_04 = 'No plugins available.';
+  STR_05 = 'Could not execute plugin ';
+  STR_06 = 'No plugins available or none selected.';
+  STR_07 = 'Cannot execute plugin - file not found. (%s)';
+  STR_08 = 'Execute most recent plugin "%s"';
+  STR_09 = 'Could not obtain plugin information from "%s". Make sure that the file exists.';
+  STR_10 = 'Plugin "%s" (%s) reports wrong version number %d. A newer version of KeyNote is required to run this plugin.';
+  STR_11 = 'Plugin "%s" (%s) refuses to execute.';
+  STR_12 = 'Could not load plugin "%s" (%s).';
+  STR_13 = 'Could not execute plugin "%s" (%s).';
+  STR_14 = 'Resident plugin "%s" is already running. Shut down the running plugin first.';
+  STR_15 = 'Plugin "%s" tried to go resident, but attempt to set resident plugin ID failed. Plugin will be shut down.';
+  STR_16 = 'Plugin "%s" requires that text is selected in active note. Select some text and try again.';
+  STR_17 = 'Plugin returned error code "%d"';
+  STR_18 = 'Plugin "%s" is now running';
+  STR_19 = 'Plugin copied data to clipboard. Ok to paste into active note?';
+  STR_20 = 'Active note "%s" is Read-only. Inserting plugin output will modify the note. Insert anyway?';
+  STR_21 = 'Unexpected error during plugin cleanup: ';
+  STR_22 = 'Unexpected plugin error: ';
+  STR_23 = 'Resident plugin "%s" unloaded';
+  STR_24 = 'Unexpected error while shutting down resident plugin "%s": %s';
+
 var
     Resident_Plugin_Counter : longint;
 
@@ -87,7 +113,7 @@ begin
   myPlugin := GetSelectedPlugin;
   if ( not assigned( myPlugin )) then
   begin
-    Form_Main.LB_PluginInfo.Caption := 'Select plugin to display information';
+    Form_Main.LB_PluginInfo.Caption := STR_01;
     exit;
   end;
 
@@ -103,10 +129,10 @@ begin
     );
     }
   end;
-  s := s + Format( '(version %d)', [myPlugin.Version] );
+  s := s + Format( STR_02, [myPlugin.Version] );
 
   Form_Main.LB_PluginInfo.Caption := myPlugin.Info + #13 +
-                           'Filename: ' + myPlugin.Filename + #13 +
+                           STR_03 + myPlugin.Filename + #13 +
                            s;
 
 end; // ShowPluginInfo
@@ -132,7 +158,7 @@ begin
         EnumeratePlugins;
         if ( Plugin_List.Count = 0 ) then
         begin
-          StatusBar.Panels[PANEL_HINT].Text := 'No plugins available.';
+          StatusBar.Panels[PANEL_HINT].Text := STR_04;
           ShowPluginInfo;
           exit;
         end;
@@ -209,7 +235,7 @@ begin
 
   if ( not ExecutePluginConfig( fn, Application.Handle )) then
   begin
-    messagedlg( 'Could not execute plugin ' + extractfilename( fn ),
+    messagedlg( STR_05 + extractfilename( fn ),
       mtError, [mbOK], 0 );
   end;
 
@@ -246,7 +272,7 @@ begin
         Plugin := GetSelectedPlugin;
         if ( not assigned( Plugin )) then
         begin
-          messagedlg( 'No plugins available or none selected.', mtError, [mbOK], 0 );
+          messagedlg( STR_06, mtError, [mbOK], 0 );
           exit;
         end;
         fn := Plugin.Filename;
@@ -257,9 +283,7 @@ begin
 
       if ( not fileexists( fn )) then
       begin
-        messagedlg( Format(
-          'Cannot execute plugin - file not found. (%s)',
-          [fn] ), mtError, [mbOK], 0 );
+        messagedlg( Format( STR_07, [fn] ), mtError, [mbOK], 0 );
         exit;
       end;
 
@@ -269,10 +293,7 @@ begin
       Plugin.FileName := fn;
       LastPluginFN := fn;
 
-      MMToolsPluginRunLast.Hint := Format(
-        'Execute most recent plugin "%s"',
-        [extractfilename( LastPluginFN )]
-      );
+      MMToolsPluginRunLast.Hint := Format(STR_08,  [extractfilename( LastPluginFN )] );
 
       InsertPluginOutput := false;
       NoteWasReadOnly := false;
@@ -286,17 +307,13 @@ begin
           Plugin.Info,
           Plugin.Features )) then
         begin
-          messagedlg( Format(
-            'Could not obtain plugin information from "%s". Make sure that the file exists.',
-            [extractfilename( fn )] ), mtError, [mbOK], 0 );
+          messagedlg( Format(STR_09, [extractfilename( fn )] ), mtError, [mbOK], 0 );
           exit;
         end;
 
         if ( Plugin.Version <> 1 ) then
         begin
-          messagedlg( Format(
-            'Plugin "%s" (%s) reports wrong version number %d. A newer version of KeyNote is required to run this plugin.',
-            [Plugin.Name, extractfilename( fn ), Plugin.Version] ), mtError, [mbOK], 0 );
+          messagedlg( Format(STR_10, [Plugin.Name, extractfilename( fn ), Plugin.Version] ), mtError, [mbOK], 0 );
           exit;
         end;
 
@@ -304,18 +321,14 @@ begin
 
         if ( not ( plOK in Plugin.Features )) then
         begin
-          messagedlg( Format(
-            'Plugin "%s" (%s) refuses to execute.',
-            [Plugin.Name, extractfilename( fn )] ), mtError, [mbOK], 0 );
+          messagedlg( Format(STR_11, [Plugin.Name, extractfilename( fn )] ), mtError, [mbOK], 0 );
           exit;
         end;
 
         hDLLInst := LoadLibrary( PChar( FN ));
         if ( hDLLInst <= 0 ) then
         begin
-          messagedlg( Format(
-            'Could not load plugin "%s" (%s).',
-            [Plugin.Name, extractfilename( fn )] ), mtError, [mbOK], 0 );
+          messagedlg( Format(STR_12, [Plugin.Name, extractfilename( fn )] ), mtError, [mbOK], 0 );
           exit;
         end;
 
@@ -325,9 +338,7 @@ begin
             @KNTPluginExecute := GetProcAddress( hDLLInst, 'KNTPluginExecute' );
             if ( not assigned( KNTPluginExecute )) then
             begin
-              messagedlg( Format(
-                'Could not execute plugin "%s" (%s).',
-                [Plugin.Name, extractfilename( fn ) ] ), mtError, [mbOK], 0 );
+              messagedlg( Format(STR_13, [Plugin.Name, extractfilename( fn ) ] ), mtError, [mbOK], 0 );
               exit;
             end;
 
@@ -345,10 +356,7 @@ begin
             begin
               if ( Loaded_Plugins.IndexOf( Plugin.Name ) >= 0 ) then
               begin
-                messagedlg( Format(
-                    'Resident plugin "%s" is already running. Shut down the running plugin first.',
-                    [Plugin.Name]
-                  ), mtInformation, [mbOK], 0 );
+                messagedlg( Format(STR_14, [Plugin.Name]), mtInformation, [mbOK], 0 );
                 exit;
               end;
             end;
@@ -368,10 +376,7 @@ begin
                 // cannot allow plugin to go resident,
                 // because we won't be able to identify it
                 // when it shuts down
-                messagedlg( Format(
-                    'Plugin "%s" tried to go resident, but attempt to set resident plugin ID failed. Plugin will be shut down.',
-                    [Plugin.Name]
-                  ), mtError, [mbOK], 0 );
+                messagedlg( Format(STR_15, [Plugin.Name]), mtError, [mbOK], 0 );
                 exit;
               end;
             end;
@@ -404,10 +409,7 @@ begin
                   if ( plNeedsSelection in Plugin.Features ) then
                   begin
                     // selection is required, so we must abort
-                    messagedlg( Format(
-                        'Plugin "%s" requires that text is selected in active note. Select some text and try again.',
-                        [Plugin.Name]
-                      ), mtInformation, [mbOK], 0 );
+                    messagedlg( Format(STR_16, [Plugin.Name]), mtInformation, [mbOK], 0 );
                     exit;
                   end
                   else
@@ -483,17 +485,14 @@ begin
 
               if ( result < 0 ) then
               begin
-                messagedlg( Format(
-                  'Plugin returned error code "%d"',
-                  [result] ),
-                  mtWarning, [mbOK], 0 );
+                messagedlg( Format(STR_17,[result] ), mtWarning, [mbOK], 0 );
                 exit;
               end;
 
               if ( plStaysResident in Plugin.Features ) then
               begin
                 StatusBar.Panels[PANEL_HINT].Text := Format(
-                    'Plugin "%s" is now running',
+                    STR_18,
                     [extractfilename( Plugin.Filename )]
                   );
               end
@@ -521,7 +520,7 @@ begin
                   begin
                     InsertPluginOutput := ( KeyOptions.AutoPastePlugin or
                       ( Application.MessageBox(
-                        'Plugin copied data to clipboard. Ok to paste into active note?',
+                        PChar(STR_19),
                         PChar( Plugin.Name ),
                         MB_OKCANCEL+MB_ICONASTERISK+MB_DEFBUTTON1+MB_APPLMODAL
                       ) = ID_OK ));
@@ -538,10 +537,8 @@ begin
                   NoteWasReadOnly := ActiveNote.ReadOnly;
                   if NoteWasReadOnly then
                   begin
-                    InsertPluginOutput := ( messagedlg( Format(
-                        'Active note "%s" is Read-only. Inserting plugin output will modify the note. Insert anyway?',
-                        [ActiveNote.Name]
-                      ), mtWarning, [mbOK, mbCancel], 0 ) = mrOK );
+                    InsertPluginOutput := ( messagedlg( Format(STR_20,[ActiveNote.Name]),
+                        mtWarning, [mbOK, mbCancel], 0 ) = mrOK );
                   end;
                 end;
 
@@ -579,7 +576,7 @@ begin
               except
                 On E : Exception do
                 begin
-                  messagedlg( 'Unexpected error during plugin cleanup: ' + E.Message, mtError, [mbOK], 0 );
+                  messagedlg( STR_21 + E.Message, mtError, [mbOK], 0 );
                 end;
               end;
 
@@ -588,7 +585,7 @@ begin
           except
             On E : Exception do
             begin
-              messagedlg( 'Unexpected plugin error: ' + E.Message, mtError, [mbOK], 0 );
+              messagedlg( STR_22 + E.Message, mtError, [mbOK], 0 );
               exit;
             end;
           end;
@@ -644,16 +641,13 @@ begin
       try
         FreeLibrary( DLLInstance );
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(
-          'Resident plugin "%s" unloaded',
+          STR_23,
           [Loaded_Plugins[p]]
         );
       except
         on E : Exception do
         begin
-          messagedlg( Format(
-              'Unexpected error while shutting down resident plugin "%s": %s',
-              [Loaded_Plugins[p],E.Message]
-            ), mtError, [mbOK], 0 );
+          messagedlg( Format(STR_24, [Loaded_Plugins[p],E.Message]), mtError, [mbOK], 0 );
         end;
       end;
     finally
