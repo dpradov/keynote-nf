@@ -3357,17 +3357,11 @@ end;
 
 procedure TForm_Main.MMFormatFIndIncClick(Sender: TObject);
 begin
-  if ShiftDown then
-    PerformCmd( ecRightIndent )
-  else
     PerformCmd( ecFirstIndent );
 end;
 
 procedure TForm_Main.MMFormatFindDecClick(Sender: TObject);
 begin
-  if ShiftDown then
-    PerformCmd( ecRightOutdent )
-  else
     PerformCmd( ecFirstOutdent );
 end;
 
