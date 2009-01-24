@@ -474,6 +474,7 @@ type
       {$IFDEF RX_D3} override; {$ENDIF}
     function GetCaretPos: TPoint; {$IFDEF RX_V110} override; {$ENDIF}
     function GetCharPos(CharIndex: Integer): TPoint;
+    procedure ScrollLinesBy(inc: integer);
     function InsertObjectDialog: Boolean;
     function ObjectPropertiesDialog: Boolean;
     function PasteSpecialDialog: Boolean;
@@ -3963,6 +3964,12 @@ begin
     RecreateWnd;
   end;
 end;
+
+procedure TRxCustomRichEdit.ScrollLinesBy(inc: integer);
+begin
+  SendMessage(Handle, EM_LINESCROLL, 0, inc);
+end;
+
 
 procedure TRxCustomRichEdit.SetSelectionBar(Value: Boolean);
 begin

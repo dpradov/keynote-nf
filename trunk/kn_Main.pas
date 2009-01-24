@@ -2623,6 +2623,14 @@ begin
       end
       else if Msg.CharCode = Ord('X') then begin
           if CmdCut then Handled:= true;
+      end
+      else if Msg.CharCode = VK_DOWN then begin
+         ActiveNote.Editor.ScrollLinesBy(1);
+         Handled:= true;
+      end
+      else if Msg.CharCode = VK_UP then begin
+         ActiveNote.Editor.ScrollLinesBy(-1);
+         Handled:= true;
       end;
    end;
 end;
