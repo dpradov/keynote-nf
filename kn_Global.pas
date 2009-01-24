@@ -470,6 +470,7 @@ begin
       // check other instance, and do the job is necessary
       if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) then
       begin
+        Messagedlg( 'KeyNote NF have been configured to allow only one instance at a time' + #13 + 'Closing this instance...', mtWarning, [mbOK], 0 );
         ClosedOnPreviousInstance := true;
         try
           try
@@ -494,7 +495,6 @@ begin
           // PostQuitMessage( 0 );
           // Application.Terminate;
         end;
-        Halt;
         exit;
       end;
 
