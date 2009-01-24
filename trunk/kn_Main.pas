@@ -2613,7 +2613,7 @@ var
   myKey: Word;
   myShift: TShiftState;
 begin
-   if (GetKeyState(VK_CONTROL) < 0) then
+   if (GetKeyState(VK_CONTROL) < 0) and not (GetKeyState(VK_MENU) < 0) and not (GetKeyState(VK_SHIFT) < 0) then
    begin
       if Msg.CharCode = Ord('C') then begin
           if CmdCopy then Handled:= true;
