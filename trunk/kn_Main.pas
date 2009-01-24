@@ -2664,9 +2664,30 @@ end; // Combo_StyleChange
 procedure TForm_Main.RxRTFKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  line, col, indent : integer;
+  line, col, indent, posFirstChar : integer;
   s : string;
   ptCursor :  TPoint;
+
+  procedure getInformationOfCurrentLine(Editor: TRxRichEdit);
+  begin
+      with Editor do begin
+          // figure out line and column position of caret
+          line := PerForm( EM_EXLINEFROMCHAR,0, SelStart );
+          posFirstChar:= Perform( EM_LINEINDEX,line,0 );
+          Col  := SelStart - posFirstChar;
+
+          // get part of current line in front of caret
+          S:= Copy( lines[ line ], 1, col );
+
+          // count blanks and tabs in this string
+          indent := 0;
+          while (indent < length( S )) and
+                (S[indent+1] In  [' ',#9])
+          do
+            Inc( indent );
+      end;
+  end;
+
 begin
   _IS_FAKING_MOUSECLICK := false;
   if assigned( ActiveNote ) then
@@ -2696,28 +2717,22 @@ begin
         else
           PerformCmdEx( ecInsOvrToggle );
       end;
+      VK_HOME: begin
+          getInformationOfCurrentLine(TRxRichEdit(sender));
+          if TRxRichEdit(sender).SelStart > (posFirstChar + indent) then begin
+             TRxRichEdit(sender).SelStart:= posFirstChar + indent;
+             key:= 0;
+          end;
+      end;
 
       13 : if EditorOptions.AutoIndent
               and (TRxRichEdit(sender).Paragraph.TableStyle = tsNone)  // DPV
            then
       begin
         if NoteIsReadOnly( ActiveNote, true ) then exit;
+        getInformationOfCurrentLine(TRxRichEdit(sender));
         with ( sender as TRxRichEdit ) do
         begin
-          // figure out line and column position of caret
-          line := PerForm( EM_EXLINEFROMCHAR,0, SelStart );
-          Col  := SelStart - Perform( EM_LINEINDEX,line,0 );
-
-          // get part of current line in front of caret
-          S:= Copy( lines[ line ], 1, col );
-
-          // count blanks and tabs in this string
-          indent := 0;
-          while (indent < length( S )) and
-                (S[indent+1] In  [' ',#9])
-          do
-            Inc( indent );
-
           if (indent = length(S)) and (TRxRichEdit(sender).Paragraph.Numbering <> nsNone) then begin
 
              If TRxRichEdit(sender).Paragraph.Numbering = nsBullet Then
@@ -2780,41 +2795,6 @@ begin
         end;
       end;
     end;
-  {
-  end
-  else
-  if ( ssAlt in Shift ) then
-  begin
-    case Key of
-      VK_UP, VK_DOWN : if ( ActiveNote.Kind = ntTree ) then
-      begin
-        // do in editor what bare UP/DOWN arrow keys do in the tree
-        // this allows user to switch to another
-        // tree node without leaving the editor
-        if ( not IsRecordingMacro ) then
-        with TTreeNote( ActiveNote ).TV do
-        begin
-          Perform( WM_KEYDOWN, Key, 0 );
-          Perform( WM_KEYUP, Key, 0 );
-        end;
-        key := 0;
-      end;
-
-      VK_RIGHT, VK_LEFT : if (( ssShift in Shift ) and ( ActiveNote.Kind = ntTree )) then
-      begin
-        // do in editor what bare LEFT/RIGHT arrow keys do in the tree
-        // this allows user to switch to another
-        // tree node without leaving the editor
-        if ( not IsRecordingMacro ) then
-        with TTreeNote( ActiveNote ).TV do
-        begin
-          Perform( WM_KEYDOWN, Key, 0 );
-          Perform( WM_KEYUP, Key, 0 );
-        end;
-        key := 0;
-      end;
-    end;
-  }
   end;
 
 end; // RxRTFKeyDown
