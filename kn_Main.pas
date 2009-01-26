@@ -1001,8 +1001,6 @@ type
     procedure MMRenamenodeClick(Sender: TObject);
     procedure MMViewTBTreeClick(Sender: TObject);
     procedure TVDeleteNodeClick(Sender: TObject);
-    procedure TVMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
     procedure TVDeletion(Sender: TObject; Node: TTreeNTNode);
     procedure MMTreeFullExpandClick(Sender: TObject);
     procedure MMTreeFullCollapseClick(Sender: TObject);
@@ -2664,7 +2662,7 @@ end; // Combo_StyleChange
 procedure TForm_Main.RxRTFKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  line, col, indent, posFirstChar : integer;
+  line, col, indent, maxIndent, posFirstChar : integer;
   s : string;
   ptCursor :  TPoint;
 
@@ -2676,15 +2674,19 @@ var
           posFirstChar:= Perform( EM_LINEINDEX,line,0 );
           Col  := SelStart - posFirstChar;
 
-          // get part of current line in front of caret
-          S:= Copy( lines[ line ], 1, col );
+          S:= lines[ line ];
 
           // count blanks and tabs in this string
-          indent := 0;
-          while (indent < length( S )) and
-                (S[indent+1] In  [' ',#9])
+          maxIndent := 0;
+          while (maxIndent < length( S )) and
+                (S[maxIndent+1] In  [' ',#9])
           do
-            Inc( indent );
+            Inc( maxIndent );
+
+          if maxIndent > col then
+             indent:= col
+          else
+             indent:= maxIndent;
       end;
   end;
 
@@ -2719,8 +2721,8 @@ begin
       end;
       VK_HOME: begin
           getInformationOfCurrentLine(TRxRichEdit(sender));
-          if TRxRichEdit(sender).SelStart > (posFirstChar + indent) then begin
-             TRxRichEdit(sender).SelStart:= posFirstChar + indent;
+          if ((TRxRichEdit(sender).SelStart > (posFirstChar + indent)) or (TRxRichEdit(sender).SelStart = posFirstChar) ) then begin
+             TRxRichEdit(sender).SelStart:= posFirstChar + maxIndent;
              key:= 0;
           end;
       end;
