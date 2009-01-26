@@ -2957,38 +2957,13 @@ begin
   end;
 end; // UpdateWordWrap
 
-(*
-procedure TForm_Main.RxRTFDragOver(Sender, Source: TObject; X,
-  Y: Integer; State: TDragState; var Accept: Boolean);
-begin
-  // Accept := true;
-  statusbar.panels[0].text := inttostr( random( 100 ));
-end; // RxRTFDragOver
-*)
-
-
 procedure TForm_Main.MMEditSelectAllClick(Sender: TObject);
 begin
-  {if Res_RTF.Focused then
-    Res_RTF.SelectAll
-  else}
     PerformCmd( ecSelectAll );
 end;
 
 procedure TForm_Main.MMFormatWordWrapClick(Sender: TObject);
 begin
-  {
-  if Res_RTF.Focused then
-  begin
-    Res_RTF.WordWrap := ( not Res_RTF.WordWrap );
-    if ( _LoadedRichEditVersion > 2 ) then
-    begin
-      Res_RTF.Undo; // kluge for loss of formatting!
-      Res_RTF.SelLength := 0;
-    end;
-  end
-  else
-  }
     PerformCmd( ecWordWrap );
 end;
 
@@ -3066,27 +3041,16 @@ end; // PASTE
 
 procedure TForm_Main.MMEditDeleteClick(Sender: TObject);
 begin
-  {if Res_RTF.Focused then
-  begin
-    Res_RTF.Perform( WM_CLEAR, 0, 0 );
-  end
-  else}
     PerformCmd( ecDelete );
 end; // DELETE
 
 procedure TForm_Main.MMEditUndoClick(Sender: TObject);
 begin
-  {if Res_RTF.Focused then
-    Res_RTF.Undo
-  else}
     PerformCmd( ecUndo );
 end;
 
 procedure TForm_Main.MMEditRedoClick(Sender: TObject);
 begin
-  { if Res_RTF.Focused then
-    Res_RTF.Redo
-  else}
     PerformCmd( ecRedo );
 end;
 
@@ -3098,16 +3062,6 @@ end;
 function TForm_Main.NoteSelText : TRxTextAttributes;
 begin
   result := ActiveNote.Editor.SelAttributes;
-
-  // this code below is taken from Borland's
-  // RichEdit sample, but it's wrong. Even if
-  // SelLength is 0, we must still use SelAttributes.
-  {
-  if ( ActiveNote.Editor.SelLength > 0 ) then
-    result := ActiveNote.Editor.SelAttributes
-  else
-    result := ActiveNote.Editor.DefAttributes;
-  }
 end; // NoteSelText
 
 
@@ -3216,12 +3170,6 @@ begin
     ActiveNote.Editor.OnSelectionChange := nil;
   end;
   try
-    {
-    if ( ActiveNote.FocusMemory = focTree ) then
-      SetTreeNodeFontSize( false, ShiftDown )
-    else
-    }
-
     if ( Sender = Combo_FontSize ) then
       PerformCmd( ecFontSize )
     else
@@ -3249,16 +3197,6 @@ begin
   if ( key = #13 ) then
   begin
     key := #0;
-    {
-    if ( ActiveNote.FocusMemory = focTree ) then
-    begin
-      SetTreeNodeFontSize( ShiftDown );
-    end
-    else
-    begin
-      PerformCmd( ecFontSize );
-    end;
-    }
 
     if ( Sender = Combo_FontSize ) then
       PerformCmd( ecFontSize )
@@ -3486,35 +3424,6 @@ begin
   if assigned( Log ) then Log.Flush( true );
   {$ENDIF}
   { [debug] }
-
-  (*
-  if ( ShiftDown and ( pages.PageCount > 0 )) then
-  begin
-
-    s := '';
-    for i := 0 to pred( pages.ActivePage.ControlCount ) do
-      s := s + 'Controls[' + inttostr( i ) + '] ClassName: "' +
-                pages.ActivePage.Controls[i].ClassName +
-                '"  Name: ' + pages.ActivePage.Controls[i].Name + #13;
-
-    s := 'pages.ControlCount: ' + inttostr( pages.ControlCount ) + #13 +
-    'ActivePage.ControlCount: ' + inttostr( pages.ActivePage.ControlCount ) + #13#13 +
-    s;
-
-    showmessage( s );
-
-    exit;
-  end;
-  *)
-
-  {
-  with ActiveNote.Editor.Font do
-    s := Format( 'Name: %s  Size: %d', [Name, Size] ) + #13;
-  with ActiveNote.EditorChrome.Font do
-    s := s + Format( 'Name: %s  Size: %d', [Name, Size] );
-  if ( messagedlg( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel ) then exit;
-  }
-
 
   s := format( 'Win32Platform: %d', [Win32Platform] ) + #13 +
        format( 'Win32MajorVersion: %d ' + #13 +
@@ -4102,10 +4011,6 @@ begin
 end;
 
 procedure TForm_Main.MMNotePrintPreview_Click(Sender: TObject);
-{
-var
-  Form_Preview: TPreviewForm;
-}
 begin
   if ( not HaveNotes( true, true )) then exit;
   if ( not assigned( ActiveNote )) then exit;
@@ -4124,20 +4029,6 @@ begin
   end;
 
   RichPrinter.PrintRichEditPreview( TCustomRichEdit( ActiveNote.Editor ));
-
-  // [x] does not work
-  // RichPrinter.PrintRichEditPreview( TCustomRichEdit( ActiveNote.RTF ));
-
-  // [x] does not work, either
-  {
-  Form_Preview := TForm_Preview.Create( self );
-  try
-    Form_Preview.myRTF := ActiveNote.Editor;
-    Form_Preview.ShowModal;
-  finally
-    Form_Preview.Free;
-  end;
-  }
 end; // MMPrintpreviewClick
 
 procedure TForm_Main.MMEditCopyAllClick(Sender: TObject);
@@ -4305,15 +4196,6 @@ begin
   inherited;
 end; // DestroyWnd
 
-(*
-procedure TForm_Main.TVBeforeItemPaint(Sender: TObject;
-      Node: TTreeNTNode; ItemRect: TRect; NodeStates: TNodeStates;
-      var OwnerDraw: Boolean);
-begin
-  Node.ParentFont := true;
-end; // TVBeforeItemPaint
-*)
-
 procedure TForm_Main.TVDeletion(Sender: TObject; Node: TTreeNTNode);
 var
    myTNote : TTreeNote;
@@ -4339,20 +4221,6 @@ procedure TForm_Main.TVDblClick(Sender: TObject);
 begin
   // MMRenamenodeClick( Sender );
 end;
-
-procedure TForm_Main.TVMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  (*
-  if ( Button <> mbLeft ) then exit;
-  DraggedTreeNode := ( sender as TTreeNT ).GetNodeAt( X, Y );
-  if assigned( DraggedTreeNode ) then
-  begin
-  //  ( sender as TTreeNT ).BeginDrag( false );
-  end;
-  *)
-end; // TVMouseDown
-
 
 procedure TForm_Main.TVStartDrag(Sender: TObject;
   var DragObject: TDragObject);
@@ -5536,11 +5404,9 @@ end;
 
 //procedure TForm_Main.MMHelpEmailAuthorClick(Sender: TObject);
 //begin
-//  if messagedlg(
-//    'Feel free to send questions, bug reports or feature suggestions for KeyNote. PLEASE DO NOT SEND EMAIL IN HTML FORMAT! Continue?',
+//  if messagedlg('',
 //    mtConfirmation, [mbOK,mbCancel], 0
 //    ) <> mrOK then exit;
-//
 //  screen.Cursor := crHourGlass;
 //  ShellExecute( 0, 'open', PChar( 'mailto:' + Program_Email ), nil, nil, SW_NORMAL );
 //  screen.Cursor := crDefault;
@@ -5723,37 +5589,13 @@ end;
 
 procedure TForm_Main.MMHelpKeyboardRefClick(Sender: TObject);
 begin
-//  Application.HelpCommand( HELP_CONTEXT, 30 );  *1
   HtmlHelp(0, PAnsiChar(Application.HelpFile), HH_HELP_CONTEXT, 30);
 end;
 
 procedure TForm_Main.MMHelpMainClick(Sender: TObject);
 begin
-//  Application.HelpCommand( HELP_CONTEXT, 10 );  *1
   HtmlHelp(0, PAnsiChar(Application.HelpFile), HH_HELP_CONTEXT, 10);
 end;
-
-(*
-  Application.HelpCommand( HELP_CONTEXT, self.HelpContext );
-*)
-
-(*
-procedure TForm_Main.MMToolsCalculatorClick(Sender: TObject);
-var
-  RxCalculator : TRxCalculator;
-begin
-  RxCalculator := TRxCalculator.Create( self );
-  try
-    if RxCalculator.Execute then
-    begin
-      if ( assigned( ActiveNote ) and ( not ActiveNote.ReadOnly )) then
-        ActiveNote.Editor.SelText := FloatToStr( RxCalculator.Value );
-    end;
-  finally
-    RxCalculator.Free;
-  end;
-end; // MMCalculatorClick
-*)
 
 procedure TForm_Main.MMToolsTemplateCreateClick(Sender: TObject);
 begin
@@ -5765,7 +5607,6 @@ procedure TForm_Main.MMToolsTemplateInsertClick(Sender: TObject);
 begin
   InsertTemplate( '' );
 end;
-
 
 procedure TForm_Main.TVCheckNodeClick(Sender: TObject);
 var
@@ -5920,12 +5761,6 @@ end; // Menu_RTFPopup
 
 procedure TForm_Main.Splitter_ResMoved(Sender: TObject);
 begin
-  {
-  if ( ResPanelOptions.TabOrientation in [tabposTop, tabposBottom] ) then
-    Combo_ResFind.Width := Pages_Res.Width - 22
-  else
-    Combo_ResFind.Width := Pages_Res.Width - 40;
-  }
   Combo_ResFind.Width := ResTab_Find.Width - 15;
 end;
 
@@ -6627,7 +6462,6 @@ procedure TForm_Main.RxRTFStartDrag(Sender: TObject;
   var DragObject: TDragObject);
 begin
   _Is_Dragging_Text := true;
-  // StatusBar.Panels[0].Text := 'RTF start drag';
 end;
 
 procedure TForm_Main.RxRTFEndDrag(Sender, Target: TObject; X, Y: Integer);
