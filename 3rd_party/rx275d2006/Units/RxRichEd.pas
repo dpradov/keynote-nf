@@ -337,6 +337,8 @@ type
 {$IFDEF RX_D3}
     FOnCloseFindDialog: TRichEditFindCloseEvent;
 {$ENDIF}
+    FUpdating: integer;
+    FOldEventMask: integer;
     function GetAutoURLDetect: Boolean;
     function GetWordSelection: Boolean;
     function GetLangOptions: TRichLangOptions;
@@ -489,6 +491,8 @@ type
     procedure ClearUndo;
     procedure Redo;
     procedure StopGroupTyping;
+    procedure BeginUpdate;
+    procedure EndUpdate;
     property CanFindNext: Boolean read GetCanFindNext;
     property CanRedo: Boolean read GetCanRedo;
     property CanPaste: Boolean read GetCanPaste;
@@ -774,7 +778,7 @@ const
   CFU_UNDERLINEDOUBLE         = $3;     { (*) displayed as ordinary underline    }
   CFU_UNDERLINEWORD           = $2;     { (*) displayed as ordinary underline    }
   CFU_UNDERLINE               = $1; 
-  CFU_UNDERLINENONE           = 0; 
+  CFU_UNDERLINENONE           = 0;
 
 { PARAFORMAT 2.0 masks and effects }
 
@@ -3609,6 +3613,8 @@ begin
 {$IFDEF RX_D4}
   Perform(CM_PARENTBIDIMODECHANGED, 0, 0);
 {$ENDIF}
+  FUpdating:= 0;
+  FOldEventMask:= 0;
 end;
 
 destructor TRxCustomRichEdit.Destroy;
@@ -4974,6 +4980,41 @@ procedure TRxCustomRichEdit.StopGroupTyping;
 begin
   if (RichEditVersion >= 2) and HandleAllocated then
     SendMessage(Handle, EM_STOPGROUPTYPING, 0, 0);
+end;
+
+ {
+ Maintains performance while updating.
+ It is recommended to call this method before doing any major updates that you do not wish the user to
+ see. Remember to call EndUpdate when you are finished with the update. Nested calls are supported.
+ Calling this method will prevent redrawing. It will also setup the event mask of the underlying richedit
+ control so that no events are sent.
+}
+procedure TRxCustomRichEdit.BeginUpdate;
+begin
+    FUpdating:= FUpdating + 1;           // Deal with nested calls
+    if FUpdating <= 1 then begin
+        // Prevent the control from raising any events
+        FOldEventMask := SendMessage(Handle, EM_SETEVENTMASK, 0, 0);
+        // Prevent the control from redrawing itself
+        SendMessage(Handle, WM_SETREDRAW, 0, 0);
+    End;
+end;
+
+{
+   Resumes drawing and event handling.
+   This method should be called every time a call is made made to BeginUpdate. It resets the event mask to it's
+   original value and enables redrawing of the control.
+}
+procedure TRxCustomRichEdit.EndUpdate;
+begin
+    FUpdating:= FUpdating -1;           // Deal with nested calls
+    if FUpdating <= 0 then begin
+        // Allow the control to redraw itself
+        SendMessage(Handle, WM_SETREDRAW, 1, 0);
+        // Allow the control to raise event messages
+        SendMessage(Handle, EM_SETEVENTMASK, 0, FOldEventMask);
+        Invalidate;
+    end;
 end;
 
 {$IFDEF RX_D3}
