@@ -4924,10 +4924,6 @@ var
   Flags: Integer;
   SearchStrUnicode: PWideChar;   // dpv
 begin
-  with Find.chrg do begin
-    cpMin := StartPos;
-    cpMax := cpMin + Abs(LengthSearch);
-  end;
   if RichEditVersion >= 2 then begin
     if not (stBackward in Options) then Flags := FT_DOWN
     else Flags := 0;
@@ -4940,6 +4936,10 @@ begin
   if stMatchCase in Options then Flags := Flags or FT_MATCHCASE;
 
   if RichEditVersion >= 4 then begin
+      with FindW.chrg do begin
+        cpMin := StartPos;
+        cpMax := cpMin + Abs(LengthSearch);
+      end;
       SearchStrUnicode := SysGetMem(1+Length(SearchStr)*2);
       StringToWideChar( SearchStr, PWideChar(SearchStrUnicode), Length(SearchStr)+1);
       FindW.lpstrText := PWideChar(SearchStrUnicode);
@@ -4948,6 +4948,10 @@ begin
       PChrg:= Longint(@FindW.chrgText);
   end
   else begin
+      with Find.chrg do begin
+        cpMin := StartPos;
+        cpMax := cpMin + Abs(LengthSearch);
+      end;
       Find.lpstrText := PChar(SearchStr);
       Result := SendMessage(Handle, EM_FINDTEXTEX, Flags, Longint(@Find));
       PChrg:= Longint(@Find.chrgText);
