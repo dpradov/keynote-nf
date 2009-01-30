@@ -2021,7 +2021,7 @@ begin
   TB_FontDlg.Hint := MMFormatFont.Hint;
   TB_GoBack.Hint := MMTreeGoBack.Hint;
   TB_GoForward.Hint := MMTreeGoForward.Hint;
-  TB_Indent.Hint := MMFormatFIndInc.Hint;
+  TB_Indent.Hint := MMFormatLIndInc.Hint;
   TB_Italics.Hint := MMFormatItalics.Hint;
   TB_Macro.Hint := MMToolsMacroRun.Hint;
   // TB_MacroPause.Hint := .Hint;
@@ -2038,7 +2038,7 @@ begin
   TB_Numbers.Hint := MMFormatNumbers.Hint;
   TB_OnTop.Hint := MMViewOnTop.Hint;
   TB_Options.Hint := MMToolsOptions.Hint;
-  TB_Outdent.Hint := MMFormatFIndDec.Hint;
+  TB_Outdent.Hint := MMFormatLIndDec.Hint;
   TB_ParaDlg.Hint := MMFormatParagraph.Hint;
   // TB_PluginConfigure.Hint := .Hint;
   TB_PluginRun.Hint := MMToolsPluginRun.Hint;
@@ -7020,5 +7020,4 @@ begin
 end;
 
 end.
-
 

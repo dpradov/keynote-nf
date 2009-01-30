@@ -163,13 +163,36 @@ begin
   end;
 end;
 
+{
+In Rich Edit control:
+First indentation: It is the principal indentation, it is set from the left margin in absolute values.
+                   Corresponds to the first line.
+Left indentation: This indentation is relative to the paragraph's current indentation (First line's indentation),
+                  and controls indentation of 2nd and following lines. (can be positive or negative)
+
+MS Word is more intuitive:
+Left: Indentation of the paragraph, from the left margin
+First indentation: Indentation of the first line regarding to the rest of the lines of the paragraph (can be positive or negative)
+}
+
 procedure TForm_Para.Spin_SpcBefChange(Sender: TObject);
 var
   mySpin : TSpinEdit;
 begin
-  mySpin := ( sender as TSpinEdit );
-  if ( mySpin.Value < 0 ) then
-    mySpin.Value := 0;
+//  if Sender = Spin_First then begin
+//     // negative values are valid in Spin_First (will be treated as Left Indent)
+//     if Spin_First.Value < - Spin_Left.Value then
+//        Spin_First.Value:= - Spin_Left.Value;
+//  end
+//  else begin
+    if Sender <> Spin_First then begin      // negative values are valid in Spin_First (will be treated as Left Indent)
+        mySpin := ( sender as TSpinEdit );
+        if ( mySpin.Value < 0 ) then
+          mySpin.Value := 0;
+    end;
+    if Spin_First.Value < - Spin_Left.Value then
+        Spin_First.Value:= - Spin_Left.Value;
+//  end;
 end;
 
 procedure TForm_Para.ParaToForm;
@@ -181,9 +204,10 @@ begin
       lsOneAndHalf : Combo_Spc.ItemIndex := 1;
       lsDouble : Combo_Spc.ItemIndex := 2;
     end;
-    Spin_Left.Value := LIndent;
+    Spin_Left.Value := FIndent + LIndent;
     Spin_Right.Value := RIndent;
-    Spin_First.Value := FIndent;
+    Spin_First.Value := - LIndent;
+
     Spin_SpcBef.Value := SpaceBefore;
     Spin_SpcAft.Value := SpaceAfter;
     if ( _LoadedRichEditVersion > 2 ) then
@@ -216,9 +240,9 @@ begin
       1 : SpacingRule := lsOneAndHalf;
       2 : SpacingRule := lsDouble;
     end;
-    LIndent := Spin_Left.Value;
+    LIndent := - Spin_First.Value;
+    FIndent := Spin_Left.Value - LIndent;
     RIndent := Spin_Right.Value;
-    FIndent := Spin_First.Value;
     SpaceBefore := Spin_SpcBef.Value;
     SpaceAfter := Spin_SpcAft.Value;
     if CB_Numbers.Checked then

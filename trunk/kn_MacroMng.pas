@@ -1706,6 +1706,7 @@ var
   ShiftWasDown : boolean;
   myTreeNode : TTreeNTNode;
   myPara : TParaFormat2;
+  maxIndent: integer;
 
     Procedure CmdNumbering(tipo : TRxNumbering);
     var
@@ -1833,26 +1834,23 @@ begin
             else
               ActiveNote.Editor.Paragraph.SpaceAfter := 0;
           end;
-          ecIndent : begin
-            ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent + EditorOptions.IndentInc;
+          ecIndent : begin    // Now Left Indent as in MS Word
+            ActiveNote.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
           end;
-          ecOutdent : begin
-            if ( ActiveNote.Editor.Paragraph.LeftIndent >= EditorOptions.IndentInc ) then
-              ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent - EditorOptions.IndentInc
-            else
-              ActiveNote.Editor.Paragraph.LeftIndent := 0;
+          ecOutdent : begin   // Now Left outdent as in MS Word
+                ActiveNote.Editor.Paragraph.FirstIndentRelative := - EditorOptions.IndentInc;
           end;
-          ecFirstIndent : begin
+          ecFirstIndent : begin    // Now behaves as in MS Word
                ActiveNote.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
+               ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent - EditorOptions.IndentInc;
           end;
           ecFirstOutdent : begin
-            (*  [dpv]
-            if ( ActiveNote.Editor.Paragraph.FirstIndent >= EditorOptions.IndentInc ) then
-              ActiveNote.Editor.Paragraph.FirstIndent := ActiveNote.Editor.Paragraph.FirstIndent - EditorOptions.IndentInc
+            if ActiveNote.Editor.Paragraph.FirstIndent < EditorOptions.IndentInc then
+               maxIndent:= ActiveNote.Editor.Paragraph.FirstIndent
             else
-              ActiveNote.Editor.Paragraph.FirstIndent := 0;
-            *)
-            ActiveNote.Editor.Paragraph.FirstIndentRelative := - EditorOptions.IndentInc;
+               maxIndent:= EditorOptions.IndentInc;
+            ActiveNote.Editor.Paragraph.FirstIndentRelative := - maxIndent;
+            ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent + maxIndent;
           end;
           ecRightIndent : begin
             ActiveNote.Editor.Paragraph.RightIndent := ActiveNote.Editor.Paragraph.RightIndent + EditorOptions.IndentInc;
