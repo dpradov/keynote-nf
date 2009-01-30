@@ -179,20 +179,13 @@ procedure TForm_Para.Spin_SpcBefChange(Sender: TObject);
 var
   mySpin : TSpinEdit;
 begin
-//  if Sender = Spin_First then begin
-//     // negative values are valid in Spin_First (will be treated as Left Indent)
-//     if Spin_First.Value < - Spin_Left.Value then
-//        Spin_First.Value:= - Spin_Left.Value;
-//  end
-//  else begin
     if Sender <> Spin_First then begin      // negative values are valid in Spin_First (will be treated as Left Indent)
         mySpin := ( sender as TSpinEdit );
         if ( mySpin.Value < 0 ) then
           mySpin.Value := 0;
     end;
     if Spin_First.Value < - Spin_Left.Value then
-        Spin_First.Value:= - Spin_Left.Value;
-//  end;
+       Spin_First.Value:= - Spin_Left.Value;
 end;
 
 procedure TForm_Para.ParaToForm;
