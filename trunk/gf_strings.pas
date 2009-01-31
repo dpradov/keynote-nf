@@ -80,6 +80,7 @@ procedure StripControlChars( var s : string );
 function GetWordChars : string;
 
 function ExpandMetaChars( line : string ) : string;
+function GetIndentOfLine (const S: string): integer;
 
 implementation
 uses gf_misc;
@@ -615,5 +616,14 @@ begin
   end;
 end; // GetWordChars
 
+function GetIndentOfLine (const S: string): integer;
+begin
+    // count blanks and tabs in this string
+    Result := 0;
+    while (Result < length( S )) and
+          (S[Result+1] In  [' ',#9])
+    do
+      Inc( Result );
+end;
 
 end.
