@@ -1,0 +1,590 @@
+TdfsExtListView & TdfsEnhListView v3.63
+
+Description:
+  TdfsEnhListView is a list view control that provides enhanced functionality
+    such as:
+      * Automatic sorting of text, numeric, and date columns
+      * Ability to automatically save and restore user column width settings
+      * Owner drawing events
+    This functionality does NOT require the updated COMCTL32.DLL from Microsoft.
+
+  TdfsExtListView is a list view control that provides all functionality of
+    TdfsEnhListView, plus provides access to the new features of the list view
+    control found with MS Internet Explorer 4.0, et. al.  This functionality
+    DOES require the updated COMCTL32.DLL from Microsoft.  The COMCTL32.DLL file
+    must be version 4.72.xxx or later for all functionality in this component
+    to work.  Earlier versions *may* work, but are not supported (i.e. don't
+    email me if you aren't using the latest version of COMCTL32.DLL).
+
+
+Installation:
+  Delphi 1:
+    * This component is not compatible with Delphi 1.
+  
+  Delphi 2, C++Builder 1:
+    * Select the 'Component | Install' menu item.
+    * In the Install Components dialog, click the Add button.
+    * In the Add Module dialog, enter the full path name of the component's 
+      registration unit (the unit that ends with 'Reg.pas', i.e. 
+      'BrowseDrReg.pas') and click OK.
+    * In the Add Module dialog, click OK.
+    * The component library will be rebuilt and a new tab named 'DFS' will be 
+      available on the Component Palette.
+  
+  Delphi 3 and up, C++Builder 3 and up:
+    * Do one of the following:
+      + Create a new package by selecting File | New and choosing Package from
+        the New tab in the dialog.
+      + Open an existing package file.  I suggest you do this if you already 
+        have a package that you like to use for small, third party components.
+        I specifically have a package named "3rdParty.dpk" that I use for 
+        small components that come from other people.  Or, if you are using
+        several of my components, you might create a "DFS.dpk" package and 
+        use it for all of my DFS components.
+    * In the resulting package window, click the Add button.
+    * In the Add dialog, on the Add Unit tab, enter the full path name of the 
+      component's registration unit (the unit that ends with 'Reg.pas', i.e. 
+      'BrowseDrReg.pas') and click OK.
+    * You may want to add the other source files (*.pas) to the package as 
+      well in the same manner as you did the registration unit.  While this is
+      not required, not doing it will cause compiler warnings when the package
+      is compiled.  The component will function fine either way, but I
+      personally find the warnings very irritating and am not happy until 
+      every compiler warning and hint is gone.  NOTE:  If you use C++Builder 3,
+      do not install the other source units.  See Known Issuses section below.
+    * If this package is new, or it has never been installed, click the 
+      Install button in the package window.  If this package is already 
+      installed in Delphi, click the Compile button.
+
+  Help File:
+    Delphi 3:
+      * Copy ELV.hlp and ELV.cnt to your Delphi\Help directory.
+      * Edit the DELPHI3.CNT file and add the following line to the Index section:
+          :Index Extended List View Reference =ELV.hlp
+      * Delete the hidden Delphi3.Gid file.
+  
+    Delphi 2:
+      * Copy ELV.hlp, ELV.kwf and ELV.cnt to your Delphi\Help directory.
+      * Use the HelpInst tool included with Delphi to install the ELV.Kwf
+        into Delphi\Bin\Delphi.Hdx file.
+
+
+Redistributing COMCTL32.DLL:
+  Microsoft used to have a really nasty redistribution policy about
+  COMCTL32.DLL:  To redistribute it, you have to distribute Internet Explorer
+  with your app.  Well, they've finally unpuckered a little bit (probably
+  because enough people griped long and loud enough (like Ron Burk in his
+  Windows Developer's Journal editorials and mail responses, THANKS RON!).
+  Anyhoo, here are links where you can find official redistribution information,
+  which is much more acceptable than it used to be:
+
+    http://www.microsoft.com/msdownload/ieplatform/ie/comctrlx86.asp
+
+  There are links for the files themselves, as well as for Readme and End User
+  License Agreement files.
+
+
+Notes & Credits:
+  * This component uses several types defined in the COMMCTRL unit when it can.
+    If you add an event handler and then receive a compiler error about an
+    unknown type, you likely need to add COMMCTRL to your unit's uses clause.
+  * For the full documentation on all the new list view stuff as implemented in
+    the latest COMCTL32.DLL, have a look at Microsoft's documentation at:
+    http://www.microsoft.com/msdn/sdk/inetsdk/help/itt/CommCtls/ListView/ListView.htm#ch_listview
+    Also, you can find information on all the updates to COMCTL32.DLL at:
+    http://www.microsoft.com/msdn/sdk/inetsdk/help/itt/CommCtls/CommCtls.htm#book_cc
+  * TestVM is a very good demonstration of virtual mode.  It was created by
+    and is redistributed here by permission of John Newln.  I have made only
+    small modifications for compatibility with the new 3.00 version.
+  * The owner drawn header stuff is based on work sent to me by Rafal Smotrzyk
+    <rsmotrzyk@mikroplan.com.pl>.  Many thanks to him.  He has included many
+    other new features, but I got it at the time when I was trying to get this
+    version out of beta. Because of that, I'm not incorporating the rest until
+    after v3.00 is released as non-beta.  I'll then work his stuff into the next
+    version.
+  * The owner drawing and column images were originally implemented by Remi
+    Sellem (RemiS@chemware.co.uk) and Mike Lindre (no address).  I only
+    reworked them a little, integrated them into this component, and made a
+    few changes to use the new Delphi 3 collection editor for ColumnsFormat and
+    fixed a few bugs.  The original property editor (ExtColEd.pas) for this is
+    provided for Delphi 2 users, but is not required at all for Delphi 3 usage.
+  * There are some serious limitations that I did not realize when I first
+    released the virtual mode feature.  If you are not using virtual mode
+    (VirtualMode set to TRUE) then you need not be concerned.  These problems
+    only affect virutal mode.  The problem is that since items are not stored
+    by the list view, but rather provided as needed by an event handler, the
+    Items property does not reflect the actual items in the list.  In fact,
+    it is always empty.  Items.Count will return the proper number of items,
+    but anything trying to use Items[x] will never get any valid data.  This
+    affects several things, such as automatic drag and drop (DragMode =
+    dmAutomatic), the Selected property and more.  This is because the
+    implementation of TListView uses the Items property extensively.  I have
+    tried to provide for this as best I can through methods like
+    TdfsExtListView.ELV_GetNextItem that can be used in place of critical
+    functions that no longer work because they rely on the Items property.  I
+    suggest that you NOT use virtual mode unless you completely understand all
+    of the issues that may arise from using it.
+    UPDATE:  As of v3.60, this issue should be resolved if you use Delphi or
+    C++Builder versions 4.0 or higher.  Previous versions still have the same
+    limitations.
+
+
+Known Issues:
+  * OnGetImageIndex can give very strange results if you don't know how to use
+    it.  If there is an index already assigned to the item, you should not
+    change it here.  This will result in the index being asked for again, and
+    that could lead to an infinite loop (albeit one where messages are still
+    being processed, so you aren't locked up) where all the items just get
+    painted over and over.  Instead, the intended use is to delay assigning an
+    image index to the item until it is really needed (the item becomes visible
+    in the list, i.e. the user scrolls down and some new items become visible).
+    This can speed things up when you are dealing with large lists, and/or when
+    the process of getting the image index is time consuming (getting the system
+    image index of a file type, for example).  So, when a new item is created,
+    you simply assign -1 to it's ImageIndex and then when the item becomes
+    visible, the OnGetImageIndex event is fired and you provide the real index:
+      if Item.ImageIndex = -1 then
+        Item.ImageIndex := CalculateRealImageIndex;
+  * When using the NoColumnResize property, the area right next to a column
+    divider can not be clicked on (and have it do anything).  This area is
+    where Windows would normal turn the cursor into the splitter cursor and
+    start the resizing process.  You can't use it to click since clicking there
+    didn't do anything before except start the resize process.  We don't allow
+    that, so nothing happens.  No way I can figure to get Windows to think it's
+    in a normal clicking region.  I guarantee you'll hear about this from your
+    users.  :(
+  * C++Builder 3 users:  You must install only the registration unit 
+    (ELV_Reg.pas) into the package you compile the component into.  If the 
+    package also includes the other source files, you will get error messages
+    about DCLSTD35.LIB, which doesn't exist.  It has to do with the fact that
+    the source lists ImgList in the uses clause, even though I have properly 
+    $IFDEFed it out.  Must be some error in the C3 parser that is causing it to
+    see this unit, and in C3 this unit is some design-time unit or something.
+    It results in the IDE continuously inserting DCLSTD35.LIB into the project
+    file, and there's no such file.  Manually removing it from the project 
+    does not help, it just sticks it back in.  The only way to get it to stop
+    is to manually edit the code and remove the reference to ImgList, or to not
+    include the source file in the package.  Bizarre.
+  * Default owner drawing will not work when running on a NT 3.51 system.  I
+    use DrawTextEx() to do the drawing, and that function is only a stub in
+    NT 3.51.  I use DrawTextEx because I need the DT_END_ELLIPSIS flag.  My
+    best suggestion at this point is to not use default drawing if your app
+    needs to run on an NT 3.51 machine, i.e. draw it yourself in OnDrawItem or
+    OnDrawSubItem.
+  * Default owner drawing will not work with virtual mode.  By definition, data
+    is not stored in the control when virtual mode is enabled.  So, there is no
+    way the control can know what to paint for you in owner draw mode.  Owner
+    drawing will work correctly, but you have to do the drawing via the
+    OnDrawItem and/or OnDrawSubItem events.
+  * Default owner drawing will not work with with re-ordered headers
+    (ExtendedStyle contains lvxHeaderDragDrop).
+  * If you have both an OnDrawItem and an OnDrawSubItem event handler when in
+    VirtualMode, you will have to set DefaultDrawing to TRUE in the OnDrawItem
+    handler to get the OnDrawSubItem event to fire.
+  * Changing column information (ColumnsFormat property) screws up the header
+    image stuff.  For example, if you have set up the ColumnsFormat such that
+    you have images appearing in your column headers and then you change the
+    alignment of one of the TListColumns (an item of the Columns property), the
+    header image will  disappear.  I could catch this if Borland would have been
+    a little more liberal with their virtual/dynamic declarations, but the one
+    I need isn't declared that way, so I can't override it.  Instead, you will
+    just have to be aware of the situation and manually refresh it yourself.
+    Example:
+
+      // Change column 3's text alignment.
+      ExtListView.Columns[2].Alignment := taRightJustify;
+      // Screwed up header image, refresh it
+      ExtListView.UpdateColumnImage(2);
+
+    If you need to refresh all of the column images, just use
+    UpdateColumnsImages.
+  * Changing order of a list item when lvxCheckboxes style is set causes
+    incorrect painting and/or loss of the check state.  This appears to be a
+    problem in either the COMCTL32.DLL implementation or the handling of moving
+    items around in the TListView implementation, or both.  Either way, there's
+    not much I can do about it.
+  * Setting a subitem image (lvxSubItemImages ExtendStyle) to -1 does not
+    properly clear the image for the subitem.  The current COMCTL32.DLL
+    implementation does not seem to store this value and instead it gets a
+    random value assigned to it.  The work-around that I have found is to set
+    the index to a value that does not exist in the image list.  To make this
+    a bit easier, I have declared a constant named ELV_NO_SUBITEM_IMAGE that
+    is equal to MaxInt-1 (MaxInt seems to suffer the same problem as -1).  This
+    will work fine as long as your image list does not have more than
+    2,147,483,646 images in it.  :)
+  * OnVMStateChanged event does not fire as documented by Microsoft for virtual
+    mode list views.  It appears to only fire when a range of items changes,
+    and even that appears sporadic in my informal testing.  Sorry, I didn't
+    write COMCTL32.DLL, so I can't fix it.  On the bright side, OnChange still
+    fires.  On the dark side, it passes a TListItem which is always NIL in
+    virtual mode.
+    Update:  H.D.Berretz reports that if you hold the shift key down and click
+    on an item, this event will fire.
+    I have no idea how that would be useful, you'll have to ask Microsoft.
+  * lvxCheckboxes extended style does not work with virtual mode.  Seems to be
+    a limitation of virtual mode as implemented by Microsoft in COMCTL32.DLL.
+  * Adding a column to a TdfsExtListView component at run-time seems to cause
+    an EAccessViolation if you do it in the owning form's OnCreate event handler
+    sometimes.  I have found that this can be worked around by moving the code
+    that creates the column into the OnShow handler.  Your mileage may vary.
+  * The new multiple work areas and region stuff introduced in the 4.71.xxx
+    version of COMCTL32.DLL is not supported yet.
+  * NMITEMACTIVATE structure introduced in the IE 4 version of COMCTL32.DLL
+    is not supported yet.
+  * I tried adding stuff for the background image, but it doesn't seem to work.
+    If you want to fool with it, enable the DFS_TRY_BACKGROUND_IMAGE define at
+    the top of ExtListView.pas.  Let me know if you have any luck.
+
+
+Revision History:
+3.70:  + Fixed problem with using an image list for SmallImages property where
+         the image list is on a different form than the form the list view is on.
+       + Deleting the image list assigned to SmallImages would not clear the
+         SmallImages property.  Fixed.  Thanks to Norbert Adamko for both of
+         these fixes.
+       + State images wouldn't work at all with virtual mode.  This has been
+         fixed.  Further, if you didn't know a great deal about the API calls
+         involved, it was very hard to use the state and overlay images with
+         virtual mode.  This has been addressed by adding two var parameters,
+         OverlayImage and StateImage, to the OnVMGetItemInfo event.
+         Unfortunately, this means you will have to reset any OnVMGetItemInfo
+         event handlers you have in existing code.  Just cut the code you have
+         to the clipboard, remove the event handler, re-add the handler and
+         paste the code back in.
+       + Added new ExtendedSytle option, lvxInfoTip.  This flag causes
+         partially hidden captions to be displayed in a hint-type window.  It
+         is enabled by default.  Also, related to this, there is a new event
+         called OnInfoTip.  This allows you to change the text that will be
+         displayed in the hint-type window, OR (not both) allows you to specify
+         additional text to be displayed in a hint window below the item when
+         the mouse is over the item.  Also, the SubItemIndex parameter is for
+         future use only.  Currently, Windows passes this parameter but does
+         not use it for anything and it is always 0.  I have included it in
+         anticipation of Windows actually using the parameter some day.
+       + Added new ExtendedStyle option, lvxLabelTip.  If a partially hidden
+         label in any list view mode lacks tooltip text, the list view control
+         will unfold the label. If this style is not set, the list view control
+         will unfold partly hidden labels only for the large icon mode.  This
+         style requires v5.80 or higher of ComCtl32.dll.
+3.62:  + Saving the view style (SaveSettings.SaveViewStyle) did not work in
+         TdfsExtListView, only TdfsEnhListView.
+       + Added OnItemChecked event to TdfsExtListView.  This event fires when
+         an item's checked state changes.  I pass the item index rather than the
+         TListItem so that users of virtual mode can use it (since all
+         TListItems would be NIL in that case).  I found this code in The Delphi
+         Magazine, Issue 55, March 2000.  Although a bit pricey, I highly
+         recommend this magazine (http://www.thedelphimagazine.com/).
+3.61:  + Updated information about the DCLSTD35.LIB Known Issue in C3.  See
+         above.
+       + The TRect parameter passed in the OnDrawSubItem event was incorrectly
+         shifted to the left by the amount in DefDraw_TextOffset value (4 by
+         default).  This has been corrected and now only the actual default
+         text drawing uses this value.
+       + Added new event to TdfsExtListView, OnVMCaptionEdited.  This event fires
+         after the user has finished editing a list item when in virtual mode.
+         The handler is responsible for storing the string passed (unless the
+         edit was canceled) in the appropriate place since no data is stored by
+         the list view in virtual mode.
+       + Added ELV_EditCaption method to use when in virtual mode since
+         TListItem.EditCaption can't be used (no TListItems exist in virtual
+         mode).
+       + Added a little sanity checking to the MoveItem method to make sure the
+         indicies passed are valid.
+       + ExtColEd.dfm had some properties that weren't valid in older versions
+         of Delphi and Builder.
+       + Added SaveViewStyle property to SaveSettings property.  This will save
+         and restore the value of the ViewStyle property.
+3.60:  + Added new property to TdfsEnhListView, NoColumnResize.  Prevents all
+         columns from being resized.  There is one small quirk to this, so see
+         the top of the Known Issues section above.  Also, Michael Fritz sent me
+         code to do nearly the same thing, except it does it on a per column
+         basis.  I just wish I'd read through all my old email before I started
+         NoColumnsResize, it would have saved me several hours of work.  Anyway,
+         if you want to prevent individual columns from resizing, you can use
+         the AllowResize property of the ColumnsFormat property of
+         TdfsExtListView.  Thanks again to Michael for this.
+       + Smart sorting enhanced a bit courtesy of Joachim Marder.  When checking
+         for valid numeric values, it will now recognize data like "12 kb" as a
+         number value of 12.  It scans for a space and then checks to see if the
+         data to the left of that is a number.
+       + Smart sorting enhanced also by Holger Dors.  When checking for valid
+         numeric values, it will scan for thousandths seperators and remove
+         them so that numbers like "1,039" can be recognized.
+       + OnSortItems event has been enhanced with new SortAs var parameter.  If
+         you want to keep using OnSortItems as you have before, you can simply
+         ignore this parameter.  It helps when you find that smart sorting isn't
+         quite smart enough.  In the event, you can simply set SortAs to one of
+         the values (saString, saNumeric, saDateTime) and then the control will
+         do the comparison for you based on what you told it the data should be
+         treated as.  Note also that you could do some really strange things
+         since OnSortItems is called for each comparison in the sort; i.e. you
+         could sort two items as strings, and then two other items in the same
+         sort as integers.  I can't think of any useful purpose for that, but
+         it sounds really cool and I can't think of any useful purpose for cats
+         either, but some people really like them.  :) Oh wait, they're good for
+         parking lot speed bumps.  (Sorry, it's really late and I've been
+         working on this stuff way to long -- please, you cat lovers out there,
+         don't mail bomb me)
+       + Fixed old Known Issue of OnMeasureItem event for lvOwnerDrawFixed Style
+         not working if the SmallImages property is assigned.  This still
+         appears to be a bug in the list view implementation by Microsoft or in
+         TCustomListView class in the VCL.  Fortunately, I found a way to work
+         around the problem.
+       + Removed BackgroundImage property.  It was broken (scrolling drove it
+         nuts), and I've given up on trying to get this to work.
+       + Updated the page link for downloading COMCTL32.DLL in the
+         "Redistributing COMCTL32.DLL" section above.
+       + TCustomExtListView.ApproximateViewRect passed parameters incorrectly
+         (Count was in the wrong place).  Should be find now.
+       + Added new public method, MoveItem.  Let's you move a list item from
+         one index to another.  This will not have an effect on auto sorted
+         listviews since they will just resort the data after any change.  Also,
+         don't even think about using this with virtual mode.  This code is
+         courtesy of Jon Robertson, many thanks to him.
+       + There may have been some situations where the list view was recreating
+         the window handle when it may not have been valid to do so.
+       + Fixed strange column drag/drop problem:  If you drug a column to a new
+         position and then double clicked the divider to resize it, it would
+         resize both the correct column and the column occupying the position
+         where the correct column used to be.
+       + Added new property, ColumnSearch.  If enabled, this overrides the
+         normal keyboard search of the listview such that it searches the
+         sorted column instead of the caption column.  This could be very
+         confusing to some users, so you'll definitely want to point it out to
+         users if you take advantage of this feature.  This code was sent to me
+         by Bas Ovink, many thanks to him.
+       + Item checked state and subitem image index was not preserved if the
+         window handle was recreated.  This has been fixed.
+       + Added OnGetImageIndex event.  It works just like the same one that was
+         introduced in Delphi 4's TListView.  See Known Issues section above
+         for a note about using it.
+       + Added OnGetSubItemImage event to TExtListView for Delphi & C++Builder
+         versions 5 and higher.
+       + The Items property should now work in VirtualMode for Delphi &
+         C++Builder versions 4 and higher.  I tried again to get this to work in
+         D2/D3, but simply can't because I don't have direct access (it's
+         private to ComCtrls.pas) to some stuff that is required to make it
+         work.  So, I just let D4 & up's OwnerData property do the work for me.
+         This means you should be able to do things like:
+           ShowMessage(AnExtListView.Items[0].Caption);
+         and
+           ShowMessage(AnExtListView.Selected.Caption);
+         However, I've not had a chance to test this beyond rudimentary uses,
+         such as the example above.  If you find any problems, let me know ASAP.
+3.55:  + It's *really* D5 compatible now.  Small change between the D5 eval
+         version and the real, shipping D5 version broke it.
+       + Added note for C3 users to Known Issues section above.
+3.54:  + My search and replace went a little nuts and some things got renamed 
+         that shouldn't have when I changed over the class names.  This caused
+         it to not compile in Delphi 2, and to have some really funky 
+         identifier names in all versions. Fixed now.
+3.53:  + TEnhListView classname changed to TdfsEnhListView, TExtListView 
+         changed to TdfsExtListView.
+       + Delphi 5 compatibility.
+3.52:  + In D4, reordering columns (lvxHeaderDragDrop) would not always refresh
+         the items in the listview, so it looked like the items weren't in
+         their correct columns until something caused a repaint.  Fixed.
+3.51:  + OnVMGetItemInfo event didn't provide enough stuff to allow setting
+         the overlay index for items.  I had to modify the event's parameter
+         list to allow for this, so you will need to replace any existing
+         handlers you have for this event.  To set an overlay index for a
+         virtual list view item, you'd do something like this:
+          if (SubItem = 0) the
+          begin
+            // If not already asking for state, tell it we want to change it.
+            if not (lvifState in Mask) then
+            begin
+              Include(Mask, lvifState);
+              State := 0;
+              StateMask := 0;
+            end;
+            // IndexToOverlayMask is declared in CommCtrl unit, and the
+            // parameter is 1 based, not 0 based.
+            State := State or IndexToOverlayMask(AnOverlayIndex);
+            StateMask := StateMask or LVIS_OVERLAYMASK;
+          end;
+       + TdfsExtListView.ReadSettings method had a check for AutoSave in it that
+         shouldn't have been there.  That prevented manual loading of settings
+         via a ReadSettings call from restoring the column order.  Thanks to
+         Simon Page for catching this.
+       + Column header images would get all scrambled when reordered
+         (lvxHeaderDragDrop ExtendedStyle) when compiled under Delphi 4.  This
+         was due to a change in the Delphi 4 TCustomListView component that I
+         wasn't aware of.  Huge thanks go to Simon Page (again) for explaining
+         what they did in the VCL that broke my component.
+       + Added "Known Issue" item (see above) about OnMeasureItem event.
+3.50:  + Default drawing didn't quite match real list view drawing, especially
+         if gridlines were involved.  Partially related to next item.
+       + Changing font didn't cause OnMeasureItem to fire for owner drawn.
+       + OverlayIndex property of list items was not honored by default drawing.
+         Thanks to Roger Kilchenmann for the code for this.
+       + State images were not drawn by default drawing.
+       + Updated links in "Redistributing COMCTL32.DLL" section.
+       + There were some problems reported with DragMode set to dmAutomatic and
+         owner drawn mode.  It all seems to work for me, but I didn't
+         specifically fix anything.  Either I got lucky and fixed it by
+         "accident", or I'm not understanding the problem.  If you are still
+         having a problem like this, please let me know.  NOTE:  "It don't work"
+         is not a very helpful problem report.
+       + Added BackgroundImage property.  This TBitmap property will be tiled
+         to fill the entire listview client area (i.e. not the column headers).
+         The only real problem I have found with it is that the text flickers
+         a lot when resizing columns, but there doesn't seem to be anything
+         I can do about it.  Probably the inherent slowness of paint with a
+         bitmap brush.  Dunno.
+         Also, note that this property is introduced in TdfsEnhListView, not
+         TdfsExtListView.  This feature does not require the updated COMCTL32.DLL.
+         I have never been able to get the listview API functions for doing a
+         background image to work.  This solution takes a different approach
+         (suggested by Arno Pieterse), and should work for any version of
+         COMCTL32.DLL.
+3.16:  + Many people have been asking me how to set and/or clear an item's state
+         in a virtual mode list view since there are no TListItems to fool with.
+         I have added a new method, ELV_SetItemState to make this easier.  Pass
+         it the index of the item (zero based, -1 for all items), the states
+         you want to change, and a boolean indicating whether to set or clear
+         the states.  So, if you wanted to select every item in the listview:
+           MyVMListView.ELV_SetItemState(-1, [isSelected], TRUE);
+         If you wanted to deselect item 4 (remember, zero based):
+           MyVMListView.ELV_SetItemState(3, [isSelected], FALSE);
+3.15:  + Smart sorting would incorrectly flag negative numbers as dates in
+         regions where a "-" is used as the date seperator.  Changed so that
+         two sperator characters must be found before it is considered a date.
+3.14:  + Column sizes were not saved if the user double clicked on the header
+         dividers to resize them.
+3.13:  + FullDrag property was incorrectly published under D4.  This property is
+         the equivalent of lvxHeaderDragDrop in the TdfsExtListView ExtendedStyles
+         property.  That should be used instead, and it should not exist at all
+         in TdfsEnhListView since it requires the updated ComCtl32.DLL.
+       + Added TCustomExtListView class for TdfsExtListView to descend from.  Same
+         reasoning as TCustomEnhListView class, and I should have done this one
+         when I did that one.  Lazy programmer...
+       + Cleaned up the demos some.  Some of the component had changed over
+         time, and they had to be tweaked a bit before they stopped complaining.
+         Note that TestVM only works with Delphi 3 and up because it uses
+         TSplitter.  You can probably remove these and get it to work in D2 
+         since they aren't critical to the demo.
+3.12:  + Published new properties for Delphi 4 component where it made sense.
+         For example, the new Anchors, Constraints, and DragKind properties
+         are now available (under D4), but Checkboxes and OwnerDraw are not
+         since they are implemented another way already in my component.
+       + Added note about default owner drawing and virtual mode to the Known
+         Issues section above.
+       + HoverTime property has been changed back to a Longint type (was DWORD).
+         Delphi 4 has some problems here, apparently.  First, it seems that
+         the Object Inspector will allow only a longint range to be entered for
+         a double word type (Longword, Cardinal or DWORD).  Worse, the very
+         popular RX Lib freeware component package installs a property editor
+         for the cardinal type (which also gets the DWORD type) that won't let
+         you enter values in D4; it just keeps giving an error message about
+         the value needing to be between -1 and 0.  For these reasons, I have
+         switched the type of HoverTime back to a Longint.
+       + Two new methods added; ReadSettings and WriteSettings.  Several people
+         asked for a way to store and load settings that was independant of the
+         current SaveSettings.AutoSave value.  StoreSettings and LoadSettings
+         only worked if AutoSave was TRUE.  Now these methods simply test
+         AutoSave and then call ReadSettings/WriteSettings.  If you want to
+         read or write the stuff yourself independant of AutoSave, you can call
+         ReadSettings/WriteSettings.
+       + Under some odd circumstances, you could get the component to call
+         RecreateWnd while it was inside of CreateWnd.  If you know much about
+         the VCL, you know that this is a very Bad Thing (tm).  It would cause
+         nasty exceptions.  I believe I have worked around it, but if you notice
+         any odd behavior please let me know immediately.
+       + OnDrawSubItem event never fired for lvxOwnerDrawFixed Style listviews
+         that were in VirtualMode.  Fixed.
+3.11:  + If column sizes were saved but some column widths were missing, the
+         missing column sizes would be rediculously small.  They now default
+         to the design-time size.
+3.10:  + The CheckDLLVersion function in the ExtListView.pas unit had a nasty
+         bug in it.  This would cause false EELVOldComCtl exceptions to be
+         raised when a TdfsExtListView's RequireComCtlUpdate property was set.
+         Many thanks to Igor Lookin <Lookin_I@Usa.Net> for catching this one.
+3.09:  + Cleaned up some compiler hints under Delphi 4 that I missed last time.
+       + Fixed some default owner-drawing bugs that didn't look quite like a
+         normal list view.  Mostly had to do with small image list.  Many
+         thanks to Norbert Adamko <norris@frdsa.utc.sk> for fixing these.
+       + LastColumnClicked was published in TdfsExtListView, but should have only
+         been made public.  Fixed.
+       + SaveSettings property has new sub-property, SaveCurrentSort.  This will
+         save the current sorted column index and direction and restore it on
+         next execution.
+3.08:  + Change OnMeasureItem event to use UINT type parameter, and underlying
+         methods as well (MeasureItem) for Delphi 4 compatibility.  This will
+         break your existing OnMeasureItem event handlers.  Just copy all the
+         event handler code to the clipboard, remove the handler from the
+         component entirely, re-add the handler, paste your code back into it.
+       + Other changes for Delphi 4 compatitibility that should affect nothing
+         externally to the component.
+       + New public array property, CurrentColumnWidth.  Under everything but
+         Delphi 4, this evaluates to ActualColumn[Index].Width.  Under Delphi 4,
+         column widths are not updated during a header resize, so it broke a lot
+         of code.  This is used to fix it.  It bypasses the TListColumn.Width
+         call and goes directly to the API, which does know about new widths
+         during header resize.
+3.07:  + Fixed stupid bug that caused sort arrows to show up in all columns
+         of TdfsExtListView's that I introduced in v3.06.  Note to self: Check
+         EVERYTHING, no matter how trivial the change seems.....
+3.06:  + Sort arrows did not work well when sorting was done by OnSortItems
+         event instead of AutoColumnSort property.
+       + Resort call would not work inside BeginUpdate/EndUpdate unless
+         AutoResort were TRUE.  Thanks to  Norbert ADAMKO <norris@frdsa.utc.sk>
+         for fixing this.
+       + If an ExtListView had items in it and you switched to virtual mode and
+         then back out, you would get AV's.  Fixed.
+3.05:  + Sort arrows did not respond to system color changes, so they were
+         really ugly if you change the 3D Objects system color.
+3.04:  + Sort arrows always showed up if ShowSortArrows was TRUE.  This was a
+         bug if AutoColumnSort was set to acsNoSort.  Fixed.
+       + Added new ResizeColumns public method.
+       + Added note about COMMCTRL unit usage in "Notes & Credits" section (see
+         above).
+3.03:  + Added Version property.
+       + There were still a bunch of property write methods that assumed the
+         component had a valid window handle (or tried to create one if it did
+         not).  That wasn't really causing any problems when using the
+         component, but it was causing fits for people who were trying to
+         create a descendant from it under certain circumstances.
+3.02:  + Fixed problem where TdfsExtListView stayed in the change list of
+         SmallImages property when value changed.  Thanks to CWard
+         (CWard@lombardrisk.com) for finding and fixing it.
+3.01:  + TEnhLVSaveSettings constructor was not calling its inherited
+         constructor.  That's probably why I had some many fits with AutoSaving
+         during the 3.00 beta cycle.... Duh.
+       + Help file!
+3.00:  + The changes from v2.04 are too numerous to mention.
+2.04:  + TLVColumnEx record had two members declared in the wrong order.  Thanks
+         to Remi Sellem for catching this.
+       + The COMCTL32.H did not include a macro for setting an item's checked
+         state, only for getting it.  I have figured one out, and now the
+         IsChecked property is read/write not read-only.
+2.03:  + Reworked the sorting routines to work with bigger numbers and to make
+         it a little smarter at detecting valid numbers.  Thanks for much of
+         this to Rod Cullison (RCullis@worldnet.att.net).  Also added basic date
+         sorting capabilities.
+2.02:  + Changed property AutoColumnSort to have three different states
+         (acsNoSort, acsSort, acsSortToggle). New one toggles sort order between
+         ascending and descending order.   By Christian Holzner
+         <cholzner@ping.at>.
+2.01:  + Added two new properties, AutoColumnSort and AutoSortAscending, that
+         allow the list view columns to be automatically sorted when the user
+         clicks on them.  Thanks to Peter Thvrnqvist
+         (NMA96PTH@lustudat.student.lu.se) for writing the sorting code that I
+         never seemed to get to.
+       + There are some serious limitations to virtual mode.  See discussion in
+         the "Notes" section above.
+2.00:  + Added SaveSettings property.  Allows automatic saving and restoring of
+         column order and sizes.
+       + Now covers all new additions in the latest ActiveX SDK release.
+         Briefly, here's most of what's new:
+           Properties for Virtual Mode, subitem info, hot item, hot cursor, work
+           area and item checked.
+           Methods for item spacing, get sub item at give coords, getting and
+           setting column order.
+           New events for MarqueeBegin (bounding box selection), ItemActivate,
+           and owner data ("Virtual Mode") events.
+       + Now includes COMCTL32.DLL and API documentation ("Chapter 11.doc").
+       + Now includes far less comments than usual because I have no time.  If
+         you see something that looks wrong or doesn't make sense, email me.
+1.00:  + Initial release.
+

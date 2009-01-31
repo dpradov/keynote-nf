@@ -1,0 +1,127 @@
+<html>
+<head>
+<title>The Kryvich's Delphi Localizer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="Keywords" CONTENT="Kryvich, Delphi, localization, globalization, localize, globalize, resource strings, dfm, translation, translate, download, free">
+<meta name="Description" CONTENT="The Kryvich's Delphi Localizer - Powerful, Convenient, Flexible, Light, Easy and Free Delphi globalization/localization utility">
+<style type="text/css">
+<!--
+.text {
+	font-family: "Courier New", Courier, monospace;
+	font-size: x-small;
+}
+.title2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: x-small;
+	color: #666666;
+	font-weight: bold;
+}
+.subtitle {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: xx-small;
+	color: #666666;
+}
+.menu {
+	font-family: "Courier New", Courier, monospace;
+	font-size: x-small;
+	color: #333333;
+}
+-->
+</style>
+</head>
+
+
+<table border="0" cellspacing="0" cellpadding="0" align="center" width="782">
+  <tr> 
+    <td colspan="2"> 
+      <table width="100%" border="0" cellspacing="0" cellpadding="10">
+        <tr> 
+          <td><p><b><font face="Verdana, Arial, Helvetica, sans-serif" size="4" color="#333333">The Kryvich's Delphi Localizer</font></b></p>
+          <p class="title2">Globalize your Delphi applications without troubles</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="2"> 
+      <table width="782" border="0" cellspacing="0" cellpadding="0" height="22" bgcolor="#FFFFFF" background="menu.gif">
+        <tr> 
+          <td height="15" align="right" valign="middle" class="menu"><a href="index.html" class="menu">main page</a> - <a href="howto.htm" class="menu">howto</a> - <b>f.a.q.</b> - <a href="download.htm" class="menu">downloads</a> - <a href="contact.htm" class="menu">contact</a></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td width="143" valign="top"> 
+      <table width="143" height="1000" border="0" cellpadding="10" cellspacing="0" background="left.gif">
+        <tr> 
+          <td valign="top"> 
+            <p class="title2">Pages</p>
+            <p><a href="index.html" class="menu">main page</a></p>
+            <p><a href="howto.htm" class="menu">howto</a></p>
+            <p class="menu"><b>f.a.q.</b></p>
+            <p><a href="download.htm" class="menu">downloads</a></p>
+            <p><a href="contact.htm" class="menu">contact</a></p></td>
+        </tr>
+      </table>
+    </td>
+    <td valign="top"> 
+      <table width=639 height="1000" border="0" cellpadding="10" cellspacing="0" background="main.gif" bgcolor="#FFFFFF">
+        <tr> 
+          <td valign="top" height="780"> 
+            <table border="0" cellpadding="5" cellspacing="0">
+              <tr> 
+                <td height="12" bgcolor="#FFFFFF" class="title2">Frequently Asked Questions</td>
+              </tr>
+              <tr> 
+                <td width="657" height="465" valign="top" bgcolor="#FFFFFF"> 
+                  <p>&nbsp;</p>
+                  <p class="text"><i>Q: I trying with D7 to compile the Demo project but the uFreeLocalizer.pas & uStringUtils.pas is required... and in the distribution pack I've downloaded only the .dcu files were included. Any suggestion?</i></p>
+                  <p class="text">A: Just copy files uFreeLocalizer.dcu and uStringUtils.dcu from the Delphi 7 folder 
+                    to the Demo folder. Or alternatively you can add path for the Delphi 7 folder to the 
+                  Library path in Environment Options.</p>
+                  <p class="text"><i>Q: I don't use Humanize option, because I couldn't find any suitable delimiter: when the delimiter found in the string, the kdlscan stops processing exe and leave incomplete lng file.</i></p>
+                  <p class="text">A: That's right. But you can use ANY STRING as delimiter not only just one '\' character (for ex. '\*\', '/*/', '(*)', '+++', '&lt;&gt;' etc.). Set it in kdlscan.ini, HumanizeDivider option.</p>
+                  <p class="text"><i>Q: The K.D.L. can't translate all textual properties of the specific third-party component that I use in my application...</i></p>
+                  <p class="text">A: It is possible if this component override common .dfm file saving behavior. You can use the property name substitutions to workaround it. See kdlscan.ini for example with TVirtualTree (http://www.delphi-gems.com/VirtualTreeview/). Please e-mail me if you will have problems with it with any other component.</p>
+                  <p class="text"><i>Q: What is the String Version Control System? How it works?</i></p>
+                  <p class="text">A: <b>The String Version Control System (SVCS)</b> was introduced in KDL 3.0. SVCS can track all modifications you made in DFMs and string resources of your application.</p>
+                  <p class="text"> Now all modified strings will be marked with the (!) sign (as well as new strings in previous KDL versions), and old versions of modified (obsolete) strings will be marked with the (x) sign (as well as deleted strings). At the same time a number of the version of a modified strings will be increased.</p>
+                  <p class="text">To allow the SVCS to work, you should give the kdlscan utility an original language file of the previous version of your program.</p>
+                  <p class="text">For example, we have this line in application.lng for our Application v.1.0:</p>
+                  <table width="90%" align="center" cellpadding="5" bgcolor="#000066">
+                    <tr>
+                      <td><p class="text"><font color="#FFFF66">cbAutoTranslation<font color="#80FF80">.</font>Caption<font color="#80FF80">=</font><font color="#80FFFF">Auto translation</font><br>
+                      </font></p>                      </td>
+                    </tr>
+                  </table>
+                  <p class="text">Suppose in Application v.2.0 this string was modified to &quot;Auto translate&quot;. After running the kdlscan utility you will get:</p>
+                  <table width="90%" align="center" cellpadding="5" bgcolor="#000066">
+                    <tr>
+                      <td><p class="text"><font color="#FFFF66">cbAutoTranslation<font color="#80FF80">.</font>Caption<font color="#80FF80"><font color="#FFFFFF">{1}</font>=</font><font color="#80FFFF">Auto translate</font><br>
+                      </font></p>                      </td>
+                    </tr>
+                  </table>
+                  <p class="text">where {1} is a version number of given string.</p>
+                  <p class="text">In turn the lngupdate utility recognizes version numbers and updates .lng files accordingly for all available languages.</p>
+                  <p>&nbsp;</p>
+                  <p>&nbsp;</p>
+                  <p align="right"><span class="subtitle">downloads page</span> <a href="download.htm" class="menu">&gt;&gt;</a></p>                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="2">
+      <table width="782" border="0" cellspacing="0" cellpadding="0" height="22" bgcolor="#FFFFFF" background="menu.gif">
+        <tr> 
+          <td align="center" valign="middle"><span class="subtitle">Copyright 2006, 2007, 2008. </span><a href="http://kryvich.googlepages.com/index.html"><span class="subtitle">Kryvich</span></a></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</html>

@@ -1,0 +1,60 @@
+/****************************************************************************
+
+rxdconst.res
+
+Delphi VCL Extensions (RX)
+Copyright (c) 1995,1996 AO ROSNO
+Copyright (c) 1997 Master-Bank
+
+*****************************************************************************/
+
+#include "rxdconst.pas"
+
+STRINGTABLE
+{
+  SLocalDatabase, "Cannot perform this operation on a local database"
+  SRetryLogin, "Do you wish to retry the connect to database?"
+  SExprNotBoolean, "Field '%s' is not of type Boolean"
+  SExprBadNullTest, "NULL only allowed with '=' and '<>'"
+  SExprBadField, "Field '%s' cannot be used in a filter expression"
+  SCaptureFilter, "Cannot perform this operation when controls are captured"
+  SNotCaptureFilter, "Cannot perform this operation when controls are not captured"
+  SInactiveData, "Closed"
+  SBrowseData, "Browse"
+  SEditData, "Edit"
+  SInsertData, "Insert"
+  SSetKeyData, "Search"
+  SCalcFieldsData, "Calculate"
+  SRegistration, "Registration"
+  SAppTitleLabel, "Application \042%s\042"
+  SHintLabel, "Type your user name and password"
+  SUserNameLabel, "&User name:"
+  SPasswordLabel, "&Password:"
+  SInvalidUserName, "Invalid user name or password"
+  SChangePassword, "Change password"
+  SOldPasswordLabel, "&Old password:"
+  SNewPasswordLabel, "&New password:"
+  SConfirmPasswordLabel, "&Confirm password:"
+  SPasswordChanged, "Password has been changed"
+  SPasswordNotChanged, "Password has not been changed"
+  SPasswordsMismatch, "The new and confirmed passwords do not match"
+  SDBExceptCaption, "Database Engine Error"
+  SBDEErrorLabel, "BDE Error"
+  SServerErrorLabel, "Server Error"
+  SErrorMsgLabel, "Error message"
+  SNextButton, "&Next"
+  SPrevButton, "&Prev"
+  SExprIncorrect, "Incorrectly formed filter expression"
+  SExprTermination, "Filter expression incorrectly terminated"
+  SExprNameError, "Unterminated field name"
+  SExprStringError, "Unterminated string constant"
+  SExprInvalidChar, "Invalid filter expression character: '%s'"
+  SExprNoRParen, "')' expected but %s found"
+  SExprExpected, "Expression expected but %s found"
+  SExprBadCompare, "Relational operators require a field and a constant"
+  SConfirmSave, "The data were changed. Save them?"
+  SDatabaseName, "Database name: %s"
+  SUnlockCaption, "Unlock application"
+  SUnlockHint, "Type your password"
+  SDeleteMultipleRecords, "Delete all selected records?"
+}

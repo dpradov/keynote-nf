@@ -1,0 +1,157 @@
+<html>
+<head>
+<title>The Kryvich's Delphi Localizer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="Keywords" CONTENT="Kryvich, Delphi, localization, globalization, localize, globalize, resource strings, dfm, translation, translate, download, free">
+<meta name="Description" CONTENT="The Kryvich's Delphi Localizer - Powerful, Convenient, Flexible, Light, Easy and Free Delphi globalization/localization utility">
+<style type="text/css">
+<!--
+.text {
+	font-family: "Courier New", Courier, monospace;
+	font-size: x-small;
+}
+.title2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: x-small;
+	color: #666666;
+	font-weight: bold;
+}
+.subtitle {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: xx-small;
+	color: #666666;
+}
+.menu {
+	font-family: "Courier New", Courier, monospace;
+	font-size: x-small;
+	color: #333333;
+}
+-->
+</style>
+</head>
+
+
+<table border="0" cellspacing="0" cellpadding="0" align="center" width="782">
+  <tr> 
+    <td colspan="2"> 
+      <table width="100%" border="0" cellspacing="0" cellpadding="10">
+        <tr> 
+          <td><p><b><font face="Verdana, Arial, Helvetica, sans-serif" size="4" color="#333333">The Kryvich's Delphi Localizer</font></b></p>
+          <p class="title2">Globalize your Delphi applications without troubles</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="2"> 
+      <table width="782" border="0" cellspacing="0" cellpadding="0" height="22" bgcolor="#FFFFFF" background="menu.gif">
+        <tr> 
+          <td height="15" align="right" valign="middle" class="menu"><a href="index.html" class="menu">main page</a> - <a href="howto.htm" class="menu">howto</a> - <a href="faq.htm" class="menu">f.a.q.</a> - <b>downloads</b> - <a href="contact.htm" class="menu">contact</a></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td width="143" valign="top"> 
+      <table width="143" height="1000" border="0" cellpadding="10" cellspacing="0" background="left.gif">
+        <tr> 
+          <td valign="top"> 
+            <p class="title2">Pages</p>
+            <p><a href="index.html" class="menu">main page</a></p>
+            <p><a href="howto.htm" class="menu">howto</a></p>
+            <p><a href="faq.htm" class="menu">f.a.q.</a></p>
+            <p class="menu"><b>downloads</b></p>
+            <p><a href="contact.htm" class="menu">contact</a></p></td>
+        </tr>
+      </table>
+    </td>
+    <td valign="top"> 
+      <table width=639 height="1000" border="0" cellpadding="10" cellspacing="0" background="main.gif" bgcolor="#FFFFFF">
+        <tr> 
+          <td valign="top" height="780"> 
+            <table border="0" cellpadding="5" cellspacing="0">
+              <tr> 
+                <td height="12" bgcolor="#FFFFFF" class="title2">Downloads</td>
+              </tr>
+              <tr> 
+                <td width="657" height="465" valign="top" bgcolor="#FFFFFF"> 
+                  <p>&nbsp;</p>
+                  <p class="text">This is a last public version of the Kryvich's Delphi Localizer:</p>
+                  <p class="text"><a href="http://kryvich.googlepages.com/kdl32.zip">Kryvich's Delphi Localizer 3.2</a> (April 29, 2008)</p>
+                  <p class="text">[+] Extensions to TFreeLocalizer suggested by Andre:</p>
+                  <ul>
+                    <li class="text">Ignore entries in units JclResources and JConsts.</li>
+                    <li class="text">Added error processing mode epDebug (Use DebugOutputString)</li>
+                    <li class="text">Added error processing mode epErrors (All messages into a string list)</li>
+                    <li class="text">Added typed exceptions for errors (So one can exclude them in the debugger) and use them in TranslateProp method.</li>
+                  </ul>
+                  <p class="text">[-] Codepage parameter in .lng not supported anymore. Always use UTF-8 (65001) codepage for .lng files.</p>
+                  <p class="text">[+] TFuncReplacement now can substitute a function if the project is compiled with runtime packages (from Utf8Vcl library, suggested by Vitaly Phylon).</p>
+                  <p class="text">[+] the .dll library and the .bpl package added to the demo application to demonstrate using of the localizer inside attached libraries.</p>
+                  <p class="text">Improvements to the kdlscan and lngupdate utilities:</p>
+                  <p class="text">[+] Now the kdlscan utility can process .exe, .dll and .bpl files compiled with Delphi.</p>
+                  <p class="text">[*] SkipComponents command in kdlscan.ini renamed to SkipClasses for more consistency.</p>
+                  <p class="text">[+] Now it's possibe to use wildcards with '*' and '?' characters to filter properties, components and units in SkipNames, SkipClasses and SkipUnits commands.</p>
+                  <p class="text">                    For ex. add '*FieldName' to SkipNames to skip all properties like DataBinding.FieldName, SendFieldName, etc. 
+                    Add 'Jv*' to SkipUnits to skip resourcestrings in most of JVCL units.</p>
+                  <p class="text">[+] Added SkipObjects command to kdlscan.ini. It allows to filter objects with specified names. Wildcars are possible. All objects without names are skipped by default.</p>
+                  <p class="text">                    For ex. add 'pnl*' to SkipObjects to skip all objects like pnlLeft, pnlTop etc.</p>
+                  <p class="text">[*] The search order for the kdlscan.ini is changed, so one can use different ini-files for different projects. If there is no the kdlscan.ini file in a folder with the input file then the K.D.L. scanner reads parameters from the default kdlscan.ini.</p>
+                  <p class="text"> [+] Sometimes it's important to distinguish #13 and #13#10 dividers in resource strings and form properties. Therefore the HumanizeDivider command replaced with two commands: HumanizedCR for #13 and HumanizedCRLF for #13#10. Now HumanizeDivider is obsolete but retained for backward compatibility.</p>
+                  <p class="text">If HumanizedCR = HumanizedCRLF then #13 will be used for form properties and #13#10 will be used for the [ResourceStrings] section.</p>
+                  <p class="text">For ex. let Humanize=1, HumanizedCR=\^ and HumanizedCRLF=\^. 
+                    Then:<br>
+                  pnlTop.lblInfo=Important\^information --&gt; 'Important'#13'information'<br>
+                  rsResString=Important\^information --&gt; 'Important'#13#10'information'</p>
+                  <p class="text">K.D.L. supports Delphi 5/6/7, Delphi 2006/2007 &amp; Turbo Delphi (Explorer and Professional). It works in Win32 VCL projects only (.NET not supported).</p>
+                  <hr>
+                  <p class="title2">History</p>
+                  <p class="text"><a href="http://kryvich.googlepages.com/kdl31.zip">Kryvich's Delphi Localizer 3.1</a> (August 23, 2007)</p>
+                  <p class="text">[+] Due to many requests, now the localizer can be compiled both in Delphi 5 and in Delphi 6. See &quot;Demo D5&quot; folder for the Delphi 5/6 demo application.</p>
+                  <p class="text">I recommend Delphi 5/6/7 programmers to think about transition to Delphi 2007 for Win32 - it's a robust and handy tool. Though I think Delphi 2006 &amp; Turbo Delphi users can wait for the Tiburon (Delphi 2008) with full Unicode support (see <a href="http://dn.codegear.com/article/36620">Delphi Roadmap</a>). </p>
+                  <p class="text"><a href="http://kryvich.googlepages.com/kdl30.zip">Kryvich's Delphi Localizer 3.0</a> (Jule 9, 2007)</p>
+                  <p class="text">[+] The String Version Control System (SVCS) was introduced. It helps to track modifications in your language files.</p>
+                  <p class="text">[*] Due to SVCS now all modified string resources can be marked with &quot;(!)&quot; sign (as well as new strings in previous KDL versions), and obsolete strings can be marked with the (x) sign (as well as deleted strings).</p>
+                  <p class="text">[-] Codepage parameter was removed from kdlscan.ini file. Further we assume, that kdlscan.ini will be encoded in UTF-8 only (Codepage=65001).</p>
+                  <p class="text"><a href="http://kryvich.googlepages.com/kdl22.zip">Kryvich's Delphi Localizer 2.2</a> (May 29, 2007)</p>
+                  <p class="text">[*] KDL utilities (Scanner and Lng Updater) have been updated.</p>
+                  <p class="text">[*] Now SkipComponents parameter in kdlscan.ini can contain any components, not just TForm and TDataModule descendants.</p>
+                  <p class="text">[*] Parameter SkipNames in kdlscan.ini file is added by new properties which usually are not localized (essentially database related string properties).</p>
+                  <p class="text"><a href="http://kryvich.googlepages.com/kdl21.zip">Kryvich's Delphi Localizer 2.1</a> (May 19, 2007)</p>
+                  <p class="text">[+] Added globalization for inherited forms. Now controls placed on the Form1 could be translated if Form1 has been inherited from another Form2. I.e. TForm1 = class(TForm2), TForm2 = class(TForm).</p>
+                  <p class="text">[*] kdlscan.ini: append SkipNames list with Font.Name and SQL.Strings. These properties usually isn't localizable. You can edit SkipNames list yourself if you wish.</p>
+                  <p class="text">[-] Fixed: The K.D.L. scanner couldn't work if kdlscan.ini file contained the Unicode signature (EF BB BF) in the beginning.</p>
+                  <p class="text"><a href="http://kryvich.googlepages.com/kdl20.zip">Kryvich's Delphi Localizer 2.0 beta</a> (April 03, 2007)</p>
+                  <p class="text">Added support for <a href="http://en.wikipedia.org/wiki/Utf-8">UTF-8</a> Unicode strings. Now K.D.L. can work in a conjunction with <a href="https://sourceforge.net/projects/utf8vcl/">UTF8VCL library</a> to bring the Unicode into your VCL applications.</p>
+                  <p class="text"><a href="http://kryvich.googlepages.com/kdl17.zip">Kryvich's Delphi Localizer 1.7</a> (February 22, 2007)</p>
+                  <p class="text"> K.D.L. 1.7 preserves rightmost spaces in strings.</p>
+                  <p class="text"><a href="http://kryvich.googlepages.com/kdl16.zip">Kryvich's Delphi Localizer 1.6</a> (September 18, 2006)</p>
+                  <p class="text">Fixed &quot;Invalid stream format&quot; error in K.D.L. Scanner utility.</p>
+                  <p class="text">Kryvich's Delphi Localizer 1.5 (July 6, 2006)</p>
+                  <p class="text">Added support for third-party components, which override default .dfm file saving behavior.</p>
+                  <p class="text">Kryvich's Delphi Localizer 1.4 (July 4, 2006)</p>
+                  <p class="text">Added globalization for frames included in Delphi forms.</p>
+                  <p class="text">Kryvich's Delphi Localizer 1.3 (July 3, 2006)</p>
+                  <p class="text">Kryvich's Delphi Localizer 1.2 (June 15, 2006)</p>
+                  <p class="text">Kryvich's Delphi Localizer 1.1 (May 29, 2006)</p>
+                  <p class="text">Kryvich's Delphi Localizer 1.0 (May 26, 2006) </p>
+                  <p>&nbsp;</p>
+                  <p align="right"><span class="subtitle">contact page</span> <a href="contact.htm" class="menu">&gt;&gt;</a></p>                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="2">
+      <table width="782" border="0" cellspacing="0" cellpadding="0" height="22" bgcolor="#FFFFFF" background="menu.gif">
+        <tr> 
+          <td align="center" valign="middle"><span class="subtitle">Copyright 2006, 2007, 2008. </span><a href="http://kryvich.googlepages.com/index.html"><span class="subtitle">Kryvich</span></a></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</html>

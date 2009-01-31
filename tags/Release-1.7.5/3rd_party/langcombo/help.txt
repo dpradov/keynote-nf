@@ -1,0 +1,171 @@
+TLangaugesCombo
+
+TLangguagesCombo implements drop-down list of languages installed
+or supported by system.
+
+Unit
+lccombo
+
+Description
+TLanguagesCombo is visual component which allows to select language
+from drop-down list. TLanguagesCombo is descendant of TCustomComboBox
+so it has most of methods and properties of TCustomComboBox. Here
+described only the new properties of TLanguagesCombo.
+
+-----------------------------------------------------------------------
+TLanguagesCombo properties
+    Language
+    LanguageName
+    LanguageCount
+    LanguageType
+    ViewType
+    ShowFlag
+
+-----------------------------------------------------------------------
+TLanguagesCombo.Language
+Defines currently selected language.
+
+type
+  TLanguage = 0..$FFFF;
+
+property Language: TLanguage;
+
+Description
+In Object Inspector value of Language can bet set by four ways:
+- type decimal or hexadecimal value of LCID, e.g. $409, 1049;
+- type three-letter standard abbreviation of language name, e.g. ENU, RUS;
+- type English name of language, e.g. English (United States), Russian;
+- type language name in your native language (more exactly, native for 
+  your Windows).
+In run-time you can use some constants to set value of Language.
+
+const
+  langAfrikaans = TLanguage(1078);
+  langAlbanian = TLanguage(1052);
+  langArabic = TLanguage(1025);
+  langBasque = TLanguage(1069);
+  langBelgianDutch = TLanguage(2067);
+  langBelgianFrench = TLanguage(2060);
+  langBrazilianPortuguese = TLanguage(1046);
+  langBulgarian = TLanguage(1026);
+  langByelorussian = TLanguage(1059);
+  langCatalan = TLanguage(1027);
+  langCroatian = TLanguage(1050);
+  langCzech = TLanguage(1029);
+  langDanish = TLanguage(1030);
+  langDutch = TLanguage(1043);
+  langEnglishAUS = TLanguage(3081);
+  langEnglishCanadian = TLanguage(4105);
+  langEnglishNewZealand = TLanguage(5129);
+  langEnglishSouthAfrica = TLanguage(7177);
+  langEnglishUK = TLanguage(2057);
+  langEnglishUS = TLanguage(1033);
+  langEstonian = TLanguage(1061);
+  langFaeroese = TLanguage(1080);
+  langFarsi = TLanguage(1065);
+  langFinnish = TLanguage(1035);
+  langFinnishSwedish = TLanguage(2077);
+  langFrench = TLanguage(1036);
+  langFrenchCanadian = TLanguage(3084);
+  langGerman = TLanguage(1031);
+  langGreek = TLanguage(1032);
+  langHebrew = TLanguage(1037);
+  langHungarian = TLanguage(1038);
+  langItalian = TLanguage(1040);
+  langIcelandic = TLanguage(1039);
+  langIndonesian = TLanguage(1057);
+  langJapanese = TLanguage(1041);
+  langKorean = TLanguage(1042);
+  langLatvian = TLanguage(1062);
+  langLithuanian = TLanguage(1063);
+  langMacedonian = TLanguage(1071);
+  langMalaysian = TLanguage(1086);
+  langMexicanSpanish = TLanguage(2058);
+  langNorwegianBokmol = TLanguage(1044);
+  langNorwegianNynorsk = TLanguage(2068);
+  langPolish = TLanguage(1045);
+  langPortuguese = TLanguage(2070);
+  langRomanian = TLanguage(1048);
+  langRussian = TLanguage(1049);
+  langSerbianCyrillic = TLanguage(3098);
+  langSerbianLatin = TLanguage(2074);
+  langSesotho = TLanguage(1072);
+  langSimplifiedChinese = TLanguage(2052);
+  langSlovak = TLanguage(1051);
+  langSlovenian = TLanguage(1060);
+  langSpanish = TLanguage(1034);
+  langSpanishModernSort = TLanguage(3082);
+  langSwedish = TLanguage(1053);
+  langSwissFrench = TLanguage(4108);
+  langSwissGerman = TLanguage(2055);
+  langSwissItalian = TLanguage(2064);
+  langThai = TLanguage(1054);
+  langTraditionalChinese = TLanguage(1028);
+  langTsonga = TLanguage(1073);
+  langTswana = TLanguage(1074);
+  langTurkish = TLanguage(1055);
+  langUkrainian = TLanguage(1058);
+  langVenda = TLanguage(1075);
+  langVietnamese = TLanguage(1066);
+  langXhosa = TLanguage(1076);
+  langZulu = TLanguage(1077);
+
+
+-----------------------------------------------------------------------
+TLanguagesCombo.LanguageName
+Returns name of current language of spellchecker.
+
+property LanguageName: String;
+
+-----------------------------------------------------------------------
+TLanguagesCombo.LanguageCount
+Returns count of languages in list.
+
+property LanguageCount: Integer;
+
+Description
+Read only.
+
+-----------------------------------------------------------------------
+TLanguagesCombo.LanguageType
+Defines languages set in list.
+
+type
+  TLanguageType = (ltInstalled, ltSupported, ltPrimary);
+property LanguageType: TLanguageType;
+
+Description
+ltInstalled:
+  List contains languages installed in system
+ltSupported:
+  List contains languages supported by system
+ltPrimary:
+  Same as ltInstalled but only primary languages
+
+-----------------------------------------------------------------------
+TLanguagesCombo.ViewType
+Defines how to show languages in list.
+
+type
+  TLanguageViewType = (lvtLocalized, lvtEnglish, lvtNative, lvtAbbrev);
+property ViewType: TLanguageViewType;
+
+Description.
+lvtLocalized
+  Language names are in your native language.
+lvtEnglish
+  Language names are in English.
+lvtNative
+  Language names are given in correspondent languages 
+  (don't use with LanguageType=ltSupported).
+lvtAbbrev
+  Language names are abbreviated in three letters.
+
+----------------------------------------------------------------------
+TLanguagesCombo.ShowFlag
+Defines how to show languages in list.
+
+property ShowFlag: Boolean;
+
+Description
+When True a little flag is drawn in the left of language name.

@@ -1,0 +1,139 @@
+<html>
+<head>
+<title>The Kryvich's Delphi Localizer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="Keywords" CONTENT="Kryvich, Delphi, localization, globalization, localize, globalize, resource strings, dfm, translation, translate, download, free">
+<meta name="Description" CONTENT="The Kryvich's Delphi Localizer - Powerful, Convenient, Flexible, Light, Easy and Free Delphi globalization/localization utility">
+<style type="text/css">
+<!--
+.text {
+	font-family: "Courier New", Courier, monospace;
+	font-size: x-small;
+}
+.title2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: x-small;
+	color: #666666;
+	font-weight: bold;
+}
+.subtitle {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: xx-small;
+	color: #666666;
+}
+.menu {
+	font-family: "Courier New", Courier, monospace;
+	font-size: x-small;
+	color: #333333;
+}
+-->
+</style>
+</head>
+
+
+<table border="0" cellspacing="0" cellpadding="0" align="center" width="782">
+  <tr> 
+    <td colspan="2"> 
+      <table width="100%" border="0" cellspacing="0" cellpadding="10">
+        <tr> 
+          <td><p><b><font face="Verdana, Arial, Helvetica, sans-serif" size="4" color="#333333">The Kryvich's Delphi Localizer</font></b></p>
+          <p class="title2">Globalize your Delphi applications without troubles</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="2"> 
+      <table width="782" border="0" cellspacing="0" cellpadding="0" height="22" bgcolor="#FFFFFF" background="menu.gif">
+        <tr> 
+          <td height="15" align="right" valign="middle" class="menu"><a href="index.html" class="menu">main page</a> - <b>howto</b> - <a href="faq.htm" class="menu">f.a.q.</a> - <a href="download.htm" class="menu">downloads</a> - <a href="contact.htm" class="menu">contact</a></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td width="143" valign="top"> 
+      <table width="143" height="1000" border="0" cellpadding="10" cellspacing="0" background="left.gif">
+        <tr> 
+          <td valign="top"> 
+            <p class="title2">Pages</p>
+            <p><a href="index.html" class="menu">main page</a></p>
+            <p class="menu"><b>howto</b></p>
+            <p><a href="faq.htm" class="menu">f.a.q.</a></p>
+            <p><a href="download.htm" class="menu">downloads</a></p>
+            <p><a href="contact.htm" class="menu">contact</a></p></td>
+        </tr>
+      </table>
+    </td>
+    <td valign="top"> 
+      <table width=639 height="1000" border="0" cellpadding="10" cellspacing="0" background="main.gif" bgcolor="#FFFFFF">
+        <tr> 
+          <td valign="top" height="780"> 
+            <table border="0" cellpadding="5" cellspacing="0">
+              <tr> 
+                <td height="12" bgcolor="#FFFFFF" class="title2">How to... </td>
+              </tr>
+              <tr> 
+                <td width="657" height="465" valign="top" bgcolor="#FFFFFF"> 
+                  <p>&nbsp;</p>
+                  <p class="text"><span class="title2">Add Kryvich's Delphi Localizer class to your project:</span></p>
+                  <ul>
+                    <li class="text">Most easy way is to add uFreeLocalizer.dcu unit to your project and in project source file after Application.Initialize add these lines:</li>
+                  </ul>
+                  <table width="90%" align="center" cellpadding="5" bgcolor="#000066">
+                    <tr>
+                      <td><p class="text"><font color="#FFFF66">
+				    Application<font color="#80FF80">.</font>Initialize<font color="#80FF80">;</font><br><br>
+					  FreeLocalizer<font color="#80FF80">.</font>AutoTranslate <font color="#80FF80">:=</font> <font color="#FFFFFF">True</font><font color="#80FF80">;</font><br>
+                          FreeLocalizer<font color="#80FF80">.</font>LoadLanguageFile<font color="#80FF80"> := </font><font color="#FFFF66"><font color="#80FFFF">'</font></font><font color="#80FFFF">myapp.english.lng'</font><font color="#80FF80">;<br><br>
+						  ...</font></font></p></td>
+                    </tr>
+                  </table>
+                  <p class="text">Translation will be loaded from myapp.english.lng language file. All resource strings of your application and all forms and data modules will be automatically translated after their creation.</p>
+                  <p class="text"><span class="title2">Generate original language file for your project:</span></p>
+                  <ul>
+                    <li class="text">In Delphi Environment open menu Project | Options | Linker and      set MAP file to Detailed.</li>
+                    <li class="text">Build the project. EXE and DRC files will be created.</li>
+                    <li class="text">Run K.D.L. scanner like this:</li>
+                  </ul>
+                  <blockquote>
+                    <p class="text"><b>kdlscan myapp.exe</b></p>
+                  </blockquote>
+                  <p class="text">Source language file  myapp.lng will be created. Copy this file and translate to other languages.</p>
+                  <p class="text"><u><i>Note:</i></u> If you have an original language file from the previous version of your application you should place this file to the output folder before the kdlscan utility call. Then the build-in String Version Control System (SVCS) will trace all modifications brought by you in string resources after release of the previous version of the application.</p>
+                  <p class="text"><span class="title2">Update a language file from the previous version of your application:</span></p>
+                  <ul>
+                    <li class="text">Generate new original language file as stated above.</li>
+                    <li class="text">Run K.D.L. Lng Updater for all your language files:</li>
+                  </ul>
+                  <blockquote>
+                    <p class="text"><b>lngupdate myapp.english.lng myapp.lng  -! -x </b><br>
+                      <b>lngupdate myapp.belarusian.lng myapp.lng  -! -x </b><br>
+                      <b>lngupdate myapp.deutsch.lng myapp.lng</b><b> -! -x </b><br>
+                    ...</p>
+                  </blockquote>
+                  <p class="text">Old language files will be updated according to the new resource content of myapp.exe.</p>
+                  <p class="text">Optional switch &quot;-!&quot; means mark untranslated (new &amp; modified) strings with &quot;(!)&quot; mark. It's convenient for your translators to find out the new strings in a language file. After translation completion all these marks should be removed from language files.</p>
+                  <p class="text">Optional switch &quot;-x&quot; means leave not used (obsolete &amp; deleted from the application) strings in an output language file marked with &quot;(x)&quot; mark. After translation completion all these not used strings should be removed entirely.</p>
+                  <p class="text"><span class="title2">Where I can get additional information about subject:</span> </p>
+                  <p><span class="text">The help file is not present yet. But you can find the interface part of the TFreeLocalizer class in ZIP archive. Also see the demo project included and read comments in kdlscan.ini.</span></p>
+                  <p>&nbsp;</p>
+                  <p align="right"><span class="subtitle">f.a.q. page</span> <a href="faq.htm" class="menu">&gt;&gt;</a></p>                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="2">
+      <table width="782" border="0" cellspacing="0" cellpadding="0" height="22" bgcolor="#FFFFFF" background="menu.gif">
+        <tr> 
+          <td align="center" valign="middle"><span class="subtitle">Copyright 2006, 2007, 2008. </span><a href="http://kryvich.googlepages.com/index.html"><span class="subtitle">Kryvich</span></a></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</html>

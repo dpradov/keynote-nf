@@ -1,0 +1,45 @@
+[NoteEditorProperties]
+TabSize=4
+URLDetect=0
+UseTabChar=1
+WordWrap=1
+
+[NoteTabProperties]
+ImageIndex=7
+Name="Nowy notes"
+
+[EditorChrome]
+BGColor=clWindow
+FontCharset=238
+FontColor=clWindowText
+FontName="Courier New"
+FontSize=10
+FontStyle=
+HiColor=clHighlight
+HiFontCharset=1
+HiFontColor=clHighlightText
+HiFontName="MS Sans Serif"
+HiFontSize=8
+HiFontStyle=
+
+[NoteTreeProperties]
+DefaultName="KONAR"
+ShowCheckBoxes=0
+ShowImages=1
+AutoNumberNodes=1
+VerticalLayout=0
+
+[TreeChrome]
+FontCharset=238
+FontName="Verdana"
+FontSize=10
+FontStyle=
+HiColor=clHighlight
+HiFontCharset=1
+HiFontColor=clHighlightText
+HiFontName="MS Sans Serif"
+HiFontSize=8
+HiFontStyle=
+BGColor=clWindow
+FontColor=clWindowText
+
