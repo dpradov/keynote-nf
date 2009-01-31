@@ -713,7 +713,7 @@ begin
     end;
     *)
   end;
-  result := ansilowercase( result );
+  //result := ansilowercase( result );
 end; // NormalFN
 
 function RelativeFN( FN : string ) : string;
