@@ -2675,13 +2675,7 @@ var
           Col  := SelStart - posFirstChar;
 
           S:= lines[ line ];
-
-          // count blanks and tabs in this string
-          maxIndent := 0;
-          while (maxIndent < length( S )) and
-                (S[maxIndent+1] In  [' ',#9])
-          do
-            Inc( maxIndent );
+          maxIndent:= GetIndentOfLine(S);
 
           if maxIndent > col then
              indent:= col
@@ -2804,7 +2798,7 @@ end; // RxRTFKeyDown
 procedure TForm_Main.RxRTFKeyPress(Sender: TObject; var Key: Char);
 var
   sel: TCharRange;
-  fromLine, toLine, posInicio, t: integer;
+  fromLine, toLine, posInicio, t, indent: integer;
   cad, cadTab: string;
   applyTabOnSelection: boolean;
 
@@ -2822,6 +2816,8 @@ begin
                sel:= GetSelection;
                fromLine:= LineFromChar(sel.cpMin);
                toLine:= LineFromChar(sel.cpMax-1);
+               if fromLine > toLine then toLine:= fromLine;
+
                applyTabOnSelection:= true;
                if not (GetKeyState( VK_SHIFT ) < 0 ) then
                    if (sel.cpMin= sel.cpMax) or (fromLine = toLine) then
@@ -2831,20 +2827,19 @@ begin
                // -> The process in done in a single operation (from RichTextBox point of view)
                // And with RTF and not with .SelText because it would lose formatting.
                if UseTabChar then
-                  cadTab:= '\tab'
+                  if applyTabOnSelection then cadTab:= '\tab' else cadTab:= #9
                else
                   cadTab:= StringOfChar(' ', TabSize);
 
+               BeginUpdate;
+
                if not applyTabOnSelection then
                begin
-                     if not UseTabChar then begin
-                        SelText:= cadTab;
-                        SelLength:= 0;
-                        key:= #0;
-                     end;
+                    SelText:= cadTab;
+                    SelStart:= SelStart + SelLength;
+                    SelLength:= 0;
                end
                else begin
-                     //BeginUpdate;
                      posInicio:= Perform( EM_LINEINDEX,fromline,0);
                      if posInicio>0 then posInicio:= posInicio-1;
                      if fromLine=0 then begin        // Special case. There is no initial \par
@@ -2869,37 +2864,20 @@ begin
                      cad:= GetRichText(ActiveNote.Editor, true,true);
                      cad:= ReplaceStr(cad, '\pard', #1);
 
-// Dificulty: Hibrid between use and not use Tab char.
-// To only change Tab for spaces in the beginning of the line (\par[spaces]\tab don't work ok.) Is the expected behavior?
-//
-//                     if ( GetKeyState( VK_SHIFT ) >= 0 ) then begin
-//                        if not useTabChar then begin
-//                           cad:= ReplaceStr(cad, '\par\tab', #2#3);
-//                           cad:= ReplaceStr(cad, '\par'+#13#10+'\tab', #2#3);
-//                           repeat
-//                              cad2:= ReplaceStr(cad, #3+'\tab', #3#3);
-//                              cad:= cad2;
-//                           until cad=cad2;
-//                           cad:= ReplaceStr(cad, '\par', '\par'+cadTab);
-//                           cad:= ReplaceStr(cad, #2, '\par'+cadTab);
-//                           cad:= ReplaceStr(cad, #3, cadTab);
-//                        end
-//                        else
-//                          cad:= ReplaceStr(cad, '\par', '\par'+ cadTab);
-//                     end
-//                     else
-//                        // Shift-TAB -> TODO[Similar but on reverse...]
-
                      // Simpler: Ok using TAB, also without using TAB and reasonably intuive with hybrid
+                     cad:= ReplaceStr(cad, #13#10+'\tab' , '\tab');
                      if ( GetKeyState( VK_SHIFT ) >= 0 ) then begin
+                        cad:= ReplaceStr(cad, '\par'+#13#10, '\par ');
                         cad:= ReplaceStr(cad, '\par', '\par'+ cadTab);
-                        if not useTabChar then
+                        if not useTabChar then begin
+                           cad:= ReplaceStr(cad, '\tab'+#13#10, '\tab ');
                            cad:= ReplaceStr(cad, '\tab', cadTab);
+                        end;
                      end
                      else begin
                         cad:= ReplaceStr(cad, #1'\tab', #3);
+                        cad:= ReplaceStr(cad, '\par\tab ', #2);
                         cad:= ReplaceStr(cad, '\par\tab', #2);
-                        cad:= ReplaceStr(cad, '\par'+#13#10+'\tab' , #2);
                         t:= TabSize;
                         while (pos('\par', cad) <> 0) do begin
                           cad:= ReplaceStr(cad, '\par'+ StringOfChar(' ', t), #2);
@@ -2913,9 +2891,18 @@ begin
                      cad:= ReplaceStr(cad, #1, '\pard');
                      PutRichText(cad,ActiveNote.Editor,true,true);
                      SetSelection(Perform( EM_LINEINDEX,fromline,0), Perform( EM_LINEINDEX,toLine+1,0), true);
-                     //EndUpdate;
-                     key := #0;
                end;
+
+               if (fromLine = toLine) then begin
+                  posInicio:= Perform( EM_LINEINDEX,fromline,0);
+                  cad:= GetTextRange(posInicio, Perform( EM_LINEINDEX,toLine+1,0));
+                  indent:= GetIndentOfLine(cad);
+                  if SelStart-posInicio < indent then
+                     SelStart:= posInicio + indent;
+                  SelLength:= 0;
+               end;
+               EndUpdate;
+               key:= #0;
            end;
   end;
 end;  // RxRTF_KeyPress
