@@ -14,7 +14,31 @@ KEYNOTE - RELEASE HISTORY
 Seguimiento de incidencias (issues) en http://code.google.com/p/keynote-nf/issues/list
 
 =============================
-Versión: 1.7.4 Rev.2 -  date: 02/Jan/2009
+Version: 1.7.5 -  fecha: 31/ene/2009
+
+Mejoras:
+ * Issue #23: Versión multilanguage de KeyNote NF (nueva opción de configuración)
+              Se incluye en esta versión un fichero con una traducción parcial al español (castellano). Esta
+              sirve de ejemplo de cómo realizar la traducción. En la descripción de la incidencia hay más información.
+ * Issue #31: Al pulsar TAB o SHIFT-TAB sobre múltiples líneas se obtiene el mismo comportamiento que en notepad++
+ * Issue #32: Ctrl+UP/DOWN permiten desplazar el documento hacia arriba o hacia abajo, sin mover el cursor.
+ * Issue #38: Al pulsar INICIO el cursor se desplaza hacia la primera posición de texto (no espacio) de la línea.
+
+Errores corregidos:
+ * Issue #24: No se mostraba el contenido de los nodos en equipos sin la DLL MSFTEDIT.DLL
+ * Issue #26: El nuevo formato de hiperenlace (issue 12) no funcionaba sobre notas marcadas como "Plain text only" 
+ * Issue #27: Conversión incorrecta de hiperenlaces internos con prefijo "file:///?" hacia el nuevo formato
+ * Issue #42: La sangría de primera línea no funcionaba como debería. Ahora la sangría funciona como en MS Word:
+              La sangría de primera línea es relativa a la sangría izquierda, no al revés. Y puede ser positiva o negativa.
+ * Issue #36: Shift+Ctr+` (Reducir Sangría de primera línea) no hacía nada. Se estaba ignorando Shift+Ctr.
+ * Issue #33: Las combinaciones AltGr+C/V/X eran ignoradas
+ * Issue #28: Al tener activada la opción "One instance only" la segunda instancia se cerraba con una excepción.
+ * Issue #41: Los nombres de archivos se guardaban siempre en minúsculas
+ * Issue #39: La búsqueda podía no funcionar sobre la versión descargada desde SVN
+
+ 
+=============================
+Versión: 1.7.4 Rev.2 -  fecha: 02/ene/2009
 
 Errores corregidos:
 

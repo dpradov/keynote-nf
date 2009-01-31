@@ -14,6 +14,30 @@ KEYNOTE - RELEASE HISTORY
 Issue #tracker at http://code.google.com/p/keynote-nf/issues/list
 
 =============================
+Version: 1.7.5 -  date: 31/Jan/2009
+
+Enhancements:
+ * Issue #23: Multilanguage version of KeyNote NF  (new configuration option)
+              In this release is included a file with a partial translation to spanish (castilian). This
+              serves as an example of how to translate. In the content of the issue there is more information.
+ * Issue #31: TAB and SHIFT-TAB over multiple lines behaves like notepad++
+ * Issue #32: Holding Ctrl+UP/DOWN allow to shift document
+ * Issue #38: Pressing HOME key moves caret to first non-space position of line.
+
+Bugfixes:
+ * Issue #24: Couldn't see the content of the nodes (DLL different from MSFTEDIT.DLL didn't work)
+ * Issue #26: New format of links (issue 12) didn't work with notes checked as "Plain text only" 
+ * Issue #27: Converting old links with the prefix "file:///?" to the new format didn't work
+ * Issue #42: First line indentation didn't work as should. Now indentation behaves like in MS Word:
+              First indent is relative to left indent, not vice versa. And can be positive or negative.
+ * Issue #36: Shift+Ctr+` (Decrease first indent) didn't work.
+ * Issue #33: AltGr+C/V/X was ignored
+ * Issue #28: Starting 2nd instance crashed if option "One instance only" was checked.
+ * Issue #41: File names were always saved in lower case
+ * Issue #39: In version 1.7.4 compiled from SVN search may not work.
+ 
+ 
+=============================
 Version: 1.7.4 Rev.2 -  date: 02/Jan/2009
 
 Bugfixes:
