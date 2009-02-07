@@ -2456,22 +2456,17 @@ begin
       // RxRTFKeyProcessed := true;
     end
     else
-//    if ( shift = [ssShift] ) then // switch to previous tab
-//    begin
-//      Key := 0;
-//      RxRTFKeyProcessed := true; // do not handle this key in OnKeyPress
-//      if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
-//      begin
-//        TTreeNote( ActiveNote ).TV.SetFocus;
-//        ActiveNote.FocusMemory := focTree;
-//      end;
-//    end
-//    else
     begin
       if ( shift = [ssCtrl,ssShift] ) then
       begin
-        key := 0;
-        Pages.SelectNextPage( false );
+        Key := 0;
+        if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree ) and (ActiveNote.FocusMemory <> focTree)) then
+        begin
+          TTreeNote( ActiveNote ).TV.SetFocus;
+          ActiveNote.FocusMemory := focTree;
+        end
+        else
+          Pages.SelectNextPage( false );
       end;
     end;
 
