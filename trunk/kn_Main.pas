@@ -5158,9 +5158,12 @@ end;
 
 procedure TForm_Main.PagesMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
+var
+   ptCursor : TPoint;
 begin
   if Button = mbRight then begin         // [dpv]
-     Menu_TAB.Popup(x + Left, y + Top);
+     GetCursorPos( ptCursor );
+     Menu_TAB.Popup(ptCursor.x, ptCursor.y);
   end;
 
 end;
