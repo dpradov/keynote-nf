@@ -164,11 +164,11 @@ resourcestring
   STR_13 = 'Exporting was aborted due to an error.';
   STR_14 = 'Exporting was aborted at user request.';
   STR_15 = 'The following token can be used in headings:' + #13#13 +
-                  '%s%s - Filename%s'  + #13 +
-                  '%s%s - Note name%s' + #13 +
-                  '%s%s - Node name%s' + #13 +
-                  '%s%s - Node level%s' + #13 +
-                  '%s%s - Node index%s';
+                  '%s%s - Filename'  + #13 +
+                  '%s%s - Note name' + #13 +
+                  '%s%s - Node name' + #13 +
+                  '%s%s - Node level' + #13 +
+                  '%s%s - Node index';
   STR_16 = 'No active tree node: select a node first.';
   STR_17 = 'Current node has no text: nothing to export.';
   STR_18 = ' Node exported to ';
