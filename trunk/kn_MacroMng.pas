@@ -2807,7 +2807,7 @@ begin
                     MovingTreeNode:= nil;
                  end
               else
-                 TreeTransferProc(1, nil, KeyOptions.ConfirmTreePaste );  // Graft Subtree
+                 TreeTransferProc(1, nil, KeyOptions.ConfirmTreePaste, false, false );  // Graft Subtree
            end;
        end;
 
@@ -2836,7 +2836,8 @@ begin
            else if TTreeNote( ActiveNote ).TV.Focused then begin
               executed:= true;
               MovingTreeNode:= nil;
-              TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste );  // Lift Subtree
+              CopyCutFromNoteID:= ActiveNote.ID;
+              TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste, false, false );  // Lift Subtree
            end;
        end;
     Result:= Executed;
@@ -2863,7 +2864,8 @@ begin
            end
            else if TTreeNote( ActiveNote ).TV.Focused then begin
                 MovingTreeNode:= TTreeNote( ActiveNote ).TV.Selected;
-                TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste );  // Lift Subtree
+                CopyCutFromNoteID:= ActiveNote.ID;
+                TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste, false, false );  // Lift Subtree
                 executed:= true;
            end;
        end;

@@ -144,6 +144,7 @@ var
 
     //================================================== TREE
     MovingTreeNode: TTreeNTNode;            // To use with Paste, after applying Cut on a Tree Node.
+    CopyCutFromNoteID: integer;                 // Copy or Cut from Note
 
     //================================================== VARIOS
 

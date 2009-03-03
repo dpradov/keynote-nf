@@ -149,7 +149,7 @@
 			<VersionInfo Name="AutoIncBuild">False</VersionInfo>
 			<VersionInfo Name="MajorVer">1</VersionInfo>
 			<VersionInfo Name="MinorVer">7</VersionInfo>
-			<VersionInfo Name="Release">5</VersionInfo>
+			<VersionInfo Name="Release">6</VersionInfo>
 			<VersionInfo Name="Build">1</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
@@ -162,13 +162,13 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">KeyNote NF (New Features)</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">1.7.5.1</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">1.7.6.1</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">KeyNote NF</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalCopyright">(c) Daniel Prado 2007-09  (c) Marek Jedlinski, 2000-03</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks">Freeware</VersionInfoKeys>
 			<VersionInfoKeys Name="OriginalFilename">keynote.exe</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName">KeyNote NF</VersionInfoKeys>
-			<VersionInfoKeys Name="ProductVersion">1.7.5</VersionInfoKeys>
+			<VersionInfoKeys Name="ProductVersion">1.7.6</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments">Improvements over version 1.6.5 of Marek's KeyNote</VersionInfoKeys>
 			<VersionInfoKeys Name="X-Fnord"></VersionInfoKeys>
 			<VersionInfoKeys Name="X-URL">http://code.google.com/p/keynote-nf/</VersionInfoKeys>

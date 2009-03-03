@@ -266,6 +266,9 @@ RV=todo.txt
 Optional: full absolute path to file, if node is a virtual node (see also node flags)
 VF=c:\delphi\projects\keynote\doc\todo.txt
 
+Optional: Note ID + Node ID of the node this one is linked to (for virtual KNT node / mirror node) (New in 1.7.6) [dpv] (issue #57)
+VN=1|4
+
 RTF data follows:
 %:
 {\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f1\fnil\fcharset0 Courier New;}}

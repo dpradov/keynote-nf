@@ -9,7 +9,7 @@ uses
     procedure VirtualNodeRefresh( const DoPrompt : boolean );
     procedure VirtualNodeUnlink;
     function GetCurrentVirtualNode : TNoteNode;
-    procedure VirtualNodeUpdateMenu( const IsVirtual : boolean );
+    procedure VirtualNodeUpdateMenu( const IsVirtual : boolean; const IsKNTVirtual: boolean );
     {$IFDEF WITH_IE}
     function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : string ) : boolean;
     {$ENDIF}
@@ -46,6 +46,7 @@ resourcestring
   STR_15 = ' Virtual node refreshed.';
   STR_16 = ' Error refreshing node';
   STR_17 = 'Selected node "%s" is not a virtual node.';
+  STR_18 = 'Unlink mirror node "%s"? The contents of the node will be retained but the link with the non virtual node will be removed.';
 
 {$IFDEF WITH_IE}
 function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : string ) : boolean;
@@ -272,7 +273,7 @@ begin
             myNoteNode.LoadVirtualFile;
             ActiveNote.DataStreamToEditor;
           end;
-          VirtualNodeUpdateMenu( true );
+          VirtualNodeUpdateMenu( true, false );
           myTreeNode := GetCurrentTreeNode;
           SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
           if ( TreeOptions.AutoNameVNodes and ( not IsFlushingData )) then
@@ -311,7 +312,7 @@ end; // VirtualNodeProc
 procedure VirtualNodeUnlink;
 var
   myNoteNode : TNoteNode;
-  myTreeNode : TTreeNTNode;
+  myTreeNode, originalTreeNode : TTreeNTNode;
 begin
   myNoteNode := GetCurrentVirtualNode;
   if ( not assigned( myNoteNode )) then exit;
@@ -327,20 +328,41 @@ begin
     exit;
   end;
 
-  if ( messagedlg( Format(STR_11, [myNoteNode.Name, myNoteNode.VirtualFN] ),
-    mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
-  begin
-    try
-      myNoteNode.VirtualMode := vmNone;
-      myNoteNode.VirtualFN := '';
-      ActiveNote.Modified := true;
-      VirtualNodeUpdateMenu( false );
-      SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
-    finally
-      NoteFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
-    end;
-  end;
+  if (myNoteNode.VirtualMode= vmKNTNode) then begin
+       originalTreeNode:= myNoteNode.MirrorNode;
+       if assigned(originalTreeNode) and assigned(TNoteNode(originalTreeNode.Data)) then
+          if ( messagedlg( Format(STR_18, [myNoteNode.Name, myNoteNode.VirtualFN] ),
+            mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
+          begin
+            try
+              RemoveMirrorNode(originalTreeNode, myTreeNode);
+              myNoteNode.MirrorNode:= nil;
+              TNoteNode(originalTreeNode.Data).Stream.SaveToStream(myNoteNode.Stream);
+              ActiveNote.Modified := true;
+              VirtualNodeUpdateMenu( false, false );
+              SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
+            finally
+              NoteFile.Modified := true;
+              UpdateNoteFileState( [fscModified] );
+            end;
+          end;
+
+  end
+  else
+      if ( messagedlg( Format(STR_11, [myNoteNode.Name, myNoteNode.VirtualFN] ),
+        mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
+      begin
+        try
+          myNoteNode.VirtualMode := vmNone;
+          myNoteNode.VirtualFN := '';
+          ActiveNote.Modified := true;
+          VirtualNodeUpdateMenu( false, false );
+          SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
+        finally
+          NoteFile.Modified := true;
+          UpdateNoteFileState( [fscModified] );
+        end;
+      end;
 
 end; // VirtualNodeUnlink
 
@@ -402,12 +424,15 @@ begin
 
 end; // VirtualNodeRefresh
 
-procedure VirtualNodeUpdateMenu( const IsVirtual : boolean );
+procedure VirtualNodeUpdateMenu( const IsVirtual : boolean; const IsKNTVirtual: boolean );
 begin
   with Form_Main do begin
-      TVVirtualNode.Checked := IsVirtual;
-      TVRefreshVirtualNode.Enabled := IsVirtual;
+      TVVirtualNode.Checked := IsVirtual and not IsKNTVirtual;
+      TVRefreshVirtualNode.Enabled := IsVirtual and not IsKNTVirtual;
       TVUnlinkVirtualNode.Enabled := IsVirtual;
+
+      TVNavigateNonVirtualNode.Enabled := IsKNTVirtual;
+      //TVInsertMirrorNode.Enabled := true;
   end;
 end; // VirtualNodeUpdateMenu
 

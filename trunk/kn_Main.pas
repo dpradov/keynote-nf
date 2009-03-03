@@ -852,6 +852,13 @@ type
     TB_AlarmNode: TToolbarButton97;
     N114: TMenuItem;
     TVAlarmNode: TMenuItem;
+    TVGraftSubtreeMirror: TMenuItem;
+    TVInsertMirrorNode: TMenuItem;
+    N115: TMenuItem;
+    TVNavigateNonVirtualNode: TMenuItem;
+    procedure TVNavigateNonVirtualNodeClick(Sender: TObject);
+    procedure TVInsertMirrorNodeClick(Sender: TObject);
+    procedure TVGraftSubtreeMirrorClick(Sender: TObject);
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure TVAlarmNodeClick(Sender: TObject);
     procedure TB_AlarmNodeMouseEnter(Sender: TObject);
@@ -3062,10 +3069,18 @@ begin
   try
     if (( Pages.PageCount > 0 ) and assigned( Pages.ActivePage )) then
     begin
+      if assigned(ActiveNote) then
+        ActiveNote.EditorToDataStream;
+
       ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
+
+      ActiveNote.DataStreamToEditor;
+
       TAM_ActiveName.Caption := ActiveNote.Name;
       TB_Color.AutomaticColor := ActiveNote.EditorChrome.Font.Color;
       FocusActiveNote;
+
+
     end
     else
     begin
@@ -4170,6 +4185,10 @@ begin
     if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) and (assigned(TTreeNote(ActiveNote).TV.Selected)) then begin
        node:= TTreeNote(ActiveNote).TV.Selected;
        myNode:= TNoteNode( node.Data );
+       if myNode.VirtualMode = vmKNTnode then begin
+          node:= myNode.MirrorNode;
+          myNode:= TNoteNode(node.Data);
+       end;
        TB_AlarmNode.Down:= (myNode.Alarm <> 0);
        AlarmManager.EditAlarm (node);
     end
@@ -4277,15 +4296,19 @@ end; // DestroyWnd
 procedure TForm_Main.TVDeletion(Sender: TObject; Node: TTreeNTNode);
 var
    myTNote : TTreeNote;
+   myNode: TNoteNode;
 begin
   if not assigned( Node ) then exit;
 
   myTNote:= TTreeNote(NoteFile.GetNoteByTreeNode(Node));
   if assigned( myTNote ) then begin
-    if TNoteNode( Node.Data ).Alarm <> 0 then                     // [dpv*]
-       AlarmManager.RemoveAlarmNode(Node);
+    myNode:= TNoteNode( Node.Data );
 
-    myTNote.RemoveNode( TNoteNode( Node.Data ));
+     if NoteFile.FileName <> '' then                           // FileName=''=> is closing. All nodes will be deleted all the way
+        NoteFile.ManageMirrorNodes(3, Node, nil);
+
+    myTNote.RemoveNode( myNode);
+
   end;
 end;
 
@@ -4557,6 +4580,24 @@ begin
   AddNodeToTree( tnAddLast );
 end; // TVMAddNodeClick
 
+procedure TForm_Main.TVInsertMirrorNodeClick(Sender: TObject);
+var
+  myTreeNode: TTreeNTNode;
+  mirrorNode: TTreeNTNode;
+begin
+  myTreeNode:= TTreeNote( ActiveNote ).TV.Selected;
+  if assigned(myTreeNode) then begin
+     AddNodeToTree( tnInsertBefore );
+     mirrorNode:= TTreeNote( ActiveNote ).TV.Selected;
+     TNoteNode(mirrorNode.Data).Assign( myTreeNode.Data );
+     UpdateTreeNode(mirrorNode);
+     TNoteNode(mirrorNode.Data).MirrorNode:= myTreeNode;
+     SelectIconForNode( mirrorNode, TTreeNote(ActiveNote).IconKind );
+     AddMirrorNode(myTreeNode, mirrorNode); 
+     ActiveNote.DataStreamToEditor;
+  end;
+end;
+
 procedure TForm_Main.TVInsertNodeClick(Sender: TObject);
 begin
   AddNodeToTree( tnInsertBefore );
@@ -4808,50 +4849,10 @@ end;
 procedure TForm_Main.TVChecked(Sender: TObject; Node: TTreeNTNode);
 var
   myNode : TNoteNode;
-  oldOnChecked : TTVCheckedEvent;
-
-    procedure CheckChildren( StartNode : TTreeNTNode );
-    var
-      childNode : TTreeNTNode;
-    begin
-      childNode := StartNode.GetFirstChild;
-      while ( assigned( childNode ) and assigned( childNode.Data )) do
-      begin
-        childNode.CheckState := node.CheckState;
-        TNoteNode( childNode.Data ).Checked := ( node.CheckState = csChecked );
-        if childNode.HasChildren then
-          CheckChildren( childNode ); // RECURSIVE CALL
-        childNode := StartNode.GetNextChild( childNode );
-      end;
-    end;
 
 begin
-  if ( assigned( node ) and assigned( node.Data )) then
-  begin
-    with ( sender as TTreeNT ) do
-    begin
-      oldOnChecked := OnChecked;
-      OnChecked := nil;
-    end;
-    try
-      myNode := TNoteNode( node.Data );
-      myNode.Checked := ( node.CheckState = csChecked );
-
-      if ( shiftdown and node.HasChildren
-           and not IsAnyNodeMoving) then     // [dpv]
-      begin
-        CheckChildren( node );
-      end;
-
-      if TB_HideChecked.Down and not IsAnyNodeMoving then                    // [dpv]
-          if node.CheckState  = csChecked then
-             node.Hidden := True;
-
-    finally
-      NoteFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
-      ( sender as TTreeNT ).OnChecked := oldOnChecked;
-    end;
+  if ( assigned( node ) and assigned( node.Data )) then  begin
+      ChangeCheckedState(TTreeNT(Node.TreeView), Node, Node.CheckState = csChecked, false);
   end;
 end; // TVChecked
 
@@ -5061,7 +5062,12 @@ end;
 
 procedure TForm_Main.TVCopySubtreeClick(Sender: TObject);
 begin
-  TreeTransferProc(( sender as TMenuItem ).Tag, nil, KeyOptions.ConfirmTreePaste );
+  TreeTransferProc(( sender as TMenuItem ).Tag, nil, KeyOptions.ConfirmTreePaste, false, false );
+end;
+
+procedure TForm_Main.TVGraftSubtreeMirrorClick(Sender: TObject);
+begin
+  TreeTransferProc(1, nil, KeyOptions.ConfirmTreePaste, true, false ); 
 end;
 
 procedure TForm_Main.NodesDropOnTabProc( const DropTab : TTab95Sheet );
@@ -5106,11 +5112,12 @@ begin
   end;
 
   try // [x]
-    if TreeTransferProc( 0, nil, false ) then // step 1 - copy
+    CopyCutFromNoteID:= ActiveNote.ID; 
+    if TreeTransferProc( 0, nil, false, false, false ) then // step 1 - copy
     begin
       Pages.ActivePage := DropTab;
       PagesChange( Pages );
-      if TreeTransferProc( 1, tNote, false ) then // step 2 - paste
+      if TreeTransferProc( 1, tNote, false, false, DoMoveNodes ) then // step 2 - paste
       begin
         if DoMoveNodes then // MOVE instead of copy, so delete originals
         begin
@@ -6519,6 +6526,16 @@ begin
   SetTreeNodeFontFace( true, ShiftWasDown );
 end;
 
+procedure TForm_Main.TVNavigateNonVirtualNodeClick(Sender: TObject);
+var
+  myTreeNode: TTreeNTNode;
+begin
+    myTreeNode:= GetCurrentTreeNode;
+    if assigned(myTreeNode) and assigned(myTreeNode.Data) then begin
+        NavigateToTreeNode(TNoteNode(myTreeNode.Data).MirrorNode);
+    end;
+end;
+
 procedure TForm_Main.TVNodeBGColorClick(Sender: TObject);
 begin
   SetTreeNodeColor( true, false, false, ShiftDown );
@@ -6685,9 +6702,9 @@ var
 begin
   myNode := GetCurrentNoteNode;
   if assigned( myNode ) then
-    VirtualNodeUpdateMenu( myNode.VirtualMode <> vmNone )
+    VirtualNodeUpdateMenu( myNode.VirtualMode <> vmNone, myNode.VirtualMode = vmKNTNode )
   else
-    VirtualNodeUpdateMenu( false );
+    VirtualNodeUpdateMenu( false, false );
 end;
 
 
