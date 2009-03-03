@@ -3,11 +3,14 @@ unit kn_TreeNoteMng;
 interface
 
 uses
-  TreeNT, kn_nodeList, kn_noteObj, kn_Info, kn_Const;
+  TreeNT, kn_nodeList, kn_noteObj, kn_Info, kn_Const,
+  Contnrs, Classes;
 
 var
     TransferNodes : TNodeList; // for data transfer (copy tree nodes between tabs)
     DraggedTreeNode : TTreeNTNode;
+    MirrorNodes: TBucketList;     
+
     _LAST_NODE_SELECTED : TTreeNTNode;
     _OLD_NODE_NAME : string;
 
@@ -40,7 +43,7 @@ var
     procedure NavigateInTree( NavDirection : TNavDirection );
     function GetNodePath( aNode : TTreeNTNode; const aDelimiter : string; const TopToBottom : boolean ) : string;
 
-    function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TTreeNote; const Prompt : boolean ) : boolean;
+    function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TTreeNote; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
 
     procedure HideCheckedNodes (note: TTreeNote);    // [dpv]
     procedure ShowCheckedNodes (note: TTreeNote);    // [dpv]
@@ -51,7 +54,13 @@ var
     procedure MarkAllUnfiltered (note: TTreeNote);  // [dpv]
     procedure RemoveFilter (note: TTreeNote);       // [dpv]
     procedure HideFilteredNodes (note: TTreeNote);  // [dpv]
-    function NoteOfNode (node: TTreeNTNode): TTreeNote;  // [dpv]
+    function GetTreeNode (NoteID: integer; NodeID: integer): TTreeNTNode;
+    procedure ChangeCheckedState(TV: TTreeNT; Node: TTreeNTNode; Checked: Boolean; CalledFromMirrorNode: Boolean);
+
+    function GetMirrorNodes(originalNode: TTreeNTNode): Pointer;
+    procedure AddMirrorNode(MainNode: TTreeNTNode; Mirror_Node: TTreeNTNode);
+    procedure RemoveMirrorNode(MainNode: TTreeNTNode; mirror_Node: TTreeNTNode);
+    procedure ReplaceNonVirtualNode(MainNode: TTreeNTNode; newNode: TTreeNTNode);
 
 implementation
 uses
@@ -60,7 +69,7 @@ uses
    gf_strings, gf_miscvcl, gf_misc,
    kn_Global, kn_MacroMng, kn_Main, kn_Chest, kn_NodeNum, kn_RTFUtils, kn_ImagePicker,
    kn_VirtualNodeMng, kn_Macro, kn_FindReplaceMng, kn_NoteFileMng, kn_LinksMng,
-   kn_EditorUtils;
+   kn_EditorUtils, kn_LocationObj; 
 
 resourcestring
   STR_01 = 'Error creating node: ';
@@ -88,6 +97,8 @@ resourcestring
   STR_23 = 'OK to paste %d nodes below current node "%s"?';
   STR_24 = ' Pasted %d nodes';
   STR_25 = '%d virtual nodes have been converted to normal nodes, because other virtual nodes in current file already link to the same files.';
+  STR_26 = 'OK to paste %d nodes as mirror nodes below current node "%s"?' + #13#10 + '(Only not hidden nodes will be pasted)';
+  STR_27 = 'Node not found (Note ID/Node ID): %d/%d';
 
 var
    __NodeChangeCounter : longint;
@@ -314,7 +325,7 @@ begin
   finally
     myNote.SelectedNode := myNode;
     myNote.TV.OnChange := Form_Main.TVChange;
-    VirtualNodeUpdateMenu( false );
+    VirtualNodeUpdateMenu( false, false );
     NoteFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
   end;
@@ -393,7 +404,7 @@ begin
             ActiveNote.DataStreamToEditor;
             if ( myNode.VirtualMode = vmNone ) then
             begin
-              VirtualNodeUpdateMenu( false );
+              VirtualNodeUpdateMenu( false, false );
               if ( not EditorOptions.TrackStyle ) then
               begin
                 if TreeOptions.ShowFullPath then
@@ -404,7 +415,7 @@ begin
             end
             else
             begin
-              VirtualNodeUpdateMenu( true );
+              VirtualNodeUpdateMenu( true, myNode.VirtualMode = vmKNTNode );
               if ( not EditorOptions.TrackStyle ) then
                 StatusBar.Panels[PANEL_HINT].Text := STR_02 + myNode.VirtualFN;
             end;
@@ -421,7 +432,7 @@ begin
           end
           else
           begin
-            VirtualNodeUpdateMenu( false );
+            VirtualNodeUpdateMenu( false, false );
             if ( not EditorOptions.TrackStyle ) then
               StatusBar.Panels[PANEL_HINT].Text := '';
           end;
@@ -1515,6 +1526,9 @@ begin
           vmIERemote : begin
             myTreeNode.ImageIndex := ICON_VIRTUALIEREMOTE;
           end;
+          vmKNTNode : begin          
+            myTreeNode.ImageIndex := ICON_VIRTUAL_KNT_NODE;
+          end;
         end;
         myTreeNode.SelectedIndex := succ( myTreeNode.ImageIndex );
       end;
@@ -1678,7 +1692,10 @@ begin
         [TransferNodes.Count, myTreeNode.Text, selectedNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
           exit;
 
-      // Cut..
+      // Paste                                                      
+      TreeTransferProc(1, nil, false, false, true );  // Graft Subtree
+
+      // .. and Cut
       with myTV do
       begin
         OnChange := nil;
@@ -1709,9 +1726,6 @@ begin
 
         myTNote.DataStreamToEditor;
       end;
-
-      // ... and Paste
-      TreeTransferProc(1, nil, false );  // Graft Subtree
 
       NoteFile.Modified := true;
       UpdateNoteFileState( [fscModified] );
@@ -1933,13 +1947,29 @@ begin
   end;
 end; // CopyNodeName
 
-function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TTreeNote; const Prompt : boolean ) : boolean;
+function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TTreeNote; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;   
 var
   newNoteNode : TNoteNode;
   myTreeNode, newTreeNode, LastNodeAssigned, FirstCopiedNode : TTreeNTNode;
   i, loop, PasteCount, StartLevel, LastLevel : integer;
   tNote : TTreeNote;
   VirtualNodesConverted : integer;
+  movingNoteNode, TransferedNoteNode : TTreeNTNode;
+
+  function CountVisibleTransferNodes: integer;
+  var
+     i: integer;
+     TransferedNoteNode : TTreeNTNode;
+  begin
+      Result:= 0;
+      for i := 0 to pred( TransferNodes.Count ) do
+      begin
+          TransferedNoteNode:= GetTreeNode(CopyCutFromNoteID, TransferNodes[i].ID);
+          if assigned(TransferedNoteNode) and not TransferedNoteNode.Hidden then
+             Result:= Result+1;
+      end;
+  end;
+
 begin
   result := false;
   if ( XferAction = 2 ) then // clear
@@ -1978,6 +2008,7 @@ begin
         0 : begin // COPY subtree
 
           ActiveNote.EditorToDataStream;
+          CopyCutFromNoteID:= ActiveNote.ID; 
 
           if assigned( TransferNodes ) then
             TransferNodes.Free;
@@ -1985,26 +2016,26 @@ begin
           StartLevel := myTreeNode.Level;
           while assigned( myTreeNode ) do
           begin
+              newNoteNode := TNoteNode.Create;
+              newNoteNode.Assign( TNoteNode( myTreeNode.Data ));
+              newNoteNode.Level := myTreeNode.Level - StartLevel;
+              newNoteNode.ID:= TNoteNode( myTreeNode.Data ).ID;
+              TransferNodes.Add( newNoteNode );
+              myTreeNode := myTreeNode.GetNext;
+              if (( myTreeNode <> nil ) and ( myTreeNode.Level <= StartLevel )) then
+                  myTreeNode := nil; // end of subtree; break out of loop
+          end;
 
-            newNoteNode := TNoteNode.Create;
-            newNoteNode.Assign( TNoteNode( myTreeNode.Data ));
-            newNoteNode.Level := myTreeNode.Level - StartLevel;
-            TransferNodes.Add( newNoteNode );
-            myTreeNode := myTreeNode.GetNext;
-            if (( myTreeNode <> nil ) and ( myTreeNode.Level <= StartLevel )) then
-              myTreeNode := nil; // end of subtree; break out of loop
-
-            if ( TransferNodes.Count = 0 ) then
-            begin
-              showmessage( STR_19 );
-              TransferNodes.Free;
-              TransferNodes := nil;
-            end
-            else
-            begin
-              result := true;
-              Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_20, [TransferNodes.Count] );
-            end;
+          if ( TransferNodes.Count = 0 ) then
+          begin
+            showmessage( STR_19 );
+            TransferNodes.Free;
+            TransferNodes := nil;
+          end
+          else
+          begin
+            result := true;
+            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_20, [TransferNodes.Count] );
           end;
         end;
 
@@ -2015,20 +2046,29 @@ begin
             exit;
           end;
 
-          if TransferNodes.HasVirtualNodes then
-          begin
-            if ( messagedlg(
-              STR_22,
-              mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
-                exit;
-          end
-          else
-          begin
-          if Prompt then
-            if ( messagedlg( Format(
-              STR_23,
-              [TransferNodes.Count,myTreeNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then // {N}
-                exit;
+          if PasteAsVirtualKNTNode then begin
+              if Prompt then
+                if ( messagedlg( Format(
+                  STR_26,
+                  [CountVisibleTransferNodes, myTreeNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+                    exit;
+              end
+          else begin
+              if TransferNodes.HasVirtualNodes then
+              begin
+                if ( messagedlg(
+                  STR_22,
+                  mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
+                    exit;
+              end
+              else
+              begin
+              if Prompt then
+                if ( messagedlg( Format(
+                  STR_23,
+                  [TransferNodes.Count,myTreeNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then // {N}
+                    exit;
+              end;
           end;
 
           NoteFile.Modified := true;
@@ -2046,61 +2086,78 @@ begin
           try
             for i := 0 to pred( TransferNodes.Count ) do
             begin
+                TransferedNoteNode:= GetTreeNode(CopyCutFromNoteID, TransferNodes[i].ID);
 
-              newNoteNode := TNoteNode.Create;
-              newNoteNode.Assign( TransferNodes[i] );
+                if not (PasteAsVirtualKNTNode and TransferedNoteNode.Hidden) then begin
+                    newNoteNode := TNoteNode.Create;
+                    newNoteNode.Assign( TransferNodes[i] );
 
-              if ( newNoteNode.VirtualMode <> vmNone ) then
-              begin
-                if NoteFile.HasVirtualNodeByFileName( newNoteNode, newNoteNode.VirtualFN ) then
-                begin
-                  inc( VirtualNodesConverted );
-                  newNoteNode.VirtualMode := vmNone;
-                  newNoteNode.VirtualFN := '';
-                end;
-              end;
+                    tNote.AddNode( newNoteNode );
+                    newNoteNode.Level := newNoteNode.Level + StartLevel + 1;
 
-              tNote.AddNode( newNoteNode );
-              newNoteNode.Level := newNoteNode.Level + StartLevel + 1;
+                    if ( i = 0 ) then
+                    begin
+                      newTreeNode := tNote.TV.Items.AddChildFirst( myTreeNode, newNoteNode.Name );
+                      FirstCopiedNode := newTreeNode;
+                    end
+                    else
+                    begin
+                      case DoTrinaryCompare( newNoteNode.Level, LastLevel ) of
+                        trinGreater : begin
+                          newTreeNode := tNote.TV.Items.AddChild( LastNodeAssigned, newNoteNode.Name );
+                        end;
+                        trinEqual : begin
+                          newTreeNode := tNote.TV.Items.Add( LastNodeAssigned, newNoteNode.Name );
+                        end;
+                        else
+                        begin
+                          for loop := 1 to (( LastLevel - newNoteNode.Level )) do
+                            LastNodeAssigned := LastNodeAssigned.Parent;
+                          newTreeNode := tNote.TV.Items.Add( LastNodeAssigned, newNoteNode.Name );
+                        end;
+                      end;
+                    end;
 
-              if ( i = 0 ) then
-              begin
-                newTreeNode := tNote.TV.Items.AddChildFirst( myTreeNode, newNoteNode.Name );
-                FirstCopiedNode := newTreeNode;
-              end
-              else
-              begin
-                case DoTrinaryCompare( newNoteNode.Level, LastLevel ) of
-                  trinGreater : begin
-                    newTreeNode := tNote.TV.Items.AddChild( LastNodeAssigned, newNoteNode.Name );
-                  end;
-                  trinEqual : begin
-                    newTreeNode := tNote.TV.Items.Add( LastNodeAssigned, newNoteNode.Name );
-                  end;
-                  else
-                  begin
-                    for loop := 1 to (( LastLevel - newNoteNode.Level )) do
-                      LastNodeAssigned := LastNodeAssigned.Parent;
-                    newTreeNode := tNote.TV.Items.Add( LastNodeAssigned, newNoteNode.Name );
-                  end;
-                end;
-              end;
+                    if assigned( newNoteNode ) then
+                    begin
 
-              if assigned( newNoteNode ) then
-              begin
+                      LastLevel := newTreeNode.Level;
+                      LastNodeAssigned := newTreeNode;
+                      newNoteNode.Level := newTreeNode.Level;
 
-                LastLevel := newTreeNode.Level;
-                LastNodeAssigned := newTreeNode;
-                newNoteNode.Level := newTreeNode.Level;
+                      newTreeNode.Data := newNoteNode;
+                      UpdateTreeNode( newTreeNode );
 
-                newTreeNode.Data := newNoteNode;
-                UpdateTreeNode( newTreeNode );
+                      if PasteAsVirtualKNTNode then begin
+                         newNoteNode.MirrorNode:= TransferedNoteNode;
+                         AddMirrorNode(TransferedNoteNode, newTreeNode);
+                         end
+                      else
+                          if newNoteNode.VirtualMode = vmKNTNode  then begin
+                             newNoteNode.MirrorNode:= TransferNodes[i].MirrorNode;
+                             AddMirrorNode(newNoteNode.MirrorNode, newTreeNode);
+                             end
+                          else begin
+                             if ( newNoteNode.VirtualMode <> vmNone) then begin
+                                 if NoteFile.HasVirtualNodeByFileName( newNoteNode, newNoteNode.VirtualFN ) then
+                                 begin
+                                   inc( VirtualNodesConverted );
+                                   newNoteNode.VirtualMode := vmNone;
+                                   newNoteNode.VirtualFN := '';
+                                 end;
+                              end;
+                              if MovingSubtree then begin
+                                 movingNoteNode:= TransferedNoteNode;
+                                 if assigned(movingNoteNode) then
+                                     NoteFile.ManageMirrorNodes(1, movingNoteNode, newTreeNode); 
+                              end
+                          end;
+                    end;
+                    inc( PasteCount );
 
-              end;
+                end;     //if not (PasteAsVirtualKNTNode ....
 
-              inc( PasteCount );
-
-            end;
+            end;  // for
 
             newTreeNode := myTreeNode;
 
@@ -2241,21 +2298,175 @@ begin
   note.TV.Items.EndUpdate;
 end;
 
-function NoteOfNode (node: TTreeNTNode): TTreeNote;       // [dpv]
+function GetTreeNode (NoteID: integer; NodeID: integer): TTreeNTNode;
 var
-   tab: TObject;
-   i: Integer;
    note: TTabNote;
 begin
    Result:= nil;
-   tab:= node.Owner.Owner.Owner;
-   for i := 0 to NoteFile.NoteCount - 1 do begin
-       note := TTabNote( Form_Main.Pages.Pages[i].PrimaryObject );
-       if note.TabSheet = tab then begin
-          Result:= TTreeNote(note);
-          break;
-       end;
+   try
+     if ( NoteID <> 0 ) and ( NodeID <> 0 ) then begin
+         Note := NoteFile.GetNoteByID( NoteID );
+         Result := TTreeNote( Note ).GetTreeNodeByID( NodeID );
+     end;
+   except
+      messagedlg( format(STR_27, [NoteID, NodeID]), mtError, [mbOK], 0 );
    end;
+end;
+
+
+procedure ChangeCheckedState(TV: TTreeNT; Node: TTreeNTNode; Checked: Boolean; CalledFromMirrorNode: Boolean);
+var
+  myNode : TNoteNode;
+  oldOnChecked : TTVCheckedEvent;
+
+    procedure CheckChildren( StartNode : TTreeNTNode );
+    var
+      childNode : TTreeNTNode;
+    begin
+      childNode := StartNode.GetFirstChild;
+      while ( assigned( childNode ) and assigned( childNode.Data )) do
+      begin
+        childNode.CheckState := node.CheckState;
+        TNoteNode( childNode.Data ).Checked := ( node.CheckState = csChecked );
+        if childNode.HasChildren then
+          CheckChildren( childNode ); // RECURSIVE CALL
+        childNode := StartNode.GetNextChild( childNode );
+      end;
+    end;
+
+begin
+  if ( assigned( node ) and assigned( node.Data )) then
+  begin
+    oldOnChecked:= nil;
+    if assigned(TV.OnChecked) then begin
+       oldOnChecked := TV.OnChecked;
+       TV.OnChecked := nil;
+    end;
+
+    try
+      myNode := TNoteNode( node.Data );
+      if not CalledFromMirrorNode then
+          myNode.Checked := ( node.CheckState = csChecked )
+      else begin
+         myNode.Checked := Checked;
+         if Checked then
+            node.CheckState := csChecked
+         else
+            node.CheckState := csUnchecked;
+      end;
+      if not CalledFromMirrorNode then
+         NoteFile.ManageMirrorNodes(2, Node, nil);
+
+      if ( not CalledFromMirrorNode
+           and shiftdown and node.HasChildren
+           and not IsAnyNodeMoving) then     // [dpv]
+        CheckChildren( node );
+
+      if not IsAnyNodeMoving
+          and TTreeNote(NoteFile.GetNoteByTreeNode(Node)).HideCheckedNodes  then
+          if (node.CheckState  = csChecked) then
+              node.Hidden := True
+          else
+              node.Hidden := False;
+
+    finally
+        NoteFile.Modified := true;
+        UpdateNoteFileState( [fscModified] );
+        if assigned(oldOnChecked) then
+           TV.OnChecked := oldOnChecked;
+
+    end;
+  end;
+end;
+
+
+procedure AddMirrorNode(MainNode: TTreeNTNode; Mirror_Node: TTreeNTNode);
+var
+   p: Pointer;
+   o: TObject;
+   NodesVirtual: TList;
+begin
+    if not assigned(MainNode) then exit;
+
+    if TNoteNode(MainNode.Data).VirtualMode = vmKNTnode then
+       MainNode:= TNoteNode(MainNode.Data).MirrorNode;
+
+    p:= nil;
+    MirrorNodes.Find(MainNode, p);
+    if assigned(p) then begin
+       o:= p;
+       if o is TTreeNTNode then begin
+          NodesVirtual:= TList.Create();
+          NodesVirtual.Add(o);
+          NodesVirtual.Add(Mirror_Node);
+          MirrorNodes.Remove(MainNode);
+          MirrorNodes.Add(MainNode, NodesVirtual);
+          end
+       else begin
+          NodesVirtual:= p;
+          NodesVirtual.Add(Mirror_Node);
+       end;
+    end
+    else begin        // First mirror of originalNode
+         MirrorNodes.Add(MainNode, Mirror_Node);
+         TNoteNode(MainNode.Data).AddedMirrorNode;         // mark original node
+    end;
+end;
+
+procedure ReplaceNonVirtualNode(MainNode: TTreeNTNode; newNode: TTreeNTNode);
+var
+   p: Pointer;
+begin
+   p:= nil;
+   MirrorNodes.Find(MainNode, p);
+   if assigned(p) then begin
+      MirrorNodes.Remove(MainNode);
+      MirrorNodes.Add(newNode, p);
+      TNoteNode(MainNode.Data).RemovedAllMirrorNodes;   // mark node
+      TNoteNode(newNode.Data).AddedMirrorNode;              // mark node
+   end;
+end;
+
+procedure RemoveMirrorNode(MainNode: TTreeNTNode; mirror_Node: TTreeNTNode);
+var
+   p: Pointer;
+   o: TObject;
+   NodesVirtual: TList;
+   RemovedAllMirrorNodes: boolean;
+begin
+    p:= nil;
+    RemovedAllMirrorNodes:= false;
+    MirrorNodes.Find(MainNode, p);
+    if assigned(p) then begin
+       o:= p;
+       if o is TTreeNTNode then begin        // There was only one mirror of originalNode
+          if o = mirror_Node then
+             RemovedAllMirrorNodes:= true;
+       end
+       else begin
+          NodesVirtual:= p;
+          NodesVirtual.Remove(mirror_Node);
+          if NodesVirtual.Count = 0 then begin
+             NodesVirtual.Free;      // Free the TList
+             RemovedAllMirrorNodes:= true;
+          end;
+       end;
+    end;
+    if RemovedAllMirrorNodes then begin
+       MirrorNodes.Remove(MainNode);
+       TNoteNode(MainNode.Data).RemovedAllMirrorNodes;        // mark original node
+    end;
+end;
+
+function GetMirrorNodes(originalNode: TTreeNTNode): Pointer;
+var
+   p: Pointer;
+begin
+    p:= nil;
+    if TNoteNode(originalNode.Data).HasMirrorNodes then begin
+        MirrorNodes.Find(originalNode, p);
+    end;
+    Result:= p;
 end;
 
 
@@ -2267,4 +2478,5 @@ initialization
   DraggedTreeNode := nil;
   _OLD_NODE_NAME := DEFAULT_NEW_NODE_NAME;
 
+  MirrorNodes:= TBucketList.Create();
 end.

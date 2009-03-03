@@ -185,9 +185,9 @@ end;
 
 function compareAlarmNotes (node1, node2: Pointer): integer;
 begin
-   if TNoteNode(TTreeNTNode(node1).Data).Alarm = TNoteNode(TTreeNTNode(node2).Data).Alarm  then
+   if TNoteNode(TTreeNTNode(node1).Data).AlarmF = TNoteNode(TTreeNTNode(node2).Data).AlarmF  then
       Result:= 0
-   else if TNoteNode(TTreeNTNode(node1).Data).Alarm > TNoteNode(TTreeNTNode(node2).Data).Alarm then
+   else if TNoteNode(TTreeNTNode(node1).Data).AlarmF > TNoteNode(TTreeNTNode(node2).Data).AlarmF then
       Result:= 1
    else
       Result:= -1;
@@ -211,7 +211,7 @@ begin
       FSelectedAlarmList.Add(node);
 
       ShowFormAlarm (true);
-      Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNTNode(FSelectedAlarmList[0]).Data).Alarm <> 0);
+      Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNTNode(FSelectedAlarmList[0]).Data).AlarmF <> 0);
 
       FSelectedAlarmList.Clear;
     finally
@@ -299,8 +299,8 @@ begin
 
      while I <= FAlarmList.Count - 1 do begin
         node:= TTreeNTNode(FAlarmList[i]).Data;
-        if now() >= node.Alarm then begin
-           if (FCanceledAt = 0) or (node.Alarm > FCanceledAt) or (now > limit) then
+        if now() >= node.AlarmF then begin
+           if (FCanceledAt = 0) or (node.AlarmF > FCanceledAt) or (now > limit) then
               FSelectedAlarmList.Add(FAlarmList[i]);
            I:= I + 1;
         end
@@ -384,7 +384,7 @@ var
 begin
    if assigned(NodeSelected) then begin
       myNode:= TNoteNode(NodeSelected.Data);
-      AlarmOld:= myNode.Alarm;
+      AlarmOld:= myNode.AlarmF;
       myNode.Alarm:= RecodeTime(CB_Date.DateTime, HourOf(CB_Time.Time), MinuteOf(CB_Time.Time), 0, 0);;
       NoteFile.Modified := true;
       if AlarmOld = 0 then
@@ -464,7 +464,7 @@ var
   note: TTabNote;
 
 begin
-  note:= NoteOfNode(node);
+  note:= NoteFile.GetNoteByTreeNode(node);
   Result:= nil;
   with TV.Items do begin
       node:= GetFirstNode;
@@ -616,8 +616,8 @@ begin
         if assigned(NodeSelected) then begin
            myNode:= TNoteNode(NodeSelected.Data);
            Label_Selected.Caption :=  myNode.Name;
-           if myNode.Alarm <> 0 then
-              Label_Selected_Alarm.Caption := FormatDateTime( 'dddd, d MMMM yyyy ' + #32 + 'HH:mm', myNode.Alarm ) + ' :'
+           if myNode.AlarmF <> 0 then
+              Label_Selected_Alarm.Caption := FormatDateTime( 'dddd, d MMMM yyyy ' + #32 + 'HH:mm', myNode.AlarmF ) + ' :'
            else
               Label_Selected_Alarm.Caption := '';
         end;
@@ -632,7 +632,7 @@ var
   note: TTabNote;
 begin
     if assigned(NodeSelected) then begin
-      note:= noteOfnode(NodeSelected);
+      note:= NoteFile.GetNoteByTreeNode(NodeSelected);
       Location := TLocation.Create;
       Location.FileName := notefile.FileName;
       Location.NoteName := note.Name;

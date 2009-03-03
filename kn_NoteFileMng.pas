@@ -252,6 +252,7 @@ begin
 end; // NoteFileNew
 
 
+
 //=================================================================
 // NoteFileOpen
 //=================================================================
@@ -459,11 +460,6 @@ begin
           {$ENDIF}
           if opensuccess then
           begin
-            if assigned( NoteFile ) then
-            begin
-              NoteFile.ReadOnly := ( OpenReadOnly or NoteFile.ReadOnly );
-              NoteFile.Modified := false;
-            end;
             if ( Pages.PageCount > 0 ) then
             begin
               ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
@@ -475,6 +471,13 @@ begin
               TAM_ActiveName.Caption := STR_03;
               ActiveNote := nil;
             end;
+            if assigned( NoteFile ) then
+            begin
+              NoteFile.ReadOnly := ( OpenReadOnly or NoteFile.ReadOnly );
+              NoteFile.SetupMirrorNodes; 
+              NoteFile.Modified := false;
+            end;
+
             UpdateNoteDisplay;
             UpdateNoteFileState( [fscOpen,fscModified] );
           end;
@@ -482,6 +485,7 @@ begin
           FileIsBusy := false;
           Timer.Enabled := true;
         end;
+
 
         if ( result = 0 ) then
         begin
@@ -843,6 +847,7 @@ end; // NoteFileSave
 function NoteFileClose : boolean;
 begin
   MovingTreeNode:= nil;
+  AlarmManager.Clear;
 
   with Form_Main do begin
 

@@ -339,6 +339,8 @@ const
   ICON_BOOK            = 2;
   ICON_NOTE            = 4;
   ICON_VIRTUAL         = 6;
+  ICON_VIRTUAL_KNT_NODE = 8;
+
   {
   ICON_VIRTUALTEXT     = 6; // same as ICON_VIRTUAL
   ICON_VIRTUALRTF      = 8;
@@ -349,7 +351,7 @@ const
 
 type
   TVirtualMode = (
-    vmNone, vmText, vmRTF, vmHTML, vmIELocal, vmIERemote
+    vmNone, vmText, vmRTF, vmHTML, vmIELocal, vmIERemote, vmKNTNode
   );
 
 
@@ -711,6 +713,7 @@ const
   _CHTRFontStyle = 'TY';
   _NodeImageIndex = 'IX';
   _NodeAlarm = 'NA';        // [dpv]
+  _VirtualNode = 'VN';
 
 const
   // special FlagsStr constant characters

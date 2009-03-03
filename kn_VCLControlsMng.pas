@@ -73,7 +73,7 @@ resourcestring
   STR_12 = 'Hide &Resource Panel';
   STR_13 = 'Show &Resource Panel';
   STR_14 = 'The Resource panel must be visible to use this command. Show the Resource panel now?';
-
+  
 //=================================================================
 // SetUpVCLControls
 //=================================================================
@@ -447,11 +447,10 @@ begin
                   if myNode.Filtered  then      // [dpv]
                      tNote.Filtered := True;
 
-                  if myNode.Alarm <> 0  then      // [dpv*]
+                  if myNode.AlarmF <> 0  then      // [dpv*]
                      AlarmManager.AddAlarmNode(myTreeNode);
 
                 end;
-
 
               finally
                 myTree.Items.EndUpdate;

@@ -45,7 +45,8 @@ unit kn_NodeList;
 interface
 uses Windows, Classes, graphics, comctrls,
   SysUtils, gf_misc, gf_files,
-  kn_Const, kn_Info;
+  kn_Const, kn_Info,
+  TreeNT;
 
 type
   TNodeControl = (
@@ -88,10 +89,16 @@ type
     procedure SetName( AName : string );
     procedure SetLevel( ALevel : integer );
     procedure SetVirtualFN( aVirtualFN : string );
+    function GetVirtualFN: string;
+    function  GetMirrorNode: TTreeNTNode;
+    procedure SetMirrorNode( aNode : TTreeNTNode );
+    function GetMirrorNodePath: string;
+    procedure SetMirrorNodeID( ID : string );
     procedure SetID( AID : longint );
     procedure SetNodeFontFace( const aFace : string );
     function GetRelativeVirtualFN : string;
     procedure SetWordWrap( const Value : TNodeWordWrap );
+    function GetAlarm: TDateTime;
 
   public
     property Stream : TMemoryStream read FStream;
@@ -103,14 +110,23 @@ type
     property Checked : boolean read FChecked write FChecked;
     property ChildrenCheckbox : boolean read FChildrenCheckbox write FChildrenCheckbox;    // [dpv]
     property Filtered : boolean read FFiltered write FFiltered;                            // [dpv]
-    property Alarm : TDateTime read FAlarm write FAlarm;                                   // [dpv]
+    property Alarm : TDateTime read GetAlarm write FAlarm;                                   // [dpv]
+    property AlarmF : TDateTime read FAlarm;
     property Flagged : boolean read FFlagged write FFlagged;
     property Tag : integer read FTag write FTag;
     property RTFBGColor : TColor read FRTFBGColor write FRTFBGColor;
     property Bold : boolean read FBold write FBold;
     property VirtualMode : TVirtualMode read FVirtualMode write FVirtualMode;
-    property VirtualFN : string read FVirtualFN write SetVirtualFN;
+    property VirtualFN : string read GetVirtualFN write SetVirtualFN;
     property RelativeVirtualFN : string read GetRelativeVirtualFN write FRelativeVirtualFN;
+
+    property MirrorNodePath : string read GetMirrorNodePath;
+    property MirrorNode: TTreeNTNode read GetMirrorNode write SetMirrorNode;
+    property MirrorNodeID: string read FVirtualFN write SetMirrorNodeID;
+    procedure AddedMirrorNode;
+    procedure RemovedAllMirrorNodes;
+    function HasMirrorNodes: boolean;
+
     property Expanded : boolean read FExpanded write FExpanded;
     property ImageIndex : integer read FImageIndex write FImageIndex;
     property HasNodeColor : boolean read FHasNodeColor write FHasNodeColor;
@@ -132,6 +148,7 @@ type
     procedure Assign( Source : TNoteNode );
     procedure LoadVirtualFile;
     procedure SaveVirtualFile;
+    procedure LoadMirrorNode;
     function HasVNodeError : boolean;
 
   end;
@@ -160,7 +177,8 @@ var
 
 
 implementation
-uses kn_Global;
+uses kn_Global,
+     StrUtils, kn_TreeNoteMng, kn_NoteObj, kn_LinksMng, kn_LocationObj;
 
 constructor TNoteNode.Create;
 begin
@@ -196,7 +214,9 @@ end; // CREATE
 
 destructor TNoteNode.Destroy;
 begin
-  if assigned( FStream ) then FStream.Free;
+  if assigned( FStream ) and (FVirtualMode <> vmKNTNode) then begin
+     FStream.Free;
+  end;
   inherited Destroy;
 end; // DESTROY
 
@@ -339,6 +359,114 @@ begin
 end; // SetVirtualFN
 
 
+function TNoteNode.HasMirrorNodes: boolean;
+begin
+   Result:= (FTag = 1);
+end;
+
+procedure TNoteNode.AddedMirrorNode;
+begin
+   FTag := 1;
+end;
+procedure TNoteNode.RemovedAllMirrorNodes;
+begin
+   FTag := 0;
+end;
+
+function TNoteNode.GetVirtualFN: string;
+begin
+    if FVirtualMode <> vmKNTNode then
+       Result:= FVirtualFN
+    else
+       Result:= GetMirrorNodePath;
+end;
+
+procedure TNoteNode.SetMirrorNodeID( ID : string );
+begin
+    FVirtualMode := vmKNTNode;
+    FVirtualFN:= ID;
+end;
+
+function TNoteNode.GetMirrorNode: TTreeNTNode;
+var
+   p: integer;
+begin
+    if FVirtualMode = vmKNTNode then begin
+       p := pos( KNTLINK_SEPARATOR, FVirtualFN );
+       Result:= GetTreeNode(strtoint( AnsiLeftStr(FVirtualFN, p-1) ), strtoint( AnsiMidStr (FVirtualFN, p+1,255)));
+    end
+    else
+      Result:= nil;
+end; // GetVirtualKNTNode
+
+
+function TNoteNode.GetMirrorNodePath: string;
+var
+   note: TTabNote;
+   node : TTreeNTNode;
+begin
+     node:= GetMirrorNode;
+     if assigned(Node) then begin
+        note:= NoteFile.GetNoteByTreeNode(node);
+        Result:= PathOfKNTLink(node, note, -1);
+     end;
+end;
+
+procedure TNoteNode.LoadMirrorNode;
+var
+   Node : TTreeNTNode;
+begin
+    if FVirtualMode = vmKNTNode then begin
+       try
+         node:= GetMirrorNode;
+         FStream:= TNoteNode(Node.Data).FStream;       // This node shares its content with the other node
+         FStream.Position := 0;
+       finally
+       end;
+    end;
+end; // LoadVirtualKNTNode
+
+procedure TNoteNode.SetMirrorNode( aNode : TTreeNTNode );
+var
+   aNote: TTabNote;
+begin
+     if assigned(aNode) then begin
+         if FVirtualMode <> vmKNTNode then begin
+            FStream.Free;
+         end;
+
+         if TNoteNode(aNode.Data).VirtualMode = vmKNTnode then          // point to non virtual node
+            aNode:= TNoteNode(aNode.Data).MirrorNode;
+
+         if assigned(aNode) then begin
+            aNote:= NoteFile.GetNoteByTreeNode(aNode);
+            FVirtualFN:= inttostr(aNote.ID) + KNTLINK_SEPARATOR + inttostr(TNoteNode(aNode.Data).ID);
+            FVirtualMode := vmKNTNode;
+            FStream:= TNoteNode(aNode.Data).FStream;   // This node shares its content with the other node
+         end;
+     end
+     else
+       if FVirtualMode = vmKNTNode then begin
+           FVirtualMode:= vmNone;
+           FVirtualFN:= '';
+           FStream := TMemoryStream.Create;
+       end;
+
+     FStream.Position := 0;
+end; // SetVirtualKNTNode
+
+function TNoteNode.GetAlarm: TDateTime;
+var
+   Node : TTreeNTNode;
+begin
+    if (FVirtualMode= vmKNTNode) then begin
+       Node:= MirrorNode;
+       Result:= TNoteNode(Node.Data).Alarm;
+    end
+    else
+       Result:= FAlarm;
+end;
+
 procedure TNoteNode.LoadVirtualFile;
 var
   NewVirtualFN : string;
@@ -406,7 +534,7 @@ begin
   FStream.Clear;
   FStream.LoadFromStream( Source.Stream );
   FStream.Position := 0;
-  FChecked := Source.Checked;                   
+  FChecked := Source.Checked;
   FFlagged := Source.Flagged;
   FTag := Source.Tag;
   FBold := Source.Bold;
@@ -414,7 +542,7 @@ begin
   FSelLength := Source.SelLength;
   FRTFBGColor := Source.RTFBGColor;
   FVirtualMode := Source.VirtualMode;
-  FVirtualFN := Source.VirtualFN;
+  FVirtualFN := Source.FVirtualFN; 
   FRelativeVirtualFN := ''; // auto-create when saving
   FExpanded := Source.Expanded;
   FImageIndex := Source.ImageIndex;
@@ -536,7 +664,8 @@ begin
   if ( Count = 0 ) then exit;
   for i := 0 to pred( Count ) do
   begin
-    if ( Items[i].VirtualMode <> vmNone ) then
+    if ( Items[i].VirtualMode <> vmNone ) and
+       ( Items[i].VirtualMode <> vmKNTnode ) then  // HasVirtualNodes: Virtual and extern...
     begin
       result := true;
       break;

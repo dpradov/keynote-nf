@@ -15,6 +15,8 @@ uses
     function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer): string;
     procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TTabNote; var myTreeNode: TTreeNTNode);
 
+    procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
+
     // Navigation history
     procedure AddHistoryLocation( const aNote : TTreeNote );
     procedure NavigateInHistory( const GoForward : boolean );
@@ -65,7 +67,7 @@ var
 begin
   if assigned( myTreeNode ) then
   begin
-    if TreeOptions.ShowFullPathSearch then
+    if TreeOptions.ShowFullPath then
       path := GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, TreeOptions.PathTopToBottom ) // {N}
     else
       path := myTreeNode.Text; // {N}
@@ -78,7 +80,8 @@ begin
   else
      path := myNote.Name;
 
-  path := Format( '%s %d', [path, position] );
+  if position >= 0 then                  
+     path := Format( '%s %d', [path, position] );
   Result:= path;
 end; // PathOfKNTLink
 
@@ -551,6 +554,27 @@ begin
 
 end; // BuildKNTLocationFromString
 
+
+//===============================================================
+// NavigateToTreeNode
+//===============================================================
+procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);  
+var
+  myNote: TTabNote;
+begin
+    if assigned(myTreeNode) then begin
+        myNote:= NoteFile.GetNoteByTreeNode(myTreeNode);
+        if ( myNote <> ActiveNote ) then begin
+          Form_Main.Pages.ActivePage := myNote.TabSheet;
+          Form_Main.PagesChange( Form_Main.Pages );
+        end;
+
+        if assigned( myTreeNode ) then begin
+           myTreeNode.MakeVisible;
+           TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
+        end;
+    end;
+end;
 
 //===============================================================
 // JumpToKNTLocation

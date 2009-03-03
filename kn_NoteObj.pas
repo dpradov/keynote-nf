@@ -1918,7 +1918,7 @@ begin
   end;
 
   case FSelectedNode.VirtualMode of
-    vmNone, vmText, vmRTF, vmHTML : begin
+    vmNone, vmText, vmRTF, vmHTML, vmKNTNode : begin 
       FEditor.Lines.BeginUpdate;
       try
         FEditor.Lines.Clear;
@@ -1966,7 +1966,7 @@ begin
         try
 
           case FSelectedNode.VirtualMode of
-            vmNone : begin
+            vmNone, vmKNTNode : begin      
               if FPlainText then
                 FEditor.StreamFormat := sfPlainText
               else
@@ -2106,8 +2106,8 @@ begin
         writeln( tf, _NodeBGColor, '=', ColorToString( noteNode.NodeBGColor ));
       if noteNode.HasNodeFontFace then
         writeln( tf, _NodeFontFace, '=', noteNode.NodeFontFace );
-      if noteNode.Alarm <> 0 then                                   // [dpv*]
-        writeln( tf, _NodeAlarm, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.Alarm ) );
+      if noteNode.AlarmF <> 0 then                                   // [dpv*]
+        writeln( tf, _NodeAlarm, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.AlarmF ) );
 
       if ( _SAVE_RESTORE_CARETPOS and ( notenode.SelStart > 0 )) then
         writeln( tf, _NodeSelStart, '=', notenode.SelStart );
@@ -2132,6 +2132,10 @@ begin
               writeln( tf, List[i] );
           end;
         end;
+      end
+      else
+      if NoteNode.VirtualMode = vmKNTNode  then begin 
+         writeln( tf, _VirtualNode, '=', notenode.MirrorNodeID );
       end
       else
       begin
@@ -2321,6 +2325,11 @@ begin
             myNode.RTFBGColor := StringToColor( s );
           except
           end;
+        end
+        else
+        if ( key = _VirtualNode ) then
+        begin
+          myNode.MirrorNodeID := s;
         end
         else
         if ( key = _RelativeVirtualFN ) then
