@@ -181,7 +181,7 @@ type
     function GetNoteByName( const aName : string ) : TTabNote; // will return the first note whose name matches aName. If more notes have the same name, function will only return the first one.
     function GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TTabNote;  // return the note that contains the tree with the passed node
 
-    procedure SetupMirrorNodes;
+    procedure SetupMirrorNodes (Note : TTabNote);
     procedure ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
   end;
 
@@ -1591,27 +1591,40 @@ begin
   _VNKeyNoteFileName := Value;
 end; // SetFilename
 
-procedure TNoteFile.SetupMirrorNodes ();
+procedure TNoteFile.SetupMirrorNodes (Note : TTabNote);
 var
-  Node : TTreeNTNode;
-  Note : TTabNote;
+  Node, Mirror : TTreeNTNode;
   p: integer;
+
+  procedure SetupTreeNote;
+  begin
+      if Note.Kind = ntTree then begin
+          Node := TTreeNote( Note).TV.Items.GetFirstNode;
+          while assigned( Node ) do begin // go through all nodes
+              if assigned(Node.Data) and (TNoteNode(Node.Data).VirtualMode= vmKNTNode) then begin
+                 TNoteNode(Node.Data).LoadMirrorNode;
+                 Mirror:= TNoteNode(Node.Data).MirrorNode;
+                 if assigned(Mirror) then
+                    AddMirrorNode(Mirror, Node)
+                 else
+                    SelectIconForNode( Node, TTreeNote( Note).IconKind );
+              end;
+              Node := Node.GetNext; // select next node to search
+          end;
+
+          if (Note = kn_global.ActiveNote) and assigned(TTreeNote( Note).TV.Selected) and (TNoteNode(TTreeNote( Note).TV.Selected.Data).VirtualMode = vmKNTNode) then
+             Note.DataStreamToEditor;
+      end;
+  end;
+
 begin
-    for p := 0 to pred( Notes.Count ) do begin
-        Note := Notes[p];
-        if Note.Kind = ntTree then begin
-            Node := TTreeNote( Note).TV.Items.GetFirstNode;
-            while assigned( Node ) do begin // go through all nodes
-                if assigned(Node.Data) and (TNoteNode(Node.Data).VirtualMode= vmKNTNode) then begin
-                   TNoteNode(Node.Data).LoadMirrorNode;
-                   AddMirrorNode(TNoteNode(Node.Data).MirrorNode, Node);
-                end;
-                Node := Node.GetNext; // select next node to search
-            end;
-            if assigned(TTreeNote( Note).TV.Selected) and (TNoteNode(TTreeNote( Note).TV.Selected.Data).VirtualMode = vmKNTNode) then
-               Note.DataStreamToEditor;
-        end;
-    end;
+    if assigned(Note) then
+       SetupTreeNote
+    else
+       for p := 0 to pred( Notes.Count ) do begin
+          Note := Notes[p];
+          SetupTreeNote;
+       end;
 end;
 
 
@@ -1626,19 +1639,18 @@ var
     NodesVirtual: TList;
 
     procedure ManageVirtualNode (NodeVirtual: TTreeNTNode);
-    var
-       myTreeNode: TTreeNTNode;
     begin
-       myTreeNode:= TTreeNTNode(NodeVirtual);
-       noteNode:= myTreeNode.Data;
+       if not assigned(NodeVirtual) then exit;
+       noteNode:= NodeVirtual.Data;
+       if not assigned(noteNode) then exit;
        case Action of
           1: noteNode.MirrorNode:= targetNode;
 
-          2: if myTreeNode <> node then
-                ChangeCheckedState(TTreeNT(myTreeNode.TreeView), myTreeNode, (node.CheckState = csChecked), true);
+          2: if NodeVirtual <> node then
+                ChangeCheckedState(TTreeNT(NodeVirtual.TreeView), NodeVirtual, (node.CheckState = csChecked), true);
 
           3: if not assigned(newNonVirtualTreeNode) then begin
-                newNonVirtualTreeNode:= myTreeNode;
+                newNonVirtualTreeNode:= NodeVirtual;
                 noteNode.MirrorNode:= nil;
                 TNoteNode(node.Data).Stream.SaveToStream(noteNode.Stream);
               end
@@ -1648,7 +1660,7 @@ var
     end;
 
 begin
-   if not assigned(node) then exit;
+   if not assigned(node) or not assigned(node.Data) then exit;
 
   // 1: Moving node to targetNode
   // 2: Changed checked state of node
@@ -1657,13 +1669,12 @@ begin
       noteNode:= TNoteNode(node.Data);
       if noteNode.VirtualMode = vmKNTNode then begin
           nonVirtualTreeNode:= noteNode.MirrorNode;
+          if not assigned(nonVirtualTreeNode) then exit;
           case Action of
             1: exit;
             2: ChangeCheckedState(TTreeNT(nonVirtualTreeNode.TreeView), nonVirtualTreeNode, (node.CheckState = csChecked), true);
             3: begin
                RemoveMirrorNode(nonVirtualTreeNode, Node);
-               if (noteNode.Alarm <> 0) then
-                   AlarmManager.RemoveAlarmNode(Node);
                exit;
                end;
           end;
@@ -1685,17 +1696,20 @@ begin
          case Action of
             1: ReplaceNonVirtualNode(nonVirtualTreeNode, targetNode);
             3: begin
-               RemoveMirrorNode(nonVirtualTreeNode, newNonVirtualTreeNode);
-               ReplaceNonVirtualNode(nonVirtualTreeNode, newNonVirtualTreeNode);
-               if (TNoteNode(nonVirtualTreeNode.Data).AlarmF <> 0) then begin
-                   AlarmManager.RemoveAlarmNode(nonVirtualTreeNode);
-                   AlarmManager.AddAlarmNode(newNonVirtualTreeNode);
-                   TNoteNode(newNonVirtualTreeNode.Data).Alarm := TNoteNode(nonVirtualTreeNode.Data).AlarmF;
-                   end;
-               SelectIconForNode( newNonVirtualTreeNode, TTreeNote(GetNoteByTreeNode(node)).IconKind );
+               if assigned(newNonVirtualTreeNode) and assigned(newNonVirtualTreeNode.Data) then begin
+                   RemoveMirrorNode(nonVirtualTreeNode, newNonVirtualTreeNode);
+                   ReplaceNonVirtualNode(nonVirtualTreeNode, newNonVirtualTreeNode);
+                   if (TNoteNode(nonVirtualTreeNode.Data).AlarmF <> 0) then begin
+                       AlarmManager.AddAlarmNode(newNonVirtualTreeNode);
+                       TNoteNode(newNonVirtualTreeNode.Data).Alarm := TNoteNode(nonVirtualTreeNode.Data).AlarmF;
+                       end;
+                   SelectIconForNode( newNonVirtualTreeNode, TTreeNote(GetNoteByTreeNode(newNonVirtualTreeNode)).IconKind );
+               end;
                end;
          end;
       end;
+      if (Action = 3) and (TNoteNode(nonVirtualTreeNode.Data).AlarmF <> 0) then
+         AlarmManager.RemoveAlarmNode(nonVirtualTreeNode);
 
   finally
   end;

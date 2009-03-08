@@ -2134,7 +2134,7 @@ begin
                          end
                       else
                           if newNoteNode.VirtualMode = vmKNTNode  then begin
-                             newNoteNode.MirrorNode:= TransferNodes[i].MirrorNode;
+                             newNoteNode.MirrorNode:= TNoteNode(TransferedNoteNode.Data).MirrorNode;
                              AddMirrorNode(newNoteNode.MirrorNode, newTreeNode);
                              end
                           else begin
@@ -2303,13 +2303,10 @@ var
    note: TTabNote;
 begin
    Result:= nil;
-   try
-     if ( NoteID <> 0 ) and ( NodeID <> 0 ) then begin
-         Note := NoteFile.GetNoteByID( NoteID );
-         Result := TTreeNote( Note ).GetTreeNodeByID( NodeID );
-     end;
-   except
-      messagedlg( format(STR_27, [NoteID, NodeID]), mtError, [mbOK], 0 );
+   if ( NoteID <> 0 ) and ( NodeID <> 0 ) then begin
+       Note := NoteFile.GetNoteByID( NoteID );
+       if assigned(Note) then
+          Result := TTreeNote( Note ).GetTreeNodeByID( NodeID );
    end;
 end;
 
@@ -2423,7 +2420,7 @@ begin
       MirrorNodes.Remove(MainNode);
       MirrorNodes.Add(newNode, p);
       TNoteNode(MainNode.Data).RemovedAllMirrorNodes;   // mark node
-      TNoteNode(newNode.Data).AddedMirrorNode;              // mark node
+      TNoteNode(newNode.Data).AddedMirrorNode;          // mark node
    end;
 end;
 

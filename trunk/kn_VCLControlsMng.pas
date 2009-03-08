@@ -614,6 +614,18 @@ begin
 
 end; // CreateVCLControlsForNote
 
+
+procedure DeleteNodes(Note: TTreeNote);
+var
+  Node : TTreeNTNode;
+begin
+    Node := TTreeNote( Note).TV.Items.GetFirstNode;
+    while assigned( Node ) do begin // go through all nodes
+        NoteFile.ManageMirrorNodes(3, Node, nil);
+        Node := Node.GetNext; // select next node to search
+    end;
+end;
+
 //=================================================================
 // DestroyVCLControlsForNote
 //=================================================================
@@ -664,6 +676,8 @@ begin
                 OnEdited := nil;
                 OnEditing := nil;
               end;
+              DeleteNodes(TTreeNote( aNote ));
+
               TTreeNote( aNote ).TV.Free;
               TTreeNote( aNote ).TV := nil;
             end;
