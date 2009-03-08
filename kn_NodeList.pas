@@ -126,6 +126,7 @@ type
     procedure AddedMirrorNode;
     procedure RemovedAllMirrorNodes;
     function HasMirrorNodes: boolean;
+    procedure ForceID( AID : longint );
 
     property Expanded : boolean read FExpanded write FExpanded;
     property ImageIndex : integer read FImageIndex write FImageIndex;
@@ -180,6 +181,11 @@ implementation
 uses kn_Global,
      StrUtils, kn_TreeNoteMng, kn_NoteObj, kn_LinksMng, kn_LocationObj;
 
+resourcestring
+  STR_01 = 'Unable to load the mirror node.' +  #13#10 + 'Node non virtual to wich this node was linked could not be found';
+
+
+
 constructor TNoteNode.Create;
 begin
   inherited Create;
@@ -226,6 +232,11 @@ begin
     FID := AID;
   // otherwise, never allow the ID to be modified
 end; // SetID
+
+procedure TNoteNode.ForceID( AID : longint );
+begin
+   FID := AID;
+end;
 
 function TNoteNode.PropertiesToFlagsString : TFlagsString;
 begin
@@ -415,16 +426,24 @@ end;
 procedure TNoteNode.LoadMirrorNode;
 var
    Node : TTreeNTNode;
+   cad: TStringList;
 begin
     if FVirtualMode = vmKNTNode then begin
-       try
-         node:= GetMirrorNode;
-         FStream:= TNoteNode(Node.Data).FStream;       // This node shares its content with the other node
-         FStream.Position := 0;
-       finally
-       end;
+       node:= GetMirrorNode;
+       if assigned(node) then begin
+          FStream:= TNoteNode(Node.Data).FStream;       // This node shares its content with the other node
+          FStream.Position := 0;
+       end
+       else begin
+          MirrorNode:= nil;
+          cad:= TStringList.Create;
+          cad.Add(STR_01);
+          cad.SaveToStream(FStream);
+          FStream.Position := 0;
+          cad.Free;
+          end;
     end;
-end; // LoadVirtualKNTNode
+end; // LoadMirrorNode
 
 procedure TNoteNode.SetMirrorNode( aNode : TTreeNTNode );
 var
@@ -453,7 +472,7 @@ begin
        end;
 
      FStream.Position := 0;
-end; // SetVirtualKNTNode
+end; // SetMirrorNode
 
 function TNoteNode.GetAlarm: TDateTime;
 var
@@ -461,7 +480,10 @@ var
 begin
     if (FVirtualMode= vmKNTNode) then begin
        Node:= MirrorNode;
-       Result:= TNoteNode(Node.Data).Alarm;
+       if assigned(Node) then
+          Result:= TNoteNode(Node.Data).Alarm
+       else
+          Result:= 0;
     end
     else
        Result:= FAlarm;
@@ -556,7 +578,7 @@ begin
   FWordWrap := Source.WordWrap;
   FChildrenCheckbox:= Source.FChildrenCheckbox;  // [dpv]
   FFiltered:= Source.FFiltered;                  // [dpv]
-  FAlarm:= Source.FAlarm;
+//  FAlarm:= Source.FAlarm;
 
 end; // Assign
 

@@ -39,7 +39,7 @@ implementation
 
 uses
   { Borland units }
-  Windows, Messages, SysUtils,
+  Windows, Messages, SysUtils, StrUtils,
   Graphics, Controls, Forms, Dialogs,
   { 3rd-party units }
   BrowseDr, TreeNT,
@@ -63,6 +63,12 @@ uses
   kn_TabSelect,
   kn_Main,kn_DLLmng, kn_LinksMng, kn_PluginsMng, kn_TreeNoteMng, kn_VCLControlsMng;
 
+  type
+   TMergeNotes = record
+       oldID: integer;
+       newID: integer;
+       newNote: boolean;
+   end;
 
 resourcestring
   STR_01 = 'Cannot create a new file: ';
@@ -149,6 +155,10 @@ resourcestring
 //=================================================================
 function NoteFileNew( FN : string ) : integer;
 begin
+  MovingTreeNode:= nil;
+  AlarmManager.Clear;
+  MirrorNodes.Clear;
+
   with Form_Main do begin
         result := -1;
         _REOPEN_AUTOCLOSED_FILE := false;
@@ -267,7 +277,9 @@ var
 begin
   with Form_Main do begin
         _REOPEN_AUTOCLOSED_FILE := false;
+        MovingTreeNode:= nil;
         AlarmManager.Clear;
+        MirrorNodes.Clear;
         OpenBegin := GetTickCount;
         OpenReadOnly := false;
         opensuccess := false;
@@ -474,7 +486,7 @@ begin
             if assigned( NoteFile ) then
             begin
               NoteFile.ReadOnly := ( OpenReadOnly or NoteFile.ReadOnly );
-              NoteFile.SetupMirrorNodes; 
+              NoteFile.SetupMirrorNodes(nil);
               NoteFile.Modified := false;
             end;
 
@@ -848,6 +860,7 @@ function NoteFileClose : boolean;
 begin
   MovingTreeNode:= nil;
   AlarmManager.Clear;
+  MirrorNodes.Clear;
 
   with Form_Main do begin
 
@@ -1094,10 +1107,26 @@ var
   MergeFile : TNoteFile;
   LoadResult : integer;
   TabSelector : TForm_SelectTab;
-  mergecnt, i, n : integer;
+  mergecnt, i, n, p : integer;
   newNote : TTabNote;
   newTNote : TTreeNote;
   newNode : TNoteNode;
+  IDs: array of TMergeNotes;
+  mirrorID: string;
+  noteID: integer;
+
+  function getNewID(noteID: integer): integer;
+  var
+    i: integer;
+  begin
+    Result:= 0;
+    for i := 0 to High(IDs) do
+        if IDs[i].oldID = noteID then begin
+           Result:= IDs[i].newID;
+           exit;
+           end;
+  end;
+
 begin
   with Form_Main do begin
 
@@ -1170,6 +1199,7 @@ begin
             TabSelector.Free;
           end;
 
+          SetLength(IDs, MergeFile.NoteCount);
           for i := 0 to pred( MergeFile.NoteCount ) do
           begin
             // see if user selected ANY notes for merge
@@ -1192,7 +1222,16 @@ begin
             for i := 0 to pred( MergeFile.NoteCount ) do
             begin
 
-              if ( MergeFile.Notes[i].Info = 0 ) then continue;
+              IDs[i].oldID:= MergeFile.Notes[i].ID;
+              if ( MergeFile.Notes[i].Info = 0 ) then begin
+                 IDs[i].newNote:= false;
+                 if MergeFN <> NoteFile.FileName then
+                    IDs[i].newID:= 0
+                 else
+                    IDs[i].newID:= IDs[i].oldID;
+                  continue;
+              end;
+
 
               case MergeFile.Notes[i].Kind of
                 ntRTF : newNote := TTabNote.Create;
@@ -1245,6 +1284,7 @@ begin
                       newNode := TNoteNode.Create;
                       newNode.Assign( TTreeNote( MergeFile.Notes[i] ).Nodes[n] );
                       TTreeNote( newNote ).AddNode( newNode );
+                      newNode.ForceID(TTreeNote( MergeFile.Notes[i] ).Nodes[n].ID);
                     end;
                   end;
                 end;
@@ -1252,6 +1292,9 @@ begin
 
               NoteFile.AddNote( newNote );
               inc( mergecnt );
+
+              IDs[i].newID:= newNote.ID;
+              IDs[i].newNote:= true;
 
               try
                 CreateVCLControlsForNote( newNote );
@@ -1262,6 +1305,30 @@ begin
               end;
 
             end;
+
+            //Mirror nodes (if exists) references old Note IDs. We must use new IDs
+            for i := 0 to pred( MergeFile.NoteCount ) do
+              if IDs[i].newNote then begin
+                 newNote:= NoteFile.GetNoteByID(IDs[i].newID);
+                 for n := 0 to TTreeNote(newNote).NodeCount - 1 do begin
+                    newNode:= TTreeNote(newNote).Nodes[n];
+                    if newNode.VirtualMode = vmKNTNode then begin
+                       mirrorID:= newNode.MirrorNodeID;
+                       p := pos( KNTLINK_SEPARATOR, mirrorID );
+                       noteID:= StrToInt(AnsiLeftStr(mirrorID, p-1));
+                       noteID:= GetNewID(noteID);
+                       newNode.MirrorNodeID:= IntToStr(noteID) + KNTLINK_SEPARATOR + AnsiMidStr (mirrorID, p+1,255);
+                    end;
+                 end;
+              end;
+
+            for i := 0 to pred( MergeFile.NoteCount ) do
+                if IDs[i].newNote then begin
+                   newNote:= NoteFile.GetNoteByID(IDs[i].newID);
+                   NoteFile.SetupMirrorNodes(newNote);
+                   end;
+
+
           except
             On E : Exception do
             begin
