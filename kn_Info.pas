@@ -52,8 +52,8 @@ resourcestring
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_VerStr   = '1.7.6';
-  Program_Version  = '1.7.6 Beta';  // Used in program caption
+  Program_VerStr   = '1.7.6.1';
+  Program_Version  = '1.7.6';  // Used in program caption
   Program_License  = 'Freeware / Open Source';
   {
   // these are now stored in GF_Const.pas
@@ -127,6 +127,7 @@ const
   swUseOldFormat = 'oldfmt'; // save files using older KeyNote file format
   swSaveToolbars = 'savetb'; // save default toolbar button settings (debug)
   swSaveMenus    = 'savemenu'; // save menu information (debug)
+  swClean        = 'clean'; // clean/repair the file, actually looking for invalid hyperlinks (see issue #59: http://code.google.com/p/keynote-nf/issues/detail?id=59
 
 const
   // Filters for open/save dialogs

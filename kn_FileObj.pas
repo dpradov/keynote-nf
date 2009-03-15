@@ -183,11 +183,13 @@ type
 
     procedure SetupMirrorNodes (Note : TTabNote);
     procedure ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
+
+    procedure CleanRTF();
   end;
 
 
 implementation
-uses kn_TreeNoteMng, kn_Main, kn_Global; 
+uses kn_TreeNoteMng, kn_Main, kn_Global, kn_LinksMng;
 
 resourcestring
   STR_01 = 'Cannot open "%s": File not found';
@@ -211,6 +213,8 @@ resourcestring
   STR_16 = 'Failed to create output file "%s". Temporary file "%s" contains saved data.';
   STR_17 = 'Stream size error: Encrypted file is invalid or corrupt.';
   STR_18 = 'Invalid passphrase: Cannot open encrypted file.';
+  STR_19 = 'The file will be traversed looking for invalid hyperlinks (because of -clean cmdline option)'+#13#10+'Do you want to continue?'+#13#10#13#10+'(Note: Can take a minute depending on the file size. You will be notified when finished';
+  STR_20 = 'The process finished ok';
 
 constructor TNoteList.Create;
 begin
@@ -1714,6 +1718,45 @@ begin
   finally
   end;
 
+end;
+
+procedure TNoteFile.CleanRTF();
+var
+    i, j: integer;
+    Note: TTabNote;
+    noteNode, noteNodeSelected: TNoteNode;
+begin
+    if ( messagedlg(STR_19, mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
+        exit;
+
+    for i := 0 to pred( Notes.Count ) do begin
+       Note := Notes[i];
+       Note.Editor.OnChange := nil;
+       Note.Editor.Lines.BeginUpdate;
+       kn_Global.ActiveNote:= Note;
+
+       if Note.Kind = ntTree then begin
+          TTreeNote( Note ).TV.OnChange := nil;
+          noteNodeSelected:= TTreeNote( Note ).SelectedNode;
+          for j:= 0 to TTreeNote(Note).Nodes.Count - 1 do begin
+              noteNode:= TTreeNote(Note).Nodes[j];
+              TTreeNote( Note ).SelectedNode:= noteNode;
+              Note.DataStreamToEditor;
+              Note.EditorToDataStream;
+          end;
+          TTreeNote( Note ).SelectedNode:= noteNodeSelected;
+          Note.DataStreamToEditor;
+          TTreeNote( Note ).TV.OnChange := Form_Main.TVChange;
+       end
+       else begin  // ntRTF
+          Note.EditorToDataStream;
+       end;
+
+       Note.Editor.OnChange := Form_Main.RxRTFChange;
+       Note.Editor.Lines.EndUpdate;
+    end;
+
+    messagedlg(STR_20, mtInformation, [mbOK], 0 );
 end;
 
 end.

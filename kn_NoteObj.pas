@@ -386,6 +386,7 @@ var
   _LoadedRichEditVersion : integer;
 
 implementation
+uses kn_LinksMng;
 
 resourcestring
   STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
@@ -781,6 +782,8 @@ begin
         FEditor.StreamFormat := sfPlainText
       else
         FEditor.StreamFormat := sfRichText;
+
+      CleanHyperlinks;
       FEditor.Lines.SaveToStream( FDataStream );
     finally
       FEditor.StreamFormat := sfRichText;
@@ -1979,6 +1982,8 @@ begin
               FEditor.StreamFormat := sfRichText;
             end;
           end;
+
+          CleanHyperlinks;
 
           FEditor.Lines.SaveToStream( FSelectedNode.Stream );
 
