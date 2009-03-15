@@ -3072,11 +3072,11 @@ begin
     if (( Pages.PageCount > 0 ) and assigned( Pages.ActivePage )) then
     begin      
       status:= NoteFile.Modified;
-      if assigned(ActiveNote) then begin
+      if assigned(ActiveNote) then
          ActiveNote.EditorToDataStream;
-      end;
       ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
-      ActiveNote.DataStreamToEditor;
+      if (ActiveNote.Kind = ntTree) then
+          ActiveNote.DataStreamToEditor;
 
       TAM_ActiveName.Caption := ActiveNote.Name;
       TB_Color.AutomaticColor := ActiveNote.EditorChrome.Font.Color;
@@ -3090,7 +3090,7 @@ begin
     end;
   finally
     UpdateNoteDisplay;
-    if assigned(NoteFile) then 
+    if assigned(NoteFile) then
        NoteFile.Modified:= status;
     UpdateHistoryCommands;
     StatusBar.Panels[PANEL_HINT].Text := '';
