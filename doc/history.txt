@@ -13,6 +13,28 @@ KEYNOTE - RELEASE HISTORY
 
 Issue #tracker at http://code.google.com/p/keynote-nf/issues/list
 
+
+=============================
+Version: 1.7.6 -  date: 15/Mar/2009
+
+Enhancements:
+
+ * Issue #57: New kind of virtual nodes: links to other nodes (Mirror nodes)
+    - You can create mirror nodes so that they share the same content, alarm and checked state. That way you can organize your
+    information simultaneously in different ways
+    - With mirror nodes you can have task spread over many tabs, and at the same time include in another tabs. You will be able
+    to have a global vision of the main things to do, sorting, ranking and structuring in a free tree hierarchy, independent
+    of the hierarchy in wich 'real' nodes reside.
+ 
+ * Issue #48: Ctr+Shift+TAB, before selecting previous page, focus on tree 
+ * Included a complete Dutch translation by Ennovy and Plankje (http://forum.goeiedageven.nl/)
+ 
+Bugfixes:
+ * Issue #59: Certain hyperlinks may cause knt file to grow in size suddenly (geometrical increase..)
+              There is a new command line option (-clean) to clean/repair a file with that problem (perhaps latent..)
+ * Issue #50: Tabs context menu and Export...
+    
+    
 =============================
 Version: 1.7.5 -  date: 31/Jan/2009
 

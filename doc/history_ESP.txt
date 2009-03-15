@@ -14,6 +14,28 @@ KEYNOTE - RELEASE HISTORY
 Seguimiento de incidencias (issues) en http://code.google.com/p/keynote-nf/issues/list
 
 =============================
+Version: 1.7.6 -  fecha: 15/mar/2009
+
+Mejoras:
+* Issue #57: Nuevo tipo de nodos virtuales: enlaces a otros nodos (nodos 'espejo')
+    - Puede crear nodos 'espejo' del tal manera que compartan el mismo contenido, alarma y estado (checked). De esa manera 
+    puede organizar su información simultáneamente según diferentes criterios.
+    - Con nodos 'espejo' puede tener tareas repartidas en varias notas y al mismo tiempo incluidas en otra común. Podrá
+    tener una visión global de la principales cosas por hacer, priorizarlas y clasificarlas en un jerarquía independiente
+    de aquella en la que los nodos 'reales' residen.
+ 
+ * Issue #48: Ctr+Shift+TAB, antes de seleccionar la nota previa, pasar el foco al árbol 
+ * Incluída una traducción al holandés por Ennovy y Plankje (http://forum.goeiedageven.nl/)
+  
+Errores corregidos:
+ * Issue #59: Algunos hiperenlaces pueden provocar que el archivo KNT crezca de manera desorbitada (crecimiento geométrico..)
+    - En la página correspondiente a la incidencia puede encontrar más información sobre el tipo de hiperenlace problemático.
+    - Se ha definido una nueva opción de línea de comandos (-clean) para limpiar/reparar un archivo que tenga ese problema
+    (o que lo pueda tener latente, por contener hiperenlaces de ese tipo)
+ * Issue #50: Menú contextual sobre Pestaña y Export...
+  
+
+=============================
 Version: 1.7.5 -  fecha: 31/ene/2009
 
 Mejoras:
