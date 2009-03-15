@@ -1,0 +1,263 @@
+TdfsMRUFileList v2.65
+
+
+Description:
+  A component that greatly simplifies adding MRU file lists to menus.
+  Features:
+    Defineable maximum number of items to be maintained in the list.
+    Automatic removal of item when selected, or not.
+    Items can exist on selected menu, or on submenu of selected menu.
+
+
+Contact Information:
+  The lateset version will always be available on the web at:
+    http://www.delphifreestuff.com
+  If you have any questions, comments or suggestions, please use the Delphi
+  Free Stuff Support Forum at: 
+    http://www.delphifreestuff.com/discus/
+  If, for some reason, you can not use the web-based support forum, you can
+  email me at bstowers@delphifreestuff.com.  However, the support forum will
+  always take precedence over direct email since it provides a resource that
+  others can use when they have a problem.  Every message posted to the forum
+  is emailed directly to this account, so emailing me directly will not get 
+  your message to me any faster.  It will only make the message less important
+  for me to respond to since only one person (you) is benefiting from it
+  instead of everyone interested.  Having said all that, please do email me 
+  directly if it is regarding something that isn't really support related, 
+  i.e. just to say thanks (as novel as that idea is).  
+
+
+Installation:
+  Delphi 1:
+    * Select the 'Options | Install Components' menu item.
+    * In the Install Components dialog, click the Add button.
+    * In the Add Module dialog, enter the full path name of the component's 
+      registration unit (the unit that ends with 'Reg.pas', i.e. 
+      'BrowseDrReg.pas') and click OK.
+    * In the Add Module dialog, click OK.
+    * The component library will be rebuilt and a new tab named 'DFS' will
+      be available on the Component Palette.
+  
+  Delphi 2, C++Builder 1:
+    * Select the 'Component | Install' menu item.
+    * In the Install Components dialog, click the Add button.
+    * In the Add Module dialog, enter the full path name of the component's 
+      registration unit (the unit that ends with 'Reg.pas', i.e. 
+      'BrowseDrReg.pas') and click OK.
+    * In the Add Module dialog, click OK.
+    * The component library will be rebuilt and a new tab named 'DFS' will be 
+      available on the Component Palette.
+
+  Delphi 3 and up, C++Builder 3 and up:
+    * Do one of the following:
+      + Create a new package by selecting File | New and choosing Package from
+        the New tab in the dialog.
+      + Open an existing package file.  I suggest you do this if you already
+        have a package that you like to use for small, third party components.
+        I specifically have a package named "3rdParty.dpk" that I use for
+        small components that come from other people.  Or, if you are using
+        several of my components, you might create a "DFS.dpk" package and
+        use it for all of my DFS components.
+    * In the resulting package window, click the Add button.
+    * In the Add dialog, on the Add Unit tab, enter the full path name of the
+      component's registration unit (the unit that ends with 'Reg.pas', i.e.
+      'BrowseDrReg.pas') and click OK.
+    * You may want to add the other source files (*.pas) to the package as
+      well in the same manner as you did the registration unit.  While this is
+      not required, not doing it will cause compiler warnings when the package
+      is compiled.  The component will function fine either way, but I
+      personally find the warnings very irritating and am not happy until
+      every compiler warning and hint is gone.
+    * If this package is new, or it has never been installed, click the
+      Install button in the package window.  If this package is already
+      installed in Delphi, click the Compile button.
+
+
+Known Issues:
+  * There are no known issues at this time.
+
+
+Revision History:
+2.65:  + Fixed nasty bug that caused AVs on exit.
+       + If more than 10 items were in the list, the '&' shortcut would be
+         screwed up (i.e. &10 conflicted with &1, &11, &12, etc.).  Thomas
+         Weinert sent me a nice fix for this:  1 through 0 are used, followed
+         by A through Z.  After that, no shortcut is given.
+2.64:  + Fixed nasty bug that caused the component to load mru items at design
+         time.  This led to all sorts of nastiness.  Still not sure how that
+         snuck in. 
+2.63:  + It's *really* D5 compatible now.  Small change between the D5 eval 
+         version and the real, shipping D5 version broke it.
+2.62:  + There was an issue with auto loading not always working the way you
+         would expect, especially when using INI files.  Fixed.
+2.61:  + Classname changed.
+       + D5 compatibility.
+2.60:  + Two new events, OnCreateMRUItem and OnDestroyMRUItem.  These events
+         fire, surprisingly enough, when an MRU menu item has been created
+         (and had it's properties set) or when an item is about to be destroyed.
+         You can use these events to do things like set the ImageIndex property
+         (in D4) of the menu item.  You could also allocate some memory to be
+         associcated with an item in OnCreateMRUItem, and free that memory in
+         OnDestroyMRUItem.  In anticipation of the question I'm about to be
+         asked 50 times, you can tell MRU items that are "real" items (i.e. a
+         file the user has closed) from the "helper" MRU items (like the
+         seperator items and Remove Obsolete commands) by checking to see if the
+         Item.ItemNumber is greater than zero.  If it is, it's a "real" item.
+         I chose this approach over a property that exposes the menu items
+         themselves because the menu items change so much.  That is, if you just
+         had a property that contained all of the menu items, you'd have to know
+         when things changed so that you could go back and walk that list
+         resetting things like ImageIndex.  This method seems simpler from both
+         a usage (you) and implementation (me) standpoint.
+2.50:  + Ugo Bernasconi added the MRUDisplay property.  I've extended it a bit,
+         and here's how it works:
+           mdFullPath:     Same behavior as prior versions.
+           mdFileNameExt:  Displays just the file name and extension.
+           mdFileNameOnly: Displays just the file name.
+           mdCustom:       Fires the OnGetDisplayName event, and uses whatever
+                           that handler places in the ADisplayName paramter.
+                           Upon entring the event, it will hold the same value
+                           as mdFullPath, but without it being shortened.
+2.41:  + Having more than one MRU component use the same submenu for displaying
+         the MRU items would cause problems.  Many thanks to Eric Grange for
+         finding and fixing this.
+2.40:  + Change order of declaration of UseRegistry property so that it is the
+         first property streamed in from the DFM file.  Also changed it to
+         'nodefault' so that a value is always streamed in.  This makes it
+         behave better when UseRegistry is set to FALSE at design time.
+2.39:  + AutoSaveKey property didn't like to be changed when AutoSave was on.
+2.38:  + Added MRUFLReg unit.  All IDE specific code (i.e. registering the
+         component, property editors, etc.) are contained in this unit.  This
+         was done for two primary reasons:  1) Using the component in a Delphi
+         or C++Builder expert would register the component as well.  2) Reduce
+         code size in some cases -- usually the smart linker removes this sort
+         of stuff since the app never references it, but now it's for certain
+         since it isn't even in the unit.  This change means that you need to
+         install the component using the new "registration" unit instead of
+         the unit containing the component.
+2.37:  + Moved hard-coded strings to resourcestrings for Delphi/Builder 3 and
+         higher.  They are normal consts for older compilers.  This aids in
+         internationalizing an app.
+2.36   + C++Builder doesn't like registry keys that don't end with a '\' char.
+         Delphi doesn't care.  I've updated the AutoSaveName property so that
+         it automatically appends a '\' on the end if there isn't one and it
+         is being used in C++Builder.
+2.35   + The new Clear and Remove Obsolele menu items did not work well with all
+         possible options.  They have been cleaned up.
+       + New OnRemoveObsolete event.  This event is fired by the new
+         RemoveObsoleteItems for each MRU item.  You can use the event to
+         determine if the item is obsolete or not.  If the event is not
+         assigned, RemoveObsoleteItems assumes that each MRU item is a filename
+         and deletes the MRU item if that filename does not exist.  If the event
+         is assigned, your event handler decides what is obsolete (to be removed
+         from the MRU list) and what is not (not to be removed). The
+         OnRemoveObsolete event is useful if your MRU items are not filenames;
+         otherwise, you should be able to ignore this event and just let the
+         component handle it all.
+         RemoveObsoleteItems is useful for automatically cleaning up the MRU
+         menu, at program startup for example.
+2.30   + Added four new related properties: ClearItemName, ShowClearItem,
+         ShowRemoveObsolete, RemoveObsoleteName.  The ShowXXX properties control
+         whether those items are visible on the MRU menu, and XXXName properties
+         allow you to change the text for those menu items.  The menu items do
+         pretty much what you would expect; Clear removes all items from the
+         MRU menu, and RemoveObsolete verifies that all items exist (it assumes
+         they are files) and removes them if they do not.  These features were
+         added by Coda Hale  <kenhale@dcalcoda.com> and many thanks go to him
+         for sharing.
+       + Added PopupMenu property.  I find this property useful for dealing with
+         a popup menu that I've attached to a tbsDropDown Style TToolButton's
+         DropDownMenu property. That lets you do a File Open toolbar button with
+         a dropdown that shows the MRU files.  Note that I've not done much in
+         the way of special handling of the popup, i.e. it is assumed that all
+         that will be on the popup menu is the MRU items.  If you put your own
+         items on it, the MRU code will remove them during population.  Also,
+         the new RemoveObsolete and ClearItems stuff aren't on the popup.  I
+         consider it (a dropdown toolbar menu) to be a shortcut to the real MRU
+         items, and only wanted the files on there.  I could be persuaded
+         otherwise if enough people tell me that they belong on both.
+2.23   + Changing AutoSaveName at runtime will cause the MRU items to be
+         reloaded automatically.
+       + Fixed bug where inherted Loaded was never called.
+2.22   + Minor change to get rid of compiler warning under Delphi 4.
+2.21   + Added Version property.
+       + When using the registry to save items, if you assigned a key value
+         that did not begin with a '\' character to AutoSaveName, it would seem
+         to double the key.  Property now automatically inserts '\' if needed.
+2.20   + Added new boolean property AddToTop.  If TRUE, items added with AddItem
+         method will be placed at the top of the list; if FALSE, they are placed
+         at the end of the list.  Also, if TRUE, extra items (when Maximum is
+         exceeded) are removed from the end of the list; if FALSE, the are
+         removed from the top of the list.
+2.16   + Fixed problem with C++Builder 3 run-time packages.
+2.15   + Updated for new DFS.INC file, component tab name, history/comments
+         file.
+2.14   + Added UseRegistry property for D2/D3.  Now Win32 users can use
+         INI file.
+       + Added AutoSaveRootKey.  Can now use other than HKEY_CURRENT_USER
+         registry root key (D2/D3 only).
+       + Renamed RemoveItem to ClearItem, and added ClearAllItems method.
+         The RemoveAllItems method is generally not for applications as
+         it only removes items from a menu, not from the internal list.
+         ClearItem removes an item from the menu and the list, and you can
+         probably guess what ClearAllItems does.  :)
+2.13   + Couple of silly mistakes because I renamed a bunch of stuff in
+         v2.12.  Thanks to Jean-Fabien Connault for pointing it out to me.
+       + Small change for C++Builder compatibility.
+2.12   + Fixed bug in AddItem method.
+       + Fixed possible GPF in RemoveAllItems method.
+       + Fixed bug causing shortened items to lose their accelerator nums.
+       + Renamed to MRUFList.pas because of conflict with RX Lib.
+         UPGRADERS: MAKE SURE YOU DELETE OLD MRULIST VERSIONS OF THIS FILE.
+       + InsertItem did not honor the Index if the item was already in
+         the list.  It always moved to the top.
+       + Changed all "TFilename " types to "string" types because of a bug
+         in D2/D3 with the Huge Strings compiler option turned off.
+2.11   + SetMaximum write method had a bug that could cause index
+         exceptions.  Thanks to Tim Frost.
+2.10   + New property MaxCaptionWidth.  Set to 0, this performs as it
+         always has, however, setting it to reasonable width causes the
+         item to be shortened using '...' so that it does not take up more
+         space than specified.  Experiment with it for a few minutes and
+         you will see how it works.
+2.07   + RemoveAllItems had a memory leak.  Plugged it.  Thanks to Robert
+         Galle (robert.galle@guest.arnes.si) for catching this one.
+2.06   + Changed AddItem to work like other TList.Add methods, i.e. adds
+         the item to the end of the list.  If you are like me and prefer
+         that new items be added to the top of the MRU list, use the new
+         InsertItem method with an index of 0.
+       + Added ReplaceItem method to replace an existing MRU item with a
+         new one.  Thanks to Artem Berman (art@aber.kherson.ua) for this.
+2.05   + Fixed nasty bug.  If you deleted the menu item that FileMenu
+         contained, it would cause all sorts of trouble.  See Notification
+         method override.
+2.04   + Added "InsertSeparator"-Property (modification by Stefan Schlott)
+2.03   + Changing the MRU list during the OnMRUItemClick event could lead
+         to corrupted values in the MRU list.  Fixed.
+2.02   + Fixed problem with submenu not appearing in the right position.
+2.01   + Added RemoveItem to remove a single item. Thanks to Peter Zehnder
+         (email: zehnderp@dial.eunet.ch) for this.
+       + RemoveItems renamed to RemoveAllItems because it will cause less
+         confusion with new RemoveItem method.
+2.00:  + How about that?  A 1.00 release without any bug fixes!?!
+       + Added the ability to have MRU items appear at a specific place
+         on a menu.  If you select a submenu for the FileMenu property
+         (like the File menu), the items are appended to the end of that
+         menu.  If you select a menu item (like the Exit item), MRU items
+         will be inserted before that item.  I suggest you select a
+         separator because the list will create a separator of it's own,
+         and this will offset the entire MRU list.
+       + Added automatic saving and restoring of items.  If compiled under
+         Delphi 1.0, it saves to an INI file.  If D2, the registry.
+         This involves three new properties:
+           AutoSave:     Should items be saved and restored.
+           AutoSaveName: The filename (INI) or key (registry) to save to.
+           AutoSaveKey:  The section to save to.
+         For the registry, it would look like user\AutoSaveName\Key.
+       + Resource for 16 and 32-bit version.  This takes the place of a
+         DCR file, which can't be compatible with both.  See the $R
+         directive below.  To compile the resource file, use the following
+           Delphi 1: BRCC.EXE -foMRUList.r16 -31 MRUList.rc
+           Delphi 2: BRCC32.EXE -foMRUList.r32 -w32 MRUList.rc
+1.00:  + Initial release
+

@@ -1,0 +1,23 @@
+CRC-32 code of bit string 101011 is F29DFFB1
+CRC-32 code of 'This is a sample string' is 001D4F1F
+CRC-32 code of 'This is a string' is 0876633F
+CRC-32 code of real array 1 is 87B0ACFD
+CRC-32 code of real array 2 is 167C1AD9
+CRC-32 code of real array 3 is 190A55AD
+
+File CRC-32 Codes:
+
+ CRC-32     Bytes        F i l e n a m e
+--------  --------  ------------------------
+                    test.dat  <File not found>
+7839509A     93890  C:\COMMAND.COM
+5DF243F1      1705  C:\MSDOS.SYS
+02E2188C    222390  C:\IO.SYS
+                    C:\WINP\PROJ\DDS\CLAIMMAN.EXE  <Path not found>
+352441C2         3  abcLower.TXT
+A3830348         3  ABCUpper.TXT
+0876633F        16  ThisIsAString.TXT
+51CA4E71    181760  N:\1999\DELPHI\CRC\CRC32DEM.EXE
+                    D:\EXISTS.NOT  <other error>21
+                    C:\DOS  <File not found>
+                    ()[]{}.,/?*&$  <File not found>

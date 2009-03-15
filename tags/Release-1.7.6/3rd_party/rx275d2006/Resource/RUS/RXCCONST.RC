@@ -1,0 +1,30 @@
+/****************************************************************************
+
+rxcconst.res
+
+Delphi VCL Extensions (RX)
+Copyright (c) 1995 AO ROSNO
+Copyright (c) 1997 Master-Bank
+
+*****************************************************************************/
+
+#include "rxcconst.pas"
+
+#ifdef win32
+LANGUAGE LANG_RUSSIAN,1
+#endif
+
+STRINGTABLE
+{
+  SBrowse, "Список"
+  SDefaultFilter,  "Все файлы (*.*)|*.*"
+  SDateDlgTitle, "Выбор даты"
+  SNextYear, "Следующий год|"
+  SNextMonth, "Следующий месяц|"
+  SPrevYear, "Предыдущий год|"
+  SPrevMonth, "Предыдущий месяц|"
+  SNotImplemented, "Функция не реализована"
+  SFileNotExec, "Указанный файл не является исполнимым файлом, динамической библиотекой или файлом иконки"
+  SLoadLibError, "Невозможно загрузить библиотеку '%s'"
+  SDetails, "Сведения"
+}
