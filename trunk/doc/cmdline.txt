@@ -57,6 +57,8 @@ If this option is specified, KeyNote will not load the custom icons (keynote.icn
 -noreg		do NOT store window size and position and the recently used
 file list in the registry. Instead, this information is stored in a file with the ".mru" extension.
 
+-clean		Clean/repair a file with the problem of hyperlinks signaled in issue #59 (Certain hyperlinks may cause knt file to grow in size suddenly (geometrical increase..))
+
 ----- END -----
 
 
