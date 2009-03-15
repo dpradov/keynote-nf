@@ -1,4 +1,6 @@
 Desde la versión 1.7.5 KeyNote NF puede mostrarse en múltiples idiomas. Se incluye a modo de ejemplo una traducción parcial al español (castellano). Se irán incorporando idiomas a la versión oficial con la ayuda de la comunidad.
+Puede crear nodos 'espejo' del tal manera que compartan el mismo contenido, alarma y estado (checked). De esa manera puede organizar su información simultáneamente según diferentes criterios. Vea issue 57 en http://code.google.com/p/keynote-nf/issues)
+Con nodos 'espejo' puede tener tareas repartidas en varias notas y al mismo tiempo incluidas en otra común. Podrá tener una visión global de la principales cosas por hacer, priorizarlas y clasificarlas en un jerarquía independiente de aquella en la que los nodos 'reales' residen.
 Desde la página web de KeyNote NF (http://code.google.com/p/keynote-nf/), puede descargarse la última versión del programa, comunicar errores o solicitar nueva funcionalidad, entre otras cosas.
 Desde la página web de KeyNote NF puede acceder a un grupo de discusión en el que puede enviar preguntas y discutir sobre el programa.
 Puede encontrar más información (FAQ, por ejemplo) sobre el programa en la página web de la versión original (16.5): http://keynote.prv.pl
