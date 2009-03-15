@@ -1042,6 +1042,7 @@ begin
         Result:= 1;
 end;
 
+// Returns  0: link style not set, 1: link style set, -1: mixed
 function TRxTextAttributes.GetLink: Boolean;
 var
   Format: TCharFormat2;

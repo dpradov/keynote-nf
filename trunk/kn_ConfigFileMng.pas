@@ -86,6 +86,9 @@ begin
         if ( s = swUseOldFormat ) then
           _USE_OLD_KEYNOTE_FILE_FORMAT := true // GLOBAL var, used by TTabNote and TNoteFile
         else
+        if ( s = swClean ) then
+          opt_Clean := true
+        else
         begin
           errstr := errstr + #13 + ParamStr( i );
         end;

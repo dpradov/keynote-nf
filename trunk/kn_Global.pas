@@ -65,6 +65,8 @@ var
     opt_SaveToolbars : boolean; // save default toolbar state (debug)
     opt_SaveMenus : boolean; // save menu item information
 
+    opt_Clean : boolean; // Clean the file, actually looking for invalid hyperlinks (see issue #59: http://code.google.com/p/keynote-nf/issues/detail?id=59
+
     // these are declared in kn_Info.pas
     KeyOptions : TKeyOptions; // general program config
     TabOptions : TTabOptions; // options related to tabs, icons etc
@@ -762,6 +764,8 @@ begin
       opt_NoUserIcons := false;
       opt_SaveToolbars := false;
       opt_SaveMenus := false;
+
+      opt_Clean := false;
 
       // set up default values for all config options
       InitializeKeyOptions( KeyOptions );
