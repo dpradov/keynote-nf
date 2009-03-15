@@ -24,7 +24,7 @@ uses
   Windows, Messages, SysUtils,
   Graphics, Controls, Forms, Dialogs,
   uFreeLocalizer,
-  gf_misc, kn_info, kn_Const, IniFiles, kn_global;
+  gf_misc, kn_info, kn_Const, IniFiles, kn_global, kn_Main;
 
 resourcestring
   STR_01 = 'Internal Language (English) will be established next time you start KeyNote NF';
@@ -140,6 +140,8 @@ begin
                     FreeLocalizer.LanguageFile:= path + FN;
                     DefineConst;
                     AddSearchModes;
+                    if assigned (Form_Main) then
+                       Form_Main.SetupToolbarButtons;
                  end;
                  result:= True;
              end;
