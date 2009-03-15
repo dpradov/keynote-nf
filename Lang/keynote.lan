@@ -12,9 +12,10 @@ LangFile="Keynote.spanish.lng"
 TipFile="Keynote.spanish.tip"
 Translator="dprado.keynote@gmail.com"
 
-[Italiano]
-Comment="Partially translated"
-Name="Italian"
-LangFile="Keynote.italian.lng"
-TipFile="Keynote.italian.tip"
-Translator="max@studiogoso.it"
+[Dutch]
+Comment="Translation by Ennovy and Plankje"
+Name="Dutch"
+LangFile="Keynote.dutch.lng"
+TipFile="Keynote.dutch.tip"
+Translator="http://forum.goeiedageven.nl/"
+
