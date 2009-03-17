@@ -1,5 +1,5 @@
 #summary KeyNote NF Last version (Beta)
-#labels Featured
+#labels Deprecated
 
 *!KeyNote NF Last version (Beta)*
 
