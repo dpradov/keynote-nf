@@ -874,6 +874,7 @@ begin
   t := STR_05;
   myTNote := TTreeNote( ActiveNote );
   myTNote.TV.OnChange := nil;
+  myTNote.TV.OnChecked:= nil;
 
   FNodeMoving:= true;   // [dpv]
   try
@@ -948,6 +949,10 @@ begin
   finally
     FNodeMoving:= false;       // [dpv]
     NoteFile.Modified := true;
+    if TNoteNode(MovingNode.Data).Checked then begin
+       MovingNode.CheckState := csChecked;
+    end;
+    myTNote.TV.OnChecked:= Form_Main.TVChecked;
     myTNote.TV.OnChange := Form_Main.TVChange;
     UpdateNoteFileState( [fscModified] );
     // {N}
@@ -1738,12 +1743,15 @@ end; // MoveSubtree
 procedure UpdateTreeNode( const aTreeNode : TTreeNTNode );
 var
   myNoteNode : TNoteNode;
+  myTNote : TTreeNote;
 begin
   if assigned( aTreeNode ) then
   begin
     myNoteNode := TNoteNode( aTreeNode.Data );
     if assigned( myNoteNode ) then
     begin
+      myTNote := TTreeNote( ActiveNote );
+      myTNote.TV.OnChecked:= nil;
 
       // [x] FIXME: in many cases by doing this we are setting
       // the treenode text TWICE. In some cases this line is
@@ -1774,6 +1782,8 @@ begin
 
       if myNoteNode.HasNodeBGColor then
         aTreeNode.Color := myNoteNode.NodeBGColor;
+
+      myTNote.TV.OnChecked:= Form_Main.TVChecked;
     end;
   end;
 end; // UpdateTreeNode
