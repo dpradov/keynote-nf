@@ -386,7 +386,7 @@ var
   _LoadedRichEditVersion : integer;
 
 implementation
-uses kn_LinksMng;
+uses kn_LinksMng, kn_Main;
 
 resourcestring
   STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
@@ -762,9 +762,11 @@ procedure TTabNote.DataStreamToEditor;
 begin
   if CheckEditor then
   begin
+    FEditor.OnChange := nil;
     FDataSTream.Position := 0;
     FEditor.Lines.LoadFromStream( FDataStream );
     FDataStream.Clear;
+    FEditor.OnChange := Form_Main.RxRTFChange; 
   end;
 end; // DataStreamToEditor
 
@@ -1921,9 +1923,10 @@ begin
   end;
 
   case FSelectedNode.VirtualMode of
-    vmNone, vmText, vmRTF, vmHTML, vmKNTNode : begin 
+    vmNone, vmText, vmRTF, vmHTML, vmKNTNode : begin
       FEditor.Lines.BeginUpdate;
       try
+        FEditor.OnChange := nil;
         FEditor.Lines.Clear;
         if assigned( FSelectedNode ) then
         begin
@@ -1940,6 +1943,7 @@ begin
       finally
         FEditor.Lines.EndUpdate;
         FEditor.Modified := false;
+        FEditor.OnChange := Form_Main.RxRTFChange;
       end;
     end;
     vmIELocal, vmIERemote : begin
