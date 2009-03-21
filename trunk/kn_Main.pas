@@ -4452,6 +4452,8 @@ begin
       myTNote.TV.OnChange := nil; // stop event
       PreviousParent := DraggedTreeNode.Parent;
 
+      myTNote.TV.OnChecked := nil;
+
       if (( DropTreeNode.Level = 0 ) and CtrlDown ) then
       begin
         // make TOP node
@@ -4508,7 +4510,11 @@ begin
 
   finally
     NoteFile.Modified := true;
+    if TNoteNode(DraggedTreeNode.Data).Checked then begin
+       DraggedTreeNode.CheckState := csChecked;
+    end;
     myTNote.TV.OnChange := TVChange;
+    myTNote.TV.OnChecked:= Form_Main.TVChecked;
     UpdateNoteFileState( [fscModified] );
     StatusBar.Panels[PANEL_HINT].Text := s;
   end;
