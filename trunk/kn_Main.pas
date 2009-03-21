@@ -3009,6 +3009,7 @@ begin
   if ( sender as TTabRichEdit ).Modified then
   begin
     NoteFile.Modified := true;
+    UpdateNoteFileState( [fscModified] );
     if ( ActiveNote.Kind = ntTree ) then
     begin
       with TTreeNote( ActiveNote ) do

@@ -2337,26 +2337,16 @@ begin
         if NotesOK then
         begin
           WasModified := NoteFile.Modified;
-          if KeyOptions.AutoSave then
-          begin
-            Statusbar.Panels[PANEL_STATUS].Text := STR_72;
-          end
+          if WasModified then
+             Statusbar.Panels[PANEL_STATUS].Text := STR_73      //MOD
           else
-          begin
-            if WasModified then
-            begin
-              Statusbar.Panels[PANEL_STATUS].Text := STR_73;
-            end
-            else
-            begin
-              Statusbar.Panels[PANEL_STATUS].Text := STR_74;
-            end;
-          end;
+             if KeyOptions.AutoSave then
+                Statusbar.Panels[PANEL_STATUS].Text := STR_72   //Auto
+             else
+                Statusbar.Panels[PANEL_STATUS].Text := STR_74;   //Saved
         end
         else
-        begin
           Statusbar.Panels[PANEL_STATUS].Text := ' ---';
-        end;
       end;
   end;
 
