@@ -312,6 +312,7 @@ type
     Debug,
     DebugLogAppend,
     DefaultNoteType,
+    DisableAlarmPopup,
     DisableFileMon,
     DropNodesOnTabMove,
     DropNodesOnTabPrompt,
@@ -363,6 +364,7 @@ type
     OpenFloppyReadOnly,
     OpenNetworkReadOnly,
     OpenReadOnlyWarn,
+    PlaySoundOnAlarm,
     RecentLanguage,
     ResolveLNK,
     ResPanelActiveUpdate,
@@ -449,6 +451,7 @@ const
     Debug : 'Debug';
     DebugLogAppend : 'DebugLogAppend';
     DefaultNoteType : 'DefaultNoteType';
+    DisableAlarmPopup: 'DisableAlarmPopup';
     DisableFileMon : 'DisableFileMon';
     DropNodesOnTabMove : 'DropNodesOnTabMove';
     DropNodesOnTabPrompt : 'DropNodesOnTabPrompt';
@@ -500,6 +503,7 @@ const
     OpenFloppyReadOnly : 'OpenFloppyReadOnly';
     OpenNetworkReadOnly : 'OpenNetworkReadOnly';
     OpenReadOnlyWarn : 'OpenReadOnlyWarn';
+    PlaySoundOnAlarm: 'PlaySoundOnAlarm';
     RecentLanguage : 'RecentLanguage';
     ResolveLNK : 'ResolveLNK';
     ResPanelActiveUpdate : 'ResPanelActiveUpdate';
@@ -903,6 +907,7 @@ begin
     Debug := false;
     DebugLogAppend := true;
     DefaultNoteType := ntTree; // by default, preselect Tree-type note
+    DisableAlarmPopup:= false;
     DisableFileMon := false;
     DropNodesOnTabMove := false;
     DropNodesOnTabPrompt := true;
@@ -955,6 +960,7 @@ begin
     OpenFloppyReadOnly := false;
     OpenNetworkReadOnly := false;
     OpenReadOnlyWarn := true;
+    PlaySoundOnAlarm:= true;
     RecentLanguage := GetSystemDefaultLCID;
     ResolveLNK := false; // for Favorites: keep .LNK, not not resolve to actual file or document
     ResPanelActiveUpdate := true;
@@ -1159,6 +1165,7 @@ begin
       writebool( section, KeyOptionsIniStr.Debug, KeyOptions.Debug );
       writebool( section, KeyOptionsIniStr.DebugLogAppend, KeyOptions.DebugLogAppend );
       writeinteger( section, KeyOptionsIniStr.DefaultNoteType, ord( KeyOptions.DefaultNoteType ));
+      writebool( section, KeyOptionsIniStr.DisableAlarmPopup, KeyOptions.DisableAlarmPopup );
       writebool( section, KeyOptionsIniStr.DisableFileMon, KeyOptions.DisableFileMon );
       writebool( section, KeyOptionsIniStr.DropNodesOnTabMove, KeyOptions.DropNodesOnTabMove );
       writebool( section, KeyOptionsIniStr.DropNodesOnTabPrompt, KeyOptions.DropNodesOnTabPrompt );
@@ -1212,6 +1219,7 @@ begin
       writebool( section, KeyOptionsIniStr.OpenFloppyReadOnly, KeyOptions.OpenFloppyReadOnly );
       writebool( section, KeyOptionsIniStr.OpenNetworkReadOnly, KeyOptions.OpenNetworkReadOnly );
       writebool( section, KeyOptionsIniStr.OpenReadOnlyWarn, KeyOptions.OpenReadOnlyWarn );
+      writebool( section, KeyOptionsIniStr.PlaySoundOnAlarm, KeyOptions.PlaySoundOnAlarm );
       writeinteger( section, KeyOptionsIniStr.RecentLanguage, KeyOptions.RecentLanguage );
       writebool( section, KeyOptionsIniStr.ResolveLNK, KeyOptions.ResolveLNK );
       writebool( section, KeyOptionsIniStr.ResPanelActiveUpdate, KeyOptions.ResPanelActiveUpdate );
@@ -1434,6 +1442,7 @@ begin
       KeyOptions.Debug := readbool( section, KeyOptionsIniStr.Debug, KeyOptions.Debug );
       KeyOptions.DebugLogAppend := readbool( section, KeyOptionsIniStr.DebugLogAppend, KeyOptions.DebugLogAppend );
       KeyOptions.DefaultNoteType := TNoteType( readinteger( section, KeyOptionsIniStr.DefaultNoteType, ord( KeyOptions.DefaultNoteType )));
+      KeyOptions.DisableAlarmPopup := readbool( section, KeyOptionsIniStr.DisableAlarmPopup, KeyOptions.DisableAlarmPopup );
       KeyOptions.DisableFileMon := readbool( section, KeyOptionsIniStr.DisableFileMon, KeyOptions.DisableFileMon );
       KeyOptions.DropNodesOnTabMove := readbool( section, KeyOptionsIniStr.DropNodesOnTabMove, KeyOptions.DropNodesOnTabMove );
       KeyOptions.DropNodesOnTabPrompt := readbool( section, KeyOptionsIniStr.DropNodesOnTabPrompt, KeyOptions.DropNodesOnTabPrompt );
@@ -1502,6 +1511,7 @@ begin
       KeyOptions.OpenFloppyReadOnly := readbool( section, KeyOptionsIniStr.OpenFloppyReadOnly, KeyOptions.OpenFloppyReadOnly );
       KeyOptions.OpenNetworkReadOnly := readbool( section, KeyOptionsIniStr.OpenNetworkReadOnly, KeyOptions.OpenNetworkReadOnly );
       KeyOptions.OpenReadOnlyWarn := readbool( section, KeyOptionsIniStr.OpenReadOnlyWarn, KeyOptions.OpenReadOnlyWarn );
+      KeyOptions.PlaySoundOnAlarm := readbool( section, KeyOptionsIniStr.PlaySoundOnAlarm, KeyOptions.PlaySoundOnAlarm );
       KeyOptions.RecentLanguage := readinteger( section, KeyOptionsIniStr.RecentLanguage, KeyOptions.RecentLanguage );
       KeyOptions.ResolveLNK := readbool( section, KeyOptionsIniStr.ResolveLNK, KeyOptions.ResolveLNK );
       KeyOptions.ResPanelActiveUpdate := readbool( section, KeyOptionsIniStr.ResPanelActiveUpdate, KeyOptions.ResPanelActiveUpdate );

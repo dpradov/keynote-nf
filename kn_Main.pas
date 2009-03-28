@@ -856,6 +856,9 @@ type
     TVInsertMirrorNode: TMenuItem;
     N115: TMenuItem;
     TVNavigateNonVirtualNode: TMenuItem;
+    TB_AlarmMode: TToolbarButton97;
+    procedure TB_AlarmModeMouseEnter(Sender: TObject);
+    procedure TB_AlarmModeClick(Sender: TObject);
     procedure TVNavigateNonVirtualNodeClick(Sender: TObject);
     procedure TVInsertMirrorNodeClick(Sender: TObject);
     procedure TVGraftSubtreeMirrorClick(Sender: TObject);
@@ -1344,7 +1347,7 @@ uses RxGIF{, jpeg}, kn_Global, kn_ExportNew,
      kn_NoteMng, kn_MacroMng, kn_PluginsMng, kn_TreeNoteMng, kn_TemplateMng,
      kn_FindReplaceMng, kn_ConfigFileMng, kn_DLLmng,
      kn_StyleMng, kn_FavoritesMng, kn_BookmarksMng,
-     kn_VirtualNodeMng, kn_NoteFileMng, kn_EditorUtils;
+     kn_VirtualNodeMng, kn_NoteFileMng, kn_EditorUtils, kn_AlertMng;
 
 {$R *.DFM}
 {$R catimages}
@@ -4180,6 +4183,17 @@ begin
 {$ENDIF}
 end; // MMEmailnoteClick
 
+procedure TForm_Main.TB_AlarmModeClick(Sender: TObject);
+begin
+    KeyOptions.DisableAlarmPopup:= not KeyOptions.DisableAlarmPopup;
+    TB_AlarmMode.Down:= (not KeyOptions.DisableAlarmPopup);
+end;
+
+procedure TForm_Main.TB_AlarmModeMouseEnter(Sender: TObject);
+begin
+    AlarmManager.StopFlashMode;
+end;
+
 procedure TForm_Main.TB_AlarmNodeClick(Sender: TObject);      // [dpv*]
 var
     myNode: TNoteNode;
@@ -4208,7 +4222,7 @@ begin
     if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) and (assigned(TTreeNote(ActiveNote).TV.Selected)) then begin
        node:= TNoteNode( TTreeNote(ActiveNote).TV.Selected.Data );
        if (node.Alarm <> 0) then
-           TB_AlarmNode.Hint:= STR_34 + FormatDateTime( 'dddd, d MMMM yyyy ' + #32 + 'HH:mm', node.Alarm )
+           TB_AlarmNode.Hint:= STR_34 + FormatAlarmInstant(node.Alarm)
        else
            TB_AlarmNode.Hint:= STR_35;
     end

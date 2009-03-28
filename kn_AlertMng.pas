@@ -74,6 +74,10 @@ type
     Button_Show: TButton;
     UpDown1: TUpDown;
     Button_ShowALL: TButton;
+    Button_Sound: TToolbarButton97;
+    Button_ShowPending: TButton;
+    procedure Button_ShowPendingClick(Sender: TObject);
+    procedure Button_SoundClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Button_ShowALLClick(Sender: TObject);
     procedure UpDown1Click(Sender: TObject; Button: TUDBtnType);
@@ -92,6 +96,7 @@ type
     { Private declarations }
     FAlarmList: TList;          // All alarms
     FSelectedAlarmList: TList;
+    FPendingAlarmList: TList;
     FOptionSelected: TObject;
     NodeSelected: TTreeNTNode;
     FNumberAlarms: integer;
@@ -115,10 +120,19 @@ type
     FEnabled: Boolean;
     FSelectedAlarmList: TList;
 
+    FPendingAlarmList: TList;            // Triggered but not managed yet
+    FForCommunicateAlarmList: TList;     // New alarms addded to pending list
+    Timer: TTimer;
+
     FCanceledAt: TDateTime;
 
     procedure SetEnabled (Value: boolean);
     procedure ShowFormAlarm (modeEdit: Boolean);
+
+    procedure CommunicateAlarm (node : TTreeNTNode);
+    procedure UpdatePendingAlarmList;
+    procedure FlashAlarmMode;
+    procedure TimerTimer(Sender: TObject);
     //procedure checkCanceledAt ( node : TTreeNTNode );
   protected
 
@@ -129,18 +143,20 @@ type
     procedure AddAlarmNode( node : TTreeNTNode );
     procedure RemoveAlarmNode( node : TTreeNTNode );
     procedure ModifyAlarmNode( node : TTreeNTNode );
+    procedure StopFlashMode;
     procedure Clear;
     constructor Create;
     destructor Destroy; override;
   end;
 
+  function FormatAlarmInstant (instant: TDateTime): string;
 
 var
   Form_Alarm: TForm_Alarm;
 
 implementation
-uses  DateUtils, ComCtrls95,
-      kn_Main, kn_Global, kn_TreeNoteMng, kn_Const, kn_LocationObj, kn_FindReplaceMng;
+uses  DateUtils, ComCtrls95, MMSystem,
+      kn_Main, kn_Global, kn_TreeNoteMng, kn_Const, kn_LocationObj, kn_FindReplaceMng, kn_Info;
 
 {$R *.DFM}
 
@@ -150,7 +166,10 @@ resourcestring
   STR_Apply = '&Apply';
   STR_Postpone = '&Postpone';
   STR_CaptionSet = 'Set Alarm  (%d Alarms created)';
-
+  STR_Triggered = 'ALARM [%s] :  %s';
+  STR_SoundOn = '[Sound ON]';
+  STR_SoundOff = '[Sound OFF]';
+  STR_Pending = '%d pending alarms ';
 
 constructor TAlarmManager.Create;
 begin
@@ -159,28 +178,45 @@ begin
    FAlarmList:= TList.Create;
    FAlarmList.Capacity:= 10;
    FSelectedAlarmList:= TList.Create;
+   FPendingAlarmList:= TList.Create;
+   FForCommunicateAlarmList:= TList.Create;
+   Timer:= TTimer.Create(nil);
+   Timer.Interval:= 1500;
+   Timer.Enabled := false;
+   Timer.OnTimer:= TimerTimer;
    FCanceledAt:= 0;
+
+   UpdatePendingAlarmList;
 end;
 
 destructor TAlarmManager.Destroy;
 begin
-   if assigned (FAlarmList) then begin
+   if assigned (FAlarmList) then
       FAlarmList.Free;
-   end;
-   if assigned (FSelectedAlarmList) then begin
+   if assigned (FSelectedAlarmList) then
       FSelectedAlarmList.Free;
-   end;
+   if assigned (FPendingAlarmList) then
+      FPendingAlarmList.Free;
+   if assigned (FForCommunicateAlarmList) then
+      FForCommunicateAlarmList.Free;
+   if assigned (Timer) then
+      Timer.Free;
    inherited Destroy;
 end;
 
 procedure TAlarmManager.Clear;
 begin
-   if assigned (FAlarmList) then begin
+   if assigned (FAlarmList) then
       FAlarmList.Clear;
-   end;
-   if assigned (FSelectedAlarmList) then begin
+   if assigned (FSelectedAlarmList) then
       FSelectedAlarmList.Clear;
-   end;
+   if assigned (FPendingAlarmList) then
+      FPendingAlarmList.Clear;
+   if assigned (FForCommunicateAlarmList) then
+      FForCommunicateAlarmList.Clear;
+
+   FCanceledAt:= 0;
+   UpdatePendingAlarmList;
 end;
 
 function compareAlarmNotes (node1, node2: Pointer): integer;
@@ -211,7 +247,8 @@ begin
       FSelectedAlarmList.Add(node);
 
       ShowFormAlarm (true);
-      Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNTNode(FSelectedAlarmList[0]).Data).AlarmF <> 0);
+      UpdatePendingAlarmList;
+      Form_Main.TB_AlarmNode.Down:= (TNoteNode(node.Data).AlarmF <> 0);
 
       FSelectedAlarmList.Clear;
     finally
@@ -228,6 +265,7 @@ begin
 
   try
     Form_Alarm.SelectedAlarmList:= FSelectedAlarmList;
+    Form_Alarm.FPendingAlarmList:= FPendingAlarmList;
     Form_Alarm.AlarmList:= FAlarmList;
     Form_Alarm.modeEdit:= modeEdit;
 
@@ -273,6 +311,8 @@ end;
 procedure TAlarmManager.RemoveAlarmNode( node : TTreeNTNode );
 begin
     FAlarmList.Remove(node);
+    FPendingAlarmList.Remove(node);
+    FForCommunicateAlarmList.Remove(node);
 end;
 
 procedure TAlarmManager.ModifyAlarmNode( node : TTreeNTNode );
@@ -280,51 +320,169 @@ begin
     if FEnabled then
        FAlarmList.Sort(compareAlarmNotes);
 
+    UpdatePendingAlarmList;
     //checkCanceledAt (node);
 end;
 
-procedure TAlarmManager.checkAlarms;
+function FormatAlarmInstant (instant: TDateTime): string;
+begin
+    if dayof(instant) <> dayof(today()) then
+       Result:= FormatDateTime( 'dddd, d MMMM - HH:mm', instant )
+    else
+       Result:= FormatDateTime( 'HH:mm', instant );
+end;
+
+procedure TAlarmManager.CommunicateAlarm (node : TTreeNTNode);
+var
+   myNode: TNoteNode;
+begin
+   myNode:= TNoteNode(node.Data);
+   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Triggered, [FormatAlarmInstant(myNode.AlarmF), myNode.Name]);
+end;
+
+procedure TAlarmManager.TimerTimer(Sender: TObject);
+begin
+   FlashAlarmMode;
+   if (FForCommunicateAlarmList.Count >0 ) and (FForCommunicateAlarmList[0]<> nil) then begin
+      CommunicateAlarm(FForCommunicateAlarmList[0]);
+      FForCommunicateAlarmList.Delete(0);
+   end;
+
+   if FPendingAlarmList.Count=0 then
+      Timer.Enabled := false;
+end;
+
+procedure TAlarmManager.StopFlashMode;
+begin
+    Timer.Enabled := false;
+    if FPendingAlarmList.Count = 0 then
+       Form_Main.TB_AlarmMode.ImageIndex:= 51
+    else
+       Form_Main.TB_AlarmMode.ImageIndex:= 52;
+end;
+
+procedure TAlarmManager.UpdatePendingAlarmList;
 var
   I: Integer;
   node: TNoteNode;
-  limit: TDateTime;
+  soundState: string;
 begin
-   if FCanceledAt <> 0 then
-      limit:= incMinute(FCanceledAt, 5);
+   I:= 0;
+   while I <= FPendingAlarmList.Count - 1 do begin
+      node:= TTreeNTNode(FPendingAlarmList[i]).Data;
+      if (node.AlarmF = 0) or (now() < node.AlarmF) then
+         FPendingAlarmList.Delete(i);
+      I:= I + 1;
+   end;
 
-   Form_Main.Timer.Enabled := False;
-   try
+   if KeyOptions.PlaySoundOnAlarm then
+      soundState:= STR_SoundOn
+   else
+      soundState:= STR_SoundOff;
+
+   Form_Main.TB_AlarmMode.Hint:=  Format(STR_Pending, [FPendingAlarmList.Count]) + soundState;
+
+   if FPendingAlarmList.Count = 0 then
+      Form_Main.TB_AlarmMode.ImageIndex:= 51
+   else
+      if Form_Main.TB_AlarmMode.ImageIndex = 51 then begin
+        // Each triggered alarm (there may be more than one) will be notified for a second and image of button TB_AlarmMode will alternate
+        Timer.Enabled := True;
+        Form_Main.TB_AlarmMode.ImageIndex:= 52;
+     end;
+end;
+
+procedure TAlarmManager.FlashAlarmMode;
+begin
+   if FPendingAlarmList.Count = 0 then exit;
+   if Form_Main.TB_AlarmMode.ImageIndex = 51 then
+      Form_Main.TB_AlarmMode.ImageIndex:= 52
+   else
+      Form_Main.TB_AlarmMode.ImageIndex:= 51;
+end;
+
+procedure TAlarmManager.checkAlarms;
+
+  procedure FillSelectedAlarmList;
+  var
+    I: Integer;
+    node: TNoteNode;
+    limit: TDateTime;
+  begin
+     if FCanceledAt <> 0 then
+        limit:= incMinute(FCanceledAt, 5);
+
      I:= 0;
      FSelectedAlarmList.Clear;
 
      while I <= FAlarmList.Count - 1 do begin
         node:= TTreeNTNode(FAlarmList[i]).Data;
         if now() >= node.AlarmF then begin
-           if (FCanceledAt = 0) or (node.AlarmF > FCanceledAt) or (now > limit) then
+           if (FCanceledAt = 0) or (node.AlarmF > FCanceledAt) or (now > limit) then begin
               FSelectedAlarmList.Add(FAlarmList[i]);
+              if (FPendingAlarmList.IndexOf(FAlarmList[i])<0) then begin
+                 FPendingAlarmList.Add(FAlarmList[i]);
+                 if KeyOptions.DisableAlarmPopup then
+                    FForCommunicateAlarmList.Add(FAlarmList[i]);
+              end;
+           end;
            I:= I + 1;
         end
         else
            break;
      end;
+  end;
+
+  procedure PlaySound;
+  var
+     soundfn: string;
+  begin
+     soundfn := extractfilepath( application.exename ) + 'alert.wav';
+     if ( KeyOptions.PlaySoundOnAlarm and fileexists( soundfn )) then
+         sndplaysound( PChar( soundfn ), SND_FILENAME or SND_ASYNC or SND_NOWAIT );
+  end;
+
+begin
+   Form_Main.Timer.Enabled := False;
+   try
+     FillSelectedAlarmList;
 
      if FSelectedAlarmList.Count > 0 then begin
-         if IsIconic( Application.Handle ) then begin
-            Application.Restore;
-            Application.BringToFront;
+
+         if not KeyOptions.DisableAlarmPopup then begin
+             PlaySound;
+
+             if IsIconic( Application.Handle ) then begin
+                Application.Restore;
+                Application.BringToFront;
+             end;
+
+             ShowFormAlarm (false);
+             UpdatePendingAlarmList;
+
+             if assigned(ActiveNote) and (ActiveNote.Kind=ntTree) and assigned(TTreeNote(ActiveNote).TV.Selected)  then
+                Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNote(ActiveNote).TV.Selected.Data).Alarm <> 0);
+             if Form_Alarm.ButtonOK then
+                FCanceledAt:= 0
+             else
+                FCanceledAt:= now;
+         end
+         else begin    // KeyOptions.DisableAlarmPopup = True
+            FCanceledAt:= now;
+            if FForCommunicateAlarmList.Count > 0 then begin      // there has been new triggerd alarms
+               PlaySound;
+               CommunicateAlarm(FForCommunicateAlarmList[0]);
+               FForCommunicateAlarmList.Delete(0);
+               Timer.Enabled := True;   // Each new triggered alarm will be notified for a few seconds, and will active flash mode of TB_AlarmMode
+
+               UpdatePendingAlarmList;
+            end;
          end;
 
-         ShowFormAlarm (false);
-         FSelectedAlarmList.Clear;
-         if assigned(ActiveNote) and (ActiveNote.Kind=ntTree) and assigned(TTreeNote(ActiveNote).TV.Selected)  then
-            Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNote(ActiveNote).TV.Selected.Data).Alarm <> 0);
-         if Form_Alarm.ButtonOK then
-            FCanceledAt:= 0
-         else
-            FCanceledAt:= now;
      end;
 
    finally
+     FSelectedAlarmList.Clear;
      Form_Main.Timer.Enabled := true;
    end;
 
@@ -340,6 +498,17 @@ end;
 procedure TForm_Alarm.Button_ShowClick(Sender: TObject);
 begin
      TVDblClick(nil);
+end;
+
+procedure TForm_Alarm.Button_ShowPendingClick(Sender: TObject);
+begin
+    FSelectedAlarmList:= FPendingAlarmList;
+    FormShow(nil);
+end;
+
+procedure TForm_Alarm.Button_SoundClick(Sender: TObject);
+begin
+    KeyOptions.PlaySoundOnAlarm:= Button_Sound.Down;
 end;
 
 procedure TForm_Alarm.Button_DiscardAllClick(Sender: TObject);
@@ -501,6 +670,8 @@ var
   I: Integer;
   nodeNote: TTreeNTNode;
 begin
+   Button_Sound.Down:= KeyOptions.PlaySoundOnAlarm;
+
    if (FSelectedAlarmList.Count = 0) then begin
       if Sender <> nil then
         Close
@@ -617,7 +788,7 @@ begin
            myNode:= TNoteNode(NodeSelected.Data);
            Label_Selected.Caption :=  myNode.Name;
            if myNode.AlarmF <> 0 then
-              Label_Selected_Alarm.Caption := FormatDateTime( 'dddd, d MMMM yyyy ' + #32 + 'HH:mm', myNode.AlarmF ) + ' :'
+              Label_Selected_Alarm.Caption := FormatAlarmInstant(myNode.AlarmF) + ' :'
            else
               Label_Selected_Alarm.Caption := '';
         end;
@@ -682,6 +853,7 @@ begin
    Button_DiscardAll.Enabled:= Value;
    Button_Show.Enabled:= Value;
    Button_ShowAll.Enabled:= Value;
+   Button_ShowPending.Enabled:= Value;
 end;
 
 end.
