@@ -437,6 +437,7 @@ begin
         Combo_Font.UseFonts := KeyOptions.ShowFonts;
         TB_Hilite.ActiveColor := KeyOptions.InitHiColor;
         TB_Color.ActiveColor := KeyOptions.InitFontColor;
+        TB_AlarmMode.Down:= (not KeyOptions.DisableAlarmPopup);
 
       except
         on E : Exception do

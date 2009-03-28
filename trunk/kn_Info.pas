@@ -52,8 +52,8 @@ resourcestring
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_VerStr   = '1.7.6.1';
-  Program_Version  = '1.7.6';  // Used in program caption
+  Program_VerStr   = '1.7.7.1';
+  Program_Version  = '1.7.7 Beta';  // Used in program caption
   Program_License  = 'Freeware / Open Source';
   {
   // these are now stored in GF_Const.pas
@@ -490,6 +490,7 @@ type
     Debug : boolean; // [*]
     DebugLogAppend : boolean; // [*] append or overwrite previous debug log
     DefaultNoteType : TNoteType; // [*] remembers last type of note created
+    DisableAlarmPopup: boolean;   // [*]
     DisableFileMon : boolean; // disable file change monitoring
     DropNodesOnTabMove : boolean; // when dropping nodes on another teb, MOVE them (if false, then COPY)
     DropNodesOnTabPrompt : boolean; // prompt before copying nodes to another tab (note)
@@ -541,6 +542,7 @@ type
     OpenFloppyReadOnly : boolean;
     OpenNetworkReadOnly : boolean;
     OpenReadOnlyWarn : boolean;
+    PlaySoundOnAlarm: boolean;   // [*] 
     RecentLanguage : TLanguage; // last language selected in Language dialog box
     ResolveLNK : boolean; // [*]
     ResPanelActiveUpdate : boolean; // always clear respanel contents when hiding, and reload when shown again
