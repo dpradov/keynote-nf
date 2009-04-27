@@ -1,11 +1,17 @@
 #labels Featured
 -------------------------------------------------------------
+Version: 1.7.6 -  date: 27/Apr/2009
+
+  * Added a complete German translation by Klaus Utech  (http://www.klausutech.com). 
+   Just download the file "!German_Translation_Release_1.7.6.1.rar" and copy the files keynote.german.lng and keynote.german.tip to "Lang" folder,and replace keynote.lan with the one included in the zip file. <br>  Note: OPTION - menu isn't still translated. Also, .tip file (Tip of the Day) isn't translated yet, it's just a copy from the english version.
+
+-------------------------------------------------------------
 Version: 1.7.6 -  date: 15/Mar/2009
 
 Enhancements:
 
   * Issue #57: New kind of virtual nodes: links to other nodes (Mirror nodes)
-    * You can create mirror nodes so that they share the same content, alarm and checked state. That way you can organize your information simultaneously in different ways
+    * You can create mirror nodes so that they share the same content, alarm and checked state. That way you can organize your information simultaneously in different ways.
     * With mirror nodes you can have task spread over many tabs, and at the same time include in another tabs. You will be able to have a global vision of the main things to do, sorting, ranking and structuring in a free tree hierarchy, independent of the hierarchy in wich 'real' nodes reside.
   * Issue #48: Ctr+Shift+TAB, before selecting previous page, focus on tree 
   * Included a complete Dutch translation by Ennovy and Plankje (http://forum.goeiedageven.nl/)
