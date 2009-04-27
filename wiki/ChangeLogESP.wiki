@@ -1,4 +1,10 @@
 #labels Featured
+-------------------------------------------------------------
+Version: 1.7.6 -  fecha: 27/abr/2009
+
+  * Incorporada una traducción al alemán por Klaus Utech  (http://www.klausutech.com). 
+   Basta con descargar el archivo '!German_Translation_Release_1.7.6.1.rar' y copiar los archivos 'keynote.german.lng' y 'keynote.german.tip' a la carpeta 'Lang', y reemplazar 'keynote.lan' con el incluido en el archivo zip. <br>  Nota: La pantalla con las opciones de configuración no está aún traducida. Igualmente, el archivo .tip (Sugerencia del día) tampoco está traducido, es simplemente una copia de la versión inglesa.
+
 -----------------------------------------------------------
 Versión: 1.7.6 -  fecha: 15/mar/2009
 
