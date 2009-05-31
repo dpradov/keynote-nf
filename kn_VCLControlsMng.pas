@@ -101,7 +101,7 @@ begin
           DragMode := dmManual; // dmAutomatic;
           OnStartDrag := RxRTFStartDrag;
           OnEndDrag := RxRTFEndDrag;
-          OnFileDropped := OnFileDropped;
+          OnFileDropped := Form_Main.OnFileDropped;
           // AllowObjects := true;
           // AllowInPlace := false;
         end;
@@ -123,7 +123,7 @@ begin
           // OnChanging := TVChanging; // unused
           OnChecked := TVChecked;
           // OnEnter := TVEnter;
-          OnFileDropped := OnFileDropped;
+          OnFileDropped := Form_Main.OnFileDropped;
           OnEditing := TVEditing;
           OnEdited := TVEdited;
           OnEditCanceled := TVEditCanceled;
