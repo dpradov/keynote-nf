@@ -1092,22 +1092,21 @@ begin
       RTFAux.Clear;
       checkEmpty(RTFAux);    // [dpv]
       SearchStart := 0;
-      //myTreeNode := myTreeNode.GetNext;  // [dpv]
-      if FindOptions.HiddenNodes then      // [dpv]
+
+      if FindOptions.HiddenNodes then
          myTreeNode := myTreeNode.GetNext
-      else while myTreeNode.Hidden do
-         myTreeNode := myTreeNode.GetNext;
+      else
+         myTreeNode := myTreeNode.GetNextNotHidden;
 
-      // wrap around, but make sure we scan the whole tree only once
-      if ( not assigned( MyTreeNode )) then
-      begin
-        if FindOptions.AllTabs then
-          break; // this tree done; will move to next note (bugfix)
-        MyTreeNode := TTreeNT( StartTreeNode.TreeView ).Items.GetFirstNode;
-      end;
-      if ( MyTreeNode = StartTreeNode ) then
-        break;
-
+//      // wrap around, but make sure we scan the whole tree only once
+//      if ( not assigned( MyTreeNode )) then
+//      begin
+//        if FindOptions.AllTabs then
+//          break; // this tree done; will move to next note (bugfix)
+//        MyTreeNode := TTreeNT( StartTreeNode.TreeView ).Items.GetFirstNode;
+//      end;
+//      if ( MyTreeNode = StartTreeNode ) then
+//        break;
     end;
 
   finally
