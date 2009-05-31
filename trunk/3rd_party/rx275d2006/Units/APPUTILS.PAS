@@ -794,6 +794,11 @@ begin
         Exit;
       end;
 {$ENDIF}
+      if (WinState = wsMaximized) then
+      begin
+        PostMessage(Form.Handle, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+        Exit;
+      end;
       if FormStyle in [fsMDIChild, fsMDIForm] then
         TNastyForm(Form).FWindowState := WinState
       else WindowState := WinState;
