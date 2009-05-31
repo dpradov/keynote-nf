@@ -1,15 +1,21 @@
 #summary KeyNote NF Last version (Beta)
-#labels Deprecated
+#labels Featured
 
 *!KeyNote NF Last version (Beta)*
 
 For those of you who want and can test new funcionality before new version is released:
 
-This executable (*1.7.6 Beta*) includes the following issues:
+This executable (*1.7.7 Beta*) includes the following issues:
 
-  * Issue #57: New kind of virtual nodes: links to other nodes (Mirror nodes) 
-  * Issue #50: Tabs context menu and Export...
-  * Issue #48: Ctr+Shift+TAB, before selecting previous page, focus on tree 
+  * Issue #101: Import files by dropping them on the tree
+  * Issue #96: Search -> Find... only works on one note, won't search all notes
+  * Issue #74: The treeview in the options dialog is editable
+  * Issue #71: Node can become unchecked when moving, in a special situation
+  * Issue #70: Status bar doesn't reflect correctly the modified state of the file
+  * Issue #62: Keynote NF won't open in maximized window state
+  * Issue #58: Minimizing button does not work
+  * Issue #29: Sound for Alarm
+  * Issue #73: Allow to enable or disable alarm popups
 
 The executable can be downloaded from:
 http://groups.google.com/group/keynote-nf/files
