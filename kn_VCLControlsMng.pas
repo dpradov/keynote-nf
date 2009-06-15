@@ -1280,7 +1280,7 @@ begin
             end;
 
             // add history to combo
-            DelimTextToStrs( Combo_ResFind.Items, FindOptions.FindAllHistory, HISTORY_SEPARATOR );
+            DelimTextToWStrs( Combo_ResFind.Items, FindOptions.FindAllHistory, HISTORY_SEPARATOR );
             CB_ResFind_AllNotes.Checked := FindOptions.AllTabs;
           end;
 

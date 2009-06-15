@@ -272,7 +272,7 @@ type
     function FontInfoString : string;
     function ParaInfoString : string;
 
-    function GetWordAtCursorNew( const LeaveSelected : boolean ) : string;
+    function GetWordAtCursorNew( const LeaveSelected : boolean ) : WideString;
     function SelectWordAtCursor : string;
   end; // TTabRichEdit
 
@@ -1516,10 +1516,13 @@ begin
   end;
 end; // SelectWordAtCursor
 
-function TTabRichEdit.GetWordAtCursorNew( const LeaveSelected : boolean ) : string;
+function TTabRichEdit.GetWordAtCursorNew( const LeaveSelected : boolean ) : WideString;
 var
   P : TPoint;
   OriginalSelStart, LineLen,  NewSelStart, startidx, wordlen : integer;
+
+  lineWStr: WideString;
+  posFirstChar: integer;
 begin
   // a better version of WordAtCursor property
 
@@ -1539,6 +1542,9 @@ begin
   LineLen := length( Lines[p.y] );
   if ( LineLen = 0 ) then exit;
 
+  posFirstChar:= Perform( EM_LINEINDEX,p.y,0 );
+  lineWStr:= GetTextRange(posFirstChar, posFirstChar + lineLen );
+
   if ( p.x = 0 ) then
   begin
     p.x := 1; // beginning of line
@@ -1548,7 +1554,7 @@ begin
 
   while (( startidx > 0 ) and ( startidx <= LineLen )) do
   begin
-    if IsCharALphaA( Lines[p.y][startidx] ) then
+    if IsCharAlphaNumericW( lineWStr[startidx] ) then
     begin
       dec( startidx );
       dec( NewSelStart );
@@ -1560,7 +1566,7 @@ begin
 
   while ( p.x < LineLen ) do
   begin
-    if IsCharALphaA( Lines[p.y][p.x] ) then
+    if IsCharAlphaNumericW( lineWStr[p.x] ) then
     begin
       inc( p.x );
       inc( wordlen );
@@ -1571,15 +1577,15 @@ begin
 
     SelStart := NewSelStart;
     SelLength := wordlen;
-    result := SelText;
+    result := SelTextW;
 
     if ( wordlen > 0 ) then
     begin
-      if ( not IsCharAlphaA( result[wordlen] )) then
+      if ( not IsCharAlphaNumericW( result[wordlen] )) then
       begin
         dec( wordlen );
         SelLength := SelLength -1;
-        result := SelText;
+        result := SelTextW;
       end;
     end;
 

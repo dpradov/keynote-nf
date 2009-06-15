@@ -52,7 +52,7 @@ uses
   gf_misc, kn_Info, kn_Const,
   kn_NoteObj, kn_FileObj,
   Placemnt, kn_TabSelect,
-  gf_strings, kn_INI;
+  gf_strings, kn_INI, TntStdCtrls;
 
 type
   //TReplaceEvent = procedure( ReplaceAll : boolean ) of object;
@@ -64,7 +64,7 @@ type
     Button_Find: TButton;
     Button_Cancel: TButton;
     Label1: TLabel;
-    Combo_Text: TComboBox;
+    Combo_Text: TTntComboBox;
     GroupBox_Opts: TGroupBox;
     CheckBox_MatchCase: TCheckBox;
     CheckBox_EntireScope: TCheckBox;
@@ -73,7 +73,7 @@ type
     CheckBox_AllTabs: TCheckBox;
     CheckBox_AllNodes: TCheckBox;
     Label2: TLabel;
-    Combo_Replace: TComboBox;
+    Combo_Replace: TTntComboBox;
     Button_Replace: TButton;
     Button_ReplaceAll: TButton;
     CheckBox_Confirm: TCheckBox;
@@ -111,6 +111,7 @@ type
 
 
 implementation
+uses WideStrUtils;
 
 {$R *.DFM}
 
@@ -178,7 +179,7 @@ procedure TForm_Replace.HistoryToCombo;
 begin
   Combo_Text.Items.BeginUpdate;
   try
-    DelimTextToStrs( Combo_Text.Items, myFindOptions.History, HISTORY_SEPARATOR );
+    DelimTextToWStrs( Combo_Text.Items, myFindOptions.History, HISTORY_SEPARATOR );
   finally
     Combo_Text.Items.EndUpdate;
     Combo_Text.SetFocus;
@@ -186,7 +187,7 @@ begin
 
   Combo_Replace.Items.BeginUpdate;
   try
-    DelimTextToStrs( Combo_Replace.Items, myFindOptions.ReplaceHistory, HISTORY_SEPARATOR );
+    DelimTextToWStrs( Combo_Replace.Items, myFindOptions.ReplaceHistory, HISTORY_SEPARATOR );
   finally
     Combo_Replace.Items.EndUpdate;
   end;
@@ -199,22 +200,22 @@ var
 begin
   if ( Combo_Text.Text <> '' ) then
   begin
-    myFindOptions.History := ANSIQuotedStr( Combo_Text.Text, '"' );
+    myFindOptions.History := WideQuotedStr( Combo_Text.Text, '"' );
     for i := 0 to pred( Combo_Text.Items.Count ) do
     begin
       if ( i >= myFindOptions.HistoryMaxCnt ) then break;
       if ( Combo_Text.Items[i] <> Combo_Text.Text ) then
-        myFindOptions.History :=  myFindOptions.History + HISTORY_SEPARATOR + ANSIQuotedStr( Combo_Text.Items[i], '"' );
+        myFindOptions.History :=  myFindOptions.History + HISTORY_SEPARATOR + WideQuotedStr( Combo_Text.Items[i], '"' );
     end;
   end;
   if ( Combo_Replace.Text <> '' ) then
   begin
-    myFindOptions.ReplaceHistory := ANSIQuotedStr( Combo_Replace.Text, '"' );
+    myFindOptions.ReplaceHistory := WideQuotedStr( Combo_Replace.Text, '"' );
     for i := 0 to pred( Combo_Replace.Items.Count ) do
     begin
       if ( i >= myFindOptions.HistoryMaxCnt ) then break;
       if ( Combo_Replace.Items[i] <> Combo_Replace.Text ) then
-        myFindOptions.ReplaceHistory :=  myFindOptions.ReplaceHistory + HISTORY_SEPARATOR + ANSIQuotedStr( Combo_Replace.Items[i], '"' );
+        myFindOptions.ReplaceHistory :=  myFindOptions.ReplaceHistory + HISTORY_SEPARATOR + WideQuotedStr( Combo_Replace.Items[i], '"' );
     end;
   end;
 

@@ -421,8 +421,11 @@ type
     function GetSelLength: Integer; override;
     function GetSelStart: Integer; override;
     function GetSelText: string; override;
+    function GetSelTextW: WideString;
+    procedure SetSelTextW(const Value: WideString);
     procedure SetSelLength(Value: Integer); override;
     procedure SetSelStart(Value: Integer); override;
+    procedure SetSelText(const Value: string);
     property AllowInPlace: Boolean read FAllowInPlace write FAllowInPlace default True;
 {$ENDIF}
     property AllowObjects: Boolean read FAllowObjects write SetAllowObjects default True;
@@ -465,12 +468,12 @@ type
     procedure SetSelection(StartPos, EndPos: Longint; ScrollCaret: Boolean);
     function TextLength: integer;
     function GetSelection: TCharRange;
-    function GetTextRange(StartPos, EndPos: Longint): string;
+    function GetTextRange(StartPos, EndPos: Longint): WideString;
     function LineFromChar(CharIndex: Integer): Integer;
     function GetLineIndex(LineNo: Integer): Integer;
     function GetLineLength(CharIndex: Integer): Integer;
-    function WordAtCursor: string;
-    function FindText(const SearchStr: string;
+    function WordAtCursor: WideString;
+    function FindText(const SearchStr: WideString;
       StartPos, LengthSearch: Integer; Options: TRichSearchTypes): Integer;
     function GetSelTextBuf(Buffer: PChar; BufSize: Integer): Integer;
       {$IFDEF RX_D3} override; {$ENDIF}
@@ -511,6 +514,8 @@ type
     property PageRect: TRect read FPageRect write FPageRect;
     property Paragraph: TRxParaAttributes read FParagraph;
     property SelectionType: TRichSelectionType read GetSelectionType;
+    property SelTextW: WideString read GetSelTextW write SetSelTextW;
+    property SelText: string read GetSelText write SetSelText;
   end;
 
   TRxRichEdit = class(TRxCustomRichEdit)
@@ -616,7 +621,12 @@ var
 implementation
 
 uses Printers, ComStrs, OleConst, OleDlg {$IFDEF RX_D3}, OleCtnrs {$ENDIF},
-  MaxMin;
+  MaxMin,
+  TntStdCtrls, TntControls, TntSysUtils;
+
+type
+ TAccessWinControl = class(TWinControl);
+
 
 const
   RTFConversionFormat: TRichConversionFormat = (
@@ -3892,12 +3902,59 @@ begin
   FLanguage:= Value;
   FCP := CodePageFromLocale(Value);
 end; // SetLanguage
+
+
+
+procedure CustomCreateUnicodeHandle(Control: TWinControl; const Params: TCreateParams;
+                                        const SubClass: WideString; IDEWindow: Boolean = False);
+var
+  TempSubClass: TWndClassW;
+  WideWinClassName: WideString;
+  Handle: THandle;
+begin
+  if (not Win32PlatformIsUnicode) then begin
+    with Params do
+      TAccessWinControl(Control).WindowHandle := CreateWindowEx(ExStyle, WinClassName,
+        Caption, Style, X, Y, Width, Height, WndParent, 0, WindowClass.hInstance, Param);
+  end else begin
+    // make sure Unicode window class is registered
+    RegisterUnicodeClass(Params, WideWinClassName, IDEWindow);
+    try
+      with Params do
+        Handle := CreateWindowExW(ExStyle, PWideChar(WideWinClassName), nil,
+          Style, X, Y, Width, Height, WndParent, 0, hInstance, Param);
+      if Handle = 0 then
+        RaiseLastOSError;
+    finally
+    end;
+    SubClassUnicodeControl(Control, Params.Caption, IDEWindow);
+  end;
+end;
+
+procedure CustomCreateWindowHandle(Edit: TCustomEdit; const Params: TCreateParams);
+var
+  P: TCreateParams;
+begin
+  if SysLocale.FarEast
+  and (not Win32PlatformIsUnicode)
+  and ((Params.Style and ES_READONLY) <> 0) then begin
+    // Work around Far East Win95 API/IME bug.
+    P := Params;
+    P.Style := P.Style and (not ES_READONLY);
+    CustomCreateUnicodeHandle(Edit, P, 'EDIT');
+    if Edit.HandleAllocated then
+      SendMessage(Edit.Handle, EM_SETREADONLY, Ord(True), 0);
+  end else
+    CustomCreateUnicodeHandle(Edit, Params, 'EDIT');
+end;
+
 procedure TRxCustomRichEdit.CreateWindowHandle(const Params: TCreateParams);
 var
   Bounds: TRect;
 begin
   Bounds := BoundsRect;
-  inherited CreateWindowHandle(Params);
+//  inherited CreateWindowHandle(Params);
+  CustomCreateWindowHandle(Self, Params);
   if HandleAllocated then BoundsRect := Bounds;
 end;
 
@@ -3938,6 +3995,46 @@ begin
   with GetSelection do
     Result := GetTextRange(cpMin, cpMax);
 end;
+
+procedure TRxCustomRichEdit.SetSelText(const Value: string);
+var
+  len: integer;
+  rg: TCharRange;
+begin
+  // Before adapting to UNICODE (with the call to CustomCreateWindowHandle), the
+  // message EM_REPLACESEL kept the new text selected, and din't treat ok unicode
+  // text.
+  // After that adaptation, only the first character of the new text is selected,
+  // and so the rest of the program will function incorrectly if we do not maintain
+  // the original behaviour. Now the replacement of selected text with unicode works ok.
+  // This occur with SendMessage and with SendMessageW
+
+  rg:= GetSelection;
+  SendMessage(Handle, EM_REPLACESEL, 0, Longint(PChar(Value)));
+
+  len:= length(value);
+  SetSelection(rg.cpMin, rg.cpMin+len, true);
+end;
+
+function TRxCustomRichEdit.GetSelTextW: WideString;
+begin
+  with GetSelection do
+    Result := GetTextRange(cpMin, cpMax);
+end;
+
+procedure TRxCustomRichEdit.SetSelTextW(const Value: WideString);
+var
+  len: integer;
+  rg: TCharRange;
+begin
+  // See the comment to TRxCustomRichEdit.SetSelText
+  rg:= GetSelection;
+  SendMessageW(Handle, EM_REPLACESEL, 0, Longint(PWideChar(Value)));
+
+  len:= length(value);
+  SetSelection(rg.cpMin, rg.cpMin+len, true);
+end;
+
 {$ENDIF RX_D3}
 
 function TRxCustomRichEdit.GetSelTextBuf(Buffer: PChar; BufSize: Integer): Integer;
@@ -4171,7 +4268,7 @@ begin
   end;
 end;
 
-function TRxCustomRichEdit.GetTextRange(StartPos, EndPos: Longint): string;
+function TRxCustomRichEdit.GetTextRange(StartPos, EndPos: Longint): WideString;
 var
   TextRange: TTextRange;
   longSel: integer;
@@ -4187,14 +4284,14 @@ begin
 
   if RichEditVersion >=4 then begin
     longSel:= SendMessage(Handle, EM_GETTEXTRANGE, 0, Longint(@TextRange));
-    Result:= WideCharToString( PWideChar(Result) );
+    Result:= PWideChar(Result);
     SetLength(Result, longSel);
     end
   else
     SetLength(Result, SendMessage(Handle, EM_GETTEXTRANGE, 0, Longint(@TextRange)));
 end;
 
-function TRxCustomRichEdit.WordAtCursor: string;
+function TRxCustomRichEdit.WordAtCursor: WideString;
 var
   Range: TCharRange;
 begin
@@ -4916,14 +5013,14 @@ begin
    OnURLClick(Self, URLText, chrg, Button);
 end;
 
-function TRxCustomRichEdit.FindText(const SearchStr: string;
+function TRxCustomRichEdit.FindText(const SearchStr: WideString;
   StartPos, LengthSearch: Integer; Options: TRichSearchTypes): Integer;
 var
   Find: TFindTextEx;
   FindW: TFindTextExW;
   PChrg: Longint;
   Flags: Integer;
-  SearchStrUnicode: PWideChar;   // dpv
+  ASearchStr: string;
 begin
   if RichEditVersion >= 2 then begin
     if not (stBackward in Options) then Flags := FT_DOWN
@@ -4941,11 +5038,8 @@ begin
         cpMin := StartPos;
         cpMax := cpMin + Abs(LengthSearch);
       end;
-      SearchStrUnicode := SysGetMem(1+Length(SearchStr)*2);
-      StringToWideChar( SearchStr, PWideChar(SearchStrUnicode), Length(SearchStr)+1);
-      FindW.lpstrText := PWideChar(SearchStrUnicode);
+      FindW.lpstrText := PWideChar(SearchStr);
       Result := SendMessage(Handle, EM_FINDTEXTEXW, Flags, Longint(@FindW));
-      SysFreeMem(SearchStrUnicode);
       PChrg:= Longint(@FindW.chrgText);
   end
   else begin
@@ -4953,7 +5047,8 @@ begin
         cpMin := StartPos;
         cpMax := cpMin + Abs(LengthSearch);
       end;
-      Find.lpstrText := PChar(SearchStr);
+      ASearchStr:= WideCharToString( PWideChar(SearchStr));
+      Find.lpstrText := PChar(ASearchStr);
       Result := SendMessage(Handle, EM_FINDTEXTEX, Flags, Longint(@Find));
       PChrg:= Longint(@Find.chrgText);
   end;

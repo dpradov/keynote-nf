@@ -123,7 +123,7 @@
 			<Directories Name="UnitOutputDir">..\Output\Dcu</Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">$(BDSPROJECTSDIR)\Lib\Debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;$(BDS)\source\ToolsAPI;.;.\3rd_party;.\3rd_party\langcombo;.\3rd_party\ajbspeller;.\3rd_party\browsedr;.\3rd_party\colorpicker;.\3rd_party\ComCtrls95;.\3rd_party\CRCDelphi;.\3rd_party\dcpcrypt-1_3;.\3rd_party\DFSStatusBar;.\3rd_party\expression_evaluator;.\3rd_party\extlistview;.\3rd_party\gfxlbcb;.\3rd_party\mruflist;.\3rd_party\richprint;.\3rd_party\sysimglist;.\3rd_party\tb97_178a\Source;.\3rd_party\topmostwindow;.\3rd_party\treent;.\3rd_party\UAS\TestUAS;.\3rd_party\wordweb;.\3rd_party\rx275d2006\Units</Directories>
+			<Directories Name="SearchPath">$(BDSPROJECTSDIR)\Lib\Debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;$(BDS)\source\ToolsAPI;.;.\3rd_party;.\3rd_party\langcombo;.\3rd_party\ajbspeller;.\3rd_party\browsedr;.\3rd_party\colorpicker;.\3rd_party\ComCtrls95;.\3rd_party\CRCDelphi;.\3rd_party\dcpcrypt-1_3;.\3rd_party\DFSStatusBar;.\3rd_party\expression_evaluator;.\3rd_party\extlistview;.\3rd_party\gfxlbcb;.\3rd_party\mruflist;.\3rd_party\richprint;.\3rd_party\sysimglist;.\3rd_party\tb97_178a\Source;.\3rd_party\topmostwindow;.\3rd_party\treent;.\3rd_party\UAS\TestUAS;.\3rd_party\wordweb;.\3rd_party\rx275d2006\Units;.\3rd_party\TntUnicodeControls\Source</Directories>
 			<Directories Name="Packages">VCLX30;VCL30;VCLDB30;VCLDBX30;VCLSMP30;Icsdel30;RXCTL;RXTOOLS</Directories>
 			<Directories Name="Conditionals"></Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
@@ -149,7 +149,7 @@
 			<VersionInfo Name="AutoIncBuild">False</VersionInfo>
 			<VersionInfo Name="MajorVer">1</VersionInfo>
 			<VersionInfo Name="MinorVer">7</VersionInfo>
-			<VersionInfo Name="Release">6</VersionInfo>
+			<VersionInfo Name="Release">7</VersionInfo>
 			<VersionInfo Name="Build">1</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
@@ -162,13 +162,13 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">KeyNote NF (New Features)</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">1.7.6.1</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">1.7.7.1</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">KeyNote NF</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalCopyright">(c) Daniel Prado 2007-09  (c) Marek Jedlinski, 2000-03</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks">Freeware</VersionInfoKeys>
 			<VersionInfoKeys Name="OriginalFilename">keynote.exe</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName">KeyNote NF</VersionInfoKeys>
-			<VersionInfoKeys Name="ProductVersion">1.7.6</VersionInfoKeys>
+			<VersionInfoKeys Name="ProductVersion">1.7.7</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments">Improvements over version 1.6.5 of Marek's KeyNote</VersionInfoKeys>
 			<VersionInfoKeys Name="X-Fnord"></VersionInfoKeys>
 			<VersionInfoKeys Name="X-URL">http://code.google.com/p/keynote-nf/</VersionInfoKeys>

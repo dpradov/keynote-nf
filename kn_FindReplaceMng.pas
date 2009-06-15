@@ -6,7 +6,7 @@ uses
     kn_LocationObj, kn_Info, kn_Find, kn_Replace;
 
 var
-    Text_To_Find : string;
+    Text_To_Find : WideString;
 
     Form_Find : TForm_Find;        // GLOBAL FORM!
     Form_Replace : TForm_Replace;  // GLOBAL FORM!
@@ -61,6 +61,7 @@ resourcestring
   STR_09 = ' Pattern found at pos ';
   STR_10 = ' Pattern not found.';
   STR_11 = ' Replaced %d occurrence(s)';
+  STR_12 = 'Information';
 
 procedure RunFinder;
 begin
@@ -70,7 +71,7 @@ begin
 
   if ( ActiveNote.Editor.SelLength > 0 ) then
   begin
-    FindOptions.Pattern := trim( ActiveNote.Editor.SelText );
+    FindOptions.Pattern := trim( ActiveNote.Editor.SelTextW );
   end
   else
   begin
@@ -123,7 +124,7 @@ begin
 
   if ( ActiveNote.Editor.SelLength > 0 ) then
   begin
-    FindOptions.ReplacePattern := trim( ActiveNote.Editor.SelText );
+    FindOptions.ReplacePattern := trim( ActiveNote.Editor.SelTextW );
   end
   else
   begin
@@ -181,14 +182,14 @@ begin
     begin
       if ( ActiveNote.Editor.SelLength > 0 ) then
       begin
-        ActiveNote.Editor.SelText := FindOptions.ReplaceWith;
+        ActiveNote.Editor.SelTextW := FindOptions.ReplaceWith;
         NoteFile.Modified := true;
         UpdateNoteFileState( [fscModified] );
       end;
     end
     else
     begin
-      messagedlg( Format( STR_02, [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
+      MessageBoxW(Form_Main.Handle, PWideChar(WideFormat( STR_02, [Text_To_Find] )),PWideChar(WideString(STR_12)),0);
     end;
   finally
     Is_Replacing := false;
@@ -264,14 +265,11 @@ end; // JumpToLocation
 procedure FindResultsToEditor( const SelectedOnly : boolean );
 var
   i, cnt : integer;
-  s : string;
   aLocation: TLocation;
 begin
   if ( not Form_Main.Pages_Res.Visible ) then exit;
   if ( not assigned( ActiveNote )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
-
-  s := '';
 
   cnt := Location_List.Count;
   if ( cnt = 0 ) then
@@ -291,7 +289,7 @@ begin
     for i := 1 to cnt do
     begin
       aLocation:= TLocation( TLocation( Location_List.Objects[pred( i )] ));
-      ActiveNote.Editor.SelText := #13 + Format( '%d. ', [i] );
+      ActiveNote.Editor.SelTextW := #13 + Format( '%d. ', [i] );
       ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
       InsertOrMarkKNTLink(aLocation, true, '');
     end;
@@ -317,7 +315,7 @@ var
   //Form_RTF : TForm_tmpRTF;         // [dpv]   (002)
   RTFAux : TRxRichEdit;              // [dpv]   (002)
   numNodosNoLimpiables: integer;
-  thisWord : string;
+  thisWord : WideString;
   wordList : TStringList;
   wordidx, wordcnt : integer;
   MultiMatchOK : boolean;
@@ -773,7 +771,7 @@ begin
       end
       else
       begin
-        messagedlg( Format( STR_02, [FindOptions.Pattern] ), mtInformation, [mbOK] , 0 );
+        MessageBoxW(Form_Main.Handle, PWideChar(WideFormat( STR_02, [FindOptions.Pattern] )),PWideChar(WideString(STR_12)),0);
       end;
 
     except
@@ -1036,7 +1034,8 @@ begin
     begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
       if ( not ( UserBreak or Is_Replacing )) then
-        messagedlg( Format( STR_02, [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
+//        messagedlg( WideFormat( STR_02, [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
+       MessageBoxW(Form_Main.Handle, PWideChar(WideFormat( STR_02, [Text_To_Find] )),PWideChar(WideString(STR_12)),0);
     end;
 
     UserBreak := false;
@@ -1211,8 +1210,8 @@ begin
           if ReplaceOK then
           begin
             inc( ReplaceCnt );
-            ActiveNote.Editor.SelText := FindOptions.ReplaceWith;
-            ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + length( ActiveNote.Editor.SelText );
+            ActiveNote.Editor.SelTextW := FindOptions.ReplaceWith;
+            ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + length( ActiveNote.Editor.SelTextW );
           end;
         end;
 
@@ -1244,7 +1243,7 @@ begin
   end
   else
   begin
-    messagedlg( Format( STR_02, [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
+    MessageBoxW(Form_Main.Handle, PWideChar(WideFormat( STR_02, [Text_To_Find] )),PWideChar(WideString(STR_12)),0);
   end;
 
 end; // ReplaceEventProc

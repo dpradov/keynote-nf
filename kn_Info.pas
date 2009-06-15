@@ -682,17 +682,17 @@ type
     AllTabs : boolean; // search all notes in file
     AutoClose : boolean; // auto close find dialog box when Find button clicked
     EntireScope : boolean; // search from top of text rather than from current position in active note
-    FindAllHistory : string;
+    FindAllHistory : WideString;
     FindAllMatches : boolean; // used for the "Find all" function (resource panel)
     FindNew : boolean; // internal state flag: begin new search
-    History : string; // list of previously searched strings
+    History : WideString; // list of previously searched strings
     HistoryMaxCnt : integer; // number of history strings to keep
     MatchCase : boolean; // search is case-sensitive
-    Pattern : string; // what to find
+    Pattern : WideString; // what to find
     ReplaceConfirm : boolean;
-    ReplaceHistory : string;
-    ReplacePattern : string;
-    ReplaceWith : string;
+    ReplaceHistory : WideString;
+    ReplacePattern : WideString;
+    ReplaceWith : WideString;
     SearchMode : TSearchMode; // for "Find all" (resource panel) ONLY
     SearchNodeNames : boolean; // for "Find all" (resource panel) ONLY
     WholeWordsOnly : boolean; // only match whole words
