@@ -43,7 +43,8 @@ unit gf_strings;
 ************************************************************ *)
 
 interface
-uses SysUtils, Windows, Classes;
+uses SysUtils, Windows, Classes,
+     TntClasses, WideStrUtils, WideStrings;
 
 type
   TCaseCycle = (
@@ -56,6 +57,10 @@ procedure DelimTextToStrs(
   AStrs: TStrings;
   const Value: string;
   const AchDelim : Char );
+
+procedure DelimTextToWStrs( AStrs: TTntStrings;
+         const Value: WideString ;
+         const AchDelim : WideChar );
 
 function StrToCSVText( const aStr : string; const aDelim : char; const QuoteAll : boolean ) : string;
 procedure CSVTextToStrs(
@@ -444,6 +449,55 @@ begin
     AStrs.EndUpdate;
   end;
 end; // DelimTextToStrs
+
+
+procedure DelimTextToWStrs( AStrs: TTntStrings;
+         const Value: WideString ;
+         const AchDelim : WideChar );
+var
+  P, P1   : PWideChar;
+  S   : WideString;
+  chDelim   : WideChar ;
+begin
+  chDelim := AchDelim ;
+  AStrs.BeginUpdate;
+  try
+  // AStrs.Clear;
+  P := PWideChar(Value);
+
+  while P^ in [#1..' '] do
+    P := CharNextW(P);
+
+  while P^ <> #0 do
+   begin
+     if ( P^ = '"' ) then
+     S := WideExtractQuotedStr(P, '"')
+     else
+     begin
+      P1 := P;
+      while (P^ > ' ') and ( P^ <> chDelim ) do
+      P := CharNextW(P);
+
+      SetString(S, P1, P - P1);
+     end;
+
+     AStrs.Add(S);
+
+     while P^ in [#1..' '] do
+     P := CharNextW(P);
+
+     if P^ = chDelim then // P^ = ',' then
+    repeat
+     P := CharNextW(P);
+    until not (P^ in [#1..' ']);
+
+   end;  // while
+
+  finally
+    AStrs.EndUpdate;
+  end;
+end; // DelimTextToStrsUnicode
+
 
 function CountChars( const ch : char; const s : string ) : integer;
 var

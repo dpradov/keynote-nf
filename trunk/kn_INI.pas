@@ -44,7 +44,7 @@ unit kn_INI;
 
 interface
 uses kn_Info, kn_Const, RxRichEd,
-  gf_Const, gf_misc, gf_files;
+  gf_Const, gf_misc, gf_files, IniFiles;
 
 procedure LoadKeyNoteOptions(
     const INIFileName : string;
@@ -822,11 +822,83 @@ const
     ExcludeHiddenNodes: 'ExcludeHiddenNodes';     // [dpv]
   );
 
+
+type
+  TWIniFile = class(TIniFile)
+  private
+    FFileName: WideString;
+  public
+    constructor Create(const FileName: string; ensureUnicode: boolean);
+    function ReadStringW(const Section, Ident, Default: WideString): WideString;
+    procedure WriteStringW(const Section, Ident, Value: WideString);
+  end;
+
+
+
+
 implementation
-uses Windows, SysUtils, Graphics, Menus, IniFiles, kn_NoteObj;
+uses Windows, SysUtils, Graphics, Menus, kn_NoteObj, RTLConsts;
 
 resourcestring
   STR_INIMail_01 = 'Attached file: %F';
+
+
+// In Notepad included with Windows, we can choose 3 encoding formats in Unicode.
+// These are "Unicode" (UTF16-little Endian), "Unicode big Endian" (UTF16-big Endian),
+// and "UTF-8". We can use only UTF16-little endian of these formats as an INI file format.
+// The other encodings do not work correctly (you examine it once). The reason
+// is that Windows NT, 2000 or XP uses the encoding internally. This is why Windows
+// particularly names UTF16-little Endian "Unicode".
+//   Reference:
+//    * Unicode Enabled - about Unicode around Windows: http://www.microsoft.com/globaldev/getwr/steps/wrg_unicode.mspx
+
+// ensureUnicode: If not UTF16-little Endian -> File will rename as .bak and created
+// again (blank) as UTF16-little Endian
+constructor TWIniFile.Create(const FileName: string; ensureUnicode: boolean);
+var
+  F: File;
+  v: Word;
+const
+  wBOM = $FEFF;           // UTF16-little Endian
+begin
+  FFileName:= FileName;
+  if ensureUnicode then begin
+      AssignFile( F, filename );
+      FileMode := fmOpenRead;
+      Reset(F, 1);
+      if not Eof(F) then
+         BlockRead(f, v, 2);
+      CloseFile(f);
+
+      if v <> wBOM then begin
+         DeleteFile(FileName + '.bak');
+         Rename(F, FileName + '.bak');
+         AssignFile( F, Filename );
+         ReWrite(F, 1);
+         v:= wBOM;
+         BlockWrite(F, v, 2);
+         CloseFile(F);
+      end;
+  end;
+  inherited Create(FileName);
+end;
+
+function TWIniFile.ReadStringW(const Section, Ident, Default: WideString): WideString;
+var
+  Buffer: array[0..1024] of WideChar;
+begin
+
+  SetString(Result, Buffer, GetPrivateProfileStringW(PWideChar(Section),
+    PWideChar(Ident), PWideChar(Default), Buffer, SizeOf(Buffer), PWideChar(FFileName)));
+end;
+
+procedure TWIniFile.WriteStringW(const Section, Ident, Value: WideString);
+begin
+  if not WritePrivateProfileStringW(PWideChar(Section), PWideChar(Ident),
+                                   PWideChar(Value), PWideChar(FFileName)) then
+    raise EIniFileException.CreateResFmt(@SIniFileWriteError, [FFileName]);
+end;
+
 
 
 procedure InitializeClipOptions( var Struct : TClipOptions );
@@ -1135,10 +1207,10 @@ procedure SaveKeyNoteOptions(
     const ResPanelOptions : TResPanelOptions
   );
 var
-  IniFile : TIniFile;
+  IniFile : TWIniFile;
   section : string;
 begin
-  IniFile := TIniFile.Create( INIFileName );
+  IniFile := TWIniFile.Create( INIFileName, true );
   try
     with IniFile do
     begin
@@ -1360,11 +1432,11 @@ begin
       writebool( section, FindOptionsIniStr.AllTabs, FindOptions.AllTabs );
       writebool( section, FindOptionsIniStr.AutoClose, FindOptions.AutoClose );
       writebool( section, FindOptionsIniStr.EntireScope, FindOptions.EntireScope );
-      writestring( section, FindOptionsIniStr.FindAllHistory, '"' + FindOptions.FindAllHistory + '"' );
-      writestring( section, FindOptionsIniStr.History, '"' + FindOptions.History + '"' );
+      writestringW( section, FindOptionsIniStr.FindAllHistory, '"' + FindOptions.FindAllHistory + '"' );
+      writestringW( section, FindOptionsIniStr.History, '"' + FindOptions.History + '"' );
       writeinteger( section, FindOptionsIniStr.HistoryMaxCnt, FindOptions.HistoryMaxCnt );
       writebool( section, FindOptionsIniStr.ReplaceConfirm, FindOptions.ReplaceConfirm );
-      writestring( section, FindOptionsIniStr.ReplaceHistory, FindOptions.ReplaceHistory );
+      writestringW( section, FindOptionsIniStr.ReplaceHistory, '"' + FindOptions.ReplaceHistory + '"' );
       writebool( section, FindOptionsIniStr.MatchCase, FindOptions.MatchCase );
       writebool( section, FindOptionsIniStr.WholeWordsOnly, FindOptions.WholeWordsOnly );
       writebool( section, FindOptionsIniStr.WordAtCursor, FindOptions.WordAtCursor );
@@ -1402,12 +1474,12 @@ procedure LoadKeyNoteOptions(
     var ResPanelOptions : TResPanelOptions
   );
 var
-  IniFile : TIniFile;
+  IniFile : TWIniFile;
   section : string;
   i : integer;
 begin
 
-  IniFile := TIniFile.Create( INIFileName );
+  IniFile := TWIniFile.Create( INIFileName, false);
   try
     with IniFile do
     begin
@@ -1696,11 +1768,11 @@ begin
       FindOptions.AllTabs := readbool( section, FindOptionsIniStr.AllTabs, FindOptions.AllTabs );
       FindOptions.AutoClose := readbool( section, FindOptionsIniStr.AutoClose, FindOptions.AutoClose );
       FindOptions.EntireScope := readbool( section, FindOptionsIniStr.EntireScope, FindOptions.EntireScope );
-      FindOptions.FindAllHistory := readstring( section, FindOptionsIniStr.FindAllHistory, FindOptions.FindAllHistory );
-      FindOptions.History := readstring( section, FindOptionsIniStr.History, FindOptions.History );
+      FindOptions.FindAllHistory := readstringW( section, FindOptionsIniStr.FindAllHistory, FindOptions.FindAllHistory );
+      FindOptions.History := readstringW( section, FindOptionsIniStr.History, FindOptions.History );
       FindOptions.HistoryMaxCnt := readinteger( section, FindOptionsIniStr.HistoryMaxCnt, FindOptions.HistoryMaxCnt );
       FindOptions.ReplaceConfirm := readbool( section, FindOptionsIniStr.ReplaceConfirm, FindOptions.ReplaceConfirm );
-      FindOptions.ReplaceHistory := readstring( section, FindOptionsIniStr.ReplaceHistory, FindOptions.ReplaceHistory );
+      FindOptions.ReplaceHistory := readstringW( section, FindOptionsIniStr.ReplaceHistory, FindOptions.ReplaceHistory );
       FindOptions.MatchCase := readbool( section, FindOptionsIniStr.MatchCase, FindOptions.MatchCase );
       FindOptions.WholeWordsOnly := readbool( section, FindOptionsIniStr.WholeWordsOnly, FindOptions.WholeWordsOnly );
       FindOptions.WordAtCursor := readbool( section, FindOptionsIniStr.WordAtCursor, FindOptions.WordAtCursor );

@@ -123,7 +123,7 @@ uses
   kn_VCLControlsMng,
   //WinHelpViewer,                 //*1 Lo añado y lo quito al final, porque no va fino (no es posible abrir la tabla de contenidos)
   HTMLHelpViewer,                 //*1
-  ImgList;
+  ImgList, TntStdCtrls;
 
 
 type
@@ -614,7 +614,7 @@ type
     MacMMacro_Record: TMenuItem;
     Ntbk_ResFind: TNotebook;
     Label1: TLabel;
-    Combo_ResFind: TComboBox;
+    Combo_ResFind: TTntComboBox;
     Btn_ResFind: TButton;
     Btn_ResFlip: TButton;
     CB_ResFind_CaseSens: TCheckBox;
@@ -1347,7 +1347,8 @@ uses RxGIF{, jpeg}, kn_Global, kn_ExportNew,
      kn_NoteMng, kn_MacroMng, kn_PluginsMng, kn_TreeNoteMng, kn_TemplateMng,
      kn_FindReplaceMng, kn_ConfigFileMng, kn_DLLmng,
      kn_StyleMng, kn_FavoritesMng, kn_BookmarksMng,
-     kn_VirtualNodeMng, kn_NoteFileMng, kn_EditorUtils, kn_AlertMng;
+     kn_VirtualNodeMng, kn_NoteFileMng, kn_EditorUtils, kn_AlertMng,
+     WideStrUtils;
 
 {$R *.DFM}
 {$R catimages}
@@ -1874,9 +1875,9 @@ begin
         begin
           if ( i >= FindOptions.HistoryMaxCnt ) then break;
           if ( i > 1 ) then
-            FindOptions.FindAllHistory := FindOptions.FindAllHistory + HISTORY_SEPARATOR + ANSIQuotedStr( Combo_ResFind.Items[pred( i )], '"' )
+            FindOptions.FindAllHistory := FindOptions.FindAllHistory + HISTORY_SEPARATOR + WideQuotedStr( Combo_ResFind.Items[pred( i )], '"' )
           else
-            FindOptions.FindAllHistory := ANSIQuotedStr( Combo_ResFind.Items[0], '"' );
+            FindOptions.FindAllHistory := WideQuotedStr( Combo_ResFind.Items[0], '"' );
         end;
 
         SaveOptions;

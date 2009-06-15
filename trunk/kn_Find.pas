@@ -52,7 +52,7 @@ uses
   gf_misc, kn_Info, kn_Const,
   kn_NoteObj, kn_FileObj,
   Placemnt, kn_TabSelect,
-  gf_strings, kn_INI;
+  gf_strings, kn_INI, TntStdCtrls;
   
 type
    TNotifyEvent_ = procedure(Sender: TObject);
@@ -62,7 +62,7 @@ type
     Button_Find: TButton;
     Button_Cancel: TButton;
     Label1: TLabel;
-    Combo_Text: TComboBox;
+    Combo_Text: TTntComboBox;
     GroupBox_Opts: TGroupBox;
     CB_MatchCase: TCheckBox;
     CB_Wrap: TCheckBox;
@@ -109,6 +109,7 @@ type
 
 
 implementation
+uses WideStrUtils;
 
 {$R *.DFM}
 
@@ -183,7 +184,7 @@ begin
   // Combo_Text.Enabled := false;
   Combo_Text.Items.BeginUpdate;
   try
-    DelimTextToStrs( Combo_Text.Items, myFindOptions.History, HISTORY_SEPARATOR );
+      DelimTextToWStrs( Combo_Text.Items, myFindOptions.History, HISTORY_SEPARATOR );
   finally
     Combo_Text.Items.EndUpdate;
     // Combo_Text.Enabled := true;
@@ -206,12 +207,12 @@ var
   i : integer;
 begin
   if ( Combo_Text.Text = '' ) then exit;
-  myFindOptions.History := ANSIQuotedStr( Combo_Text.Text, '"' );
+  myFindOptions.History := WideQuotedStr( Combo_Text.Text, '"' );
   for i := 0 to pred( Combo_Text.Items.Count ) do
   begin
     if ( i >= myFindOptions.HistoryMaxCnt ) then break;
     if ( Combo_Text.Items[i] <> Combo_Text.Text ) then
-      myFindOptions.History :=  myFindOptions.History + HISTORY_SEPARATOR + ANSIQuotedStr( Combo_Text.Items[i], '"' );
+      myFindOptions.History :=  myFindOptions.History + HISTORY_SEPARATOR + WideQuotedStr( Combo_Text.Items[i], '"' );
   end;
 end; // ComboToHistory
 
