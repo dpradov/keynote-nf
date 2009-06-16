@@ -1779,7 +1779,7 @@ begin
           ecPastePlain : begin
             if ( Clipboard.HasFormat( CF_TEXT )) then
             begin
-              ActiveNote.Editor.SelText := trim( Clipboard.AsText ); // [paste]
+              ActiveNote.Editor.SelTextW := trim( ClipboardAsWString ); // [paste]
               ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
             end;
           end;

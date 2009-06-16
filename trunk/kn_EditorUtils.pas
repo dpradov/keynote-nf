@@ -1328,7 +1328,8 @@ end; // SetClipCapState
 //=================================================================
 procedure PasteOnClipCap;
 var
-  DividerString, ClpStr : string;
+  DividerString: string;
+  ClpStr : WideString;       //***1
   i : integer;
   wavfn, myNodeName : string;
   myTreeNode, myParentNode : TTreeNTNode;
@@ -1448,12 +1449,12 @@ begin
 
             if ClipOptions.PasteAsText then
             begin
-              ClpStr := ClipboardAsString;
+              ClpStr := ClipboardAsWString;
               if (( ClipOptions.MaxSize > 0 ) and ( length( ClpStr ) > ClipOptions.MaxSize )) then
                 delete( ClpStr, succ( ClipOptions.MaxSize ), length( ClpStr ));
               with NoteFile.ClipCapNote.Editor do
               begin
-                SelText := ClpStr;
+                SelTextW := ClpStr;
                 SelStart := SelStart + SelLength;
               end;
             end

@@ -4027,7 +4027,7 @@ end; // WMChangeCBChain
 
 procedure TForm_Main.WMDrawClipboard(var Msg: TWMDrawClipboard);
 var
-  ClpStr : string;
+  ClpStr : WideString;
   thisClipCRC32 : DWORD;
 
 begin
@@ -4043,7 +4043,7 @@ begin
        ( not ( NoteFile.ClipCapNote = ActiveNote )))) then // but never capture text copied from the note that is being used for capture
        begin
           // test for duplicates
-          ClpStr := ClipboardAsString;
+          ClpStr := ClipboardAsWString;
           if ( ClipOptions.TestDupClips and ( ClpStr <> '' )) then
           begin
             try
