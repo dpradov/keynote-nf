@@ -50,7 +50,8 @@ uses Forms, Classes, SysUtils,
 
 
 function ClipboardAsString : string;
-function FirstLineFromClipboard( const MaxLen : integer ) : string;
+function ClipboardAsWString : WideString;
+function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
 
 
 Procedure PostKeyEx32( key: Word; Const shift: TShiftState;
@@ -361,11 +362,32 @@ begin
     result := '';
 end; // ClipboardAsString
 
-function FirstLineFromClipboard( const MaxLen : integer ) : string;
+function ClipboardAsWString : WideString;
+var
+  Data: THandle;
+begin
+  if ( Clipboard.HasFormat( CF_TEXT )) then begin
+    Clipboard.Open;
+    Data := GetClipboardData(CF_UNICODETEXT);
+    try
+      if Data <> 0 then begin
+        Result := PWideChar(GlobalLock(Data));
+      end
+      else
+        Result := '';
+    finally
+      if Data <> 0 then GlobalUnlock(Data);
+      Clipboard.Close;
+    end;
+  end;
+end; // ClipboardAsWString
+
+
+function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
 var
   i, l, max : integer;
 begin
-  result := trimleft( ClipboardAsString );
+  result := trimleft( ClipboardAsWString );
   l := length( result );
   if ( l > 0 ) then
   begin
