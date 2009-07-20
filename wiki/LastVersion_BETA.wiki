@@ -19,3 +19,7 @@ This executable (*1.7.7 Beta*) includes the following issues:
 
 The executable can be downloaded from:
 http://groups.google.com/group/keynote-nf/files
+
+* I forgot to say that language files (.lng) are specific to each version. So, if Beta version doesn't include languages files, you will have to try it in English *
+
+Soon I will publish a new BETA (this one with language files included, probably) with the following improvement: all the functionality of the program will manage properly UNICODE strings.
