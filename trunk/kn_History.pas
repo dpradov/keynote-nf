@@ -57,7 +57,7 @@ How this works:
 interface
 uses Windows, Classes, Graphics,
   SysUtils, kn_LocationObj,
-  gf_misc, kn_Const, kn_Info;
+  gf_misc, kn_Const, kn_Info, WideStrings;
 
 const
   _MAX_NAV_HISTORY = 500;
@@ -65,7 +65,7 @@ const
 type
   TkntHistory = class( TObject )
   private
-    FHistory : TStringList;
+    FHistory : TWideStringList;
     FIndex : integer;
 
   public
@@ -94,7 +94,7 @@ constructor TkntHistory.Create;
 begin
   inherited Create;
   FIndex := -1;
-  FHistory := TStringList.Create;
+  FHistory := TWideStringList.Create;
 end; // CREATE
 
 destructor TkntHistory.Destroy;

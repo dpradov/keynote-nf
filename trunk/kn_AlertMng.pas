@@ -41,7 +41,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics,
   Controls, Forms, Dialogs, TreeNT,
   StdCtrls, ComCtrls,
-  kn_NoteObj, kn_NodeList, TB97Ctls, ExtCtrls;
+  kn_NoteObj, kn_NodeList, TB97Ctls, ExtCtrls, TntStdCtrls;
 
 type
   TForm_Alarm = class(TForm)
@@ -62,20 +62,20 @@ type
     Tomorrow_3PM: TToolbarButton97;
     Tomorrow_6PM: TToolbarButton97;
     CB_Time: TDateTimePicker;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Button_DiscardAll: TButton;
-    Button_Discard: TButton;
-    Button_Postpone: TButton;
-    Label_Selected: TLabel;
-    Label_Selected_Alarm: TLabel;
-    Button_Show: TButton;
+    Label1: TTntLabel;
+    Label2: TTntLabel;
+    Label3: TTntLabel;
+    Label4: TTntLabel;
+    Button_DiscardAll: TTntButton;
+    Button_Discard: TTntButton;
+    Button_Postpone: TTntButton;
+    Label_Selected: TTntLabel;
+    Label_Selected_Alarm: TTntLabel;
+    Button_Show: TTntButton;
     UpDown1: TUpDown;
-    Button_ShowALL: TButton;
+    Button_ShowALL: TTntButton;
     Button_Sound: TToolbarButton97;
-    Button_ShowPending: TButton;
+    Button_ShowPending: TTntButton;
     procedure Button_ShowPendingClick(Sender: TObject);
     procedure Button_SoundClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -337,7 +337,7 @@ var
    myNode: TNoteNode;
 begin
    myNode:= TNoteNode(node.Data);
-   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Triggered, [FormatAlarmInstant(myNode.AlarmF), myNode.Name]);
+   Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_Triggered, [FormatAlarmInstant(myNode.AlarmF), myNode.Name]);
 end;
 
 procedure TAlarmManager.TimerTimer(Sender: TObject);

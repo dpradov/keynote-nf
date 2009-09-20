@@ -46,17 +46,17 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, StdCtrls, gf_files;
+  ExtCtrls, StdCtrls, gf_files, TntStdCtrls, TntExtCtrls;
 
 type
   TForm_Template = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    GroupBox1: TGroupBox;
-    Label1: TLabel;
-    Edit_Name: TEdit;
-    CB_Formatted: TCheckBox;
-    RG_Source: TRadioGroup;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    GroupBox1: TTntGroupBox;
+    Label1: TTntLabel;
+    Edit_Name: TTntEdit;
+    CB_Formatted: TTntCheckBox;
+    RG_Source: TTntRadioGroup;
     procedure Edit_NameKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure Edit_NameKeyPress(Sender: TObject; var Key: Char);

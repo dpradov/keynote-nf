@@ -46,23 +46,23 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, Spin;
+  StdCtrls, ExtCtrls, Spin, TntStdCtrls, TntExtCtrls;
 
 type
   TForm_NodeNum = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    RG_Scope: TRadioGroup;
-    RG_CurNum: TRadioGroup;
-    RG_Method: TRadioGroup;
-    GroupBox1: TGroupBox;
-    Label1: TLabel;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    RG_Scope: TTntRadioGroup;
+    RG_CurNum: TTntRadioGroup;
+    RG_Method: TTntRadioGroup;
+    GroupBox1: TTntGroupBox;
+    Label1: TTntLabel;
     Spin_StartNum: TSpinEdit;
-    GroupBox2: TGroupBox;
-    LB_Depth: TLabel;
+    GroupBox2: TTntGroupBox;
+    LB_Depth: TTntLabel;
     Spin_Depth: TSpinEdit;
-    CB_FullDepth: TCheckBox;
-    Btn_Remove: TButton;
+    CB_FullDepth: TTntCheckBox;
+    Btn_Remove: TTntButton;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);

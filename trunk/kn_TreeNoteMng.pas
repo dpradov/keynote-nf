@@ -12,11 +12,11 @@ var
     MirrorNodes: TBucketList;     
 
     _LAST_NODE_SELECTED : TTreeNTNode;
-    _OLD_NODE_NAME : string;
+    _OLD_NODE_NAME : WideString;
 
     // treenote-related methods:
     function AddNodeToTree( aInsMode : TNodeInsertMode ) : TTreeNTNode;
-    function TreeNoteNewNode( const aTreeNote : TTreeNote; aInsMode : TNodeInsertMode; const aOriginNode : TTreeNTNode; const aNewNodeName : string; const aDefaultNode : boolean ) : TTreeNTNode;
+    function TreeNoteNewNode( const aTreeNote : TTreeNote; aInsMode : TNodeInsertMode; const aOriginNode : TTreeNTNode; const aNewNodeName : WideString; const aDefaultNode : boolean ) : TTreeNTNode;
     procedure TreeNodeSelected( Node : TTreeNTNode );
     procedure DeleteTreeNode( const DeleteFocusedNode : boolean );
     function MoveSubtree( myTreeNode : TTreeNTNode ): boolean;
@@ -41,7 +41,7 @@ var
     procedure SetTreeNodeFontFace( const ResetDefault, DoChildren : boolean );
     procedure SetTreeNodeFontSize( const ResetDefault, DoChildren : boolean );
     procedure NavigateInTree( NavDirection : TNavDirection );
-    function GetNodePath( aNode : TTreeNTNode; const aDelimiter : string; const TopToBottom : boolean ) : string;
+    function GetNodePath( aNode : TTreeNTNode; const aDelimiter : string; const TopToBottom : boolean ) : wideString;
 
     function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TTreeNote; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
 
@@ -65,11 +65,12 @@ var
 implementation
 uses
    Windows, Messages, Forms, SysUtils, Dialogs,
-   Controls, Graphics, Clipbrd,
-   gf_strings, gf_miscvcl, gf_misc,
+   Controls, Graphics,
+   TntSysUtils,
+   gf_strings, gf_miscvcl, gf_misc, kn_clipUtils,
    kn_Global, kn_MacroMng, kn_Main, kn_Chest, kn_NodeNum, kn_RTFUtils, kn_ImagePicker,
    kn_VirtualNodeMng, kn_Macro, kn_FindReplaceMng, kn_NoteFileMng, kn_LinksMng,
-   kn_EditorUtils, kn_LocationObj; 
+   kn_EditorUtils, kn_LocationObj;
 
 resourcestring
   STR_01 = 'Error creating node: ';
@@ -123,13 +124,13 @@ function TreeNoteNewNode(
   const aTreeNote : TTreeNote;
   aInsMode : TNodeInsertMode;
   const aOriginNode : TTreeNTNode;
-  const aNewNodeName : string;
+  const aNewNodeName : WideString;
   const aDefaultNode : boolean ) : TTreeNTNode;
 var
   myNode, myParentNode : TNoteNode;
   myTreeNode, myOriginNode, mySiblingNode : TTreeNTNode;
   myNote : TTreeNote;
-  myName : string;
+  myName : wideString;
   p : integer;
   AddingFirstNode, addnumber : boolean;
 begin
@@ -277,7 +278,7 @@ begin
           if ( p > 0 ) then
           begin
             delete( myName, p, length( NODEFILENAME ));
-            insert( extractfileName( NoteFile.FileName ), myName, p );
+            insert( WideExtractFilename( NoteFile.FileName ), myName, p );
           end;
 
         end;
@@ -533,7 +534,7 @@ var
   DepthLimit : integer;
   ModalResponse : Word;
 
-            function ExtractNodeNumber( const aNode : TTreeNTNode ) : string;
+            function ExtractNodeNumber( const aNode : TTreeNTNode ) : WideString;
             var
               p : integer;
             begin
@@ -557,7 +558,7 @@ var
 
             procedure AddNumberToNode;
             var
-              tmpstr : string;
+              tmpstr : WideString;
               i, SpacePos : integer;
             begin
               if StripNames then
@@ -571,7 +572,7 @@ var
                     myNoteNode.Name := LevelStr + #32 + myNoteNode.Name;
                   end;
                   enYes : begin
-                    SpacePos := pos( #32, myNoteNode.Name );
+                    SpacePos := AnsiPos( #32, myNoteNode.Name );
                     if ( SpacePos > 0 ) then
                     begin
                       tmpstr := myNoteNode.Name;
@@ -956,7 +957,7 @@ begin
     myTNote.TV.OnChange := Form_Main.TVChange;
     UpdateNoteFileState( [fscModified] );
     // {N}
-    s := Format( STR_07, [MovingNode.Text,t,DIRECTION_NAMES[aDir]] );
+    s := WideFormat( STR_07, [MovingNode.Text,t,DIRECTION_NAMES[aDir]] );
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := s;
   end;
 
@@ -982,9 +983,9 @@ end; // CopyNodePath
 procedure PasteNodeName( const PasteMode : TPasteNodeNameMode );
 var
   myTreeNode : TTreeNTNode;
-  myNewName : string[TREENODE_NAME_LENGTH];
+  myNewName: wideString;
   p : integer;
-  s : string;
+  s : WideString;
 begin
   myTreeNode := GetCurrentTreeNode;
   if ( not assigned( myTreeNode )) then exit;
@@ -1011,8 +1012,8 @@ begin
         Form_Main.ErrNoTextSelected;
         exit;
       end;
-      s := ActiveNote.Editor.SelText;
-      p := pos( #13, s );
+      s := ActiveNote.Editor.SelTextW;
+      p := AnsiPos( #13, s );
       if ( p > 0 ) then
         delete( s, p, length( s ));
       myNewName := s;
@@ -1468,9 +1469,9 @@ begin
 
 end; // SetTreeNodeFontSize
 
-function GetNodePath( aNode : TTreeNTNode; const aDelimiter : string; const TopToBottom : boolean ) : string;
+function GetNodePath( aNode : TTreeNTNode; const aDelimiter : string; const TopToBottom : boolean ) : wideString;
 var
-  s : string;
+  s : wideString;
   myNoteNode : TNoteNode;
 begin
   result := '';
@@ -1575,9 +1576,9 @@ begin
         if myTreeNode.HasChildren then
         begin
           // ALWAYS warn if node has children
-          case Application.MessageBox(
-            PChar( Format( STR_09, [myTreeNode.Text, myTreeNode.Count] ) + STR_08 ),
-            PChar(STR_10),
+          case DoMessageBox(
+            WideFormat( STR_09, [myTreeNode.Text, myTreeNode.Count] ) + STR_08,
+            STR_10,
               MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL ) of
             ID_YES : KeepChildNodes := false;
             ID_NO : KeepChildNodes := true;
@@ -1590,7 +1591,7 @@ begin
           if TreeOptions.ConfirmNodeDelete then
           begin
             // {N}
-            if ( messagedlg( Format( STR_11, [myTreeNode.Text] ) + STR_08, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+            if ( DoMessageBox( WideFormat( STR_11, [myTreeNode.Text] ) + STR_08, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
           end;
         end;
 
@@ -1600,10 +1601,10 @@ begin
         // command was to delete CHILDREN of focused node
         if myTreeNode.HasChildren then
         begin
-          if ( Application.MessageBox(
+          if ( DoMessageBox(
             // {N}
-            PChar( Format( STR_12, [myTreeNode.Count, myTreeNode.Text] ) + STR_08 ),
-            PChar(STR_10),
+            WideFormat( STR_12, [myTreeNode.Count, myTreeNode.Text] ) + STR_08,
+            STR_10,
             MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
          end
         else
@@ -1692,7 +1693,7 @@ begin
       myTV := myTNote.TV;
       myTreeParent := myTreeNode.Parent;
 
-      if ( messagedlg( Format(
+      if ( DoMessageBox( WideFormat(
         STR_16,
         [TransferNodes.Count, myTreeNode.Text, selectedNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
           exit;
@@ -1793,7 +1794,8 @@ var
   myNode, SelectedNode : TTreeNTNode;
   myNote : TTreeNote;
   myNoteNode : TNoteNode;
-  myRTFText, myNodeName : string;
+  myRTFText: string;
+  myNodeName : WideString;
   p : integer;
 begin
   with Form_Main do begin
@@ -1816,8 +1818,8 @@ begin
     exit;
   end;
 
-  myNodeName := myNote.Editor.SelText;
-  p := pos( #13, myNodeName );
+  myNodeName := myNote.Editor.SelTextW;
+  p := ansiPos( #13, myNodeName );
   if ( p > 0 ) then
     myNodeName := copy( myNodeName, 1, pred( p ));
   p := length( myNodeName );
@@ -1948,12 +1950,12 @@ begin
   if IncludeNoteText then
   begin
     // {N}
-    ClipBoard.SetTextBuf( PChar( myTreeNode.Text + #13#13 + ActiveNote.Editor.Text ));
+    ClipBoard.AsTextW:= wideString( myTreeNode.Text + #13#13 + ActiveNote.Editor.Text );
   end
   else
   begin
     // {N}
-    ClipBoard.SetTextBuf( PChar( myTreeNode.Text ));
+    ClipBoard.AsTextW:= myTreeNode.Text;
   end;
 end; // CopyNodeName
 
@@ -2058,7 +2060,7 @@ begin
 
           if PasteAsVirtualKNTNode then begin
               if Prompt then
-                if ( messagedlg( Format(
+                if ( DoMessageBox( WideFormat(
                   STR_26,
                   [CountVisibleTransferNodes, myTreeNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
                     exit;
@@ -2074,7 +2076,7 @@ begin
               else
               begin
               if Prompt then
-                if ( messagedlg( Format(
+                if ( DoMessageBox( WideFormat(
                   STR_23,
                   [TransferNodes.Count,myTreeNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then // {N}
                     exit;

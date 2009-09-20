@@ -39,7 +39,7 @@ requires
   vclsmp,
   vclx,
   rtl,
-  ComponentesTerceros;
+  TntUnicodeVcl;
 
 contains
   RxCtrls in 'RxCtrls.pas',

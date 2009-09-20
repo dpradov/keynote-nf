@@ -56,7 +56,7 @@ With SafePrint turned ON, the printing is done directly from the richedit contro
 
 * When KeyNote is set to remain "always on top" ("View" menu), the font selection drop-down box becomes inaccessible (disabled) on some systems. I cannot reproduce this problem on Windows 95 or 2000, and I have really no idea why it happens. On Windows 2000, I can confirm that the font color and highlight color buttons on the toolbar don't work correctly when KeyNote is set to "Always on top".
 
-* When a note uses a character set other than the system default, it may not be possible to use the Find and Replace functions, because the text in the Find and Replace dialog boxes is not displayed correctly. Since specifying te character set for the dialog boxes does NOT solve the problem, I have currently no idea what to do about this.
+* RESOLVED (1.7.7):  When a note uses a character set other than the system default, it may not be possible to use the Find and Replace functions, because the text in the Find and Replace dialog boxes is not displayed correctly. Since specifying te character set for the dialog boxes does NOT solve the problem, I have currently no idea what to do about this.
 
 * If you add (or possibly move) some nodes in the tree, and then change the tree layout (from horizonal to vertical, or the other way around), then the new nodes lose their original position. This does not affect the nodes that were created earlier. The problem does not occur if the file was saved and closed/reopened.
 
@@ -79,7 +79,7 @@ LIMITATIONS
 
 * RESOLVED (1.7.4) If you rename a note or a node, hyperlinks pointing to that note or node will no longer be valid. This could only be worked around by using unique IDs in hyperlinks (instead of names), but then the hyperlinks themselves would not be readable.
 
-* It is not possible to indent the first line of a paragraph; use TAB instead. (The "First line indent" creates a hanging indent, which is the opposite to what many users expect.)
+* RESOLVED (1.7.5) It is not possible to indent the first line of a paragraph; use TAB instead. (The "First line indent" creates a hanging indent, which is the opposite to what many users expect.)
 
 * Importing files: It is not possible to import files if no file is open, or if the current file does not contain any notes. Please make sure you have a file open and that the file contains at least one note before importing files.
 

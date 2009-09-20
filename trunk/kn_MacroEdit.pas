@@ -49,23 +49,23 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, gf_misc, gf_strings,
-  kn_Const, kn_Info, kn_Macro;
+  kn_Const, kn_Info, kn_Macro, TntStdCtrls;
 
 type
   TForm_Macro = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    GroupBox1: TGroupBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    Edit_Desc: TEdit;
-    Label3: TLabel;
-    LB_Date: TLabel;
-    Edit_Name: TEdit;
-    Label4: TLabel;
-    LB_FileName: TLabel;
-    CB_AbortOnError: TCheckBox;
-    Button_Help: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    GroupBox1: TTntGroupBox;
+    Label1: TTntLabel;
+    Label2: TTntLabel;
+    Edit_Desc: TTntEdit;
+    Label3: TTntLabel;
+    LB_Date: TTntLabel;
+    Edit_Name: TTntEdit;
+    Label4: TTntLabel;
+    LB_FileName: TTntLabel;
+    CB_AbortOnError: TTntCheckBox;
+    Button_Help: TTntButton;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -81,9 +81,10 @@ type
     { Public declarations }
     OK_Click : boolean;
     myNewMacro : boolean;
-    MName, MDesc, MDate, MFileName : string;
+    MName, MDesc: WideString;
+    MDate, MFileName : string;
     MAbort : boolean;
-    OriginalName : string;
+    OriginalName : wideString;
   end;
 
 
@@ -141,7 +142,7 @@ end;
 
 procedure TForm_Macro.Edit_NameChange(Sender: TObject);
 var
-  t : string;
+  t : wideString;
 begin
   t := trim( Edit_Name.Text );
   if ( t <> '' ) then

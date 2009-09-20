@@ -49,20 +49,20 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
   ComCtrls, StdCtrls, kn_ExpTermDef,
-  kn_ExpandObj, kn_Info, Placemnt, ExtCtrls;
+  kn_ExpandObj, kn_Info, Placemnt, ExtCtrls, TntComCtrls, TntStdCtrls;
 
 type
   TForm_Glossary = class(TForm)
     FormPlacement: TFormPlacement;
     Panel1: TPanel;
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    Button_New: TButton;
-    Button_Edit: TButton;
-    Button_Del: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    Button_New: TTntButton;
+    Button_Edit: TTntButton;
+    Button_Del: TTntButton;
     Panel2: TPanel;
-    LV: TListView;
-    Button_Help: TButton;
+    LV: TTntListView;
+    Button_Help: TTntButton;
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
@@ -85,6 +85,7 @@ type
 
 
 implementation
+uses kn_main, gf_miscvcl, TntSystem;
 
 {$R *.DFM}
 
@@ -111,9 +112,9 @@ end; // KeyDown
 
 procedure TForm_Glossary.FormCreate(Sender: TObject);
 var
-  item : TListItem;
+  item : TTntListItem;
   i : integer;
-  name, value : string;
+  name, value : wideString;
 begin
 
   OK_Click := false;
@@ -147,8 +148,8 @@ end; // CREATE
 procedure TForm_Glossary.EditTerm( const NewTerm : boolean );
 var
   Form_Term : TForm_TermDef;
-  namestr, valuestr : string;
-  item, dupItem : TListItem;
+  namestr, valuestr : wideString;
+  item, dupItem : TTntListItem;
   i : integer;
 begin
 
@@ -212,7 +213,7 @@ begin
         end;
         if assigned( dupItem ) then
         begin
-          if ( messagedlg( Format(
+          if ( DoMessageBox( WideFormat(
               STR_12,
               [namestr,dupItem.subitems[0] ,valuestr] ),
               mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
@@ -245,7 +246,7 @@ end; // EditTerm
 
 procedure TForm_Glossary.DeleteTerm;
 var
-  item : TListItem;
+  item : TTntListItem;
 begin
   item := LV.Selected;
 
@@ -279,25 +280,25 @@ procedure TForm_Glossary.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 var
   i : integer;
-  item : TListItem;
+  item : TTntListItem;
 begin
   if OK_Click then
   begin
-    try
       try
-        GlossaryList.Sorted := false;
-        GlossaryList.Clear;
+        try
+          GlossaryList.Sorted := false;
+          GlossaryList.Clear;
 
-        for i := 0 to pred( LV.Items.Count ) do
-        begin
-          item := LV.Items[i];
-          GlossaryList.Add( Format( '%s=%s', [item.caption, item.subitems[0]] ));
+          for i := 0 to pred( LV.Items.Count ) do
+          begin
+            item := LV.Items[i];
+            GlossaryList.Add( WideFormat( '%s=%s', [item.caption, item.subitems[0]] ));
+          end;
+
+        finally
+          GlossaryList.Sorted := true;
         end;
-
-      finally
-        GlossaryList.Sorted := true;
-      end;
-      GlossaryList.SaveToFile( Glossary_FN );
+        SaveGlossaryInfo(Glossary_FN);
     except
       on E : Exception do
         messagedlg( STR_13 +

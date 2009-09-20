@@ -96,6 +96,9 @@ type
     procedure SetDDArrowWidth(Value:byte);
     function GetGlyph:TBitMap;
     procedure SetRegKey(Value:string);
+    function GetHint: WideString;
+    procedure SetHint(const Value: WideString);
+    function IsHintStored: Boolean;
   protected
     Btn1:TColBtn;
     Btn2:TSpeedButton;
@@ -125,7 +128,8 @@ type
     property RegKey : string read FRegKey write SetRegKey;
     property DDArrowWidth : byte read FDDArrowWidth write SetDDArrowWidth;
     property Enabled;
-    property Hint;
+    //property Hint;
+    property Hint: WideString read GetHint write SetHint stored IsHintStored;
     property ShowHint;
     property Visible;
     property ParentShowHint;
@@ -135,7 +139,7 @@ type
 procedure Register;
 
 implementation
-uses Registry;
+uses Registry, TntControls;
 {$R *.Res}
 const
      BtnDim=20;
@@ -688,5 +692,19 @@ begin
      // inherited;
 end;
 
+function TColorBtn.IsHintStored: Boolean;
+begin
+  Result := TntControl_IsHintStored(Self);
+end;
+
+function TColorBtn.GetHint: WideString;
+begin
+  Result := TntControl_GetHint(Self)
+end;
+
+procedure TColorBtn.SetHint(const Value: WideString);
+begin
+  TntControl_SetHint(Self, Value);
+end;
 end.
 

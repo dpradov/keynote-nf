@@ -45,7 +45,7 @@ unit kn_Macro;
 
 interface
 uses Forms, Windows, Classes, Controls,
-  SysUtils, ShellAPI, Dialogs,
+  SysUtils, ShellAPI, Dialogs, wideStrings,
   gf_misc, gf_files, kn_Const, kn_Info,
   kn_Cmd, kn_MacroCmd, gf_strings;
 
@@ -74,13 +74,13 @@ type
     LoadOnlyInfo : boolean;
     ErrStr : string;
 
-    function ParseInfoLine( infostr : string ) : boolean;
-    function MakeInfoLine : string;
+    function ParseInfoLine( infostr : wideString ) : boolean;
+    function MakeInfoLine : wideString;
 
   public
     FileName : string;
-    Name : string;
-    Description : string;
+    Name : WideString;
+    Description : wideString;
     DateModified : string;
     Version : TMacroVersion;
     Lines : TStringList;
@@ -101,13 +101,14 @@ type
 
 var
   Macro_Folder : string;
-  Macro_List : TStringList;
+  Macro_List : TWideStringList;
 
 procedure LoadMacroList;
 procedure ClearMacroList;
 function MakeMacroFileName( const s : string ) : string;
 
 implementation
+uses TntSysUtils, TntSystem;
 
 resourcestring
   STR_Macro_01 = 'Invalid macro header';
@@ -163,7 +164,7 @@ begin
       if not eof( f ) then
         readln( f, s );
 
-      result := ParseInfoLine( s );
+      result := ParseInfoLine( TryUTF8ToWideString(s) );
       if (( not result ) or LoadOnlyInfo ) then
         exit;
 
@@ -232,7 +233,7 @@ begin
 
   try
     try
-      writeln( f, MakeInfoLine );
+      writeln( f, WideStringToUTF8(MakeInfoLine) );
       for i := 1 to Lines.Count do
         writeln( f, Lines[pred( i )] );
       result := true;
@@ -249,10 +250,10 @@ begin
 
 end; // Save
 
-function TMacro.ParseInfoLine( infostr : string ) : boolean;
+function TMacro.ParseInfoLine( infostr : WideString ) : boolean;
 var
   p, q : integer;
-  s : string;
+  s : wideString;
 begin
   result := false;
 
@@ -277,8 +278,8 @@ begin
   if ( length( s ) < 3 ) then exit;
   q := pos( '.', s );
   if ( q = 0 ) then exit;
-  Version.Major := s[pred( q )];
-  Version.Minor := s[succ( q )];
+  Version.Major := Char(s[pred( q )]);
+  Version.Minor := Char(s[succ( q )]);
 
   ErrStr := '';
   result := true;
@@ -287,7 +288,7 @@ begin
   Name := copy( infostr, 1, p-1 );
   delete( infostr, 1, p );
   if ( Name = '' ) then
-    Name := extractfilename( FileName );
+    Name := WideExtractFilename( FileName );
 
   p := pos( _MACRO_DELIMITER_CHAR, infostr );
   Description := copy( infostr, 1, p-1 );
@@ -301,10 +302,10 @@ begin
 
 end; // ParseInfoLine
 
-function TMacro.MakeInfoLine : string;
+function TMacro.MakeInfoLine : wideString;
 begin
   result := _MACRO_COMMENT_CHAR +
-    Format(
+    WideFormat(
       '%s.%s',
       [Version.Major, Version.Minor]
     ) + _MACRO_DELIMITER_CHAR +
@@ -390,7 +391,7 @@ var
   fn : string;
 begin
   i := 1;
-                                
+
   fn := MakeValidFilename( s, [], MAX_FILENAME_LENGTH );
   result := fn + ext_Macro;
   while fileexists( Macro_Folder + result ) do
@@ -430,7 +431,7 @@ end; // GetDefaultStringArg
 initialization
 
   Macro_Folder := properfoldername( extractfilepath( application.exename ) + _MACRO_FOLDER );
-  Macro_List := TStringList.Create;
+  Macro_List := TWideStringList.Create;
   Macro_List.Sorted := true;
   Macro_List.Duplicates := dupError;
 

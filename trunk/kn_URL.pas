@@ -49,19 +49,19 @@ uses
   Windows, Messages, SysUtils,
   Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls,
-  registry, gf_misc, kn_Info;
+  registry, gf_misc, kn_Info, TntStdCtrls;
 
 type
   TForm_URLAction = class(TForm)
-    Button_Copy: TButton;
-    Button_Cancel: TButton;
-    Label1: TLabel;
-    Button_Open: TButton;
-    Button_OpenNew: TButton;
-    Edit_URL: TEdit;
-    Label2: TLabel;
-    Edit_TextURL: TEdit;
-    Button_Modify: TButton;
+    Button_Copy: TTntButton;
+    Button_Cancel: TTntButton;
+    Label1: TTntLabel;
+    Button_Open: TTntButton;
+    Button_OpenNew: TTntButton;
+    Edit_URL: TTntEdit;
+    Label2: TTntLabel;
+    Edit_TextURL: TTntEdit;
+    Button_Modify: TTntButton;
     procedure Edit_URLExit(Sender: TObject);
     procedure Button_ModifyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -81,11 +81,11 @@ type
   end;
 
 
-function FileNameToURL( fn : string ) : string;
-function HTTPDecode(const AStr: String): String;
-function HTTPEncode(const AStr: String): String;
+function FileNameToURL( fn : wideString ) : wideString;
+function HTTPDecode(const AStr: wideString): wideString;
+function HTTPEncode(const AStr: wideString): wideString;
 
-function StripFileURLPrefix( const AStr : string ) : string;
+function StripFileURLPrefix( const AStr : wideString ) : wideString;
 
 implementation
 uses
@@ -101,7 +101,7 @@ resourcestring
   STR_05 = '(KNT Location)';
 
 
-function FileNameToURL( fn : string ) : string;
+function FileNameToURL( fn : wideString ) : wideString;
 var
   i : integer;
 begin
@@ -120,14 +120,14 @@ begin
 end; // FileNameToURL
 
 
-function HTTPDecode(const AStr: String): String;
+function HTTPDecode(const AStr: wideString): wideString;
 // source: Borland Delphi 5
 var
-  Sp, Rp, Cp: PChar;
+  Sp, Rp, Cp: PWideChar;
 begin
   SetLength(Result, Length(AStr));
-  Sp := PChar(AStr);
-  Rp := PChar(Result);
+  Sp := PWideChar(AStr);
+  Rp := PWideChar(Result);
   while Sp^ <> #0 do
   begin
     if not (Sp^ in ['+','%']) then
@@ -141,7 +141,7 @@ begin
         begin
           Cp := Sp;
           Inc(Sp);
-          Rp^ := Chr(StrToInt(Format('$%s%s',[Cp^, Sp^])));
+          Rp^ := WideChar(Chr(StrToInt(Format('$%s%s',[Cp^, Sp^]))));
         end;
       end;
     Inc(Rp);
@@ -150,17 +150,17 @@ begin
   SetLength(Result, Rp - PChar(Result));
 end;
 
-function HTTPEncode(const AStr: String): String;
+function HTTPEncode(const AStr: wideString): wideString;
 // source: Borland Delphi 5, **modified**
 const
   NoConversion = ['A'..'Z','a'..'z','*','@','.','_','-', '/', '?',
                   '0'..'9','$','!','''','(',')'];
 var
-  Sp, Rp: PChar;
+  Sp, Rp: PWideChar;
 begin
   SetLength(Result, Length(AStr) * 3);
-  Sp := PChar(AStr);
-  Rp := PChar(Result);
+  Sp := PWideChar(AStr);
+  Rp := PWideChar(Result);
   while Sp^ <> #0 do
   begin
     if Sp^ in NoConversion then
@@ -183,12 +183,12 @@ begin
   URLAction := low( urlOpen );
   // Label_URL.Font.Color := clBlue;
   // Label_URL.Font.Style := [fsUnderline];
-  Edit_URL.Font.Name := 'Verdana';
+  Edit_URL.Font.Name := 'Tahoma';
   // Edit_URL.Font.Style := [fsBold];
   if ( Edit_URL.Font.Size < 10 ) then
       Edit_URL.Font.Size := 10;
 
-  Edit_TextURL.Font.Name := 'Verdana';
+  Edit_TextURL.Font.Name := 'Tahoma';
   if ( Edit_TextURL.Font.Size < 10 ) then
       Edit_TextURL.Font.Size := 10;
 
@@ -281,7 +281,7 @@ end;
 
 procedure TForm_URLAction.Edit_URLExit(Sender: TObject);
 var
-  cad: string;
+  cad: wideString;
 begin
  if not Edit_TextURL.Enabled then exit;
 
@@ -303,12 +303,12 @@ begin
   ModalResult := mrOK;
 end;
 
-function StripFileURLPrefix( const AStr : string ) : string;
+function StripFileURLPrefix( const AStr : WideString ) : wideString;
 const
   FILEPREFIX = 'file:';
 begin
   result := AStr;
-  if ( pos( FILEPREFIX, lowercase( result )) = 1 ) then
+  if ( pos( FILEPREFIX, wideLowerCase( result )) = 1 ) then
   begin
     delete( result, 1, length( FILEPREFIX ));
     while ( result <> '' ) and ( result[1] = '/' ) do

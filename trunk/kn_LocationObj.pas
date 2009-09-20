@@ -43,25 +43,25 @@ unit kn_LocationObj;
 
 interface
 uses Windows, Classes, SysUtils, gf_misc,
-  kn_Const, kn_Info, IniFiles;
+  kn_Const, kn_Info, IniFiles, WideStrings;
 
 type
   TLocation = class( TObject )
   private
-    FName : string;
-    FFileName : string;
-    FNoteName : string;
-    FNodeName : string;
+    FName : wideString;
+    FFileName : wideString;
+    FNoteName : wideString;
+    FNodeName : wideString;
     FCaretPos : integer;
     FSelLength : integer;
     FNoteID : longint;
     FNodeID : longint;
     FExternalDoc : boolean;
-    FParams : string;
+    FParams : wideString;
     FTag : integer; //used in TForm_Main.List_ResFindDrawItem
 
-    function GetDisplayText : string;
-    function GetDisplayTextLong : string;
+    function GetDisplayText : wideString;
+    function GetDisplayTextLong : wideString;
     {
     function GetPath : string;
     function GetLinkText : string;
@@ -69,20 +69,20 @@ type
     }
 
   public
-    property Name : string read FName write FName;
-    property FileName : string read FFileName write FFileName;
-    property NoteName : string read FNoteName write FNoteName;
-    property NodeName : string read FNodeName write FNodeName;
+    property Name : wideString read FName write FName;
+    property FileName : wideString read FFileName write FFileName;
+    property NoteName : wideString read FNoteName write FNoteName;
+    property NodeName : wideString read FNodeName write FNodeName;
     property CaretPos : integer read FCaretPos write FCaretPos;
     property SelLength : integer read FSelLength write FSelLength;
     property NoteID : longint read FNoteID write FNoteID;
     property NodeID : longint read FNodeID write FNodeID;
     property ExternalDoc : boolean read FExternalDoc write FExternalDoc;
-    property Params : string read FParams write FParams;
+    property Params : wideString read FParams write FParams;
     property Tag : integer read FTag write FTag;
 
-    property DisplayText : string read GetDisplayText;
-    property DisplayTextLong : string read GetDisplayTextLong;
+    property DisplayText : wideString read GetDisplayText;
+    property DisplayTextLong : wideString read GetDisplayTextLong;
 
     {
     property Path : string read GetPath;
@@ -99,13 +99,13 @@ type
   TNavigationHistoryTable = array[1..MAX_NAVHISTORY_COUNT] of TLocation;
 
 var
-  Location_List : TStringList; // used to build list of matches for the resource panel search function
-  Favorites_List : TStringList; // favorites list (saved in keynote.fvr)
+  Location_List : TWideStringList; // used to build list of matches for the resource panel search function
+  Favorites_List : TWideStringList; // favorites list (saved in keynote.fvr)
   _KNTLocation : TLocation;
   _NavHistory : TNavigationHistoryTable;
-  _NavHistoryIndex : integer; 
+  _NavHistoryIndex : integer;
 
-procedure ClearLocationList( const aList : TStringList );
+procedure ClearLocationList( const aList : TWideStringList );
 procedure ClearNavigationHistoryFrom( const Start : integer );
 procedure ClearNavigationHistory;
 
@@ -113,11 +113,13 @@ procedure LoadFavorites( const FN : string );
 procedure SaveFavorites( const FN : string );
 
 implementation
+uses gf_files;
 
 procedure LoadFavorites( const FN : string );
 var
-  IniFile : TIniFile;
-  section, name : string;
+  IniFile : TWIniFile;
+  section: string;
+  name : wideString;
   sections : TStringList;
   myFav : TLocation;
   i, cnt : integer;
@@ -126,7 +128,7 @@ begin
   ClearLocationList( Favorites_List );
 
   try
-    IniFile := TIniFile.Create( FN );
+    IniFile := TWIniFile.Create( FN );
   except
     exit;
   end;
@@ -141,24 +143,24 @@ begin
     for i := 0 to pred( cnt ) do
     begin
       section := sections[i];
-      
+
       with IniFile do
       begin
-        name := readstring( section, 'Name', '' );
+        name := readstringW( section, 'Name', '' );
         if ( name <> '' ) then
-        begin                              
+        begin
           myFav := TLocation.Create;
           myFav.Name := name;
-          myFav.FileName := readstring( section, 'File', '' );
+          myFav.FileName := readstringW( section, 'File', '' );
 
-            myFav.NoteName := readstring( section, 'Note', '' );
+            myFav.NoteName := readstringW( section, 'Note', '' );
             myFav.NoteID := readinteger( section, 'NoteID', 0 );
-            myFav.NodeName := readstring( section, 'Node', '' );
+            myFav.NodeName := readstringW( section, 'Node', '' );
             myFav.NodeID := readinteger( section, 'NodeID', 0 );
             myFav.CaretPos := readinteger( section, 'Pos', 0 );
             myFav.SelLength := readinteger( section, 'Len', 0 );
             myFav.ExternalDoc := readbool( section, 'ExternalDoc', false );
-            myFav.Params := readstring( section, 'Params', '' );
+            myFav.Params := readstringW( section, 'Params', '' );
             Favorites_List.AddObject( myFav.Name, myFav )
         end;
       end;
@@ -173,7 +175,7 @@ end; // LoadFavorites
 
 procedure SaveFavorites( const FN : string );
 var
-  IniFile : TIniFile;
+  IniFile : TWIniFile;
   section : string;
   myFav : TLocation;
   i, cnt : integer;
@@ -183,7 +185,7 @@ begin
   deletefile( FN );
 
   try
-    IniFile := TIniFile.Create( FN );
+    IniFile := TWIniFile.Create( FN );
   except
     exit;
   end;
@@ -197,19 +199,19 @@ begin
 
       with IniFile do
       begin
-        writestring( section, 'Name', myFav.Name );
-        writestring( section, 'File', myFav.FileName );
+        writestringW( section, 'Name', myFav.Name );
+        writestringW( section, 'File', myFav.FileName );
         if myFav.ExternalDoc then
         begin
           writebool( section, 'ExternalDoc', myFav.ExternalDoc );
-          writestring( section, 'Params', myFav.Params );
+          writestringW( section, 'Params', myFav.Params );
         end
         else
         begin
-          writestring( section, 'Note', myFav.NoteName );
+          writestringW( section, 'Note', myFav.NoteName );
           writeinteger( section, 'NoteID', myFav.NoteID );
           writeinteger( section, 'NodeID', myFav.NodeID );
-          writestring( section, 'Node', myFav.NodeName );
+          writestringW( section, 'Node', myFav.NodeName );
           writeinteger( section, 'Pos', myFav.CaretPos );
           writeinteger( section, 'Len', myFav.SelLength );
         end;
@@ -222,12 +224,12 @@ begin
   end;
 end; // SaveFavorites
 
-procedure ClearLocationList( const aList : TStringList );
+procedure ClearLocationList( const aList : TWideStringList );
 var
   i, cnt : integer;
 begin
   cnt := aList.Count;
-  try                                  
+  try
     try
       for i := 1 to cnt do
       begin
@@ -270,28 +272,28 @@ begin
 end; // SetKNTLocation
 
 
-function TLocation.GetDisplayText : string;
+function TLocation.GetDisplayText : wideString;
 var
   CPos : string;
 begin
-  result := '';                        
+  result := '';
   if ( FCaretPos >= 0 ) then
     CPos := Format( '/ %d', [FCaretPos] )
   else
     CPos := '';
   if ( FNodeID > 0 ) then
-    result := Format(
+    result := WideFormat(
       '%s / %s %s',
       [FNoteName, FNodeName, CPos]
     )
   else
-    result := Format(
+    result := WideFormat(
       '%s %s',
       [FNoteName, CPos]
     );
 end; // GetDisplayText
 
-function TLocation.GetDisplayTextLong : string;
+function TLocation.GetDisplayTextLong : wideString;
 begin
   result := FFilename + ' / ' + GetDisplayText;
 end; // GetDisplayTextLong
@@ -335,10 +337,10 @@ end; // ClearNavigationHistory
 
 
 Initialization
-  Location_List := TStringList.Create;
+  Location_List := TWideStringList.Create;
   _KNTLocation := TLocation.Create; // used for jumps to KNT locations
 
-  Favorites_List := TStringList.Create;
+  Favorites_List := TWideStringList.Create;
   Favorites_List.Sorted := true;
   Favorites_List.Duplicates := dupIgnore;
 

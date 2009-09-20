@@ -44,7 +44,7 @@ unit kn_NoteObj;
 
 interface
 uses Windows, Classes, Graphics,
-  SysUtils, IniFiles, FileCtrl,
+  SysUtils, IniFiles, FileCtrl, WideStrings,
   controls, comctrls95, gf_misc,
   ComCtrls,
   Dialogs, Messages,
@@ -62,7 +62,8 @@ uses Windows, Classes, Graphics,
   {$IFDEF WITH_IE}
   SHDocVw_TLB,
   {$ENDIF}
-  kn_RTFUtils;
+  kn_RTFUtils,
+  gf_streams, TntClasses;
 
 
 type
@@ -140,7 +141,7 @@ type
     FTabIndex : integer;
     FImageIndex : integer;
     FPlainText : boolean; // if true, contents of editor are saved as plain text
-    FDataStream : TMemoryStream;
+    FDataStream : TTntMemoryStream;
     FFocusMemory : TFocusMemory; // which control was last focused
 
     FWordWrap : boolean;  // for RTF-type notes only
@@ -175,7 +176,7 @@ type
     function CheckEditor : boolean;
     function CheckTabSheet : boolean;
 
-    procedure BaseSaveProc( var tf : TextFile );
+    procedure BaseSaveProc( var tf : TWTextFile );
 
     function PropertiesToFlagsString : TFlagsString; virtual;
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); virtual;
@@ -206,7 +207,7 @@ type
 
     property TabSheet : TTab95Sheet read FTabSheet write SetTabSheet;
 
-    property DataStream : TMemoryStream read FDataStream;
+    property DataStream : TTntMemoryStream read FDataStream;
 
     // events
     property OnChange : TNotifyEvent read FOnChange write FOnChange;
@@ -214,10 +215,11 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure SaveToFile( var tf : TextFile ); virtual;
+    procedure SaveToFile( var tf : TWTextFile ); virtual;
     procedure SaveDartNotesFormat( Stream : TStream ); virtual;
 
-    procedure LoadFromFile( var tf : TextFile; var FileExhausted : boolean ); virtual;
+    procedure LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean ); virtual;
+
     procedure LoadDartNotesFormat( Stream : TStream ); virtual;
 
     procedure SetEditorProperties( const aProps : TNoteEditorProperties );
@@ -290,7 +292,7 @@ type
     FHideCheckedNodes: boolean;       // [dpv]
     FFiltered: boolean;               // [dpv]
 
-    FDefaultNodeName : string;
+    FDefaultNodeName : WideString;
     FAutoNumberNodes : boolean;
     FCheckboxes : boolean;
     FVerticalLayout : boolean;
@@ -335,7 +337,7 @@ type
     property OldSelectedIndex : integer read FOldSelectedIndex;
     property Checkboxes : boolean read FCheckboxes write FCheckboxes;
     property TreeChrome : TChrome read FTreeChrome write SetTreeChrome;
-    property DefaultNodeName : string read FDefaultNodeName write FDefaultNodeName;
+    property DefaultNodeName : WideString read FDefaultNodeName write FDefaultNodeName;
     property AutoNumberNodes : boolean read FAutoNumberNodes write FAutoNumberNodes;
     property VerticalLayout : boolean read FVerticalLayout write FVerticalLayout;
     property TreeHidden : boolean read FTreeHidden write FTreeHidden;
@@ -352,10 +354,10 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure SaveToFile( var tf : TextFile ); override;
-    procedure LoadFromFile( var tf : TextFile; var FileExhausted : boolean ); override;
+    procedure SaveToFile( var tf : TWTextFile ); override;
+    procedure LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean ); override;
 
-    function NewNode( const AParent : TNoteNode; AName : string; const AInheritProperties : boolean ) : TNoteNode;
+    function NewNode( const AParent : TNoteNode; AName : WideString; const AInheritProperties : boolean ) : TNoteNode;
     function AddNode( const aNode : TNoteNode ) : integer;
     procedure InsertNode( const aIndex : integer; const aNode : TNoteNode );
     procedure RemoveNode( const aNode : TNoteNode );
@@ -386,7 +388,7 @@ var
   _LoadedRichEditVersion : integer;
 
 implementation
-uses kn_LinksMng, kn_Main;
+uses kn_LinksMng, kn_Main, gf_strings, gf_miscvcl;
 
 resourcestring
   STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
@@ -589,7 +591,7 @@ begin
   FDateCreated := now;
   FFocusMemory := focNil;
   FModified := false;
-  FDataStream := TMemoryStream.Create;
+  FDataStream := TTntMemoryStream.Create;
   InitializeChrome( FEditorChrome );
 
   FEditor := nil;
@@ -764,13 +766,23 @@ begin
   begin
     FEditor.OnChange := nil;
     FDataSTream.Position := 0;
+
+    if NodeStreamIsRTF (FDataStream) then
+       FEditor.StreamFormat:= sfRichText
+    else begin
+       FEditor.StreamFormat:= sfPlainText;
+       AddUTF8_BOM (FDataStream);
+    end;
+
     FEditor.Lines.LoadFromStream( FDataStream );
     FDataStream.Clear;
-    FEditor.OnChange := Form_Main.RxRTFChange; 
+    FEditor.OnChange := Form_Main.RxRTFChange;
   end;
 end; // DataStreamToEditor
 
 procedure TTabNote.EditorToDataStream;
+var
+   NodeTextW: wideString;
 begin
   if CheckEditor then
   begin
@@ -780,8 +792,13 @@ begin
         Clear;
         Position := 0;
       end;
-      if FPlainText then
-        FEditor.StreamFormat := sfPlainText
+      FEditor.StreamMode := [];
+      if FPlainText then begin
+        FEditor.StreamFormat := sfPlainText;
+        NodeTextW:= FEditor.TextW;
+        if NodeTextW <> string(NodeTextW) then
+           FEditor.StreamMode := [smUnicode];
+        end
       else
         FEditor.StreamFormat := sfRichText;
 
@@ -789,6 +806,7 @@ begin
       FEditor.Lines.SaveToStream( FDataStream );
     finally
       FEditor.StreamFormat := sfRichText;
+      FEditor.StreamMode := [];
     end;
   end;
 end; // EditorToDataStream
@@ -803,7 +821,7 @@ begin
   result := assigned( FTabSheet );
 end; // CheckTabSheet
 
-procedure TTabNote.BaseSaveProc( var tf : TextFile );
+procedure TTabNote.BaseSaveProc( var tf : TWTextFile );
 var
   HaveVCLControls : boolean;
 begin
@@ -819,23 +837,23 @@ begin
     end;
   end;
 
-  writeln( tf, _NoteName, '=', FName );
-  writeln( tf, _NoteID, '=', FID );
-  writeln( tf, _ImageIndex, '=', FImageIndex );
-  writeln( tf, _DateCreated, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, FDateCreated ));
-  writeln( tf, _TabIndex, '=', FTabIndex );
-  writeln( tf, _TabSize, '=', inttostr( FTabSize ) );
+  tf.writeln( [_NoteName, '=', FName ] );
+  tf.writeln( [_NoteID, '=', FID ] );
+  tf.writeln( [_ImageIndex, '=', FImageIndex ] );
+  tf.writeln( [_DateCreated, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, FDateCreated )] );
+  tf.writeln( [_TabIndex, '=', FTabIndex ] );
+  tf.writeln( [_TabSize, '=', inttostr( FTabSize ) ] );
 
-  writeln( tf, _PosX, '=', FCaretPos.X );
-  writeln( tf, _PosY, '=', FCaretPos.Y );
-  writeln( tf, _CHBGColor, '=', ColorToString( FEditorChrome.BGColor ) );
-  writeln( tf, _CHFontCharset, '=', inttostr( FEditorChrome.Font.Charset ) );
-  writeln( tf, _CHFontColor, '=', ColorToString( FEditorChrome.Font.Color ) );
-  writeln( tf, _CHFontName, '=', FEditorChrome.Font.Name );
-  writeln( tf, _CHFontSize, '=', FEditorChrome.Font.Size );
-  writeln( tf, _CHLanguage, '=', FEditorChrome.Language );
-  writeln( tf, _CHFontStyle, '=', FontStyleToStr( FEditorChrome.Font.Style ) );
-  writeln( tf, _Flags, '=', PropertiesToFlagsString );
+  tf.writeln( [_PosX, '=', FCaretPos.X ] );
+  tf.writeln( [_PosY, '=', FCaretPos.Y ] );
+  tf.writeln( [_CHBGColor, '=', ColorToString( FEditorChrome.BGColor ) ] );
+  tf.writeln( [_CHFontCharset, '=', inttostr( FEditorChrome.Font.Charset ) ] );
+  tf.writeln( [_CHFontColor, '=', ColorToString( FEditorChrome.Font.Color ) ] );
+  tf.writeln( [_CHFontName, '=', FEditorChrome.Font.Name ] );
+  tf.writeln( [_CHFontSize, '=', FEditorChrome.Font.Size ] );
+  tf.writeln( [_CHLanguage, '=', FEditorChrome.Language ] );
+  tf.writeln( [_CHFontStyle, '=', FontStyleToStr( FEditorChrome.Font.Style ) ] );
+  tf.writeln( [_Flags, '=', PropertiesToFlagsString ] );
 
   { // REMOVED: FlagsString is used instead
   writeln( tf, _UseTabChar, '=', BOOLEANSTR[FUseTabChar] );
@@ -847,7 +865,7 @@ begin
 
 end; // BaseSaveProc
 
-procedure TTabNote.SaveToFile( var tf : TextFile );
+procedure TTabNote.SaveToFile( var tf : TWTextFile );
 var
   List : TStringList;
   cnt, i : integer;
@@ -864,7 +882,7 @@ begin
   List := TStringList.Create;
   try
 
-    writeln( tf, _NF_TabNote ); // marks beginning of TTabNote
+    tf.writeln( [_NF_TabNote] ); // marks beginning of TTabNote
     BaseSaveProc( tf );
 
 
@@ -872,7 +890,7 @@ begin
     begin
       EditorToDataStream;
       cnt := FEditor.Lines.Count;
-      writeln( tf, _LineCount, '=', cnt );
+      tf.writeln( [_LineCount, '=', cnt ]);
       if ( cnt < 10000 ) then
         List.Capacity := succ( cnt );
     end;
@@ -886,17 +904,17 @@ begin
       false : begin
         if ( cnt >= 0 ) then // if list is empty, cnt is -1
         begin
-          writeln( tf, _NF_RTF );
+          tf.writeln( [_NF_RTF] );
           if FPlainText then
           begin
             for i := 0 to cnt do
-              writeln( tf, _NF_PLAINTEXTLEADER, List[i] );
+              tf.writeln( [_NF_PLAINTEXTLEADER, List[i]] );
           end
           else
           begin
             // FPlaintext property not supported
             for i := 0 to cnt do
-              writeln( tf, List[i] );
+              tf.writeln( [List[i] ]);
           end;
         end;
       end;
@@ -904,7 +922,7 @@ begin
         if ( cnt > 0 ) then
         begin
           for i := 0 to cnt do
-            writeln( tf, _Lines, '=', List[i] );
+            tf.writeln( [_Lines, '=', List[i]] );
         end;
       end;
     end;
@@ -966,7 +984,7 @@ begin
 
 end; // SaveDartNotesFormat
 
-procedure TTabNote.LoadFromFile( var tf : TextFile; var FileExhausted : boolean );
+procedure TTabNote.LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean );
 var
   List : TStringList;
   s, key : string;
@@ -983,9 +1001,9 @@ begin
 
   List := TStringList.Create;
   try
-    while ( not eof( tf )) do
+    while ( not tf.eof()) do
     begin
-      readln( tf, s );
+      s:= tf.readln();
       if ( s = _NF_RTF ) then
       begin
         InRichText := ( not _IS_OLD_KEYNOTE_FILE_FORMAT );
@@ -1115,7 +1133,7 @@ begin
       else
       if ( key = _NoteName ) then
       begin
-        FName := s;
+        FName := TryUTF8ToWideString(s) ;
       end
       else
       if ( key = _NoteID ) then
@@ -1716,7 +1734,7 @@ end; // SetSelectedNode
 
 function TTreeNote.NewNode(
   const AParent : TNoteNode;
-  AName : string;
+  AName : WideString;
   const AInheritProperties : boolean ) : TNoteNode;
 var
   myNode : TNoteNode;
@@ -1941,6 +1959,14 @@ begin
           begin
             UpdateEditor;
           end;
+
+          if NodeStreamIsRTF (FSelectedNode.Stream) then
+             FEditor.StreamFormat:= sfRichText
+          else begin
+             FEditor.StreamFormat:= sfPlainText;
+             AddUTF8_BOM (FSelectedNode.Stream);
+          end;
+
           FEditor.Lines.LoadFromStream( FSelectedNode.Stream );
           FEditor.Color := FSelectedNode.RTFBGColor;
           FEditor.SelStart := FSelectedNode.SelStart;
@@ -1964,6 +1990,8 @@ begin
 end; // DataStreamToEditor
 
 procedure TTreeNote.EditorToDataStream;
+var
+   NodeTextW: wideString;
 begin
   if CheckEditor then
   begin
@@ -1979,7 +2007,7 @@ begin
         try
 
           case FSelectedNode.VirtualMode of
-            vmNone, vmKNTNode : begin      
+            vmNone, vmKNTNode : begin
               if FPlainText then
                 FEditor.StreamFormat := sfPlainText
               else
@@ -1993,6 +2021,13 @@ begin
             end;
           end;
 
+          FEditor.StreamMode := [];
+          if FEditor.StreamFormat = sfPlainText then begin
+              NodeTextW:= FEditor.TextW;
+              if NodeTextW <> string(NodeTextW) then
+                 FEditor.StreamMode := [smUnicode];
+          end;
+
           CleanHyperlinks;
 
           FEditor.Lines.SaveToStream( FSelectedNode.Stream );
@@ -2000,6 +2035,7 @@ begin
 
         finally
           FEditor.StreamFormat := sfRichText;
+          FEditor.StreamMode := [];
         end;
 
         FSelectedNode.Stream.Position := 0;
@@ -2015,7 +2051,7 @@ begin
   result := assigned( FTV );
 end; // CheckTree
 
-procedure TTreeNote.SaveToFile( var tf : TextFile );
+procedure TTreeNote.SaveToFile( var tf : TWTextFile );
 var
   List : TStringList;
   i, cnt : integer;
@@ -2035,13 +2071,13 @@ begin
   wasmismatch := ( HaveVCLControls and (( FTV.Items.Count ) <> ( FNodes.Count )));
   if wasmismatch then
   begin
-    if ( MessageBox( _MainFormHandle, PChar( Format(STR_05,
+    if ( DoMessageBox(WideFormat(STR_05,
       [FName,FTV.Items.Count,FNodes.Count]
-    )),
-    PChar( Format(
+    ),
+    WideFormat(
       STR_06,
       [FName]
-     )), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON1+MB_APPLMODAL ) <> ID_YES ) then
+     ), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON1+MB_APPLMODAL ) <> ID_YES ) then
     begin
       raise ETabNoteError.Create(
         STR_07
@@ -2064,21 +2100,21 @@ begin
 
   List := TStringList.Create;
   try
-    writeln( tf, _NF_TreeNote ); // marks beginning of TTreeNote
+    tf.writeln( [_NF_TreeNote ] ); // marks beginning of TTreeNote
     BaseSaveProc( tf );
 
     // basic treenote properties
-    writeln( tf, _SelectedNode, '=', FOldSelectedIndex );
-    writeln( tf, _TreeWidth, '=', FTreeWidth );
-    writeln( tf, _DefaultNodeName, '=', FDefaultNodeName );
+    tf.writeln( [_SelectedNode, '=', FOldSelectedIndex ] );
+    tf.writeln( [_TreeWidth, '=', FTreeWidth ] );
+    tf.writeln( [_DefaultNodeName, '=', FDefaultNodeName ] );
 
     // tree chrome
-    writeln( tf, _CHTRBGColor, '=', ColorToString( FTreeChrome.BGColor ) );
-    writeln( tf, _CHTRFontCharset, '=', inttostr( FTreeChrome.Font.Charset ) );
-    writeln( tf, _CHTRFontColor, '=', ColorToString( FTreeChrome.Font.Color ) );
-    writeln( tf, _CHTRFontName, '=', FTreeChrome.Font.Name );
-    writeln( tf, _CHTRFontSize, '=', FTreeChrome.Font.Size );
-    writeln( tf, _CHTRFontStyle, '=', FontStyleToStr( FTreeChrome.Font.Style ) );
+    tf.writeln( [_CHTRBGColor, '=', ColorToString( FTreeChrome.BGColor ) ] );
+    tf.writeln( [_CHTRFontCharset, '=', inttostr( FTreeChrome.Font.Charset ) ] );
+    tf.writeln( [_CHTRFontColor, '=', ColorToString( FTreeChrome.Font.Color ) ] );
+    tf.writeln( [_CHTRFontName, '=', FTreeChrome.Font.Name ] );
+    tf.writeln( [_CHTRFontSize, '=', FTreeChrome.Font.Size ] );
+    tf.writeln( [_CHTRFontStyle, '=', FontStyleToStr( FTreeChrome.Font.Style ) ] );
 
     NodeCnt := FNodes.Count;
     NodeIdx := 0;
@@ -2107,28 +2143,28 @@ begin
     begin
       inc( nodessaved );
 
-      writeln( tf, _NF_TRN );
-      writeln( tf, _NodeLevel, '=', notenode.Level );
+      tf.writeln( [_NF_TRN ] );
+      tf.writeln( [_NodeLevel, '=', notenode.Level ] );
 
-      writeln( tf, _NodeName, '=', notenode.Name );
-      writeln( tf, _NodeID, '=', notenode.ID );
-      writeln( tf, _NodeFlags, '=', notenode.PropertiesToFlagsString );
-      writeln( tf, _NodeRTFBGColor, '=', ColorToString( notenode.RTFBGColor ));
-      writeln( tf, _NodeImageIndex, '=', notenode.ImageIndex );
+      tf.writeln( [_NodeName, '=', notenode.Name ] );
+      tf.writeln( [_NodeID, '=', notenode.ID ] );
+      tf.writeln( [_NodeFlags, '=', notenode.PropertiesToFlagsString ] );
+      tf.writeln( [_NodeRTFBGColor, '=', ColorToString( notenode.RTFBGColor )] );
+      tf.writeln( [_NodeImageIndex, '=', notenode.ImageIndex ] );
       if noteNode.HasNodeColor then
-        writeln( tf, _NodeColor, '=', ColorToString( noteNode.NodeColor ));
+        tf.writeln( [_NodeColor, '=', ColorToString( noteNode.NodeColor )] );
       if noteNode.HasNodeBGColor then
-        writeln( tf, _NodeBGColor, '=', ColorToString( noteNode.NodeBGColor ));
+        tf.writeln( [_NodeBGColor, '=', ColorToString( noteNode.NodeBGColor )] );
       if noteNode.HasNodeFontFace then
-        writeln( tf, _NodeFontFace, '=', noteNode.NodeFontFace );
+        tf.writeln( [_NodeFontFace, '=', noteNode.NodeFontFace ] );
       if noteNode.AlarmF <> 0 then                                   // [dpv*]
-        writeln( tf, _NodeAlarm, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.AlarmF ) );
+        tf.writeln( [_NodeAlarm, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.AlarmF ) ] );
 
       if ( _SAVE_RESTORE_CARETPOS and ( notenode.SelStart > 0 )) then
-        writeln( tf, _NodeSelStart, '=', notenode.SelStart );
+        tf.writeln( [_NodeSelStart, '=', notenode.SelStart ] );
       if ( NoteNode.VirtualMode = vmNone ) then
       begin
-        writeln( tf, _NF_RTF );
+        tf.writeln( [_NF_RTF ] );
         notenode.Stream.Position := 0;
         list.clear;
         list.LoadFromStream( notenode.Stream );
@@ -2138,19 +2174,19 @@ begin
           if FPlainText then
           begin
             for i := 0 to cnt do
-              writeln( tf, _NF_PLAINTEXTLEADER, List[i] );
+              tf.writeln( [_NF_PLAINTEXTLEADER, List[i] ] );
           end
           else
           begin
             // FPlaintext property not supported
             for i := 0 to cnt do
-              writeln( tf, List[i] );
+              tf.writeln( [List[i] ] );
           end;
         end;
       end
       else
-      if NoteNode.VirtualMode = vmKNTNode  then begin 
-         writeln( tf, _VirtualNode, '=', notenode.MirrorNodeID );
+      if NoteNode.VirtualMode = vmKNTNode  then begin
+         tf.writeln( [_VirtualNode, '=', notenode.MirrorNodeID ] );
       end
       else
       begin
@@ -2158,22 +2194,22 @@ begin
         begin
           // there was an error when we tried to load this file,
           // so don't try to save it (assume no valid data in node)
-          writeln( tf, _VirtualFN, '=', copy( notenode.VirtualFN, 2, length( notenode.VirtualFN )));
+          tf.writeln( [_VirtualFN, '=', copy( notenode.VirtualFN, 2, length( notenode.VirtualFN ))] );
         end
         else
         begin
           try
             NoteNode.SaveVirtualFile;
 
-            writeln( tf, _RelativeVirtualFN, '=', notenode.RelativeVirtualFN ); // MUST be done AFTER NoteNode.SaveVirtualFile. MUST also be saved BERFORE notenode.VirtualFN.
-            writeln( tf, _VirtualFN, '=', notenode.VirtualFN );
+            tf.writeln( [_RelativeVirtualFN, '=', notenode.RelativeVirtualFN ] ); // MUST be done AFTER NoteNode.SaveVirtualFile. MUST also be saved BERFORE notenode.VirtualFN.
+            tf.writeln( [_VirtualFN, '=', notenode.VirtualFN ] );
           except
             on E : Exception do
             begin
               // [x] A note may have hundreds of nodes.
               // We should allow user to ABORT here or
               // to skip subsequent error messages
-              messagedlg( Format(
+              DoMessageBox( WideFormat(
                 STR_08 + #13 + '%s' + #13#13 + '%s',
                 [notenode.Name, self.Name, notenode.VirtualFN, E.Message ] ),
                 mtError, [mbOK], 0 );
@@ -2217,7 +2253,7 @@ begin
 
 end; // SaveToFile
 
-procedure TTreeNote.LoadFromFile( var tf : TextFile; var FileExhausted : boolean );
+procedure TTreeNote.LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean );
 var
   InRichText : boolean;
   InNoteNode : boolean;
@@ -2248,9 +2284,9 @@ begin
   List := TStringList.Create;
   List.BeginUpdate;
   try
-    while ( not eof( tf )) do
+    while ( not tf.eof()) do
     begin
-      readln( tf, s );
+      s:= tf.readln();
 
       if ( s = _NF_RTF ) then
       begin
@@ -2308,7 +2344,7 @@ begin
       begin
         if ( key = _NodeName ) then
         begin
-          myNode.Name := s;
+          myNode.Name := TryUTF8ToWideString(s);
         end
         else
         if ( key = _NodeID ) then
@@ -2344,19 +2380,19 @@ begin
         else
         if ( key = _VirtualNode ) then
         begin
-          myNode.MirrorNodeID := s;
+          myNode.MirrorNodeID := TryUTF8ToWideString(s);
         end
         else
         if ( key = _RelativeVirtualFN ) then
         begin
-          myNode.RelativeVirtualFN := s;
+          myNode.RelativeVirtualFN := TryUTF8ToWideString(s);
         end
         else
         if ( key = _VirtualFN ) then
         begin
-          myNode.VirtualFN := s;
+          myNode.VirtualFN := TryUTF8ToWideString(s);
           try
-            myNode.LoadVirtualFile;          
+            myNode.LoadVirtualFile;
           except
             on E : Exception do
             begin
@@ -2440,7 +2476,7 @@ begin
       if ( key = _DefaultNodeName ) then
       begin
         if ( s <> '' ) then
-          FDefaultNodeName := s;
+          FDefaultNodeName := TryUTF8ToWideString(s);
       end
       else
       if ( key = _CHTRBGColor ) then
@@ -2575,7 +2611,7 @@ begin
       else
       if ( key = _NoteName ) then
       begin
-        FName := s;
+        FName := TryUTF8ToWideString(s);
       end
       else
       if ( key = _NoteID ) then

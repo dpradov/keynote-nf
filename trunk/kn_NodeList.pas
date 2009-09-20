@@ -45,7 +45,7 @@ unit kn_NodeList;
 interface
 uses Windows, Classes, graphics, comctrls,
   SysUtils, gf_misc, gf_files,
-  kn_Const, kn_Info,
+  kn_Const, kn_Info, TntClasses,
   TreeNT;
 
 type
@@ -55,12 +55,12 @@ type
 
 type
   EVirtualNodeError = class( Exception);
-  
+
   TNoteNode = class( TObject )
   private
-    FStream : TMemoryStream;
+    FStream : TTntMemoryStream;
     FID : longint;
-    FName : string;
+    FName : WideString;
     FLevel : integer;
     FSelStart : integer;
     FSelLength : integer;
@@ -69,8 +69,8 @@ type
     FBold : boolean;
     FRTFBGColor : TColor;
     FVirtualMode : TVirtualMode;
-    FVirtualFN : string;
-    FRelativeVirtualFN : string;
+    FVirtualFN : wideString;
+    FRelativeVirtualFN : wideString;
     FRTFModified : boolean;
     FExpanded : boolean;
     FImageIndex : integer;
@@ -86,23 +86,23 @@ type
     FFiltered: Boolean;            // [dpv]: True -> Hidden
     FAlarm: TDateTime;             // [dpv]
 
-    procedure SetName( AName : string );
+    procedure SetName( AName : WideString );
     procedure SetLevel( ALevel : integer );
-    procedure SetVirtualFN( aVirtualFN : string );
-    function GetVirtualFN: string;
+    procedure SetVirtualFN( aVirtualFN : wideString );
+    function GetVirtualFN: wideString;
     function  GetMirrorNode: TTreeNTNode;
     procedure SetMirrorNode( aNode : TTreeNTNode );
-    function GetMirrorNodePath: string;
-    procedure SetMirrorNodeID( ID : string );
+    function GetMirrorNodePath: wideString;
+    procedure SetMirrorNodeID( ID : wideString );
     procedure SetID( AID : longint );
     procedure SetNodeFontFace( const aFace : string );
-    function GetRelativeVirtualFN : string;
+    function GetRelativeVirtualFN : wideString;
     procedure SetWordWrap( const Value : TNodeWordWrap );
     function GetAlarm: TDateTime;
 
   public
-    property Stream : TMemoryStream read FStream;
-    property Name : string read FName write SetName;
+    property Stream : TTntMemoryStream read FStream;
+    property Name : WideString read FName write SetName;
     property ID : longint read FID write SetID;
     property Level : integer read FLevel write SetLevel;
     property SelStart : integer read FSelStart write FSelStart;
@@ -117,12 +117,12 @@ type
     property RTFBGColor : TColor read FRTFBGColor write FRTFBGColor;
     property Bold : boolean read FBold write FBold;
     property VirtualMode : TVirtualMode read FVirtualMode write FVirtualMode;
-    property VirtualFN : string read GetVirtualFN write SetVirtualFN;
-    property RelativeVirtualFN : string read GetRelativeVirtualFN write FRelativeVirtualFN;
+    property VirtualFN : wideString read GetVirtualFN write SetVirtualFN;
+    property RelativeVirtualFN : wideString read GetRelativeVirtualFN write FRelativeVirtualFN;
 
-    property MirrorNodePath : string read GetMirrorNodePath;
+    property MirrorNodePath : wideString read GetMirrorNodePath;
     property MirrorNode: TTreeNTNode read GetMirrorNode write SetMirrorNode;
-    property MirrorNodeID: string read FVirtualFN write SetMirrorNodeID;
+    property MirrorNodeID: wideString read FVirtualFN write SetMirrorNodeID;
     procedure AddedMirrorNode;
     procedure RemovedAllMirrorNodes;
     function HasMirrorNodes: boolean;
@@ -179,7 +179,8 @@ var
 
 implementation
 uses kn_Global,
-     StrUtils, kn_TreeNoteMng, kn_NoteObj, kn_LinksMng, kn_LocationObj;
+     StrUtils, kn_TreeNoteMng, kn_NoteObj, kn_LinksMng, kn_LocationObj,
+     TntSysUtils, TntSystem;
 
 resourcestring
   STR_01 = 'Unable to load the mirror node.' +  #13#10 + 'Node non virtual to wich this node was linked could not be found';
@@ -207,7 +208,7 @@ begin
   FRTFModified := false;
   FHasNodeColor := false;
   FHasNodeBGColor := false;
-  FStream := TMemoryStream.Create;
+  FStream := TTntMemoryStream.Create;
   FNodeColor := clWindowText;
   FNodeBGColor := clWindow;
   FHasNodeFontFace := false;
@@ -316,7 +317,7 @@ begin
 end; // FlagsStringToProperties
 
 
-procedure TNoteNode.SetVirtualFN( aVirtualFN : string );
+procedure TNoteNode.SetVirtualFN( aVirtualFN : wideString );
 var
   myExt : string;
 begin
@@ -344,7 +345,7 @@ begin
         end;
         }
 
-        myExt := lowercase( extractfileext( FVirtualFN ));
+        myExt := lowercase( WideExtractfileext( FVirtualFN ));
         if ( myExt = ext_RTF ) then
           FVirtualMode := vmRTF
         else
@@ -384,7 +385,7 @@ begin
    FTag := 0;
 end;
 
-function TNoteNode.GetVirtualFN: string;
+function TNoteNode.GetVirtualFN: wideString;
 begin
     if FVirtualMode <> vmKNTNode then
        Result:= FVirtualFN
@@ -392,7 +393,7 @@ begin
        Result:= GetMirrorNodePath;
 end;
 
-procedure TNoteNode.SetMirrorNodeID( ID : string );
+procedure TNoteNode.SetMirrorNodeID( ID : wideString );
 begin
     FVirtualMode := vmKNTNode;
     FVirtualFN:= ID;
@@ -411,7 +412,7 @@ begin
 end; // GetVirtualKNTNode
 
 
-function TNoteNode.GetMirrorNodePath: string;
+function TNoteNode.GetMirrorNodePath: wideString;
 var
    note: TTabNote;
    node : TTreeNTNode;
@@ -468,7 +469,7 @@ begin
        if FVirtualMode = vmKNTNode then begin
            FVirtualMode:= vmNone;
            FVirtualFN:= '';
-           FStream := TMemoryStream.Create;
+           FStream := TTntMemoryStream.Create;
        end;
 
      FStream.Position := 0;
@@ -491,18 +492,18 @@ end;
 
 procedure TNoteNode.LoadVirtualFile;
 var
-  NewVirtualFN : string;
+  NewVirtualFN : wideString;
 begin
   FStream.Clear;
   FStream.Position := 0;
 
-  if ( not fileexists( FVirtualFN )) then
+  if ( not WideFileexists( FVirtualFN )) then
   begin
     // try relative path
     if ( FRelativeVirtualFN <> '' ) then
     begin
-      NewVirtualFN := ExpandFileName( FRelativeVirtualFN ); // must set current dir previously to the KeyNOte file's dir, using ChDir
-      if fileexists( NewVirtualFN ) then
+      NewVirtualFN := WideExpandFileName( FRelativeVirtualFN ); // must set current dir previously to the KeyNOte file's dir, using ChDir
+      if wideFileexists( NewVirtualFN ) then
         FVirtualFN := NewVirtualFN;
     end;
   end;
@@ -514,14 +515,14 @@ end; // LoadVirtualFile
 
 procedure TNoteNode.SaveVirtualFile;
 var
-  bakFN : string;
+  bakFN : wideString;
 begin
   if ( FVirtualMode in [vmText, vmRTF, vmHTML] ) then
   begin
-    FRelativeVirtualFN := ExtractRelativePath( _VNKeyNoteFileName, FVirtualFN );
+    FRelativeVirtualFN := WideExtractRelativePath( _VNKeyNoteFileName, FVirtualFN );
 
     // only saved file if was actually changed
-    if ( FRTFModified or ( not fileexists( FVirtualFN ))) then
+    if ( FRTFModified or ( not WideFileexists( FVirtualFN ))) then
     begin
       // back up the original file. Problem:
       // we have no access to KeyOptions here,
@@ -531,12 +532,12 @@ begin
       if _VNDoBackup then
       begin
         case _VNBackupAddExt of
-          false : bakFN := changefileext( FVirtualFN, _VNBackupExt );
+          false : bakFN := WideChangefileext( FVirtualFN, _VNBackupExt );
           true : bakFN := FVirtualFN + _VNBackupExt;
         end;
 
         if ( _VNBackupDir <> '' ) then
-          bakFN := _VNBackupDir + extractfilename( bakFN );
+          bakFN := _VNBackupDir + WideExtractFilename( bakFN );
 
         CopyFile( PChar( FVirtualFN ), PChar( bakFN ), false );
       end;
@@ -600,7 +601,7 @@ begin
     ( FVirtualFN[1] = _VIRTUAL_NODE_ERROR_CHAR ));
 end; // HasVNodeError
 
-procedure TNoteNode.SetName( AName : string );
+procedure TNoteNode.SetName( AName : WideString );
 begin
   if ( AName <> FName ) then
   begin
@@ -624,7 +625,7 @@ begin
   if ( FLevel < 0 ) then FLevel := 0;
 end; // SetLevel
 
-function TNoteNode.GetRelativeVirtualFN : string;
+function TNoteNode.GetRelativeVirtualFN : wideString;
 begin
   if ( FRelativeVirtualFN = '' ) then
   begin

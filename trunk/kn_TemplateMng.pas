@@ -1,25 +1,27 @@
 unit kn_TemplateMng;
 
 interface
+uses wideStrings;
 
 var
-    Template_Folder : string;
+    Template_Folder : wideString;
     Template_LastWasFormatted : boolean;
-    LastTemplateUsed : string;
+    LastTemplateUsed : wideString;
 
     // template functions
     procedure CreateTemplate;
-    procedure InsertTemplate( tplFN : string );
+    procedure InsertTemplate( tplFN : wideString );
     procedure LoadTemplateList;
     procedure RemoveTemplate;
-    function GetTemplateIconIndex( const fn : string ) : integer;
+    function GetTemplateIconIndex( const fn : wideString ) : integer;
 
 
 implementation
 uses
     Forms, Classes, Controls, Dialogs, StdCtrls, SysUtils,
-    gf_misc, gf_files,
-    kn_Global, kn_Const, kn_Info, kn_Main, kn_RTFUtils, kn_NewTemplate, kn_NoteFileMng;
+    gf_misc, gf_files, gf_miscvcl,
+    kn_Global, kn_Const, kn_Info, kn_Main, kn_RTFUtils, kn_NewTemplate, kn_NoteFileMng,
+    TntClasses, TntSysUtils;
 
 resourcestring
   STR_01 = 'Template "%s" already exists. Overwrite existing template?';
@@ -31,11 +33,11 @@ resourcestring
 procedure LoadTemplateList;
 var
   i : integer;
-  list : TStringList;
+  list : TWideStringList;
 begin
   with Form_Main do begin
       ListBox_ResTpl.Items.BeginUpdate;
-      list := TStringList.Create;
+      list := TWideStringList.Create;
       try
         try
           ListBox_ResTpl.Items.Clear;
@@ -79,10 +81,10 @@ begin
   end;
 end; // LoadTemplateList
 
-function GetTemplateIconIndex( const fn : string ) : integer;
+function GetTemplateIconIndex( const fn : wideString ) : integer;
 begin
   result := TEMPLATE_IMAGE_BASE;
-  if ( extractfileext( lowercase( fn )) <> ext_RTF ) then
+  if ( WideExtractfileext( lowercase( fn )) <> ext_RTF ) then
     inc( result );
 end; // GetTemplateIconIndex
 
@@ -90,8 +92,9 @@ procedure CreateTemplate;
 var
   Form_Template : TForm_Template;
   UseSelection, ReplaceExisting : boolean;
-  fn, s : string;
-  f : textfile;
+  fn: wideString;
+  s : string;
+  F: TStream;
   i : integer;
 begin
   with Form_Main do begin
@@ -112,7 +115,7 @@ begin
           if UseSelection then
           begin
             RG_Source.ItemIndex := 0;
-            Edit_Name.Text := MakeValidFilename( ActiveNote.Editor.SelText, [' '], MAX_FILENAME_LENGTH );
+            Edit_Name.Text := MakeValidFilename( ActiveNote.Editor.SelTextW, [' '], MAX_FILENAME_LENGTH );
           end
           else
           begin
@@ -136,11 +139,11 @@ begin
           else
             fn := Template_Folder + fn + ext_TXT;
 
-          if fileexists( fn ) then
+          if WideFileexists( fn ) then
           begin
-            if ( messagedlg( Format(
+            if ( DoMessageBox( WideFormat(
                 STR_01,
-                [extractfilename( fn )]
+                [WideExtractFilename( fn )]
               ), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
               exit
             else
@@ -149,7 +152,7 @@ begin
 
           if ReplaceExisting then
           begin
-            i := ListBox_ResTpl.Items.IndexOf( extractfilename( fn ));
+            i := ListBox_ResTpl.Items.IndexOf( WideExtractFilename( fn ));
             if ( i >= 0 ) then
               ListBox_ResTpl.Items.Delete( i );
           end;
@@ -162,9 +165,8 @@ begin
 
           if ( s <> '' ) then
           begin
-            assignfile( f, fn );
             try
-              rewrite( f );
+              F:= TTntFileStream.Create( fn, ( fmCreate or fmShareExclusive ));
             except
               on E : Exception do
               begin
@@ -175,11 +177,11 @@ begin
 
             try
               try
-                writeln( f, s );
+                F.WriteBuffer(PChar(s)^, length(s));
                 if KeyOptions.ResPanelShow then
                 begin
                   i := ListBox_ResTpl.AddItem(
-                    extractfilename( fn ),
+                    WideExtractFilename( fn ),
                     cbUnchecked,
                     GetTemplateIconIndex( fn )
                   );
@@ -187,7 +189,7 @@ begin
                 end;
                 StatusBar.Panels[PANEL_HINT].Text := Format(
                     STR_02,
-                    [extractfilename( fn )]
+                    [WideExtractFilename( fn )]
                   );
               except
                 on E : Exception do
@@ -197,7 +199,7 @@ begin
                 end;
               end;
             finally
-              closefile( f );
+              F.Free;
             end;
           end;
 
@@ -209,10 +211,10 @@ begin
 
 end; // CreateTemplate
 
-procedure InsertTemplate( tplFN : string );
+procedure InsertTemplate( tplFN : wideString );
 var
   oldFilter : string;
-  list : TStringList;
+  list : TTntStringList;
   asRTF : boolean;
 begin
   with Form_Main do begin
@@ -256,13 +258,13 @@ begin
 
       end;
 
-      if ( not fileexists( tplFN )) then exit;
+      if ( not WideFileexists( tplFN )) then exit;
 
-      asRTF := ExtIsRTF( extractfileext( tplFN ));
+      asRTF := ExtIsRTF( WideExtractfileext( tplFN ));
 
-      LastTemplateUsed := extractfilename( tplFN );
+      LastTemplateUsed := WideExtractFilename( tplFN );
 
-      list := TStringList.Create;
+      list := TTntStringList.Create;
       try
         try
           list.LoadFromFile( tplFN );
@@ -291,19 +293,19 @@ end; // InsertTemplate
 procedure RemoveTemplate;
 var
   i : integer;
-  fn : string;
+  fn : wideString;
 begin
   with Form_Main do begin
       i := ListBox_ResTpl.ItemIndex;
       if ( i < 0 ) then exit;
       fn := Template_Folder + ListBox_ResTpl.Items[i];
-      if ( messagedlg( Format(
+      if ( DoMessageBox( Format(
         STR_04,
         [ListBox_ResTpl.Items[i]]
       ), mtConfirmation, [mbOK, mbCancel], 0 ) <> mrOK ) then exit;
 
       ListBox_ResTpl.Items.Delete( i );
-      deletefile( fn );
+      WideDeleteFile( fn );
 
       if ( ListBox_ResTpl.Items.Count > 0 ) then
         ListBox_ResTpl.ItemIndex := 0;

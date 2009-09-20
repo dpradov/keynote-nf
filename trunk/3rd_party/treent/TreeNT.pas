@@ -29,7 +29,7 @@ interface
 {$endif}
 
 uses
-  Windows, Classes, ShellAPI,
+  Windows, Classes, ShellAPI, wideStrings,
   {$ifdef DFS_DELPHI_4_UP} ImgList, {$endif}
   {$ifdef WithCommCrtl98} CommCtrl98, {$else} CommCtrl, {$endif}
   {$IFDEF DFS_DELPHI_6_UP} // *1
@@ -57,6 +57,11 @@ const
   ckRadioChecked  = 6; // a radio button with a filled circle
   ckRadioDisabled = 7; // a grayed and empty radio button
   ckRadioGrayed   = 8; // a grayed radio button with a filled circle
+
+  {.$DEFINE TEST_UNICODE}
+  {$IFDEF  TEST_UNICODE}
+  Win32PlatformIsUnicode = FALSE;
+  {$ENDIF}
 
 type
   TTreeOptions = set of (toAutoExpand, toAutoScroll, toCheckSupport, toNoEraseBkgnd, toEvenHeight, toFullRowSelect,
@@ -156,7 +161,7 @@ type
   TTreeNTNode = class(TPersistent)
   private
     FOwner: TTreeNTNodes;
-    FText: String;
+    FText: WideString;
     FData: Pointer;
     FItemId: HTreeItem;
     FFont: TFont;
@@ -225,7 +230,7 @@ type
     procedure SetSelectedIndex(Value: Integer);
     procedure SetSelected(Value: Boolean);
     procedure SetStateIndex(Value: Integer);
-    procedure SetText(const S: String);
+    procedure SetText(const S: WideString);
     procedure SetHidden(Value: Boolean);    // [dpv]
     function GetHidden: Boolean;            // [dpv]
     function GetMarkedHidden: Boolean;      // [dpv]
@@ -233,7 +238,7 @@ type
   protected
     procedure FontChanged(Sender: Tobject);
     procedure ReadData(Stream: TStream; Info: PNodeInfo); virtual;
-    function ReadStrings(var S: PChar; CurrentLevel: Integer): Integer;
+    function ReadStrings(var S: PWideChar; CurrentLevel: Integer): Integer;
     procedure WriteData(Stream: TStream; Info: PNodeInfo); virtual;
     procedure WriteStrings(Stream: TStream; Level: Integer);
   public
@@ -307,7 +312,7 @@ type
     property Selected: Boolean read GetSelected write SetSelected;
     property SelectedIndex: Integer read FSelectedIndex write SetSelectedIndex;
     property StateIndex: Integer read FStateIndex write SetStateIndex;
-    property Text: String read FText write SetText;
+    property Text: WideString read FText write SetText;
     property TreeView: TCustomTreeNT read GetTreeNT;
     property Hidden: Boolean read GetHidden write SetHidden;       // [dpv]
     property MarkedHidden: Boolean read GetMarkedHidden;           // [dpv]   Explicit marked as Hidden
@@ -339,7 +344,7 @@ type
   protected
     function AddItem(Parent, Target: HTreeItem; const Item: TTVItem; AddMode: TAddMode): HTreeItem;
     procedure AddToSelection(Node: TTreeNTNode);
-    function InternalAddObject(Node: TTreeNTNode; const S: String; Ptr: Pointer; AddMode: TAddMode): TTreeNTNode;
+    function InternalAddObject(Node: TTreeNTNode; const S: WideString; Ptr: Pointer; AddMode: TAddMode): TTreeNTNode;
     procedure DefineProperties(Filer: TFiler); override;
     function CreateItem(Node: TTreeNTNode): TTVItem;
     procedure FillCache;
@@ -358,27 +363,27 @@ type
     constructor Create(AOwner: TCustomTreeNT);
     destructor Destroy; override;
 
-    function AddChildFirst(Node: TTreeNTNode; const S: String): TTreeNTNode;
-    function AddChild(Node: TTreeNTNode; const S: String): TTreeNTNode;
-    function AddChildObjectFirst(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
-    function AddChildObject(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
-    function AddFirst(Node: TTreeNTNode; const S: String): TTreeNTNode;
-    function Add(Node: TTreeNTNode; const S: String): TTreeNTNode;
-    function AddObjectFirst(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
-    function AddObject(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
+    function AddChildFirst(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
+    function AddChild(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
+    function AddChildObjectFirst(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
+    function AddChildObject(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
+    function AddFirst(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
+    function Add(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
+    function AddObjectFirst(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
+    function AddObject(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
     procedure Assign(Source: TPersistent); override;
     procedure BeginUpdate;
     procedure Clear;
     procedure Delete(Node: TTreeNTNode);
     procedure DeleteSelectedNodes;
     procedure EndUpdate;
-    function FindNode(Flags: TFindFlags; AText: String; AData: Pointer): TTreeNTNode;
+    function FindNode(Flags: TFindFlags; AText: WideString; AData: Pointer): TTreeNTNode;
     function GetFirstNode: TTreeNTNode;
     function GetFirstSelectedNode: TTreeNTNode;
     function GetNode(ItemId: HTreeItem): TTreeNTNode;
     function GetNodeFromIndex(Index: Integer): TTreeNTNode;
-    function Insert(Node: TTreeNTNode; const S: String): TTreeNTNode;
-    function InsertObject(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
+    function Insert(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
+    function InsertObject(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
     procedure InvalidateItemCache; virtual;
     function IsDeleting: Boolean;
     function IsUpdating: Boolean;
@@ -406,17 +411,17 @@ type
   TTVChangingEvent   = procedure(Sender: TObject; Node: TTreeNTNode; var AllowChange: Boolean) of object;
   TTVChangedEvent    = procedure(Sender: TObject; Node: TTreeNTNode) of object;
   TTVEditingEvent    = procedure(Sender: TObject; Node: TTreeNTNode; var AllowEdit: Boolean) of object;
-  TTVEditedEvent     = procedure(Sender: TObject; Node: TTreeNTNode; var S: String) of object;
+  TTVEditedEvent     = procedure(Sender: TObject; Node: TTreeNTNode; var S: WideString) of object;
 
   // [MJ] added
   TTVEditCanceledEvent = procedure(Sender: TObject) of object;
-  TFileDroppedEvent = procedure( sender : Tobject; FileList : TStringList ) of object;
+  TFileDroppedEvent = procedure( sender : Tobject; FileList : TWideStringList ) of object;
   // end [MJ] added
 
   TTVExpandingEvent  = procedure(Sender: TObject; Node: TTreeNTNode; var AllowExpansion: Boolean) of object;
   TTVCollapsingEvent = procedure(Sender: TObject; Node: TTreeNTNode; var AllowCollapse: Boolean) of object;
   TTVExpandedEvent   = procedure(Sender: TObject; Node: TTreeNTNode) of object;
-  TTVHintEvent       = procedure(Sender: TObject; Node: TTreeNTNode; var NewText: String) of object;
+  TTVHintEvent       = procedure(Sender: TObject; Node: TTreeNTNode; var NewText: WideString) of object;
   {$ifdef DFS_COMPILER_3_UP}
     TTVCompareEvent    = procedure(Sender: TObject; Node1, Node2: TTreeNTNode; Data: Integer; var Compare: Integer) of object;
   {$else}
@@ -604,6 +609,7 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetDragMode(Value: TDragMode); override;
     procedure WndProc(var Message: TMessage); override;
+    procedure CreateWindowHandle(const Params: TCreateParams); override;
 
     property BorderStyle: TBorderStyle read FBorderStyle write SetBorderStyle default bsSingle;
     property ChangeDelay: Integer read GetChangeDelay write SetChangeDelay default 0;
@@ -781,11 +787,12 @@ type
 //------------------------------------------------------------------------------
 
 implementation
+uses
+  Consts, ComStrs, Dialogs, Printers, WideStrUtils,
+  TntComCtrls, TntControls, TntStdCtrls, TntSysUtils, TntSystem;
 
 {$R TreeNT.res}
 
-uses
-  Consts, ComStrs, Dialogs, Printers;
 
 var
   CheckImages: TImageList;
@@ -1274,7 +1281,7 @@ begin
   with Node1 do
     if assigned(TreeView.OnCompare)
       then TreeView.OnCompare(TreeView, Node1, Node2, lParam, Result)
-      else Result := lstrcmp(PChar(Node1.Text), PChar(Node2.Text));
+      else Result := lstrcmpW(PWideChar(Node1.Text), PWideChar(Node2.Text));
 end;
 
 //------------------------------------------------------------------------------
@@ -1482,19 +1489,20 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TTreeNTNode.SetText(const S: String);
-
+procedure TTreeNTNode.SetText(const S: WideString);
 var Item: TTVItem;
-
 begin
   FText := S;
   if FItemID <> nil then begin            // [dpv]
+  //if Win32PlatformIsUnicode
       with Item do
       begin
         Mask := TVIF_TEXT;
         hItem := ItemId;
+        //pszText := LPSTR_TEXTCALLBACKW;
         pszText := LPSTR_TEXTCALLBACK;
       end;
+     //TreeView_SetItemW(Handle, Item);
      TreeView_SetItem(Handle, Item);
   end;
   if (TreeView.SortType in [stText, stBoth]) and FInTree then
@@ -2985,11 +2993,21 @@ procedure TTreeNTNode.ReadData(Stream: TStream; Info: PNodeInfo);
 
 var I, Size    : Integer;
     IsExpanded : Boolean;
+    Utf8Text: AnsiString;
 
 begin
   Stream.ReadBuffer(Size, SizeOf(Size));
   Stream.ReadBuffer(Info^, Size);
-  Text := Info.Text;
+  if Pos(UTF8_BOM, Info^.Text) = 1 then begin
+    Utf8Text := Copy(Info^.Text, Length(UTF8_BOM) + 1, MaxInt);
+    try
+      Text := UTF8ToWideString(Utf8Text);
+    except
+      Text := Utf8Text;
+    end;
+  end else
+    Text := Info^.Text;
+
   if Info.Hidden = hsHidden then      // [dpv]
     Hidden:= True
   else
@@ -3025,18 +3043,18 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNode.ReadStrings(var S: PChar; CurrentLevel: Integer): Integer;
+function TTreeNTNode.ReadStrings(var S: PWideChar; CurrentLevel: Integer): Integer;
 
 // decomposes the provided string and builds new nodes from it
 
 var NewLevel   : Integer;
-    NewText    : String;
+    NewText    : WideString;
     NewChild   : TTreeNTNode;
     RaiseException: Boolean;
 
-  function GetString(var S: PChar): String;
+  function GetString(var S: PWideChar): WideString;
 
-  var Start : PChar;
+  var Start : PWideChar;
 
   begin
     Start := S;
@@ -3076,12 +3094,19 @@ end;
 procedure TTreeNTNode.WriteData(Stream: TStream; Info: PNodeInfo);
 
 var I, Size, L : Integer;
+    WideLen: Integer; Utf8Text: AnsiString;
 
 begin
-  L := Length(Text);
-  if L > 255 then L := 255;
+  WideLen := 255;
+  repeat
+    Utf8Text := UTF8_BOM + WideStringToUTF8(Copy(Text, 1, WideLen));
+    L := Length(Utf8Text);
+    Dec(WideLen);
+  until
+    L <= 255;
+
   Size := SizeOf(TNodeInfo) + L - 255;
-  Info.Text := Text;
+  Info.Text := Utf8Text;
   Info.ImageIndex := ImageIndex;
   Info.SelectedIndex := SelectedIndex;
   Info.OverlayIndex := OverlayIndex;
@@ -3120,7 +3145,7 @@ procedure TTreeNTNode.WriteStrings(Stream: TStream; Level: Integer);
 // stream (replaces therefore the much slower save-to-disk solution of TTreeView)
 
 var I      : Integer;
-    Buffer : String;
+    Buffer : WideString;
 
 begin
   if Hidden then exit;      // [dpv]
@@ -3129,13 +3154,13 @@ begin
   begin
     Buffer := '';
     for I := 0 to Level - 1 do Buffer := Buffer + #9;
-    Stream.Write(PChar(Buffer)^, Length(Buffer));
+    Stream.Write(PWideChar(Buffer)^, SizeOf(WideChar)*Length(Buffer));
   end;
 
-  Stream.Write(PChar(FText)^, Length(FText));
+   Stream.Write(PWideChar(FText)^, SizeOf(WideChar)*Length(FText));
 
   Buffer := #13#10;
-  Stream.Write(PChar(Buffer)^, 2);
+  Stream.Write(PWideChar(Buffer)^, SizeOf(WideChar)*2);
 
   for I := 0 to Count - 1 do Item[I].WriteStrings(Stream, Level + 1);
 end;
@@ -3268,7 +3293,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.AddChildFirst(Node: TTreeNTNode; const S: String): TTreeNTNode;
+function TTreeNTNodes.AddChildFirst(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
 
 begin
   Result := InternalAddObject(Node, S, nil, taAddFirst);
@@ -3276,7 +3301,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.AddChildObjectFirst(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
+function TTreeNTNodes.AddChildObjectFirst(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
 
 begin
   Result := InternalAddObject(Node, S, Ptr, taAddFirst);
@@ -3284,7 +3309,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.AddChild(Node: TTreeNTNode; const S: String): TTreeNTNode;
+function TTreeNTNodes.AddChild(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
 
 begin
   Result := InternalAddObject(Node, S, nil, taAdd);
@@ -3292,7 +3317,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.AddChildObject(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
+function TTreeNTNodes.AddChildObject(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
 
 begin
   Result := InternalAddObject(Node, S, Ptr, taAdd);
@@ -3300,7 +3325,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.AddFirst(Node: TTreeNTNode; const S: String): TTreeNTNode;
+function TTreeNTNodes.AddFirst(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
 
 begin
   if Node <> nil then Node := Node.FParent;
@@ -3309,7 +3334,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.AddObjectFirst(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
+function TTreeNTNodes.AddObjectFirst(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
 
 begin
   if Node <> nil then Node := Node.FParent;
@@ -3318,7 +3343,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.Add(Node: TTreeNTNode; const S: String): TTreeNTNode;
+function TTreeNTNodes.Add(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
 
 begin
   if Node <> nil then Node := Node.FParent;
@@ -3327,7 +3352,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.AddObject(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
+function TTreeNTNodes.AddObject(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
 
 begin
   if Node <> nil then Node := Node.FParent;
@@ -3354,7 +3379,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.Insert(Node: TTreeNTNode; const S: String): TTreeNTNode;
+function TTreeNTNodes.Insert(Node: TTreeNTNode; const S: WideString): TTreeNTNode;
 
 begin
   Result := InsertObject(Node, S, nil);
@@ -3375,7 +3400,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.InsertObject(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
+function TTreeNTNodes.InsertObject(Node: TTreeNTNode; const S: WideString; Ptr: Pointer): TTreeNTNode;
 
 var Item,
     ItemID     : HTreeItem;
@@ -3544,7 +3569,7 @@ procedure TTreeNTNodes.ReadStrings(Stream: TStream);
 
 var Size   : Integer;
     Start,
-    S      : PChar;
+    S      : PWideChar;
 
 begin
   Size := Stream.Size - Stream.Position;
@@ -3596,7 +3621,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.InternalAddObject(Node: TTreeNTNode; const S: String; Ptr: Pointer; AddMode: TAddMode): TTreeNTNode;
+function TTreeNTNodes.InternalAddObject(Node: TTreeNTNode; const S: WideString; Ptr: Pointer; AddMode: TAddMode): TTreeNTNode;
 
 var Item       : HTreeItem;
     ParentNode : TTreeNTNode;
@@ -3699,7 +3724,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.FindNode(Flags: TFindFlags; AText: String; AData: Pointer): TTreeNTNode;
+function TTreeNTNodes.FindNode(Flags: TFindFlags; AText: WideString; AData: Pointer): TTreeNTNode;
 
 // searchs for the first node matching one or both AText and AData (depending on the passed flags)
 
@@ -4219,6 +4244,12 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+procedure TCustomTreeNT.CreateWindowHandle(const Params: TCreateParams);
+begin
+  CreateUnicodeHandle(Self, Params, WC_TREEVIEW);
+  if Win32PlatformIsUnicode then
+     SendMessageW(Self.Handle, CCM_SETUNICODEFORMAT, Integer(True), 0);
+end;
 
 procedure TCustomTreeNT.CreateParams(var Params: TCreateParams);
 
@@ -4284,7 +4315,8 @@ begin
   GetScrollTime;
 
   FontChanged(nil);
-  Treeview_SetUnicodeFormat(Handle, False);
+  if not Win32PlatformIsUnicode then
+     Treeview_SetUnicodeFormat(Handle, False);
 end;
 
 //------------------------------------------------------------------------------
@@ -4436,6 +4468,15 @@ begin
           if DoKeyDown(TWMKey(Message)) then Exit;
         WM_CHAR:
           if DoKeyPress(TWMKey(Message)) then Exit;
+//          begin
+//            MakeWMCharMsgSafeForAnsi(Message);
+//            try
+//              if DoKeyPress(TWMKey(Message)) then Exit;
+//            finally
+//              RestoreWMCharMsg(Message);
+//            end;
+//          end;
+
         WM_KEYUP,
         WM_SYSKEYUP:
           if DoKeyUp(TWMKey(Message)) then Exit;
@@ -4448,7 +4489,10 @@ begin
             Exit;
           end;
       end;
-      Result := CallWindowProc(FDefEditProc, FEditHandle, Msg, WParam, LParam);
+      if Win32PlatformIsUnicode then
+         Result := CallWindowProcW(FDefEditProc, FEditHandle, Msg, WParam, LParam)
+      else
+         Result := CallWindowProc(FDefEditProc, FEditHandle, Msg, WParam, LParam);
     end;
   except
     Application.HandleException(Self);
@@ -5156,7 +5200,7 @@ procedure TCustomTreeNT.CNNotify(var Message: TWMNotify);
 
 var Node       : TTreeNTNode;
     NodeStates : TNodeStates;
-    NewText    : String;
+    NewText    : WideString;
     OwnerDraw,
     Allowed    : Boolean;
     MousePos   : TPoint;
@@ -5164,29 +5208,40 @@ var Node       : TTreeNTNode;
 begin
   with Message.NMHdr^ do
   case code of
+    TVN_BEGINDRAG,
     TVN_BEGINRDRAG,
-    TVN_BEGINDRAG:
+    TVN_BEGINRDRAGW,
+    TVN_BEGINDRAGW:
       begin
         FDragged := True;
         with PNMTreeView(Pointer(Message.NMHdr))^ do FDragNode := GetNodeFromItem(ItemNew);
       end;
-    TVN_BEGINLABELEDIT:
+    TVN_BEGINLABELEDIT,
+    TVN_BEGINLABELEDITW:
       with PTVDispInfo(Pointer(Message.NMHdr))^ do
       begin
         if Dragging or not CanEdit(GetNodeFromItem(Item)) then Message.Result := 1;
         if Message.Result = 0 then
         begin
           FEditHandle := TreeView_GetEditControl(Handle);
-          FDefEditProc := Pointer(GetWindowLong(FEditHandle, GWL_WNDPROC));
-          SetWindowLong(FEditHandle, GWL_WNDPROC, LongInt(FEditInstance));
+          if code = TVN_BEGINLABELEDIT then begin
+              FDefEditProc := Pointer(GetWindowLong(FEditHandle, GWL_WNDPROC));
+              SetWindowLong(FEditHandle, GWL_WNDPROC, LongInt(FEditInstance));
+          end
+          else begin
+              FDefEditProc := Pointer(GetWindowLongW(FEditHandle, GWL_WNDPROC));
+              SetWindowLongW(FEditHandle, GWL_WNDPROC, LongInt(FEditInstance));
+          end;
           Node := GetNodeFromItem(Item);
           if not Node.ParentFont and assigned(Node.FFont) then
             SendMessage(FEditHandle, WM_SETFONT, Node.Font.Handle, MakeLParam(1, 0));
         end;
       end;
-    TVN_ENDLABELEDIT:
+    TVN_ENDLABELEDIT,
+    TVN_ENDLABELEDITW:
       with PTVDispInfo(Pointer(Message.NMHdr))^ do Edit(Item);
-    TVN_ITEMEXPANDING:
+    TVN_ITEMEXPANDING,
+    TVN_ITEMEXPANDINGW:
       if not FManualNotify then
       begin
         with PNMTreeView(Pointer(Message.NMHdr))^ do
@@ -5199,7 +5254,8 @@ begin
             if not CanCollapse(Node) then Message.Result := 1;
         end;
       end;
-    TVN_ITEMEXPANDED:
+    TVN_ITEMEXPANDED,
+    TVN_ITEMEXPANDEDW:
       if not FManualNotify then
       begin
         with PNMTreeView(Pointer(Message.NMHdr))^ do
@@ -5218,10 +5274,12 @@ begin
           end;
         end;
       end;
-    TVN_SELCHANGING:
+    TVN_SELCHANGING,
+    TVN_SELCHANGINGW:
       with PNMTreeView(Pointer(Message.NMHdr))^ do
         if not CanChange(GetNodeFromItem(ItemNew)) then Message.Result := 1;
-    TVN_SELCHANGED:
+    TVN_SELCHANGED,
+    TVN_SELCHANGEDW:
       with PNMTreeView(Pointer(Message.NMHdr))^ do
       begin
         Node := GetNodeFromItem(ItemOld);
@@ -5234,7 +5292,8 @@ begin
         end;
         DoChange(Node);
       end;
-    TVN_DELETEITEM:
+    TVN_DELETEITEM,
+    TVN_DELETEITEMW:
       begin
         with PNMTreeView(Pointer(Message.NMHdr))^ do Node := GetNodeFromItem(ItemOld);
         if Node <> nil then
@@ -5248,13 +5307,15 @@ begin
           end;
         end;
       end;
-    TVN_SETDISPINFO:
+    TVN_SETDISPINFO,
+    TVN_SETDISPINFOW:
       with PTVDispInfo(Pointer(Message.NMHdr))^ do
       begin
         Node := GetNodeFromItem(Item);
         if (Node <> nil) and ((Item.Mask and TVIF_TEXT) <> 0) then Node.Text := Item.pszText;
       end;
-    TVN_GETDISPINFO:
+    TVN_GETDISPINFO,
+    TVN_GETDISPINFOW:
       with PTVDispInfo(Pointer(Message.NMHdr))^ do
       begin
         Node := GetNodeFromItem(Item);
@@ -5262,8 +5323,10 @@ begin
         begin
 //##fe
           if (Item.Mask and TVIF_TEXT) <> 0 then
-            StrLCopy(Item.pszText, PChar(Node.Text), Item.cchTextMax);
-
+            if Win32PlatformIsUnicode then
+              WStrLCopy(TTVItemW(Item).pszText, PWideChar(Node.Text), Item.cchTextMax)
+            else
+              StrLCopy(Item.pszText, PChar(string(Node.Text)), Item.cchTextMax);
 
           if (Item.Mask and TVIF_IMAGE) <> 0 then
           begin
@@ -5285,14 +5348,18 @@ begin
         if assigned(FOnSingleExpanded) then FOnSingleExpanded(Self, Node, Allowed);
         if not Allowed then Message.Result := 1;
       end;
-    TVN_GETINFOTIP:
+    TVN_GETINFOTIP,
+    TVN_GETINFOTIPW:
       if assigned(FOnHint) then
       with PNMTVGetInfoTip(Pointer(Message.NMHdr))^ do
       begin
         Node := TTreeNTNode(lParam);
         NewText := '';
         FOnHint(Self, Node, NewText);
-        StrPLCopy(pszText, NewText, cchTextMax - 1);
+        if Win32PlatformIsUnicode then
+           WStrPLCopy(PWideChar(pszText), NewText, cchTextMax - 1)
+        else
+           StrPLCopy(pszText, NewText, cchTextMax - 1)
       end;
     NM_CUSTOMDRAW:
       with PNMTVCustomDraw(Pointer(Message.NMHdr))^ do
@@ -5814,14 +5881,17 @@ end;
 
 procedure TCustomTreeNT.Edit(const Item: TTVItem);
 
-var S    : String;
+var S    : WideString;
     Node : TTreeNTNode;
-
 begin
   with Item do
     if pszText <> nil then
     begin
-      S := pszText;
+      if Win32PlatformIsUnicode then
+         S := TTVItemW(Item).pszText
+      else
+         S := pszText;
+
       Node := GetNodeFromItem(Item);
       if assigned(FOnEdited) then FOnEdited(Self, Node, S);
       if assigned(Node) then Node.Text := S;
@@ -6440,14 +6510,18 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TCustomTreeNT.SaveToStream(Stream: TStream; Complete: Boolean);
-
+var v: WideChar;
 begin
   if Complete then
   begin
     Stream.Write(MagicID, SizeOf(MagicID));
     Items.WriteData(Stream);
   end
-  else Items.WriteStrings(Stream);
+  else begin
+     v:= UNICODE_BOM;
+     Stream.Write(v, SizeOf(UNICODE_BOM));
+     Items.WriteStrings(Stream);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -6940,20 +7014,20 @@ end;
 
 procedure TCustomTreeNT.WMDropFiles(var Msg: TWMDropFiles);  // [MJ]
 var
-  CFileName : array[0..MAX_PATH] of Char;
-  FileList : TStringList;
+  CFileName : array[0..MAX_PATH] of WideChar;
+  FileList : TWideStringList;
   i, count : integer;
 begin
-  FileList := TStringList.Create;
+  FileList := TWideStringList.Create;
 
   try
-    count := DragQueryFile( Msg.Drop, $FFFFFFFF, CFileName, MAX_PATH );
+    count := DragQueryFileW( Msg.Drop, $FFFFFFFF, CFileName, MAX_PATH );
 
     if ( count > 0 ) then
     begin
       for i := 0 to count-1 do
       begin
-        DragQueryFile( Msg.Drop, i, CFileName, MAX_PATH );
+        DragQueryFileW( Msg.Drop, i, CFileName, MAX_PATH );
         FileList.Add( CFileName );
       end;
     end;

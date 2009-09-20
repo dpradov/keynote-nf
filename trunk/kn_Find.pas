@@ -59,19 +59,19 @@ type
 
 type
   TForm_Find = class(TForm)
-    Button_Find: TButton;
-    Button_Cancel: TButton;
-    Label1: TLabel;
+    Button_Find: TTntButton;
+    Button_Cancel: TTntButton;
+    Label1: TTntLabel;
     Combo_Text: TTntComboBox;
-    GroupBox_Opts: TGroupBox;
-    CB_MatchCase: TCheckBox;
-    CB_Wrap: TCheckBox;
-    CB_EntireScope: TCheckBox;
+    GroupBox_Opts: TTntGroupBox;
+    CB_MatchCase: TTntCheckBox;
+    CB_Wrap: TTntCheckBox;
+    CB_EntireScope: TTntCheckBox;
     FormPlacement: TFormPlacement;
-    CB_WholeWordsOnly: TCheckBox;
-    CB_AllTabs: TCheckBox;
-    CB_AllNodes: TCheckBox;
-    CB_HiddenNodes: TCheckBox;
+    CB_WholeWordsOnly: TTntCheckBox;
+    CB_AllTabs: TTntCheckBox;
+    CB_AllNodes: TTntCheckBox;
+    CB_HiddenNodes: TTntCheckBox;
     procedure Label1Click(Sender: TObject);
     procedure CB_AllNodesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);

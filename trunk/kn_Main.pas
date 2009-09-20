@@ -64,8 +64,8 @@ uses
   Graphics, Controls, Forms, Dialogs,
   Menus, ComCtrls, Spin, ExtDlgs,
   FileCtrl, RichEdit, IniFiles,
-  Clipbrd, ShellAPI, StdCtrls,
-  ExtCtrls, mmsystem,
+  ShellAPI, StdCtrls,
+  ExtCtrls, mmsystem, WideStrings,
   { 3rd-party units }
   ComCtrls95,
   Parser,
@@ -97,6 +97,7 @@ uses
   gf_strings, gf_miscvcl,
   kn_INI, kn_Cmd, kn_Msgs,
   kn_Info,
+  kn_clipUtils,
   {$IFDEF MJ_DEBUG}
   GFLog,
   {$ENDIF}
@@ -123,7 +124,15 @@ uses
   kn_VCLControlsMng,
   //WinHelpViewer,                 //*1 Lo añado y lo quito al final, porque no va fino (no es posible abrir la tabla de contenidos)
   HTMLHelpViewer,                 //*1
-  ImgList, TntStdCtrls;
+  ImgList, TntStdCtrls, TntDialogs, TntMenus, TntForms, TntClasses, TntControls,
+  TntExtCtrls;
+
+
+  function DoMessageBox (text: wideString;
+        DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
+        HelpCtx: Longint = 0): integer; overload;
+  function PopUpMessage( const mStr : wideString; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons;
+        const mHelpCtx : integer) : word; overload;
 
 
 type
@@ -134,46 +143,45 @@ type
   TEditHandleComboBox = class( TCustomComboBox );
   TWordWrapMemo = class( TCustomMemo );
 
-
 type
-  TForm_Main = class(TForm)
-    Menu_Main: TMainMenu;
-    MMFile_: TMenuItem;
-    MMEdit_: TMenuItem;
-    MMNote_: TMenuItem;
-    MMFormat_: TMenuItem;
-    MMTools_: TMenuItem;
-    MMHelp_: TMenuItem;
-    MMSearch_: TMenuItem;
-    MMView_: TMenuItem;
-    MMHelpTip: TMenuItem;
-    N1: TMenuItem;
-    MMHelpAbout: TMenuItem;
-    MMToolsOptions: TMenuItem;
-    MMNoteNew: TMenuItem;
-    MMNoteProperties: TMenuItem;
-    N2: TMenuItem;
-    MMNoteRemove: TMenuItem;
-    MMFind: TMenuItem;
-    MMFindNext: TMenuItem;
-    MMFileNew: TMenuItem;
-    MMFileProperties: TMenuItem;
-    N3: TMenuItem;
-    MMFileOpen: TMenuItem;
-    MM_MRUSeparator_: TMenuItem;
-    MMFileCopyTo: TMenuItem;
-    MMFileExit: TMenuItem;
+  TForm_Main = class(TTntForm)
+    Menu_Main: TTntMainMenu;
+    MMFile_: TTntMenuItem;
+    MMEdit_: TTntMenuItem;
+    MMNote_: TTntMenuItem;
+    MMFormat_: TTntMenuItem;
+    MMTools_: TTntMenuItem;
+    MMHelp_: TTntMenuItem;
+    MMSearch_: TTntMenuItem;
+    MMView_: TTntMenuItem;
+    MMHelpTip: TTntMenuItem;
+    N1: TTntMenuItem;
+    MMHelpAbout: TTntMenuItem;
+    MMToolsOptions: TTntMenuItem;
+    MMNoteNew: TTntMenuItem;
+    MMNoteProperties: TTntMenuItem;
+    N2: TTntMenuItem;
+    MMNoteRemove: TTntMenuItem;
+    MMFind: TTntMenuItem;
+    MMFindNext: TTntMenuItem;
+    MMFileNew: TTntMenuItem;
+    MMFileProperties: TTntMenuItem;
+    N3: TTntMenuItem;
+    MMFileOpen: TTntMenuItem;
+    MM_MRUSeparator_: TTntMenuItem;
+    MMFileCopyTo: TTntMenuItem;
+    MMFileExit: TTntMenuItem;
     FormStorage: TFormStorage;
     MRU: TdfsMRUFileList;
     StatusBar: TdfsStatusBar;
-    MMFileSave: TMenuItem;
-    MMFileSaveAs: TMenuItem;
-    N5: TMenuItem;
-    MMFileAutoSave: TMenuItem;
-    N6: TMenuItem;
-    MMToolsExport: TMenuItem;
-    MMToolsImport: TMenuItem;
-    MMFileClose: TMenuItem;
+    MMFileSave: TTntMenuItem;
+    MMFileSaveAs: TTntMenuItem;
+    N5: TTntMenuItem;
+    MMFileAutoSave: TTntMenuItem;
+    N6: TTntMenuItem;
+    MMToolsExport: TTntMenuItem;
+    MMToolsImport: TTntMenuItem;
+    MMFileClose: TTntMenuItem;
     Dock_Top: TDock97;
     Toolbar_Main: TToolbar97;
     TB_FileSave: TToolbarButton97;
@@ -188,16 +196,16 @@ type
     Timer: TTimer;
     WinOnTop: TTopMostWindow;
     TrayIcon: TRxTrayIcon;
-    MMNoteRename: TMenuItem;
-    Menu_Tray: TPopupMenu;
-    TMRestore: TMenuItem;
-    N8: TMenuItem;
-    TMExit: TMenuItem;
+    MMNoteRename: TTntMenuItem;
+    Menu_Tray: TTntPopupMenu;
+    TMRestore: TTntMenuItem;
+    N8: TTntMenuItem;
+    TMExit: TTntMenuItem;
     Pages: TPage95Control;
-    Menu_RTF: TPopupMenu;
-    RTFMCut: TMenuItem;
-    Menu_TAB: TPopupMenu;
-    TAM_NewTab: TMenuItem;
+    Menu_RTF: TTntPopupMenu;
+    RTFMCut: TTntMenuItem;
+    Menu_TAB: TTntPopupMenu;
+    TAM_NewTab: TTntMenuItem;
     IMG_Toolbar: TImageList;
     TB_NoteDelete: TToolbarButton97;
     sm5: TToolbarSep97;
@@ -207,22 +215,22 @@ type
     TB_Exit: TToolbarButton97;
     TB_Options: TToolbarButton97;
     sm10: TToolbarSep97;
-    MMNoteReadOnly: TMenuItem;
-    MMFormatWordWrap: TMenuItem;
-    MMEditUndo: TMenuItem;
-    N9: TMenuItem;
-    MMEditCut: TMenuItem;
-    MMEditCopy: TMenuItem;
-    MMEditPaste: TMenuItem;
-    MMEditDelete: TMenuItem;
-    N10: TMenuItem;
-    MMEditSelectAll: TMenuItem;
-    N11: TMenuItem;
-    OpenDlg: TOpenDialog;
-    SaveDlg: TSaveDialog;
-    MMEditRedo: TMenuItem;
+    MMNoteReadOnly: TTntMenuItem;
+    MMFormatWordWrap: TTntMenuItem;
+    MMEditUndo: TTntMenuItem;
+    N9: TTntMenuItem;
+    MMEditCut: TTntMenuItem;
+    MMEditCopy: TTntMenuItem;
+    MMEditPaste: TTntMenuItem;
+    MMEditDelete: TTntMenuItem;
+    N10: TTntMenuItem;
+    MMEditSelectAll: TTntMenuItem;
+    N11: TTntMenuItem;
+    OpenDlg: TTntOpenDialog;
+    SaveDlg: TTntSaveDialog;
+    MMEditRedo: TTntMenuItem;
     TB_EditRedo: TToolbarButton97;
-    MMEditPasteAsText: TMenuItem;
+    MMEditPasteAsText: TTntMenuItem;
     Toolbar_Format: TToolbar97;
     Combo_Font: TFontComboBox;
     sf1: TToolbarSep97;
@@ -242,127 +250,127 @@ type
     IMG_Format: TImageList;
     TB_FileMgr: TToolbarButton97;
     sm2: TToolbarSep97;
-    N12: TMenuItem;
-    MMFontStyle_: TMenuItem;
-    MMFormatBold: TMenuItem;
-    MMFormatItalics: TMenuItem;
-    MMFormatUnderline: TMenuItem;
-    MMFormatStrikeout: TMenuItem;
-    N13: TMenuItem;
-    MMFormatClearFontAttr: TMenuItem;
-    MMParastyle_: TMenuItem;
-    MMAlignment_: TMenuItem;
-    MMFormatAlignLeft: TMenuItem;
-    MMFormatAlignCenter: TMenuItem;
-    MMFormatAlignRight: TMenuItem;
-    MMFormatBullets: TMenuItem;
-    MMFormatLIndInc: TMenuItem;
-    MMFormatLIndDec: TMenuItem;
-    N14: TMenuItem;
-    MMFormatFont: TMenuItem;
-    MMFormatTextColor: TMenuItem;
-    MMFormatBGColor: TMenuItem;
-    MMViewOnTop: TMenuItem;
-    MMFileManager: TMenuItem;
+    N12: TTntMenuItem;
+    MMFontStyle_: TTntMenuItem;
+    MMFormatBold: TTntMenuItem;
+    MMFormatItalics: TTntMenuItem;
+    MMFormatUnderline: TTntMenuItem;
+    MMFormatStrikeout: TTntMenuItem;
+    N13: TTntMenuItem;
+    MMFormatClearFontAttr: TTntMenuItem;
+    MMParastyle_: TTntMenuItem;
+    MMAlignment_: TTntMenuItem;
+    MMFormatAlignLeft: TTntMenuItem;
+    MMFormatAlignCenter: TTntMenuItem;
+    MMFormatAlignRight: TTntMenuItem;
+    MMFormatBullets: TTntMenuItem;
+    MMFormatLIndInc: TTntMenuItem;
+    MMFormatLIndDec: TTntMenuItem;
+    N14: TTntMenuItem;
+    MMFormatFont: TTntMenuItem;
+    MMFormatTextColor: TTntMenuItem;
+    MMFormatBGColor: TTntMenuItem;
+    MMViewOnTop: TTntMenuItem;
+    MMFileManager: TTntMenuItem;
     FontDlg: TFontDialog;
     ColorDlg: TColorDialog;
-    N16: TMenuItem;
-    TAM_Properties: TMenuItem;
-    TAM_Renametab: TMenuItem;
-    N17: TMenuItem;
-    TAM_Delete: TMenuItem;
-    N18: TMenuItem;
-    RTFMCopy: TMenuItem;
-    RTFMPaste: TMenuItem;
-    RTFMPasteAsText: TMenuItem;
-    RTFMDelete: TMenuItem;
-    N19: TMenuItem;
-    RTFMWordwrap: TMenuItem;
-    N20: TMenuItem;
-    RTFMUndo: TMenuItem;
-    N21: TMenuItem;
-    RTFMSelectall: TMenuItem;
-    N22: TMenuItem;
-    MMViewTBMain: TMenuItem;
-    MMViewTBFormat: TMenuItem;
-    N23: TMenuItem;
+    N16: TTntMenuItem;
+    TAM_Properties: TTntMenuItem;
+    TAM_Renametab: TTntMenuItem;
+    N17: TTntMenuItem;
+    TAM_Delete: TTntMenuItem;
+    N18: TTntMenuItem;
+    RTFMCopy: TTntMenuItem;
+    RTFMPaste: TTntMenuItem;
+    RTFMPasteAsText: TTntMenuItem;
+    RTFMDelete: TTntMenuItem;
+    N19: TTntMenuItem;
+    RTFMWordwrap: TTntMenuItem;
+    N20: TTntMenuItem;
+    RTFMUndo: TTntMenuItem;
+    N21: TTntMenuItem;
+    RTFMSelectall: TTntMenuItem;
+    N22: TTntMenuItem;
+    MMViewTBMain: TTntMenuItem;
+    MMViewTBFormat: TTntMenuItem;
+    N23: TTntMenuItem;
     TB_FindNext: TToolbarButton97;
     TB_Find: TToolbarButton97;
     sm6: TToolbarSep97;
-    N15: TMenuItem;
-    MMInsertDate: TMenuItem;
-    MMInsertTime: TMenuItem;
-    MMFindGoTo: TMenuItem;
-    N25: TMenuItem;
-    RTFMProperties: TMenuItem;
-    MMCopyFormat_: TMenuItem;
-    MMPasteFormat_: TMenuItem;
-    MMFormatCopyFont: TMenuItem;
-    MMFormatCopyPara: TMenuItem;
-    MMFormatPasteFont: TMenuItem;
-    MMFormatPastePara: TMenuItem;
+    N15: TTntMenuItem;
+    MMInsertDate: TTntMenuItem;
+    MMInsertTime: TTntMenuItem;
+    MMFindGoTo: TTntMenuItem;
+    N25: TTntMenuItem;
+    RTFMProperties: TTntMenuItem;
+    MMCopyFormat_: TTntMenuItem;
+    MMPasteFormat_: TTntMenuItem;
+    MMFormatCopyFont: TTntMenuItem;
+    MMFormatCopyPara: TTntMenuItem;
+    MMFormatPasteFont: TTntMenuItem;
+    MMFormatPastePara: TTntMenuItem;
     TB_FileInfo: TToolbarButton97;
     sm1: TToolbarSep97;
-    N4: TMenuItem;
-    MMShiftTab_: TMenuItem;
-    MMViewShiftTabLeft: TMenuItem;
-    MMViewShiftTabRight: TMenuItem;
+    N4: TTntMenuItem;
+    MMShiftTab_: TTntMenuItem;
+    MMViewShiftTabLeft: TTntMenuItem;
+    MMViewShiftTabRight: TTntMenuItem;
     sf7: TToolbarSep97;
-    MMFontsize_: TMenuItem;
-    MMFormatFontSizeInc: TMenuItem;
-    MMFormatFontSizeDec: TMenuItem;
-    N24: TMenuItem;
-    TAM_ActiveName: TMenuItem;
+    MMFontsize_: TTntMenuItem;
+    MMFormatFontSizeInc: TTntMenuItem;
+    MMFormatFontSizeDec: TTntMenuItem;
+    N24: TTntMenuItem;
+    TAM_ActiveName: TTntMenuItem;
     FolderMon: TRxFolderMonitor;
-    N26: TMenuItem;
-    MMEditJoin: TMenuItem;
-    MMEditCase_: TMenuItem;
-    MMEditUpper: TMenuItem;
-    MMEditLower: TMenuItem;
-    MMEditMixed: TMenuItem;
-    MMEditDelLine: TMenuItem;
+    N26: TTntMenuItem;
+    MMEditJoin: TTntMenuItem;
+    MMEditCase_: TTntMenuItem;
+    MMEditUpper: TTntMenuItem;
+    MMEditLower: TTntMenuItem;
+    MMEditMixed: TTntMenuItem;
+    MMEditDelLine: TTntMenuItem;
     TB_FontDlg: TToolbarButton97;
-    MMNotePrint: TMenuItem;
+    MMNotePrint: TTntMenuItem;
     PrintDlg: TPrintDialog;
-    N27: TMenuItem;
-    MMNoteClipCapture: TMenuItem;
-    N28: TMenuItem;
-    MMFilePageSetup: TMenuItem;
-    MMNotePrintPreview_: TMenuItem;
-    MMEditCopyAll: TMenuItem;
-    MMEditPasteAsNewNote: TMenuItem;
-    MMEditRot13: TMenuItem;
-    MMNoteEmail: TMenuItem;
+    N27: TTntMenuItem;
+    MMNoteClipCapture: TTntMenuItem;
+    N28: TTntMenuItem;
+    MMFilePageSetup: TTntMenuItem;
+    MMNotePrintPreview_: TTntMenuItem;
+    MMEditCopyAll: TTntMenuItem;
+    MMEditPasteAsNewNote: TTntMenuItem;
+    MMEditRot13: TTntMenuItem;
+    MMNoteEmail: TTntMenuItem;
     TB_EmailNote: TToolbarButton97;
     TB_ClipCap: TToolbarButton97;
     sm8: TToolbarSep97;
-    N7: TMenuItem;
-    MMViewAlphaTabs: TMenuItem;
-    MMEditSort: TMenuItem;
-    N29: TMenuItem;
-    MMViewTabIcons: TMenuItem;
-    Menu_TV: TPopupMenu;
-    TVInsertNode: TMenuItem;
-    TVAddNode: TMenuItem;
-    TVAddChildNode: TMenuItem;
-    N30: TMenuItem;
-    TVDeleteNode: TMenuItem;
-    N31: TMenuItem;
-    TVSortNodes_: TMenuItem;
-    N32: TMenuItem;
-    TVRenameNode: TMenuItem;
-    TVPasteNode_: TMenuItem;
-    TVPasteNodeName: TMenuItem;
-    TVPasteNodeNameAsDate: TMenuItem;
-    TVPasteNodeNameAsTime: TMenuItem;
-    TVPasteNodeNameAsDateTime: TMenuItem;
-    TVSortSubtree: TMenuItem;
-    TVSortTree: TMenuItem;
-    MRUMenu: TPopupMenu;
-    MruM_MRUSeparatorBTN_: TMenuItem;
-    N33: TMenuItem;
-    MMTree_: TMenuItem;
-    MMTreeAdd_: TMenuItem;
+    N7: TTntMenuItem;
+    MMViewAlphaTabs: TTntMenuItem;
+    MMEditSort: TTntMenuItem;
+    N29: TTntMenuItem;
+    MMViewTabIcons: TTntMenuItem;
+    Menu_TV: TTntPopupMenu;
+    TVInsertNode: TTntMenuItem;
+    TVAddNode: TTntMenuItem;
+    TVAddChildNode: TTntMenuItem;
+    N30: TTntMenuItem;
+    TVDeleteNode: TTntMenuItem;
+    N31: TTntMenuItem;
+    TVSortNodes_: TTntMenuItem;
+    N32: TTntMenuItem;
+    TVRenameNode: TTntMenuItem;
+    TVPasteNode_: TTntMenuItem;
+    TVPasteNodeName: TTntMenuItem;
+    TVPasteNodeNameAsDate: TTntMenuItem;
+    TVPasteNodeNameAsTime: TTntMenuItem;
+    TVPasteNodeNameAsDateTime: TTntMenuItem;
+    TVSortSubtree: TTntMenuItem;
+    TVSortTree: TTntMenuItem;
+    MRUMenu: TTntPopupMenu;
+    MruM_MRUSeparatorBTN_: TTntMenuItem;
+    N33: TTntMenuItem;
+    MMTree_: TTntMenuItem;
+    MMTreeAdd_: TTntMenuItem;
     Toolbar_Tree: TToolbar97;
     TB_NodeDelete: TToolbarButton97;
     TB_NodeFirst: TToolbarButton97;
@@ -370,233 +378,233 @@ type
     TB_NodeChild: TToolbarButton97;
     IMG_TV: TImageList;
     TB_NodeRename: TToolbarButton97;
-    MMViewToolbars_: TMenuItem;
-    MMViewTBTree: TMenuItem;
-    MMTreeInsert_: TMenuItem;
-    MMTreeAddChild_: TMenuItem;
-    MMTreeNodeDelete_: TMenuItem;
-    N34: TMenuItem;
-    MMTreeNodeRename_: TMenuItem;
-    MMNodePaste_: TMenuItem;
-    MMTreeNodeNameAsDateTime: TMenuItem;
-    MMTreeNodeNameAsTime: TMenuItem;
-    MMTreeNodeNameAsDate: TMenuItem;
-    MMTreeNodeNamePaste: TMenuItem;
-    N36: TMenuItem;
-    MMTreeSort_: TMenuItem;
-    MMTreeSortFull_: TMenuItem;
-    MMTreeSortSubtree_: TMenuItem;
+    MMViewToolbars_: TTntMenuItem;
+    MMViewTBTree: TTntMenuItem;
+    MMTreeInsert_: TTntMenuItem;
+    MMTreeAddChild_: TTntMenuItem;
+    MMTreeNodeDelete_: TTntMenuItem;
+    N34: TTntMenuItem;
+    MMTreeNodeRename_: TTntMenuItem;
+    MMNodePaste_: TTntMenuItem;
+    MMTreeNodeNameAsDateTime: TTntMenuItem;
+    MMTreeNodeNameAsTime: TTntMenuItem;
+    MMTreeNodeNameAsDate: TTntMenuItem;
+    MMTreeNodeNamePaste: TTntMenuItem;
+    N36: TTntMenuItem;
+    MMTreeSort_: TTntMenuItem;
+    MMTreeSortFull_: TTntMenuItem;
+    MMTreeSortSubtree_: TTntMenuItem;
     Dock_Left: TDock97;
-    N37: TMenuItem;
-    MMTreeFullExpand: TMenuItem;
-    MMTreeFullCollapse: TMenuItem;
-    MMViewNodeIcons: TMenuItem;
-    TVDeleteChildren: TMenuItem;
-    N40: TMenuItem;
-    TVMovenode_: TMenuItem;
-    TVMoveNodeUp: TMenuItem;
-    TVMoveNodeDown: TMenuItem;
-    TVMoveNodeLeft: TMenuItem;
-    TVMoveNodeRight: TMenuItem;
-    MMTreeDeleteSubtree_: TMenuItem;
-    N41: TMenuItem;
-    MMMovenode_: TMenuItem;
-    MMTreeMoveNodeRight_: TMenuItem;
-    MMTreeMoveNodeLeft_: TMenuItem;
-    MMTreeMoveNodeDown_: TMenuItem;
-    MMTreeMoveNodeUp_: TMenuItem;
-    MMToolsDefaults: TMenuItem;
-    MMToolsMerge: TMenuItem;
-    N35: TMenuItem;
-    TVCopyNodeName: TMenuItem;
-    N42: TMenuItem;
-    N43: TMenuItem;
-    RTFMWordWeb: TMenuItem;
+    N37: TTntMenuItem;
+    MMTreeFullExpand: TTntMenuItem;
+    MMTreeFullCollapse: TTntMenuItem;
+    MMViewNodeIcons: TTntMenuItem;
+    TVDeleteChildren: TTntMenuItem;
+    N40: TTntMenuItem;
+    TVMovenode_: TTntMenuItem;
+    TVMoveNodeUp: TTntMenuItem;
+    TVMoveNodeDown: TTntMenuItem;
+    TVMoveNodeLeft: TTntMenuItem;
+    TVMoveNodeRight: TTntMenuItem;
+    MMTreeDeleteSubtree_: TTntMenuItem;
+    N41: TTntMenuItem;
+    MMMovenode_: TTntMenuItem;
+    MMTreeMoveNodeRight_: TTntMenuItem;
+    MMTreeMoveNodeLeft_: TTntMenuItem;
+    MMTreeMoveNodeDown_: TTntMenuItem;
+    MMTreeMoveNodeUp_: TTntMenuItem;
+    MMToolsDefaults: TTntMenuItem;
+    MMToolsMerge: TTntMenuItem;
+    N35: TTntMenuItem;
+    TVCopyNodeName: TTntMenuItem;
+    N42: TTntMenuItem;
+    N43: TTntMenuItem;
+    RTFMWordWeb: TTntMenuItem;
     TB_WordWeb: TToolbarButton97;
     sm7: TToolbarSep97;
-    N44: TMenuItem;
-    TVVirtualNode: TMenuItem;
-    N45: TMenuItem;
-    MMFormatClearParaAttr: TMenuItem;
-    MMFormatRIndInc: TMenuItem;
-    MMFormatRIndDec: TMenuItem;
-    MMEditLines_: TMenuItem;
-    MMEditEvaluate: TMenuItem;
-    MMEditEval_: TMenuItem;
-    MMEditPasteEval: TMenuItem;
-    MMFindNode: TMenuItem;
-    MMFindNodeNext: TMenuItem;
-    N39: TMenuItem;
-    MMFormatSubscript: TMenuItem;
-    N47: TMenuItem;
-    MMFormatDisabled: TMenuItem;
-    MMFormatSpBefInc: TMenuItem;
-    MMFormatSpBefDec: TMenuItem;
-    MMFormatSpAftInc: TMenuItem;
-    MMFormatSpAftDec: TMenuItem;
-    N48: TMenuItem;
-    MMLineSpacing_: TMenuItem;
-    MMFormatLS1: TMenuItem;
-    MMFormatLS15: TMenuItem;
-    MMFormatLS2: TMenuItem;
-    MMEditRepeat: TMenuItem;
-    RTFMRepeatCmd: TMenuItem;
+    N44: TTntMenuItem;
+    TVVirtualNode: TTntMenuItem;
+    N45: TTntMenuItem;
+    MMFormatClearParaAttr: TTntMenuItem;
+    MMFormatRIndInc: TTntMenuItem;
+    MMFormatRIndDec: TTntMenuItem;
+    MMEditLines_: TTntMenuItem;
+    MMEditEvaluate: TTntMenuItem;
+    MMEditEval_: TTntMenuItem;
+    MMEditPasteEval: TTntMenuItem;
+    MMFindNode: TTntMenuItem;
+    MMFindNodeNext: TTntMenuItem;
+    N39: TTntMenuItem;
+    MMFormatSubscript: TTntMenuItem;
+    N47: TTntMenuItem;
+    MMFormatDisabled: TTntMenuItem;
+    MMFormatSpBefInc: TTntMenuItem;
+    MMFormatSpBefDec: TTntMenuItem;
+    MMFormatSpAftInc: TTntMenuItem;
+    MMFormatSpAftDec: TTntMenuItem;
+    N48: TTntMenuItem;
+    MMLineSpacing_: TTntMenuItem;
+    MMFormatLS1: TTntMenuItem;
+    MMFormatLS15: TTntMenuItem;
+    MMFormatLS2: TTntMenuItem;
+    MMEditRepeat: TTntMenuItem;
+    RTFMRepeatCmd: TTntMenuItem;
     Toolbar_Style: TToolbar97;
-    Combo_Style: TComboBox;
+    Combo_Style: TTntComboBox;
     TB_Style: TToolbarButton97;
-    MMEditTransform_: TMenuItem;
-    MMEditReverse: TMenuItem;
-    MMViewTBStyle: TMenuItem;
-    Menu_Style: TPopupMenu;
-    MSStyleApply: TMenuItem;
-    MSStyleFont: TMenuItem;
-    MSStylePara: TMenuItem;
-    MSStyleBoth: TMenuItem;
-    N50: TMenuItem;
-    MSStyleRename: TMenuItem;
-    MSStyleDelete: TMenuItem;
+    MMEditTransform_: TTntMenuItem;
+    MMEditReverse: TTntMenuItem;
+    MMViewTBStyle: TTntMenuItem;
+    Menu_Style: TTntPopupMenu;
+    MSStyleApply: TTntMenuItem;
+    MSStyleFont: TTntMenuItem;
+    MSStylePara: TTntMenuItem;
+    MSStyleBoth: TTntMenuItem;
+    N50: TTntMenuItem;
+    MSStyleRename: TTntMenuItem;
+    MSStyleDelete: TTntMenuItem;
     ToolbarSep9717: TToolbarSep97;
-    N51: TMenuItem;
-    MMFormatFIndInc: TMenuItem;
-    MMFormatFindDec: TMenuItem;
+    N51: TTntMenuItem;
+    MMFormatFIndInc: TTntMenuItem;
+    MMFormatFindDec: TTntMenuItem;
     Dock_Bottom: TDock97;
-    N52: TMenuItem;
-    MSStyleDescribe: TMenuItem;
-    N53: TMenuItem;
-    MMFormatHighlight: TMenuItem;
-    MSStyleRedef: TMenuItem;
-    N54: TMenuItem;
-    MMFormatView_: TMenuItem;
-    MMViewFormatFont: TMenuItem;
-    MMViewFormatPara: TMenuItem;
-    MMViewFormatBoth: TMenuItem;
-    N55: TMenuItem;
-    MMViewFormatNone: TMenuItem;
-    MMFormatNoHighlight: TMenuItem;
-    N49: TMenuItem;
+    N52: TTntMenuItem;
+    MSStyleDescribe: TTntMenuItem;
+    N53: TTntMenuItem;
+    MMFormatHighlight: TTntMenuItem;
+    MSStyleRedef: TTntMenuItem;
+    N54: TTntMenuItem;
+    MMFormatView_: TTntMenuItem;
+    MMViewFormatFont: TTntMenuItem;
+    MMViewFormatPara: TTntMenuItem;
+    MMViewFormatBoth: TTntMenuItem;
+    N55: TTntMenuItem;
+    MMViewFormatNone: TTntMenuItem;
+    MMFormatNoHighlight: TTntMenuItem;
+    N49: TTntMenuItem;
     TB_Color: TColorBtn;
     TB_Hilite: TColorBtn;
-    TVTransfer_: TMenuItem;
-    TVCopySubtree: TMenuItem;
-    TVGraftSubtree: TMenuItem;
-    N56: TMenuItem;
-    TVEraseTreeMem: TMenuItem;
-    MMInsertTerm: TMenuItem;
-    MMToolsGlosAddTerm: TMenuItem;
-    TVExport: TMenuItem;
-    N58: TMenuItem;
-    MMEditTrim_: TMenuItem;
-    MMEditTrimLeft: TMenuItem;
-    MMEditTrimRight: TMenuItem;
-    N60: TMenuItem;
-    MMEditTrimBoth: TMenuItem;
-    MMEditCompress: TMenuItem;
-    MMEditPasteOther_: TMenuItem;
-    MMEditInvertCase: TMenuItem;
-    N59: TMenuItem;
-    N62: TMenuItem;
-    MMInsertCharacter: TMenuItem;
-    MMFindBracket: TMenuItem;
-    N63: TMenuItem;
-    MMToolsStatistics: TMenuItem;
-    MMFormatSuperscript: TMenuItem;
-    N46: TMenuItem;
-    MMBkmSet_: TMenuItem;
-    MMBkmJump_: TMenuItem;
-    MMBkmSet1: TMenuItem;
-    MMBkmSet2: TMenuItem;
-    MMBkmSet0: TMenuItem;
-    MMBkmSet3: TMenuItem;
-    MMBkmSet4: TMenuItem;
-    MMBkmSet5: TMenuItem;
-    MMBkmSet6: TMenuItem;
-    MMBkmSet7: TMenuItem;
-    MMBkmSet8: TMenuItem;
-    MMBkmSet9: TMenuItem;
-    MMBkmJ0: TMenuItem;
-    MMBkmJ1: TMenuItem;
-    MMBkmJ2: TMenuItem;
-    MMBkmJ3: TMenuItem;
-    MMBkmJ4: TMenuItem;
-    MMBkmJ5: TMenuItem;
-    MMBkmJ6: TMenuItem;
-    MMBkmJ8: TMenuItem;
-    MMBkmJ7: TMenuItem;
-    MMBkmJ9: TMenuItem;
-    MMInsert_: TMenuItem;
-    N65: TMenuItem;
-    MMInsertWordWeb: TMenuItem;
-    N57: TMenuItem;
-    MMFormatParagraph: TMenuItem;
-    MMInsertLinkToFile: TMenuItem;
-    MMInsertObject: TMenuItem;
-    MMInsertPicture: TMenuItem;
-    MMEditPasteSpecial: TMenuItem;
-    N67: TMenuItem;
-    MMInsertFileContents: TMenuItem;
-    N68: TMenuItem;
-    N69: TMenuItem;
-    MMToolsGlosEdit: TMenuItem;
-    N70: TMenuItem;
-    RTFMFont: TMenuItem;
-    RTFMPara: TMenuItem;
+    TVTransfer_: TTntMenuItem;
+    TVCopySubtree: TTntMenuItem;
+    TVGraftSubtree: TTntMenuItem;
+    N56: TTntMenuItem;
+    TVEraseTreeMem: TTntMenuItem;
+    MMInsertTerm: TTntMenuItem;
+    MMToolsGlosAddTerm: TTntMenuItem;
+    TVExport: TTntMenuItem;
+    N58: TTntMenuItem;
+    MMEditTrim_: TTntMenuItem;
+    MMEditTrimLeft: TTntMenuItem;
+    MMEditTrimRight: TTntMenuItem;
+    N60: TTntMenuItem;
+    MMEditTrimBoth: TTntMenuItem;
+    MMEditCompress: TTntMenuItem;
+    MMEditPasteOther_: TTntMenuItem;
+    MMEditInvertCase: TTntMenuItem;
+    N59: TTntMenuItem;
+    N62: TTntMenuItem;
+    MMInsertCharacter: TTntMenuItem;
+    MMFindBracket: TTntMenuItem;
+    N63: TTntMenuItem;
+    MMToolsStatistics: TTntMenuItem;
+    MMFormatSuperscript: TTntMenuItem;
+    N46: TTntMenuItem;
+    MMBkmSet_: TTntMenuItem;
+    MMBkmJump_: TTntMenuItem;
+    MMBkmSet1: TTntMenuItem;
+    MMBkmSet2: TTntMenuItem;
+    MMBkmSet0: TTntMenuItem;
+    MMBkmSet3: TTntMenuItem;
+    MMBkmSet4: TTntMenuItem;
+    MMBkmSet5: TTntMenuItem;
+    MMBkmSet6: TTntMenuItem;
+    MMBkmSet7: TTntMenuItem;
+    MMBkmSet8: TTntMenuItem;
+    MMBkmSet9: TTntMenuItem;
+    MMBkmJ0: TTntMenuItem;
+    MMBkmJ1: TTntMenuItem;
+    MMBkmJ2: TTntMenuItem;
+    MMBkmJ3: TTntMenuItem;
+    MMBkmJ4: TTntMenuItem;
+    MMBkmJ5: TTntMenuItem;
+    MMBkmJ6: TTntMenuItem;
+    MMBkmJ8: TTntMenuItem;
+    MMBkmJ7: TTntMenuItem;
+    MMBkmJ9: TTntMenuItem;
+    MMInsert_: TTntMenuItem;
+    N65: TTntMenuItem;
+    MMInsertWordWeb: TTntMenuItem;
+    N57: TTntMenuItem;
+    MMFormatParagraph: TTntMenuItem;
+    MMInsertLinkToFile: TTntMenuItem;
+    MMInsertObject: TTntMenuItem;
+    MMInsertPicture: TTntMenuItem;
+    MMEditPasteSpecial: TTntMenuItem;
+    N67: TTntMenuItem;
+    MMInsertFileContents: TTntMenuItem;
+    N68: TTntMenuItem;
+    N69: TTntMenuItem;
+    MMToolsGlosEdit: TTntMenuItem;
+    N70: TTntMenuItem;
+    RTFMFont: TTntMenuItem;
+    RTFMPara: TTntMenuItem;
     TB_ParaDlg: TToolbarButton97;
     sf8: TToolbarSep97;
-    TVRefreshVirtualNode: TMenuItem;
-    N72: TMenuItem;
-    MMHelpVisitWebsite: TMenuItem;
-    MMHelpEmailAuthor: TMenuItem;
-    Combo_FontSize: TComboBox;
-    MMInsertMarkLocation: TMenuItem;
-    MMInsertKNTLink: TMenuItem;
-    MMFindReplace: TMenuItem;
-    MMFindReplaceNext: TMenuItem;
-    N74: TMenuItem;
-    MMInsertURL: TMenuItem;
-    MMFormatApplyStyle: TMenuItem;
-    N73: TMenuItem;
-    MMToolsPluginRun: TMenuItem;
-    MMToolsPluginRunLast: TMenuItem;
-    N75: TMenuItem;
+    TVRefreshVirtualNode: TTntMenuItem;
+    N72: TTntMenuItem;
+    MMHelpVisitWebsite: TTntMenuItem;
+    MMHelpEmailAuthor: TTntMenuItem;
+    Combo_FontSize: TTntComboBox;
+    MMInsertMarkLocation: TTntMenuItem;
+    MMInsertKNTLink: TTntMenuItem;
+    MMFindReplace: TTntMenuItem;
+    MMFindReplaceNext: TTntMenuItem;
+    N74: TTntMenuItem;
+    MMInsertURL: TTntMenuItem;
+    MMFormatApplyStyle: TTntMenuItem;
+    N73: TTntMenuItem;
+    MMToolsPluginRun: TTntMenuItem;
+    MMToolsPluginRunLast: TTntMenuItem;
+    N75: TTntMenuItem;
     Toolbar_Macro: TToolbar97;
     ToolbarSep9715: TToolbarSep97;
     TB_Macro: TToolbarButton97;
     TB_MacroPause: TToolbarButton97;
     TB_MacroRecord: TToolbarButton97;
-    Menu_Macro: TPopupMenu;
-    MacMMacro_Play: TMenuItem;
-    N66: TMenuItem;
-    MacMMacro_Edit: TMenuItem;
-    MacMMacro_Delete: TMenuItem;
-    N76: TMenuItem;
-    MMViewTBAll: TMenuItem;
-    MMViewTBHideAll: TMenuItem;
+    Menu_Macro: TTntPopupMenu;
+    MacMMacro_Play: TTntMenuItem;
+    N66: TTntMenuItem;
+    MacMMacro_Edit: TTntMenuItem;
+    MacMMacro_Delete: TTntMenuItem;
+    N76: TTntMenuItem;
+    MMViewTBAll: TTntMenuItem;
+    MMViewTBHideAll: TTntMenuItem;
     Sep9719: TToolbarSep97;
-    N77: TMenuItem;
-    MMToolsMacroRun: TMenuItem;
-    N78: TMenuItem;
-    MacMMacroUserCommand: TMenuItem;
-    MMToolsMacroSelect: TMenuItem;
-    MMTreeSaveToFile: TMenuItem;
-    N79: TMenuItem;
-    MMHelpContents: TMenuItem;
-    MMHelpKeyboardRef: TMenuItem;
-    MMHelpMain: TMenuItem;
-    MMTemplates_: TMenuItem;
-    MMToolsTemplateCreate: TMenuItem;
-    MMToolsTemplateInsert: TMenuItem;
-    MMViewCheckboxesAllNodes: TMenuItem;
-    N80: TMenuItem;
-    TVBoldNode: TMenuItem;
-    TVCheckNode: TMenuItem;
-    MMViewTree: TMenuItem;
-    TVNodeColor_: TMenuItem;
-    TVDefaultNodeFont: TMenuItem;
-    MMFormatLanguage: TMenuItem;
-    MMNoteSpell: TMenuItem;
+    N77: TTntMenuItem;
+    MMToolsMacroRun: TTntMenuItem;
+    N78: TTntMenuItem;
+    MacMMacroUserCommand: TTntMenuItem;
+    MMToolsMacroSelect: TTntMenuItem;
+    MMTreeSaveToFile: TTntMenuItem;
+    N79: TTntMenuItem;
+    MMHelpContents: TTntMenuItem;
+    MMHelpKeyboardRef: TTntMenuItem;
+    MMHelpMain: TTntMenuItem;
+    MMTemplates_: TTntMenuItem;
+    MMToolsTemplateCreate: TTntMenuItem;
+    MMToolsTemplateInsert: TTntMenuItem;
+    MMViewCheckboxesAllNodes: TTntMenuItem;
+    N80: TTntMenuItem;
+    TVBoldNode: TTntMenuItem;
+    TVCheckNode: TTntMenuItem;
+    MMViewTree: TTntMenuItem;
+    TVNodeColor_: TTntMenuItem;
+    TVDefaultNodeFont: TTntMenuItem;
+    MMFormatLanguage: TTntMenuItem;
+    MMNoteSpell: TTntMenuItem;
     Pages_Res: TPage95Control;
     Splitter_Res: TSplitter;
-    MMViewResPanel: TMenuItem;
+    MMViewResPanel: TTntMenuItem;
     ResTab_Find: TTab95Sheet;
     ResTab_RTF: TTab95Sheet;
     ResTab_Macro: TTab95Sheet;
@@ -606,21 +614,21 @@ type
     ListBox_ResMacro: TGFXListBox;
     Panel_ResFind: TPanel;
     ListBox_ResTpl: TGFXListBox;
-    Menu_Template: TPopupMenu;
-    TPLMTplInsert: TMenuItem;
-    N83: TMenuItem;
-    TPLMTplCreate: TMenuItem;
-    TPLMTplDelete: TMenuItem;
-    MacMMacro_Record: TMenuItem;
+    Menu_Template: TTntPopupMenu;
+    TPLMTplInsert: TTntMenuItem;
+    N83: TTntMenuItem;
+    TPLMTplCreate: TTntMenuItem;
+    TPLMTplDelete: TTntMenuItem;
+    MacMMacro_Record: TTntMenuItem;
     Ntbk_ResFind: TNotebook;
-    Label1: TLabel;
+    Label1: TTntLabel;
     Combo_ResFind: TTntComboBox;
-    Btn_ResFind: TButton;
-    Btn_ResFlip: TButton;
-    CB_ResFind_CaseSens: TCheckBox;
-    CB_ResFind_WholeWords: TCheckBox;
-    CB_ResFind_AllNotes: TCheckBox;
-    MMEditSelectWord: TMenuItem;
+    Btn_ResFind: TTntButton;
+    Btn_ResFlip: TTntButton;
+    CB_ResFind_CaseSens: TTntCheckBox;
+    CB_ResFind_WholeWords: TTntCheckBox;
+    CB_ResFind_AllNotes: TTntCheckBox;
+    MMEditSelectWord: TTntMenuItem;
     ResTab_Plugins: TTab95Sheet;
     Dock_ResPlugins: TDock97;
     Toolbar_Plugins: TToolbar97;
@@ -628,101 +636,101 @@ type
     TB_PluginRun: TToolbarButton97;
     TB_PluginConfigure: TToolbarButton97;
     ToolbarSep9721: TToolbarSep97;
-    Menu_Plugins: TPopupMenu;
-    PLM_RunPlugin: TMenuItem;
-    PLM_ConfigurePlugin: TMenuItem;
-    N64: TMenuItem;
-    PLM_ReloadPlugins: TMenuItem;
+    Menu_Plugins: TTntPopupMenu;
+    PLM_RunPlugin: TTntMenuItem;
+    PLM_ConfigurePlugin: TTntMenuItem;
+    N64: TTntMenuItem;
+    PLM_ReloadPlugins: TTntMenuItem;
     ListBox_ResPlugins: TGFXListBox;
     Splitter_plugins: TSplitter;
     Panel_ResPlugins: TPanel;
-    LB_PluginInfo: TLabel;
-    Menu_ResPanel: TPopupMenu;
-    ResMHidepanel: TMenuItem;
-    N71: TMenuItem;
-    ResMMultilineTabs: TMenuItem;
-    ResMTabPosition: TMenuItem;
-    N81: TMenuItem;
-    ResMTop: TMenuItem;
-    ResMBottom: TMenuItem;
-    ResMLeft: TMenuItem;
-    ResMRight: TMenuItem;
-    ResMFindTab: TMenuItem;
-    ResMScratchTab: TMenuItem;
-    ResMMacroTab: TMenuItem;
-    ResMTemplateTab: TMenuItem;
-    ResMPluginTab: TMenuItem;
+    LB_PluginInfo: TTntLabel;
+    Menu_ResPanel: TTntPopupMenu;
+    ResMHidepanel: TTntMenuItem;
+    N71: TTntMenuItem;
+    ResMMultilineTabs: TTntMenuItem;
+    ResMTabPosition: TTntMenuItem;
+    N81: TTntMenuItem;
+    ResMTop: TTntMenuItem;
+    ResMBottom: TTntMenuItem;
+    ResMLeft: TTntMenuItem;
+    ResMRight: TTntMenuItem;
+    ResMFindTab: TTntMenuItem;
+    ResMScratchTab: TTntMenuItem;
+    ResMMacroTab: TTntMenuItem;
+    ResMTemplateTab: TTntMenuItem;
+    ResMPluginTab: TTntMenuItem;
     List_ResFind: TTextListBox;
-    MMToolsMacroRunLast: TMenuItem;
-    ResMPanelPosition: TMenuItem;
-    ResMPanelLeft: TMenuItem;
-    ResMPanelRight: TMenuItem;
-    N84: TMenuItem;
-    Menu_StdEdit: TPopupMenu;
-    StdEMUndo: TMenuItem;
-    N85: TMenuItem;
-    StdEMCut: TMenuItem;
-    StdEMCopy: TMenuItem;
-    StdEMPaste: TMenuItem;
-    StdEMDelete: TMenuItem;
-    N86: TMenuItem;
-    StdEMSelectAll: TMenuItem;
-    N87: TMenuItem;
-    MMTreeMasterNode: TMenuItem;
-    CB_ResFind_NodeNames: TCheckBox;
-    RG_ResFind_Type: TRadioGroup;
-    TVCopyNode_: TMenuItem;
-    TVCopyNodePath: TMenuItem;
-    TVCopyNodeText: TMenuItem;
-    N88: TMenuItem;
-    TVCopyPathtoEditor: TMenuItem;
-    Menu_FindAll: TPopupMenu;
-    FAMCopytoEditor: TMenuItem;
-    FAMCopyAlltoEditor: TMenuItem;
-    MMTreeNodeFromSel: TMenuItem;
-    TVAddSibling: TMenuItem;
-    MMTreeAddSibling_: TMenuItem;
-    TVVirtualNode_: TMenuItem;
+    MMToolsMacroRunLast: TTntMenuItem;
+    ResMPanelPosition: TTntMenuItem;
+    ResMPanelLeft: TTntMenuItem;
+    ResMPanelRight: TTntMenuItem;
+    N84: TTntMenuItem;
+    Menu_StdEdit: TTntPopupMenu;
+    StdEMUndo: TTntMenuItem;
+    N85: TTntMenuItem;
+    StdEMCut: TTntMenuItem;
+    StdEMCopy: TTntMenuItem;
+    StdEMPaste: TTntMenuItem;
+    StdEMDelete: TTntMenuItem;
+    N86: TTntMenuItem;
+    StdEMSelectAll: TTntMenuItem;
+    N87: TTntMenuItem;
+    MMTreeMasterNode: TTntMenuItem;
+    CB_ResFind_NodeNames: TTntCheckBox;
+    RG_ResFind_Type: TTntRadioGroup;
+    TVCopyNode_: TTntMenuItem;
+    TVCopyNodePath: TTntMenuItem;
+    TVCopyNodeText: TTntMenuItem;
+    N88: TTntMenuItem;
+    TVCopyPathtoEditor: TTntMenuItem;
+    Menu_FindAll: TTntPopupMenu;
+    FAMCopytoEditor: TTntMenuItem;
+    FAMCopyAlltoEditor: TTntMenuItem;
+    MMTreeNodeFromSel: TTntMenuItem;
+    TVAddSibling: TTntMenuItem;
+    MMTreeAddSibling_: TTntMenuItem;
+    TVVirtualNode_: TTntMenuItem;
     ResTab_Favorites: TTab95Sheet;
     ListBox_ResFav: TGFXListBox;
-    ResMFavTab: TMenuItem;
-    Menu_Fav: TPopupMenu;
-    FavMJump: TMenuItem;
-    N89: TMenuItem;
-    FavMAdd: TMenuItem;
-    FavMDel: TMenuItem;
-    N90: TMenuItem;
-    TVUnlinkVirtualNode: TMenuItem;
-    FavMAddExternal: TMenuItem;
-    N91: TMenuItem;
-    MMEditPasteAsNewNode: TMenuItem;
-    StdEMWordWrap: TMenuItem;
-    MMTreeOutlineNum: TMenuItem;
-    N92: TMenuItem;
-    N93: TMenuItem;
-    MMTreeGoBack: TMenuItem;
-    MMTreeGoForward: TMenuItem;
+    ResMFavTab: TTntMenuItem;
+    Menu_Fav: TTntPopupMenu;
+    FavMJump: TTntMenuItem;
+    N89: TTntMenuItem;
+    FavMAdd: TTntMenuItem;
+    FavMDel: TTntMenuItem;
+    N90: TTntMenuItem;
+    TVUnlinkVirtualNode: TTntMenuItem;
+    FavMAddExternal: TTntMenuItem;
+    N91: TTntMenuItem;
+    MMEditPasteAsNewNode: TTntMenuItem;
+    StdEMWordWrap: TTntMenuItem;
+    MMTreeOutlineNum: TTntMenuItem;
+    N92: TTntMenuItem;
+    N93: TTntMenuItem;
+    MMTreeGoBack: TTntMenuItem;
+    MMTreeGoForward: TTntMenuItem;
     Sep9722: TToolbarSep97;
     TB_GoForward: TToolbarButton97;
     TB_GoBack: TToolbarButton97;
     TB_Numbers: TToolbarButton97;
     sf6: TToolbarSep97;
-    MMFormatNumbers: TMenuItem;
-    Menu_Numbers: TPopupMenu;
-    MMArabicNumbers: TMenuItem;
-    MMLoLetter: TMenuItem;
-    MMUpLetter: TMenuItem;
-    MMLoRoman: TMenuItem;
-    MMUpRoman: TMenuItem;
-    N94: TMenuItem;
-    N95: TMenuItem;
+    MMFormatNumbers: TTntMenuItem;
+    Menu_Numbers: TTntPopupMenu;
+    MMArabicNumbers: TTntMenuItem;
+    MMLoLetter: TTntMenuItem;
+    MMUpLetter: TTntMenuItem;
+    MMLoRoman: TTntMenuItem;
+    MMUpRoman: TTntMenuItem;
+    N94: TTntMenuItem;
+    N95: TTntMenuItem;
     TB_Space2: TToolbarButton97;
     TB_Space1: TToolbarButton97;
     TB_Space15: TToolbarButton97;
-    N96: TMenuItem;
-    N97: TMenuItem;
-    N98: TMenuItem;
-    N99: TMenuItem;
+    N96: TTntMenuItem;
+    N97: TTntMenuItem;
+    N98: TTntMenuItem;
+    N99: TTntMenuItem;
     TB_Repeat: TToolbarButton97;
     TB_ResPanel: TToolbarButton97;
     TB_WordWrap: TToolbarButton97;
@@ -733,129 +741,129 @@ type
     TB_Subscript: TToolbarButton97;
     TB_Superscript: TToolbarButton97;
     TB_OnTop: TToolbarButton97;
-    N100: TMenuItem;
-    MMHelpWhatsNew: TMenuItem;
-    N101: TMenuItem;
-    MMViewTBRefresh: TMenuItem;
-    TVSelectNodeImage: TMenuItem;
-    N102: TMenuItem;
-    MMViewCustomIcons: TMenuItem;
-    N103: TMenuItem;
-    TVNodeTextColor: TMenuItem;
-    TVNodeBGColor: TMenuItem;
-    MMToolsCustomKBD: TMenuItem;
-    N61: TMenuItem;
-    N82: TMenuItem;
-    MMTreeNodeNameAsSel: TMenuItem;
-    N104: TMenuItem;
-    TVPasteNodeNameAsSel: TMenuItem;
-    MMTreeNav_: TMenuItem;
-    MMTreeNavUp: TMenuItem;
-    MMTreeNavDown: TMenuItem;
-    MMTreeNavLeft: TMenuItem;
-    MMTreeNavRight: TMenuItem;
-    StdEMPastePlain: TMenuItem;
-    MMAddTreeNode_: TMenuItem;
-    MMFormatAlignJustify: TMenuItem;
-    N38: TMenuItem;
-    FavMRef: TMenuItem;
-    N105: TMenuItem;
-    MMToolsUAS: TMenuItem;
-    MMToolsUASConfig: TMenuItem;
-    MMEditCycleCase: TMenuItem;
+    N100: TTntMenuItem;
+    MMHelpWhatsNew: TTntMenuItem;
+    N101: TTntMenuItem;
+    MMViewTBRefresh: TTntMenuItem;
+    TVSelectNodeImage: TTntMenuItem;
+    N102: TTntMenuItem;
+    MMViewCustomIcons: TTntMenuItem;
+    N103: TTntMenuItem;
+    TVNodeTextColor: TTntMenuItem;
+    TVNodeBGColor: TTntMenuItem;
+    MMToolsCustomKBD: TTntMenuItem;
+    N61: TTntMenuItem;
+    N82: TTntMenuItem;
+    MMTreeNodeNameAsSel: TTntMenuItem;
+    N104: TTntMenuItem;
+    TVPasteNodeNameAsSel: TTntMenuItem;
+    MMTreeNav_: TTntMenuItem;
+    MMTreeNavUp: TTntMenuItem;
+    MMTreeNavDown: TTntMenuItem;
+    MMTreeNavLeft: TTntMenuItem;
+    MMTreeNavRight: TTntMenuItem;
+    StdEMPastePlain: TTntMenuItem;
+    MMAddTreeNode_: TTntMenuItem;
+    MMFormatAlignJustify: TTntMenuItem;
+    N38: TTntMenuItem;
+    FavMRef: TTntMenuItem;
+    N105: TTntMenuItem;
+    MMToolsUAS: TTntMenuItem;
+    MMToolsUASConfig: TTntMenuItem;
+    MMEditCycleCase: TTntMenuItem;
     TB_AlignJustify: TToolbarButton97;
-    Combo_Zoom: TComboBox;
-    N106: TMenuItem;
-    MMViewZoomIn: TMenuItem;
-    MMViewZoomOut: TMenuItem;
-    MMViewTBSaveConfig: TMenuItem;
-    Menu_Paste: TPopupMenu;
-    MMP_Paste: TMenuItem;
-    MMP_PastePlain: TMenuItem;
-    N107: TMenuItem;
-    MMP_PasteSpecial: TMenuItem;
-    MMP_PasteAsNote: TMenuItem;
-    MMP_PasteAsNode: TMenuItem;
-    Menu_Date: TPopupMenu;
-    Menu_Time: TPopupMenu;
-    Menu_Symbols: TPopupMenu;
-    N108: TMenuItem;
-    N109: TMenuItem;
+    Combo_Zoom: TTntComboBox;
+    N106: TTntMenuItem;
+    MMViewZoomIn: TTntMenuItem;
+    MMViewZoomOut: TTntMenuItem;
+    MMViewTBSaveConfig: TTntMenuItem;
+    Menu_Paste: TTntPopupMenu;
+    MMP_Paste: TTntMenuItem;
+    MMP_PastePlain: TTntMenuItem;
+    N107: TTntMenuItem;
+    MMP_PasteSpecial: TTntMenuItem;
+    MMP_PasteAsNote: TTntMenuItem;
+    MMP_PasteAsNode: TTntMenuItem;
+    Menu_Date: TTntPopupMenu;
+    Menu_Time: TTntPopupMenu;
+    Menu_Symbols: TTntPopupMenu;
+    N108: TTntMenuItem;
+    N109: TTntMenuItem;
     Toolbar_Insert: TToolbar97;
     ToolbarButton971: TToolbarButton97;
     ToolbarButton972: TToolbarButton97;
     ToolbarButton973: TToolbarButton97;
-    MMViewTBInsert: TMenuItem;
-    N110: TMenuItem;
-    N111: TMenuItem;
-    md1: TMenuItem;
-    md2: TMenuItem;
-    md3: TMenuItem;
-    md4: TMenuItem;
-    md6: TMenuItem;
-    md7: TMenuItem;
-    md8: TMenuItem;
-    md9: TMenuItem;
-    md10: TMenuItem;
-    md11: TMenuItem;
-    md12: TMenuItem;
-    md13: TMenuItem;
-    md14: TMenuItem;
-    md15: TMenuItem;
-    md16: TMenuItem;
-    md17: TMenuItem;
-    md18: TMenuItem;
-    md19: TMenuItem;
-    md20: TMenuItem;
-    md21: TMenuItem;
-    md22: TMenuItem;
-    md23: TMenuItem;
-    md24: TMenuItem;
-    md25: TMenuItem;
-    mt1: TMenuItem;
-    mt2: TMenuItem;
-    mt3: TMenuItem;
-    mt4: TMenuItem;
-    mt5: TMenuItem;
-    mt6: TMenuItem;
-    mt7: TMenuItem;
-    mt8: TMenuItem;
-    mt9: TMenuItem;
-    ms1: TMenuItem;
-    ms2: TMenuItem;
-    ms3: TMenuItem;
-    ms4: TMenuItem;
-    ms5: TMenuItem;
-    ms6: TMenuItem;
-    ms7: TMenuItem;
-    ms8: TMenuItem;
-    ms9: TMenuItem;
-    ms10: TMenuItem;
-    MMToolsURL: TMenuItem;
-    MMEditDecimalToRoman: TMenuItem;
-    N112: TMenuItem;
-    MMEditRomanToDecimal: TMenuItem;
-    MMViewStatusBar: TMenuItem;
-    FavMProperties: TMenuItem;
-    N113: TMenuItem;
-    TMClipCap: TMenuItem;
+    MMViewTBInsert: TTntMenuItem;
+    N110: TTntMenuItem;
+    N111: TTntMenuItem;
+    md1: TTntMenuItem;
+    md2: TTntMenuItem;
+    md3: TTntMenuItem;
+    md4: TTntMenuItem;
+    md6: TTntMenuItem;
+    md7: TTntMenuItem;
+    md8: TTntMenuItem;
+    md9: TTntMenuItem;
+    md10: TTntMenuItem;
+    md11: TTntMenuItem;
+    md12: TTntMenuItem;
+    md13: TTntMenuItem;
+    md14: TTntMenuItem;
+    md15: TTntMenuItem;
+    md16: TTntMenuItem;
+    md17: TTntMenuItem;
+    md18: TTntMenuItem;
+    md19: TTntMenuItem;
+    md20: TTntMenuItem;
+    md21: TTntMenuItem;
+    md22: TTntMenuItem;
+    md23: TTntMenuItem;
+    md24: TTntMenuItem;
+    md25: TTntMenuItem;
+    mt1: TTntMenuItem;
+    mt2: TTntMenuItem;
+    mt3: TTntMenuItem;
+    mt4: TTntMenuItem;
+    mt5: TTntMenuItem;
+    mt6: TTntMenuItem;
+    mt7: TTntMenuItem;
+    mt8: TTntMenuItem;
+    mt9: TTntMenuItem;
+    ms1: TTntMenuItem;
+    ms2: TTntMenuItem;
+    ms3: TTntMenuItem;
+    ms4: TTntMenuItem;
+    ms5: TTntMenuItem;
+    ms6: TTntMenuItem;
+    ms7: TTntMenuItem;
+    ms8: TTntMenuItem;
+    ms9: TTntMenuItem;
+    ms10: TTntMenuItem;
+    MMToolsURL: TTntMenuItem;
+    MMEditDecimalToRoman: TTntMenuItem;
+    N112: TTntMenuItem;
+    MMEditRomanToDecimal: TTntMenuItem;
+    MMViewStatusBar: TTntMenuItem;
+    FavMProperties: TTntMenuItem;
+    N113: TTntMenuItem;
+    TMClipCap: TTntMenuItem;
     Img_System: TdfsSystemImageList;
-    MMEditPasteAsWebClip: TMenuItem;
-    MMP_PasteAsWebClip: TMenuItem;
-    MMViewHideCheckedNodes: TMenuItem;
+    MMEditPasteAsWebClip: TTntMenuItem;
+    MMP_PasteAsWebClip: TTntMenuItem;
+    MMViewHideCheckedNodes: TTntMenuItem;
     TB_HideChecked: TToolbarButton97;
-    TVChildrenCheckbox: TMenuItem;
-    CB_ResFind_HiddenNodes: TCheckBox;
-    CB_ResFind_Filter: TCheckBox;
+    TVChildrenCheckbox: TTntMenuItem;
+    CB_ResFind_HiddenNodes: TTntCheckBox;
+    CB_ResFind_Filter: TTntCheckBox;
     TB_FilterTree: TToolbarButton97;
-    MMViewFilterTree: TMenuItem;
+    MMViewFilterTree: TTntMenuItem;
     TB_AlarmNode: TToolbarButton97;
-    N114: TMenuItem;
-    TVAlarmNode: TMenuItem;
-    TVGraftSubtreeMirror: TMenuItem;
-    TVInsertMirrorNode: TMenuItem;
-    N115: TMenuItem;
-    TVNavigateNonVirtualNode: TMenuItem;
+    N114: TTntMenuItem;
+    TVAlarmNode: TTntMenuItem;
+    TVGraftSubtreeMirror: TTntMenuItem;
+    TVInsertMirrorNode: TTntMenuItem;
+    N115: TTntMenuItem;
+    TVNavigateNonVirtualNode: TTntMenuItem;
     TB_AlarmMode: TToolbarButton97;
     procedure TB_AlarmModeMouseEnter(Sender: TObject);
     procedure TB_AlarmModeClick(Sender: TObject);
@@ -902,7 +910,7 @@ type
       const Message: TMessage; StartPos, EndPos: Integer;
       var AllowChange: Boolean);
     procedure RxRTFSelectionChange(Sender: TObject);
-    procedure RxRTFURLClick(Sender: TObject; const URLText: String; chrg: _charrange; Button: TMouseButton);
+    procedure RxRTFURLClick(Sender: TObject; const URLText: wideString; chrg: _charrange; Button: TMouseButton);
     procedure RxRTFKeyPress(Sender: TObject; var Key: Char);
     procedure MMEditSelectAllClick(Sender: TObject);
     procedure MMFormatWordWrapClick(Sender: TObject);
@@ -931,7 +939,7 @@ type
     procedure MMFormatFontClick(Sender: TObject);
     procedure MMFormatTextColorClick(Sender: TObject);
     procedure MMFormatBGColorClick(Sender: TObject);
-    procedure MRUMRUItemClick(Sender: TObject; AFilename: String);
+    procedure MRUMRUItemClick(Sender: TObject; AFilename: WideString);
     procedure DebugMenuClick(Sender: TObject);
     procedure MMFormatNumbersClick(Sender: TObject);
     procedure MMFormatAlignJustifyClick(Sender: TObject);
@@ -992,7 +1000,7 @@ type
     procedure MMEditPasteEvalClick(Sender: TObject);
 
     procedure TVChange(Sender: TObject; Node: TTreeNTNode);
-    procedure TVEdited(Sender: TObject; Node: TTreeNTNode; var S: String);
+    procedure TVEdited(Sender: TObject; Node: TTreeNTNode; var S: WideString);
     procedure TVEditCanceled(Sender: TObject);
     procedure TVEditing(Sender: TObject; Node: TTreeNTNode; var AllowEdit: Boolean);
     procedure TVDblClick(Sender: TObject);
@@ -1275,7 +1283,7 @@ type
     procedure ProcessControlMessage( const msgID : integer; kntmsg : TKeyNoteMsg  );
 
     // misc file-related functions
-    procedure OnFileDropped( Sender : TObject; FileList : TStringList );
+    procedure OnFileDropped( Sender : TObject; FileList : TWideStringList );
 
     // sanity checks. Many functions cannot be performed
     // if we have no active note or if the note is read-only
@@ -1348,7 +1356,7 @@ uses RxGIF{, jpeg}, kn_Global, kn_ExportNew,
      kn_FindReplaceMng, kn_ConfigFileMng, kn_DLLmng,
      kn_StyleMng, kn_FavoritesMng, kn_BookmarksMng,
      kn_VirtualNodeMng, kn_NoteFileMng, kn_EditorUtils, kn_AlertMng,
-     WideStrUtils;
+     WideStrUtils, TntSysUtils;
 
 {$R *.DFM}
 {$R catimages}
@@ -1596,7 +1604,7 @@ begin
   begin
     if ( pos( '\', StartupMacroFile ) = 0 ) then
       StartupMacroFile := Macro_Folder + StartupMacroFile;
-    if fileexists( StartupMacroFile ) then
+    if WideFileexists( StartupMacroFile ) then
     begin
       Application.ProcessMessages;
       ExecuteMacro( StartupMacroFile, '' );
@@ -1611,7 +1619,7 @@ begin
   begin
     if ( pos( '\', StartupPluginFile ) = 0 ) then
       StartupPluginFile := Plugin_Folder + StartupPluginFile;
-    if fileexists( StartupPluginFile ) then
+    if WideFileexists( StartupPluginFile ) then
     begin
       Application.ProcessMessages;
       ExecutePlugin( StartupPluginFile );
@@ -1797,7 +1805,7 @@ begin
     begin
       if ( NoteFileToLoad = NoteFile.FileName ) then
       begin
-        if ( PopupMessage( format(STR_06, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+        if ( PopupMessage( Wideformat(STR_06, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
         NoteFile.Modified := false; // to prevent automatic save if modified
       end;
     end;
@@ -2121,7 +2129,7 @@ end; // AppRestore;
 procedure TForm_Main.DisplayAppHint( sender: TObject );
 begin
   if KeyOptions.StatBarShow then
-    StatusBar.Panels[PANEL_HINT].Text := GetShortHint( application.hint );
+    StatusBar.Panels[PANEL_HINT].Text := WideGetShortHint( TntApplication.Hint );
 end; // DisplayAppHint
 
 
@@ -3193,10 +3201,10 @@ var
   fn : string;
 begin
   fn := extractfilepath( Application.Exename ) + 'doc\history.txt';
-  if fileexists( fn ) then
+  if WideFileexists( fn ) then
     ShellExecute( 0, 'open', PChar( fn ), nil, nil, SW_NORMAL )
   else
-    messagedlg( Format( STR_18, [fn] ), mtError, [mbOK], 0 );
+    DoMessageBox( Format( STR_18, [fn] ), mtError, [mbOK], 0 );
 end; // DisplayHistoryFile
 
 procedure TForm_Main.Combo_FontChange(Sender: TObject);
@@ -3509,7 +3517,7 @@ begin
   PerformCmd( ecBGColorDlg );
 end;
 
-procedure TForm_Main.MRUMRUItemClick(Sender: TObject; AFilename: String);
+procedure TForm_Main.MRUMRUItemClick(Sender: TObject; AFilename: WideString);
 begin
   NoteFileOpen( AFilename );
   FocusActiveNote;
@@ -3517,7 +3525,7 @@ end; // MRUMRUItemClick
 
 procedure TForm_Main.DebugMenuClick(Sender: TObject);
 var
-  s : string;
+  s : wideString;
   // i : integer;
 begin
   {$IFDEF MJ_DEBUG}
@@ -3536,7 +3544,7 @@ begin
 
   if HaveNotes( false, false ) then
   begin
-    s := 'Filename: ' + extractfilename( NoteFile.FileName ) +#13+
+    s := 'Filename: ' + WideExtractFilename( NoteFile.FileName ) +#13+
          'Notes modified: ' + BOOLARRAY[NoteFile.Modified] +#13+
          'Notes count: ' + inttostr( NoteFile.NoteCount ) +#13+
          'File Read-Only: ' + BOOLARRAY[NoteFile.ReadOnly] +#13+
@@ -3595,7 +3603,7 @@ begin
   s := s + #13 + '(Log enabled)';
   {$ENDIF}
 
-  if messagedlg( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel then exit;
+  if DoMessageBox( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel then exit;
 
 end; // DEBUG MENU CLICK
 
@@ -4043,7 +4051,7 @@ begin
        ( not ( NoteFile.ClipCapNote = ActiveNote )))) then // but never capture text copied from the note that is being used for capture
        begin
           // test for duplicates
-          ClpStr := ClipboardAsWString;
+          ClpStr := ClipboardAsStringW;
           if ( ClipOptions.TestDupClips and ( ClpStr <> '' )) then
           begin
             try
@@ -4263,7 +4271,7 @@ begin
   end;
 end; // TVChange
 
-procedure TForm_Main.OnFileDropped( Sender : TObject; FileList : TStringList );
+procedure TForm_Main.OnFileDropped( Sender : TObject; FileList : TWideStringList );
 begin
       FileDropped( Sender, FileList );
 end;
@@ -4271,20 +4279,20 @@ end;
 
 procedure TForm_Main.WMDropFiles(var Msg: TWMDropFiles);
 var
-  CFileName : array[0..MAX_PATH] of Char;
-  FileList : TStringList;
+  CFileName : array[0..MAX_PATH] of WideChar;
+  FileList : TWideStringList;
   i, count : integer;
 begin
-  FileList := TStringList.Create;
+  FileList := TWideStringList.Create;
 
   try
-    count := DragQueryFile( Msg.Drop, $FFFFFFFF, CFileName, MAX_PATH );
+    count := DragQueryFileW( Msg.Drop, $FFFFFFFF, CFileName, MAX_PATH );
 
     if ( count > 0 ) then
     begin
       for i := 0 to count-1 do
       begin
-        DragQueryFile( Msg.Drop, i, CFileName, MAX_PATH );
+        DragQueryFileW( Msg.Drop, i, CFileName, MAX_PATH );
         FileList.Add( CFileName );
       end;
     end;
@@ -4438,21 +4446,21 @@ begin
       if ( DropTreeNode = DraggedTreeNode ) then
       begin
         // {N}
-        s := Format( STR_39, [DraggedTreeNode.Text] );
+        s := WideFormat( STR_39, [DraggedTreeNode.Text] );
         exit;
       end;
       // 2. Cannot drop between treeviews
       if ( DropTreeNode.TreeView <> DraggedTreeNode.TreeView ) then
       begin
         // {N}
-        s := Format( STR_41, [DraggedTreeNode.Text] );
+        s := WideFormat( STR_41, [DraggedTreeNode.Text] );
         exit;
       end;
       // 3. Cannot drop a node onto its own child
       if IsAParentOf( DraggedTreeNode, DropTreeNode ) then
       begin
         // {N}
-        s := Format( STR_42, [DraggedTreeNode.Text, DropTreeNode.Text] );
+        s := WideFormat( STR_42, [DraggedTreeNode.Text, DropTreeNode.Text] );
         exit;
       end;
 
@@ -4474,7 +4482,7 @@ begin
         // make TOP node
         DraggedTreeNode.MoveTo( nil, naAddFirst );
         // {N}
-        s := Format( STR_43, [DraggedTreeNode.Text] );
+        s := WideFormat( STR_43, [DraggedTreeNode.Text] );
       end
       else
       if ( DraggedTreeNode.Parent = DropTreeNode ) then
@@ -4483,13 +4491,13 @@ begin
         begin
           DraggedTreeNode.MoveTo( DropTreeNode, naInsert );
           // {N}
-          s := Format( STR_44, [DraggedTreeNode.Text] );
+          s := WideFormat( STR_44, [DraggedTreeNode.Text] );
         end
         else
         begin
           DraggedTreeNode.MoveTo( DropTreeNode, naAddChildFirst );
           // {N}
-          s := Format( STR_45, [DraggedTreeNode.Text] );
+          s := WideFormat( STR_45, [DraggedTreeNode.Text] );
         end;
       end
       else
@@ -4498,13 +4506,13 @@ begin
         begin
           DraggedTreeNode.MoveTo( DropTreeNode, naInsert );
           // {N}
-          s := Format( STR_46, [DraggedTreeNode.Text, DropTreeNode.Text] );
+          s := WideFormat( STR_46, [DraggedTreeNode.Text, DropTreeNode.Text] );
         end
         else
         begin
           DraggedTreeNode.MoveTo( DropTreeNode, naAddChildFirst );
           // {N}
-          s := Format( STR_47, [DraggedTreeNode.Text, DropTreeNode.Text] );
+          s := WideFormat( STR_47, [DraggedTreeNode.Text, DropTreeNode.Text] );
         end;
       end;
 
@@ -4743,7 +4751,7 @@ end; // Sort full tree
 
 
 procedure TForm_Main.TVEdited(Sender: TObject; Node: TTreeNTNode;
-  var S: String);
+  var S: WideString);
 begin
   ( sender as TTreeNT ).PopupMenu := Menu_TV;
   S := trim( copy( S, 1, TREENODE_NAME_LENGTH ));
@@ -4790,7 +4798,7 @@ end; // TVEditing
 procedure TForm_Main.MMRenamenodeClick(Sender: TObject);
 var
   myNode : TNoteNode;
-  myName : string;
+  myName : wideString;
 begin
   if NoteIsReadOnly( ActiveNote, true ) then exit;
 
@@ -4806,7 +4814,7 @@ begin
     begin
       myName := myNode.Name;
       _OLD_NODE_NAME := myName;
-      if InputQuery( STR_53, STR_54, myName ) then
+      if WideInputQuery( STR_53, STR_54, myName ) then
       begin
         myName := trim( myName );
         if ( myName <> '' ) then
@@ -4962,10 +4970,10 @@ begin
   if ( SearchNode_Text = '' ) then
   begin
     SearchNode_Text := SearchNode_TextPrev;
-    if InputQuery( STR_66, STR_67, SearchNode_Text ) then
-      SearchNode_Text := ansilowercase( SearchNode_Text )
+    if WideInputQuery( STR_66, STR_67, SearchNode_Text ) then
+       SearchNode_Text := wideLowercase( SearchNode_Text )
     else
-      exit;
+       exit;
   end;
 
   if ( SearchNode_Text = '' ) then exit;
@@ -4974,7 +4982,7 @@ begin
   myNode := myNode.GetNext;
   while assigned( myNode ) do
   begin
-    if ( pos( SearchNode_Text, ansilowercase( myNode.Text )) > 0 ) then // {N}
+    if ( Pos( SearchNode_Text, wideLowercase( myNode.Text )) > 0 ) then // {N}
     begin
       found := true;
       myNode.TreeView.Selected := myNode;
@@ -5111,7 +5119,7 @@ begin
 
   if ( TTabNote( DropTab.PrimaryObject ).Kind <> ntTree ) then
   begin
-    messagedlg( Format(STR_73, [DropTab.Caption]), mtError, [mbOK], 0 );
+    DoMessageBox( WideFormat(STR_73, [DropTab.Caption]), mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -5120,7 +5128,7 @@ begin
 
   if tNote.ReadOnly then
   begin
-    messagedlg( Format(STR_74, [DropTab.Caption]), mtError, [mbOK], 0 );
+    DoMessageBox( WideFormat(STR_74, [DropTab.Caption]), mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -5130,7 +5138,7 @@ begin
       s := STR_75
     else
       s := STR_76;
-    if ( messagedlg( Format(STR_77, [s, DropTab.Caption]
+    if ( DoMessageBox( WideFormat(STR_77, [s, DropTab.Caption]
       ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
       exit;
   end;
@@ -5177,7 +5185,7 @@ begin
     i := Pages.GetTabAt(X,Y);
     myTab := Pages.Pages[i];
     if assigned( myTab ) then
-      StatusBar.Panels[PANEL_HINT].Text := Format(
+      StatusBar.Panels[PANEL_HINT].Text := WideFormat(
         STR_79, [i, myTab.Caption] );
   end;
 end;
@@ -5466,10 +5474,10 @@ begin
     begin
       if ( _Global_Location.FileName <> '' ) then
       begin
-        if (( not fileexists( _Global_Location.Filename )) or
+        if (( not Widefileexists( _Global_Location.Filename )) or
            ( NoteFileOpen( _Global_Location.Filename ) <> 0 )) then
         begin
-          messagedlg( Format(STR_81,[_Global_Location.Filename] ), mtError, [mbOK], 0 );
+          DoMessageBox( WideFormat(STR_81,[_Global_Location.Filename] ), mtError, [mbOK], 0 );
           exit;
         end;
       end;
@@ -5817,7 +5825,7 @@ begin
   // CreateHyperlink;
 end;
 
-procedure TForm_Main.RxRTFURLClick(Sender: TObject; const URLText: String; chrg: _charrange; Button: TMouseButton);
+procedure TForm_Main.RxRTFURLClick(Sender: TObject; const URLText: wideString; chrg: _charrange; Button: TMouseButton);
 begin
   ClickOnURL (URLText, chrg);
 end;
@@ -5874,6 +5882,7 @@ end; // Menu_RTFPopup
 procedure TForm_Main.Splitter_ResMoved(Sender: TObject);
 begin
   Combo_ResFind.Width := ResTab_Find.Width - 15;
+  RG_ResFind_Type.Width:= Combo_ResFind.Width;
 end;
 
 procedure TForm_Main.Btn_ResFlipClick(Sender: TObject);
@@ -6428,23 +6437,23 @@ end;
 procedure TForm_Main.ListBox_ResFavClick(Sender: TObject);
 var
   myFav : TLocation;
-  fn, nn : string;
+  fn, nn : wideString;
 begin
   myFav := GetSelectedFavorite;
   if ( not assigned( myFav )) then exit;
 
   if myFav.ExternalDoc then
   begin
-    StatusBar.Panels[PANEL_HINT].Text := Format(
+    StatusBar.Panels[PANEL_HINT].Text := WideFormat(
       STR_89,
       [myFav.Filename] );
     exit;
   end;
 
   if (( not HaveNotes( false, false )) or
-     ( AnsiCompareText( NoteFile.FileName, myFav.FileName ) <> 0 )) then
+     ( WideCompareText( NoteFile.FileName, myFav.FileName ) <> 0 )) then
   begin
-    fn := STR_90 + extractfilename( myFav.Filename );
+    fn := STR_90 + WideExtractFilename( myFav.Filename );
   end
   else
   begin
@@ -6460,7 +6469,7 @@ begin
     nn := '';
   end;
 
-  StatusBar.Panels[PANEL_HINT].Text := Format(STR_92, [fn, myFav.NoteName, nn]);
+  StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_92, [fn, myFav.NoteName, nn]);
 
 end; // ListBox_ResFavClick
 
@@ -7044,6 +7053,34 @@ procedure TForm_Main.MMEditPasteAsWebClipClick(Sender: TObject);
 begin
   PasteAsWebClip;
 end;
+
+function DoMessageBox (text: wideString;
+        DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
+        HelpCtx: Longint = 0): integer;
+var
+   caption: wideString;
+begin
+    if assigned(NoteFile) then
+       caption:= WideExtractFilename(NoteFile.FileName) + ' - ' + Program_Name
+    else
+       caption:= Program_Name;
+
+    Result:= DoMessageBox(text,caption, DlgType, Buttons,0);
+end;
+
+function PopUpMessage( const mStr : wideString; const mType : TMsgDlgType;
+        const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word;
+var
+   caption: wideString;
+begin
+    if assigned(NoteFile) then
+       caption:= WideExtractFilename(NoteFile.FileName) + ' - ' + Program_Name
+    else
+       caption:= Program_Name;
+
+    Result:= PopUpMessage(mStr, caption, mType, mButtons, mHelpCtx);
+end;
+
 
 end.
 

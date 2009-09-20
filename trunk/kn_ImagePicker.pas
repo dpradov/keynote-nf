@@ -49,16 +49,16 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
   kn_Info, kn_Chest, StdCtrls, cmpGFXListBox,
-  ExtCtrls, Placemnt;
+  ExtCtrls, Placemnt, TntStdCtrls;
 
 type
   TForm_ImgPick = class(TForm)
     Panel1: TPanel;
     Panel2: TPanel;
-    Button_Cancel: TButton;
-    Button_OK: TButton;
+    Button_Cancel: TTntButton;
+    Button_OK: TTntButton;
     List_Icn: TGFXListBox;
-    CB_Children: TCheckBox;
+    CB_Children: TTntCheckBox;
     FormPlacement: TFormPlacement;
     procedure FormCreate(Sender: TObject);
     procedure List_IcnDblClick(Sender: TObject);

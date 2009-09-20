@@ -19,7 +19,7 @@ implementation
 Uses Windows, SysUtils, Controls, Dialogs, ShellAPI, StdCtrls,
      gf_misc, gf_strings, cmpGFXListBox,
      kn_Global, kn_Main, kn_Info, kn_NoteObj, kn_NodeList, kn_FavExtDlg,
-     kn_TreeNoteMng, kn_FindReplaceMng;
+     kn_TreeNoteMng, kn_FindReplaceMng, TntSysUtils, TntDialogs;
 
 resourcestring
   STR_01 = 'Error loading Favorites: ';
@@ -85,18 +85,18 @@ begin
   if myFav.ExternalDoc then
   begin
     // .LNK shortcuts need special handling:
-    if ( Comparetext( extractfileext( myFav.Filename ), ext_Shortcut ) = 0 ) then
-      exresult := ShellExecute( 0, nil, PChar( myFav.Filename ), PChar( myFav.Params ), nil, SW_NORMAL )
+    if ( Comparetext( WideExtractfileext( myFav.Filename ), ext_Shortcut ) = 0 ) then
+      exresult := ShellExecuteW( 0, nil, PWideChar( myFav.Filename ), PWideChar( myFav.Params ), nil, SW_NORMAL )
     else
-      exresult := ShellExecute( 0, 'open', PChar( myFav.Filename ), PChar( myFav.Params ), nil, SW_NORMAL );
+      exresult := ShellExecuteW( 0, 'open', PWideChar( myFav.Filename ), PWideChar( myFav.Params ), nil, SW_NORMAL );
 
-    if ( exresult <= 32 ) then       
+    if ( exresult <= 32 ) then
       messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
     exit;
   end;
 
   if (( not Form_Main.HaveNotes( false, false )) or
-     ( AnsiCompareText( NoteFile.FileName, myFav.FileName ) <> 0 )) then
+     ( CompareText( NoteFile.FileName, myFav.FileName ) <> 0 )) then
   begin
     // open a file
     _Global_Location := myFav;
@@ -114,7 +114,7 @@ end; // JumpToFavorite
 procedure FavoriteEditProperties;
 var
   myFav : TLocation;
-  newname : string;
+  newname : wideString;
   cnt, originalidx : integer;
   Form_FavExt : TForm_FavExt;
 begin
@@ -129,10 +129,10 @@ begin
   case myFav.ExternalDoc of
     false : begin
 
-      if InputQuery( STR_02, STR_03, newname ) then
+      if WideInputQuery( STR_02, STR_03, newname ) then
       begin
         newname := trim( newname );
-        if (( newname = '' ) or ( ANSICompareText( newname, myFav.Name ) = 0 )) then exit;
+        if (( newname = '' ) or ( WideCompareText( newname, myFav.Name ) = 0 )) then exit;
         if ( Form_Main.ListBox_ResFav.Items.IndexOf( newname ) >= 0 ) then
         begin
           messagedlg( Format(
@@ -161,7 +161,7 @@ begin
           myFav.Params := Form_FavExt.Edit_Params.Text;
           myFav.Name := trim( Form_FavExt.Edit_Name.Text );
           if ( myFav.Name = '' ) then
-            myFav.Name := extractfilename( myFav.Filename );
+            myFav.Name := WideExtractFilename( myFav.Filename );
         end
         else
         begin
@@ -207,16 +207,16 @@ procedure AddFavorite( const AsExternal : boolean );
 var
   i : integer;
   myFav : TLocation;
-  name : string;
+  name : wideString;
   myNoteNode : TNoteNode;
   Form_FavExt : TForm_FavExt;
-  extFilename, extParams : string;
+  extFilename, extParams : wideString;
 
 
-    function GetFavName( const AName : string ) : string;
+    function GetFavName( const AName : wideString ) : wideString;
     begin
       result := AName;
-      if ( not InputQuery( STR_06, STR_07, result )) then
+      if ( not WideInputQuery( STR_06, STR_07, result )) then
         result := '';
     end; // GetFavName
 
@@ -236,7 +236,7 @@ begin
         extParams := Form_FavExt.Edit_Params.Text;
         name := Form_FavExt.Edit_Name.Text;
         if ( name = '' ) then
-          name := extractfilename( extFilename );
+          name := WideExtractFilename( extFilename );
       end
       else
       begin
@@ -270,7 +270,7 @@ begin
     i := Favorites_List.IndexOf( name );
     if ( i >= 0 ) then
     begin
-      case messagedlg( Format(
+      case DoMessageBox( WideFormat(
         STR_08,
         [name] ), mtError, [mbOK,mbCancel], 0 ) of
         mrOK : name := GetFavName( name );

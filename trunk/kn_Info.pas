@@ -52,8 +52,8 @@ resourcestring
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_VerStr   = '1.7.7.1';
-  Program_Version  = '1.7.7 Beta';  // Used in program caption
+  Program_VerStr   = '1.7.7.2';
+  Program_Version  = '1.7.7 Beta 2';  // Used in program caption
   Program_License  = 'Freeware / Open Source';
   {
   // these are now stored in GF_Const.pas
@@ -163,6 +163,10 @@ const
                      '|Movies|*.avi;*.mpg;*.mpeg;*.mov;*.asf'+
                      '|Programs|*.exe;*.com;*.bat;*.pif;*.scr'+
                       '|All files|*.*';
+
+   FILTER_ICONS      = 'Icon files (*.ico)|*.ico';
+   FILTER_TABIMAGES  = 'Tab image files (*.icn)|*.icn';
+   FILTER_WEB_BROWSER= 'Programs|*.exe|All files|*.*';
 
 const
   // status bar panel indices
@@ -312,7 +316,7 @@ type
 
   TNoteTabProperties = packed record
     ImageIndex : integer;
-    Name : string;
+    Name : wideString;
   end;
 
   TNoteEditorProperties = packed record
@@ -372,7 +376,7 @@ type
 type
   TNoteTreeProperties = packed record
     AutoNumberNodes : boolean;
-    DefaultName : string;
+    DefaultName : wideString;
     CheckBoxes : boolean;
     IconKind : TNodeIconKind;
     VerticalLayout : boolean;
@@ -406,7 +410,7 @@ type
   TExportOptions = packed record
     ConfirmFilenames : boolean;
     ConfirmOverwrite : boolean;
-    ExportPath : string;
+    ExportPath : WideString;
     ExportSource : TExportSource;
     HTMLNoFormatting : boolean; // not implemented
     IncludeNodeHeadings : boolean;
@@ -416,8 +420,8 @@ type
     IndentUsingTabs : boolean;
     IndentValue : integer;
     }
-    NodeHeading : string;
-    NoteHeading : string;
+    NodeHeading : wideString;
+    NoteHeading : wideString;
     SingleNodeFiles : boolean;
     TargetFormat : TExportFmt;
     TreePadForceMaster : boolean;
@@ -474,7 +478,7 @@ type
     AutoSaveOnTimerInt : integer; // minutes between auto-saves
     Backup : boolean; // make backup copy
     BackupAppendExt : boolean; // append .BAK extention or replace original extension
-    BackupDir : string;
+    BackupDir : wideString;
     BackupExt : string;
     BackupLevel : integer;
     BackupVNodes : boolean;
@@ -517,13 +521,13 @@ type
     InsCharKeepFont : boolean;
     InsCharWinClose : boolean;
     KeyReplayDelay : integer; // MILIseconds { OBSOLETE, unused }
-    LanguageUI : string;    // Language of ther user interface. Must be in keynote.lan
-    LastCopyPath : string;
-    LastExportPath : string;
+    LanguageUI : wideString;    // Language of ther user interface. Must be in keynote.lan
+    LastCopyPath : wideString;
+    LastExportPath : wideString;
     LastExportFormat : TExportFmt;
     LastExportAsk : boolean;
-    LastFile : string;
-    LastImportPath : string;
+    LastFile : wideString;
+    LastImportPath : wideString;
     LastNumbering : TRxNumbering;
     LastVersion : string; // last version of KeyNote. Used to detect upgrades
     LoadLastFile : boolean; // if TRUE, open last used file at startup
@@ -537,7 +541,7 @@ type
     MRUSubmenu : boolean;
     MRUUse : boolean;
     NoComboIcons : boolean; // [*] kill image list for Style combo box
-    NodeNameHistory : string;
+    NodeNameHistory : wideString;
     NoRegistry : boolean; // do not use registry (equiv. to "-noreg" cmd line switch
     OpenFloppyReadOnly : boolean;
     OpenNetworkReadOnly : boolean;
@@ -565,7 +569,7 @@ type
     StatBarDlbClkActionShft : integer; // [*] as above, with Shift held down
     StatBarShow : boolean; // show or hide the statusbar
     StyleShowSamples : boolean; // [*] display font style samples in OwnerDrawn combo
-    TabNameHistory : string;
+    TabNameHistory : wideString;
     TimeFmt : string;
     TimerMinimize : boolean; // minimize program after X minutes of inactivity
     TimerMinimizeInt : integer; // minutes
@@ -585,7 +589,7 @@ type
     UASEnable : boolean;
     UASPath : string;
     URLAction : TURLAction;
-    URLAltBrowserPath : string;
+    URLAltBrowserPath : wideString;
     URLFileAuto : boolean;  // always launch file:// URLs, regardless of URLAction setting
     URLFileDecodeSpaces : boolean; // [*]
     URLFileNoPrefix : boolean; // [*] strip file:/// prefix before launching URLs
@@ -595,7 +599,7 @@ type
     UseOldColorDlg : boolean;
     UseOldFileFormat : boolean; // save files using older firmat (GFKNX)
     UseTray : boolean;
-    UserFile : string;
+    UserFile : wideString;
     ZoomIncrement : integer;
   end;
 
@@ -758,7 +762,7 @@ begin
     HiColor := clHighlight;
     with Font do
     begin
-      Name := 'MS Sans Serif';
+      Name := 'Tahoma';
       Size := 8;
       Style := [];
       Charset := DEFAULT_CHARSET;
@@ -766,7 +770,7 @@ begin
     end;
     with HiFont do
     begin
-      Name := 'MS Sans Serif';
+      Name := 'Tahoma';
       Size := 8;
       Style := [];
       Charset := DEFAULT_CHARSET;

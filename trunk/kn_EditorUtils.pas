@@ -50,7 +50,7 @@ uses
   { Borland units }
   Windows, Messages, SysUtils, Classes,
   Controls, Forms, Dialogs, Clipbrd,ComCtrls,
-  RichEdit, mmsystem, Graphics,ExtDlgs,
+  RichEdit, mmsystem, Graphics,ExtDlgs,WideStrings,
   { 3rd-party units }
   BrowseDr, TreeNT, Parser,FreeWordWeb, UAS, RxGIF,RichPrint,
   RxRichEd,AJBSpeller,
@@ -63,6 +63,7 @@ uses
   Kn_Global, kn_Chars, kn_NoteMng, kn_ClipUtils,
   kn_ExpTermDef, kn_Glossary, kn_VCLControlsMng,
   kn_NoteFileMng, kn_Main, kn_TreeNoteMng, GFTipDlg;
+  
 
 
 resourcestring
@@ -132,7 +133,7 @@ resourcestring
 //=================================================================
 procedure ExpandTermProc;
 var
-  w, replw : string;
+  w, replw : wideString;
   wordlen : integer;
 begin
   with Form_Main do begin
@@ -150,7 +151,7 @@ begin
       if ( ActiveNote.Editor.SelLength = 0 ) then
         w := ActiveNote.Editor.GetWordAtCursorNew( true )
       else
-        w := ActiveNote.Editor.SelText;
+        w := ActiveNote.Editor.SelTextW;
       wordlen := length( w );
 
       if ( length( w ) = 0 ) then
@@ -167,9 +168,9 @@ begin
         exit;
       end;
 
-      StatusBar.Panels[PANEL_HINT].Text := Format( ' %s -> %s', [w,replw] );
+      StatusBar.Panels[PANEL_HINT].Text := WideFormat( ' %s -> %s', [w,replw] );
       replw := ExpandMetaChars( replw );
-      ActiveNote.Editor.SelText := replw;
+      ActiveNote.Editor.SelTextW := replw;
 
       ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
 
@@ -185,7 +186,7 @@ end; // ExpandTermProc
 procedure AddGlossaryTerm;
 var
   Form_TermDef : TForm_TermDef;
-  nstr, vstr : string;
+  nstr, vstr : wideString;
 begin
   if ( not assigned( GlossaryList )) then
   begin
@@ -199,7 +200,7 @@ begin
   if assigned( ActiveNote ) then
   begin
     if ( ActiveNote.Editor.SelLength > 0 ) then
-      nstr := trim( copy( ActiveNote.Editor.SelText, 1, 255 ))
+      nstr := trim( copy( ActiveNote.Editor.SelTextW, 1, 255 ))
     else
       nstr := ActiveNote.Editor.GetWordAtCursorNew( true );
     if ( nstr <> '' ) then
@@ -234,8 +235,8 @@ begin
             finally
               GlossaryList.Sorted := true;
             end;
-            GlossaryList.SaveToFile( Glossary_FN );
-            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Gloss_06, [nstr,vstr] );
+            SaveGlossaryInfo(Glossary_FN);
+            Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_Gloss_06, [nstr,vstr] );
           except
             on E : Exception do
               showmessage( E.Message );
@@ -495,7 +496,8 @@ end; // MatchBracket
 procedure TrimBlanks( const TrimWhat : integer );
 var
   i : integer;
-  tempList : TStringList;
+  tempList : TWideStringList;
+  wholeNote: boolean;
 begin
   if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
@@ -503,38 +505,23 @@ begin
 
   if ( ActiveNote.Editor.SelLength = 0 ) then
   begin
+    wholeNote:= true;
     if ( messagedlg( STR_Trim_01,
       mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-  end;
-
+  end
+  else
+     wholeNote:= false;
 
   ActiveNote.Editor.Lines.BeginUpdate;
   Screen.Cursor := crHourGlass;
   try
 
-    if ( ActiveNote.Editor.SelLength = 0 ) then
-    begin
-      for i := 0 to ActiveNote.Editor.Lines.Count-1 do
-      begin
-        case TrimWhat of
-          ITEM_TAG_TRIMLEFT : begin
-              ActiveNote.Editor.Lines[i] := trimleft( ActiveNote.Editor.Lines[i] );
-          end;
-          ITEM_TAG_TRIMRIGHT : begin
-            ActiveNote.Editor.Lines[i] := trimright( ActiveNote.Editor.Lines[i] );
-          end;
-          ITEM_TAG_TRIMBOTH : begin
-            ActiveNote.Editor.Lines[i] := trim( ActiveNote.Editor.Lines[i] );
-          end;
-        end;
-      end;
-      ActiveNote.Editor.SelStart := 0;
-    end
-    else
-    begin
-      tempList := TStringList.Create;
+      tempList := TWideStringList.Create;
       try
-        tempList.Text := ActiveNote.Editor.SelText;
+        if wholeNote then
+           tempList.Text:= ActiveNote.Editor.GetTextRange(0, ActiveNote.Editor.TextLength)
+        else
+           tempList.Text := ActiveNote.Editor.SelTextW;
         if ( tempList.Count > 0 ) then
         for i := 0 to tempList.Count-1 do
         begin
@@ -550,11 +537,15 @@ begin
             end;
           end;
         end;
-        ActiveNote.Editor.SelText := tempList.Text;
+        if wholeNote then
+           ActiveNote.Editor.SetSelection(0, ActiveNote.Editor.TextLength, true);
+        ActiveNote.Editor.SelTextW := tempList.Text;
+        if wholeNote then
+           ActiveNote.Editor.SelStart := 0;
       finally
         tempList.Free;
       end;
-    end;
+
 
   finally
     ActiveNote.Editor.Lines.EndUpdate;
@@ -574,7 +565,7 @@ const
 var
   WasWhite : boolean;
   i, l : integer;
-  s : string;
+  s : wideString;
 begin
   if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
@@ -624,7 +615,7 @@ begin
     end
     else
     begin
-      s := ActiveNote.Editor.SelText;
+      s := ActiveNote.Editor.SelTextW;
       i := 1;
       while ( i <= length( s )) do
       begin
@@ -642,7 +633,7 @@ begin
           inc( i );
         end;
       end;
-      ActiveNote.Editor.SelText := s;
+      ActiveNote.Editor.SelTextW := s;
       ActiveNote.Editor.SelLength := 0;
     end;
 
@@ -1329,13 +1320,14 @@ end; // SetClipCapState
 procedure PasteOnClipCap;
 var
   DividerString: string;
-  ClpStr : WideString;       //***1
+  ClpStr : WideString;
   i : integer;
-  wavfn, myNodeName : string;
+  wavfn: string;
+  myNodeName : wideString;
   myTreeNode, myParentNode : TTreeNTNode;
   PasteOK : boolean;
-  SourceURLStr : string;
-  AuxStr : string;
+  SourceURLStr : wideString;
+  AuxStr : wideString;
 begin
   with Form_Main do begin
         myTreeNode := nil;
@@ -1442,14 +1434,14 @@ begin
               AuxStr := STR_ClipCap_08 + SourceURLStr + ']' + #13;
               with NoteFile.ClipCapNote.Editor do
               begin
-                SelText := AuxStr;
+                SelTextW := AuxStr;
                 SelStart := SelStart + SelLength;
               end;
             end;
 
             if ClipOptions.PasteAsText then
             begin
-              ClpStr := ClipboardAsWString;
+              ClpStr := ClipboardAsStringW;
               if (( ClipOptions.MaxSize > 0 ) and ( length( ClpStr ) > ClipOptions.MaxSize )) then
                 delete( ClpStr, succ( ClipOptions.MaxSize ), length( ClpStr ));
               with NoteFile.ClipCapNote.Editor do

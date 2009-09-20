@@ -44,39 +44,56 @@
 unit kn_ExpandObj;
 
 interface
-uses Windows, Classes, SysUtils;
+uses Windows, Classes, SysUtils, WideStrings;
 
 function LoadGlossaryInfo( const FN : string ) : boolean;
 function SaveGlossaryInfo( const FN : string ) : boolean;
 
 var
-  GlossaryList : TStringList;
+  GlossaryList : TWideStringList;
   Glossary_FN : string;
 
 implementation
+uses TntSystem;
 
 function LoadGlossaryInfo( const FN : string ) : boolean;
+var
+   AnsiGlossaryList: TStringList;
 begin
   result := false;
   if ( not assigned( GlossaryList )) then exit;
   if ( not fileexists( FN )) then exit;
 
-  GlossaryList.Clear;
-  GlossaryList.LoadFromFile( FN );
+  try
+    AnsiGlossaryList:= TStringList.Create;
+    AnsiGlossaryList.LoadFromFile( FN );
+    GlossaryList.Clear;
+    GlossaryList.Text:= UTF8ToWideString(AnsiGlossaryList.Text);
+  finally
+    AnsiGlossaryList.Free;
+  end;
   result := true;
-
 end; // LoadGlossaryInfo
 
 function SaveGlossaryInfo( const FN : string ) : boolean;
+var
+  AnsiGlossaryList: TStringList;
 begin
   result := false;
   if ( not assigned( GlossaryList )) then exit;
-  GlossaryList.SaveToFile( FN );
+  try
+    AnsiGlossaryList:= TStringList.Create;
+    AnsiGlossaryList.Text:= WideStringToUTF8(GlossaryList.Text);
+    AnsiGlossaryList.SaveToFile( Glossary_FN );
+  finally
+    AnsiGlossaryList.Free;
+  end;
+
   result := true;
 end; // SaveGlossaryInfo
 
 Initialization
-  GlossaryList := TStringList.Create;
+  GlossaryList := TWideStringList.Create;
   with GlossaryList do
   begin
     sorted := true;

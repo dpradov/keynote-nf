@@ -68,6 +68,9 @@ type
     FMenuIsDown: Boolean;
     FUsesDropdown: Boolean;
     FRepeatTimer: TTimer;
+    function GetHint: WideString;
+    procedure SetHint(const Value: WideString);
+    function IsHintStored: Boolean;
     procedure GlyphChanged(Sender: TObject);
     procedure UpdateExclusive;
     procedure SetAlignment (Value: TAlignment);
@@ -213,6 +216,7 @@ type
     property OnMouseMove;
     property OnMouseUp;
     property OnStartDrag;
+    property Hint: WideString read GetHint write SetHint stored IsHintStored;
   end;
 
   { TToolButtonActionLink }
@@ -335,7 +339,7 @@ procedure Unregister97ControlClass (AClass: TClass);
 implementation
 
 uses
-  SysUtils, Consts, CommCtrl, TB97Cmn;
+  SysUtils, Consts, CommCtrl, TB97Cmn, TntControls;
 
 var
   { See TToolbarButton97.ButtonMouseTimerHandler for info on this }
@@ -2759,6 +2763,20 @@ begin
     MouseLeft;
 end;
 
+function TToolbarButton97.IsHintStored: Boolean;
+begin
+  Result := TntControl_IsHintStored(Self);
+end;
+
+function TToolbarButton97.GetHint: WideString;
+begin
+  Result := TntControl_GetHint(Self)
+end;
+
+procedure TToolbarButton97.SetHint(const Value: WideString);
+begin
+  TntControl_SetHint(Self, Value);
+end;
 
 { TEdit97 - internal }
 

@@ -79,8 +79,8 @@ var
     LastExportFilterIndex : integer;
 
     //================================================== COMMAND LINE
-    NoteFileToLoad : string; // name of KNT file we are supposed to open (options + commandline + passed from other instance, etc)
-    CmdLineFileName : string; // other filename passed on command line (macro, plugin, etc)
+    NoteFileToLoad : wideString; // name of KNT file we are supposed to open (options + commandline + passed from other instance, etc)
+    CmdLineFileName : wideString; // other filename passed on command line (macro, plugin, etc)
 
 
     //================================================== KEYBOARD / HOTKEY
@@ -177,7 +177,7 @@ var
 
 implementation
 uses Classes, Messages, Graphics, Dialogs, Forms, Menus, Controls, SysUtils,
-     TB97,  //RxRichEd,
+     TB97, TntSysUtils,  //RxRichEd,
      gf_const, gf_misc, gf_miscvcl,
      kn_const, kn_msgs, kn_ini, kn_ExpandObj, kn_plugins, kn_fileMgr,
      kn_StyleObj, kn_Chest,
@@ -674,7 +674,7 @@ begin
           // after installation. Since no .KNT file was specified, let's show
           // the sample file which is part of the distribution.
           NoteFileToLoad := NormalFN( extractfilepath( Application.ExeName ) + SampleFileName );
-          if ( not fileexists( NoteFileToLoad )) then
+          if ( not Widefileexists( NoteFileToLoad )) then
             NoteFileToLoad := '';
         end;
       end

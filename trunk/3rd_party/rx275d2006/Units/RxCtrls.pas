@@ -15,14 +15,14 @@ unit RXCtrls;
 interface
 
 uses Windows, Registry, RTLConsts,  Messages, Classes, Controls, Graphics, StdCtrls, ExtCtrls, Forms,
-  Buttons, Menus, RxTimer, RxConst, IniFiles, Placemnt;
+  Buttons, Menus, RxTimer, RxConst, IniFiles, Placemnt, TntStdCtrls;
 
 type
   TPositiveInt = 1..MaxInt;
 
 { TTextListBox }
 
-  TTextListBox = class(TCustomListBox)
+  TTextListBox = class(TTntCustomListBox)
   private
     FMaxWidth: Integer;
 {$IFNDEF WIN32}

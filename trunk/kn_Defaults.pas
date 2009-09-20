@@ -55,59 +55,59 @@ uses
   kn_NoteObj, gf_strings,
   gf_Const, kn_Ini,
   cmpGFXComboBox, Placemnt,
-  Menus, gf_LangCombo, LCCombo;
+  Menus, gf_LangCombo, LCCombo, TntStdCtrls;
 
 type
   TForm_Defaults = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
     ColorDlg: TColorDialog;
     FontDlg: TFontDialog;            
     Pages: TPage95Control;
     Tab_Main: TTab95Sheet;
     Tab_Tree: TTab95Sheet;
-    GBox_Note: TGroupBox;
-    Label_TabSize: TLabel;
-    Label1: TLabel;
+    GBox_Note: TTntGroupBox;
+    Label_TabSize: TTntLabel;
+    Label1: TTntLabel;
     Bevel1: TBevel;
-    Label4: TLabel;
-    CB_WordWrap: TCheckBox;
-    CB_URLDetect: TCheckBox;
-    CB_UseTabChar: TCheckBox;
+    Label4: TTntLabel;
+    CB_WordWrap: TTntCheckBox;
+    CB_URLDetect: TTntCheckBox;
+    CB_UseTabChar: TTntCheckBox;
     Spin_TabSize: TSpinEdit;
-    Edit_NoteName: TComboBox;
+    Edit_NoteName: TTntComboBox;
     Combo_Icons: TGFXComboBox;
-    GBox_Tree: TGroupBox;
+    GBox_Tree: TTntGroupBox;
     BTN_Font: TBitBtn;
     BTN_Color: TBitBtn;
     BTN_Defaults: TBitBtn;
-    Edit_Sample: TEdit;
+    Edit_Sample: TTntEdit;
     Bevel2: TBevel;
-    CB_TreeCheck: TCheckBox;
+    CB_TreeCheck: TTntCheckBox;
     Bevel4: TBevel;
-    Label5: TLabel;
-    Edit_NodeName: TComboBox;
-    CB_AutoNumberNodes: TCheckBox;
+    Label5: TTntLabel;
+    Edit_NodeName: TTntComboBox;
+    CB_AutoNumberNodes: TTntCheckBox;
     Bevel5: TBevel;
     BitBtn_TknHlp: TBitBtn;
-    Label_EditorFonts: TLabel;
-    Label_TreeFonts: TLabel;
-    Label_TreeSettings: TLabel;
-    Label_EditorSettings: TLabel;
+    Label_EditorFonts: TTntLabel;
+    Label_TreeFonts: TTntLabel;
+    Label_TreeSettings: TTntLabel;
+    Label_EditorSettings: TTntLabel;
     FormPlacement: TFormPlacement;
-    CB_Vertical: TCheckBox;
+    CB_Vertical: TTntCheckBox;
     Tab_Adv: TTab95Sheet;
-    GroupBox1: TGroupBox;
-    CB_SaveAsDef: TCheckBox;
-    LB_SaveAsDef: TLabel;
-    Button_Help: TButton;
-    Label14: TLabel;
-    LB_PlainText: TLabel;
-    CB_PlainText: TCheckBox;
-    Label2: TLabel;
-    Combo_TreeImages: TComboBox;
+    GroupBox1: TTntGroupBox;
+    CB_SaveAsDef: TTntCheckBox;
+    LB_SaveAsDef: TTntLabel;
+    Button_Help: TTntButton;
+    Label14: TTntLabel;
+    LB_PlainText: TTntLabel;
+    CB_PlainText: TTntCheckBox;
+    Label2: TTntLabel;
+    Combo_TreeImages: TTntComboBox;
     Combo_DefEdLang: TLanguagesCombo;
-    CB_HideChecked: TCheckBox;
+    CB_HideChecked: TTntCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -134,7 +134,7 @@ type
     OK_Click : boolean;
     StartWithEditorTab : boolean;
     NoteKind : TNoteType;
-    DefaultsFN : string;
+    DefaultsFN : wideString;
 
     myEditorChrome : TChrome;
     myEditorProperties : TNoteEditorProperties;
@@ -143,12 +143,12 @@ type
     myTreeChrome : TChrome;
     myTreeProperties : TNoteTreeProperties;
 
-    myTabNameHistory : string;
+    myTabNameHistory : wideString;
     myHistoryCnt : integer;
-    myNodeNameHistory : string;
+    myNodeNameHistory : wideString;
 
     mySaveFileDefaults : boolean;
-    myCurrentFileName : string;
+    myCurrentFileName : wideString;
 
     myNoteIsReadOnly : boolean; // prevent changes
 
@@ -160,6 +160,7 @@ type
 
 
 implementation
+uses wideStrUtils;
 
 {$R *.DFM}
 
@@ -284,7 +285,7 @@ begin
 
         if ( myCurrentFileName <> '' ) then
         begin
-          CB_SaveAsDef.Caption := Format( STR_07, [myCurrentFileName] );
+          CB_SaveAsDef.Caption := WideFormat( STR_07, [myCurrentFileName] );
           // Tab_Adv.TabVisible := true;
           LB_SaveAsDef.Enabled := true;
           CB_SaveAsDef.Enabled := true;
@@ -311,7 +312,7 @@ begin
 
     Edit_NoteName.Items.BeginUpdate;
     try
-      DelimTextToStrs( Edit_NoteName.Items, myTabNameHistory, HISTORY_SEPARATOR );
+      DelimTextToWStrs( Edit_NoteName.Items, myTabNameHistory, HISTORY_SEPARATOR );
     finally
       Edit_NoteName.Items.EndUpdate;
     end;
@@ -322,7 +323,7 @@ begin
 
     Edit_NodeName.Items.BeginUpdate;
     try
-      DelimTextToStrs( Edit_NodeName.Items, myNodeNameHistory, HISTORY_SEPARATOR );
+      DelimTextToWStrs( Edit_NodeName.Items, myNodeNameHistory, HISTORY_SEPARATOR );
     finally
       Edit_NodeName.Items.EndUpdate;
     end;
@@ -401,22 +402,22 @@ begin
       exit;
     end;
 
-    myTabNameHistory := ANSIQuotedStr( Edit_NoteName.Text, '"' );
+    myTabNameHistory := WideQuotedStr( Edit_NoteName.Text, '"' );
     for i := 0 to pred( Edit_NoteName.Items.Count ) do
     begin
       if ( i >= myHistoryCnt ) then break;
       if (( Edit_NoteName.Items[i] <> Edit_NoteName.Text ) and ( Edit_NoteName.Items[i] <> '' )) then
-        myTabNameHistory :=  myTabNameHistory + HISTORY_SEPARATOR + ANSIQuotedStr( Edit_NoteName.Items[i], '"' );
+        myTabNameHistory :=  myTabNameHistory + HISTORY_SEPARATOR + WideQuotedStr( Edit_NoteName.Items[i], '"' );
     end;
     if ( Edit_NodeName.Text <> '' ) then
-      myNodeNameHistory := ANSIQuotedStr( Edit_NodeName.Text, '"' )
+      myNodeNameHistory := WideQuotedStr( Edit_NodeName.Text, '"' )
     else
       myNodeNameHistory := '';
     for i := 0 to pred( Edit_NodeName.Items.Count ) do
     begin
       if ( i >= myHistoryCnt ) then break;
       if (( Edit_NodeName.Items[i] <> Edit_NodeName.Text ) and ( Edit_NodeName.Items[i] <> '' )) then
-        myNodeNameHistory :=  myNodeNameHistory + HISTORY_SEPARATOR + ANSIQuotedStr( Edit_NodeName.Items[i], '"' );
+        myNodeNameHistory :=  myNodeNameHistory + HISTORY_SEPARATOR + WideQuotedStr( Edit_NodeName.Items[i], '"' );
     end;
     FormToProps;
   end;

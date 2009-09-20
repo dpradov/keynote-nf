@@ -114,7 +114,7 @@ implementation
 uses
   Windows, SysUtils, TypInfo, Forms, uStringUtils
   {$ifdef D7} ,uLegacyCode {$endif}
-  {$ifndef D5} ,StrUtils {$endif};
+  {$ifndef D5} ,StrUtils {$endif}, WideStrings;
 
 const
   LngHeader = '; Kryvich''s Delphi Localizer Language File.';
@@ -482,7 +482,8 @@ begin
                 if Utf8vclActive then
                   s := ws // Wide --> UTF-8
                 else
-                  WideToAnsiString(ws, s, GetACP);
+                  //WideToAnsiString(ws, s, GetACP);
+                  s:= UTF8Encode(ws);                 // //We will save it in UTF8
                 ResForms[iResForms].Values.Add(s);
 
                 // btnNewForm.Caption{1}  -> drop version #
@@ -491,7 +492,8 @@ begin
                   Error('Bad line in language file: "' + sl[i] + '"');
                   exit;
                 end;
-                ResForms[iResForms].Props.Add(ws);
+                //ResForms[iResForms].Props.Add(ws);
+                ResForms[iResForms].Props.Add(UTF8Encode(ws));  //We will save it in UTF8
               end;
             end;
           end;
@@ -556,7 +558,7 @@ procedure TFreeLocalizer.TranslateProp(RootComp: TComponent; const PropName,
     i: integer;
     s, el: string;
   begin
-    s := PropValue;
+    s := UTF8Decode(PropValue);
     i := 0;
     st.BeginUpdate;
     try
@@ -574,21 +576,50 @@ procedure TFreeLocalizer.TranslateProp(RootComp: TComponent; const PropName,
     end;
   end;
 
+  procedure SetWideStringsProp(st: TWideStrings);
+  var
+    i: integer;
+    s, el: wideString;
+  begin
+    s := UTF8Decode(PropValue);
+    i := 0;
+    st.BeginUpdate;
+    try
+      while s <> '' do begin
+        WideSplitBy(s, ListDivider, el);
+        if i < st.Count
+        then st[i] := el
+        else st.Add(el);
+        inc(i);
+      end;
+      while st.Count > i do
+        st.Delete(st.Count-1);
+    finally
+      st.EndUpdate;
+    end;
+  end;
+
   procedure SetProp(Obj: TObject; const pName: string);
   var
     PropInfo: PPropInfo;
+    ws: wideString;
   begin
-    if Obj is TStrings
-    then SetStringsProp(Obj as TStrings)
+    if Obj is TWideStrings
+       then SetWideStringsProp(Obj as TWideStrings)
+    else if Obj is TStrings
+       then SetStringsProp(Obj as TStrings)
     else begin
       PropInfo := GetPropInfo(Obj.ClassInfo, pName);
       if PropInfo <> Nil // Property exists
-      then
+      then begin
         {$ifdef D7}
           SetPropValue(Obj, pName, PropValue)
         {$else}
-          SetPropValue(Obj, PropInfo, PropValue)
+          //SetPropValue(Obj, PropInfo, PropValue)
+          ws:= UTF8Decode(PropValue);
+          SetPropValue(Obj, PropInfo, ws);
         {$endif}
+          end
       else raise EKdlSilentError.Create;
     end;
   end;

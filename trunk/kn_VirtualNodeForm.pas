@@ -94,7 +94,7 @@ procedure TForm_VNode.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   if ( myNodeName <> '' ) then
-    Caption := Format( 'Virtual node: "%s"', [myNodeName] )
+    Caption := WideFormat( 'Virtual node: "%s"', [myNodeName] )
   else
     Caption := 'Create a virtual node';
 

@@ -14,7 +14,8 @@ interface
 
 uses
   SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, 
-  Buttons, ExtCtrls, RXCtrls, Placemnt, RXProps, Consts, RTLConsts, DesignIntf, DesignEditors, VCLEditors, VclUtils;
+  Buttons, ExtCtrls, RXCtrls, Placemnt, RXProps, Consts, RTLConsts, DesignIntf, DesignEditors, VCLEditors, VclUtils,
+  TntStdCtrls, TntClasses;
 
 type
 
@@ -228,7 +229,7 @@ end;
 procedure TFormPropsDlg.UpdateCurrent;
 var
   IdxProp: Integer;
-  List: TStrings;
+  List: TTntStrings;
 begin
   IdxProp := PropertiesList.ItemIndex;
   if IdxProp < 0 then IdxProp := 0;
@@ -239,7 +240,7 @@ begin
   end;
   if (ComponentsList.ItemIndex < 0) then
     ComponentsList.ItemIndex := 0;
-  List := TStrings(ComponentsList.Items.Objects[ComponentsList.ItemIndex]);
+  List := TTntStrings(ComponentsList.Items.Objects[ComponentsList.ItemIndex]);
   if List.Count > 0 then PropertiesList.Items := List
   else PropertiesList.Clear;
   ListToIndex(PropertiesList, IdxProp);

@@ -50,33 +50,33 @@ uses
   Graphics, Controls, Forms, Dialogs,
   ExtCtrls, StdCtrls, Buttons, Menus,
   Clipbrd, ShellAPI, kn_Info,
-  gf_misc, gf_const, kn_NoteObj;
+  gf_misc, gf_const, kn_NoteObj, TntMenus, TntStdCtrls;
 
 type
   TAboutBox = class(TForm)
     BTN_Close: TSpeedButton;
-    NetMenu: TPopupMenu;
-    CopyEmailaddress1: TMenuItem;
-    CopyuWebURL1: TMenuItem;
-    N1: TMenuItem;
-    Cancel1: TMenuItem;
+    NetMenu: TTntPopupMenu;
+    CopyEmailaddress1: TTntMenuItem;
+    CopyuWebURL1: TTntMenuItem;
+    N1: TTntMenuItem;
+    Cancel1: TTntMenuItem;
     Panel_Main: TPanel;
-    Label_Name: TLabel;
-    Label_Desc: TLabel;
-    Label_License: TLabel;
-    Label9: TLabel;
-    Label11: TLabel;
-    Label_URL: TLabel;
-    Label_MAILTO: TLabel;
-    Label_Dart: TLabel;
+    Label_Name: TTntLabel;
+    Label_Desc: TTntLabel;
+    Label_License: TTntLabel;
+    Label9: TTntLabel;
+    Label11: TTntLabel;
+    Label_URL: TTntLabel;
+    Label_MAILTO: TTntLabel;
+    Label_Dart: TTntLabel;
     Image1: TImage;
-    LB_RichEditVer: TLabel;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label_MAILTO2: TLabel;
-    Label6: TLabel;
+    LB_RichEditVer: TTntLabel;
+    Label1: TTntLabel;
+    Label2: TTntLabel;
+    Label3: TTntLabel;
+    Label4: TTntLabel;
+    Label_MAILTO2: TTntLabel;
+    Label6: TTntLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BTN_CloseClick(Sender: TObject);

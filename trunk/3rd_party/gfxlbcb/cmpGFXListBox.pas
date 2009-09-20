@@ -8,26 +8,27 @@ unit cmpGFXListBox;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Controls, Graphics, StdCtrls;
+  Windows, Messages, SysUtils, Classes, Controls, Graphics, StdCtrls,
+  TntStdCtrls;
 
 const
-	CheckBoxSize	= 13;
-	Offset 				= 2;
+   CheckBoxSize	= 13;
+   Offset 				= 2;
 
 type
-	TItemObject = class
-	public
+   TItemObject = class
+   public
     f_State: TCheckBoxState;
     f_ImageIndex: Integer;
     f_Locked: Boolean;
     Data : pointer; // [x] MJ added this line 23.12.2000 (PhoneDeck, KeyNote)
-	end;
+   end;
 
 type
-	TStateChangeEvent = procedure(p_Index: Integer; var p_Cancel: Boolean) of Object;
+  TStateChangeEvent = procedure(p_Index: Integer; var p_Cancel: Boolean) of Object;
 
 type
-  TGFXListBox = class(TCustomListBox)
+  TGFXListBox = class(TTntCustomListBox)
   private
     f_AllowGrayed: Boolean;
     f_ImageList: TImageList;
@@ -40,36 +41,36 @@ type
     procedure SetChecked(p_Index: Integer; const p_Checked: Boolean);
     function GetChecked(p_Index: Integer): Boolean;
     procedure SetState(p_Index: Integer; const p_State: TCheckBoxState);
-		function GetState(p_Index: Integer): TCheckBoxState;
+    function GetState(p_Index: Integer): TCheckBoxState;
     procedure SetImageIndex(p_Index: Integer; const p_ImageIndex: Integer);
-		function GetImageIndex(p_Index: Integer): Integer;
+    function GetImageIndex(p_Index: Integer): Integer;
     procedure SetImageList(p_ImageList: TImageList);
-		function GetLocked(p_Index: Integer): Boolean;
+    function GetLocked(p_Index: Integer): Boolean;
     procedure SetLocked(p_Index: Integer; p_Locked: Boolean);
     procedure SetCheckboxes( aCheckboxes : boolean ); // [x] MJ
   protected
-  	procedure WndProc(var Message: TMessage); override;
-		procedure DrawItem(p_Index: Integer; p_Rect: TRect; p_State: TOwnerDrawState); override;
-		procedure KeyDown(var p_Key: Word; p_Shift: TShiftState); override;
-		procedure MouseDown(p_Button: TMouseButton; p_Shift: TShiftState; p_X, p_Y: Integer); override;
+    procedure WndProc(var Message: TMessage); override;
+    procedure DrawItem(p_Index: Integer; p_Rect: TRect; p_State: TOwnerDrawState); override;
+    procedure KeyDown(var p_Key: Word; p_Shift: TShiftState); override;
+    procedure MouseDown(p_Button: TMouseButton; p_Shift: TShiftState; p_X, p_Y: Integer); override;
     { Custom Events }
-		procedure StateChange(p_Index: Integer; var p_Cancel: Boolean);
+    procedure StateChange(p_Index: Integer; var p_Cancel: Boolean);
   public
-		constructor Create(p_Owner: TComponent); override;
+    constructor Create(p_Owner: TComponent); override;
     { Custom Methods }
-    function AddItem(const p_Text: String; p_State: TCheckBoxState; p_ImageIndex: Integer): Integer;
-		procedure InsertItem(p_Index: Integer; const p_Text: String; p_State: TCheckBoxState; p_ImageIndex: Integer);
-		procedure SetSelected(p_State: TCheckBoxState);
+    function AddItem(const p_Text: wideString; p_State: TCheckBoxState; p_ImageIndex: Integer): Integer;
+    procedure InsertItem(p_Index: Integer; const p_Text: wideString; p_State: TCheckBoxState; p_ImageIndex: Integer);
+    procedure SetSelected(p_State: TCheckBoxState);
     procedure SetAll(p_State: TCheckBoxState);
-		procedure LockSelected(p_Locked: Boolean);
+    procedure LockSelected(p_Locked: Boolean);
     procedure LockAll(p_Locked: Boolean);
     { Custom Properties }
-		property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
+    property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
     property State[Index: Integer]: TCheckBoxState read GetState write SetState;
-		property ImageIndex[Index: Integer]: Integer read GetImageIndex write SetImageIndex;
+    property ImageIndex[Index: Integer]: Integer read GetImageIndex write SetImageIndex;
     property Locked[Index: Integer]: Boolean read GetLocked write SetLocked;
   published
-		{ Custom Properties }
+    { Custom Properties }
     property AllowGrayed: Boolean read f_AllowGrayed write f_AllowGrayed default False;
     property ImageList: TImageList read f_ImageList write SetImageList;
     property QuickPaint: Boolean read f_QuickPaint write f_QuickPaint default True;
@@ -83,9 +84,9 @@ type
     property Columns;
     property Ctl3D;
     property Cursor;
-		property DragCursor;
+    property DragCursor;
     property DragMode;
-		property Enabled;
+    property Enabled;
     property ExtendedSelect;
     property Font;
     property IntegralHeight;
@@ -102,27 +103,28 @@ type
     property TabOrder;
     property TabWidth;
     property Visible;
-		{ Republished Events }
-		property OnClick;
-		property OnDblClick;
+    { Republished Events }
+    property OnClick;
+    property OnDblClick;
     property OnDragDrop;
     property OnDragOver;
     property OnDrawItem;
     property OnEndDrag;
     property OnEnter;
     property OnExit;
-		property OnKeyDown;
-		property OnKeyPress;
-		property OnKeyUp;
-		property OnMouseDown;
-		property OnMouseMove;
-		property OnMouseUp;
+    property OnKeyDown;
+    property OnKeyPress;
+    property OnKeyUp;
+    property OnMouseDown;
+    property OnMouseMove;
+    property OnMouseUp;
     property OnStartDrag;
   end;
 
 procedure Register;
 
 implementation
+uses TntControls;
 
 {$R GFXReg.dcr}
 
@@ -138,47 +140,47 @@ end;
 
 procedure TGFXListBox.WndProc(var Message: TMessage);
 begin
-	case Message.Msg of
-  	LB_AddString, LB_InsertString:
+  case Message.Msg of
+    LB_AddString, LB_InsertString:
       begin
         inherited WndProc(Message);
         {Assign a TItemObject to the new item}
         if (Message.Result <> LB_Err) or (Message.Result <> LB_ErrSpace) then
-					Perform(LB_SetItemData, Message.Result, CreateItemObject(Message.Result));
+    	   Perform(LB_SetItemData, Message.Result, CreateItemObject(Message.Result));
       end;
-		LB_SetItemData:
+    LB_SetItemData:
       begin
       	{When a TStringList is assigned to the ListBox this message is sent twice,
         the second time the lParam(pointer to TItemData Object) is set to zero there
         fore we bypass this message because the Item Data was already set}
         if Message.lParam <> 0 then
-        	inherited WndProc(Message);
+           inherited WndProc(Message);
       end;
   else
-	 	inherited WndProc(Message);
+    inherited WndProc(Message);
   end;
 end;
 function TGFXListBox.CreateItemObject(p_Index: Integer): LongInt;
 var
-	v_ItemObject: TItemObject;
+  v_ItemObject: TItemObject;
 begin
-	if Items.Objects[p_Index] = nil then
+  if Items.Objects[p_Index] = nil then
   begin
-  	{Create a TItemObject for the new Item}
-	  v_ItemObject := TItemObject.Create;
-		Result := LongInt(v_ItemObject);
-	end else
+    {Create a TItemObject for the new Item}
+      v_ItemObject := TItemObject.Create;
+            Result := LongInt(v_ItemObject);
+  end else
   begin
-		{Return a pointer to the item's Object}
-  	Result := LongInt(Items.Objects[p_Index]);
+   {Return a pointer to the item's Object}
+    Result := LongInt(Items.Objects[p_Index]);
   end;
 end;
 
 procedure TGFXListBox.InvalidateItem(p_Index: Integer);
 var
-	v_Rect: TRect;
+  v_Rect: TRect;
 begin
-	if not QuickPaint then Invalidate else
+  if not QuickPaint then Invalidate else
   begin
     {
     Look ma no flashing...
@@ -188,7 +190,7 @@ begin
     v_Rect := ItemRect(p_Index); //Get the rectangle that needs painting
     InvalidateRect(Handle, @v_Rect, True); //Add the rectangle to the Windows update region (see Win32 API help)
     UpdateWindow(Handle);
-	end;
+  end;
 end;
 
 procedure TGFXListBox.ChangeState(p_Index: Integer);
@@ -221,18 +223,18 @@ end;
 
 function TGFXListBox.GetChecked(p_Index: Integer): Boolean;
 begin
-	if State[p_Index] = cbChecked then
-  	Result := True else
+  if State[p_Index] = cbChecked then
+    Result := True else
     Result := False;
 end;
 
 procedure TGFXListBox.SetState(p_Index: Integer; const p_State: TCheckBoxState);
 var
-	v_Cancel: Boolean;
+   v_Cancel: Boolean;
 begin
   with Items.Objects[p_Index] as TItemObject do
   begin
-  	if not f_Locked then
+    if not f_Locked then
     begin
       if f_State <> p_State then
       begin
@@ -244,14 +246,14 @@ begin
           InvalidateItem(p_Index);
         end;
       end;
-		end;      
+    end;
   end;
 end;
 
 function TGFXListBox.GetState(p_Index: Integer): TCheckBoxState;
 begin
   with Items.Objects[p_Index] as TItemObject do
-		Result := f_State;
+     Result := f_State;
 end;
 
 procedure TGFXListBox.SetImageIndex(p_Index: Integer; const p_ImageIndex: Integer);
@@ -268,17 +270,17 @@ end;
 
 function TGFXListBox.GetImageIndex(p_Index: Integer): Integer;
 begin
-	with Items.Objects[p_Index] as TItemObject do
-		Result := f_ImageIndex;
+    with Items.Objects[p_Index] as TItemObject do
+            Result := f_ImageIndex;
 end;
 
 procedure TGFXListBox.SetImageList(p_ImageList: TImageList);
 var
-	v_Height: Integer;
+  v_Height: Integer;
 begin
-	if f_ImageList <> p_ImageList then
+  if f_ImageList <> p_ImageList then
   begin
-		f_ImageList := p_ImageList;
+    f_ImageList := p_ImageList;
     if p_ImageList <> nil then
     begin
       v_Height := f_ImageList.Height + 2*Offset;
@@ -291,8 +293,8 @@ end;
 
 function TGFXListBox.GetLocked(p_Index: Integer): Boolean;
 begin
-	with Items.Objects[p_Index] as TItemObject do
-		Result := f_Locked;
+    with Items.Objects[p_Index] as TItemObject do
+            Result := f_Locked;
 end;
 
 procedure TGFXListBox.SetLocked(p_Index: Integer; p_Locked: Boolean);
@@ -306,12 +308,12 @@ end;
 
 procedure TGFXListBox.DrawItem(p_Index: Integer; p_Rect: TRect; p_State: TOwnerDrawState);
 const
-	csUnchecked = DFCS_ButtonCheck;
+  csUnchecked = DFCS_ButtonCheck;
   csChecked 	= DFCS_ButtonCheck or DFCS_Checked;
   csGrayed 		= DFCS_ButtonCheck or DFCS_Checked or DFCS_Inactive;
   CheckBoxState: array[TCheckBoxState] of Integer = (csUnchecked, csChecked, csGrayed);
 var
-	v_CheckBoxRect: TRect;
+  v_CheckBoxRect: TRect;
   v_ImagePos: TPoint;
   v_TextRect: TRect;
   v_NewOffset: Integer;
@@ -346,7 +348,7 @@ begin
     end;
     {Draw the Text}
     SetRect(v_TextRect, v_NewOffset + Offset, p_Rect.Top, p_Rect.Right, p_Rect.Bottom);
-    DrawText(Handle, PChar(Items[p_Index]), Length(Items[p_Index]), v_TextRect, DT_SingleLine or DT_VCenter);
+    DrawTextW(Handle, PWideChar(Items[p_Index]), Length(Items[p_Index]), v_TextRect, DT_SingleLine or DT_VCenter);
   end;
   if not(csDesigning in ComponentState) and Assigned(OnDrawItem) then inherited;
 end;
@@ -360,12 +362,12 @@ end;
 
 procedure TGFXListBox.MouseDown(p_Button: TMouseButton; p_Shift: TShiftState; p_X, p_Y: Integer);
 const
-	TargetWidth = Offset + CheckBoxSize;
+  TargetWidth = Offset + CheckBoxSize;
 var
-	v_Index: Integer;
-	v_Rect: TRect;
+  v_Index: Integer;
+  v_Rect: TRect;
 begin
-	if p_Button = mbLeft then
+  if p_Button = mbLeft then
   begin
     v_Index := ItemAtPos(Point(p_X, p_Y), True);
     if v_Index <> -1 then
@@ -375,18 +377,18 @@ begin
       	ChangeState(v_Index);
     end;
   end;
-	inherited;
+  inherited;
 end;
 
 procedure TGFXListBox.StateChange(p_Index: Integer; var p_Cancel: Boolean);
 begin
-	if Assigned(f_OnStateChange) then
-  	f_OnStateChange(p_Index, p_Cancel);
+    if Assigned(f_OnStateChange) then
+    f_OnStateChange(p_Index, p_Cancel);
 end;
 
 {** Additional Wrapper routines **}
 
-function TGFXListBox.AddItem(const p_Text: String; p_State: TCheckBoxState; p_ImageIndex: Integer): Integer;
+function TGFXListBox.AddItem(const p_Text: wideString; p_State: TCheckBoxState; p_ImageIndex: Integer): Integer;
 begin
   Result := Items.Add(p_Text);
   State[Result] := p_State;
@@ -394,7 +396,7 @@ begin
   Locked[Result] := False;
 end;
 
-procedure TGFXListBox.InsertItem(p_Index: Integer; const p_Text: String; p_State: TCheckBoxState; p_ImageIndex: Integer);
+procedure TGFXListBox.InsertItem(p_Index: Integer; const p_Text: wideString; p_State: TCheckBoxState; p_ImageIndex: Integer);
 begin
   Items.Insert(p_Index, p_Text);
   State[p_Index] := p_State;
@@ -404,35 +406,36 @@ end;
 
 procedure TGFXListBox.SetSelected(p_State: TCheckBoxState);
 var
-	i: Integer;
+  i: Integer;
 begin
-	for i := 0 to Items.Count-1 do
-  	if Selected[i] then State[i] := p_State;
+  for i := 0 to Items.Count-1 do
+     if Selected[i] then State[i] := p_State;
 end;
 
 procedure TGFXListBox.SetAll(p_State: TCheckBoxState);
 var
-	i: Integer;
+   i: Integer;
 begin
-	for i := 0 to Items.Count-1 do
-		State[i] := p_State;
+   for i := 0 to Items.Count-1 do
+      State[i] := p_State;
 end;
 
 procedure TGFXListBox.LockSelected(p_Locked: Boolean);
 var
-	i: Integer;
+   i: Integer;
 begin
-	for i := 0 to Items.Count-1 do
-		if Selected[i] then Locked[i] := p_Locked;
+   for i := 0 to Items.Count-1 do
+      if Selected[i] then Locked[i] := p_Locked;
 end;
 
 procedure TGFXListBox.LockAll(p_Locked: Boolean);
 var
-	i: Integer;
+   i: Integer;
 begin
-	for i := 0 to Items.Count-1 do
-		Locked[i] := p_Locked;
+   for i := 0 to Items.Count-1 do
+      Locked[i] := p_Locked;
 end;
+
 
 procedure Register;
 begin

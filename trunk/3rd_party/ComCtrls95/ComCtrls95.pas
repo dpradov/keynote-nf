@@ -1,4 +1,4 @@
-{$I DFS.INC}
+﻿{$I DFS.INC}
 
 unit ComCtrls95;
 
@@ -26,7 +26,7 @@ interface
 {$endif}
 
 uses Messages, Windows, SysUtils, ComCtrls, CommCtrl, Classes, controls,
-     Forms, Graphics, typinfo, dialogs,
+     Forms, Graphics, typinfo, dialogs, wideStrings, TntClasses,
   {$IFDEF DFS_DELPHI_6_UP} // *1
   RTLConsts
   {$ENDIF}
@@ -68,7 +68,7 @@ type
   TTextRotation = (trHorizontal, trVertical);
   TFloatState = (fsFloating, fsDocked);
 
-  TDrawTab95Event = procedure(Page95Control: TCustomTab95Control; Caption: String;
+  TDrawTab95Event = procedure(Page95Control: TCustomTab95Control; Caption: WideString;
     PageIndex:Integer; const Rect: TRect) of object;
 
   TTab95FloatEvent = procedure(Sender: TObject; FloatState: TFloatState) of object;
@@ -82,9 +82,10 @@ type
     FOnDblClick : TNotifyEvent;
     FMarkedPage: TTab95Sheet;
     FCanvas: TCanvas;
-    FTabs: TStrings;
+    FTabs: TTntStrings;
+    FAnsiTabs: TStrings;
     FImages: TImageList;
-    FSaveTabs: TStringList;
+    FSaveTabs: TTntStrings;
     FSaveTabIndex: Integer;
     FTabSize: TSmallPoint;
     FMultiLine: Boolean;
@@ -122,7 +123,7 @@ type
     procedure SetTabsVertical(value:boolean);
     procedure SetTextRotation(value:tTextRotation);
     procedure SetButtonStyle(value:boolean);
-    procedure SetTabs(Value: TStrings);
+    procedure SetTabs(Value: TTntStrings);
     procedure SetTabWidth(Value: Smallint);
     procedure SetImageList(value:TImageList);
     procedure SetFlatButtons(value:boolean);
@@ -134,7 +135,7 @@ type
     procedure ImageListChange(Sender: TObject);
     procedure TabsChanged;
     procedure UpdateTabSize;
-    procedure RotateText(Text:string; TabPosition:TTab95Position; WorkCanvas:Tcanvas; R:TRect; xadj, yadj:integer; UseGrayString : boolean);
+    procedure RotateText(Text:wideString; TabPosition:TTab95Position; WorkCanvas:Tcanvas; R:TRect; xadj, yadj:integer; UseGrayString : boolean);
     procedure RotateImage(RotatedBMP, OriginalBMP:tbitmap; angle:integer);
     procedure WMDestroy(var Message: TWMDestroy); message WM_DESTROY;
     procedure WMEraseBkgnd(var Message: TMessage); message WM_ERASEBKGND;
@@ -160,7 +161,7 @@ type
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
     procedure DisplayTabHint(TabIndex:integer); virtual; abstract;
-    procedure DrawTab(Caption: String; PageIndex:integer; const wRect: TRect);
+    procedure DrawTab(Caption: WideString; PageIndex:integer; const wRect: TRect);
     property DisplayRect: TRect read GetDisplayRect;
     property FocusButtons:boolean read ffocusbutton write setfocusbutton default false;
     property MultiLine: Boolean read FMultiLine write SetMultiLine default False;
@@ -172,7 +173,7 @@ type
     property FlatSeperators: boolean read GetFlatSeperators write setflatseperators default true;
     property TabIndex: Integer read GetTabIndex write SetTabIndex default -1;
     property TabPosition: TTab95Position read FTabPosition write SetTabPosition default tpTopLeft;
-    property Tabs: TStrings read FTabs write SetTabs;
+    property Tabs: TTntStrings read FTabs write SetTabs;
     property TabWidth: Smallint read FTabSize.X write SetTabWidth default 0;
     property TextRotation:TTextRotation read FTextRotation write SetTextRotation default trHorizontal;
     property UseMSDrawing:boolean read fmsdraw write setmsdraw default false;
@@ -205,7 +206,7 @@ type
   TTab95Control = class(TCustomTab95Control)
   private
     FImageIndexList: TStrings;
-    FImageIndexSave: TStringList;
+    FImageIndexSave: TStrings;
     ftabHints:tStrings;
     procedure SetTabHints(value:TStrings);
     procedure SetImageIndexList(value:TStrings);
@@ -350,10 +351,14 @@ type
     procedure setGripAlign(value:TGripAlign);
     function GetGripRect:TRect;
     function GetGripperRect:TRect;
+    function GetCaption: wideString;
+    procedure SetCaption(const value: wideString);
+
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure ReadState(Reader: TReader); override;
     procedure SetEnabled(Value: boolean);
+    procedure CreateWindowHandle(const Params: TCreateParams); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -384,7 +389,7 @@ type
     property Constraints;
        {$endif}
     {$endif}
-    property Caption;
+    property Caption: wideString read GetCaption write SetCaption;
     property FloatOnTop : boolean read ffloatontop write SetFloatOnTop default false;
     property Dragable : boolean read fDragable write SetDragOption default false; //Floating
     property Enabled;
@@ -526,7 +531,7 @@ implementation
 {$R FloatingForm.DFM}
 {$ENDIF}
 
-uses Consts, ComStrs;
+uses Consts, ComStrs, TntControls, TntSysUtils, gf_miscvcl;
 
 const
      SIllegalButtonPosition = 'Buttons are only supported when aligned along the top';
@@ -622,8 +627,29 @@ end;
 {$ENDIF}
 
 { TTabStrings }
+
+  type
+  TTntTabStrings = class(TTntStrings)
+  private
+    FTabControl: TCustomTab95Control;
+    FAnsiTabs: TStrings{TNT-ALLOW TStrings};
+  protected
+    function Get(Index: Integer): WideString; override;
+    function GetCount: Integer; override;
+    function GetObject(Index: Integer): TObject; override;
+    procedure Put(Index: Integer; const S: WideString); override;
+    procedure PutObject(Index: Integer; AObject: TObject); override;
+    procedure SetUpdateState(Updating: Boolean); override;
+  public
+    procedure Clear; override;
+    procedure Delete(Index: Integer); override;
+    procedure Insert(Index: Integer; const S: WideString); override;
+  end;
+
 type
-  TTabStrings = class(TStrings)
+TTabStrings = TTntTabStrings;
+
+  TAnsiTabStrings = class(TStrings)
   private
     FTabControl: TCustomTab95Control;
   protected
@@ -639,7 +665,7 @@ type
     procedure Insert(Index: Integer; const S: string); override;
   end;
 
-procedure TabControlError(msg:string);
+procedure TabControlError(msg:string); overload;
 begin
 (*  {$ifdef delphi2}
   Raise EListError.createres(sTabAccessError);
@@ -655,21 +681,22 @@ begin
 
 end;
 
-procedure TTabStrings.Clear;
+
+procedure TAnsiTabStrings.Clear;
 begin
   if SendMessage(FTabControl.Handle, TCM_DELETEALLITEMS, 0, 0) = 0 then
     TabControlError('TTabStrings.Clear');
   FTabControl.TabsChanged;
 end;
 
-procedure TTabStrings.Delete(Index: Integer);
+procedure TAnsiTabStrings.Delete(Index: Integer);
 begin
   if SendMessage(FTabControl.Handle, TCM_DELETEITEM, Index, 0) = 0 then
     TabControlError('TTabStrings.Delete');
   FTabControl.TabsChanged;
 end;
 
-function TTabStrings.Get(Index: Integer): string;
+function TAnsiTabStrings.Get(Index: Integer): String;
 var
   TCItem: TTCItem;
   Buffer: array[0..4095] of Char;
@@ -682,12 +709,12 @@ begin
   Result := Buffer;
 end;
 
-function TTabStrings.GetCount: Integer;
+function TAnsiTabStrings.GetCount: Integer;
 begin
   Result := SendMessage(FTabControl.Handle, TCM_GETITEMCOUNT, 0, 0);
 end;
 
-function TTabStrings.GetObject(Index: Integer): TObject;
+function TAnsiTabStrings.GetObject(Index: Integer): TObject;
 var
   TCItem: TTCItem;
 begin
@@ -697,7 +724,7 @@ begin
   Result := TObject(TCItem.lParam);
 end;
 
-procedure TTabStrings.Put(Index: Integer; const S: string);
+procedure TAnsiTabStrings.Put(Index: Integer; const S: String);
 var
   TCItem: TTCItem;
 begin
@@ -708,7 +735,7 @@ begin
   FTabControl.TabsChanged;
 end;
 
-procedure TTabStrings.PutObject(Index: Integer; AObject: TObject);
+procedure TAnsiTabStrings.PutObject(Index: Integer; AObject: TObject);
 var
   TCItem: TTCItem;
 begin
@@ -718,7 +745,7 @@ begin
     Longint(@TCItem)) = 0 then TabControlError('TTabStrings.PutObject');
 end;
 
-procedure TTabStrings.Insert(Index: Integer; const S: string);
+procedure TAnsiTabStrings.Insert(Index: Integer; const S: String);
 var
   TCItem: TTCItem;
 begin
@@ -729,7 +756,7 @@ begin
   FTabControl.TabsChanged;
 end;
 
-procedure TTabStrings.SetUpdateState(Updating: Boolean);
+procedure TAnsiTabStrings.SetUpdateState(Updating: Boolean);
 begin
   FTabControl.FUpdating := Updating;
   SendMessage(FTabControl.Handle, WM_SETREDRAW, Ord(not Updating), 0);
@@ -869,7 +896,11 @@ begin
   ControlStyle := [csAcceptsControls, csDoubleClicks];
   fhint := thintwindow.create(self);
   FTabs := TTabStrings.Create;
+  FAnsiTabs:= TAnsiTabStrings.Create;
+  TAnsiTabStrings(FAnsiTabs).FTabControl := Self;
   TTabStrings(FTabs).FTabControl := Self;
+  TTabStrings(FTabs).FAnsiTabs := FAnsiTabs;
+
   FCanvas := TControlCanvas.Create;
   TControlCanvas(FCanvas).Control := Self;
   FImageChangeLink := TChangeLink.Create;
@@ -893,10 +924,13 @@ end;
 
 destructor TCustomTab95Control.Destroy;
 begin
+  TTntTabStrings(FTabs).FTabControl := nil;
+  TTntTabStrings(FTabs).FAnsiTabs := nil;
+  FreeAndNil(FTabs);
+  FreeAndNil(FSaveTabs);
+
   fhint.free;
   FCanvas.Free;
-  FTabs.Free;
-  FSaveTabs.Free;
   FImageChangeLink.Free;
   FTabInactiveFont.Free;
   inherited Destroy;
@@ -965,7 +999,7 @@ procedure TCustomTab95Control.DestroyWnd;
 begin
   if FTabs.Count > 0 then
   begin
-    FSaveTabs := TStringList.Create;
+    FSaveTabs := TTntStringList.Create;
     FSaveTabs.Assign(FTabs);
     FSaveTabIndex := GetTabIndex;
   end;
@@ -1107,7 +1141,7 @@ begin
   end;
 end;
 
-procedure TCustomTab95Control.SetTabs(Value: TStrings);
+procedure TCustomTab95Control.SetTabs(Value: TTntStrings);
 begin
   FTabs.Assign(Value);
 end;
@@ -1239,7 +1273,7 @@ begin
     end;
 end;
 
-procedure TCustomTab95Control.DrawTab(Caption: String; PageIndex:integer; const wRect: TRect);
+procedure TCustomTab95Control.DrawTab(Caption: wideString; PageIndex:integer; const wRect: TRect);
 var
   TCItem: TTCItem;
   w1rect : trect;
@@ -1358,18 +1392,18 @@ begin
                begin
                     OffsetRect(w1Rect, 1, 1);
                     fCanvas.Font.Color := clBtnHighlight;
-                    DrawText(fCanvas.Handle, PChar(caption), Length(caption), w1Rect, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
+                    DrawTextW(fCanvas.Handle, PWideChar(caption), Length(caption), w1Rect, DT_EXPANDTABS or {DT_CENTER or} DT_VCENTER or DT_SINGLELINE);
 //                    textrect(w1rect,w1rect.left + ((w1rect.right-w1rect.left)div 2)-(textwidth(caption)div 2),w1rect.top + ((w1rect.bottom-w1rect.top)div 2)-(textheight(caption)div 2)+yadj,caption);
                     OffsetRect(w1Rect, -1, -1);
                     fCanvas.Font.Color := clBtnShadow;
                     fCanvas.Brush.style := bsClear;
-                    DrawText(fCanvas.Handle, PChar(caption), Length(caption), w1Rect, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
+                    DrawTextW(fCanvas.Handle, PWideChar(caption), Length(caption), w1Rect, DT_EXPANDTABS or {DT_CENTER or} DT_VCENTER or DT_SINGLELINE);
 //                    textrect(w1rect,w1rect.left + ((w1rect.right-w1rect.left)div 2)-(textwidth(caption)div 2),w1rect.top + ((w1rect.bottom-w1rect.top)div 2)-(textheight(caption)div 2)+yadj,caption);
                     fCanvas.Brush.style := bsSolid;
                end
                else
                begin
-                   DrawText(fCanvas.Handle, PChar(caption), Length(caption), w1Rect, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
+                   DrawTextW(fCanvas.Handle, PWideChar(caption), Length(caption), w1Rect, DT_EXPANDTABS or {DT_CENTER or} DT_VCENTER or DT_SINGLELINE);
                end;
           end;
      end;
@@ -1536,7 +1570,8 @@ begin
   {$ENDIF}
 end;
 
-procedure TCustomTab95Control.RotateText(Text:string; TabPosition:TTab95Position; WorkCanvas:Tcanvas; R:TRect; xadj, yadj:integer; UseGrayString : boolean);
+
+procedure TCustomTab95Control.RotateText(Text:wideString; TabPosition:TTab95Position; WorkCanvas:Tcanvas; R:TRect; xadj, yadj:integer; UseGrayString : boolean);
 const
   RotationStyles: array[TTab95Position] of Integer = (90, 270);
 var
@@ -1560,11 +1595,11 @@ begin
           y := 0;
           case angle of
                90 : begin
-                         x := r.left + (((r.right-r.left)div 2) - (workcanvas.textheight(text) div 2))+xadj;
-                         y := (r.Bottom - (r.bottom-r.top))+workcanvas.textwidth(text);
+                         x := r.left + (((r.right-r.left)div 2) - (TCanvasW(workcanvas).textheightW(text) div 2))+xadj;
+                         y := (r.Bottom - (r.bottom-r.top))+ TCanvasW(workcanvas).textwidthW(text);
                     end;
                270 : begin
-                          x := r.left + (((r.right-r.left)div 2) + (workcanvas.textheight(text) div 2))+xadj;
+                          x := r.left + (((r.right-r.left)div 2) + (TCanvasW(workcanvas).textheightW(text) div 2))+xadj;
                           y := r.top;
                      end;
           end;
@@ -1590,23 +1625,23 @@ begin
                inc(x);
                inc(y);
                WorkCanvas.Font.Color := clBtnHighlight;
-               WorkCanvas.TextRect(r, x, y, text);
-//               DrawText(WorkCanvas.Handle, PChar(text), Length(text), r, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
+               TCanvasW(WorkCanvas).TextRectW(r, x, y, text);
+               //DrawTextW(WorkCanvas.Handle, PWideChar(text), Length(text), wr, DT_EXPANDTABS {or DT_CENTER} or DT_VCENTER or DT_SINGLELINE);
 
                dec(x);
                dec(y);
                OffsetRect(R, -1, -1);
                WorkCanvas.Font.Color := clBtnShadow;
-               WorkCanvas.TextRect(r, x, y, text);
-//               DrawText(WorkCanvas.Handle, PChar(text), Length(text), r, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
+               TCanvasW(WorkCanvas).TextRectW(r, x, y, text);
+//               DrawTextW(WorkCanvas.Handle, PWideChar(text), Length(text), wr, DT_EXPANDTABS {or DT_CENTER} or DT_VCENTER or DT_SINGLELINE);
                WorkCanvas.Brush.style := bsSolid;
           end
           else
           begin
-//               DrawText(WorkCanvas.Handle, PChar(text), Length(text), r, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
+//               DrawTextW(WorkCanvas.Handle, PWideChar(text), Length(text), r, DT_EXPANDTABS {or DT_CENTER} or DT_VCENTER or DT_SINGLELINE);
 
                WorkCanvas.Brush.Style := bsClear;
-               WorkCanvas.TextRect(r, x, y, text);
+               TCanvasW(WorkCanvas).TextRectW(r, x, y+1, text);
                WorkCanvas.Brush.Style := bsSolid;
           end;
 
@@ -1654,16 +1689,16 @@ begin
              begin
                   OffsetRect(WR, 1, 1);
                   Bmp1.Canvas.Font.Color := clBtnHighlight;
-                  DrawText(BMP1.Canvas.Handle, PChar(text), Length(text), wr, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
+                  DrawTextW(BMP1.Canvas.Handle, PWideChar(text), Length(text), wr, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
 
                   Bmp1.Canvas.Brush.style := bsClear;
                   OffsetRect(WR, -1, -1);
                   Bmp1.Canvas.Font.Color := clBtnShadow;
-                  DrawText(BMP1.Canvas.Handle, PChar(text), Length(text), wr, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
+                  DrawTextW(BMP1.Canvas.Handle, PWideChar(text), Length(text), wr, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
                   Bmp1.Canvas.Brush.style := bsSolid;
              end
              else
-                 DrawText(BMP1.Canvas.Handle, PChar(text), Length(text), wr, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
+                 DrawTextW(BMP1.Canvas.Handle, PWideChar(text), Length(text), wr, DT_EXPANDTABS or {DT_CENTER or }DT_VCENTER or DT_SINGLELINE);
 
              bmp2 := tbitmap.create;
              try
@@ -2090,6 +2125,12 @@ begin
         Inc(Result);
 end;
 
+procedure TTab95Sheet.CreateWindowHandle(const Params: TCreateParams);
+begin
+    //inherited CreateWindowHandle(Params);
+    CreateUnicodeHandle(Self, Params, '');
+end;
+
 procedure TTab95Sheet.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);
@@ -2476,6 +2517,16 @@ begin
      if assigned(PageControl) then PageControl.Repaint;
 end;
 
+function TTab95Sheet.GetCaption: WideString;
+begin
+  Result := TntControl_GetText(Self)
+end;
+procedure TTab95Sheet.SetCaption(const Value: WideString);
+begin
+  TntControl_SetText(Self, Value);
+end;
+
+
 { TPage95Control }
 
 constructor TPage95Control.Create(AOwner: TComponent);
@@ -2825,6 +2876,104 @@ begin
      inherited;
 end;
 
+
+type TAccessStrings = class(TStrings{TNT-ALLOW TStrings});
+
+procedure TabControlError(const S: WideString);    overload;
+begin
+  raise EListError.Create(S);
+end;
+
+procedure TTntTabStrings.Clear;
+begin
+  FAnsiTabs.Clear;
+end;
+
+procedure TTntTabStrings.Delete(Index: Integer);
+begin
+  FAnsiTabs.Delete(Index);
+end;
+
+function TTntTabStrings.GetCount: Integer;
+begin
+  Result := FAnsiTabs.Count;
+end;
+
+function TTntTabStrings.GetObject(Index: Integer): TObject;
+begin
+  Result := FAnsiTabs.Objects[Index];
+end;
+
+procedure TTntTabStrings.PutObject(Index: Integer; AObject: TObject);
+begin
+  FAnsiTabs.Objects[Index] := AObject;
+end;
+
+procedure TTntTabStrings.SetUpdateState(Updating: Boolean);
+begin
+  inherited;
+  TAccessStrings(FAnsiTabs).SetUpdateState(Updating);
+end;
+
+function TTntTabStrings.Get(Index: Integer): WideString;
+const
+  RTL: array[Boolean] of LongInt = (0, TCIF_RTLREADING);
+var
+  TCItem: TTCItemW;
+  Buffer: array[0..4095] of WideChar;
+begin
+  if (not Win32PlatformIsUnicode) then
+    Result := FAnsiTabs[Index]
+  else begin
+    TCItem.mask := TCIF_TEXT or RTL[FTabControl.UseRightToLeftReading];
+    TCItem.pszText := Buffer;
+    TCItem.cchTextMax := SizeOf(Buffer);
+    if SendMessageW(FTabControl.Handle, TCM_GETITEMW, Index, Longint(@TCItem)) = 0 then
+      TabControlError(WideFormat(sTabFailRetrieve, [Index]));
+    Result := Buffer;
+  end;
+end;
+
+type TAccessCustomTabControl = class(TCustomTabControl{TNT-ALLOW TCustomTabControl});
+
+function GetTabControlImageIndex(Self: TCustomTabControl{TNT-ALLOW TCustomTabControl}; TabIndex: Integer): Integer;
+begin
+  Result := TabIndex;
+  with TAccessCustomTabControl(Self) do
+    if Assigned(OnGetImageIndex) then OnGetImageIndex(Self, TabIndex, Result);
+end;
+
+procedure TTntTabStrings.Put(Index: Integer; const S: WideString);
+const
+  RTL: array[Boolean] of LongInt = (0, TCIF_RTLREADING);
+var
+  TCItem: TTCItemW;
+begin
+  if (not Win32PlatformIsUnicode) then
+    FAnsiTabs[Index] := S
+  else begin
+    TCItem.mask := TCIF_TEXT or RTL[FTabControl.UseRightToLeftReading]; // or TCIF_IMAGE;
+    TCItem.pszText := PWideChar(S);
+    if SendMessageW(FTabControl.Handle, TCM_SETITEMW, Index, Longint(@TCItem)) = 0 then
+       TabControlError(WideFormat(sTabFailSet, [S, Index]));
+  end;
+end;
+
+procedure TTntTabStrings.Insert(Index: Integer; const S: WideString);
+const
+  RTL: array[Boolean] of LongInt = (0, TCIF_RTLREADING);
+var
+  TCItem: TTCItemW;
+begin
+  if (not Win32PlatformIsUnicode) then
+    FAnsiTabs.Insert(Index, S)
+  else begin
+    TCItem.mask := TCIF_TEXT or RTL[FTabControl.UseRightToLeftReading]; // or TCIF_IMAGE;
+    TCItem.pszText := PWideChar(S);
+    if SendMessageW(FTabControl.Handle, TCM_INSERTITEMW, Index, Longint(@TCItem)) < 0 then
+       TabControlError(WideFormat(sTabFailSet, [S, Index]));
+  end;
+end;
 
 
 end.

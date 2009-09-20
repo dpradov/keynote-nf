@@ -23,12 +23,12 @@ resourcestring
 
 procedure BookmarkAdd( const Number : integer );
 begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
+  if  not (Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
   if (( Number < 0 ) or ( Number > MAX_BOOKMARKS )) then exit;
 
   with NoteFile.Bookmarks[Number] do
   begin
-    Name := Format( '%d - %s', [Number, RemoveAccelChar( ActiveNote.Name )] );
+    Name := WideFormat( '%d - %s', [Number, RemoveAccelChar( ActiveNote.Name )] );
     CaretPos := ActiveNote.Editor.SelStart;
     SelLength := ActiveNote.Editor.SelLength;
     Note := ActiveNote;

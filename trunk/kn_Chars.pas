@@ -48,7 +48,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Spin, clipbrd, kn_Info, Placemnt;
+  StdCtrls, Spin, clipbrd, kn_Info, Placemnt, TntStdCtrls;
 
 
 type
@@ -56,16 +56,16 @@ type
 
 type
   TForm_Chars = class(TForm)
-    Button_Insert: TButton;
-    Button_Close: TButton;
-    Button_Font: TButton;
+    Button_Insert: TTntButton;
+    Button_Close: TTntButton;
+    Button_Font: TTntButton;
     Chars: TListBox;
     FontDlg: TFontDialog;
-    Label_Code: TLabel;
-    Label1: TLabel;
+    Label_Code: TTntLabel;
+    Label1: TTntLabel;
     Spin_Count: TSpinEdit;
-    CheckBox_FullSet: TCheckBox;
-    Button_Copy: TButton;
+    CheckBox_FullSet: TTntCheckBox;
+    Button_Copy: TTntButton;
     FormPlacement: TFormPlacement;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
