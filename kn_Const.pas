@@ -379,7 +379,8 @@ type
     ntRTF, // standard RichEdit control
     ntTree // tree panel plus richedit control (tree-type note)
   );
-  TNoteNameStr = string[TABNOTE_NAME_LENGTH];
+  //TNoteNameStr = String[TABNOTE_NAME_LENGTH];
+  TNoteNameStr = WideString;
 
 const
   TABNOTE_KIND_IDS : array[TNoteType] of string = (
@@ -513,7 +514,7 @@ type
   end;
 
 type
-  TCommentStr = string[MAX_COMMENT_LENGTH];
+  TCommentStr = WideString;
 
 type
   TNodeInsertMode = (

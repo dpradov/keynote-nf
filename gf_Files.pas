@@ -45,8 +45,8 @@ unit gf_files;
 
 interface
 
-uses Windows, Classes,
-     SysUtils, FileCtrl,
+uses Windows, Classes, Graphics, IniFiles,
+     SysUtils, FileCtrl,wideStrings,
      ShellAPI, gf_strings, gf_misc;
 
 const
@@ -69,7 +69,7 @@ const
 
 type
   TFileState = record
-    Name : string;
+    Name : wideString;
     Time : TDateTime;
     Size : longint;
   end;
@@ -97,25 +97,25 @@ type
 function GetFileKind( const FN : string ) : TFileKind;
 }
 
-function FileNameIsValid( const fn : string ) : boolean;
-function ExtractFileNameNoExt( const fn : string ) : string;
-function GetUniqueFileName( const folder, fn : string ) : string;
+function FileNameIsValid( const fn : wideString ) : boolean;
+function ExtractFileNameNoExt( const fn : wideString ) : wideString;
+function GetUniqueFileName( const folder, fn : wideString ) : wideString;
 function IsDriveRemovable( const path : string ) : boolean;
 function IsValidFileChar( const Key : char ) : boolean;
-function MakeValidFilename( const s : string; const AdditionalValidChars : CharacterSet; const maxlen : integer ) : string;
-function RandomFileName( aPath : string; aExt: string12; len : byte ) : string;
-function GetTextFileType( const fn : string ) : TTextFileType;
-function GetFileSize( const fn : string ) : longint;
-function GetFileDateStamp( const fn : string ) : TDateTime;
-function FilesAreOfSameType( const aList : TStringList ) : boolean;
-procedure GetFileState( const FN : string; var FileState : TFileState );
+function MakeValidFilename( const s : wideString; const AdditionalValidChars : CharacterSet; const maxlen : integer ) : wideString;
+function RandomFileName( aPath : wideString; aExt: string12; len : byte ) : string;
+function GetTextFileType( const fn : wideString ) : TTextFileType;
+function GetFileSize( const fn : wideString ) : longint;
+function GetFileDateStamp( const fn : wideString ) : TDateTime;
+function FilesAreOfSameType( const aList : TWideStringList ) : boolean;
+procedure GetFileState( const FN : wideString; var FileState : TFileState );
 
-function GetFilesInFolder( const folder, mask : string;
+function GetFilesInFolder( const folder, mask : wideString;
                            const LowCase, AddDirName : boolean;
-                           FL : TStrings {TStringList} ) : integer;
-function GetSubfoldersList( folder : string;
+                           FL : TWideStrings {TStringList} ) : integer;
+function GetSubfoldersList( folder : wideString;
                             const LowCase : boolean;
-                            FL : TStrings {TStringList} ) : integer;
+                            FL : TWideStrings {TStringList} ) : integer;
 
 
 function FilesFound(
@@ -126,6 +126,22 @@ function FilesFound(
    const FindAll : boolean;  // find all files or finish on 1st match
    Handler : TFileHandlerProc ) : integer;
 
+function WideMinimizeName(const Filename: WideString; Canvas: TCanvas;
+  MaxLen: Integer): WideString;
+
+
+type
+  TWIniFile = class(TIniFile)
+  private
+    //FFileName: WideString;
+  public
+    //constructor Create(const FileName: string; ensureUnicode: boolean);
+    function ReadStringW(const Section, Ident, Default: WideString): WideString;
+    procedure WriteStringW(const Section, Ident, Value: WideString);
+  end;
+
+
+
 const
   MaxFileBuf = 4096;
 
@@ -133,7 +149,7 @@ var
   ___FILE_ERROR_STR : string;
 
 implementation
-
+uses RTLConsts, TntSystem, TntSysUtils, TntClasses;
 (*
 function GetFileKind( const FN : string ) : TFileKind;
 var
@@ -223,22 +239,22 @@ begin
 end; // GetFileKind
 *)
 
-function FileNameIsValid( const fn : string ) : boolean;
+function FileNameIsValid( const fn : wideString ) : boolean;
 var
   i, l : integer;
-  d : string;
+  d : wideString;
 begin
   result := false;
   if ( fn = '' ) then exit; // blank is not valid!
   if (( not PERMIT_SPACES_IN_FILENAMES ) and ( pos( #32, fn ) > 0 )) then exit;
 
-  d := extractfilepath( fn );
+  d := wideExtractfilepath( fn );
   if (( d <> '' ) and ( not directoryexists( d ))) then exit;
   // for the filename to be valid, the directory must already exist.
   // if you don't like that, only pass bare filenames to this function,
   // not full paths
 
-  d := extractfilename( fn );
+  d := WideExtractFilename( fn );
   if ( d = '' ) then exit; // blank filename is not valid
   l := length( d );
   for i := 1 to l do
@@ -249,22 +265,22 @@ end; // FileNameIsValid
 
 
 function MakeValidFilename(
-  const s : string;
+  const s : wideString;
   const AdditionalValidChars : CharacterSet;
   const maxlen : integer
-  ) : string;
+  ) : wideString;
 
 var
   i : integer;
-  r : string;
-  ext : string;
+  r : wideString;
+  ext : wideString;
 begin
   r := trim( s );
 
   // replace invalid characters with underscores
   for i := 1 to length( r ) do
   begin
-    if ( not ( IsCharAlphaNumericA( r[i] ) or ( r[i] in FileNameChars ) or ( r[i] in AdditionalValidChars ))) then
+    if ( not ( IsCharAlphaNumericW( r[i] ) or ( r[i] in FileNameChars ) or ( r[i] in AdditionalValidChars ))) then
       r[i] := '_';
   end;
 
@@ -300,7 +316,7 @@ begin
   result := r + ext;
 end; // MakeValidFilename
 
-function RandomFileName( aPath : string;
+function RandomFileName( aPath : wideString;
                          aExt : string12;
                          len : byte ) : string;
 var
@@ -320,7 +336,7 @@ begin
       begin
           t := t + chr( random( 25 ) + 97 ); // #97 to #122
       end;
-  until ( not FileExists( aPath + '\' + t + aExt ));
+  until ( not WideFileExists( aPath + '\' + t + aExt ));
 
   result := t + aExt; // return only filename, without the path
 
@@ -341,7 +357,7 @@ var
 begin
    FileCount := 0;
    if ( StartPath = '' ) then
-       getdir( 0, ThisPath )
+       Getdir( 0, ThisPath )
    else
        ThisPath := StartPath;
    if ( ThisPath[length(ThisPath)] <> '\' ) then
@@ -393,7 +409,7 @@ begin
    result := FileCount;
 end; // FilesFound
 
-function GetTextFileType( const fn : string ) : TTextFileType;
+function GetTextFileType( const fn : wideString ) : TTextFileType;
 var
   f : file;
   p : ^TTestBuffer;
@@ -440,17 +456,15 @@ begin
   dispose( p );
 end; // GetTextFileType
 
-function GetFileSize( const fn : string ) : longint;
+function GetFileSize( const fn : wideString ) : longint;
 var
-   f : file;
+   f : TTntFileStream;
 begin
-   assignfile( f, fn );
-   FileMode := 0;
+   F:= TTntFileStream.Create( fn, ( fmOpenRead ));
    try
      try
-       reset( f, 1 );
-       result := FileSize( f );
-       closefile( f );
+       result:= F.Size;
+       F.Free;
      except
        on E :Exception do
        begin
@@ -459,16 +473,15 @@ begin
        end;
      end;
    finally
-     FileMode := 2;
    end;
 end; // GetFileSize
 
-function GetFileDateStamp( const fn : string ) : TDateTime;
+function GetFileDateStamp( const fn : wideString ) : TDateTime;
 var
    fh : integer;
 begin
    try
-     fh := FileOpen( fn, 0 );
+     fh := WideFileOpen( fn, 0 );
      try
        result := FileDateToDateTime( FileGetDate( fh ));
      finally
@@ -483,11 +496,11 @@ begin
    end;
 end; // GetFileDateStamp
 
-procedure GetFileState( const FN : string; var FileState : TFileState );
+procedure GetFileState( const FN : wideString; var FileState : TFileState );
 begin
   FileState.Name := FN;
   try
-    if fileexists( FN ) then
+    if wideFileexists( FN ) then
     begin
       FileState.Time := GetFileDateStamp( FN );
       FileState.Size := GetFileSize( FN );
@@ -503,11 +516,11 @@ begin
   end;
 end; // GetFileState
 
-function GetFilesInFolder( const folder, mask : string;
+function GetFilesInFolder( const folder, mask : wideString;
                            const LowCase, AddDirName : boolean;
-                           FL : TStrings {TStringList} ) : integer;
+                           FL : TWideStrings {TStringList} ) : integer;
 var
-   DirInfo : TSearchRec;
+   DirInfo : TSearchRecW;
    FindResult : integer;
 begin
 
@@ -515,7 +528,7 @@ begin
    if (( not assigned( FL )) or ( not directoryexists( folder ))) then exit;
    // FL.Clear; Do NOT clear - some programs rely on it
    // (just add items to the list; calling app is responsible for clearing)
-   FindResult := FindFirst( folder + mask, faAnyFile, DirInfo );
+   FindResult := WideFindFirst( folder + mask, faAnyFile, DirInfo );
    while ( FindResult = 0 ) do
    begin
      if LowCase then
@@ -524,15 +537,15 @@ begin
        FL.Add( folder + DirInfo.Name )
      else
        FL.Add( DirInfo.Name );
-     FindResult := FindNext( DirInfo );
+     FindResult := WideFindNext( DirInfo );
    end;
    result := FL.Count;
-   SysUtils.FindClose( DirInfo );
+   WideFindClose( DirInfo );
 end; // GetFilesInFolder
 
-function GetSubfoldersList( folder : string;
+function GetSubfoldersList( folder : wideString;
                            const LowCase : boolean;
-                           FL : TStrings {TStringList} ) : integer;
+                           FL : TWideStrings {TStringList} ) : integer;
 var
   DirInfo : TSearchRec;
   FindResult : integer;
@@ -572,26 +585,26 @@ begin
     ( Key in FileNameChars ));
 end; // IsValidFileChar
 
-function ExtractFileNameNoExt( const fn : string ) : string;
+function ExtractFileNameNoExt( const fn : wideString ) : wideString;
 var
   p : integer;
 begin
-  result := extractfilename( fn );
+  result := WideExtractFilename( fn );
   p := lastpos( '.', result );
   if ( p > 2 ) then
     delete( result, p, length( result ));
 end; // ExtractFileNameNoExt
 
-function GetUniqueFileName( const folder, fn : string ) : string;
+function GetUniqueFileName( const folder, fn : wideString ) : wideString;
 var
-  name, ext : string;
+  name, ext : wideString;
   i : integer;
 begin
   result := fn;
-  if fileexists( folder + fn ) then
+  if WideFileexists( folder + fn ) then
   begin
     ext := extractfileext( fn );
-    name := extractfilename( fn );
+    name := WideExtractFilename( fn );
     i := lastpos( '.', name );
     if ( i > 1 ) then
       name := copy( name, 1, pred( i ));
@@ -603,22 +616,22 @@ begin
         [name, i, ext]
       );
       inc( i );
-    until ( not fileexists( folder + result ));
+    until ( not WideFileexists( folder + result ));
   end;
 end; // GetUniqueFileName
 
 
-function FilesAreOfSameType( const aList : TStringList ) : boolean;
+function FilesAreOfSameType( const aList : TWideStringList ) : boolean;
 var
   i : integer;
-  ext, prevext : string;
+  ext, prevext : wideString;
 begin
   result := true;
   if ( aList.Count < 2 ) then exit;
-  prevext := ansilowercase( extractfileext( aList[0] ));
+  prevext := wideLowercase( extractfileext( aList[0] ));
   for i := 2 to aList.Count do
   begin
-    ext := ansilowercase( extractfileext( aList[pred( i )] ));
+    ext := wideLowercase( extractfileext( aList[pred( i )] ));
     if ( ext <> prevext ) then
     begin
       result := false;
@@ -627,5 +640,146 @@ begin
     prevext := ext;
   end;
 end; // FilesAreOfSameType
+
+procedure WideCutFirstDirectory(var S: WideString);
+var
+  Root: Boolean;
+  P: Integer;
+begin
+  if S = '\' then
+    S := ''
+  else
+  begin
+    if S[1] = '\' then
+    begin
+      Root := True;
+      Delete(S, 1, 1);
+    end
+    else
+      Root := False;
+    if S[1] = '.' then
+      Delete(S, 1, 4);
+    P := Pos('\',S);
+    if P <> 0 then
+    begin
+      Delete(S, 1, P);
+      S := '...\' + S;
+    end
+    else
+      S := '';
+    if Root then
+      S := '\' + S;
+  end;
+end;
+
+function WideMinimizeName(const Filename: WideString; Canvas: TCanvas;
+  MaxLen: Integer): WideString;
+var
+  Drive: WideString;
+  Dir: WideString;
+  Name: WideString;
+begin
+  Result := FileName;
+  Dir := WideExtractFilePath(Result);
+  Name := WideExtractFileName(Result);
+
+  if (Length(Dir) >= 2) and (Dir[2] = ':') then
+  begin
+    Drive := Copy(Dir, 1, 2);
+    Delete(Dir, 1, 2);
+  end
+  else
+    Drive := '';
+  while ((Dir <> '') or (Drive <> '')) and (Canvas.TextWidth(Result) > MaxLen) do
+  begin
+    if Dir = '\...\' then
+    begin
+      Drive := '';
+      Dir := '...\';
+    end
+    else if Dir = '' then
+      Drive := ''
+    else
+      WideCutFirstDirectory(Dir);
+    Result := Drive + Dir + Name;
+  end;
+end;
+
+
+// In Notepad included with Windows, we can choose 3 encoding formats in Unicode.
+// These are "Unicode" (UTF16-little Endian), "Unicode big Endian" (UTF16-big Endian),
+// and "UTF-8". We can use only UTF16-little endian of these formats as an INI file format.
+// The other encodings do not work correctly (you examine it once). The reason
+// is that Windows NT, 2000 or XP uses the encoding internally. This is why Windows
+// particularly names UTF16-little Endian "Unicode".
+//   Reference:
+//    * Unicode Enabled - about Unicode around Windows: http://www.microsoft.com/globaldev/getwr/steps/wrg_unicode.mspx
+
+// ensureUnicode: If not UTF16-little Endian -> File will be renamed as .bak and created
+// again (blank) as UTF16-little Endian
+
+(*
+constructor TWIniFile.Create(const FileName: string; ensureUnicode: boolean);
+var
+  F: File;
+  v: Word;
+const
+  wBOM = $FEFF;           // UTF16-little Endian
+begin
+  FFileName:= FileName;
+  if ensureUnicode then begin
+      AssignFile( F, filename );
+      FileMode := fmOpenRead;
+      Reset(F, 1);
+      if not Eof(F) then
+         BlockRead(f, v, 2);
+      CloseFile(f);
+
+      if v <> wBOM then begin
+         DeleteFile(FileName + '.bak');
+         Rename(F, FileName + '.bak');
+         AssignFile( F, Filename );
+         ReWrite(F, 1);
+         v:= wBOM;
+         BlockWrite(F, v, 2);
+         CloseFile(F);
+      end;
+  end;
+  inherited Create(FileName);
+end;
+
+function TWIniFile.ReadStringW(const Section, Ident, Default: WideString): WideString;
+var
+  Buffer: array[0..1024] of WideChar;
+begin
+
+  SetString(Result, Buffer, GetPrivateProfileStringW(PWideChar(Section),
+    PWideChar(Ident), PWideChar(Default), Buffer, SizeOf(Buffer), PWideChar(FFileName)));
+end;
+
+procedure TWIniFile.WriteStringW(const Section, Ident, Value: WideString);
+begin
+  if not WritePrivateProfileStringW(PWideChar(Section), PWideChar(Ident),
+                                   PWideChar(Value), PWideChar(FFileName)) then
+    raise EIniFileException.CreateResFmt(@SIniFileWriteError, [FFileName]);
+end;
+*)
+
+function TWIniFile.ReadStringW(const Section, Ident, Default: WideString): WideString;
+begin
+   Result:= TryUTF8ToWideString(ReadString(Section, Ident, Default));
+end;
+
+procedure TWIniFile.WriteStringW(const Section, Ident, Value: WideString);
+var
+   S: string;
+begin
+   S:= string(Value);
+   if Value = WideString(S) then
+      WriteString(Section, Ident, S)    // To make it more compatible with older versions. Only use UTF8 if it's necessary
+   else
+      WriteString(Section, Ident, WideStringToUTF8(Value));
+end;
+
 
 END.

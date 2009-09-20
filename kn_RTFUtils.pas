@@ -47,6 +47,8 @@ interface
 Based on "CR_UORichEdit.pas";
 Enhanced TRichEdit support for DelphiDrop by UnitOOPS SOftware.
 Based on code examples by Peter Below and Ralph Friedman (TeamB).
+
+Note: Replaced by EM_SETTEXTEX Message
 *)
 
 uses Windows, Messages, Controls, Classes,
@@ -54,7 +56,7 @@ uses Windows, Messages, Controls, Classes,
 
 
 procedure PutRichText(
-    const aRTFString: string;
+    const aRTFString: wideString;
     const aRichEdit: TRxRichEdit;
     const isRTF, DoInsert: boolean
   );
@@ -64,10 +66,12 @@ function GetRichText(
     const asRTF, selectionOnly : boolean
   ) : string;
 
-function URLToRTF( fn : string; enTextoURL: boolean ) : string;
-function URLFromRTF( fn : string ) : string;
+function URLToRTF( fn : wideString; enTextoURL: boolean ) : wideString;
+function URLFromRTF( fn : wideString ) : wideString;
 
 implementation
+uses WideStrUtils, TntSystem;
+
 
 function EMStreamInCallback(dwCookie: Longint; pbBuff: PByte;
                             cb: Longint; var pcb: Longint): Longint; stdcall;
@@ -107,6 +111,7 @@ begin
   end;
 end;
 
+
 function EMStreamOutCallback(dwCookie: Longint; pbBuff: PByte;
                             cb: Longint; var pcb: Longint): Longint; stdcall;
 // Callback function for EM_STREAMOUT handling.
@@ -128,7 +133,7 @@ end;
 //Note: It would be possible to use directly the following message: EM_SETTEXTEX Message
 // See: http://msdn.microsoft.com/en-us/library/bb774284(VS.85).aspx
 
-procedure PutRichText(
+procedure AnsiPutRichText(
     const aRTFString: string;
     const aRichEdit: TRxRichEdit;
     const isRTF, DoInsert: boolean
@@ -169,14 +174,14 @@ begin
       end;
 
       // Send the EM_STREAMIN message.
-      aRichEdit.Perform(EM_STREAMIN, SF_FLAGS, longint(@aES))
-
+      aRichEdit.Perform(EM_STREAMIN, SF_FLAGS, longint(@aES));
     finally
       // free the stream
       aMS.Free;
     end;
   end; // with
-end; // PutRichText
+end; // AnsiPutRichText
+
 
 function GetRichText(
     const aRichEdit : TRxRichEdit;
@@ -227,28 +232,90 @@ begin
   end; // with
 end; // GetRichText;
 
+
 // To use the filename in {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
 // we must convert each '\' to four '\' or to '/'. Example: D:\kk.txt -> D:\\\\kk.txt or D:/kk.txt
 // In "hyperlink" \\192.168.0.1\folder\leeme.txt -> "\\\\\\\\192.168.0.1/folder/leeme.txt" or "\\\\\\\\192.168.0.1\\folder\\leeme.txt"
 // In textOfHyperlink \\192.168.0.1\folder\leeme.txt -> "\\\\192.168.0.1\\folder\\leeme.txt"
-function URLToRTF( fn : string; enTextoURL: boolean ) : string;
+function URLToRTF( fn : wideString; enTextoURL: boolean ) : wideString;
 begin
   if enTextoURL then begin
-      result:= StringReplace(fn,'\','\\', [rfReplaceAll]);
+      result:= WideStringReplace(fn,'\','\\', [rfReplaceAll]);
       end
   else begin
-      result:= StringReplace(fn,'\\',chr(1), [rfReplaceAll]);
-      result:= StringReplace(result,'\','\\', [rfReplaceAll]);
-      result:= StringReplace(result,chr(1),'\\\\\\\\', [rfReplaceAll]);
+      result:= WideStringReplace(fn,'\\',chr(1), [rfReplaceAll]);
+      result:= WideStringReplace(result,'\','\\', [rfReplaceAll]);
+      result:= WideStringReplace(result,chr(1),'\\\\\\\\', [rfReplaceAll]);
   end;
 end; // URLToRTF
 
-function URLFromRTF( fn : string ) : string;
+function URLFromRTF( fn : wideString ) : wideString;
 begin
-  result:= StringReplace(fn,'\\\\',chr(1), [rfReplaceAll]);
-  result:= StringReplace(result,'\\','\', [rfReplaceAll]);
-  result:= StringReplace(result, chr(1), '\\\\', [rfReplaceAll]);
+  result:= WideStringReplace(fn,'\\\\',chr(1), [rfReplaceAll]);
+  result:= WideStringReplace(result,'\\','\', [rfReplaceAll]);
+  result:= WideStringReplace(result, chr(1), '\\\\', [rfReplaceAll]);
 end; // URLFromRTF
 
+//-----------------------
+
+
+// Requirements: Rich Edit 3.0
+
+const
+  EM_SETTEXTEX =       WM_USER + 97;
+  ST_DEFAULT =           $00000000;
+  ST_KEEPUNDO =          $00000001;
+  ST_SELECTION =         $00000002;
+
+type
+  _SetTextEx = record
+    flags: DWORD;              {Option flags. It can be any reasonable combination of the following flags.
+                                ST_DEFAULT
+                                    Deletes the undo stack, discards rich-text formatting, replaces all text.
+                                ST_KEEPUNDO
+                                    Keeps the undo stack.
+                                ST_SELECTION
+                                    Replaces selection and keeps rich-text formatting.
+                               }
+    codepage: UINT;            { code page for translation (CP_ACP for default,
+                                 1200 for Unicode 					 }
+  end;
+  TSetTextEX = _SetTextEx;
+
+
+
+procedure PutRichText(
+    const aRTFString: wideString;
+    const aRichEdit: TRxRichEdit;
+    const isRTF, DoInsert: boolean
+  );
+var
+  aSTE: TSetTextEx;
+  S: AnsiString;
+begin
+  if not assigned(aRichEdit) then exit;
+
+  S:= aRTFString;
+  if (RichEditVersion < 3) or (S = aRTFstring) then begin
+     AnsiPutRichText(S, aRichEdit, isRTF, DoInsert);
+     exit;
+  end;
+
+  try
+    aSTE.flags:= ST_SELECTION or ST_KEEPUNDO;
+    aSTE.codepage:= CP_UTF8;  // 1200 (Unicode); CP_UTF8; CP_ACP;   With 1200 didn't work
+
+    // If we're appending, we need to set our selection at the end of the control
+    if ( not DoInsert ) then
+    begin
+      aRichEdit.SelStart := -1;
+      aRichEdit.selLength := 0;
+    end;
+
+    S:= WideStringToUTF8(aRTFString);
+    SendMessage(aRichEdit.Handle, EM_SETTEXTEX, longint(@aSTE), longint(PWideChar(S)));
+  finally
+  end;
+end; // PutRichText
 
 end.

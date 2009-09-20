@@ -161,13 +161,13 @@ function GetEnvVar( const csVarName : string ) : string;
 function GetTimeZone( var offset, mode : longint ) : boolean;
 Function TimeDeltaInMinutes( const StartDate, EndDate   : TDateTime): Double;
 Function TimeDeltaInSeconds( const StartDate, EndDate : TDateTime): Double;
-function NormalFN( const fn : string ) : string;
-function RelativeFN( FN : string ) : string;
-function ProperFolderName( folder : string ) : string;
-function BareFileName( const FN : string ) : string;
-function SlashlessFolderName( const folder : string ) : string;
-function ProperFileName( const FN, folder : string ) : string;
-function AbsoluteFileName( const FN : string ) : string;
+function NormalFN( const fn : wideString ) : wideString;
+function RelativeFN( FN : wideString ) : wideString;
+function ProperFolderName( folder : wideString ) : wideString;
+function BareFileName( const FN : wideString ) : wideString;
+function SlashlessFolderName( const folder : wideString ) : WideString;
+function ProperFileName( const FN, folder : wideString ) : wideString;
+function AbsoluteFileName( const FN : wideString ) : wideString;
 function BoolToStr( const b : boolean ) : string;
 function CompareMem( I1, I2: PByte; Size: integer ): boolean;
 function DialogFilter( const aName, aMask : string ) : string;
@@ -176,7 +176,7 @@ function FormatForHTML( const s : string; const MultiLine : boolean ) : string;
 *)
 
 
-function LongToShortFileName( const FN : string ) : string;
+function LongToShortFileName( const FN : String ) : String;
 function DateTimeToFileName( const DT : TDateTime ) : string;
 function LocalHostName : string;
 function MakePercentage( const Step, Max : Longint ) : Longint;
@@ -201,6 +201,7 @@ var
   _OSIsWindowsNT : boolean;
 
 implementation
+uses TntSysUtils;
 
 const
   TIME_ZONE_ID_UNKNOWN  = 0;
@@ -524,19 +525,19 @@ begin
   result := font.fname + #32 + inttostr( font.fsize ) + ' pt ' + FontStyleToStr( font.fstyle );
 end; // FontPropertiesToStr
 
-function BareFileName( const FN : string ) : string;
+function BareFileName( const FN : wideString ) : wideString;
 var
   p : integer;
 begin
-  result := extractfilename( FN );
+  result := WideExtractFilename( FN );
   p := lastpos( '.', result );
   if ( p > 0 ) then
     delete( result, p, length( result ));
 end; // BareFileName
 
-function ProperFolderName( folder : string ) : string;
+function ProperFolderName( folder : wideString ) : wideString;
 begin
-  folder := ansilowercase( trim( folder ));
+  folder := widelowercase( trim( folder ));
   if ( folder <> '' ) then
   begin
     if ( folder[length( folder )] <> '\' ) then
@@ -545,7 +546,7 @@ begin
   result := folder;
 end; // ProperFolderName
 
-function SlashlessFolderName( const folder : string ) : string;
+function SlashlessFolderName( const folder : wideString ) : wideString;
 var
   l : integer;
 begin
@@ -558,7 +559,7 @@ begin
   end;
 end; // SlashlessFolderName
 
-function ProperFileName( const FN, folder : string ) : string;
+function ProperFileName( const FN, folder : wideString ) : wideString;
 begin
   if ( fn = '' ) then
   begin
@@ -597,7 +598,7 @@ begin
   begin
     fcharset := DEFAULT_CHARSET; // OEM_CHARSET;
     fcolor   := clWindowText;
-    fname    := 'MS Sans Serif';
+    fname    := 'Tahoma';
     fpitch   := fpDefault;
     fsize    := 10;
     fstyle   := [];
@@ -694,7 +695,7 @@ Begin
   End;
 End; // TimeDeltaInSeconds
 
-function NormalFN( const fn : string ) : string;
+function NormalFN( const fn : wideString ) : wideString;
 begin
   result := FN;
   if ( result <> '' ) then
@@ -716,19 +717,19 @@ begin
   //result := ansilowercase( result );
 end; // NormalFN
 
-function RelativeFN( FN : string ) : string;
+function RelativeFN( FN : wideString ) : wideString;
 begin
   // given a full path and filename, returns only the
   // filename part IF the path is the same as the application's
   // own directory (ie the file lives where the program does)
   FN := NormalFN( FN );
-  if ( extractfilepath( FN ) = ansilowercase( extractfilepath( ParamStr( 0 )))) then
-    result := extractfilename( FN )
+  if ( extractfilepath( FN ) = widelowercase( extractfilepath( ParamStr( 0 )))) then   //**** extractFilepath (sysUtils) -> string
+    result := WideExtractFilename( FN )
   else
     result := FN;
 end; // relativeFN
 
-function AbsoluteFileName( const FN : string ) : string;
+function AbsoluteFileName( const FN : wideString ) : wideString;
 begin
   if ( FN = '' ) then
   begin

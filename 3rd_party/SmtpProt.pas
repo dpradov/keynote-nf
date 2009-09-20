@@ -162,7 +162,7 @@ interface
 
 uses
     WinTypes, WinProcs, SysUtils, Messages, Classes, Graphics, Controls,
-    Forms, Dialogs, Menus, WSocket, WinSock, MD5;
+    Forms, Dialogs, Menus, WSocket, WinSock, MD5, wideStrings;
 
 const
   SmtpCliVersion     = 222;
@@ -201,7 +201,7 @@ type
                                            Msg     : PChar;
                                            Size    : Integer) of object;
     TSmtpProcessHeaderEvent    = procedure(Sender  : TObject;
-                                           HdrLines  : TStrings) of object;
+                                           HdrLines  : TWideStrings) of object;
     TSmtpGetDataEvent          = procedure(Sender  : TObject;
                                            LineNum : Integer;
                                            MsgLine : PChar;
@@ -212,12 +212,12 @@ type
                                            Error     : Word) of object;
     TSmtpAttachmentContentType = procedure(Sender          : TObject;
                                            FileNumber      : Integer;
-                                           var FileName    : String;
-                                           var ContentType : String) of object;
+                                           var FileName    : WideString;
+                                           var ContentType : WideString) of object;
     TSmtpAttachHeader          = procedure(Sender          : TObject;
                                            FileNumber      : Integer;
-                                           FileName        : String;
-                                           HdrLines        : TStrings) of object;
+                                           FileName        : WideString;
+                                           HdrLines        : TWideStrings) of object;
     TSmtpNextProc              = procedure of object;
 
     { Base component, implementing the transport, without MIME support }
@@ -232,8 +232,8 @@ type
         FPassword            : String;       { Used with the 'AUTH' command }
         FAuthType            : TSmtpAuthType;{ Used with the 'AUTH' command }
         FFromName            : String;       { Sender's EMail              }
-        FRcptName            : TStrings;     { Recepients EMails list      }
-	FMailMessage	     : TStrings;
+        FRcptName            : TWideStrings;     { Recepients EMails list      }
+	FMailMessage	     : TWideStrings;
         FHdrFrom             : String;
         FHdrTo               : String;
         FHdrReplyTo          : String;
@@ -269,7 +269,7 @@ type
         FDoneAsync           : TSmtpNextProc;
         FWindowHandle        : HWND;
         FItemCount           : LongInt;
-        FHdrLines            : TStrings;
+        FHdrLines            : TWideStrings;
         FLineNum             : Integer;
         FMoreLines           : Boolean;
         FOwnHeaders          : Boolean ;  { Angus V2.21 }
@@ -293,17 +293,17 @@ type
                                    MaxLen   : Integer;
                                    var More : Boolean); virtual;
         procedure   TriggerHeaderLine(Line : PChar; Size : Integer); virtual;
-        procedure   TriggerProcessHeader(HdrLines : TStrings); virtual;
+        procedure   TriggerProcessHeader(HdrLines : TWideStrings); virtual;
         procedure   TriggerSessionConnected(Error : Word); virtual;
         procedure   TriggerSessionClosed(Error : Word); virtual;
         procedure   ClearErrorMessage;
         procedure   SetErrorMessage;
         procedure   StateChange(NewState : TSmtpState);
         procedure   SendCommand(Cmd : String); virtual;
-        procedure   SetRcptName(newValue : TStrings);
-	procedure   SetMailMessage(newValue : TStrings);
+        procedure   SetRcptName(newValue : TWideStrings);
+	procedure   SetMailMessage(newValue : TWideStrings);
         procedure   InitUUEncode(var hFile: File; sFile: string); virtual;
-        procedure   DoUUEncode(var hFile: File; var sLine: string; var More: boolean); virtual;
+        procedure   DoUUEncode(var hFile: File; var sLine: WideString; var More: boolean); virtual;
         procedure   EndUUEncode(var hFile: File); virtual;
         procedure   CheckReady;
         procedure   WSocketDnsLookupDone(Sender: TObject; Error: Word);
@@ -367,9 +367,9 @@ type
                                                      write FAuthType;
         property FromName : String                   read  FFromName
                                                      write FFromName;
-        property RcptName : TStrings                 read  FRcptName
+        property RcptName : TWideStrings             read  FRcptName
                                                      write SetRcptName;
-	property MailMessage : TStrings		     read  FMailMessage
+	property MailMessage : TWideStrings 	     read  FMailMessage
 						     write SetMailMessage;
         property HdrFrom : String                    read  FHdrFrom
                                                      write FHdrFrom;
@@ -422,8 +422,8 @@ type
     { Descending component adding MIME (file attach) support }
     TSmtpCli = class(TCustomSmtpClient)
     protected
-        FEmailBody    : TStrings; { Message body text         }
-        FEmailFiles   : TStrings; { File names for attachment }
+        FEmailBody    : TWideStrings; { Message body text         }
+        FEmailFiles   : TWideStrings; { File names for attachment }
         FCurrentFile  : Integer;  { Current file being sent   }
         FMimeBoundary : String;   { Message parts boundary    }
         FFile         : File;
@@ -433,17 +433,17 @@ type
         FOnAttachContentType : TSmtpAttachmentContentType;
         FOnAttachHeader      : TSmtpAttachHeader;
         procedure   TriggerAttachContentType(FileNumber      : Integer;
-                                             var FileName    : String;
-                                             var ContentType : String); virtual;
+                                             var FileName    : WideString;
+                                             var ContentType : WideString); virtual;
         procedure   TriggerAttachHeader(FileNumber : Integer;
-                                        FileName   : String;
-                                        HdrLines   : TStrings); virtual;
+                                        FileName   : WideString;
+                                        HdrLines   : TWideStrings); virtual;
         procedure   TriggerGetData(LineNum  : Integer;
                                    MsgLine  : PChar;
                                    MaxLen   : Integer;
                                    var More : Boolean); override;
         procedure   TriggerHeaderLine(Line : PChar; Size : Integer); override;
-        procedure   SetEMailFiles(newValue : TStrings);
+        procedure   SetEMailFiles(newValue : TWideStrings);
         procedure   PrepareEMail;
     public
         constructor Create(AOwner : TComponent); override;
@@ -482,7 +482,7 @@ type
         property OnRequestDone;
         property OnSessionConnected;
         property OnSessionClosed;
-        property EmailFiles : TStrings               read  FEmailFiles
+        property EmailFiles : TWideStrings           read  FEmailFiles
                                                      write SetEmailFiles;
         property OnAttachContentType : TSmtpAttachmentContentType
                                                      read  FOnAttachContentType
@@ -707,7 +707,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TCustomSmtpClient.DoUUEncode(var hFile: File; var sLine: string; var More: boolean);
+procedure TCustomSmtpClient.DoUUEncode(var hFile: File; var sLine: WideString; var More: boolean);
 var
     Count     : integer;
     DataIn    : array [0..2] of byte;
@@ -773,8 +773,8 @@ begin
     FWSocket                 := TWSocket.Create(nil);
     FWSocket.OnSessionClosed := WSocketSessionClosed;
     FState                   := smtpReady;
-    FRcptName                := TStringList.Create;
-    FMailMessage	     := TStringList.Create;
+    FRcptName                := TWideStringList.Create;
+    FMailMessage	     := TWideStringList.Create;
     FPort                    := 'smtp';
     FCharSet                 := 'iso-8859-1';
     FAuthType                := smtpAuthNone;
@@ -1442,7 +1442,7 @@ begin
     FMoreLines := TRUE;
     FItemCount := -1;
     if not Assigned(FHdrLines) then
-        FHdrLines := TStringList.Create
+        FHdrLines := TWideStringList.Create
     else
         FHdrLines.Clear;
     if not FOwnHeaders then begin
@@ -1745,7 +1745,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TCustomSmtpClient.SetRcptName(newValue : TStrings);
+procedure TCustomSmtpClient.SetRcptName(newValue : TWideStrings);
 var
     I : Integer;
 begin
@@ -1755,7 +1755,7 @@ begin
 end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TCustomSmtpClient.SetMailMessage(newValue : TStrings);
+procedure TCustomSmtpClient.SetMailMessage(newValue : TWideStrings);
 var
     I : Integer;
 begin
@@ -1837,7 +1837,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TCustomSmtpClient.TriggerProcessHeader(HdrLines : TStrings);
+procedure TCustomSmtpClient.TriggerProcessHeader(HdrLines : TWideStrings);
 begin
     if Assigned(FOnProcessHeader) then
         FOnProcessHeader(Self, HdrLines);
@@ -1879,8 +1879,8 @@ end;
 constructor TSmtpCli.Create(AOwner : TComponent);
 begin
     inherited Create(AOwner);
-    FEmailBody  := TStringList.Create;
-    FEmailFiles := TStringList.Create;
+    FEmailBody  := TWideStringList.Create;
+    FEmailFiles := TWideStringList.Create;
 end;
 
 
@@ -1902,8 +1902,8 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TSmtpCli.TriggerAttachContentType(
     FileNumber      : Integer;
-    var FileName    : String;
-    var ContentType : String);
+    var FileName    : WideString;
+    var ContentType : WideString);
 begin
     if Assigned(FOnAttachContentType) then
         FOnAttachContentType(Self, FileNumber, FileName, ContentType);
@@ -1913,8 +1913,8 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TSmtpCli.TriggerAttachHeader(
     FileNumber : Integer;
-    FileName   : String;
-    HdrLines   : TStrings);
+    FileName   : WideString;
+    HdrLines   : TWideStrings);
 begin
     if Assigned(FOnAttachHeader) then
         FOnAttachHeader(Self, FileNumber, FileName, HdrLines);
@@ -1928,10 +1928,10 @@ procedure TSmtpCli.TriggerGetData(
     MaxLen   : Integer;
     var More : Boolean);
 var
-    sLine        : String;
-    FileName     : String;
-    sFileName    : String;
-    sContentType : String;
+    sLine        : WideString;
+    FileName     : WideString;
+    sFileName    : WideString;
+    sContentType : WideString;
 begin
     if FEmailBody.Count > 0 then begin
         if MaxLen > 1023 then
@@ -2008,10 +2008,10 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TSmtpCli.SetEMailFiles(newValue : TStrings);
+procedure TSmtpCli.SetEMailFiles(newValue : TWideStrings);
 var
     I        : Integer;
-    FilePath : String;
+    FilePath : WideString;
 begin
     FEMailFiles.Clear;
     if not Assigned(newValue) then

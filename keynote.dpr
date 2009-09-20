@@ -199,7 +199,6 @@ uses
   kn_MacroEdit in 'kn_MacroEdit.pas' {Form_Macro},
   kn_MacroCmd in 'kn_MacroCmd.pas',
   kn_Msgs in 'kn_Msgs.pas',
-  kn_OptionsNew in 'kn_OptionsNew.pas' {Form_OptionsNew},
   kn_RTFUtils in 'kn_RTFUtils.pas',
   kn_NewTemplate in 'kn_NewTemplate.pas' {Form_Template},
   kn_FileDropAction in 'kn_FileDropAction.pas' {Form_DropFile},
@@ -241,7 +240,8 @@ uses
   kn_VCLControlsMng in 'kn_VCLControlsMng.pas',
   uStringUtils in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uStringUtils.pas',
   uFreeLocalizer in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uFreeLocalizer.pas',
-  kn_LanguagesMng in 'kn_LanguagesMng.pas';
+  kn_LanguagesMng in 'kn_LanguagesMng.pas',
+  kn_OptionsNew in 'kn_OptionsNew.pas' {Form_OptionsNew};
 
 {$R *.RES}
 

@@ -50,18 +50,18 @@ uses
   Graphics, Controls, Forms, Dialogs,
   StdCtrls, gf_misc, kn_Defaults,
   kn_Info, kn_NoteObj, kn_Const, kn_INI,
-  gf_strings, kn_Chest, cmpGFXComboBox;
+  gf_strings, kn_Chest, cmpGFXComboBox, TntStdCtrls;
 
 type
   TForm_NewNote = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    Label1: TLabel;
-    Label2: TLabel;
-    Combo_TabName: TComboBox;
-    Button_Properties: TButton;
-    Label_Type: TLabel;
-    Combo_TabType: TComboBox;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    Label1: TTntLabel;
+    Label2: TTntLabel;
+    Combo_TabName: TTntComboBox;
+    Button_Properties: TTntButton;
+    Label_Type: TTntLabel;
+    Combo_TabType: TTntComboBox;
     Combo_Icons: TGFXComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -91,15 +91,16 @@ type
     myTreeChrome : TChrome;
     myTreeOptions : TKNTTreeOptions;
 
-    myTabNameHistory : string;
+    myTabNameHistory : wideString;
     myHistoryCnt : integer;
-    myNodeNameHistory : string;
+    myNodeNameHistory : wideString;
 
     function Verify : boolean;
     procedure ExecuteEditProperties;
   end;
 
 implementation
+uses wideStrUtils;
 
 {$R *.DFM}
 
@@ -155,7 +156,7 @@ begin
 
   Combo_TabName.Items.BeginUpdate;
   try
-    DelimTextToStrs( Combo_TabName.Items, myTabNameHistory, HISTORY_SEPARATOR );
+    DelimTextToWStrs( Combo_TabName.Items, myTabNameHistory, HISTORY_SEPARATOR );
   finally
     Combo_TabName.Items.EndUpdate;
   end;
@@ -218,12 +219,12 @@ begin
       TAB_TYPE := TNoteType( Combo_TabType.ItemIndex );
       // TAB_TYPE := low( TNoteType );
 
-      myTabNameHistory := ANSIQuotedStr( Combo_TabName.Text, '"' );
+      myTabNameHistory := WideQuotedStr( Combo_TabName.Text, '"' );
       for i := 0 to pred( Combo_TabName.Items.Count ) do
       begin
         if ( i >= myHistoryCnt ) then break;
         if ( Combo_TabName.Items[i] <> Combo_TabName.Text ) then
-          myTabNameHistory :=  myTabNameHistory + HISTORY_SEPARATOR + ANSIQuotedStr( Combo_TabName.Items[i], '"' );
+          myTabNameHistory :=  myTabNameHistory + HISTORY_SEPARATOR + WideQuotedStr( Combo_TabName.Items[i], '"' );
       end;
     end;
   end;

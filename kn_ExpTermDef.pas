@@ -48,16 +48,16 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
-  StdCtrls;
+  StdCtrls, TntStdCtrls;
 
 type
   TForm_TermDef = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    Label1: TLabel;
-    Label2: TLabel;
-    Edit_Term: TEdit;
-    Edit_Exp: TEdit;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    Label1: TTntLabel;
+    Label2: TTntLabel;
+    Edit_Term: TTntEdit;
+    Edit_Exp: TTntEdit;
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormActivate(Sender: TObject);
@@ -72,7 +72,6 @@ type
 implementation
 
 {$R *.DFM}
-
 
 procedure TForm_TermDef.FormKeyDown(Sender: TObject; var Key: Word;
  Shift: TShiftState);

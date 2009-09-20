@@ -49,22 +49,22 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, gf_misc, gf_strings,
-  kn_Const, kn_Info, kn_Macro, kn_MacroCmd;
+  kn_Const, kn_Info, kn_Macro, kn_MacroCmd, TntStdCtrls;
 
 type
   TForm_MacroCmd = class(TForm)
     GroupBox1: TGroupBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    Combo_Cmd: TComboBox;
-    Edit_Params: TEdit;
+    Label1: TTntLabel;
+    Label2: TTntLabel;
+    Combo_Cmd: TTntComboBox;
+    Edit_Params: TTntEdit;
     Panel_Help: TPanel;
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    LB_Help: TLabel;
-    Label3: TLabel;
-    LB_Syntax: TLabel;
-    Button_Help: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    LB_Help: TTntLabel;
+    Label3: TTntLabel;
+    LB_Syntax: TTntLabel;
+    Button_Help: TTntButton;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);

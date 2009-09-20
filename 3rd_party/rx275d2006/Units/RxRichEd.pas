@@ -18,7 +18,7 @@ interface
 
 uses Windows, {$IFDEF RX_D3} ActiveX, ComObj {$ELSE} Ole2, OleAuto {$ENDIF},
   CommCtrl, Messages, SysUtils, Classes, Controls, Forms, Graphics, StdCtrls,
-  Dialogs, RichEdit, Menus, ComCtrls, Langs;
+  Dialogs, RichEdit, Menus, ComCtrls, LangsRX;
 
 type
   //TRichEditVersion = 1..3;    // dpv
@@ -272,7 +272,7 @@ type
   TRichStreamFormat = (sfDefault, sfRichText, sfPlainText);
   TRichStreamMode = (smSelection, smPlainRtf, smNoObjects, smUnicode);
   TRichStreamModes = set of TRichStreamMode;
-  TRichEditURLClickEvent = procedure(Sender: TObject; const URLText: string; chrg: TCharRange;
+  TRichEditURLClickEvent = procedure(Sender: TObject; const URLText: wideString; chrg: TCharRange;
     Button: TMouseButton) of object;
   TRichEditProtectChangeEx = procedure(Sender: TObject; const Message: TMessage;
     StartPos, EndPos: Integer; var AllowChange: Boolean) of object;
@@ -413,7 +413,7 @@ type
     function ProtectChange(const Message: TMessage; StartPos,
       EndPos: Integer): Boolean; dynamic;
     function SaveClipboard(NumObj, NumChars: Integer): Boolean; dynamic;
-    procedure URLClick(const URLText: string; chrg: _charrange; Button: TMouseButton); dynamic;
+    procedure URLClick(const URLText: wideString; chrg: _charrange; Button: TMouseButton); dynamic;
     procedure SetPlainText(Value: Boolean); virtual;
 {$IFDEF RX_D3}
     procedure CloseFindDialog(Dialog: TFindDialog); virtual;
@@ -422,6 +422,8 @@ type
     function GetSelStart: Integer; override;
     function GetSelText: string; override;
     function GetSelTextW: WideString;
+    function GetTextW: WideString;
+    procedure SetTextW(const Value: WideString);
     procedure SetSelTextW(const Value: WideString);
     procedure SetSelLength(Value: Integer); override;
     procedure SetSelStart(Value: Integer); override;
@@ -516,6 +518,7 @@ type
     property SelectionType: TRichSelectionType read GetSelectionType;
     property SelTextW: WideString read GetSelTextW write SetSelTextW;
     property SelText: string read GetSelText write SetSelText;
+    property TextW: WideString read GetTextW write SetTextW;
   end;
 
   TRxRichEdit = class(TRxCustomRichEdit)
@@ -621,8 +624,8 @@ var
 implementation
 
 uses Printers, ComStrs, OleConst, OleDlg {$IFDEF RX_D3}, OleCtnrs {$ENDIF},
-  MaxMin,
-  TntStdCtrls, TntControls, TntSysUtils;
+  MaxMin, StrUtils,
+  TntClasses, TntSystem, TntStdCtrls, TntControls, TntSysUtils;
 
 type
  TAccessWinControl = class(TWinControl);
@@ -3347,6 +3350,30 @@ begin
   end;
 end;
 
+function StreamSaveW(dwCookie: Longint; pbBuff: PByte;
+  cb: Longint; var pcb: Longint): Longint; stdcall;
+var
+  StreamInfo: PRichEditStreamInfo;
+  cad: string;
+  len: longint;
+begin
+  Result := NoError;
+  StreamInfo := PRichEditStreamInfo(Pointer(dwCookie));
+  try
+    pcb := 0;
+    if StreamInfo^.Converter <> nil then begin
+      SetString(cad, PChar(pbBuff), cb);
+      cad:= UTF8_BOM + WideStringToUTF8(PWideChar(cad));
+      len:= length(cad);
+      pcb := StreamInfo^.Converter.ConvertWriteStream(StreamInfo^.Stream, PAnsiChar(cad), len);
+      if pcb = len then
+         pcb:= cb;
+      end;
+  except
+    Result := WriteError;
+  end;
+end;
+
 function StreamLoad(dwCookie: Longint; pbBuff: PByte;
   cb: Longint; var pcb: Longint): Longint; stdcall;
 var
@@ -3458,8 +3485,10 @@ begin
       if smPlainRtf in Mode then TextType := TextType or SFF_PLAINRTF;
     end
     else if TextType = SF_TEXT then begin
-      if (smUnicode in Mode) and (RichEditVersion > 1) then
+      if (smUnicode in Mode) and (RichEditVersion > 1) then begin
         TextType := TextType or SF_UNICODE;
+        EditStream.pfnCallBack := @StreamSaveW;
+      end;
     end;
     if smSelection in Mode then TextType := TextType or SFF_SELECTION;
     SendMessage(RichEdit.Handle, EM_STREAMOUT, TextType, Longint(@EditStream));
@@ -3470,6 +3499,7 @@ begin
   end;
 end;
 
+(*
 procedure TRichEditStrings.LoadFromFile(const FileName: string);
 var
   Ext: string;
@@ -3506,7 +3536,28 @@ begin
     raise;
   end;
 end;
+*)
+procedure TRichEditStrings.LoadFromFile(const FileName: String);
+var
+  Stream: TStream;
+  FN: WideString;
+begin
+ // Try to see if the filename is in UTF8
+  FN:= UTF8ToWideString(FileName);
+  if FN='' then
+     FN:= FileName;
 
+  Stream := TTntFileStream.Create(FN, fmOpenRead or fmShareDenyWrite);
+  try
+    //FLastFileCharSet := AutoDetectCharacterSet(Stream);
+    Stream.Position := 0;
+    LoadFromStream(Stream);
+  finally
+    Stream.Free;
+  end;
+end;
+
+(*
 procedure TRichEditStrings.SaveToFile(const FileName: string);
 var
   Ext: string;
@@ -3543,6 +3594,25 @@ begin
     raise;
   end;
 end;
+*)
+procedure TRichEditStrings.SaveToFile(const FileName: string);
+var
+  Stream: TStream;
+  FN: WideString;
+begin
+ // Try to see if the filename is in UTF8
+  FN:= UTF8ToWideString(FileName);
+  if FN='' then
+     FN:= FileName;
+
+  Stream := TTntFileStream.Create(FN, fmCreate);
+  try
+    SaveToStream(Stream);
+  finally
+    Stream.Free;
+  end;
+end;
+
 
 { TOEMConversion }
 
@@ -3953,7 +4023,19 @@ var
   Bounds: TRect;
 begin
   Bounds := BoundsRect;
-//  inherited CreateWindowHandle(Params);
+  
+{
+ IMPORTANT:
+ Due to changes made to suit RxRichEd to Unicode, is necessary to make a little change in code
+  of function "CreateWindowHandle" before installing the library 'RX Library 2.75' in Delphi:
+   - Comment the line "CustomCreateWindowHandle(..."
+   - Uncomment the line "inherited CreateWindowHandle(..."
+
+ After installing the component you must undo the changes in the code so that KeyNote NF works Ok.
+ I have found it to be necessary because of a problem with Delphi IDE, in design mode.
+}
+
+  //inherited CreateWindowHandle(Params);
   CustomCreateWindowHandle(Self, Params);
   if HandleAllocated then BoundsRect := Bounds;
 end;
@@ -4811,6 +4893,22 @@ begin
       Result := GetTextLen;
 end;
 
+function TRxCustomRichEdit.GetTextW: WideString;
+var
+  Len: Integer;
+begin
+  Len := TextLength;
+  Result:= GetTextRange(0, Len);
+end;
+
+procedure TRxCustomRichEdit.SetTextW(const Value: WideString);
+begin
+  if GetTextW <> Value then begin
+    SendMessageW(Handle, WM_SETTEXT, 0, Longint(PWideChar(Value)));
+    SendMessage(Handle, CM_TEXTCHANGED, 0, 0);
+    end;
+end;
+
 procedure TRxCustomRichEdit.Print(const Caption: string);
 var
   Range: TFormatRange;
@@ -5007,7 +5105,7 @@ begin
   if Assigned(OnResizeRequest) then OnResizeRequest(Self, Rect);
 end;
 
-procedure TRxCustomRichEdit.URLClick(const URLText: string; chrg: _charrange; Button: TMouseButton);
+procedure TRxCustomRichEdit.URLClick(const URLText: wideString; chrg: _charrange; Button: TMouseButton);
 begin
   if Assigned(OnURLClick) then
    OnURLClick(Self, URLText, chrg, Button);

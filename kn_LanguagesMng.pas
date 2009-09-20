@@ -6,14 +6,14 @@ uses
 
   function LoadLanguagesAvailable( FN : string ): boolean;
   procedure ClearLanguagesList;
-  function ApplyLanguageUI ( LanguageUI : string ): boolean;
+  function ApplyLanguageUI ( LanguageUI : wideString ): boolean;
 
 type
   TLanguageInfo = class( TObject )
-    Name : string;
-    LangFile : string;
-    TipFile : string;
-    Translator : string;
+    Name : wideString;
+    LangFile : wideString;
+    TipFile : wideString;
+    Translator : wideString;
   end;
 
 var
@@ -24,7 +24,8 @@ uses
   Windows, Messages, SysUtils,
   Graphics, Controls, Forms, Dialogs,
   uFreeLocalizer,
-  gf_misc, kn_info, kn_Const, IniFiles, kn_global, kn_Main;
+  gf_misc, kn_info, kn_Const, IniFiles, kn_global, kn_Main,
+  gf_files, gf_miscvcl;
 
 resourcestring
   STR_01 = 'Internal Language (English) will be established next time you start KeyNote NF';
@@ -34,12 +35,12 @@ resourcestring
 
 function LoadLanguagesAvailable( FN : string ): boolean;
 var
-  IniFile : TIniFile;
+  IniFile : TWIniFile;
   i : integer;
   Info : TLanguageInfo;
   s, section : string;
   sections : TStringList;
-  path: string;
+  path: WideString;
 
 begin
   result := false;
@@ -57,7 +58,7 @@ begin
 
   path:= ExtractFilePath( Application.ExeName ) + _LANGUAGE_FOLDER;
 
-  IniFile := TIniFile.Create( fn );
+  IniFile := TWIniFile.Create( fn );
   sections := TStringList.Create;
 
 
@@ -98,11 +99,11 @@ begin
   result := ( LanguagesAvailables.Count > 0 );
 end;
 
-function ApplyLanguageUI ( LanguageUI : string ): boolean;
+function ApplyLanguageUI ( LanguageUI : wideString ): boolean;
 var
   i : integer;
   Info : TLanguageInfo;
-  path: string;
+  path: wideString;
   FN : string;
   TipFile: string;
 begin
@@ -148,7 +149,7 @@ begin
           end;
           if TipFile <> '' then begin
              if not fileexists( path + TipFile ) then
-                messagedlg( STR_03 + path + TipFile, mtError, [mbOK], 0 )
+                DoMessageBox( STR_03 + path + TipFile, mtError, [mbOK], 0 )
              else
                 TIP_FN := path + TipFile;
           end;
@@ -160,7 +161,7 @@ begin
   except
     on E : Exception do
     begin
-      messagedlg( STR_04 + path + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
+      DoMessageBox( STR_04 + path + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
       exit;
     end;
   end;

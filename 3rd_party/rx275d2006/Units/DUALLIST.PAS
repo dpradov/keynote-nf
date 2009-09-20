@@ -12,7 +12,7 @@ interface
 
 {$I RX.INC}
 
-uses Classes, Controls;
+uses Classes, Controls, TntClasses;
 
 type
 
@@ -29,13 +29,13 @@ type
     FCancelBtnCaption: TCaption;
     FHelpBtnCaption: TCaption;
     FHelpContext: THelpContext;
-    FList1: TStrings;
-    FList2: TStrings;
+    FList1: TTntStrings;
+    FList2: TTntStrings;
     FShowHelp: Boolean;
     function GetTitle: string;
     procedure SetTitle(const ATitle: string);
-    procedure SetList1(Value: TStrings);
-    procedure SetList2(Value: TStrings);
+    procedure SetList1(Value: TTntStrings);
+    procedure SetList2(Value: TTntStrings);
     function IsLabel1Custom: Boolean;
     function IsLabel2Custom: Boolean;
     function IsOkBtnCustom: Boolean;
@@ -60,8 +60,8 @@ type
     property HelpBtnCaption: TCaption read FHelpBtnCaption write FHelpBtnCaption
       stored IsHelpBtnCustom;
     property HelpContext: THelpContext read FHelpContext write FHelpContext;
-    property List1: TStrings read FList1 write SetList1;
-    property List2: TStrings read FList2 write SetList2;
+    property List1: TTntStrings read FList1 write SetList1;
+    property List2: TTntStrings read FList2 write SetList2;
     property ShowHelp: Boolean read FShowHelp write FShowHelp default True;
   end;
 
@@ -77,8 +77,8 @@ begin
   FCtl3D := True;
   FShowHelp := True;
   FTitle := EmptyStr;
-  FList1 := TStringList.Create;
-  FList2 := TStringList.Create;
+  FList1 := TTntStringList.Create;
+  FList2 := TTntStringList.Create;
   FLabel1Caption := LoadStr(SDualListSrcCaption);
   FLabel2Caption := LoadStr(SDualListDestCaption);
   OkBtnCaption := ResStr(SOKButton);
@@ -104,12 +104,12 @@ begin
   FTitle := ATitle;
 end;
 
-procedure TDualListDialog.SetList1(Value: TStrings);
+procedure TDualListDialog.SetList1(Value: TTntStrings);
 begin
   FList1.Assign(Value);
 end;
 
-procedure TDualListDialog.SetList2(Value: TStrings);
+procedure TDualListDialog.SetList2(Value: TTntStrings);
 begin
   FList2.Assign(Value);
 end;

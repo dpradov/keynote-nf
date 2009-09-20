@@ -51,15 +51,15 @@ uses
   Forms, Dialogs, gf_misc,
   kn_Info, kn_Const, kn_Chest,
   kn_NoteObj, kn_FileObj,
-  StdCtrls, cmpGFXListBox;
+  StdCtrls, cmpGFXListBox, TntStdCtrls;
 
 type
   TForm_SelectTab = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    Button_All: TButton;
-    Button_None: TButton;
-    Button_Invert: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    Button_All: TTntButton;
+    Button_None: TTntButton;
+    Button_Invert: TTntButton;
     List_Tabs: TGFXListBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);

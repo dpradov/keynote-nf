@@ -19,7 +19,8 @@ uses
    dfsStatusBar, comCtrls95,
    kn_Global, gf_miscvcl, gf_strings, kn_Defaults,
    kn_Macro, kn_NewNote, kn_TreeNoteMng, kn_Main, kn_FileMgr, kn_EditorUtils,
-   kn_MacroMng, kn_BookmarksMng, kn_ConfigFileMng, kn_NoteFileMng, kn_VCLControlsMng;
+   kn_MacroMng, kn_BookmarksMng, kn_ConfigFileMng, kn_NoteFileMng, kn_VCLControlsMng,
+   TntSysUtils;
 
 resourcestring
   STR_01 = ' New note.';
@@ -170,9 +171,9 @@ begin
 
       if KeyOptions.ConfirmTabDelete then
       begin
-        if ( Application.MessageBox(
-          PChar( Format( STR_02, [RemoveAccelChar( ActiveNote.Name )] )),
-            PChar(STR_03),
+        if ( DoMessageBox(
+            WideFormat( STR_02, [RemoveAccelChar( ActiveNote.Name )] ),
+            STR_03,
             MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
       end;
 
@@ -305,6 +306,7 @@ var
   oldIconKind : TNodeIconKind;
   oldShowCheckboxes : boolean;
   oldHideChecked: boolean;      // [dpv]
+  oldPlainText: boolean;
 begin
   with Form_Main do begin
       if (( PropertiesAction = propThisNote ) and ( not assigned( ActiveNote ))) then
@@ -367,6 +369,7 @@ begin
                   oldHideChecked := myTreeProperties.HideChecked;       // [dpv]
                 end;
               end;
+              oldPlainText := ActiveNote.PlainText;
             end;
 
             propDefaults : begin
@@ -380,7 +383,7 @@ begin
               // rather than DEFAULT BG color for whole note
               if ( assigned( NoteFile ) and ( NoteFile.FileName <> '' )) then
               begin
-                myCurrentFileName := extractfilename( NoteFile.FileName );
+                myCurrentFileName := WideExtractFilename( NoteFile.FileName );
                 mySaveFileDefaults := ( DEF_FN <> OrigDEF_FN );
               end;
 
@@ -441,6 +444,12 @@ begin
                         ShowCheckedNodes ( TTreeNote( ActiveNote ));
 
                   UpdateTreeChrome( TTreeNote( ActiveNote ));
+                end;
+
+                if oldPlainText <> ActiveNote.PlainText
+                     and (not TreeLayoutChanged or (ActiveNote.Kind <> ntTree))   then begin  // This is done if TreeLayoutChanged too
+                   ActiveNote.EditorToDataStream;  // Save the content of the editor according to the new formatting (Plain text / RTF)
+                   ActiveNote.DataStreamToEditor;
                 end;
               end;
 
@@ -516,6 +525,7 @@ begin
         end;
 
       end;
+
   end;
 
 end; // EditNoteProperties

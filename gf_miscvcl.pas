@@ -43,15 +43,10 @@ unit gf_miscvcl;
 ************************************************************ *)
 
 interface
-uses Forms, Classes, SysUtils,
+uses Forms, Classes, SysUtils, Graphics,
      Controls, FileCtrl, Dialogs,
-     Windows, StdCtrls, Clipbrd,
+     Windows, StdCtrls,
      ShellAPI, Messages;
-
-
-function ClipboardAsString : string;
-function ClipboardAsWString : WideString;
-function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
 
 
 Procedure PostKeyEx32( key: Word; Const shift: TShiftState;
@@ -65,7 +60,7 @@ function CheckDir( const aDir : string; const AutoCreate : boolean ) : boolean;
 procedure SleepWell( const TenthsOfSecond : cardinal );
 function VerdanaInstalled : boolean;
 function TahomaInstalled : boolean;
-function PopUpMessage( const mStr : string; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer ) : word;
+function PopUpMessage( const mStr : wideString; const caption: wideString; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word; overload;
 Function DefMessageDlg(const aCaption: String;
                        const Msg: string;
                        DlgType: TMsgDlgType;
@@ -73,10 +68,26 @@ Function DefMessageDlg(const aCaption: String;
                        DefButton: Integer;
                        HelpCtx: Longint): Integer;
 
+function DoMessageBox (text: wideString; caption: wideString;
+        DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
+        HelpCtx: Longint = 0): integer; overload;
+function DoMessageBox (text: wideString; caption: wideString; uType: UINT= 0): integer; overload;
+
+type
+   TCanvasW = class(TCanvas)
+      public
+        procedure TextRectW(Rect: TRect; X, Y: Integer; const Text: wideString);
+        function TextExtentW(const Text: wideString): TSize;
+        function TextWidthW(const Text: wideString): Integer;
+        function TextHeightW(const Text: wideString): Integer;
+   end;
+
+
 var
   _TahomaFontInstalled : boolean = false;
 
 implementation
+uses TntSysUtils;
 
 procedure SleepWell( const TenthsOfSecond : cardinal );
 var
@@ -150,7 +161,7 @@ begin
     end;
 end; // TahomaInstalled
 
-function PopUpMessage( const mStr : string; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer ) : word;
+function PopUpMessage( const mStr : wideString; const caption: wideString; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word;
 // Like MessageDlg, but brings application window to front before
 // displaying the message, and minimizes application if it was
 // minimized before the message was shown.
@@ -161,7 +172,7 @@ begin
   if wasiconic then
     Application.Restore;
   Application.BringToFront;
-  result := messagedlg( mStr, mType, mButtons, mHelpCtx );
+  result := DoMessageBox( mStr, caption, mType, mButtons, mHelpCtx );
   if wasiconic then
     Application.Minimize;
 end; // PopUpMessage
@@ -354,58 +365,96 @@ begin
 end; // CheckDir
 
 
-function ClipboardAsString : string;
-begin
-  if ( Clipboard.HasFormat( CF_TEXT )) then
-    result := Clipboard.AsText
-  else
-    result := '';
-end; // ClipboardAsString
-
-function ClipboardAsWString : WideString;
+procedure TCanvasW.TextRectW(Rect: TRect; X, Y: Integer; const Text: wideString);
 var
-  Data: THandle;
+  Options: Longint;
 begin
-  if ( Clipboard.HasFormat( CF_TEXT )) then begin
-    Clipboard.Open;
-    Data := GetClipboardData(CF_UNICODETEXT);
-    try
-      if Data <> 0 then begin
-        Result := PWideChar(GlobalLock(Data));
-      end
-      else
-        Result := '';
-    finally
-      if Data <> 0 then GlobalUnlock(Data);
-      Clipboard.Close;
+  Changing;
+  RequiredState([csHandleValid, csFontValid, csBrushValid]);
+  Options := ETO_CLIPPED or TextFlags;
+  if Brush.Style <> bsClear then
+    Options := Options or ETO_OPAQUE;
+  if ((TextFlags and ETO_RTLREADING) <> 0) and
+     (CanvasOrientation = coRightToLeft) then Inc(X, TextWidthW(Text) + 1);
+  Windows.ExtTextOutW(Handle, X, Y, Options, @Rect, PWideChar(Text),
+    Length(Text), nil);
+  Changed;
+end;
+
+function TCanvasW.TextExtentW(const Text: wideString): TSize;
+begin
+  RequiredState([csHandleValid, csFontValid]);
+  Result.cX := 0;
+  Result.cY := 0;
+  Windows.GetTextExtentPoint32W(Handle, PWideChar(Text), Length(Text), Result);
+end;
+
+function TCanvasW.TextWidthW(const Text: wideString): Integer;
+begin
+  Result := TextExtentW(Text).cX;
+end;
+
+function TCanvasW.TextHeightW(const Text: wideString): Integer;
+begin
+  Result := TextExtentW(Text).cY;
+end;
+
+{  TMsgDlgType = (mtWarning, mtError, mtInformation, mtConfirmation, mtCustom);
+  TMsgDlgBtn = (mbYes, mbNo, mbOK, mbCancel, mbAbort, mbRetry, mbIgnore,
+    mbAll, mbNoToAll, mbYesToAll, mbHelp);
+
+  MB_ICONHAND = $00000010;
+  MB_ICONQUESTION = $00000020;
+  MB_ICONEXCLAMATION = $00000030;
+  MB_ICONASTERISK = $00000040;
+  MB_USERICON = $00000080;
+  MB_ICONWARNING                 = MB_ICONEXCLAMATION;
+  MB_ICONERROR                   = MB_ICONHAND;
+  MB_ICONINFORMATION             = MB_ICONASTERISK;
+  MB_ICONSTOP                    = MB_ICONHAND;
+
+  MB_OK = $00000000;
+  MB_OKCANCEL = $00000001;
+  MB_ABORTRETRYIGNORE = $00000002;
+  MB_YESNOCANCEL = $00000003;
+  MB_YESNO = $00000004;
+  MB_RETRYCANCEL = $00000005;
+
+}
+//http://msdn.microsoft.com/en-us/library/ms645505%28VS.85%29.aspx
+function DoMessageBox (text: wideString; caption: wideString;
+        DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
+        HelpCtx: Longint = 0): integer;
+var
+   uType: UINT;
+begin
+    uType:= 0;
+    case DlgType of
+       mtWarning: uType:= MB_ICONWARNING;
+       mtError: uType:= MB_ICONERROR;
+       mtInformation: uType:= MB_ICONINFORMATION;
+       mtConfirmation: uType:= MB_ICONQUESTION;
     end;
-  end;
-end; // ClipboardAsWString
-
-
-function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
-var
-  i, l, max : integer;
-begin
-  result := trimleft( ClipboardAsWString );
-  l := length( result );
-  if ( l > 0 ) then
-  begin
-    if ( MaxLen < l ) then
-      max := MaxLen
+    if (mbYes in Buttons) and (mbNo in Buttons) and (mbCancel in Buttons) then
+       uType:= uType or MB_YESNOCANCEL
+    else if (mbYes in Buttons) and (mbNo in Buttons) then
+       uType:= uType or MB_YESNO
+    else if (mbOk in Buttons) and (mbCancel in Buttons) then
+       uType:= uType or MB_OKCANCEL
+    else if (mbAbort in Buttons) and (mbRetry in Buttons) and (mbIgnore in Buttons) then
+       uType:= uType or MB_ABORTRETRYIGNORE
+    else if (mbRetry in Buttons) and(mbCancel in Buttons) then
+       uType:= uType or MB_RETRYCANCEL
     else
-      max := l;
-    for i := 1 to max do
-    begin
-      if ( result[i] < #32 ) then
-      begin
-        delete( result, i, l );
-        break;
-      end;
-    end;
-  end;
-end; // FirstLineFromClipboard
+       uType:= uType or MB_OK;
 
+    Result:= MessageBoxW(Application.MainFormHandle, PWideChar(text), PWideChar(caption), uType);
+end;
+
+function DoMessageBox (text: wideString; caption: wideString; uType: UINT= 0): integer;
+begin
+    Result:= MessageBoxW(Application.MainFormHandle, PWideChar(text), PWideChar(caption), uType);
+end;
 
 end.
 

@@ -34,13 +34,14 @@ package ComponentesTerceros;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Componentes de Terceros (3rd Party Components)'}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
   rtl,
   vcl,
   DesignIDE,
-  vclx;
+  vclx,
+  TntUnicodeVcl;
 
 contains
   DFSKb in '..\dfsstatusbar\DFSKb.pas',
@@ -92,7 +93,6 @@ contains
   SmtpProt in '..\SmtpProt.pas',
   GFLog in '..\..\GFLog.pas',
   WSocket in '..\WSocket.pas',
-  MD5 in '..\MD5.pas',
-  gf_misc in '..\..\gf_misc.pas';
+  MD5 in '..\MD5.pas';
 
 end.

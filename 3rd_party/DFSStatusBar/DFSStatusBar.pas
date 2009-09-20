@@ -126,7 +126,7 @@ type
   TdfsDrawPanelEvent = procedure(StatusBar: TdfsStatusBar;
      Panel: TdfsStatusPanel; const Rect: TRect) of object;
   TdfsPanelHintTextEvent = procedure (StatusBar: TdfsStatusBar;
-     Panel: TdfsStatusPanel; var Hint: string) of object;
+     Panel: TdfsStatusPanel; var Hint: wideString) of object;
 
 
   TdfsGaugeAttrs = class(TPersistent)
@@ -179,12 +179,12 @@ type
     FEnabled: boolean;
     FTimeFormat: string;
     FDateFormat: string;
-    FText: string;
+    FText: wideString;
     FGlyph: TPicture;
     FGaugeLastPos: integer;
     FGaugeDirection: integer;
     FOnDrawPanel: TdfsDrawPanelEvent;
-    FHint: string;
+    FHint: wideString;
     FOnHintText: TdfsPanelHintTextEvent;
     FOnClick: TNotifyEvent;
     FGaugeAttrs: TdfsGaugeAttrs;
@@ -206,7 +206,7 @@ type
     procedure SetBiDiMode(const Value: TBiDiMode);
     procedure SetParentBiDiMode(const Value: Boolean);
 {$ENDIF}
-    procedure SetText(const Value: string);
+    procedure SetText(const Value: wideString);
     procedure SetWidth(const Value: Integer);
     procedure SetAutoFit(const Value: boolean);
     procedure SetDateFormat(const Value: string);
@@ -215,7 +215,7 @@ type
     procedure SetTimeFormat(const Value: string);
     function GetStatusBar: TdfsStatusBar;
     function GetEnabled: boolean;
-    function GetHint: string;
+    function GetHint: wideString;
     procedure SetGaugeAttrs(const Value: TdfsGaugeAttrs);
     function GetLinkedPanel: TStatusPanel;
     function GetGaugeBitmap: TBitmap;
@@ -230,7 +230,7 @@ type
     procedure GlyphChanged(Sender: TObject); dynamic;
     procedure DrawPanel(Rect: TRect); dynamic;
     procedure EnabledChanged; dynamic;
-    procedure DoHintText(var HintText: string); dynamic;
+    procedure DoHintText(var HintText: wideString); dynamic;
     procedure Redraw(Canvas: TCanvas; Dest: TRect); dynamic;
     procedure DrawKeyLock(Canvas: TCanvas; R: TRect); dynamic;
     procedure DrawTextBased(Canvas: TCanvas; R: TRect); dynamic;
@@ -289,7 +289,7 @@ type
     property Glyph: TPicture
        read FGlyph
        write SetGlyph;
-    property Text: string
+    property Text: wideString
        read FText
        write SetText
        stored IsTextStored;
@@ -308,7 +308,7 @@ type
     property AutoFit: boolean
        read FAutoFit
        write SetAutoFit;
-    property Hint: string
+    property Hint: wideString
        read GetHint
        write FHint;
 
@@ -358,6 +358,9 @@ type
     FUseMonitorDLL: boolean;
     FDLLClientCount: integer;
     FKeyHookMsg: UINT;
+    function GetHint: WideString;
+    procedure SetHint(const Value: WideString);
+    function IsHintStored: Boolean;
     procedure SetPanels(const Value: TdfsStatusPanels);
     function AppWinHook(var Message: TMessage): boolean;
     procedure WMRefreshLockIndicators(var Msg: TMessage);
@@ -385,7 +388,7 @@ type
     procedure DeregisterMainWinHook(Client: TdfsStatusPanel);
     procedure RegisterSystemHook;
     procedure DeregisterSystemHook;
-    function TextExtent(const Text: string): TSize;
+    function TextExtent(const Text: wideString): TSize;
     procedure Click; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -407,6 +410,8 @@ type
     property OnDrawPanel: TdfsDrawPanelEvent
        read GetOnDrawPanel
        write SetOnDrawPanel;
+
+    property Hint: WideString read GetHint write SetHint stored IsHintStored;
   end;
 
 
@@ -430,8 +435,8 @@ const
 implementation
 
 uses
-  Consts, CommCtrl, TypInfo, SysUtils, DFSKb;
-
+  Consts, CommCtrl, TypInfo, SysUtils, DFSKb,
+  TntStdCtrls, TntControls, TntSysUtils;
 
 const
   KEY_CODE: array[sptCapsLock..sptScrollLock] of integer = (
@@ -904,7 +909,7 @@ begin
           GR.Left := GR.Left + Glyph.Width + TEXT_SPACE;
           GR.Top := R.Top;
           GR.Bottom := R.Bottom;
-          DrawText(Canvas.Handle, PChar(Text), -1, GR, DT_SINGLELINE or
+          DrawTextW(Canvas.Handle, PWideChar(Text), -1, GR, DT_SINGLELINE or
             DT_NOPREFIX or DT_VCENTER);
         end;
       taRightJustify:
@@ -912,7 +917,7 @@ begin
           GR.Left := GR.Left - TW - TEXT_SPACE;
           GR.Top := R.Top;
           GR.Bottom := R.Bottom;
-          DrawText(Canvas.Handle, PChar(Text), -1, GR, DT_SINGLELINE or
+          DrawTextW(Canvas.Handle, PWideChar(Text), -1, GR, DT_SINGLELINE or
             DT_NOPREFIX or DT_VCENTER);
         end;
     end;
@@ -1048,7 +1053,7 @@ begin
       taCenter:       DTFlags := DTFlags or DT_CENTER;
       taRightJustify: DTFlags := DTFlags or DT_RIGHT;
     end;
-  DrawText(Canvas.Handle, PChar(Text), -1, R, DTFlags);
+  DrawTextW(Canvas.Handle, PWideChar(Text), -1, R, DTFlags);
   SetTextColor(Canvas.Handle, OldColor);
 end;
 
@@ -1077,7 +1082,7 @@ begin
     // This only happens when in design mode, see Redraw method.
     DrawText(Canvas.Handle, ' *OD* ', -1, R, DTFlags)
   else
-    DrawText(Canvas.Handle, PChar(Text), -1, R, DTFlags);
+    DrawTextW(Canvas.Handle, PWideChar(Text), -1, R, DTFlags);
 end;
 
 procedure TdfsStatusPanel.SetAlignment(const Value: TAlignment);
@@ -1224,7 +1229,7 @@ begin
 end;
 
 
-procedure TdfsStatusPanel.SetText(const Value: string);
+procedure TdfsStatusPanel.SetText(const Value: wideString);
 begin
   if FText <> Value then
   begin
@@ -1412,7 +1417,7 @@ begin
 end;
 
 
-function TdfsStatusPanel.GetHint: string;
+function TdfsStatusPanel.GetHint: wideString;
 begin
   if (not (csDesigning in StatusBar.ComponentState)) and
      (PanelType in [sptEllipsisText, sptEllipsisPath]) and (FHint = '...') then
@@ -1422,7 +1427,7 @@ begin
   DoHintText(Result);
 end;
 
-procedure TdfsStatusPanel.DoHintText(var HintText: string);
+procedure TdfsStatusPanel.DoHintText(var HintText: wideString);
 begin
   if assigned(FOnHintText) then
     FOnHintText(StatusBar, Self, HintText);
@@ -2002,9 +2007,9 @@ begin
 end;
 
 
-function TdfsStatusBar.TextExtent(const Text: string): TSize;
+function TdfsStatusBar.TextExtent(const Text: wideString): TSize;
 begin
-  if not GetTextExtentPoint32(FExtentCanvas, PChar(Text), Length(Text),
+  if not GetTextExtentPoint32W(FExtentCanvas, PWideChar(Text), Length(Text),
      Result) then
   begin
     Result.cx := -1;
@@ -2167,6 +2172,22 @@ begin
     DrawSizeGrip(R);
   end;
 end;
+
+function TdfsStatusBar.IsHintStored: Boolean;
+begin
+  Result := TntControl_IsHintStored(Self);
+end;
+
+function TdfsStatusBar.GetHint: WideString;
+begin
+  Result := TntControl_GetHint(Self)
+end;
+
+procedure TdfsStatusBar.SetHint(const Value: WideString);
+begin
+  TntControl_SetHint(Self, Value);
+end;
+
 
 initialization
   {$IFDEF DFS_DEBUG}

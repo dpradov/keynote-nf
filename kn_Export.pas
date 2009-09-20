@@ -101,11 +101,11 @@ type
     OK_Click : boolean;
     myFormat : TExportFmt;
     mySource : integer;
-    myCurNoteName : string;
+    myCurNoteName : WideString;
     myNotes : TNoteFile;
     myActiveNote : TTabNote;
     myPrompt : boolean;
-    myFolder : string;
+    myFolder : wideString;
     myAsk : boolean;
     IsBusy : boolean;
     AbortReq : boolean;
@@ -114,8 +114,8 @@ type
     function CountExportedNotes : integer;
     procedure PerformExport;
     function Verify : boolean;
-    function GetFilename( const aNoteName : string; var AFileName : string ) : boolean;
-    function ExportAsTextOrRTFOrHTML( const aNote : TTabNote; FN : string ) : boolean;
+    function GetFilename( const aNoteName : wideString; var AFileName : wideString ) : boolean;
+    function ExportAsTextOrRTFOrHTML( const aNote : TTabNote; FN : wideString ) : boolean;
     function ExportAsTreePad( const UseRTF : boolean ) : integer;
 
   end;
@@ -312,11 +312,11 @@ begin
 end; // CountExportedNotes
 
 
-function TForm_Export.ExportAsTextOrRTFOrHTML( const aNote : TTabNote; FN : string ) : boolean;
+function TForm_Export.ExportAsTextOrRTFOrHTML( const aNote : TTabNote; FN : wideString ) : boolean;
 var
-  Stream : TFileStream;
+  Stream : TTntFileStream;
   tf : TextFile;
-  myExt, TabStr, nodeFN : string;
+  myExt, TabStr, nodeFN : wideString;
   i, StreamSize : integer;
   tNote : TTreeNote;
   myTreeNode : TTreeNTNode;
@@ -335,7 +335,7 @@ begin
     ntRTF : begin
       case myFormat of
         xfPlainText : begin
-          Stream := TFileStream.Create( FN, fmCreate OR fmShareDenyWrite );
+          Stream := TTntFileStream.Create( FN, fmCreate OR fmShareDenyWrite );
           try
             aNote.Editor.StreamFormat := sfPlainText;
             aNote.Editor.Lines.SaveToStream( Stream );
@@ -349,7 +349,7 @@ begin
           result := DllConvertRTFToHTML( FN, PChar( GetRichText( aNote.Editor, true, false )));
         end;
         xfRTF : begin
-          Stream := TFileStream.Create( FN, fmCreate OR fmShareDenyWrite );
+          Stream := TTntFileStream.Create( FN, fmCreate OR fmShareDenyWrite );
           try
             aNote.Editor.Lines.SaveToStream( Stream );
             result := true;
@@ -455,13 +455,13 @@ begin
                   end;
                 end;
                 nodeFN := myFolder + MakeValidFileName( myNoteNode.Name, TREENODE_NAME_LENGTH ) + myExt;
-                if fileexists( nodeFN ) then
+                if WideFileexists( nodeFN ) then
                 begin
                   i := 0;
                   repeat
                     inc( i );
-                    nodeFN := Format( '%s(%d)%s', [nodeFN, i, myExt] );
-                  until ( not fileexists( nodeFN ));
+                    nodeFN := WideFormat( '%s(%d)%s', [nodeFN, i, myExt] );
+                  until ( not WideFileexists( nodeFN ));
                 end;
               end;
 
@@ -534,7 +534,7 @@ begin
   end
   else
   begin
-    GetFileName( changefileext( extractfilename( myNotes.FileName ), '' ), FN );
+    GetFileName( WideChangefileext( WideExtractFilename( myNotes.FileName ), '' ), FN );
   end;
 
   if ( FN = '' ) then exit;
@@ -560,13 +560,13 @@ begin
     if ( cnt > 0 ) then
     begin
       writeln( tf, _TREEPAD_NODE );
-      writeln( tf, extractfilename( myNotes.FileName ));
+      writeln( tf, WideExtractFilename( myNotes.FileName ));
       writeln( tf, level );
       writeln( tf, Format(
         'Notes exported by %s %s (%s)',
         [Program_Name, Program_Version, Program_License]
       ));
-      writeln( tf, 'Original file: ', extractfilename( myNotes.FileName ));
+      writeln( tf, 'Original file: ', WideExtractFilename( myNotes.FileName ));
       if ( myNotes.Description <> '' ) then
         writeln( tf, 'Description: ', myNotes.Description );
       if ( myNotes.Comment <> '' ) then
@@ -664,9 +664,9 @@ end; // ExportAsTreePad
 
 
 
-function TForm_Export.GetFilename( const aNoteName : string; var AFileName : string ) : boolean;
+function TForm_Export.GetFilename( const aNoteName : wideString; var AFileName : wideString ) : boolean;
 var
-  FN : string;
+  FN : wideString;
   tmpmyAsk, askdone : boolean;
 begin
   result := true;
@@ -713,9 +713,9 @@ begin
     end;
 
     if ( FN <> '' ) then FN := normalFN( FN );
-    if (( myPrompt or tmpmyAsk ) and fileexists( FN )) then
+    if (( myPrompt or tmpmyAsk ) and WideFileexists( FN )) then
     begin
-      case messagedlg( 'This file aready exists: ' + FN + #13#10 +
+      case DoMessageBox( 'This file aready exists: ' + FN + #13#10 +
                        'OK to overwrite the file?', mtWarning, [mbYes,mbNo,mbCancel], 0 ) of
         mrYes : begin
           askdone := true;
@@ -798,7 +798,7 @@ begin
               end
               else
               begin
-                showmessage( Format( 'Skipped "%s"', [myNotes.Notes[i].Name] ));
+                DoMessageBox( WideFormat( 'Skipped "%s"', [myNotes.Notes[i].Name] ));
               end;
               Application.ProcessMessages;
               if AbortReq then

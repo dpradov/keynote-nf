@@ -71,8 +71,8 @@ procedure CSVTextToStrs(
 procedure SplitString( aList : TStrings; aStr : string; const aDelim : char );
 
 function CountChars( const ch : char; const s : string ) : integer;
-procedure CharToChar( var s : string; const oldchar, newchar : char );
-function RemoveAccelChar( const s : string ) : string;
+procedure CharToChar( var s : wideString; const oldchar, newchar : char );
+function RemoveAccelChar( const s : wideString ) : wideString;
 procedure CollapseSpaces( var s : string );
 function TrimPunct( s : string ) : string;
 
@@ -84,11 +84,13 @@ function MatchMask(source, pattern: String): Boolean;
 procedure StripControlChars( var s : string );
 function GetWordChars : string;
 
-function ExpandMetaChars( line : string ) : string;
+function ExpandMetaChars( line : wideString ) : wideString;
 function GetIndentOfLine (const S: string): integer;
 
+function TryUTF8ToWideString(const s: string): wideString;
+
 implementation
-uses gf_misc;
+uses gf_misc, TntSystem;
 
 function GetLetterCase( const aStr : string ) : TCaseCycle;
 const
@@ -126,11 +128,11 @@ begin
 
 end; // GetLetterCase
 
-function ExpandMetaChars( line : string ) : string;
+function ExpandMetaChars( line : wideString ) : wideString;
 var
   i, linelen : integer;
   wasmeta : boolean;
-  ch : char;
+  ch : wideChar;
 begin
   result := '';
 
@@ -508,7 +510,7 @@ begin
     if s[i] = ch then inc( result );
 end; // CountChars
 
-procedure CharToChar( var s : string; const oldchar, newchar : char );
+procedure CharToChar( var s : wideString; const oldchar, newchar : char );
 var
   p : integer;
 begin
@@ -516,12 +518,12 @@ begin
   p := pos( oldchar, s );
   while ( p > 0 ) do
   begin
-    s[p] := newchar;
+    s[p] := wideChar(newchar);
     p := pos( oldchar, s );
   end;
 end; // CharToChar
 
-function RemoveAccelChar( const s : string ) : string;
+function RemoveAccelChar( const s : widestring ) : wideString;
 var
   p : integer;
 begin
@@ -678,6 +680,13 @@ begin
           (S[Result+1] In  [' ',#9])
     do
       Inc( Result );
+end;
+
+function TryUTF8ToWideString(const s: string): wideString;
+begin
+     Result:= UTF8ToWideString(s);
+     if Result= '' then
+        Result:= s;
 end;
 
 end.

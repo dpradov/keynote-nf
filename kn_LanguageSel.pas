@@ -45,18 +45,18 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, langs, LCCombo;
+  StdCtrls, langs, LCCombo, TntStdCtrls;
 
 type
   TForm_Lang = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    GroupBox1: TGroupBox;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    GroupBox1: TTntGroupBox;
     Combo_Lang: TLanguagesCombo;
-    RB_Selected: TRadioButton;
-    RB_Recent: TRadioButton;
-    RB_Default: TRadioButton;
-    RB_System: TRadioButton;
+    RB_Selected: TTntRadioButton;
+    RB_Recent: TTntRadioButton;
+    RB_Default: TTntRadioButton;
+    RB_System: TTntRadioButton;
     procedure RB_SelectedClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);

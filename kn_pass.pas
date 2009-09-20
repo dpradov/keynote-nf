@@ -48,16 +48,16 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls;
+  StdCtrls, ExtCtrls, TntStdCtrls;
 
 type
   TForm_Password = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    GroupBox1: TGroupBox;
-    Label_FileName: TLabel;
-    Label2: TLabel;
-    Edit_Pass: TEdit;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    GroupBox1: TTntGroupBox;
+    Label_FileName: TTntLabel;
+    Label2: TTntLabel;
+    Edit_Pass: TTntEdit;
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
@@ -76,6 +76,7 @@ type
   end;
 
 implementation
+uses TntSysUtils;
 
 {$R *.DFM}
 
@@ -133,7 +134,7 @@ procedure TForm_Password.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   Label_FileName.Caption := myFileName;
-  Caption:= format(STR_02, [extractfilename( myFileName )]);
+  Caption:= WideFormat(STR_02, [WideExtractFilename( myFileName )]);
 
   // when auto-reopening previously auto-closed encrypted files,
   // (see TForm_Main.AutoCloseFile) the password window does not

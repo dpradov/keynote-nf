@@ -61,22 +61,22 @@ type
 
 type
   TForm_Replace = class(TForm)
-    Button_Find: TButton;
-    Button_Cancel: TButton;
-    Label1: TLabel;
+    Button_Find: TTntButton;
+    Button_Cancel: TTntButton;
+    Label1: TTntLabel;
     Combo_Text: TTntComboBox;
-    GroupBox_Opts: TGroupBox;
-    CheckBox_MatchCase: TCheckBox;
-    CheckBox_EntireScope: TCheckBox;
+    GroupBox_Opts: TTntGroupBox;
+    CheckBox_MatchCase: TTntCheckBox;
+    CheckBox_EntireScope: TTntCheckBox;
     FormPlacement: TFormPlacement;
-    CheckBox_WholeWordsOnly: TCheckBox;
-    CheckBox_AllTabs: TCheckBox;
-    CheckBox_AllNodes: TCheckBox;
-    Label2: TLabel;
+    CheckBox_WholeWordsOnly: TTntCheckBox;
+    CheckBox_AllTabs: TTntCheckBox;
+    CheckBox_AllNodes: TTntCheckBox;
+    Label2: TTntLabel;
     Combo_Replace: TTntComboBox;
-    Button_Replace: TButton;
-    Button_ReplaceAll: TButton;
-    CheckBox_Confirm: TCheckBox;
+    Button_Replace: TTntButton;
+    Button_ReplaceAll: TTntButton;
+    CheckBox_Confirm: TTntCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);

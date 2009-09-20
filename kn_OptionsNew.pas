@@ -56,215 +56,221 @@ uses
   kn_Const, kn_INI, ShellAPI,
   gf_strings, ExtDlgs, TreeNT,
   FileCtrl, kn_DateTime,
-  cmpGFXListBox;
+  cmpGFXListBox, TntStdCtrls, TB97Ctls;
 
 type
   TForm_OptionsNew = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
     FontDlg: TFontDialog;
     ColorDlg: TColorDialog;
     IconDlg: TOpenDialog;
     TV: TTreeNT;
     Pages: TNotebook;
-    GroupBox1: TGroupBox;
-    checkbox_IconInTray: TCheckBox;
-    checkbox_StartMinimized: TCheckBox;
-    CheckBox_MinimizeOnClose: TCheckBox;
-    CheckBox_ShowTooltips: TCheckBox;
-    CheckBox_SplashScreen: TCheckBox;
-    GroupBox2: TGroupBox;
-    CB_LoadLastFile: TCheckBox;
-    CB_LoadUserFile: TCheckBox;
-    Edit_UserFile: TFilenameEdit;
-    GroupBox3: TGroupBox;
-    CheckBox_MRUSubmenu: TCheckBox;
-    CheckBox_MRUUse: TCheckBox;
-    CheckBox_MRUFullPath: TCheckBox;
+    GroupBox1: TTntGroupBox;
+    checkbox_IconInTray: TTntCheckBox;
+    checkbox_StartMinimized: TTntCheckBox;
+    CheckBox_MinimizeOnClose: TTntCheckBox;
+    CheckBox_ShowTooltips: TTntCheckBox;
+    CheckBox_SplashScreen: TTntCheckBox;
+    GroupBox2: TTntGroupBox;
+    CB_LoadLastFile: TTntCheckBox;
+    CB_LoadUserFile: TTntCheckBox;
+    Edit_UserFile: TTntEdit;
+    GroupBox3: TTntGroupBox;
+    CheckBox_MRUSubmenu: TTntCheckBox;
+    CheckBox_MRUUse: TTntCheckBox;
+    CheckBox_MRUFullPath: TTntCheckBox;
     Spin_MRUCount: TSpinEdit;
-    GroupBox7: TGroupBox;
-    Label4: TLabel;
-    Combo_EscapeAction: TComboBox;
+    GroupBox7: TTntGroupBox;
+    Label4: TTntLabel;
+    Combo_EscapeAction: TTntComboBox;
     Edit_HotKey: THotKey;
-    CheckBox_HotkeyActivate: TCheckBox;
-    GroupBox10: TGroupBox;
-    Label9: TLabel;
-    Label10: TLabel;
+    CheckBox_HotkeyActivate: TTntCheckBox;
+    GroupBox10: TTntGroupBox;
+    Label9: TTntLabel;
+    Label10: TTntLabel;
     Bevel4: TBevel;
-    CheckBox_TimerMinimize: TCheckBox;
-    CheckBox_TimerClose: TCheckBox;
-    CB_CloseEncOnly: TCheckBox;
+    CheckBox_TimerMinimize: TTntCheckBox;
+    CheckBox_TimerClose: TTntCheckBox;
+    CB_CloseEncOnly: TTntCheckBox;
     Spin_TimerMinInt: TSpinEdit;
     Spin_TimerCloseInt: TSpinEdit;
-    GroupBox4: TGroupBox;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label_SampleDate: TLabel;
-    Label_SampleTime: TLabel;
-    Edit_DateFormat: TComboBox;
-    Edit_TimeFormat: TComboBox;
-    GroupBox8: TGroupBox;
-    Label16: TLabel;
-    CheckBox_DisableFileMon: TCheckBox;
-    CheckBox_ShowFonts: TCheckBox;
-    CheckBox_NoRegistry: TCheckBox;
-    CheckBox_UseOldColorDlg: TCheckBox;
-    CheckBox_RunAutoMacros: TCheckBox;
-    CheckBox_SafePrint: TCheckBox;
-    GroupBox6: TGroupBox;
-    Label_MaxSize: TLabel;
-    Label7: TLabel;
-    Label_bytes: TLabel;
-    Combo_Size: TComboBox;
-    Combo_Divider: TComboBox;
-    CB_IgnoreSelf: TCheckBox;
-    CB_AsText: TCheckBox;
+    GroupBox4: TTntGroupBox;
+    Label2: TTntLabel;
+    Label3: TTntLabel;
+    Label_SampleDate: TTntLabel;
+    Label_SampleTime: TTntLabel;
+    Edit_DateFormat: TTntComboBox;
+    Edit_TimeFormat: TTntComboBox;
+    GroupBox8: TTntGroupBox;
+    Label16: TTntLabel;
+    CheckBox_DisableFileMon: TTntCheckBox;
+    CheckBox_ShowFonts: TTntCheckBox;
+    CheckBox_NoRegistry: TTntCheckBox;
+    CheckBox_UseOldColorDlg: TTntCheckBox;
+    CheckBox_RunAutoMacros: TTntCheckBox;
+    CheckBox_SafePrint: TTntCheckBox;
+    GroupBox6: TTntGroupBox;
+    Label_MaxSize: TTntLabel;
+    Label7: TTntLabel;
+    Label_bytes: TTntLabel;
+    Combo_Size: TTntComboBox;
+    Combo_Divider: TTntComboBox;
+    CB_IgnoreSelf: TTntCheckBox;
+    CB_AsText: TTntCheckBox;
     BitBtn_TknHlp: TBitBtn;
-    CheckBox_ClipRecall: TCheckBox;    
-    CheckBox_Sound: TCheckBox;
-    GBox_EditorGlobal: TGroupBox;
-    CheckBox_WordSelect: TCheckBox;
-    CB_SaveCaretPos: TCheckBox;
-    CheckBox_TrackCaretPos: TCheckBox;
-    CheckBox_AutoIndent: TCheckBox;
-    GBox_TreeGlobal: TGroupBox;
-    CheckBox_EditNewNodes: TCheckBox;
-    CheckBox_EditInPlace: TCheckBox;
-    CheckBox_InheritBGColor: TCheckBox;
-    GroupBox9: TGroupBox;
-    Checkbox_AutoSave: TCheckBox;
-    CheckBox_AutoSaveOnFocus: TCheckBox;
-    CheckBox_AutoSaveOnTimer: TCheckBox;
+    CheckBox_ClipRecall: TTntCheckBox;
+    CheckBox_Sound: TTntCheckBox;
+    GBox_EditorGlobal: TTntGroupBox;
+    CheckBox_WordSelect: TTntCheckBox;
+    CB_SaveCaretPos: TTntCheckBox;
+    CheckBox_TrackCaretPos: TTntCheckBox;
+    CheckBox_AutoIndent: TTntCheckBox;
+    GBox_TreeGlobal: TTntGroupBox;
+    CheckBox_EditNewNodes: TTntCheckBox;
+    CheckBox_EditInPlace: TTntCheckBox;
+    CheckBox_InheritBGColor: TTntCheckBox;
+    GroupBox9: TTntGroupBox;
+    Checkbox_AutoSave: TTntCheckBox;
+    CheckBox_AutoSaveOnFocus: TTntCheckBox;
+    CheckBox_AutoSaveOnTimer: TTntCheckBox;
     Spin_AutoSaveOnTimerInt: TSpinEdit;
-    Label_Minutes: TLabel;
-    GroupBox13: TGroupBox;
-    CheckBox_OpenFloppyReadOnly: TCheckBox;
-    CheckBox_OpenReadOnlyWarn: TCheckBox;
-    CheckBox_OpenNetworkReadOnly: TCheckBox;
-    GroupBox14: TGroupBox;
-    CheckBox_TabsStacked: TCheckBox;
-    CheckBox_TabsHotTrack: TCheckBox;
-    CheckBox_TabsImages: TCheckBox;
-    CheckBox_HotKeyWarn: TCheckBox;
-    GroupBox15: TGroupBox;
-    CheckBox_AutoRegisterPrompt: TCheckBox;
-    CheckBox_AutoRegisterFileType: TCheckBox;
-    CheckBox_EncFileAltExt: TCheckBox;
-    GroupBox5: TGroupBox;
-    Label5: TLabel;
-    RB_ActiveTab: TRadioButton;
-    RB_InactiveTab: TRadioButton;
-    Edit_Sample: TEdit;
+    Label_Minutes: TTntLabel;
+    GroupBox13: TTntGroupBox;
+    CheckBox_OpenFloppyReadOnly: TTntCheckBox;
+    CheckBox_OpenReadOnlyWarn: TTntCheckBox;
+    CheckBox_OpenNetworkReadOnly: TTntCheckBox;
+    GroupBox14: TTntGroupBox;
+    CheckBox_TabsStacked: TTntCheckBox;
+    CheckBox_TabsHotTrack: TTntCheckBox;
+    CheckBox_TabsImages: TTntCheckBox;
+    CheckBox_HotKeyWarn: TTntCheckBox;
+    GroupBox15: TTntGroupBox;
+    CheckBox_AutoRegisterPrompt: TTntCheckBox;
+    CheckBox_AutoRegisterFileType: TTntCheckBox;
+    CheckBox_EncFileAltExt: TTntCheckBox;
+    GroupBox5: TTntGroupBox;
+    Label5: TTntLabel;
+    RB_ActiveTab: TTntRadioButton;
+    RB_InactiveTab: TTntRadioButton;
+    Edit_Sample: TTntEdit;
     BTN_Font: TBitBtn;
     BTN_Color: TBitBtn;
     BTN_Defaults: TBitBtn;
-    GroupBox_ICN: TGroupBox;
-    Label_ICN: TLabel;
-    Button_ICNAdd: TButton;
-    Button_ICNInsert: TButton;
-    Button_ICNDelete: TButton;
-    Button_ICNReset: TButton;
-    GroupBox17: TGroupBox;
-    CheckBox_InsCharKeepFont: TCheckBox;
-    CheckBox_InsCharWinClose: TCheckBox;
-    GroupBox16: TGroupBox;
-    Label8: TLabel;
-    Combo_URLAction: TComboBox;
-    CheckBox_URLShift: TCheckBox;
-    CheckBox_MinOnURL: TCheckBox;
-    CheckBox_URLFileAuto: TCheckBox;
-    GroupBox12: TGroupBox;
-    CheckBox_AutoPasteEval: TCheckBox;
-    CheckBox_AutoPastePlugin: TCheckBox;
-    CheckBox_ConfirmTreePaste: TCheckBox;
-    checkbox_ConfirmExit: TCheckBox;
-    checkbox_ConfirmDelete: TCheckBox;
-    CheckBox_ConfirmNodeDelete: TCheckBox;
-    CheckBox_FixScrollBars: TCheckBox;
-    CheckBox_AutoNameVNodes: TCheckBox;
-    Button_Help: TButton;
-    CheckBox_LongCombos: TCheckBox;
-    GroupBox19: TGroupBox;
+    GroupBox_ICN: TTntGroupBox;
+    Label_ICN: TTntLabel;
+    Button_ICNAdd: TTntButton;
+    Button_ICNInsert: TTntButton;
+    Button_ICNDelete: TTntButton;
+    Button_ICNReset: TTntButton;
+    GroupBox17: TTntGroupBox;
+    CheckBox_InsCharKeepFont: TTntCheckBox;
+    CheckBox_InsCharWinClose: TTntCheckBox;
+    GroupBox16: TTntGroupBox;
+    Label8: TTntLabel;
+    Combo_URLAction: TTntComboBox;
+    CheckBox_URLShift: TTntCheckBox;
+    CheckBox_MinOnURL: TTntCheckBox;
+    CheckBox_URLFileAuto: TTntCheckBox;
+    GroupBox12: TTntGroupBox;
+    CheckBox_AutoPasteEval: TTntCheckBox;
+    CheckBox_AutoPastePlugin: TTntCheckBox;
+    CheckBox_ConfirmTreePaste: TTntCheckBox;
+    checkbox_ConfirmExit: TTntCheckBox;
+    checkbox_ConfirmDelete: TTntCheckBox;
+    CheckBox_ConfirmNodeDelete: TTntCheckBox;
+    CheckBox_FixScrollBars: TTntCheckBox;
+    CheckBox_AutoNameVNodes: TTntCheckBox;
+    Button_Help: TTntButton;
+    CheckBox_LongCombos: TTntCheckBox;
+    GroupBox19: TTntGroupBox;
     List_TxtExt: TListBox;
-    Button_AddTxtExt: TButton;
-    Button_DeleteTxtExt: TButton;
-    Button_ResetTxtExt: TButton;
-    GroupBox20: TGroupBox;
-    Label12: TLabel;
-    Label11: TLabel;
-    Label1: TLabel;
-    Label_UndoLimit: TLabel;
+    Button_AddTxtExt: TTntButton;
+    Button_DeleteTxtExt: TTntButton;
+    Button_ResetTxtExt: TTntButton;
+    GroupBox20: TTntGroupBox;
+    Label12: TTntLabel;
+    Label11: TTntLabel;
+    Label1: TTntLabel;
+    Label_UndoLimit: TTntLabel;
     Spin_UndoLimit: TSpinEdit;
     Spin_IndentInc: TSpinEdit;
     Spin_FontSizeInc: TSpinEdit;
     Spin_ParaSpaceInc: TSpinEdit;
     List_Icn: TGFXListBox;
     Bevel1: TBevel;
-    CheckBox_RichEditv3: TCheckBox;
-    GroupBox21: TGroupBox;
-    CB_AutoFont: TCheckBox;
-    CB_AutoKeyboard: TCheckBox;
-    Label6: TLabel;
-    CB_IgnoreUpgrades: TCheckBox;
-    CB_ConfirmNodeRefresh: TCheckBox;
-    GroupBox11: TGroupBox;
-    Label_Bak: TLabel;
-    checkbox_Backup: TCheckBox;
-    CheckBox_BackupAppendExt: TCheckBox;
-    Edit_BackupExt: TEdit;
-    Label_BakDir: TLabel;
-    RB_BakOriginalDir: TRadioButton;
-    RB_BakUserDir: TRadioButton;
-    Edit_BakDir: TDirectoryEdit;
-    Label_MaxBak2: TLabel;
-    Combo_BakLevel: TComboBox;
+    CheckBox_RichEditv3: TTntCheckBox;
+    GroupBox21: TTntGroupBox;
+    CB_AutoFont: TTntCheckBox;
+    CB_AutoKeyboard: TTntCheckBox;
+    Label6: TTntLabel;
+    CB_IgnoreUpgrades: TTntCheckBox;
+    CB_ConfirmNodeRefresh: TTntCheckBox;
+    GroupBox11: TTntGroupBox;
+    Label_Bak: TTntLabel;
+    checkbox_Backup: TTntCheckBox;
+    CheckBox_BackupAppendExt: TTntCheckBox;
+    Edit_BackupExt: TTntEdit;
+    Label_BakDir: TTntLabel;
+    RB_BakOriginalDir: TTntRadioButton;
+    RB_BakUserDir: TTntRadioButton;
+    Edit_BakDir: TTntEdit;
+    Label_MaxBak2: TTntLabel;
+    Combo_BakLevel: TTntComboBox;
     Bevel2: TBevel;
     Bevel3: TBevel;
-    Label_MaxBak1: TLabel;
-    Label13: TLabel;
-    CB_SkipNewFilePrompt: TCheckBox;
-    Label14: TLabel;
-    Label15: TLabel;
-    Combo_TabPos: TComboBox;
-    CheckBox_SingleInstance: TCheckBox;
-    CB_InheritNodeProperties: TCheckBox;
-    CB_BackupVNodes: TCheckBox;
-    CheckBox_HotTrackTree: TCheckBox;
-    CheckBox_AutoScroll: TCheckBox;
-    CheckBox_TreeTips: TCheckBox;
-    CB_ShowFullPath: TCheckBox;
-    CB_ShowFullPathSearch: TCheckBox;
-    CB_PathTopToBottom: TCheckBox;
+    Label_MaxBak1: TTntLabel;
+    Label13: TTntLabel;
+    CB_SkipNewFilePrompt: TTntCheckBox;
+    Label14: TTntLabel;
+    Label15: TTntLabel;
+    Combo_TabPos: TTntComboBox;
+    CheckBox_SingleInstance: TTntCheckBox;
+    CB_InheritNodeProperties: TTntCheckBox;
+    CB_BackupVNodes: TTntCheckBox;
+    CheckBox_HotTrackTree: TTntCheckBox;
+    CheckBox_AutoScroll: TTntCheckBox;
+    CheckBox_TreeTips: TTntCheckBox;
+    CB_ShowFullPath: TTntCheckBox;
+    CB_ShowFullPathSearch: TTntCheckBox;
+    CB_PathTopToBottom: TTntCheckBox;
     Bevel6: TBevel;
-    GroupBox18: TGroupBox;
-    CB_DropNodesOnTabPrompt: TCheckBox;
-    CB_DropNodesOnTabMove: TCheckBox;
-    CB_ResPanelActiveUpdate: TCheckBox;
-    Label17: TLabel;
-    Combo_ExpandMode: TComboBox;
-    GroupBox23: TGroupBox;
-    RB_ClipTreeActive: TRadioButton;
-    RB_ClipTreeNew: TRadioButton;
-    LB_ClipNodeNaming: TLabel;
-    Combo_ClipNodeNaming: TComboBox;
-    CB_AutoNewFile: TCheckBox;
-    CB_TrackWordCount: TCheckBox;
-    CB_TreeClipConfirm: TCheckBox;
-    CB_TestDupClips: TCheckBox;
-    CB_DTUseLastSelection: TCheckBox;
-    GroupBox22: TGroupBox;
-    CB_WordAtCursor: TCheckBox;
-    CB_FindAutoClose: TCheckBox;
-    CB_TimerCloseDialogs: TCheckBox;
-    CB_TimerCloseAutoReopen: TCheckBox;
-    CB_SwitchIcon: TCheckBox;
-    CB_SourceURL: TCheckBox;
-    GroupBox24: TGroupBox;
-    RB_URLSystemBrowser: TRadioButton;
-    RB_URLAltBrowser: TRadioButton;
-    Edit_URLAltBrowserPath: TFilenameEdit;
-    Label18: TLabel;
-    Combo_Language: TComboBox;
+    GroupBox18: TTntGroupBox;
+    CB_DropNodesOnTabPrompt: TTntCheckBox;
+    CB_DropNodesOnTabMove: TTntCheckBox;
+    CB_ResPanelActiveUpdate: TTntCheckBox;
+    Label17: TTntLabel;
+    Combo_ExpandMode: TTntComboBox;
+    GroupBox23: TTntGroupBox;
+    RB_ClipTreeActive: TTntRadioButton;
+    RB_ClipTreeNew: TTntRadioButton;
+    LB_ClipNodeNaming: TTntLabel;
+    Combo_ClipNodeNaming: TTntComboBox;
+    CB_AutoNewFile: TTntCheckBox;
+    CB_TrackWordCount: TTntCheckBox;
+    CB_TreeClipConfirm: TTntCheckBox;
+    CB_TestDupClips: TTntCheckBox;
+    CB_DTUseLastSelection: TTntCheckBox;
+    GroupBox22: TTntGroupBox;
+    CB_WordAtCursor: TTntCheckBox;
+    CB_FindAutoClose: TTntCheckBox;
+    CB_TimerCloseDialogs: TTntCheckBox;
+    CB_TimerCloseAutoReopen: TTntCheckBox;
+    CB_SwitchIcon: TTntCheckBox;
+    CB_SourceURL: TTntCheckBox;
+    GroupBox24: TTntGroupBox;
+    RB_URLSystemBrowser: TTntRadioButton;
+    RB_URLAltBrowser: TTntRadioButton;
+    Edit_URLAltBrowserPath: TTntEdit;
+    Label18: TTntLabel;
+    Combo_Language: TTntComboBox;
+    TB_OpenDlgUserFile: TToolbarButton97;
+    TB_OpenDlgURLAltBrowserPath: TToolbarButton97;
+    TB_OpenDlgBakDir: TToolbarButton97;
+    procedure TB_OpenDlgBakDirClick(Sender: TObject);
+    procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
+    procedure TB_OpenDlgUserFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -344,7 +350,7 @@ type
 
 
 implementation
-uses kn_LanguagesMng;
+uses kn_LanguagesMng, kn_Main, TntFileCtrl, TntSysUtils;
 
 {$R *.DFM}
 
@@ -410,7 +416,6 @@ begin
     InitializeEditorOptions( myEditorOptions );
     InitializeTreeOptions( myTreeOptions );
 
-  Edit_Userfile.Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
   // Combo_ICN.ImageList := Chest.IMG_Categories;
   List_ICN.ImageList := Chest.IMG_Categories;
 
@@ -643,7 +648,7 @@ end;
 procedure TForm_OptionsNew.FormToOptions;
 var
   i : integer;
-  s : string;
+  s : wideString;
 begin
   with myOpts do
   begin
@@ -669,7 +674,7 @@ begin
     else
     begin
       s := ProperFolderName( trim( Edit_BakDir.text ));
-      if (( s <> '' ) and directoryexists( s )) then
+      if (( s <> '' ) and WideDirectoryexists( s )) then
         BackupDir := s
       else
         BackupDir := '';
@@ -834,7 +839,7 @@ begin
     CheckBox_BackupAppendExt.Checked := BackupAppendExt;
     Edit_BackupExt.Text := BackupExt;
 
-    Edit_BakDir.InitialDir := extractfilepath( application.exename );
+    //Edit_BakDir.InitialDir := extractfilepath( application.exename );
     if ( BackupDir = '' ) then
     begin
       RB_BakOriginalDir.Checked := true;
@@ -1035,6 +1040,7 @@ end;
 procedure TForm_OptionsNew.Checkbox_LoadUserFileClick(Sender: TObject);
 begin
   Edit_UserFile.Enabled := CB_LoadUserFile.Checked;
+  TB_OpenDlgUserFile.Enabled:= Edit_UserFile.Enabled;
   if CB_LoadUserFile.Checked then
   begin
     CB_LoadLastFile.Checked := false;
@@ -1117,7 +1123,7 @@ begin
   begin
     FSize := 8;
     FColor := clWindowText;
-    FName := 'MS Sans Serif';
+    FName := 'Tahoma';
     FCharset := DEFAULT_CHARSET;
     FStyle := [];
   end;
@@ -1441,6 +1447,7 @@ begin
   Combo_BakLevel.Enabled := Checkbox_Backup.Checked;
   CB_BackupVNodes.Enabled := Checkbox_Backup.Checked;
   Edit_BakDir.Enabled := ( Checkbox_Backup.Checked and RB_BakUserDir.Checked );
+  TB_OpenDlgBakDir.Enabled:= Edit_BakDir.Enabled;
 end; // Checkbox_BackupClick
 
 procedure TForm_OptionsNew.CheckBox_TimerMinimizeClick(Sender: TObject);
@@ -1473,6 +1480,35 @@ begin
     Edit_HotKey.SetFocus;
 end;
 
+procedure TForm_OptionsNew.TB_OpenDlgBakDirClick(Sender: TObject);
+var
+  Dir: wideString;
+begin
+  if WideSelectDirectory('','', Dir) then
+     Edit_BakDir.Text:= Dir;
+
+  TB_OpenDlgBakDir.Down:= false;
+end;
+
+
+procedure TForm_OptionsNew.TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
+begin
+  Form_Main.OpenDlg.Filter := FILTER_WEB_BROWSER;
+  if Form_Main.OpenDlg.Execute then begin
+     Edit_URLAltBrowserPath.Text := Form_Main.OpenDlg.Filename;
+  end;
+  TB_OpenDlgURLAltBrowserPath.Down:= false;
+end;
+
+procedure TForm_OptionsNew.TB_OpenDlgUserFileClick(Sender: TObject);
+begin
+  Form_Main.OpenDlg.Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
+  if Form_Main.OpenDlg.Execute then begin
+     Edit_UserFile.Text := Form_Main.OpenDlg.Filename;
+  end;
+  TB_OpenDlgUserFile.Down:= false;
+end;
+
 procedure TForm_OptionsNew.TVChange(Sender: TObject; Node: TTreeNTNode);
 begin
   if ( not assigned( Node )) then exit;
@@ -1483,43 +1519,6 @@ begin
     messagedlg( Format( STR_16, [Pages.PageIndex, Node.AbsoluteIndex]), mtError, [mbOK], 0 );
   end;
 end;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 procedure TForm_OptionsNew.Button_AddTxtExtClick(Sender: TObject);
 var
@@ -1585,24 +1584,11 @@ begin
 end;
 
 
-
-
-
 procedure TForm_OptionsNew.RB_BakOriginalDirClick(Sender: TObject);
 begin
   Edit_BakDir.Enabled := RB_BakUserDir.Checked;
+  TB_OpenDlgBakDir.Enabled:= Edit_BakDir.Enabled;
 end;
-
-
-
-
-
-
-
-
-
-
-
 
 procedure TForm_OptionsNew.RB_ClipTreeActiveClick(Sender: TObject);
 begin

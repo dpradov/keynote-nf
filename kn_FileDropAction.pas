@@ -47,15 +47,15 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls,
-  kn_Const, kn_Info;
+  kn_Const, kn_Info, TntStdCtrls, TntExtCtrls;
 
 type
   TForm_DropFile = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
     PagesImp: TNotebook;
-    RG_Action: TRadioGroup;
-    Btn_HTML: TButton;
+    RG_Action: TTntRadioGroup;
+    Btn_HTML: TTntButton;
     RG_HTML: TRadioGroup;
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);

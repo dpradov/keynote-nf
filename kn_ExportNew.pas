@@ -53,45 +53,46 @@ uses
   kn_FileObj, kn_Ini, Spin, ComCtrls95,
   gf_misc, gf_files, kn_RTFUtils, FileCtrl,
   kn_TabSelect, RxRichEd, RichEdit, Buttons,
-  gf_strings;
+  gf_strings, TntDialogs, TntStdCtrls, TntSysUtils, TB97Ctls, TntExtCtrls;
 
 type
   TForm_ExportNew = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
-    Button_Help: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
+    Button_Help: TTntButton;
     Pages: TPage95Control;
     Tab_Main: TTab95Sheet;
     Tab_Options: TTab95Sheet;
     Tab_TreePad: TTab95Sheet;
-    GroupBox_Source: TGroupBox;
-    RB_CurrentNote: TRadioButton;
-    RB_AllNotes: TRadioButton;
-    RB_SelectedNotes: TRadioButton;
-    Button_Select: TButton;
-    Combo_TreeSelection: TComboBox;
-    GroupBox_Target: TGroupBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    Combo_Format: TComboBox;
-    CheckBox_PromptOverwrite: TCheckBox;
-    Edit_Folder: TDirectoryEdit;
-    CheckBox_Ask: TCheckBox;
-    GroupBox1: TGroupBox;
-    CB_IncNoteHeading: TCheckBox;
-    CB_IncNodeHeading: TCheckBox;
-    Edit_NodeHead: TComboBox;
-    Edit_NoteHead: TComboBox;
-    SaveDlg: TSaveDialog;
-    RG_TreePadVersion: TRadioGroup;
-    RG_TreePadMode: TRadioGroup;
-    RG_NodeMode: TRadioGroup;
+    GroupBox_Source: TTntGroupBox;
+    RB_CurrentNote: TTntRadioButton;
+    RB_AllNotes: TTntRadioButton;
+    RB_SelectedNotes: TTntRadioButton;
+    Button_Select: TTntButton;
+    Combo_TreeSelection: TTntComboBox;
+    GroupBox_Target: TTntGroupBox;
+    Label1: TTntLabel;
+    Label2: TTntLabel;
+    Combo_Format: TTntComboBox;
+    CheckBox_PromptOverwrite: TTntCheckBox;
+    Edit_Folder: TTntEdit;
+    CheckBox_Ask: TTntCheckBox;
+    GroupBox1: TTntGroupBox;
+    CB_IncNoteHeading: TTntCheckBox;
+    CB_IncNodeHeading: TTntCheckBox;
+    Edit_NodeHead: TTntComboBox;
+    Edit_NoteHead: TTntComboBox;
+    SaveDlg: TTntSaveDialog;
+    RG_TreePadVersion: TTntRadioGroup;
+    RG_TreePadMode: TTntRadioGroup;
+    RG_NodeMode: TTntRadioGroup;
     Btn_TknHlp: TBitBtn;
-    GroupBox2: TGroupBox;
-    CB_HTMLNoFormatting: TCheckBox;
-    RG_TreePadMaster: TRadioGroup;
-    CheckBox_ExcludeHiddenNodes: TCheckBox;
-    procedure RG_NodeModeClick(Sender: TObject);
+    GroupBox2: TTntGroupBox;
+    CB_HTMLNoFormatting: TTntCheckBox;
+    RG_TreePadMaster: TTntRadioGroup;
+    CheckBox_ExcludeHiddenNodes: TTntCheckBox;
+    TB_OpenDlgDir: TToolbarButton97;
+    procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -123,18 +124,18 @@ type
     procedure OptionsToForm;
     function Validate : boolean;
 
-    function FlushExportFile( const RTF : TRxRichEdit; FN : string ) : boolean;
+    function FlushExportFile( const RTF : TRxRichEdit; FN : wideString ) : boolean;
     procedure FlushTreePadData( var FileHandle : textfile; const Name : string; const Level : integer; const RTF : TRxRichEdit; const ClearRTF : boolean);
-    function GetExportFilename( const FN : string ) : string;
+    function GetExportFilename( const FN : wideString ) : wideString;
 
     function ConfirmAbort : boolean;
 
   end;
 
-function ExpandExpTokenString( const tpl, filename, notename, nodename : string; const nodelevel, nodeindex : integer ) : string;
-function LoadRTFHeadingTemplate( const Filename : string ) : string;
-function EscapeTextForRTF( const Txt : string ) : string;
-function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : string ) : string;
+function ExpandExpTokenString( const tpl, filename, notename, nodename : wideString; const nodelevel, nodeindex : integer ) : wideString;
+function LoadRTFHeadingTemplate( const Filename : wideString ) : wideString;
+function EscapeTextForRTF( const Txt : wideString ) : wideString;
+function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : wideString ) : wideString;
 
 procedure ExportNotesEx;
 procedure ExportTreeNode;
@@ -144,7 +145,7 @@ var
   Form_ExportNew: TForm_ExportNew;
 
 implementation
-uses kn_Main, kn_DLLmng, kn_TreeNoteMng;
+uses kn_Main, kn_DLLmng, kn_TreeNoteMng, WideStrings, TntSystem, TntFileCtrl;
 
 {$R *.DFM}
 
@@ -176,12 +177,12 @@ resourcestring
 
 
 function ExpandExpTokenString(
-  const tpl, filename, notename, nodename : string;
-  const nodelevel, nodeindex : integer ) : string;
+  const tpl, filename, notename, nodename : wideString;
+  const nodelevel, nodeindex : integer ) : wideString;
 var
   i, len : integer;
   wastokenchar : boolean;
-  thischar : char;
+  thischar : wideChar;
 begin
   result := '';
   len := length( tpl );
@@ -213,7 +214,7 @@ begin
             EXP_NODENAME : result := result + nodename;
             EXP_NODELEVEL : if ( nodelevel > 0 ) then result := result + inttostr( nodelevel );
             EXP_NODEINDEX : if ( nodeindex > 0 ) then result := result + inttostr( nodeindex );
-            EXP_FILENAME : result := result + extractfilename( filename );
+            EXP_FILENAME : result := result + WideExtractFilename( filename );
             else
             begin
               result := result + _TokenChar + thischar;
@@ -230,7 +231,7 @@ begin
 
 end; // ExpandExpTokenString
 
-function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : string ) : string;
+function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : wideString ) : wideString;
 var
   p : integer;
 begin
@@ -247,13 +248,13 @@ begin
   end;
 end; // MergeHeadingWithRTFTemplate
 
-function LoadRTFHeadingTemplate( const Filename : string ) : string;
+function LoadRTFHeadingTemplate( const Filename : WideString ) : WideString;
 var
-  ls : TStringList;
+  ls : TWideStringList;
 begin
   result := '';
-  if ( not fileexists( Filename )) then exit;
-  ls := TStringList.Create;
+  if ( not WideFileexists( Filename )) then exit;
+  ls := TWideStringList.Create;
   try
     try
       ls.LoadFromFile( Filename );
@@ -266,10 +267,10 @@ begin
   end;
 end; // LoadRTFHeadingTemplate
 
-function EscapeTextForRTF( const Txt : string ) : string;
+function EscapeTextForRTF( const Txt : wideString ) : wideString;
 var
   i, len : integer;
-  thisChar : char;
+  thisChar : wideChar;
 begin
   result := '';
   len := length( Txt );
@@ -392,13 +393,13 @@ end;
 
 procedure TForm_ExportNew.ReadConfig;
 var
-  IniFile : TIniFile;
+  IniFile : TWIniFile;
   section : string;
 begin
   InitializeExportOptions( ExportOptions );
   if ( not fileexists( myINIFN )) then exit;
 
-  IniFile := TIniFile.Create( myIniFN );
+  IniFile := TWIniFile.Create( myIniFN );
   try
     with IniFile do
     begin
@@ -415,9 +416,9 @@ begin
       ExportOptions.IndentUsingTabs := readbool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
       ExportOptions.IndentValue := readinteger( section, ExportOptionsIniStr.IndentValue, ExportOptions.IndentValue );
       }
-      ExportOptions.ExportPath := readstring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
-      ExportOptions.NodeHeading := readstring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
-      ExportOptions.NoteHeading := readstring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.NoteHeading );
+      ExportOptions.ExportPath := readstringW( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
+      ExportOptions.NodeHeading := readstringW( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
+      ExportOptions.NoteHeading := readstringW( section, ExportOptionsIniStr.NoteHeading, ExportOptions.NoteHeading );
       ExportOptions.SingleNodeFiles := readbool( section, ExportOptionsIniStr.SingleNodeFiles, ExportOptions.SingleNodeFiles );
       ExportOptions.TargetFormat := TExportFmt( readinteger( section, ExportOptionsIniStr.TargetFormat, ord( ExportOptions.TargetFormat )));
       ExportOptions.TreePadRTF := readbool( section, ExportOptionsIniStr.TreePadRTF, ExportOptions.TreePadRTF );
@@ -429,19 +430,24 @@ begin
     IniFile.Free;
   end;
 
-end; procedure TForm_ExportNew.RG_NodeModeClick(Sender: TObject);
+end; procedure TForm_ExportNew.TB_OpenDlgDirClick(Sender: TObject);
+var
+  Dir: wideString;
 begin
+  if WideSelectDirectory('','', Dir) then
+     Edit_Folder.Text:= Dir;
 
+  TB_OpenDlgDir.Down:= false;
 end;
 
 // ReadConfig
 
 procedure TForm_ExportNew.WriteConfig;
 var
-  IniFile : TIniFile;
+  IniFile : TWIniFile;
   section : string;
 begin
-  IniFile := TIniFile.Create( myIniFN );
+  IniFile := TWIniFile.Create( myIniFN );
   try
     with IniFile do
     begin
@@ -458,9 +464,9 @@ begin
       writebool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
       writeinteger( section, ExportOptionsIniStr.IndentValue, ExportOptions.IndentValue );
       }
-      writestring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
-      writestring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
-      writestring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.NoteHeading );
+      writestringW( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
+      writestringW( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
+      writestringW( section, ExportOptionsIniStr.NoteHeading, ExportOptions.NoteHeading );
       writebool( section, ExportOptionsIniStr.SingleNodeFiles, ExportOptions.SingleNodeFiles );
       writeinteger( section, ExportOptionsIniStr.TargetFormat, ord( ExportOptions.TargetFormat ));
       writebool( section, ExportOptionsIniStr.TreePadForceMaster, ExportOptions.TreePadForceMaster );
@@ -593,12 +599,12 @@ begin
   result := false;
   if ( ExportOptions.ExportPath = '' ) then
   begin
-    messagedlg( STR_02, mtError, [mbOK], 0 );
+    DoMessageBox( STR_02, mtError, [mbOK], 0 );
     exit;
   end;
-  if ( not directoryexists( ExportOptions.ExportPath )) then
+  if ( not WideDirectoryExists( ExportOptions.ExportPath )) then
   begin
-    messagedlg( STR_03, mtError, [mbOK], 0 );
+    DoMessageBox( STR_03, mtError, [mbOK], 0 );
     exit;
   end;
   result := true;
@@ -612,9 +618,9 @@ var
   //RTFForm : TForm_tmpRTF;            // [dpv]   (002)
   RTFAux : TRxRichEdit;                // [dpv]   (002)
 
-  NoteHeading, NodeHeading : string;
-  NoteHeadingRTF, NodeHeadingRTF : string;
-  NoteHeadingTpl, NodeHeadingTpl : string;
+  NoteHeading, NodeHeading : wideString;
+  NoteHeadingRTF, NodeHeadingRTF : wideString;
+  NoteHeadingTpl, NodeHeadingTpl : wideString;
   NodeText, ExitMessage : string;
   NodeTextSize : integer;
   StartLevel, ThisNodeIndex : integer;
@@ -624,7 +630,7 @@ var
   StartTreeNode, myTreeNode : TTreeNTNode;
   myNoteNode : TNoteNode;
   TreePadFile : textfile;
-  TreePadFN : string;
+  TreePadFN : wideString;
   TreePadNodeLevelInc : integer; // 0 or 1
   NodeStreamIsRTF : boolean;
 begin
@@ -816,6 +822,7 @@ begin
                           // each node is saved to its own file
                           // (Here we do not have to check if node stream is plain text or RTF,
                           // because LoadFromStream handles both cases automatically!)
+
                           RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
                           if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then
                           begin
@@ -876,7 +883,7 @@ begin
               if (( TreePadFN = '' ) or ( not ExportOptions.TreePadSingleFile )) then
               begin
                 if ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentNote )) then
-                  TreePadFN := GetExportFilename( extractfilename( myNotes.FileName )) // use file name
+                  TreePadFN := GetExportFilename( WideExtractFilename( myNotes.FileName )) // use file name
                 else
                   TreePadFN := GetExportFilename( RemoveAccelChar( myNote.Name )); // use note name
 
@@ -916,13 +923,13 @@ begin
 
                     writeln( TreePadFile, _TREEPAD_NODE ); // <node>
                     if ( ExportOptions.TreePadForceMaster or ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentNote ))) then
-                      writeln( TreePadFile, extractfilename( myNotes.Filename )) // Node title is filename
+                      writeln( TreePadFile, WideExtractFilename( myNotes.Filename )) // Node title is filename
                     else
                       writeln( TreePadFile, RemoveAccelChar( myNote.Name )); // Node title is note name
                     writeln( TreePadFile, '0' ); // top node level
 
                     // some node text:
-                    writeln( TreePadFile, STR_05, extractfilename( myNotes.Filename ));
+                    writeln( TreePadFile, STR_05, WideExtractFilename( myNotes.Filename ));
                     if ( myNotes.Description <> '' ) then
                       writeln( TreePadFile, STR_06, myNotes.Description );
                     if ( myNotes.Comment <> '' ) then
@@ -1061,7 +1068,7 @@ begin
 
 end; // FlushTreePadData
 
-function TForm_ExportNew.GetExportFilename( const FN : string ) : string;
+function TForm_ExportNew.GetExportFilename( const FN : wideString ) : wideString;
 var
   ext : string;
 begin
@@ -1091,9 +1098,9 @@ begin
     end;
   end;
 
-  result := ExportOptions.ExportPath + changefileext( MakeValidFilename( FN, [' '], MAX_FILENAME_LENGTH ), ext );
+  result := ExportOptions.ExportPath + WideChangefileext( MakeValidFilename( FN, [' '], MAX_FILENAME_LENGTH ), ext );
 
-  if ( ExportOptions.ConfirmFilenames or ( ExportOptions.ConfirmOverwrite and fileexists( result ))) then
+  if ( ExportOptions.ConfirmFilenames or ( ExportOptions.ConfirmOverwrite and WideFileexists( result ))) then
   begin
     SaveDlg.Filename := result;
     if SaveDlg.Execute then
@@ -1109,7 +1116,7 @@ begin
 
 end; // GetExportFilename
 
-function TForm_ExportNew.FlushExportFile( const RTF : TRxRichEdit; FN : string ) : boolean;
+function TForm_ExportNew.FlushExportFile( const RTF : TRxRichEdit; FN : wideString ) : boolean;
 var
   tmpStream : TMemoryStream;
   RTFText : string;
@@ -1125,11 +1132,13 @@ begin
     case ExportOptions.TargetFormat of
       xfPlainText : begin
         RTF.StreamFormat := sfPlainText;
-        RTF.Lines.SaveToFile( FN );
+        if RTF.TextW <> string(RTF.TextW) then
+           RTF.StreamMode := [smUnicode];
+        RTF.Lines.SaveToFile( WideStringToUTF8(FN) );
         result := true;
       end;
       xfRTF : begin
-        RTF.Lines.SaveToFile( FN );
+        RTF.Lines.SaveToFile( WideStringToUTF8(FN) );
         result := true;
       end;
       xfHTML : begin
@@ -1194,10 +1203,10 @@ procedure ExportTreeNode;
 var
   myTreeNode : TTreeNTNode;
   myNoteNode : TNoteNode;
-  oldFilter, ext, ExportFN : string;
+  oldFilter, ext: string;
+  ExportFN : wideString;
   exportformat : TExportFmt;
-  //Form_RTF : TForm_tmpRTF;         //*1   (002)
-  RTFAux : TRxRichEdit;              //*1   (002)
+  RTFAux : TRxRichEdit;
 
   ExportSelectionOnly : boolean;
 begin
@@ -1289,14 +1298,16 @@ begin
         try
           RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
           RTFAux.StreamFormat := sfPlainText;
-          RTFAux.Lines.SaveToFile( ExportFN );
+          if RTFAux.TextW <> string(RTFAux.TextW) then
+             RTFAux.StreamMode := [smUnicode];
+          RTFAux.Lines.SaveToFile( WideStringToUTF8(ExportFN) );
         finally
           RTFAux.Free;
         end;
       end;
     end;
 
-    Form_Main.Statusbar.Panels[PANEL_HINT].Text := STR_18 + extractfilename( ExportFN );
+    Form_Main.Statusbar.Panels[PANEL_HINT].Text := STR_18 + WideExtractFilename( ExportFN );
 
   except
     on E : Exception do

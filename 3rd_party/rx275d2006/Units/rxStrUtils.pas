@@ -115,6 +115,8 @@ function AnsiProperCase(const S: string; const WordDelims: TCharSet): string;
 { Returns string, with the first letter of each word in uppercase,
   all other letters in lowercase. Words are delimited by WordDelims. }
 
+function WideProperCase(const S: wideString; const WordDelims: TCharSet): wideString;
+
 function WordCount(const S: string; const WordDelims: TCharSet): Integer;
 { WordCount given a set of word delimiters, returns number of words in S. }
 
@@ -454,6 +456,21 @@ begin
     while (I <= SLen) and not (Result[I] in WordDelims) do Inc(I);
   end;
 end;
+
+function WideProperCase(const S: wideString; const WordDelims: TCharSet): wideString;
+var
+  SLen, I: Cardinal;
+begin
+  Result := wideLowerCase(S);
+  I := 1;
+  SLen := Length(Result);
+  while I <= SLen do begin
+    while (I <= SLen) and (Result[I] in WordDelims) do Inc(I);
+    if I <= SLen then Result[I] := WideUpperCase(Result[I])[1];
+    while (I <= SLen) and not (Result[I] in WordDelims) do Inc(I);
+  end;
+end;
+
 
 function WordCount(const S: string; const WordDelims: TCharSet): Integer;
 var

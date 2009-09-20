@@ -49,31 +49,31 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
   Placemnt, StdCtrls, ExtCtrls, Spin,
-  kn_NoteObj, kn_Info, RxRichEd, RichEdit;
+  kn_NoteObj, kn_Info, RxRichEd, RichEdit, TntStdCtrls;
 
 type
   TForm_Para = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
     FormPlacement: TFormPlacement;
-    GroupBox1: TGroupBox;
-    Combo_Spc: TComboBox;
+    GroupBox1: TTntGroupBox;
+    Combo_Spc: TTntComboBox;
     Spin_SpcBef: TSpinEdit;
     Spin_SpcAft: TSpinEdit;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
+    Label4: TTntLabel;
+    Label5: TTntLabel;
+    Label6: TTntLabel;
     RB_Align: TRadioGroup;
-    GroupBox2: TGroupBox;
+    GroupBox2: TTntGroupBox;
     Spin_First: TSpinEdit;
     Spin_Left: TSpinEdit;
     Spin_Right: TSpinEdit;
-    Label3: TLabel;
-    Label2: TLabel;
-    Label1: TLabel;
-    GroupBox3: TGroupBox;
-    CB_Bullets: TCheckBox;
-    CB_Numbers: TCheckBox;
+    Label3: TTntLabel;
+    Label2: TTntLabel;
+    Label1: TTntLabel;
+    GroupBox3: TTntGroupBox;
+    CB_Bullets: TTntCheckBox;
+    CB_Numbers: TTntCheckBox;
     procedure GroupBox1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);

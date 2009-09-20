@@ -423,7 +423,7 @@ begin
                           true, false
                         ))
                     else
-                      OutData := ActiveNote.Editor.Lines.GetText;
+                      OutData := PChar(string(ActiveNote.Editor.Lines.GetText));
 
                   end;
                 end;
@@ -439,7 +439,7 @@ begin
                       true, false
                     ))
                 else
-                  OutData := ActiveNote.Editor.Lines.GetText;
+                  OutData := PChar(string(ActiveNote.Editor.Lines.GetText));
               end;
             end;
 

@@ -15,7 +15,7 @@ var
     SearchInProgress : boolean; // TRUE while searching or replacing
     UserBreak : boolean;
 
-    SearchNode_Text, SearchNode_TextPrev : string;
+    SearchNode_Text, SearchNode_TextPrev : wideString;
 
     _Executing_History_Jump : boolean;
     _LastMoveWasHistory : boolean;
@@ -189,7 +189,7 @@ begin
     end
     else
     begin
-      MessageBoxW(Form_Main.Handle, PWideChar(WideFormat( STR_02, [Text_To_Find] )),PWideChar(WideString(STR_12)),0);
+      DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
     end;
   finally
     Is_Replacing := false;
@@ -219,7 +219,7 @@ begin
     end
     else
     begin
-      messagedlg( Format(
+      DoMessageBox( WideFormat(
         STR_03,
         [aLocation.NoteName] ), mtWarning, [mbOK], 0 );
       exit;
@@ -236,7 +236,7 @@ begin
     end
     else
     begin
-      messagedlg( Format(
+      messagedlg( WideFormat(
         STR_04,
         [aLocation.NodeName, aLocation.NoteName] ), mtWarning, [mbOK], 0 );
       exit;
@@ -326,7 +326,7 @@ var
 
         procedure AddLocation; // INLINE
         var
-          path : string;
+          path : wideString;
         begin
           if assigned( myTreeNode ) then
           begin
@@ -335,7 +335,7 @@ var
             nodeToFilter:= false;      // [dpv]
             nodesSelected:= true;      // [dpv]
           end;
-          path := Format( '%d. %s', [Counter, PathOfKNTLink(myTreeNode, myNote, location.CaretPos)] );
+          path := WideFormat( '%d. %s', [Counter, PathOfKNTLink(myTreeNode, myNote, location.CaretPos)] );
 
           Location_List.AddObject(
             path,
@@ -771,7 +771,7 @@ begin
       end
       else
       begin
-        MessageBoxW(Form_Main.Handle, PWideChar(WideFormat( STR_02, [FindOptions.Pattern] )),PWideChar(WideString(STR_12)),0);
+        DoMessageBox(WideFormat( STR_02, [FindOptions.Pattern] ), STR_12, 0);
       end;
 
     except
@@ -1035,7 +1035,7 @@ begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
       if ( not ( UserBreak or Is_Replacing )) then
 //        messagedlg( WideFormat( STR_02, [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
-       MessageBoxW(Form_Main.Handle, PWideChar(WideFormat( STR_02, [Text_To_Find] )),PWideChar(WideString(STR_12)),0);
+       DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
     end;
 
     UserBreak := false;
@@ -1243,7 +1243,7 @@ begin
   end
   else
   begin
-    MessageBoxW(Form_Main.Handle, PWideChar(WideFormat( STR_02, [Text_To_Find] )),PWideChar(WideString(STR_12)),0);
+    DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
   end;
 
 end; // ReplaceEventProc

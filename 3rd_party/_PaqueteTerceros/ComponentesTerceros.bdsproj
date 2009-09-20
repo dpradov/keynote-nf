@@ -123,7 +123,7 @@
 			<Directories Name="UnitOutputDir">..\..\..\Output\Dcu</Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">$(BDS)\source\ToolsAPI;..</Directories>
+			<Directories Name="SearchPath">$(BDS)\source\ToolsAPI;..\..\; ..\TntUnicodeControls\Source; ..\rx275d2006\Units</Directories>
 			<Directories Name="Packages"></Directories>
 			<Directories Name="Conditionals"></Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
@@ -170,8 +170,10 @@
 			<VersionInfoKeys Name="ProductName"></VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments"></VersionInfoKeys>
-		</VersionInfoKeys>
-	</Delphi.Personality>
+		</VersionInfoKeys>  <Excluded_Packages>
+      <Excluded_Packages Name="D:\PERSONAL_Dani\Mis documentos\Borland Studio Projects\Bpl\ComponentesTerceros.bpl">Componentes de Terceros (3rd Party Components)</Excluded_Packages>
+    </Excluded_Packages>
+  </Delphi.Personality>
 	<StarTeamAssociation></StarTeamAssociation>
 	<StarTeamNonRelativeFiles></StarTeamNonRelativeFiles>
 </BorlandProject>

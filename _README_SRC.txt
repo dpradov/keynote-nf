@@ -1,6 +1,27 @@
+
 ==============================================
 KeyNote NF: SOURCE CODE README
 ==============================================
+
+20 sept 2009: 
+
+Third party's Units and components
+------------------------------
+* Due to changes made to suit RxRichEd to Unicode, is necessary to make a little change in code 
+  of function "CreateWindowHandle" before installing the library 'RX Library 2.75' in Delphi:
+   - Comment the line "CustomCreateWindowHandle (..."
+   - Uncomment the line "inherited CreateWindowHandle (..."
+
+ After installing the component you must undo the changes in the code so that KeyNote NF works Ok.
+ I have found it to be necessary because of a problem with Delphi IDE, in design mode.
+
+
+
+* Besides the old third party's components, you must install a new one: TntWare Unicode Controls
+  The design package is in the folder:  3rd_party\TntUnicodeControls\Delphi\bds4
+
+
+----------------
 
 KeyNote NF source code is hosted by Google Code, to get the code see here: 
  http://code.google.com/p/keynote-nf/source/checkout 
@@ -24,8 +45,9 @@ In the case of commiting to subversion, clients must be configured
 to ignore certain files and folders. I use Tortoise, and in the 
 "Global Ignore Pattern" I have set the following value:
 
-*.identcache *.~* *.dcu *.dsk *.dll *.exe *.bdsproj.local *.cfg */ModelSupport_keynote 
+*.identcache *.~* *.dcu *.DCU *.dsk *.dll *.exe *.drc *.bdsproj.local *.cfg */ModelSupport_keynote 
  ModelSupport_keynote */__history __history
+
 
 
 
@@ -75,12 +97,19 @@ accommodate new versions of Delphi; for it, it has been copied to the
 folders of other components and has been added the line {$ I DFS.INC} 
 to the necessary .pas files.
 
+Initially the changes made by me have been marked with the comment "// [dpv]". 
+Since KeyNote NF is hosted in Google Code and all the changes are clearly 
+visibles with Subversion I'm not marking new modifications.
+
+
 Before opening Keynote projects is needed to install the following components:
 
 *Most of the components are included in a packet named "_PaqueteTerceros"
 
 *RX Library 2.75 port to Delphi 2006 (Win32), v1.0 (by Oleg Fedorov)
    --> 'rx275d2006. Follow the signs for the file "readme.txt" for installation
+
+   **NOTE**: See the coment at the beginning, to date 20 sept 2009 
 
 *DCPcrypt v1.3      David Barton (davebarton@bigfoot.com)
    --> 'dcpcrypt-1_3'  (It has been installed package DCP_d4.bdsproj)
@@ -142,7 +171,11 @@ ligeramente modificado para contemplar nuevas versiones de Delphi; para
 ello se ha copiado a las carpetas de otros componentes y se ha añadido
 la línea {$I DFS.INC} a los ficheros .pas necesarios.
 
-Las modificaciones se han marcado con el comentario: // [dpv]
+Inicialmente las modificaciones eran marcadas con el comentario "// [dpv]". 
+Desde que KeyNote NF reside en Google Code y todos los cambios se pueden
+seguir claramente mediante Subverson, no estoy señalando esas modificaciones.
+Es fácil determinar los cambios con respecto a los fuentes originales
+
 
 Antes de abrir los proyectos Keynote es preciso instalar los componentes
 de terceros en los que se apoya:
@@ -153,6 +186,7 @@ de terceros en los que se apoya:
 *RX Library 2.75 port to Delphi 2006 (Win32), v1.0 (by Oleg Fedorov)
    --> 'rx275d2006. Seguir las indicaciones del fichero readme.txt para su 
        instalación
+   **NOTA**: Vea los comentarios al inicio, de fecha 20 sept 2009
 *DCPcrypt v1.3      David Barton (davebarton@bigfoot.com)
    --> 'dcpcrypt-1_3'  (Se ha instalado el paquete DCP_d4.bdsproj)
 

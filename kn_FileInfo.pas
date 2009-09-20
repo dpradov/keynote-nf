@@ -52,67 +52,71 @@ uses
   ComCtrls, gf_misc, gf_files,
   kn_Info, kn_NoteObj, kn_FileObj,
   kn_Const, ExtCtrls, Placemnt,
-  ShellAPI, Mask, ToolEdit;
+  ShellAPI, Mask, ToolEdit, TntStdCtrls, TntDialogs, TB97Ctls;
 
 type
   TForm_FileInfo = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
     Pages: TPageControl;
     Tab_Main: TTabSheet;
-    GroupBox1: TGroupBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label_Created: TLabel;
-    Label_Modified: TLabel;
-    Label5: TLabel;
-    Label_Count: TLabel;
-    Edit_Comment: TEdit;
-    Label7: TLabel;
-    Label_FileSize: TLabel;
-    Label11: TLabel;
-    Label12: TLabel;
-    Label_FileNotFound: TLabel;
-    Label6: TLabel;
-    Edit_Description: TEdit;
-    Label8: TLabel;
-    Combo_Format: TComboBox;
+    GroupBox1: TTntGroupBox;
+    Label1: TTntLabel;
+    Label2: TTntLabel;
+    Label3: TTntLabel;
+    Label4: TTntLabel;
+    Label_Created: TTntLabel;
+    Label_Modified: TTntLabel;
+    Label5: TTntLabel;
+    Label_Count: TTntLabel;
+    Edit_Comment: TTntEdit;
+    Label7: TTntLabel;
+    Label_FileSize: TTntLabel;
+    Label11: TTntLabel;
+    Label12: TTntLabel;
+    Label_FileNotFound: TTntLabel;
+    Label6: TTntLabel;
+    Edit_Description: TTntEdit;
+    Label8: TTntLabel;
+    Combo_Format: TTntComboBox;
     Bevel2: TBevel;
     Tab_Pass: TTabSheet;
-    GroupBox2: TGroupBox;
-    Label_Confirm: TLabel;
-    Label_Pass: TLabel;
-    Label_Method: TLabel;
-    Edit_Confirm: TEdit;
-    Edit_Pass: TEdit;
-    Combo_Method: TComboBox;
-    Button_SetPass: TButton;
-    Label_EnterPass: TLabel;
+    GroupBox2: TTntGroupBox;
+    Label_Confirm: TTntLabel;
+    Label_Pass: TTntLabel;
+    Label_Method: TTntLabel;
+    Edit_Confirm: TTntEdit;
+    Edit_Pass: TTntEdit;
+    Combo_Method: TTntComboBox;
+    Button_SetPass: TTntButton;
+    Label_EnterPass: TTntLabel;
     Tab_Settings: TTabSheet;
-    GroupBox3: TGroupBox;
+    GroupBox3: TTntGroupBox;
     Bevel1: TBevel;
-    CB_AsReadOnly: TCheckBox;
-    Label_IsReadOnly: TLabel;
+    CB_AsReadOnly: TTntCheckBox;
+    Label_IsReadOnly: TTntLabel;
     FormPlacement: TFormPlacement;
-    CB_HidePass: TCheckBox;
-    Edit_FileName: TEdit;
+    CB_HidePass: TTntCheckBox;
+    Edit_FileName: TTntEdit;
     Tab_Icons: TTabSheet;
-    GroupBox4: TGroupBox;
-    CB_ShowTabIcons: TCheckBox;
-    Edit_TabImg: TFilenameEdit;
-    CB_TrayIcon: TCheckBox;
-    Edit_TrayIcon: TFilenameEdit;
+    GroupBox4: TTntGroupBox;
+    CB_ShowTabIcons: TTntCheckBox;
+    CB_TrayIcon: TTntCheckBox;
     Image_TrayIcon: TImage;
     Bevel3: TBevel;
-    RB_TabImgDefault: TRadioButton;
-    RB_TabImgBuiltIn: TRadioButton;
-    RB_TabImgOther: TRadioButton;
-    Button_System: TButton;
-    Button_Help: TButton;
-    LB_RTF3: TLabel;
-    CB_NoMultiBackup: TCheckBox;
+    RB_TabImgDefault: TTntRadioButton;
+    RB_TabImgBuiltIn: TTntRadioButton;
+    RB_TabImgOther: TTntRadioButton;
+    Button_System: TTntButton;
+    Button_Help: TTntButton;
+    LB_RTF3: TTntLabel;
+    CB_NoMultiBackup: TTntCheckBox;
+    TB_OpenDlgTrayIcon: TToolbarButton97;
+    Edit_TrayIcon: TTntEdit;
+    TB_OpenDlgTabImg: TToolbarButton97;
+    Edit_TabImg: TTntEdit;
+    procedure TB_OpenDlgTrayIconClick(Sender: TObject);
+    procedure TB_OpenDlgTabImgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure Combo_MethodChange(Sender: TObject);
@@ -126,13 +130,9 @@ type
     procedure Edit_PassChange(Sender: TObject);
     procedure CheckBox_AsReadOnlyClick(Sender: TObject);
     procedure CheckBox_HidePassClick(Sender: TObject);
-    procedure Edit_TrayIconAfterDialog(Sender: TObject; var Name: String;
-      var Action: Boolean);
     procedure CheckBox_TrayIconClick(Sender: TObject);
     procedure CheckBox_ShowTabIconsClick(Sender: TObject);
     procedure RB_TabImgOtherClick(Sender: TObject);
-    procedure Edit_TabImgAfterDialog(Sender: TObject; var Name: String;
-      var Action: Boolean);
     procedure Button_SystemClick(Sender: TObject);
     procedure Button_HelpClick(Sender: TObject);
   private
@@ -153,6 +153,7 @@ const
   _FILE_TABIMAGES_SELECTION_CHANGED : boolean = false;
 
 implementation
+uses kn_main, gf_miscvcl, TntClasses, TntSysUtils;
 
 {$R *.DFM}
 
@@ -220,14 +221,14 @@ begin
   if assigned( myNotes ) then
   begin
     // TAB_MAIN
-    Caption := STR_02 + extractfilename( myNotes.FileName );
+    Caption := STR_02 + WideExtractFilename( myNotes.FileName );
     Edit_FileName.Text := myNotes.FileName;
     Label_Count.Caption := inttostr( myNotes.NoteCount );
     Edit_Comment.Text := myNotes.Comment;
     Edit_Description.Text := myNotes.Description;
     label_Created.Caption := FormatDateTime( LongDateFormat + #32 + LongTimeFormat, myNotes.DateCreated );
     Combo_Format.ItemIndex := ord( myNotes.FileFormat );
-    if fileexists( myNotes.FileName ) then
+    if WideFileexists( myNotes.FileName ) then
     begin
       fs := GetFileSize( myNotes.FileName );
       if ( fs < 1025 ) then
@@ -248,7 +249,7 @@ begin
       Label_FileNotFound.Visible := true;
       label_Modified.Caption := STR_05;
     end;
-    CB_AsReadOnly.Caption := Format( STR_06, [extractfilename( myNotes.FileName )] );
+    CB_AsReadOnly.Caption := WideFormat( STR_06, [WideExtractFilename( myNotes.FileName )] );
     CB_AsReadOnly.Checked := ( myNotes.OpenAsReadOnly or myNotes.ReadOnly );
     Label_IsReadOnly.Visible := myNotes.ReadOnly;
     CB_NoMultiBackup.Checked := myNotes.NoMultiBackup;
@@ -465,7 +466,7 @@ begin
   begin
     if (( not CB_AsReadOnly.Checked ) and myNotes.ReadOnly ) then
     begin
-      if ( messagedlg( format(STR_12,[extractfilename( myNotes.FileName )]), mtWarning, [mbYes,mbNo], 0 ) = mrYes ) then
+      if ( DoMessageBox( WideFormat(STR_12,[WideExtractFilename( myNotes.FileName )]), mtWarning, [mbYes,mbNo], 0 ) = mrYes ) then
         CB_AsReadOnly.OnClick := nil
       else
         CB_AsReadOnly.Checked := true;
@@ -496,20 +497,11 @@ begin
   Label_EnterPass.Visible := true;
 end; // EnablePassControls
 
-procedure TForm_FileInfo.Edit_TrayIconAfterDialog(Sender: TObject;
-  var Name: String; var Action: Boolean);
-var
-  fn : string;
-begin
-  fn := normalfn( name );
-  Action := ( Action and fileexists( fn ));
-  if Action then
-    Image_TrayIcon.Picture.LoadFromFile( fn );
-end;
 
 procedure TForm_FileInfo.CheckBox_TrayIconClick(Sender: TObject);
 begin
   Edit_TrayIcon.Enabled := CB_TrayIcon.Checked;
+  TB_OpenDlgTrayIcon.Enabled := Edit_TrayIcon.Enabled;
   Image_TrayIcon.Visible := Edit_TrayIcon.Enabled;
 end;
 
@@ -519,19 +511,44 @@ begin
   RB_TabImgBuiltIn.Enabled := RB_TabImgDefault.Enabled;
   RB_TabImgOther.Enabled := RB_TabImgDefault.Enabled;
   Edit_TabImg.Enabled := ( RB_TabImgDefault.Enabled and RB_TabImgOther.Checked );
+  TB_OpenDlgTabImg.Enabled := Edit_TabImg.Enabled;
 end;
 
 procedure TForm_FileInfo.RB_TabImgOtherClick(Sender: TObject);
 begin
   _FILE_TABIMAGES_SELECTION_CHANGED := true;
   Edit_TabImg.Enabled := ( RB_TabImgOther.Enabled and RB_TabImgOther.Checked );
+  TB_OpenDlgTabImg.Enabled := Edit_TabImg.Enabled;
 end;
 
 
-procedure TForm_FileInfo.Edit_TabImgAfterDialog(Sender: TObject;
-  var Name: String; var Action: Boolean);
+procedure TForm_FileInfo.TB_OpenDlgTabImgClick(Sender: TObject);
+var
+  Action: Boolean;
 begin
+  Form_Main.OpenDlg.Filter:= FILTER_TABIMAGES;
+  Action:= Form_Main.OpenDlg.Execute;
+  if Action then begin
+     Edit_TabImg.Text := Form_Main.OpenDlg.Filename;
+  end;
+  TB_OpenDlgTabImg.Down:= false;
   _FILE_TABIMAGES_SELECTION_CHANGED := ( _FILE_TABIMAGES_SELECTION_CHANGED or Action );
+end;
+
+procedure TForm_FileInfo.TB_OpenDlgTrayIconClick(Sender: TObject);
+var
+  fn : String;
+  Action: boolean;
+begin
+  Form_Main.OpenDlg.Filter:= FILTER_ICONS;
+  Action:= Form_Main.OpenDlg.Execute;
+  fn := normalfn( Form_Main.OpenDlg.Filename );
+  Action := ( Action and Fileexists( fn ));
+  if Action then begin
+    Edit_TrayIcon.Text:= fn;
+    Image_TrayIcon.Picture.LoadFromFile( fn );
+  end;
+  TB_OpenDlgTrayIcon.Down:= false;
 end;
 
 procedure TForm_FileInfo.Button_SystemClick(Sender: TObject);

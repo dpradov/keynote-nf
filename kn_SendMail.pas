@@ -57,46 +57,46 @@ uses
   gf_misc, gf_strings, wsocket,
   kn_FileObj, kn_NoteObj, ExtCtrls,
   RxRichEd, TreeNT, kn_NodeList,
-  gf_files, kn_INI, GFLog;
+  gf_files, kn_INI, GFLog, TntStdCtrls;
 
 type
   TForm_Mail = class(TForm)
-    Button_OK: TButton;
-    Button_Cancel: TButton;
+    Button_OK: TTntButton;
+    Button_Cancel: TTntButton;
     Pages: TPageControl;
     Tab_Send: TTabSheet;
     Tab_SMTP: TTabSheet;
-    GroupBox_Source: TGroupBox;
-    RB_Current: TRadioButton;
-    RB_All: TRadioButton;
-    RB_File: TRadioButton;
-    GroupBox1: TGroupBox;
-    RB_PlainText: TRadioButton;
-    RB_RTF: TRadioButton;
-    GroupBox2: TGroupBox;
-    Label1: TLabel;
-    Combo_TO: TComboBox;
-    Label2: TLabel;
-    Edit_Subject: TEdit;
-    Label3: TLabel;
-    Combo_CC: TComboBox;
-    GroupBox3: TGroupBox;
+    GroupBox_Source: TTntGroupBox;
+    RB_Current: TTntRadioButton;
+    RB_All: TTntRadioButton;
+    RB_File: TTntRadioButton;
+    GroupBox1: TTntGroupBox;
+    RB_PlainText: TTntRadioButton;
+    RB_RTF: TTntRadioButton;
+    GroupBox2: TTntGroupBox;
+    Label1: TTntLabel;
+    Combo_TO: TTntComboBox;
+    Label2: TTntLabel;
+    Edit_Subject: TTntEdit;
+    Label3: TTntLabel;
+    Combo_CC: TTntComboBox;
+    GroupBox3: TTntGroupBox;
     SmtpCli: TSmtpCli;
-    Label4: TLabel;
-    Edit_SMTPServer: TEdit;
-    Label5: TLabel;
-    Edit_Port: TEdit;
-    Label6: TLabel;
-    Edit_From: TEdit;
-    Label7: TLabel;
-    Combo_Charset: TComboBox;
-    Label_Status: TLabel;
+    Label4: TTntLabel;
+    Edit_SMTPServer: TTntEdit;
+    Label5: TTntLabel;
+    Edit_Port: TTntEdit;
+    Label6: TTntLabel;
+    Edit_From: TTntEdit;
+    Label7: TTntLabel;
+    Combo_Charset: TTntComboBox;
+    Label_Status: TTntLabel;
     GFLog: TGFLog;
-    CheckBox_Log: TCheckBox;
-    Label8: TLabel;
-    Edit_FirstLine: TEdit;
-    Button_Help: TButton;
-    CheckBox_ExcludeHiddenNodes: TCheckBox;
+    CheckBox_Log: TTntCheckBox;
+    Label8: TTntLabel;
+    Edit_FirstLine: TTntEdit;
+    Button_Help: TTntButton;
+    CheckBox_ExcludeHiddenNodes: TTntCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -148,7 +148,7 @@ type
 function SMTPErrorDesc( Error : integer ) : string;
 
 implementation
-
+uses TntSystem, TntSysUtils;
 {$R *.DFM}
 
 resourcestring
@@ -515,7 +515,8 @@ end; // AddNoteToMailMessage
 
 procedure TForm_Mail.SendEmail;
 var
-  s, buf : string;
+  s: wideString;
+  buf : string;
   i, cnt : Integer;
   Lines : TStringList;
 begin
@@ -629,9 +630,9 @@ begin
       begin
         if RB_Current.Checked then
         begin
-          s := extractfilepath( myINI_FN ) + MakeValidFileName( myCurNoteName, [], MAX_FILENAME_LENGTH ) + ext_RTF;
+          s := WideExtractfilepath( myINI_FN ) + MakeValidFileName( myCurNoteName, [], MAX_FILENAME_LENGTH ) + ext_RTF;
           GFLog.Add( 'Attaching: ' + s );
-          myActiveNote.Editor.Lines.SaveToFile( s );
+          myActiveNote.Editor.Lines.SaveToFile( WideStringToUTF8(s) );
           SMTPCli.MailMessage.Add( ExpandTokenLine( MailOptions.FirstLine ));
           // SMTPCli.MailMessage.Add( Padding + ' Note: ' + myCurNoteName + ' ' + Padding );
           SMTPCli.EmailFiles.Add( s );
