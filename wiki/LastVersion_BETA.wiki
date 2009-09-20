@@ -23,3 +23,11 @@ http://groups.google.com/group/keynote-nf/files
 * I forgot to say that language files (.lng) are specific to each version. So, if Beta version doesn't include languages files, you will have to try it in English *
 
 Soon I will publish a new BETA (this one with language files included, probably) with the following improvement: all the functionality of the program will manage properly UNICODE strings.
+
+<br><br>
+20 sept 2009: <br>
+I have uploaded a new executable (*1.7.7 Beta 2*) that includes the issue mentioned:
+
+  * Issue #139: Make !KeyNote NF Unicode compliant
+
+Before releasing the new version of !KeyNote NF I will correct some of the defects identified in the issue list.
