@@ -810,11 +810,17 @@ var
     TextLen: Integer;
     startCmdHyperlink, endCmdHyperlink: integer;
     Hyperlink, TextHyperlink: wideString;
+    _selectionLenght:Integer;
+    _selectStart: Integer;
  begin
-        TextLen:= ActiveNote.Editor.TextLength;
+    TextLen:= ActiveNote.Editor.TextLength;
 
-        ActiveNote.Editor.BeginUpdate;
+    ActiveNote.Editor.BeginUpdate;
 
+    _selectStart := ActiveNote.Editor.SelStart;
+    _selectionLenght := ActiveNote.Editor.SelLength;
+
+    try
         p:= 0;
         repeat
             p:= ActiveNote.Editor.FindText('HYPERLINK', p, TextLen, [stWholeWord, stMatchCase]);
@@ -866,7 +872,11 @@ var
             p:= endCmdHyperlink +1;
         until (p < 0) or (p >= TextLen);
 
-        ActiveNote.Editor.EndUpdate;
+    Finally
+        ActiveNote.Editor.SelStart:= _selectStart;
+        ActiveNote.Editor.SelLength:= _selectionLenght;
+    End;
+    ActiveNote.Editor.EndUpdate;
 
 End;
 
