@@ -32,7 +32,7 @@ uses
     // clipboard capture and paste
     procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
     procedure SetClipCapState( const IsOn : boolean );
-    procedure PasteOnClipCap;
+    procedure PasteOnClipCap (ClpStr: WideString);
     procedure PasteAsWebClip;
     procedure PasteIntoNew( const AsNewNote : boolean );
 
@@ -1317,10 +1317,9 @@ end; // SetClipCapState
 //=================================================================
 // PasteOnClipCap
 //=================================================================
-procedure PasteOnClipCap;
+procedure PasteOnClipCap (ClpStr: WideString);
 var
   DividerString: string;
-  ClpStr : WideString;
   i : integer;
   wavfn: string;
   myNodeName : wideString;
@@ -1333,7 +1332,6 @@ begin
         myTreeNode := nil;
 
 
-        _IS_CAPTURING_CLIPBOARD := true;
         // TrayIcon.Icon := TrayIcon.Icons[1];
         LoadTrayIcon( not ClipOptions.SwitchIcon ); // flash tray icon
 
@@ -1477,7 +1475,6 @@ begin
             sleep( ClipOptions.SleepTime * 100 ); // in tenths of a second; default: 5 = half a second
             LoadTrayIcon( ClipOptions.SwitchIcon ); // unflash tray icon
           end;
-          _IS_CAPTURING_CLIPBOARD := false;
         end;
   end;
 
@@ -1523,7 +1520,7 @@ begin
     NoteFile.ClipCapNote := ActiveNote;
     ClipCapNode := nil;
 
-    PasteOnClipCap; // reuse this routine... ugliness, but that's all we can do now
+    PasteOnClipCap(ClipboardAsStringW); // reuse this routine... ugliness, but that's all we can do now
 
   finally
     ClipOptions.Divider := oldDividerString;

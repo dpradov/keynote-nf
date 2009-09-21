@@ -4044,34 +4044,41 @@ begin
 
   if ( _IS_CAPTURING_CLIPBOARD or _IS_CHAINING_CLIPBOARD ) then exit;
 
-  if ( ClipCapActive and assigned( NoteFile ) and ( NoteFile.ClipCapNote <> nil )) then
-  begin
-    if (( GetActiveWindow <> self.Handle ) or // only when inactive
-       (( not ClipOptions.IgnoreSelf ) and // explicitly configured to capture from self...
-       ( not ( NoteFile.ClipCapNote = ActiveNote )))) then // but never capture text copied from the note that is being used for capture
-       begin
-          // test for duplicates
-          ClpStr := ClipboardAsStringW;
-          if ( ClipOptions.TestDupClips and ( ClpStr <> '' )) then
-          begin
-            try
-              CalcCRC32( addr( ClpStr[1] ), length( ClpStr ), thisClipCRC32 );
-            except
-              on E : Exception do
-              begin
-                messagedlg( STR_28 + E.Message, mtError, [mbOK], 0 );
-                ClipOptions.TestDupClips := false;
-                exit;
-              end;
-            end;
-            if ( thisClipCRC32 = ClipCapCRC32 ) then
-              exit; // ignore duplicate clips
-            ClipCapCRC32 := thisClipCRC32; // set value for next test
-          end;
+  _IS_CAPTURING_CLIPBOARD:= True;
+  try
 
-          // ok to paste
-          PasteOnClipCap;
-       end;
+      if ( ClipCapActive and assigned( NoteFile ) and ( NoteFile.ClipCapNote <> nil )) then
+      begin
+        if (( GetActiveWindow <> self.Handle ) or // only when inactive
+           (( not ClipOptions.IgnoreSelf ) and // explicitly configured to capture from self...
+           ( not ( NoteFile.ClipCapNote = ActiveNote )))) then // but never capture text copied from the note that is being used for capture
+           begin
+              // test for duplicates
+              ClpStr := ClipboardAsStringW;
+              if ( ClipOptions.TestDupClips and ( ClpStr <> '' )) then
+              begin
+                try
+                  CalcCRC32( addr( ClpStr[1] ), length( ClpStr ), thisClipCRC32 );
+                except
+                  on E : Exception do
+                  begin
+                    messagedlg( STR_28 + E.Message, mtError, [mbOK], 0 );
+                    ClipOptions.TestDupClips := false;
+                    exit;
+                  end;
+                end;
+                if ( thisClipCRC32 = ClipCapCRC32 ) then
+                  exit; // ignore duplicate clips
+                ClipCapCRC32 := thisClipCRC32; // set value for next test
+              end;
+
+              // ok to paste
+              if ClpStr <> '' then
+                 PasteOnClipCap(ClpStr);
+           end;
+      end;
+  finally
+     _IS_CAPTURING_CLIPBOARD:= False;
   end;
 end; // WMDrawClipboard
 

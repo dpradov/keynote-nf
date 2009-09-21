@@ -154,17 +154,21 @@ function TClipboardW.GetAsTextW: wideString;
 var
   Data: THandle;
 begin
-    Clipboard.Open;
-    Data := GetClipboardData(CF_UNICODETEXT);
     try
-      if Data <> 0 then begin
-        Result := PWideChar(GlobalLock(Data));
-      end
-      else
-        Result := '';
-    finally
-      if Data <> 0 then GlobalUnlock(Data);
-      Clipboard.Close;
+      Clipboard.Open;
+      try
+        Data := GetClipboardData(CF_UNICODETEXT);
+        if Data <> 0 then begin
+          Result := PWideChar(GlobalLock(Data));
+        end
+        else
+          Result := '';
+      finally
+        if Data <> 0 then GlobalUnlock(Data);
+        Clipboard.Close;
+      end;
+    except
+       Result:= '';
     end;
 end;
 
