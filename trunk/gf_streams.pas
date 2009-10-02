@@ -341,44 +341,38 @@ end;
 function TWTextFile.Readln: string;
 var
    i: integer;
-   Found: integer;
    cad: string;
    lineReaden: boolean;
+   nCrLf: integer;
 begin
 
    Result:= '';
    if not assigned (F) or (posF=0) then exit;
 
    lineReaden:= false;
-   Found:= 0;
+   nCrLf:= 0;
    repeat
      i:= posI;
      if i <= posF then begin
-       while (Found < 2) and (i <= posF) do begin
-           if buffer[i] = #13 then
-              Found:= 1
-           else if (Found=1) and (buffer[i] = #10) then
-              Found:= 2
-           else
-              Found:= 0;
+       while (not lineReaden) and (i <= posF) do begin
+           if (buffer[i] = #13) or (buffer[i] = #10) then begin
+              nCrLf:= nCrLf + 1;
+              if buffer[i] = #10 then
+                 lineReaden:= True;
+           end;
            i:= i + 1;
        end;
-       SetString(cad, PChar(@buffer[posI]), (i-posI)-Found);
+       SetString(cad, PChar(@buffer[posI]), i-posI - nCrLf);
        Result:= Result + cad;
      end;
 
-     if found= 2 then begin
-        lineReaden:= true;
-        found:= 0;
-     end;
-
-     if i <= posF then
-        posI:= i
+     if i <= posF then begin
+        posI:= i;
+     end
      else
         if F.Position < F.Size then begin
-           buffer[0]:= #13;             // If found=1 the it will be overwritten
-           posF:= F.Read(PChar(@buffer[found])^, bufSize-found) + found -1;
-           posI:= 0 + found;
+           posF:= F.Read(buffer[0], bufSize) -1;
+           posI:= 0;
         end
         else begin
            lineReaden:= true;    // We have reached final of the file

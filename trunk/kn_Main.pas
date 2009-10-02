@@ -1343,7 +1343,7 @@ type
     procedure FilterRemoved (note: TTreeNote);   // [dpv]
   end;
 
-function GetFilePassphrase( const FN : string ) : string;
+function GetFilePassphrase( const FN : wideString ) : string;
 function IsAParentOf( aPerhapsParent, aChild : TTreeNTNode ) : boolean;
 
 
@@ -1473,7 +1473,7 @@ const
 
 // callback from TNoteFile, to prompt for passphrase
 // when file is encrypted
-function GetFilePassphrase( const FN : string ) : string;
+function GetFilePassphrase( const FN : WideString ) : string;
 var
   PassForm : TForm_Password;
 begin

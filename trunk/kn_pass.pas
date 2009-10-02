@@ -71,7 +71,7 @@ type
     { Public declarations }
     OK_Click : boolean;
     myTimeout : integer; // seconds
-    myFileName : string;
+    myFileName : wideString;
     function VerifyPass : boolean;
   end;
 
