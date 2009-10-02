@@ -58,7 +58,7 @@ type
   EPassphraseError = class( Exception );
 
 type
-  TGetAccessPassphraseFunc = function( const FN : string ) : string;
+  TGetAccessPassphraseFunc = function( const FN : wideString ) : string;
 
 type
   TBookmark = record
@@ -121,7 +121,7 @@ type
     procedure SetComment( AComment : TCommentStr );
     procedure SetFileFormat( AFileFormat : TNoteFileFormat );
     procedure SetModified( AModified : boolean );
-    function GetPassphrase( const FN : string ) : boolean;
+    function GetPassphrase( const FN : wideString ) : boolean;
 
     function InternalAddNote( ANote : TTabNote ) : integer;
     procedure GenerateNoteID( const ANote : TTabNote );
@@ -322,7 +322,7 @@ begin
     end;
 end; // ClearBookmarks
 
-function TNoteFile.GetPassphrase( const FN : string ) : boolean;
+function TNoteFile.GetPassphrase( const FN : wideString ) : boolean;
 begin
   result := false;
   if ( not assigned( FPassphraseFunc )) then exit;
@@ -545,7 +545,8 @@ begin
 
   if ( not WideFileExists( FN )) then
   begin
-    raise Exception.CreateFmt( STR_01, [FN] );
+    DoMessageBox(WideFormat( STR_01, [FN] ), mtError, [mbOK], 0);
+    raise Exception.Create('');
   end;
 
   _VNKeyNoteFileName := FN;
@@ -600,7 +601,8 @@ begin
     end
     else
     begin
-      raise Exception.CreateFmt( STR_02, [FN] );
+      DoMessageBox(WideFormat( STR_02, [FN] ), mtError, [mbOK], 0);
+      raise Exception.Create('');
       exit;
     end;
 
@@ -662,9 +664,8 @@ begin
 
                 if ( VerID.Major > NFILEVERSION_MAJOR ) then
                 begin
-                  raise EKeyNoteFileError.CreateFmt(
-                    STR_05,
-                    [WideExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] );
+                  DoMessageBox(WideFormat( STR_05, [WideExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK], 0);
+                  raise EKeyNoteFileError.Create('');
                 end;
 
                 if ( VerID.Minor > NFILEVERSION_MINOR ) then
@@ -695,7 +696,8 @@ begin
 
           if FileIDTestFailed then
           begin
-            raise EKeyNoteFileError.CreateFmt( STR_07, [WideExtractFilename( FN )] );
+            DoMessageBox(WideFormat( STR_07, [WideExtractFilename( FN )] ), mtError, [mbOK], 0);
+            raise EKeyNoteFileError.Create('');
           end;
 
           InHead := true;
@@ -906,8 +908,10 @@ begin
             end;
           end;
 
-          if FileIDTestFailed then
-            raise Exception.CreateFmt( STR_09 + VerID.ID, [WideExtractFilename( FN )] );
+          if FileIDTestFailed then begin
+            DoMessageBox(WideFormat( STR_09 + VerID.ID, [WideExtractFilename( FN )] ), mtError, [mbOK], 0);
+            raise Exception.Create('');
+          end;
 
           // initialize some stuff we got from the file already,
           // and some stuff that is not present in Dart file header
@@ -1105,6 +1109,7 @@ begin
 
           CryptStream := TTntMemoryStream.Create;
           try
+            tf:= TWTextFile.Create();
             tf.assignstream( CryptStream );
             tf.rewrite;
 
@@ -1364,32 +1369,24 @@ var
   Hash: TDCP_sha1;
   HashDigest, HashRead: array[0..31] of byte;
   Decrypt: TDCP_blockcipher;
-  readfile : file;
+  readfile: TTntFileStream;
   Info : TEncryptedFileInfo;
   chunksize, sizeread : integer; // MUST be 32-bit value, i.e. 4 bytes
   array32bits : array[0..3] of byte;
   dataptr : pointer;
-  OldFileMode : word;
 begin
-
-  OldFileMode := FileMode;
-  FileMode := 0; // enables us to read read-only files
-  assignfile( readfile, FN );
-  try
-    reset( readfile, 1 );
-  finally
-    FileMode := OldFileMode;
-  end;
+  readfile:= TTntFileStream.Create( FN, ( fmOpenRead ));
 
   try
-    blockread( readfile, array32bits, sizeof( array32bits ));
+    readfile.Read(array32bits, sizeof(array32bits));
+
     chunksize := integer( array32bits );
-    blockread( readfile, FVersion, chunksize, sizeread );
+    sizeread:= readfile.Read(FVersion, chunksize);
     if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
-    blockread( readfile, array32bits, sizeof( array32bits ));
+    readfile.Read(array32bits, sizeof(array32bits));
     chunksize := integer( array32bits );
-    blockread( readfile, Info, chunksize, sizeread );
+    sizeread:= readfile.Read(Info, chunksize);
     if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
     FCryptMethod := Info.Method;
@@ -1420,9 +1417,9 @@ begin
       Decrypt.EncryptCBC( HashDigest, HashDigest, Sizeof( HashDigest ));
       Decrypt.Reset;
 
-      blockread( readfile, array32bits, sizeof( array32bits ));
+      readfile.Read(array32bits, sizeof(array32bits));
       chunksize := integer( array32bits );
-      blockread( readfile, HashRead, chunksize, sizeread );
+      sizeread:= readfile.Read(HashRead, chunksize);
       if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
       if ( not CompareMem( @HashRead, @HashDigest, Sizeof( HashRead ))) then
@@ -1431,7 +1428,7 @@ begin
       getmem( dataptr, Info.DataSize );
 
       try
-        blockread( readfile, dataptr^, Info.DataSize, sizeread );
+        sizeread:= readfile.Read(dataptr^, Info.DataSize);
         if ( sizeread <> Info.DataSize ) then RaiseStreamReadError;
 
         Decrypt.DecryptCBC( dataptr^, dataptr^, Info.DataSize );
@@ -1450,7 +1447,7 @@ begin
     end;
 
   finally
-    closefile( readfile );
+    readFile.Free;
   end;
 
 end; // DecryptFileToStream

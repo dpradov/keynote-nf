@@ -317,7 +317,7 @@ begin
               end;
             end;
             FN := normalFN( FN );
-            if ( extractfileext( FN ) = '' ) then
+            if ( wideExtractfileext( FN ) = '' ) then
               FN := FN + ext_KeyNote;
 
             if assigned( NoteFile ) then
@@ -436,7 +436,8 @@ begin
               {$IFDEF MJ_DEBUG}
               Log.Add( 'Error while opening file: ' + E.Message );
               {$ENDIF}
-              PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
+              if E.Message <> '' then
+                 PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
               if assigned( NoteFile ) then
               begin
                 NoteFile.Free;
