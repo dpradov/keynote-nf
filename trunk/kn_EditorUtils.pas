@@ -1423,7 +1423,7 @@ begin
               if (( Kind <> ntRTF ) and ClipOptions.PasteAsNewNode ) then
                 DividerString := trimleft( DividerString );
 
-                Editor.SelText := DividerString;
+              Editor.SelText := DividerString;
               Editor.SelStart :=  Editor.SelStart + Editor.SelLength;
             end;
 
@@ -1439,17 +1439,21 @@ begin
 
             if ClipOptions.PasteAsText then
             begin
-              ClpStr := ClipboardAsStringW;
               if (( ClipOptions.MaxSize > 0 ) and ( length( ClpStr ) > ClipOptions.MaxSize )) then
                 delete( ClpStr, succ( ClipOptions.MaxSize ), length( ClpStr ));
               with NoteFile.ClipCapNote.Editor do
               begin
-                SelTextW := ClpStr;
+                SelTextW := trim(ClpStr);
                 SelStart := SelStart + SelLength;
               end;
             end
             else
-              NoteFile.ClipCapNote.Editor.PasteFromClipboard;
+              if not NoteFile.ClipCapNote.Editor.PasteSpecial_RTF then
+                 NoteFile.ClipCapNote.Editor.PasteSpecial_NoAsk;
+
+
+            if NoteFile.ClipCapNote <> ActiveNote then
+               NoteFile.ClipCapNote.EditorToDataStream;
 
           end;
 
@@ -1472,6 +1476,7 @@ begin
             begin
               sndplaysound( PChar( wavfn ), SND_FILENAME or SND_ASYNC or SND_NOWAIT );
             end;
+            Application.ProcessMessages;
             sleep( ClipOptions.SleepTime * 100 ); // in tenths of a second; default: 5 = half a second
             LoadTrayIcon( ClipOptions.SwitchIcon ); // unflash tray icon
           end;

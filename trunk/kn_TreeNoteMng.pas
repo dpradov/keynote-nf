@@ -1751,8 +1751,10 @@ begin
     myNoteNode := TNoteNode( aTreeNode.Data );
     if assigned( myNoteNode ) then
     begin
-      myTNote := TTreeNote( ActiveNote );
-      myTNote.TV.OnChecked:= nil;
+      if ActiveNote.Kind = ntTree then begin
+         myTNote := TTreeNote( ActiveNote );
+         myTNote.TV.OnChecked:= nil;
+      end;
 
       // [x] FIXME: in many cases by doing this we are setting
       // the treenode text TWICE. In some cases this line is
@@ -1784,7 +1786,8 @@ begin
       if myNoteNode.HasNodeBGColor then
         aTreeNode.Color := myNoteNode.NodeBGColor;
 
-      myTNote.TV.OnChecked:= Form_Main.TVChecked;
+      if ActiveNote.Kind = ntTree then
+         myTNote.TV.OnChecked:= Form_Main.TVChecked;
     end;
   end;
 end; // UpdateTreeNode
