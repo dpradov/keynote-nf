@@ -1611,7 +1611,7 @@ Button_Copy.Hint=Copiar al portapapeles
 Button_Copy.Caption=&Copiar
 Button_Cancel.Caption=Cancelar
 Button_Open.Caption=&Abrir
-Button_OpenNew.Caption=Abrir en una &Nueva ventana
+Button_OpenNew.Caption=Abrir en &Nueva ventana
 Button_Modify.Hint=Modififcar Hiperenlace
 Button_Modify.Caption=&Modificar
 

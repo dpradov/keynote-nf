@@ -237,7 +237,6 @@ begin
         Button_Modify.Caption := STR_01;
         Button_Modify.Default := true;
         Caption:= STR_02;
-        Height:= 142;
      end
      else begin
         Button_Copy.Visible := true;
@@ -246,7 +245,6 @@ begin
         Button_Modify.Caption := STR_03;
         Button_Open.Default := true;
         Caption:= STR_04;
-        Height:= 179;
      end;
 
       if AllowURLModification then begin
