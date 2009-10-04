@@ -141,13 +141,13 @@ begin
         begin
           Cp := Sp;
           Inc(Sp);
-          Rp^ := WideChar(Chr(StrToInt(Format('$%s%s',[Cp^, Sp^]))));
+          Rp^ := WideChar(Chr(StrToInt(WideFormat('$%s%s',[Cp^, Sp^]))));
         end;
       end;
     Inc(Rp);
     Inc(Sp);
   end;
-  SetLength(Result, Rp - PChar(Result));
+  SetLength(Result, Rp - PWideChar(Result));
 end;
 
 function HTTPEncode(const AStr: wideString): wideString;
@@ -173,7 +173,7 @@ begin
     Inc(Rp);
     Inc(Sp);
   end;
-  SetLength(Result, Rp - PChar(Result));
+  SetLength(Result, Rp - PWideChar(Result));
 end;
 
 
