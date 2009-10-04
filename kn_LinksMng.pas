@@ -314,13 +314,18 @@ begin
       exit;
     end;
 
-    if TextURL = '' then begin
-       GetTreeNodeFromLocation (aLocation, Note, TreeNode);
-       TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos);
-    end;
+    if TextURL = '' then
+       if NoteFile.FileName = aLocation.FileName then begin
+           GetTreeNodeFromLocation (aLocation, Note, TreeNode);
+           TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos);
+       end
+       else
+          TextURL:= WideFormat('%s: %s/%s %d', [WideExtractFileName(aLocation.FileName),
+                                                aLocation.NoteName, aLocation.NodeName,
+                                                aLocation.CaretPos]);
+
     InsertHyperlink(BuildKNTLocationText(aLocation),  TextURL, true);
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_09;
-
   end
   else
   begin
@@ -918,8 +923,19 @@ var
   begin
      Location:= BuildKNTLocationFromString(URL);
      try
-       GetTreeNodeFromLocation (Location, note, treeNode);
-       Result:= PathOfKNTLink(treeNode, note, Location.CaretPos);
+       if (NoteFile.FileName = Location.FileName) or (Location.FileName = '') then begin
+           GetTreeNodeFromLocation (Location, note, treeNode);
+           Result:= PathOfKNTLink(treeNode, note, Location.CaretPos);
+       end
+       else
+          if Location.NodeName <> '' then
+             Result:= WideFormat('%s: %s/%s|%d|%d', [WideExtractFileName(Location.FileName),
+                                                Location.NoteName, Location.NodeName,
+                                                Location.CaretPos, Location.SelLength])
+          else
+             Result:= WideFormat('%s: %d|%d|%d|%d', [WideExtractFileName(Location.FileName),
+                                                Location.NoteID, Location.NodeID,
+                                                Location.CaretPos, Location.SelLength]);
      finally
        Location.Free;
      end;
