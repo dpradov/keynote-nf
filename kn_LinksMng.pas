@@ -157,7 +157,7 @@ begin
       else begin
           if not KNTLink then
              URLStr := FileNameToURL( URLStr );
-          ActiveNote.Editor.SelText := URLStr + #32;
+          ActiveNote.Editor.SelTextW := URLStr + #32;
       end;
 
       ActiveNote.Editor.SelLength := 0;
