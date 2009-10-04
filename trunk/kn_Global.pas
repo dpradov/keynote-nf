@@ -150,7 +150,7 @@ var
 
     //================================================== VARIOS
 
-    _GLOBAL_URLText : string;
+    _GLOBAL_URLText : wideString;
     _IS_FAKING_MOUSECLICK : boolean;
     _Global_Location : TLocation;
     _REOPEN_AUTOCLOSED_FILE : boolean;
