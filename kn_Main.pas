@@ -5834,7 +5834,9 @@ end;
 
 procedure TForm_Main.RxRTFURLClick(Sender: TObject; const URLText: wideString; chrg: _charrange; Button: TMouseButton);
 begin
-  ClickOnURL (URLText, chrg);
+  if Button = mbLeft then
+     ClickOnURL (URLText, chrg);
+  //TODO: with right button we could customize popup context menu
 end;
 
 procedure TForm_Main.MMViewResPanelClick(Sender: TObject);
