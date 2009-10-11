@@ -225,7 +225,7 @@ begin
           if assigned( mySiblingNode ) then
             myTreeNode := myNote.TV.Items.Insert( mySiblingNode, myName )
           else
-            myTreeNode := myNote.TV.Items.Add( mySiblingNode, myName );
+            myTreeNode := myNote.TV.Items.Add( myOriginNode, myName );
         end;
       end;
 
