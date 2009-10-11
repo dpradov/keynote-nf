@@ -1795,9 +1795,10 @@ begin
     end;
   end;
 
-  if IsIconic( Application.Handle ) then
-    Application.Restore;
+  Application.Minimize;
+  Application.Restore;
   Application.BringToFront;
+
 
   if ( NoteFileToLoad <> '' ) then
   begin

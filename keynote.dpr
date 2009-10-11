@@ -253,7 +253,7 @@ uses
 
 begin
 
-  _OTHER_INSTANCE_HANDLE := FindWindow( UniqueAppName_KEYNOTE10, nil );
+  _OTHER_INSTANCE_HANDLE := FindWindow( UniqueAppName_KEYNOTE10 + '.UnicodeClass', nil );
 
   Application.Initialize;
   // AboutBox := nil;
