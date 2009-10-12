@@ -1212,8 +1212,8 @@ begin
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
   askUser:= (URLStr = '');
 
-  if askUser then
-     URLStr := trim(ClipboardAsString);         // offer clipboard first
+  //if askUser then
+  //   URLStr := trim(ClipboardAsString);         // offer clipboard first
 
   URLType := TypeURL( URLStr, KNTLocation );
   if (URLType = urlFile) and (not PathFileOK(URLStr)) then begin
