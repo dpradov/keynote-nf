@@ -133,7 +133,7 @@ type
   end;
 
 function ExpandExpTokenString( const tpl, filename, notename, nodename : wideString; const nodelevel, nodeindex : integer ) : wideString;
-function LoadRTFHeadingTemplate( const Filename : wideString ) : wideString;
+function LoadRTFHeadingTemplate( const Filename : string ) : string;
 function EscapeTextForRTF( const Txt : wideString ) : wideString;
 function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : wideString ) : wideString;
 
@@ -248,13 +248,13 @@ begin
   end;
 end; // MergeHeadingWithRTFTemplate
 
-function LoadRTFHeadingTemplate( const Filename : WideString ) : WideString;
+function LoadRTFHeadingTemplate( const Filename : String ) : String;
 var
-  ls : TWideStringList;
+  ls : TStringList;
 begin
   result := '';
-  if ( not WideFileexists( Filename )) then exit;
-  ls := TWideStringList.Create;
+  if ( not Fileexists( Filename )) then exit;
+  ls := TStringList.Create;
   try
     try
       ls.LoadFromFile( Filename );
