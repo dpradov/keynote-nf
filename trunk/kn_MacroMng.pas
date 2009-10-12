@@ -1072,6 +1072,9 @@ begin
                         Wrap := false;
                       end;
                     end;
+                    ecStyleApply: begin                    //***1
+                      CommandRecall.StyleName:= argstr;
+                    end;
                   end;
                   LastEditCmd := EditCmd;
                   RepeatLastCommand;
@@ -1414,7 +1417,7 @@ begin
               delete( line, 1, p );
               sndShift := StrToShiftState( line );
 
-              PostKeyEx32( sndKey, sndShift, False )
+              PostKeyEx( ActiveNote.Editor.Handle, sndKey, sndShift, False )
 
             end;
 
