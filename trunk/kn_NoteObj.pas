@@ -2063,7 +2063,6 @@ var
   // bakFN : string;
 begin
   HaveVCLControls := CheckTree;
-  EditorToDataStream;
   nodessaved := 0;
 
   // sanity check
