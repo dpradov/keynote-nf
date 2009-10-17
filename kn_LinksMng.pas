@@ -684,12 +684,14 @@ function TypeURL (var URLText: wideString; var KNTlocation: boolean): TKNTURL;
 var
    URLType, KntURL: TKNTURL;
    URLPos : integer; // position at which the actual URL starts in URLText
+   URLTextLower: wideString;
 begin
   // determine where URL address starts in URLText
   URLType := urlFile;
+  URLTextLower:= WideLowerCase(URLText);
   for KntURL := low( KntURL ) to high( KntURL ) do
   begin
-    URLPos := pos( KNT_URLS[KntURL], URLText );
+    URLPos := pos( KNT_URLS[KntURL], URLTextLower );
     if ( URLPos > 0 ) then
     begin
       URLType := KntURL;
