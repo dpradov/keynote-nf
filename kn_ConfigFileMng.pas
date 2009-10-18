@@ -24,9 +24,10 @@ implementation
 uses
    Windows, Forms, Classes, Controls, Dialogs, Menus, IniFiles, SysUtils,
    TB97Ctls, TB97Tlbr,
-   kn_Main, dll_Keyboard, kn_Dllmng, kn_DLLinterface,
+   kn_Main, dll_Keyboard, kn_Dllmng, kn_DLLinterface, gf_files,
    kn_global, kn_Info, kn_INI, kn_Const, kn_OptionsNew, kn_Chest,
-   kn_FindReplaceMng, kn_MacroMng, kn_VCLControlsMng, kn_LanguagesMng;
+   kn_FindReplaceMng, kn_MacroMng, kn_VCLControlsMng, kn_LanguagesMng,
+   TntSysUtils;
 
 resourcestring
   STR_KeybdError = 'Error in keyboard customization procedure: ';
@@ -98,6 +99,7 @@ begin
         // not a switch, so it's a filename.
         // Let's see what kind of file.
         ext := extractfileext( s );
+        s:= GetAbsolutePath(WideExtractFilePath(Application.ExeName), s);
         if (( ext = ext_KeyNote ) or ( ext = ext_Encrypted ) or ( ext = ext_DART )) then
         begin
           NoteFileToLoad := s;

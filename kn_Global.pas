@@ -700,6 +700,8 @@ begin
 
       if ( NoteFileToLoad <> '' ) then
       begin
+        NoteFileToLoad:= GetAbsolutePath(WideExtractFilePath(Application.ExeName), NoteFileToLoad);
+
         if ( NoteFileOpen( NoteFileToLoad ) <> 0 ) then
         begin
           // if ( PopupMessage( 'Would you like to create a new Note file?', mtConfirmation, [mbYes,mbNo], 0 ) = mryes ) then
