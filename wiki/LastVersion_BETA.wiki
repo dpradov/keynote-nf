@@ -1,5 +1,4 @@
 #summary KeyNote NF Last version (Beta)
-#labels Featured
 
 *!KeyNote NF Last version (Beta)*
 
