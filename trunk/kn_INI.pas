@@ -825,7 +825,7 @@ const
 
 
 implementation
-uses Windows, SysUtils, Graphics, Menus, kn_NoteObj, RTLConsts;
+uses Windows, Forms, SysUtils, Graphics, Menus, kn_NoteObj, RTLConsts, TntSysUtils;
 
 resourcestring
   STR_INIMail_01 = 'Attached file: %F';
@@ -1200,7 +1200,7 @@ begin
       writestringW( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
       writeinteger( section, KeyOptionsIniStr.LastExportFormat, ord( KeyOptions.LastExportFormat ));
       writebool( section, KeyOptionsIniStr.LastExportAsk, KeyOptions.LastExportAsk );
-      writestringW( section, KeyOptionsIniStr.LastFile, KeyOptions.LastFile );
+      writestringW( section, KeyOptionsIniStr.LastFile, WideExtractRelativePath(Application.ExeName, KeyOptions.LastFile) );
       writestringW( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
       writeinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering ));
       writestring( section, KeyOptionsIniStr.LastVersion, Program_VerStr ); // always write current version
@@ -1277,7 +1277,7 @@ begin
       writebool( section, KeyOptionsIniStr.UseOldColorDlg, KeyOptions.UseOldColorDlg );
       writebool( section, KeyOptionsIniStr.UseOldFileFormat, KeyOptions.UseOldFileFormat );
       writebool( section, KeyOptionsIniStr.UseTray, KeyOptions.UseTray );
-      writestringW( section, KeyOptionsIniStr.UserFile, KeyOptions.UserFile );
+      writestringW( section, KeyOptionsIniStr.UserFile, WideExtractRelativePath(Application.ExeName, KeyOptions.UserFile) );
 
       section := EditorOptionsIniStr.section;
       writebool( section, EditorOptionsIniStr.AutoIndent, EditorOptions.AutoIndent );

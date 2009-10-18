@@ -129,6 +129,10 @@ function FilesFound(
 function WideMinimizeName(const Filename: WideString; Canvas: TCanvas;
   MaxLen: Integer): WideString;
 
+function PathCombineW(lpszDest: PWideChar; const lpszDir, lpszFile:
+PWideChar): PWideChar; stdcall; external 'shlwapi.dll';
+
+function GetAbsolutePath(basePath: wideString; relativePath: wideString): wideString;  //***1
 
 type
   TWIniFile = class(TIniFile)
@@ -238,6 +242,15 @@ begin
     result := fkUnknown;
 end; // GetFileKind
 *)
+
+function GetAbsolutePath(basePath: wideString; relativePath: wideString): wideString;
+var
+   path: wideString;
+begin
+    SetLength(path, 5*MAX_PATH);
+    PathCombineW(@path[1], PWideChar(basePath), PWideChar(relativePath));
+    Result:= PWideChar(path);
+end;
 
 function FileNameIsValid( const fn : wideString ) : boolean;
 var
