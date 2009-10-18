@@ -14,7 +14,49 @@ KEYNOTE - RELEASE HISTORY
 Seguimiento de incidencias (issues) en http://code.google.com/p/keynote-nf/issues/list
 
 =============================
-Version: 1.7.6 -  fecha: 15/mar/2009
+Versión: 1.7.7 -  fecha: 18/oct/2009
+
+Mejoras:
+ * Issue #139: Hacer KeyNote NF compatible con Unicode
+    Con anterioridad, dentro de esta misma versión, aunque con el mismo objetivo:
+     * Issue #40: Las operaciones Buscar y Reemplazar no funcionan con caracteres Unicode (chino, por ejemplo)
+     * Issue #54: 'Pegar como texto' y 'Pegar como Web Clip' no funcionan con caracteres Unicode
+ * Issue #73: Permitir habilitar o desabilitar las ventanas modales de alarmas
+ * Issue #29: Sonido opcional en Alarmas
+ * Issue #135: Insertar URL: Eliminar auto pegado desde el portapapeles
+ * Issue #158: Incluir soporte para el protocolo URL Notes
+ * Issue #118: KeyNote debería soportar rutas relativas en el archivo de configuración y en la línea de comandos
+ 
+ * Incluída una traducción parcial al francés por Picou (picou.keynote@gmail.com)
+ * Incluída una traducción parcial al chino simplificado por xbeta (http://xbeta.info)
+   En ambos casos no se incluye la traducción del archivo de consejos (.tip) 
+ 
+Errores corregidos:
+ * Issue #155: Error en Captura de Portapapeles en nota no activa (no visible)
+ * Issue #141: Captura de Portapapeles repite dos veces el texto copiado, cuando se copia desde ciertos programas
+ * Issue #62: Keynote NF no abre correctamente en modo maximizado
+ * Issue #58: El botón Minimizar no funciona correctamente en ocasiones
+ * Issue #153: Dificultad de visualización en ventana de edición de hiperenlace
+ * Issue #63: No funcionan los hiperenlaces con caracteres Unicode
+ * Issue #115: Problema al hacer clic con el botón derecho sobre una URL
+ * Issue #149: Añadir nodo hermano no siempre añade un nodo hermano
+ * Issue #127: La macro StyleApply no aplica el estilo especificado. Las teclas modificadoras no funcionan en macros, tampoco
+ * Issue #125: El cursor salta al último hiperenlace de la nota cada vez que ésta es salvada
+ * Issue #122: No funcionan los enlaces Keynote hacia otros archivos
+ * Issue #116: Los cambios en un nodo espejo se pierden tras salvar si el nodo original está seleccionado (en otra nota)
+ * Issue #101: No funciona la importación archivos arrastrando hacia el árbol
+ * Issue #96: Search -> Find... sólo funciona en una nota, no busca en todas las notas
+ * Issue #74: El árbol de la pantalla de opciones es editable
+ * Issue #71: Un nodo puede perder su marca de verificación al moverlo, en una situación especial
+ * Issue #70: La barra de estado no refleja correctamente el estado modificación del archivo
+ Mientras estuvo la Beta 2 disponible se corrigieron las siguientes incidencias identificadas:
+ * Issue #152: "Permitir una única instancia" no funciona en 1.7.7 Beta2
+ * Issue #150: La exportación desde un nodo tipo árbol no incluye los encabezados
+ * Issue #140: Las notas no aparecen en 1.7.7 Beta 2 para los archivos encriptados
+  
+ 
+=============================
+Versión: 1.7.6 -  fecha: 15/mar/2009
 
 Mejoras:
 * Issue #57: Nuevo tipo de nodos virtuales: enlaces a otros nodos (nodos 'espejo')
@@ -36,7 +78,7 @@ Errores corregidos:
   
 
 =============================
-Version: 1.7.5 -  fecha: 31/ene/2009
+Versión: 1.7.5 -  fecha: 31/ene/2009
 
 Mejoras:
  * Issue #23: Versión multilanguage de KeyNote NF (nueva opción de configuración)

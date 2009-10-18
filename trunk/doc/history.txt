@@ -13,6 +13,48 @@ KEYNOTE - RELEASE HISTORY
 
 Issue #tracker at http://code.google.com/p/keynote-nf/issues/list
 
+=============================
+Version: 1.7.7 -  date: 18/oct/2009
+
+Enhancements:
+ * Issue #139: Make KeyNote NF Unicode compliant
+    Before, within the same version:
+     * Issue #40: Find and Replace operations don't work with Unicode characters (Chinese, for example)
+     * Issue #54: 'Paste as Text' and 'Paste as Web Clip' don't work with Unicode characters     
+ * Issue #73: Allow to enable or disable alarm popups
+ * Issue #29: Sound for Alarm
+ * Issue #135: Insert URL auto-clipboard-paste
+ * Issue #158: Add support for Notes URL Protocol
+ * Issue #118: KeyNote should admit relative paths in config file and command-line
+ 
+ * Included a partial French translation by Picou (picou.keynote@gmail.com)
+ * Included a partial Chinese Simplified translation by xbeta (http://xbeta.info)
+   In both cases .tip file isn't translated
+ 
+Bugfixes:
+ * Issue #155: Clipboard capture error on non active (visible) note
+ * Issue #141: Clipboard capture repeats twice the text copied, when the copy is made from certain programs
+ * Issue #62: Keynote NF won't open in maximized window state
+ * Issue #58: Minimizing button does not work.
+ * Issue #153: Display Problem on clicking Hyperlink
+ * Issue #63: Hyperlinks not working with Unicode characters
+ * Issue #115: Right click on URL problem
+ * Issue #149: Add sibling command doesn't always add a sibling node
+ * Issue #127: StyleApply macro doesn't apply specified style. Modifiers keys don't work in macro, too
+ * Issue #125: Cursor jumps to last textual hyperlink in note each time note is saved.
+ * Issue #122: Keynote links to another file don't work
+ * Issue #116: Changes in mirror node get lost after saving if original node is selected (in other note)
+ * Issue #101: Import files by dropping them on the tree
+ * Issue #96: Search -> Find... only works on one note, won't search all notes.
+ * Issue #74: The treeview in the options dialog is editable
+ * Issue #71: Node can become unchecked when moving, in a special situation
+ * Issue #70: Status bar doesn't reflect correctly the modified state of the file
+ 
+   While the Beta 2 was available were identified the following issues, now resolved:
+ * Issue #152: "Allow only one instance" is not working in 1.7.7 Beta2
+ * Issue #150: Exporting tree to file does not include headers
+ * Issue #140: Note tabs no longer appear in 1.7.7 Beta 2 for encrypted notes files
+  
 
 =============================
 Version: 1.7.6 -  date: 15/Mar/2009
