@@ -1,0 +1,52 @@
+/*  keyboard.css: used for customizing the look of    */
+/*  KeyNote keyboard shortcut listing (keyboard.html) */
+
+BODY {
+	margin: 1%;
+	text-align: left;
+	background: #D0D0D0;
+	color: black;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+TH {
+	text-align: left;
+	font-weight: bold;
+	background: #E2E2E2;
+	color: navy;
+}
+
+TD {
+	text-align: left;
+	background: #FFFFFF;
+	color: black;
+}
+
+/* column 1: displays command as appears on menu */
+.keyname {
+	color : black;
+	font-size: smaller;
+}
+
+/* column 2: displays internal command name */
+.keycmd {
+	color : black;
+	font-size: smaller;
+}
+
+
+/* column 3: displays keyboard shortcut assigned to command */
+.key {
+	color : navy;
+	background: #FFFFD2;
+	font-weight: bold;
+	font-size: smaller;
+
+}
+
+/* column 4: displays command hint (description) */
+.keyhint {
+	color : black;
+	font-size: smaller;
+}
+

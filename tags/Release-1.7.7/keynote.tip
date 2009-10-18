@@ -1,0 +1,104 @@
+Since version 1.7.5 KeyNote NF can be displayed in multiple languages. Included as an example a partial translation into Spanish (Castilian). Will be added to the official version new languages with the help of the community.
+You can create mirror nodes so that they share the same content, alarm and checked state. That way you can organize your information simultaneously in different ways (See issue 57 in http://code.google.com/p/keynote-nf/issues)
+With mirror nodes you can have task spread over many tabs, and at the same time include in another tabs. You will be able to have a global vision of the main things to do, sorting, ranking and structuring in a free tree hierarchy, independent of the hierarchy in wich 'real' nodes reside.
+In KeyNote NF website (http://code.google.com/p/keynote-nf/), you can download the latest version of the program, submit bug reports or feature requests, among other things.
+From KeyNote NF website you can access to a discussion mailing list where you can post questions and discuss about the program.
+You can find more information (FAQ, for example) about the program in the website of the original version (1.6.5): http://keynote.prv.pl
+You can work with hidden nodes in two ways: automatically hiding checked nodes, filtering one or all notes based on a searching criterion
+It is possible to show checkboxes for all nodes (View/All nodes Checkboxes) and only on children of selected nodes: (Children Checkbox)
+You can copy, cut and paste nodes and subtrees using usual clipboard shortcuts (Ctrl-C, CTRL-V, Ctrl-X or Ctrl-Ins, Shift-Ins, Shift-Supr).
+You can use and show tables correctly inside KeyNote if installed on Windows XP SP1 or upper, by means of "msftedit.dll".
+You can set alarms, associated to nodes. Behaviour is similar to that offered by Outlook: postpone, discard, ...
+Activating a mode wich automatically hides checked nodes (Show or Hide checked nodes) can be useful to play with tasks.
+Filtering nodes based on a searching criterion (Filter Tree Note) can be useful to work with a subset of information. For example tagging some nodes with text like [MILESTONE:1.7.4]
+You can change the text shown for a link (internal or not): press Shift while clicking the URL to show options.
+See the file "bugs.txt" (in "doc" subdirectory). It contains a current list of known problems and limitations. The FAQ has also been updated on the website.
+You can configure the keyboard shortcuts used to invoke various KeyNote functions: See the "Configuring keyboard shortcuts" Help topic.
+You can configure the toolbars: See the "Configuring toolbars" Help topic.
+The "Print" command is located under the Note menu (not under "File"), because you will be printing a note, not a file.
+You can create a new tree node from currently selected text by pressing Alt+F11.
+Double-clicking the status bar will show or hide the Resource panel.
+You can use the new "Favorites" tab on the Resource panel to quickly move to a location in another note or file.
+You can now export notes or tree nodes with simple conversion to HTML.
+Macros, plugins and templates are grouped on the new Resource panel. Press F9 to show or hide the panel.
+The "Find all" command on the resource panel will search notes for text and display a list of results.
+The "Find all" command can be used to perform simple boolean (AND / OR) searches.
+You can now import HTML documents into KeyNote. KeyNote uses MS Office 97/2000 or MS Internet Explorer version 5.0 or later to perform the HTML-to-RTF conversion.
+KeyNote now includes a spellchecker (under the "Note" menu). You need to have MS Office 97 or 2000 installed to use the spellchecker module.
+You can execute KeyNote macros and plugins by double-clicking them in the Windows Explorer.
+You can mark nodes in a tree by checking them or making them bold. You can also select colors for individual tree nodes. (Functions accessible via the tree right-click menu.)
+KeyNote includes several advanced backup options for additional data safety. See Options dialog box (F5), "Backup options" tab.
+If you have encountered text formatting problems (as outlined in file "bugs.txt"), use the "Enable Rich Edit version 3.0 fixes" setting in Options dialog box, Advanced tab.
+The "Recent files" command ("File" menu) contains names of several Note files that you opened or saved recently. Just click the menu item to open the file you want.
+The list of recently used files is also available as a drop-down menu right next to the "Open" button on the toolbar.
+If users are sharing KeyNote on one computer, each user can have personal settings by specifying an alternate INI file name in the shortcut used to start KeyNote.
+If you want to prevent a note from being changed accidentally. make the note read-only by choosing "Read Only" from the Tab menu, or pressing Shift+Ctrl+R.
+You can also prevent all changes to a whole file by selecting the "Open as Read-only" option when opening the file.
+You can change the order of notes in the file. Just click a tab with the mouse and drag it left or right.
+Some toolbar buttons and menu commands behave differently when Shift or Ctrl keys are held down. This is described in detail in the Help file.
+KeyNote supports macros and plugins. To learn how to use and how to create them, see Macros and Plugins topics in the Help file.
+To create or use macros, you show the Resource Panel (press F9), then click the "Macro" tab.
+To view and use installed plugins, select the "Plugins" command from the "Tools" menu, or press Ctrl+F12.
+Certain macros can run automatically whenever a new file or a new note is created. See "Auto-run macros" in the Help file.
+To access the Style drop-down list without the mouse, hold down Ctrl key and press the * key on the numeric keypad. Then select a style, and press Enter to apply it.
+To access the Macro drop-down list without the mouse, hold down Ctrl key and press the / key on the numeric keypad. Then select a macro, and press Enter to run it.
+Many dialog boxes in KeyNote are resizeable, and will remember their previous size and position when displayed.
+KeyNote has a "Replace" command. It is located under the "Search" Menu (or press Ctrl+F3).
+In File Properties dialog box, you can specify a custom system tray icon for the current file. This is useful if you run several instances of KeyNote at the same time.
+You can specify that the file should only use built-in tab icon images. This is useful when giving the file to someone who may be using a different, customized set of tab images.
+You can insert hyperlinks to jump to another place in your KeyNote file (a note or a tree node). See the Hyperlinks topic in the Help file for details.
+You can insert .BMP and .GIF images into the note text: select "Picture" from the "Insert" menu.
+You can create URL-style links to files on local disk: select "Link to file" from the "Insert" menu. Clicking the link will open the document or program.
+To specify all paragraph properties at one time, press Ctrl+P to open the Paragraph dialog box.
+In a tree-type note, you can hide the tree panel. Press Shift+F11 to hide the tree, or to show it if it is hidden.
+To quickly insert often used chunks of text, use the Glossary feature. Add shortcuts and their full forms to glossary; then press F7 to expand a shortcut.
+Most editing and formatting commands can be repeated by pressing Ctrl+/. The name of the command to be repeated is shown in the context menu of the editor.
+KeyNote features simple bookmarks. Press Shift+Alt+digit to set a bookmark, then press Alt+digit to jump to it. (Digits are 0 through 9, naturally.)
+You can insert special characters into the note by pressing Shift+Ctrl+C.
+To quickly find a matching bracket, press Ctrl+M.
+You can export a single tree node. Right-click the node and select the "Export" command.
+KeyNote can play a sound while capturing text from clipboard. You can replace the default sound (clip.wav) with a .wav file of your choice.
+You can move or copy subtrees between tree notes and between files.
+You can copy a subtree from one note to another by clicking it and dropping on another tab.
+Tree notes can have a vertical layout (tree above the editor). This is configurable through Note Properties (F4).
+You can highlight text in a note. Press Ctrl+H, or hold down Shift and click the Color button on the toolbar.
+You can drag files from Windows Explorer onto KeyNote's window to open or import them.
+Several new font and paragraph properties have been added. See the new functions under the "Format" menu.
+The new "Virtual nodes" feature allows you to link an external text or RTF file to a node in a tree. Create a new node, then right-click it and select the "Virtual node" command.
+To create a virtual node, you can also drag a text or RTF file from Windows Explorer onto the tree.
+To quickly rename a note, press F2 or double-click the tab where the note name is displayed.
+You can choose what happens when you click an URL in a note. See Options (F5), "Misc" tab.
+KeyNote can automatically minimize or close your file after a predefined period of inactivity. See Options (F5), "Actions" tab.
+Toolbars can also be docked at the bottom of the note window.
+Your KeyNote file can be securely encrypted. See Help file for details.
+You can create two types notes: simple or tree-type notes. Press Ctrl+N, and choose the type in the "Kind" drop-down box.
+You can quickly change the background color of ALL NODES in a tree: hold down the Shift key and click the "Background color" command ("Format" menu).
+KeyNote can evaluate mathematical expressions. Type an expression (e.g. "2 + 2"), select it, then press Ctrl+=. The result will be copied to clipboard.
+You can set default note properties for the current file (rather than all files): In the "Note Defaults" dialog box, click the "Special" button and click "Save as default for...".
+KeyNote has a simple file manager which allows you to quickly open a file you have used previously. Press F12 to open the file manager window.
+KeyNote is integrated with a dictionary/thesaurus program called WordWeb. Press Ctrl+F11 to look up current word in the thesaurus.
+You can import notes from another KeyNote file to the file which is currently open. Select Tools->Merge with File.
+If users are sharing KeyNote on one computer, each user can have personal settings by specifying an alternate INI file name in the shortcut used to start KeyNote.
+Keynote can automatically capture text copied to Clipboard in any Windows application: choose "Clipboard capture" from the "Note" menu.
+The splash screen can be turned off. See Options (F5), "Chrome" tab.
+The program is highly configurable. Press F5 to open the Options dialog box and customize the settings.
+To create a new note, press Ctrl+N. To create a new KeyNote file, press Shift+Ctrl+N.
+To edit the properties of the selected note, press F4. To quickly rename a note, press F2.
+Click the right mouse button over different areas of the main window to display additional menu commands.
+If you have used a similar note program called DaRT Notes before, KeyNote can open and save files created by that program. See file "DART.TXT' for details.
+Please check the program's website for FAQ, a list of known issues, and upgrade information. See Help->About.
+When the program is minimized or hidden behind other windows, it can be brought to the front by pressing Shift+Ctrl+F12. (You can customize the hotkey.)
+Keynote is and will remain free. If you enjoy using it, please consider making a small donation to an animal shelter in your area. Thank you!
+You can export notes from KeyNote and import plain text or RTF files into KeyNote. See Tools->Import and Tools->Export menu items.
+You can specify default attributes that will be assigned to each new note you create (such as font style, colors, icon, and others). See Tools->Defaults.
+Most editing functions have keyboard shortcuts assigned to them. You can look them up in the main menu.
+The file SAMPLE.KNT distributed with the program contains many additional hints and tips.
+You can move the toolbars by clicking and dragging them to a new location. Toolbars will remember the new position.
+If the note tabs take too much space and don't all fit on one line, you can shrink them by turning off their icons. See Options (F5), "Chrome" tab.
+No Help file is available at this time. (Sorry.) You have the status bar hints, though!
+This program will always be distributed as Freeware. If you paid for it, you were cheated.
+It is the author's very strong opinion that advertising sponsored programs are NOT free. This program will never use such a scheme.
+You can send E-mail directly from Keynote: choose "Email note" from the "Note" menu.
+You can change the default icons displayed next to note names: See Options -> Icons tab.
+You can switch between notes by using your own hotkeys! Put the "&" character in front of a letter in a note name; then press ALT+letter to switch to that note.
+If the file attached to a virtual node has been modified by another application, right-click the node and select "Refresh" to update the contents of the node.

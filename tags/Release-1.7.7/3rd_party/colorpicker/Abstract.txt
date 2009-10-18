@@ -1,0 +1,2 @@
+This component helps the user to select a color from a dropdown palette
+in a simple way. It is like the MS-Word 2000 color selection. 

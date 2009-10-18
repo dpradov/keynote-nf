@@ -1,0 +1,180 @@
+TdfsSystemImageList v1.16
+
+Description:
+  TdfsSystemImageList component which extends the TImageList component so that it
+  gives access to the Win32 system image list.  The system image list is a list
+  of images owned by the Win32 operating system that is made up of all the
+  images the OS uses in things like Explorer.
+
+  NOTE:  This component can and will provide access to the REAL system image
+  list.  That means that if you make changes to the image list, those changes
+  are going to be reflected  throughout the OS (i.e. Explorer, file open/save
+  dialogs, etc).  If you will be doing something that requires modification of
+  the system image list, you must set the ShareImages property to FALSE.  This
+  will create a COPY of the system image list, and you can make changes to it
+  without effecting other parts of the OS.
+
+
+Contact Information:
+  The lateset version will always be available on the web at:
+    http://www.delphifreestuff.com
+  If you have any questions, comments or suggestions, please use the Delphi
+  Free Stuff Support Forum at: 
+    http://www.delphifreestuff.com/discus/
+  If, for some reason, you can not use the web-based support forum, you can
+  email me at bstowers@delphifreestuff.com.  However, the support forum will
+  always take precedence over direct email since it provides a resource that
+  others can use when they have a problem.  Every message posted to the forum
+  is emailed directly to this account, so emailing me directly will not get 
+  your message to me any faster.  It will only make the message less important
+  for me to respond to since only one person (you) is benefiting from it
+  instead of everyone interested.  Having said all that, please do email me 
+  directly if it is regarding something that isn't really support related, 
+  i.e. just to say thanks (as novel as that idea is).  
+
+
+Installation:
+  Delphi 1:
+    * This component is not compatible with Delphi 1.
+  
+  Delphi 2, C++Builder 1:
+    * Select the 'Component | Install' menu item.
+    * In the Install Components dialog, click the Add button.
+    * In the Add Module dialog, enter the full path name of the component's 
+      registration unit (the unit that ends with 'Reg.pas', i.e. 
+      'BrowseDrReg.pas') and click OK.
+    * In the Add Module dialog, click OK.
+    * The component library will be rebuilt and a new tab named 'DFS' will be 
+      available on the Component Palette.
+
+  Delphi 3, 4, 5, C++Builder 3 & 4:
+    * Do one of the following:
+      + Create a new package by selecting File | New and choosing Package from
+        the New tab in the dialog.
+      + Open an existing package file.  I suggest you do this if you already 
+        have a package that you like to use for small, third party components.
+        I specifically have a package named "3rdParty.dpk" that I use for 
+        small components that come from other people.  Or, if you are using
+        several of my components, you might create a "DFS.dpk" package and 
+        use it for all of my DFS components.
+    * In the resulting package window, click the Add button.
+    * In the Add dialog, on the Add Unit tab, enter the full path name of the 
+      component's registration unit (the unit that ends with 'Reg.pas', i.e. 
+      'BrowseDrReg.pas') and click OK.
+    * You may want to add the other source files (*.pas) to the package as 
+      well in the same manner as you did the registration unit.  While this is
+      not required, not doing it will cause compiler warnings when the package
+      is compiled.  The component will function fine either way, but I 
+      personally find the warnings very irritating and am not happy until 
+      every compiler warning and hint is gone.
+    * If this package is new, or it has never been installed, click the 
+      Install button in the package window.  If this package is already 
+      installed in Delphi, click the Compile button.
+
+  C++Builder 5 and up:
+    * Perform the "Delphi 3 and up, C++Builder 3 and up" steps above, except
+      for the last step (Compile or Install).
+    * Select the package the component has been added to, and choose 
+      Project | Edit Option Source to open the package options in the editor.
+    * In the entry for PFLAGS, add the "-LUvcl50" option.  For example:
+        <PFLAGS value="-$YD -$W -$O -v -JPHNE -M -LUvcl50"/>
+    * Perform the final step from above, Compile or Install.
+    * For Borland's official word on this situation, open the C++Builder help
+      file and search the index for "dsgnintf.dcu" and see the "Compiling
+      packages with DsgnIntf" section.
+
+  Delphi 6 and up:
+    * Perform the "Delphi 3, 4, 5, C++Builder 3 & 4" steps above, except
+      for the last step (Compile or Install).
+    * Add the DesignIDE package to the Requires list of the package into which
+      the component is being installed.
+    * Perform the final step from above, Compile or Install.
+    * This is necessary because of changes to the design-time support units
+      introduced in Delphi 6.  For complete information, see the Del6New.hlp
+      file in your Delphi 6 Help directory.  In the index, search for
+      "upgrade issues" and in the resulting list of topics, select the
+      "DsgnIntf renamed and related changes" topic.
+
+
+Using C++Builder with Delphi Set Types:
+  A special note to C++Builder programmers:  Using set types such as the
+  TSystemFileAttributes type declared in SystemImageList.pas is not as
+  straightforward in C++ as it is in ObjectPascal.  For example, calling the
+  GetImageIndex method in Delphi would look like this:
+    SysImgList.GetImageIndex('c:\somefile.dat', FALSE, []);
+  or:
+    SysImgList.GetImageIndex('c:\somefile.dat', FALSE, [sfaReadOnly, sfaHidden]);
+  However, in C++Builder, the job is a bit more convoluted.  For those of you
+  not yet familiar with sets in C++Builder (there is info in the help file),
+  here are the two examples above translated for you:
+    SysImgList->GetImageIndex("c:\somefile.dat", false, TSystemFileAttributes());
+  and:
+    SysImgList->GetImageIndex("c:\somefile.dat", false,
+       TSystemFileAttributes() << sfaReadOnly << sfaHidden);
+  Because you don't need to pass file attributes if the file you are querying 
+  exists, you will probably be calling with an empty set very often.  I suggest
+  using a macro for this just to make it more readable, and require less typing:
+    #define SIL_NO_ATTRS TSystemFileAttributes()
+  Please see the Builder help file if you need more information than that, as
+  that's about the full extent of my knowledge of sets in C++Builder.  :)
+    
+
+Known Issues:
+  * There are no known issues at this time.
+
+
+Revision History:
+ v1.16:  + Updated for Delphi 6 compatibility.  See updated install directions
+           above.
+ v1.15:  + Updated for C++Builder 5 compatibility.
+ v1.14:  + Reworked the GetImageIndex functions.  Some didn't need the Attrs
+           parameter (it wasn't used), and those that did now have an
+           AlwaysUseAttrs parameter.  This was introduced to allow you to
+           specify that you always want to use the attributes passed.  If this
+           is false, the functions will try to figure out what the attributes
+           are by looking at the thing you are querying for.  This is useful
+           because you probably don't want the functions to look at things like
+           the A: drive.  Instead, you would pass [sfaDirectory] as the
+           attributes parameter and TRUE for AlwaysUseAttributes.  That way it
+           won't try to figure out the attributes, and thus cause the drive to
+           spin up.  Not good at all if there's no disk in the drive.
+         + A couple of the GetIconIndex functions used Application.MainForm.
+           This was bad if you didn't have an Application.MainForm, or it hadn't
+           been set yet (i.e. in the main form's OnCreate event).  Fixed by
+           Christian Stein, many thanks.
+         +
+ v1.13:  + It's *really* D5 compatible now.  Small change between the D5 eval
+           version and the real, shipping D5 version broke it.
+ v1.12:  + Classname changed.
+         + D5 compatibility.
+ v1.11:  + Added Open parameter to all the functions and methods to get an
+           image index for an "open" item.  Generally, this only applies for
+           things like directories as most items' open image is the same as the
+           normal image.  For example, you'd assign the open index to a tree
+           node's SeectedImage property to make it behave like explorer.
+ v1.10:  + Added methods for getting the image index for PIDLs (PItemIDLists),
+           and for special shell items like Control Panel.  For example, to get
+           the image index for the Desktop item, you could do the following:
+             ImageIndex := SystemImageList1.GetImageIndex(siDesktop, FALSE, []);
+           The same has been added for the GetFileInformation method.
+           NOTE:  These are overloaded functions in D4, so the method names are
+           the same (GetImageIndex, GetFileInformation).  Overloading was only
+           introduced in D4, so in prior versions the methods are named
+           GetImageIndexPIDL and GetImageIndexSpecial (same scheme for
+           GetFileInformation).
+ v1.00:  + Initial public release.  The following items are included for those
+           who are upgrading from the old Beta 3 version.  All beta history has
+           been removed as it is not of general interest.
+         + Removed the inherited "ImageList Editor" component editor (on the
+           component context menu, also the one you get if you double click it).
+           The Delphi image list editor doesn't seem to be able to handle the
+           system image list, I suspect because it is so large.
+         + Version property was stored, but it shouldn't have been.  You may get
+           an error about this property not existing (or something similar) when
+           you open a project that used an older version; just tell it to ignore
+           it and everything should be fine.
+         + Added Selected parameter to TdfsSystemImageList.GetImageIndex and
+           GetFileInformation methods, GetIconIndex function,
+         + Demo rewritten.  It's now a little more useful, showing your basic
+           explorer-type app.
+

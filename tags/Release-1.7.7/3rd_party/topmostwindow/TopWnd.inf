@@ -1,0 +1,29 @@
+[DSP upload]
+Filename=TopWin.zip
+Replacements=
+Version=1.0
+FileURL=
+Description=Drop the component TopMostWindow on a form and your window can be automatically a topmost- or a not-topmost-window
+Delphi 1.0=N
+Delphi 2.0=N
+Delphi 3.0=Y
+C++Builder 1.0=N
+File Status=Freeware
+Full Source=Included
+Category=Miscellaneous
+Note=
+Additional info=
+
+[DSP Support]
+DSP Support=N
+
+[Versions available]
+Delphi 1.0=
+Delphi 2.0=
+Delphi 3.0=
+C++Builder 1.0=
+
+[Uploader]
+Author name=Stephan Schneider
+Author E-mail=sstephan@donau.de
+Author URL=

@@ -1,0 +1,291 @@
+TdfsBrowseDirectoryDlg v2.60
+
+
+Description:
+  A dialog that displays the user's system in a heirarchial manner and
+  allows a selection to be made.  It is a wrapper for SHBrowseForFolder(),
+  which is rather messy to use directly.
+
+
+Contact Information:
+  The lateset version will always be available on the web at:
+    http://www.delphifreestuff.com
+  If you have any questions, comments or suggestions, please use the Delphi
+  Free Stuff Support Forum at: 
+    http://www.delphifreestuff.com/discus/
+  If, for some reason, you can not use the web-based support forum, you can
+  email me at bstowers@delphifreestuff.com.  However, the support forum will
+  always take precedence over direct email since it provides a resource that
+  others can use when they have a problem.  Every message posted to the forum
+  is emailed directly to this account, so emailing me directly will not get 
+  your message to me any faster.  It will only make the message less important
+  for me to respond to since only one person (you) is benefiting from it
+  instead of everyone interested.  Having said all that, please do email me 
+  directly if it is regarding something that isn't really support related, 
+  i.e. just to say thanks (as novel as that idea is).  
+
+
+Installation:
+  Delphi 1:
+    * This component is not compatible with Delphi 1.
+  
+  Delphi 2, C++Builder 1:
+    * Select the 'Component | Install' menu item.
+    * In the Install Components dialog, click the Add button.
+    * In the Add Module dialog, enter the full path name of the component's 
+      registration unit (the unit that ends with 'Reg.pas', i.e. 
+      'BrowseDrReg.pas') and click OK.
+    * In the Add Module dialog, click OK.
+    * The component library will be rebuilt and a new tab named 'DFS' will be 
+      available on the Component Palette.
+  
+  Delphi 3 and up, C++Builder 3 and up:
+    * Do one of the following:
+      + Create a new package by selecting File | New and choosing Package from
+        the New tab in the dialog.
+      + Open an existing package file.  I suggest you do this if you already 
+        have a package that you like to use for small, third party components.
+        I specifically have a package named "3rdParty.dpk" that I use for 
+        small components that come from other people.  Or, if you are using
+        several of my components, you might create a "DFS.dpk" package and 
+        use it for all of my DFS components.
+    * In the resulting package window, click the Add button.
+    * In the Add dialog, on the Add Unit tab, enter the full path name of the 
+      component's registration unit (the unit that ends with 'Reg.pas', i.e. 
+      'BrowseDrReg.pas') and click OK.
+    * You may want to add the other source files (*.pas) to the package as 
+      well in the same manner as you did the registration unit.  While this is
+      not required, not doing it will cause compiler warnings when the package
+      is compiled.  The component will function fine either way, but I 
+      personally find the warnings very irritating and am not happy until 
+      every compiler warning and hint is gone.
+    * If this package is new, or it has never been installed, click the 
+      Install button in the package window.  If this package is already 
+      installed in Delphi, click the Compile button.
+
+  Help File:
+    Delphi 3:
+      * Copy BrowseDr.Hlp to your Delphi\Help directory.
+      * Edit the DELPHI3.CNT file and add the following line to the Index section:
+          :Index TdfsBrowseDirectoryDlg =browsedr.hlp
+      * Delete the hidden Delphi3.Gid file.
+  
+    Delphi 2:
+      * Copy BrowseDr.Hlp and BrowseDr.Kwf to your Delphi\Help directory.
+      * Use the HelpInst tool included with Delphi to install the BrowseDr.Kwf
+        into Delphi\Bin\Delphi.Hdx file.
+  
+
+Notes:
+  * If you are using C++Builder 1, you will get a compiler warning about the
+    CSIDL_INTERNET identifier redefininiton not matching.  The problem is that
+    it is defined in SHLOBJ.H but not in SHLOBJ.PAS, so I have to declare it.
+    But, when Builder creates the HPP file for the unit, it defines that
+    constant with "(byte)", whereas the SHLOBJ.H value has no explicit type.
+    I have no idea how to convince Builder 1 that this constant should be a
+    word, so you will either have to live with the compiler warning (it won't
+    hurt anything) or edit the BROWSEDR.HPP file and fix the define by hand:
+
+      #define CSIDL_INTERNET 0x0001
+
+    This problem has been solved in Builder 3 by using the $EXTERNSYM
+    compiler directive, but this is not supported in Builder 1.  If you know
+    how to get it to stop generating this "(byte)" type into the HPP file,
+    please email me.
+  * If you attach code to the OnSelChanged event, you will need to add ShlObj
+    to your uses clause (or MyShlObj -- see next note).
+  * Requires Delphi 3 or Delphi v2.01's ShlObj unit.  If you don't have the
+    2.01 update, you can get the equivalent using Pat Ritchey's ShellObj unit.
+    It is freely available on his web site at
+    http://ourworld.compuserve.com/homepages/PRitchey/
+    If you use either 2.01's ShlObj or Pat's ShellObj unit, see the included
+    ShellFix.Txt file for fixing bugs in them.  Delphi 3 has no known problems.
+
+
+Known Issues:
+  * Status text will not display computer names in network neighborhood.  I've
+    tried everything I know, but I just can't figure out why it won't work.
+
+
+Revision History:
+ 2.60   + Setting Selection property to an empty string ('') after the dialog
+          had been displayed wouldn't clear the selection, so future executions
+          would revert to the last selection.  It only worked if you gave it a
+          specific directory, or if the dialog had never been displayed.
+        + Added new flags for Options property:
+           bfIncludeURLs: The browse dialog box can display URLs. The bfUseNewUI
+             and bfIncludeFiles flags must also be set. If these three flags are
+             not set, the browser dialog box will reject URLs. Even when these
+             flags are set, the browse dialog box will only display URLs if the
+             folder that contains the selected item supports them. When the
+             folder's IShellFolder::GetAttributesOf method is called to request
+             the selected item's attributes, the folder must set the
+             SFGAO_FOLDER attribute flag. Otherwise, the browse dialog box will
+             not display the URL.
+           bfNewDialogStyle: Use the new user-interface. Setting this flag
+             provides the user with a larger dialog box that can be resized. It
+             has several new capabilities including: drag and drop capability
+             within the dialog box, reordering, context menus, new folders,
+             delete, and other context menu commands.
+           bfShareable: The browse dialog box can display shareable resources on
+             remote systems. It is intended for applications that want to expose
+             remote shares on a local system. The bfUseNewUI flag must also be
+             set.
+           bfUseNewUI: Use the new user-interface including an edit box. This
+             flag is equivalent to bfEditBox and bfNewDialogStyle.
+
+          NOTE:  All of these new flags require v5.0 of SHELL32.DLL.  Currently,
+          the only way to have v5.0 of SHELL32.DLL is to use Windows 2000.  I
+          suspect that Internet Explorer v5.5 may also install this version of
+          SHELL32.DLL when the final version is released, but this is purely
+          a guess on my part at this point.  However, these flags are ignored on
+          systems that do not have v5.0, so setting these flags and using the
+          dialog on an older system will have no adverse effect.  That means you
+          can use the new style dialog flag so that Windows 2000 systems will
+          show the new style dialog, while NT, 98, 95, etc. users will see no
+          change and continue to use the normal (old style) browse dialog.  Also
+          note that setting a flag that requires another flag will enable the
+          required flag, i.e. bfShareable requires bfUseNewUI, so setting
+          bfShareable to TRUE will also set bfUseNewUI to TRUE.  This further
+          means that you can not turn off bfUseNewUI until you have also turned
+          off all options that require it, i.e. bfUseNewUI can not be set to
+          FALSE until bfShareable is set to FALSE.  
+ 2.59   + It's *really* D5 compatible now.  Small change between the D5 eval
+          version and the real, shipping D5 version broke it.
+ 2.58   + Component classname changed.
+        + D5 compatibility.
+ 2.57   + Updated for C++Builder 4 compatibility.
+ 2.56   + Added public read-only Handle property that allows access to the
+          browse dialog window handle while available.
+        + The bfIncludeFiles Options value seems to require v4.71 of
+          SHELL32.DLL, even though this is not documented by Microsoft.  I have
+          determined that the option has no effect on a standard Win95 system,
+          regardless of what the docs say, so beware.
+ 2.55   + At some point I "over-optimized" the SetEnableOKButton method, and
+          the EnableOKButton property wouldn't work right any more.
+ 2.54   + Got rid of yet another of those pesky system error dialogs.  Thanks
+          again to Stefan Hoffmeister.
+ 2.53   + Took care of the double error message dialogs when running on NT and
+          accessing a drive without a disk in it.  Since only the normal (i.e.
+          what you seen in explorer) error dialog is now displayed, this solves
+          the known issue about the caption being wrong in the other error
+          dialog.  Many thanks to Stefan Hoffmeister for fixing this.
+ 2.52   + Added BrowseDrReg unit.  All IDE specific code (i.e. registering the
+          component, property editors, etc.) are contained in this unit.  This
+          was done for two primary reasons:  1) Using the component in a Delphi
+          or C++Builder expert would register the component as well.  2) Reduce
+          code size in some cases -- usually the smart linker removes this sort
+          of stuff since the app never references it, but now it's for certain
+          since it isn't even in the unit.  This change means that you need to
+          install the component using the new "registration" unit instead of
+          the unit containing the component.
+ 2.51   + You could get a range check sometimes in when using with Delphi 4
+          because of change to the HFONT type in Windows.pas.  Fixed.  Thanks
+          to Jordan Russel for finding and fixing this.
+ 2.50   + Added new Options property flag, bfEditBox.  This flag indicates that
+          an edit box should be displayed above the tree view where the user
+          can type a selection.  This requires v4.71 of SHELL32.DLL (ships with
+          Internet Explorer 4.0 and above) be installed.  If not, the edit box
+          will simply not be there.
+        + Added new OnValidateFailed event.  This event fires when the user
+          types an entry into the edit box (see bfEditBox above) that is not
+          a valid path.  If bfEditBox is not specified, this event never fires.
+        + Updated the demo to show the new bfEditBox option and OnValidateFailed
+          event in use.
+ 2.39   + Minor update for Delphi 4 compatibility (DFS.INC updated).
+ 2.38   + Added Version property so you can quickly and easily tell what version
+          is installed in the IDE.
+ 2.37   + Fixed bug that could cause lockups on NT machines.  Thanks to Michael
+          Lang (mwlang@mindspring.com) for finding it.
+ 2.36   + Got the C++Builder 3 compiler to shut up about redefinition warning.
+ 2.35   + Fixed problem with C++Builder 3 and run-time packages.
+ 2.34   + Now *really* compatible with C++Builder 3.  See Notes section above.
+ 2.33   + Now compatible with C++Builder 3.
+ 2.32   + Fixed compatibility problem with C++Builder 1.
+ 2.31   + Fixed bug that caused exception if Selection property was set to '\';
+ 2.30   + Now has a help file!
+        + Added SelectionPIDL runtime property. See help file.  This has changed
+          the format of the OnSelChanged event.  You will need to regenerate
+          any event handlers you have for this.
+        + Added DisplayName property.  See help file.
+        + Added some new TRootID identifiers.  See help file.
+        + Using both bfComputers and bfDirectoriesOnly in the Options property
+          would not return valid paths.
+        + ShowSelectionInStatus property didn't work if StatusText property was
+          blank when Execute was called.
+ 2.25   + Setting the Selection property to a UNC filename didn't work, only
+          local file paths did.  Fixed.  You can now assign it things like:
+            Selection := '\\shared_pc\shared_folder'
+          and it will start in that location if it exists; if not, it just
+          starts in the root.
+ 2.24   + Updated for new DFS.INC file, component tab name, history/comments
+          file.
+ 2.23   + Removed ShellMalloc._Release call under Delphi 3.  I thought this
+          was necessary for parameters allocated in functions where the
+          param was not "out".  Turns out this isn't the case, "var" params
+          will clean up themselves too.  So, what does "out" do then?
+          Thanks to Andrius Adamonis <andrius@prototechnika.lt> for pointing
+          this out to me.
+        + Problem with selecting hidden folders.  Thanks to David Taylor
+          <djtaylor@hermes02.globalnet.co.uk> for this.
+ 2.22   + Will now return computer name if bfComputer is in Options property
+          It will NOT show the current name in the status text.  I can't
+          get it to work, so if anyone knows how, please email me.  Thanks
+          to Libor Kral (kral@brno.bohem-net.cz) for this one.
+ 2.21   + Small change for C++Builder compatibility.
+ 2.20   + Reintroduced the idDesktopExpand.  It still uses an undocumented
+          technique, but should be much more likely to survive the next
+          upgrade like IE4.
+        + idInternet is no longer enclosed in $IFDEFs.  Microsoft has
+          documented it, so it is an "official feature".  You still need to
+          be aware of the need for IE4 to be installed on the user's system.
+        + Added Caption property.
+        + Add Parent property to be more flexible about who the parent
+          window of the dialog is.
+        + Added ShowSelectionInStatus property.
+ 2.10   + Updated to work with Delphi 3.
+        + Bug when used on machine with Internet Explorer 4.0 beta.  If you
+          want the new item (idInternet) available, define WANT_INTERNET
+          below.  NOTE: It is your responsibility to ensure that IE4 is on
+          the user's machine.  If it isn't, idInternet will cause idDesktop
+          to be the root, and will cause it to expand the first level.
+          There is no Internet root item on machines without IE4 installed.
+          I have removed the idDesktopExpanded item entirely since the
+          undocumented code I was using for it now has a documented purpose.
+        + Added bfIncludeFiles to Options.  Thanks to Arentjan
+          (ajbanck@pop3.worldaccess.nl) for this.
+        + Changed SetSelection so that it only appends backslash if the
+          selection is an existing directory.  Thanks to Arentjan for this.
+ 2.03   + The area available for the status text is limited (by the API),
+          and using it for showing the selected path can cause that text to
+          wrapped around under the tree control.  As a work around for this,
+          I now test FStatusText to see if it is a valid directory, and if
+          so, shorten it using ellipses ("...") to make the most of the path
+          as possible fit.  If it is not a directory, the text is just
+          shortened at the end of the string.  This behavior can be disabled
+          by setting FitStatusText to FALSE.  It is enabled by default.
+ 2.02   + Setting Selection property to 'C:\' would cause the root item to
+          be selected (i.e. Desktop) instead of the drive object.  Fixed.
+ 2.01   + Added ImageIndex property to return the index of the selection's
+          image in the system image list.  See demo for how to use this.
+        + Made the interogation of of the parent window handle more robust.
+          Some people were doing property editors and it was breaking.
+ 2.00:  + Calling as a function is no longer supported.  Too complicated to
+          support all the new properties that way.
+        + Added StatusText property.  If this property is empty ('') when
+          Execute is called, it will not be available during the life of
+          the dialog at all.
+        + Selected property changed to Selection.  Now available at design
+          time.  Setting the value causes that value, if it exists, to be
+          selected in the tree.
+        + Added EnableOKButton property.  Use in conjunction with the
+          OnSelChange event to control when the OK button is enabled.
+        + Simplified DoSelChanged method.  Boy, was I asleep when I wrote
+          that one... Doh.
+ 1.01:  + Now uses Delphi 2.01 ShlObj unit.
+        + Added callback stuff.  See the DoInitialized and DoSelChanged
+          methods, Center property, and OnSelChange event.
+        + Added Center property.
+        + Added OnSelChange event.
+ 1.00:  + Initial release
+

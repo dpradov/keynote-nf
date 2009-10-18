@@ -1,0 +1,45 @@
+
+                               DCPcrypt v1.3
+                                     -                              
+                    David Barton (davebarton@bigfoot.com)
+
+Algorithms
+==========
+The following algorithms are implemented in DCPcrypt v1.3.
+The ID is just a unique identification number assigned by me to identify the
+algorithm within DCPcrypt.
+
+Speeds are based on a P200MMX running under the Delphi4 IDE.
+
+
+Block Ciphers:
+ID  Name         Patented   MaxKeySize   BlockSize   Speed
+---------------------------------------------------------------
+05  Blowfish     No         448bits      64bits      2.46mb/sec
+07  Cast128      No         128bits      64bits      2.60mb/sec
+15  Cast256      Yes        256bits      128bits     1.68mb/sec
+08  Gost         No         256bits      64bits      1.63mb/sec
+12  IDEA         Yes*       128bits      64bits      0.75mb/sec
+13  Mars         Yes        1248bits     128bits     1.38mb/sec
+11  Misty1       Yes*       128bits      64bits      1.01mb/sec
+01  RC2          No         1024bits     64bits      0.47mb/sec
+03  RC5          Yes        2048bits     64bits      2.67mb/sec
+04  RC6          Yes        2048bits     128bits     1.66mb/sec
+09  Rijndael     No         256bits      128bits     2.12mb/sec
+06  Twofish      No         256bits      128bits     2.12mb/sec
+
+* These algorithms are patented but are free for non-commercial usage.   
+    
+
+Hash Algorithms:
+ID  Name         Patented   HashSize      Speed
+----------------------------------------------------
+14  Haval        No         Upto 256bits  1.90mb/sec
+10  RipeMD-169   No         160bits       2.12mb/sec
+02  SHA1         No         160bits       2.60mb/sec
+
+
+David Barton (davebarton@bigfoot.com)
+http://www.scramdisk.clara.net/
+Home of Scramdisk and the Delphi Cryptography Page
+23/03/1999
