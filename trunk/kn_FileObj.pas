@@ -1010,6 +1010,9 @@ begin
       else
         FActiveNote := 0;
 
+      if Assigned(kn_global.ActiveNote) then
+         kn_global.ActiveNote.EditorToDataStream;
+
       case FFileFormat of
         nffKeyNote : begin
 
@@ -1040,9 +1043,6 @@ begin
 
             if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then
             begin
-              if Assigned(kn_global.ActiveNote) then
-                 kn_global.ActiveNote.EditorToDataStream;
-
               // this is done so that we preserve the order of tabs.
               for i := 0 to pred( FPageCtrl.PageCount ) do
               begin
