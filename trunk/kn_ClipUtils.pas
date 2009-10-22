@@ -24,7 +24,7 @@ function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
 
 function ClipboardHasHTMLformat : boolean;
 function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
-function GetURLFromHTMLClipboard : wideString;
+function GetURLFromHTMLClipboard : string;
 
 implementation
 uses WideStrings;
@@ -56,15 +56,15 @@ begin
   end;
 end; // ClipboardToStream
 
-function GetURLFromHTMLClipboard : wideString;
+function GetURLFromHTMLClipboard : string;
 const
   HTML_FMT_SRCURL  = 'SourceURL:';
   MAX_TEST_LINES = 15;
 var
-  List : TWideStringList;
+  List : TStringList;
   i : integer;
   Stm : TMemoryStream;
-  line : WideString;
+  line : string;
 begin
 
   result := '';
@@ -74,7 +74,7 @@ begin
     try
       ClipboardToStream( CF_HTML, Stm );
       Stm.Position := 0;
-      list := TWideStringList.Create;
+      list := TStringList.Create;
       try
         list.LoadFromStream( Stm );
         for i := 0 to list.count-1 do
