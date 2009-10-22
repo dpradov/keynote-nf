@@ -4467,15 +4467,14 @@ begin
         WM_SYSKEYDOWN:
           if DoKeyDown(TWMKey(Message)) then Exit;
         WM_CHAR:
-          if DoKeyPress(TWMKey(Message)) then Exit;
-//          begin
-//            MakeWMCharMsgSafeForAnsi(Message);
-//            try
-//              if DoKeyPress(TWMKey(Message)) then Exit;
-//            finally
-//              RestoreWMCharMsg(Message);
-//            end;
-//          end;
+          begin
+            MakeWMCharMsgSafeForAnsi(Message);
+            try
+              if DoKeyPress(TWMKey(Message)) then Exit;
+            finally
+              RestoreWMCharMsg(Message);
+            end;
+          end;
 
         WM_KEYUP,
         WM_SYSKEYUP:
