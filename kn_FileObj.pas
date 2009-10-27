@@ -51,7 +51,7 @@ uses Windows, Classes, Graphics,
   kn_NoteObj, kn_Info, kn_Const,
   kn_NodeList, gf_files, TreeNT,
   IDEA, DCPcrypt, Blowfish, SHA1,
-  Dialogs, RxRichEd, StreamIO;
+  Dialogs, RxRichEd, StreamIO, ZLibEx;
 
 type
   EKeyNoteFileError = class( Exception );
@@ -92,6 +92,7 @@ type
     FVersion : TNoteFileVersion;
     FFileName : wideString;
     FFileFormat : TNoteFileFormat;
+    FCompressionLevel: TZCompressionLevel;
     FDescription : TCommentStr;
     FComment : TCommentStr;
     FDateCreated : TDateTime;
@@ -143,6 +144,7 @@ type
     property PageCtrl : TPage95Control read FPageCtrl write FPageCtrl;
     property Modified : boolean read GetModified write SetModified;
     property FileFormat : TNoteFileFormat read FFileFormat write SetFileFormat;
+    property CompressionLevel: TZCompressionLevel read FCompressionLevel write FCompressionLevel;
     property TrayIconFN : string read FTrayIconFN write FTrayIconFN;
     property TabIconsFN : string read FTabIconsFN write FTabIconsFN;
     property ReadOnly : boolean read FReadOnly write FReadOnly;
@@ -448,6 +450,17 @@ begin
         end;
       end;
     end;
+    nffKeyNoteZip : begin
+      with FVersion do
+      begin
+        ID := NFHDR_ID_COMPRESSED; // GFKNZ
+        if HasExtendedNotes then
+          Major := NFILEVERSION_MAJOR
+        else
+          Major := NFILEVERSION_MAJOR_NOTREE;
+        Minor := NFILEVERSION_MINOR;
+      end;
+    end;
     nffEncrypted : begin
       with FVersion do
       begin
@@ -586,6 +599,13 @@ begin
       VerID.ID := NFHDR_ID_OLD;
     end
     else
+    if ( pos( NFHDR_ID_COMPRESSED, TestString ) > 0 ) then
+    begin
+      FFileFormat := nffKeyNoteZip;
+      _IS_OLD_KEYNOTE_FILE_FORMAT := false;
+      VerID.ID := NFHDR_ID_COMPRESSED;
+    end
+    else
     if ( pos( NFHDR_ID_ENCRYPTED, TestString ) > 0 ) then
     begin
       FFileFormat := nffEncrypted;
@@ -643,13 +663,27 @@ begin
 
       end;
 
+      if ( FFileFormat = nffKeyNoteZip ) then begin
+          MemStream := TTntMemoryStream.Create;
+          Stream := TTntFileStream.Create(FN, fmOpenRead);
+          try
+             Stream.ReadBuffer(FVersion, sizeof( FVersion ));
+             Stream.ReadBuffer(FCompressionLevel, sizeof( FCompressionLevel ));
+             ZDecompressStream (Stream, MemStream);
+             TestString := FVersion.ID + #32 + FVersion.Major + '.' + FVersion.Minor;
+          finally
+             Stream.Free;
+             Stream := nil;
+          end;
+      end;
+
       if ( FFileFormat = nffKeyNote ) then begin
           MemStream := TTntMemoryStream.Create;
           MemStream.LoadFromFile(FN);
       end;
 
       case FFileFormat of
-        nffKeyNote, nffEncrypted : begin
+        nffKeyNote, nffKeyNoteZip, nffEncrypted : begin
           if _TEST_KEYNOTE_FILE_VERSION then // global var, allows to bypass testing
           begin
             p := pos( VerID.ID, TestString );
@@ -966,8 +1000,94 @@ var
   myNote : TTabNote;
   ds : string;
   tf : TWTextFile;
-  CryptStream : TMemoryStream;
+  AuxStream : TMemoryStream;
   tempFN : wideString;
+
+  procedure WriteNoteFile;
+  var
+     i: integer;
+  begin
+    //writeln(tf, _NF_COMMENT, _NF_AID, FVersion.ID, #32, FVersion.Major + '.' + FVersion.Minor );
+    if FFileFormat = nffKeyNote then begin
+       tf.writeln([_NF_COMMENT, _NF_AID, string(FVersion.ID), #32, FVersion.Major + '.' + FVersion.Minor] );
+       tf.writeln([_NF_WARNING]);
+    end;
+    tf.writeln([_NF_COMMENT, _NF_FDE, FDescription ]);
+    tf.writeln([_NF_COMMENT, _NF_FCO, FComment ]);
+
+    tf.writeln([_NF_COMMENT, _NF_ACT, FActiveNote ]);
+
+    tf.writeln([_NF_COMMENT, _NF_DCR, FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, FDateCreated ) ]);
+    tf.writeln([_NF_COMMENT, _NF_FileFlags, PropertiesToFlagsString ]);
+    // writeln( tf, _NF_COMMENT, _NF_ReadOnlyOpen, BOOLEANSTR[FOpenAsReadOnly] );
+    // writeln( tf, _NF_COMMENT, _NF_ShowTabIcons, BOOLEANSTR[FShowTabIcons] );
+    if ( TrayIconFN <> '' ) then
+      tf.writeln([ _NF_COMMENT, _NF_TrayIconFile, TrayIconFN ]);
+    if ( FTabIconsFN <> '' ) then
+      tf.writeln([ _NF_COMMENT, _NF_TabIconsFile, FTabIconsFN ]);
+    if assigned( FClipCapNote ) then
+      tf.writeln([ _NF_COMMENT, _NF_ClipCapNote, FClipCapNote.TabSheet.PageIndex ]);
+
+    if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then
+    begin
+      // this is done so that we preserve the order of tabs.
+      for i := 0 to pred( FPageCtrl.PageCount ) do
+      begin
+        myNote := TTabNote( FPageCtrl.Pages[i].PrimaryObject );
+        try
+          if assigned( myNote ) then
+          begin
+            case myNote.Kind of
+              ntRTF : myNote.SaveToFile( tf );
+              ntTree : TTreeNote( myNote ).SaveToFile( tf );
+            end;
+          end;
+        except
+          on E : Exception do
+          begin
+            result := 3;
+            DoMessageBox( WideFormat(
+              STR_13,
+              [myNote.Name, E.Message]
+              ), mtError, [mbOK], 0 );
+              exit;
+          end;
+        end;
+      end;
+    end
+    else
+    begin
+      // Go by FNotes instead of using FPageCtrl.
+      // This may cause notes to be saved in wrong order.
+      for i := 0 to pred( FNotes.Count ) do
+      begin
+        myNote := FNotes[i];
+        try
+          if assigned( myNote ) then
+          begin
+            case myNote.Kind of
+              ntRTF : myNote.SaveToFile( tf );
+              ntTree : TTreeNote( myNote ).SaveToFile( tf );
+            end;
+          end;
+        except
+          on E : Exception do
+          begin
+            result := 3;
+            DoMessageBox( WideFormat(
+              STR_13,
+              [myNote.Name, E.Message]
+              ), mtError, [mbOK], 0 );
+              exit;
+          end;
+        end;
+      end;
+    end;
+
+    tf.writeln( [_NF_EOF ]);
+    result := 0;
+  end;
+
 begin
   result := -1; // error before saving file
   Stream := nil;
@@ -1021,183 +1141,62 @@ begin
           tf.rewrite();
 
           try
-
-            //writeln(tf, _NF_COMMENT, _NF_AID, FVersion.ID, #32, FVersion.Major + '.' + FVersion.Minor );
-            tf.writeln([_NF_COMMENT, _NF_AID, string(FVersion.ID), #32, FVersion.Major + '.' + FVersion.Minor] );
-            tf.writeln([_NF_WARNING]);
-            tf.writeln([_NF_COMMENT, _NF_FDE, FDescription ]);
-            tf.writeln([_NF_COMMENT, _NF_FCO, FComment ]);
-
-            tf.writeln([_NF_COMMENT, _NF_ACT, FActiveNote ]);
-
-            tf.writeln([_NF_COMMENT, _NF_DCR, FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, FDateCreated ) ]);
-            tf.writeln([_NF_COMMENT, _NF_FileFlags, PropertiesToFlagsString ]);
-            // writeln( tf, _NF_COMMENT, _NF_ReadOnlyOpen, BOOLEANSTR[FOpenAsReadOnly] );
-            // writeln( tf, _NF_COMMENT, _NF_ShowTabIcons, BOOLEANSTR[FShowTabIcons] );
-            if ( TrayIconFN <> '' ) then
-              tf.writeln([ _NF_COMMENT, _NF_TrayIconFile, TrayIconFN ]);
-            if ( FTabIconsFN <> '' ) then
-              tf.writeln([ _NF_COMMENT, _NF_TabIconsFile, FTabIconsFN ]);
-            if assigned( FClipCapNote ) then
-              tf.writeln([ _NF_COMMENT, _NF_ClipCapNote, FClipCapNote.TabSheet.PageIndex ]);
-
-            if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then
-            begin
-              // this is done so that we preserve the order of tabs.
-              for i := 0 to pred( FPageCtrl.PageCount ) do
-              begin
-                myNote := TTabNote( FPageCtrl.Pages[i].PrimaryObject );
-                try
-                  if assigned( myNote ) then
-                  begin
-                    case myNote.Kind of
-                      ntRTF : myNote.SaveToFile( tf );
-                      ntTree : TTreeNote( myNote ).SaveToFile( tf );
-                    end;
-                  end;
-                except
-                  on E : Exception do
-                  begin
-                    result := 3;
-                    DoMessageBox( WideFormat(
-                      STR_13,
-                      [myNote.Name, E.Message]
-                      ), mtError, [mbOK], 0 );
-                      exit;
-                  end;
-                end;
-              end;
-            end
-            else
-            begin
-              // Go by FNotes instead of using FPageCtrl.
-              // This may cause notes to be saved in wrong order.
-              for i := 0 to pred( FNotes.Count ) do
-              begin
-                myNote := FNotes[i];
-                try
-                  if assigned( myNote ) then
-                  begin
-                    case myNote.Kind of
-                      ntRTF : myNote.SaveToFile( tf );
-                      ntTree : TTreeNote( myNote ).SaveToFile( tf );
-                    end;
-                  end;
-                except
-                  on E : Exception do
-                  begin
-                    result := 3;
-                    DoMessageBox( WideFormat(
-                      STR_13,
-                      [myNote.Name, E.Message]
-                      ), mtError, [mbOK], 0 );
-                      exit;
-                  end;
-                end;
-              end;
-            end;
-
-            tf.writeln( [_NF_EOF ]);
-            result := 0;
+            WriteNoteFile;
             FModified := false;
           finally
             tf.closefile();
           end;
         end; // nffKeyNote (text file format)
 
+        nffKeyNoteZip : begin
+
+          AuxStream := TTntMemoryStream.Create;
+          Stream := TTntFileStream.Create( tempFN, ( fmCreate or fmShareExclusive ));
+          try
+            Stream.WriteBuffer(FVersion, sizeof(FVersion));
+            Stream.WriteBuffer(FCompressionLevel, sizeof(FCompressionLevel));
+
+            tf:= TWTextFile.Create();
+            try
+              tf.assignstream( AuxStream );
+              tf.rewrite;
+              WriteNoteFile;
+              FModified := false;
+            finally
+              tf.closefile();
+            end;
+            AuxStream.Position := 0;
+            ZCompressStream(AuxStream, Stream, FCompressionLevel);
+
+          finally
+            FreeAndNil(AuxStream);
+            FreeAndNil(Stream);
+          end;
+
+        end; // nffKeyNoteZip format
+
         nffEncrypted : begin
 
           if ( FPassphrase = '' ) then
             raise EKeyNoteFileError.Create( STR_14 );
 
-          CryptStream := TTntMemoryStream.Create;
+          AuxStream := TTntMemoryStream.Create;
           try
             tf:= TWTextFile.Create();
-            tf.assignstream( CryptStream );
+            tf.assignstream( AuxStream );
             tf.rewrite;
 
             try
-
-              tf.writeln([ _NF_COMMENT, _NF_FDE, FDescription ]);
-              tf.writeln([ _NF_COMMENT, _NF_FCO, FComment ]);
-              tf.writeln([ _NF_COMMENT, _NF_ACT, FActiveNote ]);
-              tf.writeln([ _NF_COMMENT, _NF_DCR, FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, FDateCreated ) ]);
-              // writeln( tf, _NF_COMMENT, _NF_ReadOnlyOpen, BOOLEANSTR[FOpenAsReadOnly] );
-              // writeln( tf, _NF_COMMENT, _NF_ShowTabIcons, BOOLEANSTR[FShowTabIcons] );
-              tf.writeln([ _NF_COMMENT, _NF_FileFlags, PropertiesToFlagsString ]);
-
-              if ( TrayIconFN <> '' ) then
-                tf.writeln([ _NF_COMMENT, _NF_TrayIconFile, TrayIconFN ]);
-              if ( FTabIconsFN <> '' ) then
-                tf.writeln([ _NF_COMMENT, _NF_TabIconsFile, FTabIconsFN ]);
-              if assigned( FClipCapNote ) then
-                tf.writeln([ _NF_COMMENT, _NF_ClipCapNote, FClipCapNote.TabSheet.PageIndex ]);
-
-              if ( FPageCtrl.PageCount > 0 ) then
-              begin
-                // this is done so that we preserve the order of tabs.
-                for i := 0 to pred( FPageCtrl.PageCount ) do
-                begin
-                  myNote := TTabNote( FPageCtrl.Pages[i].PrimaryObject );
-                  try
-                    if assigned( myNote ) then
-                    begin
-                      case myNote.Kind of
-                        ntRTF : myNote.SaveToFile( tf );
-                        ntTree : TTreeNote( myNote ).SaveToFile( tf );
-                      end;
-                    end;
-                  except
-                    on E : Exception do
-                    begin
-                      result := 3;
-                      DoMessageBox( WideFormat(
-                        STR_13,
-                        [myNote.Name, E.Message]
-                        ), mtError, [mbOK], 0 );
-                      exit;
-                    end;
-                  end;
-                end;
-              end
-              else
-              begin
-                for i := 0 to pred( FNotes.Count ) do
-                begin
-                  myNote := FNotes[i];
-                  try
-                    if assigned( myNote ) then
-                    begin
-                      case myNote.Kind of
-                        ntRTF : myNote.SaveToFile( tf );
-                        ntTree : TTreeNote( myNote ).SaveToFile( tf );
-                      end;
-                    end;
-                  except
-                    on E : Exception do
-                    begin
-                      result := 3;
-                      DoMessageBox( WideFormat(
-                        STR_13,
-                        [myNote.Name, E.Message]
-                        ), mtError, [mbOK], 0 );
-                      exit;
-                    end;
-                  end;
-                end;
-              end;
-
-              tf.writeln( [_NF_EOF] );
-              result := 0;
+              WriteNoteFile;
               FModified := false;
             finally
               tf.closefile();
             end;
 
-            EncryptFileInStream( tempFN, CryptStream );
+            EncryptFileInStream( tempFN, AuxStream );
 
           finally
-            CryptStream.Free;
+            AuxStream.Free;
           end;
 
         end; // nffEncrypted format

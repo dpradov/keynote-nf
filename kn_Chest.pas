@@ -76,6 +76,8 @@ const
   NODEIMG_BLANK    = 7;
   NODEIMG_MACROREC = 8;
   NODEIMG_MACRORUN = 9;
+  NODEIMG_TKNZIP   = 10;
+  NODEIMG_TKNZIP_RO = 11;
 
 procedure SaveDefaultBitmaps;
 function LoadCategoryBitmapsBuiltIn : boolean;
