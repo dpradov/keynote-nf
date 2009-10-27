@@ -115,6 +115,9 @@ type
     Edit_TrayIcon: TTntEdit;
     TB_OpenDlgTabImg: TToolbarButton97;
     Edit_TabImg: TTntEdit;
+    TntLabel1: TTntLabel;
+    Combo_CompressLevel: TTntComboBox;
+    Bevel4: TBevel;
     procedure TB_OpenDlgTrayIconClick(Sender: TObject);
     procedure TB_OpenDlgTabImgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -153,7 +156,7 @@ const
   _FILE_TABIMAGES_SELECTION_CHANGED : boolean = false;
 
 implementation
-uses kn_main, gf_miscvcl, TntClasses, TntSysUtils;
+uses kn_main, gf_miscvcl, TntClasses, TntSysUtils, ZLibEx;
 
 {$R *.DFM}
 
@@ -179,6 +182,7 @@ procedure TForm_FileInfo.FormCreate(Sender: TObject);
 var
   cm : TCryptMethod;
   ff : TNoteFileFormat;
+  cl: TZCompressionLevel;
 begin
   with FormPlacement do
   begin
@@ -209,6 +213,9 @@ begin
   for ff := low( TNoteFileFormat ) to high( TNoteFileFormat ) do
     Combo_Format.Items.Add( FILE_FORMAT_NAMES[ff] + STR_01 );
   Combo_Format.ItemIndex := 0;
+  for cl := low( TZCompressionLevel ) to high( TZCompressionLevel ) do
+    Combo_CompressLevel.Items.Add( FILE_COMPRESSION_LEVEL[cl] );
+  Combo_CompressLevel.ItemIndex := 0;
   Edit_Comment.MaxLength := MAX_COMMENT_LENGTH;
   Edit_Description.MaxLength := MAX_COMMENT_LENGTH;
   OK_Click := false;
@@ -319,6 +326,7 @@ begin
     Edit_Description.SelectAll;
   end;
 
+  Combo_CompressLevel.ItemIndex := ord( myNotes.CompressionLevel );
   Combo_FormatChange( Combo_Format );
 
   CB_HidePass.Checked := HidePassText;
@@ -431,6 +439,12 @@ procedure TForm_FileInfo.Combo_FormatChange(Sender: TObject);
 begin
   Edit_Description.Enabled := Combo_Format.ItemIndex <> ord( nffDartNotes );
   Edit_Comment.Enabled := Edit_Description.Enabled;
+  Combo_CompressLevel.Enabled := Combo_Format.ItemIndex = ord( nffKeyNoteZip );
+  if not Combo_CompressLevel.Enabled then
+     Combo_CompressLevel.ItemIndex := ord( zcNone )
+  else
+     if (myNotes.FileFormat <> nffKeyNoteZip) then
+        Combo_CompressLevel.ItemIndex := ord( zcDefault );
 
   Tab_Pass.TabVisible := ( Combo_Format.ItemIndex = ord( nffEncrypted ));
   if ( Tab_Pass.TabVisible and ( myNotes.FileFormat <> nffEncrypted )) then

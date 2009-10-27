@@ -540,7 +540,8 @@ begin
             if WideFileexists( Info.Name ) then
             begin
               case Info.Format of
-                nffKeyNote : Node.ImageIndex := NODEIMG_TKN;
+                nffKeyNote :    Node.ImageIndex := NODEIMG_TKN;
+                nffKeyNoteZip : Node.ImageIndex := NODEIMG_TKNZIP;
                 nffEncrypted : Node.ImageIndex := NODEIMG_ENC;
                 nffDartNotes : Node.ImageIndex := NODEIMG_DART;
               end;

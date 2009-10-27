@@ -1603,6 +1603,7 @@ end; // FocusActiveNote
 procedure SelectStatusbarGlyph( const HaveNoteFile : boolean );
 var
   Glyph : TPicture;
+  Index: integer;
 begin
 
   // indicate file state or special program activity
@@ -1615,50 +1616,37 @@ begin
     begin
 
       if IsRecordingMacro then
-      begin
-        Chest.MGRImages.GetBitmap( NODEIMG_MACROREC, Glyph.Bitmap );
-      end
+        Index:= NODEIMG_MACROREC
       else
       if IsRunningMacro then
-      begin
-        Chest.MGRImages.GetBitmap( NODEIMG_MACRORUN, Glyph.Bitmap );
-      end
+        Index:= NODEIMG_MACRORUN
       else
       if NoteFile.ReadOnly then
       begin
         case NoteFile.FileFormat of
-          nffKeyNote : begin
-            Chest.MGRImages.GetBitmap( NODEIMG_TKN_RO, Glyph.Bitmap );
-          end;
-          nffEncrypted : begin
-            Chest.MGRImages.GetBitmap( NODEIMG_ENC_RO, Glyph.Bitmap );
-          end;
-          nffDartNotes : begin
-            Chest.MGRImages.GetBitmap( NODEIMG_DART_RO, Glyph.Bitmap );
-          end;
+          nffKeyNote :   Index:= NODEIMG_TKN_RO;
+          nffKeyNoteZip: Index:= NODEIMG_TKNZIP_RO;
+          nffEncrypted : Index:= NODEIMG_ENC_RO;
+          nffDartNotes : Index:= NODEIMG_DART_RO;
         end;
       end
       else
       begin
         case NoteFile.FileFormat of
-          nffKeyNote : begin
-            Chest.MGRImages.GetBitmap( NODEIMG_TKN, Glyph.Bitmap );
-          end;
-          nffEncrypted : begin
-            Chest.MGRImages.GetBitmap( NODEIMG_ENC, Glyph.Bitmap );
-          end;
-          nffDartNotes : begin
-            Chest.MGRImages.GetBitmap( NODEIMG_DART, Glyph.Bitmap );
-          end;
+          nffKeyNote :   Index:= NODEIMG_TKN;
+          nffKeyNoteZip: Index:= NODEIMG_TKNZIP;
+          nffEncrypted : Index:= NODEIMG_ENC;
+          nffDartNotes : Index:= NODEIMG_DART;
         end;
       end;
 
     end
     else
     begin
-      Chest.MGRImages.GetBitmap( NODEIMG_BLANK, Glyph.Bitmap );
+      Index:= NODEIMG_BLANK;
     end;
 
+    Chest.MGRImages.GetBitmap( Index, Glyph.Bitmap );
     Form_Main.StatusBar.Panels[PANEL_FILEICON].Glyph := Glyph;
   finally
     Glyph.Free;

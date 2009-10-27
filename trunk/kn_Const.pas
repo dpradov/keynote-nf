@@ -43,7 +43,7 @@
 unit kn_Const;
 
 interface
-uses Windows, ShellAPI, Graphics, Messages;
+uses Windows, ShellAPI, Graphics, Messages, ZLibEx;
 
 resourcestring
   FILTER_ALLFILES    = 'All files (*.*)|*.*';
@@ -54,6 +54,7 @@ resourcestring
   STR_02_Defaults = 'New node';
   STR_03_Formats = 'Keynote native';
   STR_04_Formats = 'Keynote encrypted';
+  STR_06_Formats = 'Keynote compressed';
   STR_05_Formats = 'Dart Notes';
   STR_06_TabnoteKind = 'Standard Rich text editor';
   STR_07_TabnoteKind = 'Multi-level tree';
@@ -103,6 +104,11 @@ resourcestring
   STR_51_Symb = 'Dots';
   STR_52_Symb = 'French parenthesis (left)';
   STR_53_Symb = 'French parenthesis (right)';
+  STR_54_Compression = 'None';
+  STR_55_Compression = 'Fastest';
+  STR_56_Compression = 'Default';
+  STR_57_Compression = 'Max';
+
 
 procedure DefineConst;
 
@@ -149,6 +155,7 @@ const
   NFHDR_ID           = 'GFKNT'; // KeyNote file header ID
   NFHDR_ID_OLD       = 'GFKNX'; // KeyNote token text file header ID
   NFHDR_ID_ENCRYPTED = 'GFKNE'; // encrypted KeyNote file header ID
+  NFHDR_ID_COMPRESSED = 'GFKNZ'; // compressed KeyNote file header ID
   NFILEVERSION_MAJOR = '2';     // and version numbers
   // NFILEVERSION_MAJOR = '1';     // non-tree version ID, obsolete
   NFILEVERSION_MINOR = '0';     //
@@ -371,7 +378,7 @@ const
 type
   // supported save/load formats
   TNoteFileFormat = (
-    nffKeyNote, nffEncrypted, nffDartNotes
+    nffKeyNote, nffKeyNoteZip, nffEncrypted, nffDartNotes
   );
 
 type
@@ -498,7 +505,7 @@ const
   );
 
 const
-  ID_STR_LENGTH = 5; // GFKNT, GFKNX, GFKNE, Notes
+  ID_STR_LENGTH = 5; // GFKNT, GFKNX, GFKNE, GFKNZ, Notes
 
 type
   // In encrypted files, this is saved in cleartext
@@ -776,6 +783,7 @@ const
 
 var
   FILE_FORMAT_NAMES : array[TNoteFileFormat] of string;
+  FILE_COMPRESSION_LEVEL : array[TZCompressionLevel] of string;
   TABNOTE_KIND_NAMES : array[TNoteType] of string;
   SEARCH_MODES : array[TSearchMode] of string;
   SYMBOL_NAME_LIST : array[1..10] of string;
@@ -786,8 +794,14 @@ implementation
 procedure DefineConst;
 begin
   FILE_FORMAT_NAMES[nffKeyNote]:=  STR_03_Formats;
+  FILE_FORMAT_NAMES[nffKeyNoteZip]:=   STR_06_Formats;
   FILE_FORMAT_NAMES[nffEncrypted]:=    STR_04_Formats;
   FILE_FORMAT_NAMES[nffDartNotes]:=    STR_05_Formats;
+
+  FILE_COMPRESSION_LEVEL[zcNone]:= STR_54_Compression;
+  FILE_COMPRESSION_LEVEL[zcFastest]:= STR_55_Compression;
+  FILE_COMPRESSION_LEVEL[zcDefault]:= STR_56_Compression;
+  FILE_COMPRESSION_LEVEL[zcMax]:= STR_57_Compression;
 
   TABNOTE_KIND_NAMES[ntRTF]:=    STR_06_TabnoteKind;
   TABNOTE_KIND_NAMES[ntTree]:=   STR_07_TabnoteKind;

@@ -42,7 +42,7 @@ uses
   Windows, Messages, SysUtils, StrUtils,
   Graphics, Controls, Forms, Dialogs,
   { 3rd-party units }
-  BrowseDr, TreeNT, TntSysUtils,
+  BrowseDr, TreeNT, TntSysUtils, ZLibEx,
   { Own units - covered by KeyNote's MPL}
   gf_misc, gf_files, gf_Const,
   gf_strings, gf_miscvcl, gf_FileAssoc,
@@ -2187,6 +2187,7 @@ begin
             if ( not CB_AsReadOnly.Checked ) then NoteFile.ReadOnly := false;
             NoteFile.ShowTabIcons := CB_ShowTabIcons.Checked;
             NoteFile.FileFormat := TNoteFileFormat( Combo_Format.ItemIndex );
+            NoteFile.CompressionLevel := TZCompressionLevel( Combo_CompressLevel.ItemIndex );
 
             if ( CB_TrayIcon.Checked and ( Edit_TrayIcon.Text <> '' )) then
               NoteFile.TrayIconFN := normalFN( Edit_TrayIcon.Text )
