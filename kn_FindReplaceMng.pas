@@ -928,7 +928,7 @@ begin
             SelStart := PatternPos;
             SelLength := length( Text_To_Find {FindOptions.Pattern} );
             try
-              SetFocus;
+              //   SetFocus;
             except
             end;
           end;

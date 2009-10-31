@@ -3094,7 +3094,8 @@ begin
 
       TAM_ActiveName.Caption := ActiveNote.Name;
       TB_Color.AutomaticColor := ActiveNote.EditorChrome.Font.Color;
-      FocusActiveNote;
+      if not SearchInProgress then
+         FocusActiveNote;
     end
     else
     begin
