@@ -1875,7 +1875,7 @@ begin
   try
     if CanClose then
     begin
-      CanClose := CheckModified( not KeyOptions.AutoSave );
+      CanClose := CheckModified( not KeyOptions.AutoSave, true );
 
       try
 
