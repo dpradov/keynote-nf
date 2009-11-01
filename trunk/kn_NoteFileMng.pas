@@ -17,7 +17,7 @@ uses
     procedure FolderChanged;
     procedure SomeoneChangedOurFile;
 
-    function CheckModified( const Warn : boolean ) : boolean;
+    function CheckModified( const Warn : boolean; const closing: boolean ) : boolean;
 
     procedure ImportFiles;
     procedure ImportAsNotes( ImportFileList : TWideStringList );
@@ -896,7 +896,7 @@ begin
 
       try
         if ( not HaveNotes( false, false )) then exit;
-        if ( not CheckModified( not KeyOptions.AutoSave )) then
+        if ( not CheckModified( not KeyOptions.AutoSave, false )) then
         begin
           result := false;
           exit;
@@ -1482,7 +1482,7 @@ end; // FolderChanged
 //=================================================================
 // CheckModified
 //=================================================================
-function CheckModified( const Warn : boolean ) : boolean;
+function CheckModified( const Warn : boolean; const closing: boolean ) : boolean;
 begin
   with Form_Main do begin
 
@@ -1509,6 +1509,8 @@ begin
             end;
           end;
         end;
+        if closing then
+           Application.Minimize;  // Liberate the screen to let the user do other things while keyNote is closing
 
         {$IFDEF MJ_DEBUG}
         Log.Add( '-- Saving on CHECKMODIFIED' );
