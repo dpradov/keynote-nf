@@ -14,6 +14,21 @@ KEYNOTE - RELEASE HISTORY
 Issue #tracker at http://code.google.com/p/keynote-nf/issues/list
 
 =============================
+Version: 1.7.8 -  date: 02/nov/2009
+
+Enhancements:
+ * Issue #175: New KeyNote file format: compressed
+ * Issue #72: Ability to add notes to an alarm event, and other minor changes 
+
+Bugfixes:
+ * Issue #162: Changes to last node are not saved in encrypted *tree* notes if focus is not moved to another node
+ * Issue #163: Paste as web clip is not showing source URL
+ * Issue #166: International input is not working when renaming nodes in tree
+ * Issue #169: Searching Next with Enter Key pressed could modify note content
+ * Issue #178: Program freezes when saving/closing
+ * Issue #189: Changes on a node are lost if a new note is created before moving to another node or note
+
+=============================
 Version: 1.7.7 -  date: 18/oct/2009
 
 Enhancements:

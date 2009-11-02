@@ -14,6 +14,21 @@ KEYNOTE - RELEASE HISTORY
 Seguimiento de incidencias (issues) en http://code.google.com/p/keynote-nf/issues/list
 
 =============================
+Versión: 1.7.8 -  fecha: 02/nov/2009
+
+Mejoras:
+ * Issue #175: Nuevo formato de archivo KeyNote: comprimido
+ * Issue #72: Posibilidad de añadir texto a una alarma, y otros cambios menores
+
+Errores corregidos:
+ * Issue #162: Los cambios al último nodo no son salvados en notas *encriptadas* de tipo árbol si el foco no es desplazado a otro nodo
+ * Issue #163: 'Pegar como Web Clip' no está mostrando la URL origen
+ * Issue #166: La entrada de datos en teclado internacional no está funcionando al renombrar nodos del árbol (en línea)
+ * Issue #169: Buscar siguiente manteniendo pulsada la tecla INTRO podría llegar a modificar el contenido del archivo
+ * Issue #178: El programa puede tardar al guardar y salir, congelando la pantalla
+ * Issue #189: Los cambios sobre un nodo se pierden si se crea una nueva antes de seleccionar otro nodo o nota
+
+=============================
 Versión: 1.7.7 -  fecha: 18/oct/2009
 
 Mejoras:
