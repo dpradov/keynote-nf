@@ -1,0 +1,26 @@
+/****************************************************************************
+
+rxcconst.res
+
+Delphi VCL Extensions (RX)
+Copyright (c) 1995 AO ROSNO
+Copyright (c) 1997 Master-Bank
+
+*****************************************************************************/
+
+#include "rxcconst.pas"
+
+STRINGTABLE
+{
+  SBrowse, "Browse"
+  SDefaultFilter,  "All files (*.*)|*.*"
+  SDateDlgTitle, "Select a Date"
+  SNextYear, "Next Year|"
+  SNextMonth, "Next Month|"
+  SPrevYear, "Previous Year|"
+  SPrevMonth, "Previous Month|"
+  SNotImplemented, "Function not yet implemented"
+  SFileNotExec, "File specified is not an executable file, dynamic-link library, or icon file"
+  SLoadLibError, "Could not load '%s' library"
+  SDetails, "Details"
+}

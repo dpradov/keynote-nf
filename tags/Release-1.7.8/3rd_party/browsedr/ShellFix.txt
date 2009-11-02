@@ -1,0 +1,130 @@
+The Bugs in SHLOBJ.PAS and How to Fix Them.
+
+
+Note: This only applies to Delphi 2.  Delphi 3 has fixed all of these bugs.
+
+There are currently available two units that provide access to the
+Win95/NT 4.0 Shell Namesapce API.  Unfortunately, both of them have errors in
+several of the function declarations.  To use this component you will have to
+correct these errors.  You can do this in one of three ways.
+
+1) Get Pat Ritchey's ShellObj unit and make the modifications to it.
+2) Directly modify Borland's ShlObj.pas file in \Delphi\Source\RTL\Win\.
+3) Copy Borland's ShlObj.pas file to a directory in your Library Path
+   (Tools | Options | Library Path) and modify that one.
+
+I prefer and suggest option 3.  Pat will not be supporting ShellObj now that
+Borland is officially distributing ShlObj, and I don't like modifing RTL code
+directly.  It makes applying patches a royal pain because I always forget to
+copy the original back over it before patching.
+
+Rename your modified copy to MyShlObj.pas (don't forget the UNIT clause name),
+unless you directly modified the RTL source.  If you did that, make sure you
+recompile it and update the \Delphi\Lib\ShlObj.dcu file and change the USES
+clause in SystemTreeView.pas from MyShlObj to ShlObj.
+
+1) For ShellObj unit users ONLY, do the following steps (Delphi 2.01 ShlObj
+   users should skip to step 2):
+
+   a) Search for the BindToObject declaration and change it to:
+     // BDS.  riid should have been a pointer to a TIID.
+     function BindToObject(pidl:PITEMIDLIST; pbcReserved:pointer;
+                          const riid:TIID; var ppvOut:pointer):HResult; virtual; stdcall; abstract;
+
+   b) Change GetDisplayNameOf to:
+     // Changed lpName to a var parameter for compatiblity with v2.01 SHLOBJ.
+     function GetDisplayNameOf(pidl: PITEMIDLIST; uFlags:DWORD;
+                               var lpName: TSTRRET):HResult; virtual; stdcall; abstract;
+
+   c) Change the name of the type 'BFFCallBack' to 'TFNBFFCallBack'
+      everywhere it occurs.  This is for compatibility with ShlObj.
+
+   d) Change the SHBrowseForFolder to:
+     // Changed lpbi to var param for SHLOBJ compatibility.
+     function SHBrowseForFolder(var lpbi:TBROWSEINFO):PItemIDList; stdcall;
+
+   e) Change InvokeCommand to:
+     // Changed lpici to var param for SHLOBJ compatibility.
+     function InvokeCommand(var lpici: TCMInvokeCommandInfo): HResult; virtual; stdcall; abstract;
+
+   f) Search for SHGetMalloc declaration and change it to:
+     // Needs the stdcall directive
+     function SHGetMalloc(var ppMalloc: IMalloc): HResult; stdcall;
+
+   g) Search for the SHGetMalloc implementation and change to:
+     // That was not supposed to go into effect until next windows release according to
+     // Microsoft SHLOBJ.H code comments.  Back to what it is supposed to be.
+     function SHGetMalloc; external shell32 name 'SHGetMalloc';
+
+
+2) Change BindToStorage to:
+
+    // BDS.  riid should have been a pointer to a TIID.
+    function BindToStorage(pidl:PITEMIDLIST; pbcReserved:pointer;
+                           const riid:TIID; var ppvObj:pointer):HResult; virtual; stdcall; abstract;
+
+3) Change CreateViewObject to:
+
+    // BDS.  riid should have been a pointer to a TIID.
+    function CreateViewObject(hwndOwner:HWND; const riid:TIID;
+                              var ppvOut: pointer):HResult; virtual; stdcall; abstract;
+
+4) Change GetUIObjectOf to:
+
+    // BDS.  riid should have been a pointer to a TIID.
+    // BDS.  SHLOBJ: prgfInOut is always NIL, so a VAR parameter makes no sense.
+    function GetUIObjectOf(hwndOwner:HWND; cidl:UINT; var apidl: PItemIDList;
+                           const riid:TIID; prgfInOut: PUINT; var ppvOut:pointer):HResult; virtual; stdcall; abstract;
+
+5) This stuff is completely missing:
+   a) Add this block right before the "implementation" section:
+
+{ SHGetDataFromIDList }
+
+const
+  SHGDFIL_FINDDATA       = 1;
+  SHGDFIL_NETRESOURCE    = 2;
+  SHGDFIL_DESCRIPTIONID  = 3;
+
+  SHDID_ROOT_REGITEM          = 1;
+  SHDID_FS_FILE               = 2;
+  SHDID_FS_DIRECTORY          = 3;
+  SHDID_FS_OTHER              = 4;
+  SHDID_COMPUTER_DRIVE35      = 5;
+  SHDID_COMPUTER_DRIVE525     = 6;
+  SHDID_COMPUTER_REMOVABLE    = 7;
+  SHDID_COMPUTER_FIXED        = 8;
+  SHDID_COMPUTER_NETDRIVE     = 9;
+  SHDID_COMPUTER_CDROM        = 10;
+  SHDID_COMPUTER_RAMDISK      = 11;
+  SHDID_COMPUTER_OTHER        = 12;
+  SHDID_NET_DOMAIN            = 13;
+  SHDID_NET_SERVER            = 14;
+  SHDID_NET_SHARE             = 15;
+  SHDID_NET_RESTOFNET         = 16;
+  SHDID_NET_OTHER             = 17;
+
+type TSHDescriptionID = packed record
+  dwDescriptionId: DWORD;
+  clsid: TGUID; {???}
+end;
+
+function SHGetDataFromIDListA(const psf: IShellFolder; pidl: PItemIDList;
+                              nFormat: integer; pv: pointer; cb: integer): HResult; stdcall;
+function SHGetDataFromIDListW(const psf: IShellFolder; pidl: PItemIDList;
+                              nFormat: integer; pv: pointer; cb: integer): HResult; stdcall;
+function SHGetDataFromIDList(const psf: IShellFolder; pidl: PItemIDList;
+                             nFormat: integer; pv: pointer; cb: integer): HResult; stdcall;
+
+  b) Add this somewhere in the implementation section:
+
+function SHGetDataFromIDListA; external shell32 name 'SHGetDataFromIDListA';
+function SHGetDataFromIDListW; external shell32 name 'SHGetDataFromIDListW';
+function SHGetDataFromIDList; external shell32 name 'SHGetDataFromIDListA';
+
+
+
+Regards,
+Brad Stowers
+bstowers@pobox.com
+May 18, 1997

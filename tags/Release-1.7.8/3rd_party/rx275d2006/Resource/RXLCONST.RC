@@ -1,0 +1,45 @@
+/****************************************************************************
+
+rxlconst.res
+
+Delphi VCL Extensions (RX)
+Copyright (c) 1995 AO ROSNO
+Copyright (c) 1997, 1998 Master-Bank
+
+*****************************************************************************/
+
+#include "rxlconst.pas"
+
+STRINGTABLE
+{
+  srRXControls, "RX Controls"
+  srRXDBAware, "RX DBAware"
+  srRXTools, "RX Tools"
+
+  srStorageDesigner, "Form Storage Designer..."
+
+  srProxyEditor, "Edit Proxies..."
+  srPageProxies, "%s Page Proxies"
+  srProxyName, "Page Proxy Name"
+  srPageName, "Page Name"
+
+  srSBItemNotCreate, "Cannot create a new Speedbar button"
+  srConfirmSBDelete, "Are you sure you want to delete current section?"
+  srSpeedbarDesigner, "Speedbar designer..."
+  srNewSectionName, "Untitled (%d)"
+
+  srEventNotCreate, "Cannot create a new event"
+  srTimerDesigner, "Edit Events..."
+  srTimerEvents, "%s.Events"
+
+  srAniCurFilter, "Animated Cursors (*.ani)|*.ani|Any files (*.*)|*.*"
+  srEditPicture, "Edit picture..."
+  srLoadAniCursor, "Load from ANI..."
+
+  srLoadIcon, "Load Icon"
+  srSaveImageList, "Save to bitmap..."
+
+  srCaptionDesigner, "Edit Captions..."
+  srGradientCaptions, "Captions"
+  srBorrowStructure, "Borrow structure..."
+}

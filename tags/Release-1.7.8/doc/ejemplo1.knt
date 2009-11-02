@@ -1,0 +1,1499 @@
+#!GFKNT 2.0
+# This is an automatically generated file. Do not edit.
+#/
+#?
+#$0
+#C19-09-2005 08:54:17
+#^011000000000000000000000
+%+
+NN=Cuadro Mando
+ID=13
+II=34
+DC=25-09-2006 11:49:12
+TI=0
+TS=4
+CX=42
+CY=0
+BG=clWindow
+CH=1
+FC=clWindowText
+FN=MS Sans Serif
+FS=8
+LN=3082
+ST=
+FL=101110000000210000000000
+SN=4
+TW=280
+EN=(%D) -
+TB=$00F0FBE6
+TH=1
+TC=clWindowText
+TN=MS Sans Serif
+TZ=8
+TY=
+%-
+LV=0
+ND=ToDO
+DI=4
+NF=001000100000000000000000
+BC=clWindow
+IX=2
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=(17 jul 08) -
+DI=129
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 17 jul 08 - 21:24 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=Módulo 1
+DI=128
+NF=000000100010000000000000
+BC=clWindow
+IX=59
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 17 jul 08 - 21:23 \par
+----------------------\par
+\par
+}
+%-
+LV=2
+ND=(17 jul 08) - Tarea 1
+DI=127
+NF=100000000000000000000000
+BC=clWindow
+IX=0
+SS=64
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}{\f1\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 17 jul 08 - 21:23 \par
+----------------------\par
+\f1 Por hacer esto y lo de m\'e1s all\'e1...\f0\par
+}
+%-
+LV=2
+ND=(17 nov 06) - Tarea 2
+DI=126
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 17 nov 06 - 20:22 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=No prioritario
+DI=6
+NF=000000000000000000000000
+BC=clWindow
+IX=22
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=0
+ND=Día a día
+DI=3
+NF=000000001000000000000000
+BC=$00E8FFFF
+IX=4
+HB=$00DAFBFE
+SS=21
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 Notas del d\'eda a d\'eda..\f1\par
+}
+%-
+LV=1
+ND=(29 sep 06) - Reunión con EMM - C Plazos
+DI=121
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=304
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}{\f1\fnil\fcharset0 MS Sans Serif;}{\f2\fnil\fcharset2 Symbol;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 29 sep 06 - 11:01 \par
+------------------------\par
+\f1 Reuni\'f3n con ********:\par
+Objetivo: Cuadro de mando con datos extra\'eddos desde control de plazos\par
+\par
+Visto:\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-200\li200 Indicador:    c/c Fin ejecuci\'f3n -> V\'baB\'aa conformador al informe de liquidaci\'f3n\par
+\pard\li240 Detectado:  ==>    F.Hasta -> Considerar la \'faltima\par
+ (Ej: cc: 601879)\par
+\pard\par
+Decisiones: \par
+ - Plazos abiertos -> No considerarlos inicialmente\par
+ - Limpieza -> Ofrecer ya limpiados con \b IQR\b0  en el proceso de carga nocturno -> Mirar\par
+      -> generar .qvd limpio\par
+    (Facilitarle inicialmente un qvd sin limpiar)\f0\par
+\f1       \par
+ - Usar Mediana inicialmente\par
+ - Plazo m\'e1ximo no definidos\par
+  - Valores negativos. En algunos NO tiene sentido -> parametrizar\par
+ \par
+\par
+}
+%-
+LV=0
+ND=REFERENCIAS
+DI=9
+NF=000000001000000000000000
+BC=clWindow
+IX=0
+HB=$00C1B3D0
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=Contactos
+DI=10
+NF=000000000000000000000000
+BC=clWindow
+IX=33
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\b\f0\fs16\par
+}
+%-
+LV=1
+ND=Documentación
+DI=11
+NF=000000000000000000000000
+BC=clWindow
+IX=77
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=Decisiones
+DI=12
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 24 jul 06 - 10:48 \par
+----------------------\par
+\par
+}
+%-
+LV=0
+ND=ESTUDIOS
+DI=13
+NF=000000001000000000000000
+BC=clWindow
+IX=0
+HB=$00C1B3D0
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=Notas
+DI=14
+NF=000000000000000000000000
+BC=clWindow
+IX=4
+SS=21
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 Notas del d\'eda a d\'eda..\f1\par
+}
+%-
+LV=0
+ND=FASE 1: ANALISIS
+DI=22
+NF=000000001000000000000000
+BC=clWindow
+IX=0
+HB=$00977EB1
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=Eventos
+DI=23
+NF=000000000000000000000000
+BC=clWindow
+IX=5
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=ToDO
+DI=24
+NF=000000000000000000000000
+BC=clWindow
+IX=2
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 16 jul 06 - 12:12 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=Notas
+DI=25
+NF=000000000000000000000000
+BC=clWindow
+IX=4
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=0
+ND=FASE 2: DESARROLLO
+DI=122
+NF=000000001000000000000000
+BC=clWindow
+IX=0
+HB=$00977EB1
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=Eventos
+DI=123
+NF=000000000000000000000000
+BC=clWindow
+IX=5
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=ToDO
+DI=124
+NF=000000000000000000000000
+BC=clWindow
+IX=2
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 16 jul 06 - 12:12 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=Notas
+DI=125
+NF=000000000000000000000000
+BC=clWindow
+IX=4
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%+
+NN=INF TÉC.
+ID=4
+II=27
+DC=20-09-2005 10:22:37
+TI=1
+TS=4
+CX=0
+CY=0
+BG=clWindow
+CH=1
+FC=clWindowText
+FN=MS Sans Serif
+FS=8
+LN=3082
+ST=
+FL=101110000000200101000000
+SN=0
+TW=222
+EN=New node
+TB=clWindow
+TH=1
+TC=clWindowText
+TN=MS Sans Serif
+TZ=8
+TY=
+%-
+LV=0
+ND=Entorno Desarrollo
+DI=18
+NF=000000000000000000000000
+BC=clWindow
+IX=59
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=BD Desarrollo
+DI=17
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=112
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}{\f1\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 20 jul 06 - 08:29 \par
+----------------------\par
+Base de datos de desarrollo: WS-DESARROLLO   IP: \f1 ---------\f0\par
+\pard\sb100\sa100 SID: \f1 ------\f0  (es provisional)\par
+\pard\par
+}
+%-
+LV=1
+ND=Herramientas de apoyo
+DI=19
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=41
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}{\f1\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 20 jul 06 - 08:27 \par
+----------------------\par
+\f1 Herramientas de apoyo:\par
+\tab Subversion 1.3.x\par
+\tab TWiki 4.0.x\par
+Herr. gest. errores: Mantis 1.0.3\par
+\f0\par
+\par
+}
+%-
+LV=0
+ND=.NET
+DI=5
+NF=000000000000000000000000
+BC=clWindow
+IX=59
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=copiar DataRow
+DI=4
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=209
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 Arial;}{\f1\fnil MS Sans Serif;}{\f2\fnil\fcharset0 MS Sans Serif;}{\f3\fnil\fprq1\fcharset0 Courier New;}}
+\viewkind4\uc1\pard\keepn\sb100\sa100\lang3082\kerning36\b\fs18 How To Copy DataRows Between DataTables by Using Visual C# .NET\par
+\pard\kerning0\b0\f1\fs16 http://www.dotnet247.com/247reference/a.aspx?u=http://support.microsoft.com/default.aspx?scid=kb;EN-US;Q308909\par
+\f2\par
+\f3\fs20 <DataTable>.ImportRow(<DataRow>)\par
+\f2\fs16\par
+}
+%-
+LV=1
+ND=Enlace de datos simple
+DI=3
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=307
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fprq1\fcharset0 Courier New;}{\f1\fnil MS Sans Serif;}}
+{\colortbl ;\red0\green128\blue0;}
+\viewkind4\uc1\pard\cf1\lang3082\f0\fs20 El enlace entre el control de texto y la propiedad del datarow ser\'e1 s\'f3lo en una direcci\'f3n.\par
+Para que los cambios en la propiedad afecten al control habr\'eda que disparar en la propiedad un evento <propiedad>Changed\par
+\par
+En el datagrid s\'ed se actualizan, posiblemente porque escuchar\'e1 los cambios de todo el datarow\par
+\cf0\f1\fs16\par
+}
+%-
+LV=1
+ND=DataGrid. Ocultar columnas
+DI=2
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=83
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fprq1\fcharset0 Courier New;}{\f1\fnil MS Sans Serif;}}
+{\colortbl ;\red0\green128\blue0;\red0\green0\blue255;}
+\viewkind4\uc1\pard\lang3082\f0\fs20     \cf1 ' Visual Basic\par
+\cf0     \cf1 ' Declare a new DataGridTableStyle in the\par
+\cf0     \cf1 ' declarations area of your form.\par
+\cf0     \cf2 Dim\cf0  ts \cf2 As\cf0  DataGridTableStyle = \cf2 New\cf0  DataGridTableStyle\par
+\par
+    \cf2 Sub\cf0  ocultarColumnas(\cf2 ByVal\cf0  datagrid \cf2 As\cf0  DataGrid, \cf2 ByVal\cf0  cols() \cf2 As\cf0  \cf2 Integer\cf0 )\par
+        ts.MappingName = DataGrid1.DataMember\par
+        datagrid.TableStyles.Add(ts)\par
+\par
+        \cf2 For\cf0  \cf2 Each\cf0  col \cf2 As\cf0  \cf2 Integer\cf0  \cf2 In\cf0  cols\par
+            datagrid.TableStyles(0).GridColumnStyles(col).Width = 0\par
+        \cf2 Next\par
+\cf0     \cf2 End\cf0  \cf2 Sub\par
+\par
+\cf0     \cf2 Sub\cf0  HideColumn(\cf2 ByVal\cf0  datagrid \cf2 As\cf0  DataGrid, \cf2 ByVal\cf0  iCol \cf2 As\cf0  \cf2 Integer\cf0 )\par
+        \cf1 ' Set the DataGridTableStyle.MappingName property\par
+\cf0         \cf1 ' to the table in the data source to map to.\par
+\cf0         ts.MappingName = DataGrid1.DataMember\par
+\par
+        \cf1 ' Add it to the datagrid's TableStyles collection\par
+\cf0         datagrid.TableStyles.Add(ts)\par
+\par
+        \cf1 ' Hide the first column (index 0)\par
+\cf0         datagrid.TableStyles(0).GridColumnStyles(iCol).Width = 0\par
+    \cf2 End\cf0  \cf2 Sub\par
+\cf0     \cf2 Sub\cf0  DeleteColumn()\par
+        \cf1 ' Set the DataGridTableStyle.MappingName property\par
+\cf0         \cf1 ' to the table in the data source to map to.\par
+\cf0         ts.MappingName = DataGrid1.DataMember\par
+\par
+        \cf1 ' Add it to the datagrid's TableStyles collection\par
+\cf0         DataGrid1.TableStyles.Add(ts)\par
+\par
+        \cf1 ' Delete the first column (index 0)\par
+\cf0         DataGrid1.TableStyles(0).GridColumnStyles.RemoveAt(0)\par
+    \cf2 End\cf0  \cf2 Sub\par
+\cf0\f1\fs16\par
+}
+%-
+LV=1
+ND=Validación capa negocio - GetChanges / Select
+DI=14
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=42
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}{\f1\froman\fcharset0 Times New Roman;}{\f2\fswiss\fcharset0 Courier New;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 28 jul 06 - 14:44 \par
+----------------------\par
+http://www.desarrollaconmsdn.com/msdn/MSDNVideo.aspx\par
+\par
+\pard\sb100\sa100\b\f1\fs24 Validaciones en la capa de negocio\b0 : MSDN Video comprueba la validez de las entidades en cada m\'e9todo de negocio de actualizaci\'f3n. De esta manera podemos garantizar que las entidades cumplen las reglas de negocio asociadas a ellas. Por ejemplo, es responsabilidad de la capa de negocio comprobar si el NIF o el CIF de un usuario tienen un formato v\'e1lido o si los campos obligatorios est\'e1n especificados. Los m\'e9todos que validan las entidades tienen la nomenclatura Validar<<Entidad>> y est\'e1n localizados en las clases de negocio de MSDN Video. Por ejemplo el m\'e9todo \f2 ValidarActores\f1  comprueba que el campo \f2 Nombre\f1  de los actores especificados tiene un valor v\'e1lido:\par
+\pard\tx0\tx959\tx1918\tx2877\tx3836\tx4795\tx5754\tx6713\tx7672\tx8631\f2\fs20 private void ValidarActores(ActoresDS.ActoresRow[] actores)\par
+\{\par
+\tab for(int i=0;i<actores.Length;i++)\par
+\tab\{\par
+\tab\tab if(actores[i].Nombre == null)\par
+\tab\tab\tab throw new ErrorDatoNoValido("El nombre del actor no puede ser nulo");\par
+\par
+\tab\tab if(actores[i].Nombre.Length == 0)\par
+\tab\tab\tab throw new ErrorDatoNoValido("El nombre del actor est\'e1 vac\'edo");\par
+\tab\}\par
+\}\par
+\pard\sb100\sa100\f1\fs24 Este m\'e9todo es llamado desde la operaci\'f3n \f2 ActualizarActores\f1 , pasando como par\'e1metro los cambios realizados en las entidades recibidas. Puede obtener las entidades modificadas y a\'f1adidas f\'e1cilmente utilizando el m\'e9todo \f2 GetChanges\f1  del \f2 DataSet\f1  o el m\'e9todo \f2 Select\f1  de \f2 DataTable\f1 . La operaci\'f3n \f2 ActualizarActores\f1  utiliza el m\'e9todo \f2 Select\f1  por ser m\'e1s \'f3ptimo:\par
+\pard\tx0\tx959\tx1918\tx2877\tx3836\tx4795\tx5754\tx6713\tx7672\tx8631\f2\fs20 cambiosActores = \par
+\tab (ActoresDS.ActoresRow[])actores.Actores.Select(\par
+\tab null, null,\par
+\tab DataViewRowState.Added | \par
+\tab DataViewRowState.ModifiedCurrent);\par
+\par
+ValidarActores(cambiosActores);\par
+\pard\f0\fs16\par
+}
+%-
+LV=0
+ND=SQL
+DI=6
+NF=000000000000000000000000
+BC=clWindow
+IX=59
+SS=149
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 file:///J:\\Division%20de%20Servicios%20Corporativos\\Sistemas%20de%20Informacion%20y%20Procesos\\Desarrollo\\ORACLE\\Documentacion\\SQL%20Reference.pdf \par
+\par
+\par
+}
+%-
+LV=1
+ND=Funciones analíticas
+DI=7
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=447
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 Courier;}{\f1\fnil MS Sans Serif;}}
+{\colortbl ;\red0\green128\blue0;\red0\green0\blue0;\red0\green0\blue240;\red128\green0\blue0;}
+\viewkind4\uc1\pard\cf1\lang3082\f0\fs20 --** EJEMPLO DE USO DE FUNCIONES ANALITICAS\cf2\par
+\cf1 ------------------------------------------------\cf2\par
+\par
+\cf1 -- Acompa\'f1ar cada registro con el n\'famero de solicitudes realizadas por un determinado usuario\cf2\par
+\cf3 SELECT\cf2  USR_ID\cf3 ,\cf2  SOL_ID\cf3 ,\cf2  COUNT\cf3 (*)\cf2  OVER \cf3 (PARTITION\cf2  \cf3 BY\cf2  USR_ID\cf3 )\cf2  USR_COUNT\par
+\cf3 FROM\cf2  V_NETACON_SOLICITUD_FILT\par
+\cf3 where\cf2  usr_id\cf3 =\cf4 95\cf2\par
+\par
+\cf1 -- Ejemplo: Dada una solicitud: \'bfqu\'e9 orden dentro de las realizadas por el usuario que la registr\'f3? \'bfla primera que hizo?\cf2\par
+\cf1 -- \'bfla segunda?...  \cf2\par
+\cf3 SELECT\cf2  USR_ID\cf3 ,\cf2  SOL_FECHA_SOLICITUD\cf3 ,\cf2  ROW_NUMBER\cf3 ()\cf2  OVER \cf3 (PARTITION\cf2  \cf3 BY\cf2  USR_ID \cf3 ORDER\cf2  \cf3 BY\cf2  SOL_FECHA_SOLICITUD\cf3 )\cf2  USR_ORDEN_SOLICITUD\par
+\cf3 FROM\cf2  V_NETACON_SOLICITUD_FILT\par
+\cf1 --WHERE USR_ID=95\cf2\par
+\cf3 ORDER\cf2  \cf3 BY\cf2  SOL_FECHA_SOLICITUD \cf3 DESC\cf2\par
+\cf0\f1\fs16\par
+}
+%-
+LV=1
+ND=Consultas Jerárquicas
+DI=10
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=394
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 Courier;}{\f1\fswiss\fcharset0 Arial;}{\f2\fnil MS Sans Serif;}}
+{\colortbl ;\red0\green128\blue0;\red0\green0\blue0;\red0\green0\blue240;\red255\green0\blue0;\red128\green0\blue0;}
+\viewkind4\uc1\pard\cf1\lang3082\f0\fs20 --Obtener las divisiones\cf2\par
+\cf3 SELECT\cf2  ORG_ID\cf3 ,\cf2  LPAD\cf3 (\cf4 ' '\cf3 ,\cf2  \cf5 2\cf3 *LEVEL-\cf5 1\cf3 ,\cf4 ' '\cf3 )\cf2 ||ORG_DESLARGA\cf3 ,\cf2  \cf3 LEVEL-\cf5 1\cf2  nivel\par
+\cf3 FROM\cf2  NUCLEO\cf3 .\cf2 ORGANIGRAMA_EGM O\par
+\cf3 WHERE\cf2  ORG_ID \cf3 <>\cf2  \cf5 0\cf2\par
+\cf3 START\cf2  \cf3 WITH\cf2  ORG_ID \cf3 =\cf2  \cf5 331\cf2\par
+\cf3 CONNECT\cf2  \cf3 BY\cf2  \cf3 PRIOR\cf2  ORG_ID \cf3 =\cf2  ORG_PADRE\par
+\cf3\par
+\par
+\par
+Aqu\'ed tienes un posible uso, en el que se busca la divisi\'f3n asociada al nodo 374:\par
+\par
+SELECT\cf2  \cf3 *\cf2  \cf3 FROM\cf2\par
+\cf3 (\cf2\par
+\cf3 select\cf2  Y\cf3 .\cf2 ORG_ID NODO\cf3 ,\cf2  X\cf3 .\cf2 org_id DIVISION \cf3 from\cf2  \par
+\cf3 (\cf2\par
+\cf3 SELECT\cf2  ORG_ID\par
+\cf3 FROM\cf2  NUCLEO\cf3 .\cf2 ORGANIGRAMA_EGM O\par
+\cf3 WHERE\cf2  ORG_ID \cf3 <>\cf2  \cf5 0\cf2  \cf3 AND\cf2  \cf3 LEVEL=\cf5 2\cf2\par
+\cf3 START\cf2  \cf3 WITH\cf2  ORG_ID \cf3 =\cf2  \cf5 331\cf2\par
+\cf3 CONNECT\cf2  \cf3 BY\cf2  \cf3 PRIOR\cf2  ORG_ID \cf3 =\cf2  ORG_PADRE\par
+\cf3 )\cf2  X\cf3 ,\cf2\par
+  NUCLEO\cf3 .\cf2 ORGANIGRAMA_EGM Y\par
+\cf3 where\cf2  \par
+  \cf3 EXISTS\cf2  \cf3 (\cf2     \par
+\tab\cf3 SELECT\cf2  ORG_ID\par
+\tab\cf3 FROM\cf2  NUCLEO\cf3 .\cf2 ORGANIGRAMA_EGM O\par
+\tab\cf3 WHERE\cf2  ORG_ID \cf3 =\cf2 Y\cf3 .\cf2 ORG_ID\par
+\tab\cf3 START\cf2  \cf3 WITH\cf2  ORG_ID \cf3 =\cf2  X\cf3 .\cf2 ORG_ID\par
+\tab\cf3 CONNECT\cf2  \cf3 BY\cf2  \cf3 PRIOR\cf2  ORG_ID \cf3 =\cf2  ORG_PADRE\par
+\tab\cf3 )\cf2\par
+\cf3 )\cf2\par
+\cf3 WHERE\cf2  NODO\cf3 =\cf5 374\cf2\par
+\cf0\f1\par
+\f2\fs16\par
+}
+%-
+LV=1
+ND=UDL
+DI=12
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=333
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}{\f1\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 24 jul 06 - 10:45 \par
+----------------------\par
+\f1 Para construir cadenas de conexi\'f3n a BD\par
+\f0\par
+\f1 Simplemente crear un archivo con extensi\'f3n UDL. Al abrirlo ofrecer\'e1 la posibilidad de configurar la conexi\'f3n (proveedor, servidor, usuario, ...). Si ese archivo .UDL se abre con, por ejemplo, el bloc de notas, se tendr\'e1 la cadena de conexi\'f3n completa\f0\par
+}
+%-
+LV=0
+ND=Varios
+DI=8
+NF=000000000000000000000000
+BC=clWindow
+IX=59
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=TNSNames.ora
+DI=11
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=381
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 Ojo, si no se pone ".WORLD" no reconoce (error: ORA-12154: TNS: Could not resolver service name)\par
+\par
+Si hac\'eda <tnsping *****************> s\'ed respond\'eda pero no con <tnsping desarrollo>\par
+\par
+En TNSNAMES.ORA:\f1\par
+\par
+DESARROLLO\b .WORLD\b0  =\par
+  (DESCRIPTION =\par
+    (ADDRESS_LIST =\par
+      (ADDRESS = (PROTOCOL = TCP)(HOST = \f0 *************\f1 )(PORT = 1521))\par
+    )\par
+    (CONNECT_DATA =\par
+      (SERVICE_NAME = \f0 *******\f1 )\par
+    )\par
+  )\par
+\par
+\f0 Para que utilice el fichero local (C:\\orant8i\\network\\admin\\tnsnames.ora), he renombrado la entrada 'TNS_ADMIN' en el registro (regedit; Mi PC\\HKEY_LOCAL_MACHINE\\SOFTWARE\\ORACLE)\f1\par
+}
+%-
+LV=1
+ND=GNUstep
+DI=9
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=565
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\froman\fcharset0 Times New Roman;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\keepn\sb100\sa100\lang3082\b\f0\fs28 http://www.gnu.org/brave-gnu-world/issue-26.es.html\par
+GNUstep\par
+\pard\sb100\sa100\b0\fs24 GNUstep [7] es un esquema de trabajo y kit de herramientas orientado a objetos para el desarrollo de programas, que ya esta siendo utilizada con \'e9xito en muchas plataformas. La funci\'f3n del kit de herramientas es suministrar componentes prefabricados para la interface gr\'e1fica del usuario, as\'ed el programa puede ser escrito mas r\'e1pida y efectivamente; tambi\'e9n los programas basados en cierto kit de herramientas tienen un aspecto visual y de manejo similar (look & feel). Ejemplos de kits de herramientas cl\'e1sicos son GTK+ o Qt. \par
+GNUstep esta basado en la especificaci\'f3n original OpenStep de NeXT, Inc. (ahora Apple), as\'ed gana a\'f1os de experiencia profesional especialmente de NeXT Computer Inc. y Sun Microsystems Inc.; el API es de muy alto nivel y bien definido. Por ahora hay varias historias exitosas donde los desarrolladores fueron capaces de escribir aplicaciones complejas en un m\'ednimo tiempo usando GNUstep. \par
+Es tambi\'e9n muy \'fatil que GNUstep provee un API de alto nivel alrededor de algunos de los mejores paquetes de Software Libre como gmp, OpenSSH y tiff. Adicionalmente da al termino WYSIWYG un nuevo significado, pues GNUstep utiliza un modelo com\'fan de im\'e1genes llamado "Display PostScript" el cual esta relacionado con el lenguaje para impresoras Postscript, para todas las salidas gr\'e1ficas. \par
+Aunque la GUI esta todav\'eda en etapa beta, esta lista para uso en producci\'f3n y las personas lo usan con \'e9xito. Los desarrolladores que no temen algo que es un poco diferente del resto, deber\'edan sentirse con coraje para ensayar GNUstep. \par
+Actualmente el desarrollo es principalmente hecho por 3 o 4 personas con un grupo de 30 a 40 desarrolladores agregando correcciones de errores, parches y comentarios. Las librer\'edas son publicadas bajo la Licencia Publica Menos General de GNU (GNU LPGL), las herramientas y programas aislados usan GPL. \par
+Al momento, el desarrollo esta enfocado en terminar la GUI y portarla a MS Windows. Como GNUstep es compatible a nivel API con MacOS X (Cocoa), ya es posible desarrollar programas para Unix y MacOS X en paralelo. Al portarlo a Windows, los programas podr\'edan ser desarrollados para las tres plataformas simult\'e1neamente. \par
+Interesante tambi\'e9n, es la parte Web de GNUstep, la cual usa un sistema similar a WebObjects de Apple y hace muy f\'e1cil crear paginas web din\'e1micas con conexiones base de datos. Aunque esta parte es todav\'eda muy nueva, esta casi terminada para ser usada.\par
+\pard\f1\fs16\par
+}
+%-
+LV=0
+ND=QlikView
+DI=16
+NF=000000100000000000000000
+BC=clWindow
+IX=59
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=Rincón del desarrollador
+DI=15
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=149
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil MS Sans Serif;}{\f1\fswiss\fcharset0 Arial;}{\f2\froman\fcharset0 Times New Roman;}}
+{\colortbl ;\red0\green255\blue0;\red0\green0\blue0;\red0\green0\blue128;}
+\viewkind4\uc1\pard\lang3082\f0\fs16 21 sep 06 - 10:05 \par
+----------------------\par
+\pard\sb100\sa100\cf1\b\f1\fs20 El rinc\'f3n del desarrollador:\cf0\b0\f2\fs24\par
+\cf1\b\f1\fs20 Truco del Mes\line Transformaci\'f3n de informaci\'f3n\cf0\b0\f2\fs24\par
+\cf2\f1\fs20 La informaci\'f3n a tratar con QlikView no est\'e1 en muchos casos accesible de forma sencilla y es necesario realizar ciertas transformaciones que permitan convertir esa informaci\'f3n en datos normalizados.\cf0\f2\fs24\par
+\cf3\ul\f1\fs18 truco completo <http://www.qlikviewspain.com/ArticleDisplay.asp?id=1307>\cf0\ulnone\f0\fs16{\pict\wmetafile8\picw254\pich254\picwgoal144\pichgoal144 
+0100090000034c00000003001c00000000000400000003010600050000000c02fe00fe00070000
+00fc020000000000000000040000002d01000008000000fa020000000000000000000004000000
+2d0101001c000000fb020c00090000000000900100000000000202024d532053616e7320536572
+696600040000000000ffffffff0100000000003000040000002d010200030000000000
+}\cf3\ul\f1\fs18  <http://www.qlikviewspain.com/ArticleDisplay.asp?id=1307>\cf0\ulnone\f2\fs24\par
+\pard\f0\fs16\par
+}
+%+
+NN=Esqueleto
+ID=12
+II=-1
+DC=25-09-2006 11:40:22
+TI=2
+TS=4
+CX=42
+CY=0
+BG=clWindow
+CH=1
+FC=clWindowText
+FN=MS Sans Serif
+FS=8
+LN=3082
+ST=
+FL=101110000000210001000000
+SN=0
+TW=372
+EN=(%D) -
+TB=clWindow
+TH=1
+TC=clWindowText
+TN=MS Sans Serif
+TZ=8
+TY=
+%-
+LV=0
+ND=Esqueleto de proyecto
+DI=1
+NF=000000100000000000000000
+BC=clWindow
+IX=0
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 25 sep 06 - 11:41 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=Día a día
+DI=19
+NF=000000001000000000000000
+BC=$00E8FFFF
+IX=4
+HB=$00DAFBFE
+SS=21
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 Notas del d\'eda a d\'eda..\f1\par
+}
+%-
+LV=1
+ND=ToDO
+DI=36
+NF=001000000000000000000000
+BC=clWindow
+IX=2
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Resueltas
+DI=37
+NF=000000000000000000000000
+BC=clWindow
+IX=51
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=No prioritario
+DI=42
+NF=000000000000000000000000
+BC=clWindow
+IX=22
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Abandonadas
+DI=47
+NF=000000000000000000000000
+BC=clWindow
+IX=25
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=INCIDENCIAS
+DI=52
+NF=000000000000000000000000
+BC=clWindow
+IX=46
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=REFERENCIAS
+DI=53
+NF=000000001000000000000000
+BC=clWindow
+IX=0
+HB=$00C1B3D0
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Contactos
+DI=54
+NF=000000000000000000000000
+BC=clWindow
+IX=33
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\b\f0\fs16\par
+}
+%-
+LV=2
+ND=Documentación
+DI=55
+NF=000000000000000000000000
+BC=clWindow
+IX=77
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Decisiones
+DI=60
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 24 jul 06 - 10:48 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=ESTUDIOS
+DI=63
+NF=000000001000000000000000
+BC=clWindow
+IX=0
+HB=$00C1B3D0
+SS=19
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 Pruebas de concepto\f1\par
+}
+%-
+LV=2
+ND=Notas
+DI=64
+NF=000000000000000000000000
+BC=clWindow
+IX=4
+SS=21
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 Notas del d\'eda a d\'eda..\f1\par
+}
+%-
+LV=1
+ND=FASE 1: ANALISIS
+DI=93
+NF=000000001000000000000000
+BC=clWindow
+IX=0
+HB=$00977EB1
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Eventos
+DI=94
+NF=000000000000000000000000
+BC=clWindow
+IX=5
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=ToDO
+DI=95
+NF=000000000000000000000000
+BC=clWindow
+IX=2
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=FASE 2: LICITACION
+DI=96
+NF=000000001000000000000000
+BC=clWindow
+IX=0
+HB=$00977EB1
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Eventos
+DI=97
+NF=000000000000000000000000
+BC=clWindow
+IX=5
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=ToDO
+DI=98
+NF=000000000000000000000000
+BC=clWindow
+IX=2
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Notas
+DI=99
+NF=000000000000000000000000
+BC=clWindow
+IX=4
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=FASE 3: DESARROLLO
+DI=101
+NF=001000001000000000000000
+BC=clWindow
+IX=0
+HB=$00977EB1
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Eventos
+DI=102
+NF=000000000000000000000000
+BC=clWindow
+IX=5
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=ToDO
+DI=111
+NF=000000000000000000000000
+BC=clWindow
+IX=2
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 16 jul 06 - 12:12 \par
+----------------------\par
+\par
+}
+%-
+LV=2
+ND=Notas
+DI=112
+NF=000000000000000000000000
+BC=clWindow
+IX=4
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%+
+NN=OTROS
+ID=11
+II=68
+DC=20-07-2006 08:26:02
+TI=3
+TS=4
+CX=42
+CY=0
+BG=clWindow
+CH=1
+FC=clWindowText
+FN=MS Sans Serif
+FS=8
+LN=3082
+ST=
+FL=101110000000210000000000
+SN=14
+TW=330
+EN=(%D) -
+TB=clWindow
+TH=1
+TC=clWindowText
+TN=MS Sans Serif
+TZ=8
+TY=
+%-
+LV=0
+ND=Notas REUNION 1 (pda)   [ CTR-R !! ]
+DI=33
+NF=000002000000000000000000
+BC=clWindow
+IX=33
+SS=292
+VF=c:\documents and settings\dprado\mis documentos\daniprado_pda my documents\notas\reunión_1.rtf
+%-
+LV=0
+ND=Notas REUNION 2 (pda)
+DI=34
+NF=000002000000000000000000
+BC=clWindow
+IX=33
+SS=40
+VF=c:\documents and settings\dprado\mis documentos\daniprado_pda my documents\notas\reunión_2.rtf
+%-
+LV=0
+ND=Notas REUNION 3 (pda)
+DI=35
+NF=000002000000000000000000
+BC=clWindow
+IX=33
+SS=116
+VF=c:\documents and settings\dprado\mis documentos\daniprado_pda my documents\notas\reunión_3.rtf
+%-
+LV=0
+ND=Notas TRABAJO (pda)
+DI=24
+NF=000002000000000000000000
+BC=clWindow
+IX=54
+SS=61
+VF=c:\documents and settings\dprado\mis documentos\daniprado_pda my documents\notas\trabajo_notas_pc-pda.rtf
+%-
+LV=0
+ND=-----------------------------------------------------------
+DI=78
+NF=000000000000000000000000
+BC=clWindow
+IX=11
+SS=44
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 29 sep 06 - 13:47 \par
+------------------------\par
+\par
+}
+%-
+LV=0
+ND=Notas PERSONAL (pda)
+DI=23
+NF=000002000000000000000000
+BC=clWindow
+IX=54
+SS=265
+VF=c:\documents and settings\dprado\mis documentos\daniprado_pda my documents\notas\personal_notas_pc-pda.rtf
+%-
+LV=0
+ND=ToDO PERSONAL (pda)
+DI=39
+NF=000002000000000000000000
+BC=clWindow
+IX=54
+SS=263
+VF=c:\documents and settings\dprado\mis documentos\daniprado_pda my documents\notas\personal_todo_pc-pda.rtf
+%-
+LV=0
+ND=-----------------------------------------------------------
+DI=79
+NF=000000000000000000000000
+BC=clWindow
+IX=11
+SS=44
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 29 sep 06 - 13:47 \par
+------------------------\par
+\par
+}
+%-
+LV=0
+ND=NOTAS Varias
+DI=14
+NF=001000000000000000000000
+BC=clWindow
+IX=4
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 08 sep 06 - 14:15 \par
+----------------------\par
+\par
+}
+%-
+LV=0
+ND=TAREAS Varias
+DI=13
+NF=001000000000000000000000
+BC=clWindow
+IX=2
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=Resueltas
+DI=15
+NF=000000000000000000000000
+BC=clWindow
+IX=51
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=Standby
+DI=29
+NF=000000000000000000000000
+BC=clWindow
+IX=22
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=Abandonadas
+DI=16
+NF=000000000000000000000000
+BC=clWindow
+IX=25
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=0
+ND=--------------------------------------------------------------
+DI=80
+NF=000000000000000000000000
+BC=clWindow
+IX=11
+SS=44
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 29 sep 06 - 13:47 \par
+------------------------\par
+\par
+}
+%-
+LV=0
+ND=PROY: BD Instalaciones
+DI=56
+NF=001000001000000000000000
+BC=clWindow
+IX=20
+HB=$00B5CDE6
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 25 sep 06 - 11:41 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=Día a día
+DI=57
+NF=000000001000000000000000
+BC=$00E8FFFF
+IX=4
+HB=$00DAFBFE
+SS=21
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 Notas del d\'eda a d\'eda..\f1\par
+}
+%-
+LV=1
+ND=ToDO
+DI=58
+NF=001000100000000000000000
+BC=clWindow
+IX=2
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Resueltas
+DI=59
+NF=000000000000000000000000
+BC=clWindow
+IX=51
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=No prioritario
+DI=60
+NF=000000000000000000000000
+BC=clWindow
+IX=22
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Abandonadas
+DI=61
+NF=000000000000000000000000
+BC=clWindow
+IX=25
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=0
+ND=PROY: Incidencias RRHH
+DI=62
+NF=001000001000000000000000
+BC=clWindow
+IX=36
+HB=$00B5CDE6
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 25 sep 06 - 11:41 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=Día a día
+DI=63
+NF=000000001000000000000000
+BC=$00E8FFFF
+IX=4
+HB=$00DAFBFE
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=1
+ND=ToDO
+DI=64
+NF=001000100000000000000000
+BC=clWindow
+IX=2
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Resueltas
+DI=65
+NF=000000000000000000000000
+BC=clWindow
+IX=51
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=No prioritario
+DI=66
+NF=000000000000000000000000
+BC=clWindow
+IX=22
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Abandonadas
+DI=67
+NF=000000000000000000000000
+BC=clWindow
+IX=25
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=0
+ND=PROY: EFQM
+DI=50
+NF=000000001000000000000000
+BC=clWindow
+IX=76
+HB=$00B5CDE6
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 25 sep 06 - 11:41 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=Día a día
+DI=51
+NF=000000001000000000000000
+BC=$00E8FFFF
+IX=4
+HB=$00DAFBFE
+SS=21
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 Notas del d\'eda a d\'eda..\f1\par
+}
+%-
+LV=1
+ND=ToDO
+DI=52
+NF=001000000000000000000000
+BC=clWindow
+IX=2
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Resueltas
+DI=53
+NF=000000000000000000000000
+BC=clWindow
+IX=51
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=No prioritario
+DI=54
+NF=000000000000000000000000
+BC=clWindow
+IX=22
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Abandonadas
+DI=55
+NF=000000000000000000000000
+BC=clWindow
+IX=25
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=0
+ND=PROY: CAU - Organización
+DI=44
+NF=000000001000000000000000
+BC=clWindow
+IX=76
+HB=$00B5CDE6
+SS=42
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 25 sep 06 - 11:41 \par
+----------------------\par
+\par
+}
+%-
+LV=1
+ND=Día a día
+DI=45
+NF=000000001000000000000000
+BC=$00E8FFFF
+IX=4
+HB=$00DAFBFE
+SS=21
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16 Notas del d\'eda a d\'eda..\f1\par
+}
+%-
+LV=1
+ND=ToDO
+DI=46
+NF=001000000000000000000000
+BC=clWindow
+IX=2
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Resueltas
+DI=47
+NF=000000000000000000000000
+BC=clWindow
+IX=51
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=No prioritario
+DI=48
+NF=000000000000000000000000
+BC=clWindow
+IX=22
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%-
+LV=2
+ND=Abandonadas
+DI=49
+NF=000000000000000000000000
+BC=clWindow
+IX=25
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil MS Sans Serif;}}
+\viewkind4\uc1\pard\lang3082\f0\fs16\par
+}
+%%
