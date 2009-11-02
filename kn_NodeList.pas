@@ -85,6 +85,7 @@ type
     FChildrenCheckbox: Boolean;    // [dpv]
     FFiltered: Boolean;            // [dpv]: True -> Hidden
     FAlarm: TDateTime;             // [dpv]
+    FAlarmNote: wideString;
 
     procedure SetName( AName : WideString );
     procedure SetLevel( ALevel : integer );
@@ -99,6 +100,7 @@ type
     function GetRelativeVirtualFN : wideString;
     procedure SetWordWrap( const Value : TNodeWordWrap );
     function GetAlarm: TDateTime;
+    function GetAlarmNote: wideString;
 
   public
     property Stream : TTntMemoryStream read FStream;
@@ -112,6 +114,8 @@ type
     property Filtered : boolean read FFiltered write FFiltered;                            // [dpv]
     property Alarm : TDateTime read GetAlarm write FAlarm;                                   // [dpv]
     property AlarmF : TDateTime read FAlarm;
+    property AlarmNote: wideString read GetAlarmNote write FAlarmNote;
+    property AlarmNoteF: wideString read FAlarmNote;
     property Flagged : boolean read FFlagged write FFlagged;
     property Tag : integer read FTag write FTag;
     property RTFBGColor : TColor read FRTFBGColor write FRTFBGColor;
@@ -489,6 +493,22 @@ begin
     else
        Result:= FAlarm;
 end;
+
+function TNoteNode.GetAlarmNote: WideString;
+var
+   Node : TTreeNTNode;
+begin
+    if (FVirtualMode= vmKNTNode) then begin
+       Node:= MirrorNode;
+       if assigned(Node) then
+          Result:= TNoteNode(Node.Data).AlarmNote
+       else
+          Result:= '';
+    end
+    else
+       Result:= FAlarmNote;
+end;
+
 
 procedure TNoteNode.LoadVirtualFile;
 var

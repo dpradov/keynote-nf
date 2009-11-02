@@ -1713,6 +1713,7 @@ begin
                    if (TNoteNode(nonVirtualTreeNode.Data).AlarmF <> 0) then begin
                        AlarmManager.AddAlarmNode(newNonVirtualTreeNode);
                        TNoteNode(newNonVirtualTreeNode.Data).Alarm := TNoteNode(nonVirtualTreeNode.Data).AlarmF;
+                       TNoteNode(newNonVirtualTreeNode.Data).AlarmNote := TNoteNode(nonVirtualTreeNode.Data).AlarmNoteF;
                        end;
                    SelectIconForNode( newNonVirtualTreeNode, TTreeNote(GetNoteByTreeNode(newNonVirtualTreeNode)).IconKind );
                end;

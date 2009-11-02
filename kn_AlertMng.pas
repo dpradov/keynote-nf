@@ -76,6 +76,10 @@ type
     Button_ShowALL: TTntButton;
     Button_Sound: TToolbarButton97;
     Button_ShowPending: TTntButton;
+    Edit_AlarmNote: TTntEdit;
+    procedure TVChanging(Sender: TObject; Node: TTreeNTNode;
+      var AllowChange: Boolean);
+    procedure Edit_AlarmNoteChange(Sender: TObject);
     procedure Button_ShowPendingClick(Sender: TObject);
     procedure Button_SoundClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -139,10 +143,12 @@ type
   public
     property Enabled: Boolean read FEnabled write SetEnabled;
     procedure EditAlarm (node: TTreeNTNode);
+    function GetAlarmModeHint: string;
     procedure checkAlarms;
     procedure AddAlarmNode( node : TTreeNTNode );
     procedure RemoveAlarmNode( node : TTreeNTNode );
     procedure ModifyAlarmNode( node : TTreeNTNode );
+    procedure ShowAlarms (const showOnlyPendings: boolean);
     procedure StopFlashMode;
     procedure Clear;
     constructor Create;
@@ -170,6 +176,8 @@ resourcestring
   STR_SoundOn = '[Sound ON]';
   STR_SoundOff = '[Sound OFF]';
   STR_Pending = '%d pending alarms ';
+  STR_PopupOn = '[Popup ON]';
+  STR_PopupOff = '[Popup OFF]';
 
 constructor TAlarmManager.Create;
 begin
@@ -324,20 +332,53 @@ begin
     //checkCanceledAt (node);
 end;
 
+procedure TAlarmManager.ShowAlarms (const showOnlyPendings: boolean);
+begin
+    Form_Main.Timer.Enabled := False;
+    try
+      if ( Form_Alarm = nil ) then
+      begin
+        Form_Alarm := TForm_Alarm.Create( Form_Main );
+      end;
+
+      FSelectedAlarmList.Clear;
+      UpdatePendingAlarmList;
+      if showOnlyPendings then
+         FSelectedAlarmList.Assign(FPendingAlarmList)
+      else
+         FSelectedAlarmList.Assign(FAlarmList);
+      ShowFormAlarm (true);
+      UpdatePendingAlarmList;
+      FSelectedAlarmList.Clear;
+      if assigned(ActiveNote) and (ActiveNote.Kind=ntTree) and assigned(TTreeNote(ActiveNote).TV.Selected)  then
+         Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNote(ActiveNote).TV.Selected.Data).Alarm <> 0);
+    finally
+      Form_Main.Timer.Enabled := true;
+    end;
+end;
+
 function FormatAlarmInstant (instant: TDateTime): string;
 begin
-    if dayof(instant) <> dayof(today()) then
-       Result:= FormatDateTime( 'dddd, d MMMM - HH:mm', instant )
+    if instant = 0 then
+       Result:= ''
     else
-       Result:= FormatDateTime( 'HH:mm', instant );
+        if dayof(instant) <> dayof(today()) then
+           Result:= FormatDateTime( 'dddd, d MMMM yyyy - HH:mm', instant )
+        else
+           Result:= FormatDateTime( 'HH:mm', instant );
 end;
 
 procedure TAlarmManager.CommunicateAlarm (node : TTreeNTNode);
 var
    myNode: TNoteNode;
+   cad: wideString;
 begin
    myNode:= TNoteNode(node.Data);
-   Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_Triggered, [FormatAlarmInstant(myNode.AlarmF), myNode.Name]);
+   if myNode.AlarmNoteF <> '' then
+      cad:= ' [' + myNode.AlarmNoteF + ']'
+   else
+      cad:= '';
+   Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_Triggered, [FormatAlarmInstant(myNode.AlarmF), myNode.Name + cad]);
 end;
 
 procedure TAlarmManager.TimerTimer(Sender: TObject);
@@ -361,11 +402,27 @@ begin
        Form_Main.TB_AlarmMode.ImageIndex:= 52;
 end;
 
+function TAlarmManager.GetAlarmModeHint: string;
+var
+  soundState, popupState: string;
+begin
+   if KeyOptions.PlaySoundOnAlarm then
+      soundState:= STR_SoundOn
+   else
+      soundState:= STR_SoundOff;
+
+   if KeyOptions.DisableAlarmPopup then
+      popupState:= STR_PopupOff
+   else
+      popupState:= STR_PopupOn;
+
+   Result:= Format(STR_Pending, [FPendingAlarmList.Count]) + popupState + soundState;
+end;
+
 procedure TAlarmManager.UpdatePendingAlarmList;
 var
   I: Integer;
   node: TNoteNode;
-  soundState: string;
 begin
    I:= 0;
    while I <= FPendingAlarmList.Count - 1 do begin
@@ -374,13 +431,7 @@ begin
          FPendingAlarmList.Delete(i);
       I:= I + 1;
    end;
-
-   if KeyOptions.PlaySoundOnAlarm then
-      soundState:= STR_SoundOn
-   else
-      soundState:= STR_SoundOff;
-
-   Form_Main.TB_AlarmMode.Hint:=  Format(STR_Pending, [FPendingAlarmList.Count]) + soundState;
+   Form_Main.TB_AlarmMode.Hint:= GetAlarmModeHint;
 
    if FPendingAlarmList.Count = 0 then
       Form_Main.TB_AlarmMode.ImageIndex:= 51
@@ -526,6 +577,7 @@ begin
           nodeAlarm:= TTreeNTNode(Node.Data);
           if assigned(nodeAlarm) then begin
              TNoteNode(nodeAlarm.Data).Alarm:= 0;
+             TNoteNode(NodeSelected.Data).AlarmNote:= '';
              AlarmManager.RemoveAlarmNode (nodeAlarm);
           end;
           node:= node.GetNext;
@@ -541,6 +593,7 @@ begin
    if assigned(NodeSelected) then begin
       NoteFile.Modified := true;
       TNoteNode(NodeSelected.Data).Alarm:= 0;
+      TNoteNode(NodeSelected.Data).AlarmNote:= '';
       AlarmManager.RemoveAlarmNode (NodeSelected);
       RemoveNode;
    end;
@@ -555,6 +608,7 @@ begin
       myNode:= TNoteNode(NodeSelected.Data);
       AlarmOld:= myNode.AlarmF;
       myNode.Alarm:= RecodeTime(CB_Date.DateTime, HourOf(CB_Time.Time), MinuteOf(CB_Time.Time), 0, 0);;
+      myNode.AlarmNote:= Edit_AlarmNote.Text;
       NoteFile.Modified := true;
       if AlarmOld = 0 then
         AlarmManager.AddAlarmNode(NodeSelected)
@@ -673,15 +727,11 @@ begin
    Button_Sound.Down:= KeyOptions.PlaySoundOnAlarm;
 
    if (FSelectedAlarmList.Count = 0) then begin
-      if Sender <> nil then
-        Close
-      else begin
-        NodeSelected:= nil;
-        TV.Items.Clear;
-        Label_Selected.Caption := STR_NoSelected;
-        Label_Selected_Alarm.Caption := '';
-        EnableControls (false);
-      end;
+       NodeSelected:= nil;
+       TV.Items.Clear;
+       Label_Selected.Caption := STR_NoSelected;
+       Label_Selected_Alarm.Caption := '';
+       EnableControls (false);
    end
    else begin
       UpDown1.Position:= 500;
@@ -691,11 +741,11 @@ begin
       begin
         BeginUpdate;
         Clear;
-        for I := 0 to FSelectedAlarmList.Count - 1 do
+        for I := 0 to FNumberAlarms - 1 do
         begin
           node:= TTreeNTNode (FSelectedAlarmList[I]);
           nodeNote:= nodeOfNote(node);
-          Child := AddChild(nodeNote, TNoteNode(node.Data).Name );
+          Child := AddChild(nodeNote, WideFormat('[%s] %s [%s]', [FormatAlarmInstant(TNoteNode(node.Data).AlarmF), TNoteNode(node.Data).Name, TNoteNode(node.Data).AlarmNoteF]) );
           Child.Data:= node;
         end;
         TV.FullExpand;
@@ -706,13 +756,20 @@ begin
         if modeEdit then begin
           Button_Postpone.Caption:= STR_Apply;
           Caption:= Format(STR_CaptionSet, [FAlarmList.Count]);
+          if FNumberAlarms = 1 then
+             Edit_AlarmNote.SetFocus
+          else
+             TV.SetFocus;
         end
         else begin
           Button_Postpone.Caption:= STR_Postpone;
           Caption:= Format(STR_Num, [FSelectedAlarmList.Count]);
+          TV.SetFocus;
         end;
       end;
    end;
+
+   Label_Selected.Left:= Label_Selected_Alarm.Left + Label_Selected_Alarm.Width + 10;
 end;
 
 procedure TForm_Alarm.TB_NoAlarmClick(Sender: TObject);
@@ -787,14 +844,30 @@ begin
         if assigned(NodeSelected) then begin
            myNode:= TNoteNode(NodeSelected.Data);
            Label_Selected.Caption :=  myNode.Name;
-           if myNode.AlarmF <> 0 then
-              Label_Selected_Alarm.Caption := FormatAlarmInstant(myNode.AlarmF) + ' :'
-           else
+           if myNode.AlarmF <> 0 then begin
+              Label_Selected_Alarm.Caption := FormatAlarmInstant(myNode.AlarmF) + ' :';
+              Edit_AlarmNote.Text:= myNode.AlarmNoteF;
+              end
+           else begin
               Label_Selected_Alarm.Caption := '';
+              Edit_AlarmNote.Text:= '';
+           end;
         end;
     end;
-
+    Label_Selected.Left:= Label_Selected_Alarm.Left + Label_Selected_Alarm.Width + 10;
     TB_NoAlarmClick(nil);
+end;
+
+procedure TForm_Alarm.TVChanging(Sender: TObject; Node: TTreeNTNode;
+  var AllowChange: Boolean);
+var
+   myNode: TNoteNode;
+begin
+   if assigned(TV.Selected) and assigned(NodeSelected) then begin
+      myNode:= TNoteNode(NodeSelected.Data);
+      if myNode.AlarmF = 0 then
+         node.Text:= WideFormat('[%s] %s', [FormatAlarmInstant(myNode.AlarmF), myNode.Name]);
+   end;
 end;
 
 procedure TForm_Alarm.TVDblClick(Sender: TObject);
@@ -831,6 +904,22 @@ begin
     CB_Date.Checked := true;
 end;
 
+procedure TForm_Alarm.Edit_AlarmNoteChange(Sender: TObject);
+var
+   myNode: TNoteNode;
+   node: TTreeNTNode;
+begin
+   node:= TV.Selected;
+   if assigned(node) and assigned(NodeSelected) then begin
+      myNode:= TNoteNode(NodeSelected.Data);
+      node.Text:= WideFormat('[%s] %s [%s]', [FormatAlarmInstant(myNode.AlarmF), myNode.Name, Edit_AlarmNote.Text]);
+      if myNode.AlarmF <> 0 then begin
+         myNode.AlarmNote:= Edit_AlarmNote.Text;
+         NoteFile.Modified := true;
+      end;
+   end;
+end;
+
 procedure TForm_Alarm.EnableControls (Value: Boolean);
 begin
    Today_5min.Enabled:= Value;
@@ -852,8 +941,7 @@ begin
    Button_Discard.Enabled:= Value;
    Button_DiscardAll.Enabled:= Value;
    Button_Show.Enabled:= Value;
-   Button_ShowAll.Enabled:= Value;
-   Button_ShowPending.Enabled:= Value;
+   Edit_AlarmNote.Visible:= Value;
 end;
 
 end.

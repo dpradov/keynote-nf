@@ -2060,6 +2060,7 @@ var
   nodessaved, NodeCnt, NodeIdx : integer;
   wasmismatch : boolean;
   HaveVCLControls : boolean;
+  s: wideString;
   // bakFN : string;
 begin
   HaveVCLControls := CheckTree;
@@ -2156,8 +2157,13 @@ begin
         tf.writeln( [_NodeBGColor, '=', ColorToString( noteNode.NodeBGColor )] );
       if noteNode.HasNodeFontFace then
         tf.writeln( [_NodeFontFace, '=', noteNode.NodeFontFace ] );
-      if noteNode.AlarmF <> 0 then                                   // [dpv*]
-        tf.writeln( [_NodeAlarm, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.AlarmF ) ] );
+      if noteNode.AlarmF <> 0 then begin                                  // [dpv*]
+         if noteNode.AlarmNote <> '' then
+            s:= '|' + noteNode.AlarmNote
+         else
+            s:= '';
+         tf.writeln( [_NodeAlarm, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.AlarmF ), s ] );
+      end;
 
       if ( _SAVE_RESTORE_CARETPOS and ( notenode.SelStart > 0 )) then
         tf.writeln( [_NodeSelStart, '=', notenode.SelStart ] );
@@ -2449,6 +2455,11 @@ begin
         else
         if ( key = _NodeAlarm ) then      // [dpv*]
         begin
+          p := Pos( '|', s );
+          if ( p > 0 ) then begin
+              myNode.AlarmNote:= TryUTF8ToWideString(copy(s, p+1, length(s)));
+              delete( s, p, length(s));
+          end;
           myNode.Alarm:= strtodatetime(s);
         end;
         continue;

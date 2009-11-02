@@ -4203,8 +4203,15 @@ end; // MMEmailnoteClick
 
 procedure TForm_Main.TB_AlarmModeClick(Sender: TObject);
 begin
-    KeyOptions.DisableAlarmPopup:= not KeyOptions.DisableAlarmPopup;
-    TB_AlarmMode.Down:= (not KeyOptions.DisableAlarmPopup);
+  if (GetKeyState(VK_CONTROL) < 0) then begin
+      TB_AlarmMode.Down:= not KeyOptions.DisableAlarmPopup;
+      AlarmManager.ShowAlarms(true);
+  end
+  else begin
+      KeyOptions.DisableAlarmPopup:= not KeyOptions.DisableAlarmPopup;
+      TB_AlarmMode.Down:= (not KeyOptions.DisableAlarmPopup);
+      TB_AlarmMode.Hint:= AlarmManager.GetAlarmModeHint;
+  end;
 end;
 
 procedure TForm_Main.TB_AlarmModeMouseEnter(Sender: TObject);
@@ -4217,6 +4224,12 @@ var
     myNode: TNoteNode;
     node: TTreeNTNode;
 begin
+    if (GetKeyState(VK_CONTROL) < 0) then begin
+        TB_AlarmNode.Down:= (myNode.Alarm <> 0);
+        AlarmManager.ShowAlarms(false);
+        Exit;
+    end;
+
     if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) and (assigned(TTreeNote(ActiveNote).TV.Selected)) then begin
        node:= TTreeNote(ActiveNote).TV.Selected;
        myNode:= TNoteNode( node.Data );
@@ -4240,7 +4253,7 @@ begin
     if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) and (assigned(TTreeNote(ActiveNote).TV.Selected)) then begin
        node:= TNoteNode( TTreeNote(ActiveNote).TV.Selected.Data );
        if (node.Alarm <> 0) then
-           TB_AlarmNode.Hint:= STR_34 + FormatAlarmInstant(node.Alarm)
+           TB_AlarmNode.Hint:= STR_34 + FormatAlarmInstant(node.Alarm) + ' [' + node.AlarmNote + ']'
        else
            TB_AlarmNode.Hint:= STR_35;
     end
