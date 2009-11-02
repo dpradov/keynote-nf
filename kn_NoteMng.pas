@@ -240,6 +240,8 @@ end; // DeleteNote
 
 procedure CreateNewNote;
 begin
+  if assigned(ActiveNote) then
+     ActiveNote.EditorToDataStream;
   if NewNote( false, true, ntRTF ) then
   begin
     Application.ProcessMessages;
