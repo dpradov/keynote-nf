@@ -212,6 +212,7 @@ function NodeStreamIsUTF8_WithoutBOM (Stream : TMemoryStream; var NodeText: stri
 var
     BOM: string[4];
     TextSize: integer;
+    cad: string;
 begin
     // Node is assumed to be plain text
     Result:= False;
@@ -222,7 +223,8 @@ begin
        move( Stream.Memory^, NodeText[1], 3 );
        if Copy(NodeText,1,3) <> UTF8_BOM then begin
           move( Stream.Memory^, NodeText[1], TextSize );
-          if Utf8ToAnsi(NodeText) <> NodeText then
+          cad:= Utf8ToAnsi(NodeText);
+          if (cad <> '') and (cad <> NodeText) then
              Result:= True;
           end;
     end;
