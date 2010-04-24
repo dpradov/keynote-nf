@@ -362,10 +362,10 @@ begin
     if instant = 0 then
        Result:= ''
     else
-        if dayof(instant) <> dayof(today()) then
-           Result:= FormatDateTime( 'dddd, d MMMM yyyy - HH:mm', instant )
+        if IsToday(instant) then
+           Result:= FormatDateTime( 'HH:mm', instant )
         else
-           Result:= FormatDateTime( 'HH:mm', instant );
+           Result:= FormatDateTime( 'dddd, d MMMM yyyy - HH:mm', instant );
 end;
 
 procedure TAlarmManager.CommunicateAlarm (node : TTreeNTNode);
