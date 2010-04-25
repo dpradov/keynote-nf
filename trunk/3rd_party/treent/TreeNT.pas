@@ -5323,9 +5323,9 @@ begin
 //##fe
           if (Item.Mask and TVIF_TEXT) <> 0 then
             if Win32PlatformIsUnicode then
-              WStrLCopy(TTVItemW(Item).pszText, PWideChar(Node.Text), Item.cchTextMax)
+              WStrLCopy(TTVItemW(Item).pszText, PWideChar(Node.Text), Item.cchTextMax -1)
             else
-              StrLCopy(Item.pszText, PChar(string(Node.Text)), Item.cchTextMax);
+              StrLCopy(Item.pszText, PChar(string(Node.Text)), Item.cchTextMax -1);
 
           if (Item.Mask and TVIF_IMAGE) <> 0 then
           begin
