@@ -4352,7 +4352,7 @@ begin
   if assigned( myTNote ) then begin
     myNode:= TNoteNode( Node.Data );
 
-     if NoteFile.FileName <> '' then                           // FileName=''=> is closing. All nodes will be deleted all the way
+     if NoteFile.FileName <> '<DESTROYING>' then          // FileName='<DESTROYING>'=> is closing. All nodes will be deleted all the way
         NoteFile.ManageMirrorNodes(3, Node, nil);
 
     myTNote.RemoveNode( myNode);
