@@ -303,7 +303,7 @@ end; // CREATE
 
 destructor TNoteFile.Destroy;
 begin
-  FFileName:= '';       // This way I'll know file is closing   
+  FFileName:= '<DESTROYING>';       // This way I'll know file is closing   
   if assigned( FNotes ) then FNotes.Free;
   FNotes := nil;
   inherited Destroy;
