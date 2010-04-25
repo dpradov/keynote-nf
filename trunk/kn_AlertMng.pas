@@ -902,6 +902,7 @@ begin
 
     CB_Time.DateTime:= incMinute(CB_Time.DateTime,inc);
     CB_Date.Checked := true;
+    CB_DateChange(CB_Date);
 end;
 
 procedure TForm_Alarm.Edit_AlarmNoteChange(Sender: TObject);
