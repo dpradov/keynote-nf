@@ -148,9 +148,9 @@ begin
          ActiveNote.Editor.SelStart:= _selectStart;
          ActiveNote.Editor.SelLength:= _selectionLenght;
 
-         PutRichText('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sep + '\field{\*\fldinst{HYPERLINK "'
+         PutRichText('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sep + '{\field{\*\fldinst{HYPERLINK "'
             + URLToRTF(URLStr, false ) + '"}}{\fldrslt{\cf1\ul '
-            + URLToRTF(TextURL, true) + '}}\cf0\ulnone}',
+            + URLToRTF(TextURL, true) + '}}}\cf0\ulnone}',
             ActiveNote.Editor, true, true );
 
          end
