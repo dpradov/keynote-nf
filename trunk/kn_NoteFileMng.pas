@@ -1483,6 +1483,8 @@ end; // FolderChanged
 // CheckModified
 //=================================================================
 function CheckModified( const Warn : boolean; const closing: boolean ) : boolean;
+var
+   wasMinimized: boolean;
 begin
   with Form_Main do begin
 
@@ -1509,8 +1511,10 @@ begin
             end;
           end;
         end;
-        if closing then
+        if closing then begin
+           wasMinimized:= (WindowState = wsMinimized);
            Application.Minimize;  // Liberate the screen to let the user do other things while keyNote is closing
+        end;
 
         {$IFDEF MJ_DEBUG}
         Log.Add( '-- Saving on CHECKMODIFIED' );
@@ -1519,6 +1523,11 @@ begin
           result := true
         else
           result := ( Application.MessageBox( PChar(STR_55), PChar(STR_56), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) = ID_YES );
+
+        if closing and not wasMinimized then begin
+           Application.Restore;
+        end;
+
       finally
         {$IFDEF MJ_DEBUG}
         Log.Add( 'CheckModified result: ' + BOOLARRAY[result] );
