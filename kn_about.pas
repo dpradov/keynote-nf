@@ -66,8 +66,8 @@ type
     Label_License: TTntLabel;
     Label9: TTntLabel;
     Label11: TTntLabel;
-    Label_URL: TTntLabel;
-    Label_MAILTO: TTntLabel;
+    Label_URL: TLabel;
+    Label_MAILTO: TLabel;
     Label_Dart: TTntLabel;
     Image1: TImage;
     LB_RichEditVer: TTntLabel;
@@ -75,7 +75,7 @@ type
     Label2: TTntLabel;
     Label3: TTntLabel;
     Label4: TTntLabel;
-    Label_MAILTO2: TTntLabel;
+    Label_MAILTO2: TLabel;
     Label6: TTntLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
