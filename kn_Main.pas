@@ -5439,7 +5439,10 @@ begin
   // Jump to bookmark
   if ( sender is TMenuItem ) then
   begin
-    BookmarkGoTo( ord(( sender as TMenuItem ).Caption[2] ) - 48 );
+    // See comment in MMBkmSet9Click
+    //BookmarkGoTo( ord(( sender as TMenuItem ).Caption[2] ) - 48 );
+
+    BookmarkGoTo( ord(TMenuItem(sender).Name[7]) - 48 );
   end;
 end;
 
@@ -5448,7 +5451,12 @@ begin
   // Set bookmark
   if ( sender is TMenuItem ) then
   begin
-    BookmarkAdd( ord(( sender as TMenuItem ).Caption[2] ) - 48 );
+    // This line only works after the "Set boomark" menu is first unfold, because only then Caption
+    // changes from "1" to "&1" (e.g).  This behaviour is probably specific to TTntMenuItem.
+    // So I will use the Name property instead of Caption (rather than asking for the last character of Caption)
+    //BookmarkAdd( ord(( sender as TMenuItem ).Caption[2] ) - 48 );
+
+    BookmarkAdd( ord(TMenuItem(sender).Name[9]) - 48 );
   end;
 end;
 
