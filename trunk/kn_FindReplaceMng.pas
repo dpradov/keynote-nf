@@ -540,7 +540,7 @@ begin
             myTNote.EditorToDataStream; // update node's datastream
 
             myTreeNode := myTNote.TV.Items.GetFirstNode;
-            if myTreeNode.Hidden and (not FindOptions.HiddenNodes) then     // [dpv]
+            if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindOptions.HiddenNodes) then     // [dpv]
                myTreeNode := myTreeNode.GetNextNotHidden;
 
             while assigned( myTreeNode ) do // go through all nodes
@@ -963,7 +963,7 @@ begin
                   myNote.Modified := true;
                 end;
                 myTreeNode := TTreeNote( myNote ).TV.Items.GetFirstNode;
-                if myTreeNode.Hidden and (not FindOptions.HiddenNodes) then     // [dpv]
+                if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindOptions.HiddenNodes) then     // [dpv]
                    myTreeNode := myTreeNode.GetNextNotHidden;
 
               end;
@@ -983,7 +983,7 @@ begin
               SearchOrigin := 0;
               if ( myNote.Kind = ntTree ) then begin
                 myTreeNode := TTreeNote( myNote ).TV.Items.GetFirstNode;
-                if myTreeNode.Hidden and (not FindOptions.HiddenNodes) then     // [dpv]
+                if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindOptions.HiddenNodes) then     // [dpv]
                    myTreeNode := myTreeNode.GetNextNotHidden;
               end;
               if ( myNote.Tag = 0 ) then
