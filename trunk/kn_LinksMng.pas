@@ -817,12 +817,15 @@ var
     TextLen: Integer;
     startCmdHyperlink, endCmdHyperlink: integer;
     Hyperlink, TextHyperlink: wideString;
+    oldFirstVisibleLine, newfirstVisibleLine: integer;
     _selectionLenght:Integer;
     _selectStart: Integer;
  begin
     TextLen:= ActiveNote.Editor.TextLength;
 
     ActiveNote.Editor.BeginUpdate;
+
+    oldFirstVisibleLine:= ActiveNote.Editor.GetFirstVisibleLine;
 
     _selectStart := ActiveNote.Editor.SelStart;
     _selectionLenght := ActiveNote.Editor.SelLength;
@@ -880,8 +883,13 @@ var
         until (p < 0) or (p >= TextLen);
 
     Finally
-        ActiveNote.Editor.SelStart:= _selectStart;
-        ActiveNote.Editor.SelLength:= _selectionLenght;
+        with ActiveNote.Editor do begin
+           SelStart:= _selectStart;
+           SelLength:= _selectionLenght;
+
+           newFirstVisibleLine:= GetFirstVisibleLine;
+           ScrollLinesBy(oldFirstVisibleLine-newFirstVisibleLine);
+        end;
     End;
     ActiveNote.Editor.EndUpdate;
 
