@@ -474,6 +474,7 @@ type
     function LineFromChar(CharIndex: Integer): Integer;
     function GetLineIndex(LineNo: Integer): Integer;
     function GetLineLength(CharIndex: Integer): Integer;
+    function GetFirstVisibleLine: Integer;
     function WordAtCursor: WideString;
     function FindText(const SearchStr: WideString;
       StartPos, LengthSearch: Integer; Options: TRichSearchTypes): Integer;
@@ -4405,6 +4406,11 @@ end;
 function TRxCustomRichEdit.GetLineLength(CharIndex: Integer): Integer;
 begin
   Result := SendMessage(Handle, EM_LINELENGTH, CharIndex, 0);
+end;
+
+function TRxCustomRichEdit.GetFirstVisibleLine: Integer;
+begin
+  Result := SendMessage(Handle, EM_GETFIRSTVISIBLELINE, 0, 0);
 end;
 
 procedure TRxCustomRichEdit.SetUndoLimit(Value: Integer);
