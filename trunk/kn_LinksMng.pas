@@ -27,7 +27,7 @@ uses
 implementation
 uses
     Windows, Classes, Forms, SysUtils, Dialogs, StdCtrls, ShellApi, StrUtils,
-    gf_misc, gf_miscvcl, RxRichEd, kn_TreeNoteMng, kn_History, kn_FindReplaceMng,
+    gf_misc, gf_miscvcl, gf_files, RxRichEd, kn_TreeNoteMng, kn_History, kn_FindReplaceMng,
     kn_Global, kn_Main, kn_Info, kn_Const, kn_URL, kn_RTFUtils, kn_NoteFileMng,
     kn_NodeList, kn_clipUtils, TntSysUtils, TntSystem;
 
@@ -1131,6 +1131,7 @@ begin
             end
             else
             begin
+              myURL:= GetAbsolutePath(WideExtractFilePath(Application.ExeName), myURL);
               ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL );
             end;
           end;
