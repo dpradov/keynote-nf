@@ -27,7 +27,7 @@ function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
 function GetURLFromHTMLClipboard : string;
 
 implementation
-uses WideStrings;
+uses WideStrings, gf_strings;
 
 function ClipboardHasHTMLformat : boolean;
 begin
@@ -115,28 +115,9 @@ begin
     result := '';
 end; // ClipboardAsStringW
 
-
 function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
-var
-  i, l, max : integer;
 begin
-  result := trimleft( ClipboardAsStringW );
-  l := length( result );
-  if ( l > 0 ) then
-  begin
-    if ( MaxLen < l ) then
-      max := MaxLen
-    else
-      max := l;
-    for i := 1 to max do
-    begin
-      if ( result[i] < #32 ) then
-      begin
-        delete( result, i, l );
-        break;
-      end;
-    end;
-  end;
+  Result:= FirstLineFromString(trimleft( ClipboardAsStringW ), MaxLen);
 end; // FirstLineFromClipboard
 
 var

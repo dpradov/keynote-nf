@@ -1821,14 +1821,7 @@ begin
     exit;
   end;
 
-  myNodeName := myNote.Editor.SelTextW;
-  p := ansiPos( #13, myNodeName );
-  if ( p > 0 ) then
-    myNodeName := copy( myNodeName, 1, pred( p ));
-  p := length( myNodeName );
-  if ( p > TREENODE_NAME_LENGTH ) then
-    delete( myNodeName, succ( TREENODE_NAME_LENGTH ), p );
-  myNodeName := trim( myNodeName );
+  myNodeName:= FirstLineFromString(trimleft( myNote.Editor.SelTextW ), TREENODE_NAME_LENGTH_CAPTURE);
 
   myRTFText := GetRichText( myNote.Editor, ( not myNote.PlainText ), true );
 

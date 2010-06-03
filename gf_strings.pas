@@ -89,6 +89,8 @@ function GetIndentOfLine (const S: string): integer;
 
 function TryUTF8ToWideString(const s: string): wideString;
 
+function FirstLineFromString( const str: WideString; const MaxLen : integer ) : WideString;
+
 implementation
 uses gf_misc, TntSystem;
 
@@ -688,5 +690,36 @@ begin
      if Result= '' then
         Result:= s;
 end;
+
+function FirstLineFromString( const str: WideString; const MaxLen : integer ) : WideString;
+var
+  i, l, max, lineBreakAt : integer;
+begin
+  result:= str;
+  l := length( str );
+  if ( l > 0 ) then
+  begin
+    if ( MaxLen < l ) then
+      max := MaxLen
+    else
+      max := l;
+
+    lineBreakAt:= max+1;
+    for i := 1 to max do
+    begin
+      if ( result[i] < #32 ) then
+      begin
+        lineBreakAt:= i;
+        break;
+      end;
+    end;
+
+    delete( result, lineBreakAt, l );
+    if (lineBreakAt > max) and (l > max) then begin
+       result:= trimright(result) + '...';
+    end;
+  end;
+end; // FirstLineFromString
+
 
 end.
