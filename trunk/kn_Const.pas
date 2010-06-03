@@ -201,6 +201,7 @@ const
   DEF_UNDO_LIMIT        = 32; // undo levels
   TABNOTE_NAME_LENGTH   = 50; // max name length for the note title (ie Tab caption)
   TREENODE_NAME_LENGTH  = 255; // max name length for a tree node
+  TREENODE_NAME_LENGTH_CAPTURE  = 60; // max name length for a tree node, when capturing from Clipboard or from a selection (new node from selection)
   MAX_COMMENT_LENGTH    = 80;
   MAX_FILENAME_LENGTH   = 127;
   MAX_BOOKMARKS         = 9; // ZERO-based!

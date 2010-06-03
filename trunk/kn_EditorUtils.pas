@@ -1392,7 +1392,7 @@ begin
 
               case ClipOptions.ClipNodeNaming of
                 clnDefault : myNodeName := '';
-                clnClipboard : myNodeName := FirstLineFromClipboard( TREENODE_NAME_LENGTH );
+                clnClipboard : myNodeName := FirstLineFromClipboard( TREENODE_NAME_LENGTH_CAPTURE );
                 clnDateTime : myNodeName := FormatDateTime( ShortDateFormat + #32 + ShortTimeFormat, now );
               end;
 
@@ -1569,7 +1569,7 @@ begin
       begin
         case ClipOptions.ClipNodeNaming of
           clnDefault : myNodeName := '';
-          clnClipboard : myNodeName := FirstLineFromClipboard( TREENODE_NAME_LENGTH );
+          clnClipboard : myNodeName := FirstLineFromClipboard( TREENODE_NAME_LENGTH_CAPTURE );
           clnDateTime : myNodeName := FormatDateTime( ShortDateFormat + #32 + ShortTimeFormat, now );
         end;
 
