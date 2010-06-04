@@ -1124,7 +1124,7 @@ var
 begin
   result := false;
 
-  FN := GetExportFilename( FN );
+  FN := GetExportFilename( FN + '.EXT' );
   if ( FN = '' ) then exit; // break condition
 
   try
