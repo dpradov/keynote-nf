@@ -153,7 +153,7 @@ var
   ___FILE_ERROR_STR : string;
 
 implementation
-uses RTLConsts, TntSystem, TntSysUtils, TntClasses;
+uses RTLConsts, TntSystem, TntSysUtils, TntClasses, WideStrUtils;
 (*
 function GetFileKind( const FN : string ) : TFileKind;
 var
@@ -290,26 +290,28 @@ var
 begin
   r := trim( s );
 
-  // replace invalid characters with underscores
+  // replace invalid characters with "?" (as an auxiliary character)
   for i := 1 to length( r ) do
   begin
     if ( not ( IsCharAlphaNumericW( r[i] ) or ( r[i] in FileNameChars ) or ( r[i] in AdditionalValidChars ))) then
-      r[i] := '_';
+      r[i] := '?';
   end;
 
-  // compress multiple underscores
-  i := pos( '__', r );
+  // compress multiple "?"
+  i := pos( '??', r );
   while ( i > 0 ) do
   begin
     delete( r, i, 1 );
-    i := pos( '__', r );
+    i := pos( '??', r );
   end;
 
-  // trim leading and trailing underscores
-  while (( r <> '' ) and ( r[1] = '_' )) do
+  // trim leading and trailing "?"
+  while (( r <> '' ) and ( r[1] = '?' )) do
     delete( r, 1, 1 );
-  while (( r <> '' ) and ( r[length( r )] = '_' )) do
+  while (( r <> '' ) and ( r[length( r )] = '?' )) do
     delete( r, length( r ), 1 );
+
+   r:= WideStringReplace(r, '?', '_', [rfReplaceAll]);
 
   // limit length to maxlen
   // (no limit if maxlen = 0 )
