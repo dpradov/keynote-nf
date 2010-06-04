@@ -2825,6 +2825,7 @@ begin
     exit;
   end;
 
+  if NoteIsReadOnly( ActiveNote, true ) then exit;
   case key of
 
     #9 :    with ActiveNote.Editor do begin
