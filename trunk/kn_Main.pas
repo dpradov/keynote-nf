@@ -2750,15 +2750,8 @@ begin
         getInformationOfCurrentLine(TRxRichEdit(sender));
         with ( sender as TRxRichEdit ) do
         begin
-          if (indent = length(S)) and (TRxRichEdit(sender).Paragraph.Numbering <> nsNone) then begin
-
-             If TRxRichEdit(sender).Paragraph.Numbering = nsBullet Then
-                ActiveNote.Editor.Paragraph.FirstIndentRelative:= -2
-             Else
-                ActiveNote.Editor.Paragraph.FirstIndentRelative:= -4;
-
-             TRxRichEdit(sender).Paragraph.Numbering :=  nsNone;
-             end
+          if (indent = length(S)) and (TRxRichEdit(sender).Paragraph.Numbering <> nsNone) then
+             TRxRichEdit(sender).Paragraph.Numbering :=  nsNone
           else
             if indent > 0 then begin
               key := 0;
