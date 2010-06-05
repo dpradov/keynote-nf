@@ -865,6 +865,7 @@ type
     N115: TTntMenuItem;
     TVNavigateNonVirtualNode: TTntMenuItem;
     TB_AlarmMode: TToolbarButton97;
+    procedure TntFormResize(Sender: TObject);
     procedure TB_AlarmModeMouseEnter(Sender: TObject);
     procedure TB_AlarmModeClick(Sender: TObject);
     procedure TVNavigateNonVirtualNodeClick(Sender: TObject);
@@ -2152,6 +2153,11 @@ procedure TForm_Main.TMRestoreClick(Sender: TObject);
 begin
   Application.Restore;
   Application.BringToFront;
+end;
+
+procedure TForm_Main.TntFormResize(Sender: TObject);
+begin
+  Form_Main.Refresh;
 end;
 
 procedure TForm_Main.TimerTimer(Sender: TObject);
