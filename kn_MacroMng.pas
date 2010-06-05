@@ -1710,31 +1710,17 @@ var
     Procedure CmdNumbering(tipo : TRxNumbering);
     var
       actualNumbering : TRxNumbering;
-      clearIndent: integer;
     begin
         actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
-        If actualNumbering = tipo Then begin
-            ActiveNote.Editor.Paragraph.Numbering := nsNone;
-            If actualNumbering = nsBullet Then
-                ActiveNote.Editor.Paragraph.FirstIndentRelative:= -2
-            Else
-                ActiveNote.Editor.Paragraph.FirstIndentRelative:= -4;
-        end
+        If actualNumbering = tipo Then
+            ActiveNote.Editor.Paragraph.Numbering := nsNone
         Else begin
-            clearIndent := 0;
-            If actualNumbering = nsBullet Then  // if convert from bullet to numbering
-                clearIndent := -2
-            Else If actualNumbering <> nsNone Then
-                clearIndent := -4;
-
-            If tipo = nsBullet Then
-                ActiveNote.Editor.Paragraph.FirstIndentRelative := 2 + clearIndent
-            Else
-                ActiveNote.Editor.Paragraph.FirstIndentRelative := 4 + clearIndent;
-
             ActiveNote.Editor.Paragraph.Numbering := tipo;
-            ActiveNote.Editor.Paragraph.NumberingStyle := nsEnclosed;
             ActiveNote.Editor.Paragraph.NumberingStart := 1;
+//            if tipo <> nsBullet Then begin
+//               ActiveNote.Editor.Paragraph.NumberingStyle := nsEnclosed;
+//               ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent + EditorOptions.IndentInc;
+//            end;
         End
     End;
 
