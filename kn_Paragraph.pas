@@ -91,6 +91,7 @@ type
     Para : TParaInfo;
     OK_Click : boolean;
     CurrentNumbering : TRxNumbering;
+    CurrentNumberingStyle : TRxNumberingStyle;
     procedure ParaToForm;
     procedure FormToPara;
   end;
@@ -111,6 +112,7 @@ begin
   end;
 
   CurrentNumbering := nsNone;
+  CurrentNumberingStyle := nsPeriod;
 
   if ( _LoadedRichEditVersion <= 2 ) then
   begin
@@ -127,6 +129,7 @@ begin
     SpaceBefore := 0;
     SpaceAfter := 0;
     Numbering := nsNone;
+    NumberingStyle := nsPeriod;
     Alignment := paLeftJustify;
   end;
 

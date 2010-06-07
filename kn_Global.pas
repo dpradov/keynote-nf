@@ -156,6 +156,7 @@ var
     _REOPEN_AUTOCLOSED_FILE : boolean;
     _Is_Dragging_Text : boolean;
     _LastZoomValue : integer;
+    NumberingStart: integer;
 
     OriginalComboLen : integer;
 
@@ -209,6 +210,7 @@ var
   V : TOSVersionInfo;
 begin
   MovingTreeNode:= nil;
+  NumberingStart:= 1;
 
   with Form_Main do begin
       {$IFDEF WITH_TIMER}
@@ -466,6 +468,22 @@ begin
         else
           MMArabicNumbers.Checked := true;
       end;
+
+      MMRightParenthesis.Tag := integer(nsParenthesis);
+      MMEnclosed.Tag := integer(nsEnclosed);
+      MMPeriod.Tag := integer(nsPeriod);
+      MMOnlyNumber.Tag := integer(nsSimple);
+      MMWithoutNextNumber.Tag := integer(nsNoNumber);
+      MMStartsNewNumber.Tag := integer(nsNewNumber);
+
+      case KeyOptions.LastNumberingStyle of
+        nsParenthesis : MMRightParenthesis.Checked := true;
+        nsEnclosed : MMEnclosed.Checked := true;
+        nsSimple : MMOnlyNumber.Checked := true;
+        else
+          MMPeriod.Checked := true;
+      end;
+
 
       {$IFDEF WITH_TIMER}
       StoreTick( 'End config - Begin instance check', GetTickCount );

@@ -253,6 +253,7 @@ type
     SpaceBefore : integer;
     SpaceAfter : integer;
     Numbering : TRxNumbering;
+    NumberingStyle : TRxNumberingStyle;
     Alignment : TParaAlignment;
   end;
 
@@ -529,6 +530,7 @@ type
     LastFile : wideString;
     LastImportPath : wideString;
     LastNumbering : TRxNumbering;
+    LastNumberingStyle: TRxNumberingStyle;
     LastVersion : string; // last version of KeyNote. Used to detect upgrades
     LoadLastFile : boolean; // if TRUE, open last used file at startup
     LoadUserFile : boolean; // if TRUE, always open user-specified file at startup

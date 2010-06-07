@@ -181,7 +181,7 @@ type
 
   TRxNumbering = (nsNone, nsBullet, nsArabicNumbers, nsLoCaseLetter,
     nsUpCaseLetter, nsLoCaseRoman, nsUpCaseRoman);
-  TRxNumberingStyle = (nsParenthesis, nsPeriod, nsEnclosed, nsSimple);
+  TRxNumberingStyle = (nsParenthesis=$0000, nsEnclosed=$0100, nsPeriod=$0200, nsSimple=$0300, nsNoNumber=$0400, nsNewNumber=$8000);  // http://msdn.microsoft.com/en-us/library/bb787942%28VS.85%29.aspx
   TParaAlignment = (paLeftJustify, paRightJustify, paCenter, paJustify);
   TLineSpacingRule = (lsSingle, lsOneAndHalf, lsDouble, lsSpecifiedOrMore,
     lsSpecified, lsMultiple);
@@ -249,6 +249,7 @@ type
     property Tab[Index: Byte]: Longint read GetTab write SetTab;
     property TabCount: Integer read GetTabCount write SetTabCount;
     property TableStyle: TParaTableStyle read GetTableStyle write SetTableStyle;
+    procedure SetNumberingList(numbering: TRxNumbering; numberingStyle: TRxNumberingStyle; numberingStart: integer; LeftIndent: integer);
   end;
 
 { TOEMConversion }
@@ -1642,10 +1643,11 @@ begin
   InitPara(Paragraph);
   with Paragraph do begin
     dwMask := PFM_NUMBERINGSTART;
-    wNumberingStart := 1;
+    wNumberingStart := value;
   end;
   SetAttributes(Paragraph);
 end; // SetNumberingStart
+
 procedure TRxParaAttributes.SetNumbering(Value: TRxNumbering);
 var
   Paragraph: TParaFormat2;
@@ -1685,10 +1687,29 @@ begin
   InitPara(Paragraph);
   with Paragraph do begin
     dwMask := PFM_NUMBERINGSTYLE;
-    wNumberingStyle := Ord(Value);
+    wNumberingStyle := word(Value);
   end;
   SetAttributes(Paragraph);
 end;
+
+procedure TRxParaAttributes.SetNumberingList(numbering: TRxNumbering; numberingStyle: TRxNumberingStyle; numberingStart: integer; LeftIndent: integer);
+var
+  Paragraph: TParaFormat2;
+begin
+  if RichEditVersion = 1 then
+    if numbering <> nsNone then numbering := TRxNumbering(PFN_BULLET);
+
+  InitPara(Paragraph);
+  with Paragraph do begin
+    dwMask := PFM_NUMBERING or PFM_NUMBERINGSTYLE or PFM_NUMBERINGSTART or PFM_OFFSET;
+    wNumberingStyle := word(numberingStyle);
+    wNumbering := Ord(numbering);
+    wNumberingStart := numberingStart;
+    dxOffset := LeftIndent * 20;
+  end;
+  SetAttributes(Paragraph);
+end;
+
 
 function TRxParaAttributes.GetNumberingTab: Word;
 var

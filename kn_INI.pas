@@ -348,6 +348,7 @@ type
     LastFile,
     LastImportPath,
     LastNumbering,
+    LastNumberingStyle,
     LastVersion,
     LoadLastFile,
     LoadUserFile,
@@ -487,6 +488,7 @@ const
     LastFile : 'LastFile';
     LastImportPath : 'LastImportPath';
     LastNumbering : 'LastNumbering';
+    LastNumberingStyle : 'LastNumberingStyle';
     LastVersion : 'LastVersion';
     LoadLastFile : 'LoadLastFile';
     LoadUserFile : 'LoadUserFile';
@@ -945,6 +947,7 @@ begin
     LastFile := '';
     LastImportPath := '';
     LastNumbering := nsArabicNumbers;
+    LastNumberingStyle := nsPeriod;
     LastVersion := Program_VerStr;
     LoadLastFile := true;
     LoadUserFile := false;
@@ -1203,6 +1206,7 @@ begin
       writestringW( section, KeyOptionsIniStr.LastFile, WideExtractRelativePath(Application.ExeName, KeyOptions.LastFile) );
       writestringW( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
       writeinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering ));
+      writeinteger( section, KeyOptionsIniStr.LastNumberingStyle, integer(KeyOptions.LastNumberingStyle));
       writestring( section, KeyOptionsIniStr.LastVersion, Program_VerStr ); // always write current version
       writebool( section, KeyOptionsIniStr.LoadLastFile, KeyOptions.LoadLastFile );
       writebool( section, KeyOptionsIniStr.LoadUserFile, KeyOptions.LoadUserFile );
@@ -1497,6 +1501,7 @@ begin
       KeyOptions.LastFile := NormalFN( readstringW( section, KeyOptionsIniStr.LastFile, KeyOptions.LastFile ));
       KeyOptions.LastImportPath := readstringW( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
       KeyOptions.LastNumbering := TRxNumbering( readinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering )));
+      KeyOptions.LastNumberingStyle := TRxNumberingStyle( readinteger( section, KeyOptionsIniStr.LastNumberingStyle, integer(KeyOptions.LastNumberingStyle)));
       KeyOptions.LastVersion := readstring( section, KeyOptionsIniStr.LastVersion, KeyOptions.LastVersion );
       KeyOptions.LoadLastFile := readbool( section, KeyOptionsIniStr.LoadLastFile, KeyOptions.LoadLastFile );
       KeyOptions.LoadUserFile := readbool( section, KeyOptionsIniStr.LoadUserFile, KeyOptions.LoadUserFile );
