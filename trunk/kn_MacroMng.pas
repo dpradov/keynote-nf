@@ -1710,17 +1710,20 @@ var
     Procedure CmdNumbering(tipo : TRxNumbering);
     var
       actualNumbering : TRxNumbering;
+      actualNumberingStyle: TRxNumberingStyle;
+      leftIndent, actLeftIndent: integer;
     begin
         actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
-        If actualNumbering = tipo Then
+        actualNumberingStyle:= ActiveNote.Editor.Paragraph.NumberingStyle;
+        If (actualNumbering = tipo) and (actualNumberingStyle = KeyOptions.LastNumberingStyle) and (NumberingStart = 1) Then
             ActiveNote.Editor.Paragraph.Numbering := nsNone
         Else begin
-            ActiveNote.Editor.Paragraph.Numbering := tipo;
-            ActiveNote.Editor.Paragraph.NumberingStart := 1;
-//            if tipo <> nsBullet Then begin
-//               ActiveNote.Editor.Paragraph.NumberingStyle := nsEnclosed;
-//               ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent + EditorOptions.IndentInc;
-//            end;
+              LeftIndent:= Round(10* Form_Main.NoteSelText.Size/5.7);
+              actLeftIndent:= ActiveNote.Editor.Paragraph.LeftIndent;
+              if actLeftIndent > LeftIndent then
+                 LeftIndent:= actLeftIndent;
+             if LeftIndent < 13 then LeftIndent := 13;
+             ActiveNote.Editor.Paragraph.SetNumberingList(tipo, KeyOptions.LastNumberingStyle, NumberingStart, leftIndent);
         End
     End;
 
@@ -1921,6 +1924,7 @@ begin
                 ActiveNote.Editor.Paragraph.SpaceBefore := SpaceBefore;
                 ActiveNote.Editor.Paragraph.SpaceAfter := SpaceAfter;
                 ActiveNote.Editor.Paragraph.Numbering := Numbering;
+                ActiveNote.Editor.Paragraph.NumberingStyle := NumberingStyle;
                 (*
                 if ( Numbering = nsArabicNumbers ) then
                 begin
@@ -2553,6 +2557,7 @@ begin
     SpaceBefore := ActiveNote.Editor.Paragraph.SpaceBefore;
     SpaceAfter := ActiveNote.Editor.Paragraph.SpaceAfter;
     Numbering := ActiveNote.Editor.Paragraph.Numbering;
+    NumberingStyle := ActiveNote.Editor.Paragraph.NumberingStyle;
     Alignment := ActiveNote.Editor.Paragraph.Alignment;
   end;
 
@@ -2560,8 +2565,12 @@ begin
   try
     Form_Para.Para := CommandRecall.Para;
     Form_Para.CurrentNumbering := ActiveNote.Editor.Paragraph.Numbering;
+    Form_Para.CurrentNumberingStyle := ActiveNote.Editor.Paragraph.NumberingStyle;
     if ( Form_Para.CurrentNumbering in [nsNone, nsBullet] ) then
       Form_Para.CurrentNumbering := KeyOptions.LastNumbering;
+
+    if ( Form_Para.CurrentNumbering = nsNone ) then
+      Form_Para.CurrentNumberingStyle := KeyOptions.LastNumberingStyle;
 
     with Form_Para do
     begin

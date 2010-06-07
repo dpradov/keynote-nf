@@ -865,6 +865,16 @@ type
     N115: TTntMenuItem;
     TVNavigateNonVirtualNode: TTntMenuItem;
     TB_AlarmMode: TToolbarButton97;
+    NU01: TTntMenuItem;
+    MMRightParenthesis: TTntMenuItem;
+    MMEnclosed: TTntMenuItem;
+    MMPeriod: TTntMenuItem;
+    MMOnlyNumber: TTntMenuItem;
+    MMWithoutNextNumber: TTntMenuItem;
+    MMStartsNewNumber: TTntMenuItem;
+    NU02: TTntMenuItem;
+    procedure MMStartsNewNumberClick(Sender: TObject);
+    procedure MMRightParenthesisClick(Sender: TObject);
     procedure TntFormResize(Sender: TObject);
     procedure TB_AlarmModeMouseEnter(Sender: TObject);
     procedure TB_AlarmModeClick(Sender: TObject);
@@ -1467,6 +1477,7 @@ resourcestring
   STR_93= 'Double-click to insert selected template';
   STR_94= 'Toolbar configuration file "%s" not found. Default toolbar configuration file has been created.';
   STR_95= 'Saved toolbar layout to "%s".';
+  STR_96= 'Starting number for numbered paragraphs:';
 
 const
   _TIMER_INTERVAL = 10000; // ten seconds
@@ -2750,8 +2761,14 @@ begin
         getInformationOfCurrentLine(TRxRichEdit(sender));
         with ( sender as TRxRichEdit ) do
         begin
-          if (indent = length(S)) and (TRxRichEdit(sender).Paragraph.Numbering <> nsNone) then
+          if (indent = length(S)) and (TRxRichEdit(sender).Paragraph.Numbering <> nsNone) and (TRxRichEdit(sender).Paragraph.NumberingStyle <> nsNoNumber) then
              TRxRichEdit(sender).Paragraph.Numbering :=  nsNone
+          else if (length(S)= 0) and (TRxRichEdit(sender).Paragraph.NumberingStyle = nsNoNumber) then begin
+              key := 0;
+              SelText := #13#10;
+              SelStart := ( SelStart+SelLength ) -1;
+              TRxRichEdit(sender).Paragraph.NumberingStyle := nsNoNumber;
+              end
           else
             if indent > 0 then begin
               key := 0;
@@ -4854,7 +4871,9 @@ begin
       end;
     end;
   end;
-end; // RenameNode
+end;
+
+// RenameNode
 
 
 procedure TForm_Main.MMViewNodeIconsClick(Sender: TObject);
@@ -6538,10 +6557,59 @@ begin
 end;
 
 procedure TForm_Main.MMUpRomanClick(Sender: TObject);
+var
+  actualNumbering : TRxNumbering;
 begin
   KeyOptions.LastNumbering := TRxNumbering(( sender as TMenuItem ).Tag );
   ( sender as TMenuItem ).Checked := true;
+
+  actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
+  if not (actualNumbering in [nsNone, nsBullet]) then
+      PerformCmd( ecNumbers );
 end;
+
+procedure TForm_Main.MMRightParenthesisClick(Sender: TObject);
+var
+  actualNumbering : TRxNumbering;
+  numberingStyle: TRxNumberingStyle;
+  actualNumberingStyle : TRxNumberingStyle;
+begin
+  numberingStyle:= TRxNumberingStyle(( sender as TMenuItem ).Tag );
+  actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
+  actualNumberingStyle:= ActiveNote.Editor.Paragraph.NumberingStyle;
+
+  KeyOptions.LastNumberingStyle := numberingStyle;
+
+  case numberingStyle of
+    nsNoNumber :
+         try
+           PerformCmd( ecNumbers );
+         finally
+           KeyOptions.LastNumberingStyle:= actualNumberingStyle;   // restore actual numbering style
+           NumberingStart:= 1;
+         end
+    else begin
+        ( sender as TMenuItem ).Checked := true;
+         if not (actualNumbering in [nsNone, nsBullet]) then begin
+            PerformCmd( ecNumbers );
+         end;
+        end;
+  end;
+end;
+
+procedure TForm_Main.MMStartsNewNumberClick(Sender: TObject);
+var
+   actualNumbering : TRxNumbering;
+begin
+   actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
+   try
+      NumberingStart:= StrToInt(InputBox( 'KeyNote NF', STR_96, '1' ));
+      PerformCmd( ecNumbers );
+   except
+   end;
+   NumberingStart:= 1;
+end;
+
 
 procedure TForm_Main.MMHelpWhatsNewClick(Sender: TObject);
 begin
