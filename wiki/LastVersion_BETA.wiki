@@ -1,7 +1,10 @@
 #summary KeyNote NF Last version (Beta)
+#labels Featured
 
 *!KeyNote NF Last version (Beta)*
 
+<br>
+----
 For those of you who want and can test new funcionality before new version is released:
 
 This executable (*1.7.7 Beta*) includes the following issues:
@@ -24,9 +27,47 @@ http://groups.google.com/group/keynote-nf/files
 Soon I will publish a new BETA (this one with language files included, probably) with the following improvement: all the functionality of the program will manage properly UNICODE strings.
 
 <br><br>
-20 sept 2009: <br>
+----
+*20 sept 2009:* <br>
 I have uploaded a new executable (*1.7.7 Beta 2*) that includes the issue mentioned:
 
   * Issue #139: Make !KeyNote NF Unicode compliant
 
 Before releasing the new version of !KeyNote NF I will correct some of the defects identified in the issue list.
+
+
+<br><br>
+----
+*07 june 2010:* <br>
+Soon I will release the version 1.7.9, but I think that maybe many of you will like to test the corrections and prefer not to wait to the other few issues I will include to begin using the new beta.
+
+So, I have uploaded a executable (*1.7.9.1 Beta 1*) that includes the following issues:
+
+  * Issue #61:  Improve lists (bullets and numbered lists): different styles, sublists, ...   	 
+  * Issue #325: Relative paths in Links (relative to .knt file) 
+
+  * Issue #251:  Alarm Text Entry can make !KeyNote to crash
+  * Issue #258:  Alarm date displayed incorrectly when the day was the same as today
+  * Issue #224:  Alarm window - date/time selection conflict - see screenshot
+  * Issue #306:  Exception setting alarm in no saved files (untitled)
+  * Issue #77:   Note display corrupted on resizing 	
+  * Issue #107:  Name of new nodes created by 'New node from selection' and clipboard capture with option 'use clipboard text' may be too long
+  * Issue #264:  Clipboard Capture with 'New node name' set to 'Use clipboard tex'" can cause the program to crash
+  * Issue #136:  Find with 'search all notes' can cause Keynote to close
+  * Issue #198:  Chinese characters detected erroneously as UTF8 in import
+  * Issue #202:  Cyrillic plain text in old .knt files is shown as Western characters
+  * Issue #200:  Inconsistent bullet indentation
+  * Issue #208:  Notes with links scroll on save
+  * Issue #213:  Clicking URLs in About menu results in Unexpected error: Invalid class typecast
+  * Issue #242:  Links incorrectly formed in Windows 7
+  * Issue #227:  Tab key causes tab to be inserted even if Note is set to "Read Only"
+  * Issue #247:  Exit with automatic saving causes Keynote to open minimized next time
+  * Issue #279:  Search all notes function can cause address violation
+  * Issue #288:  Underscores are dropped while exported to single target files
+  * Issue #294:  Minor bug on "Set Bookmark" and "Jump Bookmark" keyboard shortcuts
+
+
+The executable can be downloaded from: <br>
+[http://code.google.com/p/keynote-nf/downloads/detail?name=Release_1.7.9.1%20Beta%201.rar http://code.google.com/p/keynote-nf/downloads]
+
+Note that the language files you have for the actual version (1.7.8) will not be applicable to this version. With the release of the final 1.7.9 version I will incorporate all the language files updated.
