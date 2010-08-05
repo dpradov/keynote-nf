@@ -49,6 +49,16 @@ uses Classes, SysUtils,
      Windows,  ShellAPI,
      Messages;
 
+resourcestring
+  STR_minute = 'minute';
+  STR_minutes = 'minutes';
+  STR_hour = 'hour';
+  STR_hours = 'hours';
+  STR_day = 'day';
+  STR_days = 'days';
+  STR_week = 'week';
+  STR_weeks = 'weeks';
+
 
 type
   String255 = string[255];
@@ -117,6 +127,9 @@ const
 type
   TTrinaryCompare = ( trinGreater, trinEqual, trinSmaller );
 
+const
+   partsOfNumbers = '0123456789.,';
+   digitsNumbers = '0123456789';
 
 function RunsOnWindowsNT : boolean;
 function GetCommandInterpreter : string;
@@ -161,6 +174,10 @@ function GetEnvVar( const csVarName : string ) : string;
 function GetTimeZone( var offset, mode : longint ) : boolean;
 Function TimeDeltaInMinutes( const StartDate, EndDate   : TDateTime): Double;
 Function TimeDeltaInSeconds( const StartDate, EndDate : TDateTime): Double;
+function DateTimeDiff(Start, Stop : TDateTime) : int64;
+function GetTimeIntervalStr(Start, Stop : TDateTime): wideString;
+function IncStrInterval (const Interval: wideString; StartDate: TDateTime; increment: boolean= true): TDateTime;
+function TimeRevised(time: wideString): WideString;
 function NormalFN( const fn : wideString ) : wideString;
 function RelativeFN( FN : wideString ) : wideString;
 function ProperFolderName( folder : wideString ) : wideString;
@@ -185,6 +202,8 @@ function WindowsErrorString : string;
 function DecToRoman( Decimal: Longint): string;
 function RomanToDec( const S : string ) : longint;
 
+function RoundTo(n: Extended; decimals: integer): Extended;
+
 function FormatDateTimeEnglish( AFormat : string; ADateTime : TDateTime ) : string;
 
 function GenerateRandomPassphrase(
@@ -201,12 +220,13 @@ var
   _OSIsWindowsNT : boolean;
 
 implementation
-uses TntSysUtils;
+uses TntSysUtils, WideStrUtils, DateUtils;
 
 const
   TIME_ZONE_ID_UNKNOWN  = 0;
   TIME_ZONE_ID_STANDARD = 1;
   TIME_ZONE_ID_DAYLIGHT = 2;
+
 
 function GetCommandInterpreter : string;
 begin
@@ -694,6 +714,31 @@ Begin
     Result := 0;
   End;
 End; // TimeDeltaInSeconds
+
+
+function DateTimeDiff(Start, Stop : TDateTime) : int64;
+var TimeStamp : TTimeStamp;
+begin
+  if Stop >= Start then
+     TimeStamp := DateTimeToTimeStamp(Stop - Start)
+  else
+     TimeStamp := DateTimeToTimeStamp(Start - Stop);
+  Dec(TimeStamp.Date, TTimeStamp(DateTimeToTimeStamp(0)).Date);
+  Result := (TimeStamp.Date*24*60*60)+(TimeStamp.Time div 1000);
+end;
+
+
+function RoundTo(n: Extended; decimals: integer): Extended;
+var
+   coef: int64;
+begin
+  coef:= Round(Exp(decimals*ln(10)));  //  a^b
+  if n > 0 then
+     Result:= Trunc(n*coef + 0.5 + 0.00000001) / coef
+  else
+     Result:= Trunc(n*coef - 0.5 - 0.00000001) / coef;
+end;
+
 
 function NormalFN( const fn : wideString ) : wideString;
 begin
@@ -1263,6 +1308,132 @@ begin
   end;
 
 end; // FormatDateTimeEnglish
+
+
+// Returns a string with the time interval between Reference and Alarm (on the form: "2 minutes", "4 hours", etc)
+//
+function GetTimeIntervalStr(Start, Stop : TDateTime): wideString;
+var
+  secondsDiff: int64;
+  n: Extended;
+  units: wideString;
+begin
+    secondsDiff:= DateTimeDiff(Start, Stop);
+
+    if (secondsDiff = 604800) or (secondsDiff >= 2*604800) then begin      // 1 week: 7d *24h*60m*60s =  604.800 seconds
+       n:= secondsDiff / 604800;
+       units:= STR_weeks;
+       if n = 1 then units:= STR_week;
+       end
+    else if (secondsDiff = 86400) or (secondsDiff >= 2*86400) then begin  // 1 day:      24h*60m*60s =   86.400 seconds
+       n:= secondsDiff / 86400;
+       units:= STR_days;
+       if n = 1 then units:= STR_day;
+       end
+    else if (secondsDiff = 3600) or (secondsDiff >= 2*3600)  then begin  // 1 hour:         60m*60s =    3.600 seconds
+       n:= secondsDiff / 3600;
+       units:= STR_hours;
+       if n = 1 then units:= STR_hour;
+       end
+    else begin
+       n:= secondsDiff / 60;
+       units:= STR_minutes;
+       if n = 1 then units:= STR_minute;
+       end;
+
+
+    Result:= WideFormat('%g %s', [RoundTo(n,1), units]);
+end;  // GetTimeIntervalStr
+
+(*
+Increments a TDateTime variable by a time interval in a string of the form: "5 minutes", "22 hours", ...
+Intervals like "2m", "4hours" "4 ho", ... are also understood
+StartDate will be incremented or decremented by interval depending on the parameter "increment"
+The numbers can contain decimals
+*)
+function IncStrInterval (const Interval: wideString; StartDate: TDateTime; increment: boolean= true): TDateTime;
+var
+   i, lenS: integer;
+   s: wideString;
+   n: Extended;
+   afterBefore: integer;
+   separatorToReplace: string;
+   secondsToInc: integer;
+
+begin
+   afterBefore:= 1;
+   if not increment then afterBefore := -1;
+
+   Result:= StartDate;
+   s:= Trim(Interval);
+   if s <> '0' then begin
+       i:= 1;
+       while (i <= length(s)) and (WStrScan(partsOfNumbers, s[i]) <> nil)
+       do Inc(i);
+
+       try
+           if DecimalSeparator = ',' then separatorToReplace:= '.' else separatorToReplace:= ',';
+
+           n:= StrToFloat(WideReplaceStr(Copy(s, 1, i-1), separatorToReplace, DecimalSeparator));
+
+           s:= WideLowerCase(Trim(copy(s,i,length(s))));
+           lenS:= length(s);
+           if copy(STR_minutes,1,lenS) = s then
+              secondsToInc:= Round(60*n)
+
+           else if copy(STR_hours,1,lenS) = s then
+              secondsToInc:= Round(60*60*n)
+
+           else if copy(STR_days,1,lenS) = s then
+              secondsToInc:= Round(24*60*60*n)
+
+           else if copy(STR_weeks,1,lenS) = s then
+              secondsToInc:= Round(7*24*60*60*n)
+
+           else
+              Result:= 0;
+
+           if Result <> 0 then
+              Result:= incSecond(Result, Round(secondsToInc*afterBefore));
+
+       except
+          Result:= 0;
+       end;
+
+   end;
+end;     // IncStrInterval
+
+(*
+ Returns an interpreted, clean, version from the intput time, if it's possible
+ If it isn't the returns the same value
+ For example:
+    "1521" --> "15:21"
+    "941" --> 09:41"
+    "15-21" --> "15:21"
+    and so on
+*)
+function TimeRevised(time: wideString): WideString;
+var
+   s: string;
+   i: integer;
+begin
+   try
+        s:= '';
+        i:= 1;
+        while (i <= length(time)) do begin
+           if WStrScan(digitsNumbers, time[i]) <> nil then
+              s:= s + time[i];
+           Inc(i);
+        end;
+
+        if (length(s) <= 4) and (length(s) > 2) then
+           s:= Copy(s, 1, length(s)-2) + ':' + Copy(s, length(s)-1, 2);
+
+        Result:= FormatDateTime('hh:nn', StrToTime(s));
+   except
+        Result:= time;
+   end;
+end;
 
 
 Initialization

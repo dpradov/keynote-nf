@@ -84,7 +84,8 @@ type
     FWordWrap : TNodeWordWrap;
     FChildrenCheckbox: Boolean;    // [dpv]
     FFiltered: Boolean;            // [dpv]: True -> Hidden
-    FAlarm: TDateTime;             // [dpv]
+    FAlarmReminder: TDateTime;     // Reminder date
+    FExpirationDate: TDateTime;        // Expiration date
     FAlarmNote: wideString;
 
     procedure SetName( AName : WideString );
@@ -99,7 +100,8 @@ type
     procedure SetNodeFontFace( const aFace : string );
     function GetRelativeVirtualFN : wideString;
     procedure SetWordWrap( const Value : TNodeWordWrap );
-    function GetAlarm: TDateTime;
+    function GetAlarmReminder: TDateTime;
+    function GetExpirationDate: TDateTime;
     function GetAlarmNote: wideString;
 
   public
@@ -112,8 +114,10 @@ type
     property Checked : boolean read FChecked write FChecked;
     property ChildrenCheckbox : boolean read FChildrenCheckbox write FChildrenCheckbox;    // [dpv]
     property Filtered : boolean read FFiltered write FFiltered;                            // [dpv]
-    property Alarm : TDateTime read GetAlarm write FAlarm;                                   // [dpv]
-    property AlarmF : TDateTime read FAlarm;
+    property AlarmReminder : TDateTime read GetAlarmReminder write FAlarmReminder;                                   // [dpv]
+    property AlarmReminderF : TDateTime read FAlarmReminder;
+    property ExpirationDate : TDateTime read GetExpirationDate write FExpirationDate;
+    property ExpirationDateF : TDateTime read FExpirationDate;
     property AlarmNote: wideString read GetAlarmNote write FAlarmNote;
     property AlarmNoteF: wideString read FAlarmNote;
     property Flagged : boolean read FFlagged write FFlagged;
@@ -220,7 +224,8 @@ begin
   FWordWrap := wwAsNote;
   FChildrenCheckbox:= false;   // [dpv]
   FFiltered:= false;           // [dpv]
-  FAlarm := 0;                 // [dpv]
+  FAlarmReminder := 0;                 // [dpv]
+  FExpirationDate:= 0;
 end; // CREATE
 
 destructor TNoteNode.Destroy;
@@ -479,19 +484,19 @@ begin
      FStream.Position := 0;
 end; // SetMirrorNode
 
-function TNoteNode.GetAlarm: TDateTime;
+function TNoteNode.GetAlarmReminder: TDateTime;
 var
    Node : TTreeNTNode;
 begin
     if (FVirtualMode= vmKNTNode) then begin
        Node:= MirrorNode;
        if assigned(Node) then
-          Result:= TNoteNode(Node.Data).Alarm
+          Result:= TNoteNode(Node.Data).AlarmReminder
        else
           Result:= 0;
     end
     else
-       Result:= FAlarm;
+       Result:= FAlarmReminder;
 end;
 
 function TNoteNode.GetAlarmNote: WideString;
@@ -507,6 +512,21 @@ begin
     end
     else
        Result:= FAlarmNote;
+end;
+
+function TNoteNode.GetExpirationDate: TDateTime;
+var
+   Node : TTreeNTNode;
+begin
+    if (FVirtualMode= vmKNTNode) then begin
+       Node:= MirrorNode;
+       if assigned(Node) then
+          Result:= TNoteNode(Node.Data).ExpirationDate
+       else
+          Result:= 0;
+    end
+    else
+       Result:= FExpirationDate;
 end;
 
 
