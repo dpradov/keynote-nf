@@ -70,8 +70,8 @@ Function DefMessageDlg(const aCaption: String;
 
 function DoMessageBox (text: wideString; caption: wideString;
         DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
-        HelpCtx: Longint = 0): integer; overload;
-function DoMessageBox (text: wideString; caption: wideString; uType: UINT= 0): integer; overload;
+        HelpCtx: Longint = 0; hWnd: HWND= 0): integer; overload;
+function DoMessageBox (text: wideString; caption: wideString; uType: UINT= 0; hWnd: HWND= 0): integer; overload;
 
 type
    TCanvasW = class(TCanvas)
@@ -424,7 +424,7 @@ end;
 //http://msdn.microsoft.com/en-us/library/ms645505%28VS.85%29.aspx
 function DoMessageBox (text: wideString; caption: wideString;
         DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
-        HelpCtx: Longint = 0): integer;
+        HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
 var
    uType: UINT;
 begin
@@ -448,12 +448,16 @@ begin
     else
        uType:= uType or MB_OK;
 
-    Result:= MessageBoxW(Application.MainFormHandle, PWideChar(text), PWideChar(caption), uType);
+    if hWnd = 0 then
+       hWnd:= Application.MainFormHandle;
+    Result:= MessageBoxW(hWnd, PWideChar(text), PWideChar(caption), uType);
 end;
 
-function DoMessageBox (text: wideString; caption: wideString; uType: UINT= 0): integer;
+function DoMessageBox (text: wideString; caption: wideString; uType: UINT= 0; hWnd: HWND= 0): integer;
 begin
-    Result:= MessageBoxW(Application.MainFormHandle, PWideChar(text), PWideChar(caption), uType);
+    if hWnd = 0 then
+       hWnd:= Application.MainFormHandle;
+    Result:= MessageBoxW(hWnd, PWideChar(text), PWideChar(caption), uType);
 end;
 
 end.

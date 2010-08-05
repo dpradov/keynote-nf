@@ -130,7 +130,7 @@ uses
 
   function DoMessageBox (text: wideString;
         DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
-        HelpCtx: Longint = 0): integer; overload;
+        HelpCtx: Longint = 0; hWnd: HWND= 0): integer; overload;
   function PopUpMessage( const mStr : wideString; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons;
         const mHelpCtx : integer) : word; overload;
 
@@ -1413,7 +1413,7 @@ resourcestring
   STR_31 = ' Preparing to send note via email...';
   STR_32 = ' Note sent';
   STR_33 = ' Note not sent';
-  STR_34 = 'Alarm set at: ';
+  STR_34 = 'Expiration/Start time: ';
   STR_35 = 'Set alarm...';
   STR_36 = 'Drag: ';
   STR_37 = 'TV dragover';
@@ -4242,7 +4242,7 @@ var
     node: TTreeNTNode;
 begin
     if (GetKeyState(VK_CONTROL) < 0) then begin
-        TB_AlarmNode.Down:= (myNode.Alarm <> 0);
+        TB_AlarmNode.Down:= (myNode.AlarmReminder <> 0);
         AlarmManager.ShowAlarms(false);
         Exit;
     end;
@@ -4254,7 +4254,7 @@ begin
           node:= myNode.MirrorNode;
           myNode:= TNoteNode(node.Data);
        end;
-       TB_AlarmNode.Down:= (myNode.Alarm <> 0);
+       TB_AlarmNode.Down:= (myNode.AlarmReminder <> 0);
        AlarmManager.EditAlarm (node);
     end
     else
@@ -4269,8 +4269,8 @@ var
 begin
     if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) and (assigned(TTreeNote(ActiveNote).TV.Selected)) then begin
        node:= TNoteNode( TTreeNote(ActiveNote).TV.Selected.Data );
-       if (node.Alarm <> 0) then
-           TB_AlarmNode.Hint:= STR_34 + FormatAlarmInstant(node.Alarm) + ' [' + node.AlarmNote + ']'
+       if (node.AlarmReminder <> 0) then
+           TB_AlarmNode.Hint:= STR_34 + FormatAlarmInstant(node.ExpirationDate) + ' [' + WideStringReplace(node.AlarmNote, #13#10, ' // ', [rfReplaceAll]) + ']'
        else
            TB_AlarmNode.Hint:= STR_35;
     end
@@ -7156,7 +7156,7 @@ end;
 
 function DoMessageBox (text: wideString;
         DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
-        HelpCtx: Longint = 0): integer;
+        HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
 var
    caption: wideString;
 begin
@@ -7165,7 +7165,7 @@ begin
     else
        caption:= Program_Name;
 
-    Result:= DoMessageBox(text,caption, DlgType, Buttons,0);
+    Result:= DoMessageBox(text,caption, DlgType, Buttons,0, hWnd);
 end;
 
 function PopUpMessage( const mStr : wideString; const mType : TMsgDlgType;

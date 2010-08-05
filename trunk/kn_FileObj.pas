@@ -1710,17 +1710,18 @@ begin
                if assigned(newNonVirtualTreeNode) and assigned(newNonVirtualTreeNode.Data) then begin
                    RemoveMirrorNode(nonVirtualTreeNode, newNonVirtualTreeNode);
                    ReplaceNonVirtualNode(nonVirtualTreeNode, newNonVirtualTreeNode);
-                   if (TNoteNode(nonVirtualTreeNode.Data).AlarmF <> 0) then begin
+                   if (TNoteNode(nonVirtualTreeNode.Data).AlarmReminderF <> 0) then begin
                        AlarmManager.AddAlarmNode(newNonVirtualTreeNode);
-                       TNoteNode(newNonVirtualTreeNode.Data).Alarm := TNoteNode(nonVirtualTreeNode.Data).AlarmF;
+                       TNoteNode(newNonVirtualTreeNode.Data).AlarmReminder := TNoteNode(nonVirtualTreeNode.Data).AlarmReminderF;
                        TNoteNode(newNonVirtualTreeNode.Data).AlarmNote := TNoteNode(nonVirtualTreeNode.Data).AlarmNoteF;
+                       TNoteNode(newNonVirtualTreeNode.Data).ExpirationDate := TNoteNode(nonVirtualTreeNode.Data).ExpirationDateF;
                        end;
                    SelectIconForNode( newNonVirtualTreeNode, TTreeNote(GetNoteByTreeNode(newNonVirtualTreeNode)).IconKind );
                end;
                end;
          end;
       end;
-      if (Action = 3) and (TNoteNode(nonVirtualTreeNode.Data).AlarmF <> 0) then
+      if (Action = 3) and (TNoteNode(nonVirtualTreeNode.Data).AlarmReminderF <> 0) then
          AlarmManager.RemoveAlarmNode(nonVirtualTreeNode);
 
   finally

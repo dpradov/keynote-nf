@@ -428,7 +428,7 @@ begin
             else
                TVCheckNode.Enabled := false;
 
-            TB_AlarmNode.Down:= (myNode.Alarm <> 0);        // [dpv]
+            TB_AlarmNode.Down:= (myNode.AlarmReminder <> 0);        // [dpv]
             TVAlarmNode.Checked:= TB_AlarmNode.Down;        // [dpv]
           end
           else

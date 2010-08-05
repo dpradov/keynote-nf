@@ -447,7 +447,7 @@ begin
                   if myNode.Filtered  then      // [dpv]
                      tNote.Filtered := True;
 
-                  if myNode.AlarmF <> 0  then      // [dpv*]
+                  if myNode.AlarmReminderF <> 0  then      // [dpv*]
                      AlarmManager.AddAlarmNode(myTreeNode);
 
                 end;
@@ -1031,7 +1031,7 @@ begin
               else
                  TVCheckNode.Enabled := false;
 
-              if assigned(node) and (TNoteNode(node.Data).Alarm <> 0) then   // [dpv*]
+              if assigned(node) and (TNoteNode(node.Data).AlarmReminder <> 0) then   // [dpv*]
                  TB_AlarmNode.Down:= true
               else
                  TB_AlarmNode.Down:= false;

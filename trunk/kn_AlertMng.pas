@@ -41,11 +41,20 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics,
   Controls, Forms, Dialogs, TreeNT,
   StdCtrls, ComCtrls,
-  kn_NoteObj, kn_NodeList, TB97Ctls, ExtCtrls, TntStdCtrls;
+  kn_NoteObj, kn_NodeList, TB97Ctls, ExtCtrls, TntStdCtrls, Grids, TntGrids,
+  TntComCtrls;
 
 type
+  TShowMode = (TShowReminders, TShowSet, TShowAll, TShowOverdue, TShowPending);
+
   TForm_Alarm = class(TForm)
+    Label_Selected: TTntLabel;
+    Label_Selected_Alarm: TTntLabel;
+    Button_Sound: TToolbarButton97;
+    Edit_AlarmNote: TTntMemo;
     TV: TTreeNT;
+    Panel3: TPanel;
+    Label4: TTntLabel;
     Panel1: TPanel;
     Tomorrow_8AM: TToolbarButton97;
     Today_5min: TToolbarButton97;
@@ -58,46 +67,56 @@ type
     Today_3h: TToolbarButton97;
     Today_3PM: TToolbarButton97;
     Today_6PM: TToolbarButton97;
-    CB_Date: TDateTimePicker;
     Tomorrow_3PM: TToolbarButton97;
     Tomorrow_6PM: TToolbarButton97;
-    CB_Time: TDateTimePicker;
     Label1: TTntLabel;
-    Label2: TTntLabel;
     Label3: TTntLabel;
-    Label4: TTntLabel;
+    Tomorrow_8PM: TToolbarButton97;
+    Today_8PM: TToolbarButton97;
+    TntLabel1: TTntLabel;
+    Combo_Reminder: TTntComboBox;
+    rb_Before: TTntRadioButton;
+    rb_FromNow: TTntRadioButton;
     Button_DiscardAll: TTntButton;
     Button_Discard: TTntButton;
-    Button_Postpone: TTntButton;
-    Label_Selected: TTntLabel;
-    Label_Selected_Alarm: TTntLabel;
     Button_Show: TTntButton;
-    UpDown1: TUpDown;
     Button_ShowALL: TTntButton;
-    Button_Sound: TToolbarButton97;
     Button_ShowPending: TTntButton;
-    Edit_AlarmNote: TTntEdit;
+    CB_Date: TDateTimePicker;
+    Button_Apply: TTntButton;
+    CB_Time: TTntComboBox;
+    Button_ShowOverdue: TTntButton;
+    cTime: TTntEdit;
+    procedure cTimeExit(Sender: TObject);
+    procedure CB_TimeCloseUp(Sender: TObject);
+    procedure CB_TimeSelect(Sender: TObject);
+    procedure CB_TimeDropDown(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+    procedure Button_ShowOverdueClick(Sender: TObject);
+    procedure rb_FromNowClick(Sender: TObject);
+    procedure Combo_ReminderChange(Sender: TObject);
+    procedure Combo_ReminderExit(Sender: TObject);
+    procedure Button_ApplyClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure TVChanging(Sender: TObject; Node: TTreeNTNode;
       var AllowChange: Boolean);
-    procedure Edit_AlarmNoteChange(Sender: TObject);
+    procedure Edit_AlarmNote_Change(Sender: TObject);
     procedure Button_ShowPendingClick(Sender: TObject);
     procedure Button_SoundClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Button_ShowALLClick(Sender: TObject);
-    procedure UpDown1Click(Sender: TObject; Button: TUDBtnType);
     procedure Button_ShowClick(Sender: TObject);
     procedure TVDblClick(Sender: TObject);
     procedure Button_DiscardAllClick(Sender: TObject);
     procedure Button_DiscardClick(Sender: TObject);
     procedure TVChange(Sender: TObject; Node: TTreeNTNode);
-    procedure Button_PostponeClick(Sender: TObject);
     procedure TB_NoAlarmClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure CB_TimeChange(Sender: TObject);
     procedure CB_DateChange(Sender: TObject);
 
   private
     { Private declarations }
+    FModeEdit: TShowMode;
     FAlarmList: TList;          // All alarms
     FSelectedAlarmList: TList;
     FPendingAlarmList: TList;
@@ -106,13 +125,21 @@ type
     FNumberAlarms: integer;
 
     procedure EnableControls (Value: Boolean);
+    procedure DisableTimeButtonsInThePast ();
+    procedure PressEquivalentTimeButton(alarm: TDateTime; str: wideString);
+    procedure ReleaseTimeButtons();
     function nodeOfNote (node: TTreeNTNode): TTreeNTNode;
+    procedure TryToApplyChanges(myNode: TNoteNode; newExpiration, newAlarm: TDateTime);
     procedure RemoveNode;
+    procedure UpdateIntervalReminder(ExpirationDate, AlarmReminder: TDateTime);
+    procedure SetModeEdit (Value: TShowMode);
+    procedure UpdateCaption;
+    procedure CheckExpirationOverdue();
 
   public
     { Public declarations }
     ButtonOK: Boolean;
-    modeEdit: Boolean;
+    property ModeEdit: TShowMode read FModeEdit write SetModeEdit;
     property SelectedAlarmList: TList read FSelectedAlarmList write FSelectedAlarmList;
     property AlarmList: TList read FAlarmList write FAlarmList;
   end;
@@ -124,20 +151,21 @@ type
     FEnabled: Boolean;
     FSelectedAlarmList: TList;
 
-    FPendingAlarmList: TList;            // Triggered but not managed yet
+    FPendingAlarmList: TList;            // Reminders triggered but not managed yet
+    FOverdueAlarmList: TList;            // Alarms whose events are overdue
     FForCommunicateAlarmList: TList;     // New alarms addded to pending list
     Timer: TTimer;
 
     FCanceledAt: TDateTime;
 
     procedure SetEnabled (Value: boolean);
-    procedure ShowFormAlarm (modeEdit: Boolean);
+    procedure ShowFormAlarm (modeEdit: TShowMode);
 
     procedure CommunicateAlarm (node : TTreeNTNode);
     procedure UpdatePendingAlarmList;
     procedure FlashAlarmMode;
     procedure TimerTimer(Sender: TObject);
-    //procedure checkCanceledAt ( node : TTreeNTNode );
+    function GetOverdueAlarmList: TList;
   protected
 
   public
@@ -145,6 +173,7 @@ type
     procedure EditAlarm (node: TTreeNTNode);
     function GetAlarmModeHint: string;
     procedure checkAlarms;
+    property OverdueAlarmList: TList read GetOverdueAlarmList;  // Alarms whose events are overdue
     procedure AddAlarmNode( node : TTreeNTNode );
     procedure RemoveAlarmNode( node : TTreeNTNode );
     procedure ModifyAlarmNode( node : TTreeNTNode );
@@ -161,23 +190,29 @@ var
   Form_Alarm: TForm_Alarm;
 
 implementation
-uses  DateUtils, ComCtrls95, MMSystem,
-      kn_Main, kn_Global, kn_TreeNoteMng, kn_Const, kn_LocationObj, kn_FindReplaceMng, kn_Info;
+uses  DateUtils, ComCtrls95, MMSystem, WideStrUtils,
+      gf_misc, kn_Main, kn_Global, kn_TreeNoteMng, kn_Const, kn_LocationObj, kn_FindReplaceMng, kn_Info;
 
 {$R *.DFM}
 
 resourcestring
-  STR_Num = '%d Alarms';
   STR_NoSelected = '0 alarms selected';
   STR_Apply = '&Apply';
   STR_Postpone = '&Postpone';
-  STR_CaptionSet = 'Set Alarm  (%d Alarms created)';
+  STR_CaptionSet = 'Set Alarm';
+  STR_CaptionReminders = '%d Reminders';
+  STR_CaptionAll = 'All Alarms/Events (%d)';
+  STR_CaptionOverdue = 'Overdue Events (%d)';
+  STR_CaptionPending = 'Pending Reminders (%d)';
   STR_Triggered = 'ALARM [%s] :  %s';
   STR_SoundOn = '[Sound ON]';
   STR_SoundOff = '[Sound OFF]';
-  STR_Pending = '%d pending alarms ';
+  STR_PendingAndOverdue = '%d pending reminders, %d overdue ';
   STR_PopupOn = '[Popup ON]';
   STR_PopupOff = '[Popup OFF]';
+  STR_ReminderIntervalError = 'Expiration/Start time or Reminder interval are not valid. Please, revise it';
+  STR_ConfirmDiscardALL = 'OK to discard ALL this %d nodes?';
+
 
 constructor TAlarmManager.Create;
 begin
@@ -187,6 +222,7 @@ begin
    FAlarmList.Capacity:= 10;
    FSelectedAlarmList:= TList.Create;
    FPendingAlarmList:= TList.Create;
+   FOverdueAlarmList:= TList.Create;
    FForCommunicateAlarmList:= TList.Create;
    Timer:= TTimer.Create(nil);
    Timer.Interval:= 1500;
@@ -205,6 +241,8 @@ begin
       FSelectedAlarmList.Free;
    if assigned (FPendingAlarmList) then
       FPendingAlarmList.Free;
+   if assigned (FOverdueAlarmList) then
+      FOverdueAlarmList.Free;
    if assigned (FForCommunicateAlarmList) then
       FForCommunicateAlarmList.Free;
    if assigned (Timer) then
@@ -220,6 +258,8 @@ begin
       FSelectedAlarmList.Clear;
    if assigned (FPendingAlarmList) then
       FPendingAlarmList.Clear;
+   if assigned (FOverdueAlarmList) then
+      FOverdueAlarmList.Clear;
    if assigned (FForCommunicateAlarmList) then
       FForCommunicateAlarmList.Clear;
 
@@ -229,9 +269,9 @@ end;
 
 function compareAlarmNotes (node1, node2: Pointer): integer;
 begin
-   if TNoteNode(TTreeNTNode(node1).Data).AlarmF = TNoteNode(TTreeNTNode(node2).Data).AlarmF  then
+   if TNoteNode(TTreeNTNode(node1).Data).AlarmReminderF = TNoteNode(TTreeNTNode(node2).Data).AlarmReminderF  then
       Result:= 0
-   else if TNoteNode(TTreeNTNode(node1).Data).AlarmF > TNoteNode(TTreeNTNode(node2).Data).AlarmF then
+   else if TNoteNode(TTreeNTNode(node1).Data).AlarmReminderF > TNoteNode(TTreeNTNode(node2).Data).AlarmReminderF then
       Result:= 1
    else
       Result:= -1;
@@ -254,9 +294,9 @@ begin
       FSelectedAlarmList.Clear;
       FSelectedAlarmList.Add(node);
 
-      ShowFormAlarm (true);
+      ShowFormAlarm (TShowSet);
       UpdatePendingAlarmList;
-      Form_Main.TB_AlarmNode.Down:= (TNoteNode(node.Data).AlarmF <> 0);
+      Form_Main.TB_AlarmNode.Down:= (TNoteNode(node.Data).AlarmReminderF <> 0);
 
       FSelectedAlarmList.Clear;
     finally
@@ -264,7 +304,7 @@ begin
     end;
 end;
 
-procedure TAlarmManager.ShowFormAlarm (modeEdit: Boolean);
+procedure TAlarmManager.ShowFormAlarm (modeEdit: TShowMode);
 begin
   if ( Form_Alarm = nil ) then
   begin
@@ -277,13 +317,7 @@ begin
     Form_Alarm.AlarmList:= FAlarmList;
     Form_Alarm.modeEdit:= modeEdit;
 
-    Form_Alarm.CB_Date.MinDate:= Today;
-    Form_Alarm.Today_5min.Down:= true;
-    Form_Alarm.CB_Date.DateTime := incMinute(now(), 5);
-    Form_Alarm.CB_Time.DateTime := Form_Alarm.CB_Date.DateTime;
-    Form_Alarm.CB_Date.Checked:= false;
-    Form_Alarm.CB_Time.Checked:= false;
-
+    Form_Alarm.EnableControls(false);
     Form_Alarm.ShowModal;
 
   except
@@ -300,26 +334,13 @@ begin
     FAlarmList.Add(node);
     if FEnabled then
        FAlarmList.Sort(compareAlarmNotes);
-    //checkCanceledAt (node);
 end;
-
-(*
-procedure TAlarmManager.checkCanceledAt ( node : TTreeNTNode );
-var
-  alarm: TDateTime;
-begin
-    if FCanceledAt <> 0 then begin
-       alarm:= TNoteNode(node.Data).Alarm;
-       if alarm < incMinute(FCanceledAt,5) then
-          FCanceledAt:= incMinute(alarm, -5);
-    end;
-end;
-*)
 
 procedure TAlarmManager.RemoveAlarmNode( node : TTreeNTNode );
 begin
     FAlarmList.Remove(node);
     FPendingAlarmList.Remove(node);
+    FOverdueAlarmList.Remove(node);
     FForCommunicateAlarmList.Remove(node);
 end;
 
@@ -329,10 +350,11 @@ begin
        FAlarmList.Sort(compareAlarmNotes);
 
     UpdatePendingAlarmList;
-    //checkCanceledAt (node);
 end;
 
 procedure TAlarmManager.ShowAlarms (const showOnlyPendings: boolean);
+var
+   modeEdit: TShowMode;
 begin
     Form_Main.Timer.Enabled := False;
     try
@@ -343,15 +365,20 @@ begin
 
       FSelectedAlarmList.Clear;
       UpdatePendingAlarmList;
-      if showOnlyPendings then
-         FSelectedAlarmList.Assign(FPendingAlarmList)
-      else
+      if showOnlyPendings then begin
+         FSelectedAlarmList.Assign(FPendingAlarmList);
+         modeEdit:= TShowPending;
+         end
+      else begin
          FSelectedAlarmList.Assign(FAlarmList);
-      ShowFormAlarm (true);
+         modeEdit:= TShowAll;
+      end;
+
+      ShowFormAlarm (modeEdit);
       UpdatePendingAlarmList;
       FSelectedAlarmList.Clear;
       if assigned(ActiveNote) and (ActiveNote.Kind=ntTree) and assigned(TTreeNote(ActiveNote).TV.Selected)  then
-         Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNote(ActiveNote).TV.Selected.Data).Alarm <> 0);
+         Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNote(ActiveNote).TV.Selected.Data).AlarmReminder <> 0);
     finally
       Form_Main.Timer.Enabled := true;
     end;
@@ -375,10 +402,10 @@ var
 begin
    myNode:= TNoteNode(node.Data);
    if myNode.AlarmNoteF <> '' then
-      cad:= ' [' + myNode.AlarmNoteF + ']'
+      cad:= ' [' + WideStringReplace(myNode.AlarmNoteF, #13#10, ' // ', [rfReplaceAll]) + ']'
    else
       cad:= '';
-   Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_Triggered, [FormatAlarmInstant(myNode.AlarmF), myNode.Name + cad]);
+   Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_Triggered, [FormatAlarmInstant(myNode.ExpirationDateF), myNode.Name + cad]);
 end;
 
 procedure TAlarmManager.TimerTimer(Sender: TObject);
@@ -416,7 +443,7 @@ begin
    else
       popupState:= STR_PopupOn;
 
-   Result:= Format(STR_Pending, [FPendingAlarmList.Count]) + popupState + soundState;
+   Result:= Format(STR_PendingAndOverdue, [FPendingAlarmList.Count, OverdueAlarmList.Count]) + popupState + soundState;
 end;
 
 procedure TAlarmManager.UpdatePendingAlarmList;
@@ -427,7 +454,7 @@ begin
    I:= 0;
    while I <= FPendingAlarmList.Count - 1 do begin
       node:= TTreeNTNode(FPendingAlarmList[i]).Data;
-      if (node.AlarmF = 0) or (now() < node.AlarmF) then
+      if (node.AlarmReminderF = 0) or (now() < node.AlarmReminderF) then
          FPendingAlarmList.Delete(i);
       I:= I + 1;
    end;
@@ -452,6 +479,25 @@ begin
       Form_Main.TB_AlarmMode.ImageIndex:= 51;
 end;
 
+function TAlarmManager.GetOverdueAlarmList: TList;
+var
+  I: Integer;
+  node: TNoteNode;
+begin
+   I:= 0;
+   FOverdueAlarmList.Clear;
+
+   while I <= FAlarmList.Count - 1 do begin
+      node:= TTreeNTNode(FAlarmList[i]).Data;
+      if now() >= node.ExpirationDateF  then
+         FOverdueAlarmList.Add(FAlarmList[i]);
+      I:= I + 1;
+   end;
+
+   Result:= FOverdueAlarmList;
+end;
+
+
 procedure TAlarmManager.checkAlarms;
 
   procedure FillSelectedAlarmList;
@@ -468,8 +514,8 @@ procedure TAlarmManager.checkAlarms;
 
      while I <= FAlarmList.Count - 1 do begin
         node:= TTreeNTNode(FAlarmList[i]).Data;
-        if now() >= node.AlarmF then begin
-           if (FCanceledAt = 0) or (node.AlarmF > FCanceledAt) or (now > limit) then begin
+        if now() >= node.AlarmReminderF then begin
+           if (FCanceledAt = 0) or (node.AlarmReminderF > FCanceledAt) or (now > limit) or ((now > node.ExpirationDateF) and (DateTimeDiff(now, node.ExpirationDateF)<15)) then begin
               FSelectedAlarmList.Add(FAlarmList[i]);
               if (FPendingAlarmList.IndexOf(FAlarmList[i])<0) then begin
                  FPendingAlarmList.Add(FAlarmList[i]);
@@ -508,11 +554,11 @@ begin
                 Application.BringToFront;
              end;
 
-             ShowFormAlarm (false);
+             ShowFormAlarm (TShowReminders);
              UpdatePendingAlarmList;
 
              if assigned(ActiveNote) and (ActiveNote.Kind=ntTree) and assigned(TTreeNote(ActiveNote).TV.Selected)  then
-                Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNote(ActiveNote).TV.Selected.Data).Alarm <> 0);
+                Form_Main.TB_AlarmNode.Down:= (TNoteNode(TTreeNote(ActiveNote).TV.Selected.Data).AlarmReminder <> 0);
              if Form_Alarm.ButtonOK then
                 FCanceledAt:= 0
              else
@@ -541,8 +587,8 @@ end;
 
 procedure TForm_Alarm.Button_ShowALLClick(Sender: TObject);
 begin
-    //Button_PostponeClick(nil);
     FSelectedAlarmList:= FAlarmList;
+    modeEdit:= TShowAll;
     FormShow(nil);
 end;
 
@@ -551,9 +597,17 @@ begin
      TVDblClick(nil);
 end;
 
+procedure TForm_Alarm.Button_ShowOverdueClick(Sender: TObject);
+begin
+    FSelectedAlarmList:= AlarmManager.OverdueAlarmList;
+    modeEdit:= TShowOverdue;
+    FormShow(nil);
+end;
+
 procedure TForm_Alarm.Button_ShowPendingClick(Sender: TObject);
 begin
     FSelectedAlarmList:= FPendingAlarmList;
+    modeEdit:= TShowPending;
     FormShow(nil);
 end;
 
@@ -567,6 +621,8 @@ var
   node: TTreeNTNode;
   nodeAlarm: TTreeNTNode;
 begin
+    if ( DoMessageBox( WideFormat( STR_ConfirmDiscardALL, [FNumberAlarms] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+
     ButtonOK:= true;
     NoteFile.Modified := true;
     with TV.Items do
@@ -576,8 +632,9 @@ begin
       while assigned(node) do begin
           nodeAlarm:= TTreeNTNode(Node.Data);
           if assigned(nodeAlarm) then begin
-             TNoteNode(nodeAlarm.Data).Alarm:= 0;
-             TNoteNode(NodeSelected.Data).AlarmNote:= '';
+             TNoteNode(nodeAlarm.Data).AlarmReminder:= 0;
+             TNoteNode(nodeAlarm.Data).ExpirationDate:= 0;
+             TNoteNode(nodeAlarm.Data).AlarmNote:= '';
              AlarmManager.RemoveAlarmNode (nodeAlarm);
           end;
           node:= node.GetNext;
@@ -592,30 +649,55 @@ procedure TForm_Alarm.Button_DiscardClick(Sender: TObject);
 begin
    if assigned(NodeSelected) then begin
       NoteFile.Modified := true;
-      TNoteNode(NodeSelected.Data).Alarm:= 0;
+      TNoteNode(NodeSelected.Data).AlarmReminder:= 0;
       TNoteNode(NodeSelected.Data).AlarmNote:= '';
       AlarmManager.RemoveAlarmNode (NodeSelected);
       RemoveNode;
    end;
 end;
 
-procedure TForm_Alarm.Button_PostponeClick(Sender: TObject);
+
+procedure TForm_Alarm.TryToApplyChanges(myNode: TNoteNode; newExpiration, newAlarm: TDateTime);
+begin
+      if newAlarm = 0 then begin
+         DoMessageBox( STR_ReminderIntervalError, mtError, [mbOK], 0 );
+         Combo_reminder.SetFocus;
+         end
+
+      else begin
+          if myNode.AlarmReminderF = 0 then
+            AlarmManager.AddAlarmNode(NodeSelected)
+          else
+            AlarmManager.ModifyAlarmNode(NodeSelected);
+
+          myNode.ExpirationDate:= newExpiration;
+          myNode.AlarmReminder:= newAlarm;
+          myNode.AlarmNote:= Edit_AlarmNote.Text;
+          NoteFile.Modified := true;
+
+          RemoveNode;
+      end;
+end;
+
+procedure TForm_Alarm.Button_ApplyClick(Sender: TObject);
 var
-   AlarmOld: TDateTime;
+   newAlarm, newExpiration, myTime: TDateTime;
    myNode: TNoteNode;
 begin
    if assigned(NodeSelected) then begin
       myNode:= TNoteNode(NodeSelected.Data);
-      AlarmOld:= myNode.AlarmF;
-      myNode.Alarm:= RecodeTime(CB_Date.DateTime, HourOf(CB_Time.Time), MinuteOf(CB_Time.Time), 0, 0);;
-      myNode.AlarmNote:= Edit_AlarmNote.Text;
-      NoteFile.Modified := true;
-      if AlarmOld = 0 then
-        AlarmManager.AddAlarmNode(NodeSelected)
-      else
-        AlarmManager.ModifyAlarmNode(NodeSelected);
+      try
+        myTime:= StrToTime(cTime.Text);
+        newExpiration:= RecodeTime(CB_Date.DateTime, HourOf(myTime), MinuteOf(myTime), 0, 0);
+        if rb_FromNow.Checked then
+           newAlarm:= IncStrInterval(Combo_Reminder.Text, Now, true )
+        else
+           newAlarm:= IncStrInterval(Combo_Reminder.Text, newExpiration, false );
 
-      RemoveNode;
+      except
+         newAlarm:= 0;
+      end;
+      TryToApplyChanges(myNode, newExpiration, newAlarm);
    end;
 end;
 
@@ -645,40 +727,81 @@ begin
   else begin
      TV.Selected:= nodePrev;
      FNumberAlarms:= FNumberAlarms-1;
-     Caption:= Format(STR_Num, [FNumberAlarms]);
+     UpdateCaption;       // Force update of Caption according state (modeEdit)
   end;
 end;
 
+procedure TForm_Alarm.CB_TimeDropDown(Sender: TObject);
+var
+   t: TDateTime;
+   selectedIndex, i: integer;
+   strTime: WideString;
+begin
+    strTime:= TimeRevised(cTime.Text);
+    cTime.Text:= strTime;
+    try
+       t:= StrToTime(strTime);
+    except
+       t:= StrToTime('00:00');
+    end;
+
+    selectedIndex:= 0;
+    for i:= CB_Time.Items.Count-1 downto 0 do
+         if t >= StrToTime(CB_Time.Items[i]) then begin
+            selectedIndex:= i;
+            break;
+         end;
+    CB_Time.ItemIndex:= selectedIndex;
+end;
+
+procedure TForm_Alarm.CB_TimeCloseUp(Sender: TObject);
+begin
+    if CB_Time.Focused  then
+       cTime.SetFocus;
+    cTime.SelStart:= length(cTime.Text);
+    cTime.SelLength:= 0;
+end;
+
+procedure TForm_Alarm.CB_TimeSelect(Sender: TObject);
+begin
+    cTime.Text := CB_Time.Text;
+    cTime.SelStart:= length(cTime.Text);
+    cTime.SelLength:= 0;
+end;
+
+
+procedure TForm_Alarm.cTimeExit(Sender: TObject);
+begin
+   cTime.Text:= TimeRevised(cTime.Text);
+   CheckExpirationOverdue;
+end;
 
 procedure TForm_Alarm.CB_DateChange(Sender: TObject);
 begin
-    if not CB_Date.Checked  then begin
-      Today_5min.Down:= true;
-      CB_Date.DateTime := incMinute(now(), 5);
-      CB_Time.DateTime := CB_Date.DateTime;
-      CB_Date.Checked:= false;
-      CB_Time.Checked:= false;
-    end
-    else begin
-      CB_Time.Checked:= true;
-      Today_5min.Down:= false;
-      //RecodeTime(CB_Date.DateTime, HourOf(CB_Time.Time), MinuteOf(CB_Time.Time), 0, 0);
-      //CB_Time.DateTime:= CB_Date.DateTime;
-      if FOptionSelected <> nil then begin
-         TToolbarButton97(FOptionSelected).Down:= false;
-         FOptionSelected:= nil;
-      end;
+    if not rb_Before.Checked then begin
+       Combo_Reminder.Text:= '15 ' + STR_minutes;
+       rb_Before.Checked := true;
     end;
+    CheckExpirationOverdue;
 end;
 
-procedure TForm_Alarm.CB_TimeChange(Sender: TObject);
+procedure TForm_Alarm.CheckExpirationOverdue();
+var
+  color: TColor;
+  t,newExp: TDateTime;
 begin
-    if not CB_Time.Checked  then
-      CB_Date.Checked:= false
-    else begin
-      CB_Date.Checked:= true;
+    try
+       t:= StrToTime(cTime.Text);
+       newExp:= RecodeTime(CB_Date.DateTime, HourOf(t), MinuteOf(t), 0, 0);
+       if newExp < now then
+          color:= clYellow
+       else
+          color:= clWhite;
+       CB_Date.Color:= color;
+       cTime.Color:= color;
+       CB_Time.Color:= color;
+    except
     end;
-    CB_DateChange(CB_Date);
 end;
 
 function TForm_Alarm.nodeOfNote (node: TTreeNTNode): TTreeNTNode;
@@ -705,7 +828,6 @@ begin
   end;
 
 end;
-
 
 procedure TForm_Alarm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -734,8 +856,6 @@ begin
        EnableControls (false);
    end
    else begin
-      UpDown1.Position:= 500;
-      FNumberAlarms:= FSelectedAlarmList.Count;
       ButtonOK:= False;
       with TV.Items do
       begin
@@ -745,7 +865,7 @@ begin
         begin
           node:= TTreeNTNode (FSelectedAlarmList[I]);
           nodeNote:= nodeOfNote(node);
-          Child := AddChild(nodeNote, WideFormat('[%s] %s [%s]', [FormatAlarmInstant(TNoteNode(node.Data).AlarmF), TNoteNode(node.Data).Name, TNoteNode(node.Data).AlarmNoteF]) );
+          Child := AddChild(nodeNote, WideFormat('[%s] %s [%s]', [FormatAlarmInstant(TNoteNode(node.Data).AlarmReminderF), TNoteNode(node.Data).Name, WideStringReplace(TNoteNode(node.Data).AlarmNoteF, #13#10, ' // ', [rfReplaceAll])]) );
           Child.Data:= node;
         end;
         TV.FullExpand;
@@ -753,18 +873,14 @@ begin
 
         TV.Selected := GetFirstNode.GetNext;
 
-        if modeEdit then begin
-          Button_Postpone.Caption:= STR_Apply;
-          Caption:= Format(STR_CaptionSet, [FAlarmList.Count]);
-          if FNumberAlarms = 1 then
-             Edit_AlarmNote.SetFocus
-          else
-             TV.SetFocus;
+        if modeEdit <> TShowReminders then begin
+           if FNumberAlarms = 1 then
+              Edit_AlarmNote.SetFocus
+           else
+              TV.SetFocus;
         end
         else begin
-          Button_Postpone.Caption:= STR_Postpone;
-          Caption:= Format(STR_Num, [FSelectedAlarmList.Count]);
-          TV.SetFocus;
+           TV.SetFocus;
         end;
       end;
    end;
@@ -772,10 +888,20 @@ begin
    Label_Selected.Left:= Label_Selected_Alarm.Left + Label_Selected_Alarm.Width + 10;
 end;
 
+procedure TForm_Alarm.FormResize(Sender: TObject);
+begin
+   TV.Width := Width - 30;
+   Edit_AlarmNote.Width:= TV.Width;
+   Button_Sound.Left := TV.Width + TV.Left - Button_Sound.Width;
+end;
+
+
 procedure TForm_Alarm.TB_NoAlarmClick(Sender: TObject);
 var
    minInc: integer;
    Alarm: TDateTime;
+   myNode: TNoteNode;
+   setFromNow: boolean;
 begin
     if Sender = nil then exit;
 
@@ -784,6 +910,7 @@ begin
        exit;
     end;
 
+    setFromNow:= false;
     minInc:= 0;
     Alarm := 0;
     FOptionSelected:= Sender;
@@ -803,25 +930,33 @@ begin
     else if Today_3h.Down then
        minInc:= 180;
 
+
     if minInc <> 0 then
        Alarm:= incMinute(now(), minInc)
-    else if Today_3PM.Down then
-       Alarm:= incHour(Today(), 15)
-    else if Today_6PM.Down then
-       Alarm:= incHour(Today(), 18)
-    else if Tomorrow_8AM.Down then
-       Alarm:= incHour(Tomorrow(), 8)
-    else if Tomorrow_12AM.Down then
-       Alarm:= incHour(Tomorrow(), 12)
-    else if Tomorrow_3PM.Down then
-       Alarm:= incHour(Tomorrow(), 15)
-    else if Tomorrow_6PM.Down then
-       Alarm:= incHour(Tomorrow(), 18);
 
-    CB_Date.DateTime := Alarm;
-    CB_Time.DateTime := Alarm;
-    CB_Date.Checked:= false;
-    CB_Time.Checked:= false;
+    else begin
+        setFromNow:= true;
+        if Today_3PM.Down then
+           Alarm:= incHour(Today(), 15)
+        else if Today_6PM.Down then
+           Alarm:= incHour(Today(), 18)
+        else if Today_8PM.Down then
+           Alarm:= incHour(Today(), 20)
+        else if Tomorrow_8AM.Down then
+           Alarm:= incHour(Tomorrow(), 8)
+        else if Tomorrow_12AM.Down then
+           Alarm:= incHour(Tomorrow(), 12)
+        else if Tomorrow_3PM.Down then
+           Alarm:= incHour(Tomorrow(), 15)
+        else if Tomorrow_6PM.Down then
+           Alarm:= incHour(Tomorrow(), 18)
+        else if Tomorrow_8PM.Down then
+           Alarm:= incHour(Tomorrow(), 20);
+    end;
+
+    Combo_Reminder.Text:= GetTimeIntervalStr(Now, Alarm);
+    if setFromNow then
+       rb_FromNow.Checked := true;
 end;
 
 
@@ -829,7 +964,6 @@ procedure TForm_Alarm.TVChange(Sender: TObject; Node: TTreeNTNode);
 var
    myNode: TNoteNode;
 begin
-    FOptionSelected:= nil;
     myNode:= nil;
     if not assigned(Node) or not assigned(Node.Data) then begin
        NodeSelected:= nil;
@@ -844,19 +978,27 @@ begin
         if assigned(NodeSelected) then begin
            myNode:= TNoteNode(NodeSelected.Data);
            Label_Selected.Caption :=  myNode.Name;
-           if myNode.AlarmF <> 0 then begin
-              Label_Selected_Alarm.Caption := FormatAlarmInstant(myNode.AlarmF) + ' :';
+           if myNode.AlarmReminderF <> 0 then begin             // We are MODIFYING an existent ALARM
+              Label_Selected_Alarm.Caption := FormatAlarmInstant(myNode.ExpirationDateF) + ' <' + FormatAlarmInstant(myNode.AlarmReminderF) + '> :';
               Edit_AlarmNote.Text:= myNode.AlarmNoteF;
+              UpdateIntervalReminder(myNode.ExpirationDate, myNode.AlarmReminder);
+
+              CB_Date.DateTime := myNode.ExpirationDateF;
+              cTime.Text := FormatDateTime('hh:nn', myNode.ExpirationDateF);
               end
-           else begin
+           else begin                                           // We are creating a NEW ALARM
               Label_Selected_Alarm.Caption := '';
               Edit_AlarmNote.Text:= '';
+              CB_Date.DateTime:= now;
+              cTime.Text := FormatDateTime('hh:nn', now);
+              UpdateIntervalReminder(now, IncMinute(now, 5));
            end;
         end;
     end;
+    CheckExpirationOverdue;
     Label_Selected.Left:= Label_Selected_Alarm.Left + Label_Selected_Alarm.Width + 10;
-    TB_NoAlarmClick(nil);
 end;
+
 
 procedure TForm_Alarm.TVChanging(Sender: TObject; Node: TTreeNTNode;
   var AllowChange: Boolean);
@@ -865,10 +1007,11 @@ var
 begin
    if assigned(TV.Selected) and assigned(NodeSelected) then begin
       myNode:= TNoteNode(NodeSelected.Data);
-      if myNode.AlarmF = 0 then
-         node.Text:= WideFormat('[%s] %s', [FormatAlarmInstant(myNode.AlarmF), myNode.Name]);
+      if myNode.AlarmReminderF = 0 then
+         node.Text:= WideFormat('[%s] %s', [FormatAlarmInstant(myNode.ExpirationDateF), myNode.Name]);
    end;
 end;
+
 
 procedure TForm_Alarm.TVDblClick(Sender: TObject);
 var
@@ -891,21 +1034,7 @@ begin
 
 end;
 
-procedure TForm_Alarm.UpDown1Click(Sender: TObject; Button: TUDBtnType);
-var
-   inc: integer;
-begin
-    if Button = btNext then
-       inc:= 1
-    else
-       inc:= -1;
-
-    CB_Time.DateTime:= incMinute(CB_Time.DateTime,inc);
-    CB_Date.Checked := true;
-    CB_DateChange(CB_Date);
-end;
-
-procedure TForm_Alarm.Edit_AlarmNoteChange(Sender: TObject);
+procedure TForm_Alarm.Edit_AlarmNote_Change(Sender: TObject);
 var
    myNode: TNoteNode;
    node: TTreeNTNode;
@@ -913,8 +1042,8 @@ begin
    node:= TV.Selected;
    if assigned(node) and assigned(NodeSelected) then begin
       myNode:= TNoteNode(NodeSelected.Data);
-      node.Text:= WideFormat('[%s] %s [%s]', [FormatAlarmInstant(myNode.AlarmF), myNode.Name, Edit_AlarmNote.Text]);
-      if myNode.AlarmF <> 0 then begin
+      node.Text:= WideFormat('[%s] %s [%s]', [FormatAlarmInstant(myNode.ExpirationDateF), myNode.Name, WideStringReplace(Edit_AlarmNote.Text, #13#10, '··', [rfReplaceAll])]);
+      if myNode.AlarmReminderF <> 0 then begin
          myNode.AlarmNote:= Edit_AlarmNote.Text;
          NoteFile.Modified := true;
       end;
@@ -932,17 +1061,211 @@ begin
    Today_3h.Enabled:= Value;
    Today_3PM.Enabled:= Value;
    Today_6PM.Enabled:= Value;
+   Today_8PM.Enabled:= Value;
    Tomorrow_8AM.Enabled:= Value;
    Tomorrow_12AM.Enabled:= Value;
    Tomorrow_3PM.Enabled:= Value;
    Tomorrow_6PM.Enabled:= Value;
+   Tomorrow_8PM.Enabled:= Value;
+
    CB_Date.Enabled:= Value;
+   cTime.Enabled:= Value;
    CB_Time.Enabled:= Value;
-   Button_Postpone.Enabled:= Value;
+   Combo_Reminder.Enabled:= Value;
+   rb_FromNow.Enabled:= Value;
+   rb_Before.Enabled:= Value;
    Button_Discard.Enabled:= Value;
-   Button_DiscardAll.Enabled:= Value;
+   Button_Apply.Enabled:= Value;
    Button_Show.Enabled:= Value;
    Edit_AlarmNote.Visible:= Value;
+
+   if Value then
+      DisableTimeButtonsInThePast
+   else begin
+      ReleaseTimeButtons;
+      CB_Date.Color:= clWhite;
+      CB_Date.DateTime:= now;
+      cTime.Color:= clWhite;
+      cTime.Text := '';
+      Combo_Reminder.Text := '';
+   end;
+
 end;
+
+procedure TForm_Alarm.FormCreate(Sender: TObject);
+var
+   i: integer;
+begin
+  with Combo_Reminder.Items do begin
+      Add('0 ' + STR_minutes);
+      Add('5 ' + STR_minutes);
+      Add('10 ' + STR_minutes);
+      Add('15 ' + STR_minutes);
+      Add('30 ' + STR_minutes);
+
+      Add('1 ' + STR_hour);
+      for i := 2 to 10 do
+          Add(intTostr(i) + ' ' + STR_hours);
+      Add('0.5 ' + STR_days);
+      Add('18 ' + STR_hours);
+      Add('1 ' + STR_day);
+      for i := 2 to 4 do
+          Add(intTostr(i) + ' ' + STR_days);
+      Add('1 ' + STR_week);
+      Add('2 ' + STR_weeks);
+  end;
+  Combo_Reminder.ItemIndex := 0;
+
+  with CB_Time.Items do begin
+      for i := 0 to 23 do begin
+          Add(Format('%.2d:00', [i]));
+          Add(Format('%.2d:30', [i]));
+      end;
+  end;
+  CB_Time.Text := '';
+end;
+
+procedure TForm_Alarm.SetModeEdit (Value: TShowMode);
+var
+  str: wideString;
+  n: integer;
+begin
+    FModeEdit:= Value;
+    FNumberAlarms:= FSelectedAlarmList.Count;
+    UpdateCaption;
+end;
+
+procedure TForm_Alarm.UpdateCaption;
+var
+  str: wideString;
+  n: integer;
+begin
+    case FModeEdit of
+      TShowReminders: str:= STR_CaptionReminders;
+      TShowSet:       str:= STR_CaptionSet;
+      TShowAll:       str:= STR_CaptionAll;
+      TShowOverdue:   str:= STR_CaptionOverdue;
+      TShowPending:   str:= STR_CaptionPending;
+    end;
+    Caption:= WideFormat(str, [FNumberAlarms]);
+end;
+
+
+procedure TForm_Alarm.UpdateIntervalReminder(ExpirationDate, AlarmReminder: TDateTime);
+var
+    showAsBefore: boolean;
+begin
+     showAsBefore:= true;
+     if (AlarmReminder <= Now) or (Abs(AlarmReminder - now) <= Abs(AlarmReminder - ExpirationDate)) then
+        showAsBefore:= false;
+
+     if showAsBefore then begin
+        Combo_Reminder.Text:= GetTimeIntervalStr(ExpirationDate, AlarmReminder);
+        rb_Before.Checked := true;
+        end
+     else begin
+        if AlarmReminder > Now then
+           Combo_Reminder.Text:= GetTimeIntervalStr(Now, AlarmReminder)
+        else
+           Combo_Reminder.Text:= '5 ' + STR_minutes;
+
+        rb_FromNow.Checked := true;
+     end;
+     Combo_ReminderChange(nil);
+end;
+
+procedure TForm_Alarm.Combo_ReminderChange(Sender: TObject);
+var
+   myNode: TNoteNode;
+   alarm: TDateTime;
+   str: wideString;
+begin
+     alarm:= IncStrInterval(Combo_Reminder.Text, Now);
+     if alarm <> 0 then begin
+        str:= GetTimeIntervalStr(Now, alarm);
+        PressEquivalentTimeButton(alarm, str);
+     end;
+end;
+
+procedure TForm_Alarm.Combo_ReminderExit(Sender: TObject);
+var
+   str: wideString;
+   alarm: TDateTime;
+begin
+    alarm:= IncStrInterval(Combo_Reminder.Text, Now);
+    if alarm <> 0 then
+       Combo_Reminder.Text:= GetTimeIntervalStr(Now, alarm);  // Loads the combo with the clean value, interpreted. Example: "2m" --> "2 minutes"
+end;
+
+procedure TForm_Alarm.ReleaseTimeButtons();
+begin
+   if FOptionSelected <> nil then begin
+      TToolbarButton97(FOptionSelected).Down:= false;
+      FOptionSelected:= nil;
+   end;
+end;
+
+// Disable time buttons that imply a notify in the past
+procedure TForm_Alarm.DisableTimeButtonsInThePast ();
+
+   procedure DisableButton(button: TObject);
+   begin
+      TToolbarButton97(button).Enabled:= false;
+      if button = FOptionSelected then begin
+         TToolbarButton97(FOptionSelected).Down:= false;
+         FOptionSelected:= nil;
+      end;
+   end;
+
+begin
+   if incHour(Today(), 20) <= now then begin
+      DisableButton(Today_8PM);
+      DisableButton(Today_6PM);
+      DisableButton(Today_3PM);
+      end
+   else if incHour(Today(), 18) <= now then begin
+      DisableButton(Today_6PM);
+      DisableButton(Today_3PM);
+      end
+   else if incHour(Today(), 15) <= now then
+      DisableButton(Today_3PM);
+end;
+
+
+procedure TForm_Alarm.PressEquivalentTimeButton(alarm: TDateTime; str: wideString);
+var
+  difFromNow: int64;
+begin
+   ReleaseTimeButtons;
+
+   difFromNow:= DateTimeDiff(now, alarm);
+
+   if (str= '5 ' + STR_minutes) or (difFromNow >= 4*60) and (difFromNow <= 6*60) then FOptionSelected:= Today_5min
+   else if (str= '10 ' + STR_minutes) or (difFromNow >= 9*60) and (difFromNow <= 11*60) then FOptionSelected:= Today_10min
+   else if (str= '15 ' + STR_minutes) or (difFromNow >= 13.5*60) and (difFromNow <= 16.5*60)then FOptionSelected:= Today_15min
+   else if (str= '30 ' + STR_minutes) or (difFromNow >= 25.5*60) and (difFromNow <= 33.5*60) then FOptionSelected:= Today_30min
+   else if (str= '1 ' + STR_hour)  or (difFromNow >= 54.5*60) and (difFromNow <= 65.5*60) then FOptionSelected:= Today_1h
+   else if (str= '2 ' + STR_hours) or (difFromNow >= 114.5*60) and (difFromNow <= 126.5*60) then FOptionSelected:= Today_2h
+   else if (str= '3 ' + STR_hours) or (difFromNow >= 170.5*60) and (difFromNow <= 190.5*60) then FOptionSelected:= Today_3h
+   else if DateTimeDiff(incHour(Today(), 15), alarm) < 60*15 then FOptionSelected:= Today_3PM
+   else if DateTimeDiff(incHour(Today(), 18), alarm) < 60*15 then FOptionSelected:= Today_6PM
+   else if DateTimeDiff(incHour(Today(), 20), alarm) < 60*15 then FOptionSelected:= Today_8PM
+   else if DateTimeDiff(incHour(Tomorrow(), 8), alarm) < 60*20 then FOptionSelected:= Tomorrow_8AM
+   else if DateTimeDiff(incHour(Tomorrow(), 12), alarm) < 60*20 then FOptionSelected:= Tomorrow_12AM
+   else if DateTimeDiff(incHour(Tomorrow(), 15), alarm) < 60*20 then FOptionSelected:= Tomorrow_3PM
+   else if DateTimeDiff(incHour(Tomorrow(), 18), alarm) < 60*20 then FOptionSelected:= Tomorrow_6PM
+   else if DateTimeDiff(incHour(Tomorrow(), 20), alarm) < 60*20 then FOptionSelected:= Tomorrow_8PM;
+
+   if FOptionSelected <> nil then begin
+      TToolbarButton97(FOptionSelected).Down:= true;
+   end;
+end;
+
+procedure TForm_Alarm.rb_FromNowClick(Sender: TObject);
+begin
+    ReleaseTimeButtons;
+    Combo_ReminderChange(nil);
+end;
+
 
 end.

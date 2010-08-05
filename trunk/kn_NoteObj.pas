@@ -388,7 +388,7 @@ var
   _LoadedRichEditVersion : integer;
 
 implementation
-uses kn_LinksMng, kn_Main, gf_strings, gf_miscvcl;
+uses kn_LinksMng, kn_Main, gf_strings, gf_miscvcl, WideStrUtils;
 
 resourcestring
   STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
@@ -2157,12 +2157,13 @@ begin
         tf.writeln( [_NodeBGColor, '=', ColorToString( noteNode.NodeBGColor )] );
       if noteNode.HasNodeFontFace then
         tf.writeln( [_NodeFontFace, '=', noteNode.NodeFontFace ] );
-      if noteNode.AlarmF <> 0 then begin                                  // [dpv*]
+      if noteNode.AlarmReminderF <> 0 then begin                                  // [dpv*]
+         s:= '';
+         if noteNode.AlarmReminderF <> noteNode.ExpirationDateF then
+            s:= '/' + FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.AlarmReminderF );
          if noteNode.AlarmNote <> '' then
-            s:= '|' + noteNode.AlarmNote
-         else
-            s:= '';
-         tf.writeln( [_NodeAlarm, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.AlarmF ), s ] );
+            s:= s + '|' + WideStringReplace(noteNode.AlarmNote, #13#10, 'ªª', [rfReplaceAll]);
+         tf.writeln( [_NodeAlarm, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.ExpirationDateF ), s ] );
       end;
 
       if ( _SAVE_RESTORE_CARETPOS and ( notenode.SelStart > 0 )) then
@@ -2457,10 +2458,17 @@ begin
         begin
           p := Pos( '|', s );
           if ( p > 0 ) then begin
-              myNode.AlarmNote:= TryUTF8ToWideString(copy(s, p+1, length(s)));
+              myNode.AlarmNote:= WideStringReplace(TryUTF8ToWideString(copy(s, p+1, length(s))), 'ªª', #13#10, [rfReplaceAll]);
               delete( s, p, length(s));
           end;
-          myNode.Alarm:= strtodatetime(s);
+          p := Pos( '/', s );
+          if ( p > 0 ) then begin
+              myNode.AlarmReminder:= strtodatetime(copy(s, p+1, length(s)));
+              delete( s, p, length(s));
+          end;
+          myNode.ExpirationDate:= strtodatetime(s);
+          if p <= 0  then
+             myNode.AlarmReminder:= myNode.ExpirationDate;
         end;
         continue;
       end;
