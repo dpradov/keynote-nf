@@ -1131,7 +1131,7 @@ begin
             end
             else
             begin
-              myURL:= GetAbsolutePath(WideExtractFilePath(NoteFileToLoad), myURL);
+              myURL:= GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), myURL);
               ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL );
             end;
           end;
