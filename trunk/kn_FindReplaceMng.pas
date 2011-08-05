@@ -26,7 +26,6 @@ function RunFindNext : boolean;
 procedure RunFindAllEx;
 procedure RunReplace;
 procedure RunReplaceNext;
-function JumpToLocation( const aLocation : TLocation ) : boolean;
 function ConfirmReplace : boolean;
 procedure FindEventProc( sender : TObject );
 procedure ReplaceEventProc( ReplaceAll : boolean );
@@ -196,71 +195,6 @@ begin
   end;
 end; // RunReplaceNext
 
-
-function JumpToLocation( const aLocation : TLocation ) : boolean;
-var
-  myNote : TTabNote;
-  myTreeNode : TTreeNTNode;
-begin
-  // this ignores filename!
-  result := false;
-  if ( not Form_Main.HaveNotes( false, true )) then exit;
-
-  myNote := ActiveNote;
-
-  if ( aLocation.NoteID <> myNote.ID ) then
-  begin
-    // find and switch to note indicated by aLocation
-    myNote := NoteFile.GetNoteByID( aLocation.NoteID );
-    if assigned( myNote ) then
-    begin
-      Form_Main.Pages.ActivePage := myNote.TabSheet;
-      Form_Main.PagesChange( Form_Main.Pages );
-    end
-    else
-    begin
-      DoMessageBox( WideFormat(
-        STR_03,
-        [aLocation.NoteName] ), mtWarning, [mbOK], 0 );
-      exit;
-    end;
-  end;
-
-  if (( aLocation.NodeID <> 0 ) and ( myNote.Kind = ntTree )) then
-  begin
-    myTreeNode := TTreeNote( myNote ).GetTreeNodeByID( aLocation.NodeID );
-    if assigned( myTreeNode ) then
-    begin
-      myTreeNode.MakeVisible;     // It could be hidden
-      TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
-    end
-    else
-    begin
-      messagedlg( WideFormat(
-        STR_04,
-        [aLocation.NodeName, aLocation.NoteName] ), mtWarning, [mbOK], 0 );
-      exit;
-    end;
-  end;
-
-  result := true;
-  with myNote.Editor do
-  begin
-    if ( aLocation.CaretPos < 0 ) then
-    begin
-      // just jump to node; no special position in editor
-      SelStart := 0;
-      SelLength := 0;
-    end
-    else
-    begin
-      SelStart := aLocation.CaretPos;
-      SelLength := aLocation.SelLength;
-    end;
-    Perform( EM_SCROLLCARET, 0, 0 );
-  end;
-
-end; // JumpToLocation
 
 procedure FindResultsToEditor( const SelectedOnly : boolean );
 var

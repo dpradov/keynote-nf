@@ -7,8 +7,9 @@ uses
    // Links related routines
     procedure InsertFileOrLink( const aFileName : wideString; const AsLink : boolean );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: wideString);
-    function BuildKNTLocationText( const aLocation : TLocation ) : wideString;
+    function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : wideString;
     procedure JumpToKNTLocation( LocationStr : wideString );
+    function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
     procedure ClickOnURL(const URLstr: wideString; chrgURL: TCharRange);
     procedure InsertURL(URLStr : wideString; TextURL : wideString);
 
@@ -56,6 +57,9 @@ resourcestring
   STR_22 = ' Cannot navigate to history location';
   STR_23 = ' History navigation error';
 
+type
+  EInvalidLocation = WideException;
+
 var
    INVALID_CHARS_FN : array[0..8] of string = (
     '*', '?', '"', '<', '>', '|',
@@ -101,28 +105,28 @@ begin
       begin
         Note := notefile.GetNoteByID( NoteID );
         if ( Note = nil ) then
-          raise Exception.CreateFmt( STR_01, [NoteID] );
+          raise EInvalidLocation.Create(WideFormat( STR_01, [NoteID] ));
       end
       else begin
         Note := notefile.GetNoteByName( NoteName );
         if ( Note = nil ) then
-          raise Exception.CreateFmt( STR_02, [NoteName] );
+          raise EInvalidLocation.Create(WideFormat( STR_02, [NoteName] ));
       end;
 
 
       // obtain NODE
       myTreeNode := nil;
-      if ( Note.Kind = ntTree ) then
+      if ( Note.Kind = ntTree ) and (NodeID >= 0) then  // If NodeID < 0 -> Node will be ignored
       begin
         if ( NodeID <> 0 ) then begin // new format
           myTreeNode := TTreeNote( Note ).GetTreeNodeByID( NodeID );
           if ( myTreeNode = nil ) then
-            raise Exception.CreateFmt( STR_03, [NodeID] );
+            raise EInvalidLocation.Create(WideFormat( STR_03, [NodeID] ));
         end
         else begin
           myTreeNode := TTreeNote( Note ).TV.Items.FindNode( [ffText], NodeName, nil );
           if ( myTreeNode = nil ) then
-            raise Exception.CreateFmt( STR_04, [NodeName] );
+            raise EInvalidLocation.Create(WideFormat( STR_04, [NodeName] ));
         end;
       end;
    end;
@@ -238,8 +242,7 @@ begin
         ImportFileType := itText
       else
       begin
-        messagedlg( STR_07,
-          mtError, [mbOK], 0 );
+        DoMessageBox( STR_07, mtError, [mbOK]);
         exit;
       end;
 
@@ -274,7 +277,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( E.Message, mtError, [mbOK], 0 );
+            CommunicateException(E, mtError, [mbOK]);
             exit;
           end;
         end;
@@ -361,7 +364,7 @@ end; // InsertOrMarkKNTLink
 //===============================================================
 // BuildKNTLocationText
 //===============================================================
-function BuildKNTLocationText( const aLocation : TLocation ) : wideString;
+function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : wideString;
 var
   LocationString : wideString;
 begin
@@ -373,7 +376,7 @@ begin
     // [x] this does not handle files on another computer, i.e.
     // we cannot do file://computername/pathname/file.knt
 
-    if (RichEditVersion >= 4) and (not ActiveNote.PlainText) then begin
+    if (RichEditVersion >= 4) and (IgnoreActiveNotePlainText or not ActiveNote.PlainText) then begin
       LocationString := 'file:///' + LocationString + KNTLOCATION_MARK_NEW +
         inttostr( aLocation.NoteID ) + KNTLINK_SEPARATOR +
         inttostr( aLocation.NodeID ) + KNTLINK_SEPARATOR +
@@ -397,8 +400,6 @@ end; // BuildKNTLocationText
 // BuildKNTLocationFromString
 //---------------------------------------------------------------
 function BuildKNTLocationFromString( LocationStr : wideString ): TLocation;
-type
-  EInvalidLocation = Exception;
 var
   p, pold, pnew : integer;
   Location : TLocation;
@@ -509,7 +510,7 @@ begin
       end;
       1 : begin
         Location.NodeName := '';
-        Location.NodeID := 0;
+        Location.NodeID := -1;
       end;
       else
       begin
@@ -522,7 +523,7 @@ begin
     delete( LocationStr, 1, p );
 
     if assigned(Note) then
-      if ( Note.Kind = ntTree ) then
+      if ( Note.Kind = ntTree ) and (Location.NodeID >= 0) then
       begin
         if ( Location.NodeID <> 0 ) then
           myTreeNode := TTreeNote( Note ).GetTreeNodeByID( Location.NodeID )
@@ -585,28 +586,26 @@ begin
     end;
 end;
 
+
 //===============================================================
-// JumpToKNTLocation
+// JumpToLocation
 //===============================================================
-procedure JumpToKNTLocation( LocationStr : wideString );
-type
-  EInvalidLocation = Exception;
+function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
 var
-  Location : TLocation;
   myNote : TTabNote;
   myTreeNode : TTreeNTNode;
   origLocationStr : wideString;
 begin
+
+  result := false;
+  if IgnoreOtherFiles and ( not Form_Main.HaveNotes( false, true )) then exit;
 
   // Handles links that point to a "KNT location" rather than normal file:// URLs.
   // We may receive two types of links:
   // the old style link: file:///?filename.knt...
   // the new style link: file:///*filename.knt...
 
-
   try
-    Location:= BuildKNTLocationFromString(LocationStr);
-    try
       (*
       showmessage(
         'file: ' + Location.FileName + #13 +
@@ -619,13 +618,15 @@ begin
       *)
 
       // open file, if necessary
-      if ( Location.FileName <> '' ) then
+      if ( Location.FileName <> '' ) and ( Location.FileName <> NoteFile.FileName ) then
       begin
+        if IgnoreOtherFiles then
+           exit;
         if (( not WideFileexists( Location.FileName )) or
          ( NoteFileOpen( Location.FileName ) <> 0 )) then
         begin
           Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11;
-          raise Exception.CreateFmt( STR_12, [origLocationStr] );
+          raise EInvalidLocation.Create(WideFormat( STR_12, [origLocationStr] ));
         end;
       end;
 
@@ -643,38 +644,60 @@ begin
          TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
       end;
 
+      result := true;
 
-
-      // place caret
-      with myNote.Editor do
+      if Location.CaretPos >= 0 then
       begin
-        SelStart := Location.CaretPos;
-        SelLength := Location.SelLength;
-        Perform( EM_SCROLLCARET, 0, 0 );
+        // place caret
+        with myNote.Editor do
+        begin
+          SelStart := Location.CaretPos;
+          SelLength := Location.SelLength;
+          Perform( EM_SCROLLCARET, 0, 0 );
+        end;
       end;
-      myNote.Editor.SetFocus;
-      // StatusBar.Panels[PANEL_HINT].Text := ' Jump to location executed';
 
+      myNote.Editor.SetFocus;
+
+    except
+      on E : EInvalidLocation do
+        DoMessageBox( WideFormat( STR_13, [E.Message] ), mtWarning, [mbOK]);
+      on E : Exception do
+        begin
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_14;
+        DoMessageBox( WideFormat( STR_15, [GetMessage(E)] ), mtWarning, [mbOK]);
+        end;
+  end;
+
+end; // JumpToLocation
+
+//===============================================================
+// JumpToKNTLocation
+//===============================================================
+procedure JumpToKNTLocation( LocationStr : wideString );
+var
+  Location : TLocation;
+begin
+  try
+    try
+      Location:= BuildKNTLocationFromString(LocationStr);
+      JumpToLocation(Location, false);
     finally
       Location.Free;
     end;
 
-    except
-      on E : EInvalidLocation do
+  except
+    on E : EInvalidLocation do
+      DoMessageBox( WideFormat( STR_13, [E.Message] ), mtWarning, [mbOK]);
+
+    on E : Exception do
       begin
-        messagedlg( Format( STR_13, [E.Message] ), mtError, [mbOK], 0 );
-        exit;
-      end;
-      on E : Exception do
-      begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_14;
-        messagedlg( Format( STR_15, [E.Message] ), mtError, [mbOK], 0 );
-        exit;
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_14;
+      DoMessageBox( WideFormat( STR_15, [GetMessage(E)] ), mtError, [mbOK] );
       end;
   end;
 
 end; // JumpToKNTLocation
-
 
 
 //--------------------------------------------------
@@ -1095,7 +1118,11 @@ begin
 
       if ( myURLAction in [urlCopy, urlBoth] ) then
       begin
-        Clipboard.AsTextW:= myURL;
+        if KNTLocation then
+           Clipboard.AsTextW:= URLstr      // includes file prefix
+        else
+           Clipboard.AsTextW:= myURL;
+
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_19;
       end;
 
@@ -1178,9 +1205,7 @@ begin
 
     except
       on E : Exception do
-      begin
-        messagedlg( E.Message, mtWarning, [mbOK], 0 );
-      end;
+        CommunicateException(E, mtWarning, [mbOK]);
     end;
   finally
     _IS_FAKING_MOUSECLICK := false;

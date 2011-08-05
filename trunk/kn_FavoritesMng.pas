@@ -19,7 +19,7 @@ implementation
 Uses Windows, SysUtils, Controls, Dialogs, ShellAPI, StdCtrls,
      gf_misc, gf_strings, cmpGFXListBox,
      kn_Global, kn_Main, kn_Info, kn_NoteObj, kn_NodeList, kn_FavExtDlg,
-     kn_TreeNoteMng, kn_FindReplaceMng, TntSysUtils, TntDialogs;
+     kn_TreeNoteMng, TntSysUtils, TntDialogs, kn_LinksMng;
 
 resourcestring
   STR_01 = 'Error loading Favorites: ';

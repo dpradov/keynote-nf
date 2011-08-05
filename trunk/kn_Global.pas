@@ -2,7 +2,7 @@ unit kn_Global;
 
 interface
 uses
-  Windows,
+  Windows, SysUtils, Dialogs,
   TreeNT, RxRichEd,
   gf_files,  gf_strings,
   kn_Cmd,
@@ -24,6 +24,20 @@ const
    procedure CheckEmpty (var RTFAux: TRxRichEdit);
    procedure InitializeOptions;
    procedure AddSearchModes;
+
+type
+  WideException = class(Exception)
+  private
+    FWideMessage: WideString;
+    function GetMessage: WideString;
+    procedure SetMessage(value: WideString);
+  public
+    constructor Create(const Msg: WideString);
+    property Message: WideString read GetMessage write SetMessage;
+  end;
+
+  procedure CommunicateException(E: Exception; DlgType: TMsgDlgType= mtWarning; Buttons: TMsgDlgButtons = [mbOK]);
+  function GetMessage(E: Exception): wideString;
 
 var
 
@@ -177,13 +191,53 @@ var
 ////////////////////////////////////////////////////////////////////////////////
 
 implementation
-uses Classes, Messages, Graphics, Dialogs, Forms, Menus, Controls, SysUtils,
+uses Classes, Messages, Graphics, Forms, Menus, Controls,
      TB97, TntSysUtils,  //RxRichEd,
      gf_const, gf_misc, gf_miscvcl,
      kn_const, kn_msgs, kn_ini, kn_ExpandObj, kn_plugins, kn_fileMgr,
      kn_StyleObj, kn_Chest,
      kn_ConfigFileMng, kn_MacroMng, kn_FindReplaceMng,
      kn_TemplateMng, kn_StyleMng, kn_NoteFileMng, kn_VCLControlsMng;
+
+
+//-----------------
+constructor WideException.Create(const Msg: wideString);
+begin
+  SetMessage(Msg);
+end;
+
+function WideException.GetMessage: WideString;
+begin
+  if FWideMessage <> '' then
+     Result:= FWideMessage
+  else
+     Result:= inherited Message;
+end;
+
+procedure WideException.SetMessage(value: WideString);
+begin
+    FWideMessage:= value;
+    inherited Message:= value;
+end;
+
+procedure CommunicateException(E: Exception; DlgType: TMsgDlgType= mtWarning; Buttons: TMsgDlgButtons = [mbOK]);
+begin
+  if E is WideException then
+     DoMessageBox( WideException(E).Message, DlgType, Buttons )
+  else
+     DoMessageBox( E.Message, DlgType, Buttons );
+end;
+
+function GetMessage(E: Exception): wideString;
+begin
+  if E is WideException then
+     Result:= WideException(E).Message
+  else
+     Result:= E.Message;
+end;
+
+
+//-----------------
 
 
 procedure AddSearchModes;
