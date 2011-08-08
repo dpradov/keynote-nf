@@ -71,3 +71,12 @@ The executable can be downloaded from: <br>
 [http://code.google.com/p/keynote-nf/downloads/detail?name=Release_1.7.9.1%20Beta%201.rar http://code.google.com/p/keynote-nf/downloads]
 
 Note that the language files you have for the actual version (1.7.8) will not be applicable to this version. With the release of the final 1.7.9 version I will incorporate all the language files updated.
+
+
+<br><br>
+----
+*08 aug 2011:* <br>
+I have uploaded a new executable (*1.7.9.2 Beta*) that includes the following issues:
+
+  * Issue #395: Keynote NF doesn't open my file, "buffer error"
+  * Issue #325: Relative paths in Links (relative to .knt file)
