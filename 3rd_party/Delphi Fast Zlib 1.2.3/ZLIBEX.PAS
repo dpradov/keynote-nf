@@ -654,6 +654,12 @@ begin
   ZCompressCheck(deflateEnd(zstream));
 end;
 
+(*
+The size of buffer, fixed in 32768, can in some ocassions cause Buffer errors.
+It seems that it is associated (in KeyNote) to images embedded in the rtf
+I have modified this procedure to dinamically adjust the outBuffer when a
+Z_BUF_ERROR is received (trying a number of times: max= 10)
+
 procedure ZDecompressStream(inStream, outStream: TStream);
 const
   bufferSize = 32768;
@@ -704,6 +710,91 @@ begin
   until (zresult = Z_STREAM_END) and (zstream.avail_out > 0);
 
   ZCompressCheck(inflateEnd(zstream));
+end;
+*)
+
+procedure ZDecompressStream(inStream, outStream: TStream);
+const
+    bufferInSize = 32768;
+    InitialBufferOutSize = 32768;
+    NumMaxRetriesOnBufferError = 10; // -->  360448
+var
+  zstream: TZStreamRec;
+  zresult: Integer;
+  inBuffer: array[0..bufferInSize - 1] of Char;
+  outBuffer: array of Char;
+  bufferOutSize: integer;
+  inSize: Integer;
+  outSize: Integer;
+  inStreamPosition, outStreamPosition: Int64;
+  Retry: integer;
+
+begin
+  Retry:= 0;
+  bufferOutSize:= InitialBufferOutSize;
+
+
+  inStreamPosition:= inStream.Position;
+  outStreamPosition:= outStream.Position;
+
+  repeat
+
+    try
+      SetLength(outBuffer, bufferOutSize);
+
+      FillChar(zstream, SizeOf(TZStreamRec), 0);
+
+      ZCompressCheck(InflateInit(zstream));
+
+      inSize := inStream.Read(inBuffer, bufferInSize);
+
+      while inSize > 0 do
+      begin
+        zstream.next_in := inBuffer;
+        zstream.avail_in := inSize;
+
+        repeat
+          zstream.next_out := PChar(@outBuffer[0]);
+          zstream.avail_out := bufferOutSize;
+
+          ZCompressCheck(inflate(zstream, Z_NO_FLUSH));
+
+          outSize := bufferOutSize - zstream.avail_out;
+          outStream.Write(PChar(@outBuffer[0])^, outSize);
+        until (zstream.avail_in = 0) and (zstream.avail_out > 0);
+
+        inSize := inStream.Read(inBuffer, bufferInSize);
+      end;
+
+      repeat
+        zstream.next_out := PChar(@outBuffer[0]);
+        zstream.avail_out := bufferOutSize;
+
+        zresult := ZCompressCheck(inflate(zstream, Z_FINISH));
+
+        outSize := bufferOutSize - zstream.avail_out;
+        outStream.Write(PChar(@outBuffer[0])^, outSize);
+      until (zresult = Z_STREAM_END) and (zstream.avail_out > 0);
+
+      ZCompressCheck(inflateEnd(zstream));
+
+      Retry:= 0;          // OK, no retry
+
+    except
+        on E : EZCompressionError do
+           if E.Message = _z_errmsg[2 - Z_BUF_ERROR] then begin
+               inStream.Position:= inStreamPosition;
+               outStream.Position:= outStreamPosition;
+               bufferOutSize:= bufferOutSize + InitialBufferOutSize;
+               Retry:= Retry + 1;
+           end
+           else
+               raise E;
+    end;
+
+  until (Retry = 0) or (Retry > 10);
+  if Retry > 10 then
+     raise EZCompressionError.Create(_z_errmsg[2 - Z_BUF_ERROR]);
 end;
 
 {** TCustomZStream **********************************************************}
