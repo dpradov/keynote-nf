@@ -428,7 +428,7 @@ begin
             else
                TVCheckNode.Enabled := false;
 
-            TB_AlarmNode.Down:= (myNode.AlarmReminder <> 0);        // [dpv]
+            TB_AlarmNode.Down:= myNode.HasAlarms(false);        // [dpv]
             TVAlarmNode.Checked:= TB_AlarmNode.Down;        // [dpv]
           end
           else
@@ -2099,6 +2099,8 @@ begin
                 if not (PasteAsVirtualKNTNode and TransferedNoteNode.Hidden) then begin
                     newNoteNode := TNoteNode.Create;
                     newNoteNode.Assign( TransferNodes[i] );
+                    if MovingSubtree then
+                       AlarmManager.MoveAlarms(NoteFile.GetNoteByID(CopyCutFromNoteID), TransferNodes[i],  tNote, newNoteNode);
 
                     tNote.AddNode( newNoteNode );
                     newNoteNode.Level := newNoteNode.Level + StartLevel + 1;

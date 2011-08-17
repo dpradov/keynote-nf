@@ -873,6 +873,9 @@ type
     MMWithoutNextNumber: TTntMenuItem;
     MMStartsNewNumber: TTntMenuItem;
     NU02: TTntMenuItem;
+    TAM_SetAlarm: TTntMenuItem;
+    MMSetAlarm: TTntMenuItem;
+    procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
     procedure TntFormResize(Sender: TObject);
@@ -1413,7 +1416,6 @@ resourcestring
   STR_31 = ' Preparing to send note via email...';
   STR_32 = ' Note sent';
   STR_33 = ' Note not sent';
-  STR_34 = 'Expiration/Start time: ';
   STR_35 = 'Set alarm...';
   STR_36 = 'Drag: ';
   STR_37 = 'TV dragover';
@@ -4218,17 +4220,37 @@ begin
 {$ENDIF}
 end; // MMEmailnoteClick
 
+
+
 procedure TForm_Main.TB_AlarmModeClick(Sender: TObject);
 begin
   if (GetKeyState(VK_CONTROL) < 0) then begin
-      TB_AlarmMode.Down:= not KeyOptions.DisableAlarmPopup;
-      AlarmManager.ShowAlarms(true);
+      if assigned(ActiveNote) then begin
+         TB_AlarmMode.Down:= not KeyOptions.DisableAlarmPopup;
+         AlarmManager.ShowAlarms(true);
+
+         MMSetAlarm.Checked:= ActiveNote.HasAlarms(false);
+         TAM_SetAlarm.Checked:= MMSetAlarm.Checked;
+      end;
   end
   else begin
       KeyOptions.DisableAlarmPopup:= not KeyOptions.DisableAlarmPopup;
       TB_AlarmMode.Down:= (not KeyOptions.DisableAlarmPopup);
       TB_AlarmMode.Hint:= AlarmManager.GetAlarmModeHint;
   end;
+end;
+
+procedure TForm_Main.TAM_SetAlarmClick(Sender: TObject);
+begin
+    if not assigned(ActiveNote) then exit;
+    
+    if (GetKeyState(VK_CONTROL) < 0) then
+        AlarmManager.EditAlarms (nil, ActiveNote, true)
+    else
+        AlarmManager.EditAlarms (nil, ActiveNote);
+
+    MMSetAlarm.Checked:= ActiveNote.HasAlarms(false);
+    TAM_SetAlarm.Checked:= MMSetAlarm.Checked;
 end;
 
 procedure TForm_Main.TB_AlarmModeMouseEnter(Sender: TObject);
@@ -4240,37 +4262,66 @@ procedure TForm_Main.TB_AlarmNodeClick(Sender: TObject);      // [dpv*]
 var
     myNode: TNoteNode;
     node: TTreeNTNode;
-begin
-    if (GetKeyState(VK_CONTROL) < 0) then begin
-        TB_AlarmNode.Down:= (myNode.AlarmReminder <> 0);
-        AlarmManager.ShowAlarms(false);
-        Exit;
+
+    procedure ShowAlarmStatus;
+    begin
+        if assigned(myNode) then begin
+           TB_AlarmNode.Down:= myNode.HasAlarms(false);
+           TVAlarmNode.Checked:= TB_AlarmNode.Down;
+        end;
+        MMSetAlarm.Checked:= ActiveNote.HasAlarms(false);
+        TAM_SetAlarm.Checked:= MMSetAlarm.Checked;
     end;
 
-    if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) and (assigned(TTreeNote(ActiveNote).TV.Selected)) then begin
+begin
+    myNode:= nil;
+    if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) then begin
        node:= TTreeNote(ActiveNote).TV.Selected;
-       myNode:= TNoteNode( node.Data );
-       if myNode.VirtualMode = vmKNTnode then begin
-          node:= myNode.MirrorNode;
-          myNode:= TNoteNode(node.Data);
-       end;
-       TB_AlarmNode.Down:= (myNode.AlarmReminder <> 0);
-       AlarmManager.EditAlarm (node);
-    end
-    else
-       TB_AlarmNode.Down:= false;
+       if assigned(node) then
+          myNode:= TNoteNode( node.Data );
+    end;
 
-    TVAlarmNode.Checked:= TB_AlarmNode.Down;
+    ShowAlarmStatus;
+
+    if (GetKeyState(VK_CONTROL) < 0) then
+        AlarmManager.EditAlarms (myNode, ActiveNote, true)
+    else
+       AlarmManager.EditAlarms (myNode, ActiveNote);
+
+    ShowAlarmStatus;
 end;
 
 procedure TForm_Main.TB_AlarmNodeMouseEnter(Sender: TObject);    // [dpv*]
 var
-    node: TNoteNode;
+    myNode: TNoteNode;
+    node: TTreeNTNode;
+    hint: WideString;
+    sep: String;
+    I: integer;
+    Alarms: TList;
 begin
-    if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) and (assigned(TTreeNote(ActiveNote).TV.Selected)) then begin
-       node:= TNoteNode( TTreeNote(ActiveNote).TV.Selected.Data );
-       if (node.AlarmReminder <> 0) then
-           TB_AlarmNode.Hint:= STR_34 + FormatAlarmInstant(node.ExpirationDate) + ' [' + WideStringReplace(node.AlarmNote, #13#10, ' // ', [rfReplaceAll]) + ']'
+    myNode:= nil;
+    sep:= '';
+    if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) then begin
+       node:= TTreeNote(ActiveNote).TV.Selected;
+       if assigned(node) then
+          myNode:= TNoteNode( node.Data );
+    end;
+
+    if assigned(myNode) then begin
+       if myNode.HasAlarms(false) then begin
+           hint:= '';
+           Alarms:= myNode.getAlarms(false);
+           I:= 0;
+           while I <= Alarms.Count - 1 do begin
+              hint:= hint + sep + FormatAlarmInstant(TAlarm(Alarms[i]).ExpirationDate) + ' [' + WideStringReplace(TAlarm(Alarms[i]).AlarmNote, #13#10, '. ', [rfReplaceAll]) + ']';
+              sep:= ' // ';
+              I:= I + 1;
+           end;
+           if Alarms.Count > 1 then
+              hint:= '(' + intTostr(Alarms.Count) + ') ' + hint;
+           TB_AlarmNode.Hint:= hint;
+       end
        else
            TB_AlarmNode.Hint:= STR_35;
     end

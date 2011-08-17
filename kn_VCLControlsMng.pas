@@ -447,9 +447,6 @@ begin
                   if myNode.Filtered  then      // [dpv]
                      tNote.Filtered := True;
 
-                  if myNode.AlarmReminderF <> 0  then      // [dpv*]
-                     AlarmManager.AddAlarmNode(myTreeNode);
-
                 end;
 
               finally
@@ -989,6 +986,9 @@ begin
             MMNoteReadOnly.Checked := ActiveNote.ReadOnly;
             TB_ClipCap.Down := ( NoteFile.ClipCapNote = ActiveNote );
             MMNoteClipCapture.Checked := TB_ClipCap.Down;
+            MMSetAlarm.Checked:= ActiveNote.HasAlarms(false);
+            TAM_SetAlarm.Checked:= MMSetAlarm.Checked;
+
             TMClipCap.Checked := MMNoteClipCapture.Checked;
 
             UpdateWordWrap;
@@ -1031,7 +1031,7 @@ begin
               else
                  TVCheckNode.Enabled := false;
 
-              if assigned(node) and (TNoteNode(node.Data).AlarmReminder <> 0) then   // [dpv*]
+              if assigned(node) and (TNoteNode(node.Data).HasAlarms(false)) then   // [dpv*]
                  TB_AlarmNode.Down:= true
               else
                  TB_AlarmNode.Down:= false;
@@ -1083,6 +1083,7 @@ begin
         begin
           MMNoteReadonly.Checked := false;
           MMFormatWordWrap.Checked := false;
+          MMSetAlarm.Checked:= false;
           TB_WordWrap.Down := false;
           RTFMWordwrap.Checked := false;
           TB_ClipCap.Down := false;

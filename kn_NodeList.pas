@@ -84,9 +84,6 @@ type
     FWordWrap : TNodeWordWrap;
     FChildrenCheckbox: Boolean;    // [dpv]
     FFiltered: Boolean;            // [dpv]: True -> Hidden
-    FAlarmReminder: TDateTime;     // Reminder date
-    FExpirationDate: TDateTime;        // Expiration date
-    FAlarmNote: wideString;
 
     procedure SetName( AName : WideString );
     procedure SetLevel( ALevel : integer );
@@ -100,9 +97,6 @@ type
     procedure SetNodeFontFace( const aFace : string );
     function GetRelativeVirtualFN : wideString;
     procedure SetWordWrap( const Value : TNodeWordWrap );
-    function GetAlarmReminder: TDateTime;
-    function GetExpirationDate: TDateTime;
-    function GetAlarmNote: wideString;
 
   public
     property Stream : TTntMemoryStream read FStream;
@@ -114,12 +108,6 @@ type
     property Checked : boolean read FChecked write FChecked;
     property ChildrenCheckbox : boolean read FChildrenCheckbox write FChildrenCheckbox;    // [dpv]
     property Filtered : boolean read FFiltered write FFiltered;                            // [dpv]
-    property AlarmReminder : TDateTime read GetAlarmReminder write FAlarmReminder;                                   // [dpv]
-    property AlarmReminderF : TDateTime read FAlarmReminder;
-    property ExpirationDate : TDateTime read GetExpirationDate write FExpirationDate;
-    property ExpirationDateF : TDateTime read FExpirationDate;
-    property AlarmNote: wideString read GetAlarmNote write FAlarmNote;
-    property AlarmNoteF: wideString read FAlarmNote;
     property Flagged : boolean read FFlagged write FFlagged;
     property Tag : integer read FTag write FTag;
     property RTFBGColor : TColor read FRTFBGColor write FRTFBGColor;
@@ -127,6 +115,9 @@ type
     property VirtualMode : TVirtualMode read FVirtualMode write FVirtualMode;
     property VirtualFN : wideString read GetVirtualFN write SetVirtualFN;
     property RelativeVirtualFN : wideString read GetRelativeVirtualFN write FRelativeVirtualFN;
+    function NonVirtualNode: TNoteNode;
+    function GetAlarms(considerDiscarded: boolean): TList;
+    function HasAlarms (considerDiscarded: boolean): boolean;
 
     property MirrorNodePath : wideString read GetMirrorNodePath;
     property MirrorNode: TTreeNTNode read GetMirrorNode write SetMirrorNode;
@@ -224,8 +215,6 @@ begin
   FWordWrap := wwAsNote;
   FChildrenCheckbox:= false;   // [dpv]
   FFiltered:= false;           // [dpv]
-  FAlarmReminder := 0;                 // [dpv]
-  FExpirationDate:= 0;
 end; // CREATE
 
 destructor TNoteNode.Destroy;
@@ -484,49 +473,28 @@ begin
      FStream.Position := 0;
 end; // SetMirrorNode
 
-function TNoteNode.GetAlarmReminder: TDateTime;
+
+function TNoteNode.NonVirtualNode: TNoteNode;
 var
-   Node : TTreeNTNode;
+   myNode: TNoteNode;
+   node: TTreeNTNode;
 begin
+    Result:= Self;
     if (FVirtualMode= vmKNTNode) then begin
-       Node:= MirrorNode;
-       if assigned(Node) then
-          Result:= TNoteNode(Node.Data).AlarmReminder
-       else
-          Result:= 0;
-    end
-    else
-       Result:= FAlarmReminder;
+       node:= MirrorNode;
+       if assigned(node) then
+          Result:= TNoteNode(Node.Data);
+    end;
 end;
 
-function TNoteNode.GetAlarmNote: WideString;
-var
-   Node : TTreeNTNode;
+function TNoteNode.HasAlarms(considerDiscarded: boolean): boolean;
 begin
-    if (FVirtualMode= vmKNTNode) then begin
-       Node:= MirrorNode;
-       if assigned(Node) then
-          Result:= TNoteNode(Node.Data).AlarmNote
-       else
-          Result:= '';
-    end
-    else
-       Result:= FAlarmNote;
+    Result:= AlarmManager.HasAlarms(nil, NonVirtualNode, considerDiscarded);
 end;
 
-function TNoteNode.GetExpirationDate: TDateTime;
-var
-   Node : TTreeNTNode;
+function TNoteNode.GetAlarms(considerDiscarded: boolean): TList;
 begin
-    if (FVirtualMode= vmKNTNode) then begin
-       Node:= MirrorNode;
-       if assigned(Node) then
-          Result:= TNoteNode(Node.Data).ExpirationDate
-       else
-          Result:= 0;
-    end
-    else
-       Result:= FExpirationDate;
+   Result:= AlarmManager.GetAlarms(nil, NonVirtualNode, considerDiscarded);
 end;
 
 

@@ -1,4 +1,4 @@
-unit kn_RTFUtils;
+﻿unit kn_RTFUtils;
 (* ************************************************************
  KEYNOTE: MOZILLA PUBLIC LICENSE STATEMENT.
  -----------------------------------------------------------
@@ -52,7 +52,7 @@ Note: Replaced by EM_SETTEXTEX Message
 *)
 
 uses Windows, Messages, Controls, Classes,
-     ComCtrls, SysUtils, RichEdit, RxRichEd;
+     ComCtrls, SysUtils, RichEdit, RxRichEd, Graphics;
 
 
 procedure PutRichText(
@@ -68,6 +68,9 @@ function GetRichText(
 
 function URLToRTF( fn : wideString; enTextoURL: boolean ) : wideString;
 function URLFromRTF( fn : wideString ) : wideString;
+
+function TextToUseInRTF( UnicodeText : wideString ): string;
+function GetRTFColor(Color: TColor): string;
 
 implementation
 uses WideStrUtils, TntSystem;
@@ -317,5 +320,58 @@ begin
   finally
   end;
 end; // PutRichText
+
+
+// Returns a text in ASCII with characters with 8 bits escaped with \' and unicode characters
+// escaped with \u. Tab character is also converted to \tab
+//  Examples: "có" --> "c\'f3"  "Việt" --> "Vi\u7879?t"
+//
+//  References: Special characters in RTF: http://www.biblioscape.com/rtf15_spec.htm#Heading46
+//             Unicode characters in RTF: http://www.biblioscape.com/rtf15_spec.htm#Heading9
+//  Delphi: http://www.delphibasics.co.uk/RTL.asp?Name=Char
+//          http://www.delphibasics.co.uk/ByFunction.asp?Main=Strings
+
+function TextToUseInRTF( UnicodeText : wideString ): string;
+var
+  i, val: Integer;
+begin
+  Result:= '';
+
+  UnicodeText:= WideStringReplace(UnicodeText,'\','\\', [rfReplaceAll]);
+  UnicodeText:= WideStringReplace(UnicodeText,'{','\{', [rfReplaceAll]);
+  UnicodeText:= WideStringReplace(UnicodeText,'}','\}', [rfReplaceAll]);
+
+  for i := 1 to length(UnicodeText) do
+  begin
+    val:= integer(UnicodeText[i]);   // Ord(..) is equivalent
+    if val = 9 then
+       Result := Result + '\tab '
+
+    else if (val = 13) then
+       Result := Result + '\par '
+
+    else if (val = 10) then
+        // do nothing
+        
+    else if val >= 127 then
+       if val <= 255 then
+           Result := Result + '\''' + IntToHex(val, 2)
+       else
+           Result := Result + '\u' + IntToStr(val) + '?'
+    else
+       Result := Result + Char(UnicodeText[i]);
+  end;
+end;
+
+function GetRTFColor(Color: TColor): string;
+var
+  R, G, B: byte;
+begin
+  R := GetRValue (Color); {red}
+  G := GetGValue (Color); {green}
+  B := GetBValue (Color); {blue}
+  Result:= '\red' + IntToStr(R) + '\green' + IntToStr(G) + '\blue' + IntToStr(B) + ';';
+end;
+
 
 end.

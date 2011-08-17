@@ -335,6 +335,11 @@ begin
             // NoteFile.OnNoteLoad := OnNoteLoaded;
             result := NoteFile.Load( FN );
 
+            for i := 0 to NoteFile.Notes.Count -1 do
+            begin
+              NoteFile.Notes[i].AddProcessedAlarms();
+            end;
+
             if ( result <> 0 ) then
             begin
               NoteFile.ReadOnly := true;
@@ -866,8 +871,6 @@ end; // NoteFileSave
 function NoteFileClose : boolean;
 begin
   MovingTreeNode:= nil;
-  AlarmManager.Clear;
-  MirrorNodes.Clear;
 
   with Form_Main do begin
 
@@ -940,6 +943,9 @@ begin
         UpdateNoteFileState( [fscClose,fscModified] );
         StatusBar.Panels[PANEL_HINT].Text := STR_30;
       finally
+        AlarmManager.Clear;
+        MirrorNodes.Clear;
+
         FileIsBusy := false;
         PagesChange( Form_Main );
         screen.Cursor := crDefault;
@@ -1116,8 +1122,8 @@ var
   TabSelector : TForm_SelectTab;
   mergecnt, i, n, p : integer;
   newNote : TTabNote;
-  newTNote : TTreeNote;
-  newNode : TNoteNode;
+  newTNote, mergeTNote : TTreeNote;
+  newNode, mergeNode : TNoteNode;
   IDs: array of TMergeNotes;
   mirrorID: string;
   noteID: integer;
@@ -1278,20 +1284,25 @@ begin
                 end;
               end;
 
+              MergeFile.Notes[i].AddProcessedAlarmsOfNote(newNote);
+
               case newNote.Kind of
                 ntRTF : begin
                   MergeFile.Notes[i].DataStream.Position := 0;
                   newNote.DataStream.LoadFromStream( MergeFile.Notes[i].DataStream );
                 end;
                 ntTree : begin
-                  if ( TTreeNote( MergeFile.Notes[i] ).NodeCount > 0 ) then
+                  mergeTNote:= TTreeNote( MergeFile.Notes[i] );
+                  if ( mergeTNote.NodeCount > 0 ) then
                   begin
-                    for n := 0 to pred( TTreeNote( MergeFile.Notes[i] ).NodeCount ) do
+                    for n := 0 to pred( mergeTNote.NodeCount ) do
                     begin
+                      mergeNode:= mergeTNote.Nodes[n];
                       newNode := TNoteNode.Create;
-                      newNode.Assign( TTreeNote( MergeFile.Notes[i] ).Nodes[n] );
+                      newNode.Assign( mergeNode );
                       TTreeNote( newNote ).AddNode( newNode );
-                      newNode.ForceID(TTreeNote( MergeFile.Notes[i] ).Nodes[n].ID);
+                      newNode.ForceID( mergeNode.ID);
+                      mergeTNote.AddProcessedAlarmsOfNode(mergeNode, newNote, newNode);
                     end;
                   end;
                 end;

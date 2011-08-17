@@ -176,7 +176,7 @@ Function TimeDeltaInMinutes( const StartDate, EndDate   : TDateTime): Double;
 Function TimeDeltaInSeconds( const StartDate, EndDate : TDateTime): Double;
 function DateTimeDiff(Start, Stop : TDateTime) : int64;
 function GetTimeIntervalStr(Start, Stop : TDateTime): wideString;
-function IncStrInterval (const Interval: wideString; StartDate: TDateTime; increment: boolean= true): TDateTime;
+function IncStrInterval (StartDate: TDateTime; const Interval: wideString; increment: boolean= true): TDateTime;
 function TimeRevised(time: wideString): WideString;
 function NormalFN( const fn : wideString ) : wideString;
 function RelativeFN( FN : wideString ) : wideString;
@@ -1351,7 +1351,7 @@ Intervals like "2m", "4hours" "4 ho", ... are also understood
 StartDate will be incremented or decremented by interval depending on the parameter "increment"
 The numbers can contain decimals
 *)
-function IncStrInterval (const Interval: wideString; StartDate: TDateTime; increment: boolean= true): TDateTime;
+function IncStrInterval (StartDate: TDateTime; const Interval: wideString; increment: boolean= true): TDateTime;
 var
    i, lenS: integer;
    s: wideString;

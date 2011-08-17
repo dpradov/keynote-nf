@@ -4,15 +4,18 @@ interface
 uses Windows, Classes, SysUtils, clipbrd;
 
 const
-  CF_HTML : word = 0;
+  CFHtml : word = 0;
 
 type
    TClipBoardW= class(TClipboard)
       private
         function GetAsTextW: wideString;
         procedure SetAsTextW(const Value: wideString);
+        function GetAsRTF: string;
+        procedure SetAsRTF(const Value: string);
       public
         property AsTextW: wideString read GetAsTextW write SetAsTextW;
+        property AsRTF: string read GetAsRTF write SetAsRTF;
    end;
 
 function Clipboard: TClipBoardW;
@@ -27,11 +30,14 @@ function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
 function GetURLFromHTMLClipboard : string;
 
 implementation
-uses WideStrings, gf_strings;
+uses WideStrings, gf_strings, RichEdit;
+
+var
+  CFRtf: Integer;
 
 function ClipboardHasHTMLformat : boolean;
 begin
-  result := ( CF_HTML <> 0 ) and Clipboard.HasFormat( CF_HTML );
+  result := ( CFHtml <> 0 ) and Clipboard.HasFormat( CFHtml );
 end; // ClipboardHasHTMLformat
 
 function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
@@ -72,7 +78,7 @@ begin
   begin
     Stm := TMemoryStream.Create;
     try
-      ClipboardToStream( CF_HTML, Stm );
+      ClipboardToStream( CFHtml, Stm );
       Stm.Position := 0;
       list := TStringList.Create;
       try
@@ -158,9 +164,36 @@ begin
   SetBuffer(CF_UNICODETEXT, PChar(Value)^, 2*Length(Value) + 2);
 end;
 
+procedure TClipboardW.SetAsRTF(const Value: string);
+begin
+  SetBuffer(CFRtf, PChar(Value)^, Length(Value) + 1);
+end;
+
+function TClipboardW.GetAsRTF: string;
+var
+  Data: THandle;
+begin
+    try
+      Clipboard.Open;
+      try
+        Data := GetClipboardData(CFRtf);
+        if Data <> 0 then begin
+          Result := PChar(GlobalLock(Data));
+        end
+        else
+          Result := '';
+      finally
+        if Data <> 0 then GlobalUnlock(Data);
+        Clipboard.Close;
+      end;
+    except
+       Result:= '';
+    end;
+end;
+
 
 Initialization
 
-  CF_HTML := RegisterClipboardFormat( 'HTML Format' );
-
+  CFHtml := RegisterClipboardFormat( 'HTML Format' );
+  CFRtf := RegisterClipboardFormat(CF_RTF);
 end.

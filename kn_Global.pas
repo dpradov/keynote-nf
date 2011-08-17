@@ -791,7 +791,7 @@ begin
       StoreTick( 'End FileOpen - End FormCreate', GetTickCount );
       {$ENDIF}
 
-      AlarmManager.Enabled := true;         // [dpv*]
+
       Timer.Enabled := true;
       FolderMon.OnChange := FolderMonChange;
 
