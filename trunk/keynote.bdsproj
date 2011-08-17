@@ -112,7 +112,7 @@
 			<Linker Name="ConsoleApp">1</Linker>
 			<Linker Name="DebugInfo">False</Linker>
 			<Linker Name="RemoteSymbols">False</Linker>
-			<Linker Name="GenerateDRC">True</Linker>
+			<Linker Name="GenerateDRC">False</Linker>
 			<Linker Name="MinStackSize">16384</Linker>
 			<Linker Name="MaxStackSize">1048576</Linker>
 			<Linker Name="ImageBase">4194304</Linker>
@@ -149,8 +149,8 @@
 			<VersionInfo Name="AutoIncBuild">False</VersionInfo>
 			<VersionInfo Name="MajorVer">1</VersionInfo>
 			<VersionInfo Name="MinorVer">7</VersionInfo>
-			<VersionInfo Name="Release">8</VersionInfo>
-			<VersionInfo Name="Build">1</VersionInfo>
+			<VersionInfo Name="Release">9</VersionInfo>
+			<VersionInfo Name="Build">3</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
 			<VersionInfo Name="Special">False</VersionInfo>
@@ -162,13 +162,13 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">KeyNote NF (New Features)</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">1.7.8.1</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">1.7.9.3</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">KeyNote NF</VersionInfoKeys>
-			<VersionInfoKeys Name="LegalCopyright">(c) Daniel Prado 2007-09  (c) Marek Jedlinski, 2000-03</VersionInfoKeys>
+			<VersionInfoKeys Name="LegalCopyright">(c) Daniel Prado 2007-10  (c) Marek Jedlinski, 2000-03</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks">Freeware</VersionInfoKeys>
 			<VersionInfoKeys Name="OriginalFilename">keynote.exe</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName">KeyNote NF</VersionInfoKeys>
-			<VersionInfoKeys Name="ProductVersion">1.7.8</VersionInfoKeys>
+			<VersionInfoKeys Name="ProductVersion">1.7.9 Beta 3</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments">Improvements over version 1.6.5 of Marek's KeyNote</VersionInfoKeys>
 			<VersionInfoKeys Name="X-Fnord"></VersionInfoKeys>
 			<VersionInfoKeys Name="X-URL">http://code.google.com/p/keynote-nf/</VersionInfoKeys>

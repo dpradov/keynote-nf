@@ -269,10 +269,20 @@ Optional: Alarm instant       (New in 1.7.1) [dpv]
 NA=21-05-2007 15:24:50
 
 (From 1.7.8 it is possible to add a subject to the alarm. This subject is encoded in UTF-8 without BOM)
-(From 1.7.9 program distinguish between Expiration/Start time and Reminder time. 
- If there is only one time value then it will assume that Expiration/Start time = Reminder time
- )
-NA=21-05-2007 15:30:00/21-05-2007 15:25:00|I should do something..
+(From 1.7.9 program can distinguish between Reminder time and an optional Expiration/Event time and allows to set colors and bold
+)
+
+ NA=[D]Reminder[/Expiration][*Format][|Subject]
+    [] => optional
+    D: Discarded
+    Expiration or Reminder: DD-MM-YYYY HH:MM:SS
+    Format: BoldformatFontcolor/Backcolor
+    BoldFormat: B or N   (Bold or Normal)
+    FontColor or BackColor: number (TColor)
+    Subject: unicode text
+
+ Example:
+   NA=D10-06-2010 08:00:00/10-06-2010 07:55:00*B100/1200|I should do something..
 
 
 Optional: relative path to file, if node is a virtual node

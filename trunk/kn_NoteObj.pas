@@ -151,6 +151,8 @@ type
     FIsInsertMode : boolean;  // for RTF-type notes only
     FCaretPos : TPoint; // caret position saved to data file (to be restored on Load; do not use otherwise because it is ONLY updated on saving file!)
 
+    FAuxiliarAlarmList: TList;
+
     // VCL controls. By default, the note does NOT access them in any way
     FTabSheet : TTab95Sheet; // the tabsheet which holds this note
     FEditor : TTabRichEdit;  // for RTF-type notes only
@@ -180,6 +182,9 @@ type
 
     function PropertiesToFlagsString : TFlagsString; virtual;
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); virtual;
+
+    procedure SaveAlarms(var tf : TWTextFile; node: TNoteNode = nil);
+    procedure ProcessAlarm (s: WideString; node: TNoteNode = nil);
 
   public
     property Editor : TTabRichEdit read FEditor write SetEditor;
@@ -219,7 +224,6 @@ type
     procedure SaveDartNotesFormat( Stream : TStream ); virtual;
 
     procedure LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean ); virtual;
-
     procedure LoadDartNotesFormat( Stream : TStream ); virtual;
 
     procedure SetEditorProperties( const aProps : TNoteEditorProperties );
@@ -233,6 +237,14 @@ type
 
     procedure DataStreamToEditor; virtual;
     procedure EditorToDataStream; virtual;
+
+
+    function GetAlarms(considerDiscarded: boolean): TList;
+    function HasAlarms (considerDiscarded: boolean): boolean;
+
+    procedure AddProcessedAlarms ();
+    procedure AddProcessedAlarmsOfNote (newNote: TTabNote);
+    procedure AddProcessedAlarmsOfNode (node: TNoteNode; newNote: TTabNote; newNode: TNoteNode);
 
   end; // TTabNote
 
@@ -388,7 +400,7 @@ var
   _LoadedRichEditVersion : integer;
 
 implementation
-uses kn_LinksMng, kn_Main, gf_strings, gf_miscvcl, WideStrUtils;
+uses kn_global, kn_AlertMng, kn_LinksMng, kn_Main, gf_strings, gf_miscvcl, WideStrUtils;
 
 resourcestring
   STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
@@ -605,12 +617,16 @@ begin
     x := 0;
     y := 0;
   end;
+  FAuxiliarAlarmList:= TList.Create;
 end; // CREATE
 
 destructor TTabNote.Destroy;
 begin
   FOnChange := nil;
   if assigned( FDataStream ) then FDataStream.Free;
+  AlarmManager.RemoveAlarmsOfNote(Self);
+  if assigned (FAuxiliarAlarmList) then FAuxiliarAlarmList.Free;
+
   inherited Destroy;
 end; // TTabNote .Destroy;
 
@@ -861,9 +877,63 @@ begin
   writeln( tf, _WordWrap, '=', BOOLEANSTR[FWordWrap] );
   writeln( tf, _URLDetect, '=', BOOLEANSTR[FURLDetect] );
   }
-
+  if HasAlarms(true) then
+     SaveAlarms(tf);
 
 end; // BaseSaveProc
+
+(*
+Format of the serialized alarm:  NA=[D]Reminder[/Expiration][*Format][|subject]
+Ej: NA=D10-06-2010 08:00:00/10-06-2010 07:55:00*B100/1200|Comment to the alarm
+
+[] => optional
+D: Discarded
+Expiration or Reminder: DD-MM-YYYY HH:MM:SS
+Format: BoldFormatFontColor/BackColor
+BoldFormat: B or N   (Bold or Normal)
+FontColor - BackColor: number (TColor)
+subject: unicode text
+
+*)
+procedure TTabNote.SaveAlarms(var tf : TWTextFile; node: TNoteNode = nil);
+var
+   I: integer;
+   Alarms: TList;
+   s: WideString;
+   alarm: TAlarm;
+   BoldStr: char;
+begin
+  try
+     if assigned(node) then
+        Alarms:= node.getAlarms(true)
+     else
+        Alarms:= Self.getAlarms(true);
+
+     I:= 0;
+     while I <= Alarms.Count - 1 do begin
+        alarm:= TAlarm(Alarms[i]);
+        s:= '';
+        if alarm.ExpirationDate <> 0 then
+           s:= '/' + FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, alarm.ExpirationDate );
+
+        if alarm.Bold or (alarm.FontColor <> clWindowText) or (alarm.BackColor <> clWindow) then begin
+           if alarm.Bold then BoldStr:= 'B' else BoldStr:= 'N';
+           s:= s + '*' + BoldStr + IntToStr(alarm.FontColor) + '/' + IntToStr(alarm.BackColor);
+           end;
+
+        if alarm.AlarmNote <> '' then
+           s:= s + '|' + WideStringReplace(alarm.AlarmNote, #13#10, 'ªª', [rfReplaceAll]);
+        s:= FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, alarm.AlarmReminder ) + s;
+        if alarm.Status = TAlarmDiscarded then
+           s:= 'D' + s;
+        tf.writeln( [_NodeAlarm, '=', s ] );
+
+        I:= I + 1;
+     end;
+
+  except
+  end;
+end;
 
 procedure TTabNote.SaveToFile( var tf : TWTextFile );
 var
@@ -983,6 +1053,133 @@ begin
   Modified := false; // triggers SetModified
 
 end; // SaveDartNotesFormat
+
+function TTabNote.HasAlarms(considerDiscarded: boolean): boolean;
+begin
+    Result:= AlarmManager.HasAlarms(Self, nil, considerDiscarded);
+end;
+
+function TTabNote.GetAlarms(considerDiscarded: boolean): TList;
+begin
+   Result:= AlarmManager.GetAlarms(Self, nil, considerDiscarded);
+end;
+
+
+(*
+Format of the serialized alarm:  NA=[D]Reminder[/Expiration][*Format][|subject]
+Ej: NA=D10-06-2010 08:00:00/10-06-2010 07:55:00*B100/1200|Comment to the alarm
+
+[] => optional
+D: Discarded
+Expiration or Reminder: DD-MM-YYYY HH:MM:SS
+Format: BoldFormatFontColor/BackColor
+BoldFormat: B or N   (Bold or Normal)
+FontColor - BackColor: number (TColor)
+subject: unicode text
+
+*)
+procedure TTabNote.ProcessAlarm (s: WideString; node: TNoteNode = nil);
+var
+    alarm: TAlarm;
+    p, p2: integer;
+    format: string;
+begin
+   try
+
+      alarm:= TAlarm.Create;
+
+      p := Pos( '|', s );
+      if ( p > 0 ) then begin
+          alarm.AlarmNote:= WideStringReplace(TryUTF8ToWideString(copy(s, p+1, length(s))), 'ªª', #13#10, [rfReplaceAll]);
+          delete( s, p, length(s));
+      end;
+
+      p := Pos( '*', s );
+      if ( p > 0 ) then begin
+          format:= copy(s, p+1, length(s));
+          if format[1] = 'B' then
+             alarm.Bold:= true;
+          p2 := Pos( '/', format );
+          alarm.FontColor := StrToInt(copy(format, 2, p2-2));
+          alarm.BackColor := StrToInt(copy(format, p2+1, length(format)));
+          delete( s, p, length(s));
+      end;
+
+      p := Pos( '/', s );
+      if ( p > 0 ) then begin
+          alarm.ExpirationDate:= strtodatetime(copy(s, p+1, length(s)));
+          delete( s, p, length(s));
+      end;
+      if s[1] = 'D' then begin
+         alarm.Status := TAlarmDiscarded;
+         s:= Copy(s,2,MaxInt)
+      end;
+      alarm.AlarmReminder:= strtodatetime(s);
+      if p <= 0  then
+         alarm.ExpirationDate:= 0;
+
+      alarm.node:= node;
+      alarm.note:= Self;
+
+      FAuxiliarAlarmList.Add(alarm);
+
+   except
+   end;
+end;
+
+procedure TTabNote.AddProcessedAlarms ();
+var
+  I: Integer;
+  alarm: TAlarm;
+begin
+   if not assigned(FAuxiliarAlarmList) then exit;
+   I:= 0;
+   while I <= FAuxiliarAlarmList.Count - 1 do begin
+      alarm:= TAlarm(FAuxiliarAlarmList[i]);
+      AlarmManager.AddAlarm(alarm);
+      I:= I + 1;
+   end;
+
+   FAuxiliarAlarmList.Clear;
+end;
+
+procedure TTabNote.AddProcessedAlarmsOfNote (newNote: TTabNote);
+var
+  I: Integer;
+  alarm: TAlarm;
+begin
+   if not assigned(FAuxiliarAlarmList) then exit;
+
+   I:= 0;
+   while I <= FAuxiliarAlarmList.Count - 1 do begin
+      alarm:= TAlarm(FAuxiliarAlarmList[i]);
+      if (alarm.note = Self) and (alarm.node= nil) then begin
+         alarm.note := newNote;
+         AlarmManager.AddAlarm(alarm);
+      end;
+      I:= I + 1;
+   end;
+end;
+
+procedure TTabNote.AddProcessedAlarmsOfNode (node: TNoteNode; newNote: TTabNote; newNode: TNoteNode);
+var
+  I: Integer;
+  alarm: TAlarm;
+begin
+   if not assigned(FAuxiliarAlarmList) then exit;
+
+   I:= 0;
+   while I <= FAuxiliarAlarmList.Count - 1 do begin
+      alarm:= TAlarm(FAuxiliarAlarmList[i]);
+      if (alarm.note = Self) and (alarm.node = node) then begin
+         alarm.note := newNote;
+         alarm.node := newNode;
+         AlarmManager.AddAlarm(alarm);
+      end;
+      I:= I + 1;
+   end;
+end;
+
 
 procedure TTabNote.LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean );
 var
@@ -1208,7 +1405,12 @@ begin
       if ( key = _URLDetect ) then
       begin
         FURLDetect := ( s = BOOLEANSTR[true] );
+      end
+      else if ( key = _NodeAlarm ) then
+      begin
+         ProcessAlarm(s);
       end;
+
     end; // eof( tf )
 
     if ( List.Count > 0 ) then
@@ -2060,7 +2262,6 @@ var
   nodessaved, NodeCnt, NodeIdx : integer;
   wasmismatch : boolean;
   HaveVCLControls : boolean;
-  s: wideString;
   // bakFN : string;
 begin
   HaveVCLControls := CheckTree;
@@ -2157,14 +2358,9 @@ begin
         tf.writeln( [_NodeBGColor, '=', ColorToString( noteNode.NodeBGColor )] );
       if noteNode.HasNodeFontFace then
         tf.writeln( [_NodeFontFace, '=', noteNode.NodeFontFace ] );
-      if noteNode.AlarmReminderF <> 0 then begin                                  // [dpv*]
-         s:= '';
-         if noteNode.AlarmReminderF <> noteNode.ExpirationDateF then
-            s:= '/' + FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.AlarmReminderF );
-         if noteNode.AlarmNote <> '' then
-            s:= s + '|' + WideStringReplace(noteNode.AlarmNote, #13#10, 'ªª', [rfReplaceAll]);
-         tf.writeln( [_NodeAlarm, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, noteNode.ExpirationDateF ), s ] );
-      end;
+
+      if (NoteNode.VirtualMode <> vmKNTNode) and (noteNode.HasAlarms(true)) then
+          SaveAlarms(tf, noteNode);
 
       if ( _SAVE_RESTORE_CARETPOS and ( notenode.SelStart > 0 )) then
         tf.writeln( [_NodeSelStart, '=', notenode.SelStart ] );
@@ -2292,425 +2488,422 @@ begin
   try
     while ( not tf.eof()) do
     begin
-      s:= tf.readln();
+          s:= tf.readln();
 
-      if ( s = _NF_RTF ) then
-      begin
-        // RTF data begins
-        InRichText := true;
-        continue;
-      end;
-      if ( s = _NF_TRN ) then
-      begin
-        // new NoteNode begins
-        if ( InNoteNode ) then AddNewNode; // we were here previously, i.e. there a node to be added
-        InNoteNode := true;
-        // create a new blank node
-        myNode := TNoteNode.Create;
-        myNode.RTFBGColor := EditorCHrome.BGColor;
-        continue;
-      end;
-      if ( s = _NF_TabNote ) then
-      begin
-        _NEW_NOTE_KIND := ntRTF;
-        if assigned( myNode ) then AddNewNode;
-        break; // New TabNote begins
-      end;
-      if ( s = _NF_TreeNote ) then
-      begin
-        _NEW_NOTE_KIND := ntTree;
-        if ( myNode <> nil ) then
-          AddNewNode;
-        break; // New TreeNote begins
-      end;
-      if ( s = _NF_EOF ) then
-      begin
-        FileExhausted := true;
-        if assigned( myNode ) then AddNewNode;
-        break; // END OF FILE
-      end;
-
-      if InRichText then
-      begin
-        { can only be TRUE if the file uses the new "LI-less" format,
-          because we got the _NF_EOH token, above. Old format doesn't
-          have this token, so InRichText is never true }
-        if FPlainText then
-          delete( s, 1, 1 ); // strip _NF_PLAINTEXTLEADER
-        List.Add( s );
-        continue;
-      end;
-
-      p := pos( '=', s );
-      if ( p <> 3 ) then continue; // not a valid key=value format
-      key := copy( s, 1, 2 );
-      delete( s, 1, 3 );
-
-      if InNoteNode then
-      begin
-        if ( key = _NodeName ) then
-        begin
-          myNode.Name := TryUTF8ToWideString(s);
-        end
-        else
-        if ( key = _NodeID ) then
-        begin
-          try
-            myNode.ID := strtoint( s );
-          except
-            myNode.ID := 0;
+          if ( s = _NF_RTF ) then
+          begin
+            // RTF data begins
+            InRichText := true;
+            continue;
           end;
-        end
-        else
-        if ( key = _NodeLevel ) then
-        begin
-          try
-            myNode.Level := StrToInt( s );
-          except
-            myNode.Level := 0;
+          if ( s = _NF_TRN ) then
+          begin
+            // new NoteNode begins
+            if ( InNoteNode ) then AddNewNode; // we were here previously, i.e. there a node to be added
+            InNoteNode := true;
+            // create a new blank node
+            myNode := TNoteNode.Create;
+            myNode.RTFBGColor := EditorCHrome.BGColor;
+            continue;
           end;
-        end
-        else
-        if ( key = _NodeFlags ) then
-        begin
-          myNode.FlagsStringToProperties( s );
-        end
-        else
-        if ( key = _NodeRTFBGColor ) then
-        begin
-          try
-            myNode.RTFBGColor := StringToColor( s );
-          except
+          if ( s = _NF_TabNote ) then
+          begin
+            _NEW_NOTE_KIND := ntRTF;
+            if assigned( myNode ) then AddNewNode;
+            break; // New TabNote begins
           end;
-        end
-        else
-        if ( key = _VirtualNode ) then
-        begin
-          myNode.MirrorNodeID := TryUTF8ToWideString(s);
-        end
-        else
-        if ( key = _RelativeVirtualFN ) then
-        begin
-          myNode.RelativeVirtualFN := TryUTF8ToWideString(s);
-        end
-        else
-        if ( key = _VirtualFN ) then
-        begin
-          myNode.VirtualFN := TryUTF8ToWideString(s);
-          try
-            myNode.LoadVirtualFile;
-          except
-            on E : Exception do
-            begin
-              List.Add( STR_10 );
-              List.Add( myNode.VirtualFN );
-              List.Add( E.Message );
-              myNode.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + myNode.VirtualFN;
+          if ( s = _NF_TreeNote ) then
+          begin
+            _NEW_NOTE_KIND := ntTree;
+            if ( myNode <> nil ) then
+              AddNewNode;
+            break; // New TreeNote begins
+          end;
+          if ( s = _NF_EOF ) then
+          begin
+            FileExhausted := true;
+            if assigned( myNode ) then AddNewNode;
+            break; // END OF FILE
+          end;
+
+
+          if InRichText then
+          begin
+            { can only be TRUE if the file uses the new "LI-less" format,
+              because we got the _NF_EOH token, above. Old format doesn't
+              have this token, so InRichText is never true }
+            if FPlainText then
+              delete( s, 1, 1 ); // strip _NF_PLAINTEXTLEADER
+            List.Add( s );
+            continue;
+          end;
+
+
+          p := pos( '=', s );
+          if ( p <> 3 ) then continue; // not a valid key=value format
+          key := copy( s, 1, 2 );
+          delete( s, 1, 3 );
+
+          if InNoteNode then
+          begin
+                if ( key = _NodeName ) then
+                begin
+                  myNode.Name := TryUTF8ToWideString(s);
+                end
+                else
+                if ( key = _NodeID ) then
+                begin
+                  try
+                    myNode.ID := strtoint( s );
+                  except
+                    myNode.ID := 0;
+                  end;
+                end
+                else
+                if ( key = _NodeLevel ) then
+                begin
+                  try
+                    myNode.Level := StrToInt( s );
+                  except
+                    myNode.Level := 0;
+                  end;
+                end
+                else
+                if ( key = _NodeFlags ) then
+                begin
+                  myNode.FlagsStringToProperties( s );
+                end
+                else
+                if ( key = _NodeRTFBGColor ) then
+                begin
+                  try
+                    myNode.RTFBGColor := StringToColor( s );
+                  except
+                  end;
+                end
+                else
+                if ( key = _VirtualNode ) then
+                begin
+                  myNode.MirrorNodeID := TryUTF8ToWideString(s);
+                end
+                else
+                if ( key = _RelativeVirtualFN ) then
+                begin
+                  myNode.RelativeVirtualFN := TryUTF8ToWideString(s);
+                end
+                else
+                if ( key = _VirtualFN ) then
+                begin
+                  myNode.VirtualFN := TryUTF8ToWideString(s);
+                  try
+                    myNode.LoadVirtualFile;
+                  except
+                    on E : Exception do
+                    begin
+                      List.Add( STR_10 );
+                      List.Add( myNode.VirtualFN );
+                      List.Add( E.Message );
+                      myNode.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + myNode.VirtualFN;
+                    end;
+                  end;
+                end
+                else
+                if ( key = _NodeSelStart ) then
+                begin
+                  try
+                    if _SAVE_RESTORE_CARETPOS then
+                      myNode.SelStart := StrToInt( s )
+                    else
+                      myNode.SelStart := 0;
+                  except
+                    myNode.SelStart := 0;
+                  end;
+                end
+                else
+                if ( key = _NodeImageIndex ) then
+                begin
+                  try
+                    myNode.ImageIndex := StrToInt( s );
+                  except
+                    myNode.ImageIndex := -1;
+                  end;
+                end
+                else
+                if ( key = _NodeColor ) then
+                begin
+                  try
+                    myNode.NodeColor := StringToColor( s );
+                  except
+                    myNode.HasNodeColor := false;
+                  end;
+                end
+                else
+                if ( key = _NodeBGColor ) then
+                begin
+                  try
+                    myNode.NodeBGColor := StringToColor( s );
+                  except
+                    myNode.HasNodeBGColor := false;
+                  end;
+                end
+                else
+                if ( key = _NodeFontFace ) then
+                begin
+                  myNode.NodeFontFace := s;
+                end
+                else
+                if ( key = _NodeAlarm ) then      // [dpv*]
+                begin
+                    ProcessAlarm(s, myNode);
+                end;
+                continue;
+          end; // if InNoteNode ...
+
+
+          if ( key = _SelectedNode ) then
+          begin
+              try
+                FOldSelectedIndex := StrToInt( s );
+              except
+                FOldSelectedIndex := -1;
+              end;
+          end
+          else
+          if ( key = _TreeWidth ) then
+          begin
+              try
+                FTreeWidth := StrToInt( s );
+              except
+                FTreeWidth := 0;
+              end;
+          end
+          else
+          if ( key = _DefaultNodeName ) then
+          begin
+              if ( s <> '' ) then
+                 FDefaultNodeName := TryUTF8ToWideString(s);
+          end
+          else
+          if ( key = _CHTRBGColor ) then
+          begin
+              try
+                FTreeChrome.BGColor := StringToColor( s );
+              except
+              end;
+          end
+          else
+          if ( key = _CHTRFontCharset ) then
+          begin
+              try
+                FTreeChrome.Font.Charset := StrToInt( s );
+              except
+                FTreeChrome.Font.Charset := DEFAULT_CHARSET;
+              end;
+          end
+          else
+          if ( key = _CHTRFontColor ) then
+          begin
+              FTreeChrome.Font.Color := StringToColor( s );
+          end
+          else
+          if ( key = _CHTRFontName ) then
+          begin
+              FTreeChrome.Font.Name := s;
+          end
+          else
+          if ( key = _CHTRFontSize ) then
+          begin
+              try
+                FTreeChrome.Font.Size := strtoint( s );
+              except
+                FTreeChrome.Font.Size := 10;
+              end;
+          end
+          else
+          if ( key = _CHTRFontStyle ) then
+          begin
+              FTreeChrome.Font.Style := StrToFontStyle( s );
+          end
+          else
+          if ( key = _CHBGColor ) then
+          begin
+              try
+                FEditorChrome.BGColor := StringToColor( s );
+              except
+              end;
+          end
+          else
+          if ( key = _CHFontCharset ) then
+          begin
+              try
+                FEditorChrome.Font.Charset := StrToInt( s );
+              except
+                FEditorChrome.Font.Charset := DEFAULT_CHARSET;
+              end;
+          end
+          else
+          if ( key = _CHFontColor ) then
+          begin
+              FEditorChrome.Font.Color := StringToColor( s );
+          end
+          else
+          if ( key = _CHFontName ) then
+          begin
+              FEditorChrome.Font.Name := s;
+          end
+          else
+          if ( key = _CHFontSize ) then
+          begin
+              try
+                FEditorChrome.Font.Size := strtoint( s );
+              except
+                FEditorChrome.Font.Size := 10;
+              end;
+          end
+          else
+          if ( key = _CHFontStyle ) then
+          begin
+              FEditorChrome.Font.Style := StrToFontStyle( s );
+          end
+          else
+          if ( key = _CHLanguage ) then
+          begin
+              try
+                FEditorChrome.Language := strtoint( s );
+              except
+              end;
+          end
+          else
+          if ( key = _DateCreated ) then
+          begin
+              try
+                FDateCreated := strtodatetime( s );
+              except
+                FDateCreated := now;
+              end;
+          end
+          else
+          if ( key = _ImageIndex ) then
+          begin
+              try
+                FImageIndex := strtoint( s );
+              except
+                FImageIndex := 0;
+              end;
+          end
+          else
+          {
+          if ( key = _Info ) then
+          begin
+            try
+              FInfo := strtoint( s );
+            except
+              FInfo := 0;
             end;
-          end;
-        end
-        else
-        if ( key = _NodeSelStart ) then
-        begin
-          try
-            if _SAVE_RESTORE_CARETPOS then
-              myNode.SelStart := StrToInt( s )
-            else
-              myNode.SelStart := 0;
-          except
-            myNode.SelStart := 0;
-          end;
-        end
-        else
-        if ( key = _NodeImageIndex ) then
-        begin
-          try
-            myNode.ImageIndex := StrToInt( s );
-          except
-            myNode.ImageIndex := -1;
-          end;
-        end
-        else
-        if ( key = _NodeColor ) then
-        begin
-          try
-            myNode.NodeColor := StringToColor( s );
-          except
-            myNode.HasNodeColor := false;
-          end;
-        end
-        else
-        if ( key = _NodeBGColor ) then
-        begin
-          try
-            myNode.NodeBGColor := StringToColor( s );
-          except
-            myNode.HasNodeBGColor := false;
-          end;
-        end
-        else
-        if ( key = _NodeFontFace ) then
-        begin
-          myNode.NodeFontFace := s;
-        end
-        else
-        if ( key = _NodeAlarm ) then      // [dpv*]
-        begin
-          p := Pos( '|', s );
-          if ( p > 0 ) then begin
-              myNode.AlarmNote:= WideStringReplace(TryUTF8ToWideString(copy(s, p+1, length(s))), 'ªª', #13#10, [rfReplaceAll]);
-              delete( s, p, length(s));
-          end;
-          p := Pos( '/', s );
-          if ( p > 0 ) then begin
-              myNode.AlarmReminder:= strtodatetime(copy(s, p+1, length(s)));
-              delete( s, p, length(s));
-          end;
-          myNode.ExpirationDate:= strtodatetime(s);
-          if p <= 0  then
-             myNode.AlarmReminder:= myNode.ExpirationDate;
-        end;
-        continue;
-      end;
+          end
+          else
+          }
+          if ( key = _LineCount ) then
+          begin
+              try
+                linecount := strtoint( s );
+              except
+                linecount := DEFAULT_CAPACITY;
+              end;
+              if ( List.Capacity < linecount ) then
+                List.Capacity := succ( linecount );
+          end
+          else
+          if ( key = _NoteName ) then
+          begin
+              FName := TryUTF8ToWideString(s);
+          end
+          else
+          if ( key = _NoteID ) then
+          begin
+              try
+                FID := strtoint( s );
+              except
+                FID := 0; // owning file will generate new ID when note is added
+              end;
+          end
+          else
+          if ( key = _Flags ) then
+          begin
+              FlagsStringToProperties( s );
+          end
+          else
+          if ( key = _PosX ) then
+          begin
+              try
+                FCaretPos.X := strtoint( s );
+              except
+                FCaretPos.X := 0;
+              end;
+          end
+          else
+          if ( key = _POSY ) then
+          begin
+              try
+                FCaretPos.Y := strtoint( s );
+              except
+                FCaretPos.Y := 0;
+              end;
+          end
+          else
+          if ( key = _TabIndex ) then
+          begin
+              try
+                FTabIndex := strtoint( s );
+              except
+                FTabIndex := 0;
+              end;
+          end
+          else
+          if ( key = _TabSize ) then
+          begin
+              try
+                FTabSize := strtoint( s );
+              except
+                FTabSize := DEF_TAB_SIZE;
+              end;
 
-      if ( key = _SelectedNode ) then
-      begin
-        try
-          FOldSelectedIndex := StrToInt( s );
-        except
-          FOldSelectedIndex := -1;
-        end;
-      end
-      else
-      if ( key = _TreeWidth ) then
-      begin
-        try
-          FTreeWidth := StrToInt( s );
-        except
-          FTreeWidth := 0;
-        end;
-      end
-      else
-      if ( key = _DefaultNodeName ) then
-      begin
-        if ( s <> '' ) then
-          FDefaultNodeName := TryUTF8ToWideString(s);
-      end
-      else
-      if ( key = _CHTRBGColor ) then
-      begin
-        try
-          FTreeChrome.BGColor := StringToColor( s );
-        except
-        end;
-      end
-      else
-      if ( key = _CHTRFontCharset ) then
-      begin
-        try
-          FTreeChrome.Font.Charset := StrToInt( s );
-        except
-          FTreeChrome.Font.Charset := DEFAULT_CHARSET;
-        end;
-      end
-      else
-      if ( key = _CHTRFontColor ) then
-      begin
-        FTreeChrome.Font.Color := StringToColor( s );
-      end
-      else
-      if ( key = _CHTRFontName ) then
-      begin
-        FTreeChrome.Font.Name := s;
-      end
-      else
-      if ( key = _CHTRFontSize ) then
-      begin
-        try
-          FTreeChrome.Font.Size := strtoint( s );
-        except
-          FTreeChrome.Font.Size := 10;
-        end;
-      end
-      else
-      if ( key = _CHTRFontStyle ) then
-      begin
-        FTreeChrome.Font.Style := StrToFontStyle( s );
-      end
-      else
-      if ( key = _CHBGColor ) then
-      begin
-        try
-          FEditorChrome.BGColor := StringToColor( s );
-        except
-        end;
-      end
-      else
-      if ( key = _CHFontCharset ) then
-      begin
-        try
-          FEditorChrome.Font.Charset := StrToInt( s );
-        except
-          FEditorChrome.Font.Charset := DEFAULT_CHARSET;
-        end;
-      end
-      else
-      if ( key = _CHFontColor ) then
-      begin
-        FEditorChrome.Font.Color := StringToColor( s );
-      end
-      else
-      if ( key = _CHFontName ) then
-      begin
-        FEditorChrome.Font.Name := s;
-      end
-      else
-      if ( key = _CHFontSize ) then
-      begin
-        try
-          FEditorChrome.Font.Size := strtoint( s );
-        except
-          FEditorChrome.Font.Size := 10;
-        end;
-      end
-      else
-      if ( key = _CHFontStyle ) then
-      begin
-        FEditorChrome.Font.Style := StrToFontStyle( s );
-      end
-      else
-      if ( key = _CHLanguage ) then
-      begin
-        try
-          FEditorChrome.Language := strtoint( s );
-        except
-        end;
-      end
-      else
-      if ( key = _DateCreated ) then
-      begin
-        try
-          FDateCreated := strtodatetime( s );
-        except
-          FDateCreated := now;
-        end;
-      end
-      else
-      if ( key = _ImageIndex ) then
-      begin
-        try
-          FImageIndex := strtoint( s );
-        except
-          FImageIndex := 0;
-        end;
-      end
-      else
-      {
-      if ( key = _Info ) then
-      begin
-        try
-          FInfo := strtoint( s );
-        except
-          FInfo := 0;
-        end;
-      end
-      else
-      }
-      if ( key = _LineCount ) then
-      begin
-        try
-          linecount := strtoint( s );
-        except
-          linecount := DEFAULT_CAPACITY;
-        end;
-        if ( List.Capacity < linecount ) then
-          List.Capacity := succ( linecount );
-      end
-      else
-      if ( key = _NoteName ) then
-      begin
-        FName := TryUTF8ToWideString(s);
-      end
-      else
-      if ( key = _NoteID ) then
-      begin
-        try
-          FID := strtoint( s );
-        except
-          FID := 0; // owning file will generate new ID when note is added
-        end;
-      end
-      else
-      if ( key = _Flags ) then
-      begin
-        FlagsStringToProperties( s );
-      end
-      else
-      if ( key = _PosX ) then
-      begin
-        try
-          FCaretPos.X := strtoint( s );
-        except
-          FCaretPos.X := 0;
-        end;
-      end
-      else
-      if ( key = _POSY ) then
-      begin
-        try
-          FCaretPos.Y := strtoint( s );
-        except
-          FCaretPos.Y := 0;
-        end;
-      end
-      else
-      if ( key = _TabIndex ) then
-      begin
-        try
-          FTabIndex := strtoint( s );
-        except
-          FTabIndex := 0;
-        end;
-      end
-      else
-      if ( key = _TabSize ) then
-      begin
-        try
-          FTabSize := strtoint( s );
-        except
-          FTabSize := DEF_TAB_SIZE;
-        end;
-
-      // [x] REMOVE the keys below for version 1.0;
-      // these are only retained so that users of older
-      // versions do not lose important note settings.
-      // Thse properties are now stored in FlagsString
-      (*
-      end
-      else
-      if ( key = _ShowIcons ) then
-      begin
-        FShowIcons := ( s = BOOLEANSTR[true] );
-      end
-      else
-      if ( key = _WordWrap ) then
-      begin
-        FWordWrap := ( s = BOOLEANSTR[true] );
-      end
-      else
-      if ( key = _ReadOnly ) then
-      begin
-        FReadOnly := ( s = BOOLEANSTR[true] );
-      end
-      else
-      if ( key = _URLDetect ) then
-      begin
-        FURLDetect := ( s = BOOLEANSTR[true] );
-      *)
-      end;
+          // [x] REMOVE the keys below for version 1.0;
+          // these are only retained so that users of older
+          // versions do not lose important note settings.
+          // Thse properties are now stored in FlagsString
+          (*
+          end
+          else
+          if ( key = _ShowIcons ) then
+          begin
+            FShowIcons := ( s = BOOLEANSTR[true] );
+          end
+          else
+          if ( key = _WordWrap ) then
+          begin
+            FWordWrap := ( s = BOOLEANSTR[true] );
+          end
+          else
+          if ( key = _ReadOnly ) then
+          begin
+            FReadOnly := ( s = BOOLEANSTR[true] );
+          end
+          else
+          if ( key = _URLDetect ) then
+          begin
+            FURLDetect := ( s = BOOLEANSTR[true] );
+          *)
+          end
+          else
+          if ( key = _NodeAlarm ) then
+          begin
+              ProcessAlarm(s);
+          end;
 
 
     end; { while not eof( tf ) }
+
   finally
     VerifyNodeIDs;
     List.EndUpdate;
@@ -2720,8 +2913,6 @@ begin
   FModified := false;
 
 end; // LoadFromFile
-
-
 
 procedure TTreeNote.LoadFromTreePadFile( const FN : string );
 var
