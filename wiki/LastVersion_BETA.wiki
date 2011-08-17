@@ -80,3 +80,10 @@ I have uploaded a new executable (*1.7.9.2 Beta*) that includes the following is
 
   * Issue #395: Keynote NF doesn't open my file, "buffer error"
   * Issue #325: Relative paths in Links (relative to .knt file)
+
+<br><br>
+----
+*18 aug 2011:* <br>
+A new Beta is available (*1.7.9.3 Beta*) that includes the following issue:
+
+  * Issue #193: Adjustments in alarm window
