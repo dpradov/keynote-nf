@@ -968,8 +968,9 @@ begin
     begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
       if ( not ( UserBreak or Is_Replacing )) then
-//        messagedlg( WideFormat( STR_02, [Text_To_Find] ) {FindOptions.Pattern}, mtInformation, [mbOK] , 0 );
        DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
+       if assigned(Form_Find) then
+          Form_Find.SetFocus;
     end;
 
     UserBreak := false;
