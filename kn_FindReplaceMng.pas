@@ -189,6 +189,8 @@ begin
     else
     begin
       DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
+      if assigned(Form_Replace) then
+         Form_Replace.SetFocus;
     end;
   finally
     Is_Replacing := false;
@@ -970,7 +972,9 @@ begin
       if ( not ( UserBreak or Is_Replacing )) then
        DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
        if assigned(Form_Find) then
-          Form_Find.SetFocus;
+          Form_Find.SetFocus
+       else if assigned(Form_Replace) then
+          Form_Replace.SetFocus;
     end;
 
     UserBreak := false;
@@ -1179,6 +1183,8 @@ begin
   else
   begin
     DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
+    if assigned(Form_Replace) then
+       Form_Replace.SetFocus;
   end;
 
 end; // ReplaceEventProc
