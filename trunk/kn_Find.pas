@@ -72,6 +72,7 @@ type
     CB_AllTabs: TTntCheckBox;
     CB_AllNodes: TTntCheckBox;
     CB_HiddenNodes: TTntCheckBox;
+    procedure CB_EntireScopeClick(Sender: TObject);
     procedure Label1Click(Sender: TObject);
     procedure CB_AllNodesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -202,6 +203,12 @@ begin
    CB_HiddenNodes.Enabled := CB_AllNodes.Checked;
 end;
 
+procedure TForm_Find.CB_EntireScopeClick(Sender: TObject);
+begin
+    if CB_EntireScope.Checked then
+       myFindOptions.FindNew := true;
+end;
+
 procedure TForm_Find.ComboToHistory;
 var
   i : integer;
@@ -253,6 +260,7 @@ procedure TForm_Find.Combo_TextChange(Sender: TObject);
 begin
   Button_Find.Enabled := ( Combo_Text.Text <> '' );
   CB_WholeWordsOnly.Enabled := IsWord( Combo_Text.Text );
+  myFindOptions.FindNew := True;
 end;
 
 procedure TForm_Find.Button_FindClick(Sender: TObject);

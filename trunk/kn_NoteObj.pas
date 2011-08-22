@@ -286,7 +286,7 @@ type
     function FontInfoString : string;
     function ParaInfoString : string;
 
-    function GetWordAtCursorNew( const LeaveSelected : boolean ) : WideString;
+    function GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False  ) : WideString;
     function SelectWordAtCursor : string;
   end; // TTabRichEdit
 
@@ -1736,26 +1736,32 @@ begin
   end;
 end; // SelectWordAtCursor
 
-function TTabRichEdit.GetWordAtCursorNew( const LeaveSelected : boolean ) : WideString;
+(*
+  LeaveSelected = False => Preserve actual selected text
+  IgnoreActualSelection: If word at cursor is "example" and it selected "ample" then if this paremeter is set to false
+      the result will be "example" and not "ample"
+*)
+function TTabRichEdit.GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False ) : WideString;
 var
   P : TPoint;
-  OriginalSelStart, LineLen,  NewSelStart, startidx, wordlen : integer;
+  OriginalSelStart, OriginalSelLength: integer;
+  LineLen,  NewSelStart, startidx, wordlen : integer;
 
   lineWStr: WideString;
   posFirstChar: integer;
 begin
   // a better version of WordAtCursor property
 
-  if ( SelLength > 0 ) then
+  if ( SelLength > 0 ) and not IgnoreActualSelection then
   begin
     result := SelText;
-    if ( not LeaveSelected ) then
-      SelLength := 0;
     exit;
   end;
 
   OriginalSelStart := SelStart;
+  OriginalSelLength:= SelLength;
   NewSelStart := OriginalSelStart;
+  SelLength := 0;
 
   wordlen := 0;
   p := CaretPos;
@@ -1769,6 +1775,10 @@ begin
   begin
     p.x := 1; // beginning of line
     inc( NewSelStart );
+  end;
+  if (lineWStr[p.x] = ' ') or (lineWStr[p.x] = #9) then begin
+      p.x:= p.x + 1;
+      NewSelStart:= NewSelStart + 1;
   end;
   startidx := p.x;
 
@@ -1811,8 +1821,8 @@ begin
 
     if (( result = '' ) or ( not LeaveSelected )) then
     begin
-      SelLength := 0;
       SelStart := OriginalSelStart;
+      SelLength:= OriginalSelLength;
     end;
 
 end; // GetWordAtCursorNew

@@ -26,16 +26,11 @@ function RunFindNext : boolean;
 procedure RunFindAllEx;
 procedure RunReplace;
 procedure RunReplaceNext;
-function ConfirmReplace : boolean;
 procedure FindEventProc( sender : TObject );
 procedure ReplaceEventProc( ReplaceAll : boolean );
 procedure Form_FindClosed( sender : TObject );
 procedure Form_ReplaceClosed( sender : TObject );
 procedure FindResultsToEditor( const SelectedOnly : boolean );
-
-
-var
-num: integer;
 
 
 function SearchTree( var StartTreeNode : TTreeNTNode; SearchStart : integer; const SearchOpts : TRichSearchTypes ) : integer;
@@ -47,6 +42,9 @@ uses Classes, Dialogs, Forms, SysUtils, Controls, Windows,
      kn_Global, Kn_const, kn_NoteObj,
      kn_NoteMng, kn_Main, kn_NodeList, kn_Cmd, kn_VCLControlsMng,
      kn_TreeNoteMng, kn_MacroMng, kn_LinksMng, kn_NoteFileMng;
+
+var
+   ScannedTabs: integer;
 
 resourcestring
   STR_01 = 'Replace this occurrence?';
@@ -162,39 +160,12 @@ begin
 
 end; // RunReplace
 
-function ConfirmReplace : boolean;
-begin
-  result := true;
-  if FindOptions.ReplaceConfirm then
-  begin
-    result := ( messagedlg( STR_01, mtConfirmation, [mbYes,mbNo], 0 ) = mrYes );
-  end;
-end;
 
 procedure RunReplaceNext;
 begin
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
-  Is_Replacing := true;
-  Text_To_Find := FindOptions.ReplacePattern;
-  try
-    if RunFindNext then
-    begin
-      if ( ActiveNote.Editor.SelLength > 0 ) then
-      begin
-        ActiveNote.Editor.SelTextW := FindOptions.ReplaceWith;
-        NoteFile.Modified := true;
-        UpdateNoteFileState( [fscModified] );
-      end;
-    end
-    else
-    begin
-      DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
-      if assigned(Form_Replace) then
-         Form_Replace.SetFocus;
-    end;
-  finally
-    Is_Replacing := false;
-  end;
+
+  ReplaceEventProc(false);
 end; // RunReplaceNext
 
 
@@ -742,18 +713,30 @@ var
   FindDone, Found : boolean;
   PatternPos : integer;
   SearchOrigin : integer;
-  ScannedTabs, ScannedNodes, tabidx : integer;
+  ScannedNodes, tabidx : integer;
   SearchOpts : TRichSearchTypes;
+  handle: HWND;
 begin
   result := false;
   if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveNote ))) then exit;
   if ( SearchInProgress or FileIsBusy or ( Text_To_Find {FindOptions.Pattern} = '' )) then exit;
 
+  if assigned( Form_Replace ) then
+      handle:= Form_Replace.Handle
+  else if assigned( Form_Find ) then
+      handle:= Form_Find.Handle
+  else
+      handle:= 0;
+
+
+
   FindOptions.FindAllMatches := false; // only TRUE when invoked from resource panel
 
   FindDone := false;
   Found := false;
-  ScannedTabs := 0;
+  if FindOptions.FindNew then
+     ScannedTabs := 0;
+
   ScannedNodes := 0;
   PatternPos := -1;
   UserBreak := false;
@@ -970,11 +953,7 @@ begin
     begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
       if ( not ( UserBreak or Is_Replacing )) then
-       DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
-       if assigned(Form_Find) then
-          Form_Find.SetFocus
-       else if assigned(Form_Replace) then
-          Form_Replace.SetFocus;
+       DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0, handle);
     end;
 
     UserBreak := false;
@@ -1106,86 +1085,128 @@ var
   ReplaceOK : boolean;
   Original_Confirm : boolean;
   Original_EntireScope : boolean;
+  WordAtCursor: WideString;
+  SelectedTextToReplace: boolean;
+  SelectedTextLength: integer;
+  DoReplace: Boolean;
+  StartLastSelected: integer;
+  txtMessage: WideString;
+  handle: HWND;
 begin
+  if assigned( Form_Replace ) then begin
+      FindOptions := Form_Replace.MyFindOptions;
+      handle:= Form_Replace.Handle;
+  end
+  else
+      handle:= 0;
+
   ReplaceCnt := 0;
-  if ( not assigned( Form_Replace )) then exit;
-  FindOptions := Form_Replace.MyFindOptions;
   Text_To_Find := FindOptions.ReplacePattern;
   Original_Confirm := FindOptions.ReplaceConfirm;
   Original_EntireScope := FindOptions.EntireScope;
   if ReplaceAll then
-    FindOptions.EntireScope := true;
+     FindOptions.EntireScope := true;
 
   Is_Replacing := true;
-  try
-    while RunFindNext do
-    begin
-      try
-        if ( ActiveNote.Editor.SelLength > 0 ) then
-        begin
 
-          ReplaceOK := false;
-          if FindOptions.ReplaceConfirm then
-          begin
-            case messagedlg( STR_01,
-              mtConfirmation, [mbYes,mbNo,mbAll,mbCancel], 0 ) of
-              mrYes : ReplaceOK := true;
-              mrNo : ReplaceOK := false;
-              mrAll : begin
-                ReplaceOK := true;
-                FindOptions.ReplaceConfirm := false;
-              end;
-              mrCancel : begin
+  try
+    DoReplace:= True;
+
+    SelectedTextToReplace:= False;
+    if not FindOptions.FindNew then begin
+        SelectedTextLength:= ActiveNote.Editor.SelLength;
+        SelectedTextToReplace:= (SelectedTextLength > 0);
+        if SelectedTextToReplace then begin
+          if FindOptions.WholeWordsOnly then begin
+             WordAtCursor:= ActiveNote.Editor.GetWordAtCursorNew( false, true );
+             if length(WordAtCursor) <> SelectedTextLength then
+                SelectedTextToReplace:= False;
+          end;
+          if SelectedTextToReplace then
+            if FindOptions.MatchCase then
+               SelectedTextToReplace:= (ActiveNote.Editor.SelTextW = Text_To_Find)
+            else
+               SelectedTextToReplace:= WideSameText(ActiveNote.Editor.SelTextW, Text_To_Find);
+        end;
+    end;
+
+    if not SelectedTextToReplace then begin
+      SelectedTextToReplace:= RunFindNext;
+      if not ReplaceAll then
+         DoReplace:= False;
+    end;
+
+    if DoReplace then begin
+        if ReplaceAll and not FindOptions.ReplaceConfirm then
+           ActiveNote.Editor.BeginUpdate;
+
+        while SelectedTextToReplace do
+        begin
+            try
                 ReplaceOK := false;
-                ReplaceAll := false; // will break out of loop
+                if ReplaceAll and FindOptions.ReplaceConfirm then
+                    // Note: With DoMessageBox I can't show All button
+                    case messagedlg( STR_01,
+                       mtConfirmation, [mbYes,mbNo,mbAll,mbCancel], 0 ) of
+                       mrYes:  ReplaceOK := true;
+                       mrNo:   ReplaceOK := false;
+                       mrAll:  begin
+                               ReplaceOK := true;
+                               FindOptions.ReplaceConfirm := false;
+                               end;
+                       mrCancel: begin
+                               ReplaceOK := false;
+                               ReplaceAll := false; // will break out of loop
+                               end;
+                    end
+
+                else
+                    ReplaceOK := true;
+
+                if ReplaceOK then
+                begin
+                  inc( ReplaceCnt );
+                  StartLastSelected:= ActiveNote.Editor.SelStart;
+                  ActiveNote.Editor.SelTextW := FindOptions.ReplaceWith;
+                  ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + length( ActiveNote.Editor.SelTextW );
+                end;
+
+            Application.ProcessMessages;
+            if UserBreak then break;
+
+            except
+              On E : Exception do
+              begin
+                showmessage( E.Message );
+                break;
               end;
             end;
-          end
-          else
-          begin
-            ReplaceOK := true;
-          end;
+            SelectedTextToReplace:= RunFindNext;
 
-          if ReplaceOK then
-          begin
-            inc( ReplaceCnt );
-            ActiveNote.Editor.SelTextW := FindOptions.ReplaceWith;
-            ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + length( ActiveNote.Editor.SelTextW );
-          end;
+            if ( not ReplaceAll ) then break;
         end;
-
-      Application.ProcessMessages;
-      if UserBreak then break;
-
-      except
-        On E : Exception do
-        begin
-          showmessage( E.Message );
-          break;
-        end;
-      end;
-      if ( not ReplaceAll ) then break;
     end;
-    Form_Replace.SetFocus;
+
   finally
+     if ReplaceAll and not FindOptions.ReplaceConfirm then
+        ActiveNote.Editor.EndUpdate;
+
     Is_Replacing := false;
     UserBreak := false;
     FindOptions.ReplaceConfirm := Original_Confirm;
     FindOptions.EntireScope := Original_EntireScope;
   end;
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_11, [ReplaceCnt] );
-  if ( ReplaceCnt > 0 ) then
-  begin
-    NoteFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
-  end
-  else
-  begin
-    DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0);
-    if assigned(Form_Replace) then
-       Form_Replace.SetFocus;
-  end;
+  txtMessage:= WideFormat( STR_11, [ReplaceCnt] );
+  Form_Main.StatusBar.Panels[PANEL_HINT].Text := txtMessage;
+  if ( ReplaceCnt > 0 ) then begin
+     if ReplaceAll then
+        DoMessageBox(txtMessage, STR_12, 0, handle);
+     NoteFile.Modified := true;
+     UpdateNoteFileState( [fscModified] );
+     end
+  else if not SelectedTextToReplace then
+         DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0, handle);
 
 end; // ReplaceEventProc
 
