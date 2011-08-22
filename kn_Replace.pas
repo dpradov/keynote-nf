@@ -77,6 +77,7 @@ type
     Button_Replace: TTntButton;
     Button_ReplaceAll: TTntButton;
     CheckBox_Confirm: TTntCheckBox;
+    procedure CheckBox_EntireScopeClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -194,6 +195,12 @@ begin
 
 end; // HistoryToCombo
 
+procedure TForm_Replace.CheckBox_EntireScopeClick(Sender: TObject);
+begin
+    if CheckBox_EntireScope.Checked then
+       myFindOptions.FindNew := true;
+end;
+
 procedure TForm_Replace.ComboToHistory;
 var
   i : integer;
@@ -262,6 +269,7 @@ begin
   Button_ReplaceAll.Enabled := Button_Find.Enabled;
   // Button_FindPrev.Enabled := Button_Find.Enabled;
   CheckBox_WholeWordsOnly.Enabled := IsWord( Combo_Text.Text );
+  myFindOptions.FindNew := True;
 end;
 
 procedure TForm_Replace.Button_FindClick(Sender: TObject);
@@ -274,20 +282,22 @@ begin
   OK_Click := true;
 
   case ( sender as TButton ).Tag of
-    0 : begin // Find
+    0 :  // Find
       if assigned( FindEvent ) then
         FindEvent( self );
-    end;
-    1 : begin // Replace
+
+    1 :  // Replace
       if assigned( ReplaceEvent ) then
         ReplaceEvent( false );
-    end;
-    2 : begin // Replace All
-      if assigned( ReplaceEvent ) then
+
+    2 :  // Replace All
+      if assigned( ReplaceEvent ) then begin
+        myFindOptions.FindNew := True;
         ReplaceEvent( true );
-    end;
+      end;
   end;
 
+  myFindOptions.FindNew := False;
 end;
 
 procedure TForm_Replace.Button_CancelClick(Sender: TObject);
