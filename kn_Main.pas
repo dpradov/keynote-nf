@@ -107,7 +107,7 @@ uses
   kn_About,
   kn_DateTime,
   kn_Chest, kn_TabSelect,
-  kn_URL, kn_Find, kn_Replace,
+  kn_URL, FrmFindReplace,
   kn_NodeList,
   kn_StyleObj,
   kn_RTFUtils,
@@ -2351,10 +2351,8 @@ procedure TForm_Main.CloseNonModalDialogs;
 begin
   if ( Form_Chars <> nil ) then
     Form_Chars.Close;
-  if ( Form_Find <> nil ) then
-    Form_Find.Close;
-  if ( Form_Replace <> nil ) then
-    Form_Replace.Close;
+  if ( Form_FindReplace <> nil ) then
+    Form_FindReplace.Close;
 end; // CloseNonModalDialogs
 
 procedure TForm_Main.MMFileNewClick(Sender: TObject);
@@ -3900,7 +3898,7 @@ end; // MMReplaceClick
 
 procedure TForm_Main.MMFindReplaceNextClick(Sender: TObject);
 begin
-  if ( FindOptions.ReplacePattern = '' ) then
+  if ( FindOptions.Pattern = '' ) then
     RunReplace
   else
     RunReplaceNext;

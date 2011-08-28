@@ -177,7 +177,6 @@ uses
   kn_NoteObj in 'kn_NoteObj.pas',
   kn_Chest in 'kn_Chest.pas' {Chest: TDataModule},
   kn_TabSelect in 'kn_TabSelect.pas' {Form_SelectTab},
-  kn_Find in 'kn_Find.pas' {Form_Find},
   kn_URL in 'kn_URL.pas' {Form_URLAction},
   kn_filemgr in 'kn_filemgr.pas' {Form_FileMgr},
   kn_MacroCmdSelect in 'kn_MacroCmdSelect.pas' {Form_MacroCmd},
@@ -191,7 +190,6 @@ uses
   kn_ExpTermDef in 'kn_ExpTermDef.pas' {Form_TermDef},
   kn_Chars in 'kn_Chars.pas' {Form_Chars},
   kn_Paragraph in 'kn_Paragraph.pas' {Form_Para},
-  kn_Replace in 'kn_Replace.pas' {Form_Replace},
   kn_Plugins in 'kn_Plugins.pas',
   kn_PluginBase in 'kn_PluginBase.pas',
   kn_Cmd in 'kn_Cmd.pas',
@@ -241,7 +239,8 @@ uses
   uStringUtils in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uStringUtils.pas',
   uFreeLocalizer in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uFreeLocalizer.pas',
   kn_LanguagesMng in 'kn_LanguagesMng.pas',
-  kn_OptionsNew in 'kn_OptionsNew.pas' {Form_OptionsNew};
+  kn_OptionsNew in 'kn_OptionsNew.pas' {Form_OptionsNew},
+  FrmFindReplace in 'FrmFindReplace.pas' {Form_Replace};
 
 {$R *.RES}
 
