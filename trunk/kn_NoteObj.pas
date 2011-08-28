@@ -1744,7 +1744,6 @@ end; // SelectWordAtCursor
 function TTabRichEdit.GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False ) : WideString;
 var
   P : TPoint;
-  OriginalSelStart, OriginalSelLength: integer;
   LineLen,  NewSelStart, startidx, wordlen : integer;
 
   lineWStr: WideString;
@@ -1758,74 +1757,68 @@ begin
     exit;
   end;
 
-  OriginalSelStart := SelStart;
-  OriginalSelLength:= SelLength;
-  NewSelStart := OriginalSelStart;
-  SelLength := 0;
+  NewSelStart := SelStart + SelLength;
 
   wordlen := 0;
   p := CaretPos;
   LineLen := length( Lines[p.y] );
-  if ( LineLen = 0 ) then exit;
 
-  posFirstChar:= Perform( EM_LINEINDEX,p.y,0 );
-  lineWStr:= GetTextRange(posFirstChar, posFirstChar + lineLen );
+  if ( LineLen <> 0 ) then begin
 
-  if ( p.x = 0 ) then
-  begin
-    p.x := 1; // beginning of line
-    inc( NewSelStart );
-  end;
-  if (lineWStr[p.x] = ' ') or (lineWStr[p.x] = #9) then begin
-      p.x:= p.x + 1;
-      NewSelStart:= NewSelStart + 1;
-  end;
-  startidx := p.x;
+      posFirstChar:= Perform( EM_LINEINDEX,p.y,0 );
+      lineWStr:= GetTextRange(posFirstChar, posFirstChar + lineLen );
 
-  while (( startidx > 0 ) and ( startidx <= LineLen )) do
-  begin
-    if IsCharAlphaNumericW( lineWStr[startidx] ) then
-    begin
-      dec( startidx );
-      dec( NewSelStart );
-      inc( wordlen );
-    end
-    else
-      break;
-  end;
-
-  while ( p.x < LineLen ) do
-  begin
-    if IsCharAlphaNumericW( lineWStr[p.x] ) then
-    begin
-      inc( p.x );
-      inc( wordlen );
-    end
-    else
-      break;
-  end;
-
-    SelStart := NewSelStart;
-    SelLength := wordlen;
-    result := SelTextW;
-
-    if ( wordlen > 0 ) then
-    begin
-      if ( not IsCharAlphaNumericW( result[wordlen] )) then
+      if ( p.x = 0 ) then
       begin
-        dec( wordlen );
-        SelLength := SelLength -1;
-        result := SelTextW;
+        p.x := 1; // beginning of line
+        inc( NewSelStart );
       end;
-    end;
+      if (lineWStr[p.x] = ' ') or (lineWStr[p.x] = #9) then begin
+          p.x:= p.x + 1;
+          NewSelStart:= NewSelStart + 1;
+      end;
+      startidx := p.x;
 
-    if (( result = '' ) or ( not LeaveSelected )) then
-    begin
-      SelStart := OriginalSelStart;
-      SelLength:= OriginalSelLength;
-    end;
+      while (( startidx > 0 ) and ( startidx <= LineLen )) do
+      begin
+        if IsCharAlphaNumericW( lineWStr[startidx] ) then
+        begin
+          dec( startidx );
+          dec( NewSelStart );
+          inc( wordlen );
+        end
+        else
+          break;
+      end;
+
+      while ( p.x < LineLen ) do
+      begin
+        if IsCharAlphaNumericW( lineWStr[p.x] ) then
+        begin
+          inc( p.x );
+          inc( wordlen );
+        end
+        else
+          break;
+      end;
+
+      if ( wordlen > 0 ) then
+      begin
+          Result:= Copy(lineWStr,NewSelStart-posFirstChar+1,wordlen);
+          if ( not IsCharAlphaNumericW( result[wordlen] )) then begin
+              dec(wordlen);
+              SetLength(Result,wordlen);
+          end;
+          if LeaveSelected then begin
+             SelStart := NewSelStart;
+             SelLength := wordlen;
+          end;
+      end;
+
+  end;
 
 end; // GetWordAtCursorNew
+
 
 procedure TTabRichEdit.SimulateDoubleClick;
 var

@@ -697,13 +697,15 @@ type
     Pattern : WideString; // what to find
     ReplaceConfirm : boolean;
     ReplaceHistory : WideString;
-    ReplacePattern : WideString;
     ReplaceWith : WideString;
     SearchMode : TSearchMode; // for "Find all" (resource panel) ONLY
     SearchNodeNames : boolean; // for "Find all" (resource panel) ONLY
     WholeWordsOnly : boolean; // only match whole words
     WordAtCursor : boolean; // auto-select word at cursor when invoking Find dialog box
     Wrap : boolean; // when reaching bottom of active note, wrap around at search again from top
+    SelectedText: boolean;    // Restrict replacement to actual selection
+    SelectionStart: integer;  // Beginning of selection, where to limit replacement if 'Selected Text' is checked
+    SelectionEnd: integer;    // End of selection, where to limit replacement if 'Selected Text' is checked
   end;
 
 

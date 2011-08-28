@@ -41,7 +41,7 @@
 
 ************************************************************ *)
 
-unit kn_Replace;
+unit FrmFindReplace;
 
 interface
 
@@ -52,7 +52,7 @@ uses
   gf_misc, kn_Info, kn_Const,
   kn_NoteObj, kn_FileObj,
   Placemnt, kn_TabSelect,
-  gf_strings, kn_INI, TntStdCtrls;
+  gf_strings, kn_INI, TntStdCtrls, ComCtrls95;
 
 type
   //TReplaceEvent = procedure( ReplaceAll : boolean ) of object;
@@ -60,10 +60,9 @@ type
   TNotifyEvent_ = procedure(Sender: TObject);   //*1
 
 type
-  TForm_Replace = class(TForm)
+  TForm_FindReplace = class(TForm)
     Button_Find: TTntButton;
     Button_Cancel: TTntButton;
-    Label1: TTntLabel;
     Combo_Text: TTntComboBox;
     GroupBox_Opts: TTntGroupBox;
     CheckBox_MatchCase: TTntCheckBox;
@@ -72,26 +71,37 @@ type
     CheckBox_WholeWordsOnly: TTntCheckBox;
     CheckBox_AllTabs: TTntCheckBox;
     CheckBox_AllNodes: TTntCheckBox;
-    Label2: TTntLabel;
     Combo_Replace: TTntComboBox;
     Button_Replace: TTntButton;
     Button_ReplaceAll: TTntButton;
+    CheckBox_HiddenNodes: TTntCheckBox;
+    CheckBox_SelectedText: TTntCheckBox;
     CheckBox_Confirm: TTntCheckBox;
-    procedure CheckBox_EntireScopeClick(Sender: TObject);
+    CheckBox_Wrap: TTntCheckBox;
+    Pages: TPage95Control;
+    Tab_Find: TTab95Sheet;
+    Tab_Replace: TTab95Sheet;
+    TntLabel1: TTntLabel;
+    TntLabel2: TTntLabel;
+    TntLabel3: TTntLabel;
+    procedure PagesChange(Sender: TObject);
+    procedure CheckBox_AllNodesClick(Sender: TObject);
+    procedure CheckBox_ScopeChanged(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure FormKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Combo_TextChange(Sender: TObject);
     procedure Button_FindClick(Sender: TObject);
     procedure Button_CancelClick(Sender: TObject);
-    procedure Button_FindPrevClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDeactivate(Sender: TObject);
   private
     { Private declarations }
     procedure CreateParams(var Params: TCreateParams); override;
+    function GetModeReplace: boolean;
+    procedure SetModeReplace(value: boolean);
+
   public
     { Public declarations }
     OK_Click : boolean;
@@ -108,21 +118,23 @@ type
     procedure FormToOptions;
     procedure HistoryToCombo;
     procedure ComboToHistory;
+    property ModeReplace:Boolean read GetModeReplace write SetModeReplace;
   end;
 
 
 implementation
-uses WideStrUtils;
+uses WideStrUtils, kn_Global, kn_MacroMng, kn_FindReplaceMng, kn_Main;
+
 
 {$R *.DFM}
 
-procedure TForm_Replace.CreateParams(var Params: TCreateParams);
+procedure TForm_FindReplace.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);
   Params.WndParent := _MainFormHandle;
 end; // CreateParams
 
-procedure TForm_Replace.FormCreate(Sender: TObject);
+procedure TForm_FindReplace.FormCreate(Sender: TObject);
 begin
   OK_Click := false;
   Initializing := true;
@@ -140,7 +152,9 @@ begin
   InitializeFindOptions( myFindOptions );
 end; // CREATE
 
-procedure TForm_Replace.FormActivate(Sender: TObject);
+procedure TForm_FindReplace.FormActivate(Sender: TObject);
+var
+  enableReplace: boolean;
 begin
   if assigned( myNotifyProc ) then
     myNotifyProc( false );
@@ -150,18 +164,54 @@ begin
     Initializing := false;
     OptionsToForm;
     Button_Find.Enabled := ( Combo_Text.Text <> '' );
-    Button_Replace.Enabled := Button_Find.Enabled;
-    Button_ReplaceAll.Enabled := Button_Find.Enabled;
+    if IsRecordingMacro then begin     // Opciones limitadas
+       CheckBox_AllTabs.Enabled := False;
+       CheckBox_EntireScope.Enabled := False;
+       CheckBox_AllNodes.Enabled := False;
+       CheckBox_HiddenNodes.Enabled := False;
+       CheckBox_Wrap.Enabled:= False;
+       CheckBox_Confirm.Enabled := False;
+    end;
+  end
+  else begin
+      if not myFindOptions.AllTabs then
+         if (ActiveNote <> StartNote) or
+            (not myFindOptions.AllNodes) and ((ActiveNote.Kind = ntTree) and (TTreeNote(ActiveNote).TV.Selected <> StartNode)) then
+              myFindOptions.FindNew := true;
   end;
+
+  if Form_Main.NoteIsReadOnly( ActiveNote, true) then begin
+     modeReplace:= False;
+     Tab_Replace.Enabled:= False;
+  end
+  else
+     Tab_Replace.Enabled:= True;
+
+  Pages.Refresh;
+
+  enableReplace:= Tab_Replace.Enabled and Button_Find.Enabled;
+  Button_Replace.Enabled := enableReplace;
+  Button_ReplaceAll.Enabled := enableReplace;
+
+
+  myFindOptions.SelectedText:= False;
+  if ( ActiveNote.Editor.SelLength > 0 ) then begin
+      CheckBox_SelectedText.Enabled:= True;
+      myFindOptions.SelectedText:= not IsWord(Trim(ActiveNote.Editor.SelTextW));
+  end
+  else
+      CheckBox_SelectedText.Enabled:= False;
+  CheckBox_SelectedText.Checked:= myFindOptions.SelectedText;
+  
 end; // ACTIVATE
 
-procedure TForm_Replace.FormCloseQuery(Sender: TObject;
+procedure TForm_FindReplace.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   OK_Click := false;
 end; // CLOSE QUERY
 
-procedure TForm_Replace.FormKeyDown(Sender: TObject; var Key: Word;
+procedure TForm_FindReplace.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   case key of
@@ -176,7 +226,7 @@ begin
   end;
 end; // KEY DOWN
 
-procedure TForm_Replace.HistoryToCombo;
+procedure TForm_FindReplace.HistoryToCombo;
 begin
   Combo_Text.Items.BeginUpdate;
   try
@@ -193,15 +243,22 @@ begin
     Combo_Replace.Items.EndUpdate;
   end;
 
-end; // HistoryToCombo
-
-procedure TForm_Replace.CheckBox_EntireScopeClick(Sender: TObject);
-begin
-    if CheckBox_EntireScope.Checked then
-       myFindOptions.FindNew := true;
 end;
 
-procedure TForm_Replace.ComboToHistory;
+// HistoryToCombo
+
+procedure TForm_FindReplace.CheckBox_AllNodesClick(Sender: TObject);
+begin
+   CheckBox_HiddenNodes.Enabled := CheckBox_AllNodes.Checked;
+   myFindOptions.FindNew := true;
+end;
+
+procedure TForm_FindReplace.CheckBox_ScopeChanged(Sender: TObject);
+begin
+     myFindOptions.FindNew := true;
+end;
+
+procedure TForm_FindReplace.ComboToHistory;
 var
   i : integer;
 begin
@@ -228,24 +285,63 @@ begin
 
 end; // ComboToHistory
 
-procedure TForm_Replace.OptionsToForm;
+procedure TForm_FindReplace.OptionsToForm;
 begin
   HistoryToCombo;
   with myFindOptions do
   begin
-    CheckBox_AllTabs.Checked := AllTabs;
-    CheckBox_EntireScope.Checked := EntireScope;
     CheckBox_MatchCase.Checked := MatchCase;
     CheckBox_WholeWordsOnly.Checked := WholeWordsOnly;
-    CheckBox_AllNodes.Checked := AllNodes;
-    Combo_Text.Text := ReplacePattern;
+
+    Combo_Text.Text := Pattern;
     Combo_Replace.Text := ReplaceWith;
     Combo_Text.SelectAll;
-    CheckBox_Confirm.Checked := ReplaceConfirm;
-  end;
-end; // OptionsToForm
 
-procedure TForm_Replace.FormToOptions;
+    CheckBox_AllTabs.Checked := AllTabs and not IsRecordingMacro;
+    CheckBox_EntireScope.Checked := EntireScope and not IsRecordingMacro;
+    CheckBox_AllNodes.Checked := AllNodes and not IsRecordingMacro;
+    CheckBox_HiddenNodes.Checked := HiddenNodes and not IsRecordingMacro;
+    CheckBox_Wrap.Checked:= Wrap and not IsRecordingMacro;
+    CheckBox_Confirm.Checked := ReplaceConfirm and not IsRecordingMacro;
+  end;
+end;
+
+function TForm_FindReplace.GetModeReplace: boolean;
+begin
+    Result:= (Pages.ActivePage = Tab_Replace);
+end;
+
+procedure TForm_FindReplace.SetModeReplace(value: boolean);
+begin
+    if value then
+       Pages.ActivePage := Tab_Replace
+    else
+       Pages.ActivePage := Tab_Find;
+
+    PagesChange(nil);
+end;
+
+procedure TForm_FindReplace.PagesChange(Sender: TObject);
+var
+   showReplace: boolean;
+begin
+   showReplace:= modeReplace;
+
+   Button_Replace.Visible := showReplace;
+   Button_ReplaceAll.Visible := showReplace;
+   Combo_Replace.Visible := showReplace;
+   CheckBox_Confirm.Visible:= showReplace;
+   CheckBox_SelectedText.Visible:= showReplace;
+   if showReplace then
+      Caption:= Tab_Replace.Caption
+   else
+      Caption:= Tab_Find.Caption;
+
+end;
+
+// OptionsToForm
+
+procedure TForm_FindReplace.FormToOptions;
 begin
   with myFindOptions do
   begin
@@ -255,24 +351,28 @@ begin
     MatchCase := CheckBox_MatchCase.Checked;
     WholeWordsOnly := ( CheckBox_WholeWordsOnly.Enabled and CheckBox_WholeWordsOnly.Checked );
     ReplaceConfirm := CheckBox_Confirm.Checked;
-    ReplacePattern := Combo_Text.Text;
+    Pattern := Combo_Text.Text;
     ReplaceWith := Combo_Replace.Text;
-    // Wrap := false; // must not wrap while replacing, otherwise we'll loop forever
+    HiddenNodes:= CheckBox_HiddenNodes.Checked;
+    SelectedText:= CheckBox_SelectedText.Checked;
+    Wrap := CheckBox_Wrap.Checked;
   end;
   // ComboToHistory;
 end; // FormToOptions
 
-procedure TForm_Replace.Combo_TextChange(Sender: TObject);
+procedure TForm_FindReplace.Combo_TextChange(Sender: TObject);
+var
+  enableReplace: boolean;
 begin
   Button_Find.Enabled := ( Combo_Text.Text <> '' );
-  Button_Replace.Enabled := Button_Find.Enabled;
-  Button_ReplaceAll.Enabled := Button_Find.Enabled;
-  // Button_FindPrev.Enabled := Button_Find.Enabled;
+  enableReplace:= Tab_Replace.Enabled and Button_Find.Enabled;
+  Button_Replace.Enabled := enableReplace;
+  Button_ReplaceAll.Enabled := enableReplace;
   CheckBox_WholeWordsOnly.Enabled := IsWord( Combo_Text.Text );
   myFindOptions.FindNew := True;
 end;
 
-procedure TForm_Replace.Button_FindClick(Sender: TObject);
+procedure TForm_FindReplace.Button_FindClick(Sender: TObject);
 begin
   if (( Combo_Text.Text <> '' ) and ( Combo_Text.Items.IndexOf( Combo_Text.Text ) < 0 )) then
     Combo_Text.Items.Insert( 0, Combo_Text.Text );
@@ -283,12 +383,16 @@ begin
 
   case ( sender as TButton ).Tag of
     0 :  // Find
-      if assigned( FindEvent ) then
+      if assigned( FindEvent ) then begin
+        myFindOptions.SelectedText:= False;
         FindEvent( self );
+      end;
 
     1 :  // Replace
-      if assigned( ReplaceEvent ) then
+      if assigned( ReplaceEvent ) then begin
+        myFindOptions.SelectedText:= False;
         ReplaceEvent( false );
+      end;
 
     2 :  // Replace All
       if assigned( ReplaceEvent ) then begin
@@ -300,30 +404,24 @@ begin
   myFindOptions.FindNew := False;
 end;
 
-procedure TForm_Replace.Button_CancelClick(Sender: TObject);
+procedure TForm_FindReplace.Button_CancelClick(Sender: TObject);
 begin
   OK_Click := false;
   Close;
 end;
 
-procedure TForm_Replace.Button_FindPrevClick(Sender: TObject);
-begin
-  // myFindOptions.SearchDown := false;
-  OK_Click := true;
-end;
-
-procedure TForm_Replace.FormClose(Sender: TObject;
+procedure TForm_FindReplace.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
   ComboToHistory;
   if assigned( FormCloseEvent ) then
-    FormCloseEvent( self );
+     FormCloseEvent( self );
 end;
 
-procedure TForm_Replace.FormDeactivate(Sender: TObject);
+procedure TForm_FindReplace.FormDeactivate(Sender: TObject);
 begin
   if assigned( myNotifyProc ) then
-    myNotifyProc( true );
+     myNotifyProc( true );
 end;
 
 end.

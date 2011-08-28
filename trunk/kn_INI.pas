@@ -1071,7 +1071,6 @@ begin
     Pattern := '';
     ReplaceConfirm := false;
     ReplaceHistory := '';
-    ReplacePattern := '';
     ReplaceWith := '';
     SearchMode := low( SearchMode );
     SearchNodeNames := false;

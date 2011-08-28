@@ -8,7 +8,7 @@ uses
   kn_Cmd,
   kn_Info,
   kn_NoteObj, kn_FileObj,kn_NodeList,
-  kn_Find, kn_Replace,
+  FrmFindReplace,
   kn_Chars,
   kn_Macro,
   kn_LocationObj,
@@ -21,7 +21,6 @@ const
   _TIMER_INTERVAL = 10000; // ten seconds
 
    procedure InitializeKeynote (Form_Main: TForm_Main);
-   procedure CheckEmpty (var RTFAux: TRxRichEdit);
    procedure InitializeOptions;
    procedure AddSearchModes;
 
@@ -941,18 +940,5 @@ begin
 end; // SaveTicks
 
 {$ENDIF}
-
-procedure CheckEmpty (var RTFAux: TRxRichEdit);                // [dpv]  (002)
-var
-  oldParent: TWinControl;
-begin
-    if RTFAux.lines.count<>0 then begin
-       oldParent:= RTFAux.Parent;
-       RTFAux.Free;
-       RTFAux := TRxRichEdit.Create( oldParent );
-       RTFAux.Visible:= False;
-       RTFAux.Parent:= oldParent ;
-    end;
-end;
 
 end.
