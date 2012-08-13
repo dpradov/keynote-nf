@@ -52,8 +52,8 @@ resourcestring
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_VerStr   = '1.7.9.3 BETA 3';
-  Program_Version  = '1.7.9 BETA 3';  // Used in program caption
+  Program_VerStr   = '1.7.9.4 BETA 4';
+  Program_Version  = '1.7.9 BETA 4';  // Used in program caption
   Program_License  = 'Freeware / Open Source';
   {
   // these are now stored in GF_Const.pas
@@ -297,7 +297,7 @@ type
     GoToIdx : string;
     Para : TParaInfo;
     CharInfo : TCharInfo;
-    StyleName : string;
+    StyleName : WideString;
     Language : TLanguage;
   end;
 

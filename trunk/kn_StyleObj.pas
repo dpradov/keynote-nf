@@ -45,8 +45,8 @@ unit kn_StyleObj;
 
 interface
 uses Classes, Forms, RxRichEd,
-  Graphics, SysUtils, IniFiles,
-  Dialogs, gf_misc, kn_INI,
+  Graphics, SysUtils, IniFiles, WideStrings,
+  Dialogs, gf_misc, gf_files, kn_INI,
   kn_Const, kn_Info;
 
 
@@ -64,7 +64,7 @@ type
   end;
 
 var
-  StyleManager : TStringList;
+  StyleManager : TWideStringList;
 
 function SaveStyleManagerInfo( FN : string ) : boolean;
 function LoadStyleManagerInfo( FN : string ) : boolean;
@@ -175,7 +175,7 @@ end; // ClearStyleManager
 function SaveStyleManagerInfo( FN : string ) : boolean;
 var
   style : TStyle;
-  IniFile : TIniFile;
+  IniFile : TWIniFile;
   i, cnt : integer;
   section : string;
 begin
@@ -188,7 +188,7 @@ begin
 
   deletefile( FN ); // better this than removing sections one at a time
 
-  IniFile := TIniFile.Create( fn );
+  IniFile := TWIniFile.Create( fn );
   cnt := 0;
 
   try
@@ -202,7 +202,7 @@ begin
           begin
             inc( cnt );
             section := inttostr( cnt );
-            writestring( section, 'Name', Style.Name );
+            writestringW( section, 'Name', Style.Name );
             writeinteger( section, 'Range', ord( Style.Range ));
 
             if ( Style.Range in [srFont, srBoth] ) then
@@ -253,10 +253,10 @@ end; // SaveStyleManagerInfo
 
 function LoadStyleManagerInfo( FN : string ) : boolean;
 var
-  IniFile : TIniFile;
+  IniFile : TWIniFile;
   i, r : integer;
   Style : TStyle;
-  s, section : string;
+  s, section : WideString;
   sections : TStringList;
   DropStyle : boolean;
 begin
@@ -272,7 +272,7 @@ begin
 
   ClearStyleManager;   
 
-  IniFile := TIniFile.Create( fn );
+  IniFile := TWIniFile.Create( fn );
   sections := TStringList.Create;
 
   StyleManager.BeginUpdate;
@@ -286,7 +286,7 @@ begin
           try
             DropStyle := false;
             section := sections[i];
-            s := readstring( section, 'Name', '' );
+            s := readstringW( section, 'Name', '' );
             if ( s = '' ) then continue; // no style name, ignore
 
             Style := TStyle.Create;
@@ -475,7 +475,7 @@ begin
 end;
 
 Initialization
-  StyleManager := TStringList.Create;
+  StyleManager := TWideStringList.Create;
   StyleManager.Sorted := true;
   StyleManager.Duplicates := dupIgnore;
 
