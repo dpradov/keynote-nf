@@ -1149,7 +1149,7 @@ object Form_Main: TForm_Main
       OnRecreated = Toolbar_StyleRecreated
       OnRecreating = Toolbar_StyleRecreating
       object TB_Style: TToolbarButton97
-        Left = 152
+        Left = 167
         Top = 0
         Width = 38
         Height = 22
@@ -1164,18 +1164,24 @@ object Form_Main: TForm_Main
         OnClick = BtnStyleApplyClick
       end
       object ToolbarSep9717: TToolbarSep97
-        Left = 146
+        Left = 161
         Top = 0
       end
       object Combo_Style: TTntComboBox
         Left = 0
         Top = 0
-        Width = 146
+        Width = 161
         Height = 22
         HelpContext = 515
         Style = csOwnerDrawFixed
         DropDownCount = 16
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
         ItemHeight = 16
+        ParentFont = False
         PopupMenu = Menu_Style
         TabOrder = 0
         TabStop = False
@@ -1363,15 +1369,12 @@ object Form_Main: TForm_Main
         Font.Height = -12
         Font.Name = 'MS Sans Serif'
         Font.Style = []
-        PageIndex = 1
         ParentFont = False
         TabOrder = 1
         object PAGE_RES_FIND: TPage
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND'
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object List_ResFind: TTextListBox
             Left = 0
             Top = 0
@@ -1387,8 +1390,10 @@ object Form_Main: TForm_Main
             ItemHeight = 14
             ParentFont = False
             PopupMenu = Menu_FindAll
+            Style = lbOwnerDrawFixed
             TabOrder = 0
             OnDblClick = List_ResFindDblClick
+            OnDrawItem = List_ResFindDrawItem
             OnKeyDown = List_ResFindKeyDown
           end
         end
@@ -1396,6 +1401,8 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object CB_ResFind_CaseSens: TTntCheckBox
             Left = 10
             Top = 15
@@ -1515,10 +1522,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Res_RTF: TRxRichEdit
         Left = 0
         Top = 0
@@ -1551,10 +1554,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Dock_ResMacro: TDock97
         Left = 0
         Top = 0
@@ -1651,10 +1650,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ListBox_ResTpl: TGFXListBox
         Left = 0
         Top = 0
@@ -1684,10 +1679,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter_plugins: TSplitter
         Left = 0
         Top = 464
@@ -1809,10 +1800,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ListBox_ResFav: TGFXListBox
         Left = 0
         Top = 0

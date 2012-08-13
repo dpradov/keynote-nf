@@ -2668,7 +2668,7 @@ end;
 procedure TForm_Main.Combo_StyleChange(Sender: TObject);
 var
   idx : integer;
-  name : string;
+  name : WideString;
 begin
   idx := Combo_Style.ItemIndex;
   Combo_Style.Hint := '';
@@ -6874,7 +6874,7 @@ begin
     canvas.Brush.Style := bsSolid;
     canvas.FillRect( Rect );
     canvas.Brush.Style := bsClear;
-    canvas.TextRect( Rect, Rect.Left+2, Rect.Top, Items[index] );
+    TCanvasW(canvas).TextRectW( Rect, Rect.Left+2, Rect.Top, Items[index] );
   end;
 end;
 
@@ -7076,7 +7076,7 @@ var
   myIconIdx : integer;
   myOffset : integer;
   myPos : TPoint;
-  myText : string;
+  myText : wideString;
   myLen : integer;
   myRect : TRect;
   myStyle : TStyle;
@@ -7087,15 +7087,27 @@ begin
   myText := Combo_Style.Items[Index];
   myLen := length( myText );
 
+  myIconIdx := STYLE_IMAGE_BASE + ord( TStyle( StyleManager.Objects[Index] ).Range );
+  myIcon := TIcon.Create;
+  try
+      Combo_Style.Canvas.FillRect( Rect );
+      IMG_Toolbar.GetIcon( myIconIdx, myIcon );
+      myPos := Point( myOffset + 2, Rect.Top + (( Rect.Bottom - Rect.Top - IMG_Toolbar.Height) div 2));
+      DrawIconEx( Combo_Style.Canvas.Handle, myPos.X, myPos.Y, myIcon.Handle, IMG_Toolbar.Width, IMG_Toolbar.Height, 0, Combo_Style.Canvas.Brush.Handle, DI_Normal );
 
-  if KeyOptions.StyleShowSamples then
-  begin
+      inc( myOffset, myPos.X+IMG_Toolbar.Width+2 );
+
+      SetRect( myRect, myOffset, Rect.Top, Rect.Right, Rect.Bottom);
+  finally
+      myIcon.Free;
+  end;
+
+
+  if KeyOptions.StyleShowSamples then begin
     // draw style sample (only for styles which have font info)
-    // but do not draw the associated images
 
     myStyle := TStyle( StyleManager.Objects[Index] );
-    if ( myStyle.Range <> srParagraph ) then
-    begin
+    if ( myStyle.Range <> srParagraph ) then begin
       with Combo_Style.Canvas.Font do
       begin
         Name := myStyle.Font.Name;
@@ -7107,40 +7119,12 @@ begin
       end;
 
       if (( not ( odSelected in State )) and myStyle.Text.HasHighlight ) then
-        Combo_Style.Canvas.Brush.Color := myStyle.Text.Highlight;
-
+         Combo_Style.Canvas.Brush.Color := myStyle.Text.Highlight;
     end;
-
-    Combo_Style.Canvas.FillRect( Rect );
-    inc( Rect.Left, myOffset );
-
-    DrawText( Combo_Style.Canvas.Handle, PChar(myText), myLen, Rect, DT_SingleLine or DT_VCenter);
-
+    DrawTextW( Combo_Style.Canvas.Handle, PWideChar(myText), myLen, myRect, DT_SingleLine or DT_VCenter);
   end
-  else
-  begin
-    // do not draw style samples,
-    // but show style images instead
-
-    myIconIdx := STYLE_IMAGE_BASE + ord( TStyle( StyleManager.Objects[Index] ).Range );
-
-    myIcon := TIcon.Create;
-    try
-      Combo_Style.Canvas.FillRect( Rect );
-      IMG_Toolbar.GetIcon( myIconIdx, myIcon );
-      myPos := Point( myOffset + 2, Rect.Top + (( Rect.Bottom - Rect.Top - IMG_Toolbar.Height) div 2));
-      DrawIconEx( Combo_Style.Canvas.Handle, myPos.X, myPos.Y, myIcon.Handle, IMG_Toolbar.Width, IMG_Toolbar.Height, 0, Combo_Style.Canvas.Brush.Handle, DI_Normal );
-
-      inc( myOffset, myPos.X+IMG_Toolbar.Width+2 );
-
-      SetRect( myRect, myOffset, Rect.Top, Rect.Right, Rect.Bottom);
-      DrawText( Combo_Style.Canvas.Handle, PChar(myText), myLen, myRect, DT_SingleLine or DT_VCenter);
-
-    finally
-      myIcon.Free;
-    end;
-
-  end;
+  else  // do not draw style samples, but show style images instead
+      DrawTextW( Combo_Style.Canvas.Handle, PWideChar(myText), myLen, myRect, DT_SingleLine or DT_VCenter);
 end;
 
 procedure TForm_Main.DoBorder1Click(Sender: TObject);

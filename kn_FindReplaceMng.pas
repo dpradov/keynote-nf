@@ -519,13 +519,13 @@ begin
           Location := TLocation( Location_List.Objects[pred( i )] );
           if (( lastNoteID <> Location.NoteID ) or ( lastNodeID <> Location.NodeID )) then begin
               if lastTag = 1 then
-                 Location.Tag := 0
+                 lastTag := 0
               else
-                 Location.Tag := 1;
+                 lastTag := 1;
+              lastNoteID := Location.NoteID;
+              lastNodeID := Location.NodeID;
           end;
-          lastNoteID := Location.NoteID;
-          lastNodeID := Location.NodeID;
-          lastTag := Location.Tag;
+          Location.Tag := lastTag;
           Form_Main.List_ResFind.Items.AddObject(
             Location_List[pred( i )],
             Location

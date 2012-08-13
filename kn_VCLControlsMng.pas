@@ -794,7 +794,7 @@ begin
 
           // [style]
           if StyleShowSamples then
-            Combo_Style.ItemHeight := 24
+            Combo_Style.ItemHeight := 19
           else
             Combo_Style.ItemHeight := 16;
 
