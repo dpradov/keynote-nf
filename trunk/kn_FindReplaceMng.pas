@@ -43,6 +43,7 @@ uses Classes, Dialogs, Forms, SysUtils, Controls, Windows,
 
 var
    NumberFoundItems: integer;
+   EditControl: TRxRichEdit;
    RTFAux : TRxRichEdit;
 
 
@@ -169,6 +170,30 @@ begin
 end; // FindResultsToEditor
 
 
+// Preparar el editor (TTabRichEdit) al que preguntaremos por el texto buscado
+procedure PrepareEditControl(myNote: TTabNote; myTreeNode: TTreeNTNode);
+var
+    myNoteNode : TNoteNode;
+begin
+    if (myNote.Kind <> ntTree)  or ((myNote = ActiveNote) and (TTreeNote(ActiveNote).TV.Selected = myTreeNode)) then begin
+        if (myNote.Kind = ntTree) and myNote.Editor.Modified then begin
+            myNote.EditorToDataStream;
+            myNote.Editor.Modified := false;
+            myNote.Modified := true;
+        end;
+        EditControl:= myNote.Editor
+    end
+    else begin
+       // Get the actual node's object and transfer its RTF data to temp editor
+        CreateAuxiliarEditorControl;                  // Si no lo está aún.. (lazy load)
+        myNoteNode := TNoteNode( myTreeNode.Data );
+        myNoteNode.Stream.Position := 0;
+        RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
+        EditControl:= RTFAux;
+    end;
+end;
+
+
 procedure RunFindAllEx;
 var
   oldAllNodes, oldEntireScope, oldWrap : boolean;
@@ -178,7 +203,7 @@ var
   noteidx, i, MatchCount, Counter, PatternPos, PatternLen, SearchOrigin : integer;
   myNote : TTabNote;
   myTreeNode : TTreeNTNode;
-  myTNote: TTreeNote;         // [dpv]
+  myTNote: TTreeNote;
   myNoteNode : TNoteNode;
   lastNoteID, lastNodeID : integer;
   lastTag : integer;
@@ -187,29 +212,91 @@ var
   wordList : TStringList;
   wordidx, wordcnt : integer;
   MultiMatchOK : boolean;
-  ApplyFilter: boolean;         // [dpv]
-  nodeToFilter: boolean;        // [dpv]
-  nodesSelected: boolean;       // [dpv]
+  ApplyFilter: boolean;
+  nodeToFilter: boolean;
+  nodesSelected: boolean;
   oldActiveNote: TTabNote;
 
-        procedure AddLocation; // INLINE
-        var
-          path : wideString;
-        begin
-          if assigned( myTreeNode ) then
-          begin
-            if ApplyFilter and (not nodesSelected) then      // [dpv] Only once per note
+type
+   TLocationType= (lsNormal, lsNodeName, lsMultimatch);
+
+       procedure AddLocation (LocationType: TLocationType); // INLINE
+       var
+         path : wideString;
+       begin
+          Location := TLocation.Create;
+          Location.FileName := Notefile.FileName;
+          Location.NoteName := myNote.Name;
+          Location.NoteID := myNote.ID;
+
+          if assigned(myTreeNode) then begin
+             myNoteNode := TNoteNode(myTreeNode.Data);
+             Location.NodeName := myNoteNode.Name;
+             Location.NodeID := myNoteNode.ID;
+          end;
+
+          case LocationType of
+             lsNormal: begin
+                 Location.CaretPos := PatternPos;
+                 Location.SelLength := PatternLen;
+                 end;
+             lsNodeName: begin
+                 Location.CaretPos := -1; // means: text found in node name
+                 Location.SelLength := 0;
+                 end;
+             lsMultimatch: begin
+                 Location.CaretPos := 0;
+                 Location.SelLength := 0;
+                 end;
+          end;
+
+          if assigned( myTreeNode ) then begin
+            if ApplyFilter and (not nodesSelected) then     // Only once per note
                MarkAllFiltered(myTNote);           // There will be at least one node in the selection
-            nodeToFilter:= false;      // [dpv]
-            nodesSelected:= true;      // [dpv]
+            nodeToFilter:= false;
+            nodesSelected:= true;
           end;
           path := WideFormat( '%d. %s', [Counter, PathOfKNTLink(myTreeNode, myNote, location.CaretPos)] );
+          Location_List.AddObject(path, Location);
+       end;
 
-          Location_List.AddObject(
-            path,
-            Location
-          );
-        end; // AddLocation
+       procedure GetFirstNode;
+       begin
+          if myNote.Kind <> ntTree then exit;
+
+          myTreeNode := TTreeNote(myNote).TV.Items.GetFirstNode;
+          if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindOptions.HiddenNodes) then
+             myTreeNode := myTreeNode.GetNextNotHidden;
+       end;
+
+       procedure GetNextNode;
+       begin
+          if (myNote.Kind <> ntTree) or (not assigned(myTreeNode)) then exit;
+
+          if FindOptions.HiddenNodes then     // [dpv]
+             myTreeNode := myTreeNode.GetNext
+          else
+             myTreeNode := myTreeNode.GetNextNotHidden;
+       end;
+
+       procedure GetNextNote;
+       begin
+          if FindOptions.AllTabs then begin
+             inc( noteidx );
+
+             if ( noteidx >= NoteFile.NoteCount ) then
+                FindDone := true
+             else begin
+                myNote := TTabNote(Form_Main.Pages.Pages[noteidx].PrimaryObject);
+                if myNote.Kind = ntTree then
+                   GetFirstNode;
+                end;
+          end
+          else
+            FindDone := true;
+       end;
+
+
 begin
 
   if ( not Form_Main.HaveNotes( true, true )) then exit;
@@ -288,329 +375,153 @@ begin
       wordcnt := wordList.count;
 
 
+      if FindOptions.AllTabs then
+         myNote := TTabNote( Form_Main.Pages.Pages[noteidx].PrimaryObject ) // initially 0
+      else
+         myNote := ActiveNote; // will exit after one loop
+
+      if myNote.Kind = ntTree then begin
+         GetFirstNode;
+         while (not FindDone) and (not assigned(myTreeNode)) do begin
+                GetNextNote();
+                if (myNote.Kind <> ntTree) then break;
+            end;
+      end;
+
+
+      // Recorremos cada nota
       repeat
+            nodesSelected:= false; // in this note, at the moment
+            if myNote.Kind = ntTree then myTNote:= TTreeNote(myNote);
 
-        SearchOrigin := 0; // starting a new note
-        nodesSelected:= false; // [dpv] in this note, at the moment
+            // Recorremos cada nodo (si es ntTree) o el único texto (si <> ntTree)
+            repeat
+                PrepareEditControl(myNote, myTreeNode);
+                nodeToFilter:= true;                     // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
+                SearchOrigin := 0; // starting a new note
 
-        if FindOptions.AllTabs then
-          myNote := TTabNote( Form_Main.Pages.Pages[noteidx].PrimaryObject ) // initially 0
-        else
-          myNote := ActiveNote; // will exit after one loop
-
-        case myNote.Kind of
-          ntRTF : begin
-
-            myTreeNode := nil;
-            myNoteNode := nil;
-
-            case FindOptions.SearchMode of
-              smPhrase : begin
-
-                repeat
-
-                  PatternPos := myNote.Editor.FindText(
-                    FindOptions.Pattern,
-                    SearchOrigin, myNote.Editor.GetTextLen - SearchOrigin,
-                    SearchOpts
-                  );
-                  if ( PatternPos >= 0 ) then
-                  begin
-                    SearchOrigin := PatternPos + PatternLen; // move forward in text
-                    inc( Counter );
-                    Location := TLocation.Create;
-                    Location.FileName := Notefile.FileName;
-                    Location.NoteName := myNote.Name;
-                    Location.CaretPos := PatternPos;
-                    Location.SelLength := PatternLen;
-                    Location.NoteID := myNote.ID;
-                    AddLocation;
-                  end;
-
-                  Application.ProcessMessages;
-                  if UserBreak then
-                  begin
-                    FindDone := true;
-                  end;
-
-                until ( FindDone or ( PatternPos < 0 )); // repeat
-
-              end; // smPhrase
-
-              smAny, smAll : begin
-                MultiMatchOK := false;
-                for wordidx := 1 to wordcnt do
-                begin
-                  thisWord := wordList[pred( wordidx )];
-
-                  PatternPos := myNote.Editor.FindText(
-                    thisWord,
-                    0, myNote.Editor.GetTextLen,
-                    SearchOpts
-                  );
-
-                  case FindOptions.SearchMode of
-                    smAll : begin
-                      if ( PatternPos >= 0 ) then
-                      begin
-                        MultiMatchOK := true; // assume success
-                      end
-                      else
-                      begin
-                        MultiMatchOK := false;
-                        break; // note must have ALL words
-                      end;
-                    end; // smAll
-
-                    smAny : begin
-                      if ( PatternPos >= 0 ) then
-                      begin
-                        MultiMatchOK := true;
-                        break; // enough to find just 1 word
-                      end;
-                    end; // smAny
-
-                  end; // case FindOptions.SearchMode of
-
-                  Application.ProcessMessages;
-                  if UserBreak then
-                  begin
-                    FindDone := true;
-                    break;
-                  end;
-
-                end; // for wordidx
-
-                if MultiMatchOK then
-                begin
-                  inc( Counter );
-                  Location := TLocation.Create;
-                  Location.FileName := Notefile.FileName;
-                  Location.NoteName := myNote.Name;
-                  Location.CaretPos := 0;
-                  Location.SelLength := 0;
-                  Location.NoteID := myNote.ID;
-                  AddLocation;
-                end;
-
-              end; // smAny, smAll
-
-            end; // case FindOptions.SearchMode
-
-          end; // ntRTF
-
-          ntTree : begin
-            myTNote:= TTreeNote( myNote);
-            //ActiveNote.EditorToDataStream; // update node's datastream    [dpv]
-            myTNote.EditorToDataStream; // update node's datastream
-
-            myTreeNode := myTNote.TV.Items.GetFirstNode;
-            if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindOptions.HiddenNodes) then     // [dpv]
-               myTreeNode := myTreeNode.GetNextNotHidden;
-
-            while assigned( myTreeNode ) do // go through all nodes
-            begin
-              nodeToFilter:= true;      // [dpv]
-              // get this node's object and transfer
-              // its RTF data to temp editor
-              myNoteNode := TNoteNode( myTreeNode.Data );
-              myNoteNode.Stream.Position := 0;
-              RTFAux.Lines.LoadFromStream( myNoteNode.Stream );           // [dpv]  (002)
-              SearchOrigin := 0;
-
-              case FindOptions.SearchMode of
-
-                smPhrase : begin
-
-                  // look for match in node name first
-                  if FindOptions.SearchNodeNames then
-                  begin
-                    if FindOptions.MatchCase then
-                      PatternPos := pos( FindOptions.Pattern, myNoteNode.Name )
-                    else
-                      PatternPos := pos( ansilowercase( FindOptions.Pattern ), ansilowercase( myNoteNode.Name ));
-                    if ( PatternPos > 0 ) then
-                    begin
-                      inc( Counter );
-                      Location := TLocation.Create;
-                      Location.FileName := notefile.FileName;
-                      Location.NoteName := myNote.Name;
-                      Location.NodeName := myNoteNode.Name;
-                      Location.CaretPos := -1; // means: text found in node name
-                      Location.SelLength := 0;
-                      Location.NoteID := myNote.ID;
-                      Location.NodeID := myNoteNode.ID;
-                      AddLocation;
-                    end;
-                  end;
-
-                  repeat // find all matches in current node
-
-                    // search in the temp editor
-                    PatternPos := RTFAux.FindText(
-                      FindOptions.Pattern,
-                      SearchOrigin, RTFAux.GetTextLen - SearchOrigin,
-                      SearchOpts
-                    );
-
-                    if ( PatternPos >= 0 ) then
-                    begin
-                      SearchOrigin := PatternPos + PatternLen; // move forward in text
-                      inc( Counter );
-                      Location := TLocation.Create;
-                      Location.FileName := notefile.FileName;
-                      Location.NoteName := myNote.Name;
-                      Location.NodeName := myNoteNode.Name;
-                      Location.CaretPos := PatternPos;
-                      Location.SelLength := PatternLen;
-                      Location.NoteID := myNote.ID;
-                      Location.NodeID := myNoteNode.ID;
-                      AddLocation;
-                    end;
-
-                    Application.ProcessMessages;
-                    if UserBreak then
-                    begin
-                      FindDone := true;
-                    end;
-
-                  until ( FindDone or ( PatternPos < 0 )); // repeat
-
-                end; // smPhrase
-
-                smAny, smAll : begin
-
-                  MultiMatchOK := false;
-                  for wordidx := 1 to wordcnt do
-                  begin
-                    thisWord := wordList[pred( wordidx )];
-
-                    PatternPos := RTFAux.FindText(
-                      thisWord,
-                      0, RTFAux.GetTextLen,
-                      SearchOpts
-                    );
-
-                    case FindOptions.SearchMode of
-                      smAll : begin
-                        if ( PatternPos >= 0 ) then
+                case FindOptions.SearchMode of
+                    smPhrase :
                         begin
-                          MultiMatchOK := true; // assume success
-                        end
-                        else
-                        begin
-                          MultiMatchOK := false;
-                          break; // note must have ALL words
-                        end;
-                      end; // smAll
+                            // look for match in node name first (si estamos buscando dentro de una nota ntTree)
+                            if assigned(myTreeNode) and FindOptions.SearchNodeNames then
+                            begin
+                              myNoteNode := TNoteNode(myTreeNode.Data);
+                              if FindOptions.MatchCase then
+                                 PatternPos := pos( FindOptions.Pattern, myNoteNode.Name )
+                              else
+                                 PatternPos := pos( ansilowercase( FindOptions.Pattern ), ansilowercase( myNoteNode.Name ));
+                              if ( PatternPos > 0 ) then begin
+                                 inc( Counter );
+                                 AddLocation(lsNodeName);
+                              end;
+                            end;
 
-                      smAny : begin
-                        if ( PatternPos >= 0 ) then
-                        begin
-                          MultiMatchOK := true;
-                          break; // enough to find just 1 word
-                        end;
-                      end; // smAny
+                            repeat
+                               PatternPos := EditControl.FindText(
+                                 FindOptions.Pattern,
+                                 SearchOrigin, EditControl.GetTextLen - SearchOrigin,
+                                 SearchOpts
+                               );
+                               if ( PatternPos >= 0 ) then begin
+                                   SearchOrigin := PatternPos + PatternLen; // move forward in text
+                                   inc( Counter );
+                                   AddLocation(lsNormal);
+                               end;
+                               Application.ProcessMessages;
+                            until UserBreak or (PatternPos < 0);
+                          end;
 
-                    end; // case FindOptions.SearchMode of
+                    smAny, smAll :
+                      begin
+                         MultiMatchOK := false;
+                         for wordidx := 1 to wordcnt do
+                         begin
+                            thisWord := wordList[pred( wordidx )];
 
-                    Application.ProcessMessages;
-                    if UserBreak then
-                    begin
-                      FindDone := true;
-                      break;
-                    end;
+                            PatternPos := EditControl.FindText(
+                              thisWord,
+                              0, EditControl.GetTextLen,
+                              SearchOpts
+                            );
 
-                  end; // for wordidx
+                            case FindOptions.SearchMode of
+                                smAll:
+                                    if ( PatternPos >= 0 ) then
+                                       MultiMatchOK := true // assume success
+                                    else begin
+                                       MultiMatchOK := false;
+                                       break; // note must have ALL words
+                                    end;
 
-                  if MultiMatchOK then
-                  begin
-                    inc( Counter );
-                    Location := TLocation.Create;
-                    Location.FileName := notefile.FileName;
-                    Location.NoteName := myNote.Name;
-                    Location.NodeName := myNoteNode.Name;
-                    Location.CaretPos := 0;
-                    Location.SelLength := 0;
-                    Location.NoteID := myNote.ID;
-                    Location.NodeID := myNoteNode.ID;
-                    AddLocation;
-                  end;
+                                smAny:
+                                    if ( PatternPos >= 0 ) then begin
+                                       MultiMatchOK := true;
+                                       break; // enough to find just 1 word
+                                    end;
+                             end;
 
-                end; // smAny, smAll
+                            Application.ProcessMessages;
+                            if UserBreak then begin
+                               FindDone := true;
+                               break;
+                            end;
 
-              end; // case FindOptions.SearchMode
+                         end; // for wordidx
 
+                         if MultiMatchOK then begin
+                            inc( Counter );
+                            AddLocation (lsMultimatch);
+                         end;
 
-              if ApplyFilter and (not nodeToFilter) then    // [dpv]
-                 TNoteNode(myTreeNode.Data).Filtered := false;
+                      end; // smAny, smAll
 
-              if FindOptions.HiddenNodes then     // [dpv]
-                 myTreeNode := myTreeNode.GetNext
-              else
-                 myTreeNode := myTreeNode.GetNextNotHidden;
+                end; // case FindOptions.SearchMode
 
-            end; // while assigned( myTreeNode ) do
-          end; // ntTree
+                if ApplyFilter and ((myNote.Kind = ntTree) and (not nodeToFilter)) then
+                   TNoteNode(myTreeNode.Data).Filtered := false;
+                GetNextNode;
 
-        end;
-
-        if ApplyFilter and nodesSelected then begin   // [dpv]
-           Form_Main.FilterApplied(myTNote);
-           ActiveNote:= nil;      // -> TreeNodeSelected will exit doing nothing
-           HideFilteredNodes (myTNote);
-           if myTNote.HideCheckedNodes then
-              HideCheckedNodes (myTNote);
-
-           ActiveNote:= myNote;
-           myTreeNode := myTNote.TV.Items.GetFirstNode;
-           if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;
-           myTNote.TV.Selected:= nil;
-           myTNote.TV.Selected:= myTreeNode;   // force to select -> TreeNodeSelected
-           ActiveNote:= oldActiveNote;
-
-           NoteFile.Modified := true;
-           UpdateNoteFileState( [fscModified] );
-        end;
+            until UserBreak or not assigned(myTreeNode);
 
 
-        if FindOptions.AllTabs then
-        begin
-          inc( noteidx );
-          if ( noteidx >= NoteFile.NoteCount ) then
-            FindDone := true;
-        end
-        else
-        begin
-          FindDone := true;
-        end;
+            if ApplyFilter and nodesSelected then begin
+               Form_Main.FilterApplied(myTNote);
+               ActiveNote:= nil;      // -> TreeNodeSelected will exit doing nothing
+               HideFilteredNodes (myTNote);
+               ActiveNote:= myNote;
+               myTreeNode := myTNote.TV.Items.GetFirstNode;
+               if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;
+               myTNote.TV.Selected:= nil;
+               myTNote.TV.Selected:= myTreeNode;   // force to select -> TreeNodeSelected
 
-      until FindDone;
+               NoteFile.Modified := true;
+               UpdateNoteFileState( [fscModified] );
+               myTreeNode:= nil;
+            end;
+
+            while (not UserBreak) and ((not FindDone) and (not assigned(myTreeNode))) do begin
+               GetNextNote();
+               if (myNote.Kind <> ntTree) then break;
+            end;
+
+      until FindDone or UserBreak;
 
 
       MatchCount := Location_List.Count;
       if ( MatchCount > 0 ) then
       begin
-        lastNoteID := 0;
-        lastNodeID := 0;
-        lastTag := 0;
+        lastNoteID := -1;
+        lastNodeID := -1;
+        lastTag := 1;
         for i := 1 to MatchCount do
         begin
           Location := TLocation( Location_List.Objects[pred( i )] );
-          if ( i > 1 ) then
-          begin
-            if (( lastNoteID <> Location.NoteID ) or ( lastNodeID <> Location.NodeID )) then
-            begin
-              case lastTag of
-                0 : Location.Tag := 1;
-                else
-                  Location.Tag := 0;
-              end;
-            end
-            else
-            begin
-              Location.Tag := lastTag;
-            end;
+          if (( lastNoteID <> Location.NoteID ) or ( lastNodeID <> Location.NodeID )) then begin
+              if lastTag = 1 then
+                 Location.Tag := 0
+              else
+                 Location.Tag := 1;
           end;
           lastNoteID := Location.NoteID;
           lastNodeID := Location.NodeID;
@@ -620,6 +531,7 @@ begin
             Location
           );
         end;
+
         with Form_Main do
         begin
           List_ResFind.ItemIndex := 0;
@@ -632,19 +544,16 @@ begin
         end;
       end
       else
-      begin
-        DoMessageBox(WideFormat( STR_02, [FindOptions.Pattern] ), STR_12, 0);
-      end;
+         DoMessageBox(WideFormat( STR_02, [FindOptions.Pattern] ), STR_12, 0);
 
     except
       on E : Exception do
-      begin
-        messagedlg( E.Message, mtError, [mbOK], 0 );
-      end;
+         messagedlg( E.Message, mtError, [mbOK], 0 );
     end;
+
   finally
-    ActiveNote:= oldActiveNote;   // [dpv]
-    UpdateNoteDisplay;  // [dpv]
+    ActiveNote:= oldActiveNote;
+    UpdateNoteDisplay;
 
     // restore previous FindOptions settings
     Form_Main.List_ResFind.Items.EndUpdate;
@@ -665,7 +574,6 @@ function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 var
   myNote : TTabNote;
   myTreeNode : TTreeNTNode;
-  EditControl: TRxRichEdit;
   FindDone, Found : boolean;
   PatternPos : integer;
   SearchOrigin : integer;
@@ -793,32 +701,6 @@ var
   end;
 
 
-  // Preparar el editor (TTabRichEdit) al que preguntaremos por el texto buscado, con FindText
-  //
-  procedure PrepareEditControl;
-  var
-      myNoteNode : TNoteNode;
-  begin
-      if (myNote.Kind <> ntTree)  or ((myNote = ActiveNote) and (TTreeNote(ActiveNote).TV.Selected = myTreeNode)) then begin
-          if (myNote.Kind = ntTree) and myNote.Editor.Modified then begin
-              myNote.EditorToDataStream;
-              myNote.Editor.Modified := false;
-              myNote.Modified := true;
-          end;
-          EditControl:= myNote.Editor
-      end
-      else begin
-         // Get the actual node's object and transfer its RTF data to temp editor
-          CreateAuxiliarEditorControl;                  // Si no lo está aún.. (lazy load)
-          myNoteNode := TNoteNode( myTreeNode.Data );
-          myNoteNode.Stream.Position := 0;
-          RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
-          EditControl:= RTFAux;
-      end;
-  end;
-
-
-
 begin
   result := false;
   if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveNote ))) then exit;
@@ -878,7 +760,7 @@ begin
       // o incluso continuar buscando desde el punto de partida, de manera cíclica.
 
       repeat
-            PrepareEditControl;
+            PrepareEditControl(myNote, myTreeNode);
 
             PatternPos := EditControl.FindText(
               Text_To_Find,
@@ -888,8 +770,10 @@ begin
 
             if PatternPos < 0 then begin
                GetNextNode;                 // Podrá actualizar FindDone
-               if (not FindDone) and (not assigned(myTreeNode)) then
-                  GetNextNote()
+               while (not FindDone) and (not assigned(myTreeNode)) do begin
+                   GetNextNote();
+                   if (myNote.Kind <> ntTree) then break;
+               end;
             end;
             Application.ProcessMessages;    // Para permitir que el usuario cancele (UserBreak)
 
