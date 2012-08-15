@@ -934,6 +934,7 @@ var
   textURLposIni, textURLposFin: Integer;
   ShiftWasDown, AltWasDown, CtrlWasDown : boolean;
   usesHyperlinkCmd: boolean;
+  URLaux : wideString;
 
   path: wideString;
   Location: TLocation;
@@ -1034,11 +1035,13 @@ begin
         {2}
         if KeyOptions.URLFileDecodeSpaces then
         begin
-          myURL := HTTPDecode( myURL );
-
-          {3}
-          if ( KeyOptions.URLFileQuoteSpaces and ( pos( #32, myURL ) > 0 )) then
-            myURL := '"' + myURL + '"';
+          URLaux := HTTPDecode( myURL );
+          if KNTlocation or WideFileExists( GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URLaux)) then begin
+             myURL:= URLaux;
+             {3}
+             if ( KeyOptions.URLFileQuoteSpaces and ( pos( #32, myURL ) > 0 )) then
+               myURL := '"' + myURL + '"';
+          end;
         end;
 
         if ( myURLAction in [urlAsk] ) then
