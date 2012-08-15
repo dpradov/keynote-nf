@@ -392,7 +392,7 @@ type
     procedure CMColorChanged(var Message: TMessage); message CM_COLORCHANGED;
     procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
     procedure CNNotify(var Message: TWMNotify); message CN_NOTIFY;
-    procedure EMReplaceSel(var Message: TMessage); message EM_REPLACESEL;
+//    procedure EMReplaceSel(var Message: TMessage); message EM_REPLACESEL;
     procedure WMDestroy(var Msg: TWMDestroy); message WM_DESTROY;
     procedure WMMouseMove(var Message: TMessage); message WM_MOUSEMOVE;
     procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
@@ -4104,6 +4104,7 @@ procedure TRxCustomRichEdit.SetSelText(const Value: string);
 var
   len: integer;
   rg: TCharRange;
+  allowUNDO: integer;
 begin
   // Before adapting to UNICODE (with the call to CustomCreateWindowHandle), the
   // message EM_REPLACESEL kept the new text selected, and din't treat ok unicode
@@ -4113,11 +4114,20 @@ begin
   // the original behaviour. Now the replacement of selected text with unicode works ok.
   // This occur with SendMessage and with SendMessageW
 
-  rg:= GetSelection;
-  SendMessage(Handle, EM_REPLACESEL, 0, Longint(PChar(Value)));
+  if (FUndoLimit > 1) and (RichEditVersion >= 2) and not FLinesUpdating then
+     allowUNDO := 1 { allow Undo }
+  else
+     allowUNDO := 0;
 
-  len:= length(value);
-  SetSelection(rg.cpMin, rg.cpMin+len, true);
+  if not FLinesUpdating then
+     rg:= GetSelection;
+
+  SendMessage(Handle, EM_REPLACESEL, allowUNDO, Longint(PChar(Value)));
+
+  if not FLinesUpdating then begin
+     len:= length(value);
+     SetSelection(rg.cpMin, rg.cpMin+len, true);
+  end;
 end;
 
 function TRxCustomRichEdit.GetSelTextW: WideString;
@@ -4130,13 +4140,24 @@ procedure TRxCustomRichEdit.SetSelTextW(const Value: WideString);
 var
   len: integer;
   rg: TCharRange;
+  allowUNDO: integer;
 begin
   // See the comment to TRxCustomRichEdit.SetSelText
-  rg:= GetSelection;
-  SendMessageW(Handle, EM_REPLACESEL, 0, Longint(PWideChar(Value)));
+  if (FUndoLimit > 1) and (RichEditVersion >= 2) and not FLinesUpdating then
+     allowUNDO := 1 { allow Undo }
+  else
+     allowUNDO := 0;
 
-  len:= length(value);
-  SetSelection(rg.cpMin, rg.cpMin+len, true);
+  if not FLinesUpdating then
+     rg:= GetSelection;
+
+  SendMessageW(Handle, EM_REPLACESEL, allowUNDO, Longint(PWideChar(Value)));
+
+  if not FLinesUpdating then begin
+     len:= length(value);
+     SetSelection(rg.cpMin, rg.cpMin+len, true);
+  end;
+
 end;
 
 {$ENDIF RX_D3}
@@ -4530,6 +4551,7 @@ begin
   SendMessage(Handle, EM_SETBKGNDCOLOR, 0, ColorToRGB(Color))
 end;
 
+(*
 procedure TRxCustomRichEdit.EMReplaceSel(var Message: TMessage);
 var
   CharRange: TCharRange;
@@ -4545,6 +4567,7 @@ begin
     Perform(EM_SCROLLCARET, 0, 0);
   end;
 end;
+*)
 
 procedure TRxCustomRichEdit.SetRichEditStrings(Value: TStrings);
 begin

@@ -1,5 +1,7 @@
 unit kn_Global;
 
+{.$DEFINE MJ_DEBUG}
+
 interface
 uses
   Windows, SysUtils, Dialogs,
@@ -14,6 +16,9 @@ uses
   kn_LocationObj,
   kn_Main,
   RichPrint,
+  {$IFDEF MJ_DEBUG}
+  GFLog,
+  {$ENDIF}
   kn_AlertMng;   // [dpv]
 
 
@@ -611,7 +616,7 @@ begin
       {$ENDIF}
 
       {$IFDEF MJ_DEBUG}
-      Log := TGFLog.Create( self );
+      Log := TGFLog.Create( Form_Main );
       with Log do
       begin
         FileName := LOG_FN;
