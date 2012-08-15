@@ -2,7 +2,7 @@ unit kn_LinksMng;
 
 interface
 uses
-  Controls, kn_LocationObj, RichEdit, TreeNT, kn_NoteObj;
+  Controls, kn_LocationObj, RichEdit, TreeNT, kn_NoteObj, kn_const;
 
    // Links related routines
     procedure InsertFileOrLink( const aFileName : wideString; const AsLink : boolean );
@@ -25,11 +25,13 @@ uses
     procedure NavigateInHistory( const GoForward : boolean );
     procedure UpdateHistoryCommands;
 
+    function TypeURL (var URLText: wideString; var KNTlocation: boolean): TKntURL;
+
 implementation
 uses
     Windows, Classes, Forms, SysUtils, Dialogs, StdCtrls, ShellApi, StrUtils,
     gf_misc, gf_miscvcl, gf_files, RxRichEd, kn_TreeNoteMng, kn_History, kn_FindReplaceMng,
-    kn_Global, kn_Main, kn_Info, kn_Const, kn_URL, kn_RTFUtils, kn_NoteFileMng,
+    kn_Global, kn_Main, kn_Info, kn_URL, kn_RTFUtils, kn_NoteFileMng,
     kn_NodeList, kn_clipUtils, TntSysUtils, TntSystem;
 
 resourcestring
@@ -708,9 +710,11 @@ var
    URLType, KntURL: TKNTURL;
    URLPos : integer; // position at which the actual URL starts in URLText
    URLTextLower: wideString;
+   URLaux, URLaux2: wideString;
 begin
   // determine where URL address starts in URLText
   URLType := urlFile;
+
   URLTextLower:= WideLowerCase(URLText);
   for KntURL := low( KntURL ) to high( KntURL ) do
   begin
@@ -738,10 +742,34 @@ begin
           URLType := urlFile;
 
 
-  if (URLType = urlFile) and (( pos( KNTLOCATION_MARK_NEW, URLText ) > 0 ) or ( pos( KNTLOCATION_MARK_OLD, URLText ) > 0 )) then
-      KNTlocation:= True
-  else
-      KNTlocation:= False;
+  if (URLType = urlFile) then
+      if (( pos( KNTLOCATION_MARK_NEW, URLText ) > 0 ) or ( pos( KNTLOCATION_MARK_OLD, URLText ) > 0 )) then
+          KNTlocation:= True
+
+      else begin
+          KNTlocation:= False;
+          URLaux:= URLText;
+          // various fixes, mostly with XP in mind:
+          {1}
+          if KeyOptions.URLFileNoPrefix then
+             URLaux := StripFileURLPrefix( URLaux );
+
+          {2}
+          if KeyOptions.URLFileDecodeSpaces then begin
+            URLaux2 := HTTPDecode(URLaux);
+            if WideFileExists( GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URLaux2)) then begin
+               URLaux:= URLaux2;
+               {3}
+               if ( KeyOptions.URLFileQuoteSpaces and ( pos( #32, URLaux ) > 0 )) then
+                  URLaux := '"' + URLaux + '"';
+            end;
+          end;
+
+          if (pos( ':', URLaux ) = 0) or (WideFileExists( GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URLaux))) then
+             URLText := URLaux
+          else
+             URLType:= URLOTHER;
+      end;
 
   result:= URLType;
 end;
@@ -934,7 +962,6 @@ var
   textURLposIni, textURLposFin: Integer;
   ShiftWasDown, AltWasDown, CtrlWasDown : boolean;
   usesHyperlinkCmd: boolean;
-  URLaux : wideString;
 
   path: wideString;
   Location: TLocation;
@@ -1000,57 +1027,32 @@ begin
       myURLAction := KeyOptions.URLAction; // assume default action
 
       if AltWasDown then
-      begin
-        myURLAction := urlCopy;
-      end
+         myURLAction := urlCopy
       else
-      if CtrlWasDown then
-      begin
-        if ( myURLAction <> urlOpenNew ) then
-          myURLAction := urlOpenNew // always open in new window if Ctrl pressed
-        else
-          myURLAction := urlOpen;
-      end
-      else
-      begin
-        if (( not _IS_FAKING_MOUSECLICK ) and KeyOptions.URLClickShift and ( not ShiftWasDown )) then
-        begin
-          if KNTLocation then
-             myURL:= '(KNT) ' + KNTPathFromString(URLstr)
-          else
-             myURL:= URLstr;
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_16 + myURL;
-          exit;
+         if CtrlWasDown then begin
+            if ( myURLAction <> urlOpenNew ) then
+               myURLAction := urlOpenNew // always open in new window if Ctrl pressed
+            else
+               myURLAction := urlOpen;
+         end
+      else begin
+        if (( not _IS_FAKING_MOUSECLICK ) and KeyOptions.URLClickShift and ( not ShiftWasDown )) then begin
+            if KNTLocation then
+               myURL:= '(KNT) ' + KNTPathFromString(URLstr)
+            else
+               myURL:= URLstr;
+            Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_16 + myURL;
+            exit;
         end;
       end;
 
-      if ( URLType = urlFile ) then
-      begin
-        // various fixes, mostly with XP in mind:
 
-        {1}
-        if KeyOptions.URLFileNoPrefix then
-          myURL := StripFileURLPrefix( myURL );
+      //-------------------------------------
+      if ( URLType = urlFile ) and ( myURLAction in [urlAsk] ) and KeyOptions.URLFileAuto then
+               myURLAction := urlOpen;
 
-        {2}
-        if KeyOptions.URLFileDecodeSpaces then
-        begin
-          URLaux := HTTPDecode( myURL );
-          if KNTlocation or WideFileExists( GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URLaux)) then begin
-             myURL:= URLaux;
-             {3}
-             if ( KeyOptions.URLFileQuoteSpaces and ( pos( #32, myURL ) > 0 )) then
-               myURL := '"' + myURL + '"';
-          end;
-        end;
 
-        if ( myURLAction in [urlAsk] ) then
-        begin
-          if KeyOptions.URLFileAuto then
-            myURLAction := urlOpen;
-        end;
-      end;
-
+      //-------------------------------------
       if ( myURLAction = urlAsk ) then
       begin
         ActiveNote.Editor.SelLength:= 0;
@@ -1061,9 +1063,8 @@ begin
               Form_URLAction.AllowURLModification:= false;
               Form_URLAction.Edit_URL.Text := path;
            end
-           else begin
+           else
               Form_URLAction.Edit_URL.Text := myURL;
-           end;
 
           // Seleccionar el texto correspondiente al hipervinculo
           usesHyperlinkCmd:= true;
@@ -1077,139 +1078,128 @@ begin
 
           Form_URLAction.URLAction:= urlOpen;   // Default action
           Form_URLAction.Button_OpenNew.Enabled := ( URLType in [urlHTTP, urlHTTPS] );
-          if ( Form_URLAction.ShowModal = mrOK ) then
-          begin
-            myURLAction := Form_URLAction.URLAction;
-            TextURL:= trim(Form_URLAction.Edit_TextURL.Text);
-            if not KNTlocation then begin                  // If it was a KNT Location then URL will not be modified
-               myURL := trim( Form_URLAction.Edit_URL.Text );
-               URLType := TypeURL( myURL, KNTlocation );    // The type could have been modified
-            end;
+          if ( Form_URLAction.ShowModal = mrOK ) then begin
+              myURLAction := Form_URLAction.URLAction;
+              TextURL:= trim(Form_URLAction.Edit_TextURL.Text);
+              if not KNTlocation then begin                  // If it was a KNT Location then URL will not be modified
+                 myURL := trim( Form_URLAction.Edit_URL.Text );
+                 URLType := TypeURL( myURL, KNTlocation );    // The type could have been modified
+              end;
           end
           else
-            myURLAction := urlNothing;
+             myURLAction := urlNothing;
         finally
           Form_URLAction.Free;
         end;
       end;
 
-      if ( myURLAction = urlCreateOrModify ) then
-      begin
-        if TextURL = '' then TextURL := myURL;
-        if usesHyperlinkCmd then
-           ActiveNote.Editor.SetSelection(chrgURL.cpMin -11, textURLposFin +1, false)    // -11: HYPERLINK "
-        else
-           ActiveNote.Editor.SetSelection(chrgURL.cpMin, chrgURL.cpMax, false);
+      //-------------------------------------
+      if ( myURLAction = urlCreateOrModify ) then begin
+          if TextURL = '' then TextURL := myURL;
+          if usesHyperlinkCmd then
+             ActiveNote.Editor.SetSelection(chrgURL.cpMin -11, textURLposFin +1, false)    // -11: HYPERLINK "
+          else
+             ActiveNote.Editor.SetSelection(chrgURL.cpMin, chrgURL.cpMax, false);
 
-        ActiveNote.Editor.SelText:= '';
-        if KNTLocation then begin
-           Location:= BuildKNTLocationFromString(myURL);
-           InsertOrMarkKNTLink(Location, true, TextURL);
-        end
-        else
-           InsertURL(myURL, TextURL);
+          ActiveNote.Editor.SelText:= '';
+          if KNTLocation then begin
+             Location:= BuildKNTLocationFromString(myURL);
+             InsertOrMarkKNTLink(Location, true, TextURL);
+          end
+          else
+             InsertURL(myURL, TextURL);
 
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_17;
-        exit;
+          Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_17;
+          exit;
       end;
 
-      if ( myURLAction = urlNothing ) then
-      begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_18;
-        exit;
+      //-------------------------------------
+      if ( myURLAction = urlNothing ) then begin
+         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_18;
+         exit;
       end;
 
-      if ( myURLAction in [urlCopy, urlBoth] ) then
-      begin
-        if KNTLocation then
-           Clipboard.AsTextW:= URLstr      // includes file prefix
-        else
-           Clipboard.AsTextW:= myURL;
+      if ( myURLAction in [urlCopy, urlBoth] ) then begin
+          if KNTLocation then
+             Clipboard.AsTextW:= URLstr      // includes file prefix
+          else
+             Clipboard.AsTextW:= myURL;
 
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_19;
+          Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_19;
       end;
 
+      //-------------------------------------
       // urlOpenNew is only for HTTP and HTTPS protocols
-      if ( not ( URLType in [urlHTTP, urlHTTPS] )) then
-      begin
-        if ( myURLAction = urlOpenNew ) then
-          myURLAction := urlOpen;
-      end;
+      if ( not ( URLType in [urlHTTP, urlHTTPS] )) and ( myURLAction = urlOpenNew ) then
+           myURLAction := urlOpen;
 
-      if ( myURLAction in [urlOpen, urlOpenNew, urlBoth] ) then
-      begin
-        case URLType of
-          urlFILE : begin // it may be a KNT location or a normal file URL.
-            if KNTlocation then
-            begin
-              // KNT location!
-              _GLOBAL_URLText := myURL;
-                { Why "postmessage" and not a regular procedure?
-                Because we are, here, inside an event that belongs
-                to the TTabRichEdit control. When a link is clicked,
-                it may cause KeyNote to close this file and open
-                a different .KNT file. In the process, this TTabRichEdit
-                will be destroyed. If we called a normal procedure
-                from here, we would then RETURN HERE: to an event handler
-                belonging to a control that NO LONGER EXISTS. Which
-                results in a nice little crash. By posting a message,
-                we change the sequence, so that the file will be
-                closed and a new file opened after we have already
-                returned from this here event handler. }
-              postmessage( Form_Main.Handle, WM_JumpToKNTLink, 0, 0 );
-              exit;
-            end
-            else
-            begin
-              myURL:= GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), myURL);
-              ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL );
-            end;
-          end;
-          else // all other URL types
-          begin
-            myURL := FileNameToURL( myURL );  // We can paste hyperlinks from other programs
-            screen.Cursor := crAppStart;
-            try
-              if ( myURLAction = urlOpenNew ) then
-              begin
-                ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( GetHTTPClient ), PWideChar( myURL ), nil, SW_NORMAL );
+
+      //-------------------------------------
+      if ( myURLAction in [urlOpen, urlOpenNew, urlBoth] ) then begin
+          case URLType of
+            urlFILE : begin // it may be a KNT location or a normal file URL.
+              if KNTlocation then begin
+                // KNT location!
+                _GLOBAL_URLText := myURL;
+                  { Why "postmessage" and not a regular procedure?
+                  Because we are, here, inside an event that belongs
+                  to the TTabRichEdit control. When a link is clicked,
+                  it may cause KeyNote to close this file and open
+                  a different .KNT file. In the process, this TTabRichEdit
+                  will be destroyed. If we called a normal procedure
+                  from here, we would then RETURN HERE: to an event handler
+                  belonging to a control that NO LONGER EXISTS. Which
+                  results in a nice little crash. By posting a message,
+                  we change the sequence, so that the file will be
+                  closed and a new file opened after we have already
+                  returned from this here event handler. }
+                postmessage( Form_Main.Handle, WM_JumpToKNTLink, 0, 0 );
+                exit;
               end
-              else
-              begin
-                if ( URLType in [urlHTTP, urlHTTPS] ) then
-                begin
-                  if KeyOptions.URLSystemBrowser then
-                    ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL )
-                  else
-                    ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( GetHTTPClient ), PWideChar( myURL ), nil, SW_NORMAL );
-                end
-                else
-                  ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL );
+              else begin
+                myURL:= GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), myURL);
+                ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL );
               end;
-            finally
-              screen.Cursor := crDefault;
+            end;
+            else begin // all other URL types
+                myURL := FileNameToURL( myURL );  // We can paste hyperlinks from other programs
+                screen.Cursor := crAppStart;
+                try
+                  if ( myURLAction = urlOpenNew ) then
+                      ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( GetHTTPClient ), PWideChar( myURL ), nil, SW_NORMAL )
+                  else begin
+                      if ( URLType in [urlHTTP, urlHTTPS] ) then begin
+                        if KeyOptions.URLSystemBrowser then
+                           ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL )
+                        else
+                           ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( GetHTTPClient ), PWideChar( myURL ), nil, SW_NORMAL );
+                      end
+                      else
+                        ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL );
+                  end;
+                finally
+                  screen.Cursor := crDefault;
+                end;
             end;
           end;
-        end;
 
-        if ( ShellExecResult <= 32 ) then
-        begin
-          if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
-          PopupMessage( WideFormat(
-            STR_20,
-            [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK], 0 );
-        end
-        else
-        begin
-          if KeyOptions.MinimizeOnURL then
-            Application.Minimize;
-        end;
+          if ( ShellExecResult <= 32 ) then begin
+            if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
+              PopupMessage( WideFormat(
+                STR_20,
+                [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK], 0 );
+          end
+          else begin
+            if KeyOptions.MinimizeOnURL then
+               Application.Minimize;
+          end;
       end;
 
     except
       on E : Exception do
         CommunicateException(E, mtWarning, [mbOK]);
     end;
+
   finally
     _IS_FAKING_MOUSECLICK := false;
   end;

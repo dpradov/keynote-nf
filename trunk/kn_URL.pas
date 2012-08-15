@@ -49,7 +49,7 @@ uses
   Windows, Messages, SysUtils,
   Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls,
-  registry, gf_misc, kn_Info, TntStdCtrls;
+  registry, gf_misc, kn_Info, kn_const, TntStdCtrls;
 
 type
   TForm_URLAction = class(TForm)
@@ -89,7 +89,7 @@ function StripFileURLPrefix( const AStr : wideString ) : wideString;
 
 implementation
 uses
-  RxRichEd, kn_Global;
+  RxRichEd, kn_Global, kn_LinksMng;
 
 {$R *.DFM}
 
@@ -285,6 +285,7 @@ end;
 procedure TForm_URLAction.Edit_URLExit(Sender: TObject);
 var
   cad: wideString;
+  KNTlocation: boolean;
 begin
  if not Edit_TextURL.Enabled then exit;
 
@@ -293,7 +294,14 @@ begin
     if ( pos(STR_05, cad) = 1 ) then
         delete( cad, 1, length( STR_05 ));
 
-    Edit_TextURL.Text := trim(cad);
+     cad:= trim(cad);
+     if TypeURL( cad, KNTlocation) = urlOTHER then begin
+         // Si el texto es igual a la URL, y no es de los reconocidos por el control RichEdit (http://msdn.microsoft.com/en-us/library/windows/desktop/bb787991%28v=vs.85%29.aspx)
+         // no lo tratará como hiperlenlace
+        cad:= '<' + cad + '>';
+     end;
+
+    Edit_TextURL.Text:= cad;
  end;
 end;
 

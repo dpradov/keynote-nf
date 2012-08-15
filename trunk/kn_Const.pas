@@ -481,14 +481,14 @@ type
     // urlKNT, UNUSED custom knt:// URL scheme which we use for internal keynote links (only used with version 3 of riched20.dll)
     urlFile, urlHTTP, urlHTTPS, urlFTP, urlMailto,
     urlTelnet, urlNews, urlNNTP, urlGopher, urlWais, urlProspero,
-    urlNotes
+    urlNotes, urlCallto, urlOnenote, urlOutlook, urlTel, urlWebcal, urlOTHER
   );
 
 const
   KNT_URLS : array[TKNTURL] of string = (
     {'knt:', } 'file:', 'http:', 'https:', 'ftp:', 'mailto:',
     'telnet:', 'news:', 'nntp:', 'gopher:', 'wais:', 'prospero:',
-    'notes:'
+    'notes:', 'callto', 'onenote', 'outlook', 'tel', 'webcal', '????:'
   );
 
 type
