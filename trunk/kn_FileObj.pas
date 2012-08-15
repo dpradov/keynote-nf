@@ -208,7 +208,6 @@ resourcestring
   STR_08 = 'Error loading note ';
   STR_09 = '%s: Invalid DartNotes file header: ';
   STR_10 = 'This file contains notes which are not compatible with %s format. Only %s notes can be saved in this format.';
-  STR_11 = 'This file is Read-Only. Use "Save As" command to save it with a new name.';
   STR_12 = 'Error: Filename not specified.';
   STR_13 = 'Error while saving note "%s": %s';
   STR_14 = 'Cannot save: Passphrase not set';
@@ -1104,9 +1103,6 @@ begin
   {$I-}
   ChDir( extractfilepath( _VNKeyNoteFileName )); // virtual node relative paths depend on it
   {$I+}
-
-  if FReadOnly then
-    raise EKeyNoteFileError.Create( STR_11 );
 
   if ( FN = '' ) then
     raise EKeyNoteFileError.Create( STR_12 );

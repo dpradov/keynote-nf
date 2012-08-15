@@ -149,6 +149,8 @@ resourcestring
   STR_74 = ' Saved';
   STR_75 = 'Successfully created %s registry entries';
   STR_76 = 'There was an error while creating file type associations: ';
+  STR_77 = 'This file is Read-Only. Use "Save As" command to save it with a new name.';
+
 
 //=================================================================
 // NoteFileNew
@@ -547,6 +549,11 @@ begin
         result := -1;
         if ( not HaveNotes( true, false )) then exit;
         if FileIsBusy then exit;
+        if NoteFile.ReadOnly then begin
+            DoMessageBox(STR_77, mtError, [mbOK], 0);
+            exit;
+        end;
+
 
         errstr := '';
 
