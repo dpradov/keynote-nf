@@ -58,6 +58,20 @@ resourcestring
   STR_days = 'days';
   STR_week = 'week';
   STR_weeks = 'weeks';
+  STR_ERR_OUTOFRESOURCES = 'The operating system is out of memory or resources.';
+  STR_ERROR_FILE_NOT_FOUND = 'The specified file was not found.';
+  STR_ERROR_PATH_NOT_FOUND = 'The specified path was not found.';
+  STR_ERROR_BAD_FORMAT = 'The .EXE file is invalid (non-Win32 .EXE or error in .EXE image).';
+  STR_SE_ERR_ACCESSDENIED = 'The operating system denied access to the specified URL.';
+  STR_SE_ERR_ASSOCINCOMPLETE = 'The filename association is incomplete or invalid.';
+  STR_SE_ERR_DDEBUSY = 'The DDE transaction could not be completed because other DDE transactions were being processed.';
+  STR_SE_ERR_DDEFAIL = 'The DDE transaction failed.';
+  STR_SE_ERR_DDETIMEOUT = 'The DDE transaction could not be completed because the request timed out.';
+  STR_SE_ERR_DLLNOTFOUND = 'The specified dynamic-link library was not found.';
+  STR_SE_ERR_NOASSOC = 'There is no application associated with the given filename extension.';
+  STR_SE_ERR_OOM = 'There was not enough memory to complete the operation.';
+  STR_SE_ERR_SHARE = 'A sharing violation occurred';
+  STR_UNKNOWN_ERROR = 'Unknown error.';
 
 
 type
@@ -1045,23 +1059,23 @@ end; // IsIE4Installed
 function TranslateShellExecuteError( const ErrCode : integer ) : string;
 begin
   case ErrCode of
-    0	: result := 'The operating system is out of memory or resources.';
-    ERROR_FILE_NOT_FOUND : result := 'The specified file was not found.';
-    ERROR_PATH_NOT_FOUND : result := 'The specified path was not found.';
-    ERROR_BAD_FORMAT : result := 'The .EXE file is invalid (non-Win32 .EXE or error in .EXE image).';
-    SE_ERR_ACCESSDENIED : result := 'The operating system denied access to the specified file.';
-    SE_ERR_ASSOCINCOMPLETE : result := 'The filename association is incomplete or invalid.';
-    SE_ERR_DDEBUSY : result := 'The DDE transaction could not be completed because other DDE transactions were being processed.';
-    SE_ERR_DDEFAIL : result := 'The DDE transaction failed.';
-    SE_ERR_DDETIMEOUT : result := 'The DDE transaction could not be completed because the request timed out.';
-    SE_ERR_DLLNOTFOUND : result := 'The specified dynamic-link library was not found.';
+    0	: result := STR_ERR_OUTOFRESOURCES;
+    ERROR_FILE_NOT_FOUND : result := STR_ERROR_FILE_NOT_FOUND;
+    ERROR_PATH_NOT_FOUND : result := STR_ERROR_PATH_NOT_FOUND;
+    ERROR_BAD_FORMAT : result := STR_ERROR_BAD_FORMAT;
+    SE_ERR_ACCESSDENIED : result := STR_SE_ERR_ACCESSDENIED;
+    SE_ERR_ASSOCINCOMPLETE : result := STR_SE_ERR_ASSOCINCOMPLETE;
+    SE_ERR_DDEBUSY : result := STR_SE_ERR_DDEBUSY;
+    SE_ERR_DDEFAIL : result := STR_SE_ERR_DDEFAIL;
+    SE_ERR_DDETIMEOUT : result := STR_SE_ERR_DDETIMEOUT;
+    SE_ERR_DLLNOTFOUND : result := STR_SE_ERR_DLLNOTFOUND;
     // SE_ERR_FNF : result := 'The specified file was not found.';
-    SE_ERR_NOASSOC : result := 'There is no application associated with the given filename extension.';
-    SE_ERR_OOM : result := 'There was not enough memory to complete the operation.';
+    SE_ERR_NOASSOC : result := STR_SE_ERR_NOASSOC;
+    SE_ERR_OOM : result := STR_SE_ERR_OOM;
     // SE_ERR_PNF : result := 'The specified path was not found.';
-    SE_ERR_SHARE : result := 'A sharing violation occurred';
+    SE_ERR_SHARE : result := STR_SE_ERR_SHARE;
     else
-      result := 'Unknown error.';
+      result := STR_UNKNOWN_ERROR;
   end;
 end; // TranslateShellExecuteError
 
