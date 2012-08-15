@@ -125,29 +125,34 @@ function HTTPDecode(const AStr: wideString): wideString;
 var
   Sp, Rp, Cp: PWideChar;
 begin
-  SetLength(Result, Length(AStr));
-  Sp := PWideChar(AStr);
-  Rp := PWideChar(Result);
-  while Sp^ <> #0 do
-  begin
-    if not (Sp^ in ['+','%']) then
-      Rp^ := Sp^
-    else
+  try
+      SetLength(Result, Length(AStr));
+      Sp := PWideChar(AStr);
+      Rp := PWideChar(Result);
+      while Sp^ <> #0 do
       begin
-        inc(Sp);
-        if Sp^ = '%' then
-          Rp^ := '%'
+        if not (Sp^ in ['+','%']) then
+          Rp^ := Sp^
         else
-        begin
-          Cp := Sp;
-          Inc(Sp);
-          Rp^ := WideChar(Chr(StrToInt(WideFormat('$%s%s',[Cp^, Sp^]))));
-        end;
+          begin
+            inc(Sp);
+            if Sp^ = '%' then
+              Rp^ := '%'
+            else
+            begin
+              Cp := Sp;
+              Inc(Sp);
+              Rp^ := WideChar(Chr(StrToInt(WideFormat('$%s%s',[Cp^, Sp^]))));
+            end;
+          end;
+        Inc(Rp);
+        Inc(Sp);
       end;
-    Inc(Rp);
-    Inc(Sp);
+      SetLength(Result, Rp - PWideChar(Result));
+
+  except
+      Result:= AStr;   // It will be assumed that the filename includes plus sign but it is not URL encoded.
   end;
-  SetLength(Result, Rp - PWideChar(Result));
 end;
 
 function HTTPEncode(const AStr: wideString): wideString;
