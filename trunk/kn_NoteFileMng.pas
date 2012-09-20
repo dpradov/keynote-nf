@@ -549,7 +549,7 @@ begin
         result := -1;
         if ( not HaveNotes( true, false )) then exit;
         if FileIsBusy then exit;
-        if NoteFile.ReadOnly then begin
+        if ( FN <> '' ) and NoteFile.ReadOnly then begin
             DoMessageBox(STR_77, mtError, [mbOK], 0);
             exit;
         end;
@@ -800,6 +800,7 @@ begin
             if ( result = 0 ) then
             begin
               StatusBar.Panels[PANEL_HINT].Text := STR_22;
+              NoteFile.ReadOnly := false;                  // Necesariamente. Podemos estar haciendo SaveAs desde un archivo de sólo lectura
             end
             else
             begin
