@@ -296,10 +296,11 @@ var
   aSTE: TSetTextEx;
   S: AnsiString;
 begin
-  if not assigned(aRichEdit) then exit;
+  if not assigned(aRichEdit) or (aRTFString = '') then exit;
 
-  S:= aRTFString;
-  if (RichEditVersion < 3) or (S = aRTFstring) then begin
+
+  if (RichEditVersion < 3) then begin
+     S:= aRTFString;
      AnsiPutRichText(S, aRichEdit, isRTF, DoInsert);
      exit;
   end;
