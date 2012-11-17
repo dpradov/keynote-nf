@@ -479,6 +479,7 @@ const
 type
   TKNTURL = (
     // urlKNT, UNUSED custom knt:// URL scheme which we use for internal keynote links (only used with version 3 of riched20.dll)
+    urlUndefined,
     urlFile, urlHTTP, urlHTTPS, urlFTP, urlMailto,
     urlTelnet, urlNews, urlNNTP, urlGopher, urlWais, urlProspero,
     urlNotes, urlCallto, urlOnenote, urlOutlook, urlTel, urlWebcal, urlOTHER
@@ -486,6 +487,7 @@ type
 
 const
   KNT_URLS : array[TKNTURL] of string = (
+    '',
     {'knt:', } 'file:', 'http:', 'https:', 'ftp:', 'mailto:',
     'telnet:', 'news:', 'nntp:', 'gopher:', 'wais:', 'prospero:',
     'notes:', 'callto', 'onenote', 'outlook', 'tel', 'webcal', '????:'

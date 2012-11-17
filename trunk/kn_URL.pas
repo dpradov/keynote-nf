@@ -284,24 +284,29 @@ end;
 
 procedure TForm_URLAction.Edit_URLExit(Sender: TObject);
 var
-  cad: wideString;
+  url: wideString;
+  InterpretedUrl: wideString;
   KNTlocation: boolean;
 begin
  if not Edit_TextURL.Enabled then exit;
 
  if Edit_TextURL.Text = '' then begin
-    cad:= Edit_URL.Text;
-    if ( pos(STR_05, cad) = 1 ) then
-        delete( cad, 1, length( STR_05 ));
+    url:= Edit_URL.Text;
+    if ( pos(STR_05, url) = 1 ) then
+        delete( url, 1, length( STR_05 ));
 
-     cad:= trim(cad);
-     if TypeURL( cad, KNTlocation) = urlOTHER then begin
+     url:= trim(url);
+     InterpretedUrl:= url;
+     if TypeURL( InterpretedUrl, KNTlocation) = urlOTHER then
          // Si el texto es igual a la URL, y no es de los reconocidos por el control RichEdit (http://msdn.microsoft.com/en-us/library/windows/desktop/bb787991%28v=vs.85%29.aspx)
          // no lo tratará como hiperlenlace
-        cad:= '<' + cad + '>';
-     end;
+        url:= '<' + url + '>'
+     else
+         if url <> interpretedUrl then begin
+            Edit_URL.Text:= interpretedUrl;
+         end;
 
-    Edit_TextURL.Text:= cad;
+    Edit_TextURL.Text:= url;
  end;
 end;
 
