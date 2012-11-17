@@ -54,7 +54,7 @@ resourcestring
   STR_17 = ' URL modified';
   STR_18 = ' URL action canceled';
   STR_19 = ' URL copied to clipboard';
-  STR_20 = 'Error %d executing hyperlink %s: "%s"';
+  STR_20 = 'Error %d executing hyperlink "%s": "%s"';
   STR_21 = ' History error';
   STR_22 = ' Cannot navigate to history location';
   STR_23 = ' History navigation error';
@@ -710,14 +710,21 @@ var
    URLType, KntURL: TKNTURL;
    URLPos : integer; // position at which the actual URL starts in URLText
    URLTextLower: wideString;
-   URLaux, URLaux2: wideString;
+   URLaux, URLaux2, AbsolutePath: wideString;
 begin
   // determine where URL address starts in URLText
-  URLType := urlFile;
+  URLType := urlUndefined;
+  if URLText = '' then begin
+     Result:= urlUndefined;
+     exit;
+  end;
+
+
 
   URLTextLower:= WideLowerCase(URLText);
   for KntURL := low( KntURL ) to high( KntURL ) do
   begin
+    if KntURL = urlUndefined then continue;
     URLPos := pos( KNT_URLS[KntURL], URLTextLower );
     if ( URLPos > 0 ) then
     begin
@@ -726,7 +733,7 @@ begin
     end;
   end;
 
-  if ( URLPos > 0 ) then
+  if ( URLType  <> urlUndefined ) then
     URLText := copy( URLText, URLPos, length( URLText ))
 
   else
@@ -737,9 +744,13 @@ begin
       else if ( pos( 'WWW.', wideUpperCase(URLText) ) > 0 ) then begin
           URLText := 'http://' + trim(URLText);
           URLType := urlHttp;
-          end
-      else
-          URLType := urlFile;
+          end;
+
+  KNTlocation:= False;   // By default
+
+  if (URLType = urlUndefined) then
+      if pos( ':', URLText ) <= 2 then
+         URLType := urlFile;
 
 
   if (URLType = urlFile) then
@@ -747,7 +758,6 @@ begin
           KNTlocation:= True
 
       else begin
-          KNTlocation:= False;
           URLaux:= URLText;
           // various fixes, mostly with XP in mind:
           {1}
@@ -756,20 +766,22 @@ begin
 
           {2}
           if KeyOptions.URLFileDecodeSpaces then begin
-            URLaux2 := HTTPDecode(URLaux);
-            if WideFileExists( GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URLaux2)) then begin
+             URLaux2 := HTTPDecode(URLaux);
+             AbsolutePath:= GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URLaux2);
+             if WideFileExists( AbsolutePath) or WideDirectoryExists( AbsolutePath ) then begin
                URLaux:= URLaux2;
                {3}
                if ( KeyOptions.URLFileQuoteSpaces and ( pos( #32, URLaux ) > 0 )) then
                   URLaux := '"' + URLaux + '"';
             end;
+
+          URLText:= URLaux;
           end;
 
-          if (pos( ':', URLaux ) = 0) or (WideFileExists( GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URLaux))) then
-             URLText := URLaux
-          else
-             URLType:= URLOTHER;
       end;
+
+  if (URLType = urlUndefined) then
+      URLType := urlOther;
 
   result:= URLType;
 end;
@@ -873,6 +885,8 @@ var
     _selectStart: Integer;
  begin
     TextLen:= ActiveNote.Editor.TextLength;
+    if ActiveNote.Editor.FindText('\\\\\\\\', 0, TextLen, []) < 0 then     // Sólo actuaremos si detectamos esta secuencia en algún punto del nodo
+       exit;
 
     ActiveNote.Editor.BeginUpdate;
 
@@ -1070,7 +1084,7 @@ begin
           usesHyperlinkCmd:= true;
           TextURL:= TextOfLink(chrgURL.cpMax-1, textURLposIni, textURLposFin);
           if TextURL = '' then begin
-             Form_URLAction.Edit_TextURL.Text := Form_URLAction.Edit_URL.Text;
+             Form_URLAction.Edit_TextURL.Text := URLstr;
              usesHyperlinkCmd:= false;
              end
           else
