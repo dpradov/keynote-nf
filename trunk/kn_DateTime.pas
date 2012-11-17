@@ -105,11 +105,11 @@ var
 
 function LoadDateFormatsList : boolean;
 function LoadTimeFormatsList : boolean;
-function GetDateTimeFormatted( fmtstr : string; const DT : TDateTime ) : string;
+function GetDateTimeFormatted( fmtstr : string; const DT : TDateTime ) : WideString;
 
 implementation
 
-function GetDateTimeFormatted( fmtstr : string; const DT : TDateTime ) : string;
+function GetDateTimeFormatted( fmtstr : string; const DT : TDateTime ) : WideString;
 begin
   if ( fmtstr <> '' ) and ( fmtstr[1] = _ENGLISH_DATE_PREFIX_CHAR ) then
   begin

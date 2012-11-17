@@ -2410,11 +2410,11 @@ begin
                 KeyOptions.DTLastDateFmt := KeyOptions.DateFmt;
               if ( KeyOptions.DTLastDateFmt = '' ) then
                 KeyOptions.DTLastDateFmt := ShortDateFormat;
-              ActiveNote.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
+              ActiveNote.Editor.SelTextW := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
             end
             else
             begin
-              ActiveNote.Editor.SelText := FormatDateTime( KeyOptions.DateFmt, now ) + #32;
+              ActiveNote.Editor.SelTextW := FormatDateTime( KeyOptions.DateFmt, now ) + #32;
             end;
             ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
           end;
@@ -2425,11 +2425,11 @@ begin
                 KeyOptions.DTLastTimeFmt := KeyOptions.TimeFmt;
               if ( KeyOptions.DTLastTimeFmt = '' ) then
                 KeyOptions.DTLastTimeFmt := LongTimeFormat;
-              ActiveNote.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastTimeFmt, now ) + #32;
+              ActiveNote.Editor.SelTextW := GetDateTimeFormatted( KeyOptions.DTLastTimeFmt, now ) + #32;
             end
             else
             begin
-              ActiveNote.Editor.SelText := FormatDateTime( KeyOptions.TimeFmt, now ) + #32;
+              ActiveNote.Editor.SelTextW := FormatDateTime( KeyOptions.TimeFmt, now ) + #32;
             end;
             ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
           end;
