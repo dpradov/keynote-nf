@@ -156,7 +156,7 @@ begin
 
          PutRichText('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sep + '{\field{\*\fldinst{HYPERLINK "'
             + URLToRTF(URLStr, false ) + '"}}{\fldrslt{\cf1\ul '
-            + URLToRTF(TextURL, true) + '}}}\cf0\ulnone}',
+            + URLToRTF(TextURL, true) + '}}} \cf0\ulnone}',
             ActiveNote.Editor, true, true );
 
          end
@@ -1084,7 +1084,10 @@ begin
           usesHyperlinkCmd:= true;
           TextURL:= TextOfLink(chrgURL.cpMax-1, textURLposIni, textURLposFin);
           if TextURL = '' then begin
-             Form_URLAction.Edit_TextURL.Text := URLstr;
+             if length(URLstr) < Length(myURL) then
+                Form_URLAction.Edit_TextURL.Text := URLstr
+             else
+                Form_URLAction.Edit_TextURL.Text := Form_URLAction.Edit_URL.Text;
              usesHyperlinkCmd:= false;
              end
           else
@@ -1250,6 +1253,25 @@ var
   Form_URLAction: TForm_URLAction;
   askUser: Boolean;
   KNTLocation: boolean;
+
+
+  procedure SelectTextToUse();
+  var
+      CadAux: WideString;
+      Len: integer;
+  begin
+        if ActiveNote.Editor.SelLength > 0 then
+           URLStr:= ActiveNote.Editor.GetVisibleSelectedText
+        else
+           URLStr:= ActiveNote.Editor.GetLinkAtCursor;
+
+        URLStr:= Trim(URLStr);
+        CadAux:= URLStr;
+        TypeURL( URLStr, KNTlocation);   // Puede modificará URLStr interpretándolo
+        if length(CadAux) < length(URLStr) then
+           TextURL:= CadAux;
+  end;
+
 begin
   if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveNote ))) then exit;
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
@@ -1258,18 +1280,20 @@ begin
   //if askUser then
   //   URLStr := trim(ClipboardAsString);         // offer clipboard first
 
-  URLType := TypeURL( URLStr, KNTLocation );
-  if (URLType = urlFile) and (not PathFileOK(URLStr)) then begin
-      URLStr := '';
-      askUser:= true;
+  if URLStr <> '' then begin
+     URLType := TypeURL( URLStr, KNTLocation );
+     if (URLType = urlFile) and (not PathFileOK(URLStr)) then begin
+         URLStr := '';
+         askUser:= true;
+     end;
   end;
 
   if askUser then begin
       Form_URLAction := TForm_URLAction.Create( Form_Main );
       try
-
+        SelectTextToUse;
         Form_URLAction.Edit_URL.Text := URLStr;
-        Form_URLAction.Edit_TextURL.Text := '';
+        Form_URLAction.Edit_TextURL.Text := TextURL;
         Form_URLAction.URLAction:= urlCreateOrModify;   // Mode: Create. Only will show buttons Ok and Cancel
 
         if ( Form_URLAction.ShowModal = mrOK ) then
