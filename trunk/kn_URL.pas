@@ -211,6 +211,8 @@ end;
 
 procedure TForm_URLAction.Button_ModifyClick(Sender: TObject);
 begin
+     if Edit_TextURL.Text = '' then
+        Edit_URLExit(nil);
      URLAction := urlCreateOrModify;
 end;
 

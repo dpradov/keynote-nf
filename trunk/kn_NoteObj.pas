@@ -288,6 +288,8 @@ type
 
     function GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False  ) : WideString;
     function SelectWordAtCursor : string;
+    function GetLinkAtCursor() : WideString;
+    function GetVisibleSelectedText() : WideString;
   end; // TTabRichEdit
 
 type
@@ -1819,6 +1821,99 @@ begin
 
 end; // GetWordAtCursorNew
 
+
+function TTabRichEdit.GetLinkAtCursor() : WideString;
+var
+    link: integer;
+    TextLen, Len: integer;
+    Left, Right: integer;
+    LeftE, RightE: integer;
+
+begin
+    Result:= '';
+    Left:= ActiveNote.Editor.SelStart;
+    Right := ActiveNote.Editor.SelLength + Left;
+
+    ActiveNote.Editor.SetSelection(Left-1, Left+1, false);
+
+    if (ActiveNote.Editor.SelAttributes.Link2 <> 1) then       // 0: No incluye ningún carácter con dicho atributo 1: Todos son Link -1: Mixto
+        ActiveNote.Editor.SetSelection(Left, Right, false)
+        
+    else begin
+        TextLen:= ActiveNote.Editor.TextLength;
+
+        // Buscamos el extremo izquierdo
+        link:= 1;
+        while (Left >0) and (link=1) and (ActiveNote.Editor.SelText<>'') do begin
+              Left:= Left - 1;
+              ActiveNote.Editor.SetSelection(Left-1, Left, false);
+              link:= ActiveNote.Editor.SelAttributes.Link2;
+        end;
+
+        LeftE:= Left;
+        // Ampliamos la selección incluyendo el/los caracteres '<' que pueda haber
+        while (LeftE >0) and (ActiveNote.Editor.SelText='<') do begin
+              LeftE:= LeftE - 1;
+              ActiveNote.Editor.SetSelection(LeftE-1, LeftE, false);
+        end;
+
+       
+        // Buscamos el extremo derecho
+        link:= 1;
+        while (Right < TextLen) and (link=1) do begin
+              Right:= Right + 1;
+              ActiveNote.Editor.SetSelection(Right, Right+1, false);
+              link:= ActiveNote.Editor.SelAttributes.Link2;
+        end;
+
+        RightE:= Right;
+        // Ampliamos la selección incluyendo el/los caracteres '>' que pueda haber
+        while (Right < TextLen) and (ActiveNote.Editor.SelText='>') do begin
+              RightE:= RightE + 1;
+              ActiveNote.Editor.SetSelection(RightE, RightE+1, false);
+        end;
+        
+        ActiveNote.Editor.SetSelection(LeftE, RightE, false);
+        Result:= ActiveNote.Editor.GetTextRange(Left, Right);
+    end;
+
+end;
+
+function TTabRichEdit.GetVisibleSelectedText() : WideString;
+var
+    _selectionLength:Integer;
+    _selectStart: Integer;
+    ResultText: WideString;
+    Sel: WideString;
+    i, k: Integer;
+
+begin
+    Result:= '';
+    _selectionLength := ActiveNote.Editor.SelLength;
+    if _selectionLength = 0 then exit;
+
+    if (ActiveNote.Editor.SelAttributes.Link2 = 0) then begin
+        Result:= ActiveNote.Editor.SelTextW;
+        exit;
+    end;
+
+    _selectStart := ActiveNote.Editor.SelStart;
+    SetLength(ResultText, _selectionLength);
+
+    k:= 1;
+    for i := _selectStart to _selectStart + _selectionLength-1 do begin
+        ActiveNote.Editor.SetSelection(i, i+1, false);
+        Sel:= ActiveNote.Editor.SelTextW;
+        if Sel <> '' then begin
+           ResultText[k]:= Sel[1];
+           k:= k + 1;
+        end;
+    end;
+    SetLength(ResultText, k-1);
+    ActiveNote.Editor.SelStart:=  _selectStart;
+    ActiveNote.Editor.SelLength:= _selectionLength;
+    Result:= ResultText;
+end;
 
 procedure TTabRichEdit.SimulateDoubleClick;
 var
