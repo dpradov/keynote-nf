@@ -2006,8 +2006,9 @@ begin
 
             if ( not ConsistentFileType( FileList )) then
             begin
-              Messagedlg( STR_64, mtError, [mbOK], 0 );
-              exit;
+              //Messagedlg( STR_64, mtError, [mbOK], 0 );
+              //exit;
+              fExt:= '.*';
             end;
 
             if FileIsFolder then
@@ -2042,6 +2043,9 @@ begin
                 for i := 0 to pred( FileList.Count ) do
                 begin
                   InsertFileOrLink( FileList[i], true );
+                  ActiveNote.Editor.SelText:= #13#10;
+                  ActiveNote.Editor.SelLength:= 0;
+                  ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart+2;
                 end;
               end;
               factImport : begin

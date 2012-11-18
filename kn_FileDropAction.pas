@@ -130,7 +130,7 @@ begin
     end;
     1 : begin
       PagesImp.PageIndex := 0;
-      Btn_HTML.Caption := STR_05
+      Btn_HTML.Caption := STR_06
     end;
   end;
 end;

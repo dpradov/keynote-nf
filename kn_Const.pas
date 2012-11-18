@@ -588,8 +588,8 @@ type
     factOpen,
     factExecute, // macros and plugins only
     factMerge,
-    factImport,
     factHyperlink,
+    factImport,
     factImportAsNode,
     factMakeVirtualNode
     {$IFDEF WITH_IE}
@@ -606,8 +606,8 @@ const
     STR_32_FactStr,
     STR_33_FactStr,
     STR_34_FactStr,
-    STR_35_FactStr,
     STR_36_FactStr,
+    STR_35_FactStr,
     STR_37_FactStr,
     STR_38_FactStr
     {$IFDEF WITH_IE}
