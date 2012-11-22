@@ -117,7 +117,7 @@ uses gf_files;
 
 procedure LoadFavorites( const FN : string );
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   section: string;
   name : wideString;
   sections : TStringList;
@@ -128,7 +128,7 @@ begin
   ClearLocationList( Favorites_List );
 
   try
-    IniFile := TWIniFile.Create( FN );
+    IniFile := TWMemIniFile.Create( FN );
   except
     exit;
   end;
@@ -175,7 +175,7 @@ end; // LoadFavorites
 
 procedure SaveFavorites( const FN : string );
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   section : string;
   myFav : TLocation;
   i, cnt : integer;
@@ -185,7 +185,7 @@ begin
   deletefile( FN );
 
   try
-    IniFile := TWIniFile.Create( FN );
+    IniFile := TWMemIniFile.Create( FN );
   except
     exit;
   end;
@@ -218,6 +218,7 @@ begin
       end;
 
     end;
+    IniFile.UpdateFile;
 
   finally
     IniFile.Free;
