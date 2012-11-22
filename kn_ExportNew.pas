@@ -393,13 +393,13 @@ end;
 
 procedure TForm_ExportNew.ReadConfig;
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   section : string;
 begin
   InitializeExportOptions( ExportOptions );
   if ( not fileexists( myINIFN )) then exit;
 
-  IniFile := TWIniFile.Create( myIniFN );
+  IniFile := TWMemIniFile.Create( myIniFN );
   try
     with IniFile do
     begin
@@ -444,10 +444,10 @@ end;
 
 procedure TForm_ExportNew.WriteConfig;
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   section : string;
 begin
-  IniFile := TWIniFile.Create( myIniFN );
+  IniFile := TWMemIniFile.Create( myIniFN );
   try
     with IniFile do
     begin
@@ -474,6 +474,8 @@ begin
       writebool( section, ExportOptionsIniStr.TreePadSingleFile, ExportOptions.TreePadSingleFile );
       writeinteger( section, ExportOptionsIniStr.TreeSelection, ord( ExportOptions.TreeSelection ));
     end;
+    IniFile.UpdateFile;
+
   finally
     IniFile.Free;
   end;

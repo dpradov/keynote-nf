@@ -1140,10 +1140,10 @@ procedure SaveKeyNoteOptions(
     const ResPanelOptions : TResPanelOptions
   );
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   section : string;
 begin
-  IniFile := TWIniFile.Create( INIFileName );
+  IniFile := TWMemIniFile.Create( INIFileName );
   try
     with IniFile do
     begin
@@ -1391,6 +1391,8 @@ begin
       writeinteger( section, ResPanelOptionsIniStr.TabOrientation, ord( ResPanelOptions.TabOrientation ));
 
     end;
+    IniFile.UpdateFile;
+
   finally
     IniFile.Free;
   end;
@@ -1408,12 +1410,12 @@ procedure LoadKeyNoteOptions(
     var ResPanelOptions : TResPanelOptions
   );
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   section : string;
   i : integer;
 begin
 
-  IniFile := TWIniFile.Create( INIFileName);
+  IniFile := TWMemIniFile.Create( INIFileName);
   try
     with IniFile do
     begin
@@ -1739,9 +1741,9 @@ end; // LoadKeyNoteOptions
 procedure SaveMailOptions( const INI_FN : string; const MailOptions : TMailOptions );
 var
   section : string;
-  IniFile : TIniFile;
+  IniFile : TMemIniFile;
 begin
-  IniFile := TIniFile.Create( INI_FN );
+  IniFile := TMemIniFile.Create( INI_FN );
   with IniFile do
   begin
     section := MailOptionsIniStr.section;
@@ -1757,15 +1759,16 @@ begin
     writebool( section, MailOptionsIniStr.KeepLog, MailOptions.KeepLog );
     writestring( section, MailOptionsIniStr.SubjectPrefix, MailOptions.SubjectPrefix  );
   end;
+  IniFile.UpdateFile;
   IniFile.Free;
 end; // SaveMailOptions
 
 procedure LoadMailOptions( const INI_FN : string; var MailOptions : TMailOptions );
 var
   section : string;
-  IniFile : TIniFile;
+  IniFile : TMemIniFile;
 begin
-  IniFile := TIniFile.Create( INI_FN );
+  IniFile := TMemIniFile.Create( INI_FN );
   with IniFile do
   begin
     section := MailOptionsIniStr.section;
@@ -1793,11 +1796,11 @@ procedure SaveKeyNoteDefaults(
   const DefaultTreeChrome : TChrome
   );
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   section : string;
 begin
 
-  IniFile := TWIniFile.Create( INIFileName );
+  IniFile := TWMemIniFile.Create( INIFileName );
   try
     with IniFile do
     begin
@@ -1851,6 +1854,7 @@ begin
       writestring( section, ChromeIniStr.HiFontStyle, FontStyleToStr( DefaultTreeChrome.HiFont.Style ));
 
     end;
+    IniFile.UpdateFile;
 
   finally
     IniFile.Free;
@@ -1868,11 +1872,11 @@ procedure LoadKeyNoteDefaults(
   var DefaultTreeChrome : TChrome
   );
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   section : string;
 begin
 
-  IniFile := TWIniFile.Create( INIFileName );
+  IniFile := TWMemIniFile.Create( INIFileName );
   try
     with IniFile do
     begin

@@ -158,7 +158,7 @@ end; // TFileInfo.CREATE
 
 function SaveFileManagerInfo( FN : string ) : boolean;
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   i, cnt : integer;
   Info : TFileInfo;
   section : string;
@@ -173,7 +173,7 @@ begin
 
   deletefile( FN ); // better this than removing sections one at a time
 
-  IniFile := TWIniFile.Create( fn );
+  IniFile := TWMemIniFile.Create( fn );
   cnt := 0;
 
   with IniFile do
@@ -195,6 +195,8 @@ begin
           writeinteger( section, 'Format', ord( Info.Format ));
         end;
       end;
+      IniFile.UpdateFile;
+
     except
       on E : Exception do
       begin
@@ -212,7 +214,7 @@ end; // SaveFileManagerInfo
 
 function LoadFileManagerInfo( FN : string ) : boolean;
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   i : integer;
   Info : TFileInfo;
   s: wideString;
@@ -230,7 +232,7 @@ begin
 
   ClearFileManager;
 
-  IniFile := TWIniFile.Create( fn );
+  IniFile := TWMemIniFile.Create( fn );
   sections := TStringList.Create;
 
   with IniFile do

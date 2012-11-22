@@ -175,7 +175,7 @@ end; // ClearStyleManager
 function SaveStyleManagerInfo( FN : string ) : boolean;
 var
   style : TStyle;
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   i, cnt : integer;
   section : string;
 begin
@@ -188,7 +188,7 @@ begin
 
   deletefile( FN ); // better this than removing sections one at a time
 
-  IniFile := TWIniFile.Create( fn );
+  IniFile := TWMemIniFile.Create( fn );
   cnt := 0;
 
   try
@@ -235,6 +235,8 @@ begin
           end;
         end;
       end;
+      IniFile.UpdateFile;
+
     except
       on E : Exception do
       begin
@@ -253,7 +255,7 @@ end; // SaveStyleManagerInfo
 
 function LoadStyleManagerInfo( FN : string ) : boolean;
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   i, r : integer;
   Style : TStyle;
   s, section : WideString;
@@ -272,7 +274,7 @@ begin
 
   ClearStyleManager;   
 
-  IniFile := TWIniFile.Create( fn );
+  IniFile := TWMemIniFile.Create( fn );
   sections := TStringList.Create;
 
   StyleManager.BeginUpdate;

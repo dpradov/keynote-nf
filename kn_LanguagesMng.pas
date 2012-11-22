@@ -35,7 +35,7 @@ resourcestring
 
 function LoadLanguagesAvailable( FN : string ): boolean;
 var
-  IniFile : TWIniFile;
+  IniFile : TWMemIniFile;
   i : integer;
   Info : TLanguageInfo;
   s, section : string;
@@ -58,7 +58,7 @@ begin
 
   path:= ExtractFilePath( Application.ExeName ) + _LANGUAGE_FOLDER;
 
-  IniFile := TWIniFile.Create( fn );
+  IniFile := TWMemIniFile.Create( fn );
   sections := TStringList.Create;
 
 

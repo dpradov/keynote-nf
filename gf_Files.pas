@@ -144,6 +144,12 @@ type
     procedure WriteStringW(const Section, Ident, Value: WideString);
   end;
 
+  TWMemIniFile = class(TMemIniFile)
+  public
+    function ReadStringW(const Section, Ident, Default: WideString): WideString;
+    procedure WriteStringW(const Section, Ident, Value: WideString);
+  end;
+
 
 
 const
@@ -786,6 +792,23 @@ begin
 end;
 
 procedure TWIniFile.WriteStringW(const Section, Ident, Value: WideString);
+var
+   S: string;
+begin
+   S:= string(Value);
+   if Value = WideString(S) then
+      WriteString(Section, Ident, S)    // To make it more compatible with older versions. Only use UTF8 if it's necessary
+   else
+      WriteString(Section, Ident, WideStringToUTF8(Value));
+end;
+
+
+function TWMemIniFile.ReadStringW(const Section, Ident, Default: WideString): WideString;
+begin
+   Result:= TryUTF8ToWideString(ReadString(Section, Ident, Default));
+end;
+
+procedure TWMemIniFile.WriteStringW(const Section, Ident, Value: WideString);
 var
    S: string;
 begin
