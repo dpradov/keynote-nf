@@ -183,8 +183,6 @@ type
     CB_ExpirationTime: TTntComboBox;
     cExpirationTime: TTntEdit;
     chk_Expiration: TCheckBox;
-
-    PanelProposedReminder: TPanel;
     CB_ProposedIntervalReminder: TTntComboBox;
     rb_Before: TTntRadioButton;
     rb_FromNow: TTntRadioButton;
@@ -818,7 +816,9 @@ end;
 procedure TAlarmManager.MoveAlarms( noteFrom: TTabNote; nodeFrom : TNoteNode; noteTo: TTabNote; nodeTo: TNoteNode );
 begin
     MoveAlarmsInList(FAlarmList, noteFrom, nodeFrom,  noteTo, nodeTo);
-    MoveAlarmsInList(FUnfilteredAlarmList, noteFrom, nodeFrom,  noteTo, nodeTo);
+    if assigned(FUnfilteredAlarmList) then
+       MoveAlarmsInList(FUnfilteredAlarmList, noteFrom, nodeFrom,  noteTo, nodeTo);
+
     MoveAlarmsInList(FDiscardedAlarmList, noteFrom, nodeFrom,  noteTo, nodeTo);
     MoveAlarmsInList(FSelectedAlarmList, noteFrom, nodeFrom,  noteTo, nodeTo);
     // TODO: Refrescar el nodo actual
