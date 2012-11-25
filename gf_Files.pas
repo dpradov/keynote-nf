@@ -140,14 +140,15 @@ type
     //FFileName: WideString;
   public
     //constructor Create(const FileName: string; ensureUnicode: boolean);
-    function ReadStringW(const Section, Ident, Default: WideString): WideString;
-    procedure WriteStringW(const Section, Ident, Value: WideString);
+    function ReadStringW(const Section, Ident: string; Default: WideString): WideString;
+    procedure WriteStringW(const Section, Ident: string; Value: WideString);
   end;
 
   TWMemIniFile = class(TMemIniFile)
   public
-    function ReadStringW(const Section, Ident, Default: WideString): WideString;
-    procedure WriteStringW(const Section, Ident, Value: WideString);
+    function ReadString (const Section, Ident, Default : string) : string;
+    function ReadStringW(const Section, Ident: string; Default: WideString): WideString;
+    procedure WriteStringW(const Section, Ident: string; Value: WideString);
   end;
 
 
@@ -786,12 +787,15 @@ begin
 end;
 *)
 
-function TWIniFile.ReadStringW(const Section, Ident, Default: WideString): WideString;
+function TWIniFile.ReadStringW(const Section, Ident: string; Default: WideString): WideString;
 begin
-   Result:= TryUTF8ToWideString(ReadString(Section, Ident, Default));
+   if not ValueExists(Section, Ident) then
+      Result:= Default
+   else
+      Result:= TryUTF8ToWideString(ReadString(Section, Ident, ''));
 end;
 
-procedure TWIniFile.WriteStringW(const Section, Ident, Value: WideString);
+procedure TWIniFile.WriteStringW(const Section, Ident: string; Value: WideString);
 var
    S: string;
 begin
@@ -803,12 +807,15 @@ begin
 end;
 
 
-function TWMemIniFile.ReadStringW(const Section, Ident, Default: WideString): WideString;
+function TWMemIniFile.ReadStringW(const Section, Ident: string; Default: WideString): WideString;
 begin
-   Result:= TryUTF8ToWideString(ReadString(Section, Ident, Default));
+   if not ValueExists(Section, Ident) then
+      Result:= Default
+   else
+      Result:= TryUTF8ToWideString(ReadString(Section, Ident, ''));
 end;
 
-procedure TWMemIniFile.WriteStringW(const Section, Ident, Value: WideString);
+procedure TWMemIniFile.WriteStringW(const Section, Ident: string; Value: WideString);
 var
    S: string;
 begin
@@ -819,5 +826,24 @@ begin
       WriteString(Section, Ident, WideStringToUTF8(Value));
 end;
 
+// TMemIniFile Doesn't Handle Quoted Strings Properly (http://qc.embarcadero.com/wc/qcmain.aspx?d=4519)
+
+function TWMemIniFile.ReadString (const Section, Ident, Default : string) : string;
+begin
+   result := inherited ReadString (Section, Ident, Default);
+   if length (result) >= 2 then
+   begin
+      if result [1] = '"' then
+      begin
+         if result [length (result)] = '"' then
+            result := copy (result, 2, length (result) - 2);
+      end
+      else if result [1] = '''' then
+      begin
+         if result [length (result)] = '''' then
+            result := copy (result, 2, length (result) - 2);
+      end;
+   end;
+end;
 
 END.

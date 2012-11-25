@@ -150,7 +150,7 @@ end; // ReadCmdLine
 
 procedure ReadFuncKeys;
 var
-  IniFile : TIniFile;
+  IniFile : TMemIniFile;
   section : string;
   i : integer;
 begin
@@ -161,7 +161,7 @@ begin
   if opt_NoReadOpt then exit;
   if ( not fileexists( KEY_FN )) then exit;
 
-  IniFile := TIniFile.Create( KEY_FN );
+  IniFile := TMemIniFile.Create( KEY_FN );
 
   try
     with IniFile do
@@ -184,13 +184,13 @@ end; // ReadFuncKeys
 
 procedure SaveFuncKeys;
 var
-  IniFile : TIniFile;
+  IniFile : TMemIniFile;
   section : string;
   i : integer;
 begin
   if opt_NoSaveOpt then exit;
 
-  IniFile := TIniFile.Create( KEY_FN );
+  IniFile := TMemIniFile.Create( KEY_FN );
 
   try
     with IniFile do
@@ -208,6 +208,7 @@ begin
         if ( CtrlAltFKeys[i] <> '' ) then
           writestring( section, inttostr( i ), CtrlAltFKeys[i] );
     end;
+    IniFile.UpdateFile;
   finally
     IniFile.Free
   end;
@@ -293,14 +294,14 @@ end; // LoadDefaults
 
 procedure SaveToolbars;
 var
-  IniFile : TIniFile;
+  IniFile : TMemIniFile;
   section : string;
   i, cnt : integer;
   tb : TToolbarButton97;
   ts : TToolbarSep97;
 begin
   if opt_NoSaveOpt then exit;
-  IniFile := TIniFile.Create( Toolbar_FN );
+  IniFile := TMemIniFile.Create( Toolbar_FN );
   try
     try
       with IniFile do
@@ -350,6 +351,7 @@ begin
 
       end;
      end;
+     IniFile.UpdateFile;
     except
     end;
   finally
@@ -360,7 +362,7 @@ end; // SaveToolbars
 
 procedure LoadToolbars;
 var
-  IniFile : TIniFile;
+  IniFile : TMemIniFile;
   section, compname : string;
   list : TStringList;
   i, cnt : integer;
@@ -368,7 +370,7 @@ var
 begin
   if ( opt_NoReadOpt or ( not fileexists( Toolbar_FN ))) then exit;
 
-  IniFile := TIniFile.Create( Toolbar_FN );
+  IniFile := TMemIniFile.Create( Toolbar_FN );
   list := TStringList.Create;
 
   try
@@ -431,7 +433,7 @@ end; // LoadToolbars
 
 function LoadCustomKeyboard : boolean;
 var
-  IniFile : TiniFile;
+  IniFile : TMemIniFile;
   itemname, keyname : string;
   KeyList : TStringList;
   i, cnt, keyvalue : integer;
@@ -441,7 +443,7 @@ begin
   result := false;
   if ( opt_NoReadOpt or ( not fileexists( Keyboard_FN ))) then exit;
 
-  IniFile := TiniFile.Create( Keyboard_FN );
+  IniFile := TMemIniFile.Create( Keyboard_FN );
   KeyList := TStringList.Create;
   try
     try
@@ -451,7 +453,8 @@ begin
         begin
 
           Keylist.Clear;
-          readsectionvalues( KeyboardConfigSections[menusection], KeyList );
+          readsectionvalues( KeyboardConfigSections[menusection], KeyList );   // At this file this problem doesn't affect: TMemIniFile Doesn't Handle Quoted Strings Properly (http://qc.embarcadero.com/wc/qcmain.aspx?d=4519)
+
           cnt := KeyList.Count;
           for i := 1 to cnt do
           begin

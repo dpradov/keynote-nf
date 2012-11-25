@@ -1896,7 +1896,7 @@ begin
         FindOptions.FindAllHistory := '';
         for i := 1 to Combo_ResFind.Items.Count do
         begin
-          if ( i >= FindOptions.HistoryMaxCnt ) then break;
+          if ( i > FindOptions.HistoryMaxCnt ) then break;
           if ( i > 1 ) then
             FindOptions.FindAllHistory := FindOptions.FindAllHistory + HISTORY_SEPARATOR + WideQuotedStr( Combo_ResFind.Items[pred( i )], '"' )
           else
