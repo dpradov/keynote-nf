@@ -215,6 +215,7 @@ type
     TntLabel3: TTntLabel;
     lblProposedReminder: TTntLabel;
     lblReminderStatus: TTntLabel;
+    chk_AppyOnExit: TCheckBox;
 
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -297,7 +298,7 @@ type
 
     procedure EnableControls (Value: Boolean);
 
-    procedure ConfirmApplyPendingChanges();
+    procedure ConfirmApplyPendingChanges(ask: boolean);
     procedure ResetModifiedState;
 
     procedure CleanProposedReminderPanel();
@@ -1186,7 +1187,7 @@ end;
 
 procedure TForm_Alarm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-   ConfirmApplyPendingChanges();
+   ConfirmApplyPendingChanges(not chk_AppyOnExit.Checked);
 
    if (modeEdit = TShowReminders) or (modeEdit = TShowAll) or (modeEdit = TShowPending) or (modeEdit = TShowAllWithDiscarded) then
         AlarmManager.CancelReminders(true);
@@ -1284,30 +1285,9 @@ end;
 
 
 procedure TForm_Alarm.FormResize(Sender: TObject);
-var
-   formWidth: integer;
 begin
-    formWidth:= Self.Width;
-    Grid.Width := formWidth - 30;
-
-    Button_SelectAll.Left:= formWidth - 341;
-    Button_Discard.Left:= formWidth - 230;
-    Button_Apply.Left:= formWidth - 113;
-    PanelProposedReminder.Left:= formWidth - 498;
-    cIdentifier.Width:= formWidth - 211;
-    txtSubject.Width:= formWidth - 522;
-
-    TB_Hilite.Left:= formWidth - 441;
-    TB_Color.Left:= formWidth - 475;
-    TB_Bold.Left:= formWidth - 499;
-    Bevel1.Width:= PanelCalendar.Left - 11;
-
-    lblFilter.Left := formWidth - 363;
-    cFilter.Left := formWidth - 298;
-    Button_ClearFilter.Left := formWidth - 100;
-    TB_ClipCap.Left:= formWidth - 70;
-    Button_Sound.Left:= formWidth - 46;
-
+    TB_Color.Left:= TB_Bold.Left + TB_Bold.Width;
+    TB_Hilite.Left:= TB_Color.Left + TB_Color.Width;
 end;
 
 //----------------------------------
@@ -1324,7 +1304,7 @@ begin
      end
   else
       if (key = 13) and (cFilter.Focused ) then begin
-         ConfirmApplyPendingChanges();
+         ConfirmApplyPendingChanges(true);
          FilterAlarmList();
          FormShow(nil);
          cFilter.SetFocus;
@@ -1341,7 +1321,7 @@ procedure TForm_Alarm.CB_ShowModeChange(Sender: TObject);
 var
   EnableRemoveButtons: boolean;
 begin
-    ConfirmApplyPendingChanges();
+    ConfirmApplyPendingChanges(true);
 
     EnableRemoveButtons:= false;
 
@@ -1521,10 +1501,10 @@ begin
 end;
 
 
-procedure TForm_Alarm.ConfirmApplyPendingChanges();
+procedure TForm_Alarm.ConfirmApplyPendingChanges(ask: boolean);
 begin
     if ChangesToApply then begin
-       if DoMessageBox( STR_ConfirmApplyPendingChanges, mtConfirmation, [mbYes,mbNo], 0, Handle ) = mrYes  then
+       if (not ask) or (DoMessageBox( STR_ConfirmApplyPendingChanges, mtConfirmation, [mbYes,mbNo], 0, Handle ) = mrYes)  then
           Button_ApplyClick(nil);
 
        ResetModifiedState;
@@ -1787,11 +1767,13 @@ begin
            ls2 := Grid.GetNextItem(ls2, sdAll, [isSelected]);
         end;
 
-      if (modeEdit = TShowReminders) and (AlarmManager.UnfilteredAlarmList.Count = 0) then
+      if (modeEdit = TShowReminders) and (AlarmManager.UnfilteredAlarmList.Count = 0) then begin
+         ResetModifiedState;
          Close;
+      end;
     end;
 
-  ResetModifiedState;       // => ChangesToApply -> False
+  ResetModifiedState;           // => ChangesToApply -> False
 
   FilterAlarmList;
   FormShow(nil);
@@ -2409,7 +2391,7 @@ end;
 procedure TForm_Alarm.cFilterExit(Sender: TObject);
 begin
     if cFilter.Tag = 1 then begin
-       ConfirmApplyPendingChanges();
+       ConfirmApplyPendingChanges(true);
        FilterAlarmList();
        FormShow(nil);
     end;
@@ -2432,7 +2414,7 @@ end;
 
 procedure TForm_Alarm.CB_FilterDatesChange(Sender: TObject);
 begin
-   ConfirmApplyPendingChanges();
+   ConfirmApplyPendingChanges(true);
 
    if CB_FilterDates.ItemIndex = 0 then begin
       cCalendar.EndDate:= cCalendar.Date;
@@ -2452,7 +2434,7 @@ var
    beginDate, endDate: TDateTime;
    dayOfWeek: Word;
 begin
-   ConfirmApplyPendingChanges();
+   ConfirmApplyPendingChanges(true);
 
    beginDate:= cCalendar.Date;
    endDate:= cCalendar.EndDate;
@@ -2540,7 +2522,7 @@ end;
 
 procedure TForm_Alarm.GridEnter(Sender: TObject);
 begin
-   ConfirmApplyPendingChanges();
+   ConfirmApplyPendingChanges(true);
 end;
 
 function TForm_Alarm.AlarmSelected: TAlarm;
