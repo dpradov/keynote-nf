@@ -753,7 +753,7 @@ begin
          URLType := urlFile;
 
 
-  if (URLType = urlFile) then
+  if (URLType = urlFile) then begin
       if (( pos( KNTLOCATION_MARK_NEW, URLText ) > 0 ) or ( pos( KNTLOCATION_MARK_OLD, URLText ) > 0 )) then
           KNTlocation:= True
 
@@ -779,6 +779,12 @@ begin
           end;
 
       end;
+  end
+  else
+      if (URLType = urlHTTP) or ((URLType = urlHTTPS)) then begin
+          URLText:= ReplaceStr(URLText, #32, '%20');
+      end;
+
 
   if (URLType = urlUndefined) then
       URLType := urlOther;
@@ -1179,7 +1185,6 @@ begin
               end;
             end;
             else begin // all other URL types
-                myURL := FileNameToURL( myURL );  // We can paste hyperlinks from other programs
                 screen.Cursor := crAppStart;
                 try
                   if ( myURLAction = urlOpenNew ) then

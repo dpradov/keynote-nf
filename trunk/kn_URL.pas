@@ -289,6 +289,8 @@ var
   url: wideString;
   InterpretedUrl: wideString;
   KNTlocation: boolean;
+  URLType: TKNTURL;
+  lastChar: WideChar;
 begin
  if not Edit_TextURL.Enabled then exit;
 
@@ -298,10 +300,15 @@ begin
         delete( url, 1, length( STR_05 ));
 
      url:= trim(url);
+     if url='' then exit;
+
      InterpretedUrl:= url;
-     if TypeURL( InterpretedUrl, KNTlocation) = urlOTHER then
+     URLType:= TypeURL( InterpretedUrl, KNTlocation);
+     lastChar:= url[length(url)];
+     if (URLType = urlOTHER) or (( URLType in [urlHTTP, urlHTTPS]) and ( lastChar in [')', ']'] ))  then
          // Si el texto es igual a la URL, y no es de los reconocidos por el control RichEdit (http://msdn.microsoft.com/en-us/library/windows/desktop/bb787991%28v=vs.85%29.aspx)
          // no lo tratará como hiperlenlace
+         // También deja sin reconocer el último carácter si éste es ) o ], como mínimo
         url:= '<' + url + '>'
      else
          if url <> interpretedUrl then begin
