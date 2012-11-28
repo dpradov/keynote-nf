@@ -11,6 +11,7 @@ uses
 
     function GetWordCount( const t : string ) : longint;
     procedure UpdateWordCount;
+    procedure CleanWordCount;
 
     procedure MatchBracket;
     procedure TrimBlanks( const TrimWhat : integer );
@@ -343,6 +344,11 @@ begin
 
 end; // UpdateWordCount
 
+
+procedure CleanWordCount;
+begin
+    Form_Main.StatusBar.Panels[PANEL_CARETPOS].Text := ' W: ... / ...';
+end;
 
 //=================================================================
 // MatchBracket
