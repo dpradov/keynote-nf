@@ -1359,6 +1359,7 @@ type
 
 function GetFilePassphrase( const FN : wideString ) : string;
 function IsAParentOf( aPerhapsParent, aChild : TTreeNTNode ) : boolean;
+function MillisecondsIdle: DWord;
 
 
 var
@@ -1482,7 +1483,7 @@ resourcestring
   STR_96= 'Starting number for numbered paragraphs:';
 
 const
-  _TIMER_INTERVAL = 10000; // ten seconds
+  _TIMER_INTERVAL = 2000; // 2 seconds
 
 
 // callback from TNoteFile, to prompt for passphrase
@@ -2180,6 +2181,7 @@ var
   Hrs, Mins : integer;
 begin
   inc( Timer_Tick );
+  inc( Timer_TickAlarm);
   {
     timer may trigger THREE kinds of things:
     1. auto-saving current file
@@ -2234,13 +2236,29 @@ begin
       end;
     end;
 
-    AlarmManager.checkAlarms;    // [dpv]
+
+    if ( Timer_TickAlarm >=  ( 60000 div _TIMER_INTERVAL )/4 ) then begin    // Comprobamos cada 15 segundos
+        Timer_TickAlarm:= 0;
+        AlarmManager.checkAlarms;
+    end;
+
+    if MillisecondsIdle >= 450 then
+       UpdateWordCount;
 
   except
      // drop all exceptions here
   end;
 
 end; // OnTimer
+
+function MillisecondsIdle: DWord;
+var
+   liInfo: TLastInputInfo;
+begin
+   liInfo.cbSize := SizeOf(TLastInputInfo) ;
+   GetLastInputInfo(liInfo) ;
+   Result := (GetTickCount - liInfo.dwTime);
+end;
 
 procedure TForm_Main.AppDeactivate( sender : TObject );
 begin
@@ -3055,8 +3073,6 @@ begin
   TB_EditUndo.Enabled := ( sender as TTabRichEdit ).CanUndo;
   TB_EditRedo.Enabled := ( sender as TTabRichEdit ).CanRedo;
   RTFMUndo.Enabled := TB_EditUndo.Enabled;
-
-  UpdateWordCount;
 
 end; // RxRTFChange
 

@@ -993,6 +993,13 @@ begin
 
             UpdateWordWrap;
 
+            if EditorOptions.WordCountTrack then begin
+               if ActiveNote.Editor.TextLength < 2000 then
+                  UpdateWordCount
+               else
+                  CleanWordCount;   // Lo actualizaremos cuando se dispare el Timer, si corresponde
+            end;
+
             // if isWordWrap then s := ' W' else s := ' ';
 
             RxRTFChange( ActiveNote.Editor );

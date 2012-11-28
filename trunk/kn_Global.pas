@@ -142,6 +142,7 @@ var
 
    //================================================== TIMER
     Timer_Tick : integer; // timer counter, for autosave
+    Timer_TickAlarm: integer;  // timer counter, for checking alarms
     AppLastActiveTime : TDateTime; // for auto-minimizing and auto-closing on timeout
     {$IFDEF WITH_TIMER}
     ThisTick, LastTick : integer;
@@ -433,6 +434,7 @@ begin
 
       Timer.Enabled := false;
       Timer_Tick := 0;
+      Timer_TickAlarm:= 0;
       Timer.Interval := _TIMER_INTERVAL;
 
       Combo_Zoom.Text := '100%';
