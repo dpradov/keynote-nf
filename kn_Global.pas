@@ -186,6 +186,7 @@ var
     _SYSTEM_IS_WINXP : boolean;
 
     AlarmManager: TAlarmManager;    // [dpv]
+    _DllHandle : THandle;
 
     {$IFDEF MJ_DEBUG}
     Log : TGFLog;

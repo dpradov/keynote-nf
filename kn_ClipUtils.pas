@@ -9,6 +9,7 @@ const
 type
    TClipBoardW= class(TClipboard)
       private
+        function RetryGetClipboardData(ClipbrdContent: integer): THandle;
         function GetAsTextW: wideString;
         procedure SetAsTextW(const Value: wideString);
         function GetAsRTF: string;
@@ -34,6 +35,12 @@ uses WideStrings, gf_strings, RichEdit;
 
 var
   CFRtf: Integer;
+
+type
+  TClipboardContent = (
+    ccRTF, ccUNICODE
+  );
+
 
 function ClipboardHasHTMLformat : boolean;
 begin
@@ -137,26 +144,39 @@ begin
 end;
 
 
-function TClipboardW.GetAsTextW: wideString;
+function TClipboardW.RetryGetClipboardData(ClipbrdContent: integer): THandle;
 var
-  Data: THandle;
+  RetryCount: integer;
 begin
+  Result:= 0;
+  RetryCount:= 0;
+  while RetryCount < 6 do
     try
       Clipboard.Open;
       try
-        Data := GetClipboardData(CF_UNICODETEXT);
-        if Data <> 0 then begin
-          Result := PWideChar(GlobalLock(Data));
-        end
-        else
-          Result := '';
+        Result := GetClipboardData(ClipbrdContent);
+        RetryCount:= 99;   // Ok, salimos
       finally
-        if Data <> 0 then GlobalUnlock(Data);
+        if Result <> 0 then GlobalUnlock(Result);
         Clipboard.Close;
       end;
+
     except
-       Result:= '';
+      Inc(RetryCount);
+      if RetryCount < 6 then Sleep(RetryCount * 100);
     end;
+end;
+
+
+function TClipboardW.GetAsTextW: WideString;
+var
+  Data: THandle;
+begin
+   Data:= RetryGetClipboardData(CF_UNICODETEXT);
+   if Data <> 0 then
+      Result := PWideChar(GlobalLock(Data))
+   else
+      Result:= '';
 end;
 
 procedure TClipboardW.SetAsTextW(const Value: wideString);
@@ -173,22 +193,11 @@ function TClipboardW.GetAsRTF: string;
 var
   Data: THandle;
 begin
-    try
-      Clipboard.Open;
-      try
-        Data := GetClipboardData(CFRtf);
-        if Data <> 0 then begin
-          Result := PChar(GlobalLock(Data));
-        end
-        else
-          Result := '';
-      finally
-        if Data <> 0 then GlobalUnlock(Data);
-        Clipboard.Close;
-      end;
-    except
-       Result:= '';
-    end;
+   Data:= RetryGetClipboardData(CFRtf);
+   if Data <> 0 then
+      Result := PChar(GlobalLock(Data))
+   else
+      Result:= '';
 end;
 
 

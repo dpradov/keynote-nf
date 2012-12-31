@@ -61,14 +61,17 @@ uses
   kn_NoteMng, kn_EditorUtils,
   kn_BookmarksMng,
   kn_TabSelect,
-  kn_Main,kn_DLLmng, kn_LinksMng, kn_PluginsMng, kn_TreeNoteMng, kn_VCLControlsMng;
+  kn_Main, kn_LinksMng, kn_PluginsMng, kn_TreeNoteMng, kn_VCLControlsMng,
+  kn_ExportImport;
 
-  type
+type
    TMergeNotes = record
        oldID: integer;
        newID: integer;
        newNote: boolean;
    end;
+
+
 
 resourcestring
   STR_01 = 'Cannot create a new file: ';
@@ -133,7 +136,7 @@ resourcestring
   STR_58 = 'The file "%s" does not appear to be a text file. The result of importing it may be unpredictable.' + #13#13 +
                 'Import as a plain text file, anyway?';
   STR_59 = ' Importing ';
-  STR_60 = 'Failed to convert HTML file "%s" to RTF (code: %d).';
+  STR_60 = 'Failed to convert HTML file "%s" to RTF';
   STR_61 = 'Error importing ';
   STR_62 = ' Finished importing.';
   STR_63 = 'Cannot select methods for handling files.';
@@ -1505,6 +1508,7 @@ function CheckModified( const Warn : boolean; const closing: boolean ) : boolean
 var
    wasMinimized: boolean;
 begin
+  wasMinimized:= False;
   with Form_Main do begin
 
       result := true;
@@ -1611,22 +1615,26 @@ end; // ImportFiles
 //=================================================================
 procedure ImportAsNotes( ImportFileList : TWideStringList );
 var
-  ext, FN, tmpFN, s : wideString;
+  ext, FN, s : wideString;
   myNote : TTabNote;
-  ConvertCode, filecnt : integer;
+  filecnt : integer;
   ImportFileType : TImportFileType;
   tNote : TTreeNote;
+  OutStream: TMemoryStream;
+
 begin
   with Form_Main do begin
 
         if ( not HaveNotes( true, false )) then exit;
         if (( not assigned( ImportFileList )) or ( ImportFileList.Count = 0 )) then exit;
 
+        OutStream:= TMemoryStream.Create;
         try
 
           for filecnt := 0 to pred( ImportFileList.Count ) do
           begin
             FN := normalFN( ImportFileList[filecnt] );
+            OutStream.Clear;
 
             ext := WideLowercase( WideExtractfileext( FN ));
             ImportFileType := itText;
@@ -1667,17 +1675,11 @@ begin
 
               StatusBar.Panels[PANEL_HINT].Text := STR_59 + WideExtractFilename( FN );
 
-              if ( ImportFileType = itHTML ) then
+              if ( ImportFileType = itHTML ) then   // first see if we can do the conversion, before we create a new note for the file
               begin
-                // first see if we can do the conversion,
-                // before we create a new note for the file
-                tmpFN := DllConvertHTMLToRTF( FN, ConvertCode, KeyOptions.HTMLImportMethod, '' { KeyOptions.HTML32CNVLocation } );
-                if (( tmpFN = '' ) or ( not fileexists( tmpFN ))) then
-                begin
-                  DoMessageBox( WideFormat(
-                    STR_60, [FN,ConvertCode] ),
-                    mtWarning, [mbOK], 0 );
-                  exit;
+                if not ConvertHTMLToRTF( FN, OutStream) then begin
+                   DoMessageBox( WideFormat(STR_60, [FN]), mtWarning, [mbOK], 0 );
+                   exit;
                 end;
               end;
 
@@ -1698,11 +1700,6 @@ begin
                   s := WideExtractFilename( FN )
                 else
                   s := ExtractFilenameNoExt( FN );
-                {
-                dotpos := lastpos( '.', s );
-                if ( dotpos > 1 ) then
-                  delete( s, dotpos, length( s ));
-                }
                 myNote.Name := s;
                 NoteFile.AddNote( myNote );
 
@@ -1710,14 +1707,13 @@ begin
                   case ImportFileType of
                     itText : begin
                       myNote.DataStream.LoadFromFile( FN );
-                    end;
+                      end;
                     itHTML : begin
-                      myNote.DataStream.LoadFromFile( tmpFN );
-                      deletefileW( PWideChar(tmpFN) );
-                    end;
+                      myNote.DataStream.LoadFromStream(OutStream);
+                      end;
                     itRTF : begin
                       myNote.DataStream.LoadFromFile( FN );
-                    end;
+                      end;
                     itTreePad : begin
                       tNote := TTreeNote( myNote );
                       tNote.SetTreeProperties( DefaultTreeProperties );
@@ -1740,8 +1736,7 @@ begin
                 end;
 
               except
-                on E : Exception do
-                begin
+                on E : Exception do begin
                   DoMessageBox( STR_61 + FN + #13#13 + E.Message, mtError, [mbOK], 0 );
                   exit;
                 end;
@@ -1758,7 +1753,8 @@ begin
           end;
 
         finally
-
+            if assigned( OutStream ) then OutStream.Free;
+            FreeConvertLibrary;
         end;
   end;
 end; // ImportAsNotes
@@ -1963,10 +1959,12 @@ procedure FileDropped( Sender : TObject; FileList : TWideStringList );
 var
   myTreeNode : TTreeNTNode;
   myNoteNode : TNoteNode;
-  fName, fExt, tmpFN : wideString;
+  fName, fExt : wideString;
   myAction : TDropFileAction;
-  ConvertCode, i : integer;
+  i : integer;
   FileIsHTML, FileIsFolder : boolean;
+  OutStream: TMemoryStream;
+
 begin
   with Form_Main do begin
         if ( FileList.Count = 0 ) then exit;
@@ -1996,7 +1994,6 @@ begin
         myTreeNode := nil;
 
         WinOnTop.AlwaysOnTop := false;
-
         try
 
           Application.BringToFront;
@@ -2025,6 +2022,7 @@ begin
               factOpen : begin
                 NoteFileOpen( fName );
               end;
+
               factExecute : begin
                 if ( fExt = ext_Plugin ) then
                 begin
@@ -2036,9 +2034,11 @@ begin
                   ExecuteMacro( fName, '' );
                 end;
               end;
+
               factMerge : begin
                 MergeFromKNTFile( fName );
               end;
+
               factHyperlink : begin
                 for i := 0 to pred( FileList.Count ) do
                 begin
@@ -2048,16 +2048,20 @@ begin
                   ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart+2;
                 end;
               end;
+
               factImport : begin
                 ImportAsNotes( FileList );
               end;
+
               factImportAsNode : begin
                 ActiveNote.Editor.OnChange := nil;
                 ActiveNote.Editor.Lines.BeginUpdate;
                 SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 ); // don't draw richedit yet
+                OutStream:= TMemoryStream.Create;
                 try
                   for i := 0 to pred( FileList.Count ) do
                   begin
+                    OutStream.Clear;
                     FName := FileList[i];
                     if DirectoryExists( FName ) then
                     begin
@@ -2066,18 +2070,13 @@ begin
                       else
                         continue;
                     end;
-                    // first see if we can do the conversion,
-                    // before we create a new note for the file
 
+                    // first see if we can do the conversion, before we create a new note for the file
                     if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then
                     begin
-                      tmpFN := DllConvertHTMLToRTF( FName, ConvertCode, KeyOptions.HTMLImportMethod, '' { KeyOptions.HTML32CNVLocation } );
-                      if (( ConvertCode <> 0 ) or ( not fileexists( tmpFN ))) then
-                      begin
-                        DoMessageBox( WideFormat(
-                          STR_60, [FName,ConvertCode] ),
-                          mtWarning, [mbOK], 0 );
-                        continue;
+                      if not ConvertHTMLToRTF( FName, OutStream) then begin
+                         DoMessageBox( WideFormat(STR_60, [FName]), mtWarning, [mbOK], 0 );
+                         exit;
                       end;
                     end;
 
@@ -2085,28 +2084,25 @@ begin
                     if assigned( myTreeNode ) then
                     begin
                       myNoteNode := TNoteNode( myTreeNode.Data );
-                      if assigned( myNoteNode ) then
-                      begin
-                        if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then
-                        begin
-                          myNoteNode.Stream.LoadFromFile( tmpFN );
-                          deletefileW( PWideChar(tmpFN) );
-                        end
-                        else
-                        begin
-                          myNoteNode.Stream.LoadFromFile( FName );
-                        end;
-                        SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
-                        if KeyOptions.ImportFileNamesWithExt then
-                          myNoteNode.Name := WideExtractFilename( FName )
-                        else
-                          myNoteNode.Name := ExtractFilenameNoExt( FName );
-                        myTreeNode.Text := myNoteNode.Name;
-                        ActiveNote.DataStreamToEditor;
+                      if assigned( myNoteNode ) then begin
+                          if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then
+                            myNoteNode.Stream.LoadFromStream(OutStream)
+                          else
+                            myNoteNode.Stream.LoadFromFile( FName );
+
+                          SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
+                          if KeyOptions.ImportFileNamesWithExt then
+                            myNoteNode.Name := WideExtractFilename( FName )
+                          else
+                            myNoteNode.Name := ExtractFilenameNoExt( FName );
+                          myTreeNode.Text := myNoteNode.Name;
+                          ActiveNote.DataStreamToEditor;
                       end;
                     end;
                   end;
                 finally
+                  if assigned( OutStream ) then OutStream.Free;
+                  FreeConvertLibrary;
                   NoteFile.Modified := true;
                   SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
                   ActiveNote.Editor.Lines.EndUpdate;
@@ -2116,6 +2112,7 @@ begin
                   ActiveNote.Editor.OnChange := RxRTFChange;
                 end;
               end;
+
               factMakeVirtualNode : begin
                 SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 );
                 try
@@ -2137,6 +2134,7 @@ begin
                   ActiveNote.Editor.Invalidate; // in fact, I insist on it
                 end;
               end;
+
               {$IFDEF WITH_IE}
               factMakeVirtualIENode : begin
                 SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 );
@@ -2160,12 +2158,13 @@ begin
                 end;
               end;
               {$ENDIF}
+
               factUnknown : begin
                 // MessageDlg( 'No action was taken: could not determine method for handling files.', mtWarning, [mbOK], 0 );
                 exit;
               end;
-              else
-              begin
+
+              else begin
                 messagedlg( Format( STR_67, [ord( myAction )] ), mtError, [mbOK], 0 );
                 exit;
               end;
@@ -2173,8 +2172,7 @@ begin
             end; // case myAction
 
           except
-            on E : Exception do
-            begin
+            on E : Exception do begin
               messagedlg( STR_68 + E.Message, mtError, [mbOK], 0 );
               exit;
             end;
@@ -2593,6 +2591,5 @@ begin
     end;
   end;
 end; // AssociateKeyNoteFile
-
 
 end.

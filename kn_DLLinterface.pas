@@ -33,16 +33,12 @@ unit kn_DLLinterface;
 ************************************************************ *)
 
 interface
-uses Windows, Menus, Classes, kn_Const, kn_Info;
+uses Windows, Menus, Classes, kn_Const;
 
 type
   TDllProc = (
     dllCustomizeKeyboard  );
 
-
-
-type
-  TFilenameBuffer = array[0..512] of char;
 
 type
   DlgCustomizeKeyboardProc = function(
@@ -53,27 +49,12 @@ type
   ) : boolean;
 
 
-  (*
-  DlgAboutKeyNoteProc = procedure(
-    AppHandle : HWND
-  );
-  *)
+  MSWordConvertHTMLToRTFProc = function (const inFilename : WideString; var OutStream: TMemoryStream) : boolean;
+  MSWordConvertRTFToHTMLProc = function (const outFilename : WideString; const RTF: string) : boolean;
+  MSWordQuitProc = function(): boolean;
 
-  ConvertHTMLToRTFProc = function(
-    AppHandle : HWND;
-    HTMLMethod : THTMLImportMethod;
-    inFileName : PChar;
-    var outFileName : TFilenameBuffer;
-    ConverterLocation : PChar
-  ) : integer;
-
-  ConvertRTFToHTMLProc = function(
-    AppHandle : HWND;
-    RTFText : PChar;
-    outFileName : PChar;
-    ConverterLocation : PChar
-  ) : boolean;
-
+  TextConvImportAsRTFProc = function (FileName: String; Converter: String; aStream : TStream; ConverterLocation : string ): Boolean;
+  TextConvExportRTFProc=    function (FileName: String; Converter: String; aRTFText: PChar;   ConverterLocation : string ): Boolean;
 
 implementation
 

@@ -502,9 +502,9 @@ var
   // DlgAboutKeyNote : DlgAboutKeyNoteProc;
   DllHandle : THandle;
 begin
-
-  DllHandle := ObtainDLLHandle;
-  if ( DllHandle <= 0 ) then exit;
+  DllHandle:= 0;
+  @DlgCustomizeKeyboard := GetMethodInDLL(DLLHandle, 'DlgCustomizeKeyboard');
+  if not assigned(DlgCustomizeKeyboard) then exit;
 
   //Restore these shortcuts momentarily to show them in the configuration screen
   if TMenuItem( Form_Main.FindComponent( 'MMEditPaste' )).ShortCut = 0 then
@@ -522,18 +522,7 @@ begin
     try
       BuildKeyboardList( KeyCustomMenus, KeyList );
 
-      @DlgCustomizeKeyboard := GetProcAddress( DllHandle, 'DlgCustomizeKeyboard' );
-      if ( not assigned( DlgCustomizeKeyboard )) then
-      begin
-        DllProcNotFoundMsg( 'DlgCustomizeKeyboard' );
-        exit;
-      end;
-
-      if DlgCustomizeKeyboard(
-        Application.Handle,
-        PChar( Keyboard_FN ),
-        KeyList,
-        KeyOptions.HotKey ) then
+      if DlgCustomizeKeyboard(Application.Handle, PChar( Keyboard_FN ), KeyList, KeyOptions.HotKey) then
       begin
         screen.Cursor := crHourGlass;
         try

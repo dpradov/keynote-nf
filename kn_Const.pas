@@ -90,10 +90,11 @@ resourcestring
   STR_37_FactStr = 'Import as tree nodes';
   STR_38_FactStr = 'Import as virtual tree nodes';
   STR_39_FactStr = 'Import as Internet Explorer virtual node';
-  STR_40_ImportHTML = 'No conversion (import HTML source)';
-  STR_41_ImportHTML = 'Convert using Windows native converters';
-  STR_42_ImportHTML = 'Convert using MS Office converters';
-  STR_43_ImportHTML = 'Convert using Internet Explorer';
+  STR_40_ImportHTML = 'No conversion (HTML source)';
+  STR_41_ImportHTML = 'Use Shared HTML Text Converter (html32.cnv + msconv97.dll)';  // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Shared Tools\Text Converters
+  STR_42_ImportHTML = 'Use MS Word Converter';
+  STR_43_ImportHTML = 'Use Internet Explorer';
+  STR_58_ImportHTML = 'Use Microsoft HTML Converter (html.iec)';
   STR_44_Symb = 'Euro';
   STR_45_Symb = 'Copyright';
   STR_46_Symb = 'Registered trademark';
@@ -244,17 +245,18 @@ const
 
 
 const
+
   _Default_NoteHeadingTpl =
-    '{\rtf1\ansi\ansicpg1250\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}' + #13#10 +
+    '{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Tahoma;}Tahoma;}}' + #13#10 +
     '{\colortbl ;\red96\green96\blue96;}' + #13#10 +
-    '\viewkind4\uc1\pard\cf1\lang1033\f0\fs32\par' + #13#10 +
+    '\viewkind4\uc1\pard\cf1\f0\fs32\par' + #13#10 +
     '\b %HEADING\par' + #13#10 +
     '\b0\par' + #13#10 +
     '}';
   _Default_NodeHeadingTpl =
-    '{\rtf1\ansi\ansicpg1250\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}' + #13#10 +
+    '{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Tahoma;}Tahoma;}}' + #13#10 +
     '{\colortbl ;\red96\green96\blue96;}' + #13#10 +
-    '\viewkind4\uc1\pard\cf1\lang1033\f0\fs24\par' + #13#10 +
+    '\viewkind4\uc1\pard\cf1\f0\fs24\par' + #13#10 +
     '\ul\b %HEADING\ulnone\b0\par' + #13#10 +
     '\par' + #13#10 +
     '}';
@@ -620,8 +622,13 @@ const
 
 type
   THTMLImportMethod = (
-    htmlSource, htmlWindowsNative, htmlOffice, htmlIE
+    htmlSource, htmlSharedTextConv, htmlMSWord, htmlIE
   );
+
+  THTMLExportMethod = (
+    htmlExpMicrosoftHTMLConverter, htmlExpMSWord
+  );
+
 
 type
   TDartNotesHdr = packed record
@@ -791,6 +798,7 @@ var
   SEARCH_MODES : array[TSearchMode] of string;
   SYMBOL_NAME_LIST : array[1..10] of string;
   HTMLImportMethods : array[THTMLImportMethod] of string;
+  HTMLExportMethods : array[THTMLExportMethod] of string;
 
 implementation
 
@@ -824,10 +832,13 @@ begin
   SYMBOL_NAME_LIST[9]:=   STR_52_Symb;
   SYMBOL_NAME_LIST[10]:=  STR_53_Symb;
 
-  HTMLImportMethods[htmlSource]:=        STR_40_ImportHTML;
-  HTMLImportMethods[htmlWindowsNative]:= STR_41_ImportHTML;
-  HTMLImportMethods[htmlOffice]:=        STR_42_ImportHTML;
-  HTMLImportMethods[htmlIE]:=            STR_43_ImportHTML;
+  HTMLImportMethods[htmlSource]:=         STR_40_ImportHTML;
+  HTMLImportMethods[htmlSharedTextConv]:= STR_41_ImportHTML;
+  HTMLImportMethods[htmlMSWord]:=         STR_42_ImportHTML;
+  HTMLImportMethods[htmlIE]:=             STR_43_ImportHTML;
+
+  HTMLExportMethods[htmlExpMicrosoftHTMLConverter]:= STR_58_ImportHTML;
+  HTMLExportMethods[htmlExpMSWord]:=                 STR_42_ImportHTML;
 end;
 
 Initialization

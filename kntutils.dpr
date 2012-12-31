@@ -14,21 +14,22 @@ uses
   SysUtils,
   Classes,
   dll_Main in 'dll_Main.pas',
-  dll_HTMLConvIE in 'dll_HTMLConvIE.pas' {Form_HtmlConvIE},
   dll_Keyboard in 'dll_Keyboard.pas',
   dll_KBD in 'dll_KBD.pas' {Form_KBD},
-  kn_INI in 'kn_INI.pas',
-  kn_Info in 'kn_Info.pas',
   kn_DLLInterface in 'kn_DLLInterface.pas',
-  MSOfficeConverters in 'MSOfficeConverters.pas';
+  MSOfficeConverters in 'MSOfficeConverters.pas',
+  MSWordConverter in 'MSWordConverter.pas';
 
 {$R *.RES}
 
 
 exports
-  DlgCustomizeKeyboard index 1,
-  ConvertHTMLToRTF index 2,
-  ConvertRTFToHTML index 3;
+  DlgCustomizeKeyboard,
+  MSWordConvertHTMLToRTF,
+  MSWordConvertRTFToHTML,
+  MSWordQuit,
+  TextConvImportAsRTF,
+  TextConvExportRTF;
 
 
 begin

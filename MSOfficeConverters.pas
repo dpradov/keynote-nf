@@ -1,6 +1,8 @@
 unit MSOfficeConverters;
 
 { -----------------------------------------------------------------------------}
+{ Modified by Daniel Prado <dprado.keynote@gmail.com> on Dec 2012              }
+{ -----------------------------------------------------------------------------}
 { Modified by Marek Jedlinski <eristic@lodz.pdi.net> on Jan 8, 2002            }
 { -----------------------------------------------------------------------------}
 { Unit: Converters                                                             }
@@ -32,19 +34,17 @@ unit MSOfficeConverters;
 interface
 
 uses
-  Registry, Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, FileCtrl, OleCtrls, ComCtrls, ExtCtrls, AxCtrls, RxRichEd,
-  kn_RTFUtils;
+  Registry, Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs;
 
 // -----------------------------------------------------------------
 // Functions to call when you want to convert something
 // -----------------------------------------------------------------
 
 // Function to import a file to a WideString.
-function ImportAsRTF(FileName: String; Converter: String; aStream : TStream; ConverterLocation : string ): Boolean;
+function TextConvImportAsRTF(FileName: String; Converter: String; aStream : TStream; ConverterLocation : string ): Boolean;
 
 // Function to export RTF to a file.
-function ExportRTF(FileName: String; Converter: String; aRTFText : PChar; ConverterLocation : string ): Boolean;
+function TextConvExportRTF(FileName: String; Converter: String; aRTFText : PChar; ConverterLocation : string ): Boolean;
 
 // -----------------------------------------------------------------
 // Functions to call if you want to know what can be converted
@@ -62,7 +62,7 @@ function BuildConverterList(ForImport: Boolean; StrLst: TStringList): Boolean;
 // -----------------------------------------------------------------
 
 // Initialize the selected converter.
-function LoadConverter(Description: string; Import: boolean; ConverterLocation : string): HWND;
+function LoadConverter(Name: string; Import: boolean; ConverterLocation : string): HWND;
 
 // Check if current file is of right format.
 function IsKnownFormat(FileName: string): Boolean;
@@ -84,11 +84,31 @@ function Writing(flags, nPercentComplete: integer): Integer; stdcall;
 
 implementation
 
+  // Return Codes from the converter, Defined by the interface.
+const                                   // File Conversion Errors.
+      fceTrue           =  1;   // IsFormatCorrect32 recognized the input file
+      fceNoErr    	=  0;   // success
+      fceOpenInFileErr	= -1;	// could not open input file
+      fceReadErr	= -2;	// error during read
+      fceOpenConvErr	= -3;	// error opening conversion file
+      fceWriteErr	= -4;	// error during write
+      fceInvalidFile	= -5;	// invalid data in conversion file
+      fceOpenExceptErr	= -6;   // error opening exception file
+      fceWriteExceptErr	= -7;	// error writing exception file
+      fceNoMemory	= -8;	// out of memory
+      fceInvalidDoc	= -9;	// invalid document
+      fceDiskFull	= -10;	// out of space on output
+      fceDocTooLarge	= -11;	// conversion document too large for target
+      fceOpenOutFileErr	= -12;	// could not open output file
+      fceUserCancel	= -13;	// conversion cancelled by user
+      fceWrongFileType	= -14;	// wrong file type for this converter
+
 type
   // Our functions to convert the RTF-format to a foreign format, or a foreign format to the RTF-format.
   // These functions are hidden in the converters.
   RTF_CALLBACK = function(CCH, nPercentComplete: integer): Integer; stdcall;
   TInitConverter = function(ParentWin: THandle; ParentAppName: LPCSTR): integer; stdcall;
+  TUninitConverter = procedure(); stdcall;
   TIsFormatCorrect = function(FileName, Desc: HGLOBAL): integer; stdcall;
   TForeignToRtf = function(FileName: HGLOBAL; void: pointer{LPSTORAGE}; Buf, Desc, Subset: HGLOBAL; Callback: RTF_CALLBACK): integer; stdcall;
   TRtfToForeign = function(FileName: HGLOBAL; void: pointer{LPSTORAGE}; Buf, Desc: HGLOBAL; Callback: RTF_CALLBACK): integer; stdcall;
@@ -96,6 +116,7 @@ type
 var
   CurrentConverter: HWND;
   InitConverter: TInitConverter = nil;
+  UninitConverter: TUninitConverter = nil;
   IsFormatCorrect: TIsFormatCorrect = nil;
   ForeignToRtf: TForeignToRtf = nil;
   RtfToForeign: TRtfToForeign = nil;
@@ -111,7 +132,7 @@ const
   MSTextConvKey = 'SOFTWARE\Microsoft\Shared Tools\Text Converters\';
 
 
-function ImportAsRTF(FileName: String; Converter: String; aStream : TStream; ConverterLocation : string): Boolean;
+function TextConvImportAsRTF(FileName: String; Converter: String; aStream : TStream; ConverterLocation : string): Boolean;
 var
   // Variables used for the actual conversion.
   hSubset,
@@ -121,11 +142,12 @@ var
 begin
   Result := False; // We are very pessimistic.
   try
-    if LoadConverter(Converter, True, ConverterLocation ) <> 0 then
-      begin
-        // Check selected file format.
-        if IsKnownFormat(FileName) then
-          begin
+    if LoadConverter(Converter, True, ConverterLocation ) <> 0 then begin
+
+        if not IsKnownFormat(FileName) then        // Check selected file format.
+            ShowMessage('Incorrect file format.')
+
+        else begin
             // prepare parameters
             hSubset := StringToHGLOBAL('');
             hDesc := StringToHGLOBAL('');
@@ -141,12 +163,11 @@ begin
               mstream.SetSize(512 * 1024); // initial: 512 kB, seems reasonable.
 
               if Assigned(ForeignToRtf) then
-                res := ForeignToRtf(hFileName, nil, hBuf, hDesc, hSubset, Reading)
+                 res := ForeignToRtf(hFileName, nil, hBuf, hDesc, hSubset, Reading)
               else
-                res := -1; // no valid entry point for DLL
+                 res := -1; // no valid entry point for DLL
 
-              if res = 0 then // Don't know any other states. Might be boolean.
-                begin
+              if res = fceNoErr then begin
                   mstream.SetSize(mstream.Position); // shrink to right size
                   mstream.Position := 0;
 
@@ -157,30 +178,29 @@ begin
                   mStream.Free;
 
                   Result := True;
-                end
+                  end
               else
-                Result := False;
+                  Result := False;
+
             finally
               GlobalFree(hBuf);
               GlobalFree(hFileName);
               GlobalFree(hDesc);
               GlobalFree(hSubset);
               Screen.Cursor := crDefault;
+
+              UninitConverter();
             end;
-          end
-        else
-          begin
-            ShowMessage('Incorrect file format.');
-            Result := False;
           end;
       end;
+
   except
     Result := False;
   end;
 end;
 
 
-function ExportRTF(FileName: String; Converter: String; aRTFText : PChar; ConverterLocation : string ): Boolean;
+function TextConvExportRTF(FileName: String; Converter: String; aRTFText : PChar; ConverterLocation : string ): Boolean;
 var
   hSubset,
   hFileName,
@@ -196,7 +216,7 @@ begin
           Result := False;
           Exit;
         end;
-                                                
+
       hSubset := StringToHGLOBAL('');
       hDesc := StringToHGLOBAL('');
       hFileName := StringToHGLOBAL(FileName);
@@ -208,19 +228,6 @@ begin
 
         if Assigned(RtfToForeign) then
           begin
-            {
-            iSelStart := rtbApp.SelStart;
-            iSelLength := rtbApp.SelLength;
-
-            rtbApp.SelectAll; // This is done quick-and-dirty, but at the moment it works.
-
-            RTFToWrite := GetRichText(
-              rtbApp, true, true );
-
-
-            rtbApp.SelStart := iSelStart;
-            rtbApp.SelLength := iSelLength;
-            }
 
             RTFToWrite := aRTFText;
             WriteMax := length(RTFToWrite);
@@ -229,10 +236,7 @@ begin
 
             RTFToWrite := '';
 
-            if res = 0 then
-              Result := True
-            else
-              Result := False;
+            Result:= (res = fceNoErr);
           end
         else
           begin
@@ -246,6 +250,8 @@ begin
         GlobalFree(hDesc);
         GlobalFree(hSubset);
         Screen.Cursor := crDefault;
+
+        UninitConverter();
       end;
     end
   else
@@ -437,69 +443,43 @@ end;
 
 // The function "LoadConverter" loads a specific converter.
 // We set the converter-functions as well.
-function LoadConverter(Description: string; Import: boolean; ConverterLocation : string): HWND;
+function LoadConverter(Name: string; Import: boolean; ConverterLocation : string): HWND;
 const
   saImEx: array[false..true] of string = ('Export', 'Import');
 var
-  regTxtConv: TRegistry;
   regConvEntry: TRegistry;
-  slEntries: TStringList;
   i: integer;
   ConverterDLL: string;
 begin
-  regTxtConv := TRegistry.Create;
   regConvEntry := TRegistry.Create;
-
-  slEntries := TStringList.Create;
 
   Result := 0;
   ConverterDLL := '';
 
   if ( ConverterLocation <> '' ) then
-  begin
-    ConverterDLL := ConverterLocation;
-  end
-  else
-  begin
+    ConverterDLL := ConverterLocation
 
-    with regTxtConv do
+  else begin
       try
-        RootKey := HKEY_LOCAL_MACHINE;
-        if OpenKey(MSTextConvKey + saImEx[Import], false) then
-          GetKeyNames(slEntries);
+          regConvEntry.RootKey := HKEY_LOCAL_MACHINE;
+          if regConvEntry.OpenKey(MSTextConvKey + saImEx[Import] + '\' + Name, False) then begin
+             ConverterDLL := regConvEntry.ReadString('Path'); // get dll-location & name
+             regConvEntry.CloseKey;
+          end;
       finally
-        CloseKey;
-        Free;
+        regConvEntry.Free;
       end;
 
-    regConvEntry.RootKey := HKEY_LOCAL_MACHINE;
 
-    try
-      for i := 0 to slEntries.Count - 1 do
-        begin
-          regConvEntry.OpenKey(MSTextConvKey + saImEx[Import] + '\' + slEntries[i], False);
-          try
-            if regConvEntry.ReadString('Name') = Description then // we've found our dll
-              ConverterDLL := regConvEntry.ReadString('Path'); // get dll-location & name
-          except
-            // catch a faulty key mismatch to be able to continue
-          end;
-          regConvEntry.CloseKey;
-        end;
-    finally
-      regConvEntry.Free;
-      slEntries.Free;
-    end;
-
-    if ConverterDLL = '' then // It could be a Wordpad provided converter
-    begin
-      if pos('Word 6.0/95', Description) > 0 then
-        ConverterDLL := WordPadDir + 'mswd6_32.wpc'
-      else if pos('Windows Write', Description) > 0 then
-        ConverterDLL := WordPadDir + 'write32.wpc'
-      else if pos('WordPad', Description) > 0 then
-        ConverterDLL := WordPadDir + 'mswd6_32.wpc';
-    end;
+      if ConverterDLL = '' then // It could be a Wordpad provided converter
+      begin
+        if pos('Word 6.0/95', Name) > 0 then
+          ConverterDLL := WordPadDir + 'mswd6_32.wpc'
+        else if pos('Windows Write', Name) > 0 then
+          ConverterDLL := WordPadDir + 'write32.wpc'
+        else if pos('WordPad', Name) > 0 then
+          ConverterDLL := WordPadDir + 'mswd6_32.wpc';
+      end;
 
   end;
 
@@ -514,6 +494,7 @@ begin
         begin
           CurrentConverter := Result; // Try to initialize our functions.
           @InitConverter := GetProcAddress(Result, 'InitConverter32');
+          @UninitConverter := GetProcAddress(Result, 'UninitConverter');
           @IsFormatCorrect := GetProcAddress(Result, 'IsFormatCorrect32');
           @ForeignToRtf := GetProcAddress(Result, 'ForeignToRtf32');
           @RtfToForeign := GetProcAddress(Result, 'RtfToForeign32');
@@ -523,10 +504,11 @@ begin
   if Result = 0 then
     begin // On failure, reset...
       @InitConverter := nil;
+      @UninitConverter := nil;
       @IsFormatCorrect := nil;
       @ForeignToRtf := nil;
       @RtfToForeign := nil;
-      raise Exception.CreateFmt( 'Could not load converter for %s.', [Description] );
+      raise Exception.CreateFmt( 'Could not load converter for %s.', [Name] );
     end;
 end;
 
@@ -565,7 +547,7 @@ begin
       hDesc := StringToHGLOBAL('');
       try
         if Assigned(IsFormatCorrect) then
-          Result := LongBool(IsFormatCorrect(hFileName, hDesc)); // hDesc gets like 'MSWord6'
+           Result:= (IsFormatCorrect(hFileName, hDesc) = fceTrue); // hDesc gets like 'MSWord6'
       finally
         GlobalFree(hDesc);
         GlobalFree(hFileName);
