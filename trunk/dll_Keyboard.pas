@@ -43,7 +43,7 @@ unit dll_Keyboard;
 
 interface
 uses Forms, Classes, Windows, Menus,
-  Dialogs, SysUtils, kn_Info, gf_misc,
+  Dialogs, SysUtils, gf_misc,
   gf_strings, IniFiles;
 
 type

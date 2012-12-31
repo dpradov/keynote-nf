@@ -44,13 +44,11 @@ unit dll_KBD;
 interface
 
 uses
-  Windows, Messages, SysUtils,
-  Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ComCtrls, StdCtrls, Menus,
-  gf_files, gf_misc, kn_Info,
   gf_strings,
   dll_HotKey, ShellAPI,
-  kn_INI, dll_Keyboard;
+  dll_Keyboard;
 
 type
   TForm_KBD = class(TForm)

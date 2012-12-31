@@ -779,7 +779,7 @@ type
     ConfirmOverwrite,
     ExportPath,
     ExportSource,
-    HTMLNoFormatting,
+    HTMLExportMethod,
     IncludeNodeHeadings,
     IncludeNoteHeadings,
     {
@@ -805,7 +805,7 @@ const
     ConfirmOverwrite : 'ConfirmOverwrite';
     ExportPath : 'ExportPath';
     ExportSource : 'ExportSource';
-    HTMLNoFormatting : 'HTMLNoFormatting';
+    HTMLExportMethod : 'HTMLExportMethod';
     IncludeNodeHeadings : 'IncludeNodeHeadings';
     IncludeNoteHeadings : 'IncludeNoteHeadings';
     {
@@ -931,7 +931,7 @@ begin
     HotKeyActivate := true;
     HotKeyWarn := true;
     // HTML32CNVLocation := '';
-    HTMLImportMethod := low( HTMLImportMethod );
+    HTMLImportMethod := htmlIE;
     IgnoreUpgrades := false;
     ImportFileNamesWithExt := false;
     InitFontColor := clWindowText;
@@ -1974,7 +1974,7 @@ begin
     ConfirmOverwrite := true;
     ExportPath := ProperFolderName( extractfilepath( ParamStr( 0 )));
     ExportSource := low( TExportSource );
-    HTMLNoFormatting := false;
+    HTMLExportMethod := htmlExpMicrosoftHTMLConverter;
     IncludeNodeHeadings := true;
     IncludeNoteHeadings := true;
     {

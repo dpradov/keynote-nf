@@ -48,7 +48,6 @@ uses
   Controls, Forms, Dialogs, TreeNT, IniFiles,
   StdCtrls, Mask, ToolEdit, ExtCtrls, ComCtrls,
   kn_Info, kn_Const, kn_NoteObj, kn_NodeList,
-  //kn_tmpRTF,     // *1  (002)
   kn_Global,
   kn_FileObj, kn_Ini, Spin, ComCtrls95,
   gf_misc, gf_files, kn_RTFUtils, FileCtrl,
@@ -87,11 +86,11 @@ type
     RG_TreePadMode: TTntRadioGroup;
     RG_NodeMode: TTntRadioGroup;
     Btn_TknHlp: TBitBtn;
-    GroupBox2: TTntGroupBox;
-    CB_HTMLNoFormatting: TTntCheckBox;
     RG_TreePadMaster: TTntRadioGroup;
     CheckBox_ExcludeHiddenNodes: TTntCheckBox;
     TB_OpenDlgDir: TToolbarButton97;
+    RG_HTML: TTntRadioGroup;
+    procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -112,7 +111,6 @@ type
     myINIFN : string;
 
     ExportOptions : TExportOptions;
-    HTML32CNVLocation : string;
 
     IsBusy : boolean;
     DoAbort : boolean;
@@ -145,7 +143,10 @@ var
   Form_ExportNew: TForm_ExportNew;
 
 implementation
-uses kn_Main, kn_DLLmng, kn_TreeNoteMng, WideStrings, TntSystem, TntFileCtrl;
+uses kn_Main, kn_DLLmng, kn_TreeNoteMng, WideStrings, TntSystem, TntFileCtrl,
+     kn_ExportImport;
+
+
 
 {$R *.DFM}
 
@@ -294,6 +295,8 @@ procedure TForm_ExportNew.FormCreate(Sender: TObject);
 var
   ts : TTreeSelection;
   f : TExportFmt;
+  m : THTMLExportMethod;
+
 begin
 
   Pages.ActivePage := Tab_Main;
@@ -317,8 +320,13 @@ begin
   Edit_NoteHead.Items.Add( _DefaultNoteHeading );
 
   // Combo_IndentChar.ItemIndex := 0;
-  HTML32CNVLocation := '';
 
+  for m := low( m ) to high( m ) do
+  begin
+     RG_HTML.Items.Add( HTMLExportMethods[m] );
+  end;
+
+  RG_HTML.ItemIndex:= ord(ExportOptions.HTMLExportMethod);
 end; // CREATE
 
 procedure TForm_ExportNew.FormActivate(Sender: TObject);
@@ -361,34 +369,16 @@ begin
 end;
 
 procedure TForm_ExportNew.Combo_FormatClick(Sender: TObject);
+var
+   format: TExportFmt;
 begin
   Combo_TreeSelection.Enabled := ( RB_CurrentNote.Checked and ( myActiveNote.Kind = ntTree ) and ( TExportFmt( Combo_Format.ItemIndex ) in [xfPlainText, xfRTF, xfHTML] ));
-  case TExportFmt( Combo_Format.ItemIndex ) of
-    xfPlainText : begin
-      Tab_Options.TabVisible := true;
-      Tab_TreePad.TabVisible := false;
-      RG_NodeMode.Enabled := true;
-      CB_HTMLNoFormatting.Enabled := false;
-    end;
-    xfRTF : begin
-      Tab_Options.TabVisible := true;
-      Tab_TreePad.TabVisible := false;
-      RG_NodeMode.Enabled := true;
-      CB_HTMLNoFormatting.Enabled := false;
-    end;
-    xfHTML : begin
-      Tab_Options.TabVisible := true;
-      Tab_TreePad.TabVisible := false;
-      RG_NodeMode.Enabled := true;
-      CB_HTMLNoFormatting.Enabled := true;
-    end;
-    xfTreePad : begin
-      Tab_Options.TabVisible := false;
-      Tab_TreePad.TabVisible := true;
-      RG_NodeMode.Enabled := false;
-      CB_HTMLNoFormatting.Enabled := false;
-    end;
-  end;
+  format:= TExportFmt( Combo_Format.ItemIndex );
+
+  Tab_TreePad.TabVisible:=  (format  = xfTreePad);
+  Tab_Options.TabVisible := (format <> xfTreePad);
+  RG_NodeMode.Enabled :=    (format <> xfTreePad);
+  RG_HTML.Visible := (format = xfHTML);
 end;
 
 procedure TForm_ExportNew.ReadConfig;
@@ -407,7 +397,7 @@ begin
       ExportOptions.ConfirmFilenames := readbool( section, ExportOptionsIniStr.ConfirmFilenames, ExportOptions.ConfirmFilenames );
       ExportOptions.ConfirmOverwrite := readbool( section, ExportOptionsIniStr.ConfirmOverwrite, ExportOptions.ConfirmOverwrite );
       ExportOptions.ExportSource := TExportSource( readinteger( section, ExportOptionsIniStr.ExportSource, ord( ExportOptions.ExportSource )));
-      ExportOptions.HTMLNoFormatting := readbool( section, ExportOptionsIniStr.HTMLNoFormatting, ExportOptions.HTMLNoFormatting );
+      ExportOptions.HTMLExportMethod := THTMLExportMethod(readinteger( section, ExportOptionsIniStr.HTMLExportMethod, ord(ExportOptions.HTMLExportMethod) ));
       ExportOptions.IncludeNodeHeadings := readbool( section, ExportOptionsIniStr.IncludeNodeHeadings, ExportOptions.IncludeNodeHeadings );
       ExportOptions.IncludeNoteHeadings := readbool( section, ExportOptionsIniStr.IncludeNoteHeadings, ExportOptions.IncludeNoteHeadings );
       ExportOptions.ExcludeHiddenNodes  := readbool( section, ExportOptionsIniStr.ExcludeHiddenNodes, ExportOptions.ExcludeHiddenNodes );  // [dpv]
@@ -430,7 +420,14 @@ begin
     IniFile.Free;
   end;
 
-end; procedure TForm_ExportNew.TB_OpenDlgDirClick(Sender: TObject);
+end;
+
+procedure TForm_ExportNew.RG_HTMLClick(Sender: TObject);
+begin
+    ExportOptions.HTMLExportMethod := THTMLExportMethod(RG_HTML.ItemIndex);
+end;
+
+procedure TForm_ExportNew.TB_OpenDlgDirClick(Sender: TObject);
 var
   Dir: wideString;
 begin
@@ -455,7 +452,7 @@ begin
       writebool( section, ExportOptionsIniStr.ConfirmFilenames, ExportOptions.ConfirmFilenames );
       writebool( section, ExportOptionsIniStr.ConfirmOverwrite, ExportOptions.ConfirmOverwrite );
       writeinteger( section, ExportOptionsIniStr.ExportSource, ord( ExportOptions.ExportSource ));
-      writebool( section, ExportOptionsIniStr.HTMLNoFormatting, ExportOptions.HTMLNoFormatting );
+      writeinteger( section, ExportOptionsIniStr.HTMLExportMethod, ord(ExportOptions.HTMLExportMethod) );
       writebool( section, ExportOptionsIniStr.IncludeNodeHeadings, ExportOptions.IncludeNodeHeadings );
       writebool( section, ExportOptionsIniStr.IncludeNoteHeadings, ExportOptions.IncludeNoteHeadings );
       writebool( section, ExportOptionsIniStr.ExcludeHiddenNodes, ExportOptions.ExcludeHiddenNodes );  // [dpv]
@@ -500,7 +497,7 @@ begin
     TreeSelection := TTreeSelection( Combo_TreeSelection.ItemIndex );
     TargetFormat := TExportFmt( Combo_Format.ItemIndex );
     SingleNodeFiles := ( RG_NodeMode.ItemIndex > 0 );
-    HTMLNoFormatting := CB_HTMLNoFormatting.Checked;
+    HTMLExportMethod := THTMLExportMethod(RG_HTML.ItemIndex);
 
     ExportPath := ProperFolderName( Edit_Folder.Text );
     ConfirmOverwrite := CheckBox_PromptOverwrite.Checked;
@@ -547,7 +544,7 @@ begin
       RG_NodeMode.ItemIndex := 1
     else
       RG_NodeMode.ItemIndex := 0;
-    CB_HTMLNoFormatting.Checked := HTMLNoFormatting;
+    RG_HTML.ItemIndex := ord(HTMLExportMethod);
     Edit_Folder.Text := ExportPath;
     CheckBox_PromptOverwrite.Checked := ConfirmOverwrite;
     CheckBox_Ask.Checked := ConfirmFilenames;
@@ -617,8 +614,7 @@ procedure TForm_ExportNew.PerformExport;
 var
   myNote : TTabNote;
   i, cnt, noteIdx : integer;
-  //RTFForm : TForm_tmpRTF;            // [dpv]   (002)
-  RTFAux : TRxRichEdit;                // [dpv]   (002)
+  RTFAux : TRxRichEdit;
 
   NoteHeading, NodeHeading : wideString;
   NoteHeadingRTF, NodeHeadingRTF : wideString;
@@ -681,7 +677,6 @@ begin
   StartLevel := 0;
   TreePadFN := '';
   TreePadNodeLevelInc := 0;
-  //RTFForm := TForm_tmpRTF.Create( self );
   RTFAux := TRxRichEdit.Create( ActiveNote.TabSheet);
   RTFAux.Visible:= False;
   RTFAux.Parent:=ActiveNote.TabSheet ;
@@ -1010,6 +1005,7 @@ begin
     end;
 
   finally
+    FreeConvertLibrary;
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
@@ -1024,6 +1020,7 @@ begin
 
     if ( messagedlg( ExitMessage, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
       ModalResult := mrCancel; // close dialog box is Cancel clicked
+
   end;
 
 end; // PerformExport
@@ -1123,6 +1120,7 @@ var
   tmpStream : TMemoryStream;
   RTFText : string;
   StreamSize : integer;
+  ext: string;
 begin
   result := false;
 
@@ -1130,9 +1128,11 @@ begin
   if ( FN = '' ) then exit; // break condition
 
   try
+    ext := Extractfileext( FN );
 
     case ExportOptions.TargetFormat of
       xfPlainText : begin
+        if ( ext = '' ) then FN := FN + ext_TXT;
         RTF.StreamFormat := sfPlainText;
         if RTF.TextW <> string(RTF.TextW) then
            RTF.StreamMode := [smUnicode];
@@ -1140,21 +1140,13 @@ begin
         result := true;
       end;
       xfRTF : begin
+        if ( ext = '' ) then FN := FN + ext_RTF;
         RTF.Lines.SaveToFile( WideStringToUTF8(FN) );
         result := true;
       end;
       xfHTML : begin
-        tmpStream := TMemoryStream.Create;
-        try
-          RTF.Lines.SaveToStream( tmpStream );
-          tmpStream.Position := 0;
-          StreamSize := tmpStream.Size;
-          SetLength( RTFText, StreamSize );
-          move( tmpStream.Memory^, RTFText[1], StreamSize );
-          result := DllConvertRTFToHTML( FN, RTFText, HTML32CNVLocation );
-        finally
-          tmpStream.Free;
-        end;
+        if ( ext = '' ) then FN := FN + ext_HTML;
+        Result:= ConvertRTFToHTML( FN, GetRichText( RTF, true, false), ExportOptions.HTMLExportMethod);
       end;
     end;
 
@@ -1201,11 +1193,12 @@ begin
   Application.HelpCommand( HELP_CONTEXT, HelpContext );
 end;
 
+
 procedure ExportTreeNode;
 var
   myTreeNode : TTreeNTNode;
   myNoteNode : TNoteNode;
-  oldFilter, ext: string;
+  oldFilter, ext, RTFText: string;
   ExportFN : wideString;
   exportformat : TExportFmt;
   RTFAux : TRxRichEdit;
@@ -1288,11 +1281,15 @@ begin
         myNoteNode.Stream.SaveToFile( exportFN );
       end;
       xfHTML : begin
-        ExportSelectionOnly := ( ActiveNote.Editor.SelLength > 0 );
-        DllConvertRTFToHTML( ExportFN, PChar( GetRichText( ActiveNote.Editor, true, ExportSelectionOnly )), '' { KeyOptions.HTML32CNVLocation } );
+        try
+          ExportSelectionOnly := ( ActiveNote.Editor.SelLength > 0 );
+          RTFText:= GetRichText( ActiveNote.Editor, true, ExportSelectionOnly);
+          ConvertRTFToHTML( ExportFN, RTFText, htmlExpMicrosoftHTMLConverter);
+        finally
+          FreeConvertLibrary;
+        end;
       end;
       xfPlainText : begin
-        //Form_RTF := TForm_tmpRTF.Create( self );     //*1  (002)
         RTFAux := TRxRichEdit.Create( ActiveNote.TabSheet);
         RTFAux.Visible:= False;
         RTFAux.Parent:=ActiveNote.TabSheet ;
@@ -1312,8 +1309,7 @@ begin
     Form_Main.Statusbar.Panels[PANEL_HINT].Text := STR_18 + WideExtractFilename( ExportFN );
 
   except
-    on E : Exception do
-    begin
+    on E : Exception do begin
       messagedlg( STR_19 + E.Message, mtError, [mbOK], 0 );
     end;
   end;
@@ -1344,43 +1340,6 @@ begin
     Form_Export.Free;
   end;
 end; // ExportNotesEx
-
-(*
-procedure TForm_Main.ExportNotes;
-var
-  Form_Export : TForm_Export;
-begin
-  if ( not HaveNotes( true, true )) then exit;
-
-  Form_Export := TForm_Export.Create( self );
-  try
-    with Form_Export do
-    begin
-      HTML32CNVLocation := ''; // KeyOptions.HTML32CNVLocation;
-      ShowHint := KeyOptions.ShowTooltips;
-      myActiveNote := ActiveNote;
-      myNotes := NoteFile;
-      if ( KeyOptions.LastExportPath <> '' ) then
-        myFolder := KeyOptions.LastExportPath;
-      myAsk := KeyOptions.LastExportAsk;
-      myFormat := KeyOptions.LastExportFormat;
-    end;
-    // self.Visible := false;
-    if ( Form_Export.ShowModal = mrOK ) then
-    begin
-      with Form_Export do
-      begin
-        KeyOptions.LastExportPath := myFolder;
-        KeyOptions.LastExportAsk := myAsk;
-        KeyOptions.LastExportFormat := myFormat;
-      end;
-    end;
-  finally
-    Form_Export.Free;
-    // self.Visible := true;
-  end;
-end; // ExportNotes
-*)
 
 
 end.

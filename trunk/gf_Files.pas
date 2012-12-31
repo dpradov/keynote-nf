@@ -133,6 +133,8 @@ function PathCombineW(lpszDest: PWideChar; const lpszDir, lpszFile:
 PWideChar): PWideChar; stdcall; external 'shlwapi.dll';
 
 function GetAbsolutePath(basePath: wideString; relativePath: wideString): wideString;  //***1
+function GetTempDirectory: String;
+function GetSystem32Directory: String;
 
 type
   TWIniFile = class(TIniFile)
@@ -249,6 +251,22 @@ begin
     result := fkUnknown;
 end; // GetFileKind
 *)
+
+function GetTempDirectory: String;
+var
+  tempFolder: array[0..MAX_PATH] of Char;
+begin
+  GetTempPath(MAX_PATH, @tempFolder);
+  result := StrPas(tempFolder);
+end;
+
+function GetSystem32Directory: String;
+var
+  tempFolder: array[0..MAX_PATH] of Char;
+begin
+  GetWindowsDirectory(@tempFolder, MAX_PATH);
+  result := StrPas(tempFolder) + '\system32\';
+end;
 
 function GetAbsolutePath(basePath: wideString; relativePath: wideString): wideString;
 var

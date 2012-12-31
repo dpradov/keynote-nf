@@ -52,7 +52,7 @@ resourcestring
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_VerStr   = '1.7.9.4 BETA 4';
+  Program_VerStr   = '1.7.9.4 BETA 4 (31/12/2012)';
   Program_Version  = '1.7.9 BETA 4';  // Used in program caption
   Program_License  = 'Freeware / Open Source';
   {
@@ -413,7 +413,7 @@ type
     ConfirmOverwrite : boolean;
     ExportPath : WideString;
     ExportSource : TExportSource;
-    HTMLNoFormatting : boolean; // not implemented
+    HTMLExportMethod: THTMLExportMethod;
     IncludeNodeHeadings : boolean;
     IncludeNoteHeadings : boolean;
     {

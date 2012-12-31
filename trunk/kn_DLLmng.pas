@@ -5,127 +5,18 @@ uses
   kn_Const;
 
 { KNTUTIL.DLL access routines }
-function ObtainDLLHandle : THandle;
-procedure DllProcNotFoundMsg( const ProcName : string );
-function DllConvertHTMLToRTF(
-    const aFilename : string;
-    var ConvertCode : integer;
-    const aHTMLImportMethod : THTMLImportMethod;
-    const HTML32CNVLocation : string
-  ) : string; // returns name of converted file
-function DllConvertRTFToHTML(
-    const aFilename : string;
-    const RTFText : string;
-    const HTML32CNVLocation : string
-  ) : boolean;
+function GetMethodInDLL(var DLLHandle: THandle; ProcName: string): Pointer;
+
 
 implementation
 uses
   Windows, Forms, SysUtils, Dialogs,
-  kn_DLLInterface, kn_Info ;
+  kn_DLLInterface, kn_Info;
 
 resourcestring
   STR_01 = 'Error while attempting to load runtime library "%s". Please reinstall KeyNote.';
   STR_02 = 'Procedure "%s" not found in runtime library "%s". Please reinstall KeyNote.';
 
-
-function DllConvertRTFToHTML(
-    const aFilename : string;
-    const RTFText : string;
-    const HTML32CNVLocation : string
-  ) : boolean;
-var
-  DllHandle : THandle;
-  ConvertRTFToHTML : ConvertRTFToHTMLProc;
-begin
-  result := false;
-  DLLHandle := ObtainDLLHandle;
-  if ( DllHandle <= 0 ) then exit;
-
-  try
-
-    try
-      @ConvertRTFToHTML := GetProcAddress( DllHandle, 'ConvertRTFToHTML' );
-      if ( not assigned( ConvertRTFToHTML )) then
-      begin
-        DllProcNotFoundMsg( 'ConvertRTFToHTML' );
-        exit;
-      end;
-
-      result := ConvertRTFToHTML(
-        Application.Handle,
-        PChar( RTFText ),
-        PChar( aFilename ),
-        PChar( HTML32CNVLocation )
-      );
-
-    except
-      result := false;
-      raise;
-    end;
-
-  finally
-    FreeLibrary( DllHandle );
-  end;
-
-end; // DllConvertRTFToHTML
-
-function DllConvertHTMLToRTF(
-      const aFilename : string;
-      var ConvertCode : integer;
-      const aHTMLImportMethod : THTMLImportMethod;
-      const HTML32CNVLocation : string
-    ) : string; // returns name of converted file
-var
-  DllHandle : THandle;
-  ConvertHTMLToRTF : ConvertHTMLToRTFProc;
-  outFN : TFilenameBuffer;
-begin
-
-  result := '';
-  DLLHandle := ObtainDLLHandle;
-  if ( DllHandle <= 0 ) then exit;
-
-  try
-    try
-
-      @ConvertHTMLToRTF := GetProcAddress( DllHandle, 'ConvertHTMLToRTF' );
-      if ( not assigned( ConvertHTMLToRTF )) then
-      begin
-        DllProcNotFoundMsg( 'ConvertHTMLToRTF' );
-        exit;
-      end;
-
-      ConvertCode := ConvertHTMLToRTF(
-        Application.Handle,
-        aHTMLImportMethod,
-        PChar( aFilename ),
-        outFN,
-        PChar( HTML32CNVLocation )
-        );
-      if ( ConvertCode = 0 ) then
-      begin
-        result := outFN;
-      end
-      else
-      begin
-        result := '';
-        deletefile( outfn );
-      end;
-
-
-    except
-      on E : Exception do
-      begin
-        result := '';
-        messagedlg( E.Message, mtError, [mbOK], 0 );
-      end;
-    end;
-  finally
-    FreeLibrary( DllHandle );
-  end;
-
-end; // DllConvertHTMLToRTF
 
 function ObtainDLLHandle : THandle;
 begin
@@ -148,5 +39,21 @@ begin
       'Procedure not in library', MB_OK+MB_ICONHAND+MB_DEFBUTTON1+MB_APPLMODAL);
 end; // DllProcNotFoundMsg
 
+
+function GetMethodInDLL(var DLLHandle: THandle; ProcName: string): Pointer;
+begin
+    Result:= nil;
+
+    if DLLHandle <= 0 then begin
+       DllHandle := ObtainDLLHandle;
+       if ( DllHandle <= 0 ) then exit;
+    end;
+
+    Result := GetProcAddress( DllHandle, PChar(ProcName));
+    if ( not assigned( Result )) then begin
+       DllProcNotFoundMsg(ProcName);
+       exit;
+    end;
+end;
 
 end.

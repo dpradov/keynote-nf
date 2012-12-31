@@ -240,7 +240,9 @@ uses
   uFreeLocalizer in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uFreeLocalizer.pas',
   kn_LanguagesMng in 'kn_LanguagesMng.pas',
   kn_OptionsNew in 'kn_OptionsNew.pas' {Form_OptionsNew},
-  FrmFindReplace in 'FrmFindReplace.pas' {Form_Replace};
+  FrmFindReplace in 'FrmFindReplace.pas' {Form_Replace},
+  UWebBrowserWrapper in '3rd_party\UWebBrowserWrapper.pas',
+  kn_ExportImport in 'kn_ExportImport.pas';
 
 {$R *.RES}
 
