@@ -1825,8 +1825,8 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Main: TTntMainMenu
-    Left = 300
-    Top = 80
+    Left = 286
+    Top = 65
     object MMFile_: TTntMenuItem
       Caption = '&File'
       Hint = 'File management commands'
@@ -3464,8 +3464,8 @@ object Form_Main: TForm_Main
       'Pages_Res.ActivePage'
       'Res_RTF.WordWrap')
     StoredValues = <>
-    Left = 230
-    Top = 75
+    Left = 622
+    Top = 164
   end
   object MRU: TdfsMRUFileList
     UseRegistry = False
@@ -3479,19 +3479,19 @@ object Form_Main: TForm_Main
     PopupMenu = MRUMenu
     AutoSaveName = '\Software\My Application'
     AutoSaveKey = 'MRU Items'
-    Left = 95
-    Top = 225
+    Left = 515
+    Top = 148
   end
   object Timer: TTimer
     Interval = 60000
     OnTimer = TimerTimer
-    Left = 230
-    Top = 120
+    Left = 623
+    Top = 202
   end
   object WinOnTop: TTopMostWindow
     AlwaysOnTop = False
-    Left = 40
-    Top = 180
+    Left = 623
+    Top = 80
   end
   object TrayIcon: TRxTrayIcon
     Active = False
@@ -3618,12 +3618,12 @@ object Form_Main: TForm_Main
       0000000000000000}
     PopupMenu = Menu_Tray
     OnClick = TrayIconClick
-    Left = 230
-    Top = 170
+    Left = 616
+    Top = 379
   end
   object Menu_Tray: TTntPopupMenu
-    Left = 330
-    Top = 200
+    Left = 584
+    Top = 379
     object TMRestore: TTntMenuItem
       Caption = '&Restore'
       OnClick = TMRestoreClick
@@ -3642,8 +3642,8 @@ object Form_Main: TForm_Main
   end
   object Menu_RTF: TTntPopupMenu
     OnPopup = Menu_RTFPopup
-    Left = 360
-    Top = 135
+    Left = 361
+    Top = 120
     object RTFMUndo: TTntMenuItem
       Caption = '&Undo'
       Hint = 'Undo last change'
@@ -3725,8 +3725,8 @@ object Form_Main: TForm_Main
   end
   object Menu_TAB: TTntPopupMenu
     AutoPopup = False
-    Left = 425
-    Top = 140
+    Left = 359
+    Top = 83
     object TAM_ActiveName: TTntMenuItem
       Caption = '(none)'
       Enabled = False
@@ -5629,18 +5629,18 @@ object Form_Main: TForm_Main
   end
   object OpenDlg: TTntOpenDialog
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofNoDereferenceLinks]
-    Left = 180
-    Top = 70
+    Left = 28
+    Top = 105
   end
   object SaveDlg: TTntSaveDialog
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist]
     Title = 'Save Keynote file'
-    Left = 180
-    Top = 115
+    Left = 27
+    Top = 205
   end
   object IMG_Format: TImageList
-    Left = 90
-    Top = 130
+    Left = 89
+    Top = 109
     Bitmap = {
       494C010116001800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000006000000001002000000000000060
@@ -6448,20 +6448,20 @@ object Form_Main: TForm_Main
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     Options = [fdEffects, fdForceFontExist]
-    Left = 135
-    Top = 175
+    Left = 28
+    Top = 170
   end
   object ColorDlg: TColorDialog
     Options = [cdFullOpen, cdSolidColor, cdAnyColor]
-    Left = 135
-    Top = 125
+    Left = 28
+    Top = 138
   end
   object FolderMon: TRxFolderMonitor
     Filter = [fnSize, fnLastWrite]
     MonitorSubtree = False
     OnChange = FolderMonChange
-    Left = 135
-    Top = 75
+    Left = 622
+    Top = 117
   end
   object PrintDlg: TPrintDialog
     FromPage = 1
@@ -6469,13 +6469,13 @@ object Form_Main: TForm_Main
     MaxPage = 9999
     Options = [poPrintToFile, poSelection]
     ToPage = 9999
-    Left = 40
-    Top = 125
+    Left = 28
+    Top = 72
   end
   object Menu_TV: TTntPopupMenu
     OnPopup = Menu_TVPopup
-    Left = 360
-    Top = 80
+    Left = 285
+    Top = 120
     object TVAlarmNode: TTntMenuItem
       Caption = 'Set alarm on node...'
       Hint = 'Set or remove alarm on node'
@@ -6689,7 +6689,7 @@ object Form_Main: TForm_Main
     object TVRenameNode: TTntMenuItem
       Caption = '&Rename Node'
       Hint = 'Rename node'
-      ShortCut = 32
+      ShortCut = 113
       OnClick = MMRenamenodeClick
     end
     object TVCopyNode_: TTntMenuItem
@@ -6779,8 +6779,8 @@ object Form_Main: TForm_Main
     end
   end
   object MRUMenu: TTntPopupMenu
-    Left = 430
-    Top = 80
+    Left = 509
+    Top = 74
     object N33: TTntMenuItem
       Caption = '-'
     end
@@ -6790,8 +6790,8 @@ object Form_Main: TForm_Main
     end
   end
   object IMG_TV: TImageList
-    Left = 95
-    Top = 170
+    Left = 91
+    Top = 141
     Bitmap = {
       494C01010A000E00040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000004000000001002000000000000040
@@ -7329,8 +7329,8 @@ object Form_Main: TForm_Main
       000000000000}
   end
   object Menu_Style: TTntPopupMenu
-    Left = 295
-    Top = 140
+    Left = 41
+    Top = 340
     object MSStyleApply: TTntMenuItem
       Caption = '&Apply Selected Style'
       Hint = 'Apply style to selection'
@@ -7398,8 +7398,8 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Macro: TTntPopupMenu
-    Left = 290
-    Top = 350
+    Left = 387
+    Top = 345
     object MacMMacro_Play: TTntMenuItem
       Caption = '&Play Macro'
       Hint = 'Run selected macro'
@@ -7438,8 +7438,8 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Template: TTntPopupMenu
-    Left = 225
-    Top = 350
+    Left = 352
+    Top = 344
     object TPLMTplInsert: TTntMenuItem
       Caption = '&Insert Template'
       Hint = 'Insert selected template in active note'
@@ -7463,8 +7463,8 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Plugins: TTntPopupMenu
-    Left = 155
-    Top = 350
+    Left = 317
+    Top = 343
     object PLM_RunPlugin: TTntMenuItem
       Caption = '&Run Plugin'
       Hint = 'Execute selected plugin'
@@ -7488,8 +7488,8 @@ object Form_Main: TForm_Main
   end
   object Menu_ResPanel: TTntPopupMenu
     OnPopup = Menu_ResPanelPopup
-    Left = 240
-    Top = 285
+    Left = 266
+    Top = 308
     object ResMHidepanel: TTntMenuItem
       Caption = 'Hide &Resource Panel'
       Hint = 'Show or hide Resource panel (press F9)'
@@ -7594,8 +7594,8 @@ object Form_Main: TForm_Main
   end
   object Menu_StdEdit: TTntPopupMenu
     OnPopup = Menu_StdEditPopup
-    Left = 415
-    Top = 200
+    Left = 441
+    Top = 71
     object StdEMUndo: TTntMenuItem
       Caption = '&Undo'
       Hint = 'Undo last editing operation'
@@ -7654,8 +7654,8 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_FindAll: TTntPopupMenu
-    Left = 85
-    Top = 350
+    Left = 282
+    Top = 342
     object FAMCopytoEditor: TTntMenuItem
       Caption = '&Insert in Note'
       Hint = 'Insert selected location as hyperlink in note'
@@ -7668,8 +7668,8 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Fav: TTntPopupMenu
-    Left = 350
-    Top = 350
+    Left = 421
+    Top = 345
     object FavMJump: TTntMenuItem
       Caption = '&Jump to Location'
       Hint = 'Jump to selected Favorite location'
@@ -7718,8 +7718,8 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Numbers: TTntPopupMenu
-    Left = 415
-    Top = 285
+    Left = 151
+    Top = 297
     object MMArabicNumbers: TTntMenuItem
       Caption = '&Arabic Numbers'
       Checked = True
@@ -7809,8 +7809,8 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Paste: TTntPopupMenu
-    Left = 480
-    Top = 80
+    Left = 475
+    Top = 73
     object MMP_Paste: TTntMenuItem
       Caption = '&Paste'
       Hint = 'Paste from clipboard'
@@ -8012,7 +8012,7 @@ object Form_Main: TForm_Main
   end
   object Menu_Time: TTntPopupMenu
     OnPopup = Menu_TimePopup
-    Left = 100
+    Left = 74
     Top = 295
     object mt1: TTntMenuItem
       Tag = 1
@@ -8081,7 +8081,7 @@ object Form_Main: TForm_Main
   end
   object Menu_Symbols: TTntPopupMenu
     OnPopup = Menu_SymbolsPopup
-    Left = 160
+    Left = 108
     Top = 295
     object ms1: TTntMenuItem
       Tag = 1
@@ -8128,7 +8128,7 @@ object Form_Main: TForm_Main
     AllocBy = 32
     ShareImages = True
     ImageSize = isSmall
-    Left = 180
-    Top = 240
+    Left = 89
+    Top = 176
   end
 end
