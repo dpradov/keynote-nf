@@ -1760,9 +1760,7 @@ begin
             ActiveNote.Editor.CutToClipboard;
           end;
           ecPaste : begin
-            //ActiveNote.Editor.PasteFromClipboard;             //dpv
-            if not ActiveNote.Editor.PasteSpecial_RTF then
-               ActiveNote.Editor.PasteSpecial_NoAsk;
+            TryPasteRTF(ActiveNote.Editor);
           end;
           ecPastePlain : begin
             if ( Clipboard.HasFormat( CF_TEXT )) then

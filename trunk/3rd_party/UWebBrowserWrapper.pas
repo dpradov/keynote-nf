@@ -245,10 +245,20 @@ begin
   inherited Create;
 
   fWebBrowser := TWebBrowser.Create(nil);
+  fWebBrowser.Width := 0;
   TControl(fWebBrowser).Parent := Parent;
   TControl(fWebBrowser).Visible:= False;
-  Application.ProcessMessages;
   fFreeOnDestroy:= true;
+end;
+
+procedure Pause(const ADelay: Cardinal);
+var
+  StartTC: Cardinal;  // tick count when routine called
+begin
+  StartTC := Windows.GetTickCount;
+  repeat
+    Application.ProcessMessages;
+  until Int64(Windows.GetTickCount) - Int64(StartTC) >= ADelay;
 end;
 
 destructor TWebBrowserWrapper.Destroy();
@@ -343,6 +353,8 @@ procedure TWebBrowserWrapper.LoadFromStream(const Stream: TStream);
 begin
   NavigateToURL('about:blank');
   InternalLoadDocumentFromStream(Stream);
+  while WebBrowser.ReadyState <> READYSTATE_COMPLETE do
+    Pause(10);
 end;
 
 {$IFDEF UNICODE}
@@ -399,16 +411,6 @@ procedure TWebBrowserWrapper.NavigateToResource(const ModuleName: string;
   const ResName, ResType: PChar);
 begin
   NavigateToURL(MakeResourceURL(ModuleName, ResName, ResType));
-end;
-
-procedure Pause(const ADelay: Cardinal);
-var
-  StartTC: Cardinal;  // tick count when routine called
-begin
-  StartTC := Windows.GetTickCount;
-  repeat
-    Application.ProcessMessages;
-  until Int64(Windows.GetTickCount) - Int64(StartTC) >= ADelay;
 end;
 
 procedure TWebBrowserWrapper.NavigateToBlank();

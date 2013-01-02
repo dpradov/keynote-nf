@@ -9,14 +9,15 @@ const
 type
    TClipBoardW= class(TClipboard)
       private
-        function RetryGetClipboardData(ClipbrdContent: integer): THandle;
         function GetAsTextW: wideString;
         procedure SetAsTextW(const Value: wideString);
         function GetAsRTF: string;
         procedure SetAsRTF(const Value: string);
+        function GetAsHTML: string;
       public
         property AsTextW: wideString read GetAsTextW write SetAsTextW;
         property AsRTF: string read GetAsRTF write SetAsRTF;
+        property AsHTML: string read GetAsHTML;
    end;
 
 function Clipboard: TClipBoardW;
@@ -27,8 +28,10 @@ function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
 
 
 function ClipboardHasHTMLformat : boolean;
+function ClipboardHasRTFformat : boolean;
 function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
-function GetURLFromHTMLClipboard : string;
+function GetURLFromHTMLClipboard (const HTMLClipboard: string): string;
+procedure TrimMetadataFromHTMLClipboard (var HTMLClipboard: string);
 
 implementation
 uses WideStrings, gf_strings, RichEdit;
@@ -38,8 +41,31 @@ var
 
 type
   TClipboardContent = (
-    ccRTF, ccUNICODE
+    ccRTF, ccUNICODE, ccHtml
   );
+
+
+function RetryGetClipboardData(const ClipbrdContent: integer): THandle;
+var
+  RetryCount: integer;
+begin
+  Result:= 0;
+  RetryCount:= 0;
+  while RetryCount < 6 do
+    try
+      Clipboard.Open;
+      try
+        Result := GetClipboardData(ClipbrdContent);
+        RetryCount:= 99;   // Ok, salimos
+      finally
+        Clipboard.Close;
+      end;
+
+    except
+      Inc(RetryCount);
+      if RetryCount < 6 then Sleep(RetryCount * 100);
+    end;
+end;
 
 
 function ClipboardHasHTMLformat : boolean;
@@ -47,16 +73,21 @@ begin
   result := ( CFHtml <> 0 ) and Clipboard.HasFormat( CFHtml );
 end; // ClipboardHasHTMLformat
 
+function ClipboardHasRTFformat : boolean;
+begin
+  result := ( CFRtf <> 0 ) and Clipboard.HasFormat( CFRtf );
+end; // ClipboardHasHTMLformat
+
+
 function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
-// code by Peter Below
+// code by Peter Below (modified DPV)
 var
   hMem: THandle;
   pMem: Pointer;
 begin
   result := false;
-  hMem := Clipboard.GetAsHandle( fmt );
-  if hMem <> 0 then
-  begin
+  hMem := RetryGetClipboardData(fmt);  //[DPV]
+  if hMem <> 0 then begin
     pMem := GlobalLock( hMem );
     if pMem <> Nil Then Begin
       try
@@ -69,48 +100,35 @@ begin
   end;
 end; // ClipboardToStream
 
-function GetURLFromHTMLClipboard : string;
+
+function GetURLFromHTMLClipboard (const HTMLClipboard: string): string;
 const
   HTML_FMT_SRCURL  = 'SourceURL:';
-  MAX_TEST_LINES = 15;
+  l = length(HTML_FMT_SRCURL);
 var
-  List : TStringList;
-  i : integer;
-  Stm : TMemoryStream;
-  line : string;
+  p, pF: integer;
 begin
+   Result := '';
 
-  result := '';
-  if ClipboardHasHTMLformat then
-  begin
-    Stm := TMemoryStream.Create;
-    try
-      ClipboardToStream( CFHtml, Stm );
-      Stm.Position := 0;
-      list := TStringList.Create;
-      try
-        list.LoadFromStream( Stm );
-        for i := 0 to list.count-1 do
-        begin
-          if ( i > MAX_TEST_LINES ) then
-            break;
-          line := list[i];
-          if ( pos( HTML_FMT_SRCURL, line ) = 1 ) then
-          begin
-            delete( line, 1, length( HTML_FMT_SRCURL ));
-            result := line;
-            break;
-          end;
-        end;
-      finally
-        list.Free;
-      end;
-    finally
-      Stm.Free;
-    end;
-  end;
-
+   p:= pos( HTML_FMT_SRCURL, HTMLClipboard);
+   if p >= 1 then begin
+     pF:= p;
+     while HTMLClipboard[pF] <> #13 do
+         pF := pF + 1;
+     Result:= Copy( HTMLClipboard, p+l, pF-p-l);
+   end;
 end; // GetURLFromHTMLClipboard
+
+
+procedure TrimMetadataFromHTMLClipboard (var HTMLClipboard: string);
+var
+  p : integer;
+begin
+   p:= pos( '<html>', HTMLClipboard);
+   if p >= 1 then
+     delete( HTMLClipboard, 1, p-1);
+end;
+
 
 function ClipboardAsString : string;
 begin
@@ -144,44 +162,22 @@ begin
 end;
 
 
-function TClipboardW.RetryGetClipboardData(ClipbrdContent: integer): THandle;
-var
-  RetryCount: integer;
-begin
-  Result:= 0;
-  RetryCount:= 0;
-  while RetryCount < 6 do
-    try
-      Clipboard.Open;
-      try
-        Result := GetClipboardData(ClipbrdContent);
-        RetryCount:= 99;   // Ok, salimos
-      finally
-        if Result <> 0 then GlobalUnlock(Result);
-        Clipboard.Close;
-      end;
-
-    except
-      Inc(RetryCount);
-      if RetryCount < 6 then Sleep(RetryCount * 100);
-    end;
-end;
-
-
 function TClipboardW.GetAsTextW: WideString;
 var
-  Data: THandle;
+   Data: THandle;
 begin
    Data:= RetryGetClipboardData(CF_UNICODETEXT);
-   if Data <> 0 then
-      Result := PWideChar(GlobalLock(Data))
+   if Data <> 0 then begin
+      Result := PWideChar(GlobalLock(Data));
+      GlobalUnLock(Data)
+   end
    else
       Result:= '';
 end;
 
 procedure TClipboardW.SetAsTextW(const Value: wideString);
 begin
-  SetBuffer(CF_UNICODETEXT, PChar(Value)^, 2*Length(Value) + 2);
+  SetBuffer(CF_UNICODETEXT, PWideChar(Value)^, 2*Length(Value) + 2);
 end;
 
 procedure TClipboardW.SetAsRTF(const Value: string);
@@ -191,11 +187,26 @@ end;
 
 function TClipboardW.GetAsRTF: string;
 var
-  Data: THandle;
+   Data: THandle;
 begin
    Data:= RetryGetClipboardData(CFRtf);
-   if Data <> 0 then
-      Result := PChar(GlobalLock(Data))
+   if Data <> 0 then begin
+      Result := PChar(GlobalLock(Data));
+      GlobalUnLock(Data)
+   end
+   else
+      Result:= '';
+end;
+
+function TClipboardW.GetAsHTML: string;
+var
+   Data: THandle;
+begin
+   Data:= RetryGetClipboardData(CFHtml);
+   if Data <> 0 then begin
+      Result := PChar(GlobalLock(Data));
+      GlobalUnLock(Data)
+   end
    else
       Result:= '';
 end;
@@ -203,6 +214,6 @@ end;
 
 Initialization
 
-  CFHtml := RegisterClipboardFormat( 'HTML Format' );
-  CFRtf := RegisterClipboardFormat(CF_RTF);
+  CFHtml := RegisterClipboardFormat('HTML Format');
+  CFRtf  := RegisterClipboardFormat(CF_RTF);
 end.

@@ -854,7 +854,7 @@ begin
     TreeClipConfirm := true;
     URLOnly := false;
     WCDivider := '^--- %D, %T ---^';
-    WCPasteAsText := true;
+    WCPasteAsText := false;
   end;
 end; // InitializeClipOptions
 
