@@ -627,7 +627,7 @@ implementation
 
 uses Printers, ComStrs, OleConst, OleDlg {$IFDEF RX_D3}, OleCtnrs {$ENDIF},
   MaxMin, StrUtils,
-  TntClasses, TntSystem, TntStdCtrls, TntControls, TntSysUtils;
+  TntClasses, TntSystem, TntStdCtrls, TntControls, TntSysUtils, Clipbrd;
 
 type
  TAccessWinControl = class(TWinControl);
@@ -2302,6 +2302,7 @@ var
   CFLinkSource: Integer;
   CFRtf: Integer;
   CFRtfNoObjs: Integer;
+  CFHtml: Integer;
 
 const
 {$IFNDEF RX_D3}
@@ -2309,6 +2310,7 @@ const
 {$ENDIF}
   CF_EMBEDDEDOBJECT = 'Embedded Object';
   CF_LINKSOURCE = 'Link Source';
+  CF_HTML = 'HTML Format';
 
 {************************************************************************}
 
@@ -4594,6 +4596,30 @@ begin
   end;
 end;
 
+
+function GetAsHTML: string;
+var
+   Data: THandle;
+begin
+    try
+      Clipboard.Open;
+      try
+         Data := GetClipboardData(CFHtml);
+         if Data <> 0 then begin
+            Result := PChar(GlobalLock(Data));
+            GlobalUnLock(Data)
+         end
+         else
+            Result:= '';
+      finally
+        Clipboard.Close;
+      end;
+
+    except
+    end;
+end;
+
+
 function TRxCustomRichEdit.PasteSpecialDialog: Boolean;
 
   procedure SetPasteEntry(var Entry: TOleUIPasteEntry; Format: TClipFormat;
@@ -4613,7 +4639,7 @@ function TRxCustomRichEdit.PasteSpecialDialog: Boolean;
   end;
 
 const
-  PasteFormatCount = 6;
+  PasteFormatCount = 7;
 var
   Data: TOleUIPasteSpecial;
   PasteFormats: array[0..PasteFormatCount - 1] of TOleUIPasteEntry;
@@ -4623,6 +4649,7 @@ var
   OleObject: IOleObject;
   ReObject: TReObject;
   Selection: TCharRange;
+  HTMLText: WideString;
 begin
   Result := False;
   if not CanPaste or not Assigned(FRichEditOle) then Exit;
@@ -4645,9 +4672,11 @@ begin
     CF_RTF, CF_RTF, OLEUIPASTE_PASTE);
   SetPasteEntry(PasteFormats[3], CFRtfNoObjs, TYMED_ISTORAGE,
     CF_RTFNOOBJS, CF_RTFNOOBJS, OLEUIPASTE_PASTE);
-  SetPasteEntry(PasteFormats[4], CF_TEXT, TYMED_HGLOBAL,
+  SetPasteEntry(PasteFormats[4], CFHtml, TYMED_ISTORAGE,
+    CF_HTML, 'HTML Source', OLEUIPASTE_PASTE);
+  SetPasteEntry(PasteFormats[5], CF_TEXT, TYMED_HGLOBAL,
     'Unformatted text', 'text without any formatting', OLEUIPASTE_PASTE);
-  SetPasteEntry(PasteFormats[5], CF_BITMAP, TYMED_GDI,
+  SetPasteEntry(PasteFormats[6], CF_BITMAP, TYMED_GDI,
     'Windows Bitmap', 'bitmap image', OLEUIPASTE_PASTE);
   try
     if OleUIPasteSpecial(Data) = OLEUI_OK then begin
@@ -4694,6 +4723,12 @@ begin
           ReleaseObject(OleClientSite);
           ReleaseObject(Storage);
         end;
+      end
+      else if Data.nSelectedIndex = 4 then begin
+         HTMLText:= UTF8ToWideString(GetAsHTML);        // Se debería poder hacer mediante OleCheck, pero no lo veo inicialmente. Esto funciona
+         SelTextW:= HTMLText;
+         SelStart := SelStart + Length(HTMLText);
+         SelLength:= 0;
       end
       else begin
         Format := PasteFormats[Data.nSelectedIndex].fmtetc.cfFormat;
@@ -5555,6 +5590,7 @@ initialization
   CFLinkSource := RegisterClipboardFormat(CF_LINKSOURCE);
   CFRtf := RegisterClipboardFormat(CF_RTF);
   CFRtfNoObjs := RegisterClipboardFormat(CF_RTFNOOBJS);
+  CFHtml := RegisterClipboardFormat(CF_HTML);
 finalization
   RichEditLibraryHandle := 0;
   if FLibHandle <> 0 then FreeLibrary(FLibHandle);

@@ -31,6 +31,8 @@ uses
     procedure ConfigureUAS;
 
     // clipboard capture and paste
+    procedure TryPasteRTF(const Editor: TTabRichEdit; HTMLText: string='');
+    procedure TryOfferRTFinClipboard(const Editor: TTabRichEdit; HTMLText: string='');
     procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
     procedure SetClipCapState( const IsOn : boolean );
     procedure PasteOnClipCap (ClpStr: WideString);
@@ -63,8 +65,9 @@ uses
   kn_NodeList, kn_ExpandObj, kn_MacroMng,
   Kn_Global, kn_Chars, kn_NoteMng, kn_ClipUtils,
   kn_ExpTermDef, kn_Glossary, kn_VCLControlsMng,
-  kn_NoteFileMng, kn_Main, kn_TreeNoteMng, GFTipDlg;
-  
+  kn_NoteFileMng, kn_Main, kn_TreeNoteMng, GFTipDlg,
+  kn_ExportImport, kn_RTFUtils;
+
 
 
 resourcestring
@@ -1177,6 +1180,45 @@ begin
 end; // ConfigureUAS
 
 
+//=================================================================
+// TryPasteRTF
+//=================================================================
+procedure TryPasteRTF(const Editor: TTabRichEdit; HTMLText: string='');
+var
+  PasteOK: boolean;
+  RTFText: string;
+begin
+    PasteOK := false;
+    if _ConvertHTMLClipboardToRTF and (not ClipboardHasRTFformat) and ClipboardHasHTMLformat then begin
+       if HTMLText = '' then
+          HTMLText:= Clipboard.AsHTML;
+       TrimMetadataFromHTMLClipboard(HTMLText);
+       if ConvertHTMLToRTF(HTMLText, RTFText) then begin
+          PutRichText(RTFText, Editor, true, true);
+          PasteOK := True;
+       end
+    end;
+
+    if not PasteOK then
+       if not Editor.PasteSpecial_RTF then
+          Editor.PasteSpecial_NoAsk;
+end;
+
+//=================================================================
+// TryOfferRTFinClipboard
+//=================================================================
+procedure TryOfferRTFinClipboard(const Editor: TTabRichEdit; HTMLText: string='');
+var
+  RTFText: string;
+begin
+    if _ConvertHTMLClipboardToRTF and (not ClipboardHasRTFformat) and ClipboardHasHTMLformat then begin
+       if HTMLText = '' then
+          HTMLText:= Clipboard.AsHTML;
+       TrimMetadataFromHTMLClipboard(HTMLText);
+       ConvertHTMLToRTF(HTMLText, RTFText)
+    end;
+end;
+
 
 //=================================================================
 // ToggleClipCap
@@ -1333,7 +1375,9 @@ var
   PasteOK : boolean;
   SourceURLStr : wideString;
   AuxStr : wideString;
+  HTMLClipboard: string;
 begin
+  HTMLClipboard:= '';
   with Form_Main do begin
         myTreeNode := nil;
 
@@ -1344,8 +1388,10 @@ begin
         NoteFile.ClipCapNote.Editor.OnChange := nil;
         NoteFile.Modified := true; // bugfix 27-10-03
 
-        if ClipOptions.InsertSourceURL then
-          SourceURLStr := GetURLFromHTMLClipboard
+        if ClipOptions.InsertSourceURL then begin
+          HTMLClipboard:= Clipboard.AsHTML;
+          SourceURLStr := GetURLFromHTMLClipboard (HTMLClipboard)
+          end
         else
           SourceURLStr := '';
 
@@ -1454,8 +1500,8 @@ begin
               end;
             end
             else
-              if not NoteFile.ClipCapNote.Editor.PasteSpecial_RTF then
-                 NoteFile.ClipCapNote.Editor.PasteSpecial_NoAsk;
+                TryPasteRTF(NoteFile.ClipCapNote.Editor, HTMLClipboard);
+
 
 
             if NoteFile.ClipCapNote <> ActiveNote then

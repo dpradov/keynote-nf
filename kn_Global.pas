@@ -19,7 +19,8 @@ uses
   {$IFDEF MJ_DEBUG}
   GFLog,
   {$ENDIF}
-  kn_AlertMng;   // [dpv]
+  kn_AlertMng,
+  UWebBrowserWrapper;
 
 
 const
@@ -161,7 +162,7 @@ var
     ClipCapCRC32 : DWORD;
 
     AppIsActive : boolean; // used with Clipboard Capture to ignore copy events coming from Keynote itself
-
+    _ConvertHTMLClipboardToRTF: boolean;
 
     //================================================== TREE
     MovingTreeNode: TTreeNTNode;            // To use with Paste, after applying Cut on a Tree Node.
@@ -187,6 +188,8 @@ var
 
     AlarmManager: TAlarmManager;    // [dpv]
     _DllHandle : THandle;
+    _IE: TWebBrowserWrapper;
+
 
     {$IFDEF MJ_DEBUG}
     Log : TGFLog;
@@ -351,6 +354,7 @@ begin
       ClipCapActive := false;
       ClipCapCRC32 := 0;
       ClipCapNode := nil;
+      _ConvertHTMLClipboardToRTF:= true;
       ClosedOnPreviousInstance := false;
       OriginalComboLen := Combo_Font.Width;
       Pages.MarkedPage := nil;
