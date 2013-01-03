@@ -68,18 +68,27 @@ type
     LB_CurrentlyAssignedTo: TLabel;
     LB_CmdHint: TLabel;
     Edit_Current: TEdit;
-    
+
     Menu_Items: TPopupMenu;
-    MMSortbyName: TMenuItem;
-    MMSortbyMenuText: TMenuItem;
     N1: TMenuItem;
     MMListUnassigned: TMenuItem;
     Btn_Help: TButton;
+    Edit1: TEdit;
+    Edit_Filter: TEdit;
+    Label1: TLabel;
+    RBShowMainMenu: TRadioButton;
+    RBShowTreeMenu: TRadioButton;
+    MMConsiderDescriptionOnFilter: TMenuItem;
+    procedure MMConsiderDescriptionOnFilterClick(Sender: TObject);
+    procedure RBShowTreeMenuClick(Sender: TObject);
+    procedure RBShowMainMenuClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure Edit_FilterExit(Sender: TObject);
+    procedure Edit_FilterKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure List_CommandsClick(Sender: TObject);
-    procedure MMSortbyNameClick(Sender: TObject);
-    procedure MMSortbyMenuTextClick(Sender: TObject);
     procedure Edit_HotKeyKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure Btn_RemoveClick(Sender: TObject);
@@ -97,7 +106,6 @@ type
     { Public declarations }
 
     myKeyList : TList;
-    SortByName : boolean;
 
     KeyNoteActivationHotkey : TShortCut;
     myKBD_FN : string;
@@ -109,6 +117,7 @@ type
 
     Edit_HotKey: TKNTHotKey;
 
+    procedure ApplySort;
     procedure DisplayCommands;
     procedure ShowCommandInfo;
 
@@ -134,14 +143,14 @@ end; // IsValidShortcut
 procedure TForm_KBD.FormCreate(Sender: TObject);
 begin
   myKeyList := nil;
-  SortByName := false;
   HaveNewKey := false;
   UserShortcut := 0;
   myKBD_FN := '';
   Edit_HotKey := TKNTHotKey.Create( self );
   Edit_HotKey.Parent := GroupBox1;
-  Edit_HotKey.Left := LB_Shortcut.Left;
-  Edit_HotKey.Top := Edit_Current.Top;
+  Edit_HotKey.Left := Edit1.Left;
+  Edit_HotKey.Top :=  Edit1.Top;
+  Edit_HotKey.Width := Edit1.Width;
   Edit_HotKey.InvalidKeys := [hcNone];
   Edit_HotKey.Modifiers := [hkCtrl];
   Edit_HotKey.OnEnter := Edit_HotKeyEnter;
@@ -151,7 +160,14 @@ begin
 
   Edit_Hotkey.HotKey := 0;
   LB_CurrentlyAssignedTo.Font.Style := [fsBold];
-end; // Create
+end;
+
+procedure TForm_KBD.ApplySort;
+begin
+    myKeyList.Sort( CompareKeyItemsByPath )
+end;
+
+// Create
 
 procedure TForm_KBD.FormActivate(Sender: TObject);
 begin
@@ -161,10 +177,7 @@ begin
 
   if assigned( myKeyList ) then
   begin
-    if SortByName then
-      myKeyList.Sort( CompareKeyItemsByName )
-    else
-      myKeyList.Sort( CompareKeyItemsByCaption );
+    ApplySort;
     DisplayCommands;
     try
       List_Commands.SetFocus;
@@ -180,44 +193,40 @@ begin
 
 end; // Activate
 
-procedure TForm_KBD.DisplayCommands;
+procedure TForm_KBD.DisplayCommands ();
 var
   i, cnt : integer;
   item : TKeyMenuItem;
-  tmpname : string;
+  itemStr: string;
+  Filter: string;
 begin
-
   cnt := myKeyList.Count;
+  Filter:= Edit_Filter.Text;
 
   List_Commands.Items.BeginUpdate;
   try
     List_Commands.Items.Clear;
 
-    for i := 1 to cnt do
-    begin
+    for i := 1 to cnt do begin
       item := TKeyMenuItem( myKeyList[pred( i )] );
 
-      tmpname := item.name;
-      delete( tmpname, 1, 2 );
+      itemStr:= item.Path;
 
-      if SortByName then
-      begin
-        List_Commands.Items.AddObject( Format(
-          '%s - %s',
-          [tmpname, item.Caption]
-          ), item );
-      end
-      else
-      begin
-        List_Commands.Items.AddObject( Format(
-          '%s - %s',
-          [item.Caption, tmpname]
-          ), item );
-      end;
+      if RBShowMainMenu.Checked and not (item.Category = ckmMain) then
+         continue;
+      if RBShowTreeMenu.Checked and not (item.Category = ckmTree) then
+         continue;
+      if (Filter <> '') and (
+          (pos(AnsiLowercase(Filter), AnsiLowercase(itemStr)) = 0)  and
+          (not MMConsiderDescriptionOnFilter.Checked or (pos(AnsiLowercase(Filter), AnsiLowercase(item.Hint)) = 0))
+          ) then
+         continue;
+
+      List_Commands.Items.AddObject( itemStr, item );
     end;
 
     if ( List_Commands.Items.Count > 0 ) then
-      List_Commands.ItemIndex := 0;
+       List_Commands.ItemIndex := 0;
 
     ShowCommandInfo;
 
@@ -256,24 +265,6 @@ begin
   ShowCommandInfo;
 end;
 
-
-procedure TForm_KBD.MMSortbyNameClick(Sender: TObject);
-begin
-  if MMSortbyName.Checked then exit;
-  SortByName := true;
-  MMSortbyName.Checked := true;
-  myKeyList.Sort( CompareKeyItemsByName );
-  DisplayCommands;
-end;
-
-procedure TForm_KBD.MMSortbyMenuTextClick(Sender: TObject);
-begin
-  if MMSortbyMenuText.Checked then exit;
-  SortByName := false;
-  MMSortbyMenuText.Checked := true;
-  myKeyList.Sort( CompareKeyItemsByCaption );
-  DisplayCommands;
-end;
 
 procedure TForm_KBD.Edit_HotKeyKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -330,7 +321,7 @@ var
   Item : TKeyMenuItem;
 begin
   result := nil;
-  cnt := List_Commands.Items.Count;
+  cnt := myKeyList.Count;
 
   if ( SelItem = nil ) then
     SelItem := GetSelectedItem;
@@ -340,7 +331,7 @@ begin
 
   for i := 1 to cnt do
   begin
-    Item := TKeyMenuItem( List_Commands.Items.Objects[pred( i )] );
+    item := TKeyMenuItem( myKeyList[pred( i )] );
     if (( Item <> SelItem ) and ( Item.Category = SelItem.Category )) then
     begin
       if ( Item.Shortcut = aShortcut ) then
@@ -426,6 +417,8 @@ begin
   IsModified := true;
   item.Shortcut := newShortcut;
   ShowCommandInfo;
+
+  Edit_Hotkey.HotKey:= 0;
 end;
 
 procedure TForm_KBD.Btn_ListClick(Sender: TObject);
@@ -503,6 +496,27 @@ begin
   end;
 end; // EnableAccelerators
 
+procedure TForm_KBD.Edit_FilterExit(Sender: TObject);
+begin
+   DisplayCommands;
+end;
+
+procedure TForm_KBD.Edit_FilterKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+   if key= 13 then
+      DisplayCommands;
+end;
+
+
+procedure TForm_KBD.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+    if (key = 13) and (Edit_Filter.Focused ) then begin
+       DisplayCommands;
+    end;
+end;
+
+
 procedure TForm_KBD.Edit_HotKeyEnter(Sender: TObject);
 begin
   EnableAccelerators( false );
@@ -513,9 +527,25 @@ begin
   EnableAccelerators( true );
 end;
 
+procedure TForm_KBD.MMConsiderDescriptionOnFilterClick(Sender: TObject);
+begin
+   MMConsiderDescriptionOnFilter.Checked := not MMConsiderDescriptionOnFilter.Checked;
+   DisplayCommands;
+end;
+
 procedure TForm_KBD.MMListUnassignedClick(Sender: TObject);
 begin
   MMListUnassigned.Checked := ( not MMListUnassigned.Checked );
+end;
+
+procedure TForm_KBD.RBShowMainMenuClick(Sender: TObject);
+begin
+    DisplayCommands;
+end;
+
+procedure TForm_KBD.RBShowTreeMenuClick(Sender: TObject);
+begin
+    DisplayCommands;
 end;
 
 procedure TForm_KBD.Btn_HelpClick(Sender: TObject);

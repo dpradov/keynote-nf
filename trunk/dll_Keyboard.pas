@@ -73,12 +73,12 @@ type
     Hint : TMenuString;
     Shortcut : TShortCut;
     Category : TKeyMenuCategory;
-    // ParentCaption : TMenuString;
+    Path: String;
   end;
 
 procedure BuildKeyboardList( const KeyCustomMenus : TKeyCustomMenus; const MenuList : TList );
 
-function CompareKeyItemsByName( item1, item2 : pointer ) : integer;
+function CompareKeyItemsByPath( item1, item2 : pointer ) : integer;
 function CompareKeyItemsByCaption( item1, item2 : pointer ) : integer;
 
 procedure SaveKeyboardList( const FN : string; const MenuList : TList );
@@ -87,18 +87,15 @@ procedure ListKeyboardShortcuts( const FN : string; const IncludeUnassigned : bo
 
 implementation
 
-function CompareKeyItemsByName( item1, item2 : pointer ) : integer;
+function CompareKeyItemsByPath( item1, item2 : pointer ) : integer;
 var
   k1, k2 : TKeyMenuItem;
 begin
   k1 := TKeyMenuItem( item1 );
   k2 := TKeyMenuItem( item2 );
   if ( k1.Category = k2.Category ) then
-  begin
-    result := CompareText( k1.Name, k2.Name );
-  end
-  else
-  begin
+    result := CompareText( k1.Path, k2.Path )
+  else begin
     if ( k1.Category > k2.Category ) then
       result := 1
     else
@@ -114,11 +111,8 @@ begin
   k2 := TKeyMenuItem( item2 );
 
   if ( k1.Category = k2.Category ) then
-  begin
-    result := AnsiCompareText( k1.Caption, k2.Caption );
-  end
-  else
-  begin
+    result := AnsiCompareText( k1.Caption, k2.Caption )
+  else begin
     if ( k1.Category > k2.Category ) then
       result := 1
     else
@@ -146,35 +140,38 @@ begin
   result := aItem.Name;
 end; // GetParentCaption
 
-procedure ListMenuItems( const StartItem : TMenuItem; const MenuCategory : TKeyMenuCategory; const MenuList : TList );
+procedure ListMenuItems( const Path: string; const StartItem : TMenuItem; const MenuCategory : TKeyMenuCategory; const MenuList : TList );
 var
   i, cnt : integer;
   myItem : TMenuItem;
   KeyMenuItem : TKeyMenuItem;
+  newPath: string;
 begin
 
   cnt := StartItem.Count;
-  if ( cnt = 0 ) then
-  begin
-    if IsValidMenuItem( StartItem ) then
-    begin
-      KeyMenuItem := TKeyMenuItem.Create;
-      KeyMenuItem.Name := StartItem.Name;
-      KeyMenuItem.Caption := RemoveAccelChar( StartItem.Caption );
-      KeyMenuItem.Hint := StartItem.Hint;
-      KeyMenuItem.Shortcut := StartItem.ShortCut;
-      KeyMenuItem.Category := MenuCategory;
-      // KeyMenuItem.ParentCaption := GetParentCaption( StartItem );
-      MenuList.Add( KeyMenuItem );
-    end;
+  if ( cnt = 0 ) then begin
+      if IsValidMenuItem( StartItem ) then begin
+          KeyMenuItem := TKeyMenuItem.Create;
+          KeyMenuItem.Name := StartItem.Name;
+          KeyMenuItem.Caption := RemoveAccelChar( StartItem.Caption );
+          KeyMenuItem.Path := KeyMenuItem.Caption;
+          if Path <> '' then
+             KeyMenuItem.Path:= Path + '\' + KeyMenuItem.Path;
+          KeyMenuItem.Hint := StartItem.Hint;
+          KeyMenuItem.Shortcut := StartItem.ShortCut;
+          KeyMenuItem.Category := MenuCategory;
+          MenuList.Add( KeyMenuItem );
+      end;
   end
-  else
-  begin
-    for i := 1 to cnt do
-    begin
-      myItem := StartItem.Items[pred( i )];
-      ListMenuItems( myItem, MenuCategory, MenuList ); // RECURSIVE CALL
-    end;
+  else begin
+      newPath:= RemoveAccelChar(StartItem.Caption);
+      if Path <> '' then
+         newPath:= Path + '\' + newPath;
+
+      for i := 1 to cnt do begin
+         myItem := StartItem.Items[pred( i )];
+         ListMenuItems( newPath, myItem, MenuCategory, MenuList ); // RECURSIVE CALL
+      end;
   end;
 
 end; // ListMenuItems
@@ -191,9 +188,8 @@ begin
     myMenuObj := TMainMenu( KeyCustomMenus[thisMenu] );
 
     cnt := myMenuObj.Items.Count;
-    for i := 1 to cnt do
-    begin
-      ListMenuItems( myMenuObj.Items[pred( i )], thisMenu, MenuList );
+    for i := 1 to cnt do begin
+       ListMenuItems( '', myMenuObj.Items[pred( i )], thisMenu, MenuList );
     end;
   end;
 
