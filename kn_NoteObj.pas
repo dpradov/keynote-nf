@@ -816,7 +816,7 @@ begin
         NodeTextW:= FEditor.TextW;
         if NodeTextW <> string(NodeTextW) then
            FEditor.StreamMode := [smUnicode];
-        end
+      end
       else
         FEditor.StreamFormat := sfRichText;
 

@@ -210,7 +210,7 @@ end;
 
 function NodeStreamIsUTF8_WithoutBOM (Stream : TMemoryStream; var NodeText: string): boolean;
 var
-    BOM: string[4];
+    BOM: string[3];
     TextSize: integer;
     cad: string;
 begin
@@ -218,17 +218,18 @@ begin
     Result:= False;
 
     TextSize:= Stream.Size;
-    if TextSize >= 2 then begin
-       SetLength( NodeText, TextSize );
-       move( Stream.Memory^, NodeText[1], 3 );
-       if Copy(NodeText,1,3) <> UTF8_BOM then begin
+    if TextSize >= 3 then begin
+       BOM:= Copy( PChar(Stream.Memory), 1, 3 );
+       if BOM <> UTF8_BOM then begin
+          SetLength( NodeText, TextSize );
           move( Stream.Memory^, NodeText[1], TextSize );
           cad:= Utf8ToAnsi(NodeText);
           if (cad <> '') and (cad <> NodeText) then
              Result:= True;
-          end;
+       end;
     end;
 end;
+
 
 function NodeStreamIsUTF8_WithoutBOM ( Stream : TMemoryStream ): boolean;
 var
@@ -244,8 +245,8 @@ begin
     Result:= False;
 
     if NodeStreamIsUTF8_WithoutBOM(Stream, NodeText) then begin
-       NodeText:= UTF8_BOM + NodeText;
        Stream.Position:= 0;
+       Stream.Write(UTF8_BOM[1], length(UTF8_BOM));
        Stream.Write(NodeText[1], length(NodeText));
        Stream.Position:= 0;
        Result:= True;

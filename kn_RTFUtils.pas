@@ -56,7 +56,13 @@ uses Windows, Messages, Controls, Classes,
 
 
 procedure PutRichText(
-    const aRTFString: wideString;
+    const aRTFString: string;
+    const aRichEdit: TRxRichEdit;
+    const isRTF, DoInsert: boolean
+  );
+
+procedure PutRichTextW(
+    const aRTFString: WideString;
     const aRichEdit: TRxRichEdit;
     const isRTF, DoInsert: boolean
   );
@@ -133,7 +139,7 @@ begin
   end;
 end;
 
-//Note: It would be possible to use directly the following message: EM_SETTEXTEX Message
+//Note: It would be possible to use directly the following message: EM_SETTEXTEX Message (if RichEditVersion >= 3)
 // See: http://msdn.microsoft.com/en-us/library/bb774284(VS.85).aspx
 
 procedure AnsiPutRichText(
@@ -286,8 +292,40 @@ type
   TSetTextEX = _SetTextEx;
 
 
-
 procedure PutRichText(
+    const aRTFString: string;
+    const aRichEdit: TRxRichEdit;
+    const isRTF, DoInsert: boolean
+  );
+var
+  aSTE: TSetTextEx;
+begin
+  if not assigned(aRichEdit) or (aRTFString = '') then exit;
+
+
+  if (RichEditVersion < 3) then begin
+     AnsiPutRichText(aRTFString, aRichEdit, isRTF, DoInsert);
+     exit;
+  end;
+
+  try
+    aSTE.flags:= ST_SELECTION or ST_KEEPUNDO;
+    aSTE.codepage:= CP_ACP;  // CP_ACP= ANSI codepage => use the currently set default Windows ANSI codepage.
+
+    // If we're appending, we need to set our selection at the end of the control
+    if ( not DoInsert ) then
+    begin
+      aRichEdit.SelStart := -1;
+      aRichEdit.selLength := 0;
+    end;
+
+    SendMessage(aRichEdit.Handle, EM_SETTEXTEX, longint(@aSTE), longint(PChar(aRTFString)));
+  finally
+  end;
+end; // PutRichText
+
+
+procedure PutRichTextW(
     const aRTFString: wideString;
     const aRichEdit: TRxRichEdit;
     const isRTF, DoInsert: boolean
@@ -298,7 +336,6 @@ var
 begin
   if not assigned(aRichEdit) or (aRTFString = '') then exit;
 
-
   if (RichEditVersion < 3) then begin
      S:= aRTFString;
      AnsiPutRichText(S, aRichEdit, isRTF, DoInsert);
@@ -307,7 +344,7 @@ begin
 
   try
     aSTE.flags:= ST_SELECTION or ST_KEEPUNDO;
-    aSTE.codepage:= CP_UTF8;  // 1200 (Unicode); CP_UTF8; CP_ACP;   With 1200 didn't work
+    aSTE.codepage:= CP_UTF8;  // 1200 (Unicode); With 1200 didn't work
 
     // If we're appending, we need to set our selection at the end of the control
     if ( not DoInsert ) then
@@ -317,10 +354,10 @@ begin
     end;
 
     S:= WideStringToUTF8(aRTFString);
-    SendMessage(aRichEdit.Handle, EM_SETTEXTEX, longint(@aSTE), longint(PWideChar(S)));
+    SendMessage(aRichEdit.Handle, EM_SETTEXTEX, longint(@aSTE), longint(PChar(S)));
   finally
   end;
-end; // PutRichText
+end; // PutRichTextW
 
 
 // Returns a text in ASCII with characters with 8 bits escaped with \' and unicode characters
