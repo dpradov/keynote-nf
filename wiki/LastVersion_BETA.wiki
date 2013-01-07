@@ -87,3 +87,48 @@ I have uploaded a new executable (*1.7.9.2 Beta*) that includes the following is
 A new Beta is available (*1.7.9.3 Beta*) that includes the following issue:
 
   * Issue #193: Adjustments in alarm window
+
+<br><br>
+----
+*07 jan 2013:* <br>
+A new Beta is available (*1.7.9.4 Beta*) that corrects or implements the following issues:
+
+  * Issue #327: Re-select Find / Replace dialog window after closing the "Not found" pop-up
+  * Issue #404: Corrected and improved Find/Search behaviour
+  * Issue #436: Minor improvements in Style combo box
+  * Issue #369: Problem entering text via Tablet PC Input panel
+  * Issue #343: Opening file as Read-Only: you can lose your file
+  * Issue #330: Link to file can't be opened when file name contains a plus sign
+  * Issue #403: Hyperlinks should accept any URI protocols (as callto or ms-help, among others)
+  * Issue #437: Links with Hebrew characters don't work
+  * Issue #91: Angle brackets around links multiply
+  * Optimizes CleanHyperlinks operation (see issue #59: Certain hyperlinks may cause knt file to grow in size suddenly (geometrical increase..))
+  * Correction: Insertion of Date is now realized in Unicode (now working in region settings like Hebrew)  
+  * Issue #451: Slight improvement in import method by drag and drop
+  * Issue #453: Time needed to close can be high in certain environments
+  * Minor modifications related to Issue 193: Adjustments in alarm window
+  * Issue #450: Access violation exception when moving nodes to onother note
+  * Issue #420: Error when opening encoded URL or URL that contains spaces
+  * Issue #408: Show word count in status bar: makes keynote lag enormously with long texts
+  * Issue #298: HTML Export is not working (Revised HTML Import and Export)
+  * Issue #323: Include formatting and links when pasting selected text from Firefox (offer RTF when there is HTML format at least)
+  * Issue #385: Rename node using F2
+  * Issue #97: Improve form 'Customize keyboard shortcuts'
+  * Issue #324: Export error in displaying Chinese node name
+  * Issue #410: Unicode BOM characters randomly inserted into ANSI Virtual Node text files
+  * Issue #406: Bug when copy/pasting Paragraph Attributes
+
+<br>
+I recommend everybody to use this new version, although marked as Beta but remember:
+
+- Beta releases include normally only 'keynote.exe'. In this case are also included: 'kntutils.dll', 'nodehead.rtf' and 'notehead.rtf'. The .rtf files are needed if you are having problems with export, specially with chinese language. 
+
+You must download previously a complete version and then replace existing files with the ones included in the .rar file
+
+- Also, **and important**, the language files are associated to specific versions and so the language files will not be compatible with the beta executable. It is necessary that (in the meantime) you select 'English (internal)' as language. You can do that from the application: Tools -> Configuration options -> General settings -> Language or modifying keynote.ini: LanguageUI=English (Internal) or simply: LanguageUI=
+<br><br><br>
+Of course, I encourage you to make a backup of your .knt files before using the new version. It should be a healthy habit , particularly in version changes.
+
+<br><br>
+It would be helpful that those of you who reported some of these issues verify and confirm if they are adequately resolved. I would also appreciate to verify other reported issues (as defect) that, although not in this list, are related to some of them, because they could have been corrected indirectly.
+Thanks
