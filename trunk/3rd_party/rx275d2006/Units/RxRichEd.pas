@@ -3387,7 +3387,7 @@ begin
     pcb := 0;
     if StreamInfo^.Converter <> nil then begin
       SetString(cad, PChar(pbBuff), cb);
-      cad:= UTF8_BOM + WideStringToUTF8(PWideChar(cad));
+      cad:= WideStringToUTF8(PWideChar(cad));
       len:= length(cad);
       pcb := StreamInfo^.Converter.ConvertWriteStream(StreamInfo^.Stream, PAnsiChar(cad), len);
       if pcb = len then
@@ -3515,6 +3515,8 @@ begin
       end;
     end;
     if smSelection in Mode then TextType := TextType or SFF_SELECTION;
+    if (Format = sfPlainText) and (Stream.Size = 0) and (RichEdit.TextLength > 0) then
+       Stream.Write(UTF8_BOM[1], length(UTF8_BOM));
     SendMessage(RichEdit.Handle, EM_STREAMOUT, TextType, Longint(@EditStream));
     if EditStream.dwError <> 0 then
       raise EOutOfResources.Create(ResStr(sRichEditSaveFail));
