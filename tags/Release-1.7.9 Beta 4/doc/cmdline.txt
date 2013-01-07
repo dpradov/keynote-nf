@@ -1,0 +1,65 @@
+-----------------------------------------------------------
+KEYNOTE - COMMAND-LINE SWITCHES
+-----------------------------------------------------------
+
+When launching KeyNote from the command-line (Start->Run...) or from a shortcut, you can specify one or more command-line arguments. These arguments are equivalent to some configuration options and change certain aspects of the program behavior.
+
+usage: keynote.exe [filename[.knt]] [-option [-option...]]
+
+Note: If a command-line argument is a file, just enter the full path and filename. Command-line arguments which are options must be preceded by a dash (-) or a slash (/), which is the usual convention for MS-DOS and MS Windows programs.
+
+Command-line options may be typed in lowercase or UPPERCASE, and may be specified in any order.
+
+Following is a list of command-line options KeyNote supports:
+
+FILENAMES:
+
+You can specify one or more filenames on the command-line to alter the default behavior of the program. KeyNote relies on the file extension (file type) in interpreting the meaning of the option.
+
+If you specify...				Keynote will...
+a .KNT file						- open this file on startup
+an .INI file					- use it as the configuration file instead of the default "keynote.ini") Note that this enables many users to share KeyNote on one computer and have their own, separate preferences.
+a .DEF file						- read from this file default settings for newly created notes (instead of the default keynote.def)
+a .MGR file						- use this file to fill the File Manager dialog box (instead of the default keynote.mgr)
+
+OPTIONS:
+
+-min		minimize on startup
+The main program window will be automatically minimized when KeyNote is started. Note that you can achieve the same effect by opening the shortcut Properties window and specifying "Minimized" in the appropriate setting on the Shortcut tab. If this option is not specified, KeyNote will restore the previous size and position of the main window.
+
+-debug		save some debug info
+Turns ON debugging. This option iso only honored if the program was built with debug code; otherwise it is ignored and has no effect on the program execution. When debugging is on, KeyNote periodically saves to disk a log file containing some runtime information and any error messages that may have been issued.
+
+-nso		do not save options
+If this option is specified, KeyNote will not save any configuration options you may change inside the program. You can still open the Options dialog box and change settings, but the changes you make will be lost after you close and restart the program.
+
+-nro		do not read options (IMPLIES 'nso')
+If this option is specified, KeyNote will not read its configuration
+file (keynote.ini). All options will be reset to factory defaults. If this option is specified, KeyNote ALSO assumed the -nso option (see above), so it will neither read nor save any changes in configuration.
+
+NOTE: The simplest way to restore factory default configuration is to delete the file "keynote.ini" which resides in the directory where you installed KeyNote.
+
+-reg		register data file extension
+If this option is specified, KeyNote will try to register its default document extension (.knt) with itself. You can also perform this manually in Windows Explorer using the Options command in the View menu.
+
+-nodef		do not read or write default entry settings
+If this option is specified, KeyNote will not load the default settings for new notes that you create (keynote.def) and will use factory defaults instead. If you wish to restore factory default settings for newly created notes, just delete the file "keynote.def" which resides in the directory where you installed KeyNote.
+
+-saveicn	save factory default icons to bitmap file
+For the programmer only; not useful for the users. Saves the default icon set to a bitmap file.
+
+-noicn		do NOT load user icons from external .ICN file
+If this option is specified, KeyNote will not load the custom icons (keynote.icn) file at startup, and will use factory default icons instead. This option also disables the Icons tab in the Optioons dialog box, preventing the user from changing icons.
+
+-oldfmt		use old (pre-0.85) file format. See relevant note in the file
+"history.txt". This is only useful if you need to exchange your KeyNote file with someone who still uses a much older version of KeyNote. This setting is ignored if your current file contains tree-type notes, because the older versions of KeyNote will not be able to open such notes anyway.
+
+-noreg		do NOT store window size and position and the recently used
+file list in the registry. Instead, this information is stored in a file with the ".mru" extension.
+
+-clean		Clean/repair a file with the problem of hyperlinks signaled in issue #59 (Certain hyperlinks may cause knt file to grow in size suddenly (geometrical increase..))
+
+----- END -----
+
+
+

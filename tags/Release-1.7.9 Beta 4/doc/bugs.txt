@@ -1,0 +1,120 @@
+-----------------------------------------------------------
+KEYNOTE NF  (New Features)
+-----------------------------------------------------------
+
+For any bug report, patch proposal or feature request, add an entry into the Issue Tracker
+in Google Code project:
+
+  http://code.google.com/p/keynote-nf/issues/list
+
+Note: 
+Please, be specific; it is preferable to create several issues instead of only one very 
+heterogeneous, with many questions.
+If you want to suggest several new features or to report independent bugs, create several issues. That way it can be managed much better.
+
+There you can discuss about issues itselves, too.
+
+
+
+-----------------------------------------------------------
+KEYNOTE - BUGS AND LIMITATIONS
+-----------------------------------------------------------
+
+Note: The Help file is incomplete and partly outdated. See
+file "history.txt" for details of changes made to the program;
+this file also explains how to use new functions.
+
+To report a new bug or annoyance, or to suggest new features,
+please use the new Mantis bugtracker:
+http://mantis.tranglos.com
+
+Also, please see:
+
+Frequently Asked Questions (FAQ):
+http://www.tranglos.com/free/keynote_faq.html
+
+Support / discussion forums:
+http://forum.tranglos.com
+
+
+-----------------------------------------------------------
+BUGS
+
+* PROBLEMS WITH DBCS (double-byte character sets) and Unicode
+KeyNote has no support for double- or multi-byte character sets in its internal functions. It is possible to enter Chinese characters, for example, but I have received reports that doing so causes KeyNote to crash when the characters are selected. Sample files have been sent to me, and all I can see is that DBCS characters are displayed correctly and KeyNote does NOT crash on my system (Windows 2000 SP3, English). At present, KeyNote should be considered as having no support for DBCS, MBCS or Unicode characters.
+
+* PROBLEMS WITH PRINTING
+Originally, there was a problem with printing from the richedit control via the page setup dialog: you'd always get two or three additional blank pages at the end of the prinout. I had no idea how to fix that and why it was happening.
+
+There is now a "Safe print" option which you can turn on in the Options dialog, "Advanced" page. With "Safe print" OFF, the rich text is first filtered through the older version of the richedit control, which fixes the problem with surplus pages, but causes loss of certain formatting attributes which the older richedit version did not support (e.g. highlighting, paragraph spacing, the "disabled"-looking font style and a few others).
+
+With SafePrint turned ON, the printing is done directly from the richedit control, so you get all the "advanced" formatting attributes, but the page setup dialog is simply bypassed, and all settings you make there are ignored. For now, this is the best I can do.
+
+* When working with KNT files on network drives, you may receive the following message while saving the .KNT file: Folder monitoring has been disabled due to the following error: Win32 error. Code: 2." The file, however, is saved correctly and no obvious error in fact occurs. If you encounter this problem, open the Options dialog box, click the "Advanced" tab, and CHECK the "Disable folder monitor" checkbox. The folder monitoring function is used to detect if another application has modified the file which is currently open in KeyNote (in such a case, KeyNote prompts you to reload the file from disk). However, folder monitoring only works with files on the local disk, not across a network. Disabling it will eliminate the faux error message, but KeyNote will no longer be able to detect file changes.
+
+* When changing the default color of the tree nodes in "Note Properties" dialog box, the color change takes effect after the file has been closed and reopened (or after KeyNote has been restarted). All other font properties take effect immediately. (This does not apply when setting a color for a specigic tree node uysing the tree panel's context menu.)
+
+* When KeyNote is set to remain "always on top" ("View" menu), the font selection drop-down box becomes inaccessible (disabled) on some systems. I cannot reproduce this problem on Windows 95 or 2000, and I have really no idea why it happens. On Windows 2000, I can confirm that the font color and highlight color buttons on the toolbar don't work correctly when KeyNote is set to "Always on top".
+
+* RESOLVED (1.7.7):  When a note uses a character set other than the system default, it may not be possible to use the Find and Replace functions, because the text in the Find and Replace dialog boxes is not displayed correctly. Since specifying te character set for the dialog boxes does NOT solve the problem, I have currently no idea what to do about this.
+
+* If you add (or possibly move) some nodes in the tree, and then change the tree layout (from horizonal to vertical, or the other way around), then the new nodes lose their original position. This does not affect the nodes that were created earlier. The problem does not occur if the file was saved and closed/reopened.
+
+Workaround: When you want to change the layout, save the file first *and reload it*. Just close the file and reopen it, or simply select the file from the "Recent files" menu. After you have reloaded the file, change the tree layout. This way, all nodes should stay where they were. You should probably save the file at this point and reload it again, at least if you intend to make any further changes to the tree.
+
+* In a tree node, if you change text color to black using the color button on the toolbar, then click another node and return to the one in which you changed font color, the text that should be black will now be white (this only occurs under some specific conditions). I have no fix for this problem (KeyNote *does* set the color to black, of course!) The workaround is to click the color button and use the "Default color" function, instead of "Black'. This solution is only valid if you have chosen black as default font color for the current note (in Note Properties dialog box, F4).
+
+* The wordcount value shown in the statusbar (if enabled) differs from the wordcount reported when you use the Tools|Text Statistics command. The latter value is correct; the value shown on the statusbar is off.
+
+* RESOLVED (1.7.4) When renaming a tree node, standard clipboard-related keyboard shortcuts (Ctrl+C/X/V) do not work, because they are already taken by the main menu and apply only to the text area. Use alternate clipboard shortcuts, such as Ctrl+Insert (Copy), Shift+Del (Cut) and Shift+Insert (Paste).
+
+* RESOLVED (1.7.3.2) Occasionally (rarely!) KeyNote refuses to paste the text you have just copied to clipboard. I think this only affects Windows NT/2000/XP systems. You can verify that the text was indeed copied to clipboard, because the "Pase as text" command does work. What doens't work is the "standard" Paste. The only workaround is to use "Paste as text" instead, or cut the text instead of copying it (you can cut then immediately paste it back, to simulate "Copy"; you will then be able to paste the text correctly where you want it).
+
+* RESOLVED (1.7.0): When moving tree nodes with checkboxes, the state of the checkbox
+  	            is lost (i.e. a moved node always ends up unchecked).
+
+
+-----------------------------------------------------------
+LIMITATIONS
+
+* RESOLVED (1.7.4) If you rename a note or a node, hyperlinks pointing to that note or node will no longer be valid. This could only be worked around by using unique IDs in hyperlinks (instead of names), but then the hyperlinks themselves would not be readable.
+
+* RESOLVED (1.7.5) It is not possible to indent the first line of a paragraph; use TAB instead. (The "First line indent" creates a hanging indent, which is the opposite to what many users expect.)
+
+* Importing files: It is not possible to import files if no file is open, or if the current file does not contain any notes. Please make sure you have a file open and that the file contains at least one note before importing files.
+
+* When a non-modal dialog box is open (Find or Replace), the Alt+Down arrow keyboard shortcut does not work in the drop-down list. Instead, the shortcut is handled by KeyNote itself. This is _normal_, given how non-modal dialog boxes work in Windows, but it's still annoying. I hope to be able to work around this in version 2.0.
+
+* Exporting notes in HTML format seems to do nothing: When exporting notes as HTML files, KeyNote uses a Microsoft HTML conversion library, "html32.cnv". If this file is not installed on your system, or not properly registered, the export procedure will fail without displaying any error messages. This will be fixed in version 2.0.
+
+* When setting (or unsetting) the "Plain text" property of a tree-type note (in "Note Properties" dialog box), each node has to be manually edited (or at least clicked) before its contents will be updated according to the "Plain text" option setting. Nodes will display properly, but they will retain all text in the previously active format (RTF or plain text) until they have been clicked and selected for editing.
+
+* When using the "Find all words" or "Find any word" search type on the resource panel, the "Search tree nodes" option is ignored, i.e. tree nodes are NOT searched. Tree nodes are only searched when you select the "Exact phrase" setting.
+
+* Saving the notes file clears the Undo bufer; operations cannot be undone after the file was saved (manually or automatically). This is not done by design, but it's a "feature" of the RichEdit control. At this time, I have no idea how to work aroound it.
+
+* Flat (non-tree) notes cannot be moved by drag-and-drop to tree notes, or "upgraded" to trees. Use Copy/Paste to create a new tree node, then delete the original flat note.
+
+* The search and replace commands do not support metacharacters, so it's not possible to search for tabs or linebreaks.
+
+* There are MANY commands which cannot be used in macros. Usually, there is no warning about it. Some information regarding this is included in the Help file ("Macros" topic). This is a design limitation; macros will be much more robust in version 2.0, but have to stay the way they are in 1.x.
+
+* When sending a note by email, the text of the note is not wrapped, and no encoding is performed.
+
+* When a non-modal dialog box is open (Find, Replace), you cannot use Alt+Up arrow and Alt+Down arrow key combinations in the dialog, if they are assigned to commands in KeyNote's main window. (By default, these key combinations are assigned to move one node up or down.) This is due to how non-modal dialog boxes work in Windows programs; the only workaround is to remove these key assignments using the "Customize keyboard" command.
+
+* Icons are associated with notes by their index number. Therefore, if you delete an existing icon (Options dialog box, "Tab icons" section), icons following it will be shifted one slot backwards. This will change icons displayed with some notes. For instance, if you have 10 icons and you delete icon number 3, the icons that were originally numbered 4-10 will now be numbered 3-9. Any note that displayed icon number 3 will now display the icon originally numbered 4, etc. Notes which used to display icon number 10 will not display not icon (because there are only 9). If this is a problem, you should only add icons to the end of the list, and not delete any existing icons. (Note also that you can use a separate icon file for each KNT file you have, so a change in one set of icons need not affect other files.)
+
+* Virtual node files are not monitored for changes made outside of KeyNote.
+
+* When importing several files at once, all files must be of the same type.
+
+* Notes cannot be merged into a file on disk. Only the reverse is possible: merging notes FROM a disk file into the currently loaded .KNT file.
+
+* When line-based commands are used (sorting, trimming white space) some formatting properties in the middle of the selected text are stripped.
+
+* Bookmarks are not persistent; they are only maintained until the current file is closed.
+
+* Email and Print commands do not fully support trees.
+
+--- END ---

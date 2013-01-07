@@ -1,0 +1,33 @@
+/****************************************************************************
+
+rxtconst.res
+
+Delphi VCL Extensions (RX)
+Copyright (c) 1995 AO ROSNO
+Copyright (c) 1997 Master-Bank
+
+*****************************************************************************/
+
+#include "rxtconst.pas"
+
+#ifdef win32
+LANGUAGE LANG_RUSSIAN,1
+#endif
+
+STRINGTABLE 
+{
+ SDualListSrcCaption, "&Источник"
+ SDualListDestCaption, "&Приемник"
+ SClipbrdUnknown, "Неизвестный формат данных в буфере обмена"
+ SClipbrdEmpty, "Буфер обмена пуст"
+ SCustomizeSpeedbar, "Настройка панели инструментов"
+ SAvailButtons, "&Доступные кнопки:"
+ SSpeedbarCategories, "&Категории:"
+ SSpeedbarEditHint, "Выберите кнопку и перенесите ее с помощью мыши на нужное место на панели инструментов."
+ SParseSyntaxError, "Синтаксическая ошибка"
+ SParseNotCramp, "Не хватает скобки"
+ SParseDivideByZero, "Деление на нуль"
+ SParseSqrError, "Выражение под корнем меньше нуля"
+ SParseLogError, "Выражение под логарифмом меньше нуля"
+ SParseInvalidFloatOperation, "Ошибка в операции с плавающей точкой"
+}

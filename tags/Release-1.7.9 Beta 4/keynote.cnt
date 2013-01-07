@@ -1,0 +1,75 @@
+:BASE keynote.hlp
+:TITLE KeyNote Help
+1 General Information
+2 Welcome to KeyNote=Scribble10
+2 KeyNote is Open-Source=Scribble11
+2 What's New=Scribble12
+2 Quick Start=Scribble15
+2 Features=Scribble20
+2 Hints and Tips=Scribble25
+2 Keyboard Reference=Scribble30
+2 Command Line Reference=Scribble35
+2 Information for Dart Notes Users=Scribble40
+2 Known Problems and Bugs=Scribble45
+2 License=Scribble50
+2 Acknowledgments=Scribble22
+2 KeyNote on the Web=Scribble24
+2 Other Freeware from General Frenetics, Discorp.=Scribble26
+2 Auxiliary Files=Scribble55
+1 Using KeyNote
+2 KeyNote editor=Scribble100
+2 Tree-type notes=Scribble120
+2 Virtual nodes=Scribble122
+2 Sharing KeyNote on a multi-user system=Scribble60
+2 KeyNote File properties=Scribble230
+2 File properties: Information=Scribble231
+2 File properties: Settings=Scribble232
+2 File properties: File icons=Scribble233
+2 File properties: Security=Scribble234
+2 Note properties and defaults=Scribble250
+2 Note properties: Note settings=Scribble251
+2 Note properties: Tree settings=Scribble252
+2 Note properties: Advanced=Scribble253
+2 KeyNote menus=Scribble300
+2 KeyNote menus: File=Scribble305
+2 KeyNote menus: Edit=Scribble310
+2 KeyNote menus: View=Scribble315
+2 KeyNote menus: Insert=Scribble320
+2 KeyNote menus: Format=Scribble325
+2 KeyNote menus: Note=Scribble330
+2 KeyNote menus: Tree=Scribble335
+2 KeyNote menus: Search=Scribble340
+2 KeyNote menus: Tools=Scribble345
+2 KeyNote menus: Help=Scribble355
+1 Configuring KeyNote
+2 Configuring KeyNote - Overview=Scribble200
+2 Configuration options=Scribble205
+2 Options: General settings=Scribble206
+2 Options: Rich Text editor=Scribble207
+2 Options: Tree panel=Scribble208
+2 Options: KeyNote Files=Scribble209
+2 Options: File Options=Scribble210
+2 Options: Actions=Scribble211
+2 Options: Confirmations=Scribble212
+2 Options: Chrome=Scribble213
+2 Options: Tab icons=Scribble214
+2 Options: Advanced=Scribble215
+2 Options: Formats=Scribble216
+2 Options: Clipboard capture=Scribble217
+2 Options: File types=Scribble218
+1 Special functions
+2 Special Functions=Scribble500
+2 Encrypting KeyNote files=Scribble505
+2 Sending KeyNote files by E-mail=Scribble510
+2 Styles=Scribble515
+2 Integration with WordWeb=Scribble520
+2 Hyperlinks=Scribble525
+2 Macros=Scribble530
+2 Plugins=Scribble535
+2 Word expansion glossary=Scribble550
+2 File manager=Scribble560
+2 Insert character dialog box=Scribble570
+2 Clipboard capture=Scribble575
+2 Expression evaluation=Scribble580
+2 Importing files as notes=Scribble585
+2 Exporting notes to disk files=Scribble590

@@ -1,0 +1,51 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{*******************************************************}
+
+package DclRxBd2006;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $30400000}
+{$DESCRIPTION 'RX Library BDE Database Components'}
+{$DESIGNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  dcldb,
+  designide,
+  bdertl,
+  VclSmp,
+  DclRxDb2006,
+  RxCtl2006,
+  DclRx2006,
+  RxDB2006;
+
+contains
+  QBndDlg in 'QBndDlg.pas',
+  RxBDEReg in 'RxBDEReg.pas';
+
+end.

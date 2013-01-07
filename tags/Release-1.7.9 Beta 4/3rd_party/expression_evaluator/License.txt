@@ -1,0 +1,93 @@
+BitSoft Development, L.L.C. License Agreement
+
+LIMITED WARRANTY
+
+BITSOFT DEVELOPMENT, L.L.C. MAKES NO REPRESENTATIONS ABOUT
+THE SUITABILITY OF THIS SOFTWARE OR ABOUT ANY CONTENT OR
+INFORMATION MADE ACCESSIBLE BY THE SOFTWARE, FOR ANY PURPOSE.
+THE SOFTWARE IS PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE.  BITSOFT DEVELOPMENT, L.L.C. SHALL NOT BE
+LIABLE UNDER ANY THEORY FOR ANY DAMAGES SUFFERED BY YOU OR ANY
+USER OF THE SOFTWARE, WHICH MAY RESULT FROM THE USE OF THE
+SOFTWARE.
+
+BITSOFT DEVELOPMENT, L.L.C OR ITS SUPPLIERS SHALL NOT BE LIABLE
+FOR (a) INCIDENTAL, CONSEQUENTIAL, SPECIAL OR INDIRECT DAMAGES
+OF ANY SORT, WHETHER ARISING IN TORT, CONTRACT OR OTHERWISE,
+EVEN IF BITSOFT DEVELOPMENT, L.L.C. HAS BEEN INFORMED OF THE
+POSSIBILITY OF SUCH DAMAGES, OR (b) FOR ANY CLAIM BY ANY OTHER
+PARTY. SOME STATES DO NOT ALLOW THE EXCLUSION OR LIMITATION OF
+INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THIS LIMITATION AND
+EXCLUSION MAY NOT APPLY TO YOU.
+
+This License shall be governed by and construed in accordance
+with the laws of the State of Idaho and, as to matters affecting
+copyrights, trademarks and patents, by U.S. federal law.  It
+shall inure to the benefit of BitSoft Development, L.L.C. and any
+successors, administrators, heirs and assigns.  Any action or
+proceeding brought by either party against the other arising out
+of or related to this agreement shall be brought only in a STATE
+or FEDERAL COURT of competent jurisdiction located in Idaho.  The
+parties hereby consent to in personam jurisdiction of said courts.
+
+
+LICENSE TERMS APPLICABLE TO USE AND DISTRIBUTION
+
+BitSoft Development, L.L.C. ("BitSoft") grants to you a
+non-exclusive, non-sublicensable, license to use 
+Expression Evaluator v1.0 for Delphi (the "Software").
+
+The Software and all associated documentation are copyrighted
+products of BitSoft and are protected by United States copyright
+law and also by international treaty provisions.  Though
+copyrighted, these materials are made freely available for use
+by all.  The materials may not be modified in any way.
+
+All rights not expressly granted here are reserved to BitSoft.
+The use or distribution of these products is expressly prohibited,
+except as authorized by the terms of this agreement.
+
+Title, ownership rights, and intellectual property rights in
+and to the Software shall remain in BitSoft and/or its suppliers.
+You agree to abide by the copyright law and all other applicable
+laws of the United States including, but not limited to, export
+control laws.
+
+BitSoft may terminate this License at any time by delivering
+notice to you and you may terminate this License at any time by
+destroying or erasing your copy of the Software.  Upon termination
+of this License you agree to destroy or erase the Software.
+
+This License sets forth the entire agreement between you and
+BitSoft.  By using the Software, you acknowledge that you have read
+this license, understand it and agree to be bound by its terms as
+the complete and exclusive statement of the agreement between you
+and BitSoft Development, L.L.C.
+
+
+LIMITED DISTRIBUTION LICENSE
+
+Permission is granted to any individual or business to distribute
+the Software, provided they convey a complete and unaltered copy of
+the entire package (except that the complete set of files, with no
+deletions, or changes, may be recompressed using other compression
+algorithms and tools), and provided they claim no ownership of
+these products.  
+
+Permission to distribute the Software is not transferable,
+assignable, saleable, or franchisable.  Each vendor wishing to
+distribute the package must independently satisfy the terms of
+this license.
+
+U.S. Government Information:  Use, duplication, or disclosure by the
+U.S. Government of the computer software and documentation in this
+package shall be subject to the restricted rights applicable to
+commercial computer software as set forth in subdivision (b)(3)(ii) of
+the Rights in Technical Data and Computer Software clause at
+252.227-7013 (DFARS 52.227-7013).  The Contractor/manufacturer is
+BitSoft Development, L.L.C., P.O. Box 8483, Moscow, ID 83843.
+
+BitSoft is a trademark of BitSoft Development, L.L.C.
+

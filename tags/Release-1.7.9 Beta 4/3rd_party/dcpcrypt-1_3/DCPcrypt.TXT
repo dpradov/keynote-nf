@@ -1,0 +1,85 @@
+
+                               DCPcrypt v1.3
+                                     -                              
+                    David Barton (davebarton@bigfoot.com)
+
+Description
+===========                    
+DCPcrypt is a freeware library of cryptographic routines for use with Delphi. 
+I have placed DCPcrypt in the public domain so that it can be used, modified
+and distributed with out restriction. Please note that although this library
+may be used freely, some of the algorithms implemented within are subject to
+patents and so a license from the patent holder must be obtained in some
+cases before use of the algorithm is permitted.
+
+The lastest version of DCPcrypt can be obtained from
+http://www.scramdisk.clara.net/
+or you can email me at davebarton@bigfoot.com
+
+If you email please use PGP if possible. My key is available from my web page
+and the PGP key server LDAP://certserver.pgp.com my KeyID is 0x436BFC2B.
+
+Information on the algorithms implemented in this library is in Algorith.txt.
+
+
+Thanks to
+=========
+Sam Simpson      - For hosting my page along side Scramdisk.
+Coda Hale        - For spotting a bug in the initialization routines.
+Thomas Schoessow - For spotting another bug in the initialization routines.
+
+
+Installation
+============
+These instructions assumes that you have already unzipped the DCPcrypt files. 
+
+Using Delphi 1: Go to the Options menu and select Install Components then
+                press the add button and select the CryptReg.pas from where
+                you unzipped the package.
+Using Delphi 2: Go to the Component menu and select Add the press the add
+                button and select the CryptReg.pas from where you unzipped the
+                package.
+Using Delphi 3: Open the DCP3.dpk package and press the install button.
+Using Delphi 4: Open the DCP4.dpk package and press the install button.
+                
+                
+The Components
+==============
+DCPcrypt can now be compiled in two different ways,
+  1. With the implementations as components. 
+  2. With the implementations as sets of procedures.
+     
+To change which way you want to compile the library just;
+  1. Open the DCPcrypt.inc file with a text editor or into your IDE.
+  2. There will be a {$DEFINE CFORM} statement, comment this out to use 
+     standalone form, uncomment it to use component form.
+     
+     
+Component Form
+==============
+When using the component form, all of the components are derived from one of
+two base components, TDCP_blockcipher and TDCP_hash.
+
+
+Procedure Form
+==============
+When using the procedure form, all of the implementations are used by calling
+the appropriate procedure. eg. BlowfishInit(Data,Key,Sizeof(Key)*8,nil);
+
+
+Usage
+=====
+For information on how to use these implementations please see Usage.txt and
+the demos.
+
+
+Distribution
+============
+Please redistribute this package freely and unmodified. I have included a PGP
+signature to ensure that the package you are using is not modified. 
+
+
+David Barton (davebarton@bigfoot.com)
+http://www.scramdisk.clara.net/
+Home of Scramdisk and the Delphi Cryptography Page
+23/03/1999

@@ -1,0 +1,407 @@
+-------------------------------------
+KEYNOTE 1.7: File Format Specification
+Last updated: 30 November 2007
+
+<dprado.keynote@gmail.com>
+
+New elements added are marked with [dpv]
+
+From version 1.7.7, certain metainformation is encoded in UTF-8 without BOM, not in ASCII.
+They are the corresponding to the following keys:
+NN, ND, VN, RV, VF, NA, EN
+
+-------------------------------------
+
+-------------------------------------
+KEYNOTE 1.x: File Format Specification
+Last updated: 12 June 2003
+
+<marek@tranglos.com>
+http://www.tranglos.com
+-------------------------------------
+
+KeyNote uses plain text files which can be read on a line-by-line basis.
+RTF data is stored as-is, without any conversion.
+
+The file consists of a header section and a data section.
+
+The header identifies the file as a valid KeyNote file and stores some metainformation about the file, such as the date and time the file was created, which note was last active, user-defined  description and comment, etc.
+
+The data section consists of subsections for notes and tree nodes. Sections and subsections are separated by special markers, described below.
+
+Almost all elements in the data section, where the properties of notes and tree nodes are stored, are optional. KeyNote fills in any missing data using default values. This applies even to names of notes. Default values are configured by user via Tools|Default settings. There is a bug, however, which prevents KeyNote from automatically assigning default names for tree nodes, so if a particular tree node has no name specified in the file its caption will be blank. Other than that, you can leave out all elements of a file. Only the markers are required, because they define the structure of the file.
+
+For tree nodes, the level number must also be specified, because it is required to re-create the tree hierarchy: level value indicates nesting, where level value of zero means top-level (root) node.
+
+Some elements or identifiers mentioned in this document may not appear in every KeyNote file. This is because some elements are only stored in the file if necessary. For instance, the file header carries information about the note which was used for clipboard capture. If clipboard capture was not enabled at the time the file was saved, this property is not stored in the header.
+
+(The example elements and properties shown in this document are based on a sample file "fileformat.knt", included in the package. The file contains one simple note with two lines of text, and one tree-type note with two normal nodes and one virtual node.)
+
+This document does not describe the structure of encrypted files, because this is closely tied to the encryption library used (DCPCrypt 1.0, by David Barton). Please see KeyNote source code to see how encrypted files are created and handled.
+
+Full KeyNote source code and other information is available at:
+
+	http://www.tranglos.com/free/keynote.html
+	http://sourceforge.net/projects/keynote/
+
+Marek Jedlinski
+<marek@tranglos.com>
+
+-------------------------------------
+
+HEADER SECTION:
+
+Each line begins with '#', followed by a single character that identifies a header field. All header fields except for the first line are optional and will be auto-created if missing (KeyNote will use default values). The first line identifies the file as a valid KeyNote file and MUST be present. Lines not understood are simply ignored, as long as each line begins with the '#' character.
+
+
+Header ID - required; must not be changed. (1.0 was used for files that did not have tree-type notes.)
+#!GFKNT 2.0
+
+Comment line, ignored
+# This is an automatically generated file. Do not edit.
+
+Optional: user-defined file description (single-line)
+#/This is the optional description
+
+Optional: user-defined comment (single-line)
+#?This is the optional comment
+
+Optional: Number of "active" note (zero-based)
+#$0
+
+Optional: Date and time the file was created
+#C21-05-2003 15:24:50
+
+Optional: "Flags" string - see Notes, below.
+#^010000000000000000000000
+
+Optional: icon file to use for tray icon
+#Tc:\delphi\projects\keynote\img\alticon.ico
+
+Optional: external file where tab icons are stored
+#Fc:\delphi\projects\keynote\alticons.icn
+
+Optional: if clipboard capture was active at the time the file was saved, this is the index of the note which was used for clipboard capture
+#L0
+
+--------------------------------
+
+SECTION (START AND END) MARKERS:
+
+The start of each subsection is marked by a single line. The first character in such lines is always the percent sign. For example, '%' marks the start of a new simple note, while '%+' marks the start of a tree-type note. Markers are as follows:
+
+%
+marks start of a new SIMPLE note
+
+%+
+marks start of a TREE-TYPE note
+
+%-
+marks start of NODE in a tree-type note
+
+%:
+marks start of RTF data. Please see below for notes about the RTF data section.
+
+%%
+marks end of file (KeyNote stops reading the file here, but it will also stop at end of file, so this marker is not required, though always present in files generated by KeyNote.)
+[dpv]: 
+  Really this mark is not optional, at least until version 1.7.9, because tree nodes read will not be be added until it is found a mark of new tree node, new tab or mark of end of file.
+  So, if the file doesn't include the "%%" mark and ends with a tree node, that last tree node will be lost. This problem doesnt occur with standar rtf tabs.
+
+No other markers are used. No end-of-section markers are used, except for end-of-file, above.
+
+--------------------------------
+DATA SECTION:
+
+
+Each line begins with a 2-character identifier, possibly followed by equal sign (=) and data. For example,
+	NN=title
+identifies the note name.
+
+Each line is guaranteed to be at least one character long. Each line with an identifier is guaranteed to be at least three characters long: the two characters of the identifier itself, plus the equal sign. (The file can be analyzed a little faster if we don't have to check for zero-length strings.)
+
+
+Note name
+NN=Simple note
+
+Unique note ID (integer, auto-created if missing)
+ID=2
+
+Note icon index (index for the icon displayed on the note's tab)
+II=7
+
+Date and time the note was created
+DC=21-05-2003 15:25:25
+
+Index of the note's tab (i.e., the order of the node)
+TI=0
+
+Tab size (as defined by user in Note Properties)
+TS=4
+
+Caret position (SelStart, zero-based)
+CX=67
+
+Selection length (SelLength; 0 if no text is selected)
+CY=0
+
+Note background color
+BG=$00DADADA
+
+Default font character set for note
+CH=0
+
+Default font color for note
+FC=clWindowText
+
+Default font name for note
+FN=Courier New
+
+Default font size for note
+FS=12
+
+Default language for note
+LN=1033
+
+Default font style for note (can include strings: 'bold', 'italic', 'underline', 'strikeout')
+ST=bold italic
+
+Flags string (see Notes, below)
+FL=101110000000000000000000
+
+Number of lines of text (not required, but allows KeyNote to pre-allocate memory, which somewhat improves the speed of loading data into the RTF editor)
+LC=2
+
+RTF data marker, followed by RTF data until one of the following occurs: new note start, new tree node start, end of file.
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f1\fnil\fcharset0 Courier New;}}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\f0\fs24 This is the text of the simple note.\par
+This is another line of text.\par
+\lang1033\f1\par
+}
+
+New TREE NOTE starts:
+%+
+
+Note name
+NN=Tree note
+
+Unique note ID
+ID=1
+
+Other identifiers already described above:
+II=7
+DC=21-05-2003 15:24:50
+TI=1
+TS=4
+CX=60
+CY=0
+BG=$00DADADA
+CH=0
+FC=clWindowText
+FN=Courier New
+FS=12
+LN=1033
+ST=
+FL=101110000000210000000000
+
+Index of currently selected tree node
+SN=0
+
+Width of the tree panel, in pixels
+TW=187
+
+Default name for new nodes
+EN=New node
+
+Tree panel background color
+TB=clWindow
+
+Tree font character set
+TH=238
+
+Tree font color
+TC=clWindowText
+
+Tree font name
+TN=Verdana
+
+Tree font size
+TZ=9
+
+Tree font style (format as above: bold, underline, italic, strikeout)
+TY=
+
+New TREE NODE starts
+%-
+
+Node level (indicates nesting)
+LV=0
+
+Node name (caption)
+ND=This is a node
+
+Unique node ID
+DI=1
+
+Node flags string (see Notes, below)
+NF=000000000000000000000000
+
+Background color for text of the node (editor, not tree color)
+BC=$00DADADA
+
+Optional: Color for node caption text (see also node flags)
+HC=clYellow
+
+Optional: Background color for node caption (see also node flags)
+HB=clRed
+
+Optional: Font name for node caption (see also node flags)
+FF=
+
+Optional: Caret position (zero-based)
+SS=60
+
+Optional: Node image index (if "custom icons" are selected for the tree)
+IX=0
+
+Optional: Alarm instant       (New in 1.7.1) [dpv]
+NA=21-05-2007 15:24:50
+
+(From 1.7.8 it is possible to add a subject to the alarm. This subject is encoded in UTF-8 without BOM)
+(From 1.7.9 program can distinguish between Reminder time and an optional Expiration/Event time and allows to set colors and bold
+)
+
+ NA=[D]Reminder[/Expiration][*Format][|Subject]
+    [] => optional
+    D: Discarded
+    Expiration or Reminder: DD-MM-YYYY HH:MM:SS
+    Format: BoldformatFontcolor/Backcolor
+    BoldFormat: B or N   (Bold or Normal)
+    FontColor or BackColor: number (TColor)
+    Subject: unicode text
+
+ Example:
+   NA=D10-06-2010 08:00:00/10-06-2010 07:55:00*B100/1200|I should do something..
+
+
+Optional: relative path to file, if node is a virtual node
+RV=todo.txt
+
+Optional: full absolute path to file, if node is a virtual node (see also node flags)
+VF=c:\delphi\projects\keynote\doc\todo.txt
+
+Optional: Note ID + Node ID of the node this one is linked to (for virtual KNT node / mirror node) (New in 1.7.6) [dpv] (issue #57)
+VN=1|4
+
+RTF data follows:
+%:
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f1\fnil\fcharset0 Courier New;}}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\lang1045\f0\fs24 This is the text of the node.\par
+This is another line of text.\par
+\lang1033\f1\par
+}
+
+End of fie marker follows:
+%%
+
+-------------------------------------
+
+NOTES:
+
+1. About "flags" strings.
+
+Flags strings hold a number of boolean (yes/no) values, and, rarely, other types of values. Each value is encoded as a single character in the flags string. Boolean values are encoded as 0 (false) and 1 (true); for meaning of other values see flag descriptions below.
+
+Each flag string is exactly 24-characters long, and will be IGNORED if it is shorter. (That is, if the string is shorter than 24 characters, KeyNote will not read ANY values from the string.) Not all 24 values are used.
+
+There are three versions of the flags string: one for file, one for each note (with additional meanings for tree-type notes), and another one for every node in the file.
+
+The meanings of particular flags and values have changed with subsequent releases of KeyNote. Only the current values and meanings are described here - they are valid for KeyNote 1.6. If your file was created by an older version, the meaning of some flags may be different than described here.
+
+a) FILE FLAGS
+
+position	type			meaning
+1		boolean		Open file as read-only
+2		boolean		Show icons on tabs
+3		boolean		TRUE if file was saved using version 3.0 of the richedit control; otherwise FALSE
+4		boolean		TRUE if the multi-level backup setting (Tools|Options) should be IGNORED for this 				file; otherwise FALSE (i.e. perform multi-level backup if so configured)
+(other flags are unused)
+
+b) NOTE FLAGS
+- flags for simple notes:
+
+position	type		meaning
+----------  --------------  --------------
+1		boolean		Note is visible 
+				(UNUSED; could be used for hiding notes, but this has never been implemented)
+2		boolean		Note is read-only
+3		boolean		Word-wrap ON/OFF
+4		boolean		URL detection ON/OFF
+5		boolean		if TRUE, use true TAB character in this note; 
+				if FALSE, insert spaces instead of TAB character when user presses the TAB key
+6		boolean		if TRUE, note has the "Plain text only" setting enabled (Note properties|Advanced). 				IMPORTANT: This affects how RTF data is stored, see below.
+
+
+- additional flags for tree-type notes:
+
+position	type		meaning
+----------  --------------  --------------
+13		integer		Tree icons selector: 0 = No icons; 1 = Standard (default) icons; 2 = Custom icons
+14		boolean		Automatic node numbering ON/OFF 
+				(if TRUE, node number is automatically added to node name when node is created)
+15		boolean		Show checkboxes in tree ON/OFF
+16		boolean		TRUE = vertical tree layout; FALSE = horizontal tree layout
+17		boolean		TRUE = tree panel is hidden; FALSE = tree panel is visible
+18		boolean		TRUE = tree panel has focus; FALSE = editor panel has focus
+
+19		boolean		TRUE = Hide checked nodes; FALSE = All nodes are visible  (New in 1.7.0) [dpv]
+
+
+c) NODE FLAGS
+
+position	type		meaning
+----------  --------------  --------------
+1		boolean		Check state: TRUE = node is checked; FALSE = node is unchecked
+2		boolean		Flag state (reserved for internal use; must be 0)
+3		boolean		Bold state: TRUE  = node caption is displayed in bold font; 					    				    FALSE = node caption is displayed in normal font style
+4		boolean		(unused - obsolete)
+5		boolean		(unused - obsolete)
+6		integer		Virtual node indicator: 0 = not a virtual node; 
+							1 = virtual node with plain text data; 
+							2 = virtual node with RTF data
+7		boolean		TRUE = node is expanded; FALSE = node is collapsed
+8		boolean		TRUE = node caption has its own font color; FALSE = node caption color is default
+9		boolean		TRUE  = node caption has its own background color; 
+				FALSE = node caption background color is default
+10		integer   	Word wrap setting for node. Valid values are 0, 1 and 2. 
+				'0' = use the Note's wordwrap setting (for backwards compatibility); 
+				1 = WordWrap ON; 
+				2 = WordWrap OFF
+11		boolean		TRUE = Show children checkBoxes			(New in 1.7.0) [dpv] 
+				FALSE= Hide children checkBoxes 
+12		boolean		TRUE = Node is filtered (hidden)		(New in 1.7.0) [dpv] 
+				FALSE= Node is not filtered (visile)
+
+
+-------------------------------------
+
+IMPORTANT NOTES about the RTF data section:
+
+1. The data section may be empty or missing entirely, which will not invalidate the file. This allows you to easily create file templates without having to worry about supplying valid RTF data: your template can simply define the structure (notes and nodes), while leaving out the data sections, which users will fill in as they create files based on the template.
+
+2. If the flags string for a note contains '1' at sixth position (see above), the note has been marked as "Plain text only" (Note properties|Advanced). When storing plain text data in the RTF data section, we could encounter lines which would be interpreted by KeyNote as section markers (i.e. if the note has a line that consists only of a percent sign, it would be interpreted as a start of a new note). This cannot happen in RTF data, because there will at least be a trailing backslash or "\par" token, but for plain-text data we MUST avoid the possibility of such conflicts.
+
+Therefore, if the note has been marked as plain-text, KeyNote prepends a semicolon (;) to each data line, like this:
+
+;one line of text in a plain-text note
+;another line of text.
+
+These semicolons must be stripped before displaying the text.
+
+Other than this, RTF data is stored without any changes whatsoever.
+
+
+--- END ---
+
+

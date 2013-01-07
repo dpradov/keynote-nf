@@ -1,0 +1,133 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta name="Microsoft Theme" content="indust 011">
+<title>UltimaShell Tutorial</title>
+</head>
+
+<body style="font-family: Arial" background="indtextb.jpg" bgcolor="#FFFFFF" text="#000000" link="#3366CC" vlink="#666666" alink="#996600">
+
+<!--mstheme--><font face="Trebuchet MS, Arial, Helvetica"><!--mstheme--></font>
+<h2 align="center"><!--mstheme--><font face="Trebuchet MS, Arial, Helvetica" color="#333399">UltimaShell
+Autocompletion Server<!--mstheme--></font></h2>
+<!--mstheme--><font face="Trebuchet MS, Arial, Helvetica">
+<p>UltimaShell Autocompletion Server (UAS) provides smart autocompletion to any
+editors running on MS windows through a flexible and simple programming
+interface. It's esp. ideal to be integrated with programming editors since there
+are many long and frequently-used identifiers in program source code.&nbsp;</p>
+<p>UAS is a FREE for integration with ANY standalone word processors or editors.
+But I'd appreciate it if you give me a polite notice if you decide to integrate
+your application with UAS. I'd be glad to help you with any technical problems. </p>
+<p>If you are interested in our system-wide autocompleter-UltimaShell
+Professional, please <a href="ushell.htm">click here</a>.</p>
+<!--mstheme--></font>
+<h3><!--mstheme--><font face="Trebuchet MS, Arial, Helvetica" color="#666666">Integration
+Mechanism<!--mstheme--></font></h3>
+<!--mstheme--><font face="Trebuchet MS, Arial, Helvetica">
+<p>UAS doesn't run as a plug-in dll. Not that I don't want to run UAS in that
+way. The reason is that UAS is a multiple-threading application for
+high-efficiency retrieving. If it runs as a plug-in dll, the host program will
+have to deal with the multiple-threading technicalities and the interface will
+be much more complex. <b><font color="#008000">Instead, UAS runs as a server
+application in background instead. All the host program need do is to
+initialize, communicate with and terminate the server application.</font>&nbsp;&nbsp;</b></p>
+<!--mstheme--></font>
+<h3><!--mstheme--><font face="Trebuchet MS, Arial, Helvetica" color="#666666">Download
+UAS<!--mstheme--></font></h3>
+<!--mstheme--><font face="Trebuchet MS, Arial, Helvetica">
+<p>This installation package includes the binary installation package, source
+code in Visual C++ 6.0 and Delphi 6.0. Click to <a href="http://flashpeak.51.net/files/uassrc.zip"><b>download</b></a>.</p>
+<p>Visual
+C++ source code contains a source file and a header file (uas.cpp and uas.h). It
+also includes the source code of a sample SDI editor named TestSDI. Delphi source code contains just one unit (uas.pas).&nbsp;It
+also includes the source code of a sample editor name TestUAS. For Visual C++
+authors, add uas.cpp and uas.h into your project and declare uas.h in any source
+files that you will call the interfacing functions. For Delphi authors, add
+uas.pas into your project and declare it in any units that you will call the
+interfacing functions.&nbsp;</p>
+<!--mstheme--></font>
+<h3><!--mstheme--><font face="Trebuchet MS, Arial, Helvetica" color="#666666">UAS
+Installation<!--mstheme--></font></h3>
+<!--mstheme--><font face="Trebuchet MS, Arial, Helvetica">
+<p>Run the installation file 'uas.exe' to install UAS. The user can install UAS
+into any directory on hard disk. The function GetUASPath( ) will automatically
+detect the installation directory of UAS. The files that will be installed are
+listed below,</p>
+<ol>
+  <li>ushell.exe: main executable of UAS</li>
+  <li>ushell.chm: help file for UAS</li>
+  <li>hook.dll: keyboard hook</li>
+  <li>langlib: this directory contains all the language libraries</li>
+  <li>proflib: this directory contains all the professional libraries</li>
+  <li>shlib: this directory contains all the shorthand libraries<br>
+  </li>
+</ol>
+<!--mstheme--></font>
+<h3><!--mstheme--><font face="Trebuchet MS, Arial, Helvetica" color="#666666">Running
+the Sample Application<!--mstheme--></font></h3>
+<!--mstheme--><font face="Trebuchet MS, Arial, Helvetica"><p>UAS must be
+installed first before testing the sample application. Then build and run the
+project TestUAS which is an editor example integrated with UAS. Choose Visual
+C++ or Delphi source code at your own preference.</p>
+<!--mstheme--></font>
+<h3><!--mstheme--><font face="Trebuchet MS, Arial, Helvetica" color="#666666">Interfacing
+Functions<!--mstheme--></font></h3>
+<!--mstheme--><font face="Trebuchet MS, Arial, Helvetica">
+<ol>
+  <li>GetUASPath( ): Automatically detect the path of UAS, &quot;c:\program
+    files\uas\uas.exe&quot; by default. If UAS is not detected, it will return a
+    blank string. Even if it returns a valid path string, you may still want to
+    test whether the file actually exists for safety.</li>
+  <li>LoadUAS(): Load UAS if it's not already loaded. It doesn't matter if you
+    call it after UAS is already loaded. UAS ensures a single instance
+    automatically.</li>
+  <li>GetUASWnd(): Return the handle of UAS main window (an invisible one). If
+    UAS is not installed or not loaded, it will return NULL. You may want to
+    test whether it's a valid handle for safety. Send a WM_CLOSE message to UAS
+    main window to terminate UAS.</li>
+</ol>
+<!--mstheme--></font>
+<h3><!--mstheme--><font face="Trebuchet MS, Arial, Helvetica" color="#666666">Interfacing
+guide<!--mstheme--></font></h3>
+<!--mstheme--><font face="Trebuchet MS, Arial, Helvetica">
+<p>Please follow the steps below to integrate UAS into your project.</p>
+<ol>
+  <li>When your application runs, call LoadUAS to load UAS. It doesn't matter
+    you call it before or after the main interface is visible. LoadUAS will pass
+    the process ID of the host application to UAS. It's suggested that there is
+    an option in the host application that toggles whether to load UAS
+    automatically at startup.</li>
+  <li>It's suggested that your application has a toolbar and UAS engage an
+    additional button on the toolbar. Use ushell.ico in the supplied source code
+    as the image for that button. In the event handler of that button, post a
+    WM_UAS_CONFIG message to UAS main window with the left-bottom corner
+    coordinate of the button as WPARAM and LPARAM. On receiving that message,
+    UAS will display a popup menu at the specified position. That is the
+    configuration menu of UAS. Any messages triggered by that menu will be
+    handled UAS. The users can use this popup menu to manage and configure UAS.</li>
+  <li>At any time, you can call GetUASWnd() to get the handle of UAS main
+    window.</li>
+  <li>When your application quits, send a WM_CLOSE message to UAS main window to
+    unload UAS.</li>
+</ol>
+<!--mstheme--></font>
+<h3><!--mstheme--><font face="Trebuchet MS, Arial, Helvetica" color="#666666">Quick-Testing<!--mstheme--></font></h3>
+<!--mstheme--><font face="Trebuchet MS, Arial, Helvetica">
+<p>Run the host application and see that UAS is loaded automatically. You can
+see ushell.exe in windows process list. Autocompletion will be enabled at the
+startup of UAS. You can try typing some letters in the host application. If
+everything is ok, you will see matching words prompted. You can press the
+corresponding digits (1-9) to autocomplete the n-th word. If you have more time,
+you can change the default hot keys and see whether it still works all right.</p>
+<p>Feel free to read through the source code to see what it's doing exactly.
+Everything is simple and easy. If you have more questions, please <a href="mailto:flashpeak@yifan.net?subject=UltimaShell Autocompletion Server">contact
+me</a>.</p>
+<!--mstheme--></font>
+
+</body>
+
+</html>

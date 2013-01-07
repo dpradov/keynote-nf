@@ -1,0 +1,64 @@
+/****************************************************************************
+
+rxdconst.res
+
+Delphi VCL Extensions (RX)
+Copyright (c) 1995 AO ROSNO
+Copyright (c) 1997 Master-Bank
+
+*****************************************************************************/
+
+#include "rxdconst.pas"
+
+#ifdef win32
+LANGUAGE LANG_RUSSIAN,1
+#endif
+
+STRINGTABLE
+{
+  SLocalDatabase, "Невозможно произвести эту операцию с локальной базой данных"
+  SRetryLogin, "Вы хотите повторить попытку соединения с базой данных?"
+  SExprNotBoolean, "Поле '%s' не является полем логического типа"
+  SExprBadNullTest, "NULL-значения допустимы только в операциях '=' и '<>'"
+  SExprBadField, "Поле '%s' не может быть использовано в выражении фильтра"
+  SCaptureFilter, "Элементы управления захвачены фильтром"
+  SNotCaptureFilter, "Элементы управления должны быть захвачены фильтром"
+  SInactiveData, "неактивно"
+  SBrowseData, "просмотр"
+  SEditData, "редактирование"
+  SInsertData, "добавление"
+  SSetKeyData, "поиск"
+  SCalcFieldsData, "подсчет"
+  SRegistration, "Регистрация"
+  SAppTitleLabel, "Программа \042%s\042"
+  SHintLabel, "Введите Ваше пользовательское имя и пароль"
+  SUserNameLabel, "&Имя пользователя:"
+  SPasswordLabel, "&Пароль:"
+  SInvalidUserName, "Неверное имя пользователя или пароль"
+  SChangePassword, "Смена пароля"
+  SOldPasswordLabel, "&Старый пароль:"
+  SNewPasswordLabel, "&Новый пароль:"
+  SConfirmPasswordLabel, "&Подтверждение:"
+  SPasswordChanged, "Пароль сменен"
+  SPasswordNotChanged, "Пароль не сменен"
+  SPasswordsMismatch, "Новый пароль и подтверждение не совпадают"
+  SDBExceptCaption, "Ошибка процессора БД"
+  SBDEErrorLabel, "Ошибка BDE"
+  SServerErrorLabel, "Ошибка сервера"
+  SErrorMsgLabel, "Сообщение об ошибке"
+  SNextButton, "&Дальше"
+  SPrevButton, "&Назад"
+  SExprIncorrect, "Некорректно сформулировано выражение фильтра"
+  SExprTermination, "Неверное завершение выражения фильтра"
+  SExprNameError, "Невозможно определить завершение имени поля"
+  SExprStringError, "Невозможно определить завершение строковой константы"
+  SExprInvalidChar, "Неверный символ в выражении фильтра: '%s'"
+  SExprNoRParen, "Ожидалось ')', а встречено: %s"
+  SExprExpected, "Ожидалось выражение, а встречено %s"
+  SExprBadCompare, "Операции сравнения требуют наличия поля и константы"
+  SConfirmSave, "Данные были изменены. Сохранять?"
+  SDatabaseName, "База данных: %s"
+  SUnlockCaption, "Разблокирование"
+  SUnlockHint, "Введите ваш пароль"
+  SDeleteMultipleRecords, "Удалить все выбранные записи?"
+}
