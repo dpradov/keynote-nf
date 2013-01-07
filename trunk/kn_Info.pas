@@ -52,8 +52,8 @@ resourcestring
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_VerStr   = '1.7.9.4 BETA 4 (31/12/2012)';
-  Program_Version  = '1.7.9 BETA 4';  // Used in program caption
+  Program_VerStr   = '1.7.9.4 Beta 4 (07/01/2013)';
+  Program_Version  = '1.7.9 Beta 4';  // Used in program caption
   Program_License  = 'Freeware / Open Source';
   {
   // these are now stored in GF_Const.pas
