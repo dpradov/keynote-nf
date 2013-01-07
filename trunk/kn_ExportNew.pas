@@ -143,8 +143,8 @@ var
   Form_ExportNew: TForm_ExportNew;
 
 implementation
-uses kn_Main, kn_DLLmng, kn_TreeNoteMng, WideStrings, TntSystem, TntFileCtrl,
-     kn_ExportImport;
+uses kn_Main, kn_DLLmng, kn_TreeNoteMng, WideStrings, TntSystem, TntClasses, TntFileCtrl,
+     kn_ExportImport, gf_streams;
 
 
 
@@ -622,7 +622,7 @@ var
   NodeText, ExitMessage : string;
   NodeTextSize : integer;
   StartLevel, ThisNodeIndex : integer;
-  tmpStream : TMemoryStream;
+  tmpStream : TTntMemoryStream;
   ExportedNotes, ExportedNodes, tmpExportedNodes : integer;
   WasError, WasAborted : boolean;
   StartTreeNode, myTreeNode : TTreeNTNode;
@@ -722,8 +722,14 @@ begin
 
                 ntRTF : begin
 
-                  tmpStream := TMemoryStream.Create;
+                  tmpStream := TTntMemoryStream.Create;
                   try
+                    if not myNote.PlainText then
+                       myNote.Editor.StreamFormat:= sfRichText
+                    else begin
+                       myNote.Editor.StreamFormat:= sfPlainText;
+                       myNote.Editor.StreamMode := [smUnicode];
+                    end;
                     myNote.Editor.Lines.SaveToStream( tmpStream );
                     tmpStream.Position := 0;
                     RTFAux.Lines.LoadFromStream( tmpStream );
@@ -731,7 +737,7 @@ begin
                     if ( ExportOptions.IncludeNoteHeadings and ( NoteHeadingRTF <> '' )) then
                     begin
                       RTFAux.SelStart := 0;
-                      PutRichText( NoteHeadingRTF, RTFAux, true, true );
+                      PutRichTextW( NoteHeadingRTF, RTFAux, true, true );
                     end;
 
                     if FlushExportFile( RTFAux, RemoveAccelChar( myNote.Name )) then
@@ -810,7 +816,7 @@ begin
                           // now add the node data to temp RTF storage
                           if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then
                           begin
-                            PutRichText( NodeHeadingRTF, RTFAux, true, false );
+                            PutRichTextW( NodeHeadingRTF, RTFAux, true, false );
                           end;
                           PutRichText( NodeText, RTFAux, NodeStreamIsRTF, false ); // append to end of existing data
                           inc( tmpExportedNodes );
@@ -824,7 +830,7 @@ begin
                           if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then
                           begin
                             RTFAux.SelStart := 0;
-                            PutRichText( NodeHeadingRTF, RTFAux, true, true );
+                            PutRichTextW( NodeHeadingRTF, RTFAux, true, true );
                           end;
                           if FlushExportFile( RTFAux, myNoteNode.Name ) then
                           begin
@@ -859,7 +865,7 @@ begin
                     if ( ExportOptions.IncludeNoteHeadings and ( NoteHeadingRTF <> '' )) then
                     begin
                       RTFAux.SelStart := 0;
-                      PutRichText( NoteHeadingRTF, RTFAux, true, true );
+                      PutRichTextW( NoteHeadingRTF, RTFAux, true, true );
                     end;
                     if FlushExportFile( RTFAux, RemoveAccelChar( myNote.Name )) then
                     begin

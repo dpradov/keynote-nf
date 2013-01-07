@@ -247,14 +247,14 @@ const
 const
 
   _Default_NoteHeadingTpl =
-    '{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Tahoma;}Tahoma;}}' + #13#10 +
+    '{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset1{\*\fname Tahoma;}Tahoma;}}' + #13#10 +
     '{\colortbl ;\red96\green96\blue96;}' + #13#10 +
     '\viewkind4\uc1\pard\cf1\f0\fs32\par' + #13#10 +
     '\b %HEADING\par' + #13#10 +
     '\b0\par' + #13#10 +
     '}';
   _Default_NodeHeadingTpl =
-    '{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Tahoma;}Tahoma;}}' + #13#10 +
+    '{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset1{\*\fname Tahoma;}Tahoma;}}' + #13#10 +
     '{\colortbl ;\red96\green96\blue96;}' + #13#10 +
     '\viewkind4\uc1\pard\cf1\f0\fs24\par' + #13#10 +
     '\ul\b %HEADING\ulnone\b0\par' + #13#10 +
