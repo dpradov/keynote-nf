@@ -519,12 +519,12 @@ procedure ParaAttrsKNT2RX( const KntFmt : TkntParaAttributes; const RxFmt : TRxP
 begin
   with KntFmt do
   begin
+    RxFmt.Numbering := Numbering;
     RxFmt.FirstIndent := FirstIndent;
     RxFmt.LeftIndent := LeftIndent;
     RxFmt.LineSpacing := LineSpacing;
     RxFmt.LineSpacingRule := LineSpacingRule;
     RxFmt.Alignment := Alignment;
-    RxFmt.Numbering := Numbering;
     RxFmt.NumberingStyle := NumberingStyle;
     RxFmt.NumberingTab := NumberingTab;
     RxFmt.RightIndent := RightIndent;
