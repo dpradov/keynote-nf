@@ -547,7 +547,7 @@ begin
         if ( _VNBackupDir <> '' ) then
           bakFN := _VNBackupDir + WideExtractFilename( bakFN );
 
-        CopyFile( PChar( FVirtualFN ), PChar( bakFN ), false );
+        CopyFileW( PWideChar( FVirtualFN ), PWideChar( bakFN ), false );
       end;
 
       FStream.SaveToFile( FVirtualFN );
