@@ -492,7 +492,7 @@ const
     '',
     {'knt:', } 'file:', 'http:', 'https:', 'ftp:', 'mailto:',
     'telnet:', 'news:', 'nntp:', 'gopher:', 'wais:', 'prospero:',
-    'notes:', 'callto', 'onenote', 'outlook', 'tel', 'webcal', '????:'
+    'notes:', 'callto:', 'onenote:', 'outlook:', 'tel:', 'webcal:', '????:'
   );
 
 type
