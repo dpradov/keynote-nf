@@ -118,8 +118,9 @@ end;
 procedure CreateAuxiliarEditorControl;
 begin
    if not assigned(RTFAux) then begin
-      RTFAux := TRxRichEdit.Create( ActiveNote.TabSheet);
+      RTFAux := TRxRichEdit.Create(Form_Main);
       RTFAux.Visible:= False;
+      RTFAux.OnProtectChangeEx:= Form_Main.RxRTFProtectChangeEx;
       RTFAux.Parent:= Form_Main;
    end;
 end;
