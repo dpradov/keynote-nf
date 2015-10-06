@@ -1,0 +1,86 @@
+[OPTIONS]
+TITLE=KeyNote Help
+CONTENTS=Welcome_Keynote
+COPYRIGHT=Copyright (c) Marek Jedlinski, 2001
+LCID=0x409 0x0 0x0
+CNT=keynote.cnt
+COMPRESS=10
+
+[CONFIG]
+BrowseButtons()
+
+[FILES]
+KEYNOTE.RTF
+
+[MAP]
+Virtual_nodes 122
+TreeType_notes 120
+KeyNote_editor 100
+Options_Actions 211
+Options_Confirmations 212
+Options_Chrome 213
+Options_Tab_icons 214
+Options_Advanced 215
+Options_Formats 216
+Options_Clipboard_capture 217
+Options_File_types 218
+Options_File_Options 210
+File_properties_Information 231
+File_properties_Settings 232
+File_properties_File_icons 233
+File_properties_Security 234
+KeyNote_File_properties 230
+Note_properties_Note_settings 251
+Note_properties_Tree_settings 252
+Note_properties_Advanced 253
+About_initial_fonts_and_colors_in_KeyNote 255
+Note_properties_and_defaults 250
+Configuration_options 205
+Options_General_settings 206
+Options_Rich_Text_editor 207
+Options_Tree_panel 208
+Options_KeyNote_Files 209
+Configuring_KeyNote_Overview 200
+KeyNote_menus_View 315
+KeyNote_menus_Edit 310
+KeyNote_menus_Format 325
+KeyNote_menus_Insert 320
+KeyNote_menus_Tree 335
+KeyNote_menus_Note 330
+KeyNote_menus_Tools 345
+KeyNote_menus_Search 340
+KeyNote_menus_Help 355
+KeyNote_menus_File 305
+KeyNote_menus 300
+Styles 515
+Sending_KeyNote_files_by_Email 510
+Hyperlinks 525
+Integration_with_WordWeb 520
+Plugins 535
+Macros 530
+Word_expansion_glossary 550
+File_manager 560
+Clipboard_capture 575
+Insert_character_dialog_box 570
+Importing_files_as_notes 585
+Expression_evaluation 580
+Exporting_notes_to_disk_files 590
+Encrypting_KeyNote_files 505
+Special_Functions 500
+KeyNote_Is_OpenSource 11
+Whats_New 12
+Quick_Start 15
+Welcome_Keynote 10
+Acknowledgments 22
+KeyNote_on_the_web 24
+Hints_and_tips 25
+OtherFreewarefrGZ 26
+Features 20
+Command_Line_Reference 35
+Keyboard_Reference 30
+Known_Problems_and_Bugs 45
+Information_For_Dart_Notes_Users 40
+Auxiliary_Files 55
+License 50
+Sharing_KeyNote_on_a_multiuser_system 60
+

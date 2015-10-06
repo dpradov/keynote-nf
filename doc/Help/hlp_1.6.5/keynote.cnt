@@ -1,0 +1,75 @@
+:Base KEYNOTE.HLP>main
+:Title KeyNote Help
+1 General Information
+2 Welcome to KeyNote=Welcome_Keynote
+2 KeyNote is Open-Source=KeyNote_Is_OpenSource
+2 What's New=Whats_New
+2 Quick Start=Quick_Start
+2 Features=Features
+2 Hints and Tips=Hints_and_tips
+2 Keyboard Reference=Keyboard_Reference
+2 Command Line Reference=Command_Line_Reference
+2 Information for Dart Notes Users=Information_For_Dart_Notes_Users
+2 Known Problems and Bugs=Known_Problems_and_Bugs
+2 License=License
+2 Acknowledgments=Acknowledgments
+2 KeyNote on the Web=KeyNote_on_the_web
+2 Other Freeware from General Frenetics, Discorp.=OtherFreewarefrGZ
+2 Auxiliary Files=Auxiliary_Files
+1 Using KeyNote
+2 KeyNote editor=KeyNote_editor
+2 Tree-type notes=TreeType_notes
+2 Virtual nodes=Virtual_nodes
+2 Sharing KeyNote on a multi-user system=Sharing_KeyNote_on_a_multiuser_system
+2 KeyNote File properties=KeyNote_File_properties
+2 File properties: Information=File_properties_Information
+2 File properties: Settings=File_properties_Settings
+2 File properties: File icons=File_properties_File_icons
+2 File properties: Security=File_properties_Security
+2 Note properties and defaults=Note_properties_and_defaults
+2 Note properties: Note settings=Note_properties_Note_settings
+2 Note properties: Tree settings=Note_properties_Tree_settings
+2 Note properties: Advanced=Note_properties_Advanced
+2 KeyNote menus=KeyNote_menus
+2 KeyNote menus: File=KeyNote_menus_File
+2 KeyNote menus: Edit=KeyNote_menus_Edit
+2 KeyNote menus: View=KeyNote_menus_View
+2 KeyNote menus: Insert=KeyNote_menus_Insert
+2 KeyNote menus: Format=KeyNote_menus_Format
+2 KeyNote menus: Note=KeyNote_menus_Note
+2 KeyNote menus: Tree=KeyNote_menus_Tree
+2 KeyNote menus: Search=KeyNote_menus_Search
+2 KeyNote menus: Tools=KeyNote_menus_Tools
+2 KeyNote menus: Help=KeyNote_menus_Help
+1 Configuring KeyNote
+2 Configuring KeyNote - Overview=Configuring_KeyNote_Overview
+2 Configuration options=Configuration_options
+2 Options: General settings=Options_General_settings
+2 Options: Rich Text editor=Options_Rich_Text_editor
+2 Options: Tree panel=Options_Tree_panel
+2 Options: KeyNote Files=Options_KeyNote_Files
+2 Options: File Options=Options_File_Options
+2 Options: Actions=Options_Actions
+2 Options: Confirmations=Options_Confirmations
+2 Options: Chrome=Options_Chrome
+2 Options: Tab icons=Options_Tab_icons
+2 Options: Advanced=Options_Advanced
+2 Options: Formats=Options_Formats
+2 Options: Clipboard capture=Options_Clipboard_capture
+2 Options: File types=Options_File_types
+1 Special functions
+2 Special Functions=Special_Functions
+2 Encrypting KeyNote files=Encrypting_KeyNote_files
+2 Sending KeyNote files by E-mail=Sending_KeyNote_files_by_Email
+2 Styles=Styles
+2 Integration with WordWeb=Integration_with_WordWeb
+2 Hyperlinks=Hyperlinks
+2 Macros=Macros
+2 Plugins=Plugins
+2 Word expansion glossary=Word_expansion_glossary
+2 File manager=File_manager
+2 Insert character dialog box=Insert_character_dialog_box
+2 Clipboard capture=Clipboard_capture
+2 Expression evaluation=Expression_evaluation
+2 Importing files as notes=Importing_files_as_notes
+2 Exporting notes to disk files=Exporting_notes_to_disk_files
