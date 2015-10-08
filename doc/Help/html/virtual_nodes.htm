@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252"><title>Virtual
+nodes</title></head>
+
+<body style="font-family: Arial; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e"> <param name="Keyword" value="nodes: virtual"> <param name="Keyword" value="tree-type notes"> <param name="Keyword" value="virtual nodes">
+</object><p><a name="virtual_nodes"></a><big style="font-family: Arial;"><big><b style="color: rgb(51, 51, 255);">Virtual nodes</b></big></big></p><small>
+<p>Virtual nodes are nodes in the tree which behave in a special
+way. A virtual node does not contain its own text in KeyNote, like
+normal nodes do. Instead, a <b>virtual node is linked to a file
+on your disk</b>. The text of that file is displayed in KeyNote
+and may be edited in exactly the same way as any normal note. However,
+when KeyNote saves the file, the text in the virtual node is saved back
+to the original file on disk, rather than being saved in the KeyNote
+file itself.</p>
+<p>This allows you to keep certain files separate and be edit
+them in other applications (such as NotePad or WordPad), and at the
+same time to edit these files inside KeyNote.</p>
+<p>Note, however, that if you copy the KeyNote file to a diskette
+or move it to another computer, the virtual nodes may become
+"orphaned", because their linked files will remain in their original
+location on your hard disk.</p>
+<p>You can only link text (*.txt) or Rich text (*.rtf) files to a
+virtual node. If the file on disk is a plain text file, any formatting
+styles that you apply to this file's virtual node will be lost, because
+the file will be saved in its original, plain text format.</p>
+<p><b>TIP:</b> If a file you want to link as a
+virtual node does not have the ".txt" extension, but it really is a
+plain text file, you can add that extension to the list of file
+extensions that KeyNote recognizes. <a href="options_file_types.htm">Click
+here for more information</a>.</p>
+<p>To create a virtual node: Add a normal node to the tree the
+way you always do. Do not type anything in the node's editor window.
+Right-click the node with your mouse, and from the context menu select
+the "Virtual node" command. A standard "File open" dialog box will be
+displayed, allowing you to choose the file on disk which you want to
+link to the node. Select the file and click OK.</p>
+<p>Important: If you encrypt a file containing virtual nodes, <span style="color: rgb(255, 0, 0);">the
+text in the disk files will not be encrypted</span>. <a href="encrypting_keynote_files.htm">Click here for more
+information</a>.</p>
+<p><b>Additional note:</b></p>
+<p>A virtual node can be reverted to a "normal" node. If you
+click the "Virtual node" command in the tree context menu on a node
+that already is virtual, you will be given an option to revert the node
+to normal. The contents of the linked file will be retained, but the
+link with the file will be broken, and the text will now be stored in
+the .KNT file. This enables you to import RTF and text files directly
+into tree nodes, although in a somewhat roundabout way.</p>
+<p>See also: <a href="importing_files_as_notes.htm">Importing
+files</a></p>
+</small></body></html>

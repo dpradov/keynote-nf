@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252"><title>Command
+Line Reference</title></head>
+
+<body style="font-family: Arial; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e"> <param name="Keyword" value="arguments"> <param name="Keyword" value="command line"> <param name="Keyword" value="options"> <param name="Keyword" value="starting KeyNote"> <param name="Keyword" value="switches"></object><p><a name="command_line_reference"></a><big style="color: rgb(51, 51, 255); font-family: Arial;"><big><b>Command
+Line Reference</b></big></big></p><small>
+<p>When launching KeyNote from the command-line
+(<span style="font-style: italic;">Start -&gt; Run...</span>)
+or from a shortcut, you can specify one or more
+command-line arguments. These arguments are equivalent to some
+configuration options and change certain aspects of the program
+behavior.</p>
+<p><b>usage:<span style="font-family: Courier New;">&nbsp;
+keynote.exe [filename[.knt]] [-option
+[-option...]]</span></b></p>
+<p>Note: If a command-line argument is a file, just enter the
+full path and filename. Command-line arguments which are options must
+be preceded by a dash (<span style="font-family: Courier New;">-</span>)
+or a slash (<span style="font-family: Courier New;">/</span>),
+which is the usual convention
+for MS-DOS and MS Windows programs.</p>
+<p>Command-line options may be typed in lowercase or UPPERCASE,
+and may be specified in any order.</p>
+<p>Following is a list of command-line options KeyNote supports:</p><p></p>
+<p style="color: rgb(0, 0, 153);"><b>FILENAMES:</b></p>
+<p>You can specify one or more filenames on the command-line to
+alter the default behavior of the program. KeyNote relies on the file
+extension (file type) in interpreting the meaning of the option.</p>
+<p><b>If you specify a...&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp; Keynote will...</b></p>
+<p>.KNT file&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;- Open this file on
+startup</p>
+</small><p><small><p>.INI
+file&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;- Use it as the configuration file
+instead of the
+default "keynote.ini"</p><p>&nbsp; &nbsp;
+&nbsp; &nbsp; (Note that this enables many users to share
+KeyNote on one computer and&nbsp;have their own, separate
+preferences)</p></small></p><small>
+<p>.DEF file&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - Read
+from this file default settings for newly
+created notes&nbsp;(instead of the default keynote.def)</p>
+<p>.MGR file&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;- Use this file to
+fill the File Manager dialog box
+(instead of the default keynote.mgr)</p><p></p>
+<p style="color: rgb(0, 0, 153);"><b>OPTIONS:</b></p>
+<p><b><span style="font-family: Courier New;">-min</span>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; minimize on startup</b></p>
+</small><small><p>The main program window will be
+automatically minimized when
+KeyNote is started. Note that you can achieve the same effect by
+opening the shortcut Properties window and specifying "Minimized" in
+the appropriate setting on the Shortcut tab. If this option is not
+specified, KeyNote will restore the previous size and position of the
+main window.</p><p><small><br></small></p></small><small>
+<p><small><small><small>&nbsp; </small></small></small><b><span style="font-family: Courier New;">-debug</span>&nbsp;&nbsp;&nbsp;
+save some debug info</b></p>
+</small><small><p>Turns ON debugging. This option iso
+only honored if the
+program was built with debug code; otherwise it is ignored and has no
+effect on the program execution. When debugging is on, KeyNote
+periodically saves to disk a log file containing some runtime
+information and any error messages that may have been issued.</p><p></p></small><small>
+<p>&nbsp;<b><span style="font-family: Courier New;">-nso</span>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; do not save options</b></p>
+<p>If this option is specified, KeyNote will not save any
+configuration options you may change inside the program. You can still
+open the Options dialog box and change settings, but the changes you
+make will be lost after you close and restart the program. <span style="color: rgb(153, 0, 0);">This option
+may be useful when running KeyNote from a floppy disk.</span></p><p><span style="color: rgb(153, 0, 0);"></span></p>
+<p><b><span style="font-family: Courier New;">-nro</span>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; do not read options (IMPLIES 'nso')</b></p>
+<p>If this option is specified, KeyNote will not read its
+configuration</p>
+<p>file (keynote.ini). All options will be reset to factory
+defaults. If this option is specified, KeyNote ALSO assumed the -nso
+option (see above), so it will neither read nor save any changes in
+configuration.</p>
+<p>NOTE: The simplest way to restore factory default
+configuration is to delete the file "keynote.ini" which resides in the
+directory where you installed KeyNote.</p><p></p>
+<p><b><span style="font-family: Courier New;">-reg</span>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; register data file extension</b></p>
+<p>If this option is specified, KeyNote will try to register its
+default document extension (.knt) with itself. You can also perform
+this manually in Windows Explorer using the Options command in the View
+menu.</p><p></p>
+<p><b><span style="font-family: Courier New;">-nodef</span>&nbsp;&nbsp;&nbsp;&nbsp;do
+not read or write default entry settings</b></p>
+<p>If this option is specified, KeyNote will not load the default
+settings for new notes that you create (keynote.def) and will use
+factory defaults instead. If you wish to restore factory default
+settings for newly created notes, just delete the file "keynote.def"
+which resides in the directory where you installed KeyNote.</p><p></p>
+<p><b><span style="font-family: Courier New;">-saveicn</span>&nbsp;&nbsp;&nbsp;
+save factory default icons to bitmap file</b></p>
+<p>For the programmer only; not useful for the users. Saves the
+default icon set to a bitmap file.</p><p></p>
+<p><b><span style="font-family: Courier New;">-noicn</span>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; do NOT load user icons from external
+.ICN file</b></p>
+<p>If this option is specified, KeyNote will not load the custom
+icons (keynote.icn) file at startup, and will use factory default icons
+instead. This option also disables the Icons tab in the Optioons dialog
+box, preventing the user from changing icons.</p><p></p>
+<p><b><span style="font-family: Courier New;">-oldfmt</span>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;use old (pre-0.85) file format. See
+relevant
+note in the file</b></p>
+<p>"history.txt". This is only useful if you need to exchange
+your KeyNote file with someone who still uses a much older version of
+KeyNote. This setting is ignored if your current file contains
+tree-type notes, because the older versions of KeyNote will not be able
+to open such notes anyway.</p><p></p>
+<p><b><span style="font-family: Courier New;">-noreg</span>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; do NOT store window size and position
+and the
+recently used</b></p>
+<p>file list in the registry. Instead, this information is stored
+in a file with the ".mru" extension.</p><p></p>
+</small></body></html>

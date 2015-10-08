@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252"><title>Encrypting
+KeyNote files</title></head>
+
+<body style="font-family: Arial; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e"> <param name="Keyword" value="cryptography"> <param name="Keyword" value="encryption"> <param name="Keyword" value="passphrase"> <param name="Keyword" value="password"> <param name="Keyword" value="security"></object><p><a name="encrypting_keynote_files"></a><big style="font-family: Arial;"><big><b style="color: rgb(51, 51, 255);">Encrypting KeyNote files</b></big></big></p><small>
+<p style="color: rgb(255, 0, 0);"><b>PLEASE READ THE
+INFORMATION IN THIS FILE</b><br>
+<b>BEFORE YOU
+START ENCRYPTING YOUR KEYNOTE FILES!</b></p>
+<p></p><p><b>WARNING:
+WINDOWS 95/98/NT/ME IS AN INHERENTLY
+INSECURE SYSTEM!</b></p>
+<p>Any information contained inside a program may be freely
+"paged" (copied to a swap area on the hard disk) by the system's
+virtual memory manager. That information MAY REMAIN READABLE to a
+dedicated snooper, even after you have restarted the system. Special
+disk-reading utilities that allow this exist and are available for
+free. Currently the program makes no attempt to prevent such paging or
+swapping of data. This means that the information stored in the KeyNote
+file (*.knt), though encrypted, MAY end up somewhere on your hard disk
+in a clear-text (unencrypted) form.</p>
+<p>If you are concerned about this, there exist programs that
+securely WIPE unused hard disk space and/or Windows swapfile. Two of
+such programs, both freeware, are:</p>
+<p>1. RealDelete and Scorch by Iolo Davidson<a href="http://www.bonaventura.co.uk/realdelete">
+http://www.bonaventura.co.uk/realdelete</a> (small and powerful,
+command-line mode)</p>
+<p>2. BCWipe by Jetico, Inc. <a href="http://www.jetico.com">http://www.jetico.com</a>
+(Windows GUI
+program; also distributed as part of excellent BestCrypt
+disk-encryption package)</p>
+<p>Please read the "Security considerations" topic for more
+information on issues related to encrypting KeyNote files and potential
+vulnerabilities.</p><p></p>
+<p><b>GENERAL INFORMATION</b></p>
+<p>As of version 0.90 beta, KeyNote supports secure encryption.
+Each KeyNote file can be encrypted using one of the two supported
+algorithms (Blowfish and IDEA). This allows you to protect your
+sensitive data with an access passphrase. An encrypted file cannot be
+opened without entering the passphrase that was used to scramble it.</p>
+<p>CAUTION! IF YOU FORGET YOUR PASSPHRASE, YOU WILL NOT BE ABLE
+TO ACCESS YOUR ENCRYPTED KEYNOTE FILE!</p>
+<p>There are no backdoors, and the cipher algorithms used have no
+known weaknesses which would allow you - or anyone - to crack the
+ecnryption, even using a brute-force attack.</p>
+<p>Note that this is the first release of KeyNote which supports
+encruption. At the moment, I know of no bugs related to this feature,
+but this does not mean there are none. Please use the encryption
+feature cautiously and backup your data frequently. Please do report
+any problems or bugs you find.</p><p></p>
+<p><b>HOW TO ENCRYPT YOUR KEYNOTE FILE</b></p>
+<p>Create a new file or open an already existing .KNT file. To
+encrypt the file, press Alt+Enter to open the "File Properties" dialog
+box (or choose "Properties" from the "File" menu).</p>
+<p>Click the "Format" drop-down list, and select "Keynote
+encrypted file" as the format which should be used to save the file.
+When you do this, another tab will appear in the dialog box, called
+"Security".</p>
+<p>Click the "Security" tab. Decide what access passphrase you
+want to use, and enter in in the "Passphrase" edit field. Next, enter
+the same exact passphrase in the "Confirm pass" edit field. This is to
+make sure that you did not accidentally mistype the passphrase.</p>
+<p>Note: the passphrase cannot be shorter than FIVE characters.
+However, a truly secure passphrase should be much longer (10-30
+characters). Ideally, your passphrase should not contain only letters
+of alphabet, but also digits and punctuation characters, including
+space. Remember that the passphrase is case-sensitive. To open the
+encrypted file, you will have to enter the passphrase PRECISELY as you
+typed it in this dialog box.</p>
+<p>You may also choose which cipher algorithm to use: Blowfish or
+IDEA.</p>
+<p>Click OK.</p>
+<p>When the file is subsequently saved, it will be stored on your
+disk in encrypted state. When you later open this file, KeyNote will
+prompt you for the access passphrase. KeyNote will not be able to open
+an encrypted file if you do not supply the correct passphrase.</p>
+<p>Note: If you close the file or exit KeyNote without saving the
+file, the changes made in the "File Properties" dialog box will NOT be
+retained (and the file will remain unencrypted). if you have the
+AutoSave option turned ON, KeyNote will save the changes automatically.</p><p></p>
+<p><b>HOW TO CHANGE ACCESS PASSPHRASE FOR AN ALREADY
+ENCRYPTED FILE</b></p>
+<p>Open en encrypted file and enter your passphrase when
+prompted. Press Alt+Enter to open the "File Properties" dialog box (or
+choose "Properties" from the "File" menu).</p>
+<p>Click the "Security" tab.</p>
+<p>Click the "Set Passphrase" button, and enter the new access
+passphrase in the "Passphrase" and "Confirm pass" edit fields, as
+described above.</p>
+<p>Click OK.</p>
+<p>Note: If you close the file or exit KeyNote without saving the
+file, the changes made in the "File Properties" dialog box will NOT be
+retained (and the file will remain encrypted with the original,
+unchanged passphrase). If you have the AutoSave option turned ON,
+KeyNote will save the changes automatically.</p><p></p>
+<p><b>HOW TO STOP ENCRYPTING YOUR KEYNOTE FILE</b></p>
+<p>Open en encrypted file and enter your passphrase when
+prompted. Press Alt+Enter to open the "File Properties" dialog box (or
+choose "Properties" from the "File" menu).</p>
+<p>Click the "Format" drop-down list, and select "Keynote native
+file" as the format which should be used to save the file. The
+"Security" tab will disappear.</p>
+<p>Click OK.</p>
+<p>Note: If you close the file or exit KeyNote without saving the
+file, the changes made in the "File Properties" dialog box will NOT be
+retained (and the file will remain encrypted). If you have the AutoSave
+option turned ON, KeyNote will save the changes automatically.</p><p></p>
+<p><b>NOTE ABOUT the BLOWFISH and IDEA CIPHER ALGORITHMS</b></p>
+<p>KeyNote supports two encryption algorithms: te Blowfish and
+IDEA. These two ciphers were used in KeyNote, because their use is not
+restricted by patent laws (Blowfish) or because, while patented, they
+are free for non-commercial use (IDEA). If you use KeyNote in
+commercial environment, you should only use the Blowfish cipher, which
+is the default choice.</p>
+<p>For detailed descriptions of the crypto algorithms used, see:</p>
+<p>BLOWFISH:&nbsp;&nbsp;&nbsp; <a href="http://www.counterpane.com/blowfish.html">http://www.counterpane.com/blowfish.html</a><br>
+IDEA: &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <a href="http://www.momentus.com.br/PGP/doc/idea.html">http://www.momentus.com.br/PGP/doc/idea.html</a></p><p></p>
+<p><b>SECURITY CONSIDERATIONS</b></p>
+<p>&middot; If you have not yet read the WARNING at the top
+of
+this file, please do so now.</p>
+<p>&middot; BACKUP files: Typically, KeyNote is configured to
+maintain the previously-saved version of your file as backup; these
+files have the ".bak" extension. One potential vulnerability related to
+backup files is that it is possible for the backup file to remain
+unencrypted, after your KeyNote file was saved in encrypted state. If
+you create a new KeyNote file, save it, and then decide to encrypt it,
+the encrypted file will be saved, and the previous version of it will
+be renamed with the ".bak" extension. The previous version - preserved
+as backup - is unencrypted. After you save your KeyNote file again, the
+new backup will be a copy of the already encrypted file. Note that the
+same applies to a situation when you change the access passphrase of
+the encrypted file: the first time you save the file, the backup is a
+copy of the file encrypted with the previously used passphrase.</p>
+<p>&middot; If you use the "Virtual nodes" that KeyNote
+supports since version 0.91, please note that the actual files on disk
+which are linked to virtual nodes are NOT encrypted. They cannot be,
+because if KeyNote encrypted them, you would not be able to open those
+files in applications other than KeyNote, thus rendering the virtual
+nodes useless and potentially destroying data. A warning is displayed
+the first time you add a virtual node to an encrypted file or encrypt a
+file that has virtual nodes.</p>
+<p>&middot; The access passphrase only protects your file
+when
+it is encrypted on disk. When KeyNote is running and has the file open,
+the file may be viewed or edited by anyone who can use your computer,
+until you close the file. In a future release of KeyNote an option may
+be added to close the file when the program is minimized, and
+automatically attempt to reopen it (prompting for passphrase) when
+KeyNote is restored. This feature is not yet present.</p>
+<p>&middot; If you need more security then KeyNote offers, or
+if you need to securely encrypt data files created by other
+applications, you may consider using disk encryption software instead.
+Such software encrypts all files on a selected disk partition, thus
+securing ALL your data and programs. There are freeware disk
+encryptors, such as ScramDisk, and commercial solutions. Users of PGP
+may note that www.pgpi.com has a freeware version of PGP which includes
+the PGPDisk module. An additional advantage of such a solution is that
+you only need to remember ONE passphrase for accessing all your
+encrypted data - and any new software installed or any new data files
+placed on the encrypted disk partition are immediately protected
+without any additional effort on your part.</p><p></p>
+<p><b>MISCELLANEOUS NOTES</b></p>
+<p>&middot; KeyNote allows you to save data in the format
+used
+by a similar application, called DartNotes (see file "dart.txt").
+However, since DartNotes does not support encryption, you cannot
+encrypt files saved in this format.</p>
+<p>&middot; Using the File Properties dialog box, you can add
+an optional description and comment to each file. If the file is
+encrypted, the description and comment are encrypted as well. However,
+they will be displayed IN CLEAR-TEXT in the File Manager dialog box,
+which is NOT protected by a password. This may be changed in the
+future, but for now the description and comment strings are not secure,
+even if the actual file is.</p>
+<p>-----------------------------------------------------------</p>
+<p><b>Crypto algorithms used: DCPCrypt, Delphi
+cryptographic component package by David Barton:</b></p>
+<p><a href="http://www.devarchive.com/DCPcrypt.html">http://www.devarchive.com/DCPcrypt.html</a></p>
+<p>If you are interested in how the DCPCrypt package was used in
+KeyNote, you can download the cryptography-related parts of KeyNote
+source code from <a href="http://www.lodz.pdi.net/%7Eeristic/free/kntsrc.zip">http://www.lodz.pdi.net/~eristic/free/kntsrc.zip</a></p><p></p>
+</small></body></html>

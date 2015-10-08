@@ -1,0 +1,929 @@
+<HTML>
+<!-- Sitemap 1.0 -->
+<OBJECT type="text/site properties">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="acknowledgments">
+		<param name="Name" value="Acknowledgments">
+		<param name="Local" value="html/acknowledgments.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="advanced features">
+		<param name="Name" value="Special Functions">
+		<param name="Local" value="html/special_functions.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="applying styles to text">
+		<param name="Name" value="Styles">
+		<param name="Local" value="html/styles.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="arguments">
+		<param name="Name" value="Command Line Reference">
+		<param name="Local" value="html/command_line_reference.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="automating KeyNote">
+		<param name="Name" value="Macros">
+		<param name="Local" value="html/macros.htm">
+		<param name="Name" value="Plugins">
+		<param name="Local" value="html/plugins.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="auxiliary files">
+		<param name="Name" value="Auxiliary Files">
+		<param name="Local" value="html/auxiliary_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="background color">
+		<param name="See Also" value="background color">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="default">
+			<param name="Local" value="html/about_initial_fonts_and_colors_in_keynote.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="basic information">
+		<param name="Name" value="Quick Start">
+		<param name="Local" value="html/quick_start.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="bookmarks">
+		<param name="Name" value="Hyperlinks">
+		<param name="Local" value="html/hyperlinks.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="bugs">
+		<param name="Name" value="Known Problems and Bugs">
+		<param name="Local" value="html/known_problems_and_bugs.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="calculator">
+		<param name="Name" value="Expression evaluation">
+		<param name="Local" value="html/expression_evaluation.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="capturing text from clipboard">
+		<param name="Name" value="Clipboard capture">
+		<param name="Local" value="html/clipboard_capture.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="changes">
+		<param name="Name" value="What's New">
+		<param name="Local" value="html/whats_new.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="characters">
+		<param name="See Also" value="characters">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="special">
+			<param name="Local" value="html/insert_character_dialog_box.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="clipboard capture">
+		<param name="Name" value="Clipboard capture">
+		<param name="Local" value="html/clipboard_capture.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="command line">
+		<param name="Name" value="Command Line Reference">
+		<param name="Local" value="html/command_line_reference.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="commands">
+		<param name="Name" value="KeyNote menus">
+		<param name="Local" value="html/keynote_menus.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="compatibility">
+		<param name="Name" value="Information for Dart Notes Users">
+		<param name="Local" value="html/information_for_dart_notes_users.htm">
+		<param name="Name" value="Known Problems and Bugs">
+		<param name="Local" value="html/known_problems_and_bugs.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="configuration">
+		<param name="Name" value="Sharing KeyNote on a multi-user system">
+		<param name="Local" value="html/sharing_keynote_on_a_multiuser_system.htm">
+		<param name="Name" value="KeyNote File properties">
+		<param name="Local" value="html/keynote_file_properties.htm">
+		<param name="Name" value="Note properties and defaults">
+		<param name="Local" value="html/note_properties_and_defaults.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="configuration options">
+		<param name="Name" value="Configuration options">
+		<param name="Local" value="html/configuration_options.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="configuration">
+		<param name="See Also" value="configuration">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="overview">
+			<param name="Local" value="html/configuring_keynote_overview.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="contacting the author">
+		<param name="Name" value="KeyNote on the Web">
+		<param name="Local" value="html/keynote_on_the_web.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="creating macros">
+		<param name="Name" value="Macros">
+		<param name="Local" value="html/macros.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="creating styles">
+		<param name="Name" value="Styles">
+		<param name="Local" value="html/styles.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="cryptography">
+		<param name="Name" value="Encrypting KeyNote files">
+		<param name="Local" value="html/encrypting_keynote_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Dart Notes">
+		<param name="Name" value="Information for Dart Notes Users">
+		<param name="Local" value="html/information_for_dart_notes_users.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="default settings">
+		<param name="Name" value="Note properties and defaults">
+		<param name="Local" value="html/note_properties_and_defaults.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="defaults">
+		<param name="Name" value="Configuring KeyNote - Overview">
+		<param name="Local" value="html/configuring_keynote_overview.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="dictionary">
+		<param name="Name" value="Integration with WordWeb">
+		<param name="Local" value="html/integration_with_wordweb.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="downloading KeyNote">
+		<param name="Name" value="KeyNote on the Web">
+		<param name="Local" value="html/keynote_on_the_web.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="downloading">
+		<param name="See Also" value="downloading">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="software">
+			<param name="Local" value="html/otherfreewarefrgz.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="source code">
+			<param name="Local" value="html/keynote_is_opensource.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Edit menu">
+		<param name="Name" value="KeyNote menus: Edit">
+		<param name="Local" value="html/keynote_menus_edit.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="editor">
+		<param name="Name" value="KeyNote editor">
+		<param name="Local" value="html/keynote_editor.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="email">
+		<param name="Name" value="Sending KeyNote files by E-mail">
+		<param name="Local" value="html/sending_keynote_files_by_email.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="encryption">
+		<param name="Name" value="Encrypting KeyNote files">
+		<param name="Local" value="html/encrypting_keynote_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="End-User License">
+		<param name="Name" value="License">
+		<param name="Local" value="html/license.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="errors">
+		<param name="Name" value="Known Problems and Bugs">
+		<param name="Local" value="html/known_problems_and_bugs.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="EULA">
+		<param name="Name" value="License">
+		<param name="Local" value="html/license.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="expanding terms">
+		<param name="Name" value="Word expansion glossary">
+		<param name="Local" value="html/word_expansion_glossary.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="export">
+		<param name="Name" value="Information for Dart Notes Users">
+		<param name="Local" value="html/information_for_dart_notes_users.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="exporting files">
+		<param name="Name" value="Exporting notes to disk files">
+		<param name="Local" value="html/exporting_notes_to_disk_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="expression evaluation">
+		<param name="Name" value="Expression evaluation">
+		<param name="Local" value="html/expression_evaluation.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="features">
+		<param name="Name" value="Features">
+		<param name="Local" value="html/features.htm">
+		<param name="Name" value="Hints and Tips">
+		<param name="Local" value="html/hints_and_tips.htm">
+		<param name="Name" value="KeyNote menus">
+		<param name="Local" value="html/keynote_menus.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="file formats">
+		<param name="Name" value="Information for Dart Notes Users">
+		<param name="Local" value="html/information_for_dart_notes_users.htm">
+		<param name="Name" value="Importing files as notes">
+		<param name="Local" value="html/importing_files_as_notes.htm">
+		<param name="Name" value="Exporting notes to disk files">
+		<param name="Local" value="html/exporting_notes_to_disk_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="file manager">
+		<param name="Name" value="File manager">
+		<param name="Local" value="html/file_manager.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="File menu">
+		<param name="Name" value="KeyNote menus: File">
+		<param name="Local" value="html/keynote_menus_file.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="file properties">
+		<param name="Name" value="KeyNote File properties">
+		<param name="Local" value="html/keynote_file_properties.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="File properties">
+		<param name="See Also" value="File properties">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="File icons">
+			<param name="Local" value="html/file_properties_file_icons.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Information">
+			<param name="Local" value="html/file_properties_information.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Security">
+			<param name="Local" value="html/file_properties_security.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Settings">
+			<param name="Local" value="html/file_properties_settings.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="files">
+		<param name="See Also" value="files">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="exporting">
+			<param name="Local" value="html/exporting_notes_to_disk_files.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="importing">
+			<param name="Local" value="html/importing_files_as_notes.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="font style">
+		<param name="See Also" value="font style">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="default">
+			<param name="Local" value="html/about_initial_fonts_and_colors_in_keynote.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Format menu">
+		<param name="Name" value="KeyNote menus: Format">
+		<param name="Local" value="html/keynote_menus_format.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="formatting text">
+		<param name="Name" value="Styles">
+		<param name="Local" value="html/styles.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="freeware">
+		<param name="Name" value="Other Freeware from General Frenetics, Discorp.">
+		<param name="Local" value="html/otherfreewarefrgz.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="general information">
+		<param name="Name" value="Welcome to KeyNote">
+		<param name="Local" value="html/welcome_keynote.htm">
+		<param name="Name" value="Features">
+		<param name="Local" value="html/features.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="global options">
+		<param name="Name" value="Configuration options">
+		<param name="Local" value="html/configuration_options.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="glossary">
+		<param name="Name" value="Word expansion glossary">
+		<param name="Local" value="html/word_expansion_glossary.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Help menu">
+		<param name="Name" value="KeyNote menus: Help">
+		<param name="Local" value="html/keynote_menus_help.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="hints and tips">
+		<param name="Name" value="Quick Start">
+		<param name="Local" value="html/quick_start.htm">
+		<param name="Name" value="Hints and Tips">
+		<param name="Local" value="html/hints_and_tips.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="history">
+		<param name="Name" value="What's New">
+		<param name="Local" value="html/whats_new.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="homepage">
+		<param name="Name" value="KeyNote on the Web">
+		<param name="Local" value="html/keynote_on_the_web.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="hotkeys">
+		<param name="Name" value="Keyboard Reference">
+		<param name="Local" value="html/keyboard_reference.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="hyperlinks">
+		<param name="Name" value="Hyperlinks">
+		<param name="Local" value="html/hyperlinks.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="import">
+		<param name="Name" value="Information for Dart Notes Users">
+		<param name="Local" value="html/information_for_dart_notes_users.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="importing files">
+		<param name="Name" value="Importing files as notes">
+		<param name="Local" value="html/importing_files_as_notes.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="individual settings for users">
+		<param name="Name" value="Sharing KeyNote on a multi-user system">
+		<param name="Local" value="html/sharing_keynote_on_a_multiuser_system.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="INI files">
+		<param name="Name" value="Auxiliary Files">
+		<param name="Local" value="html/auxiliary_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="initial font style">
+		<param name="Name" value="About initial fonts and colors in KeyNote">
+		<param name="Local" value="html/about_initial_fonts_and_colors_in_keynote.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Insert menu">
+		<param name="Name" value="KeyNote menus: Insert">
+		<param name="Local" value="html/keynote_menus_insert.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="inserting hyperlinks">
+		<param name="Name" value="Hyperlinks">
+		<param name="Local" value="html/hyperlinks.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="inserting">
+		<param name="See Also" value="inserting">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="special characters">
+			<param name="Local" value="html/insert_character_dialog_box.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="integration with WordWeb">
+		<param name="Name" value="Integration with WordWeb">
+		<param name="Local" value="html/integration_with_wordweb.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Internet">
+		<param name="Name" value="KeyNote on the Web">
+		<param name="Local" value="html/keynote_on_the_web.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="keyboard reference">
+		<param name="Name" value="Keyboard Reference">
+		<param name="Local" value="html/keyboard_reference.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="KeyNote files">
+		<param name="Name" value="KeyNote File properties">
+		<param name="Local" value="html/keynote_file_properties.htm">
+		<param name="Name" value="File manager">
+		<param name="Local" value="html/file_manager.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="KeyNote menus">
+		<param name="Name" value="KeyNote menus">
+		<param name="Local" value="html/keynote_menus.htm">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Edit">
+			<param name="Local" value="html/keynote_menus_edit.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="File">
+			<param name="Local" value="html/keynote_menus_file.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Format">
+			<param name="Local" value="html/keynote_menus_format.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Help">
+			<param name="Local" value="html/keynote_menus_help.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Insert">
+			<param name="Local" value="html/keynote_menus_insert.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Note">
+			<param name="Local" value="html/keynote_menus_note.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Search">
+			<param name="Local" value="html/keynote_menus_search.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Tools">
+			<param name="Local" value="html/keynote_menus_tools.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Tree">
+			<param name="Local" value="html/keynote_menus_tree.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="View">
+			<param name="Local" value="html/keynote_menus_view.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="known bugs">
+		<param name="Name" value="Known Problems and Bugs">
+		<param name="Local" value="html/known_problems_and_bugs.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="license">
+		<param name="Name" value="License">
+		<param name="Local" value="html/license.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="macros">
+		<param name="Name" value="Macros">
+		<param name="Local" value="html/macros.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="mathematical expressions">
+		<param name="Name" value="Expression evaluation">
+		<param name="Local" value="html/expression_evaluation.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="menus">
+		<param name="Name" value="KeyNote menus">
+		<param name="Local" value="html/keynote_menus.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Mozilla Public License">
+		<param name="Name" value="KeyNote is Open-Source">
+		<param name="Local" value="html/keynote_is_opensource.htm">
+		<param name="Name" value="License">
+		<param name="Local" value="html/license.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="MPL">
+		<param name="Name" value="License">
+		<param name="Local" value="html/license.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="multi-user systems">
+		<param name="Name" value="Sharing KeyNote on a multi-user system">
+		<param name="Local" value="html/sharing_keynote_on_a_multiuser_system.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="nodes">
+		<param name="Name" value="Tree-type notes">
+		<param name="Local" value="html/treetype_notes.htm">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="virtual">
+			<param name="Local" value="html/virtual_nodes.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="note defaults">
+		<param name="Name" value="Note properties and defaults">
+		<param name="Local" value="html/note_properties_and_defaults.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Note menu">
+		<param name="Name" value="KeyNote menus: Note">
+		<param name="Local" value="html/keynote_menus_note.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="note properties">
+		<param name="Name" value="Note properties and defaults">
+		<param name="Local" value="html/note_properties_and_defaults.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Note properties">
+		<param name="See Also" value="Note properties">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Note settings">
+			<param name="Local" value="html/note_properties_note_settings.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Tree settings">
+			<param name="Name" value="Note properties: Tree settings">
+			<param name="Local" value="html/note_properties_tree_settings.htm">
+			<param name="Name" value="Note properties: Advanced">
+			<param name="Local" value="html/note_properties_advanced.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="notes">
+		<param name="Name" value="Tree-type notes">
+		<param name="Local" value="html/treetype_notes.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Open-Source">
+		<param name="Name" value="KeyNote is Open-Source">
+		<param name="Local" value="html/keynote_is_opensource.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="options">
+		<param name="Name" value="Command Line Reference">
+		<param name="Local" value="html/command_line_reference.htm">
+		<param name="Name" value="Configuration options">
+		<param name="Local" value="html/configuration_options.htm">
+		<param name="Name" value="KeyNote File properties">
+		<param name="Local" value="html/keynote_file_properties.htm">
+		<param name="Name" value="Note properties and defaults">
+		<param name="Local" value="html/note_properties_and_defaults.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Options">
+		<param name="See Also" value="Options">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Actions">
+			<param name="Local" value="html/options_actions.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Advanced">
+			<param name="Local" value="html/options_advanced.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Chrome">
+			<param name="Local" value="html/options_chrome.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Clipboard capture">
+			<param name="Local" value="html/options_clipboard_capture.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Confirmations">
+			<param name="Local" value="html/options_confirmations.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="File Options">
+			<param name="Local" value="html/options_file_options.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="File types">
+			<param name="Local" value="html/options_file_types.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Formats">
+			<param name="Local" value="html/options_formats.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="General settings">
+			<param name="Local" value="html/options_general_settings.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="KeyNote Files">
+			<param name="Local" value="html/options_keynote_files.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="options">
+		<param name="See Also" value="options">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="overview">
+			<param name="Local" value="html/configuring_keynote_overview.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Options">
+		<param name="See Also" value="Options">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Rich Text editor">
+			<param name="Local" value="html/options_rich_text_editor.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Tab icons">
+			<param name="Local" value="html/options_tab_icons.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Keyword" value="Tree panel">
+			<param name="Local" value="html/options_tree_panel.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="other freeware applications">
+		<param name="Name" value="Other Freeware from General Frenetics, Discorp.">
+		<param name="Local" value="html/otherfreewarefrgz.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="overview">
+		<param name="Name" value="Welcome to KeyNote">
+		<param name="Local" value="html/welcome_keynote.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="passphrase">
+		<param name="Name" value="Encrypting KeyNote files">
+		<param name="Local" value="html/encrypting_keynote_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="password">
+		<param name="Name" value="Encrypting KeyNote files">
+		<param name="Local" value="html/encrypting_keynote_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="playing macros">
+		<param name="Name" value="Macros">
+		<param name="Local" value="html/macros.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="plugins">
+		<param name="Name" value="Plugins">
+		<param name="Local" value="html/plugins.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="problems">
+		<param name="Name" value="Known Problems and Bugs">
+		<param name="Local" value="html/known_problems_and_bugs.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="program options">
+		<param name="Name" value="Configuration options">
+		<param name="Local" value="html/configuration_options.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="quick start">
+		<param name="Name" value="Quick Start">
+		<param name="Local" value="html/quick_start.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="recent changes">
+		<param name="Name" value="What's New">
+		<param name="Local" value="html/whats_new.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="recording macros">
+		<param name="Name" value="Macros">
+		<param name="Local" value="html/macros.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="removing KeyNote">
+		<param name="Name" value="Auxiliary Files">
+		<param name="Local" value="html/auxiliary_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="rich text format">
+		<param name="Name" value="KeyNote editor">
+		<param name="Local" value="html/keynote_editor.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="RTF">
+		<param name="Name" value="KeyNote editor">
+		<param name="Local" value="html/keynote_editor.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Search menu">
+		<param name="Name" value="KeyNote menus: Search">
+		<param name="Local" value="html/keynote_menus_search.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="security">
+		<param name="Name" value="Encrypting KeyNote files">
+		<param name="Local" value="html/encrypting_keynote_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="sending files via email">
+		<param name="Name" value="Sending KeyNote files by E-mail">
+		<param name="Local" value="html/sending_keynote_files_by_email.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="settings">
+		<param name="Name" value="Configuring KeyNote - Overview">
+		<param name="Local" value="html/configuring_keynote_overview.htm">
+		<param name="Name" value="Configuration options">
+		<param name="Local" value="html/configuration_options.htm">
+		<param name="Name" value="Note properties and defaults">
+		<param name="Local" value="html/note_properties_and_defaults.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="shortcuts">
+		<param name="Name" value="Keyboard Reference">
+		<param name="Local" value="html/keyboard_reference.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="software license">
+		<param name="Name" value="License">
+		<param name="Local" value="html/license.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="software used to create KeyNote">
+		<param name="Name" value="Acknowledgments">
+		<param name="Local" value="html/acknowledgments.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="source code">
+		<param name="Name" value="KeyNote is Open-Source">
+		<param name="Local" value="html/keynote_is_opensource.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="special functions">
+		<param name="Name" value="Special Functions">
+		<param name="Local" value="html/special_functions.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="specifying fonts and colors for notes">
+		<param name="Name" value="About initial fonts and colors in KeyNote">
+		<param name="Local" value="html/about_initial_fonts_and_colors_in_keynote.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="starting KeyNote">
+		<param name="Name" value="Command Line Reference">
+		<param name="Local" value="html/command_line_reference.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="styles">
+		<param name="Name" value="Styles">
+		<param name="Local" value="html/styles.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="supplementary files">
+		<param name="Name" value="Auxiliary Files">
+		<param name="Local" value="html/auxiliary_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="supported file formats">
+		<param name="Name" value="Importing files as notes">
+		<param name="Local" value="html/importing_files_as_notes.htm">
+		<param name="Name" value="Exporting notes to disk files">
+		<param name="Local" value="html/exporting_notes_to_disk_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="switches">
+		<param name="Name" value="Command Line Reference">
+		<param name="Local" value="html/command_line_reference.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="thanks">
+		<param name="Name" value="Acknowledgments">
+		<param name="Local" value="html/acknowledgments.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="thesaurus">
+		<param name="Name" value="Integration with WordWeb">
+		<param name="Local" value="html/integration_with_wordweb.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="tips">
+		<param name="Name" value="Quick Start">
+		<param name="Local" value="html/quick_start.htm">
+		<param name="Name" value="Hints and Tips">
+		<param name="Local" value="html/hints_and_tips.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Tools menu">
+		<param name="Name" value="KeyNote menus: Tools">
+		<param name="Local" value="html/keynote_menus_tools.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="Tree menu">
+		<param name="Name" value="KeyNote menus: Tree">
+		<param name="Local" value="html/keynote_menus_tree.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="tree-type notes">
+		<param name="Name" value="Tree-type notes">
+		<param name="Local" value="html/treetype_notes.htm">
+		<param name="Name" value="Virtual nodes">
+		<param name="Local" value="html/virtual_nodes.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="uninstalling KeyNote">
+		<param name="Name" value="Auxiliary Files">
+		<param name="Local" value="html/auxiliary_files.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="URLs">
+		<param name="Name" value="KeyNote on the Web">
+		<param name="Local" value="html/keynote_on_the_web.htm">
+		<param name="Name" value="Hyperlinks">
+		<param name="Local" value="html/hyperlinks.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="using plugins">
+		<param name="Name" value="Plugins">
+		<param name="Local" value="html/plugins.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="View menu">
+		<param name="Name" value="KeyNote menus: View">
+		<param name="Local" value="html/keynote_menus_view.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="virtual nodes">
+		<param name="Name" value="Tree-type notes">
+		<param name="Local" value="html/treetype_notes.htm">
+		<param name="Name" value="Virtual nodes">
+		<param name="Local" value="html/virtual_nodes.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="web">
+		<param name="Name" value="KeyNote on the Web">
+		<param name="Local" value="html/keynote_on_the_web.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="welcome">
+		<param name="Name" value="Welcome to KeyNote">
+		<param name="Local" value="html/welcome_keynote.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="what's new">
+		<param name="Name" value="What's New">
+		<param name="Local" value="html/whats_new.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="word expansion">
+		<param name="Name" value="Word expansion glossary">
+		<param name="Local" value="html/word_expansion_glossary.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="WordWeb">
+		<param name="Name" value="Integration with WordWeb">
+		<param name="Local" value="html/integration_with_wordweb.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Keyword" value="www">
+		<param name="Name" value="KeyNote on the Web">
+		<param name="Local" value="html/keynote_on_the_web.htm">
+		</OBJECT>
+</UL></HTML>

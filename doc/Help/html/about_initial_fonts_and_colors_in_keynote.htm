@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252"><title>About
+initial fonts and colors in KeyNote</title></head>
+
+<body style="font-family: Arial; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e"> <param name="Keyword" value="background color: default"> <param name="Keyword" value="font style: default"> <param name="Keyword" value="initial font style"> <param name="Keyword" value="specifying fonts and colors for notes"></object><p style="font-family: Arial;"><a name="about_initial_fonts_and_colors_in_keynote"></a><big style="color: rgb(51, 51, 255);"><big><b>About
+initial fonts and colors in KeyNote</b></big></big></p>
+<small><p><b>Initial note font versus actual font styles in a note.</b></p>
+<p>The <a href="note_properties_and_defaults.htm">Note
+properties</a> dialog box (F4) cannot be used to change the FONT
+of the current note. The reason for this is quite simple. In a
+plain-text editor you have only one font (name, size, style, color) for
+the whole text. But KeyNote is a "rich text" editor, where you may have
+lots of different font styles within a single piece of text. But the
+Note properties dialog box allows you to specify only one font, so this
+one font would have to be applied to the whole note - which is
+certainly not what users would expect (all text formatting in the note
+would revert to the font chosen in Note properties dialog box). So
+what's the Font button for? Well, it does have a function: it allows
+you to choose the INITIAL font for the note - the font which is used
+when you click the "Clear font attributes" command (Ctrl+0). This will
+normally be the same font you selected in "<span style="font-style: italic;">Tools | Default settings</span>".
+</p>
+<p><b>Background color and TREE-type notes. </b></p>
+<p>Because you CAN use a different background color for each node
+in the tree, the dialog box cannot just blindly reset the background
+color for all nodes. Let's say you have one node in the tree which uses
+white text on black background, and another which has the normal black
+text on white background. If you press F4 while in that latter node,
+the dialog box will display white background. But if that color was
+assigned to all tree nodes after you click OK, the other note in the
+tree would now have white font on white background. There really is no
+good solution to this, except that the BG color will only be used as
+the DEFAULT COLOR for NEW nodes that you will later add to the tree
+(but this depends on whether or not you have selected "Inherit
+background color from active node" in the Options dialog box, <a href="options_tree_panel.htm">"Tree panel" tab</a>,
+and yes, I realize this can be confusing.)</p>
+<p>If you DO want to change the background color for ALL NODES in
+a tree, this is still possible. As described in the "keyboard.txt"
+file, hold down the SHIFT key while you click the "<span style="font-style: italic;">Format | Background
+colo</span>r" command in the menu. KeyNote will then warn you that the new
+color will be applied to all tree nodes, and you can confirm or cancel.</p>
+</small></body></html>

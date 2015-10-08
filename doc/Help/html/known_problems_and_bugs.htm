@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252"><title>Known
+Problems and Bugs</title></head>
+
+<body style="font-family: Arial; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e"> <param name="Keyword" value="bugs"> <param name="Keyword" value="compatibility"> <param name="Keyword" value="errors"> <param name="Keyword" value="known bugs"> <param name="Keyword" value="problems">
+</object><p><a name="known_problems_and_bugs"></a><big style="font-family: Arial;"><big><b style="color: rgb(51, 51, 255);">Known Problems and Bugs</b></big></big></p><small>
+<p>KeyNote is updated very often - more often that this Help
+file. A detailed list of known problems and unfixed bugs is contained
+in the file called "Bugs.txt". The file is located in the "\doc"
+subdirectory, below the directory where KeyNote is installed.</p>
+<p>You can also view the latest version of the Release History
+file on the Web:</p>
+<p><a href="http://www.lodz.pdi.net/%7Eeristic/free/keynote_bugs.html">http://www.lodz.pdi.net/~eristic/free/keynote_bugs.html</a></p>
+<p><b>Information contained in this Help topic was current
+at the time when version 1.0 of KeyNote was released (June/July 2001).</b></p><p><b></b></p>
+<p style="color: rgb(255, 0, 0);"><b>WINDOWS NT AND
+WINDOWS 2000/ME USERS:</b></p>
+<p>Windows NT 4.0, Windows 2000 and ME, as well as systems with
+MS Office 2000 installed, all come with version 3.0 of the
+"riched20.dll" library. This is the library which KeyNote uses to drive
+the rich text editor. Unfortunately, Microsoft introduced a lot of
+changes to that library between version 2 (which KeyNote normally uses)
+and version 3. Amid these changes, much compatibility was lost. As a
+result, some of KeyNote's features may not work predictably on the
+systems listed above.</p>
+
+<p>The main problem that was noted by many users was that text
+formatting (e.g. font styles) were not preserved across sessions: if
+you saved and then reopened a file, all font formatting would be lost.
+Also, text formatting was lost when certain program functions were
+used, e.g. when&nbsp;toggling the "word wrap" option, or when changing tab-related
+settings.</p><p></p>
+<p><b>QUICK FIX:</b></p>
+<p>1. Press F5 to open the Options dialog box. </p>
+<p>2. In the tree panel, click the "Advanced" node.</p>
+<p>3. Click the <b>"Enable Rich Edit version 3.0 fixes"</b>
+checkbox. The option should be CHECKED (enabled).</p>
+<p>4. Click OK to close the Options dialog box.</p>
+<p>5. Restart KeyNote or reload current file for the changes to
+take effect.</p>
+<p>Note: Enabling this setting slightly
+decreases the efficiency of the rich text editor. Do not enable it if
+you do not experience the problems outlined above.</p><p> </p>
+<p><b>EXPLANATION and other workarounds:</b></p>
+<p>I spent more than one sleepless night trying to overcome these
+incompatibilites. At present, there is no support for RTF 3.0 in
+Delphi, and even with such support I could not test the program under
+these conditions. Therefore, much guesswork was involved in coming up
+with the fixes.</p>
+<p>To date, most of the incompatibilities have been worked
+around. Font styles are no longer lost after you reopen the file; nor
+are they lost when you toggle the WordWrap option.</p>
+<p>To protect your file against the loss of formatting, do one of
+the following BEFORE you change any tab-related settings in the
+"Options" dialog box:</p>
+<p>a) turn the Auto Save feature OFF (to make sure the file will
+not be saved automatically in the "broken" state. After you have
+changed the settings, reload the file.</p>
+<p>b) close the file before changing the settings, then reopen
+the file.</p>
+<p>(This procedure is no longer necessary if you have enabled the
+"RichEdit 3.0 Fixes" option, as described above.)</p>
+<p>One other possible solution is this: Microsoft prohibits
+software authors from distributing the riched2.dll file (and for a good
+reason, because each system has its own version) - but if you can find
+a Windows machine with a compatible riched2.dll version 2.0 (not 3.0),
+you can just copy it to KEYNOTE's DIRECTORY (**NOT** to the system
+directory!) and KeyNote will use it instead. Despite MS's ban, you
+should be able to find copies riched2.dll on the Internet, but because
+different versions have the same file name, it may be hard to figure
+out if any particular copy is ight for your system. But if you managed
+that, the whole problem would immediately go away (and other apps would
+still be using the 3.0 version if they need it).</p><p></p>
+<p><b>OTHER BUGS and LIMITATIONS</b></p>
+<p>&middot; Printing problems: Originally, there was a problem
+with printing from the richedit control via the page setup dialog:
+you'd always get two or three additional blank pages at the end of the
+prinout. I had no idea how to fix that and why it was happening. </p>
+<p>There is now a <b>"Safe print"</b> option which
+you can turn on in the Options dialog, "Advanced" page. With "Safe
+print" OFF, the rich text is first filtered through the older version
+of the richedit control, which fixes the problem with surplus pages,
+but causes loss of certain formatting attributes which the older
+richedit version did not support (e.g. highlighting, paragraph spacing,
+the "disabled"-looking font style and a few others).</p>
+<p>With SafePrint turned ON, the printing is done directly from
+the richedit control, so you get all the "advanced" formatting
+attributes, but the page setup dialog is simply bypassed, and all
+settings you make there are ignored. For now, this is the best I can do.</p><p></p>
+<p>&middot; It seems that if you add (or possibly move) some
+nodes in the tree, and then change the tree layout (from horizonal to
+vertical, or the other way around), then the new nodes lose their
+original position. This does not (seem to) affect the nodes that were
+created earlier.</p>
+<p>Unfortunately, this is not something that KeyNote does on its
+own. The bug lies depper in the logic of the Windows control that
+displays the tree. In a later release, I will replace this control with
+another, more flexible tree - but for now I'm afraid there's not much I
+can do.</p>
+<p>There is a workaround for the problem, however. I think
+changing the layout of the tree note isn't something that's done very
+often. When you want to change the layout, save the file first *and
+reload it*. Just close the file and reopen it, or simply select the
+file from the "Recent files" menu. After you have reloaded the file,
+change the tree layout. This way, all nodes should stay where they
+were. You should probably save the file at this point and reload it
+again, at least if you intend to make any further changes to the tree.</p><p></p>
+<p>&middot; On some systems you may receive an "Error code: 2"
+message while saving the .KNT file. The file, however, is saved
+correctly and no obvious error in fact occurs. If you encounter this
+problem, open the Options dialog box, click the "Advanced" tab, and
+CHECK the "Disable folder monitor" checkbox. The folder monitoring
+function is used to detect if another application has modified the file
+which is currently open in KeyNote (in such a case, KeyNote prompts you
+to reload the file from disk). Apparently, the folder monitoring is
+incompatible with some versions or configurations of Windows. Disabling
+it will eliminate the faux error message, but KeyNote will no longer be
+able to detect file changes. I'm working on a fix for this.</p><p></p>
+<p>&middot; On Windows NT and Windows 2000 systems, KeyNote
+may crash if the "One instance only" option is checked and you try to
+start KeyNote more than once. This works fine on WIndows 95 and 98
+systems, and since I can't reproduce the error, it won't be easy to
+fix. For now, please just uncheck the "One instance only" checkbox if
+you are running KeyNote on Windows NT or Windows 2000.</p>
+<p><b>FIXED</b> - at least, I think so. Please let me
+know if you experience any other problems in this regard.</p><p></p>
+<p>&middot; Saving the notes file clears the Undo bufer;
+operations cannot be undone after the file was saved (manually or
+automatically). This is not done by design, but it's a "feature" of the
+RichEdit control. At this time, I have no idea how to work aroound it.</p><p></p>
+<p>&middot; When exporting notes in RTF format, each note (and
+each node in a tree) is exported to a separate file. You cannot export
+(or print, or email) all notes, or all tree nodes, as a single RTF
+document. This may be corrected in the future - it is possible, but the
+required process is rather ugly.</p>
+<p><b>NOTE:</b> It is now possible to export a single
+tree node as a text or an RTF file. Right-click the node and select the
+"Export" command.</p><p></p>
+<p>&middot; You may receive an "Invalid pointer operation"
+error when shutting down KeyNote. This happens at the very last stage
+of closing the program too late to use the debugger, so the problem is
+very hard to fix. Also, this does not affect the integrity of the data
+file - when the error occurs, the file has already been safely saved to
+disk.</p>
+<p>This problem has been fixed, as far as I am able to tell. If
+the error still occurs, please email me!</p><p></p>
+<p>&middot; There is no spell-checker. This requires much more
+work and time than I can spend on KeyNote.</p>
+<p>&middot; There is no RTF-to-HTML conversion. I'm working on
+it, but it's a *really* hairy issue.</p>
+<p>&middot; Support for printing is minimal. If you need more,
+export your notes to RTF files and print from another application, such
+as Word or WordPad.</p>
+</small></body></html>

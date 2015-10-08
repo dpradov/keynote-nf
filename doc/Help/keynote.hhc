@@ -1,0 +1,372 @@
+<HTML>
+<!--Sitemap 1.0-->
+<OBJECT type="text/site properties">
+</OBJECT>
+<UL>
+	<LI><OBJECT type="text/sitemap">
+		<param name="Name" value="General Information">
+		</OBJECT>
+	<UL>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Welcome to KeyNote">
+			<param name="Local" value="html/welcome_keynote.htm">
+			</OBJECT>
+			<A HREF="html/welcome_keynote.htm">Welcome to KeyNote</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote is Open-Source">
+			<param name="Local" value="html/keynote_is_opensource.htm">
+			</OBJECT>
+			<A HREF="html/keynote_is_opensource.htm">KeyNote is Open-Source</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="What's New">
+			<param name="Local" value="html/whats_new.htm">
+			</OBJECT>
+			<A HREF="html/whats_new.htm">What's New</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Quick Start">
+			<param name="Local" value="html/quick_start.htm">
+			</OBJECT>
+			<A HREF="html/quick_start.htm">Quick Start</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Features">
+			<param name="Local" value="html/features.htm">
+			</OBJECT>
+			<A HREF="html/features.htm">Features</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Hints and Tips">
+			<param name="Local" value="html/hints_and_tips.htm">
+			</OBJECT>
+			<A HREF="html/hints_and_tips.htm">Hints and Tips</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Keyboard Reference">
+			<param name="Local" value="html/keyboard_reference.htm">
+			</OBJECT>
+			<A HREF="html/keyboard_reference.htm">Keyboard Reference</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Command Line Reference">
+			<param name="Local" value="html/command_line_reference.htm">
+			</OBJECT>
+			<A HREF="html/command_line_reference.htm">Command Line Reference</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Information for Dart Notes Users">
+			<param name="Local" value="html/information_for_dart_notes_users.htm">
+			</OBJECT>
+			<A HREF="html/information_for_dart_notes_users.htm">Information for Dart Notes Users</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Known Problems and Bugs">
+			<param name="Local" value="html/known_problems_and_bugs.htm">
+			</OBJECT>
+			<A HREF="html/known_problems_and_bugs.htm">Known Problems and Bugs</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="License">
+			<param name="Local" value="html/license.htm">
+			</OBJECT>
+			<A HREF="html/license.htm">License</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Acknowledgments">
+			<param name="Local" value="html/acknowledgments.htm">
+			</OBJECT>
+			<A HREF="html/acknowledgments.htm">Acknowledgments</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote on the Web">
+			<param name="Local" value="html/keynote_on_the_web.htm">
+			</OBJECT>
+			<A HREF="html/keynote_on_the_web.htm">KeyNote on the Web</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Other Freeware from General Frenetics, Discorp.">
+			<param name="Local" value="html/otherfreewarefrgz.htm">
+			</OBJECT>
+			<A HREF="html/otherfreewarefrgz.htm">Other Freeware from General Frenetics, Discorp.</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Auxiliary Files">
+			<param name="Local" value="html/auxiliary_files.htm">
+			</OBJECT>
+			<A HREF="html/auxiliary_files.htm">Auxiliary Files</A><BR>
+	</UL>
+	<LI><OBJECT type="text/sitemap">
+		<param name="Name" value="Using KeyNote">
+		</OBJECT>
+	<UL>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote editor">
+			<param name="Local" value="html/keynote_editor.htm">
+			</OBJECT>
+			<A HREF="html/keynote_editor.htm">KeyNote editor</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Tree-type notes">
+			<param name="Local" value="html/treetype_notes.htm">
+			</OBJECT>
+			<A HREF="html/treetype_notes.htm">Tree-type notes</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Virtual nodes">
+			<param name="Local" value="html/virtual_nodes.htm">
+			</OBJECT>
+			<A HREF="html/virtual_nodes.htm">Virtual nodes</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Sharing KeyNote on a multi-user system">
+			<param name="Local" value="html/sharing_keynote_on_a_multiuser_system.htm">
+			</OBJECT>
+			<A HREF="html/sharing_keynote_on_a_multiuser_system.htm">Sharing KeyNote on a multi-user system</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote File properties">
+			<param name="Local" value="html/keynote_file_properties.htm">
+			</OBJECT>
+			<A HREF="html/keynote_file_properties.htm">KeyNote File properties</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="File properties: Information">
+			<param name="Local" value="html/file_properties_information.htm">
+			</OBJECT>
+			<A HREF="html/file_properties_information.htm">File properties: Information</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="File properties: Settings">
+			<param name="Local" value="html/file_properties_settings.htm">
+			</OBJECT>
+			<A HREF="html/file_properties_settings.htm">File properties: Settings</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="File properties: File icons">
+			<param name="Local" value="html/file_properties_file_icons.htm">
+			</OBJECT>
+			<A HREF="html/file_properties_file_icons.htm">File properties: File icons</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="File properties: Security">
+			<param name="Local" value="html/file_properties_security.htm">
+			</OBJECT>
+			<A HREF="html/file_properties_security.htm">File properties: Security</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Note properties and defaults">
+			<param name="Local" value="html/note_properties_and_defaults.htm">
+			</OBJECT>
+			<A HREF="html/note_properties_and_defaults.htm">Note properties and defaults</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Note properties: Note settings">
+			<param name="Local" value="html/note_properties_note_settings.htm">
+			</OBJECT>
+			<A HREF="html/note_properties_note_settings.htm">Note properties: Note settings</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Note properties: Tree settings">
+			<param name="Local" value="html/note_properties_tree_settings.htm">
+			</OBJECT>
+			<A HREF="html/note_properties_tree_settings.htm">Note properties: Tree settings</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Note properties: Advanced">
+			<param name="Local" value="html/note_properties_advanced.htm">
+			</OBJECT>
+			<A HREF="html/note_properties_advanced.htm">Note properties: Advanced</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus">
+			<param name="Local" value="html/keynote_menus.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus.htm">KeyNote menus</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: File">
+			<param name="Local" value="html/keynote_menus_file.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_file.htm">KeyNote menus: File</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: Edit">
+			<param name="Local" value="html/keynote_menus_edit.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_edit.htm">KeyNote menus: Edit</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: View">
+			<param name="Local" value="html/keynote_menus_view.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_view.htm">KeyNote menus: View</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: Insert">
+			<param name="Local" value="html/keynote_menus_insert.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_insert.htm">KeyNote menus: Insert</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: Format">
+			<param name="Local" value="html/keynote_menus_format.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_format.htm">KeyNote menus: Format</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: Note">
+			<param name="Local" value="html/keynote_menus_note.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_note.htm">KeyNote menus: Note</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: Tree">
+			<param name="Local" value="html/keynote_menus_tree.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_tree.htm">KeyNote menus: Tree</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: Search">
+			<param name="Local" value="html/keynote_menus_search.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_search.htm">KeyNote menus: Search</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: Tools">
+			<param name="Local" value="html/keynote_menus_tools.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_tools.htm">KeyNote menus: Tools</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="KeyNote menus: Help">
+			<param name="Local" value="html/keynote_menus_help.htm">
+			</OBJECT>
+			<A HREF="html/keynote_menus_help.htm">KeyNote menus: Help</A><BR>
+	</UL>
+	<LI><OBJECT type="text/sitemap">
+		<param name="Name" value="Configuring KeyNote">
+		</OBJECT>
+	<UL>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Configuring KeyNote - Overview">
+			<param name="Local" value="html/configuring_keynote_overview.htm">
+			</OBJECT>
+			<A HREF="html/configuring_keynote_overview.htm">Configuring KeyNote - Overview</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Configuration options">
+			<param name="Local" value="html/configuration_options.htm">
+			</OBJECT>
+			<A HREF="html/configuration_options.htm">Configuration options</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: General settings">
+			<param name="Local" value="html/options_general_settings.htm">
+			</OBJECT>
+			<A HREF="html/options_general_settings.htm">Options: General settings</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: Rich Text editor">
+			<param name="Local" value="html/options_rich_text_editor.htm">
+			</OBJECT>
+			<A HREF="html/options_rich_text_editor.htm">Options: Rich Text editor</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: Tree panel">
+			<param name="Local" value="html/options_tree_panel.htm">
+			</OBJECT>
+			<A HREF="html/options_tree_panel.htm">Options: Tree panel</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: KeyNote Files">
+			<param name="Local" value="html/options_keynote_files.htm">
+			</OBJECT>
+			<A HREF="html/options_keynote_files.htm">Options: KeyNote Files</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: File Options">
+			<param name="Local" value="html/options_file_options.htm">
+			</OBJECT>
+			<A HREF="html/options_file_options.htm">Options: File Options</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: Actions">
+			<param name="Local" value="html/options_actions.htm">
+			</OBJECT>
+			<A HREF="html/options_actions.htm">Options: Actions</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: Confirmations">
+			<param name="Local" value="html/options_confirmations.htm">
+			</OBJECT>
+			<A HREF="html/options_confirmations.htm">Options: Confirmations</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: Chrome">
+			<param name="Local" value="html/options_chrome.htm">
+			</OBJECT>
+			<A HREF="html/options_chrome.htm">Options: Chrome</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: Tab icons">
+			<param name="Local" value="html/options_tab_icons.htm">
+			</OBJECT>
+			<A HREF="html/options_tab_icons.htm">Options: Tab icons</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: Advanced">
+			<param name="Local" value="html/options_advanced.htm">
+			</OBJECT>
+			<A HREF="html/options_advanced.htm">Options: Advanced</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: Formats">
+			<param name="Local" value="html/options_formats.htm">
+			</OBJECT>
+			<A HREF="html/options_formats.htm">Options: Formats</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: Clipboard capture">
+			<param name="Local" value="html/options_clipboard_capture.htm">
+			</OBJECT>
+			<A HREF="html/options_clipboard_capture.htm">Options: Clipboard capture</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Options: File types">
+			<param name="Local" value="html/options_file_types.htm">
+			</OBJECT>
+			<A HREF="html/options_file_types.htm">Options: File types</A><BR>
+	</UL>
+	<LI><OBJECT type="text/sitemap">
+		<param name="Name" value="Special functions">
+		</OBJECT>
+	<UL>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Special Functions">
+			<param name="Local" value="html/special_functions.htm">
+			</OBJECT>
+			<A HREF="html/special_functions.htm">Special Functions</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Encrypting KeyNote files">
+			<param name="Local" value="html/encrypting_keynote_files.htm">
+			</OBJECT>
+			<A HREF="html/encrypting_keynote_files.htm">Encrypting KeyNote files</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Sending KeyNote files by E-mail">
+			<param name="Local" value="html/sending_keynote_files_by_email.htm">
+			</OBJECT>
+			<A HREF="html/sending_keynote_files_by_email.htm">Sending KeyNote files by E-mail</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Styles">
+			<param name="Local" value="html/styles.htm">
+			</OBJECT>
+			<A HREF="html/styles.htm">Styles</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Integration with WordWeb">
+			<param name="Local" value="html/integration_with_wordweb.htm">
+			</OBJECT>
+			<A HREF="html/integration_with_wordweb.htm">Integration with WordWeb</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Hyperlinks">
+			<param name="Local" value="html/hyperlinks.htm">
+			</OBJECT>
+			<A HREF="html/hyperlinks.htm">Hyperlinks</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Macros">
+			<param name="Local" value="html/macros.htm">
+			</OBJECT>
+			<A HREF="html/macros.htm">Macros</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Plugins">
+			<param name="Local" value="html/plugins.htm">
+			</OBJECT>
+			<A HREF="html/plugins.htm">Plugins</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Word expansion glossary">
+			<param name="Local" value="html/word_expansion_glossary.htm">
+			</OBJECT>
+			<A HREF="html/word_expansion_glossary.htm">Word expansion glossary</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="File manager">
+			<param name="Local" value="html/file_manager.htm">
+			</OBJECT>
+			<A HREF="html/file_manager.htm">File manager</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Insert character dialog box">
+			<param name="Local" value="html/insert_character_dialog_box.htm">
+			</OBJECT>
+			<A HREF="html/insert_character_dialog_box.htm">Insert character dialog box</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Clipboard capture">
+			<param name="Local" value="html/clipboard_capture.htm">
+			</OBJECT>
+			<A HREF="html/clipboard_capture.htm">Clipboard capture</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Expression evaluation">
+			<param name="Local" value="html/expression_evaluation.htm">
+			</OBJECT>
+			<A HREF="html/expression_evaluation.htm">Expression evaluation</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Importing files as notes">
+			<param name="Local" value="html/importing_files_as_notes.htm">
+			</OBJECT>
+			<A HREF="html/importing_files_as_notes.htm">Importing files as notes</A><BR>
+		<LI><OBJECT type="text/sitemap">
+			<param name="Name" value="Exporting notes to disk files">
+			<param name="Local" value="html/exporting_notes_to_disk_files.htm">
+			</OBJECT>
+			<A HREF="html/exporting_notes_to_disk_files.htm">Exporting notes to disk files</A><BR>
+	</UL>
+</UL>
+</HTML>

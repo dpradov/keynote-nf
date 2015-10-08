@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252"><title>Hyperlinks</title></head>
+
+<body style="font-family: Arial; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e"> <param name="Keyword" value="bookmarks"> <param name="Keyword" value="hyperlinks"> <param name="Keyword" value="inserting hyperlinks"> <param name="Keyword" value="URLs">
+</object><p><a name="hyperlinks"></a><big style="font-family: Arial;"><big><b style="color: rgb(51, 51, 255);">Hyperlinks in KeyNote</b></big></big></p><small>
+<p><b>GENERAL INFORMATION ABOUT HYPERLINKS</b></p>
+<p>KeyNote supports clickable URLs (hyperlinks) in the extent
+that the standard RichEdit control (riched2.dll) allows. In general,
+the RTF editor recognizes and highlights hyperlinks which follow the
+standard format for internet URLs. For instance, if you type or paste
+the following in a note:</p>
+</small><div style="margin-left: 40px;"><small><p>http://www.example.com</p></small></div><small>
+<p>this text will be treated as a clickable link (unless you have
+turned off URL recognition for the particular note using the Note
+Properties dialog box).</p>
+<p>Hyperlinks are always underlined and displayed in blue. The
+RichEdit control does not allow for customizing the style or color,
+which makes the feature somewhat less useful if you have a note with a
+dark background, for instance.</p>
+<p>The RichEdit control recognizes and highlights standard URL
+schemes, e.g. http://, ftp://, mailto:, telnet: etc. It also supports
+the "file:///" URL, which you can use to create links to files and
+programs on your computer.</p><p></p>
+<p><b>ACTIVATING HYPERLINKS</b></p>
+<p>By default, hyperlinks are activated by a single mouse-click.</p>
+<p>This may sometimes be annoying, so KeyNote introduces an
+option which requires pressing the Shift key while the URL is being
+clicked. To turn this option on, open the Options dialog box, click the
+"Misc" tab, and put a check in the "Require Shift key with URL click"
+checkbox.</p>
+<p>You can also specify what action KeyNote should take when a
+hyperlink is clicked. In the "Misc" tab, select the action you want to
+use as default from the "On URL click" drop-down list.</p>
+<p>Note about "http://" hyperlinks:</p>
+<p>Often you will want the URL to be opened in a new browser
+window, instead of the window that is currently open. You can specify
+that URLs should always be open in a new browser window by selecting
+the "Open in new window" option from the "On URL click" drop-down list.
+Regardless of this setting, URL will also be opened in a new browser
+window if you hold down the CTRL key while clicking the URL.</p>
+<p>Note that KeyNote will not recognize URL clicks in notes for
+which you turned off the "Detect and highlight URLs" option in the Note
+Properties dialog box.</p><p></p>
+<p><b>INTERNET HYPERLINKS</b></p>
+<p>The easiest way to add a typical URL is to simply paste it
+from clipboard, or to type it in. If the editor recognizes the text as
+a valid URL, the text will become underlined and marked in blue as you
+type.</p>
+<p>However, some URLs must be encoded in a special way, e.g. if
+they contain spaces. (See the "Limitations" section, below.) For such
+URLs, it is best to use the "URL" command located under the "Insert"
+menu. Paste or type the URL in the dialog box that will be displayed,
+and KeyNote will automatically encode any special characters so that
+the URL is recognized and displayed correctly.</p>
+<p>The "Insert URL" command will also try to detect when you are
+inserting an email address, and it will then automatically prefix the
+address with the "mailto:" URL scheme.</p><p></p>
+<p><b>HYPERLINKS TO LOCAL FILES</b></p>
+<p>One of the standard URL schemes is "file:///". It allows you
+to create hyperlinks to documents or programs on your computer. For
+instance, if you click a link to a .xls file, the file will be opened
+in Excel. If you click a link to a program, the program will be
+executed.</p>
+<p>If the link points to a file that KeyNote supports (a file
+with the .KNT, .KNE or .N_TEXT extension), then the file will be opened
+in KeyNote, just as if you have used the "File|Open" command.</p>
+<p>To insert a hyperlink to a file on your computer, use the
+"Link to file" command located under the "Insert" menu.</p>
+<p>Sometimes you may see an error message displayed when you
+click a file:/// link. The most common is "Error code 2". This means
+that the file could not be found or accessed: the file probably does
+not exist, was renamed or moved to another place.</p>
+<p>IMPORTANT NOTE: Unlike other URLs, the "file:///" URL must
+usually contain three forward slashes, not two. This is required by the
+logic of the URL format: the third slash means "the path starts at the
+root directory". It allows for creating hyperlinks to files located on
+another computer on a network: the name of that computer would be
+placed before the third slash:</p>
+<p>file://computername/c:\users\files\document.txt</p>
+<p>Normally, you will be linking to files on your own computer:
+in such a case, the computer name is not given (blank), but the third
+slash must always be present.</p><p></p>
+<p><b>KEYNOTE LINKS (HYPERLINKS TO OTHER NOTES)</b></p>
+<p>The last type of hyperlinking that KeyNote supports is the
+ability to link to other notes and tree nodes in KeyNote files. You can
+create hyperlinks to places in the same (current) file, or any other
+KeyNote file on your computer.</p>
+<p>Basically, this is an extension of the "file:///" URL, so
+everything written in the section above applies here as well.</p>
+<p>Inserting a "KeyNote link" requires two steps: marking the
+target, i.e. the place to which the link will jump, and then inserting
+the link somewhere else.</p>
+<p>1. In the editor, position the caret or click the place to
+which you want to create a link. Clicking the link will jump here. In
+the "Insert" menu, click the "KeyNote link", and then click the "Mark
+Location" command in the submenu.</p>
+<p>2. Navigate to the place where you want the link to appear.
+This can be any place in any note, in the file that is currntly open or
+in another file. (You can close the current file and open another one.)
+Click the place in the editor where you want to insert the link. In the
+"Insert" menu, click the "KeyNote link", and then click the "Insert
+Link" command in the submenu.</p>
+<p>A KeyNote link will be inserted. Clicking this link will jump
+to the location which you marked in step 1. Try it!</p>
+<p>In order to be able to jump to a selected place in a file,
+KeyNote uses a special extended syntax for such links. KeyNote creates
+the links automatically and you do not have to worry about the special
+syntax - but it looks like this:</p>
+<p>a) link to a place in the current KeyNote file:</p>
+<p><a href="file:///?NoteName%7CNodeName%7CCursorPosition%7CSelectionLength"><u>file:///?NoteName|NodeName|CursorPosition|SelectionLength</u></a></p>
+<p>b) link to a place in another KeyNote file:</p>
+<p><a href="file:///Path_to_File.KNT?NoteName%7CNodeName%7CCaretPosition%7CSelectionLength"><u>file:///Path_to_File.KNT?NoteName|NodeName|CaretPosition|SelectionLength</u></a></p>
+<p>Explanation:</p>
+<p><b>file:///</b>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Standard URL scheme prefix</p>
+<p><b>Path_To_File&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;</b><span style="font-weight: bold;"></span>Full path to the .KNT file to
+which the link points. If the link points to a location in the same
+file in which the link is inserted, the path is omitted.</p>
+<p><b>?</b>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; Since the question mark character cannot
+be present in a filename on a Windows system, it tells KeyNote that
+this is the special kind of link, the "KNT link".</p>
+<p><b>NoteName</b>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;The name of the note to which the
+link will jump</p>
+<p><b>NodeName</b>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; The name of the tree node to which
+the link will jump, if the target note is a tree-type note. If the
+target note is a plain RTF note, the NodeName section is blank.</p>
+<p><b>CaretPosition</b>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; The position, in the editor,
+where the caret will be placed after the jump.</p>
+<p><b>SelectionLength</b>&nbsp;&nbsp;&nbsp; The length of the text that
+will be selected after the jump. Normally it is 0, but if a porion of
+text was selected when you clicked the "Mark Location" command, the
+link will remember this and will restore the selection when you jump.</p>
+<p></p><p>The special sections of the link are separated with the '|'
+character.</p>
+<p>The NodeName, CaretPosition and SelectionLength sections are
+optional and need not be present for the hyperlink to work. The
+following hyperlinks are all valid:</p>
+<p>file:///c:\My%20Documents\diary.knt?BlueNote|Monday|30|0 </p>
+</small><div style="margin-left: 40px;"><small><p>- open the file called "diary.knt", switch to the note called
+"BlueNote", select the "Monday" node in the tree, and position the
+caret at character number 30</p></small></div><small>
+<p>file:///?BlueNote|Monday|30|0</p>
+</small><div style="margin-left: 40px;"><small><p>- in current file, switch to the note called "BlueNote",
+select the "Monday" node in the tree, and position the caret at
+character number 30</p></small></div><small>
+<p>file:///?BlueNote|Monday|30</p>
+</small><div style="margin-left: 40px;"><small><p>- same as above</p></small></div><small>
+<p>file:///?BlueNote</p>
+</small><div style="margin-left: 40px;"><small><p>- in current file, switch to the note called "BlueNote".
+(Caret will be positioned at the start of the note)</p><p></p></small></div><small>
+<p><b>IMPORTANT: </b>There is one significant
+limitation to how KeyNote links work. Notes and tree nodes are
+identified by their names. In the above example, the link jumps to a
+note called "BlueNote". KeyNote searches the file and switches to the
+first note with this name that it finds. This means that the link will
+not work well if you have more than one note (or tree node in a note)
+with the same name. The link will work, but it will always jump to the
+FIRST note (or tree node) which has the name specified in the link.</p><p></p>
+<p><b>LIMITATIONS</b></p>
+<p>&middot; It is not possible to change the color or font
+style used to highlight URLs in the editor. The RichEdit control does
+not support this, and always shows URLs in blue underlined font.</p>
+<p>&middot; Email addresses will only be highligted if they
+are inserted in the form of a full URL. For example, "wizard@oz.org" is
+a correctly formed email address, but it is **not** an URL, and will
+not be highlighted. In order to create a highlighted, clickable email
+address, you must prefix it with the name of the URL scheme, which is
+"mailto:' for email:</p>
+</small><div style="margin-left: 40px;"><small><p>mailto:wizard@oz.org</p></small></div><small>
+<p>This prefix is added automatically when you use the "Insert
+URL" command.</p>
+<p>&middot; You cannot add custom URL schemes.</p>
+<p>&middot; When you turn URL highlighting on or off for a
+particular note, the change is honored after you reload the file. This
+is, again, a limitation of the RichEdit cotrol. In some cases, the URLs
+will not get un-highlighted even after you have turned URL highlighting
+off and reloaded the file. To correct this, select the URL and click
+Ctrl+0 to clear the special fonr formatting.</p>
+<p>&middot; As defined by Internet standards, URLs cannot
+contain spaces and certain other special characters. The RichEdit
+control behaves correctly in this respect and does not allow spaces in
+URLs, either. Spaces and other special characters must be converted to
+hexadecimal codes, e.g. %20 for space. KeyNote does this for you
+automatically, but note that such a notation impairs the readability of
+URLs.</p>
+<p>&middot; The "Insert URL" command does not verify the
+format of the URL you are inserting. In other words, you can use it to
+insert just about any line of text, and it will not complain. The
+command only formats the special characters in the text (by replacing
+them with numeric codes) and, if it detects an email address, prefixes
+the address with the "mailto:" scheme name.</p><p></p>
+</small></body></html>

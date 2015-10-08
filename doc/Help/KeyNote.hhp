@@ -1,0 +1,97 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=KeyNote.chm
+Contents file=keynote.hhc
+Default Window=main
+Default topic=html\welcome_keynote.htm
+Display compile progress=No
+Full-text search=Yes
+Index file=KEYNOTE.hhk
+Language=0xc0a Español (España, internacional)
+Title=KeyNote Help
+
+[WINDOWS]
+main=,"keynote.hhc","KEYNOTE.hhk","html\welcome_keynote.htm",,,,,,0x2520,,0x3006,,,,,,,,0
+
+
+[FILES]
+html\welcome_keynote.htm
+html\keynote_is_opensource.htm
+html\whats_new.htm
+html\quick_start.htm
+html\features.htm
+html\acknowledgments.htm
+html\keynote_on_the_web.htm
+html\hints_and_tips.htm
+html\otherfreewarefrgz.htm
+html\keyboard_reference.htm
+html\command_line_reference.htm
+html\information_for_dart_notes_users.htm
+html\known_problems_and_bugs.htm
+html\license.htm
+html\auxiliary_files.htm
+html\sharing_keynote_on_a_multiuser_system.htm
+html\keynote_editor.htm
+html\treetype_notes.htm
+html\virtual_nodes.htm
+html\configuring_keynote_overview.htm
+html\configuration_options.htm
+html\options_general_settings.htm
+html\options_rich_text_editor.htm
+html\options_tree_panel.htm
+html\options_keynote_files.htm
+html\options_file_options.htm
+html\options_actions.htm
+html\options_confirmations.htm
+html\options_chrome.htm
+html\options_tab_icons.htm
+html\options_advanced.htm
+html\options_formats.htm
+html\options_clipboard_capture.htm
+html\options_file_types.htm
+html\keynote_file_properties.htm
+html\file_properties_information.htm
+html\file_properties_settings.htm
+html\file_properties_file_icons.htm
+html\file_properties_security.htm
+html\note_properties_and_defaults.htm
+html\note_properties_note_settings.htm
+html\note_properties_tree_settings.htm
+html\note_properties_advanced.htm
+html\about_initial_fonts_and_colors_in_keynote.htm
+html\keynote_menus.htm
+html\keynote_menus_file.htm
+html\keynote_menus_edit.htm
+html\keynote_menus_view.htm
+html\keynote_menus_insert.htm
+html\keynote_menus_format.htm
+html\keynote_menus_note.htm
+html\keynote_menus_tree.htm
+html\keynote_menus_search.htm
+html\keynote_menus_tools.htm
+html\keynote_menus_help.htm
+html\special_functions.htm
+html\encrypting_keynote_files.htm
+html\sending_keynote_files_by_email.htm
+html\styles.htm
+html\integration_with_wordweb.htm
+html\hyperlinks.htm
+html\macros.htm
+html\plugins.htm
+html\word_expansion_glossary.htm
+html\file_manager.htm
+html\insert_character_dialog_box.htm
+html\clipboard_capture.htm
+html\expression_evaluation.htm
+html\importing_files_as_notes.htm
+html\exporting_notes_to_disk_files.htm
+
+[ALIAS]
+#include NewAliases.h
+#Include csAlias.h
+
+[MAP]
+#include NewMap.h
+
+[INFOTYPES]
+

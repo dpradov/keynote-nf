@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252"><title>Plugins</title></head>
+
+<body style="font-family: Arial; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e"> <param name="Keyword" value="automating KeyNote"> <param name="Keyword" value="plugins"> <param name="Keyword" value="using plugins"></object><p><a name="plugins"></a><big style="font-family: Arial;"><big><b style="color: rgb(51, 51, 255);">Plugins</b></big></big></p><small>
+<p><b>PLUGINS: GENERAL INFORMATION FOR USERS</b></p>
+<p>As of version 0.999, KeyNote supports a simple but effective
+plugin technology. Plugins are separate little programs which can
+communicate with KeyNote and extend its capabilities. For instance, a
+plugin could display a calendar or a to-do list, convert a note to HTML
+format, calculate text statistics, display a calculator or a unit
+converter, or run a spell-checker.</p>
+<p>Plugins provide two significant advantages: they can be
+written by other software authors (using any compiler than can create
+Windows DLL files), and they add functionality to KeyNote without
+increasing the size of the main program. Plugins are loaded strictly
+on-demand and do not consume any memory or system resources when they
+are not active.</p>
+<p>Currently (June 2001) KeyNote is distributed with a small set
+of example plugins. As more plugins are created, they will be available
+for download from the main KeyNote homepage; see the "Downloading
+Plugins" section, below.</p>
+<p>Plugins are files with ".KNL" extension, and they must all be
+located in the "\plugins" subdirectory, below the directory where
+KeyNote is installed. For example, if KeyNote is installed in</p>
+<div style="margin-left: 40px;"><p>c:\Program
+Files\Keynote</p></div>
+<p>then all plugins should be placed in</p>
+<div style="margin-left: 40px;"><p>c:\Program
+Files\Keynote\Plugins</p></div>
+<p>This subdirectory is automatically
+created by the Setup
+program.</p>
+<p>Plugins can be downloaded from KeyNote homepage.
+The currently
+available plugins should be taken as "proof or concept" only, but they
+all perform functions which have occasionally been requested by KeyNote
+users.</p>
+<p>For information on how to use plugins, see "Using
+Plugins",
+below.</p><p></p>
+<p><b>PLUGINS: GENERAL INFORMATION FOR
+DEVELOPERS</b></p>
+<p>If you are a programmer (as well as a KeyNote
+user), you might
+like to create your own plugins. Plugins are DLL files, so you should
+be able to create plugins with any compiler that can create DLL, not
+necessarily Borland Delphi. I have prepared a separate package which
+contains detailed documentation, examples and source code to get you
+started. This "Developer kit" can be downloaded from</p>
+<p><a href="http://www.lodz.pdi.net/%7Eeristic/free/kntplugins-dev.zip">http://www.lodz.pdi.net/~eristic/free/kntplugins-dev.zip</a></p>
+<p>If you need additional assistance beyond what's
+contained in
+the package, or if your plugin requires adding some functionality to
+KeyNote, please contact me at &lt;eristic@lodz.pdi.net&gt;.</p>
+<p>Due to the limited space on my ISP account, I
+cannot promise
+that I will distribute all third-party plugins directly from my site. I
+will, however, be able to distribute a limited number of plugins, and I
+will always provide links to any useful plugins created by other
+developers.</p><p></p>
+<p><b>USING PLUGINS</b></p>
+<p>In KeyNote, there are two ways of using a plugin:
+by selecting
+it from a list of available plugins, or by activating the plugin that
+was used most recently.</p>
+<p><b>I. To display a list of available
+plugins, </b>click
+the "Plugins" command, located under the "Tools" menu. A dialog box wil
+be displayed with a list of installed plugins and some information
+about each of them.</p>
+<p style="font-family: Courier New;">+--------------------------+<br>|
+KeyNote
+calendar &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+|
+&lt;&lt;&lt; list of
+installed plugins<br>
+| KeyNote test plugin
+&nbsp;&nbsp;&nbsp;&nbsp; |<br>
+| RTF to HTML
+converter &nbsp; &nbsp;|<br>
+| &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;|<br>
+| &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;|<br>
++~~~~~~~~~~~~~~~~~~~~~~~~~~+
+&lt;&lt;&lt; splitter
+(drag to resize panels)<br>
+| This is a sample
+plugin &nbsp;| &lt;&lt;&lt;
+description of selected plugin<br>
+| for KeyNote. &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; |<br>
+| &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;|<br>
++--------------------------+<br>
+| Status OK &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;|
+&lt;&lt;&lt; selected plugin status<br>
++--------------------------+</p>
+<p>TIP: A quicker way to open the Plugins dialog box
+is to press
+the Ctrl+F12 key combination.</p>
+<p>TIP: The Plugins dialog box is resizeable, and it
+remembers
+its last size and position.</p>
+<p>The dialog box contains several buttons:</p>
+<p><b>"Execute" button</b><br>
+- closes the dialog box and runs the selected plugin</p>
+<p>TIP: You can also execute a plugin by
+double-clicking it.</p>
+<p><b>"Configure" button</b><br>
+- runs configuration procedure for the selected plugin.
+Typically, this will display a dialog box that allows you to specify
+various options for the selected plugin, but because this procedure is
+created by the author of the plugin, KeyNote has no knowledge of or
+control over what the plugin does when this button is clicked. Note
+that some plugins may not support any configuration procedure.</p>
+<p><b>"Close" button</b><br>
+- closes the dialog box without performing any action</p>
+<p>NOTE: There will be a slight delay the first time
+you open
+this dialog box. This is because KeyNote needs to list all the
+installed plugins and ask each of them for name, description and status
+information before they can be displayed. Subsequent invocations of the
+dialog box will be faster.</p>
+<p>TIP: Plugins can be added while KeyNote is
+running. KeyNote
+will not recognize this automatically, but you can force it to do so.
+To tell KeyNote that it needs to re-initialize the list of available
+plugins, hold down the SHIFT key while clicking the "Plugins" command
+under the "Tools" menu.</p>
+<p><b>II. Repeating the most recently executed
+plugin: </b>Press
+Shift+F12 to run the plugin which has been executed most recently. If
+no plugin has been, the Plugins dialog box will be displayed instead.</p><p></p>
+<p><b>INSTALLED SAMPLE PLUGINS</b></p>
+<p>KeyNote is distributed with a small set of sample
+plugins.</p>
+<p>Currently, these are:</p>
+<p>"plugintest.knl"<br>
+Test plugin - a "bare-bones" plugin which does
+not do anything
+very useful but can be used for testing purposes.</p>
+<p>"kncalendar.knl"<br>
+Displays a small dialog box with a drop-down
+calendar window,
+which allows you to select a date and insert it in the text of the
+active note. Date can be inserted in long (26 June 2001) or short
+(21-06-2001) format. The date format used is the format which you have
+set in Control Panel "International Settings" applet.</p><p></p>
+<p><b>DOWNLOADING ADDITIONAL PLUGINS</b></p>
+<p>Additional plugins are available for downloading
+from KeyNote
+homepage:</p>
+<p><a href="http://www.lodz.pdi.net/%7Eeristic/free/keynote.html">http://www.lodz.pdi.net/~eristic/free/keynote.html</a></p>
+<p>Direct download links are located on the
+"Download" page.</p>
+<p>Among others, there are scratchpad, key
+autorepeater, and
+Discordian Calendar plugins.</p>
+<p>If necessary, I will later add a separate page
+for
+distributing (and linking to) plugins created by other software authors.</p><p></p>
+<p><b>WHAT PLUGINS CAN DO</b></p>
+<p>In general, a plugin can:</p>
+<p>a) receive text from the note which is currently
+active<br>
+b) perform its function (Execute)<br>
+c) return some text back to KeyNote. KeyNote will
+insert that
+text in active note, or create a new note and insert the text there.</p><p>Both
+(a) and (c) are optional. This means that a
+plugin can,
+but does not HAVE TO receive or return any text.</p>
+<p>An example of a plugin that receives and returns
+text would be
+a spell checker or an RTF-to-HTML converter. An example of a plugin
+which only receives but does not return text would be a plugin that
+calculates text statistics and displays information in its own dialog
+box. An example of a plugin which neither receives nor returns any text
+would be, well, just anything a programmer can think of :) For example,
+a plugin could run alongside of KeyNote and display a clock, a quote of
+the day, or even hints for using KeyNote that change as you work.</p>
+<p>Further, plugins have some flexibility as to how
+they receive
+and return text. A plugin tells KeyNote what, if any, format of text it
+wants to receive and what, if any, format of text it returns.</p>
+<p><b>A plugin can RECEIVE:</b><br>
+a) no text<br>
+b) full text of active note, in RTF format<br>
+c) full text of active note, in plain text format<br>
+d) currently selected text in note, in RTF format<br>
+e) currently selected text in note, in plain text
+format</p>
+<p>In addition, a plugin can specify that some text
+MUST be
+selected in order for the plugin to run. In that case, KeyNote will not
+run the plugin unless you select some text in active note first.</p>
+<p><b>A plugin can RETURN:</b><br>
+a) nothing<br>
+b) RTF formatted text<br>
+c) plain text<br>
+d) dialog box text<br>
+e) clipboard data</p>
+<p>For (b) and (c), the returned text will be
+inserted in
+currently active note.</p>
+<p>For (d), KeyNote will display a dialog box with
+the text
+returned by the plugin. If you click OK in the dialog box, the text
+will be inserted in active note.</p>
+<p>For (e), KeyNote will automatically paste
+clipboard data into
+active note, or display a dialog box informing you that the plugin has
+placed some data in clipboard. In the latter case, you can click OK in
+the dialog box to have the data pasted, or click Cancel to dismiss the
+dialog box and paste the data yourself wherever you want it.</p>
+<p>TIP: You can specify in KeyNote's "Options"
+dialog box whether
+you want KeyNote to automatically paste clipboard data returned by
+plugins, or whether KeyNote should display the confirmation dialog box.</p>
+<p>TIP: Clipboard data does not need to be text -
+this is why the
+clipboard option is provided to plugin authors. For example, a plugin
+could just as easily place a picture on the clipboard, which you could
+then paste into the note.</p><p></p>
+<p><b>"RESIDENT" PLUGINS</b></p>
+<p>Typically, a plugin will behave in a way similar
+to a normal
+dialog box: while the plugin is running, you cannot access the main
+KeyNote window, open any other dialog boxes, etc. There is no
+requirement for plugins to open any windows, but the principle remains:
+you cannot access KeyNote while a plugin is running.</p>
+<p>However, a plugin author can create a special
+type of plugin
+which will be called "resident plugin" here. A resident plugin is
+"non-modal", which means that it can run alongside KeyNote and does not
+block access to it in any way. For instance, a plugin could display a
+clock, and the clock would remain visible, in a separate window, while
+you wrk normally with KeyNote.</p>
+<p>Resident plugins can (but do not have to) receive
+text from
+KeyNote as described in "What plugins can do", but they DO NOT return
+any text to KeyNote. You start a resident plugin and are immediatelt
+returned to KeyNote. The resident plugin can shut itself down (after it
+has performed some operation, for instance) or can provide a user
+interface to close it.</p>
+<p>You can run more than one resident plugin
+simultaneously, but
+you can only have one instance of any given resident plugin. If you try
+to execute a resident plugin which is already running, KeyNote will
+display an error message.</p><p></p>
+<p><b>LIMITATIONS</b></p>
+<p>Currently, plugins cannot control the operation
+of KeyNote
+itself. This may be added in the future if required by plugin authors.</p>
+<p>A plugin can only receive or return text from and
+into the
+note which is currently active. For tree-type notes, this means that a
+plugin will only receive the text of the selected (active) tree node.
+Plugins do receive the name of the currently loaded KNT file, though,
+so nothing stops a plugin from reading the whole .KNT file and
+operating on it independently from KeyNote. A plugin also receives the
+name of the active note.</p>
+<p>Currently, plugins do not receive any state
+information from
+KeyNote, or any information related to note trees, beyond what is
+specified above. In particular, a plugin cannot change KeyNote
+configuration options, open any KeyNote dialog boxes, run macros, etc.</p>
+<p>A plugin COULD control the active RTF editor to
+an extent
+(e.g. it would be possible for a plugin to send Windows messages to the
+editor) but, in general, plugins should NOT attempt to do this, as
+there is no guarantee that a command can be executed. For instance, if
+the active note is read-only, commands dispatched from a plugin could
+modify it against the wish of ths user. And YES, it is possible to shut
+down, or even crash KeyNote by issuing the wrong command or message
+from a plugin. Obviously, plugin authors should take care not to do so.</p><p></p>
+</small></body></html>

@@ -1,0 +1,360 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252"><title>Macros</title></head>
+
+<body style="font-family: Arial; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e"> <param name="Keyword" value="automating KeyNote"> <param name="Keyword" value="creating macros"> <param name="Keyword" value="macros"> <param name="Keyword" value="playing macros"> <param name="Keyword" value="recording macros"></object><p><a name="macros"></a><big style="font-family: Arial;"><big><b style="color: rgb(51, 51, 255);">Macros in KeyNote</b></big></big></p><small>
+<p><b>GENERAL INFORMATION ABOUT MACROS</b></p>
+<p>As of version 0.999, KeyNote supports macros. You may already
+know macros from other word-processing applications. A macro is a list
+of commands executed in a program, which is stored on disk and can be
+replayed. This allows you to automate certain repetitive tasks, such as
+typing or formatting text.</p>
+<p>To use macros in KeyNote, first turn on the "Macros" toolbar,
+which is not displayed by default. Click the "View" menu, then click
+"Toolbars", and select the "Show macro toolbar" command. The toolbar is
+described in more detail in "The Macro toolbar" section, below.</p>
+<p>Macros are text files with ".KNM" extension, and they must all
+be located in the "macros\" subdirectory, below the directory when
+KeyNote is installed. For example, if KeyNote is installed in</p>
+</small><div style="margin-left: 40px;"><small><p>c:\Program
+Files\Keynote</p></small></div><small>
+<p>then all plugins should be placed in</p>
+</small><div style="margin-left: 40px;"><small><p>c:\Program
+Files\Keynote\Macros</p></small></div><small>
+<p>This subdirectory is automatically created by the Setup
+program.</p>
+<p>Macros are created by "recording" commands. After you start
+recording a macro and give it a name, the keypresses and editing
+commands you issue in KeyNote are recorded until you click the "Stop"
+button. Then the macro is saved to disk and can be replayed, to repeat
+exactly the same actions you made while recording.</p>
+<p>NOTE: Not all KeyNote commands and functions can be recorded
+in a macro. Please see the "Limitations" section for details.</p>
+<p>To learn about recording and replaying macros, see the
+sections "Creating (Recording) Macros" and "Using (Replaying) Macros".</p><p></p>
+<p><b>THE "MACRO" TOOLBAR</b></p>
+<p>To use macros in KeyNote, you should turn on the "Macros"
+toolbar, which is not displayed by default. Click the "View" menu, then
+click "Toolbars", and select the "Show macro toolbar" command.</p>
+<p>The toolbar contains a drop-down list and several buttons.</p>
+<p>The drop-down list contains all available macros. The macros
+are listed alphabetically by their descriptive names (rather than the
+filenames). The icons displayed next to the macro names indicate the
+type of the macro. Currently, there are two different icons for two
+different types of macros: "normal" and "Auto-run" macros. Please see
+the "Auto-run Macros" section, below, for a description of this type.</p>
+<p><b>TIP:</b> To select a macro without using the
+mouse, press "Ctrl+ Grey /" (the / key on the numeric keypad). You can
+then press ENTER to run the selected macro, or press ESC to return to
+the editor.</p>
+<p><b>TIP:</b> When you select a macro in the list, a
+short description is displayed in the status bar to help you identify
+the macro.</p><p></p>
+<p>To the right of the drop-down list, there are three buttons:</p>
+<p><b>PLAY</b><br>
+Replays the macro selected in the drop-down list.</p>
+<p><b>PAUSE</b><br>
+Pauses the recording. It is only available while you are
+recording a macro. When recording is paused, the commands you use and
+keys you press are not added to the macro.</p>
+<p><b>RECORD</b><br>
+Click this button to create a new macro and start recording.</p>
+<p>The PLAY button also has a drop-down menu. Click the
+down-arrow next to the button to open the menu. The menu contains the
+following commands:</p>
+<p><b>"Play macro"</b><br>
+Replays the macro selected in the drop-down list.</p>
+<p><b>"Edit macro"</b><br>
+Displays a dialog box which allows you to change the name and
+description of the selected macro,</p>
+<p><b>"Delete macro"</b><br>
+Deletes the macro selected in the drop-down list.</p>
+<p><b>"User command..."</b><br>
+This command is only available while recording a macro, and it
+allows you to insert a special user command at any point in a macro.
+See the "Editing Macros; Special User Commands" section for more
+information.</p><p></p>
+<p><b>CREATING (RECORDING) MACROS</b></p>
+<p>First, make sure that the "Macros" toolbar is visible, as
+described in the "General Information" section.</p>
+<p>1. Click the "Record" button on the "Macros" toolbar to create
+a new macro.</p>
+<p>2. In the dialog box displayed, enter the name for the new
+macro, and (optionally) a short description.</p>
+<p>3. When you click OK, recording will begin.</p>
+<p>4. Work in KeyNote as you would normally. The keys you press
+and the editing commands you choose will be recorded in the macro.</p>
+</small><div style="margin-left: 40px;"><small><p>-
+At any point during recording the macro, you can open the
+drop-down menu on the "Macros" toolbar and click "User command..." to
+enter one of several predefined user commands to the macro.</p>
+<p>- While recording, you may also click the "Pause" button on
+the "Macros" toolbar. Recording will be paused until you click the
+"Pause" button again. While recording is paused, you can still work in
+KeyNote, but the keypresses and commands will not be included in the
+macro.</p></small></div><small>
+<p>5. Click the "Stop"button on the "Macros" toolbar to finish
+recording the macro. KeyNote will ask whether the newly created macro
+should be saved. Click Yes to save the macro in a ".KNM" file, or click
+No to discard it.</p>
+<p>The newly recorded macro will be added to the "Macros"
+toolbar. It can be replayed by clicking the "Play" button.</p>
+<p>NOTE 1: Macro names must be unique. When creating a new macro,
+the name you enter must not be the same as the name of one of the
+already existing macros.</p>
+<p>NOTE 2: The dialog box which allows you to enter the name and
+description for the new macro contains one additional option: "Abort
+macro when error occurs". If this option is checked, the macro will
+stop whenever an error condition is detected while replaying the macro.</p>
+<p>NOTE 3: Sometimes, while recording a macro, you will issue a
+command which causes a dialog box to be displayed. For instance, you
+can use the "Font" or "Paragraph" commands to change the font or
+paragraph attributes via a dialog box. When you click OK in the dialog
+box, a prompt will be displayed, asking you what should happen when the
+macro is replayed later. While replaying the macro, KeyNote can use the
+values you have just entered in the dialog box, or it can display the
+dialog box so that you can enter different values every time you replay
+the macro. You can also click Cancel to skip the dialog box and omit it
+from the macro. If you choose to have the dialog box displayed while
+the macro is replayed, and if, while replaying the macro, you will
+click Cancel in the dialog box, the macro will be aborted.</p><p></p>
+<p><b>USING (REPLAYING) MACROS</b></p>
+<p>1. Playing macros by using the tolbar:</p>
+<p>First, make sure that the "Macros" toolbar is visible, as
+described in the "General Information" section.</p>
+<p>Select the macro you want to play from the drop-down list on
+the "Macros" toolbar. Next, click the "Play" button.</p>
+</small><div style="margin-left: 40px;"><small><p>TIP:
+To select a macro without using the
+mouse, press "Ctrl+ Grey /" (the / key on the numeric keypad). You can
+then press ENTER to run the selected macro, or press ESC to return to
+the editor.</p>
+<p>TIP: When the "Macros" toolbar is
+displayed, you can press Shift+F5 at any time to play the currently
+selected macro.</p></small></div><small>
+<p>2. Playing macros without using the "Macros" toolbar:</p>
+<p>From the "Tools" menu, choose the "Select macro" command. A
+standard file-selection dialog box will be displayed. Select the file
+which contains the macro you want to run, then click "Open". The
+selected macro will be replayed.</p>
+</small><div style="margin-left: 40px;"><small><p>TIP:
+If you have installed a macro manually while KeyNote is
+running, by copying the .KNM file into KeyNote's macro directory, the
+list of Macros must be refreshed before KeyNote will notice the new
+macro. To refresh the list, hide the "Macros" toolbar and the show it
+again.</p></small></div><small>
+<p>NOTE: While a macro is being replayed, you can press ESC to
+stop and abort the macro. You cannot pause a running macro, however.</p><p></p>
+<p><b>"AUTO-RUN" MACROS</b></p>
+<p>KeyNote supports a special type of macros, called "Auto-run"
+macros. These macros may be automatically replayed after a new file has
+been created, after you have added a new note to a file, etc. In the
+drop-down list of macros on the toolbar, these Auto-run macros are
+indicated by a special double-arrow icon.</p>
+<p>Auto-run macros are disabled by default. To enable them, open
+the "Options" dialog box (press F5), click the "Advanced" tab, and
+check the "Allow Auto-run macros" option.</p>
+<p>KeyNote recognized Auto-run macros by their filenames. The
+names of all auto-run macros begin with "_Auto".</p>
+<p>Currently, KeyNote supports three Auto-run macros:</p>
+<p><b>_AutoNewFile.knm</b><br>
+This macro is executed automatically after a new file has been
+created. The sample macro supplied automatically adds a single
+tree-type note in the newly created file. This allows you to replace
+KeyNote's standard behavior, whereby a new "simple RTF" not is created
+instead.</p>
+<p><b>_AutoNewNote.knm</b><br>
+This macro is executed automatically after a new "simple RTF"
+note has been added to the current file. The sample macro supplied
+inserts current date and time at the top of the new note.</p>
+<p><b>_AutoNewTree.knm</b><br>
+This macro is executed automatically after a new tree-type
+note has been added to the current file.</p>
+<p>In order to replace these sample macros with your own Auto-run
+macro, record a new macro, save it, and rename the .KNM file using one
+of the filenames above.</p><p></p>
+<p><b>EDITING MACROS; SPECIAL USER COMMANDS</b></p>
+<p>In general, KeyNote macros are not intended to be edited by
+hand. However, macros are simple text files, where each line contains a
+single KeyNote command, they may be edited manually in a text editor,
+and future versions of KeyNote will provide functions to facilitate
+editing macros.</p>
+<p>Apart from the keypresses and commands that are recorded and
+stored in a macro, KeyNote supports a range of special user commands,
+which can be inserted in macro files. These commands complement and
+extend the range of editing functions that can be recorded.</p>
+<p>To add a user command to a macro:</p>
+<p>1. Start recording a macro normally</p>
+<p>2. At the point where you want to insert a user command, click
+the down arrow button on the "Macros" toolbar, and select "User
+command".</p>
+<p>3. A dialog box will be displayed, listing all available user
+commands. Select the command you need, and, if necessary, type in the
+argument string. The dialog box displays information about the function
+and xyntax of the selected command.</p>
+<p>4. Click OK to add the command to the macro.</p>
+<p>User commands may also be simply typed in a macro file.</p>
+<p>NOTE: The range of available user commands is limited at
+present. If there is enough interest in such a feature, more commands
+may be added and their syntax may be extended.</p><p></p>
+<p><b>SYNTAX</b></p>
+<p>User commands require the following syntax:</p>
+<p>@COMMAND(argument)</p>
+<p>- they must begin with the '@' character</p>
+<p>- they must be typed in UPPERCASE</p>
+<p>- if required, they must include the argument string enclosed
+in parentheses.</p>
+<p>Not all commands require arguments, and for some commands, the
+argument is optional. If an argument is optional, KeyNote will use a
+default setting for the given command. Otherwise, the macro will be
+aborted if a required argument is missing.</p><p></p>
+<p><b>EXAMPLES:</b></p>
+<p>To see some of these commands as they are actually used, view
+the source of the macros installed with KeyNote, especially the
+"Auto-run" macros.</p>
+<p>@CONFIRM(text)</p>
+</small><div style="margin-left: 40px;"><small><p>- displays "text" in a confirmation dialog box with OK and
+Cancel buttons. If the user clicks the OK button, the macro will
+continue. If the user clicks the Cancel button, the macro will be
+aborted. This is very useful as a first line in a macro that should not
+be executed "by mistake".</p></small></div><small>
+<p>@INSERT(text)</p>
+</small><div style="margin-left: 40px;"><small><p>- inserts "text" in current note. Use "\n" to mark a line
+break, and "\t" to mark a tab.</p></small></div><small>
+<p>@MACRO(macro filename)</p>
+</small><div style="margin-left: 40px;"><small><p>- executes the specified macro. The filename must contain the
+.KNM extension, but NOT the path (i.e. filename part only). After the
+specified macro has been executed, the current macro will continue.</p></small></div><small>
+<p>@MESSAGE(message text)</p>
+</small><div style="margin-left: 40px;"><small><p>- displays a dialog box with the message text. Use "\n" to
+mark a line break, and "\t" to mark a tab.</p></small></div><small>
+<p>@NEWNOTERTF</p>
+</small><div style="margin-left: 40px;"><small><p>- creates a new "simple RTF" note in the current file</p></small></div><small>
+<p>@NEWNOTETREE</p>
+</small><div style="margin-left: 40px;"><small><p>- creates a new tree-type note in the current file</p></small></div><small>
+<p>@PLUGIN(plugin filename)</p>
+</small><div style="margin-left: 40px;"><small><p>- executes the specified plugin. The filename must contain the
+.KNL extension, but NOT the path (i.e. filename part only)</p></small></div><small>
+<p>@REWIND</p>
+</small><div style="margin-left: 40px;"><small><p>- replay macro from the beignning</p>
+<p>WARNING: Will cause macro to run forever in an infinite loop,
+until user presses ESC or until an error occurs.</p></small></div><small>
+<p>@STYLEON(bold|italic|underline|strike)</p>
+<p>@STYLEOFF(bold|italic|underline|strike)</p>
+</small><div style="margin-left: 40px;"><small><p>- STYLEON turns ON the specified font style.</p>
+<p>- STYLEOFF turns OFF the specified font style.</p>
+<p>The argument string may contain only 1 style, e.g.</p>
+<p>@STYLEON(bold)</p></small></div><small>
+<p>@WAIT(miliseconds)</p>
+</small><div style="margin-left: 40px;"><small><p>- pauses the macro for the specified time</p></small></div><small><p></p>
+<p><b>LIMITATIONS</b></p>
+<p>Some of the following restrictions may be lifted in future
+releases of KeyNote. However, I cannot promise that I will be able to
+do so. The tree-related commands are particularly difficult to handle
+from within macros, since there is no guarantee that any command that
+modifies the tree can be correctly executed while the macro is replayed.</p>
+<p><b>I. Limitations on macro names</b></p>
+<p>Macro names must be unique. No two macros can have the same
+name.</p><p></p>
+<p><b>II. Limitations on macro commands</b></p>
+<p>Certain KeyNote commands cannot be recorded in a macro. They
+will be executed while recording, but they will not be stored in the
+macro file.</p>
+<p><b>Macros CAN contain the following:</b></p>
+<p>- Keypresses in the RTF editor (*not* in the tree panel)</p>
+<p>- All "Edit" and "Format" menu commands, e.g. selecting a font
+name, size or style, setting paragraph attributes, changing text or
+highlight color, clipboard operations, and many others.</p>
+<p>- Some "Insert" menu commands: inserting date, time, and
+special characters; glossary expansion</p>
+<p>- Some "Search" menu commands (Find; Go to line; Match Bracket)</p>
+<p>- All caret navigation commands restricted to current note.</p>
+<p>- Setting and jumping to bookmarks.</p>
+<p><b>Macros CANNOT contain:</b></p>
+<p>- Mouse clicks. You can only use keyboard, toolbar and the
+menu commands while recording a macro. (To select a word, use the Alt+W
+keyboard shortcut instead of double-clicking the mouse.)</p>
+<p>- Any tree-related commands (i.e. a macro cannot create, move,
+rename or detele tree nodes)</p>
+<p>- Any tree or note navigation commands which cause a different
+tree node or a different note to be displayed (NOTE: You *can* set and
+jump to bookmarks.)</p>
+<p>- Note management commands, such as creating, renaming,
+deleting, printing, mailing notes</p>
+<p>- Insert menu commands (except the commands listed above),
+bookmark and hyperlink commands</p>
+<p>- Drag and drop operations</p>
+<p>- Import and export commands</p>
+<p>- Setting options, preferences or properties (file or note
+properties).</p>
+<p>- File-related commands (New, Open, Save, Copy to, etc.)</p>
+<p>Note that the special user commands which you can insert in a
+macro allow you to overcome some (not all!) of these limitations.</p>
+<p>There are no flow-control or branching macro commands. There
+are no macro commands which take user input, except the standard
+editing/formatting commands, some of which display input dialog boxes.</p>
+<p><b>Other limitations:</b></p>
+<p>- "Find"<br>
+The dialog box will NOT be displayed while replaying the
+macro.&nbsp;The command will be executed with the parameters you
+specified&nbsp;in the dialog box while recording the macro.</p>
+<p>In addition, certain Find options are
+disabled while recording&nbsp;a macro. The only available options
+are "Match case" and "Whole words only".</p>
+<p>- "Insert special character"<br>
+The dialog box will NOT be displayed while replaying the
+macro.&nbsp;The command will be executed with the parameters you
+specified in the dialog box while recording the macro.</p>
+<p>- "Apply style"<br>
+The macro will record the name of the style applied, and will
+apply&nbsp;that style when replaying (rather than applying the
+style
+which is&nbsp;currently selected in the Style list). This is
+necessary
+because&nbsp;there is no guarantee that the Style toolbar will be
+visible
+when&nbsp;the macro is being replayed, hence there might be no
+style
+available&nbsp;for selection.</p>
+<p>- "Replace"<br>
+This command CANNOT be recorded in a macro.</p><p></p>
+<p><b>III. Limitations on replaying macros</b></p>
+<p>When replaying a macro, KeyNote must be the topmost window,
+and the RTF editor must have focus. This is normally not a problem,
+since KeyNote must be active for you to activate (play) a macro.
+However, if you switch to another application while a macro is being
+replayed, the macro will PAUSE, and will resume automatically when you
+return to KeyNote. I'll try to remove this limitation in a later
+release.</p><p></p>
+<p><b>MACRO FILE SYNTAX</b></p>
+<p>A macro file is a plain text file with the .KNM extension.</p>
+<p>The first line in the macro is a header line. This line must
+be present and correctly formatted, otherwise the macro will not be
+executed.</p>
+<p><b>Header line syntax:</b></p>
+<p style="font-family: Courier New;">;1.0|Macro Name|Macro
+description|Abort on error?|Creation Date</p>
+<p>Each subsequent line in the file contains a single macro
+command. Lines are executed in sequence.</p>
+<p>Blank lines are ignored.</p>
+<p>Lines beginnig with semi-colon (;) are treated as comments and
+ignored.</p>
+<p>Lines beginning with the "at" (@) character are interpreted as
+user commands.</p>
+<p>Lines beginning with the hash (#) character are interpreted as
+internal commands.</p>
+<p>Other lines are interpreted as keypress codes. A keypress code
+contains the key scan code and shift state string, separated by the
+vertical bar (|) character. E.g., Shift+Enter is encoded as:</p>
+</small><div style="margin-left: 40px;"><small><p>13|S</p></small></div><small>
+<p>Shift states are indicated by a single capital letter:</p>
+</small><div style="margin-left: 40px;"><small>S
+- Shift<br>
+C - Control<br>
+A - Alt</small></div><small>
+<p>Shift states may be combined. E.g., Ctrl+Alt+Backspace is
+encoded as</p>
+</small><div style="margin-left: 40px;"><small><p>8|CA</p></small></div><small>
+<p>Any line not conforming to the above
+specifications will cause a macro execution error.</p>
+</small></body></html>
