@@ -1,0 +1,1124 @@
+#!GFKNT 2.0
+# This is an automatically generated file. Do not edit.
+#/This is a sample Keynote file.
+#?Created by Marek Jedlinski
+#$0
+#C21-07-2000 18:18:07
+#^010000000000000000000000
+#F@
+%+
+NN=Welcome to KeyNote
+ID=6
+II=0
+DC=30-01-2002 18:26:04
+TI=0
+TS=4
+CX=0
+CY=0
+BG=clWindow
+CH=238
+FC=clWindowText
+FN=Courier New
+FS=12
+LN=1045
+ST=
+FL=101110000000200000000000
+SN=0
+TW=228
+EN=New node
+TB=$00D7FFFF
+TH=238
+TC=clWindowText
+TN=Verdana
+TZ=9
+TY=
+%-
+LV=0
+ND=Welcome to KeyNote!
+DI=1
+NF=001000110000000000000000
+BC=clWindow
+IX=22
+HC=clNavy
+%:
+{\rtf1\ansi\ansicpg1250\deff0{\fonttbl{\f0\fnil\fcharset238 Comic Sans MS;}{\f1\fnil\fcharset238{\*\fname Arial;}Arial CE;}{\f2\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil MS Sans Serif;}{\f5\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue0;\red0\green0\blue255;\red255\green0\blue0;\red255\green255\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\lang1045\b\f0\fs28 Welcome to \ul KeyNote\ulnone !\cf2\b0\f1\fs24\par
+\par
+This is a sample note file opened automatically when the program is run for the first time. You can safely edit this file, or create your own. For information about the program and latest updates, please see the following URL: \cf0\f2\fs20{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf3 http://keynote.prv.pl}}}\cf2\f1\fs24\par
+\par
+\cf4\b\f2\fs20 PLEASE READ THE FAQ\cf2\b0  (Frequently Asked Questions) before\par
+emailing for support. The FAQ is available at\par
+\cf0{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf3 http://keynote.prv.pl}}}\cf2\f2\fs20\par
+\par
+There is now also a separate "KeyNote 2.0 Development FAQ",\par
+available at \cf0{\field{\*\fldinst{HYPERLINK "http://www.tranglos.com/free/knt2devfaq.html"}}{\fldrslt{\ul\cf3 http://www.tranglos.com/free/knt2devfaq.html}}}\cf2\i\f2\fs20\par
+\par
+\cf5\highlight3\b\i0\f1\fs24 README:\cf2\highlight0\b0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-200\li200\f2 Please click the \b What's new\b0  tab to learn about the latest changes and additions to the program. For more details about new features, see file "\b history.txt\b0 ".\f1\par
+\f2{\pntext\f5\'B7\tab}If you are going to encrypt your data file, please \b make sure you read the "Encrypting KeyNote files" topic\b0  in the online Help.\f1\par
+\f2{\pntext\f5\'B7\tab}The \b Hints\b0  tab is a collection of useful tips. \f1\par
+\f2{\pntext\f5\'B7\tab}Please see file "acknowledgments.txt" for a list of third-party components without which I would certainly not have been able to take KeyNote as far as it is today. I am endlessly indebted to the great programmers who created them and released them for free.\f1\par
+\pard\par
+\cf0\lang1033\f3\fs16 -----------------------------------------------------------------------\par
+\b\fs20 Note: This program is Freeware. It may not be sold.\b0\par
+\lang1045\f2 Copyright \'a9 Marek Jedli\'f1ski 2000-2003\fs16\par
+-----------------------------------------------------------------------\par
+\f4\par
+\f2\fs24\par
+}
+%-
+LV=1
+ND=How does it work?
+DI=4
+NF=001000000000000000000000
+BC=clWindow
+IX=3
+%:
+{\rtf1\fbidis\ansi\ansicpg1250\deff0{\fonttbl{\f0\fnil\fcharset238 Comic Sans MS;}{\f1\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue128;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\ltrpar\cf1\lang1045\b\f0\fs28 How does KeyNote work?\cf0\b0\f1\fs24\par
+\par
+Keynote is a flexible, multi-featured tabbed notebook, based on Windows standard RichEdit control. It's always accessible with a single keypress, even if you work in another application. \par
+\par
+\cf2\b The basic idea in KeyNote is that you can have many separate notes within a single file.\cf0\b0  This means that you do not need to open several files - for most purposes it is enough to create only one file and several notes inside it. \cf2\b With the addition of the tree-type notes, \cf0\b0 you now have a three-dimensional notebook: many notes within one file and a multi-level, nested pages within a single note. \par
+\par
+Optionally, \cf2\b KeyNote can encrypt your data\cf0\b0  securely using the Blowfish or Idea algorithms. Keynote's interface and behavior are extremely configurable.\par
+}
+%-
+LV=2
+ND=Quick Start
+DI=2
+NF=000000000000000000000000
+BC=clWindow
+IX=4
+%:
+{\rtf1\fbidis\ansi\ansicpg1250\deff0{\fonttbl{\f0\fnil\fcharset238 Comic Sans MS;}{\f1\fnil\fcharset238{\*\fname Arial;}Arial CE;}{\f2\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f3\fnil\fcharset238{\*\fname Times New Roman;}Times New Roman CE;}{\f4\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue0;\red0\green0\blue128;\red0\green128\blue0;\red255\green255\blue255;\red255\green128\blue192;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\ltrpar\cf1\lang1045\b\f0\fs28 Quick start:\cf2\f1\fs24\par
+\b0\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\ltrpar\fi-200\li200 You can resize the program window if it is too small or too big by dragging an edge of the window with the mouse.\par
+\cf3{\pntext\f4\'B7\tab}You can use the Formatting toolbar above to change the appearance of the text. You can change the \f2 font \f3\fs34 face\f1\fs24 , \fs36 size\fs24 , color and style attributes such as \b bold\b0 , \i italic\i0 , \ul underline\ulnone , or \strike strikethrough\strike0 . You can even\cf4  \cf5\highlight6\b highlight the text\cf4\highlight0\b0 !\cf2\par
+{\pntext\f4\'B7\tab}The Format menu contains additional formatting functions. You can set the alignment of the text (left, right or centered), change the spacing between lines, or change the colors of background and text.\par
+{\pntext\f4\'B7\tab}The program supports all standard Windows text editing commands. Press \cf1\b Ctrl+C\cf2\b0  to copy text to clipboard, \cf1\b Ctrl+X\cf2\b0  to cut text, \cf1\b Ctrl+V\cf2\b0  to paste text rom clipboard, \cf1\b Ctrl+A\cf2\b0  to select all text in a note.\par
+{\pntext\f4\'B7\tab}Press \cf1\b Ctrl+N\cf2\b0  to create a new note in current file.\par
+{\pntext\f4\'B7\tab}Press \cf1\b Ctrl+O\b0  \cf2 to open a Note file that already exists on your disk.\par
+{\pntext\f4\'B7\tab}Press \cf1\b Ctrl+Shift+P\b0  \cf2 to print the note that is currently displayed.\par
+{\pntext\f4\'B7\tab}Press \cf1\b Ctrl+Shift+E\b0  \cf2 to send the current note to someone via email.\par
+{\pntext\f4\'B7\tab}By default, you can minimize the program just by pressing the \cf1\b ESC\cf2\b0  key. This is much faster than finding the tiny Minimize button with the mouse. However, if you find that you often minimize the program accidentally, you can turn this feature off in Options (press \cf1\b F5\cf2\b0 , click the "Miscellaneous" tab, and choose the desired action for ESC key in the "Escape key" field.\par
+{\pntext\f4\'B7\tab}After you minimize the program, see how it responds to the hotkey. Click the Minimize button, and then press the default hotkey combination: \cf1\b Shift+Ctrl+F12\cf2\b0 . This should cause the program to pop up to front, so you don't have to always use the mouse!\par
+{\pntext\f4\'B7\tab}Press \cf1\b F4\cf2\b0  to change the properties of the note you are reading, such as its name, the icon that is displayed on the tab, default font and color and other options. Press \cf1\b F6\cf2\b0  to use the same dialog box to change default properties for all new notes you create.\par
+{\pntext\f4\'B7\tab}If you just want to rename the note, press \cf1\b F2\cf2\b0  or double-click the tab where the name of the note is shown.\par
+{\pntext\f4\'B7\tab}Press \cf1\b Ctrl+F\cf2\b0  to search for text in this note, or in all notes in the current file. Press \cf1\b F3\cf2\b0  to repeat the last search.\par
+{\pntext\f4\'B7\tab}Press \cf1\b F5\cf2\b0  to open the Options dialog box. There are many configuration settings you can change. For instance, you can specify whether your Notes file should be saved automatically; what file should be opened when you start the program; the hotkey used to bring the program window to front when it is minimized; whether the program should place its icon in the system tray... and many others!\par
+\pard\ltrpar\par
+\cf0\f2\par
+}
+%-
+LV=2
+ND=Examples of use
+DI=3
+NF=000000000000000000000000
+BC=clWindow
+IX=24
+%:
+{\rtf1\fbidis\ansi\ansicpg1250\deff0{\fonttbl{\f0\fnil\fcharset238 Comic Sans MS;}{\f1\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f2\fnil\fcharset238{\*\fname Arial;}Arial CE;}{\f3\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue160;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\ltrpar\cf1\lang1045\b\f0\fs28 What is KeyNote useful for?\cf0\b0\f1\fs24\par
+\par
+In general, \b any structured of free-form information,\b0  especially the kind of information which lends itself to \b hierarchical representation, such as lists or outlines\b0 . KeyNote's powerful \b search facility\b0  quickly locates information you're looking for.\par
+\par
+The ability to \b store many notes in a single file\b0  means no hunting for files scattered all over your computer. For many users it will be enough to create just one KeyNote file and add notes to it, with each note covering a separate topic (e.g., "To do", "Addresses", "Bookmarks", "Finances", etc.)\par
+\par
+Built-in \b strong encryption\b0  allows you to secure your files against unauthorized access or modification.\par
+\par
+\b The "virtual node" feature\b0  additionally allows you to pull together many files and edit them all within a single KeyNote file, while the original files remain on disk (so there is no need to perform any conversion).\par
+\par
+\cf1\b\f2\fs28 Examples of use:\cf0\b0\f1\fs24\par
+\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\ltrpar\fi-200\li200 personal \b information management\b0\par
+{\pntext\f3\'B7\tab}personal \b diary\b0  or journal \par
+\b{\pntext\f3\'B7\tab}to-do\b0  items \par
+\b{\pntext\f3\'B7\tab}scratchpad\b0  for quick notes and ideas \par
+{\pntext\f3\'B7\tab}writing and structuring small articles or larger documents \par
+{\pntext\f3\'B7\tab}Creating and storing \b electronic texts\b0  (easily structure chapters or sections) \par
+\b{\pntext\f3\'B7\tab}outlines\b0 , projects\par
+{\pntext\f3\'B7\tab}project documentation \par
+{\pntext\f3\'B7\tab}reports \par
+{\pntext\f3\'B7\tab}recipes \par
+\b{\pntext\f3\'B7\tab}personal contacts\b0  (addresses, telephone numbers) \par
+\b{\pntext\f3\'B7\tab}accounts, passwords\b0 , PIN numbers (remember to encrypt the file!) \par
+{\pntext\f3\'B7\tab}Internet bookmarks (clickable hyperlinks) \par
+\b{\pntext\f3\'B7\tab}all kinds of lists!\b0  If you collect books, CDs, DVDs, or just your favorite quotes or jokes, KeyNote makes it easy to store them in one place and search through them quickly. \par
+\b{\pntext\f3\'B7\tab}email archives\b0  (you can use the separate, free KNTConvert utility to import your email archives into a KeyNote file) \par
+\b{\pntext\f3\'B7\tab}templates\b0  for creating documents with a standard format \par
+{\pntext\f3\'B7\tab}directory listings (e.g. CDR archives) \par
+{\pntext\f3\'B7\tab}viewing \b log files\b0  (use virtual nodes to view log files without having to open each file separately) \par
+\b{\pntext\f3\'B7\tab}for teachers:\b0  class notes, student attendance and assessment notes \par
+\b{\pntext\f3\'B7\tab}for programmers:\b0  KeyNote is great for storing and searching through source code archives \par
+\pard\ltrpar\par
+\i\fs20 Version 2.0 of KeyNote (estimated release: mid-2002) will further enhance KeyNote's usefulness by the addition of a grid (a simple spreadsheet). This will be eprfect for storing information in the format of a table.\i0\fs24\par
+\par
+}
+%-
+LV=1
+ND=More help
+DI=5
+NF=000000000000000000000000
+BC=clWindow
+IX=20
+%:
+{\rtf1\fbidis\ansi\ansicpg1250\deff0{\fonttbl{\f0\fnil\fcharset238 Comic Sans MS;}{\f1\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\ltrpar\cf1\lang1045\b\f0\fs28 More information about KeyNote:\cf0\b0\f1\fs24\par
+\par
+Note: The Help file is incomplete and partly outdated. See the file \b "history.txt"\b0  for details of changes made to the program; this file also explains how to use new functions.\par
+\par
+Also, please see:\par
+\par
+\b Frequently Asked Questions (FAQ):\b0\par
+{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf2 http://keynote.prv.pl}}}\f1\fs24\par
+\par
+\b Questions about plans for KeyNote 2.0:\b0\par
+{\field{\*\fldinst{HYPERLINK "http://www.tranglos.com/free/knt2devfaq.html"}}{\fldrslt{\ul\cf2 http://www.tranglos.com/free/knt2devfaq.html}}}\f1\fs24\par
+\par
+\par
+}
+%
+NN=&Hints
+ID=3
+II=4
+DC=21-07-2000 18:33:33
+TI=1
+TS=4
+CX=0
+CY=0
+BG=$00C8C8C8
+CH=238
+FC=clBlack
+FN=Courier New
+FS=12
+LN=1045
+ST=
+FL=101100000000000000000000
+LC=124
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238 Comic Sans MS;}{\f1\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f2\fnil\fcharset238{\*\fname Arial;}Arial CE;}{\f3\fnil MS Sans Serif;}{\f4\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue0;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\b\f0\fs28 Useful hints and tips\cf0\b0\f1\fs24\par
+\cf2\f2\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-200\li200\b To rename the current note or change its icon, press F2\cf0\b0\f3\fs16\par
+\cf2\b\f2\fs24{\pntext\f4\'B7\tab}To customize the look of the current note, press F4.\cf0\b0\f3\fs16\par
+\cf2\b\f2\fs24{\pntext\f4\'B7\tab}To change the defaults for all new notes you create, press F6.\cf0\b0\f3\fs16\par
+\pard\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-200\li200\cf2\f2\fs24 All commands, menu items and toolbar buttons display hints (a.k.a. tooltips). When you move the mouse over a button or menu item, you can read its description in the status bar at bottom. If the description is too long, you can resize the main window to make more space for the hints. Note that hints are also displayed in the main status bar when a dialog box is opened. If a dialog box obscures the status bar, you can move it a little higher to read the hints comfortably. For instance, press F5 to open the Options dialog box, move the mouse around the dialog and see the hints displayed in the status bar.\cf0\f3\fs16\par
+\pard\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-200\li200\cf2\f2\fs24 The "Recent files" command ("File" menu) contains names of several Note files that you opened or saved recently. Just click the menu item to open the file you want. \par
+{\pntext\f4\'B7\tab}The list of recently used files is also available as a drop-down menu right next to the "Open" button on the toolbar.\par
+{\pntext\f4\'B7\tab}If users are sharing KeyNote on one computer, each user can have personal settings by specifying an alternate INI file name in the shortcut used to start KeyNote. Example: "c:\\programs\\keynote.exe c:\\users\\jim\\keynote.ini"\par
+{\pntext\f4\'B7\tab}Sometimes you may want to prevent others (or yourself!) from accidentally changing information in a note. You can give a specific note the "Read-only" attribute by choosing "Read Only" from the Tab menu, or pressing Shift+Ctrl+R.\par
+{\pntext\f4\'B7\tab}You can change the order of notes (tabs) in the file. Just click a tab with the mouse and drag it left or right. Alternatively, you can select the "Shift Tab" option in the Tab menu, and then click "Shift left" or "Shift right."\par
+{\pntext\f4\'B7\tab}You can also prevent all changes to a Notes file by clicking the "Open as Read-only" checkbox when opening the file.\par
+{\pntext\f4\'B7\tab}Some toolbar buttons and menu commands behave differently when Shift or Ctrl keys are held down. This is described in detail in the file "keyboard.txt".\par
+{\pntext\f4\'B7\tab}To view and use installed plugins, show the Resource panel (press F9), then click the "Plugins" Tab.\par
+{\pntext\f4\'B7\tab}Certain macros can run automatically whenever a new file or a new note is created. See "Auto-run macros" in file "macros.txt" for details.\par
+{\pntext\f4\'B7\tab}To access the Style drop-down list without the mouse, hold down Ctrl key and press the * key on the numeric keypad. Then select a style, and press Enter to apply it.\par
+{\pntext\f4\'B7\tab}Many dialog boxes in KeyNote are resizeable, and will remember their previous size and position when displayed.\par
+{\pntext\f4\'B7\tab}KeyNote has a "Replace" command. It is located under the "Search" Menu (or press Ctrl+F3).\par
+{\pntext\f4\'B7\tab}In File Properties dialog box, you can specify a custom system tray icon for the current file. This is useful if you run several instances of KeyNote at the same time.\par
+{\pntext\f4\'B7\tab}You can specify that the file should only use built-in tab icon images. This is useful when giving the file to someone who may be using a different, customized set of tab images.\par
+{\pntext\f4\'B7\tab}You can insert .BMP and .GIF images into the note text: select "Picture" from the "Insert" menu.\par
+{\pntext\f4\'B7\tab}You can create URL-style links to files on local disk: select "Link to file" from the "Insert" menu. Clicking the link will open the document or program.\par
+{\pntext\f4\'B7\tab}To specify all paragraph properties at one time, press Ctrl+P to open the Paragraph dialog box.\par
+{\pntext\f4\'B7\tab}In a tree-type note, you can hide the tree panel. Press Shift+F1 to hide the tree, or to show it if it is hidden.\par
+{\pntext\f4\'B7\tab}To quickly insert often used chunks of text, use the Glossary feature. Add shortcuts and their full forms to glossary; then press F7 to expand a shortcut.\par
+{\pntext\f4\'B7\tab}Most editing and formatting commands can be repeated by pressing Ctrl+/. The name of the command to be repeated is shown in the context menu of the editor.\par
+{\pntext\f4\'B7\tab}KeyNote features simple bookmarks. Press Shift+Alt+digit to set a bookmark, then press Alt+digit to jump to it. (Digits are 0 through 9, naturally.)\par
+{\pntext\f4\'B7\tab}You can insert special characters into the note by pressing Shift+Ctrl+C.\par
+{\pntext\f4\'B7\tab}To quickly find a matching bracket, press Ctrl+M.\par
+{\pntext\f4\'B7\tab}You can export a single tree node. Right-click the node and select the "Export" command.\par
+{\pntext\f4\'B7\tab}KeyNote can play a sound while capturing text from clipboard. You can replace the default sound (clip.wav) with a .wav file of your choice.\par
+{\pntext\f4\'B7\tab}You can move or copy subtrees between tree notes and between files. See file "tree.txt" for details.\par
+{\pntext\f4\'B7\tab}You can copy a subtree from one note to another by clicking it and dropping on another tab.\par
+{\pntext\f4\'B7\tab}Tree notes can have a vertical layout (tree above the editor). This is configurable through Note Properties (F4).\par
+{\pntext\f4\'B7\tab}You can highlight text in a note. Press Ctrl+H, or hold down Shift and click the Color button on the toolbar.\par
+{\pntext\f4\'B7\tab}You can drag files from Windows Explorer onto KeyNote's window to open or import them.\par
+{\pntext\f4\'B7\tab}Several new font and paragraph properties have been added. See the new functions under the "Format" menu.\par
+{\pntext\f4\'B7\tab}Try out the new Style feature! Please see file "styles.txt" for details on how to use styles.\par
+{\pntext\f4\'B7\tab}The "Virtual nodes" feature allows you to link an external text or RTF file to a node in a tree. Create a new node, then right-click it and select the "Virtual node" command.\par
+{\pntext\f4\'B7\tab}To create a virtual node, you can also drag a text or RTF file from Windows Explorer onto the tree.\par
+{\pntext\f4\'B7\tab}To quickly rename a note, press F2 or double-click the tab where the note name is displayed.\par
+{\pntext\f4\'B7\tab}You can choose what happens when you click an URL in a note. See Options (F5), "Misc" tab.\par
+{\pntext\f4\'B7\tab}KeyNote can automatically minimize or close your file after a predefined period of inactivity. See Options (F5), "Actions" tab.\par
+{\pntext\f4\'B7\tab}Toolbars can also be docked at the bottom of the note window.\par
+{\pntext\f4\'B7\tab}This is BETA software. Handle with care. Please report bugs to the author. (See Help->About)\par
+{\pntext\f4\'B7\tab}Your KeyNote file can be securely encrypted. See file "Encrypt.txt" for details.\par
+{\pntext\f4\'B7\tab}You can create two types notes: simple or tree-type notes. Press Ctrl+N, and choose the type in the "Kind" drop-down box.\par
+{\pntext\f4\'B7\tab}You can quickly change the background color of ALL NODES in a tree: hold down the Shift key and click the "Background color" button on the toolbar.\par
+{\pntext\f4\'B7\tab}KeyNote can evaluate mathematical expressions. Type an expression (e.g. "2 + 2"), select it, then press Ctrl+=. The result will be copied to clipboard.\par
+{\pntext\f4\'B7\tab}You can set default note properties for the current file (rather than all files): In the "Note Defaults" dialog box, click the "Special" button and click "Save as default for...".\par
+{\pntext\f4\'B7\tab}KeyNote has a simple file manager which allows you to quickly open a file you have used previously. Press F12 to open the file manager window.\par
+{\pntext\f4\'B7\tab}KeyNote is integrated with a dictionary/thesaurus program called WordWeb. Press Ctrl+F11 to look up current word in the thesaurus. See file "wordweb.txt" for details.\par
+{\pntext\f4\'B7\tab}You can import notes from another KeyNote file to the file which is currently open. Select Tools->Merge with File.\par
+{\pntext\f4\'B7\tab}If users are sharing KeyNote on one computer, each user can have personal settings by specifying an alternate INI file name in the shortcut used to start KeyNote.\par
+{\pntext\f4\'B7\tab}Keynote can automatically capture text copied to Clipboard in any Windows application: choose "Clipboard capture" from the "Note" menu.\par
+{\pntext\f4\'B7\tab}The splash screen can be turned off. See Options (F5), "Chrome" tab.\par
+{\pntext\f4\'B7\tab}The program is highly configurable. Press F5 to open the Options dialog box and customize the settings.\par
+{\pntext\f4\'B7\tab}To create a new note, press Ctrl+N. To create a new KeyNote file, press Shift+Ctrl+N.\par
+{\pntext\f4\'B7\tab}To edit the properties of the selected note, press F4. To quickly rename a note, press F2.\par
+{\pntext\f4\'B7\tab}Click the right mouse button over different areas of the main window to display additional menu commands.\par
+{\pntext\f4\'B7\tab}If you have used a similar note program called DaRT Notes before, KeyNote can open and save files created by that program. See file "DART.TXT' for details.\par
+{\pntext\f4\'B7\tab}Please check the program's website for FAQ, a list of known issues, and upgrade information. See Help->About.\par
+{\pntext\f4\'B7\tab}When the program is minimized or hidden behind other windows, it can be brought to the front by pressing Shift+Ctrl+F12. (You can customize the hotkey.)\par
+{\pntext\f4\'B7\tab}Some RTF-related features may not work well on Windows NT or Windows 2000 systems that have version 3 of riched32.dll library installed.\par
+{\pntext\f4\'B7\tab}Keynote is and will remain free. If you enjoy using it, please consider making a small donation to an animal shelter in your area. Thank you!\par
+{\pntext\f4\'B7\tab}You can export notes from KeyNote and import plain text or RTF files into KeyNote. See Tools->Import and Tools->Export menu items.\par
+{\pntext\f4\'B7\tab}You can specify default attributes that will be assigned to each new note you create (such as font style, colors, icon, and others). See Tools, Default settings.\par
+{\pntext\f4\'B7\tab}Most editing functions have keyboard shortcuts assigned to them. You can look them up in the main menu.\par
+{\pntext\f4\'B7\tab}The file SAMPLE.KNT distributed with the program contains many additional hints and tips.\par
+{\pntext\f4\'B7\tab}You can move the toolbars by clicking and dragging them to a new location. Toolbars will remember the new position. \par
+{\pntext\f4\'B7\tab}If the note tabs take too much space and don't all fit on one line, you can shrink them by turning off their icons. See Options (F5), "Chrome" tab.\par
+{\pntext\f4\'B7\tab}This program will always be distributed as Freeware. If you paid for it, you were cheated.\par
+{\pntext\f4\'B7\tab}It is the author's very strong opinion that advertising sponsored programs are NOT free. This program will never use such a scheme.\par
+{\pntext\f4\'B7\tab}You can send E-mail directly from Keynote: choose "Email note" from the "Note" menu.\par
+{\pntext\f4\'B7\tab}You can change the default icons displayed next to note names: See Options -> Icons tab.\par
+{\pntext\f4\'B7\tab}You can switch between notes by using your own hotkeys! Put the "&" character in front of a letter in a note name; then press ALT+letter to switch to that note.\par
+{\pntext\f4\'B7\tab}If the file attached to a virtual node has been modified by another application, right-click the node and select "Refresh" to update the contents of the node.\cf0\f3\fs16\par
+\pard\par
+\par
+\cf2\f2\fs24\par
+\par
+}
+%
+NN=&Contact
+ID=4
+II=3
+DC=21-07-2000 19:08:53
+TI=2
+TS=4
+CX=0
+CY=0
+BG=$00E0E0E0
+CH=238
+FC=clBlack
+FN=Courier New
+FS=12
+LN=1045
+ST=
+FL=101100000000000000000000
+LC=32
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238 Comic Sans MS;}{\f1\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f2\fnil MS Sans Serif;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue0;\red0\green0\blue255;\red255\green0\blue0;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\b\f0\fs28 How to contact the author\cf0\b0\f1\fs24\par
+\cf2\par
+To contact the author, you can send email to one of the following addresses:\par
+\par
+\cf0{\field{\*\fldinst{HYPERLINK "mailto:marekjed@pobox.com"}}{\fldrslt{\ul\cf3 mailto:marekjed@pobox.com}}}\cf3\ul\f1\fs24\par
+\cf0\ulnone{\field{\*\fldinst{HYPERLINK "mailto:marekjed@users.sourceforge.net"}}{\fldrslt{\ul\cf3 mailto:marekjed@users.sourceforge.net}}}\cf3\ul\f1\fs24\par
+\par
+\ulnone\i\fs20 (Note that you can click an address above with the mouse to copy its text to clipboard or to launch your default email program.)\ul\i0\fs24\par
+\par
+\cf4\ulnone\b\fs22 No HTML-formatted email, please!\cf2  Messages sent using HTML-formatted email may not be read, and any response will be delayed. Thank you for your consideration.\ul\b0\par
+\fs24\par
+\ulnone You can also send email or visit KeyNote website by double-clicking one of the links in the "About" dialog box (under the "Help" menu). If you are submitting a bug report, please look at the "About" dialog box to find out the exact version number for the release of KeyNote you are using, and include this number in your report.\par
+\ul\par
+\ulnone\b There are two mailing lists \b0 which you can subscribe to, to keep up with the latest news about KeyNote and other freeware programs I wrote. One is an announcement-only list (note more than 2 messages a month; information about major upgrades and additions). The other is an unmoderated discussion list. To subscribe to either list, please go to the General Frenetics Freeware website:\par
+\ul\par
+\cf0\ulnone{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf3 http://keynote.prv.pl}}}\cf3\ul\f1\fs24\par
+\par
+and click the "Mailing lists" link.\par
+\par
+\par
+\par
+\par
+\cf0\f2\fs16\par
+}
+%+
+NN=Freeware
+ID=5
+II=18
+DC=19-02-2001 14:22:12
+TI=3
+TS=4
+CX=0
+CY=0
+BG=clWindow
+CH=238
+FC=clBlack
+FN=Courier New
+FS=12
+LN=1045
+ST=
+FL=101100000000100001000000
+SN=0
+TW=192
+EN=Node
+TB=$00D8FFFF
+TH=238
+TC=clBlack
+TN=Verdana
+TZ=10
+TY=
+%-
+LV=0
+ND=Applications
+DI=1
+NF=001000100000000000000000
+BC=clWindow
+IX=0
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue160;\red255\green255\blue0;\red0\green0\blue0;\red0\green0\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\highlight2\b\f0\fs32 Freeware applications\highlight0  \par
+by General Frenetics, Discorp.\cf3\b0\fs24\par
+\b\par
+This is a list of freeware programs I have written. They can all be downloaded from the address listed in the "Web URLs" section.\b0\par
+\par
+All applications available for download from this site are freeware. No time or feature limitations, no advertising banners, and no nags, either. Bugs? Sure, all kinds. Catch them and let me know.\par
+\par
+\cf0{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf4 http://keynote.prv.pl}}}\cf3\f0\fs24\par
+\par
+\par
+\par
+}
+%-
+LV=1
+ND=KeyNote
+DI=2
+NF=001000010000000000000000
+BC=clWindow
+IX=0
+HC=$009B0000
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue0;\red0\green0\blue160;\red0\green0\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\f0\fs24{\pict\wmetafile8\picwgoal480\pichgoal480 
+010009000003380600000000220600000000050000000b0200000000050000000c024e034e0322
+060000430f2000cc00000020002000000000004e034e0300000000280000002000000020000000
+0100180000000000000c0000c40e0000c40e00000000000000000000ffffffffffffffffffffff
+ffffffffffffffffffff8482848482848482848482848482848482848482848482848482848482
+848482848482848482848482848482848482848482848482848482848482848482848482848482
+84ffffffffffffffffffffffffffffffffffffffffffffffffffffff848284c6c3c6c6c3c6c6c3
+c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3
+c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6000000ffffffffffffffffffffffffffffffffff
+ff8482848482848482848482848482848482848482848482848482848482848482848482848482
+84848284848284848284848284848284848284848284848284848284848284848284c6c3c68482
+84000000ffffffffffffffffffffffffffffff848284c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3
+c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3
+c6c6c3c6c6c3c6c6c3c6c6c3c6848284848284000000ffffffffffffffffffffffff8482848482
+848482848482848482848482848482848482848482848482848482848482848482848482848482
+84848284848284848284848284848284848284848284848284848284c6c3c68482848482840000
+00ffffffffffffffffffffffff848284ffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffff848284c6c3c6c6c3c6848284000000ffffffffffffffffffffffffffffff848284ffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffff848284c6c3c6848284000000ffff
+ffffffffffffffffffffffffff848284ffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffff848284c6c3c6848284000000ffffffffffffffffffffffffffffff848284ffffffffff
+ffffffffffffffc6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6ffffffc6c3c6c6c3c6c6c3
+c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6ffffff848284c6c3c6848284000000ffffffffff
+ffffffffffffffffffffffffff848284ffffffffffffffffffc6c3c6ffffffffffffffffffffff
+ffc6c3c6ffffffffffffc6c3c6c6c3c6c6c3c6ffffffffffffc6c3c6c6c3c6c6c3c6ffffffffff
+ffffffff848284848284000000ffffffffffffffffffffffffffffffffffff848284ffffffffff
+ffffffffc6c3c6ffffffffffffffffffffffffc6c3c6ffffffffffffc6c3c6c6c3c6c6c3c6ffff
+ffffffffc6c3c6c6c3c6c6c3c6ffffffffffffffffff848284848284000000ffffffffffffffff
+ffffffffffffffffffff848284ffffffffffffffffffc6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3
+c6c6c3c6ffffffc6c3c6c6c3c6c6c3c6ffffffffffffc6c3c6c6c3c6c6c3c6ffffffffffffffff
+ff848284848284000000ffffffffffffffffffffffffffffffffffff848284ffffffffffffffff
+ffffffffffffffffffffffffffffffffc6c3c6ffffffffffffc6c3c6c6c3c6c6c3c6c6c3c6c6c3
+c6c6c3c6c6c3c6c6c3c6ffffffffffffffffff848284848284000000ffffffffffffffffffffff
+ffffffffffffff848284848284848284848284848284848284848284ffffffffffffc6c3c6ffff
+ffffffffc6c3c6c6c3c6c6c3c6ffffffffffffc6c3c6c6c3c6c6c3c6ffffffffffffffffff8482
+84848284000000ffffffffffffffffffffffffffffff0000000000000000000000000000000000
+00000000848284c6c3c6c6c3c6c6c3c6c6c3c6ffffffc6c3c6c6c3c6c6c3c6ffffffffffffc6c3
+c6c6c3c6c6c3c6ffffffffffffffffff848284848284000000ffffff848284848284ffffffffff
+ff000000000000000000000000000000000000000000848284ffffffffffffc6c3c6ffffffffff
+ffffffffffffffffffffffffffffffffc6c3c6c6c3c6c6c3c6ffffffffffffffffff8482848482
+84000000848284000000000000848284848284000000000000c6c3c6c6c3c6c6c3c6c6c3c6c6c3
+c6848284ffffffffffffc6c3c6ffffffffffffffffffffffffc6c3c6ffffffffffffffffffffff
+ffffffffffffffffffffffffff848284848284000000000000ffffffffffff000000000000c6c3
+c6c6c3c6000000000000000000000000000000848284c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3
+c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6ffffffffffffffffff8482848482840000
+00000000ffffffffffffffffffffffff0000000000000000000000000000000000000000008482
+84ffffffffffffc6c3c6ffffffffffffffffffffffffc6c3c6ffffffffffffffffffffffffc6c3
+c6ffffffffffffffffff848284848284000000000000ffffffffffffffffffffffff0000000000
+00000000000000000000000000000000848284ffffffffffffc6c3c6ffffffffffffffffffffff
+ffc6c3c6ffffffffffffffffffffffffc6c3c6ffffffffffffffffff8482848482840000000000
+00ffffffffffff848284848284000000000000000000000000000000000000000000848284c6c3
+c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6ffff
+ffffffffffffff848284848284000000000000848284848284000000000000c6c3c6c6c3c60000
+00000000000000000000000000848284ffffffffffffc6c3c6ffffffffffffffffffffffffc6c3
+c6ffffffffffffffffffffffffc6c3c6ffffffffffffffffff848284848284000000ffffff0000
+00000000ffffffffffff000000000000c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6848284ffffffffff
+ffc6c3c6ffffffffffffffffffffffffc6c3c6ffffffffffffffffffffffffc6c3c6ffffffffff
+ffffffff848284848284000000ffffffffffffffffffffffffffffff0000000000000000000000
+00000000000000000000848284c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3
+c6c6c3c6c6c3c6c6c3c6c6c3c6ffffffffffffffffff848284848284000000ffffffffffffffff
+ffffffffffffff000000000000000000000000000000000000000000ffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ff848284848284000000ffffffffffffffffffffffffffffffffffff848284ffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffff848284848284000000ffffffffffffffffffffff
+ffffffffffffff848284ffffff848284ffffff848284ffffff848284ffffff848284ffffff8482
+84ffffff848284ffffff848284ffffff848284ffffff848284ffffff848284ffffff8482848482
+84848284000000ffffffffffffffffffffffffffffffffffff008284c6c3c600ffffc6c3c600ff
+ffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3
+c600ffffc6c3c600ffffc6c3c600ffff008284848284000000ffffffffffffffffffffffffffff
+ffffffff00828400ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ff
+ffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c60082840082
+84000000ffffffffffffffffffffffffffffffffffff008284ffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffff008284008284000000ffffffffffffffffffffffffffffffffff
+ff00828400ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3
+c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffffc6c3c600ffff0082840000
+00ffffffffffffffffffffffffffffffffffffffffff0082840082840082840082840082840082
+840082840082840082840082840082840082840082840082840082840082840082840082840082
+84008284008284008284008284008284000000030000000000
+}\cf2\b\fs32  KeyNote\cf1\b0\fs24\par
+\par
+\cf2 Flexible, tabbed notebook with RichText editor, multi-level notes and strong encryption.\cf1\par
+\par
+\cf0 Extremely configurable interface and behavior. Stores many notes within a single file. Each tab can contain a multi-level, nested tree of notes. Strong encryption using Blowfish or IDEA algorithm. Send notes via email; clipboard capture; import/export files in formats: plain text, RTF, DartNotes and TreePad; activation hotkey, configurable categories and icons, printing and more.  Beta version, but very stable and full-featured. No nags, no ads freeware, forever.\cf1\par
+\par
+\cf0{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf3 http://keynote.prv.pl}}}\cf1\f0\fs24\par
+}
+%-
+LV=2
+ND=Features
+DI=3
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f1\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue0;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\ul\b\f0\fs24 KeyNote: main features\cf0\ulnone\b0\par
+\par
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-200\li200 RichText enabled editor, with many text formatting functions\par
+{\pntext\f1\'B7\tab}Store many separate notes within one file; each note is displayed on its own, easily accessbile tab. This is a much more convenient solution than opening several files on disk. Each note has independent font, color and editor settings. \par
+{\pntext\f1\'B7\tab}Choose between two types of notes: a simpler, editor-only note, or a tree-type note, which is a multi-level hierarchy of note "leaves", each with its own editor. The two types of notes can be mixed freely within one file \par
+{\pntext\f1\'B7\tab}Convenient keyboard shortcuts for practically all editing and file management commands \par
+{\pntext\f1\'B7\tab}Option to minimize to system tray \par
+{\pntext\f1\'B7\tab}Configurable activation hotkey to bring the program window to front after it was minimized to the system tray \par
+{\pntext\f1\'B7\tab}You can protect your data files with secure encryption using a strong cipher (Blowfish or IDEA) \par
+{\pntext\f1\'B7\tab}Integration with WordWeb, a freeware dictionary/thesaurus program (see {\field{\*\fldinst{HYPERLINK "http://wordweb.co.uk/free"}}{\fldrslt{\ul\cf2 http://wordweb.co.uk/free}}}\f0\fs24 ) \par
+{\pntext\f1\'B7\tab}Many uses can share KeyNote on one computer, with the ability to have independent personalized settings for each user \par
+{\pntext\f1\'B7\tab}Clickable URLs in the editor \par
+{\pntext\f1\'B7\tab}Simple file manager to quickly open often-used files \par
+{\pntext\f1\'B7\tab}Export and import files (as plain text or RTF) \par
+{\pntext\f1\'B7\tab}Ability to merge two KeyNote files \par
+{\pntext\f1\'B7\tab}File size limited only by available memory \par
+{\pntext\f1\'B7\tab}Extremely configurable interface \par
+{\pntext\f1\'B7\tab}Ability to preset default editor and tree settings (including font styles and colors) that will be automatically applied to newly created notes \par
+{\pntext\f1\'B7\tab}Ability to print notes \par
+{\pntext\f1\'B7\tab}Ability to send notes via E-mail (incl. a simple address book and signature handling) \par
+{\pntext\f1\'B7\tab}Ability to change icons that are assigned to notes (user-defined icons can be extracted from .ICO, .BMP, .EXE and .DLL files) \par
+{\pntext\f1\'B7\tab}"Clipboard capture" feature, enabling you to automatically capture and store any text that was copied to Clipboard in another Windows application \par
+{\pntext\f1\'B7\tab}Expression evaluation: KeyNote can calculate the result of an arithmetic statement and paste the result directly into the note you're editing\par
+{\pntext\f1\'B7\tab}Import and export files in the format used by other freeware notebook-type programs: DartNotes and TreePad \par
+{\pntext\f1\'B7\tab}"Virtual nodes" enable you to link external disk files to tree nodes, without actually importing these files into KeyNote\par
+{\pntext\f1\'B7\tab}Function to evaluate arithmetic expressions typed in the editor\par
+{\pntext\f1\'B7\tab}The executable program and its configuration files take up less than 1.2 MB of disk space, so they fit comfortably on a diskette \par
+{\pntext\f1\'B7\tab}Unlimited number of notes that can be stored in a single file or a single tree-type note. \par
+{\pntext\f1\'B7\tab}Automatic installer and uninstaller\cf3\par
+}
+%-
+LV=1
+ND=PhoneDeck
+DI=4
+NF=001000010000000000000000
+BC=clWindow
+IX=0
+HC=$009B0000
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue0;\red0\green0\blue160;\red0\green0\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\f0\fs24{\pict\wmetafile8\picwgoal480\pichgoal480 
+010009000003380600000000220600000000050000000b0200000000050000000c024e034e0322
+060000430f2000cc00000020002000000000004e034e0300000000280000002000000020000000
+0100180000000000000c0000c40e0000c40e00000000000000000000ffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffff000000000000000000000000ffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff840000ffffff0000
+00000000000000000000000000ffffffffffffffffffffffff000000000000000000c6c3c68482
+84000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffff840000000000000000000000000000848284ff00000000000000000000
+00000000000000c6c3c6c6c3c6c6c3c6848284848284848284000000000000000000840000ffff
+ffffffffffffffffffffffffffffffffffffffffffffffffff840000000000ff00008482848482
+84000000848284848284ff0000000000000000c6c3c6c6c3c6c6c3c60000ffc6c3c6c6c3c68482
+84848284848284848284000000000000000000ffffffffffffffffffffffffffffffffffffffff
+ffffffff840000ff0000848284c6c3c6848284000000c6c3c6ffffff000000c6c3c6c6c3c6c6c3
+c60000ffc6c3c6ffffffffffff8482848482848482848482848482848482848482840000000000
+00ffffffffffffffffffffffffffffffffffff840000ff0000ff0000848284c6c3c68482840000
+00c6c3c6c6c3c6000000c6c3c6008200c6c3c6ffffffffffff000000000000000000c6c3c6c6c3
+c6848284848284848284848284848284000000ffffffffffffffffffffffffffffff840000ff00
+00ff0000848284c6c3c6c6c3c6848284000000c6c3c6ffffff000000c6c3c6ffffffffffff0000
+0000000000ffff008284008284000000000000c6c3c6c6c3c6848284848284848284000000ffff
+ffffffffffffff840000840000ff0000ff0000848284ffffffffffffc6c3c6848284000000c6c3
+c6c6c3c6000000ffffff00000000000000ffff00ffff00ffff0082840082840082840082840000
+00000000c6c3c6c6c3c6848284000000840000840000840000ff0000ff0000ff0000848284ffff
+ffffffffc6c3c6c6c3c6848284000000c6c3c6ffffffc6c3c600000000ffff00ffff00ffff00ff
+ffffffffc6c3c6008284008284008284008284008284000000000000c6c3c6000000840000ff00
+00ff0000ff0000848284848284ffffffffffffffffffffffffc6c3c6848284000000c6c3c6c6c3
+c6ffffff00828400ffff00ffffffffffffffff00ffff00ffffc6c3c60082840082840082840082
+84008284008284000000ffffff840000ff0000848284848284848284ffffffffffffffffffffff
+ffc6c3c6c6c3c6848284000000c6c3c6ffffffc6c3c6008284ffffffffffff00ffff008284c6c3
+c600ffff00ffffc6c3c6008284008284008284000000000000000000000000840000ff00008482
+84ffffff848284ffffffffffffffffffffffffffffffc6c3c6848284000000c6c3c6c6c3c6ffff
+ff00828400ffffc6c3c6008284c6c3c6008284c6c3c600ffff00ffffc6c3c60082840000000082
+84008284008284000000840000ff0000848284ffffff848284ffffffffffffffffffffffffc6c3
+c6c6c3c6848284000000c6c3c6ffffffc6c3c684828400828400ffffc6c3c6008284c6c3c60082
+84c6c3c600ffff00ffffc6c3c600000000828400ffff00ffff000000840000ff0000848284ffff
+ff848284ffffffffffffffffffffffffffffffc6c3c6848284000000c6c3c6c6c3c6ffffffffff
+ff84828400828400ffffc6c3c6008284c6c3c600ffff84828400000000ffff00000000ffff00ff
+ff00ffff008284840000ff0000848284ffffff848284ffffffffffffffffffffffffc6c3c6c6c3
+c6848284000000c6c3c6ffffffc6c3c6848284ffffff00000000000000000000ffff00ffff0000
+0000000000828400000084828400ffff00ffff008284ffffff840000ff0000848284ffffff8482
+84ffffffffffffffffffffffffffffffc6c3c6848284000000c6c3c6c6c3c6ffffffffffff8482
+8400828400ffff00ffff00000000ffff00000000828400ffff00ffff00ffff00ffff008284ffff
+ffffffff840000ff0000848284ffffff848284ffffffffffffffffffffffffc6c3c6c6c3c68482
+84000000c6c3c6ffffffc6c3c6848284ffffff00828400ffff00ffff84828400000084828400ff
+ff00ffff00ffff008284008284000000ffffffffffff840000ff0000848284ffffff848284ffff
+ffffffffffffffffffffffffffc6c3c6848284000000c6c3c6c6c3c6ffffffffffff8482848482
+8400828400828400ffff00ffff00ffff00ffff008284008284ff0000ff0000000000ffffffffff
+ff840000ff0000848284ffffff848284ffffffffffffffffffffffffc6c3c6c6c3c68482840000
+00c6c3c6ffffffc6c3c6848284ffffffffffff8482848482840082840082840082840082848482
+8400ffffff0000ff0000000000ffffffffffff840000ff0000848284ffffff848284ffffffffff
+ffffffffffffffffffffc6c3c6848284000000c6c3c6c6c3c6ffffffffffff848284848284ffff
+ffffffffffffffffffffffffffffffff848284ffffffff0000ff0000000000ffffffffffff8400
+00ff0000848284ffffff848284ffffffffffffffffffffffffc6c3c6c6c3c6848284000000c6c3
+c6ffffffc6c3c6848284ffffffffffff848284848284848284848284ffffffffffff84828400ff
+ffff0000ff0000000000ffffffffffff840000ff0000848284ffffff848284ffffffffffffffff
+ffffffffffffffc6c3c6848284000000c6c3c6c6c3c6ffffffffffff848284848284ffffffffff
+ffffffffffffffffffffffffff848284ffffffff0000ff0000000000ffffffffffff840000ff00
+00848284ffffff848284ffffffffffffffffffffffffc6c3c6c6c3c6848284000000c6c3c6ffff
+ffffffff848284ffffffffffff848284848284848284ffffffffffffffffff848284ff0000ff00
+00ff0000000000ffffffffffff840000ff0000848284ffffff848284ffffffffffffffffffffff
+ffffffffc6c3c6848284848284848284848284ffffffffffff848284848284ffffffffffffffff
+ffffffffffffffffffff848284840000840000840000840000ffffffffffff840000ff00008482
+84ffffff848284ffffffffffffffffffffffffc6c3c6c6c3c6848284ffffffffffff848284ffff
+ffffffffffffffffffff848284848284848284848284ffffffffffff848284ffffffffffffffff
+ffffffffffffffffffff840000ff0000848284ffffff848284ffffffffffffffffffffffffffff
+ffc6c3c6848284ffffffffffffffffff848284848284ffffffffffffffffffffffffffffffffff
+ffffffffffffff848284ffffffffffffffffffffffffffffffffffff840000ff0000848284ffff
+ff848284ffffffffffffffffffffffffc6c3c6848284ffffffffffffffffffffffffffffffffff
+ff848284848284ffffffffffffffffffffffffffffffffffff848284ffffffffffffffffffffff
+ffffffffffffff840000840000848284ffffff848284ffffffffffffffffffffffffffffff8482
+84ffffffffffffffffffffffffffffffffffffffffffffffff8482848482848482848482848482
+84848284848284ffffffffffffffffffffffffffffffffffffffffffffffff848284ffffff8482
+84ffffffffffffffffffffffff848284ffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffff848284848284848284ffffffffffffffffff848284ffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff848284ffff
+ffffffff848284ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffff848284848284848284ffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffff030000000000
+}\cf2\b\fs32  PhoneDeck\cf1\b0\fs24\par
+\par
+\cf2 Flexible, lightweight phone- and addressbook with a phone dialer. \cf1\par
+\par
+There are plenty freeware address books around, but I didn't like any of them - PhoneDeck is meant to be different, so check it out. It's probably the best-looking freeware addressbook for Windows. Extremely configurable interface and behavior; many unique features. Multilingual address-description interface. System tray icon with an activation hotkey. Includes phone dialer and a powerful import/export utility. Full help and automatic install/uninstall process. Please see homepage for detailed list of features and a list of mirror sites. No nags, no ads freeware, forever.\par
+\par
+\cf0{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf3 http://keynote.prv.pl}}}\cf1\f0\fs24\par
+}
+%-
+LV=2
+ND=Features
+DI=5
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+%:
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f2\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue0;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-200\li200\lang1033\f0\fs24 One-click add or edit address entry. \par
+{\pntext\f2\'B7\tab}Quickly access any address by typing the first few letters of the name, by clicking an alphabet index button, or by using the powerful Find feature. \par
+{\pntext\f2\'B7\tab}Switch between two alternate views in the main window. One view displays all the address data in a single list (you may select the items to be displayed there and change their order). The other view uses tab sheets to divide all address data into groups - for example, one tab displays all contact information (phone numbers, email addreses, URLs...), another tab displays home address, yet another tab displays office address, etc. You can switch between the two views with a single keypress or mouse click. \par
+{\pntext\f2\'B7\tab}Dial a phone number or launch your email application with a single click on an address entry. \par
+{\pntext\f2\'B7\tab}Addresses can be locked to prevent its accidental deletion. \par
+{\pntext\f2\'B7\tab}Configurable activation hotkey to bring the program window to front after it was minimized to the system tray \par
+{\pntext\f2\'B7\tab}If you would like to list an address under two ways, you can! For instance, you can list your friend John Smith alphabetically by his name, and also create a link (shortcut) which you can name ACME, by the company he runs. This does not double the entry: both items will point to the same address data. \par
+{\pntext\f2\'B7\tab}For addresses which have a person's first and last name, you can specify the order in which the are displayed (John Smith or Smith John) \par
+{\pntext\f2\'B7\tab}Redial last number function \par
+{\pntext\f2\'B7\tab}Quick Dial and Quick Email lists. You can add up to 10 phone numbers and 10 email addresses to a quick dial and quick email list, then dial a number or send email faster, without even having to navigate to the address entry. \par
+{\pntext\f2\'B7\tab}All address data can be copied to clipboard. \par
+{\pntext\f2\'B7\tab}Place program icon in system tray. \par
+{\pntext\f2\'B7\tab}Automatically save and backup the addressbook file. \par
+{\pntext\f2\'B7\tab}You can customize the appearance (font and color) of nearly every element of the program's interface \par
+{\pntext\f2\'B7\tab}Add category icons to each entry, search or display addresses by the category you assigned. \par
+{\pntext\f2\'B7\tab}Category names and icons can be customized (user-defined icons can be extracted from .ICO, .BMP, .EXE and .DLL files) \par
+{\pntext\f2\'B7\tab}When you add a new address, some of its fields can be filled automatically. For instance, most addresses you will be adding will probably have the same "Country" and "City" fields. These can be pre-filled automatically for you when you add an entry. \par
+{\pntext\f2\'B7\tab}Names of the address information fields can now be translated to your language. To find out how to do this, please see file LANGUAGE.TXT distributed with the program. \par
+{\pntext\f2\'B7\tab}Address books can be merged. \par
+{\pntext\f2\'B7\tab}Automatic installation and deinstallation. \par
+{\pntext\f2\'B7\tab}Help file included (finally!) \par
+\pard\cf1\lang1045\f1\par
+}
+%-
+LV=1
+ND=Oubliette
+DI=6
+NF=001000010000000000000000
+BC=clWindow
+IX=0
+HC=$009B0000
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue0;\red0\green0\blue160;\red0\green0\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\f0\fs24{\pict\wmetafile8\picwgoal480\pichgoal480 
+010009000003380600000000220600000000050000000b0200000000050000000c024e034e0322
+060000430f2000cc00000020002000000000004e034e0300000000280000002000000020000000
+0100180000000000000c0000c40e0000c40e00000000000000000000ffffff0000000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000ffffffffffff000000f7fbffa5a2a5000000a5a2a57375737375737375737375737375
+737375737375737375737375737375737375737375737375737375737375737375737375737375
+73737573737573737573000000a5a2a5737573000000ffffffffffff000000f7fbffa5a2a50000
+00f7fbffa5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2
+a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5737573000000a5a2a57375730000
+00ffffffffffff000000f7fbffa5a2a5000000f7fbffa5a2a59c9a9cc6c3c6c6c3c6c6c3c6c6c3
+c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3c6c6c3
+c6a5a2a5737573000000a5a2a5737573000000ffffffffffff000000f7fbffa5a2a5000000f7fb
+ffa5a2a59c9a9c9c9a9c9c9a9c9c9a9c9c9a9c9c9a9c9c9a9c9c9a9c9c9a9c9c9a9c9c9a9c9c9a
+9c9c9a9c9c9a9c9c9a9c9c9a9c9c9a9c9c9a9ca5a2a5737573000000a5a2a5737573000000ffff
+ffffffff000000f7fbffa5a2a5000000f7fbffa5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2
+a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2
+a5737573000000a5a2a5737573000000ffffffffffff000000f7fbffa5a2a5000000f7fbfff7fb
+fff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fb
+fff7fbfff7fbfff7fbfff7fbfff7fbfff7fbffa5a2a5000000a5a2a5737573000000ffffffffff
+ff000000f7fbffa5a2a50000000000000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000a5a2a5737573000000ffffffffffff000000f7fbffa5a2a5000000cecfcececfcef7fb
+ffcecfcec6c3c6c6c3c6a5a2a5c6c3c6c6c3c6cecfcececfcececfcececfcededfdededfdef7fb
+ffdedfdededfdececfcececfcececfcececfce000000a5a2a5737573000000ffffffffffff0000
+00f7fbffa5a2a5000000cecfcececfce000000dedfdec6c3c6c6c3c6a5a2a5dedfdec6c3c6cecf
+cececfcececfcececfcededfdededfdef7fbffdedfdef7fbffcecfcececfcececfcef7fbff0000
+00a5a2a5737573000000ffffffffffff000000f7fbffa5a2a5000000cecfce000000cecfce0000
+00dedfdec6c3c6a5a2a5000000dedfdececfcececfcececfcef7fbffdedfdededfdef7fbffdedf
+de000000f7fbffcecfcececfce000000000000a5a2a5737573000000ffffffffffff000000f7fb
+ffa5a2a5000000000000f7fbffcecfcececfce000000dedfde000000cecfce000000f7fbffcecf
+cececfce000000f7fbffdedfdef7fbff000000cecfce000000f7fbff000000cecfce000000a5a2
+a5737573000000ffffffffffff000000f7fbffa5a2a5000000c6dfc6000000f7fbff000000c6df
+c6000000f7fbffcecfcececfce000000f7fbff000000cecfce000000f7fbff000000f7fbffcecf
+cececfce000000c6dfc6000000000000a5a2a5737573000000ffffffffffff000000f7fbffa5a2
+a5000000c6dfc6c6dfc6000000c6dfc6c6dfc6c6dfc6000000f7fbff000000c6dfc6000000cecf
+ce000000c6dfc6000000c6dfc6000000f7fbff000000c6dfc6c6dfc6c6dfc6000000a5a2a57375
+73000000ffffffffffff000000f7fbffa5a2a5000000c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6df
+c6c6dfc6000000c6dfc6c6dfc6c6dfc6000000c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6000000c6df
+c6c6dfc6c6dfc6c6dfc6000000a5a2a5737573000000ffffffffffff000000f7fbffa5a2a50000
+00c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6df
+c6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6000000a5a2a57375730000
+00ffffffffffff000000f7fbffa5a2a5000000c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6df
+c6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6df
+c6c6dfc6c6dfc6000000a5a2a5737573000000ffffffffffff000000f7fbffa5a2a5000000c6df
+c6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6df
+c6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6000000a5a2a5737573000000ffff
+ffffffff000000f7fbffa5a2a5000000c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6df
+c6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6df
+c6c6dfc6000000a5a2a5737573000000ffffffffffff000000f7fbffa5a2a5000000c6dfc60000
+00c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6df
+c6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6000000000000a5a2a5737573000000ffffffffff
+ff000000f7fbffa5a2a50000000000009c9a9c000000c6dfc6c6dfc6c6dfc6000000c6dfc6c6df
+c6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6c6dfc6000000c6dfc6c6dfc6c6dfc60000009c9a
+9c000000a5a2a5737573000000ffffffffffff000000f7fbffa5a2a5000000cecfcececfce9c9a
+9c000000c6dfc6000000737573000000c6dfc6c6dfc6c6dfc6000000c6dfc6c6dfc6c6dfc60000
+00a5a2a5000000c6dfc6000000cecfcececfce000000a5a2a5737573000000ffffffffffff0000
+00f7fbffa5a2a5000000cecfcececfcececfce737573000000a5a2a5c6c3c69c9a9c000000c6df
+c60000009c9a9c000000c6dfc6000000dedfdededfde9c9a9c000000cecfcececfcececfce0000
+00a5a2a5737573000000ffffffffffff000000f7fbffa5a2a5000000cecfcececfcececfcec6c3
+c69c9a9ca5a2a5c6c3c6c6c3c69c9a9c000000cecfcececfcea5a2a5000000f7fbffdedfdededf
+dececfce9c9a9ccecfcececfcececfce000000a5a2a5737573000000ffffffffffff000000f7fb
+ffa5a2a5000000cecfcececfcececfcec6c3c6c6c3c6a5a2a5c6c3c6c6c3c6cecfce9c9a9ccecf
+cececfcededfdea5a2a5f7fbffdedfdededfdececfcececfcececfcececfcececfce000000a5a2
+a5737573000000ffffffffffff000000f7fbffa5a2a5000000cecfcececfcececfcec6c3c6c6c3
+c6a5a2a5c6c3c6c6c3c6cecfcececfcececfcececfcededfdededfdef7fbffdedfdededfdececf
+cececfcececfcececfcececfce000000a5a2a5737573000000ffffffffffff000000a5a2a5a5a2
+a50000007375737375737375737375737375737375737375737375737375737375737375737375
+737375737375737375737375737375737375737375737375737375737375730000007375737375
+73000000ffffffffffff0000000000000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000ffffff000000a5a2a57375737375737375
+737375737375737375737375737375737375737375737375737375737375737375737375737375
+737375737375737375737375737375737375737375737375737375737375737375737375737375
+73000000000000f7fbffa5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2
+a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2
+a5a5a2a5a5a2a5a5a2a5a5a2a5a5a2a5737573000000000000f7fbfff7fbfff7fbfff7fbfff7fb
+fff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fb
+fff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbfff7fbffa5a2a50000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000030000000000
+}\cf2\b\fs32  Oubliette\cf1\b0\fs24\par
+\par
+\cf2 Full-featured password manager, with source code. \cf1\par
+\par
+Store and manage passwords for your internet accounts, PIN numbers, credit cards, etc. Securely encrypts data with Blowfish or IDEA using freeware DCPCrypt library by David Barton (\cf0{\field{\*\fldinst{HYPERLINK "http://www.devarchive.com/DCPcrypt.html"}}{\fldrslt{\ul\cf3 http://www.devarchive.com/DCPcrypt.html}}}\cf1\f0\fs24 ). Flexible and configurable. Group accounts by category (customizable). View passwords in a small-footprint interface or in a separate browser window.Easily Copy/Paste information from clipboard. System tray icon and activation hotkey. Exports to a variety of formats (plain text, HTML, CSV, INI). Function to encrypt or decrypt arbitrary files. Note: FULL source code included (Borland Delphi 3 required to compile). No nags, no ads freeware, forever.\par
+\par
+\cf0{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf3 http://keynote.prv.pl}}}\cf1\f0\fs24\par
+}
+%-
+LV=2
+ND=Features
+DI=7
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+%:
+{\rtf1\ansi\ansicpg1250\deff0{\fonttbl {\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f1\fnil\fcharset2{\*\fname Symbol;}MT Symbol;}}
+{\colortbl ;\red0\green0\blue0;}
+\uc1\pard {\pntext\f1\'b7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'b7}}\fi-200\li200\cf1\lang1045\f0 One-click add or edit account. \par
+{\pntext\f1\'b7\tab}Quickly access any account from a drop-down box or using an Explorer-like list interface. \par
+{\pntext\f1\'b7\tab}Copy passphrase (or other information) to clipboard. \par
+{\pntext\f1\'b7\tab}Place program icon in system tray. \par
+{\pntext\f1\'b7\tab}Automatically save and/or backup the password file. \par
+{\pntext\f1\'b7\tab}Automatically hide account information if the program has not been used for a specified period of time. (Optionally minimize program and/or unload the password file). \par
+{\pntext\f1\'b7\tab}Activation hotkey \par
+{\pntext\f1\'b7\tab}Ability to merge password files \par
+{\pntext\f1\'b7\tab}Passphrases may be obscured with asterisks in any view they are displayed \par
+{\pntext\f1\'b7\tab}Group accounts in categories, with user-configurable names. \par
+{\pntext\f1\'b7\tab}Export to a variety of formats (plain text, HTML, comma-separated values or Windows INI file). When exporting to plain text or HTML, Oubliete can use a user-defined template to format the output precisely as desired. \par
+{\pntext\f1\'b7\tab}Encrypt or decrypt arbitrary external files \par
+{\pntext\f1\'b7\tab}Configurable activation hotkey to bring the program window to front after it was minimized to the system tray \par
+{\pntext\f1\'b7\tab}Automatic installation and deinstallation. \par
+}
+%-
+LV=1
+ND=VisitURL
+DI=8
+NF=001000010000000000000000
+BC=clWindow
+IX=0
+HC=$009B0000
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue0;\red0\green0\blue160;\red0\green0\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\f0\fs24{\pict\wmetafile8\picwgoal480\pichgoal480 
+010009000003380600000000220600000000050000000b0200000000050000000c024e034e0322
+060000430f2000cc00000020002000000000004e034e0300000000280000002000000020000000
+0100180000000000000c0000c40e0000c40e00000000000000000000ffffffffffffffffffffff
+ffffffffffffff0000000000000000000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000ffffffffffffffffffffffffffffff0000000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000ffffffffffffffffffffffffffffff0000
+0000000000000031cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cf
+ff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cf
+ff31cfffffffffffffffffffff00000000000000000031cfff9cffff9cffff9cffff9cffff9cff
+ff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cff
+ff9cffff9cffff9cffff9cffff9cffff9cffff31cfffffffffffffff00000000000000000031cf
+ff9cffff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cf
+ff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cf
+ffffffff00000000000000000031cfff9cffff31cfff9cffff9cffff9cffff9cffff9cffff9cff
+ff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cff
+ff9cffff9cffff9cffff9cffff9cffff31cfff00000000000000000031cfff9cffff31cfff9cff
+ff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cf
+ff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfff31cfffffff
+ffffffff31cfff9cffff31cfff9cffff31cfff9cffff9cffff9cffff9cffff9cffff9cffff9cff
+ff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff00cfff31cf
+ff319aff319aff9cffff31cfffffffffffffff31cfff9cffff31cfff9cffff31cfff9cffff31cf
+ff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cff
+ff9cffff9cffff9cffff9cffff9cffff00cfff31cfff319aff319affffffffffffff31cfff9cff
+ff31cfff9cffff31cfff9cffff31cfff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cff
+ff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff00cfff00cf
+ff319affffffffffffffffffff31cfff31cfff9cffff31cfff9cffff31cfff9cffff9cffff9cff
+ff000000000000639aff639aff639aff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cff
+ff9cffff9cffff9cffff9cffff00cfff00cfffffffffffffffffffffffffff31cfff9cffff31cf
+ff9cffff31cfff9cffff9cffff9cffff9cffff000000639aff639aff639aff00309c319aff00cf
+ff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9cffff00cfff00cfff00cf
+ffffffffffffffffffff31cfff31cfff9cffff31cfff9cffff9cffff9cffff9cffff9cffff9ccf
+ff9ccfff9ccfff00309c009aff009aff319aff00cfff00cfff9cffff9cffff9cffff9cffff9cff
+ff9cffff9cffff9cffff00cfff00cfff00cfffffffffffffffffffff31cfff9cffff31cfff9cff
+ff9cffff9cffff9cffff9cffff9cffff9ccfff9ccfff00309c00ffff00ffff009aff009aff319a
+ff00cfff00cfff00cfff9cffff9cffff9cffff9cffff9cffff00cfff00cfff00cfffffffffffff
+ffffffffffffff31cfff31cfff9cffff9cffff9cffff9cffff9cffff9cffff9cffff9ccfff0030
+9c00ffff00ffff00ffff00ffff009aff009aff319aff00cfff00cfff00cfff00cfff9cffff9cff
+ff00cfff00cfff00cfffffffffffffffffffffffffffffffff31cfff31cfff31cfff31cfff31cf
+ff31cfff31cfff31cfff31cfff31cfff31cfff00ffff00ffff00ffff00ffff00ffff009aff009a
+ff319aff00cfff00cfff00cfff00cfff00cfffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff31cf
+ff00ffff00ffff00ffff00ffff00ffff009aff009aff31cfffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffff31cfff00ffff00ffff00ffff00ffff00ffff009a
+ff009aff31cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ff31cfff00ffff00ffff00ffff00ffff00ffff009aff009aff31cfffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffff31cfff00ffff00ffff00ffff00ffff00ff
+ff009aff009aff31cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffff31cfff00ffff00ffff00ffff00ffff00ffff009aff009aff31cfffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffff31cfff00ffff00ffff00ffff00ff
+ff00ffff009aff009aff31cfffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffff31cfff00ffff00ffff00ffff00ffff00ffff009aff009aff424542ffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffff31cfff00ffff00ffff00ff
+ff00ffff00ffff424542737573424542ffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffff31cfff00ffff00ffff00ffff424542737573737573737573424542ffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff31cfff00ffff4245
+42c6c3c69c9a9c7375734245426365ff6365ffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffff424542c6c3c6c6c3c6c6c3c64245426365ff6365ff6365ff6365
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff424542c6c3
+c64245429c9aff9c9aff6365ff6365ff6365ffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffff4245429c9aff9c9aff9c9aff9c9aff6365ffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9c9a
+ff9c9aff9c9aff9c9affffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffff9c9aff9c9affffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffff030000000000
+}\cf2\b\fs32  VisitURL\cf1\b0\fs24\par
+\par
+\cf2 Flexible, lightweight bookmark manager. \cf1\par
+\par
+Maintains a handy list of URLs to websites you plan to visit. Very useful when you need to jot down an URL but don't want to launch the big bulky browser. Will capture URLs copied to clipboard, optionally using surrounding text as description. Lives in system tray. Extremely configurable interface, behavior and output, lots of additional features. Imports and exports URLs to several formats. Comments and suggestions are always welcome. No nags, no ads freeware, forever.\par
+\par
+\cf0{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf3 http://keynote.prv.pl}}}\cf1\f0\fs24\par
+}
+%-
+LV=2
+ND=Features
+DI=9
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+%:
+{\rtf1\ansi\ansicpg1250\deff0{\fonttbl {\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f1\fnil\fcharset2{\*\fname Symbol;}MT Symbol;}}
+{\colortbl ;\red0\green0\blue0;\red0\green0\blue255;}
+\uc1\pard {\pntext\f1\'b7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'b7}}\fi-200\li200\cf1\lang1045\f0 URLs may be added one or several at a time, from clipboard or maually. \par
+{\pntext\f1\'b7\tab}Automatic, configurable, semi-intelligent scanning for URL descriptions when adding URLs from clipboard or importing from files. \par
+{\pntext\f1\'b7\tab}Configurable HTML output: you may choose how the list of collected URLs is presented in your browser. \par
+{\pntext\f1\'b7\tab}Clipboard monitoring for automatic collection of URLs\par
+{\pntext\f1\'b7\tab}(just copy the URL to clipboard and Visit will add it to its list). \par
+{\pntext\f1\'b7\tab}User-configurable list of URL schemes ('\cf2\ul ftp://\cf1\ul0 ', '\cf2\ul http://\cf1\ul0 ', etc) to watch for. Ability to extend the default list of schemes. \par
+{\pntext\f1\'b7\tab}Configurable import of URLs from plain text files, HTML documents and Internet Explorer "Favorites" (i.e. Internet Shortcuts). For instance, you may choose to only import mailto links, only links to '.zip' files, or only URLs beginning with '\cf2\ul http://\cf1\ul0 ' - or any combination thereof. The 'Import' feature itself is the most powerful I've seen in applications of this type. \par
+{\pntext\f1\'b7\tab}URLs may be copied to clipboard in several ways: for instance, you may simply copy the Internet address, or you may copy the URL and its associated desciption as HTML code, ready to be pasted into a Web document you are creating. \par
+{\pntext\f1\'b7\tab}'Find' feature (search for text in URLs or URL descriptions). \par
+{\pntext\f1\'b7\tab}Option to live in system tray. \par
+{\pntext\f1\'b7\tab}Export URLs to a plain text file, as Explorer's 'favorites', to a delimited file (*.CSV) or to Netscape Navigator's bookmarks. \par
+{\pntext\f1\'b7\tab}All functions available from keyboard. \par
+{\pntext\f1\'b7\tab}Configurable fonts and colors; configurable default actions (for instance, you may choose what action the program will perform when you click the tray icon). One-click or single-keypress operation for all frequently used features. \par
+{\pntext\f1\'b7\tab}URLs may be sorted by net address, by description or by date added. \par
+{\pntext\f1\'b7\tab}A user-defined template file may be used to format the HTML output. \par
+{\pntext\f1\'b7\tab}Configurable activation hotkey to bring the program window to front after it was minimized to the system tray \par
+{\pntext\f1\'b7\tab}Automatic installer and uninstaller \par
+}
+%-
+LV=1
+ND=KookieJar
+DI=10
+NF=001000010000000000000000
+BC=clWindow
+IX=0
+HC=$009B0000
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue0;\red0\green0\blue160;\red0\green0\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\f0\fs24{\pict\wmetafile8\picwgoal480\pichgoal480 
+010009000003380600000000220600000000050000000b0200000000050000000c024e034e0322
+060000430f2000cc00000020002000000000004e034e0300000000280000002000000020000000
+0100180000000000000c0000c40e0000c40e000000000000000000000030630030630030630030
+630030630030630030630030630030630030630030630030630030630030630030630030630030
+630030630030630030630030630030630030630030630030630030630030630030630030630030
+63003063003063008a000045000045000045000045000045000045000000ff00009c00009c0000
+9c00009c00009c00009c0000630000630000630000630000630000630000637300007300007300
+0073000073000073000000659c00659c00659c00659c00659c008a0000750000aa00008a000075
+000055000045000000ff0000bd0030ff0000de0000bd0000ad00009c00659c009ace009a9c0065
+9c00309c00009c000063ce0000ff6563ff00009c000084000073000000659c00009c00009c0000
+9c00659c008a0000cfce00cfce00cfce00cfce00cfce0045000000ff0000bd63ffff63ffff63ff
+ff0000ad00009c00659c009ace009a9c00ffff00ffff00ffff000063ce0000ff6563ff00009c00
+0084000073000000659c00ffff00cfce319ace00659c008a0000659c00659c00659c00659c0065
+9c0045000000ff63ffff0030ff0000de0000bd63ffff00009c00659c00659c00659c00ffff31ff
+ff00ffff000063ce0000ff6563ff00009c000084000073000000659c00ffff00cfce319ace0065
+9c008a0000cfce00cfce00cfce00cfce00cfce0045000000ff0000bd63ffff0000de63ffff0000
+ad00009c00659c00006300006300ffff00ffff00ffff000063ce0000ff6563ff00009c00008400
+0073000000659c00ffff00cfce319ace00659c008a0000750000aa00008a000075000055000045
+000000ff63ffff0030ff0000de0000bd63ffff00009c00659c009ace009a9c00ffff00ffff00ff
+ff000063ce0000ff6563ff00009c000084000073000000659c00ffff00cfce319ace00659c008a
+0000750000aa00008a000075000055000045000000ff0000bd63ffff63ffff63ffff0000ad0000
+9c00659c009ace009a9c00ffff00ffff00ffff000063ce000000009c00009c00009c00009c7300
+0000659c00ffff00cfce319ace00659c008a0000750000aa00008a000075000055000045000000
+ff0000bd0030ff0000de0000bd0000ad00009c00659c009ace009a9c00ffff00ffff00ffff0000
+63ce0000ce3031ce3031ce3031ce303173000000659c00ffff00cfce319ace00659c008a000075
+0000aa00008a000075000055000045000000ff0000bd0030ff0000de00ffff00ffff00ffff00ff
+ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff7300000065
+9c00ffff00cfce319ace00659c008a0000750000aa00008a000075000055000045000000ff0000
+bd0030ff0000de00ffff31ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff
+ff00ffff00ffff31ffff00ffff73000000659c00ffff00cfce319ace00659c008a0000750000aa
+00008a000075000055000045000000ff0000bd0030ff0000de00ffff00ffff00ffff00ffff00ff
+ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff73000000659c00ff
+ff00cfce319ace00659c008a0000750000aa00008a000075000055000045000000ff0000bd0030
+ff0000de0000bd0000ad00009c00659c009ace009a9c00ffff00ffff00ffff000063ce0000ff65
+63ce30319c000084000073000000659c00ffff00cfce319ace00659c008a0000750000aa00008a
+000075000055000045000000ff0000bd0030ff0000de0000bd0000ad00009c00659c009ace009a
+9c00ffff00ffff00ffff000063ce0000ff6563ce30319c000084000073000000659c00ffff00cf
+ce319ace00659c008a0000750000aa00008a000075000055000045000000ff0000bd0030ff0000
+de0000bd0000ad00009c00659c009ace009a9c00ffff00ffff00ffff000063ce0000ff6563ce30
+319c000084000073000000659c00ffff00cfce319ace00659c008a0000750000aa00008a000075
+000055000045000000ff0000bd0030ff0000de0000bd0000ad00009c00659c00006300006300ff
+ff00ffff00ffff000063ce0000ff6563ce30319c000084000073000000659c00009c00009c0000
+9c00659c008a0000750000aa00008a000075000055000045000000ff0000bd0030ff0000de0000
+bd0000ad00009c00659c00306300306300ffff31ffff00ffff000063ce0000ff6563ce30319c00
+0084000073000000659c0000ce0000ce0000ce00659c008a0000cfce00cfce00cfce00cfce00cf
+ce0045000000ff0000bd0030ff0000de0000bd0000ad00009c00659c00659c00659c00ffff00ff
+ff00ffff000063ce0000ff6563ce30319c000084000073000000659c00009c00009c00009c0065
+9c008a0031cfff31cfff31cfff31cfff31cfff0045000000ff0000bd0030ff0000de0000bd0000
+ad00009c00659c00659c00659c00659c00659c00659c000063ce0000ff6563ce30319c00008400
+0073000000659c00ffff00cfce319ace00659c008a0000659c00659c00659c00659c00659c0045
+000000ff0000bd0030ff0000de0000bd0000ad00009c00659c0030630030630030630030630030
+63000063ce0000ff6563ce30319c000084000073000000659c00ffff00cfce319ace00659c008a
+0031cfff31cfff31cfff31cfff31cfff0045000000ff0000bd0030ff0000de0000bd0000ad0000
+9c00659c000063000063000063000063000063000063ce000000659c00659c00659c00659c7300
+0000659c00ffff00cfce319ace00659c008a0000cfce00cfce00cfce00cfce00cfce0045000000
+ff0000bd0030ff0000de0000bd0000ad00009c00659c009ace009a9c00659c00309c00009c0000
+63ce000000309c00309c00309c00309c73000000659c00ffff00cfce319ace00659c008a000075
+0000aa00008a000075000055000045000000ff0000bd0030ff0000de0000bd0000ad00009c0065
+9c009ace009a9c00659c00309c00009c000063ce000000ffce00ffce00ffce00ffce7300000065
+9c00009c00009c00009c00659c008a0000750000aa00008a000075000055000045000000ff009a
+ff009aff009aff009aff009aff00009c00659c009ace009a9c00659c00309c00009c000063ce00
+0000309c00309c00309c00309c73000000659c00659c00659c00659c00659c008a0000750000aa
+00008a000075000055000045000000ff00cfff00cfff00cfff00cfff00cfff00009c00659c009a
+ce009a9c00659c00309c00009c000063ce000000659c00659c00659c00659c730000ffffffffff
+ffffffffffffffffffff008a0000750000aa00008a000075000055000045000000ff00ffff00ff
+ff00ffff00ffff00ffff00009c00659c00659c00659c00659c00659c00659c00659cce0000ff65
+63ff00009c0000840000730000ffffffffffffffffffffffffffffff008a00008a00008a00008a
+00008a00008a00008a000000ff0000bd0030ff0000de0000bd0000ad00009cffffffffffffffff
+ffffffffffffffffffffffffffce0000ff6563ff00009c0000840000730000ffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000ff0000bd0030ff0000
+de0000bd0000ad00009cffffffffffffffffffffffffffffffffffffffffffce0000ff6563ff00
+009c0000840000730000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffff0000ff0000bd0030ff0000de0000bd0000ad00009cffffffffffffffffffffff
+ffffffffffffffffffffce0000ff6563ff00009c0000840000730000ffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffffffffff0000ff0000bd0030ff0000de0000
+bd0000ad00009cffffffffffffffffffffffffffffffffffffffffffce0000ff6563ff00009c00
+00840000730000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffff0000ff0000bd0030ff0000de0000bd0000ad00009cffffffffffffffffffffffffffff
+ffffffffffffffce0000ce0000ce0000ce0000ce0000ce0000ffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffffffffff0000ff0000ff0000ff0000ff0000ff0000
+ff0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffffffffffff030000000000
+}\cf2\b\fs32  KookieJar\cf1\b0\fs24\par
+\par
+\cf2 Signature randomizer for email and news clients.\cf1\par
+\par
+Signature generator that aspires to be the best free signature generator and randomizer for Windows 95/98. Configurable and featureful. It's not just random quotes anymore. KookieJar will launch a program and include its output in your signature, or place the 'Now playing' line, using information from the AudioCD disk you are listening to. Also, a special treat for the Discordians out there... and more: multi-line quotes, compatibility with Unix `fortune' program, full support for RTF and HTML signatures. Help file included. No nags, no ads freeware, forever.\par
+\par
+\cf0{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf3 http://keynote.prv.pl}}}\cf1\f0\fs24\par
+}
+%-
+LV=2
+ND=Features
+DI=11
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+%:
+{\rtf1\ansi\deff0{\fonttbl {\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f1\fnil\fcharset2{\*\fname Symbol;}MT Symbol;}}
+{\colortbl ;\red0\green0\blue0;}
+\uc1\pard\cf1\lang1045\b\f0 General:\b0\par
+\par
+\pard {\pntext\f1\'b7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'b7}}\fi-200\li200 Timer operation to automatically create a new signature at intervals that you specify. The timer can be switched off, temporarily or permanently. \par
+{\pntext\f1\'b7\tab}While normally taglines are chosen at random, there is a full-screen selection window that lets you choose a specific tagline manually. \par
+{\pntext\f1\'b7\tab}Taglines may be added, removed and edited while the program is running. \par
+{\pntext\f1\'b7\tab}You can select a different tagline file while the program is running. \par
+{\pntext\f1\'b7\tab}Load on demand: if your tagline file is rather large, you can tell the program to only load the file when necessary (i.e. when a new quote is needed) and automatically unload the file immediately thereafter. This will reduce memory usage. \par
+{\pntext\f1\'b7\tab}Option to save the signature as RTF (rich text format) file, (for use with MS Outlook Express) or in HTML format. \par
+{\pntext\f1\'b7\tab}Optionally, minimize the program to system tray. \par
+{\pntext\f1\'b7\tab}Choice of font and background color used for displaying the signatures on screen \par
+{\pntext\f1\'b7\tab}Automatic line wrapping at the line length you specify (may also be disabled for particular quotes in the quotes file) \par
+{\pntext\f1\'b7\tab}User-defined template that is used to form the signature file. For instance, you may specify the URL for your homepage, add any other information you wish, and this information will be combined with the randomly chosen quote to form the signature file. \par
+{\pntext\f1\'b7\tab}Ability to completely hide the program (optional; icon doesn't show on taskbar or in system tray) \par
+{\pntext\f1\'b7\tab}Configurable activation hotkey to bring the program window to front after it was minimized to the system tray \par
+{\pntext\f1\'b7\tab}Online help included. \par
+\pard\par
+\par
+\b New since version 5.9:\b0\par
+\par
+\pard {\pntext\f1\'b7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'b7}}\fi-200\li200 Completely redesigned interface (see screenshot) \par
+{\pntext\f1\'b7\tab}Lots of new template tokens. The old version supported two tokens: for the current random quote and its number. The new version supported nineteen separate tokens, from simple to advanced. \par
+{\pntext\f1\'b7\tab}Examples of new token functionality: \par
+{\pntext\f1\'b7\tab}Ability to use several quote files with one signature and change them at random. \par
+{\pntext\f1\'b7\tab}Ability to choose quotes randomly without repetition, until all quotes have been exhausted. \par
+\pard {\pntext\f1\'b7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'b7}}\fi-200\li680\fs20 Some people like to include a Now Playing: line in their sigs, to let the world know what CD is currently spinning in their player. If you listen to CDs using your CD-ROM drive, KookieJar will automatically poll the drive for CD information, format the Now-Playing string the way you set it in Options, and include it in your signature. If there is no AudioCD or if information about the disk cannot be found, the token is ignored. \par
+{\pntext\f1\'b7\tab}Include the contents of an external text file in your signature (useful for instance if you have another application generate a text file you want to have in your sig). \par
+{\pntext\f1\'b7\tab}KookieJar can launch an external command-line (terminal) application and include its output in the signature. \par
+{\pntext\f1\'b7\tab}Include current date and time in a variety of formats (in English or in the language of your Windows system). \par
+{\pntext\f1\'b7\tab}Include Discordian date and time measures in your sig (please see Erisian Warez page for details). \par
+{\pntext\f1\'b7\tab}Include the contents of an environment variable in the signature file. \fs24\par
+\pard {\pntext\f1\'b7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'b7}}\fi-200\li200 Quotes may be autoselected randomly, as before, or you can choose to have new quotes selected in sequence (ascending or descending) \par
+{\pntext\f1\'b7\tab}You can now have more than one random quote in the signature! \par
+{\pntext\f1\'b7\tab}When saving signatures in RTF or HTML format, it is possible to use external "frmat files" to have your signature formatted precisely the way you want it. (I just gave up on the idea of setting up details of format via three hundred and seventy five checkbox options, and decided on templates instead. They're easy, and you only need to create them once.) \par
+{\pntext\f1\'b7\tab}Improved the quote select dialog box. You can now edit, add, remove and sort quotes there. \par
+{\pntext\f1\'b7\tab}Built-in template editor. You cans till edit the template in any text editor you like to use, but KookieJar now lets you edit the template within the Options dialog box. You can choose tokens from a drop-down list and have them automatically formatted. The template is automatically validated and any problems are reported. \par
+{\pntext\f1\'b7\tab}Quotes can now be edited, as well as added and removed, in the main program window. \par
+{\pntext\f1\'b7\tab}The program will now work without a quote file if you do not wish to use random quotes. Signatures will be updated correctly. \par
+{\pntext\f1\'b7\tab}Extensive reporting of errors or problems (missing files, bad template syntax, inaccessible resources, etc). Most of these are already implemented. \par
+{\pntext\f1\'b7\tab}Automatic installer/uninstaller. \par
+\pard\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+}
+%-
+LV=1
+ND=InjectURL
+DI=12
+NF=001000010000000000000000
+BC=clWindow
+IX=0
+HC=$009B0000
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue0;\red255\green0\blue0;\red0\green0\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\b\f0\fs32 InjectURL\cf2\b0\fs24\par
+\par
+\cf1 Automatically inject original URL into saved HTML files\cf2\par
+\par
+\cf3 This program is currently NOT supprted.\cf2\par
+\par
+You visit a Web site, and save the HTML page to read it later, offline. You want to remember the original URL address where the document came from - but editing the document and copying/pasting the URL gets old rather fast. Let InjectURL do the boring part for you! It will detect that you have saved an HTML document, query the browser for URL and 'inject' the URL into the document you have saved (as a clickable link on top of the file). Manual override, flexible and configurable. (Works with Netscape Navigator and MS Internet Explorer.) No nags, no ads freeware, forever.\par
+\par
+\cf0{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf4 http://keynote.prv.pl}}}\cf2\f0\fs24\par
+}
+%-
+LV=0
+ND=Web URLs
+DI=13
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+{\colortbl ;\red0\green0\blue0;\red0\green0\blue255;}
+{\*\generator Riched20 5.40.11.2210;}\viewkind4\uc1\pard\cf1\f0\fs20\par
+\b General Frenetics Freeware website:\b0\par
+\cf0\fs24{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf2 http://keynote.prv.pl}}}\cf1\f0\fs20\par
+\par
+\b Erisian Warez (Discordian software):\b0\par
+\cf2\ul{\field{\*\fldinst{HYPERLINK "http://www.lodz.pdi.net/~eristic/erisware.html"}}{\fldrslt{\ul\cf2 http://www.lodz.pdi.net/~eristic/erisware.html}}}\cf1\ulnone\f0\fs20\par
+\cf2\ul{\field{\*\fldinst{HYPERLINK "http://come.to/fnord"}}{\fldrslt{\ul\cf2 http://come.to/fnord}}}\cf1\ulnone\f0\fs20\par
+\par
+\b Author's Homepage:\b0\par
+\cf0\fs24{\field{\*\fldinst{HYPERLINK "http://keynote.prv.pl"}}{\fldrslt{\ul\cf2 http://keynote.prv.pl}}}\cf1\f0\fs20\par
+\par
+\par
+}
+%%

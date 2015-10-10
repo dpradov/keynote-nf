@@ -1,0 +1,11 @@
+marekjed@pobox.com
+This file is called "keymail.adr".
+Use it as a very simple addressbook.
+Put one email address per line.
+The file is automatically loaded
+into the "TO" and "CC" text boxes
+when you send email from Keynote.
+The sample address on top is the
+address of the program's author.
+Feel free to send comments.
+(Absolutely no HTML email, please!)

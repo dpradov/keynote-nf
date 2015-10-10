@@ -1,0 +1,36 @@
+# DATEFORMATS.TXT - custom date format strings
+# for KeyNote 1.6.1 or later.
+#
+# These format strings will be used to build the
+# drop-down menu attached to the 'Insert Time'
+# button on the toolbar.
+#
+# By default, localized vresions of date and time
+# strings are used. Prefix a format string with
+# @ to indicate that English names should be
+# used instead, e.g. '@dd-mm-yy'.
+# Click the 'Insert Date' button while holding down
+# the SHIFT key to re-load this file at runtime.
+# Maximum number of entries is 21.
+
+dd-MM-yy
+dd-MM-yyyy
+dddd, dd mmmm yyyy
+dd mmmm yyyy (dddd)
+dd mmmm yyyy
+dd mmmm, yyyy
+yy/mm/dd
+yyyy/mm/dd
+mmmm, dd
+mmmm dd, yyyy
+dd mmmm
+dd/mmm/yy
+dd/mmm/yyyy
+dd/mm/yyyy hh:mm
+dd/mm/yyyy hh:mm:ss
+dd mmm yyyy hh:mm
+dd mmm yyyy hh:mm:ss
+dd mmmm yyyy hh:mm
+dd mmmm yyyy hh:mm:ss
+dddd, dd mmmm yyyy hh:mm
+dddd, dd mmmm yyyy hh:mm:ss

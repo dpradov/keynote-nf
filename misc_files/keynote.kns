@@ -1,0 +1,100 @@
+[1]
+Name=Blue Highlight
+Range=0
+FontName=Courier New
+FontCharset=238
+FontColor=clWhite
+FontSize=12
+FontStyle=bold underline
+Disabled=0
+SubStyle=0
+Hilight=$00A87400
+
+[2]
+Name=Blue Typewriter
+Range=0
+FontName=Courier New
+FontCharset=238
+FontColor=$00A00000
+FontSize=12
+FontStyle=
+Disabled=0
+SubStyle=0
+
+[3]
+Name=Emergency
+Range=2
+FontName=Arial
+FontCharset=238
+FontColor=$000044D0
+FontSize=27
+FontStyle=bold
+Disabled=0
+SubStyle=0
+Hilight=$0080FFFF
+SpcRule=0
+LIndent=0
+RIndent=0
+FIndent=0
+SpcBef=4
+SpcAft=4
+Number=0
+Align=0
+
+[4]
+Name=Green Highlight
+Range=0
+FontName=Courier New
+FontCharset=238
+FontColor=clWindowText
+FontSize=12
+FontStyle=
+Disabled=0
+SubStyle=0
+Hilight=$0080FF80
+
+[5]
+Name=Magic Green
+Range=0
+FontName=HomewardBound
+FontCharset=238
+FontColor=$00009400
+FontSize=12
+FontStyle=bold
+Disabled=0
+SubStyle=0
+
+[6]
+Name=Red Highlight
+Range=0
+FontName=Arial
+FontCharset=238
+FontColor=clYellow
+FontSize=12
+FontStyle=bold
+Disabled=0
+SubStyle=0
+Hilight=$000000C0
+
+[7]
+Name=Small print
+Range=0
+FontName=Comic Sans MS
+FontCharset=238
+FontColor=clNavy
+FontSize=8
+FontStyle=
+Disabled=0
+SubStyle=0
+
+[8]
+Name=Yellow Highlight
+Range=0
+FontName=Courier New
+FontCharset=238
+FontColor=clWindowText
+FontSize=12
+FontStyle=
+Disabled=0
+SubStyle=0
+Hilight=$00D0FFFF
