@@ -1,0 +1,219 @@
+From: <Saved by UnMHT>
+Subject: =?iso-2022-jp?B?RGVscGhpIEZhc3QgWmxpYiAxLjIuMw==?=
+Date: Sun, Oct 25 2009 17:31:56 GMT+0100
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	boundary="----=_NextPart_000_0000_85B4D760.312BA7C3";
+	type="text/html"
+
+------=_NextPart_000_0000_85B4D760.312BA7C3
+Content-Type: text/html; charset="ISO-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://www.dellapasqua.com/delphizlib/
+
+<html><!-- Saved from http://www.dellapasqua.com/delphizlib/ --><head>
+
+<title>Delphi Fast Zlib 1.2.3</title>
+<meta content=3D"text/html; charset=3Diso-8859-1" http-equiv=3D"Content-Typ=
+e">
+<meta content=3D"Delphi zlib implementation for fastest performances, embed=
+ the newest zlib 1.2.3 objects into your program without using external dll=
+s" name=3D"description">
+<meta content=3D"delphi, fast zlib, zlib, zlib optimized, software examples=
+, software optimized, software implementation, dll, without dll, borland,=
+ c++, download" name=3D"keywords">
+
+<base href=3D"http://www.dellapasqua.com/delphizlib/"></base></head><body=
+ text=3D"#000000" bgcolor=3D"#ffffff">
+<h1><font color=3D"#ffffff">A Delphi zlib 1.2.3 implementation for fastest=
+ performances</font></h1>=20
+  <p align=3D"center"><font size=3D"2" face=3D"Verdana, Arial, Helvetica,=
+ sans-serif"> <strong>A Delphi=20
+    zlib 1.2.3 implementation for fastest(*) performances</strong>, <br>
+    including targeted P6 code generation, 64bit alignment, source changes=
+ and=20
+    optimizations<br>
+    </font><font size=3D"2" face=3D"Verdana, Arial, Helvetica, sans-serif">=
+ following=20
+    Borland=AE C++ full standards adherence</font><font size=3D"2" face=3D"=
+Verdana, Arial, Helvetica, sans-serif">,=20
+    and a Delphi added<br>
+    low level copy memory function to speedup typical strings management.<b=
+r>
+    Embed the newest zlib 1.2.3 objects into your programs <strong>without=
+ using=20
+    external dlls</strong>,<br>
+    take a look into the example seeing how to work with streams and string=
+s.<br>
+    <br>
+    </font></p>
+<p align=3D"center">
+  <a href=3D"http://www.dellapasqua.com/delphizlib/index.asp?q=3Ddownload">=
+Press here to download zlib 1.1.4 version</a>
+    25226 direct downloads=20
+  &nbsp;&nbsp;<br></p><p align=3D"center">
+  <a href=3D"http://www.dellapasqua.com/delphizlib/index.asp?q2=3Ddownload"=
+>Press here to download zlib 1.2.3 version</a>
+    21680 direct downloads=20
+  &nbsp;&nbsp;<br></p>
+
+<p align=3D"center"><font size=3D"1" face=3D"verdana">
+<br>
+Recompiled with latest Borland C++ 2006 SP2<br>
+
+<br><br>
+use ZSendToBrowser to send=20
+compressed text to browsers http1.1 compliant, let make your website(s) fou=
+r=20
+times light!<br>It&#x27;s ideal to use with dinamic cgi or isapi programs,=
+ this is my=20
+real test&nbsp;benchmark:<br>send 100 strings of=20
+32767bytes (a big size html doc length) -&gt; 0.40 seconds on Celeron1100Mh=
+z -&gt;=20
+0.26 seconds on Athlon1200Mhz<br><br>
+If you use ZSendToBrowser, first check the http1.1 header&nbsp;field &quot;=
+HTTP_ACCEPT_ENCODING: deflate&quot; from  =20
+client,<br>then, if it=20
+exist&nbsp;the browser can receive compressed deflate data: build the heade=
+r response with the line=20
+inside &quot;Content-Encoding: deflate&quot;
+</font></p>
+<p align=3D"center"><font size=3D"1" face=3D"verdana">use ZFastCompressStri=
+ng and=20
+ZFastDecompressString to work with strings: 300% faster than equivalent ZCo=
+mpressStr...<br><br>=20
+<br>ZFastCompressString and=20
+ZFastDecompressString are using movei32() for&nbsp;copying not aligned=20
+structures,<br>this mean that if you=20
+need to manage little strings (&lt;~512bytes) this can guarantee a large sp=
+eedup, else=20
+you have to&nbsp;replace movei32 with<br>        =20
+          =20
+  the standard RTL move, that&#x27;s more efficient with larger data
+
+<br><br><b>(*) tested on Celeron CPU: it&#x27;s ~40% faster than native DLL=
+ distribution and Zlib Pascal version</b><br><a target=3D"_blank" href=3D"b=
+ench.txt">B1(vs Pascal Zlib)</a> <a target=3D"_blank" href=3D"bench2.txt">B=
+2(vs native DLL)</a> Bench&#x27;s results courtesy of Michael Haralabos and=
+ Ray Norrish<br><br>
+</font></p>
+<p align=3D"right"><font size=3D"1" face=3D"verdana"><a href=3D"http://www.=
+dellapasqua.com">My home page :)</a> <a href=3D"http://www.borland.com">Bor=
+land home page</a></font></p>
+<br><br><br>
+<font size=3D"1" face=3D"verdana" color=3D"blue">The mostly common question=
+: how to compress a big file and decompress it? Copy&amp;paste ;-)<br>
+<textarea rows=3D"25" cols=3D"80">procedure TForm1.Button1Click(Sender: TOb=
+ject);
+var
+  InputStream, OutputStream: TFileStream;
+  DeCompressionStream: TZDecompressionStream;
+  CompressionStream: TZCompressionStream;
+  InputFileName, OutputFileName: string;
+begin
+//compress
+  InputFileName :=3D &#x27;c:\image.png&#x27;;
+  OutputFilename :=3D &#x27;c:\image.png.bzip&#x27;;
+  InputStream :=3D TFileStream.Create(InputFileName, fmOpenRead);
+  OutputStream :=3D TFileStream.Create(OutputFileName, fmCreate);
+  CompressionStream :=3D TZCompressionStream.Create(OutputStream, zcFastest=
+);
+  CompressionStream.CopyFrom(InputStream, InputStream.Size);
+  CompressionStream.Free;
+  OutputStream.Free;
+  InputStream.Free;
+
+// decompress
+  InputFileName :=3D &#x27;c:\image.png.bzip&#x27;;
+  OutputFilename :=3D &#x27;c:\image2.png&#x27;; //rename to original into=
+ final code
+  InputStream :=3D TFileStream.Create(InputFileName, fmOpenRead);
+  OutputStream :=3D TFileStream.Create(OutputFileName, fmCreate);
+  DecompressionStream :=3D TZDecompressionStream.Create(InputStream);
+  OutputStream.CopyFrom(DecompressionStream, 0);
+  DecompressionStream.Free;
+  OutputStream.Free;
+  InputStream.Free;
+end;
+</textarea><br>
+Btw. ZDecompressStream accept max 32KB buffer, for this cause you need use=
+ the wrapper over VCL TStream to decompress large files.
+</font>
+
+  <div align=3D"center" style=3D"visibility: hidden;">=20
+   =20
+   =20
+    <p>
+      <script src=3D"http://codice.shinystat.it/cgi-bin/getcod.cgi?USER=3Dm=
+iaomiao26" language=3D"JavaScript" type=3D"text/javascript"></script><a tar=
+get=3D"_new" href=3D"http://s2.shinystat.com/cgi-bin/shinystatv.cgi?USER=3D=
+miaomiao26&amp;NH=3D1&amp;NHF=3D1"><img border=3D"0" src=3D"http://s2.shiny=
+stat.com/cgi-bin/shinystat.cgi?USER=3Dmiaomiao26&amp;REFER=3Dhttp%3A//www.s=
+ph.sc.edu/comd/rorden/gz.html&amp;COLOR=3D32&amp;SIZE=3D1280&amp;VUT=3D-1&a=
+mp;NUT=3Dy&amp;VJS=3D4001"></a>
+    </p>
+    <noscript>
+<p><A HREF=3D"http://www.shinystat.it/cgi-bin/shinystatv.cgi?USER=3Dmiaomia=
+o26" target=3D"_top">
+<IMG SRC=3D"http://www.shinystat.it/cgi-bin/shinystat.cgi?USER=3Dmiaomiao26=
+" BORDER=3D"0"></A>
+</p></noscript></div>
+<div style=3D"font-size: 0.8em; clear: both; margin-top: 2em; border: 1px=
+ solid black; background-color: white; color: black; padding: 0.5em; text-a=
+lign: center;">Saved from <a class=3D"unmht_link_to_original" style=3D"colo=
+r: blue; background-color: inherit; text-decoration: underline;" href=3D"ht=
+tp://www.dellapasqua.com/delphizlib/">http://www.dellapasqua.com/delphizlib=
+/</a><br />Sun Oct 25 2009 17:31:55 GMT+0100 (Romance Standard Time)<br />S=
+aved by UnMHT Ver.5.4.0</div></body></html>
+------=_NextPart_000_0000_85B4D760.312BA7C3
+Content-Type: text/javascript
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://codice.shinystat.it/cgi-bin/getcod.cgi?USER=miaomiao26
+
+<!--
+function cCk(nm,vl,mn){var ex=3D"";if (mn) {var d=3Dnew Date();d.setTime(d.=
+getTime()+(mn*6*1000)); ex=3D"; expires=3D"+d.toGMTString();} document.cook=
+ie=3Dnm+"=3D"+vl+ex+"; path=3D/";}
+function rCk(nm){var nEQ=3Dnm+"=3D";var ca=3Ddocument.cookie.split(';');for=
+(var i=3D0;i<ca.length;i++){var c=3Dca[i]; while(c.charAt(0)=3D=3D' ') c=3D=
+c.substring(1,c.length); if(c.indexOf(nEQ) =3D=3D 0) return c.substring(nEQ=
+.length,c.length);}return null;}
+function ud(){var u=3D""+o_.getTime();return(u);}
+us_=3D"miaomiao26",n_=3Dc_=3D"";l_=3D""+screen.width;d_=3Ddocument.referrer=
+;var o_=3Dnew Date();vu_=3D"&VUT=3D-1";
+r_=3D""+escape(d_);
+if (self !=3D top){try {r_=3D""+escape(parent.document.referrer)+"&FHR=3D"+=
+escape(d_);}catch(e_r) {}}
+if(navigator.appName!=3D"Netscape"){c_=3Dscreen.colorDepth}
+else{c_=3Dscreen.pixelDepth}
+if (sv_ =3D rCk("SV_"+us_)){vu_=3D"&VUT=3D"+(o_.getTime()-parseInt(sv_,10))=
+;cCk("SV_"+us_,ud());}
+else cCk("SV_"+us_,ud());
+if (!rCk("SN_"+us_)){n_=3D"&NUT=3Dy";cCk("SN_"+us_,"0",2592000);}
+else cCk("SN_"+us_,"0",2592000);
+document.write("<a href=3D\"http://s2.shinystat.com/cgi-bin/shinystatv.cgi?=
+USER=3D"+us_+"&NH=3D1&NHF=3D1\" Target=3D\"_new\"><img src=3D\"http://s2.sh=
+inystat.com/cgi-bin/shinystat.cgi?USER=3D"+us_+"&REFER=3D"+r_+"&COLOR=3D"+c=
+_+"&SIZE=3D"+l_+vu_+n_+"&VJS=3D4001\" border=3D\"0\"></a>");
+// -->
+
+------=_NextPart_000_0000_85B4D760.312BA7C3
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Location: http://s2.shinystat.com/cgi-bin/shinystat.cgi?USER=miaomiao26&REFER=http%3A//www.sph.sc.edu/comd/rorden/gz.html&COLOR=32&SIZE=1280&VUT=-1&NUT=y&VJS=4001
+
+iVBORw0KGgoAAAANSUhEUgAAAGUAAAARCAMAAADzEZIqAAAAwFBMVEUQEg8XGBYgIR8xMzAFR38V
+QnxGRkHwAADqBAIgVYjjCg7dHRlYV081Y5DdJCRfXlZnZl5DcZdvbmZQdZV+fXT3WwF6hXppiKGF
+hHyMi4J+lab2hQCgnI6Po7CVppmppZeaqbD+nQCisriltKems7S0saL/rgCrur+7uau4wr3EwLK+
+w7n9zwfEzMPOy7z/1gDLz7/D08TTz8HW08TL3M7b18jb2tHf28zY3tHU5tnj4NHo5NXk6uHt6drx
+7d7x8Oe0hlIYAAAB8ElEQVQ4y72TDXOaQBCG74DFiBqrReWitn6heCoSyeUIaP3//6p7B41otJPJ
+1D7uHq/LDs8Mo2S1WU2nP5DB/aiT1XH/lrwgyeu94GjZJ8+KKAr/JSYxDcYMnQdNMt2/PD8+1qK/
+WJ4sAGsEN+66BqXmFU1oum4+/4kWfF1o6UbR7gPb7RbPFYzwHIEeLa2LnZD4ePr0NMmzuTM9z9QD
+ZXlDS83pRvGJ+Xyur2hx43gJM8wziK/CSYBnQE+TPJv4UYUUlprjdGMhRL/fFwq0eOv1WqDFw69V
+qyfEDKpgDcUEhMA3aI10Ul03mBABoZRzmxpNnmdRorA4juN1Oh1l8UoWr7DELahulvBdtCz13Nh6
+ihvWuyV2ST0MKO7ZrghMW+hcxleWJHEeKsriKct4PJZli1QMrcYChJyAqhnIIumW0jfrnEoZEiFl
+QKXKZ/jf8Dcm5UPlzOKVLalmCEtI0wmkM11FUheFTzlNU7SkKQaVz0CLf0zTSm5haGFoYWhhaGFo
+Yflir6osC1ClHo8dQS9pWPruwNAGuy0DVOh8YQmOWYYWdsuSZQtAWhtQqSjdPfwXDbOQUmp4WZPQ
+cGcTO6SZzlmJQFkOhwNj7GbfBlUXk+zq3h/L11jA5/bQwo+/vsoCPrfH24S/8rvTJu3/wW/llRQM
+eRMKHwAAAABJRU5ErkJggg==
+------=_NextPart_000_0000_85B4D760.312BA7C3--

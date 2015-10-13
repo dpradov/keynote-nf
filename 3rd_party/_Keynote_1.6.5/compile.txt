@@ -1,0 +1,109 @@
+KEYNOTE: SOURCE CODE COMPILATION NOTES
+-----------------------------------------------------------
+
+This is the full (or as full as possible) source code
+for the KeyNote program. It is distributed under the
+conditions of Mozilla Public License (MPL). See file
+MPL.TXT for details.
+
+-----------------------------------------------------------
+
+KeyNote compiles with Borland Delphi 3.0 (but see below)
+
+I have a very limited experience with compiling KeyNote under newer versions of Delphi. While it is possible and not at all difficult, the source code requires minor modifications, and the compiler does raise a number of warnings, which result from changes in integer data type.
+
+Compiled with Borland Delphi 5.0, KeyNote is not altogether stable, and the cryptographic routines may fail. I have not experimented any further with this. If you compile KeyNote under Delphi 5.0 or 6.0, please consider sending your code modifications back to me.
+
+-----------------------------------------------------------
+
+ABOUT THE TWO *.DPR FILES AND VERSIONS OF DELPHI
+
+Since version 1.2, KeyNote consists of two Delphi projects.
+The main project, keynote.dpr, is the base application.
+This project is compiled with Delphi 3, because I have had
+problems when using Delphi 5 to compile it. (I just haven't
+had the time to investigate what was causing these problems,
+but there should be nothing major).
+
+The other project, kntutils.dpr, generates a DLL. I will be
+gradually moving certain modules into this DLL, to make the
+main executable smaller and leaner. This project should be
+compiled with Delphi 5 and may not compile in earlier
+versions of Delphi.
+
+
+-----------------------------------------------------------
+
+Components required
+
+Most third-party components are included with KeyNote source code distribution package, but NOTE that they may be (and indeed are) distributed under licenses incompatible with Open Source definition.
+
+However, ALL third-party components used in KeyNote are freeware and are distributed with full source code.
+
+All these components can be downloaded from the Internet.
+
+Torry's Delphi Pages
+	http://www.torry.net/
+	http://homepages.borland.com/torry/
+
+Delphi Super Page
+	http://sunsite.icm.edu.pl/delphi/
+
+Delphi Free Stuff
+	http://www.delphifreestuff.com/
+
+
+List of required components:
+
+* TdfsBrowseDirectoryDlg
+  TdfsMRUFileList
+  TdfsStatusBar
+  (see Brad Stowers' Delphi Free Stuff, URL above)
+
+* RX Library (http://sourceforge.net/projects/rxlib/);
+
+* TPage95Control, by Ryan J. Mills
+
+* TGFXListBox, by Wim Coetzee
+
+* TToolbar97, by Jordan Russell (http://www.jrsoftware.org)
+
+* TTreeNT, by Mike Lischke (http://www.lischke-online.de/)
+
+* DCPCrypt, by David Barton (http://www.cityinthesky.co.uk/cryptography.html)
+
+* TMathParser, by The BitSoft team (http://www.bitsoft.com)
+
+* TFreeWordWeb, by Antony Lewis
+
+* ICS component library, by Francois Piette (http://www.overbyte.be/)
+
+* TRichPrinter, by Gerrit Wolsink
+
+* TColorPicker, by Enzo Costantini
+
+If you find this list incomplete and/or need help with obtaining these components, please contact me by email.
+
+A few other standalone units are also included in the "3rd_party_distributable" folder.
+
+-----------------------------------------------------------
+
+IMPORTANT:
+I have had to modify some of the 3rd-party source code. All modified units are included, separately, in the "modified_3rdparty_units" folder. First install the original components/libraries in Delphi, next replace the .pas files with their modified versions.
+
+-----------------------------------------------------------
+
+ URLs:
+
+ - for OpenSource development:
+ http://keynote.sourceforge.net
+
+ - original author's software site:
+ http://www.tranglos.com
+
+ Email addresses (at least one should be valid)
+ <marekjed@users.sourceforge.net>
+ <marekjed@pobox.com>
+ <cicho@polbox.com>
+
+-----------------------------------------------------------
