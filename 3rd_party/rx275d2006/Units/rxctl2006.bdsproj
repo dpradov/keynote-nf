@@ -176,5 +176,5 @@
 			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments"></VersionInfoKeys>
 		</VersionInfoKeys>
-  </Delphi.Personality>
+	</Delphi.Personality>
 </BorlandProject>

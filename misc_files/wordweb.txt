@@ -1,0 +1,21 @@
+Integration with WordWeb thesaurus
+==================================
+
+Starting from version 0.89 A, KeyNote has a special feature which allows you to look up words in a thesaurus called WordWeb. The feature is accessed by clicking the "W" button on the main toolbar, or by clicking the "Look up in WordWeb" command in the right-click context menu of the RTF editor.
+
+To use this feature, you will of course need to install WordWeb on your computer. WordWeb is a fantastic freeware dictionary and thesaurus (there's also a more powerful shareware version available).
+
+WordWeb can be downloaded from http://wordweb.co.uk/free (WordWeb is distributed as freeware; there is also a more advanced commercial version.)
+
+After installing WordWeb, please make sure that the file "wweb32.dll" was placed in the C:\WINDOWS directory (or C:\WINNT), or in some other directory which is accessible via the system path, such as C:\WINDOWS\SYSTEM. Otherwise KeyNote will not able to find this file and consequently to start WordWeb.
+
+
+USING the "LOOK UP IN WORDWEB" FUNCTION:
+
+Double-click the word which you wish to look up in the dictionary, then click the WordWeb button on the toolbar, or right-click the selected word and choose the "Look Up in WordWeb" from the context menu. If no text is selected when you use the command, KeyNote will prompt you for a word to look up in the thesaurus.
+
+Keyboard shortcut: Ctrl+F11
+
+In WordWeb, you can select a word in the synonym list and click the "Copy" button. This will cause WordWeb to close, and the word you copied will replace the original selected word in KeyNote's editor.
+
+KeyNote uses the freeware WordWeb integration component written by Mr. Antony Lewis (http://www.x-word.com/wwdev/).

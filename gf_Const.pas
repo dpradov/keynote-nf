@@ -18,15 +18,15 @@ uses Graphics;
 
 const
   // VANITY INFO FOR ALL SOFTWARE
-  Program_URL     = 'http://code.google.com/p/keynote-nf/'; //'http://keynote.prv.pl';
+  Program_URL     = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
   Program_Email1  = 'dprado.keynote@gmail.com';
   Program_Email2  = 'marekjed@users.sourceforge.net';
   Program_License = 'This program is Freeware';
-  Program_Credit1 = 'Copyright (c) Daniel Prado Velasco, 2007-09 (New functionality since v1.7.0)';
-  Program_Credit2 = 'Copyright (c) Marek Jedlinski, 2000-03';
+  Program_Credit1 = 'Copyright (c) Daniel Prado Velasco, 2007-15 (New functionality since v1.7.0)';
+  Program_Credit2 = 'Copyright (c) Marek Jedlinski, 2000-05';
 
 const
-  URL_Issues = 'http://code.google.com/p/keynote-nf/issues/list';
+  URL_Issues = 'https://github.com/dpradov/keynote-nf/issues';
 
 
 const

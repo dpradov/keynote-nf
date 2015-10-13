@@ -1,0 +1,21 @@
+# TIMEFORMATS.TXT - custom time format strings
+# for KeyNote 1.6.1 or later.
+#
+# These format strings will be used to build the
+# drop-down menu attached to the 'Insert Time'
+# button on the toolbar.
+#
+# By default, localized vresions of date and time
+# strings are used. Prefix a format string with
+# @, to indicate that English names should be
+# used instead, e.g. '@dd-mm-yy'.
+# Click the 'Insert Time' button while holding down
+# the SHIFT key to re-load this file at runtime.
+# Maximum number of entries is 6.
+
+hh:mm
+hh:mm:ss
+hh:mm ampm
+hh:mm:ss ampm
+hh:mm am/pm
+hh:mm:ss am/pm

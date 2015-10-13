@@ -52,7 +52,7 @@ contains
   RxClock in 'RxClock.pas',
   Animate in 'Animate.pas',
   RxSpin in 'RxSpin.pas',
-  RxRichEd in 'RxRichEd.pas',
+  RxRichEd in 'IDE_Patch\RxRichEd.pas',
   RxSwitch in 'RxSwitch.pas',
   RxDice in 'RxDice.pas',
   VCLUtils in 'VCLUtils.pas',

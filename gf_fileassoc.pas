@@ -1,6 +1,8 @@
 Unit gf_FileAssoc;
-{by Peter Below (TeamB)}
+{by Peter Below (TeamB)}   // Original in: <dpradov/keynote-nf> 3rd_party\_Others\_associations.pas.zip
+
 {with modifications by [MJ] to make sure registeru entries are correctly quoted}
+ 
 
 Interface
 
