@@ -38,7 +38,7 @@ Since version 1.7.4 the program has been renamed from "KeyNote" to "KeyNote NF".
 To implement some of the new features included in KeyNote NF I had to extend sligthly the format of KeyNote (.knt) files. All new elements are optional so that new version can open without problems a file corresponding to version 1.6.5.
 Also, with KeyNote 1.6.5 it is possible to open a file created with a later version, but in this case, if the file is saved, the alarms and information about checked nodes will be lost.
 
-_Important_: From version 1.7.7, certain metainformation is encoded in UTF-8 without BOM, not in ASCII. They are the corresponding to the following keys: NN, ND, VN, RV, VF, NA, EN  (note name, node name, etc. Fore more information: [Fileformat.txt](Other/kn_fileformat/Fileformat.txt)  
+_Important_: From version 1.7.7, certain metainformation is encoded in UTF-8 without BOM, not in ASCII. They are the corresponding to the following keys: NN, ND, VN, RV, VF, NA, EN  (note name, node name, etc. Fore more information: [fileformat.txt](Other/kn_fileformat/Fileformat.txt)  
 So, it is important to maintain a backup of the .knt file in older version if you are testing the new version.
 <br>
 ####Backups
@@ -70,7 +70,7 @@ The initial developer of KeyNote is Marek Jedlinski, copyright 2000-2005.
 
 The adaptation to Delphi 2006 and the new functionalities added since version 1.7.0 corresponds to Daniel Prado Velasco, copyright 2007-2015.  
 
-Code released under the [Mozilla Public License 1.1](../LICENSE.txt). This license applies only to units written by the authors of KeyNote and KeyNote NF: Marek Jedlinski and Daniel Prado, respectively.
+Code released under the [Mozilla Public License 1.1](./LICENSE.txt). This license applies only to units written by the authors of KeyNote and KeyNote NF: Marek Jedlinski and Daniel Prado, respectively.
 
 Third-party units may be regulated by their own licenses.
 Please, see file [README_SourceCode.txt](doc/README_SourceCode.txt) and [acknowledgments.txt](doc/acknowledgments.txt) for more information about third-party code.
