@@ -3,9 +3,9 @@ KEYNOTE NF  (New Features)
 -----------------------------------------------------------
 
 For any bug report, patch proposal or feature request, add an entry into the Issue Tracker
-in Google Code project:
+in GitHub project:
 
-  http://code.google.com/p/keynote-nf/issues/list
+  https://github.com/dpradov/keynote-nf/issues
 
 Note: 
 Please, be specific; it is preferable to create several issues instead of only one very 
@@ -15,6 +15,7 @@ If you want to suggest several new features or to report independent bugs, creat
 There you can discuss about issues itselves, too.
 
 
+<Note: The following section should be revised and updated.>
 
 -----------------------------------------------------------
 KEYNOTE - BUGS AND LIMITATIONS

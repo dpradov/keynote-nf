@@ -1,4 +1,46 @@
-KEYNOTE - ACKNOWLEDGMENTS
+KEYNOTE NF - ACKNOWLEDGMENTS
+----------------------------------------------------------
+As an evolution of KeyNote 1.6.5, from Marek, KeyNote NF currently maintains the same third-party libraries and components,
+included in that version, and incorporates a few ones.
+I join Marek in the thanking to the authors of those free code
+
+New libraries and components are used in KeyNote NF. Thanks to its authors:
+
+
+* Troy Wolbrink, for his Tnt Unicode Controls (http://tnt.ccci.org/delphi_unicode_controls/)
+	  
+* Kryvich, Belarusian Linguistic Software team for its Kryvich Delphi Localizer (https://sites.google.com/site/kryvich/localizer)
+
+* Roberto Della Pasqua and previous, for the Delphi Fast ZLib 1.2.3 (http://www.dellapasqua.com/delphizlib/)
+
+* Peter Johnson for its UWebBrowserWrapper (http://www.delphidabbler.com/articles?article=14)
+
+
+
+Libraries and components used in KeyNote 1.6.5 but not included in the last list of acknowledgments. Thanks, too:
+
+* Earl F. Glynn, for his CRCCalculator
+
+* Stephan Schneider, for his TTopMostWindow
+
+* Alexander Obukhov, for the TLanguagesCombo component.
+
+* Dr. Peter Below, for his StreamIO unit
+
+* Mike Lischke, for his StringContainers unit
+
+* Peter Johnson, for his class TWebBrowserWrapper
+
+* flashpeak@yifan.net, for UAS, the UltimaShell Autocompletion Server
+
+ 
+------------------------------
+    <dprado.keynote@gmail.com>
+
+
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+KEYNOTE - ACKNOWLEDGMENTS 
 ----------------------------------------------------------
 
 KeyNote uses several freeware libraries and components, without which writing the program would have been immensely more difficult. The authors of those libraries provide fantastic free code to the Delphi community. Thank you all!

@@ -1,56 +1,178 @@
-
 ==============================================
 KeyNote NF: SOURCE CODE README
 ==============================================
 
-20 sept 2009: 
+This is the full source code for KeyNote NF program. It is distributed under the
+conditions of Mozilla Public License (MPL). See file LICENSE.txt for details.
+This license applies only to units written by the authors of KeyNote and KeyNote NF:
+Marek Jedlinski and Daniel Prado, respectively.
 
-Third party's Units and components
-------------------------------
-* Due to changes made to suit RxRichEd to Unicode, is necessary to make a little change in code 
-  of function "CreateWindowHandle" before installing the library 'RX Library 2.75' in Delphi:
-   - Comment the line "CustomCreateWindowHandle (..."
-   - Uncomment the line "inherited CreateWindowHandle (..."
-
- After installing the component you must undo the changes in the code so that KeyNote NF works Ok.
- I have found it to be necessary because of a problem with Delphi IDE, in design mode.
+Third-party units may be regulated by their own licenses.
+Plase, see also the comments of Marek, in "Important notes about third-party code",
+later in this document.
 
 
-
-* Besides the old third party's components, you must install a new one: TntWare Unicode Controls
-  The design package is in the folder:  3rd_party\TntUnicodeControls\Delphi\bds4
-
-
-----------------
-
-KeyNote NF source code is hosted by Google Code, to get the code see here: 
- http://code.google.com/p/keynote-nf/source/checkout 
-
-I have the following structure at home:
- KeyNote_NF
-   Complementos  (with 3rd_party_distributable, kn_scratchpad, kntconvert)
-   Output
-      Bin
-      Dcu
-   src
-   zip  	 (with binary realeases, zip versions of kntconvert, etc)
-
-Project is configured so that 'Output' is at the same level that 'src'.
-Only "src" is under version control and it hangs from Trunk.
+KeyNote NF compiles with Borland Delphi 2006.
+KeyNote NF consists of two Delphi projects. The main project, keynote.dpr, 
+is the base application. The other project, kntutils.dpr, generates a DLL, used by
+the base application. Actually the DLL contains very little functionality.
 
 
-IMPORTANT. USE OF SUBVERSION:
-=========
-In the case of commiting to subversion, clients must be configured 
-to ignore certain files and folders. I use Tortoise, and in the 
-"Global Ignore Pattern" I have set the following value:
+HOW TO Compile
+===============
+To compile the program, please, keep the following steps, in the same order:
 
-*.identcache *.~* *.dcu *.DCU *.dsk *.dll *.exe *.drc *.bdsproj.local *.cfg */ModelSupport_keynote 
- ModelSupport_keynote */__history __history
+0 - (Optional)
+   - I like, personally, to configure options in Borland Delphi, 
+     in Environment Options > Delphi Options > Library - Win32
+     so that "Package output directory" and "DCP output directory" point to a foder
+	 of my preference (..Output\Bpl)
+   - Save and restart Delphi
+   - On enter Delphi: 
+       "Your current Delphi for Win32 Package Output" is not part of your system path. 
+       In order to use runtime packages that are built into this directory, this 
+	   directory needs to be on your path.
+	   Would you like to add it now? 
+       Directory to be added: <....Output\Bpl>
+
+     Current Path: ......
+     Selecting 'Yes' will cause a user-specific 'PATH' environment variable to be created or update.
+     >>
+   - "Yes", and restart again
+
+KeyNote NF uses several third party components. I have created a Packed to easily
+install most of them (Components.dpk). The rest must be installed separately:
+
+1 - Tnt Unicode Controls  (TntUnicodeVcl)
+   => Compile: 3rd_party\TntUnicodeControls\Delphi\bds4\TntUnicodeVcl.dpk
+   => Install: 3rd_party\TntUnicodeControls\Delphi\bds4\TntUnicodeVcl_Design.dpk
+
+2 - Most 3rd Party Components
+   => Install: Packages\Components.dpk
+
+3 - DCPcrypt v1.3
+   => Install: 3rd_party\dcpcrypt-1_3\DCP_d4.dpk
+
+4 - RX Library 2.75 port to Delphi 2006 (Win32), v1.0
+   => Compile: 3rd_party\rx275d2006\Units\rxctl2006.dpk    
+   => Install: 3rd_party\rx275d2006\Units\dclrx2006.dpk
+	      
+
+
+COMPONENTS REQUIRED
+===================
+The steps indicated will install all the components needed to compile and run KeyNote NF. 
+
+ALL third-party components used in KeyNote are freeware and are distributed with full source code.
+NOTE that they may be (and indeed are) distributed under their own licenses.
+
+All these components can be downloaded from the Internet.
+
+Torry's Delphi Pages
+	http://www.torry.net/
+	http://homepages.borland.com/torry/
+
+Delphi Super Page
+	http://sunsite.icm.edu.pl/delphi/
+
+Delphi Free Stuff
+	http://www.delphifreestuff.com/
+
+Delphi Inspiration – Delphi Components and Software Applications:
+	http://www.wikitaxi.org/delphi/doku.php/products/index
+	
+
+
+List of required components and libraries:
+-------------------------------------------
+(It is shown in square brackets the folder inside "3rd_party" where each 
+ of this elements is included, inside KeyNote NF)
+
+* TdfsBrowseDirectoryDlg   [browsedr]
+  TdfsMRUFileList          [mruflist]
+  TdfsStatusBar            [DFSStatusBar]
+  TdfsSystemImageList      [sysimglist]
+  (see Brad Stowers' Delphi Free Stuff, URL above)  
+   
+* RX Library (http://sourceforge.net/projects/rxlib/);   [rx275d2006]
+
+* TPage95Control, by Ryan J. Mills   [ComCtrls95]
+  
+* TGFXListBox, by Wim Coetzee    [gfxlbcb]
+
+* TToolbar97, by Jordan Russell (http://www.jrsoftware.org) [tb97_178a]
+
+* TTreeNT, by Mike Lischke (http://www.lischke-online.de/) [treent]
+
+* DCPCrypt, by David Barton (http://www.cityinthesky.co.uk/cryptography.html) [dcpcrypt-1_3]
+
+* TMathParser, by The BitSoft team (http://www.bitsoft.com)  [expression_evaluator]
+
+* TFreeWordWeb, by Antony Lewis  [wordweb]
+
+* ICS component library, by Francois Piette (http://www.overbyte.be/) [ICS_InternetComponentSuite]
+
+* TRichPrinter, by Gerrit Wolsink  [richprint]
+
+* TColorPicker, by Enzo Costantini  [colorpicker]
+
+* CRCCalculator, by Earl F. Glynn, Overland Park, KS [CRCDelphi]
+
+* TAJBSpell, by Andrew Baylis  [ajbspeller]
+
+* TTopMostWindow, by Stephan Schneider [topmostwindow]
+
+* TLanguagesCombo, by Alexander Obukhov [langcombo]
+
+* Tnt Unicode Controls, by Troy Wolbrink (http://tnt.ccci.org/delphi_unicode_controls/) [TntUnicodeControls]
+	  
+* Kryvich Delphi Localizer, by Kryvich, Belarusian Linguistic Software team  [kdl32_Kryvich's Delphi Localizer]
+  (https://sites.google.com/site/kryvich/localizer)
+  
+* Delphi Fast ZLib 1.2.3, by Roberto Della Pasqua and previous (http://www.dellapasqua.com/delphizlib/)
+  [Delphi Fast Zlib 1.2.3]
+
+* UAS, UltimaShell Autocompletion Server, (flashpeak@yifan.net) [UAS]
+
+ 
+* StreamIO, text-file device driver that allows textfile-style I/O on streams, by Dr. Peter Below
+  [_Others\StreamIO.pas]
+
+* StringContainers, collection of special classes for string storage and manipulation, by Mike Lischke 
+ [_Others\StringContainers.pas]
+
+* UWebBrowserWrapper, by Peter Johnson (http://www.delphidabbler.com/articles?article=14) 
+ [_Others\UWebBrowserWrapper.pas]
+
+
+ 
+If you find this list incomplete and/or need help with obtaining these components, please contact me by email.
 
 
 
+IMPORTANT:
+--------------------
+The original files of third-party code is included in .zip files inside subfolders of "3rd_party"
+(In each of the subfolders, shown between square brackets, in the above list)
 
+For example: \3rd_party\dcpcrypt-1_3\_dcpcrypt-1_3.zip contains original code of DCPCrypt, version 1.3, by David Barton.
+In that folder, \3rd_party\dcpcrypt-1_3\, it is also the source files extracted from that archive, the files that KeyNote NF
+is actually using. 
+
+Have been necessary to modify some of the 3rd-party source code. All changes have been made in the extracted files, 
+inside each subfolder. I have tried to mark that modifications with the comment "// [dpv]", although not always. Marek
+also modified some files, with "// [mj]". I want to check all that files and make sure that all changes and clearly 
+recognizable.
+Anyway, it is easy to find out where the changes are, by comparing actual files (in .zip) with the original ones,
+and also by looking at the history of that files in the repository of KeyNote NF, initially in Google Code,
+in Subversion, and now available as Git repository in: https://github.com/dpradov/keynote-nf
+
+		  
+
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+<Notes from my first release>:
+
+ 
 ============================================================
 Updated: 13 Nov 2007
 Version: 1.7.0
@@ -119,89 +241,8 @@ source code of individual components and units used in KeyNote. They are
 all the used.
 
 
-
-================================================
-================================================
-
-A partir del código fuente facilitado por Marek Jedlinski,
-correspondiente a la versión 1.6.5 he realizado las correcciones
-necesarias para poder compilarlo con Delphi 2006.
-Entre otras cosas me ha sido necesario localizar por Internet 
-algunas de las units de terceros que no estaban incluidos en
-el código fuente.
-Este código se sigue distribuyendo bajo las condiciones de la
-Mozilla Public License (MPL), aplicándose a las units escritas
-por Marek Jedlinski, así como aquellas modificados o escritas por
-mí (Daniel Prado). El código de terceros está regulado por sus propias
-licencias.
-
-
-Los proyectos "Keynote.bdsproj" y "kntutils.bdsproj" utilizan
-exclusivamente los archivos situados en la carpeta “keynote_source”
-así como una gran parte de los situados en “keynote_source\3rd_party”.
-Los archivos originalmente en 'modified_3rdparty_units', 'misc_files'
-y 'support_units' se han mantenido en “Other”. Algunos ya estaban 
-también en la carpeta keynote_source; otros se han tenido en cuenta
-a la hora de actualizar algunas units en '3rd_party'.
-
-Tanto en este proyecto como en “kntutil.bdsproj” están explicitadas
-las carpetas de búsqueda de las units (no se ha definido como
-configuración del IDE)
-
-Aparte de las correcciones necesarias para la compilación en Delphi 2006
-y al margen de los cambios realizados para añadir nuevas funcionalidades
-o corregir algunos errores, he hecho la siguiente modificación con
-vistas a facilitar la comprensión del código (así como a agilizar el
-mantenimiento del modelo que permite crear la versión Architect de Delphi):
-He fragmentado el archivo kn_main.pas en varios archivos, en base a un
-criterio de funcionalidad (posiblemente haga algunos cambios más):
-kn_Global.pas, kn_BookmarksMng.pas, kn_ConfigFileMng.pas, kn_NoteMng.pas, ...
-(kn_...Mng.pas)
-
-
-Units y componentes de terceros
-------------------------------
-En la carpeta '3rd_party' se han descomprimido los archivos de la carpeta
-3rd_party_distributable, reemplazando aquellos ficheros incluidos en 
-modified_3rdparty_units (modificados por marek)
-
-Se han hecho pequeñas modificaciones a algunos ficheros para poder ser
-compilados en Delphi 2006. Se ha aprovechado uno de los fichero DFS.INC,
-ligeramente modificado para contemplar nuevas versiones de Delphi; para
-ello se ha copiado a las carpetas de otros componentes y se ha añadido
-la línea {$I DFS.INC} a los ficheros .pas necesarios.
-
-Inicialmente las modificaciones eran marcadas con el comentario "// [dpv]". 
-Desde que KeyNote NF reside en Google Code y todos los cambios se pueden
-seguir claramente mediante Subverson, no estoy señalando esas modificaciones.
-Es fácil determinar los cambios con respecto a los fuentes originales
-
-
-Antes de abrir los proyectos Keynote es preciso instalar los componentes
-de terceros en los que se apoya:
-
-*La mayoría de los componentes se ha incluido dentro de un paquete denominado 
-'_PaqueteTerceros'
-
-*RX Library 2.75 port to Delphi 2006 (Win32), v1.0 (by Oleg Fedorov)
-   --> 'rx275d2006. Seguir las indicaciones del fichero readme.txt para su 
-       instalación
-   **NOTA**: Vea los comentarios al inicio, de fecha 20 sept 2009
-*DCPcrypt v1.3      David Barton (davebarton@bigfoot.com)
-   --> 'dcpcrypt-1_3'  (Se ha instalado el paquete DCP_d4.bdsproj)
-
-El siguiente paquete se ha instalado, aunque de momento no se ha utilizado:
-- EmbeddedWB_D2005  
-
-
-Dentro de la carpeta “3rd_party_distributable” se ha incluido
-el código fuente original de los distintos componentes y units
-de terceros utilizados en KeyNote. Están todos los utilizados.
-
-
-
-. . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . .. . . . . . .
-
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+<Notes from Marek Jedlinkski>:
 
 
 ===========================================================

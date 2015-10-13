@@ -2,16 +2,22 @@
 KEYNOTE - RELEASE HISTORY
 -----------------------------------------------------------
 
+--------------------------------------
+<Versión más actualizada: history.txt>
+--------------------------------------
+
  Nota: El fichero de ayuda está incompleto o parcialmente actualizado.
  Por favor mira las Preguntas Frecuentes (FAQ) en:
    http://www.tranglos.com/free/keynote_faq.html
 
  Puedes encontrar también información sobre el programa en las siguientes direcciones:
-   http://code.google.com/p/keynote-nf/
-   http://groups.google.com/group/keynote-nf
+   https://github.com/dpradov/keynote-nf
+   http://keynote-newfeat.sourceforge.net/forum
 
+   http://groups.google.com/group/keynote-nf  (read only)
+   https://sourceforge.net/p/keynote-newfeat/discussion  (read only)
 
-Seguimiento de incidencias (issues) en http://code.google.com/p/keynote-nf/issues/list
+Seguimiento de incidencias (issues) en https://github.com/dpradov/keynote-nf/issues
 
 =============================
 Versión: 1.7.8 -  fecha: 02/nov/2009
