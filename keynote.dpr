@@ -267,7 +267,8 @@ uses
   WSocket in '3rd_party\ICS_InternetComponentSuite\WSocket.pas',
   MD5 in '3rd_party\ICS_InternetComponentSuite\MD5.pas',
   SmtpProt in '3rd_party\ICS_InternetComponentSuite\SmtpProt.pas',
-  WSockbuf in '3rd_party\ICS_InternetComponentSuite\WSockbuf.pas';
+  WSockbuf in '3rd_party\ICS_InternetComponentSuite\WSockbuf.pas',
+  Placemnt in '3rd_party\rx275d2006\Units\Placemnt.pas';
 
 {$R *.RES}
 
