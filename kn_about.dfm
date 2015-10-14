@@ -4,8 +4,8 @@ object AboutBox: TAboutBox
   HelpContext = 50
   BorderIcons = []
   BorderStyle = bsToolWindow
-  Caption = 'About'
-  ClientHeight = 341
+  Caption = 'About - KeyNote NF'
+  ClientHeight = 347
   ClientWidth = 412
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,36 +22,19 @@ object AboutBox: TAboutBox
   PixelsPerInch = 96
   TextHeight = 13
   object BTN_Close: TSpeedButton
-    Left = 144
-    Top = 301
-    Width = 121
+    Left = 166
+    Top = 314
+    Width = 91
     Height = 25
-    Caption = '&Close'
-    Flat = True
+    Caption = '&Ok'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []
-    Glyph.Data = {
-      DE010000424DDE01000000000000760000002800000024000000120000000100
-      0400000000006801000000000000000000001000000010000000000000000000
-      80000080000000808000800000008000800080800000C0C0C000808080000000
-      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-      333333333333333333333333000033338833333333333333333F333333333333
-      0000333911833333983333333388F333333F3333000033391118333911833333
-      38F38F333F88F33300003339111183911118333338F338F3F8338F3300003333
-      911118111118333338F3338F833338F3000033333911111111833333338F3338
-      3333F8330000333333911111183333333338F333333F83330000333333311111
-      8333333333338F3333383333000033333339111183333333333338F333833333
-      00003333339111118333333333333833338F3333000033333911181118333333
-      33338333338F333300003333911183911183333333383338F338F33300003333
-      9118333911183333338F33838F338F33000033333913333391113333338FF833
-      38F338F300003333333333333919333333388333338FFF830000333333333333
-      3333333333333333333888330000333333333333333333333333333333333333
-      0000}
     NumGlyphs = 2
     ParentFont = False
+    Transparent = False
     OnClick = BTN_CloseClick
   end
   object Label3: TTntLabel
@@ -77,59 +60,65 @@ object AboutBox: TAboutBox
     OnMouseUp = Label_MAILTOMouseUp
   end
   object Panel_Main: TPanel
-    Left = 7
-    Top = 5
+    Left = 8
+    Top = 10
     Width = 397
-    Height = 287
-    BevelInner = bvRaised
-    BevelOuter = bvLowered
-    BorderWidth = 3
+    Height = 293
+    BevelOuter = bvSpace
+    BorderWidth = 1
+    BorderStyle = bsSingle
     Color = 13684944
     TabOrder = 0
     object Label_Name: TTntLabel
-      Left = 15
-      Top = 15
-      Width = 9
-      Height = 13
-      Caption = '...'
+      Left = 53
+      Top = 13
+      Width = 113
+      Height = 23
+      Caption = 'KeyNote NF'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -19
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
       ShowAccelChar = False
     end
     object Label_Desc: TTntLabel
-      Left = 15
-      Top = 42
-      Width = 9
-      Height = 16
-      Caption = '...'
+      Left = 53
+      Top = 43
+      Width = 225
+      Height = 18
+      Caption = 'Tabbed notebook for Windows'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
+      Font.Height = -15
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
       ParentFont = False
       ParentShowHint = False
       ShowAccelChar = False
       ShowHint = False
     end
     object Label_License: TTntLabel
-      Left = 15
-      Top = 65
-      Width = 225
-      Height = 13
-      Caption = 'Freeware, Open Source (Mozilla Public License)'
+      Left = 53
+      Top = 72
+      Width = 285
+      Height = 15
+      Caption = 'Free software, Open Source (Mozilla Public License)'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Height = -12
+      Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
       ShowAccelChar = False
     end
     object Label9: TTntLabel
-      Left = 15
-      Top = 172
-      Width = 32
+      Left = 64
+      Top = 164
+      Width = 28
       Height = 13
-      Caption = 'E-mail:'
+      Caption = 'email:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -138,11 +127,11 @@ object AboutBox: TAboutBox
       ParentFont = False
     end
     object Label11: TTntLabel
-      Left = 15
-      Top = 187
-      Width = 23
+      Left = 61
+      Top = 179
+      Width = 31
       Height = 13
-      Caption = 'URL:'
+      Caption = 'Home:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -151,13 +140,13 @@ object AboutBox: TAboutBox
       ParentFont = False
     end
     object Label_URL: TLabel
-      Left = 60
-      Top = 187
-      Width = 185
+      Left = 106
+      Top = 179
+      Width = 191
       Height = 13
       Cursor = crHandPoint
       Hint = 'Double-click to visit home page; Right-click to copy'
-      Caption = 'http://code.google.com/p/keynote-nf/'
+      Caption = 'https://github.com/dpradov/keynote-nf'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -170,8 +159,8 @@ object AboutBox: TAboutBox
       OnMouseUp = Label_MAILTOMouseUp
     end
     object Label_MAILTO: TLabel
-      Left = 61
-      Top = 172
+      Left = 106
+      Top = 164
       Width = 162
       Height = 13
       Cursor = crHandPoint
@@ -191,8 +180,8 @@ object AboutBox: TAboutBox
       OnMouseUp = Label_MAILTOMouseUp
     end
     object Label_Dart: TTntLabel
-      Left = 15
-      Top = 206
+      Left = 26
+      Top = 214
       Width = 355
       Height = 26
       Caption = 
@@ -207,8 +196,8 @@ object AboutBox: TAboutBox
       ParentFont = False
     end
     object Image1: TImage
-      Left = 285
-      Top = 242
+      Left = 289
+      Top = 252
       Width = 88
       Height = 32
       Cursor = crHandPoint
@@ -343,19 +332,19 @@ object AboutBox: TAboutBox
       OnDblClick = Image1DblClick
     end
     object LB_RichEditVer: TTntLabel
-      Left = 15
-      Top = 132
+      Left = 33
+      Top = 263
       Width = 9
       Height = 13
       Caption = 'rtf'
       ShowAccelChar = False
     end
-    object Label1: TTntLabel
-      Left = 15
-      Top = 103
-      Width = 192
+    object Label_Credit2: TTntLabel
+      Left = 53
+      Top = 123
+      Width = 180
       Height = 13
-      Caption = 'Copyright (c) Marek Jedlinski 2000-2002'
+      Caption = 'Copyright '#169' 2000-05  Marek Jedlinski'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -364,14 +353,12 @@ object AboutBox: TAboutBox
       ParentFont = False
       ShowAccelChar = False
     end
-    object Label2: TTntLabel
-      Left = 15
-      Top = 84
-      Width = 358
+    object Label_Credit1: TTntLabel
+      Left = 53
+      Top = 104
+      Width = 278
       Height = 13
-      Caption = 
-        'Copyright (c) Daniel Prado Velasco 2007-08 (New functionality si' +
-        'nce 1.7.0)'
+      Caption = 'Copyright '#169' 2007-15  Daniel Prado Velasco   (since 1.7.0)'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -381,8 +368,8 @@ object AboutBox: TAboutBox
       ShowAccelChar = False
     end
     object Label_MAILTO2: TLabel
-      Left = 61
-      Top = 157
+      Left = 106
+      Top = 149
       Width = 134
       Height = 13
       Cursor = crHandPoint
@@ -402,11 +389,43 @@ object AboutBox: TAboutBox
       OnMouseUp = Label_MAILTOMouseUp
     end
     object Label6: TTntLabel
-      Left = 15
-      Top = 157
-      Width = 32
+      Left = 64
+      Top = 149
+      Width = 28
       Height = 13
-      Caption = 'E-mail:'
+      Caption = 'email:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label_Version: TLabel
+      Left = 177
+      Top = 20
+      Width = 83
+      Height = 14
+      Caption = 'v1.7.9 Beta 4'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object Image_Program: TImage
+      Left = 11
+      Top = 15
+      Width = 33
+      Height = 36
+    end
+    object Label_Version_Date: TLabel
+      Left = 266
+      Top = 21
+      Width = 64
+      Height = 13
+      Caption = '(07/01/2013)'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -416,8 +435,8 @@ object AboutBox: TAboutBox
     end
   end
   object NetMenu: TTntPopupMenu
-    Left = 365
-    Top = 114
+    Left = 369
+    Top = 310
     object CopyEmailaddress1: TTntMenuItem
       Caption = 'Copy &E-mail address'
       OnClick = CopyEmailaddress1Click

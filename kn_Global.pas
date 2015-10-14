@@ -202,7 +202,7 @@ var
 implementation
 uses Classes, Messages, Graphics, Forms, Menus, Controls,
      TB97, TntSysUtils,  //RxRichEd,
-     gf_const, gf_misc, gf_miscvcl,
+     gf_misc, gf_miscvcl,
      kn_const, kn_msgs, kn_ini, kn_ExpandObj, kn_plugins, kn_fileMgr,
      kn_StyleObj, kn_Chest,
      kn_ConfigFileMng, kn_MacroMng, kn_FindReplaceMng,
@@ -314,7 +314,7 @@ begin
       _MainFormHandle := Handle;
       Font.Charset := DEFAULT_CHARSET; // seems to be necessary, lest EASTER_EUROPEAN charset got encoded and used on non-EE systems
       Initializing := true;
-      Caption := Format( '%s %s', [Program_Name, Program_VerStr] );
+      Caption := Format( '%s %s', [Program_Name, Program_Version] );
       {$IFDEF MJ_DEBUG}
       Caption := Caption + ' (debug)';
       {$ENDIF}

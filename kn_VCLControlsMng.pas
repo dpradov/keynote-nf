@@ -49,7 +49,7 @@ uses
   ComCtrls95, RxRichEd,MRUFList,
   TB97Ctls,
   { Own units - covered by KeyNote's MPL}
-  gf_misc, gf_files, gf_Const,
+  gf_misc, gf_files,
   gf_strings, gf_miscvcl,
   kn_INI, kn_Cmd, kn_Msgs,
   kn_Info, kn_Const, kn_Global,

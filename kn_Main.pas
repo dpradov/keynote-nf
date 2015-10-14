@@ -93,7 +93,7 @@ uses
   ColorPicker,
   Langs,
   { Own units - covered by KeyNote's MPL}
-  gf_misc, gf_files, gf_Const,
+  gf_misc, gf_files,
   gf_strings, gf_miscvcl,
   kn_INI, kn_Cmd, kn_Msgs,
   kn_Info,
@@ -3215,13 +3215,13 @@ end;
 
 procedure TForm_Main.NewVersionInformation;
 begin
-  if ( KeyOptions.IgnoreUpgrades or ( KeyOptions.LastVersion >= Program_VerStr )) then
+  if ( KeyOptions.IgnoreUpgrades or ( KeyOptions.LastVersion >= Program_Version_Number )) then
     exit;
   KeyOptions.TipOfTheDay := true;
   KeyOptions.TipOfTheDayIdx := -1;
   case messagedlg(
     Format(STR_17
-    , [KeyOptions.LastVersion, Program_VerStr, SampleFileName] ),
+    , [KeyOptions.LastVersion, Program_Version, SampleFileName] ),
     mtInformation, [mbYes,mbNo], 0
   ) of
     mrYes : begin

@@ -214,7 +214,6 @@ uses
   kn_about in 'kn_about.pas' {AboutBox},
   dll_Keyboard in 'dll_Keyboard.pas',
   RxRichEd in '3rd_party\rx275d2006\Units\RxRichEd.pas',
-  gf_Const in 'gf_Const.pas',
   kn_Global in 'kn_Global.pas',
   kn_FindReplaceMng in 'kn_FindReplaceMng.pas',
   kn_TemplateMng in 'kn_TemplateMng.pas',

@@ -58,7 +58,7 @@ uses
   BrowseDr, TreeNT, Parser,FreeWordWeb, UAS, RxGIF,RichPrint,
   RxRichEd,AJBSpeller,
   { Own units - covered by KeyNote's MPL}
-  gf_misc, gf_files, gf_Const,
+  gf_misc, gf_files,
   gf_strings, gf_miscvcl,
   kn_INI, kn_const, kn_Cmd, kn_Msgs,
   kn_Info, kn_FileObj, kn_NewNote,

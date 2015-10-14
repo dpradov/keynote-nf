@@ -49,7 +49,7 @@ uses
   Windows, Messages, SysUtils,
   Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls,
-  gf_misc, gf_Const, kn_Info,
+  gf_misc, kn_Info,
   ComCtrls95, Spin, kn_Chest,
   ExtCtrls, Mask, ToolEdit,
   Buttons, ComCtrls, cmpGFXComboBox,

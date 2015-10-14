@@ -50,7 +50,7 @@ uses
   Graphics, Controls, Forms, Dialogs,
   ExtCtrls, StdCtrls, Buttons, Menus,
   Clipbrd, ShellAPI, kn_Info,
-  gf_misc, gf_const, kn_NoteObj, TntMenus, TntStdCtrls;
+  gf_misc, kn_NoteObj, TntMenus, TntStdCtrls;
 
 type
   TAboutBox = class(TForm)
@@ -71,12 +71,15 @@ type
     Label_Dart: TTntLabel;
     Image1: TImage;
     LB_RichEditVer: TTntLabel;
-    Label1: TTntLabel;
-    Label2: TTntLabel;
+    Label_Credit2: TTntLabel;
+    Label_Credit1: TTntLabel;
     Label3: TTntLabel;
     Label4: TTntLabel;
     Label_MAILTO2: TLabel;
     Label6: TTntLabel;
+    Label_Version: TLabel;
+    Image_Program: TImage;
+    Label_Version_Date: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BTN_CloseClick(Sender: TObject);
@@ -99,7 +102,7 @@ type
 
 
 implementation
-uses kn_const;
+uses kn_const, kn_Main;
 
 {$R *.DFM}
 
@@ -114,16 +117,14 @@ end;
 procedure TAboutBox.FormCreate(Sender: TObject);
 var
   nameDLL: string;
+  Icon: TIcon;
+
 begin
 
   if TahomaFontInstalled then
     Self.Font.Name := 'Tahoma';
 
   Panel_Main.Color := _GF_CLWINDOW;
-  Label_Name.Font.Size := 12;
-  Label_Name.Font.Style := [fsBold];
-  Label_Desc.Font.Size := 10;
-  Label_Desc.Font.Style := [fsBold];
   Label_MAILTO.Font.Color := _GF_PURPLE;
   Label_MAILTO.Font.Style := [fsUnderline];
   Label_MAILTO2.Font.Color := _GF_PURPLE;
@@ -131,8 +132,6 @@ begin
   Label_URL.Font.Color := _GF_PURPLE;
   Label_URL.Font.Style := [fsUnderline];
   Label_License.Font.Color := _GF_BLACK;
-  Label_Name.Font.Color := _GF_NAVY;
-  Label_Desc.Font.Color := _GF_NAVY;
   Label_Dart.Font.Color := _GF_NAVY;
 
   if _LoadedRichEditVersion = 4 then
@@ -146,15 +145,29 @@ begin
     [_LoadedRichEditVersion, nameDLL]
   );
 
-  Caption := 'About ' + uppercase( Program_Name );
-  Label_Name.Caption := Program_Name + '  v.' + Program_VerStr;
+  Caption := 'About - ' + Program_Name;
+  Label_Name.Caption := Program_Name;
   Label_Desc.Caption := Program_Desc;
 
-  Label2.Caption := Program_Credit1;
-  Label1.Caption := Program_Credit2;
+  Label_Credit1.Caption := Program_Credit1;
+  Label_Credit2.Caption := Program_Credit2;
   Label_Mailto2.Caption := Program_Email1;
   Label_Mailto.Caption := Program_Email2;
   Label_URL.Caption :=  Program_URL;
+
+  Label_Version.Caption:= 'v.' + Program_Version;
+  Label_Version.Left:= Label_Name.Left + Label_Name.Width + 10;
+
+  Label_Version_Date.Caption:= '(' + Program_Version_Date + ')';
+  Label_Version_Date.Left:= Label_Version.Left + Label_Version.Width + 10;
+
+  Icon := TIcon.Create;
+  try
+    Icon.LoadFromResourceName(HInstance, 'MAINICON');
+    Image_Program.Picture.Icon:= Icon;
+  finally
+    Icon.Free;
+  end;
 end;
 
 procedure TAboutBox.BTN_CloseClick(Sender: TObject);
@@ -219,7 +232,7 @@ end; // KEY DOWN
 procedure TAboutBox.Image1DblClick(Sender: TObject);
 begin
   screen.Cursor := crHourGlass;
-  ShellExecute( 0, 'open', 'http://www.borland.com', nil, nil, SW_NORMAL );
+  ShellExecute( 0, 'open', 'http://www.embarcadero.com', nil, nil, SW_NORMAL );
   screen.Cursor := crDefault;
 end;
 

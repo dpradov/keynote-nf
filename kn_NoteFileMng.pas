@@ -44,7 +44,7 @@ uses
   { 3rd-party units }
   BrowseDr, TreeNT, TntSysUtils, ZLibEx,
   { Own units - covered by KeyNote's MPL}
-  gf_misc, gf_files, gf_Const,
+  gf_misc, gf_files,
   gf_strings, gf_miscvcl, gf_FileAssoc,
   kn_INI, kn_Cmd, kn_Msgs,
   kn_NoteObj, kn_FileObj, kn_NewNote,

@@ -44,7 +44,7 @@ unit kn_INI;
 
 interface
 uses kn_Info, kn_Const, RxRichEd,
-  gf_Const, gf_misc, gf_files, IniFiles;
+     gf_misc, gf_files, IniFiles;
 
 procedure LoadKeyNoteOptions(
     const INIFileName : string;
@@ -948,7 +948,7 @@ begin
     LastImportPath := '';
     LastNumbering := nsArabicNumbers;
     LastNumberingStyle := nsPeriod;
-    LastVersion := Program_VerStr;
+    LastVersion := Program_Version_Number;
     LoadLastFile := true;
     LoadUserFile := false;
     LongCombos := false;
@@ -1098,7 +1098,7 @@ begin
     TextCharSet := 'iso-8859-1';
     Timeout := 30;
     ToAddr := '';
-    XMailer := Program_Name + ' ' + Program_VerStr + '  http://code.google.com/p/keynote-nf/';
+    XMailer := Program_Name + ' ' + Program_Version + '  ' + Program_URL;
   end;
 end; // InitializeMailOptions
 
@@ -1206,7 +1206,7 @@ begin
       writestringW( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
       writeinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering ));
       writeinteger( section, KeyOptionsIniStr.LastNumberingStyle, integer(KeyOptions.LastNumberingStyle));
-      writestring( section, KeyOptionsIniStr.LastVersion, Program_VerStr ); // always write current version
+      writestring( section, KeyOptionsIniStr.LastVersion, Program_Version_Number ); // always write current version
       writebool( section, KeyOptionsIniStr.LoadLastFile, KeyOptions.LoadLastFile );
       writebool( section, KeyOptionsIniStr.LoadUserFile, KeyOptions.LoadUserFile );
       writeinteger( section, KeyOptionsIniStr.ZoomIncrement, KeyOptions.ZoomIncrement );

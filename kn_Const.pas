@@ -113,6 +113,32 @@ resourcestring
 
 procedure DefineConst;
 
+const
+  Program_Name     = 'KeyNote NF';
+  Program_Version  = '1.7.9 Beta 4';
+  Program_Version_Number  = '1.7.9.4';
+  Program_Version_Date    = '07/01/2013';
+  Program_License  = 'Free software, Open Source (Mozilla Public License)';
+
+  Program_URL     = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
+  Program_Email1  = 'dprado.keynote@gmail.com';
+  Program_Email2  = 'marekjed@users.sourceforge.net';
+  Program_Credit1 = 'Copyright © 2007-15  Daniel Prado Velasco   (since 1.7.0)';
+  Program_Credit2 = 'Copyright © 2000-05  Marek Jedlinski';
+
+  UniqueAppName_KEYNOTE10   = 'GFKeyNote10';
+
+const
+  URL_Issues = 'https://github.com/dpradov/keynote-nf/issues';
+
+const
+  _GF_CLWINDOW = $D0D0D0;
+  _GF_NAVY     = clNavy;
+  _GF_PURPLE   = clPurple;
+  _GF_BLUE     = clBlue;
+  _GF_BLACK    = clBlack;
+
+
 { Experimental stuff for RichEdit v.3 }
 const
   EM_GETZOOM = WM_USER+224;

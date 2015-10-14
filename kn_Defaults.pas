@@ -53,7 +53,7 @@ uses
   kn_Chest, Spin, Buttons,
   ExtCtrls, ComCtrls95,
   kn_NoteObj, gf_strings,
-  gf_Const, kn_Ini,
+  kn_Ini,
   cmpGFXComboBox, Placemnt,
   Menus, gf_LangCombo, LCCombo, TntStdCtrls;
 
