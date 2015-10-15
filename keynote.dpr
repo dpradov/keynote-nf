@@ -1,59 +1,18 @@
+(****** LICENSE INFORMATION **************************************************
+ 
+ - This Source Code Form is subject to the terms of the Mozilla Public
+ - License, v. 2.0. If a copy of the MPL was not distributed with this
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+ 
+------------------------------------------------------------------------------
+ (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
+ (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
-(* ************************************************************
- KEYNOTE: MOZILLA PUBLIC LICENSE STATEMENT.
- -----------------------------------------------------------
- The contents of this file are subject to the Mozilla Public
- License Version 1.1 (the "License"); you may not use this file
- except in compliance with the License. You may obtain a copy of
- the License at http://www.mozilla.org/MPL/
+ [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
+   
+ *****************************************************************************) 
 
- Software distributed under the License is distributed on an "AS
- IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
- implied. See the License for the specific language governing
- rights and limitations under the License.
-
- The Original Code is KeyNote 1.0.
-
- The Initial Developer of the Original Code is Marek Jedlinski
- <eristic@lodz.pdi.net> (Poland).
- Portions created by Marek Jedlinski are
- Copyright (C) 2000, 2001. All Rights Reserved.
-
- ===========
- 13 Nov 2007
- ===========
- The adaptation of KeyNote to Delphi 2006 and the new functionalities
- added since version 1.7.0 corresponds to Daniel Prado Velasco
- <dprado.keynote@gmail.com> (Spain)
- Portions adapted by Daniel Prado are
- Copyright (C) 2007, 2008. All Rights Reserved.
-
-  http://code.google.com/p/keynote-nf/
-  http://groups.google.com/group/keynote-nf
-  <dprado.keynote@gmail.com>
-
- -----------------------------------------------------------
- Contributor(s):
- -----------------------------------------------------------
- History:
- -----------------------------------------------------------
- Released: 30 June 2001
- -----------------------------------------------------------
- URLs:
-
- - for OpenSource development:
- http://keynote.sourceforge.net
-
- - original author's software site:
- http://www.lodz.pdi.net/~eristic/free/index.html
- http://go.to/generalfrenetics
-
- Email addresses (at least one should be valid)
- <eristic@lodz.pdi.net>
- <cicho@polbox.com>
- <cicho@tenbit.pl>
-
-************************************************************ *)
 
 program keynote;
 

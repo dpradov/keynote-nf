@@ -93,13 +93,19 @@ Project KeyNote was closed in 2005 by Marek, but the following addresses are sti
 * Tranglos KeyNote:   
    <http://www.tranglos.com/free/keynote.html>   
    It is the original site of KeyNote. It includes many information, as Introduction, Features, FAQ, etc.
+   It offers the source code of KeyNote (in a zip file). Note that actually that file is the same that the one used to construct KeyNote NF
+   and that is available from the project KeyNote NF, in GitHub: in [3rd_party/_Keynote_1.6.5](3rd_party/_Keynote_1.6.5/_keynote_source_165.zip).
    
-* KeyNote in SourceForge   
+* KeyNote at SourceForge:   
+   <http://keynote.sourceforge.net/>  
    <https://sourceforge.net/projects/keynote>  
 
    Project forum and trackers (wish list, bugs, feature requests):  
    <https://sourceforge.net/projects/keynote/support>
    
+* Original website:  
+  <http://keynote.prv.pl>   
+  
 * KeyNote 2.0 Development FAQ:  
   <http://www.tranglos.com/free/knt2devfaq.html>
 
@@ -107,4 +113,59 @@ Project KeyNote was closed in 2005 by Marek, but the following addresses are sti
   marek@tranglos.com  
   marekjed@users.sourceforge.net  
   marekjed@pobox.com  
+
+<br><br>  
+  
+####IMPORTANT. Information in the header of most files written by Marek
+   As the headers of the files have been simplified (although mantaining the notices of copyright ownership), I have included 
+   the header of one of those files (all about the same). It includes contact information and others URLs, although some of the 
+   addresses are probably obsolete and older than others shown above (extracted from other files present on KeyNote 1.6.5 source code).  
+      Note also that the header corresponds to 'Exhibit A' in [MPL 1.1](https://www.mozilla.org/en-US/MPL/1.1/). 
+   I have contacted with Marek and have obtained his approval (mail dated 23/09/2015) to update to [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
+   
+```delphi
+
+	(* ************************************************************
+	 KEYNOTE: MOZILLA PUBLIC LICENSE STATEMENT.
+	 -----------------------------------------------------------
+	 The contents of this file are subject to the Mozilla Public
+	 License Version 1.1 (the "License"); you may not use this file
+	 except in compliance with the License. You may obtain a copy of
+	 the License at http://www.mozilla.org/MPL/
+
+	 Software distributed under the License is distributed on an "AS
+	 IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+	 implied. See the License for the specific language governing
+	 rights and limitations under the License.
+
+	 The Original Code is KeyNote 1.0.
+
+	 The Initial Developer of the Original Code is Marek Jedlinski
+	 <eristic@lodz.pdi.net> (Poland).
+	 Portions created by Marek Jedlinski are
+	 Copyright (C) 2000, 2001. All Rights Reserved.      
+	 -----------------------------------------------------------
+	 Contributor(s):                      
+	 -----------------------------------------------------------
+	 History:
+	 -----------------------------------------------------------
+	 Released: 30 June 2001
+	 -----------------------------------------------------------
+	 URLs:
+
+	 - for OpenSource development:
+	 http://keynote.sourceforge.net
+
+	 - original author's software site:
+	 http://www.lodz.pdi.net/~eristic/free/index.html
+	 http://go.to/generalfrenetics
+
+	 Email addresses (at least one should be valid)
+	 <eristic@lodz.pdi.net>
+	 <cicho@polbox.com>
+	 <cicho@tenbit.pl>
+
+	************************************************************ *)
+	 
+```
   

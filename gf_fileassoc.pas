@@ -1,7 +1,16 @@
 Unit gf_FileAssoc;
-{by Peter Below (TeamB)}   // Original in: <dpradov/keynote-nf> 3rd_party\_Others\_associations.pas.zip
-
-{with modifications by [MJ] to make sure registeru entries are correctly quoted}
+ 
+(****** LICENSE INFORMATION **************************************************
+ 
+  by Peter Below (TeamB)}  
+  - with modifications by [MJ] to make sure registeru entries are correctly quoted} 
+  
+  - Original in: <dpradov/keynote-nf> 3rd_party\_Others\_associations.pas.zip
+  
+  Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+  in https://github.com/dpradov/keynote-nf      
+   
+ *****************************************************************************) 
  
 
 Interface

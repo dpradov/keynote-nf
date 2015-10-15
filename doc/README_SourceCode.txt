@@ -18,6 +18,17 @@ is the base application. The other project, kntutils.dpr, generates a DLL, used 
 the base application. Actually the DLL contains very little functionality.
 
 
+******************************************************************************************
+* IMPORTANT *. The headers of the files specific to KeyNote and written by Marek have 
+  been adapted to MPL 2.0 and, at the same time, the information shown has been simplified,
+  although maintaining the notices of copyright ownership. Please see notes at the bottom 
+  of the file <https://github.com/dpradov/keynote-nf/blob/master/doc/References.md>
+       Keep in mind that the history of the files can be queried with the help of the 
+  version control system, in GitHub. This could be contrasted with the original files, 
+  of KeyNote 1.6.5 (see References.md)
+******************************************************************************************
+
+
 HOW TO Compile
 ===============
 To compile the program, please, keep the following steps, in the same order:
@@ -144,10 +155,13 @@ List of required components and libraries:
 * UWebBrowserWrapper, by Peter Johnson (http://www.delphidabbler.com/articles?article=14) 
  [_Others\UWebBrowserWrapper.pas]
 
-
  
 If you find this list incomplete and/or need help with obtaining these components, please contact me by email.
 
+
+    ** NOTE:
+       The source code of original KeyNote 1.6.5 (by Marek Jedlinski) is also included insided 3rd_party folder:
+       [_Keynote_1.6.5]
 
 
 IMPORTANT:
@@ -242,7 +256,7 @@ all the used.
 
 
 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-<Notes from Marek Jedlinkski>:
+<Notes from Marek Jedlinski>:
 
 
 ===========================================================

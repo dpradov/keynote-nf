@@ -1,39 +1,19 @@
 unit kn_AlertMng;
-(* ************************************************************
- KEYNOTE: MOZILLA PUBLIC LICENSE STATEMENT.
- -----------------------------------------------------------
- The contents of this file are subject to the Mozilla Public
- License Version 1.1 (the "License"); you may not use this file
- except in compliance with the License. You may obtain a copy of
- the License at http://www.mozilla.org/MPL/
 
- Software distributed under the License is distributed on an "AS
- IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
- implied. See the License for the specific language governing
- rights and limitations under the License.
+(****** LICENSE INFORMATION **************************************************
+ 
+ - This Source Code Form is subject to the terms of the Mozilla Public
+ - License, v. 2.0. If a copy of the MPL was not distributed with this
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+ 
+------------------------------------------------------------------------------
+ (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) 
 
- The Original Code is KeyNote 1.7.1
-
- The Initial Developer of the Original Code is Daniel Prado
- <dprado.keynote@gmail.com> (Spain).
- Portions created by Daniel Prado are
- Copyright (C) 2007. All Rights Reserved.
- -----------------------------------------------------------
- Contributor(s):
- -----------------------------------------------------------
- History:
- -----------------------------------------------------------
- Released: 15 Nov 2007
- -----------------------------------------------------------
- URLs:
-
- - for OpenSource development:
- http://keynote.sourceforge.net
-
- Email address
-<dprado.keynote@gmail.com>
-
-************************************************************ *)
+  Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+  in https://github.com/dpradov/keynote-nf      
+   
+ *****************************************************************************) 
+ 
 
 interface
 

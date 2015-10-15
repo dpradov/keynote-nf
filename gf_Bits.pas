@@ -1,11 +1,18 @@
 unit gf_Bits;
+
+(****** LICENSE INFORMATION **************************************************
+
+  Author: Damian Gorski
+  http://www.swissdelphicenter.ch/torry/showcode.php?id=1341    (TORRY's Delphi)
+
+  
+  Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+  in https://github.com/dpradov/keynote-nf      
+   
+ *****************************************************************************) 
+
 {$I gf_base.inc}
-
-(*
-Author: Damian Gorski
-http://www.swissdelphicenter.ch/torry/showcode.php?id=1341    (TORRY's Delphi)
-*)
-
+ 
 interface
   function IsBitSet(const val: longint; const TheBit: byte): boolean;
   function BitOn(const val: longint; const TheBit: byte): LongInt;

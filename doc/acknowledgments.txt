@@ -16,6 +16,9 @@ New libraries and components are used in KeyNote NF. Thanks to its authors:
 * Peter Johnson for its UWebBrowserWrapper (http://www.delphidabbler.com/articles?article=14)
 
 
+* And of course thanks to Marek Jedlinski for KeyNote  (http://www.tranglos.com/free/keynote.html)   :) 
+  This program, KeyNote NF, is just a simple evolution of KeyNote, with a few of enhancements on that.
+
 
 Libraries and components used in KeyNote 1.6.5 but not included in the last list of acknowledgments. Thanks, too:
 

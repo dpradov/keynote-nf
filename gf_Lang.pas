@@ -1,7 +1,8 @@
 unit gf_Lang;
 {$I gf_base.inc}
 
-{
+
+(****** LICENSE INFORMATION **************************************************
 
   Partly based on "langs.pas" by Alexander Obukhov <alex@niiomr.belpak.minsk.by>
   Removed bitmap support (AV when compiled with D5, which I have no time to fix).
@@ -13,9 +14,14 @@ unit gf_Lang;
   modified by : Marek Jedlinski <marekjed@users.sourceforge.net>
   date:       : 29-08-2002
   ----------------------------------------
+  
+ ======================= 
+ Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+ in https://github.com/dpradov/keynote-nf      
+   
+ *****************************************************************************) 
 
-}
-
+ 
 interface
 uses
   Windows, SysUtils, Graphics, gf_misc;

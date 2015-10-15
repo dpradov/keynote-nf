@@ -1,7 +1,23 @@
 unit gf_LangCombo;
+
+(****** LICENSE INFORMATION **************************************************
+ 
+ - This Source Code Form is subject to the terms of the Mozilla Public
+ - License, v. 2.0. If a copy of the MPL was not distributed with this
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+ 
+------------------------------------------------------------------------------
+ (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland) [mj]
+ 
+ Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+ in https://github.com/dpradov/keynote-nf      
+   
+ *****************************************************************************) 
+
 {$I gf_base.inc}
 
-{ ----------------------------------------------------------
+(*
+ ----------------------------------------------------------
   Module    : gf_LangCombo
   Purpose   : TCustomComboBox descendant to display list
               of installed/supported languages.
@@ -10,33 +26,7 @@ unit gf_LangCombo;
               (AV when compiled with D5, which I have no time to fix).
               Removed design-time property editor (incompatible with D6).
   Version   : 1.0
-  Created   : 31-08-2002
-  Updated   :
- -----------------------------------------------------------
-  Author    : Marek Jedlinski <marekjed@users.sourceforge.net>
-  Author ID : [mj]
-  URL       : http://keynote.prv.pl
- -----------------------------------------------------------
-  MOZILLA PUBLIC LICENSE STATEMENT
-
-  The contents of this file are subject to the Mozilla Public
-  License Version 1.1 (the "License"); you may not use this file
-  except in compliance with the License. You may obtain a copy of
-  the License at http://www.mozilla.org/MPL/
-
-  Software distributed under the License is distributed on an "AS
-  IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
-  implied. See the License for the specific language governing
-  rights and limitations under the License.
-
-  The Original Code is "gf_hotkeys.pas".
-
-  The Initial Developer of the Original Code is Marek Jedlinski
-  <marekjed@users.sourceforge.net> (Poland).
-  Portions created by Marek Jedlinski are
-  Copyright (C) 2000-2002. All Rights Reserved.
- -----------------------------------------------------------
-  CONTRIBUTORS (please provide name, email address and ID):
+  Created   : 31-08-2002 
  -----------------------------------------------------------
   REQUIREMENTS:
   - gf_Lang.pas
@@ -44,11 +34,7 @@ unit gf_LangCombo;
   TO DO:
   - would be nice to restore the optional flag bitmaps
  -----------------------------------------------------------
-  HISTORY:
- -----------------------------------------------------------
-  KNOWN ISSUES:
- ----------------------------------------------------------- }
-
+*)
 
 interface
 

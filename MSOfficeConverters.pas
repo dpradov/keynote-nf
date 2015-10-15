@@ -1,5 +1,7 @@
 unit MSOfficeConverters;
 
+(****** LICENSE INFORMATION **************************************************
+
 { -----------------------------------------------------------------------------}
 { Modified by Daniel Prado <dprado.keynote@gmail.com> on Dec 2012              }
 { -----------------------------------------------------------------------------}
@@ -29,6 +31,12 @@ unit MSOfficeConverters;
 { You should have received a copy of the GNU General Public License            }
 { along with this program; if not, write to the Free Software                  }
 { Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  }
+
+
+ Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+ in https://github.com/dpradov/keynote-nf      
+   
+ *****************************************************************************) 
 
 
 interface

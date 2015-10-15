@@ -1,38 +1,27 @@
 ﻿unit gf_streams;
+
+(****** LICENSE INFORMATION **************************************************
+ 
+ - This Source Code Form is subject to the terms of the Mozilla Public
+ - License, v. 2.0. If a copy of the MPL was not distributed with this
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+ 
+------------------------------------------------------------------------------
+ (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland) [^1]
+ (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^2]
+
+ [^1]: Adapted from a set of routines by Ran Biron <Biron01@IBM.NET>
+ [^2]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
+	 
+ *****************************************************************************) 
+
 {$I gf_base.inc}
-(* *********************************************************
+ 
+(* 
  gf_streams - Streams handling routines
- --------------------------------------------------------
-  Adapted from a set of routines by
-  Ran Biron <Biron01@IBM.NET>
- --------------------------------------------------------
- Author : Marek Jedlinski
- E-mail : eristic@lodz.pdi.net
- URL    : http://www.lodz.pdi.net/~eristic/free/index.html
-          http://go.to/generalfrenetics/
- --------------------------------------------------------
- This program (binary and source code) is freeware.
- It may be used, modified and distributed freely
- for non-comercial purposes. See LICENSE.TXT for details.
-
- The origin of this software must not be misrepresented.
- This notice must not be altered and must accompany all
- distributions of this source code.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. In no event
- shall the author of the softare, Marek Jedlinski, be held
- accountable for any damages or losses that may occur from use
- or misuse of the software.
- --------------------------------------------------------
- Note: This source code is poorly documented right now.
- Feel free to ask questions. See also "readme.txt" and
- "compile.txt"
- --------------------------------------------------------
- Version  : 1.0
- Released : 18 Oct 1999
-********************************************************** *)
+ 
+*)
 
 
 interface
