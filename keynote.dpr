@@ -217,7 +217,6 @@ uses
   FreeWordWeb in '3rd_party\wordweb\FreeWordWeb.pas',
   UAS in '3rd_party\UAS\TestUAS\UAS.pas',
   AJBSpeller in '3rd_party\ajbspeller\AJBSpeller.pas',
-  ExtListView in '3rd_party\extlistview\ExtListView.pas',
   crc32 in '3rd_party\CRCDelphi\crc32.pas',
   DCPcrypt in '3rd_party\dcpcrypt-1_3\DCPcrypt.pas',
   RichPrint in '3rd_party\richprint\RichPrint.pas',
