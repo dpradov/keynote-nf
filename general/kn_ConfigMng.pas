@@ -1,4 +1,4 @@
-unit kn_ConfigFileMng;
+unit kn_ConfigMng;
 
 (****** LICENSE INFORMATION **************************************************
  
@@ -17,7 +17,7 @@ unit kn_ConfigFileMng;
 
 interface
 
-    // config file management
+    // config management
     procedure ReadCmdLine;
     procedure SaveOptions;
     procedure ReadOptions;

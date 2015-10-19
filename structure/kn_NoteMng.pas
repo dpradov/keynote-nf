@@ -35,7 +35,7 @@ uses
    dfsStatusBar, comCtrls95,
    kn_Global, gf_miscvcl, gf_strings, kn_Defaults,
    kn_Macro, kn_NewNote, kn_TreeNoteMng, kn_Main, kn_FileMgr, kn_EditorUtils,
-   kn_MacroMng, kn_BookmarksMng, kn_ConfigFileMng, kn_NoteFileMng, kn_VCLControlsMng,
+   kn_MacroMng, kn_BookmarksMng, kn_ConfigMng, kn_NoteFileMng, kn_VCLControlsMng,
    TntSysUtils;
 
 resourcestring

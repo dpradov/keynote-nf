@@ -26,7 +26,7 @@ uses
   kn_Cmd,
   kn_Info,
   kn_NoteObj, kn_FileObj,kn_NodeList,
-  FrmFindReplace,
+  kn_FindReplace,
   kn_Chars,
   kn_Macro,
   kn_LocationObj,
@@ -221,7 +221,7 @@ uses Classes, Messages, Graphics, Forms, Menus, Controls,
      gf_misc, gf_miscvcl,
      kn_const, kn_msgs, kn_ini, kn_ExpandObj, kn_plugins, kn_fileMgr,
      kn_StyleObj, kn_Chest,
-     kn_ConfigFileMng, kn_MacroMng, kn_FindReplaceMng,
+     kn_ConfigMng, kn_MacroMng, kn_FindReplaceMng,
      kn_TemplateMng, kn_StyleMng, kn_NoteFileMng, kn_VCLControlsMng;
 
 

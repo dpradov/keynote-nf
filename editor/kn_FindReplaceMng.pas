@@ -19,7 +19,7 @@ unit kn_FindReplaceMng;
 interface
 uses
     TreeNT, RxRichEd,
-    kn_LocationObj, kn_Info, FrmFindReplace, kn_NoteObj;
+    kn_LocationObj, kn_Info, kn_FindReplace, kn_NoteObj;
 
 var
     Text_To_Find : WideString;

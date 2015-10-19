@@ -70,7 +70,7 @@ uses
   kn_filemgr,
   kn_ExpandObj,
   kn_VirtualNodeMng,
-  kn_ConfigFileMng,
+  kn_ConfigMng,
   kn_MacroMng,
   kn_LocationObj,
   Kn_Global, kn_Chest,

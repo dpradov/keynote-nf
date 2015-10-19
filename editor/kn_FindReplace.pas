@@ -1,4 +1,4 @@
-unit FrmFindReplace;
+unit kn_FindReplace;
 
 (****** LICENSE INFORMATION **************************************************
  

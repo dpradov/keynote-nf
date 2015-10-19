@@ -12,7 +12,7 @@ library kntutils;
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
+
  *****************************************************************************) 
 
 
@@ -30,11 +30,13 @@ uses
   SysUtils,
   Classes,
   dll_Main in 'dll_Main.pas',
-  dll_Keyboard in 'dll_Keyboard.pas',
-  dll_KBD in 'dll_KBD.pas' {Form_KBD},
   kn_DLLInterface in 'kn_DLLInterface.pas',
-  MSOfficeConverters in 'MSOfficeConverters.pas',
-  MSWordConverter in 'MSWordConverter.pas';
+  dll_Keyboard in 'general\dll_Keyboard.pas',
+  dll_KBD in 'general\dll_KBD.pas' {Form_KBD},
+  MSWordConverter in 'editor\MSWordConverter.pas',
+  MSOfficeConverters in 'editor\MSOfficeConverters.pas',
+  dll_HotKey in 'general\dll_HotKey.pas',
+  kn_Const in 'general\kn_Const.pas';
 
 {$R *.RES}
 

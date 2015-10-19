@@ -15,7 +15,7 @@ unit GFTipDlg;
    
  *****************************************************************************) 
 
-{$I gf_base.inc}
+{$I ..\support\gf_base.inc}
 
 interface
 

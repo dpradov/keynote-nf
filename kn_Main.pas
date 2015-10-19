@@ -69,7 +69,7 @@ uses
   kn_About,
   kn_DateTime,
   kn_Chest, kn_TabSelect,
-  kn_URL, FrmFindReplace,
+  kn_URL, kn_FindReplace,
   kn_NodeList,
   kn_StyleObj,
   kn_RTFUtils,
@@ -82,7 +82,6 @@ uses
   {$ENDIF}
   kn_LocationObj,
   kn_LinksMng,
-  dll_Keyboard,
   kn_VCLControlsMng,
   //WinHelpViewer,                 //*1 Lo añado y lo quito al final, porque no va fino (no es posible abrir la tabla de contenidos)
   HTMLHelpViewer,                 //*1
@@ -1330,13 +1329,13 @@ var
 implementation
 uses RxGIF{, jpeg}, kn_Global, kn_ExportNew,
      kn_NoteMng, kn_MacroMng, kn_PluginsMng, kn_TreeNoteMng, kn_TemplateMng,
-     kn_FindReplaceMng, kn_ConfigFileMng, kn_DLLmng,
+     kn_FindReplaceMng, kn_ConfigMng, kn_DLLmng,
      kn_StyleMng, kn_FavoritesMng, kn_BookmarksMng,
      kn_VirtualNodeMng, kn_NoteFileMng, kn_EditorUtils, kn_AlertMng,
      WideStrUtils, TntSysUtils;
 
 {$R *.DFM}
-{$R catimages}
+{$R .\resources\catimages}
 
 resourcestring
   STR_01 = 'Unable to assign "%s" as activation hotkey.';

@@ -4,14 +4,13 @@ package Components;
 {$R '..\3rd_party\ajbspeller\AJBSpeller.dcr'}
 {$R '..\3rd_party\browsedr\BrowseDrReg.dcr'}
 {$R '..\3rd_party\colorpicker\ColorPicker.dcr'}
-// {$R '..\3rd_party\extlistview\ELV_Reg.dcr'}    -- ExtListView: Not used
 {$R '..\3rd_party\langcombo\LCCombo.dcr'}
 {$R '..\3rd_party\tb97_178a\Source\TB97Reg.dcr'}
 {$R '..\3rd_party\topmostwindow\TopWnd.dcr'}
 {$R '..\3rd_party\wordweb\FreeWordWeb.dcr'}
 {$R '..\3rd_party\richprint\RichPrint.dcr'}
 {$R '..\3rd_party\ComCtrls95\ComCtrls95.dcr'}
-{$R '..\GFLog.dcr'}
+{$R '..\support\GFLog.dcr'}
 {$ALIGN 8}
 {$ASSERTIONS OFF}
 {$BOOLEVAL OFF}
@@ -41,51 +40,31 @@ requires
   vcl,
   DesignIDE,
   vclx,
-  TntUnicodeVcl;
+  TntUnicodeVcl,
+  vclactnband,
+  vcldb,
+  dbrtl;
 
 contains
-  GFLog in '..\GFLog.pas',
-  gf_Files in '..\gf_Files.pas',
-  gf_misc in '..\gf_misc.pas',
-  gf_miscvcl in '..\gf_miscvcl.pas',
-  gf_strings in '..\gf_strings.pas',
-
   DFSKb in '..\3rd_party\DFSStatusBar\DFSKb.pas',
   DFSStatusBar in '..\3rd_party\DFSStatusBar\DFSStatusBar.pas',
   DFSStatusBarReg in '..\3rd_party\DFSStatusBar\DFSStatusBarReg.pas',
   DFSAbout in '..\3rd_party\DFSStatusBar\DFSAbout.pas',
-
   AJBSpellerReg in '..\3rd_party\ajbspeller\AJBSpellerReg.pas',
   AJBSpeller in '..\3rd_party\ajbspeller\AJBSpeller.pas',
-
   cmpGFXListBox in '..\3rd_party\gfxlbcb\cmpGFXListBox.pas',
   cmpGFXComboBox in '..\3rd_party\gfxlbcb\cmpGFXComboBox.pas',
-
   BrowseDrReg in '..\3rd_party\browsedr\BrowseDrReg.pas',
   BrowseDr in '..\3rd_party\browsedr\BrowseDr.pas',
-
   ColorPicker in '..\3rd_party\colorpicker\ColorPicker.pas',
-
   Parser in '..\3rd_party\expression_evaluator\Parser.pas',
-
-(*  -- ExtListView: Not used
-
-  ExtListView in '..\3rd_party\extlistview\ExtListView.pas',
-  ELV_Reg in '..\3rd_party\extlistview\ELV_Reg.pas',
-  EnhListView in '..\3rd_party\extlistview\EnhListView.pas',
-  ExtColEd in '..\3rd_party\extlistview\ExtColEd.pas',
-*)
-
   LCCombo in '..\3rd_party\langcombo\LCCombo.pas',
   Langs in '..\3rd_party\langcombo\Langs.pas',
   LangsReg in '..\3rd_party\langcombo\LangsReg.pas',
-
   MRUFLReg in '..\3rd_party\mruflist\MRUFLReg.pas',
   MRUFList in '..\3rd_party\mruflist\MRUFList.pas',
-
   SystemImageListReg in '..\3rd_party\sysimglist\SystemImageListReg.pas',
   SystemImageList in '..\3rd_party\sysimglist\SystemImageList.pas',
-
   TB97Vers in '..\3rd_party\tb97_178a\Source\TB97Vers.pas',
   TB97 in '..\3rd_party\tb97_178a\Source\TB97.pas',
   TB97Cmn in '..\3rd_party\tb97_178a\Source\TB97Cmn.pas',
@@ -94,16 +73,12 @@ contains
   TB97Reg in '..\3rd_party\tb97_178a\Source\TB97Reg.pas',
   TB97Tlbr in '..\3rd_party\tb97_178a\Source\TB97Tlbr.pas',
   TB97Tlwn in '..\3rd_party\tb97_178a\Source\TB97Tlwn.pas',
-
   TopWnd in '..\3rd_party\topmostwindow\TopWnd.pas',
-
   TreeNTRegister in '..\3rd_party\treent\TreeNTRegister.pas',
   CommCtrl98 in '..\3rd_party\treent\CommCtrl98.pas',
   TNTEditor in '..\3rd_party\treent\TNTEditor.pas',
   TreeNT in '..\3rd_party\treent\TreeNT.pas',
-
   FreeWordWeb in '..\3rd_party\wordweb\FreeWordWeb.pas',
-
   arrowbtn in '..\3rd_party\richprint\arrowbtn.pas',
   Converters in '..\3rd_party\richprint\Converters.pas',
   OLERichEdit in '..\3rd_party\richprint\OLERichEdit.pas',
@@ -111,13 +86,16 @@ contains
   RichPreview2 in '..\3rd_party\richprint\RichPreview2.pas',
   RichPreview in '..\3rd_party\richprint\RichPreview.pas',
   RichPrint in '..\3rd_party\richprint\RichPrint.pas',
-
   ComCtrls95 in '..\3rd_party\ComCtrls95\ComCtrls95.pas',
   CC95_Register in '..\3rd_party\ComCtrls95\CC95_Register.pas',
-
   WSocket in '..\3rd_party\ICS_InternetComponentSuite\WSocket.pas',
   MD5 in '..\3rd_party\ICS_InternetComponentSuite\MD5.pas',
   SmtpProt in '..\3rd_party\ICS_InternetComponentSuite\SmtpProt.pas',
-  WSockbuf in '..\3rd_party\ICS_InternetComponentSuite\WSockbuf.pas';
+  WSockbuf in '..\3rd_party\ICS_InternetComponentSuite\WSockbuf.pas',
+  gf_strings in '..\support\gf_strings.pas',
+  GFLog in '..\support\GFLog.pas',
+  gf_Files in '..\support\gf_Files.pas',
+  gf_misc in '..\support\gf_misc.pas',
+  gf_miscvcl in '..\support\gf_miscvcl.pas';
 
 end.
