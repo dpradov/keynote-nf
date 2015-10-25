@@ -44,9 +44,12 @@
        features, keyboard shortcuts, and showcases some of KeyNote's capabilities (only to 1.6.5 version, by now)
        DO NOT USE THIS FILE FOR PERSONAL NOTES! It will be overwritten when you upgrade Keynote to a new version.
   
-     * **KN_Handbook.knt**  
-      This file is a compilation of many information related to KeyNote, prepared by Marek: 
-      _"This file was created of my need to keep all the KeyNote related files at one spot."_
+     * **KN_Handbook.knt**, **KN_Help.knt**, by Nathan Sendhil  
+      - KN_Handbook.knt: This file is a compilation of many information related to KeyNote, prepared by Marek: 
+      _"This file was created of my need to keep all the KeyNote related files at one spot."_  
+      - KN_Help.knt: KeyNote Help file in KNT format  (based on updated help files, edited and reformatted by John Biederman,
+	  who also added a few new sections)  
+	  See also [KeyNote Add-ons](http://www.tranglos.com/free/keynote_addons.html)  
    
      * **history.txt**  
        File that contains detailed information about all KeyNote features added (and bugs corrected) since the 
