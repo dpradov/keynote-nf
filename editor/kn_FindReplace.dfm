@@ -5,7 +5,7 @@ object Form_FindReplace: TForm_FindReplace
   BorderStyle = bsDialog
   Caption = 'Find'
   ClientHeight = 217
-  ClientWidth = 486
+  ClientWidth = 507
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -26,7 +26,7 @@ object Form_FindReplace: TForm_FindReplace
   object Pages: TPage95Control
     Left = 0
     Top = 0
-    Width = 490
+    Width = 509
     Height = 233
     ActivePage = Tab_Find
     FlatSeperators = False
@@ -53,6 +53,7 @@ object Form_FindReplace: TForm_FindReplace
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitWidth = 482
       object TntLabel3: TTntLabel
         Left = 3
         Top = 16
@@ -93,8 +94,8 @@ object Form_FindReplace: TForm_FindReplace
     end
   end
   object Button_Find: TTntButton
-    Left = 356
-    Top = 38
+    Left = 376
+    Top = 40
     Width = 117
     Height = 25
     Hint = 'Find next match'
@@ -105,8 +106,8 @@ object Form_FindReplace: TForm_FindReplace
     OnClick = Button_FindClick
   end
   object Button_Cancel: TTntButton
-    Left = 356
-    Top = 184
+    Left = 376
+    Top = 186
     Width = 117
     Height = 25
     Hint = 'Close this dialog box'
@@ -118,7 +119,7 @@ object Form_FindReplace: TForm_FindReplace
   object Combo_Text: TTntComboBox
     Left = 104
     Top = 39
-    Width = 241
+    Width = 255
     Height = 21
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -134,14 +135,14 @@ object Form_FindReplace: TForm_FindReplace
   object GroupBox_Opts: TTntGroupBox
     Left = 10
     Top = 95
-    Width = 335
+    Width = 354
     Height = 114
     Caption = ' Options: '
     TabOrder = 8
     object CheckBox_MatchCase: TTntCheckBox
       Left = 194
       Top = 20
-      Width = 135
+      Width = 155
       Height = 17
       Caption = '&Match case'
       TabOrder = 4
@@ -203,7 +204,7 @@ object Form_FindReplace: TForm_FindReplace
   object Combo_Replace: TTntComboBox
     Left = 104
     Top = 68
-    Width = 241
+    Width = 255
     Height = 21
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -218,8 +219,8 @@ object Form_FindReplace: TForm_FindReplace
   end
   object Button_Replace: TTntButton
     Tag = 1
-    Left = 356
-    Top = 68
+    Left = 376
+    Top = 70
     Width = 117
     Height = 25
     Hint = 'Replace and find next match'
@@ -230,8 +231,8 @@ object Form_FindReplace: TForm_FindReplace
   end
   object Button_ReplaceAll: TTntButton
     Tag = 2
-    Left = 356
-    Top = 100
+    Left = 376
+    Top = 102
     Width = 117
     Height = 25
     Hint = 'Find and replace all matching text'
@@ -241,20 +242,20 @@ object Form_FindReplace: TForm_FindReplace
     OnClick = Button_FindClick
   end
   object CheckBox_SelectedText: TTntCheckBox
-    Left = 360
-    Top = 129
+    Left = 380
+    Top = 131
     Width = 125
-    Height = 17
+    Height = 19
     Hint = 'Restrict replacement to selected text (apply to Replace All)'
     Caption = '&Selected Text'
     TabOrder = 5
     Visible = False
   end
   object CheckBox_Confirm: TTntCheckBox
-    Left = 360
-    Top = 148
+    Left = 380
+    Top = 150
     Width = 123
-    Height = 17
+    Height = 19
     Caption = '&Confirm replace'
     TabOrder = 6
     Visible = False

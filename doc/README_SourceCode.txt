@@ -68,7 +68,12 @@ install most of them (Components.dpk). The rest must be installed separately:
    => Compile: 3rd_party\rx275d2006\Units\rxctl2006.dpk    
    => Install: 3rd_party\rx275d2006\Units\dclrx2006.dpk
 	      
+Note:		  
+----
+To keep translation files (.LNG) working it is necessary to update the files contained in the Lang folder
+Look at the README.md file included in that folder for more information.
 
+		  
 
 COMPONENTS REQUIRED
 ===================

@@ -121,6 +121,8 @@ begin
   Label_Name.Caption := Program_Name;
   Label_Desc.Caption := Program_Desc;
 
+  Label_License.Caption := Program_License;
+
   Label_Credit1.Caption := Program_Credit1;
   Label_Credit2.Caption := Program_Credit2;
   Label_Mailto2.Caption := Program_Email1;

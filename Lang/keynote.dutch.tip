@@ -1,7 +1,7 @@
 Sinds versis 1.7.5 kan KeyNote NF worden weergegeven in meerdere talen. Als voorbeeld vindt u een gedeeltelijke vertaling naar het Spaans (Castiliaans). Met de hulp van de community zullen er aan de officiële versie nieuwe talen worden toegevoegd.
-U kunt mirror(kopieën)knopen aanmaken zodat deze dezelfde inhoud, alarmen en status delen. Op deze manier kunt u uw gegevens tegelijkertijd op verschillende manieren organiseren (Zie kwestie 57 in http://code.google.com/p/keynote-nf/issues)
+U kunt mirror(kopieën)knopen aanmaken zodat deze dezelfde inhoud, alarmen en status delen. Op deze manier kunt u uw gegevens tegelijkertijd op verschillende manieren organiseren (Zie kwestie 57 in https://github.com/dpradov/keynote-nf/issues)
 Met mirror-knopen kunt u taken spreiden over meerdere tabbladen en deze tegelijkertijd insluiten in een ander tabblad. Hiermee verkrijgt u een algemeen overzicht over de zaken die nog te doen zijn, de rangorde en structuur van een vrije boom-hiërarchie, onafhankelijk van de echte hiërarchie van de 'echte' knopen.
-Van de KeyNote NF website (http://code.google.com/p/keynote-nf/), kunt u o.a. de laatste versie van het programma downloaden, fouten rapporteren of feature aanvragen.
+Van de KeyNote NF website (https://github.com/dpradov/keynote-nf), kunt u o.a. de laatste versie van het programma downloaden, fouten rapporteren of feature aanvragen.
 Via de KeyNote NF website vindt u ook toegang tot de discussie-maillijst waarin u vragen kunt stellen en kunt discussieren over het programma.
 U vindt meer informatie (FAQ, bijv.) over het programma op de website van de originele versie (1.6.5): http://keynote.prv.pl
 U kunt op twee manieren met verborgen knopen werken: aangevinkte knopen automatisch verbergen, een of alle notities filteren op bepaalde zoekvoorwaardes.

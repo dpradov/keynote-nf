@@ -1,8 +1,8 @@
 Since version 1.7.5 KeyNote NF can be displayed in multiple languages. Included as an example a partial translation into Spanish (Castilian). Will be added to the official version new languages with the help of the community.
-You can create mirror nodes so that they share the same content, alarm and checked state. That way you can organize your information simultaneously in different ways (See issue 57 in http://code.google.com/p/keynote-nf/issues)
+You can create mirror nodes so that they share the same content, alarm and checked state. That way you can organize your information simultaneously in different ways (See issue 57 in https://github.com/dpradov/keynote-nf/issues)
 With mirror nodes you can have task spread over many tabs, and at the same time include in another tabs. You will be able to have a global vision of the main things to do, sorting, ranking and structuring in a free tree hierarchy, independent of the hierarchy in wich 'real' nodes reside.
-In KeyNote NF website (http://code.google.com/p/keynote-nf/), you can download the latest version of the program, submit bug reports or feature requests, among other things.
-From KeyNote NF website you can access to a discussion mailing list where you can post questions and discuss about the program.
+In KeyNote NF website (https://github.com/dpradov/keynote-nf), you can download the latest version of the program, submit bug reports or feature requests, among other things.
+From KeyNote NF website you can access to a forum where you can post questions and discuss about the program.
 You can find more information (FAQ, for example) about the program in the website of the original version (1.6.5): http://keynote.prv.pl
 You can work with hidden nodes in two ways: automatically hiding checked nodes, filtering one or all notes based on a searching criterion
 It is possible to show checkboxes for all nodes (View/All nodes Checkboxes) and only on children of selected nodes: (Children Checkbox)
