@@ -1,0 +1,61 @@
+;1.0|_Test Macro|KeyNote sample macro|1|15-06-2001 04:24:23
+@MESSAGE(This is a test macro. First, we wil create a new note.)
+@STATUS(Watch the statusbar: Icon indicates running macro.)
+@NOTENEWRTF
+#clearfontattr
+13|
+72|S
+69|
+76|
+76|
+79|
+188|
+32|
+87|S
+79|
+82|
+76|
+68|
+49|S
+36|S
+#bold
+#fontcolor|clNavy
+39|
+@MESSAGE(We have inserted some text.\nAnd now, for some slo-mo cursor movement...)
+@GOLEFT
+@WAIT
+@GOLEFT
+@WAIT
+@GOLEFT
+@WAIT
+@GOLEFT
+@WAIT
+@GOLEFT
+@WAIT
+@GORIGHT
+@WAIT
+@GORIGHT
+@WAIT
+@GORIGHT
+@WAIT
+@GORIGHT
+@WAIT
+@GORIGHT
+@WAIT
+37|C
+@WAIT
+37|C
+@WAIT
+@INSERT(\n\n)
+@GOUP
+@WAIT
+@INSERT(macro)
+36|S
+#clearfontattr
+#fontcolor|clWhite
+#fontname|Times New Roman
+#highlightapply|clRed
+#fontsize|28
+@STYLEON(bold)
+37|
+@MESSAGE(That's all! See file "macros.txt"for details\non creating and using macros with KeyNote.)

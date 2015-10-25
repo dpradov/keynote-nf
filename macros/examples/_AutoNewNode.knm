@@ -1,0 +1,5 @@
+;1.0|New tree node auto|Runs on adding a node to the tree|1|30-01-2002 15:01:19
+#insertdate
+@INSERT(" ")
+#inserttime
+@INSERT("\n")

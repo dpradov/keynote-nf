@@ -1,0 +1,5 @@
+;1.0|New note auto|Runs on creating a new note|1|15-06-2001 15:01:19
+#insertdate
+@INSERT(" ")
+#inserttime
+@INSERT("\n")
