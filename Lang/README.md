@@ -31,6 +31,7 @@ Label4.Hint=Double-click to send email; Right-click to copy\+(No HTML-formatted
 email, PLEASE!)
 ....
 Pages.Tab_Tree.GBox_Tree.Label_TreeFonts.Caption= Font and background color: 
+```
 <br>
 
 Translated:
@@ -39,8 +40,7 @@ Translated:
 Caption=Acerca de
 BTN_Close.Caption=&Cerrar
 Label3.Caption=E-mail:
-Label4.Hint=Haga doble clic para enviar email; Clic con botón derecho para 
-copiar
+Label4.Hint=Haga doble clic para enviar email; Clic con botón derecho para copiar
 ...
 Pages.Tab_Tree.GBox_Tree.Label_TreeFonts.Caption= Fuente y color de fondo: 
 ```
