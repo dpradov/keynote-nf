@@ -1,8 +1,22 @@
-(*Para utilizar Langs.pas desde el paquete rxctl2006 sin tener que hacer
-referencia al paquete DesignIDE he descompuesto el archivo original Langs.pas
-en dos, dejando exclusivamente en éste las tareas relacionadas con el registro
-y el diseño.
-*)                      // [dpv]
+{
+   TLanguagesCombo
+   Author: Alexander Obukhov
+   Minsk, Belarus
+   E-mail alex@niiomr.belpak.minsk.by
+}
+{* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv] [^]
+
+   [^] To use Langs.pas from the package rxctl2006 without having to refer to 
+       DesignIDE package I have broken the original file Langs.pas in two, 
+	   leaving it exclusively on tasks related to the registration and design.
+   
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************}
+
 unit LangsReg;
 
 interface

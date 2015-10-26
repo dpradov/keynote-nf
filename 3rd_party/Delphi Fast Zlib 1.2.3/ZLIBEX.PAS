@@ -40,6 +40,15 @@
 *                     TZDecompressionStream.Read method                      *
 *    burak kalayci  informing me about the zlib 1.1.4 update                 *
 *****************************************************************************}
+(* 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+  >> Changes to original source code available in KeyNote NF project.
+  >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+     in https://github.com/dpradov/keynote-nf 
+  
+ *****************************************************************************)
+
 
 unit ZLibEx;
 
@@ -654,7 +663,7 @@ begin
   ZCompressCheck(deflateEnd(zstream));
 end;
 
-(*
+(*  [dpv]
 The size of buffer, fixed in 32768, can in some ocassions cause Buffer errors.
 It seems that it is associated (in KeyNote) to images embedded in the rtf
 I have modified this procedure to dinamically adjust the outBuffer when a
@@ -713,7 +722,7 @@ begin
 end;
 *)
 
-procedure ZDecompressStream(inStream, outStream: TStream);
+procedure ZDecompressStream(inStream, outStream: TStream);     // [dpv]
 const
     bufferInSize = 32768;
     InitialBufferOutSize = 32768;

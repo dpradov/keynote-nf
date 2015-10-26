@@ -2,6 +2,17 @@
 
 unit OLERichEdit;
 
+{ RichPrint component
+  Author: Gerrit Wolsink
+}
+(* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf  
+ --------------------------------------------------------- *)
+
 interface
 
 uses

@@ -6,6 +6,15 @@
 {                                                       }
 {*******************************************************}
 
+(* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
+
 package RxCtl2006;
 
 {$R *.res}
@@ -38,8 +47,8 @@ requires
   vcl,
   vclsmp,
   vclx,
-  rtl,
-  TntUnicodeVcl;
+  rtl,                // [dpv]
+  TntUnicodeVcl;      // [dpv]
 
 contains
   RxCtrls in 'RxCtrls.pas',
@@ -52,7 +61,7 @@ contains
   RxClock in 'RxClock.pas',
   Animate in 'Animate.pas',
   RxSpin in 'RxSpin.pas',
-  RxRichEd in 'IDE_Patch\RxRichEd.pas',
+  RxRichEd in 'IDE_Patch\RxRichEd.pas',       // [dpv]
   RxSwitch in 'RxSwitch.pas',
   RxDice in 'RxDice.pas',
   VCLUtils in 'VCLUtils.pas',

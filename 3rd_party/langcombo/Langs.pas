@@ -1,5 +1,25 @@
 unit Langs;
 
+{
+   TLanguagesCombo
+   Author: Alexander Obukhov
+   Minsk, Belarus
+   E-mail alex@niiomr.belpak.minsk.by
+}
+{* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv] [^]
+
+   [^] To use Langs.pas from the package rxctl2006 without having to refer to 
+       DesignIDE package I have broken the original file Langs.pas in two, 
+	   leaving it exclusively on tasks related to the registration and design.
+   
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************}
+
+
 interface
 {$I DFS.INC}
 

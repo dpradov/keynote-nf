@@ -7,6 +7,16 @@
 {                                                       }
 {*******************************************************}
 
+(* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
+
+
 unit AppUtils;
 
 interface
@@ -794,7 +804,7 @@ begin
         Exit;
       end;
 {$ENDIF}
-      if (WinState = wsMaximized) then
+      if (WinState = wsMaximized) then    // [dpv]
       begin
         PostMessage(Form.Handle, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
         Exit;

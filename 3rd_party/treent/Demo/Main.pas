@@ -3,9 +3,17 @@ unit Main;
 // TreeNT Demo program. Be careful while compiling this demo with D2, because D2's ShlObj unit is wrong.
 // See Brad Stowers adapted unit for a replacement (address in DFS.inc). D3 +  users are fine...
 
-{$I DFS.inc}
+(* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv] [^]
+    [^] Changes to test new functionality: hidden nodes
+  
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
 
-// [dpv] Changes to test new functionality: hidden nodes
+{$I DFS.inc}
 
 interface
 

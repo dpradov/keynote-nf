@@ -154,9 +154,6 @@ List of required components and libraries:
 * StreamIO, text-file device driver that allows textfile-style I/O on streams, by Dr. Peter Below
   [_Others\StreamIO.pas]
 
-* StringContainers, collection of special classes for string storage and manipulation, by Mike Lischke 
- [_Others\StringContainers.pas]
-
 * UWebBrowserWrapper, by Peter Johnson (http://www.delphidabbler.com/articles?article=14) 
  [_Others\UWebBrowserWrapper.pas]
 
@@ -180,8 +177,8 @@ is actually using.
 
 Have been necessary to modify some of the 3rd-party source code. All changes have been made in the extracted files, 
 inside each subfolder. I have tried to mark that modifications with the comment "// [dpv]", although not always. Marek
-also modified some files, with "// [mj]". I want to check all that files and make sure that all changes and clearly 
-recognizable.
+also modified some files, with "// [mj]". I have traversed all that files and ensured that all changes are clearly 
+recognizable, mainly by indicating at the header of the files that they have been modified.
 Anyway, it is easy to find out where the changes are, by comparing actual files (in .zip) with the original ones,
 and also by looking at the history of that files in the repository of KeyNote NF, initially in Google Code,
 in Subversion, and now available as Git repository in: https://github.com/dpradov/keynote-nf

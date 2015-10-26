@@ -59,6 +59,12 @@
 {------------------------------------------------------------------------------}
 { Date last modified:  June 22, 2000                                           }
 {------------------------------------------------------------------------------}
+(* + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+  
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf   
+ *********************************************************************************)
 
 
 unit dfsStatusBar;
@@ -69,7 +75,7 @@ uses
   {$IFDEF DFS_DEBUG}
   DFSDebug,
   {$ENDIF}
-  {$IFDEF DFS_DELPHI_6_UP} // *1
+  {$IFDEF DFS_DELPHI_6_UP} // [dpv]
   RTLConsts,
   {$ENDIF}
   Windows, Classes, Messages, Controls, ComCtrls, Graphics, Forms,

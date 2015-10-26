@@ -10,8 +10,16 @@
                           allows the pop-up spell check dialog to be
                           detected and the caption changed.
  *
- ****************************************************************}
+ * ----------------------------------- 
+  + Changes by Marek Jedlinski <marek@tranglos.com> (Poland) [mj]
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
 
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************}
+ 
 unit AJBSpeller;
 
 interface
@@ -69,8 +77,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Disconnect;
-    procedure RemoveCustomDic(const Index: Integer); 
-    procedure RemoveCustomDicName(const Name: string);
+    procedure RemoveCustomDic(const Index: Integer);   // [mj]
+    procedure RemoveCustomDicName(const Name: string); // [mj] Renamed and removed 'overload'
     procedure ResetIgnoreAll;
     procedure SpellingOptions;
     property ChangedText: string read FChangedText;
@@ -354,7 +362,7 @@ var
   s: string;
   p: PChar;
   // EmptyParam : OleVariant;
-  prog : integer;
+  prog : integer;  // [mj]
 begin
   prog := 0;
   if FConnected then Exit; // don't create two instances
@@ -383,10 +391,8 @@ begin
     prog := 11;
     FHandle := FindWindow(MSWordWndClass, PChar(s)); // winword
     prog := 12;
-    if FWordVersion[1] = '9' then
-      s := MSDialogWndClass2000
-    else
-      s := MSDialogWndClass97;
+    if FWordVersion[1] = '9' then s := MSDialogWndClass2000
+	else s := MSDialogWndClass97;
     prog := 13;
     //set up shared memory space
     hMapObject := CreateFileMapping($FFFFFFFF, nil, PAGE_READWRITE, 0, AJBShareSize,

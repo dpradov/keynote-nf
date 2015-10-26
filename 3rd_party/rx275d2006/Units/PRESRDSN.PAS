@@ -6,6 +6,15 @@
 {                                                       }
 {*******************************************************}
 
+(* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
+
 unit PresrDsn;
 
 {$I RX.INC}
@@ -15,7 +24,7 @@ interface
 uses
   SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, 
   Buttons, ExtCtrls, RXCtrls, Placemnt, RXProps, Consts, RTLConsts, DesignIntf, DesignEditors, VCLEditors, VclUtils,
-  TntStdCtrls, TntClasses;
+  TntStdCtrls, TntClasses;      // [dpv] Added TntStdCtrls, TntClasses
 
 type
 

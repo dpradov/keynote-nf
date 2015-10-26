@@ -1,7 +1,4 @@
 {
- * =========================================================================== *
- * Modifications from Daniel Prado 2012
- * =========================================================================== *
  * The code of this unit accompanies the article "How to load and save documents
  * in TWebBrowser in a Delphi-like way" which can be found at
  * http://www.delphidabbler.com/articles?article=14.
@@ -55,6 +52,16 @@
  *
  * ***** END LICENSE BLOCK *****
 }
+
+(* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
+
 
 {$BOOLEVAL OFF}
 

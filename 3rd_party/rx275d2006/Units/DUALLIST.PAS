@@ -6,13 +6,22 @@
 {                                                       }
 {*******************************************************}
 
+(* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
+
 unit DualList;
 
 interface
 
 {$I RX.INC}
 
-uses Classes, Controls, TntClasses;
+uses Classes, Controls, TntClasses;   // [dpv] Added TntClasses
 
 type
 

@@ -142,6 +142,15 @@ Sep 09, 2001  V2.22 Beat Boegli <leeloo999@bluewin.ch> added LocalAddr property
               for multihomed hosts.
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+(*  
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
+ 
 unit SmtpProt;
 
 interface
@@ -162,7 +171,7 @@ interface
 
 uses
     WinTypes, WinProcs, SysUtils, Messages, Classes, Graphics, Controls,
-    Forms, Dialogs, Menus, WSocket, WinSock, MD5, wideStrings;
+    Forms, Dialogs, Menus, WSocket, WinSock, MD5, WideStrings;             // [dpv]: use of WideStrings
 
 const
   SmtpCliVersion     = 222;

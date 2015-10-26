@@ -1,6 +1,15 @@
 { Kryvich's Delphi Localizer Class
   Copyright (C) 2006, 2007, 2008 Kryvich, Belarusian Linguistic Software team.
 }
+(* ------------------------------------------
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+  
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf   
+	  
+ -------------------------------------------------------------------------------- *)
+
 
 {$include version.inc}
 
@@ -114,7 +123,7 @@ implementation
 uses
   Windows, SysUtils, TypInfo, Forms, uStringUtils
   {$ifdef D7} ,uLegacyCode {$endif}
-  {$ifndef D5} ,StrUtils {$endif}, WideStrings;
+  {$ifndef D5} ,StrUtils {$endif}, WideStrings;    // [dpv]: use of WideStrings
 
 const
   LngHeader = '; Kryvich''s Delphi Localizer Language File.';
@@ -483,7 +492,7 @@ begin
                   s := ws // Wide --> UTF-8
                 else
                   //WideToAnsiString(ws, s, GetACP);
-                  s:= UTF8Encode(ws);                 // //We will save it in UTF8
+                  s:= UTF8Encode(ws);                 // [dpv] We will save it in UTF8
                 ResForms[iResForms].Values.Add(s);
 
                 // btnNewForm.Caption{1}  -> drop version #
@@ -493,7 +502,7 @@ begin
                   exit;
                 end;
                 //ResForms[iResForms].Props.Add(ws);
-                ResForms[iResForms].Props.Add(UTF8Encode(ws));  //We will save it in UTF8
+                ResForms[iResForms].Props.Add(UTF8Encode(ws));  // [dpv] We will save it in UTF8
               end;
             end;
           end;
@@ -558,7 +567,7 @@ procedure TFreeLocalizer.TranslateProp(RootComp: TComponent; const PropName,
     i: integer;
     s, el: string;
   begin
-    s := UTF8Decode(PropValue);
+    s := UTF8Decode(PropValue);      // [dpv]
     i := 0;
     st.BeginUpdate;
     try
@@ -576,7 +585,7 @@ procedure TFreeLocalizer.TranslateProp(RootComp: TComponent; const PropName,
     end;
   end;
 
-  procedure SetWideStringsProp(st: TWideStrings);
+  procedure SetWideStringsProp(st: TWideStrings);  // [dpv]
   var
     i: integer;
     s, el: wideString;
@@ -602,7 +611,7 @@ procedure TFreeLocalizer.TranslateProp(RootComp: TComponent; const PropName,
   procedure SetProp(Obj: TObject; const pName: string);
   var
     PropInfo: PPropInfo;
-    ws: wideString;
+    ws: wideString;        // [dpv]
   begin
     if Obj is TWideStrings
        then SetWideStringsProp(Obj as TWideStrings)

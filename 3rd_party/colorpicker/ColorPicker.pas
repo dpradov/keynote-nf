@@ -1,5 +1,13 @@
 // ColorBtn ver 1.5  15/01/2000
 // by SoftCos (Enzo Costantini)
+(* -------------------------------------------------------------------------------
+  + Changes by Marek Jedlinski <marek@tranglos.com> (Poland) [mj]
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+  
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf     
+ --------------------------------------------------------------------------------- *)
 
 unit ColorPicker;
 
@@ -96,9 +104,9 @@ type
     procedure SetDDArrowWidth(Value:byte);
     function GetGlyph:TBitMap;
     procedure SetRegKey(Value:string);
-    function GetHint: WideString;
-    procedure SetHint(const Value: WideString);
-    function IsHintStored: Boolean;
+    function GetHint: WideString;                 // [dpv]
+    procedure SetHint(const Value: WideString);   // [dpv]
+    function IsHintStored: Boolean;               // [dpv]
   protected
     Btn1:TColBtn;
     Btn2:TSpeedButton;
@@ -129,7 +137,7 @@ type
     property DDArrowWidth : byte read FDDArrowWidth write SetDDArrowWidth;
     property Enabled;
     //property Hint;
-    property Hint: WideString read GetHint write SetHint stored IsHintStored;
+    property Hint: WideString read GetHint write SetHint stored IsHintStored;     // [dpv]
     property ShowHint;
     property Visible;
     property ParentShowHint;
@@ -139,7 +147,7 @@ type
 procedure Register;
 
 implementation
-uses Registry, TntControls;
+uses Registry, TntControls;    // [dpv]: Use of TntControls
 {$R *.Res}
 const
      BtnDim=20;

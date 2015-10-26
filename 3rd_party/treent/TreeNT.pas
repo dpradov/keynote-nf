@@ -10,7 +10,15 @@ unit TreeNT;
 //
 // written by Dipl. Ing. Mike Lischke (public@lischke-online.de)
 
-// Modificaciones por Daniel Prado Velasco - 2007 [dpv]
+(* ----------------------------------- 
+  + Changes by Marek Jedlinski <marek@tranglos.com> (Poland) [mj]
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
 
 {$R-,B-}
 

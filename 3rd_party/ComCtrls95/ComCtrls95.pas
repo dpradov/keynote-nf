@@ -4,6 +4,21 @@ unit ComCtrls95;
 
 {Version 2.94, Released 09/21/99}
 
+{***************************************************************
+ * Components: TPage95Control, TTab95Control, TTab95Sheet
+ *  Author: Ryan J. Mills
+ *  Author Email: rmills@freenet.edmonton.ab.ca
+ * ----------------------------------- 
+  + Changes by Marek Jedlinski <marek@tranglos.com> (Poland) [mj]
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************}
+
+
 interface
 {.$DEFINE MJ_MODS}
 {$D+}

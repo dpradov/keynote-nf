@@ -58,6 +58,14 @@
 {------------------------------------------------------------------------------}
 { Date last modified:  December 30, 1999                                       }
 {------------------------------------------------------------------------------}
+(*
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+  
+  > Changes to original source code available in KeyNote NF project.
+  > Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+    in https://github.com/dpradov/keynote-nf   
+	
+ *******************************************************************************)
 
 
 unit MRUFList;
@@ -65,7 +73,7 @@ unit MRUFList;
 interface
 
 uses
-  Classes, SysUtils, WideStrings,
+  Classes, SysUtils, WideStrings,   // Use of WideStrings and TntMenus
   {$IFDEF DFS_WIN32}
   Registry, Windows,
   {$ENDIF}
@@ -332,7 +340,7 @@ implementation
 
 uses
   WinTypes, WinProcs, Graphics, FileCtrl, INIFiles,
-  TntSysUtils, TntSystem, gf_files;
+  TntSysUtils, TntSystem, gf_files;  // [dpv] Use of TntSysUtils, TntSystem and gf_files
 
 var
   MenuBmp: TBitmap;

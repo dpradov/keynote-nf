@@ -14,6 +14,16 @@
     page of the package you install this components into.
   - in C++Builder 3.0 you must add DCLSTD35 to the requires page of the
     package you install this components into. }
+	
+(* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
+	
 
 unit RxCtlReg;
 
@@ -45,7 +55,7 @@ uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, {$ENDIF} Classes, SysUtils,
   PickDate, RxSplit, RxSlider, RxClock, Animate, RxCombos, RxSpin, Consts,
   RxDice, RxSwitch, CheckItm, VCLUtils, RxColors, AniFile, RxGraph,
   {$IFDEF USE_RX_GIF} RxGIF, GIFCtrl, {$ENDIF} RxHints, ExcptDlg, RxCConst,
-  FileUtil, RxDsgn, spin;
+  FileUtil, RxDsgn, spin;      // [dpv] Added Spin
 
 {$IFNDEF RX_D3}
 
@@ -431,7 +441,7 @@ const
   BaseClass: TClass = TComponent;
 {$ENDIF}
 begin
-  RegisterComponents('Samples', [TSpinEdit]);
+  RegisterComponents('Samples', [TSpinEdit]);           // [dpv]
 
   RegisterComponents(LoadStr(srRXControls), [TComboEdit, TFilenameEdit,
     TDirectoryEdit, TDateEdit, TRxCalcEdit, TCurrencyEdit, TTextListBox,

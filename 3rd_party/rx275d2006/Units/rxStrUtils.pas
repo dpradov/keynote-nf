@@ -9,6 +9,16 @@
 {                                                       }
 {*******************************************************}
 
+(* ----------------------------------- 
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf 
+  
+ ****************************************************************)
+
+
 unit rxStrUtils;
 
 {$I RX.INC}
@@ -115,7 +125,7 @@ function AnsiProperCase(const S: string; const WordDelims: TCharSet): string;
 { Returns string, with the first letter of each word in uppercase,
   all other letters in lowercase. Words are delimited by WordDelims. }
 
-function WideProperCase(const S: wideString; const WordDelims: TCharSet): wideString;
+function WideProperCase(const S: wideString; const WordDelims: TCharSet): wideString;   // [dpv]
 
 function WordCount(const S: string; const WordDelims: TCharSet): Integer;
 { WordCount given a set of word delimiters, returns number of words in S. }
