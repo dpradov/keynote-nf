@@ -2167,12 +2167,6 @@ begin
       Language := FEditorChrome.Language;
     end;
 
-    FEditor.Font.Name := FEditorChrome.Font.Name;
-    FEditor.Font.Charset := FEditorChrome.Font.Charset;
-    FEditor.Font.Size := FEditorChrome.Font.Size;
-    FEditor.Font.Style := FEditorChrome.Font.Style;
-    FEditor.Font.Color := FEditorChrome.Font.Color;
-
     if ( FEditor.Lines.Count = 0 ) then
     begin
       FEditor.SelectAll; // IMOPRTANT!
