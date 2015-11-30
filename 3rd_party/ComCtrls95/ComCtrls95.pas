@@ -2568,6 +2568,8 @@ var
   Form: TCustomForm;
 {$Endif}
 begin
+  fMouseOverTab:= -1;  // [dpv] To avoid automatic shift (erroneous) of tabs when changing active page in a multiline tabs
+  fMouseDragTab:= -1;  // [dpv]
   UpdateActivePage;
   if csDesigning in ComponentState then
   begin
@@ -2861,7 +2863,7 @@ procedure TPage95Control.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:
 var
    tabsheet1 : TTab95Sheet;
 begin
-     if (ftabshifting) and (button = mbleft) and (fMouseDragTab <> fMouseOverTab) and (fMouseOverTab <> -1) then
+     if (ftabshifting) and (button = mbleft) and (fMouseDragTab <> fMouseOverTab) and (fMouseOverTab <> -1) and (fMouseDragTab <> -1) then   // [dpv]: and (fMouseDragTab <> -1)
      begin
           TabSheet1 := Pages[fMouseDragTab];
           TabSheet1.PageIndex := fMouseOverTab;
@@ -2880,7 +2882,7 @@ begin
                if (fMouseOverTab = -1) then
                   Cursor := crNo
                else
-               if (fMouseDragTab <> fMouseOverTab) then
+               if (fMouseDragTab <> fMouseOverTab) and (fMouseDragTab <> -1) then   // [dpv]: and (fMouseDragTab <> -1)
                   Cursor := crDrag
                else
                   Cursor := crDefault;
