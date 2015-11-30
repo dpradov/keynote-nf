@@ -2133,6 +2133,8 @@ end;
 procedure TForm_Main.TntFormResize(Sender: TObject);
 begin
   Form_Main.Refresh;
+  if assigned(ActiveNote) then
+     ActiveNote.Editor.Invalidate;
 end;
 
 procedure TForm_Main.TimerTimer(Sender: TObject);
