@@ -146,7 +146,7 @@ begin
     end;
   end
   else begin
-      if not myFindOptions.AllTabs then
+      if not myFindOptions.AllTabs_FindReplace then
          if (ActiveNote <> StartNote) or
             (not myFindOptions.AllNodes) and ((ActiveNote.Kind = ntTree) and (TTreeNote(ActiveNote).TV.Selected <> StartNode)) then
               myFindOptions.FindNew := true;
@@ -269,7 +269,7 @@ begin
     Combo_Replace.Text := ReplaceWith;
     Combo_Text.SelectAll;
 
-    CheckBox_AllTabs.Checked := AllTabs and not IsRecordingMacro;
+    CheckBox_AllTabs.Checked := AllTabs_FindReplace and not IsRecordingMacro;
     CheckBox_EntireScope.Checked := EntireScope and not IsRecordingMacro;
     CheckBox_AllNodes.Checked := AllNodes and not IsRecordingMacro;
     CheckBox_HiddenNodes.Checked := HiddenNodes and not IsRecordingMacro;
@@ -318,7 +318,7 @@ begin
   with myFindOptions do
   begin
     AllNodes := CheckBox_AllNodes.Checked;
-    AllTabs := CheckBox_AllTabs.Checked;
+    AllTabs_FindReplace := CheckBox_AllTabs.Checked;
     EntireScope := CheckBox_EntireScope.Checked;
     MatchCase := CheckBox_MatchCase.Checked;
     WholeWordsOnly := ( CheckBox_WholeWordsOnly.Enabled and CheckBox_WholeWordsOnly.Checked );

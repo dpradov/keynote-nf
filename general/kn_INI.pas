@@ -1034,6 +1034,7 @@ begin
     HiddenNodes:= false;    // [dpv]
     AllNodes := false;
     AllTabs := false;
+    AllTabs_FindReplace:= false;    // This option will not be saved in the .ini file. It will be initially false
     AutoClose := false;
     EntireScope := false;
     FindAllHistory := '';

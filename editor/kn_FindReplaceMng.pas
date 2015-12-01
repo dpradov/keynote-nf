@@ -638,16 +638,16 @@ var
      if not assigned(myTreeNode) or FindOptions.SelectedText then exit;
 
      Wrap:= FindOptions.Wrap and not Is_ReplacingAll;
-     if not (FindOptions.AllTabs or FindOptions.AllNodes or Wrap) then exit;
+     if not (FindOptions.AllTabs_FindReplace or FindOptions.AllNodes or Wrap) then exit;
 
-     if FindOptions.AllTabs or FindOptions.AllNodes then begin
+     if FindOptions.AllTabs_FindReplace or FindOptions.AllNodes then begin
          if FindOptions.HiddenNodes then
             myTreeNode := myTreeNode.GetNext
          else
             myTreeNode := myTreeNode.GetNextNotHidden;
 
          if not assigned( myTreeNode) then
-            if (Wrap or Is_ReplacingAll) and (not FindOptions.AllTabs) then  // Si AllTabs -> pasaremos a otra nota
+            if (Wrap or Is_ReplacingAll) and (not FindOptions.AllTabs_FindReplace) then  // Si AllTabs -> pasaremos a otra nota
                GetFirstNode;
      end;
 
@@ -668,7 +668,7 @@ var
 
       Wrap:= FindOptions.Wrap and not Is_ReplacingAll;
 
-      if (FindOptions.AllTabs) and (not FindOptions.SelectedText) and (Form_Main.Pages.PageCount > 1) then begin
+      if (FindOptions.AllTabs_FindReplace) and (not FindOptions.SelectedText) and (Form_Main.Pages.PageCount > 1) then begin
           tabidx := myNote.TabSheet.PageIndex;
           if tabidx < pred(Form_Main.Pages.PageCount) then
              inc(tabidx)

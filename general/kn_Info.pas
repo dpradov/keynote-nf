@@ -647,7 +647,8 @@ type
   TFindOptions = packed record
     HiddenNodes: boolean;  // consider hidden nodes [dpv]
     AllNodes : boolean; // search all nodes in tree
-    AllTabs : boolean; // search all notes in file
+    AllTabs : boolean;   // search all notes in file (resource panel)
+    AllTabs_FindReplace : boolean; // search all notes in file (FindReplace dialog)
     AutoClose : boolean; // auto close find dialog box when Find button clicked
     EntireScope : boolean; // search from top of text rather than from current position in active note
     FindAllHistory : WideString;
