@@ -3859,15 +3859,23 @@ end;
 
 procedure TForm_Main.MMFindClick(Sender: TObject);
 begin
-  RunFinder;
+  if assigned(ActiveNote) and ( ActiveNote.FocusMemory = focTree ) then
+     MMFindNodeClick(nil)
+  else
+     RunFinder;
 end;
 
 procedure TForm_Main.MMFindNextClick(Sender: TObject);
 begin
-  if ( FindOptions.Pattern = '' ) then
-    RunFinder
-  else
-    RunFindNext;
+  if assigned(ActiveNote) and ( ActiveNote.FocusMemory = focTree ) then
+     MMFindNodeNextClick(nil)
+
+  else begin
+    if ( FindOptions.Pattern = '' ) then
+       RunFinder
+    else
+       RunFindNext;
+  end
 end; // MMFindagainClick
 
 procedure TForm_Main.MMFindReplaceClick(Sender: TObject);
@@ -5026,7 +5034,44 @@ end;
 procedure TForm_Main.FindTreeNode;
 var
   myNode : TTreeNTNode;
-  found : boolean;
+  found : boolean;  
+  myNote : TTabNote;
+  selectedNode : TTreeNTNode;
+  FindAllTabs: boolean;
+  FindHiddenNodes: boolean;
+
+  procedure GetFirstNode;
+  begin
+	  myNode := TTreeNote(myNote).TV.Items.GetFirstNode;
+	  if assigned( myNode ) and myNode.Hidden and (not FindHiddenNodes) then
+		 myNode := myNode.GetNextNotHidden;
+  end;
+  
+  procedure GetNextNode();
+  begin
+	 if FindHiddenNodes then
+		myNode := myNode.GetNext
+	 else
+		myNode := myNode.GetNextNotHidden;
+  end;
+  
+
+  procedure GetNextNote();
+  var
+     tabidx : integer;
+  begin
+     if FindAllTabs and (Form_Main.Pages.PageCount > 1) then begin
+          tabidx := myNote.TabSheet.PageIndex;
+          if tabidx < pred(Form_Main.Pages.PageCount) then
+             inc(tabidx)
+          else
+             tabidx := 0;
+
+          myNote := TTabNote(Form_Main.Pages.Pages[tabidx].PrimaryObject);
+          if myNote.Kind = ntTree then
+             GetFirstNode;
+      end;
+   end;
 begin
 
   myNode := GetCurrentTreeNode;
@@ -5048,21 +5093,43 @@ begin
   if ( SearchNode_Text = '' ) then exit;
 
   found := false;
-  myNode := myNode.GetNext;
-  while assigned( myNode ) do
-  begin
-    if ( Pos( SearchNode_Text, wideLowercase( myNode.Text )) > 0 ) then // {N}
-    begin
-      found := true;
-      myNode.TreeView.Selected := myNode;
-      break;
-    end;
-    myNode := myNode.GetNext;
-  end;
+  selectedNode:= myNode;
+  GetNextNode;
+  myNote := ActiveNote;
 
-  if ( not found ) then
-    statusbar.panels[PANEL_HINT].Text := STR_68;
+  FindAllTabs := CB_ResFind_AllNotes.Checked;
+  FindHiddenNodes:= CB_ResFind_HiddenNodes.Checked;
 
+  repeat
+		 while assigned( myNode ) do
+		 begin
+				if ( Pos( SearchNode_Text, wideLowercase( myNode.Text )) > 0 ) then
+				begin
+				  found := true;
+				  if (myNote <> ActiveNote) then begin
+					   Form_Main.Pages.ActivePage := myNote.TabSheet;
+					   Form_Main.PagesChange(Pages);
+					   TTreeNote( ActiveNote ).TV.SetFocus;
+					   ActiveNote.FocusMemory := focTree;
+				  end;
+				  myNode.MakeVisible;        // Could be hidden
+				  myNode.TreeView.Selected := myNode;				  
+				  break;
+				end;
+				GetNextNode;
+		 end;
+
+		 if not found then
+			  repeat
+			 	  GetNextNote();
+			  	if (myNote.Kind = ntTree) then
+				      GetFirstNode();
+		    until (myNote.Kind = ntTree) or (myNode = selectedNode);
+
+  until found or (myNode = selectedNode);
+
+  if ( not found ) or (myNode = selectedNode) then
+     statusbar.panels[PANEL_HINT].Text := STR_68;
 
 end; // FindTreeNode
 

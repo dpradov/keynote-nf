@@ -3274,7 +3274,6 @@ object Form_Main: TForm_Main
       object MMFindNodeNext: TTntMenuItem
         Caption = 'Find N&ext Node'
         Hint = 'Repeat last Find node command'
-        ShortCut = 8306
         OnClick = MMFindNodeNextClick
       end
     end
