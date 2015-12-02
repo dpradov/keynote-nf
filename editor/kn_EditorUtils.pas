@@ -1505,7 +1505,7 @@ begin
               end;
             end;
 
-            if ClipOptions.PasteAsText then
+            if ClipOptions.PasteAsText or ActiveNote.PlainText then
             begin
               if (( ClipOptions.MaxSize > 0 ) and ( length( ClpStr ) > ClipOptions.MaxSize )) then
                 delete( ClpStr, succ( ClipOptions.MaxSize ), length( ClpStr ));
