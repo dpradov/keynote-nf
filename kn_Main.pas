@@ -2597,7 +2597,7 @@ begin
 
     VK_INSERT:
        if ( shift = [ssShift] ) then begin
-         if CmdPaste(false) then key:= 0;
+         if CmdPaste(false, false) then key:= 0;
        end
        else if shift = [ssCtrl] then begin
          if CmdCopy then key:= 0;
@@ -2621,28 +2621,44 @@ end; // KEY DOWN
 
 procedure TForm_Main.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var
-  myKey: Word;
-  myShift: TShiftState;
+  ShiftPressed: boolean;
+  ShortCut: TShortCut;
+  ShortCutItem: TMenuItem;
 begin
-   if (GetKeyState(VK_CONTROL) < 0) and not (GetKeyState(VK_MENU) < 0) and not (GetKeyState(VK_SHIFT) < 0) then
+   if (GetKeyState(VK_CONTROL) < 0) and not (GetKeyState(VK_MENU) < 0) then
    begin
-      if Msg.CharCode = Ord('C') then begin
-          if CmdCopy then Handled:= true;
-      end
-      else if Msg.CharCode = Ord('V') then begin
-          if CmdPaste(false) then Handled:= true;
-      end
-      else if Msg.CharCode = Ord('X') then begin
-          if CmdCut then Handled:= true;
-      end
-      else if Msg.CharCode = VK_DOWN then begin
-         ActiveNote.Editor.ScrollLinesBy(1);
-         Handled:= true;
-      end
-      else if Msg.CharCode = VK_UP then begin
-         ActiveNote.Editor.ScrollLinesBy(-1);
-         Handled:= true;
+      ShiftPressed:= (GetKeyState(VK_SHIFT) < 0);
+
+      ShortCutItem:= nil;
+      if ShiftPressed then begin
+         ShortCut := ShortCutFromMessage(Msg);
+         ShortCutItem := Menu.FindItem(ShortCut, fkShortCut);
       end;
+
+      if assigned(ShortCutItem) then exit;
+
+      if Msg.CharCode = Ord('C')  then begin
+          if CmdCopy then Handled:= true;
+      end else if Msg.CharCode = Ord('V') then begin
+          if shiftPressed then begin
+              if CmdPaste(false, true)  then Handled:= true;    // Plain text
+          end
+          else begin
+              if CmdPaste(false, false) then Handled:= true;
+          end;
+      end else if Msg.CharCode = Ord('X') then begin
+          if CmdCut then Handled:= true;
+
+      end else if (not ShiftPressed) then begin
+        if Msg.CharCode = VK_DOWN then begin
+           ActiveNote.Editor.ScrollLinesBy(1);
+           Handled:= true;
+        end else if Msg.CharCode = VK_UP then begin
+           ActiveNote.Editor.ScrollLinesBy(-1);
+           Handled:= true;
+        end;
+      end;
+
    end;
 end;
 
@@ -3142,7 +3158,7 @@ end; // COPY
 
 procedure TForm_Main.MMEditPasteClick(Sender: TObject);
 begin
-    CmdPaste(sender is TToolbarButton97);
+    CmdPaste(sender is TToolbarButton97, false);
 end; // PASTE
 
 procedure TForm_Main.MMEditDeleteClick(Sender: TObject);

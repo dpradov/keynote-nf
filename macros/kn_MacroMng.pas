@@ -67,7 +67,7 @@ var
     function RunParagraphDialog : boolean;
     function RunLanguageDialog : boolean;
 
-    function CmdPaste(const fromButton: boolean): boolean;
+    function CmdPaste(const fromButton: boolean; const ForcePlain: boolean): boolean;
     Function CmdCopy: boolean;
     Function CmdCut: boolean;
 
@@ -2778,7 +2778,7 @@ begin
     end;
 end;
 
-Function CmdPaste(const fromButton: boolean): boolean;
+Function CmdPaste(const fromButton: boolean; const ForcePlain: boolean): boolean;
 var
    executed: Boolean;
 begin
@@ -2792,17 +2792,23 @@ begin
        if ActiveNote.Editor.Focused then begin
           executed:= true;
           if fromButton then begin
-              if ShiftDown then
-                PerformCmd( ecPastePlain )
-              else
               if CtrlDown then
                 PasteIntoNew( true )
               else
               if AltDown then
-                Form_Main.MMEditPasteSpecialClick( nil );
+                Form_Main.MMEditPasteSpecialClick( nil )
+              else
+              if ShiftDown or ActiveNote.PlainText then
+                PerformCmd( ecPastePlain )
+              else
+                PerformCmd( ecPaste );
           end
           else
-            PerformCmd( ecPaste );
+             if ForcePlain or ActiveNote.PlainText then
+                PerformCmd( ecPastePlain )
+             else
+                PerformCmd( ecPaste );
+
        end
        else if ActiveNote.Kind = ntTree then begin
            if TTreeNote( ActiveNote ).TV.IsEditing then begin
