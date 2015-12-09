@@ -1123,6 +1123,9 @@ begin
     with IniFile do
     begin
       section := KeyOptionsIniStr.section;
+
+      writestring( section, 'RichEditLibraryPath', RichEditLibraryPath);
+
       writebool( section, KeyOptionsIniStr.AlwaysOnTop, KeyOptions.AlwaysOnTop );
       writebool( section, KeyOptionsIniStr.AutoNewFile, KeyOptions.AutoNewFile );
       writebool( section, KeyOptionsIniStr.AutoRegisterFileType, KeyOptions.AutoRegisterFileType );
@@ -1395,6 +1398,8 @@ begin
     with IniFile do
     begin
       section := KeyOptionsIniStr.section;
+
+      RichEditLibraryPath:= readstring( section, 'RichEditLibraryPath', '');   // If the user has specified a certain DLL, try to use it
       KeyOptions.AlwaysOnTop := readbool( section, KeyOptionsIniStr.AlwaysOnTop, KeyOptions.AlwaysOnTop );
       KeyOptions.AutoNewFile := readbool( section, KeyOptionsIniStr.AutoNewFile, KeyOptions.AutoNewFile );
       KeyOptions.AutoRegisterFileType := readbool( section, KeyOptionsIniStr.AutoRegisterFileType, KeyOptions.AutoRegisterFileType );

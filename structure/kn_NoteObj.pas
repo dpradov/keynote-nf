@@ -366,14 +366,13 @@ type
 
   end;
 
-function LoadedRichEditVersion : integer;
 procedure ParaAttrsRX2KNT( const RxFmt : TRxParaAttributes; var KntFmt : TkntParaAttributes );
 procedure ParaAttrsKNT2RX( const KntFmt : TkntParaAttributes; const RxFmt : TRxParaAttributes );
 procedure FontAttrsRX2KNT( const RxFmt : TRxTextAttributes; var KntFmt : TkntFontAttributes );
 procedure FontAttrsKNT2RX( const KntFmt : TkntFontAttributes; const RxFmt : TRxTextAttributes );
 
 var
-  _LoadedRichEditVersion : integer;
+  _LoadedRichEditVersion : Single;
 
 implementation
 uses kn_global, kn_AlertMng, kn_LinksMng, kn_Main, gf_strings, gf_miscvcl, WideStrUtils;
@@ -393,81 +392,6 @@ resourcestring
   STR_11 = 'Failed to open TreePad file ';
 
 
-function LoadedRichEditVersion : integer;
-var
-  ModuleHandle : HMODULE;
-  ModulePath : array[0..MAX_PATH] of char;
-  s : string;
-  dummy : DWORD;
-  size : integer;
-  buffer : PChar;
-  vsInfo : PVSFixedFileInfo;
-  vsInfoSize : UINT;
-  FileVersionMinor : integer;
-
-// return value:
-//      -1 - internal failure.
-//       0 - no RichEdit DLL is loaded.
-//       1 - RichEdit 1.0 is loaded.
-//       2 - RichEdit 2.0 is loaded.
-//       3 - RichEdit 3.0 is loaded.
-//       4 - RichEdit 4.0 is loaded.
-begin
-
-
-  result := RichEditVersion; // get from RxRichEd.pas initially
-
-  // try RE 2.0/3.0/4.0 DLL
-  ModuleHandle := GetModuleHandle( 'riched20.dll' );
-  if ( ModuleHandle = 0 ) then
-  begin
-    // try RE 1.0 DLL
-    ModuleHandle := GetModuleHandle( 'riched32.dll' );
-    if ( ModuleHandle <> 0 ) then
-      result := 1;
-    exit; // possibly return 1, obtained above
-  end;
-
-  // get the path to the DLL
-  if ( GetModuleFileName( ModuleHandle, ModulePath, MAX_PATH ) = 0 ) then exit; // function failed
-  s := ModulePath;
-
-  // get size of version information
-  size := getfileversioninfosize( PChar( s ), dummy );
-  if ( size = 0 ) then exit; // function failed
-
-  GetMem( buffer, size );
-
-  try
-    if ( not GetFileVersionInfo( ModulePath, 0, size, buffer )) then exit;
-
-    if ( not VerQueryValue(
-        buffer, '\', pointer( vsInfo ), vsInfoSize )) then exit;
-
-    FileVersionMinor := loword( vsInfo^.dwFileVersionMS );
-    {
-      Richedit 2: 0
-      RichEdit 3: 30
-      RichEdit 4: 40
-    }
-
-
-    case FileVersionMinor of
-      0 : result := 2;
-      30 : result := 3;
-      40 : result := 4;
-      else // who knows what the future will bring :)
-        if ( FileVersionMinor > 40 ) then
-          result := FileVersionMinor div 10
-        else
-          result := 3; // fairly safe assumption by now
-    end;
-
-  finally
-    FreeMem( buffer, size );
-  end;
-
-end; // LoadedRichEditVersion
 
 procedure ParaAttrsRX2KNT( const RxFmt : TRxParaAttributes; var KntFmt : TkntParaAttributes );
 begin
@@ -3098,11 +3022,5 @@ begin
 end; // GetTreeNodeByID
 
 Initialization
-  try
-    _LoadedRichEditVersion := LoadedRichEditVersion;
-  except
-    _LoadedRichEditVersion := RichEditVersion; // from RxRichEdit (not always the correct value)
-  end;
-
 
 end.

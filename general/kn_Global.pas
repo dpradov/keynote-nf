@@ -44,6 +44,7 @@ const
 
    procedure InitializeKeynote (Form_Main: TForm_Main);
    procedure InitializeOptions;
+   procedure LoadRicheditLibrary;
    procedure AddSearchModes;
 
 type
@@ -834,6 +835,12 @@ begin
   end;
 
 end; // CREATE
+
+procedure LoadRicheditLibrary;
+begin
+    LoadRichEditDLL;
+    _LoadedRichEditVersion := RichEditVersion; // from RxRichEdit
+end;
 
 // We want to read LanguageUI before creating Form_Main
 procedure InitializeOptions;

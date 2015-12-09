@@ -239,7 +239,8 @@ uses
   kn_FavoritesMng in 'various\kn_FavoritesMng.pas',
   dll_Keyboard in 'general\dll_Keyboard.pas',
   uFreeLocalizer in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uFreeLocalizer.pas',
-  uStringUtils in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uStringUtils.pas';
+  uStringUtils in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uStringUtils.pas',
+  RxRichEd in '3rd_party\Rx275d2006\Units\RxRichEd.pas';
 
 {$R *.RES}
 
@@ -283,6 +284,7 @@ begin
   *)
 
   InitializeOptions;
+  LoadRichEditLibrary;
   ApplyLanguageUI (KeyOptions.LanguageUI);
 
   Application.CreateForm(TChest, Chest);

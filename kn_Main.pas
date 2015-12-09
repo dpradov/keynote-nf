@@ -3552,7 +3552,7 @@ begin
                'Win32MinorVersion: %d',
                 [Win32MajorVersion,Win32MinorVersion] ) + #13 +
        // format( 'RichEdit version from RxLib: %d', [RichEditVersion] ) + #13 +
-       format( 'RichEdit version: %d', [LoadedRichEditVersion] ) + #13 +
+       format( 'RichEdit version: %d', [_LoadedRichEditVersion] ) + #13 +
        format( 'AllocMemSize: %d', [AllocMemSize] );
   if ( messagedlg( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel ) then exit;
 

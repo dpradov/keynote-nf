@@ -33,7 +33,7 @@ uses Windows, {$IFDEF RX_D3} ActiveX, ComObj {$ELSE} Ole2, OleAuto {$ENDIF},
 
 type
   //TRichEditVersion = 1..3;    // dpv
-  TRichEditVersion = 1..4;
+  TRichEditVersion = single;
 
 {$IFNDEF RX_D3}
 
@@ -630,9 +630,14 @@ type
     property OnURLClick;
   end;
 
+
+  function GetDLLProductVersion (ModuleHandle: HMODULE; out sModulePath: string) : Single;  // [dpv]
+  procedure LoadRichEditDLL;  // [dpv]
+
 var
   RichEditVersion: TRichEditVersion;
   RichEditLibraryHandle : THandle; // [mj]
+  RichEditLibraryPath: string; // [dpv]     User custom selection
 
 implementation
 
@@ -671,7 +676,8 @@ const
 {$ENDIF}
 
   RichEdit41ModuleName = 'MSFTEDIT.DLL';    // RTF v.4.1
-  RICHEDIT_CLASS41W    = 'RichEdit50W';
+  RICHEDIT_CLASS50W    = 'RichEdit50W';
+  RICHEDIT_CLASS60W    = 'RichEdit60W';
   EM_FINDTEXTW         = WM_USER + 123;
   EM_FINDTEXTEXW       = WM_USER + 124;
 
@@ -3767,11 +3773,24 @@ const
   SelectionBars: array[Boolean] of DWORD = (0, ES_SELECTIONBAR);
 begin
   inherited CreateParams(Params);
+  if RichEditVersion = 1 then
+     CreateSubClass(Params, RICHEDIT_CLASS10A)
+  else if RichEditVersion = 5 then              // Office 2003
+     CreateSubClass(Params, RICHEDIT_CLASSW)
+  else if (RichEditVersion = 6) or (RichEditVersion >= 8) then  // Office 2007, Office 2010, Office 2013 ..
+     CreateSubClass(Params, RICHEDIT_CLASS60W)
+  else if RichEditVersion >= 4 then
+     CreateSubClass(Params, RICHEDIT_CLASS50W)
+  else
+     CreateSubClass(Params, RICHEDIT_CLASS);
+
+{  [dpv]
   case RichEditVersion of
     1: CreateSubClass(Params, RICHEDIT_CLASS10A);
     4: CreateSubClass(Params, RICHEDIT_CLASS41W);
     else CreateSubClass(Params, RICHEDIT_CLASS);
   end;
+}
   with Params do begin
     Style := (Style and not (WS_HSCROLL or WS_VSCROLL)) or ES_SAVESEL or
       (WS_CLIPSIBLINGS or WS_CLIPCHILDREN);
@@ -5563,23 +5582,171 @@ var
   FLibHandle: THandle;
   Ver: TOsVersionInfo;
 
-initialization
+
+// [dpv] Moved (and redesigned) from kn_NoteObj.LoadedRichEditVersion
+function GetDLLProductVersion (ModuleHandle: HMODULE; out sModulePath: string) : Single;
+var
+  ModulePath : array[0..MAX_PATH] of char;
+  dummy : DWORD;
+  size : integer;
+  buffer : PChar;
+  vsInfo : PVSFixedFileInfo;
+  vsInfoSize : UINT;
+  FileVersionMinor, FileVersionMajor : integer;
+  nameDLL: string;
+begin
+  if ( GetModuleFileName( ModuleHandle, ModulePath, MAX_PATH ) = 0 ) then exit; // function failed
+
+  size := GetFileVersionInfosize( ModulePath, dummy );
+  if ( size = 0 ) then exit; // function failed
+
+  GetMem( buffer, size );
+  try
+    if ( not GetFileVersionInfo( ModulePath, 0, size, buffer )) then exit;
+
+    if ( not VerQueryValue(buffer, '\', pointer( vsInfo ), vsInfoSize )) then exit;
+
+    FileVersionMinor := loword( vsInfo^.dwFileVersionMS );
+    FileVersionMajor := hiword( vsInfo^.dwFileVersionMS );
+
+    sModulePath:= ModulePath;
+    nameDLL := UpperCase(ExtractFileName(sModulePath));
+
+    Result:= 1.0;
+
+    if nameDLL = 'RICHED32.DLL' then
+          Result:= 1.0
+
+    else if nameDLL = 'RICHED20.DLL' then
+           case FileVersionMinor of
+              30,31,40,50:   Result:= FileVersionMinor/10;   // 3.0  3.1  4.0  5.0
+              0:
+                  case FileVersionMajor of
+                      5:     Result:= 2.0;
+                      12,14: Result:= 6.0;    // 12:Office2007  14:Office2010
+                      15:    Result:= 8.0;    // 15:Office2013
+                      else
+                         if FileVersionMajor > 15 then
+                            Result:= 8.0
+                         else
+                            Result:= 3.0;     // conservative
+                  end;
+           end
+
+    else if nameDLL = 'MSFTEDIT.DLL' then begin
+           if (FileVersionMajor = 5) and (FileVersionMinor = 41) then
+               Result:= 4.1
+           else if (FileVersionMajor = 6) and (FileVersionMinor = 2) then
+               Result:= 7.5   // Windows 8
+           else if (FileVersionMajor = 10) and (FileVersionMinor = 0) then
+               Result:= 7.5   // Windows 10
+           else
+               if FileVersionMajor > 10 then
+                  Result:= 7.5
+               else
+                  Result:= 4.1;    // conservative
+    end;
+
+  finally
+    FreeMem( buffer, size );
+  end;
+
+{
+See also: http://blogs.msdn.com/b/murrays/archive/2006/10/14/richedit-versions.aspx#10507232
+
+
+C:\Windows\System32\RICHED20.DLL
+Rich Text Edit Control, v2.0
+Microsoft RichEdit Control, version 2.0
+5.0.150.0
+
+C:\Windows\System32\RICHED20.DLL
+Rich Text Edit Control, v3.1
+File version: 5.31.23.1231
+Product version: 3.1
+      RichEdit 3: 5.30
+      RichEdit 4: 5.40
+
+XP / Windows 7:
+C:\Windows\System32\MSFTEDIT.DLL
+Rich Text Edit Control, v4.1
+Product version: 4.1
+File version:  5.41.15.1515
+
+OFFICE 2003  (11)
+C:\Program Files (x86)\Common Files\Microsoft Shared\OFFICE11\RICHED20.DLL
+Rich Text Edit Control, v5.0
+Product version: 5.0
+File version: 5.50.99.2070
+
+OFFICE 2007  (12)
+C:\Program Files (x86)\Common Files\Microsoft Shared\OFFICE12\RICHED20.DLL
+RichEdit Version 6.0
+Product/file version: 12.0.6606.1000
+Product name: 2007 Microsoft Office system
+(Needs msptls.dll)
+
+Windows 8
+C:\Windows\System32\MSFTEDIT.DLL
+Control de edición de texto enriquecido, v7.5
+Product/file version: 6.2.9200.16657
+
+OFFICE 2010  (14)  (released with W8)
+RichEdit Version 6.0
+C:\Program Files (x86)\Common Files\Microsoft Shared\OFFICE14\RICHED20.DLL
+14.0.7155.5000
+(Needs msptls.dll)
+
+OFFICE 2013  (15)
+RichEdit Version 8.0
+C:\Program Files (x86)\Common Files\Microsoft Shared\OFFICE15\RICHED20.DLL
+15.0.4599.1000
+(Needs msptls.dll)
+
+Windows 10
+C:\Windows\System32\MSFTEDIT.DLL
+Control de edición de texto enriquecido, v7.5
+Product/file version:    10.0.10586.17
+
+}
+
+end; // GetDLLProductVersion
+
+
+procedure LoadRichEditDLL;     // [dpv] Moved from Initialization, with minor modifications
+var
+  VersionDLL: Single;
+  s: string;
+
+begin
   FLibHandle := 0;
   RichEditVersion := 1;
   OldError := SetErrorMode(SEM_NOOPENFILEERRORBOX);
   try
+
+    if RichEditLibraryPath <> '' then begin
+       FLibHandle := LoadLibrary(PChar(RichEditLibraryPath));
+       if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR)  then
+           FLibHandle := 0;
+       if FLibHandle <> 0 then
+           RichEditVersion := 3;   // assumption (at least that version)
+    end;
+
+
 {$IFNDEF RICHEDIT_VER_10}
-    FLibHandle := LoadLibrary(RichEdit41ModuleName);
-    if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR)  then
-        FLibHandle := 0
-    else
-        RichEditVersion := 4;
+    if FLibHandle = 0 then begin
+       FLibHandle := LoadLibrary(RichEdit41ModuleName);
+       if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR)  then
+           FLibHandle := 0;
+       if FLibHandle <> 0 then
+           RichEditVersion := 4;
+    end;
 
     if FLibHandle = 0 then begin
         FLibHandle := LoadLibrary(RichEdit20ModuleName);
         if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then
-            FLibHandle := 0
-        else begin
+            FLibHandle := 0;
+        if FLibHandle <> 0 then begin
           RichEditVersion := 2;
           Ver.dwOSVersionInfoSize := SizeOf(Ver);
           GetVersionEx(Ver);
@@ -5595,15 +5762,29 @@ initialization
       FLibHandle := LoadLibrary(RichEdit10ModuleName);
       if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
     end;
+
+    if FLibHandle <> 0 then begin
+       VersionDLL:= GetDLLProductVersion(FLibHandle, s);
+       if VersionDLL > RichEditVersion then
+          RichEditVersion:= VersionDLL;
+    end;
+
   finally
     SetErrorMode(OldError);
     RichEditLibraryHandle := FLibHandle; // [mj]
   end;
+
+end; // LoadRichEditDLL
+
+
+initialization
+  RichEditLibraryPath:= '';     // [dpv]
   CFEmbeddedObject := RegisterClipboardFormat(CF_EMBEDDEDOBJECT);
   CFLinkSource := RegisterClipboardFormat(CF_LINKSOURCE);
   CFRtf := RegisterClipboardFormat(CF_RTF);
   CFRtfNoObjs := RegisterClipboardFormat(CF_RTFNOOBJS);
   CFHtml := RegisterClipboardFormat(CF_HTML);
+
 finalization
   RichEditLibraryHandle := 0;
   if FLibHandle <> 0 then FreeLibrary(FLibHandle);

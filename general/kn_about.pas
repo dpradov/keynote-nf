@@ -74,7 +74,7 @@ type
 
 
 implementation
-uses kn_const, kn_Main;
+uses RxRichEd, kn_const, kn_Main;
 
 {$R *.DFM}
 
@@ -88,7 +88,7 @@ end;
 
 procedure TAboutBox.FormCreate(Sender: TObject);
 var
-  nameDLL: string;
+  nameDLL, pathDLL: string;
   Icon: TIcon;
 
 begin
@@ -106,16 +106,15 @@ begin
   Label_License.Font.Color := _GF_BLACK;
   Label_Dart.Font.Color := _GF_NAVY;
 
-  if _LoadedRichEditVersion = 4 then
-     nameDLL := ' (MSFTEDIT.DLL)'
-  else
-     nameDLL:='';
+  GetDLLProductVersion(RichEditLibraryHandle, pathDLL);
+  nameDLL := ' (' + ExtractFileName(pathDLL) + ')';
 
   LB_RichEditVer.Font.Style := [fsBold];
   LB_RichEditVer.Caption := Format(
-    'RichEdit DLL ver: %d %s',
+    'RichEdit DLL ver: %.1f %s',
     [_LoadedRichEditVersion, nameDLL]
   );
+  LB_RichEditVer.Hint:= pathDLL;
 
   Caption := 'About - ' + Program_Name;
   Label_Name.Caption := Program_Name;
