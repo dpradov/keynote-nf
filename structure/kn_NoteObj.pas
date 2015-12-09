@@ -441,8 +441,10 @@ begin
     KntFmt.BackColor := BackColor;
     KntFmt.Color := Color;;
     KntFmt.Disabled := Disabled;
-    KntFmt.Hidden := Hidden;
-    KntFmt.Link := Link;
+    if _LoadedRichEditVersion >= 6 then begin
+       KntFmt.Hidden := Hidden;
+       KntFmt.Link := Link;
+    end;
     KntFmt.Name := Name;
     KntFmt.Offset := Offset;
     KntFmt.Pitch := Pitch;
@@ -465,8 +467,10 @@ begin
     RxFmt.BackColor := BackColor;
     RxFmt.Color := Color;
     RxFmt.Disabled := Disabled;
-    RxFmt.Hidden := Hidden;
-    RxFmt.Link := Link;
+    if _LoadedRichEditVersion >= 6 then begin
+       RxFmt.Hidden := Hidden;
+       RxFmt.Link := Link;
+    end;
     RxFmt.Name := Name;
     RxFmt.Offset := Offset;
     RxFmt.Pitch := Pitch;
