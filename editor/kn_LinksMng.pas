@@ -42,6 +42,7 @@ uses
     procedure UpdateHistoryCommands;
 
     function TypeURL (var URLText: wideString; var KNTlocation: boolean): TKntURL;
+    function URLFileExists (var URL: wideString): boolean;
 
 implementation
 uses
@@ -735,6 +736,16 @@ begin
 end; // JumpToKNTLocation
 
 
+
+function URLFileExists (var URL: wideString): boolean;
+var
+   AbsolutePath: wideString;
+begin
+   AbsolutePath:= GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URL);
+   Result:= WideFileExists( AbsolutePath) or WideDirectoryExists( AbsolutePath );
+end;
+
+
 //--------------------------------------------------
 // TypeURL
 //--------------------------------------------------
@@ -743,7 +754,7 @@ var
    URLType, KntURL: TKNTURL;
    URLPos : integer; // position at which the actual URL starts in URLText
    URLTextLower: wideString;
-   URLaux, URLaux2, AbsolutePath: wideString;
+   URLaux, URLaux2: wideString;
 begin
   // determine where URL address starts in URLText
   URLType := urlUndefined;
@@ -800,8 +811,7 @@ begin
           {2}
           if KeyOptions.URLFileDecodeSpaces then begin
              URLaux2 := HTTPDecode(URLaux);
-             AbsolutePath:= GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URLaux2);
-             if WideFileExists( AbsolutePath) or WideDirectoryExists( AbsolutePath ) then begin
+             if URLFileExists(URLaux2) then begin
                URLaux:= URLaux2;
                {3}
                if ( KeyOptions.URLFileQuoteSpaces and ( pos( #32, URLaux ) > 0 )) then
@@ -1082,7 +1092,7 @@ begin
       if AltWasDown then
          myURLAction := urlCopy
       else
-         if CtrlWasDown then begin
+         if CtrlWasDown and ( KNTLocation or (URLType <> urlFile) or (URLFileExists(myURL)) ) then begin
             if ( myURLAction <> urlOpenNew ) then
                myURLAction := urlOpenNew // always open in new window if Ctrl pressed
             else
@@ -1102,7 +1112,8 @@ begin
 
       //-------------------------------------
       if ( URLType = urlFile ) and ( myURLAction in [urlAsk] ) and KeyOptions.URLFileAuto then
-               myURLAction := urlOpen;
+           if URLFileExists(myURL) then
+              myURLAction := urlOpen;
 
 
       //-------------------------------------
@@ -1292,22 +1303,59 @@ var
   askUser: Boolean;
   KNTLocation: boolean;
 
+  procedure RemoveAngleBrackets(var Cad : WideString);
+  var
+    l, r, n: integer;
+  begin
+    n:= Length(Cad);
+    l:= 1;
+    while (l <= n) and ( Cad[l] = '<' ) do
+        l:= l + 1;
+
+    r:= n;
+    while (r >= 1) and ( Cad[r] = '>' ) do
+        r:= r - 1;
+
+    Cad:= Copy(Cad, l, r-l+1);
+  end;
+
 
   procedure SelectTextToUse();
   var
-      CadAux: WideString;
-      Len: integer;
+      UrlSel, TxtSel: WideString;
+      p: integer;
   begin
-        if ActiveNote.Editor.SelLength > 0 then
-           URLStr:= ActiveNote.Editor.GetVisibleSelectedText
-        else
-           URLStr:= ActiveNote.Editor.GetLinkAtCursor;
+        if ActiveNote.Editor.SelLength > 0 then begin
+           TxtSel:= Trim(ActiveNote.Editor.SelVisibleTextW);
+           UrlSel:= Trim(ActiveNote.Editor.SelTextW);
+           RemoveAngleBrackets(TxtSel);
+           RemoveAngleBrackets(UrlSel);
 
-        URLStr:= Trim(URLStr);
-        CadAux:= URLStr;
-        TypeURL( URLStr, KNTlocation);   // Puede modificará URLStr interpretándolo
-        if length(CadAux) < length(URLStr) then
-           TextURL:= CadAux;
+           p:= Pos('HYPERLINK "', UrlSel);
+           if p > 0 then begin
+              URLStr:= Copy(UrlSel, p+11, Length(UrlSel) -Length(TxtSel) -12);
+              URLType:= TypeURL( UrlStr, KNTlocation);
+              if TextURL = '' then TextURL:= TxtSel;
+              end
+           else begin
+              UrlSel:= TxtSel;
+              URLType:= TypeURL( UrlSel, KNTlocation);
+              if (URLType <> urlFile) or ( (pos('FILE:', WideUpperCase(TxtSel))=1) or (pos(':', UrlSel)=2) or URLFileExists(UrlSel)) then
+                 URLStr:= UrlSel
+              else begin
+                 URLType:= urlUndefined;
+                 if TextURL = '' then TextURL:= TxtSel;  // URLStr will remain ""
+              end;
+           end;
+        end
+        else begin
+           ActiveNote.Editor.GetLinkAtCursor(URLStr, TxtSel);
+           URLType:= TypeURL( UrlStr, KNTlocation);
+           if TextURL = '' then TextURL:= TxtSel;
+        end;
+
+        if (TextURL = '') and (URLType = urlFile) then
+           TextURL:= StripFileURLPrefix(URLStr);
   end;
 
 begin
@@ -1315,16 +1363,6 @@ begin
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
   askUser:= (URLStr = '');
 
-  //if askUser then
-  //   URLStr := trim(ClipboardAsString);         // offer clipboard first
-
-  if URLStr <> '' then begin
-     URLType := TypeURL( URLStr, KNTLocation );
-     if (URLType = urlFile) and (not PathFileOK(URLStr)) then begin
-         URLStr := '';
-         askUser:= true;
-     end;
-  end;
 
   if askUser then begin
       Form_URLAction := TForm_URLAction.Create( Form_Main );
@@ -1350,10 +1388,10 @@ begin
     begin
     // Determine type of URL. Parameter of TypeURL can also be modified
       URLType := TypeURL( URLStr, KNTLocation );
-      if (URLType = urlFile) and ( pos( 'FILE:', AnsiUpperCase(URLStr) ) = 0 ) then
+      if (URLType = urlFile) and ( pos( 'FILE:', WideUpperCase(URLStr) ) = 0 ) then
          URLStr := 'file:///' + URLStr;
 
-      if TextURL = '' then TextURL:= StripFileURLPrefix(URLStr);
+      if (TextURL = '') and (not ActiveNote.PlainText) then TextURL:= StripFileURLPrefix(URLStr);
       InsertHyperlink(URLStr, TextURL, false);
     end;
 

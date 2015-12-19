@@ -425,7 +425,7 @@ type
     function ProtectChange(const Message: TMessage; StartPos,
       EndPos: Integer): Boolean; dynamic;
     function SaveClipboard(NumObj, NumChars: Integer): Boolean; dynamic;
-    procedure URLClick(const URLText: wideString; chrg: _charrange; Button: TMouseButton); dynamic;
+    procedure URLClick(chrg: _charrange; Button: TMouseButton); dynamic;
     procedure SetPlainText(Value: Boolean); virtual;
 {$IFDEF RX_D3}
     procedure CloseFindDialog(Dialog: TFindDialog); virtual;
@@ -434,6 +434,7 @@ type
     function GetSelStart: Integer; override;
     function GetSelText: string; override;
     function GetSelTextW: WideString;
+    function GetSelVisibleTextW: WideString;
     function GetTextW: WideString;
     procedure SetTextW(const Value: WideString);
     procedure SetSelTextW(const Value: WideString);
@@ -532,6 +533,7 @@ type
     property Paragraph: TRxParaAttributes read FParagraph;
     property SelectionType: TRichSelectionType read GetSelectionType;
     property SelTextW: WideString read GetSelTextW write SetSelTextW;
+    property SelVisibleTextW: WideString read GetSelVisibleTextW;
     property SelText: string read GetSelText write SetSelText;
     property TextW: WideString read GetTextW write SetTextW;
   end;
@@ -916,6 +918,16 @@ const
   OLEOP_DOVERB = 1;
 
 {$ENDIF RX_D3}
+
+{ flags for the GETTEXTEX data structure }
+
+const
+  GT_DEFAULT      = 0;
+	GT_USECRLF      = 1;
+ 	GT_SELECTION    = 2;
+ 	GT_RAWTEXT      = 4;
+ 	GT_NOHIDDENTEXT = 8;
+
 
 const
   FT_DOWN = 1;
@@ -4172,6 +4184,28 @@ begin
     Result := GetTextRange(cpMin, cpMax);
 end;
 
+function TRxCustomRichEdit.GetSelVisibleTextW: WideString;
+var
+  GetTextEx: TGetTextEx;
+  longSel: integer;
+begin
+   with GetSelection do
+      longSel:= cpMax-cpMin+1;
+
+   SetLength(Result, longSel);
+
+   with GetTextEx do begin
+      cb:= longSel * 2;     // size in bytes
+      flags:= GT_SELECTION or GT_NOHIDDENTEXT;
+      codepage:= 1200;
+      lpDefaultChar:= nil;
+      lpUsedDefChar:= nil;
+   end;
+
+   longSel:= SendMessage(Handle, EM_GETTEXTEX, WPARAM(@GetTextEx), LPARAM(Result));
+   SetLength(Result, longSel);
+end;
+
 procedure TRxCustomRichEdit.SetSelTextW(const Value: WideString);
 var
   len: integer;
@@ -4456,18 +4490,15 @@ var
   TextRange: TTextRange;
   longSel: integer;
 begin
-  if RichEditVersion >=4 then
-     SetLength(Result, 2 * (EndPos - StartPos + 1) )
-  else
-     SetLength(Result, EndPos - StartPos + 1);
+  SetLength(Result, EndPos - StartPos + 1);
 
   TextRange.chrg.cpMin := StartPos;
   TextRange.chrg.cpMax := EndPos;
   TextRange.lpstrText := PAnsiChar(Result);
 
-  if RichEditVersion >=4 then begin
+  if RichEditVersion < 4 then begin
     longSel:= SendMessage(Handle, EM_GETTEXTRANGE, 0, Longint(@TextRange));
-    Result:= PWideChar(Result);
+    Result:= PAnsiChar(Result);
     SetLength(Result, longSel);
     end
   else
@@ -5189,7 +5220,7 @@ begin
               begin
                 if (FClickBtn = mbRight) and (FClickRange.cpMin = chrg.cpMin) and
                   (FClickRange.cpMax = chrg.cpMax) then
-                  URLClick(GetTextRange(chrg.cpMin, chrg.cpMax), chrg, mbRight);
+                  URLClick(chrg, mbRight);
                 with FClickRange do begin
                   cpMin := -1;
                   cpMax := -1;
@@ -5204,7 +5235,7 @@ begin
               begin
                 if (FClickBtn = mbLeft) and (FClickRange.cpMin = chrg.cpMin) and
                   (FClickRange.cpMax = chrg.cpMax) then
-                  URLClick(GetTextRange(chrg.cpMin, chrg.cpMax), chrg, mbLeft);
+                  URLClick(chrg, mbLeft);
                 with FClickRange do begin
                   cpMin := -1;
                   cpMax := -1;
@@ -5246,10 +5277,10 @@ begin
   if Assigned(OnResizeRequest) then OnResizeRequest(Self, Rect);
 end;
 
-procedure TRxCustomRichEdit.URLClick(const URLText: wideString; chrg: _charrange; Button: TMouseButton);
+procedure TRxCustomRichEdit.URLClick(chrg: _charrange; Button: TMouseButton);
 begin
   if Assigned(OnURLClick) then
-   OnURLClick(Self, URLText, chrg, Button);
+    OnURLClick(Self, GetTextRange(chrg.cpMin, chrg.cpMax), chrg, Button);
 end;
 
 function TRxCustomRichEdit.FindText(const SearchStr: WideString;

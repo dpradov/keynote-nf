@@ -5701,7 +5701,7 @@ end;
 
 procedure TForm_Main.MMInsertKNTLinkClick(Sender: TObject);
 begin
-  InsertOrMarkKNTLink( nil, true, '');
+  InsertOrMarkKNTLink( nil, true, ActiveNote.Editor.SelVisibleTextW);
 end;
 
 

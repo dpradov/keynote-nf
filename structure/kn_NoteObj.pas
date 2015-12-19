@@ -262,8 +262,7 @@ type
 
     function GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False  ) : WideString;
     function SelectWordAtCursor : string;
-    function GetLinkAtCursor() : WideString;
-    function GetVisibleSelectedText() : WideString;
+    procedure GetLinkAtCursor(var URL: WideString; var TextURL: WideString);
   end; // TTabRichEdit
 
 type
@@ -375,7 +374,7 @@ var
   _LoadedRichEditVersion : Single;
 
 implementation
-uses kn_global, kn_AlertMng, kn_LinksMng, kn_Main, gf_strings, gf_miscvcl, WideStrUtils;
+uses StrUtils, kn_global, kn_AlertMng, kn_LinksMng, kn_Main, gf_strings, gf_miscvcl, WideStrUtils;
 
 resourcestring
   STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
@@ -1724,29 +1723,38 @@ begin
 end; // GetWordAtCursorNew
 
 
-function TTabRichEdit.GetLinkAtCursor() : WideString;
+procedure TTabRichEdit.GetLinkAtCursor(var URL: WideString; var TextURL: WideString);
 var
     link: integer;
-    TextLen, Len: integer;
+    TextLen: integer;
     Left, Right: integer;
     LeftE, RightE: integer;
-
 begin
-    Result:= '';
-    Left:= ActiveNote.Editor.SelStart;
-    Right := ActiveNote.Editor.SelLength + Left;
 
-    ActiveNote.Editor.SetSelection(Left-1, Left+1, false);
+  ActiveNote.Editor.BeginUpdate;
+  try
 
-    if (ActiveNote.Editor.SelAttributes.Link2 <> 1) then       // 0: No incluye ningún carácter con dicho atributo 1: Todos son Link -1: Mixto
+    URL:= '';
+    TextURL:= '';
+    Left:=  ActiveNote.Editor.SelStart;
+    Right:= ActiveNote.Editor.SelLength + Left;
+
+    ActiveNote.Editor.SetSelection(Left, Left+1, false);
+    link:= ActiveNote.Editor.SelAttributes.Link2;
+    if link = 1 then begin
+       ActiveNote.Editor.SetSelection(Left-1, Left, false);
+       link:= ActiveNote.Editor.SelAttributes.Link2;
+    end;
+
+    if (link <> 1) then       // 0: No incluye ningún carácter con dicho atributo 1: Todos son Link -1: Mixto
         ActiveNote.Editor.SetSelection(Left, Right, false)
-        
+
     else begin
         TextLen:= ActiveNote.Editor.TextLength;
 
         // Buscamos el extremo izquierdo
         link:= 1;
-        while (Left >0) and (link=1) and (ActiveNote.Editor.SelText<>'') do begin
+        while (Left >0) and ((link=1) or ((_LoadedRichEditVersion>=5) and (ActiveNote.Editor.SelLength=0))) do begin  // Character "H" of HYPERLINK ".... cannot be selected in versions >= 5. Also in that versiones, when trying to selection one hidden character selection of that hyperlink, the whole link is selected
               Left:= Left - 1;
               ActiveNote.Editor.SetSelection(Left-1, Left, false);
               link:= ActiveNote.Editor.SelAttributes.Link2;
@@ -1759,7 +1767,7 @@ begin
               ActiveNote.Editor.SetSelection(LeftE-1, LeftE, false);
         end;
 
-       
+
         // Buscamos el extremo derecho
         link:= 1;
         while (Right < TextLen) and (link=1) do begin
@@ -1774,47 +1782,22 @@ begin
               RightE:= RightE + 1;
               ActiveNote.Editor.SetSelection(RightE, RightE+1, false);
         end;
-        
-        ActiveNote.Editor.SetSelection(LeftE, RightE, false);
-        Result:= ActiveNote.Editor.GetTextRange(Left, Right);
+
+        URL:= ActiveNote.Editor.GetTextRange(Left, Right);
+        if pos('HYPERLINK "', URL)= 1 then begin
+           // If it is an hyperlink with text associated then the string will be: URL"TextURL, where only TextURL is visible
+           ActiveNote.Editor.SetSelection(Left, Right, false);
+           TextURL:= ActiveNote.Editor.SelVisibleTextW;
+           URL:= Copy(URL, 12, Length(URL) - Length(TextURL)- 12);
+        end
+        else
+           ActiveNote.Editor.SetSelection(LeftE, RightE, false);
+
     end;
 
-end;
-
-function TTabRichEdit.GetVisibleSelectedText() : WideString;
-var
-    _selectionLength:Integer;
-    _selectStart: Integer;
-    ResultText: WideString;
-    Sel: WideString;
-    i, k: Integer;
-
-begin
-    Result:= '';
-    _selectionLength := ActiveNote.Editor.SelLength;
-    if _selectionLength = 0 then exit;
-
-    if (ActiveNote.Editor.SelAttributes.Link2 = 0) then begin
-        Result:= ActiveNote.Editor.SelTextW;
-        exit;
-    end;
-
-    _selectStart := ActiveNote.Editor.SelStart;
-    SetLength(ResultText, _selectionLength);
-
-    k:= 1;
-    for i := _selectStart to _selectStart + _selectionLength-1 do begin
-        ActiveNote.Editor.SetSelection(i, i+1, false);
-        Sel:= ActiveNote.Editor.SelTextW;
-        if Sel <> '' then begin
-           ResultText[k]:= Sel[1];
-           k:= k + 1;
-        end;
-    end;
-    SetLength(ResultText, k-1);
-    ActiveNote.Editor.SelStart:=  _selectStart;
-    ActiveNote.Editor.SelLength:= _selectionLength;
-    Result:= ResultText;
+  finally
+     ActiveNote.Editor.EndUpdate;
+  end;
 end;
 
 procedure TTabRichEdit.SimulateDoubleClick;
