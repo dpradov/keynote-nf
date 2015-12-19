@@ -34,6 +34,7 @@ type
     Label2: TTntLabel;
     Edit_TextURL: TTntEdit;
     Button_Modify: TTntButton;
+    procedure CheckURL(OnlyEnsureLink: boolean);
     procedure Edit_URLExit(Sender: TObject);
     procedure Button_ModifyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -185,7 +186,7 @@ end;
 procedure TForm_URLAction.Button_ModifyClick(Sender: TObject);
 begin
      if Edit_TextURL.Text = '' then
-        Edit_URLExit(nil);
+        CheckURL(true);
      URLAction := urlCreateOrModify;
 end;
 
@@ -271,18 +272,24 @@ begin
   URLAction := urlOpenNew;
 end;
 
-
-procedure TForm_URLAction.Edit_URLExit(Sender: TObject);
+{
+ Revisa el campo TextURL, igualándolo al campo URL si está vacío
+ OnlyEnsureLink: Si True, sólo modifica el campo si no es posible dejar únicamente el campo
+    URL sin texto asociado (vía HYPERLINK "...) al tratarse de tipo de URL no reconocido por RichEdit o
+    tener algún problema con su último carácter.
+}
+procedure TForm_URLAction.CheckURL(OnlyEnsureLink: boolean);
 var
   url: wideString;
   InterpretedUrl: wideString;
-  KNTlocation: boolean;
+  KNTlocation, EnsureLink: boolean;
   URLType: TKNTURL;
   lastChar: WideChar;
 begin
  if not Edit_TextURL.Enabled then exit;
 
  if Edit_TextURL.Text = '' then begin
+    EnsureLink:= False;
     url:= Edit_URL.Text;
     if ( pos(STR_05, url) = 1 ) then
         delete( url, 1, length( STR_05 ));
@@ -293,19 +300,28 @@ begin
      InterpretedUrl:= url;
      URLType:= TypeURL( InterpretedUrl, KNTlocation);
      lastChar:= url[length(url)];
-     if (URLType = urlOTHER) or (( URLType in [urlHTTP, urlHTTPS]) and ( lastChar in [')', ']'] ))  then
+     if (URLType = urlOTHER) or (( URLType in [urlHTTP, urlHTTPS]) and ( lastChar in [')', ']'] ))  then begin
          // Si el texto es igual a la URL, y no es de los reconocidos por el control RichEdit (http://msdn.microsoft.com/en-us/library/windows/desktop/bb787991%28v=vs.85%29.aspx)
          // no lo tratará como hiperlenlace
          // También deja sin reconocer el último carácter si éste es ) o ], como mínimo
-        url:= '<' + url + '>'
+        url:= '<' + url + '>';
+        EnsureLink:= True;
+     end
      else
          if url <> interpretedUrl then begin
             Edit_URL.Text:= interpretedUrl;
          end;
 
-    Edit_TextURL.Text:= url;
+    if (Not OnlyEnsureLink) or (EnsureLink= True) then
+       Edit_TextURL.Text:= url;
  end;
 end;
+
+procedure TForm_URLAction.Edit_URLExit(Sender: TObject);
+begin
+  CheckURL(false);
+end;
+
 
 procedure TForm_URLAction.Label_URLClick(Sender: TObject);
 begin
@@ -319,13 +335,25 @@ end;
 function StripFileURLPrefix( const AStr : WideString ) : wideString;
 const
   FILEPREFIX = 'file:';
+var
+  l, i, n: integer;
 begin
+  // In URLs like file://192.168.1.1/..... we must preserve the prefix
+  // We can eliminate it in URLs like file:///C:.....
   result := AStr;
+
   if ( pos( FILEPREFIX, wideLowerCase( result )) = 1 ) then
   begin
-    delete( result, 1, length( FILEPREFIX ));
-    while ( result <> '' ) and ( result[1] = '/' ) do
-      delete( result, 1, 1 );
+    i:= length( FILEPREFIX)+1;
+    l:= length(result);
+    n:= 0;
+    while (i <= l) and ( result[i] = '/' ) do begin
+        i:= i + 1;
+        n:= n + 1;
+    end;
+
+    if (n <> 2) or ( ( l>i+1 ) and (result[i+1]=':')) then
+       delete( result, 1, i-1);
   end;
 end; // StripFileURLPrefix
 
