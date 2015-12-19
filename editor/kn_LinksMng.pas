@@ -156,33 +156,50 @@ end;
 //----------------------------------------
 procedure InsertHyperlink(URLStr: wideString; TextURL : wideString; KNTLink: boolean);
 var
-  _selectStart: integer;
-  _selectionLenght: integer;
-  sep: string;
+  SelL: integer;
+  SelR: integer;
+  sepL, sepR: string;
+  UseHyperlink: boolean;
 begin
-      if (RichEditVersion >= 4) and (not ActiveNote.PlainText) then begin
-         _selectStart := ActiveNote.Editor.SelStart;
-         _selectionLenght := ActiveNote.Editor.SelLength;
-         sep:= '';
-         ActiveNote.Editor.SetSelection(_selectStart-1, _selectStart-1, false);
-         if ActiveNote.Editor.SelAttributes.Link then
-            sep:= ' ';
-         ActiveNote.Editor.SelStart:= _selectStart;
-         ActiveNote.Editor.SelLength:= _selectionLenght;
+    UseHyperlink:= False;
+    if (RichEditVersion >= 4) and (not ActiveNote.PlainText) then
+       UseHyperlink:= True;
 
-         PutRichTextW('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sep + '{\field{\*\fldinst{HYPERLINK "'
+    with ActiveNote.Editor do begin
+      SelL := SelStart;
+      SelR := SelL + SelLength;
+      sepL:= '';
+      SetSelection(SelL-1, SelL, false);
+      if SelAttributes.Link or (not UseHyperlink and (Trim(SelText) <> '')) then sepL:= ' ';
+      SetSelection(SelR, SelR+1, false);
+      if SelAttributes.Link or (not UseHyperlink and (Trim(SelText) <> '')) then sepR:= ' ';
+      SetSelection(SelL, SelR, false);
+
+      if UseHyperlink then begin
+         PutRichTextW('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sepL + '{\field{\*\fldinst{HYPERLINK "'
             + URLToRTF(URLStr, false ) + '"}}{\fldrslt{\cf1\ul '
-            + URLToRTF(TextURL, true) + '}}} \cf0\ulnone}',
+            + URLToRTF(TextURL, true) + '}}}' + sepR + '\cf0\ulnone}',
             ActiveNote.Editor, true, true );
-
          end
       else begin
           if not KNTLink then
              URLStr := FileNameToURL( URLStr );
-          ActiveNote.Editor.SelTextW := URLStr + #32;
+          if TextURL <> '' then
+             SelTextW := sepL + '''' + TextURL + '''' + ' (' + URLStr + ') '
+          else
+             SelTextW := sepL + URLStr + #32;
+
+          if sepR = ' ' then
+             SelStart:= SelStart + SelLength
+          else begin
+             SelStart:= SelStart + SelLength-1;
+             SelLength:= 1;
+             SelText:= '';
+          end;
       end;
 
-      ActiveNote.Editor.SelLength := 0;
+      SelLength := 0;
+    end;
 end;
 
 //===============================================================

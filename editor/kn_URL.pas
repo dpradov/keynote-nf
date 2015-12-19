@@ -228,7 +228,6 @@ begin
 
       if AllowURLModification then begin
         Edit_URL.ReadOnly:= False;
-        Edit_URL.SetFocus;
         Edit_URL.SelectAll;
       end
       else begin
@@ -238,12 +237,19 @@ begin
         Edit_TextURL.SelectAll;
       end;
 
+      {
       if (RichEditVersion < 4) or (ActiveNote.PlainText) then begin
         Edit_TextURL.Text:= '';
         Label2.Enabled:= false;
         Edit_TextURL.Enabled:= false;
         if not AllowURLModification then Button_Modify.Enabled:= false;
       end;
+      }
+
+      if (Edit_URL.Text = '') or (not Edit_TextURL.Enabled) then
+          Edit_URL.SetFocus
+      else
+          Edit_TextURL.SetFocus;
 
 end;
 
