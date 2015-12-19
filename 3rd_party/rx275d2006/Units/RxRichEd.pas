@@ -507,6 +507,8 @@ type
     class procedure RegisterConversionFormat(const AExtension: string;
       APlainText: Boolean; AConversionClass: TConversionClass);
     procedure ClearUndo;
+    procedure SuspendUndo;   // [dpv]
+    procedure ResumeUndo;    // [dpv]
     procedure Redo;
     procedure StopGroupTyping;
     procedure BeginUpdate;
@@ -642,7 +644,7 @@ var
 implementation
 
 uses Printers, ComStrs, OleConst, OleDlg {$IFDEF RX_D3}, OleCtnrs {$ENDIF},
-  MaxMin, StrUtils,
+  MaxMin, StrUtils, tom_TLB,
   TntClasses, TntSystem, TntStdCtrls, TntControls, TntSysUtils, Clipbrd;
 
 type
@@ -4364,6 +4366,28 @@ begin
   if (RichEditVersion >= 2) and HandleAllocated then
     Result := TUndoName(SendMessage(Handle, EM_GETUNDONAME, 0, 0));
 end;
+
+
+procedure TRxCustomRichEdit.SuspendUndo;
+var
+  docTOM: ITextDocument;
+begin
+  if Assigned(FRichEditOle) then begin
+    OleCheck(FRichEditOle.QueryInterface(ITextDocument, docTOM));
+    docTOM.Undo(tomSuspend);
+  end;
+end;
+
+procedure TRxCustomRichEdit.ResumeUndo;
+var
+  docTOM: ITextDocument;
+begin
+  if Assigned(FRichEditOle) then begin
+    OleCheck(FRichEditOle.QueryInterface(ITextDocument, docTOM));
+    docTOM.Undo(tomResume);
+  end;
+end;
+
 
 function TRxCustomRichEdit.GetSelectionType: TRichSelectionType;
 const
