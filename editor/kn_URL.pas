@@ -44,6 +44,7 @@ type
       Shift: TShiftState);
     procedure Button_OpenNewClick(Sender: TObject);
     procedure Label_URLClick(Sender: TObject);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
   public
@@ -203,6 +204,15 @@ begin
       Close;
     end;
   end;
+end;
+
+procedure TForm_URLAction.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+    if not Button_Modify.Default then begin
+       Button_Modify.Default := true;
+       Button_Open.Default := false;
+    end;
+
 end;
 
 procedure TForm_URLAction.FormShow(Sender: TObject);
