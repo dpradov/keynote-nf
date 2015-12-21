@@ -1132,7 +1132,8 @@ end; // UpdateNoteDisplay
 procedure UpdateCursorPos;
 var
   p : TPoint;
-  cad: string;
+  SelectedVisibleText: string;
+  SelLength: integer;
 begin
   with Form_Main do begin
         if assigned( ActiveNote ) then
@@ -1140,19 +1141,22 @@ begin
           if EditorOptions.TrackCaretPos then
           begin
             p := ActiveNote.Editor.CaretPos;
-            if ( ActiveNote.Editor.SelLength = 0 ) then begin
+            SelLength:= ActiveNote.Editor.SelLength;
+            if ( SelLength = 0 ) then begin
               //p := ActiveNote.Editor.CaretPos;
               StatusBar.Panels[PANEL_CARETPOS].Text :=
                 Format( STR_10, [succ( p.y ), ActiveNote.Editor.Lines.Count, succ( p.x )] );
               end
             else begin
+                SelectedVisibleText:= ActiveNote.Editor.SelVisibleTextW;
                 StatusBar.Panels[PANEL_CARETPOS].Text :=
-                Format( STR_11, [ActiveNote.Editor.SelLength, GetWordCount( ActiveNote.Editor.SelText )] );
+                Format( STR_11, [Length(SelectedVisibleText), GetWordCount( SelectedVisibleText )] );
             end;
           end
           else begin
             if EditorOptions.WordCountTrack  then begin
-               if ( ActiveNote.Editor.SelLength > 0 ) then
+               SelLength:= ActiveNote.Editor.SelLength;
+               if ( SelLength > 0 ) then
                   UpdateWordCount;
             end else
               StatusBar.Panels[PANEL_CARETPOS].Text := '';
@@ -1175,7 +1179,7 @@ begin
             end;
           end;
 
-          TB_EditCut.Enabled := ( ActiveNote.Editor.SelLength > 0 );
+          TB_EditCut.Enabled := ( SelLength > 0 );
 
           TB_EditCopy.Enabled := TB_EditCut.Enabled;
           MMEditCut.Enabled := TB_EditCut.Enabled;
