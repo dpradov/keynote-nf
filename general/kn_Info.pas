@@ -366,6 +366,8 @@ type
     ShowFullPath : boolean;
     ShowFullPathSearch : boolean;
     ShowTooltips : boolean;
+    CaretInKNTLinks : boolean;
+    RelativeKNTLinks : boolean;
     TopLevelCheck : boolean;  // NOT IMPLEMENTED
   end;
 

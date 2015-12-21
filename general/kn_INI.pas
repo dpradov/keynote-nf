@@ -629,6 +629,8 @@ type
     ShowFullPath,
     ShowFullPathSearch,
     ShowTooltips,
+    CaretInKNTLinks,
+    RelativeKNTLinks,
     TopLevelCheck : string;
   end;
 
@@ -652,6 +654,8 @@ const
     ShowFullPath : 'ShowFullPath';
     ShowFullPathSearch : 'ShowFullPathSearch';
     ShowTooltips : 'ShowTooltips';
+    CaretInKNTLinks: 'CaretInKNTLinks';
+    RelativeKNTLinks: 'RelativeKNTLinks';
     TopLevelCheck : 'TopLevelCheck';
   );
 
@@ -1099,6 +1103,8 @@ begin
     ShowFullPath := true;
     ShowFullPathSearch := false;
     ShowTooltips := true;
+    CaretInKNTLinks:= false;
+    RelativeKNTLinks:= true;
     TopLevelCheck := false;
   end;
 end; // InitializeTreeOptions
@@ -1327,6 +1333,8 @@ begin
       writebool( section, TreeOptionsIniStr.ShowFullPath, TreeOptions.ShowFullPath );
       writebool( section, TreeOptionsIniStr.ShowFullPathSearch, TreeOptions.ShowFullPathSearch );
       writebool( section, TreeOptionsIniStr.ShowTooltips, TreeOptions.ShowTooltips );
+      writebool( section, TreeOptionsIniStr.CaretInKNTLinks, TreeOptions.CaretInKNTLinks );
+      writebool( section, TreeOptionsIniStr.RelativeKNTLinks, TreeOptions.RelativeKNTLinks );
       writebool( section, TreeOptionsIniStr.TopLevelCheck, TreeOptions.TopLevelCheck );
 
       section := 'TabFont';
@@ -1678,6 +1686,8 @@ begin
       TreeOptions.ShowFullPath := readbool( section, TreeOptionsIniStr.ShowFullPath, TreeOptions.ShowFullPath );
       TreeOptions.ShowFullPathSearch := readbool( section, TreeOptionsIniStr.ShowFullPathSearch, TreeOptions.ShowFullPathSearch );
       TreeOptions.ShowTooltips := readbool( section, TreeOptionsIniStr.ShowTooltips, TreeOptions.ShowTooltips );
+      TreeOptions.CaretInKNTLinks := readbool( section, TreeOptionsIniStr.CaretInKNTLinks, TreeOptions.CaretInKNTLinks );
+      TreeOptions.RelativeKNTLinks := readbool( section, TreeOptionsIniStr.RelativeKNTLinks, TreeOptions.RelativeKNTLinks );
       TreeOptions.TopLevelCheck := readbool( section, TreeOptionsIniStr.TopLevelCheck, TreeOptions.TopLevelCheck );
 
       section := FindOptionsIniStr.section;

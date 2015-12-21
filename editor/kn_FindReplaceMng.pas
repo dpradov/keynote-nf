@@ -154,6 +154,7 @@ procedure FindResultsToEditor( const SelectedOnly : boolean );
 var
   i, cnt : integer;
   aLocation: TLocation;
+  CaretInKNTLinksBAK: boolean;
 begin
   if ( not Form_Main.Pages_Res.Visible ) then exit;
   if ( not assigned( ActiveNote )) then exit;
@@ -166,23 +167,27 @@ begin
     exit;
   end;
 
-  if SelectedOnly then
-  begin
-    i := Form_Main.List_ResFind.ItemIndex;
-    aLocation:= TLocation( Form_Main.List_ResFind.Items.Objects[i]);
-    InsertOrMarkKNTLink(aLocation, true, '');
-  end
-  else
-  begin
-    for i := 1 to cnt do
-    begin
-      aLocation:= TLocation( TLocation( Location_List.Objects[pred( i )] ));
-      ActiveNote.Editor.SelTextW := #13 + Format( '%d. ', [i] );
-      ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
-      InsertOrMarkKNTLink(aLocation, true, '');
-    end;
+  CaretInKNTLinksBAK:= TreeOptions.CaretInKNTLinks;
+  TreeOptions.CaretInKNTLinks:= True;
+  try
+      if SelectedOnly then begin
+        i := Form_Main.List_ResFind.ItemIndex;
+        aLocation:= TLocation( Form_Main.List_ResFind.Items.Objects[i]);
+        InsertOrMarkKNTLink(aLocation, true, '');
+      end
+      else begin
+        for i := 1 to cnt do begin
+          aLocation:= TLocation( TLocation( Location_List.Objects[pred( i )] ));
+          ActiveNote.Editor.SelTextW := #13 + Format( '%d. ', [i] );
+          ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
+          InsertOrMarkKNTLink(aLocation, true, '');
+        end;
+      end;
+      ActiveNote.Editor.SelLength := 0;
+
+  finally
+    TreeOptions.CaretInKNTLinks:= CaretInKNTLinksBAK;
   end;
-  ActiveNote.Editor.SelLength := 0;
 
 end; // FindResultsToEditor
 
@@ -273,7 +278,7 @@ type
             nodeToFilter:= false;
             nodesSelected:= true;
           end;
-          path := WideFormat( '%d. %s', [Counter, PathOfKNTLink(myTreeNode, myNote, location.CaretPos)] );
+          path := WideFormat( '%d. %s', [Counter, PathOfKNTLink(myTreeNode, myNote, location.CaretPos, true, false)] );
           Location_List.AddObject(path, Location);
        end;
 

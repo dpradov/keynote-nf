@@ -391,7 +391,7 @@ begin
      node:= GetMirrorNode;
      if assigned(Node) then begin
         note:= NoteFile.GetNoteByTreeNode(node);
-        Result:= PathOfKNTLink(node, note, -1);
+        Result:= PathOfKNTLink(node, note, -1, false, false);
      end;
 end;
 

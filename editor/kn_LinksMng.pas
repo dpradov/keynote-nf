@@ -29,7 +29,7 @@ uses
     procedure ClickOnURL(const URLstr: wideString; chrgURL: TCharRange);
     procedure InsertURL(URLStr : wideString; TextURL : wideString);
 
-    function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer): wideString;
+    function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean): wideString;
     procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TTabNote; var myTreeNode: TTreeNTNode);
 
     procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
@@ -87,9 +87,11 @@ var
 //=========================================
 // PathOfKNTLink
 //=========================================
-function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer): wideString;
+function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean): wideString;
 var
-  path : wideString;
+  path, pathInsertionPoint : wideString;
+  i, j, n, m: integer;
+  pDelim: integer;
 begin
   if assigned( myTreeNode ) then
   begin
@@ -106,8 +108,56 @@ begin
   else
      path := myNote.Name;
 
-  if position >= 0 then
-     path := path + ' ' + IntToStr(position);
+  // Hide common part of the path (common ancestors), if RelativeKNTLink=True
+  if RelativeKNTLink then begin
+     pathInsertionPoint:= PathOfKNTLink(GetCurrentTreeNode, ActiveNote, -1, false, false);
+
+     if path = pathInsertionPoint then
+        path:= ''
+     else begin
+         i:= 1;
+         n:= Length(path);
+         m:= Length(pathInsertionPoint);
+
+         if TreeOptions.PathTopToBottom then begin
+            pDelim:= 0;
+            while (i < n) and (path[i] = pathInsertionPoint[i]) do begin
+               if path[i] = TreeOptions.NodeDelimiter then
+                  pDelim:= i;
+               i:= i + 1;
+            end;
+            if (i = m + 1) and (path[i] = TreeOptions.NodeDelimiter) then
+               pDelim:= i;
+            path:= Copy(path, pDelim+1, Length(path));
+         end
+         else begin
+            i:= n;
+            j:= m;
+            pDelim:= n+1;
+            while (i >= 1) and (j >= 1) and (path[i] = pathInsertionPoint[j]) do begin
+               if path[i] = TreeOptions.NodeDelimiter then
+                  pDelim:= i;
+               i:= i - 1;
+               j:= j - 1;
+            end;
+            if (j = 0) and (path[i] = TreeOptions.NodeDelimiter) then
+               pDelim:= i;
+            path:= Copy(path, 1, pDelim-1);
+         end;
+
+     end;
+  end;
+
+
+  if (position >= 0) and (ForceShowPosition or TreeOptions.CaretInKNTLinks or (path = '')) then begin
+     if path = '' then
+        path:= 'Pos.'
+     else
+        path := path + ' - ';
+
+     path := path + IntToStr(position);
+  end;
+
   Result:= path;
 end; // PathOfKNTLink
 
@@ -356,7 +406,7 @@ begin
     if TextURL = '' then
        if NoteFile.FileName = aLocation.FileName then begin
            GetTreeNodeFromLocation (aLocation, Note, TreeNode);
-           TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos);
+           TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos, false, TreeOptions.RelativeKNTLinks);
        end
        else
           TextURL:= WideFormat('%s: %s/%s %d', [WideExtractFileName(aLocation.FileName),
@@ -1049,7 +1099,7 @@ var
      try
        if (NoteFile.FileName = Location.FileName) or (Location.FileName = '') then begin
            GetTreeNodeFromLocation (Location, note, treeNode);
-           Result:= PathOfKNTLink(treeNode, note, Location.CaretPos);
+           Result:= PathOfKNTLink(treeNode, note, Location.CaretPos, false, false);
        end
        else
           if Location.NodeName <> '' then
