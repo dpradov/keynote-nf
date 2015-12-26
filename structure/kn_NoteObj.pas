@@ -367,6 +367,7 @@ type
 
 procedure ParaAttrsRX2KNT( const RxFmt : TRxParaAttributes; var KntFmt : TkntParaAttributes );
 procedure ParaAttrsKNT2RX( const KntFmt : TkntParaAttributes; const RxFmt : TRxParaAttributes );
+procedure ParaAttrsKNT2RX_Reduced( const KntFmt : TkntParaAttributes; const RxFmt : TRxParaAttributes );
 procedure FontAttrsRX2KNT( const RxFmt : TRxTextAttributes; var KntFmt : TkntFontAttributes );
 procedure FontAttrsKNT2RX( const KntFmt : TkntFontAttributes; const RxFmt : TRxTextAttributes );
 
@@ -431,6 +432,28 @@ begin
     // [x] Tab[index : integer]
   end;
 end; // ParaAttrsKNT2RX
+
+// Copy paragraph attributes ignoring (preserving actual values) some of them
+procedure ParaAttrsKNT2RX_Reduced( const KntFmt : TkntParaAttributes; const RxFmt : TRxParaAttributes );
+begin
+  with KntFmt do
+  begin
+    //RxFmt.Numbering := Numbering;
+    //RxFmt.FirstIndent := FirstIndent;
+    //RxFmt.LeftIndent := LeftIndent;
+    //RxFmt.RightIndent := RightIndent;
+    //RxFmt.Alignment := Alignment;
+    RxFmt.LineSpacing := LineSpacing;
+    RxFmt.LineSpacingRule := LineSpacingRule;
+    RxFmt.NumberingStyle := NumberingStyle;
+    RxFmt.NumberingTab := NumberingTab;
+    RxFmt.SpaceAfter := SpaceAfter;
+    RxFmt.SpaceBefore := SpaceBefore;
+    RxFmt.TabCount := TabCount;
+    // [x] Tab[index : integer]
+  end;
+end; // ParaAttrsKNT2RX
+
 
 procedure FontAttrsRX2KNT( const RxFmt : TRxTextAttributes; var KntFmt : TkntFontAttributes );
 begin

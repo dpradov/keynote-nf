@@ -222,6 +222,7 @@ type
     // NewNodeName,
     ClipNodeNaming,
     PasteAsText,
+    PlainTextMode,
     PasteAsNewNode,
     PlaySound,
     Recall,
@@ -230,8 +231,7 @@ type
     TestDupClips,
     TreeClipConfirm,
     URLOnly,
-    WCDivider,
-    WCPasteAsText : string;
+    WCDivider: string;
   end;
 
 const
@@ -244,6 +244,7 @@ const
     // NewNodeName : 'NewNodeName';
     ClipNodeNaming : 'ClipNodeNaming';
     PasteAsText : 'PasteAsText';
+    PlainTextMode: 'PlainTextMode';
     PasteAsNewNode : 'PasteAsNewNode';
     PlaySound : 'PlaySound';
     Recall : 'Recall';
@@ -253,7 +254,6 @@ const
     TreeClipConfirm : 'TreeClipConfirm';
     URLOnly : 'URLOnly';
     WCDivider : 'WCDivider';
-    WCPasteAsText : 'WCPasteAsText'
   );
 
 
@@ -823,6 +823,7 @@ begin
     // NewNodeName := '';
     ClipNodeNaming := clnClipboard;
     PasteAsText := false;
+    PlainTextMode:= clptAllowFontStyle;
     PasteAsNewNode := true;
     PlaySound := true;
     Recall := false;
@@ -830,9 +831,8 @@ begin
     SwitchIcon := true;
     TestDupClips := true;
     TreeClipConfirm := true;
-    URLOnly := false;
+    URLOnly := true;  
     WCDivider := '^--- %D, %T ---^';
-    WCPasteAsText := false;
   end;
 end; // InitializeClipOptions
 
@@ -1287,13 +1287,13 @@ begin
 
       section := ClipOptionsIniStr.Section;
       writestring( section, ClipOptionsIniStr.WCDivider, ClipOptions.WCDivider );
-      writebool( section, ClipOptionsIniStr.WCPasteAsText, ClipOptions.WCPasteAsText );
 
       writebool( section, ClipOptionsIniStr.URLOnly, ClipOptions.URLOnly );
       writeinteger( section, ClipOptionsIniStr.MaxSize, ClipOptions.MaxSize );
       // writestring( section, ClipOptionsIniStr.NewNodeName, ClipOptions.NewNodeName );
       writeinteger( section, ClipOptionsIniStr.ClipNodeNaming, ord( ClipOptions.ClipNodeNaming ));
       writebool( section, ClipOptionsIniStr.PasteAsText, ClipOptions.PasteAsText );
+      writeinteger( section, ClipOptionsIniStr.PlainTextMode, ord(ClipOptions.PlainTextMode) );
       writebool( section, ClipOptionsIniStr.PasteAsNewNode, ClipOptions.PasteAsNewNode );
       writebool( section, ClipOptionsIniStr.PlaySound, ClipOptions.PlaySound );
       writebool( section, ClipOptionsIniStr.Recall, ClipOptions.Recall );
@@ -1612,7 +1612,6 @@ begin
       with ClipOptions do
       begin
         WCDivider := readstring( section, ClipOptionsIniStr.WCDivider, WCDivider );
-        WCPasteAsText := readbool( section, ClipOptionsIniStr.WCPasteAsText, WCPasteAsText );
 
         URLOnly := readbool( section, ClipOptionsIniStr.URLOnly, URLOnly );
         try
@@ -1622,6 +1621,7 @@ begin
         end;
         // ClipOptions.NewNodeName := readstring( section, ClipOptionsIniStr.NewNodeName, ClipOptions.NewNodeName );
         ClipOptions.ClipNodeNaming := TClipNodeNaming( readinteger( section, ClipOptionsIniStr.ClipNodeNaming, ord( ClipOptions.ClipNodeNaming )));
+        ClipOptions.PlainTextMode := TClipPlainTextMode( readinteger( section, ClipOptionsIniStr.PlainTextMode, ord( ClipOptions.PlainTextMode )));
         PasteAsText := readbool( section, ClipOptionsIniStr.PasteAsText, PasteAsText );
         PasteAsNewNode := readbool( section, ClipOptionsIniStr.PasteAsNewNode, ClipOptions.PasteAsNewNode );
         PlaySound := readbool( section, ClipOptionsIniStr.PlaySound, ClipOptions.PlaySound );

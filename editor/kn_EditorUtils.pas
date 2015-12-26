@@ -52,7 +52,7 @@ uses
     procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
     procedure SetClipCapState( const IsOn : boolean );
     procedure PasteOnClipCap (ClpStr: WideString);
-    procedure PasteAsWebClip;
+    procedure PasteAsWebClip (const PasteAsText: boolean);
     procedure PasteIntoNew( const AsNewNote : boolean );
 
     procedure PrintRTFNote;
@@ -67,7 +67,7 @@ uses
 implementation
 uses
   { Borland units }
-  Windows, Messages, SysUtils, Classes,
+  Windows, Messages, SysUtils, StrUtils, Classes,
   Controls, Forms, Dialogs, Clipbrd,ComCtrls,
   RichEdit, mmsystem, Graphics,ExtDlgs,WideStrings,
   { 3rd-party units }
@@ -82,7 +82,7 @@ uses
   Kn_Global, kn_Chars, kn_NoteMng, kn_ClipUtils,
   kn_ExpTermDef, kn_Glossary, kn_VCLControlsMng,
   kn_NoteFileMng, kn_Main, kn_TreeNoteMng, GFTipDlg,
-  kn_ExportImport, kn_RTFUtils;
+  kn_ExportImport, kn_RTFUtils, kn_LinksMng;
 
 
 
@@ -140,7 +140,6 @@ resourcestring
   STR_ClipCap_05 = ' Clipboard capture is now ';
   STR_ClipCap_06 = ' Capturing text from clipboard';
   STR_ClipCap_07 = 'Cannot obtain tree node for pasting data.';
-  STR_ClipCap_08 = '[source: ';
   STR_ClipCap_09 = ' Clipboard capture done';
   STR_Print_01 = 'Current note is a Tree-type note and contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.';
   STR_Print_02 = 'Replace editor contents with result from spellchecker?';
@@ -1384,166 +1383,232 @@ end; // SetClipCapState
 procedure PasteOnClipCap (ClpStr: WideString);
 var
   DividerString: string;
-  i : integer;
+  i, j, len : integer;
   wavfn: string;
   myNodeName : wideString;
   myTreeNode, myParentNode : TTreeNTNode;
-  PasteOK : boolean;
+  PasteOK, PasteOnlyURL : boolean;
   SourceURLStr : wideString;
+  TitleURL : wideString;
   AuxStr : wideString;
   HTMLClipboard: string;
+  ParaFormatToCopy : TkntParaAttributes;
+  FontFormatToCopy : TkntFontAttributes;
+  Note: TTabNote;
+  Editor: TTabRichEdit;
+
 begin
   HTMLClipboard:= '';
+
   with Form_Main do begin
         myTreeNode := nil;
+
+        Note:= NoteFile.ClipCapNote;
+        Editor:= Note.Editor;
 
 
         // TrayIcon.Icon := TrayIcon.Icons[1];
         LoadTrayIcon( not ClipOptions.SwitchIcon ); // flash tray icon
 
-        NoteFile.ClipCapNote.Editor.OnChange := nil;
+        Editor.OnChange := nil;
         NoteFile.Modified := true; // bugfix 27-10-03
 
-        if ClipOptions.InsertSourceURL then begin
-          HTMLClipboard:= Clipboard.AsHTML;
-          SourceURLStr := GetURLFromHTMLClipboard (HTMLClipboard)
-          end
+        if ClipOptions.InsertSourceURL then begin 
+           HTMLClipboard:= Clipboard.AsHTML;
+           SourceURLStr := GetURLFromHTMLClipboard (HTMLClipboard);
+           TitleURL:= GetTitleFromHTMLClipboard    (HTMLClipboard);
+           end
         else
-          SourceURLStr := '';
+           SourceURLStr := '';
 
         PasteOK := true;
+        DividerString := ClipOptions.Divider;
+
         try
           StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_06;
-          if ClipOptions.URLOnly then
-          begin
-            // [x] NOT IMPLEMENTED
-          end
-          else
-          begin
-
-            DividerString := ClipOptions.Divider;
-            for i := 1 to length( DividerString ) do
-            begin
-              if ( DividerString[i] = CLIPDIVCHAR ) then
-                DividerString[i] := #13;
-            end;
-
-            i := pos( CLIPDATECHAR, DividerString );
-            if ( i > 0 ) then
-            begin
-              delete( DividerString, i, length( CLIPDATECHAR ));
-              if ( length( DividerString ) > 0 ) then
-                insert( FormatDateTime( KeyOptions.DateFmt, now ), DividerString, i )
-              else
-                DividerString := FormatDateTime( KeyOptions.DateFmt, now );
-            end;
-
-            i := pos( CLIPTIMECHAR, DividerString );
-            if ( i > 0 ) then
-            begin
-              delete( DividerString, i, length( CLIPTIMECHAR ));
-              if ( length( DividerString ) > 0 ) then
-                insert( FormatDateTime( KeyOptions.TimeFmt, now ), DividerString, i )
-              else
-                DividerString := FormatDateTime( KeyOptions.TimeFmt, now );
-            end;
-
-            if ( NoteFile.ClipCapNote.Kind = ntTree ) then
-            begin
-              // ClipCapNode := nil;
-              if ClipOptions.PasteAsNewNode then
-              begin
-              if ( ClipCapNode <> nil ) then
-                myParentNode := TTreeNote( NoteFile.ClipCapNote ).TV.Items.FindNode( [ffData], '', ClipCapNode )
-              else
-                myParentNode := nil;
-
-              case ClipOptions.ClipNodeNaming of
-                clnDefault : myNodeName := '';
-                clnClipboard : myNodeName := FirstLineFromClipboard( TREENODE_NAME_LENGTH_CAPTURE );
-                clnDateTime : myNodeName := FormatDateTime( ShortDateFormat + #32 + ShortTimeFormat, now );
-              end;
-
-              if assigned( myParentNode ) then
-                myTreeNode := TreeNoteNewNode( TTreeNote( NoteFile.ClipCapNote ), tnAddChild, myParentNode, myNodeName, true )
-              else
-                myTreeNode := TreeNoteNewNode( TTreeNote( NoteFile.ClipCapNote ), tnAddLast, nil, myNodeName, true );
-              end
-              else
-              begin
-                myTreeNode := TTreeNote( NoteFile.ClipCapNote ).TV.Selected;
-                if ( not assigned( myTreeNode )) then
-                begin
-                  myTreeNode := TreeNoteNewNode( TTreeNote( NoteFile.ClipCapNote ), tnAddLast, nil, myNodeName, true );
-                end;
-              end;
-              if ( not assigned( myTreeNode )) then
-              begin
-                PasteOK := false;
-                PopupMessage( STR_ClipCap_07, mtError, [mbOK], 0 );
-                exit;
-              end;
-            end;
-
-            with NoteFile.ClipCapNote do
-            begin
-              // do not add leading blank lines if pasting in a new tree node
-              if (( Kind <> ntRTF ) and ClipOptions.PasteAsNewNode ) then
-                DividerString := trimleft( DividerString );
-
-              Editor.SelText := DividerString;
-              Editor.SelStart :=  Editor.SelStart + Editor.SelLength;
-            end;
-
-            if ( SourceURLStr <> '' ) then
-            begin
-              AuxStr := STR_ClipCap_08 + SourceURLStr + ']' + #13;
-              with NoteFile.ClipCapNote.Editor do
-              begin
-                SelTextW := AuxStr;
-                SelStart := SelStart + SelLength;
-              end;
-            end;
-
-            if ClipOptions.PasteAsText or ActiveNote.PlainText then
-            begin
-              if (( ClipOptions.MaxSize > 0 ) and ( length( ClpStr ) > ClipOptions.MaxSize )) then
-                delete( ClpStr, succ( ClipOptions.MaxSize ), length( ClpStr ));
-              with NoteFile.ClipCapNote.Editor do
-              begin
-                SelTextW := trim(ClpStr);
-                SelStart := SelStart + SelLength;
-              end;
-            end
-            else
-                TryPasteRTF(NoteFile.ClipCapNote.Editor, HTMLClipboard);
-
-
-
-            if NoteFile.ClipCapNote <> ActiveNote then
-               NoteFile.ClipCapNote.EditorToDataStream;
-
+          PasteOnlyURL:= false;
+          if ClipOptions.URLOnly and (SourceURLStr <> '') then begin
+             AuxStr:= copy(ClpStr,1,60);
+             if GetWordCount(AuxStr)=1 then
+               PasteOnlyURL:= true;
           end;
 
-        finally
-          NoteFile.ClipCapNote.Editor.OnChange := RxRTFChange;
-          if PasteOK then
-          begin
+          if not PasteOnlyURL and ( Note.Kind = ntTree ) then begin
+              // ClipCapNode := nil;
+              if ClipOptions.PasteAsNewNode then begin
+                 if (pos(CLIPDATECHAR, DividerString)=0) and (pos(CLIPTIMECHAR, DividerString)=0) and ((SourceURLStr = '') or (pos(CLIPSOURCE, DividerString)=0)) then
+                    DividerString:= '';   // Si no hay que separar de nada y el propia cadena de separación no incluye fecha, ni hora ni se va a mostrar el origen, ignorarla
 
+                 if ( ClipCapNode <> nil ) then
+                    myParentNode := TTreeNote( Note ).TV.Items.FindNode( [ffData], '', ClipCapNode )
+                 else
+                    myParentNode := nil;
+
+                 case ClipOptions.ClipNodeNaming of
+                   clnDefault : myNodeName := '';
+                   clnClipboard : myNodeName := FirstLineFromClipboard( TREENODE_NAME_LENGTH_CAPTURE );
+                   clnDateTime : myNodeName := FormatDateTime( ShortDateFormat + #32 + ShortTimeFormat, now );
+                 end;
+
+                 if assigned( myParentNode ) then
+                    myTreeNode := TreeNoteNewNode( TTreeNote( Note ), tnAddChild, myParentNode, myNodeName, true )
+                 else
+                    myTreeNode := TreeNoteNewNode( TTreeNote( Note ), tnAddLast, nil, myNodeName, true );
+
+              end
+              else begin
+                 myTreeNode := TTreeNote( Note ).TV.Selected;
+                 if ( not assigned( myTreeNode )) then
+                    myTreeNode := TreeNoteNewNode( TTreeNote( Note ), tnAddLast, nil, myNodeName, true );
+              end;
+              if ( not assigned( myTreeNode )) then begin
+                 PasteOK := false;
+                 PopupMessage( STR_ClipCap_07, mtError, [mbOK], 0 );
+                 exit;
+              end;
+          end;
+
+
+          try
+              Editor.BeginUpdate;
+
+              if not PasteOnlyURL then begin
+
+                for i := 1 to length( DividerString ) do begin
+                   if ( DividerString[i] = CLIPDIVCHAR ) then
+                      DividerString[i] := #13;
+                end;
+
+                i:= 1;
+                repeat
+                    i := posEx( CLIPSOURCEDELIMITER, DividerString, i );
+                    if ( i > 0 ) then begin
+                       len:= length(CLIPSOURCEDELIMITER);
+                       if SourceURLStr = '' then begin
+                          j := PosEx( CLIPSOURCEDELIMITER, DividerString, i + 2);
+                          if j > 0 then
+                             len:= len + j - i;
+                       end;                          
+                       delete( DividerString, i, len);
+                    end;
+                until i = 0;
+
+
+                i := pos( CLIPDATECHAR, DividerString );
+                if ( i > 0 ) then begin
+                  delete( DividerString, i, length( CLIPDATECHAR ));
+                  if ( length( DividerString ) > 0 ) then
+                    insert( FormatDateTime( KeyOptions.DateFmt, now ), DividerString, i )
+                  else
+                    DividerString := FormatDateTime( KeyOptions.DateFmt, now );
+                end;
+
+                i := pos( CLIPTIMECHAR, DividerString );
+                if ( i > 0 ) then begin
+                  delete( DividerString, i, length( CLIPTIMECHAR ));
+                  if ( length( DividerString ) > 0 ) then
+                    insert( FormatDateTime( KeyOptions.TimeFmt, now ), DividerString, i )
+                  else
+                    DividerString := FormatDateTime( KeyOptions.TimeFmt, now );
+                end;
+
+                  // do not add leading blank lines if pasting in a new tree node
+                if (( Note.Kind <> ntRTF ) and ClipOptions.PasteAsNewNode ) then
+                   DividerString := trimleft( DividerString );
+
+                i := pos( CLIPSOURCE, DividerString );
+                if ( i > 0 ) then begin
+                    delete( DividerString, i, length( CLIPSOURCE ));
+                    if ( SourceURLStr <> '' ) then begin
+                       Editor.SelText := Copy(DividerString,1, i-1);
+                       delete(DividerString, 1, i-1);   // Remaining divider will be pasted after source url
+                    end;
+                end
+                else begin
+                   Editor.SelText := DividerString;
+                   DividerString:= '';
+                end;
+                Editor.SelStart :=  Editor.SelStart + Editor.SelLength;
+              end;
+
+              if ( SourceURLStr <> '' ) or PasteOnlyURL then begin
+                   InsertURL(SourceURLStr, TitleURL, Note);
+                   // Si no se ha indicado dónde colocar el origen o se ha puesto justo al final del separador
+                   // añadir un salto de línea
+                   if (DividerString = '') and not PasteOnlyURL then
+                       DividerString:= #13;
+              end;
+
+              if not PasteOnlyURL then begin
+                 if (DividerString <> '') then begin
+                     Editor.SelText := DividerString;
+                     Editor.SelStart :=  Editor.SelStart + Editor.SelLength;
+                 end;
+
+                if (ClipOptions.PasteAsText and (ClipOptions.PlainTextMode = clptPlainText)) or Note.PlainText then begin
+                   if (( ClipOptions.MaxSize > 0 ) and ( length( ClpStr ) > ClipOptions.MaxSize )) then
+                      delete( ClpStr, succ( ClipOptions.MaxSize ), length( ClpStr ));
+                   Editor.SelTextW := trim(ClpStr);
+                   Editor.SelStart := Editor.SelStart + Editor.SelLength;
+                end
+                else begin
+                    if not ClipOptions.PasteAsText then
+                       TryPasteRTF(Editor, HTMLClipboard)
+                    else begin
+                       i := Editor.SelStart;
+                       ParaAttrsRX2KNT( Editor.Paragraph, ParaFormatToCopy );
+                       if (ClipOptions.PlainTextMode = clptAllowHyperlink) then
+                          FontAttrsRx2KNT( NoteFile.ClipCapNote.Editor.SelAttributes, FontFormatToCopy );
+
+                       TryPasteRTF(Editor, HTMLClipboard);
+                       j := Editor.SelStart;
+                       Editor.SuspendUndo;
+                       try
+                          Editor.SelStart := i;
+                          Editor.SelLength := j-i+1;
+                          if (ClipOptions.PlainTextMode = clptAllowHyperlink) then begin
+                             ParaAttrsKNT2RX( ParaFormatToCopy, Editor.Paragraph);
+                             FontAttrsKNT2RX( FontFormatToCopy, Editor.SelAttributes);
+                          end else begin
+                             ParaAttrsKNT2RX_Reduced( ParaFormatToCopy, Editor.Paragraph);
+                             if (ClipOptions.PlainTextMode = clptAllowFontStyle) then begin
+                                Editor.SelAttributes.Name := Form_Main.Combo_Font.FontName;
+                                Editor.SelAttributes.Size := strtoint( Form_Main.Combo_FontSize.Text );
+                             end;
+                          end;
+
+                          Editor.SelStart := j;
+                          Editor.SelLength := 0;
+                       finally
+                          Editor.ResumeUndo;
+                       end;
+                    end;
+                end;
+              end;
+
+           finally
+              Editor.EndUpdate;
+           end;
+
+
+          if Note <> ActiveNote then
+             Note.EditorToDataStream;
+
+
+        finally
+          Editor.OnChange := RxRTFChange;
+          if PasteOK then begin
             NoteFile.Modified := true;
             UpdateNoteFileState( [fscModified] );
 
             if assigned ( myTreeNode ) then
-            begin
-              TNoteNode( myTreeNode.Data ).RTFModified := true;
-            end;
+               TNoteNode( myTreeNode.Data ).RTFModified := true;
 
             StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_09;
             wavfn := extractfilepath( application.exename ) + 'clip.wav';
             if ( ClipOptions.PlaySound and fileexists( wavfn )) then
-            begin
-              sndplaysound( PChar( wavfn ), SND_FILENAME or SND_ASYNC or SND_NOWAIT );
-            end;
+               sndplaysound( PChar( wavfn ), SND_FILENAME or SND_ASYNC or SND_NOWAIT );
+
             Application.ProcessMessages;
             sleep( ClipOptions.SleepTime * 100 ); // in tenths of a second; default: 5 = half a second
             LoadTrayIcon( ClipOptions.SwitchIcon ); // unflash tray icon
@@ -1557,38 +1622,41 @@ end; // PasteOnClipCap
 //=================================================================
 // PasteAsWebClip
 //=================================================================
-procedure PasteAsWebClip;
+procedure PasteAsWebClip (const PasteAsText: boolean);
 var
   oldClipCapNote : TTabNote;
   oldClipCapNode : TNoteNode;
   oldDividerString : string;
-  oldURLOnly, oldAsText, oldTreeClipConfirm, oldInsertSourceURL : boolean;
+  oldAsText, oldTreeClipConfirm, oldInsertSourceURL, oldClipPlaySound, oldPasteAsNewNode : boolean;
   oldMaxSize, oldSleepTime : integer;
 begin
   if ( _IS_CAPTURING_CLIPBOARD or _IS_CHAINING_CLIPBOARD ) then exit;
   if ( not Form_Main.HaveNotes( true, true )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
 
-
+  oldClipPlaySound:= ClipOptions.PlaySound;
   oldDividerString := ClipOptions.Divider;
   oldInsertSourceURL := ClipOptions.InsertSourceURL;
   oldMaxSize := ClipOptions.MaxSize;
   oldSleepTime := ClipOptions.SleepTime;
   oldTreeClipConfirm := ClipOptions.TreeClipConfirm;
   oldAsText := ClipOptions.PasteAsText;
-  oldURLOnly := ClipOptions.URLOnly;
+  oldPasteAsNewNode:= ClipOptions.PasteAsNewNode;
 
   oldClipCapNote := NoteFile.ClipCapNote;
   oldClipCapNode := ClipCapNode;
 
   try
+    ClipOptions.PlaySound:= false;
+    ClipOptions.PasteAsNewNode:= false;
     ClipOptions.MaxSize := 0;
     ClipOptions.SleepTime := 0;
     ClipOptions.TreeClipConfirm := false;
     ClipOptions.InsertSourceURL := true;
-    ClipOptions.URLOnly := false;
-    ClipOptions.Divider := ClipOptions.WCDivider;
-    ClipOptions.PasteAsText := ClipOptions.WCPasteAsText;
+    if ClipOptions.WCDivider <> '' then                // Let use Divider also for Web Clip if WCDivider = ''
+       ClipOptions.Divider := ClipOptions.WCDivider;
+
+    ClipOptions.PasteAsText := PasteAsText;
 
     NoteFile.ClipCapNote := ActiveNote;
     ClipCapNode := nil;
@@ -1596,13 +1664,14 @@ begin
     PasteOnClipCap(ClipboardAsStringW); // reuse this routine... ugliness, but that's all we can do now
 
   finally
+    ClipOptions.PlaySound:= oldClipPlaySound;
     ClipOptions.Divider := oldDividerString;
     ClipOptions.InsertSourceURL := oldInsertSourceURL;
     ClipOptions.MaxSize := oldMaxSize;
     ClipOptions.SleepTime := oldSleepTime;
     ClipOptions.TreeClipConfirm := oldTreeClipConfirm;
     ClipOptions.PasteAsText := oldAsText;
-    ClipOptions.URLOnly := oldURLOnly;
+    ClipOptions.PasteAsNewNode:= oldPasteAsNewNode;
 
     NoteFile.ClipCapNote := oldClipCapNote;
     ClipCapNode := oldClipCapNode;

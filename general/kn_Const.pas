@@ -83,7 +83,10 @@ resourcestring
   STR_55_Compression = 'Fastest';
   STR_56_Compression = 'Default';
   STR_57_Compression = 'Max';
-
+  STR_58_ClipPlainTextMode = 'Plain (without any formatting)';
+  STR_59_ClipPlainTextMode = 'Only hyperlinks (without other formatting)';
+  STR_60_ClipPlainTextMode = 'Only font style (bold, italic, ...)';
+  STR_61_ClipPlainTextMode = 'Only font (without paragraph formatting)';
 
 procedure DefineConst;
 
@@ -271,6 +274,8 @@ const
   CLIPDIVCHAR           = '^';  // replaced with 1 blank line
   CLIPDATECHAR          = NODEINSDATE; // inserts date
   CLIPTIMECHAR          = NODEINSTIME; // inserts time
+  CLIPSOURCEDELIMITER   = '%|';   // Optionally limit where the source is located
+  CLIPSOURCE            = '%S';   // insert Source
 
 const
   // tokens for the MailOptions.FirstLine string
@@ -569,6 +574,22 @@ const
     STR_31_ClipNodeNaming
   );
 
+
+type
+  TClipPlainTextMode = (
+    clptPlainText,        // paste without any formatting
+    clptAllowHyperlink,   // paste without any formatting, just allowing hyperlinks
+    clptAllowFontStyle,   // Allow only font styles like bold and italic, e.g
+    clptAllowFont         // disallow paragraph formatting, but allow font formatting
+  );
+
+const
+  CLIP_PLAIN_TEXT_MODE : array[TClipPlainTextMode] of string = (
+    STR_58_ClipPlainTextMode,
+    STR_59_ClipPlainTextMode,
+    STR_60_ClipPlainTextMode,
+    STR_61_ClipPlainTextMode
+  );
 
 
 const

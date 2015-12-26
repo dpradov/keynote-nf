@@ -501,6 +501,7 @@ type
     MMInsertObject: TTntMenuItem;
     MMInsertPicture: TTntMenuItem;
     MMEditPasteSpecial: TTntMenuItem;
+    MMEditPasteAsWebClip: TTntMenuItem;
     N67: TTntMenuItem;
     MMInsertFileContents: TTntMenuItem;
     N68: TTntMenuItem;
@@ -741,6 +742,7 @@ type
     Menu_Paste: TTntPopupMenu;
     MMP_Paste: TTntMenuItem;
     MMP_PastePlain: TTntMenuItem;
+    MMP_PasteAsWebClip: TTntMenuItem;
     N107: TTntMenuItem;
     MMP_PasteSpecial: TTntMenuItem;
     MMP_PasteAsNote: TTntMenuItem;
@@ -809,8 +811,6 @@ type
     N113: TTntMenuItem;
     TMClipCap: TTntMenuItem;
     Img_System: TdfsSystemImageList;
-    MMEditPasteAsWebClip: TTntMenuItem;
-    MMP_PasteAsWebClip: TTntMenuItem;
     MMViewHideCheckedNodes: TTntMenuItem;
     TB_HideChecked: TToolbarButton97;
     TVChildrenCheckbox: TTntMenuItem;
@@ -836,6 +836,8 @@ type
     NU02: TTntMenuItem;
     TAM_SetAlarm: TTntMenuItem;
     MMSetAlarm: TTntMenuItem;
+    MMEditPasteAsWebClipText: TTntMenuItem;
+    MMP_PasteAsWebClipText: TTntMenuItem;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1209,6 +1211,7 @@ type
     procedure MMViewStatusBarClick(Sender: TObject);
     procedure FavMPropertiesClick(Sender: TObject);
     procedure MMEditPasteAsWebClipClick(Sender: TObject);
+    procedure MMEditPasteAsWebClipTextClick(Sender: TObject);
 
     // Antes privadas...
     procedure AppMinimize(Sender: TObject);
@@ -5598,7 +5601,7 @@ end;
 
 procedure TForm_Main.MMInsertURLClick(Sender: TObject);
 begin
-  InsertURL('', '');   // Ask the user
+  InsertURL('', '', ActiveNote);   // Ask the user
 end; // Insert URL
 
 
@@ -7247,7 +7250,12 @@ end;
 
 procedure TForm_Main.MMEditPasteAsWebClipClick(Sender: TObject);
 begin
-  PasteAsWebClip;
+  PasteAsWebClip(false);
+end;
+
+procedure TForm_Main.MMEditPasteAsWebClipTextClick(Sender: TObject);
+begin
+  PasteAsWebClip(true);
 end;
 
 function DoMessageBox (text: wideString;

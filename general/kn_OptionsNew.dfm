@@ -5,8 +5,8 @@ object Form_OptionsNew: TForm_OptionsNew
   ActiveControl = TV
   BorderStyle = bsDialog
   Caption = 'Keynote OPTIONS'
-  ClientHeight = 336
-  ClientWidth = 505
+  ClientHeight = 376
+  ClientWidth = 512
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -24,9 +24,9 @@ object Form_OptionsNew: TForm_OptionsNew
   PixelsPerInch = 96
   TextHeight = 13
   object Button_OK: TTntButton
-    Left = 173
-    Top = 306
-    Width = 75
+    Left = 252
+    Top = 347
+    Width = 76
     Height = 25
     Hint = 'Accept changes and close dialog box'
     Caption = 'OK'
@@ -36,9 +36,9 @@ object Form_OptionsNew: TForm_OptionsNew
     OnClick = Button_OKClick
   end
   object Button_Cancel: TTntButton
-    Left = 253
-    Top = 306
-    Width = 75
+    Left = 342
+    Top = 347
+    Width = 76
     Height = 25
     Hint = 'Discard changes and close dialog box'
     Caption = 'Cancel'
@@ -50,62 +50,62 @@ object Form_OptionsNew: TForm_OptionsNew
     Left = 5
     Top = 5
     Width = 156
-    Height = 323
+    Height = 336
     Indent = 19
     InsertMarkColor = clScrollBar
     Items.Data = {
       000500000070000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF01000000000001
-      0100000000000200000000000000010100C20BF6512611000000000000000000
-      00000000FFD4F212003487397E5A033100261100000000000000000000690138
-      09CDABBA0113EFBBBF47656E6572616C2073657474696E677370000000FFFFFF
+      01000000000002000000000000000101000000000000000000F809A400000000
+      00000000000100000000000000000000005E05A100000000FFF4826B53000000
+      0050F2190113EFBBBF47656E6572616C2073657474696E677370000000FFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFF01000000000001000000000000000000000000
-      0000010100C20BF651261100000000000000000000000000FFD4F21200348739
-      7E5A03310026110000000000000000000069013809CDABBA0113EFBBBF526963
+      00000101000000000000000000F809A400000000000000000001000000000000
+      00000000005E05A100000000FFF4826B530000000050F2190113EFBBBF526963
       68205465787420656469746F726A000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FF010000000000010000000000000000000000000000010100C20BF651261100
-      000000000000000000000000FFD4F212003487397E5A03310026110000000000
-      000000000069013809CDABBA010DEFBBBF547265652050616E656C6D000000FF
+      FF01000000000001000000000000000000000000000001010000000000000000
+      00F809A40000000000000000000100000000000000000000005E05A100000000
+      FFF4826B530000000050F219010DEFBBBF547265652050616E656C6D000000FF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100000000000101000000000002000000
-      00000000010100C20BF651261100000000000000000000000000FFD4F2120034
-      87397E5A03310026110000000000000000000069013809CDABBA0110EFBBBF4B
+      000000000101000000000000000000F809A40000000000000000000100000000
+      000000000000005E05A100000000FFF4826B530000000050F2190110EFBBBF4B
       65794E6F74652066696C65736C000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      010000000000010000000000000000000000000000010100C20BF65126110000
-      0000000000000000000000FFD4F212003487397E5A0331002611000000000000
-      0000000069013809CDABBA010FEFBBBF46696C65206F7074696F6E736E000000
+      0100000000000100000000000000000000000000000101000000000000000000
+      F809A40000000000000000000100000000000000000000005E05A100000000FF
+      F4826B530000000050F219010FEFBBBF46696C65206F7074696F6E736E000000
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF01000000000001000000000000000000
-      0000000000010100C20BF651261100000000000000000000000000FFD4F21200
-      3487397E5A03310026110000000000000000000069013809CDABBA0111EFBBBF
+      00000000000101000000000000000000F809A400000000000000000001000000
+      00000000000000005E05A100000000FFF4826B530000000050F2190111EFBBBF
       4261636B7570206F7074696F6E7367000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FFFF010000000000010100000000000100000000000000010100C20BF6512611
-      00000000000000000000000000FFD4F212003487397E5A033100261100000000
-      00000000000069013809CDABBA010AEFBBBF416374696F6E736D000000FFFFFF
+      FFFF010000000000010100000000000100000000000000010100000000000000
+      0000F809A40000000000000000000100000000000000000000005E05A1000000
+      00FFF4826B530000000050F219010AEFBBBF416374696F6E736D000000FFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFF01000000000001000000000000000000000000
-      0000010100C20BF651261100000000000000000000000000FFD4F21200348739
-      7E5A03310026110000000000000000000069013809CDABBA0110EFBBBF436F6E
+      00000101000000000000000000F809A400000000000000000001000000000000
+      00000000005E05A100000000FFF4826B530000000050F2190110EFBBBF436F6E
       6669726D6174696F6E7366000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100
-      00000000010100000000000100000000000000010100C20BF651261100000000
-      000000000000000000FFD4F212003487397E5A03310026110000000000000000
-      000069013809CDABBA0109EFBBBF4368726F6D6569000000FFFFFFFFFFFFFFFF
+      000000000101000000000001000000000000000101000000000000000000F809
+      A40000000000000000000100000000000000000000005E05A100000000FFF482
+      6B530000000050F2190109EFBBBF4368726F6D6569000000FFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFF010000000000010000000000000000000000000000010100
-      C20BF651261100000000000000000000000000FFD4F212003487397E5A033100
-      26110000000000000000000069013809CDABBA010CEFBBBF5461622069636F6E
+      0000000000000000F809A4000000000000000000010000000000000000000000
+      5E05A100000000FFF4826B530000000050F219010CEFBBBF5461622069636F6E
       7368000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100000000000101000000
-      00000400000000000000010100C20BF651261100000000000000000000000000
-      FFD4F212003487397E5A03310026110000000000000000000069013809CDABBA
+      000004000000000000000101000000000000000000F809A40000000000000000
+      000100000000000000000000005E05A100000000FFF4826B530000000050F219
       010BEFBBBF416476616E63656467000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FF010000000000010000000000000000000000000000010100C20BF651261100
-      000000000000000000000000FFD4F212003487397E5A03310026110000000000
-      000000000069013809CDABBA010AEFBBBF466F726D61747371000000FFFFFFFF
+      FF01000000000001000000000000000000000000000001010000000000000000
+      00F809A40000000000000000000100000000000000000000005E05A100000000
+      FFF4826B530000000050F219010AEFBBBF466F726D61747371000000FFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFF0100000000000100000000000000000000000000
-      00010100C20BF651261100000000000000000000000000FFD4F212003487397E
-      5A03310026110000000000000000000069013809CDABBA0114EFBBBF436C6970
+      000101000000000000000000F809A40000000000000000000100000000000000
+      000000005E05A100000000FFF4826B530000000050F2190114EFBBBF436C6970
       626F61726420636170747572656A000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FF010000000000010000000000000000000000000000010100C20BF651261100
-      000000000000000000000000FFD4F212003487397E5A03310026110000000000
-      000000000069013809CDABBA010DEFBBBF46696C6520747970657365000000FF
+      FF01000000000001000000000000000000000000000001010000000000000000
+      00F809A40000000000000000000100000000000000000000005E05A100000000
+      FFF4826B530000000050F219010DEFBBBF46696C6520747970657365000000FF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100000000000100000000000000000000
-      00000000010100C20BF651261100000000000000000000000000FFD4F2120034
-      87397E5A03310026110000000000000000000069013809CDABBA0108EFBBBF4F
+      000000000101000000000000000000F809A40000000000000000000100000000
+      000000000000005E05A100000000FFF4826B530000000050F2190108EFBBBF4F
       74686572}
     ItemHeight = 16
     Options = [toAutoExpand, toEvenHeight, toHotTrack, toReadOnly, toShowButtons, toShowLines, toShowRoot]
@@ -117,8 +117,9 @@ object Form_OptionsNew: TForm_OptionsNew
   object Pages: TNotebook
     Left = 165
     Top = 0
-    Width = 336
-    Height = 301
+    Width = 341
+    Height = 343
+    PageIndex = 12
     TabOrder = 1
     object PG_Interface: TPage
       Left = 0
@@ -274,8 +275,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Editor'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GBox_EditorGlobal: TTntGroupBox
         Left = 5
         Top = 5
@@ -427,8 +426,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Tree'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GBox_TreeGlobal: TTntGroupBox
         Left = 5
         Top = 5
@@ -549,7 +546,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Width = 236
           Height = 21
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 0
         end
       end
@@ -558,8 +555,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_KNTFiles'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox2: TTntGroupBox
         Left = 5
         Top = 5
@@ -575,6 +570,8 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
+          Glyph.Data = {00000000}
+          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -688,8 +685,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_FileOptions'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox3: TTntGroupBox
         Left = 5
         Top = 5
@@ -812,8 +807,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_BackupOptions'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox11: TTntGroupBox
         Left = 5
         Top = 5
@@ -878,6 +871,8 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
+          Glyph.Data = {00000000}
+          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -953,7 +948,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 21
           Style = csDropDownList
           DropDownCount = 10
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 7
         end
         object CB_BackupVNodes: TTntCheckBox
@@ -971,8 +966,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Actions'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox10: TTntGroupBox
         Left = 5
         Top = 5
@@ -1093,7 +1086,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Width = 166
           Height = 21
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 0
         end
         object CheckBox_URLShift: TTntCheckBox
@@ -1129,8 +1122,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Confirmations'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox12: TTntGroupBox
         Left = 5
         Top = 5
@@ -1246,8 +1237,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Chrome'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox14: TTntGroupBox
         Left = 5
         Top = 152
@@ -1305,7 +1294,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Width = 145
           Height = 21
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 2
         end
       end
@@ -1431,18 +1420,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Icons'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox_ICN: TTntGroupBox
         Left = 5
         Top = 5
         Width = 327
-        Height = 292
+        Height = 336
         Caption = ' &Tab icons '
         TabOrder = 0
         object Label_ICN: TTntLabel
           Left = 179
-          Top = 264
+          Top = 308
           Width = 20
           Height = 13
           Caption = '(...)'
@@ -1491,7 +1478,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Left = 10
           Top = 25
           Width = 143
-          Height = 255
+          Height = 296
           ExtendedSelect = False
           ItemHeight = 20
           TabOrder = 0
@@ -1502,8 +1489,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Advanced'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox8: TTntGroupBox
         Left = 5
         Top = 5
@@ -1633,8 +1618,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Formats'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox4: TTntGroupBox
         Left = 5
         Top = 5
@@ -1680,7 +1663,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Width = 204
           Height = 21
           Hint = 'Format to use when inserting current date'
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 0
         end
         object Edit_TimeFormat: TTntComboBox
@@ -1689,7 +1672,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Width = 204
           Height = 21
           Hint = 'Format to use when inserting current time'
-          ItemHeight = 0
+          ItemHeight = 13
           MaxLength = 99
           TabOrder = 1
         end
@@ -1733,47 +1716,64 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_ClipCap'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox6: TTntGroupBox
         Left = 5
         Top = 5
-        Width = 328
-        Height = 294
-        Caption = ' Clipboard capture settings '
+        Width = 330
+        Height = 336
+        Caption = ' Clipboard Capture / Web Clip settings '
         TabOrder = 0
         object Label_MaxSize: TTntLabel
-          Left = 12
-          Top = 112
-          Width = 165
+          Left = 183
+          Top = 171
+          Width = 59
           Height = 13
-          AutoSize = False
-          Caption = '&Limit size of captured text to:'
+          Caption = '&Limit size to:'
         end
         object Label7: TTntLabel
-          Left = 10
-          Top = 21
+          Left = 31
+          Top = 24
           Width = 205
           Height = 13
           Caption = '&Divider string placed before captured text:'
           FocusControl = Combo_Divider
         end
-        object Label_bytes: TTntLabel
-          Left = 119
-          Top = 134
-          Width = 27
+        object Label_PlainTextMode: TTntLabel
+          Left = 12
+          Top = 147
+          Width = 78
           Height = 13
-          Caption = 'bytes'
+          Caption = 'Plain text &mode:'
+        end
+        object TntLabel1: TTntLabel
+          Left = 44
+          Top = 73
+          Width = 46
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Web Clip:'
+          FocusControl = Combo_ClipNodeNaming
+        end
+        object TntLabel2: TTntLabel
+          Left = 42
+          Top = 48
+          Width = 48
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Clip.Capt:'
+          FocusControl = Combo_ClipNodeNaming
         end
         object Combo_Size: TTntComboBox
-          Left = 12
-          Top = 129
-          Width = 101
+          Left = 248
+          Top = 167
+          Width = 73
           Height = 21
-          Hint = 'Maximum length of text to capture'
-          ItemHeight = 0
+          Hint = 
+            'Maximum length of text to capture, in bytes (when paste as plain' +
+            ' text)'
+          ItemHeight = 13
           MaxLength = 6
-          TabOrder = 6
+          TabOrder = 8
           Items.Strings = (
             '0'
             '256'
@@ -1784,39 +1784,39 @@ object Form_OptionsNew: TForm_OptionsNew
             '16384')
         end
         object Combo_Divider: TTntComboBox
-          Left = 10
-          Top = 38
+          Left = 96
+          Top = 43
           Width = 226
           Height = 21
           Hint = 'Text to place between captured items'
-          ItemHeight = 0
-          TabOrder = 0
+          ItemHeight = 13
+          TabOrder = 1
         end
         object CB_IgnoreSelf: TTntCheckBox
-          Left = 10
-          Top = 65
-          Width = 167
+          Left = 12
+          Top = 101
+          Width = 159
           Height = 17
           Hint = 'Do not capture text copied from Keynote itself'
           Caption = 'Ignore clips from &Keynote'
-          TabOrder = 1
+          TabOrder = 3
         end
         object CB_AsText: TTntCheckBox
-          Left = 181
-          Top = 85
-          Width = 140
+          Left = 12
+          Top = 168
+          Width = 127
           Height = 17
-          Hint = 'Paste text without any formatting'
-          Caption = '&Paste as plain text'
-          TabOrder = 4
+          Hint = 'Paste text without any formatting (only for Clipboard Capture)'
+          Caption = '&Paste as plain text (*)'
+          TabOrder = 7
         end
         object BitBtn_TknHlp: TBitBtn
-          Left = 245
-          Top = 35
+          Left = 250
+          Top = 14
           Width = 25
           Height = 25
           Hint = 'Click to display list of substitution tokens'
-          TabOrder = 7
+          TabOrder = 0
           Glyph.Data = {
             F6000000424DF600000000000000760000002800000010000000100000000100
             0400000000008000000000000000000000001000000010000000000000000000
@@ -1828,30 +1828,30 @@ object Form_OptionsNew: TForm_OptionsNew
             FF07AD0FBFFFBFFFBF07DA0FFFBFFFBFFF0AADA00000000000AD}
         end
         object CheckBox_ClipRecall: TTntCheckBox
-          Left = 10
-          Top = 269
+          Left = 12
+          Top = 309
           Width = 287
           Height = 17
           Hint = 'When opening a file, restore last active Capture note'
           Caption = '&Remember capturing note across program sessions'
-          TabOrder = 10
+          TabOrder = 12
         end
         object CheckBox_Sound: TTntCheckBox
-          Left = 10
-          Top = 250
-          Width = 287
+          Left = 12
+          Top = 290
+          Width = 148
           Height = 17
           Hint = 'Indicate capture events with sound ("clip.wav")'
-          Caption = 'Play &sound on capture (clip.wav)'
-          TabOrder = 9
+          Caption = 'Play &sound on capture (*)'
+          TabOrder = 10
         end
         object GroupBox23: TTntGroupBox
-          Left = 10
-          Top = 158
-          Width = 304
+          Left = 11
+          Top = 196
+          Width = 309
           Height = 87
-          Caption = ' &When capturing into a tree note: '
-          TabOrder = 8
+          Caption = ' &When capturing into a tree note (*) :'
+          TabOrder = 9
           object LB_ClipNodeNaming: TTntLabel
             Left = 28
             Top = 62
@@ -1862,7 +1862,7 @@ object Form_OptionsNew: TForm_OptionsNew
             FocusControl = Combo_ClipNodeNaming
           end
           object RB_ClipTreeActive: TTntRadioButton
-            Left = 15
+            Left = 16
             Top = 19
             Width = 266
             Height = 17
@@ -1890,36 +1890,57 @@ object Form_OptionsNew: TForm_OptionsNew
             Height = 21
             Hint = 'Choose how new node will be named'
             Style = csDropDownList
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 2
           end
         end
         object CB_TestDupClips: TTntCheckBox
-          Left = 10
-          Top = 85
-          Width = 167
+          Left = 12
+          Top = 118
+          Width = 170
           Height = 17
           Hint = 'Discard exact copies of most recently captured text'
           Caption = 'I&gnore duplicate clips'
-          TabOrder = 2
+          TabOrder = 4
         end
         object CB_SwitchIcon: TTntCheckBox
-          Left = 181
-          Top = 65
-          Width = 140
-          Height = 17
+          Left = 166
+          Top = 292
+          Width = 143
+          Height = 15
           Hint = 'Show alternate tray icon when clipboard capture is active'
           Caption = 'Use &alternate tray icon'
-          TabOrder = 3
+          TabOrder = 11
         end
         object CB_SourceURL: TTntCheckBox
-          Left = 181
-          Top = 105
-          Width = 140
+          Left = 190
+          Top = 118
+          Width = 136
           Height = 17
-          Hint = 'Insert clip source URL (Internet Explorer only)'
-          Caption = 'Include source &URL'
+          Hint = 
+            'Insert clip source URL, with title if available (only for Clipbo' +
+            'ard Capture)'
+          Caption = 'Include source &URL (*)'
           TabOrder = 5
+        end
+        object Combo_PlainTextMode: TTntComboBox
+          Left = 96
+          Top = 143
+          Width = 226
+          Height = 21
+          Hint = 'How to paste when used plain text mode'
+          ItemHeight = 13
+          MaxLength = 6
+          TabOrder = 6
+        end
+        object Combo_WCDivider: TTntComboBox
+          Left = 96
+          Top = 70
+          Width = 226
+          Height = 21
+          Hint = 'If empty, '#39'Clip.Capt.'#39' divider string will be used'
+          ItemHeight = 13
+          TabOrder = 2
         end
       end
     end
@@ -1927,18 +1948,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_FileTypes'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox19: TTntGroupBox
         Left = 5
         Top = 5
         Width = 329
-        Height = 276
+        Height = 316
         Caption = ' &Text file extensions '
         TabOrder = 0
         object Label13: TTntLabel
           Left = 10
-          Top = 230
+          Top = 262
           Width = 287
           Height = 39
           AutoSize = False
@@ -1951,7 +1970,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Left = 10
           Top = 25
           Width = 101
-          Height = 201
+          Height = 231
           ItemHeight = 13
           Sorted = True
           TabOrder = 0
@@ -1989,8 +2008,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Language'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox21: TTntGroupBox
         Left = 5
         Top = 5
@@ -2069,6 +2086,8 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
+          Glyph.Data = {00000000}
+          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -2109,8 +2128,8 @@ object Form_OptionsNew: TForm_OptionsNew
     end
   end
   object Button_Help: TTntButton
-    Left = 333
-    Top = 306
+    Left = 8
+    Top = 347
     Width = 75
     Height = 25
     Caption = 'Help'

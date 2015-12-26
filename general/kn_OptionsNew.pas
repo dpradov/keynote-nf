@@ -87,7 +87,6 @@ type
     GroupBox6: TTntGroupBox;
     Label_MaxSize: TTntLabel;
     Label7: TTntLabel;
-    Label_bytes: TTntLabel;
     Combo_Size: TTntComboBox;
     Combo_Divider: TTntComboBox;
     CB_IgnoreSelf: TTntCheckBox;
@@ -241,6 +240,11 @@ type
     TB_OpenDlgUserFile: TToolbarButton97;
     TB_OpenDlgURLAltBrowserPath: TToolbarButton97;
     TB_OpenDlgBakDir: TToolbarButton97;
+    Label_PlainTextMode: TTntLabel;
+    Combo_PlainTextMode: TTntComboBox;
+    Combo_WCDivider: TTntComboBox;
+    TntLabel1: TTntLabel;
+    TntLabel2: TTntLabel;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -268,7 +272,6 @@ type
     procedure Button_ICNInsertClick(Sender: TObject);
     procedure Button_ICNDeleteClick(Sender: TObject);
     procedure Button_ICNResetClick(Sender: TObject);
-    procedure CheckBox_AsTextClick(Sender: TObject);
     procedure Combo_SizeKeyPress(Sender: TObject; var Key: Char);
     procedure CheckBox_AutoRegisterFileTypeClick(Sender: TObject);
     procedure BitBtn_TknHlpClick(Sender: TObject);
@@ -346,7 +349,9 @@ resourcestring
     '(must be UPPERCASE)' +#13#13+
      '%s = current date' +#13+
      '%s = current time' +#13+
-     '%s = replaced with a blank line';
+     '%s = replaced with a blank line' +#13+
+     '%s = encloses source URL (optional)' +#13+
+     '%s = source URL (with title if available)';
   STR_15 = 'The Auto-Close function will work ONLY if Auto-Save is turned ON, and if no dialog box is open at the time KeyNote tries to automatically close the file. (Auto-Save is currently DISABLED.)';
   STR_16 = 'Error in TVChange: PageIndex %d  Node.AbsIdx %d';
 
@@ -357,6 +362,7 @@ var
   tp : TTabOrientation;
   txm : TTreeExpandMode;
   cln : TClipNodeNaming;
+  clpt: TClipPlainTextMode;
   Language : TLanguageInfo;
 begin
   Initializing := true;
@@ -370,12 +376,17 @@ begin
     Combo_Language.Items.Add( Language.Name );
   end;
 
-  with Combo_Divider.Items do
-  begin
+  with Combo_Divider.Items do begin
     Add( DIV_1_BLANK );
     Add( DIV_2_BLANK );
-    Add( '---------------------' );
-    Add( '=====================' );
+    Add( '^---------------------^' );
+    Add( '^=====================^' );
+  end;
+  with Combo_WCDivider.Items do begin
+    Add('^-- %|%S  (%|%D, %T%|)%| --^');
+    Add('^-- %D, %T %|- [%S] %|--^');
+    Add('^--- %D, %T ---^%|[%S]^%|');
+    Add('^--- %D, %T ---^%S^');
   end;
 
   for u := low( TURLAction ) to high( TURLAction ) do
@@ -420,6 +431,10 @@ begin
   for cln := low( cln ) to high( cln ) do
     Combo_ClipNodeNaming.Items.Add( CLIP_NODE_NAMINGS[cln] );
   Combo_ClipNodeNaming.ItemIndex := 0;
+
+  for clpt := low( clpt ) to high( clpt ) do
+    Combo_PlainTextMode.Items.Add( CLIP_PLAIN_TEXT_MODE[clpt] );
+  Combo_PlainTextMode.ItemIndex := 0;
 
   for tp := low( tp ) to high( tp ) do
     Combo_TabPos.Items.Add( TAB_POSITIONS[tp] );
@@ -495,17 +510,24 @@ begin
 end; // ACTIVATE
 
 procedure TForm_OptionsNew.ClipCapToForm;
+
+   procedure DividerComboToForm(combo: TTntComboBox; const divider: string);
+   begin
+     if ( divider = CLIPDIVCHAR ) then
+       combo.Text := DIV_1_BLANK
+     else
+        if ( divider = ( CLIPDIVCHAR + CLIPDIVCHAR )) then
+          combo.Text := DIV_2_BLANK
+        else
+          combo.Text := divider;
+   end;
+
 begin
   // CheckBox_URLOnly.Checked := myClipOpts.URLOnly;
   Combo_Size.Items.Insert( 0, inttostr( myClipOpts.MaxSize ));
   Combo_Size.Text := inttostr( myClipOpts.MaxSize );
-  if ( myClipOpts.Divider = CLIPDIVCHAR ) then
-    Combo_Divider.Text := DIV_1_BLANK
-  else
-  if ( myClipOpts.Divider = ( CLIPDIVCHAR + CLIPDIVCHAR )) then
-    Combo_Divider.Text := DIV_2_BLANK
-  else
-    Combo_Divider.Text := myClipOpts.Divider;
+  DividerComboToForm(Combo_Divider, myClipOpts.Divider);
+  DividerComboToForm(Combo_WCDivider, myClipOpts.WCDivider);
   CB_IgnoreSelf.Checked := myClipOpts.IgnoreSelf;
   CB_TestDupClips.Checked := myClipOpts.TestDupClips;
   CB_SwitchIcon.Checked := myClipOpts.SwitchIcon;
@@ -519,25 +541,31 @@ begin
   else
     RB_ClipTreeActive.Checked := true;
   Combo_ClipNodeNaming.ItemIndex := ord( myClipOpts.ClipNodeNaming );
+  Combo_PlainTextMode.ItemIndex:= ord( myClipOpts.PlainTextMode );
 
   RB_ClipTreeActiveClick( RB_ClipTreeActive );
   RB_ClipTreeActive.OnClick := RB_ClipTreeActiveClick;
   RB_ClipTreeNew.OnClick := RB_ClipTreeActiveClick;
 
-  CheckBox_AsTextClick( self );
-  CB_AsText.OnClick := CheckBox_AsTextClick;
 end; // ClipCapToForm
 
 function TForm_OptionsNew.FormToClipCap : boolean;
+
+   procedure DividerComboToOption(combo: TTntComboBox; var divider: string);
+   begin
+      divider := combo.Text;
+      if ( divider = DIV_1_BLANK ) then
+         divider := CLIPDIVCHAR
+      else
+         if ( divider = DIV_2_BLANK ) then
+            divider := CLIPDIVCHAR + CLIPDIVCHAR;
+   end;
+
 begin
     result := true;
-    myClipOpts.Divider := Combo_Divider.Text;
 
-    if ( myClipOpts.Divider = DIV_1_BLANK ) then
-      myClipOpts.Divider := CLIPDIVCHAR
-    else
-    if ( myClipOpts.Divider = DIV_2_BLANK ) then
-      myClipOpts.Divider := CLIPDIVCHAR + CLIPDIVCHAR;
+    DividerComboToOption(Combo_Divider, myClipOpts.Divider);
+    DividerComboToOption(Combo_WCDivider, myClipOpts.WCDivider);
 
     // myClipOpts.URLOnly := CheckBox_URLOnly.Checked;
     myClipOpts.IgnoreSelf := CB_IgnoreSelf.Checked;
@@ -551,6 +579,7 @@ begin
     myClipOpts.PasteAsNewNode := RB_ClipTreeNew.Checked;
 
     myClipOpts.ClipNodeNaming := TClipNodeNaming( Combo_ClipNodeNaming.ItemIndex );
+    myClipOpts.PlainTextMode  := TClipPlainTextMode( Combo_PlainTextMode.ItemIndex );
     try
       myClipOpts.MaxSize := strtoint( Combo_Size.Text );
     except
@@ -586,6 +615,7 @@ begin
     VK_ESCAPE : if ( not (
       Combo_EscapeAction.DroppedDown or
       Combo_Divider.DroppedDown or
+      Combo_WCDivider.DroppedDown or
       Combo_URLAction.DroppedDown or
       Combo_BakLevel.DroppedDown or
       Combo_TabPos.DroppedDown
@@ -1378,13 +1408,6 @@ begin
 end; // ResetIcons
 
 
-procedure TForm_OptionsNew.CheckBox_AsTextClick(Sender: TObject);
-begin
-  Label_MaxSize.Enabled := CB_AsText.Checked;
-  Combo_Size.Enabled := Label_MaxSize.Enabled;
-  Label_bytes.Enabled := Label_MaxSize.Enabled;
-end;
-
 procedure TForm_OptionsNew.Combo_SizeKeyPress(Sender: TObject; var Key: Char);
 begin
   if ( not ( Key in [#8, #9, #13, #27, '0'..'9'] )) then
@@ -1401,7 +1424,7 @@ end;
 
 procedure TForm_OptionsNew.BitBtn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR]),
+  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR, CLIPSOURCEDELIMITER, CLIPSOURCE]),
     mtInformation, [mbOK], 0
   );
 

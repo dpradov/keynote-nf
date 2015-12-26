@@ -27,7 +27,7 @@ uses
     procedure JumpToKNTLocation( LocationStr : wideString );
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
     procedure ClickOnURL(const URLstr: wideString; chrgURL: TCharRange);
-    procedure InsertURL(URLStr : wideString; TextURL : wideString);
+    procedure InsertURL(URLStr : wideString; TextURL : wideString; Note: TTabNote);
 
     function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean): wideString;
     procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TTabNote; var myTreeNode: TTreeNTNode);
@@ -205,32 +205,35 @@ end;
 //----------------------------------------
 // InsertHyperlink
 //----------------------------------------
-procedure InsertHyperlink(URLStr: wideString; TextURL : wideString; KNTLink: boolean);
+procedure InsertHyperlink(URLStr: wideString; TextURL : wideString; KNTLink: boolean; Note: TTabNote);
 var
   SelL: integer;
   SelR: integer;
   sepL, sepR: string;
   UseHyperlink: boolean;
+  cad: string;
 begin
     UseHyperlink:= False;
-    if (RichEditVersion >= 4) and (not ActiveNote.PlainText) then
+    if (RichEditVersion >= 4) and (not Note.PlainText) then
        UseHyperlink:= True;
 
-    with ActiveNote.Editor do begin
+    with Note.Editor do begin
       SelL := SelStart;
       SelR := SelL + SelLength;
       sepL:= '';
       SetSelection(SelL-1, SelL, false);
-      if SelAttributes.Link or (not UseHyperlink and (Trim(SelText) <> '')) then sepL:= ' ';
+      cad:= Trim(SelText);
+      if SelAttributes.Link or (not UseHyperlink and (cad <> '') and not (cad[1] in ['<','(','[','{']) ) then sepL:= ' ';
       SetSelection(SelR, SelR+1, false);
-      if SelAttributes.Link or (not UseHyperlink and (Trim(SelText) <> '')) then sepR:= ' ';
+      cad:= Trim(SelText);
+      if SelAttributes.Link or (not UseHyperlink and (cad <> '') and not (cad[1] in ['>',')',']','}']) ) then sepR:= ' ';
       SetSelection(SelL, SelR, false);
 
       if UseHyperlink then begin
          PutRichTextW('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sepL + '{\field{\*\fldinst{HYPERLINK "'
             + URLToRTF(URLStr, false ) + '"}}{\fldrslt{\cf1\ul '
             + URLToRTF(TextURL, true) + '}}}' + sepR + '\cf0\ulnone}',
-            ActiveNote.Editor, true, true );
+            Note.Editor, true, true );
          end
       else begin
           if not KNTLink then
@@ -311,7 +314,7 @@ begin
       if pos( 'FILE:', WideUpperCase(FN) ) = 0 then
          FN := 'file:///' + FN;
 
-      InsertHyperlink(FN, StripFileURLPrefix(FN), false);
+      InsertHyperlink(FN, StripFileURLPrefix(FN), false, ActiveNote);
     end
 
     else
@@ -413,7 +416,7 @@ begin
                                                 aLocation.NoteName, aLocation.NodeName,
                                                 aLocation.CaretPos]);
 
-    InsertHyperlink(BuildKNTLocationText(aLocation),  TextURL, true);
+    InsertHyperlink(BuildKNTLocationText(aLocation),  TextURL, true, ActiveNote);
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_09;
   end
   else
@@ -1035,7 +1038,7 @@ var
                 if (endCmdHyperlink-startCmdHyperlink+1) > length(Hyperlink)+Length(TextHyperlink) + 12 then begin // 12=10(>>HYPERLINK <<)+ 2("")
                    ActiveNote.Editor.SetSelection(startCmdHyperlink, endCmdHyperlink +1, false);
                    ActiveNote.Editor.SelText:= '';
-                   InsertURL(Hyperlink, TextHyperlink);
+                   InsertURL(Hyperlink, TextHyperlink,ActiveNote);
                    TextLen:= ActiveNote.Editor.TextLength;
                    endCmdHyperlink:= ActiveNote.Editor.SelStart-1;
                    NoteFile.Modified := True;
@@ -1224,7 +1227,7 @@ begin
              InsertOrMarkKNTLink(Location, true, TextURL);
           end
           else
-             InsertURL(myURL, TextURL);
+             InsertURL(myURL, TextURL, ActiveNote);
 
           Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_17;
           exit;
@@ -1346,7 +1349,7 @@ end;
 //===============================================================
 // InsertURL
 //===============================================================
-procedure InsertURL(URLStr: wideString; TextURL : wideString);
+procedure InsertURL(URLStr: wideString; TextURL : wideString; Note: TTabNote);
 var
   URLType : TKNTURL;
   Form_URLAction: TForm_URLAction;
@@ -1375,9 +1378,9 @@ var
       UrlSel, TxtSel: WideString;
       p: integer;
   begin
-        if ActiveNote.Editor.SelLength > 0 then begin
-           TxtSel:= Trim(ActiveNote.Editor.SelVisibleTextW);
-           UrlSel:= Trim(ActiveNote.Editor.SelTextW);
+        if Note.Editor.SelLength > 0 then begin
+           TxtSel:= Trim(Note.Editor.SelVisibleTextW);
+           UrlSel:= Trim(Note.Editor.SelTextW);
            RemoveAngleBrackets(TxtSel);
            RemoveAngleBrackets(UrlSel);
 
@@ -1399,7 +1402,7 @@ var
            end;
         end
         else begin
-           ActiveNote.Editor.GetLinkAtCursor(URLStr, TxtSel);
+           Note.Editor.GetLinkAtCursor(URLStr, TxtSel);
            URLType:= TypeURL( UrlStr, KNTlocation);
            if TextURL = '' then TextURL:= TxtSel;
         end;
@@ -1409,8 +1412,8 @@ var
   end;
 
 begin
-  if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveNote ))) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not ( Form_Main.HaveNotes( true, true ) and assigned( Note ))) then exit;
+  if Form_Main.NoteIsReadOnly( Note, true ) then exit;
   askUser:= (URLStr = '');
 
 
@@ -1441,8 +1444,8 @@ begin
       if (URLType = urlFile) and ( pos( 'FILE:', WideUpperCase(URLStr) ) = 0 ) then
          URLStr := 'file:///' + URLStr;
 
-      if (TextURL = '') and (not ActiveNote.PlainText) then TextURL:= StripFileURLPrefix(URLStr);
-      InsertHyperlink(URLStr, TextURL, false);
+      if (TextURL = '') and (not Note.PlainText) then TextURL:= StripFileURLPrefix(URLStr);
+      InsertHyperlink(URLStr, TextURL, false, Note);
     end;
 
 end; // Insert URL

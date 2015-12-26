@@ -578,6 +578,7 @@ type
     InsertSourceURL : boolean; 
     MaxSize : integer;
     PasteAsText : boolean;
+    PlainTextMode: TClipPlainTextMode;
     PasteAsNewNode : boolean;
     PlaySound : boolean;
     Recall : boolean;
@@ -585,9 +586,8 @@ type
     SwitchIcon : boolean;
     TestDupClips : boolean;
     TreeClipConfirm : boolean;
-    URLOnly : boolean; // [*] [!] NOT IMPLEMENTED (planned: only capture URLs; discard anything else
+    URLOnly : boolean; // only capture URLs; discard anything else. Will be interpreted as: if only copied one word, what it's wanted is to paste only the URL
     WCDivider : string; // [*] divider for webclips
-    WCPasteAsText : boolean; // [*] paste web clips as plain text
   end;
 
 type

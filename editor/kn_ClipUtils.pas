@@ -47,10 +47,11 @@ function ClipboardHasHTMLformat : boolean;
 function ClipboardHasRTFformat : boolean;
 function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
 function GetURLFromHTMLClipboard (const HTMLClipboard: string): string;
+function GetTitleFromHTMLClipboard (const HTMLClipboard: string): string;
 procedure TrimMetadataFromHTMLClipboard (var HTMLClipboard: string);
 
 implementation
-uses WideStrings, gf_strings, RichEdit;
+uses StrUtils, WideStrings, gf_strings, RichEdit;
 
 var
   CFRtf: Integer;
@@ -133,6 +134,26 @@ begin
          pF := pF + 1;
      Result:= Copy( HTMLClipboard, p+l, pF-p-l);
    end;
+   if Result = 'about:blank' then
+      Result:= '';
+end; // GetURLFromHTMLClipboard
+
+
+function GetTitleFromHTMLClipboard (const HTMLClipboard: string): string;
+const
+  TITLE  = '<TITLE>';
+  l = length(TITLE);
+var
+   p, pF: integer;
+begin
+   Result := '';
+
+   p:= pos( TITLE, HTMLClipboard);
+   if p >= 1 then begin
+     pF:= PosEx( '</TITLE>', HTMLClipboard, p+l);
+     if pF > p  then
+        Result:= Copy( HTMLClipboard, p+l, pF-p-l);
+   end;
 end; // GetURLFromHTMLClipboard
 
 
@@ -141,6 +162,10 @@ var
   p : integer;
 begin
    p:= pos( '<html>', HTMLClipboard);
+   if p <= 0 then p:= pos( '<HTML>', HTMLClipboard);
+   if p <= 0 then p:= pos( '<HTML ', HTMLClipboard);
+   if p <= 0 then p:= pos( '<html ', HTMLClipboard);
+
    if p >= 1 then
      delete( HTMLClipboard, 1, p-1);
 end;
