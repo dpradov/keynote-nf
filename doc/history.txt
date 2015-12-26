@@ -36,6 +36,22 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
 -------------
 
 
+v 1.7.9.5 Beta (26 dec 2015)
+--------------
+It includes the following issues:
+
+#533 : New option: "Paste external as plain text"
+#532 : Improvements on Clip Web and Clipboard Capture
+#523 : Use Paste as Text by default when pasting into plain text note
+#528 : Minor improvements in links 
+#526 : "Search all notes" in Find dialog and panel should be decoupled
+#529 : Paste Font Attributes destroy selected hyperlinks when applied (in Richedit <= 5.0) 
+#524 : Problem with MS Sans Serif in Windows 10 in certain situations 
+#530 : Allow the use of newer versions of RichEdit
+#457 : virtual node files can't be backed up
+#456 : Search regression with Beta 4 
+
+
 v 1.7.9.4 Beta (7 jan 2013)
 --------------
 It includes the following issues:
