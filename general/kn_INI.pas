@@ -81,7 +81,8 @@ type
     UndoLimit,
     WordCountTrack,
     WordSelect,
-    WordsPerPage : string;
+    WordsPerPage,
+    PlainDefaultPaste : string;
   end;
 
 const
@@ -103,6 +104,7 @@ const
     WordCountTrack : 'WordCountTrack';
     WordSelect : 'WordSelect';
     WordsPerPage : 'WordsPerPage';
+    PlainDefaultPaste: 'PlainDefaultPaste';
   );
 
 
@@ -856,6 +858,7 @@ begin
     WordCountTrack := false;
     WordSelect := true;
     WordsPerPage := 250;
+    PlainDefaultPaste:= true;
   end;
   _SAVE_RESTORE_CARETPOS := Struct.SaveCaretPos;
 end; // InitializeEditorOptions
@@ -1283,6 +1286,7 @@ begin
       writebool( section, EditorOptionsIniStr.WordCountTrack, EditorOptions.WordCountTrack );
       writebool( section, EditorOptionsIniStr.WordSelect, EditorOptions.WordSelect );
       writeinteger( section, EditorOptionsIniStr.WordsPerPage, EditorOptions.WordsPerPage );
+      writebool( section, EditorOptionsIniStr.PlainDefaultPaste, EditorOptions.PlainDefaultPaste);
 
 
       section := ClipOptionsIniStr.Section;
@@ -1605,7 +1609,8 @@ begin
       except
         EditorOptions.WordsPerPage := 0;
       end;
-      
+      EditorOptions.PlainDefaultPaste := readbool( section, EditorOptionsIniStr.PlainDefaultPaste, EditorOptions.PlainDefaultPaste );
+
       _SAVE_RESTORE_CARETPOS := EditorOptions.SaveCaretPos;
 
       section := ClipOptionsIniStr.Section;

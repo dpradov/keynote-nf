@@ -2001,6 +2001,16 @@ object Form_Main: TForm_Main
           Hint = 'Select special format to paste'
           OnClick = MMEditPasteSpecialClick
         end
+        object N116: TTntMenuItem
+          Caption = '-'
+        end
+        object MMEditPlainDefaultPaste: TTntMenuItem
+          Caption = 'Paste &external as Plain text'
+          Hint = 
+            'Default paste as plain text when copied from outside KN, accordi' +
+            'ng to '#39'Plain text mode'#39
+          OnClick = MMEditPlainDefaultPasteClick
+        end
         object N67: TTntMenuItem
           Caption = '-'
         end
@@ -7859,6 +7869,13 @@ object Form_Main: TForm_Main
       Caption = 'Paste &Special...'
       Hint = 'Select special format to paste'
       OnClick = MMEditPasteSpecialClick
+    end
+    object N117: TTntMenuItem
+      Caption = '-'
+    end
+    object MMP_PlainDefaultPaste: TTntMenuItem
+      Caption = 'Paste &external as Plain text'
+      OnClick = MMP_PlainDefaultPasteClick
     end
     object N107: TTntMenuItem
       Caption = '-'

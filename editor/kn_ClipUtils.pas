@@ -17,7 +17,7 @@ unit kn_ClipUtils;
 
 
 interface
-uses Windows, Classes, SysUtils, clipbrd;
+uses Windows, Dialogs, Classes, SysUtils, clipbrd;
 
 const
   CFHtml : word = 0;
@@ -49,9 +49,15 @@ function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
 function GetURLFromHTMLClipboard (const HTMLClipboard: string): string;
 function GetTitleFromHTMLClipboard (const HTMLClipboard: string): string;
 procedure TrimMetadataFromHTMLClipboard (var HTMLClipboard: string);
+function TestCRCForDuplicates(ClpStr: WideString; UpdateLastCalculated: boolean = true): boolean;
 
 implementation
-uses StrUtils, WideStrings, gf_strings, RichEdit;
+uses StrUtils, WideStrings, CRC32, gf_strings, RichEdit,
+     kn_global;
+
+resourcestring
+  STR_28 = 'CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message: ';
+
 
 var
   CFRtf: Integer;
@@ -93,7 +99,7 @@ end; // ClipboardHasHTMLformat
 function ClipboardHasRTFformat : boolean;
 begin
   result := ( CFRtf <> 0 ) and Clipboard.HasFormat( CFRtf );
-end; // ClipboardHasHTMLformat
+end; // ClipboardHasRTFformat
 
 
 function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
@@ -191,6 +197,37 @@ function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
 begin
   Result:= FirstLineFromString(trimleft( ClipboardAsStringW ), MaxLen);
 end; // FirstLineFromClipboard
+
+
+{
+Calculates CRC on ClpStr and compare it with last calculated CRC, returning true if it is equal
+Last calculated CRC (ClipCapCRC32) is then updated (if 'UpdateLastCalculated' = true)
+}
+function TestCRCForDuplicates(ClpStr: WideString; UpdateLastCalculated: boolean = true): boolean;
+var
+   thisClipCRC32: DWORD;
+begin
+   Result:= false;
+
+   if ( ClpStr <> '' ) then begin
+      try
+        CalcCRC32( addr( ClpStr[1] ), length( ClpStr ), thisClipCRC32 );
+      except
+        on E : Exception do begin
+          messagedlg( STR_28 + E.Message, mtError, [mbOK], 0 );
+          ClipOptions.TestDupClips := false;
+          exit;
+        end;
+      end;
+      if ( thisClipCRC32 = ClipCapCRC32 ) then
+          Result:= true;
+
+      if UpdateLastCalculated then
+         ClipCapCRC32 := thisClipCRC32; // set value for next test
+   end;
+
+end;
+
 
 var
   FClipboardW: TClipboardW;

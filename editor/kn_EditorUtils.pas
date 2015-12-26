@@ -1545,45 +1545,11 @@ begin
                      Editor.SelStart :=  Editor.SelStart + Editor.SelLength;
                  end;
 
-                if (ClipOptions.PasteAsText and (ClipOptions.PlainTextMode = clptPlainText)) or Note.PlainText then begin
-                   if (( ClipOptions.MaxSize > 0 ) and ( length( ClpStr ) > ClipOptions.MaxSize )) then
-                      delete( ClpStr, succ( ClipOptions.MaxSize ), length( ClpStr ));
-                   Editor.SelTextW := trim(ClpStr);
-                   Editor.SelStart := Editor.SelStart + Editor.SelLength;
-                end
-                else begin
-                    if not ClipOptions.PasteAsText then
-                       TryPasteRTF(Editor, HTMLClipboard)
-                    else begin
-                       i := Editor.SelStart;
-                       ParaAttrsRX2KNT( Editor.Paragraph, ParaFormatToCopy );
-                       if (ClipOptions.PlainTextMode = clptAllowHyperlink) then
-                          FontAttrsRx2KNT( NoteFile.ClipCapNote.Editor.SelAttributes, FontFormatToCopy );
+                if not ClipOptions.PasteAsText and not Note.PlainText then
+                   TryPasteRTF(Editor, HTMLClipboard)
+                else
+                   PerformCmdPastePlain(Note, ClpStr, HTMLClipboard);
 
-                       TryPasteRTF(Editor, HTMLClipboard);
-                       j := Editor.SelStart;
-                       Editor.SuspendUndo;
-                       try
-                          Editor.SelStart := i;
-                          Editor.SelLength := j-i+1;
-                          if (ClipOptions.PlainTextMode = clptAllowHyperlink) then begin
-                             ParaAttrsKNT2RX( ParaFormatToCopy, Editor.Paragraph);
-                             FontAttrsKNT2RX( FontFormatToCopy, Editor.SelAttributes);
-                          end else begin
-                             ParaAttrsKNT2RX_Reduced( ParaFormatToCopy, Editor.Paragraph);
-                             if (ClipOptions.PlainTextMode = clptAllowFontStyle) then begin
-                                Editor.SelAttributes.Name := Form_Main.Combo_Font.FontName;
-                                Editor.SelAttributes.Size := strtoint( Form_Main.Combo_FontSize.Text );
-                             end;
-                          end;
-
-                          Editor.SelStart := j;
-                          Editor.SelLength := 0;
-                       finally
-                          Editor.ResumeUndo;
-                       end;
-                    end;
-                end;
               end;
 
            finally

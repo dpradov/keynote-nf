@@ -61,6 +61,7 @@ var
     // edit commands
     procedure PerformCmd( aCmd : TEditCmd );
     procedure PerformCmdEx( aCmd : TEditCmd );
+    procedure PerformCmdPastePlain( Note: TTabNote; StrClp: WideString = ''; HTMLClip: WideString= ''; ForcePlainText: boolean = false);
     procedure RepeatLastCommand;
     procedure UpdateLastCommand( const aCMD : TEditCmd );
     procedure PerformCustomFuncKey( const Key : Word; const Shift : TShiftState ); // OBSOLETE
@@ -1607,6 +1608,8 @@ begin
       case aCMD of
         ecCopy : begin
           ActiveNote.Editor.CopyToClipboard;
+          if EditorOptions.PlainDefaultPaste then
+             TestCRCForDuplicates(ClipboardAsStringW);
         end;
         ecReadOnly : begin
           if ( ActiveNote = NoteFile.ClipCapNote ) then
@@ -1713,6 +1716,61 @@ begin
 
 end; // PerformCmdEx
 
+
+procedure PerformCmdPastePlain( Note: TTabNote;
+                                StrClp: WideString = ''; HTMLClip: WideString= '';
+                                ForcePlainText: boolean = false);
+var
+   Editor: TTabRichEdit;
+   i, j: integer;
+
+begin
+    Editor:= Note.Editor;
+
+    if ForcePlainText or Note.PlainText or (ClipOptions.PlainTextMode = clptPlainText) then begin
+       if StrClp = '' then
+          StrClp:= ClipboardAsStringW;
+
+       if (( ClipOptions.MaxSize > 0 ) and ( length( StrClp ) > ClipOptions.MaxSize )) then
+          delete( StrClp, succ( ClipOptions.MaxSize ), length( StrClp ));
+       Editor.SelTextW := trim(StrClp);
+       Editor.SelStart := Editor.SelStart + Editor.SelLength;
+    end
+    else begin
+          if HTMLClip = '' then
+             HTMLClip:= Clipboard.AsHTML;
+
+           i := Editor.SelStart;
+           ParaAttrsRX2KNT( Editor.Paragraph, ParaFormatToCopy );
+           if (ClipOptions.PlainTextMode = clptAllowHyperlink) then
+              FontAttrsRx2KNT( Editor.SelAttributes, FontFormatToCopy );
+
+           TryPasteRTF(Editor, HTMLClip);
+           j := Editor.SelStart;
+           Editor.SuspendUndo;
+           try
+              Editor.SelStart := i;
+              Editor.SelLength := j-i+1;
+              if (ClipOptions.PlainTextMode = clptAllowHyperlink) then begin
+                 ParaAttrsKNT2RX( ParaFormatToCopy, Editor.Paragraph);
+                 FontAttrsKNT2RX( FontFormatToCopy, Editor.SelAttributes);
+              end else begin
+                 ParaAttrsKNT2RX_Reduced( ParaFormatToCopy, Editor.Paragraph);
+                 if (ClipOptions.PlainTextMode = clptAllowFontStyle) then begin
+                    Editor.SelAttributes.Name := Form_Main.Combo_Font.FontName;
+                    Editor.SelAttributes.Size := strtoint( Form_Main.Combo_FontSize.Text );
+                 end;
+              end;
+
+              Editor.SelStart := j;
+              Editor.SelLength := 0;
+           finally
+              Editor.ResumeUndo;
+           end;
+    end;
+
+end; // PerformCmdPaste
+
 procedure PerformCmd( aCmd : TEditCmd );
 var
   txt, txt2 : wideString;
@@ -1754,6 +1812,7 @@ begin
 
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
 
+    ActiveNote.Editor.BeginUpdate;
     try
       try
         case aCMD of
@@ -1777,14 +1836,23 @@ begin
             ActiveNote.Editor.CutToClipboard;
           end;
           ecPaste : begin
-            TryPasteRTF(ActiveNote.Editor);
+            if ( Clipboard.HasFormat( CF_TEXT )) then begin
+               if not EditorOptions.PlainDefaultPaste then
+                  TryPasteRTF(ActiveNote.Editor)
+               else begin
+                  // We must paste as PlainText (considering also PlainTextMode) if text has been copied from outside KN
+                  // If text have been copied from inside KNT then CRC will correspond to the value calculated with last copy operation
+                  txt:= ClipboardAsStringW;
+                  if TestCRCForDuplicates(txt, false) then
+                     TryPasteRTF(ActiveNote.Editor)
+                  else
+                     PerformCmdPastePlain(ActiveNote, txt);
+               end
+            end;
           end;
           ecPastePlain : begin
             if ( Clipboard.HasFormat( CF_TEXT )) then
-            begin
-              ActiveNote.Editor.SelTextW := trim( ClipboardAsStringW ); // [paste]
-              ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
-            end;
+              PerformCmdPastePlain(ActiveNote,'','', True);
           end;
           ecDelete : begin
             // ActiveNote.Editor.Perform( WM_KEYDOWN, VK_DELETE, 0 );
@@ -2493,6 +2561,8 @@ begin
         end;
       end;
     finally
+      ActiveNote.Editor.EndUpdate;
+
       if ( aCmd <> ecNone ) then
       begin
         ActiveNote.Modified := true;

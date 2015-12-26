@@ -838,6 +838,10 @@ type
     MMSetAlarm: TTntMenuItem;
     MMEditPasteAsWebClipText: TTntMenuItem;
     MMP_PasteAsWebClipText: TTntMenuItem;
+    MMEditPlainDefaultPaste: TTntMenuItem;
+    N116: TTntMenuItem;
+    N117: TTntMenuItem;
+    MMP_PlainDefaultPaste: TTntMenuItem;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1212,6 +1216,9 @@ type
     procedure FavMPropertiesClick(Sender: TObject);
     procedure MMEditPasteAsWebClipClick(Sender: TObject);
     procedure MMEditPasteAsWebClipTextClick(Sender: TObject);
+    procedure MMEditPlainDefaultPasteClick(Sender: TObject);
+    procedure MMP_PlainDefaultPasteClick(Sender: TObject);
+    procedure PlainDefaultPaste_Toggled;
 
     // Antes privadas...
     procedure AppMinimize(Sender: TObject);
@@ -1375,7 +1382,6 @@ resourcestring
   STR_25 = 'This operation cannot be performed because no file is open.';
   STR_26 = 'This operation cannot be performed because the currently open file has no notes.';
   STR_27 = ' Cannot perform operation: Note is Read-Only';
-  STR_28 = 'CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message: ';
   STR_29 = ' Printing note...';
   STR_30 = ' Finished printing note.';
   STR_31 = ' Preparing to send note via email...';
@@ -1536,6 +1542,7 @@ end; // HotKeyProc
 procedure TForm_Main.FormCreate(Sender: TObject);
 begin
   InitializeKeynote(Self);
+  MMP_PlainDefaultPaste.Hint:= MMEditPlainDefaultPaste.Hint;
 end; // CREATE
 
 procedure TForm_Main.FormActivate(Sender: TObject);
@@ -4072,35 +4079,14 @@ begin
   _IS_CAPTURING_CLIPBOARD:= True;
   try
 
-      if ( ClipCapActive and assigned( NoteFile ) and ( NoteFile.ClipCapNote <> nil )) then
-      begin
-        if (( GetActiveWindow <> self.Handle ) or // only when inactive
-           (( not ClipOptions.IgnoreSelf ) and // explicitly configured to capture from self...
-           ( not ( NoteFile.ClipCapNote = ActiveNote )))) then // but never capture text copied from the note that is being used for capture
-           begin
-              // test for duplicates
-              ClpStr := ClipboardAsStringW;
-              if ( ClipOptions.TestDupClips and ( ClpStr <> '' )) then
-              begin
-                try
-                  CalcCRC32( addr( ClpStr[1] ), length( ClpStr ), thisClipCRC32 );
-                except
-                  on E : Exception do
-                  begin
-                    messagedlg( STR_28 + E.Message, mtError, [mbOK], 0 );
-                    ClipOptions.TestDupClips := false;
-                    exit;
-                  end;
-                end;
-                if ( thisClipCRC32 = ClipCapCRC32 ) then
-                  exit; // ignore duplicate clips
-                ClipCapCRC32 := thisClipCRC32; // set value for next test
-              end;
-
-              // ok to paste
-              if ClpStr <> '' then
-                 PasteOnClipCap(ClpStr);
-           end;
+      if ( ClipCapActive and assigned( NoteFile ) and ( NoteFile.ClipCapNote <> nil )) then begin
+         if (( GetActiveWindow <> self.Handle ) or // only when inactive
+            (( not ClipOptions.IgnoreSelf ) and // explicitly configured to capture from self...
+            ( not ( NoteFile.ClipCapNote = ActiveNote )))) then begin // but never capture text copied from the note that is being used for capture
+               ClpStr := ClipboardAsStringW;
+               if (ClpStr <> '') and not TestCRCForDuplicates(ClpStr) then
+                  PasteOnClipCap(ClpStr);
+         end;
       end;
   finally
      _IS_CAPTURING_CLIPBOARD:= False;
@@ -5665,6 +5651,25 @@ begin
     UpdateNoteFileState( [fscModified] );
   end;
 end;
+
+procedure TForm_Main.MMEditPlainDefaultPasteClick(Sender: TObject);
+begin
+   EditorOptions.PlainDefaultPaste:= not EditorOptions.PlainDefaultPaste;
+   PlainDefaultPaste_Toggled
+end;
+
+procedure TForm_Main.MMP_PlainDefaultPasteClick(Sender: TObject);
+begin
+   EditorOptions.PlainDefaultPaste:= not EditorOptions.PlainDefaultPaste;
+   PlainDefaultPaste_Toggled;
+end;
+
+procedure TForm_Main.PlainDefaultPaste_Toggled;
+begin
+    MMP_PlainDefaultPaste.Checked := EditorOptions.PlainDefaultPaste;
+    MMEditPlainDefaultPaste.Checked := EditorOptions.PlainDefaultPaste;
+end;
+
 
 procedure TForm_Main.MMInsertFileContentsClick(Sender: TObject);
 begin

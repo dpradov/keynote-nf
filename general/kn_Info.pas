@@ -309,7 +309,10 @@ type
     WordCountTrack : boolean;
     WordSelect : boolean;
     WordsPerPage : integer;
+    PlainDefaultPaste: boolean;         // paste as plain text (*2) when copied outside KN.  (*3)
   end;
+     // *2: TClipOptions.PlainTextMode will determine how to show it.
+     // *3: Not for Web Clip nor Clipboard Capture, as they have its own options.
 
 type
   TURLAction = (
@@ -575,20 +578,22 @@ type
     ClipNodeNaming : TClipNodeNaming;
     Divider : string;
     IgnoreSelf : boolean;
-    InsertSourceURL : boolean; 
+    InsertSourceURL : boolean;
     MaxSize : integer;
-    PasteAsText : boolean;
+    PasteAsText : boolean;              // (*1)
     PlainTextMode: TClipPlainTextMode;
-    PasteAsNewNode : boolean;
-    PlaySound : boolean;
+    PasteAsNewNode : boolean;           // (*1)
+    PlaySound : boolean;                // (*1)
     Recall : boolean;
-    SleepTime : integer; // [*] in tenths of second, i.e. 5 = half a second
+    SleepTime : integer;                // in tenths of second, i.e. 5 = half a second
     SwitchIcon : boolean;
     TestDupClips : boolean;
     TreeClipConfirm : boolean;
-    URLOnly : boolean; // only capture URLs; discard anything else. Will be interpreted as: if only copied one word, what it's wanted is to paste only the URL
-    WCDivider : string; // [*] divider for webclips
+    URLOnly : boolean;                  // only capture URLs; discard anything else. Will be interpreted as: if only copied one word, what it's wanted is to paste only the URL
+    WCDivider : string;                 // divider for webclips
   end;
+
+  // *1: Only for Clipboard Capture
 
 type
   TMailOptions = packed record

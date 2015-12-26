@@ -245,6 +245,7 @@ type
     Combo_WCDivider: TTntComboBox;
     TntLabel1: TTntLabel;
     TntLabel2: TTntLabel;
+    CB_PlainDefaultPaste: TTntCheckBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -799,6 +800,8 @@ begin
     ParaSpaceInc := Spin_ParaSpaceInc.Value;
     AutoFont := CB_AutoFont.Checked;
     AutoKeyboard := CB_AutoKeyboard.Checked;
+    PlainDefaultPaste := CB_PlainDefaultPaste.Checked;
+    Form_Main.PlainDefaultPaste_Toggled;
   end;
 
   with myTreeOptions do
@@ -1008,6 +1011,7 @@ begin
     Spin_ParaSpaceInc.Value := ParaSpaceInc;
     CB_AutoFont.Checked := AutoFont;
     CB_AutoKeyboard.Checked := AutoKeyboard;
+    CB_PlainDefaultPaste.Checked := PlainDefaultPaste; 
   end;
 
   with myTreeOptions do

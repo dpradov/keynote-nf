@@ -903,6 +903,8 @@ begin
         CB_ResFind_AllNotes.Checked := FindOptions.AllTabs;
         CB_ResFind_NodeNames.Checked := FindOptions.SearchNodeNames;
         RG_ResFind_Type.ItemIndex := ord( FindOptions.SearchMode );
+
+        PlainDefaultPaste_Toggled;
   end;
 
 
