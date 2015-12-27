@@ -330,7 +330,7 @@ object Form_Alarm: TForm_Alarm
       Height = 21
       AllowAllUp = True
       GroupIndex = 1
-      Caption = '12 AM'
+      Caption = '12 PM'
       ImageIndex = 37
       OldDisabledStyle = True
       RepeatInterval = 101
