@@ -2215,7 +2215,7 @@ begin
         AlarmManager.checkAlarms;
     end;
 
-    if MillisecondsIdle >= 450 then
+    if EditorOptions.WordCountTrack and (MillisecondsIdle >= 450) then
        UpdateWordCount;
 
   except
@@ -2944,6 +2944,14 @@ begin
                key:= #0;
            end;
   end;
+
+  if EditorOptions.WordCountTrack then begin
+     if key in WordDelimiters then
+        CheckWordCount
+     else
+        CheckWordCountWaiting;
+  end;
+
 end;  // RxRTF_KeyPress
 
 
@@ -3127,6 +3135,7 @@ begin
     end;
   finally
     UpdateNoteDisplay;
+    CheckWordCount(true);
     if assigned(NoteFile) then
        NoteFile.Modified:= status;
     UpdateHistoryCommands;

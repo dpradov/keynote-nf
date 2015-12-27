@@ -1136,35 +1136,38 @@ var
   SelLength: integer;
 begin
   with Form_Main do begin
-        if assigned( ActiveNote ) then
-        begin
-          if EditorOptions.TrackCaretPos then
-          begin
-            p := ActiveNote.Editor.CaretPos;
-            SelLength:= ActiveNote.Editor.SelLength;
-            if ( SelLength = 0 ) then begin
-              //p := ActiveNote.Editor.CaretPos;
-              StatusBar.Panels[PANEL_CARETPOS].Text :=
-                Format( STR_10, [succ( p.y ), ActiveNote.Editor.Lines.Count, succ( p.x )] );
-              end
-            else begin
+       if assigned( ActiveNote ) then begin
+          SelLength:= ActiveNote.Editor.SelLength;
+          if ( SelLength > 0 ) then ShowingSelectionInformation:= true;
+
+          if EditorOptions.TrackCaretPos then begin
+             p := ActiveNote.Editor.CaretPos;
+             if ( SelLength = 0 ) then begin
+                StatusBar.Panels[PANEL_CARETPOS].Text :=
+                    Format( STR_10, [succ( p.y ), ActiveNote.Editor.Lines.Count, succ( p.x )] );
+             end
+             else begin
                 SelectedVisibleText:= ActiveNote.Editor.SelVisibleTextW;
                 StatusBar.Panels[PANEL_CARETPOS].Text :=
-                Format( STR_11, [Length(SelectedVisibleText), GetWordCount( SelectedVisibleText )] );
-            end;
+                    Format( STR_11, [Length(SelectedVisibleText), GetWordCount( SelectedVisibleText )] );
+             end;
           end
           else begin
             if EditorOptions.WordCountTrack  then begin
-               SelLength:= ActiveNote.Editor.SelLength;
                if ( SelLength > 0 ) then
-                  UpdateWordCount;
+                  UpdateWordCount
+               else
+                  if ShowingSelectionInformation then
+                     CheckWordCount(true);
             end else
               StatusBar.Panels[PANEL_CARETPOS].Text := '';
           end;
 
+          if ( SelLength = 0 ) then
+             ShowingSelectionInformation:= false;
 
-          if EditorOptions.TrackStyle then
-          begin
+
+          if EditorOptions.TrackStyle then begin
             case EditorOptions.TrackStyleRange of
               srFont : begin
                 StatusBar.Panels[PANEL_HINT].Text := ActiveNote.Editor.FontInfoString;
@@ -1187,12 +1190,11 @@ begin
           RTFMCut.Enabled := TB_EditCut.Enabled;
           RTFMCopy.Enabled := TB_EditCut.Enabled;
 
-        end
-        else
-        begin
+       end
+       else begin
           StatusBar.Panels[PANEL_CARETPOS].Text := '';
           StatusBar.Panels[PANEL_HINT].Text := '';
-        end;
+       end;
   end;
 
 end; // UpdateCursorPos

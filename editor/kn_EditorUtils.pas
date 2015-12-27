@@ -28,6 +28,8 @@ uses
     function GetWordCount( const t : string ) : longint;
     procedure UpdateWordCount;
     procedure CleanWordCount;
+    procedure CheckWordCount (cleanWC: boolean= false);
+    procedure CheckWordCountWaiting;
 
     procedure MatchBracket;
     procedure TrimBlanks( const TrimWhat : integer );
@@ -63,6 +65,9 @@ uses
     procedure SetEditorZoom( ZoomValue : integer; ZoomString : string );
 
     procedure ShowTipOfTheDay;
+
+const
+  WordDelimiters = [#9, #10, #13, #32];
 
 implementation
 uses
@@ -286,19 +291,15 @@ end; // EditGlossaryTerms
 // GetWordCount
 //=================================================================
 function GetWordCount( const t : string ) : longint;
-const
-  WordDelimiters = [#9, #10, #13, #32];
 var
   i, len : longint;
 begin
   len := length( t );
   result := 0;
-  if ( len > 0 ) then
-  begin
+  if ( len > 0 ) then begin
     i := 1;
     repeat
-      if ( t[i] in WordDelimiters ) then
-      begin
+      if ( t[i] in WordDelimiters ) then begin
         inc( i );
         continue;
       end
@@ -307,9 +308,7 @@ begin
 
       // scan to end of word
       while (( i <= len ) and ( not ( t[i] in WordDelimiters ))) do
-      begin
         inc( i );
-      end;
     until ( i > len );
   end;
 end; // GetWordCount
@@ -321,42 +320,34 @@ procedure UpdateWordCount;
 var
   p, s : string;
   wc : longint;
+  i: integer;
+  numPag: single;
 begin
   if ( not assigned( ActiveNote )) then exit;
 
-  if EditorOptions.WordCountTrack then
-  begin
+  if EditorOptions.WordCountTrack then begin
 
     if ( ActiveNote.Editor.SelLength = 0 ) then
-      wc := GetWordCount( ActiveNote.Editor.Lines.Text )
+       wc := GetWordCount( ActiveNote.Editor.Text )    // ActiveNote.Editor.Text is much faster than ActiveNote.Editor.Lines.Text
     else
-      wc := GetWordCount( ActiveNote.Editor.SelText );
+       wc := GetWordCount( ActiveNote.Editor.SelText );
 
-    if ( wc > 0 ) then
-    begin
+    if ( wc > 0 ) then begin
       if ( EditorOptions.WordsPerPage > 0 ) then
-      begin
-        p := ' / ' + FloatToStr( wc / EditorOptions.WordsPerPage );
-      end
+         p := Format(' / %.1f', [wc / EditorOptions.WordsPerPage] )
       else
-      begin
-        p := '';
-      end;
+         p := '';
       s := Format( ' W: %d', [wc] ) + p;
     end
     else
-    begin
-      s := ' W: 0';
-    end;
+       s := ' W: 0';
 
     Form_Main.StatusBar.Panels[PANEL_CARETPOS].Text := s;
   end
-  else
-  begin
-    if ( not EditorOptions.TrackCaretPos ) then
-    begin
-      Form_Main.StatusBar.Panels[PANEL_CARETPOS].Text := '';
-      exit;
+  else begin
+    if ( not EditorOptions.TrackCaretPos ) then begin
+       Form_Main.StatusBar.Panels[PANEL_CARETPOS].Text := '';
+       exit;
     end;
   end;
 
@@ -367,6 +358,29 @@ procedure CleanWordCount;
 begin
     Form_Main.StatusBar.Panels[PANEL_CARETPOS].Text := ' W: ... / ...';
 end;
+
+procedure CheckWordCount (cleanWC: boolean= false);
+begin
+  if EditorOptions.WordCountTrack then
+     if (ActiveNote.Editor.TextLength <= 30000) then
+        UpdateWordCount
+     else
+         if cleanWC then
+            CleanWordCount;
+end;
+
+procedure CheckWordCountWaiting;
+const
+   Waiting : string = ' (...) ';
+
+begin
+  if EditorOptions.WordCountTrack and (ActiveNote.Editor.TextLength > 30000) then
+      with Form_Main.StatusBar.Panels[PANEL_CARETPOS] do begin
+           if pos(waiting, Text) <> 1 then
+              Text:= Waiting + Text;
+           end;
+end;
+
 
 //=================================================================
 // MatchBracket

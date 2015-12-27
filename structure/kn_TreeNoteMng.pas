@@ -475,6 +475,8 @@ begin
 
         ActiveNote.Editor.Lines.EndUpdate;
 
+        CheckWordCount(true);
+
         UpdateWordWrap;
 
         if KeyOptions.FixScrollBars then

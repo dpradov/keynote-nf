@@ -40,7 +40,7 @@ uses
 
 
 const
-  _TIMER_INTERVAL = 10000; // ten seconds
+  _TIMER_INTERVAL = 2000; // two seconds
 
    procedure InitializeKeynote (Form_Main: TForm_Main);
    procedure InitializeOptions;
@@ -207,6 +207,8 @@ var
     _DllHandle : THandle;
     _IE: TWebBrowserWrapper;
 
+    ShowingSelectionInformation: boolean;
+
 
     {$IFDEF MJ_DEBUG}
     Log : TGFLog;
@@ -318,6 +320,7 @@ begin
       end;
 
       AlarmManager:= TAlarmManager.Create;   // [dpv]
+      ShowingSelectionInformation:= false;
 
       AppIsActive := true;
       try
