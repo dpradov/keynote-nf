@@ -540,14 +540,14 @@ end;
 
 procedure TForm_FileInfo.Button_SystemClick(Sender: TObject);
 var
-  sei: TShellExecuteinfo;
+  sei: TShellExecuteinfoW;
 begin
   FillChar(sei,sizeof(sei),0);
   sei.cbSize := sizeof(sei);
-  sei.lpFile := Pchar(myNotes.FileName);
+  sei.lpFile := PWideChar(myNotes.FileName);
   sei.lpVerb := 'properties';
   sei.fMask  := SEE_MASK_INVOKEIDLIST;
-  ShellExecuteEx(@sei);
+  ShellExecuteExW(@sei);
 end;
 
 procedure TForm_FileInfo.Button_HelpClick(Sender: TObject);
