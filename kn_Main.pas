@@ -3135,7 +3135,8 @@ begin
     end;
   finally
     UpdateNoteDisplay;
-    CheckWordCount(true);
+    if assigned(ActiveNote) then
+       CheckWordCount(true);
     if assigned(NoteFile) then
        NoteFile.Modified:= status;
     UpdateHistoryCommands;
