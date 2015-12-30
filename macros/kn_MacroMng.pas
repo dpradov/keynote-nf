@@ -1585,16 +1585,18 @@ end; // RepeatLastCommand
 procedure PerformCmdEx( aCmd : TEditCmd );
 var
   s : string;
+  errorStr: WideString;
+  NotImplemented, Canceled: boolean;
 begin
   // Perform command on ActiveNote.
-  // The command does not modify the note,
+  // The command does not modify the note,  (*1)
   // hence is safe to use when note is set
   // to ReadOnly.
+  // (*1): Can be used when note is set to ReadOnly, although the command ecReadOnly
+  //       CAN modify the note.
   if ( RTFUpdating or FileIsBusy ) then exit;
-  if ( not assigned( ActiveNote )) then
-  begin
-    if opt_Debug then
-    begin
+  if ( not assigned( ActiveNote )) then begin
+    if opt_Debug then begin
       {$IFDEF MJ_DEBUG}
       Log.Add( 'ActiveNote not assigned in PerformCmd (' + inttostr( ord( aCmd )) + ')' );
       {$ENDIF}
@@ -1603,116 +1605,107 @@ begin
     exit;
   end;
 
+  errorStr:= '';
+  NotImplemented:= false;
+  Canceled:= false;
+
   try
-    try
       case aCMD of
-        ecCopy : begin
-          ActiveNote.Editor.CopyToClipboard;
-          if EditorOptions.PlainDefaultPaste then
-             TestCRCForDuplicates(ClipboardAsStringW);
-        end;
-        ecReadOnly : begin
-          if ( ActiveNote = NoteFile.ClipCapNote ) then
-          begin
-            PopupMessage( STR_45, mtError, [mbOK], 0 );
-            aCmd := ecNone;
-          end
-          else
-          begin
-            ActiveNote.ReadOnly := ( not ActiveNote.ReadOnly );
-            UpdateNoteDisplay;
-            UpdateCursorPos;
+          ecCopy : begin
+            ActiveNote.Editor.CopyToClipboard;
+            if EditorOptions.PlainDefaultPaste then
+               TestCRCForDuplicates(ClipboardAsStringW);
           end;
-        end;
-        ecFontFormatCopy : begin
-          try
-            FontAttrsRx2KNT( ActiveNote.Editor.SelAttributes, FontFormatToCopy );
-          except
-            Popupmessage( STR_46, mtError, [mbOK], 0 );
-            aCmd := ecNone;
-          end;
-        end;
-        ecParaFormatCopy : begin
-          try
-            ParaAttrsRX2KNT( ActiveNote.Editor.Paragraph, ParaFormatToCopy );
-          except
-            Popupmessage( STR_47, mtError, [mbOK], 0 );
-            aCmd := ecNone;
-          end;
-        end;
-        ecInsOvrToggle : begin
-          ActiveNote.IsInsertMode := ( not ActiveNote.IsInsertMode );
-          Form_Main.ShowInsMode;
-        end;
-        ecMatchBracket : begin
-          MatchBracket;
-        end;
-        ecSelectWord : begin
-          ActiveNote.Editor.GetWordAtCursorNew( true );
-        end;
-        ecGoTo : begin
-          s := CommandRecall.GoToIdx;
-          if ( not RecallingCommand ) then
-          begin
-            if ( not InputQuery( STR_48, STR_49, s )) then
-            begin
-              s := '';
+
+          ecReadOnly :
+            if ( ActiveNote = NoteFile.ClipCapNote ) then
+               errorStr:= STR_45
+            else begin
+              ActiveNote.ReadOnly := ( not ActiveNote.ReadOnly );
+              UpdateNoteDisplay;
+              UpdateCursorPos;
+              UpdateNoteFileState( [fscModified] );
             end;
-          end;
-          if ( s <> '' ) then
-          begin
+
+          ecFontFormatCopy :
             try
-              Form_Main.GoToEditorLine( s );
-              CommandRecall.GoToIdx := s;
+              FontAttrsRx2KNT( ActiveNote.Editor.SelAttributes, FontFormatToCopy );
             except
-              on E : Exception do
-              begin
-                aCmd := ecNone;
-                messagedlg( E.Message, mtError, [mbOK], 0 );
-              end;
+              errorStr:= STR_46;
             end;
-          end
-          else
-          begin
-            // no line number specified
-            aCmd := ecNone;
-          end;
-        end;
-        else
-        begin
-          if RecallingCommand then
-          begin
-            case aCmd of
-              ecFindText : begin
-                RunFindNext;
-              end;
+
+          ecParaFormatCopy :
+            try
+              ParaAttrsRX2KNT( ActiveNote.Editor.Paragraph, ParaFormatToCopy );
+            except
+              errorStr:= STR_47;
             end;
-          end
-          else
-          begin
-            Form_Main.NotImplemented( STR_50 + EDITCMD_NAMES[aCMD] );
-            aCmd := ecNone;
+
+          ecInsOvrToggle : begin
+            ActiveNote.IsInsertMode := ( not ActiveNote.IsInsertMode );
+            Form_Main.ShowInsMode;
           end;
-        end;
+
+          ecMatchBracket :
+            MatchBracket;
+
+          ecSelectWord :
+            ActiveNote.Editor.GetWordAtCursorNew( true );
+
+          ecGoTo : begin
+            s := CommandRecall.GoToIdx;
+            if ( not RecallingCommand ) then begin
+              if ( not InputQuery( STR_48, STR_49, s )) then
+                 s := '';
+            end;
+            if ( s <> '' ) then begin
+              try
+                Form_Main.GoToEditorLine( s );
+                CommandRecall.GoToIdx := s;
+              except
+                on E : Exception do
+                  errorStr:= E.Message;
+              end;
+            end
+            else
+              Canceled:= true; // no line number specified
+          end
+
+          else begin
+            if RecallingCommand then begin
+              case aCmd of
+                ecFindText :
+                  RunFindNext;
+              end;
+            end
+            else
+              NotImplemented:= true;
+          end;
+
       end;
 
-      UpdateLastCommand( aCMD );
-      if IsRecordingMacro then
-        AddMacroEditCommand( aCMD );
+      if NotImplemented or Canceled or (errorStr <> '') then begin
+         if NotImplemented then
+            Form_Main.NotImplemented( STR_50 + EDITCMD_NAMES[aCMD] )
+         else if errorStr <> '' then
+            PopupMessage( errorStr, mtError, [mbOK], 0 );
+         aCmd := ecNone;
+      end
+      else begin
+         UpdateLastCommand( aCMD );
+         if IsRecordingMacro then
+            AddMacroEditCommand( aCMD );
+      end;
 
-
-    except
-      on E : Exception do
-      begin
+  except
+      on E : Exception do begin
         PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
         {$IFDEF MJ_DEBUG}
         Log.Add( 'Exception in PerformCmdEx (' + inttostr( ord( aCMD )) + '): ' + E.Message );
         {$ENDIF}
       end;
-    end;
-  finally
-    Form_Main.RxRTFChange( ActiveNote.Editor );
   end;
+
 
 end; // PerformCmdEx
 
@@ -1781,6 +1774,7 @@ var
   myTreeNode : TTreeNTNode;
   myPara : TParaFormat2;
   maxIndent: integer;
+  ErrNoTextSelected, ErrNotImplemented, Canceled: boolean;
 
     Procedure CmdNumbering(tipo : TRxNumbering);
     var
@@ -1812,6 +1806,10 @@ begin
 
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
 
+    Canceled:= False;
+    ErrNoTextSelected:= False;
+    ErrNotImplemented:= False;
+
     ActiveNote.Editor.BeginUpdate;
     try
       try
@@ -1832,10 +1830,10 @@ begin
             with Form_Main.NoteSelText do
                SetStrikeOut(not (fsStrikeout in Style));
 
-          ecCut : begin
+          ecCut :
             ActiveNote.Editor.CutToClipboard;
-          end;
-          ecPaste : begin
+
+          ecPaste :
             if ( Clipboard.HasFormat( CF_TEXT )) then begin
                if not EditorOptions.PlainDefaultPaste then
                   TryPasteRTF(ActiveNote.Editor)
@@ -1849,17 +1847,15 @@ begin
                      PerformCmdPastePlain(ActiveNote, txt);
                end
             end;
-          end;
-          ecPastePlain : begin
+
+          ecPastePlain :
             if ( Clipboard.HasFormat( CF_TEXT )) then
               PerformCmdPastePlain(ActiveNote,'','', True);
-          end;
-          ecDelete : begin
-            // ActiveNote.Editor.Perform( WM_KEYDOWN, VK_DELETE, 0 );
-            // ActiveNote.Editor.Perform( WM_KEYUP, VK_DELETE, 0 );
+
+          ecDelete :
             ActiveNote.Editor.Perform( WM_CLEAR, 0, 0 );
-          end;
-          ecBullets : begin
+
+          ecBullets :
             CmdNumbering(nsBullet);
             (* riched20.dll v. 3.0 supports numbering. E.g.:
             if ( ActiveNote.Editor.Paragraph.Numbering = nsNone ) then
@@ -1871,50 +1867,53 @@ begin
               ActiveNote.Editor.Paragraph.Numbering := nsNone;
             *)
 
-          end;
-          ecNumbers : begin
+          ecNumbers :
             CmdNumbering(KeyOptions.LastNumbering);
-          end;
+
           ecSpace1 : begin
             ActiveNote.Editor.Paragraph.LineSpacingRule := lsSingle;
             ActiveNote.Editor.Paragraph.LineSpacing := 0;
           end;
+
           ecSpace15 : begin
             ActiveNote.Editor.Paragraph.LineSpacingRule := lsOneAndHalf;
             ActiveNote.Editor.Paragraph.LineSpacing := 1; // EditorOptions.LineSpcInc;
           end;
+
           ecSpace2 : begin
             ActiveNote.Editor.Paragraph.LineSpacingRule := lsDouble;
             ActiveNote.Editor.Paragraph.LineSpacing := 2; // 2*EditorOptions.LineSpcInc;
           end;
-          ecSpaceBeforeInc : begin
+
+          ecSpaceBeforeInc :
             ActiveNote.Editor.Paragraph.SpaceBefore := ActiveNote.Editor.Paragraph.SpaceBefore + EditorOptions.ParaSpaceInc;
-          end;
-          ecSpaceBeforeDec : begin
+
+          ecSpaceBeforeDec :
             if ( ActiveNote.Editor.Paragraph.SpaceBefore >= EditorOptions.ParaSpaceInc ) then
               ActiveNote.Editor.Paragraph.SpaceBefore := ActiveNote.Editor.Paragraph.SpaceBefore - EditorOptions.ParaSpaceInc
             else
               ActiveNote.Editor.Paragraph.SpaceBefore := 0;
-          end;
-          ecSpaceAfterInc : begin
+
+          ecSpaceAfterInc :
             ActiveNote.Editor.Paragraph.SpaceAfter := ActiveNote.Editor.Paragraph.SpaceAfter + EditorOptions.ParaSpaceInc;
-          end;
-          ecSpaceAfterDec : begin
+
+          ecSpaceAfterDec :
             if ( ActiveNote.Editor.Paragraph.SpaceAfter >= EditorOptions.ParaSpaceInc ) then
               ActiveNote.Editor.Paragraph.SpaceAfter := ActiveNote.Editor.Paragraph.SpaceAfter - EditorOptions.ParaSpaceInc
             else
               ActiveNote.Editor.Paragraph.SpaceAfter := 0;
-          end;
-          ecIndent : begin    // Now Left Indent as in MS Word
+
+          ecIndent :     // Now Left Indent as in MS Word
             ActiveNote.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
-          end;
-          ecOutdent : begin   // Now Left outdent as in MS Word
-                ActiveNote.Editor.Paragraph.FirstIndentRelative := - EditorOptions.IndentInc;
-          end;
+
+          ecOutdent :    // Now Left outdent as in MS Word
+            ActiveNote.Editor.Paragraph.FirstIndentRelative := - EditorOptions.IndentInc;
+
           ecFirstIndent : begin    // Now behaves as in MS Word
-               ActiveNote.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
-               ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent - EditorOptions.IndentInc;
+            ActiveNote.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
+            ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent - EditorOptions.IndentInc;
           end;
+
           ecFirstOutdent : begin
             if ActiveNote.Editor.Paragraph.FirstIndent < EditorOptions.IndentInc then
                maxIndent:= ActiveNote.Editor.Paragraph.FirstIndent
@@ -1923,81 +1922,65 @@ begin
             ActiveNote.Editor.Paragraph.FirstIndentRelative := - maxIndent;
             ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent + maxIndent;
           end;
-          ecRightIndent : begin
+
+          ecRightIndent :
             ActiveNote.Editor.Paragraph.RightIndent := ActiveNote.Editor.Paragraph.RightIndent + EditorOptions.IndentInc;
-          end;
-          ecRightOutdent : begin
+
+          ecRightOutdent :
             if ( ActiveNote.Editor.Paragraph.RightIndent >= EditorOptions.IndentInc ) then
               ActiveNote.Editor.Paragraph.RightIndent := ActiveNote.Editor.Paragraph.RightIndent - EditorOptions.IndentInc
             else
               ActiveNote.Editor.Paragraph.RightIndent := 0;
-          end;
-          ecFontFormatPaste : begin
+
+          ecFontFormatPaste :
             if ( FontFormatToCopy.Name <> '' ) then
-              FontAttrsKNT2RX( FontFormatToCopy, ActiveNote.Editor.SelAttributes )
+                FontAttrsKNT2RX( FontFormatToCopy, ActiveNote.Editor.SelAttributes )
             else
-              popupmessage( STR_52, mtError, [mbOK], 0 );
-          end;
-          ecParaFormatPaste : begin
+                popupmessage( STR_52, mtError, [mbOK], 0 );
+
+          ecParaFormatPaste :
             if ( ParaFormatToCopy.SpaceBefore >= 0 ) then // if negative, user has not yet COPIED para format
-            begin
-              ParaAttrsKNT2RX( ParaFormatToCopy, ActiveNote.Editor.Paragraph );
-              with ActiveNote.Editor.Paragraph do
-            end
+                ParaAttrsKNT2RX( ParaFormatToCopy, ActiveNote.Editor.Paragraph )
             else
-            begin
-              popupmessage( STR_53, mtError, [mbOK], 0 );
-            end;
-          end;
-          ecAlignLeft : begin
+                popupmessage( STR_53, mtError, [mbOK], 0 );
+
+          ecAlignLeft :
             ActiveNote.Editor.Paragraph.Alignment := paLeftJustify;
-          end;
-          ecAlignCenter : begin
+
+          ecAlignCenter :
             ActiveNote.Editor.Paragraph.Alignment := paCenter;
-          end;
-          ecAlignRight : begin
+
+          ecAlignRight :
             ActiveNote.Editor.Paragraph.Alignment := paRightJustify;
-          end;
-          ecAlignJustify : begin
+
+          ecAlignJustify :
             ActiveNote.Editor.Paragraph.Alignment := paJustify;
-          end;
+
           ecFontDlg : begin
-            if RecallingCommand then
-            begin
+            if RecallingCommand then begin
               FontInfoToFont( CommandRecall.Font, Form_Main.FontDlg.Font );
               Form_Main.NoteSelText.Assign( Form_Main.FontDlg.Font );
             end
-            else
-            begin
+            else begin
               Form_Main.FontDlg.Font.Assign( Form_Main.NoteSelText );
-              if Form_Main.FontDlg.Execute then
-              begin
+              if Form_Main.FontDlg.Execute then begin
                 Form_Main.NoteSelText.Assign( Form_Main.FontDlg.Font );
                 FontToFontInfo( Form_Main.FontDlg.Font, CommandRecall.Font );
               end
               else
-              begin
-                // dialog was canceled, restore previous (possibly repeatable) command
-                aCMD := ecNone;
-              end;
+                Canceled:= True;
             end;
           end;
-          ecLanguage : begin
+
+          ecLanguage :
             if ( RecallingCommand or RunLanguageDialog ) then
-            begin
-              ActiveNote.Editor.SelAttributes.Language := CommandRecall.Language;
-            end
+              ActiveNote.Editor.SelAttributes.Language := CommandRecall.Language
             else
-            begin
-              // dialog was canceled, will restore previous (possibly repeatable) command
-              aCMD := ecNone;
-            end;
-          end;
+              Canceled:= True;
+
           ecParaDlg : begin
-            if ( RecallingCommand or RunParagraphDialog ) then
-            begin
-              with CommandRecall.Para do
-              begin
+            if ( RecallingCommand or RunParagraphDialog ) then begin
+              with CommandRecall.Para do begin
                 ActiveNote.Editor.Paragraph.LineSpacingRule := SpacingRule;
                 case SpacingRule of
                   lsSingle : ActiveNote.Editor.Paragraph.LineSpacing := 0;
@@ -2025,62 +2008,57 @@ begin
               end;
             end
             else
-            begin
-              // dialog was canceled, restore previous (possibly repeatable) command
-              aCMD := ecNone;
-            end;
+              Canceled:= True;
           end;
-          ecFontName : begin
+
+          ecFontName :
             if RecallingCommand then
-            begin
-              Form_Main.NoteSelText.Name := CommandRecall.Font.Name;
-            end
-            else
-            begin
+              Form_Main.NoteSelText.Name := CommandRecall.Font.Name
+            else begin
               Form_Main.NoteSelText.Name := Form_Main.Combo_Font.FontName;
               CommandRecall.Font.Name := Form_Main.Combo_Font.FontName;
             end;
-          end;
-          ecFontSize : begin
+
+          ecFontSize :
             if RecallingCommand then
-            begin
-              Form_Main.NoteSelText.Size := CommandRecall.Font.Size;
-            end
-            else
-            begin
+              Form_Main.NoteSelText.Size := CommandRecall.Font.Size
+            else begin
               try
                 Form_Main.NoteSelText.Size := strtoint( Form_Main.Combo_FontSize.Text );
                 CommandRecall.Font.Size := Form_Main.NoteSelText.Size;
               except
                 messagedlg( Format( STR_54, [Form_Main.Combo_FontSize.Text] ), mtError, [mbOK], 0 );
-                aCmd := ecNone;
+                Canceled:= True;
               end;
             end;
-          end;
-          ecFontSizeInc : begin
+
+          ecFontSizeInc :
             Form_Main.NoteSelText.Size := Form_Main.NoteSelText.Size + EditorOptions.FontSizeInc;
-          end;
-          ecFontSizeDec : begin
+
+          ecFontSizeDec :
             Form_Main.NoteSelText.Size := Form_Main.NoteSelText.Size - EditorOptions.FontSizeInc;
-          end;
-          ecDisabled : with Form_Main.NoteSelText do
-          begin
-            Disabled := ( not Disabled );
-          end;
-          ecSubscript : with Form_Main.NoteSelText do
-          begin
-            if ( SubscriptStyle <> ssSubscript ) then
-              SubscriptStyle := ssSubscript
-            else
-              SubscriptStyle := ssNone;
-          end;
-          ecSuperscript : with Form_Main.NoteSelText do
-          begin
-            if ( SubscriptStyle <> ssSuperscript ) then
-              SubscriptStyle := ssSuperscript
-            else
-              SubscriptStyle := ssNone;
-          end;
+
+          ecDisabled :
+             with Form_Main.NoteSelText do begin
+                  Disabled := ( not Disabled );
+             end;
+
+          ecSubscript :
+             with Form_Main.NoteSelText do begin
+                if ( SubscriptStyle <> ssSubscript ) then
+                   SubscriptStyle := ssSubscript
+                else
+                   SubscriptStyle := ssNone;
+             end;
+
+          ecSuperscript :
+             with Form_Main.NoteSelText do begin
+               if ( SubscriptStyle <> ssSuperscript ) then
+                 SubscriptStyle := ssSuperscript
+               else
+                 SubscriptStyle := ssNone;
+             end;
+
           ecFontColorBtn : begin
             if RecallingCommand then
               Form_Main.TB_Color.ActiveColor := CommandRecall.Font.Color;
@@ -2089,6 +2067,7 @@ begin
             FocusActiveNote; // DFSColorBtn steals focus
             KeyOptions.InitFontColor := CommandRecall.Font.Color;
           end;
+
           ecHighlightBtn : begin
             if RecallingCommand then
               Form_Main.TB_Hilite.ActiveColor := CommandRecall.Color;
@@ -2097,57 +2076,53 @@ begin
             FocusActiveNote; // DFSColorBtn steals focus
             KeyOptions.InitHiColor := CommandRecall.Color;
           end;
+
           ecFontColorDlg : begin
             if RecallingCommand then
               Form_Main.ColorDlg.Color := CommandRecall.Font.Color
             else
               Form_Main.ColorDlg.Color := Form_Main.NoteSelText.Color;
-            if ( RecallingCommand or Form_Main.ColorDlg.Execute ) then
-            begin
+            if ( RecallingCommand or Form_Main.ColorDlg.Execute ) then begin
               Form_Main.NoteSelText.Color := Form_Main.ColorDlg.Color;
               CommandRecall.Font.Color := Form_Main.ColorDlg.Color;
             end
             else
-            begin
-              // dialog was canceled
-              aCMD := ecNone;
-            end;
+              Canceled:= True;
           end;
+
           ecHighlightDlg : begin
             if RecallingCommand then
               Form_Main.ColorDlg.Color := CommandRecall.Color
             else
               Form_Main.ColorDlg.Color := Form_Main.NoteSelText.BackColor;
-            if ( RecallingCommand or Form_Main.ColorDlg.Execute ) then
-            begin
+            if ( RecallingCommand or Form_Main.ColorDlg.Execute ) then begin
               Form_Main.NoteSelText.BackColor := Form_Main.ColorDlg.Color;
               CommandRecall.Color := Form_Main.ColorDlg.Color;
             end
             else
-            begin
-              // dialog was canceled
-              aCMD := ecNone;
-            end;
+              Canceled:= True;
           end;
+
           ecFontColor : begin
             Form_Main.NoteSelText.Color := Form_Main.TB_Color.ActiveColor;
             CommandRecall.Font.Color := Form_Main.TB_Color.ActiveColor;
           end;
+
           ecHighlight : begin
             Form_Main.NoteSelText.BackColor := Form_Main.TB_Hilite.ActiveColor;
             CommandRecall.Color := Form_Main.TB_Hilite.ActiveColor;
           end;
-          ecNoHighlight : begin
+
+          ecNoHighlight :
             Form_Main.NoteSelText.BackColor := clWindow;
-          end;
+
           ecBGColorDlg : begin
             ShiftWasDown := ShiftDown;
             if RecallingCommand then
               Form_Main.ColorDlg.Color := CommandRecall.Color
             else
               Form_Main.ColorDlg.Color := ActiveNote.Editor.Color;
-            if ( RecallingCommand or Form_Main.ColorDlg.Execute ) then
-            begin
+            if ( RecallingCommand or Form_Main.ColorDlg.Execute ) then begin
               // ActiveNote.Editor.Color := ColorDlg.Color; [x] note updates itself
               // AChrome := ActiveNote.Chrome;
               // AChrome.BGColor := ColorDlg.Color;
@@ -2167,68 +2142,62 @@ begin
                   if ( not TreeOptions.InheritNodeBG ) then
                     ActiveNote.EditorChrome := tempChrome;
 
-                  if ShiftWasDown then
-                  begin
+                  if ShiftWasDown then begin
                     if ( messagedlg( format(STR_55, [ActiveNote.Name]),
-                        mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK ) then
-                    begin
+                        mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
                       try
                         myTreeNode := TTreeNote( ActiveNote ).TV.Items.GetFirstNode;
-                        while assigned( myTreeNode ) do
-                        begin
+                        while assigned( myTreeNode ) do begin
                           TNoteNode( myTreeNode.Data ).RTFBGColor := tempChrome.BGColor;
                           myTreeNode := myTreeNode.GetNext;
                         end;
                       except
-                         aCmd := ecNone;
+                         //aCmd := ecNone;
                       end;
                     end;
-                  end;
+                  end;  // if ShiftWasDown
+
                 end;
               end;
             end
             else
-            begin
-              // dialog was canceled, restore previous (possibly repeatable) command
-              aCMD := ecNone;
-            end;
+              Canceled:= True;
           end;
+
           ecWordWrap : begin
             case ActiveNote.Kind of
-              ntRTF : begin
-                ActiveNote.WordWrap := ( not ActiveNote.WordWrap );
-              end;
-              ntTree : begin
-                if assigned( TTreeNote( ActiveNote ).SelectedNode ) then
-                begin
-                  case TTreeNote( ActiveNote ).SelectedNode.WordWrap of
-                    wwAsNote : begin
-                      if ActiveNote.WordWrap then
-                        TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwNo
-                      else
-                        TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwYes;
+               ntRTF :
+                 ActiveNote.WordWrap := ( not ActiveNote.WordWrap );
+
+               ntTree :
+                 if assigned( TTreeNote( ActiveNote ).SelectedNode ) then begin
+                    case TTreeNote( ActiveNote ).SelectedNode.WordWrap of
+                       wwAsNote :
+                        if ActiveNote.WordWrap then
+                           TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwNo
+                        else
+                           TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwYes;
+
+                       wwYes : TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwNo;
+                       wwNo : TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwYes;
                     end;
-                    wwYes : TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwNo;
-                    wwNo : TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwYes;
-                  end;
-                  ActiveNote.Editor.WordWrap := ( TTreeNote( ActiveNote ).SelectedNode.WordWrap = wwYes );
-                end;
-              end;
+                    ActiveNote.Editor.WordWrap := ( TTreeNote( ActiveNote ).SelectedNode.WordWrap = wwYes );
+                 end;
             end;
             UpdateNoteDisplay;
           end;
-          ecSelectAll : begin
+
+          ecSelectAll :
             ActiveNote.Editor.SelectAll;
-          end;
-          ecUndo : begin
+
+          ecUndo :
             ActiveNote.Editor.Undo;
-          end;
-          ecRedo : begin
+
+          ecRedo :
             ActiveNote.Editor.Redo;
-          end;
-          ecClearFontAttr : begin
-            with Form_Main.NoteSelText do
-            begin
+
+          ecClearFontAttr :
+            with Form_Main.NoteSelText do begin
               Style := [];
               Color := ActiveNote.EditorChrome.Font.Color;
               Name := ActiveNote.EditorChrome.Font.Name;
@@ -2239,10 +2208,9 @@ begin
               SubscriptStyle := ssNone;
               BackColor := clWindow; // ActiveNote.Editor.Color;
             end;
-          end;
-          ecClearParaAttr : begin
-            with ActiveNote.Editor.Paragraph do
-            begin
+
+          ecClearParaAttr :
+            with ActiveNote.Editor.Paragraph do begin
               Alignment := paLeftJustify;
               Numbering := nsNone;
               LeftIndent := 0;
@@ -2253,73 +2221,54 @@ begin
               LineSpacingRule := lsSingle;
               LineSpacing := 0;
             end;
-          end;
-          ecDeleteLine : begin
-            ActiveNote.Editor.Lines.BeginUpdate;
-            try
-              with ActiveNote.Editor do
-              begin
+
+          ecDeleteLine :
+              with ActiveNote.Editor do begin
                 lineindex := perform( EM_EXLINEFROMCHAR, 0, SelStart );
                 SelStart  := perform( EM_LINEINDEX, lineindex, 0 );
                 SelLength := perform( EM_LINEINDEX, lineindex + 1, 0 ) - SelStart;
                 SelText := '';
               end;
-            finally
-              ActiveNote.Editor.Lines.EndUpdate;
-            end;
-          end;
-          ecSort : begin
-            if ( ActiveNote.Editor.SelLength > 1 ) then
-            begin
-              templist := TWideStringList.Create;
-              try
-                templist.Sorted := true;
-                templist.Duplicates := dupAccept;
-                templist.Text := ActiveNote.Editor.SelTextW;
-                ActiveNote.Editor.SelTextW := templist.Text;
-              finally
-                templist.Free;
-              end;
+
+          ecSort :
+            if ( ActiveNote.Editor.SelLength > 1 ) then begin
+               templist := TWideStringList.Create;
+               try
+                 templist.Sorted := true;
+                 templist.Duplicates := dupAccept;
+                 templist.Text := ActiveNote.Editor.SelTextW;
+                 ActiveNote.Editor.SelTextW := templist.Text;
+               finally
+                 templist.Free;
+               end;
             end
             else
-            begin
-              Form_Main.ErrNoTextSelected;
-              aCmd := ecNone;
-            end;
-          end;
-          ecReformat : begin
-            Form_Main.NotImplemented( '' );
-            aCmd := ecNone;
-          end;
-          ecJoinLines : begin
-            if ( ActiveNote.Editor.SelLength > 1 ) then
-            begin
+              ErrNoTextSelected:= True;
+
+          ecReformat :
+            ErrNotImplemented:= True;
+
+          ecJoinLines :
+            if ( ActiveNote.Editor.SelLength > 1 ) then begin
               screen.cursor := crHourGlass;
-              ActiveNote.Editor.Lines.BeginUpdate;
               try
                 txt := ActiveNote.Editor.SelTextW;
                 CharToChar( txt, #13, #32 );
                 p := pos( #32#32, txt );
-                while ( p > 0 ) do
-                begin
+                while ( p > 0 ) do begin
                   delete( txt, p, 1 );
                   p := pos( #32#32, txt );
                 end;
                 ActiveNote.Editor.SelTextW := txt;
               finally
-                ActiveNote.Editor.Lines.EndUpdate;
                 screen.cursor := crDefault;
               end;
             end
             else
-            begin
-              Form_Main.ErrNoTextSelected;
-              aCmd := ecNone;
-            end;
-          end;
-          ecReverseText : begin
-            if ( ActiveNote.Editor.SelLength > 0 ) then
-            begin
+              ErrNoTextSelected:= True;
+
+          ecReverseText :
+            if ( ActiveNote.Editor.SelLength > 0 ) then begin
               txt := ActiveNote.Editor.SelTextW;
               p:= length( txt );
               txt2 := '';
@@ -2329,231 +2278,165 @@ begin
               ActiveNote.Editor.SelTextW := txt2;
             end
             else
-            begin
-              Form_Main.ErrNoTextSelected;
-              aCmd := ecNone;
-            end
-          end;
-          ecROT13 : begin
-            if ( ActiveNote.Editor.SelLength > 0 ) then
-            begin
+              ErrNoTextSelected:= True;
+
+          ecROT13 :
+            if ( ActiveNote.Editor.SelLength > 0 ) then begin
               screen.cursor := crHourGlass;
-              ActiveNote.Editor.Lines.BeginUpdate;
               try
                 txt := ActiveNote.Editor.SelTextW;
-                for i := 1 to length( txt ) do
-                begin
+                for i := 1 to length( txt ) do begin
                   p := pos( txt[i], alph13 );
                   if ( p > 0 ) then
-                  begin
-                    txt[i] := wideChar(alph13[p+13]);
-                  end
-                  else
-                  begin
+                    txt[i] := wideChar(alph13[p+13])
+                  else begin
                     p := pos( txt[i], alph13UP );
                     if ( p > 0 ) then
-                    begin
-                      txt[i] := wideChar(alph13UP[p+13]);
-                    end;
+                       txt[i] := wideChar(alph13UP[p+13]);
                   end;
                 end;
                 ActiveNote.Editor.SelTextW := txt;
               finally
-                ActiveNote.Editor.Lines.EndUpdate;
                 screen.cursor := crDefault;
               end;
             end
             else
-            begin
-              Form_Main.ErrNoTextSelected;
-              aCmd := ecNone;
-            end;
-          end;
-          ecInvertCase : begin
-            if ( ActiveNote.Editor.SelLength > 0 ) then
-            begin
-              ActiveNote.Editor.Lines.BeginUpdate;
-              try
-                txt := ActiveNote.Editor.SelTextW;
-                for i := 1 to length( txt ) do
-                begin
-                  if IsCharUpperW( txt[i] ) then
+              ErrNoTextSelected:= True;
+
+
+          ecInvertCase :
+            if ( ActiveNote.Editor.SelLength > 0 ) then begin
+               txt := ActiveNote.Editor.SelTextW;
+               for i := 1 to length( txt ) do begin
+                 if IsCharUpperW( txt[i] ) then
                     txt2 := wideLowercase( txt[i] )
-                  else
+                 else
                     txt2 := wideUppercase( txt[i] );
-                  txt[i] := txt2[1];
-                end;
-                ActiveNote.Editor.SelTextW := txt;
-              finally
-                ActiveNote.Editor.Lines.EndUpdate;
-              end;
+                 txt[i] := txt2[1];
+               end;
+               ActiveNote.Editor.SelTextW := txt;
             end
             else
-            begin
-              Form_Main.ErrNoTextSelected;
-              aCmd := ecNone;
-            end;
-          end;
-          ecToUpperCase : begin
-            if ( ActiveNote.Editor.SelLength > 0 ) then
-            begin
-              ActiveNote.Editor.Lines.BeginUpdate;
-              try
+               ErrNoTextSelected:= True;
+
+          ecToUpperCase :
+            if ( ActiveNote.Editor.SelLength > 0 ) then begin
                 txt := ActiveNote.Editor.SelTextW;
                 txt := wideUppercase( txt );
                 ActiveNote.Editor.SelTextW := txt;
-              finally
-                ActiveNote.Editor.Lines.EndUpdate;
-              end;
             end
             else
-            begin
-              Form_Main.ErrNoTextSelected;
-              aCmd := ecNone;
-            end;
-          end;
-          ecToLowerCase : begin
-            if ( ActiveNote.Editor.SelLength > 0 ) then
-            begin
-              ActiveNote.Editor.Lines.BeginUpdate;
-              try
+              ErrNoTextSelected:= True;
+
+          ecToLowerCase :
+            if ( ActiveNote.Editor.SelLength > 0 ) then begin
                 txt := ActiveNote.Editor.SelTextW;
                 txt := wideLowercase( txt );
                 ActiveNote.Editor.SelTextW := txt;
-              finally
-                ActiveNote.Editor.Lines.EndUpdate;
-              end;
             end
             else
-            begin
-              Form_Main.ErrNoTextSelected;
-              aCmd := ecNone;
-            end;
-          end;
-          ecCycleCase : begin
-            if ( ActiveNote.Editor.SelLength > 0 ) then
-            begin
-              ActiveNote.Editor.Lines.BeginUpdate;
-              try
-                txt := ActiveNote.Editor.SelTextW;
+               ErrNoTextSelected:= True;
 
-                {
-                if ( LastEditCmd <> ecCycleCase ) then
-                begin
-                  // check case of selected text, and start smartly :)
-                  LAST_CASE_CYCLE := GetLetterCase( txt );
-                end;
-                }
+          ecCycleCase :
+            if ( ActiveNote.Editor.SelLength > 0 ) then begin
+               txt := ActiveNote.Editor.SelTextW;
 
-                LAST_CASE_CYCLE := GetLetterCase( txt );
-                if ( LAST_CASE_CYCLE = high( LAST_CASE_CYCLE )) then
-                  LAST_CASE_CYCLE := low( LAST_CASE_CYCLE )
-                else
-                  inc( LAST_CASE_CYCLE );
+               LAST_CASE_CYCLE := GetLetterCase( txt );
+               if ( LAST_CASE_CYCLE = high( LAST_CASE_CYCLE )) then
+                 LAST_CASE_CYCLE := low( LAST_CASE_CYCLE )
+               else
+                 inc( LAST_CASE_CYCLE );
 
-                case LAST_CASE_CYCLE of
-                  ccLower : txt := wideLowercase( txt );
-                  ccMixed : txt := WideProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
-                  ccUpper : txt := wideUppercase( txt );
-                end;
+               case LAST_CASE_CYCLE of
+                 ccLower : txt := wideLowercase( txt );
+                 ccMixed : txt := WideProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
+                 ccUpper : txt := wideUppercase( txt );
+               end;
 
-                ActiveNote.Editor.SelTextW := txt;
-              finally
-                ActiveNote.Editor.Lines.EndUpdate;
-              end;
+               ActiveNote.Editor.SelTextW := txt;
             end
             else
-            begin
-              Form_Main.ErrNoTextSelected;
-              aCmd := ecNone;
-            end;
-          end;
-          ecToMixedCase : begin
-            if ( ActiveNote.Editor.SelLength > 0 ) then
-            begin
-              ActiveNote.Editor.Lines.BeginUpdate;
-              try
-                txt := ActiveNote.Editor.SelTextW;
-                txt := WideProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
-                ActiveNote.Editor.SelTextW := txt;
-              finally
-                ActiveNote.Editor.Lines.EndUpdate;
-              end;
+               ErrNoTextSelected:= True;
+
+          ecToMixedCase :
+            if ( ActiveNote.Editor.SelLength > 0 ) then begin
+               txt := ActiveNote.Editor.SelTextW;
+               txt := WideProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
+               ActiveNote.Editor.SelTextW := txt;
             end
             else
-            begin
-              Form_Main.ErrNoTextSelected;
-              aCmd := ecNone;
-            end;
-          end;
+               ErrNoTextSelected:= True;
+
           ecInsDate : begin
-            if KeyOptions.DTUseLastSelection then
-            begin
-              if ( KeyOptions.DTLastDateFmt = '' ) then
-                KeyOptions.DTLastDateFmt := KeyOptions.DateFmt;
-              if ( KeyOptions.DTLastDateFmt = '' ) then
-                KeyOptions.DTLastDateFmt := ShortDateFormat;
-              ActiveNote.Editor.SelTextW := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
+            if KeyOptions.DTUseLastSelection then begin
+               if ( KeyOptions.DTLastDateFmt = '' ) then
+                  KeyOptions.DTLastDateFmt := KeyOptions.DateFmt;
+               if ( KeyOptions.DTLastDateFmt = '' ) then
+                  KeyOptions.DTLastDateFmt := ShortDateFormat;
+               ActiveNote.Editor.SelTextW := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
             end
             else
-            begin
-              ActiveNote.Editor.SelTextW := FormatDateTime( KeyOptions.DateFmt, now ) + #32;
-            end;
+               ActiveNote.Editor.SelTextW := FormatDateTime( KeyOptions.DateFmt, now ) + #32;
             ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
           end;
+
           ecInsTime : begin
-            if KeyOptions.DTUseLastSelection then
-            begin
+            if KeyOptions.DTUseLastSelection then begin
               if ( KeyOptions.DTLastTimeFmt = '' ) then
-                KeyOptions.DTLastTimeFmt := KeyOptions.TimeFmt;
+                 KeyOptions.DTLastTimeFmt := KeyOptions.TimeFmt;
               if ( KeyOptions.DTLastTimeFmt = '' ) then
-                KeyOptions.DTLastTimeFmt := LongTimeFormat;
+                 KeyOptions.DTLastTimeFmt := LongTimeFormat;
               ActiveNote.Editor.SelTextW := GetDateTimeFormatted( KeyOptions.DTLastTimeFmt, now ) + #32;
             end
             else
-            begin
               ActiveNote.Editor.SelTextW := FormatDateTime( KeyOptions.TimeFmt, now ) + #32;
-            end;
             ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
           end;
-          ecExpandTerm : begin
+
+          ecExpandTerm :
             ExpandTermProc;
-          end;
-          ecEvaluateExpression : begin
+
+          ecEvaluateExpression :
             EvaluateExpression;
-          end;
-          else
-          begin
+
+          else begin
             // other commands, which can be handled here
             // ONLY when RecallingCommand (e.g. from macros)
-            if RecallingCommand then
-            begin
+            if RecallingCommand then begin
               case aCmd of
-                ecInsCharacter : with CommandRecall.CharInfo do
-                begin
-                  Form_Main.CharInsertProc( chr( code ), Count, Name, Charset );
-                end;
-                ecStyleApply : begin
-                  StyleApply( CommandRecall.StyleName );
-                end;
-                else
-                begin
-                  // we cannot handle this comand here
-                  Form_Main.NotImplemented( STR_50 + EDITCMD_NAMES[aCMD] );
-                  aCmd := ecNone;
-                end;
+                 ecInsCharacter :
+                   with CommandRecall.CharInfo do
+                      Form_Main.CharInsertProc( chr( code ), Count, Name, Charset );
+
+                 ecStyleApply :
+                    StyleApply( CommandRecall.StyleName );
+
+                 else
+                    ErrNotImplemented:= true; // we cannot handle this comand here
               end;
             end;
-          end;
+          end;   // else - Other commands
+
         end;
 
-        UpdateLastCommand( aCMD );
-        if IsRecordingMacro then
-          AddMacroEditCommand( aCMD );
+        if ErrNoTextSelected or Canceled or ErrNotImplemented then begin
+           // Canceled: dialog was canceled, restore previous (possibly repeatable) command
+           if ErrNoTextSelected then
+              Form_Main.ErrNoTextSelected
+           else if ErrNotImplemented then
+              Form_Main.NotImplemented( STR_50 + EDITCMD_NAMES[aCMD] );
+
+           aCmd := ecNone;
+        end
+        else begin
+           UpdateLastCommand( aCMD );
+           if IsRecordingMacro then
+              AddMacroEditCommand( aCMD );
+        end;
+
 
       except
-        on E : Exception do
-        begin
+        on E : Exception do begin
           PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
           {$IFDEF MJ_DEBUG}
           Log.Add( 'Exception in PerformCmd (' + inttostr( ord( aCMD )) + '): ' + E.Message );
@@ -2563,13 +2446,11 @@ begin
     finally
       ActiveNote.Editor.EndUpdate;
 
-      if ( aCmd <> ecNone ) then
-      begin
-        ActiveNote.Modified := true;
-        NoteFile.Modified := true;
+      if ( aCmd <> ecNone ) then begin
+        Form_Main.OnNoteChange(ActiveNote);
+        Form_Main.RxRTFSelectionChange( ActiveNote.Editor );
       end;
-      Form_Main.RxRTFSelectionChange( ActiveNote.Editor );
-      UpdateNoteFileState( [fscModified] );
+
     end;
 
 end; // PerformCmd

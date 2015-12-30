@@ -1326,6 +1326,7 @@ type
 
     procedure FilterApplied (note: TTreeNote);   // [dpv]
     procedure FilterRemoved (note: TTreeNote);   // [dpv]
+    procedure OnNoteChange(Note: TTabNote);
   end;
 
 function GetFilePassphrase( const FN : wideString ) : string;
@@ -3052,26 +3053,28 @@ end; // RxRTFSelection Change
 procedure TForm_Main.RxRTFChange(Sender: TObject);
 begin
   if ( sender as TTabRichEdit ).Modified then
-  begin
-    NoteFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
-    if ( ActiveNote.Kind = ntTree ) then
-    begin
-      with TTreeNote( ActiveNote ) do
-      begin
-        if assigned( SelectedNode ) then
-          SelectedNode.RTFModified := true
+     OnNoteChange(ActiveNote);
+end; // RxRTFChange
+
+procedure TForm_Main.OnNoteChange(Note: TTabNote);
+begin
+  Note.Modified := true;
+  NoteFile.Modified := true;
+  UpdateNoteFileState( [fscModified] );
+
+  if (ActiveNote.Kind = ntTree) then begin
+      with TTreeNote(ActiveNote) do
+        if assigned(SelectedNode) then
+           SelectedNode.RTFModified := true
         else
-          messagedlg( STR_14, mtError, [mbOK], 0 );
-      end;
-    end;
+           messagedlg( STR_14, mtError, [mbOK], 0 );
   end;
 
-  TB_EditUndo.Enabled := ( sender as TTabRichEdit ).CanUndo;
-  TB_EditRedo.Enabled := ( sender as TTabRichEdit ).CanRedo;
+  TB_EditUndo.Enabled := Note.Editor.CanUndo;
+  TB_EditRedo.Enabled := Note.Editor.CanRedo;
   RTFMUndo.Enabled := TB_EditUndo.Enabled;
+end; // OnNoteChange
 
-end; // RxRTFChange
 
 procedure TForm_Main.UpdateWordWrap;
 var
