@@ -47,6 +47,7 @@ function LoadBooleanFromStream( Stream : TStream ) : Boolean;
 function NodeStreamIsRTF ( Stream : TMemoryStream ): boolean;
 function NodeStreamIsUTF8_WithoutBOM (Stream : TMemoryStream; var NodeText: string): boolean; overload;
 function NodeStreamIsUTF8_WithoutBOM ( Stream : TMemoryStream ): boolean; overload;
+function NodeStreamIsUTF8WithBOM (Stream : TMemoryStream): boolean;
 function AddUTF8_BOM ( Stream : TMemoryStream ): boolean;
 
 
@@ -216,6 +217,20 @@ begin
           if (cad <> '') and (cad <> NodeText) then
              Result:= True;
        end;
+    end;
+end;
+
+function NodeStreamIsUTF8WithBOM (Stream : TMemoryStream): boolean;
+var
+    BOM: string[3];
+    TextSize: integer;
+begin
+    Result:= False;
+    TextSize:= Stream.Size;
+    if TextSize >= 3 then begin
+       BOM:= Copy( PChar(Stream.Memory), 1, 3 );
+       if BOM = UTF8_BOM then
+          Result:= True;
     end;
 end;
 

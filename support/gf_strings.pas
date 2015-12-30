@@ -63,6 +63,7 @@ function ExpandMetaChars( line : wideString ) : wideString;
 function GetIndentOfLine (const S: string): integer;
 
 function TryUTF8ToWideString(const s: string): wideString;
+function CanSaveAsANSI(const cadW: WideString): boolean;
 
 function FirstLineFromString( const str: WideString; const MaxLen : integer ) : WideString;
 
@@ -665,6 +666,19 @@ begin
      if Result= '' then
         Result:= s;
 end;
+
+function CanSaveAsANSI(const cadW: WideString): boolean;
+var
+   i: integer;
+begin
+    for i:= 1 to length(cadW) do
+      if cadW[i] <> WideChar(Char(cadW[i])) then begin
+         Result:= false;
+         exit;
+         end;
+    Result:= true;
+end;
+
 
 function FirstLineFromString( const str: WideString; const MaxLen : integer ) : WideString;
 var

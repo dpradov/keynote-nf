@@ -711,10 +711,8 @@ begin
 
     if NodeStreamIsRTF (FDataStream) then
        FEditor.StreamFormat:= sfRichText
-    else begin
+    else
        FEditor.StreamFormat:= sfPlainText;
-       AddUTF8_BOM (FDataStream);
-    end;
 
     FEditor.Lines.LoadFromStream( FDataStream );
     FDataStream.Clear;
@@ -723,8 +721,6 @@ begin
 end; // DataStreamToEditor
 
 procedure TTabNote.EditorToDataStream;
-var
-   NodeTextW: wideString;
 begin
   if CheckEditor then
   begin
@@ -737,8 +733,7 @@ begin
       FEditor.StreamMode := [];
       if FPlainText then begin
         FEditor.StreamFormat := sfPlainText;
-        NodeTextW:= FEditor.TextW;
-        if NodeTextW <> string(NodeTextW) then
+        if not CanSaveAsANSI(FEditor.TextW) then
            FEditor.StreamMode := [smUnicode];
       end
       else
@@ -2164,10 +2159,8 @@ begin
 
           if NodeStreamIsRTF (FSelectedNode.Stream) then
              FEditor.StreamFormat:= sfRichText
-          else begin
+          else
              FEditor.StreamFormat:= sfPlainText;
-             AddUTF8_BOM (FSelectedNode.Stream);
-          end;
 
           FEditor.Lines.LoadFromStream( FSelectedNode.Stream );
           FEditor.Color := FSelectedNode.RTFBGColor;
@@ -2193,7 +2186,7 @@ end; // DataStreamToEditor
 
 procedure TTreeNote.EditorToDataStream;
 var
-   NodeTextW: wideString;
+   KeepUTF8: boolean;
 begin
   if CheckEditor then
   begin
@@ -2201,6 +2194,10 @@ begin
     try
       if assigned( FSelectedNode ) then
       begin
+        KeepUTF8:= False;
+        if (FSelectedNode.VirtualMode in [vmText, vmHTML]) and NodeStreamIsUTF8WithBOM(FSelectedNode.Stream) then
+            KeepUTF8:= True;
+
         FSelectedNode.SelStart := FEditor.SelStart;
         FSelectedNode.SelLength := FEditor.SelLength;
         FModified := FModified or FEditor.Modified;
@@ -2225,9 +2222,10 @@ begin
 
           FEditor.StreamMode := [];
           if FEditor.StreamFormat = sfPlainText then begin
-              NodeTextW:= FEditor.TextW;
-              if NodeTextW <> string(NodeTextW) then
-                 FEditor.StreamMode := [smUnicode];
+             // Si es un nodo virtual respetaremos la codificación UTF8 que pueda tener.
+             // En caso contrario sólo se guardará como UTF8 si es necesario
+             if KeepUTF8 or not CanSaveAsANSI(FEditor.TextW) then
+                FEditor.StreamMode := [smUnicode];
           end;
 
           CleanHyperlinks;

@@ -3546,7 +3546,7 @@ begin
       end;
     end;
     if smSelection in Mode then TextType := TextType or SFF_SELECTION;
-    if (Format = sfPlainText) and (Stream.Size = 0) and (RichEdit.TextLength > 0) then
+    if (TextType and SF_TEXT <> 0) and (TextType and SF_UNICODE <> 0) and (Stream.Size = 0) and (RichEdit.TextLength > 0) then
        Stream.Write(UTF8_BOM[1], length(UTF8_BOM));
     SendMessage(RichEdit.Handle, EM_STREAMOUT, TextType, Longint(@EditStream));
     if EditStream.dwError <> 0 then
