@@ -1255,15 +1255,17 @@ begin
   myNoteNode.Stream.Position := 0;
 
   try
+    if exportformat in [xfRTF, xfHTML] then begin
+       ExportSelectionOnly := ( ActiveNote.Editor.SelLength > 0 );
+       RTFText:= GetRichText( ActiveNote.Editor, true, ExportSelectionOnly);
+    end;
 
     case exportformat of
       xfRTF : begin
-        myNoteNode.Stream.SaveToFile( exportFN );
+          SaveToFile(exportFN, RTFText);
       end;
       xfHTML : begin
         try
-          ExportSelectionOnly := ( ActiveNote.Editor.SelLength > 0 );
-          RTFText:= GetRichText( ActiveNote.Editor, true, ExportSelectionOnly);
           ConvertRTFToHTML( ExportFN, RTFText, htmlExpMicrosoftHTMLConverter);
         finally
           FreeConvertLibrary;

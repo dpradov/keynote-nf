@@ -207,7 +207,7 @@ begin
       aRichEdit.Perform(EM_STREAMOUT, SF_FLAGS, longint(@aES));
 
       // Now we have the content on aMS.  Put it on a string instead.
-      result := aMS.DataString;
+      result := PChar(aMS.DataString);
 
     finally
       // free the stream

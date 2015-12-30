@@ -29,6 +29,8 @@ uses Windows, Classes, Sysutils;
 
 {$ALIGN OFF}
 
+procedure SaveToFile(FN: WideString; Str: String);
+
 procedure SaveStringToStream( S : string; Stream : TStream );
 function LoadStringFromStream( Stream : TStream ) : string;
 procedure SaveIntegerToStream( i : integer; Stream : TStream );
@@ -69,12 +71,30 @@ type
     procedure CloseFile;
     function Readln: string;
     procedure WriteLn (const Args: array of const);
+    procedure Write (const Buffer; Count: integer); overload;
+    procedure Write (const Cad: String); overload;
     function Eof: boolean;
   end;
 
 
 implementation
 uses TntSystem, TntClasses;
+
+
+procedure SaveToFile(FN: WideString; Str: String);
+var
+  F : TWTextFile;
+begin
+  F:= TWTextFile.Create();
+  F.Assignfile(FN );
+  F.Rewrite;
+  try
+    F.Write(Str);
+  finally
+    F.Closefile();
+  end;
+end;
+
 
 procedure SaveStringToStream( S : string; Stream : TStream );
 var
@@ -460,5 +480,18 @@ begin
   line:= line + #13#10;
   checkToWrite (true);
 end;
+
+procedure TWTextFile.Write (const Cad: String);
+begin
+   if not assigned (F) then exit;
+   F.WriteBuffer(PChar(Cad)^, length(Cad));
+end;
+
+procedure TWTextFile.Write (const Buffer; Count: integer);
+begin
+   if not assigned (F) then exit;
+   F.WriteBuffer(Buffer, Count);
+end;
+
 
 end.
