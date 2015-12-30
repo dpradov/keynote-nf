@@ -85,7 +85,7 @@ begin
   if ( FileIsBusy or SearchInProgress ) then exit;
 
   if ( ActiveNote.Editor.SelLength > 0 ) then
-     FindOptions.Pattern := trim( ActiveNote.Editor.SelTextW )
+     FindOptions.Pattern := trim( ActiveNote.Editor.SelVisibleTextW )
   else
      if FindOptions.WordAtCursor then
         FindOptions.Pattern := ActiveNote.Editor.GetWordAtCursorNew( true );

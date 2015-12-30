@@ -5099,9 +5099,10 @@ begin
     exit;
   end;
 
-  if ( SearchNode_Text = '' ) then
-  begin
-    SearchNode_Text := SearchNode_TextPrev;
+  if ( SearchNode_Text = '' ) then begin
+    SearchNode_Text:= ActiveNote.Editor.SelVisibleTextW;
+    if ( SearchNode_Text = '' ) then
+       SearchNode_Text := SearchNode_TextPrev;
     if WideInputQuery( STR_66, STR_67, SearchNode_Text ) then
        SearchNode_Text := wideLowercase( SearchNode_Text )
     else
@@ -5119,25 +5120,25 @@ begin
   FindHiddenNodes:= CB_ResFind_HiddenNodes.Checked;
 
   repeat
-		 while assigned( myNode ) do
-		 begin
-				if ( Pos( SearchNode_Text, wideLowercase( myNode.Text )) > 0 ) then
-				begin
-				  found := true;
-				  if (myNote <> ActiveNote) then begin
-					   Form_Main.Pages.ActivePage := myNote.TabSheet;
-					   Form_Main.PagesChange(Pages);
-					   TTreeNote( ActiveNote ).TV.SetFocus;
-					   ActiveNote.FocusMemory := focTree;
-				  end;
-				  myNode.MakeVisible;        // Could be hidden
-				  myNode.TreeView.Selected := myNode;				  
-				  break;
-				end;
-				GetNextNode;
-		 end;
+     if assigned(myNode) then
+     	  repeat
+					if ( Pos( SearchNode_Text, wideLowercase( myNode.Text )) > 0 ) then
+					begin
+					  found := true;
+					  if (myNote <> ActiveNote) then begin
+						   Form_Main.Pages.ActivePage := myNote.TabSheet;
+						   Form_Main.PagesChange(Pages);
+						   TTreeNote( ActiveNote ).TV.SetFocus;
+						   ActiveNote.FocusMemory := focTree;
+					  end;
+					  myNode.MakeVisible;        // Could be hidden
+					  myNode.TreeView.Selected := myNode;
+					  break;
+					end;
+					GetNextNode;
+			  until not assigned(myNode) or (myNode = selectedNode);
 
-		 if not found then
+		 if not found and (myNode <> selectedNode) then
 			  repeat
 			 	  GetNextNote();
 			  	if (myNote.Kind = ntTree) then

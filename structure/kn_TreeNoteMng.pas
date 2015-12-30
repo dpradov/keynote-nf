@@ -1030,7 +1030,7 @@ begin
         Form_Main.ErrNoTextSelected;
         exit;
       end;
-      s := ActiveNote.Editor.SelTextW;
+      s := ActiveNote.Editor.SelVisibleTextW;
       p := AnsiPos( #13, s );
       if ( p > 0 ) then
         delete( s, p, length( s ));
