@@ -1114,7 +1114,7 @@ begin
       xfPlainText : begin
         if ( ext = '' ) then FN := FN + ext_TXT;
         RTF.StreamFormat := sfPlainText;
-        if RTF.TextW <> string(RTF.TextW) then
+        if not CanSaveAsANSI(RTF.TextW) then
            RTF.StreamMode := [smUnicode];
         RTF.Lines.SaveToFile( WideStringToUTF8(FN) );
         result := true;
@@ -1279,7 +1279,7 @@ begin
         try
           RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
           RTFAux.StreamFormat := sfPlainText;
-          if RTFAux.TextW <> string(RTFAux.TextW) then
+          if not CanSaveAsANSI(RTFAux.TextW) then
              RTFAux.StreamMode := [smUnicode];
           RTFAux.Lines.SaveToFile( WideStringToUTF8(ExportFN) );
         finally
