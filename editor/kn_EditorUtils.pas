@@ -735,11 +735,11 @@ begin
           OnParseError := MathParserParseError;
           MathParser.ParseString := src;
           Parse;
-          LastEvalExprResult := FloatToStrF(ParseValue, ffGeneral, 15, 2);
         end;
 
         if ( not MathParser.ParseError ) then
         begin
+          LastEvalExprResult := FloatToStrF(MathParser.ParseValue, ffGeneral, 15, 2);
           Clipboard.SetTextBuf( PChar( LastEvalExprResult ));
           StatusBar.Panels[PANEL_HINT].Text := STR_Eval_01 + LastEvalExprResult;
           MMEditPasteEval.Hint := STR_Eval_02 + LastEvalExprResult;

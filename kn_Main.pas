@@ -5026,7 +5026,6 @@ begin
   end; { case }
   Msg := STR_63 + Msg + #13 + STR_64 + IntToStr(( sender as TMathParser ).Position);
   MessageDlg( Msg, mtError, [mbOk], 0 );
-  LastEvalExprResult := '#ERROR';
 end; // MathParserParseError
 
 
