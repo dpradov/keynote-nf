@@ -703,19 +703,27 @@ begin
 end; // SetID
 
 procedure TTabNote.DataStreamToEditor;
+var
+  ReadOnlyBAK: boolean;
 begin
-  if CheckEditor then
-  begin
-    FEditor.OnChange := nil;
-    FDataSTream.Position := 0;
+  if CheckEditor then begin
+    ReadOnlyBAK:= FEditor.ReadOnly;
+    try
+      FEditor.ReadOnly:= false;    // To prevent the problem indicated in issue #537
+      FEditor.OnChange := nil;
+      FDataSTream.Position := 0;
 
-    if NodeStreamIsRTF (FDataStream) then
-       FEditor.StreamFormat:= sfRichText
-    else
-       FEditor.StreamFormat:= sfPlainText;
+      if NodeStreamIsRTF (FDataStream) then
+         FEditor.StreamFormat:= sfRichText
+      else
+         FEditor.StreamFormat:= sfPlainText;
 
-    FEditor.Lines.LoadFromStream( FDataStream );
-    FEditor.OnChange := Form_Main.RxRTFChange;
+      FEditor.Lines.LoadFromStream( FDataStream );
+      FEditor.OnChange := Form_Main.RxRTFChange;
+    finally
+      FEditor.ReadOnly:= ReadOnlyBAK;
+      FEditor.Modified := false;
+    end;
   end;
 end; // DataStreamToEditor
 
@@ -2134,44 +2142,44 @@ end; // UpdateTree
 
 
 procedure TTreeNote.DataStreamToEditor;
-{$IFDEF WITH_IE}
 var
+  ReadOnlyBAK: boolean;
+{$IFDEF WITH_IE}
   ov : OleVariant;
 {$ENDIF}
 begin
-  if ( not CheckEditor ) then exit;
-  if ( not assigned( FSelectedNode )) then
-  begin
+  if not assigned(FEditor) then exit;
+  if not assigned(FSelectedNode) then  begin
     FEditor.Lines.Clear;
     exit;
   end;
 
   case FSelectedNode.VirtualMode of
     vmNone, vmText, vmRTF, vmHTML, vmKNTNode : begin
-      FEditor.Lines.BeginUpdate;
+      FEditor.BeginUpdate;
+      ReadOnlyBAK:= FEditor.ReadOnly;
       try
         FEditor.OnChange := nil;
+        FEditor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
         FEditor.Lines.Clear;
-        if assigned( FSelectedNode ) then
-        begin
-          FSelectedNode.Stream.Position := 0;
-          if ( FPlainText or ( FSelectedNode.VirtualMode in [vmText, vmHTML] )) then
-          begin
-            UpdateEditor;
-          end;
 
-          if NodeStreamIsRTF (FSelectedNode.Stream) then
-             FEditor.StreamFormat:= sfRichText
-          else
-             FEditor.StreamFormat:= sfPlainText;
+        FSelectedNode.Stream.Position := 0;
+        if ( FPlainText or ( FSelectedNode.VirtualMode in [vmText, vmHTML] )) then
+           UpdateEditor;
 
-          FEditor.Lines.LoadFromStream( FSelectedNode.Stream );
-          FEditor.Color := FSelectedNode.RTFBGColor;
-          FEditor.SelStart := FSelectedNode.SelStart;
-          FEditor.SelLength := FSelectedNode.SelLength;
-        end;
+        if NodeStreamIsRTF (FSelectedNode.Stream) then
+           FEditor.StreamFormat:= sfRichText
+        else
+           FEditor.StreamFormat:= sfPlainText;
+
+        FEditor.Lines.LoadFromStream( FSelectedNode.Stream );
+        FEditor.Color := FSelectedNode.RTFBGColor;
+        FEditor.SelStart := FSelectedNode.SelStart;
+        FEditor.SelLength := FSelectedNode.SelLength;
+
       finally
-        FEditor.Lines.EndUpdate;
+        FEditor.ReadOnly:= ReadOnlyBAK;
+        FEditor.EndUpdate;
         FEditor.Modified := false;
         FEditor.OnChange := Form_Main.RxRTFChange;
       end;
