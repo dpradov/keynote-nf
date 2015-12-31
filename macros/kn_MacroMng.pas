@@ -1834,18 +1834,16 @@ begin
             ActiveNote.Editor.CutToClipboard;
 
           ecPaste :
-            if ( Clipboard.HasFormat( CF_TEXT )) then begin
-               if not EditorOptions.PlainDefaultPaste then
+            if not EditorOptions.PlainDefaultPaste or not Clipboard.HasFormat( CF_TEXT ) then
+               TryPasteRTF(ActiveNote.Editor)
+            else begin
+               // We must paste as PlainText (considering also PlainTextMode) if text has been copied from outside KN
+               // If text have been copied from inside KNT then CRC will correspond to the value calculated with last copy operation
+               txt:= ClipboardAsStringW;
+               if TestCRCForDuplicates(txt, false) then
                   TryPasteRTF(ActiveNote.Editor)
-               else begin
-                  // We must paste as PlainText (considering also PlainTextMode) if text has been copied from outside KN
-                  // If text have been copied from inside KNT then CRC will correspond to the value calculated with last copy operation
-                  txt:= ClipboardAsStringW;
-                  if TestCRCForDuplicates(txt, false) then
-                     TryPasteRTF(ActiveNote.Editor)
-                  else
-                     PerformCmdPastePlain(ActiveNote, txt);
-               end
+               else
+                  PerformCmdPastePlain(ActiveNote, txt);
             end;
 
           ecPastePlain :
