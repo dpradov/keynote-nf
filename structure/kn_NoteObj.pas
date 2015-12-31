@@ -715,7 +715,6 @@ begin
        FEditor.StreamFormat:= sfPlainText;
 
     FEditor.Lines.LoadFromStream( FDataStream );
-    FDataStream.Clear;
     FEditor.OnChange := Form_Main.RxRTFChange;
   end;
 end; // DataStreamToEditor
