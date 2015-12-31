@@ -3112,26 +3112,27 @@ end;
 
 procedure TForm_Main.PagesChange(Sender: TObject);
 var
-   status: boolean;
+   ModifiedDataStream: TTntMemoryStream;
+   SelectedNode: TNoteNode;
 begin
 
   try
-    if (( Pages.PageCount > 0 ) and assigned( Pages.ActivePage )) then
-    begin      
-      status:= NoteFile.Modified;
+    if (( Pages.PageCount > 0 ) and assigned( Pages.ActivePage )) then begin
       if assigned(ActiveNote) then
-         ActiveNote.EditorToDataStream;
+         ModifiedDataStream:= ActiveNote.EditorToDataStream;   // If its Editor is not modified it will do nothing. Necessary to ensure that changes are seen among mirror nodes
       ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
-      if (ActiveNote.Kind = ntTree) then
-          ActiveNote.DataStreamToEditor;
+      if (ActiveNote.Kind = ntTree) then begin
+          SelectedNode:= TTreeNote(ActiveNote).SelectedNode;
+          if assigned(SelectedNode) and (SelectedNode.Stream = ModifiedDataStream) then
+             ActiveNote.DataStreamToEditor;
+      end;
 
       TAM_ActiveName.Caption := ActiveNote.Name;
       TB_Color.AutomaticColor := ActiveNote.EditorChrome.Font.Color;
       if not SearchInProgress then
          FocusActiveNote;
     end
-    else
-    begin
+    else begin
       ActiveNote := nil;
       TB_Color.AutomaticColor := clWindowText;
       TAM_ActiveName.Caption := STR_15_ActiveNote;
@@ -3140,8 +3141,6 @@ begin
     UpdateNoteDisplay;
     if assigned(ActiveNote) then
        CheckWordCount(true);
-    if assigned(NoteFile) then
-       NoteFile.Modified:= status;
     UpdateHistoryCommands;
     StatusBar.Panels[PANEL_HINT].Text := '';
   end;

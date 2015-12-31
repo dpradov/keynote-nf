@@ -413,6 +413,8 @@ begin
             LoadTabImages( false );
 
             CreateVCLControls;
+            NoteFile.SetupMirrorNodes(nil);
+            SetupAndShowVCLControls;
 
             opensuccess := true;
 
@@ -513,7 +515,6 @@ begin
             if assigned( NoteFile ) then
             begin
               NoteFile.ReadOnly := ( OpenReadOnly or NoteFile.ReadOnly );
-              NoteFile.SetupMirrorNodes(nil);
               NoteFile.Modified := false;
             end;
             UpdateNoteDisplay;

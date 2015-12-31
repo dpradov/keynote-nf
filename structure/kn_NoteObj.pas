@@ -210,7 +210,7 @@ type
     procedure UpdateTabSheet;
 
     procedure DataStreamToEditor; virtual;
-    procedure EditorToDataStream; virtual;
+    function EditorToDataStream: TTntMemoryStream; virtual;
 
 
     function GetAlarms(considerDiscarded: boolean): TList;
@@ -350,7 +350,7 @@ type
     procedure RemoveNode( const aNode : TNoteNode );
 
     procedure DataStreamToEditor; override;
-    procedure EditorToDataStream; override;
+    function EditorToDataStream: TTntMemoryStream; override;
     procedure SetTreeProperties( const aProps : TNoteTreeProperties );
     procedure GetTreeProperties( var aProps : TNoteTreeProperties );
 
@@ -720,13 +720,15 @@ begin
   end;
 end; // DataStreamToEditor
 
-procedure TTabNote.EditorToDataStream;
+{
+  If Editor was modified then it will return the Stream associated to the node that will be updated
+}
+function TTabNote.EditorToDataStream: TTntMemoryStream;
 begin
-  if CheckEditor then
-  begin
+  Result:= nil;
+  if assigned(FEditor) and FEditor.Modified then
     try
-      with FDataStream do
-      begin
+      with FDataStream do begin
         Clear;
         Position := 0;
       end;
@@ -741,11 +743,13 @@ begin
 
       CleanHyperlinks;
       FEditor.Lines.SaveToStream( FDataStream );
+      FEditor.Modified:= false;
+      Result:= FDataStream;
     finally
       FEditor.StreamFormat := sfRichText;
       FEditor.StreamMode := [];
     end;
-  end;
+
 end; // EditorToDataStream
 
 function TTabNote.CheckEditor : boolean;
@@ -2184,65 +2188,70 @@ begin
 
 end; // DataStreamToEditor
 
-procedure TTreeNote.EditorToDataStream;
+{
+  If Editor was modified then it will return the Stream associated to the node that will be updated
+}
+function TTreeNote.EditorToDataStream: TTntMemoryStream;
 var
    KeepUTF8: boolean;
 begin
-  if CheckEditor then
-  begin
-    FEditor.Lines.BeginUpdate;
-    try
-      if assigned( FSelectedNode ) then
-      begin
-        KeepUTF8:= False;
-        if (FSelectedNode.VirtualMode in [vmText, vmHTML]) and NodeStreamIsUTF8WithBOM(FSelectedNode.Stream) then
-            KeepUTF8:= True;
+  Result:= nil;
+  if assigned(FEditor) and assigned(FSelectedNode) then begin
+     FSelectedNode.SelStart  := FEditor.SelStart;
+     FSelectedNode.SelLength := FEditor.SelLength;
 
-        FSelectedNode.SelStart := FEditor.SelStart;
-        FSelectedNode.SelLength := FEditor.SelLength;
-        FModified := FModified or FEditor.Modified;
-        FSelectedNode.Stream.Clear;
-
+     if FEditor.Modified then begin
+        FEditor.Lines.BeginUpdate;
         try
+           KeepUTF8:= False;
+           if (FSelectedNode.VirtualMode in [vmText, vmHTML]) and NodeStreamIsUTF8WithBOM(FSelectedNode.Stream) then
+               KeepUTF8:= True;
 
-          case FSelectedNode.VirtualMode of
-            vmNone, vmKNTNode : begin
-              if FPlainText then
-                FEditor.StreamFormat := sfPlainText
-              else
-                FEditor.StreamFormat := sfRichText;
-            end;
-            vmText, vmHTML : begin
-              FEditor.StreamFormat := sfPlainText;
-            end;
-            vmRTF : begin
-              FEditor.StreamFormat := sfRichText;
-            end;
-          end;
+           FModified := FModified or FEditor.Modified;
+           FSelectedNode.Stream.Clear;
 
-          FEditor.StreamMode := [];
-          if FEditor.StreamFormat = sfPlainText then begin
-             // Si es un nodo virtual respetaremos la codificación UTF8 que pueda tener.
-             // En caso contrario sólo se guardará como UTF8 si es necesario
-             if KeepUTF8 or not CanSaveAsANSI(FEditor.TextW) then
-                FEditor.StreamMode := [smUnicode];
-          end;
+           try
 
-          CleanHyperlinks;
+             case FSelectedNode.VirtualMode of
+               vmNone, vmKNTNode : begin
+                 if FPlainText then
+                   FEditor.StreamFormat := sfPlainText
+                 else
+                   FEditor.StreamFormat := sfRichText;
+               end;
+               vmText, vmHTML : begin
+                 FEditor.StreamFormat := sfPlainText;
+               end;
+               vmRTF : begin
+                 FEditor.StreamFormat := sfRichText;
+               end;
+             end;
 
-          FEditor.Lines.SaveToStream( FSelectedNode.Stream );
+             FEditor.StreamMode := [];
+             if FEditor.StreamFormat = sfPlainText then begin
+                // Si es un nodo virtual respetaremos la codificación UTF8 que pueda tener.
+                // En caso contrario sólo se guardará como UTF8 si es necesario
+                if KeepUTF8 or not CanSaveAsANSI(FEditor.TextW) then
+                   FEditor.StreamMode := [smUnicode];
+             end;
 
+             CleanHyperlinks;
+
+             FEditor.Lines.SaveToStream( FSelectedNode.Stream );
+             FEditor.Modified:= false;
+
+           finally
+             FEditor.StreamFormat := sfRichText;
+             FEditor.StreamMode := [];
+           end;
+
+           FSelectedNode.Stream.Position := 0;
+           Result:= FSelectedNode.Stream;
 
         finally
-          FEditor.StreamFormat := sfRichText;
-          FEditor.StreamMode := [];
+          FEditor.Lines.EndUpdate;
         end;
-
-        FSelectedNode.Stream.Position := 0;
-      end;
-    finally
-      FEditor.Lines.EndUpdate;
-    end;
+     end;
   end;
 end; // EditorToDataStream
 

@@ -23,6 +23,7 @@ uses
     // dynamically create and destroy controls (note tabs, RichEdits, trees, etc)
     procedure SetUpVCLControls( aNote : TTabNote ); // sets up VCL controls for note (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
     procedure CreateVCLControls; // creates VCL controls for ALL notes in NoteFile object
+    procedure SetupAndShowVCLControls;
     procedure CreateVCLControlsForNote( const aNote : TTabNote ); // creates VCL controls for specified note
     procedure DestroyVCLControls; // destroys VCL controls for ALL notes in NoteFile object
     procedure DestroyVCLControlsForNote( const aNote : TTabNote; const KillTabSheet : boolean ); // destroys VCL contols for specified note
@@ -170,14 +171,33 @@ var
   myNote : TTabNote;
 begin
   with Form_Main do begin
+      if (( not assigned( NoteFile )) or ( NoteFile.Notes.Count = 0 )) then exit;
+
+      for i := 0 to pred( NoteFile.Notes.Count ) do begin
+         myNote := NoteFile.Notes[i];
+         CreateVCLControlsForNote( myNote );
+      end;
+
+  end;
+
+end; // CreateVCLControls
+
+//=================================================================
+// ShowVCLControls
+//=================================================================
+procedure SetupAndShowVCLControls;
+// Finalize setup and visualization of all VCL controls for a newly loaded Notes file
+var
+  i : integer;
+  myNote : TTabNote;
+begin
+  with Form_Main do begin
         if (( not assigned( NoteFile )) or ( NoteFile.Notes.Count = 0 )) then exit;
 
         try
 
-          for i := 0 to pred( NoteFile.Notes.Count ) do
-          begin
+          for i := 0 to pred( NoteFile.Notes.Count ) do begin
             myNote := NoteFile.Notes[i];
-            CreateVCLControlsForNote( myNote );
             myNote.DataStreamToEditor;
             SetUpVCLControls( myNote );
           end;
@@ -186,29 +206,21 @@ begin
 
           // show all tabs (they were created hidden)
           if ( Pages.PageCount > 0 ) then
-          begin
             for i := 0 to pred( Pages.PageCount ) do
-            begin
-              Pages.Pages[i].TabVisible := true;
-            end;
-          end;
-
+                Pages.Pages[i].TabVisible := true;
         end;
 
         // restore the note that was active when file was previously saved
-        if (( NoteFile.ActiveNote >= 0 ) and ( NoteFile.ActiveNote < NoteFile.Notes.Count )) then
-        begin
+        if (( NoteFile.ActiveNote >= 0 ) and ( NoteFile.ActiveNote < NoteFile.Notes.Count )) then begin
           if ( Pages.PageCount > 0 ) then
             Pages.ActivePage := Pages.Pages[NoteFile.ActiveNote];
         end
         else
-        begin
-          if ( Pages.PageCount > 0 ) then
-            Pages.ActivePage := Pages.Pages[0];
-        end;
+           if ( Pages.PageCount > 0 ) then
+              Pages.ActivePage := Pages.Pages[0];
   end;
 
-end; // CreateVCLControls
+end; // SetupAndShowVCLControls
 
 //=================================================================
 // GetOrSetNodeExpandState
