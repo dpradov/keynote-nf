@@ -19,10 +19,9 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
 
 
 -- NOTE -----------
-   I recommend everybody to use this version (1.7.9.4), although marked as Beta but remember:
+   I recommend everybody to use the last version, although marked as Beta but remember:
 
-   Beta releases include normally only 'keynote.exe'. In this case are also included: 'kntutils.dll', 'nodehead.rtf' and 'notehead.rtf'. 
-   The .rtf files are needed if you are having problems with export, specially with chinese language.
+   Beta releases include normally only 'keynote.exe', but can include other files. For example, 1.7.9 Beta 4 also included: 'kntutils.dll', 'nodehead.rtf' and 'notehead.rtf'. (The .rtf files was needed if you were having problems with export, specially with chinese language.)
 
    You must download previously a complete version and then replace existing files with the ones included in the .rar file
 
