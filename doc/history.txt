@@ -36,6 +36,22 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
 -------------
 
 
+v 1.7.9.6 Beta (03 jan 2016)
+--------------
+It includes the following issues:
+
+536 Various corrections and improvements (fixes also several bugs introduced in Beta 5)     
+217 Setting or Changing a node name using an Asian IME garble the name
+534 Corrections related to encoding (ANSI / UTF8)
+410 Unicode BOM characters randomly inserted into ANSI Virtual Node text files
+537 Possible elimination of images on a ReadOnly note (in W10)
+520 Scroll on note when switching notes (includes an important optimization, see issue)
+408 Show word count in status bar: makes keynote lag enormously with long texts
+495 Cannot display system file properties window
+328 Expression > Paste last result: Wrong behaviour after error in evaluation
+179 Should be 12PM not 12AM
+
+
 v 1.7.9.5 Beta (26 dec 2015)
 --------------
 It includes the following issues:
