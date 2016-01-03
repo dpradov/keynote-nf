@@ -166,12 +166,19 @@ procedure InstallHooks (ATypes: THookTypes);
 var
   T: THookType;
 begin
+  //(*1): The use of SetWindowsHookEx with the parameter WH_CALLWNDPROC was affecting
+  // to the Subclassing and Automatic Message Translation, and consequently was preventing
+  // the control TreeView (TreeNT or even TTntTreeView) to receive the correct unicode
+  // characters introduced by keyboard (See Issue 217 : https://github.com/dpradov/keynote-nf/issues/217)
+  // References:
+  // Subclassing and Automatic Message Translation: https://msdn.microsoft.com/en-us/library/windows/desktop/dd374065%28v=vs.85%29.aspx
+  // SetWindowsHookEx function : https://msdn.microsoft.com/es-es/library/windows/desktop/ms644990%28v=vs.85%29.aspx
   for T := Low(T) to High(T) do
     if T in ATypes then begin
       Inc (HookCounts[T]);
       if HookHandles[T] = 0 then
-        HookHandles[T] := SetWindowsHookEx(HookIDs[T], HookProcs[T],
-          0, GetCurrentThreadId);
+        //HookHandles[T] := SetWindowsHookEx(HookIDs[T], HookProcs[T], 0, GetCurrentThreadId);  // [dpv] (*1)
+        HookHandles[T] := SetWindowsHookExW(HookIDs[T], HookProcs[T], 0, GetCurrentThreadId);
     end;
 end;
 
