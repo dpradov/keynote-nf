@@ -2706,6 +2706,8 @@ var
   LineStr : string;
   ptCursor :  TPoint;
   Editor: TRxRichEdit;
+  URLStr, TxtSel: WideString;
+  L, R: Integer;
 
 begin
   _IS_FAKING_MOUSECLICK := false;
@@ -2761,10 +2763,15 @@ begin
                     end
                 else
                   if NextIndent > 0 then begin
-                    key := 0;
-                    // insert a linebreak followed by the substring of blanks and tabs
-                    SelText := #13#10 + Copy(LineStr, 1, NextIndent);
-                    SelStart := ( SelStart+SelLength ) -1;
+                    // insert a linebreak followed by the substring of blanks and tabs                    
+                    // If we are inside a hyperlink, do nothing here. It's risky and unuseful
+                    ActiveNote.Editor.GetLinkAtCursor(URLStr, TxtSel, L, R, false);
+                    if URLStr = '' then begin
+                       key := 0;
+                       TxtSel:= #13 + Copy(LineStr, 1, NextIndent);
+                       SelText := TxtSel;
+                       SelStart := SelStart + Length(TxtSel);
+                    end;
                   end;
 
               end;

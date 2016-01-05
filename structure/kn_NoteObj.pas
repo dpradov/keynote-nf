@@ -262,7 +262,7 @@ type
 
     function GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False  ) : WideString;
     function SelectWordAtCursor : string;
-    procedure GetLinkAtCursor(var URL: WideString; var TextURL: WideString);
+    procedure GetLinkAtCursor(var URL: WideString; var TextURL: WideString; var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
   end; // TTabRichEdit
 
 type
@@ -1752,12 +1752,14 @@ begin
 end; // GetWordAtCursorNew
 
 
-procedure TTabRichEdit.GetLinkAtCursor(var URL: WideString; var TextURL: WideString);
+procedure TTabRichEdit.GetLinkAtCursor(var URL: WideString; var TextURL: WideString;
+                                       var LeftE: integer; var RightE: integer;
+                                       SelectURL: boolean= true);
 var
     link: integer;
     TextLen: integer;
     Left, Right: integer;
-    LeftE, RightE: integer;
+    SelS, SelL: integer;
 begin
 
   ActiveNote.Editor.BeginUpdate;
@@ -1765,8 +1767,10 @@ begin
 
     URL:= '';
     TextURL:= '';
-    Left:=  ActiveNote.Editor.SelStart;
-    Right:= ActiveNote.Editor.SelLength + Left;
+    SelS:= ActiveNote.Editor.SelStart;
+    SelL:= ActiveNote.Editor.SelLength;
+    Left:= SelS;
+    Right:= SelL + Left;
 
     ActiveNote.Editor.SetSelection(Left, Left+1, false);
     link:= ActiveNote.Editor.SelAttributes.Link2;
@@ -1775,9 +1779,11 @@ begin
        link:= ActiveNote.Editor.SelAttributes.Link2;
     end;
 
-    if (link <> 1) then       // 0: No incluye ningún carácter con dicho atributo 1: Todos son Link -1: Mixto
-        ActiveNote.Editor.SetSelection(Left, Right, false)
-
+    if (link <> 1) then begin      // 0: No incluye ningún carácter con dicho atributo 1: Todos son Link -1: Mixto
+        ActiveNote.Editor.SetSelection(Left, Right, false);
+        LeftE:= Left;
+        RightE:= Left;
+    end
     else begin
         TextLen:= ActiveNote.Editor.TextLength;
 
@@ -1821,6 +1827,9 @@ begin
         end
         else
            ActiveNote.Editor.SetSelection(LeftE, RightE, false);
+
+        if not SelectURL then
+           ActiveNote.Editor.SetSelection(SelS, SelS + SelL, false);
 
     end;
 

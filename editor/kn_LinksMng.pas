@@ -1377,6 +1377,7 @@ var
   var
       UrlSel, TxtSel: WideString;
       p: integer;
+      L, R: integer;
   begin
         if Note.Editor.SelLength > 0 then begin
            TxtSel:= Trim(Note.Editor.SelVisibleTextW);
@@ -1402,7 +1403,7 @@ var
            end;
         end
         else begin
-           Note.Editor.GetLinkAtCursor(URLStr, TxtSel);
+           Note.Editor.GetLinkAtCursor(URLStr, TxtSel, L, R);
            URLType:= TypeURL( UrlStr, KNTlocation);
            if TextURL = '' then TextURL:= TxtSel;
         end;
