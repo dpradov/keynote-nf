@@ -18,7 +18,7 @@ unit kn_EditorUtils;
 
 interface
 uses
- kn_NoteObj;
+ kn_NoteObj, RxRichEd;
 
     // glossary management
     procedure ExpandTermProc;
@@ -64,6 +64,12 @@ uses
     function GetEditorZoom : integer;
     procedure SetEditorZoom( ZoomValue : integer; ZoomString : string );
 
+    procedure GetIndentInformation(Editor: TRxRichEdit;
+                                   var Indent: integer; var NextIndent: integer;
+                                   var LineStr: string;
+                                   var posFirstChar : integer;
+                                   paragraphMode: boolean= false);
+
     procedure ShowTipOfTheDay;
 
 const
@@ -77,7 +83,7 @@ uses
   RichEdit, mmsystem, Graphics,ExtDlgs,WideStrings,
   { 3rd-party units }
   BrowseDr, TreeNT, Parser,FreeWordWeb, UAS, RxGIF,RichPrint,
-  RxRichEd,AJBSpeller,
+  AJBSpeller,
   { Own units - covered by KeyNote's MPL}
   gf_misc, gf_files,
   gf_strings, gf_miscvcl,
@@ -1932,6 +1938,55 @@ begin
   end;
 
 end; // ZoomEditor
+
+{
+ Determines the indent of the current line or paragraph (depending on paragraphMode
+ parameter) and the indent that could be applied to next line with AutoIndent.
+ If paragraphMode = False (lineMode) then
+   LineStr: the visible line (as shown in Editor) where the caret is positioned
+ If paragraphMode = False (lineMode):
+   LineStr: the visible line (as shown in Editor) corresponding to the beginning of
+   paragraph where the caret is positioned
+
+  PosFirstChar: the position of the first character of LineStr, in the Editor
+}
+
+procedure GetIndentInformation(Editor: TRxRichEdit;
+                               var Indent: integer; var NextIndent: integer;
+                               var LineStr: string;
+                               var posFirstChar : integer;
+                               paragraphMode: boolean= false);
+var
+   Line,L, i, Col: integer;
+   str: string;
+begin
+    with Editor do begin
+        // figure out line and column position of caret
+        Line := PerForm( EM_EXLINEFROMCHAR,0, SelStart );
+        posFirstChar:= Perform( EM_LINEINDEX, Line,0 );
+        Col  := SelStart - posFirstChar;
+
+        LineStr:= lines[Line];
+        if paragraphMode then begin
+            L:= Line-1;
+            i:= posFirstChar;
+            while (L >= 0) do begin
+               str:= GetTextRange(i-1, i);
+               if pos(#13, str) = 1 then break;
+               LineStr:= lines[L];
+               i:= i - Length(LineStr);
+               L:= L - 1;
+            end;
+        end;
+
+        Indent:= GetIndentOfLine(LineStr);
+        if (Indent > col) and (L = Line-1) then
+           NextIndent:= col
+        else
+           NextIndent:= Indent;
+    end;
+end;
+
 
 procedure ShowTipOfTheDay;
 var

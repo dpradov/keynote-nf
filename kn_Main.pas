@@ -2702,101 +2702,78 @@ end; // Combo_StyleChange
 procedure TForm_Main.RxRTFKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  line, col, indent, maxIndent, posFirstChar : integer;
-  s : string;
+  NextIndent, Indent, posFirstChar : integer;
+  LineStr : string;
   ptCursor :  TPoint;
-
-  procedure getInformationOfCurrentLine(Editor: TRxRichEdit);
-  begin
-      with Editor do begin
-          // figure out line and column position of caret
-          line := PerForm( EM_EXLINEFROMCHAR,0, SelStart );
-          posFirstChar:= Perform( EM_LINEINDEX,line,0 );
-          Col  := SelStart - posFirstChar;
-
-          S:= lines[ line ];
-          maxIndent:= GetIndentOfLine(S);
-
-          if maxIndent > col then
-             indent:= col
-          else
-             indent:= maxIndent;
-      end;
-  end;
+  Editor: TRxRichEdit;
 
 begin
   _IS_FAKING_MOUSECLICK := false;
   if assigned( ActiveNote ) then
-    ActiveNote.FocusMemory := focRTF
+     ActiveNote.FocusMemory := focRTF
   else
-    exit;
+     exit;
 
-  if ( not ( key in [16..18] )) then // skip bare modifier keys
-  begin
+  Editor:= TRxRichEdit(sender);
+
+  if ( not ( key in [16..18] )) then begin  // skip bare modifier keys
     LastRTFKey.Key := Key;
     LastRTFKey.Shift := Shift;
     if IsRecordingMacro then
-    begin
-      AddMacroKeyPress( Key, Shift );
-    end;
+       AddMacroKeyPress( Key, Shift );
   end;
 
-  if ( shift = [] ) then
-  begin
+  if ( shift = [] ) then begin
     case Key of
       VK_INSERT : begin
-        if EditorOptions.DisableINSKey then
-        begin
+        if EditorOptions.DisableINSKey then begin
           key := 0;
           StatusBar.Panels[PANEL_HINT].Text := STR_13;
         end
         else
           PerformCmdEx( ecInsOvrToggle );
       end;
+
       VK_HOME: begin
-          getInformationOfCurrentLine(TRxRichEdit(sender));
-          if ((TRxRichEdit(sender).SelStart > (posFirstChar + indent)) or
-             ((maxIndent>0) and (TRxRichEdit(sender).SelStart = posFirstChar)) ) then begin
-             TRxRichEdit(sender).SelStart:= posFirstChar + maxIndent;
+          GetIndentInformation(Editor, Indent, NextIndent, LineStr, posFirstChar);
+          if ((Editor.SelStart > (posFirstChar + Indent)) or
+              ((Indent>0) and (Editor.SelStart = posFirstChar)) ) then begin
+             Editor.SelStart:= posFirstChar + Indent;
              key:= 0;
-             // Apparently it wouldn't matter if we entered if (maxIndent=0), but when
+             // Apparently it wouldn't matter if we entered if (Indent=0), but when
              // wrapping is enabled and we are at the final of one line SelStart can return the
              // same value as if we were at the beginning of the next one. In that case, the cursor
              // would move incorrectly to the first character of next line.
           end;
       end;
 
-      13 : if EditorOptions.AutoIndent
-              and (TRxRichEdit(sender).Paragraph.TableStyle = tsNone)  // DPV
-           then
-      begin
-        if NoteIsReadOnly( ActiveNote, true ) then exit;
-        getInformationOfCurrentLine(TRxRichEdit(sender));
-        with ( sender as TRxRichEdit ) do
-        begin
-          if (indent = length(S)) and (TRxRichEdit(sender).Paragraph.Numbering <> nsNone) and (TRxRichEdit(sender).Paragraph.NumberingStyle <> nsNoNumber) then
-             TRxRichEdit(sender).Paragraph.Numbering :=  nsNone
-          else if (length(S)= 0) and (TRxRichEdit(sender).Paragraph.NumberingStyle = nsNoNumber) then begin
-              key := 0;
-              SelText := #13#10;
-              SelStart := ( SelStart+SelLength ) -1;
-              TRxRichEdit(sender).Paragraph.NumberingStyle := nsNoNumber;
-              end
-          else
-            if indent > 0 then begin
-              key := 0;
-              // insert a linebreak followed by the substring of blanks and tabs
-              SelText := #13#10+Copy(S, 1, indent);
-              SelStart := ( SelStart+SelLength ) -1;
-            end;
+      13 : if EditorOptions.AutoIndent and (Editor.Paragraph.TableStyle = tsNone) then begin
+              if NoteIsReadOnly( ActiveNote, true ) then exit;
+              GetIndentInformation(Editor, Indent, NextIndent, LineStr, posFirstChar, true);
+              with Editor do begin
+                if (Indent = length(LineStr)) and (Paragraph.Numbering <> nsNone) and (Paragraph.NumberingStyle <> nsNoNumber) then
+                   Paragraph.Numbering :=  nsNone
+                else if (length(LineStr)= 0) and (Paragraph.NumberingStyle = nsNoNumber) then begin
+                    key := 0;
+                    SelText := #13#10;
+                    SelStart := ( SelStart+SelLength ) -1;
+                    Paragraph.NumberingStyle := nsNoNumber;
+                    end
+                else
+                  if NextIndent > 0 then begin
+                    key := 0;
+                    // insert a linebreak followed by the substring of blanks and tabs
+                    SelText := #13#10 + Copy(LineStr, 1, NextIndent);
+                    SelStart := ( SelStart+SelLength ) -1;
+                  end;
 
-        end;
-      end;
+              end;
+           end;
     end;
-  end
+
+  end  // if ( shift = [] )
   else
-  if ( shift = [ssShift] ) then
-  begin
+  if ( shift = [ssShift] ) then begin
     case key of
       VK_F10 : begin
         key := 0;
@@ -2806,8 +2783,7 @@ begin
     end;
   end
   else
-  if ( shift = [ssCtrl] ) then
-  begin
+  if ( shift = [ssCtrl] ) then begin
     case Key of
 
       { grey  *}
@@ -2828,13 +2804,13 @@ begin
       { backslash }
       220 : if ( Shift = [ssCtrl] ) then begin
         Key := 0;
-        if ( ActiveNote.Kind = ntTree ) then
-        begin
+        if ( ActiveNote.Kind = ntTree ) then begin
           TTreeNote( ActiveNote ).TV.SetFocus;
           ActiveNote.FocusMemory := focTree;
         end;
       end;
     end;
+
   end;
 
 end; // RxRTFKeyDown
