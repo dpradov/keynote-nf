@@ -2755,9 +2755,14 @@ begin
       end;
       VK_HOME: begin
           getInformationOfCurrentLine(TRxRichEdit(sender));
-          if ((TRxRichEdit(sender).SelStart > (posFirstChar + indent)) or (TRxRichEdit(sender).SelStart = posFirstChar) ) then begin
+          if ((TRxRichEdit(sender).SelStart > (posFirstChar + indent)) or
+             ((maxIndent>0) and (TRxRichEdit(sender).SelStart = posFirstChar)) ) then begin
              TRxRichEdit(sender).SelStart:= posFirstChar + maxIndent;
              key:= 0;
+             // Apparently it wouldn't matter if we entered if (maxIndent=0), but when
+             // wrapping is enabled and we are at the final of one line SelStart can return the
+             // same value as if we were at the beginning of the next one. In that case, the cursor
+             // would move incorrectly to the first character of next line.
           end;
       end;
 
