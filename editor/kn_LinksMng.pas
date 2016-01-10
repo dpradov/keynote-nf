@@ -34,8 +34,6 @@ uses
 
     procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
 
-    procedure CleanHyperlinks();
-
     // Navigation history
     procedure AddHistoryLocation( const aNote : TTreeNote );
     procedure NavigateInHistory( const GoForward : boolean );
@@ -945,122 +943,6 @@ var
 
 End;
 
-//------------------------------------------------------
-// CleanHyperlinks
-//------------------------------------------------------
-
-(*
-This function resolve the problem described in issue #59:
-   http://code.google.com/p/keynote-nf/issues/detail?id=59
-
-Problematic hyperlink:
-
-{\field{\*\fldinst{HYPERLINK "hyperlink"
-\\\\\\\\t "_blank" }}{\fldrslt{\cf2\lang255\ul textOfHyperlink}}}
-
-Correct, "clean" hyperlink:
-{\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
-
-The "_blank" (can be any string) is inoffensive. But the frament \\\\\\\\x
-gives too much problem with RichText control. Each time that RTF is readen by
-the a RichText control that string is duplicated:
-the \\\\\\\\t  is converted to \\\\\\\\\\\\\\\\t, then to
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\t,  etc).
-
-Note that each time you move from a node/note with that problematic hyperlinks to
-another node/note the content of the editor is readen and written to the
-node/note's stream...
-If you don't save the file doesn't matter but if you save the file then
-the duplicated strings are saved, and the file can blow out.
-*)
-
-procedure CleanHyperlinks();
-var
-    p, k, lastPosHyperlink : Integer;
-    p1, p2: integer;
-    link, hidden: Boolean;
-    TextLen: Integer;
-    startCmdHyperlink, endCmdHyperlink: integer;
-    Hyperlink, TextHyperlink: wideString;
-    oldFirstVisibleLine, newfirstVisibleLine: integer;
-    _selectionLenght:Integer;
-    _selectStart: Integer;
- begin
-    if ActiveNote.Editor.FindText('\\\\\\\\', 0, -1, []) < 0 then     // Sólo actuaremos si detectamos esta secuencia en algún punto del nodo
-       exit;
-
-    TextLen:= ActiveNote.Editor.TextLength;
-    ActiveNote.Editor.BeginUpdate;
-
-    oldFirstVisibleLine:= ActiveNote.Editor.GetFirstVisibleLine;
-
-    _selectStart := ActiveNote.Editor.SelStart;
-    _selectionLenght := ActiveNote.Editor.SelLength;
-
-    try
-        p:= 0;
-        repeat
-            p:= ActiveNote.Editor.FindText('HYPERLINK', p, -1, [stWholeWord, stMatchCase]);
-            if p < 0 then continue;
-
-            startCmdHyperlink:= p;
-            ActiveNote.Editor.SetSelection(p, p + 8, false);
-            If not (ActiveNote.Editor.SelText = '') then        // HYPERLINK string doesn't have Hidden mark (nor Link mark) but is treated as such
-               endCmdHyperlink:= startCmdHyperlink + 8
-
-            else begin
-                p1:= ActiveNote.Editor.FindText('"', p + 9, -1, []);
-                p2:= ActiveNote.Editor.FindText('"', p1 + 1, -1, []);
-                Hyperlink := ActiveNote.Editor.GetTextRange(p1+1, p2);
-
-                k:= ActiveNote.Editor.FindText('\\\\\\\\\\\\\\\\\\', p2 + 1, -1, []);
-                if k = p2 +2 then begin
-                   k:= ActiveNote.Editor.FindText(' ', k + 1, -1, []);
-                   if k >= 0 then   // p shouldn't be < 0
-                      p2:= k;
-                end;
-
-                p := p2 + 1;
-                p1:= -1;
-                repeat
-                    ActiveNote.Editor.SetSelection(p, p+1, false);
-                    link:= (ActiveNote.Editor.SelAttributes.Link2 = 1);
-                    hidden:= (ActiveNote.Editor.SelText = '');
-                    if (p1<0) and (not hidden) then
-                        p1:= p;
-                    If link or hidden Then
-                       lastPosHyperlink := p;
-                    p := p + 1;
-                Until Not (link or hidden) or (p >= TextLen);
-                endCmdHyperlink:= lastPosHyperlink;
-                TextHyperlink := ActiveNote.Editor.GetTextRange(p1, endCmdHyperlink+1);
-
-                if (endCmdHyperlink-startCmdHyperlink+1) > length(Hyperlink)+Length(TextHyperlink) + 12 then begin // 12=10(>>HYPERLINK <<)+ 2("")
-                   ActiveNote.Editor.SetSelection(startCmdHyperlink, endCmdHyperlink +1, false);
-                   ActiveNote.Editor.SelText:= '';
-                   InsertURL(Hyperlink, TextHyperlink,ActiveNote);
-                   TextLen:= ActiveNote.Editor.TextLength;
-                   endCmdHyperlink:= ActiveNote.Editor.SelStart-1;
-                   NoteFile.Modified := True;
-                   UpdateNoteFileState( [fscModified] );
-                end;
-            end;
-
-            p:= endCmdHyperlink +1;
-        until (p < 0) or (p >= TextLen);
-
-    Finally
-        with ActiveNote.Editor do begin
-           SelStart:= _selectStart;
-           SelLength:= _selectionLenght;
-
-           newFirstVisibleLine:= GetFirstVisibleLine;
-           ScrollLinesBy(oldFirstVisibleLine-newFirstVisibleLine);
-        end;
-    End;
-    ActiveNote.Editor.EndUpdate;
-
-End;
 
 
 //===============================================================

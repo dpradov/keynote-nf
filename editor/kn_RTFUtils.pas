@@ -53,6 +53,8 @@ function URLFromRTF( fn : wideString ) : wideString;
 function TextToUseInRTF( UnicodeText : wideString ): string;
 function GetRTFColor(Color: TColor): string;
 
+function CleanRTF(const RTF: string; var nRTF: string): boolean;
+
 function GetAuxiliarEditorControl(LoadInitiallyFromEditor: TRxRichEdit= nil;
                                   FromSelection: Boolean= True): TRxRichEdit;
 procedure FreeAuxiliarEditorControl(FlushToEditor: TRxRichEdit= nil;
@@ -61,7 +63,7 @@ procedure FreeAuxiliarEditorControl(FlushToEditor: TRxRichEdit= nil;
 
 
 implementation
-uses WideStrUtils, TntSystem, kn_Main;
+uses WideStrUtils, StrUtils, TntSystem, kn_Main;
 
 var
    RTFAux : TRxRichEdit;
@@ -394,6 +396,91 @@ begin
   G := GetGValue (Color); {green}
   B := GetBValue (Color); {blue}
   Result:= '\red' + IntToStr(R) + '\green' + IntToStr(G) + '\blue' + IntToStr(B) + ';';
+end;
+
+
+(*
+This function resolve the problem described in issues #59 and #524:
+   https://github.com/dpradov/keynote-nf/issues/59
+
+#59: Certain hyperlinks may cause knt file to grow in size suddenly (geometrical increase..)
+----------
+{\field{\*\fldinst{HYPERLINK "hyperlink"
+\\\\\\\\t "_blank" }}{\fldrslt{\cf2\lang255\ul textOfHyperlink}}}
+
+Correct, "clean" hyperlink:
+{\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
+
+The "_blank" (can be any string) is inoffensive. But the frament \\\\\\\\x
+gives too much problem with RichText control. Each time that RTF is readen by
+the a RichText control that string is duplicated:
+the \\\\\\\\t  is converted to \\\\\\\\\\\\\\\\t, then to
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\t,  etc).
+
+If you don't save the file doesn't matter but if you save the file then
+the duplicated strings are saved, and the file can blow out.
+
+#524 : Problem with MS Sans Serif in Windows 10 in certain situations
+----
+In some ocassions that the generated code is not properly managed. Example:
+Bad: {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang3082{\fonttbl{\f0\fnil MS Sans Serif;}} .....
+Ok: {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang3082{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}} .....
+In Windows XP and in Windows 7 (at least) this is not a problem, because the
+RichEdit control manage both rtf code correctly.
+For new nodes the problem is avoided using a default font different to MS Sans Serif.
+But for existing nodes with that problem (not occurs in all) the solution is
+to replace "\f0\fnil " with "\f0\fnil\fcharset0 ".
+*)
+
+function CleanRTF(const RTF: string; var nRTF: string): boolean;
+var
+  p, p2, pHR : integer;
+begin
+    Result:= false;
+
+    if ( pos('\f0\fnil ', RTF) > 0 ) then begin
+        nRTF:= ReplaceStr(RTF, '\f0\fnil ', '\f0\fnil\fcharset0 ');
+        Result:= true;
+    end;
+
+    if ( pos('\\\\', RTF) <= 0 ) then exit;
+
+    if not Result then
+       nRTF:= RTF;
+
+    p:= 1;
+    repeat
+       p:= posEx('\fldinst{HYPERLINK', nRTF, p);  // (length "\fldinst{HYPERLINK": 18)
+       if ( p > 0 ) then begin
+          Inc(p, 19);
+          if (nRTF[p] <> '"') then begin
+             // RichEdit versions >=5 allow only one space between HYPERLINK and "
+             p2:= p;
+             while (p <= Length(nRTF)) and (nRTF[p] In [' ',#13,#10]) do
+                Inc(p);
+             if p > Length(nRTF) then exit;
+             if (nRTF[p] = '"') then begin
+                nRTF[p2-1]:= ' ';
+                delete(nRTF, p2, p-p2);
+                Result:= true;
+             end
+             else
+                continue;
+          end;
+          pHR:= posEx('"', nRTF, p+1);
+          if pHR <= 0 then continue;
+          if nRTF[pHR+1] <> '}' then begin
+             p2:= posEx('}', nRTF, pHR+1);
+             if p2 > 0 then begin
+                delete(nRTF, pHR+1, p2-pHR-1);
+                Result:= true;
+             end;
+             p:= pHR+1;
+          end;
+       end;
+
+    until p <= 0;
+
 end;
 
 

@@ -748,7 +748,6 @@ begin
       else
         FEditor.StreamFormat := sfRichText;
 
-      CleanHyperlinks;
       FEditor.Lines.SaveToStream( FDataStream );
       FEditor.Modified:= false;
       Result:= FDataStream;
@@ -1112,6 +1111,23 @@ begin
    end;
 end;
 
+procedure TransferRTFData(ListRTFStr : TStringList; StreamRTF: TTntMemoryStream);
+var
+   NewRTF: string;
+begin
+    if (ListRTFStr.Count = 0) then exit;
+
+    if opt_Clean then begin
+       if CleanRTF(ListRTFStr.Text, NewRTF) then begin
+          ListRTFStr.SaveToStream(StreamRTF);
+          StreamRTF.LoadFromStream(TStringStream.Create(NewRTF));
+          exit;
+       end;
+    end;
+
+    ListRTFStr.SaveToStream(StreamRTF);
+end;
+
 
 procedure TTabNote.LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean );
 var
@@ -1345,10 +1361,7 @@ begin
 
     end; // eof( tf )
 
-    if ( List.Count > 0 ) then
-    begin
-      List.SaveToStream( FDataStream );
-    end;
+    TransferRTFData(List, FDataStream);
 
   finally
     List.Free;
@@ -2251,8 +2264,6 @@ begin
                    FEditor.StreamMode := [smUnicode];
              end;
 
-             CleanHyperlinks;
-
              FEditor.Lines.SaveToStream( FSelectedNode.Stream );
              FEditor.Modified:= false;
 
@@ -2491,8 +2502,7 @@ var
     begin
       // transfer RTF data from list to node
       InRichText := false;
-      if ( List.Count > 0 ) then
-        List.SaveToStream( myNode.Stream );
+      TransferRTFData(List, myNode.Stream);
       myNode.Stream.Position := 0;
       List.Clear;
       InternalAddNode( myNode );

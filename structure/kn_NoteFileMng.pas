@@ -518,13 +518,6 @@ begin
               NoteFile.Modified := false;
             end;
             UpdateNoteDisplay;
-
-            if assigned( NoteFile ) and opt_Clean then begin
-               NoteFile.CleanRTF;
-               ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
-               UpdateNoteDisplay;
-            end;
-
             UpdateNoteFileState( [fscOpen,fscModified] );
           end;
           screen.Cursor := crDefault;
