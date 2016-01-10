@@ -67,7 +67,7 @@ uses
     procedure GetIndentInformation(Editor: TRxRichEdit;
                                    var Indent: integer; var NextIndent: integer;
                                    var LineStr: string;
-                                   var posFirstChar : integer;
+                                   var posBegin : integer;
                                    paragraphMode: boolean= false);
 
     procedure ShowTipOfTheDay;
@@ -1943,44 +1943,38 @@ end; // ZoomEditor
  Determines the indent of the current line or paragraph (depending on paragraphMode
  parameter) and the indent that could be applied to next line with AutoIndent.
  If paragraphMode = False (lineMode) then
-   LineStr: the visible line (as shown in Editor) where the caret is positioned
- If paragraphMode = False (lineMode):
-   LineStr: the visible line (as shown in Editor) corresponding to the beginning of
+   LineStr: the line (as shown in Editor) where the caret is positioned
+ If paragraphMode = True:
+   LineStr: the line (as shown in Editor) corresponding to the beginning of
    paragraph where the caret is positioned
 
-  PosFirstChar: the position of the first character of LineStr, in the Editor
+  PosBegin: the position of the first character of LineStr, in the Editor
 }
-
 procedure GetIndentInformation(Editor: TRxRichEdit;
                                var Indent: integer; var NextIndent: integer;
                                var LineStr: string;
-                               var posFirstChar : integer;
+                               var posBegin : integer;
                                paragraphMode: boolean= false);
 var
-   Line,L, i, Col: integer;
-   str: string;
+   SelS, Col: integer;
+   LineBegin, LineCaret : integer;
 begin
     with Editor do begin
-        // figure out line and column position of caret
-        Line := PerForm( EM_EXLINEFROMCHAR,0, SelStart );
-        posFirstChar:= Perform( EM_LINEINDEX, Line,0 );
-        Col  := SelStart - posFirstChar;
+        SelS:= SelStart;
+        LineCaret:= PerForm(EM_EXLINEFROMCHAR,0, SelS );
+        posBegin:=  Perform(EM_LINEINDEX, LineCaret,0 );
+        Col:= SelS - posBegin;
 
-        LineStr:= lines[Line];
         if paragraphMode then begin
-            L:= Line-1;
-            i:= posFirstChar;
-            while (L >= 0) do begin
-               str:= GetTextRange(i-1, i);
-               if pos(#13, str) = 1 then break;
-               LineStr:= lines[L];
-               i:= i - Length(LineStr);
-               L:= L - 1;
-            end;
-        end;
+           posBegin  := FindText(#13, SelS, -1, [stBackward]) + 1;
+           LineBegin := PerForm( EM_EXLINEFROMCHAR,0, posBegin);
+        end
+        else
+           LineBegin:= LineCaret;
 
+        LineStr:= lines[LineBegin];
         Indent:= GetIndentOfLine(LineStr);
-        if (Indent > col) and (L = Line-1) then
+        if (Indent > Col) and (LineBegin = LineCaret) then
            NextIndent:= col
         else
            NextIndent:= Indent;
