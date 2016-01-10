@@ -890,6 +890,9 @@ type
     procedure RxRTFProtectChangeEx(Sender: TObject;
       const Message: TMessage; StartPos, EndPos: Integer;
       var AllowChange: Boolean);
+    procedure RxRTFAuxiliarProtectChangeEx(Sender: TObject;
+      const Message: TMessage; StartPos, EndPos: Integer;
+      var AllowChange: Boolean);
     procedure RxRTFSelectionChange(Sender: TObject);
     procedure RxRTFURLClick(Sender: TObject; const URLText: wideString; chrg: _charrange; Button: TMouseButton);
     procedure RxRTFKeyPress(Sender: TObject; var Key: Char);
@@ -2478,26 +2481,16 @@ begin
   case key of
 
     VK_TAB :
-    if ( shift = [ssCtrl] ) then // Ctrl+Tab: switch to next tab
-    begin
-      key := 0;
-      Pages.SelectNextPage( true );
-      // RxRTFKeyProcessed := true;
+    if ( shift = [ssCtrl] ) then begin // Ctrl+Tab: switch to next tab
+       key := 0;
+       Pages.SelectNextPage( true );
+       // RxRTFKeyProcessed := true;
     end
     else
-    begin
-      if ( shift = [ssCtrl,ssShift] ) then
-      begin
-        Key := 0;
-        if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree ) and (ActiveNote.FocusMemory <> focTree)) then
-        begin
-          TTreeNote( ActiveNote ).TV.SetFocus;
-          ActiveNote.FocusMemory := focTree;
-        end
-        else
-          Pages.SelectNextPage( false );
+      if ( shift = [ssCtrl,ssShift] ) then begin
+         Key := 0;
+         Pages.SelectNextPage( false );
       end;
-    end;
 
     VK_PRIOR : if ( shift = [ssCtrl] ) then // Page Up
     begin
@@ -2824,114 +2817,115 @@ end; // RxRTFKeyDown
 
 procedure TForm_Main.RxRTFKeyPress(Sender: TObject; var Key: Char);
 var
-  sel: TCharRange;
-  fromLine, toLine, posInicio, t, indent: integer;
-  cad, cadTab: string;
-  applyTabOnSelection: boolean;
+  Sel: TCharRange;
+  SelectionLength: integer;
+  posBegin, posEnd: integer;
+  L, toLine: integer;
+  MoveSelectedLines, ShiftPressed: boolean;
+  RTFAux : TRxRichEdit;
+
+  procedure SendSpaces(Editor: TRxRichEdit; n: integer);
+  var
+    i: integer;
+  begin
+     for i := 1 to n do
+         Editor.Perform(WM_CHAR, 32, 0);
+  end;
+
+  procedure RemoveTABorSpaces(Editor: TRxRichEdit; Line: integer; NSpaces: integer);
+  var
+    i, num: integer;
+    Str: string;
+  begin
+     Str:= Editor.Lines[Line];
+     i:= 1;
+     num:= 0;
+     while (i <= Length(Str)) and (num < NSpaces) do begin
+        if (Str[i] = ' ') or ((Str[i] = #9) and (num = 0)) then
+           Inc(num);
+        if (Str[i] <> ' ') then
+           break;
+        Inc(i);
+     end;
+     if num > 0  then begin
+        Editor.SelLength:= num;
+        Editor.SelText:= '';
+     end;
+  end;
+
 
 begin
-  If ( RxRTFKeyProcessed or (( Key = #9 ) and ( GetKeyState( VK_CONTROL ) < 0 ))) Then
-  begin
+  if ( RxRTFKeyProcessed or ((Key = #9) and (GetKeyState(VK_CONTROL) < 0)) ) then begin
     Key := #0;
     RxRTFKeyProcessed := false;
     exit;
   end;
 
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
+  if not assigned(ActiveNote) or NoteIsReadOnly( ActiveNote, true ) then exit;
+
   case key of
 
     #9 :    with ActiveNote.Editor do begin
-               sel:= GetSelection;
-               fromLine:= LineFromChar(sel.cpMin);
-               toLine:= LineFromChar(sel.cpMax-1);
-               if fromLine > toLine then toLine:= fromLine;
+               ShiftPressed:= (GetKeyState( VK_SHIFT ) < 0 );
+               Sel:= GetSelection;
+               MoveSelectedLines:= false;
+               if not (Sel.cpMin= Sel.cpMax) then begin   // There is text selected
+                  if FindText(#13, Sel.cpMin, Sel.cpMax-Sel.cpMin, []) > 0 then begin
+                     MoveSelectedLines:= true;
+                     posBegin := FindText(#13, Sel.cpMin, -1, [stBackward]) + 1;
+                     posEnd :=   FindText(#13, Sel.cpMax-1, -1, []);
+                     if posEnd < 0 then
+                        posEnd:= TextLength;
+                     SetSelection(posBegin, posEnd+1, true);
+                  end;
+               end;
 
-               applyTabOnSelection:= true;
-               if not (GetKeyState( VK_SHIFT ) < 0 ) then
-                   if (sel.cpMin= sel.cpMax) or (fromLine = toLine) then
-                      applyTabOnSelection:= false;
-
-               // I do it this way (via RTF) and no simply inserting #9 (or spaces) on each line to not consume undo-mechanism
-               // -> The process in done in a single operation (from RichTextBox point of view)
-               // And with RTF and not with .SelText because it would lose formatting.
-               if UseTabChar then
-                  if applyTabOnSelection then cadTab:= '\tab' else cadTab:= #9
-               else
-                  cadTab:= StringOfChar(' ', TabSize);
-
-               BeginUpdate;
-
-               if not applyTabOnSelection then
-               begin
-                    SelText:= cadTab;
-                    SelStart:= SelStart + SelLength;
-                    SelLength:= 0;
+               if not MoveSelectedLines then begin
+                  if ShiftPressed then begin
+                     Key := #0;
+                     if ActiveNote.Kind = ntTree then begin
+                        TTreeNote(ActiveNote).TV.SetFocus;
+                        ActiveNote.FocusMemory := focTree;
+                      end;
+                  end
+                  else
+                     if not UseTabChar then begin
+                         Key := #0;
+                         SendSpaces(ActiveNote.Editor, TabSize);
+                     end;
                end
                else begin
-                     posInicio:= Perform( EM_LINEINDEX,fromline,0);
-                     if posInicio>0 then posInicio:= posInicio-1;
-                     if fromLine=0 then begin        // Special case. There is no initial \par
-                        SelStart:= posInicio;
-                        if (GetKeyState( VK_SHIFT ) >= 0 ) then begin
-                           if useTabChar then
-                              SelText:= #9
-                           else
-                              SelText:= cadTab
-                        end
-                        else begin
-                            SelLength:= 1;
-                            if SelText= #9 then
-                               SelText:= ''
-                            else begin
-                               SelLength:= TabSize;
-                               SelText:= TrimLeft(SelText);
-                            end;
-                        end;
-                     end;
-                     SetSelection(posInicio, Perform( EM_LINEINDEX,toLine+1,0)-1, true);
-                     cad:= GetRichText(ActiveNote.Editor, true,true);
-                     cad:= ReplaceStr(cad, '\pard', #1);
+                   RTFAux:= GetAuxiliarEditorControl(ActiveNote.Editor);
+                   toLine:=   RTFAux.Lines.Count-1;
+                   BeginUpdate;
+                   try
+                      Key := #0;
+                      if not ShiftPressed then begin
+                         for L := 0 to toLine do begin
+                            RTFAux.SelStart:= RTFAux.Perform(EM_LINEINDEX, L, 0);
+                            if UseTabChar then
+                               RTFAux.Perform(WM_CHAR, 9, 0)
+                            else
+                               SendSpaces(RTFAux, TabSize);
+                         end;
+                      end
+                      else
+                         for L := 0 to toLine do begin
+                            RTFAux.SelStart:= RTFAux.Perform(EM_LINEINDEX, L, 0);
+                            RemoveTABorSpaces(RTFAux, L, TabSize);
+                         end;
 
-                     // Simpler: Ok using TAB, also without using TAB and reasonably intuive with hybrid
-                     cad:= ReplaceStr(cad, #13#10+'\tab' , '\tab');
-                     if ( GetKeyState( VK_SHIFT ) >= 0 ) then begin
-                        cad:= ReplaceStr(cad, '\par'+#13#10, '\par ');
-                        cad:= ReplaceStr(cad, '\par', '\par'+ cadTab);
-                        if not useTabChar then begin
-                           cad:= ReplaceStr(cad, '\tab'+#13#10, '\tab ');
-                           cad:= ReplaceStr(cad, '\tab', cadTab);
-                        end;
-                     end
-                     else begin
-                        cad:= ReplaceStr(cad, #1'\tab', #3);
-                        cad:= ReplaceStr(cad, '\par\tab ', #2);
-                        cad:= ReplaceStr(cad, '\par\tab', #2);
-                        t:= TabSize;
-                        while (pos('\par', cad) <> 0) do begin
-                          cad:= ReplaceStr(cad, '\par'+ StringOfChar(' ', t), #2);
-                          cad:= ReplaceStr(cad, '\par'+#13#10 +StringOfChar(' ', t), #2);
-                          t:= t-1;
-                        end;
-                        cad:= ReplaceStr(cad, #2, '\par'#13#10);
-                        cad:= ReplaceStr(cad, #3, '\pard'#13#10);
-                     end;
-
-                     cad:= ReplaceStr(cad, #1, '\pard');
-                     PutRichText(cad,ActiveNote.Editor,true,true);
-                     SetSelection(Perform( EM_LINEINDEX,fromline,0), Perform( EM_LINEINDEX,toLine+1,0), true);
+                      SelectionLength:= RTFAux.TextLength;
+                      FreeAuxiliarEditorControl(ActiveNote.Editor);
+                      SelStart:= posBegin;
+                      SelLength:= SelectionLength + 1;
+                   finally
+                      EndUpdate;
+                   end;
                end;
 
-               if (fromLine = toLine) then begin
-                  posInicio:= Perform( EM_LINEINDEX,fromline,0);
-                  cad:= GetTextRange(posInicio, Perform( EM_LINEINDEX,toLine+1,0));
-                  indent:= GetIndentOfLine(cad);
-                  if SelStart-posInicio < indent then
-                     SelStart:= posInicio + indent;
-                  SelLength:= 0;
-               end;
-               EndUpdate;
-               key:= #0;
-           end;
+            end;
+
   end;
 
   if EditorOptions.WordCountTrack then begin
@@ -2939,6 +2933,7 @@ begin
         CheckWordCount
      else
         CheckWordCountWaiting;
+
   end;
 
 end;  // RxRTF_KeyPress
@@ -2956,6 +2951,14 @@ procedure TForm_Main.RxRTFProtectChangeEx(Sender: TObject;
 begin
   AllowChange := EditorOptions.EditProtected;
 end; // RxRTF_ProtectChangeEx
+
+procedure TForm_Main.RxRTFAuxiliarProtectChangeEx(Sender: TObject;
+  const Message: TMessage; StartPos, EndPos: Integer;
+  var AllowChange: Boolean);
+begin
+  AllowChange := True;
+end; // RxRTFAuxiliarProtectChangeEx
+
 
 procedure TForm_Main.RxRTFSelectionChange(Sender: TObject);
 var

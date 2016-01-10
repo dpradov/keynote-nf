@@ -53,8 +53,18 @@ function URLFromRTF( fn : wideString ) : wideString;
 function TextToUseInRTF( UnicodeText : wideString ): string;
 function GetRTFColor(Color: TColor): string;
 
+function GetAuxiliarEditorControl(LoadInitiallyFromEditor: TRxRichEdit= nil;
+                                  FromSelection: Boolean= True): TRxRichEdit;
+procedure FreeAuxiliarEditorControl(FlushToEditor: TRxRichEdit= nil;
+                                    DoInsert: boolean= true;
+                                    FreeAndNilControl: boolean= false);
+
+
 implementation
-uses WideStrUtils, TntSystem;
+uses WideStrUtils, TntSystem, kn_Main;
+
+var
+   RTFAux : TRxRichEdit;
 
 
 function EMStreamInCallback(dwCookie: Longint; pbBuff: PByte;
@@ -386,5 +396,50 @@ begin
   Result:= '\red' + IntToStr(R) + '\green' + IntToStr(G) + '\blue' + IntToStr(B) + ';';
 end;
 
+
+function GetAuxiliarEditorControl(LoadInitiallyFromEditor: TRxRichEdit= nil;
+                                  FromSelection: Boolean= True): TRxRichEdit;
+var
+  Stream: TStream;
+  Str: String;
+begin
+   if not assigned(RTFAux) then begin
+      RTFAux := TRxRichEdit.Create(Form_Main);
+      RTFAux.Visible:= False;
+      RTFAux.OnProtectChangeEx:= Form_Main.RxRTFAuxiliarProtectChangeEx;
+      RTFAux.Parent:= Form_Main;
+   end;
+   RTFAux.Clear;
+   RTFAux.WordWrap:= false;
+   RTFAux.StreamMode := [];
+   if assigned(LoadInitiallyFromEditor) then begin
+      Str:= GetRichText(LoadInitiallyFromEditor, true, FromSelection);
+      Stream:= TStringStream.Create(Str);
+      try
+         RTFAux.Lines.LoadFromStream(Stream);
+      finally
+         Stream.Free;
+      end;
+   end;
+   Result:= RTFAux;
+end;
+
+procedure FreeAuxiliarEditorControl(FlushToEditor: TRxRichEdit= nil;
+                                    DoInsert: boolean= true;
+                                    FreeAndNilControl: boolean= false);
+var
+  Str: String;
+begin
+   if assigned(RTFAux) then begin
+      if assigned(FlushToEditor) then begin
+        Str:= GetRichText( RTFAux, true, false);
+        PutRichText( Str, FlushToEditor, true, DoInsert);
+      end;
+
+      RTFAux.Clear;
+      if FreeAndNilControl then
+         FreeAndNil(RTFAux);
+   end;
+end;
 
 end.
