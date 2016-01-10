@@ -651,9 +651,7 @@ begin
   StartLevel := 0;
   TreePadFN := '';
   TreePadNodeLevelInc := 0;
-  RTFAux := TRxRichEdit.Create( ActiveNote.TabSheet);
-  RTFAux.Visible:= False;
-  RTFAux.Parent:=ActiveNote.TabSheet ;
+  RTFAux:= GetAuxiliarEditorControl;
 
 
   if ExportOptions.ConfirmOverwrite then
@@ -988,7 +986,7 @@ begin
     FreeConvertLibrary;
     IsBusy := false;
     Screen.Cursor := crDefault;
-    RTFAux.Free;
+    FreeAuxiliarEditorControl;
     ExitMessage := Format(
         STR_12,
         [ExportedNotes, ExportedNodes] );
@@ -1272,19 +1270,13 @@ begin
         end;
       end;
       xfPlainText : begin
-        RTFAux := TRxRichEdit.Create( ActiveNote.TabSheet);
-        RTFAux.Visible:= False;
-        RTFAux.Parent:=ActiveNote.TabSheet ;
-
-        try
-          RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
-          RTFAux.StreamFormat := sfPlainText;
-          if not CanSaveAsANSI(RTFAux.TextW) then
-             RTFAux.StreamMode := [smUnicode];
-          RTFAux.Lines.SaveToFile( WideStringToUTF8(ExportFN) );
-        finally
-          RTFAux.Free;
-        end;
+        RTFAux := GetAuxiliarEditorControl;
+        RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
+        RTFAux.StreamFormat := sfPlainText;
+        if not CanSaveAsANSI(RTFAux.TextW) then
+           RTFAux.StreamMode := [smUnicode];
+        RTFAux.Lines.SaveToFile( WideStringToUTF8(ExportFN) );
+        FreeAuxiliarEditorControl;
       end;
     end;
 

@@ -54,13 +54,12 @@ uses Classes, Dialogs, Forms, SysUtils, Controls, Windows,
      RichEdit,
      gf_miscvcl, gf_strings,
      kn_Global, Kn_const,
-     kn_NoteMng, kn_Main, kn_NodeList, kn_Cmd, kn_VCLControlsMng,
+     kn_RTFUtils, kn_NoteMng, kn_Main, kn_NodeList, kn_Cmd, kn_VCLControlsMng,
      kn_TreeNoteMng, kn_MacroMng, kn_LinksMng, kn_NoteFileMng;
 
 var
    NumberFoundItems: integer;
    EditControl: TRxRichEdit;
-   RTFAux : TRxRichEdit;
 
 
 resourcestring
@@ -131,17 +130,6 @@ begin
 end;
 
 
-procedure CreateAuxiliarEditorControl;
-begin
-   if not assigned(RTFAux) then begin
-      RTFAux := TRxRichEdit.Create(Form_Main);
-      RTFAux.Visible:= False;
-      RTFAux.OnProtectChangeEx:= Form_Main.RxRTFProtectChangeEx;
-      RTFAux.Parent:= Form_Main;
-   end;
-end;
-
-
 procedure RunReplaceNext;
 begin
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
@@ -207,11 +195,10 @@ begin
     end
     else begin
        // Get the actual node's object and transfer its RTF data to temp editor
-        CreateAuxiliarEditorControl;                  // Si no lo está aún.. (lazy load)
         myNoteNode := TNoteNode( myTreeNode.Data );
         myNoteNode.Stream.Position := 0;
-        RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
-        EditControl:= RTFAux;
+        EditControl:= GetAuxiliarEditorControl;              // It will create if it's necessary (lazy load)
+        EditControl.Lines.LoadFromStream( myNoteNode.Stream );
     end;
 end;
 
@@ -378,8 +365,6 @@ begin
   FindDone := false;
   noteidx := 0;
   Counter := 0;
-
-  CreateAuxiliarEditorControl;                  // Si no lo está aún.. (lazy load)
 
   SearchInProgress := true;
   screen.Cursor := crHourGlass;
@@ -586,7 +571,7 @@ begin
     SearchInProgress := false;
     screen.Cursor := crDefault;
     wordList.Free;
-    FreeAndNil(RTFAux);
+    FreeAuxiliarEditorControl;
   end;
 
 end; // RunFindAllEx
@@ -1063,8 +1048,7 @@ begin
       end;
       FindOptions := Form_FindReplace.MyFindOptions;
       Form_FindReplace.Release;
-      if assigned(RTFAux) then
-         FreeAndNil(RTFAux);
+      FreeAuxiliarEditorControl;
 
     except
     end;
