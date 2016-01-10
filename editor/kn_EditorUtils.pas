@@ -69,6 +69,7 @@ uses
                                    var LineStr: string;
                                    var posBegin : integer;
                                    paragraphMode: boolean= false);
+    function NumberOfLineFeed(Str: WideString): integer;
 
     procedure ShowTipOfTheDay;
 
@@ -1979,6 +1980,19 @@ begin
         else
            NextIndent:= Indent;
     end;
+end;
+
+function NumberOfLineFeed(Str: WideString): integer;
+var
+  i: integer;
+begin
+   Result:= 0;
+   i:= 0;
+   while i <= Length(Str) do begin
+      if (Str[i] = #10) then
+         Inc(Result);
+      Inc(i);   
+   end;
 end;
 
 

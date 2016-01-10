@@ -1726,8 +1726,9 @@ begin
 
        if (( ClipOptions.MaxSize > 0 ) and ( length( StrClp ) > ClipOptions.MaxSize )) then
           delete( StrClp, succ( ClipOptions.MaxSize ), length( StrClp ));
-       Editor.SelTextW := trim(StrClp);
-       Editor.SelStart := Editor.SelStart + Editor.SelLength;
+       StrClp:= Trim(StrClp);
+       Editor.SelTextW := StrClp;
+       Editor.SelStart := Editor.SelStart + Editor.SelLength - NumberOfLineFeed(StrClp);
     end
     else begin
           if HTMLClip = '' then
