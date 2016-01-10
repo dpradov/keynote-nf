@@ -5287,7 +5287,6 @@ function TRxCustomRichEdit.FindText(const SearchStr: WideString;
   StartPos, LengthSearch: Integer; Options: TRichSearchTypes): Integer;
 var
   Find: TFindTextEx;
-  FindW: TFindTextExW;
   PChrg: Longint;
   Flags: Integer;
   ASearchStr: string;
@@ -5303,27 +5302,37 @@ begin
   if stWholeWord in Options then Flags := Flags or FT_WHOLEWORD;
   if stMatchCase in Options then Flags := Flags or FT_MATCHCASE;
 
+  { The cpMin member of FINDTEXTEX.chrg always specifies the starting-point of
+    the search, and cpMax specifies the end point. When searching backward,
+    cpMin must be equal to or greater than cpMax. When searching forward, a
+    value of –1 in cpMax extends the search range to the end of the text.  }
+
+  if LengthSearch <= 0 then LengthSearch:= -1;
+
+  with Find.chrg do begin
+    cpMin := StartPos;
+    if stBackward in Options then begin
+       cpMax:= 0;
+       if LengthSearch > 0 then  cpMax := cpMin - LengthSearch
+    end
+    else begin
+       cpMax:= -1;
+       if LengthSearch > 0 then  cpMax := cpMin + LengthSearch;
+    end;
+  end;
+
   if RichEditVersion >= 4 then begin
-      with FindW.chrg do begin
-        cpMin := StartPos;
-        cpMax := cpMin + Abs(LengthSearch);
-      end;
-      FindW.lpstrText := PWideChar(SearchStr);
-      Result := SendMessage(Handle, EM_FINDTEXTEXW, Flags, Longint(@FindW));
-      PChrg:= Longint(@FindW.chrgText);
+     Find.lpstrText := PChar(SearchStr);
+     Result := SendMessage(Handle, EM_FINDTEXTEXW, Flags, Longint(@Find));
   end
   else begin
-      with Find.chrg do begin
-        cpMin := StartPos;
-        cpMax := cpMin + Abs(LengthSearch);
-      end;
-      ASearchStr:= WideCharToString( PWideChar(SearchStr));
-      Find.lpstrText := PChar(ASearchStr);
-      Result := SendMessage(Handle, EM_FINDTEXTEX, Flags, Longint(@Find));
-      PChrg:= Longint(@Find.chrgText);
+     ASearchStr:= WideCharToString( PWideChar(SearchStr));
+     Find.lpstrText := PChar(ASearchStr);
+     Result := SendMessage(Handle, EM_FINDTEXTEX, Flags, Longint(@Find));
   end;
 
   if (Result >= 0) and (stSetSelection in Options) then begin
+     PChrg:= Longint(@Find.chrgText);
      SendMessage(Handle, EM_EXSETSEL, 0, PChrg);
      SendMessage(Handle, EM_SCROLLCARET, 0, 0);
   end;

@@ -986,10 +986,10 @@ var
     _selectionLenght:Integer;
     _selectStart: Integer;
  begin
-    TextLen:= ActiveNote.Editor.TextLength;
-    if ActiveNote.Editor.FindText('\\\\\\\\', 0, TextLen, []) < 0 then     // Sólo actuaremos si detectamos esta secuencia en algún punto del nodo
+    if ActiveNote.Editor.FindText('\\\\\\\\', 0, -1, []) < 0 then     // Sólo actuaremos si detectamos esta secuencia en algún punto del nodo
        exit;
 
+    TextLen:= ActiveNote.Editor.TextLength;
     ActiveNote.Editor.BeginUpdate;
 
     oldFirstVisibleLine:= ActiveNote.Editor.GetFirstVisibleLine;
@@ -1000,7 +1000,7 @@ var
     try
         p:= 0;
         repeat
-            p:= ActiveNote.Editor.FindText('HYPERLINK', p, TextLen, [stWholeWord, stMatchCase]);
+            p:= ActiveNote.Editor.FindText('HYPERLINK', p, -1, [stWholeWord, stMatchCase]);
             if p < 0 then continue;
 
             startCmdHyperlink:= p;
@@ -1009,13 +1009,13 @@ var
                endCmdHyperlink:= startCmdHyperlink + 8
 
             else begin
-                p1:= ActiveNote.Editor.FindText('"', p + 9, TextLen-p, []);
-                p2:= ActiveNote.Editor.FindText('"', p1 + 1, TextLen-(p1+1), []);
+                p1:= ActiveNote.Editor.FindText('"', p + 9, -1, []);
+                p2:= ActiveNote.Editor.FindText('"', p1 + 1, -1, []);
                 Hyperlink := ActiveNote.Editor.GetTextRange(p1+1, p2);
 
-                k:= ActiveNote.Editor.FindText('\\\\\\\\\\\\\\\\\\', p2 + 1, TextLen, []);
+                k:= ActiveNote.Editor.FindText('\\\\\\\\\\\\\\\\\\', p2 + 1, -1, []);
                 if k = p2 +2 then begin
-                   k:= ActiveNote.Editor.FindText(' ', k + 1, TextLen, []);
+                   k:= ActiveNote.Editor.FindText(' ', k + 1, -1, []);
                    if k >= 0 then   // p shouldn't be < 0
                       p2:= k;
                 end;

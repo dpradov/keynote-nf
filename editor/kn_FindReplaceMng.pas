@@ -442,7 +442,7 @@ begin
                             repeat
                                PatternPos := EditControl.FindText(
                                  FindOptions.Pattern,
-                                 SearchOrigin, EditControl.GetTextLen - SearchOrigin,
+                                 SearchOrigin, -1,
                                  SearchOpts
                                );
                                if ( PatternPos >= 0 ) then begin
@@ -463,7 +463,7 @@ begin
 
                             PatternPos := EditControl.FindText(
                               thisWord,
-                              0, EditControl.GetTextLen,
+                              0, -1,
                               SearchOpts
                             );
 
@@ -786,7 +786,7 @@ begin
 
             PatternPos := EditControl.FindText(
               Text_To_Find,
-              SearchOrigin, EditControl.GetTextLen - SearchOrigin,
+              SearchOrigin, -1,
               SearchOpts
             );
 
