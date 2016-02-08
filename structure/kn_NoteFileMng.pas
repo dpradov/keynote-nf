@@ -546,341 +546,315 @@ begin
 end; // NoteFileOpen
 
 
+
 //=================================================================
 // NoteFileSave
 //=================================================================
-function NoteFileSave( FN : wideString ) : integer;
+
+//------ DoBackup ------------------------------------------------
+
+function DoBackup(const FN: WideString; var BakFN: WideString;
+                  var SUCCESS: LongBool; var LastError: Integer): Boolean;
 var
-  errstr, oldFN, ext, bakFN, mbakFN, FPath : wideString;
-  SUCCESS : longbool;
-  copyresult, myBackupLevel, bakindex : integer;
-  DoBackup : boolean;
-  i, cnt : integer;
-  myNote : TTabNote;
+  ext, bakFNfrom, bakFNto: WideString;
+  myBackupLevel, bakindex : Integer;
+
+begin
+   Result := True;
+
+   // if file has tree notes with virtual nodes, they should be backed up as well.
+   // We use ugly global vars to pass backup options:
+
+   _VNDoBackup     := KeyOptions.Backup and KeyOptions.BackupVNodes;
+   _VNBackupExt    := KeyOptions.BackupExt;
+   _VNBackupAddExt := KeyOptions.BackupAppendExt;
+   _VNBackupDir    := KeyOptions.BackupDir;
+
+
+   // Check if backup must be done
+   //--------------------
+   if not (KeyOptions.Backup and WideFileExists(FN)) then
+      Result := false
+
+   else begin
+      case GetDriveType(PChar(ExtractFileDrive(NoteFile.FileName) + '\')) of
+        DRIVE_REMOVABLE:
+          Result := (not KeyOptions.OpenFloppyReadOnly);
+
+        DRIVE_REMOTE:
+          Result := (not KeyOptions.OpenNetworkReadOnly);
+
+        0, 1, DRIVE_CDROM, DRIVE_RAMDISK:
+          Result := false;
+      end;
+   end;
+
+   if not Result then begin
+      BakFN:= '';
+      Exit;
+   end;
+
+
+   // DO the backup
+   //---------------------------
+
+   // Check if alternate backup directory exists
+   if KeyOptions.BackupDir <> '' then begin
+     if not WideDirectoryExists(KeyOptions.BackupDir) then begin
+       DoMessageBox(
+         Format(STR_20, [KeyOptions.BackupDir]),
+         mtWarning, [mbOK], 0);
+       KeyOptions.BackupDir := '';
+     end;
+   end;
+
+   if KeyOptions.BackupDir <> '' then
+      bakFN:= ProperFolderName(KeyOptions.BackupDir) + WideExtractFilename(FN)
+   else
+      bakFN:= FN;
+
+   // Adjust how backup extension is added
+   if KeyOptions.BackupAppendExt then
+      bakFN := bakFN + KeyOptions.BackupExt
+   else
+      bakFN := WideChangeFileExt(bakFN, KeyOptions.BackupExt);
+
+
+   myBackupLevel := KeyOptions.BackupLevel;
+   if NoteFile.NoMultiBackup then
+      myBackupLevel := 1;
+
+   if myBackupLevel > 1 then begin
+     // recycle bak..bakN files, discarding the file
+     // with the highest number (up to .bak9)
+     for bakIndex := Pred(myBackupLevel) downto 1 do begin
+        bakFNfrom:= bakFN;
+        if bakIndex > 1 then
+           bakFNfrom := bakFN + IntToStr(bakIndex);
+        bakFNto := bakFN + IntToStr(Succ(bakIndex));
+        if WideFileExists(bakFNfrom) then begin
+           if _OSIsWindowsNT then begin
+             MoveFileExW(
+               PWideChar(bakFNfrom), PWideChar(bakFNto),
+               MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED);
+           end
+           else begin
+             // MoveFileEx is not available on Windows 95 & 98
+             CopyFileW(
+               PWideChar(bakFNfrom), PWideChar(bakFNto), False);
+             DeleteFileW(PWideChar(bakFNfrom));
+           end;
+        end;
+     end;
+   end;
+
+   if _OSIsWindowsNT then
+      SUCCESS := MoveFileExW(
+        PWideChar(FN),
+        PWideChar(bakFN),
+        MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED )
+   else begin
+      SUCCESS := CopyFileW(PWideChar(FN), PWideChar(bakFN), false);
+      if SUCCESS then
+         DeleteFileW(PWideChar(FN));
+   end;
+
+   if not SUCCESS then begin
+      bakFN:= '';
+      LastError := GetLastError;
+      {$IFDEF MJ_DEBUG}
+      Log.Add('Backup failed; code ' + IntToStr(LastError));
+      {$ENDIF}
+   end;
+
+end;
+
+
+//------ NoteFileSave --------------------------------------------
+
+function NoteFileSave(FN : wideString) : integer;
+var
+  ErrStr, ext, bakFN, FPath: wideString;
+  SUCCESS: LongBool;
+  i, LastError: Integer;
+  myNote: TTabNote;
+
 begin
   with Form_Main do begin
-        result := -1;
-        if ( not HaveNotes( true, false )) then exit;
-        if FileIsBusy then exit;
-        if ( FN <> '' ) and NoteFile.ReadOnly then begin
-            DoMessageBox(STR_77, mtError, [mbOK], 0);
-            exit;
-        end;
+     result := -1;
+     if not HaveNotes(true, false) then Exit;
+     if FileIsBusy then Exit;
+     if (FN <> '') and NoteFile.ReadOnly then begin
+         DoMessageBox(STR_77, mtError, [mbOK], 0);
+         Exit;
+     end;
 
 
-        errstr := '';
+     ErrStr := '';
 
-        SUCCESS := longbool( 0 );
-        try
-          try
-            FileIsBusy := true;
-            FolderMon.Active := false;
-            if ( not HaveNotes( true, false )) then exit;
-            oldFN := NoteFile.FileName;
-            if ( FN <> '' ) then
-            begin
-              FN := normalFN( FN );
+     SUCCESS := LongBool(0);
+     try
+       try
+         FileIsBusy := true;
+         FolderMon.Active := false;
+         if not HaveNotes(true, false) then exit;
+
+         if FN <> '' then begin
+            FN := NormalFN(FN);
+            case NoteFile.FileFormat of
+               nffKeyNote: FN := WideChangeFileExt(FN, ext_KeyNote);
+               nffEncrypted:
+                  if KeyOptions.EncFileAltExt then
+                     FN := WideChangeFileExt(FN, ext_Encrypted)
+                  else
+                     FN := WideChangefileext(FN, ext_KeyNote);
+               nffDartNotes: FN := WideChangeFileExt(FN, ext_DART);
+            end;
+         end;
+
+         if FN = '' then begin
+           with SaveDlg do begin
               case NoteFile.FileFormat of
-                nffKeyNote : FN := WideChangefileext( FN, ext_KeyNote );
-                nffEncrypted : if KeyOptions.EncFileAltExt then
-                  FN := WideChangefileext( FN, ext_Encrypted )
+                nffDartNotes : Filter := FILTER_DARTFILES + '|' + FILTER_ALLFILES;
+                nffKeyNote   : Filter := FILTER_NOTEFILES + '|' + FILTER_ALLFILES;
                 else
-                  FN := WideChangefileext( FN, ext_KeyNote );
-                nffDartNotes : FN := WideChangefileext( FN, ext_DART );
+                  Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
               end;
-            end;
-            if ( FN = '' ) then
-            begin
-              with SaveDlg do
-              begin
-                case NoteFile.FileFormat of
-                  nffDartNotes : Filter := FILTER_DARTFILES + '|' + FILTER_ALLFILES;
-                  nffKeyNote : Filter := FILTER_NOTEFILES + '|' + FILTER_ALLFILES;
-                  else
-                    Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
-                end;
-                FilterIndex := 1;
-                if ( NoteFile.FileName <> '' ) then
-                  FileName := NoteFile.FileName
-                else
-                  InitialDir := GetFolderPath( fpPersonal );
-              end;
-              if SaveDlg.Execute then
-              begin
-                FN := normalFN( SaveDlg.FileName );
-                if ( FN <> oldFN ) then
-                  NoteFile.ReadOnly := false;
-                ext := extractfileext( FN );
-                if ( ext = '' ) then
-                begin
-                  case NoteFile.FileFormat of
-                    nffKeyNote : FN := FN + ext_KeyNote;
-                    nffEncrypted : if KeyOptions.EncFileAltExt then
-                       FN := FN + ext_Encrypted
-                    else
-                      FN := FN + ext_KeyNote;
-                    nffDartNotes : FN := FN + ext_DART;
-                  end;
-                end;
-                NoteFile.FileName := FN;
-
-                if (( NoteFile.FileFormat = nffDartNotes ) and KeyOptions.SaveDARTWarn ) then
-                begin
-                  case PopupMessage( format(STR_18, [FILE_FORMAT_NAMES[nffDartNotes], Program_Name, FILE_FORMAT_NAMES[nffKeyNote]]),
-                                     mtWarning, [mbYes,mbNo,mbCancel], 0 ) of
-                    mrNo : NoteFile.FileFormat := nffKeyNote;
-                    mrCancel : exit;
-                  end;
-                end;
-              end
+              FilterIndex := 1;
+              if NoteFile.FileName <> '' then
+                 FileName := NoteFile.FileName
               else
-              begin
-                exit;
+                 InitialDir := GetFolderPath(fpPersonal);
+           end;
+
+           if SaveDlg.Execute then begin
+              FN := NormalFN(SaveDlg.FileName);
+              ext := ExtractFileExt(FN);
+              if ext = '' then begin
+                 case NoteFile.FileFormat of
+                   nffKeyNote:
+                     FN := FN + ext_KeyNote;
+                   nffEncrypted:
+                     if KeyOptions.EncFileAltExt then
+                        FN := FN + ext_Encrypted
+                     else
+                        FN := FN + ext_KeyNote;
+                   nffDartNotes:
+                     FN := FN + ext_DART;
+                 end;
               end;
-            end;
+              NoteFile.FileName := FN;
 
-            screen.Cursor := crHourGlass;
-            StatusBar.Panels[PANEL_HINT].text := STR_19 + FN;
-
-            DoBackup := false;
-            if ( KeyOptions.Backup and Widefileexists( FN )) then
-            begin
-              DoBackup := true;
-              case GetDriveType( PChar( ExtractFileDrive( NoteFile.FileName ) + '\' )) of
-                DRIVE_REMOVABLE : begin
-                  DoBackup := ( not KeyOptions.OpenFloppyReadOnly );
-                end;
-                DRIVE_REMOTE : begin
-                  DoBackup :=  ( not KeyOptions.OpenNetworkReadOnly );
-                end;
-                0, 1, DRIVE_CDROM, DRIVE_RAMDISK : begin
-                  DoBackup := false;
-                end;
+              if (NoteFile.FileFormat = nffDartNotes) and KeyOptions.SaveDARTWarn then begin
+                 case PopupMessage(format(STR_18, [FILE_FORMAT_NAMES[nffDartNotes], Program_Name, FILE_FORMAT_NAMES[nffKeyNote]]),
+                                   mtWarning, [mbYes,mbNo,mbCancel], 0 ) of
+                    mrNo: NoteFile.FileFormat := nffKeyNote;
+                    mrCancel: Exit;
+                 end;
               end;
+           end
+           else
+              Exit;
+         end;
 
-              if DoBackup then
-              begin
-                result := -2;
+         Screen.Cursor := crHourGlass;
+         StatusBar.Panels[PANEL_HINT].text := STR_19 + FN;
 
-                // check if alternate backup directory exists
-                if ( KeyOptions.BackupDir <> '' ) then
-                begin
-                  if ( not WideDirectoryexists( KeyOptions.BackupDir )) then
-                  begin
-                    DoMessageBox(
-                      Format( STR_20, [KeyOptions.BackupDir] ),
-                      mtWarning, [mbOK], 0
-                    );
-                    KeyOptions.BackupDir := '';
-                  end;
-                end;
 
-                // adjust how backup extension is added
-                if KeyOptions.BackupAppendExt then
-                begin
-                  if ( KeyOptions.BackupDir = '' ) then
-                    bakFN := FN + KeyOptions.BackupExt
-                  else
-                    bakFN := ProperFolderName( KeyOptions.BackupDir ) + WideExtractFilename( FN ) + KeyOptions.BackupExt
-                end
-                else
-                begin
-                  if ( KeyOptions.BackupDir = '' ) then
-                    bakFN := WideChangefileext( FN, KeyOptions.BackupExt )
-                  else
-                    bakFN := WideChangeFileExt( ProperFolderName( KeyOptions.BackupDir ) + WideExtractFilename( FN ), KeyOptions.BackupExt );
-                end;
+         // BACKUP of the file
+         if DoBackup(FN, bakFN, SUCCESS, LastError) then begin
+            Result := -2;
+            if not SUCCESS then begin
+               if MessageDlg( Format(STR_21,
+                   [LastError, SysErrorMessage(LastError)] ),
+                   mtWarning, [mbYes,mbNo], 0) <> mrYes then
+                 Exit;
+            end;
+         end;
 
-                myBackupLevel := KeyOptions.BackupLevel;
-                if NoteFile.NoMultiBackup then
-                  myBackupLevel := 1;
 
-                if ( myBackupLevel > 1 ) then
-                begin
-                  // recycle bak2..bakN files, discarding the file
-                  // with the highest number (up to .bak9)
-                  for bakindex := pred( myBackupLevel ) downto 2 do
-                  begin
-                    mbakFN := WideFormat( '%s%d', [bakFN, bakindex] );
-                    if WideFileexists( mbakFN ) then
-                    begin
-                      if _OSIsWindowsNT then
-                      begin
-                        MoveFileExW(
-                          PWideChar( mbakFN ),
-                          PWideChar( WideFormat( '%s%d', [bakFN, succ( bakindex )])),
-                          MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED
-                        );
-                      end
-                      else
-                      begin
-                        // MoveFileEx is not available on Windows 95 & 98
-                        copyfileW(
-                          PWideChar( mbakFN ),
-                          PWideChar( WideFormat( '%s%d', [bakFN, succ( bakindex )])),
-                          false
-                        );
-                        deletefileW( PWideChar(mbakFN) );
-                      end;
-                    end;
-                  end;
+         // Get (and reflect) the expanded state of all the tree nodes
+         try
+           for i := 1 to NoteFile.NoteCount do begin
+              myNote := NoteFile.Notes[pred(i)];
+              if myNote.Kind = ntTree then
+                 GetOrSetNodeExpandState(TTreeNote(myNote).TV, false, false);
+           end;
+         except
+           // nothing
+         end;
 
-                  // rename .bak to .bak2, because we have AT LEAST
-                  // backup level 2 specified
-                  if WideFileexists( bakFN ) then
-                  begin
-                    mbakFN := WideFormat( '%s2', [bakFN] );
 
-                    if _OSIsWindowsNT then
-                    begin
-                      MoveFileExW( PWideChar( bakFN ),
-                        PWideChar( mbakFN ),
-                        MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED
-                      );
-                    end
-                    else
-                    begin
-                      CopyFileW( PWideChar( bakFN ),
-                        PWideChar( mbakFN ),
-                        false
-                      );
-                    end;
-                  end;
-                end;
+         // SAVE the file (and backup virtual nodes if it applies)
+         NoteFile.FileName := FN;
+         Result := NoteFile.Save(FN);
 
-                if _OSIsWindowsNT then
-                begin
-                  SUCCESS := MoveFileExW(
-                    PWideChar( FN ),
-                    PWideChar( bakFN ),
-                    MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED
-                  );
-                end
-                else
-                begin
-                  SUCCESS := CopyFileW( PWideChar( FN ), PWideChar( bakFN ), false );
-                  if SUCCESS then
-                    deletefileW( PWideChar(FN) );
-                end;
+         if Result = 0 then begin
+            StatusBar.Panels[PANEL_HINT].Text := STR_22;
+            NoteFile.ReadOnly := False;    // We can do SaveAs from a Read-Only file (*)
+                 { (*) In Windows XP is possible to select (with SaveDlg) the same file
+                    as destination. In W10 it isn't }
+         end
+         else begin
+            // ERROR on save
+            StatusBar.Panels[PANEL_HINT].Text := Format(STR_23, [Result] );
+            ErrStr := WideFormat(STR_24, [Result, WideExtractFilename(FN)] );
 
-                if ( not SUCCESS ) then
-                begin
-                  copyresult := getlasterror;
-                  DoBackup := false;
-                  {$IFDEF MJ_DEBUG}
-                  Log.Add( 'Backup failed; code ' + inttostr( copyresult ));
-                  {$ENDIF}
-                  if ( messagedlg( Format(
-                    STR_21,
-                    [copyresult, SysErrorMessage( copyresult )] ),
-                    mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
-                    exit;
-                end;
-              end;
-            end
-            else
-            begin
-              bakFN := '';
+            if bakFN <> '' then
+               ErrStr := ErrStr + WideFormat(STR_25, [WideExtractFilename(bakFN)] );
+
+            if KeyOptions.AutoSave then begin
+               KeyOptions.AutoSave := False;
+               ErrStr := ErrStr + STR_26;
             end;
 
-            // if file has tree notes with virtual nodes,
-            // they should be backed up as well. We use ugly
-            // global vars to pass backup options:
+            DoMessageBox(ErrStr, mtError, [mbOK], 0);
+         end;
 
-            _VNDoBackup := ( KeyOptions.Backup and KeyOptions.BackupVNodes );
-            _VNBackupExt := KeyOptions.BackupExt;
-            _VNBackupAddExt := KeyOptions.BackupAppendExt;
-            _VNBackupDir := KeyOptions.BackupDir;
+       except
+         on E: Exception do
+         begin
+           {$IFDEF MJ_DEBUG}
+           Log.Add('Exception in NoteFileSave: ' + E.Message);
+           {$ENDIF}
+           StatusBar.Panels[PANEL_HINT].Text := STR_27;
+           DoMessageBox(STR_28 + WideExtractFileName(FN) + '": ' + #13#13 + E.Message, mtError, [mbOK], 0 );
+           Result := 1;
+         end;
+       end;
 
+       try // folder monitor
+         if not KeyOptions.DisableFileMon then begin
+            GetFileState(NoteFile.FileName, FileState);
+            FPath := WideExtractFilePath( NoteFile.FileName );
+            if (Length(FPath) > 1) and (FPath[Length(FPath)] = '\') then
+               Delete(FPath, Length(FPath), 1);
+            FolderMon.FolderName := FPath;
+            FolderMon.Active := (not KeyOptions.DisableFileMon);
+         end;
+       except
+         on E: Exception do
+         begin
+           FolderMon.Active := False;
+           PopupMessage(STR_29 + E.Message, mtError, [mbOK], 0);
+         end;
+       end;
 
-            try
-              cnt := NoteFile.NoteCount;
-              for i := 1 to cnt do
-              begin
-                myNote := NoteFile.Notes[pred( i )];
-                if ( myNote.Kind = ntTree ) then
-                begin
-                  GetOrSetNodeExpandState( TTreeNote( myNote ).TV, false, false );
-                end;
-              end;
-            except
-              // nothing
-            end;
+     finally
+       Screen.Cursor := crDefault;
+       FileIsBusy := False;
+       UpdateNoteFileState([fscSave,fscModified]);
+       {$IFDEF MJ_DEBUG}
+       Log.Add( 'NoteFileSave result: ' + IntToStr(Result));
+       {$ENDIF}
+     end;
 
-            NoteFile.FileName := FN;
-            result := NoteFile.Save( FN );
-
-            if ( result = 0 ) then
-            begin
-              StatusBar.Panels[PANEL_HINT].Text := STR_22;
-              NoteFile.ReadOnly := false;                  // Necesariamente. Podemos estar haciendo SaveAs desde un archivo de sólo lectura
-            end
-            else
-            begin
-              StatusBar.Panels[PANEL_HINT].Text := Format(STR_23, [result] );
-
-
-              errstr := WideFormat(STR_24, [result,WideExtractFilename( FN )] );
-
-              if DoBackup then
-                errstr := errstr + WideFormat(STR_25, [WideExtractFilename( bakFN )]
-              );
-
-              if KeyOptions.AutoSave then
-              begin
-                KeyOptions.AutoSave := false;
-                errstr := errstr + STR_26;
-              end;
-
-              DoMessageBox( errstr, mtError, [mbOK], 0 );
-            end;
-
-          except
-            on E : Exception do
-            begin
-              {$IFDEF MJ_DEBUG}
-              Log.Add( 'Exception in NoteFileSave: ' + E.Message );
-              {$ENDIF}
-              StatusBar.Panels[PANEL_HINT].Text := STR_27;
-              DoMessageBox( STR_28 + WideExtractFilename( FN ) + '": ' + #13#13 + E.Message, mtError, [mbOK], 0 );
-              result := 1;
-            end;
-          end;
-
-          try // folder monitor
-            if ( not KeyOptions.DisableFileMon ) then
-            begin
-              GetFileState( NoteFile.FileName, FileState );
-              FPath := WideExtractfilepath( NoteFile.FileName );
-              if (( length( FPath ) > 1 ) and ( FPath[length( FPath )] = '\' )) then
-                delete( FPath, length( FPath ), 1 );
-              FolderMon.FolderName := FPath;
-              FolderMon.Active := ( not KeyOptions.DisableFileMon );
-            end;
-          except
-            on E : Exception do
-            begin
-              FolderMon.Active := false;
-              PopupMessage( STR_29 + E.Message, mtError, [mbOK], 0 );
-            end;
-          end;
-
-        finally
-          screen.Cursor := crDefault;
-          FileIsBusy := false;
-          UpdateNoteFileState( [fscSave,fscModified] );
-          {$IFDEF MJ_DEBUG}
-          Log.Add( 'NoteFileSave result: ' + inttostr( result ));
-          {$ENDIF}
-        end;
-
-        if ( result = 0 ) then
-        begin
-          KeyOptions.LastFile := FN;
-          if KeyOptions.MRUUse then
-            MRU.AddItem( FN );
-          AddToFileManager( FN, NoteFile );
-        end;
+     if Result = 0 then begin
+        KeyOptions.LastFile := FN;
+        if KeyOptions.MRUUse then
+           MRU.AddItem(FN);
+        AddToFileManager(FN, NoteFile);
+     end;
   end;
 
 end; // NoteFileSave
