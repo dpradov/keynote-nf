@@ -180,7 +180,6 @@ type
     CB_IgnoreUpgrades: TTntCheckBox;
     CB_ConfirmNodeRefresh: TTntCheckBox;
     GroupBox11: TTntGroupBox;
-    Label_Bak: TTntLabel;
     checkbox_Backup: TTntCheckBox;
     CheckBox_BackupAppendExt: TTntCheckBox;
     Edit_BackupExt: TTntEdit;
@@ -190,7 +189,6 @@ type
     Edit_BakDir: TTntEdit;
     Label_MaxBak2: TTntLabel;
     Combo_BakLevel: TTntComboBox;
-    Bevel2: TBevel;
     Bevel3: TBevel;
     Label_MaxBak1: TTntLabel;
     Label13: TTntLabel;
@@ -246,6 +244,7 @@ type
     TntLabel1: TTntLabel;
     TntLabel2: TTntLabel;
     CB_PlainDefaultPaste: TTntCheckBox;
+    CB_BackupRegularIntervals: TTntCheckBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -482,7 +481,8 @@ begin
 
   CB_LoadLastFile.OnClick := Checkbox_LoadLastFileClick;
   CB_LoadUserFile.OnClick := Checkbox_LoadUserFileClick;
-  Checkbox_Backup.OnClick := checkbox_BackupClick;
+  Checkbox_Backup.OnClick := Checkbox_BackupClick;
+  CB_BackupRegularIntervals.OnClick := Checkbox_BackupClick;
   CheckBox_MRUUse.OnClick := CheckBox_MRUUseClick;
   Checkbox_AutoSave.OnClick := Checkbox_AutoSaveClick;
   CheckBox_AutoSaveOnTimer.OnClick := CheckBox_AutoSaveOnTimerClick;
@@ -662,6 +662,7 @@ begin
     AutoSaveOnFocus := CheckBox_AutoSaveOnFocus.Checked;
     AutoSaveOnTimer := CheckBox_AutoSaveOnTimer.Checked;
 
+    BackupRegularIntervals := CB_BackupRegularIntervals.Checked;
     Backup := checkbox_Backup.Checked;
     BackupVNodes := CB_BackupVNodes.Checked;
     BackupAppendExt := CheckBox_BackupAppendExt.Checked;
@@ -841,6 +842,7 @@ begin
     CheckBox_AutoSaveOnFocus.Checked := AutoSaveOnFocus;
     CheckBox_AutoSaveOnTimer.Checked := AutoSaveOnTimer;
     Checkbox_Backup.Checked := Backup;
+    CB_BackupRegularIntervals.Checked := BackupRegularIntervals;
     CB_BackupVNodes.Checked := BackupVNodes;
     CheckBox_BackupAppendExt.Checked := BackupAppendExt;
     Edit_BackupExt.Text := BackupExt;
@@ -1435,18 +1437,22 @@ begin
 end;
 
 procedure TForm_OptionsNew.Checkbox_BackupClick(Sender: TObject);
+var
+  CyclicBackup, CyclicOrIntervalBackup: Boolean;
 begin
-  CheckBox_BackupAppendExt.Enabled := Checkbox_Backup.Checked;
-  Edit_BackupExt.Enabled := Checkbox_Backup.Checked;
-  Label_Bak.Enabled := Checkbox_Backup.Checked;
-  RB_BakOriginalDir.Enabled := Checkbox_Backup.Checked;
-  RB_BakUserDir.Enabled := Checkbox_Backup.Checked;
-  Label_BakDir.Enabled := Checkbox_Backup.Checked;
-  Label_MaxBak1.Enabled := Checkbox_Backup.Checked;
-  Label_MaxBak2.Enabled := Checkbox_Backup.Checked;
-  Combo_BakLevel.Enabled := Checkbox_Backup.Checked;
-  CB_BackupVNodes.Enabled := Checkbox_Backup.Checked;
-  Edit_BakDir.Enabled := ( Checkbox_Backup.Checked and RB_BakUserDir.Checked );
+  CyclicBackup:= Checkbox_Backup.Checked;
+  CyclicOrIntervalBackup:= CyclicBackup or CB_BackupRegularIntervals.Checked;
+
+  CheckBox_BackupAppendExt.Enabled := CyclicBackup;
+  Edit_BackupExt.Enabled := CyclicBackup;
+  RB_BakOriginalDir.Enabled := CyclicOrIntervalBackup;
+  RB_BakUserDir.Enabled := CyclicOrIntervalBackup;
+  Label_BakDir.Enabled := CyclicOrIntervalBackup;
+  Label_MaxBak1.Enabled := CyclicBackup;
+  Label_MaxBak2.Enabled := CyclicBackup;
+  Combo_BakLevel.Enabled := CyclicBackup;
+  CB_BackupVNodes.Enabled := CyclicBackup;
+  Edit_BakDir.Enabled := ( CyclicOrIntervalBackup and RB_BakUserDir.Checked );
   TB_OpenDlgBakDir.Enabled:= Edit_BakDir.Enabled;
 end; // Checkbox_BackupClick
 

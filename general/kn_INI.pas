@@ -276,6 +276,7 @@ type
     BackupExt,
     BackupLevel,
     BackupVNodes,
+    BackupRegularIntervals,
     ColorDlgBig,
     ComboFontLen,
     ComboMacroLen,
@@ -881,6 +882,7 @@ begin
     BackupDir := ''; // default: backup in the same directory as original file
     BackupExt := ext_BAK;
     BackupVNodes := true;
+    BackupRegularIntervals := true;
     BackupLevel := 1;
     ColorDlgBig := true;
     ComboFontLen := 0;
@@ -1148,6 +1150,7 @@ begin
       writestringW( section, KeyOptionsIniStr.BackupDir, KeyOptions.BackupDir );
       writestring( section, KeyOptionsIniStr.BackupExt, KeyOptions.BackupExt );
       writebool( section, KeyOptionsIniStr.BackupVNodes, KeyOptions.BackupVNodes );
+      writebool( section, KeyOptionsIniStr.BackupRegularIntervals, KeyOptions.BackupRegularIntervals );
       writeinteger( section, KeyOptionsIniStr.BackupLevel, KeyOptions.BackupLevel );
       writebool( section, KeyOptionsIniStr.ColorDlgBig, KeyOptions.ColorDlgBig );
       writeinteger( section, KeyOptionsIniStr.ComboDropDownCount, KeyOptions.ComboDropDownCount );
@@ -1426,6 +1429,7 @@ begin
       KeyOptions.BackupExt := readstring( section, KeyOptionsIniStr.BackupExt, KeyOptions.BackupExt );
       KeyOptions.BackupLevel := readinteger( section, KeyOptionsIniStr.BackupLevel, KeyOptions.BackupLevel );
       KeyOptions.BackupVNodes := readbool( section, KeyOptionsIniStr.BackupVNodes, KeyOptions.BackupVNodes );
+      KeyOptions.BackupRegularIntervals := readbool( section, KeyOptionsIniStr.BackupRegularIntervals, KeyOptions.BackupRegularIntervals );
       KeyOptions.ColorDlgBig := readbool( section, KeyOptionsIniStr.ColorDlgBig, KeyOptions.ColorDlgBig );
       KeyOptions.ComboDropDownCount := readinteger( section, KeyOptionsIniStr.ComboDropDownCount, KeyOptions.ComboDropDownCount );
 

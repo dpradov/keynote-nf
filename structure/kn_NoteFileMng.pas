@@ -56,12 +56,12 @@ implementation
 uses
   { Borland units }
   Windows, Messages, SysUtils, StrUtils,
-  Graphics, Controls, Forms, Dialogs,
+  Graphics, Controls, Forms, Dialogs, DateUtils,
   { 3rd-party units }
   BrowseDr, TreeNT, TntSysUtils, ZLibEx,
   { Own units - covered by KeyNote's MPL}
   gf_misc, gf_files,
-  gf_strings, gf_miscvcl, gf_FileAssoc,
+  gf_strings, gf_miscvcl, gf_FileAssoc, gf_streams,
   kn_INI, kn_Cmd, kn_Msgs,
   kn_NoteObj, kn_FileObj, kn_NewNote,
   kn_FileInfo,kn_FileDropAction,
@@ -169,6 +169,9 @@ resourcestring
   STR_75 = 'Successfully created %s registry entries';
   STR_76 = 'There was an error while creating file type associations: ';
   STR_77 = 'This file is Read-Only. Use "Save As" command to save it with a new name.';
+  IntervalBAKDay = '_BAK_Day.knt';
+  IntervalPrefixBAK = '_BAK@';
+  STR_78 = 'Backup at %s before any modification in "%s"';
 
 
 //=================================================================
@@ -551,17 +554,54 @@ end; // NoteFileOpen
 // NoteFileSave
 //=================================================================
 
+function ExistingBackup(const Folder, FileName: WideString;
+                        FileModificationDate: TDateTime;
+                        ConsiderAlsoModifiedLater: Boolean) : WideString;
+var
+   DirInfo : TSearchRecW;
+   FindResult : Integer;
+   Mask : WideString;
+   Consider: Boolean;
+   FileDateTime: TDateTime;
+begin
+   Result := '';
+   Mask := WideChangeFileExt(Folder + FileName, IntervalPrefixBAK + '*' + ext_KeyNote);
+
+   FindResult := WideFindFirst(Mask, faAnyFile, DirInfo);
+   Consider:= False;
+   while FindResult = 0 do begin
+     FileDateTime:= FileDateToDateTime(DirInfo.Time);
+     if ConsiderAlsoModifiedLater then begin
+        if FileDateTime >= FileModificationDate then Consider := True;
+     end
+     else begin
+        if FileDateTime = FileModificationDate then Consider := True;
+     end;
+
+     if Consider then begin
+        Result := DirInfo.Name;
+        break;
+        end
+     else
+        FindResult := WideFindNext(DirInfo);
+   end;
+   WideFindClose(DirInfo);
+end;
+
+
 //------ DoBackup ------------------------------------------------
 
-function DoBackup(const FN: WideString; var BakFN: WideString;
+{ Backup BEFORE save operation }
+
+function DoBackup(const FN: WideString; var BakFN: WideString; var BakFolder: WideString;
                   var SUCCESS: LongBool; var LastError: Integer): Boolean;
 var
-  ext, bakFNfrom, bakFNto: WideString;
+  ext, bakFNfrom, bakFNto, FileName: WideString;
+  DayBakFN, DayBakFN_Txt: WideString;
   myBackupLevel, bakindex : Integer;
+  FirstSaveInDay: Boolean;
 
 begin
-   Result := True;
-
    // if file has tree notes with virtual nodes, they should be backed up as well.
    // We use ugly global vars to pass backup options:
 
@@ -573,91 +613,122 @@ begin
 
    // Check if backup must be done
    //--------------------
-   if not (KeyOptions.Backup and WideFileExists(FN)) then
-      Result := false
 
-   else begin
-      case GetDriveType(PChar(ExtractFileDrive(NoteFile.FileName) + '\')) of
-        DRIVE_REMOVABLE:
-          Result := (not KeyOptions.OpenFloppyReadOnly);
+   { If Backup = True (classic, cyclic way), or
+     If BackupRegularIntervals = True and it is the first time we save this day
+         (there is no Interval BAK day or it corresponds to other day)
 
-        DRIVE_REMOTE:
-          Result := (not KeyOptions.OpenNetworkReadOnly);
+     In both cases, it won't be necessary to create a new backup if there is
+     one already available. This can occur if last save did match with a
+     montly or weekly backup. (A copy of the saved file was taken)
+   }
 
-        0, 1, DRIVE_CDROM, DRIVE_RAMDISK:
-          Result := false;
+   Result := True;
+
+   case GetDriveType(PChar(ExtractFileDrive(NoteFile.FileName) + '\')) of
+     DRIVE_REMOVABLE: Result := (not KeyOptions.OpenFloppyReadOnly);
+     DRIVE_REMOTE:    Result := (not KeyOptions.OpenNetworkReadOnly);
+     0, 1,
+     DRIVE_CDROM,
+     DRIVE_RAMDISK:   Result := false;
+   end;
+
+
+   if Result then begin
+      FileName:= WideExtractFilename(FN);
+
+      // Check if alternate backup directory exists
+      if KeyOptions.BackupDir <> '' then begin
+        if not WideDirectoryExists(KeyOptions.BackupDir) then begin
+          DoMessageBox(
+            Format(STR_20, [KeyOptions.BackupDir]),
+            mtWarning, [mbOK], 0);
+          KeyOptions.BackupDir := '';
+        end;
       end;
+      if KeyOptions.BackupDir <> '' then
+         bakFolder:= ProperFolderName(KeyOptions.BackupDir)
+      else
+         bakFolder:= WideExtractFilePath(FN);
+
+
+      if KeyOptions.BackupRegularIntervals then begin
+         // Is it the first time we save this day? (there is no Interval BAK day or it corresponds to other day)
+         FirstSaveInDay:= False;
+         DayBakFN := WideChangeFileExt(bakFolder + FileName, IntervalBAKDay);
+         DayBakFN_Txt:= DayBakFN + '.TXT';
+         if not WideFileExists(DayBakFN_Txt) or
+            (RecodeTime(GetFileDateStamp(DayBakFN_Txt), 0,0,0,0) <> Date) then
+             FirstSaveInDay:= True;
+      end;
+
+      if not (KeyOptions.Backup or
+             (KeyOptions.BackupRegularIntervals and FirstSaveInDay))
+         or not WideFileExists(FN) then
+         Result := false;
    end;
 
-   if not Result then begin
+   if not Result then begin      // Backup needs not be done
       BakFN:= '';
-      Exit;
+      Exit;                      // EXIT
    end;
 
 
-   // DO the backup
+   // Backup must be done (if not already available)
    //---------------------------
 
-   // Check if alternate backup directory exists
-   if KeyOptions.BackupDir <> '' then begin
-     if not WideDirectoryExists(KeyOptions.BackupDir) then begin
-       DoMessageBox(
-         Format(STR_20, [KeyOptions.BackupDir]),
-         mtWarning, [mbOK], 0);
-       KeyOptions.BackupDir := '';
-     end;
+   // Backup already available?
+   BakFN:= ExistingBackup(bakFolder, fileName, GetFileDateStamp(FN), False);
+
+   if BakFN <> '' then begin
+      SUCCESS:= True;
+      if KeyOptions.BackupRegularIntervals and FirstSaveInDay then begin
+         DeleteFileW(PWideChar(DayBakFN));
+         SaveToFile(DayBakFN_Txt, Format(STR_78, [DateToStr(Date), BakFN]));
+      end;
+      Exit;                      // EXIT
    end;
 
-   if KeyOptions.BackupDir <> '' then
-      bakFN:= ProperFolderName(KeyOptions.BackupDir) + WideExtractFilename(FN)
-   else
-      bakFN:= FN;
 
-   // Adjust how backup extension is added
-   if KeyOptions.BackupAppendExt then
-      bakFN := bakFN + KeyOptions.BackupExt
-   else
-      bakFN := WideChangeFileExt(bakFN, KeyOptions.BackupExt);
+   if KeyOptions.BackupRegularIntervals and FirstSaveInDay then
+      BakFN:= DayBakFN
 
-
-   myBackupLevel := KeyOptions.BackupLevel;
-   if NoteFile.NoMultiBackup then
-      myBackupLevel := 1;
-
-   if myBackupLevel > 1 then begin
-     // recycle bak..bakN files, discarding the file
-     // with the highest number (up to .bak9)
-     for bakIndex := Pred(myBackupLevel) downto 1 do begin
-        bakFNfrom:= bakFN;
-        if bakIndex > 1 then
-           bakFNfrom := bakFN + IntToStr(bakIndex);
-        bakFNto := bakFN + IntToStr(Succ(bakIndex));
-        if WideFileExists(bakFNfrom) then begin
-           if _OSIsWindowsNT then begin
-             MoveFileExW(
-               PWideChar(bakFNfrom), PWideChar(bakFNto),
-               MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED);
-           end
-           else begin
-             // MoveFileEx is not available on Windows 95 & 98
-             CopyFileW(
-               PWideChar(bakFNfrom), PWideChar(bakFNto), False);
-             DeleteFileW(PWideChar(bakFNfrom));
-           end;
-        end;
-     end;
-   end;
-
-   if _OSIsWindowsNT then
-      SUCCESS := MoveFileExW(
-        PWideChar(FN),
-        PWideChar(bakFN),
-        MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED )
    else begin
-      SUCCESS := CopyFileW(PWideChar(FN), PWideChar(bakFN), false);
-      if SUCCESS then
-         DeleteFileW(PWideChar(FN));
+       // Necessarily KeyOptions.Backup must be True at this point
+
+       // Adjust how backup extension is added
+       bakFN := bakFolder + FileName;
+       if KeyOptions.BackupAppendExt then
+          bakFN := bakFN + KeyOptions.BackupExt
+       else
+          bakFN := WideChangeFileExt(bakFN, KeyOptions.BackupExt);
+
+
+       myBackupLevel := KeyOptions.BackupLevel;
+       if NoteFile.NoMultiBackup then
+          myBackupLevel := 1;
+
+       if myBackupLevel > 1 then begin
+         // recycle bak..bakN files, discarding the file
+         // with the highest number (up to .bak9)
+         for bakIndex := Pred(myBackupLevel) downto 1 do begin
+            bakFNfrom:= bakFN;
+            if bakIndex > 1 then
+               bakFNfrom := bakFN + IntToStr(bakIndex);
+            bakFNto := bakFN + IntToStr(Succ(bakIndex));
+            if WideFileExists(bakFNfrom) then
+                 MoveFileExW(
+                   PWideChar(bakFNfrom), PWideChar(bakFNto),
+                   MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED);
+         end; // for
+       end;
    end;
+
+   SUCCESS := MoveFileExW(PWideChar(FN), PWideChar(BakFN),
+                 MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED );
+
+   if KeyOptions.BackupRegularIntervals and FirstSaveInDay then
+      SaveToFile(DayBakFN_Txt, Format(STR_78, [DateToStr(Date), BakFN]));
 
    if not SUCCESS then begin
       bakFN:= '';
@@ -670,11 +741,60 @@ begin
 end;
 
 
+//------ DoIntervalBackup ------------------------------------------------
+
+{ Backup AFTER save operation }
+
+procedure DoIntervalBackup(FN : WideString; BakFolder: WideString);
+var
+   Year, Month, Day: Word;
+   dayOfW, bakIndex: Integer;
+   BeginOfWeek: TDateTime;
+   FileName, BakFN: WideString;
+   bakFNfrom, bakFNTo: WideString;
+begin
+   if not KeyOptions.BackupRegularIntervals then Exit;
+
+   DecodeDate(Date, Year, Month, Day);
+   FileName:= WideExtractFilename(FN);
+
+   BakFN := WideFormat(
+               WideChangeFileExt(BakFolder + '\' + FileName,
+                  IntervalPrefixBAK + '%d_%.2d' + ext_KeyNote), [Year, Month]);
+
+   if not WideFileExists(BakFN) then
+      CopyFileW(PWideChar(FN), PWideChar(BakFN), False)   // Monthly backup
+
+   else begin
+      dayOfW:= DayOfTheWeek(Date);
+      BeginOfWeek:= IncDay(Date, -dayOfW + 1);
+
+      BakFN:= ExistingBackup(bakFolder, FileName, BeginOfWeek, True);
+      if BakFN = '' then begin
+         // There is no backup (weekly of monthly) for this week. We'll create
+         // a weekly one, cycling the others (up to 4)
+         BakFN := WideChangeFileExt(BakFolder + '\' + FileName, IntervalPrefixBAK + 'W');
+
+         for bakIndex := Pred(4) downto 1 do begin
+            bakFNfrom := BakFN + IntToStr(bakIndex)       + ext_KeyNote;
+            bakFNto   := BakFN + IntToStr(Succ(bakIndex)) + ext_KeyNote;
+            if WideFileExists(bakFNfrom) then
+               MoveFileExW(
+                  PWideChar(bakFNfrom), PWideChar(bakFNto),
+                  MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED);
+         end; // for
+         CopyFileW(PWideChar(FN), PWideChar(BakFN + '1' + ext_KeyNote), False);   // Weekly backup
+      end;
+
+   end;
+
+end;
+
 //------ NoteFileSave --------------------------------------------
 
-function NoteFileSave(FN : wideString) : integer;
+function NoteFileSave(FN : WideString) : integer;
 var
-  ErrStr, ext, bakFN, FPath: wideString;
+  ErrStr, ext, BakFN, BakFolder, FPath: WideString;
   SUCCESS: LongBool;
   i, LastError: Integer;
   myNote: TTabNote;
@@ -761,8 +881,8 @@ begin
          StatusBar.Panels[PANEL_HINT].text := STR_19 + FN;
 
 
-         // BACKUP of the file
-         if DoBackup(FN, bakFN, SUCCESS, LastError) then begin
+         // BACKUP (before saving) of the file
+         if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
             Result := -2;
             if not SUCCESS then begin
                if MessageDlg( Format(STR_21,
@@ -794,6 +914,9 @@ begin
             NoteFile.ReadOnly := False;    // We can do SaveAs from a Read-Only file (*)
                  { (*) In Windows XP is possible to select (with SaveDlg) the same file
                     as destination. In W10 it isn't }
+
+            // Backup after saving
+            DoIntervalBackup(FN, BakFolder);
          end
          else begin
             // ERROR on save

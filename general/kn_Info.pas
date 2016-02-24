@@ -444,12 +444,13 @@ type
     AutoSaveOnFocus : boolean;
     AutoSaveOnTimer : boolean;
     AutoSaveOnTimerInt : integer; // minutes between auto-saves
-    Backup : boolean; // make backup copy
+    Backup : boolean; // make backup copy (cyclic way)
     BackupAppendExt : boolean; // append .BAK extention or replace original extension
     BackupDir : wideString;
     BackupExt : string;
     BackupLevel : integer;
     BackupVNodes : boolean;
+    BackupRegularIntervals : boolean;
     ColorDlgBig : boolean; // [*] auto show color dialogs in "expanded" form
     ComboFontLen : integer;  // [*] | these three settings   |
     ComboMacroLen : integer; // [*] | are read from INI file |
