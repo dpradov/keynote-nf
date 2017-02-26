@@ -929,8 +929,6 @@ begin
     end;
   finally
     List.Free;
-    if HaveVCLControls then
-      FDataStream.Clear;
   end;
 
   Modified := false; // triggers SetModified
