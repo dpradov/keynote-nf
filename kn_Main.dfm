@@ -2679,7 +2679,7 @@ object Form_Main: TForm_Main
           Caption = '-'
         end
         object MMFormatLIndInc: TTntMenuItem
-          Caption = 'Increase &Left Inden'
+          Caption = 'Increase &Left Indent'
           Hint = 'Increase left indentation'
           ShortCut = 32954
           OnClick = MMFormatLIndIncClick
