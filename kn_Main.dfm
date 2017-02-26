@@ -2005,7 +2005,7 @@ object Form_Main: TForm_Main
           Caption = '-'
         end
         object MMEditPlainDefaultPaste: TTntMenuItem
-          Caption = 'Paste &external as Plain text'
+          Caption = 'Paste &External as Plain text'
           Hint = 
             'Default paste as plain text when copied from outside KN, accordi' +
             'ng to '#39'Plain text mode'#39
