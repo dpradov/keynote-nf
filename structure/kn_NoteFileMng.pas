@@ -172,6 +172,7 @@ resourcestring
   IntervalBAKDay = '_BAK_Day.knt';
   IntervalPrefixBAK = '_BAK@';
   STR_78 = 'Backup at %s before any modification in "%s"';
+  STR_79 = 'File is not modified. Nothing to save';
 
 
 //=================================================================
@@ -804,11 +805,16 @@ begin
      result := -1;
      if not HaveNotes(true, false) then Exit;
      if FileIsBusy then Exit;
+
      if (FN <> '') and NoteFile.ReadOnly then begin
-         DoMessageBox(STR_77, mtError, [mbOK], 0);
+         DoMessageBox(STR_77, mtWarning, [mbOK], 0);
          Exit;
      end;
 
+     if (FN <> '') and not NoteFile.Modified then begin
+         DoMessageBox(STR_79, mtInformation, [mbOK], 0);
+         Exit;
+     end;
 
      ErrStr := '';
 
