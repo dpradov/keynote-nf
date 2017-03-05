@@ -718,15 +718,13 @@ begin
                bakFNfrom := bakFN + IntToStr(bakIndex);
             bakFNto := bakFN + IntToStr(Succ(bakIndex));
             if WideFileExists(bakFNfrom) then
-                 MoveFileExW(
-                   PWideChar(bakFNfrom), PWideChar(bakFNto),
-                   MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED);
+                 MoveFileExW_n(bakFNfrom, bakFNto, 3);
          end; // for
        end;
    end;
 
-   SUCCESS := MoveFileExW(PWideChar(FN), PWideChar(BakFN),
-                 MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED );
+   SUCCESS := MoveFileExW_n(FN, BakFN, 3);
+
 
    if KeyOptions.BackupRegularIntervals and FirstSaveInDay then
       SaveToFile(DayBakFN_Txt, Format(STR_78, [DateToStr(Date), BakFN]));

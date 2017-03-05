@@ -83,6 +83,7 @@ function GetFileSize( const fn : wideString ) : longint;
 function GetFileDateStamp( const fn : wideString ) : TDateTime;
 function FilesAreOfSameType( const aList : TWideStringList ) : boolean;
 procedure GetFileState( const FN : wideString; var FileState : TFileState );
+function MoveFileExW_n (SourceFN: WideString; DestFN: WideString; Retries: Integer): Boolean;
 
 function GetFilesInFolder( const folder, mask : wideString;
                            const LowCase, AddDirName : boolean;
@@ -717,6 +718,42 @@ begin
       WideCutFirstDirectory(Dir);
     Result := Drive + Dir + Name;
   end;
+end;
+
+function MoveFileExW_n (SourceFN: WideString; DestFN: WideString; Retries: Integer): Boolean;
+var
+   Ok: Boolean;
+   n: Integer;
+   Str: WideString;
+   UseMoveFileExW: Boolean;
+begin
+   n:= 0;
+   Ok:= False;
+   UseMoveFileExW:= True;
+   if not _OSIsWindowsNT then
+      UseMoveFileExW:= False;
+
+   repeat
+      n:= n + 1;
+      if UseMoveFileExW then begin
+         if MoveFileExW(PWideChar(SourceFN), PWideChar(DestFN), MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED) then
+            Ok:= True;
+      end
+      else begin
+         if CopyFileW(PWideChar(SourceFN), PWideChar(DestFN), false) then begin
+            deletefileW(PWideChar(SourceFN));
+            Ok:= True;
+         end;
+      end;
+      if not Ok then begin
+         sleep(200);
+         if GetLastError <> 5 then       // 5: ERROR_ACCESS_DENIED
+            UseMoveFileExW:= False;
+      end;
+
+   until Ok or (n >= Retries);
+
+   Result:= Ok;
 end;
 
 
