@@ -1390,10 +1390,8 @@ object Form_Main: TForm_Main
             ItemHeight = 14
             ParentFont = False
             PopupMenu = Menu_FindAll
-            Style = lbOwnerDrawFixed
             TabOrder = 0
             OnDblClick = List_ResFindDblClick
-            OnDrawItem = List_ResFindDrawItem
             OnKeyDown = List_ResFindKeyDown
           end
         end

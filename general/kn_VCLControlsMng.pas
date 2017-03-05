@@ -1321,6 +1321,7 @@ begin
             begin
               List_ResFind.Style := lbOwnerDrawFixed;
               List_ResFind.OnDrawItem := List_ResFindDrawItem;
+              List_ResFind.ItemHeight := ScaleFromSmallFontsDimension(List_ResFind.ItemHeight);   // http://stackoverflow.com/questions/8296784/how-do-i-make-my-gui-behave-well-when-windows-font-scaling-is-greater-than-100
             end;
 
             // add history to combo

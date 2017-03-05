@@ -57,6 +57,7 @@ type
         function TextHeightW(const Text: wideString): Integer;
    end;
 
+function ScaleFromSmallFontsDimension(const X: Integer): Integer;
 
 var
   _TahomaFontInstalled : boolean = false;
@@ -372,6 +373,14 @@ end;
 function TCanvasW.TextHeightW(const Text: wideString): Integer;
 begin
   Result := TextExtentW(Text).cY;
+end;
+
+const
+  SmallFontsPixelsPerInch = 96;
+
+function ScaleFromSmallFontsDimension(const X: Integer): Integer;
+begin
+  Result := MulDiv(X, Screen.PixelsPerInch, SmallFontsPixelsPerInch);
 end;
 
 {  TMsgDlgType = (mtWarning, mtError, mtInformation, mtConfirmation, mtCustom);

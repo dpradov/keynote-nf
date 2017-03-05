@@ -1952,7 +1952,7 @@ procedure InitializeResPanelOptions( var Struct : TResPanelOptions );
 begin
   with Struct do
   begin
-    ColorFindList := false;
+    ColorFindList := True;
     FindListAltColor := clInfoBk;
     ShowFind := true;
     ShowMacro := true;
