@@ -1831,8 +1831,11 @@ begin
             with Form_Main.NoteSelText do
                SetStrikeOut(not (fsStrikeout in Style));
 
-          ecCut :
-            ActiveNote.Editor.CutToClipboard;
+          ecCut: begin
+              ActiveNote.Editor.CutToClipboard;
+              if EditorOptions.PlainDefaultPaste then
+                 TestCRCForDuplicates(ClipboardAsStringW);
+            end;
 
           ecPaste :
             if not EditorOptions.PlainDefaultPaste or not Clipboard.HasFormat( CF_TEXT ) then
