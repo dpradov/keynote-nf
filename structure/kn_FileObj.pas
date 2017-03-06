@@ -306,7 +306,7 @@ begin
   result := InternalAddNote( ANote );
   if ( ANote.ID = 0 ) then
     GenerateNoteID( ANote );
-  FModified := true;
+  Modified := true;
 end; // AddNote
 
 function TNoteFile.InternalAddNote( ANote : TTabNote ) : integer;
@@ -358,7 +358,7 @@ begin
   idx := FNotes.IndexOf( ANote );
   if ( idx < 0 ) then exit;
   FNotes.Delete( idx );
-  FModified := true;
+  Modified := true;
 end; // DeleteNote
 
 function TNoteFile.GetModified : boolean;
@@ -455,7 +455,7 @@ begin
   ADescription := trim( ADescription );
   if ( FDescription = ADescription ) then exit;
   FDescription := ADescription;
-  FModified := true;
+  Modified := true;
 end; // SetDescription
 
 procedure TNoteFile.SetComment( AComment : TCommentStr );
@@ -463,7 +463,7 @@ begin
   AComment := trim( AComment );
   if ( FComment = AComment ) then exit;
   FComment := AComment;
-  FModified := true;
+  Modified := true;
 end; // SetComment
 
 procedure TNoteFile.SetFileFormat( AFileFormat : TNoteFileFormat );
@@ -476,7 +476,11 @@ procedure TNoteFile.SetModified( AModified : boolean );
 var
   i : integer;
 begin
+  if FModified = AModified then exit;
+
   FModified := AModified;
+  Form_Main.TB_FileSave.Enabled := FModified;
+
   if (( not FModified ) and ( FNotes.Count > 0 )) then
   begin
     for i := 0 to pred( FNotes.Count ) do
@@ -947,7 +951,7 @@ begin
   finally
     if assigned( Stream ) then Stream.Free;
     // FNoteCount := Notes.Count;
-    FModified := false;
+    Modified := false;
     VerifyNoteIds;
   end;
 
@@ -1119,7 +1123,7 @@ begin
 
           try
             WriteNoteFile;
-            FModified := false;
+            Modified := false;
           finally
             tf.closefile();
           end;
@@ -1138,7 +1142,7 @@ begin
               tf.assignstream( AuxStream );
               tf.rewrite;
               WriteNoteFile;
-              FModified := false;
+              Modified := false;
             finally
               tf.closefile();
             end;
@@ -1165,7 +1169,7 @@ begin
 
             try
               WriteNoteFile;
-              FModified := false;
+              Modified := false;
             finally
               tf.closefile();
             end;
@@ -1208,7 +1212,7 @@ begin
             end;
 
             result := 0;
-            FModified := false;
+            Modified := false;
           finally
             Stream.Free;
           end;

@@ -2471,6 +2471,7 @@ begin
           TrayIcon.Hint := Program_Name + STR_71;
           Caption := Format( '%s  %s -' + STR_71,
             [Program_Name, Program_Version] );
+          TB_FileSave.Enabled := False;
           Application.Title := Program_Name;
         end;
         UpdateTabAndTreeIconsShow;

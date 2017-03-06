@@ -106,6 +106,7 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
+		Enabled = False
         Glyph.Data = {00000000}
         GlyphMask.Data = {00000000}
         ImageIndex = 2
