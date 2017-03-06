@@ -225,6 +225,7 @@ var
   nodeToFilter: boolean;
   nodesSelected: boolean;
   oldActiveNote: TTabNote;
+  SearchModeToApply : TSearchMode;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -347,6 +348,8 @@ begin
   FindOptions.FindNew := true;
   FindOptions.Pattern := trim( Form_Main.Combo_ResFind.Text ); // leading and trailing blanks need to be stripped
 
+  SearchModeToApply := FindOptions.SearchMode;
+
   myTreeNode := nil;
   myNoteNode := nil;
 
@@ -381,6 +384,14 @@ begin
       CSVTextToStrs( wordList, FindOptions.Pattern, #32 );
       wordcnt := wordList.count;
 
+      if wordcnt = 1 then
+         SearchModeToApply := smPhrase;    // If not used smPhrase then the line number will not be shown, and will be confusing
+
+      if wordcnt = 0 then begin
+         Form_Main.Combo_ResFind.Text:= '';
+         Form_Main.Btn_ResFind.Enabled:= False;
+         exit;
+      end;
 
       if FindOptions.AllTabs then
          myNote := TTabNote( Form_Main.Pages.Pages[noteidx].PrimaryObject ) // initially 0
@@ -407,7 +418,7 @@ begin
                 nodeToFilter:= true;                     // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
                 SearchOrigin := 0; // starting a new note
 
-                case FindOptions.SearchMode of
+                case SearchModeToApply of
                     smPhrase :
                         begin
                             // look for match in node name first (si estamos buscando dentro de una nota ntTree)
@@ -452,7 +463,7 @@ begin
                               SearchOpts
                             );
 
-                            case FindOptions.SearchMode of
+                            case SearchModeToApply of
                                 smAll:
                                     if ( PatternPos >= 0 ) then
                                        MultiMatchOK := true // assume success
