@@ -34,6 +34,28 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
     particularly in version changes.
 -------------
 
+v 1.7.9.7 Beta (08 mar 2017)
+--------------
+Corrects or implements the following issues:
+
+*  #554 : Missing notes (IMPORTANT!)
+*  #544 : New option to keep backups at regular intervals
+*  #552 : Avoid continuous saving / "Failed to create output file" error
+*  #538 : Reimplement TAB multiple lines, while preserving old Shift+TAB behaviour
+*  #543 : Cut and paste is pasting always as plain text if 'Paste external as Plain text' is checked (Beta 6)
+*  #558 : Always assume 'Search Type' equal to 'Exact phrase' when searching only one word [Find All]
+*  #541 : Display problems with Find results
+*  #402 : Auto indent failed when line wrapped
+*  #552 : When there are no modifications, the Save button will be disabled
+*  #540 : Revise and optimize the correction of some corrupted RTFs
+*  #539 : Pasting as plain text moves the caret beyond pasted text when it includes several lines
+*  Corrected: INTRO inside or stuck on the left of a hyperlink doesn't behave correctly if AutoIndent enabled
+*  Adjusts issue #38 when line wrapped (#38: HOME key, could put caret on first non-space position)
+*  Several optimizations, like the following commits:
+   e172e867dc5cb50f97d5c5e907c953c03b92adfb, 6967f735100a47d8908aa64ea36b49de1cb33de7, 
+   4d848a9085d5787071e47602d239aa11bc577aea, 715a8a2ac2c1a28191f82bc8efa25bb94b704628
+
+
 
 v 1.7.9.6 Beta (03 jan 2016)
 --------------

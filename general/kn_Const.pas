@@ -92,15 +92,15 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '1.7.9 Beta 6';
-  Program_Version_Number  = '1.7.9.6';
-  Program_Version_Date    = '03/01/2016';
+  Program_Version  = '1.7.9 Beta 7';
+  Program_Version_Number  = '1.7.9.7';
+  Program_Version_Date    = '08/03/2017';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL     = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
   Program_Email1  = 'dprado.keynote@gmail.com';
   Program_Email2  = 'marekjed@users.sourceforge.net';
-  Program_Credit1 = 'Copyright © 2007-15  Daniel Prado Velasco   (since 1.7.0)';
+  Program_Credit1 = 'Copyright © 2007-17  Daniel Prado Velasco   (since 1.7.0)';
   Program_Credit2 = 'Copyright © 2000-05  Marek Jedlinski';
 
   UniqueAppName_KEYNOTE10   = 'GFKeyNote10';
