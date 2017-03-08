@@ -45,11 +45,14 @@ So, it is important to maintain a backup of the .knt file in older version if yo
 Not only because of possible compatibilty issues. It is always *strongly recommended* to conserve backups of .knt files.  
 Currently KeyNote NF (as version 1.6.5 did) has an option to keep backup files. But don't forget that they are created when saving changes and that only last recent files (up to 9 max.) will be kept, in a cyclic way. If for some reason you save to file very frequently you might find that all the backup files are too recent (perhaps of the same day or few hours ago...). If you deleted something you shouldn't or the application did something wrong, you could not find a correct backup.  
 So, you should always maintain custom copys (backup) of your files, perhaps one per day in the last week, for example.
+
+From version 1.7.9 Beta 7, a new option have been added that offer the possibility of maintaining backups regularly. See #544 : New option to keep backups at regular intervals.
 <br><br>
 
 ###Installation
 There is no installation project at this moment. You can copy all the files in release archives (eg, "Release_XXXXXX.zip") in a new folder, as KeyNote NF doesn't need installation to work.  
 If you prefer, you can install original [KeyNote (version 1.6.5)](http://www.tranglos.com/free/files/kntsetup.exe) and then copy only the files contained in the new release (zip file), in the installed folder, replacing the original ones. At least the new version will include the executable, `keynote.exe`.
+Please, see the file [BetaReleases_README.txt](https://github.com/dpradov/keynote-nf/releases/download/v1.7.9-Beta.7/BetaReleases_README.txt) for more information about how to install or update to a Beta release.
 
 Download the <b>[latest release](https://github.com/dpradov/keynote-nf/releases/latest)</b>
 <br><br>
@@ -68,7 +71,7 @@ In case you fork the repository or clone it to your desktop, in the [README_Sour
 ###Copyright and license
 The initial developer of KeyNote is Marek Jedlinski, copyright 2000-2005.  
 
-The adaptation to Delphi 2006 and the new functionalities added since version 1.7.0 corresponds to Daniel Prado Velasco, copyright 2007-2015.  
+The adaptation to Delphi 2006 and the new functionalities added since version 1.7.0 corresponds to Daniel Prado Velasco, copyright 2007-2017.  
 
 Code released under the [Mozilla Public License 2.0](./LICENSE.txt). This license applies only to units written by the authors of KeyNote and KeyNote NF: Marek Jedlinski and Daniel Prado, respectively.
 Note: KeyNote was originally licensed by MPL 1.1. I have contacted with Marek and have obtained his approval to update to MPL 2.0.
