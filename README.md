@@ -46,7 +46,7 @@ Not only because of possible compatibilty issues. It is always *strongly recomme
 Currently KeyNote NF (as version 1.6.5 did) has an option to keep backup files. But don't forget that they are created when saving changes and that only last recent files (up to 9 max.) will be kept, in a cyclic way. If for some reason you save to file very frequently you might find that all the backup files are too recent (perhaps of the same day or few hours ago...). If you deleted something you shouldn't or the application did something wrong, you could not find a correct backup.  
 So, you should always maintain custom copys (backup) of your files, perhaps one per day in the last week, for example.
 
-From version 1.7.9 Beta 7, a new option have been added that offer the possibility of maintaining backups regularly. See #544 : New option to keep backups at regular intervals.
+From version 1.7.9 Beta 7, a new option have been added that offer the possibility of maintaining backups regularly. See [#544: New option to keep backups at regular intervals](https://github.com/dpradov/keynote-nf/issues/544)
 <br><br>
 
 ###Installation
