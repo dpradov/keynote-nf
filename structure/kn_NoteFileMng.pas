@@ -359,6 +359,8 @@ begin
 
             // NoteFile.OnNoteLoad := OnNoteLoaded;
             result := NoteFile.Load( FN );
+            if NoteFile.OpenAsReadOnly then
+               OpenReadOnly:= True;
 
             for i := 0 to NoteFile.Notes.Count -1 do
             begin
@@ -852,6 +854,8 @@ begin
            end;
 
            if SaveDlg.Execute then begin
+              NoteFile.OpenAsReadOnly := False;
+
               FN := NormalFN(SaveDlg.FileName);
               ext := ExtractFileExt(FN);
               if ext = '' then begin

@@ -453,7 +453,7 @@ begin
   begin
     if (( not CB_AsReadOnly.Checked ) and myNotes.ReadOnly ) then
     begin
-      if ( DoMessageBox( WideFormat(STR_12,[WideExtractFilename( myNotes.FileName )]), mtWarning, [mbYes,mbNo], 0 ) = mrYes ) then
+      if ( DoMessageBox( WideFormat(STR_12,[WideExtractFilename( myNotes.FileName )]), mtWarning, [mbYes,mbNo], 0, Self.Handle ) = mrYes ) then
         CB_AsReadOnly.OnClick := nil
       else
         CB_AsReadOnly.Checked := true;
