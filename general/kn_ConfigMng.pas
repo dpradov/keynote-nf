@@ -113,8 +113,8 @@ begin
       begin
         // not a switch, so it's a filename.
         // Let's see what kind of file.
-        ext := extractfileext( s );
-        s:= GetAbsolutePath(WideExtractFilePath(Application.ExeName), s);
+        ext := extractfileext(s);
+        s:= GetAbsolutePath(WideExtractFilePath(Application.ExeName), ParamStr(i));
         if (( ext = ext_KeyNote ) or ( ext = ext_Encrypted ) or ( ext = ext_DART )) then
         begin
           NoteFileToLoad := s;
