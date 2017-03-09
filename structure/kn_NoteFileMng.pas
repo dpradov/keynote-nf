@@ -860,7 +860,7 @@ begin
               ext := ExtractFileExt(FN);
               if ext = '' then begin
                  case NoteFile.FileFormat of
-                   nffKeyNote:
+                   nffKeyNote, nffKeyNoteZip:
                      FN := FN + ext_KeyNote;
                    nffEncrypted:
                      if KeyOptions.EncFileAltExt then
