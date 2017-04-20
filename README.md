@@ -35,7 +35,7 @@ relevant addresses and contact information.
 ###Name. Compatibility
 Since version 1.7.4 the program has been renamed from "KeyNote" to "KeyNote NF". That way I hope it will be easier to locate it searching the web.
 
-To implement some of the new features included in KeyNote NF I had to extend sligthly the format of KeyNote (.knt) files. All new elements are optional so that new version can open without problems a file corresponding to version 1.6.5.
+To implement some of the new features included in KeyNote NF I had to slightly extend the format of KeyNote (.knt) files. All new elements are optional so that new version can open without problems a file corresponding to version 1.6.5.
 Also, with KeyNote 1.6.5 it is possible to open a file created with a later version, but in this case, if the file is saved, the alarms and information about checked nodes will be lost.
 
 _Important_: From version 1.7.7, certain metainformation is encoded in UTF-8 without BOM, not in ASCII. They are the corresponding to the following keys: NN, ND, VN, RV, VF, NA, EN  (note name, node name, etc. Fore more information: [fileformat.txt](doc/kn_fileformat/fileformat.txt)  
@@ -44,7 +44,7 @@ So, it is important to maintain a backup of the .knt file in older version if yo
 ####Backups
 Not only because of possible compatibilty issues. It is always *strongly recommended* to conserve backups of .knt files.  
 Currently KeyNote NF (as version 1.6.5 did) has an option to keep backup files. But don't forget that they are created when saving changes and that only last recent files (up to 9 max.) will be kept, in a cyclic way. If for some reason you save to file very frequently you might find that all the backup files are too recent (perhaps of the same day or few hours ago...). If you deleted something you shouldn't or the application did something wrong, you could not find a correct backup.  
-So, you should always maintain custom copys (backup) of your files, perhaps one per day in the last week, for example.
+So, you should always maintain custom copies (backup) of your files, perhaps one per day in the last week, for example.
 
 From version 1.7.9 Beta 7, a new option have been added that offer the possibility of maintaining backups regularly. See [#544: New option to keep backups at regular intervals](https://github.com/dpradov/keynote-nf/issues/544)
 <br><br>
