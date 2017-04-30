@@ -34,6 +34,19 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
     particularly in version changes.
 -------------
 
+
+v 1.7.9.8 Beta (30 abr 2017)
+--------------
+Corrects or implements the following issues:
+
+*  #554 : Modified nodes could be truncated (content partially losted) on saving (with RichText 4.1, in XP and W7)
+*  Fixes: File properties -> Settings -> Open '<File>' as Read-Only - Was not working   (5b5a0ad40bc7c54681c5a603c3635d745b61ce02)
+*  Fixes: Filename is converted to lowercase when opened from command line (or explorer) (8428f05d5b3159d9a3edced82a82e09a4cff536b)
+*  Adding extension when 'saving as', with no extension and file format is KeyNote compressed file (nffKeyNoteZip) (3284e5ddd08b06908dca9145830c68c735da9de3)
+*  Minor optimization: 9f28a03da58ae5e0d26cff87dee470c8f47e04d1
+
+
+
 v 1.7.9.7 Beta (08 mar 2017)
 --------------
 Corrects or implements the following issues:

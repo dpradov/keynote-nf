@@ -92,9 +92,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '1.7.9 Beta 7';
-  Program_Version_Number  = '1.7.9.7';
-  Program_Version_Date    = '08/03/2017';
+  Program_Version  = '1.7.9 Beta 8';
+  Program_Version_Number  = '1.7.9.8';
+  Program_Version_Date    = '30/04/2017';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL     = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
