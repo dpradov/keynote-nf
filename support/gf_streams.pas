@@ -78,7 +78,7 @@ type
 
 
 implementation
-uses TntSystem, TntClasses;
+uses TntSystem, TntClasses, gf_strings;
 
 
 procedure SaveToFile(FN: WideString; Str: String);
@@ -414,6 +414,7 @@ begin
    Result:= (posF = 0);
 end;
 
+{See: Variant Open Array Parameters}
 
 procedure TWTextFile.WriteLn (const Args: array of const);
 var
@@ -421,7 +422,6 @@ var
   line: string;
   wline: WideString;
   lastParamWide: boolean;
-  x: PShortString;
   ws: wideString;
   s: string;
 
@@ -430,10 +430,7 @@ var
      S: AnsiString;
   begin
     if (wline <> '') and (not lastParamWide or force) then begin
-        S:= string(wline);                   // To make it more compatible with older versions. Only use UTF8 if it's necessary
-        if wline <> WideString(S) then
-           S:= WideStringToUTF8(wline);
-
+        S:= WideStringToUTF8(wline);
         F.WriteBuffer(PChar(S)^, length(S));
         wline:= '';
     end;
@@ -463,16 +460,16 @@ begin
                     lastParamWide:= true;
                     end;
       vtPWideChar,
-      vtWideString: begin
-                    ws:= WideString(Args [I].VPWideChar);
-                    s:= string(ws);
-                    if s = ws then
-                       line := line + s
-                    else begin
-                        wline:= wline + ws;
-                        lastParamWide:= true;
-                        end;
-                    end;
+      vtWideString:
+             begin
+                ws:= WideString(Args [I].VPWideChar);
+                if CanSaveAsANSI(ws) then
+                   line:= line + string(ws)                   // To make it more compatible with older versions. Only use UTF8 if it's necessary
+                else begin
+                    wline:= wline + ws;
+                    lastParamWide:= true;
+                end;
+             end;
       vtCurrency:   line := line + CurrToStr(Args [I].VCurrency^);
     end; // case
     checkToWrite;
