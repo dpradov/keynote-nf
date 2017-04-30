@@ -1716,9 +1716,33 @@ procedure PerformCmdPastePlain( Note: TTabNote;
 var
    Editor: TTabRichEdit;
    i, j: integer;
+   Ok: Boolean;
+
+  function PasteOperationWasOK(StrClp, Selection: WideString): boolean;
+  var
+    i, j, n: integer;
+  begin
+     Result:= False;
+     i:= 1;
+     j:= 1;
+     n:= Length(StrClp);
+
+     if n = Length(Selection) then begin
+       while (i <= 4) and (i <= n) do begin
+           if StrClp[i] <> #$A then begin
+              if StrClp[i] <> Selection[j] then
+                 exit;
+              Inc(j);
+           end;
+           Inc(i);
+        end;
+        Result:= True;
+     end;
+  end;
 
 begin
     Editor:= Note.Editor;
+    Ok:= True;
 
     if ForcePlainText or Note.PlainText or (ClipOptions.PlainTextMode = clptPlainText) then begin
        if StrClp = '' then
@@ -1726,9 +1750,19 @@ begin
 
        if (( ClipOptions.MaxSize > 0 ) and ( length( StrClp ) > ClipOptions.MaxSize )) then
           delete( StrClp, succ( ClipOptions.MaxSize ), length( StrClp ));
-       StrClp:= Trim(StrClp);
        Editor.SelTextW := StrClp;
-       Editor.SelStart := Editor.SelStart + Editor.SelLength - NumberOfLineFeed(StrClp);
+
+       if RichEditVersion < 5 then begin
+          if not PasteOperationWasOK (StrClp, Editor.SelVisibleTextW) then begin
+             Editor.Undo;
+             Editor.SelLength:= 0;
+             Ok:= False;
+          end;
+       end;
+
+       if Ok then
+          Editor.SelStart := Editor.SelStart + Editor.SelLength - NumberOfLineFeed(StrClp);
+
     end
     else begin
           if HTMLClip = '' then
