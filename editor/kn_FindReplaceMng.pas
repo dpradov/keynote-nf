@@ -186,11 +186,8 @@ var
     myNoteNode : TNoteNode;
 begin
     if (myNote.Kind <> ntTree)  or ((myNote = ActiveNote) and (TTreeNote(ActiveNote).TV.Selected = myTreeNode)) then begin
-        if (myNote.Kind = ntTree) and myNote.Editor.Modified then begin
+        if (myNote.Kind = ntTree) and myNote.Editor.Modified then
             myNote.EditorToDataStream;
-            myNote.Editor.Modified := false;
-            myNote.Modified := true;
-        end;
         EditControl:= myNote.Editor
     end
     else begin
