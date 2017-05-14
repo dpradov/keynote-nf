@@ -4852,6 +4852,7 @@ begin
     ActiveNote.Modified := true;
   finally
     _ALLOW_VCL_UPDATES := true;
+    NoteFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
   end;
 end; // TVEdited
