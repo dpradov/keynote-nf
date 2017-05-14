@@ -1716,28 +1716,69 @@ procedure PerformCmdPastePlain( Note: TTabNote;
 var
    Editor: TTabRichEdit;
    i, j: integer;
-   Ok: Boolean;
+   TextToReplace: WideString;
+   SelStart: Integer;
+   Ok, DoUndo: boolean;
 
-  function PasteOperationWasOK(StrClp, Selection: WideString): boolean;
+  function PasteOperationWasOK (): boolean;
   var
-    i, j, n: integer;
+    i, j, n, m: integer;
+    Selection: WideString;
+    beginPos, len: Integer;
   begin
-     Result:= False;
      i:= 1;
      j:= 1;
-     n:= Length(StrClp);
 
-     if n = Length(Selection) then begin
-       while (i <= 4) and (i <= n) do begin
-           if StrClp[i] <> #$A then begin
-              if StrClp[i] <> Selection[j] then
-                 exit;
-              Inc(j);
-           end;
-           Inc(i);
-        end;
-        Result:= True;
+     n:= Length(StrClp);
+     len:= 5;            // Will study only the beginning
+     if n < 5 then
+        len:= n;
+
+     Selection:= Editor.SelVisibleTextW;
+     m:= Length(Selection);
+
+     Ok:= True;
+     DoUndo:= False;
+     while (i <= len) do begin
+         if StrClp[i] <> #$A then begin
+            if (j > m) or (StrClp[i] <> Selection[j]) then begin
+               Ok:= False;
+               break;
+            end;
+            Inc(j);
+         end;
+         Inc(i);
      end;
+
+     if not Ok then begin
+        // In some incorrect replacements, the selection is not modified, not replaced with
+        // the plain text, but simply unselected. We need to distinguish this case,
+        // because we should not emit any Undo operation, or it could undo other previous and correct
+        // modification
+        // I will see if the initial selection keeps the same
+
+        n:= Length(TextToReplace);
+        len:= 5;            // Will study only the beginning
+        if n < 5 then
+           len:= n;
+
+        Selection:= Editor.GetTextRange(SelStart, SelStart + 5);
+        m:= Length(Selection);
+
+        i:= 1;
+        j:= 1;
+        while (i <= len) do begin
+            if (j > m) or (TextToReplace[i] <> Selection[j]) then begin
+               DoUndo:= True;
+               break;
+            end;
+            Inc(j);
+            Inc(i);
+        end;
+
+     end;
+
+     Result:= Ok;
   end;
 
 begin
@@ -1750,13 +1791,20 @@ begin
 
        if (( ClipOptions.MaxSize > 0 ) and ( length( StrClp ) > ClipOptions.MaxSize )) then
           delete( StrClp, succ( ClipOptions.MaxSize ), length( StrClp ));
-       Editor.SelTextW := StrClp;
 
-       if RichEditVersion < 5 then begin
-          if not PasteOperationWasOK (StrClp, Editor.SelVisibleTextW) then begin
-             Editor.Undo;
+
+       if RichEditVersion >= 5 then
+          Editor.SelTextW := StrClp
+
+       else begin
+          SelStart:= Editor.SelStart;
+          TextToReplace:= Editor.GetTextRange(SelStart, SelStart + 5);
+          Editor.SelTextW := StrClp;
+          if not PasteOperationWasOK() then begin
+             if DoUndo then
+                Editor.Undo;
+             Editor.SelStart:= SelStart;
              Editor.SelLength:= 0;
-             Ok:= False;
           end;
        end;
 
