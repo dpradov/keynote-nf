@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\Borland\BDS\4.0\Bin\BRCC32.EXE" Resources.rc

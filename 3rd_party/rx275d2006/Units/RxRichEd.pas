@@ -115,7 +115,6 @@ type
     RichEdit: TRxCustomRichEdit;
     FType: TRxAttributeType;
     procedure AssignFont(Font: TFont);
-    procedure GetAttributes(var Format: TCharFormat2);
 {$IFNDEF VER90}
     function GetCharset: TFontCharset;
     procedure SetCharset(Value: TFontCharset);
@@ -140,7 +139,6 @@ type
     function GetSize: Integer;
     function GetStyle: TFontStyles;
     function GetUnderlineType: TUnderlineType;
-    procedure SetAttributes(var Format: TCharFormat2);
     procedure SetBackColor(Value: TColor);
     procedure SetColor(Value: TColor);
     procedure SetDisabled(Value: Boolean);
@@ -161,6 +159,8 @@ type
   public
     constructor Create(AOwner: TRxCustomRichEdit; AttributeType: TRxAttributeType);
     procedure Assign(Source: TPersistent); override;
+    procedure GetAttributes(var Format: TCharFormat2);                   // [dpv] -> public
+    procedure SetAttributes(var Format: TCharFormat2);                   // [dpv] -> public
 {$IFNDEF VER90}
     property Charset: TFontCharset read GetCharset write SetCharset;
 {$ENDIF}
@@ -202,7 +202,6 @@ type
   TRxParaAttributes = class(TPersistent)
   private
     RichEdit: TRxCustomRichEdit;
-    procedure GetAttributes(var Paragraph: TParaFormat2);
     function GetAlignment: TParaAlignment;
     function GetFirstIndent: Longint;
     function GetHeadingStyle: THeadingStyle;
@@ -220,7 +219,6 @@ type
     function GetTabCount: Integer;
     function GetTableStyle: TParaTableStyle;
     procedure SetAlignment(Value: TParaAlignment);
-    procedure SetAttributes(var Paragraph: TParaFormat2);
     procedure SetFirstIndent(Value: Longint);
     procedure SetFirstIndentRelative(Value: Longint);
     procedure SetHeadingStyle(Value: THeadingStyle);
@@ -243,6 +241,8 @@ type
   public
     constructor Create(AOwner: TRxCustomRichEdit);
     procedure Assign(Source: TPersistent); override;
+    procedure GetAttributes(var Paragraph: TParaFormat2);                       // [dpv] -> public
+    procedure SetAttributes(var Paragraph: TParaFormat2);                       // [dpv] -> public
     property Alignment: TParaAlignment read GetAlignment write SetAlignment;
     property FirstIndent: Longint read GetFirstIndent write SetFirstIndent;
     property FirstIndentRelative: Longint write SetFirstIndentRelative;

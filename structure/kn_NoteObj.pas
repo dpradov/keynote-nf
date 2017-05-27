@@ -46,56 +46,6 @@ type
 const
   _NEW_NOTE_KIND : TNoteType = ntRTF;  // global, passed between this unit and kn_FileObj
 
-type
-  TkntParaAttributes = record
-    FirstIndent : Longint;
-    LeftIndent : Longint;
-    LineSpacing : longint;
-    LineSpacingRule : TLineSpacingRule;
-    Alignment : TParaAlignment;
-    Numbering : TRxNumbering;
-    NumberingStyle : TRxNumberingStyle;
-    NumberingTab : word;
-    RightIndent : Longint;
-    SpaceAfter : Longint;
-    SpaceBefore : Longint;
-    TabCount : integer;
-    // [x] Tab[index : integer]
-  end;
-
-type
-  TkntFontAttributes = record
-    Charset : TFontCharset;
-    BackColor : TColor;
-    Color : TColor;
-    Disabled : boolean;
-    Hidden : boolean;
-    Link : boolean;
-    Name : TFontName;
-    Offset : integer;
-    Pitch : TFontPitch;
-    IsProtected : boolean;          // Protected-> IsProtected  //*1
-    RevAuthorIndex : byte;
-    SubscriptStyle : TSubscriptStyle;
-    Size : integer;
-    Style : TFontStyles;
-    Height : integer;
-    Language : TLanguage;
-    UnderlineType : TUnderlineType;
-  end;
-
-type
-  TkntNumberingStyle = (
-    numArabic, numLoCaseLetter, numUpCaseLetter,
-    numLoCaseRoman, numUpCaseRoman
-  );
-  TkntOutlineFormat = record
-    NumStyle : TkntNumberingStyle;
-    StrBefore : string;
-    StrAfter : string;
-    StartNum : integer;
-    IncludeParentLevel : boolean;
-  end;
 
 type
   TTabRichEdit = class; // FORWARD DECLARATION
@@ -263,6 +213,7 @@ type
     function GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False  ) : WideString;
     function SelectWordAtCursor : string;
     procedure GetLinkAtCursor(var URL: WideString; var TextURL: WideString; var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
+    function ParagraphsSelected: Boolean;
   end; // TTabRichEdit
 
 type
@@ -365,11 +316,14 @@ type
 
   end;
 
-procedure ParaAttrsRX2KNT( const RxFmt : TRxParaAttributes; var KntFmt : TkntParaAttributes );
-procedure ParaAttrsKNT2RX( const KntFmt : TkntParaAttributes; const RxFmt : TRxParaAttributes );
-procedure ParaAttrsKNT2RX_Reduced( const KntFmt : TkntParaAttributes; const RxFmt : TRxParaAttributes );
-procedure FontAttrsRX2KNT( const RxFmt : TRxTextAttributes; var KntFmt : TkntFontAttributes );
-procedure FontAttrsKNT2RX( const KntFmt : TkntFontAttributes; const RxFmt : TRxTextAttributes );
+
+  procedure SaveParagraphAttributes(const Editor: TTabRichEdit; var Paragraph: TParaFormat2);
+  procedure ApplyParagraphAttributes(const Editor: TTabRichEdit; var Paragraph: TParaFormat2;
+                                       const Reduced: Boolean = False);
+
+  procedure SaveTextAttributes(const Editor: TTabRichEdit; var Format: TCharFormat2);
+  procedure ApplyTextAttributes(const Editor: TTabRichEdit; var Format: TCharFormat2);
+
 
 var
   _LoadedRichEditVersion : Single;
@@ -392,120 +346,83 @@ resourcestring
   STR_11 = 'Failed to open TreePad file ';
 
 
-
-procedure ParaAttrsRX2KNT( const RxFmt : TRxParaAttributes; var KntFmt : TkntParaAttributes );
-begin
-  with RxFmt do
+  /// Save on 'Paragraph' the paragraph formatting attributes of the current selection
+  //
+  procedure SaveParagraphAttributes(const Editor: TTabRichEdit; var Paragraph: TParaFormat2);
   begin
-    KntFmt.FirstIndent := FirstIndent;
-    KntFmt.LeftIndent := LeftIndent;
-    KntFmt.LineSpacing := LineSpacing;
-    KntFmt.LineSpacingRule := LineSpacingRule;
-    KntFmt.Alignment := Alignment;
-    KntFmt.Numbering := Numbering;
-    KntFmt.NumberingStyle := NumberingStyle;
-    KntFmt.NumberingTab := NumberingTab;
-    KntFmt.RightIndent := RightIndent;
-    KntFmt.SpaceAfter := SpaceAfter;
-    KntFmt.SpaceBefore := SpaceBefore;
-    KntFmt.TabCount := TabCount;
-    // [x] Tab[index : integer]
+     Editor.Paragraph.GetAttributes(Paragraph);
   end;
-end; // ParaAttrsRX2KNT
 
-procedure ParaAttrsKNT2RX( const KntFmt : TkntParaAttributes; const RxFmt : TRxParaAttributes );
-begin
-  with KntFmt do
+  /// Sets the paragraph formatting for the current selection with the attributes saved on 'Paragraph'
+  //
+  procedure ApplyParagraphAttributes(const Editor: TTabRichEdit; var Paragraph: TParaFormat2;
+                                       const Reduced: Boolean = False);
   begin
-    RxFmt.Numbering := Numbering;
-    RxFmt.FirstIndent := FirstIndent;
-    RxFmt.LeftIndent := LeftIndent;
-    RxFmt.LineSpacing := LineSpacing;
-    RxFmt.LineSpacingRule := LineSpacingRule;
-    RxFmt.Alignment := Alignment;
-    RxFmt.NumberingStyle := NumberingStyle;
-    RxFmt.NumberingTab := NumberingTab;
-    RxFmt.RightIndent := RightIndent;
-    RxFmt.SpaceAfter := SpaceAfter;
-    RxFmt.SpaceBefore := SpaceBefore;
-    RxFmt.TabCount := TabCount;
-    // [x] Tab[index : integer]
-  end;
-end; // ParaAttrsKNT2RX
+     Paragraph.dwMask:= PFM_STARTINDENT or PFM_RIGHTINDENT or PFM_OFFSET or
+                        PFM_ALIGNMENT or
+                        PFM_TABSTOPS or
+                        PFM_SPACEBEFORE or PFM_SPACEAFTER or PFM_LINESPACING or
+                        PFM_SHADING or
+                        PFM_BORDER or
+                        PFM_NUMBERING or PFM_NUMBERINGTAB or PFM_NUMBERINGSTART or PFM_NUMBERINGSTYLE
+                        // or PFM_EFFECTS or PFM_RTLPARA or PFM_OFFSETINDENT or PFM_STYLE
+                        ;
 
-// Copy paragraph attributes ignoring (preserving actual values) some of them
-procedure ParaAttrsKNT2RX_Reduced( const KntFmt : TkntParaAttributes; const RxFmt : TRxParaAttributes );
-begin
-  with KntFmt do
+     if Reduced then     // Preserve: Numbering, FirstIndent, LeftIndent, RightIndent, Alignment
+         Paragraph.dwMask:= Paragraph.dwMask
+                             and not PFM_NUMBERING and not PFM_STARTINDENT and not PFM_OFFSET and not PFM_RIGHTINDENT and not PFM_ALIGNMENT;
+
+     Editor.Paragraph.SetAttributes(Paragraph);
+  end;
+
+
+  /// Save on 'Format' the attributes of the first character
+  //
+  procedure SaveTextAttributes(const Editor: TTabRichEdit; var Format: TCharFormat2);
+  var
+     SelLengthBak: Integer;
   begin
-    //RxFmt.Numbering := Numbering;
-    //RxFmt.FirstIndent := FirstIndent;
-    //RxFmt.LeftIndent := LeftIndent;
-    //RxFmt.RightIndent := RightIndent;
-    //RxFmt.Alignment := Alignment;
-    RxFmt.LineSpacing := LineSpacing;
-    RxFmt.LineSpacingRule := LineSpacingRule;
-    RxFmt.NumberingStyle := NumberingStyle;
-    RxFmt.NumberingTab := NumberingTab;
-    RxFmt.SpaceAfter := SpaceAfter;
-    RxFmt.SpaceBefore := SpaceBefore;
-    RxFmt.TabCount := TabCount;
-    // [x] Tab[index : integer]
+
+     with Editor do begin
+        SelLengthBak:= SelLength;
+
+        if SelLengthBak = 0 then
+            SelAttributes.GetAttributes(Format)
+        else begin
+           // A single charecter is selected because EM_GETCHARFORMAT is actually returning the attributes
+           // of the last 'selected' character. This is, actually you could obtain different attributes if
+           // you select the same text from right to left instead of left to right (suppose the first character
+           // is bold and last one is italic) (¿RichEdit Bug?)
+
+           BeginUpdate;
+           SelLength:= 1;
+           try
+              SelAttributes.GetAttributes(Format);
+           finally
+             SelLength:= SelLengthBak;
+             EndUpdate;
+           end;
+        end;
+     end;
+
   end;
-end; // ParaAttrsKNT2RX
 
 
-procedure FontAttrsRX2KNT( const RxFmt : TRxTextAttributes; var KntFmt : TkntFontAttributes );
-begin
-  with RxFmt do
+  /// Sets character formatting on the selection (or word at cursor) with the attributes saved in 'Format'
+  //
+  procedure ApplyTextAttributes(const Editor: TTabRichEdit; var Format: TCharFormat2);
   begin
-    KntFmt.Charset := Charset;
-    KntFmt.BackColor := BackColor;
-    KntFmt.Color := Color;;
-    KntFmt.Disabled := Disabled;
-    if _LoadedRichEditVersion >= 6 then begin
-       KntFmt.Hidden := Hidden;
-       KntFmt.Link := Link;
-    end;
-    KntFmt.Name := Name;
-    KntFmt.Offset := Offset;
-    KntFmt.Pitch := Pitch;
-    KntFmt.IsProtected := IsProtected;
-    KntFmt.RevAuthorIndex := RevAuthorIndex;
-    KntFmt.SubscriptStyle := SubscriptStyle;
-    KntFmt.Size := Size;
-    KntFmt.Style := Style;
-    KntFmt.Height := Height;
-    KntFmt.UnderlineType := UnderlineType;
-    KntFmt.Language := Language;
-  end;
-end; // FontAttrsRX2KNT
+     Format.dwMask := DWORD(CFM_ALL2);
+     if _LoadedRichEditVersion < 6 then begin     // #529 : Paste Font Attributes destroy selected hyperlinks when applied (in Richedit <= 5.0)
+         Format.dwMask := Format.dwMask
+                          and not CFM_HIDDEN and not CFM_LINK;
+     end;
 
-procedure FontAttrsKNT2RX( const KntFmt : TkntFontAttributes; const RxFmt : TRxTextAttributes );
-begin
-  with KNTFmt do
-  begin
-    RxFmt.Charset := Charset;
-    RxFmt.BackColor := BackColor;
-    RxFmt.Color := Color;
-    RxFmt.Disabled := Disabled;
-    if _LoadedRichEditVersion >= 6 then begin
-       RxFmt.Hidden := Hidden;
-       RxFmt.Link := Link;
-    end;
-    RxFmt.Name := Name;
-    RxFmt.Offset := Offset;
-    RxFmt.Pitch := Pitch;
-    RxFmt.IsProtected := IsProtected;
-    RxFmt.RevAuthorIndex := RevAuthorIndex;
-    RxFmt.SubscriptStyle := SubscriptStyle;
-    RxFmt.Size := Size;
-    RxFmt.Style := Style;
-    RxFmt.Height := Height;
-    RxFmt.UnderlineType := UnderlineType;
-    RxFmt.Language := Language;
+     if Editor.SelLength = 0 then
+        Editor.WordAttributes.SetAttributes(Format)
+     else
+        Editor.SelAttributes.SetAttributes(Format);
   end;
-end; // FontFormatKNT2RX
 
 
 
@@ -1762,6 +1679,26 @@ begin
 
 end; // GetWordAtCursorNew
 
+
+// Returns True if there is one or more paragraphs selected (although partially)
+
+function TTabRichEdit.ParagraphsSelected: Boolean;
+var
+  Sel: TCharRange;
+  posBegin, posEnd: integer;
+begin
+   Result:= False;
+   Sel:= GetSelection;
+
+   if not (Sel.cpMin= Sel.cpMax) then begin   // There is text selected
+      if FindText(#13, Sel.cpMin, Sel.cpMax-Sel.cpMin, []) > 0 then
+          Result:= True
+      else
+          if ((Sel.cpMin=0) or (GetTextRange(Sel.cpMin-1, Sel.cpMin) = #13))   and
+             ((GetTextRange(Sel.cpMax, Sel.cpMax+1) = #13) or (Sel.cpMax=TextLength)) then
+             Result:= True;
+   end;
+end;
 
 procedure TTabRichEdit.GetLinkAtCursor(var URL: WideString; var TextURL: WideString;
                                        var LeftE: integer; var RightE: integer;

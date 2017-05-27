@@ -18,7 +18,8 @@ unit kn_MacroMng;
 
 interface
 Uses Classes,
-     kn_Macro, kn_Cmd, kn_Info, kn_NoteObj;
+     RichEdit,
+     kn_Macro, kn_Const, kn_Cmd, kn_Info, kn_NoteObj;
 
 var
     StartupMacroFile : wideString; // macro to be autorun on program startup
@@ -35,8 +36,9 @@ var
     MacroErrorAbort : boolean;
     ActiveMacro : TMacro;
 
-    FontFormatToCopy : TkntFontAttributes;
-    ParaFormatToCopy : TkntParaAttributes;
+    FontFormatToCopy : TCharFormat2;
+    ParaFormatToCopy : TParaFormat2;
+    CopyFormatMode: TCopyFormatMode;
 
 
     // macro-related routines
@@ -75,10 +77,10 @@ var
 implementation
 
 uses Windows, Messages, SysUtils, Forms, Dialogs, Graphics, StdCtrls, Controls, kn_clipUtils,
-     TreeNT, RichEdit, RxStrUtils, RxRichEd,
+     TreeNT, RxStrUtils, RxRichEd,
      gf_miscvcl, gf_strings, gf_misc,
      kn_MacroCmd, kn_MacroCmdSelect, kn_MacroEdit, kn_Main, kn_Global,
-     kn_Const, kn_NodeList, kn_DateTime, kn_LanguageSel, kn_Paragraph,
+     kn_NodeList, kn_DateTime, kn_LanguageSel, kn_Paragraph,
      kn_FindReplaceMng, kn_StyleMng, kn_FavoritesMng, kn_BookmarksMng,
      kn_TreeNoteMng, kn_NoteMng,kn_PluginsMng, kn_TemplateMng, kn_NoteFileMng,
      kn_EditorUtils, kn_VCLControlsMng, WideStrings, TntSysUtils;
@@ -147,6 +149,7 @@ resourcestring
   STR_55 = 'New background color will be assigned to ALL TREE NODES in note %s' + #13 + 'Continue?';
   STR_56 = 'Repeat %s';
   STR_57 = 'Select macro to execute';
+  STR_58 = 'Failed to copy text formatting';
 
 var
     RecallingCommand : boolean; // if TRUE, we use information in CommandRecall
@@ -1629,16 +1632,30 @@ begin
 
           ecFontFormatCopy :
             try
-              FontAttrsRx2KNT( ActiveNote.Editor.SelAttributes, FontFormatToCopy );
+              SaveTextAttributes(ActiveNote.Editor, FontFormatToCopy);
             except
               errorStr:= STR_46;
             end;
 
           ecParaFormatCopy :
             try
-              ParaAttrsRX2KNT( ActiveNote.Editor.Paragraph, ParaFormatToCopy );
+              SaveParagraphAttributes(ActiveNote.Editor, ParaFormatToCopy);
             except
               errorStr:= STR_47;
+            end;
+
+          ecCopyFormat :
+            try
+               with ActiveNote.Editor do begin
+                  SaveTextAttributes( ActiveNote.Editor, FontFormatToCopy );
+                  if (SelLength = 0) or (ParagraphsSelected) then
+                     SaveParagraphAttributes( ActiveNote.Editor, ParaFormatToCopy )
+                  else
+                     ParaFormatToCopy.dySpaceBefore := -1; // MARKER: signals a not-yet-assigned format
+                end;
+
+            except
+              errorStr:= STR_58;
             end;
 
           ecInsOvrToggle : begin
@@ -1817,9 +1834,9 @@ begin
              HTMLClip:= Clipboard.AsHTML;
 
            i := Editor.SelStart;
-           ParaAttrsRX2KNT( Editor.Paragraph, ParaFormatToCopy );
+           SaveParagraphAttributes(Editor, ParaFormatToCopy);
            if (ClipOptions.PlainTextMode = clptAllowHyperlink) then
-              FontAttrsRx2KNT( Editor.SelAttributes, FontFormatToCopy );
+              SaveTextAttributes(Editor, FontFormatToCopy);
 
            TryPasteRTF(Editor, HTMLClip);
            j := Editor.SelStart;
@@ -1828,10 +1845,10 @@ begin
               Editor.SelStart := i;
               Editor.SelLength := j-i+1;
               if (ClipOptions.PlainTextMode = clptAllowHyperlink) then begin
-                 ParaAttrsKNT2RX( ParaFormatToCopy, Editor.Paragraph);
-                 FontAttrsKNT2RX( FontFormatToCopy, Editor.SelAttributes);
+                 ApplyParagraphAttributes(Editor, ParaFormatToCopy);
+                 ApplyTextAttributes(Editor, FontFormatToCopy);
               end else begin
-                 ParaAttrsKNT2RX_Reduced( ParaFormatToCopy, Editor.Paragraph);
+                 ApplyParagraphAttributes(Editor, ParaFormatToCopy, True);
                  if (ClipOptions.PlainTextMode = clptAllowFontStyle) then begin
                     Editor.SelAttributes.Name := Form_Main.Combo_Font.FontName;
                     Editor.SelAttributes.Size := strtoint( Form_Main.Combo_FontSize.Text );
@@ -2017,16 +2034,24 @@ begin
               ActiveNote.Editor.Paragraph.RightIndent := 0;
 
           ecFontFormatPaste :
-            if ( FontFormatToCopy.Name <> '' ) then
-                FontAttrsKNT2RX( FontFormatToCopy, ActiveNote.Editor.SelAttributes )
+            if FontFormatToCopy.szFaceName <> '' then
+               ApplyTextAttributes(ActiveNote.Editor, FontFormatToCopy )
             else
                 popupmessage( STR_52, mtError, [mbOK], 0 );
 
           ecParaFormatPaste :
-            if ( ParaFormatToCopy.SpaceBefore >= 0 ) then // if negative, user has not yet COPIED para format
-                ParaAttrsKNT2RX( ParaFormatToCopy, ActiveNote.Editor.Paragraph )
+            if ParaFormatToCopy.dySpaceBefore >= 0 then   // if negative, user has not yet COPIED para format
+               ApplyParagraphAttributes(ActiveNote.Editor, ParaFormatToCopy)
             else
-                popupmessage( STR_53, mtError, [mbOK], 0 );
+               popupmessage( STR_53, mtError, [mbOK], 0 );
+
+          ecPasteFormat :
+             with ActiveNote.Editor do begin
+                if (ParaFormatToCopy.dySpaceBefore >= 0) and         // paragraph formatting was saved
+                   ((SelLength = 0) or (ParagraphsSelected)) then
+                   ApplyParagraphAttributes( ActiveNote.Editor, ParaFormatToCopy );
+                ApplyTextAttributes(ActiveNote.Editor, FontFormatToCopy );
+             end;
 
           ecAlignLeft :
             ActiveNote.Editor.Paragraph.Alignment := paLeftJustify;
@@ -2533,6 +2558,9 @@ begin
       if ( aCmd <> ecNone ) then begin
         Form_Main.OnNoteChange(ActiveNote);
         Form_Main.RxRTFSelectionChange( ActiveNote.Editor );
+
+        if (CopyFormatMode = cfEnabledMulti) and (aCmd = ecPasteFormat)  then
+           EnableCopyFormat(True);
       end;
 
     end;
@@ -2654,6 +2682,9 @@ var
   p : integer;
   cmd : char;
 begin
+  if CopyFormatMode <> cfDisabled then
+     EnableCopyFormat(False);
+
   // check if function key
   if ( not ( key in [VK_F1..VK_F12] )) then exit;
   s := '';
@@ -2700,6 +2731,9 @@ begin
 
   if ( not CheckFolder( 'Macro', Macro_Folder, false, true )) then exit;
 
+  if CopyFormatMode <> cfDisabled then
+     EnableCopyFormat(False);
+
   with Form_Main.OpenDlg do
   begin
     oldFilter := Filter;
@@ -2741,43 +2775,11 @@ begin
     UpdateLastCommand( ecNone );
     RecallingCommand := false;
 
-    with FontFormatToCopy do
-    begin
-      Charset := DEFAULT_CHARSET;
-      BackColor := clWindow;
-      Color := clWindowText;
-      Disabled := false;
-      Hidden := false;
-      Link := false;
-      Name := '';
-      Offset := 0;
-      Pitch := low( TFontPitch );
-      IsProtected := false;
-      RevAuthorIndex := 0;
-      SubscriptStyle := low( TSubscriptStyle );
-      Size := 0;
-      Style := [];
-      Height := 10;
-      UnderlineType := low( TUnderlineType );
-    end;
+   FontFormatToCopy.szFaceName:= '';
 
-    with ParaFormatToCopy do
-    begin
-      FirstIndent := 0;
-      LeftIndent := 0;
-      LineSpacing := 0;
-      LineSpacingRule := low( TLineSpacingRule );
-      Alignment := low( TParaAlignment );
-      Numbering := low( TRxNumbering );
-      NumberingStyle := low( TRxNumberingStyle );
-      NumberingTab := 0;
-      RightIndent := 0;
-      SpaceAfter := 0;
-      SpaceBefore := -1; // MARKER: signals a not-yet-assigned format
-      TabCount := 0;
-      // [x] Tab[index : integer]
-    end;
+    ParaFormatToCopy.dySpaceBefore := -1; // MARKER: signals a not-yet-assigned format
 
+    CopyFormatMode:= cfDisabled;
 
     with CommandRecall do
     begin

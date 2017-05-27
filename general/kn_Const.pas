@@ -592,6 +592,13 @@ const
   );
 
 
+type
+   TCopyFormatMode = (cfDisabled, cfEnabled, cfEnabledMulti );
+
+const
+   crCopyFormat = 1;
+
+
 const
   // TREEPAD export/import constants
   _TREEPAD_HEADER_TXT = '<Treepad version 2.7>';

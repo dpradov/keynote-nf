@@ -53,6 +53,8 @@ uses
     procedure LoadTabImages( const ForceReload : boolean );
     procedure SaveMenusAndButtons;
 
+    procedure EnableCopyFormat(value: Boolean);
+
 implementation
 uses
   { Borland units }
@@ -90,7 +92,10 @@ resourcestring
   STR_12 = 'Hide &Resource Panel';
   STR_13 = 'Show &Resource Panel';
   STR_14 = 'The Resource panel must be visible to use this command. Show the Resource panel now?';
-  
+  STR_15 = 'Use the mouse to apply the %s to another text or press Esc to cancel';
+  STR_16 = 'paragraph formatting';
+  STR_17 = 'font formatting';
+
 //=================================================================
 // SetUpVCLControls
 //=================================================================
@@ -109,6 +114,7 @@ begin
           OnKeyDown := RxRTFKeyDown;
           OnKeyPress := RxRTFKeyPress;
           OnMouseDown := RxRTFMouseDown;
+          OnMouseUp := RxRTFMouseUp;
           OnProtectChange := RxRTFProtectChange;
           OnProtectChangeEx := RxRTFProtectChangeEx;
           OnSelectionChange := RxRTFSelectionChange;
@@ -1829,5 +1835,37 @@ begin
         end;
   end;
 end; // SaveMenusAndButtons
+
+
+procedure EnableCopyFormat(value: Boolean);
+var
+  i : integer;
+  Str: String;
+begin
+    Form_Main.TB_CopyFormat.Down:= value;
+
+    if value then begin
+       Screen.Cursors[crCopyFormat] := LoadCursor(hInstance,'CPFORMAT');
+       if (ParaFormatToCopy.dySpaceBefore >= 0) then
+          Str:= STR_16
+       else
+          Str:= STR_17;
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_15, [Str]);
+    end
+    else begin
+       CopyFormatMode:= cfDisabled;
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := '';
+    end;
+
+    with NoteFile do
+       for i := 0 to pred(Notes.Count) do begin
+          if value then
+             Notes[i].Editor.Cursor:= crCopyFormat
+          else
+             Notes[i].Editor.Cursor:= crDefault;
+       end;
+
+end;
+
 
 end.

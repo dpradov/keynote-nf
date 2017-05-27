@@ -842,6 +842,9 @@ type
     N116: TTntMenuItem;
     N117: TTntMenuItem;
     MMP_PlainDefaultPaste: TTntMenuItem;
+    TB_CopyFormat: TToolbarButton97;
+    ToolbarSep971: TToolbarSep97;
+    MMFormatCopy: TTntMenuItem;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -943,6 +946,7 @@ type
     procedure TB_ExitClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure MMSortClick(Sender: TObject);
+    procedure MMFormatCopyClick(Sender: TObject);
     procedure MMFormatCopyFontClick(Sender: TObject);
     procedure MMFormatPasteFontClick(Sender: TObject);
     procedure MMFormatCopyParaClick(Sender: TObject);
@@ -1028,6 +1032,7 @@ type
     procedure MMFindNodeNextClick(Sender: TObject);
     procedure MMMergeNotestoFileClick(Sender: TObject);
     procedure RxRTFMouseDown(Sender: TObject;   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure RxRTFMouseUP(Sender: TObject;   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure MMFormatDisabledClick(Sender: TObject);
     procedure MMFormatSubscriptClick(Sender: TObject);
     procedure MMFormatSpBefIncClick(Sender: TObject);
@@ -1228,6 +1233,7 @@ type
     procedure AppRestore(Sender: TObject);
     procedure DisplayAppHint( sender: TObject );
     procedure ShowException( Sender : TObject; E : Exception );
+    procedure TB_CopyFormatClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -1245,6 +1251,8 @@ type
     procedure WMJumpToLocation( var DummyMSG : integer ); message WM_JUMPTOLOCATION; //custom
     procedure WMShowTipOfTheDay( var DummyMSG : integer ); message WM_TIPOFTHEDAY; //custom
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
+
+    procedure FormatCopyClick(AlloMultiMode: Boolean);
 
   protected
     procedure CreateWnd; override;
@@ -1350,6 +1358,7 @@ uses RxGIF{, jpeg}, kn_Global, kn_ExportNew,
 
 {$R *.DFM}
 {$R .\resources\catimages}
+{$R .\resources\resources}
 
 resourcestring
   STR_01 = 'Unable to assign "%s" as activation hotkey.';
@@ -2471,6 +2480,13 @@ begin
   if assigned( ActiveNote ) then ActiveNote.FocusMemory := focRTF;
 end;
 
+procedure TForm_Main.RxRTFMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if assigned(ActiveNote) and (CopyFormatMode <> cfDisabled) then
+     PerformCmd(ecPasteFormat);
+end;
+
 
 procedure TForm_Main.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -2541,6 +2557,9 @@ begin
         if IsRecordingMacro then
         begin
           TB_MacroRecordClick( TB_MacroRecord ); // aborts macro recording
+        end
+        else if CopyFormatMode <> cfDisabled then begin
+           EnableCopyFormat(False);
         end
         else
         begin
@@ -3064,6 +3083,10 @@ begin
   TB_EditUndo.Enabled := Note.Editor.CanUndo;
   TB_EditRedo.Enabled := Note.Editor.CanRedo;
   RTFMUndo.Enabled := TB_EditUndo.Enabled;
+
+  if CopyFormatMode= cfEnabled then
+     EnableCopyFormat(False);
+
 end; // OnNoteChange
 
 
@@ -3865,6 +3888,32 @@ procedure TForm_Main.MMSortClick(Sender: TObject);
 begin
   PerformCmd( ecSort );
 end;
+
+procedure TForm_Main.MMFormatCopyClick(Sender: TObject);
+begin
+  FormatCopyClick(False);
+end;
+
+procedure TForm_Main.TB_CopyFormatClick(Sender: TObject);
+begin
+  FormatCopyClick(True);
+end;
+
+procedure TForm_Main.FormatCopyClick(AlloMultiMode: Boolean);
+begin
+  if CopyFormatMode= cfDisabled then begin
+     if AlloMultiMode and (GetKeyState(VK_CONTROL) < 0) then
+        CopyFormatMode:= cfEnabledMulti
+     else
+        CopyFormatMode:= cfEnabled;
+
+     EnableCopyFormat(True);
+     PerformCmdEx(ecCopyFormat)
+  end
+  else
+     EnableCopyFormat(False);
+end;
+
 
 procedure TForm_Main.MMFormatCopyFontClick(Sender: TObject);
 begin

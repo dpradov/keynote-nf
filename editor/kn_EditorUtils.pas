@@ -1413,8 +1413,6 @@ var
   TitleURL : wideString;
   AuxStr : wideString;
   HTMLClipboard: string;
-  ParaFormatToCopy : TkntParaAttributes;
-  FontFormatToCopy : TkntFontAttributes;
   Note: TTabNote;
   Editor: TTabRichEdit;
 
