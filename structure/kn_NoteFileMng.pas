@@ -812,7 +812,7 @@ begin
      end;
 
      if (FN <> '') and not NoteFile.Modified then begin
-         DoMessageBox(STR_79, mtInformation, [mbOK], 0);
+         StatusBar.Panels[PANEL_HINT].Text := STR_79;
          Exit;
      end;
 
