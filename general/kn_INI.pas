@@ -874,8 +874,8 @@ begin
     AutoRegisterFileType := false;
     AutoRegisterPrompt := true;
     AutoSave := true;
-    AutoSaveOnFocus := true;
-    AutoSaveOnTimer := false;
+    AutoSaveOnFocus := false;
+    AutoSaveOnTimer := true;
     AutoSaveOnTimerInt := 10;
     Backup := true;
     BackupAppendExt := true;

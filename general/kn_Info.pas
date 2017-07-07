@@ -154,7 +154,7 @@ const
 
 const
   DEFAULT_HOTKEY = 24699; // Ctrl+Shift+F12
-  DEF_CLIP_CAP_MAX_SIZE = 1024; // bytes
+  DEF_CLIP_CAP_MAX_SIZE = 0; // bytes       ' No limit
   DIV_1_BLANK = '<1 blank line>'; // equivalent to "^", but this is a user-friendly replacement
   DIV_2_BLANK = '<2 blank lines>'; // as above, equivalent to "^^"
   DEF_CLIP_CAP_DIV = DIV_1_BLANK;
