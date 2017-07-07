@@ -866,7 +866,7 @@ begin
           try
             Pict.LoadFromFile(FileName);
             Clipboard.Assign(Pict);
-            Activenote.Editor.PasteFromClipboard;
+            Activenote.Editor.PasteIRichEditOLE(0);
           finally
             Pict.Free;
             wasmodified := true;
@@ -1236,8 +1236,7 @@ begin
     end;
 
     if not PasteOK then
-       if not Editor.PasteSpecial_RTF then
-          Editor.PasteSpecial_NoAsk;
+       Editor.PasteIRichEditOLE(0);   // 0: use the best available format
 end;
 
 //=================================================================

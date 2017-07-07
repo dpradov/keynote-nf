@@ -565,7 +565,7 @@ begin
                   try
                     if ( plReturnsClipboard in Plugin.Features ) then
                     begin
-                      ActiveNote.Editor.PasteFromClipboard;
+                      ActiveNote.Editor.PasteIRichEditOLE(0);
                     end
                     else
                     if ( plReturnsRTF in Plugin.Features ) then

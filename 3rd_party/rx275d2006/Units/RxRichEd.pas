@@ -499,8 +499,7 @@ type
     function InsertObjectDialog: Boolean;
     function ObjectPropertiesDialog: Boolean;
     function PasteSpecialDialog: Boolean;
-    procedure PasteSpecial_NoAsk;   // dpv
-    function PasteSpecial_RTF: Boolean; // dpv
+    function PasteIRichEditOLE(cfFormat: TClipFormat): Boolean;    // dpv
     function FindDialog(const SearchStr: string): TFindDialog;
     function ReplaceDialog(const SearchStr, ReplaceStr: string): TReplaceDialog;
     function FindNext: Boolean;
@@ -4831,87 +4830,41 @@ begin
 end;
 
 
-// Paste directly with the most appropiate format, without UI  [DPV]
-procedure TRxCustomRichEdit.PasteSpecial_NoAsk;
+// Paste via IRichEditOLE indicating the clipboard format to use
+// (if cfFormat=0 => use the best available format)
+//
+// IRichEditOle::ImportDataObject(lpdataobj, cf, hMetaPict):  Imports a clipboard object into a rich edit control,
+//   replacing the current selection.
+//   cf: Type: CLIPFORMAT
+//    Clipboard format to use. A value of zero will use the best available format.
+//
+// From version 10.0.15063.0 of MSFTEDIT.DLL (Windows 10 version 1703) it doesn't work
+// when pasting images. It seems to be necessary to explicitily indicate the format
+// CF_BITMAP
+
+function TRxCustomRichEdit.PasteIRichEditOLE(cfFormat: TClipFormat): Boolean;
 var
   lpSrcDataObj: IDataObject;
 begin
+  Result:= False;
   if not CanPaste or not Assigned(FRichEditOle) then Exit;
+
   try
+    if cfFormat = 0 then begin
+      if Clipboard.HasFormat(CF_BITMAP) then
+         cfFormat:= CF_BITMAP;
+    end;
+
     if OleGetClipboard(lpSrcDataObj) = S_OK then begin
-      OleCheck(IRichEditOle(FRichEditOle).ImportDataObject(
-               lpSrcDataObj, 0, 0));
-      SendMessage(Handle, EM_SCROLLCARET, 0, 0);
-      end
-    else
-       PasteSpecialDialog;
+       OleCheck(IRichEditOle(FRichEditOle).ImportDataObject(
+               lpSrcDataObj, cfFormat, 0));
+       SendMessage(Handle, EM_SCROLLCARET, 0, 0);
+       Result:= True;
+       end;
 
   finally
-    ReleaseObject(lpSrcDataObj);
+     ReleaseObject(lpSrcDataObj);
   end;
-end;
-
-// dpv: Paste directly as RTF, to resolve the problem where in some cases
-// control ignores WM_PASTE, but stills works PasteSpecial. In this way
-// it is transparent to the user
-function TRxCustomRichEdit.PasteSpecial_RTF: Boolean;
-
-  procedure SetPasteEntry(var Entry: TOleUIPasteEntry; Format: TClipFormat;
-    tymed: DWORD; const FormatName, ResultText: string; Flags: DWORD);
-  begin
-    with Entry do begin
-      fmtetc.cfFormat := Format;
-      fmtetc.dwAspect := DVASPECT_CONTENT;
-      fmtetc.lIndex := -1;
-      fmtetc.tymed := tymed;
-      if FormatName <> '' then lpstrFormatName := PChar(FormatName)
-      else lpstrFormatName := '%s';
-      if ResultText <> '' then lpstrResultText := PChar(ResultText)
-      else lpstrResultText := '%s';
-      dwFlags := Flags;
-    end;
-  end;
-
-const
-  PasteFormatCount = 1;
-var
-  Data: TOleUIPasteSpecial;
-  PasteFormats: array[0..PasteFormatCount - 1] of TOleUIPasteEntry;
-  Format: Integer;
-  OleObject: IOleObject;
-  lpSrcDataObj: IDataObject;
-begin
-  Result:= True;
-  if not CanPaste or not Assigned(FRichEditOle) then Exit;
-  FillChar(Data, SizeOf(Data), 0);
-  FillChar(PasteFormats, SizeOf(PasteFormats), 0);
-  with Data do begin
-    cbStruct := SizeOf(Data);
-    hWndOwner := Handle;
-    arrPasteEntries := @PasteFormats;
-    cPasteEntries := PasteFormatCount;
-    arrLinkTypes := @CFLinkSource;
-    cLinkTypes := 1;
-    dwFlags := PSF_SELECTPASTE;
-  end;
-    SetPasteEntry(PasteFormats[0], CFRtf, TYMED_ISTORAGE,
-      CF_RTF, CF_RTF, OLEUIPASTE_PASTE);
-  try
-    if OleGetClipboard(data.lpSrcDataObj) = S_OK then begin
-      Format := PasteFormats[0].fmtetc.cfFormat;
-      OleCheck(IRichEditOle(FRichEditOle).ImportDataObject(
-           Data.lpSrcDataObj, Format, Data.hMetaPict));
-      SendMessage(Handle, EM_SCROLLCARET, 0, 0);
-      end
-    else
-       PasteSpecialDialog;
-
-  except
-    Result:= False;
-  end;
-
-  DestroyMetaPict(Data.hMetaPict);
-  ReleaseObject(Data.lpSrcDataObj);
 end;
 
 
