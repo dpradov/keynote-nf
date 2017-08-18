@@ -2,6 +2,18 @@
 
 Tabbed notebook with RichText editor, multi-level notes and strong encryption. 
 
+
+------------------
+ **IMPORTANT**
+<br>
+If you work with the version 1703 of W10 (Windows Creator) is very IMPORTANT to use the patch available as a .zip attached to #568: [keynote_1.7.9.Beta9_Test.2.zip](https://github.com/dpradov/keynote-nf/files/1132060/keynote_1.7.9.Beta9_Test.2.zip)
+
+For more information, please, refer to what it is indicated in the <b>[latest release](https://github.com/dpradov/keynote-nf/releases/latest)</b>.
+
+------------------
+
+
+
 This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new features like: 
 
  * *Checkboxes on children of selected nodes* <br>
