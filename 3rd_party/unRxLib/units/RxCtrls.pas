@@ -10,6 +10,15 @@
 { Revised for Delphi6 by JB.                            }
 {*******************************************************}
 
+(* ------------------------------------------------------
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+  + Changes by Marek Jedlinski <marek@tranglos.com> (Poland) [mj]
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf
+--------------------------------------------------------*)
+
+
 unit RxCtrls;
 
 {$I RX.INC}
@@ -93,6 +102,7 @@ type
     property OnDblClick;
     property OnDragDrop;
     property OnDragOver;
+    property OnDrawItem;           // [mj]
     property OnEndDrag;
     property OnEnter;
     property OnExit;

@@ -1,4 +1,4 @@
-{*******************************************************}
+Ôªø{*******************************************************}
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
@@ -7,6 +7,15 @@
 { Revision and enhancements added by JB.                }
 {*******************************************************}
 
+(* ------------------------------------------------------
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+  + Changes by Marek Jedlinski <marek@tranglos.com> (Poland) [mj]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf
+--------------------- -----------------------------------*)
+
 unit RxRichEd;
 
 {$I RX.INC}
@@ -14,6 +23,12 @@ unit RxRichEd;
 {.$DEFINE RICHEDIT_VER_10}
 {$DEFINE RX_ENH} {last enhancement}
 {$DEFINE RX_ENHPRINT} {for better print preview}
+
+{$DEFINE RX_LANGUAGE}                     // [dpv]
+{$DEFINE RX_SELECTDLL}                    // [dpv] Allow to select another DLL available, for example if we have MS Office installed.  See notes at the end of GetDLLProductVersion procedure
+{$DEFINE GetSetAttributes_PUBLIC}         // [dpv]
+{$DEFINE KEEP_SELECTED_AFTER_SetSelText}  // [dpv]
+
 {$R-}
 
 interface
@@ -24,11 +39,17 @@ uses Windows, {$IFDEF RX_D3} ActiveX, ComObj {$ELSE} Ole2, OleAuto {$ENDIF},
   {$IFDEF RX_D18}System.AnsiStrings,{$ENDIF}
   Dialogs, RichEdit, Menus, ComCtrls;
 
+
 type
-  TRichEditVersion = 1..4;
+{$IFNDEF RX_SELECTDLL}
+   TRichEditVersion = 1..4;
+{$ELSE}
+   TRichEditVersion = 1..8;          // [dpv] See notes at the end of GetDLLProductVersion procedure
+{$ENDIF}
+
+
 
 {$IFNDEF RX_D3}
-
   TCharFormat2A = record
     cbSize: UINT;
     dwMask: DWORD;
@@ -85,6 +106,13 @@ type
 
 {$ENDIF RX_D3}
 
+{$IFDEF RX_LANGUAGE}
+type
+  TLanguage = 0..$FFFF;                                          // [dpv]
+
+{$ENDIF}
+
+
 {$IFDEF RX_D5}
   TCharFormat2 = TCharFormat2A;
 {$ENDIF}
@@ -94,7 +122,7 @@ type
 
 { TRxTextAttributes }
 
-  TRxAttributeType = (atDefaultText, atSelected, atWord);
+  TRxAttributeType = (atDefaultText, atSelected, atWord);                // EM_SETCHARFORMAT -> SCF_DEFAULT, SCF_SELECTION, SCF_WORD, ...
   TRxConsistentAttribute = (caBold, caColor, caFace, caItalic, caSize,
     caStrikeOut, caUnderline, caProtected, caOffset, caHidden, caLink,
     caBackColor, caDisabled, caWeight, caSubscript, caRevAuthor,
@@ -105,13 +133,17 @@ type
   TUnderlineType = (utNone, utSolid, utWord, utDouble, utDotted, utWave);
   TAnimationType = (aniNone, aniLasVegas, aniBlink, aniSparkle, aniBlackAnts,
                     aniRedAnts, aniShimmer);
+  TRxLinkStyle = (lsNone, lsLink, lsMixed);                     // [dpv]
 
   TRxTextAttributes = class(TPersistent)
   private
     RichEdit: TRxCustomRichEdit;
     FType: TRxAttributeType;
     procedure AssignFont(Font: TFont);
+{$IFNDEF GetSetAttributes_PUBLIC}                               // [mj]
     procedure GetAttributes(var Format: TCharFormat2);
+    procedure SetAttributes(var Format: TCharFormat2);
+{$ENDIF}
 {$IFNDEF VER90}
     function GetCharset: TFontCharset;
     procedure SetCharset(Value: TFontCharset);
@@ -123,8 +155,13 @@ type
     function GetConsistentAttributes: TRxConsistentAttributes;
     function GetHeight: Integer;
     function GetHidden: Boolean;
+{$IFDEF RX_LANGUAGE}
+    function  GetLanguage : TLanguage;                          // [mj]
+    procedure SetLanguage(Value: TLanguage);                    // [mj]
+{$ENDIF}
     function GetDisabled: Boolean;
     function GetLink: Boolean;
+    function GetLinkStyle: TRxLinkStyle;                        // [dpv]
     function GetName: TFontName;
     function GetOffset: Integer;
     function GetPitch: TFontPitch;
@@ -139,7 +176,6 @@ type
     function GetUnderlineType: TUnderlineType;
     function GetAnimation: TAnimationType;
     procedure SetAnimation(Value: TAnimationType);
-    procedure SetAttributes(var Format: TCharFormat2);
     procedure SetBackColor(Value: TColor);
     procedure SetColor(Value: TColor);
     procedure SetDisabled(Value: Boolean);
@@ -172,6 +208,10 @@ type
   public
     constructor Create(AOwner: TRxCustomRichEdit; AttributeType: TRxAttributeType);
     procedure Assign(Source: TPersistent); override;
+{$IFDEF GetSetAttributes_PUBLIC}                                  // [mj] -> Public
+    procedure GetAttributes(var Format: TCharFormat2);
+    procedure SetAttributes(var Format: TCharFormat2);
+{$ENDIF}
 {$IFNDEF VER90}
     property Charset: TFontCharset read GetCharset write SetCharset;
 {$ENDIF}
@@ -180,7 +220,13 @@ type
     property ConsistentAttributes: TRxConsistentAttributes read GetConsistentAttributes;
     property Disabled: Boolean read GetDisabled write SetDisabled;
     property Hidden: Boolean read GetHidden write SetHidden;
+{$IFDEF RX_LANGUAGE}
+   	{ Language: Has no effect on the text displayed by a rich edit control, but spelling and grammar checkers can use it to deal with language-dependent problems
+	    https://learn.microsoft.com/en-us/windows/win32/api/richedit/ns-richedit-charformat2a_1    (LCID) }
+    property Language: TLanguage read GetLanguage write SetLanguage;  // [mj]
+{$ENDIF}
     property Link: Boolean read GetLink write SetLink;
+    property LinkStyle: TRxLinkStyle read GetLinkStyle;               // [dpv]
     property Name: TFontName read GetName write SetName;
     property Offset: Integer read GetOffset write SetOffset;
     property Pitch: TFontPitch read GetPitch write SetPitch;
@@ -193,20 +239,26 @@ type
     property Spacing: Double read GetSpacing write SetSpacing;
     property Kerning: Double read GetKerning write SetKerning;
     property UnderlineType: TUnderlineType read GetUnderlineType write SetUnderlineType;
-    property Animation: TAnimationType read GetAnimation write SetAnimation; 
+    property Animation: TAnimationType read GetAnimation write SetAnimation;
     property SmallCaps: Boolean read GetSmallCaps write SetSmallCaps;
     property AllCaps: Boolean read GetAllCaps write SetAllCaps;
     property Outline: Boolean read GetOutline write SetOutline;
     property Shadow: Boolean read GetShadow write SetShadow;
     property Emboss: Boolean read GetEmboss write SetEmboss;
     property Imprint: Boolean read GetImprint write SetImprint;
+    procedure SetBold(Value: boolean);                                // [mj]
+    procedure SetItalic(Value: boolean);                              // [mj]
+    procedure SetUnderline(Value: boolean);                           // [mj]
+    procedure SetStrikeOut(Value: boolean);                           // [mj]
   end;
 
 { TRxParaAttributes }
 
   TRxNumbering = (nsNone, nsBullet, nsArabicNumbers, nsLoCaseLetter,
     nsUpCaseLetter, nsLoCaseRoman, nsUpCaseRoman);
-  TRxNumberingStyle = (nsParenthesis, nsPeriod, nsEnclosed, nsSimple);
+  //TRxNumberingStyle = (nsParenthesis, nsPeriod, nsEnclosed, nsSimple);
+  TRxNumberingStyle = (nsParenthesis=$0000, nsEnclosed=$0100, nsPeriod=$0200,
+                       nsSimple=$0300, nsNoNumber=$0400, nsNewNumber=$8000);  // [dpv] http://msdn.microsoft.com/en-us/library/bb787942%28VS.85%29.aspx
   TParaAlignment = (paLeftJustify, paRightJustify, paCenter, paJustify);
   TLineSpacingRule = (lsSingle, lsOneAndHalf, lsDouble, lsSpecifiedOrMore,
     lsSpecified, lsMultiple);
@@ -216,7 +268,10 @@ type
   TRxParaAttributes = class(TPersistent)
   private
     RichEdit: TRxCustomRichEdit;
+{$IFNDEF GetSetAttributes_PUBLIC}                                       // [mj]
     procedure GetAttributes(var Paragraph: TParaFormat2);
+	procedure SetAttributes(var Paragraph: TParaFormat2);
+{$ENDIF}
     function GetAlignment: TParaAlignment;
     function GetFirstIndent: Longint;
     function GetHeadingStyle: THeadingStyle;
@@ -233,8 +288,8 @@ type
     function GetTabCount: Integer;
     function GetTableStyle: TParaTableStyle;
     procedure SetAlignment(Value: TParaAlignment);
-    procedure SetAttributes(var Paragraph: TParaFormat2);
     procedure SetFirstIndent(Value: Longint);
+    procedure SetFirstIndentRelative(Value: Longint);                   // [dpv]
     procedure SetHeadingStyle(Value: THeadingStyle);
     procedure SetLeftIndent(Value: Longint);
     procedure SetRightIndent(Value: Longint);
@@ -243,6 +298,8 @@ type
     procedure SetLineSpacing(Value: Longint);
     procedure SetLineSpacingRule(Value: TLineSpacingRule);
     procedure SetNumbering(Value: TRxNumbering);
+    function  GetNumberingStart : integer;                              // [dpv]
+    procedure SetNumberingStart( Value : integer );                     // [dpv]
     procedure SetNumberingStyle(Value: TRxNumberingStyle);
     procedure SetNumberingTab(Value: Word);
     procedure SetTab(Index: Byte; Value: Longint);
@@ -254,15 +311,24 @@ type
   public
     constructor Create(AOwner: TRxCustomRichEdit);
     procedure Assign(Source: TPersistent); override;
+{$IFDEF GetSetAttributes_PUBLIC}                                                                 // [mj] -> public
+    procedure GetAttributes(var Paragraph: TParaFormat2);
+    procedure SetAttributes(var Paragraph: TParaFormat2);
+{$ENDIF}
     property Alignment: TParaAlignment read GetAlignment write SetAlignment;
     property FirstIndent: Longint read GetFirstIndent write SetFirstIndent;
+    property FirstIndentRelative: Longint write SetFirstIndentRelative;                          // [dpv]
     property HeadingStyle: THeadingStyle read GetHeadingStyle write SetHeadingStyle;
     property LeftIndent: Longint read GetLeftIndent write SetLeftIndent;
     property LineSpacing: Longint read GetLineSpacing write SetLineSpacing;
     property LineSpacingRule: TLineSpacingRule read GetLineSpacingRule write SetLineSpacingRule;
     property Numbering: TRxNumbering read GetNumbering write SetNumbering;
+    property NumberingStart : integer read GetNumberingStart write SetNumberingStart;            // [dpv]
     property NumberingStyle: TRxNumberingStyle read GetNumberingStyle write SetNumberingStyle;
     property NumberingTab: Word read GetNumberingTab write SetNumberingTab;
+   	procedure SetNumberingList(numbering: TRxNumbering;
+                               numberingStyle: TRxNumberingStyle;
+                               numberingStart: integer; LeftIndent: integer);                    // [mj]
     property RightIndent: Longint read GetRightIndent write SetRightIndent;
     property SpaceAfter: Longint read GetSpaceAfter write SetSpaceAfter;
     property SpaceBefore: Longint read GetSpaceBefore write SetSpaceBefore;
@@ -366,6 +432,8 @@ type
 {$IFDEF RX_D3}
     FOnCloseFindDialog: TRichEditFindCloseEvent;
 {$ENDIF}
+    FUpdating: integer;                             // [dpv] For use with BeginUpdate/EndUpdate
+    FOldEventMask: integer;                         // [dpv]   ,,
     function GetAutoURLDetect: Boolean;
     function GetWordSelection: Boolean;
     function GetLangOptions: TRichLangOptions;
@@ -430,7 +498,10 @@ type
 {$IFDEF RX_ENH}
     function  GetRtfSelText: String;
     procedure SetRtfSelText(const sRtf: String);
+    function  GetRtfText: String;                       // [dpv]
+    procedure SetRtfText(const sRtf: String);           // [dpv]
 {$ENDIF}
+
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWindowHandle(const Params: TCreateParams); override;
@@ -453,6 +524,10 @@ type
     function GetSelText: string; override;
     procedure SetSelLength(Value: Integer); override;
     procedure SetSelStart(Value: Integer); override;
+{$IFDEF KEEP_SELECTED_AFTER_SetSelText}
+    procedure SetSelText(const Value: string); override;                                  // [dpv]
+{$ENDIF}
+    function GetSelVisibleText: string;                                                   // [dpv]
     property AllowInPlace: Boolean read FAllowInPlace write FAllowInPlace default True;
 {$ENDIF}
     property AllowObjects: Boolean read FAllowObjects write SetAllowObjects default True;
@@ -488,7 +563,7 @@ type
       write FOnCloseFindDialog;
 {$ENDIF}
   public
-  {$IFDEF RX_ENHPRINT} 
+  {$IFDEF RX_ENHPRINT}
     PercentDone:byte;
     PrnPreviews:TList;
     PrnPreview:Tmetafile;
@@ -502,6 +577,9 @@ type
     function LineFromChar(CharIndex: Integer): Integer;
     function GetLineIndex(LineNo: Integer): Integer;
     function GetLineLength(CharIndex: Integer): Integer;
+    function GetFirstVisibleLine: Integer;                            // [dpv]
+    property SelVisibleText: string read GetSelVisibleText;           // [dpv]
+    function TextLength: integer;                                     // [dpv]
     function WordAtCursor: string;
     function FindText(const SearchStr: string;
       StartPos, Length: Integer; Options: TRichSearchTypes): Integer;
@@ -509,9 +587,11 @@ type
       {$IFDEF RX_D3} override; {$ENDIF}
     function GetCaretPos: TPoint; {$IFDEF RX_V110} override; {$ENDIF}
     function GetCharPos(CharIndex: Integer): TPoint;
+    procedure ScrollLinesBy(inc: integer);                             // [dpv]
     function InsertObjectDialog: Boolean;
     function ObjectPropertiesDialog: Boolean;
     function PasteSpecialDialog: Boolean;
+    function PasteIRichEditOLE(cfFormat: TClipFormat): Boolean;        // [dpv]
     function FindDialog(const SearchStr: string): TFindDialog;
     function ReplaceDialog(const SearchStr, ReplaceStr: string): TReplaceDialog;
     function FindNext: Boolean;
@@ -522,8 +602,12 @@ type
     class procedure RegisterConversionFormat(const AExtension: string;
       APlainText: Boolean; AConversionClass: TConversionClass);
     procedure ClearUndo;
+    procedure SuspendUndo;                                             // [dpv]
+    procedure ResumeUndo;                                              // [dpv]
     procedure Redo;
     procedure StopGroupTyping;
+    procedure BeginUpdate;                                             // [dpv]
+    procedure EndUpdate;                                               // [dpv]
     property CanFindNext: Boolean read GetCanFindNext;
     property CanRedo: Boolean read GetCanRedo;
     property CanPaste: Boolean read GetCanPaste;
@@ -543,10 +627,18 @@ type
     property Paragraph: TRxParaAttributes read FParagraph;
     property SelectionType: TRichSelectionType read GetSelectionType;
 {$IFDEF RX_ENH}
-    property LinesUpdating: Boolean read FLinesUpdating write FLinesUpdating;//ÔË Ò·ÓÍÂ ÒÚÓÍË ËÁ ÍÛÒÓ˜ÍÓ‚, ˜ÚÓ·˚ ÌÂ ÏÂˆ‡ÎÓ ‚˚‰ÂÎÂÌËÂ
-    property RtfSelText: String read GetRtfSelText write SetRtfSelText;//‚˚‰ÂÎÂÌ˚È ÚÂÍÒÚ ‚ native ÙÓÏ‡ÚÂ
-    property LinkClickRange: TCharRange read FClickRange;//+GetTextRange Ì‡ ˜∏Ï ÍÎËÍÌÛÎË
+    property LinesUpdating: Boolean read FLinesUpdating write FLinesUpdating; //when assembling a string from pieces so that the selection does not flicker (–ø—Ä–∏ —Å–±–æ—Ä–∫–µ —Å—Ç—Ä–æ–∫–∏ –∏–∑ –∫—É—Å–æ—á–∫–æ–≤, —á—Ç–æ–±—ã –Ω–µ –º–µ—Ä—Ü–∞–ª–æ –≤—ã–¥–µ–ª–µ–Ω–∏–µ)
+    property RtfSelText: String read GetRtfSelText write SetRtfSelText;       //selected text in native format (RTF)  (–≤—ã–¥–µ–ª–µ–Ω—ã–π —Ç–µ–∫—Å—Ç –≤ native —Ñ–æ—Ä–º–∞—Ç–µ)
+    property LinkClickRange: TCharRange read FClickRange;                     //+GetTextRange  What was clicked on  (–Ω–∞ —á—ë–º –∫–ª–∏–∫–Ω—É–ª–∏)
+
+    property RtfText: String read GetRtfText write SetRtfText;                                                     // [dpv]
+    procedure PutRtfText (const sRTF: string; const DoInsert: boolean;
+                          const SelectionOnly: boolean = true; const KeepSelected: boolean = false); overload;     // [dpv]
+    procedure PutRtfText (const sRTF: RawByteString; const DoInsert: boolean;
+                          const SelectionOnly: boolean = true; const KeepSelected: boolean = false); overload;     // [dpv]
 {$ENDIF}
+
+
   {$IFDEF RX_ENHPRINT}
     property DrawEndPage: Boolean read FDrawEndPage write FDrawEndPage;
   {$ENDIF RX_ENHPRINT}
@@ -557,7 +649,7 @@ type
   {$ENDIF}
   TRxRichEdit = class(TRxCustomRichEdit)
   published
-  {$IFDEF RX_ENHPRINT} 
+  {$IFDEF RX_ENHPRINT}
     property DrawEndPage;
   {$ENDIF RX_ENHPRINT}
     property Align;
@@ -653,14 +745,25 @@ type
     property OnURLClick;
   end;
 
+{$IFDEF RX_SELECTDLL}                                                                          // [dpv]
+  procedure GetDLLProductVersion (out sModulePath: string;
+                                  out DLLProductVersion: Single;
+                                  out RichEditVersion: TRichEditVersion);
+  function LoadRichEditDLL(const RichEditLibraryPath: string = ''): TRichEditVersion;
+{$ENDIF}
+
 var
   RichEditVersion: TRichEditVersion;
 
 implementation
 
-uses Printers, ComStrs, OleConst, OleDlg, {$IFDEF RX_D3} OleCtnrs, {$ENDIF}
-  {$IFDEF RX_D12}CommDlg,{$ENDIF}
-  RxMaxMin;
+uses
+ Vcl.Printers, Vcl.ComStrs, Vcl.OleConst, Winapi.OleDlg, {$IFDEF RX_D3} Vcl.OleCtnrs, {$ENDIF}
+  {$IFDEF RX_D12}Winapi.CommDlg,{$ENDIF}
+  RxMaxMin,
+  Vcl.Clipbrd, tom_TLB;                                                                        // [dpv]
+
+
 
 const
   RTFConversionFormat: TRichConversionFormat = (
@@ -689,17 +792,20 @@ const
 {$ENDIF}
   MSFTEDIT_CLASS       = 'RichEdit50W'; //comes with RichEdit 4.1 (beginning in Win XP SP2)
 
+  RICHEDIT_CLASS50W    = 'RichEdit50W';      // [dpv]
+  RICHEDIT_CLASS60W    = 'RichEdit60W';      // [dpv]
+
 
 {$IFNDEF RX_D3}
 
 const
-  EM_SETUNDOLIMIT                     = WM_USER + 82; 
-  EM_REDO                             = WM_USER + 84; 
+  EM_SETUNDOLIMIT                     = WM_USER + 82;
+  EM_REDO                             = WM_USER + 84;
   EM_CANREDO                          = WM_USER + 85;
-  EM_GETUNDONAME                      = WM_USER + 86; 
-  EM_GETREDONAME                      = WM_USER + 87; 
-  EM_STOPGROUPTYPING                  = WM_USER + 88; 
-  EM_SETTEXTMODE                      = WM_USER + 89; 
+  EM_GETUNDONAME                      = WM_USER + 86;
+  EM_GETREDONAME                      = WM_USER + 87;
+  EM_STOPGROUPTYPING                  = WM_USER + 88;
+  EM_SETTEXTMODE                      = WM_USER + 89;
   EM_GETTEXTMODE                      = WM_USER + 90; 
 
 { for use with EM_GET/SETTEXTMODE }
@@ -807,7 +913,7 @@ const
   CFE_DISABLED                = CFM_DISABLED;
   CFE_REVISED                 = CFM_REVISED;
 
-  CFE_AUTOBACKCOLOR           = CFM_BACKCOLOR; 
+  CFE_AUTOBACKCOLOR           = CFM_BACKCOLOR;
 
 { Underline types }
 
@@ -849,11 +955,11 @@ const
     PFM_PAGEBREAKBEFORE or PFM_NOLINENUMBER or 
     PFM_NOWIDOWCONTROL or PFM_DONOTHYPHEN or PFM_SIDEBYSIDE or PFM_TABLE; 
 
-  PFM_ALL2 = PFM_ALL or PFM_EFFECTS or PFM_SPACEBEFORE or PFM_SPACEAFTER or 
+  PFM_ALL2 = PFM_ALL or PFM_EFFECTS or PFM_SPACEBEFORE or PFM_SPACEAFTER or
     PFM_LINESPACING or PFM_STYLE or PFM_SHADING or PFM_BORDER or 
     PFM_NUMBERINGTAB or PFM_NUMBERINGSTART or PFM_NUMBERINGSTYLE;
 
-  PFE_RTLPARA                         = PFM_RTLPARA              shr 16; 
+  PFE_RTLPARA                         = PFM_RTLPARA              shr 16;
   PFE_KEEP                            = PFM_KEEP                 shr 16;    { (*)    }
   PFE_KEEPNEXT                        = PFM_KEEPNEXT             shr 16;    { (*)    }
   PFE_PAGEBREAKBEFORE                 = PFM_PAGEBREAKBEFORE      shr 16;    { (*)    }
@@ -884,7 +990,7 @@ type
     pcpPositions: PLongint;
   end;
 
-  TENLink = record 
+  TENLink = record
     nmhdr: TNMHdr;
     msg: UINT;
     wParam: WPARAM;
@@ -912,7 +1018,7 @@ const
 { EM_GETTEXTLENGTHEX info; this struct is passed in the wparam of the msg }
 
 type
-  TGetTextLengthEx = record 
+  TGetTextLengthEx = record
     flags: DWORD;              { flags (see GTL_XXX defines)  }
     codepage: UINT;            { code page for translation    }
   end;
@@ -921,6 +1027,51 @@ const
   OLEOP_DOVERB = 1;
 
 {$ENDIF RX_D3}
+
+
+{$IFDEF RX_LANGUAGE}
+
+function CodePageFromLocale(Language: TLanguage): Integer;                // [dpv]
+var
+  Buf: array[0..6] of Char;
+begin
+  GetLocaleInfo(Language, LOCALE_IDefaultAnsiCodePage, Buf, 6);
+  Result:= StrToIntDef(Buf, GetACP);
+end;
+
+function CharSetFromLocale(Language: TLanguage): TFontCharSet;           // [dpv]
+var
+  CP: Cardinal;
+  tag: tagCHARSETINFO;
+begin
+  CP:= CodePageFromLocale(Language);
+  TranslateCharsetInfo(CP, tag, TCI_SRCCODEPAGE);
+  Result:= tag.ciCharset;
+end;
+
+{$ENDIF}
+
+
+{$IFDEF RX_ENH}                          // [dpv] For use with PutRtfText
+
+const
+  EM_SETTEXTEX =       WM_USER + 97;     // https://learn.microsoft.com/en-us/windows/win32/controls/em-settextex
+  ST_DEFAULT =         $00000000;
+  ST_KEEPUNDO =        $00000001;
+  ST_SELECTION =       $00000002;
+
+type
+  _SetTextEx = record
+    flags: DWORD;              {Option flags. It can be any reasonable combination of the following flags:
+                                ST_DEFAULT:   Deletes the undo stack, discards rich-text formatting, replaces all text.
+                                ST_KEEPUNDO:  Keeps the undo stack.
+                                ST_SELECTION: Replaces selection and keeps rich-text formatting.  }
+    codepage: UINT;            { code page for translation (CP_ACP for default, 1200 for Unicode  }
+  end;
+  TSetTextEX = _SetTextEx;
+
+{$ENDIF}
+
 
 const
   FT_DOWN = 1;
@@ -931,6 +1082,10 @@ type
 
   TFindTextEx = {$IFDEF RX_D12}TFindTextExW{$ELSE}TFindTextExA{$ENDIF};
 
+const
+  EM_FINDTEXTEX = {$IFDEF RX_D12}EM_FINDTEXTEXW{$ELSE}EM_FINDTEXTEX{$ENDIF};   // [dpv] TFindTextExA => EM_FINDTEXTEX  TFindTextExW => EM_FINDTEXEXTW
+
+type
   TTextRangeA = record
     chrg: TCharRange;
     lpstrText: PAnsiChar;
@@ -1005,6 +1160,7 @@ begin
       if (dwMask and CFM_IMPRINT) <> 0 then Include(Result, caImprint);
       if (dwMask and CFM_HIDDEN) <> 0 then Include(result, caHidden);
       if RichEditVersion >= 2 then begin
+        if (dwMask and CFM_LCID) <> 0 then Include(Result, caLanguage);             // [mj]
         if (dwMask and CFM_LINK) <> 0 then Include(Result, caLink);
         if (dwMask and CFM_BACKCOLOR) <> 0 then Include(Result, caBackColor);
         if (dwMask and CFM_DISABLED) <> 0 then Include(Result, caDisabled);
@@ -1045,7 +1201,8 @@ begin
   InitFormat(Format);
   with Format do
   begin
-    dwMask := CFM_CHARSET;
+    //dwMask := CFM_CHARSET;
+    dwMask := dwMask or CFM_CHARSET;                          // [mj]
     bCharSet := Value;
   end;
   SetAttributes(Format);
@@ -1072,6 +1229,23 @@ begin
   end;
   SetAttributes(Format);
 end;
+
+
+ {Return link style from selection: link style not set (lsNone), link style set (lsLink), link style mixed (partially set) (lsMixed) }
+function TRxTextAttributes.GetLinkStyle: TRxLinkStyle;
+var
+  Format: TCharFormat2;
+begin
+  Result := lsNone;
+  if RichEditVersion < 2 then Exit;
+  GetAttributes(Format);
+  if (Format.dwMask and CFE_LINK) = 0 then
+      Result:=  lsMixed
+  else
+      if (Format.dwEffects and CFE_LINK) <> 0 then
+        Result:= lsLink;
+end;
+
 
 function TRxTextAttributes.GetLink: Boolean;
 var
@@ -1139,6 +1313,39 @@ begin
   end;
   SetAttributes(Format);
 end;
+
+
+{$IFDEF RX_LANGUAGE}
+
+function TRxTextAttributes.GetLanguage : TLanguage;
+var
+  Format: TCharFormat2;
+begin
+  if RichEditVersion < 2 then
+  begin
+    result := 1033; // US English
+    Exit;
+  end;
+  GetAttributes(Format);
+  Result := Format.lid;
+end;
+
+procedure TRxTextAttributes.SetLanguage(Value: TLanguage);
+var
+  Format: TCharFormat2;
+begin
+  if RichEditVersion < 2 then exit;
+  InitFormat(Format);
+  with Format do
+  begin
+    dwMask := CFM_LCID;
+    lid := Value;
+  end;
+  SetAttributes(Format);
+end;
+
+{$ENDIF}
+
 
 function TRxTextAttributes.GetDisabled: Boolean;
 var
@@ -1264,6 +1471,55 @@ begin
   end;
   SetAttributes(Format);
 end;
+
+procedure TRxTextAttributes.SetBold(Value: boolean);
+var
+  Format: TCharFormat2;
+begin
+  InitFormat(Format);
+  with Format do begin
+    dwMask := CFM_BOLD;
+    if Value then dwEffects := CFE_BOLD;
+  end;
+  SetAttributes(Format);
+end;
+
+procedure TRxTextAttributes.SetItalic(Value: boolean);
+var
+  Format: TCharFormat2;
+begin
+  InitFormat(Format);
+  with Format do begin
+    dwMask := CFM_ITALIC;
+    if Value then dwEffects := CFE_ITALIC;
+  end;
+  SetAttributes(Format);
+end;
+
+procedure TRxTextAttributes.SetUnderline(Value: boolean);
+var
+  Format: TCharFormat2;
+begin
+  InitFormat(Format);
+  with Format do begin
+    dwMask := CFM_UNDERLINE;
+    if Value then dwEffects := CFE_UNDERLINE;
+  end;
+  SetAttributes(Format);
+end;
+
+procedure TRxTextAttributes.SetStrikeOut(Value: boolean);
+var
+  Format: TCharFormat2;
+begin
+  InitFormat(Format);
+  with Format do begin
+    dwMask := CFM_STRIKEOUT;
+    if Value then dwEffects := CFE_STRIKEOUT;
+  end;
+  SetAttributes(Format);
+end;
+
 
 function TRxTextAttributes.GetSpacing: Double;
 var
@@ -1712,6 +1968,12 @@ begin
   else if Source is TRxTextAttributes then begin
     TRxTextAttributes(Source).GetAttributes(Format);
     SetAttributes(Format);
+
+{$IFDEF RX_LANGUAGE}
+    { Although in SetAttributes() Format has dwMask set to CMF_ALL2, lid (Language) is ignored.
+	  However, if we call EM_SETCHARFORMAT with dwMask = CFM_LCID then it is applied  [dpv] }
+    Language := TRxTextAttributes(Source).Language;                 // [mj]
+{$ENDIF}
   end
   else inherited Assign(Source);
 end;
@@ -1719,6 +1981,9 @@ end;
 procedure TRxTextAttributes.AssignTo(Dest: TPersistent);
 begin
   if Dest is TFont then begin
+{$IFDEF RX_LANGUAGE}
+    TFont(Dest).Charset := CharsetFromLocale(Language);             // [mj]
+{$ENDIF}
     TFont(Dest).Color := Color;
     TFont(Dest).Name := Name;
 {$IFNDEF VER90}
@@ -1728,11 +1993,23 @@ begin
     TFont(Dest).Size := Size;
     TFont(Dest).Pitch := Pitch;
   end
-  else if Dest is TTextAttributes then begin
+{$IFDEF RX_LANGUAGE}
+  else
+  if Dest is TRxTextAttributes then                                // [mj]
+  begin
+    TRxTextAttributes(Dest).Language := Language;
+  end
+{$ENDIF}
+  else
+  if Dest is TTextAttributes then
+  begin
     TTextAttributes(Dest).Color := Color;
     TTextAttributes(Dest).Name := Name;
 {$IFDEF RX_D3}
     TTextAttributes(Dest).Charset := Charset;
+{$ENDIF}
+{$IFDEF RX_LANGUAGE}
+    TTextAttributes(Dest).Charset := CharsetFromLocale(Language);  // [mj]
 {$ENDIF}
     TTextAttributes(Dest).Style := Style;
     TTextAttributes(Dest).Pitch := Pitch;
@@ -1812,6 +2089,31 @@ begin
     if Result <> nsNone then Result := nsBullet;
 end;
 
+function TRxParaAttributes.GetNumberingStart: integer;
+var
+  Paragraph: TParaFormat2;
+begin
+  GetAttributes(Paragraph);
+  Result := integer(Paragraph.wNumberingStart);
+  if RichEditVersion = 1 then
+     result := 0;
+end;
+
+
+procedure TRxParaAttributes.SetNumberingStart( Value : integer );
+var
+  Paragraph: TParaFormat2;
+begin
+  if RichEditVersion = 1 then exit;
+  InitPara(Paragraph);
+  with Paragraph do begin
+    dwMask := PFM_NUMBERINGSTART;
+    wNumberingStart := value;
+  end;
+  SetAttributes(Paragraph);
+end;
+
+
 procedure TRxParaAttributes.SetNumbering(Value: TRxNumbering);
 var
   Paragraph: TParaFormat2;
@@ -1826,6 +2128,7 @@ begin
   with Paragraph do begin
     dwMask := PFM_NUMBERING;
     wNumbering := Ord(Value);
+    wNumberingStart := 1;                                      // [mj]
   end;
   SetAttributes(Paragraph);
 end;
@@ -1854,6 +2157,28 @@ begin
   end;
   SetAttributes(Paragraph);
 end;
+
+procedure TRxParaAttributes.SetNumberingList(numbering: TRxNumbering;
+                                             numberingStyle: TRxNumberingStyle;
+                                             numberingStart: integer;
+                                             LeftIndent: integer);
+var
+  Paragraph: TParaFormat2;
+begin
+  if RichEditVersion = 1 then
+    if numbering <> nsNone then numbering := TRxNumbering(PFN_BULLET);
+
+  InitPara(Paragraph);
+  with Paragraph do begin
+    dwMask := PFM_NUMBERING or PFM_NUMBERINGSTYLE or PFM_NUMBERINGSTART or PFM_OFFSET;
+    wNumberingStyle := word(numberingStyle);
+    wNumbering := Ord(numbering);
+    wNumberingStart := numberingStart;
+    dxOffset := LeftIndent * 20;
+  end;
+  SetAttributes(Paragraph);
+end;
+
 
 function TRxParaAttributes.GetNumberingTab: Word;
 var
@@ -1884,6 +2209,9 @@ begin
   Result := Paragraph.dxStartIndent div 20;
 end;
 
+{   Indentation of the paragraph's first line, in points.
+    The indentation of subsequent lines depends on the dxOffset member (LeftIndent property).
+ => The indentation specified is an absolute indentation from the left margin.}
 procedure TRxParaAttributes.SetFirstIndent(Value: Longint);
 var
   Paragraph: TParaFormat2;
@@ -1892,6 +2220,23 @@ begin
   with Paragraph do
   begin
     dwMask := PFM_STARTINDENT;
+    dxStartIndent := Value * 20;
+  end;
+  SetAttributes(Paragraph);
+end;
+
+
+{  Indentation of the paragraph's first line, in points.
+   The indentation of subsequent lines depends on the dxOffset member (LeftIndent property).
+=> The indentation specified is relative to the paragraph's current indentation. }
+procedure TRxParaAttributes.SetFirstIndentRelative(Value: Longint);
+var
+  Paragraph: TParaFormat2;
+begin
+  InitPara(Paragraph);
+  with Paragraph do
+  begin
+    dwMask := PFM_OFFSETINDENT;
     dxStartIndent := Value * 20;
   end;
   SetAttributes(Paragraph);
@@ -2373,7 +2718,8 @@ end;
 
 function CoAllocCStr(const S: string): PChar;
 begin
-  Result := StrCopy(CoTaskMemAlloc(Length(S) + 1), PChar(S));
+  //Result := StrCopy(CoTaskMemAlloc(Length(S) + 1), PChar(S));
+  Result := StrCopy(CoTaskMemAlloc(Length(S) * Sizeof(Char) + 1), PChar(S));    // [dpv]
 end;
 
 function WStrToString(P: PWideChar): string;
@@ -2429,6 +2775,7 @@ var
   CFLinkSource: Integer;
   CFRtf: Integer;
   CFRtfNoObjs: Integer;
+  CFHtml: Integer;                                 // [dpv]
 
 const
 {$IFNDEF RX_D3}
@@ -2436,6 +2783,7 @@ const
 {$ENDIF}
   CF_EMBEDDEDOBJECT = 'Embedded Object';
   CF_LINKSOURCE = 'Link Source';
+  CF_HTML = 'HTML Format';                         // [dpv]
 
 {************************************************************************}
 
@@ -3892,12 +4240,16 @@ begin
         if Encoding <> nil then
         begin
           Preamble := Encoding.GetPreamble;
-          if Length(Preamble) > 0 then
+          //if (Length(Preamble) > 0) and  then                                                // [dpv]
+          if (Length(Preamble) > 0) and (Stream.Size = 0) and (RichEdit.TextLength > 0) then   // [dpv]
             Stream.WriteBuffer(Preamble[0], Length(Preamble));
         end;
 {$ELSE}
-      if (smUnicode in Mode) and (RichEditVersion > 1) then
+      if (smUnicode in Mode) and (RichEditVersion > 1) then begin
         TextType := TextType or SF_UNICODE;
+        if (Stream.Size = 0) and (RichEdit.TextLength > 0) then                                 // [dpv]
+           Stream.Write(UTF8_BOM[1], length(UTF8_BOM));                                         // [dpv]
+      end;
 {$ENDIF}
     end;
     if smSelection in Mode then
@@ -4078,6 +4430,8 @@ begin
 {$IFDEF RX_D4}
   Perform(CM_PARENTBIDIMODECHANGED, 0, 0);
 {$ENDIF}
+  FUpdating:= 0;                               // [dpv]
+  FOldEventMask:= 0;                           // [dpv]
 end;
 
 destructor TRxCustomRichEdit.Destroy;
@@ -4116,12 +4470,29 @@ const
   SelectionBars: array[Boolean] of DWORD = (0, ES_SELECTIONBAR);
 begin
   inherited CreateParams(Params);
+
+{$IFDEF RX_SELECTDLL}                                             // [dpv]
+  if RichEditVersion = 1 then
+     CreateSubClass(Params, RICHEDIT_CLASS10A)
+  else if RichEditVersion = 5 then                                // Office 2003
+     CreateSubClass(Params, RICHEDIT_CLASSW)
+  else if (RichEditVersion = 6) or (RichEditVersion >= 8) then    // Office 2007, Office 2010, Office 2013 ..
+     CreateSubClass(Params, RICHEDIT_CLASS60W)
+  else if RichEditVersion >= 4 then
+     CreateSubClass(Params, RICHEDIT_CLASS50W)
+  else
+     CreateSubClass(Params, RICHEDIT_CLASS);
+   
+{$ELSE}
   case RichEditVersion of
     1: CreateSubClass(Params, RICHEDIT_CLASS10A);
     2..3: CreateSubClass(Params, RICHEDIT_CLASS);
     else
       CreateSubClass(Params, MSFTEDIT_CLASS);
   end;
+{$ENDIF}
+
+ 
   with Params do begin
     Style := (Style and not (WS_HSCROLL or WS_VSCROLL)) or ES_SAVESEL or
       (WS_CLIPSIBLINGS or WS_CLIPCHILDREN);
@@ -4419,6 +4790,148 @@ begin
   with GetSelection do
     Result := GetTextRange(cpMin, cpMax);
 end;
+
+{$IFDEF KEEP_SELECTED_AFTER_SetSelText}
+procedure TRxCustomRichEdit.SetSelText(const Value: string);                        // [dpv]
+var
+  len: integer;
+  rg: TCharRange;
+  allowUNDO: integer;
+begin
+ { In KeyNote NF, before adapting to UNICODE (in 2009, over D2006, with the call to 
+   CustomCreateWindowHandle from Tnt controls), the message EM_REPLACESEL kept the
+   new text selected, but din't treat ok unicode text.
+   After that adaptation, only the first character of the new text was selected,
+   and so the rest of the program would function incorrectly if we did not maintain
+   the original behaviour. With this procedure the replacement of selected text with
+   unicode worked ok.  This occured with SendMessage and with SendMessageW }
+
+  if (FUndoLimit > 1) and (RichEditVersion >= 2) and not FLinesUpdating then
+     allowUNDO := 1 { allow Undo }
+  else
+     allowUNDO := 0;
+
+  if not FLinesUpdating then
+     rg:= GetSelection;
+
+  SendMessage(Handle, EM_REPLACESEL, allowUNDO, Longint(PChar(Value)));
+
+  if not FLinesUpdating then begin
+     len:= length(value);
+     SetSelection(rg.cpMin, rg.cpMin+len, true);
+  end;
+end;
+{$ENDIF}
+
+
+function TRxCustomRichEdit.GetSelVisibleText: string;
+var
+  GetTextEx: TGetTextEx;
+  longSel: integer;
+begin
+   with GetSelection do
+      longSel:= cpMax-cpMin+1;
+
+   SetLength(Result, longSel);
+
+   with GetTextEx do begin
+      cb:= longSel * 2;     // size in bytes
+      flags:= GT_SELECTION or GT_NOHIDDENTEXT;
+      codepage:= 1200;
+      lpDefaultChar:= nil;
+      lpUsedDefChar:= nil;
+   end;
+
+   longSel:= SendMessage(Handle, EM_GETTEXTEX, WPARAM(@GetTextEx), LPARAM(Result));
+   SetLength(Result, longSel);
+end;
+
+
+{ EM_SETTEXTEX (https://learn.microsoft.com/en-us/windows/win32/controls/em-settextex):
+  <<Combines the functionality of the WM_SETTEXT and EM_REPLACESEL messages, and adds the ability to set text using a code page and to use either rich text or plain text.
+   Parameters
+     wParam
+        Pointer to a SETTEXTEX structure that specifies flags and an optional code page to use in translating to Unicode.
+     lParam
+        Pointer to the null-terminated text to insert. This text is an ANSI string, unless the code page is 1200 (Unicode).
+		If lParam starts with a valid RTF ASCII sequence for example, "{\rtf" or "{urtf" the text is read in using the RTF reader.
+    >>
+  Requirement: Rich Edit 3.0 }
+
+procedure TRxCustomRichEdit.PutRtfText (const sRTF: string; const DoInsert: boolean;
+                                        const SelectionOnly: boolean = true; const KeepSelected: boolean = false);
+var
+  aSTE: TSetTextEx;
+begin
+  if sRTF = '' then exit;
+
+  if not DoInsert then begin          // If we're appending, we need to set our selection at the end of the control
+     SelStart := -1;
+     selLength := 0;
+  end;
+
+  try
+    if RichEditVersion < 3 then begin
+       if (not SelectionOnly) then
+	      Lines.Clear;
+       RtfSelText:= sRTF;
+       exit;
+    end
+    else begin
+       if SelectionOnly then
+          aSTE.flags:= ST_SELECTION;
+       aSTE.flags:= aSTE.flags or ST_KEEPUNDO;
+       aSTE.codepage:= 1200;   // 1200 (Unicode)
+
+       SendMessage(Handle, EM_SETTEXTEX, longint(@aSTE), longint(PChar(sRTF)));           // EM_SETTEXTEX
+    end;
+
+    if not KeepSelected then
+       SelStart := SelStart + SelLength;
+
+  finally
+  end;
+end;
+
+
+procedure TRxCustomRichEdit.PutRtfText (const sRTF: RawByteString; const DoInsert: boolean;
+                                        const SelectionOnly: boolean = true; const KeepSelected: boolean = false);
+var
+  aSTE: TSetTextEx;
+begin
+
+  if sRTF = '' then exit;
+
+  if not DoInsert then begin            // If we're appending, we need to set our selection at the end of the control
+     SelStart := -1;
+     selLength := 0;
+  end;
+
+  try
+    if RichEditVersion < 3 then begin
+       if (not SelectionOnly) then
+	      Lines.Clear;
+       RtfSelText:= sRTF;
+       exit;
+    end
+    else begin
+       if SelectionOnly then
+          aSTE.flags:= ST_SELECTION;
+       aSTE.flags:= aSTE.flags or ST_KEEPUNDO;
+       //aSTE.codepage:= CP_ACP;          // CP_ACP= ANSI codepage => use the currently set default Windows ANSI codepage.
+       aSTE.codepage:= StringCodePage(sRTF);
+
+       SendMessage(Handle, EM_SETTEXTEX, longint(@aSTE), longint(PAnsiChar(sRTF)));
+    end;
+
+    if not KeepSelected then
+       SelStart := SelStart + SelLength;
+
+  finally
+  end;
+end;
+
+
 {$ENDIF RX_D3}
 
 function TRxCustomRichEdit.GetSelTextBuf(Buffer: PChar; BufSize: Integer): Integer;
@@ -4452,6 +4965,12 @@ begin
     RecreateWnd;
   end;
 end;
+
+procedure TRxCustomRichEdit.ScrollLinesBy(inc: integer);
+begin
+  SendMessage(Handle, EM_LINESCROLL, 0, inc);
+end;
+
 
 procedure TRxCustomRichEdit.SetSelectionBar(Value: Boolean);
 begin
@@ -4584,6 +5103,28 @@ begin
     Result := TUndoName(SendMessage(Handle, EM_GETUNDONAME, 0, 0));
 end;
 
+
+procedure TRxCustomRichEdit.SuspendUndo;
+var
+  docTOM: ITextDocument;
+begin
+  if Assigned(FRichEditOle) then begin
+    OleCheck(FRichEditOle.QueryInterface(ITextDocument, docTOM));
+    docTOM.Undo(tomSuspend);
+  end;
+end;
+
+procedure TRxCustomRichEdit.ResumeUndo;
+var
+  docTOM: ITextDocument;
+begin
+  if Assigned(FRichEditOle) then begin
+    OleCheck(FRichEditOle.QueryInterface(ITextDocument, docTOM));
+    docTOM.Undo(tomResume);
+  end;
+end;
+
+
 function TRxCustomRichEdit.GetSelectionType: TRichSelectionType;
 const
   SelTypes: array[TRichSelection] of Integer = (
@@ -4689,6 +5230,11 @@ end;
 function TRxCustomRichEdit.GetLineLength(CharIndex: Integer): Integer;
 begin
   Result := SendMessage(Handle, EM_LINELENGTH, WPARAM(CharIndex), 0);
+end;
+
+function TRxCustomRichEdit.GetFirstVisibleLine: Integer;
+begin
+  Result := SendMessage(Handle, EM_GETFIRSTVISIBLELINE, 0, 0);
 end;
 
 procedure TRxCustomRichEdit.SetUndoLimit(Value: Integer);
@@ -4828,6 +5374,7 @@ begin
   end;
 end;
 
+
 function TRxCustomRichEdit.PasteSpecialDialog: Boolean;
 
   procedure SetPasteEntry(var Entry: TOleUIPasteEntry; Format: TClipFormat;
@@ -4846,8 +5393,30 @@ function TRxCustomRichEdit.PasteSpecialDialog: Boolean;
     end;
   end;
 
+  function GetAsHTML: UTf8String;              // [dpv]
+  var
+     Data: THandle;
+  begin
+      try
+        Clipboard.Open;
+        try
+           Data := GetClipboardData(CFHtml);
+           if Data <> 0 then begin
+              Result := PUTf8Char(GlobalLock(Data));
+              GlobalUnLock(Data)
+           end
+           else
+              Result:= '';
+        finally
+          Clipboard.Close;
+        end;
+      except
+      end;
+  end;
+
+
 const
-  PasteFormatCount = 6;
+   PasteFormatCount = 7;                                     // [dpv] (6 -> 7)
 var
   Data: TOleUIPasteSpecial;
   PasteFormats: array[0..PasteFormatCount - 1] of TOleUIPasteEntry;
@@ -4857,6 +5426,7 @@ var
   OleObject: IOleObject;
   ReObject: TReObject;
   Selection: TCharRange;
+  HTMLText: UTF8string;                                       // [dpv]
 begin
   Result := False;
   if not CanPaste or not Assigned(FRichEditOle) then Exit;
@@ -4883,6 +5453,9 @@ begin
     'Unformatted text', 'text without any formatting', OLEUIPASTE_PASTE);
   SetPasteEntry(PasteFormats[5], CF_BITMAP, TYMED_GDI,
     'Windows Bitmap', 'bitmap image', OLEUIPASTE_PASTE);
+  SetPasteEntry(PasteFormats[6], CFHtml, TYMED_ISTORAGE,       // [dpv]
+    CF_HTML, 'HTML Source', OLEUIPASTE_PASTE);
+
   try
     if OleUIPasteSpecial(Data) = OLEUI_OK then begin
       Result := True;
@@ -4929,6 +5502,12 @@ begin
           ReleaseObject(Storage);
         end;
       end
+      else if Data.nSelectedIndex = 6 then begin                            // [dpv]
+         HTMLText:= GetAsHTML;
+         SelText:= HTMLText;
+         SelStart := SelStart + Length(HTMLText);
+         SelLength:= 0;
+      end
       else begin
         Format := PasteFormats[Data.nSelectedIndex].fmtetc.cfFormat;
         OleCheck(IRichEditOle(FRichEditOle).ImportDataObject(
@@ -4942,10 +5521,48 @@ begin
   end;
 end;
 
+
+{ Paste via IRichEditOLE indicating the clipboard format to use
+   (if cfFormat=0 => use the best available format)
+
+  IRichEditOle::ImportDataObject(lpdataobj, cf, hMetaPict):  Imports a clipboard object into a
+   rich edit control, replacing the current selection.
+    cf: Type: CLIPFORMAT
+    Clipboard format to use. A value of zero will use the best available format.
+
+  From version 10.0.15063.0 of MSFTEDIT.DLL (Windows 10 version 1703) it doesn't work
+  when pasting images. It seems to be necessary to explicitily indicate the format  CF_BITMAP  }
+ 
+function TRxCustomRichEdit.PasteIRichEditOLE(cfFormat: TClipFormat): Boolean;
+var
+  lpSrcDataObj: IDataObject;
+begin
+  Result:= False;
+  if not CanPaste or not Assigned(FRichEditOle) then Exit;
+
+  try
+    if cfFormat = 0 then begin
+      if Clipboard.HasFormat(CF_BITMAP) then
+         cfFormat:= CF_BITMAP;
+    end;
+
+    if OleGetClipboard(lpSrcDataObj) = S_OK then begin
+       OleCheck(IRichEditOle(FRichEditOle).ImportDataObject(
+               lpSrcDataObj, cfFormat, 0));
+       SendMessage(Handle, EM_SCROLLCARET, 0, 0);
+       Result:= True;
+       end;
+
+  finally
+     ReleaseObject(lpSrcDataObj);
+  end;
+end;
+
 function TRxCustomRichEdit.InsertObjectDialog: Boolean;
 var
   Data: TOleUIInsertObject;
-  NameBuffer: array[0..255] of Char;
+  //NameBuffer: array[0..255] of Char;     // [dpv]
+  Name: string;                            // [dpv]
   OleClientSite: IOleClientSite;
   Storage: IStorage;
   OleObject: IOleObject;
@@ -4954,7 +5571,8 @@ var
   Selection: TCharRange;
 begin
   FillChar(Data, SizeOf(Data), 0);
-  FillChar(NameBuffer, SizeOf(NameBuffer), 0);
+  //FillChar(NameBuffer, SizeOf(NameBuffer), 0);   // [dpv]
+  SetString(Name, nil, 256);                       // [dpv]  
   FillChar(ReObject, SizeOf(TReObject), 0);
   if Assigned(FRichEditOle) then begin
     IRichEditOle(FRichEditOle).GetClientSite(OleClientSite);
@@ -4963,11 +5581,13 @@ begin
       CreateStorage(Storage);
       with Data do begin
         cbStruct := SizeOf(Data);
-        dwFlags := IOF_SELECTCREATENEW or IOF_VERIFYSERVERSEXIST or 
+        dwFlags := IOF_SELECTCREATENEW or IOF_VERIFYSERVERSEXIST or
           IOF_CREATENEWOBJECT or IOF_CREATEFILEOBJECT or IOF_CREATELINKOBJECT;
         hWndOwner := Handle;
-        lpszFile := NameBuffer;
-        cchFile := SizeOf(NameBuffer);
+        //lpszFile := NameBuffer;         // [dpv]   (--> Error: Result= 125: OLEUI_IOERR_CCHFILEINVALID )
+        //cchFile := SizeOf(NameBuffer);  // [dpv]
+        lpszFile := PChar(Name);          // [dpv]
+        cchFile := Length(Name);          // [dpv]
         iid := {$IFDEF RX_D3} IOleObject {$ELSE} IID_IOleObject {$ENDIF};
         oleRender := OLERENDER_DRAW;
         lpIOleClientSite := OleClientSite;
@@ -5077,12 +5697,29 @@ begin
   end;
 end;
 
+
+function TRxCustomRichEdit.TextLength: integer;             // [dpv] Extracted from .Print and .CreatePrnPrew 
+var
+  TextLenEx: TGetTextLengthEx;
+begin
+    if RichEditVersion >= 2 then begin
+      with TextLenEx do begin
+        flags := GTL_DEFAULT;
+        codepage := CP_ACP;
+      end;
+      Result := Perform(EM_GETTEXTLENGTHEX, WParam(@TextLenEx), 0);
+    end
+    else
+      Result := GetTextLen;
+end;
+
+
 procedure TRxCustomRichEdit.Print(const Caption: string);
 var
   Range: TFormatRange;
   LastChar, MaxLen, LogX, LogY, OldMap: Integer;
   SaveRect: TRect;
-  TextLenEx: TGetTextLengthEx;
+  //TextLenEx: TGetTextLengthEx;                                  // dpv
 begin
 {$IFDEF RX_ENHPRINT}
   percentdone:=0;
@@ -5109,6 +5746,8 @@ begin
     rcPage := rc;
     SaveRect := rc;
     LastChar := 0;
+  	MaxLen:= TextLength;                                           // dpv
+  {                                                                // dpv
     if RichEditVersion >= 2 then begin
       with TextLenEx do begin
         flags := GTL_DEFAULT;
@@ -5117,6 +5756,7 @@ begin
       MaxLen := Perform(EM_GETTEXTLENGTHEX, WParam(@TextLenEx), 0);
     end
     else MaxLen := GetTextLen;
+	}
     chrg.cpMax := -1;
     { ensure printer DC is in text map mode }
     OldMap := SetMapMode(hdc, MM_TEXT);
@@ -5145,7 +5785,7 @@ var
   Range: TFormatRange;
   LastChar, MaxLen, LogX, LogY, OldMap: Integer;
   SaveRect: TRect;
-  TextLenEx: TGetTextLengthEx;
+  //TextLenEx: TGetTextLengthEx;                                   // [dpv]
   MetaCanvas:TmetafileCanvas;
 begin
 //  if prnpreview<>nil then prnpreview.free;
@@ -5175,6 +5815,8 @@ begin
     rcPage := rc;
     SaveRect := rc;
     LastChar := 0;
+	MaxLen:= TextLength;                                             // [dpv]
+	{                                                                // [dpv]
     if RichEditVersion >= 2 then begin
       with TextLenEx do begin
         flags := GTL_DEFAULT;
@@ -5183,6 +5825,7 @@ begin
       MaxLen := Perform(EM_GETTEXTLENGTHEX, WParam(@TextLenEx), 0);
     end
     else MaxLen := GetTextLen;
+	}
     chrg.cpMax := -1;
     { ensure printer DC is in text map mode }
     OldMap := SetMapMode(hdc, MM_TEXT);
@@ -5338,6 +5981,45 @@ Begin
   end;
 End;//SetRtfSelText
 
+
+function  TRxCustomRichEdit.GetRtfText: String;
+var
+  SS: TStringStream;
+  StreamModeBak: TRichStreamModes;
+Begin
+  StreamModeBak:= StreamMode;
+  StreamMode:=StreamMode - [smSelection];
+
+  SS:=TStringStream.Create('');
+
+  try
+    Lines.SaveToStream(SS);
+    Result:= SS.DataString;
+  finally
+    SS.FREE;
+    StreamMode:= StreamModeBak;
+  end;
+End;
+
+
+procedure TRxCustomRichEdit.SetRtfText(const sRtf: String);
+var
+  SS: TStringStream;
+  StreamModeBak: TRichStreamModes;
+Begin
+  StreamModeBak:= StreamMode;
+  StreamMode:= StreamMode - [smSelection];
+
+  SS:=TStringStream.Create(sRTF);
+
+  try
+    Lines.LoadFromStream(SS);
+  finally
+    SS.FREE;
+    StreamMode:= StreamModeBak;
+  end;	 
+End;
+
 {$ENDIF}
 
 procedure TRxCustomRichEdit.CNNotify(var Message: TWMNotify);
@@ -5440,10 +6122,33 @@ var
   Find: TFindTextEx;
   Flags: Integer;
 begin
+{                                                                           // [dpv]
   with Find.chrg do begin
+     cpMin := StartPos;
+     cpMax := cpMin + Abs(Length);
+   end;
+}
+
+{ https://learn.microsoft.com/en-us/windows/win32/controls/em-findtextex        [dpv]
+  The cpMin member of FINDTEXTEX.chrg always specifies the starting-point of
+  the search, and cpMax specifies the end point. When searching backward,
+  cpMin must be equal to or greater than cpMax. When searching forward, a
+  value of -1 in cpMax extends the search range to the end of the text.  }
+
+  if Length <= 0 then Length:= -1;                                            // [dpv]
+
+  with Find.chrg do begin                                                     // [dpv]
     cpMin := StartPos;
-    cpMax := cpMin + Abs(Length);
+    if stBackward in Options then begin
+       cpMax:= 0;
+       if Length > 0 then  cpMax := cpMin - Length
+    end
+    else begin
+       cpMax:= -1;
+       if Length > 0 then  cpMax := cpMin + Length;
+    end;
   end;
+
   if RichEditVersion >= 2 then begin
     if not (stBackward in Options) then Flags := FT_DOWN
     else Flags := 0;
@@ -5452,10 +6157,16 @@ begin
     Options := Options - [stBackward];
     Flags := 0;
   end;
-  if stWholeWord in Options then Flags := Flags or {$IFNDEF RX_D12}FT_WHOLEWORD{$ELSE}CommDlg.FR_WHOLEWORD{$ENDIF};
-  if stMatchCase in Options then Flags := Flags or {$IFNDEF RX_D12}FT_MATCHCASE{$ELSE}CommDlg.FR_MATCHCASE{$ENDIF};
+  if stWholeWord in Options then Flags := Flags or {$IFNDEF RX_D12}FT_WHOLEWORD{$ELSE}Winapi.CommDlg.FR_WHOLEWORD{$ENDIF};
+  if stMatchCase in Options then Flags := Flags or {$IFNDEF RX_D12}FT_MATCHCASE{$ELSE}Winapi.CommDlg.FR_MATCHCASE{$ENDIF};
+
+{$IFDEF RX_D12}                                                                 // [dpv]
   Find.lpstrText := PChar(SearchStr);
-  Result := SendMessage(Handle, EM_FINDTEXTEX, Flags, LPARAM(@Find));
+{$ELSE}
+  Find.lpstrText := PAnsiChar(SearchStr);
+{$ENDIF}
+
+  Result := SendMessage(Handle, EM_FINDTEXTEX, Flags, LPARAM(@Find));       // [dpv] -> EM_FINDTEXTEX or EM_FINDTEXTEXW
   if (Result >= 0) and (stSetSelection in Options) then begin
     SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@Find.chrgText));
     SendMessage(Handle, EM_SCROLLCARET, 0, 0);
@@ -5483,6 +6194,36 @@ procedure TRxCustomRichEdit.StopGroupTyping;
 begin
   if (RichEditVersion >= 2) and HandleAllocated then
     SendMessage(Handle, EM_STOPGROUPTYPING, 0, 0);
+end;
+
+{ Maintains performance while updating.
+ It is recommended to call this method before doing any major updates that we don't wish the user to
+ see. Remember to call EndUpdate when you are finished with the update. Nested calls are supported.
+ Calling this method will prevent redrawing. It will also setup the event mask of the underlying richedit
+ control so that no events are sent. }
+ 
+procedure TRxCustomRichEdit.BeginUpdate;
+begin
+    FUpdating:= FUpdating + 1;                                         // Deal with nested calls
+    if FUpdating <= 1 then begin
+        FOldEventMask := SendMessage(Handle, EM_SETEVENTMASK, 0, 0);   // Prevent the control from raising any events
+        SendMessage(Handle, WM_SETREDRAW, 0, 0);                       // Prevent the control from redrawing itself
+    End;
+end;
+
+
+{ Resumes drawing and event handling.
+  This method should be called every time a call is made made to BeginUpdate. It resets the event mask to it's
+  original value and enables redrawing of the control.}
+
+procedure TRxCustomRichEdit.EndUpdate;
+begin
+    FUpdating:= FUpdating -1;                                        // Deal with nested calls
+    if FUpdating <= 0 then begin
+        SendMessage(Handle, WM_SETREDRAW, 1, 0);                     // Allow the control to redraw itself        
+        SendMessage(Handle, EM_SETEVENTMASK, 0, FOldEventMask);      // Allow the control to raise event messages
+        Invalidate;
+    end;
 end;
 
 {$IFDEF RX_D3}
@@ -5735,9 +6476,219 @@ var
   FLibHandle: THandle;
   Ver: TOsVersionInfo;
 
-initialization
+
+{$IFDEF RX_SELECTDLL}                                                   // [dpv]
+
+procedure GetDLLProductVersion (out sModulePath: string;
+                                out DLLProductVersion: Single;
+                                out RichEditVersion: TRichEditVersion);
+var
+  ModuleHandle: HMODULE;
+  ModulePath : array[0..MAX_PATH] of char;
+  dummy : DWORD;
+  size : integer;
+  buffer : PChar;
+  vsInfo : PVSFixedFileInfo;
+  vsInfoSize : UINT;
+  FileVersionMinor, FileVersionMajor : integer;
+  nameDLL: string;
+begin
+  ModuleHandle := FLibHandle;
+
+  if ( GetModuleFileName( ModuleHandle, ModulePath, MAX_PATH ) = 0 ) then exit; // function failed
+
+  size := GetFileVersionInfosize( ModulePath, dummy );
+  if ( size = 0 ) then exit; // function failed
+
+  GetMem( buffer, size );
+  try
+    if ( not GetFileVersionInfo( ModulePath, 0, size, buffer )) then exit;
+
+    if ( not VerQueryValue(buffer, '\', pointer( vsInfo ), vsInfoSize )) then exit;
+
+    FileVersionMinor := loword( vsInfo^.dwFileVersionMS );
+    FileVersionMajor := hiword( vsInfo^.dwFileVersionMS );
+
+    sModulePath:= ModulePath;
+    nameDLL := UpperCase(ExtractFileName(sModulePath));
+
+    DLLProductVersion:= 1.0;
+
+    if nameDLL = 'RICHED32.DLL' then
+          DLLProductVersion:= 1.0
+
+    else if nameDLL = 'RICHED20.DLL' then
+           case FileVersionMinor of
+              30,31,40,50:   DLLProductVersion:= FileVersionMinor/10;   // 3.0  3.1  4.0  5.0
+              0:
+                  case FileVersionMajor of
+                      5:     DLLProductVersion:= 2.0;
+                      12,14: DLLProductVersion:= 6.0;    // 12:Office2007  14:Office2010
+                      15:    DLLProductVersion:= 8.0;    // 15:Office2013
+                      else
+                         if FileVersionMajor > 15 then
+                            DLLProductVersion:= 8.0
+                         else
+                            DLLProductVersion:= 3.0;     // conservative
+                  end;
+           end
+
+    else if nameDLL = 'MSFTEDIT.DLL' then begin
+           if (FileVersionMajor = 5) and (FileVersionMinor = 41) then
+               DLLProductVersion:= 4.1
+           else if (FileVersionMajor = 6) and (FileVersionMinor = 2) then
+               DLLProductVersion:= 7.5   // Windows 8
+           else if (FileVersionMajor = 10) and (FileVersionMinor = 0) then
+               DLLProductVersion:= 7.5   // Windows 10
+           else
+               if FileVersionMajor > 10 then
+                  DLLProductVersion:= 7.5
+               else
+                  DLLProductVersion:= 4.1;    // conservative
+    end;
+    
+    RichEditVersion := Trunc(DLLProductVersion);
+
+  finally
+    FreeMem( buffer, size );
+  end;
+
+{
+    See also: 	
+        https://learn.microsoft.com/en-us/archive/blogs/murrays/richedit-9-additions
+        https://learn.microsoft.com/es-es/archive/blogs/murrays/richedit-8-feature-additions
+        https://learn.microsoft.com/es-es/archive/blogs/murrays/richedit-versions-update-to-7-0
+        https://learn.microsoft.com/es-es/archive/blogs/murrays/richedit-versions
+
+
+    C:\Windows\System32\RICHED20.DLL
+    Rich Text Edit Control, v2.0
+    Microsoft RichEdit Control, version 2.0
+    5.0.150.0
+
+    C:\Windows\System32\RICHED20.DLL
+    Rich Text Edit Control, v3.1
+    File version: 5.31.23.1231
+    Product version: 3.1
+          RichEdit 3: 5.30
+          RichEdit 4: 5.40
+
+    XP / Windows 7:
+    C:\Windows\System32\MSFTEDIT.DLL
+    Rich Text Edit Control, v4.1
+    Product version: 4.1
+    File version:  5.41.15.1515
+
+    OFFICE 2003  (11)
+    C:\Program Files (x86)\Common Files\Microsoft Shared\OFFICE11\RICHED20.DLL
+    Rich Text Edit Control, v5.0
+    Product version: 5.0
+    File version: 5.50.99.2070
+
+    OFFICE 2007  (12)
+    C:\Program Files (x86)\Common Files\Microsoft Shared\OFFICE12\RICHED20.DLL
+    RichEdit Version 6.0
+    Product/file version: 12.0.6606.1000
+    Product name: 2007 Microsoft Office system
+    (Needs msptls.dll)
+
+    Windows 8
+    C:\Windows\System32\MSFTEDIT.DLL
+    Control de edici√≥n de texto enriquecido, v7.5
+    Product/file version: 6.2.9200.16657
+
+    OFFICE 2010  (14)  (released with W8)
+    RichEdit Version 6.0
+    C:\Program Files (x86)\Common Files\Microsoft Shared\OFFICE14\RICHED20.DLL
+    14.0.7155.5000
+    (Needs msptls.dll)
+
+    OFFICE 2013  (15)
+    RichEdit Version 8.0
+    C:\Program Files (x86)\Common Files\Microsoft Shared\OFFICE15\RICHED20.DLL
+    15.0.4599.1000
+    (Needs msptls.dll)
+
+    Windows 10
+    C:\Windows\System32\MSFTEDIT.DLL
+    Control de edici√≥n de texto enriquecido, v7.5
+    Product/file version:    10.0.10586.17
+}
+end; // GetDLLProductVersion
+
+
+function LoadRichEditDLL(const RichEditLibraryPath: string = ''): TRichEditVersion;      // [dpv]
+var
+  VersionDLL: Single;
+  VersionRichEdit: TRichEditVersion;
+  sModulePath: string;
+
+begin
+  FLibHandle := 0;
   RichEditVersion := 1;
   OldError := SetErrorMode(SEM_NOOPENFILEERRORBOX);
+  try
+
+    if RichEditLibraryPath <> '' then begin
+       FLibHandle := LoadLibrary(PChar(RichEditLibraryPath));
+       if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR)  then
+           FLibHandle := 0;
+       if FLibHandle <> 0 then
+           RichEditVersion := 3;   // assumption (at least that version)
+    end;
+
+
+{$IFNDEF RICHEDIT_VER_10}
+    if FLibHandle = 0 then begin
+       FLibHandle := LoadLibrary(RichEdit41ModuleName);
+       if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR)  then
+           FLibHandle := 0;
+       if FLibHandle <> 0 then
+           RichEditVersion := 4;
+    end;
+
+    if FLibHandle = 0 then begin
+        FLibHandle := LoadLibrary(RichEdit20ModuleName);
+        if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then
+            FLibHandle := 0;
+        if FLibHandle <> 0 then begin
+          RichEditVersion := 2;
+          Ver.dwOSVersionInfoSize := SizeOf(Ver);
+          GetVersionEx(Ver);
+          with Ver do begin
+             if (dwPlatformId = VER_PLATFORM_WIN32_NT) and
+              (dwMajorVersion >= 5) then
+              RichEditVersion := 3;
+          end;
+        end;
+    end;
+{$ENDIF}
+    if FLibHandle = 0 then begin
+      FLibHandle := LoadLibrary(RichEdit10ModuleName);
+      if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
+    end;
+
+    
+    if FLibHandle <> 0 then begin
+       GetDLLProductVersion(sModulePath, VersionDLL, VersionRichEdit);
+       if VersionRichEdit > RichEditVersion then
+          RichEditVersion:= VersionRichEdit;
+    end;
+
+  finally
+    SetErrorMode(OldError);
+    Result := RichEditVersion;
+  end;
+
+end; // LoadRichEditDLL
+
+
+
+{$ELSE}                              // Not defined RX_SELECTDLL :
+
+procedure LoadRichEditDLL;
+begin
+
   try
 {$IFNDEF RICHEDIT_VER_10}
     FLibHandle := LoadLibrary(RichEdit41ModuleName); //last version
@@ -5769,10 +6720,30 @@ initialization
   finally
     SetErrorMode(OldError);
   end;
+
+end; // LoadRichEditDLL
+
+
+{$ENDIF}
+
+initialization
+
+{$IFDEF RX_SELECTDLL}
+  // LoadRichEditDLL([RichEditLibraryPath]) will be called from outside of this unit, at the beginning of the application
+  
+{$ELSE}
+  RichEditVersion := 1;
+  OldError := SetErrorMode(SEM_NOOPENFILEERRORBOX);
+
+  LoadRichEditDLL();
+{$ENDIF}
+
   CFEmbeddedObject := RegisterClipboardFormat(CF_EMBEDDEDOBJECT);
   CFLinkSource := RegisterClipboardFormat(CF_LINKSOURCE);
   CFRtf := RegisterClipboardFormat(CF_RTF);
   CFRtfNoObjs := RegisterClipboardFormat(CF_RTFNOOBJS);
+  CFHtml := RegisterClipboardFormat(CF_HTML);                  // [dpv]
+  
 finalization
   if FLibHandle <> 0 then FreeLibrary(FLibHandle);
 end.
