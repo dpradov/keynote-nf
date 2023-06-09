@@ -12,7 +12,9 @@ Plase, see also the comments of Marek, in "Important notes about third-party cod
 later in this document.
 
 
-KeyNote NF compiles with Borland Delphi 2006.
+KeyNote NF was initially compiled with Borland Delphi 2006. Recently (2023) has been
+adapted to be compiled with Embarcadero Delphi Communiy Edition 11.3 (Alexandria)
+
 KeyNote NF consists of two Delphi projects. The main project, keynote.dpr, 
 is the base application. The other project, kntutils.dpr, generates a DLL, used by
 the base application. Actually the DLL contains very little functionality.
@@ -31,43 +33,46 @@ the base application. Actually the DLL contains very little functionality.
 
 HOW TO Compile
 ===============
-To compile the program, please, keep the following steps, in the same order:
-
-0 - (Optional)
-   - I like, personally, to configure options in Borland Delphi, 
-     in Environment Options > Delphi Options > Library - Win32
-     so that "Package output directory" and "DCP output directory" point to a foder
-	 of my preference (..Output\Bpl)
-   - Save and restart Delphi
-   - On enter Delphi: 
-       "Your current Delphi for Win32 Package Output" is not part of your system path. 
-       In order to use runtime packages that are built into this directory, this 
-	   directory needs to be on your path.
-	   Would you like to add it now? 
-       Directory to be added: <....Output\Bpl>
-
-     Current Path: ......
-     Selecting 'Yes' will cause a user-specific 'PATH' environment variable to be created or update.
-     >>
-   - "Yes", and restart again
+To compile the program, please, keep the following steps, in the same order.
 
 KeyNote NF uses several third party components. I have created a Packed to easily
 install most of them (Components.dpk). The rest must be installed separately:
 
-1 - Tnt Unicode Controls  (TntUnicodeVcl)
-   => Compile: 3rd_party\TntUnicodeControls\Delphi\bds4\TntUnicodeVcl.dpk
-   => Install: 3rd_party\TntUnicodeControls\Delphi\bds4\TntUnicodeVcl_Design.dpk
-
-2 - Most 3rd Party Components
+1 - Most 3rd Party Components
    => Install: Packages\Components.dpk
 
-3 - DCPcrypt v1.3
+2 - DCPcrypt v1.3
    => Install: 3rd_party\dcpcrypt-1_3\DCP_d4.dpk
 
-4 - RX Library 2.75 port to Delphi 2006 (Win32), v1.0
-   => Compile: 3rd_party\rx275d2006\Units\rxctl2006.dpk    
-   => Install: 3rd_party\rx275d2006\Units\dclrx2006.dpk
-	      
+3 - unRxLib: Unofficial version Rx library for Delphi 2005 .. Alexandria   (v1.21)    
+   => Build:   3rd_party\unRxLib\units\packages_D11_Alexandria\RtmRxCtl280.dproj
+   => Install: 3rd_party\unRxLib\units\packages_D11_Alexandria\DclRxCtl280.dproj
+
+4 - ICS-Internet Component Suite v8.70
+   Unzip the file 3rd_party\ICS_v8\_icsv870.zip in some location (e.g. "<somePath>\icsv870)")
+   For Delphi 11:
+   => Open icsv870\Install\D110Install.groupproj           ( VCL only, no FireMonkey components )
+   => Build:    icsv870\Packages\OverbyteIcsD110Run.dproj
+   => Install:  icsv870\Packages\OverbyteIcsD110Design.dproj     
+   => Add "<somePath>\icsv870\source" and "<somePath>\icsv870\source\include" to Library path:
+        Options -> Language -> Delphi -> Library -> Library path     
+      
+   Notes:
+   - Detailed instructions of installation in icsv870\ReadMe8.txt
+   - In 3rd_party\ICS_v8\_Readme.txt in indicated the URL where you can download that file or a newer version
+   - It is also possible to install the component using GetIt (Tools -> GetIt Package Manager...)
+       => "ICS for FMX and VCL for Delphi 8.70, by Overbyte"
+          "ICS for VCL for Delphi 8.70, by Overbyte"
+          
+        Once installed (first one, e.g.) the following configuration will be defined in  Options -> Language -> Delphi -> Library -> Library path:
+            $(BDSCatalogRepository)\ICS_FMX-8.70-11\source\
+            $(BDSCatalogRepository)\ICS_FMX-8.70-11\source\include
+             
+KeyNote NF:
+5 - Open "KeyNote_NF.groupproj", where there are two projects "kntutils.dll" and "keynote.exe"
+    Build both projects.
+
+    
 Note:		  
 ----
 To keep translation files (.LNG) working it is necessary to update the files contained in the Lang folder
@@ -106,15 +111,14 @@ List of required components and libraries:
 
 * TdfsBrowseDirectoryDlg   [browsedr]
   TdfsMRUFileList          [mruflist]
-  TdfsStatusBar            [DFSStatusBar]
   TdfsSystemImageList      [sysimglist]
   (see Brad Stowers' Delphi Free Stuff, URL above)  
    
-* RX Library (http://sourceforge.net/projects/rxlib/);   [rx275d2006]
+* unRxLib, v1.21. Unofficial version Rx library for Delphi 2005 to Alexandria  (https://www.micrel.cz/RxLib/) [unRxLib]
 
 * TPage95Control, by Ryan J. Mills   [ComCtrls95]
   
-* TGFXListBox, by Wim Coetzee    [gfxlbcb]
+* TGFXListBox, TGFXComboBox, by Wim Coetzee    [gfxlbcb]
 
 * TToolbar97, by Jordan Russell (http://www.jrsoftware.org) [tb97_178a]
 
@@ -126,7 +130,7 @@ List of required components and libraries:
 
 * TFreeWordWeb, by Antony Lewis  [wordweb]
 
-* ICS component library, by Francois Piette (http://www.overbyte.be/) [ICS_InternetComponentSuite]
+* ICS - Internet Component Suite - V8.70, by Francois Piette (http://www.overbyte.be/) [ICS_v8]
 
 * TRichPrinter, by Gerrit Wolsink  [richprint]
 
@@ -139,10 +143,8 @@ List of required components and libraries:
 * TTopMostWindow, by Stephan Schneider [topmostwindow]
 
 * TLanguagesCombo, by Alexander Obukhov [langcombo]
-
-* Tnt Unicode Controls, by Troy Wolbrink (http://tnt.ccci.org/delphi_unicode_controls/) [TntUnicodeControls]
-	  
-* Kryvich Delphi Localizer, by Kryvich, Belarusian Linguistic Software team  [kdl32_Kryvich's Delphi Localizer]
+  
+* Kryvich Delphi Localizer, v5.0, by Kryvich, Belarusian Linguistic Software team  [Kryvich Delphi Localizer]
   (https://sites.google.com/site/kryvich/localizer)
   
 * Delphi Fast ZLib 1.2.3, by Roberto Della Pasqua and previous (http://www.dellapasqua.com/delphizlib/)
@@ -150,12 +152,11 @@ List of required components and libraries:
 
 * UAS, UltimaShell Autocompletion Server, (flashpeak@yifan.net) [UAS]
 
- 
-* StreamIO, text-file device driver that allows textfile-style I/O on streams, by Dr. Peter Below
-  [_Others\StreamIO.pas]
+* UWebBrowserWrapper, by Peter Johnson (http://www.delphidabbler.com/articles?article=14)  [UWebBrowserWrapper]
 
-* UWebBrowserWrapper, by Peter Johnson (http://www.delphidabbler.com/articles?article=14) 
- [_Others\UWebBrowserWrapper.pas]
+
+In the process of adapting KeyNote NF to Delphi CE I have used this little utility, by Uwe Raabe, to clean the unit namespaces in the uses clause:  https://github.com/UweRaabe/UsesCleaner
+
 
  
 If you find this list incomplete and/or need help with obtaining these components, please contact me by email.
@@ -164,6 +165,24 @@ If you find this list incomplete and/or need help with obtaining these component
     ** NOTE:
        The source code of original KeyNote 1.6.5 (by Marek Jedlinski) is also included insided 3rd_party folder:
        [_Keynote_1.6.5]
+
+
+List of components and libraries not used in actual version (1.8.*) but used before:
+---------------------------------------------------------------------------------
+* Tnt Unicode Controls, by Troy Wolbrink (http://tnt.ccci.org/delphi_unicode_controls/) [_Others\TntUnicodeControls]
+
+* TdfsStatusBar  [_Others\DFSStatusBar]   (see Brad Stowers' Delphi Free Stuff, URL above)  
+
+* StreamIO, text-file device driver that allows textfile-style I/O on streams, by Dr. Peter Below
+  [_Others\StreamIO.pas]
+
+* RX Library (http://sourceforge.net/projects/rxlib/)   [rx275d2006]
+
+* Kryvich Delphi Localizer, v3.2, by Kryvich, Belarusian Linguistic Software team (https://sites.google.com/site/kryvich/localizer)
+  [_Others\kdl32_Kryvich's Delphi Localizer]
+
+* ICS component library, v.2.22, by Francois Piette (http://www.overbyte.be/) [ICS_InternetComponentSuite]
+
 
 
 IMPORTANT:

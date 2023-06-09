@@ -4,13 +4,32 @@
 {** Written by David Barton (davebarton@bigfoot.com) **************************}
 {** http://www.scramdisk.clara.net/ *******************************************}
 {******************************************************************************}
+
+(* -------------------------------------------------------------------------------
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf
+ ---------------
+ - Changes for adpting to the use with Unicode versions of Delphi
+    => string -> AnsiString
+ ------------------------------------------------------------------------------ *)
+
+
 unit DCPcrypt;
 
 interface
 {$I DCPcrypt.inc}
 {$IFDEF CFORM}
+
+{$IFDEF VER200} { Codegear Delphi 2009 12.x }
+  {$DEFINE DELPHI_2009_UP}
+{$ENDIF}
+
+
 uses
-  Classes;
+   System.Classes;
 {$ENDIF}
 
 const
@@ -38,10 +57,10 @@ type
   protected
     fID: longint;
     fInitialized: boolean;
-    fAlgorithm: string;
+    fAlgorithm: AnsiString;     // [dpv]
     fBlockSize: longint;
     fMaxKeySize: longint;
-    fNullStr: string;
+    fNullStr: AnsiString;       // [dpv]
     fNullInt: longint;
   public
     property ID: longint
@@ -49,7 +68,7 @@ type
     property Initialized: boolean
       read fInitialized;
     procedure Init(var Key; Size: longint; IV: pointer); virtual; abstract;
-    procedure InitStr(const Key: string);
+    procedure InitStr(const Key: AnsiString);                                           // [dpv]
     procedure Burn; virtual; abstract;
     procedure Reset; virtual; abstract;
     procedure EncryptECB(const InBlock; var OutBlock); virtual; abstract;
@@ -61,7 +80,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
-    property Algorithm: string
+    property Algorithm: AnsiString
       read fAlgorithm write fNullStr;
     property BlockSize: longint
       read fBlockSize write fNullInt;
@@ -78,9 +97,9 @@ type
   protected
     fID: longint;
     fInitialized: boolean;
-    fAlgorithm: string;
+    fAlgorithm: AnsiString;                                             // [dpv]
     fHashSize: longint;
-    fNullStr: string;
+    fNullStr: AnsiString;                                               // [dpv]
     procedure SetHashSize(Value: longint); virtual;
   public
     property ID: longint
@@ -90,12 +109,12 @@ type
     procedure Init; virtual; abstract;
     procedure Burn; virtual; abstract;
     procedure Update(const Buffer; Size: longint); virtual; abstract;
-    procedure UpdateStr(const Buffer: string);
+    procedure UpdateStr(const Buffer: RawByteString);                      // [dpv]
     procedure Final(var Digest); virtual; abstract;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
-    property Algorithm: string
+    property Algorithm: AnsiString
       read fAlgorithm write fNullStr;
     property HashSize: longint
       read fHashSize write SetHashSize;
@@ -124,7 +143,8 @@ procedure XorBlock(I1, I2, O1: PByteArray; Len: longint);
 implementation
 {$IFDEF CFORM}
 uses
-  Base64, SHA1;
+   Base64,
+   SHA1;
 
 type
   TDCP_defaulthash= TDCP_sha1;
@@ -182,7 +202,7 @@ procedure TDCP_hash.SetHashSize(Value: longint);
 begin
 end;
 
-procedure TDCP_hash.UpdateStr(const Buffer: string);
+procedure TDCP_hash.UpdateStr(const Buffer: RawByteString);
 begin
   Update(Buffer[1],Length(Buffer));
 end;

@@ -94,8 +94,16 @@ SystemImageList.pas unit.}
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  CommCtrl, ShlObj;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.CommCtrl,
+   Winapi.ShlObj,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs;
 
 const
   { This shuts up C++Builder 3 about the redefiniton being different. There
@@ -486,9 +494,13 @@ implementation
 
 
 uses
-  ShellAPI,
-  {$IFDEF DFS_COMPILER_3_UP} ActiveX, {$ELSE} OLE2, {$ENDIF}
-  FileCtrl;
+   Winapi.ShellAPI,
+   {$IFDEF DFS_COMPILER_3_UP}
+   Winapi.ActiveX,
+   {$ELSE}
+   OLE2,
+   {$ENDIF}
+   Vcl.FileCtrl;
 
 
 // I'll get to it in a minute, now shut up compiler.
@@ -854,7 +866,7 @@ function GetIconIndex(const APath: string; Selected, Open: boolean;
 var
   SFI: TSHFileInfo;
 begin
-  if (not AlwaysUseAttrs) and (FileExists(APath) or DirectoryExists(APath)) then
+  if (not AlwaysUseAttrs) and (FileExists(APath) or System.SysUtils.DirectoryExists(APath)) then
     // If the file or directory exists, just let Windows figure out it's attrs.
     SHGetFileInfo(PChar(APath), 0, SFI, SizeOf(TSHFileInfo),
        SHGFI_SYSICONINDEX or OPEN_FLAG[Open] or SELECTED_FLAG[Selected])
@@ -877,7 +889,7 @@ function GetIconIndexPIDL(const APidl: PItemIDList; Selected, Open: boolean
 var
   SFI: TSHFileInfo;
 begin
-  SHGetFileInfo(PAnsiChar(APidl), 0, SFI, SizeOf(TSHFileInfo),
+  SHGetFileInfo(PChar(APidl), 0, SFI, SizeOf(TSHFileInfo),
      SHGFI_PIDL or SHGFI_SYSICONINDEX or OPEN_FLAG[Open] or
      SELECTED_FLAG[Selected]);
   Result := SFI.iIcon;
@@ -918,7 +930,7 @@ const
 var
   SFI: TSHFileInfo;
 begin
-  if FileExists(APath) or DirectoryExists(APath) then
+  if FileExists(APath) or System.SysUtils.DirectoryExists(APath) then
     SHGetFileInfo(PChar(APath), Attrs, SFI, SizeOf(TSHFileInfo),
        SHGFI_TYPENAME or SHGFI_SYSICONINDEX or OPEN_FLAG[Open] or
        SELECTED_FLAG[Selected])
@@ -939,7 +951,7 @@ function GetFileInfoPIDL(const APidl: PItemIDList; Selected, Open: boolean;
 var
   SFI: TSHFileInfo;
 begin
-  SHGetFileInfo(PAnsiChar(APidl), 0, SFI, SizeOf(TSHFileInfo),
+  SHGetFileInfo(PChar(APidl), 0, SFI, SizeOf(TSHFileInfo),
      SHGFI_PIDL or SHGFI_TYPENAME or SHGFI_SYSICONINDEX or OPEN_FLAG[Open] or
      SELECTED_FLAG[Selected]);
   Descr := SFI.szTypeName;

@@ -1,30 +1,43 @@
 unit kn_StyleMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 uses
-  kn_Info, kn_StyleObj;
+   System.SysUtils,
+   Vcl.Graphics,
+   Vcl.Dialogs,
+   Vcl.Controls,
+   RxRichEd,
+   kn_Info,
+   kn_StyleObj,
+   kn_Cmd,
+   kn_Global,
+   kn_Main,
+   kn_NoteFileMng,
+   kn_MacroMng;
+
+
 
     // style management
     procedure StyleCreate( aRange : TStyleRange; ExistingStyle : TStyle );
-    procedure StyleApply( aName : WideString );
-    procedure StyleRename( aName : WideString );
-    procedure StyleDelete( aName : WideString );
+    procedure StyleApply( aName : string );
+    procedure StyleRename( aName : string );
+    procedure StyleDelete( aName : string );
     procedure StyleManagerToCombo;
     procedure StyleDescribe( const FromEditor, LongDesc : boolean );
     procedure StyleRedefine;
@@ -35,11 +48,6 @@ var
 
 
 implementation
-uses
-  Graphics, Dialogs, Controls, Menus, SysUtils,
-  RxRichEd,
-  kn_Cmd, kn_Global,kn_Main,kn_NoteFileMng,
-  kn_MacroMng, TntDialogs;
 
 resourcestring
   STR_01 = 'Style in active note: ';
@@ -63,7 +71,7 @@ resourcestring
 
 procedure StyleDescribe( const FromEditor, LongDesc : boolean );
 var
-  s : WideString;
+  s : string;
   style : TStyle;
 begin
   with Form_Main do begin
@@ -93,7 +101,7 @@ end; // StyleDescribe
 
 procedure StyleCreate( aRange : TStyleRange; ExistingStyle : TStyle );
 var
-  name : WideString;
+  name : string;
   Style : TStyle;
   idx : integer;
 begin
@@ -109,7 +117,7 @@ begin
 
   if ( ExistingStyle = nil ) then
   begin
-    if ( not WideInputQuery(
+    if ( not InputQuery(
       Format( STR_07, [STYLE_RANGES[aRange]] ),
       STR_08, name )) then exit;
     if ( name = '' ) then exit;
@@ -124,7 +132,7 @@ begin
 
   if ( ExistingStyle <> nil ) then
   begin
-    if ( DoMessageBox( WideFormat(
+    if ( DoMessageBox( Format(
       STR_09,
       [STYLE_RANGES[ExistingStyle.Range],ExistingStyle.Name] ),
       mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
@@ -190,7 +198,7 @@ begin
       idx := AddToStyleManager( Style );
       StyleManagerToCombo;
       Form_Main.Combo_Style.ItemIndex := idx;
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat( STR_10, [Name,STYLE_RANGES[aRange]] );
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_10, [Name,STYLE_RANGES[aRange]] );
 
     except
       on E : Exception do
@@ -202,7 +210,7 @@ begin
   end;
 end; // StyleCreate
 
-procedure StyleApply( aName : WideString );
+procedure StyleApply( aName : string );
 var
   myStyle : TStyle;
 begin
@@ -217,7 +225,7 @@ begin
         else
           myStyle := TStyle( StyleManager.Objects[StyleManager.IndexOf( aName )] );
       except
-        DoMessageBox( WideFormat(STR_12, [aName]), mtError, [mbOK], 0 );
+        DoMessageBox( Format(STR_12, [aName]), mtError, [mbOK], 0 );
         exit;
       end;
 
@@ -291,15 +299,15 @@ begin
 
 end; // StyleApply
 
-procedure StyleRename( aName : WideString );
+procedure StyleRename( aName : string );
 var
   i, idx : integer;
-  name : WideString;
+  name : string;
 begin
   idx := Form_Main.Combo_Style.ItemIndex;
   name := Form_Main.Combo_Style.Items[Form_Main.Combo_Style.ItemIndex];
 
-  if ( not WideInputQuery(
+  if ( not InputQuery(
     STR_13, STR_14, name )) then exit;
   if ( name = '' ) then exit;
 
@@ -331,15 +339,15 @@ begin
 
 end; // StyleRename
 
-procedure StyleDelete( aName : WideString );
+procedure StyleDelete( aName : string );
 var
   idx : integer;
-  name : WideString;
+  name : string;
 begin
       idx := Form_Main.Combo_Style.ItemIndex;
       name := Form_Main.Combo_Style.Items[idx];
 
-      if ( DoMessageBox( WideFormat(
+      if ( DoMessageBox( Format(
         STR_17,
         [STYLE_RANGES[TStyle( StyleManager.Objects[idx] ).Range],name] ),
         mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;

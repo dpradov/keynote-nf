@@ -1,28 +1,60 @@
 unit kn_NoteFileMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 uses
-   Classes, wideStrings, kn_const, kn_Info;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.StrUtils,
+   System.DateUtils,
+   System.Classes,
+   System.IOUtils,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   TreeNT,
+   BrowseDr,
+   ZLibEx,
+   gf_misc,
+   gf_files,
+   gf_strings,
+   gf_miscvcl,
+   gf_FileAssoc,
+   gf_streams,
+   kn_INI,
+   kn_Cmd,
+   kn_Msgs,
+   kn_const,
+   kn_NewNote,
+   kn_FileDropAction,
+   kn_NoteObj,
+   kn_Macro,
+   kn_MacroEdit,
+   kn_MacroCmd,
+   kn_Chest,
+   kn_Info;
+
 
     function NoteFileNew( FN : string ) : integer; // create new KNT file with 1 blank note
-    function NoteFileOpen( FN : wideString ) : integer; // open KNT file on disk
-    function NoteFileSave( FN : wideString ) : integer; // save current KNT file
+    function NoteFileOpen( FN : string ) : integer; // open KNT file on disk
+    function NoteFileSave( FN : string ) : integer; // save current KNT file
     function NoteFileClose : boolean; // close current KNT file
 
     procedure NewFileRequest( FN : string );
@@ -36,10 +68,10 @@ uses
     function CheckModified( const Warn : boolean; const closing: boolean ) : boolean;
 
     procedure ImportFiles;
-    procedure ImportAsNotes( ImportFileList : TWideStringList );
+    procedure ImportAsNotes( ImportFileList : TStringList );
 
-    procedure FileDropped( Sender : TObject; FileList : TWideStringList );
-    function ConsistentFileType( const aList : TWideStringList ) : boolean;
+    procedure FileDropped( Sender : TObject; FileList : TStringList );
+    function ConsistentFileType( const aList : TStringList ) : boolean;
     function PromptForFileAction( const FileCnt : integer; const aExt : string ) : TDropFileAction;
 
     procedure NoteFileProperties;
@@ -54,31 +86,27 @@ uses
 implementation
 
 uses
-  { Borland units }
-  Windows, Messages, SysUtils, StrUtils,
-  Graphics, Controls, Forms, Dialogs, DateUtils,
-  { 3rd-party units }
-  BrowseDr, TreeNT, TntSysUtils, ZLibEx,
-  { Own units - covered by KeyNote's MPL}
-  gf_misc, gf_files,
-  gf_strings, gf_miscvcl, gf_FileAssoc, gf_streams,
-  kn_INI, kn_Cmd, kn_Msgs,
-  kn_NoteObj, kn_FileObj, kn_NewNote,
-  kn_FileInfo,kn_FileDropAction,
-  kn_NodeList,
-  kn_Macro, kn_MacroEdit, kn_MacroCmd,
-  kn_filemgr,
-  kn_ExpandObj,
-  kn_VirtualNodeMng,
-  kn_ConfigMng,
-  kn_MacroMng,
-  kn_LocationObj,
-  Kn_Global, kn_Chest,
-  kn_NoteMng, kn_EditorUtils,
-  kn_BookmarksMng,
-  kn_TabSelect,
-  kn_Main, kn_LinksMng, kn_PluginsMng, kn_TreeNoteMng, kn_VCLControlsMng,
-  kn_ExportImport;
+   Kn_Global,
+   kn_ConfigMng,
+   kn_filemgr,
+   kn_FileObj,
+   kn_FileInfo,
+   kn_NodeList,
+   kn_NoteMng,
+   kn_VirtualNodeMng,
+   kn_MacroMng,
+   kn_TreeNoteMng,
+   kn_VCLControlsMng,
+   kn_EditorUtils,
+   kn_TabSelect,
+   kn_LocationObj,
+   kn_BookmarksMng,
+   kn_LinksMng,
+   kn_PluginsMng,
+   kn_ExportImport,
+   kn_Main;
+
+
 
 type
    TMergeNotes = record
@@ -292,13 +320,13 @@ end; // NoteFileNew
 // NoteFileOpen
 //=================================================================
 
-function NoteFileOpen( FN : wideString ) : integer;
+function NoteFileOpen( FN : string ) : integer;
 var
   i : integer;
   OpenReadOnly : boolean;
   OpenBegin {$IFDEF MJ_DEBUG}, OpenEnd{$ENDIF} : integer;
   opensuccess : boolean;
-  FPath, NastyDriveType : wideString;
+  FPath, NastyDriveType : string;
 begin
   with Form_Main do begin
         _REOPEN_AUTOCLOSED_FILE := false;
@@ -323,7 +351,7 @@ begin
                 Options := Options - [ofHideReadOnly];
                 Options := Options - [ofAllowMultiSelect];
                 if ( KeyOptions.LastFile <> '' ) then
-                  InitialDir := WideExtractfilepath( KeyOptions.LastFile )
+                  InitialDir := ExtractFilePath( KeyOptions.LastFile )
                 else
                   InitialDir := GetFolderPath( fpPersonal );
               end;
@@ -342,7 +370,7 @@ begin
               end;
             end;
             FN := normalFN( FN );
-            if ( wideExtractfileext( FN ) = '' ) then
+            if ( ExtractFileExt( FN ) = '' ) then
               FN := FN + ext_KeyNote;
 
             if assigned( NoteFile ) then
@@ -374,7 +402,7 @@ begin
               messagedlg( STR_07, mtWarning, [mbOK] , 0 );
             end;
 
-            if wideFileexists( NoteFile.FileName + ext_DEFAULTS ) then
+            if FileExists( NoteFile.FileName + ext_DEFAULTS ) then
               DEF_FN := NoteFile.FileName + ext_DEFAULTS
             else
               DEF_FN := OrigDEF_FN;
@@ -404,10 +432,7 @@ begin
             begin
               NoteFile.ReadOnly := true;
               if KeyOptions.OpenReadOnlyWarn then
-                popupmessage( WideFormat(
-                  STR_13,
-                  [WideExtractFilename( NoteFile.FileName ), NastyDriveType, ExtractFileDrive( NoteFile.FileName )] ),
-                  mtInformation, [mbOK], 0 );
+                PopupMessage(Format(STR_13, [ExtractFilename(NoteFile.FileName), NastyDriveType, ExtractFileDrive(NoteFile.FileName)]), mtInformation, [mbOK], 0);
             end;
 
             LastEditCmd := ecNone;
@@ -557,23 +582,24 @@ end; // NoteFileOpen
 // NoteFileSave
 //=================================================================
 
-function ExistingBackup(const Folder, FileName: WideString;
+function ExistingBackup(const Folder, FileName: string;
                         FileModificationDate: TDateTime;
-                        ConsiderAlsoModifiedLater: Boolean) : WideString;
+                        ConsiderAlsoModifiedLater: Boolean) : string;
 var
-   DirInfo : TSearchRecW;
+   DirInfo : TSearchRec;
    FindResult : Integer;
-   Mask : WideString;
+   Mask : string;
    Consider: Boolean;
    FileDateTime: TDateTime;
 begin
    Result := '';
-   Mask := WideChangeFileExt(Folder + FileName, IntervalPrefixBAK + '*' + ext_KeyNote);
+   Mask := ChangeFileExt(Folder + FileName, IntervalPrefixBAK + '*' + ext_KeyNote);
 
-   FindResult := WideFindFirst(Mask, faAnyFile, DirInfo);
+   FindResult := FindFirst(Mask, faAnyFile, DirInfo);
    Consider:= False;
    while FindResult = 0 do begin
-     FileDateTime:= FileDateToDateTime(DirInfo.Time);
+     FileDateTime:= DirInfo.TimeStamp;
+
      if ConsiderAlsoModifiedLater then begin
         if FileDateTime >= FileModificationDate then Consider := True;
      end
@@ -586,9 +612,9 @@ begin
         break;
         end
      else
-        FindResult := WideFindNext(DirInfo);
+        FindResult := FindNext(DirInfo);
    end;
-   WideFindClose(DirInfo);
+   FindClose(DirInfo);
 end;
 
 
@@ -596,11 +622,11 @@ end;
 
 { Backup BEFORE save operation }
 
-function DoBackup(const FN: WideString; var BakFN: WideString; var BakFolder: WideString;
+function DoBackup(const FN: string; var BakFN: string; var BakFolder: string;
                   var SUCCESS: LongBool; var LastError: Integer): Boolean;
 var
-  ext, bakFNfrom, bakFNto, FileName: WideString;
-  DayBakFN, DayBakFN_Txt: WideString;
+  ext, bakFNfrom, bakFNto, FileName: string;
+  DayBakFN, DayBakFN_Txt: string;
   myBackupLevel, bakindex : Integer;
   FirstSaveInDay: Boolean;
 
@@ -638,11 +664,11 @@ begin
 
 
    if Result then begin
-      FileName:= WideExtractFilename(FN);
+      FileName:= ExtractFilename(FN);
 
       // Check if alternate backup directory exists
       if KeyOptions.BackupDir <> '' then begin
-        if not WideDirectoryExists(KeyOptions.BackupDir) then begin
+        if not DirectoryExists(KeyOptions.BackupDir) then begin
           DoMessageBox(
             Format(STR_20, [KeyOptions.BackupDir]),
             mtWarning, [mbOK], 0);
@@ -652,22 +678,23 @@ begin
       if KeyOptions.BackupDir <> '' then
          bakFolder:= ProperFolderName(KeyOptions.BackupDir)
       else
-         bakFolder:= WideExtractFilePath(FN);
+         bakFolder:= ExtractFilePath(FN);
 
+      FirstSaveInDay:= False;
 
       if KeyOptions.BackupRegularIntervals then begin
          // Is it the first time we save this day? (there is no Interval BAK day or it corresponds to other day)
          FirstSaveInDay:= False;
-         DayBakFN := WideChangeFileExt(bakFolder + FileName, IntervalBAKDay);
+         DayBakFN := ChangeFileExt(bakFolder + FileName, IntervalBAKDay);
          DayBakFN_Txt:= DayBakFN + '.TXT';
-         if not WideFileExists(DayBakFN_Txt) or
+         if not FileExists(DayBakFN_Txt) or
             (RecodeTime(GetFileDateStamp(DayBakFN_Txt), 0,0,0,0) <> Date) then
              FirstSaveInDay:= True;
       end;
 
       if not (KeyOptions.Backup or
              (KeyOptions.BackupRegularIntervals and FirstSaveInDay))
-         or not WideFileExists(FN) then
+         or not FileExists(FN) then
          Result := false;
    end;
 
@@ -686,8 +713,8 @@ begin
    if BakFN <> '' then begin
       SUCCESS:= True;
       if KeyOptions.BackupRegularIntervals and FirstSaveInDay then begin
-         DeleteFileW(PWideChar(DayBakFN));
-         SaveToFile(DayBakFN_Txt, Format(STR_78, [DateToStr(Date), BakFN]));
+         DeleteFile(PChar(DayBakFN));
+         TFile.WriteAllText(DayBakFN_Txt, Format(STR_78, [DateToStr(Date), BakFN]));
       end;
       Exit;                      // EXIT
    end;
@@ -704,7 +731,7 @@ begin
        if KeyOptions.BackupAppendExt then
           bakFN := bakFN + KeyOptions.BackupExt
        else
-          bakFN := WideChangeFileExt(bakFN, KeyOptions.BackupExt);
+          bakFN := ChangeFileExt(bakFN, KeyOptions.BackupExt);
 
 
        myBackupLevel := KeyOptions.BackupLevel;
@@ -719,7 +746,7 @@ begin
             if bakIndex > 1 then
                bakFNfrom := bakFN + IntToStr(bakIndex);
             bakFNto := bakFN + IntToStr(Succ(bakIndex));
-            if WideFileExists(bakFNfrom) then
+            if FileExists(bakFNfrom) then
                  MoveFileExW_n(bakFNfrom, bakFNto, 3);
          end; // for
        end;
@@ -729,7 +756,7 @@ begin
 
 
    if KeyOptions.BackupRegularIntervals and FirstSaveInDay then
-      SaveToFile(DayBakFN_Txt, Format(STR_78, [DateToStr(Date), BakFN]));
+      TFile.WriteAllText(DayBakFN_Txt, Format(STR_78, [DateToStr(Date), BakFN]));
 
    if not SUCCESS then begin
       bakFN:= '';
@@ -746,25 +773,25 @@ end;
 
 { Backup AFTER save operation }
 
-procedure DoIntervalBackup(FN : WideString; BakFolder: WideString);
+procedure DoIntervalBackup(FN : string; BakFolder: string);
 var
    Year, Month, Day: Word;
    dayOfW, bakIndex: Integer;
    BeginOfWeek: TDateTime;
-   FileName, BakFN: WideString;
-   bakFNfrom, bakFNTo: WideString;
+   FileName, BakFN: string;
+   bakFNfrom, bakFNTo: string;
 begin
    if not KeyOptions.BackupRegularIntervals then Exit;
 
    DecodeDate(Date, Year, Month, Day);
-   FileName:= WideExtractFilename(FN);
+   FileName:= ExtractFilename(FN);
 
-   BakFN := WideFormat(
-               WideChangeFileExt(BakFolder + '\' + FileName,
+   BakFN := Format(
+               ChangeFileExt(BakFolder + '\' + FileName,
                   IntervalPrefixBAK + '%d_%.2d' + ext_KeyNote), [Year, Month]);
 
-   if not WideFileExists(BakFN) then
-      CopyFileW(PWideChar(FN), PWideChar(BakFN), False)   // Monthly backup
+   if not FileExists(BakFN) then
+      CopyFile(PChar(FN), PChar(BakFN), False)   // Monthly backup
 
    else begin
       dayOfW:= DayOfTheWeek(Date);
@@ -774,17 +801,17 @@ begin
       if BakFN = '' then begin
          // There is no backup (weekly of monthly) for this week. We'll create
          // a weekly one, cycling the others (up to 4)
-         BakFN := WideChangeFileExt(BakFolder + '\' + FileName, IntervalPrefixBAK + 'W');
+         BakFN := ChangeFileExt(BakFolder + '\' + FileName, IntervalPrefixBAK + 'W');
 
          for bakIndex := Pred(4) downto 1 do begin
             bakFNfrom := BakFN + IntToStr(bakIndex)       + ext_KeyNote;
             bakFNto   := BakFN + IntToStr(Succ(bakIndex)) + ext_KeyNote;
-            if WideFileExists(bakFNfrom) then
-               MoveFileExW(
-                  PWideChar(bakFNfrom), PWideChar(bakFNto),
+            if FileExists(bakFNfrom) then
+               MoveFileEx(
+                  PChar(bakFNfrom), PChar(bakFNto),
                   MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED);
          end; // for
-         CopyFileW(PWideChar(FN), PWideChar(BakFN + '1' + ext_KeyNote), False);   // Weekly backup
+         CopyFile(PChar(FN), PChar(BakFN + '1' + ext_KeyNote), False);   // Weekly backup
       end;
 
    end;
@@ -793,9 +820,9 @@ end;
 
 //------ NoteFileSave --------------------------------------------
 
-function NoteFileSave(FN : WideString) : integer;
+function NoteFileSave(FN : string) : integer;
 var
-  ErrStr, ext, BakFN, BakFolder, FPath: WideString;
+  ErrStr, ext, BakFN, BakFolder, FPath: string;
   SUCCESS: LongBool;
   i, LastError: Integer;
   myNote: TTabNote;
@@ -828,20 +855,24 @@ begin
          if FN <> '' then begin
             FN := NormalFN(FN);
             case NoteFile.FileFormat of
-               nffKeyNote: FN := WideChangeFileExt(FN, ext_KeyNote);
+               nffKeyNote: FN := ChangeFileExt(FN, ext_KeyNote);
                nffEncrypted:
                   if KeyOptions.EncFileAltExt then
-                     FN := WideChangeFileExt(FN, ext_Encrypted)
+                     FN := ChangeFileExt(FN, ext_Encrypted)
                   else
-                     FN := WideChangefileext(FN, ext_KeyNote);
-               nffDartNotes: FN := WideChangeFileExt(FN, ext_DART);
+                     FN := Changefileext(FN, ext_KeyNote);
+{$IFDEF WITH_DART}
+               nffDartNotes: FN := ChangeFileExt(FN, ext_DART);
+{$ENDIF}
             end;
          end;
 
          if FN = '' then begin
            with SaveDlg do begin
               case NoteFile.FileFormat of
+{$IFDEF WITH_DART}
                 nffDartNotes : Filter := FILTER_DARTFILES + '|' + FILTER_ALLFILES;
+{$ENDIF}
                 nffKeyNote   : Filter := FILTER_NOTEFILES + '|' + FILTER_ALLFILES;
                 else
                   Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
@@ -867,12 +898,15 @@ begin
                         FN := FN + ext_Encrypted
                      else
                         FN := FN + ext_KeyNote;
+{$IFDEF WITH_DART}
                    nffDartNotes:
                      FN := FN + ext_DART;
+{$ENDIF}
                  end;
               end;
               NoteFile.FileName := FN;
 
+{$IFDEF WITH_DART}
               if (NoteFile.FileFormat = nffDartNotes) and KeyOptions.SaveDARTWarn then begin
                  case PopupMessage(format(STR_18, [FILE_FORMAT_NAMES[nffDartNotes], Program_Name, FILE_FORMAT_NAMES[nffKeyNote]]),
                                    mtWarning, [mbYes,mbNo,mbCancel], 0 ) of
@@ -880,6 +914,7 @@ begin
                     mrCancel: Exit;
                  end;
               end;
+{$ENDIF}
            end
            else
               Exit;
@@ -929,10 +964,10 @@ begin
          else begin
             // ERROR on save
             StatusBar.Panels[PANEL_HINT].Text := Format(STR_23, [Result] );
-            ErrStr := WideFormat(STR_24, [Result, WideExtractFilename(FN)] );
+            ErrStr := Format(STR_24, [Result, ExtractFilename(FN)] );
 
             if bakFN <> '' then
-               ErrStr := ErrStr + WideFormat(STR_25, [WideExtractFilename(bakFN)] );
+               ErrStr := ErrStr + Format(STR_25, [ExtractFilename(bakFN)] );
 
             if KeyOptions.AutoSave then begin
                KeyOptions.AutoSave := False;
@@ -949,7 +984,7 @@ begin
            Log.Add('Exception in NoteFileSave: ' + E.Message);
            {$ENDIF}
            StatusBar.Panels[PANEL_HINT].Text := STR_27;
-           DoMessageBox(STR_28 + WideExtractFileName(FN) + '": ' + #13#13 + E.Message, mtError, [mbOK], 0 );
+           DoMessageBox(STR_28 + ExtractFileName(FN) + '": ' + #13#13 + E.Message, mtError, [mbOK], 0 );
            Result := 1;
          end;
        end;
@@ -957,7 +992,7 @@ begin
        try // folder monitor
          if not KeyOptions.DisableFileMon then begin
             GetFileState(NoteFile.FileName, FileState);
-            FPath := WideExtractFilePath( NoteFile.FileName );
+            FPath := ExtractFilePath( NoteFile.FileName );
             if (Length(FPath) > 1) and (FPath[Length(FPath)] = '\') then
                Delete(FPath, Length(FPath), 1);
             FolderMon.FolderName := FPath;
@@ -1089,7 +1124,7 @@ var
   p : integer;
   tmps : string;
 begin
-  FN := ansilowercase( FN );
+  FN := AnsiLowercase( FN );
 
   tmps := '';
   p := pos( '.exe', FN );
@@ -1144,7 +1179,7 @@ begin
   begin
     if ( tmps = NoteFile.FileName ) then
     begin
-      if ( PopupMessage( Wideformat(STR_31, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+      if ( PopupMessage( Format(STR_31, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
       NoteFile.Modified := false; // to prevent automatic save if modified
     end;
   end;
@@ -1156,7 +1191,7 @@ end; // NewFileRequest
 
 procedure NoteFileCopy;
 var
-  currentFN, newFN : wideString;
+  currentFN, newFN : string;
   cr : integer;
   oldModified : boolean;
   DirDlg : TdfsBrowseDirectoryDlg;
@@ -1189,10 +1224,10 @@ begin
 
             KeyOptions.LastCopyPath := properfoldername( DirDlg.Selection );
 
-            newFN := KeyOptions.LastCopyPath + WideExtractFilename( currentFN );
-            if WideFileexists( newFN ) then
+            newFN := KeyOptions.LastCopyPath + ExtractFilename( currentFN );
+            if FileExists( newFN ) then
 
-              if ( Popupmessage( WideFormat(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+              if ( Popupmessage( Format(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
             StatusBar.Panels[PANEL_HINT].Text := STR_35;
 
@@ -1291,7 +1326,7 @@ begin
           and this is a neat way to do that.
         if ( MergeFN = NoteFile.FileName ) then
         begin
-          showmessage( WideFormat( 'Cannot merge a file with itself (%s)', [WideExtractFilename( MergeFN )] ));
+          showmessage( Format( 'Cannot merge a file with itself (%s)', [ExtractFilename( MergeFN )] ));
           exit;
         end;
         }
@@ -1332,7 +1367,7 @@ begin
           TabSelector := TForm_SelectTab.Create( Form_Main );
           try
             TabSelector.myNotes := MergeFile;
-            TabSelector.Caption := WideFormat( STR_43, [WideExtractFilename( MergeFile.FileName )] );
+            TabSelector.Caption := Format( STR_43, [ExtractFilename( MergeFile.FileName )] );
             if ( not ( TabSelector.ShowModal = mrOK )) then exit;
           finally
             TabSelector.Free;
@@ -1487,7 +1522,7 @@ begin
           NoteFile.Modified := true;
           UpdateNoteFileState( [fscModified] );
           if ( mergecnt > 0 ) then
-            StatusBar.Panels[PANEL_HINT].Text := WideFormat( STR_47, [mergecnt, WideExtractFilename( MergeFN )] )
+            StatusBar.Panels[PANEL_HINT].Text := Format( STR_47, [mergecnt, ExtractFilename( MergeFN )] )
           else
             StatusBar.Panels[PANEL_HINT].Text := STR_48;
         end;
@@ -1504,7 +1539,7 @@ begin
   Application.BringToFront;
   Form_Main.FolderMon.Active := false;
   try
-    case DoMessageBox( WideFormat(STR_49, [FileState.Name]), mtWarning, [mbYes,mbNo], 0 ) of
+    case DoMessageBox( Format(STR_49, [FileState.Name]), mtWarning, [mbYes,mbNo], 0 ) of
       mrYes : begin
         NoteFile.Modified := false;
         NoteFileOpen( NoteFile.FileName );
@@ -1534,7 +1569,7 @@ begin
   if ( not AttemptCreate ) then
   begin
     if Prompt then
-      DoMessageBox( WideFormat(
+      DoMessageBox( Format(
         STR_50,
         [name,folder]
       ), mtError, [mbOK], 0 );
@@ -1543,7 +1578,7 @@ begin
 
   if Prompt then
   begin
-    if ( DoMessageBox( WideFormat(STR_50 + STR_51,
+    if ( DoMessageBox( Format(STR_50 + STR_51,
           [name,folder]
       ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
       exit;
@@ -1682,12 +1717,12 @@ end; // CheckModified
 procedure ImportFiles;
 var
   oldFilter : string;
-  FilesToImport : TWideStringList;
+  FilesToImport : TStringList;
 begin
   with Form_Main do begin
       if ( not HaveNotes( true, true )) then exit;
 
-      FilesToImport := TWideStringList.Create;
+      FilesToImport := TStringList.Create;
 
       try
 
@@ -1728,9 +1763,9 @@ end; // ImportFiles
 //=================================================================
 // ImportAsNotes
 //=================================================================
-procedure ImportAsNotes( ImportFileList : TWideStringList );
+procedure ImportAsNotes( ImportFileList : TStringList );
 var
-  ext, FN, s : wideString;
+  ext, FN, s : string;
   myNote : TTabNote;
   filecnt : integer;
   ImportFileType : TImportFileType;
@@ -1751,7 +1786,7 @@ begin
             FN := normalFN( ImportFileList[filecnt] );
             OutStream.Clear;
 
-            ext := WideLowercase( WideExtractfileext( FN ));
+            ext := AnsiLowerCase( ExtractFileExt( FN ));
             ImportFileType := itText;
 
             if ext = ext_TXT then
@@ -1775,7 +1810,7 @@ begin
               ImportFileType := itText
             else
             begin
-              case DoMessageBox( WideFormat(STR_58, [WideExtractFilename( FN )]),
+              case DoMessageBox( Format(STR_58, [ExtractFilename( FN )]),
                 mtWarning, [mbYes,mbNo], 0 ) of
               mrYes : ImportFileType := itText;
               else
@@ -1788,12 +1823,12 @@ begin
 
             try
 
-              StatusBar.Panels[PANEL_HINT].Text := STR_59 + WideExtractFilename( FN );
+              StatusBar.Panels[PANEL_HINT].Text := STR_59 + ExtractFilename( FN );
 
               if ( ImportFileType = itHTML ) then   // first see if we can do the conversion, before we create a new note for the file
               begin
                 if not ConvertHTMLToRTF( FN, OutStream) then begin
-                   DoMessageBox( WideFormat(STR_60, [FN]), mtWarning, [mbOK], 0 );
+                   DoMessageBox( Format(STR_60, [FN]), mtWarning, [mbOK], 0 );
                    exit;
                 end;
               end;
@@ -1812,7 +1847,7 @@ begin
                 myNote.SetTabProperties( DefaultTabProperties );
                 myNote.EditorChrome := DefaultEditorChrome;
                 if KeyOptions.ImportFileNamesWithExt then
-                  s := WideExtractFilename( FN )
+                  s := ExtractFilename( FN )
                 else
                   s := ExtractFilenameNoExt( FN );
                 myNote.Name := s;
@@ -2016,7 +2051,7 @@ end; // PromptForFileAction
 //=================================================================
 // ConsistentFileType
 //=================================================================
-function ConsistentFileType( const aList : TWideStringList ) : boolean;
+function ConsistentFileType( const aList : TStringList ) : boolean;
 var
   i, cnt : integer;
   ext : string;
@@ -2070,11 +2105,11 @@ end; // ConsistentFileType
 //=================================================================
 // FileDropped
 //=================================================================
-procedure FileDropped( Sender : TObject; FileList : TWideStringList );
+procedure FileDropped( Sender : TObject; FileList : TStringList );
 var
   myTreeNode : TTreeNTNode;
   myNoteNode : TNoteNode;
-  fName, fExt : wideString;
+  fName, fExt : string;
   myAction : TDropFileAction;
   i : integer;
   FileIsHTML, FileIsFolder : boolean;
@@ -2180,7 +2215,7 @@ begin
                     FName := FileList[i];
                     if DirectoryExists( FName ) then
                     begin
-                      if ( DoMessageBox( WideFormat( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                      if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
                         exit
                       else
                         continue;
@@ -2190,7 +2225,7 @@ begin
                     if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then
                     begin
                       if not ConvertHTMLToRTF( FName, OutStream) then begin
-                         DoMessageBox( WideFormat(STR_60, [FName]), mtWarning, [mbOK], 0 );
+                         DoMessageBox( Format(STR_60, [FName]), mtWarning, [mbOK], 0 );
                          exit;
                       end;
                     end;
@@ -2207,7 +2242,7 @@ begin
 
                           SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
                           if KeyOptions.ImportFileNamesWithExt then
-                            myNoteNode.Name := WideExtractFilename( FName )
+                            myNoteNode.Name := ExtractFilename( FName )
                           else
                             myNoteNode.Name := ExtractFilenameNoExt( FName );
                           myTreeNode.Text := myNoteNode.Name;
@@ -2236,7 +2271,7 @@ begin
                     FName := FileList[i];
                     if DirectoryExists( FName ) then
                     begin
-                      if ( DoMessageBox( WideFormat( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                      if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
                         exit
                       else
                         continue;
@@ -2259,7 +2294,7 @@ begin
                     FName := FileList[i];
                     if DirectoryExists( FName ) then
                     begin
-                      if ( DoMessageBox( WideFormat( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                      if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
                         exit
                       else
                         continue;
@@ -2371,12 +2406,14 @@ begin
 
             if ( NoteFile.FileName <> '' ) then
             case NoteFile.FileFormat of
-              nffKeyNote : NoteFile.FileName := WideChangefileext( NoteFile.FileName, ext_KeyNote );
+              nffKeyNote : NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_KeyNote );
               nffEncrypted : if KeyOptions.EncFileAltExt then
-                NoteFile.FileName := WideChangefileext( NoteFile.FileName, ext_Encrypted )
+                NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_Encrypted )
               else
-                NoteFile.FileName := WideChangefileext( NoteFile.FileName, ext_KeyNote );
-              nffDartNotes : NoteFile.FileName := WideChangefileext( NoteFile.FileName, ext_DART );
+                NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_KeyNote );
+{$IFDEF WITH_DART}
+              nffDartNotes : NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_DART );
+{$ENDIF}
             end;
 
           end;
@@ -2418,7 +2455,7 @@ end; // NoteFileProperties
 //=================================================================
 procedure UpdateNoteFileState( AState : TFileStateChangeSet );
 var
-  s, thisFN : wideString;
+  s, thisFN : string;
   NotesOK : boolean;
   WasModified : boolean;
 begin
@@ -2433,7 +2470,7 @@ begin
 
           if ( NoteFile.FileName <> '' ) then
           begin
-            thisFN := WideExtractFilename( NoteFile.FileName );
+            thisFN := ExtractFilename( NoteFile.FileName );
             s := thisFN;
           end
           else
@@ -2443,13 +2480,12 @@ begin
 
           StatusBar.Panels.BeginUpdate;
           try
-            StatusBar.Panels[PANEL_FILENAME].Text := #32 + s + #32;
+            SetFilenameInStatusbar(#32 + s + #32);
             StatusBar.Hint := #32 + NoteFile.FileName;
             TrayIcon.Hint := Program_Name + ': ' + s;
             SelectStatusbarGlyph( true );
           finally
-            Caption := Format( '%s  %s - %s',
-              [Program_Name, Program_Version, s] );
+            Caption:= Format('%s  %s - %s', [Program_Name, Program_Version, s]);
             Application.Title := Format( '%s - %s', [s, Program_Name] );
             StatusBar.Panels.EndUpdate;
           end;
@@ -2460,12 +2496,11 @@ begin
           Pages.OnDblClick := nil;
           StatusBar.Panels.BeginUpdate;
           try
-            StatusBar.Panels[PANEL_FILENAME].Text := STR_70;
+            SetFilenameInStatusbar(STR_70);
             StatusBar.Panels[PANEL_CARETPOS].Text := '';
             StatusBar.Panels[PANEL_NOTEINFO].Text := '';
             StatusBar.Panels[PANEL_STATUS].Text := '';
             StatusBar.Panels[PANEL_FILEICON].Text := '';
-            StatusBar.Panels[PANEL_FILEICON].Hint := '';
             SelectStatusBarGlyph( false );
 
           finally
@@ -2473,8 +2508,7 @@ begin
           end;
           StatusBar.Hint := '';
           TrayIcon.Hint := Program_Name + STR_71;
-          Caption := Format( '%s  %s -' + STR_71,
-            [Program_Name, Program_Version] );
+          Caption:= Format('%s  %s -' + STR_71, [Program_Name, Program_Version]);
           TB_FileSave.Enabled := False;
           Application.Title := Program_Name;
         end;

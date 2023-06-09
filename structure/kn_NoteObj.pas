@@ -17,27 +17,37 @@ unit kn_NoteObj;
 
  
 interface
-uses Windows, Classes, Graphics,
-  SysUtils, IniFiles, FileCtrl, WideStrings,
-  controls, comctrls95, gf_misc,
-  ComCtrls,
-  Dialogs, Messages,
-  Extctrls,
-  TreeNT,
-  langs,
-  kn_NodeList,
-  ShellAPI,
-  RichEdit,
-  RxRichEd,
-  kn_StyleObj,
-  kn_Info,
-  kn_Const,
-  kn_History,
-  {$IFDEF WITH_IE}
-  SHDocVw_TLB,
-  {$ENDIF}
-  kn_RTFUtils,
-  gf_streams, TntClasses;
+uses
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.ShellAPI,
+   Winapi.RichEdit,
+   System.Classes,
+   System.SysUtils,
+   System.StrUtils,
+   System.AnsiStrings,
+   System.IniFiles,
+   Vcl.Graphics,
+   Vcl.FileCtrl,
+   Vcl.Controls,
+   Vcl.ComCtrls,
+   Vcl.Dialogs,
+   Vcl.ExtCtrls,
+   comctrls95,
+   gf_misc,
+   TreeNT,
+   langs,
+   kn_NodeList,
+   RxRichEd,
+   kn_StyleObj,
+   kn_Info,
+   kn_Const,
+   kn_History,
+   {$IFDEF WITH_IE}
+   SHDocVw_TLB,
+   {$ENDIF}
+   kn_RTFUtils,
+   gf_streams;
 
 
 type
@@ -65,7 +75,7 @@ type
     FTabIndex : integer;
     FImageIndex : integer;
     FPlainText : boolean; // if true, contents of editor are saved as plain text
-    FDataStream : TTntMemoryStream;
+    FDataStream : TMemoryStream;
     FFocusMemory : TFocusMemory; // which control was last focused
 
     FWordWrap : boolean;  // for RTF-type notes only
@@ -102,13 +112,13 @@ type
     function CheckEditor : boolean;
     function CheckTabSheet : boolean;
 
-    procedure BaseSaveProc( var tf : TWTextFile );
+    procedure BaseSaveProc( var tf : TTextFile );
 
     function PropertiesToFlagsString : TFlagsString; virtual;
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); virtual;
 
-    procedure SaveAlarms(var tf : TWTextFile; node: TNoteNode = nil);
-    procedure ProcessAlarm (s: WideString; node: TNoteNode = nil);
+    procedure SaveAlarms(var tf : TTextFile; node: TNoteNode = nil);
+    procedure ProcessAlarm (s: AnsiString; node: TNoteNode = nil);
 
   public
     property Editor : TTabRichEdit read FEditor write SetEditor;
@@ -136,7 +146,7 @@ type
 
     property TabSheet : TTab95Sheet read FTabSheet write SetTabSheet;
 
-    property DataStream : TTntMemoryStream read FDataStream;
+    property DataStream : TMemoryStream read FDataStream;
 
     // events
     property OnChange : TNotifyEvent read FOnChange write FOnChange;
@@ -144,11 +154,16 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure SaveToFile( var tf : TWTextFile ); virtual;
-    procedure SaveDartNotesFormat( Stream : TStream ); virtual;
+    procedure SaveToFile( var tf : TTextFile ); virtual;
+    procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean ); virtual;
 
-    procedure LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean ); virtual;
+    procedure SaveRTFToFile(var tf : TTextFile; DataStream : TMemoryStream; PlainText: Boolean; PlaintextLeader: AnsiString = _NF_PLAINTEXTLEADER);
+    
+
+{$IFDEF WITH_DART}
+    procedure SaveDartNotesFormat( Stream : TStream ); virtual;
     procedure LoadDartNotesFormat( Stream : TStream ); virtual;
+{$ENDIF}
 
     procedure SetEditorProperties( const aProps : TNoteEditorProperties );
     procedure GetEditorProperties( var aProps : TNoteEditorProperties );
@@ -160,7 +175,7 @@ type
     procedure UpdateTabSheet;
 
     procedure DataStreamToEditor; virtual;
-    function EditorToDataStream: TTntMemoryStream; virtual;
+    function EditorToDataStream: TMemoryStream; virtual;
 
 
     function GetAlarms(considerDiscarded: boolean): TList;
@@ -210,9 +225,9 @@ type
     function FontInfoString : string;
     function ParaInfoString : string;
 
-    function GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False  ) : WideString;
+    function GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False  ) : string;
     function SelectWordAtCursor : string;
-    procedure GetLinkAtCursor(var URL: WideString; var TextURL: WideString; var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
+    procedure GetLinkAtCursor(var URL: string; var TextURL: string; var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
     function ParagraphsSelected: Boolean;
   end; // TTabRichEdit
 
@@ -230,7 +245,7 @@ type
     FHideCheckedNodes: boolean;       // [dpv]
     FFiltered: boolean;               // [dpv]
 
-    FDefaultNodeName : WideString;
+    FDefaultNodeName : string;
     FAutoNumberNodes : boolean;
     FCheckboxes : boolean;
     FVerticalLayout : boolean;
@@ -275,7 +290,7 @@ type
     property OldSelectedIndex : integer read FOldSelectedIndex;
     property Checkboxes : boolean read FCheckboxes write FCheckboxes;
     property TreeChrome : TChrome read FTreeChrome write SetTreeChrome;
-    property DefaultNodeName : WideString read FDefaultNodeName write FDefaultNodeName;
+    property DefaultNodeName : string read FDefaultNodeName write FDefaultNodeName;
     property AutoNumberNodes : boolean read FAutoNumberNodes write FAutoNumberNodes;
     property VerticalLayout : boolean read FVerticalLayout write FVerticalLayout;
     property TreeHidden : boolean read FTreeHidden write FTreeHidden;
@@ -292,16 +307,16 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure SaveToFile( var tf : TWTextFile ); override;
-    procedure LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean ); override;
+    procedure SaveToFile( var tf : TTextFile ); override;
+    procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean ); override;
 
-    function NewNode( const AParent : TNoteNode; AName : WideString; const AInheritProperties : boolean ) : TNoteNode;
+    function NewNode( const AParent : TNoteNode; AName : string; const AInheritProperties : boolean ) : TNoteNode;
     function AddNode( const aNode : TNoteNode ) : integer;
     procedure InsertNode( const aIndex : integer; const aNode : TNoteNode );
     procedure RemoveNode( const aNode : TNoteNode );
 
     procedure DataStreamToEditor; override;
-    function EditorToDataStream: TTntMemoryStream; override;
+    function EditorToDataStream: TMemoryStream; override;
     procedure SetTreeProperties( const aProps : TNoteTreeProperties );
     procedure GetTreeProperties( var aProps : TNoteTreeProperties );
 
@@ -329,7 +344,13 @@ var
   _LoadedRichEditVersion : Single;
 
 implementation
-uses StrUtils, kn_global, kn_AlertMng, kn_LinksMng, kn_Main, gf_strings, gf_miscvcl, WideStrUtils;
+uses
+   kn_global,
+   kn_AlertMng,
+   kn_LinksMng,
+   kn_Main,
+   gf_strings,
+   gf_miscvcl;
 
 resourcestring
   STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
@@ -446,7 +467,7 @@ begin
   FDateCreated := now;
   FFocusMemory := focNil;
   FModified := false;
-  FDataStream := TTntMemoryStream.Create;
+  FDataStream := TMemoryStream.Create;
   InitializeChrome( FEditorChrome );
 
   FEditor := nil;
@@ -647,9 +668,13 @@ end; // DataStreamToEditor
 {
   If Editor was modified then it will return the Stream associated to the node that will be updated
 }
-function TTabNote.EditorToDataStream: TTntMemoryStream;
+function TTabNote.EditorToDataStream: TMemoryStream;
+var
+ Encoding: TEncoding;
 begin
   Result:= nil;
+  Encoding:= nil;
+
   if assigned(FEditor) and FEditor.Modified then
     try
       with FDataStream do begin
@@ -659,13 +684,14 @@ begin
       FEditor.StreamMode := [];
       if FPlainText then begin
         FEditor.StreamFormat := sfPlainText;
-        if not CanSaveAsANSI(FEditor.TextW) then
-           FEditor.StreamMode := [smUnicode];
+        if not CanSaveAsANSI(FEditor.Text) then
+           //FEditor.StreamMode := [smUnicode];
+           Encoding:= TEncoding.UTF8;
       end
       else
         FEditor.StreamFormat := sfRichText;
 
-      FEditor.Lines.SaveToStream( FDataStream );
+      FEditor.Lines.SaveToStream( FDataStream, Encoding);
       FEditor.Modified:= false;
       Result:= FDataStream;
     finally
@@ -685,7 +711,7 @@ begin
   result := assigned( FTabSheet );
 end; // CheckTabSheet
 
-procedure TTabNote.BaseSaveProc( var tf : TWTextFile );
+procedure TTabNote.BaseSaveProc( var tf : TTextFile );
 var
   HaveVCLControls : boolean;
 begin
@@ -743,11 +769,11 @@ FontColor - BackColor: number (TColor)
 subject: unicode text
 
 *)
-procedure TTabNote.SaveAlarms(var tf : TWTextFile; node: TNoteNode = nil);
+procedure TTabNote.SaveAlarms(var tf : TTextFile; node: TNoteNode = nil);
 var
    I: integer;
    Alarms: TList;
-   s: WideString;
+   s: string;
    alarm: TAlarm;
    BoldStr: char;
 begin
@@ -770,7 +796,7 @@ begin
            end;
 
         if alarm.AlarmNote <> '' then
-           s:= s + '|' + WideStringReplace(alarm.AlarmNote, #13#10, 'ªª', [rfReplaceAll]);
+           s:= s + '|' + StringReplace(alarm.AlarmNote, #13#10, 'ªª', [rfReplaceAll]);
         s:= FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, alarm.AlarmReminder ) + s;
         if alarm.Status = TAlarmDiscarded then
            s:= 'D' + s;
@@ -783,75 +809,92 @@ begin
   end;
 end;
 
-procedure TTabNote.SaveToFile( var tf : TWTextFile );
+
+procedure TTabNote.SaveRTFToFile(var tf : TTextFile; DataStream : TMemoryStream; PlainText: Boolean; PlaintextLeader: AnsiString = _NF_PLAINTEXTLEADER);
 var
   List : TStringList;
-  cnt, i : integer;
+  cnt: integer;
+  i, pos : integer;
+  addCRLF: boolean;
+
+begin
+    if DataStream.Size = 0 then
+       exit;
+
+    DataStream.Position := 0;
+
+    tf.writeln( [_NF_RTF] );
+
+    if PlainText then begin
+        // Looking for: ;[<BOM>]first line...
+        //               ;second line...
+
+        i:= 0;
+        addCRLF:= false;
+        repeat
+           tf.write( PlaintextLeader );
+           pos:= PosEx(AnsiString(#13#10), PAnsiChar(DataStream.Memory), i+1);       // The index is 1-based.
+           if (pos=0) or (pos > DataStream.Size) then begin
+               pos:= DataStream.Size-1;
+               addCRLF:= true;
+           end;
+           tf.write(PByte(DataStream.Memory)[i], pos-i+1);
+           i:= pos + 1;
+        until i >= DataStream.Size;
+
+        if addCRLF then
+           tf.write(#13#10);
+
+    end
+    else begin
+       DataStream.Position := 0;
+       i:= 0;
+       // When compiled in D2006 with RxRichEdit 2.75 not ocurred, but now, when saving the stream in RTF an extra #0 is added. But I checked it
+       if PByte(DataStream.Memory)[DataStream.Size-1] = 0 then i:= 1;
+       tf.F.CopyFrom(DataStream, DataStream.Size - i);
+    end;
+
+end;
+
+
+procedure TTabNote.SaveToFile( var tf : TTextFile );
+var
   HaveVCLControls : boolean;
+
 begin
 
   HaveVCLControls := CheckEditor;
 
   if ( FKind <> ntRTF ) then
-    raise ETabNoteError.Create(
-      STR_01
-    );
-
-  List := TStringList.Create;
-  try
-
-    tf.writeln( [_NF_TabNote] ); // marks beginning of TTabNote
-    BaseSaveProc( tf );
+     raise ETabNoteError.Create(STR_01);
 
 
-    if HaveVCLControls then
-    begin
-      EditorToDataStream;
-      cnt := FEditor.Lines.Count;
-      tf.writeln( [_LineCount, '=', cnt ]);
-      if ( cnt < 10000 ) then
-        List.Capacity := succ( cnt );
-    end;
+  tf.writeln( [_NF_TabNote] ); // marks beginning of TTabNote
+  BaseSaveProc( tf );
 
-    FDataStream.Position := 0;
 
-    List.LoadFromStream( FDataStream );
-    cnt := pred( list.Count );
-
-    case _USE_OLD_KEYNOTE_FILE_FORMAT of
-      false : begin
-        if ( cnt >= 0 ) then // if list is empty, cnt is -1
-        begin
-          tf.writeln( [_NF_RTF] );
-          if FPlainText then
-          begin
-            for i := 0 to cnt do
-              tf.writeln( [_NF_PLAINTEXTLEADER, List[i]] );
-          end
-          else
-          begin
-            // FPlaintext property not supported
-            for i := 0 to cnt do
-              tf.writeln( [List[i] ]);
-          end;
-        end;
-      end;
-      true : begin
-        if ( cnt > 0 ) then
-        begin
-          for i := 0 to cnt do
-            tf.writeln( [_Lines, '=', List[i]] );
-        end;
-      end;
-    end;
-  finally
-    List.Free;
+  if HaveVCLControls then begin
+    EditorToDataStream;
+    tf.writeln( [_LineCount, '=', FEditor.Lines.Count ]);
   end;
+
+
+  case _USE_OLD_KEYNOTE_FILE_FORMAT of
+    false :
+        SaveRTFToFile(tf, FDataStream, FPlainText);
+
+    true :
+        SaveRTFToFile(tf, FDataStream, true, _Lines+'=');
+  end;
+
 
   Modified := false; // triggers SetModified
 
 end; // TTabNote SaveToFile
 
+
+
+{$IFDEF WITH_DART}
 procedure TTabNote.SaveDartNotesFormat( Stream : TStream );
 var
   ds, ds1 : string;
@@ -899,6 +942,8 @@ begin
   Modified := false; // triggers SetModified
 
 end; // SaveDartNotesFormat
+{$ENDIF}
+
 
 function TTabNote.HasAlarms(considerDiscarded: boolean): boolean;
 begin
@@ -924,11 +969,11 @@ FontColor - BackColor: number (TColor)
 subject: unicode text
 
 *)
-procedure TTabNote.ProcessAlarm (s: WideString; node: TNoteNode = nil);
+procedure TTabNote.ProcessAlarm (s: AnsiString; node: TNoteNode = nil);
 var
     alarm: TAlarm;
     p, p2: integer;
-    format: string;
+    format: AnsiString;
 begin
    try
 
@@ -936,7 +981,7 @@ begin
 
       p := Pos( '|', s );
       if ( p > 0 ) then begin
-          alarm.AlarmNote:= WideStringReplace(TryUTF8ToWideString(copy(s, p+1, length(s))), 'ªª', #13#10, [rfReplaceAll]);
+          alarm.AlarmNote:= StringReplace(TryUTF8ToUnicodeString(copy(s, p+1, length(s))), 'ªª', #13#10, [rfReplaceAll]);
           delete( s, p, length(s));
       end;
 
@@ -1026,7 +1071,7 @@ begin
    end;
 end;
 
-procedure TransferRTFData(ListRTFStr : TStringList; StreamRTF: TTntMemoryStream);
+procedure TransferRTFData(ListRTFStr : TStringList; StreamRTF: TMemoryStream);
 var
    NewRTF: string;
 begin
@@ -1034,7 +1079,7 @@ begin
 
     if opt_Clean then begin
        if CleanRTF(ListRTFStr.Text, NewRTF) then begin
-          ListRTFStr.SaveToStream(StreamRTF);
+          //ListRTFStr.SaveToStream(StreamRTF);
           StreamRTF.LoadFromStream(TStringStream.Create(NewRTF));
           exit;
        end;
@@ -1044,10 +1089,10 @@ begin
 end;
 
 
-procedure TTabNote.LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean );
+procedure TTabNote.LoadFromFile( var tf : TTextFile; var FileExhausted : boolean );
 var
   List : TStringList;
-  s, key : string;
+  s, key : AnsiString;
   p, linecount : integer;
   InRichText : boolean;
 begin
@@ -1193,7 +1238,7 @@ begin
       else
       if ( key = _NoteName ) then
       begin
-        FName := TryUTF8ToWideString(s) ;
+        FName := TryUTF8ToUnicodeString(s) ;
       end
       else
       if ( key = _NoteID ) then
@@ -1287,6 +1332,7 @@ begin
 end; // LoadFromFile
 
 
+{$IFDEF WITH_DART}
 procedure TTabNote.LoadDartNotesFormat( Stream : TStream );
 var
   TextSize : longint;
@@ -1353,6 +1399,8 @@ begin
   FModified := false;
 
 end; // LoadDartNotesFormat
+{$ENDIF}
+
 
 procedure TTabNote.SetReadOnly( AReadOnly : boolean );
 begin
@@ -1474,7 +1522,7 @@ begin
 
   if PerformFix then
   begin
-    FRTF := GetRichText(Self, true, false);
+    FRTF:= Self.RtfText;
     Lines.Clear; // [!] if we do this...
   end;
 
@@ -1485,7 +1533,7 @@ begin
     Lines.BeginUpdate;
     try
       // Lines.Clear;
-      PutRichText( FRTF, Self, true, true );
+      Self.PutRtfText(FRTF, true);
       ClearUndo; // [!] ...we must also do this, otherwise if user hits Ctrl+Z right after Ctrl+W, all text is gone withno way to bring it back!
     finally
       Lines.EndUpdate;
@@ -1601,12 +1649,12 @@ end; // SelectWordAtCursor
   IgnoreActualSelection: If word at cursor is "example" and it selected "ample" then if this paremeter is set to false
       the result will be "example" and not "ample"
 *)
-function TTabRichEdit.GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False ) : WideString;
+function TTabRichEdit.GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False ) : string;
 var
   P : TPoint;
   LineLen,  NewSelStart, startidx, wordlen : integer;
 
-  lineWStr: WideString;
+  lineWStr: string;
   posFirstChar: integer;
 begin
   // a better version of WordAtCursor property
@@ -1700,11 +1748,11 @@ begin
    end;
 end;
 
-procedure TTabRichEdit.GetLinkAtCursor(var URL: WideString; var TextURL: WideString;
+procedure TTabRichEdit.GetLinkAtCursor(var URL: string; var TextURL: string;
                                        var LeftE: integer; var RightE: integer;
                                        SelectURL: boolean= true);
 var
-    link: integer;
+    link: TRxLinkStyle;    // lsNone: link style not set  lsLink: link style set    lsMixed: mixed                             
     TextLen: integer;
     Left, Right: integer;
     SelS, SelL: integer;
@@ -1721,13 +1769,13 @@ begin
     Right:= SelL + Left;
 
     ActiveNote.Editor.SetSelection(Left, Left+1, false);
-    link:= ActiveNote.Editor.SelAttributes.Link2;
-    if link = 1 then begin
+    link:= ActiveNote.Editor.SelAttributes.LinkStyle;
+    if link = lsLink then begin
        ActiveNote.Editor.SetSelection(Left-1, Left, false);
-       link:= ActiveNote.Editor.SelAttributes.Link2;
+       link:= ActiveNote.Editor.SelAttributes.LinkStyle;
     end;
 
-    if (link <> 1) then begin      // 0: No incluye ningún carácter con dicho atributo 1: Todos son Link -1: Mixto
+    if (link <> lsLink) then begin
         ActiveNote.Editor.SetSelection(Left, Right, false);
         LeftE:= Left;
         RightE:= Left;
@@ -1736,11 +1784,11 @@ begin
         TextLen:= ActiveNote.Editor.TextLength;
 
         // Buscamos el extremo izquierdo
-        link:= 1;
-        while (Left >0) and ((link=1) or ((_LoadedRichEditVersion>=5) and (ActiveNote.Editor.SelLength=0))) do begin  // Character "H" of HYPERLINK ".... cannot be selected in versions >= 5. Also in that versiones, when trying to selection one hidden character selection of that hyperlink, the whole link is selected
+        link:= lsLink;
+        while (Left >0) and ((link=lsLink) or ((_LoadedRichEditVersion>=5) and (ActiveNote.Editor.SelLength=0))) do begin  // Character "H" of HYPERLINK ".... cannot be selected in versions >= 5. Also in that versiones, when trying to selection one hidden character selection of that hyperlink, the whole link is selected
               Left:= Left - 1;
               ActiveNote.Editor.SetSelection(Left-1, Left, false);
-              link:= ActiveNote.Editor.SelAttributes.Link2;
+              link:= ActiveNote.Editor.SelAttributes.LinkStyle;
         end;
 
         LeftE:= Left;
@@ -1752,11 +1800,11 @@ begin
 
 
         // Buscamos el extremo derecho
-        link:= 1;
-        while (Right < TextLen) and (link=1) do begin
+        link:= lsLink;
+        while (Right < TextLen) and (link=lsLink) do begin
               Right:= Right + 1;
               ActiveNote.Editor.SetSelection(Right, Right+1, false);
-              link:= ActiveNote.Editor.SelAttributes.Link2;
+              link:= ActiveNote.Editor.SelAttributes.LinkStyle;
         end;
 
         RightE:= Right;
@@ -1770,7 +1818,7 @@ begin
         if pos('HYPERLINK "', URL)= 1 then begin
            // If it is an hyperlink with text associated then the string will be: URL"TextURL, where only TextURL is visible
            ActiveNote.Editor.SetSelection(Left, Right, false);
-           TextURL:= ActiveNote.Editor.SelVisibleTextW;
+           TextURL:= ActiveNote.Editor.SelVisibleText;
            URL:= Copy(URL, 12, Length(URL) - Length(TextURL)- 12);
         end
         else
@@ -1846,7 +1894,7 @@ begin
   result := inherited PropertiesToFlagsString;
 
   // values 1-12 are reserved for TTabNote
-  result[TREENOTE_FLAG_BASE+1] := inttostr( ord( FIconKind ))[1];
+  result[TREENOTE_FLAG_BASE+1] := AnsiChar(inttostr( ord( FIconKind ))[1]);
   result[TREENOTE_FLAG_BASE+2] := BOOLEANSTR[FAutoNumberNodes];
   result[TREENOTE_FLAG_BASE+3] := BOOLEANSTR[FCheckboxes];
   result[TREENOTE_FLAG_BASE+4] := BOOLEANSTR[FVerticalLayout];
@@ -1905,7 +1953,7 @@ end; // SetSelectedNode
 
 function TTreeNote.NewNode(
   const AParent : TNoteNode;
-  AName : WideString;
+  AName : string;
   const AInheritProperties : boolean ) : TNoteNode;
 var
   myNode : TNoteNode;
@@ -2121,6 +2169,7 @@ begin
         FEditor.Lines.Clear;
 
         FSelectedNode.Stream.Position := 0;
+
         if ( FPlainText or ( FSelectedNode.VirtualMode in [vmText, vmHTML] )) then
            UpdateEditor;
 
@@ -2155,11 +2204,13 @@ end; // DataStreamToEditor
 {
   If Editor was modified then it will return the Stream associated to the node that will be updated
 }
-function TTreeNote.EditorToDataStream: TTntMemoryStream;
+function TTreeNote.EditorToDataStream: TMemoryStream;
 var
    KeepUTF8: boolean;
+   Encoding: TEncoding;
 begin
   Result:= nil;
+  Encoding:= nil;
   if assigned(FEditor) and assigned(FSelectedNode) then begin
      FSelectedNode.SelStart  := FEditor.SelStart;
      FSelectedNode.SelLength := FEditor.SelLength;
@@ -2195,11 +2246,12 @@ begin
              if FEditor.StreamFormat = sfPlainText then begin
                 // Si es un nodo virtual respetaremos la codificación UTF8 que pueda tener.
                 // En caso contrario sólo se guardará como UTF8 si es necesario
-                if KeepUTF8 or not CanSaveAsANSI(FEditor.TextW) then
-                   FEditor.StreamMode := [smUnicode];
+                if KeepUTF8 or not CanSaveAsANSI(FEditor.Text) then
+                   //FEditor.StreamMode := [smUnicode];
+                   Encoding:= TEncoding.UTF8;
              end;
 
-             FEditor.Lines.SaveToStream( FSelectedNode.Stream );
+             FEditor.Lines.SaveToStream( FSelectedNode.Stream, Encoding);
              FEditor.Modified:= false;
 
            finally
@@ -2222,10 +2274,9 @@ begin
   result := assigned( FTV );
 end; // CheckTree
 
-procedure TTreeNote.SaveToFile( var tf : TWTextFile );
+
+procedure TTreeNote.SaveToFile( var tf : TTextFile );
 var
-  List : TStringList;
-  i, cnt : integer;
   treenode : TTreeNTNode;
   notenode : TNoteNode;
   nodessaved, NodeCnt, NodeIdx : integer;
@@ -2239,36 +2290,27 @@ begin
   // sanity check
 
   wasmismatch := ( HaveVCLControls and (( FTV.Items.Count ) <> ( FNodes.Count )));
-  if wasmismatch then
-  begin
-    if ( DoMessageBox(WideFormat(STR_05,
-      [FName,FTV.Items.Count,FNodes.Count]
-    ),
-    WideFormat(
-      STR_06,
-      [FName]
-     ), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON1+MB_APPLMODAL ) <> ID_YES ) then
-    begin
-      raise ETabNoteError.Create(
-        STR_07
-      );
-    end;
+  if wasmismatch then begin
+     if ( DoMessageBox(Format(STR_05, [FName,FTV.Items.Count,FNodes.Count]),
+                       Format(STR_06, [FName]), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON1+MB_APPLMODAL ) <> ID_YES ) then
+        raise ETabNoteError.Create(STR_07);
   end;
 
-  if HaveVCLControls then
-  begin
+
+  if HaveVCLControls then begin
     if FVerticalLayout then
-      FTreeWidth := FTV.Height
+       FTreeWidth := FTV.Height
     else
-      FTreeWidth := FTV.Width;
+       FTreeWidth := FTV.Width;
 
     if assigned( FTV.Selected ) then
-      FOldSelectedIndex := FTV.Selected.AbsoluteIndex
+       FOldSelectedIndex := FTV.Selected.AbsoluteIndex
     else
-      FOldSelectedIndex := -1;
+       FOldSelectedIndex := -1;
   end;
 
-  List := TStringList.Create;
+
+
   try
     tf.writeln( [_NF_TreeNote ] ); // marks beginning of TTreeNote
     BaseSaveProc( tf );
@@ -2293,24 +2335,20 @@ begin
     treenode := nil; // initialize to eliminate compiler warning
 
     // obtain first node
-    if HaveVCLControls then
-    begin
-      treenode := FTV.Items.GetFirstNode;
-      if assigned( treenode ) then
-      begin
-        notenode := TNoteNode( treenode.data );
-        if assigned( notenode ) then
-          notenode.Level := treenode.Level;
-      end;
+    if HaveVCLControls then  begin
+       treenode := FTV.Items.GetFirstNode;
+       if assigned( treenode ) then begin
+          notenode := TNoteNode( treenode.data );
+          if assigned( notenode ) then
+             notenode.Level := treenode.Level;
+       end;
     end
-    else
-    begin
-      if ( NodeCnt > 0 ) then
-        notenode := FNodes[0];
+    else begin
+       if ( NodeCnt > 0 ) then
+          notenode := FNodes[0];
     end;
 
-    while assigned( notenode ) do
-    begin
+    while assigned( notenode ) do begin
       inc( nodessaved );
 
       tf.writeln( [_NF_TRN ] );
@@ -2322,114 +2360,79 @@ begin
       tf.writeln( [_NodeRTFBGColor, '=', ColorToString( notenode.RTFBGColor )] );
       tf.writeln( [_NodeImageIndex, '=', notenode.ImageIndex ] );
       if noteNode.HasNodeColor then
-        tf.writeln( [_NodeColor, '=', ColorToString( noteNode.NodeColor )] );
+         tf.writeln( [_NodeColor, '=', ColorToString( noteNode.NodeColor )] );
       if noteNode.HasNodeBGColor then
-        tf.writeln( [_NodeBGColor, '=', ColorToString( noteNode.NodeBGColor )] );
+         tf.writeln( [_NodeBGColor, '=', ColorToString( noteNode.NodeBGColor )] );
       if noteNode.HasNodeFontFace then
-        tf.writeln( [_NodeFontFace, '=', noteNode.NodeFontFace ] );
+         tf.writeln( [_NodeFontFace, '=', noteNode.NodeFontFace ] );
 
       if (NoteNode.VirtualMode <> vmKNTNode) and (noteNode.HasAlarms(true)) then
-          SaveAlarms(tf, noteNode);
+         SaveAlarms(tf, noteNode);
 
       if ( _SAVE_RESTORE_CARETPOS and ( notenode.SelStart > 0 )) then
-        tf.writeln( [_NodeSelStart, '=', notenode.SelStart ] );
-      if ( NoteNode.VirtualMode = vmNone ) then
-      begin
-        tf.writeln( [_NF_RTF ] );
-        notenode.Stream.Position := 0;
-        list.clear;
-        list.LoadFromStream( notenode.Stream );
-        cnt := pred( list.Count );
-        if ( cnt >= 0 ) then // if list is empty, cnt is -1
-        begin
-          if FPlainText then
-          begin
-            for i := 0 to cnt do
-              tf.writeln( [_NF_PLAINTEXTLEADER, List[i] ] );
-          end
-          else
-          begin
-            // FPlaintext property not supported
-            for i := 0 to cnt do
-              tf.writeln( [List[i] ] );
-          end;
-        end;
-      end
-      else
-      if NoteNode.VirtualMode = vmKNTNode  then begin
-         tf.writeln( [_VirtualNode, '=', notenode.MirrorNodeID ] );
-      end
-      else
-      begin
-        if notenode.HasVNodeError then
-        begin
-          // there was an error when we tried to load this file,
-          // so don't try to save it (assume no valid data in node)
-          tf.writeln( [_VirtualFN, '=', copy( notenode.VirtualFN, 2, length( notenode.VirtualFN ))] );
-        end
-        else
-        begin
-          try
-            NoteNode.SaveVirtualFile;
+         tf.writeln( [_NodeSelStart, '=', notenode.SelStart ] );
 
-            tf.writeln( [_RelativeVirtualFN, '=', notenode.RelativeVirtualFN ] ); // MUST be done AFTER NoteNode.SaveVirtualFile. MUST also be saved BERFORE notenode.VirtualFN.
-            tf.writeln( [_VirtualFN, '=', notenode.VirtualFN ] );
-          except
-            on E : Exception do
-            begin
-              // [x] A note may have hundreds of nodes.
-              // We should allow user to ABORT here or
-              // to skip subsequent error messages
-              DoMessageBox( WideFormat(
-                STR_08 + #13 + '%s' + #13#13 + '%s',
-                [notenode.Name, self.Name, notenode.VirtualFN, E.Message ] ),
-                mtError, [mbOK], 0 );
+
+
+      if (NoteNode.VirtualMode = vmNone ) then
+         SaveRTFToFile(tf, notenode.Stream, FPlainText)
+      
+      else
+      if NoteNode.VirtualMode = vmKNTNode  then
+         tf.writeln( [_VirtualNode, '=', notenode.MirrorNodeID ] )
+
+      else begin
+        if notenode.HasVNodeError then
+           // there was an error when we tried to load this file, so don't try to save it (assume no valid data in node)
+            tf.writeln( [_VirtualFN, '=', copy( notenode.VirtualFN, 2, length( notenode.VirtualFN ))] )
+
+        else
+            try
+               NoteNode.SaveVirtualFile;
+
+               tf.writeln( [_RelativeVirtualFN, '=', notenode.RelativeVirtualFN ] ); // MUST be done AFTER NoteNode.SaveVirtualFile. MUST also be saved BERFORE notenode.VirtualFN.
+               tf.writeln( [_VirtualFN, '=', notenode.VirtualFN ] );
+            except
+              on E : Exception do
+                // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages
+                DoMessageBox(Format(STR_08 + #13+ '%s'+ #13#13+ '%s', [notenode.Name, self.Name, notenode.VirtualFN, E.Message]), mtError, [mbOK], 0 );
             end;
-          end;
-        end;
       end;
 
 
       // obtain next node, or bail out if NIL
       notenode := nil;
-      if HaveVCLControls then
-      begin
-        treenode := treenode.GetNext;
-        if assigned( treenode ) then
-        begin
-          notenode := TNoteNode( treenode.data );
-          if assigned( notenode ) then
-            notenode.Level := treenode.Level;
-        end;
+      if HaveVCLControls then  begin
+         treenode := treenode.GetNext;
+         if assigned( treenode ) then begin
+            notenode := TNoteNode( treenode.data );
+            if assigned( notenode ) then
+               notenode.Level := treenode.Level;
+         end;
       end
-      else
-      begin
-        inc( NodeIdx );
-        if ( NodeIdx < NodeCnt ) then
-          notenode := FNodes[NodeIdx];
+      else begin
+         inc( NodeIdx );
+         if ( NodeIdx < NodeCnt ) then
+            notenode := FNodes[NodeIdx];
       end;
     end;
 
     Modified := false;
+
   finally
     if ( nodessaved <> FNodes.Count ) then
-    begin
-      raise ETabNoteError.CreateFmt(
-        STR_09,
-        [FNodes.Count, nodessaved]
-      );
-    end;
-    List.Free;
+        raise ETabNoteError.CreateFmt(STR_09, [FNodes.Count, nodessaved]);
   end;
 
 end; // SaveToFile
 
-procedure TTreeNote.LoadFromFile( var tf : TWTextFile; var FileExhausted : boolean );
+
+procedure TTreeNote.LoadFromFile( var tf : TTextFile; var FileExhausted : boolean );
 var
   InRichText : boolean;
   InNoteNode : boolean;
   List : TStringList;
-  s, key : string;
+  s, key : AnsiString;
   p, linecount : integer;
   myNode : TNoteNode;
 
@@ -2516,7 +2519,7 @@ begin
           begin
                 if ( key = _NodeName ) then
                 begin
-                  myNode.Name := TryUTF8ToWideString(s);
+                  myNode.Name := TryUTF8ToUnicodeString(s);
                 end
                 else
                 if ( key = _NodeID ) then
@@ -2552,17 +2555,17 @@ begin
                 else
                 if ( key = _VirtualNode ) then
                 begin
-                  myNode.MirrorNodeID := TryUTF8ToWideString(s);
+                  myNode.MirrorNodeID := TryUTF8ToUnicodeString(s);
                 end
                 else
                 if ( key = _RelativeVirtualFN ) then
                 begin
-                  myNode.RelativeVirtualFN := TryUTF8ToWideString(s);
+                  myNode.RelativeVirtualFN := TryUTF8ToUnicodeString(s);
                 end
                 else
                 if ( key = _VirtualFN ) then
                 begin
-                  myNode.VirtualFN := TryUTF8ToWideString(s);
+                  myNode.VirtualFN := TryUTF8ToUnicodeString(s);
                   try
                     myNode.LoadVirtualFile;
                   except
@@ -2649,7 +2652,7 @@ begin
           if ( key = _DefaultNodeName ) then
           begin
               if ( s <> '' ) then
-                 FDefaultNodeName := TryUTF8ToWideString(s);
+                 FDefaultNodeName := TryUTF8ToUnicodeString(s);
           end
           else
           if ( key = _CHTRBGColor ) then
@@ -2784,7 +2787,7 @@ begin
           else
           if ( key = _NoteName ) then
           begin
-              FName := TryUTF8ToWideString(s);
+              FName := TryUTF8ToUnicodeString(s);
           end
           else
           if ( key = _NoteID ) then
@@ -2882,10 +2885,11 @@ begin
 
 end; // LoadFromFile
 
+
 procedure TTreeNote.LoadFromTreePadFile( const FN : string );
 var
   s, nodeName : string;
-  tf : TextFile;
+  tf : TTextFile;
   InNode : boolean;
   level : integer;
   myNode : TNoteNode;
@@ -2906,10 +2910,11 @@ begin
 
   if ( not fileexists( FN )) then exit;
 
-  assignfile( tf, FN );
+  tf:= TTextFile.Create();
+  tf.AssignFile(FN);
 
   try
-    reset( tf );
+    tf.Reset;
   except
     messagedlg( STR_11 + FN, mtError, [mbOK], 0 );
     exit;
@@ -2920,42 +2925,42 @@ begin
 
   try
 
-    while ( not eof( tf )) do
-    begin
-      readln( tf, s );
+    while ( not tf.Eof) do begin
+       s:= tf.readln;
 
-      case InNode of
-        false : begin
-          if ( s = _TREEPAD_NODE ) then
-          begin
-            InNode := true;
-            try
-              readln( tf, nodeName ); // node name
-              readln( tf, s ); // node level
+       case InNode of
+
+         false : begin
+            if ( s = _TREEPAD_NODE ) then begin
+              InNode := true;
               try
-                level := StrToInt( s );
+                nodeName:= TryUTF8ToUnicodeString(tf.Readln);
+                s:= tf.Readln; // node level
+                try
+                  level := StrToInt( s );
+                except
+                  level := 0;
+                end;
+                myNode := TNoteNode.Create;
+                myNode.RTFBGColor := EditorChrome.BGColor;
+                myNode.Level := Level;
+                myNode.Name := nodeName;
               except
-                level := 0;
+                InNode := false;
               end;
-              myNode := TNoteNode.Create;
-              myNode.RTFBGColor := EditorChrome.BGColor;
-              myNode.Level := Level;
-              myNode.Name := nodeName;
-            except
-              InNode := false;
+              continue;
             end;
-            continue;
-          end;
+         end;
+
+         true : begin
+            if ( s = _TREEPAD_ENDNODE ) then begin
+               InNode := false;
+               AddNewNode;
+               Continue;
+            end;
+            List.Add( s );
         end;
-        true : begin
-          if ( s = _TREEPAD_ENDNODE ) then
-          begin
-            InNode := false;
-            AddNewNode;
-            Continue;
-          end;
-          List.Add( s );
-        end;
+
       end;
 
     end;
@@ -2963,10 +2968,11 @@ begin
   finally
     VerifyNodeIDs;
     List.Free;
-    closefile( tf );
+    tf.CloseFile;
   end;
 
 end; // LoadFromTreePadFile
+
 
 function TTreeNote.GetNodeByID( const aID : integer ) : TNoteNode;
 var
@@ -2978,6 +2984,7 @@ begin
   else
     result := nil;
 end; // GetNodeByID
+
 
 function TTreeNote.GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
 var
@@ -2998,6 +3005,7 @@ begin
     myTreeNode := myTreeNode.GetNext;
   end;
 end; // GetTreeNodeByID
+
 
 Initialization
 

@@ -19,13 +19,17 @@ unit TreeNTRegister;
 interface
 
 uses
-  TreeNT, TNTEditor, Dialogs, Forms, SysUtils,
-{$IFDEF DFS_NO_DSGNINTF}     // [dpv]
-    DesignIntf,
-    DesignEditors;
-{$ELSE}
-    DsgnIntf;
-{$ENDIF}
+   System.SysUtils,
+   Vcl.Dialogs,
+   Vcl.Forms,
+   TreeNT,
+   TNTEditor,
+   {$IFDEF DFS_NO_DSGNINTF}  // [dpv]
+   DesignIntf,
+   DesignEditors;
+   {$ELSE}
+   DsgnIntf;
+   {$ENDIF}
 
 type
   TTreeNTNodesProperty = class(TClassProperty)
@@ -49,7 +53,8 @@ procedure Register;
 implementation
 
 uses
-  Classes, Graphics;
+   System.Classes,
+   Vcl.Graphics;
 
 //----------------- TTreeNTNodesProperty ---------------------------------------
 

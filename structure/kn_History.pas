@@ -29,9 +29,13 @@ How this works:
 *)
 
 interface
-uses Windows, Classes, Graphics,
-  SysUtils, kn_LocationObj,
-  gf_misc, kn_Const, kn_Info, WideStrings;
+uses
+   Winapi.Windows,
+   System.Classes,
+   System.SysUtils,
+   Vcl.Graphics,
+   kn_LocationObj;
+
 
 const
   _MAX_NAV_HISTORY = 500;
@@ -39,7 +43,7 @@ const
 type
   TkntHistory = class( TObject )
   private
-    FHistory : TWideStringList;
+    FHistory : TStringList;
     FIndex : integer;
 
   public
@@ -68,7 +72,7 @@ constructor TkntHistory.Create;
 begin
   inherited Create;
   FIndex := -1;
-  FHistory := TWideStringList.Create;
+  FHistory := TStringList.Create;
 end; // CREATE
 
 destructor TkntHistory.Destroy;

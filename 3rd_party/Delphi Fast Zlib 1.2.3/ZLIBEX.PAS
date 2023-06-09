@@ -55,9 +55,9 @@ unit ZLibEx;
 interface
 
 uses
-  Windows,
-  Sysutils,
-  Classes;
+   Winapi.Windows,
+   System.SysUtils,
+   System.Classes;
 
 const
   ZLIB_VERSION = '1.2.3';

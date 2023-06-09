@@ -1,43 +1,51 @@
 unit kn_Chars;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Spin, clipbrd, kn_Info, Placemnt, TntStdCtrls;
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.Samples.Spin,
+   Vcl.Clipbrd,
+   RxPlacemnt,
+   kn_Info;
 
 
 type
-  TCharInsertEvent = procedure( const ch : char; const Count : integer; const FontName : string; const FontCharset : TFontCharset ) of object;
+  TCharInsertEvent = procedure(const ch : AnsiChar; const Count: integer; const FontName: string; const FontCharset: TFontCharset ) of object;
 
 type
   TForm_Chars = class(TForm)
-    Button_Insert: TTntButton;
-    Button_Close: TTntButton;
-    Button_Font: TTntButton;
+    Button_Insert: TButton;
+    Button_Close: TButton;
+    Button_Font: TButton;
     Chars: TListBox;
     FontDlg: TFontDialog;
-    Label_Code: TTntLabel;
-    Label1: TTntLabel;
+    Label_Code: TLabel;
+    Label1: TLabel;
     Spin_Count: TSpinEdit;
-    CheckBox_FullSet: TTntCheckBox;
-    Button_Copy: TTntButton;
+    CheckBox_FullSet: TCheckBox;
+    Button_Copy: TButton;
     FormPlacement: TFormPlacement;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -125,7 +133,7 @@ end;
 
 procedure TForm_Chars.BuildCharList;
 var
-  ch, startch : char;
+  ch, startch : AnsiChar;
   olditemindex : integer;
 begin
 
@@ -179,9 +187,9 @@ begin
   if assigned( CharInsertEvent ) then
   begin
     if myFontChanged then
-      CharInsertEvent( chars.items[chars.itemindex][1], Spin_Count.Value, fontdlg.font.name, fontdlg.font.charset )
+      CharInsertEvent( AnsiString(chars.items[chars.itemindex])[1], Spin_Count.Value, fontdlg.font.name, fontdlg.font.charset )
     else
-      CharInsertEvent( chars.items[chars.itemindex][1], Spin_Count.Value, '', 0 );
+      CharInsertEvent( AnsiString(chars.items[chars.itemindex])[1], Spin_Count.Value, '', 0 );
   end;
   CharsLastCount := Spin_Count.Value;
   if ( Button_Insert.ModalResult <> mrNone ) then
@@ -189,9 +197,13 @@ begin
 end;
 
 procedure TForm_Chars.CharsClick(Sender: TObject);
+var
+  ch: AnsiChar;
 begin
   // show char code
-  Label_Code.Caption := Format( '%.3d', [ord( chars.items[chars.itemindex][1] )] );
+  //Label_Code.Caption := Format( '%.3d', [Ord( AnsiChar(chars.items[chars.itemindex][1]) )] );
+  ch:= AnsiString(chars.items[chars.itemindex])[1];
+  Label_Code.Caption := Format( '%.3d', [Ord(ch)] );
   CharsLastItemIndex := chars.ItemIndex;
 end;
 
@@ -209,12 +221,12 @@ end;
 
 procedure TForm_Chars.Button_CopyClick(Sender: TObject);
 var
-  s : string;
+  s : Ansistring;
 begin
   s := '';
   setlength( s, Spin_Count.Value );
   fillchar( s[1], Spin_Count.Value, chars.items[chars.itemindex][1] );
-  Clipboard.SetTextBuf( PChar( s ));
+  Clipboard.SetTextBuf( PChar(String(s)));
 
 end;
 

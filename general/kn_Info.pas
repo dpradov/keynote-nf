@@ -19,8 +19,16 @@ unit kn_Info;
 {.$DEFINE DLA_DUNI}
 
 interface
-uses Windows, Messages, Classes, Graphics, SysUtils,
-  RxRichEd, langs, gf_misc, kn_Const;
+uses
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Classes,
+   System.SysUtils,
+   Vcl.Graphics,
+   RxRichEd,
+   langs,
+   gf_misc,
+   kn_Const;
 
 resourcestring
   Program_Desc     = 'Tabbed notebook for Windows';
@@ -259,7 +267,7 @@ type
     GoToIdx : string;
     Para : TParaInfo;
     CharInfo : TCharInfo;
-    StyleName : WideString;
+    StyleName : string;
     Language : TLanguage;
   end;
 
@@ -269,7 +277,7 @@ type
     HiColor : TColor;
     Font : TFontInfo;
     HiFont : TFontInfo;
-    Language : TLanguage; 
+    Language : TLanguage;
   end;
 
   TKeyStyle = packed record
@@ -279,7 +287,7 @@ type
 
   TNoteTabProperties = packed record
     ImageIndex : integer;
-    Name : wideString;
+    Name : string;
   end;
 
   TNoteEditorProperties = packed record
@@ -342,7 +350,7 @@ type
 type
   TNoteTreeProperties = packed record
     AutoNumberNodes : boolean;
-    DefaultName : wideString;
+    DefaultName : string;
     CheckBoxes : boolean;
     IconKind : TNodeIconKind;
     VerticalLayout : boolean;
@@ -378,7 +386,7 @@ type
   TExportOptions = packed record
     ConfirmFilenames : boolean;
     ConfirmOverwrite : boolean;
-    ExportPath : WideString;
+    ExportPath : string;
     ExportSource : TExportSource;
     HTMLExportMethod: THTMLExportMethod;
     IncludeNodeHeadings : boolean;
@@ -388,8 +396,8 @@ type
     IndentUsingTabs : boolean;
     IndentValue : integer;
     }
-    NodeHeading : wideString;
-    NoteHeading : wideString;
+    NodeHeading : string;
+    NoteHeading : string;
     SingleNodeFiles : boolean;
     TargetFormat : TExportFmt;
     TreePadForceMaster : boolean;
@@ -416,6 +424,7 @@ type
   );
   TFileStateChangeSet = set of TFileStateChange;
 
+(*  Not used. Referentiated from kn_Main.GetKeyStates, not used
 type
   TLockKeys = ({lkCaps, }lkInsert);
 
@@ -425,6 +434,7 @@ const
   lock_keys  : array [ TLockKeys ] of Integer = ({VK_CAPITAL, }VK_INSERT);
   lock_labels: array [ TLockKeys ] of String[3] = ({'CAP',} 'INS');
   lock_panels: array [ TLockKeys ] of Integer = ( {PANEL_CAPS,} PANEL_INS );
+*)
 
 type
   TFuncKeys = array[1..12] of string;
@@ -446,7 +456,7 @@ type
     AutoSaveOnTimerInt : integer; // minutes between auto-saves
     Backup : boolean; // make backup copy (cyclic way)
     BackupAppendExt : boolean; // append .BAK extention or replace original extension
-    BackupDir : wideString;
+    BackupDir : string;
     BackupExt : string;
     BackupLevel : integer;
     BackupVNodes : boolean;
@@ -490,13 +500,13 @@ type
     InsCharKeepFont : boolean;
     InsCharWinClose : boolean;
     KeyReplayDelay : integer; // MILIseconds { OBSOLETE, unused }
-    LanguageUI : wideString;    // Language of ther user interface. Must be in keynote.lan
-    LastCopyPath : wideString;
-    LastExportPath : wideString;
+    LanguageUI : string;    // Language of ther user interface. Must be in keynote.lan
+    LastCopyPath : string;
+    LastExportPath : string;
     LastExportFormat : TExportFmt;
     LastExportAsk : boolean;
-    LastFile : wideString;
-    LastImportPath : wideString;
+    LastFile : string;
+    LastImportPath : string;
     LastNumbering : TRxNumbering;
     LastNumberingStyle: TRxNumberingStyle;
     LastVersion : string; // last version of KeyNote. Used to detect upgrades
@@ -511,7 +521,7 @@ type
     MRUSubmenu : boolean;
     MRUUse : boolean;
     NoComboIcons : boolean; // [*] kill image list for Style combo box
-    NodeNameHistory : wideString;
+    NodeNameHistory : string;
     NoRegistry : boolean; // do not use registry (equiv. to "-noreg" cmd line switch
     OpenFloppyReadOnly : boolean;
     OpenNetworkReadOnly : boolean;
@@ -539,7 +549,7 @@ type
     StatBarDlbClkActionShft : integer; // [*] as above, with Shift held down
     StatBarShow : boolean; // show or hide the statusbar
     StyleShowSamples : boolean; // [*] display font style samples in OwnerDrawn combo
-    TabNameHistory : wideString;
+    TabNameHistory : string;
     TimeFmt : string;
     TimerMinimize : boolean; // minimize program after X minutes of inactivity
     TimerMinimizeInt : integer; // minutes
@@ -559,7 +569,7 @@ type
     UASEnable : boolean;
     UASPath : string;
     URLAction : TURLAction;
-    URLAltBrowserPath : wideString;
+    URLAltBrowserPath : string;
     URLFileAuto : boolean;  // always launch file:// URLs, regardless of URLAction setting
     URLFileDecodeSpaces : boolean; // [*]
     URLFileNoPrefix : boolean; // [*] strip file:/// prefix before launching URLs
@@ -569,7 +579,7 @@ type
     UseOldColorDlg : boolean;
     UseOldFileFormat : boolean; // save files using older firmat (GFKNX)
     UseTray : boolean;
-    UserFile : wideString;
+    UserFile : string;
     ZoomIncrement : integer;
   end;
 
@@ -659,16 +669,16 @@ type
     AllTabs_FindReplace : boolean; // search all notes in file (FindReplace dialog)
     AutoClose : boolean; // auto close find dialog box when Find button clicked
     EntireScope : boolean; // search from top of text rather than from current position in active note
-    FindAllHistory : WideString;
+    FindAllHistory : string;
     FindAllMatches : boolean; // used for the "Find all" function (resource panel)
     FindNew : boolean; // internal state flag: begin new search
-    History : WideString; // list of previously searched strings
+    History : string; // list of previously searched strings
     HistoryMaxCnt : integer; // number of history strings to keep
     MatchCase : boolean; // search is case-sensitive
-    Pattern : WideString; // what to find
+    Pattern : string; // what to find
     ReplaceConfirm : boolean;
-    ReplaceHistory : WideString;
-    ReplaceWith : WideString;
+    ReplaceHistory : string;
+    ReplaceWith : string;
     SearchMode : TSearchMode; // for "Find all" (resource panel) ONLY
     SearchNodeNames : boolean; // for "Find all" (resource panel) ONLY
     WholeWordsOnly : boolean; // only match whole words

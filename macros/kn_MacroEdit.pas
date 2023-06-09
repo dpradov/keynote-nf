@@ -7,8 +7,8 @@ unit kn_MacroEdit;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
@@ -19,26 +19,34 @@ unit kn_MacroEdit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, gf_misc, gf_strings,
-  kn_Const, kn_Info, kn_Macro, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   kn_Macro;
+
 
 type
   TForm_Macro = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    GroupBox1: TTntGroupBox;
-    Label1: TTntLabel;
-    Label2: TTntLabel;
-    Edit_Desc: TTntEdit;
-    Label3: TTntLabel;
-    LB_Date: TTntLabel;
-    Edit_Name: TTntEdit;
-    Label4: TTntLabel;
-    LB_FileName: TTntLabel;
-    CB_AbortOnError: TTntCheckBox;
-    Button_Help: TTntButton;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Edit_Desc: TEdit;
+    Label3: TLabel;
+    LB_Date: TLabel;
+    Edit_Name: TEdit;
+    Label4: TLabel;
+    LB_FileName: TLabel;
+    CB_AbortOnError: TCheckBox;
+    Button_Help: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -54,10 +62,10 @@ type
     { Public declarations }
     OK_Click : boolean;
     myNewMacro : boolean;
-    MName, MDesc: WideString;
+    MName, MDesc: string;
     MDate, MFileName : string;
     MAbort : boolean;
-    OriginalName : wideString;
+    OriginalName : string;
   end;
 
 
@@ -115,7 +123,7 @@ end;
 
 procedure TForm_Macro.Edit_NameChange(Sender: TObject);
 var
-  t : wideString;
+  t : string;
 begin
   t := trim( Edit_Name.Text );
   if ( t <> '' ) then

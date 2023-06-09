@@ -4,8 +4,8 @@ object Form_Defaults: TForm_Defaults
   HelpContext = 250
   BorderStyle = bsDialog
   Caption = 'Defaults'
-  ClientHeight = 393
-  ClientWidth = 336
+  ClientHeight = 391
+  ClientWidth = 328
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,15 +13,13 @@ object Form_Defaults: TForm_Defaults
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 14
     Top = 360
     Width = 75
@@ -33,7 +31,7 @@ object Form_Defaults: TForm_Defaults
     TabOrder = 0
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 102
     Top = 360
     Width = 75
@@ -49,7 +47,7 @@ object Form_Defaults: TForm_Defaults
     Top = 5
     Width = 326
     Height = 340
-    ActivePage = Tab_Main
+    ActivePage = Tab_Tree
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -71,14 +69,25 @@ object Form_Defaults: TForm_Defaults
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      object GBox_Note: TTntGroupBox
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GBox_Note: TGroupBox
         Left = 5
         Top = 0
         Width = 306
         Height = 309
         Caption = ' Default properties for new notes '
         TabOrder = 0
-        object Label_TabSize: TTntLabel
+        object Bevel1: TBevel
+          Left = 10
+          Top = 86
+          Width = 286
+          Height = 5
+          Shape = bsTopLine
+        end
+        object Label_TabSize: TLabel
           Left = 189
           Top = 152
           Width = 44
@@ -87,7 +96,7 @@ object Form_Defaults: TForm_Defaults
           Caption = 'Tab &Size:'
           FocusControl = Spin_TabSize
         end
-        object Label1: TTntLabel
+        object Label1: TLabel
           Left = 10
           Top = 25
           Width = 74
@@ -96,14 +105,7 @@ object Form_Defaults: TForm_Defaults
           Caption = '&Note name:'
           FocusControl = Edit_NoteName
         end
-        object Bevel1: TBevel
-          Left = 10
-          Top = 85
-          Width = 286
-          Height = 5
-          Shape = bsTopLine
-        end
-        object Label4: TTntLabel
+        object Label4: TLabel
           Left = 10
           Top = 55
           Width = 74
@@ -114,28 +116,21 @@ object Form_Defaults: TForm_Defaults
         end
         object Bevel2: TBevel
           Left = 10
-          Top = 229
+          Top = 228
           Width = 286
           Height = 5
           Shape = bsTopLine
         end
-        object Label_EditorFonts: TTntLabel
+        object Label_EditorFonts: TLabel
           Left = 35
           Top = 221
           Width = 174
           Height = 13
           Caption = ' Default font and background color: '
           Enabled = False
+          Transparent = False
         end
-        object Label_EditorSettings: TTntLabel
-          Left = 35
-          Top = 80
-          Width = 104
-          Height = 13
-          Caption = ' RTF editor  settings: '
-          Enabled = False
-        end
-        object Label14: TTntLabel
+        object Label14: TLabel
           Left = 6
           Top = 183
           Width = 68
@@ -143,7 +138,16 @@ object Form_Defaults: TForm_Defaults
           AutoSize = False
           Caption = '&Language:'
         end
-        object CB_WordWrap: TTntCheckBox
+        object Label_EditorSettings: TLabel
+          Left = 35
+          Top = 80
+          Width = 104
+          Height = 13
+          Caption = ' RTF editor  settings: '
+          Enabled = False
+          Transparent = False
+        end
+        object CB_WordWrap: TCheckBox
           Left = 20
           Top = 100
           Width = 269
@@ -152,7 +156,7 @@ object Form_Defaults: TForm_Defaults
           Caption = '&Wrap long lines'
           TabOrder = 2
         end
-        object CB_URLDetect: TTntCheckBox
+        object CB_URLDetect: TCheckBox
           Left = 20
           Top = 125
           Width = 269
@@ -161,7 +165,7 @@ object Form_Defaults: TForm_Defaults
           Caption = 'Detect and highlight &URLs in editor'
           TabOrder = 3
         end
-        object CB_UseTabChar: TTntCheckBox
+        object CB_UseTabChar: TCheckBox
           Left = 20
           Top = 150
           Width = 149
@@ -183,7 +187,7 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 5
           Value = 4
         end
-        object Edit_NoteName: TTntComboBox
+        object Edit_NoteName: TComboBox
           Left = 88
           Top = 20
           Width = 198
@@ -194,7 +198,6 @@ object Form_Defaults: TForm_Defaults
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
-          ItemHeight = 13
           ParentFont = False
           TabOrder = 0
           OnKeyPress = Edit_NoteNameKeyPress
@@ -212,7 +215,6 @@ object Form_Defaults: TForm_Defaults
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
-          ItemHeight = 16
           ParentFont = False
           TabOrder = 1
         end
@@ -238,7 +240,7 @@ object Form_Defaults: TForm_Defaults
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      object GBox_Tree: TTntGroupBox
+      object GBox_Tree: TGroupBox
         Left = 6
         Top = 0
         Width = 306
@@ -247,12 +249,12 @@ object Form_Defaults: TForm_Defaults
         TabOrder = 0
         object Bevel4: TBevel
           Left = 10
-          Top = 80
+          Top = 81
           Width = 286
           Height = 5
           Shape = bsTopLine
         end
-        object Label5: TTntLabel
+        object Label5: TLabel
           Left = 15
           Top = 25
           Width = 164
@@ -262,28 +264,30 @@ object Form_Defaults: TForm_Defaults
         end
         object Bevel5: TBevel
           Left = 13
-          Top = 229
+          Top = 228
           Width = 286
           Height = 5
           Shape = bsTopLine
         end
-        object Label_TreeFonts: TTntLabel
+        object Label_TreeFonts: TLabel
           Left = 37
           Top = 221
           Width = 138
           Height = 13
           Caption = ' Font and background color: '
           Enabled = False
+          Transparent = False
         end
-        object Label_TreeSettings: TTntLabel
+        object Label_TreeSettings: TLabel
           Left = 35
           Top = 75
           Width = 73
           Height = 13
           Caption = ' Tree settings: '
           Enabled = False
+          Transparent = False
         end
-        object Label2: TTntLabel
+        object Label2: TLabel
           Left = 13
           Top = 181
           Width = 95
@@ -291,7 +295,7 @@ object Form_Defaults: TForm_Defaults
           Caption = 'I&mage icons in tree:'
           FocusControl = Combo_TreeImages
         end
-        object CB_TreeCheck: TTntCheckBox
+        object CB_TreeCheck: TCheckBox
           Left = 20
           Top = 135
           Width = 277
@@ -300,7 +304,7 @@ object Form_Defaults: TForm_Defaults
           Caption = '&Show checkboxes in all nodes'
           TabOrder = 4
         end
-        object Edit_NodeName: TTntComboBox
+        object Edit_NodeName: TComboBox
           Left = 15
           Top = 40
           Width = 211
@@ -311,11 +315,10 @@ object Form_Defaults: TForm_Defaults
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
-          ItemHeight = 13
           ParentFont = False
           TabOrder = 0
         end
-        object CB_AutoNumberNodes: TTntCheckBox
+        object CB_AutoNumberNodes: TCheckBox
           Left = 20
           Top = 95
           Width = 277
@@ -330,7 +333,6 @@ object Form_Defaults: TForm_Defaults
           Width = 25
           Height = 25
           Hint = 'Help for auto-naming tree nodes'
-          TabOrder = 1
           Glyph.Data = {
             F6000000424DF600000000000000760000002800000010000000100000000100
             0400000000008000000000000000000000001000000010000000000000000000
@@ -340,8 +342,9 @@ object Form_Defaults: TForm_Defaults
             FF07AD0FBFFF44FFBF07DA0FFFBFFFBFFF07AD0FBFFF47FFBF07DA0FFFBF748F
             FF07AD0FBFFFB747BF07DA0FFF47FF44FF07AD0FBF44B844BF07DA0FFF844448
             FF07AD0FBFFFBFFFBF07DA0FFFBFFFBFFF0AADA00000000000AD}
+          TabOrder = 1
         end
-        object CB_Vertical: TTntCheckBox
+        object CB_Vertical: TCheckBox
           Left = 20
           Top = 115
           Width = 277
@@ -350,16 +353,15 @@ object Form_Defaults: TForm_Defaults
           Caption = '&Vertical layout (tree on top)'
           TabOrder = 3
         end
-        object Combo_TreeImages: TTntComboBox
+        object Combo_TreeImages: TComboBox
           Left = 13
           Top = 196
           Width = 176
           Height = 21
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 5
         end
-        object CB_HideChecked: TTntCheckBox
+        object CB_HideChecked: TCheckBox
           Left = 20
           Top = 156
           Width = 277
@@ -377,14 +379,18 @@ object Form_Defaults: TForm_Defaults
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      object GroupBox1: TTntGroupBox
-        Left = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox1: TGroupBox
+        Left = 3
         Top = 0
-        Width = 306
-        Height = 286
+        Width = 308
+        Height = 309
         Caption = ' Advanced settings '
         TabOrder = 0
-        object LB_SaveAsDef: TTntLabel
+        object LB_SaveAsDef: TLabel
           Left = 10
           Top = 20
           Width = 286
@@ -396,7 +402,7 @@ object Form_Defaults: TForm_Defaults
             'nly for the current file.'
           WordWrap = True
         end
-        object LB_PlainText: TTntLabel
+        object LB_PlainText: TLabel
           Left = 10
           Top = 134
           Width = 286
@@ -408,7 +414,7 @@ object Form_Defaults: TForm_Defaults
             't (all formatting will be rermoved).'
           WordWrap = True
         end
-        object CB_SaveAsDef: TTntCheckBox
+        object CB_SaveAsDef: TCheckBox
           Left = 10
           Top = 81
           Width = 286
@@ -423,7 +429,7 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 0
           OnClick = AM_SaveAsDefClick
         end
-        object CB_PlainText: TTntCheckBox
+        object CB_PlainText: TCheckBox
           Left = 10
           Top = 202
           Width = 286
@@ -442,8 +448,6 @@ object Form_Defaults: TForm_Defaults
     Height = 25
     Hint = 'Change initial font'
     Caption = '&Font'
-    TabOrder = 3
-    OnClick = BTN_FontClick
     Glyph.Data = {
       F6000000424DF600000000000000760000002800000010000000100000000100
       0400000000008000000000000000000000001000000010000000000000000000
@@ -453,6 +457,8 @@ object Form_Defaults: TForm_Defaults
       D44AADADADA44DADA44DDADADADA4444444AADADADADA44DA44DD0DAD0DADA44
       D44AA07D70ADADA4444DD70007DADADA444AAD0D0DADADADA44DDA0A0ADADADA
       DADAAD707DADADADADADDAD0DADADADADADAADADADADADADADAD}
+    TabOrder = 3
+    OnClick = BTN_FontClick
   end
   object BTN_Color: TBitBtn
     Left = 123
@@ -461,8 +467,6 @@ object Form_Defaults: TForm_Defaults
     Height = 25
     Hint = 'Change background color'
     Caption = 'BG &Color'
-    TabOrder = 4
-    OnClick = BTN_ColorClick
     Glyph.Data = {
       36030000424D3603000000000000360000002800000010000000100000000100
       18000000000000030000000000000000000000000000000000009F609F3F003F
@@ -490,6 +494,8 @@ object Form_Defaults: TForm_Defaults
       7F7FFF7F7FFF7F7FFF7F7FFF7F7FFF7FFFFF7FFFFF7FFFFF7FFFFF7FFFFF7FFF
       FF7FFFFF3FBFBF000000CFCFCF9F9FDF9F9FDF9F9FDF9F9FDF9F9FDF9F9FDF9F
       DFDF9FDFDF9FDFDF9FDFDF9FDFDF9FDFDF9FDFDF9FDFDF609F9F}
+    TabOrder = 4
+    OnClick = BTN_ColorClick
   end
   object BTN_Defaults: TBitBtn
     Left = 218
@@ -498,8 +504,6 @@ object Form_Defaults: TForm_Defaults
     Height = 25
     Hint = 'Reset factory default fonts and colors'
     Caption = '&Reset'
-    TabOrder = 5
-    OnClick = BTN_DefaultsClick
     Glyph.Data = {
       F6000000424DF600000000000000760000002800000010000000100000000100
       0400000000008000000000000000000000001000000010000000000000000000
@@ -509,8 +513,10 @@ object Form_Defaults: TForm_Defaults
       7777777777777778477777444447777748777744447777777477774447777777
       7477774474777777747777477744777748777777777744448777777777777777
       7777777777777777777777777777777777777777777777777777}
+    TabOrder = 5
+    OnClick = BTN_DefaultsClick
   end
-  object Edit_Sample: TTntEdit
+  object Edit_Sample: TEdit
     Left = 28
     Top = 304
     Width = 281
@@ -518,7 +524,7 @@ object Form_Defaults: TForm_Defaults
     MaxLength = 127
     TabOrder = 6
   end
-  object Button_Help: TTntButton
+  object Button_Help: TButton
     Left = 246
     Top = 360
     Width = 75

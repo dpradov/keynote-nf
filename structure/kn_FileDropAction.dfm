@@ -3,8 +3,8 @@ object Form_DropFile: TForm_DropFile
   Top = 312
   BorderStyle = bsDialog
   Caption = 'Select import method'
-  ClientHeight = 167
-  ClientWidth = 351
+  ClientHeight = 166
+  ClientWidth = 347
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,13 +12,11 @@ object Form_DropFile: TForm_DropFile
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 10
     Top = 134
     Width = 75
@@ -28,7 +26,7 @@ object Form_DropFile: TForm_DropFile
     ModalResult = 1
     TabOrder = 1
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 90
     Top = 134
     Width = 75
@@ -41,18 +39,18 @@ object Form_DropFile: TForm_DropFile
   object PagesImp: TNotebook
     Left = 0
     Top = 0
-    Width = 351
+    Width = 347
     Height = 126
     Align = alTop
     PageIndex = 1
     TabOrder = 0
+    ExplicitWidth = 351
     object PAGE_METHOD: TPage
       Left = 0
       Top = 0
       Caption = 'PAGE_METHOD'
       ExplicitWidth = 304
-      ExplicitHeight = 0
-      object RG_Action: TTntRadioGroup
+      object RG_Action: TRadioGroup
         Left = 8
         Top = 5
         Width = 334
@@ -77,7 +75,7 @@ object Form_DropFile: TForm_DropFile
       end
     end
   end
-  object Btn_HTML: TTntButton
+  object Btn_HTML: TButton
     Left = 236
     Top = 134
     Width = 110

@@ -1,24 +1,36 @@
 unit kn_INI;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
-uses kn_Info, kn_Const, RxRichEd,
-     gf_misc, gf_files, IniFiles;
+uses
+   Winapi.Windows,
+   System.SysUtils,
+   System.RTLConsts,
+   System.IniFiles,
+   Vcl.Forms,
+   Vcl.Graphics,
+   Vcl.Menus,
+   RxRichEd,
+   gf_misc,
+   gf_files,
+   kn_Info,
+   kn_Const;
+
 
 procedure LoadKeyNoteOptions(
     const INIFileName : string;
@@ -808,7 +820,10 @@ const
 
 
 implementation
-uses Windows, Forms, SysUtils, Graphics, Menus, kn_NoteObj, RTLConsts, TntSysUtils;
+uses
+  kn_Global,
+  kn_NoteObj;
+
 
 resourcestring
   STR_INIMail_01 = 'Attached file: %F';
@@ -1126,10 +1141,12 @@ procedure SaveKeyNoteOptions(
     const ResPanelOptions : TResPanelOptions
   );
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   section : string;
 begin
-  IniFile := TWMemIniFile.Create( INIFileName );
+
+  IniFile := TMemIniFile.Create( INIFileName );
+
   try
     with IniFile do
     begin
@@ -1147,7 +1164,7 @@ begin
       writeinteger( section, KeyOptionsIniStr.AutoSaveOnTimerInt, KeyOptions.AutoSaveOnTimerInt );
       writebool( section, KeyOptionsIniStr.Backup, KeyOptions.Backup );
       writebool( section, KeyOptionsIniStr.BackupAppendExt, KeyOptions.BackupAppendExt );
-      writestringW( section, KeyOptionsIniStr.BackupDir, KeyOptions.BackupDir );
+      writestring( section, KeyOptionsIniStr.BackupDir, KeyOptions.BackupDir );
       writestring( section, KeyOptionsIniStr.BackupExt, KeyOptions.BackupExt );
       writebool( section, KeyOptionsIniStr.BackupVNodes, KeyOptions.BackupVNodes );
       writebool( section, KeyOptionsIniStr.BackupRegularIntervals, KeyOptions.BackupRegularIntervals );
@@ -1187,13 +1204,13 @@ begin
       writebool( section, KeyOptionsIniStr.InsCharFullSet, KeyOptions.InsCharFullSet );
       writebool( section, KeyOptionsIniStr.InsCharKeepFont, KeyOptions.InsCharKeepFont );
       writebool( section, KeyOptionsIniStr.InsCharWinClose, KeyOptions.InsCharWinClose );
-      writestringW( section, KeyOptionsIniStr.LanguageUI, KeyOptions.LanguageUI );
-      writestringW( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );
-      writestringW( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
+      writestring( section, KeyOptionsIniStr.LanguageUI, KeyOptions.LanguageUI );
+      writestring( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );
+      writestring( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
       writeinteger( section, KeyOptionsIniStr.LastExportFormat, ord( KeyOptions.LastExportFormat ));
       writebool( section, KeyOptionsIniStr.LastExportAsk, KeyOptions.LastExportAsk );
-      writestringW( section, KeyOptionsIniStr.LastFile, WideExtractRelativePath(Application.ExeName, KeyOptions.LastFile) );
-      writestringW( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
+      writestring( section, KeyOptionsIniStr.LastFile, ExtractRelativePath(Application.ExeName, KeyOptions.LastFile) );
+      writestring( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
       writeinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering ));
       writeinteger( section, KeyOptionsIniStr.LastNumberingStyle, integer(KeyOptions.LastNumberingStyle));
       writestring( section, KeyOptionsIniStr.LastVersion, Program_Version_Number ); // always write current version
@@ -1210,7 +1227,7 @@ begin
       writebool( section, KeyOptionsIniStr.MRUFullPaths, KeyOptions.MRUFullPaths );
       writebool( section, KeyOptionsIniStr.MRUSubmenu, KeyOptions.MRUSubmenu );
       writebool( section, KeyOptionsIniStr.MRUUse, KeyOptions.MRUUse );
-      writestringW( section, KeyOptionsIniStr.NodeNameHistory, '"' + KeyOptions.NodeNameHistory + '"' );
+      writestring( section, KeyOptionsIniStr.NodeNameHistory, '"' + KeyOptions.NodeNameHistory + '"' );
       writebool( section, KeyOptionsIniStr.NoRegistry, KeyOptions.NoRegistry );
       writebool( section, KeyOptionsIniStr.OpenFloppyReadOnly, KeyOptions.OpenFloppyReadOnly );
       writebool( section, KeyOptionsIniStr.OpenNetworkReadOnly, KeyOptions.OpenNetworkReadOnly );
@@ -1238,7 +1255,7 @@ begin
       writeinteger( section, KeyOptionsIniStr.StatBarDlbClkActionShft, KeyOptions.StatBarDlbClkActionShft );
       writebool( section, KeyOptionsIniStr.StatBarShow, KeyOptions.StatBarShow );
       writebool( section, KeyOptionsIniStr.StyleShowSamples, KeyOptions.StyleShowSamples );
-      writestringW( section, KeyOptionsIniStr.TabNameHistory, '"' + KeyOptions.TabNameHistory + '"' );
+      writestring( section, KeyOptionsIniStr.TabNameHistory, '"' + KeyOptions.TabNameHistory + '"' );
       writestring( section, KeyOptionsIniStr.TimeFmt, KeyOptions.TimeFmt );
 
       writebool( section, KeyOptionsIniStr.TimerMinimize, KeyOptions.TimerMinimize );
@@ -1260,7 +1277,7 @@ begin
       writebool( section, KeyOptionsIniStr.UASEnable, KeyOptions.UASEnable );
       writestring( section, KeyOptionsIniStr.UASPath, KeyOptions.UASPath );
       writeinteger( section, KeyOptionsIniStr.URLAction, ord( KeyOptions.URLAction ));
-      writestringW( section, KeyOptionsIniStr.URLAltBrowserPath, KeyOptions.URLAltBrowserPath );
+      writestring( section, KeyOptionsIniStr.URLAltBrowserPath, KeyOptions.URLAltBrowserPath );
       writebool( section, KeyOptionsIniStr.URLFileAuto, KeyOptions.URLFileAuto );
       writebool( section, KeyOptionsIniStr.URLFileDecodeSpaces, KeyOptions.URLFileDecodeSpaces );
       writebool( section, KeyOptionsIniStr.URLFileNoPrefix, KeyOptions.URLFileNoPrefix );
@@ -1270,7 +1287,7 @@ begin
       writebool( section, KeyOptionsIniStr.UseOldColorDlg, KeyOptions.UseOldColorDlg );
       writebool( section, KeyOptionsIniStr.UseOldFileFormat, KeyOptions.UseOldFileFormat );
       writebool( section, KeyOptionsIniStr.UseTray, KeyOptions.UseTray );
-      writestringW( section, KeyOptionsIniStr.UserFile, WideExtractRelativePath(Application.ExeName, KeyOptions.UserFile) );
+      writestring( section, KeyOptionsIniStr.UserFile, ExtractRelativePath(Application.ExeName, KeyOptions.UserFile) );
 
       section := EditorOptionsIniStr.section;
       writebool( section, EditorOptionsIniStr.AutoIndent, EditorOptions.AutoIndent );
@@ -1359,11 +1376,11 @@ begin
       writebool( section, FindOptionsIniStr.AllTabs, FindOptions.AllTabs );
       writebool( section, FindOptionsIniStr.AutoClose, FindOptions.AutoClose );
       writebool( section, FindOptionsIniStr.EntireScope, FindOptions.EntireScope );
-      writestringW( section, FindOptionsIniStr.FindAllHistory, '"' + FindOptions.FindAllHistory + '"' );
-      writestringW( section, FindOptionsIniStr.History, '"' + FindOptions.History + '"' );
+      writestring( section, FindOptionsIniStr.FindAllHistory, '"' + FindOptions.FindAllHistory + '"' );
+      writestring( section, FindOptionsIniStr.History, '"' + FindOptions.History + '"' );
       writeinteger( section, FindOptionsIniStr.HistoryMaxCnt, FindOptions.HistoryMaxCnt );
       writebool( section, FindOptionsIniStr.ReplaceConfirm, FindOptions.ReplaceConfirm );
-      writestringW( section, FindOptionsIniStr.ReplaceHistory, '"' + FindOptions.ReplaceHistory + '"' );
+      writestring( section, FindOptionsIniStr.ReplaceHistory, '"' + FindOptions.ReplaceHistory + '"' );
       writebool( section, FindOptionsIniStr.MatchCase, FindOptions.MatchCase );
       writebool( section, FindOptionsIniStr.WholeWordsOnly, FindOptions.WholeWordsOnly );
       writebool( section, FindOptionsIniStr.WordAtCursor, FindOptions.WordAtCursor );
@@ -1403,12 +1420,12 @@ procedure LoadKeyNoteOptions(
     var ResPanelOptions : TResPanelOptions
   );
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   section : string;
   i : integer;
 begin
 
-  IniFile := TWMemIniFile.Create( INIFileName);
+  IniFile := TMemIniFile.Create( INIFileName);
   try
     with IniFile do
     begin
@@ -1425,7 +1442,7 @@ begin
       KeyOptions.AutoSaveOnTimerInt := readinteger( section, KeyOptionsIniStr.AutoSaveOnTimerInt, KeyOptions.AutoSaveOnTimerInt );
       KeyOptions.Backup := readbool( section, KeyOptionsIniStr.Backup, KeyOptions.Backup );
       KeyOptions.BackupAppendExt := readbool( section, KeyOptionsIniStr.BackupAppendExt, KeyOptions.BackupAppendExt );
-      KeyOptions.BackupDir := readstringW( section, KeyOptionsIniStr.BackupDir, KeyOptions.BackupDir );
+      KeyOptions.BackupDir := readstring( section, KeyOptionsIniStr.BackupDir, KeyOptions.BackupDir );
       KeyOptions.BackupExt := readstring( section, KeyOptionsIniStr.BackupExt, KeyOptions.BackupExt );
       KeyOptions.BackupLevel := readinteger( section, KeyOptionsIniStr.BackupLevel, KeyOptions.BackupLevel );
       KeyOptions.BackupVNodes := readbool( section, KeyOptionsIniStr.BackupVNodes, KeyOptions.BackupVNodes );
@@ -1483,10 +1500,10 @@ begin
       KeyOptions.InsCharFullSet := readbool( section, KeyOptionsIniStr.InsCharFullSet, KeyOptions.InsCharFullSet );
       KeyOptions.InsCharKeepFont := readbool( section, KeyOptionsIniStr.InsCharKeepFont, KeyOptions.InsCharKeepFont );
       KeyOptions.InsCharWinClose := readbool( section, KeyOptionsIniStr.InsCharWinClose, KeyOptions.InsCharWinClose );
-      KeyOptions.LanguageUI := readstringW( section, KeyOptionsIniStr.LanguageUI, KeyOptions.LanguageUI );
-      KeyOptions.LastCopyPath := readstringW( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );
+      KeyOptions.LanguageUI := readstring( section, KeyOptionsIniStr.LanguageUI, KeyOptions.LanguageUI );
+      KeyOptions.LastCopyPath := readstring( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );
 
-      KeyOptions.LastExportPath := readstringW( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
+      KeyOptions.LastExportPath := readstring( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
       KeyOptions.LastExportAsk := readbool( section, KeyOptionsIniStr.LastExportAsk, KeyOptions.LastExportAsk );
 
       i := readinteger( section, KeyOptionsIniStr.LastExportFormat, ord( KeyOptions.LastExportFormat ));
@@ -1495,8 +1512,8 @@ begin
       else
         KeyOptions.LastExportFormat := TExportFmt( i );
 
-      KeyOptions.LastFile := NormalFN( readstringW( section, KeyOptionsIniStr.LastFile, KeyOptions.LastFile ));
-      KeyOptions.LastImportPath := readstringW( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
+      KeyOptions.LastFile := NormalFN( readstring( section, KeyOptionsIniStr.LastFile, KeyOptions.LastFile ));
+      KeyOptions.LastImportPath := readstring( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
       KeyOptions.LastNumbering := TRxNumbering( readinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering )));
       KeyOptions.LastNumberingStyle := TRxNumberingStyle( readinteger( section, KeyOptionsIniStr.LastNumberingStyle, integer(KeyOptions.LastNumberingStyle)));
       KeyOptions.LastVersion := readstring( section, KeyOptionsIniStr.LastVersion, KeyOptions.LastVersion );
@@ -1511,7 +1528,7 @@ begin
       KeyOptions.MRUFullPaths := readbool( section, KeyOptionsIniStr.MRUFullPaths, KeyOptions.MRUFullPaths );
       KeyOptions.MRUSubmenu := readbool( section, KeyOptionsIniStr.MRUSubmenu, KeyOptions.MRUSubmenu );
       KeyOptions.MRUUse := readbool( section, KeyOptionsIniStr.MRUUse, KeyOptions.MRUUse );
-      KeyOptions.NodeNameHistory := readstringW( section, KeyOptionsIniStr.NodeNameHistory, KeyOptions.NodeNameHistory );
+      KeyOptions.NodeNameHistory := readstring( section, KeyOptionsIniStr.NodeNameHistory, KeyOptions.NodeNameHistory );
       KeyOptions.NoRegistry := readbool( section, KeyOptionsIniStr.NoRegistry, KeyOptions.NoRegistry );
       KeyOptions.OpenFloppyReadOnly := readbool( section, KeyOptionsIniStr.OpenFloppyReadOnly, KeyOptions.OpenFloppyReadOnly );
       KeyOptions.OpenNetworkReadOnly := readbool( section, KeyOptionsIniStr.OpenNetworkReadOnly, KeyOptions.OpenNetworkReadOnly );
@@ -1543,7 +1560,7 @@ begin
       KeyOptions.StatBarDlbClkActionShft := readinteger( section, KeyOptionsIniStr.StatBarDlbClkActionShft, KeyOptions.StatBarDlbClkActionShft );
       KeyOptions.StatBarShow := readbool( section, KeyOptionsIniStr.StatBarShow, KeyOptions.StatBarShow );
       KeyOptions.StyleShowSamples := readbool( section, KeyOptionsIniStr.StyleShowSamples, KeyOptions.StyleShowSamples );
-      KeyOptions.TabNameHistory := readstringW( section, KeyOptionsIniStr.TabNameHistory, KeyOptions.TabNameHistory );
+      KeyOptions.TabNameHistory := readstring( section, KeyOptionsIniStr.TabNameHistory, KeyOptions.TabNameHistory );
       KeyOptions.TimeFmt := readstring( section, KeyOptionsIniStr.TimeFmt, KeyOptions.TimeFmt );
 
       KeyOptions.TimerMinimize := readbool( section, KeyOptionsIniStr.TimerMinimize, KeyOptions.TimerMinimize );
@@ -1570,7 +1587,7 @@ begin
       KeyOptions.UASEnable := readbool( section, KeyOptionsIniStr.UASEnable, KeyOptions.UASEnable );
       KeyOptions.UASPath := readstring( section, KeyOptionsIniStr.UASPath, KeyOptions.UASPath );
       KeyOptions.URLAction := TURLAction( readinteger( section, KeyOptionsIniStr.URLAction, ord( KeyOptions.URLAction )));
-      KeyOptions.URLAltBrowserPath := readstringW( section, KeyOptionsIniStr.URLAltBrowserPath, KeyOptions.URLAltBrowserPath );
+      KeyOptions.URLAltBrowserPath := readstring( section, KeyOptionsIniStr.URLAltBrowserPath, KeyOptions.URLAltBrowserPath );
       KeyOptions.URLFileAuto := readbool( section, KeyOptionsIniStr.URLFileAuto, KeyOptions.URLFileAuto );
       KeyOptions.URLFileDecodeSpaces := readbool( section, KeyOptionsIniStr.URLFileDecodeSpaces, KeyOptions.URLFileDecodeSpaces );
       KeyOptions.URLFileNoPrefix := readbool( section, KeyOptionsIniStr.URLFileNoPrefix, KeyOptions.URLFileNoPrefix );
@@ -1583,7 +1600,7 @@ begin
       _USE_OLD_KEYNOTE_FILE_FORMAT := ( _USE_OLD_KEYNOTE_FILE_FORMAT or KeyOptions.UseOldFileFormat );
 
       KeyOptions.UseTray := readbool( section, KeyOptionsIniStr.UseTray, KeyOptions.UseTray );
-      KeyOptions.UserFile := NormalFN( readstringW( section, KeyOptionsIniStr.UserFile, KeyOptions.UserFile ));
+      KeyOptions.UserFile := NormalFN( readstring( section, KeyOptionsIniStr.UserFile, KeyOptions.UserFile ));
 
       KeyOptions.ZoomIncrement := readinteger( section, KeyOptionsIniStr.ZoomIncrement, KeyOptions.ZoomIncrement );
 
@@ -1672,7 +1689,7 @@ begin
         except
           FColor := clWindowText;
         end;
-        FName := readstring( section, FontPropertiesIniStr.FName, FName );
+        FName := ShortString(readstring( section, FontPropertiesIniStr.FName, FName));
         FSize := readinteger( section, FontPropertiesIniStr.FSize, FSize );
         FStyle := StrToFontStyle( readstring( section, FontPropertiesIniStr.FStyle, '' ));
       end;
@@ -1704,11 +1721,11 @@ begin
       FindOptions.AllTabs := readbool( section, FindOptionsIniStr.AllTabs, FindOptions.AllTabs );
       FindOptions.AutoClose := readbool( section, FindOptionsIniStr.AutoClose, FindOptions.AutoClose );
       FindOptions.EntireScope := readbool( section, FindOptionsIniStr.EntireScope, FindOptions.EntireScope );
-      FindOptions.FindAllHistory := readstringW( section, FindOptionsIniStr.FindAllHistory, FindOptions.FindAllHistory );
-      FindOptions.History := readstringW( section, FindOptionsIniStr.History, FindOptions.History );
+      FindOptions.FindAllHistory := readstring( section, FindOptionsIniStr.FindAllHistory, FindOptions.FindAllHistory );
+      FindOptions.History := readstring( section, FindOptionsIniStr.History, FindOptions.History );
       FindOptions.HistoryMaxCnt := readinteger( section, FindOptionsIniStr.HistoryMaxCnt, FindOptions.HistoryMaxCnt );
       FindOptions.ReplaceConfirm := readbool( section, FindOptionsIniStr.ReplaceConfirm, FindOptions.ReplaceConfirm );
-      FindOptions.ReplaceHistory := readstringW( section, FindOptionsIniStr.ReplaceHistory, FindOptions.ReplaceHistory );
+      FindOptions.ReplaceHistory := readstring( section, FindOptionsIniStr.ReplaceHistory, FindOptions.ReplaceHistory );
       FindOptions.MatchCase := readbool( section, FindOptionsIniStr.MatchCase, FindOptions.MatchCase );
       FindOptions.WholeWordsOnly := readbool( section, FindOptionsIniStr.WholeWordsOnly, FindOptions.WholeWordsOnly );
       FindOptions.WordAtCursor := readbool( section, FindOptionsIniStr.WordAtCursor, FindOptions.WordAtCursor );
@@ -1795,11 +1812,11 @@ procedure SaveKeyNoteDefaults(
   const DefaultTreeChrome : TChrome
   );
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   section : string;
 begin
 
-  IniFile := TWMemIniFile.Create( INIFileName );
+  IniFile := TMemIniFile.Create( INIFileName );
   try
     with IniFile do
     begin
@@ -1827,11 +1844,11 @@ begin
 
       section := NoteTabPropertiesIniStr.section;
       writeinteger( section, NoteTabPropertiesIniStr.ImageIndex, DefaultTabProperties.ImageIndex );
-      writestringW( section, NoteTabPropertiesIniStr.Name, DefaultTabProperties.Name );
+      writestring( section, NoteTabPropertiesIniStr.Name, DefaultTabProperties.Name );
 
 
       section := NoteTreePropertiesIniStr.section;
-      writestringW( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );
+      writestring( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );
       writebool( section, NoteTreePropertiesIniStr.ShowCheckBoxes, DefaultTreeProperties.CheckBoxes );
       writeinteger( section, NoteTreePropertiesIniStr.IconKind, ord( DefaultTreeProperties.IconKind ));
       writebool( section, NoteTreePropertiesIniStr.AutoNumberNodes, DefaultTreeProperties.AutoNumberNodes );
@@ -1871,11 +1888,11 @@ procedure LoadKeyNoteDefaults(
   var DefaultTreeChrome : TChrome
   );
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   section : string;
 begin
 
-  IniFile := TWMemIniFile.Create( INIFileName );
+  IniFile := TMemIniFile.Create( INIFileName );
   try
     with IniFile do
     begin
@@ -1922,7 +1939,7 @@ begin
 
       section := NoteTabPropertiesIniStr.section;
       DefaultTabProperties.ImageIndex := readinteger( section, NoteTabPropertiesIniStr.ImageIndex, DefaultTabProperties.ImageIndex );
-      DefaultTabProperties.Name := readstringW( section, NoteTabPropertiesIniStr.Name, DefaultTabProperties.Name );
+      DefaultTabProperties.Name := readstring( section, NoteTabPropertiesIniStr.Name, DefaultTabProperties.Name );
 
       section := NoteEditorPropertiesIniStr.section;
       DefaultEditorProperties.PlainText := readbool( section, NoteEditorPropertiesIniStr.PlainText, DefaultEditorProperties.PlainText );
@@ -1932,7 +1949,7 @@ begin
       DefaultEditorProperties.WordWrap := readbool( section, NoteEditorPropertiesIniStr.WordWrap, DefaultEditorProperties.WordWrap );
 
       section := NoteTreePropertiesIniStr.section;
-      DefaultTreeProperties.DefaultName := readstringW( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );
+      DefaultTreeProperties.DefaultName := readstring( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );
       DefaultTreeProperties.CheckBoxes := readbool( section, NoteTreePropertiesIniStr.ShowCheckBoxes, DefaultTreeProperties.CheckBoxes );
       DefaultTreeProperties.AutoNumberNodes := readbool( section, NoteTreePropertiesIniStr.AutoNumberNodes, DefaultTreeProperties.AutoNumberNodes );
       DefaultTreeProperties.IconKind := TNodeIconKind( readinteger( section, NoteTreePropertiesIniStr.IconKind, ord( DefaultTreeProperties.IconKind )));

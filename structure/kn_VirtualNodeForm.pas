@@ -19,9 +19,20 @@ unit kn_VirtualNodeForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, Mask, ToolEdit,
-  gf_misc, gf_files, kn_Info, kn_Const;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.Mask,
+   RxToolEdit,
+   gf_misc,
+   kn_Info,
+   kn_Const;
 
 type
   TForm_VNode = class(TForm)
@@ -69,7 +80,7 @@ procedure TForm_VNode.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   if ( myNodeName <> '' ) then
-    Caption := WideFormat( 'Virtual node: "%s"', [myNodeName] )
+    Caption := Format( 'Virtual node: "%s"', [myNodeName] )
   else
     Caption := 'Create a virtual node';
 

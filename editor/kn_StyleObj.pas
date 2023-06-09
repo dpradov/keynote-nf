@@ -1,43 +1,51 @@
 unit kn_StyleObj;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
-uses Classes, Forms, RxRichEd,
-  Graphics, SysUtils, IniFiles, WideStrings,
-  Dialogs, gf_misc, gf_files, kn_INI,
-  kn_Const, kn_Info;
+uses
+   System.Classes,
+   System.SysUtils,
+   System.IniFiles,
+   Vcl.Forms,
+   Vcl.Graphics,
+   Vcl.Dialogs,
+   RxRichEd,
+   gf_misc,
+   kn_INI,
+   kn_Const,
+   kn_Info;
 
 
 type
   TStyle = class( TObject )
-    Name : TNoteNameStr;
-    Range : TStyleRange;
-    Font : TFontInfo;
-    Para : TParaInfo;
-    Text : TTextInfo;
+     Name : TNoteNameStr;
+     Range : TStyleRange;
+     Font : TFontInfo;
+     Para : TParaInfo;
+     Text : TTextInfo;
 
-    function FontInfoToStr( const short : boolean ) : string;
-    function ParaInfoToStr( const short : boolean ) : string;
-
+     function FontInfoToStr( const short : boolean ) : string;
+     function ParaInfoToStr( const short : boolean ) : string;
   end;
 
 var
-  StyleManager : TWideStringList;
+  StyleManager : TStringList;
+
 
 function SaveStyleManagerInfo( FN : string ) : boolean;
 function LoadStyleManagerInfo( FN : string ) : boolean;
@@ -50,6 +58,7 @@ function LineSpacingRuleToStr( const lsr : TLineSpacingRule ) : string;
 function LineSpacingToStr( const spc : integer ) : string;
 function SubscriptStyleToStr( const ssStyle : TSubscriptStyle ) : string;
 function TextInfoToStr( const ti : TTextInfo ) : string;
+
 
 implementation
 
@@ -148,7 +157,7 @@ end; // ClearStyleManager
 function SaveStyleManagerInfo( FN : string ) : boolean;
 var
   style : TStyle;
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   i, cnt : integer;
   section : string;
 begin
@@ -161,7 +170,7 @@ begin
 
   deletefile( FN ); // better this than removing sections one at a time
 
-  IniFile := TWMemIniFile.Create( fn );
+  IniFile := TMemIniFile.Create( fn );
   cnt := 0;
 
   try
@@ -175,7 +184,7 @@ begin
           begin
             inc( cnt );
             section := inttostr( cnt );
-            writestringW( section, 'Name', Style.Name );
+            writestring( section, 'Name', Style.Name );
             writeinteger( section, 'Range', ord( Style.Range ));
 
             if ( Style.Range in [srFont, srBoth] ) then
@@ -228,10 +237,10 @@ end; // SaveStyleManagerInfo
 
 function LoadStyleManagerInfo( FN : string ) : boolean;
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   i, r : integer;
   Style : TStyle;
-  s, section : WideString;
+  s, section : string;
   sections : TStringList;
   DropStyle : boolean;
 begin
@@ -245,9 +254,9 @@ begin
   FN := normalFN( FN );
   if ( not fileexists( FN )) then exit;
 
-  ClearStyleManager;   
+  ClearStyleManager;
 
-  IniFile := TWMemIniFile.Create( fn );
+  IniFile := TMemIniFile.Create( fn );
   sections := TStringList.Create;
 
   StyleManager.BeginUpdate;
@@ -261,7 +270,7 @@ begin
           try
             DropStyle := false;
             section := sections[i];
-            s := readstringW( section, 'Name', '' );
+            s := readstring( section, 'Name', '' );
             if ( s = '' ) then continue; // no style name, ignore
 
             Style := TStyle.Create;
@@ -450,7 +459,7 @@ begin
 end;
 
 Initialization
-  StyleManager := TWideStringList.Create;
+  StyleManager := TStringList.Create;
   StyleManager.Sorted := true;
   StyleManager.Duplicates := dupIgnore;
 

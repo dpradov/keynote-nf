@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{B84E2FE3-F5B5-4D17-9E56-A7C3E767839E}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
+      <Projects Name="RtmRxCtl100C.bpl">RtmRxCtl100C.bdsproj</Projects>
+      <Projects Name="DclRxCtl100C.bpl">DclRxCtl100C.bdsproj</Projects>
+      <Projects Name="RtmRxDB100C.bpl">RtmRxDB100C.bdsproj</Projects>
+      <Projects Name="DclRxDB100C.bpl">DclRxDB100C.bdsproj</Projects>
+      <Projects Name="RtmRxBde100C.bpl">RtmRxBde100C.bdsproj</Projects>
+      <Projects Name="DclRxBde100C.bpl">DclRxBde100C.bdsproj</Projects>
+      <Projects Name="Targets">RtmRxCtl100C.bpl DclRxCtl100C.bpl RtmRxDB100C.bpl DclRxDB100C.bpl RtmRxBde100C.bpl DclRxBde100C.bpl</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+	<StarTeamAssociation></StarTeamAssociation>
+	<StarTeamNonRelativeFiles></StarTeamNonRelativeFiles>
+</BorlandProject>

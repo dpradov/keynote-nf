@@ -7,8 +7,8 @@ unit dll_Keyboard;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
@@ -16,9 +16,15 @@ unit dll_Keyboard;
  *****************************************************************************) 
 
 interface
-uses Forms, Classes, Windows, Menus,
-  Dialogs, SysUtils, gf_misc,
-  gf_strings, IniFiles;
+uses
+   Winapi.Windows,
+   System.Classes,
+   System.SysUtils,
+   System.IniFiles,
+   Vcl.Forms,
+   Vcl.Menus,
+   Vcl.Dialogs,
+   gf_strings;
 
 type
   TKeyMenuCategory = (
@@ -43,12 +49,13 @@ type
   TMenuString = string[127];
   TKeyMenuItem = class( TObject )
     Name : TMenuString;
-    Caption : TMenuString;
-    Hint : TMenuString;
+    Caption : string;
+    Hint : string;
     Shortcut : TShortCut;
     Category : TKeyMenuCategory;
-    Path: String;
+    Path: string;
   end;
+
 
 procedure BuildKeyboardList( const KeyCustomMenus : TKeyCustomMenus; const MenuList : TList );
 
@@ -56,8 +63,8 @@ function CompareKeyItemsByPath( item1, item2 : pointer ) : integer;
 function CompareKeyItemsByCaption( item1, item2 : pointer ) : integer;
 
 procedure SaveKeyboardList( const FN : string; const MenuList : TList );
-
 procedure ListKeyboardShortcuts( const FN : string; const IncludeUnassigned : boolean; const MenuList : TList );
+
 
 implementation
 
@@ -76,6 +83,7 @@ begin
       result := -1;
   end;
 end; // CompareKeyItemsByName
+
 
 function CompareKeyItemsByCaption( item1, item2 : pointer ) : integer;
 var
@@ -103,16 +111,15 @@ begin
     ( aItem.Caption <> '-' ) and
     ( aItem.Name <> '' ) and
     ( aItem.Name[length( aItem.Name )] <> '_' ));
-end; // IsValidMenuItem
+end;
 
-function GetParentCaption( aItem : TMenuItem ) : TMenuString;
+function GetParentCaption( aItem : TMenuItem ) : string;
 begin
   while assigned( aItem.Parent ) do
-  begin
     aItem := aItem.Parent;
-  end;
+
   result := aItem.Name;
-end; // GetParentCaption
+end;
 
 procedure ListMenuItems( const Path: string; const StartItem : TMenuItem; const MenuCategory : TKeyMenuCategory; const MenuList : TList );
 var
@@ -126,7 +133,7 @@ begin
   if ( cnt = 0 ) then begin
       if IsValidMenuItem( StartItem ) then begin
           KeyMenuItem := TKeyMenuItem.Create;
-          KeyMenuItem.Name := StartItem.Name;
+          KeyMenuItem.Name := TMenuString(StartItem.Name);
           KeyMenuItem.Caption := RemoveAccelChar( StartItem.Caption );
           KeyMenuItem.Path := KeyMenuItem.Caption;
           if Path <> '' then
@@ -157,8 +164,7 @@ var
   i, cnt : integer;
 begin
 
-  for thisMenu := low( thisMenu ) to high( thisMenu ) do
-  begin
+  for thisMenu := low( thisMenu ) to high( thisMenu ) do begin
     myMenuObj := TMainMenu( KeyCustomMenus[thisMenu] );
 
     cnt := myMenuObj.Items.Count;
@@ -168,6 +174,7 @@ begin
   end;
 
 end; // BuildKeyboardList
+
 
 procedure SaveKeyboardList( const FN : string; const MenuList : TList );
 var
@@ -179,24 +186,22 @@ begin
   try
     try
       cnt := MenuList.Count;
-      with IniFile do
-      begin
-        for i := 1 to cnt do
-        begin
-          myItem := TKeyMenuItem( MenuList.Items[pred( i )] );
+      with IniFile do begin
+         for i := 1 to cnt do begin
+            myItem := TKeyMenuItem( MenuList.Items[pred( i )] );
 
-          if assigned( myItem ) then
-            writeinteger( KeyboardConfigSections[myItem.Category], myItem.Name, myItem.Shortcut );
-
-        end;
-
+            if assigned( myItem ) then
+               WriteInteger( KeyboardConfigSections[myItem.Category], myItem.Name, myItem.Shortcut );
+         end;
       end;
+
     except
     end;
   finally
     IniFile.Free;
   end;
 end; // SaveKeyboardList
+
 
 procedure ListKeyboardShortcuts( const FN : string; const IncludeUnassigned : boolean; const MenuList : TList );
 const

@@ -1,0 +1,15 @@
+brcc32.exe -r RxCalc.rc
+brcc32.exe -r RxCalcEditDlg.rc
+brcc32.exe -r RxCombos.rc
+brcc32.exe -r RxConst.rc
+brcc32.exe -r RxCtrls.rc
+brcc32.exe -r RxCurrEdit.rc
+brcc32.exe -r RxDBCtrl.rc
+brcc32.exe -r RxDice.rc
+brcc32.exe -r RxPickDate.rc
+brcc32.exe -r RxPluginWizard.rc
+brcc32.exe -r RxResExp.rc
+brcc32.exe -r RxSlider.rc
+brcc32.exe -r RxSpin.rc
+brcc32.exe -r RxSwitch.rc
+brcc32.exe -r RxToolEdit.rc

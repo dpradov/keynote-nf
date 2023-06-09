@@ -1,54 +1,66 @@
 unit kn_about;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, StdCtrls, Buttons, Menus,
-  Clipbrd, ShellAPI, kn_Info,
-  gf_misc, kn_NoteObj, TntMenus, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.ShellAPI,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.ExtCtrls,
+   Vcl.StdCtrls,
+   Vcl.Buttons,
+   Vcl.Menus,
+   Vcl.Clipbrd,
+   RxRichEd,
+   kn_const,
+   kn_Info,
+   kn_NoteObj;
+
 
 type
   TAboutBox = class(TForm)
     BTN_Close: TSpeedButton;
-    NetMenu: TTntPopupMenu;
-    CopyEmailaddress1: TTntMenuItem;
-    CopyuWebURL1: TTntMenuItem;
-    N1: TTntMenuItem;
-    Cancel1: TTntMenuItem;
+    NetMenu: TPopupMenu;
+    CopyEmailaddress1: TMenuItem;
+    CopyuWebURL1: TMenuItem;
+    N1: TMenuItem;
+    Cancel1: TMenuItem;
     Panel_Main: TPanel;
-    Label_Name: TTntLabel;
-    Label_Desc: TTntLabel;
-    Label_License: TTntLabel;
-    Label9: TTntLabel;
-    Label11: TTntLabel;
+    Label_Name: TLabel;
+    Label_Desc: TLabel;
+    Label_License: TLabel;
+    Label9: TLabel;
+    Label11: TLabel;
     Label_URL: TLabel;
     Label_MAILTO: TLabel;
-    Label_Dart: TTntLabel;
+    Label_Dart: TLabel;
     Image1: TImage;
-    LB_RichEditVer: TTntLabel;
-    Label_Credit2: TTntLabel;
-    Label_Credit1: TTntLabel;
-    Label3: TTntLabel;
-    Label4: TTntLabel;
+    LB_RichEditVer: TLabel;
+    Label_Credit2: TLabel;
+    Label_Credit1: TLabel;
     Label_MAILTO2: TLabel;
-    Label6: TTntLabel;
+    Label6: TLabel;
     Label_Version: TLabel;
     Image_Program: TImage;
     Label_Version_Date: TLabel;
@@ -74,7 +86,8 @@ type
 
 
 implementation
-uses RxRichEd, kn_const, kn_Main;
+uses
+   kn_Main;
 
 {$R *.DFM}
 
@@ -89,8 +102,11 @@ end;
 procedure TAboutBox.FormCreate(Sender: TObject);
 var
   nameDLL, pathDLL: string;
+  VersionDLL: Single;
+  VersionRichEdit: TRichEditVersion;
+  
   Icon: TIcon;
-
+  
 begin
 
   if TahomaFontInstalled then
@@ -106,13 +122,14 @@ begin
   Label_License.Font.Color := _GF_BLACK;
   Label_Dart.Font.Color := _GF_NAVY;
 
-  GetDLLProductVersion(RichEditLibraryHandle, pathDLL);
+  GetDLLProductVersion(pathDLL, VersionDLL, VersionRichEdit);
+  
   nameDLL := ' (' + ExtractFileName(pathDLL) + ')';
 
   LB_RichEditVer.Font.Style := [fsBold];
   LB_RichEditVer.Caption := Format(
     'RichEdit DLL ver: %.1f %s',
-    [_LoadedRichEditVersion, nameDLL]
+    [VersionDLL, nameDLL]
   );
   LB_RichEditVer.Hint:= pathDLL;
 

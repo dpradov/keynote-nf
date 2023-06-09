@@ -17,7 +17,8 @@ unit kn_PluginBase;
 
 
 interface
-uses Windows;
+uses
+   Winapi.Windows;
 
 resourcestring
   STR_01 = 'StatusOK';
@@ -205,9 +206,9 @@ type
   // the default. This allows KeyNote to use plugins
   // written in languages other than Delphi.
 
-  KNTGetPluginNameProc = function( buf : pointer; size : longint ) : longint stdcall;
+  KNTGetPluginNameProc = function(buf: pointer; size: longint ) : longint stdcall;
   KNTGetPluginVersionProc = function : longint stdcall;
-  KNTGetPluginDescriptionProc = function( buf : pointer; size : longint ) : longint stdcall;
+  KNTGetPluginDescriptionProc = function(buf: pointer; size: longint ) : longint stdcall;
 
   KNTConfigurePluginProc = function ( OwnerHWND : HWND ) : longint; stdcall;
   KNTGetPluginFeaturesProc = function : longint; stdcall;
@@ -215,9 +216,9 @@ type
     AppHandle : THandle;
     OwnerHWND : HWND;
     RichEditHWND : HWND;
-    ActiveFileName : PChar;
-    ActiveNoteName : PChar;
-    InText : PChar;
+    ActiveFileName : PAnsiChar;
+    ActiveNoteName : PAnsiChar;
+    InText : PAnsiChar;
     var OutText : pointer ) : longint; stdcall;
   KNTPluginCleanupProc = procedure; stdcall;
 

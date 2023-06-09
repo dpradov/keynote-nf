@@ -19,20 +19,29 @@ unit kn_TabSelect;
 interface
 
 uses
-  Windows, Messages, SysUtils,
-  Classes, Graphics, Controls,
-  Forms, Dialogs, gf_misc,
-  kn_Info, kn_Const, kn_Chest,
-  kn_NoteObj, kn_FileObj,
-  StdCtrls, cmpGFXListBox, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   cmpGFXListBox,
+   kn_Const,
+   kn_Chest,
+   kn_NoteObj,
+   kn_FileObj;
+
 
 type
   TForm_SelectTab = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    Button_All: TTntButton;
-    Button_None: TTntButton;
-    Button_Invert: TTntButton;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    Button_All: TButton;
+    Button_None: TButton;
+    Button_Invert: TButton;
     List_Tabs: TGFXListBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);

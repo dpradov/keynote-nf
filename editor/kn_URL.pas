@@ -1,39 +1,48 @@
 unit kn_URL;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
 
 uses
-  Windows, Messages, SysUtils,
-  Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls,
-  registry, gf_misc, kn_Info, kn_const, TntStdCtrls;
+   System.SysUtils,
+   System.Classes,
+   System.AnsiStrings,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   RxRichEd,
+   gf_misc,
+   kn_Info,
+   kn_const;
+
 
 type
   TForm_URLAction = class(TForm)
-    Button_Copy: TTntButton;
-    Button_Cancel: TTntButton;
-    Label1: TTntLabel;
-    Button_Open: TTntButton;
-    Button_OpenNew: TTntButton;
-    Edit_URL: TTntEdit;
-    Label2: TTntLabel;
-    Edit_TextURL: TTntEdit;
-    Button_Modify: TTntButton;
+    Button_Copy: TButton;
+    Button_Cancel: TButton;
+    Label1: TLabel;
+    Button_Open: TButton;
+    Button_OpenNew: TButton;
+    Edit_URL: TEdit;
+    Label2: TLabel;
+    Edit_TextURL: TEdit;
+    Button_Modify: TButton;
     procedure CheckURL(OnlyEnsureLink: boolean);
     procedure Edit_URLExit(Sender: TObject);
     procedure Button_ModifyClick(Sender: TObject);
@@ -41,8 +50,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Button_CopyClick(Sender: TObject);
     procedure Button_OpenClick(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;  Shift: TShiftState);
     procedure Button_OpenNewClick(Sender: TObject);
     procedure Label_URLClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
@@ -55,15 +63,16 @@ type
   end;
 
 
-function FileNameToURL( fn : wideString ) : wideString;
-function HTTPDecode(const AStr: wideString): wideString;
-function HTTPEncode(const AStr: wideString): wideString;
+function FileNameToURL( fn : string ) : string;
+function HTTPDecode(const AStr: string): string;
+function HTTPEncode(const AStr: string): string;
 
-function StripFileURLPrefix( const AStr : wideString ) : wideString;
+function StripFileURLPrefix( const AStr : string ) : string;
 
 implementation
 uses
-  RxRichEd, kn_Global, kn_LinksMng;
+   kn_LinksMng;
+
 
 {$R *.DFM}
 
@@ -75,7 +84,7 @@ resourcestring
   STR_05 = '(KNT Location)';
 
 
-function FileNameToURL( fn : wideString ) : wideString;
+function FileNameToURL( fn : string ) : string;
 var
   i : integer;
 begin
@@ -94,15 +103,15 @@ begin
 end; // FileNameToURL
 
 
-function HTTPDecode(const AStr: wideString): wideString;
+function HTTPDecode(const AStr: string): string;
 // source: Borland Delphi 5
 var
-  Sp, Rp, Cp: PWideChar;
+  Sp, Rp, Cp: PChar;
 begin
   try
       SetLength(Result, Length(AStr));
-      Sp := PWideChar(AStr);
-      Rp := PWideChar(Result);
+      Sp := PChar(AStr);
+      Rp := PChar(Result);
       while Sp^ <> #0 do
       begin
         if not (Sp^ in ['+','%']) then
@@ -116,43 +125,43 @@ begin
             begin
               Cp := Sp;
               Inc(Sp);
-              Rp^ := WideChar(Chr(StrToInt(WideFormat('$%s%s',[Cp^, Sp^]))));
+              Rp^ := Char(Chr(StrToInt(Format('$%s%s',[Cp^, Sp^]))));
             end;
           end;
         Inc(Rp);
         Inc(Sp);
       end;
-      SetLength(Result, Rp - PWideChar(Result));
+      SetLength(Result, Rp - PChar(Result));
 
   except
       Result:= AStr;   // It will be assumed that the filename includes plus sign but it is not URL encoded.
   end;
 end;
 
-function HTTPEncode(const AStr: wideString): wideString;
+function HTTPEncode(const AStr: string): string;
 // source: Borland Delphi 5, **modified**
 const
   NoConversion = ['A'..'Z','a'..'z','*','@','.','_','-', '/', '?',
                   '0'..'9','$','!','''','(',')'];
 var
-  Sp, Rp: PWideChar;
+  Sp, Rp: PChar;
 begin
   SetLength(Result, Length(AStr) * 3);
-  Sp := PWideChar(AStr);
-  Rp := PWideChar(Result);
+  Sp := PChar(AStr);
+  Rp := PChar(Result);
   while Sp^ <> #0 do
   begin
     if Sp^ in NoConversion then
       Rp^ := Sp^
     else
       begin
-        FormatBuf(Rp^, 3, '%%%.2x', 6, [Ord(Sp^)]);
+        System.AnsiStrings.FormatBuf(Rp^, 3, '%%%.2x', 6, [Ord(Sp^)]);
         Inc(Rp,2);
       end;
     Inc(Rp);
     Inc(Sp);
   end;
-  SetLength(Result, Rp - PWideChar(Result));
+  SetLength(Result, Rp - PChar(Result));
 end;
 
 
@@ -280,11 +289,11 @@ end;
 }
 procedure TForm_URLAction.CheckURL(OnlyEnsureLink: boolean);
 var
-  url: wideString;
-  InterpretedUrl: wideString;
+  url: string;
+  InterpretedUrl: string;
   KNTlocation, EnsureLink: boolean;
   URLType: TKNTURL;
-  lastChar: WideChar;
+  lastChar: Char;
 begin
  if not Edit_TextURL.Enabled then exit;
 
@@ -332,7 +341,7 @@ begin
   ModalResult := mrOK;
 end;
 
-function StripFileURLPrefix( const AStr : WideString ) : wideString;
+function StripFileURLPrefix( const AStr : string ) : string;
 const
   FILEPREFIX = 'file:';
 var
@@ -342,7 +351,7 @@ begin
   // We can eliminate it in URLs like file:///C:.....
   result := AStr;
 
-  if ( pos( FILEPREFIX, wideLowerCase( result )) = 1 ) then
+  if ( pos( FILEPREFIX, LowerCase( result )) = 1 ) then
   begin
     i:= length( FILEPREFIX)+1;
     l:= length(result);

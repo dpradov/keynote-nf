@@ -17,7 +17,13 @@ unit cmpGFXComboBox;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Controls, Graphics, StdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Controls,
+   Vcl.Graphics,
+   Vcl.StdCtrls;
 
 
 type

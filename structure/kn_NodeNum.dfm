@@ -3,22 +3,20 @@ object Form_NodeNum: TForm_NodeNum
   Top = 230
   BorderStyle = bsDialog
   Caption = 'Outline node numbering'
-  ClientHeight = 231
-  ClientWidth = 442
+  ClientHeight = 230
+  ClientWidth = 438
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 10
     Top = 200
     Width = 75
@@ -29,7 +27,7 @@ object Form_NodeNum: TForm_NodeNum
     ModalResult = 1
     TabOrder = 5
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 90
     Top = 200
     Width = 75
@@ -40,7 +38,7 @@ object Form_NodeNum: TForm_NodeNum
     ModalResult = 2
     TabOrder = 6
   end
-  object RG_Scope: TTntRadioGroup
+  object RG_Scope: TRadioGroup
     Left = 5
     Top = 0
     Width = 211
@@ -52,7 +50,7 @@ object Form_NodeNum: TForm_NodeNum
       'Apply numbering to current subtree')
     TabOrder = 0
   end
-  object RG_CurNum: TTntRadioGroup
+  object RG_CurNum: TRadioGroup
     Left = 225
     Top = 0
     Width = 211
@@ -65,7 +63,7 @@ object Form_NodeNum: TForm_NodeNum
       'Auto-detect existing node numbers')
     TabOrder = 3
   end
-  object RG_Method: TTntRadioGroup
+  object RG_Method: TRadioGroup
     Left = 5
     Top = 60
     Width = 211
@@ -78,14 +76,14 @@ object Form_NodeNum: TForm_NodeNum
     TabOrder = 1
     OnClick = RG_MethodClick
   end
-  object GroupBox1: TTntGroupBox
+  object GroupBox1: TGroupBox
     Left = 225
     Top = 120
     Width = 211
     Height = 71
     Caption = ' Numbering style '
     TabOrder = 2
-    object Label1: TTntLabel
+    object Label1: TLabel
       Left = 10
       Top = 20
       Width = 96
@@ -105,14 +103,14 @@ object Form_NodeNum: TForm_NodeNum
       Value = 1
     end
   end
-  object GroupBox2: TTntGroupBox
+  object GroupBox2: TGroupBox
     Left = 5
     Top = 120
     Width = 211
     Height = 71
     Caption = ' Numbering depth'
     TabOrder = 4
-    object LB_Depth: TTntLabel
+    object LB_Depth: TLabel
       Left = 10
       Top = 45
       Width = 81
@@ -132,7 +130,7 @@ object Form_NodeNum: TForm_NodeNum
       TabOrder = 0
       Value = 1
     end
-    object CB_FullDepth: TTntCheckBox
+    object CB_FullDepth: TCheckBox
       Left = 10
       Top = 20
       Width = 186
@@ -144,7 +142,7 @@ object Form_NodeNum: TForm_NodeNum
       OnClick = CB_FullDepthClick
     end
   end
-  object Btn_Remove: TTntButton
+  object Btn_Remove: TButton
     Left = 270
     Top = 200
     Width = 161

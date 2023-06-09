@@ -4,21 +4,19 @@ object Form_Lang: TForm_Lang
   ActiveControl = Combo_Lang
   BorderStyle = bsDialog
   Caption = 'Select language'
-  ClientHeight = 139
-  ClientWidth = 254
+  ClientHeight = 138
+  ClientWidth = 250
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 50
     Top = 109
     Width = 75
@@ -29,7 +27,7 @@ object Form_Lang: TForm_Lang
     ModalResult = 1
     TabOrder = 0
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 130
     Top = 109
     Width = 75
@@ -40,7 +38,7 @@ object Form_Lang: TForm_Lang
     ModalResult = 2
     TabOrder = 1
   end
-  object GroupBox1: TTntGroupBox
+  object GroupBox1: TGroupBox
     Left = 5
     Top = 0
     Width = 241
@@ -60,7 +58,7 @@ object Form_Lang: TForm_Lang
       ShowHint = True
       TabOrder = 4
     end
-    object RB_Selected: TTntRadioButton
+    object RB_Selected: TRadioButton
       Left = 10
       Top = 20
       Width = 87
@@ -71,7 +69,7 @@ object Form_Lang: TForm_Lang
       TabStop = True
       OnClick = RB_SelectedClick
     end
-    object RB_Recent: TTntRadioButton
+    object RB_Recent: TRadioButton
       Left = 106
       Top = 20
       Width = 103
@@ -80,7 +78,7 @@ object Form_Lang: TForm_Lang
       TabOrder = 1
       OnClick = RB_SelectedClick
     end
-    object RB_Default: TTntRadioButton
+    object RB_Default: TRadioButton
       Left = 10
       Top = 40
       Width = 87
@@ -89,7 +87,7 @@ object Form_Lang: TForm_Lang
       TabOrder = 2
       OnClick = RB_SelectedClick
     end
-    object RB_System: TTntRadioButton
+    object RB_System: TRadioButton
       Left = 106
       Top = 40
       Width = 103

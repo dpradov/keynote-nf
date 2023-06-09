@@ -1,0 +1,120 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{494cb9be-fe12-4574-8dc9-13e9a1729673}</ProjectGuid>
+    <MainSource>RtmRxCtl110.dpk</MainSource>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+    <DCC_DependencyCheckOutputName>C:\Users\Public\Documents\RAD Studio\5.0\Bpl\RtmRxCtl110.bpl</DCC_DependencyCheckOutputName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
+    <DCC_DebugInformation>False</DCC_DebugInformation>
+    <DCC_WriteableConstants>True</DCC_WriteableConstants>
+    <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+    <DCC_PentiumSafeDivide>True</DCC_PentiumSafeDivide>
+    <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+    <DCC_Define>RELEASE</DCC_Define>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
+    <DCC_DebugInformation>False</DCC_DebugInformation>
+    <DCC_WriteableConstants>True</DCC_WriteableConstants>
+    <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+    <DCC_PentiumSafeDivide>True</DCC_PentiumSafeDivide>
+    <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+  </PropertyGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Delphi.Personality</Borland.Personality>
+    <Borland.ProjectType>Package</Borland.ProjectType>
+    <BorlandProject>
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><Package_Options><Package_Options Name="PackageDescription">RX Library Component and Tools Package</Package_Options><Package_Options Name="ImplicitBuild">False</Package_Options><Package_Options Name="DesigntimeOnly">False</Package_Options><Package_Options Name="RuntimeOnly">True</Package_Options></Package_Options><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1029</VersionInfo><VersionInfo Name="CodePage">1250</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dcloffice2k100.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclofficexp100.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+    </Excluded_Packages><Source><Source Name="MainSource">RtmRxCtl110.dpk</Source></Source></Delphi.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
+  <ItemGroup>
+    <DelphiCompile Include="RtmRxCtl110.dpk">
+      <MainSource>MainSource</MainSource>
+    </DelphiCompile>
+    <DCCReference Include="..\RxAniFile.pas" />
+    <DCCReference Include="..\RxAnimate.pas" />
+    <DCCReference Include="..\RxAppEvent.pas" />
+    <DCCReference Include="..\RxAppUtils.pas" />
+    <DCCReference Include="..\RxBoxProcs.pas" />
+    <DCCReference Include="..\RxCalc.pas" />
+    <DCCReference Include="..\RxCalcEditDlg.pas" />
+    <DCCReference Include="..\RxClipIcon.pas" />
+    <DCCReference Include="..\RxClipMon.pas" />
+    <DCCReference Include="..\RxClipView.pas" />
+    <DCCReference Include="..\RxClock.pas" />
+    <DCCReference Include="..\RxCombos.pas" />
+    <DCCReference Include="..\RxConst.pas" />
+    <DCCReference Include="..\RxCtrls.pas" />
+    <DCCReference Include="..\RxCurrEdit.pas" />
+    <DCCReference Include="..\RxDataConv.pas" />
+    <DCCReference Include="..\RxDateUtil.pas" />
+    <DCCReference Include="..\RxDice.pas" />
+    <DCCReference Include="..\RxDualList.pas" />
+    <DCCReference Include="..\RxExcptDlg.pas" />
+    <DCCReference Include="..\RxExtenders.pas" />
+    <DCCReference Include="..\RxFDualLst.pas" />
+    <DCCReference Include="..\RxFileUtil.pas" />
+    <DCCReference Include="..\RxGIF.pas" />
+    <DCCReference Include="..\RxGIFCtrl.pas" />
+    <DCCReference Include="..\RxGraph.pas" />
+    <DCCReference Include="..\RxGrdCpt.pas" />
+    <DCCReference Include="..\RxGrids.pas" />
+    <DCCReference Include="..\RxHints.pas" />
+    <DCCReference Include="..\RxHook.pas" />
+    <DCCReference Include="..\RxIcoList.pas" />
+    <DCCReference Include="..\RxIni.pas" />
+    <DCCReference Include="..\RxMailBox.pas" />
+    <DCCReference Include="..\RxMaxMin.pas" />
+    <DCCReference Include="..\RxMenus.pas" />
+    <DCCReference Include="..\RxMrgMngr.pas" />
+    <DCCReference Include="..\RxMRUList.pas" />
+    <DCCReference Include="..\RxNotify.pas" />
+    <DCCReference Include="..\RxNTSecurity.pas" />
+    <DCCReference Include="..\RxObjStr.pas" />
+    <DCCReference Include="..\RxOle2Auto.pas" />
+    <DCCReference Include="..\RxPageMngr.pas" />
+    <DCCReference Include="..\RxParsing.pas" />
+    <DCCReference Include="..\RxPicClip.pas" />
+    <DCCReference Include="..\RxPickDate.pas" />
+    <DCCReference Include="..\RxPlacemnt.pas" />
+    <DCCReference Include="..\RxPlugin.pas" />
+    <DCCReference Include="..\RxPluginManager.pas" />
+    <DCCReference Include="..\RxPrgrss.pas" />
+    <DCCReference Include="..\RxProps.pas" />
+    <DCCReference Include="..\RxResConst.pas" />
+    <DCCReference Include="..\RxRichEd.pas" />
+    <DCCReference Include="..\RxRichPopup.pas" />
+    <DCCReference Include="..\RxSbSetup.pas" />
+    <DCCReference Include="..\RxShell.pas" />
+    <DCCReference Include="..\RxSlider.pas" />
+    <DCCReference Include="..\RxSpeedbar.pas" />
+    <DCCReference Include="..\RxSpin.pas" />
+    <DCCReference Include="..\RXSplit.pas" />
+    <DCCReference Include="..\RxSplshWnd.pas" />
+    <DCCReference Include="..\RxStr16.pas" />
+    <DCCReference Include="..\RxStrHlder.pas" />
+    <DCCReference Include="..\RxStrUtils.pas" />
+    <DCCReference Include="..\RxSwitch.pas" />
+    <DCCReference Include="..\RxTimer.pas" />
+    <DCCReference Include="..\RxTimerLst.pas" />
+    <DCCReference Include="..\RxToolEdit.pas" />
+    <DCCReference Include="..\RxTranslate.pas" />
+    <DCCReference Include="..\RxVCLUtils.pas" />
+    <DCCReference Include="..\RxVerInf.pas" />
+    <DCCReference Include="..\RxViewer.pas" />
+    <DCCReference Include="vcl.dcp" />
+    <DCCReference Include="vclimg.dcp" />
+    <DCCReference Include="vcljpg.dcp" />
+    <DCCReference Include="vclsmp.dcp" />
+    <DCCReference Include="vclx.dcp" />
+  </ItemGroup>
+</Project>

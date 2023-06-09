@@ -17,12 +17,19 @@ unit kn_Plugins;
 
 
 interface
-uses Windows, SysUtils, ShellAPI, IniFiles,
-  dialogs, Classes, gf_Bits, kn_PluginBase;
+uses
+   Winapi.Windows,
+   Winapi.ShellAPI,
+   System.SysUtils,
+   System.IniFiles,
+   System.Classes,
+   Vcl.Dialogs,
+   gf_Bits,
+   kn_PluginBase;
 
 
 type
-  TPlugin = class( TObject )
+  TPlugin = class(TObject)
     FileName : string;
     Name : string;
     Version : integer;
@@ -31,7 +38,7 @@ type
   end;
 
 type
-  TLoadedPlugin = class( TObject )
+  TLoadedPlugin = class(TObject)
     DllInstance : THandle;
     ID : longint;
     ExecResult : longint;
@@ -65,6 +72,7 @@ function GetPluginInfo(
   var aVersion : integer;
   var aInfo : string;
   var aFeatures : TPluginFeatures ) : boolean;
+
 const
   BUF_Size = 1024;
 var
@@ -73,7 +81,7 @@ var
   KNTGetPluginDescription : KNTGetPluginDescriptionProc;
   KNTGetPluginFeatures : KNTGetPluginFeaturesProc;
   hDLLInst : THandle;
-  buf : array[0..BUF_Size] of char;
+  buf : array[0..BUF_Size] of AnsiChar;     // For compatibility with existing plugins, but should change to Char
   size, features : integer;
   pl : TPluginFeature;
 begin
@@ -99,22 +107,19 @@ begin
         aName := buf;
 
         @KNTGetPluginVersion := GetProcAddress( hDLLInst, 'KNTGetPluginVersion' );
-        if assigned( KNTGetPluginVersion ) then
-        begin
+        if assigned( KNTGetPluginVersion ) then begin
           aVersion := KNTGetPluginVersion;
           result := true;
 
           @KNTGetPluginDescription := GetProcAddress( hDLLInst, 'KNTGetPluginDescription' );
-          if assigned( KNTGetPluginDescription ) then
-          begin
+          if assigned( KNTGetPluginDescription ) then begin
             KNTGetPluginDescription( @buf, size );
             aInfo := buf;
           end;
         end;
 
         @KNTGetPluginFeatures := GetProcAddress( hDLLInst, 'KNTGetPluginFeatures' );
-        if assigned( KNTGetPluginFeatures ) then
-        begin
+        if assigned( KNTGetPluginFeatures ) then begin
           Features := KNTGetPluginFeatures;
           for pl := low( TPluginFeature ) to high( TPluginFeature ) do
           begin
@@ -126,12 +131,12 @@ begin
       end;
 
     except
-      On E : Exception do
-      begin
+      On E : Exception do begin
         messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
+
   finally
     FreeLibrary( hDLLInst );
   end;
@@ -153,22 +158,23 @@ begin
   try
     try
       @KNTConfigurePlugin := GetProcAddress( hDLLInst, 'KNTConfigurePlugin' );
-      if assigned( KNTConfigurePlugin ) then
-      begin
+      if assigned( KNTConfigurePlugin ) then begin
         KNTConfigurePlugin( OwnerHandle );
         result := true;
       end;
+
     except
-      On E : Exception do
-      begin
+      On E : Exception do  begin
         messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
+
   finally
     FreeLibrary( hDLLInst );
   end;
 end; // ExecutePluginConfig
+
 
 function GetPluginFeatures( const FN : string ) : TPluginFeatures;
 var
@@ -188,16 +194,15 @@ begin
     try
       @KNTGetPluginFeatures := GetProcAddress( hDLLInst, 'KNTGetPluginFeatures' );
       if assigned( KNTGetPluginFeatures ) then
-      begin
-        Features := KNTGetPluginFeatures;
-      end;
+         Features := KNTGetPluginFeatures;
+
     except
-      On E : Exception do
-      begin
+      On E : Exception do begin
         messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
+
   finally
     FreeLibrary( hDLLInst );
   end;
@@ -205,7 +210,7 @@ begin
   for pl := low( TPluginFeature ) to high( TPluginFeature ) do
   begin
     if IsBitSet( Features, ord( pl )) then
-      include( result, pl );
+       include( result, pl );
   end;
 
 end; // GetPluginFeatures
@@ -216,12 +221,14 @@ var
   LoadedPlugin : TLoadedPlugin;
 begin
   if ( not assigned( Loaded_Plugins )) then exit;
+
   for i := 1 to Loaded_Plugins.Count do
   begin
     LoadedPlugin := TLoadedPlugin( Loaded_Plugins.Objects[pred( i )] );
     Loaded_Plugins.Objects[pred( i )].Free;
   end;
 end; // ClearLoadedPlugins
+
 
 procedure ClearPluginList;
 var

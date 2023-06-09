@@ -4,12 +4,36 @@
 {** Written by David Barton (davebarton@bigfoot.com) **************************}
 {** http://www.scramdisk.clara.net/ *******************************************}
 {******************************************************************************}
+
+(* -------------------------------------------------------------------------------
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf
+ ---------------
+NOTE:
+*1 IDEA (International Data Encryption Algorithm) (https://en.wikipedia.org/wiki/International_Data_Encryption_Algorithm) :
+  The cipher was designed under a research contract with the Hasler Foundation, which became part of Ascom-Tech AG. The cipher was patented in a number
+  of countries but was freely available for non-commercial use. The name "IDEA" is also a trademark. The last patents expired in 2012, and IDEA is now
+  patent-free and thus completely free for all uses.[2]
+  (https://worldwide.espacenet.com/patent/search/family/004216333/publication/EP0482154A1?q=pn%3DEP0482154)
+
+*2 At least, from version 1.6.5, the implementation of IDEA in KeyNote was using a MaxKeySize=256 and a BlockSize=128
+   This values were shared with Blowfish implementation.
+ ------------------------------------------------------------------------------ *)
+
+
 unit IDEA;
 
 interface
 {$I DCPcrypt.Inc}
 uses
-  {$IFDEF CFORM}Classes, Sysutils, {$ENDIF}DCPcrypt;
+   {$IFDEF CFORM}
+   System.Classes,
+   System.SysUtils,
+   {$ENDIF}
+   DCPcrypt;
 
 {$IFDEF CFORM}
 type
@@ -61,8 +85,8 @@ constructor TDCP_idea.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   fAlgorithm:= 'IDEA';
-  fBlockSize:= 64;
-  fMaxKeySize:= 128;
+  fBlockSize:= 128;  // 64;        // [dpv] See note *2 at the beginning
+  fMaxKeySize:= 256; // 128;       // [dpv]
   fID:= 12;
   Burn;
 end;

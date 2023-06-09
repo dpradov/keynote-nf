@@ -7,16 +7,19 @@ unit kn_DLLinterface;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
-
+ 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
    
  *****************************************************************************) 
 
 interface
-uses Windows, Menus, Classes, kn_Const;
+uses
+   Winapi.Windows,
+   System.Classes,
+   Vcl.Menus;
 
 type
   TDllProc = (
@@ -32,12 +35,12 @@ type
   ) : boolean;
 
 
-  MSWordConvertHTMLToRTFProc = function (const inFilename : WideString; var OutStream: TMemoryStream) : boolean;
-  MSWordConvertRTFToHTMLProc = function (const outFilename : WideString; const RTF: string) : boolean;
+  MSWordConvertHTMLToRTFProc = function (const inFilename : string; var OutStream: TMemoryStream) : boolean;
+  MSWordConvertRTFToHTMLProc = function (const outFilename : string; const RTF: AnsiString) : boolean;
   MSWordQuitProc = function(): boolean;
 
-  TextConvImportAsRTFProc = function (FileName: String; Converter: String; aStream : TStream; ConverterLocation : string ): Boolean;
-  TextConvExportRTFProc=    function (FileName: String; Converter: String; aRTFText: PChar;   ConverterLocation : string ): Boolean;
+  TextConvImportAsRTFProc = function (FileName: AnsiString; Converter: AnsiString; aStream : TStream; ConverterLocation : AnsiString ): Boolean;
+  TextConvExportRTFProc=    function (FileName: AnsiString; Converter: AnsiString; aRTFText: PAnsiChar;   ConverterLocation : AnsiString ): Boolean;
 
 implementation
 

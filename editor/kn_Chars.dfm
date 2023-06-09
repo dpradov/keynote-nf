@@ -5,8 +5,8 @@ object Form_Chars: TForm_Chars
   ActiveControl = Chars
   BorderStyle = bsDialog
   Caption = 'Insert character'
-  ClientHeight = 233
-  ClientWidth = 449
+  ClientHeight = 232
+  ClientWidth = 445
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,15 +14,13 @@ object Form_Chars: TForm_Chars
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Label_Code: TTntLabel
+  object Label_Code: TLabel
     Left = 365
     Top = 105
     Width = 18
@@ -37,7 +35,7 @@ object Form_Chars: TForm_Chars
     ParentFont = False
     ShowAccelChar = False
   end
-  object Label1: TTntLabel
+  object Label1: TLabel
     Left = 365
     Top = 155
     Width = 40
@@ -45,7 +43,7 @@ object Form_Chars: TForm_Chars
     Caption = '&Number:'
     FocusControl = Spin_Count
   end
-  object Button_Insert: TTntButton
+  object Button_Insert: TButton
     Left = 365
     Top = 10
     Width = 75
@@ -62,7 +60,7 @@ object Form_Chars: TForm_Chars
     TabOrder = 1
     OnClick = Button_InsertClick
   end
-  object Button_Close: TTntButton
+  object Button_Close: TButton
     Left = 365
     Top = 70
     Width = 75
@@ -79,7 +77,7 @@ object Form_Chars: TForm_Chars
     TabOrder = 3
     OnClick = Button_CloseClick
   end
-  object Button_Font: TTntButton
+  object Button_Font: TButton
     Left = 365
     Top = 200
     Width = 75
@@ -126,7 +124,7 @@ object Form_Chars: TForm_Chars
     Value = 1
     OnKeyDown = CharsKeyDown
   end
-  object CheckBox_FullSet: TTntCheckBox
+  object CheckBox_FullSet: TCheckBox
     Left = 365
     Top = 135
     Width = 69
@@ -141,7 +139,7 @@ object Form_Chars: TForm_Chars
     ParentFont = False
     TabOrder = 4
   end
-  object Button_Copy: TTntButton
+  object Button_Copy: TButton
     Left = 365
     Top = 40
     Width = 75

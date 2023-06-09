@@ -19,20 +19,35 @@ unit kn_filemgr;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs, WideStrings,
-  StdCtrls, ComCtrls, gf_misc, kn_info,
-  kn_Const, kn_NoteObj, kn_FileObj,
-  kn_Chest, gf_files,
-  IniFiles, ExtCtrls, TreeNT, Placemnt, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   System.IniFiles,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ComCtrls,
+   Vcl.ExtCtrls,
+   TreeNT,
+   RxPlacemnt,
+   gf_misc,
+   gf_files,
+   kn_info,
+   kn_Const,
+   kn_Chest,
+   kn_FileObj;
+
 
 
 
 type
   TFileInfo = class( TObject )
-    Name : wideString;
-    Comment : wideString;
-    Description : wideString;
+    Name : string;
+    Comment : string;
+    Description : string;
     Size : longint;
     Created : TDateTime;
     Modified : TDateTime;
@@ -46,24 +61,24 @@ type
   TForm_FileMgr = class(TForm)
     Panel_Btn: TPanel;
     TVmgr: TTreeNT;
-    Label1: TTntLabel;
-    Label2: TTntLabel;
-    Label4: TTntLabel;
-    Label5: TTntLabel;
-    Label7: TTntLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label7: TLabel;
     Bevel1: TBevel;
-    L_Desc: TTntLabel;
-    L_Comment: TTntLabel;
-    L_Fmt: TTntLabel;
-    L_Date: TTntLabel;
-    L_Count: TTntLabel;
-    Label99: TTntLabel;
-    L_Path: TTntLabel;
-    Label3: TTntLabel;
-    L_Modified: TTntLabel;
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    CheckBox_FullPaths: TTntCheckBox;
+    L_Desc: TLabel;
+    L_Comment: TLabel;
+    L_Fmt: TLabel;
+    L_Date: TLabel;
+    L_Count: TLabel;
+    Label99: TLabel;
+    L_Path: TLabel;
+    Label3: TLabel;
+    L_Modified: TLabel;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    CheckBox_FullPaths: TCheckBox;
     FormPlacement: TFormPlacement;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -83,7 +98,7 @@ type
     OK_Click : boolean;
     Initializing : boolean;
     MgrFileName : string;
-    SelectedFileName : wideString;
+    SelectedFileName : string;
     HaveErrors : integer;
     ShowFullPaths : boolean;
 
@@ -92,15 +107,16 @@ type
   end;
 
 var
-  FileManager : TWideStringList;
+  FileManager : TStringList;
 
 function SaveFileManagerInfo( FN : string ) : boolean;
 function LoadFileManagerInfo( FN : string ) : boolean;
-function AddToFileManager( const FN : wideString; const aFile : TNoteFile ) : boolean;
+function AddToFileManager( const FN : string; const aFile : TNoteFile ) : boolean;
 procedure ClearFileManager;
 
 implementation
-uses kn_main, TntSysUtils, gf_miscvcl, gf_streams;
+uses
+   kn_main;
 
 {$R *.DFM}
 
@@ -131,7 +147,7 @@ end; // TFileInfo.CREATE
 
 function SaveFileManagerInfo( FN : string ) : boolean;
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   i, cnt : integer;
   Info : TFileInfo;
   section : string;
@@ -146,7 +162,7 @@ begin
 
   deletefile( FN ); // better this than removing sections one at a time
 
-  IniFile := TWMemIniFile.Create( fn );
+  IniFile := TMemIniFile.Create( fn );
   cnt := 0;
 
   with IniFile do
@@ -159,9 +175,9 @@ begin
         begin
           inc( cnt );
           section := inttostr( cnt );
-          writestringW( section, 'Name', '"' + Info.Name + '"' );
-          writestringW( section, 'Comment', '"' + Info.Comment + '"' );
-          writestringW( section, 'Description', '"' + Info.Description + '"' );
+          writestring( section, 'Name', '"' + Info.Name + '"' );
+          writestring( section, 'Comment', '"' + Info.Comment + '"' );
+          writestring( section, 'Description', '"' + Info.Description + '"' );
           writestring( section, 'Created', FloatToStr( Info.Created )); // save only date, not time
           writestring( section, 'Version', '"' + Info.Version + '"' );
           writeinteger( section, 'Count', Info.Count );
@@ -187,10 +203,10 @@ end; // SaveFileManagerInfo
 
 function LoadFileManagerInfo( FN : string ) : boolean;
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   i : integer;
   Info : TFileInfo;
-  s: wideString;
+  s: string;
   section : string;
   sections : TStringList;
 begin
@@ -205,7 +221,7 @@ begin
 
   ClearFileManager;
 
-  IniFile := TWMemIniFile.Create( fn );
+  IniFile := TMemIniFile.Create( fn );
   sections := TStringList.Create;
 
   with IniFile do
@@ -217,13 +233,13 @@ begin
         for i := 0 to pred( sections.count ) do
         begin
           section := sections[i];
-          s := normalFN( readstringW( section, 'Name', '' ));
-          if ( not WideFileexists( s )) then continue;
+          s := normalFN( readstring( section, 'Name', '' ));
+          if ( not FileExists( s )) then continue;
 
           Info := TFileInfo.Create;
           Info.Name := s;
-          Info.Comment := readstringW( section, 'Comment', '' );
-          Info.Description := readstringW( section, 'Description', '' );
+          Info.Comment := readstring( section, 'Comment', '' );
+          Info.Description := readstring( section, 'Description', '' );
           Info.Version := readstring( section, 'Version', '' );
           try
             Info.Created := StrToFloat( readstring( section, 'Created', '' ));
@@ -261,7 +277,7 @@ begin
   result := ( FileManager.Count > 0 );
 end; // LoadFileManagerInfo
 
-function AddToFileManager( const FN : wideString; const aFile : TNoteFile ) : boolean;
+function AddToFileManager( const FN : string; const aFile : TNoteFile ) : boolean;
 var
   Info : TFileInfo;
   i : integer;
@@ -269,7 +285,7 @@ begin
   result := false;
   if (( not assigned( FileManager )) or
       ( not assigned( aFile )) or
-      ( not WideFileexists( FN ))) then exit;
+      ( not FileExists( FN ))) then exit;
 
   Info := nil;
   i := FileManager.IndexOf( FN );
@@ -463,7 +479,7 @@ begin
         end
         else
         begin
-          Node.Text := WideExtractFilename( Info.Name );
+          Node.Text := ExtractFilename( Info.Name );
         end;
       end;
       Node := Node.GetNext;
@@ -482,7 +498,7 @@ procedure TForm_FileMgr.LoadFileList;
 var
   i : integer;
   TVSelNode, Node : TTreeNTNode;
-  s : wideString;
+  s : string;
   Info : TFileInfo;
 begin
 
@@ -508,17 +524,19 @@ begin
             if ShowFullPaths then
               s := Info.Name
             else
-              s := WideExtractFilename( Info.Name );
+              s := ExtractFilename( Info.Name );
             Node := TVmgr.Items.Add( nil, s );
             if ( SelectedFileName = Info.Name ) then
               TVSelNode := Node;
-            if WideFileexists( Info.Name ) then
+            if FileExists( Info.Name ) then
             begin
               case Info.Format of
                 nffKeyNote :    Node.ImageIndex := NODEIMG_TKN;
                 nffKeyNoteZip : Node.ImageIndex := NODEIMG_TKNZIP;
                 nffEncrypted : Node.ImageIndex := NODEIMG_ENC;
+{$IFDEF WITH_DART}
                 nffDartNotes : Node.ImageIndex := NODEIMG_DART;
+{$ENDIF}
               end;
               Node.Data := Info;
             end
@@ -577,14 +595,14 @@ begin
   begin
     L_Desc.Caption := Info.Description;
     L_Comment.Caption := Info.Comment;
-    L_Path.Caption := WideExtractfilepath( Info.Name );
+    L_Path.Caption := ExtractFilepath( Info.Name );
     L_Fmt.Caption := FILE_FORMAT_NAMES[Info.Format];
-    L_Date.Caption := FormatDateTime( ShortDateFormat {+ #32 + ShortTimeFormat}, Info.Created );
+    L_Date.Caption := FormatDateTime( FormatSettings.ShortDateFormat {+ #32 + ShortTimeFormat}, Info.Created );
     L_Count.Caption := inttostr( Info.Count );
 
     ModDate := GetFileDateStamp( Info.Name );
     if ( ModDate <> 0 ) then
-      L_Modified.Caption := FormatDateTime( ShortDateFormat + #32 + ShortTimeFormat, ModDate )
+      L_Modified.Caption := FormatDateTime( FormatSettings.ShortDateFormat + #32 + FormatSettings.ShortTimeFormat, ModDate )
     else
       L_Modified.Caption := STR_06;
 
@@ -671,7 +689,7 @@ end;
 
 
 Initialization
-  FileManager := TWideStringList.Create;
+  FileManager := TStringList.Create;
   FileManager.Sorted := true;
   FileManager.Duplicates := dupIgnore;
 

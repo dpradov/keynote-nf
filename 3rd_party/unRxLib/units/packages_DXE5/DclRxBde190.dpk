@@ -1,0 +1,30 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{ Added by Polaris Software                             }
+{*******************************************************}
+
+package dclRxBde190;
+
+{$R *.res}
+
+{$DESCRIPTION 'RX Library BDE Database Components'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  DclDB,
+  DclRxCtl190,
+  DclRxDb190,
+  RtmRxBde190,
+  VclImg,
+  designide;
+
+contains
+  RxQBndDlg in '..\RxQBndDlg.pas',
+  RxBDEReg in '..\RxBDEReg.pas';
+
+end.

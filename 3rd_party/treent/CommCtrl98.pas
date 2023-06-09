@@ -21,13 +21,14 @@ unit CommCtrl98;
 
 interface
 
-uses Messages, Windows
-     {$ifdef DFS_COMPILER_3_UP}
-     , ActiveX
-     {$else}
-     , OLE2
-     {$endif}
-     ;
+uses
+   Winapi.Messages,
+   Winapi.Windows,
+   {$ifdef DFS_COMPILER_3_UP}
+   Winapi.ActiveX;
+   {$else}
+   OLE2;
+   {$endif}
 
 { From prsht.h -- Interface for the Windows Property Sheet Pages }
 
@@ -3182,8 +3183,8 @@ const
 type
   PLVItemA = ^TLVItemA;
   PLVItemW = ^TLVItemW;
-  PLVItem = PLVItemA;
-  
+  PLVItem = PLVItemW;
+
   tagLVITEMA = packed record
     mask: UINT;
     iItem: Integer;
@@ -3196,7 +3197,7 @@ type
     lParam: LPARAM;
     iIndent: Integer;
   end;
-  
+
   tagLVITEMW = packed record
     mask: UINT;
     iItem: Integer;
@@ -3209,42 +3210,42 @@ type
     lParam: LPARAM;
     iIndent: Integer;
   end;
-  
-  tagLVITEM = tagLVITEMA;
-  
+
+  tagLVITEM = tagLVITEMW;
+
   _LV_ITEMA = tagLVITEMA;
-  
+
   _LV_ITEMW = tagLVITEMW;
-  
-  _LV_ITEM = _LV_ITEMA;
+
+  _LV_ITEM = _LV_ITEMW;
   TLVItemA = tagLVITEMA;
   TLVItemW = tagLVITEMW;
-  TLVItem = TLVItemA;
-  
+  TLVItem = TLVItemW;
+
   LV_ITEMA = tagLVITEMA;
-  
+
   LV_ITEMW = tagLVITEMW;
-  
-  LV_ITEM = LV_ITEMA;
+
+  LV_ITEM = LV_ITEMW;
 
 const
-  
+
   LPSTR_TEXTCALLBACKA = LPSTR(-1);
-  
+
   LPSTR_TEXTCALLBACKW = LPWSTR(-1);
 
-  
-  LPSTR_TEXTCALLBACK = LPSTR_TEXTCALLBACKA;
 
-  
+  LPSTR_TEXTCALLBACK = LPSTR_TEXTCALLBACKW;
+
+
   I_IMAGECALLBACK         = -1;
 
 const
-  
+
   LVM_GETITEMA            = LVM_FIRST + 5;
-  
+
   LVM_SETITEMA            = LVM_FIRST + 6;
-  
+
   LVM_INSERTITEMA         = LVM_FIRST + 7;
 
   
@@ -3255,19 +3256,19 @@ const
   LVM_INSERTITEMW         = LVM_FIRST + 77;
 
   
-  LVM_GETITEM            = LVM_GETITEMA;
-  
-  LVM_SETITEM            = LVM_SETITEMA;
-  
-  LVM_INSERTITEM         = LVM_INSERTITEMA;
+  LVM_GETITEM            = LVM_GETITEMW;
 
-  
+  LVM_SETITEM            = LVM_SETITEMW;
+
+  LVM_INSERTITEM         = LVM_INSERTITEMW;
+
+
   LVM_DELETEITEM          = LVM_FIRST + 8;
-  
+
   LVM_DELETEALLITEMS      = LVM_FIRST + 9;
-  
+
   LVM_GETCALLBACKMASK     = LVM_FIRST + 10;
-  
+
   LVM_SETCALLBACKMASK     = LVM_FIRST + 11;
 
 
@@ -3342,8 +3343,8 @@ const
 type
   PLVFindInfoA = ^TLVFindInfoA;
   PLVFindInfoW = ^TLVFindInfoW;
-  PLVFindInfo = PLVFindInfoA;
-  
+  PLVFindInfo = PLVFindInfoW;
+
   tagLVFINDINFOA = packed record
     flags: UINT;
     psz: PAnsiChar;
@@ -3351,7 +3352,7 @@ type
     pt: TPoint;
     vkDirection: UINT;
   end;
-  
+
   tagLVFINDINFOW = packed record
     flags: UINT;
     psz: PWideChar;
@@ -3359,31 +3360,31 @@ type
     pt: TPoint;
     vkDirection: UINT;
   end;
-  
-  tagLVFINDINFO = tagLVFINDINFOA;
-  
+
+  tagLVFINDINFO = tagLVFINDINFOW;
+
   _LV_FINDINFOA = tagLVFINDINFOA;
-  
+
   _LV_FINDINFOW = tagLVFINDINFOW;
-  
-  _LV_FINDINFO = _LV_FINDINFOA;
+
+  _LV_FINDINFO = _LV_FINDINFOW;
   TLVFindInfoA = tagLVFINDINFOA;
   TLVFindInfoW = tagLVFINDINFOW;
-  TLVFindInfo = TLVFindInfoA;
-  
+  TLVFindInfo = TLVFindInfoW;
+
   LV_FINDINFOA = tagLVFINDINFOA;
-  
+
   LV_FINDINFOW = tagLVFINDINFOW;
-  
-  LV_FINDINFO = LV_FINDINFOA;
+
+  LV_FINDINFO = LV_FINDINFOW;
 
 const
-  
+
   LVM_FINDITEMA            = LVM_FIRST + 13;
-  
+
   LVM_FINDITEMW            = LVM_FIRST + 83;
-  
-  LVM_FINDITEM            = LVM_FINDITEMA;
+
+  LVM_FINDITEM            = LVM_FINDITEMW;
 
 
 function ListView_FindItemA(hWnd: HWND; iStart: Integer;
@@ -3396,18 +3397,18 @@ function ListView_FindItem(hWnd: HWND; iStart: Integer;
   const plvfi: TLVFindInfo): Integer;
 
 const
-  
+
   LVIR_BOUNDS             = 0;
-  
+
   LVIR_ICON               = 1;
-  
+
   LVIR_LABEL              = 2;
-  
+
   LVIR_SELECTBOUNDS       = 3;
 
 
 const
-  
+
   LVM_GETITEMRECT         = LVM_FIRST + 14;
 
 
@@ -3415,7 +3416,7 @@ function ListView_GetItemRect(hWnd: HWND; i: Integer; var prc: TRect;
   Code: Integer): Bool;
 
 const
-  
+
   LVM_SETITEMPOSITION     = LVM_FIRST + 15;
 
 
@@ -3434,7 +3435,7 @@ const
   
   LVM_GETSTRINGWIDTHW      = LVM_FIRST + 87;
   
-  LVM_GETSTRINGWIDTH      = LVM_GETSTRINGWIDTHA;
+  LVM_GETSTRINGWIDTH      = LVM_GETSTRINGWIDTHW;
 
 
 function ListView_GetStringWidthA(hwndLV: HWND; psz: PAnsiChar): Integer;
@@ -3444,29 +3445,29 @@ function ListView_GetStringWidthW(hwndLV: HWND; psz: PWideChar): Integer;
 function ListView_GetStringWidth(hwndLV: HWND; psz: PChar): Integer;
 
 const
-  
+
   LVHT_NOWHERE            = $0001;
-  
+
   LVHT_ONITEMICON         = $0002;
-  
+
   LVHT_ONITEMLABEL        = $0004;
-  
+
   LVHT_ONITEMSTATEICON    = $0008;
-  
+
   LVHT_ONITEM             = LVHT_ONITEMICON or LVHT_ONITEMLABEL or
 			    LVHT_ONITEMSTATEICON;
-  
+
   LVHT_ABOVE              = $0008;
-  
+
   LVHT_BELOW              = $0010;
-  
+
   LVHT_TORIGHT            = $0020;
-  
+
   LVHT_TOLEFT             = $0040;
 
 type
   PLVHitTestInfo = ^TLVHitTestInfo;
-  
+
   tagLVHITTESTINFO = packed record
     pt: TPoint;
     flags: UINT;
@@ -3474,55 +3475,55 @@ type
     iSubItem: Integer;    // this is was NOT in win95.  valid only for LVM_SUBITEMHITTEST
   end;
   TLVHitTestInfo = tagLVHITTESTINFO;
-  
+
   LV_HITTESTINFO = tagLVHITTESTINFO;
-  
+
   _LV_HITTESTINFO = tagLVHITTESTINFO;
 
 const
-  
+
   LVM_HITTEST             = LVM_FIRST + 18;
 
 
 function ListView_HitTest(hwndLV: HWND; var pinfo: TLVHitTestInfo): Integer;
 
 const
-  
+
   LVM_ENSUREVISIBLE       = LVM_FIRST + 19;
 
 
 function ListView_EnsureVisible(hwndLV: HWND; i: Integer; fPartialOK: Bool): Bool;
 
 const
-  
+
   LVM_SCROLL              = LVM_FIRST + 20;
 
 
 function ListView_Scroll(hwndLV: HWnd; DX, DY: Integer): Bool;
 
 const
-  
+
   LVM_REDRAWITEMS         = LVM_FIRST + 21;
 
 
 function ListView_RedrawItems(hwndLV: HWND; iFirst, iLast: Integer): Bool;
 
 const
-  
+
   LVA_DEFAULT             = $0000;
-  
+
   LVA_ALIGNLEFT           = $0001;
-  
+
   LVA_ALIGNTOP            = $0002;
   LVA_ALIGNRIGHT          = $0003;
   LVA_ALIGNBOTTOM         = $0004;
-  
+
   LVA_SNAPTOGRID          = $0005;
 
   LVA_SORTASCENDING       = $0100;
   LVA_SORTDESCENDING      = $0200;
 
-  
+
   LVM_ARRANGE             = LVM_FIRST + 22;
 
 
@@ -3530,12 +3531,12 @@ function ListView_Arrange(hwndLV: HWND; Code: UINT): Bool;
 
 
 const
-  
+
   LVM_EDITLABELA           = LVM_FIRST + 23;
-  
+
   LVM_EDITLABELW           = LVM_FIRST + 118;
-  
-  LVM_EDITLABEL           = LVM_EDITLABELA;
+
+  LVM_EDITLABEL           = LVM_EDITLABELW;
 
 
 function ListView_EditLabelA(hwndLV: HWND; i: Integer): HWND;
@@ -3545,7 +3546,7 @@ function ListView_EditLabelW(hwndLV: HWND; i: Integer): HWND;
 function ListView_EditLabel(hwndLV: HWND; i: Integer): HWND;
 
 const
-  
+
   LVM_GETEDITCONTROL      = LVM_FIRST + 24;
 
 
@@ -3554,8 +3555,8 @@ function ListView_GetEditControl(hwndLV: HWND): HWND;
 type
   PLVColumnA = ^TLVColumnA;
   PLVColumnW = ^TLVColumnW;
-  PLVColumn = PLVColumnA;
-  
+  PLVColumn = PLVColumnW;
+
   tagLVCOLUMNA = packed record
     mask: UINT;
     fmt: Integer;
@@ -3566,7 +3567,7 @@ type
     iImage: Integer;
     iOrder: Integer;
   end;
-  
+
   tagLVCOLUMNW = packed record
     mask: UINT;
     fmt: Integer;
@@ -3577,59 +3578,59 @@ type
     iImage: Integer;
     iOrder: Integer;
   end;
-  
-  tagLVCOLUMN = tagLVCOLUMNA;
-  
+
+  tagLVCOLUMN = tagLVCOLUMNW;
+
   _LV_COLUMNA = tagLVCOLUMNA;
-  
+
   _LV_COLUMNW = tagLVCOLUMNW;
-  
-  _LV_COLUMN = _LV_COLUMNA;
+
+  _LV_COLUMN = _LV_COLUMNW;
   TLVColumnA = tagLVCOLUMNA;
   TLVColumnW = tagLVCOLUMNW;
-  TLVColumn = TLVColumnA;
-  
+  TLVColumn = TLVColumnW;
+
   LV_COLUMNA = tagLVCOLUMNA;
-  
+
   LV_COLUMNW = tagLVCOLUMNW;
-  
-  LV_COLUMN = LV_COLUMNA;
+
+  LV_COLUMN = LV_COLUMNW;
 
 const
-  
+
   LVCF_FMT                = $0001;
-  
+
   LVCF_WIDTH              = $0002;
-  
+
   LVCF_TEXT               = $0004;
-  
+
   LVCF_SUBITEM            = $0008;
-  
+
   LVCF_IMAGE              = $0010;
-  
+
   LVCF_ORDER              = $0020;
 
-  
-  LVCFMT_LEFT             = $0000; 
-  
+
+  LVCFMT_LEFT             = $0000;
+
   LVCFMT_RIGHT            = $0001;
-  
-  LVCFMT_CENTER           = $0002; 
-  
+
+  LVCFMT_CENTER           = $0002;
+
   LVCFMT_JUSTIFYMASK      = $0003;
-  
+
   LVCFMT_IMAGE            = $0800;
-  
+
   LVCFMT_BITMAP_ON_RIGHT  = $1000;
-  
+
   LVCFMT_COL_HAS_IMAGES   = $8000;
 
-  
+
   LVM_GETCOLUMNA          = LVM_FIRST + 25;
-  
+
   LVM_GETCOLUMNW          = LVM_FIRST + 95;
-  
-  LVM_GETCOLUMN           = LVM_GETCOLUMNA;
+
+  LVM_GETCOLUMN           = LVM_GETCOLUMNW;
 
 
 function ListView_GetColumnA(hwnd: HWND; iCol: Integer;
@@ -3642,12 +3643,12 @@ function ListView_GetColumn(hwnd: HWND; iCol: Integer;
   var pcol: TLVColumn): Bool;
 
 const
-  
+
   LVM_SETCOLUMNA           = LVM_FIRST + 26;
-  
+
   LVM_SETCOLUMNW           = LVM_FIRST + 96;
-  
-  LVM_SETCOLUMN           = LVM_SETCOLUMNA;
+
+  LVM_SETCOLUMN           = LVM_SETCOLUMNW;
 
 
 function ListView_SetColumnA(hwnd: HWnd; iCol: Integer; const pcol: TLVColumnA): Bool;
@@ -3657,12 +3658,12 @@ function ListView_SetColumnW(hwnd: HWnd; iCol: Integer; const pcol: TLVColumnW):
 function ListView_SetColumn(hwnd: HWnd; iCol: Integer; const pcol: TLVColumn): Bool;
 
 const
-  
+
   LVM_INSERTCOLUMNA        = LVM_FIRST + 27;
-  
+
   LVM_INSERTCOLUMNW        = LVM_FIRST + 97;
-  
-  LVM_INSERTCOLUMN        = LVM_INSERTCOLUMNA;
+
+  LVM_INSERTCOLUMN        = LVM_INSERTCOLUMNW;
 
 
 function ListView_InsertColumnA(hwnd: HWND; iCol: Integer;
@@ -3675,39 +3676,39 @@ function ListView_InsertColumn(hwnd: HWND; iCol: Integer;
   const pcol: TLVColumn): Integer;
 
 const
-  
+
   LVM_DELETECOLUMN        = LVM_FIRST + 28;
 
 
 function ListView_DeleteColumn(hwnd: HWND; iCol: Integer): Bool;
 
 const
-  
+
   LVM_GETCOLUMNWIDTH      = LVM_FIRST + 29;
 
 
 function ListView_GetColumnWidth(hwnd: HWND; iCol: Integer): Integer;
 
 const
-  
+
   LVSCW_AUTOSIZE              = -1;
-  
+
   LVSCW_AUTOSIZE_USEHEADER    = -2;
-  
+
   LVM_SETCOLUMNWIDTH          = LVM_FIRST + 30;
 
 
 function ListView_SetColumnWidth(hwnd: HWnd; iCol: Integer; cx: Integer): Bool;
 
 const
-  
+
   LVM_GETHEADER               = LVM_FIRST + 31;
 
 
 function ListView_GetHeader(hwnd: HWND): HWND;
 
 const
-  
+
   LVM_CREATEDRAGIMAGE     = LVM_FIRST + 33;
 
 
@@ -3715,77 +3716,77 @@ function ListView_CreateDragImage(hwnd: HWND; i: Integer;
   const lpptUpLeft: TPoint): HIMAGELIST;
 
 const
-  
+
   LVM_GETVIEWRECT         = LVM_FIRST + 34;
 
 
 function ListView_GetViewRect(hwnd: HWND; var prc: TRect): Bool;
 
 const
-  
+
   LVM_GETTEXTCOLOR        = LVM_FIRST + 35;
 
 
 function ListView_GetTextColor(hwnd: HWND): TColorRef;
 
 const
-  
+
   LVM_SETTEXTCOLOR        = LVM_FIRST + 36;
 
 
 function ListView_SetTextColor(hwnd: HWND; clrText: TColorRef): Bool;
 
 const
-  
+
   LVM_GETTEXTBKCOLOR      = LVM_FIRST + 37;
 
 
 function ListView_GetTextBkColor(hwnd: HWND): TColorRef;
 
 const
-  
+
   LVM_SETTEXTBKCOLOR      = LVM_FIRST + 38;
 
 
 function ListView_SetTextBkColor(hwnd: HWND; clrTextBk: TColorRef): Bool;
 
 const
-  
+
   LVM_GETTOPINDEX         = LVM_FIRST + 39;
 
 
 function ListView_GetTopIndex(hwndLV: HWND): Integer;
 
 const
-  
+
   LVM_GETCOUNTPERPAGE     = LVM_FIRST + 40;
 
 
 function ListView_GetCountPerPage(hwndLV: HWND): Integer;
 
 const
-  
+
   LVM_GETORIGIN           = LVM_FIRST + 41;
 
 
 function ListView_GetOrigin(hwndLV: HWND; var ppt: TPoint): Bool;
 
 const
-  
+
   LVM_UPDATE              = LVM_FIRST + 42;
 
 
 function ListView_Update(hwndLV: HWND; i: Integer): Bool;
 
 const
-  
+
   LVM_SETITEMSTATE        = LVM_FIRST + 43;
 
 
 function ListView_SetItemState(hwndLV: HWND; i: Integer; data, mask: UINT): Bool;
 
 const
-  
+
   LVM_GETITEMSTATE        = LVM_FIRST + 44;
 
 
@@ -3796,12 +3797,12 @@ function ListView_GetCheckState(hwndLV: HWND; i: Integer): UINT;
 procedure ListView_SetCheckState(hwndLV: HWND; i: Integer; Checked: Boolean);
 
 const
-  
+
   LVM_GETITEMTEXTA         = LVM_FIRST + 45;
-  
+
   LVM_GETITEMTEXTW         = LVM_FIRST + 115;
-  
-  LVM_GETITEMTEXT         = LVM_GETITEMTEXTA;
+
+  LVM_GETITEMTEXT         = LVM_GETITEMTEXTW;
 
 
 function ListView_GetItemTextA(hwndLV: HWND; i, iSubItem: Integer;
@@ -3814,12 +3815,12 @@ function ListView_GetItemText(hwndLV: HWND; i, iSubItem: Integer;
   pszText: PChar; cchTextMax: Integer): Integer;
 
 const
-  
+
   LVM_SETITEMTEXTA         = LVM_FIRST + 46;
-  
+
   LVM_SETITEMTEXTW         = LVM_FIRST + 116;
-  
-  LVM_SETITEMTEXT         = LVM_SETITEMTEXTA;
+
+  LVM_SETITEMTEXT         = LVM_SETITEMTEXTW;
 
 
 function ListView_SetItemTextA(hwndLV: HWND; i, iSubItem: Integer;
@@ -3833,12 +3834,12 @@ function ListView_SetItemText(hwndLV: HWND; i, iSubItem: Integer;
 
 const
   // these flags only apply to LVS_OWNERDATA listviews in report or list mode
-  
+
   LVSICF_NOINVALIDATEALL  = $00000001;
-  
+
   LVSICF_NOSCROLL         = $00000002;
 
-  
+
   LVM_SETITEMCOUNT        = LVM_FIRST + 47;
 
 
@@ -3848,12 +3849,12 @@ procedure ListView_SetItemCount(hwndLV: HWND; cItems: Integer);
 procedure ListView_SetItemCountEx(hwndLV: HWND; cItems: Integer; dwFlags: DWORD);
 
 type
-  
+
   PFNLVCOMPARE = function(lParam1, lParam2, lParamSort: Integer): Integer stdcall;
   TLVCompare = PFNLVCOMPARE;
 
 const
-  
+
   LVM_SORTITEMS           = LVM_FIRST + 48;
 
 
@@ -3861,14 +3862,14 @@ function ListView_SortItems(hwndLV: HWND; pfnCompare: TLVCompare;
   lPrm: Longint): Bool;
 
 const
-  
+
   LVM_SETITEMPOSITION32   = LVM_FIRST + 49;
 
 
 procedure ListView_SetItemPosition32(hwndLV: HWND; i, x, y: Integer);
 
 const
-  
+
   LVM_GETSELECTEDCOUNT    = LVM_FIRST + 50;
 
 
@@ -3887,7 +3888,7 @@ const
   
   LVM_GETISEARCHSTRINGW    = LVM_FIRST + 117;
   
-  LVM_GETISEARCHSTRING    = LVM_GETISEARCHSTRINGA;
+  LVM_GETISEARCHSTRING    = LVM_GETISEARCHSTRINGW;
 
 
 function ListView_GetISearchStringA(hwndLV: HWND; lpsz: PAnsiChar): Bool;
@@ -3897,7 +3898,7 @@ function ListView_GetISearchStringW(hwndLV: HWND; lpsz: PWideChar): Bool;
 function ListView_GetISearchString(hwndLV: HWND; lpsz: PChar): Bool;
 
 const
-  
+
   LVM_SETICONSPACING      = LVM_FIRST + 53;
 
 // -1 for cx and cy means we'll use the default (system settings)
@@ -3906,14 +3907,14 @@ const
 function ListView_SetIconSpacing(hwndLV: HWND; cx, cy: Word): DWORD;
 
 const
-  
+
   LVM_SETEXTENDEDLISTVIEWSTYLE = LVM_FIRST + 54;
 
 
 function ListView_SetExtendedListViewStyle(hwndLV: HWND; dw: DWORD): BOOL;
 
 const
-  
+
   LVM_GETEXTENDEDLISTVIEWSTYLE = LVM_FIRST + 55;
 
 
@@ -4074,40 +4075,40 @@ type
   tagLVBKIMAGE = tagLVBKIMAGEA;
   PLVBKImageA = ^TLVBKImageA;
   PLVBKImageW = ^TLVBKImageW;
-  PLVBKImage = PLVBKImageA;
+  PLVBKImage = PLVBKImageW;
   TLVBKImageA = tagLVBKIMAGEA;
   TLVBKImageW = tagLVBKIMAGEW;
-  TLVBKImage = TLVBKImageA;
+  TLVBKImage = TLVBKImageW;
 
 const
-  
+
   LVBKIF_SOURCE_NONE      = $00000000;
-  
+
   LVBKIF_SOURCE_HBITMAP   = $00000001;
-  
+
   LVBKIF_SOURCE_URL       = $00000002;
-  
+
   LVBKIF_SOURCE_MASK      = $00000003;
-  
+
   LVBKIF_STYLE_NORMAL     = $00000000;
-  
+
   LVBKIF_STYLE_TILE       = $00000010;
-  
+
   LVBKIF_STYLE_MASK       = $00000010;
 
-  
+
   LVM_SETBKIMAGEA         = LVM_FIRST + 68;
-  
+
   LVM_SETBKIMAGEW         = LVM_FIRST + 138;
-  
+
   LVM_GETBKIMAGEA         = LVM_FIRST + 69;
-  
+
   LVM_GETBKIMAGEW         = LVM_FIRST + 139;
 
-  
-  LVM_SETBKIMAGE = LVM_SETBKIMAGEA;
-  
-  LVM_GETBKIMAGE = LVM_GETBKIMAGEA;
+
+  LVM_SETBKIMAGE = LVM_SETBKIMAGEW;
+
+  LVM_GETBKIMAGE = LVM_GETBKIMAGEW;
 
 
 function ListView_SetBkImage(hwnd: HWND; plvbki: PLVBKImage): BOOL;
@@ -4116,7 +4117,7 @@ function ListView_SetBkImage(hwnd: HWND; plvbki: PLVBKImage): BOOL;
 function ListView_GetBkImage(hwnd: HWND; plvbki: PLVBKImage): BOOL;
 
 type
-  
+
   tagNMLISTVIEW = packed record
     hdr: TNMHDR;
     iItem: Integer;
@@ -4127,9 +4128,9 @@ type
     ptAction: TPoint;
     lParam: LPARAM;
   end;
-  
+
   _NM_LISTVIEW = tagNMLISTVIEW;
-  
+
   NM_LISTVIEW = tagNMLISTVIEW;
   PNMListView = ^TNMListView;
   TNMListView = tagNMLISTVIEW;
@@ -4139,7 +4140,7 @@ type
   // they are used to store key flags at the time of the single click with
   // delayed activation - because by the time the timer goes off a user may
   // not hold the keys (shift, ctrl) any more
-  
+
   tagNMITEMACTIVATE = packed record
     hdr: TNMHdr;
     iItem: Integer;
@@ -4156,15 +4157,15 @@ type
 
 const
   // key flags stored in uKeyFlags
-  
+
   LVKF_ALT       = $0001;
-  
+
   LVKF_CONTROL   = $0002;
-  
+
   LVKF_SHIFT     = $0004;
 
 type
-  
+
   tagNMLVCUSTOMDRAW = packed record
     nmcd: TNMCustomDraw;
     clrText: COLORREF;
@@ -4174,7 +4175,7 @@ type
   PNMLVCustomDraw = ^TNMLVCustomDraw;
   TNMLVCustomDraw = tagNMLVCUSTOMDRAW;
 
-  
+
   tagNMLVCACHEHINT = packed record
     hdr: TNMHDR;
     iFrom: Integer;
@@ -4185,7 +4186,7 @@ type
   PNMCacheHint = ^TNMCacheHint;
   TNMCacheHint = tagNMLVCACHEHINT;
 
-  
+
   tagNMLVFINDITEM = packed record
     hdr: TNMHdr;
     iStart: Integer;
@@ -4196,7 +4197,7 @@ type
   PNMFinditem = ^TNMFinditem;
   TNMFinditem = tagNMLVFINDITEM;
 
-  
+
   tagNMLVODSTATECHANGE = packed record
     hdr: TNMHdr;
     iFrom: Integer;
@@ -4208,122 +4209,122 @@ type
   TNMLVODStateChange = tagNMLVODSTATECHANGE;
 
 const
-  
+
   LVN_ITEMCHANGING        = LVN_FIRST-0;
-  
+
   LVN_ITEMCHANGED         = LVN_FIRST-1;
-  
+
   LVN_INSERTITEM          = LVN_FIRST-2;
-  
+
   LVN_DELETEITEM          = LVN_FIRST-3;
-  
+
   LVN_DELETEALLITEMS      = LVN_FIRST-4;
-  
+
   LVN_COLUMNCLICK         = LVN_FIRST-8;
-  
+
   LVN_BEGINDRAG           = LVN_FIRST-9;
-  
+
   LVN_BEGINRDRAG          = LVN_FIRST-11;
 
-  
+
   LVN_ODCACHEHINT         = LVN_FIRST-13;
-  
+
   LVN_ODFINDITEMA         = LVN_FIRST-52;
-  
+
   LVN_ODFINDITEMW         = LVN_FIRST-79;
 
-  
+
   LVN_ITEMACTIVATE        = LVN_FIRST-14;
-  
+
   LVN_ODSTATECHANGED      = LVN_FIRST-15;
 
-  
-  LVN_ODFINDITEM          = LVN_ODFINDITEMA; 
 
-  
+  LVN_ODFINDITEM          = LVN_ODFINDITEMW;
+
+
   LVN_BEGINLABELEDITA      = LVN_FIRST-5;
-  
+
   LVN_ENDLABELEDITA        = LVN_FIRST-6;
-  
+
   LVN_BEGINLABELEDITW      = LVN_FIRST-75;
-  
+
   LVN_ENDLABELEDITW        = LVN_FIRST-76;
-  
-  LVN_BEGINLABELEDIT      = LVN_BEGINLABELEDITA;
-  
-  LVN_ENDLABELEDIT        = LVN_ENDLABELEDITA;
 
-  
+  LVN_BEGINLABELEDIT      = LVN_BEGINLABELEDITW;
+
+  LVN_ENDLABELEDIT        = LVN_ENDLABELEDITW;
+
+
   LVN_HOTTRACK            = LVN_FIRST-21;
-  
-  
-  LVN_GETDISPINFOA        = LVN_FIRST-50;
-  
-  LVN_SETDISPINFOA        = LVN_FIRST-51;
-  
-  LVN_GETDISPINFOW        = LVN_FIRST-77;
-  
-  LVN_SETDISPINFOW        = LVN_FIRST-78;
-  
-  LVN_GETDISPINFO        = LVN_GETDISPINFOA;
-  
-  LVN_SETDISPINFO        = LVN_SETDISPINFOA;
 
-  
+
+  LVN_GETDISPINFOA        = LVN_FIRST-50;
+
+  LVN_SETDISPINFOA        = LVN_FIRST-51;
+
+  LVN_GETDISPINFOW        = LVN_FIRST-77;
+
+  LVN_SETDISPINFOW        = LVN_FIRST-78;
+
+  LVN_GETDISPINFO        = LVN_GETDISPINFOW;
+
+  LVN_SETDISPINFO        = LVN_SETDISPINFOW;
+
+
   LVIF_DI_SETITEM         = $1000;
 
 type
   PLVDispInfoA = ^TLVDispInfoA;
   PLVDispInfoW = ^TLVDispInfoW;
-  PLVDispInfo = PLVDispInfoA;
-  
+  PLVDispInfo = PLVDispInfoW;
+
   tagLVDISPINFO = packed record
     hdr: TNMHDR;
     item: TLVItemA;
   end;
-  
+
   _LV_DISPINFO = tagLVDISPINFO;
-  
+
   tagLVDISPINFOW = packed record
     hdr: TNMHDR;
     item: TLVItemW;
   end;
-  
+
   _LV_DISPINFOW = tagLVDISPINFOW;
   TLVDispInfoA = tagLVDISPINFO;
   TLVDispInfoW = tagLVDISPINFOW;
-  TLVDispInfo = TLVDispInfoA;
-  
+  TLVDispInfo = TLVDispInfoW;
+
   LV_DISPINFOA = tagLVDISPINFO;
-  
+
   LV_DISPINFOW = tagLVDISPINFOW;
-  
-  LV_DISPINFO = LV_DISPINFOA;
+
+  LV_DISPINFO = LV_DISPINFOW;
 
 const
-  
+
   LVN_KEYDOWN             = LVN_FIRST-55;
 
 type
   PLVKeyDown = ^TLVKeyDown;
-  
+
   tagLVKEYDOWN = packed record
     hdr: TNMHDR;
     wVKey: Word;
     flags: UINT;
   end;
-  
+
   _LV_KEYDOWN = tagLVKEYDOWN;
   TLVKeyDown = tagLVKEYDOWN;
-  
+
   LV_KEYDOWN = tagLVKEYDOWN;
 
 const
-  
+
   LVN_MARQUEEBEGIN        = LVN_FIRST-56;
 
 type
-  
+
   tagNMLVGETINFOTIPA = packed record
     hdr: TNMHdr;
     dwFlags: DWORD;
@@ -4333,7 +4334,7 @@ type
     iSubItem: Integer;
     lParam: LPARAM;
   end;
-  
+
   tagNMLVGETINFOTIPW = packed record
     hdr: TNMHdr;
     dwFlags: DWORD;
@@ -4343,62 +4344,62 @@ type
     iSubItem: Integer;
     lParam: LPARAM;
   end;
-  
+
   tagNMLVGETINFOTIP = tagNMLVGETINFOTIPA;
   PNMLVGetInfoTipA = ^TNMLVGetInfoTipA;
   PNMLVGetInfoTipW = ^TNMLVGetInfoTipW;
-  PNMLVGetInfoTip = PNMLVGetInfoTipA;
+  PNMLVGetInfoTip = PNMLVGetInfoTipW;
   TNMLVGetInfoTipA = tagNMLVGETINFOTIPA;
   TNMLVGetInfoTipW = tagNMLVGETINFOTIPW;
-  TNMLVGetInfoTip = TNMLVGetInfoTipA;
+  TNMLVGetInfoTip = TNMLVGetInfoTipW;
 
 const
   // NMLVGETINFOTIPA.dwFlag values
-  
+
   LVGIT_UNFOLDED  = $0001;
 
-  
+
   LVN_GETINFOTIPA          = LVN_FIRST-57;
-  
+
   LVN_GETINFOTIPW          = LVN_FIRST-58;
 
-  
+
   LVN_GETINFOTIP          = LVN_GETINFOTIPA;
 
 { ====== TREEVIEW CONTROL =================== }
 
 const
-  
+
   WC_TREEVIEW = 'SysTreeView32';
 
 const
-  
+
   TVS_HASBUTTONS          = $0001;
-  
+
   TVS_HASLINES            = $0002;
-  
+
   TVS_LINESATROOT         = $0004;
-  
+
   TVS_EDITLABELS          = $0008;
-  
+
   TVS_DISABLEDRAGDROP     = $0010;
-  
+
   TVS_SHOWSELALWAYS       = $0020;
-  
+
   TVS_RTLREADING          = $0040;
-  
+
   TVS_NOTOOLTIPS          = $0080;
-  
+
   TVS_CHECKBOXES          = $0100;
-  
+
   TVS_TRACKSELECT         = $0200;
-  
+
   TVS_SINGLEEXPAND        = $0400;
-  
+
   TVS_INFOTIP             = $0800;
-  
+
   TVS_FULLROWSELECT       = $1000;
-  
+
   TVS_NOSCROLL            = $2000;
   
   TVS_NONEVENHEIGHT       = $4000;
@@ -4438,7 +4439,7 @@ const
   TVIS_DROPHILITED        = $0008;
   
   TVIS_BOLD               = $0010;
-  
+
   TVIS_EXPANDED           = $0020;
   
   TVIS_EXPANDEDONCE       = $0040;
@@ -4460,8 +4461,8 @@ const
 type
   PTVItemA = ^TTVItemA;
   PTVItemW = ^TTVItemW;
-  PTVItem = PTVItemA;
-  
+  PTVItem = PTVItemW;
+
   tagTVITEMA = packed record
     mask: UINT;
     hItem: HTreeItem;
@@ -4474,7 +4475,7 @@ type
     cChildren: Integer;
     lParam: LPARAM;
   end;
-  
+
   tagTVITEMW = packed record
     mask: UINT;
     hItem: HTreeItem;
@@ -4487,26 +4488,26 @@ type
     cChildren: Integer;
     lParam: LPARAM;
   end;
-  
+
   tagTVITEM = tagTVITEMA;
-  
+
   _TV_ITEMA = tagTVITEMA;
-  
+
   _TV_ITEMW = tagTVITEMW;
-  
-  _TV_ITEM = _TV_ITEMA;
+
+  _TV_ITEM = _TV_ITEMW;
   TTVItemA = tagTVITEMA;
   TTVItemW = tagTVITEMW;
-  TTVItem = TTVItemA;
-  
+  TTVItem = TTVItemW;
+
   TV_ITEMA = tagTVITEMA;
-  
+
   TV_ITEMW = tagTVITEMW;
-  
-  TV_ITEM = TV_ITEMA;
+
+  TV_ITEM = TV_ITEMw;
 
   // only used for Get and Set messages.  no notifies
-  
+
   tagTVITEMEXA = packed record
     mask: UINT;
     hItem: HTREEITEM;
@@ -4520,7 +4521,7 @@ type
     lParam: LPARAM;
     iIntegral: Integer;
   end;
-  
+
   tagTVITEMEXW = packed record
     mask: UINT;
     hItem: HTREEITEM;
@@ -4534,30 +4535,30 @@ type
     lParam: LPARAM;
     iIntegral: Integer;
   end;
-  
+
   tagTVITEMEX = tagTVITEMEXA;
   PTVItemExA = ^TTVItemExA;
   PTVItemExW = ^TTVItemExW;
-  PTVItemEx = PTVItemExA;
+  PTVItemEx = PTVItemExW;
   TTVItemExA = tagTVITEMEXA;
   TTVItemExW = tagTVITEMEXW;
-  TTVItemEx = TTVItemExA;
+  TTVItemEx = TTVItemExW;
 
 const
-  
+
   TVI_ROOT                = HTreeItem($FFFF0000);
-  
+
   TVI_FIRST               = HTreeItem($FFFF0001);
-  
+
   TVI_LAST                = HTreeItem($FFFF0002);
-  
+
   TVI_SORT                = HTreeItem($FFFF0003);
 
 type
   PTVInsertStructA = ^TTVInsertStructA;
   PTVInsertStructW = ^TTVInsertStructW;
-  PTVInsertStruct = PTVInsertStructA;
-  
+  PTVInsertStruct = PTVInsertStructW;
+
   tagTVINSERTSTRUCTA = packed record
     hParent: HTreeItem;
     hInsertAfter: HTreeItem;
@@ -4565,7 +4566,7 @@ type
       0: (itemex: TTVItemExA);
       1: (item: TTVItemA);
   end;
-  
+
   tagTVINSERTSTRUCTW = packed record
     hParent: HTreeItem;
     hInsertAfter: HTreeItem;
@@ -4573,37 +4574,37 @@ type
       0: (itemex: TTVItemExW);
       1: (item: TTVItemW);
   end;
-  
-  tagTVINSERTSTRUCT = tagTVINSERTSTRUCTA;
-  
+
+  tagTVINSERTSTRUCT = tagTVINSERTSTRUCTW;
+
   _TV_INSERTSTRUCTA = tagTVINSERTSTRUCTA;
-  
+
   _TV_INSERTSTRUCTW = tagTVINSERTSTRUCTW;
-  
-  _TV_INSERTSTRUCT = _TV_INSERTSTRUCTA;
+
+  _TV_INSERTSTRUCT = _TV_INSERTSTRUCTW;
   TTVInsertStructA = tagTVINSERTSTRUCTA;
   TTVInsertStructW = tagTVINSERTSTRUCTW;
-  TTVInsertStruct = TTVInsertStructA;
-  
+  TTVInsertStruct = TTVInsertStructW;
+
   TV_INSERTSTRUCTA = tagTVINSERTSTRUCTA;
-  
+
   TV_INSERTSTRUCTW = tagTVINSERTSTRUCTW;
-  
-  TV_INSERTSTRUCT = TV_INSERTSTRUCTA;
+
+  TV_INSERTSTRUCT = TV_INSERTSTRUCTW;
 
 const
-  
+
   TVM_INSERTITEMA          = TV_FIRST + 0;
-  
+
   TVM_INSERTITEMW          = TV_FIRST + 50;
-  
-  TVM_INSERTITEM          = TVM_INSERTITEMA;
+
+  TVM_INSERTITEM          = TVM_INSERTITEMW;
 
 
 function TreeView_InsertItem(hwnd: HWND; const lpis: TTVInsertStruct): HTreeItem;
 
 const
-  
+
   TVM_DELETEITEM          = TV_FIRST + 1;
 
 
@@ -4613,18 +4614,18 @@ function TreeView_DeleteItem(hwnd: HWND; hitem: HTreeItem): Bool;
 function TreeView_DeleteAllItems(hwnd: HWND): Bool;
 
 const
-  
+
   TVM_EXPAND              = TV_FIRST + 2;
 
 
 function TreeView_Expand(hwnd: HWND; hitem: HTreeItem; code: Integer): Bool;
 
 const
-  
+
   TVE_COLLAPSE            = $0001;
-  
+
   TVE_EXPAND              = $0002;
-  
+
   TVE_TOGGLE              = $0003;
   
   TVE_EXPANDPARTIAL       = $4000;
@@ -4758,7 +4759,7 @@ const
   
   TVM_GETITEMW             = TV_FIRST + 62;
   
-  TVM_GETITEM             = TVM_GETITEMA;
+  TVM_GETITEM             = TVM_GETITEMW;
 
 
 function TreeView_GetItemA(hwnd: HWND; var pitem: TTVItemA): Bool;
@@ -4768,12 +4769,12 @@ function TreeView_GetItemW(hwnd: HWND; var pitem: TTVItemW): Bool;
 function TreeView_GetItem(hwnd: HWND; var pitem: TTVItem): Bool;
 
 const
-  
+
   TVM_SETITEMA             = TV_FIRST + 13;
-  
+
   TVM_SETITEMW             = TV_FIRST + 63;
-  
-  TVM_SETITEM             = TVM_SETITEMA;
+
+  TVM_SETITEM             = TVM_SETITEMW;
 
 
 function TreeView_SetItemA(hwnd: HWND; const pitem: TTVItemA): Bool;
@@ -4788,7 +4789,7 @@ const
   
   TVM_EDITLABELW           = TV_FIRST + 65;
   
-  TVM_EDITLABEL           = TVM_EDITLABELA;
+  TVM_EDITLABEL           = TVM_EDITLABELW;
 
 
 function TreeView_EditLabelA(hwnd: HWND; hitem: HTreeItem): HWND;
@@ -4798,7 +4799,7 @@ function TreeView_EditLabelW(hwnd: HWND; hitem: HTreeItem): HWND;
 function TreeView_EditLabel(hwnd: HWND; hitem: HTreeItem): HWND;
 
 const
-  
+
   TVM_GETEDITCONTROL      = TV_FIRST + 15;
 
 
@@ -4806,43 +4807,43 @@ function TreeView_GetEditControl(hwnd: HWND): HWND;
 
 
 const
-  
+
   TVM_GETVISIBLECOUNT     = TV_FIRST + 16;
 
 
 function TreeView_GetVisibleCount(hwnd: HWND): UINT;
 
 const
-  
+
   TVM_HITTEST             = TV_FIRST + 17;
 
 type
   PTVHitTestInfo = ^TTVHitTestInfo;
-  
+
   tagTVHITTESTINFO = packed record
     pt: TPoint;
     flags: UINT;
     hItem: HTreeItem;
   end;
-  
+
   _TV_HITTESTINFO = tagTVHITTESTINFO;
   TTVHitTestInfo = tagTVHITTESTINFO;
-  
+
   TV_HITTESTINFO = tagTVHITTESTINFO;
 
 
 function TreeView_HitTest(hwnd: HWND; var lpht: TTVHitTestInfo): HTreeItem;
 
 const
-  
+
   TVHT_NOWHERE            = $0001;
-  
+
   TVHT_ONITEMICON         = $0002;
-  
+
   TVHT_ONITEMLABEL        = $0004;
-  
+
   TVHT_ONITEMINDENT       = $0008;
-  
+
   TVHT_ONITEMBUTTON       = $0010;
   
   TVHT_ONITEMRIGHT        = $0020;
@@ -4927,7 +4928,7 @@ const
   
   TVM_GETISEARCHSTRINGW    = TV_FIRST + 64;
   
-  TVM_GETISEARCHSTRING    = TVM_GETISEARCHSTRINGA;
+  TVM_GETISEARCHSTRING    = TVM_GETISEARCHSTRINGW;
 
 
 function TreeView_GetISearchStringA(hwndTV: HWND; lpsz: PAnsiChar): Bool;
@@ -4937,28 +4938,28 @@ function TreeView_GetISearchStringW(hwndTV: HWND; lpsz: PWideChar): Bool;
 function TreeView_GetISearchString(hwndTV: HWND; lpsz: PChar): Bool;
 
 const
-  
+
   TVM_SETTOOLTIPS         = TV_FIRST + 24;
 
 
 function TreeView_SetToolTips(wnd: HWND; hwndTT: HWND): HWND;
 
 const
-  
+
   TVM_GETTOOLTIPS         = TV_FIRST + 25;
 
 
 function TreeView_GetToolTips(wnd: HWND): HWND;
 
 const
-  
+
   TVM_SETINSERTMARK       = TV_FIRST + 26;
 
 
 function TreeView_SetInsertMark(hwnd: HWND; hItem: Integer; fAfter: BOOL): BOOL;
 
 const
-  
+
   TVM_SETUNICODEFORMAT     = CCM_SETUNICODEFORMAT;
 
 
@@ -5035,7 +5036,7 @@ const
 function TreeView_SetInsertMarkColor(hwnd: HWND; clr: COLORREF): COLORREF;
 
 const
-  
+
   TVM_GETINSERTMARKCOLOR         = TV_FIRST + 38;
 
 
@@ -5044,8 +5045,8 @@ function TreeView_GetInsertMarkColor(hwnd: HWND): COLORREF;
 type
   PNMTreeViewA = ^TNMTreeViewA;
   PNMTreeViewW = ^TNMTreeViewW;
-  PNMTreeView = PNMTreeViewA;
-  
+  PNMTreeView = PNMTreeViewW;
+
   tagNMTREEVIEWA = packed record
     hdr: TNMHDR;
     action: UINT;
@@ -5053,7 +5054,7 @@ type
     itemNew: TTVItemA;
     ptDrag: TPoint;
   end;
-  
+
   tagNMTREEVIEWW = packed record
     hdr: TNMHDR;
     action: UINT;
@@ -5061,165 +5062,165 @@ type
     itemNew: TTVItemW;
     ptDrag: TPoint;
   end;
-  
+
   tagNMTREEVIEW = tagNMTREEVIEWA;
-  
+
   _NM_TREEVIEWA = tagNMTREEVIEWA;
-  
+
   _NM_TREEVIEWW = tagNMTREEVIEWW;
-  
-  _NM_TREEVIEW = _NM_TREEVIEWA;
+
+  _NM_TREEVIEW = _NM_TREEVIEWW;
   TNMTreeViewA  = tagNMTREEVIEWA;
   TNMTreeViewW  = tagNMTREEVIEWW;
-  TNMTreeView = TNMTreeViewA;
-  
+  TNMTreeView = TNMTreeViewW;
+
   NM_TREEVIEWA  = tagNMTREEVIEWA;
-  
+
   NM_TREEVIEWW  = tagNMTREEVIEWW;
-  
-  NM_TREEVIEW = NM_TREEVIEWA;
+
+  NM_TREEVIEW = NM_TREEVIEWW;
 
 const
-  
+
   TVN_SELCHANGINGA         = TVN_FIRST-1;
-  
+
   TVN_SELCHANGEDA          = TVN_FIRST-2;
-  
+
   TVN_SELCHANGINGW         = TVN_FIRST-50;
-  
+
   TVN_SELCHANGEDW          = TVN_FIRST-51;
-  
-  TVN_SELCHANGING         = TVN_SELCHANGINGA;
-  
-  TVN_SELCHANGED          = TVN_SELCHANGEDA;
+
+  TVN_SELCHANGING         = TVN_SELCHANGINGW;
+
+  TVN_SELCHANGED          = TVN_SELCHANGEDW;
 
 const
-  
+
   TVC_UNKNOWN             = $0000;
-  
+
   TVC_BYMOUSE             = $0001;
-  
+
   TVC_BYKEYBOARD          = $0002;
 
 const
-  
-  TVN_GETDISPINFOA         = TVN_FIRST-3;
-  
-  TVN_SETDISPINFOA         = TVN_FIRST-4;
-  
-  TVN_GETDISPINFOW         = TVN_FIRST-52;
-  
-  TVN_SETDISPINFOW         = TVN_FIRST-53;
-  
-  TVN_GETDISPINFO         = TVN_GETDISPINFOA;
-  
-  TVN_SETDISPINFO         = TVN_SETDISPINFOA;
 
-  
+  TVN_GETDISPINFOA         = TVN_FIRST-3;
+
+  TVN_SETDISPINFOA         = TVN_FIRST-4;
+
+  TVN_GETDISPINFOW         = TVN_FIRST-52;
+
+  TVN_SETDISPINFOW         = TVN_FIRST-53;
+
+  TVN_GETDISPINFO         = TVN_GETDISPINFOW;
+
+  TVN_SETDISPINFO         = TVN_SETDISPINFOW;
+
+
   TVIF_DI_SETITEM         = $1000;
 
 type
   PTVDispInfoA = ^TTVDispInfoA;
   PTVDispInfoW = ^TTVDispInfoW;
-  PTVDispInfo = PTVDispInfoA;
-  
+  PTVDispInfo = PTVDispInfoW;
+
   tagTVDISPINFOA = packed record
     hdr: TNMHDR;
     item: TTVItemA;
   end;
-  
+
   tagTVDISPINFOW = packed record
     hdr: TNMHDR;
     item: TTVItemW;
   end;
-  
-  tagTVDISPINFO = tagTVDISPINFOA;
-  
+
+  tagTVDISPINFO = tagTVDISPINFOW;
+
   _TV_DISPINFOA = tagTVDISPINFOA;
-  
+
   _TV_DISPINFOW = tagTVDISPINFOW;
-  
-  _TV_DISPINFO = _TV_DISPINFOA;
+
+  _TV_DISPINFO = _TV_DISPINFOW;
   TTVDispInfoA = tagTVDISPINFOA;
   TTVDispInfoW = tagTVDISPINFOW;
-  TTVDispInfo = TTVDispInfoA;
-  
+  TTVDispInfo = TTVDispInfoW;
+
   TV_DISPINFOA = tagTVDISPINFOA;
-  
+
   TV_DISPINFOW = tagTVDISPINFOW;
-  
-  TV_DISPINFO = TV_DISPINFOA;
+
+  TV_DISPINFO = TV_DISPINFOW;
 
 const
-  
+
   TVN_ITEMEXPANDINGA       = TVN_FIRST-5;
-  
+
   TVN_ITEMEXPANDEDA        = TVN_FIRST-6;
-  
+
   TVN_BEGINDRAGA           = TVN_FIRST-7;
-  
+
   TVN_BEGINRDRAGA          = TVN_FIRST-8;
-  
+
   TVN_DELETEITEMA          = TVN_FIRST-9;
-  
+
   TVN_BEGINLABELEDITA      = TVN_FIRST-10;
-  
+
   TVN_ENDLABELEDITA        = TVN_FIRST-11;
-  
+
   TVN_GETINFOTIPA          = TVN_FIRST-13;
-  
+
   TVN_ITEMEXPANDINGW       = TVN_FIRST-54;
-  
+
   TVN_ITEMEXPANDEDW        = TVN_FIRST-55;
-  
+
   TVN_BEGINDRAGW           = TVN_FIRST-56;
-  
+
   TVN_BEGINRDRAGW          = TVN_FIRST-57;
-  
+
   TVN_DELETEITEMW          = TVN_FIRST-58;
-  
+
   TVN_BEGINLABELEDITW      = TVN_FIRST-59;
-  
+
   TVN_ENDLABELEDITW        = TVN_FIRST-60;
-  
+
   TVN_GETINFOTIPW          = TVN_FIRST-14;
-  
-  TVN_ITEMEXPANDING       = TVN_ITEMEXPANDINGA;
-  
-  TVN_ITEMEXPANDED        = TVN_ITEMEXPANDEDA;
-  
-  TVN_BEGINDRAG           = TVN_BEGINDRAGA;
-  
-  TVN_BEGINRDRAG          = TVN_BEGINRDRAGA;
-  
-  TVN_DELETEITEM          = TVN_DELETEITEMA;
-  
-  TVN_BEGINLABELEDIT      = TVN_BEGINLABELEDITA;
-  
-  TVN_ENDLABELEDIT        = TVN_ENDLABELEDITA;
-  
-  TVN_GETINFOTIP         = TVN_GETINFOTIPA;
+
+  TVN_ITEMEXPANDING       = TVN_ITEMEXPANDINGW;
+
+  TVN_ITEMEXPANDED        = TVN_ITEMEXPANDEDW;
+
+  TVN_BEGINDRAG           = TVN_BEGINDRAGW;
+
+  TVN_BEGINRDRAG          = TVN_BEGINRDRAGW;
+
+  TVN_DELETEITEM          = TVN_DELETEITEMW;
+
+  TVN_BEGINLABELEDIT      = TVN_BEGINLABELEDITW;
+
+  TVN_ENDLABELEDIT        = TVN_ENDLABELEDITW;
+
+  TVN_GETINFOTIP         = TVN_GETINFOTIPW;
 
 const
-  
+
   TVN_KEYDOWN             = TVN_FIRST-12;
-  
+
   TVN_SINGLEEXPAND        = TVN_FIRST-15;
 
 type
-  
+
   tagTVKEYDOWN = packed record
     hdr: TNMHDR;
     wVKey: Word;
     flags: UINT;
   end;
-  
+
   _TV_KEYDOWN = tagTVKEYDOWN;
   TTVKeyDown = tagTVKEYDOWN;
-  
+
   TV_KEYDOWN = tagTVKEYDOWN;
 
-  
+
   tagNMTVCUSTOMDRAW = packed record
     nmcd: TNMCustomDraw;
     clrText: COLORREF;
@@ -5230,7 +5231,7 @@ type
   TNMTVCustomDraw = tagNMTVCUSTOMDRAW;
 
   // for tooltips
-  
+
   tagNMTVGETINFOTIPA = packed record
     hdr: TNMHdr;
     pszText: PAnsiChar;
@@ -5238,7 +5239,7 @@ type
     hItem: HTREEITEM;
     lParam: LPARAM;
   end;
-  
+
   tagNMTVGETINFOTIPW = packed record
     hdr: TNMHdr;
     pszText: PWideChar;
@@ -5246,24 +5247,24 @@ type
     hItem: HTREEITEM;
     lParam: LPARAM;
   end;
-  
-  tagNMTVGETINFOTIP = tagNMTVGETINFOTIPA;
+
+  tagNMTVGETINFOTIP = tagNMTVGETINFOTIPW;
   PNMTVGetInfoTipA = ^TNMTVGetInfoTipA;
   PNMTVGetInfoTipW = ^TNMTVGetInfoTipW;
-  PNMTVGetInfoTip = PNMTVGetInfoTipA;
+  PNMTVGetInfoTip = PNMTVGetInfoTipW;
   TNMTVGetInfoTipA = tagNMTVGETINFOTIPA;
   TNMTVGetInfoTipW = tagNMTVGETINFOTIPW;
-  TNMTVGetInfoTip = TNMTVGetInfoTipA;
+  TNMTVGetInfoTip = TNMTVGetInfoTipW;
 
 const
   // treeview's customdraw return meaning don't draw images.  valid on CDRF_NOTIFYITEMPREPAINT
-  
+
   TVCDRF_NOIMAGES         = $00010000;
 
 { ====== ComboBoxEx ======================== }
 
 const
-  
+
   WC_COMBOBOXEX = 'ComboBoxEx32';
 
   CBEIF_TEXT              = $00000001;
@@ -5276,7 +5277,7 @@ const
   CBEIF_DI_SETITEM        = $10000000;
 
 type
-  
+
   tagCOMBOBOXEXITEMA = packed record
     mask: UINT;
     iItem: Integer;
@@ -5288,7 +5289,7 @@ type
     iIndent: Integer;
     lParam: LPARAM;
   end;
-  
+
   tagCOMBOBOXEXITEMW = packed record
     mask: UINT;
     iItem: Integer;
@@ -5300,17 +5301,17 @@ type
     iIndent: Integer;
     lParam: LPARAM;
   end;
-  
-  tagCOMBOBOXEXITEM = tagCOMBOBOXEXITEMA;
+
+  tagCOMBOBOXEXITEM = tagCOMBOBOXEXITEMW;
   PComboBoxExItemA = ^TComboBoxExItemA;
   PComboBoxExItemW = ^TComboBoxExItemW;
-  PComboBoxExItem = PComboBoxExItemA;
+  PComboBoxExItem = PComboBoxExItemW;
   TComboBoxExItemA = tagCOMBOBOXEXITEMA;
   TComboBoxExItemW = tagCOMBOBOXEXITEMW;
-  TComboBoxExItem = TComboBoxExItemA;
+  TComboBoxExItem = TComboBoxExItemW;
 
 const
-  
+
   CBEM_INSERTITEMA        = WM_USER + 1;
   CBEM_SETIMAGELIST       = WM_USER + 2;
   CBEM_GETIMAGELIST       = WM_USER + 3;
@@ -5330,9 +5331,9 @@ const
   CBEM_SETUNICODEFORMAT   = CCM_SETUNICODEFORMAT;
   CBEM_GETUNICODEFORMAT   = CCM_GETUNICODEFORMAT;
 
-  CBEM_INSERTITEM         = CBEM_INSERTITEMA;
-  CBEM_SETITEM            = CBEM_SETITEMA;
-  CBEM_GETITEM            = CBEM_GETITEMA;
+  CBEM_INSERTITEM         = CBEM_INSERTITEMW;
+  CBEM_SETITEM            = CBEM_SETITEMW;
+  CBEM_GETITEM            = CBEM_GETITEMW;
 
   CBES_EX_NOEDITIMAGE          = $00000001;
   CBES_EX_NOEDITIMAGEINDENT    = $00000002;
@@ -5341,27 +5342,27 @@ const
   CBES_EX_CASESENSITIVE        = $00000010;
 
 type
-  
+
   NMCOMBOBOXEXA = packed record
     hdr: TNMHdr;
     ceItem: TComboBoxExItemA;
   end;
-  
+
   NMCOMBOBOXEXW = packed record
     hdr: TNMHdr;
     ceItem: TComboBoxExItemW;
   end;
-  
-  NMCOMBOBOXEX = NMCOMBOBOXEXA;
+
+  NMCOMBOBOXEX = NMCOMBOBOXEXW;
   PNMComboBoxExA = ^TNMComboBoxExA;
   PNMComboBoxExW = ^TNMComboBoxExW;
-  PNMComboBoxEx = PNMComboBoxExA;
+  PNMComboBoxEx = PNMComboBoxExW;
   TNMComboBoxExA = NMCOMBOBOXEXA;
   TNMComboBoxExW = NMCOMBOBOXEXW;
-  TNMComboBoxEx = TNMComboBoxExA;
+  TNMComboBoxEx = TNMComboBoxExW;
 
 const
-  
+
   CBEN_GETDISPINFOA       = CBEN_FIRST - 0;
   CBEN_INSERTITEM         = CBEN_FIRST - 1;
   CBEN_DELETEITEM         = CBEN_FIRST - 2;
@@ -5372,9 +5373,9 @@ const
   CBEN_DRAGBEGINA			    = CBEN_FIRST - 8;
   CBEN_DRAGBEGINW			    = CBEN_FIRST - 9;
 
-  CBEN_ENDEDIT            = CBEN_ENDEDITA;
-  CBEN_GETDISPINFO        = CBEN_GETDISPINFOA;
-  CBEN_DRAGBEGIN          = CBEN_DRAGBEGINA;
+  CBEN_ENDEDIT            = CBEN_ENDEDITW;
+  CBEN_GETDISPINFO        = CBEN_GETDISPINFOW;
+  CBEN_DRAGBEGIN          = CBEN_DRAGBEGINW;
 
   CBENF_KILLFOCUS         = 1;
   CBENF_RETURN            = 2;
@@ -5382,35 +5383,35 @@ const
   CBENF_DROPDOWN          = 4;
 
   CBEMAXSTRLEN            = 260;
-  
+
 type
   // CBEN_DRAGBEGIN sends this information ...
-  
+
   NMCBEDRAGBEGINA = packed record
     hdr: TNMHdr;
     iItemid: Integer;
     szText: array[0..CBEMAXSTRLEN - 1] of AnsiChar;
   end;
-  
+
   NMCBEDRAGBEGINW = packed record
     hdr: TNMHdr;
     iItemid: Integer;
     szText: array[0..CBEMAXSTRLEN - 1] of WideChar;
   end;
-  
-  NMCBEDRAGBEGIN = NMCBEDRAGBEGINA;
+
+  NMCBEDRAGBEGIN = NMCBEDRAGBEGINW;
   PNMCBEDragBeginA = ^TNMCBEDragBeginA;
   PNMCBEDragBeginW = ^TNMCBEDragBeginW;
-  PNMCBEDragBegin = PNMCBEDragBeginA;
+  PNMCBEDragBegin = PNMCBEDragBeginW;
   TNMCBEDragBeginA = NMCBEDRAGBEGINA;
   TNMCBEDragBeginW = NMCBEDRAGBEGINW;
-  TNMCBEDragBegin = TNMCBEDragBeginA;
+  TNMCBEDragBegin = TNMCBEDragBeginW;
 
   // CBEN_ENDEDIT sends this information...
   // fChanged if the user actually did anything
   // iNewSelection gives what would be the new selection unless the notify is failed
   //                      iNewSelection may be CB_ERR if there's no match
-  
+
   NMCBEENDEDITA = packed record
     hdr: TNMHdr;
     fChanged: BOOL;
@@ -5418,7 +5419,7 @@ type
     szText: array[0..CBEMAXSTRLEN - 1] of AnsiChar;
     iWhy: Integer;
   end;
-  
+
   NMCBEENDEDITW = packed record
     hdr: TNMHdr;
     fChanged: BOOL;
@@ -5426,101 +5427,101 @@ type
     szText: array[0..CBEMAXSTRLEN - 1] of WideChar;
     iWhy: Integer;
   end;
-  
-  NMCBEENDEDIT = NMCBEENDEDITA;
+
+  NMCBEENDEDIT = NMCBEENDEDITW;
   PNMCBEEndEditA = ^TNMCBEEndEditA;
   PNMCBEEndEditW = ^TNMCBEEndEditW;
-  PNMCBEEndEdit = PNMCBEEndEditA;
+  PNMCBEEndEdit = PNMCBEEndEditW;
   TNMCBEEndEditA = NMCBEENDEDITA;
   TNMCBEEndEditW = NMCBEENDEDITW;
-  TNMCBEEndEdit = TNMCBEEndEditA;
+  TNMCBEEndEdit = TNMCBEEndEditW;
 
 { ====== TAB CONTROL ======================== }
 
 const
-  
+
   WC_TABCONTROL = 'SysTabControl32';
 
 const
-  
+
   TCS_SCROLLOPPOSITE    = $0001;  // assumes multiline tab
-  
+
   TCS_BOTTOM            = $0002;
-  
+
   TCS_RIGHT             = $0002;
-  
+
   TCS_MULTISELECT       = $0004;  // allow multi-select in button mode
-  
+
   TCS_FLATBUTTONS       = $0008;
-  
+
   TCS_FORCEICONLEFT     = $0010;
-  
+
   TCS_FORCELABELLEFT    = $0020;
-  
+
   TCS_HOTTRACK          = $0040;
-  
+
   TCS_VERTICAL          = $0080;
-  
+
   TCS_TABS              = $0000;
-  
+
   TCS_BUTTONS           = $0100;
-  
+
   TCS_SINGLELINE        = $0000;
-  
+
   TCS_MULTILINE         = $0200;
-  
+
   TCS_RIGHTJUSTIFY      = $0000;
-  
+
   TCS_FIXEDWIDTH        = $0400;
-  
+
   TCS_RAGGEDRIGHT       = $0800;
-  
+
   TCS_FOCUSONBUTTONDOWN = $1000;
-  
+
   TCS_OWNERDRAWFIXED    = $2000;
-  
+
   TCS_TOOLTIPS          = $4000;
-  
+
   TCS_FOCUSNEVER        = $8000;
 
-  
+
   TCS_EX_FLATSEPARATORS = $00000001;
-  
+
   TCS_EX_REGISTERDROP   = $00000002;
 
-  
+
   TCM_GETIMAGELIST       = TCM_FIRST + 2;
-  
+
   TCM_SETIMAGELIST       = TCM_FIRST + 3;
-  
+
   TCM_GETITEMCOUNT       = TCM_FIRST + 4;
-  
+
   TCM_DELETEITEM         = TCM_FIRST + 8;
-  
+
   TCM_DELETEALLITEMS     = TCM_FIRST + 9;
-  
+
   TCM_GETITEMRECT        = TCM_FIRST + 10;
-  
+
   TCM_GETCURSEL          = TCM_FIRST + 11;
-  
+
   TCM_SETCURSEL          = TCM_FIRST + 12;
-  
+
   TCM_HITTEST            = TCM_FIRST + 13;
-  
+
   TCM_SETITEMEXTRA       = TCM_FIRST + 14;
-  
+
   TCM_ADJUSTRECT         = TCM_FIRST + 40;
-  
+
   TCM_SETITEMSIZE        = TCM_FIRST + 41;
-  
+
   TCM_REMOVEIMAGE        = TCM_FIRST + 42;
-  
+
   TCM_SETPADDING         = TCM_FIRST + 43;
-  
+
   TCM_GETROWCOUNT        = TCM_FIRST + 44;
-  
+
   TCM_GETTOOLTIPS        = TCM_FIRST + 45;
-  
+
   TCM_SETTOOLTIPS        = TCM_FIRST + 46;
   
   TCM_GETCURFOCUS        = TCM_FIRST + 47;
@@ -5536,32 +5537,32 @@ const
   TCM_SETEXTENDEDSTYLE   = TCM_FIRST + 52;  // optional wParam == mask
   
   TCM_GETEXTENDEDSTYLE   = TCM_FIRST + 53;
-  
+
   TCM_SETUNICODEFORMAT   = CCM_SETUNICODEFORMAT;
-  
+
   TCM_GETUNICODEFORMAT   = CCM_GETUNICODEFORMAT;
 
-  
+
   TCIF_TEXT       = $0001;
-  
+
   TCIF_IMAGE      = $0002;
-  
+
   TCIF_RTLREADING = $0004;
-  
+
   TCIF_PARAM      = $0008;
-  
+
   TCIF_STATE      = $0010;
 
-  
+
   TCIS_BUTTONPRESSED      = $0001;
-  
+
   TCIS_HIGHLIGHTED        = $0002;
 
 type
   PTCItemHeaderA = ^TTCItemHeaderA;
   PTCItemHeaderW = ^TTCItemHeaderW;
-  PTCItemHeader = PTCItemHeaderA;
-  
+  PTCItemHeader = PTCItemHeaderW;
+
   tagTCITEMHEADERA = packed record
     mask: UINT;
     lpReserved1: UINT;
@@ -5570,7 +5571,7 @@ type
     cchTextMax: Integer;
     iImage: Integer;
   end;
-  
+
   tagTCITEMHEADERW = packed record
     mask: UINT;
     lpReserved1: UINT;
@@ -5579,28 +5580,28 @@ type
     cchTextMax: Integer;
     iImage: Integer;
   end;
-  
-  tagTCITEMHEADER = tagTCITEMHEADERA;
-  
+
+  tagTCITEMHEADER = tagTCITEMHEADERW;
+
   _TC_ITEMHEADERA = tagTCITEMHEADERA;
-  
+
   _TC_ITEMHEADERW = tagTCITEMHEADERW;
-  
-  _TC_ITEMHEADER = _TC_ITEMHEADERA;
+
+  _TC_ITEMHEADER = _TC_ITEMHEADERW;
   TTCItemHeaderA = tagTCITEMHEADERA;
   TTCItemHeaderW = tagTCITEMHEADERW;
-  TTCItemHeader = TTCItemHeaderA;
-  
+  TTCItemHeader = TTCItemHeaderW;
+
   TC_ITEMHEADERA = tagTCITEMHEADERA;
-  
+
   TC_ITEMHEADERW = tagTCITEMHEADERW;
-  
-  TC_ITEMHEADER = TC_ITEMHEADERA;
+
+  TC_ITEMHEADER = TC_ITEMHEADERW;
 
   PTCItemA = ^TTCItemA;
   PTCItemW = ^TTCItemW;
-  PTCItem = PTCItemA;
-  
+  PTCItem = PTCItemW;
+
   tagTCITEMA = packed record
     mask: UINT;
     dwState: UINT;
@@ -5610,7 +5611,7 @@ type
     iImage: Integer;
     lParam: LPARAM;
   end;
-  
+
   tagTCITEMW = packed record
     mask: UINT;
     dwState: UINT;
@@ -5620,87 +5621,87 @@ type
     iImage: Integer;
     lParam: LPARAM;
   end;
-  
-  tagTCITEM = tagTCITEMA;
-  
+
+  tagTCITEM = tagTCITEMW;
+
   _TC_ITEMA = tagTCITEMA;
-  
+
   _TC_ITEMW = tagTCITEMW;
-  
-  _TC_ITEM = _TC_ITEMA;
+
+  _TC_ITEM = _TC_ITEMW;
   TTCItemA = tagTCITEMA;
   TTCItemW = tagTCITEMW;
-  TTCItem = TTCItemA;
-  
+  TTCItem = TTCItemW;
+
   TC_ITEMA = tagTCITEMA;
-  
+
   TC_ITEMW = tagTCITEMW;
-  
-  TC_ITEM = TC_ITEMA;
+
+  TC_ITEM = TC_ITEMW;
 
 const
-  
+
   TCM_GETITEMA             = TCM_FIRST + 5;
-  
+
   TCM_SETITEMA             = TCM_FIRST + 6;
-  
+
   TCM_INSERTITEMA          = TCM_FIRST + 7;
-  
+
   TCM_GETITEMW             = TCM_FIRST + 60;
-  
+
   TCM_SETITEMW             = TCM_FIRST + 61;
-  
+
   TCM_INSERTITEMW          = TCM_FIRST + 62;
-  
-  TCM_GETITEM             = TCM_GETITEMA;
-  
-  TCM_SETITEM             = TCM_SETITEMA;
-  
-  TCM_INSERTITEM          = TCM_INSERTITEMA;
+
+  TCM_GETITEM             = TCM_GETITEMW;
+
+  TCM_SETITEM             = TCM_SETITEMW;
+
+  TCM_INSERTITEM          = TCM_INSERTITEMW;
 
 const
-  
+
   TCHT_NOWHERE     = $0001;
-  
+
   TCHT_ONITEMICON  = $0002;
-  
+
   TCHT_ONITEMLABEL = $0004;
-  
+
   TCHT_ONITEM      = TCHT_ONITEMICON or TCHT_ONITEMLABEL;
 
 type
   PTCHitTestInfo = ^TTCHitTestInfo;
-  
+
   tagTCHITTESTINFO = packed record
     pt: TPoint;
     flags: UINT;
   end;
-  
+
   _TC_HITTESTINFO = tagTCHITTESTINFO;
   TTCHitTestInfo = tagTCHITTESTINFO;
-  
+
   TC_HITTESTINFO = tagTCHITTESTINFO;
 
-  
+
   tagTCKEYDOWN = packed record
     hdr: TNMHDR;
     wVKey: Word;
     flags: UINT;
   end;
-  
+
   _TC_KEYDOWN = tagTCKEYDOWN;
   TTCKeyDown = tagTCKEYDOWN;
-  
+
   TC_KEYDOWN = tagTCKEYDOWN;
 
 const
-  
+
   TCN_KEYDOWN             = TCN_FIRST - 0;
-  
+
   TCN_SELCHANGE           = TCN_FIRST - 1;
-  
+
   TCN_SELCHANGING         = TCN_FIRST - 2;
-  
+
   TCN_GETOBJECT           = TCN_FIRST - 3;
 
 
@@ -6161,30 +6162,30 @@ const
   
   DTN_CLOSEUP        = DTN_FIRST + 7;  // MonthCal is popping up
   
-  DTN_USERSTRING     = DTN_USERSTRINGA;
-  
-  DTN_WMKEYDOWN      = DTN_WMKEYDOWNA;
-  
-  DTN_FORMAT         = DTN_FORMATA;
-  
-  DTN_FORMATQUERY    = DTN_FORMATQUERYA;
+  DTN_USERSTRING     = DTN_USERSTRINGW;
+
+  DTN_WMKEYDOWN      = DTN_WMKEYDOWNW;
+
+  DTN_FORMAT         = DTN_FORMATW;
+
+  DTN_FORMATQUERY    = DTN_FORMATQUERYW;
 
   // Ranges
-  
+
   GDTR_MIN = $0001;
-  
+
   GDTR_MAX = $0002;
 
   // Return Values
-  
+
   GDT_ERROR = -1;
-  
+
   GDT_VALID = 0;
-  
+
   GDT_NONE  = 1;
 
 type
-  
+
   tagNMDATETIMECHANGE = packed record
     nmhdr: TNmHdr;
     dwFlags: DWORD;         // GDT_VALID or GDT_NONE
@@ -6193,53 +6194,53 @@ type
   PNMDateTimeChange = ^TNMDateTimeChange;
   TNMDateTimeChange = tagNMDATETIMECHANGE;
 
-  
+
   tagNMDATETIMESTRINGA = packed record
     nmhdr: TNmHdr;
     pszUserString: PAnsiChar;     // string user entered
     st: TSystemTime;           // app fills this in
     dwFlags: DWORD;            // GDT_VALID or GDT_NONE
   end;
-  
+
   tagNMDATETIMESTRINGW = packed record
     nmhdr: TNmHdr;
     pszUserString: PWideChar;     // string user entered
     st: TSystemTime;           // app fills this in
     dwFlags: DWORD;            // GDT_VALID or GDT_NONE
   end;
-  
-  tagNMDATETIMESTRING = tagNMDATETIMESTRINGA;
+
+  tagNMDATETIMESTRING = tagNMDATETIMESTRINGW;
   PNMDateTimeStringA = ^TNMDateTimeStringA;
   PNMDateTimeStringW = ^TNMDateTimeStringW;
-  PNMDateTimeString = PNMDateTimeStringA;
+  PNMDateTimeString = PNMDateTimeStringW;
   TNMDateTimeStringA = tagNMDATETIMESTRINGA;
   TNMDateTimeStringW = tagNMDATETIMESTRINGW;
-  TNMDateTimeString = TNMDateTimeStringA;
+  TNMDateTimeString = TNMDateTimeStringW;
 
-  
+
   tagNMDATETIMEWMKEYDOWNA = packed record
     nmhdr: TNmHdr;
     nVirtKey: Integer; // virtual key code of WM_KEYDOWN which MODIFIES an X field
     pszFormat: PAnsiChar; // format substring
     st: TSystemTime;   // current systemtime, app should modify based on key
   end;
-  
+
   tagNMDATETIMEWMKEYDOWNW = packed record
     nmhdr: TNmHdr;
     nVirtKey: Integer; // virtual key code of WM_KEYDOWN which MODIFIES an X field
     pszFormat: PWideChar; // format substring
     st: TSystemTime;   // current systemtime, app should modify based on key
   end;
-  
-  tagNMDATETIMEWMKEYDOWN = tagNMDATETIMEWMKEYDOWNA;
+
+  tagNMDATETIMEWMKEYDOWN = tagNMDATETIMEWMKEYDOWNW;
   PNMDateTimeWMKeyDownA = ^TNMDateTimeWMKeyDownA;
   PNMDateTimeWMKeyDownW = ^TNMDateTimeWMKeyDownW;
-  PNMDateTimeWMKeyDown = PNMDateTimeWMKeyDownA;
+  PNMDateTimeWMKeyDown = PNMDateTimeWMKeyDownW;
   TNMDateTimeWMKeyDownA = tagNMDATETIMEWMKEYDOWNA;
   TNMDateTimeWMKeyDownW = tagNMDATETIMEWMKEYDOWNW;
-  TNMDateTimeWMKeyDown = TNMDateTimeWMKeyDownA;
+  TNMDateTimeWMKeyDown = TNMDateTimeWMKeyDownW;
 
-  
+
   tagNMDATETIMEFORMATA = packed record
     nmhdr: TNmHdr;
     pszFormat: PAnsiChar;                // format substring
@@ -6247,7 +6248,7 @@ type
     pszDisplay: PAnsiChar;               // string to display
     szDisplay: array[0..63] of AnsiChar; // buffer pszDisplay originally points at
   end;
-  
+
   tagNMDATETIMEFORMATW = packed record
     nmhdr: TNmHdr;
     pszFormat: PWideChar;                // format substring
@@ -6255,35 +6256,35 @@ type
     pszDisplay: PWideChar;               // string to display
     szDisplay: array[0..63] of WideChar; // buffer pszDisplay originally points at
   end;
-  
-  tagNMDATETIMEFORMAT = tagNMDATETIMEFORMATA;
+
+  tagNMDATETIMEFORMAT = tagNMDATETIMEFORMATW;
   PNMDateTimeFormatA = ^TNMDateTimeFormatA;
   PNMDateTimeFormatW = ^TNMDateTimeFormatW;
-  PNMDateTimeFormat = PNMDateTimeFormatA;
+  PNMDateTimeFormat = PNMDateTimeFormatW;
   TNMDateTimeFormatA = tagNMDATETIMEFORMATA;
   TNMDateTimeFormatW = tagNMDATETIMEFORMATW;
-  TNMDateTimeFormat = TNMDateTimeFormatA;
+  TNMDateTimeFormat = TNMDateTimeFormatW;
 
-  
+
   tagNMDATETIMEFORMATQUERYA = packed record
     nmhdr: TNmHdr;
     pszFormat: PAnsiChar; // format substring
     szMax: TSize;      // max bounding rectangle app will use for this format string
   end;
-  
+
   tagNMDATETIMEFORMATQUERYW = packed record
     nmhdr: TNmHdr;
     pszFormat: PWideChar; // format substring
     szMax: TSize;      // max bounding rectangle app will use for this format string
   end;
-  
-  tagNMDATETIMEFORMATQUERY = tagNMDATETIMEFORMATQUERYA;
+
+  tagNMDATETIMEFORMATQUERY = tagNMDATETIMEFORMATQUERYW;
   PNMDateTimeFormatQueryA = ^TNMDateTimeFormatQueryA;
   PNMDateTimeFormatQueryW = ^TNMDateTimeFormatQueryW;
-  PNMDateTimeFormatQuery = PNMDateTimeFormatQueryA;
+  PNMDateTimeFormatQuery = PNMDateTimeFormatQueryW;
   TNMDateTimeFormatQueryA = tagNMDATETIMEFORMATQUERYA;
   TNMDateTimeFormatQueryW = tagNMDATETIMEFORMATQUERYW;
-  TNMDateTimeFormatQuery = TNMDateTimeFormatQueryA;
+  TNMDateTimeFormatQuery = TNMDateTimeFormatQueryW;
 
 //   returns GDT_NONE if "none" is selected (DTS_SHOWNONE only)
 //   returns GDT_VALID and modifies pst to be the currently selected value
@@ -6578,7 +6579,7 @@ const
   
   TME_CANCEL          = $80000000;
 
-  
+
   HOVER_DEFAULT       = $FFFFFFFF;
 
 type
@@ -6618,7 +6619,7 @@ const
   WSB_PROP_HBKGCOLOR      = $00000080;
   
   WSB_PROP_VSTYLE         = $00000100;
-  
+
   WSB_PROP_HSTYLE         = $00000200;
   
   WSB_PROP_WINSTYLE       = $00000400;
@@ -7830,23 +7831,23 @@ end;
 
 function TreeView_EditLabelA(hwnd: HWND; hitem: HTreeItem): HWND;
 begin
-  Result := Windows.HWND( SendMessage(hwnd, TVM_EDITLABEL, 0, Longint(hitem)) );
+  Result := Winapi.Windows.HWND( SendMessage(hwnd, TVM_EDITLABEL, 0, Longint(hitem)) );
 end;
 
 function TreeView_EditLabelW(hwnd: HWND; hitem: HTreeItem): HWND;
 begin
-  Result := Windows.HWND( SendMessage(hwnd, TVM_EDITLABEL, 0, Longint(hitem)) );
+  Result := Winapi.Windows.HWND( SendMessage(hwnd, TVM_EDITLABEL, 0, Longint(hitem)) );
 end;
 
 function TreeView_EditLabel(hwnd: HWND; hitem: HTreeItem): HWND;
 begin
-  Result := Windows.HWND( SendMessage(hwnd, TVM_EDITLABEL, 0, Longint(hitem)) );
+  Result := Winapi.Windows.HWND( SendMessage(hwnd, TVM_EDITLABEL, 0, Longint(hitem)) );
 end;
 
 
 function TreeView_GetEditControl(hwnd: HWND): HWND;
 begin
-  Result := Windows.HWND( SendMessage(hwnd, TVM_GETEDITCONTROL, 0, 0) );
+  Result := Winapi.Windows.HWND( SendMessage(hwnd, TVM_GETEDITCONTROL, 0, 0) );
 end;
 
 

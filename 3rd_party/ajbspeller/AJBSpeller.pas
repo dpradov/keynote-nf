@@ -25,16 +25,18 @@ unit AJBSpeller;
 interface
 
 uses
-  Windows,
-  Messages,
-  SysUtils,
-  Classes,
-  Graphics,
-  Controls,
-  Forms,
-  Dialogs,
-  Variants,        // [dpv]
-  ComObj, ActiveX, registry;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.ActiveX,
+   System.Win.ComObj,
+   System.Win.Registry,
+   System.SysUtils,
+   System.Classes,
+   System.Variants,       // [dpv]
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs;
 
 type
   TAJBSpell = class(TComponent)
@@ -134,7 +136,7 @@ begin
 end;
 
 
-function MessWatch(nCode, wParam, lParam: Integer): Integer; stdcall;
+function MessWatch(nCode: Integer; wParam: NativeUInt; lParam: NativeInt): NativeInt; stdcall;
 var
   p: pTCWPRetStruct;
   h: HWND;

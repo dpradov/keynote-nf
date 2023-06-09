@@ -1,44 +1,69 @@
 unit kn_FileObj;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
-------------------------------------------------------------------------------
- (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
+ 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
-uses Windows, Classes, Graphics,
-  SysUtils, IniFiles, FileCtrl,
-  controls, comctrls95, gf_misc,
-  kn_NoteObj, kn_Info, kn_Const,
-  kn_NodeList, gf_files, TreeNT,
-  IDEA, DCPcrypt, Blowfish, SHA1,
-  Dialogs, RxRichEd, StreamIO, ZLibEx;
+uses
+   Winapi.Windows,
+   System.Classes,
+   System.SysUtils,
+   System.IniFiles,
+   System.AnsiStrings,
+   System.IOUtils,
+   Vcl.Graphics,
+   Vcl.FileCtrl,
+   Vcl.Controls,
+   Vcl.Dialogs,
+   TreeNT,
+   RxRichEd,
+   ZLibEx,
+   comctrls95,
+   DCPcrypt,
+   Blowfish,
+   SHA1,
+   IDEA,
+   gf_misc,
+   gf_streams,
+   gf_strings,
+   gf_files,
+   kn_Info,
+   kn_Const,
+   kn_NodeList,
+   kn_NoteObj,
+   kn_TreeNoteMng,
+   kn_LinksMng;
+
 
 type
   EKeyNoteFileError = class( Exception );
   EPassphraseError = class( Exception );
 
 type
-  TGetAccessPassphraseFunc = function( const FN : wideString ) : string;
+  TGetAccessPassphraseFunc = function( const FN : string ) : string;
 
 type
+
   TBookmark = record
-    Name : wideString;
+    Name : string;
     CaretPos : integer;
     SelLength : integer;
     Note : TTabNote;
     Node : TNoteNode;
   end;
+  PBookmark = ^TBookmark;
 
   TBookmarks = array[0..MAX_BOOKMARKS] of TBookmark;
 
@@ -61,7 +86,7 @@ type
   TNoteFile = class( TObject )
   private
     FVersion : TNoteFileVersion;
-    FFileName : wideString;
+    FFileName : string;
     FFileFormat : TNoteFileFormat;
     FCompressionLevel: TZCompressionLevel;
     FDescription : TCommentStr;
@@ -81,7 +106,7 @@ type
     FSavedWithRichEdit3 : boolean;
 
     FCryptMethod : TCryptMethod;
-    FPassPhrase : TCommentStr;
+    FPassPhrase : UTF8String;
     FPassphraseFunc : TGetAccessPassphraseFunc;
 
     FBookmarks : TBookmarks; // [?] bookmarks are NOT persistent
@@ -93,7 +118,7 @@ type
     procedure SetComment( AComment : TCommentStr );
     procedure SetFileFormat( AFileFormat : TNoteFileFormat );
     procedure SetModified( AModified : boolean );
-    function GetPassphrase( const FN : wideString ) : boolean;
+    function GetPassphrase( const FN : string ) : boolean;
 
     function InternalAddNote( ANote : TTabNote ) : integer;
     procedure GenerateNoteID( const ANote : TTabNote );
@@ -101,11 +126,12 @@ type
 
     function PropertiesToFlagsString : TFlagsString; virtual;
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); virtual;
-    procedure SetFilename( const Value : wideString );
+    procedure SetFilename( const Value : string );
+    function GetBookmark(Index: integer): PBookmark;
 
   public
     property Version : TNoteFileVersion read FVersion;
-    property FileName : wideString read FFileName write SetFileName;
+    property FileName : string read FFileName write SetFileName;
     property Comment : TCommentStr read FComment write SetComment;
     property Description : TCommentStr read FDescription write SetDescription;
     property NoteCount : integer read GetCount;
@@ -127,10 +153,10 @@ type
     property ClipCapNote : TTabNote read FClipCapNote write FClipCapNote;
 
     property CryptMethod : TCryptMethod read FCryptMethod write FCryptMethod;
-    property Passphrase : TCommentStr read FPassphrase write FPassphrase;
+    property Passphrase : UTF8String read FPassphrase write FPassphrase;
     property PassphraseFunc : TGetAccessPassphraseFunc read FPassphraseFunc write FPassphraseFunc;
 
-    property Bookmarks : TBookmarks read FBookmarks write FBookmarks;
+    property Bookmarks[index: integer]: PBookmark read GetBookmark; // write FBookmarks;
 
     constructor Create;
     destructor Destroy; override;
@@ -138,11 +164,11 @@ type
     function AddNote( ANote : TTabNote ) : integer;
     procedure DeleteNote( ANote : TTabNote );
 
-    function Save( FN : wideString ) : integer;
-    function Load( FN : wideString ) : integer;
+    function Save( FN : string ) : integer;
+    function Load( FN : string ) : integer;
 
-    procedure EncryptFileInStream( const FN : wideString; const CryptStream : TMemoryStream );
-    procedure DecryptFileToStream( const FN : wideString; const CryptStream : TMemoryStream );
+    procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
+    procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
 
     function HasExtendedNotes : boolean; // TRUE is file contains any notes whose FKind is not ntRTF
     function HasVirtualNodes : boolean; // TRUE is file contains any notes which have VIRTUAL NODES
@@ -160,8 +186,10 @@ type
 
 
 implementation
-uses kn_TreeNoteMng, kn_Main, kn_Global, kn_LinksMng, gf_streams, wideStrUtils, gf_strings, gf_miscvcl,
-     TntSysUtils, TntClasses;
+uses
+   kn_Global,
+   kn_Main;
+
 
 resourcestring
   STR_01 = 'Cannot open "%s": File not found';
@@ -290,7 +318,7 @@ begin
     end;
 end; // ClearBookmarks
 
-function TNoteFile.GetPassphrase( const FN : wideString ) : boolean;
+function TNoteFile.GetPassphrase( const FN : string ) : boolean;
 begin
   result := false;
   if ( not assigned( FPassphraseFunc )) then exit;
@@ -438,14 +466,16 @@ begin
         Minor := NFILEVERSION_MINOR;
       end;
     end;
+{$IFDEF WITH_DART}
     nffDartNotes : begin
-      with FVersion do
-      begin
+      with FVersion do begin
         ID := NFHDR_ID;
         Major := NFILEVERSION_MAJOR;
         Minor := NFILEVERSION_MINOR;
       end;
     end;
+{$ENDIF}
+
   end;
 end; // SetVersion
 
@@ -490,29 +520,31 @@ end; // SetModified
 
 
 
-function TNoteFile.Load( FN : wideString ) : integer;
+function TNoteFile.Load( FN : string ) : integer;
 var
   Note : TTabNote;
-  Attrs : integer;
-  Stream : TTntFileStream;
-  MemStream : TTntMemoryStream;
+  Attrs : TFileAttributes;
+  Stream : TFileStream;
+  MemStream : TMemoryStream;
   NoteKind : TNoteType;
-  ds, ds1 : string;
-  ch : char;
+  ds, ds1 : AnsiString;
+  ch : AnsiChar;
   p, ClipCapIdx : integer;
   HasLoadError, FileIDTestFailed : boolean;
-  tf: TWTextFile;
+  tf: TTextFile;
   OldLongDateFormat,
   OldShortDateFormat : string;
   OldLongTimeFormat : string;
   OldDateSeparator,
   OldTimeSeparator : char;
-  ID_CHAR : char;
+  ID_CHAR : AnsiChar;
   FileExhausted : boolean;
   InHead : boolean;
   TestString : string[12];
   VerID : TNoteFileVersion;
+{$IFDEF WITH_DART}
   Hdr : TDartNotesHdr;
+{$ENDIF}
 begin
   result := -1; // error before opening file
   Note := nil;
@@ -526,9 +558,9 @@ begin
   if ( FFileName = '' ) then
     FFileName := FN;
 
-  if ( not WideFileExists( FN )) then
+  if ( not FileExists( FN )) then
   begin
-    DoMessageBox(WideFormat( STR_01, [FN] ), mtError, [mbOK], 0);
+    DoMessageBox(Format( STR_01, [FN] ), mtError, [mbOK], 0);
     raise Exception.Create('');
   end;
 
@@ -540,12 +572,12 @@ begin
   ClipCapIdx := -1;
 
   // check if file is read-only; if so, set FReadOnly flag
-  Attrs := WideFileGetAttr( FN );
-  if (( Attrs and faReadOnly ) > 0 ) then
+  Attrs := TFile.GetAttributes(FN);
+  if (TFileAttribute.faReadOnly in Attrs) then
     FReadOnly := true;
 
   result := 1;
-  Stream := TTntFileStream.Create( FN, ( fmOpenRead or fmShareDenyWrite ));
+  Stream := TFileStream.Create( FN, ( fmOpenRead or fmShareDenyWrite ));
 
   FileIDTestFailed := true; // assume the worst
   result := 2;
@@ -582,6 +614,7 @@ begin
       _IS_OLD_KEYNOTE_FILE_FORMAT := false;
       VerID.ID := NFHDR_ID_ENCRYPTED;
     end
+{$IFDEF WITH_DART}
     else
     if ( pos( _DART_STOP + _DART_ID + _DART_STOP, TestString ) > 0 ) then
     begin
@@ -589,9 +622,10 @@ begin
       _IS_OLD_KEYNOTE_FILE_FORMAT := false;
       VerID.ID := _DART_ID;
     end
+{$ENDIF}
     else
     begin
-      DoMessageBox(WideFormat( STR_02, [FN] ), mtError, [mbOK], 0);
+      DoMessageBox(Format( STR_02, [FN] ), mtError, [mbOK], 0);
       raise Exception.Create('');
       exit;
     end;
@@ -608,7 +642,7 @@ begin
     try
       if ( FFileFormat = nffEncrypted ) then
       begin
-        MemStream := TTntMemoryStream.Create;
+        MemStream := TMemoryStream.Create;
 
         repeat // repeatedly prompt for passphrase, unless other action chosen
           if ( not GetPassphrase( FN )) then
@@ -634,8 +668,8 @@ begin
       end;
 
       if ( FFileFormat = nffKeyNoteZip ) then begin
-          MemStream := TTntMemoryStream.Create;
-          Stream := TTntFileStream.Create(FN, fmOpenRead);
+          MemStream := TMemoryStream.Create;
+          Stream := TFileStream.Create(FN, fmOpenRead);
           try
              Stream.ReadBuffer(FVersion, sizeof( FVersion ));
              Stream.ReadBuffer(FCompressionLevel, sizeof( FCompressionLevel ));
@@ -648,7 +682,7 @@ begin
       end;
 
       if ( FFileFormat = nffKeyNote ) then begin
-          MemStream := TTntMemoryStream.Create;
+          MemStream := TMemoryStream.Create;
           MemStream.LoadFromFile(FN);
       end;
 
@@ -668,13 +702,13 @@ begin
 
                 if ( VerID.Major > NFILEVERSION_MAJOR ) then
                 begin
-                  DoMessageBox(WideFormat( STR_05, [WideExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK], 0);
+                  DoMessageBox(Format( STR_05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK], 0);
                   raise EKeyNoteFileError.Create('');
                 end;
 
                 if ( VerID.Minor > NFILEVERSION_MINOR ) then
                 begin
-                  case DoMessageBox( WideExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
+                  case DoMessageBox( ExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
                     mrNo : begin
                       // nothing, just fall through
                     end;
@@ -700,25 +734,25 @@ begin
 
           if FileIDTestFailed then
           begin
-            DoMessageBox(WideFormat( STR_07, [WideExtractFilename( FN )] ), mtError, [mbOK], 0);
+            DoMessageBox(Format( STR_07, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
             raise EKeyNoteFileError.Create('');
           end;
 
           InHead := true;
 
-          OldShortDateFormat := ShortDateFormat;
-          OldLongDateFormat := LongDateFormat;
-          OldLongTimeFormat := LongTimeFormat;
-          OldDateSeparator := DateSeparator;
-          OldTimeSeparator := TimeSeparator;
-          DateSeparator := _DATESEPARATOR;
-          TimeSeparator := _TIMESEPARATOR;
-          ShortDateFormat := _SHORTDATEFMT;
-          LongDateFormat := _LONGDATEFMT;
-          LongTimeFormat := _LONGTIMEFMT;
+          OldShortDateFormat := FormatSettings.ShortDateFormat;
+          OldLongDateFormat := FormatSettings.LongDateFormat;
+          OldLongTimeFormat := FormatSettings.LongTimeFormat;
+          OldDateSeparator := FormatSettings.DateSeparator;
+          OldTimeSeparator := FormatSettings.TimeSeparator;
+          FormatSettings.DateSeparator := _DATESEPARATOR;
+          FormatSettings.TimeSeparator := _TIMESEPARATOR;
+          FormatSettings.ShortDateFormat := _SHORTDATEFMT;
+          FormatSettings.LongDateFormat := _LONGDATEFMT;
+          FormatSettings.LongTimeFormat := _LONGTIMEFMT;
           FileExhausted := false;
 
-          tf:= TWTextFile.Create();
+          tf:= TTextFile.Create();
           tf.assignstream( MemStream );
 
           tf.Reset;
@@ -736,7 +770,7 @@ begin
                   begin
                     ID_CHAR := upcase( ds[2] );
                     delete( ds, 1, 2 );
-                    ds := trim( ds );
+                    ds := System.AnsiStrings.Trim( ds );
                     case ID_CHAR of
                       _NF_AID : begin // Version ID
                         // [x] verify ID and version
@@ -749,10 +783,10 @@ begin
                         end;
                       end;
                       _NF_FCO : begin // File comment
-                        FComment := TryUTF8ToWideString(ds);
+                        FComment := TryUTF8ToUnicodeString(ds);
                       end;
                       _NF_FDE : begin // File description
-                        FDescription := TryUTF8ToWideString(ds);
+                        FDescription := TryUTF8ToUnicodeString(ds);
                       end;
                       _NF_ACT : begin // Active note
                         try
@@ -854,11 +888,11 @@ begin
             end;
 
           finally
-            DateSeparator := OldDateSeparator;
-            TimeSeparator := OldTimeSeparator;
-            ShortDateFormat := OldShortDateFormat;
-            LongDateFormat := OldLongDateFormat;
-            LongTimeFormat := OldLongTimeFormat;
+            FormatSettings.DateSeparator := OldDateSeparator;
+            FormatSettings.TimeSeparator := OldTimeSeparator;
+            FormatSettings.ShortDateFormat := OldShortDateFormat;
+            FormatSettings.LongDateFormat := OldLongDateFormat;
+            FormatSettings.LongTimeFormat := OldLongTimeFormat;
             tf.CloseFile;
             tf.Free;
             if assigned( MemStream ) then MemStream.Free;
@@ -866,9 +900,11 @@ begin
 
         end; // nffKeyNote
 
+
+{$IFDEF WITH_DART}
         nffDartNotes : begin
 
-          Stream := TTntFileStream.Create( FN, ( fmOpenRead or fmShareDenyWrite ));
+          Stream := TFileStream.Create( FN, ( fmOpenRead or fmShareDenyWrite ));
           ds := '';
           repeat
             Stream.ReadBuffer( ch, sizeof( ch ));
@@ -913,7 +949,7 @@ begin
           end;
 
           if FileIDTestFailed then begin
-            DoMessageBox(WideFormat( STR_09 + VerID.ID, [WideExtractFilename( FN )] ), mtError, [mbOK], 0);
+            DoMessageBox(Format( STR_09 + VerID.ID, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
             raise Exception.Create('');
           end;
 
@@ -944,6 +980,9 @@ begin
             end;
           end;
         end; // nffDartNotes
+
+{$ENDIF}
+
       end;
     except
       raise;
@@ -963,15 +1002,15 @@ begin
 end; // Load
 
 
-function TNoteFile.Save( FN : wideString ) : integer;
+function TNoteFile.Save( FN : string ) : integer;
 var
   i : integer;
-  Stream : TTntFileStream;
+  Stream : TFileStream;
   myNote : TTabNote;
-  ds : string;
-  tf : TWTextFile;
+  ds : AnsiString;
+  tf : TTextFile;
   AuxStream : TMemoryStream;
-  tempDirectory, tempFN : wideString;
+  tempDirectory, tempFN : string;
 
   procedure WriteNoteFile;
   var
@@ -979,7 +1018,7 @@ var
   begin
     //writeln(tf, _NF_COMMENT, _NF_AID, FVersion.ID, #32, FVersion.Major + '.' + FVersion.Minor );
     if FFileFormat = nffKeyNote then begin
-       tf.writeln([_NF_COMMENT, _NF_AID, string(FVersion.ID), #32, FVersion.Major + '.' + FVersion.Minor] );
+       tf.writeln([_NF_COMMENT, _NF_AID, AnsiString(FVersion.ID), #32, FVersion.Major + '.' + FVersion.Minor] );
        tf.writeln([_NF_WARNING]);
     end;
     tf.writeln([_NF_COMMENT, _NF_FDE, FDescription ]);
@@ -1013,13 +1052,9 @@ var
             end;
           end;
         except
-          on E : Exception do
-          begin
-            result := 3;
-            DoMessageBox( WideFormat(
-              STR_13,
-              [myNote.Name, E.Message]
-              ), mtError, [mbOK], 0 );
+          on E : Exception do begin
+              result := 3;
+              DoMessageBox( Format(STR_13, [myNote.Name, E.Message]), mtError, [mbOK], 0 );
               exit;
           end;
         end;
@@ -1041,13 +1076,9 @@ var
             end;
           end;
         except
-          on E : Exception do
-          begin
-            result := 3;
-            DoMessageBox( WideFormat(
-              STR_13,
-              [myNote.Name, E.Message]
-              ), mtError, [mbOK], 0 );
+          on E : Exception do begin
+              result := 3;
+              DoMessageBox( Format(STR_13, [myNote.Name, E.Message]), mtError, [mbOK], 0 );
               exit;
           end;
         end;
@@ -1060,7 +1091,7 @@ var
 
   procedure RenameTempFile;
   var
-     Str: WideString;
+     Str: string;
   begin
      if not MoveFileExW_n (tempFN, FN, 5) then begin
         if _OSIsWindowsNT then
@@ -1077,8 +1108,10 @@ begin
   SetVersion;
   FSavedWithRichEdit3 := ( _LoadedRichEditVersion = 3 );
 
+{$IFDEF WITH_DART}
   if ((FFileFormat in [nffDartNotes]) and HasExtendedNotes ) then
     raise EKeyNoteFileError.CreateFmt( STR_10, [FILE_FORMAT_NAMES[FFileFormat], TABNOTE_KIND_NAMES[ntRTF]] );
+{$ENDIF}
 
   if ( FN = '' ) then
     FN := FFileName;
@@ -1117,7 +1150,7 @@ begin
       case FFileFormat of
         nffKeyNote : begin
 
-          tf:= TWTextFile.Create();
+          tf:= TTextFile.Create();
           tf.assignfile(tempFN );
           tf.rewrite();
 
@@ -1131,13 +1164,13 @@ begin
 
         nffKeyNoteZip : begin
 
-          AuxStream := TTntMemoryStream.Create;
-          Stream := TTntFileStream.Create( tempFN, ( fmCreate or fmShareExclusive ));
+          AuxStream := TMemoryStream.Create;
+          Stream := TFileStream.Create( tempFN, ( fmCreate or fmShareExclusive ));
           try
             Stream.WriteBuffer(FVersion, sizeof(FVersion));
             Stream.WriteBuffer(FCompressionLevel, sizeof(FCompressionLevel));
 
-            tf:= TWTextFile.Create();
+            tf:= TTextFile.Create();
             try
               tf.assignstream( AuxStream );
               tf.rewrite;
@@ -1161,9 +1194,9 @@ begin
           if ( FPassphrase = '' ) then
             raise EKeyNoteFileError.Create( STR_14 );
 
-          AuxStream := TTntMemoryStream.Create;
+          AuxStream := TMemoryStream.Create;
           try
-            tf:= TWTextFile.Create();
+            tf:= TTextFile.Create();
             tf.assignstream( AuxStream );
             tf.rewrite;
 
@@ -1182,8 +1215,9 @@ begin
 
         end; // nffEncrypted format
 
+{$IFDEF WITH_DART}
         nffDartNotes : begin
-          Stream := TTntFileStream.Create( tempFN, ( fmCreate or fmShareExclusive ));
+          Stream := TFileStream.Create( tempFN, ( fmCreate or fmShareExclusive ));
           try
             ds := _DART_ID + _DART_STOP +
                   _DART_VER + _DART_STOP + _DART_VEROK +
@@ -1217,6 +1251,8 @@ begin
             Stream.Free;
           end;
         end; // nffDartNotes
+{$ENDIF}
+
       end; // CASE
 
 
@@ -1231,7 +1267,8 @@ begin
 
 end; // SAVE
 
-procedure TNoteFile.EncryptFileInStream( const FN : wideString; const CryptStream : TMemoryStream );
+
+procedure TNoteFile.EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
 var
   Hash : TDCP_sha1;
   HashDigest : array[0..31] of byte;
@@ -1245,7 +1282,7 @@ var
 begin
 
   CryptStream.Position := 0;
-  streamsize := CryptStream.Size;    
+  streamsize := CryptStream.Size;
 
   assignfile( savefile, FN );
   rewrite( savefile, 1 );
@@ -1323,23 +1360,25 @@ begin
 
 end; // EncryptFileInStream
 
+
 procedure RaiseStreamReadError;
 begin
   raise EKeyNoteFileError.Create( STR_17 );
 end; // RaiseStreamReadError
 
-procedure TNoteFile.DecryptFileToStream( const FN : wideString; const CryptStream : TMemoryStream );
+
+procedure TNoteFile.DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
 var
   Hash: TDCP_sha1;
   HashDigest, HashRead: array[0..31] of byte;
   Decrypt: TDCP_blockcipher;
-  readfile: TTntFileStream;
+  readfile: TFileStream;
   Info : TEncryptedFileInfo;
   chunksize, sizeread : integer; // MUST be 32-bit value, i.e. 4 bytes
   array32bits : array[0..3] of byte;
   dataptr : pointer;
 begin
-  readfile:= TTntFileStream.Create( FN, ( fmOpenRead ));
+  readfile:= TFileStream.Create( FN, ( fmOpenRead ));
 
   try
     readfile.Read(array32bits, sizeof(array32bits));
@@ -1416,6 +1455,7 @@ begin
 
 end; // DecryptFileToStream
 
+
 function TNoteFile.GetNoteByID( const aID : integer ) : TTabNote;
 var
   i, cnt : integer;
@@ -1450,6 +1490,7 @@ begin
   end;
 end; // GetNoteByTreeNode
 
+
 function TNoteFile.GetNoteByName( const aName : string ) : TTabNote;
 // aName is NOT case-sensitive
 var
@@ -1467,6 +1508,7 @@ begin
   end;
 end; // GetNoteByName
 
+
 function TNoteFile.HasExtendedNotes : boolean;
 var
   i : integer;
@@ -1480,6 +1522,7 @@ begin
         break;
       end;
 end; // HasExtendedNotes
+
 
 function TNoteFile.HasVirtualNodes : boolean;
 var
@@ -1549,6 +1592,7 @@ begin
   result[4] := BOOLEANSTR[FNoMultiBackup];
 end; // PropertiesToFlagsString
 
+
 procedure TNoteFile.FlagsStringToProperties( const FlagsStr : TFlagsString );
 begin
   if ( length( FlagsStr ) < FLAGS_STRING_LENGTH ) then exit;
@@ -1558,11 +1602,19 @@ begin
   FNoMultiBackup      := FlagsStr[4] = BOOLEANSTR[true];
 end; // FlagsStringToProperties
 
-procedure TNoteFile.SetFilename( const Value : wideString );
+
+procedure TNoteFile.SetFilename( const Value : string );
 begin
   FFilename := Value;
   _VNKeyNoteFileName := Value;
 end; // SetFilename
+
+
+function TNoteFile.GetBookmark(Index: integer): PBookmark;
+begin
+  Result := @FBookmarks[Index];
+end;
+
 
 procedure TNoteFile.SetupMirrorNodes (Note : TTabNote);
 var

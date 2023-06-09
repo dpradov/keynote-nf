@@ -65,7 +65,13 @@ unit tom_TLB;
 {$VARPROPSETTER ON}
 interface
 
-uses Windows, ActiveX, Classes, Graphics, StdVCL, Variants;
+uses
+   Winapi.Windows,
+   Winapi.ActiveX,
+   System.Win.StdVCL,
+   System.Classes,
+   System.Variants,
+   Vcl.Graphics;
   
 
 // *********************************************************************//
@@ -972,6 +978,7 @@ type
 
 implementation
 
-uses ComObj;
+uses
+   System.Win.ComObj;
 
 end.

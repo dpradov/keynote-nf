@@ -7,8 +7,8 @@ unit kn_Paragraph;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
@@ -19,34 +19,47 @@ unit kn_Paragraph;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  Placemnt, StdCtrls, ExtCtrls, Spin,
-  kn_NoteObj, kn_Info, RxRichEd, RichEdit, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.RichEdit,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   Vcl.Samples.Spin,
+   RxRichEd,
+   RxPlacemnt,
+   kn_Info,
+   kn_NoteObj;
+
 
 type
   TForm_Para = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
     FormPlacement: TFormPlacement;
-    GroupBox1: TTntGroupBox;
-    Combo_Spc: TTntComboBox;
+    GroupBox1: TGroupBox;
+    Combo_Spc: TComboBox;
     Spin_SpcBef: TSpinEdit;
     Spin_SpcAft: TSpinEdit;
-    Label4: TTntLabel;
-    Label5: TTntLabel;
-    Label6: TTntLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
     RB_Align: TRadioGroup;
-    GroupBox2: TTntGroupBox;
+    GroupBox2: TGroupBox;
     Spin_First: TSpinEdit;
     Spin_Left: TSpinEdit;
     Spin_Right: TSpinEdit;
-    Label3: TTntLabel;
-    Label2: TTntLabel;
-    Label1: TTntLabel;
-    GroupBox3: TTntGroupBox;
-    CB_Bullets: TTntCheckBox;
-    CB_Numbers: TTntCheckBox;
+    Label3: TLabel;
+    Label2: TLabel;
+    Label1: TLabel;
+    GroupBox3: TGroupBox;
+    CB_Bullets: TCheckBox;
+    CB_Numbers: TCheckBox;
     procedure GroupBox1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);

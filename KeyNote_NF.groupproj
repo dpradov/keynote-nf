@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{7D87B1AC-A5C8-48C7-A659-57451A1E7596}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="kntutils.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="keynote.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="kntutils">
+        <MSBuild Projects="kntutils.dproj"/>
+    </Target>
+    <Target Name="kntutils:Clean">
+        <MSBuild Projects="kntutils.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="kntutils:Make">
+        <MSBuild Projects="kntutils.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="keynote">
+        <MSBuild Projects="keynote.dproj"/>
+    </Target>
+    <Target Name="keynote:Clean">
+        <MSBuild Projects="keynote.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="keynote:Make">
+        <MSBuild Projects="keynote.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="kntutils;keynote"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="kntutils:Clean;keynote:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="kntutils:Make;keynote:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -5,6 +5,39 @@
 
 
 ------------------------------------------------------------
+ 09 JUn 2023
+------------------------------------------------------------
+Adaptation from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3
+(Community Edition 11.3  Alexandria).
+
+I have had to revise and modify many units, specific from KeyNote but 
+also from 3rd Party components and libraries. 
+In some cases it was easier to stop using some 3rd party components 
+and start using internal components in Delphi, custom coding certain 
+aspects no covered (like TDfsStatusBar). In others I found much better 
+(or neccesary) to look for a more recent version, as with 'ICS Internet
+Component Suit' or 'Kryvich Delphi Localizer'. 
+I have also changed Rx Library (RxRichEd,..) with UnRxLib. It is a
+version based in Rx Library 2.71, adapted to actual Delphi IDEs. KeyNote
+was based in Rx Library 2.71 also, with some changes and corrections
+over time, for example to adapt to Unicode. But the adaptation of UnRxLib
+to Unicode and newer versions is better. So I preferred to rebase in that
+library and apply on it the changes (and some correction) still needed.
+
+From Delphi 2009 there was complete support to Unicode, also in VCL controls, 
+so there was no need to use TntControls, with which I got to give 
+unicode support in 2009 (on Delphi 2006). But that change since Delphi 2009
+also implied a serious revision of all the code, because of the different
+management of the strings (Char, WideChar, String, WideString, PChar, ...)
+
+In his process I have decided to drop support for the 'Dart format'. I have 
+enclosed the code in a conditional compilation ({$IFDEF WITH_DART}), but 
+I have not revised that code during the adaptation. In the case that someone
+needs to reuse a file in that format, can use an older version of KeyNote
+to convert to normal KeyNote format.
+
+
+------------------------------------------------------------
  23 Aug 2015 
 ------------------------------------------------------------
 Since august 2015 the project is hosted in GitHub

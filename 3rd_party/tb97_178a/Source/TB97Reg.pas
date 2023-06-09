@@ -19,9 +19,20 @@ procedure Register;
 implementation
 
 uses
-  SysUtils, Classes, Dialogs, 
-  {$IFDEF TB97D6} DesignIntf, DesignEditors, {$ELSE} DsgnIntf, {$ENDIF}
-  TB97Vers, TB97, TB97Tlbr, TB97Tlwn, TB97Ctls;
+   System.SysUtils,
+   System.Classes,
+   Vcl.Dialogs,
+   {$IFDEF TB97D6}
+   DesignIntf,
+   DesignEditors,
+   {$ELSE}
+   DsgnIntf,
+   {$ENDIF}
+   TB97Vers,
+   TB97,
+   TB97Tlbr,
+   TB97Tlwn,
+   TB97Ctls;
 
 type
   TToolbar97VersionProperty = class(TStringProperty)

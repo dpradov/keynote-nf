@@ -8,8 +8,20 @@ interface
   {$WEAKPACKAGEUNIT ON}
 {$endif}
 
-uses Windows, SysUtils, Graphics, Forms, Menus, ExtCtrls, StdCtrls, 
-     Dialogs, Controls, Classes, Buttons, ComCtrls, TreeNT;
+uses
+   Winapi.Windows,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Forms,
+   Vcl.Menus,
+   Vcl.ExtCtrls,
+   Vcl.StdCtrls,
+   Vcl.Dialogs,
+   Vcl.Controls,
+   Vcl.Buttons,
+   Vcl.ComCtrls,
+   TreeNT;
              
 type
   TTreeNTEditor = class(TForm)
@@ -96,7 +108,8 @@ function EditTreeViewItems(EditItems: TTreeNTNodes): Boolean;
 
 implementation
 
-uses Messages;
+uses
+   Winapi.Messages;
 
 {$R *.DFM}  // D2 user: copy TNTEditor.dfm from the folder 'Delphi 2 Editor DFM' into the
             // TreeNT folder before you compile the component!

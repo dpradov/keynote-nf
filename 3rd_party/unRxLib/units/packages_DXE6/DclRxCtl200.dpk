@@ -1,0 +1,70 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{ Added by Polaris Software                             }
+{*******************************************************}
+
+package DclRxCtl200;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'RX Library Controls and Tools'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl,
+  RtmRxCtl200,
+  dclstd,
+  vclImg,
+  DesignIDE;
+
+contains
+  RxHintProp in '..\RxHintProp.pas',
+  RxCheckItm in '..\RxCheckItm.pas',
+  RxStrLEdit in '..\RxStrLEdit.pas',
+  RxColors in '..\RxColors.pas',
+  RxDsgn in '..\RxDsgn.pas',
+  RxPresrDsn in '..\RxPresrDsn.pas',
+  RxMinMaxEd in '..\RxMinMaxEd.pas',
+  RxSbEdit in '..\RxSbEdit.pas',
+  RxPgMngrEd in '..\RxPgMngrEd.pas',
+  RxTimLstEd in '..\RxTimLstEd.pas',
+  RxIcoLEdit in '..\RxIcoLEdit.pas',
+  RxResExp in '..\RxResExp.pas',
+  RxPictEdit in '..\RxPictEdit.pas',
+  RxDirFrm in '..\RxDirFrm.pas',
+  RxGradEdit in '..\RxGradEdit.pas',
+  RxCtlReg in '..\RxCtlReg.pas',
+  RxTooReg in '..\RxTooReg.pas',
+  RxPluginWizard in '..\RxPluginWizard.pas',
+  RxPluginParamsForm in '..\RxPluginParamsForm.pas',
+  RxViewer in '..\RxViewer.pas';
+
+end.

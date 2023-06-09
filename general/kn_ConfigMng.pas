@@ -1,21 +1,45 @@
 unit kn_ConfigMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
+
+uses
+   Winapi.Windows,
+   System.Classes,
+   System.IniFiles,
+   System.SysUtils,
+   Vcl.Forms,
+   Vcl.Controls,
+   Vcl.Dialogs,
+   Vcl.Menus,
+   TB97Ctls,
+   TB97Tlbr,
+   gf_files,
+   dll_Keyboard,
+   kn_Dllmng,
+   kn_DLLinterface,
+   kn_Info,
+   kn_INI,
+   kn_Const,
+   kn_Chest,
+   kn_MacroMng,
+   kn_VCLControlsMng,
+   kn_Main
+   ;
 
     // config management
     procedure ReadCmdLine;
@@ -37,16 +61,16 @@ interface
 implementation
 
 uses
-   Windows, Forms, Classes, Controls, Dialogs, Menus, IniFiles, SysUtils,
-   TB97Ctls, TB97Tlbr,
-   kn_Main, dll_Keyboard, kn_Dllmng, kn_DLLinterface, gf_files,
-   kn_global, kn_Info, kn_INI, kn_Const, kn_OptionsNew, kn_Chest,
-   kn_FindReplaceMng, kn_MacroMng, kn_VCLControlsMng, kn_LanguagesMng,
-   TntSysUtils;
+   kn_LanguagesMng,
+   kn_OptionsNew,
+   kn_global;
+
 
 resourcestring
   STR_KeybdError = 'Error in keyboard customization procedure: ';
   STR_TabIcons = ' Customize Tab icons (%s) ';
+  STR_InvalidCLA = 'Invalid command line arguments:';
+  STR_ErrorLoading = 'Error while loading custom keyboard configuration from %s: "%s"';
 
 
 procedure ReadCmdLine;
@@ -54,114 +78,107 @@ var
   i : integer;
   s, ext, errstr : string;
 begin
+
   errstr := '';
-  for i := 1 to ParamCount do
-  begin
-    s := ansilowercase( ParamStr( i ));
+  for i := 1 to ParamCount do  begin
+    s := AnsiLowerCase( ParamStr( i ));
+
     case s[1] of
-      '-', '/' : begin // assume switch { BUG: if a filename begins with '-', we're screwed }
-        delete( s, 1, 1 );
+       '-', '/' : begin // assume switch { BUG: if a filename begins with '-', we're screwed }
+          delete( s, 1, 1 );
 
 
-        if ( s = swMinimize ) then
-          opt_Minimize := true
-        else
-        if ( s = swSetup ) then
-          opt_Setup := true
-        else
-        if ( s = swDebug ) then
-          opt_Debug := true
-        else
-        if ( s = swNoReadOpt ) then
-          opt_NoReadOpt := true
-        else
-        if ( s = swNoSaveOpt ) then
-          opt_NoSaveOpt := true
-        else
-        if ( s = swNoDefaults ) then
-          opt_NoDefaults := true
-        else
-        if ( s = swNoReg ) then
-          opt_NoRegistry := true
-        else
-        if ( s = swRegExt ) then
-          opt_RegExt := true
-        else
-        if ( s = swSaveDefIcn ) then
-          opt_SaveDefaultIcons := true
-        else
-        if ( s = swSaveToolbars ) then
-          opt_SaveToolbars := true
-        else
-        if ( s = swSaveMenus ) then
-          opt_SaveMenus := true
-        else
-        if ( s = swNoUserIcn ) then
-          opt_NoUserIcons := true
-        else
-        if ( s = swUseOldFormat ) then
-          _USE_OLD_KEYNOTE_FILE_FORMAT := true // GLOBAL var, used by TTabNote and TNoteFile
-        else
-        if ( s = swClean ) then
-          opt_Clean := true
-        else
-        begin
-          errstr := errstr + #13 + ParamStr( i );
-        end;
-      end;
-      else
-      begin
-        // not a switch, so it's a filename.
-        // Let's see what kind of file.
-        ext := extractfileext(s);
-        s:= GetAbsolutePath(WideExtractFilePath(Application.ExeName), ParamStr(i));
-        if (( ext = ext_KeyNote ) or ( ext = ext_Encrypted ) or ( ext = ext_DART )) then
-        begin
-          NoteFileToLoad := s;
-        end
-        else
-        if ( ext = ext_INI ) then
-        begin
-          INI_FN := s;
-          opt_NoRegistry := true;
-        end
-        else
-        if ( ext = ext_ICN ) then
-        begin
-          ICN_FN := s;
-        end
-        else
-        if ( ext = ext_DEFAULTS ) then
-        begin
-          DEF_FN := s;
-        end
-        else
-        if ( ext = ext_MGR ) then
-        begin
-          MGR_FN := s;
-        end
-        else
-        if ( ext = ext_Macro ) then
-        begin
-          StartupMacroFile := s;
-          CmdLineFileName := s; // will be passed to other instance
-        end
-        else
-        if ( ext = ext_Plugin ) then
-        begin
-          StartupPluginFile := s;
-          CmdLineFileName := s; // will be passed to other instance
-        end
-        else
-          NoteFileToLoad := s;
-      end;
+          if ( s = swMinimize ) then
+             opt_Minimize := true
+          else
+          if ( s = swSetup ) then
+             opt_Setup := true
+          else
+          if ( s = swDebug ) then
+             opt_Debug := true
+          else
+          if ( s = swNoReadOpt ) then
+             opt_NoReadOpt := true
+          else
+          if ( s = swNoSaveOpt ) then
+             opt_NoSaveOpt := true
+          else
+          if ( s = swNoDefaults ) then
+             opt_NoDefaults := true
+          else
+          if ( s = swNoReg ) then
+             opt_NoRegistry := true
+          else
+          if ( s = swRegExt ) then
+             opt_RegExt := true
+          else
+          if ( s = swSaveDefIcn ) then
+             opt_SaveDefaultIcons := true
+          else
+          if ( s = swSaveToolbars ) then
+             opt_SaveToolbars := true
+          else
+          if ( s = swSaveMenus ) then
+             opt_SaveMenus := true
+          else
+          if ( s = swNoUserIcn ) then
+             opt_NoUserIcons := true
+          else
+          if ( s = swUseOldFormat ) then
+             _USE_OLD_KEYNOTE_FILE_FORMAT := true // GLOBAL var, used by TTabNote and TNoteFile
+          else
+          if ( s = swClean ) then
+             opt_Clean := true
+          else
+            errstr := errstr + #13 + ParamStr( i );
+
+       end
+       else begin
+          // not a switch, so it's a filename.
+          // Let's see what kind of file.
+          ext := extractfileext(s);
+          s:= GetAbsolutePath(ExtractFilePath(Application.ExeName), ParamStr(i));
+
+          if (( ext = ext_KeyNote ) or ( ext = ext_Encrypted ) or ( ext = ext_DART )) then
+             NoteFileToLoad := s
+          else
+          if ( ext = ext_INI ) then begin
+             INI_FN := s;
+             opt_NoRegistry := true;
+          end
+          else
+          if ( ext = ext_ICN ) then
+             ICN_FN := s
+          else
+          if ( ext = ext_DEFAULTS ) then
+             DEF_FN := s
+          else
+          if ( ext = ext_MGR ) then
+              MGR_FN := s
+          else
+          if ( ext = ext_Macro ) then begin
+             StartupMacroFile := s;
+             CmdLineFileName := s; // will be passed to other instance
+          end
+          else
+          if ( ext = ext_Plugin ) then begin
+             StartupPluginFile := s;
+             CmdLineFileName := s; // will be passed to other instance
+          end
+          else
+             NoteFileToLoad := s;
+
+       end;
+
     end;
   end;
-  if ( errstr <> '' ) then
-  begin
-    messagedlg( 'Invalid command line arguments:' + #13 + errstr, mtWarning, [mbOK], 0 );
-  end;
+
+  if (errstr <> '' ) then
+      MessageDlg( STR_InvalidCLA + #13 + errstr, mtWarning, [mbOK], 0 );
+
 end; // ReadCmdLine
+
+
 
 procedure ReadFuncKeys;
 var
@@ -179,18 +196,20 @@ begin
   IniFile := TMemIniFile.Create( KEY_FN );
 
   try
-    with IniFile do
-    begin
+    with IniFile do begin
       section := 'Alt';
       for i := 1 to 12 do
-        AltFKeys[i] := readstring( section, inttostr( i ), '' );
+         AltFKeys[i] := readstring( section, inttostr( i ), '' );
+
       section := 'ShiftAlt';
       for i := 1 to 12 do
-        ShiftAltFKeys[i] := readstring( section, inttostr( i ), '' );
+         ShiftAltFKeys[i] := readstring( section, inttostr( i ), '' );
+
       section := 'CtrlAlt';
       for i := 1 to 12 do
-        CtrlAltFKeys[i] := readstring( section, inttostr( i ), '' );
+         CtrlAltFKeys[i] := readstring( section, inttostr( i ), '' );
     end;
+
   finally
     IniFile.Free
   end;
@@ -208,27 +227,31 @@ begin
   IniFile := TMemIniFile.Create( KEY_FN );
 
   try
-    with IniFile do
-    begin
-      section := 'Alt';
-      for i := 1 to 12 do
-        if ( AltFKeys[i] <> '' ) then
-          writestring( section, inttostr( i ), AltFKeys[i] );
-      section := 'ShiftAlt';
-      for i := 1 to 12 do
-        if ( ShiftAltFKeys[i] <> '' ) then
-          writestring( section, inttostr( i ), ShiftAltFKeys[i] );
-      section := 'CtrlAlt';
-      for i := 1 to 12 do
-        if ( CtrlAltFKeys[i] <> '' ) then
-          writestring( section, inttostr( i ), CtrlAltFKeys[i] );
+    with IniFile do begin
+       section := 'Alt';
+       for i := 1 to 12 do
+         if ( AltFKeys[i] <> '' ) then
+           writestring( section, inttostr( i ), AltFKeys[i] );
+
+       section := 'ShiftAlt';
+       for i := 1 to 12 do
+         if ( ShiftAltFKeys[i] <> '' ) then
+           writestring( section, inttostr( i ), ShiftAltFKeys[i] );
+
+       section := 'CtrlAlt';
+       for i := 1 to 12 do
+         if ( CtrlAltFKeys[i] <> '' ) then
+           writestring( section, inttostr( i ), CtrlAltFKeys[i] );
     end;
+
     IniFile.UpdateFile;
+
   finally
     IniFile.Free
   end;
 
 end; // SaveFuncKeys
+
 
 procedure SaveOptions;
 begin
@@ -246,6 +269,7 @@ begin
   except
   end;
 end; // SaveOptions
+
 
 procedure ReadOptions;
 begin
@@ -266,6 +290,7 @@ begin
     );
 end; // ReadOptions
 
+
 procedure SaveDefaults;
 begin
   if opt_NoDefaults then exit;
@@ -280,12 +305,12 @@ begin
   );
 end; // SaveDefaults
 
+
 procedure LoadDefaults;
 begin
   if ( opt_NoDefaults or ( not fileexists( DEF_FN ))) then exit;
 
   try
-
     LoadKeyNoteDefaults(
       false,
       DEF_FN,
@@ -315,65 +340,62 @@ var
   tb : TToolbarButton97;
   ts : TToolbarSep97;
 begin
+
   if opt_NoSaveOpt then exit;
   IniFile := TMemIniFile.Create( Toolbar_FN );
+
   try
     try
-      with IniFile do
-      begin
-       with Form_Main do
-       begin
-        section := 'MainToolbar';
-        cnt := pred( Toolbar_Main.ControlCount );
-        for i := 0 to cnt do
-        begin
-          if ( Toolbar_Main.Controls[i] is TToolbarButton97 ) then
-          begin
-            tb := ( Toolbar_Main.Controls[i] as TToolbarButton97 );
-            writebool( section, tb.name, tb.Visible );
-          end
-          else
-          if ( Toolbar_Main.Controls[i] is TToolbarSep97 ) then
-          begin
-            ts := ( Toolbar_Main.Controls[i] as TToolbarSep97 );
-            writebool( section, ts.name, ts.Visible );
-          end
+      with IniFile do begin
+         with Form_Main do begin
+            section := 'MainToolbar';
+            cnt := pred( Toolbar_Main.ControlCount );
+            for i := 0 to cnt do begin
+              if ( Toolbar_Main.Controls[i] is TToolbarButton97 ) then begin
+                 tb := ( Toolbar_Main.Controls[i] as TToolbarButton97 );
+                 writebool( section, tb.name, tb.Visible );
+              end
+              else
+              if ( Toolbar_Main.Controls[i] is TToolbarSep97 ) then begin
+                 ts := ( Toolbar_Main.Controls[i] as TToolbarSep97 );
+                 writebool( section, ts.name, ts.Visible );
+              end
+          end;
+
+          section := 'FormatToolbar';
+          cnt := pred( Toolbar_Format.ControlCount );
+          for i := 0 to cnt do begin
+              if ( Toolbar_Format.Controls[i] is TToolbarButton97 ) then begin
+                 tb := ( Toolbar_Format.Controls[i] as TToolbarButton97 );
+                 writebool( section, tb.name, tb.Visible );
+              end
+              else
+              if ( Toolbar_Format.Controls[i] is TToolbarSep97 ) then begin
+                 ts := ( Toolbar_Format.Controls[i] as TToolbarSep97 );
+                 writebool( section, ts.name, ts.Visible );
+              end
+          end;
+
+          section := 'Special';
+          writebool( section, 'FontNameCombo', Combo_Font.Visible );
+          writebool( section, 'FontSizeCombo', Combo_FontSize.Visible );
+          writebool( section, 'ZoomCombo', Combo_Zoom.Visible );
+          writebool( section, 'FontColorButton', TB_Color.Visible );
+          writebool( section, 'FontHighlightButton', TB_Hilite.Visible );
         end;
 
-        section := 'FormatToolbar';
-        cnt := pred( Toolbar_Format.ControlCount );
-        for i := 0 to cnt do
-        begin
-          if ( Toolbar_Format.Controls[i] is TToolbarButton97 ) then
-          begin
-            tb := ( Toolbar_Format.Controls[i] as TToolbarButton97 );
-            writebool( section, tb.name, tb.Visible );
-          end
-          else
-          if ( Toolbar_Format.Controls[i] is TToolbarSep97 ) then
-          begin
-            ts := ( Toolbar_Format.Controls[i] as TToolbarSep97 );
-            writebool( section, ts.name, ts.Visible );
-          end
-        end;
-
-        section := 'Special';
-        writebool( section, 'FontNameCombo', Combo_Font.Visible );
-        writebool( section, 'FontSizeCombo', Combo_FontSize.Visible );
-        writebool( section, 'ZoomCombo', Combo_Zoom.Visible );
-        writebool( section, 'FontColorButton', TB_Color.Visible );
-        writebool( section, 'FontHighlightButton', TB_Hilite.Visible );
-
-      end;
      end;
      IniFile.UpdateFile;
+
     except
     end;
+
   finally
     IniFile.Free;
   end;
 
 end; // SaveToolbars
+
 
 procedure LoadToolbars;
 var
@@ -390,53 +412,51 @@ begin
 
   try
     try
-      with IniFile do
-      begin
-        section := 'MainToolbar';
-        readsection( section, list );
-        cnt := pred( list.Count );
-        for i := 0 to cnt do
-        begin
-          compname := list[i];
-          myC := Form_Main.findcomponent( compname );
-          if assigned( myC ) then
-          begin
-            if ( myC is TToolbarButton97 ) then
-              ( myC as TToolbarButton97 ).Visible := ReadBool( section, compname, true )
-            else
-            if ( myC is TToolbarSep97 ) then
-              ( myC as TToolbarSep97 ).Visible := ReadBool( section, compname, true );
-          end;
-        end;
+      with IniFile do begin
+          section := 'MainToolbar';
+          readsection( section, list );
+          cnt := pred( list.Count );
 
-        list.Clear;
-        section := 'FormatToolbar';
-        readsection( section, list );
-        cnt := pred( list.Count );
-        for i := 0 to cnt do
-        begin
-          compname := list[i];
-          myC := Form_Main.findcomponent( compname );
-          if assigned( myC ) then
-          begin
-            if ( myC is TToolbarButton97 ) then
-              ( myC as TToolbarButton97 ).Visible := ReadBool( section, compname, true )
-            else
-            if ( myC is TToolbarSep97 ) then
-              ( myC as TToolbarSep97 ).Visible := ReadBool( section, compname, true );
+          for i := 0 to cnt do begin
+            compname := list[i];
+            myC := Form_Main.findcomponent( compname );
+            if assigned(myC) then begin
+               if (myC is TToolbarButton97 ) then
+                  (myC as TToolbarButton97 ).Visible := ReadBool( section, compname, true )
+               else
+               if (myC is TToolbarSep97 ) then
+                  (myC as TToolbarSep97 ).Visible := ReadBool( section, compname, true );
+            end;
           end;
-        end;
 
-        section := 'Special';
-        with Form_Main do
-        begin
-          Combo_Font.Visible := readbool( section, 'FontNameCombo', true );
-          Combo_FontSize.Visible := readbool( section, 'FontSizeCombo', true );
-          Combo_Zoom.Visible := readbool( section, 'ZoomCombo', true );
-          TB_Color.Visible := readbool( section, 'FontColorButton', true );
-          TB_Hilite.Visible := readbool( section, 'FontHighlightButton', true );
-        end;
+          list.Clear;
+          section := 'FormatToolbar';
+          readsection( section, list );
+          cnt := pred( list.Count );
+
+          for i := 0 to cnt do begin
+            compname := list[i];
+            myC := Form_Main.findcomponent( compname );
+            if assigned( myC ) then begin
+               if ( myC is TToolbarButton97 ) then
+                  (myC as TToolbarButton97 ).Visible := ReadBool( section, compname, true )
+               else
+               if ( myC is TToolbarSep97 ) then
+                  (myC as TToolbarSep97 ).Visible := ReadBool( section, compname, true );
+            end;
+          end;
+
+          section := 'Special';
+          with Form_Main do begin
+             Combo_Font.Visible := ReadBool( section, 'FontNameCombo', true );
+             Combo_FontSize.Visible := ReadBool( section, 'FontSizeCombo', true );
+             Combo_Zoom.Visible := ReadBool( section, 'ZoomCombo', true );
+             TB_Color.Visible := ReadBool( section, 'FontColorButton', true );
+             TB_Hilite.Visible := ReadBool( section, 'FontHighlightButton', true );
+          end;
+
       end;
+
     except
     end;
   finally
@@ -446,62 +466,61 @@ begin
 
 end; // LoadToolbars
 
+
 function LoadCustomKeyboard : boolean;
 var
   IniFile : TMemIniFile;
-  itemname, keyname : string;
+  itemname, keyname : String;
   KeyList : TStringList;
   i, cnt, keyvalue : integer;
   menusection : TKeyMenuCategory;
   myMenuItem : TMenuItem;
+
 begin
   result := false;
   if ( opt_NoReadOpt or ( not fileexists( Keyboard_FN ))) then exit;
 
   IniFile := TMemIniFile.Create( Keyboard_FN );
   KeyList := TStringList.Create;
+
   try
     try
-      with IniFile do
-      begin
-        for menusection := low( KeyboardConfigSections ) to high( KeyboardConfigSections ) do
-        begin
 
-          Keylist.Clear;
-          readsectionvalues( KeyboardConfigSections[menusection], KeyList );   // At this file this problem doesn't affect: TMemIniFile Doesn't Handle Quoted Strings Properly (http://qc.embarcadero.com/wc/qcmain.aspx?d=4519)
+      with IniFile do begin
 
-          cnt := KeyList.Count;
-          for i := 1 to cnt do
-          begin
-            itemname := KeyList.Names[pred( i )];
-            keyname := KeyList.Values[itemname];
-            if ( keyname <> '' ) then
-            begin
-              try
-                keyvalue := strtoint( keyname );
-              except
-                keyvalue := 0;
+         for menusection := low( KeyboardConfigSections ) to high( KeyboardConfigSections ) do begin
+           Keylist.Clear;
+           ReadSectionValues( KeyboardConfigSections[menusection], KeyList );   // At this file this problem doesn't affect: TMemIniFile Doesn't Handle Quoted Strings Properly (http://qc.embarcadero.com/wc/qcmain.aspx?d=4519)
+
+           cnt := KeyList.Count;
+           for i := 1 to cnt do begin
+              itemname := KeyList.Names[pred(i)];
+              keyname  := KeyList.Values[itemname];
+              if ( keyname <> '' ) then begin
+                  try
+                    keyvalue := strtoint( keyname );
+                  except
+                    keyvalue := 0;
+                  end;
+
+                  // Don't allow shortcuts CTR-C, Ctrl-V, Ctrl-X. This combinations will be managed indepently
+                  if (keyvalue = 16451) or (keyvalue=16470) or (keyvalue = 16472) then
+                     keyvalue:= 0;
+
+                  myMenuItem := TMenuItem( Form_Main.FindComponent( itemname ));
+                  if assigned( myMenuItem ) then
+                     myMenuItem.ShortCut := keyvalue;
               end;
+           end;
 
-              // Don't allow shortcuts CTR-C, Ctrl-V, Ctrl-X. This combinations will be managed indepently
-              if (keyvalue = 16451) or (keyvalue=16470) or (keyvalue = 16472) then
-                 keyvalue:= 0;
-
-              myMenuItem := TMenuItem( Form_Main.FindComponent( itemname ));
-              if assigned( myMenuItem ) then
-                 myMenuItem.ShortCut := keyvalue;
-            end;
-          end;
-        end;
+         end;
       end;
+
     except
       on E : Exception do
-      begin
-        messagedlg( Format(
-          'Error while loading custom keyboard configuration from %s: "%s"',
-          [Keyboard_FN, E.Message] ), mtError, [mbOK], 0 );
-      end;
+        MessageDlg(Format(STR_ErrorLoading, [Keyboard_FN, E.Message] ), mtError, [mbOK], 0 );
     end;
+
   finally
     IniFile.Free;
     KeyList.Free;
@@ -537,14 +556,13 @@ begin
     try
       BuildKeyboardList( KeyCustomMenus, KeyList );
 
-      if DlgCustomizeKeyboard(Application.Handle, PChar( Keyboard_FN ), KeyList, KeyOptions.HotKey) then
-      begin
-        screen.Cursor := crHourGlass;
-        try
-          LoadCustomKeyboard;
-        finally
-          screen.Cursor := crDefault;
-        end;
+      if DlgCustomizeKeyboard(Application.Handle, PChar( Keyboard_FN ), KeyList, KeyOptions.HotKey) then begin
+          screen.Cursor := crHourGlass;
+          try
+             LoadCustomKeyboard;
+          finally
+             screen.Cursor := crDefault;
+          end;
       end;
 
       TMenuItem( Form_Main.FindComponent( 'MMEditPaste' )).ShortCut := 0;
@@ -553,10 +571,9 @@ begin
 
     except
       on E : Exception do
-      begin
         messagedlg( STR_KeybdError + E.Message, mtError, [mbOK], 0 );
-      end;
     end;
+
   finally
     FreeLibrary( DllHandle );
     ClearObjectList( KeyList );

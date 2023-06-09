@@ -3,8 +3,16 @@ unit RichPreview2;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, StdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.ExtCtrls,
+   Vcl.StdCtrls;
 
 type
   TPreview2 = class(TForm)
@@ -32,7 +40,9 @@ var
 implementation
 
 {$R *.DFM}
-uses RichPreview,RichPrint;
+uses
+   RichPreview,
+   RichPrint;
 
 procedure TPreview2.FormCreate(Sender: TObject);
 begin

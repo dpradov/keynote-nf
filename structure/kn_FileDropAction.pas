@@ -19,18 +19,26 @@ unit kn_FileDropAction;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls,
-  kn_Const, kn_Info, TntStdCtrls, TntExtCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   kn_Const,
+   kn_Info;
 
 type
   TForm_DropFile = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
     PagesImp: TNotebook;
-    RG_Action: TTntRadioGroup;
-    Btn_HTML: TTntButton;
+    RG_Action: TRadioGroup;
+    Btn_HTML: TButton;
     RG_HTML: TRadioGroup;
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);

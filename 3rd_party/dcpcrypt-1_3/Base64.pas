@@ -8,7 +8,7 @@ unit Base64;
 
 interface
 uses
-  Sysutils;
+   System.SysUtils;
 
 { Base64 encode and decode a string }
 function B64Encode(const S: string): string;

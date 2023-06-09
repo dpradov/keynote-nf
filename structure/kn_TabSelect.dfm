@@ -3,8 +3,8 @@ object Form_SelectTab: TForm_SelectTab
   Top = 295
   BorderStyle = bsDialog
   Caption = 'Select Notes'
-  ClientHeight = 244
-  ClientWidth = 334
+  ClientHeight = 243
+  ClientWidth = 330
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,15 +12,13 @@ object Form_SelectTab: TForm_SelectTab
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 213
     Top = 10
     Width = 108
@@ -31,7 +29,7 @@ object Form_SelectTab: TForm_SelectTab
     TabOrder = 0
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 213
     Top = 40
     Width = 108
@@ -41,7 +39,7 @@ object Form_SelectTab: TForm_SelectTab
     TabOrder = 1
     OnClick = Button_CancelClick
   end
-  object Button_All: TTntButton
+  object Button_All: TButton
     Left = 213
     Top = 85
     Width = 108
@@ -50,7 +48,7 @@ object Form_SelectTab: TForm_SelectTab
     TabOrder = 2
     OnClick = Button_AllClick
   end
-  object Button_None: TTntButton
+  object Button_None: TButton
     Left = 213
     Top = 115
     Width = 108
@@ -59,7 +57,7 @@ object Form_SelectTab: TForm_SelectTab
     TabOrder = 3
     OnClick = Button_NoneClick
   end
-  object Button_Invert: TTntButton
+  object Button_Invert: TButton
     Left = 213
     Top = 145
     Width = 108

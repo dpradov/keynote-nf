@@ -16,14 +16,28 @@ unit OLERichEdit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ActiveX, StdCtrls, ComCtrls, ComObj, RichEdit, RichOLE, Menus, OleCtnrs,
-{$IFDEF DFS_NO_DSGNINTF}     // [dpv]
-    DesignIntf,
-    DesignEditors;
-{$ELSE}
-    DsgnIntf;
-{$ENDIF}
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.ActiveX,
+   Winapi.RichEdit,
+   System.Win.ComObj,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ComCtrls,
+   Vcl.Menus,
+   Vcl.OleCtnrs,
+   RichOLE,
+   {$IFDEF DFS_NO_DSGNINTF}    // [dpv]
+   DesignIntf,
+   DesignEditors;
+   {$ELSE}
+   DsgnIntf;
+   {$ENDIF}
 
 
 {$DEFINE VerbMenu}
@@ -106,9 +120,9 @@ var CurKey,CurC1,CurC2:Word;
 
 type
   TCryptConvert = class(TConversion)
-   function ConvertWriteStream(Stream: TStream; Buffer: PChar;
+   function ConvertWriteStream(Stream: TStream; Buffer: TConversionBuffer;
                                BufSize: Integer): Integer; override;
-   function ConvertReadStream(Stream: TStream; Buffer: PChar;
+   function ConvertReadStream(Stream: TStream; Buffer: TConversionBuffer;
                               BufSize: Integer): Integer; override;
   end;
 
@@ -275,7 +289,7 @@ const
 var
   f: file of byte;
   i, j: integer;
-  s: string;
+  s: AnsiString;
 begin
   if GetTextLen = 0 then begin
     Application.MessageBox('The document is empty. There is nothing to save.', 'Information', MB_OK + MB_ICONINFORMATION);
@@ -298,7 +312,7 @@ const
 var
   f: file of byte;
   i, j: integer;
-  s: string;
+  s: AnsiString;
 begin
   if GetTextLen = 0 then begin
     Application.MessageBox('The document is empty. There is nothing to save.', 'Information', MB_OK + MB_ICONINFORMATION);
@@ -590,30 +604,30 @@ var M: TMsg;
 end;
 
 
-function TCryptConvert.ConvertWriteStream(Stream: TStream; Buffer: PChar; BufSize: Integer): Integer;
+function TCryptConvert.ConvertWriteStream(Stream: TStream; Buffer: TConversionBuffer; BufSize: Integer): Integer;
 var i:Integer;
 begin
   // Keepwindowsalive;    For large files!!!
   if (Curkey<>0) and (CurC1<>0) and (CurC2<>0) then
   For i:=0 to Bufsize-1 do
   begin
-    Buffer[I] := Char(Integer(Buffer[I]) xor (CurKey shr 8));
+    Buffer[I] := Byte(Integer(Buffer[I]) xor (CurKey shr 8));
     CurKey := (Integer(Buffer[I]) + CurKey) * Curc1 + Curc2;
   end;
-  result:=Stream.write(Buffer^,Bufsize);
+  result:=Stream.write(Buffer,Bufsize);
 end;
 
 
-function TCryptConvert.ConvertReadStream(Stream: TStream; Buffer: PChar; BufSize: Integer): Integer;
+function TCryptConvert.ConvertReadStream(Stream: TStream; Buffer: TConversionBuffer; BufSize: Integer): Integer;
 var i,c:Integer;
 begin
   // Keepwindowsalive;   For large files!!!
-  result:=Stream.Read(Buffer^,Bufsize);
+  result:=Stream.Read(Buffer,Bufsize);
   if (Curkey=0) and (CurC1=0) and (CurC2=0) then exit;
   For i:=0 to Bufsize-1 do
   begin
     c:=Integer(Buffer[I]);
-    Buffer[I] := Char(c xor (CurKey shr 8));
+    Buffer[I] := Byte(c xor (CurKey shr 8));
     CurKey := (c + CurKey) * Curc1 + Curc2;
   end;
 end;

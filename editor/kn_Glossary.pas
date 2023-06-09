@@ -19,23 +19,36 @@ unit kn_Glossary;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  ComCtrls, StdCtrls, kn_ExpTermDef,
-  kn_ExpandObj, kn_Info, Placemnt, ExtCtrls, TntComCtrls, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.ComCtrls,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   RxPlacemnt,
+   kn_Info,
+   kn_global,
+   kn_ExpTermDef,
+   kn_main;
+
 
 type
   TForm_Glossary = class(TForm)
     FormPlacement: TFormPlacement;
     Panel1: TPanel;
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    Button_New: TTntButton;
-    Button_Edit: TTntButton;
-    Button_Del: TTntButton;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    Button_New: TButton;
+    Button_Edit: TButton;
+    Button_Del: TButton;
     Panel2: TPanel;
-    LV: TTntListView;
-    Button_Help: TTntButton;
+    LV: TListView;
+    Button_Help: TButton;
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
@@ -56,9 +69,14 @@ type
     procedure UpdateCount;
   end;
 
+procedure LoadGlossaryInfo;
+
+
+var
+   GlossaryList : TStringList;
+
 
 implementation
-uses kn_main, gf_miscvcl, TntSystem;
 
 {$R *.DFM}
 
@@ -68,6 +86,24 @@ resourcestring
   STR_12 = 'Glossary term already exists: "%s" -> "%s". OK to redefine term as "%s"?';
   STR_13 = 'Error saving Glossary list: ';
   STR_14 = 'Glossary terms: %d';
+  STR_15 = 'Error loading Glossary list: ';
+
+
+procedure LoadGlossaryInfo;
+begin
+    try
+       GlossaryList.LoadFromFile (Glossary_FN);
+
+    except
+      On E : Exception do begin
+        ShowMessage( STR_15 + E.Message );
+        GlossaryList := nil;
+      end;
+    end;
+
+end;
+
+
 
 procedure TForm_Glossary.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -85,9 +121,9 @@ end; // KeyDown
 
 procedure TForm_Glossary.FormCreate(Sender: TObject);
 var
-  item : TTntListItem;
+  item : TListItem;
   i : integer;
-  name, value : wideString;
+  name, value : string;
 begin
 
   OK_Click := false;
@@ -100,17 +136,16 @@ begin
 
   GlossaryList.BeginUpdate;
   try
-    if ( GlossaryList.Count > 0 ) then
-    begin
-      for i := 0 to pred( GlossaryList.Count ) do
-      begin
-        name := GlossaryList.Names[i];
-        value := GlossaryList.Values[name];
-        item := LV.Items.Add;
-        item.caption := name;
-        item.subitems.add( value );
-      end;
+    if (GlossaryList.Count > 0 ) then begin
+        for i := 0 to pred( GlossaryList.Count ) do begin
+          name := GlossaryList.Names[i];
+          value := GlossaryList.Values[name];
+          item := LV.Items.Add;
+          item.caption := name;
+          item.subitems.add( value );
+        end;
     end;
+
   finally
     GlossaryList.EndUpdate;
     UpdateCount;
@@ -121,90 +156,80 @@ end; // CREATE
 procedure TForm_Glossary.EditTerm( const NewTerm : boolean );
 var
   Form_Term : TForm_TermDef;
-  namestr, valuestr : wideString;
-  item, dupItem : TTntListItem;
+  namestr, valuestr : string;
+  item, dupItem : TListItem;
   i : integer;
 begin
 
   item := nil;
 
-  if NewTerm then
-  begin
+  if NewTerm then begin
     namestr := '';
     valuestr := '';
   end
-  else
-  begin
+  else begin
     item := LV.Selected;
 
-    if (( not assigned( item )) or
-        ( LV.Items.Count = 0 )) then
-    begin
-      messagedlg( STR_10, mtInformation, [mbOK], 0 );
-      exit;
+    if ((not assigned( item )) or
+        (LV.Items.Count = 0 )) then begin
+       messagedlg( STR_10, mtInformation, [mbOK], 0 );
+       exit;
     end;
 
     namestr := item.caption;
     valuestr := item.subitems[0];
-
   end;
 
 
   Form_Term := TForm_TermDef.Create( self );
   try
-    with Form_Term do
-    begin
-      Edit_Term.Text := namestr;
-      Edit_Exp.Text := valuestr;
+    with Form_Term do begin
+       Edit_Term.Text := namestr;
+       Edit_Exp.Text := valuestr;
     end;
-    if ( Form_Term.ShowModal = mrOK ) then
-    begin
-      with Form_Term do
-      begin
-        namestr := Edit_Term.Text;
-        valuestr := Edit_Exp.Text;
+
+    if ( Form_Term.ShowModal = mrOK ) then begin
+      with Form_Term do begin
+         namestr := Edit_Term.Text;
+         valuestr := Edit_Exp.Text;
       end;
-      if (( namestr = '' ) or ( valuestr = '' )) then
-      begin
-        messagedlg( STR_11, mtError, [mbOK], 0 );
-        exit;
+
+      if (( namestr = '' ) or ( valuestr = '' )) then begin
+         messagedlg( STR_11, mtError, [mbOK], 0 );
+         exit;
       end;
 
       dupItem := nil;
-      if NewTerm then
-      begin
-        if ( LV.Items.Count > 0 ) then
-        begin
-          for i := 0 to pred( LV.Items.Count ) do
-          begin
-            if ( LV.Items[i].Caption = namestr ) then
-            begin
-              dupItem := LV.Items[i];
-              break;
-            end;
+
+      if NewTerm then begin
+          if ( LV.Items.Count > 0 ) then begin
+             for i := 0 to pred( LV.Items.Count ) do begin
+                if ( LV.Items[i].Caption = namestr ) then begin
+                   dupItem := LV.Items[i];
+                   break;
+                end;
+             end;
           end;
-        end;
-        if assigned( dupItem ) then
-        begin
-          if ( DoMessageBox( WideFormat(
-              STR_12,
-              [namestr,dupItem.subitems[0] ,valuestr] ),
-              mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
-          exit;
-          item := dupItem;
-        end;
+
+          if assigned( dupItem ) then begin
+             if ( DoMessageBox( Format(STR_12, [namestr,dupItem.subitems[0] ,valuestr] ),
+                                 mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+                 exit;
+             item := dupItem;
+          end;
       end;
 
       try
         if ( item = nil ) then
-          item := LV.Items.Add;
+           item := LV.Items.Add;
         item.caption := namestr;
         item.subitems.Clear;
         item.subitems.Add( valuestr );
         LV.Selected := item;
+
       except
         on E : Exception do
-          messagedlg( E.Message, mtError, [mbOK], 0 );
+           messagedlg( E.Message, mtError, [mbOK], 0 );
       end;
 
     end;
@@ -219,7 +244,7 @@ end; // EditTerm
 
 procedure TForm_Glossary.DeleteTerm;
 var
-  item : TTntListItem;
+  item : TListItem;
 begin
   item := LV.Selected;
 
@@ -253,7 +278,7 @@ procedure TForm_Glossary.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 var
   i : integer;
-  item : TTntListItem;
+  item : TListItem;
 begin
   if OK_Click then
   begin
@@ -262,20 +287,20 @@ begin
           GlossaryList.Sorted := false;
           GlossaryList.Clear;
 
-          for i := 0 to pred( LV.Items.Count ) do
-          begin
-            item := LV.Items[i];
-            GlossaryList.Add( WideFormat( '%s=%s', [item.caption, item.subitems[0]] ));
+          for i := 0 to pred( LV.Items.Count ) do begin
+             item := LV.Items[i];
+             GlossaryList.Add( Format( '%s=%s', [item.caption, item.subitems[0]] ));
           end;
 
         finally
           GlossaryList.Sorted := true;
         end;
-        SaveGlossaryInfo(Glossary_FN);
+
+        GlossaryList.SaveToFile( Glossary_FN, TEncoding.UTF8);
+
     except
       on E : Exception do
-        messagedlg( STR_13 +
-          E.Message, mtError, [mbOK], 0 );
+         messagedlg( STR_13 + E.Message, mtError, [mbOK], 0 );
     end;
 
   end;
@@ -302,13 +327,40 @@ procedure TForm_Glossary.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   try
-    if ( LV.Items.Count > 0 ) then
-    begin
+    if ( LV.Items.Count > 0 ) then begin
       LV.Selected := LV.Items[0];
       LV.ItemFocused := LV.Selected;
     end;
+
   except
   end;
 end;
+
+
+procedure EditGlossaryTerms;
+var
+  Form_Glossary : TForm_Glossary;
+begin
+  Form_Glossary := TForm_Glossary.Create( Form_Main );
+  try
+     Form_Glossary.ShowModal;
+  finally
+     Form_Glossary.Free;
+  end;
+end;
+
+
+Initialization
+  GlossaryList := TStringList.Create;
+  with GlossaryList do begin
+     sorted := true;
+     duplicates := dupError;
+  end;
+
+
+Finalization
+  if ( GlossaryList <> nil ) then
+       GlossaryList.Free;
+  GlossaryList := nil;
 
 end.

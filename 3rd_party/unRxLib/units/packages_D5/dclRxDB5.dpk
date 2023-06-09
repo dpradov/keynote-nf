@@ -1,0 +1,50 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{*******************************************************}
+
+package DclRxDb5;
+
+{$R *.RES}
+{$I RX.INC}
+{$ALIGN ON}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $00400000}
+{$DESCRIPTION 'RX Library Database Components'}
+{$DESIGNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+{$IFDEF DCS}
+  DclDb50,
+{$ENDIF}
+  DclRxCtl5,
+  RtmRxDB5;
+
+contains
+  RxSelDSFrm in '..\RxSelDSFrm.pas',
+  RxDBReg in '..\RxDBReg.pas',
+  RxRecordGrid in '..\RxRecordGrid.pas';
+
+end.

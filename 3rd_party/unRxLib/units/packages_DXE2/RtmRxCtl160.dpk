@@ -1,0 +1,144 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{ Added by Polaris Software                             }
+{*******************************************************}
+
+package RtmRxCtl160;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE ON}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE RELEASE}
+{$DESCRIPTION 'RX Library Component and Tools Package'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  vcl,
+  vclsmp,
+  vclx,
+  vclimg;
+
+contains
+  RxResConst in '..\RxResConst.pas',
+  RxCtrls in '..\RxCtrls.pas',
+  RxGrids in '..\RxGrids.pas',
+  RxCurrEdit in '..\RxCurrEdit.pas',
+  RxToolEdit in '..\RxToolEdit.pas',
+  RxDateUtil in '..\RxDateUtil.pas',
+  RXSplit in '..\RXSplit.pas',
+  RxSlider in '..\RxSlider.pas',
+  RxClock in '..\RxClock.pas',
+  RxAnimate in '..\RxAnimate.pas',
+  RxSpin in '..\RxSpin.pas',
+  RxRichEd in '..\RxRichEd.pas',
+  RxSwitch in '..\RxSwitch.pas',
+  RxDice in '..\RxDice.pas',
+  RxVCLUtils in '..\RxVCLUtils.pas',
+  RxAniFile in '..\RxAniFile.pas',
+  RxIcoList in '..\RxIcoList.pas',
+  RxObjStr in '..\RxObjStr.pas',
+  RxCombos in '..\RxCombos.pas',
+  RxPickDate in '..\RxPickDate.pas',
+  RxMaxMin in '..\RxMaxMin.pas',
+  RxConst in '..\RxConst.pas',
+  RxFileUtil in '..\RxFileUtil.pas',
+  RxTimer in '..\RxTimer.pas',
+  RxHook in '..\RxHook.pas',
+  RxPlacemnt in '..\RxPlacemnt.pas',
+  RxProps in '..\RxProps.pas',
+  RxPrgrss in '..\RxPrgrss.pas',
+  RxHints in '..\RxHints.pas',
+  RxCalc in '..\RxCalc.pas',
+  RxExcptDlg in '..\RxExcptDlg.pas',
+  RxBoxProcs in '..\RxBoxProcs.pas',
+  RxClipIcon in '..\RxClipIcon.pas',
+  RxClipMon in '..\RxClipMon.pas',
+  RxParsing in '..\RxParsing.pas',
+  RxGraph in '..\RxGraph.pas',
+  RxGIF in '..\RxGIF.pas',
+  RxGIFCtrl in '..\RxGIFCtrl.pas',
+  RxPicClip in '..\RxPicClip.pas',
+  RxDualList in '..\RxDualList.pas',
+  RxFDualLst in '..\RxFDualLst.pas',
+  RxClipView in '..\RxClipView.pas',
+  RxSpeedbar in '..\RxSpeedbar.pas',
+  RxSbSetup in '..\RxSbSetup.pas',
+  RxPageMngr in '..\RxPageMngr.pas',
+  RxMrgMngr in '..\RxMrgMngr.pas',
+  RxStrHlder in '..\RxStrHlder.pas',
+  RxAppEvent in '..\RxAppEvent.pas',
+  RxTimerLst in '..\RxTimerLst.pas',
+  RxMRUList in '..\RxMRUList.pas',
+  RxIni in '..\RxIni.pas',
+  RxShell in '..\RxShell.pas',
+  RxMenus in '..\RxMenus.pas',
+  RxNotify in '..\RxNotify.pas',
+  RxGrdCpt in '..\RxGrdCpt.pas',
+  RxSplshWnd in '..\RxSplshWnd.pas',
+  RxDataConv in '..\RxDataConv.pas',
+  RxOle2Auto in '..\RxOle2Auto.pas',
+  RxVerInf in '..\RxVerInf.pas',
+  RxStr16 in '..\RxStr16.pas',
+  RxAppUtils in '..\RxAppUtils.pas',
+  RxStrUtils in '..\RxStrUtils.pas',
+  RxExtenders in '..\RxExtenders.pas',
+  RxRichPopup in '..\RxRichPopup.pas',
+  RxCalcEditDlg in '..\RxCalcEditDlg.pas',
+  RxMailBox in '..\RxMailBox.pas',
+  RxTranslate in '..\RxTranslate.pas',
+  RxNTSecurity in '..\RxNTSecurity.pas',
+  RxPlugin in '..\RxPlugin.pas',
+  RxPluginManager in '..\RxPluginManager.pas',
+  {lang-constants}
+  RxResConst_bul in '..\RxResConst_bul.pas',
+  RxResConst_chi in '..\RxResConst_chi.pas',
+  RxResConst_cht in '..\RxResConst_cht.pas',
+  RxResConst_cze in '..\RxResConst_cze.pas',
+  RxResConst_dan in '..\RxResConst_dan.pas',
+  RxResConst_dut in '..\RxResConst_dut.pas',
+  RxResConst_eng in '..\RxResConst_eng.pas',
+  RxResConst_fra in '..\RxResConst_fra.pas',
+  RxResConst_gal in '..\RxResConst_gal.pas',
+  RxResConst_ger in '..\RxResConst_ger.pas',
+  RxResConst_gre in '..\RxResConst_gre.pas',
+  RxResConst_hun in '..\RxResConst_hun.pas',
+  RxResConst_ita in '..\RxResConst_ita.pas',
+  RxResConst_kor in '..\RxResConst_kor.pas',
+  RxResConst_mex in '..\RxResConst_mex.pas',
+  RxResConst_pol in '..\RxResConst_pol.pas',
+  RxResConst_por in '..\RxResConst_por.pas',
+  RxResConst_rom in '..\RxResConst_rom.pas',
+  RxResConst_rus in '..\RxResConst_rus.pas',
+  RxResConst_slo in '..\RxResConst_slo.pas',
+  RxResConst_spa in '..\RxResConst_spa.pas',
+  RxResConst_srb in '..\RxResConst_srb.pas',
+  RxResConst_svk in '..\RxResConst_svk.pas',
+  RxResConst_swe in '..\RxResConst_swe.pas',
+  RxResConst_tur in '..\RxResConst_tur.pas',
+  RxResConst_ukr in '..\RxResConst_ukr.pas';
+
+end.

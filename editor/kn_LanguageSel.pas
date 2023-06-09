@@ -18,19 +18,28 @@ unit kn_LanguageSel;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, langs, LCCombo, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   langs,
+   LCCombo;
 
 type
   TForm_Lang = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    GroupBox1: TTntGroupBox;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    GroupBox1: TGroupBox;
     Combo_Lang: TLanguagesCombo;
-    RB_Selected: TTntRadioButton;
-    RB_Recent: TTntRadioButton;
-    RB_Default: TTntRadioButton;
-    RB_System: TTntRadioButton;
+    RB_Selected: TRadioButton;
+    RB_Recent: TRadioButton;
+    RB_Default: TRadioButton;
+    RB_System: TRadioButton;
     procedure RB_SelectedClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);

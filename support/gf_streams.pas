@@ -25,14 +25,18 @@
 
 
 interface
-uses Windows, Classes, Sysutils;
+uses
+   Winapi.Windows,
+   System.Classes,
+   System.SysUtils,
+   gf_strings;
 
 {$ALIGN OFF}
 
-procedure SaveToFile(FN: WideString; Str: String);
+procedure SaveToFile(FN: string; Str: AnsiString);
 
-procedure SaveStringToStream( S : string; Stream : TStream );
-function LoadStringFromStream( Stream : TStream ) : string;
+procedure SaveStringToStream( S : AnsiString; Stream : TStream );
+function LoadStringFromStream( Stream : TStream ) : Ansistring;
 procedure SaveIntegerToStream( i : integer; Stream : TStream );
 function LoadIntegerFromStream( Stream : TStream ) : Integer;
 procedure SaveLongintToStream( i : integer; Stream : TStream );
@@ -47,45 +51,50 @@ procedure SaveBooleanToStream( B : Boolean; Stream : TStream );
 function LoadBooleanFromStream( Stream : TStream ) : Boolean;
 
 function NodeStreamIsRTF ( Stream : TMemoryStream ): boolean;
-function NodeStreamIsUTF8_WithoutBOM (Stream : TMemoryStream; var NodeText: string): boolean; overload;
+function NodeStreamIsUTF8_WithoutBOM (Stream : TMemoryStream; var NodeText: AnsiString): boolean; overload;
 function NodeStreamIsUTF8_WithoutBOM ( Stream : TMemoryStream ): boolean; overload;
 function NodeStreamIsUTF8WithBOM (Stream : TMemoryStream): boolean;
 function AddUTF8_BOM ( Stream : TMemoryStream ): boolean;
 
 
 type
-  TWTextFile = class
+  TTextFile = class           // ToDO: Replace the use of this class for TBufferedFileStream
   private
-    F: TStream;
-    fileName: wideString;
-    buffer: PChar;
+    fileName: string;
+    buffer: PAnsiChar;
     bufSize: integer;
     posI, posF: integer;
   public
+    F: TStream;
     constructor Create;
     destructor Destroy; Override;
-    procedure AssignFile(const aFileName: wideString);
+    procedure AssignFile(const aFileName: string);
     procedure AssignStream(const stream: TStream);
     procedure Reset;
     procedure Rewrite;
+    procedure Append;
     procedure CloseFile;
-    function Readln: string;
+    function Readln: AnsiString;
     procedure WriteLn (const Args: array of const);
     procedure Write (const Buffer; Count: integer); overload;
-    procedure Write (const Cad: String); overload;
+    procedure Write (const Cad: AnsiString); overload;
     function Eof: boolean;
   end;
 
 
+const
+   UTF8_BOM = AnsiString(#$EF#$BB#$BF);
+
+
 implementation
-uses TntSystem, TntClasses, gf_strings;
 
 
-procedure SaveToFile(FN: WideString; Str: String);
+
+procedure SaveToFile(FN: String; Str: AnsiString);    // Better: IOUtils.TFile.WriteAllText(...)
 var
-  F : TWTextFile;
+  F : TTextFile;
 begin
-  F:= TWTextFile.Create();
+  F:= TTextFile.Create();
   F.Assignfile(FN );
   F.Rewrite;
   try
@@ -96,7 +105,7 @@ begin
 end;
 
 
-procedure SaveStringToStream( S : string; Stream : TStream );
+procedure SaveStringToStream( S : AnsiString; Stream : TStream );
 var
  i : integer;
 Begin
@@ -105,7 +114,7 @@ Begin
  if ( i > 0 ) then Stream.WriteBuffer( S[1], i );
 End;
 
-function LoadStringFromStream( Stream : TStream ) : string;
+function LoadStringFromStream( Stream : TStream ) : AnsiString;
 var
  i : integer;
 begin
@@ -196,7 +205,7 @@ end;
 
 function NodeStreamIsRTF ( Stream : TMemoryStream ): boolean;
 var
-    NodeText : string;
+    NodeText : AnsiString;
 begin
     // From TForm_ExportNew.PerformExport:
     // <<now for some treachery. In KeyNote, a user can mark a note
@@ -218,27 +227,29 @@ begin
     end;
 end;
 
-function NodeStreamIsUTF8_WithoutBOM (Stream : TMemoryStream; var NodeText: string): boolean;
+
+function NodeStreamIsUTF8_WithoutBOM (Stream : TMemoryStream; var NodeText: AnsiString): boolean;
 var
     BOM: string[3];
     TextSize: integer;
-    cad: string;
+    cad: AnsiString;
 begin
     // Node is assumed to be plain text
     Result:= False;
 
     TextSize:= Stream.Size;
     if TextSize >= 3 then begin
-       BOM:= Copy( PChar(Stream.Memory), 1, 3 );
+       BOM:= Copy( PAnsiChar(Stream.Memory), 1, 3 );
        if BOM <> UTF8_BOM then begin
           SetLength( NodeText, TextSize );
           move( Stream.Memory^, NodeText[1], TextSize );
-          cad:= Utf8ToAnsi(NodeText);
+          cad:= Utf8ToAnsi(NodeText);                        //*** ¿Reemplazable por la función  CanSaveAsANSI()
           if (cad <> '') and (cad <> NodeText) then
              Result:= True;
        end;
     end;
 end;
+
 
 function NodeStreamIsUTF8WithBOM (Stream : TMemoryStream): boolean;
 var
@@ -248,7 +259,7 @@ begin
     Result:= False;
     TextSize:= Stream.Size;
     if TextSize >= 3 then begin
-       BOM:= Copy( PChar(Stream.Memory), 1, 3 );
+       BOM:= Copy( PAnsiChar(Stream.Memory), 1, 3 );
        if BOM = UTF8_BOM then
           Result:= True;
     end;
@@ -257,22 +268,29 @@ end;
 
 function NodeStreamIsUTF8_WithoutBOM ( Stream : TMemoryStream ): boolean;
 var
-    NodeText : string;
+    NodeText : AnsiString;
 begin
     Result:= NodeStreamIsUTF8_WithoutBOM(Stream, NodeText);
 end;
 
 function AddUTF8_BOM ( Stream : TMemoryStream ): boolean;
 var
-    NodeText : string;
+    NodeText : AnsiString;
 begin
     Result:= False;
 
     if NodeStreamIsUTF8_WithoutBOM(Stream, NodeText) then begin
        Stream.Position:= 0;
+       if Stream.Position <> 0 then        //*** En Streams grandes (> 64Kb) no está funcionando Position:= 0, pero sí Seek ¿?
+         Stream.Seek(0, soBeginning);
+
+
        Stream.Write(UTF8_BOM[1], length(UTF8_BOM));
        Stream.Write(NodeText[1], length(NodeText));
        Stream.Position:= 0;
+       if Stream.Position <> 0 then        //*** En Streams grandes (> 64Kb) no está funcionando Position:= 0, pero sí Seek ¿?
+         Stream.Seek(0, soBeginning);
+
        Result:= True;
     end;
 end;
@@ -280,12 +298,12 @@ end;
 
 //===== TWTextFile
 
-constructor TWTextFile.Create;
+constructor TTextFile.Create;
 begin
   posF:= 0;
 end;
 
-destructor TWTextFile.Destroy;
+destructor TTextFile.Destroy;
 begin
     if assigned(buffer) then begin
        FreeMem(buffer);
@@ -293,7 +311,7 @@ begin
     end;
 end;
 
-procedure TWTextFile.AssignFile(const aFileName: wideString);
+procedure TTextFile.AssignFile(const aFileName: string);
 begin
     if afileName = '' then
        raise Exception.CreateFmt( 'Error: Filename not specified', [''] );
@@ -309,7 +327,7 @@ begin
     GetMem(buffer, bufSize);
 end;
 
-procedure TWTextFile.AssignStream(const stream: TStream);
+procedure TTextFile.AssignStream(const stream: TStream);
 begin
     if (fileName <> '') and assigned(F) then
        FreeAndNil(F);
@@ -324,22 +342,36 @@ begin
     GetMem(buffer, bufSize);
 end;
 
-procedure TWTextFile.Rewrite;
+procedure TTextFile.Rewrite;
 begin
-    if assigned(F) then begin   //F will be a generic Stream, probably a TMemoryStream
-       F.Position:= 0;
-    end
+    if assigned(F) then     //F will be a generic Stream, probably a TMemoryStream
+       F.Position:= 0
+
     else begin
         if fileName = '' then
            raise Exception.CreateFmt( 'Error: Filename not specified', [''] )
         else
-           F:= TTntFileStream.Create( fileName, ( fmCreate or fmShareExclusive ));
+           F:= TFileStream.Create( fileName, ( fmCreate or fmShareExclusive ));
     end;
 
     posF:= 0;
 end;
 
-procedure TWTextFile.Reset;
+procedure TTextFile.Append;
+begin
+    CloseFile;
+
+    if fileName = '' then
+       raise Exception.CreateFmt( 'Error: Filename not specified', [''] )
+    else
+       F:= TFileStream.Create( fileName, ( fmOpenWrite or fmShareExclusive ));
+
+    F.Seek(0, soEnd);
+    posF:= 0;
+end;
+
+
+procedure TTextFile.Reset;
 begin
     if assigned(F) then begin  //F will be a generic Stream, probably a TMemoryStream
        F.Position:= 0;
@@ -348,7 +380,7 @@ begin
         if fileName = '' then
            raise Exception.CreateFmt( 'Error: Filename not specified', [''] )
         else
-           F:= TTntFileStream.Create( fileName, ( fmOpenRead ));
+           F:= TFileStream.Create( fileName, ( fmOpenRead ));
     end;
 
     if F.Size = 0 then
@@ -359,16 +391,16 @@ begin
     end;
 end;
 
-procedure TWTextFile.CloseFile;
+procedure TTextFile.CloseFile;
 begin
     if (fileName <> '') and assigned(F) then
        FreeAndNil(F);
 end;
 
-function TWTextFile.Readln: string;
+function TTextFile.Readln: AnsiString;
 var
    i: integer;
-   cad: string;
+   cad: AnsiString;
    lineReaden: boolean;
    nCrLf: integer;
 begin
@@ -389,7 +421,7 @@ begin
            end;
            i:= i + 1;
        end;
-       SetString(cad, PChar(@buffer[posI]), i-posI - nCrLf);
+       SetString(cad, PAnsiChar(@buffer[posI]), i-posI - nCrLf);
        Result:= Result + cad;
      end;
 
@@ -409,33 +441,32 @@ begin
    until lineReaden;
 end;
 
-function TWTextFile.Eof: boolean;
+function TTextFile.Eof: boolean;
 begin
    Result:= (posF = 0);
 end;
 
 {See: Variant Open Array Parameters}
 
-procedure TWTextFile.WriteLn (const Args: array of const);
+procedure TTextFile.WriteLn (const Args: array of const);
 var
   I: Integer;
-  line: string;
-  wline: WideString;
+  line: AnsiString;
+  uline: string;
   lastParamWide: boolean;
-  ws: wideString;
-  s: string;
+  us: string;
 
   procedure checkToWrite (force: boolean = false);
   var
-     S: AnsiString;
+     S: RawByteString;
   begin
-    if (wline <> '') and (not lastParamWide or force) then begin
-        S:= WideStringToUTF8(wline);
-        F.WriteBuffer(PChar(S)^, length(S));
-        wline:= '';
+    if (uline <> '') and (not lastParamWide or force) then begin
+        S:= UTF8Encode(uline);        //S:= WideStringToUTF8(wline);
+        F.WriteBuffer(PAnsiChar(S)^, length(S));
+        uline:= '';
     end;
     if (line <> '') and (lastParamWide or force) then begin
-        F.WriteBuffer(PChar(line)^, length(line));
+        F.WriteBuffer(PAnsiChar(line)^, length(line));
         line:= '';
     end;
   end;
@@ -446,30 +477,42 @@ begin
   for I := Low(Args) to High (Args) do begin
     lastParamWide:= False;
     case Args [I].VType of
-      vtInteger:  line := line + intToStr(Args [I].VInteger);
+      vtInteger:  line := line + IntToStr(Args [I].VInteger);
       vtChar:     line := line + Args [I].VChar;
       vtBoolean:  line := line + 'TRUE';   //Args [I].VBoolean;
 
       vtExtended:   line := line + FloatToStr(Args [I].VExtended^);
       vtInt64:      line := line + FloatToStr(Args [I].VInt64^);
-      vtPChar:      line := line + PChar(Args [I].VPChar)^;
+      vtPChar:      line := line + PAnsiChar(Args [I].VPChar)^;
       vtString:     line := line + PShortString(Args [I].VString)^;
-      vtAnsiString: line := line + string(Args [I].VAnsiString);
+      vtAnsiString: line := line + AnsiString(Args [I].VAnsiString);
       vtWideChar:   begin
-                    wline:= wline + Args [I].VWideChar;
+                    uline:= uline + Args [I].VWideChar;
                     lastParamWide:= true;
                     end;
       vtPWideChar,
       vtWideString:
              begin
-                ws:= WideString(Args [I].VPWideChar);
-                if CanSaveAsANSI(ws) then
-                   line:= line + string(ws)                   // To make it more compatible with older versions. Only use UTF8 if it's necessary
+                us:= WideString(Args [I].VPWideChar);
+                if CanSaveAsANSI(us) then
+                   line:= line + AnsiString(us)                   // To make it more compatible with older versions. Only use UTF8 if it's necessary
                 else begin
-                    wline:= wline + ws;
+                    uline:= uline + us;
                     lastParamWide:= true;
                 end;
              end;
+
+      vtUnicodeString:
+             begin
+                us:= UnicodeString(Args [I].VUnicodeString);
+                if CanSaveAsANSI(us) then
+                   line:= line + AnsiString(us)                   // To make it more compatible with older versions. Only use UTF8 if it's necessary
+                else begin
+                    uline:= uline + us;
+                    lastParamWide:= true;
+                end;
+             end;
+
       vtCurrency:   line := line + CurrToStr(Args [I].VCurrency^);
     end; // case
     checkToWrite;
@@ -478,13 +521,13 @@ begin
   checkToWrite (true);
 end;
 
-procedure TWTextFile.Write (const Cad: String);
+procedure TTextFile.Write (const Cad: AnsiString);
 begin
    if not assigned (F) then exit;
-   F.WriteBuffer(PChar(Cad)^, length(Cad));
+   F.WriteBuffer(PAnsiChar(Cad)^, length(Cad));
 end;
 
-procedure TWTextFile.Write (const Buffer; Count: integer);
+procedure TTextFile.Write (const Buffer; Count: integer);
 begin
    if not assigned (F) then exit;
    F.WriteBuffer(Buffer, Count);

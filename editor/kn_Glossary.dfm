@@ -3,32 +3,32 @@ object Form_Glossary: TForm_Glossary
   Top = 291
   HelpContext = 550
   Caption = 'Glossary terms'
-  ClientHeight = 272
-  ClientWidth = 449
+  ClientHeight = 271
+  ClientWidth = 445
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -14
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   Scaled = False
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 17
   object Panel1: TPanel
-    Left = 332
+    Left = 328
     Top = 0
     Width = 117
-    Height = 272
+    Height = 271
     Align = alRight
     BevelOuter = bvNone
     TabOrder = 0
-    object Button_OK: TTntButton
+    ExplicitLeft = 324
+    ExplicitHeight = 270
+    object Button_OK: TButton
       Left = 12
       Top = 15
       Width = 93
@@ -46,7 +46,7 @@ object Form_Glossary: TForm_Glossary
       TabOrder = 0
       OnClick = Button_OKClick
     end
-    object Button_Cancel: TTntButton
+    object Button_Cancel: TButton
       Left = 12
       Top = 52
       Width = 93
@@ -63,7 +63,7 @@ object Form_Glossary: TForm_Glossary
       ParentFont = False
       TabOrder = 1
     end
-    object Button_New: TTntButton
+    object Button_New: TButton
       Left = 12
       Top = 105
       Width = 93
@@ -78,7 +78,7 @@ object Form_Glossary: TForm_Glossary
       TabOrder = 2
       OnClick = Button_NewClick
     end
-    object Button_Edit: TTntButton
+    object Button_Edit: TButton
       Left = 12
       Top = 142
       Width = 93
@@ -93,7 +93,7 @@ object Form_Glossary: TForm_Glossary
       TabOrder = 3
       OnClick = Button_EditClick
     end
-    object Button_Del: TTntButton
+    object Button_Del: TButton
       Left = 12
       Top = 178
       Width = 93
@@ -108,7 +108,7 @@ object Form_Glossary: TForm_Glossary
       TabOrder = 4
       OnClick = Button_DelClick
     end
-    object Button_Help: TTntButton
+    object Button_Help: TButton
       Left = 12
       Top = 228
       Width = 93
@@ -127,17 +127,19 @@ object Form_Glossary: TForm_Glossary
   object Panel2: TPanel
     Left = 0
     Top = 0
-    Width = 332
-    Height = 272
+    Width = 328
+    Height = 271
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    object LV: TTntListView
+    ExplicitWidth = 324
+    ExplicitHeight = 270
+    object LV: TListView
       Left = 3
       Top = 3
-      Width = 326
-      Height = 266
+      Width = 322
+      Height = 265
       Align = alClient
       Columns = <
         item

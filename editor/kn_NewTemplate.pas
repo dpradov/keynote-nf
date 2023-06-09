@@ -7,32 +7,39 @@ unit kn_NewTemplate;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, StdCtrls, gf_files, TntStdCtrls, TntExtCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.ExtCtrls,
+   Vcl.StdCtrls,
+   gf_files;
 
 type
   TForm_Template = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    GroupBox1: TTntGroupBox;
-    Label1: TTntLabel;
-    Edit_Name: TTntEdit;
-    CB_Formatted: TTntCheckBox;
-    RG_Source: TTntRadioGroup;
-    procedure Edit_NameKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
+    Edit_Name: TEdit;
+    CB_Formatted: TCheckBox;
+    RG_Source: TRadioGroup;
+    procedure Edit_NameKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Edit_NameKeyPress(Sender: TObject; var Key: Char);
     procedure Edit_NameChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);

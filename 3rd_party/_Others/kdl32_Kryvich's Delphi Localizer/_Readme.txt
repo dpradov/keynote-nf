@@ -1,0 +1,1 @@
+Old version:  Kryvich's Delphi Localizer 3.2 (April 29, 2008)

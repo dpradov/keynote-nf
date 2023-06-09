@@ -1,0 +1,135 @@
+RX Library Software License Agreement
+
+BEFORE PROCEEDING WITH THE INSTALLATION 
+AND/OR USE OF THIS SOFTWARE, CAREFULLY
+READ THE FOLLOWING TERMS AND CONDITIONS
+OF THIS LICENSE AGREEMENT AND LIMITED
+WARRANTY (The "Agreement").
+
+BY INSTALLING OR USING THIS SOFTWARE YOU
+INDICATE YOUR ACCEPTANCE OF THIS
+AGREEMENT. IF YOU DO NOT ACCEPT OR AGREE
+WITH THESE TERMS, YOU MAY NOT INSTALL OR
+USE THIS SOFTWARE!
+
+PREAMBLE
+
+The terms and conditions of the RX Library
+Software License Agreement have one major
+goal in mind; to foster a development 
+community based around the RX components
+library and associated source code.
+RX Library does however reserve the right
+as the sole distributor of the library 
+source code. Hence although we encourage
+you to change and modify the library to 
+suit your needs, you may not distribute
+derivative works based on the library
+source code without express written 
+permission from RX Library authors. 
+Worthwhile changes and modifications to 
+the libraries may be submitted to RX 
+Library authors for integration into a
+future release of the product.
+
+LICENSE
+
+This software, including documentation, 
+source code, object code and/or additional
+materials (the "Software") is owned by 
+RXLib authors.
+This Agreement does not provide you with 
+title or ownership of Product, but only a
+right of limited use as outlined in this 
+license agreement. RX Library authors 
+hereby grant you a non-exclusive, 
+royalty free license to use the Software
+as set forth below:
+
+ . integrate the Software with your
+   Applications, subject to the
+   redistribution terms below.
+ . modify or adapt the Software in whole
+   or in part for the development of 
+   Applications based on the Software.
+ . use portions of the RX Library source
+   code or RX Library Demo Programs in
+   your own products and libraries.
+
+REDISTRIBUTION RIGHTS
+
+You are granted a non-exclusive, 
+royalty-free right to reproduce and
+redistribute executable files created
+using the Software (the "Executable Code")
+in conjunction with software products that
+you develop and/or market (the 
+"Applications"). 
+
+RESTRICTIONS
+
+Without the expressed, written consent of
+RX Library authors, you may NOT:
+
+ . distribute modified versions of the 
+   Software, in whole or in part.
+ . rent or lease the Software.
+ . sell any portion of the Software on 
+   its own, without integrating it into 
+   your Applications as Executable Code.
+
+SELECTION AND USE
+
+You assume full responsibility for the
+selection of the Software to achieve your
+intended results and for the installation,
+use and results obtained from the Software.
+
+LIMITED WARRANTY
+
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT
+WARRANTY OF ANY KIND EITHER EXPRESSED OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+IMPLIED WARRANTIES MERCHANTIBILITY AND
+FITNESS FOR A PARTICULAR PURPOSE. THE 
+ENTIRE RISK AS TO THE QUALITY AND 
+PERFORMANCE OF THE PRODUCT IS WITH YOU. 
+SHOULD THE PRODUCT PROVE DEFECTIVE, YOU
+ASSUME THE COST OF ALL NECESSARY SERVICING
+OR ERROR CORRECTION.
+
+RX LIBRARY AUTHORS DO NOT WARRANT THAT
+THE FUNCTIONS CONTAINED IN THE SOFTWARE 
+WILL MEET YOUR REQUIREMENTS OR THAT THE 
+OPERATION OF THE SOFTWARE WILL BE 
+UNINTERRUPTED OR ERROR FREE.
+
+No oral or written information given by 
+RX Library shall create a warranty.
+
+LIMITATION OF REMEDIES AND LIABILITY.
+
+IN NO EVENT SHALL RX LIBRARY AUTHORS, OR
+ANY OTHER PARTY WHO MAY HAVE DISTRIBUTED
+THE SOFTWARE AS PERMITTED ABOVE, BE LIABLE
+FOR DAMAGES, INCLUDING ANY GENERAL, 
+SPECIAL, INCIDENTAL, OR CONSEQUENTIAL 
+DAMAGES ARISING OUT OF THE USE OR 
+INABILITY TO USE THE SOFTWARE (INCLUDING
+BUT NOT LIMITED TO LOSS OF DATA OR DATA 
+BEING RENDERED INACCURATE OR LOSSES 
+SUSTAINED BY YOU OR THIRD PARTIES OR 
+FAILURE OF THE SOFTWARE TO OPERATE WITH 
+ANY OTHER PRODUCTS), EVEN IF SUCH HOLDER 
+OR OTHER PARTY HAS BEEN ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGES.
+
+If you have any questions regarding this 
+agreement, please contact RX Library 
+authors at their e-mail addresses: 
+
+  fkozh@iname.com
+  igorp@mail.com
+  korolev@usa.net
+
+RX Library Web Site: http://www.rxlib.com

@@ -1,25 +1,35 @@
 unit kn_BookmarksMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 
 uses
-   Menus;
+  Winapi.Messages,
+  System.SysUtils,
+  Vcl.Menus,
+  TreeNT,
+  gf_strings,
+  kn_Const,
+  kn_Info,
+  kn_NoteObj,
+  kn_NodeList,
+  kn_FileObj;
+
 
     procedure BookmarkAdd( const Number : integer );
     procedure BookmarkGoTo( const Number : integer );
@@ -28,9 +38,9 @@ uses
     function BookmarkGetMenuItem( const Number : integer ) : TMenuItem;
 
 implementation
-uses SysUtils, Messages,
-     TreeNT, gf_strings,
-     kn_Global, kn_Main, kn_NoteObj, kn_NodeList, kn_Const, kn_Info;
+uses
+  kn_Global,
+  kn_Main;
 
 resourcestring
   STR_Assigned = ' Bookmark %d assigned.';
@@ -43,9 +53,9 @@ begin
   if  not (Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
   if (( Number < 0 ) or ( Number > MAX_BOOKMARKS )) then exit;
 
-  with NoteFile.Bookmarks[Number] do
+  with NoteFile.Bookmarks[Number]^ do
   begin
-    Name := WideFormat( '%d - %s', [Number, RemoveAccelChar( ActiveNote.Name )] );
+    Name := Format( '%d - %s', [Number, RemoveAccelChar( ActiveNote.Name )] );
     CaretPos := ActiveNote.Editor.SelStart;
     SelLength := ActiveNote.Editor.SelLength;
     Note := ActiveNote;
@@ -75,7 +85,8 @@ procedure BookmarkClear( const Number : integer );
 begin
   if ( not assigned( NoteFile )) then exit;
   if (( Number < 0 ) or ( Number > MAX_BOOKMARKS )) then exit;
-  with NoteFile.Bookmarks[Number] do
+
+  with NoteFile.Bookmarks[Number]^ do
   begin
     Name := '';
     CaretPos := 0;

@@ -39,8 +39,16 @@ unit gf_LangCombo;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Controls, StdCtrls,
-  Graphics, gf_Lang;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   System.AnsiStrings,
+   Vcl.Controls,
+   Vcl.StdCtrls,
+   Vcl.Graphics,
+   gf_Lang;
+
 
 type
   TgfLangCombo = class(TCustomComboBox)
@@ -243,7 +251,7 @@ var
   Z: Integer;
   Buf: array[0..255] of Char;
 begin
-  Val( '$'+StrPas( LocaleId ), Locale, Z );
+  Val( '$'+ System.AnsiStrings.StrPas( LocaleId ), Locale, Z );
   if (( Locale < 2048 ) or ( not PrimaryOnly )) then
     begin
       SetLength( Lang, 255 );

@@ -7,38 +7,49 @@ unit kn_VirtualNodeMng;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 uses
-  kn_Const, TreeNT, kn_NodeList;
+   System.SysUtils,
+   Vcl.Dialogs,
+   Vcl.Controls,
+   TreeNT,
+   gf_files,
+   gf_misc,
+   kn_Info,
+   kn_Const,
+   kn_NodeList,
+   kn_NoteFileMng;
+
 
     // virtual nodes
-    procedure VirtualNodeProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : wideString );
+    procedure VirtualNodeProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : string );
     procedure VirtualNodeRefresh( const DoPrompt : boolean );
     procedure VirtualNodeUnlink;
     function GetCurrentVirtualNode : TNoteNode;
     procedure VirtualNodeUpdateMenu( const IsVirtual : boolean; const IsKNTVirtual: boolean );
     {$IFDEF WITH_IE}
-    function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : wideString ) : boolean;
+    function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : string ) : boolean;
     {$ENDIF}
 
 var
    Virtual_UnEncrypt_Warning_Done : boolean;
 
 implementation
-
 uses
-   Dialogs, Controls, SysUtils,
-   gf_files, gf_misc, kn_Global, kn_Main, kn_Info, kn_NoteObj, Kn_TreeNoteMng,
-   kn_NoteFileMng, gf_miscvcl, TntSysUtils;
+   kn_Global,
+   kn_TreeNoteMng,
+   kn_NoteObj,
+   kn_Main;
+
 
 resourcestring
   STR_01 = 'Virtual node "%s" is currently linked to file "%s". Do you want to link the node to a different file?';
@@ -66,7 +77,7 @@ resourcestring
   STR_18 = 'Unlink mirror node "%s"? The contents of the node will be retained but the link with the non virtual node will be removed.';
 
 {$IFDEF WITH_IE}
-function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : wideString ) : boolean;
+function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : string ) : boolean;
 var
   Form_VNode : TForm_VNode;
 begin
@@ -89,7 +100,7 @@ begin
 end; // VirtualNodeGetMode
 {$ENDIF}
 
-procedure VirtualNodeProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : wideString );
+procedure VirtualNodeProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : string );
 var
   myNoteNode : TNoteNode;
   oldDlgFilter : string;
@@ -124,7 +135,7 @@ begin
     end
     else
     begin
-      if ( DoMessageBox( WideFormat(STR_01, [myNoteNode.Name, myNoteNode.VirtualFN] ),
+      if ( DoMessageBox( Format(STR_01, [myNoteNode.Name, myNoteNode.VirtualFN] ),
       mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
         IsChangingFile := true;
     end;
@@ -142,7 +153,7 @@ begin
     // not a virtual node. If it has text, we have to have an additional prompt
     if ( ActiveNote.Editor.Lines.Count > 0 ) then
     begin
-      if ( DoMessageBox( WideFormat(STR_02, [myNoteNode.Name] ),
+      if ( DoMessageBox( Format(STR_02, [myNoteNode.Name] ),
         mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
       exit;
       IsFlushingData := true; // needs a SaveDlg, not an OpenDlg
@@ -214,7 +225,7 @@ begin
         end;
 
         // these following tests do not apply to IERemote nodes, either
-        ext := WideExtractfileext( VirtFN );
+        ext := ExtractFileExt( VirtFN );
         if ( not ( ExtIsRTF( ext ) or ExtIsText( ext ) or ExtIsHTML( ext ))) then
         begin
           messagedlg( STR_05, mtError, [mbOK], 0 );
@@ -295,12 +306,12 @@ begin
           SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
           if ( TreeOptions.AutoNameVNodes and ( not IsFlushingData )) then
           begin
-            myNoteNode.Name := WideExtractFilename( myNoteNode.VirtualFN ); // {N}
+            myNoteNode.Name := ExtractFilename( myNoteNode.VirtualFN ); // {N}
             (* [x] ImportFileNamesWithExt ignored for virtual nodes, because it is useful to have extension visible
             if KeyOptions.ImportFileNamesWithExt then
-              myNoteNode.Name := WideExtractFilename( myNoteNode.VirtualFN ) // {N}
+              myNoteNode.Name := ExtractFilename( myNoteNode.VirtualFN ) // {N}
             else
-              myNoteNode.Name := WideExtractFilenameNoExt( myNoteNode.VirtualFN );
+              myNoteNode.Name := ExtractFilenameNoExt( myNoteNode.VirtualFN );
             *)
             myTreeNode.Text := myNoteNode.Name;
           end;
@@ -341,14 +352,14 @@ begin
 
   if ( myNoteNode.VirtualMode in [vmIELocal, vmIERemote] ) then
   begin
-    DoMessageBox( WideFormat(STR_10, [myNoteNode.Name] ), mtError, [mbOK], 0 );
+    DoMessageBox( Format(STR_10, [myNoteNode.Name] ), mtError, [mbOK], 0 );
     exit;
   end;
 
   if (myNoteNode.VirtualMode= vmKNTNode) then begin
        originalTreeNode:= myNoteNode.MirrorNode;
        if assigned(originalTreeNode) and assigned(TNoteNode(originalTreeNode.Data)) then
-          if ( DoMessageBox( WideFormat(STR_18, [myNoteNode.Name, myNoteNode.VirtualFN] ),
+          if ( DoMessageBox( Format(STR_18, [myNoteNode.Name, myNoteNode.VirtualFN] ),
             mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
           begin
             try
@@ -366,7 +377,7 @@ begin
 
   end
   else
-      if ( DoMessageBox( WideFormat(STR_11, [myNoteNode.Name, myNoteNode.VirtualFN] ),
+      if ( DoMessageBox( Format(STR_11, [myNoteNode.Name, myNoteNode.VirtualFN] ),
         mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
       begin
         try
@@ -394,16 +405,16 @@ begin
 
   if myNoteNode.RTFModified then
   begin
-    if ( DoMessageBox( WideFormat(STR_12,
-      [myNoteNode.Name, WideExtractFilename( myNoteNode.VirtualFN )] ),
+    if ( DoMessageBox( Format(STR_12,
+      [myNoteNode.Name, ExtractFilename( myNoteNode.VirtualFN )] ),
       mtWarning, [mbOK,mbCancel], 0 ) <> mrOK ) then
     exit;
   end
   else
   if DoPrompt then
   begin
-    if ( DoMessageBox( WideFormat(STR_13,
-      [myNoteNode.Name, WideExtractFilename( myNoteNode.VirtualFN )] ),
+    if ( DoMessageBox( Format(STR_13,
+      [myNoteNode.Name, ExtractFilename( myNoteNode.VirtualFN )] ),
       mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
     exit;
   end;
@@ -459,7 +470,7 @@ begin
   if ( result = nil ) then exit;
   if ( result.VirtualMode = vmNone ) then
   begin
-    DoMessageBox( WideFormat(
+    DoMessageBox( Format(
       STR_17,
       [result.Name] ), mtError, [mbOK], 0 );
     result := nil;

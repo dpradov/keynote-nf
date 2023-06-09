@@ -1,28 +1,52 @@
 unit kn_FindReplaceMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 uses
-    TreeNT, RxRichEd,
-    kn_LocationObj, kn_Info, kn_FindReplace, kn_NoteObj;
+   Winapi.Windows,
+   Winapi.RichEdit,
+   System.Classes,
+   System.SysUtils,
+   Vcl.Dialogs,
+   Vcl.Forms,
+   Vcl.Controls,
+   TreeNT,
+   RxRichEd,
+   gf_miscvcl,
+   gf_strings,
+   kn_const,
+   kn_Info,
+   kn_Global,
+   kn_LocationObj,
+   kn_FindReplace,
+   kn_NoteObj,
+   kn_RTFUtils,
+   kn_NodeList,
+   kn_Cmd,
+   kn_VCLControlsMng,
+   kn_NoteMng,
+   kn_TreeNoteMng,
+   kn_MacroMng,
+   kn_NoteFileMng;
+
 
 var
-    Text_To_Find : WideString;
+    Text_To_Find : string;
 
     Form_FindReplace : TForm_FindReplace;  // GLOBAL FORM!
 
@@ -30,7 +54,7 @@ var
     SearchInProgress : boolean; // TRUE while searching or replacing
     UserBreak : boolean;
 
-    SearchNode_Text, SearchNode_TextPrev : wideString;
+    SearchNode_Text, SearchNode_TextPrev : string;
     StartNote: TTabNote;
     StartNode: TTreeNTNode;
 
@@ -50,12 +74,10 @@ procedure FindResultsToEditor( const SelectedOnly : boolean );
 
 
 implementation
-uses Classes, Dialogs, Forms, SysUtils, Controls, Windows,
-     RichEdit,
-     gf_miscvcl, gf_strings,
-     kn_Global, Kn_const,
-     kn_RTFUtils, kn_NoteMng, kn_Main, kn_NodeList, kn_Cmd, kn_VCLControlsMng,
-     kn_TreeNoteMng, kn_MacroMng, kn_LinksMng, kn_NoteFileMng;
+uses
+  kn_LinksMng,
+  kn_Main;
+
 
 var
    NumberFoundItems: integer;
@@ -84,7 +106,7 @@ begin
   if ( FileIsBusy or SearchInProgress ) then exit;
 
   if ( ActiveNote.Editor.SelLength > 0 ) then
-     FindOptions.Pattern := trim( ActiveNote.Editor.SelVisibleTextW )
+     FindOptions.Pattern := trim( ActiveNote.Editor.SelVisibleText )
   else
      if FindOptions.WordAtCursor then
         FindOptions.Pattern := ActiveNote.Editor.GetWordAtCursorNew( true );
@@ -166,7 +188,7 @@ begin
       else begin
         for i := 1 to cnt do begin
           aLocation:= TLocation( TLocation( Location_List.Objects[pred( i )] ));
-          ActiveNote.Editor.SelTextW := #13 + Format( '%d. ', [i] );
+          ActiveNote.Editor.SelText := #13 + Format( '%d. ', [i] );
           ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
           InsertOrMarkKNTLink(aLocation, true, '');
         end;
@@ -194,7 +216,7 @@ begin
        // Get the actual node's object and transfer its RTF data to temp editor
         myNoteNode := TNoteNode( myTreeNode.Data );
         myNoteNode.Stream.Position := 0;
-        EditControl:= GetAuxiliarEditorControl;              // It will create if it's necessary (lazy load)
+        EditControl:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
         EditControl.Lines.LoadFromStream( myNoteNode.Stream );
     end;
 end;
@@ -214,7 +236,7 @@ var
   lastNoteID, lastNodeID : integer;
   lastTag : integer;
   numNodosNoLimpiables: integer;
-  thisWord : WideString;
+  thisWord : string;
   wordList : TStringList;
   wordidx, wordcnt : integer;
   MultiMatchOK : boolean;
@@ -229,7 +251,7 @@ type
 
        procedure AddLocation (LocationType: TLocationType); // INLINE
        var
-         path : wideString;
+         path : string;
        begin
           Location := TLocation.Create;
           Location.FileName := Notefile.FileName;
@@ -263,7 +285,7 @@ type
             nodeToFilter:= false;
             nodesSelected:= true;
           end;
-          path := WideFormat( '%d. %s', [Counter, PathOfKNTLink(myTreeNode, myNote, location.CaretPos, true, false)] );
+          path := Format( '%d. %s', [Counter, PathOfKNTLink(myTreeNode, myNote, location.CaretPos, true, false)] );
           Location_List.AddObject(path, Location);
        end;
 
@@ -413,7 +435,7 @@ begin
             repeat
                 PrepareEditControl(myNote, myTreeNode);
                 nodeToFilter:= true;                     // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
-                SearchOrigin := 0; // starting a new note
+                SearchOrigin := 0; // starting a new node
 
                 case SearchModeToApply of
                     smPhrase :
@@ -559,7 +581,7 @@ begin
         end;
       end
       else
-         DoMessageBox(WideFormat( STR_02, [FindOptions.Pattern] ), STR_12, 0);
+         DoMessageBox(Format( STR_02, [FindOptions.Pattern] ), STR_12, 0);
 
     except
       on E : Exception do
@@ -579,7 +601,7 @@ begin
     SearchInProgress := false;
     screen.Cursor := crDefault;
     wordList.Free;
-    FreeAuxiliarEditorControl;
+    FreeAuxEditorControl;
   end;
 
 end; // RunFindAllEx
@@ -814,14 +836,14 @@ begin
 
   finally
       if Found then begin
-          Form_Main.StatusBar.Panels[PANEL_HINT].text := WideFormat(STR_09, [PatternPos, NumberFoundItems]);
+          Form_Main.StatusBar.Panels[PANEL_HINT].text := Format(STR_09, [PatternPos, NumberFoundItems]);
           if IsRecordingMacro then
              AddMacroEditCommand( ecFindText );
       end
       else begin
           Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
           if not (UserBreak or Is_Replacing) then
-             DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0, handle);
+             DoMessageBox(Format( STR_02, [Text_To_Find] ), STR_12, 0, handle);
       end;
 
       result := Found;
@@ -864,7 +886,7 @@ var
   Original_EntireScope : boolean;
   SelectedTextToReplace: boolean;
   DoReplace: Boolean;
-  txtMessage: WideString;
+  txtMessage: string;
   handle: HWND;
   AppliedBeginUpdate: Boolean;
 
@@ -894,7 +916,7 @@ var
 
   function IdentifySelectedTextToReplace: Boolean;
   var
-    WordAtCursor: WideString;
+    WordAtCursor: string;
     SelectedTextLength: integer;
   begin
       SelectedTextLength:= ActiveNote.Editor.SelLength;
@@ -908,9 +930,9 @@ var
          end;
          if Result then
             if FindOptions.MatchCase then
-               Result:= (ActiveNote.Editor.SelTextW = Text_To_Find)
+               Result:= (ActiveNote.Editor.SelText = Text_To_Find)
             else
-               Result:= WideSameText(ActiveNote.Editor.SelTextW, Text_To_Find);
+               Result:= AnsiSameText(ActiveNote.Editor.SelText, Text_To_Find);
          end;
   end;
 
@@ -1001,8 +1023,8 @@ begin
 
                 if GetReplacementConfirmation then begin
                    inc(ReplaceCnt);
-                   ActiveNote.Editor.SelTextW := FindOptions.ReplaceWith;
-                   ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + length( ActiveNote.Editor.SelTextW );
+                   ActiveNote.Editor.SelText := FindOptions.ReplaceWith;
+                   ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + length( ActiveNote.Editor.SelText );
                 end;
 
                 Application.ProcessMessages;
@@ -1030,7 +1052,7 @@ begin
     FindOptions.EntireScope := Original_EntireScope;
   end;
 
-  txtMessage:= WideFormat( STR_11, [ReplaceCnt] );
+  txtMessage:= Format( STR_11, [ReplaceCnt] );
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := txtMessage;
   if ( ReplaceCnt > 0 ) then begin
      if ReplaceAll then DoMessageBox(txtMessage, STR_12, 0, handle);
@@ -1039,7 +1061,7 @@ begin
      end
   else
       if not SelectedTextToReplace then begin
-         DoMessageBox(WideFormat( STR_02, [Text_To_Find] ), STR_12, 0, handle);
+         DoMessageBox(Format( STR_02, [Text_To_Find] ), STR_12, 0, handle);
       end;
 
 end; // ReplaceEventProc
@@ -1056,7 +1078,7 @@ begin
       end;
       FindOptions := Form_FindReplace.MyFindOptions;
       Form_FindReplace.Release;
-      FreeAuxiliarEditorControl;
+      FreeAuxEditorControl;
 
     except
     end;

@@ -7,30 +7,37 @@ unit kn_pass;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls;
 
 type
   TForm_Password = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    GroupBox1: TTntGroupBox;
-    Label_FileName: TTntLabel;
-    Label2: TTntLabel;
-    Edit_Pass: TTntEdit;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    GroupBox1: TGroupBox;
+    Label_FileName: TLabel;
+    Label2: TLabel;
+    Edit_Pass: TEdit;
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
@@ -44,12 +51,12 @@ type
     { Public declarations }
     OK_Click : boolean;
     myTimeout : integer; // seconds
-    myFileName : wideString;
+    myFileName : string;
     function VerifyPass : boolean;
   end;
 
 implementation
-uses TntSysUtils;
+
 
 {$R *.DFM}
 
@@ -107,7 +114,7 @@ procedure TForm_Password.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   Label_FileName.Caption := myFileName;
-  Caption:= WideFormat(STR_02, [WideExtractFilename( myFileName )]);
+  Caption:= Format(STR_02, [ExtractFilename( myFileName )]);
 
   // when auto-reopening previously auto-closed encrypted files,
   // (see TForm_Main.AutoCloseFile) the password window does not

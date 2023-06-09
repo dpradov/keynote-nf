@@ -12,8 +12,8 @@ unit kn_SendMail;
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+
+ *****************************************************************************)
 
 
 // - log only when MJ_DEBUG is set
@@ -22,54 +22,76 @@ unit kn_SendMail;
 
 interface
 
-uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, SmtpProt, ComCtrls,
-  kn_Info, kn_Const, IniFiles,
-  gf_misc, gf_strings, wsocket,
-  kn_FileObj, kn_NoteObj, ExtCtrls,
-  RxRichEd, TreeNT, kn_NodeList,
-  gf_files, kn_INI, GFLog, TntStdCtrls;
+ uses
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   System.IniFiles,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ComCtrls,
+   Vcl.ExtCtrls,
+
+   RxRichEd,
+   TreeNT,
+   OverbyteIcsWndControl,
+   OverbyteIcsSmtpProt,
+   OverbyteIcsWSocket,
+
+   gf_misc,
+   gf_strings,
+   gf_files,
+   kn_FileObj,
+   kn_Info,
+   kn_Const,
+   kn_NoteObj,
+   kn_NodeList,
+   kn_INI,
+   GFLog;
+
 
 type
   TForm_Mail = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
     Pages: TPageControl;
     Tab_Send: TTabSheet;
     Tab_SMTP: TTabSheet;
-    GroupBox_Source: TTntGroupBox;
-    RB_Current: TTntRadioButton;
-    RB_All: TTntRadioButton;
-    RB_File: TTntRadioButton;
-    GroupBox1: TTntGroupBox;
-    RB_PlainText: TTntRadioButton;
-    RB_RTF: TTntRadioButton;
-    GroupBox2: TTntGroupBox;
-    Label1: TTntLabel;
-    Combo_TO: TTntComboBox;
-    Label2: TTntLabel;
-    Edit_Subject: TTntEdit;
-    Label3: TTntLabel;
-    Combo_CC: TTntComboBox;
-    GroupBox3: TTntGroupBox;
+    GroupBox_Source: TGroupBox;
+    RB_Current: TRadioButton;
+    RB_All: TRadioButton;
+    RB_File: TRadioButton;
+    GroupBox1: TGroupBox;
+    RB_PlainText: TRadioButton;
+    RB_RTF: TRadioButton;
+    GroupBox2: TGroupBox;
+    Label1: TLabel;
+    Combo_TO: TComboBox;
+    Label2: TLabel;
+    Edit_Subject: TEdit;
+    Label3: TLabel;
+    Combo_CC: TComboBox;
+    GroupBox3: TGroupBox;
     SmtpCli: TSmtpCli;
-    Label4: TTntLabel;
-    Edit_SMTPServer: TTntEdit;
-    Label5: TTntLabel;
-    Edit_Port: TTntEdit;
-    Label6: TTntLabel;
-    Edit_From: TTntEdit;
-    Label7: TTntLabel;
-    Combo_Charset: TTntComboBox;
-    Label_Status: TTntLabel;
+    Label4: TLabel;
+    Edit_SMTPServer: TEdit;
+    Label5: TLabel;
+    Edit_Port: TEdit;
+    Label6: TLabel;
+    Edit_From: TEdit;
+    Label7: TLabel;
+    Combo_Charset: TComboBox;
+    Label_Status: TLabel;
     GFLog: TGFLog;
-    CheckBox_Log: TTntCheckBox;
-    Label8: TTntLabel;
-    Edit_FirstLine: TTntEdit;
-    Button_Help: TTntButton;
-    CheckBox_ExcludeHiddenNodes: TTntCheckBox;
+    CheckBox_Log: TCheckBox;
+    Label8: TLabel;
+    Edit_FirstLine: TEdit;
+    Button_Help: TButton;
+    CheckBox_ExcludeHiddenNodes: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -79,7 +101,7 @@ type
     procedure Button_OKClick(Sender: TObject);
     procedure Button_CancelClick(Sender: TObject);
     procedure RB_CurrentClick(Sender: TObject);
-    procedure SmtpCliHeaderLine(Sender: TObject; Msg: PChar;
+    procedure SmtpCliHeaderLine(Sender: TObject; Msg: Pointer;
       Size: Integer);
     procedure SmtpCliRequestDone(Sender: TObject; RqType: TSmtpRequest;
       Error: Word);
@@ -121,7 +143,7 @@ type
 function SMTPErrorDesc( Error : integer ) : string;
 
 implementation
-uses TntSystem, TntSysUtils;
+
 {$R *.DFM}
 
 resourcestring
@@ -488,7 +510,7 @@ end; // AddNoteToMailMessage
 
 procedure TForm_Mail.SendEmail;
 var
-  s: wideString;
+  s: string;
   buf : string;
   i, cnt : Integer;
   Lines : TStringList;
@@ -603,9 +625,9 @@ begin
       begin
         if RB_Current.Checked then
         begin
-          s := WideExtractfilepath( myINI_FN ) + MakeValidFileName( myCurNoteName, [], MAX_FILENAME_LENGTH ) + ext_RTF;
+          s := Extractfilepath( myINI_FN ) + MakeValidFileName( myCurNoteName, [], MAX_FILENAME_LENGTH ) + ext_RTF;
           GFLog.Add( 'Attaching: ' + s );
-          myActiveNote.Editor.Lines.SaveToFile( WideStringToUTF8(s) );
+          myActiveNote.Editor.Lines.SaveToFile(UTF8Encode(s));
           SMTPCli.MailMessage.Add( ExpandTokenLine( MailOptions.FirstLine ));
           // SMTPCli.MailMessage.Add( Padding + ' Note: ' + myCurNoteName + ' ' + Padding );
           SMTPCli.EmailFiles.Add( s );
@@ -652,7 +674,7 @@ begin
 
 end; // SendEmail
 
-procedure TForm_Mail.SmtpCliHeaderLine(Sender: TObject; Msg: PChar;
+procedure TForm_Mail.SmtpCliHeaderLine(Sender: TObject; Msg: Pointer;
   Size: Integer);
 begin
   if UserFieldsAdded then exit;

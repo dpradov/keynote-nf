@@ -19,9 +19,14 @@ unit GFLog;
 interface
 
 uses
-  Windows, ShellAPI, Messages,
-  Dialogs, SysUtils, Classes,
-  StdCtrls, gf_misc;
+   Winapi.Windows,
+   Winapi.ShellAPI,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   gf_misc;
 
 type
   TGFLogOnAdding = procedure( Sender : TObject; var ALine : string; var OKToAdd : boolean ) of object;

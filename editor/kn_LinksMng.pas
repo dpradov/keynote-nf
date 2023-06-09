@@ -1,35 +1,65 @@
 unit kn_LinksMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 uses
-  Controls, kn_LocationObj, RichEdit, TreeNT, kn_NoteObj, kn_const;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.ShellAPI,
+   Winapi.RichEdit,
+   System.Classes,
+   System.SysUtils,
+   System.StrUtils,
+   System.IOUtils,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.Clipbrd,
+   RxRichEd,
+   TreeNT,
+   gf_misc,
+   gf_miscvcl,
+   gf_files,
+   kn_Const,
+   kn_Info,
+   kn_Ini,
+   kn_RTFUtils,
+   kn_NoteObj,
+   kn_NoteFileMng,
+   kn_NodeList,
+   kn_TreeNoteMng,
+   kn_LocationObj,
+   kn_URL,
+   kn_History
+   ;
+
 
    // Links related routines
-    procedure InsertFileOrLink( const aFileName : wideString; const AsLink : boolean );
-    procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: wideString);
-    function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : wideString;
-    procedure JumpToKNTLocation( LocationStr : wideString );
+    procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean );
+    procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string);
+    function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : string;
+    procedure JumpToKNTLocation( LocationStr : string );
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
-    procedure ClickOnURL(const URLstr: wideString; chrgURL: TCharRange);
-    procedure InsertURL(URLStr : wideString; TextURL : wideString; Note: TTabNote);
+    procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange);
+    procedure InsertURL(URLStr : string; TextURL : string; Note: TTabNote);
 
-    function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean): wideString;
+    function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean): string;
     procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TTabNote; var myTreeNode: TTreeNTNode);
 
     procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
@@ -39,15 +69,15 @@ uses
     procedure NavigateInHistory( const GoForward : boolean );
     procedure UpdateHistoryCommands;
 
-    function TypeURL (var URLText: wideString; var KNTlocation: boolean): TKntURL;
-    function URLFileExists (var URL: wideString): boolean;
+    function TypeURL (var URLText: string; var KNTlocation: boolean): TKntURL;
+    function URLFileExists (var URL: string): boolean;
 
 implementation
 uses
-    Windows, Classes, Forms, SysUtils, Dialogs, StdCtrls, ShellApi, StrUtils,
-    gf_misc, gf_miscvcl, gf_files, RxRichEd, kn_TreeNoteMng, kn_History, kn_FindReplaceMng,
-    kn_Global, kn_Main, kn_Info, kn_URL, kn_RTFUtils, kn_NoteFileMng,
-    kn_NodeList, kn_clipUtils, TntSysUtils, TntSystem;
+   kn_Global,
+   kn_Main,
+   kn_FindReplaceMng;
+
 
 resourcestring
   STR_01 = 'Note ID not found: %d';
@@ -75,36 +105,40 @@ resourcestring
   STR_23 = ' History navigation error';
 
 type
-  EInvalidLocation = WideException;
+  EInvalidLocation = Exception;
 
 var
    INVALID_CHARS_FN : array[0..8] of string = (
     '*', '?', '"', '<', '>', '|',
     '=', ';', ',');   // this ones are not invalid but very unusual..
 
+
+
 //=========================================
 // PathOfKNTLink
 //=========================================
-function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean): wideString;
+function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean): string;
 var
-  path, pathInsertionPoint : wideString;
+  path, pathInsertionPoint : string;
   i, j, n, m: integer;
   pDelim: integer;
-begin
-  if assigned( myTreeNode ) then
-  begin
-    if TreeOptions.ShowFullPath then
-      path := GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, TreeOptions.PathTopToBottom ) // {N}
-    else
-      path := myTreeNode.Text; // {N}
 
-    if TreeOptions.PathTopToBottom then
-      path := myNote.Name + TreeOptions.NodeDelimiter + path
-    else
-      path := path + TreeOptions.NodeDelimiter + myNote.Name;
+begin
+
+  if assigned(myTreeNode) then begin
+     if TreeOptions.ShowFullPath then
+        path:= GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, TreeOptions.PathTopToBottom ) // {N}
+     else
+        path:= myTreeNode.Text; // {N}
+
+     if TreeOptions.PathTopToBottom then
+        path:= myNote.Name + TreeOptions.NodeDelimiter + path
+     else
+        path:= path + TreeOptions.NodeDelimiter + myNote.Name;
   end
   else
      path := myNote.Name;
+
 
   // Hide common part of the path (common ancestors), if RelativeKNTLink=True
   if RelativeKNTLink then begin
@@ -168,34 +202,33 @@ begin
    with Location do begin
      // obtain NOTE
       Note := nil;
-      if ( NoteID <> 0 ) then // new format
+      if (NoteID <> 0) then // new format
       begin
-        Note := notefile.GetNoteByID( NoteID );
-        if ( Note = nil ) then
-          raise EInvalidLocation.Create(WideFormat( STR_01, [NoteID] ));
+         Note := notefile.GetNoteByID( NoteID );
+         if (Note = nil ) then
+            raise EInvalidLocation.Create(Format( STR_01, [NoteID] ));
       end
       else begin
-        Note := notefile.GetNoteByName( NoteName );
-        if ( Note = nil ) then
-          raise EInvalidLocation.Create(WideFormat( STR_02, [NoteName] ));
+         Note := notefile.GetNoteByName( NoteName );
+         if (Note = nil) then
+            raise EInvalidLocation.Create(Format( STR_02, [NoteName] ));
       end;
 
 
       // obtain NODE
       myTreeNode := nil;
-      if ( Note.Kind = ntTree ) and (NodeID >= 0) then  // If NodeID < 0 -> Node will be ignored
-      begin
-        if ( NodeID <> 0 ) then begin // new format
-          myTreeNode := TTreeNote( Note ).GetTreeNodeByID( NodeID );
-          if ( myTreeNode = nil ) then
-            raise EInvalidLocation.Create(WideFormat( STR_03, [NodeID] ));
-        end
-        else begin
-          myTreeNode := TTreeNote( Note ).TV.Items.FindNode( [ffText], NodeName, nil );
-          if ( myTreeNode = nil ) then
-            raise EInvalidLocation.Create(WideFormat( STR_04, [NodeName] ));
-        end;
-      end;
+      if ( Note.Kind = ntTree ) and (NodeID >= 0) then begin   // If NodeID < 0 -> Node will be ignored
+         if ( NodeID <> 0 ) then begin // new format
+            myTreeNode := TTreeNote( Note ).GetTreeNodeByID( NodeID );
+            if (myTreeNode = nil) then
+               raise EInvalidLocation.Create(Format( STR_03, [NodeID] ));
+         end
+         else begin
+            myTreeNode := TTreeNote( Note ).TV.Items.FindNode( [ffText], NodeName, nil );
+            if (myTreeNode = nil) then
+               raise EInvalidLocation.Create(Format( STR_04, [NodeName] ));
+         end;
+       end;
    end;
 end;
 
@@ -203,7 +236,7 @@ end;
 //----------------------------------------
 // InsertHyperlink
 //----------------------------------------
-procedure InsertHyperlink(URLStr: wideString; TextURL : wideString; KNTLink: boolean; Note: TTabNote);
+procedure InsertHyperlink(URLStr: string; TextURL : string; KNTLink: boolean; Note: TTabNote);
 var
   SelL: integer;
   SelR: integer;
@@ -221,25 +254,27 @@ begin
       sepL:= '';
       SetSelection(SelL-1, SelL, false);
       cad:= Trim(SelText);
-      if SelAttributes.Link or (not UseHyperlink and (cad <> '') and not (cad[1] in ['<','(','[','{']) ) then sepL:= ' ';
+      if SelAttributes.Link or (not UseHyperlink and (cad <> '') and not (AnsiChar(cad[1]) in ['<','(','[','{']) ) then
+          sepL:= ' ';
       SetSelection(SelR, SelR+1, false);
       cad:= Trim(SelText);
-      if SelAttributes.Link or (not UseHyperlink and (cad <> '') and not (cad[1] in ['>',')',']','}']) ) then sepR:= ' ';
+      if SelAttributes.Link or (not UseHyperlink and (cad <> '') and not (AnsiChar(cad[1]) in ['>',')',']','}']) ) then
+         sepR:= ' ';
       SetSelection(SelL, SelR, false);
 
       if UseHyperlink then begin
-         PutRichTextW('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sepL + '{\field{\*\fldinst{HYPERLINK "'
+           Note.Editor.PutRtfText('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sepL + '{\field{\*\fldinst{HYPERLINK "'
             + URLToRTF(URLStr, false ) + '"}}{\fldrslt{\cf1\ul '
-            + URLToRTF(TextURL, true) + '}}}' + sepR + '\cf0\ulnone}',
-            Note.Editor, true, true );
-         end
+            + URLToRTF(TextURL, true) + '}}}' + sepR + '\cf0\ulnone}', true);
+
+      end
       else begin
           if not KNTLink then
              URLStr := FileNameToURL( URLStr );
           if TextURL <> '' then
-             SelTextW := sepL + '''' + TextURL + '''' + ' (' + URLStr + ') '
+             SelText := sepL + '''' + TextURL + '''' + ' (' + URLStr + ') '
           else
-             SelTextW := sepL + URLStr + #32;
+             SelText := sepL + URLStr + #32;
 
           if sepR = ' ' then
              SelStart:= SelStart + SelLength
@@ -257,134 +292,115 @@ end;
 //===============================================================
 // InsertFileOrLink
 //===============================================================
-procedure InsertFileOrLink( const aFileName : wideString; const AsLink : boolean );
+procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean );
 var
-  FN : wideString;
+  FN : string;
   oldFilter : string;
   ImportFileType : TImportFileType;
-  ext : wideString;
+  ext : string;
   RTFAux: TRxRichEdit;
 
 begin
-  if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveNote ))) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+   if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveNote ))) then exit;
+   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
 
-  if ( aFileName = '' ) then
-  begin
-    with Form_Main.OpenDlg do
-    begin
-      oldFilter := Filter;
-      if AsLink then
-        Filter := FILTER_FILELINK
-      else
-        Filter := FILTER_RTFFILES + '|' +
-                  FILTER_TEXTFILES + '|' +
-                  FILTER_ALLFILES;
-      FilterIndex := 1;
-      if AsLink then
-        Title := STR_05
-      else
-        Title := STR_06;
-      Options := Options - [ofAllowMultiSelect];
-      Form_Main.OpenDlg.FileName := '';
-      if ( KeyOptions.LastImportPath <> '' ) then
-        InitialDir := KeyOptions.LastImportPath
-      else
-        InitialDir := GetFolderPath( fpPersonal );
-    end;
+   if ( aFileName = '' ) then begin
+      with Form_Main.OpenDlg do begin
+         oldFilter := Filter;
+         if AsLink then
+           Filter := FILTER_FILELINK
+         else
+           Filter := FILTER_RTFFILES + '|' +
+                     FILTER_TEXTFILES + '|' +
+                     FILTER_ALLFILES;
+         FilterIndex := 1;
+         if AsLink then
+           Title := STR_05
+         else
+           Title := STR_06;
+         Options := Options - [ofAllowMultiSelect];
+         Form_Main.OpenDlg.FileName := '';
+         if ( KeyOptions.LastImportPath <> '' ) then
+           InitialDir := KeyOptions.LastImportPath
+         else
+           InitialDir := GetFolderPath( fpPersonal );
+      end;
 
-    try
-      if ( not Form_Main.OpenDlg.Execute ) then exit;
-      FN := Form_Main.OpenDlg.FileName;
-      KeyOptions.LastImportPath := properfoldername( extractfilepath( FN ));
-    finally
-      Form_Main.OpenDlg.Filter := oldFilter;
-      Form_Main.OpenDlg.FilterIndex := 1;
-    end;
-  end
-  else
-  begin
-    FN := aFileName;
-  end;
+      try
+         if ( not Form_Main.OpenDlg.Execute ) then exit;
+         FN := Form_Main.OpenDlg.FileName;
+         KeyOptions.LastImportPath := properfoldername( extractfilepath( FN ));
+      finally
+         Form_Main.OpenDlg.Filter := oldFilter;
+         Form_Main.OpenDlg.FilterIndex := 1;
+      end;
 
-    if AsLink then
-    begin
-      if pos( 'FILE:', WideUpperCase(FN) ) = 0 then
+   end
+   else
+      FN := aFileName;
+
+
+   if AsLink then begin
+      if pos( 'FILE:', AnsiUpperCase(FN) ) = 0 then
          FN := 'file:///' + FN;
 
       InsertHyperlink(FN, StripFileURLPrefix(FN), false, ActiveNote);
-    end
+   end
 
-    else
-    begin
-      ext := extractfileext( FN );
-      ImportFileType := itText;
-      if ( ext = ext_RTF ) then
-        ImportFileType := itRTF
-      else
-      if Form_Main.ExtIsHTML( ext ) then
-        ImportFileType := itHTML
-      else
-      if Form_Main.ExtIsText( ext ) then
-        ImportFileType := itText
-      else
-      begin
-        DoMessageBox( STR_07, mtError, [mbOK]);
-        exit;
-      end;
+   else begin
+       ext := extractfileext( FN );
+       ImportFileType := itText;
+       if ( ext = ext_RTF ) then
+          ImportFileType := itRTF
+       else
+       if Form_Main.ExtIsHTML( ext ) then
+          ImportFileType := itHTML
+       else
+       if Form_Main.ExtIsText( ext ) then
+          ImportFileType := itText
 
-      ActiveNote.Editor.Lines.BeginUpdate;
+       else begin
+          DoMessageBox( STR_07, mtError, [mbOK]);
+          exit;
+       end;
 
-      RTFAux := TRxRichEdit.Create( ActiveNote.TabSheet);
-      RTFAux.Visible:= False;
-      RTFAux.Parent:=ActiveNote.TabSheet ;
+       ActiveNote.Editor.Lines.BeginUpdate;
 
-      try
-        try
+       try
+         try
 
-        case ImportFileType of
-          itText, itHTML : begin
-            RTFAux.PlainText := true;
-            RTFAux.Lines.LoadFromFile( WideStringToUTF8(FN) );
-            ActiveNote.Editor.SelTextW := RTFAux.TextW;
-            ActiveNote.Editor.SelLength := 0;
-          end;
+         case ImportFileType of
+            itText, itHTML : begin
+               ActiveNote.Editor.SelText :=  TFile.ReadAllText(FN);
+               ActiveNote.Editor.SelLength := 0;
+            end;
 
-          itRTF : begin
-            RTFAux.Lines.LoadFromFile( WideStringToUTF8(FN) );
+            itRTF:
+               ActiveNote.Editor.PutRtfText(TFile.ReadAllText(FN), true);
+         end;
 
-            PutRichText(
-              GetRichText( RTFAux, true, false ),
-              ActiveNote.Editor,
-              true, true );
+         except
+           on E : Exception do begin
+              DoMessageBox( E.Message, mtError, [mbOK] );
+              exit;
+           end;
+         end;
 
-          end;
-        end;
+       finally
+          ActiveNote.Editor.Lines.EndUpdate;
+       end;
 
-        except
-          on E : Exception do
-          begin
-            CommunicateException(E, mtError, [mbOK]);
-            exit;
-          end;
-        end;
+   end;
 
-      finally
-        ActiveNote.Editor.Lines.EndUpdate;
-        RTFAux.Free;
-      end;
-
-    end;
-
-    NoteFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+   NoteFile.Modified := true;
+   UpdateNoteFileState( [fscModified] );
 
 end; // InsertFileOrLink
 
 //===============================================================
 // InsertOrMarkKNTLink
 //===============================================================
-procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean; TextURL: wideString);
+procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean; TextURL: string);
 var
    Note: TTabNote;
    TreeNode: TTreeNTNode;
@@ -410,7 +426,7 @@ begin
            TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos, false, TreeOptions.RelativeKNTLinks);
        end
        else
-          TextURL:= WideFormat('%s: %s/%s %d', [WideExtractFileName(aLocation.FileName),
+          TextURL:= Format('%s: %s/%s %d', [ExtractFileName(aLocation.FileName),
                                                 aLocation.NoteName, aLocation.NodeName,
                                                 aLocation.CaretPos]);
 
@@ -451,9 +467,9 @@ end; // InsertOrMarkKNTLink
 //===============================================================
 // BuildKNTLocationText
 //===============================================================
-function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : wideString;
+function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : string;
 var
-  LocationString : wideString;
+  LocationString : string;
 begin
   if ( aLocation.FileName = normalFN( NoteFile.FileName )) then
     LocationString := ''
@@ -486,12 +502,12 @@ end; // BuildKNTLocationText
 //---------------------------------------------------------------
 // BuildKNTLocationFromString
 //---------------------------------------------------------------
-function BuildKNTLocationFromString( LocationStr : wideString ): TLocation;
+function BuildKNTLocationFromString( LocationStr : string ): TLocation;
 var
   p, pold, pnew : integer;
   Location : TLocation;
   NewFormatURL : boolean;
-  origLocationStr : wideString;
+  origLocationStr : string;
   Note: TTabNote;
   myTreeNode: TTreeNTNode;
 begin
@@ -681,7 +697,7 @@ function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true):
 var
   myNote : TTabNote;
   myTreeNode : TTreeNTNode;
-  origLocationStr : wideString;
+  origLocationStr : string;
 begin
 
   result := false;
@@ -709,11 +725,11 @@ begin
       begin
         if IgnoreOtherFiles then
            exit;
-        if (( not WideFileexists( Location.FileName )) or
+        if (( not Fileexists( Location.FileName )) or
          ( NoteFileOpen( Location.FileName ) <> 0 )) then
         begin
           Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11;
-          raise EInvalidLocation.Create(WideFormat( STR_12, [origLocationStr] ));
+          raise EInvalidLocation.Create(Format( STR_12, [origLocationStr] ));
         end;
       end;
 
@@ -748,11 +764,11 @@ begin
 
     except
       on E : EInvalidLocation do
-        DoMessageBox( WideFormat( STR_13, [E.Message] ), mtWarning, [mbOK]);
+        DoMessageBox( Format( STR_13, [E.Message] ), mtWarning, [mbOK]);
       on E : Exception do
         begin
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_14;
-        DoMessageBox( WideFormat( STR_15, [GetMessage(E)] ), mtWarning, [mbOK]);
+        DoMessageBox( Format( STR_15, [E.Message] ), mtWarning, [mbOK]);
         end;
   end;
 
@@ -761,26 +777,26 @@ end; // JumpToLocation
 //===============================================================
 // JumpToKNTLocation
 //===============================================================
-procedure JumpToKNTLocation( LocationStr : wideString );
+procedure JumpToKNTLocation( LocationStr : string );
 var
   Location : TLocation;
 begin
   try
+    Location:= BuildKNTLocationFromString(LocationStr);
     try
-      Location:= BuildKNTLocationFromString(LocationStr);
-      JumpToLocation(Location, false);
+       JumpToLocation(Location, false);
     finally
-      Location.Free;
+       Location.Free;
     end;
 
   except
     on E : EInvalidLocation do
-      DoMessageBox( WideFormat( STR_13, [E.Message] ), mtWarning, [mbOK]);
+      DoMessageBox( Format( STR_13, [E.Message] ), mtWarning, [mbOK]);
 
     on E : Exception do
       begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_14;
-      DoMessageBox( WideFormat( STR_15, [GetMessage(E)] ), mtError, [mbOK] );
+      DoMessageBox( Format( STR_15, [E.Message]  ), mtError, [mbOK] );
       end;
   end;
 
@@ -788,24 +804,24 @@ end; // JumpToKNTLocation
 
 
 
-function URLFileExists (var URL: wideString): boolean;
+function URLFileExists (var URL: string): boolean;
 var
-   AbsolutePath: wideString;
+   AbsolutePath: string;
 begin
-   AbsolutePath:= GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), URL);
-   Result:= WideFileExists( AbsolutePath) or WideDirectoryExists( AbsolutePath );
+   AbsolutePath:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), URL);
+   Result:= FileExists( AbsolutePath) or DirectoryExists( AbsolutePath );
 end;
 
 
 //--------------------------------------------------
 // TypeURL
 //--------------------------------------------------
-function TypeURL (var URLText: wideString; var KNTlocation: boolean): TKNTURL;
+function TypeURL (var URLText: string; var KNTlocation: boolean): TKNTURL;
 var
    URLType, KntURL: TKNTURL;
    URLPos : integer; // position at which the actual URL starts in URLText
-   URLTextLower: wideString;
-   URLaux, URLaux2: wideString;
+   URLTextLower: string;
+   URLaux, URLaux2: string;
 begin
   // determine where URL address starts in URLText
   URLType := urlUndefined;
@@ -816,7 +832,7 @@ begin
 
 
 
-  URLTextLower:= WideLowerCase(URLText);
+  URLTextLower:= AnsiLowerCase(URLText);
   for KntURL := low( KntURL ) to high( KntURL ) do
   begin
     if KntURL = urlUndefined then continue;
@@ -836,7 +852,7 @@ begin
           URLText := 'mailto:' + trim(URLText);
           URLType := urlMailto;
           end
-      else if ( pos( 'WWW.', wideUpperCase(URLText) ) > 0 ) then begin
+      else if ( pos( 'WWW.', AnsiUpperCase(URLText) ) > 0 ) then begin
           URLText := 'http://' + trim(URLText);
           URLType := urlHttp;
           end;
@@ -899,7 +915,7 @@ end;
 ''' <param name="endPos">Final position of the text shown associated to the hyperlink finished in 'endPosURL'</param>
 ''' <returns>Text associated to hyperlink (because it uses {\field{\*\fldinst{HYPERLINK ... ). "" in other cases</returns>' +
 '*)
-Function TextOfLink(endPosURL: Integer; var startPos: Integer; var endPos: Integer): wideString;
+Function TextOfLink(endPosURL: Integer; var startPos: Integer; var endPos: Integer): string;
 var
     pos: Integer;
     esLink: Boolean;
@@ -923,7 +939,7 @@ var
                 repeat
                     pos := pos + 1;
                     ActiveNote.Editor.SetSelection(pos, pos, false);
-                    esLink:= (ActiveNote.Editor.SelAttributes.Link2 = 1);
+                    esLink:= (ActiveNote.Editor.SelAttributes.LinkStyle = lsLink);
                     If esLink Then
                         lastPosLink := pos;
                 Until Not esLink or (pos > TextLen);
@@ -948,24 +964,24 @@ End;
 //===============================================================
 // ClickOnURL
 //===============================================================
-procedure ClickOnURL(const URLstr: wideString; chrgURL: TCharRange);
+procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange);
 var
   ShellExecResult : integer;
   Form_URLAction: TForm_URLAction;
   myURLAction : TURLAction;
   browser : string;
   URLType : TKNTURL;
-  myURL : wideString; // the actual URL
-  TextURL : wideString; // the text shown for actual URL
+  myURL : string; // the actual URL
+  TextURL : string; // the text shown for actual URL
   textURLposIni, textURLposFin: Integer;
   ShiftWasDown, AltWasDown, CtrlWasDown : boolean;
   usesHyperlinkCmd: boolean;
 
-  path: wideString;
+  path: string;
   Location: TLocation;
   KNTlocation: boolean;
 
-  function GetHTTPClient : wideString;
+  function GetHTTPClient : string;
   begin
     result := '';
     if ( not KeyOptions.URLSystemBrowser ) then
@@ -974,7 +990,7 @@ var
      result := GetAppFromExt( ext_HTML, true );
   end; // GetHTTPClient
 
-  function KNTPathFromString (url: wideString): wideString;
+  function KNTPathFromString (url: string): string;
   var
     Location: TLocation;
     note: TTabNote;
@@ -988,11 +1004,11 @@ var
        end
        else
           if Location.NodeName <> '' then
-             Result:= WideFormat('%s: %s/%s|%d|%d', [WideExtractFileName(Location.FileName),
+             Result:= Format('%s: %s/%s|%d|%d', [ExtractFileName(Location.FileName),
                                                 Location.NoteName, Location.NodeName,
                                                 Location.CaretPos, Location.SelLength])
           else
-             Result:= WideFormat('%s: %d|%d|%d|%d', [WideExtractFileName(Location.FileName),
+             Result:= Format('%s: %d|%d|%d|%d', [ExtractFileName(Location.FileName),
                                                 Location.NoteID, Location.NodeID,
                                                 Location.CaretPos, Location.SelLength]);
      finally
@@ -1018,6 +1034,7 @@ begin
   URLType := TypeURL( myURL , KNTlocation);
 
   ShellExecResult := maxint; // dummy
+  usesHyperlinkCmd:= false;
 
   try
     try
@@ -1123,9 +1140,9 @@ begin
 
       if ( myURLAction in [urlCopy, urlBoth] ) then begin
           if KNTLocation then
-             Clipboard.AsTextW:= URLstr      // includes file prefix
+             Clipboard.AsText:= URLstr      // includes file prefix
           else
-             Clipboard.AsTextW:= myURL;
+             Clipboard.AsText:= myURL;
 
           Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_19;
       end;
@@ -1159,24 +1176,24 @@ begin
                 exit;
               end
               else begin
-                myURL:= GetAbsolutePath(WideExtractFilePath(NoteFile.FileName), myURL);
-                ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL );
+                myURL:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), myURL);
+                ShellExecResult := ShellExecute( 0, 'open', PChar( myURL ), nil, nil, SW_NORMAL );
               end;
             end;
             else begin // all other URL types
                 screen.Cursor := crAppStart;
                 try
                   if ( myURLAction = urlOpenNew ) then
-                      ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( GetHTTPClient ), PWideChar( myURL ), nil, SW_NORMAL )
+                      ShellExecResult := ShellExecute( 0, 'open', PChar( GetHTTPClient ), PChar( myURL ), nil, SW_NORMAL )
                   else begin
                       if ( URLType in [urlHTTP, urlHTTPS] ) then begin
                         if KeyOptions.URLSystemBrowser then
-                           ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL )
+                           ShellExecResult := ShellExecute( 0, 'open', PChar( myURL ), nil, nil, SW_NORMAL )
                         else
-                           ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( GetHTTPClient ), PWideChar( myURL ), nil, SW_NORMAL );
+                           ShellExecResult := ShellExecute( 0, 'open', PChar( GetHTTPClient ), PChar( myURL ), nil, SW_NORMAL );
                       end
                       else
-                        ShellExecResult := ShellExecuteW( 0, 'open', PWideChar( myURL ), nil, nil, SW_NORMAL );
+                        ShellExecResult := ShellExecute( 0, 'open', PChar( myURL ), nil, nil, SW_NORMAL );
                   end;
                 finally
                   screen.Cursor := crDefault;
@@ -1186,7 +1203,7 @@ begin
 
           if ( ShellExecResult <= 32 ) then begin
             if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
-              PopupMessage( WideFormat(
+              PopupMessage( Format(
                 STR_20,
                 [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK], 0 );
           end
@@ -1198,7 +1215,7 @@ begin
 
     except
       on E : Exception do
-        CommunicateException(E, mtWarning, [mbOK]);
+        DoMessageBox( E.Message, mtWarning, [mbOK] );
     end;
 
   finally
@@ -1210,7 +1227,7 @@ end; // ClickOnURL
 //--------------------------------------------------
 // PathFileOK
 //--------------------------------------------------
-function PathFileOK (const FN: wideString): boolean;
+function PathFileOK (const FN: string): boolean;
 var
    charPos : integer; // position at which the actual URL starts in URLText
    i : integer;
@@ -1231,14 +1248,14 @@ end;
 //===============================================================
 // InsertURL
 //===============================================================
-procedure InsertURL(URLStr: wideString; TextURL : wideString; Note: TTabNote);
+procedure InsertURL(URLStr: string; TextURL : string; Note: TTabNote);
 var
   URLType : TKNTURL;
   Form_URLAction: TForm_URLAction;
   askUser: Boolean;
   KNTLocation: boolean;
 
-  procedure RemoveAngleBrackets(var Cad : WideString);
+  procedure RemoveAngleBrackets(var Cad : string);
   var
     l, r, n: integer;
   begin
@@ -1257,13 +1274,13 @@ var
 
   procedure SelectTextToUse();
   var
-      UrlSel, TxtSel: WideString;
+      UrlSel, TxtSel: string;
       p: integer;
       L, R: integer;
   begin
         if Note.Editor.SelLength > 0 then begin
-           TxtSel:= Trim(Note.Editor.SelVisibleTextW);
-           UrlSel:= Trim(Note.Editor.SelTextW);
+           TxtSel:= Trim(Note.Editor.SelVisibleText);
+           UrlSel:= Trim(Note.Editor.SelText);
            RemoveAngleBrackets(TxtSel);
            RemoveAngleBrackets(UrlSel);
 
@@ -1276,7 +1293,7 @@ var
            else begin
               UrlSel:= TxtSel;
               URLType:= TypeURL( UrlSel, KNTlocation);
-              if (URLType <> urlFile) or ( (pos('FILE:', WideUpperCase(TxtSel))=1) or (pos(':', UrlSel)=2) or URLFileExists(UrlSel)) then
+              if (URLType <> urlFile) or ( (pos('FILE:', AnsiUpperCase(TxtSel))=1) or (pos(':', UrlSel)=2) or URLFileExists(UrlSel)) then
                  URLStr:= UrlSel
               else begin
                  URLType:= urlUndefined;
@@ -1324,7 +1341,7 @@ begin
     begin
     // Determine type of URL. Parameter of TypeURL can also be modified
       URLType := TypeURL( URLStr, KNTLocation );
-      if (URLType = urlFile) and ( pos( 'FILE:', WideUpperCase(URLStr) ) = 0 ) then
+      if (URLType = urlFile) and ( pos( 'FILE:', AnsiUpperCase(URLStr) ) = 0 ) then
          URLStr := 'file:///' + URLStr;
 
       if (TextURL = '') and (not Note.PlainText) then TextURL:= StripFileURLPrefix(URLStr);
@@ -1561,7 +1578,7 @@ begin
         end;
         lnkFile : begin
           if ( aLinkText = '' ) then
-            aLinkText := WideExtractFilename( aLinkTarget );
+            aLinkText := ExtractFilename( aLinkTarget );
           aLinkTarget := FileNameToURL( aLinkTarget );
         end;
         lnkKNT : begin

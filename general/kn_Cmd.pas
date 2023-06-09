@@ -16,7 +16,8 @@ unit kn_Cmd;
 
 
 interface
-uses Classes;
+uses
+   System.Classes;
 
 type
   TKeyCode = record

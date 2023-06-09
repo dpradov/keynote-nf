@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"> <html style><!--
+ Page saved with SingleFile 
+ url: https://www.micrel.cz/RxLib/general.htm 
+ saved date: Thu Jun 08 2023 10:10:56 GMT+0200 (hora de verano de Europa central)
+--><meta charset=utf-8><title>RX Library</title>
+<meta content="Microsoft FrontPage 4.0" name=GENERATOR><style>:root{--sf-img-46: url("data:image/gif;base64,R0lGODlhGwAQALMIAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD//////yH5BAEAAAgALAAAAAAbABAAQARxEMlJKbgYVMme947xMNmyAOaVahszqWe6ptJh3x1zIFmfbUCezxdEEB4En+yEYiIODENoKtItmzBW5UDYVYbF4vAXfsGYzVWQQRCWYky1kU2vvrNYFoFKRWKueU8EdAR7SAdnfyZOG1BdZmNajV5lQBEAOw==")}</style><link rel=canonical href=https://www.micrel.cz/RxLib/general.htm><meta http-equiv=content-security-policy content="default-src 'none'; font-src 'self' data:; img-src 'self' data:; style-src 'unsafe-inline'; media-src 'self' data:; script-src 'unsafe-inline' data:; object-src 'self' data:; frame-src 'self' data:;"><style>img[src="data:,"],source[src="data:,"]{display:none!important}</style></head>
+<body bgcolor=#ffffff background="data:image/gif;base64,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"><font size=+0 color=#000080><b>
+<table>
+ <tbody>
+ <tr>
+ <td valign=top><a target=_parent href=https://www.micrel.cz/RxLib/index.html><img alt="Home Page" src=data:image/gif;base64,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 valign=BOTTOM width=70 hspace=10 height=40 border=0></a> </td>
+ <td valign=top><font size=+2 color=#000080><b>Delphi VCL Extensions (RX) 
+ Library 2.60</b></font><br><font size=+0 color=#000000><i>Last revision 
+ date January 27, 1999</i></font> </table>
+<p>&nbsp;</p>
+</b><p><b>&nbsp; &nbsp; The Set of Native Delphi Components for Borland Delphi and 
+Borland C++ Builder.<br>&nbsp; &nbsp; 100% Source Code.</b></p></font><a name=changes></a><font size=+0 color=#000000><b><u><i>Latest Changes</i></u></b> 
+<font size=+0 color=#000080><br><br><b>New components:</b> <img src="data:image/gif;base64,R0lGODdhNwAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAANwAcAEAE/xDISau9OGvwwOFPGB5iGXpHinCpar4jqkrd9wJIq7frsT46BEyUSABlPtpumUIuf8yodMXxsHZAJhK6q3a+3ifN+iLdJMGrqygcftLqrlCF6PVQXNew9OYppYBpWYGBVDUgfHtbcUJejmCLVTYmZjCLgz4PDA9tMH0zkogilThdfpide0dwhyVzTHV3SahDRUWrfnFLVkmfp10baHCxxMXGxyvIyso0qs4iP8/PhsEYgoSE1NUW1zocQuCc4q+5YA8E6ARA5+npNb880r7UX+3r7egn3S6xIvi4oMzZI4FP3bsZtDYJKahu3ph67giKKOWQ1gR2/xw+GtghhxaEQUAwFnxgRKPAfB6jxPKQJxNDkjBNWsPkow5LPIxEqjMSomQkmt7A2eEFTwU2k4FwEBUD9Cgrp1N0Qc21rarVDBEAADs=" vspace=5 hspace=20 align=left> 
+<ul><br><br>
+ <li>TRxMemoryData 
+ <li>TRxRichEdit </ul><b>New properties, events:</b> 
+<ul>
+ <li>TAnimatedImage.AsyncDrawing 
+ <li>TRxGIFAnimator.AsyncDrawing 
+ <li>TSecretPanel.AsyncDrawing 
+ <li>TSecretPanel.ScrollDirection 
+ <li>TSecretPanel.OnPaintClient 
+ <li>TPageManager.PageHistory 
+ <li>TPageManager.UseHistory 
+ <li>TPageManager.HistoryCommand 
+ <li>TPageManager.DestroyHandles 
+ <li>TColorComboBox.Style 
+ <li>TFontComboBox.Style 
+ <li>TRxLookupEdit.PopupOnlyLocate 
+ <li>TRxLookupEdit.OnGetImage </ul><b>New routines, methods:</b> 
+<ul>
+ <li>TRxMathParser.RegisterUserFunction 
+ <li>TRxMathParser.UnregisterUserFunction 
+ <li>TPageManager.GotoHistoryPage 
+ <li>TileImage, ZoomImage (rxgraph.pas) </ul><b>BUG FIXES.</b> 
+<br><br><b>VerInfo.pas unit has been renamed into RxVerInf.pas.</b><br><br><a name=part_1></a><font size=+0 color=#000000><b><u><i>Overview</i></u></b> 
+<p><font size=+0 color=#000080>&nbsp; &nbsp; <b>RX Library</b> contains a large 
+number of components, objects and routines for Borland Delphi with full source 
+code. This library is compatible with Borland Delphi 1, 2, 3, 4 and Borland C++ 
+Builder 1 &amp; 3. <br>&nbsp; &nbsp; This collection includes over 50 native 
+Delphi components. <br>&nbsp; &nbsp; RX Library is a <b>freeware</b> product. 
+Feel free to distribute the library as long as all files are unmodified and kept 
+together. <br>&nbsp; &nbsp; The authors disclaim all warranties as to this 
+software, whether express or implied, including without limitation any implied 
+warranties of merchantability or fitness for a particular purpose. Use under 
+your own responsibility, but comments (even critique) in English (or in Russian) 
+are welcome. 
+</font><p><font size=+0 color=#000080><b>1. Components:<br><br></b><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEvRDISau94J0N9ntJmHRbuREbImkHamZELMvf06mZ+WLWgduHGiChO7mKvxMnoGrNYjbgbWWKcR7PmdBHPUiKYHCSJCSVrNVUFwVABN4jL2+aa5U68wq3jkIDCDWBNTF0LEUwWTRAOAiNjo+QkZArgpWWlWMfQ2F2YitkmkWJR0leHmVmR0p7hqYHASJmomp8S0wdlhkahasAAbiXZrydd5eCw313o0/DTlZ/yzLNxLrGoaWH1lvYnN20eeAUEQA7 hspace=5 align=left> TRxDBLookupCombo provides an incremental search through lookup list 
+by directly typing into the combo control while the lookup list is displayed, 
+LookupSource can refer to TTable, TQuery, TRxQuery or TQBEQuery. It even 
+incrementally searches on the query results and much more... 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAExBDISau94J0N9ntJmHRbeRAlImmnmRFw/D3k0amZWWLYgdOHGSCh28CKm5+RE1CdYgQh8LYyHV/Q6Kfiq9pqyHCyShKCn9aUFwVABN6jL6+ba3GCj6yWq2xdtTMfMDVUdTpYWVtTdAiNjo+QkZArgZWWlx9KGTREYShIP2VbRXqfY3WiWxIlpnZ0LHcHASJnrGp1nwBvKpibNq9LNgGbvTvArjaYo3d9KLmlMYTHT4PQg8Z9wcSXqNMuykDMXmLktzznGBEAOw==" hspace=5 align=left> TRxDBLookupList 
+is the same as TRxDBLookupCombo (in functionality). 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAErhDISau94B20n9ffxx1kuUnaQaxl9qww/AFnZprYVWsckpI/0ui223QemZgSiTzQEKgSAedRyjzPKHHLFUZ7oUPIM7xBbWBkTncOktZsrQq3GodWWRsp5qxa601nCIOEhYaHhih2i4wiX4iIXG0bkIeSXw8+QGImmZdomSkgJWSfPKF9jUwaeTyFLo00b0V7VKpYRUpvf1atUnS8Mb61Lbe4k1uwqsNdzSVncNEUEQA7 hspace=5 align=left> TRxDBComboBox is 
+a TDBComboBox descendant allowing to have different values displayed from that 
+stored in database without using a lookup table. Allows you to display 
+understandable text versions of stored codes in your table. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEtRDISau94B20n9ffxx1kuUmamQFm27IIemBA0RQ0LHNISvqkkSuW2XRymFOx4ng4AImodBrVFV3YbHDX+RxCHmGLqOGFvmCxifxCWpTA2YRKr8JngnwFp50pEYCBgoOEgyhgiImIbIWNWYyNhI87Dz0/XyaVk0U9lpg+YZtllSkgmWolkIAsVyVxJFZxrGBoiLEvM7SKtypODxketWC3AHkCGU2HwiHExiu/Nyy7d1lvm27YEhEAOw==" hspace=5 align=left> TRxDBGrid provides 
+you with the ability to change the background color and font displayed within 
+individual cells and entire rows and columns; save and restore columns order and 
+display width in ini-files and system registry; display icons for BLOB, memo, 
+OLE and picture fields; select multiple records; convert columns headings to 
+buttons. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEphDISau94B20n9ffxx1kuUlaiYRs6wFnZs50TSLo1pmpauMyzupzaI1owF6H4GEyH87mK6a0WVU5YajIOs6SuqGHG/KawNf0LacKPaWfJwx9c9mnQIR+z+/7+yh3gl1Zf38/hYZ9iEEPKyQgPGZYjY9Fl5COjBorlpElmjVgin6bZ6SGVGdNbwStb3NsdVCurE+ucqpttLe1vHiyMRgYumpXQMPJGBEAOw==" hspace=5 align=left> TDBStatusLabel 
+displays the DataSet state (for all datasets) or current record number (for 
+DBase or Paradox tables). 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhNwAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAANwAcAEAE/xDISau9OGvwDuLPs1ke53lheKQpcrzw+5nxuT5BEOrsAZSdGoyA4/FChF+JFpuNJEChdAqbdZzPSfBzRcWC1alV6PJtfFEXokdguNvvt3JcK+9yxcANzaUSczqAK0kyEmBUiIWHiVRjXCyQK02SaSgpNyxlZIYlMFkTlWuXkA+adZx1L6SkfExCRKtIc6iTmEc7Kj99U7C3OA+ES4s2AEnGxsU/uq41BM7P0M6zAAjV1tfY2djU2t3eVrHhq4/i5SGO39+KHunWYpzkq5ij6+3uUo4gsZJQLlsma9aooqTKVBN4+jgAcMOwoRuFaUoF6QDm3DuAmRh5iihQUrSPBFSq0ApDUEqHZVe0gYw2bZgdXHl4tBo2BCYgHcHo1EphJMcelH5s+gTWkowqmJJkAuWFtAPOoqnm7VsqBVasnCNlaHxBVcqIQsy2nqIpFuyns2gtRAAAOw==" hspace=5 align=left> TDateEdit and 
+TDBDateEdit (data-aware version) allows direct typing and has a button to bring 
+up calendar in popup window (combo-box alike) or in a dialog. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEuRDISau94J0D+CMgoX0hSG2SxnlP2wKKAiDuu3HZrW8hD949nKrT2Rl1RSHKE4LJTDGAKJk6Hgi87FWLylm/x+oqUxuVXVQvkQQalZyT7pAJjdml7bQKzJdbsVuBgIBdCIaHiImKiSlnjo8uCGIYlHF+OJUYN5MPZDUHkHoonWegZU5RSh6eL6xwnZtqpC92Mq82lxmsnbUzNaKYlJIWsXtGPz6EQWLHWkFXhMw7WMiDXKpghF+Z3BYRADs=" hspace=5 align=left> TQBEQuery enables 
+Delphi applications to use Paradox-style Query-by-example (QBE) statements to 
+query tables, and perform insert and update queries. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEuBDISau94B2wH/mE9iRkmTzccSCSxmVPHB8yKaPq2ua8+uUg30+X2Rh7SF6K6OqAQrRYSbZkFZME3yG71easmqRYDDbCbtEb9bt7eUCi27TadsLTtrWqPO7z+GJcgl57EgiHiImKi4otao+Qj2UYlBNsRZWVly4oj1EmJziFmJ1qNHkjJ3SkZzJpqaGrnK0zNaExsh20cZC5mRwkG5ajYVhcW8fHTGPJXsqAPYNZQ887ftFIVr/bEhEAOw==" hspace=5 align=left> TRxQuery is a 
+TQuery descendant. It supports macros in the SQL text, which are similar to 
+Params. Macros allow to change query text easily and handy. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAErRDISau94J0N3POO9QBbuSGSxjlE646SKaOZLLelu+m0KnefT8x2SpU6rldmSewRd1AC9CAt1p5Ym9MEBFmaxpUrNBmNwNcDMkkwT9A+zBC7xVbv0wMNwe/7/4B/KQ+EhYaHiIV1XF90YUciHSRwkBUjIUKUHEEekkIhmmqcnJKgWo8ZIKQhpjOoo16tp2mpsJOOaUQ4O1VUJYs2vXi+Vj7BUVTDeo9ZN65y0HIRADs=" hspace=5 align=left> TSQLScript allows 
+multiple SQL statements in one query. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEpRDISau94B20n9ffxx1kuUmaqZLAeKQPwiHoegK2TWdbZ6Yll2qnmYVeHhnCY5LdgKvMJEciUq/DmvGDDAmb2g439GgpacEatkUCgXDWq5RdxFXVqrn9ujv7/4BnKGSEhYRWgYA5iIl+i1oxMC8/X2k8S0s/lBNCiJGaLE5pd5eNdJMlcHhUe6gaqjxrbG0xdnE5ehSdqyZ6WLe9U1hPw8M7GMjJEQA7 hspace=5 align=left> TRxDBFilter 
+encapsulates BDE ability to filter records locally. The component provides event 
+on filtering and/or conditions in StringList property. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEohDISau94B20n9ffxx1kuUmaqZIIgDwtoMbpWmJSSW+dWbO2U4b3+hw+mVrLtAvePLITE+WszqicoucYggV32RDXtdVFhb+gjLM+o62ktXQ6tLoQeLw7lu/7/4A0XYOEg2CBf19YiH6KQy8vJCA+IytgMD8aOGeXkSUpGHQajC1lcyxUdmxConAnMG6odVUySnuptA8yba20RVNms66Om8UWEQA7 hspace=5 align=left> TDBProgress 
+displays BDE operations progress for IDAPI drivers that support 
+callback-functions. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEpxDISau94B20n0cA4o3gYZ6bpKHHEyJwLMMnmLF4jtsaJ6Krmo636ahaqg8AVSLmbBSOSVI76q67o2+k4X6G2o5rmRxXqrecd+0JpdJMuJxicmLd02X8Nev7+2VsgmxEf35gN4Z9iD0PPy2QJ46MHY8TQIFojT9ndRIyeoUxnzCkMXFvQZgYUZ5wJ3gmqk9WLCAjtXmus0ylsVSaWHUonXbCWFCsyhcRADs=" hspace=5 align=left> TDBIndexCombo is a 
+visual interface component that provides your end- users with an easy means of 
+changing the current display order of data being retrieved from an indexed 
+table. When the user selects the TDBIndexCombo component, it's drop-down 
+selection list is populated with the DisplayNames of all indexes available for 
+the table it's assigned to. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhUgAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAUgAcAEAE/xDISau9OOvN6zsg8oyPR5IAeCDAF55wXKqsu8r4HEq2iGIoWos2k7WOutXwhSR8HoTo6ChcKjsTYQ+b3W25qZ3Vl3uwVFpi2RxG19TlM/raQzlGBkcL1n6/phklSX43WIM8cCh5Dw4Ge4d1KUZ8aUwdh1ZzmpuVnJ5zhJ+iLGNrZlNupWs+bUp1q6hVryUOtbWPQV6JJYF9pYa+qrQlebWOua5EGoJUukyCTgdQUU7NdLvEd42PvpHSMUixyc8t0dNS1qSzppDYZd3uOcEI9PX29/j3APn8/fT7/gLa48FuFa6CMmogzKGOhkAEmwg9hKhJ4sOIiP7ESeLsBqxW4548bgTZUCNDCp3InOwSUiUOUhJkwQFQbBu4lAvhmTQVbNaFmx1dglSR7tcBKzZAFBVG844JcRKRzUGis9BREt9OLPWZB4CtW8iiDlXKrB2TqyOyosC0bsqdB13DGoVyjhmPqiJSPFI7hS02r3j0yPVGVwovbjj1YgXndyegCVoTB4ocNKdMx+9wIsRrWUxSUZ5CgeYkenRFMKhTq+4QAQA7 hspace=5 align=left> TBDEItems, 
+TDatabaseItems, TTableItems are lists populated by the corresponding BDE 
+information (database list, table list, field list etc). 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEpBDISau94B20n9ffxx1kuUmaOSKS6ZLAmbkshskah6QkT46vWq6zAzCOyGRmiaOdaqVW6xATvq7YklUXOoQ8QBpq0/l4v2HVWJW9Vtdaakx+e8/YWOncjuj7/4CBgChfhYaFW4KCWImKgIxjOzs9XiYPaVqRlykgJWCQM5KXjopNgzYXTXhtJnY+ZCxQWa5OU6hUqnEyrTG2uT+sLrTBrDWoxxYRADs=" hspace=5 align=left> TDBSecurity 
+provides most common dialogs for database applications: Login Dialog and Change 
+Password Dialog. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEqBDISau94J190PtgCB4A10ka54lhkmilipp0bW/ITGf802e1HFD1cK1YMJMwhUOySErdbUpbKn3YXzaGk3YejMfxyT0Nm84QVHb+Il2uJJu5wViqEoR+z+/7+yhpgiJWVIZdbSRiix6Ni3htY2lriHSNeiAEmppylVdhHpuinWaWPiiim6SFTamjL5SlV64ERbaxrF+pth+wZbkIh3VRicJBXsbHdst2EQA7 hspace=5 align=left> TRxRichEdit is a 
+wrapper for a Windows rich text 2.0 edit control with OLE objects support 
+(Delphi 2.0 or higher). 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEsRDISau94B20n9ffxx1kuUmaaSIP4b6uBpAIqqrYVNbZ1pmp3Y1m47A+nZDyMDv1hp2XJvGgMolPqFbF0xhDB+VjdOv6jh5ShsUej3c2KAsGk2GD5Vb9YG2a5SFUHn1YCIaHiImKiShijo8iRYuLcpKTiZU9bSQgQGRcRW6cYVczpldwmqKkLBmuD69+loqQdk54XLWof0NojrtxvWJ8hLdavsQJxbxlW8BZzls8OdQYEQA7 hspace=5 align=left> TRxDBRichEdit - 
+permits the user to display and enter Rich Text Format (RTF) data in a memo or 
+BLOB field (only for Delphi 2.0 or higher). 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEnBDISau94B3M60GS9jEIsx1jeaaMCWZoLM+0/Ip1Xt+H2aIAmWmF8n1CwFNwqWwyebqoDdmpBqFFUzD222ZR2B8j6Bt6f2DksHdaH9kzrDT6Qtjv+Lw+H3r4/4CBgn9yczmFhjRQTIxOjohEMl5xSFxaQpdcMVAtXVmdZJ1DYWaWSV9pMHCZo2NFYAhHMFYdshq0HLaJdJW7O7jAEQA7 hspace=5 align=left> TAnimatedImage - 
+animation "bitmap by bitmap". Design-time editor allows you to load Windows 
+animation cursors (ani-files) into this component. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEphDISau94J09zvvGJ47IAGwHImmcB45weW5qht54ntesjvxAHW2F6ohCMJEMxSu6HsjkYzm0Ca87YoupYaloJqb2YHxJp+Fqrww9o2epMTuapMat5IF+z++n70CBgoOEPG6HMWNYi01Fez8iBwB9N41kTxgfdpYdBp6foJ+bcgehpp6jeJ2noalrpaygrk6xsn+csLUGsy2Fg7eKGBiViotXNcLJGBEAOw==" hspace=5 align=left> TClipboardViewer 
+is a visual control that displays the contents of Clipboard using different 
+formats. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEkRDISau94KH8uv+gdzzHlm0dozIf63EkaZJHbd94Xs9678+o1Er4gY1KEg3AxzzymlAgYkqtWq8I5AkWChllyeBj6HF1vlpl15tJOt3QpglLr0+T63z3AI//+n46QBiEFGBbei9tGW+IZSBmD2iDKWOQRSKHao9mkZNhXJFkkplpYokgjRqoemmBf4yvgoW0GBEAOw==" hspace=5 align=left> TCurrencyEdit - 
+input of money amounts, and other numbers too. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhNwAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAANwAcAEAE/xDISau9OGvwDuJPKIpHd5xIiXKeN5bjk570ytan8YCv4RsEgOdWMziEuMMPiPwQcZvJypSsWocsZ7Ri+nRSCKqqNks6xdf08OsKLd9v2rmqg8OD66TRwOnvQgcAeFhoalZehoZzXjEvYildWW2AjWU4i0iJNJFsYSSVhxKFSg8OpaemqQ98eThGGEuDc3qrdrFCiK4OfH9+fbKidLW2Pni5RUAEysvMyk0SCNHS09TV1ADW2drRoo3e3yKM4OMji9vbUx7n0qFZPN4wjunr7FWY4yoSLZwuYScdYmS0+/KuUQlqYxCF8aeCSghLZIJ5Igcvz0ITAGsItBeMDrEl802m6VBF8hQrQnSOXLjVqsifGEp+AHtC45XHYrhokvqI08aoPb567TCmsw7PmT93BQURiGghox+RemxG1VnLGlsyzdIUahRXG1nDis0QAQA7 hspace=5 align=left> TRxCalcEdit and 
+TRxDBCalcEdit (data-aware version) take the display and editing of numeric data 
+one step further: they provide a popup calculator to help you calculate the 
+number. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEsxDISau94J0NnO+f54Ajsh2IpHGP82QuoAiCTAPmlmZn7/+/3QpIBApPgMViJCI5cygVckEYMQgMwDV7XeBOx6K4Fz44m+gPtJx5eNNMNVjKgZ9nXx3d/CB4t1p+ODdreygIiImKi4U4jI+QiioPlJWWl5iVZWNibBgYZHtnIaQlczwcnxeNQ21vpU+nraoWrEh2TTQ1tqm0FLxmVQQAWMPFxIh5Uahmvr+ynJyb0UbO1hIRADs=" hspace=5 align=left> TPicClip 
+represents a bitmap as the logical array of bitmaps and supports access by 
+index. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEnBDISau94B10uv8gCGySxj3oUx4Zm6XaiKxhbXdzi+x87/+y1Qn2yAEQRBSLpDskUa/nMqe5WT/UzYHA7Xq5qvAo2HyGzVOhM7VqlWDpMtGITMZN1xv5x+/73maBSVl5V1kchSFkeF+NBBZ3WoJoi5JJE5RMeHMxJnaVQyoULpgpkaEoSCyeRKdrRKWfmpaTrZUYuBWziTdGub8VEQA7 hspace=5 align=left> TFormPlacement 
+allows to save and restore form size, position and window state in/from ini-file 
+or Registry. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEqBDISau94B10uv8gCGySxj0PgCDqs64qix4jm4V47tnm6/9AGOl2SmEqs1ppc0A5UTbE00kbanTYD49J6Hq/3ZR4pCQ2py6JFF3dFjNGX0msKZvOMfVLD28vOVk5ZUGEhTBwaImKUEuBWW6OOHZcYJUWfmaLi5h3TiUyKVJzdVZMKIgWnkmlbzAIDi6uoJymoSxAeauQjEdqun9nmmyTvcWTkTo2xssSEQA7 hspace=5 align=left> TFormStorage 
+allows you to read and write virtually any component published property to an 
+INI file or the system Registry with virtually no code. Works with 3rd party and 
+your own custom controls as well. Don't be stuck with dozens of INI-Aware 
+components, use TFormStorage and let it manage all that for you. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAErhDISau94J29kf8g+GTAgUja5ADLeD3jyJ0ZZ984Tmu5Gf4eE+qGeBCOBFhAGSMJayrWozXpzYbWrG2XAwJl3K0RmQyYlyQwdubKKM9NNVSyalErsNJ2yKpWtE9egoIoMIaHiImHYYBZjDqKiCWPbJGGTpRFlnlNTzyViEsPaJ2ZiqKkmHwVdm6SbZ4HUVO0dlMkEldzACu1tAAfuXu7K1KtWlxVjTpry10Y0NESEQA7 hspace=5 align=left> TPageManager is 
+useful when creating multipage dialogs such as "Wizards" (or "Experts"). 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEmRDISau94J2Dnv/gB2zbyEkamQls64YmgpJ0bdtytiF87/uW3Uz1SBiPSJhQR2Q4n1DliXmr3nKpDgaUkRxiw1JoLMXSMuQ0mPpNq5cpsXu8/tnveNR8/zFb/zR+HXxoGmtZD1siDzxfcEsYkY9ESJUJZWFtlklck2IuoAKYbCuhLaNxbVCrDKhnD6xRnVOpkZK0gLlTtrwWEQA7 hspace=5 align=left> TColorComboBox is 
+a combo box to pick up color. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEoRDISau94J2Dnv/gB2zbyEkamYHIij7u1mbkgd3mnCJ87/sWGaq24j2MxlBuqAqBXiIhrUatWk/TDmHL7RJgsNFyWnKao9hU+eiZWTxjtS2UhMKl8pWygp79/oCBdmeELExXiFQ6MoUiHzZ4jI1gPJBpUjgXkU1HgE5xRG1tHWxKm2sfOigvoJypLi53l65/g62on3qyi66TMKeJwW6ZxBMRADs=" hspace=5 align=left> TFontComboBox is a 
+combo box to pick up font name. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEdRDISau94J3NOX1a1yFS2JVg+qAimYlwDLumbI+lzLJz3qm1DZBDuxmJvuOtqPsEkS8Y7zCFBqueTI2ptLkQ4LB4TB6jgOg0kNuNsdutJDwebWKtttIE5JaftFR3bxsYWINYe1tyTiKMG4NzB5Bzk3AuhZgYEQA7 hspace=5 align=left> TRxLabel is a 
+customizable shadowed label. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEqRDISau94J2D3iNgCHoPsG0mJ2kc6b7leaTIKt94vtXZjvzAINCys3FGMA+IqOrNHrXnoVRCzGQ0o25747E6H5HIk/ldm1+lGEmdnr079ZqUkbyNGY+Uqk+hik4YghOAQoaHiCtJi4xwXI+AaYx0JHdOYJNUdlmXmWQVkTtroyYaMWiio2J5GpySmWVWriiDgqFPUaVPALJYt35Xrb4ns5CPjsZbPLXMFBEAOw==" hspace=5 align=left> TTextListBox is 
+TListBox successor with automatic horizontal scrollbar if necessary. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEkRDISau94J3N+ctZJx6IpHnm8a1q2pXhuCEaLXPwKdv2TbqbT2g1BM6MIqJuh/Q5c76HVPpsUpWqJc4lpCgtOmhSg6WOxLKp+QZDuN/wuDxuUtvveCn6XNOK9n99VTFpIH4vTSgsPoAsZYRbhF1ThlITS2iTliuWRo1FjpBHoh1YjIlBhoOHM4KnpE5sGLO0EhEAOw==" hspace=5 align=left> TRxSplitter 
+separates two controls to allow to change their sizes at run-time. Never again 
+create a splitter by hand using panel components. Add splitter support to any 
+application by using the RxSplitter component. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhNwAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAANwAcAEAE9BDISau9OGvwjv9e9yEAaJLixz1sCyCwdEqpWZMmiJq09bwyHS1HLI44xuQMqWzuQJvJskOq3DCep2rVYr2q0+QDl9R6NmAhs1les4vV2jtnPky6rvTRDboa61xdX3pZQ3gtQocsB4AahIxDRH5wfD1WQCVqcnOJPFGZezCio6SlpYOmqak0iq2uKK6xeHGclJu1kHy4kHKfoIW6IXi/M72BeY+0kkJ/lRiiQXtUpVepvDytX9HAVDmTRI3ZyZHezLae4tu5twffdM4/CfIJHJhhRSJk51DHeerKRoiBc4ZqlBRNu4p5inIvYSF2nKr4mkgxQwQAOw==" hspace=5 align=left> TRxSlider and 
+TRxSwitch are slider and switch controls respectively with the ability to change 
+their looks. TRxSlider provides more features than the Win32 common control, 
+such as custom thumbs. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhNwAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAANwAcAEAE/xDISau9OGvwzkFPKHKkZx6Sh3Am66Xnx63m6oIPQYwhgKIpn6zzIg5bQllNYow5n8smdLp0Ua9H7NVGxIV0D074JBSujFbY+URTMbXb9DpelcJj8/uTq4fmxSKBgjZ1Kjk6YGI+Ez9maR0Wbl1JfB9fOz09L2SSLVJrMEpuN4JhpqEtnUVZL4yiMlZ9bGkbkaMIuLm6u7y7AL3AwbhMpcXGImfHyoNvsnixzrB2sn+1FYUfwsGqKNPPY6NdxYqbjdwuFLMdbdKGiImaqT+stFFL2F5gpuDz839oPvK4wXeJB7gk/h6pa3UvnKFS5MqU+6cqErtKNqylo/dAIMOBDhej2WvVUdswbCJZiayU0qOzjBpjysQQAQA7 hspace=5 align=left> TRxSpinEdit and 
+TRxSpinButton are spin controls variants. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEsxDISau94L3DD8qdB3YfKW3AQakWlx4Mw30gZofzqe3frvW+Uq5mu8BiMhpKpUllfACkdLjBWa845YORSIgegvAX0BWZMsX0RMlSTzgxqor5cPrqLrhMVGs7W3NZEgiEhYaHiIc6d4yNd0puaVohPZQjOWcaSF8CDQ1fBKFmVIgApaWZWKodcXwodVKxaLCxbC+rHS+ttnR2UHlHcr6+O1Gxe7xPxE3Aln24uVZs0Lg0kW4RADs=" hspace=5 align=left> TSpeedBar with 
+horizontal or vertical orientation that can be placed at the top, bottom, left, 
+right of the form. Customizable in designer and at run-time using drag &amp; 
+drop operation, similar to Delphi speedbar. Allow you use flat and transparent 
+buttons such as standard-style buttons. Button's transparent ability lets 
+graphics show through from under the speedbar. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhbQAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAbQAcAEAE/xDISau9OOvNu6/PgQBPaZJheKzioY4hIpop/chsDovo80m8WO8H4JFyyB6tiNwFbSZXU+rUHYaVXLHKkgEWYMuCuZWokOgVEM1Nu5tH+CfI/hljiLx+z+evdjIIZ1JWaYBEZn9HI4gviTA2Q32EgDNRUDh1g39uE1p0UyyeaWVxpGQlTHCOUJdTQpstJAB9eWSgVl+0tbeMsW9vbcDBpsPAwsZ1i0o2LlCUi5YlzjSZq0+tKVas2K2EnI7LULPf4Iox0jXVboeidu1q74+tzMzcRkSwbMZAZbGZX8AIDKPmzpt67OJA8haC1hYqxThhuXAFV5crAjNU9JXsSipNiv865tA3RcMnYV40ijJSq6VLWy9j8tklUybNmi/NZNvZaiHPnzfsAe0pdKgNjiIT4qmpVATOSXSeQuXIKN85p0wNidtJzVXUotOehYOVrVwLboIErdDG4kZTn2KvPEQLVhsQGWO7pTrScMTZq2lVsHVmTcdWHz4YKF7MmAG5QycSN278+JE9FBHxAr4huJxbrTHWdfSXrjCwUkLQKFHVFrBUPyhJrSxCOhTGMFk2Juo0DvS5sgwtcpLLOh5t4S2ID8xYECmpSKO6KARrVnPsoqxr51qecUzz3c91FpfOCvgr5F5StTx+Pcx63RE/qfkIUi8NF5NI5rq5R5X2ixK8910jfLz5UJ8gRjUT22joiYRaUk1BWJ+Ehv0CYVWIZKjhhhxeEAEAOw==" hspace=5 align=left> TComboEdit, 
+TRxDBComboEdit (data-aware version), TFilenameEdit, TDirectoryEdit are the edit 
+boxes with buttons. User can type data into an edit box or can bring up dialog 
+or popup window by clicking a button. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEqBDISau94B2wH/mE5oHgwx0HImlc9rzvAc/vma5ofhA5T+49lCqzKeqOSNuQ1SGJSCUl7vjZ+XTV6o2I7HqFuBZNNK7llsWMUwb9mM7hZondfoO53zwcH7yCUH53CIOEhYaHhitli4xoGI8TeyyQj5IdLjMyi1JEGZgwmmWcLCZjoWOjl6aMqZ6rm5aUlXcaVH1/PIC0SIG5uldbtVh9w7rBeshbsssSEQA7 hspace=5 align=left> TMemoryTable 
+implements BDE in-memory table as a dataset component (with Delete operation). 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEsBDISau94IGTn/fHJ3rbYSKSxo0aYr7wgcppbJvlTWdbZj+63E7VEYVYExjKdwMggDLEbFZaQnXYmLXHOrJUr+1q5EUqU1zyxxnLiYuPp05KHWZ7NI5tSe/7/4BWX4OEWxiHEmc8iIeKGo8EkQRAD5KWYCdokJKUlpEkjjyVnCGek5hDopelay56YZoZqy1BmaKyn65zUhuGFiFavHl2QU/CdbBMWE54N1ZZ0MmM0xQRADs=" hspace=5 align=left> TRxMemoryData is a 
+in-memory dataset that mimics the behaviors of a regular Delphi dataset. Unlike 
+TMemoryTable component, TRxMemoryData is BDE independent (only for Delphi 3.0 or 
+higher). 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEsxDISau94B2U83uTRhBfhiAHsEnasY1fLI/Zoalc7eZYv9a8i2tIHOY0nJgndoCBNLdfa/MZWa8lJo5V7Hq7x5VMiTwFJVJxhUkqEbfA77D9tKXSu+rVSrbDpwh6e3QmKHBmiImKi0djjo+OYYyIcjtcSZCVlkBLSjUyS3eSHaQeNmRof2IgLEygFWmYj6duUKo7g7kqtngvuXu7NrdUkK8UvYHFqCrDycogb72alWc91hURADs=" hspace=5 align=left> TRxCheckListBox is 
+a list box with built-in check boxes. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAExhDISau94B2kj99ESBxEYnYIsEka93FwOhHMq8odpk8evj3AoHAoTK0yv4+I8wgATZ/VsaUBIGTRrG2q7XptSNf3cIoafWIQ4WpatBOoGyvpoTE3h0CCtEVTDw9XAAyEhWZyYR1jWmcSV4+QkZKSLESWl0E+G5OckD1zaYuHXKFeZZ+kiiQiZCYJbn2giktNbgtuio2JHwx2Gk2uuYh/HgwwgZuDI6h+PYGBKb3SCLG7KtCDhcZZusQSosygnePd4IsyO+kWEQA7 hspace=5 align=left> TRxSpeedButton 
+provides you more features than the standard TSpeedButton component, such as 
+Transparent, Flat, AllowTimer and GrayedInactive properties and Drop-Down Menu. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEphDISau94OXHOzid9x0kiUhPuXFBuLUZfJxZad/VbaKq6+o2miZELG4yIyEQ5VpxkjwcBahTOp+gH1AYI1JYw1HJWiyvjrOordJpDT3pGtXpxo4liLx+z+/zmWWBgUoqVxJUd3IvWA9uYlU8XXBtGlRcZlk+j3FvRTYeT2JkdUUwjWE7imAhjj6VhCSAoV5wsD2UoKdQcktfq6JqvV6btojGcRjJyhEAOw==" hspace=5 align=left> TRxTimerList 
+component provides all the functions of the standard TTimer component, plus the 
+additional benefit of using only one Windows timer for up to 32767 timing 
+events. You can customize this component in designer using easy-to-use component 
+editor. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEyhDISau94J38lv/gAhxkSSKSBnwSuyLaEyS0dqCZqUt6f6a+TdCHsw0esMcxeRwcaLRF4pcLwq4oK3DINRVNKaWHx/1mPAgYWi0q1ahG5EMpV8ICUk/CZl50/n4LV0g3WSVfPiNIhloAaY+QkZKSYXOWl5iZlohdXZwlKWSeW2EDpqZjI40qGBYkb3Akpo+zaacmUBqIA4JzvExpUcK6W7++vXZzAXM0h0CtEkk3BzNezxiDaRTWVT0wB4uqRFs9jjij3Z1DONDtFhEAOw==" hspace=5 align=left> TAppEvents is an 
+Application wrapper component, which makes it easier to work with the 
+TApplication object properties and events at design time. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEpBDISau94J3NO3pgCAKepG1Iqq7qI3UHYsJ0TcuZDas2fnKfR1DkCpFQM+BjcWA6mweAbJfUWYHVHlGIKOW020wK+0UtoabRiFr+QJ9O6dT7Q7HuL+99z2elt4CBID5XhTFZYFw3iDuCR4dlN4GPSJF2Q0QZa5B1bgt/RpuVnRpMQSaalJxKgjIuqoRKb7Myc2R1MWdwTThsuFEYFL6GVzjBxxgRADs=" hspace=5 align=left> TRxFolderMonitor 
+component provides notification if any changes matching the filter conditions 
+occur in the specified directory or subtree. 
+</font><p><font size=+0 color=#000080><img src=data:image/gif;base64,R0lGODdhHAAcALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAHAAcAEAEwxDISau94J2DNkcgOCxNM3iHxklqtyUBAD80fQBey6J872+I3SdELBqBQhenVsMtHotbCpkBHmCAgDYA++mqv3AvCFb6Bmjet+VBEN7vUSKhOU1X5fY8wLThNmtWVzEPXAE8f3dkbGI+X0aQkUUsfZWWlYuNmniMmzlUnT0DUAd2gKCCHHBxpAumgRxtok8MDK6KSW1cCEwVp5yphgm8TFK/mbEHhgi7xYmwHVxz08O+x7kSSmReqCmX3zbAnmFkGObnEQA7 hspace=5 align=left> TRxTrayIcon 
+component enables 32-bit applications to add static and animated icons to the 
+Windows system tray. 
+</font><p><font size=+0 color=#000080><img src="data:image/gif;base64,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" hspace=5 align=left> TConverter, 
+TRxClock, TSecretPanel, TRxDice, TRxCalculator, TStrHolder, TMRUManager, 
+TRxWindowHook, TRxGradientCaption, owner-draw menus and much more. 
+</font><p><font size=+0 color=#000080><br><b>2.</b> The editors of standard properties with some advanced features. 
+</font><ul><font size=+0 color=#000080>
+ <li>TPicture and TGraphic adds Copy and Paste Buttons, supports Icons in 
+ Clipboard, uses open dialog box with preview. 
+ <li>THint enables multi-line hint entry. 
+ <li>Project Resource Expert for Delphi 3.0 or higher and C++Builder 3.0 or 
+ higher allows you to manage your project resource file. This expert can be 
+ found as "View | Project Resources" in the Delphi 3 and C++Builder 3 IDE menu 
+ and as "Project | Resources" in the Delphi 4 or higher IDE menu. </li></font></ul><font size=+0 color=#000080>
+<p><b>3.</b> Units that provide functions and objects to work with databases, 
+images, strings, dates, files, INI-files. 
+<p><b>4.</b> RX Library help files <b>(in Russian only)</b>. Help files in other 
+languages do not exist. 
+<p><b>5.</b> A couple of simple demo applications. 
+<p><a name=history></a><font size=+0 color=#000000><b><u><i>History</i></u></b>
+</font><p><font size=+0 color=#000000><font size=+0 color=#000080>
+</font></font><ul><font size=+0 color=#000000><font size=+0 color=#000080>
+ <li><b>RX 2.60</b> (Jan,27,1999). New components TRxMemoryData, TRxRichEdit. 
+ Bug fixes for RX 2.50. 
+ <li><b>RxLib 2.50</b> (Jul,22,1998). New components: TRxFolderMonitor, 
+ TRxLookupEdit, TRxGradientCaption, TRxMainMenu, TRxPopupMenu. Delphi 4.0 and 
+ C++Builder 3.0 compatibility. Bug fixes. 
+ <li><b>RxLib 2.40</b> (Feb,11,1998). New components: TRxDBComboEdit, 
+ TRxCalcEdit, TRxDBCalcEdit. GIF Image support (including new component 
+ TRxGIFAnimator and new demo program). Project Resource Expert for Delphi 3. 
+ Bug fixes. 
+ <li><b>RxLib 2.32</b> (Jul,30,1997). Bug fixes. Full compatibility with all 
+ Delphi versions (including Delphi 3 Professional and Developer editions) and 
+ Borland C++ Builder 1.0. C++ Builder demo. 
+ <li><b>RxLib 2.31</b> (May,08,1997). Delphi 3.0 C/S release (build 5.53) 
+ compatibility. Bug fixes. 
+ <li><b>RxLib 2.30</b> (Apr,22,1997). New components: TMRUList, TRxTimerList, 
+ TRxWindowHook. Delphi 3 (confidential beta pre-release, build 3.0.4.78) 
+ compatibility. Bug fixes. 
+ <li><b>RxLib 2.01</b> (Feb,12,1997), <b>2.02</b> (Mar,10,1997). Bug fixes. New 
+ component TRxDBRichEdit. Version 2.02 became available for download on 
+ Internet. 
+ <li><b>RxLib 2.00</b> (Nov,24,1996). New components: TMemoryTable, 
+ TRxCheckListBox, TRxDBComboBox, TStrHolder, TAppEvents. Bug fixes. 
+ <li><b>RxLib 1.32</b> (Nov,11,1996). Delphi 2.0 compatible version. New 
+ components: TSQLScript, TPageManager, TRxTrayIcon. 
+ <li><b>RxLib 1.03</b> (Jan,14,1996). Compiled DCU-files removed from 
+ installation package. New components: TFormStorage, TDBSecurity, TRxQuery, 
+ TSpeedbar, TRxSpinButton, TRxSpinEdit, TRxCalculator. 
+ <li><b>RxLib 1.02</b> (Dec,27,1995). Private version. 
+ <li><b>RxLib 1.01</b> (Dec,04,1995). Bug fixes, new component TRxDBFilter. 
+ <li><b>RxLib 1.00</b> (Nov 1995). Initial release for Delphi 1.0 available in 
+ russian Fido. 
+ <li><b>ExtVCL components collection</b> from Apr,25,1995 and Jul,20,1995. 
+</li></font></font></ul><font size=+0 color=#000000><font size=+0 color=#000080>
+<p><a name=licence></a><font size=+0 color=#000000><b><u><i>License 
+Agreement</i></u></b> 
+</font><p><font size=+0 color=#000000><font size=+0 color=#000080>&nbsp;&nbsp; Permission to use, copy, modify, 
+and distribute this software and its documentation for any purpose and without 
+fee is hereby granted, provided that the above copyright notice appears in all 
+copies and that both the above copyright notice and this permission notice 
+appear in supporting documentation, and that the name of RX Library authors not 
+be used in advertising or publicity pertaining to distribution of the software 
+without specific, written prior permission. This software is made available "as 
+is", and RX LIBRARY AUTHORS DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, WITH 
+REGARD TO THIS SOFTWARE, INCLUDING WITHOUT LIMITATION ALL IMPLIED WARRANTIES OF 
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND IN NO EVENT SHALL 
+AUTHORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY 
+DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN 
+ACTION OF CONTRACT, TORT (INCLUDING NEGLIGENCE) OR STRICT LIABILITY, ARISING OUT 
+OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. <br><br><a target=_parent href=https://www.micrel.cz/RxLib/licence.htm>Full 
+text of RX Library Software License agreement</a> 
+</font></font><p><font size=+0 color=#000000><font size=+0 color=#000080><a name=part_2></a><font size=+0 color=#000000><b><u><i>Installation</i></u></b> 
+</font></font></font><p><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>&nbsp; &nbsp; Run 
+<b>RXINST.EXE</b>.<br><br>&nbsp; &nbsp; Before installing RX Library components 
+into Delphi, check out RX.INC file located in RX\UNITS subdirectory. This file 
+is included in all RX Library units and contains conditional defines that 
+affects compilation. You can change some of these defines or specify global 
+compiler options there. <br><br><img src="data:image/gif;base64,R0lGODlhGwAQALMHAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////yH5BAEAAAcALAAAAAAbABAAQARy8MhJKbgYVMme947xMMCylKd5qdrGTJmZnmiL3HjHIEfmZ5tg7/cTHggPQkxWax4QDENoKtphVCxVEEHgVYhGIxEYhi1XzJaLMLxiaSwJgTGfV6+1LE1OpSZlgHB7XHR0BA5JCGcocRtQXWZjao5eZUERADs="> <b>Delphi 
+4.x:</b> <br><br>&nbsp; &nbsp; Uninstall previous installed version of RX 
+Library from Delphi 4 IDE. Remove previously compiled RX packages (if any) 
+RXCTL4.BPL, RXDB4.BPL, DCLRX4.BPL and DCLRXDB4.BPL from your hard disk. 
+<br><br>&nbsp; &nbsp; Use "File\Open..." menu item of Delphi IDE to open RX' 
+runtime package RXCTL4.DPK. In "Package..." window click "Compile" button to 
+compile packages RXCTL4.DPK. After compiling repeat that for other RX Library 
+run-time package RXDB4.DPK. Put compiled BPL files into directory that is 
+accessible through the search PATH (i.e. DOS "PATH" environment variable; for 
+example, in the Windows\System directory). After compiling RX run-time packages 
+you must install RX design-time packages into the IDE. <br><br>&nbsp; &nbsp; Use 
+"File\Open..." menu item to open consistently RX design-time packages DCLRX4.DPK 
+(MUST be first) and DCLRXDB4.DPK. In "Package..." window click "Install" button 
+to register RX Library components on the "RX Controls", "RX DBAware" and "RX 
+Tools" pages.<br><br><b>NOTE:</b> do not save package sources in the Delphi IDE. 
+<br><br><img src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="27" height="16"><rect fill-opacity="0"/></svg>' style="background-blend-mode:normal!important;background-clip:content-box!important;background-position:50% 50%!important;background-color:rgba(0,0,0,0)!important;background-image:var(--sf-img-46)!important;background-size:100% 100%!important;background-origin:content-box!important;background-repeat:no-repeat!important"> <b>Delphi 3.x:</b> <br><br>&nbsp; 
+&nbsp; Remove previously compiled RX packages RXCTL.DPL, RXDB.DPL, RXTOOLS.DPL, 
+DCLRXCTL.DPL, DCLRXDB.DPL and DCLRXTLS.DPL from your hard disk. <br><br>&nbsp; 
+&nbsp; Use "File\Open..." menu item of Delphi IDE to open consistently RX 
+run-time packages RXCTL.DPK (MUST be first), RXDB.DPK and RXTOOLS.DPK. In 
+"Package.." window click "Compile" button to compile RX Library run-time 
+packages. Put compiled DPL files into directory that is accessible through the 
+search PATH (for example, in the Windows\System directory). After compiling RX 
+run-time packages you must install RX design-time packages into the IDE. 
+<br><br>&nbsp; &nbsp; Use "File\Open..." menu item to open consistently RX 
+design-time packages DCLRXCTL.DPK (MUST be first), DCLRXDB.DPK and DCLRXTLS.DPK. 
+In "Package.." window click "Install" button to register RX Library components 
+on the "RX Controls", "RX DBAware" and "RX Tools" pages accordingly. 
+<br><br><b>NOTE:</b> do not save package sources in the Delphi IDE. <br><br><img src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="27" height="16"><rect fill-opacity="0"/></svg>' style="background-blend-mode:normal!important;background-clip:content-box!important;background-position:50% 50%!important;background-color:rgba(0,0,0,0)!important;background-image:var(--sf-img-46)!important;background-size:100% 100%!important;background-origin:content-box!important;background-repeat:no-repeat!important"> <b>C++Builder 3.x:</b> <br><br>&nbsp; &nbsp; 
+Uninstall previous installed version of RX Library from C++Builder IDE. Remove 
+previously compiled RX packages (if any) RXCTL.BPL, RXDB.BPL, DCLRXCTL.BPL and 
+DCLRXDB.BPL from your hard disk. <br><br>&nbsp; &nbsp; Be sure that linker 
+option "Use dynamic RTL" is unchecked. Use "File\Open..." menu item of 
+C++Builder IDE to open RX' runtime package RXCTL.BPK. Then use "Project\Make..." 
+or "Project\Build..." menu item to compile package RXCTL.BPK. After compiling 
+repeat that consistently for each of the other RX Library packages (.BPK files) 
+RXDB.BPK, DCLRXCTL.BPK and DCLRXDB.BPK (be sure to keep the sequence mentioned). 
+For runtime packages (RXCTL and RXDB) put compiled BPL files into directory that 
+is accessible through the search PATH (DOS envirounment variable, not IDE search 
+path; for example, in the Windows\System directory). After compiling RX packages 
+you must install RX design-time packages into the C++Builder IDE. <br><br>&nbsp; 
+&nbsp; Use "Component\Install packages..." menu item to open "Packages" dialog 
+box. Then click "Add..." button and locate DCLRXCTL.BPL from the RX\UNITS 
+directory and click "OK" to install package into IDE. After installing DCLRXCTL 
+package install DCLRXDB.BPL package as above. <br><br><b>NOTE:</b> do not save 
+package sources in the C++Builder IDE. <br><br><img src=data:image/gif;base64,R0lGODlhGwAQALMIAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD//////yH5BAEAAAgALAAAAAAbABAAQARwEMlJKbgYVMme947xMNeyYGZ5ahszqUCaxqd03HjHHEjmZ5tg7/cTIggPwk+2miEODENoKtrNYDRW5UDgVYhGIxEYfqlWNGeQQRhmmFgJgU2vvpv4i5xKTV6zgE9zgwQOSQdpMyZqW2xebmNGN2VGEQA7> 
+<b>Delphi 2.x and C++ Builder 1.x:</b> <br><br>&nbsp; &nbsp; Use the 
+"Install..." item on Delphi's "Component" menu to add the RxCtlReg.PAS, 
+RxDBReg.PAS and RxTooReg.PAS units to the component library. These units 
+registers all RX Library components on the "RX Controls", "RX DBAware" and "RX 
+Tools" pages accordingly. <br><br><img src=data:image/gif;base64,R0lGODlhGwAQALMIAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD//////yH5BAEAAAgALAAAAAAbABAAQARwEMlJKbgYVMme947xMNiyAOaVXhvCTGW6rtJh3x1zIFmftS2fEIggPAg92Qm11BwYhpBUpFOdZsvWgbCrDIlA4Q8Mi1lXmhaDwDtfl2gJYU2nZpRWjHw6Peaxelt0BAQORwdmTHEbT1xlYmlaXWQtEQA7> <b>Delphi 
+1.x:</b> <br><br>&nbsp; &nbsp; Use the "Install Components..." item on Delphi's 
+Options menu to add the RxCtlReg.PAS, RxDBReg.PAS and RxTooReg.PAS units to the 
+component library. These units registers all RX Library components on the "RX 
+Controls", "RX DBAware" and "RX Tools" pages accordingly. <br><br><b>Help 
+files:</b> <br><br>&nbsp; &nbsp; The help files (<b>in Russian only</b>) are 
+distributed in separate installation packages for each version of Delphi and 
+C++Builder. <br><br>&nbsp; &nbsp; To install the help and keyword file into 
+Delphi 1.0 and 2.0, follow these steps: 
+</font></font></font></font><ul><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>
+ <li>Click on the HelpInst icon in the Delphi group in the Program Manager. 
+ <li>Select File|Open from the menu. Change directories so you are in the 
+ \Delphi\Bin directory, and select the Delphi.hdx file. Click the OK button. 
+ <li>Select Keywords|Add Keyword File from the menu. Change directories so you 
+ are in the directory where you stored the help files of the RX. Select the 
+ RX.KWF (in Delphi 1.0) or RX32.KWF (in Delphi 2.0) file, and click the OK 
+ button. 
+ <li>Select File|Save from the menu. This will recompile the Delphi.hdx file. 
+ You can then close the Helpinst program. You will now be able to jump to the 
+ help file for the RX Library by selecting the appropriate property and hitting 
+ 'F1.' 
+ <li>Help file now available is only in Russian. This help requires Arial Cyr 
+ and Courier New Cyr fonts (Windows code page 1251). </li></font></font></font></font></ul><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>
+<p><font size=+0 color=#000000><b><u><i>C++ Builder Compatibility</i></u></b> 
+</font><p><font size=+0 color=#000000><font size=+0 color=#000080>&nbsp; &nbsp; This version of RX Library is 
+compatible with Borland C++ Builder 1.0 &amp; 3.0, and tested in the 
+Professional edition only. <br>&nbsp; &nbsp; RX Library is not tested properly 
+with Borland C++ Builder. Use at your own risk. 
+</font></font><p><font size=+0 color=#000000><font size=+0 color=#000080><a name=part_3></a><font size=+0 color=#000000><b><u><i>Demonstration 
+Programs</i></u></b> 
+</font></font></font><p><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>&nbsp; &nbsp; Demonstration programs included 
+in RX Library use tables from DELPHI\DEMOS\DATA directory and BDE alias 
+"DBDEMOS". 
+</font></font></font></font><p><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><a name=part_4></a><font size=+0 color=#000000><b><u><i>Source 
+Files</i></u></b> 
+</font></font></font></font></font><p><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>&nbsp; &nbsp; All sources (100%) of RX 
+Library are available in RX\UNITS directory. All language specific string 
+constants used in RX Library are collected in resource files. There are sources 
+for string resource files in English and Russian. The rest resource files 
+containing bitmap images and icons for component palette are also included as 
+compiled resources (*.R16, *.R32) and as *.RC-files. Resource files sources are 
+available in RX\RESOURCE directory. So, you can use any resource compiler (i.e. 
+BRC.EXE or BRC32.EXE) to create *.RES (*.R16 &amp; *.R32) and *.DCR (*.D16 &amp; 
+*.D32) files. 
+</font></font></font></font></font></font><p><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><a name=gif></a><font size=+0 color=#000000><b><u><i>Using GIF 
+Images</i></u></b> 
+</font></font></font></font></font></font></font><p><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>&nbsp; &nbsp; To use GIF images in an your 
+application at runtime, include the RXGIF unit in your unit's "uses" clause. 
+<br><br>&nbsp; &nbsp; If you are using another GIF image support library (like 
+ImageLib), deactivate the conditional define USE_RX_GIF in RX\UNITS\RX.INC file 
+and rebuild your component library. <br><br>&nbsp; &nbsp; <b>WARNING:</b> You 
+will need an LZW patent license from Unisys in order to provide end-user GIF 
+support legally in any commercial or shareware application. It is provided as a 
+development tool only. 
+</font></font></font></font></font></font></font><p><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><a name=part_5></a><font size=+0 color=#000000><b><u><i>Copyright 
+Notes</i></u></b> 
+</font></font></font></font></font></font></font><p><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>
+</font></font></font></font></font></font></font></p><li><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>Most of the modules in our library are written by us. We have to make a note 
+of units based on sources of other authors. 
+</font></font></font></font></font></font><li><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>Unit RXLOOKUP is based on original Delphi VCL units DBLOOKUP, DBCTRLS. 
+</font></font></font></font></font></font><li><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>Unit STRUTILS is based on a unit of string-handling routines AGSLIB by 
+Alexey Lukin. 
+</font></font></font></font></font></font><li><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>Unit DBEXCPT is based on a unit DBEXCEPT.PAS from Borland Delphi. 
+</font></font></font></font></font></font><li><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>Procedures to read and write GIF files, GIF-decoding and encoding based on 
+freeware C source code of GBM package by <a href=mailto:nyangau@interalpha.co.uk>Andy Key</a> (<a href=mailto:nyangau@interalpha.co.uk>nyangau@interalpha.co.uk</a>). 
+</font></font></font></font></font></font><li><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>Some components in a unit DBLISTS are based on 
+DELPHI\DEMOS\DB\TOOLS\BDETABLE unit from Delphi 1.0 Demos. 
+</font></font></font></font></font></font><li><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080><font size=+0 color=#000000><font size=+0 color=#000080>Unit PICTEDIT contains advanced property editor based on unit PICEDIT.PAS 
+from VCL, unit QBNDDLG is a modified unit QBINDDLG.PAS from VCL, unit 
+IMAGPRVW.PAS is a modified unit IMAGEWIN.PAS from Borland Delphi 1.0 C/S Demos 
+DELPHI\DEMOS\IMAGVIEW. 
+<p><font size=+0><b><i>Authors: </i></b><i><a href="mailto:fkozh@usa.net?subject=RxLib">Fedor Koshevnikov</a>, <a href="mailto:ipavluk@usa.net?subject=RxLib">Igor Pavluk</a>, <a href="mailto:korolev@usa.net?subject=RxLib">Serge Korolev</a>. </i>
+</font><p><font size=+0>Software development department.<br>Master-Bank. Moscow, 
+Russia.<br></font></p></font></font></font></font></font></font></li></font></font></font></font></font></font></font></font></font></font>
+<script>document.currentScript.remove();!function(){"use strict";(t=>{const n="singlefile-infobar",e="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAABhmlDQ1BJQ0MgcHJvZmlsZQAAKJF9kj1Iw0AYht+mSkUrDnYQcchQnSyIijqWKhbBQmkrtOpgcukfNGlIUlwcBdeCgz+LVQcXZ10dXAVB8AfEydFJ0UVK/C4ptIjx4LiH9+59+e67A4RGhalm1wSgapaRisfEbG5VDLyiDwEAvZiVmKkn0osZeI6ve/j4ehfhWd7n/hz9St5kgE8kjjLdsIg3iGc2LZ3zPnGIlSSF+Jx43KACiR+5Lrv8xrnosMAzQ0YmNU8cIhaLHSx3MCsZKvE0cVhRNcoXsi4rnLc4q5Uaa9XJbxjMaytprtMcQRxLSCAJETJqKKMCCxFaNVJMpGg/5uEfdvxJcsnkKoORYwFVqJAcP/gb/O6tWZiadJOCMaD7xbY/RoHALtCs2/b3sW03TwD/M3Cltf3VBjD3SXq9rYWPgIFt4OK6rcl7wOUOMPSkS4bkSH6aQqEAvJ/RM+WAwVv6EGtu31r7OH0AMtSr5Rvg4BAYK1L2use9ezr79u+ZVv9+AFlNcp0UUpiqAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH5AsHAB8H+DhhoQAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAAJUExURQAAAICHi4qKioTuJAkAAAABdFJOUwBA5thmAAAAAWJLR0QCZgt8ZAAAAJJJREFUOI3t070NRCEMA2CnYAOyDyPwpHj/Va7hJ3FzV7zy3ET5JIwoAF6Jk4wzAJAkzxAYG9YRTgB+24wBgKmfrGAKTcEfAY4KRlRoIeBTgKOCERVaCPgU4Khge2GqKOBTgKOCERVaAEC/4PNcnyoSWHpjqkhwKxbcig0Q6AorXYF/+A6eIYD1lVbwG/jdA6/kA2THRAURVubcAAAAAElFTkSuQmCC",o="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAABhmlDQ1BJQ0MgcHJvZmlsZQAAKJF9kj1Iw0AYht+mSkUrDnYQcchQnSyIijqWKhbBQmkrtOpgcukfNGlIUlwcBdeCgz+LVQcXZ10dXAVB8AfEydFJ0UVK/C4ptIjx4LiH9+59+e67A4RGhalm1wSgapaRisfEbG5VDLyiDwEAvZiVmKkn0osZeI6ve/j4ehfhWd7n/hz9St5kgE8kjjLdsIg3iGc2LZ3zPnGIlSSF+Jx43KACiR+5Lrv8xrnosMAzQ0YmNU8cIhaLHSx3MCsZKvE0cVhRNcoXsi4rnLc4q5Uaa9XJbxjMaytprtMcQRxLSCAJETJqKKMCCxFaNVJMpGg/5uEfdvxJcsnkKoORYwFVqJAcP/gb/O6tWZiadJOCMaD7xbY/RoHALtCs2/b3sW03TwD/M3Cltf3VBjD3SXq9rYWPgIFt4OK6rcl7wOUOMPSkS4bkSH6aQqEAvJ/RM+WAwVv6EGtu31r7OH0AMtSr5Rvg4BAYK1L2use9ezr79u+ZVv9+AFlNcp0UUpiqAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH5AsHAB8VC4EQ6QAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAAJUExURQAAAICHi4qKioTuJAkAAAABdFJOUwBA5thmAAAAAWJLR0QCZgt8ZAAAAJtJREFUOI3NkrsBgCAMRLFwBPdxBArcfxXFkO8rbKWAAJfHJ9faf9vuYX/749T5NmShm3bEwbe2SxeuM4+2oxDL1cDoKtVUjRy+tH78Cv2CS+wIiQNC1AEhk4AQeUTMWUJMfUJMSEJMSEY8kIx4IONroaYAimNxsXp1PA7PxwfVL8QnowwoVC0lig07wDDVUjAdbAnjwtow/z/bDW7eI4M2KruJAAAAAElFTkSuQmCC",i="SingleFile",A="single-file-ui-element",r="\n\t.infobar {\n\t\tbackground-color: #737373;\n\t\tcolor: white;\n\t\tdisplay: flex;\n\t\tposition: fixed;\n\t\ttop: 16px;\n\t\tright: 16px;\n\t\theight: auto;\n\t\twidth: auto;\n\t\tmin-height: 24px;\n\t\tmin-width: 24px;\n\t\tbackground-position: center;\n\t\tbackground-repeat: no-repeat;\n\t\tz-index: 2147483647;\n\t\tmargin: 0 0 0 16px;\n\t\tbackground-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAABhmlDQ1BJQ0MgcHJvZmlsZQAAKJF9kj1Iw0AYht+mSkUrDnYQcchQnSyIijqWKhbBQmkrtOpgcukfNGlIUlwcBdeCgz+LVQcXZ10dXAVB8AfEydFJ0UVK/C4ptIjx4LiH9+59+e67A4RGhalm1wSgapaRisfEbG5VDLyiDwEAvZiVmKkn0osZeI6ve/j4ehfhWd7n/hz9St5kgE8kjjLdsIg3iGc2LZ3zPnGIlSSF+Jx43KACiR+5Lrv8xrnosMAzQ0YmNU8cIhaLHSx3MCsZKvE0cVhRNcoXsi4rnLc4q5Uaa9XJbxjMaytprtMcQRxLSCAJETJqKKMCCxFaNVJMpGg/5uEfdvxJcsnkKoORYwFVqJAcP/gb/O6tWZiadJOCMaD7xbY/RoHALtCs2/b3sW03TwD/M3Cltf3VBjD3SXq9rYWPgIFt4OK6rcl7wOUOMPSkS4bkSH6aQqEAvJ/RM+WAwVv6EGtu31r7OH0AMtSr5Rvg4BAYK1L2use9ezr79u+ZVv9+AFlNcp0UUpiqAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH5AsHADIRLMaOHwAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAAPUExURQAAAIqKioyNjY2OjvDw8L2y1DEAAAABdFJOUwBA5thmAAAAAWJLR0QB/wIt3gAAAGNJREFUSMdjYCAJsLi4OBCQx6/CBQwIGIDPCBcXAkYQUsACU+AwlBVQHg6Eg5pgZBGOboIJZugDFwRwoJECJCUOhJI1wZwzqmBUwagCuipgIqTABG9h7YIKaKGAURAFEF/6AQAO4HqSoDP8bgAAAABJRU5ErkJggg==);\n\t\tborder-radius: 16px;\n\t\tuser-select: none;\n\t\t-moz-user-select: none;\n\t\topacity: .7;\n\t\tcursor: pointer;\n\t\tpadding-left: 0;\n\t\tpadding-right: 0;\n\t\tpadding-top: 0;\n\t\tpadding-bottom: 0;\n\t\tborder: 2px solid #eee;\n\t\tbackground-size: 70% 70%;\n\t\ttransition: all 250ms;\n\t\tfont-size: 13px;\n\t}\n\t.infobar:hover {\n\t\topacity: 1;\n\t}\n\t.infobar-open {\n\t\topacity: 1;\n\t\tbackground-color: #f9f9f9;\n\t\tcursor: auto;\n\t\tcolor: #2d2d2d;\n\t\tpadding-top: 2px;\n\t\tpadding-bottom: 2px;\n\t\tborder: 2px solid #878787;\n\t\tbackground-image: none;\n\t\tborder-radius: 8px;\n\t\tuser-select: initial;\n\t\t-moz-user-select: initial;\n\t}\n\t.infobar-close-button {\n\t\tdisplay: none;\n\t\topacity: .7;\n\t\tpadding-top: 4px;\n\t\tpadding-left: 8px;\n\t\tpadding-right: 8px;\n\t\tcursor: pointer;\n\t\ttransition: opacity 250ms;\n\t\theight: 16px;\n\t}\n\t.infobar-close-button:hover {\n\t\topacity: 1;\n\t}\n\t.infobar-content {\n\t\tdisplay: none;\n\t\tfont-family: Arial;\n\t\tfont-size: 14px;\n\t\tline-height: 22px;\n\t\tword-break: break-word;\n\t\twhite-space: pre-wrap;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\ttext-align: left;\n\t}\n\t.infobar-link {\n\t\tdisplay: none;\n\t\tpadding-left: 8px;\n\t\tpadding-right: 8px;\n\t\tline-height: 11px;\n\t\tcursor: pointer;\n\t\tuser-select: none;\n\t\toutline: 0;\n\t}\n\t.infobar-link-icon {\n\t\tpadding-top: 4px;\n\t\tpadding-left: 2px;\n\t\tcursor: pointer;\n\t\topacity: .7;\n\t\ttransition: opacity 250ms;\n\t\theight: 16px;\n\t}\n\t.infobar-link-icon:hover {\n\t\topacity: 1;\n\t}\n\t.infobar-open .infobar-close-button, .infobar-open .infobar-content, .infobar-open .infobar-link {\n\t\tdisplay: inline-block;\n\t}";let a=!0;const c=t.browser;async function s(){const t=document.evaluate("//comment()",document,null,XPathResult.FIRST_ORDERED_NODE_TYPE,null);let s=t&&t.singleNodeValue;if(s&&((p=s).nodeType==Node.COMMENT_NODE&&p.textContent.includes(i))){const t=s.textContent.split("\n"),[,,i,...p]=t,g=i.match(/^ url: (.*) $/),h=g&&g[1];if(h){let t;if(c&&c.runtime&&c.runtime.sendMessage)try{t=await c.runtime.sendMessage({method:"tabs.getOptions",url:h})}catch(n){t={displayInfobar:!0}}else t={displayInfobar:!0};t.displayInfobar&&await async function(t,i){let c=document.querySelector(n);if(!c){let s="";if(i.length){const t=i[0].split("saved date: ")[1];if(t&&i.shift(),i.length>1){let t=i[0].split("info: ")[1].trim();for(let n=1;n<i.length-1;n++)t+="\n"+i[n].trim();s=t.trim()}else s=t}s=s||"No info",c=d(n,document.body),c.className=A;const p=await async function(t){if(t.attachShadow)return t.attachShadow({mode:"open"});{a=!1;const n=d("iframe",t);return n.style.setProperty("background-color","transparent","important"),n.style.setProperty("position","fixed","important"),n.style.setProperty("top",0,"important"),n.style.setProperty("right",0,"important"),n.style.setProperty("width","44px","important"),n.style.setProperty("height","48px","important"),n.style.setProperty("z-index",2147483647,"important"),new Promise((t=>{n.contentDocument.body.style.setProperty("margin",0),n.onload=()=>t(n.contentDocument.body)}))}}(c),g=document.createElement("style");g.textContent=r,p.appendChild(g);const h=document.createElement("div");h.classList.add("infobar"),p.appendChild(h);const u=document.createElement("img");u.classList.add("infobar-close-button"),h.appendChild(u),u.src=o,u.onclick=t=>{0===t.button&&c.remove()};const m=document.createElement("span");h.appendChild(m),m.classList.add("infobar-content"),m.textContent=s;const f=document.createElement("a");f.classList.add("infobar-link"),h.appendChild(f),f.target="_blank",f.rel="noopener noreferrer",f.title="Open source URL: "+t,f.href=t;const b=document.createElement("img");b.classList.add("infobar-link-icon"),f.appendChild(b),b.src=e,l(h),document.addEventListener("click",(t=>{if(0===t.button){let n=t.target;for(;n&&n!=c;)n=n.parentElement;n!=c&&l(h)}}))}}(h,p)}}var p}function l(t){if(t.classList.remove("infobar-open"),t.onclick=e=>{if(0===e.button)return function(t){a||document.querySelector(n).childNodes[0].contentWindow.getSelection().removeAllRanges();if(t.classList.add("infobar-open"),t.onclick=null,t.onmouseout=null,!a){const e=document.querySelector(n).childNodes[0];e.style.setProperty("width","100vw","important"),e.style.setProperty("height","100vh","important"),e.style.setProperty("width",t.getBoundingClientRect().width+33+"px","important"),e.style.setProperty("height",t.getBoundingClientRect().height+21+"px","important")}}(t),!1},!a){const t=document.querySelector(n).childNodes[0];t.style.setProperty("width","44px","important"),t.style.setProperty("height","48px","important")}}function d(t,n){const e=document.createElement(t);return n.appendChild(e),Array.from(getComputedStyle(e)).forEach((t=>e.style.setProperty(t,"initial","important"))),e}t.window==t.top&&("loading"==document.readyState?document.addEventListener("DOMContentLoaded",s,!1):s())})("object"==typeof globalThis?globalThis:window)}();
+</script>

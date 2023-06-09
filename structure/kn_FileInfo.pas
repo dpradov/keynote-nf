@@ -1,96 +1,112 @@
 unit kn_FileInfo;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 
 uses
-  Windows, Messages, SysUtils,
-  Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls,
-  ComCtrls, gf_misc, gf_files,
-  kn_Info, kn_NoteObj, kn_FileObj,
-  kn_Const, ExtCtrls, Placemnt,
-  ShellAPI, Mask, ToolEdit, TntStdCtrls, TntDialogs, TB97Ctls;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.ShellAPI,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ComCtrls,
+   Vcl.ExtCtrls,
+   Vcl.Mask,
+   RxPlacemnt,
+   TB97Ctls,
+   ZLibEx,
+   gf_misc,
+   gf_files,
+   kn_Info,
+   kn_Const,
+   kn_NoteObj,
+   kn_FileObj;
+
 
 type
   TForm_FileInfo = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
     Pages: TPageControl;
     Tab_Main: TTabSheet;
-    GroupBox1: TTntGroupBox;
-    Label1: TTntLabel;
-    Label2: TTntLabel;
-    Label3: TTntLabel;
-    Label4: TTntLabel;
-    Label_Created: TTntLabel;
-    Label_Modified: TTntLabel;
-    Label5: TTntLabel;
-    Label_Count: TTntLabel;
-    Edit_Comment: TTntEdit;
-    Label7: TTntLabel;
-    Label_FileSize: TTntLabel;
-    Label11: TTntLabel;
-    Label12: TTntLabel;
-    Label_FileNotFound: TTntLabel;
-    Label6: TTntLabel;
-    Edit_Description: TTntEdit;
-    Label8: TTntLabel;
-    Combo_Format: TTntComboBox;
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label_Created: TLabel;
+    Label_Modified: TLabel;
+    Label5: TLabel;
+    Label_Count: TLabel;
+    Edit_Comment: TEdit;
+    Label7: TLabel;
+    Label_FileSize: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label_FileNotFound: TLabel;
+    Label6: TLabel;
+    Edit_Description: TEdit;
+    Label8: TLabel;
+    Combo_Format: TComboBox;
     Bevel2: TBevel;
     Tab_Pass: TTabSheet;
-    GroupBox2: TTntGroupBox;
-    Label_Confirm: TTntLabel;
-    Label_Pass: TTntLabel;
-    Label_Method: TTntLabel;
-    Edit_Confirm: TTntEdit;
-    Edit_Pass: TTntEdit;
-    Combo_Method: TTntComboBox;
-    Button_SetPass: TTntButton;
-    Label_EnterPass: TTntLabel;
+    GroupBox2: TGroupBox;
+    Label_Confirm: TLabel;
+    Label_Pass: TLabel;
+    Label_Method: TLabel;
+    Edit_Confirm: TEdit;
+    Edit_Pass: TEdit;
+    Combo_Method: TComboBox;
+    Button_SetPass: TButton;
+    Label_EnterPass: TLabel;
     Tab_Settings: TTabSheet;
-    GroupBox3: TTntGroupBox;
+    GroupBox3: TGroupBox;
     Bevel1: TBevel;
-    CB_AsReadOnly: TTntCheckBox;
-    Label_IsReadOnly: TTntLabel;
+    CB_AsReadOnly: TCheckBox;
     FormPlacement: TFormPlacement;
-    CB_HidePass: TTntCheckBox;
-    Edit_FileName: TTntEdit;
+    CB_HidePass: TCheckBox;
+    Edit_FileName: TEdit;
     Tab_Icons: TTabSheet;
-    GroupBox4: TTntGroupBox;
-    CB_ShowTabIcons: TTntCheckBox;
-    CB_TrayIcon: TTntCheckBox;
+    GroupBox4: TGroupBox;
+    CB_ShowTabIcons: TCheckBox;
+    CB_TrayIcon: TCheckBox;
     Image_TrayIcon: TImage;
     Bevel3: TBevel;
-    RB_TabImgDefault: TTntRadioButton;
-    RB_TabImgBuiltIn: TTntRadioButton;
-    RB_TabImgOther: TTntRadioButton;
-    Button_System: TTntButton;
-    Button_Help: TTntButton;
-    LB_RTF3: TTntLabel;
-    CB_NoMultiBackup: TTntCheckBox;
+    RB_TabImgDefault: TRadioButton;
+    RB_TabImgBuiltIn: TRadioButton;
+    RB_TabImgOther: TRadioButton;
+    Button_System: TButton;
+    Button_Help: TButton;
+    LB_RTF3: TLabel;
+    CB_NoMultiBackup: TCheckBox;
     TB_OpenDlgTrayIcon: TToolbarButton97;
-    Edit_TrayIcon: TTntEdit;
+    Edit_TrayIcon: TEdit;
     TB_OpenDlgTabImg: TToolbarButton97;
-    Edit_TabImg: TTntEdit;
-    TntLabel1: TTntLabel;
-    Combo_CompressLevel: TTntComboBox;
+    Edit_TabImg: TEdit;
+    Label9: TLabel;
+    Combo_CompressLevel: TComboBox;
     Bevel4: TBevel;
+    Label_IsReadOnly: TLabel;
     procedure TB_OpenDlgTrayIconClick(Sender: TObject);
     procedure TB_OpenDlgTabImgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -129,7 +145,8 @@ const
   _FILE_TABIMAGES_SELECTION_CHANGED : boolean = false;
 
 implementation
-uses kn_main, gf_miscvcl, TntClasses, TntSysUtils, ZLibEx;
+uses
+   kn_main;
 
 {$R *.DFM}
 
@@ -201,21 +218,21 @@ begin
   if assigned( myNotes ) then
   begin
     // TAB_MAIN
-    Caption := STR_02 + WideExtractFilename( myNotes.FileName );
+    Caption := STR_02 + ExtractFilename( myNotes.FileName );
     Edit_FileName.Text := myNotes.FileName;
     Label_Count.Caption := inttostr( myNotes.NoteCount );
     Edit_Comment.Text := myNotes.Comment;
     Edit_Description.Text := myNotes.Description;
-    label_Created.Caption := FormatDateTime( LongDateFormat + #32 + LongTimeFormat, myNotes.DateCreated );
+    label_Created.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, myNotes.DateCreated );
     Combo_Format.ItemIndex := ord( myNotes.FileFormat );
-    if WideFileexists( myNotes.FileName ) then
+    if Fileexists( myNotes.FileName ) then
     begin
       fs := GetFileSize( myNotes.FileName );
       if ( fs < 1025 ) then
         Label_FileSize.Caption := inttostr( fs ) + STR_03
       else
         Label_FileSize.Caption := inttostr( fs DIV 1024 ) + ' Kb';
-      label_Modified.Caption := FormatDateTime( LongDateFormat + #32 + LongTimeFormat, GetFileDateStamp( myNotes.FileName ));
+      label_Modified.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, GetFileDateStamp( myNotes.FileName ));
       if myNotes.SavedWithRichEdit3 then
       begin
         // LB_RTF3.Font.Color := clRed;
@@ -229,7 +246,7 @@ begin
       Label_FileNotFound.Visible := true;
       label_Modified.Caption := STR_05;
     end;
-    CB_AsReadOnly.Caption := WideFormat( STR_06, [WideExtractFilename( myNotes.FileName )] );
+    CB_AsReadOnly.Caption := Format( STR_06, [ExtractFilename( myNotes.FileName )] );
     CB_AsReadOnly.Checked := ( myNotes.OpenAsReadOnly or myNotes.ReadOnly );
     Label_IsReadOnly.Visible := myNotes.ReadOnly;
     CB_NoMultiBackup.Checked := myNotes.NoMultiBackup;
@@ -327,6 +344,7 @@ var
 begin
   result := true;
 
+{$IFDEF WITH_DART}
   if (( Combo_Format.ItemIndex = ord( nffDartNotes )) and myNotes.HasExtendedNotes ) then
   begin
     case messagedlg(STR_08, mtWarning, [mbOK,mbCancel], 0 ) of
@@ -337,7 +355,7 @@ begin
       end;
     end;
   end;
-
+{$ENDIF}
 
 
   if ( not ( PassphraseChanged and ( Combo_Format.ItemIndex = ord( nffEncrypted )))) then exit;
@@ -410,7 +428,11 @@ end; // KEY DOWN
 
 procedure TForm_FileInfo.Combo_FormatChange(Sender: TObject);
 begin
+{$IFDEF WITH_DART}
   Edit_Description.Enabled := Combo_Format.ItemIndex <> ord( nffDartNotes );
+{$ELSE}
+  Edit_Description.Enabled := True;
+{$ENDIF}
   Edit_Comment.Enabled := Edit_Description.Enabled;
   Combo_CompressLevel.Enabled := Combo_Format.ItemIndex = ord( nffKeyNoteZip );
   if not Combo_CompressLevel.Enabled then
@@ -453,7 +475,7 @@ begin
   begin
     if (( not CB_AsReadOnly.Checked ) and myNotes.ReadOnly ) then
     begin
-      if ( DoMessageBox( WideFormat(STR_12,[WideExtractFilename( myNotes.FileName )]), mtWarning, [mbYes,mbNo], 0, Self.Handle ) = mrYes ) then
+      if ( DoMessageBox( Format(STR_12,[ExtractFilename( myNotes.FileName )]), mtWarning, [mbYes,mbNo], 0, Self.Handle ) = mrYes ) then
         CB_AsReadOnly.OnClick := nil
       else
         CB_AsReadOnly.Checked := true;
@@ -544,7 +566,7 @@ var
 begin
   FillChar(sei,sizeof(sei),0);
   sei.cbSize := sizeof(sei);
-  sei.lpFile := PWideChar(myNotes.FileName);
+  sei.lpFile := PChar(myNotes.FileName);
   sei.lpVerb := 'properties';
   sei.fMask  := SEE_MASK_INVOKEIDLIST;
   ShellExecuteExW(@sei);

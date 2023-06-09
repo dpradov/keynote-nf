@@ -58,7 +58,14 @@
 {------------------------------------------------------------------------------}
 { Date last modified:  September 13, 1999                                      }
 {------------------------------------------------------------------------------}
+(* + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+  
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf   
+ *********************************************************************************)
 
+ 
 {$IFDEF DFS_COMPILER_3_UP}
 {$WEAKPACKAGEUNIT ON} { Allow unit to exist in multiple packages }
 {$ENDIF}
@@ -68,7 +75,12 @@ unit dfsAbout;
 interface
 
 uses
-  DsgnIntf;
+{$IFDEF DFS_NO_DSGNINTF}     // [dpv]
+    DesignIntf,
+    DesignEditors;
+{$ELSE}
+    DsgnIntf;
+{$ENDIF}
 
 type
   TdfsVersionProperty = class(TStringProperty)

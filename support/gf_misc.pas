@@ -1,27 +1,35 @@
 unit gf_misc;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 {$I gf_base.inc}
 
 interface
-uses Classes, SysUtils,
-     Graphics, Registry,
-     Windows,  ShellAPI,
-     Messages;
+uses
+   Winapi.Windows,
+   Winapi.ShellAPI,
+   Winapi.Messages,
+   System.Win.Registry,
+   System.Classes,
+   System.SysUtils,
+   System.DateUtils,
+   System.StrUtils,
+   Vcl.Graphics;
+
+
 
 resourcestring
   STR_minute = 'minute';
@@ -163,16 +171,16 @@ function GetTimeZone( var offset, mode : longint ) : boolean;
 Function TimeDeltaInMinutes( const StartDate, EndDate   : TDateTime): Double;
 Function TimeDeltaInSeconds( const StartDate, EndDate : TDateTime): Double;
 function DateTimeDiff(Start, Stop : TDateTime) : int64;
-function GetTimeIntervalStr(Start, Stop : TDateTime): wideString;
-function IncStrInterval (StartDate: TDateTime; const Interval: wideString; increment: boolean= true): TDateTime;
-function TimeRevised(time: wideString): WideString;
-function NormalFN( const fn : wideString ) : wideString;
-function RelativeFN( FN : wideString ) : wideString;
-function ProperFolderName( folder : wideString ) : wideString;
-function BareFileName( const FN : wideString ) : wideString;
-function SlashlessFolderName( const folder : wideString ) : WideString;
-function ProperFileName( const FN, folder : wideString ) : wideString;
-function AbsoluteFileName( const FN : wideString ) : wideString;
+function GetTimeIntervalStr(Start, Stop : TDateTime): string;
+function IncStrInterval (StartDate: TDateTime; const Interval: string; increment: boolean= true): TDateTime;
+function TimeRevised(time: string): string;
+function NormalFN( const fn : string ) : string;
+function RelativeFN( FN : string ) : string;
+function ProperFolderName( folder : string ) : string;
+function BareFileName( const FN : string ) : string;
+function SlashlessFolderName( const folder : string ) : string;
+function ProperFileName( const FN, folder : string ) : string;
+function AbsoluteFileName( const FN : string ) : string;
 function BoolToStr( const b : boolean ) : string;
 function CompareMem( I1, I2: PByte; Size: integer ): boolean;
 function DialogFilter( const aName, aMask : string ) : string;
@@ -208,7 +216,6 @@ var
   _OSIsWindowsNT : boolean;
 
 implementation
-uses TntSysUtils, WideStrUtils, DateUtils;
 
 const
   TIME_ZONE_ID_UNKNOWN  = 0;
@@ -533,19 +540,19 @@ begin
   result := font.fname + #32 + inttostr( font.fsize ) + ' pt ' + FontStyleToStr( font.fstyle );
 end; // FontPropertiesToStr
 
-function BareFileName( const FN : wideString ) : wideString;
+function BareFileName( const FN : string ) : string;
 var
   p : integer;
 begin
-  result := WideExtractFilename( FN );
+  result := ExtractFilename( FN );
   p := lastpos( '.', result );
   if ( p > 0 ) then
     delete( result, p, length( result ));
 end; // BareFileName
 
-function ProperFolderName( folder : wideString ) : wideString;
+function ProperFolderName( folder : string ) : string;
 begin
-  folder := widelowercase( trim( folder ));
+  folder := AnsiLowerCase( trim( folder ));
   if ( folder <> '' ) then
   begin
     if ( folder[length( folder )] <> '\' ) then
@@ -554,7 +561,7 @@ begin
   result := folder;
 end; // ProperFolderName
 
-function SlashlessFolderName( const folder : wideString ) : wideString;
+function SlashlessFolderName( const folder : string ) : string;
 var
   l : integer;
 begin
@@ -567,7 +574,7 @@ begin
   end;
 end; // SlashlessFolderName
 
-function ProperFileName( const FN, folder : wideString ) : wideString;
+function ProperFileName( const FN, folder : string ) : string;
 begin
   if ( fn = '' ) then
   begin
@@ -728,7 +735,7 @@ begin
 end;
 
 
-function NormalFN( const fn : wideString ) : wideString;
+function NormalFN( const fn : string ) : string;
 begin
   result := FN;
   if ( result <> '' ) then
@@ -750,19 +757,21 @@ begin
   //result := ansilowercase( result );
 end; // NormalFN
 
-function RelativeFN( FN : wideString ) : wideString;
+
+function RelativeFN( FN : string ) : string;
 begin
   // given a full path and filename, returns only the
   // filename part IF the path is the same as the application's
   // own directory (ie the file lives where the program does)
   FN := NormalFN( FN );
-  if ( extractfilepath( FN ) = widelowercase( extractfilepath( ParamStr( 0 )))) then   //**** extractFilepath (sysUtils) -> string
-    result := WideExtractFilename( FN )
+  if ( ExtractFilepath( FN ) = AnsiLowercase( extractfilepath( ParamStr( 0 )))) then
+    result := ExtractFilename( FN )
   else
     result := FN;
 end; // relativeFN
 
-function AbsoluteFileName( const FN : wideString ) : wideString;
+
+function AbsoluteFileName( const FN : string ) : string;
 begin
   if ( FN = '' ) then
   begin
@@ -774,6 +783,7 @@ begin
   else
     result := normalFN( FN );
 end; // AbsoluteFileName
+
 
 function BoolToStr( const b : boolean ) : string;
 begin
@@ -800,6 +810,7 @@ begin
     Dec(Size);
   until Size= 0;
 end; // CompareMem
+
 
 function DialogFilter( const aName, aMask : string ) : string;
 begin
@@ -862,6 +873,7 @@ begin
   end;
 end; // FontPropertiesToFont
 
+
 procedure FontToFontProperties( const aFont : TFont; var fp : TFontProperties );
 begin
   with aFont do begin
@@ -890,6 +902,7 @@ begin
     sizeof(Buffer));
   result := Buffer;
 end; // LongToShortFileName
+
 
 function DateTimeToFileName( const DT : TDateTime ) : string;
 var
@@ -935,12 +948,13 @@ begin
     exit;
   end;
   for i := 1 to length( w ) do
-    if not IsCharAlphaA( w[i] ) then
+    if not IsCharAlpha( w[i] ) then
     begin
       result := false;
       break;
     end;
 end; // IsWord
+
 
 function LocalHostName : string;
 var
@@ -954,6 +968,7 @@ begin
     result := 'localhost';
 
 end; // LocalHostName
+
 
 function MakePercentage( const Step, Max : Longint ) : Longint;
 begin
@@ -1030,6 +1045,7 @@ begin
   end;
 end; // IsIE4Installed
 
+
 function TranslateShellExecuteError( const ErrCode : integer ) : string;
 begin
   case ErrCode of
@@ -1052,6 +1068,7 @@ begin
       result := STR_UNKNOWN_ERROR;
   end;
 end; // TranslateShellExecuteError
+
 
 function GenerateRandomPassphrase(
     const UseTemplate : boolean;
@@ -1165,6 +1182,7 @@ begin
   end;
 end; // GenerateRandomPassphrase
 
+
 function WindowsErrorString : string;
 var
   err : DWORD;
@@ -1190,6 +1208,7 @@ begin
 
 end; // RunsOnWindowsNT
 
+
 function DecToRoman( Decimal: Longint): string;
 // Author: Thomas Stutz <tom@swissdelphicenter.ch>
 // Decimal must be 0..3999
@@ -1211,6 +1230,7 @@ begin
       Result  := Result + Romans[i];
     end;
 end;
+
 
 function RomanToDec( const S : string ) : longint;
 const Chars = 'IVXLCDMvxlcdm?!' ;
@@ -1259,25 +1279,25 @@ var
 begin
   for i := 1 to 7 do
   begin
-    oldShortDayNames[i] := ShortDayNames[i];
-    oldLongDaynames[i] := LongDaynames[i];
+    oldShortDayNames[i] := FormatSettings.ShortDayNames[i];
+    oldLongDaynames[i] := FormatSettings.LongDaynames[i];
   end;
   for i := 1 to 12 do
   begin
-    oldShortMonthNames[i] := ShortMonthNames[i];
-    oldLongMonthNames[i] := LongMonthNames[i];
+    oldShortMonthNames[i] := FormatSettings.ShortMonthNames[i];
+    oldLongMonthNames[i] := FormatSettings.LongMonthNames[i];
   end;
 
   try
     for i := 1 to 7 do
     begin
-      ShortDayNames[i] := WeekDaysShort[i];
-      LongDaynames[i] := WeekDaysLong[i];
+      FormatSettings.ShortDayNames[i] := WeekDaysShort[i];
+      FormatSettings.LongDaynames[i] := WeekDaysLong[i];
     end;
     for i := 1 to 12 do
     begin
-      ShortMonthNames[i] := MonthsShort[i];
-      LongMonthNames[i] := MonthsLong[i];
+      FormatSettings.ShortMonthNames[i] := MonthsShort[i];
+      FormatSettings.LongMonthNames[i] := MonthsLong[i];
     end;
 
     result := FormatDateTime( AFormat, ADateTime );
@@ -1285,13 +1305,13 @@ begin
   finally
     for i := 1 to 7 do
     begin
-      ShortDayNames[i] := oldShortDayNames[i];
-      LongDaynames[i] := oldLongDaynames[i];
+      FormatSettings.ShortDayNames[i] := oldShortDayNames[i];
+      FormatSettings.LongDaynames[i] := oldLongDaynames[i];
     end;
     for i := 1 to 12 do
     begin
-      ShortMonthNames[i] := oldShortMonthNames[i];
-      LongMonthNames[i] := oldLongMonthNames[i];
+      FormatSettings.ShortMonthNames[i] := oldShortMonthNames[i];
+      FormatSettings.LongMonthNames[i] := oldLongMonthNames[i];
     end;
   end;
 
@@ -1300,11 +1320,11 @@ end; // FormatDateTimeEnglish
 
 // Returns a string with the time interval between Reference and Alarm (on the form: "2 minutes", "4 hours", etc)
 //
-function GetTimeIntervalStr(Start, Stop : TDateTime): wideString;
+function GetTimeIntervalStr(Start, Stop : TDateTime): string;
 var
   secondsDiff: int64;
   n: Extended;
-  units: wideString;
+  units: string;
 begin
     secondsDiff:= DateTimeDiff(Start, Stop);
 
@@ -1330,7 +1350,7 @@ begin
        end;
 
 
-    Result:= WideFormat('%g %s', [RoundTo(n,1), units]);
+    Result:= Format('%g %s', [RoundTo(n,1), units]);
 end;  // GetTimeIntervalStr
 
 (*
@@ -1339,10 +1359,10 @@ Intervals like "2m", "4hours" "4 ho", ... are also understood
 StartDate will be incremented or decremented by interval depending on the parameter "increment"
 The numbers can contain decimals
 *)
-function IncStrInterval (StartDate: TDateTime; const Interval: wideString; increment: boolean= true): TDateTime;
+function IncStrInterval (StartDate: TDateTime; const Interval: string; increment: boolean= true): TDateTime;
 var
    i, lenS: integer;
-   s: wideString;
+   s: string;
    n: Extended;
    afterBefore: integer;
    separatorToReplace: string;
@@ -1356,15 +1376,15 @@ begin
    s:= Trim(Interval);
    if s <> '0' then begin
        i:= 1;
-       while (i <= length(s)) and (WStrScan(partsOfNumbers, s[i]) <> nil)
+       while (i <= length(s)) and (StrScan(partsOfNumbers, s[i]) <> nil)
        do Inc(i);
 
        try
-           if DecimalSeparator = ',' then separatorToReplace:= '.' else separatorToReplace:= ',';
+           if FormatSettings.DecimalSeparator = ',' then separatorToReplace:= '.' else separatorToReplace:= ',';
 
-           n:= StrToFloat(WideReplaceStr(Copy(s, 1, i-1), separatorToReplace, DecimalSeparator));
+           n:= StrToFloat(ReplaceStr(Copy(s, 1, i-1), separatorToReplace, FormatSettings.DecimalSeparator));
 
-           s:= WideLowerCase(Trim(copy(s,i,length(s))));
+           s:= AnsiLowerCase(Trim(copy(s,i,length(s))));
            lenS:= length(s);
            if copy(STR_minutes,1,lenS) = s then
               secondsToInc:= Round(60*n)
@@ -1391,6 +1411,7 @@ begin
    end;
 end;     // IncStrInterval
 
+
 (*
  Returns an interpreted, clean, version from the intput time, if it's possible
  If it isn't the returns the same value
@@ -1400,7 +1421,7 @@ end;     // IncStrInterval
     "15-21" --> "15:21"
     and so on
 *)
-function TimeRevised(time: wideString): WideString;
+function TimeRevised(time: string): string;
 var
    s: string;
    i: integer;
@@ -1409,7 +1430,7 @@ begin
         s:= '';
         i:= 1;
         while (i <= length(time)) do begin
-           if WStrScan(digitsNumbers, time[i]) <> nil then
+           if StrScan(digitsNumbers, time[i]) <> nil then
               s:= s + time[i];
            Inc(i);
         end;

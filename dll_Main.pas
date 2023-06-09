@@ -16,11 +16,19 @@ unit dll_Main;
  *****************************************************************************) 
 
 interface
-uses Windows, Forms, Classes, SysUtils, Controls, Dialogs,
-   OleServer, WordXP, Variants,
+uses
+   Winapi.Windows,
+   System.Classes,
+   System.SysUtils,
+   System.Variants,
+   Vcl.Forms,
+   Vcl.Controls,
+   Vcl.Dialogs,
+   Vcl.OleServer,
+   WordXP,
    MSOfficeConverters,
-   gf_files, kn_const,
-   kn_DLLInterface, dll_KBD, dll_Keyboard;
+   dll_KBD,
+   dll_Keyboard;
 
 
 function DlgCustomizeKeyboard(
@@ -37,14 +45,16 @@ function DlgCustomizeKeyboard(
   KBD_FN : PChar;
   KeyList : TList;
   ActivationHotkey : TShortCut ) : boolean;
+
 var
   Form_KBD: TForm_KBD;
 
 begin
   result := false;
 
-  if ( AppHandle = 0 ) then
-    AppHandle := GetActiveWindow;
+  if (AppHandle = 0) then
+      AppHandle := GetActiveWindow;
+
   Application.Handle := AppHandle;
 
   Application.Helpfile := changefileext( application.exename, '.hlp' );
@@ -56,18 +66,16 @@ begin
 
       Form_KBD.myKeyList := KeyList;
       Form_KBD.myKBD_FN := KBD_FN;
-      if ( Form_KBD.ShowModal = mrOK ) then
-      begin
-        result := true;
-        SaveKeyboardList( KBD_FN, KeyList );
+      if ( Form_KBD.ShowModal = mrOK ) then  begin
+         result := true;
+         SaveKeyboardList( KBD_FN, KeyList );
       end;
 
     except
       on E : Exception do
-      begin
         messagedlg( 'Error in keyboard customization procedure: ' + E.Message, mtError, [mbOK], 0 );
-      end;
     end;
+
   finally
     Application.Handle := 0;
     Form_KBD.Free;

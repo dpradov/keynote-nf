@@ -13,16 +13,14 @@ object Form_Mail: TForm_Mail
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Label_Status: TTntLabel
+  object Label_Status: TLabel
     Left = 18
     Top = 261
     Width = 48
@@ -35,7 +33,7 @@ object Form_Mail: TForm_Mail
     Font.Style = [fsBold]
     ParentFont = False
   end
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 13
     Top = 281
     Width = 108
@@ -46,7 +44,7 @@ object Form_Mail: TForm_Mail
     TabOrder = 0
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 130
     Top = 281
     Width = 108
@@ -65,14 +63,14 @@ object Form_Mail: TForm_Mail
     TabOrder = 2
     object Tab_Send: TTabSheet
       Caption = 'Message settings'
-      object GroupBox_Source: TTntGroupBox
+      object GroupBox_Source: TGroupBox
         Left = 5
         Top = 0
         Width = 252
         Height = 109
         Caption = ' What to send? '
         TabOrder = 0
-        object RB_Current: TTntRadioButton
+        object RB_Current: TRadioButton
           Left = 15
           Top = 20
           Width = 228
@@ -83,7 +81,7 @@ object Form_Mail: TForm_Mail
           TabOrder = 0
           TabStop = True
         end
-        object RB_All: TTntRadioButton
+        object RB_All: TRadioButton
           Left = 15
           Top = 40
           Width = 228
@@ -92,7 +90,7 @@ object Form_Mail: TForm_Mail
           Caption = '&All notes'
           TabOrder = 1
         end
-        object RB_File: TTntRadioButton
+        object RB_File: TRadioButton
           Left = 15
           Top = 60
           Width = 228
@@ -101,7 +99,7 @@ object Form_Mail: TForm_Mail
           Caption = '&Whole file (recipient must have KeyNote)'
           TabOrder = 2
         end
-        object CheckBox_ExcludeHiddenNodes: TTntCheckBox
+        object CheckBox_ExcludeHiddenNodes: TCheckBox
           Left = 15
           Top = 83
           Width = 228
@@ -111,14 +109,14 @@ object Form_Mail: TForm_Mail
           TabOrder = 3
         end
       end
-      object GroupBox1: TTntGroupBox
+      object GroupBox1: TGroupBox
         Left = 264
         Top = 0
         Width = 217
         Height = 109
         Caption = ' Format '
         TabOrder = 1
-        object Label7: TTntLabel
+        object Label7: TLabel
           Left = 10
           Top = 70
           Width = 63
@@ -128,7 +126,7 @@ object Form_Mail: TForm_Mail
           Caption = 'C&odepage:'
           FocusControl = Combo_Charset
         end
-        object RB_PlainText: TTntRadioButton
+        object RB_PlainText: TRadioButton
           Left = 10
           Top = 20
           Width = 191
@@ -139,7 +137,7 @@ object Form_Mail: TForm_Mail
           TabOrder = 0
           TabStop = True
         end
-        object RB_RTF: TTntRadioButton
+        object RB_RTF: TRadioButton
           Left = 10
           Top = 40
           Width = 191
@@ -148,13 +146,12 @@ object Form_Mail: TForm_Mail
           Caption = 'As &RTF (attachment)'
           TabOrder = 1
         end
-        object Combo_Charset: TTntComboBox
+        object Combo_Charset: TComboBox
           Left = 78
           Top = 65
           Width = 126
           Height = 21
           Hint = 'Codepage (KeyNote performs NO conversion)'
-          ItemHeight = 13
           TabOrder = 2
           Items.Strings = (
             'ISO-8859-1'
@@ -166,14 +163,14 @@ object Form_Mail: TForm_Mail
             'Windows-1253')
         end
       end
-      object GroupBox2: TTntGroupBox
+      object GroupBox2: TGroupBox
         Left = 3
         Top = 115
         Width = 476
         Height = 101
         Caption = ' Message information '
         TabOrder = 2
-        object Label1: TTntLabel
+        object Label1: TLabel
           Left = 15
           Top = 25
           Width = 53
@@ -182,7 +179,7 @@ object Form_Mail: TForm_Mail
           Caption = '&To:'
           FocusControl = Combo_TO
         end
-        object Label2: TTntLabel
+        object Label2: TLabel
           Left = 15
           Top = 75
           Width = 53
@@ -191,7 +188,7 @@ object Form_Mail: TForm_Mail
           Caption = '&Subject:'
           FocusControl = Edit_Subject
         end
-        object Label3: TTntLabel
+        object Label3: TLabel
           Left = 15
           Top = 50
           Width = 53
@@ -200,16 +197,15 @@ object Form_Mail: TForm_Mail
           Caption = '&Cc:'
           FocusControl = Combo_CC
         end
-        object Combo_TO: TTntComboBox
+        object Combo_TO: TComboBox
           Left = 72
           Top = 20
           Width = 389
           Height = 21
           Hint = 'Enter recipient'#39's address, or select from list'
-          ItemHeight = 13
           TabOrder = 0
         end
-        object Edit_Subject: TTntEdit
+        object Edit_Subject: TEdit
           Left = 72
           Top = 70
           Width = 389
@@ -217,30 +213,25 @@ object Form_Mail: TForm_Mail
           Hint = 'Enter the Subject line for the mail message'
           TabOrder = 2
         end
-        object Combo_CC: TTntComboBox
+        object Combo_CC: TComboBox
           Left = 72
           Top = 45
           Width = 389
           Height = 21
           Hint = 'Enter additional address(es), or select from list'
-          ItemHeight = 13
           TabOrder = 1
         end
       end
     end
     object Tab_SMTP: TTabSheet
       Caption = 'SMTP server settings'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object GroupBox3: TTntGroupBox
+      object GroupBox3: TGroupBox
         Left = 5
         Top = 0
         Width = 476
         Height = 196
         TabOrder = 0
-        object Label4: TTntLabel
+        object Label4: TLabel
           Left = 15
           Top = 20
           Width = 65
@@ -248,7 +239,7 @@ object Form_Mail: TForm_Mail
           Caption = '&SMTP server:'
           FocusControl = Edit_SMTPServer
         end
-        object Label5: TTntLabel
+        object Label5: TLabel
           Left = 355
           Top = 20
           Width = 22
@@ -256,7 +247,7 @@ object Form_Mail: TForm_Mail
           Caption = '&Port:'
           FocusControl = Edit_Port
         end
-        object Label6: TTntLabel
+        object Label6: TLabel
           Left = 15
           Top = 70
           Width = 122
@@ -264,7 +255,7 @@ object Form_Mail: TForm_Mail
           Caption = '&From (your email address):'
           FocusControl = Edit_From
         end
-        object Label8: TTntLabel
+        object Label8: TLabel
           Left = 15
           Top = 115
           Width = 124
@@ -272,7 +263,7 @@ object Form_Mail: TForm_Mail
           Caption = '&Text to place before notes'
           FocusControl = Edit_FirstLine
         end
-        object Edit_SMTPServer: TTntEdit
+        object Edit_SMTPServer: TEdit
           Left = 15
           Top = 35
           Width = 306
@@ -281,7 +272,7 @@ object Form_Mail: TForm_Mail
           MaxLength = 127
           TabOrder = 0
         end
-        object Edit_Port: TTntEdit
+        object Edit_Port: TEdit
           Left = 355
           Top = 35
           Width = 51
@@ -290,7 +281,7 @@ object Form_Mail: TForm_Mail
           MaxLength = 5
           TabOrder = 1
         end
-        object Edit_From: TTntEdit
+        object Edit_From: TEdit
           Left = 15
           Top = 85
           Width = 306
@@ -299,7 +290,7 @@ object Form_Mail: TForm_Mail
           MaxLength = 127
           TabOrder = 2
         end
-        object CheckBox_Log: TTntCheckBox
+        object CheckBox_Log: TCheckBox
           Left = 15
           Top = 165
           Width = 306
@@ -308,7 +299,7 @@ object Form_Mail: TForm_Mail
           Caption = '&Log exchange with SMTP server'
           TabOrder = 4
         end
-        object Edit_FirstLine: TTntEdit
+        object Edit_FirstLine: TEdit
           Left = 15
           Top = 130
           Width = 306
@@ -320,7 +311,7 @@ object Form_Mail: TForm_Mail
       end
     end
   end
-  object Button_Help: TTntButton
+  object Button_Help: TButton
     Left = 391
     Top = 281
     Width = 108
@@ -331,15 +322,31 @@ object Form_Mail: TForm_Mail
   end
   object SmtpCli: TSmtpCli
     Tag = 0
+    ShareMode = smtpShareDenyWrite
     LocalAddr = '0.0.0.0'
+    LocalAddr6 = '::'
     Port = 'smtp'
     AuthType = smtpAuthNone
+    ConfirmReceipt = False
+    HdrPriority = smtpPriorityNone
     CharSet = 'iso-8859-1'
+    ConvertToCharset = True
+    WrapMsgMaxLineLen = 76
+    SendMode = smtpToSocket
+    DefaultEncoding = smtpEnc7bit
+    Allow8bitChars = True
+    FoldHeaders = False
+    WrapMessageText = False
     ContentType = smtpPlainText
     OwnHeaders = False
     OnDisplay = SmtpCliDisplay
     OnHeaderLine = SmtpCliHeaderLine
     OnRequestDone = SmtpCliRequestDone
+    XMailer = 'ICS SMTP Component V%VER%'
+    ProxyType = smtpNoProxy
+    ProxyHttpAuthType = htatDetect
+    SocketFamily = sfIPv4
+    SocketErrs = wsErrTech
     Left = 437
     Top = 260
   end

@@ -12,7 +12,15 @@ unit UAS;
 
 
 interface
-uses Forms,StrUtils,SysUtils,Windows,Dialogs,Messages,ShellAPI,Registry;
+uses
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.ShellAPI,
+   System.Win.Registry,
+   System.StrUtils,
+   System.SysUtils,
+   Vcl.Forms,
+   Vcl.Dialogs;
 
 function GetUASPath:string;
 function GetAppPath:string;

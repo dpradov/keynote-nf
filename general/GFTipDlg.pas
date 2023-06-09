@@ -20,8 +20,14 @@ unit GFTipDlg;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs;
 
 type
   TDlgShowPos = ( posScreenCenter, posFormCenter );
@@ -69,7 +75,8 @@ procedure Register;
 
 implementation
 
-uses GFTipDlgForm;
+uses
+   GFTipDlgForm;
 
 resourcestring
   STR_01  = 'Tip of the day';

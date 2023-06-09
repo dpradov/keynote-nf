@@ -18,7 +18,14 @@ unit FreeWordWeb;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs;
 
 Type TShowModalWordWeb = function(InP,OutP:PChar;CloseOnCopy:WordBool;AParent:Integer):WordBool;stdcall;
 

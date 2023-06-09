@@ -1,34 +1,72 @@
 unit kn_MacroMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
-Uses Classes,
-     RichEdit,
-     kn_Macro, kn_Const, kn_Cmd, kn_Info, kn_NoteObj;
+uses
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.RichEdit,
+   System.Classes,
+   System.SysUtils,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.Graphics,
+   Vcl.StdCtrls,
+   Vcl.Controls,
+   Vcl.Clipbrd,
+
+   TreeNT,
+   RxRichEd,
+   RxStrUtils,
+
+   gf_miscvcl,
+   gf_strings,
+   gf_misc,
+   kn_Const,
+   kn_Cmd,
+   kn_Info,
+   kn_NoteObj,
+   kn_NodeList,
+   kn_NoteMng,
+   kn_TreeNoteMng,
+   kn_NoteFileMng,
+   kn_DateTime,
+   kn_LanguageSel,
+   kn_Paragraph,
+   kn_FavoritesMng,
+   kn_BookmarksMng,
+   kn_EditorUtils,
+   kn_clipUtils,
+   kn_Macro,
+   kn_MacroCmd,
+   kn_MacroCmdSelect,
+   kn_MacroEdit;
+
+
 
 var
-    StartupMacroFile : wideString; // macro to be autorun on program startup
-    StartupPluginFile : wideString; // plugin to be autorun on program startup
+    StartupMacroFile : string; // macro to be autorun on program startup
+    StartupPluginFile : string; // plugin to be autorun on program startup
     IsRecordingMacro : boolean;
     IsRunningMacro : boolean;
     MacroAbortRequest : boolean;
 
-    LastMacroFN : wideString;
+    LastMacroFN : string;
     LastEditCmd : TEditCmd; // last ecXXX command issued
 
     CommandRecall : TCommandRecall; // record that keeps parameters for last ecXXX command
@@ -46,7 +84,7 @@ var
     procedure EnumerateMacros;
     procedure EditMacro( const AsNew  : boolean );
     procedure DeleteMacro;
-    procedure ExecuteMacro( aFileName, aMacroName : wideString );
+    procedure ExecuteMacro( aFileName, aMacroName : string );
     procedure PlayMacro( const Macro : TMacro );
     procedure RecordMacro;
     procedure PauseRecordingMacro;
@@ -54,7 +92,7 @@ var
     procedure AddMacroKeyPress( const Key : Word; const Shift : TShiftState );
     procedure AddMacroEditCommand( aCmd : TEditCmd );
     function GetCurrentMacro( const DoWarn : boolean ) : TMacro;
-    function GetMacroByName( const aName : wideString; const DoWarn : boolean ) : TMacro;
+    function GetMacroByName( const aName : string; const DoWarn : boolean ) : TMacro;
     procedure ExecuteMacroFile;
     procedure AddUserMacroCommand;
     function MacroProcess( const DoWarn : boolean ) : boolean;
@@ -63,7 +101,7 @@ var
     // edit commands
     procedure PerformCmd( aCmd : TEditCmd );
     procedure PerformCmdEx( aCmd : TEditCmd );
-    procedure PerformCmdPastePlain( Note: TTabNote; StrClp: WideString = ''; HTMLClip: WideString= ''; ForcePlainText: boolean = false);
+    procedure PerformCmdPastePlain( Note: TTabNote; StrClp: string = ''; HTMLClip: AnsiString= ''; ForcePlainText: boolean = false);
     procedure RepeatLastCommand;
     procedure UpdateLastCommand( const aCMD : TEditCmd );
     procedure PerformCustomFuncKey( const Key : Word; const Shift : TShiftState ); // OBSOLETE
@@ -76,14 +114,15 @@ var
 
 implementation
 
-uses Windows, Messages, SysUtils, Forms, Dialogs, Graphics, StdCtrls, Controls, kn_clipUtils,
-     TreeNT, RxStrUtils, RxRichEd,
-     gf_miscvcl, gf_strings, gf_misc,
-     kn_MacroCmd, kn_MacroCmdSelect, kn_MacroEdit, kn_Main, kn_Global,
-     kn_NodeList, kn_DateTime, kn_LanguageSel, kn_Paragraph,
-     kn_FindReplaceMng, kn_StyleMng, kn_FavoritesMng, kn_BookmarksMng,
-     kn_TreeNoteMng, kn_NoteMng,kn_PluginsMng, kn_TemplateMng, kn_NoteFileMng,
-     kn_EditorUtils, kn_VCLControlsMng, WideStrings, TntSysUtils;
+uses
+   kn_Global,
+   kn_StyleMng,
+   kn_PluginsMng,
+   kn_TemplateMng,
+   kn_FindReplaceMng,
+   kn_VCLControlsMng,
+   kn_Main;
+
 
 resourcestring
   STR_01 = 'Stop recording macro';
@@ -555,7 +594,7 @@ begin
   end;
 end; // StopRecordingMacro
 
-procedure ExecuteMacro( aFileName, aMacroName : wideString );
+procedure ExecuteMacro( aFileName, aMacroName : string );
 var
   macro : TMacro;
   wasNewMacro, wasreadonly : boolean;
@@ -585,7 +624,7 @@ begin
   wasreadonly := Form_Main.NoteIsReadOnly( ActiveNote, false );
   if wasreadonly then
   begin
-    if ( DoMessageBox( WideFormat(
+    if ( DoMessageBox( Format(
       STR_17,
       [ActiveNote.Name] ),
       mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
@@ -602,7 +641,7 @@ begin
     Macro.FileName := aFileName;
     if ( not Macro.Load ) then
     begin
-      DoMessageBox( WideFormat(
+      DoMessageBox( Format(
         STR_18,
         [aFileName,Macro.LastError]
       ), mtError, [mbOK], 0 );
@@ -630,8 +669,7 @@ begin
   IsRunningMacro := true;
   MacroAbortRequest := false;
   MacroErrorAbort := false;
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(
-    STR_19, [Macro.Name] );
+  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_19, [Macro.Name] );
   screen.Cursor := crAppStart;
   SelectStatusbarGlyph( true );
 
@@ -641,24 +679,24 @@ begin
   except
   end;
 
-  LastMacroFN := WideExtractFilename( Macro.FileName );
-  Form_Main.MMToolsMacroRunLast.Hint := WideFormat(
+  LastMacroFN := ExtractFilename( Macro.FileName );
+  Form_Main.MMToolsMacroRunLast.Hint := Format(
     STR_20,
-    [WideExtractFilename( LastMacroFN )]
+    [ExtractFilename( LastMacroFN )]
   );
 
   try
     try
       if ( not Macro.Load ) then
       begin
-        DoMessageBox( WideFormat(
+        DoMessageBox( Format(
           STR_21, [Macro.FileName,Macro.LastError]
           ), mtError, [mbOK], 0 );
       end;
 
       if ( Macro.Version.Major > _MACRO_VERSION_MAJOR ) then
       begin
-        DoMessageBox( WideFormat(
+        DoMessageBox( Format(
           STR_22, [Macro.FileName]
           ), mtError, [mbOK], 0 );
       end;
@@ -733,7 +771,7 @@ begin
 
     if ( not Macro.Load ) then
     begin
-      DoMessageBox( WideFormat( STR_21, [Macro.FileName,Macro.LastError] ), mtError, [mbOK], 0 );
+      DoMessageBox( Format( STR_21, [Macro.FileName,Macro.LastError] ), mtError, [mbOK], 0 );
       Macro.Free;
       exit;
     end;
@@ -781,7 +819,7 @@ begin
 
           if ( not Macro.Save ) then
           begin
-            DoMessageBox( WideFormat(
+            DoMessageBox( Format(
               STR_10, [Macro.FileName,Macro.LastError]
               ), mtError, [mbOK], 0 );
             exit;
@@ -814,7 +852,7 @@ begin
   Macro := GetCurrentMacro( true );
   if ( macro = nil ) then exit;
 
-  if ( DoMessageBox( WideFormat(
+  if ( DoMessageBox( Format(
     STR_26,
     [Macro.Name]
     ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
@@ -825,7 +863,7 @@ begin
       if ( not deletefile( Macro_Folder + Macro.FileName )) then
       begin
         DeleteSuccess := false;
-        DoMessageBox( WideFormat(
+        DoMessageBox( Format(
           STR_27,
           [Macro.Filename] ), mtError, [mbOK], 0 );
         exit;
@@ -1126,11 +1164,11 @@ begin
               p := pos( '(', line );
               if ( p = 0 ) then
               begin
-                cmdstr := uppercase( line );
+                cmdstr := AnsiUpperCase( line );
               end
               else
               begin
-                cmdstr := uppercase( copy( line, 1, pred( p )));
+                cmdstr := AnsiUpperCase( copy( line, 1, pred( p )));
                 delete( line, 1, p );
                 p := pos( ')', line );
                 if ( p = 0 ) then
@@ -1507,7 +1545,7 @@ begin
 
 end; // AddUserMacroCommand
 
-function GetMacroByName( const aName : wideString; const DoWarn : boolean ) : TMacro;
+function GetMacroByName( const aName : string; const DoWarn : boolean ) : TMacro;
 var
   i : integer;
 begin
@@ -1521,7 +1559,7 @@ begin
   else
   begin
     if DoWarn then
-      DoMessageBox( WideFormat( STR_40, [aName] ), mtError, [mbOK], 0 );
+      DoMessageBox( Format( STR_40, [aName] ), mtError, [mbOK], 0 );
   end;
 
 end; // GetMacroByName
@@ -1588,7 +1626,7 @@ end; // RepeatLastCommand
 procedure PerformCmdEx( aCmd : TEditCmd );
 var
   s : string;
-  errorStr: WideString;
+  errorStr: string;
   NotImplemented, Canceled: boolean;
 begin
   // Perform command on ActiveNote.
@@ -1617,7 +1655,7 @@ begin
           ecCopy : begin
             ActiveNote.Editor.CopyToClipboard;
             if EditorOptions.PlainDefaultPaste then
-               TestCRCForDuplicates(ClipboardAsStringW);
+               TestCRCForDuplicates(Clipboard.TryAsText);
           end;
 
           ecReadOnly :
@@ -1728,19 +1766,19 @@ end; // PerformCmdEx
 
 
 procedure PerformCmdPastePlain( Note: TTabNote;
-                                StrClp: WideString = ''; HTMLClip: WideString= '';
+                                StrClp: string = ''; HTMLClip: AnsiString= '';
                                 ForcePlainText: boolean = false);
 var
    Editor: TTabRichEdit;
    i, j: integer;
-   TextToReplace: WideString;
+   TextToReplace: string;
    SelStart: Integer;
    Ok, DoUndo: boolean;
 
   function PasteOperationWasOK (): boolean;
   var
     i, j, n, m: integer;
-    Selection: WideString;
+    Selection: string;
     beginPos, len: Integer;
   begin
      i:= 1;
@@ -1751,7 +1789,7 @@ var
      if n < 5 then
         len:= n;
 
-     Selection:= Editor.SelVisibleTextW;
+     Selection:= Editor.SelVisibleText;
      m:= Length(Selection);
 
      Ok:= True;
@@ -1804,19 +1842,19 @@ begin
 
     if ForcePlainText or Note.PlainText or (ClipOptions.PlainTextMode = clptPlainText) then begin
        if StrClp = '' then
-          StrClp:= ClipboardAsStringW;
+          StrClp:= Clipboard.TryAsText;
 
        if (( ClipOptions.MaxSize > 0 ) and ( length( StrClp ) > ClipOptions.MaxSize )) then
           delete( StrClp, succ( ClipOptions.MaxSize ), length( StrClp ));
 
 
        if RichEditVersion >= 5 then
-          Editor.SelTextW := StrClp
+          Editor.SelText := StrClp
 
        else begin
           SelStart:= Editor.SelStart;
           TextToReplace:= Editor.GetTextRange(SelStart, SelStart + 5);
-          Editor.SelTextW := StrClp;
+          Editor.SelText := StrClp;
           if not PasteOperationWasOK() then begin
              if DoUndo then
                 Editor.Undo;
@@ -1866,9 +1904,9 @@ end; // PerformCmdPaste
 
 procedure PerformCmd( aCmd : TEditCmd );
 var
-  txt, txt2 : wideString;
+  txt, txt2 : string;
   p, i, lineindex : integer;
-  templist : TWideStringList;
+  templist : TStringList;
   tempChrome : TChrome;
   ShiftWasDown : boolean;
   myTreeNode : TTreeNTNode;
@@ -1933,7 +1971,7 @@ begin
           ecCut: begin
               ActiveNote.Editor.CutToClipboard;
               if EditorOptions.PlainDefaultPaste then
-                 TestCRCForDuplicates(ClipboardAsStringW);
+                 TestCRCForDuplicates(Clipboard.TryAsText);
             end;
 
           ecPaste :
@@ -1942,7 +1980,7 @@ begin
             else begin
                // We must paste as PlainText (considering also PlainTextMode) if text has been copied from outside KN
                // If text have been copied from inside KNT then CRC will correspond to the value calculated with last copy operation
-               txt:= ClipboardAsStringW;
+               txt:= Clipboard.TryAsText;
                if TestCRCForDuplicates(txt, false) then
                   TryPasteRTF(ActiveNote.Editor)
                else
@@ -2157,7 +2195,7 @@ begin
                 if ( SubscriptStyle <> ssSubscript ) then
                    SubscriptStyle := ssSubscript
                 else
-                   SubscriptStyle := ssNone;
+                   SubscriptStyle := TSubscriptStyle(ssNone);
              end;
 
           ecSuperscript :
@@ -2165,7 +2203,7 @@ begin
                if ( SubscriptStyle <> ssSuperscript ) then
                  SubscriptStyle := ssSuperscript
                else
-                 SubscriptStyle := ssNone;
+                 SubscriptStyle := TSubscriptStyle(ssNone);
              end;
 
           ecFontColorBtn : begin
@@ -2314,7 +2352,7 @@ begin
               Charset := ActiveNote.EditorChrome.Font.Charset;
               Hidden := false;
               Disabled := false;
-              SubscriptStyle := ssNone;
+              SubscriptStyle := TSubscriptStyle(ssNone);
               BackColor := clWindow; // ActiveNote.Editor.Color;
             end;
 
@@ -2341,12 +2379,12 @@ begin
 
           ecSort :
             if ( ActiveNote.Editor.SelLength > 1 ) then begin
-               templist := TWideStringList.Create;
+               templist := TStringList.Create;
                try
                  templist.Sorted := true;
                  templist.Duplicates := dupAccept;
-                 templist.Text := ActiveNote.Editor.SelTextW;
-                 ActiveNote.Editor.SelTextW := templist.Text;
+                 templist.Text := ActiveNote.Editor.SelText;
+                 ActiveNote.Editor.SelText := templist.Text;
                finally
                  templist.Free;
                end;
@@ -2361,14 +2399,14 @@ begin
             if ( ActiveNote.Editor.SelLength > 1 ) then begin
               screen.cursor := crHourGlass;
               try
-                txt := ActiveNote.Editor.SelTextW;
+                txt := ActiveNote.Editor.SelText;
                 CharToChar( txt, #13, #32 );
                 p := pos( #32#32, txt );
                 while ( p > 0 ) do begin
                   delete( txt, p, 1 );
                   p := pos( #32#32, txt );
                 end;
-                ActiveNote.Editor.SelTextW := txt;
+                ActiveNote.Editor.SelText := txt;
               finally
                 screen.cursor := crDefault;
               end;
@@ -2378,13 +2416,13 @@ begin
 
           ecReverseText :
             if ( ActiveNote.Editor.SelLength > 0 ) then begin
-              txt := ActiveNote.Editor.SelTextW;
+              txt := ActiveNote.Editor.SelText;
               p:= length( txt );
               txt2 := '';
               SetLength( txt2, p );
               for i := p downto 1 do
                 txt2[(p-i)+1] := txt[i];
-              ActiveNote.Editor.SelTextW := txt2;
+              ActiveNote.Editor.SelText := txt2;
             end
             else
               ErrNoTextSelected:= True;
@@ -2393,18 +2431,18 @@ begin
             if ( ActiveNote.Editor.SelLength > 0 ) then begin
               screen.cursor := crHourGlass;
               try
-                txt := ActiveNote.Editor.SelTextW;
+                txt := ActiveNote.Editor.SelText;
                 for i := 1 to length( txt ) do begin
                   p := pos( txt[i], alph13 );
                   if ( p > 0 ) then
-                    txt[i] := wideChar(alph13[p+13])
+                    txt[i] := Char(alph13[p+13])
                   else begin
                     p := pos( txt[i], alph13UP );
                     if ( p > 0 ) then
-                       txt[i] := wideChar(alph13UP[p+13]);
+                       txt[i] := Char(alph13UP[p+13]);
                   end;
                 end;
-                ActiveNote.Editor.SelTextW := txt;
+                ActiveNote.Editor.SelText := txt;
               finally
                 screen.cursor := crDefault;
               end;
@@ -2415,40 +2453,40 @@ begin
 
           ecInvertCase :
             if ( ActiveNote.Editor.SelLength > 0 ) then begin
-               txt := ActiveNote.Editor.SelTextW;
+               txt := ActiveNote.Editor.SelText;
                for i := 1 to length( txt ) do begin
-                 if IsCharUpperW( txt[i] ) then
-                    txt2 := wideLowercase( txt[i] )
+                 if IsCharUpper( txt[i] ) then
+                    txt2 := AnsiLowercase( txt[i] )
                  else
-                    txt2 := wideUppercase( txt[i] );
+                    txt2 := AnsiUpperCase( txt[i] );
                  txt[i] := txt2[1];
                end;
-               ActiveNote.Editor.SelTextW := txt;
+               ActiveNote.Editor.SelText := txt;
             end
             else
                ErrNoTextSelected:= True;
 
           ecToUpperCase :
             if ( ActiveNote.Editor.SelLength > 0 ) then begin
-                txt := ActiveNote.Editor.SelTextW;
-                txt := wideUppercase( txt );
-                ActiveNote.Editor.SelTextW := txt;
+                txt := ActiveNote.Editor.SelText;
+                txt := AnsiUpperCase( txt );
+                ActiveNote.Editor.SelText := txt;
             end
             else
               ErrNoTextSelected:= True;
 
           ecToLowerCase :
             if ( ActiveNote.Editor.SelLength > 0 ) then begin
-                txt := ActiveNote.Editor.SelTextW;
-                txt := wideLowercase( txt );
-                ActiveNote.Editor.SelTextW := txt;
+                txt := ActiveNote.Editor.SelText;
+                txt := AnsiLowercase( txt );
+                ActiveNote.Editor.SelText := txt;
             end
             else
                ErrNoTextSelected:= True;
 
           ecCycleCase :
             if ( ActiveNote.Editor.SelLength > 0 ) then begin
-               txt := ActiveNote.Editor.SelTextW;
+               txt := ActiveNote.Editor.SelText;
 
                LAST_CASE_CYCLE := GetLetterCase( txt );
                if ( LAST_CASE_CYCLE = high( LAST_CASE_CYCLE )) then
@@ -2457,21 +2495,21 @@ begin
                  inc( LAST_CASE_CYCLE );
 
                case LAST_CASE_CYCLE of
-                 ccLower : txt := wideLowercase( txt );
-                 ccMixed : txt := WideProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
-                 ccUpper : txt := wideUppercase( txt );
+                 ccLower : txt := AnsiLowercase( txt );
+                 ccMixed : txt := AnsiProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
+                 ccUpper : txt := AnsiUpperCase( txt );
                end;
 
-               ActiveNote.Editor.SelTextW := txt;
+               ActiveNote.Editor.SelText := txt;
             end
             else
                ErrNoTextSelected:= True;
 
           ecToMixedCase :
             if ( ActiveNote.Editor.SelLength > 0 ) then begin
-               txt := ActiveNote.Editor.SelTextW;
-               txt := WideProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
-               ActiveNote.Editor.SelTextW := txt;
+               txt := ActiveNote.Editor.SelText;
+               txt := AnsiProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
+               ActiveNote.Editor.SelText := txt;
             end
             else
                ErrNoTextSelected:= True;
@@ -2481,11 +2519,11 @@ begin
                if ( KeyOptions.DTLastDateFmt = '' ) then
                   KeyOptions.DTLastDateFmt := KeyOptions.DateFmt;
                if ( KeyOptions.DTLastDateFmt = '' ) then
-                  KeyOptions.DTLastDateFmt := ShortDateFormat;
-               ActiveNote.Editor.SelTextW := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
+                  KeyOptions.DTLastDateFmt := FormatSettings.ShortDateFormat;
+               ActiveNote.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
             end
             else
-               ActiveNote.Editor.SelTextW := FormatDateTime( KeyOptions.DateFmt, now ) + #32;
+               ActiveNote.Editor.SelText := FormatDateTime( KeyOptions.DateFmt, now ) + #32;
             ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
           end;
 
@@ -2494,11 +2532,11 @@ begin
               if ( KeyOptions.DTLastTimeFmt = '' ) then
                  KeyOptions.DTLastTimeFmt := KeyOptions.TimeFmt;
               if ( KeyOptions.DTLastTimeFmt = '' ) then
-                 KeyOptions.DTLastTimeFmt := LongTimeFormat;
-              ActiveNote.Editor.SelTextW := GetDateTimeFormatted( KeyOptions.DTLastTimeFmt, now ) + #32;
+                 KeyOptions.DTLastTimeFmt := FormatSettings.LongTimeFormat;
+              ActiveNote.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastTimeFmt, now ) + #32;
             end
             else
-              ActiveNote.Editor.SelTextW := FormatDateTime( KeyOptions.TimeFmt, now ) + #32;
+              ActiveNote.Editor.SelText := FormatDateTime( KeyOptions.TimeFmt, now ) + #32;
             ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
           end;
 
@@ -2515,7 +2553,7 @@ begin
               case aCmd of
                  ecInsCharacter :
                    with CommandRecall.CharInfo do
-                      Form_Main.CharInsertProc( chr( code ), Count, Name, Charset );
+                      Form_Main.CharInsertProc( AnsiChar(chr(code)), Count, Name, Charset );
 
                  ecStyleApply :
                     StyleApply( CommandRecall.StyleName );
@@ -2726,7 +2764,7 @@ end; // PerformCustomFuncKey
 
 procedure ExecuteMacroFile;
 var
-  fn, oldFilter : wideString;
+  fn, oldFilter : string;
 begin
 
   if ( not CheckFolder( 'Macro', Macro_Folder, false, true )) then exit;

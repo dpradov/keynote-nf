@@ -1,46 +1,56 @@
 unit kn_LanguagesMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) 
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain)
 
   Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
-  in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+  in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 uses
- Classes, kn_FileObj;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Classes,
+   System.SysUtils,
+   System.IniFiles,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   KDL.Localizer,
+   gf_misc,
+   kn_info,
+   kn_Const,
+   kn_global,
+   kn_Main;
+
 
   function LoadLanguagesAvailable( FN : string ): boolean;
   procedure ClearLanguagesList;
-  function ApplyLanguageUI ( LanguageUI : wideString ): boolean;
+  function ApplyLanguageUI ( LanguageUI : string ): boolean;
 
 type
   TLanguageInfo = class( TObject )
-    Name : wideString;
-    LangFile : wideString;
-    TipFile : wideString;
-    Translator : wideString;
+    Name : string;
+    LangFile : string;
+    TipFile : string;
+    Translator : string;
   end;
 
 var
   LanguagesAvailables : TStringList;
 
+
 implementation
-uses
-  Windows, Messages, SysUtils,
-  Graphics, Controls, Forms, Dialogs,
-  uFreeLocalizer,
-  gf_misc, kn_info, kn_Const, IniFiles, kn_global, kn_Main,
-  gf_files, gf_miscvcl;
 
 resourcestring
   STR_01 = 'Internal Language (English) will be established next time you start KeyNote NF';
@@ -50,12 +60,12 @@ resourcestring
 
 function LoadLanguagesAvailable( FN : string ): boolean;
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   i : integer;
   Info : TLanguageInfo;
   s, section : string;
   sections : TStringList;
-  path: WideString;
+  path: string;
 
 begin
   result := false;
@@ -73,7 +83,7 @@ begin
 
   path:= ExtractFilePath( Application.ExeName ) + _LANGUAGE_FOLDER;
 
-  IniFile := TWMemIniFile.Create( fn );
+  IniFile := TMemIniFile.Create( fn );
   sections := TStringList.Create;
 
 
@@ -114,11 +124,11 @@ begin
   result := ( LanguagesAvailables.Count > 0 );
 end;
 
-function ApplyLanguageUI ( LanguageUI : wideString ): boolean;
+function ApplyLanguageUI ( LanguageUI : string ): boolean;
 var
   i : integer;
   Info : TLanguageInfo;
-  path: wideString;
+  path: string;
   FN : string;
   TipFile: string;
 begin

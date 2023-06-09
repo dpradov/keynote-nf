@@ -7,17 +7,23 @@ unit kn_Const;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
-uses Windows, ShellAPI, Graphics, Messages, ZLibEx;
+uses
+   Winapi.Windows,
+   Winapi.ShellAPI,
+   Winapi.Messages,
+   Vcl.Graphics,
+   ZLibEx;
+
 
 resourcestring
   FILTER_ALLFILES    = 'All files (*.*)|*.*';
@@ -92,15 +98,15 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '1.7.9 Beta 8';
-  Program_Version_Number  = '1.7.9.8';
-  Program_Version_Date    = '30/04/2017';
+  Program_Version  = '1.8.0 Beta 1';
+  Program_Version_Number  = '1.8.0.1';
+  Program_Version_Date    = '01/07/2023';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL     = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
   Program_Email1  = 'dprado.keynote@gmail.com';
   Program_Email2  = 'marekjed@users.sourceforge.net';
-  Program_Credit1 = 'Copyright © 2007-17  Daniel Prado Velasco   (since 1.7.0)';
+  Program_Credit1 = 'Copyright © 2007-23  Daniel Prado Velasco   (since 1.7.0)';
   Program_Credit2 = 'Copyright © 2000-05  Marek Jedlinski';
 
   UniqueAppName_KEYNOTE10   = 'GFKeyNote10';
@@ -198,7 +204,7 @@ const
 
 
 const
-  BOOLEANSTR            : array[false..true] of char = ( '0', '1' );
+  BOOLEANSTR            : array[false..true] of AnsiChar = ( '0', '1' );
   DEF_INDENT_LEN        = 12;
   MIN_COMBO_LENGTH      = 15;
   DEF_TAB_SIZE          = 4;  // default tab size
@@ -340,13 +346,14 @@ const
     clWhite    // 17
   );
 
-                
+{$IFDEF WITH_DART}
 const
   // Dart Notes specific defines
   _DART_STOP  = #7;
   _DART_ID    = 'Notes';
   _DART_VER   = '1670';
   _DART_VEROK = '871';
+{$ENDIF}
 
 const
   // indices for tree node icons
@@ -384,9 +391,12 @@ const
 
 
 type
+
+  // WITH_DART: From now, DartNotes format is unsupported by default
+
   // supported save/load formats
   TNoteFileFormat = (
-    nffKeyNote, nffKeyNoteZip, nffEncrypted, nffDartNotes
+    nffKeyNote, nffKeyNoteZip, nffEncrypted {$IFDEF WITH_DART}, nffDartNotes{$ENDIF}
   );
 
 type
@@ -395,7 +405,7 @@ type
     ntTree // tree panel plus richedit control (tree-type note)
   );
   //TNoteNameStr = String[TABNOTE_NAME_LENGTH];
-  TNoteNameStr = WideString;
+  TNoteNameStr = string;
 
 const
   TABNOTE_KIND_IDS : array[TNoteType] of string = (
@@ -520,8 +530,8 @@ const
 type
   // In encrypted files, this is saved in cleartext
   TNoteFileVersion = packed record
-    ID : array[1..ID_STR_LENGTH] of char;
-    Major, Minor : char;
+    ID : array[1..ID_STR_LENGTH] of AnsiChar;
+    Major, Minor : AnsiChar;
   end;
 
 type
@@ -533,7 +543,7 @@ type
   end;
 
 type
-  TCommentStr = WideString;
+  TCommentStr = String;
 
 type
   TNodeInsertMode = (
@@ -835,8 +845,9 @@ begin
   FILE_FORMAT_NAMES[nffKeyNote]:=  STR_03_Formats;
   FILE_FORMAT_NAMES[nffKeyNoteZip]:=   STR_06_Formats;
   FILE_FORMAT_NAMES[nffEncrypted]:=    STR_04_Formats;
+{$IFDEF WITH_DART}
   FILE_FORMAT_NAMES[nffDartNotes]:=    STR_05_Formats;
-
+{$ENDIF}
   FILE_COMPRESSION_LEVEL[zcNone]:= STR_54_Compression;
   FILE_COMPRESSION_LEVEL[zcFastest]:= STR_55_Compression;
   FILE_COMPRESSION_LEVEL[zcDefault]:= STR_56_Compression;

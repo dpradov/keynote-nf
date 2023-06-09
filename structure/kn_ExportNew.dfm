@@ -4,8 +4,8 @@ object Form_ExportNew: TForm_ExportNew
   HelpContext = 590
   BorderStyle = bsDialog
   Caption = 'Export notes'
-  ClientHeight = 400
-  ClientWidth = 312
+  ClientHeight = 397
+  ClientWidth = 300
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,15 +13,13 @@ object Form_ExportNew: TForm_ExportNew
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   ShowHint = True
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 20
     Top = 364
     Width = 75
@@ -32,7 +30,7 @@ object Form_ExportNew: TForm_ExportNew
     TabOrder = 0
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 100
     Top = 364
     Width = 75
@@ -43,7 +41,7 @@ object Form_ExportNew: TForm_ExportNew
     ModalResult = 2
     TabOrder = 1
   end
-  object Button_Help: TTntButton
+  object Button_Help: TButton
     Left = 179
     Top = 364
     Width = 75
@@ -75,15 +73,15 @@ object Form_ExportNew: TForm_ExportNew
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 312
-      object GroupBox_Source: TTntGroupBox
+      ExplicitHeight = 0
+      object GroupBox_Source: TGroupBox
         Left = 3
         Top = 5
         Width = 281
         Height = 141
         Caption = ' Source: What to export? '
         TabOrder = 0
-        object RB_CurrentNote: TTntRadioButton
+        object RB_CurrentNote: TRadioButton
           Left = 15
           Top = 20
           Width = 148
@@ -94,7 +92,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 0
           TabStop = True
         end
-        object RB_AllNotes: TTntRadioButton
+        object RB_AllNotes: TRadioButton
           Left = 15
           Top = 65
           Width = 119
@@ -103,7 +101,7 @@ object Form_ExportNew: TForm_ExportNew
           Caption = '&All notes'
           TabOrder = 2
         end
-        object RB_SelectedNotes: TTntRadioButton
+        object RB_SelectedNotes: TRadioButton
           Left = 15
           Top = 85
           Width = 116
@@ -112,7 +110,7 @@ object Form_ExportNew: TForm_ExportNew
           Caption = '&Selected notes'
           TabOrder = 3
         end
-        object Button_Select: TTntButton
+        object Button_Select: TButton
           Left = 140
           Top = 75
           Width = 111
@@ -122,17 +120,16 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 4
           OnClick = Button_SelectClick
         end
-        object Combo_TreeSelection: TTntComboBox
+        object Combo_TreeSelection: TComboBox
           Left = 35
           Top = 40
           Width = 216
           Height = 21
           Hint = 'For tree notes, select what part of tree to export'
           Style = csDropDownList
-          ItemHeight = 0
           TabOrder = 1
         end
-        object CheckBox_ExcludeHiddenNodes: TTntCheckBox
+        object CheckBox_ExcludeHiddenNodes: TCheckBox
           Left = 15
           Top = 113
           Width = 218
@@ -142,14 +139,14 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 5
         end
       end
-      object GroupBox_Target: TTntGroupBox
+      object GroupBox_Target: TGroupBox
         Left = 3
         Top = 152
         Width = 281
         Height = 157
         Caption = ' Target: Where and how to export?  '
         TabOrder = 1
-        object Label1: TTntLabel
+        object Label1: TLabel
           Left = 15
           Top = 20
           Width = 124
@@ -157,7 +154,7 @@ object Form_ExportNew: TForm_ExportNew
           Caption = '&Format for exported files:'
           FocusControl = Combo_Format
         end
-        object Label2: TTntLabel
+        object Label2: TLabel
           Left = 15
           Top = 65
           Width = 134
@@ -173,25 +170,22 @@ object Form_ExportNew: TForm_ExportNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
           OnClick = TB_OpenDlgDirClick
         end
-        object Combo_Format: TTntComboBox
+        object Combo_Format: TComboBox
           Left = 15
           Top = 35
           Width = 251
           Height = 21
           Hint = 'Select format for exported files'
           Style = csDropDownList
-          ItemHeight = 0
           TabOrder = 0
           OnClick = Combo_FormatClick
         end
-        object CheckBox_PromptOverwrite: TTntCheckBox
+        object CheckBox_PromptOverwrite: TCheckBox
           Left = 15
           Top = 110
           Width = 236
@@ -202,7 +196,7 @@ object Form_ExportNew: TForm_ExportNew
           State = cbChecked
           TabOrder = 2
         end
-        object Edit_Folder: TTntEdit
+        object Edit_Folder: TEdit
           Left = 15
           Top = 80
           Width = 227
@@ -216,7 +210,7 @@ object Form_ExportNew: TForm_ExportNew
           ParentFont = False
           TabOrder = 1
         end
-        object CheckBox_Ask: TTntCheckBox
+        object CheckBox_Ask: TCheckBox
           Left = 15
           Top = 130
           Width = 236
@@ -233,14 +227,14 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      object GroupBox1: TTntGroupBox
+      object GroupBox1: TGroupBox
         Left = 5
         Top = 5
         Width = 281
         Height = 151
         Caption = ' Optional headings '
         TabOrder = 0
-        object CB_IncNoteHeading: TTntCheckBox
+        object CB_IncNoteHeading: TCheckBox
           Left = 15
           Top = 20
           Width = 218
@@ -248,7 +242,7 @@ object Form_ExportNew: TForm_ExportNew
           Caption = 'Include &note headings'
           TabOrder = 0
         end
-        object CB_IncNodeHeading: TTntCheckBox
+        object CB_IncNodeHeading: TCheckBox
           Left = 15
           Top = 65
           Width = 218
@@ -256,7 +250,7 @@ object Form_ExportNew: TForm_ExportNew
           Caption = 'Include no&de headings'
           TabOrder = 2
         end
-        object Edit_NodeHead: TTntComboBox
+        object Edit_NodeHead: TComboBox
           Left = 35
           Top = 85
           Width = 206
@@ -266,11 +260,10 @@ object Form_ExportNew: TForm_ExportNew
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
-          ItemHeight = 13
           ParentFont = False
           TabOrder = 3
         end
-        object Edit_NoteHead: TTntComboBox
+        object Edit_NoteHead: TComboBox
           Left = 35
           Top = 40
           Width = 206
@@ -280,7 +273,6 @@ object Form_ExportNew: TForm_ExportNew
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
-          ItemHeight = 13
           ParentFont = False
           TabOrder = 1
         end
@@ -291,8 +283,6 @@ object Form_ExportNew: TForm_ExportNew
           Height = 25
           Hint = 'Help for auto-naming tree nodes'
           Caption = '&Help on headings'
-          TabOrder = 4
-          OnClick = Btn_TknHlpClick
           Glyph.Data = {
             F6000000424DF600000000000000760000002800000010000000100000000100
             0400000000008000000000000000000000001000000010000000000000000000
@@ -302,9 +292,11 @@ object Form_ExportNew: TForm_ExportNew
             FF07AD0FBFFF44FFBF07DA0FFFBFFFBFFF07AD0FBFFF47FFBF07DA0FFFBF748F
             FF07AD0FBFFFB747BF07DA0FFF47FF44FF07AD0FBF44B844BF07DA0FFF844448
             FF07AD0FBFFFBFFFBF07DA0FFFBFFFBFFF0AADA00000000000AD}
+          TabOrder = 4
+          OnClick = Btn_TknHlpClick
         end
       end
-      object RG_NodeMode: TTntRadioGroup
+      object RG_NodeMode: TRadioGroup
         Left = 5
         Top = 160
         Width = 281
@@ -316,7 +308,7 @@ object Form_ExportNew: TForm_ExportNew
           'Export each node to a separate target file')
         TabOrder = 1
       end
-      object RG_HTML: TTntRadioGroup
+      object RG_HTML: TRadioGroup
         Left = 5
         Top = 232
         Width = 288
@@ -338,7 +330,7 @@ object Form_ExportNew: TForm_ExportNew
       ExplicitTop = 0
       ExplicitWidth = 0
       ExplicitHeight = 0
-      object RG_TreePadVersion: TTntRadioGroup
+      object RG_TreePadVersion: TRadioGroup
         Left = 5
         Top = 5
         Width = 281
@@ -350,7 +342,7 @@ object Form_ExportNew: TForm_ExportNew
           'Export to Treepad shareware (formatted text)')
         TabOrder = 0
       end
-      object RG_TreePadMode: TTntRadioGroup
+      object RG_TreePadMode: TRadioGroup
         Left = 5
         Top = 75
         Width = 281
@@ -362,7 +354,7 @@ object Form_ExportNew: TForm_ExportNew
           'Create a Treepad file containing all exported notes')
         TabOrder = 1
       end
-      object RG_TreePadMaster: TTntRadioGroup
+      object RG_TreePadMaster: TRadioGroup
         Left = 5
         Top = 145
         Width = 281
@@ -376,7 +368,7 @@ object Form_ExportNew: TForm_ExportNew
       end
     end
   end
-  object SaveDlg: TTntSaveDialog
+  object SaveDlg: TSaveDialog
     Options = [ofHideReadOnly, ofPathMustExist]
     Title = 'Select target filename'
     Left = 265

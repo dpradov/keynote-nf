@@ -11,7 +11,9 @@ unit zlib;
 
 interface
 
-uses Sysutils, Classes;
+uses
+   System.SysUtils,
+   System.Classes;
 
 type
   TAlloc = function (AppData: Pointer; Items, Size: Integer): Pointer;

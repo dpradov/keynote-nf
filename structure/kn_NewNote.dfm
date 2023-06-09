@@ -4,8 +4,8 @@ object Form_NewNote: TForm_NewNote
   ActiveControl = Combo_TabName
   BorderStyle = bsDialog
   Caption = 'New note'
-  ClientHeight = 141
-  ClientWidth = 318
+  ClientHeight = 139
+  ClientWidth = 310
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,16 +13,14 @@ object Form_NewNote: TForm_NewNote
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   ShowHint = True
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TTntLabel
+  object Label1: TLabel
     Left = 10
     Top = 15
     Width = 49
@@ -32,7 +30,7 @@ object Form_NewNote: TForm_NewNote
     Caption = '&Name:'
     FocusControl = Combo_TabName
   end
-  object Label2: TTntLabel
+  object Label2: TLabel
     Left = 10
     Top = 45
     Width = 49
@@ -41,7 +39,7 @@ object Form_NewNote: TForm_NewNote
     AutoSize = False
     Caption = '&Icon:'
   end
-  object Label_Type: TTntLabel
+  object Label_Type: TLabel
     Left = 10
     Top = 75
     Width = 49
@@ -51,7 +49,7 @@ object Form_NewNote: TForm_NewNote
     Caption = '&Type:'
     FocusControl = Combo_TabType
   end
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 15
     Top = 108
     Width = 75
@@ -63,7 +61,7 @@ object Form_NewNote: TForm_NewNote
     TabOrder = 3
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 95
     Top = 108
     Width = 75
@@ -74,7 +72,7 @@ object Form_NewNote: TForm_NewNote
     TabOrder = 4
     OnClick = Button_CancelClick
   end
-  object Combo_TabName: TTntComboBox
+  object Combo_TabName: TComboBox
     Left = 64
     Top = 10
     Width = 237
@@ -85,7 +83,6 @@ object Form_NewNote: TForm_NewNote
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []
-    ItemHeight = 13
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
@@ -93,7 +90,7 @@ object Form_NewNote: TForm_NewNote
     OnChange = Combo_TabNameChange
     OnKeyPress = Combo_TabNameKeyPress
   end
-  object Button_Properties: TTntButton
+  object Button_Properties: TButton
     Left = 216
     Top = 108
     Width = 84
@@ -103,14 +100,13 @@ object Form_NewNote: TForm_NewNote
     TabOrder = 5
     OnClick = Button_PropertiesClick
   end
-  object Combo_TabType: TTntComboBox
+  object Combo_TabType: TComboBox
     Left = 64
     Top = 70
     Width = 237
     Height = 21
     Hint = 'Select type of note to create'
     Style = csDropDownList
-    ItemHeight = 13
     ParentShowHint = False
     ShowHint = True
     TabOrder = 2
@@ -123,7 +119,6 @@ object Form_NewNote: TForm_NewNote
     Height = 22
     Hint = 'Select icon for note'
     Extended = False
-    ItemHeight = 16
     TabOrder = 1
   end
 end

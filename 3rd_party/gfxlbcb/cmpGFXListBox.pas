@@ -3,24 +3,18 @@
 //Author: Wim Coetzee
 //Email : wim.c@usa.net
 
-(* ----------------------------------- 
-  + Changes by Marek Jedlinski <marek@tranglos.com> (Poland) [mj]
-  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
-
-   >> Changes to original source code available in KeyNote NF project.
-   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
-      in https://github.com/dpradov/keynote-nf 
-  
- ****************************************************************)
-
-
 unit cmpGFXListBox;
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Controls, Graphics, StdCtrls,
-  TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Controls,
+   Vcl.Graphics,
+   Vcl.StdCtrls;
 
 const
    CheckBoxSize	= 13;
@@ -39,7 +33,7 @@ type
   TStateChangeEvent = procedure(p_Index: Integer; var p_Cancel: Boolean) of Object;
 
 type
-  TGFXListBox = class(TTntCustomListBox)
+  TGFXListBox = class(TCustomListBox)
   private
     f_AllowGrayed: Boolean;
     f_ImageList: TImageList;
@@ -69,8 +63,8 @@ type
   public
     constructor Create(p_Owner: TComponent); override;
     { Custom Methods }
-    function AddItem(const p_Text: wideString; p_State: TCheckBoxState; p_ImageIndex: Integer): Integer;
-    procedure InsertItem(p_Index: Integer; const p_Text: wideString; p_State: TCheckBoxState; p_ImageIndex: Integer);
+    function AddItem(const p_Text: string; p_State: TCheckBoxState; p_ImageIndex: Integer): Integer;
+    procedure InsertItem(p_Index: Integer; const p_Text: string; p_State: TCheckBoxState; p_ImageIndex: Integer);
     procedure SetSelected(p_State: TCheckBoxState);
     procedure SetAll(p_State: TCheckBoxState);
     procedure LockSelected(p_Locked: Boolean);
@@ -135,7 +129,6 @@ type
 procedure Register;
 
 implementation
-uses TntControls;
 
 {$R GFXReg.dcr}
 
@@ -170,7 +163,8 @@ begin
   else
     inherited WndProc(Message);
   end;
-end;
+end;
+
 function TGFXListBox.CreateItemObject(p_Index: Integer): LongInt;
 var
   v_ItemObject: TItemObject;
@@ -399,7 +393,7 @@ end;
 
 {** Additional Wrapper routines **}
 
-function TGFXListBox.AddItem(const p_Text: wideString; p_State: TCheckBoxState; p_ImageIndex: Integer): Integer;
+function TGFXListBox.AddItem(const p_Text: string; p_State: TCheckBoxState; p_ImageIndex: Integer): Integer;
 begin
   Result := Items.Add(p_Text);
   State[Result] := p_State;
@@ -407,7 +401,7 @@ begin
   Locked[Result] := False;
 end;
 
-procedure TGFXListBox.InsertItem(p_Index: Integer; const p_Text: wideString; p_State: TCheckBoxState; p_ImageIndex: Integer);
+procedure TGFXListBox.InsertItem(p_Index: Integer; const p_Text: string; p_State: TCheckBoxState; p_ImageIndex: Integer);
 begin
   Items.Insert(p_Index, p_Text);
   State[p_Index] := p_State;

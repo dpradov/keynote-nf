@@ -4,20 +4,18 @@ object Form_VNode: TForm_VNode
   ActiveControl = GroupBox1
   BorderStyle = bsDialog
   Caption = 'Virtual node'
-  ClientHeight = 183
-  ClientWidth = 378
+  ClientHeight = 182
+  ClientWidth = 374
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object Button_OK: TButton
     Left = 15
@@ -74,6 +72,7 @@ object Form_VNode: TForm_VNode
       ButtonWidth = 25
       NumGlyphs = 1
       TabOrder = 0
+      Text = ''
     end
     object Edit_URL: TEdit
       Left = 10

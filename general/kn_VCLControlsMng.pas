@@ -18,7 +18,45 @@ unit kn_VCLControlsMng;
 
 interface
 uses
-   kn_NoteObj, TreeNT;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.RichEdit,
+   Winapi.ShellAPI,
+   Winapi.MMSystem,
+   System.SysUtils,
+   System.Classes,
+   System.IniFiles,
+   Vcl.Controls,
+   Vcl.ComCtrls,
+   Vcl.Graphics,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.Menus,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+
+   ComCtrls95,
+   RxRichEd,
+   MRUFList,
+   TB97Ctls,
+   TreeNT,
+
+   gf_misc,
+   gf_strings,
+   gf_miscvcl,
+   kn_Info,
+   kn_Const,
+   kn_NodeList,
+   kn_TreeNoteMng,
+   kn_MacroMng,
+   kn_Macro,
+   kn_FavoritesMng,
+   kn_Chest,
+   kn_EditorUtils,
+   kn_NoteObj,
+   kn_NoteFileMng;
+
+
 
     // dynamically create and destroy controls (note tabs, RichEdits, trees, etc)
     procedure SetUpVCLControls( aNote : TTabNote ); // sets up VCL controls for note (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
@@ -46,6 +84,8 @@ uses
     procedure FocusResourcePanel;
 
     procedure SelectStatusbarGlyph( const HaveNoteFile : boolean );
+    procedure SetFilenameInStatusbar(const FN : string );
+    procedure SetStatusbarGlyph(const Value: TPicture);
     procedure FocusActiveNote;
     procedure SortTabs;
 
@@ -55,26 +95,17 @@ uses
 
     procedure EnableCopyFormat(value: Boolean);
 
+var
+  SBGlyph: TPicture;
+
+
 implementation
 uses
-  { Borland units }
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  Menus, ComCtrls, Spin, ExtDlgs,
-  FileCtrl, RichEdit, IniFiles,
-  Clipbrd, ShellAPI, StdCtrls,
-  ExtCtrls, mmsystem,
-  { 3rd-party units }
-  ComCtrls95, RxRichEd,MRUFList,
-  TB97Ctls,
-  { Own units - covered by KeyNote's MPL}
-  gf_misc, gf_files,
-  gf_strings, gf_miscvcl,
-  kn_INI, kn_Cmd, kn_Msgs,
-  kn_Info, kn_Const, kn_Global,
-  kn_NodeList, kn_TreeNoteMng, kn_MacroMng, kn_Macro,
-  kn_PluginsMng, kn_FavoritesMng, kn_TemplateMng,
-  kn_Chest, kn_EditorUtils, kn_NoteFileMng, kn_Main;
+   kn_Global,
+   kn_PluginsMng,
+   kn_TemplateMng,
+   kn_Main;
+
 
 resourcestring
   STR_00 = 'Click and drag to resize panels';
@@ -95,6 +126,8 @@ resourcestring
   STR_15 = 'Use the mouse to apply the %s to another text or press Esc to cancel';
   STR_16 = 'paragraph formatting';
   STR_17 = 'font formatting';
+
+
 
 //=================================================================
 // SetUpVCLControls
@@ -621,7 +654,6 @@ begin
               LangOptions := LangOptions + [rlAutoKeyboard];
             if EditorOptions.AutoFont then
               LangOptions := LangOptions + [rlAutoFont];
-            Language := DefaultEditorChrome.Language;
             ScrollBars := ssBoth;
           end;
 
@@ -1165,7 +1197,7 @@ begin
                     Format( STR_10, [succ( p.y ), ActiveNote.Editor.Lines.Count, succ( p.x )] );
              end
              else begin
-                SelectedVisibleText:= ActiveNote.Editor.SelVisibleTextW;
+                SelectedVisibleText:= ActiveNote.Editor.SelVisibleText;
                 StatusBar.Panels[PANEL_CARETPOS].Text :=
                     Format( STR_11, [Length(SelectedVisibleText), GetWordCount( SelectedVisibleText )] );
              end;
@@ -1331,7 +1363,7 @@ begin
             end;
 
             // add history to combo
-            DelimTextToWStrs( Combo_ResFind.Items, FindOptions.FindAllHistory, HISTORY_SEPARATOR );
+            DelimTextToStrs( Combo_ResFind.Items, FindOptions.FindAllHistory, HISTORY_SEPARATOR );
             CB_ResFind_AllNotes.Checked := FindOptions.AllTabs;
           end;
 
@@ -1651,6 +1683,25 @@ begin
 end; // FocusActiveNote
 
 
+procedure SetStatusbarGlyph(const Value: TPicture);
+begin
+   SBGlyph.Assign(Value);
+
+   // This way we force that panel to be updated (and only that panel).
+   // If we used .Repaint, .Refresh, .Invalidate or .Update on the StatusBar, it would be updated too,
+   // but all the panels would be affected, and also (don't know why), text panel would show bold, until form resized..
+   Form_Main.StatusBar.Panels[PANEL_FILEICON].Width:= 10;
+
+end;
+
+procedure SetFilenameInStatusbar(const FN : string );
+begin
+   with Form_Main.StatusBar do begin
+      Panels[PANEL_FILENAME].Text:= FN;
+      Panels[PANEL_FILENAME].Width := Canvas.TextWidth(Panels[PANEL_FILENAME].Text) + 8;
+   end;
+end;
+
 procedure SelectStatusbarGlyph( const HaveNoteFile : boolean );
 var
   Glyph : TPicture;
@@ -1662,6 +1713,8 @@ begin
 
   Glyph := TPicture.Create;
   try
+
+    Index:= NODEIMG_BLANK;
 
     if HaveNoteFile then
     begin
@@ -1678,7 +1731,9 @@ begin
           nffKeyNote :   Index:= NODEIMG_TKN_RO;
           nffKeyNoteZip: Index:= NODEIMG_TKNZIP_RO;
           nffEncrypted : Index:= NODEIMG_ENC_RO;
+{$IFDEF WITH_DART}
           nffDartNotes : Index:= NODEIMG_DART_RO;
+{$ENDIF}
         end;
       end
       else
@@ -1687,18 +1742,17 @@ begin
           nffKeyNote :   Index:= NODEIMG_TKN;
           nffKeyNoteZip: Index:= NODEIMG_TKNZIP;
           nffEncrypted : Index:= NODEIMG_ENC;
+{$IFDEF WITH_DART}
           nffDartNotes : Index:= NODEIMG_DART;
+{$ENDIF}
         end;
       end;
 
-    end
-    else
-    begin
-      Index:= NODEIMG_BLANK;
     end;
 
     Chest.MGRImages.GetBitmap( Index, Glyph.Bitmap );
-    Form_Main.StatusBar.Panels[PANEL_FILEICON].Glyph := Glyph;
+    SetStatusbarGlyph(Glyph);
+
   finally
     Glyph.Free;
   end;
@@ -1850,7 +1904,7 @@ begin
           Str:= STR_16
        else
           Str:= STR_17;
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_15, [Str]);
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_15, [Str]);
     end
     else begin
        CopyFormatMode:= cfDisabled;

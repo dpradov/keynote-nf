@@ -1,29 +1,54 @@
 unit kn_AlertMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) 
+ (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain)
 
   Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
-  in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
- 
+  in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
+
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics,
-  Controls, Forms, Dialogs, TreeNT,
-  StdCtrls, ComCtrls,
-  TB97Ctls, ExtCtrls, TntStdCtrls, Grids, TntGrids,
-  TntComCtrls, ColorPicker,
-  kn_NoteObj, kn_NodeList, kn_LocationObj;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.MMSystem,
+   Winapi.CommCtrl,
+   System.SysUtils,
+   System.Classes,
+   System.DateUtils,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ComCtrls,
+   Vcl.ExtCtrls,
+   Vcl.Clipbrd,
+
+   TreeNT,
+   TB97Ctls,
+   ColorPicker,
+
+   gf_misc,
+   kn_Info,
+   kn_ClipUtils,
+   kn_RTFUtils,
+   kn_NoteObj,
+   kn_NodeList,
+   kn_LocationObj,
+   kn_LinksMng,
+   kn_VCLControlsMng,
+   kn_Main;
+
 
 type
   TShowMode = (TShowReminders, TShowSet, TShowAll, TShowOverdue, TShowPending, TShowDiscarded, TShowNew, TShowAllWithDiscarded);
@@ -41,7 +66,7 @@ type
   public
     AlarmReminder: TDateTime;     // Reminder instant
     ExpirationDate: TDateTime;    // Expiration/start instant
-    AlarmNote: WideString;
+    AlarmNote: string;
     Node: TNoteNode;
     Note: TTabNote;
     Bold: boolean;
@@ -128,44 +153,44 @@ type
     Panel3: TPanel;
     Bevel1: TBevel;
 
-    Grid: TTntListView;
+    Grid: TListView;
 
-    Button_New: TTntButton;
-    Button_Discard: TTntButton;
-    Button_Apply: TTntButton;
-    Button_SelectAll: TTntButton;
-    Button_Remove: TTntButton;
-    Button_Show: TTntButton;
-    Button_Restore: TTntButton;
+    Button_New: TButton;
+    Button_Discard: TButton;
+    Button_Apply: TButton;
+    Button_SelectAll: TButton;
+    Button_Remove: TButton;
+    Button_Show: TButton;
+    Button_Restore: TButton;
     Button_Sound: TToolbarButton97;
 
     PanelCalendar: TPanel;
-    cCalendar: TTntMonthCalendar;
-    cIdentifier: TTntEdit;
+    cCalendar: TMonthCalendar;
+    cIdentifier: TEdit;
 
-    lblSubject: TTntLabel;
-    txtSubject: TTntMemo;
+    lblSubject: TLabel;
+    txtSubject: TMemo;
     TB_Color: TColorBtn;
     TB_Hilite: TColorBtn;
     TB_Bold: TToolbarButton97;
 
-    CB_FilterDates: TTntComboBox;
-    cFilter: TTntEdit;
-    lblFilter: TTntLabel;
+    CB_FilterDates: TComboBox;
+    cFilter: TEdit;
+    lblFilter: TLabel;
     Button_ClearFilter: TToolbarButton97;
 
-    TntLabel2: TTntLabel;
-    CB_ShowMode: TTntComboBox;
+    TntLabel2: TLabel;
+    CB_ShowMode: TComboBox;
     TB_ClipCap: TToolbarButton97;
 
-    lblExpiration: TTntLabel;
+    lblExpiration: TLabel;
     CB_ExpirationDate: TDateTimePicker;
-    CB_ExpirationTime: TTntComboBox;
-    cExpirationTime: TTntEdit;
+    CB_ExpirationTime: TComboBox;
+    cExpirationTime: TEdit;
     chk_Expiration: TCheckBox;
-    CB_ProposedIntervalReminder: TTntComboBox;
-    rb_Before: TTntRadioButton;
-    rb_FromNow: TTntRadioButton;
+    CB_ProposedIntervalReminder: TComboBox;
+    rb_Before: TRadioButton;
+    rb_FromNow: TRadioButton;
     Today_5min: TToolbarButton97;
     Today_10min: TToolbarButton97;
     Today_15min: TToolbarButton97;
@@ -185,14 +210,14 @@ type
     Tomorrow_6PM: TToolbarButton97;
     Tomorrow_8PM: TToolbarButton97;
 
-    Label1: TTntLabel;
-    Label3: TTntLabel;
+    Label1: TLabel;
+    Label3: TLabel;
     cReminder: TEdit;
-    lblExpirationStatus: TTntLabel;
-    lblReminder: TTntLabel;
-    TntLabel3: TTntLabel;
-    lblProposedReminder: TTntLabel;
-    lblReminderStatus: TTntLabel;
+    lblExpirationStatus: TLabel;
+    lblReminder: TLabel;
+    TntLabel3: TLabel;
+    lblProposedReminder: TLabel;
+    lblReminderStatus: TLabel;
     chk_AppyOnExit: TCheckBox;
 
     procedure FormCreate(Sender: TObject);
@@ -281,17 +306,17 @@ type
 
     procedure CleanProposedReminderPanel();
     procedure UpdateProposedReminderDate (KeepInterval: boolean = false);
-    procedure SetProposedReminderDate(ReferenceDate: TDateTime; IntervalStr: WideString; BeforeReference: Boolean; KeepInterval: boolean = false);
+    procedure SetProposedReminderDate(ReferenceDate: TDateTime; IntervalStr: string; BeforeReference: Boolean; KeepInterval: boolean = false);
     procedure ShowReminderDate(Instant: TDateTime);
     procedure ShowReminderStatus(Instant: TDateTime);
-    procedure ShowProposedReminderDate(ReminderDate: TDateTime; IntervalStr: WideString; ReferenceDate: TDateTime; KeepInterval: Boolean = false);
+    procedure ShowProposedReminderDate(ReminderDate: TDateTime; IntervalStr: string; ReferenceDate: TDateTime; KeepInterval: Boolean = false);
     procedure ReleaseTimeButtons();
     procedure DisableTimeButtonsInThePast ();
     procedure PressEquivalentTimeButton(ReminderDate: TDateTime; ReferenceDate: TDateTime);
 
     procedure SetModeEdit (Value: TShowMode);
     procedure UpdateCaption;
-    procedure UpdateAlarmOnGrid(alarm: TAlarm; item: TTntListItem);
+    procedure UpdateAlarmOnGrid(alarm: TAlarm; item: TListItem);
 
     procedure ShowExpirationDate(Instant: TDateTime);
     procedure ShowExpirationStatus(Instant: TDateTime);
@@ -326,9 +351,9 @@ var
   AscOrder: integer;  // 1: ASC  -1: DESC
 
 implementation
-uses  DateUtils, ComCtrls95, MMSystem, WideStrUtils,
-      gf_misc, kn_Main, kn_Global, kn_TreeNoteMng, kn_Const, kn_FindReplaceMng, kn_Info, kn_clipUtils,
-      kn_RTFUtils, kn_LinksMng, kn_VCLControlsMng;
+uses
+  kn_Global;
+
 
 {$R *.DFM}
 
@@ -386,10 +411,42 @@ resourcestring
   const IMG_INDEX_NO_OVERDUE_NOR_PENDING = 51;
   const IMG_INDEX_OVERDUE_OR_PENDING = 52;
 
-  
+
+
+// From TTntMonthCalendar.ForceGetMonthInfo()
+procedure ForceGetMonthInfo (calendar: TMonthCalendar);
+var
+  Hdr: TNMDayState;
+  Days: array of TMonthDayState;
+  Range: array[1..2] of TSystemTime;
+  Handle: HWND;
+begin
+  Handle:= calendar.Handle;
+
+  // populate Days array
+  Hdr.nmhdr.hwndFrom := Handle;
+  Hdr.nmhdr.idFrom := 0;
+  Hdr.nmhdr.code := MCN_GETDAYSTATE;
+  Hdr.cDayState := MonthCal_GetMonthRange(Handle, GMR_DAYSTATE, @Range[1]);
+  Hdr.stStart := Range[1];
+  SetLength(Days, Hdr.cDayState);
+  Hdr.prgDayState := @Days[0];
+  SendMessage(Handle, CN_NOTIFY, Integer(Handle), Integer(@Hdr));
+  // update day state
+  SendMessage(Handle, MCM_SETDAYSTATE, Hdr.cDayState, Longint(Hdr.prgDayState))
+end;
+
+//From ComControl98 (TreeNT)
+function MonthCal_GetMonthRange(hmc: HWND; gmr: DWORD; rgst: PSystemTime): DWORD;
+begin
+  Result := SendMessage(hmc, MCM_GETMONTHRANGE, gmr, Longint(rgst));
+end;
+
+
+
 
 //==========================================================================================
-//                                         TAlarm  
+//                                         TAlarm
 //==========================================================================================
 
 constructor TAlarm.Create;
@@ -589,7 +646,7 @@ end;
 
 function compareAlarms_selectedColumn (node1, node2: Pointer): integer;
 var
-   nodeName1, nodeName2: WideString;
+   nodeName1, nodeName2: string;
    discarded1, discarded2: Boolean;
 begin
     case SortedColumn of
@@ -666,6 +723,8 @@ var
     alarm: TAlarm;
     limit: TDateTime;
   begin
+     limit:= 0;
+
      if FCanceledAt <> 0 then
         limit:= incMinute(FCanceledAt, WAIT_TIME_ON_ESCAPE);
 
@@ -1004,7 +1063,7 @@ begin
   Glyph := TPicture.Create;
   try
     Form_Main.IMG_Toolbar.GetBitmap(Index, Glyph.Bitmap);
-    Form_Main.StatusBar.Panels[PANEL_FILEICON].Glyph := Glyph;
+    SetStatusbarGlyph(Glyph);
   finally
     Glyph.Free;
   end;
@@ -1020,11 +1079,11 @@ end;
 
 procedure TAlarmManager.CommunicateAlarm (alarm : TAlarm);
 var
-   cad: WideString;
-   idAlarm: WideString;
+   cad: string;
+   idAlarm: string;
 begin
    if alarm.AlarmNote <> '' then
-      cad:= ' [' + WideStringReplace(alarm.AlarmNote, #13#10, ' // ', [rfReplaceAll]) + ']'
+      cad:= ' [' + StringReplace(alarm.AlarmNote, #13#10, ' // ', [rfReplaceAll]) + ']'
    else
       cad:= '';
 
@@ -1032,7 +1091,7 @@ begin
       idAlarm:= alarm.node.Name
    else
       idAlarm:= alarm.note.Name;
-   Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_Triggered, [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]);
+   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Triggered, [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]);
 end;
 
 procedure TAlarmManager.TimerTimer(Sender: TObject);
@@ -1190,7 +1249,7 @@ var
 
   procedure AddAlarm (Alarm: TAlarm);
   var
-     item : TTntListItem;
+     item : TListItem;
   begin
       item := Grid.Items.Add;
       UpdateAlarmOnGrid(alarm, item);
@@ -1202,7 +1261,7 @@ begin
    Button_Sound.Down:= KeyOptions.PlaySoundOnAlarm;
    if (FFilteredAlarmList.Count = 0) then begin
        Grid.Items.Clear;
-       cIdentifier.Text := WideFormat( STR_NumberSelected, [0] );
+       cIdentifier.Text := Format( STR_NumberSelected, [0] );
        EnableControls (false);
    end
    else begin
@@ -1238,14 +1297,14 @@ begin
       end;
    end;
 
-   ccalendar.ForceGetMonthInfo;
+   ForceGetMonthInfo(ccalendar);
    FCalendarMonthChanged:= False;
 end;
 
 
 procedure TForm_Alarm.UpdateCaption;
 var
-  str: WideString;
+  str: string;
   n: integer;
 begin
     case FModeEdit of
@@ -1260,7 +1319,7 @@ begin
     if (cFilter.Text <> '') or (CB_FilterDates.ItemIndex <> 0) then
        str:= str + ' ' + STR_FilterApplied;
 
-    Caption:= WideFormat(str, [FNumberAlarms]);
+    Caption:= Format(str, [FNumberAlarms]);
 end;
 
 
@@ -1419,7 +1478,7 @@ end;
 
 procedure TForm_Alarm.SetModeEdit (Value: TShowMode);
 var
-  str: WideString;
+  str: string;
   i: integer;
 begin
     FModeEdit:= Value;
@@ -1499,7 +1558,7 @@ end;
 
 procedure TForm_Alarm.ShowCommonProperties();
 var
-  Subject: WideString; 
+  Subject: string;
   Bold: boolean; 
   FontColor: TColor;
   backColor: TColor;
@@ -1592,7 +1651,7 @@ var
    i: integer;
    alarm: TAlarm;
    myExpDate: TDateTime;
-   text: WideString;
+   text: string;
    Date, EndDate: TDateTime;
    FAuxAlarmList: TList;
 begin
@@ -1683,11 +1742,11 @@ end;
 procedure TForm_Alarm.Button_ApplyClick(Sender: TObject);
 var
   alarm: TAlarm;
-  ls: TTntListItem;
+  ls: TListItem;
   ls2: TListItem;
   i: integer;
   
-    procedure ApplyChangesOnAlarm(ls: TTntListItem; alarm: TAlarm);
+    procedure ApplyChangesOnAlarm(ls: TListItem; alarm: TAlarm);
     begin
         if FExpirationDateModified then
            alarm.ExpirationDate:= NewExpirationDate;
@@ -1766,8 +1825,9 @@ var
   i: integer;
 begin
   if Grid.SelCount > 1 then
-     if ( DoMessageBox( WideFormat( STR_ConfirmDiscardALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+     if ( DoMessageBox( Format( STR_ConfirmDiscardALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
 
+  i:= -1;
   ls := Grid.Selected;
   while Assigned(ls) do
   begin
@@ -1786,7 +1846,7 @@ begin
      Close
 
   else begin
-     ccalendar.ForceGetMonthInfo;
+     ForceGetMonthInfo(ccalendar);
      FCalendarMonthChanged:= False;
 
      Grid.SetFocus;
@@ -1808,8 +1868,9 @@ var
   i: integer;
 begin
    if Grid.SelCount > 1 then
-      if ( DoMessageBox( WideFormat( STR_ConfirmRestoreALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+      if ( DoMessageBox( Format( STR_ConfirmRestoreALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
 
+  i:= -1;
   ls := Grid.Selected;
   while Assigned(ls) do
   begin
@@ -1826,7 +1887,7 @@ begin
      end;
   end;
 
-  ccalendar.ForceGetMonthInfo;
+  ForceGetMonthInfo(ccalendar);
   FCalendarMonthChanged:= False;
   Grid.SetFocus;
   if modeEdit <> TShowAllWithDiscarded then
@@ -1842,15 +1903,16 @@ var
   alarm: TAlarm;
   ls, lsWork: TListItem;
   i: integer;
-  strConfirm: WideString;
+  strConfirm: string;
 begin
   if Grid.SelCount > 1 then
      strConfirm := STR_ConfirmRemoveALL
   else
      strConfirm := STR_ConfirmRemove;
 
-  if ( DoMessageBox( WideFormat( strConfirm, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+  if ( DoMessageBox( Format( strConfirm, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
 
+  i:= -1;
   ls := Grid.Selected;
   while Assigned(ls) do
   begin
@@ -1866,7 +1928,7 @@ begin
      end;
   end;
 
-  ccalendar.ForceGetMonthInfo;
+  ForceGetMonthInfo(ccalendar);
   FCalendarMonthChanged:= False;
   Grid.SetFocus;
   TrySelectItem(i);
@@ -1940,7 +2002,7 @@ procedure TForm_Alarm.CB_ExpirationTimeDropDown(Sender: TObject);
 var
    t: TDateTime;
    selectedIndex, i: integer;
-   strTime: WideString;
+   strTime: string;
 begin
     strTime:= TimeRevised(cExpirationTime.Text);
     cExpirationTime.Text:= strTime;
@@ -2014,7 +2076,7 @@ end;
 
 procedure TForm_Alarm.ShowExpirationStatus(Instant: TDateTime);
 var
-   IntervalStr: WideString;
+   IntervalStr: string;
 begin
      if Instant <= 0 then
        lblExpirationStatus.Caption:= ''
@@ -2040,7 +2102,7 @@ end;
 
 procedure TForm_Alarm.ShowReminderDate(Instant: TDateTime);
 var
-   str: WideString;
+   str: string;
 begin
      str:= ' ';
      if Instant <> 0 then
@@ -2053,7 +2115,7 @@ end;
 procedure TForm_Alarm.ShowReminderStatus(Instant: TDateTime);
 var
    showAsBefore: Boolean;
-   IntervalStr: WideString;
+   IntervalStr: string;
 begin
      if Instant <= 0 then
        lblReminderStatus.Caption:= ''
@@ -2062,17 +2124,17 @@ begin
 
          if Instant < now then begin
             IntervalStr:= GetTimeIntervalStr(Instant, Now);
-            lblReminderStatus.Caption:= WideFormat(STR_IntervalOverdue, [IntervalStr]);
+            lblReminderStatus.Caption:= Format(STR_IntervalOverdue, [IntervalStr]);
             lblReminderStatus.Font.Color:= clRed;
             end
          else begin
             if (NewExpirationDate = 0) or (Instant > NewExpirationDate) or (Abs(Instant - now) <= Abs(Instant - NewExpirationDate)) then begin
                 IntervalStr:= GetTimeIntervalStr(Instant, Now);
-                lblReminderStatus.Caption:= WideFormat(STR_IntervalLeft, [IntervalStr]);
+                lblReminderStatus.Caption:= Format(STR_IntervalLeft, [IntervalStr]);
             end
             else begin
                 IntervalStr:= GetTimeIntervalStr(Instant, NewExpirationDate);
-                lblReminderStatus.Caption:= WideFormat(STR_IntervalBefore, [IntervalStr]);
+                lblReminderStatus.Caption:= Format(STR_IntervalBefore, [IntervalStr]);
             end;
             if (NewExpirationDate <> 0) and (NewExpirationDate > Now) and (Instant > NewExpirationDate) then
                lblReminderStatus.Font.Color:= clRed
@@ -2108,7 +2170,7 @@ begin
    SetProposedReminderDate(ReferenceDate, CB_ProposedIntervalReminder.Text, (rb_FromNow.Checked = False), KeepInterval);
 end;
 
-procedure TForm_Alarm.SetProposedReminderDate(ReferenceDate: TDateTime; IntervalStr: WideString; BeforeReference: Boolean; KeepInterval: boolean= false);
+procedure TForm_Alarm.SetProposedReminderDate(ReferenceDate: TDateTime; IntervalStr: string; BeforeReference: Boolean; KeepInterval: boolean= false);
 begin
     if IntervalStr <> '' then begin
         try
@@ -2126,7 +2188,7 @@ begin
 end;
 
 
-procedure TForm_Alarm.ShowProposedReminderDate(ReminderDate: TDateTime; IntervalStr: WideString; ReferenceDate: TDateTime; KeepInterval: Boolean = false);
+procedure TForm_Alarm.ShowProposedReminderDate(ReminderDate: TDateTime; IntervalStr: string; ReferenceDate: TDateTime; KeepInterval: Boolean = false);
 begin
      FInitializingControls:= FInitializingControls + 1;
 
@@ -2249,7 +2311,7 @@ var
    Alarm: TDateTime;
    myNode: TNoteNode;
    setFromNow: boolean;
-   IntervalStr: WideString;
+   IntervalStr: string;
 begin
     if Sender = nil then exit;
 
@@ -2516,7 +2578,7 @@ procedure TForm_Alarm.GridSelectItem(Sender: TObject; Item: TListItem;
   Selected: Boolean);
 var
    alarm: TAlarm;
-   Subject: WideString;
+   Subject: string;
 begin
     if not Selected then exit;
 
@@ -2527,14 +2589,14 @@ begin
     
     alarm:= AlarmSelected;
     if not assigned(alarm) then begin
-       cIdentifier.Text := WideFormat( STR_NumberSelected, [0] );
+       cIdentifier.Text := Format( STR_NumberSelected, [0] );
        EnableControls (false);
     end
     else begin
          EnableControls (true);
          
          if Grid.SelCount > 1 then begin                   // Several alarms selected
-             cIdentifier.Text:= WideFormat( STR_NumberSelected, [Grid.SelCount] );
+             cIdentifier.Text:= Format( STR_NumberSelected, [Grid.SelCount] );
              ShowCommonProperties();
              FReminder:= 0;
              ShowReminderDate(0);
@@ -2636,9 +2698,9 @@ begin
 end;
 
 
-procedure TForm_Alarm.UpdateAlarmOnGrid(alarm: TAlarm; item: TTntListItem);
+procedure TForm_Alarm.UpdateAlarmOnGrid(alarm: TAlarm; item: TListItem);
   var
-     NodeName, NoteName: WideString;
+     NodeName, NoteName: string;
      Discarded: string;
   begin
       if assigned(alarm.node) then
@@ -2658,7 +2720,7 @@ procedure TForm_Alarm.UpdateAlarmOnGrid(alarm: TAlarm; item: TTntListItem);
           item.subitems.Add( FormatDateTime('hh:nn', alarm.ExpirationDate) )  // COLUMN_ExpirationTime
       else
           item.subitems.Add( '');
-      item.subitems.Add( WideStringReplace(alarm.AlarmNote, #13#10, '··', [rfReplaceAll]) );  // COLUMN_AlarmNote
+      item.subitems.Add( StringReplace(alarm.AlarmNote, #13#10, '··', [rfReplaceAll]) );  // COLUMN_AlarmNote
       item.subitems.Add( FormatDate(alarm.AlarmReminder) );               // COLUMN_ReminderDate
       item.subitems.Add( FormatDateTime('hh:nn', alarm.AlarmReminder) );  // COLUMN_ReminderTime
       item.subitems.Add( Discarded);                                      // COLUMN_Discarded
@@ -2784,7 +2846,7 @@ var
 
   function GenerateAlarmRow(alarm: TAlarm): string;
     var
-       NodeName, NoteName: WideString;
+       NodeName, NoteName: string;
        Discarded: string;
        colorFont, bgColor: string;
        pos: integer;

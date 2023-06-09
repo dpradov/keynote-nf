@@ -15,8 +15,12 @@ interface
 {$I TB97Ver.inc}
 
 uses
-  Windows, Messages, Classes, Controls, Graphics,
-  TB97;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Classes,
+   Vcl.Controls,
+   Vcl.Graphics,
+   TB97;
 
 type
   { TCustomToolbar97 }
@@ -197,7 +201,9 @@ const
 implementation
 
 uses
-  SysUtils, TB97Cmn, TB97Cnst;
+   System.SysUtils,
+   TB97Cmn,
+   TB97Cnst;
 
 const
   { Constants for registry values. Do not localize! }

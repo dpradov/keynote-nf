@@ -73,11 +73,13 @@ unit MRUFList;
 interface
 
 uses
-  Classes, SysUtils, WideStrings,   // Use of WideStrings and TntMenus
-  {$IFDEF DFS_WIN32}
-  Registry, Windows,
-  {$ENDIF}
-  Menus, TntMenus;
+   System.Classes,
+   System.SysUtils,
+   {$IFDEF DFS_WIN32}
+   Winapi.Windows,
+   System.Win.Registry,
+   {$ENDIF}
+   Vcl.Menus;
 
 
 const
@@ -125,25 +127,25 @@ type
   TdfsMRUFileList = class;  { Forward declaration }
 
   { A simple TMenuItem descendant to be used for RTTI }
-  TMRUMenuItem = class(TTntMenuItem)
+  TMRUMenuItem = class(TMenuItem)
   private
-    FFullCaption: WideString;
+    FFullCaption: string;
     FOwningList: TdfsMRUFileList;
   public
     ItemNumber: byte;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property FullCaption: WideString read FFullCaption write FFullCaption;
+    property FullCaption: string read FFullCaption write FFullCaption;
   end;
 
   { Event procedure for MRU item click.  Passes filename for easy us }
-  TMRUClick = procedure(Sender: TObject; AFilename: WideString) of object;
+  TMRUClick = procedure(Sender: TObject; AFilename: string) of object;
   { Event for programatically determining if an MRU item is obsolete }
-  TMRURemoveObsolete = procedure(Sender: TObject; AnItem: WideString;
+  TMRURemoveObsolete = procedure(Sender: TObject; AnItem: string;
      var Remove: boolean) of object;
   { Event for getting the display name of an item for MRUDisplay = mdCustom }
-  TMRUGetDisplayName = procedure(Sender: TObject; AFilename: WideString;
-     var ADisplayName: WideString) of object;
+  TMRUGetDisplayName = procedure(Sender: TObject; AFilename: string;
+     var ADisplayName: string) of object;
   { Events for creation/destruction of MRU menu items }
   TMRUOnCreateDestroyMRUItem = procedure(Sender: TObject; Item: TMRUMenuItem)
      of object;
@@ -157,9 +159,9 @@ type
     FUseSubmenu: boolean;
     FInsertSeparator : Boolean;
     FSubmenuName: string;
-    FFileMenu: TTntMenuItem;
-    FPopupMenu: TTntPopupMenu;
-    FMenuItems: TWideStringList;
+    FFileMenu: TMenuItem;
+    FPopupMenu: TPopupMenu;
+    FMenuItems: TStringList;
     FAutoSave: boolean;
     FAutoSaveName: string;
     FAutoSaveKey: string;
@@ -184,8 +186,8 @@ type
 
     { Property methods }
     procedure SetMaximum(Val: byte);
-    procedure SetFileMenu(Val: TTntMenuItem);
-    procedure SetPopupMenu(const Val: TTntPopupMenu);
+    procedure SetFileMenu(Val: TMenuItem);
+    procedure SetPopupMenu(const Val: TPopupMenu);
     procedure SetUseSubmenu(Val: boolean);
     procedure SetInsertSeparator(Val: boolean);
     procedure SetSubmenuName(Val: string);
@@ -210,9 +212,9 @@ type
     { We need to know if our menu item is deleted. }
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     { Procedures for calling event handlers }
-    procedure GetDisplayName(AFilename: WideString; var ADisplayName: WideString); virtual;
-    procedure RemoveObsolete(AFilename: WideString; var Remove: boolean); virtual;
-    procedure MRUItemClick(AFilename: WideString); virtual;
+    procedure GetDisplayName(AFilename: string; var ADisplayName: string); virtual;
+    procedure RemoveObsolete(AFilename: string; var Remove: boolean); virtual;
+    procedure MRUItemClick(AFilename: string); virtual;
     procedure CreateMRUItem(AnItem: TMRUMenuItem); virtual;
     procedure DestroyMRUItem(AnItem: TMRUMenuItem); virtual;
     procedure Loaded; override;
@@ -220,11 +222,11 @@ type
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
     { Methods to add items to the MRU list }
-    procedure InsertItem(Index: integer; aFile: WideString);
-    procedure ReplaceItem(OldItem, NewItem: WideString);
-    procedure AddItem(aFile: WideString);
-    procedure AddStringList(Files: TWideStringList);
-    procedure AddStrings(Files: TWideStrings);
+    procedure InsertItem(Index: integer; aFile: string);
+    procedure ReplaceItem(OldItem, NewItem: string);
+    procedure AddItem(aFile: string);
+    procedure AddStringList(Files: TStringList);
+    procedure AddStrings(Files: TStrings);
     { Methods to load and save items. }
     function Load: boolean;
     function Save: boolean;
@@ -232,14 +234,14 @@ type
     { list.  You probably want ClearAllItems. }
     procedure RemoveAllItems;
     { Method to clear a single item by name from the MRU items. }
-    procedure ClearItem (aFile: WideString);
+    procedure ClearItem (aFile: string);
     { Method to clear all current MRU items. }
     procedure ClearAllItems; virtual;
     { Method to remove all "obsolete" items. }
     procedure RemoveObsoleteItems; virtual;
 
     { The MRU Items.  Read Only. }
-    property Items: TWideStringList
+    property Items: TStringList
        read FMenuItems;
   published
     {$IFDEF DFS_WIN32}
@@ -295,10 +297,10 @@ type
     property OnRemoveObsolete: TMRURemoveObsolete 
        read FOnRemoveObsolete
        write FOnRemoveObsolete;
-    property FileMenu: TTntMenuItem       { Menu to place MRU items on. }
+    property FileMenu: TMenuItem       { Menu to place MRU items on. }
        read FFileMenu
        write SetFileMenu;
-    property PopupMenu: TTntPopupMenu
+    property PopupMenu: TPopupMenu
        read FPopupMenu
        write SetPopupMenu;
     property AutoSave: boolean         { Save and restore MRU items automatically. }
@@ -339,8 +341,9 @@ type
 implementation
 
 uses
-  WinTypes, WinProcs, Graphics, FileCtrl, INIFiles,
-  TntSysUtils, TntSystem, gf_files;  // [dpv] Use of TntSysUtils, TntSystem and gf_files
+   System.IniFiles,
+   Vcl.Graphics,
+   Vcl.FileCtrl;
 
 var
   MenuBmp: TBitmap;
@@ -380,7 +383,7 @@ begin
   FInsertSeparator:=True;
   SubmenuName := DEF_SUBMENUNAME;
   FMaxCaptionWidth := DEF_MAXCAPTIONWIDTH;
-  FMenuItems := TWideStringList.Create;
+  FMenuItems := TStringList.Create;
   FMenuItems.Sorted := FALSE;
   FMRUDisplay := mdFullPath;
   FInhibitUpdate := FALSE;
@@ -428,14 +431,14 @@ begin
   FMaximum := Val;
 end;
 
-procedure TdfsMRUFileList.SetFileMenu(Val: TTntMenuItem);
+procedure TdfsMRUFileList.SetFileMenu(Val: TMenuItem);
 begin
   RemoveAllItems;           { Remove MRU items from old menu. }
   FFileMenu := Val;
   PopulateMenu;             { Add MRU items to new menu.      }
 end;
 
-procedure TdfsMRUFileList.SetPopupMenu(const Val: TTntPopupMenu);
+procedure TdfsMRUFileList.SetPopupMenu(const Val: TPopupMenu);
 begin
   RemoveAllItems;           { Remove MRU items from old menu. }
   FPopupMenu := Val;
@@ -552,7 +555,7 @@ end;
 
 procedure TdfsMRUFileList.MRUClicked(Sender: TObject);
 var
-  ClickItem: WideString;
+  ClickItem: string;
 begin
   with Sender as TMRUMenuItem do begin
     if assigned(FOnMRUItemClick) then       { Save the clicked item's filename }
@@ -567,7 +570,7 @@ begin
   end;
 end;
 
-procedure TdfsMRUFileList.InsertItem(Index: integer; aFile: WideString);
+procedure TdfsMRUFileList.InsertItem(Index: integer; aFile: string);
 var
   i: integer;
 begin
@@ -586,7 +589,7 @@ begin
     PopulateMenu;                        { Yes, redo the menu. }
 end;
 
-procedure TdfsMRUFileList.ReplaceItem(OldItem, NewItem: WideString);
+procedure TdfsMRUFileList.ReplaceItem(OldItem, NewItem: string);
 var
   i: integer;
 begin
@@ -601,7 +604,7 @@ begin
     PopulateMenu;                        { Yes, redo the menu. }
 end;
 
-procedure TdfsMRUFileList.AddItem(aFile: WideString);
+procedure TdfsMRUFileList.AddItem(aFile: string);
 var
   i: integer;
 begin
@@ -628,7 +631,7 @@ begin
     PopulateMenu;                        { Yes, redo the menu. }
 end;
 
-procedure TdfsMRUFileList.AddStringList(Files: TWideStringList);
+procedure TdfsMRUFileList.AddStringList(Files: TStringList);
 var
   x: integer;
 begin
@@ -639,7 +642,7 @@ begin
   PopulateMenu;                { Update menu now that all are added. }
 end;
 
-procedure TdfsMRUFileList.AddStrings(Files: TWideStrings);
+procedure TdfsMRUFileList.AddStrings(Files: TStrings);
 var
   x: integer;
 begin
@@ -671,7 +674,7 @@ var
   AddMenu,
   CurMenu,
   NewMenuItem : TMenuItem;
-  s, t: WideString;
+  s, t: string;
 begin
   { No menus assigned, nothing to do. }
   if (FFileMenu = NIL) and (FPopupMenu = NIL) then exit;
@@ -747,11 +750,11 @@ begin
           if FMaxCaptionWidth = 0 then
             NewItem.Caption := NewItem.FullCaption
           else
-            NewItem.Caption := MakeAmpShortcut(x) + WideMinimizeName(FMenuItems[x],
+            NewItem.Caption := MakeAmpShortcut(x) + MinimizeName(FMenuItems[x],
               MenuBmp.Canvas, FMaxCaptionWidth);
         mdFileNameExt:
           { Can't minimize a filename only, so don't bother with MaxCaptionWidth }
-          NewItem.Caption := WideExtractFileName(NewItem.FullCaption);
+          NewItem.Caption := ExtractFileName(NewItem.FullCaption);
         mdFileNameOnly:
           begin
             { Can't minimize a filename only, so don't bother with MaxCaptionWidth }
@@ -859,7 +862,7 @@ begin
   end;
 end;
 
-procedure TdfsMRUFileList.ClearItem(aFile: WideString);
+procedure TdfsMRUFileList.ClearItem(aFile: string);
 var
   i: integer;
 begin
@@ -872,7 +875,7 @@ begin
 end;
 
 function TdfsMRUFileList.Load: boolean;
-  procedure StripIdents(Items: TWideStringList);
+  procedure StripIdents(Items: TStringList);
   var
     p: byte;
     x: integer;
@@ -887,7 +890,6 @@ var
   RegSettings: TRegIniFile;
   {$ENDIF}
   IniSettings: TIniFile;
-  FAnsiMenuItems: TStringList;
 begin
   Result := FALSE;
   if csDesigning in ComponentState then
@@ -895,38 +897,30 @@ begin
 
   ClearAllItems;
   if (FAutoSaveName = '') or (FAutoSaveKey = '') then exit;
-
-  FAnsiMenuItems:= TStringList.Create;
-  try
-      {$IFDEF DFS_WIN32}
-      if FUseRegistry then
-      begin
-        RegSettings := TRegIniFile.Create(FAutoSaveName);
-        try
-          RegSettings.RootKey := FRegistryKey;
-          RegSettings.OpenKey(FAutoSaveName, TRUE);
-          RegSettings.ReadSectionValues(FAutoSaveKey, FAnsiMenuItems);
-          FMenuItems.Text:= FAnsiMenuItems.Text;
-        finally
-          RegSettings.Free;
-        end;
-      end else
-      {$ENDIF}
-      begin
-        IniSettings := TIniFile.Create(FAutoSaveName);
-        try
-          IniSettings.ReadSectionValues(FAutoSaveKey, FAnsiMenuItems);
-          FMenuItems.Text:= UTF8ToWideString(FAnsiMenuItems.Text);
-        finally
-          IniSettings.Free;
-        end;
-      end;
-      StripIdents(FMenuItems);
-      PopulateMenu;
-      Result := TRUE;
-  finally
-      FAnsiMenuItems.Free;
+  {$IFDEF DFS_WIN32}
+  if FUseRegistry then
+  begin
+    RegSettings := TRegIniFile.Create(FAutoSaveName);
+    try
+      RegSettings.RootKey := FRegistryKey;
+      RegSettings.OpenKey(FAutoSaveName, TRUE);
+      RegSettings.ReadSectionValues(FAutoSaveKey, FMenuItems);
+    finally
+      RegSettings.Free;
+    end;
+  end else
+  {$ENDIF}
+  begin
+    IniSettings := TIniFile.Create(FAutoSaveName);
+    try
+      IniSettings.ReadSectionValues(FAutoSaveKey, FMenuItems);
+    finally
+      IniSettings.Free;
+    end;
   end;
+  StripIdents(FMenuItems);
+  PopulateMenu;
+  Result := TRUE;
 end;
 
 function TdfsMRUFileList.Save: boolean;
@@ -951,7 +945,7 @@ begin
       RegSettings.OpenKey(FAutoSaveName, TRUE);
       RegSettings.EraseSection(FAutoSaveKey);
       for x := 0 to Items.Count-1 do
-        RegSettings.WriteString(FAutoSaveKey, 'F'+IntToStr(x), WideStringToUTF8(Items[x]));
+        RegSettings.WriteString(FAutoSaveKey, 'F'+IntToStr(x), Items[x]);
       Result := TRUE;
     finally
       RegSettings.Free;
@@ -963,7 +957,7 @@ begin
     try
       IniSettings.EraseSection(FAutoSaveKey);
       for x := 0 to Items.Count-1 do
-        IniSettings.WriteString(FAutoSaveKey, 'F'+IntToStr(x), WideStringToUTF8(Items[x]));
+        IniSettings.WriteString(FAutoSaveKey, 'F'+IntToStr(x), Items[x]);
       Result := TRUE;
     finally
       IniSettings.Free;
@@ -1025,19 +1019,19 @@ begin
   { empty write method, just needed to get it to show up in Object Inspector }
 end;
 
-procedure TdfsMRUFileList.GetDisplayName(AFilename: WideString; var ADisplayName: WideString);
+procedure TdfsMRUFileList.GetDisplayName(AFilename: string; var ADisplayName: string);
 begin
   if assigned(FOnGetDisplayName) then
     FOnGetDisplayName(Self, AFilename, ADisplayName);
 end;
 
-procedure TdfsMRUFileList.RemoveObsolete(AFilename: WideString; var Remove: boolean);
+procedure TdfsMRUFileList.RemoveObsolete(AFilename: string; var Remove: boolean);
 begin
   if assigned(FOnRemoveObsolete) then
     FOnRemoveObsolete(Self, AFilename, Remove);
 end;
 
-procedure TdfsMRUFileList.MRUItemClick(AFilename: WideString);
+procedure TdfsMRUFileList.MRUItemClick(AFilename: string);
 begin
   if assigned(FOnMRUItemClick) then
     FOnMRUItemClick(Self, AFilename);

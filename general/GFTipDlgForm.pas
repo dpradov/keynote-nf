@@ -21,9 +21,17 @@ unit GFTipDlgForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, gf_misc, gf_miscvcl;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   gf_miscvcl;
 
 type
   TGFTipForm = class(TForm)

@@ -1,0 +1,244 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{7439af3c-3813-47df-974e-4dad49fcf511}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Projects Include="..\..\Demo\DBEXPL32\DBEXPL32.dproj" />
+    <Projects Include="..\..\Demo\DBEXPLOR\DBEXPLR.dproj" />
+    <Projects Include="..\..\Demo\GIFANM32\Rxgifanm.dproj" />
+    <Projects Include="..\..\Demo\RICHED2\Richeditor.dproj" />
+    <Projects Include="..\..\Demo\RXDEMO\RXDEMO.dproj" />
+    <Projects Include="..\..\Demo\RXMULTILANG\mml.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\1. Simple Plugin and Host Application\PlugInDemo.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\1. Simple Plugin and Host Application\SamplePluginOne.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\2. MDI Form\MDIPlugin.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\2. MDI Form\MDISample.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\3. Changing Properties\ChangePropertiesPlugin.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\3. Changing Properties\PlugInDemo.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\4. Hooking into the Application\ExceptionPlugin.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\4. Hooking into the Application\PlugInDemo.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\5. Data Aware Plugins\DataPlugin.dproj" />
+    <Projects Include="..\..\Demo\RXPLUGINS\5. Data Aware Plugins\PlugInDemo.dproj" />
+    <Projects Include="DclRxBde110.dproj" />
+    <Projects Include="DclRxCtl110.dproj" />
+    <Projects Include="DclRxDB110.dproj" />
+    <Projects Include="RtmRxBde110.dproj" />
+    <Projects Include="RtmRxCtl110.dproj" />
+    <Projects Include="RtmRxDB110.dproj" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Default.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+<BorlandProject xmlns=""><Default.Personality></Default.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Target Name="RtmRxCtl110">
+    <MSBuild Projects="RtmRxCtl110.dproj" Targets="" />
+  </Target>
+  <Target Name="RtmRxCtl110:Clean">
+    <MSBuild Projects="RtmRxCtl110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="RtmRxCtl110:Make">
+    <MSBuild Projects="RtmRxCtl110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="DclRxCtl110">
+    <MSBuild Projects="DclRxCtl110.dproj" Targets="" />
+  </Target>
+  <Target Name="DclRxCtl110:Clean">
+    <MSBuild Projects="DclRxCtl110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="DclRxCtl110:Make">
+    <MSBuild Projects="DclRxCtl110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="RtmRxDB110">
+    <MSBuild Projects="RtmRxDB110.dproj" Targets="" />
+  </Target>
+  <Target Name="RtmRxDB110:Clean">
+    <MSBuild Projects="RtmRxDB110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="RtmRxDB110:Make">
+    <MSBuild Projects="RtmRxDB110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="DclRxDB110">
+    <MSBuild Projects="DclRxDB110.dproj" Targets="" />
+  </Target>
+  <Target Name="DclRxDB110:Clean">
+    <MSBuild Projects="DclRxDB110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="DclRxDB110:Make">
+    <MSBuild Projects="DclRxDB110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="RtmRxBde110">
+    <MSBuild Projects="RtmRxBde110.dproj" Targets="" />
+  </Target>
+  <Target Name="RtmRxBde110:Clean">
+    <MSBuild Projects="RtmRxBde110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="RtmRxBde110:Make">
+    <MSBuild Projects="RtmRxBde110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="DclRxBde110">
+    <MSBuild Projects="DclRxBde110.dproj" Targets="" />
+  </Target>
+  <Target Name="DclRxBde110:Clean">
+    <MSBuild Projects="DclRxBde110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="DclRxBde110:Make">
+    <MSBuild Projects="DclRxBde110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="DBEXPL32">
+    <MSBuild Projects="..\..\Demo\DBEXPL32\DBEXPL32.dproj" Targets="" />
+  </Target>
+  <Target Name="DBEXPL32:Clean">
+    <MSBuild Projects="..\..\Demo\DBEXPL32\DBEXPL32.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="DBEXPL32:Make">
+    <MSBuild Projects="..\..\Demo\DBEXPL32\DBEXPL32.dproj" Targets="Make" />
+  </Target>
+  <Target Name="DBEXPLR">
+    <MSBuild Projects="..\..\Demo\DBEXPLOR\DBEXPLR.dproj" Targets="" />
+  </Target>
+  <Target Name="DBEXPLR:Clean">
+    <MSBuild Projects="..\..\Demo\DBEXPLOR\DBEXPLR.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="DBEXPLR:Make">
+    <MSBuild Projects="..\..\Demo\DBEXPLOR\DBEXPLR.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Rxgifanm">
+    <MSBuild Projects="..\..\Demo\GIFANM32\Rxgifanm.dproj" Targets="" />
+  </Target>
+  <Target Name="Rxgifanm:Clean">
+    <MSBuild Projects="..\..\Demo\GIFANM32\Rxgifanm.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="Rxgifanm:Make">
+    <MSBuild Projects="..\..\Demo\GIFANM32\Rxgifanm.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Richeditor">
+    <MSBuild Projects="..\..\Demo\RICHED2\Richeditor.dproj" Targets="" />
+  </Target>
+  <Target Name="Richeditor:Clean">
+    <MSBuild Projects="..\..\Demo\RICHED2\Richeditor.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="Richeditor:Make">
+    <MSBuild Projects="..\..\Demo\RICHED2\Richeditor.dproj" Targets="Make" />
+  </Target>
+  <Target Name="RXDEMO">
+    <MSBuild Projects="..\..\Demo\RXDEMO\RXDEMO.dproj" Targets="" />
+  </Target>
+  <Target Name="RXDEMO:Clean">
+    <MSBuild Projects="..\..\Demo\RXDEMO\RXDEMO.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="RXDEMO:Make">
+    <MSBuild Projects="..\..\Demo\RXDEMO\RXDEMO.dproj" Targets="Make" />
+  </Target>
+  <Target Name="mml">
+    <MSBuild Projects="..\..\Demo\RXMULTILANG\mml.dproj" Targets="" />
+  </Target>
+  <Target Name="mml:Clean">
+    <MSBuild Projects="..\..\Demo\RXMULTILANG\mml.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="mml:Make">
+    <MSBuild Projects="..\..\Demo\RXMULTILANG\mml.dproj" Targets="Make" />
+  </Target>
+  <Target Name="PlugInDemo">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\1. Simple Plugin and Host Application\PlugInDemo.dproj" Targets="" />
+  </Target>
+  <Target Name="PlugInDemo:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\1. Simple Plugin and Host Application\PlugInDemo.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="PlugInDemo:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\1. Simple Plugin and Host Application\PlugInDemo.dproj" Targets="Make" />
+  </Target>
+  <Target Name="SamplePluginOne">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\1. Simple Plugin and Host Application\SamplePluginOne.dproj" Targets="" />
+  </Target>
+  <Target Name="SamplePluginOne:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\1. Simple Plugin and Host Application\SamplePluginOne.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="SamplePluginOne:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\1. Simple Plugin and Host Application\SamplePluginOne.dproj" Targets="Make" />
+  </Target>
+  <Target Name="MDIPlugin">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\2. MDI Form\MDIPlugin.dproj" Targets="" />
+  </Target>
+  <Target Name="MDIPlugin:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\2. MDI Form\MDIPlugin.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="MDIPlugin:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\2. MDI Form\MDIPlugin.dproj" Targets="Make" />
+  </Target>
+  <Target Name="MDISample">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\2. MDI Form\MDISample.dproj" Targets="" />
+  </Target>
+  <Target Name="MDISample:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\2. MDI Form\MDISample.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="MDISample:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\2. MDI Form\MDISample.dproj" Targets="Make" />
+  </Target>
+  <Target Name="ChangePropertiesPlugin">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\3. Changing Properties\ChangePropertiesPlugin.dproj" Targets="" />
+  </Target>
+  <Target Name="ChangePropertiesPlugin:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\3. Changing Properties\ChangePropertiesPlugin.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="ChangePropertiesPlugin:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\3. Changing Properties\ChangePropertiesPlugin.dproj" Targets="Make" />
+  </Target>
+  <Target Name="PlugInDemo">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\3. Changing Properties\PlugInDemo.dproj" Targets="" />
+  </Target>
+  <Target Name="PlugInDemo:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\3. Changing Properties\PlugInDemo.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="PlugInDemo:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\3. Changing Properties\PlugInDemo.dproj" Targets="Make" />
+  </Target>
+  <Target Name="ExceptionPlugin">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\4. Hooking into the Application\ExceptionPlugin.dproj" Targets="" />
+  </Target>
+  <Target Name="ExceptionPlugin:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\4. Hooking into the Application\ExceptionPlugin.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="ExceptionPlugin:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\4. Hooking into the Application\ExceptionPlugin.dproj" Targets="Make" />
+  </Target>
+  <Target Name="PlugInDemo">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\4. Hooking into the Application\PlugInDemo.dproj" Targets="" />
+  </Target>
+  <Target Name="PlugInDemo:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\4. Hooking into the Application\PlugInDemo.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="PlugInDemo:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\4. Hooking into the Application\PlugInDemo.dproj" Targets="Make" />
+  </Target>
+  <Target Name="DataPlugin">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\5. Data Aware Plugins\DataPlugin.dproj" Targets="" />
+  </Target>
+  <Target Name="DataPlugin:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\5. Data Aware Plugins\DataPlugin.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="DataPlugin:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\5. Data Aware Plugins\DataPlugin.dproj" Targets="Make" />
+  </Target>
+  <Target Name="PlugInDemo">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\5. Data Aware Plugins\PlugInDemo.dproj" Targets="" />
+  </Target>
+  <Target Name="PlugInDemo:Clean">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\5. Data Aware Plugins\PlugInDemo.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="PlugInDemo:Make">
+    <MSBuild Projects="..\..\Demo\RXPLUGINS\5. Data Aware Plugins\PlugInDemo.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Build">
+    <CallTarget Targets="RtmRxCtl110;DclRxCtl110;RtmRxDB110;DclRxDB110;RtmRxBde110;DclRxBde110;DBEXPL32;DBEXPLR;Rxgifanm;Richeditor;RXDEMO;mml;PlugInDemo;SamplePluginOne;MDIPlugin;MDISample;ChangePropertiesPlugin;PlugInDemo;ExceptionPlugin;PlugInDemo;DataPlugin;PlugInDemo" />
+  </Target>
+  <Target Name="Clean">
+    <CallTarget Targets="RtmRxCtl110:Clean;DclRxCtl110:Clean;RtmRxDB110:Clean;DclRxDB110:Clean;RtmRxBde110:Clean;DclRxBde110:Clean;DBEXPL32:Clean;DBEXPLR:Clean;Rxgifanm:Clean;Richeditor:Clean;RXDEMO:Clean;mml:Clean;PlugInDemo:Clean;SamplePluginOne:Clean;MDIPlugin:Clean;MDISample:Clean;ChangePropertiesPlugin:Clean;PlugInDemo:Clean;ExceptionPlugin:Clean;PlugInDemo:Clean;DataPlugin:Clean;PlugInDemo:Clean" />
+  </Target>
+  <Target Name="Make">
+    <CallTarget Targets="RtmRxCtl110:Make;DclRxCtl110:Make;RtmRxDB110:Make;DclRxDB110:Make;RtmRxBde110:Make;DclRxBde110:Make;DBEXPL32:Make;DBEXPLR:Make;Rxgifanm:Make;Richeditor:Make;RXDEMO:Make;mml:Make;PlugInDemo:Make;SamplePluginOne:Make;MDIPlugin:Make;MDISample:Make;ChangePropertiesPlugin:Make;PlugInDemo:Make;ExceptionPlugin:Make;PlugInDemo:Make;DataPlugin:Make;PlugInDemo:Make" />
+  </Target>
+  <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
+</Project>

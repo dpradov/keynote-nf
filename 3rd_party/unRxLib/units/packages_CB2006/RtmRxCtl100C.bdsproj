@@ -1,0 +1,353 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">CPlusPlusBuilder.Personality</Option>
+			<Option Name="ProjectType">CppPackage</Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{552807B4-CBFF-4615-B2E2-011B7A2F4775}</Option>
+		</Option>
+	</PersonalityInfo>
+	<CPlusPlusBuilder.Personality>
+		<Source>
+			<Source Name="MainSource">RtmRxCtl100C.cpp</Source>
+		</Source>
+		<BCBPROJECT>
+      <project version="10.0">
+        <property category="build.config" name="active" value="0"/>
+        <property category="build.config" name="count" value="1"/>
+        <property category="build.config" name="excludedefaultforzero" value="0"/>
+        <property category="build.config.0" name="builddir" value="Debug"/>
+        <property category="build.config.0" name="key" value="Debug_Build"/>
+        <property category="build.config.0" name="name" value="Debug Build"/>
+        <property category="build.config.0" name="settings.win32b" value="default"/>
+        <property category="build.config.0" name="type" value="Toolset"/>
+        <property category="build.config.0" name="win32.win32b.builddir" value="Debug_Build"/>
+        <property category="build.config.1" name="key" value="Release_Build"/>
+        <property category="build.config.1" name="name" value="Release Build"/>
+        <property category="build.config.1" name="settings.win32b" value="default"/>
+        <property category="build.config.1" name="type" value="Toolset"/>
+        <property category="build.config.1" name="win32.win32b.builddir" value="Release_Build"/>
+        <property category="build.node" name="name" value="RtmRxCtl100C.bpl"/>
+        <property category="build.node" name="packages" value="rtl;vcl;vcljpg;vclx;VclSmp"/>
+        <property category="build.node" name="sparelibs" value="rtl.lib vcl.lib"/>
+        <property category="build.node" name="use_packages" value="1"/>
+        <property category="build.platform" name="active" value="win32"/>
+        <property category="build.platform" name="win32.Debug_Build.toolset" value="win32b"/>
+        <property category="build.platform" name="win32.Release_Build.toolset" value="win32b"/>
+        <property category="build.platform" name="win32.default" value="win32b"/>
+        <property category="build.platform" name="win32.enabled" value="1"/>
+        <property category="build.platform" name="win32.win32b.enabled" value="1"/>
+        <property category="win32.*.win32b.dcc32" name="param.filenames.merge" value="1"/>
+        <property category="win32.*.win32b.tasm32" name="param.listfile.merge" value="1"/>
+        <property category="win32.*.win32b.tasm32" name="param.objfile.merge" value="1"/>
+        <property category="win32.*.win32b.tasm32" name="param.xreffile.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.1" value="_DEBUG"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.Od.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.k.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.r.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.v.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.vi.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.y.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.$D.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.$O.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.D.arg.1" value="DEBUG"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.D.arg.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.D.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="param.filenames.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.ilink32" name="option.L.arg.1" value="$(BDS)\lib\debug"/>
+        <property category="win32.Debug_Build.win32b.ilink32" name="option.L.arg.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.ilink32" name="option.L.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.tasm32" name="option.z.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.tasm32" name="option.zd.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.tasm32" name="option.zi.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.1" value="NDEBUG"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.merge" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.O2.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.k.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.r.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.vi.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.dcc32" name="option.$D.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.dcc32" name="option.$O.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.dcc32" name="option.V.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.ilink32" name="option.L.arg.1" value="$(BDS)\lib\release"/>
+        <property category="win32.Release_Build.win32b.ilink32" name="option.L.arg.merge" value="1"/>
+        <property category="win32.Release_Build.win32b.ilink32" name="option.L.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.tasm32" name="option.z.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.tasm32" name="option.zd.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.tasm32" name="option.zi.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.tasm32" name="option.zn.enabled" value="1"/>
+        <optionset name="all_configurations">
+          <property category="node" name="displayname" value="All Configurations"/>
+          <property category="win32.*.win32b.bcc32" name="container.SelectedOptimizations.containerenabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="container.SelectedWarnings.containerenabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.4.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.5.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.6.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.A.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.AK.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.AU.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.H=.arg.1" value="$(BDS)\lib\vcl100.csm"/>
+          <property category="win32.*.win32b.bcc32" name="option.H=.arg.merge" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.H=.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.Hc.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.1" value="..\"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.2" value="$(CLIB)\Rx\units"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.3" value="$(CLIB)\Rx\units\packages_CB2006\Debug_Build"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.4" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.5" value="$(BDS)\include"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.6" value="$(BDS)\include\dinkumware"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.7" value="$(BDS)\include\vcl"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.merge" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.Jgi.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.Jgx.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.O1.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.O2.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.Od.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.V0.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.V1.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.align-1.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.align-2.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.align-3.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.align-5.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.b.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.disablewarns.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.p.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.pm.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.pr.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.ps.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.arg.1" value="_RTLDLL"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.arg.2" value="USEPACKAGES"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.arg.3" value="NO_STRICT"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.arg.merge" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.tW.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.tWC.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.tWD.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.tWM.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.w.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.$A1.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.$A2.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.$A4.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.$Z2.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.$Z4.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.D.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.D.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.GD.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.GP.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.GS.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.1" value="..\"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.2" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.J.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.JP.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.JPH.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.JPHN.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.1" value="..\"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.2" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.1" value="..\"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.2" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.1" value="..\"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.2" value="$(CLIB)\Rx\units"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.3" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.4" value="C:\Documents and Settings\Micrel\Dokumenty\Borland Studio Projects"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.5" value="$(BDS)\lib"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.6" value="$(BDS)\lib\obj"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="param.filenames.merge" value="1"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.arg.1" value="..\"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.arg.2" value="c:\Projects\CLib2006_CB\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.arg.merge" value="1"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="container.SelectedWarnings.containerenabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.-w-.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.Gi.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.Gl.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.Gpd.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.GpdGpr.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.Gpr.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.1" value="..\"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.2" value="$(CLIB)\Rx\units\packages_CB2006\Debug_Build"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.3" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.4" value="$(CLIB)\Rx\units"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.5" value="$(BDS)\lib"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.6" value="$(BDS)\lib\obj"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.7" value="$(BDS)\lib\psdk"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.merge" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.Tpd.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.Tpe.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.Tpp.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.aa.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.ap.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.dynamicrtl.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.arg.1" value="..\"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.arg.2" value="c:\Projects\CLib2006_CB\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.arg.merge" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.m.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.map_segments.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.s.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.w.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="param.libfiles.1" value="$(LIBRARIES)"/>
+          <property category="win32.*.win32b.ilink32" name="param.libfiles.2" value="import32.lib"/>
+          <property category="win32.*.win32b.ilink32" name="param.libfiles.3" value="cp32mti.lib"/>
+          <property category="win32.*.win32b.ilink32" name="param.libfiles.merge" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.1" value="c0pkg32.obj"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.2" value="$(PACKAGES)"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.3" value="memmgr.lib"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.4" value="sysinit.obj"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.merge" value="1"/>
+        </optionset>
+      </project>
+      <FILELIST>
+        <FILE FILENAME="RtmRxCtl100C.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="RtmRxCtl100C" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\..\..\..\rtl.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="rtl" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="RtmRxCtl100C.res" CONTAINERID="ResTool" LOCALCOMMAND="" UNITNAME="RtmRxCtl100C.res" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxAniFile.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxAniFile" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxAnimate.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxAnimate" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxAppEvent.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxAppEvent" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxAppUtils.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxAppUtils" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxBoxProcs.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxBoxProcs" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxCalc.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxCalc" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxCalcEditDlg.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxCalcEditDlg" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxClipIcon.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxClipIcon" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxClipMon.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxClipMon" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxClipView.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxClipView" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxClock.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxClock" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxCombos.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxCombos" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxConst.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxConst" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxCtrls.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxCtrls" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxCurrEdit.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxCurrEdit" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDataConv.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDataConv" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDateUtil.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDateUtil" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDice.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDice" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDualList.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDualList" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxExcptDlg.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxExcptDlg" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxExtenders.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxExtenders" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxFDualLst.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxFDualLst" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxFileUtil.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxFileUtil" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxGIF.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxGIF" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxGIFCtrl.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxGIFCtrl" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxGraph.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxGraph" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxGrdCpt.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxGrdCpt" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxGrids.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxGrids" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxHints.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxHints" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxHook.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxHook" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxIcoList.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxIcoList" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxIni.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxIni" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxMailBox.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxMailBox" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxMaxMin.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxMaxMin" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxMenus.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxMenus" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxMrgMngr.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxMrgMngr" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxMRUList.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxMRUList" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxNotify.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxNotify" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxNTSecurity.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxNTSecurity" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxObjStr.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxObjStr" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxOle2Auto.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxOle2Auto" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxPageMngr.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxPageMngr" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxParsing.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxParsing" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxPicClip.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxPicClip" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxPickDate.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxPickDate" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxPlacemnt.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxPlacemnt" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxPlugin.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxPlugin" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxPluginManager.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxPluginManager" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxPrgrss.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxPrgrss" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxProps.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxProps" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxResConst.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxResConst" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxRichEd.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxRichEd" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxRichPopup.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxRichPopup" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxSbSetup.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxSbSetup" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxShell.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxShell" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxSlider.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxSlider" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxSpeedbar.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxSpeedbar" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxSpin.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxSpin" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxSplit.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxSplit" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxSplshWnd.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxSplshWnd" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxStr16.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxStr16" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxStrHlder.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxStrHlder" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxStrUtils.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxStrUtils" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxSwitch.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxSwitch" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxTimer.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxTimer" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxTimerLst.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxTimerLst" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxToolEdit.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxToolEdit" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxTranslate.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxTranslate" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxVCLUtils.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxVCLUtils" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxVerInf.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxVerInf" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxViewer.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxViewer" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxRichPopup.dcr" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxRichPopup" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\..\..\..\vcl.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="vcl" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\..\..\..\vcljpg.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="vcljpg" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\..\..\..\vclx.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="vclx" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\..\..\..\VclSmp.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="VclSmp" FORMNAME="" DESIGNCLASS=""/>
+      </FILELIST>
+      <IDEOPTIONS>
+        <VersionInfo>
+          <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+          <VersionInfo Name="AutoIncBuild">False</VersionInfo>
+          <VersionInfo Name="MajorVer">1</VersionInfo>
+          <VersionInfo Name="MinorVer">0</VersionInfo>
+          <VersionInfo Name="Release">0</VersionInfo>
+          <VersionInfo Name="Build">0</VersionInfo>
+          <VersionInfo Name="Debug">False</VersionInfo>
+          <VersionInfo Name="PreRelease">False</VersionInfo>
+          <VersionInfo Name="Special">False</VersionInfo>
+          <VersionInfo Name="Private">False</VersionInfo>
+          <VersionInfo Name="DLL">False</VersionInfo>
+          <VersionInfo Name="Locale">1029</VersionInfo>
+          <VersionInfo Name="CodePage">1250</VersionInfo>
+        </VersionInfo>
+        <VersionInfoKeys>
+          <VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
+          <VersionInfoKeys Name="FileDescription"></VersionInfoKeys>
+          <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+          <VersionInfoKeys Name="InternalName"></VersionInfoKeys>
+          <VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys>
+          <VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
+          <VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys>
+          <VersionInfoKeys Name="ProductName"></VersionInfoKeys>
+          <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+          <VersionInfoKeys Name="Comments"></VersionInfoKeys>
+        </VersionInfoKeys>
+        <Debugging>
+          <Debugging Name="DebugSourceDirs"></Debugging>
+        </Debugging>
+        <Parameters>
+          <Parameters Name="RunParams"></Parameters>
+          <Parameters Name="Launcher"></Parameters>
+          <Parameters Name="UseLauncher">False</Parameters>
+          <Parameters Name="DebugCWD"></Parameters>
+          <Parameters Name="HostApplication"></Parameters>
+          <Parameters Name="RemoteHost"></Parameters>
+          <Parameters Name="RemotePath"></Parameters>
+          <Parameters Name="RemoteParams"></Parameters>
+          <Parameters Name="RemoteLauncher"></Parameters>
+          <Parameters Name="UseRemoteLauncher">False</Parameters>
+          <Parameters Name="RemoteCWD"></Parameters>
+          <Parameters Name="RemoteDebug">False</Parameters>
+          <Parameters Name="Debug Symbols Search Path"></Parameters>
+          <Parameters Name="LoadAllSymbols">True</Parameters>
+          <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+        </Parameters>
+        <Linker>
+          <Linker Name="LibPrefix"></Linker>
+          <Linker Name="LibSuffix"></Linker>
+          <Linker Name="LibVersion"></Linker>
+        </Linker>
+      </IDEOPTIONS>
+    </BCBPROJECT>
+		<buildevents/>
+	</CPlusPlusBuilder.Personality>
+	<StarTeamAssociation></StarTeamAssociation>
+	<StarTeamNonRelativeFiles></StarTeamNonRelativeFiles>
+</BorlandProject>

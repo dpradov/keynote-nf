@@ -18,25 +18,33 @@ unit kn_NodeNum;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, Spin, TntStdCtrls, TntExtCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   Vcl.Samples.Spin;
 
 type
   TForm_NodeNum = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    RG_Scope: TTntRadioGroup;
-    RG_CurNum: TTntRadioGroup;
-    RG_Method: TTntRadioGroup;
-    GroupBox1: TTntGroupBox;
-    Label1: TTntLabel;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    RG_Scope: TRadioGroup;
+    RG_CurNum: TRadioGroup;
+    RG_Method: TRadioGroup;
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
     Spin_StartNum: TSpinEdit;
-    GroupBox2: TTntGroupBox;
-    LB_Depth: TTntLabel;
+    GroupBox2: TGroupBox;
+    LB_Depth: TLabel;
     Spin_Depth: TSpinEdit;
-    CB_FullDepth: TTntCheckBox;
-    Btn_Remove: TTntButton;
+    CB_FullDepth: TCheckBox;
+    Btn_Remove: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);

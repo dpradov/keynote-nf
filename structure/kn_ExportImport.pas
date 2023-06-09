@@ -1,44 +1,61 @@
 unit kn_ExportImport;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 uses
-   Classes, wideStrings, kn_const, kn_Info;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Classes,
+   System.SysUtils,
+   System.StrUtils,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.Clipbrd,
+   UWebBrowserWrapper,
+   gf_files,
+   gf_streams,
+   kn_const,
+   kn_Info,
+   kn_DllInterface,
+   kn_DLLmng,
+   kn_ClipUtils,
+   Kn_Global,
+   kn_Main;
 
-   function ConvertHTMLToRTF(const inFilename : WideString; var OutStream: TMemoryStream) : boolean; overload;
-   function ConvertHTMLToRTF(HTMLText: string; var RTFText : string) : boolean; overload;
-   function ConvertRTFToHTML(const outFilename : String; const RTFText : string; const HTMLExpMethod : THTMLExportMethod) : boolean;
+
+   function ConvertHTMLToRTF(const inFilename : string; var OutStream: TMemoryStream) : boolean; overload;
+   function ConvertHTMLToRTF(HTMLText: string; var RTFText : AnsiString) : boolean; overload;
+   function ConvertRTFToHTML(const outFilename : String; const RTFText : AnsiString; const HTMLExpMethod : THTMLExportMethod) : boolean;
    procedure FreeConvertLibrary;
 
 
 implementation
 
-uses
-  Windows, Messages, SysUtils, StrUtils,
-  Graphics, Controls, Forms, Dialogs,
-  TntSysUtils, TntSystem,
-  Kn_Global, kn_Main, gf_files,
-  kn_DllInterface, kn_DLLmng, UWebBrowserWrapper, kn_ClipUtils;
+resourcestring
+  STR_01 = 'Error while importing HTML text: ';
+  STR_02 = 'Error while exporting to HTML (method= ';
 
 
-function ConvertHTMLToRTF(const inFilename : WideString; var OutStream: TMemoryStream) : boolean;
+function ConvertHTMLToRTF(const inFilename : string; var OutStream: TMemoryStream) : boolean;
 var
-  s: string;
+  s: AnsiString;
   HTMLMethod : THTMLImportMethod;
   DlgTextConvImportAsRTF:     TextConvImportAsRTFProc;
   DlgMSWordConvertHTMLToRTF : MSWordConvertHTMLToRTFProc;
@@ -46,7 +63,7 @@ var
 
 begin
   Result := false;
-  if (not WideFileexists( inFileName)) or (not assigned(OutStream)) then exit;
+  if (not Fileexists( inFileName)) or (not assigned(OutStream)) then exit;
 
   try
       HTMLMethod:= KeyOptions.HTMLImportMethod;
@@ -93,13 +110,13 @@ begin
 
   except
     on E : Exception do
-        messagedlg( 'Error while importing HTML text: ' + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
   end;
 end; // ConvertHTMLToRTF
 
 
 
-function ConvertRTFToHTML(const outFilename : String; const RTFText : string; const HTMLExpMethod : THTMLExportMethod) : boolean;
+function ConvertRTFToHTML(const outFilename : String; const RTFText : AnsiString; const HTMLExpMethod : THTMLExportMethod) : boolean;
 var
   DlgTextConvExportRTF:       TextConvExportRTFProc;
   DlgMSWordConvertRTFToHTML : MSWordConvertRTFToHTMLProc;
@@ -113,7 +130,7 @@ begin
           htmlExpMicrosoftHTMLConverter : begin
               @DlgTextConvExportRTF := GetMethodInDLL(_DLLHandle, 'TextConvExportRTF');
               if not assigned(DlgTextConvExportRTF) then exit;
-              Result:= DlgTextConvExportRTF( outFileName, 'HTML', PChar(RTFText), GetSystem32Directory + 'html.iec' );
+              Result:= DlgTextConvExportRTF( outFileName, 'HTML', PAnsiChar(RTFText), GetSystem32Directory + 'html.iec' );
               end;
 
           htmlExpMSWord : begin
@@ -126,12 +143,12 @@ begin
 
   except
     on E : Exception do
-        messagedlg( 'Error while exporting to HTML (method= ' + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message, mtError, [mbOK], 0 );
+        MessageDlg(STR_02 + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message, mtError, [mbOK], 0 );
   end;
 end; // ConvertRTFToHTML
 
 
-function ConvertHTMLToRTF(HTMLText: string; var RTFText : string) : boolean;
+function ConvertHTMLToRTF(HTMLText: string; var RTFText : AnsiString) : boolean;
 begin
   Result := false;
   if (not _ConvertHTMLClipboardToRTF) or (HTMLText = '') then exit;

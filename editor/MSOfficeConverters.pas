@@ -3,7 +3,7 @@ unit MSOfficeConverters;
 (****** LICENSE INFORMATION **************************************************
 
 { -----------------------------------------------------------------------------}
-{ Modified by Daniel Prado <dprado.keynote@gmail.com> on Dec 2012              }
+{ Modified by Daniel Prado <dprado.keynote@gmail.com> on Dec 2012, May 23      }
 { -----------------------------------------------------------------------------}
 { Modified by Marek Jedlinski <eristic@lodz.pdi.net> on Jan 8, 2002            }
 { -----------------------------------------------------------------------------}
@@ -42,17 +42,26 @@ unit MSOfficeConverters;
 interface
 
 uses
-  Registry, Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Win.Registry,
+   System.SysUtils,
+   System.Classes,
+   System.AnsiStrings,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs;
 
 // -----------------------------------------------------------------
 // Functions to call when you want to convert something
 // -----------------------------------------------------------------
 
 // Function to import a file to a WideString.
-function TextConvImportAsRTF(FileName: String; Converter: String; aStream : TStream; ConverterLocation : string ): Boolean;
+function TextConvImportAsRTF(FileName: AnsiString; Converter: AnsiString; aStream : TStream; ConverterLocation : AnsiString ): Boolean;
 
 // Function to export RTF to a file.
-function TextConvExportRTF(FileName: String; Converter: String; aRTFText : PChar; ConverterLocation : string ): Boolean;
+function TextConvExportRTF(FileName: AnsiString; Converter: AnsiString; aRTFText : PAnsiChar; ConverterLocation : AnsiString ): Boolean;
 
 // -----------------------------------------------------------------
 // Functions to call if you want to know what can be converted
@@ -70,13 +79,13 @@ function BuildConverterList(ForImport: Boolean; StrLst: TStringList): Boolean;
 // -----------------------------------------------------------------
 
 // Initialize the selected converter.
-function LoadConverter(Name: string; Import: boolean; ConverterLocation : string): HWND;
+function LoadConverter(Name: AnsiString; Import: boolean; ConverterLocation : AnsiString): HWND;
 
 // Check if current file is of right format.
 function IsKnownFormat(FileName: string): Boolean;
 
 // Convert string to HGLOBAL.
-function StringToHGLOBAL(const str: string): HGLOBAL;
+function StringToHGLOBAL(const str: AnsiString): HGLOBAL;
 
 // Procedure to free the converters.
 procedure DoFreeConverters;
@@ -132,7 +141,7 @@ var
   bytesRead: integer = 0;
   WritePos: integer = 0; // in Char, not WChar
   WriteMax: integer = 0; // in Char, not WChar
-  RTFToWrite: string;
+  RTFToWrite: AnsiString;
   mstream: TMemorystream = nil;
 
 const
@@ -140,7 +149,7 @@ const
   MSTextConvKey = 'SOFTWARE\Microsoft\Shared Tools\Text Converters\';
 
 
-function TextConvImportAsRTF(FileName: String; Converter: String; aStream : TStream; ConverterLocation : string): Boolean;
+function TextConvImportAsRTF(FileName: AnsiString; Converter: AnsiString; aStream : TStream; ConverterLocation : AnsiString): Boolean;
 var
   // Variables used for the actual conversion.
   hSubset,
@@ -208,7 +217,7 @@ begin
 end;
 
 
-function TextConvExportRTF(FileName: String; Converter: String; aRTFText : PChar; ConverterLocation : string ): Boolean;
+function TextConvExportRTF(FileName: AnsiString; Converter: AnsiString; aRTFText : PAnsiChar; ConverterLocation : AnsiString ): Boolean;
 var
   hSubset,
   hFileName,
@@ -218,7 +227,7 @@ begin
   if LoadConverter(Converter, False, ConverterLocation ) <> 0 then
     begin
       if not (Assigned(InitConverter)
-         and LongBool(InitConverter(Application.Handle, PChar(Uppercase(Application.ExeName))))) then
+         and LongBool(InitConverter(Application.Handle, PAnsiChar(AnsiString(Uppercase(Application.ExeName)))))) then
         begin
           ShowMessage('InitConverter failed');
           Result := False;
@@ -227,6 +236,7 @@ begin
 
       hSubset := StringToHGLOBAL('');
       hDesc := StringToHGLOBAL('');
+
       hFileName := StringToHGLOBAL(FileName);
       hBuf := GlobalAlloc(GHND, nBufSize + 1);
 
@@ -451,7 +461,7 @@ end;
 
 // The function "LoadConverter" loads a specific converter.
 // We set the converter-functions as well.
-function LoadConverter(Name: string; Import: boolean; ConverterLocation : string): HWND;
+function LoadConverter(Name: AnsiString; Import: boolean; ConverterLocation : AnsiString): HWND;
 const
   saImEx: array[false..true] of string = ('Export', 'Import');
 var
@@ -522,19 +532,20 @@ end;
 
 
 // The function "StringToHGlobal" converts a string in HGLOBAL.
-function StringToHGLOBAL(const str: string): HGLOBAL;
+function StringToHGLOBAL(const str: AnsiString): HGLOBAL;
 var
-  new: PChar;
+  new: PAnsiChar;
 begin
-  Result := GlobalAlloc(GHND, Length(str) * 2 + 1);
+  Result := GlobalAlloc(GHND, Length(str) + 1);
 
   new := GlobalLock(Result);
 
   if new <> nil then
-    strcopy(new, PChar(str));
+    System.AnsiStrings.strcopy(new, PAnsiChar(str));
 
   GlobalUnlock(Result);
 end;
+
 
 
 // The function "IsKnownFormat" is used to check if a selected file
@@ -547,7 +558,7 @@ begin
   Result := False;
 
   if not (Assigned(InitConverter)
-     and LongBool(InitConverter(Application.Handle, PChar(Uppercase(Application.ExeName))))) then
+     and LongBool(InitConverter(Application.Handle, PAnsiChar(AnsiString(Uppercase(Application.ExeName)))))) then
     ShowMessage('InitConverter failed') // Question only is: report to who?
   else
     begin
@@ -568,7 +579,7 @@ end;
 // It is used to import a foreign format to the RTF-format.
 function Reading(CCH, nPercentComplete: integer): Integer; stdcall;
 var
-  tempBuf: PChar;
+  tempBuf: PAnsiChar;
 begin
   tempBuf := GlobalLock(hBuf);
 
@@ -591,7 +602,7 @@ end;
 // It is used to export the RTF-format to a foreign format.
 function Writing(flags, nPercentComplete: integer): Integer; stdcall;
 var
-  tempBuf: PChar;
+  tempBuf: PAnsiChar;
 begin
   tempBuf := GlobalLock(hBuf);
 

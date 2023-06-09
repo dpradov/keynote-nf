@@ -42,8 +42,13 @@ unit TB97;
 interface
 
 uses
-  Windows, Messages, Classes, Controls, Forms, Graphics,
-  TB97Vers;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Classes,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Graphics,
+   TB97Vers;
 
 const
   WM_TB97PaintDockedNCArea = WM_USER + 5039;    { used internally }
@@ -440,8 +445,12 @@ function ValidToolWindowParentForm (const ToolWindow: TCustomToolWindow97):
 implementation
 
 uses
-  Registry, IniFiles, SysUtils, Consts,
-  TB97Cmn, TB97Cnst;
+   System.Win.Registry,
+   System.IniFiles,
+   System.SysUtils,
+   Vcl.Consts,
+   TB97Cmn,
+   TB97Cnst;
 
 const
   DockedBorderSize = 2;
@@ -1481,7 +1490,7 @@ begin
       DeleteObject (ShadowPen);
       DeleteObject (HighlightPen);
     end;
-    Windows.GetClientRect (Handle, RC);
+    Winapi.Windows.GetClientRect (Handle, RC);
     if not IsRectEmpty(RC) then begin
       { ^ ExcludeClipRect can't be passed rectangles that have (Bottom < Top) or
         (Right < Left) since it doesn't treat them as empty }

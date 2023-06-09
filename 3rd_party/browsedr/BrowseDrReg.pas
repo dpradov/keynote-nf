@@ -57,7 +57,7 @@ begin
   Edit;
 end;
 
-function TBrowseDialogEditor.GetVerb(Index: Integer): AnsiString;
+function TBrowseDialogEditor.GetVerb(Index: Integer): string;
 begin
   Result := 'Test Dialog';
 end;

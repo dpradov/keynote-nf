@@ -17,16 +17,20 @@ unit kn_DLLmng;
 
 interface
 uses
-  kn_Const;
+   Winapi.Windows,
+   System.SysUtils,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   kn_Info,
+   kn_Const,
+   kn_DLLInterface;
+
 
 { KNTUTIL.DLL access routines }
 function GetMethodInDLL(var DLLHandle: THandle; ProcName: string): Pointer;
 
 
 implementation
-uses
-  Windows, Forms, SysUtils, Dialogs,
-  kn_DLLInterface, kn_Info;
 
 resourcestring
   STR_01 = 'Error while attempting to load runtime library "%s". Please reinstall KeyNote.';

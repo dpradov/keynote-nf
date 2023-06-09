@@ -3,53 +3,57 @@ object Form_ImgPick: TForm_ImgPick
   Top = 222
   BorderIcons = [biSystemMenu]
   Caption = 'Select node icon'
-  ClientHeight = 294
-  ClientWidth = 432
+  ClientHeight = 293
+  ClientWidth = 428
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -14
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   Scaled = False
   OnCreate = FormCreate
   OnKeyPress = FormKeyPress
-  PixelsPerInch = 96
   TextHeight = 17
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 432
-    Height = 221
+    Width = 428
+    Height = 220
     Align = alClient
     BevelOuter = bvNone
     BevelWidth = 9
     BorderWidth = 5
     TabOrder = 0
+    ExplicitWidth = 424
+    ExplicitHeight = 219
     object List_Icn: TGFXListBox
       Left = 5
       Top = 5
-      Width = 422
-      Height = 211
+      Width = 418
+      Height = 210
       Align = alClient
       Columns = 4
       ExtendedSelect = False
       ItemHeight = 20
       TabOrder = 0
       OnDblClick = List_IcnDblClick
+      ExplicitWidth = 414
+      ExplicitHeight = 209
     end
   end
   object Panel2: TPanel
     Left = 0
-    Top = 221
-    Width = 432
+    Top = 220
+    Width = 428
     Height = 73
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    object Button_Cancel: TTntButton
+    ExplicitTop = 219
+    ExplicitWidth = 424
+    object Button_Cancel: TButton
       Left = 111
       Top = 38
       Width = 92
@@ -66,7 +70,7 @@ object Form_ImgPick: TForm_ImgPick
       ParentFont = False
       TabOrder = 0
     end
-    object Button_OK: TTntButton
+    object Button_OK: TButton
       Left = 12
       Top = 38
       Width = 93
@@ -83,7 +87,7 @@ object Form_ImgPick: TForm_ImgPick
       ParentFont = False
       TabOrder = 1
     end
-    object CB_Children: TTntCheckBox
+    object CB_Children: TCheckBox
       Left = 12
       Top = 5
       Width = 297

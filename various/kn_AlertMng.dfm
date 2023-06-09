@@ -3,18 +3,17 @@ object Form_Alarm: TForm_Alarm
   Top = 208
   HelpContext = 590
   Caption = 'p'
-  ClientHeight = 409
-  ClientWidth = 962
+  ClientHeight = 407
+  ClientWidth = 973
   Color = clBtnFace
   Constraints.MinHeight = 416
-  Constraints.MinWidth = 970
+  Constraints.MinWidth = 985
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   ShowHint = True
   OnClose = FormClose
@@ -23,12 +22,11 @@ object Form_Alarm: TForm_Alarm
   OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
-    962
-    409)
-  PixelsPerInch = 96
+    973
+    407)
   TextHeight = 13
-  object lblFilter: TTntLabel
-    Left = 607
+  object lblFilter: TLabel
+    Left = 615
     Top = 9
     Width = 63
     Height = 13
@@ -43,7 +41,7 @@ object Form_Alarm: TForm_Alarm
     ParentFont = False
   end
   object Button_ClearFilter: TToolbarButton97
-    Left = 870
+    Left = 878
     Top = 6
     Width = 17
     Height = 21
@@ -59,7 +57,7 @@ object Form_Alarm: TForm_Alarm
     ParentFont = False
     OnClick = Button_ClearFilterClick
   end
-  object TntLabel2: TTntLabel
+  object TntLabel2: TLabel
     Left = 10
     Top = 9
     Width = 93
@@ -74,7 +72,7 @@ object Form_Alarm: TForm_Alarm
     ParentFont = False
   end
   object Button_Sound: TToolbarButton97
-    Left = 926
+    Left = 934
     Top = 4
     Width = 25
     Height = 24
@@ -83,42 +81,49 @@ object Form_Alarm: TForm_Alarm
     Anchors = [akTop, akRight]
     GroupIndex = 1
     Flat = False
+    Glyph.Data = {00000000}
+    GlyphMask.Data = {00000000}
     ImageIndex = 50
     Images = Form_Main.IMG_Toolbar
     OnClick = Button_SoundClick
   end
   object TB_ClipCap: TToolbarButton97
-    Left = 900
+    Left = 908
     Top = 4
     Width = 25
     Height = 24
     Hint = 'Copy selected alarms to the clipboard'
     Anchors = [akTop, akRight]
     Flat = False
+    Glyph.Data = {00000000}
+    GlyphMask.Data = {00000000}
     ImageIndex = 18
     Images = Form_Main.IMG_Toolbar
     OnClick = TB_ClipCapClick
   end
   object Panel3: TPanel
     Left = 0
-    Top = 122
-    Width = 962
+    Top = 120
+    Width = 973
     Height = 287
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitTop = 119
+    ExplicitWidth = 964
     DesignSize = (
-      962
+      973
       287)
     object Bevel1: TBevel
       Left = 6
       Top = 35
-      Width = 774
+      Width = 751
       Height = 246
       Anchors = [akLeft, akTop, akRight]
       Shape = bsFrame
+      ExplicitWidth = 774
     end
-    object lblSubject: TTntLabel
+    object lblSubject: TLabel
       Left = 460
       Top = 80
       Width = 46
@@ -134,7 +139,7 @@ object Form_Alarm: TForm_Alarm
       ParentFont = False
     end
     object TB_Bold: TToolbarButton97
-      Left = 674
+      Left = 656
       Top = 249
       Width = 24
       Height = 22
@@ -148,7 +153,7 @@ object Form_Alarm: TForm_Alarm
       RepeatInterval = 101
       OnClick = TB_BoldClick
     end
-    object lblExpiration: TTntLabel
+    object lblExpiration: TLabel
       Left = 18
       Top = 79
       Width = 141
@@ -162,7 +167,7 @@ object Form_Alarm: TForm_Alarm
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object lblExpirationStatus: TTntLabel
+    object lblExpirationStatus: TLabel
       Left = 32
       Top = 119
       Width = 201
@@ -176,7 +181,7 @@ object Form_Alarm: TForm_Alarm
       Font.Style = []
       ParentFont = False
     end
-    object lblReminder: TTntLabel
+    object lblReminder: TLabel
       Left = 334
       Top = 80
       Width = 87
@@ -189,7 +194,7 @@ object Form_Alarm: TForm_Alarm
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object lblReminderStatus: TTntLabel
+    object lblReminderStatus: TLabel
       Left = 322
       Top = 119
       Width = 119
@@ -218,7 +223,7 @@ object Form_Alarm: TForm_Alarm
       OnClick = Today_5minClick
       OnDblClick = Today_5minDblClick
     end
-    object Label3: TTntLabel
+    object Label3: TLabel
       Left = 46
       Top = 227
       Width = 122
@@ -293,7 +298,7 @@ object Form_Alarm: TForm_Alarm
       OnClick = Today_5minClick
       OnDblClick = Today_5minDblClick
     end
-    object Label1: TTntLabel
+    object Label1: TLabel
       Left = 232
       Top = 227
       Width = 200
@@ -503,7 +508,7 @@ object Form_Alarm: TForm_Alarm
       OnClick = Today_5minClick
       OnDblClick = Today_5minDblClick
     end
-    object TntLabel3: TTntLabel
+    object TntLabel3: TLabel
       Left = 18
       Top = 143
       Width = 114
@@ -516,7 +521,7 @@ object Form_Alarm: TForm_Alarm
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object lblProposedReminder: TTntLabel
+    object lblProposedReminder: TLabel
       Left = 144
       Top = 142
       Width = 249
@@ -530,19 +535,20 @@ object Form_Alarm: TForm_Alarm
       ParentFont = False
     end
     object PanelCalendar: TPanel
-      Left = 786
+      Left = 770
       Top = 0
-      Width = 176
+      Width = 195
       Height = 287
-      Align = alRight
+      Anchors = [akTop, akRight]
       BevelEdges = [beRight]
       BevelOuter = bvNone
       TabOrder = 16
-      object cCalendar: TTntMonthCalendar
+      ExplicitLeft = 765
+      object cCalendar: TMonthCalendar
         Left = -11
         Top = 113
-        Width = 191
-        Height = 159
+        Width = 215
+        Height = 160
         MultiSelect = True
         Date = 40429.000000000000000000
         EndDate = 40429.000000000000000000
@@ -551,10 +557,10 @@ object Form_Alarm: TForm_Alarm
         OnExit = cCalendarExit
         OnGetMonthInfo = cCalendarGetMonthInfo
       end
-      object CB_FilterDates: TTntComboBox
-        Left = 0
+      object CB_FilterDates: TComboBox
+        Left = 1
         Top = 81
-        Width = 168
+        Width = 188
         Height = 21
         HelpContext = 535
         Style = csDropDownList
@@ -563,13 +569,12 @@ object Form_Alarm: TForm_Alarm
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = []
-        ItemHeight = 13
         ParentFont = False
         TabOrder = 1
         OnChange = CB_FilterDatesChange
       end
     end
-    object Button_Restore: TTntButton
+    object Button_Restore: TButton
       Left = 114
       Top = 0
       Width = 100
@@ -585,10 +590,10 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 1
       OnClick = Button_RestoreClick
     end
-    object Button_SelectAll: TTntButton
-      Left = 741
+    object Button_SelectAll: TButton
+      Left = 748
       Top = 0
-      Width = 96
+      Width = 97
       Height = 25
       Anchors = [akTop, akRight]
       Caption = '&Select All'
@@ -601,7 +606,7 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 4
       OnClick = Button_SelectAllClick
     end
-    object Button_Remove: TTntButton
+    object Button_Remove: TButton
       Left = 10
       Top = 0
       Width = 96
@@ -617,7 +622,7 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 0
       OnClick = Button_RemoveClick
     end
-    object Button_Show: TTntButton
+    object Button_Show: TButton
       Left = 285
       Top = 0
       Width = 99
@@ -633,10 +638,10 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 2
       OnClick = Button_ShowClick
     end
-    object cIdentifier: TTntEdit
+    object cIdentifier: TEdit
       Left = 16
       Top = 42
-      Width = 753
+      Width = 730
       Height = 22
       TabStop = False
       Anchors = [akLeft, akTop, akRight]
@@ -655,11 +660,12 @@ object Form_Alarm: TForm_Alarm
       ReadOnly = True
       TabOrder = 20
       Text = 'NODO'
+      ExplicitWidth = 721
     end
-    object txtSubject: TTntMemo
+    object txtSubject: TMemo
       Left = 459
       Top = 96
-      Width = 310
+      Width = 287
       Height = 141
       TabStop = False
       Anchors = [akLeft, akTop, akRight]
@@ -673,9 +679,10 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 11
       WantTabs = True
       OnChange = txtSubjectChange
+      ExplicitWidth = 278
     end
     object TB_Color: TColorBtn
-      Left = 698
+      Left = 684
       Top = 249
       Width = 34
       Height = 22
@@ -729,7 +736,7 @@ object Form_Alarm: TForm_Alarm
       DDArrowWidth = 12
     end
     object TB_Hilite: TColorBtn
-      Left = 732
+      Left = 720
       Top = 249
       Width = 34
       Height = 22
@@ -783,7 +790,7 @@ object Form_Alarm: TForm_Alarm
       RegKey = 'General Frenetics\KeyNote\ColorBtn2'
       DDArrowWidth = 12
     end
-    object Button_New: TTntButton
+    object Button_New: TButton
       Left = 400
       Top = 0
       Width = 95
@@ -801,10 +808,10 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 3
       OnClick = Button_NewClick
     end
-    object Button_Discard: TTntButton
-      Left = 852
+    object Button_Discard: TButton
+      Left = 858
       Top = 0
-      Width = 100
+      Width = 101
       Height = 25
       Hint = 'Discard selected alarms'
       Anchors = [akTop, akRight]
@@ -818,7 +825,7 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 5
       OnClick = Button_DiscardClick
     end
-    object Button_Apply: TTntButton
+    object Button_Apply: TButton
       Left = 458
       Top = 246
       Width = 99
@@ -833,7 +840,7 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 6
       OnClick = Button_ApplyClick
     end
-    object CB_ExpirationTime: TTntComboBox
+    object CB_ExpirationTime: TComboBox
       Left = 260
       Top = 95
       Width = 62
@@ -844,7 +851,6 @@ object Form_Alarm: TForm_Alarm
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = []
-      ItemHeight = 13
       ParentFont = False
       TabOrder = 10
       TabStop = False
@@ -852,7 +858,7 @@ object Form_Alarm: TForm_Alarm
       OnDropDown = CB_ExpirationTimeDropDown
       OnSelect = CB_ExpirationTimeSelect
     end
-    object cExpirationTime: TTntEdit
+    object cExpirationTime: TEdit
       Left = 263
       Top = 97
       Width = 40
@@ -913,7 +919,7 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 12
       Text = 'cReminder'
     end
-    object CB_ProposedIntervalReminder: TTntComboBox
+    object CB_ProposedIntervalReminder: TComboBox
       Left = 16
       Top = 166
       Width = 95
@@ -924,14 +930,13 @@ object Form_Alarm: TForm_Alarm
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = []
-      ItemHeight = 13
       ParentFont = False
       TabOrder = 13
       TabStop = False
       OnChange = CB_ProposedIntervalReminderChange
       OnExit = CB_ProposedIntervalReminderExit
     end
-    object rb_Before: TTntRadioButton
+    object rb_Before: TRadioButton
       Left = 122
       Top = 165
       Width = 97
@@ -940,7 +945,7 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 14
       OnClick = rb_FromNowClick
     end
-    object rb_FromNow: TTntRadioButton
+    object rb_FromNow: TRadioButton
       Left = 218
       Top = 165
       Width = 113
@@ -961,11 +966,11 @@ object Form_Alarm: TForm_Alarm
       TabOrder = 17
     end
   end
-  object Grid: TTntListView
+  object Grid: TListView
     Left = 8
     Top = 31
-    Width = 943
-    Height = 79
+    Width = 951
+    Height = 77
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
     Columns = <
@@ -1020,8 +1025,8 @@ object Form_Alarm: TForm_Alarm
     OnEnter = GridEnter
     OnSelectItem = GridSelectItem
   end
-  object cFilter: TTntEdit
-    Left = 672
+  object cFilter: TEdit
+    Left = 680
     Top = 5
     Width = 196
     Height = 21
@@ -1036,7 +1041,7 @@ object Form_Alarm: TForm_Alarm
     OnChange = cFilterChange
     OnExit = cFilterExit
   end
-  object CB_ShowMode: TTntComboBox
+  object CB_ShowMode: TComboBox
     Left = 103
     Top = 6
     Width = 146
@@ -1048,7 +1053,6 @@ object Form_Alarm: TForm_Alarm
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []
-    ItemHeight = 13
     ParentFont = False
     TabOrder = 0
     OnChange = CB_ShowModeChange

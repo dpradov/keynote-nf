@@ -5,8 +5,8 @@ object Form_TermDef: TForm_TermDef
   ActiveControl = Edit_Term
   BorderStyle = bsDialog
   Caption = 'Edit Glossary Term'
-  ClientHeight = 74
-  ClientWidth = 371
+  ClientHeight = 73
+  ClientWidth = 367
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,13 +14,11 @@ object Form_TermDef: TForm_TermDef
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TTntLabel
+  object Label1: TLabel
     Left = 10
     Top = 15
     Width = 71
@@ -29,7 +27,7 @@ object Form_TermDef: TForm_TermDef
     Caption = '&Shortcut:'
     FocusControl = Edit_Term
   end
-  object Label2: TTntLabel
+  object Label2: TLabel
     Left = 10
     Top = 45
     Width = 71
@@ -38,7 +36,7 @@ object Form_TermDef: TForm_TermDef
     Caption = '&Expansion:'
     FocusControl = Edit_Exp
   end
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 284
     Top = 8
     Width = 75
@@ -49,7 +47,7 @@ object Form_TermDef: TForm_TermDef
     ModalResult = 1
     TabOrder = 0
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 284
     Top = 38
     Width = 75
@@ -59,7 +57,7 @@ object Form_TermDef: TForm_TermDef
     ModalResult = 2
     TabOrder = 1
   end
-  object Edit_Term: TTntEdit
+  object Edit_Term: TEdit
     Left = 86
     Top = 10
     Width = 181
@@ -73,7 +71,7 @@ object Form_TermDef: TForm_TermDef
     ParentFont = False
     TabOrder = 2
   end
-  object Edit_Exp: TTntEdit
+  object Edit_Exp: TEdit
     Left = 86
     Top = 40
     Width = 181

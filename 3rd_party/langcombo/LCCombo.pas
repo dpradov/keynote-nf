@@ -1,10 +1,32 @@
 unit LCCombo;
 
+(* -----------------------------------
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf
+
+ ****************************************************************)
+
+{$IF CompilerVersion >= 20.0}  // VER200: Codegear Delphi 2009 12.x}      // [dpv]
+   {$DEFINE DELPHI_2009_UP}
+{$ENDIF}
+
+
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Langs;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Langs;
 
 type
   TLanguageType = (ltInstalled, ltSupported, ltPrimary);
@@ -190,7 +212,10 @@ var
   LCType: Integer;
   PrimaryOnly: Boolean;
 
-function EnumLocalesProc(LocaleId: LPStr): Integer;
+
+
+
+function EnumLocalesProc(LocaleId: {$IFDEF DELPHI_2009_UP}LPWSTR{$ELSE}LPStr{$ENDIF}): Integer;
 stdcall;
 var
   Locale: LCID;
@@ -198,12 +223,16 @@ var
   Z: Integer;
   Buf: array[0..255] of Char;
 begin
-  Val('$'+StrPas(LocaleId), Locale, Z);
+{$IFDEF DELPHI_2009_UP}
+   Val('$'+ LocaleId, Locale, Z);
+{$ELSE}
+   Val('$'+ StrPas(LocaleId), Locale, Z);
+{$ENDIF}
   if (Locale<2048) or not PrimaryOnly then
     begin
       SetLength(Lang, 255);
       GetLocaleInfo(Locale, LCType, Buf, 255);
-      SetString(Lang, Buf, StrLen(Buf));
+      SetString(Lang, Buf, StrLen(Buf) * sizeof(Char));     // [dpv]  * sizeof(Char)
       SList.AddObject(Lang, Pointer(Locale));
     end;
   Result:= 1;

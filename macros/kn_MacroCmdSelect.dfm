@@ -5,8 +5,8 @@ object Form_MacroCmd: TForm_MacroCmd
   ActiveControl = Combo_Cmd
   BorderStyle = bsDialog
   Caption = 'Insert special macro command'
-  ClientHeight = 245
-  ClientWidth = 297
+  ClientHeight = 244
+  ClientWidth = 293
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,14 +14,12 @@ object Form_MacroCmd: TForm_MacroCmd
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
     Left = 5
@@ -29,7 +27,7 @@ object Form_MacroCmd: TForm_MacroCmd
     Width = 286
     Height = 136
     TabOrder = 0
-    object Label1: TTntLabel
+    object Label1: TLabel
       Left = 10
       Top = 10
       Width = 81
@@ -37,7 +35,7 @@ object Form_MacroCmd: TForm_MacroCmd
       Caption = '&Macro command:'
       FocusControl = Combo_Cmd
     end
-    object Label2: TTntLabel
+    object Label2: TLabel
       Left = 10
       Top = 55
       Width = 59
@@ -45,14 +43,14 @@ object Form_MacroCmd: TForm_MacroCmd
       Caption = '&Parameters:'
       FocusControl = Edit_Params
     end
-    object Label3: TTntLabel
+    object Label3: TLabel
       Left = 10
       Top = 95
       Width = 38
       Height = 13
       Caption = 'Syntax:'
     end
-    object LB_Syntax: TTntLabel
+    object LB_Syntax: TLabel
       Left = 10
       Top = 110
       Width = 12
@@ -62,19 +60,18 @@ object Form_MacroCmd: TForm_MacroCmd
       ShowAccelChar = False
       ShowHint = True
     end
-    object Combo_Cmd: TTntComboBox
+    object Combo_Cmd: TComboBox
       Left = 10
       Top = 25
       Width = 266
       Height = 21
       Style = csDropDownList
       DropDownCount = 12
-      ItemHeight = 13
       Sorted = True
       TabOrder = 0
       OnClick = Combo_CmdClick
     end
-    object Edit_Params: TTntEdit
+    object Edit_Params: TEdit
       Left = 10
       Top = 70
       Width = 266
@@ -91,7 +88,7 @@ object Form_MacroCmd: TForm_MacroCmd
     BorderWidth = 5
     Color = clInfoBk
     TabOrder = 1
-    object LB_Help: TTntLabel
+    object LB_Help: TLabel
       Left = 6
       Top = 6
       Width = 274
@@ -103,7 +100,7 @@ object Form_MacroCmd: TForm_MacroCmd
       ExplicitHeight = 13
     end
   end
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 15
     Top = 215
     Width = 75
@@ -115,7 +112,7 @@ object Form_MacroCmd: TForm_MacroCmd
     TabOrder = 2
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 95
     Top = 215
     Width = 75
@@ -126,7 +123,7 @@ object Form_MacroCmd: TForm_MacroCmd
     TabOrder = 3
     OnClick = Button_CancelClick
   end
-  object Button_Help: TTntButton
+  object Button_Help: TButton
     Left = 175
     Top = 215
     Width = 75

@@ -6,17 +6,17 @@ unit Langs;
    Minsk, Belarus
    E-mail alex@niiomr.belpak.minsk.by
 }
-{* ----------------------------------- 
+{* -----------------------------------
   + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv] [^]
 
-   [^] To use Langs.pas from the package rxctl2006 without having to refer to 
-       DesignIDE package I have broken the original file Langs.pas in two, 
+   [^] To use Langs.pas from the package rxctl2006 without having to refer to
+       DesignIDE package I have broken the original file Langs.pas in two,
 	   leaving it exclusively on tasks related to the registration and design.
-   
+
    >> Changes to original source code available in KeyNote NF project.
    >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
-      in https://github.com/dpradov/keynote-nf 
-  
+      in https://github.com/dpradov/keynote-nf
+
  ****************************************************************}
 
 
@@ -24,7 +24,10 @@ interface
 {$I DFS.INC}
 
 uses
-  Windows, SysUtils, Graphics, Classes;
+   Winapi.Windows,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics;
 
 type
   TLanguage = 0..$FFFF;
@@ -35,10 +38,11 @@ function LanguageName(Language: TLanguage): String;
 function CharSetFromLocale(Language: TLanguage): TFontCharSet;
 function CodePageFromLocale(Language: TLanguage): Integer;
 function OEMCodePageFromLocale(Language: TLanguage): Integer;
+(*                                                                          // [dpv]
 function CharToWide(const S: String; CodePage: Word): WideString;
 function WideToChar(const WS: WideString; CodePage: Word): String;
 function CharToChar(const S: String; CP1, CP2: Word): String;
-
+*)
 implementation
 
 function LanguageName(Language: TLanguage): String;
@@ -67,9 +71,14 @@ end;
 
 function CharSetFromLocale(Language: TLanguage): TFontCharSet;
 var
-  CP: Integer;
+  CP: Cardinal;
+  tag: tagCHARSETINFO;
 begin
   CP:= CodePageFromLocale(Language);
+
+  TranslateCharsetInfo(CP, tag, TCI_SRCCODEPAGE);                     // [dpv]
+  Result:= tag.ciCharset;                                             // [dpv]
+(*
 { The proper solution is to use TranslateCharsetInfo. This function
   is described to be exported from user32.dll, but this works
   only in Windows NT. In Windows 95 this function is absent. So...
@@ -94,8 +103,10 @@ begin
   1258:
     Result:= Vietnamese_CharSet;
   end;
-end;
+*)
 
+end;
+(*
 function CharToWide(const S: String; CodePage: Word): WideString;
 var
   L: Integer;
@@ -118,5 +129,5 @@ function CharToChar(const S: String; CP1, CP2: Word): String;
 begin
   Result:= WideToChar(CharToWide(S, CP1), CP2);
 end;
-
+*)
 end.

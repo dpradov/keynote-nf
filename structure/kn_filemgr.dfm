@@ -4,8 +4,8 @@ object Form_FileMgr: TForm_FileMgr
   HelpContext = 560
   BorderIcons = [biSystemMenu]
   Caption = 'File manager'
-  ClientHeight = 274
-  ClientWidth = 481
+  ClientHeight = 271
+  ClientWidth = 469
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,7 +13,6 @@ object Form_FileMgr: TForm_FileMgr
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   Scaled = False
   ShowHint = True
@@ -22,17 +21,16 @@ object Form_FileMgr: TForm_FileMgr
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 17
   object Panel_Btn: TPanel
     Left = 0
-    Top = 119
-    Width = 481
+    Top = 116
+    Width = 469
     Height = 155
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    object Label1: TTntLabel
+    object Label1: TLabel
       Left = 12
       Top = 6
       Width = 85
@@ -46,7 +44,7 @@ object Form_FileMgr: TForm_FileMgr
       Font.Style = []
       ParentFont = False
     end
-    object Label2: TTntLabel
+    object Label2: TLabel
       Left = 12
       Top = 25
       Width = 85
@@ -60,7 +58,7 @@ object Form_FileMgr: TForm_FileMgr
       Font.Style = []
       ParentFont = False
     end
-    object Label4: TTntLabel
+    object Label4: TLabel
       Left = 12
       Top = 80
       Width = 85
@@ -74,7 +72,7 @@ object Form_FileMgr: TForm_FileMgr
       Font.Style = []
       ParentFont = False
     end
-    object Label5: TTntLabel
+    object Label5: TLabel
       Left = 252
       Top = 80
       Width = 69
@@ -88,7 +86,7 @@ object Form_FileMgr: TForm_FileMgr
       Font.Style = []
       ParentFont = False
     end
-    object Label7: TTntLabel
+    object Label7: TLabel
       Left = 12
       Top = 62
       Width = 85
@@ -109,7 +107,7 @@ object Form_FileMgr: TForm_FileMgr
       Height = 6
       Shape = bsTopLine
     end
-    object L_Desc: TTntLabel
+    object L_Desc: TLabel
       Left = 100
       Top = 6
       Width = 12
@@ -123,7 +121,7 @@ object Form_FileMgr: TForm_FileMgr
       ParentFont = False
       ShowAccelChar = False
     end
-    object L_Comment: TTntLabel
+    object L_Comment: TLabel
       Left = 100
       Top = 25
       Width = 12
@@ -137,7 +135,7 @@ object Form_FileMgr: TForm_FileMgr
       ParentFont = False
       ShowAccelChar = False
     end
-    object L_Fmt: TTntLabel
+    object L_Fmt: TLabel
       Left = 100
       Top = 80
       Width = 149
@@ -152,7 +150,7 @@ object Form_FileMgr: TForm_FileMgr
       ParentFont = False
       ShowAccelChar = False
     end
-    object L_Date: TTntLabel
+    object L_Date: TLabel
       Left = 100
       Top = 62
       Width = 149
@@ -167,7 +165,7 @@ object Form_FileMgr: TForm_FileMgr
       ParentFont = False
       ShowAccelChar = False
     end
-    object L_Count: TTntLabel
+    object L_Count: TLabel
       Left = 330
       Top = 80
       Width = 143
@@ -182,7 +180,7 @@ object Form_FileMgr: TForm_FileMgr
       ParentFont = False
       ShowAccelChar = False
     end
-    object Label99: TTntLabel
+    object Label99: TLabel
       Left = 12
       Top = 43
       Width = 85
@@ -196,7 +194,7 @@ object Form_FileMgr: TForm_FileMgr
       Font.Style = []
       ParentFont = False
     end
-    object L_Path: TTntLabel
+    object L_Path: TLabel
       Left = 100
       Top = 43
       Width = 12
@@ -210,7 +208,7 @@ object Form_FileMgr: TForm_FileMgr
       ParentFont = False
       ShowAccelChar = False
     end
-    object Label3: TTntLabel
+    object Label3: TLabel
       Left = 252
       Top = 62
       Width = 69
@@ -224,7 +222,7 @@ object Form_FileMgr: TForm_FileMgr
       Font.Style = []
       ParentFont = False
     end
-    object L_Modified: TTntLabel
+    object L_Modified: TLabel
       Left = 330
       Top = 62
       Width = 143
@@ -239,7 +237,7 @@ object Form_FileMgr: TForm_FileMgr
       ParentFont = False
       ShowAccelChar = False
     end
-    object Button_OK: TTntButton
+    object Button_OK: TButton
       Left = 12
       Top = 117
       Width = 93
@@ -257,7 +255,7 @@ object Form_FileMgr: TForm_FileMgr
       TabOrder = 0
       OnClick = Button_OKClick
     end
-    object Button_Cancel: TTntButton
+    object Button_Cancel: TButton
       Left = 111
       Top = 117
       Width = 92
@@ -274,7 +272,7 @@ object Form_FileMgr: TForm_FileMgr
       TabOrder = 1
       OnClick = Button_CancelClick
     end
-    object CheckBox_FullPaths: TTntCheckBox
+    object CheckBox_FullPaths: TCheckBox
       Left = 218
       Top = 123
       Width = 255
@@ -293,8 +291,8 @@ object Form_FileMgr: TForm_FileMgr
   object TVmgr: TTreeNT
     Left = 0
     Top = 0
-    Width = 481
-    Height = 119
+    Width = 469
+    Height = 116
     Hint = 'Double-click a file to open it in KeyNote'
     Align = alClient
     Ctl3D = True

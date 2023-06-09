@@ -5,8 +5,8 @@ object Form_OptionsNew: TForm_OptionsNew
   ActiveControl = TV
   BorderStyle = bsDialog
   Caption = 'Keynote OPTIONS'
-  ClientHeight = 376
-  ClientWidth = 512
+  ClientHeight = 375
+  ClientWidth = 508
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,16 +14,14 @@ object Form_OptionsNew: TForm_OptionsNew
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 252
     Top = 347
     Width = 76
@@ -35,7 +33,7 @@ object Form_OptionsNew: TForm_OptionsNew
     TabOrder = 2
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 342
     Top = 347
     Width = 76
@@ -54,59 +52,102 @@ object Form_OptionsNew: TForm_OptionsNew
     Indent = 19
     InsertMarkColor = clScrollBar
     Items.Data = {
-      000500000070000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF01000000000001
-      010000000000020000000000000001010000000000F809A30000000000000000
-      000100000000000000000000003A042500000000FF66FF94FD00000000A0F219
-      00A0F2190113EFBBBF47656E6572616C2073657474696E677370000000FFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFFFFF01000000000001000000000000000000000000
-      000001010000000000F809A30000000000000000000100000000000000000000
-      003A042500000000FF66FF94FD00000000A0F21900A0F2190113EFBBBF526963
-      68205465787420656469746F726A000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FF01000000000001000000000000000000000000000001010000000000F809A3
-      0000000000000000000100000000000000000000003A042500000000FF66FF94
-      FD00000000A0F21900A0F219010DEFBBBF547265652050616E656C6D000000FF
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100000000000101000000000002000000
-      0000000001010000000000F809A3000000000000000000010000000000000000
-      0000003A042500000000FF66FF94FD00000000A0F21900A0F2190110EFBBBF4B
-      65794E6F74652066696C65736C000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      01000000000001000000000000000000000000000001010000000000F809A300
-      00000000000000000100000000000000000000003A042500000000FF66FF94FD
-      00000000A0F21900A0F219010FEFBBBF46696C65206F7074696F6E736E000000
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF01000000000001000000000000000000
-      000000000001010000000000F809A30000000000000000000100000000000000
-      000000003A042500000000FF66FF94FD00000000A0F21900A0F2190111EFBBBF
-      4261636B7570206F7074696F6E7367000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FFFF01000000000001010000000000010000000000000001010000000000F809
-      A30000000000000000000100000000000000000000003A042500000000FF66FF
-      94FD00000000A0F21900A0F219010AEFBBBF416374696F6E736D000000FFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFFFFF01000000000001000000000000000000000000
-      000001010000000000F809A30000000000000000000100000000000000000000
-      003A042500000000FF66FF94FD00000000A0F21900A0F2190110EFBBBF436F6E
-      6669726D6174696F6E7366000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100
-      0000000001010000000000010000000000000001010000000000F809A3000000
-      0000000000000100000000000000000000003A042500000000FF66FF94FD0000
-      0000A0F21900A0F2190109EFBBBF4368726F6D6569000000FFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFFFFF010000000000010000000000000000000000000000010100
-      00000000F809A30000000000000000000100000000000000000000003A042500
-      000000FF66FF94FD00000000A0F21900A0F219010CEFBBBF5461622069636F6E
-      7368000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100000000000101000000
-      0000040000000000000001010000000000F809A3000000000000000000010000
-      0000000000000000003A042500000000FF66FF94FD00000000A0F21900A0F219
-      010BEFBBBF416476616E63656467000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FF01000000000001000000000000000000000000000001010000000000F809A3
-      0000000000000000000100000000000000000000003A042500000000FF66FF94
-      FD00000000A0F21900A0F219010AEFBBBF466F726D61747371000000FFFFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFFF0100000000000100000000000000000000000000
-      0001010000000000F809A3000000000000000000010000000000000000000000
-      3A042500000000FF66FF94FD00000000A0F21900A0F2190114EFBBBF436C6970
-      626F61726420636170747572656A000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FF01000000000001000000000000000000000000000001010000000000F809A3
-      0000000000000000000100000000000000000000003A042500000000FF66FF94
-      FD00000000A0F21900A0F219010DEFBBBF46696C6520747970657365000000FF
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100000000000100000000000000000000
-      0000000001010000000000F809A3000000000000000000010000000000000000
-      0000003A042500000000FF66FF94FD00000000A0F21900A0F2190108EFBBBF4F
-      74686572}
+      0005000000CD000000000000000000000000000000FFFFFFFF01000000000001
+      010090709802020000000000000001000D000000F5FFFFFF0159B4CD00014E06
+      5461686F6D61F72F01FF00000000000000000000003C4E7F1DA0082D0D0A0000
+      0044F72F013C4E7F1D0000000000000000000000006CF72F01E0B5CD767CF72F
+      01B4AC9F74E9FD0000000000003C4E7F1D0A0000009DF72F01FF000000000000
+      00000000000B0000001A75AF749CF72F01C8F82F013C4E7F1DA0082D0D0A0000
+      080000FF011047656E6572616C2073657474696E6773CD000000000000000000
+      000000000000FFFFFFFF01000000000001000080719802000000000000000001
+      010D000000F5FFFFFF0159B4CD00014E065461686F6D61F72F01FF0000000000
+      0000000000003C4E7F1DA0082D0D0A00000044F72F013C4E7F1D000000000000
+      0000000000006CF72F01E0B5CD767CF72F01B4AC9F74E9FD0000000000003C4E
+      7F1D0A0000009DF72F01FF00000000000000000000000B0000001A75AF749CF7
+      2F01C8F82F013C4E7F1DA0082D0D0A0000080000FF0110526963682054657874
+      20656469746F72C7000000000000000000000000000000FFFFFFFF0100000000
+      00010000D0719802000000000000000001010D000000F5FFFFFF0159B4CD0001
+      4E065461686F6D61F72F01FF00000000000000000000003C4E7F1DA0082D0D0A
+      00000044F72F013C4E7F1D0000000000000000000000006CF72F01E0B5CD767C
+      F72F01B4AC9F74E9FD0000000000003C4E7F1D0A0000009DF72F01FF00000000
+      000000000000000B0000001A75AF749CF72F01C8F82F013C4E7F1DA0082D0D0A
+      0000080000FF010A547265652050616E656CCA00000000000000000000000000
+      0000FFFFFFFF01000000000001010020729802020000000000000001000D0000
+      00F5FFFFFF0159B4CD00014E065461686F6D61F72F01FF000000000000000000
+      00003C4E7F1DA0082D0D0A00000044F72F013C4E7F1D00000000000000000000
+      00006CF72F01E0B5CD767CF72F01B4AC9F74E9FD0000000000003C4E7F1D0A00
+      00009DF72F01FF00000000000000000000000B0000001A75AF749CF72F01C8F8
+      2F013C4E7F1DA0082D0D0A0000080000FF010D4B65794E6F74652066696C6573
+      C9000000000000000000000000000000FFFFFFFF010000000000010000707298
+      02000000000000000001010D000000F5FFFFFF0159B4CD00014E065461686F6D
+      61F72F01FF00000000000000000000003C4E7F1DA0082D0D0A00000044F72F01
+      3C4E7F1D0000000000000000000000006CF72F01E0B5CD767CF72F01B4AC9F74
+      E9FD0000000000003C4E7F1D0A0000009DF72F01FF0000000000000000000000
+      0B0000001A75AF749CF72F01C8F82F013C4E7F1DA0082D0D0A0000080000FF01
+      0C46696C65206F7074696F6E73CB000000000000000000000000000000FFFFFF
+      FF010000000000010000C0729802000000000000000001010D000000F5FFFFFF
+      0159B4CD00014E065461686F6D61F72F01FF00000000000000000000003C4E7F
+      1DA0082D0D0A00000044F72F013C4E7F1D0000000000000000000000006CF72F
+      01E0B5CD767CF72F01B4AC9F74E9FD0000000000003C4E7F1D0A0000009DF72F
+      01FF00000000000000000000000B0000001A75AF749CF72F01C8F82F013C4E7F
+      1DA0082D0D0A0000080000FF010E4261636B7570206F7074696F6E73C4000000
+      000000000000000000000000FFFFFFFF01000000000001010010739802010000
+      000000000001000D000000F5FFFFFF0159B4CD00014E065461686F6D61F72F01
+      FF00000000000000000000003C4E7F1DA0082D0D0A00000044F72F013C4E7F1D
+      0000000000000000000000006CF72F01E0B5CD767CF72F01B4AC9F74E9FD0000
+      000000003C4E7F1D0A0000009DF72F01FF00000000000000000000000B000000
+      1A75AF749CF72F01C8F82F013C4E7F1DA0082D0D0A0000080000FF0107416374
+      696F6E73CA000000000000000000000000000000FFFFFFFF0100000000000100
+      0060739802000000000000000001010D000000F5FFFFFF0159B4CD00014E0654
+      61686F6D61F72F01FF00000000000000000000003C4E7F1DA0082D0D0A000000
+      44F72F013C4E7F1D0000000000000000000000006CF72F01E0B5CD767CF72F01
+      B4AC9F74E9FD0000000000003C4E7F1D0A0000009DF72F01FF00000000000000
+      000000000B0000001A75AF749CF72F01C8F82F013C4E7F1DA0082D0D0A000008
+      0000FF010D436F6E6669726D6174696F6E73C300000000000000000000000000
+      0000FFFFFFFF010000000000010100B0739802010000000000000001000D0000
+      00F5FFFFFF0159B4CD00014E065461686F6D61F72F01FF000000000000000000
+      00003C4E7F1DA0082D0D0A00000044F72F013C4E7F1D00000000000000000000
+      00006CF72F01E0B5CD767CF72F01B4AC9F74E9FD0000000000003C4E7F1D0A00
+      00009DF72F01FF00000000000000000000000B0000001A75AF749CF72F01C8F8
+      2F013C4E7F1DA0082D0D0A0000080000FF01064368726F6D65C6000000000000
+      000000000000000000FFFFFFFF01000000000001000000749802000000000000
+      000001010D000000F5FFFFFF0159B4CD00014E065461686F6D61F72F01FF0000
+      0000000000000000003C4E7F1DA0082D0D0A00000044F72F013C4E7F1D000000
+      0000000000000000006CF72F01E0B5CD767CF72F01B4AC9F74E9FD0000000000
+      003C4E7F1D0A0000009DF72F01FF00000000000000000000000B0000001A75AF
+      749CF72F01C8F82F013C4E7F1DA0082D0D0A0000080000FF0109546162206963
+      6F6E73C5000000000000000000000000000000FFFFFFFF010000000000010100
+      50749802040000000000000001000D000000F5FFFFFF0159B4CD00014E065461
+      686F6D61F72F01FF00000000000000000000003C4E7F1DA0082D0D0A00000044
+      F72F013C4E7F1D0000000000000000000000006CF72F01E0B5CD767CF72F01B4
+      AC9F74E9FD0000000000003C4E7F1D0A0000009DF72F01FF0000000000000000
+      0000000B0000001A75AF749CF72F01C8F82F013C4E7F1DA0082D0D0A00000800
+      00FF0108416476616E636564C4000000000000000000000000000000FFFFFFFF
+      010000000000010000A0749802000000000000000001010D000000F5FFFFFF01
+      59B4CD00014E065461686F6D61F72F01FF00000000000000000000003C4E7F1D
+      A0082D0D0A00000044F72F013C4E7F1D0000000000000000000000006CF72F01
+      E0B5CD767CF72F01B4AC9F74E9FD0000000000003C4E7F1D0A0000009DF72F01
+      FF00000000000000000000000B0000001A75AF749CF72F01C8F82F013C4E7F1D
+      A0082D0D0A0000080000FF0107466F726D617473CE0000000000000000000000
+      00000000FFFFFFFF010000000000010000F0749802000000000000000001010D
+      000000F5FFFFFF0159B4CD00014E065461686F6D61F72F01FF00000000000000
+      000000003C4E7F1DA0082D0D0A00000044F72F013C4E7F1D0000000000000000
+      000000006CF72F01E0B5CD767CF72F01B4AC9F74E9FD0000000000003C4E7F1D
+      0A0000009DF72F01FF00000000000000000000000B0000001A75AF749CF72F01
+      C8F82F013C4E7F1DA0082D0D0A0000080000FF0111436C6970626F6172642063
+      617074757265C7000000000000000000000000000000FFFFFFFF010000000000
+      01000040759802000000000000000001010D000000F5FFFFFF0159B4CD00014E
+      065461686F6D61F72F01FF00000000000000000000003C4E7F1DA0082D0D0A00
+      000044F72F013C4E7F1D0000000000000000000000006CF72F01E0B5CD767CF7
+      2F01B4AC9F74E9FD0000000000003C4E7F1D0A0000009DF72F01FF0000000000
+      0000000000000B0000001A75AF749CF72F01C8F82F013C4E7F1DA0082D0D0A00
+      00080000FF010A46696C65207479706573C20000000000000000000000000000
+      00FFFFFFFF01000000000001000090759802000000000000000001010D000000
+      F5FFFFFF0159B4CD00014E065461686F6D61F72F01FF00000000000000000000
+      003C4E7F1DA0082D0D0A00000044F72F013C4E7F1D0000000000000000000000
+      006CF72F01E0B5CD767CF72F01B4AC9F74E9FD0000000000003C4E7F1D0A0000
+      009DF72F01FF00000000000000000000000B0000001A75AF749CF72F01C8F82F
+      013C4E7F1DA0082D0D0A0000080000FF01054F74686572}
     ItemHeight = 16
     Options = [toAutoExpand, toEvenHeight, toHotTrack, toReadOnly, toShowButtons, toShowLines, toShowRoot]
     ParentColor = False
@@ -125,14 +166,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Interface'
-      object GroupBox1: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox1: TGroupBox
         Left = 5
         Top = 5
         Width = 326
         Height = 148
         Caption = ' General interface options '
         TabOrder = 0
-        object Label18: TTntLabel
+        object Label18: TLabel
           Left = 183
           Top = 101
           Width = 51
@@ -140,7 +183,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Language:'
           FocusControl = Combo_Language
         end
-        object checkbox_IconInTray: TTntCheckBox
+        object checkbox_IconInTray: TCheckBox
           Left = 13
           Top = 23
           Width = 293
@@ -149,7 +192,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Minimize to system tray'
           TabOrder = 0
         end
-        object checkbox_StartMinimized: TTntCheckBox
+        object checkbox_StartMinimized: TCheckBox
           Left = 13
           Top = 43
           Width = 293
@@ -158,7 +201,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Start program minimi&zed'
           TabOrder = 1
         end
-        object CheckBox_MinimizeOnClose: TTntCheckBox
+        object CheckBox_MinimizeOnClose: TCheckBox
           Left = 13
           Top = 63
           Width = 279
@@ -167,7 +210,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Don'#39't &close; minimize instead'
           TabOrder = 2
         end
-        object CheckBox_ShowTooltips: TTntCheckBox
+        object CheckBox_ShowTooltips: TCheckBox
           Left = 13
           Top = 83
           Width = 279
@@ -178,7 +221,7 @@ object Form_OptionsNew: TForm_OptionsNew
           ShowHint = True
           TabOrder = 4
         end
-        object CheckBox_SplashScreen: TTntCheckBox
+        object CheckBox_SplashScreen: TCheckBox
           Left = 13
           Top = 121
           Width = 285
@@ -189,7 +232,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 3
           Visible = False
         end
-        object CheckBox_SingleInstance: TTntCheckBox
+        object CheckBox_SingleInstance: TCheckBox
           Left = 13
           Top = 102
           Width = 165
@@ -198,25 +241,24 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Allow only o&ne instance'
           TabOrder = 5
         end
-        object Combo_Language: TTntComboBox
+        object Combo_Language: TComboBox
           Left = 182
           Top = 117
           Width = 138
           Height = 21
           Hint = 'Select action to perform when ESC key is pressed'
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 6
         end
       end
-      object GroupBox7: TTntGroupBox
+      object GroupBox7: TGroupBox
         Left = 5
         Top = 160
         Width = 324
         Height = 136
         Caption = ' Program hotkeys '
         TabOrder = 1
-        object Label4: TTntLabel
+        object Label4: TLabel
           Left = 12
           Top = 23
           Width = 75
@@ -224,14 +266,13 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'On &Escape key:'
           FocusControl = Combo_EscapeAction
         end
-        object Combo_EscapeAction: TTntComboBox
+        object Combo_EscapeAction: TComboBox
           Left = 12
           Top = 38
           Width = 171
           Height = 21
           Hint = 'Select action to perform when ESC key is pressed'
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 0
           Items.Strings = (
             'Do nothing'
@@ -242,7 +283,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Left = 28
           Top = 85
           Width = 171
-          Height = 19
+          Height = 21
           Hint = 
             'Hotkey used to activate Keynote when iconized'#13#10'Use BACKSPACE to ' +
             'delete existing hotkey, then'#13#10'press the key combination you want' +
@@ -252,7 +293,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Modifiers = [hkShift, hkCtrl]
           TabOrder = 2
         end
-        object CheckBox_HotkeyActivate: TTntCheckBox
+        object CheckBox_HotkeyActivate: TCheckBox
           Left = 12
           Top = 65
           Width = 279
@@ -260,7 +301,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Use activation &Hotkey:'
           TabOrder = 1
         end
-        object CheckBox_HotKeyWarn: TTntCheckBox
+        object CheckBox_HotKeyWarn: TCheckBox
           Left = 28
           Top = 110
           Width = 293
@@ -275,14 +316,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Editor'
-      object GBox_EditorGlobal: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GBox_EditorGlobal: TGroupBox
         Left = 5
         Top = 5
         Width = 324
         Height = 164
         Caption = ' Global editor settings'
         TabOrder = 0
-        object CheckBox_WordSelect: TTntCheckBox
+        object CheckBox_WordSelect: TCheckBox
           Left = 10
           Top = 27
           Width = 303
@@ -291,7 +334,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Automaticaly select whole words'
           TabOrder = 0
         end
-        object CB_SaveCaretPos: TTntCheckBox
+        object CB_SaveCaretPos: TCheckBox
           Left = 10
           Top = 91
           Width = 303
@@ -300,7 +343,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Save and restore caret &position'
           TabOrder = 3
         end
-        object CheckBox_TrackCaretPos: TTntCheckBox
+        object CheckBox_TrackCaretPos: TCheckBox
           Left = 10
           Top = 51
           Width = 303
@@ -310,7 +353,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 1
           OnClick = CheckBox_TrackCaretPosClick
         end
-        object CheckBox_AutoIndent: TTntCheckBox
+        object CheckBox_AutoIndent: TCheckBox
           Left = 10
           Top = 116
           Width = 303
@@ -319,7 +362,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Auto &indent lines'
           TabOrder = 4
         end
-        object CB_TrackWordCount: TTntCheckBox
+        object CB_TrackWordCount: TCheckBox
           Left = 10
           Top = 71
           Width = 303
@@ -329,7 +372,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
           OnClick = CB_TrackWordCountClick
         end
-        object CB_PlainDefaultPaste: TTntCheckBox
+        object CB_PlainDefaultPaste: TCheckBox
           Left = 10
           Top = 137
           Width = 303
@@ -342,13 +385,13 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 5
         end
       end
-      object GroupBox20: TTntGroupBox
+      object GroupBox20: TGroupBox
         Left = 5
         Top = 170
         Width = 324
         Height = 145
         TabOrder = 1
-        object Label12: TTntLabel
+        object Label12: TLabel
           Left = 10
           Top = 120
           Width = 159
@@ -357,7 +400,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Incr&ement para space by:'
           FocusControl = Spin_ParaSpaceInc
         end
-        object Label11: TTntLabel
+        object Label11: TLabel
           Left = 10
           Top = 90
           Width = 159
@@ -366,7 +409,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Increment &font size by:'
           FocusControl = Spin_FontSizeInc
         end
-        object Label1: TTntLabel
+        object Label1: TLabel
           Left = 10
           Top = 60
           Width = 159
@@ -375,7 +418,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'I&ncrement indents by:'
           FocusControl = Spin_IndentInc
         end
-        object Label_UndoLimit: TTntLabel
+        object Label_UndoLimit: TLabel
           Left = 10
           Top = 30
           Width = 159
@@ -438,14 +481,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Tree'
-      object GBox_TreeGlobal: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GBox_TreeGlobal: TGroupBox
         Left = 5
         Top = 5
         Width = 326
         Height = 292
         Caption = ' Global tree panel settings '
         TabOrder = 0
-        object Label17: TTntLabel
+        object Label17: TLabel
           Left = 10
           Top = 23
           Width = 121
@@ -453,7 +498,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Initial tree e&xpand mode:'
           FocusControl = Combo_ExpandMode
         end
-        object CheckBox_EditNewNodes: TTntCheckBox
+        object CheckBox_EditNewNodes: TCheckBox
           Left = 10
           Top = 65
           Width = 311
@@ -462,7 +507,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&After creating a new node, switch to edit mode'
           TabOrder = 1
         end
-        object CheckBox_EditInPlace: TTntCheckBox
+        object CheckBox_EditInPlace: TCheckBox
           Left = 10
           Top = 85
           Width = 311
@@ -471,7 +516,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Edit nodes "in place" (no dialog box)'
           TabOrder = 2
         end
-        object CheckBox_InheritBGColor: TTntCheckBox
+        object CheckBox_InheritBGColor: TCheckBox
           Left = 10
           Top = 133
           Width = 311
@@ -480,7 +525,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Inherit &BG color from active node'
           TabOrder = 4
         end
-        object CheckBox_AutoNameVNodes: TTntCheckBox
+        object CheckBox_AutoNameVNodes: TCheckBox
           Left = 10
           Top = 113
           Width = 311
@@ -489,7 +534,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Auto&matically name nodes where possible'
           TabOrder = 3
         end
-        object CB_InheritNodeProperties: TTntCheckBox
+        object CB_InheritNodeProperties: TCheckBox
           Left = 10
           Top = 153
           Width = 311
@@ -498,7 +543,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Inherit &properties from active node'
           TabOrder = 5
         end
-        object CheckBox_HotTrackTree: TTntCheckBox
+        object CheckBox_HotTrackTree: TCheckBox
           Left = 10
           Top = 178
           Width = 311
@@ -507,7 +552,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Hot track tree nodes'
           TabOrder = 6
         end
-        object CheckBox_AutoScroll: TTntCheckBox
+        object CheckBox_AutoScroll: TCheckBox
           Left = 10
           Top = 198
           Width = 311
@@ -516,7 +561,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'A&uto scroll tree on mouse movement'
           TabOrder = 7
         end
-        object CheckBox_TreeTips: TTntCheckBox
+        object CheckBox_TreeTips: TCheckBox
           Left = 10
           Top = 225
           Width = 311
@@ -525,7 +570,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Show &tooltips in tree'
           TabOrder = 8
         end
-        object CB_ShowFullPath: TTntCheckBox
+        object CB_ShowFullPath: TCheckBox
           Left = 10
           Top = 245
           Width = 204
@@ -534,7 +579,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Sh&ow full node path in status bar'
           TabOrder = 9
         end
-        object CB_ShowFullPathSearch: TTntCheckBox
+        object CB_ShowFullPathSearch: TCheckBox
           Left = 10
           Top = 265
           Width = 311
@@ -543,7 +588,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Show full node path in search &results'
           TabOrder = 11
         end
-        object CB_PathTopToBottom: TTntCheckBox
+        object CB_PathTopToBottom: TCheckBox
           Left = 216
           Top = 245
           Width = 105
@@ -552,13 +597,12 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Reverse or&der'
           TabOrder = 10
         end
-        object Combo_ExpandMode: TTntComboBox
+        object Combo_ExpandMode: TComboBox
           Left = 10
           Top = 38
           Width = 236
           Height = 21
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 0
         end
       end
@@ -567,7 +611,9 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_KNTFiles'
-      object GroupBox2: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox2: TGroupBox
         Left = 5
         Top = 5
         Width = 325
@@ -582,14 +628,12 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
           OnClick = TB_OpenDlgUserFileClick
         end
-        object CB_LoadLastFile: TTntCheckBox
+        object CB_LoadLastFile: TCheckBox
           Left = 10
           Top = 25
           Width = 143
@@ -598,7 +642,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Load last-used file'
           TabOrder = 0
         end
-        object CB_LoadUserFile: TTntCheckBox
+        object CB_LoadUserFile: TCheckBox
           Left = 160
           Top = 25
           Width = 145
@@ -607,7 +651,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Load &specific file:'
           TabOrder = 1
         end
-        object Edit_UserFile: TTntEdit
+        object Edit_UserFile: TEdit
           Left = 10
           Top = 50
           Width = 279
@@ -621,7 +665,7 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 2
         end
-        object CB_AutoNewFile: TTntCheckBox
+        object CB_AutoNewFile: TCheckBox
           Left = 10
           Top = 80
           Width = 279
@@ -630,21 +674,21 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 3
         end
       end
-      object GroupBox9: TTntGroupBox
+      object GroupBox9: TGroupBox
         Left = 5
         Top = 118
         Width = 325
         Height = 126
         Caption = ' Auto save '
         TabOrder = 1
-        object Label_Minutes: TTntLabel
+        object Label_Minutes: TLabel
           Left = 156
           Top = 66
           Width = 37
           Height = 13
           Caption = 'minutes'
         end
-        object Checkbox_AutoSave: TTntCheckBox
+        object Checkbox_AutoSave: TCheckBox
           Left = 10
           Top = 23
           Width = 303
@@ -653,7 +697,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Automatically save changes in KeyNote file:'
           TabOrder = 0
         end
-        object CheckBox_AutoSaveOnFocus: TTntCheckBox
+        object CheckBox_AutoSaveOnFocus: TCheckBox
           Left = 26
           Top = 45
           Width = 287
@@ -662,7 +706,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&When you switch to another application'
           TabOrder = 1
         end
-        object CheckBox_AutoSaveOnTimer: TTntCheckBox
+        object CheckBox_AutoSaveOnTimer: TCheckBox
           Left = 26
           Top = 65
           Width = 63
@@ -683,7 +727,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 3
           Value = 10
         end
-        object CB_SkipNewFilePrompt: TTntCheckBox
+        object CB_SkipNewFilePrompt: TCheckBox
           Left = 10
           Top = 98
           Width = 311
@@ -697,14 +741,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_FileOptions'
-      object GroupBox3: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox3: TGroupBox
         Left = 5
         Top = 5
         Width = 327
         Height = 93
         Caption = ' Recently used files list '
         TabOrder = 0
-        object CheckBox_MRUSubmenu: TTntCheckBox
+        object CheckBox_MRUSubmenu: TCheckBox
           Left = 9
           Top = 44
           Width = 304
@@ -713,7 +759,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Display as &Submenu'
           TabOrder = 2
         end
-        object CheckBox_MRUUse: TTntCheckBox
+        object CheckBox_MRUUse: TCheckBox
           Left = 9
           Top = 24
           Width = 227
@@ -722,7 +768,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Remember recently used files:'
           TabOrder = 0
         end
-        object CheckBox_MRUFullPath: TTntCheckBox
+        object CheckBox_MRUFullPath: TCheckBox
           Left = 9
           Top = 64
           Width = 312
@@ -744,14 +790,14 @@ object Form_OptionsNew: TForm_OptionsNew
           Value = 5
         end
       end
-      object GroupBox13: TTntGroupBox
+      object GroupBox13: TGroupBox
         Left = 5
         Top = 107
         Width = 327
         Height = 86
         Caption = ' Open in Read-Only mode : '
         TabOrder = 1
-        object CheckBox_OpenFloppyReadOnly: TTntCheckBox
+        object CheckBox_OpenFloppyReadOnly: TCheckBox
           Left = 10
           Top = 20
           Width = 311
@@ -760,7 +806,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Files on &floppy disks'
           TabOrder = 0
         end
-        object CheckBox_OpenReadOnlyWarn: TTntCheckBox
+        object CheckBox_OpenReadOnlyWarn: TCheckBox
           Left = 10
           Top = 60
           Width = 311
@@ -769,7 +815,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Warn when opening file in  Read-Only mode'
           TabOrder = 1
         end
-        object CheckBox_OpenNetworkReadOnly: TTntCheckBox
+        object CheckBox_OpenNetworkReadOnly: TCheckBox
           Left = 10
           Top = 40
           Width = 311
@@ -779,14 +825,14 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
         end
       end
-      object GroupBox15: TTntGroupBox
+      object GroupBox15: TGroupBox
         Left = 5
         Top = 203
         Width = 327
         Height = 91
         Caption = ' Registered file types '
         TabOrder = 2
-        object CheckBox_AutoRegisterPrompt: TTntCheckBox
+        object CheckBox_AutoRegisterPrompt: TCheckBox
           Left = 10
           Top = 40
           Width = 311
@@ -795,7 +841,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Prompt before creating file association'
           TabOrder = 0
         end
-        object CheckBox_AutoRegisterFileType: TTntCheckBox
+        object CheckBox_AutoRegisterFileType: TCheckBox
           Left = 10
           Top = 20
           Width = 311
@@ -804,7 +850,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Aut&o register file type (associate .KNT files with KeyNote)'
           TabOrder = 1
         end
-        object CheckBox_EncFileAltExt: TTntCheckBox
+        object CheckBox_EncFileAltExt: TCheckBox
           Left = 10
           Top = 60
           Width = 311
@@ -819,21 +865,21 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_BackupOptions'
-      object GroupBox11: TTntGroupBox
+      object GroupBox11: TGroupBox
         Left = 5
         Top = 5
         Width = 327
         Height = 336
         Caption = ' Backup options '
         TabOrder = 0
-        object Label_BakDir: TTntLabel
+        object Label_BakDir: TLabel
           Left = 16
           Top = 230
           Width = 124
           Height = 13
           Caption = '&Directory for backup files:'
         end
-        object Label_MaxBak2: TTntLabel
+        object Label_MaxBak2: TLabel
           Left = 51
           Top = 175
           Width = 122
@@ -849,7 +895,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 5
           Shape = bsTopLine
         end
-        object Label_MaxBak1: TTntLabel
+        object Label_MaxBak1: TLabel
           Left = 29
           Top = 139
           Width = 297
@@ -874,7 +920,7 @@ object Form_OptionsNew: TForm_OptionsNew
           RepeatInterval = 101
           OnClick = TB_OpenDlgBakDirClick
         end
-        object checkbox_Backup: TTntCheckBox
+        object checkbox_Backup: TCheckBox
           Left = 10
           Top = 59
           Width = 311
@@ -883,7 +929,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Backup original file when saving changes'
           TabOrder = 1
         end
-        object CheckBox_BackupAppendExt: TTntCheckBox
+        object CheckBox_BackupAppendExt: TCheckBox
           Left = 29
           Top = 82
           Width = 228
@@ -892,7 +938,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Append extension to original filename:'
           TabOrder = 2
         end
-        object Edit_BackupExt: TTntEdit
+        object Edit_BackupExt: TEdit
           Left = 258
           Top = 78
           Width = 44
@@ -901,7 +947,7 @@ object Form_OptionsNew: TForm_OptionsNew
           MaxLength = 9
           TabOrder = 3
         end
-        object RB_BakOriginalDir: TTntRadioButton
+        object RB_BakOriginalDir: TRadioButton
           Left = 22
           Top = 252
           Width = 242
@@ -913,7 +959,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabStop = True
           OnClick = RB_BakOriginalDirClick
         end
-        object RB_BakUserDir: TTntRadioButton
+        object RB_BakUserDir: TRadioButton
           Left = 22
           Top = 272
           Width = 242
@@ -923,7 +969,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 6
           OnClick = RB_BakOriginalDirClick
         end
-        object Edit_BakDir: TTntEdit
+        object Edit_BakDir: TEdit
           Left = 48
           Top = 295
           Width = 231
@@ -937,17 +983,16 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 7
         end
-        object Combo_BakLevel: TTntComboBox
+        object Combo_BakLevel: TComboBox
           Left = 176
           Top = 172
           Width = 65
           Height = 21
           Style = csDropDownList
           DropDownCount = 10
-          ItemHeight = 13
           TabOrder = 8
         end
-        object CB_BackupVNodes: TTntCheckBox
+        object CB_BackupVNodes: TCheckBox
           Left = 29
           Top = 105
           Width = 295
@@ -956,7 +1001,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Also back up &virtual node files'
           TabOrder = 4
         end
-        object CB_BackupRegularIntervals: TTntCheckBox
+        object CB_BackupRegularIntervals: TCheckBox
           Left = 10
           Top = 29
           Width = 311
@@ -973,21 +1018,23 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Actions'
-      object GroupBox10: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox10: TGroupBox
         Left = 5
         Top = 5
         Width = 326
         Height = 164
         Caption = ' Actions on program inactivity '
         TabOrder = 0
-        object Label9: TTntLabel
+        object Label9: TLabel
           Left = 226
           Top = 26
           Width = 56
           Height = 13
           Caption = 'minutes idle'
         end
-        object Label10: TTntLabel
+        object Label10: TLabel
           Left = 226
           Top = 66
           Width = 56
@@ -1001,7 +1048,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 5
           Shape = bsTopLine
         end
-        object CheckBox_TimerMinimize: TTntCheckBox
+        object CheckBox_TimerMinimize: TCheckBox
           Left = 11
           Top = 26
           Width = 155
@@ -1010,7 +1057,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Minimize KeyNote after '
           TabOrder = 0
         end
-        object CheckBox_TimerClose: TTntCheckBox
+        object CheckBox_TimerClose: TCheckBox
           Left = 11
           Top = 66
           Width = 155
@@ -1019,7 +1066,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Close Notes file after'
           TabOrder = 2
         end
-        object CB_CloseEncOnly: TTntCheckBox
+        object CB_CloseEncOnly: TCheckBox
           Left = 27
           Top = 91
           Width = 291
@@ -1052,7 +1099,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 3
           Value = 10
         end
-        object CB_TimerCloseDialogs: TTntCheckBox
+        object CB_TimerCloseDialogs: TCheckBox
           Left = 11
           Top = 119
           Width = 291
@@ -1061,7 +1108,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'If any &dialog boxes are open, force them to close'
           TabOrder = 5
         end
-        object CB_TimerCloseAutoReopen: TTntCheckBox
+        object CB_TimerCloseAutoReopen: TCheckBox
           Left = 11
           Top = 139
           Width = 291
@@ -1071,14 +1118,14 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 6
         end
       end
-      object GroupBox16: TTntGroupBox
+      object GroupBox16: TGroupBox
         Left = 5
         Top = 178
         Width = 326
         Height = 118
         Caption = ' URL actions '
         TabOrder = 1
-        object Label8: TTntLabel
+        object Label8: TLabel
           Left = 10
           Top = 25
           Width = 87
@@ -1087,16 +1134,15 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'On &URL click:'
           FocusControl = Combo_URLAction
         end
-        object Combo_URLAction: TTntComboBox
+        object Combo_URLAction: TComboBox
           Left = 101
           Top = 20
           Width = 166
           Height = 21
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 0
         end
-        object CheckBox_URLShift: TTntCheckBox
+        object CheckBox_URLShift: TCheckBox
           Left = 11
           Top = 49
           Width = 310
@@ -1105,7 +1151,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Shift key must be held down when URL is clicked'
           TabOrder = 1
         end
-        object CheckBox_MinOnURL: TTntCheckBox
+        object CheckBox_MinOnURL: TCheckBox
           Left = 11
           Top = 69
           Width = 310
@@ -1114,7 +1160,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Minimize &KeyNote on URL launch'
           TabOrder = 2
         end
-        object CheckBox_URLFileAuto: TTntCheckBox
+        object CheckBox_URLFileAuto: TCheckBox
           Left = 11
           Top = 89
           Width = 310
@@ -1129,7 +1175,9 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Confirmations'
-      object GroupBox12: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox12: TGroupBox
         Left = 5
         Top = 5
         Width = 327
@@ -1143,7 +1191,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 6
           Shape = bsTopLine
         end
-        object CheckBox_AutoPasteEval: TTntCheckBox
+        object CheckBox_AutoPasteEval: TCheckBox
           Left = 10
           Top = 162
           Width = 311
@@ -1152,7 +1200,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Automatically paste expression evaluation results'
           TabOrder = 6
         end
-        object CheckBox_AutoPastePlugin: TTntCheckBox
+        object CheckBox_AutoPastePlugin: TCheckBox
           Left = 10
           Top = 182
           Width = 311
@@ -1161,7 +1209,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'A&utomatically insert text from plugins'
           TabOrder = 7
         end
-        object CheckBox_ConfirmTreePaste: TTntCheckBox
+        object CheckBox_ConfirmTreePaste: TCheckBox
           Left = 10
           Top = 88
           Width = 311
@@ -1170,7 +1218,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Confirm &pasting tree nodes'
           TabOrder = 3
         end
-        object checkbox_ConfirmExit: TTntCheckBox
+        object checkbox_ConfirmExit: TCheckBox
           Left = 10
           Top = 28
           Width = 311
@@ -1179,7 +1227,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Confirm closing KeyNote'
           TabOrder = 0
         end
-        object checkbox_ConfirmDelete: TTntCheckBox
+        object checkbox_ConfirmDelete: TCheckBox
           Left = 10
           Top = 48
           Width = 311
@@ -1188,7 +1236,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Confirm &deleting notes'
           TabOrder = 1
         end
-        object CheckBox_ConfirmNodeDelete: TTntCheckBox
+        object CheckBox_ConfirmNodeDelete: TCheckBox
           Left = 10
           Top = 68
           Width = 311
@@ -1197,7 +1245,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Confirm deleting tree &nodes'
           TabOrder = 2
         end
-        object CB_ConfirmNodeRefresh: TTntCheckBox
+        object CB_ConfirmNodeRefresh: TCheckBox
           Left = 10
           Top = 108
           Width = 311
@@ -1206,14 +1254,14 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Confirm refreshing &virtual nodes'
           TabOrder = 4
         end
-        object GroupBox18: TTntGroupBox
+        object GroupBox18: TGroupBox
           Left = 10
           Top = 210
           Width = 307
           Height = 71
           Caption = ' When dropping tree nodes on another tab: '
           TabOrder = 8
-          object CB_DropNodesOnTabPrompt: TTntCheckBox
+          object CB_DropNodesOnTabPrompt: TCheckBox
             Left = 10
             Top = 20
             Width = 287
@@ -1221,7 +1269,7 @@ object Form_OptionsNew: TForm_OptionsNew
             Caption = 'C&onfirm before transferring nodes'
             TabOrder = 0
           end
-          object CB_DropNodesOnTabMove: TTntCheckBox
+          object CB_DropNodesOnTabMove: TCheckBox
             Left = 10
             Top = 40
             Width = 287
@@ -1230,7 +1278,7 @@ object Form_OptionsNew: TForm_OptionsNew
             TabOrder = 1
           end
         end
-        object CB_TreeClipConfirm: TTntCheckBox
+        object CB_TreeClipConfirm: TCheckBox
           Left = 10
           Top = 128
           Width = 311
@@ -1244,21 +1292,23 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Chrome'
-      object GroupBox14: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox14: TGroupBox
         Left = 5
         Top = 152
         Width = 326
         Height = 143
         Caption = ' Note tabs: Options '
         TabOrder = 0
-        object Label14: TTntLabel
+        object Label14: TLabel
           Left = 10
           Top = 70
           Width = 276
           Height = 13
           Caption = 'Settings below will take effect after KeyNote is restarted.'
         end
-        object Label15: TTntLabel
+        object Label15: TLabel
           Left = 10
           Top = 90
           Width = 90
@@ -1268,7 +1318,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Tab position:'
           FocusControl = Combo_TabPos
         end
-        object CheckBox_TabsStacked: TTntCheckBox
+        object CheckBox_TabsStacked: TCheckBox
           Left = 18
           Top = 113
           Width = 303
@@ -1277,7 +1327,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Multiline tabs (arrange in rows when cannot fit)'
           TabOrder = 3
         end
-        object CheckBox_TabsHotTrack: TTntCheckBox
+        object CheckBox_TabsHotTrack: TCheckBox
           Left = 10
           Top = 40
           Width = 311
@@ -1286,7 +1336,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Hot track in tabs'
           TabOrder = 1
         end
-        object CheckBox_TabsImages: TTntCheckBox
+        object CheckBox_TabsImages: TCheckBox
           Left = 10
           Top = 20
           Width = 311
@@ -1295,31 +1345,30 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Show icons on tabs'
           TabOrder = 0
         end
-        object Combo_TabPos: TTntComboBox
+        object Combo_TabPos: TComboBox
           Left = 104
           Top = 87
           Width = 145
           Height = 21
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 2
         end
       end
-      object GroupBox5: TTntGroupBox
+      object GroupBox5: TGroupBox
         Left = 5
         Top = 5
         Width = 326
         Height = 140
         Caption = ' Note tabs: Font and colors '
         TabOrder = 1
-        object Label5: TTntLabel
+        object Label5: TLabel
           Left = 15
           Top = 24
           Width = 60
           Height = 13
           Caption = 'Settings for:'
         end
-        object RB_ActiveTab: TTntRadioButton
+        object RB_ActiveTab: TRadioButton
           Left = 23
           Top = 42
           Width = 127
@@ -1330,7 +1379,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 0
           TabStop = True
         end
-        object RB_InactiveTab: TTntRadioButton
+        object RB_InactiveTab: TRadioButton
           Left = 156
           Top = 42
           Width = 146
@@ -1339,7 +1388,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Inactive tabs'
           TabOrder = 1
         end
-        object Edit_Sample: TTntEdit
+        object Edit_Sample: TEdit
           Left = 13
           Top = 98
           Width = 303
@@ -1356,7 +1405,6 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 25
           Hint = 'Select tab font attributes'
           Caption = '&Font'
-          TabOrder = 2
           Glyph.Data = {
             F6000000424DF600000000000000760000002800000010000000100000000100
             0400000000008000000000000000000000001000000010000000000000000000
@@ -1366,6 +1414,7 @@ object Form_OptionsNew: TForm_OptionsNew
             D44AADADADA44DADA44DDADADADA4444444AADADADADA44DA44DD0DAD0DADA44
             D44AA07D70ADADA4444DD70007DADADA444AAD0D0DADADADA44DDA0A0ADADADA
             DADAAD707DADADADADADDAD0DADADADADADAADADADADADADADAD}
+          TabOrder = 2
         end
         object BTN_Color: TBitBtn
           Left = 110
@@ -1374,7 +1423,6 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 25
           Hint = 'Select tab color'
           Caption = '&Color'
-          TabOrder = 3
           Glyph.Data = {
             36030000424D3603000000000000360000002800000010000000100000000100
             18000000000000030000000000000000000000000000000000009F609F3F003F
@@ -1402,6 +1450,7 @@ object Form_OptionsNew: TForm_OptionsNew
             7F7FFF7F7FFF7F7FFF7F7FFF7F7FFF7FFFFF7FFFFF7FFFFF7FFFFF7FFFFF7FFF
             FF7FFFFF3FBFBF000000CFCFCF9F9FDF9F9FDF9F9FDF9F9FDF9F9FDF9F9FDF9F
             DFDF9FDFDF9FDFDF9FDFDF9FDFDF9FDFDF9FDFDF9FDFDF609F9F}
+          TabOrder = 3
         end
         object BTN_Defaults: TBitBtn
           Left = 205
@@ -1410,7 +1459,6 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 25
           Hint = 'Restore default tab font and color'
           Caption = '&Reset'
-          TabOrder = 4
           Glyph.Data = {
             F6000000424DF600000000000000760000002800000010000000100000000100
             0400000000008000000000000000000000001000000010000000000000000000
@@ -1420,6 +1468,7 @@ object Form_OptionsNew: TForm_OptionsNew
             7777777777777778477777444447777748777744447777777477774447777777
             7477774474777777747777477744777748777777777744448777777777777777
             7777777777777777777777777777777777777777777777777777}
+          TabOrder = 4
         end
       end
     end
@@ -1427,21 +1476,23 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Icons'
-      object GroupBox_ICN: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox_ICN: TGroupBox
         Left = 5
         Top = 5
         Width = 327
         Height = 336
         Caption = ' &Tab icons '
         TabOrder = 0
-        object Label_ICN: TTntLabel
+        object Label_ICN: TLabel
           Left = 179
           Top = 308
           Width = 20
           Height = 13
           Caption = '(...)'
         end
-        object Button_ICNAdd: TTntButton
+        object Button_ICNAdd: TButton
           Left = 174
           Top = 35
           Width = 91
@@ -1451,7 +1502,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 1
           OnClick = Button_ICNAddClick
         end
-        object Button_ICNInsert: TTntButton
+        object Button_ICNInsert: TButton
           Left = 174
           Top = 65
           Width = 91
@@ -1461,7 +1512,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
           OnClick = Button_ICNInsertClick
         end
-        object Button_ICNDelete: TTntButton
+        object Button_ICNDelete: TButton
           Left = 174
           Top = 95
           Width = 91
@@ -1471,7 +1522,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 3
           OnClick = Button_ICNDeleteClick
         end
-        object Button_ICNReset: TTntButton
+        object Button_ICNReset: TButton
           Left = 174
           Top = 125
           Width = 91
@@ -1496,14 +1547,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Advanced'
-      object GroupBox8: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox8: TGroupBox
         Left = 5
         Top = 5
         Width = 326
         Height = 286
         Caption = ' Advanced settings '
         TabOrder = 0
-        object Label16: TTntLabel
+        object Label16: TLabel
           Left = 10
           Top = 22
           Width = 292
@@ -1517,7 +1570,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 6
           Shape = bsTopLine
         end
-        object CheckBox_DisableFileMon: TTntCheckBox
+        object CheckBox_DisableFileMon: TCheckBox
           Left = 10
           Top = 45
           Width = 311
@@ -1526,7 +1579,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Disable folder monitor (*)'
           TabOrder = 0
         end
-        object CheckBox_ShowFonts: TTntCheckBox
+        object CheckBox_ShowFonts: TCheckBox
           Left = 10
           Top = 65
           Width = 311
@@ -1535,7 +1588,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Show font samples in Font combo box (*)'
           TabOrder = 1
         end
-        object CheckBox_NoRegistry: TTntCheckBox
+        object CheckBox_NoRegistry: TCheckBox
           Left = 10
           Top = 220
           Width = 311
@@ -1544,7 +1597,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Do not save &window settings to registry'
           TabOrder = 8
         end
-        object CheckBox_UseOldColorDlg: TTntCheckBox
+        object CheckBox_UseOldColorDlg: TCheckBox
           Left = 10
           Top = 140
           Width = 311
@@ -1555,7 +1608,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Old style color selection dialogs'
           TabOrder = 4
         end
-        object CheckBox_RunAutoMacros: TTntCheckBox
+        object CheckBox_RunAutoMacros: TCheckBox
           Left = 10
           Top = 160
           Width = 311
@@ -1564,7 +1617,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Allow Auto-run macros'
           TabOrder = 5
         end
-        object CheckBox_SafePrint: TTntCheckBox
+        object CheckBox_SafePrint: TCheckBox
           Left = 10
           Top = 180
           Width = 311
@@ -1573,7 +1626,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Safe &print mode'
           TabOrder = 6
         end
-        object CheckBox_FixScrollBars: TTntCheckBox
+        object CheckBox_FixScrollBars: TCheckBox
           Left = 10
           Top = 200
           Width = 311
@@ -1584,7 +1637,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Fix scroll bars in tree-type notes'
           TabOrder = 7
         end
-        object CheckBox_LongCombos: TTntCheckBox
+        object CheckBox_LongCombos: TCheckBox
           Left = 10
           Top = 85
           Width = 311
@@ -1593,7 +1646,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Wider drop-down lists on toolbars (*)'
           TabOrder = 2
         end
-        object CheckBox_RichEditv3: TTntCheckBox
+        object CheckBox_RichEditv3: TCheckBox
           Left = 10
           Top = 105
           Width = 311
@@ -1602,7 +1655,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Enable &Rich Edit version 3.0 fixes (*)'
           TabOrder = 3
         end
-        object CB_IgnoreUpgrades: TTntCheckBox
+        object CB_IgnoreUpgrades: TCheckBox
           Left = 10
           Top = 240
           Width = 311
@@ -1611,7 +1664,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Do not display &upgrade information'
           TabOrder = 9
         end
-        object CB_ResPanelActiveUpdate: TTntCheckBox
+        object CB_ResPanelActiveUpdate: TCheckBox
           Left = 10
           Top = 260
           Width = 311
@@ -1625,14 +1678,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Formats'
-      object GroupBox4: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox4: TGroupBox
         Left = 5
         Top = 5
         Width = 327
         Height = 166
         Caption = ' Date and time formats '
         TabOrder = 0
-        object Label2: TTntLabel
+        object Label2: TLabel
           Left = 10
           Top = 35
           Width = 87
@@ -1641,7 +1696,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Date format:'
           FocusControl = Edit_DateFormat
         end
-        object Label3: TTntLabel
+        object Label3: TLabel
           Left = 10
           Top = 85
           Width = 87
@@ -1650,40 +1705,38 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Time format:'
           FocusControl = Edit_TimeFormat
         end
-        object Label_SampleDate: TTntLabel
+        object Label_SampleDate: TLabel
           Left = 101
           Top = 55
           Width = 20
           Height = 13
           Caption = '(...)'
         end
-        object Label_SampleTime: TTntLabel
+        object Label_SampleTime: TLabel
           Left = 101
           Top = 105
           Width = 20
           Height = 13
           Caption = '(...)'
         end
-        object Edit_DateFormat: TTntComboBox
+        object Edit_DateFormat: TComboBox
           Left = 101
           Top = 30
           Width = 204
           Height = 21
           Hint = 'Format to use when inserting current date'
-          ItemHeight = 13
           TabOrder = 0
         end
-        object Edit_TimeFormat: TTntComboBox
+        object Edit_TimeFormat: TComboBox
           Left = 101
           Top = 80
           Width = 204
           Height = 21
           Hint = 'Format to use when inserting current time'
-          ItemHeight = 13
           MaxLength = 99
           TabOrder = 1
         end
-        object CB_DTUseLastSelection: TTntCheckBox
+        object CB_DTUseLastSelection: TCheckBox
           Left = 10
           Top = 125
           Width = 295
@@ -1692,14 +1745,14 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
         end
       end
-      object GroupBox17: TTntGroupBox
+      object GroupBox17: TGroupBox
         Left = 5
         Top = 180
         Width = 328
         Height = 77
         Caption = '  Insert Character dialog box  '
         TabOrder = 1
-        object CheckBox_InsCharKeepFont: TTntCheckBox
+        object CheckBox_InsCharKeepFont: TCheckBox
           Left = 10
           Top = 24
           Width = 295
@@ -1708,7 +1761,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'D&efault to current text font'
           TabOrder = 0
         end
-        object CheckBox_InsCharWinClose: TTntCheckBox
+        object CheckBox_InsCharWinClose: TCheckBox
           Left = 10
           Top = 44
           Width = 295
@@ -1723,21 +1776,23 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_ClipCap'
-      object GroupBox6: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox6: TGroupBox
         Left = 5
         Top = 5
         Width = 330
         Height = 336
         Caption = ' Clipboard Capture / Web Clip settings '
         TabOrder = 0
-        object Label_MaxSize: TTntLabel
+        object Label_MaxSize: TLabel
           Left = 183
           Top = 171
           Width = 59
           Height = 13
           Caption = '&Limit size to:'
         end
-        object Label7: TTntLabel
+        object Label7: TLabel
           Left = 31
           Top = 24
           Width = 205
@@ -1745,14 +1800,14 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Divider string placed before captured text:'
           FocusControl = Combo_Divider
         end
-        object Label_PlainTextMode: TTntLabel
+        object Label_PlainTextMode: TLabel
           Left = 12
           Top = 147
           Width = 78
           Height = 13
           Caption = 'Plain text &mode:'
         end
-        object TntLabel1: TTntLabel
+        object TntLabel1: TLabel
           Left = 44
           Top = 73
           Width = 46
@@ -1761,7 +1816,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Web Clip:'
           FocusControl = Combo_ClipNodeNaming
         end
-        object TntLabel2: TTntLabel
+        object TntLabel2: TLabel
           Left = 42
           Top = 48
           Width = 48
@@ -1770,7 +1825,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Clip.Capt:'
           FocusControl = Combo_ClipNodeNaming
         end
-        object Combo_Size: TTntComboBox
+        object Combo_Size: TComboBox
           Left = 248
           Top = 167
           Width = 73
@@ -1778,7 +1833,6 @@ object Form_OptionsNew: TForm_OptionsNew
           Hint = 
             'Maximum length of text to capture, in bytes (when paste as plain' +
             ' text)'
-          ItemHeight = 13
           MaxLength = 6
           TabOrder = 8
           Items.Strings = (
@@ -1790,16 +1844,15 @@ object Form_OptionsNew: TForm_OptionsNew
             '4096'
             '16384')
         end
-        object Combo_Divider: TTntComboBox
+        object Combo_Divider: TComboBox
           Left = 96
           Top = 43
           Width = 226
           Height = 21
           Hint = 'Text to place between captured items'
-          ItemHeight = 13
           TabOrder = 1
         end
-        object CB_IgnoreSelf: TTntCheckBox
+        object CB_IgnoreSelf: TCheckBox
           Left = 12
           Top = 101
           Width = 159
@@ -1808,7 +1861,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Ignore clips from &Keynote'
           TabOrder = 3
         end
-        object CB_AsText: TTntCheckBox
+        object CB_AsText: TCheckBox
           Left = 12
           Top = 168
           Width = 127
@@ -1823,7 +1876,6 @@ object Form_OptionsNew: TForm_OptionsNew
           Width = 25
           Height = 25
           Hint = 'Click to display list of substitution tokens'
-          TabOrder = 0
           Glyph.Data = {
             F6000000424DF600000000000000760000002800000010000000100000000100
             0400000000008000000000000000000000001000000010000000000000000000
@@ -1833,8 +1885,9 @@ object Form_OptionsNew: TForm_OptionsNew
             FF07AD0FBFFF44FFBF07DA0FFFBFFFBFFF07AD0FBFFF47FFBF07DA0FFFBF748F
             FF07AD0FBFFFB747BF07DA0FFF47FF44FF07AD0FBF44B844BF07DA0FFF844448
             FF07AD0FBFFFBFFFBF07DA0FFFBFFFBFFF0AADA00000000000AD}
+          TabOrder = 0
         end
-        object CheckBox_ClipRecall: TTntCheckBox
+        object CheckBox_ClipRecall: TCheckBox
           Left = 12
           Top = 309
           Width = 287
@@ -1843,7 +1896,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Remember capturing note across program sessions'
           TabOrder = 12
         end
-        object CheckBox_Sound: TTntCheckBox
+        object CheckBox_Sound: TCheckBox
           Left = 12
           Top = 290
           Width = 148
@@ -1852,14 +1905,14 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Play &sound on capture (*)'
           TabOrder = 10
         end
-        object GroupBox23: TTntGroupBox
+        object GroupBox23: TGroupBox
           Left = 11
           Top = 196
           Width = 309
           Height = 87
           Caption = ' &When capturing into a tree note (*) :'
           TabOrder = 9
-          object LB_ClipNodeNaming: TTntLabel
+          object LB_ClipNodeNaming: TLabel
             Left = 28
             Top = 62
             Width = 81
@@ -1868,7 +1921,7 @@ object Form_OptionsNew: TForm_OptionsNew
             Caption = '&New node name:'
             FocusControl = Combo_ClipNodeNaming
           end
-          object RB_ClipTreeActive: TTntRadioButton
+          object RB_ClipTreeActive: TRadioButton
             Left = 16
             Top = 19
             Width = 266
@@ -1879,7 +1932,7 @@ object Form_OptionsNew: TForm_OptionsNew
             Caption = 'Paste into currently selected node'
             TabOrder = 0
           end
-          object RB_ClipTreeNew: TTntRadioButton
+          object RB_ClipTreeNew: TRadioButton
             Left = 16
             Top = 38
             Width = 266
@@ -1890,18 +1943,17 @@ object Form_OptionsNew: TForm_OptionsNew
             TabOrder = 1
             TabStop = True
           end
-          object Combo_ClipNodeNaming: TTntComboBox
+          object Combo_ClipNodeNaming: TComboBox
             Left = 114
             Top = 57
             Width = 161
             Height = 21
             Hint = 'Choose how new node will be named'
             Style = csDropDownList
-            ItemHeight = 13
             TabOrder = 2
           end
         end
-        object CB_TestDupClips: TTntCheckBox
+        object CB_TestDupClips: TCheckBox
           Left = 12
           Top = 118
           Width = 170
@@ -1910,7 +1962,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'I&gnore duplicate clips'
           TabOrder = 4
         end
-        object CB_SwitchIcon: TTntCheckBox
+        object CB_SwitchIcon: TCheckBox
           Left = 166
           Top = 292
           Width = 143
@@ -1919,7 +1971,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Use &alternate tray icon'
           TabOrder = 11
         end
-        object CB_SourceURL: TTntCheckBox
+        object CB_SourceURL: TCheckBox
           Left = 190
           Top = 118
           Width = 136
@@ -1930,23 +1982,21 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Include source &URL (*)'
           TabOrder = 5
         end
-        object Combo_PlainTextMode: TTntComboBox
+        object Combo_PlainTextMode: TComboBox
           Left = 96
           Top = 143
           Width = 226
           Height = 21
           Hint = 'How to paste when used plain text mode'
-          ItemHeight = 13
           MaxLength = 6
           TabOrder = 6
         end
-        object Combo_WCDivider: TTntComboBox
+        object Combo_WCDivider: TComboBox
           Left = 96
           Top = 70
           Width = 226
           Height = 21
           Hint = 'If empty, '#39'Clip.Capt.'#39' divider string will be used'
-          ItemHeight = 13
           TabOrder = 2
         end
       end
@@ -1955,14 +2005,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_FileTypes'
-      object GroupBox19: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox19: TGroupBox
         Left = 5
         Top = 5
         Width = 329
         Height = 316
         Caption = ' &Text file extensions '
         TabOrder = 0
-        object Label13: TTntLabel
+        object Label13: TLabel
           Left = 10
           Top = 262
           Width = 287
@@ -1982,7 +2034,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Sorted = True
           TabOrder = 0
         end
-        object Button_AddTxtExt: TTntButton
+        object Button_AddTxtExt: TButton
           Left = 120
           Top = 35
           Width = 89
@@ -1991,7 +2043,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 1
           OnClick = Button_AddTxtExtClick
         end
-        object Button_DeleteTxtExt: TTntButton
+        object Button_DeleteTxtExt: TButton
           Left = 120
           Top = 65
           Width = 89
@@ -2000,7 +2052,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
           OnClick = Button_DeleteTxtExtClick
         end
-        object Button_ResetTxtExt: TTntButton
+        object Button_ResetTxtExt: TButton
           Left = 120
           Top = 95
           Width = 89
@@ -2015,14 +2067,16 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Language'
-      object GroupBox21: TTntGroupBox
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object GroupBox21: TGroupBox
         Left = 5
         Top = 5
         Width = 327
         Height = 106
         Caption = ' Advaned editor language options '
         TabOrder = 0
-        object Label6: TTntLabel
+        object Label6: TLabel
           Left = 10
           Top = 65
           Width = 303
@@ -2033,7 +2087,7 @@ object Form_OptionsNew: TForm_OptionsNew
             'current file is closed and re-opened.'
           WordWrap = True
         end
-        object CB_AutoFont: TTntCheckBox
+        object CB_AutoFont: TCheckBox
           Left = 10
           Top = 20
           Width = 307
@@ -2041,7 +2095,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = '&Automatically select font language '
           TabOrder = 0
         end
-        object CB_AutoKeyboard: TTntCheckBox
+        object CB_AutoKeyboard: TCheckBox
           Left = 10
           Top = 40
           Width = 307
@@ -2050,14 +2104,14 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 1
         end
       end
-      object GroupBox22: TTntGroupBox
+      object GroupBox22: TGroupBox
         Left = 5
         Top = 225
         Width = 327
         Height = 64
         Caption = ' Find options '
         TabOrder = 1
-        object CB_WordAtCursor: TTntCheckBox
+        object CB_WordAtCursor: TCheckBox
           Left = 10
           Top = 20
           Width = 309
@@ -2068,7 +2122,7 @@ object Form_OptionsNew: TForm_OptionsNew
           State = cbChecked
           TabOrder = 0
         end
-        object CB_FindAutoClose: TTntCheckBox
+        object CB_FindAutoClose: TCheckBox
           Left = 10
           Top = 40
           Width = 309
@@ -2078,7 +2132,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 1
         end
       end
-      object GroupBox24: TTntGroupBox
+      object GroupBox24: TGroupBox
         Left = 5
         Top = 115
         Width = 327
@@ -2093,14 +2147,12 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
           OnClick = TB_OpenDlgURLAltBrowserPathClick
         end
-        object RB_URLSystemBrowser: TTntRadioButton
+        object RB_URLSystemBrowser: TRadioButton
           Left = 10
           Top = 25
           Width = 311
@@ -2110,7 +2162,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 0
           TabStop = True
         end
-        object RB_URLAltBrowser: TTntRadioButton
+        object RB_URLAltBrowser: TRadioButton
           Left = 10
           Top = 45
           Width = 311
@@ -2118,7 +2170,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 'Use the following &web browser:'
           TabOrder = 1
         end
-        object Edit_URLAltBrowserPath: TTntEdit
+        object Edit_URLAltBrowserPath: TEdit
           Left = 20
           Top = 70
           Width = 269
@@ -2134,7 +2186,7 @@ object Form_OptionsNew: TForm_OptionsNew
       end
     end
   end
-  object Button_Help: TTntButton
+  object Button_Help: TButton
     Left = 8
     Top = 347
     Width = 75

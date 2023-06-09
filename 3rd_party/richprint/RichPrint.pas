@@ -25,9 +25,22 @@ For more information see the included Doc file.
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls,
-  Forms, Dialogs, Printers, StdCtrls, ExtCtrls,ComCtrls,CommDlg,Registry,
-  ComStrs, RichEdit;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.CommDlg,
+   Winapi.RichEdit,
+   System.Win.Registry,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.Printers,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   Vcl.ComCtrls,
+   Vcl.ComStrs;
 
 
 const
@@ -301,7 +314,8 @@ implementation
 { Non-methods that may prove useful elsewhere.                                }
 {=============================================================================}
 
-uses RichPreview;
+uses
+   RichPreview;
 
 var FloatType: Set of Char=['-','+','.','0','1','2','3','4','5','6','7','8','9','E','e'];
 
@@ -1558,8 +1572,7 @@ begin
   Printer.GetPrinter(Device, Driver, Port, DeviceMode);
   if DeviceMode <> 0 then
   begin
-    DeviceNames := GlobalAlloc(GHND, SizeOf(TDevNames) +
-     StrLen(Device) + StrLen(Driver) + StrLen(Port) + 3);
+    DeviceNames := GlobalAlloc(GHND, SizeOf(TDevNames) + (StrLen(Device) + StrLen(Driver) + StrLen(Port))*SizeOf(Char) + 3);
     DevNames := PDevNames(GlobalLock(DeviceNames));
     try
       Offset := PChar(DevNames) + SizeOf(TDevnames);
@@ -1612,7 +1625,7 @@ begin
 end;
 
 
-function DialogHook(Wnd: HWnd; Msg: UINT; WParam: WPARAM; LParam: LPARAM): UINT; stdcall;
+function DialogHook(Wnd: HWnd; Msg: UINT; WParam: WPARAM; LParam: LPARAM): NativeUint; stdcall;
 begin
   Result := 0;
   case Msg of

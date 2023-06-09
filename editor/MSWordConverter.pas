@@ -17,14 +17,22 @@ unit MSWordConverter;
 
  
 interface
-uses Windows, Forms, Classes, SysUtils, Controls, Dialogs,
-   OleServer, WordXP, Variants,
-   gf_files, kn_const,
-   kn_DLLInterface;
+uses
+   Winapi.Windows,
+   System.Classes,
+   System.SysUtils,
+   System.Variants,
+   Vcl.Forms,
+   Vcl.Controls,
+   Vcl.Dialogs,
+   Vcl.OleServer,
+   WordXP,
+   gf_files;
 
 
-function MSWordConvertHTMLToRTF(const inFilename : WideString; var OutStream: TMemoryStream) : boolean;
-function MSWordConvertRTFToHTML(const outFilename : WideString; const RTF: string) : boolean;
+
+function MSWordConvertHTMLToRTF(const inFilename : string; var OutStream: TMemoryStream) : boolean;
+function MSWordConvertRTFToHTML(const outFilename : string; const RTF: AnsiString) : boolean;
 function MSWordQuit() : boolean;
 
 implementation
@@ -36,7 +44,7 @@ var
 // -----------------------------------------------------------------
 //   MSWordConvertHTMLToRTF
 // -----------------------------------------------------------------
-function MSWordConvert(const inFilename : WideString; const outFilename : WideString; wdFormatOut: OleVariant) : boolean;
+function MSWordConvert(const inFilename : string; const outFilename : string; wdFormatOut: OleVariant) : boolean;
 var
   s: string;
   vFalse : OleVariant;
@@ -109,7 +117,7 @@ end; // MSWordConvert
 // -----------------------------------------------------------------
 //   MSWordConvertHTMLToRTF
 // -----------------------------------------------------------------
-function MSWordConvertHTMLToRTF(const inFilename : WideString; var OutStream: TMemoryStream) : boolean;
+function MSWordConvertHTMLToRTF(const inFilename : string; var OutStream: TMemoryStream) : boolean;
 var
   tmpFN, tmpDirectory: string;
 begin
@@ -136,7 +144,7 @@ end; // MSWordConvertHTMLToRTF
 // -----------------------------------------------------------------
 //   MSWordConvertRTFtoHTML
 // -----------------------------------------------------------------
-function MSWordConvertRTFToHTML(const outFilename : WideString; const RTF: string) : boolean;
+function MSWordConvertRTFToHTML(const outFilename : string; const RTF: AnsiString) : boolean;
 var
   tmpFN, tmpDirectory: string;
   Stream: TMemoryStream;

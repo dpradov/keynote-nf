@@ -7,55 +7,68 @@ unit kn_FindReplace;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
 
 uses
-  Windows, Messages, SysUtils,
-  Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls,
-  gf_misc, kn_Info, kn_Const,
-  kn_NoteObj, kn_FileObj,
-  Placemnt, kn_TabSelect,
-  gf_strings, kn_INI, TntStdCtrls, ComCtrls95;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   ComCtrls95,
+   RxPlacemnt,
+   gf_misc,
+   gf_strings,
+   kn_Info,
+   kn_Const,
+   kn_Ini,
+   kn_NoteObj,
+   kn_MacroMng;
+
+
 
 type
   //TReplaceEvent = procedure( ReplaceAll : boolean ) of object;
-  TReplaceEvent = procedure( ReplaceAll : boolean );         //*1
-  TNotifyEvent_ = procedure(Sender: TObject);   //*1
+  TReplaceEvent = procedure( ReplaceAll : boolean );
+  TNotifyEvent_ = procedure(Sender: TObject);
 
 type
   TForm_FindReplace = class(TForm)
-    Button_Find: TTntButton;
-    Button_Cancel: TTntButton;
-    Combo_Text: TTntComboBox;
-    GroupBox_Opts: TTntGroupBox;
-    CheckBox_MatchCase: TTntCheckBox;
-    CheckBox_EntireScope: TTntCheckBox;
+    Button_Find: TButton;
+    Button_Cancel: TButton;
+    Combo_Text: TComboBox;
+    GroupBox_Opts: TGroupBox;
+    CheckBox_MatchCase: TCheckBox;
+    CheckBox_EntireScope: TCheckBox;
     FormPlacement: TFormPlacement;
-    CheckBox_WholeWordsOnly: TTntCheckBox;
-    CheckBox_AllTabs: TTntCheckBox;
-    CheckBox_AllNodes: TTntCheckBox;
-    Combo_Replace: TTntComboBox;
-    Button_Replace: TTntButton;
-    Button_ReplaceAll: TTntButton;
-    CheckBox_HiddenNodes: TTntCheckBox;
-    CheckBox_SelectedText: TTntCheckBox;
-    CheckBox_Confirm: TTntCheckBox;
-    CheckBox_Wrap: TTntCheckBox;
+    CheckBox_WholeWordsOnly: TCheckBox;
+    CheckBox_AllTabs: TCheckBox;
+    CheckBox_AllNodes: TCheckBox;
+    Combo_Replace: TComboBox;
+    Button_Replace: TButton;
+    Button_ReplaceAll: TButton;
+    CheckBox_HiddenNodes: TCheckBox;
+    CheckBox_SelectedText: TCheckBox;
+    CheckBox_Confirm: TCheckBox;
+    CheckBox_Wrap: TCheckBox;
     Pages: TPage95Control;
     Tab_Find: TTab95Sheet;
     Tab_Replace: TTab95Sheet;
-    TntLabel1: TTntLabel;
-    TntLabel2: TTntLabel;
-    TntLabel3: TTntLabel;
+    TntLabel1: TLabel;
+    TntLabel2: TLabel;
+    TntLabel3: TLabel;
     procedure PagesChange(Sender: TObject);
     procedure CheckBox_AllNodesClick(Sender: TObject);
     procedure CheckBox_ScopeChanged(Sender: TObject);
@@ -95,7 +108,10 @@ type
 
 
 implementation
-uses WideStrUtils, kn_Global, kn_MacroMng, kn_FindReplaceMng, kn_Main;
+uses
+   kn_Global,
+   kn_FindReplaceMng,
+   kn_Main;
 
 
 {$R *.DFM}
@@ -169,7 +185,7 @@ begin
   myFindOptions.SelectedText:= False;
   if ( ActiveNote.Editor.SelLength > 0 ) then begin
       CheckBox_SelectedText.Enabled:= True;
-      myFindOptions.SelectedText:= not IsWord(Trim(ActiveNote.Editor.SelTextW));
+      myFindOptions.SelectedText:= not IsWord(Trim(ActiveNote.Editor.SelText));
   end
   else
       CheckBox_SelectedText.Enabled:= False;
@@ -202,7 +218,7 @@ procedure TForm_FindReplace.HistoryToCombo;
 begin
   Combo_Text.Items.BeginUpdate;
   try
-    DelimTextToWStrs( Combo_Text.Items, myFindOptions.History, HISTORY_SEPARATOR );
+    DelimTextToStrs( Combo_Text.Items, myFindOptions.History, HISTORY_SEPARATOR );
   finally
     Combo_Text.Items.EndUpdate;
     Combo_Text.SetFocus;
@@ -210,7 +226,7 @@ begin
 
   Combo_Replace.Items.BeginUpdate;
   try
-    DelimTextToWStrs( Combo_Replace.Items, myFindOptions.ReplaceHistory, HISTORY_SEPARATOR );
+    DelimTextToStrs( Combo_Replace.Items, myFindOptions.ReplaceHistory, HISTORY_SEPARATOR );
   finally
     Combo_Replace.Items.EndUpdate;
   end;
@@ -236,22 +252,22 @@ var
 begin
   if ( Combo_Text.Text <> '' ) then
   begin
-    myFindOptions.History := WideQuotedStr( Combo_Text.Text, '"' );
+    myFindOptions.History := AnsiQuotedStr( Combo_Text.Text, '"' );
     for i := 0 to pred( Combo_Text.Items.Count ) do
     begin
       if ( i >= myFindOptions.HistoryMaxCnt ) then break;
       if ( Combo_Text.Items[i] <> Combo_Text.Text ) then
-        myFindOptions.History :=  myFindOptions.History + HISTORY_SEPARATOR + WideQuotedStr( Combo_Text.Items[i], '"' );
+        myFindOptions.History :=  myFindOptions.History + HISTORY_SEPARATOR + AnsiQuotedStr( Combo_Text.Items[i], '"' );
     end;
   end;
   if ( Combo_Replace.Text <> '' ) then
   begin
-    myFindOptions.ReplaceHistory := WideQuotedStr( Combo_Replace.Text, '"' );
+    myFindOptions.ReplaceHistory := AnsiQuotedStr( Combo_Replace.Text, '"' );
     for i := 0 to pred( Combo_Replace.Items.Count ) do
     begin
       if ( i >= myFindOptions.HistoryMaxCnt ) then break;
       if ( Combo_Replace.Items[i] <> Combo_Replace.Text ) then
-        myFindOptions.ReplaceHistory :=  myFindOptions.ReplaceHistory + HISTORY_SEPARATOR + WideQuotedStr( Combo_Replace.Items[i], '"' );
+        myFindOptions.ReplaceHistory :=  myFindOptions.ReplaceHistory + HISTORY_SEPARATOR + AnsiQuotedStr( Combo_Replace.Items[i], '"' );
     end;
   end;
 

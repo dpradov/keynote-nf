@@ -15,7 +15,10 @@ interface
 {$I TB97Ver.inc}
 
 uses
-  Windows, Classes, Controls, TB97;
+   Winapi.Windows,
+   System.Classes,
+   Vcl.Controls,
+   TB97;
 
 type
   { TToolWindow97 }

@@ -4,8 +4,8 @@ object Form_Password: TForm_Password
   ActiveControl = Edit_Pass
   BorderStyle = bsDialog
   Caption = 'File access passphrase'
-  ClientHeight = 115
-  ClientWidth = 448
+  ClientHeight = 113
+  ClientWidth = 440
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,16 +13,14 @@ object Form_Password: TForm_Password
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   ShowHint = True
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 151
     Top = 82
     Width = 75
@@ -33,7 +31,7 @@ object Form_Password: TForm_Password
     TabOrder = 0
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 239
     Top = 82
     Width = 75
@@ -43,14 +41,14 @@ object Form_Password: TForm_Password
     TabOrder = 1
     OnClick = Button_CancelClick
   end
-  object GroupBox1: TTntGroupBox
+  object GroupBox1: TGroupBox
     Left = 5
     Top = 5
     Width = 435
     Height = 66
     Caption = ' Enter access passphrase to open the file : '
     TabOrder = 2
-    object Label_FileName: TTntLabel
+    object Label_FileName: TLabel
       Left = 10
       Top = 15
       Width = 12
@@ -63,7 +61,7 @@ object Form_Password: TForm_Password
       Font.Style = []
       ParentFont = False
     end
-    object Label2: TTntLabel
+    object Label2: TLabel
       Left = 10
       Top = 40
       Width = 82
@@ -72,7 +70,7 @@ object Form_Password: TForm_Password
       Caption = '&Passphrase:'
       FocusControl = Edit_Pass
     end
-    object Edit_Pass: TTntEdit
+    object Edit_Pass: TEdit
       Left = 96
       Top = 35
       Width = 313

@@ -16,7 +16,10 @@ unit kn_kbd;
 
 
 interface
-uses Classes, Menus, IniFiles;
+uses
+   System.Classes,
+   System.IniFiles,
+   Vcl.Menus;
 
 {
   keys that are used internally (in OnKeyDown events

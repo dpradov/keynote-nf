@@ -1,41 +1,45 @@
 unit kn_LocationObj;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
-uses Windows, Classes, SysUtils, gf_misc,
-  kn_Const, kn_Info, IniFiles, WideStrings;
+uses
+   Winapi.Windows,
+   System.Classes,
+   System.SysUtils,
+   System.IniFiles,
+   kn_Const;
 
 type
   TLocation = class( TObject )
   private
-    FName : wideString;
-    FFileName : wideString;
-    FNoteName : wideString;
-    FNodeName : wideString;
+    FName : string;
+    FFileName : string;
+    FNoteName : string;
+    FNodeName : string;
     FCaretPos : integer;
     FSelLength : integer;
     FNoteID : longint;
     FNodeID : longint;
     FExternalDoc : boolean;
-    FParams : wideString;
+    FParams : string;
     FTag : integer; //used in TForm_Main.List_ResFindDrawItem
 
-    function GetDisplayText : wideString;
-    function GetDisplayTextLong : wideString;
+    function GetDisplayText : string;
+    function GetDisplayTextLong : string;
     {
     function GetPath : string;
     function GetLinkText : string;
@@ -43,20 +47,20 @@ type
     }
 
   public
-    property Name : wideString read FName write FName;
-    property FileName : wideString read FFileName write FFileName;
-    property NoteName : wideString read FNoteName write FNoteName;
-    property NodeName : wideString read FNodeName write FNodeName;
+    property Name : string read FName write FName;
+    property FileName : string read FFileName write FFileName;
+    property NoteName : string read FNoteName write FNoteName;
+    property NodeName : string read FNodeName write FNodeName;
     property CaretPos : integer read FCaretPos write FCaretPos;
     property SelLength : integer read FSelLength write FSelLength;
     property NoteID : longint read FNoteID write FNoteID;
     property NodeID : longint read FNodeID write FNodeID;
     property ExternalDoc : boolean read FExternalDoc write FExternalDoc;
-    property Params : wideString read FParams write FParams;
+    property Params : string read FParams write FParams;
     property Tag : integer read FTag write FTag;
 
-    property DisplayText : wideString read GetDisplayText;
-    property DisplayTextLong : wideString read GetDisplayTextLong;
+    property DisplayText : string read GetDisplayText;
+    property DisplayTextLong : string read GetDisplayTextLong;
 
     {
     property Path : string read GetPath;
@@ -73,27 +77,27 @@ type
   TNavigationHistoryTable = array[1..MAX_NAVHISTORY_COUNT] of TLocation;
 
 var
-  Location_List : TWideStringList; // used to build list of matches for the resource panel search function
-  Favorites_List : TWideStringList; // favorites list (saved in keynote.fvr)
+  Location_List : TStringList; // used to build list of matches for the resource panel search function
+  Favorites_List : TStringList; // favorites list (saved in keynote.fvr)
   _KNTLocation : TLocation;
   _NavHistory : TNavigationHistoryTable;
   _NavHistoryIndex : integer;
 
-procedure ClearLocationList( const aList : TWideStringList );
+procedure ClearLocationList( const aList : TStringList );
 procedure ClearNavigationHistoryFrom( const Start : integer );
 procedure ClearNavigationHistory;
 
 procedure LoadFavorites( const FN : string );
 procedure SaveFavorites( const FN : string );
 
+
 implementation
-uses gf_files;
 
 procedure LoadFavorites( const FN : string );
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   section: string;
-  name : wideString;
+  name : string;
   sections : TStringList;
   myFav : TLocation;
   i, cnt : integer;
@@ -102,7 +106,7 @@ begin
   ClearLocationList( Favorites_List );
 
   try
-    IniFile := TWMemIniFile.Create( FN );
+    IniFile := TMemIniFile.Create( FN );
   except
     exit;
   end;
@@ -120,21 +124,21 @@ begin
 
       with IniFile do
       begin
-        name := readstringW( section, 'Name', '' );
+        name := readstring( section, 'Name', '' );
         if ( name <> '' ) then
         begin
           myFav := TLocation.Create;
           myFav.Name := name;
-          myFav.FileName := readstringW( section, 'File', '' );
+          myFav.FileName := readstring( section, 'File', '' );
 
-            myFav.NoteName := readstringW( section, 'Note', '' );
+            myFav.NoteName := readstring( section, 'Note', '' );
             myFav.NoteID := readinteger( section, 'NoteID', 0 );
-            myFav.NodeName := readstringW( section, 'Node', '' );
+            myFav.NodeName := readstring( section, 'Node', '' );
             myFav.NodeID := readinteger( section, 'NodeID', 0 );
             myFav.CaretPos := readinteger( section, 'Pos', 0 );
             myFav.SelLength := readinteger( section, 'Len', 0 );
             myFav.ExternalDoc := readbool( section, 'ExternalDoc', false );
-            myFav.Params := readstringW( section, 'Params', '' );
+            myFav.Params := readstring( section, 'Params', '' );
             Favorites_List.AddObject( myFav.Name, myFav )
         end;
       end;
@@ -149,7 +153,7 @@ end; // LoadFavorites
 
 procedure SaveFavorites( const FN : string );
 var
-  IniFile : TWMemIniFile;
+  IniFile : TMemIniFile;
   section : string;
   myFav : TLocation;
   i, cnt : integer;
@@ -159,7 +163,7 @@ begin
   deletefile( FN );
 
   try
-    IniFile := TWMemIniFile.Create( FN );
+    IniFile := TMemIniFile.Create( FN );
   except
     exit;
   end;
@@ -173,19 +177,19 @@ begin
 
       with IniFile do
       begin
-        writestringW( section, 'Name', myFav.Name );
-        writestringW( section, 'File', myFav.FileName );
+        writestring( section, 'Name', myFav.Name );
+        writestring( section, 'File', myFav.FileName );
         if myFav.ExternalDoc then
         begin
           writebool( section, 'ExternalDoc', myFav.ExternalDoc );
-          writestringW( section, 'Params', myFav.Params );
+          writestring( section, 'Params', myFav.Params );
         end
         else
         begin
-          writestringW( section, 'Note', myFav.NoteName );
+          writestring( section, 'Note', myFav.NoteName );
           writeinteger( section, 'NoteID', myFav.NoteID );
           writeinteger( section, 'NodeID', myFav.NodeID );
-          writestringW( section, 'Node', myFav.NodeName );
+          writestring( section, 'Node', myFav.NodeName );
           writeinteger( section, 'Pos', myFav.CaretPos );
           writeinteger( section, 'Len', myFav.SelLength );
         end;
@@ -199,7 +203,7 @@ begin
   end;
 end; // SaveFavorites
 
-procedure ClearLocationList( const aList : TWideStringList );
+procedure ClearLocationList( const aList : TStringList );
 var
   i, cnt : integer;
 begin
@@ -247,7 +251,7 @@ begin
 end; // SetKNTLocation
 
 
-function TLocation.GetDisplayText : wideString;
+function TLocation.GetDisplayText : string;
 var
   CPos : string;
 begin
@@ -257,18 +261,18 @@ begin
   else
     CPos := '';
   if ( FNodeID > 0 ) then
-    result := WideFormat(
+    result := Format(
       '%s / %s %s',
       [FNoteName, FNodeName, CPos]
     )
   else
-    result := WideFormat(
+    result := Format(
       '%s %s',
       [FNoteName, CPos]
     );
 end; // GetDisplayText
 
-function TLocation.GetDisplayTextLong : wideString;
+function TLocation.GetDisplayTextLong : string;
 begin
   result := FFilename + ' / ' + GetDisplayText;
 end; // GetDisplayTextLong
@@ -312,10 +316,10 @@ end; // ClearNavigationHistory
 
 
 Initialization
-  Location_List := TWideStringList.Create;
+  Location_List := TStringList.Create;
   _KNTLocation := TLocation.Create; // used for jumps to KNT locations
 
-  Favorites_List := TWideStringList.Create;
+  Favorites_List := TStringList.Create;
   Favorites_List.Sorted := true;
   Favorites_List.Duplicates := dupIgnore;
 

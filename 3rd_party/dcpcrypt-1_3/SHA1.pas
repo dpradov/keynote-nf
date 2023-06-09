@@ -9,7 +9,11 @@ unit SHA1;
 interface
 {$I DCPcrypt.Inc}
 uses
-  {$IFDEF CFORM}Classes, Sysutils, {$ENDIF}DCPcrypt;
+   {$IFDEF CFORM}
+   System.Classes,
+   System.SysUtils,
+   {$ENDIF}
+   DCPcrypt;
 
 {$IFDEF CFORM}
 type

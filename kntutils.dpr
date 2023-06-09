@@ -29,14 +29,19 @@ library kntutils;
 uses
   SysUtils,
   Classes,
+
+  gf_misc in 'support\gf_misc.pas',
+  gf_strings in 'support\gf_strings.pas',
+  gf_files in 'support\gf_files.pas',
+
   dll_Main in 'dll_Main.pas',
   kn_DLLInterface in 'kn_DLLInterface.pas',
   dll_Keyboard in 'general\dll_Keyboard.pas',
   dll_KBD in 'general\dll_KBD.pas' {Form_KBD},
   MSWordConverter in 'editor\MSWordConverter.pas',
   MSOfficeConverters in 'editor\MSOfficeConverters.pas',
-  dll_HotKey in 'general\dll_HotKey.pas',
-  kn_Const in 'general\kn_Const.pas';
+  dll_HotKey in 'general\dll_HotKey.pas'
+  ;
 
 {$R *.RES}
 

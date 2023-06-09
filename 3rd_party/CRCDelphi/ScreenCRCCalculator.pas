@@ -8,8 +8,15 @@ unit ScreenCRCCalculator;
 interface
 
 uses
-  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls;
 
 type
   TCRCCalc = class(TForm)
@@ -37,10 +44,10 @@ var
 
 implementation
 
-  USES
-    CRC16,
-    CRC32,
-    ShellAPI;  // ShellExecute
+  uses
+   Winapi.ShellAPI,
+   CRC16,
+   CRC32;  // ShellExecute
 
 {$R *.DFM}
 

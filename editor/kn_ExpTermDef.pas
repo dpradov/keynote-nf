@@ -7,8 +7,8 @@ unit kn_ExpTermDef;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
@@ -19,18 +19,24 @@ unit kn_ExpTermDef;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls;
 
 type
   TForm_TermDef = class(TForm)
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    Label1: TTntLabel;
-    Label2: TTntLabel;
-    Edit_Term: TTntEdit;
-    Edit_Exp: TTntEdit;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    Label1: TLabel;
+    Label2: TLabel;
+    Edit_Term: TEdit;
+    Edit_Exp: TEdit;
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormActivate(Sender: TObject);

@@ -3,9 +3,25 @@ unit REMain;
 interface
 
 uses
-  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, Buttons, ExtCtrls, Menus, ComCtrls, ClipBrd,
-  richprint, RichEdEx,Converters,OleRichEdit, Grids;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.Buttons,
+   Vcl.ExtCtrls,
+   Vcl.Menus,
+   Vcl.ComCtrls,
+   Vcl.Clipbrd,
+   Vcl.Grids,
+   richprint,
+   RichEdEx,
+   Converters,
+   OleRichEdit;
   {you don't need the units Converters and OleRichEdit if you only want the RTF format
   see also the two versions of:
   procedure TMainForm.FileOpen(Sender: TObject);
@@ -132,7 +148,8 @@ var
 
 implementation
 
-uses REAbout;
+uses
+   REAbout;
 
 const
   RulerAdj = 4/3;

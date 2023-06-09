@@ -1,0 +1,119 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{*******************************************************}
+
+package RtmRxCtl6;
+{$I ..\Rx.inc}
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE ON}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'RX Library Component and Tools Package'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  vcl,
+  vclsmp,
+  vclx,
+  vcljpg;
+
+contains
+  RxResConst in '..\RxResConst.pas',
+  {$IFNDEF RXLANG_MYLANG}
+  RxResConst_eng in '..\RxResConst_eng.pas',
+  {$ENDIF}
+  RxCtrls in '..\RxCtrls.pas',
+  RxGrids in '..\RxGrids.pas',
+  RxCurrEdit in '..\RxCurrEdit.pas',
+  RxToolEdit in '..\RxToolEdit.pas',
+  RxDateUtil in '..\RxDateUtil.pas',
+  RXSplit in '..\RXSplit.pas',
+  RxSlider in '..\RxSlider.pas',
+  RxClock in '..\RxClock.pas',
+  RxAnimate in '..\RxAnimate.pas',
+  RxSpin in '..\RxSpin.pas',
+  RxRichEd in '..\RxRichEd.pas',
+  RxSwitch in '..\RxSwitch.pas',
+  RxDice in '..\RxDice.pas',
+  RxVCLUtils in '..\RxVCLUtils.pas',
+  RxAniFile in '..\RxAniFile.pas',
+  RxIcoList in '..\RxIcoList.pas',
+  RxObjStr in '..\RxObjStr.pas',
+  RxCombos in '..\RxCombos.pas',
+  RxPickDate in '..\RxPickDate.pas',
+  RxMaxMin in '..\RxMaxMin.pas',
+  RxConst in '..\RxConst.pas',
+  RxFileUtil in '..\RxFileUtil.pas',
+  RxTimer in '..\RxTimer.pas',
+  RxHook in '..\RxHook.pas',
+  RxPlacemnt in '..\RxPlacemnt.pas',
+  RxProps in '..\RxProps.pas',
+  RxPrgrss in '..\RxPrgrss.pas',
+  RxHints in '..\RxHints.pas',
+  RxCalc in '..\RxCalc.pas',
+  RxExcptDlg in '..\RxExcptDlg.pas',
+  RxBoxProcs in '..\RxBoxProcs.pas',
+  RxClipIcon in '..\RxClipIcon.pas',
+  RxClipMon in '..\RxClipMon.pas',
+  RxParsing in '..\RxParsing.pas',
+  RxGraph in '..\RxGraph.pas',
+  RxGIF in '..\RxGIF.pas',
+  RxGIFCtrl in '..\RxGIFCtrl.pas',
+  RxPicClip in '..\RxPicClip.pas',
+  RxDualList in '..\RxDualList.pas',
+  RxFDualLst in '..\RxFDualLst.pas',
+  RxClipView in '..\RxClipView.pas',
+  RxSpeedbar in '..\RxSpeedbar.pas',
+  RxSbSetup in '..\RxSbSetup.pas',
+  RxPageMngr in '..\RxPageMngr.pas',
+  RxMrgMngr in '..\RxMrgMngr.pas',
+  RxStrHlder in '..\RxStrHlder.pas',
+  RxAppEvent in '..\RxAppEvent.pas',
+  RxTimerLst in '..\RxTimerLst.pas',
+  RxMRUList in '..\RxMRUList.pas',
+  RxIni in '..\RxIni.pas',
+  RxShell in '..\RxShell.pas',
+  RxMenus in '..\RxMenus.pas',
+  RxNotify in '..\RxNotify.pas',
+  RxGrdCpt in '..\RxGrdCpt.pas',
+  RxSplshWnd in '..\RxSplshWnd.pas',
+  RxDataConv in '..\RxDataConv.pas',
+  RxOle2Auto in '..\RxOle2Auto.pas',
+  RxVerInf in '..\RxVerInf.pas',
+  RxStr16 in '..\RxStr16.pas',
+  RxAppUtils in '..\RxAppUtils.pas',
+  RxStrUtils in '..\RxStrUtils.pas',
+  RxExtenders in '..\RxExtenders.pas',
+  RxRichPopup in '..\RxRichPopup.pas',
+  RxCalcEditDlg in '..\RxCalcEditDlg.pas',
+  RxMailBox in '..\RxMailBox.pas',
+  RxTranslate in '..\RxTranslate.pas',
+  RxNTSecurity in '..\RxNTSecurity.pas',
+  RxPlugin in '..\RxPlugin.pas',
+  RxPluginManager in '..\RxPluginManager.pas',
+  RxViewer in '..\RxViewer.pas';
+
+end.

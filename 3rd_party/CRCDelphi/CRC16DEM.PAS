@@ -16,12 +16,12 @@ PROGRAM CRC16Demo;
   (C) Copyright 1989, 1996, Earl F. Glynn, Overland Park, KS.
   All Rights Reserved.}
 
-  USES
-{$IFNDEF WIN32}
-    WinCRT,    {Delphi 1 only}
-{$ENDIF}
-    CRC16,     {CalcCRC16, CalcFileCRC}
-    SysUtils;  {IntToHex}
+  uses
+   {$IFNDEF WIN32}
+   WinCRT {Delphi 1 only},
+   {$ENDIF}
+   System.SysUtils,
+   CRC16 {CalcCRC16, CalcFileCRC};  {IntToHex}
 
   CONST
     BufferSize = 16384;

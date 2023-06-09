@@ -22,12 +22,19 @@ unit Parser;
 interface
 
 uses
-  {$ifdef Win32}
-  Windows,
-  {$else}
-  WinProcs, Wintypes,
-  {$endif}
-  SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs;
+   {$ifdef Win32}
+   Winapi.Windows,
+   {$else}
+   WinProcs,
+   Wintypes,
+   {$endif}
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs;
 
 type
   TGetVarEvent = procedure(Sender : TObject; VarName : string; var

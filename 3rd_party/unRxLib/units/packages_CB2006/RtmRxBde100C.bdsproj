@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">CPlusPlusBuilder.Personality</Option>
+			<Option Name="ProjectType">CppPackage</Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{DF4B3E4D-3799-4AB1-A11B-8808E2517E25}</Option>
+		</Option>
+	</PersonalityInfo>
+	<CPlusPlusBuilder.Personality>
+		<Source>
+			<Source Name="MainSource">RtmRxBde100C.cpp</Source>
+		</Source>
+		<BCBPROJECT>
+      <project version="10.0">
+        <property category="build.config" name="active" value="0"/>
+        <property category="build.config" name="count" value="1"/>
+        <property category="build.config" name="excludedefaultforzero" value="0"/>
+        <property category="build.config.0" name="builddir" value="Debug"/>
+        <property category="build.config.0" name="key" value="Debug_Build"/>
+        <property category="build.config.0" name="name" value="Debug Build"/>
+        <property category="build.config.0" name="settings.win32b" value="default"/>
+        <property category="build.config.0" name="type" value="Toolset"/>
+        <property category="build.config.0" name="win32.win32b.builddir" value="Debug_Build"/>
+        <property category="build.config.1" name="key" value="Release_Build"/>
+        <property category="build.config.1" name="name" value="Release Build"/>
+        <property category="build.config.1" name="settings.win32b" value="default"/>
+        <property category="build.config.1" name="type" value="Toolset"/>
+        <property category="build.config.1" name="win32.win32b.builddir" value="Release_Build"/>
+        <property category="build.node" name="name" value="RtmRxBde100C.bpl"/>
+        <property category="build.node" name="packages" value="rtl;vcl;dbrtl;bdertl;RtmRxCtl100C;dbx;dclbde;dcldb;dclstd;RtmRxDB100C;vcljpg;vcldb"/>
+        <property category="build.node" name="sparelibs" value="rtl.lib vcl.lib"/>
+        <property category="build.node" name="use_packages" value="1"/>
+        <property category="build.platform" name="active" value="win32"/>
+        <property category="build.platform" name="win32.Debug_Build.toolset" value="win32b"/>
+        <property category="build.platform" name="win32.Release_Build.toolset" value="win32b"/>
+        <property category="build.platform" name="win32.default" value="win32b"/>
+        <property category="build.platform" name="win32.enabled" value="1"/>
+        <property category="build.platform" name="win32.win32b.enabled" value="1"/>
+        <property category="win32.*.win32b.dcc32" name="param.filenames.merge" value="1"/>
+        <property category="win32.*.win32b.tasm32" name="param.listfile.merge" value="1"/>
+        <property category="win32.*.win32b.tasm32" name="param.objfile.merge" value="1"/>
+        <property category="win32.*.win32b.tasm32" name="param.xreffile.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.1" value="_DEBUG"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.Od.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.k.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.r.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.v.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.vi.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.y.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.$D.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.$O.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.D.arg.1" value="DEBUG"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.D.arg.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="option.D.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.dcc32" name="param.filenames.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.ilink32" name="option.L.arg.1" value="$(BDS)\lib\debug"/>
+        <property category="win32.Debug_Build.win32b.ilink32" name="option.L.arg.merge" value="1"/>
+        <property category="win32.Debug_Build.win32b.ilink32" name="option.L.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.tasm32" name="option.z.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.tasm32" name="option.zd.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.tasm32" name="option.zi.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.1" value="NDEBUG"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.merge" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.O2.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.k.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.r.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.vi.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.dcc32" name="option.$D.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.dcc32" name="option.$O.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.dcc32" name="option.V.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.ilink32" name="option.L.arg.1" value="$(BDS)\lib\release"/>
+        <property category="win32.Release_Build.win32b.ilink32" name="option.L.arg.merge" value="1"/>
+        <property category="win32.Release_Build.win32b.ilink32" name="option.L.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.tasm32" name="option.z.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.tasm32" name="option.zd.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.tasm32" name="option.zi.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.tasm32" name="option.zn.enabled" value="1"/>
+        <optionset name="all_configurations">
+          <property category="node" name="displayname" value="All Configurations"/>
+          <property category="win32.*.win32b.bcc32" name="option.H=.arg.1" value="$(BDS)\lib\vcl100.csm"/>
+          <property category="win32.*.win32b.bcc32" name="option.H=.arg.merge" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.H=.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.Hc.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.1" value="..\"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.2" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.3" value="$(CLIB)\Rx\units"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.4" value="$(CLIB)\Rx\units\packages_CB2006\Debug_Build"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.5" value="$(BDS)\include"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.6" value="$(BDS)\include\dinkumware"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.7" value="$(BDS)\include\vcl"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.merge" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.b.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.arg.1" value="_RTLDLL"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.arg.2" value="USEPACKAGES"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.arg.3" value="NO_STRICT"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.arg.merge" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.sysdefines.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.tW.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.tWC.enabled" value="0"/>
+          <property category="win32.*.win32b.bcc32" name="option.tWD.enabled" value="1"/>
+          <property category="win32.*.win32b.bcc32" name="option.tWM.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.D.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.D.enabled" value="0"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.1" value="..\"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.2" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.3" value="$(CLIB)\Rx\units"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.4" value="$(CLIB)\Rx\units\packages_CB2006\Debug_Build"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.1" value="..\"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.2" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.3" value="$(CLIB)\Rx\units"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.4" value="$(CLIB)\Rx\units\packages_CB2006\Debug_Build"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.1" value="..\"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.2" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.3" value="$(CLIB)\Rx\units"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.4" value="$(CLIB)\Rx\units\packages_CB2006\Debug_Build"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.1" value="..\"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.2" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.3" value="$(CLIB)\Rx\units"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.4" value="$(CLIB)\Rx\units\packages_CB2006\Debug_Build"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.5" value="C:\Documents and Settings\Micrel\Dokumenty\Borland Studio Projects"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.6" value="$(BDS)\lib"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.7" value="$(BDS)\lib\obj"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.additional_switches.arg" value="-LUdclstd -LUdcldb"/>
+          <property category="win32.*.win32b.dcc32" name="option.additional_switches.arg.merge" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="option.additional_switches.enabled" value="1"/>
+          <property category="win32.*.win32b.dcc32" name="param.filenames.merge" value="1"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.arg.1" value="..\"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.arg.2" value="C:\Projects\CLib2006\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.arg.merge" value="1"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.Gi.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.Gl.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.1" value="..\"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.2" value="$(CLIB)\Rx\units"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.3" value="$(CLIB)\Rx\units\packages_CB2006\Debug_Build"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.4" value="$(CLIB)\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.5" value="$(BDS)\lib"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.6" value="$(BDS)\lib\obj"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.7" value="$(BDS)\lib\psdk"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.merge" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.Tpd.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.Tpe.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.Tpp.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.aa.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.ap.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="option.dynamicrtl.enabled" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.arg.1" value="..\"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.arg.2" value="C:\Projects\CLib2006\Rx\units\packages_CB2006"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.arg.merge" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.enabled" value="0"/>
+          <property category="win32.*.win32b.ilink32" name="param.libfiles.1" value="$(LIBRARIES)"/>
+          <property category="win32.*.win32b.ilink32" name="param.libfiles.2" value="import32.lib"/>
+          <property category="win32.*.win32b.ilink32" name="param.libfiles.3" value="cp32mti.lib"/>
+          <property category="win32.*.win32b.ilink32" name="param.libfiles.merge" value="1"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.1" value="c0pkg32.obj"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.2" value="$(PACKAGES)"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.3" value="memmgr.lib"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.4" value="sysinit.obj"/>
+          <property category="win32.*.win32b.ilink32" name="param.objfiles.merge" value="1"/>
+        </optionset>
+      </project>
+      <FILELIST>
+        <FILE FILENAME="RtmRxBde100C.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="RtmRxBde100C" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Documents and Settings\Micrel\Dokumenty\Borland Studio Projects\Bpl\rtl.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="rtl" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="RtmRxBde100C.res" CONTAINERID="ResTool" LOCALCOMMAND="" UNITNAME="RtmRxBde100C.res" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDBExcpt.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDBExcpt" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDBFilter.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDBFilter" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDBIndex.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDBIndex" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDBLists.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDBLists" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDBPrgrss.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDBPrgrss" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDBQBE.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDBQBE" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxDBSecur.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxDBSecur" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxChPswDlg.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxChPswDlg" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxLoginDlg.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxLoginDlg" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxMemTable.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxMemTable" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxQuery.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxQuery" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxRemLog.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxRemLog" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="..\RxBdeUtils.pas" CONTAINERID="PascalCompiler" LOCALCOMMAND="" UNITNAME="RxBdeUtils" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Documents and Settings\Micrel\Dokumenty\Borland Studio Projects\Bpl\vcl.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="vcl" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Documents and Settings\Micrel\Dokumenty\Borland Studio Projects\Bpl\dbrtl.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="dbrtl" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Documents and Settings\Micrel\Dokumenty\Borland Studio Projects\Bpl\bdertl.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="bdertl" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Documents and Settings\Micrel\Dokumenty\Borland Studio Projects\Bpl\RtmRxCtl100C.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="RtmRxCtl100C" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Program Files\Borland\BDS\4.0\lib\dbx.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="dbx" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Program Files\Borland\BDS\4.0\lib\dclbde.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="dclbde" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Program Files\Borland\BDS\4.0\lib\dcldb.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="dcldb" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Program Files\Borland\BDS\4.0\lib\dclstd.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="dclstd" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Documents and Settings\Micrel\Dokumenty\Borland Studio Projects\Bpl\RtmRxDB100C.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="RtmRxDB100C" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Program Files\Borland\BDS\4.0\lib\debug\vcljpg.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="vcljpg" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="C:\Program Files\Borland\BDS\4.0\lib\debug\vcldb.bpi" CONTAINERID="BPITool" LOCALCOMMAND="" UNITNAME="vcldb" FORMNAME="" DESIGNCLASS=""/>
+      </FILELIST>
+      <IDEOPTIONS>
+        <VersionInfo>
+          <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+          <VersionInfo Name="AutoIncBuild">False</VersionInfo>
+          <VersionInfo Name="MajorVer">1</VersionInfo>
+          <VersionInfo Name="MinorVer">0</VersionInfo>
+          <VersionInfo Name="Release">0</VersionInfo>
+          <VersionInfo Name="Build">0</VersionInfo>
+          <VersionInfo Name="Debug">False</VersionInfo>
+          <VersionInfo Name="PreRelease">False</VersionInfo>
+          <VersionInfo Name="Special">False</VersionInfo>
+          <VersionInfo Name="Private">False</VersionInfo>
+          <VersionInfo Name="DLL">False</VersionInfo>
+          <VersionInfo Name="Locale">1029</VersionInfo>
+          <VersionInfo Name="CodePage">1250</VersionInfo>
+        </VersionInfo>
+        <VersionInfoKeys>
+          <VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
+          <VersionInfoKeys Name="FileDescription"></VersionInfoKeys>
+          <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+          <VersionInfoKeys Name="InternalName"></VersionInfoKeys>
+          <VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys>
+          <VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
+          <VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys>
+          <VersionInfoKeys Name="ProductName"></VersionInfoKeys>
+          <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+          <VersionInfoKeys Name="Comments"></VersionInfoKeys>
+        </VersionInfoKeys>
+        <Debugging>
+          <Debugging Name="DebugSourceDirs"></Debugging>
+        </Debugging>
+        <Parameters>
+          <Parameters Name="RunParams"></Parameters>
+          <Parameters Name="Launcher"></Parameters>
+          <Parameters Name="UseLauncher">False</Parameters>
+          <Parameters Name="DebugCWD"></Parameters>
+          <Parameters Name="HostApplication"></Parameters>
+          <Parameters Name="RemoteHost"></Parameters>
+          <Parameters Name="RemotePath"></Parameters>
+          <Parameters Name="RemoteParams"></Parameters>
+          <Parameters Name="RemoteLauncher"></Parameters>
+          <Parameters Name="UseRemoteLauncher">False</Parameters>
+          <Parameters Name="RemoteCWD"></Parameters>
+          <Parameters Name="RemoteDebug">False</Parameters>
+          <Parameters Name="Debug Symbols Search Path"></Parameters>
+          <Parameters Name="LoadAllSymbols">True</Parameters>
+          <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+        </Parameters>
+        <Linker>
+          <Linker Name="LibPrefix"></Linker>
+          <Linker Name="LibSuffix"></Linker>
+          <Linker Name="LibVersion"></Linker>
+        </Linker>
+      </IDEOPTIONS>
+    </BCBPROJECT>  <buildevents/>
+  </CPlusPlusBuilder.Personality>
+	<StarTeamAssociation></StarTeamAssociation>
+	<StarTeamNonRelativeFiles></StarTeamNonRelativeFiles>
+</BorlandProject>

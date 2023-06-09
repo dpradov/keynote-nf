@@ -12,11 +12,9 @@ object GFTipForm: TGFTipForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
   object TipPanel: TPanel
     Left = 4

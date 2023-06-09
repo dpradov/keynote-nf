@@ -1,0 +1,30 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{ Added by Polaris Software                             }
+{*******************************************************}
+
+package dclRxDB220;
+
+{$R *.res}
+
+{$DESCRIPTION 'RX Library Database Components'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  dcldb,
+  DclRxCtl220,
+  RtmRxDB220,
+  VclImg,
+  DesignIDE;
+
+contains
+  RxSelDSFrm in '..\RxSelDSFrm.pas',
+  RxDBReg in '..\RxDBReg.pas',
+  RxRecordGrid in '..\RxRecordGrid.pas';
+
+end.

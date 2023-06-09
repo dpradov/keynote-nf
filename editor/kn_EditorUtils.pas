@@ -1,24 +1,71 @@
 unit kn_EditorUtils;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 uses
- kn_NoteObj, RxRichEd;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.RichEdit,
+   Winapi.MMSystem,
+   System.SysUtils,
+   System.StrUtils,
+   System.Classes,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.Clipbrd,
+   Vcl.ComCtrls,
+   Vcl.Graphics,
+   Vcl.ExtDlgs,
+
+   BrowseDr,
+   TreeNT,
+   Parser,
+   FreeWordWeb,
+   UAS,
+   RxRichEd,
+   RxGIF,
+   RichPrint,
+   AJBSpeller,
+
+   gf_misc,
+   gf_files,
+   gf_strings,
+   gf_miscvcl,
+   GFTipDlg,
+   kn_INI,
+   kn_const,
+   kn_Cmd,
+   kn_Msgs,
+   kn_Info,
+   kn_FileObj,
+   kn_NewNote,
+   kn_NoteFileMng,
+   kn_TreeNoteMng,
+   kn_NoteMng,
+   kn_NodeList,
+   kn_Chars,
+   kn_ClipUtils,
+   kn_ExpTermDef,
+   kn_RTFUtils,
+   kn_LinksMng,
+   kn_NoteObj;
+
 
     // glossary management
     procedure ExpandTermProc;
@@ -49,11 +96,11 @@ uses
     procedure ConfigureUAS;
 
     // clipboard capture and paste
-    procedure TryPasteRTF(const Editor: TTabRichEdit; HTMLText: string='');
-    procedure TryOfferRTFinClipboard(const Editor: TTabRichEdit; HTMLText: string='');
+    procedure TryPasteRTF(const Editor: TTabRichEdit; HTMLText: AnsiString='');
+    procedure TryOfferRTFinClipboard(const Editor: TTabRichEdit; HTMLText: AnsiString='');
     procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
     procedure SetClipCapState( const IsOn : boolean );
-    procedure PasteOnClipCap (ClpStr: WideString);
+    procedure PasteOnClipCap (ClpStr: string);
     procedure PasteAsWebClip (const PasteAsText: boolean);
     procedure PasteIntoNew( const AsNewNote : boolean );
 
@@ -69,7 +116,7 @@ uses
                                    var LineStr: string;
                                    var posBegin : integer;
                                    paragraphMode: boolean= false);
-    function NumberOfLineFeed(Str: WideString): integer;
+    function NumberOfLineFeed(Str: string): integer;
 
     procedure ShowTipOfTheDay;
 
@@ -77,28 +124,19 @@ const
   WordDelimiters = [#9, #10, #13, #32];
 
 implementation
+
 uses
-  { Borland units }
-  Windows, Messages, SysUtils, StrUtils, Classes,
-  Controls, Forms, Dialogs, Clipbrd,ComCtrls,
-  RichEdit, mmsystem, Graphics,ExtDlgs,WideStrings,
-  { 3rd-party units }
-  BrowseDr, TreeNT, Parser,FreeWordWeb, UAS, RxGIF,RichPrint,
-  AJBSpeller,
-  { Own units - covered by KeyNote's MPL}
-  gf_misc, gf_files,
-  gf_strings, gf_miscvcl,
-  kn_INI, kn_const, kn_Cmd, kn_Msgs,
-  kn_Info, kn_FileObj, kn_NewNote,
-  kn_NodeList, kn_ExpandObj, kn_MacroMng,
-  Kn_Global, kn_Chars, kn_NoteMng, kn_ClipUtils,
-  kn_ExpTermDef, kn_Glossary, kn_VCLControlsMng,
-  kn_NoteFileMng, kn_Main, kn_TreeNoteMng, GFTipDlg,
-  kn_ExportImport, kn_RTFUtils, kn_LinksMng;
+   Kn_Global,
+   kn_Glossary,
+   kn_ExportImport,
+   kn_VCLControlsMng,
+   kn_MacroMng,
+   kn_Main;
 
 
 
 resourcestring
+
   STR_Gloss_01 = ' Function not available';
   STR_Gloss_02 = ' No word at cursor';
   STR_Gloss_03 = ' Word not in glossary. Use Shift+F7 to add.';
@@ -159,12 +197,13 @@ resourcestring
   STR_Tip_01 = 'Cannot display Tip of the Day: file "%s" not found.';
   STR_Tip_02 = ': Tip of the Day';
 
+
 //=================================================================
 // ExpandTermProc
 //=================================================================
 procedure ExpandTermProc;
 var
-  w, replw : wideString;
+  w, replw : string;
   wordlen : integer;
 begin
   with Form_Main do begin
@@ -182,7 +221,7 @@ begin
       if ( ActiveNote.Editor.SelLength = 0 ) then
         w := ActiveNote.Editor.GetWordAtCursorNew( true )
       else
-        w := ActiveNote.Editor.SelTextW;
+        w := ActiveNote.Editor.SelText;
       wordlen := length( w );
 
       if ( length( w ) = 0 ) then
@@ -199,9 +238,9 @@ begin
         exit;
       end;
 
-      StatusBar.Panels[PANEL_HINT].Text := WideFormat( ' %s -> %s', [w,replw] );
+      StatusBar.Panels[PANEL_HINT].Text := Format( ' %s -> %s', [w,replw] );
       replw := ExpandMetaChars( replw );
-      ActiveNote.Editor.SelTextW := replw;
+      ActiveNote.Editor.SelText := replw;
 
       ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
 
@@ -217,7 +256,7 @@ end; // ExpandTermProc
 procedure AddGlossaryTerm;
 var
   Form_TermDef : TForm_TermDef;
-  nstr, vstr : wideString;
+  nstr, vstr : string;
 begin
   if ( not assigned( GlossaryList )) then
   begin
@@ -231,7 +270,7 @@ begin
   if assigned( ActiveNote ) then
   begin
     if ( ActiveNote.Editor.SelLength > 0 ) then
-      nstr := trim( copy( ActiveNote.Editor.SelTextW, 1, 255 ))
+      nstr := trim( copy( ActiveNote.Editor.SelText, 1, 255 ))
     else
       nstr := ActiveNote.Editor.GetWordAtCursorNew( true );
     if ( nstr <> '' ) then
@@ -266,8 +305,8 @@ begin
             finally
               GlossaryList.Sorted := true;
             end;
-            SaveGlossaryInfo(Glossary_FN);
-            Form_Main.StatusBar.Panels[PANEL_HINT].Text := WideFormat(STR_Gloss_06, [nstr,vstr] );
+            GlossaryList.SaveToFile( Glossary_FN, TEncoding.UTF8);
+            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Gloss_06, [nstr,vstr] );
           except
             on E : Exception do
               showmessage( E.Message );
@@ -303,18 +342,18 @@ var
 begin
   len := length( t );
   result := 0;
-  if ( len > 0 ) then begin
+  if (len > 0) then begin
     i := 1;
     repeat
-      if ( t[i] in WordDelimiters ) then begin
-        inc( i );
-        continue;
+      if AnsiChar(t[i]) in WordDelimiters then begin
+         inc( i );
+         continue;
       end
       else
         inc( result );
 
       // scan to end of word
-      while (( i <= len ) and ( not ( t[i] in WordDelimiters ))) do
+      while (i <= len) and (not (AnsiChar(t[i]) in WordDelimiters)) do
         inc( i );
     until ( i > len );
   end;
@@ -541,7 +580,7 @@ end; // MatchBracket
 procedure TrimBlanks( const TrimWhat : integer );
 var
   i : integer;
-  tempList : TWideStringList;
+  tempList : TStringList;
   wholeNote: boolean;
 begin
   if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
@@ -561,12 +600,12 @@ begin
   Screen.Cursor := crHourGlass;
   try
 
-      tempList := TWideStringList.Create;
+      tempList := TStringList.Create;
       try
         if wholeNote then
            tempList.Text:= ActiveNote.Editor.GetTextRange(0, ActiveNote.Editor.TextLength)
         else
-           tempList.Text := ActiveNote.Editor.SelTextW;
+           tempList.Text := ActiveNote.Editor.SelText;
         if ( tempList.Count > 0 ) then
         for i := 0 to tempList.Count-1 do
         begin
@@ -584,7 +623,7 @@ begin
         end;
         if wholeNote then
            ActiveNote.Editor.SetSelection(0, ActiveNote.Editor.TextLength, true);
-        ActiveNote.Editor.SelTextW := tempList.Text;
+        ActiveNote.Editor.SelText := tempList.Text;
         if wholeNote then
            ActiveNote.Editor.SelStart := 0;
       finally
@@ -606,21 +645,20 @@ end; // TrimBlanks
 //=================================================================
 procedure CompressWhiteSpace;
 const
-  WhiteSpace : set of char = [#9, #32];
+  WhiteSpace : set of AnsiChar = [#9, #32];
 var
   WasWhite : boolean;
   i, l : integer;
-  s : wideString;
+  s : string;
 begin
   if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
   if ( ActiveNote.Editor.Lines.Count < 1 ) then exit;
 
 
-  if ( ActiveNote.Editor.SelLength = 0 ) then
-  begin
-    if ( messagedlg( STR_Compress_01,
-      mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( ActiveNote.Editor.SelLength = 0 ) then begin
+     if ( messagedlg(STR_Compress_01, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+         exit;
   end;
 
   ActiveNote.Editor.Lines.BeginUpdate;
@@ -628,65 +666,58 @@ begin
   WasWhite := false;
 
   try
-    if ( ActiveNote.Editor.SelLength = 0 ) then
-    begin
+    if ( ActiveNote.Editor.SelLength = 0 ) then begin
 
-      for l := 0 to ActiveNote.Editor.Lines.Count-1 do
-      begin
-        if ( ActiveNote.Editor.Lines[l] = '' ) then continue;
-        WasWhite := false;
-        i := 1;
-        s := ActiveNote.Editor.Lines[l];
+       for l := 0 to ActiveNote.Editor.Lines.Count-1 do begin
+         if (ActiveNote.Editor.Lines[l] = '') then continue;
 
-        while ( i <= length( s )) do
-        begin
-          if ( s[i] in WhiteSpace ) then
-          begin
-            if WasWhite then
-              delete( s, i, 1 )
-            else
-              inc( i );
-            WasWhite := true;
-          end
-          else
-          begin
-            WasWhite := false;
-            inc( i );
-          end;
-        end;
-        ActiveNote.Editor.Lines[l] := s;
-      end;
-      ActiveNote.Editor.SelStart := 0;
+         WasWhite := false;
+         i := 1;
+         s := ActiveNote.Editor.Lines[l];
+
+         while ( i <= length( s )) do begin
+            if ( AnsiChar(s[i]) in WhiteSpace ) then begin
+               if WasWhite then
+                  delete( s, i, 1 )
+               else
+                  inc(i);
+               WasWhite := true;
+            end
+            else begin
+               WasWhite := false;
+               inc(i);
+            end;
+         end;
+         ActiveNote.Editor.Lines[l] := s;
+       end;
+       ActiveNote.Editor.SelStart := 0;
+
     end
-    else
-    begin
-      s := ActiveNote.Editor.SelTextW;
-      i := 1;
-      while ( i <= length( s )) do
-      begin
-        if ( s[i] in WhiteSpace ) then
-        begin
-          if WasWhite then
-            delete( s, i, 1 )
-          else
-            inc( i );
-          WasWhite := true;
-        end
-        else
-        begin
-          WasWhite := false;
-          inc( i );
-        end;
-      end;
-      ActiveNote.Editor.SelTextW := s;
-      ActiveNote.Editor.SelLength := 0;
+    else begin
+       s := ActiveNote.Editor.SelText;
+       i := 1;
+       while ( i <= length( s )) do begin
+          if ( AnsiChar(s[i]) in WhiteSpace ) then begin
+             if WasWhite then
+                delete( s, i, 1 )
+             else
+                inc( i );
+             WasWhite := true;
+          end
+          else begin
+             WasWhite := false;
+             inc( i );
+          end;
+       end;
+       ActiveNote.Editor.SelText := s;
+       ActiveNote.Editor.SelLength := 0;
     end;
 
   finally
-    ActiveNote.Editor.Lines.EndUpdate;
-    Screen.Cursor := crDefault;
-    NoteFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+     ActiveNote.Editor.Lines.EndUpdate;
+     Screen.Cursor := crDefault;
+     NoteFile.Modified := true;
+     UpdateNoteFileState( [fscModified] );
   end;
 
 end; // CompressWhiteSpace
@@ -939,7 +970,7 @@ begin
   if ( s = '' ) then exit;
 
   try
-    s := uppercase( trim( s ));
+    s := AnsiUpperCase( trim( s ));
     i := RomanToDec( s );
   except
     messagedlg( Format( STR_ConvRoman_03, [s] ), mtError, [mbOK], 0 );
@@ -1002,7 +1033,7 @@ begin
       for i := 1 to len do
       begin
         ch := s[i];
-        if IsCharAlphaA( ch ) then
+        if IsCharAlpha( ch ) then
         begin
           inc( numAlpChars );
           WasAlpha := true;
@@ -1219,18 +1250,18 @@ end; // ConfigureUAS
 //=================================================================
 // TryPasteRTF
 //=================================================================
-procedure TryPasteRTF(const Editor: TTabRichEdit; HTMLText: string='');
+procedure TryPasteRTF(const Editor: TTabRichEdit; HTMLText: AnsiString='');
 var
   PasteOK: boolean;
-  RTFText: string;
+  RTFText: AnsiString;
 begin
     PasteOK := false;
-    if _ConvertHTMLClipboardToRTF and (not ClipboardHasRTFformat) and ClipboardHasHTMLformat then begin
+    if _ConvertHTMLClipboardToRTF and (not Clipboard.HasRTFformat) and Clipboard.HasHTMLformat then begin
        if HTMLText = '' then
           HTMLText:= Clipboard.AsHTML;
-       TrimMetadataFromHTMLClipboard(HTMLText);
+       Clipboard.TrimMetadataFromHTML(HTMLText);
        if ConvertHTMLToRTF(HTMLText, RTFText) then begin
-          PutRichText(RTFText, Editor, true, true);
+          Editor.PutRtfText(RTFText, true);
           PasteOK := True;
        end
     end;
@@ -1242,14 +1273,14 @@ end;
 //=================================================================
 // TryOfferRTFinClipboard
 //=================================================================
-procedure TryOfferRTFinClipboard(const Editor: TTabRichEdit; HTMLText: string='');
+procedure TryOfferRTFinClipboard(const Editor: TTabRichEdit; HTMLText: AnsiString='');
 var
-  RTFText: string;
+  RTFText: AnsiString;
 begin
-    if _ConvertHTMLClipboardToRTF and (not ClipboardHasRTFformat) and ClipboardHasHTMLformat then begin
+    if _ConvertHTMLClipboardToRTF and (not Clipboard.HasRTFformat) and Clipboard.HasHTMLformat then begin
        if HTMLText = '' then
           HTMLText:= Clipboard.AsHTML;
-       TrimMetadataFromHTMLClipboard(HTMLText);
+       Clipboard.TrimMetadataFromHTML(HTMLText);
        ConvertHTMLToRTF(HTMLText, RTFText)
     end;
 end;
@@ -1400,17 +1431,17 @@ end; // SetClipCapState
 //=================================================================
 // PasteOnClipCap
 //=================================================================
-procedure PasteOnClipCap (ClpStr: WideString);
+procedure PasteOnClipCap (ClpStr: string);
 var
   DividerString: string;
   i, j, len : integer;
   wavfn: string;
-  myNodeName : wideString;
+  myNodeName : string;
   myTreeNode, myParentNode : TTreeNTNode;
   PasteOK, PasteOnlyURL : boolean;
-  SourceURLStr : wideString;
-  TitleURL : wideString;
-  AuxStr : wideString;
+  SourceURLStr : string;
+  TitleURL : string;
+  AuxStr : string;
   HTMLClipboard: string;
   Note: TTabNote;
   Editor: TTabRichEdit;
@@ -1431,10 +1462,10 @@ begin
         Editor.OnChange := nil;
         NoteFile.Modified := true; // bugfix 27-10-03
 
-        if ClipOptions.InsertSourceURL then begin 
+        if ClipOptions.InsertSourceURL then begin
            HTMLClipboard:= Clipboard.AsHTML;
-           SourceURLStr := GetURLFromHTMLClipboard (HTMLClipboard);
-           TitleURL:= GetTitleFromHTMLClipboard    (HTMLClipboard);
+           SourceURLStr := Clipboard.GetURLFromHTML (HTMLClipboard);
+           TitleURL:= Clipboard.GetTitleFromHTML (HTMLClipboard);
            end
         else
            SourceURLStr := '';
@@ -1464,8 +1495,8 @@ begin
 
                  case ClipOptions.ClipNodeNaming of
                    clnDefault : myNodeName := '';
-                   clnClipboard : myNodeName := FirstLineFromClipboard( TREENODE_NAME_LENGTH_CAPTURE );
-                   clnDateTime : myNodeName := FormatDateTime( ShortDateFormat + #32 + ShortTimeFormat, now );
+                   clnClipboard : myNodeName:= Clipboard.TryGetFirstLine(TREENODE_NAME_LENGTH_CAPTURE);
+                   clnDateTime :  myNodeName:= FormatDateTime(FormatSettings.ShortDateFormat + #32 + FormatSettings.ShortTimeFormat, now );
                  end;
 
                  if assigned( myParentNode ) then
@@ -1645,7 +1676,7 @@ begin
     NoteFile.ClipCapNote := ActiveNote;
     ClipCapNode := nil;
 
-    PasteOnClipCap(ClipboardAsStringW); // reuse this routine... ugliness, but that's all we can do now
+    PasteOnClipCap(Clipboard.TryAsText);
 
   finally
     ClipOptions.PlaySound:= oldClipPlaySound;
@@ -1690,8 +1721,8 @@ begin
       begin
         case ClipOptions.ClipNodeNaming of
           clnDefault : myNodeName := '';
-          clnClipboard : myNodeName := FirstLineFromClipboard( TREENODE_NAME_LENGTH_CAPTURE );
-          clnDateTime : myNodeName := FormatDateTime( ShortDateFormat + #32 + ShortTimeFormat, now );
+          clnClipboard : myNodeName:= Clipboard.TryGetFirstLine(TREENODE_NAME_LENGTH_CAPTURE);
+          clnDateTime :  myNodeName:= FormatDateTime(FormatSettings.ShortDateFormat + #32 + FormatSettings.ShortTimeFormat, now );
         end;
 
         myTreeNode := TreeNoteNewNode( nil, tnAddAfter, GetCurrentTreeNode, myNodeName, false );
@@ -1979,12 +2010,12 @@ begin
     end;
 end;
 
-function NumberOfLineFeed(Str: WideString): integer;
+function NumberOfLineFeed(Str: string): integer;
 var
   i: integer;
 begin
    Result:= 0;
-   i:= 0;
+   i:= 1;
    while i <= Length(Str) do begin
       if (Str[i] = #10) then
          Inc(Result);

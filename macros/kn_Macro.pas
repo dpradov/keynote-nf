@@ -7,8 +7,8 @@ unit kn_Macro;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
@@ -17,10 +17,21 @@ unit kn_Macro;
 
 
 interface
-uses Forms, Windows, Classes, Controls,
-  SysUtils, ShellAPI, Dialogs, wideStrings,
-  gf_misc, gf_files, kn_Const, kn_Info,
-  kn_Cmd, kn_MacroCmd, gf_strings;
+uses
+   Winapi.Windows,
+   Winapi.ShellAPI,
+   System.Classes,
+   System.SysUtils,
+   Vcl.Forms,
+   Vcl.Controls,
+   Vcl.Dialogs,
+   gf_misc,
+   gf_files,
+   gf_strings,
+   kn_Const,
+   kn_Info,
+   kn_MacroCmd
+   ;
 
 const
   _MACRO_VERSION_MAJOR = '1';
@@ -47,13 +58,13 @@ type
     LoadOnlyInfo : boolean;
     ErrStr : string;
 
-    function ParseInfoLine( infostr : wideString ) : boolean;
-    function MakeInfoLine : wideString;
+    function ParseInfoLine( infostr : string ) : boolean;
+    function MakeInfoLine : string;
 
   public
     FileName : string;
-    Name : WideString;
-    Description : wideString;
+    Name : string;
+    Description : string;
     DateModified : string;
     Version : TMacroVersion;
     Lines : TStringList;
@@ -74,14 +85,14 @@ type
 
 var
   Macro_Folder : string;
-  Macro_List : TWideStringList;
+  Macro_List : TStringList;
 
 procedure LoadMacroList;
 procedure ClearMacroList;
 function MakeMacroFileName( const s : string ) : string;
 
 implementation
-uses TntSysUtils, TntSystem;
+
 
 resourcestring
   STR_Macro_01 = 'Invalid macro header';
@@ -111,7 +122,8 @@ end; // Destroy
 function TMacro.Load : boolean;
 var
   f : TextFile;
-  s, fn : string;
+  fn : string;
+  s: AnsiString;
 begin
   result := false;
   Lines.Clear;
@@ -137,7 +149,7 @@ begin
       if not eof( f ) then
         readln( f, s );
 
-      result := ParseInfoLine( TryUTF8ToWideString(s) );
+      result := ParseInfoLine( TryUTF8ToUnicodeString(s) );
       if (( not result ) or LoadOnlyInfo ) then
         exit;
 
@@ -206,7 +218,7 @@ begin
 
   try
     try
-      writeln( f, WideStringToUTF8(MakeInfoLine) );
+      writeln( f, UTF8Encode(MakeInfoLine) );
       for i := 1 to Lines.Count do
         writeln( f, Lines[pred( i )] );
       result := true;
@@ -215,7 +227,7 @@ begin
       begin
         ErrStr := E.Message;
         exit;
-      end;              
+      end;
     end;
   finally
     closefile( f );
@@ -223,10 +235,10 @@ begin
 
 end; // Save
 
-function TMacro.ParseInfoLine( infostr : WideString ) : boolean;
+function TMacro.ParseInfoLine( infostr : string ) : boolean;
 var
   p, q : integer;
-  s : wideString;
+  s : string;
 begin
   result := false;
 
@@ -261,7 +273,7 @@ begin
   Name := copy( infostr, 1, p-1 );
   delete( infostr, 1, p );
   if ( Name = '' ) then
-    Name := WideExtractFilename( FileName );
+    Name := ExtractFilename( FileName );
 
   p := pos( _MACRO_DELIMITER_CHAR, infostr );
   Description := copy( infostr, 1, p-1 );
@@ -275,10 +287,10 @@ begin
 
 end; // ParseInfoLine
 
-function TMacro.MakeInfoLine : wideString;
+function TMacro.MakeInfoLine : string;
 begin
   result := _MACRO_COMMENT_CHAR +
-    WideFormat(
+    Format(
       '%s.%s',
       [Version.Major, Version.Minor]
     ) + _MACRO_DELIMITER_CHAR +
@@ -336,7 +348,7 @@ begin
 
   finally
     Macro_List.EndUpdate;
-    SysUtils.FindClose( DirInfo );
+    FindClose( DirInfo );
   end;
 
 end; // LoadMacroList
@@ -404,7 +416,7 @@ end; // GetDefaultStringArg
 initialization
 
   Macro_Folder := properfoldername( extractfilepath( application.exename ) + _MACRO_FOLDER );
-  Macro_List := TWideStringList.Create;
+  Macro_List := TStringList.Create;
   Macro_List.Sorted := true;
   Macro_List.Duplicates := dupError;
 

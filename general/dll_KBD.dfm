@@ -6,8 +6,8 @@ object Form_KBD: TForm_KBD
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Customize keyboard shortcuts'
-  ClientHeight = 492
-  ClientWidth = 465
+  ClientHeight = 491
+  ClientWidth = 461
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -40,7 +40,6 @@ object Form_KBD: TForm_KBD
     000000000000000000000000000080000001DFFFFFFFDFFFFFFFE492487FF924
     93BFFFFFFFBFFFFFFFBFFFFFFC7FFFFFE3FFFFFFC3FFFFFFE3FFFFFFF7FF}
   KeyPreview = True
-  OldCreateOrder = False
   Position = poScreenCenter
   Scaled = False
   ShowHint = True
@@ -49,13 +48,12 @@ object Form_KBD: TForm_KBD
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   DesignSize = (
-    465
-    492)
-  PixelsPerInch = 96
+    461
+    491)
   TextHeight = 16
   object Btn_OK: TButton
     Left = 142
-    Top = 457
+    Top = 456
     Width = 92
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -68,10 +66,11 @@ object Form_KBD: TForm_KBD
     ModalResult = 1
     ParentFont = False
     TabOrder = 1
+    ExplicitTop = 457
   end
   object Btn_Cancel: TButton
     Left = 248
-    Top = 457
+    Top = 456
     Width = 93
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -85,12 +84,13 @@ object Form_KBD: TForm_KBD
     ModalResult = 2
     ParentFont = False
     TabOrder = 2
+    ExplicitTop = 457
   end
   object GroupBox1: TGroupBox
     Left = 6
     Top = 0
-    Width = 452
-    Height = 444
+    Width = 444
+    Height = 443
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -99,9 +99,11 @@ object Form_KBD: TForm_KBD
     Font.Style = []
     ParentFont = False
     TabOrder = 0
+    ExplicitWidth = 452
+    ExplicitHeight = 444
     DesignSize = (
-      452
-      444)
+      444
+      443)
     object LB_Cmd: TLabel
       Left = 11
       Top = 14
@@ -118,7 +120,7 @@ object Form_KBD: TForm_KBD
     end
     object LB_Shortcut: TLabel
       Left = 45
-      Top = 307
+      Top = 306
       Width = 140
       Height = 16
       Anchors = [akLeft, akBottom]
@@ -129,10 +131,11 @@ object Form_KBD: TForm_KBD
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
+      ExplicitTop = 307
     end
     object Label4: TLabel
       Left = 45
-      Top = 258
+      Top = 257
       Width = 94
       Height = 16
       Anchors = [akLeft, akBottom]
@@ -144,10 +147,11 @@ object Form_KBD: TForm_KBD
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
+      ExplicitTop = 258
     end
     object Label5: TLabel
       Left = 50
-      Top = 353
+      Top = 352
       Width = 119
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -158,10 +162,11 @@ object Form_KBD: TForm_KBD
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
+      ExplicitTop = 353
     end
     object LB_CurrentlyAssignedTo: TLabel
       Left = 172
-      Top = 354
+      Top = 353
       Width = 33
       Height = 13
       Anchors = [akLeft, akBottom]
@@ -176,7 +181,7 @@ object Form_KBD: TForm_KBD
       ExplicitTop = 372
     end
     object Label1: TLabel
-      Left = 304
+      Left = 296
       Top = 37
       Width = 22
       Height = 13
@@ -189,12 +194,13 @@ object Form_KBD: TForm_KBD
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
+      ExplicitLeft = 304
     end
     object List_Commands: TListBox
       Left = 12
       Top = 62
-      Width = 424
-      Height = 119
+      Width = 416
+      Height = 118
       Hint = 'Right-click for options'
       Anchors = [akLeft, akTop, akRight, akBottom]
       Font.Charset = DEFAULT_CHARSET
@@ -209,8 +215,8 @@ object Form_KBD: TForm_KBD
       OnClick = List_CommandsClick
     end
     object Btn_Assign: TButton
-      Left = 321
-      Top = 326
+      Left = 313
+      Top = 325
       Width = 92
       Height = 25
       Anchors = [akRight, akBottom]
@@ -223,10 +229,12 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       TabOrder = 2
       OnClick = Btn_AssignClick
+      ExplicitLeft = 321
+      ExplicitTop = 326
     end
     object Btn_Remove: TButton
-      Left = 321
-      Top = 273
+      Left = 313
+      Top = 272
       Width = 92
       Height = 25
       Anchors = [akRight, akBottom]
@@ -239,10 +247,12 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       TabOrder = 3
       OnClick = Btn_RemoveClick
+      ExplicitLeft = 321
+      ExplicitTop = 273
     end
     object Btn_ResetAll: TButton
-      Left = 321
-      Top = 402
+      Left = 313
+      Top = 401
       Width = 92
       Height = 25
       Anchors = [akRight, akBottom]
@@ -255,10 +265,12 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       TabOrder = 5
       OnClick = Btn_ResetAllClick
+      ExplicitLeft = 321
+      ExplicitTop = 402
     end
     object Btn_List: TButton
-      Left = 215
-      Top = 402
+      Left = 207
+      Top = 401
       Width = 92
       Height = 25
       Anchors = [akRight, akBottom]
@@ -271,11 +283,13 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       TabOrder = 4
       OnClick = Btn_ListClick
+      ExplicitLeft = 215
+      ExplicitTop = 402
     end
     object GroupBox2: TGroupBox
       Left = 13
-      Top = 189
-      Width = 424
+      Top = 188
+      Width = 416
       Height = 57
       Anchors = [akLeft, akRight, akBottom]
       Caption = ' Description '
@@ -286,13 +300,15 @@ object Form_KBD: TForm_KBD
       Font.Style = []
       ParentFont = False
       TabOrder = 7
+      ExplicitTop = 189
+      ExplicitWidth = 424
       DesignSize = (
-        424
+        416
         57)
       object LB_CmdHint: TLabel
         Left = 10
         Top = 19
-        Width = 402
+        Width = 394
         Height = 29
         Anchors = [akLeft, akTop, akRight, akBottom]
         AutoSize = False
@@ -304,12 +320,13 @@ object Form_KBD: TForm_KBD
         Font.Style = []
         ParentFont = False
         WordWrap = True
+        ExplicitWidth = 402
         ExplicitHeight = 34
       end
     end
     object Edit_Current: TEdit
       Left = 45
-      Top = 277
+      Top = 276
       Width = 252
       Height = 19
       TabStop = False
@@ -324,10 +341,11 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       ReadOnly = True
       TabOrder = 6
+      ExplicitTop = 277
     end
     object Edit1: TEdit
       Left = 44
-      Top = 328
+      Top = 327
       Width = 252
       Height = 21
       TabStop = False
@@ -343,9 +361,10 @@ object Form_KBD: TForm_KBD
       ReadOnly = True
       TabOrder = 8
       Visible = False
+      ExplicitTop = 328
     end
     object Edit_Filter: TEdit
-      Left = 335
+      Left = 327
       Top = 35
       Width = 101
       Height = 21
@@ -362,6 +381,7 @@ object Form_KBD: TForm_KBD
       TabOrder = 0
       OnExit = Edit_FilterExit
       OnKeyDown = Edit_FilterKeyDown
+      ExplicitLeft = 335
     end
     object RBShowMainMenu: TRadioButton
       Left = 17
@@ -386,7 +406,7 @@ object Form_KBD: TForm_KBD
   end
   object Btn_Help: TButton
     Left = 20
-    Top = 402
+    Top = 401
     Width = 92
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -399,6 +419,7 @@ object Form_KBD: TForm_KBD
     ParentFont = False
     TabOrder = 3
     OnClick = Btn_HelpClick
+    ExplicitTop = 402
   end
   object Menu_Items: TPopupMenu
     Left = 105

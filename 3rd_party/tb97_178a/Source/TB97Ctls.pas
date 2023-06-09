@@ -15,9 +15,21 @@ interface
 {$I TB97Ver.inc}
 
 uses
-  Windows, Messages, Classes, Controls, Forms, Menus, Graphics, Buttons,
-  {$IFDEF TB97D4} ImgList, ActnList, {$ENDIF} StdCtrls, ExtCtrls,
-  TB97Vers;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Classes,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Menus,
+   Vcl.Graphics,
+   Vcl.Buttons,
+   {$IFDEF TB97D4}
+   Vcl.ImgList,
+   Vcl.ActnList,
+   {$ENDIF}
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   TB97Vers;
 
 const
   DefaultDropdownArrowWidth = 9;
@@ -68,9 +80,6 @@ type
     FMenuIsDown: Boolean;
     FUsesDropdown: Boolean;
     FRepeatTimer: TTimer;
-    function GetHint: WideString;
-    procedure SetHint(const Value: WideString);
-    function IsHintStored: Boolean;
     procedure GlyphChanged(Sender: TObject);
     procedure UpdateExclusive;
     procedure SetAlignment (Value: TAlignment);
@@ -216,7 +225,6 @@ type
     property OnMouseMove;
     property OnMouseUp;
     property OnStartDrag;
-    property Hint: WideString read GetHint write SetHint stored IsHintStored;
   end;
 
   { TToolButtonActionLink }
@@ -339,7 +347,10 @@ procedure Unregister97ControlClass (AClass: TClass);
 implementation
 
 uses
-  SysUtils, Consts, CommCtrl, TB97Cmn, TntControls;
+   Winapi.CommCtrl,
+   System.SysUtils,
+   Vcl.Consts,
+   TB97Cmn;
 
 var
   { See TToolbarButton97.ButtonMouseTimerHandler for info on this }
@@ -489,7 +500,7 @@ type
     procedure DrawButtonDropArrow (Canvas: TCanvas; const X, Y, AWidth: Integer;
       State: TButtonState97);
     procedure CalcButtonLayout (Canvas: TCanvas; const Client: TRect;
-      const Offset: TPoint; DrawGlyph, DrawCaption: Boolean;
+      const pOffset: TPoint; DrawGlyph, DrawCaption: Boolean;
       const Caption: string; WordWrap: Boolean;
       Layout: TButtonLayout; Margin, Spacing: Integer; DropArrow: Boolean;
       DropArrowWidth: Integer; var GlyphPos, ArrowPos: TPoint;
@@ -1369,7 +1380,7 @@ begin
 end;
 
 procedure TButtonGlyph.CalcButtonLayout (Canvas: TCanvas; const Client: TRect;
-  const Offset: TPoint; DrawGlyph, DrawCaption: Boolean; const Caption: string;
+  const pOffset: TPoint; DrawGlyph, DrawCaption: Boolean; const Caption: string;
   WordWrap: Boolean; Layout: TButtonLayout; Margin, Spacing: Integer;
   DropArrow: Boolean; DropArrowWidth: Integer; var GlyphPos, ArrowPos: TPoint;
   var TextBounds: TRect);
@@ -1382,6 +1393,8 @@ var
   Margin1, Spacing1: Integer;
   LayoutLeftOrRight: Boolean;
 begin
+  // param "Offset" -> "pOffset" to avoid conflicts with System.Types.TPoint.Offset
+
   { calculate the item sizes }
   ClientSize := Point(Client.Right-Client.Left, Client.Bottom-Client.Top);
 
@@ -1526,15 +1539,15 @@ begin
 
   { fixup the result variables }
   with GlyphPos do begin
-    Inc (X, Client.Left + Offset.X);
-    Inc (Y, Client.Top + Offset.Y);
+    Inc (X, Client.Left + pOffset.X);
+    Inc (Y, Client.Top + pOffset.Y);
   end;
   with ArrowPos do begin
-    Inc (X, Client.Left + Offset.X);
-    Inc (Y, Client.Top + Offset.Y);
+    Inc (X, Client.Left + pOffset.X);
+    Inc (Y, Client.Top + pOffset.Y);
   end;
-  OffsetRect (TextBounds, TextPos.X + Client.Left + Offset.X,
-    TextPos.Y + Client.Top + Offset.X);
+  OffsetRect (TextBounds, TextPos.X + Client.Left + pOffset.X,
+    TextPos.Y + Client.Top + pOffset.X);
 end;
 
 function TButtonGlyph.Draw (Canvas: TCanvas; const Client: TRect;
@@ -2176,7 +2189,7 @@ begin
                   WM_RBUTTONDOWN, WM_RBUTTONDBLCLK,
                   WM_MBUTTONDOWN, WM_MBUTTONDBLCLK: begin
                       P := SmallPointToPoint(TSmallPoint(lParam));
-                      Windows.ClientToScreen (hwnd, P);
+                      WinAPI.Windows.ClientToScreen (hwnd, P);
                       if FindDragTarget(P, True) = Self then
                         Repost := False;
                     end;
@@ -2763,20 +2776,6 @@ begin
     MouseLeft;
 end;
 
-function TToolbarButton97.IsHintStored: Boolean;
-begin
-  Result := TntControl_IsHintStored(Self);
-end;
-
-function TToolbarButton97.GetHint: WideString;
-begin
-  Result := TntControl_GetHint(Self)
-end;
-
-procedure TToolbarButton97.SetHint(const Value: WideString);
-begin
-  TntControl_SetHint(Self, Value);
-end;
 
 { TEdit97 - internal }
 

@@ -14,7 +14,12 @@ Unit RichOLE;
 
 interface
 
-uses Windows, ActiveX, Richedit,ComCtrls,{ComObj,}OleCtnrs;
+uses
+   Winapi.Windows,
+   Winapi.ActiveX,
+   Winapi.RichEdit,
+   Vcl.OleCtnrs,
+   ComCtrls {ComObj,};
 
 // Structure passed to GetObject and InsertObject
 type

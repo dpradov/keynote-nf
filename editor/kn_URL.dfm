@@ -4,8 +4,8 @@ object Form_URLAction: TForm_URLAction
   ActiveControl = Edit_TextURL
   BorderStyle = bsDialog
   Caption = 'Choose action for URL'
-  ClientHeight = 116
-  ClientWidth = 606
+  ClientHeight = 114
+  ClientWidth = 598
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,15 +13,13 @@ object Form_URLAction: TForm_URLAction
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TTntLabel
+  object Label1: TLabel
     Left = 8
     Top = 19
     Width = 23
@@ -29,7 +27,7 @@ object Form_URLAction: TForm_URLAction
     Caption = '&URL:'
     FocusControl = Edit_URL
   end
-  object Label2: TTntLabel
+  object Label2: TLabel
     Left = 8
     Top = 50
     Width = 26
@@ -37,7 +35,7 @@ object Form_URLAction: TForm_URLAction
     Caption = '&Text:'
     FocusControl = Edit_TextURL
   end
-  object Button_Copy: TTntButton
+  object Button_Copy: TButton
     Left = 282
     Top = 82
     Width = 97
@@ -48,7 +46,7 @@ object Form_URLAction: TForm_URLAction
     TabOrder = 0
     OnClick = Button_CopyClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 499
     Top = 82
     Width = 97
@@ -58,7 +56,7 @@ object Form_URLAction: TForm_URLAction
     ModalResult = 2
     TabOrder = 3
   end
-  object Button_Open: TTntButton
+  object Button_Open: TButton
     Left = 168
     Top = 82
     Width = 97
@@ -69,7 +67,7 @@ object Form_URLAction: TForm_URLAction
     TabOrder = 1
     OnClick = Button_OpenClick
   end
-  object Button_OpenNew: TTntButton
+  object Button_OpenNew: TButton
     Left = 24
     Top = 82
     Width = 137
@@ -79,7 +77,7 @@ object Form_URLAction: TForm_URLAction
     TabOrder = 2
     OnClick = Button_OpenNewClick
   end
-  object Edit_URL: TTntEdit
+  object Edit_URL: TEdit
     Left = 64
     Top = 17
     Width = 529
@@ -87,14 +85,14 @@ object Form_URLAction: TForm_URLAction
     TabOrder = 4
     OnExit = Edit_URLExit
   end
-  object Edit_TextURL: TTntEdit
+  object Edit_TextURL: TEdit
     Left = 64
     Top = 46
     Width = 529
     Height = 21
     TabOrder = 5
   end
-  object Button_Modify: TTntButton
+  object Button_Modify: TButton
     Left = 384
     Top = 82
     Width = 97

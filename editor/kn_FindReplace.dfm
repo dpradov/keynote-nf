@@ -4,8 +4,8 @@ object Form_FindReplace: TForm_FindReplace
   ActiveControl = Combo_Text
   BorderStyle = bsDialog
   Caption = 'Find'
-  ClientHeight = 217
-  ClientWidth = 507
+  ClientHeight = 213
+  ClientWidth = 491
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,7 +13,6 @@ object Form_FindReplace: TForm_FindReplace
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnClose = FormClose
@@ -21,7 +20,6 @@ object Form_FindReplace: TForm_FindReplace
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
   object Pages: TPage95Control
     Left = 0
@@ -53,8 +51,11 @@ object Form_FindReplace: TForm_FindReplace
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitWidth = 482
-      object TntLabel3: TTntLabel
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object TntLabel3: TLabel
         Left = 3
         Top = 16
         Width = 94
@@ -71,7 +72,11 @@ object Form_FindReplace: TForm_FindReplace
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      object TntLabel1: TTntLabel
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
+      object TntLabel1: TLabel
         Left = 3
         Top = 45
         Width = 94
@@ -81,7 +86,7 @@ object Form_FindReplace: TForm_FindReplace
         Caption = 'Replace &with:'
         FocusControl = Combo_Replace
       end
-      object TntLabel2: TTntLabel
+      object TntLabel2: TLabel
         Left = 3
         Top = 16
         Width = 94
@@ -93,7 +98,7 @@ object Form_FindReplace: TForm_FindReplace
       end
     end
   end
-  object Button_Find: TTntButton
+  object Button_Find: TButton
     Left = 376
     Top = 40
     Width = 117
@@ -105,7 +110,7 @@ object Form_FindReplace: TForm_FindReplace
     TabOrder = 2
     OnClick = Button_FindClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 376
     Top = 186
     Width = 117
@@ -116,7 +121,7 @@ object Form_FindReplace: TForm_FindReplace
     TabOrder = 7
     OnClick = Button_CancelClick
   end
-  object Combo_Text: TTntComboBox
+  object Combo_Text: TComboBox
     Left = 104
     Top = 39
     Width = 255
@@ -126,20 +131,19 @@ object Form_FindReplace: TForm_FindReplace
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []
-    ItemHeight = 13
     MaxLength = 255
     ParentFont = False
     TabOrder = 0
     OnChange = Combo_TextChange
   end
-  object GroupBox_Opts: TTntGroupBox
+  object GroupBox_Opts: TGroupBox
     Left = 10
     Top = 95
     Width = 354
     Height = 114
     Caption = ' Options: '
     TabOrder = 8
-    object CheckBox_MatchCase: TTntCheckBox
+    object CheckBox_MatchCase: TCheckBox
       Left = 194
       Top = 20
       Width = 155
@@ -147,7 +151,7 @@ object Form_FindReplace: TForm_FindReplace
       Caption = '&Match case'
       TabOrder = 4
     end
-    object CheckBox_EntireScope: TTntCheckBox
+    object CheckBox_EntireScope: TCheckBox
       Left = 25
       Top = 20
       Width = 151
@@ -156,7 +160,7 @@ object Form_FindReplace: TForm_FindReplace
       TabOrder = 0
       OnClick = CheckBox_ScopeChanged
     end
-    object CheckBox_WholeWordsOnly: TTntCheckBox
+    object CheckBox_WholeWordsOnly: TCheckBox
       Left = 194
       Top = 39
       Width = 127
@@ -164,7 +168,7 @@ object Form_FindReplace: TForm_FindReplace
       Caption = 'W&hole words'
       TabOrder = 5
     end
-    object CheckBox_AllTabs: TTntCheckBox
+    object CheckBox_AllTabs: TCheckBox
       Left = 25
       Top = 46
       Width = 151
@@ -173,7 +177,7 @@ object Form_FindReplace: TForm_FindReplace
       TabOrder = 1
       OnClick = CheckBox_ScopeChanged
     end
-    object CheckBox_AllNodes: TTntCheckBox
+    object CheckBox_AllNodes: TCheckBox
       Left = 25
       Top = 65
       Width = 151
@@ -182,7 +186,7 @@ object Form_FindReplace: TForm_FindReplace
       TabOrder = 2
       OnClick = CheckBox_AllNodesClick
     end
-    object CheckBox_HiddenNodes: TTntCheckBox
+    object CheckBox_HiddenNodes: TCheckBox
       Left = 25
       Top = 85
       Width = 151
@@ -192,7 +196,7 @@ object Form_FindReplace: TForm_FindReplace
       TabOrder = 3
       OnClick = CheckBox_ScopeChanged
     end
-    object CheckBox_Wrap: TTntCheckBox
+    object CheckBox_Wrap: TCheckBox
       Left = 194
       Top = 85
       Width = 134
@@ -201,7 +205,7 @@ object Form_FindReplace: TForm_FindReplace
       TabOrder = 6
     end
   end
-  object Combo_Replace: TTntComboBox
+  object Combo_Replace: TComboBox
     Left = 104
     Top = 68
     Width = 255
@@ -211,13 +215,12 @@ object Form_FindReplace: TForm_FindReplace
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []
-    ItemHeight = 13
     MaxLength = 255
     ParentFont = False
     TabOrder = 1
     Visible = False
   end
-  object Button_Replace: TTntButton
+  object Button_Replace: TButton
     Tag = 1
     Left = 376
     Top = 70
@@ -229,7 +232,7 @@ object Form_FindReplace: TForm_FindReplace
     Visible = False
     OnClick = Button_FindClick
   end
-  object Button_ReplaceAll: TTntButton
+  object Button_ReplaceAll: TButton
     Tag = 2
     Left = 376
     Top = 102
@@ -241,7 +244,7 @@ object Form_FindReplace: TForm_FindReplace
     Visible = False
     OnClick = Button_FindClick
   end
-  object CheckBox_SelectedText: TTntCheckBox
+  object CheckBox_SelectedText: TCheckBox
     Left = 380
     Top = 131
     Width = 125
@@ -251,7 +254,7 @@ object Form_FindReplace: TForm_FindReplace
     TabOrder = 5
     Visible = False
   end
-  object CheckBox_Confirm: TTntCheckBox
+  object CheckBox_Confirm: TCheckBox
     Left = 380
     Top = 150
     Width = 123

@@ -30,8 +30,22 @@ unit Converters;
 interface
 
 uses
-  Registry, Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, FileCtrl, OleCtrls, ComCtrls, ExtCtrls, AxCtrls, OLERichEdit;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Win.Registry,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.FileCtrl,
+   Vcl.OleCtrls,
+   Vcl.ComCtrls,
+   Vcl.ExtCtrls,
+   Vcl.AxCtrls,
+   OLERichEdit;
 
 // -----------------------------------------------------------------
 // Functions to call when you want to convert something
@@ -185,7 +199,7 @@ begin
   if LoadConverter(Converter, False) <> 0 then
     begin
       if not (Assigned(InitConverter)
-         and LongBool(InitConverter(Application.Handle, PChar(Uppercase(Application.ExeName))))) then
+         and LongBool(InitConverter(Application.Handle, PAnsiChar(Uppercase(Application.ExeName))))) then
         begin
           ShowMessage('Please report: InitConverter failed');
           Result := False;
@@ -537,7 +551,7 @@ begin
   Result := False;
 
   if not (Assigned(InitConverter)
-     and LongBool(InitConverter(Application.Handle, PChar(Uppercase(Application.ExeName))))) then
+     and LongBool(InitConverter(Application.Handle, PAnsiChar(Uppercase(Application.ExeName))))) then
     ShowMessage('Please report: InitConverter failed') // Question only is: report to who?
   else
     begin

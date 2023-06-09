@@ -24,7 +24,10 @@ unit gf_Lang;
  
 interface
 uses
-  Windows, SysUtils, Graphics, gf_misc;
+   Winapi.Windows,
+   System.SysUtils,
+   Vcl.Graphics,
+   gf_misc;
 
 type
   TgfLanguage     = 0..$FFFF;

@@ -5,8 +5,8 @@ object Form_Macro: TForm_Macro
   ActiveControl = Edit_Name
   BorderStyle = bsDialog
   Caption = 'Edit macro'
-  ClientHeight = 210
-  ClientWidth = 298
+  ClientHeight = 209
+  ClientWidth = 294
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,15 +14,13 @@ object Form_Macro: TForm_Macro
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 15
     Top = 175
     Width = 75
@@ -34,7 +32,7 @@ object Form_Macro: TForm_Macro
     TabOrder = 0
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 95
     Top = 175
     Width = 75
@@ -45,13 +43,13 @@ object Form_Macro: TForm_Macro
     TabOrder = 1
     OnClick = Button_CancelClick
   end
-  object GroupBox1: TTntGroupBox
+  object GroupBox1: TGroupBox
     Left = 5
     Top = 0
     Width = 286
     Height = 166
     TabOrder = 2
-    object Label1: TTntLabel
+    object Label1: TLabel
       Left = 10
       Top = 10
       Width = 62
@@ -59,7 +57,7 @@ object Form_Macro: TForm_Macro
       Caption = '&Macro name:'
       FocusControl = Edit_Name
     end
-    object Label2: TTntLabel
+    object Label2: TLabel
       Left = 10
       Top = 55
       Width = 56
@@ -67,7 +65,7 @@ object Form_Macro: TForm_Macro
       Caption = '&Description:'
       FocusControl = Edit_Desc
     end
-    object Label3: TTntLabel
+    object Label3: TLabel
       Left = 10
       Top = 100
       Width = 62
@@ -75,7 +73,7 @@ object Form_Macro: TForm_Macro
       AutoSize = False
       Caption = 'Modified:'
     end
-    object LB_Date: TTntLabel
+    object LB_Date: TLabel
       Left = 76
       Top = 100
       Width = 9
@@ -83,7 +81,7 @@ object Form_Macro: TForm_Macro
       Caption = '...'
       ShowAccelChar = False
     end
-    object Label4: TTntLabel
+    object Label4: TLabel
       Left = 10
       Top = 115
       Width = 62
@@ -91,7 +89,7 @@ object Form_Macro: TForm_Macro
       AutoSize = False
       Caption = 'Filename:'
     end
-    object LB_FileName: TTntLabel
+    object LB_FileName: TLabel
       Left = 76
       Top = 115
       Width = 9
@@ -99,7 +97,7 @@ object Form_Macro: TForm_Macro
       Caption = '...'
       ShowAccelChar = False
     end
-    object Edit_Desc: TTntEdit
+    object Edit_Desc: TEdit
       Left = 10
       Top = 70
       Width = 266
@@ -112,7 +110,7 @@ object Form_Macro: TForm_Macro
       ParentFont = False
       TabOrder = 1
     end
-    object Edit_Name: TTntEdit
+    object Edit_Name: TEdit
       Left = 10
       Top = 25
       Width = 266
@@ -126,7 +124,7 @@ object Form_Macro: TForm_Macro
       TabOrder = 0
       OnChange = Edit_NameChange
     end
-    object CB_AbortOnError: TTntCheckBox
+    object CB_AbortOnError: TCheckBox
       Left = 10
       Top = 135
       Width = 263
@@ -137,7 +135,7 @@ object Form_Macro: TForm_Macro
       TabOrder = 2
     end
   end
-  object Button_Help: TTntButton
+  object Button_Help: TButton
     Left = 175
     Top = 175
     Width = 75

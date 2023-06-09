@@ -7,8 +7,8 @@ unit kn_FavExtDlg;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
@@ -18,22 +18,31 @@ unit kn_FavExtDlg;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Mask, ToolEdit,
-  gf_misc, gf_files, kn_Info, TntStdCtrls, TB97Ctls, ImgList, TntDialogs;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   TB97Ctls,
+   gf_misc,
+   kn_Info;
+
 
 type
   TForm_FavExt = class(TForm)
-    GroupBox1: TTntGroupBox;
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    Label1: TTntLabel;
-    Label2: TTntLabel;
-    Edit_Params: TTntEdit;
-    Label3: TTntLabel;
-    Edit_Name: TTntEdit;
-    Edit_FN: TTntEdit;
+    GroupBox1: TGroupBox;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    Label1: TLabel;
+    Label2: TLabel;
+    Edit_Params: TEdit;
+    Label3: TLabel;
+    Edit_Name: TEdit;
+    Edit_FN: TEdit;
     TB_OpenDlg: TToolbarButton97;
     procedure TB_OpenDlgClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -46,7 +55,8 @@ type
   end;
 
 implementation
-uses kn_main, TntSysUtils;
+uses
+   kn_main;
 
 {$R *.DFM}
 
@@ -77,7 +87,7 @@ procedure TForm_FavExt.FormCloseQuery(Sender: TObject;
 begin
   if ( ModalResult = mrOK ) then
   begin
-    if ( not WideFileexists( NormalFN( Edit_FN.Text ))) then
+    if ( not FileExists( NormalFN( Edit_FN.Text ))) then
       CanClose := ( messagedlg( STR_01, mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
   end;
 end;

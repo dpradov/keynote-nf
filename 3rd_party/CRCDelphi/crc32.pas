@@ -18,8 +18,8 @@ UNIT CRC32;
 
 INTERFACE
 
-  USES
-    Windows;   // DWORD for D3/D4 compatibility
+  uses
+   Winapi.Windows;   // DWORD for D3/D4 compatibility
 
   TYPE
 {$IFDEF VER130}            // This is a bit awkward
@@ -41,12 +41,13 @@ INTERFACE
 
 IMPLEMENTATION
 
-  USES
-{$IFDEF StreamIO}
-    SysUtils,  // SysErrorMessage
-{$ENDIF}
-    Dialogs,   // ShowMessage
-    Classes;   // TMemoryStream
+  uses
+   {$IFDEF StreamIO}
+   System.SysUtils,   // SysErrorMessage
+   {$ENDIF}
+   System.Classes,    // TMemoryStream
+   Vcl.Dialogs;       // ShowMessage
+
 
   CONST
     table:  ARRAY[0..255] OF DWORD =

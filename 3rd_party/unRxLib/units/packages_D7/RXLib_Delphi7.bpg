@@ -1,0 +1,36 @@
+#------------------------------------------------------------------------------
+VERSION = BWS.01
+#------------------------------------------------------------------------------
+!ifndef ROOT
+ROOT = $(MAKEDIR)\..
+!endif
+#------------------------------------------------------------------------------
+MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
+DCC = $(ROOT)\bin\dcc32.exe $**
+BRCC = $(ROOT)\bin\brcc32.exe $**
+#------------------------------------------------------------------------------
+PROJECTS = RtmRxCtl7.bpl DclRxCtl7.bpl RtmRxDB7.bpl DclRxDB7.bpl RtmRxBde7.bpl \
+  DclRxBde7.bpl
+#------------------------------------------------------------------------------
+default: $(PROJECTS)
+#------------------------------------------------------------------------------
+
+RtmRxCtl7.bpl: RtmRxCtl7.dpk
+  $(DCC)
+
+DclRxCtl7.bpl: DclRxCtl7.dpk
+  $(DCC)
+
+RtmRxDB7.bpl: RtmRxDB7.dpk
+  $(DCC)
+
+DclRxDB7.bpl: DclRxDB7.dpk
+  $(DCC)
+
+RtmRxBde7.bpl: RtmRxBde7.dpk
+  $(DCC)
+
+DclRxBde7.bpl: DclRxBde7.dpk
+  $(DCC)
+
+

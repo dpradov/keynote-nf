@@ -14,8 +14,16 @@ unit ColorPicker;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, Buttons;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.ExtCtrls,
+   Vcl.Buttons;
 
 
 type
@@ -104,9 +112,6 @@ type
     procedure SetDDArrowWidth(Value:byte);
     function GetGlyph:TBitMap;
     procedure SetRegKey(Value:string);
-    function GetHint: WideString;                 // [dpv]
-    procedure SetHint(const Value: WideString);   // [dpv]
-    function IsHintStored: Boolean;               // [dpv]
   protected
     Btn1:TColBtn;
     Btn2:TSpeedButton;
@@ -136,8 +141,7 @@ type
     property RegKey : string read FRegKey write SetRegKey;
     property DDArrowWidth : byte read FDDArrowWidth write SetDDArrowWidth;
     property Enabled;
-    //property Hint;
-    property Hint: WideString read GetHint write SetHint stored IsHintStored;     // [dpv]
+    property Hint;
     property ShowHint;
     property Visible;
     property ParentShowHint;
@@ -147,7 +151,8 @@ type
 procedure Register;
 
 implementation
-uses Registry, TntControls;    // [dpv]: Use of TntControls
+uses
+   System.Win.Registry;
 {$R *.Res}
 const
      BtnDim=20;
@@ -700,19 +705,5 @@ begin
      // inherited;
 end;
 
-function TColorBtn.IsHintStored: Boolean;
-begin
-  Result := TntControl_IsHintStored(Self);
-end;
-
-function TColorBtn.GetHint: WideString;
-begin
-  Result := TntControl_GetHint(Self)
-end;
-
-procedure TColorBtn.SetHint(const Value: WideString);
-begin
-  TntControl_SetHint(Self, Value);
-end;
 end.
 

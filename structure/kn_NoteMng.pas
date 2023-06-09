@@ -1,25 +1,43 @@
 unit kn_NoteMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 
-Uses
-   kn_NoteObj, kn_Const, kn_Info;
+uses
+   Winapi.Windows,
+   System.SysUtils,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.Controls,
+   gf_miscvcl,
+   gf_strings,
+   kn_Defaults,
+   kn_Const,
+   kn_Info,
+   kn_Macro,
+   kn_NewNote,
+   kn_TreeNoteMng,
+   kn_FileMgr,
+   kn_NoteObj,
+   kn_BookmarksMng,
+   kn_NoteFileMng;
+
+
 
     // note management
     procedure CreateNewNote;
@@ -31,12 +49,12 @@ Uses
 implementation
 
 uses
-   Windows, Forms, Dialogs, SysUtils, Controls,
-   dfsStatusBar, comCtrls95,
-   kn_Global, gf_miscvcl, gf_strings, kn_Defaults,
-   kn_Macro, kn_NewNote, kn_TreeNoteMng, kn_Main, kn_FileMgr, kn_EditorUtils,
-   kn_MacroMng, kn_BookmarksMng, kn_ConfigMng, kn_NoteFileMng, kn_VCLControlsMng,
-   TntSysUtils;
+   kn_Global,
+   kn_EditorUtils,
+   kn_MacroMng,
+   kn_ConfigMng,
+   kn_VCLControlsMng,
+   kn_Main;
 
 resourcestring
   STR_01 = ' New note.';
@@ -44,6 +62,7 @@ resourcestring
   STR_03 = 'Confirm deleting note';
   STR_04 = ' Note deleted.';
   STR_05 = ' Note renamed.';
+
 
 function NewNote(
   const DefaultNote, CanFocus : boolean;
@@ -188,7 +207,7 @@ begin
       if KeyOptions.ConfirmTabDelete then
       begin
         if ( DoMessageBox(
-            WideFormat( STR_02, [RemoveAccelChar( ActiveNote.Name )] ),
+            Format( STR_02, [RemoveAccelChar( ActiveNote.Name )] ),
             STR_03,
             MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
       end;
@@ -401,7 +420,7 @@ begin
               // rather than DEFAULT BG color for whole note
               if ( assigned( NoteFile ) and ( NoteFile.FileName <> '' )) then
               begin
-                myCurrentFileName := WideExtractFilename( NoteFile.FileName );
+                myCurrentFileName := ExtractFilename( NoteFile.FileName );
                 mySaveFileDefaults := ( DEF_FN <> OrigDEF_FN );
               end;
 

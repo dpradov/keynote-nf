@@ -7,39 +7,51 @@ unit kn_PluginsMng;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
 uses
-   kn_Plugins, kn_PluginBase;
+    Winapi.Windows,
+    System.SysUtils,
+    Vcl.Forms,
+    Vcl.Dialogs,
+    Vcl.Controls,
+    Vcl.StdCtrls,
+    cmpGFXListbox,
+    kn_Global,
+    kn_Info,
+    kn_Const,
+    kn_NoteObj,
+    kn_NoteFileMng,
+    kn_TreeNoteMng,
+    kn_VCLControlsMng,
+    kn_Plugins,
+    kn_PluginBase,
+    kn_Main;
+
 
     // plugin-related routines
     procedure EnumeratePlugins;
     procedure DisplayPlugins;
-    function ExecutePlugin( fn : string ) : longint;
-    procedure ConfigurePlugin( fn : string );
-    procedure UnloadResidentPlugin( const ID : longint );
-    function GetPluginIconIndex( const Plugin : TPlugin ) : integer;
-    function GetSelectedPlugin : TPlugin;
+    function ExecutePlugin (fn: string): longint;
+    procedure ConfigurePlugin (fn: string);
+    procedure UnloadResidentPlugin (const ID: longint);
+    function GetPluginIconIndex (const Plugin: TPlugin): integer;
+    function GetSelectedPlugin: TPlugin;
     procedure ShowPluginInfo;
 
 var
-    LastPluginFN : string; // last plugin we ran, so we can re-run it on Shift+F12
+    LastPluginFN : string;    // last plugin we ran, so we can re-run it on Shift+F12
 
 
 implementation
-uses
-    Windows, Forms, SysUtils, Dialogs, Controls, StdCtrls,
-    cmpGFXListbox,
-    kn_Global, kn_Main, kn_Info, kn_Const, kn_RTFUtils, kn_NoteObj, kn_NoteFileMng,
-    kn_TreeNoteMng, kn_VCLControlsMng;
 
 resourcestring
   STR_01 = 'Select plugin to display information';
@@ -70,6 +82,7 @@ resourcestring
 var
     Resident_Plugin_Counter : longint;
 
+
 procedure EnumeratePlugins;
 var
   DirInfo : TSearchRec;
@@ -78,47 +91,47 @@ var
   fn, aName, aInfo : string;
   aVersion : integer;
   aFeatures : TPluginFeatures;
+
 begin
+   ClearPluginList;
 
-  ClearPluginList;
+   FindResult := FindFirst( Plugin_Folder + '*' + ext_Plugin, faAnyFile, DirInfo );
 
-  FindResult := FindFirst( Plugin_Folder + '*' + ext_Plugin, faAnyFile, DirInfo );
-  while ( FindResult = 0 ) do
-  begin
+   while ( FindResult = 0 ) do begin
+     fn := Plugin_Folder + DirInfo.Name;
 
-    fn := Plugin_Folder + DirInfo.Name;
+     if GetPluginInfo( fn, aName, aVersion, aInfo, aFeatures ) then begin
+        myPlugin := TPlugin.Create;
+        with myPlugin do begin
+           FileName := DirInfo.Name;
+           Name := aName;
+           Version := aVersion;
+           Info := aInfo;
+           Features := aFeatures;
+        end;
+        Plugin_List.AddObject( DirInfo.Name, myPlugin );
+     end;
+     FindResult := FindNext( DirInfo );
+   end;
 
-    if GetPluginInfo( fn, aName, aVersion, aInfo, aFeatures ) then
-    begin
-      myPlugin := TPlugin.Create;
-      with myPlugin do
-      begin
-        FileName := DirInfo.Name;
-        Name := aName;
-        Version := aVersion;
-        Info := aInfo;
-        Features := aFeatures;
-      end;
-      Plugin_List.AddObject( DirInfo.Name, myPlugin );
-    end;
-    FindResult := FindNext( DirInfo );
-  end;
-  SysUtils.FindClose( DirInfo );
+   FindClose( DirInfo );
 
 end; // EnumeratePlugins
+
 
 function GetSelectedPlugin : TPlugin;
 begin
   with Form_Main do begin
       result := nil;
       if ( not ( Pages_Res.Visible and ResTab_Plugins.TabVisible )) then exit;
-      if (( ListBox_ResPlugins.Items.Count = 0 ) or
-        ( ListBox_ResPlugins.ItemIndex < 0 )) then exit;
+      if (ListBox_ResPlugins.Items.Count = 0) or
+         (ListBox_ResPlugins.ItemIndex < 0) then exit;
 
-      result := TPlugin( TItemObject( ListBox_ResPlugins.Items.Objects[ListBox_ResPlugins.ItemIndex] ).Data );
+      result := TPlugin(TItemObject( ListBox_ResPlugins.Items.Objects[ListBox_ResPlugins.ItemIndex] ).Data);
   end;
 
-end; // GetSelectedPlugin
+end;
+
 
 procedure ShowPluginInfo;
 var
@@ -127,17 +140,16 @@ var
   s : string;
 begin
   myPlugin := GetSelectedPlugin;
-  if ( not assigned( myPlugin )) then
-  begin
-    Form_Main.LB_PluginInfo.Caption := STR_01;
-    exit;
+  if ( not assigned( myPlugin )) then begin
+     Form_Main.LB_PluginInfo.Caption := STR_01;
+     exit;
   end;
 
   s := '';
   for pl := low( TPluginFeature ) to high( TPluginFeature ) do
   begin
-    if ( pl in myPlugin.Features ) then
-      s := s + PluginFeatureNames[pl] + '  ';
+    if (pl in myPlugin.Features) then
+       s:= s + PluginFeatureNames[pl] + '  ';
     {
     s := s + Format(
       '%s : %s ; ',
@@ -153,6 +165,7 @@ begin
 
 end; // ShowPluginInfo
 
+
 procedure DisplayPlugins;
 var
   // Form_Plugins: TForm_Plugins;
@@ -161,52 +174,46 @@ var
 begin
 
   with Form_Main do begin
-      if ( not CheckFolder( 'Plugin', Plugin_Folder, true, true )) then
-      begin
-        ShowPluginInfo;
-        exit;
+      if (not CheckFolder( 'Plugin', Plugin_Folder, true, true )) then begin
+         ShowPluginInfo;
+         exit;
       end;
 
-      if ( Plugin_List.Count = 0 ) then
-      begin
-        // see if anything has been installed
-        // since we last checked
-        EnumeratePlugins;
-        if ( Plugin_List.Count = 0 ) then
-        begin
-          StatusBar.Panels[PANEL_HINT].Text := STR_04;
-          ShowPluginInfo;
-          exit;
-        end;
+      if ( Plugin_List.Count = 0 ) then begin
+         // see if anything has been installed since we last checked
+         EnumeratePlugins;
+         if (Plugin_List.Count = 0 ) then begin
+            StatusBar.Panels[PANEL_HINT].Text := STR_04;
+            ShowPluginInfo;
+            exit;
+         end;
       end;
 
       ListBox_ResPlugins.Items.BeginUpdate;
       try
         try
-          for i := 1 to Plugin_List.Count do
-          begin
-            myPlugin := TPlugin( Plugin_List.Objects[pred( i )] );
-            p := ListBox_ResPlugins.AddItem(
-            {Format(
-              '%s (%s)',
-              [, myPlugin.Filename]
-              ),}
-              myPlugin.Name,
-              cbUnchecked, GetPluginIconIndex( myPlugin ));
-            TItemObject( ListBox_ResPlugins.Items.Objects[p] ).Data := myPlugin;
+           for i := 1 to Plugin_List.Count do begin
+              myPlugin := TPlugin( Plugin_List.Objects[pred( i )] );
+              p := ListBox_ResPlugins.AddItem(
+                {Format(
+                 '%s (%s)',
+                 [, myPlugin.Filename]
+                 ),}
+                 myPlugin.Name,
+                 cbUnchecked, GetPluginIconIndex( myPlugin ));
+              TItemObject( ListBox_ResPlugins.Items.Objects[p] ).Data := myPlugin;
           end;
           if ( ListBox_ResPlugins.Items.Count > 0 ) then
-            ListBox_ResPlugins.ItemIndex := 0;
+             ListBox_ResPlugins.ItemIndex := 0;
 
         except
           on E : Exception do
-          begin
-            messagedlg( E.Message, mtError, [mbOK], 0 );
-          end;
+             MessageDlg( E.Message, mtError, [mbOK], 0 );
         end;
+
       finally
-        ListBox_ResPlugins.Items.EndUpdate;
-        ShowPluginInfo;
+         ListBox_ResPlugins.Items.EndUpdate;
+         ShowPluginInfo;
       end;
   end;
 
@@ -234,28 +241,26 @@ begin
 
 end; // DisplayPlugins
 
+
 procedure ConfigurePlugin( fn : string );
 var
   myPlugin : TPlugin;
 begin
 
-  if ( fn = '' ) then
-  begin
-    myPlugin := GetSelectedPlugin;
-    if ( not assigned( myPlugin )) then exit;
-    fn := myPlugin.Filename;
+  if (fn = '') then  begin
+     myPlugin := GetSelectedPlugin;
+     if ( not assigned( myPlugin )) then exit;
+     fn:= myPlugin.Filename;
   end;
 
-  if ( pos( '\', fn ) = 0 ) then
-    fn := Plugin_Folder + fn;
+  if (pos('\', fn ) = 0 ) then
+     fn := Plugin_Folder + fn;
 
-  if ( not ExecutePluginConfig( fn, Application.Handle )) then
-  begin
-    messagedlg( STR_05 + extractfilename( fn ),
-      mtError, [mbOK], 0 );
-  end;
+  if (not ExecutePluginConfig( fn, Application.Handle )) then
+     MessageDlg( STR_05 + ExtractFileName(fn), mtError, [mbOK], 0 );
 
 end; // ConfigurePlugin
+
 
 function ExecutePlugin( fn : string ) : longint;
 var
@@ -265,42 +270,37 @@ var
   KNTPluginCleanup : KNTPluginCleanupProc;
   KNTSetPluginID : KNTSetPluginIDProc;
   myNote : TTabNote;
-  OutData : PChar;
-  Indata : pointer;
-  s, tmpstr : string;
+  OutData : AnsiString;                            //  For compatibility, to be changed..
+  Indata : Pointer;
+  s, tmpstr : AnsiString;                          // ,,
   InsertPluginOutput, NoteWasReadOnly : boolean;
-  // RTFStream : TMemoryStream;
   LoadedPlugin : TLoadedPlugin;
   PluginReceivedSelection : boolean;
 
 begin
   with Form_Main do begin
       result := 0;
-      if ( not HaveNotes( true, true )) then exit;
-      if ( not assigned( ActiveNote )) then exit;
+      if (not HaveNotes( true, true )) then exit;
+      if (not assigned( ActiveNote )) then exit;
 
-      // RTFStream := nil;
       PluginReceivedSelection := false;
 
-      if ( fn = '' ) then
-      begin
-        if ( not CheckResourcePanelVisible( true )) then exit;
-        Plugin := GetSelectedPlugin;
-        if ( not assigned( Plugin )) then
-        begin
-          messagedlg( STR_06, mtError, [mbOK], 0 );
-          exit;
-        end;
-        fn := Plugin.Filename;
+      if ( fn = '' ) then begin
+         if ( not CheckResourcePanelVisible( true )) then exit;
+         Plugin := GetSelectedPlugin;
+         if ( not assigned( Plugin )) then begin
+             MessageDlg( STR_06, mtError, [mbOK], 0 );
+             exit;
+         end;
+         fn := Plugin.Filename;
       end;
 
-      if ( pos( '\', fn ) = 0 ) then
-        fn := Plugin_Folder + fn;
+      if ( pos('\', fn ) = 0 ) then
+         fn := Plugin_Folder + fn;
 
-      if ( not fileexists( fn )) then
-      begin
-        messagedlg( Format( STR_07, [fn] ), mtError, [mbOK], 0 );
-        exit;
+      if ( not fileexists( fn )) then begin
+          MessageDlg( Format( STR_07, [fn] ), mtError, [mbOK], 0 );
+          exit;
       end;
 
       Plugin := TPlugin.Create;
@@ -309,325 +309,250 @@ begin
       Plugin.FileName := fn;
       LastPluginFN := fn;
 
-      MMToolsPluginRunLast.Hint := Format(STR_08,  [extractfilename( LastPluginFN )] );
+      MMToolsPluginRunLast.Hint := Format(STR_08,  [ExtractFileName( LastPluginFN )] );
 
       InsertPluginOutput := false;
       NoteWasReadOnly := false;
 
       try
 
-        if ( not GetPluginInfo(
-          fn,
-          Plugin.Name,
-          Plugin.Version,
-          Plugin.Info,
-          Plugin.Features )) then
-        begin
-          messagedlg( Format(STR_09, [extractfilename( fn )] ), mtError, [mbOK], 0 );
-          exit;
+        if (not GetPluginInfo(fn, Plugin.Name, Plugin.Version, Plugin.Info, Plugin.Features )) then begin
+            MessageDlg( Format(STR_09, [ExtractFileName( fn )] ), mtError, [mbOK], 0 );
+            exit;
         end;
 
-        if ( Plugin.Version <> 1 ) then
-        begin
-          messagedlg( Format(STR_10, [Plugin.Name, extractfilename( fn ), Plugin.Version] ), mtError, [mbOK], 0 );
-          exit;
+        if (Plugin.Version <> 1) then begin
+            MessageDlg( Format(STR_10, [Plugin.Name, ExtractFileName( fn ), Plugin.Version] ), mtError, [mbOK], 0 );
+            exit;
         end;
 
-        // Plugin.Features := GetPluginFeatures( fn );
 
-        if ( not ( plOK in Plugin.Features )) then
-        begin
-          messagedlg( Format(STR_11, [Plugin.Name, extractfilename( fn )] ), mtError, [mbOK], 0 );
-          exit;
+        if (not (plOK in Plugin.Features)) then begin
+            MessageDlg( Format(STR_11, [Plugin.Name, ExtractFileName( fn )] ), mtError, [mbOK], 0 );
+            exit;
         end;
 
-        hDLLInst := LoadLibrary( PChar( FN ));
-        if ( hDLLInst <= 0 ) then
-        begin
-          messagedlg( Format(STR_12, [Plugin.Name, extractfilename( fn )] ), mtError, [mbOK], 0 );
-          exit;
+        hDLLInst := LoadLibrary(PChar(FN ));
+        if (hDLLInst <= 0) then begin
+            MessageDlg( Format(STR_12, [Plugin.Name, ExtractFileName( fn )] ), mtError, [mbOK], 0 );
+            exit;
         end;
 
         try
           try
             // get pointer to execute proc
             @KNTPluginExecute := GetProcAddress( hDLLInst, 'KNTPluginExecute' );
-            if ( not assigned( KNTPluginExecute )) then
-            begin
-              messagedlg( Format(STR_13, [Plugin.Name, extractfilename( fn ) ] ), mtError, [mbOK], 0 );
-              exit;
+            if ( not assigned( KNTPluginExecute )) then begin
+               MessageDlg( Format(STR_13, [Plugin.Name, ExtractFileName( fn ) ] ), mtError, [mbOK], 0 );
+               exit;
             end;
 
             // get pointer to cleanup proc
             @KNTPluginCleanup := GetProcAddress( hDLLInst, 'KNTPluginCleanup' );
 
-            OutData := nil;
+            OutData := '';
             InData := nil;
 
             myNote := ActiveNote;
 
-            // if plugin is resident, see if it is already running
-            // and prevent from starting another instance of the same plugin
-            if ( plStaysResident in Plugin.Features ) then
-            begin
-              if ( Loaded_Plugins.IndexOf( Plugin.Name ) >= 0 ) then
-              begin
-                messagedlg( Format(STR_14, [Plugin.Name]), mtInformation, [mbOK], 0 );
-                exit;
-              end;
+            // if plugin is resident, see if it is already running and prevent from starting another instance of the same plugin
+            if ( plStaysResident in Plugin.Features ) then begin
+                if ( Loaded_Plugins.IndexOf( Plugin.Name ) >= 0 ) then begin
+                   MessageDlg( Format(STR_14, [Plugin.Name]), mtInformation, [mbOK], 0 );
+                   exit;
+                end;
             end;
 
-            if ( plStaysResident in Plugin.Features ) then
-            begin
-              inc( Resident_Plugin_Counter );
-              @KNTSetPluginID := GetProcAddress( hDLLInst, 'KNTSetPluginID' );
-              if assigned( KNTSetPluginID ) then
-              begin
-                // assign D to plugin, so that we can recognize it
-                // when it shuts down and free the DLL properly
-                KNTSetPluginID( Resident_Plugin_Counter );
-              end
-              else
-              begin
-                // cannot allow plugin to go resident,
-                // because we won't be able to identify it
-                // when it shuts down
-                messagedlg( Format(STR_15, [Plugin.Name]), mtError, [mbOK], 0 );
-                exit;
-              end;
+            if ( plStaysResident in Plugin.Features ) then begin
+                inc( Resident_Plugin_Counter );
+                @KNTSetPluginID := GetProcAddress( hDLLInst, 'KNTSetPluginID' );
+                if assigned( KNTSetPluginID ) then
+                   // assign D to plugin, so that we can recognize it when it shuts down and free the DLL properly
+                   KNTSetPluginID( Resident_Plugin_Counter )
+                else begin
+                   // cannot allow plugin to go resident, because we won't be able to identify it when it shuts down
+                   MessageDlg( Format(STR_15, [Plugin.Name]), mtError, [mbOK], 0 );
+                   exit;
+                end;
             end;
 
             // Figure out what data type the plugin expects to receive
-            if ( plGetsData in Plugin.Features ) then
-            begin
-              if ( plGetsSelection in Plugin.Features ) then
-              begin
-                if ( ActiveNote.Editor.SelLength > 0 ) then
-                begin
-                  // plugin will get selected text
-                  PluginReceivedSelection := true;
-                  if ( plGetsRTF in Plugin.Features ) then
-                  begin
-                    // ExtractRichFormatText( true )
-                    OutData := PChar( GetRichText(
-                        ActiveNote.Editor,
-                        true, true
-                      ));
+            if ( plGetsData in Plugin.Features ) then begin
+              if ( plGetsSelection in Plugin.Features ) then begin
+                  if ( ActiveNote.Editor.SelLength > 0 ) then begin
+                     // plugin will get selected text
+                     PluginReceivedSelection := true;
+                     if ( plGetsRTF in Plugin.Features ) then
+                        OutData := ActiveNote.Editor.RtfSelText
+                     else
+                        OutData := ActiveNote.Editor.SelText;
                   end
-                  else
-                  begin
-                    OutData := PChar( ActiveNote.Editor.SelText )
+                  else begin
+                      // no text is selected in active note
+                      if ( plNeedsSelection in Plugin.Features ) then begin
+                          // selection is required, so we must abort
+                          MessageDlg( Format(STR_16, [Plugin.Name]), mtInformation, [mbOK], 0 );
+                          exit;
+                      end
+                      else begin
+                          // selection is preferred but not required, so plugin gets all text
+                          PluginReceivedSelection := false;
+                          if ( plGetsRTF in Plugin.Features ) then
+                             OutData := ActiveNote.Editor.RtfText
+                          else
+                             OutData := ActiveNote.Editor.Text;
+                      end;
                   end;
-                end
-                else
-                begin
-                  // no text is selected in active note
-                  if ( plNeedsSelection in Plugin.Features ) then
-                  begin
-                    // selection is required, so we must abort
-                    messagedlg( Format(STR_16, [Plugin.Name]), mtInformation, [mbOK], 0 );
-                    exit;
-                  end
-                  else
-                  begin
-                    // selection is preferred but not required, so plugin gets all text
-                    PluginReceivedSelection := false;
-                    if ( plGetsRTF in Plugin.Features ) then
-                      // ExtractRichFormatText( false )
-                      OutData := PChar( GetRichText(
-                          ActiveNote.Editor,
-                          true, false
-                        ))
-                    else
-                      OutData := PChar(string(ActiveNote.Editor.Lines.GetText));
-
-                  end;
-                end;
               end
-              else
-              begin
-                // plugin does not want selection, so it gets all text
-                PluginReceivedSelection := false;
-                if ( plGetsRTF in Plugin.Features ) then
-                  // ExtractRichFormatText( false )
-                  OutData := PChar( GetRichText(
-                      ActiveNote.Editor,
-                      true, false
-                    ))
-                else
-                  OutData := PChar(string(ActiveNote.Editor.Lines.GetText));
+              else begin
+                  // plugin does not want selection, so it gets all text
+                  PluginReceivedSelection := false;
+                  if ( plGetsRTF in Plugin.Features ) then
+                     OutData := ActiveNote.Editor.RtfText
+                  else
+                     OutData := ActiveNote.Editor.Text;
               end;
             end;
 
             if ( ActiveNote.Kind = ntTree ) then
-            begin
-              try
-                with GetCurrentNoteNode do
-                  tmpstr := Name;
-              except
-                tmpstr := myNote.Name;
-              end;
-            end
+                try
+                  with GetCurrentNoteNode do
+                    tmpstr := Name;
+                except
+                  tmpstr := myNote.Name;
+                end
             else
-            begin
-              tmpstr := myNote.Name;
-            end;
+               tmpstr := myNote.Name;
+
 
             result := KNTPluginExecute(
-              Application.Handle,
-              Form_Main.Handle,
-              ActiveNote.Editor.Handle,
-              PChar( NoteFile.FileName ),
-              PChar( tmpstr ),
-              OutData,
-              InData );
-
+                        Application.Handle,
+                        Form_Main.Handle,
+                        ActiveNote.Editor.Handle,
+                        PAnsiChar(AnsiString(NoteFile.FileName)),
+                        PAnsiChar(AnsiString(tmpstr)),
+                        PAnsiChar(OutData),
+                        InData );
 
             try
 
-              if ( plStaysResident in Plugin.Features ) then
-              begin
-                // store the dll handle, so that we can unload
-                // the plugin later
-                LoadedPlugin := TLoadedPlugin.Create;
-                with LoadedPlugin do
-                begin
-                  DllInstance := hDllInst;
-                  ID := Resident_Plugin_Counter;
-                  ExecResult := result;
-                end;
-                Loaded_Plugins.AddObject( Plugin.Name, LoadedPlugin );
+              if ( plStaysResident in Plugin.Features ) then begin
+                  // store the dll handle, so that we can unload the plugin later
+                  LoadedPlugin := TLoadedPlugin.Create;
+                  with LoadedPlugin do begin
+                     DllInstance := hDllInst;
+                     ID := Resident_Plugin_Counter;
+                     ExecResult := result;
+                  end;
+                  Loaded_Plugins.AddObject( Plugin.Name, LoadedPlugin );
               end;
 
-              if ( result < 0 ) then
-              begin
-                messagedlg( Format(STR_17,[result] ), mtWarning, [mbOK], 0 );
-                exit;
+              if (result < 0) then begin
+                  MessageDlg( Format(STR_17,[result] ), mtWarning, [mbOK], 0 );
+                  exit;
               end;
 
-              if ( plStaysResident in Plugin.Features ) then
-              begin
-                StatusBar.Panels[PANEL_HINT].Text := Format(
-                    STR_18,
-                    [extractfilename( Plugin.Filename )]
-                  );
-              end
-              else
-              begin
-                if (( plReturnsData in Plugin.Features ) and ( result > 0 )) then
-                begin
-                  // transfer data received from plugin
-                  if ( not( plReturnsClipboard in Plugin.Features )) then
-                  begin
-                    setlength( s, result );
-                    move( InData^, s[1], result );
-                  end;
 
-                  if ( plWantsDlgBox in Plugin.Features ) then
-                  begin
-                    InsertPluginOutput := Application.MessageBox(
-                      PChar( copy( s, 1, _MAX_DLGBOX_MSG_LEN )),
-                      PChar( Plugin.Name ),
-                      MB_OKCANCEL+MB_ICONASTERISK+MB_DEFBUTTON1+MB_APPLMODAL
-                    ) = ID_OK;
-                  end
-                  else
-                  if ( plReturnsClipboard in Plugin.Features ) then
-                  begin
-                    InsertPluginOutput := ( KeyOptions.AutoPastePlugin or
-                      ( Application.MessageBox(
-                        PChar(STR_19),
-                        PChar( Plugin.Name ),
-                        MB_OKCANCEL+MB_ICONASTERISK+MB_DEFBUTTON1+MB_APPLMODAL
-                      ) = ID_OK ));
-                  end
-                  else
-                  begin
-                    InsertPluginOutput := true;
-                  end;
-                end;
+              if (plStaysResident in Plugin.Features) then
+                 StatusBar.Panels[PANEL_HINT].Text:= Format(STR_18,[ExtractFileName( Plugin.Filename )] )
 
-                // check for read-only note
-                if InsertPluginOutput then
-                begin
-                  NoteWasReadOnly := ActiveNote.ReadOnly;
-                  if NoteWasReadOnly then
-                  begin
-                    InsertPluginOutput := ( messagedlg( Format(STR_20,[ActiveNote.Name]),
-                        mtWarning, [mbOK, mbCancel], 0 ) = mrOK );
-                  end;
-                end;
+              else begin
 
-                if InsertPluginOutput then
-                begin
-                  if NoteWasReadOnly then
-                    ActiveNote.ReadOnly := false;
-                  try
-                    if ( plReturnsClipboard in Plugin.Features ) then
-                    begin
-                      ActiveNote.Editor.PasteIRichEditOLE(0);
-                    end
-                    else
-                    if ( plReturnsRTF in Plugin.Features ) then
-                    begin
-                      PutRichText( s, ActiveNote.Editor, true, true );
-                    end
-                    else
-                    begin
-                      ActiveNote.Editor.SelText := s;
+                  if (plReturnsData in Plugin.Features ) and (result > 0) then begin
+                    // transfer data received from plugin
+                    if ( not( plReturnsClipboard in Plugin.Features )) then begin
+                       setlength( s, result );
+                       move( InData^, s[1], result );
                     end;
-                  finally
-                    if NoteWasReadOnly then
-                      ActiveNote.ReadOnly := true;
+
+                    if ( plWantsDlgBox in Plugin.Features ) then begin
+                        InsertPluginOutput := Application.MessageBox(
+                          PChar(string( copy(s, 1, _MAX_DLGBOX_MSG_LEN))),
+                          PChar(Plugin.Name),
+                          MB_OKCANCEL+MB_ICONASTERISK+MB_DEFBUTTON1+MB_APPLMODAL
+                        ) = ID_OK;
+                    end
+                    else
+                    if ( plReturnsClipboard in Plugin.Features ) then begin
+                        InsertPluginOutput := ( KeyOptions.AutoPastePlugin or
+                          ( Application.MessageBox(
+                            PChar(STR_19),
+                            PChar( Plugin.Name ),
+                            MB_OKCANCEL+MB_ICONASTERISK+MB_DEFBUTTON1+MB_APPLMODAL
+                          ) = ID_OK ));
+                    end
+                    else
+                       InsertPluginOutput := true;
                   end;
-                end;
+
+                  // check for read-only note
+                  if InsertPluginOutput then begin
+                     NoteWasReadOnly := ActiveNote.ReadOnly;
+                     if NoteWasReadOnly then
+                        InsertPluginOutput:= (MessageDlg(Format(STR_20,[ActiveNote.Name]), mtWarning, [mbOK, mbCancel], 0 ) = mrOK);
+                  end;
+
+                  if InsertPluginOutput then begin
+                      if NoteWasReadOnly then
+                         ActiveNote.ReadOnly := false;
+                      try
+                        if ( plReturnsClipboard in Plugin.Features ) then
+                           ActiveNote.Editor.PasteIRichEditOLE(0)
+                        else
+                        if ( plReturnsRTF in Plugin.Features ) then
+                            ActiveNote.Editor.PutRtfText(s, true)
+                        else begin
+                            ActiveNote.Editor.SelText := s;
+                            ActiveNote.Editor.SelLength:= 0;
+                        end;
+
+                      finally
+                         if NoteWasReadOnly then
+                            ActiveNote.ReadOnly := true;
+                      end;
+                  end;
+
               end;
+
 
             finally
-
               // KNTPluginCleanup is guaranteed to run if KNTPLuginExecute ran
               try
                 if ( assigned( KNTPluginCleanup ) and ( not ( plStaysResident in Plugin.Features ))) then
-                  KNTPluginCleanup;
+                   KNTPluginCleanup;
               except
                 On E : Exception do
-                begin
-                  messagedlg( STR_21 + E.Message, mtError, [mbOK], 0 );
-                end;
+                   MessageDlg( STR_21 + E.Message, mtError, [mbOK], 0 );
               end;
 
             end;
 
           except
-            On E : Exception do
-            begin
-              messagedlg( STR_22 + E.Message, mtError, [mbOK], 0 );
-              exit;
-            end;
+              On E : Exception do begin
+                 MessageDlg( STR_22 + E.Message, mtError, [mbOK], 0 );
+                 exit;
+              end;
           end;
 
         finally
-          if ( not ( plStaysResident in Plugin.Features )) then
+          if (not ( plStaysResident in Plugin.Features)) then
             FreeLibrary( hDLLInst );
-          (*
-          if assigned( RTFStream ) then
-            RTFStream.Free;
-          *)
         end;
 
       finally
-        Plugin.Free;
+         Plugin.Free;
       end;
   end;
 
 end; // ExecutePlugin
 
+
 function GetPluginIconIndex( const Plugin : TPlugin ) : integer;
 begin
   result := PLUGIN_IMAGE_BASE;
   if ( plStaysResident in Plugin.Features ) then
-    inc( result );
-end; // GetPluginIconIndex
+     inc( result );
+end;
 
 
 procedure UnloadResidentPlugin( const ID : longint );
@@ -635,37 +560,33 @@ var
   LoadedPlugin : TLoadedPlugin;
   i, p : integer;
   DLLInstance : THandle;
+
 begin
   LoadedPlugin := nil;
   DLLInstance := 0;
   p := -1;
-  for i := 1 to Loaded_Plugins.Count do
-  begin
-    LoadedPlugin := TLoadedPlugin( Loaded_Plugins.Objects[pred( i )] );
-    if ( LoadedPlugin.ID = ID ) then
-    begin
-      DLLInstance := LoadedPlugin.DllInstance;
-      p := pred( i );
-      break;
-    end;
+
+  for i := 1 to Loaded_Plugins.Count do  begin
+     LoadedPlugin := TLoadedPlugin( Loaded_Plugins.Objects[pred( i )] );
+     if ( LoadedPlugin.ID = ID ) then begin
+        DLLInstance := LoadedPlugin.DllInstance;
+        p := pred( i );
+        break;
+     end;
   end;
 
 
-  if ( DLLInstance <> 0 ) then
-  begin
+  if (DLLInstance <> 0) then begin
     try
       try
         FreeLibrary( DLLInstance );
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(
-          STR_23,
-          [Loaded_Plugins[p]]
-        );
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_23, [Loaded_Plugins[p]] );
+
       except
         on E : Exception do
-        begin
-          messagedlg( Format(STR_24, [Loaded_Plugins[p],E.Message]), mtError, [mbOK], 0 );
-        end;
+          MessageDlg(Format(STR_24, [Loaded_Plugins[p],E.Message]), mtError, [mbOK], 0 );
       end;
+
     finally
       Loaded_Plugins.Objects[p].Free;
       Loaded_Plugins.Delete( p );
@@ -673,6 +594,7 @@ begin
   end;
 
 end; // UnloadResidentPlugin
+
 
 initialization
   Resident_Plugin_Counter:=0;

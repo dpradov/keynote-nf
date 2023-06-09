@@ -18,10 +18,17 @@ unit gf_miscvcl;
 {$I gf_base.inc}
 
 interface
-uses Forms, Classes, SysUtils, Graphics,
-     Controls, FileCtrl, Dialogs,
-     Windows, StdCtrls,
-     ShellAPI, Messages;
+uses
+   Winapi.Windows,
+   Winapi.ShellAPI,
+   Winapi.Messages,
+   System.Classes,
+   System.SysUtils,
+   Vcl.Forms,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Dialogs,
+   Vcl.StdCtrls;
 
 
 Procedure PostKeyEx32( key: Word; Const shift: TShiftState;
@@ -35,7 +42,7 @@ function CheckDir( const aDir : string; const AutoCreate : boolean ) : boolean;
 procedure SleepWell( const TenthsOfSecond : cardinal );
 function VerdanaInstalled : boolean;
 function TahomaInstalled : boolean;
-function PopUpMessage( const mStr : wideString; const caption: wideString; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word; overload;
+function PopUpMessage( const mStr : string; const caption: string; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word; overload;
 Function DefMessageDlg(const aCaption: String;
                        const Msg: string;
                        DlgType: TMsgDlgType;
@@ -43,19 +50,11 @@ Function DefMessageDlg(const aCaption: String;
                        DefButton: Integer;
                        HelpCtx: Longint): Integer;
 
-function DoMessageBox (text: wideString; caption: wideString;
+function DoMessageBox (text: string; caption: string;
         DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
         HelpCtx: Longint = 0; hWnd: HWND= 0): integer; overload;
-function DoMessageBox (text: wideString; caption: wideString; uType: UINT= 0; hWnd: HWND= 0): integer; overload;
+function DoMessageBox (text: string; caption: string; uType: UINT= 0; hWnd: HWND= 0): integer; overload;
 
-type
-   TCanvasW = class(TCanvas)
-      public
-        procedure TextRectW(Rect: TRect; X, Y: Integer; const Text: wideString);
-        function TextExtentW(const Text: wideString): TSize;
-        function TextWidthW(const Text: wideString): Integer;
-        function TextHeightW(const Text: wideString): Integer;
-   end;
 
 function ScaleFromSmallFontsDimension(const X: Integer): Integer;
 
@@ -63,7 +62,7 @@ var
   _TahomaFontInstalled : boolean = false;
 
 implementation
-uses TntSysUtils;
+
 
 procedure SleepWell( const TenthsOfSecond : cardinal );
 var
@@ -137,7 +136,7 @@ begin
     end;
 end; // TahomaInstalled
 
-function PopUpMessage( const mStr : wideString; const caption: wideString; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word;
+function PopUpMessage( const mStr : string; const caption: string; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word;
 // Like MessageDlg, but brings application window to front before
 // displaying the message, and minimizes application if it was
 // minimized before the message was shown.
@@ -341,40 +340,6 @@ begin
 end; // CheckDir
 
 
-procedure TCanvasW.TextRectW(Rect: TRect; X, Y: Integer; const Text: wideString);
-var
-  Options: Longint;
-begin
-  Changing;
-  RequiredState([csHandleValid, csFontValid, csBrushValid]);
-  Options := ETO_CLIPPED or TextFlags;
-  if Brush.Style <> bsClear then
-    Options := Options or ETO_OPAQUE;
-  if ((TextFlags and ETO_RTLREADING) <> 0) and
-     (CanvasOrientation = coRightToLeft) then Inc(X, TextWidthW(Text) + 1);
-  Windows.ExtTextOutW(Handle, X, Y, Options, @Rect, PWideChar(Text),
-    Length(Text), nil);
-  Changed;
-end;
-
-function TCanvasW.TextExtentW(const Text: wideString): TSize;
-begin
-  RequiredState([csHandleValid, csFontValid]);
-  Result.cX := 0;
-  Result.cY := 0;
-  Windows.GetTextExtentPoint32W(Handle, PWideChar(Text), Length(Text), Result);
-end;
-
-function TCanvasW.TextWidthW(const Text: wideString): Integer;
-begin
-  Result := TextExtentW(Text).cX;
-end;
-
-function TCanvasW.TextHeightW(const Text: wideString): Integer;
-begin
-  Result := TextExtentW(Text).cY;
-end;
-
 const
   SmallFontsPixelsPerInch = 96;
 
@@ -405,8 +370,10 @@ end;
   MB_RETRYCANCEL = $00000005;
 
 }
+
+
 //http://msdn.microsoft.com/en-us/library/ms645505%28VS.85%29.aspx
-function DoMessageBox (text: wideString; caption: wideString;
+function DoMessageBox (text: string; caption: string;
         DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
         HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
 var
@@ -434,14 +401,14 @@ begin
 
     if hWnd = 0 then
        hWnd:= Application.MainFormHandle;
-    Result:= MessageBoxW(hWnd, PWideChar(text), PWideChar(caption), uType);
+    Result:= MessageBox(hWnd, PChar(text), PChar(caption), uType);
 end;
 
-function DoMessageBox (text: wideString; caption: wideString; uType: UINT= 0; hWnd: HWND= 0): integer;
+function DoMessageBox (text: string; caption: string; uType: UINT= 0; hWnd: HWND= 0): integer;
 begin
     if hWnd = 0 then
        hWnd:= Application.MainFormHandle;
-    Result:= MessageBoxW(hWnd, PWideChar(text), PWideChar(caption), uType);
+    Result:= MessageBox(hWnd, PChar(text), PChar(caption), uType);
 end;
 
 end.

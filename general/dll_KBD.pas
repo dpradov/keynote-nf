@@ -18,11 +18,21 @@ unit dll_KBD;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ComCtrls, StdCtrls, Menus,
-  gf_strings,
-  dll_HotKey, ShellAPI,
-  dll_Keyboard;
+   Winapi.Windows,
+   Winapi.Messages,
+   Winapi.ShellAPI,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.ComCtrls,
+   Vcl.StdCtrls,
+   Vcl.Menus,
+   gf_strings,
+   dll_HotKey,
+   dll_Keyboard;
 
 type
   TForm_KBD = class(TForm)

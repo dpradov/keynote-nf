@@ -88,20 +88,22 @@ unit BrowseDr;
 interface
 
 uses
-  Windows, Dialogs,
-  {$IFDEF DFS_COMPILER_3_UP}
-  ActiveX,
-  {$ELSE}
-  OLE2,
-  {$ENDIF}
-  {$IFDEF DFS_USEDEFSHLOBJ}
-  ShlObj, { Delphi 3 fixes all of 2.01's bugs! }
-  {$ELSE}
+   Winapi.Windows,
+   Vcl.Dialogs,
+   {$IFDEF DFS_COMPILER_3_UP}
+   Winapi.ActiveX,
+   {$ELSE}
+   OLE2,
+   {$ENDIF}
+   {$IFDEF DFS_USEDEFSHLOBJ}
+   ShlObj { Delphi 3 fixes all of 2.01's bugs! },
+   {$ELSE}
   // If you get a compiler error here, read the included SHELLFIX.TXT file for
   // instructions on creating MyShlObj.pas.
-  MyShlObj,
-{$ENDIF}
-  Controls, Classes;
+   MyShlObj,
+   {$ENDIF}
+   System.Classes,
+   Vcl.Controls;
 
 const
   { This shuts up C++Builder 3 about the redefiniton being different. There
@@ -671,7 +673,10 @@ function DirExists(const Dir: string): boolean;
 implementation
 
 uses
-  Forms, SysUtils, Messages, ShellAPI;
+   Winapi.Messages,
+   Winapi.ShellAPI,
+   System.SysUtils,
+   Vcl.Forms;
 
 // Utility functions used to convert from Delphi set types to API constants.
 function ConvertRoot(Root: TRootID): integer;

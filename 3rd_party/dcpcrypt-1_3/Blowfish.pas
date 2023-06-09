@@ -9,7 +9,11 @@ unit Blowfish;
 interface
 {$I DCPcrypt.inc}
 uses
-  {$IFDEF CFORM}Classes, Sysutils, {$ENDIF}DCPcrypt;
+   {$IFDEF CFORM}
+   System.Classes,
+   System.SysUtils,
+   {$ENDIF}
+   DCPcrypt;
 
 {$IFDEF CFORM}
 type

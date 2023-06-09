@@ -19,19 +19,30 @@ unit kn_ImagePicker;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  kn_Info, kn_Chest, StdCtrls, cmpGFXListBox,
-  ExtCtrls, Placemnt, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   cmpGFXListBox,
+   RxPlacemnt,
+   kn_Info,
+   kn_Chest;
+
 
 type
   TForm_ImgPick = class(TForm)
     Panel1: TPanel;
     Panel2: TPanel;
-    Button_Cancel: TTntButton;
-    Button_OK: TTntButton;
+    Button_Cancel: TButton;
+    Button_OK: TButton;
     List_Icn: TGFXListBox;
-    CB_Children: TTntCheckBox;
+    CB_Children: TCheckBox;
     FormPlacement: TFormPlacement;
     procedure FormCreate(Sender: TObject);
     procedure List_IcnDblClick(Sender: TObject);

@@ -15,7 +15,10 @@ interface
 {$I TB97Ver.inc}
 
 uses
-  Windows, Classes, Messages, Controls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Classes,
+   Vcl.Controls;
 
 type
   THookProcCode = (hpSendActivateApp, hpSendWindowPosChanged, hpPreDestroy,
@@ -57,7 +60,7 @@ function CopyPalette (Palette: HPALETTE): HPALETTE;
 implementation
 
 uses
-  Forms;
+   Vcl.Forms;
 
 type
   PHookProcData = ^THookProcData;

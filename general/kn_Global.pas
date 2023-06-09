@@ -1,42 +1,70 @@
-unit kn_Global;
+﻿unit kn_Global;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 {.$DEFINE MJ_DEBUG}
 
 interface
 uses
-  Windows, SysUtils, Dialogs,
-  TreeNT, RxRichEd,
-  gf_files,  gf_strings,
-  kn_Cmd,
-  kn_Info,
-  kn_NoteObj, kn_FileObj,kn_NodeList,
-  kn_FindReplace,
-  kn_Chars,
-  kn_Macro,
-  kn_LocationObj,
-  kn_Main,
-  RichPrint,
-  {$IFDEF MJ_DEBUG}
-  GFLog,
-  {$ENDIF}
-  kn_AlertMng,
-  UWebBrowserWrapper;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Classes,
+   System.SysUtils,
+   Vcl.Graphics,
+   Vcl.Forms,
+   Vcl.Menus,
+   Vcl.Controls,
+   Vcl.Dialogs,
+
+   TreeNT,
+   RxRichEd,
+   UWebBrowserWrapper,
+   RichPrint,
+   TB97,
+
+   gf_misc,
+   gf_files,
+   gf_strings,
+   kn_const,
+   kn_Info,
+   kn_ini,
+   kn_Cmd,
+   kn_msgs,
+   kn_ConfigMng,
+   kn_NoteObj,
+   kn_FileObj,
+   kn_fileMgr,
+   kn_NodeList,
+   kn_StyleObj,
+   kn_FindReplace,
+   kn_Chars,
+   kn_Chest,
+   kn_Macro,
+   kn_plugins,
+   kn_LocationObj,
+   kn_NoteFileMng,
+   kn_MacroMng,
+   kn_AlertMng,
+   kn_VCLControlsMng,
+   kn_Main
+   {$IFDEF MJ_DEBUG}
+   ,GFLog
+   {$ENDIF}
+   ;
 
 
 const
@@ -47,24 +75,13 @@ const
    procedure LoadRicheditLibrary;
    procedure AddSearchModes;
 
-type
-  WideException = class(Exception)
-  private
-    FWideMessage: WideString;
-    function GetMessage: WideString;
-    procedure SetMessage(value: WideString);
-  public
-    constructor Create(const Msg: WideString);
-    property Message: WideString read GetMessage write SetMessage;
-  end;
-
-  procedure CommunicateException(E: Exception; DlgType: TMsgDlgType= mtWarning; Buttons: TMsgDlgButtons = [mbOK]);
-  function GetMessage(E: Exception): wideString;
 
 var
 
     NoteFile : TNoteFile; // main data structure
     ActiveNote : TTabNote; // the note that is currently visible (can be nil)
+
+    RichEditLibraryPath : string;
 
      //======================================= FILES
     INI_FN : string; // main keynote.ini file (alternate filename may be given on command line)
@@ -82,6 +99,7 @@ var
     Keyboard_FN : string; // keyboard customization file (NEW - all menu items)
     OrigDEF_FN : string;
     MailINI_FN : string; // INI file for email options (keymail.ini)
+    Glossary_FN : string;
 
     //================================================== OPTIONS
     { These options are seperate from KeyOptions, because then
@@ -115,8 +133,8 @@ var
     LastExportFilterIndex : integer;
 
     //================================================== COMMAND LINE
-    NoteFileToLoad : wideString; // name of KNT file we are supposed to open (options + commandline + passed from other instance, etc)
-    CmdLineFileName : wideString; // other filename passed on command line (macro, plugin, etc)
+    NoteFileToLoad : string; // name of KNT file we are supposed to open (options + commandline + passed from other instance, etc)
+    CmdLineFileName : string; // other filename passed on command line (macro, plugin, etc)
 
 
     //================================================== KEYBOARD / HOTKEY
@@ -187,7 +205,7 @@ var
 
     //================================================== VARIOS
 
-    _GLOBAL_URLText : wideString;
+    _GLOBAL_URLText : string;
     _IS_FAKING_MOUSECLICK : boolean;
     _Global_Location : TLocation;
     _REOPEN_AUTOCLOSED_FILE : boolean;
@@ -219,50 +237,12 @@ var
 ////////////////////////////////////////////////////////////////////////////////
 
 implementation
-uses Classes, Messages, Graphics, Forms, Menus, Controls,
-     TB97, TntSysUtils,  //RxRichEd,
-     gf_misc, gf_miscvcl,
-     kn_const, kn_msgs, kn_ini, kn_ExpandObj, kn_plugins, kn_fileMgr,
-     kn_StyleObj, kn_Chest,
-     kn_ConfigMng, kn_MacroMng, kn_FindReplaceMng,
-     kn_TemplateMng, kn_StyleMng, kn_NoteFileMng, kn_VCLControlsMng;
+uses
+   kn_FindReplaceMng,
+   kn_TemplateMng,
+   kn_StyleMng,
+   kn_Glossary;
 
-
-//-----------------
-constructor WideException.Create(const Msg: wideString);
-begin
-  SetMessage(Msg);
-end;
-
-function WideException.GetMessage: WideString;
-begin
-  if FWideMessage <> '' then
-     Result:= FWideMessage
-  else
-     Result:= inherited Message;
-end;
-
-procedure WideException.SetMessage(value: WideString);
-begin
-    FWideMessage:= value;
-    inherited Message:= value;
-end;
-
-procedure CommunicateException(E: Exception; DlgType: TMsgDlgType= mtWarning; Buttons: TMsgDlgButtons = [mbOK]);
-begin
-  if E is WideException then
-     DoMessageBox( WideException(E).Message, DlgType, Buttons )
-  else
-     DoMessageBox( E.Message, DlgType, Buttons );
-end;
-
-function GetMessage(E: Exception): wideString;
-begin
-  if E is WideException then
-     Result:= WideException(E).Message
-  else
-     Result:= E.Message;
-end;
 
 
 //-----------------
@@ -295,6 +275,8 @@ begin
   NumberingStart:= 1;
 
   with Form_Main do begin
+      SBGlyph:= TPicture.Create;
+
       {$IFDEF WITH_TIMER}
       TickList := TStringList.Create;
       LastTick := AppStartTime;
@@ -755,16 +737,10 @@ begin
       StoreTick( 'End stylemgr - Begin glossary', GetTickCount );
       {$ENDIF}
 
-      try
-        if ( not opt_NoReadOpt ) then
-          LoadGlossaryInfo( Glossary_FN );
-      except
-        On E : Exception do
-        begin
-          showmessage( 'Error loading Glossary list: ' + E.Message );
-          GlossaryList := nil;
-        end;
-      end;
+
+      if ( not opt_NoReadOpt ) then
+         kn_Glossary.LoadGlossaryInfo;
+
 
       {$IFDEF WITH_TIMER}
       StoreTick( 'End glossary - Begin FileOpen', GetTickCount );
@@ -778,7 +754,7 @@ begin
           // after installation. Since no .KNT file was specified, let's show
           // the sample file which is part of the distribution.
           NoteFileToLoad := NormalFN( extractfilepath( Application.ExeName ) + SampleFileName );
-          if ( not Widefileexists( NoteFileToLoad )) then
+          if ( not FileExists( NoteFileToLoad )) then
             NoteFileToLoad := '';
         end;
       end
@@ -803,7 +779,7 @@ begin
 
       if ( NoteFileToLoad <> '' ) then
       begin
-        NoteFileToLoad:= GetAbsolutePath(WideExtractFilePath(Application.ExeName), NoteFileToLoad);
+        NoteFileToLoad:= GetAbsolutePath(ExtractFilePath(Application.ExeName), NoteFileToLoad);
 
         if ( NoteFileOpen( NoteFileToLoad ) <> 0 ) then
         begin
@@ -839,10 +815,11 @@ begin
 
 end; // CREATE
 
+
+// Called from keynote.dpr, after call InitializeOptions (also in kn_Global)
 procedure LoadRicheditLibrary;
 begin
-    LoadRichEditDLL;
-    _LoadedRichEditVersion := RichEditVersion; // from RxRichEdit
+    _LoadedRichEditVersion:= LoadRichEditDLL(RichEditLibraryPath);
 end;
 
 // We want to read LanguageUI before creating Form_Main

@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{5BFA9E33-7EFB-4B08-9944-90292209EC2F}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
+      <Projects Name="RtmRxCtl100.bpl">RtmRxCtl100.bdsproj</Projects>
+      <Projects Name="DclRxCtl100.bpl">DclRxCtl100.bdsproj</Projects>
+      <Projects Name="RtmRxDB100.bpl">RtmRxDB100.bdsproj</Projects>
+      <Projects Name="DclRxDB100.bpl">DclRxDB100.bdsproj</Projects>
+      <Projects Name="RtmRxBde100.bpl">RtmRxBde100.bdsproj</Projects>
+      <Projects Name="DclRxBde100.bpl">DclRxBde100.bdsproj</Projects>
+      <Projects Name="Targets">RtmRxCtl100.bpl DclRxCtl100.bpl RtmRxDB100.bpl DclRxDB100.bpl RtmRxBde100.bpl DclRxBde100.bpl</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>

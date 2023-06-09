@@ -17,13 +17,13 @@ PROGRAM CRC32Demo;
   (C) Copyright 1989, 1996, 1999, Earl F. Glynn, Overland Park, KS.
   All Rights Reserved.}
 
-  USES
-{$IFNDEF WIN32}
-    WinCRT,    {Delphi 1 only}
-{$ENDIF}
-    Windows,   // DWORD
-    CRC32,     {CalcCRC32, CalcFileCRC32}
-    SysUtils;  {IntToHex, pByteArray}
+  uses
+   {$IFNDEF WIN32}
+   WinCRT {Delphi 1 only},
+   {$ENDIF}
+   Winapi.Windows,   // DWORD
+   System.SysUtils,
+   CRC32 {CalcCRC32, CalcFileCRC32};  {IntToHex, pByteArray}
 
   CONST
     BufferSize = 16384;

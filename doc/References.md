@@ -21,8 +21,9 @@
   The repository in Google Code was exported to GitHub on 23/08/2015.
 
 * Download old version **KeyNote 1.6.5**:  
-  It is available in [SourceForge](https://sourceforge.net/projects/keynote/files/latest/download)  
-  There is also a 1.6.9 executable created for Marek, in his [Tranglos site](http://www.tranglos.com/free/keynote.html)
+  It is available in [SourceForge](https://sourceforge.net/projects/keynote/files/latest/download) and  
+  also in [GitHub](https://github.com/dpradov/keynote-nf/tree/master/3rd_party/_Keynote_1.6.5)
+  There was also a 1.6.9 executable (source code was not available) created for Marek, in his [Tranglos site](http://web.archive.org/web/20111015020842/http://www.tranglos.com/free/keynote.html)
 
 * **Documentation and Help about KeyNote NF**:  
   Currently there is not an updated nor completed document or page that includes all the
@@ -32,8 +33,8 @@
   next versions in the following resources:
   
      * **http://www.tranglos.com/free/keynote.html**  
-      It is the original site of KeyNote. It includes many information, as Introduction, Features, FAQ, etc.  
-      Is is also possible to download the original [KeyNote 1.6.5](http://www.tranglos.com/free/keynote.html) 
+      It was the original site of KeyNote. It included many information, as Introduction, Features, FAQ, etc.  
+      Is was also possible to download the original [KeyNote 1.6.5](http://web.archive.org/web/20111015020842/http://www.tranglos.com/free/keynote.html) 
 
      * **Keynote.chm**  
        Help file of KeyNote (initially in .HLP and now converted to .CHM)  
@@ -49,7 +50,9 @@
       _"This file was created of my need to keep all the KeyNote related files at one spot."_  
       - KN_Help.knt: KeyNote Help file in KNT format  (based on updated help files, edited and reformatted by John Biederman,
 	  who also added a few new sections)  
-	  See also [KeyNote Add-ons](http://www.tranglos.com/free/keynote_addons.html)  
+      Available in [KeyNote NF in GitHub](https://github.com/dpradov/keynote-nf/tree/master/doc/Help)
+	  See also [KeyNote Add-ons](http://web.archive.org/web/20171030063640/http://www.tranglos.com/free/keynote_addons.html)  
+      and [Plugins development](https://github.com/dpradov/keynote-nf/tree/master/plugins/plugins_development)
    
      * **history.txt**  
        File that contains detailed information about all KeyNote features added (and bugs corrected) since the 

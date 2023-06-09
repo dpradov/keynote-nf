@@ -1,3 +1,14 @@
+- - - - -
+NOTES:
+* IDEA (International Data Encryption Algorithm) (https://en.wikipedia.org/wiki/International_Data_Encryption_Algorithm) :
+  The cipher was designed under a research contract with the Hasler Foundation, which became part of Ascom-Tech AG. The cipher was patented in a number 
+  of countries but was freely available for non-commercial use. The name "IDEA" is also a trademark. The last patents expired in 2012, and IDEA is now 
+  patent-free and thus completely free for all uses.[2]
+  (https://worldwide.espacenet.com/patent/search/family/004216333/publication/EP0482154A1?q=pn%3DEP0482154)
+
+* At least, from version 1.6.5, the implementation of IDEA in KeyNote was using a MaxKeySize=256 and a BlockSize=128
+  This values were shared with Blowfish implementation.
+- - - - -
 
                                DCPcrypt v1.3
                                      -                              

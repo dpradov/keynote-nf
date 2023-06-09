@@ -23,7 +23,12 @@ Function  FiletypeIsRegistered( Const extension, filetype: String ) : Boolean;
 
 Implementation
 
-Uses Windows, Classes, SysUtils, gf_strings, Registry;
+uses
+   Winapi.Windows,
+   System.Win.Registry,
+   System.Classes,
+   System.SysUtils,
+   gf_strings;
 
 ResourceString
   msgECannotCreateKeyF =
@@ -241,10 +246,10 @@ Boolean;
           keystring := Format( '%s\shell\open\command',[filetype] );
           if reg.OpenKey( keystring, false ) Then Begin
             { Command key exists, but is this app the server? }
-            keystring := UpperCase( reg.ReadString(''));
+            keystring := AnsiUpperCase( reg.ReadString(''));
             reg.CloseKey;
             // [MJ] server string may be enclosed in quotes
-            regstrpos := Pos( UpperCase(ParamStr(0)), keystring );
+            regstrpos := Pos( AnsiUpperCase(ParamStr(0)), keystring );
             if (( regstrpos = 1 ) or ( regstrpos = 2 )) then
             begin
               { Yes, server matches! }

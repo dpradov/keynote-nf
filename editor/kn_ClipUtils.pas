@@ -1,59 +1,67 @@
 unit kn_ClipUtils;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
-uses Windows, Dialogs, Classes, SysUtils, clipbrd;
+uses
+   Winapi.Windows,
+   Winapi.RichEdit,
+   System.Classes,
+   System.StrUtils,
+   System.SysUtils,
+   Vcl.Dialogs,
+   Vcl.Clipbrd ,
+   CRC32,
+   gf_strings;
 
 const
   CFHtml : word = 0;
 
+
 type
-   TClipBoardW= class(TClipboard)
-      private
-        function GetAsTextW: wideString;
-        procedure SetAsTextW(const Value: wideString);
-        function GetAsRTF: string;
-        procedure SetAsRTF(const Value: string);
-        function GetAsHTML: string;
-      public
-        property AsTextW: wideString read GetAsTextW write SetAsTextW;
-        property AsRTF: string read GetAsRTF write SetAsRTF;
-        property AsHTML: string read GetAsHTML;
+   TClipboardHelper = class helper for TClipboard
+     private
+       function RetryGetClipboardData(const ClipbrdContent: integer): THandle;
+     protected
+       function GetAsRTF: AnsiString;
+       procedure SetAsRTF(const Value: AnsiString);
+       function GetAsHTML: AnsiString;
+     public
+       function TryAsText: string;
+       property AsRTF: AnsiString read GetAsRTF write SetAsRTF;
+       property AsHTML: AnsiString read GetAsHTML;
+       function GetTitleFromHTML (const HTMLClipboard: AnsiString): string;
+       function GetURLFromHTML (const HTMLClipboard: AnsiString): string;
+       procedure TrimMetadataFromHTML (var HTMLClipboard: AnsiString);
+       function ToStream (Fmt : Word; Stm : TStream ) : boolean;
+       function HasRTFformat: boolean;
+       function HasHTMLformat: boolean;
+       function TryGetFirstLine(const MaxLen : integer): string;
    end;
 
-function Clipboard: TClipBoardW;
 
-function ClipboardAsString : string;
-function ClipboardAsStringW : WideString;
-function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
+  function TestCRCForDuplicates(ClpStr: string; UpdateLastCalculated: boolean = true): boolean;
 
-
-function ClipboardHasHTMLformat : boolean;
-function ClipboardHasRTFformat : boolean;
-function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
-function GetURLFromHTMLClipboard (const HTMLClipboard: string): string;
-function GetTitleFromHTMLClipboard (const HTMLClipboard: string): string;
-procedure TrimMetadataFromHTMLClipboard (var HTMLClipboard: string);
-function TestCRCForDuplicates(ClpStr: WideString; UpdateLastCalculated: boolean = true): boolean;
 
 implementation
-uses StrUtils, WideStrings, CRC32, gf_strings, RichEdit,
-     kn_global;
+
+uses
+   kn_global;
+
 
 resourcestring
   STR_28 = 'CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message: ';
@@ -68,7 +76,19 @@ type
   );
 
 
-function RetryGetClipboardData(const ClipbrdContent: integer): THandle;
+function TClipboardHelper.HasHTMLformat: boolean;
+begin
+   result := (CFHtml <> 0) and Clipboard.HasFormat( CFHtml );
+end;
+
+function TClipboardHelper.HasRTFformat: boolean;
+begin
+   result := (CFRtf <> 0) and Clipboard.HasFormat( CFRtf );
+end;
+
+
+
+function TClipboardHelper.RetryGetClipboardData(const ClipbrdContent: integer): THandle;
 var
   RetryCount: integer;
 begin
@@ -88,21 +108,11 @@ begin
       Inc(RetryCount);
       if RetryCount < 6 then Sleep(RetryCount * 100);
     end;
-end;
+end;  // RetryGetClipboardData
 
 
-function ClipboardHasHTMLformat : boolean;
-begin
-  result := ( CFHtml <> 0 ) and Clipboard.HasFormat( CFHtml );
-end; // ClipboardHasHTMLformat
 
-function ClipboardHasRTFformat : boolean;
-begin
-  result := ( CFRtf <> 0 ) and Clipboard.HasFormat( CFRtf );
-end; // ClipboardHasRTFformat
-
-
-function ClipboardToStream( Fmt : word; Stm : TStream ) : boolean;
+function TClipboardHelper.ToStream( Fmt : Word; Stm : TStream ) : boolean;
 // code by Peter Below (modified DPV)
 var
   hMem: THandle;
@@ -124,7 +134,7 @@ begin
 end; // ClipboardToStream
 
 
-function GetURLFromHTMLClipboard (const HTMLClipboard: string): string;
+function TClipboardHelper.GetURLFromHTML (const HTMLClipboard: AnsiString): string;
 const
   HTML_FMT_SRCURL  = 'SourceURL:';
   l = length(HTML_FMT_SRCURL);
@@ -145,7 +155,7 @@ begin
 end; // GetURLFromHTMLClipboard
 
 
-function GetTitleFromHTMLClipboard (const HTMLClipboard: string): string;
+function TClipboardHelper.GetTitleFromHTML (const HTMLClipboard: AnsiString): string;
 const
   TITLE  = '<TITLE>';
   l = length(TITLE);
@@ -163,7 +173,7 @@ begin
 end; // GetURLFromHTMLClipboard
 
 
-procedure TrimMetadataFromHTMLClipboard (var HTMLClipboard: string);
+procedure TClipboardHelper.TrimMetadataFromHTML (var HTMLClipboard: AnsiString);
 var
   p : integer;
 begin
@@ -177,33 +187,11 @@ begin
 end;
 
 
-function ClipboardAsString : string;
-begin
-  if ( Clipboard.HasFormat( CF_TEXT )) then
-    result := Clipboard.AsText
-  else
-    result := '';
-end; // ClipboardAsString
-
-function ClipboardAsStringW : WideString;
-begin
-  if ( Clipboard.HasFormat( CF_TEXT )) then
-    result := Clipboard.AsTextW
-  else
-    result := '';
-end; // ClipboardAsStringW
-
-function FirstLineFromClipboard( const MaxLen : integer ) : WideString;
-begin
-  Result:= FirstLineFromString(trimleft( ClipboardAsStringW ), MaxLen);
-end; // FirstLineFromClipboard
-
-
 {
 Calculates CRC on ClpStr and compare it with last calculated CRC, returning true if it is equal
 Last calculated CRC (ClipCapCRC32) is then updated (if 'UpdateLastCalculated' = true)
 }
-function TestCRCForDuplicates(ClpStr: WideString; UpdateLastCalculated: boolean = true): boolean;
+function TestCRCForDuplicates(ClpStr: String; UpdateLastCalculated: boolean = true): boolean;
 var
    thisClipCRC32: DWORD;
 begin
@@ -229,69 +217,57 @@ begin
 end;
 
 
-var
-  FClipboardW: TClipboardW;
 
-function Clipboard: TClipboardW;
+procedure TClipboardHelper.SetAsRTF(const Value: AnsiString);
 begin
-  if FClipboardW = nil then
-     FClipboardW := TClipboardW.Create;
-  Result := FClipboardW;
+  SetBuffer(CFRtf, PAnsiChar(Value)^, Length(Value) + 1);
 end;
 
-
-function TClipboardW.GetAsTextW: WideString;
-var
-   Data: THandle;
-begin
-   Data:= RetryGetClipboardData(CF_UNICODETEXT);
-   if Data <> 0 then begin
-      Result := PWideChar(GlobalLock(Data));
-      GlobalUnLock(Data)
-   end
-   else
-      Result:= '';
-end;
-
-procedure TClipboardW.SetAsTextW(const Value: wideString);
-begin
-  SetBuffer(CF_UNICODETEXT, PWideChar(Value)^, 2*Length(Value) + 2);
-end;
-
-procedure TClipboardW.SetAsRTF(const Value: string);
-begin
-  SetBuffer(CFRtf, PChar(Value)^, Length(Value) + 1);
-end;
-
-function TClipboardW.GetAsRTF: string;
+function TClipboardHelper.GetAsRTF: AnsiString;
 var
    Data: THandle;
 begin
    Data:= RetryGetClipboardData(CFRtf);
    if Data <> 0 then begin
-      Result := PChar(GlobalLock(Data));
+      Result := PAnsiChar(GlobalLock(Data));
       GlobalUnLock(Data)
    end
    else
       Result:= '';
 end;
 
-function TClipboardW.GetAsHTML: string;
+function TClipboardHelper.GetAsHTML: AnsiString;
 var
    Data: THandle;
 begin
    Data:= RetryGetClipboardData(CFHtml);
    if Data <> 0 then begin
-      Result := PChar(GlobalLock(Data));
+      Result := PAnsiChar(GlobalLock(Data));
       GlobalUnLock(Data)
    end
    else
       Result:= '';
 end;
+
+
+function TClipboardHelper.TryGetFirstLine(const MaxLen : integer): string;
+begin
+    Result:= FirstLineFromString(TrimLeft(TryAsText), MaxLen);
+end;
+
+function TClipboardHelper.TryAsText: string;
+begin
+  if Clipboard.HasFormat (CF_TEXT) then
+      result := Clipboard.AsText
+  else
+      result := '';
+end;
+
 
 
 Initialization
 
   CFHtml := RegisterClipboardFormat('HTML Format');
   CFRtf  := RegisterClipboardFormat(CF_RTF);
+
 end.

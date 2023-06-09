@@ -4,8 +4,8 @@ object Form_Para: TForm_Para
   ActiveControl = RB_Align
   BorderStyle = bsDialog
   Caption = 'Paragraph properties'
-  ClientHeight = 270
-  ClientWidth = 417
+  ClientHeight = 269
+  ClientWidth = 413
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,15 +13,13 @@ object Form_Para: TForm_Para
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
-  object Button_OK: TTntButton
+  object Button_OK: TButton
     Left = 135
     Top = 236
     Width = 75
@@ -33,7 +31,7 @@ object Form_Para: TForm_Para
     TabOrder = 3
     OnClick = Button_OKClick
   end
-  object Button_Cancel: TTntButton
+  object Button_Cancel: TButton
     Left = 231
     Top = 236
     Width = 75
@@ -43,7 +41,7 @@ object Form_Para: TForm_Para
     ModalResult = 2
     TabOrder = 4
   end
-  object GroupBox1: TTntGroupBox
+  object GroupBox1: TGroupBox
     Left = 4
     Top = 113
     Width = 244
@@ -51,7 +49,7 @@ object Form_Para: TForm_Para
     Caption = ' Spacing '
     TabOrder = 1
     OnClick = GroupBox1Click
-    object Label4: TTntLabel
+    object Label4: TLabel
       Left = 13
       Top = 20
       Width = 62
@@ -59,7 +57,7 @@ object Form_Para: TForm_Para
       Caption = 'Line &spacing:'
       FocusControl = Combo_Spc
     end
-    object Label5: TTntLabel
+    object Label5: TLabel
       Left = 13
       Top = 80
       Width = 61
@@ -67,7 +65,7 @@ object Form_Para: TForm_Para
       Caption = 'S&pace After:'
       FocusControl = Spin_SpcAft
     end
-    object Label6: TTntLabel
+    object Label6: TLabel
       Left = 13
       Top = 50
       Width = 68
@@ -75,13 +73,12 @@ object Form_Para: TForm_Para
       Caption = 'Space B&efore:'
       FocusControl = Spin_SpcBef
     end
-    object Combo_Spc: TTntComboBox
+    object Combo_Spc: TComboBox
       Left = 106
       Top = 15
       Width = 119
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
       TabOrder = 0
       Items.Strings = (
         'Single'
@@ -126,14 +123,14 @@ object Form_Para: TForm_Para
       'Full')
     TabOrder = 0
   end
-  object GroupBox2: TTntGroupBox
+  object GroupBox2: TGroupBox
     Left = 4
     Top = 50
     Width = 408
     Height = 57
     Caption = ' Indent '
     TabOrder = 2
-    object Label3: TTntLabel
+    object Label3: TLabel
       Left = 124
       Top = 24
       Width = 82
@@ -143,7 +140,7 @@ object Form_Para: TForm_Para
       Caption = '&Right:'
       FocusControl = Spin_Right
     end
-    object Label2: TTntLabel
+    object Label2: TLabel
       Left = 7
       Top = 24
       Width = 60
@@ -153,7 +150,7 @@ object Form_Para: TForm_Para
       Caption = '&Left:'
       FocusControl = Spin_Left
     end
-    object Label1: TTntLabel
+    object Label1: TLabel
       Left = 263
       Top = 24
       Width = 82
@@ -197,7 +194,7 @@ object Form_Para: TForm_Para
       OnChange = Spin_SpcBefChange
     end
   end
-  object GroupBox3: TTntGroupBox
+  object GroupBox3: TGroupBox
     Left = 254
     Top = 113
     Width = 159
@@ -205,7 +202,7 @@ object Form_Para: TForm_Para
     Caption = ' List '
     TabOrder = 5
     OnClick = GroupBox1Click
-    object CB_Bullets: TTntCheckBox
+    object CB_Bullets: TCheckBox
       Left = 13
       Top = 42
       Width = 140
@@ -214,7 +211,7 @@ object Form_Para: TForm_Para
       TabOrder = 0
       OnClick = CB_BulletsClick
     end
-    object CB_Numbers: TTntCheckBox
+    object CB_Numbers: TCheckBox
       Left = 13
       Top = 19
       Width = 140

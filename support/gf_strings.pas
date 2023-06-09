@@ -1,25 +1,29 @@
 unit gf_strings;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 {$I gf_base.inc}
 
 interface
-uses SysUtils, Windows, Classes,
-     TntClasses, WideStrUtils, WideStrings;
+uses
+   Winapi.Windows,
+   System.SysUtils,
+   System.Classes,
+   System.WideStrUtils;
+
 
 type
   TCaseCycle = (
@@ -33,9 +37,7 @@ procedure DelimTextToStrs(
   const Value: string;
   const AchDelim : Char );
 
-procedure DelimTextToWStrs( AStrs: TTntStrings;
-         const Value: WideString ;
-         const AchDelim : WideChar );
+
 
 function StrToCSVText( const aStr : string; const aDelim : char; const QuoteAll : boolean ) : string;
 procedure CSVTextToStrs(
@@ -46,8 +48,8 @@ procedure CSVTextToStrs(
 procedure SplitString( aList : TStrings; aStr : string; const aDelim : char );
 
 function CountChars( const ch : char; const s : string ) : integer;
-procedure CharToChar( var s : wideString; const oldchar, newchar : char );
-function RemoveAccelChar( const s : wideString ) : wideString;
+procedure CharToChar( var s : string; const oldchar, newchar : char );
+function RemoveAccelChar( const s : string ) : string;
 procedure CollapseSpaces( var s : string );
 function TrimPunct( s : string ) : string;
 
@@ -59,16 +61,16 @@ function MatchMask(source, pattern: String): Boolean;
 procedure StripControlChars( var s : string );
 function GetWordChars : string;
 
-function ExpandMetaChars( line : wideString ) : wideString;
+function ExpandMetaChars( line : string ) : string;
 function GetIndentOfLine (const S: string): integer;
 
-function TryUTF8ToWideString(const s: string): wideString;
-function CanSaveAsANSI(const cadW: WideString): boolean;
+function TryUTF8ToUnicodeString(const s: RawByteString): string;
+function CanSaveAsANSI(const cad: string): boolean;
 
-function FirstLineFromString( const str: WideString; const MaxLen : integer ) : WideString;
+function FirstLineFromString( const str: string; const MaxLen : integer ) : string;
 
 implementation
-uses gf_misc, TntSystem;
+
 
 function GetLetterCase( const aStr : string ) : TCaseCycle;
 const
@@ -106,11 +108,11 @@ begin
 
 end; // GetLetterCase
 
-function ExpandMetaChars( line : wideString ) : wideString;
+function ExpandMetaChars( line : string ) : string;
 var
   i, linelen : integer;
   wasmeta : boolean;
-  ch : wideChar;
+  ch : Char;
 begin
   result := '';
 
@@ -203,7 +205,7 @@ var
 begin
   while ( s <> '' ) do
   begin
-    if IsCharAlphaNumericA( s[1] ) then
+    if IsCharAlphaNumeric( s[1] ) then
       break
     else
       delete( s, 1, 1 );
@@ -211,7 +213,7 @@ begin
   slen := length( s );
   while ( slen > 0 ) do
   begin
-    if IsCharAlphaNumericA( s[slen] ) then
+    if IsCharAlphaNumeric( s[slen] ) then
       break
     else
     begin
@@ -263,7 +265,6 @@ begin
     result := '"' + result + '"';
 
 end; // StrToCSVText
-
 
 procedure CSVTextToStrs(
   aList : TStrings;
@@ -361,6 +362,7 @@ begin
 
 end; // CSVTextToStrs
 
+
 procedure SplitString( aList : TStrings; aStr : string; const aDelim : char );
 var
   p : integer;
@@ -382,6 +384,7 @@ begin
   if ( aStr <> '' ) then
     aList.Add( aStr );
 end; // SplitString
+
 
 procedure DelimTextToStrs( AStrs: TStrings;
          const Value: string ;
@@ -431,52 +434,6 @@ begin
 end; // DelimTextToStrs
 
 
-procedure DelimTextToWStrs( AStrs: TTntStrings;
-         const Value: WideString ;
-         const AchDelim : WideChar );
-var
-  P, P1   : PWideChar;
-  S   : WideString;
-  chDelim   : WideChar ;
-begin
-  chDelim := AchDelim ;
-  AStrs.BeginUpdate;
-  try
-  // AStrs.Clear;
-  P := PWideChar(Value);
-
-  while P^ in [#1..' '] do
-    P := CharNextW(P);
-
-  while P^ <> #0 do
-   begin
-     if ( P^ = '"' ) then
-     S := WideExtractQuotedStr(P, '"')
-     else
-     begin
-      P1 := P;
-      while (P^ > ' ') and ( P^ <> chDelim ) do
-      P := CharNextW(P);
-
-      SetString(S, P1, P - P1);
-     end;
-
-     AStrs.Add(S);
-
-     while P^ in [#1..' '] do
-     P := CharNextW(P);
-
-     if P^ = chDelim then // P^ = ',' then
-    repeat
-     P := CharNextW(P);
-    until not (P^ in [#1..' ']);
-
-   end;  // while
-
-  finally
-    AStrs.EndUpdate;
-  end;
-end; // DelimTextToStrsUnicode
 
 
 function CountChars( const ch : char; const s : string ) : integer;
@@ -488,7 +445,7 @@ begin
     if s[i] = ch then inc( result );
 end; // CountChars
 
-procedure CharToChar( var s : wideString; const oldchar, newchar : char );
+procedure CharToChar( var s : String; const oldchar, newchar : char );
 var
   p : integer;
 begin
@@ -496,12 +453,12 @@ begin
   p := pos( oldchar, s );
   while ( p > 0 ) do
   begin
-    s[p] := wideChar(newchar);
+    s[p] := Char(newchar);
     p := pos( oldchar, s );
   end;
 end; // CharToChar
 
-function RemoveAccelChar( const s : widestring ) : wideString;
+function RemoveAccelChar( const s : string ) : string;
 var
   p : integer;
 begin
@@ -645,7 +602,7 @@ begin
   for i := 33 to 255 do
   begin
     ch := chr( i );
-    if IsCharAlphaA( ch ) then
+    if IsCharAlpha( ch ) then
       result := result + ch;
   end;
 end; // GetWordChars
@@ -660,27 +617,35 @@ begin
       Inc( Result );
 end;
 
-function TryUTF8ToWideString(const s: string): wideString;
+function TryUTF8ToUnicodeString(const s: RawByteString): string;
 begin
-     Result:= UTF8ToWideString(s);
-     if Result= '' then
-        Result:= s;
+    if s = '' then begin
+      Result:= '';
+      exit;
+    end;
+
+    if IsUTF8String(s) then
+       Result := UTF8ToUnicodeString(s)
+    else
+       Result:= s;
 end;
 
-function CanSaveAsANSI(const cadW: WideString): boolean;
+
+function CanSaveAsANSI(const cad: string): boolean;
 var
-   i: integer;
+   ch: Char;
 begin
-    for i:= 1 to length(cadW) do
-      if cadW[i] <> WideChar(Char(cadW[i])) then begin
-         Result:= false;
-         exit;
-         end;
-    Result:= true;
+  for ch in cad do
+    if Ord (ch) >= 256 then begin
+       Result:= false;
+       exit;
+     end;
+
+   Result:= true;
 end;
 
 
-function FirstLineFromString( const str: WideString; const MaxLen : integer ) : WideString;
+function FirstLineFromString( const str: string; const MaxLen : integer ) : string;
 var
   i, l, max, lineBreakAt : integer;
 begin

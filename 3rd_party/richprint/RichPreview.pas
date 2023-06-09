@@ -3,8 +3,24 @@ unit RichPreview;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, Richprint,Buttons, StdCtrls, arrowbtn,ComCtrls, Printers, Mask,ZLib,Registry;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.Win.Registry,
+   System.SysUtils,
+   System.Classes,
+   System.ZLib,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.ExtCtrls,
+   Vcl.Buttons,
+   Vcl.StdCtrls,
+   Vcl.ComCtrls,
+   Vcl.Printers,
+   Vcl.Mask,
+   Richprint,
+   arrowbtn;
 
 const
   BufferSize = 4096;
@@ -95,7 +111,8 @@ implementation
 
 {$R *.DFM}
 
-uses RichPreview2;
+uses
+   RichPreview2;
 
 procedure TRichPreviewForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var I: Integer;

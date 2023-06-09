@@ -1,0 +1,41 @@
+{*******************************************************}
+{                                                       }
+{         Delphi VCL Extensions (RX)                    }
+{                                                       }
+{         Copyright (c) 1998 Master-Bank                }
+{                                                       }
+{ Added by Polaris Software                             }
+{*******************************************************}
+
+package RtmRxBDE240;
+
+{$R *.res}
+{$DESCRIPTION 'RX Library BDE DB Component Package'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  vcldb,
+  vclimg,
+  bdertl,
+  dsnap,
+  RtmRxCtl240,
+  RtmRxDB240,
+  dsnapcon;
+
+contains
+  RxDBQBE in '..\RxDBQBE.pas',
+  RxDBFilter in '..\RxDBFilter.pas',
+  RxDBLists in '..\RxDBLists.pas',
+  RxDBIndex in '..\RxDBIndex.pas',
+  RxDBPrgrss in '..\RxDBPrgrss.pas',
+  RxLoginDlg in '..\RxLoginDlg.pas',
+  RxDBSecur in '..\RxDBSecur.pas',
+  RxRemLog in '..\RxRemLog.pas',
+  RxChPswDlg in '..\RxChPswDlg.pas',
+  RxBdeUtils in '..\RxBdeUtils.pas',
+  RxQuery in '..\RxQuery.pas',
+  RxMemTable in '..\RxMemTable.pas',
+  RxDBExcpt in '..\RxDBExcpt.pas';
+
+end.

@@ -7,8 +7,8 @@ unit kn_MacroCmdSelect;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
@@ -19,25 +19,33 @@ unit kn_MacroCmdSelect;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, gf_misc, gf_strings,
-  kn_Const, kn_Info, kn_Macro, kn_MacroCmd, TntStdCtrls;
+   Winapi.Windows,
+   Winapi.Messages,
+   System.SysUtils,
+   System.Classes,
+   Vcl.Graphics,
+   Vcl.Controls,
+   Vcl.Forms,
+   Vcl.Dialogs,
+   Vcl.StdCtrls,
+   Vcl.ExtCtrls,
+   kn_MacroCmd;
+
 
 type
   TForm_MacroCmd = class(TForm)
     GroupBox1: TGroupBox;
-    Label1: TTntLabel;
-    Label2: TTntLabel;
-    Combo_Cmd: TTntComboBox;
-    Edit_Params: TTntEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Combo_Cmd: TComboBox;
+    Edit_Params: TEdit;
     Panel_Help: TPanel;
-    Button_OK: TTntButton;
-    Button_Cancel: TTntButton;
-    LB_Help: TTntLabel;
-    Label3: TTntLabel;
-    LB_Syntax: TTntLabel;
-    Button_Help: TTntButton;
+    Button_OK: TButton;
+    Button_Cancel: TButton;
+    LB_Help: TLabel;
+    Label3: TLabel;
+    LB_Syntax: TLabel;
+    Button_Help: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
