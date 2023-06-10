@@ -4153,13 +4153,16 @@ end; // WMChangeCBChain
 procedure TForm_Main.WMDrawClipboard(var Msg: TWMDrawClipboard);
 var
   ClpStr : string;
-  thisClipCRC32 : DWORD;
 
 begin
   SendMessage( ClipCapNextInChain, WM_DRAWCLIPBOARD, 0, 0 );
   Msg.Result := 0;
 
   if ( _IS_CAPTURING_CLIPBOARD or _IS_CHAINING_CLIPBOARD ) then exit;
+
+  {*1 We need to calc CRC32 even if ClipOptions.TestDupClips=False, because it will be used for several other things,
+     but here, depending on that configuration (TestDupClips="Ignore duplicate clips") we will consider or not to paste the text }
+
 
   _IS_CAPTURING_CLIPBOARD:= True;
   try
@@ -4169,7 +4172,7 @@ begin
             (( not ClipOptions.IgnoreSelf ) and // explicitly configured to capture from self...
             ( not ( NoteFile.ClipCapNote = ActiveNote )))) then begin // but never capture text copied from the note that is being used for capture
                ClpStr := Clipboard.TryAsText;
-               if (ClpStr <> '') and not TestCRCForDuplicates(ClpStr) then
+               if (ClpStr <> '') and (not TestCRCForDuplicates(ClpStr) or (not ClipOptions.TestDupClips)) then     // *1
                   PasteOnClipCap(ClpStr);
          end;
       end;
