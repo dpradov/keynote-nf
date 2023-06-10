@@ -106,10 +106,7 @@ type
     CheckBox_UseOldColorDlg: TCheckBox;
     CheckBox_RunAutoMacros: TCheckBox;
     CheckBox_SafePrint: TCheckBox;
-    GroupBox6: TGroupBox;
-    Label_MaxSize: TLabel;
-    Label7: TLabel;
-    Combo_Size: TComboBox;
+    Group_ClipboardCapture: TGroupBox;
     Combo_Divider: TComboBox;
     CB_IgnoreSelf: TCheckBox;
     CB_AsText: TCheckBox;
@@ -250,7 +247,6 @@ type
     CB_TimerCloseDialogs: TCheckBox;
     CB_TimerCloseAutoReopen: TCheckBox;
     CB_SwitchIcon: TCheckBox;
-    CB_SourceURL: TCheckBox;
     GroupBox24: TGroupBox;
     RB_URLSystemBrowser: TRadioButton;
     RB_URLAltBrowser: TRadioButton;
@@ -260,13 +256,18 @@ type
     TB_OpenDlgUserFile: TToolbarButton97;
     TB_OpenDlgURLAltBrowserPath: TToolbarButton97;
     TB_OpenDlgBakDir: TToolbarButton97;
-    Label_PlainTextMode: TLabel;
-    Combo_PlainTextMode: TComboBox;
-    Combo_WCDivider: TComboBox;
-    TntLabel1: TLabel;
-    TntLabel2: TLabel;
-    CB_PlainDefaultPaste: TCheckBox;
     CB_BackupRegularIntervals: TCheckBox;
+    Label7: TLabel;
+    Label_MaxSize: TLabel;
+    Label_PlainTextMode: TLabel;
+    Combo_Size: TComboBox;
+    Combo_PlainTextMode: TComboBox;
+    Group_WebClip: TGroupBox;
+    Label19: TLabel;
+    Combo_WCDivider: TComboBox;
+    CB_PlainDefaultPaste: TCheckBox;
+    BitBtn_TknHlp2: TBitBtn;
+    CB_SourceURL: TCheckBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -524,6 +525,7 @@ begin
   Button_ICNDelete.OnClick := Button_ICNDeleteClick;
   Button_ICNReset.OnClick := Button_ICNResetClick;
   BitBtn_TknHlp.OnClick := BitBtn_TknHlpClick;
+  BitBtn_TknHlp2.OnClick := BitBtn_TknHlpClick;
   Combo_Size.OnKeyPress := Combo_SizeKeyPress;
 
   TV.Selected := TV.Items[0];
