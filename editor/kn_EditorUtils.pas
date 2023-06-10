@@ -1597,7 +1597,7 @@ begin
                 if not ClipOptions.PasteAsText and not Note.PlainText then
                    TryPasteRTF(Editor, HTMLClipboard)
                 else
-                   PerformCmdPastePlain(Note, ClpStr, HTMLClipboard);
+                   PerformCmdPastePlain(Note, ClpStr, HTMLClipboard, false, ClipOptions.MaxSize);
 
               end;
 

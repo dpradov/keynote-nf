@@ -101,7 +101,9 @@ var
     // edit commands
     procedure PerformCmd( aCmd : TEditCmd );
     procedure PerformCmdEx( aCmd : TEditCmd );
-    procedure PerformCmdPastePlain( Note: TTabNote; StrClp: string = ''; HTMLClip: AnsiString= ''; ForcePlainText: boolean = false);
+    procedure PerformCmdPastePlain( Note: TTabNote; StrClp: string = ''; HTMLClip: AnsiString= '';
+                                    ForcePlainText: boolean = false;
+                                    MaxSize: integer = 0 );
     procedure RepeatLastCommand;
     procedure UpdateLastCommand( const aCMD : TEditCmd );
     procedure PerformCustomFuncKey( const Key : Word; const Shift : TShiftState ); // OBSOLETE
@@ -1767,7 +1769,8 @@ end; // PerformCmdEx
 
 procedure PerformCmdPastePlain( Note: TTabNote;
                                 StrClp: string = ''; HTMLClip: AnsiString= '';
-                                ForcePlainText: boolean = false);
+                                ForcePlainText: boolean = false;
+                                MaxSize: integer = 0 );
 var
    Editor: TTabRichEdit;
    i, j: integer;
@@ -1844,7 +1847,7 @@ begin
        if StrClp = '' then
           StrClp:= Clipboard.TryAsText;
 
-       if (( ClipOptions.MaxSize > 0 ) and ( length( StrClp ) > ClipOptions.MaxSize )) then
+       if (( MaxSize > 0 ) and ( length( StrClp ) > MaxSize )) then
           delete( StrClp, succ( ClipOptions.MaxSize ), length( StrClp ));
 
 
