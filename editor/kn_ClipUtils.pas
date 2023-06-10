@@ -199,7 +199,7 @@ begin
 
    if ( ClpStr <> '' ) then begin
       try
-        CalcCRC32( addr( ClpStr[1] ), length( ClpStr ), thisClipCRC32 );
+        CalcCRC32( addr(ClpStr[1]), length(ClpStr) * SizeOf(Char), thisClipCRC32 );
       except
         on E : Exception do begin
           messagedlg( STR_28 + E.Message, mtError, [mbOK], 0 );
