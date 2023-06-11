@@ -1,7 +1,7 @@
 unit kn_TreeNoteMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -30,7 +30,9 @@ uses
    Vcl.Graphics,
    Vcl.Clipbrd,
    TreeNT,
+   RxRichEd,
    gf_strings,
+   gf_streams,
    gf_miscvcl,
    gf_misc,
    kn_Info,
@@ -2007,6 +2009,7 @@ var
   tNote : TTreeNote;
   VirtualNodesConverted : integer;
   movingNoteNode, TransferedNoteNode : TTreeNTNode;
+  RTFAux : TRxRichEdit;
 
   function CountVisibleTransferNodes: integer;
   var
@@ -2020,6 +2023,23 @@ var
           if assigned(TransferedNoteNode) and not TransferedNoteNode.Hidden then
              Result:= Result+1;
       end;
+  end;
+
+  procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat);
+  var
+     Encoding: TEncoding;
+  begin
+      Encoding:= nil;
+      RTFAux:= GetAuxEditorControl;
+      RTFAux.StreamFormat:= FromFormat;
+      RTFAux.Lines.LoadFromStream( Stream );
+      RTFAux.StreamFormat := ToFormat;
+
+      if (ToFormat = sfPlainText) and (not CanSaveAsANSI(RTFAux.Text)) then
+         Encoding:= TEncoding.UTF8;
+
+      Stream.Clear;
+      RTFAux.Lines.SaveToStream(Stream, Encoding);
   end;
 
 begin
@@ -2143,6 +2163,19 @@ begin
                 if not (PasteAsVirtualKNTNode and TransferedNoteNode.Hidden) then begin
                     newNoteNode := TNoteNode.Create;
                     newNoteNode.Assign( TransferNodes[i] );
+
+                    // As indicated in comment *1 in FileDropped (kn_NoteFileMng), we must check if it is neccesary to ensure that
+                    // the new node's stream is loaded with RTF and not plain text.
+                    if (not tNote.PlainText) and (not NodeStreamIsRTF (newNoteNode.Stream)) then
+                        ConvertStreamContent(newNoteNode.Stream, sfPlainText, sfRichText)
+                    else
+                    if (tNote.PlainText) and (NodeStreamIsRTF (newNoteNode.Stream)) then
+                        // This case is not as problematic as the other, but if the new node were not modified, it would save
+                        // its RTF content in a plain manner. Example:
+                        // ;{{\rtf1\fbidis\ ....
+                        // ;\par...
+                        ConvertStreamContent(newNoteNode.Stream, sfRichText, sfPlainText);
+
                     if MovingSubtree then
                        AlarmManager.MoveAlarms(NoteFile.GetNoteByID(CopyCutFromNoteID), TransferNodes[i],  tNote, newNoteNode);
 
@@ -2203,7 +2236,7 @@ begin
                               if MovingSubtree then begin
                                  movingNoteNode:= TransferedNoteNode;
                                  if assigned(movingNoteNode) then
-                                     NoteFile.ManageMirrorNodes(1, movingNoteNode, newTreeNode); 
+                                     NoteFile.ManageMirrorNodes(1, movingNoteNode, newTreeNode);
                               end
                           end;
                     end;
@@ -2234,6 +2267,7 @@ begin
             tNote.TV.Items.EndUpdate;
             tNote.TV.Selected := myTreeNode;
             TreeNodeSelected( myTreeNode );
+            FreeAuxEditorControl(nil,false,true);
             // myTreeNode.Expand( true );
             if ( VirtualNodesConverted > 0 ) then
             begin
