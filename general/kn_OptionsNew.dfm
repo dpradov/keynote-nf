@@ -932,8 +932,13 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 58
           Width = 287
           Height = 17
-          Hint = 'Save file when KeyNote loses focus'
-          Caption = '&When you switch to another application'
+          Hint = 
+            'Save file when KeyNote loses focus'#13#10#13#10'This option is not recomme' +
+            'nded in normal situations, specially in big files.'#13#10#13#10'It is bett' +
+            'er to autosave every X minutes '#13#10'AND to set the option "Backup a' +
+            't regular intervals" (highly recommended) '#13#10'and "Backup original' +
+            ' file when saving changes"'
+          Caption = '&When you switch to another application (*)'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -941,6 +946,8 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           ParentFont = False
           TabOrder = 1
+          StyleElements = [seClient, seBorder]
+          OnClick = CheckBox_AutoSaveOnFocusClick
         end
         object CheckBox_AutoSaveOnTimer: TCheckBox
           Left = 37
@@ -1403,9 +1410,10 @@ object Form_OptionsNew: TForm_OptionsNew
           Width = 311
           Height = 17
           Hint = 
-            'Create copies of the file montly, weekly and daily. Montly copie' +
-            's will not be deleted nor replaced by KN'
-          Caption = '&Backup at regular intervals'
+            'Create copies of the file daily, weekly and montly. '#13#10'Montly cop' +
+            'ies will not be deleted nor replaced by KN'#13#10#13#10'* Highly recommend' +
+            'ed'
+          Caption = '&Backup at regular intervals (*)'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlue
           Font.Height = -11
@@ -1413,6 +1421,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           ParentFont = False
           TabOrder = 0
+          StyleElements = [seClient, seBorder]
         end
       end
     end
@@ -2776,12 +2785,13 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 91
           Caption = '  When capturing into a tree note :'
           Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
+          Font.Color = clNavy
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
           TabOrder = 5
+          StyleElements = [seClient, seBorder]
           object LB_ClipNodeNaming: TLabel
             Left = 48
             Top = 63

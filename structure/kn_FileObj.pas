@@ -208,8 +208,6 @@ resourcestring
   STR_12 = 'Error: Filename not specified.';
   STR_13 = 'Error while saving note "%s": %s';
   STR_14 = 'Cannot save: Passphrase not set';
-  STR_15 = 'Failed to create output file "%s" (Error: %d)' + #13#13 + 'Temporary savefile "%s" contains file data.';
-  STR_16 = 'Failed to create output file "%s" (Error: %d)' + #13#13 + 'Temporary file "%s" contains saved data.';
   STR_17 = 'Stream size error: Encrypted file is invalid or corrupt.';
   STR_18 = 'Invalid passphrase: Cannot open encrypted file.';
 
@@ -1002,7 +1000,24 @@ begin
 end; // Load
 
 
-function TNoteFile.Save( FN : string ) : integer;
+{FN:   Where to create and save the file.
+       - Can be a temporal file. For safety, we will write data to a temp file, and only overwrite
+         the actual keynote file after the save process is complete. This will be done by the caller
+         (NoteFileSave, in kn_NoteFileMng))
+       - Can be a file selected as a copy (File -> Copy To...)
+
+       In both cases, the actual keynote file won't be modified (in the first one, at least here, in this
+       TNoteFile.Save method)
+
+       (FN can't be ''. When the user clicks on Save As.., NoteFileSave, will ask for a new
+       filename, that must be passed here, in FN)
+
+      Also, in both cases, when saving the .knt file, although it may be a copy to another directory,
+      modified virtual file nodes will be saved too. So, it is important that, if the virtual
+      files nodes must be backed (if it applies, based on configuration), it is done.
+      The assingment of _VNKeyNoteFileName ensures it (must be done by the caller)
+}
+function TNoteFile.Save(FN: string ) : integer;
 var
   i : integer;
   Stream : TFileStream;
@@ -1010,7 +1025,7 @@ var
   ds : AnsiString;
   tf : TTextFile;
   AuxStream : TMemoryStream;
-  tempDirectory, tempFN : string;
+
 
   procedure WriteNoteFile;
   var
@@ -1089,19 +1104,6 @@ var
     result := 0;
   end;
 
-  procedure RenameTempFile;
-  var
-     Str: string;
-  begin
-     if not MoveFileExW_n (tempFN, FN, 5) then begin
-        if _OSIsWindowsNT then
-           Str:= STR_15
-        else
-           Str:= STR_16;
-        raise EKeyNoteFileError.CreateFmt(Str, [FN, GetLastError, tempFN]);
-     end;
-  end;
-
 begin
   result := -1; // error before saving file
   Stream := nil;
@@ -1114,14 +1116,6 @@ begin
 {$ENDIF}
 
   if ( FN = '' ) then
-    FN := FFileName;
-
-  _VNKeyNoteFileName := FN;
-  {$I-}
-  ChDir( extractfilepath( _VNKeyNoteFileName )); // virtual node relative paths depend on it
-  {$I+}
-
-  if ( FN = '' ) then
     raise EKeyNoteFileError.Create( STR_12 );
 
   {
@@ -1129,11 +1123,6 @@ begin
     raise EKeyNoteFileError.Create( 'Error: PageCtrl not assigned.' );
   }
 
-  // get a random temp file name. For safety, we will write data
-  // to the temp file, and only overwrite the actual keynote file
-  // after the save process is complete.
-  tempDirectory:= GetTempDirectory;
-  tempFN := tempDirectory + RandomFileName(tempDirectory, ext_Temp, 8);
 
   result := 2; // error writing to file
   try
@@ -1151,12 +1140,11 @@ begin
         nffKeyNote : begin
 
           tf:= TTextFile.Create();
-          tf.assignfile(tempFN );
+          tf.assignfile(FN );
           tf.rewrite();
 
           try
             WriteNoteFile;
-            Modified := false;
           finally
             tf.closefile();
           end;
@@ -1165,7 +1153,7 @@ begin
         nffKeyNoteZip : begin
 
           AuxStream := TMemoryStream.Create;
-          Stream := TFileStream.Create( tempFN, ( fmCreate or fmShareExclusive ));
+          Stream := TFileStream.Create( FN, ( fmCreate or fmShareExclusive ));
           try
             Stream.WriteBuffer(FVersion, sizeof(FVersion));
             Stream.WriteBuffer(FCompressionLevel, sizeof(FCompressionLevel));
@@ -1175,7 +1163,6 @@ begin
               tf.assignstream( AuxStream );
               tf.rewrite;
               WriteNoteFile;
-              Modified := false;
             finally
               tf.closefile();
             end;
@@ -1202,12 +1189,11 @@ begin
 
             try
               WriteNoteFile;
-              Modified := false;
             finally
               tf.closefile();
             end;
 
-            EncryptFileInStream( tempFN, AuxStream );
+            EncryptFileInStream( FN, AuxStream );
 
           finally
             AuxStream.Free;
@@ -1217,7 +1203,7 @@ begin
 
 {$IFDEF WITH_DART}
         nffDartNotes : begin
-          Stream := TFileStream.Create( tempFN, ( fmCreate or fmShareExclusive ));
+          Stream := TFileStream.Create( FN, ( fmCreate or fmShareExclusive ));
           try
             ds := _DART_ID + _DART_STOP +
                   _DART_VER + _DART_STOP + _DART_VEROK +
@@ -1246,7 +1232,6 @@ begin
             end;
 
             result := 0;
-            Modified := false;
           finally
             Stream.Free;
           end;
@@ -1254,10 +1239,6 @@ begin
 {$ENDIF}
 
       end; // CASE
-
-
-      // Now rename the temp file to the actual KeyNote file name
-      RenameTempFile;
 
     except
       raise;

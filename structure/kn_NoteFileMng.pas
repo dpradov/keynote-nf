@@ -140,12 +140,18 @@ resourcestring
                                      'OK to save the file in Dart Notes format? If you answer NO, the file will be saved as a %s file.';
   STR_19 = ' Saving ';
   STR_20 = 'Specified backup directory "%s" does not exist. Backup files will be created in the original file''s directory.';
-  STR_21 = 'Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?';
+  STR_21 = 'Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?'+ #13#13 +' (Note: File was temporary saved in %s)';
   STR_22 = ' File saved.';
   STR_23 = ' Error %d while saving file.';
-  STR_24 = 'Error %d occurred while saving file "%s". The file is probably damaged. ';
-  STR_25 = 'You should be able to restore data from the backup file "%s". ';
-  STR_26 = 'The Auto-Save option was turned OFF, to prevent KeyNote from automatically saving the damaged file.';
+
+  STR_InfSaving = '* NOTE:' +  #13 +
+                  '  - The .knt file in disk must not have been modified from last correct save.'  + #13 +
+                  '  - You should have multiple backup files in the folder %s, specially if you selected the option "Backup at regular intervals" (highly recommended)';
+  STR_24 = 'Error %d occurred while saving to a temporal folder (%s). The contents of the file in memory are perhaps partially corrupted.'  + #13#13 +
+            '-> Please, retry, and if you can''nt save to a .knt file, try to recover the nodes/notes with unsaved changes using, for example, File -> Export...'  + #13#13#13;
+  STR_25 = 'Failed to create output file "%s" (Error: %d)' + #13 + 'File was temporary saved in %s' + #13#13#13 ;
+  STR_26 = 'The Auto-Save option was turned OFF, to prevent KeyNote from automatically saving the (perhaps) damaged file.';
+
   STR_27 = ' ERROR saving file';
   STR_28 = 'Saving "';
   STR_29 = 'Folder monitoring has been disabled due to the following error: ';
@@ -631,14 +637,6 @@ var
   FirstSaveInDay: Boolean;
 
 begin
-   // if file has tree notes with virtual nodes, they should be backed up as well.
-   // We use ugly global vars to pass backup options:
-
-   _VNDoBackup     := KeyOptions.Backup and KeyOptions.BackupVNodes;
-   _VNBackupExt    := KeyOptions.BackupExt;
-   _VNBackupAddExt := KeyOptions.BackupAppendExt;
-   _VNBackupDir    := KeyOptions.BackupDir;
-
 
    // Check if backup must be done
    //--------------------
@@ -826,6 +824,18 @@ var
   SUCCESS: LongBool;
   i, LastError: Integer;
   myNote: TTabNote;
+  tempDirectory, tempFN : string;
+
+  procedure RenameTempFile;
+  var
+     Str: string;
+  begin
+     if not MoveFileExW_n (tempFN, FN, 5) then begin
+        Str:= STR_25 + STR_InfSaving;
+        raise EKeyNoteFileError.CreateFmt(Str, [FN, GetLastError, tempFN, KeyOptions.BackupDir]);
+     end;
+  end;
+
 
 begin
   with Form_Main do begin
@@ -867,7 +877,7 @@ begin
             end;
          end;
 
-         if FN = '' then begin
+         if FN = '' then begin                                     // Save with a new name (Save As...)
            with SaveDlg do begin
               case NoteFile.FileFormat of
 {$IFDEF WITH_DART}
@@ -878,10 +888,14 @@ begin
                   Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
               end;
               FilterIndex := 1;
-              if NoteFile.FileName <> '' then
-                 FileName := NoteFile.FileName
-              else
+              if NoteFile.FileName <> '' then begin
+                 FileName  := ExtractFileName(NoteFile.FileName);
+                 InitialDir:= ExtractFilePath(NoteFile.FileName);
+              end
+              else begin
                  InitialDir := GetFolderPath(fpPersonal);
+                 FileName := '';
+              end;
            end;
 
            if SaveDlg.Execute then begin
@@ -904,7 +918,6 @@ begin
 {$ENDIF}
                  end;
               end;
-              NoteFile.FileName := FN;
 
 {$IFDEF WITH_DART}
               if (NoteFile.FileFormat = nffDartNotes) and KeyOptions.SaveDARTWarn then begin
@@ -924,16 +937,57 @@ begin
          StatusBar.Panels[PANEL_HINT].text := STR_19 + FN;
 
 
-         // BACKUP (before saving) of the file
-         if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
-            Result := -2;
-            if not SUCCESS then begin
-               if MessageDlg( Format(STR_21,
-                   [LastError, SysErrorMessage(LastError)] ),
-                   mtWarning, [mbYes,mbNo], 0) <> mrYes then
-                 Exit;
-            end;
-         end;
+         {
+          *1
+         To optimize the saving process in conjunction with making backup copies, if the currently saved file needs
+         to be kept as a backup, we will not make a copy of it, instead we will simply move it to the backup folder,
+         renaming it accordingly in the process.
+           But it is not interesting to do this before saving the file to its final location (FN), because the elapsed
+         time may be enough for programs that listen for changes to it (eg Dropbox, if we have our file in a
+         synchronized folder with this tool) detect the movement of the file and ask us if we want to delete the file...
+
+         E.g.: Dropbox can show a modal windose like this (translated from spanish):
+
+           Do you want to remove "....knt" from everyone's Dropbox account and all devices?
+           If you move this file to <backup folder>, it will stop being shared and will not be available in Dropbox on any other device
+           => Cancel / Move out of Dropbox
+
+           In the end, no matter what we do, we will most likely end up with multiple additional files, like
+           "<myfile> (1).knt", "<myfile> (2).knt", ....
+
+         To avoid this, we are going to perform the normal saving of the file first, but on another path and with a
+         temporary name (we will use the user's temp folder), and once the backup we have been doing before is finished
+         (and which will have considered the version of the existing file -- which continued to be there), we will move
+         the file saved with the temporary name to the final folder, and we will continue with the rest of the actions.
+         This way, the time during which the file "disappears" from the folder where Dropbox (e.g.) looks will be minimal
+         }
+
+
+         // Get a random temp file name. For safety, we will write data to the temp file, and only overwrite the actual keynote file
+         // after the save process is complete.
+         tempDirectory:= GetTempDirectory;
+         tempFN := tempDirectory + RandomFileName(tempDirectory, ext_Temp, 8);
+
+
+        // if file has tree notes with virtual nodes, they should be backed up as well.
+        // We use ugly global vars to pass backup options
+        // Note: virtual nodes files will be backed (if configured) during the process of saving
+        // each Note, while all the nodes are iterated.
+
+        _VNDoBackup     := KeyOptions.Backup and KeyOptions.BackupVNodes;
+        _VNBackupExt    := KeyOptions.BackupExt;
+        _VNBackupAddExt := KeyOptions.BackupAppendExt;
+        _VNBackupDir    := KeyOptions.BackupDir;
+
+
+        // Virtual node relative paths are calculated using as base directory the location of the .knt file
+        // and it can also be necessary to search this files using this relative path; so this chDir
+        // Each .knt file (copied or not) must have the relative paths of the virtual node files, updated according to their location.
+        _VNKeyNoteFileName := FN;
+        {$I-}
+        ChDir(ExtractFilePath( _VNKeyNoteFileName ));
+        {$I+}
+
 
 
          // Get (and reflect) the expanded state of all the tree nodes
@@ -948,11 +1002,24 @@ begin
          end;
 
 
-         // SAVE the file (and backup virtual nodes if it applies)
-         NoteFile.FileName := FN;
-         Result := NoteFile.Save(FN);
+         // SAVE the file (and backup virtual nodes if it applies), on a temporal location, before initiate DoBackup (see *1)
+         Result := NoteFile.Save(tempFN);
 
          if Result = 0 then begin
+            // BACKUP (using previous file, before this saving) of the file
+            if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
+               if not SUCCESS then begin
+                  if MessageDlg(Format(STR_21, [LastError, SysErrorMessage(LastError), tempFN]), mtWarning, [mbYes,mbNo], 0) <> mrYes then begin
+                    Result := -2;
+                    Exit;
+                  end;
+               end;
+            end;
+
+            RenameTempFile;                 // Now rename the temp file to the actual KeyNote file name
+            NoteFile.FileName := FN;
+            NoteFile.Modified:= False;      // Must be done here, not in TNotFile.Save, and of course, never before RenameTempFile
+
             StatusBar.Panels[PANEL_HINT].Text := STR_22;
             NoteFile.ReadOnly := False;    // We can do SaveAs from a Read-Only file (*)
                  { (*) In Windows XP is possible to select (with SaveDlg) the same file
@@ -964,10 +1031,7 @@ begin
          else begin
             // ERROR on save
             StatusBar.Panels[PANEL_HINT].Text := Format(STR_23, [Result] );
-            ErrStr := Format(STR_24, [Result, ExtractFilename(FN)] );
-
-            if bakFN <> '' then
-               ErrStr := ErrStr + Format(STR_25, [ExtractFilename(bakFN)] );
+            ErrStr := Format(STR_24 + STR_InfSaving, [Result, tempDirectory, KeyOptions.BackupDir] );
 
             if KeyOptions.AutoSave then begin
                KeyOptions.AutoSave := False;
@@ -1232,6 +1296,14 @@ begin
             StatusBar.Panels[PANEL_HINT].Text := STR_35;
 
 
+          // Virtual node relative paths are calculated using as base directory the location of the .knt file
+          // and it can also be necessary to search this files using this relative path; so this ChDir
+          // Each .knt file (copied or not) must have the relative paths of the virtual node files, updated according to their location.
+		  _VNKeyNoteFileName := newFN;
+		  {$I-}
+		  ChDir(ExtractFilePath( _VNKeyNoteFileName )); 
+		  {$I+}
+
           oldModified := NoteFile.Modified;
           screen.Cursor := crHourGlass;
           try
@@ -1260,7 +1332,7 @@ begin
               end;
             end;
           finally
-            NoteFile.FileName := currentFN;
+            NoteFile.FileName := currentFN;       // It shouldn't be necesary, because NoteFile.Save doesn't modify NoteFile.FileName
             NoteFile.Modified := oldModified;
             screen.Cursor := crDefault;
           end;

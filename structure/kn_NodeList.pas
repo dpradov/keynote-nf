@@ -350,7 +350,15 @@ begin
       end;
     end;
   finally
-    // FRelativeVirtualFN := ExtractRelativePath( _VNKeyNoteFileName, FVirtualFN );
+    // *1
+    // Commented because it is more convenient to set the relative virtual path when it is necessary, on saving
+    // the .knt file. This path will depend on the directory where the .knt is finally saved, and this can be vary,
+    // for example, if Save As.. or Copy To.. are used.
+    // When saving the .knt file, it will end up calling SaveVirtualFile, where FRelativeVirtualFN will be calculated.
+    // Also, will be determined on accesing to GetRelativeVirtualFN. In both cases, it is obtained with the help of
+    // _VNKeyNoteFileName, where is set the base path
+
+    // FRelativeVirtualFN := ExtractRelativePath( _VNKeyNoteFileName, FVirtualFN );  // *1
   end;
 end; // SetVirtualFN
 

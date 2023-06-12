@@ -311,6 +311,7 @@ type
     procedure RB_ClipTreeActiveClick(Sender: TObject);
     procedure CheckBox_TrackCaretPosClick(Sender: TObject);
     procedure CB_TrackWordCountClick(Sender: TObject);
+    procedure CheckBox_AutoSaveOnFocusClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -882,6 +883,8 @@ begin
     end;
     Combo_BakLevel.ItemIndex := pred( BackupLevel );
 
+    if CheckBox_AutoSaveOnFocus.Checked then
+       CheckBox_AutoSaveOnFocus.Font.Color:= clBlue;
 
     CheckBox_AutoPasteEval.Checked := AutoPasteEval;
     CheckBox_AutoPastePlugin.Checked := AutoPastePlugin;
@@ -1100,6 +1103,17 @@ begin
   CheckBox_AutoSaveOnTimer.Enabled := Checkbox_AutoSave.Checked;
   Spin_AutoSaveOnTimerInt.Enabled := ( Checkbox_AutoSave.Checked and CheckBox_AutoSaveOnTimer.Checked );
   Label_Minutes.Enabled := Checkbox_AutoSave.Checked;
+end;
+
+procedure TForm_OptionsNew.CheckBox_AutoSaveOnFocusClick(Sender: TObject);
+var
+   color: TColor;
+begin
+    if CheckBox_AutoSaveOnFocus.Checked then
+       color:= clBlue
+    else
+       color:= clWindowText;
+    CheckBox_AutoSaveOnFocus.Font.Color:= color;
 end;
 
 procedure TForm_OptionsNew.CheckBox_AutoSaveOnTimerClick(Sender: TObject);
