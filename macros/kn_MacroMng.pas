@@ -1979,7 +1979,7 @@ begin
 
           ecPaste :
             if not EditorOptions.PlainDefaultPaste or not Clipboard.HasFormat(CF_TEXT) then
-               ActiveNote.Editor.PasteIRichEditOLE(0)   // 0: use the best available format
+               PasteBestAvailableFormat(Activenote.Editor)
             else begin
                // We must paste as PlainText (considering also PlainTextMode) if text has been copied from outside KN
                // If text have been copied from inside KNT then CRC will correspond to the value calculated with last copy operation
@@ -2864,7 +2864,7 @@ begin
     if ( assigned( NoteFile ) and assigned( ActiveNote )) then
        if Form_Main.Res_RTF.Focused then begin
           executed:= true;
-          Form_Main.Res_RTF.PasteIRichEditOLE(0);
+          PasteBestAvailableFormat(Form_Main.Res_RTF);
        end
        else
        if ActiveNote.Editor.Focused then begin

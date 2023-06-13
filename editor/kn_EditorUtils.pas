@@ -96,8 +96,8 @@ uses
     procedure ConfigureUAS;
 
     // clipboard capture and paste
-    procedure TryPasteRTF(const Editor: TTabRichEdit; HTMLText: AnsiString='');
-    procedure TryOfferRTFinClipboard(const Editor: TTabRichEdit; HTMLText: AnsiString='');
+    procedure TryPasteRTF(const Editor: TRxRichEdit; HTMLText: AnsiString='');
+    procedure PasteBestAvailableFormat (const Editor: TRxRichEdit; TryOfferRTF: boolean= True);
     procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
     procedure SetClipCapState( const IsOn : boolean );
     procedure PasteOnClipCap (ClpStr: string);
@@ -897,7 +897,7 @@ begin
           try
             Pict.LoadFromFile(FileName);
             Clipboard.Assign(Pict);
-            Activenote.Editor.PasteIRichEditOLE(0);
+            PasteBestAvailableFormat(Activenote.Editor, false);
           finally
             Pict.Free;
             wasmodified := true;
@@ -1250,39 +1250,47 @@ end; // ConfigureUAS
 //=================================================================
 // TryPasteRTF
 //=================================================================
-procedure TryPasteRTF(const Editor: TTabRichEdit; HTMLText: AnsiString='');
+procedure TryPasteRTF(const Editor: TRxRichEdit; HTMLText: AnsiString='');
 var
-  PasteOK: boolean;
   RTFText: AnsiString;
 begin
-    PasteOK := false;
-    if _ConvertHTMLClipboardToRTF and (not Clipboard.HasRTFformat) and Clipboard.HasHTMLformat then begin
-       if HTMLText = '' then
-          HTMLText:= Clipboard.AsHTML;
-       Clipboard.TrimMetadataFromHTML(HTMLText);
-       if ConvertHTMLToRTF(HTMLText, RTFText) then begin
-          Editor.PutRtfText(RTFText, true);
-          PasteOK := True;
-       end
-    end;
-
-    if not PasteOK then
-       Editor.PasteIRichEditOLE(0);   // 0: use the best available format
+    RTFText:= Clipboard.TryOfferRTF(HTMLText);            // Can return '' if clipboard already contained RTF Format
+    if RTFText <> '' then
+        Editor.PutRtfText(RTFText, true)
+    else
+        PasteBestAvailableFormat(Editor, false);          // false: Not to try to offer RTF (Maybe it's already available)
 end;
 
+
 //=================================================================
-// TryOfferRTFinClipboard
+// PasteBestAvailableFormat
 //=================================================================
-procedure TryOfferRTFinClipboard(const Editor: TTabRichEdit; HTMLText: AnsiString='');
-var
-  RTFText: AnsiString;
+
+{ 13/06/2023:
+  So far KeyNote has been trying to offer RTF Format in the clipboard when we clicked
+  on Paste Special... if that format wasn't available yet and there was HTML format.
+  That conversion from HTML to RTF was also realized (if possible) when using Clipboard Capture
+  and Web Clip, because of the necessity to process the HTML in the clipboard.
+  Also, if we had selected the option 'Paste external as Plain text' then, when pasting,
+  that 'plain' was interpreted according with what was configured in 'Plain text mode', and
+  here, a conversion from HTML to RTF could be done.
+
+  So, if we just paste normal from a web page, without being selected 'Paste external as Plain text'
+  we might end up pasting completely plain text, while selecting 'Paste external as Plain text' we
+  might paste more or rich RTF (depending on 'Plain text mode') (...). Confusing.
+
+  The reason? Browsers (at least actual ones), when copying selected text to the clipboard
+  not include RTF Format.
+
+  Now, in most cases, when we paste, if there is a HTML format content but not RTF, KeyNote
+  will try to get RTF format from HTML (as we have been doing on Paste Special...)
+}
+
+procedure PasteBestAvailableFormat (const Editor: TRxRichEdit; TryOfferRTF: boolean= True);
 begin
-    if _ConvertHTMLClipboardToRTF and (not Clipboard.HasRTFformat) and Clipboard.HasHTMLformat then begin
-       if HTMLText = '' then
-          HTMLText:= Clipboard.AsHTML;
-       Clipboard.TrimMetadataFromHTML(HTMLText);
-       ConvertHTMLToRTF(HTMLText, RTFText)
-    end;
+    if TryOfferRTF then
+       Clipboard.TryOfferRTF();
+    Editor.PasteIRichEditOLE(0);
 end;
 
 

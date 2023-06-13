@@ -51,6 +51,7 @@ type
        function HasRTFformat: boolean;
        function HasHTMLformat: boolean;
        function TryGetFirstLine(const MaxLen : integer): string;
+       function TryOfferRTF (HTMLText: AnsiString=''): AnsiString;
    end;
 
 
@@ -60,7 +61,7 @@ type
 implementation
 
 uses
-   kn_global;
+   kn_global, kn_ExportImport;
 
 
 resourcestring
@@ -261,6 +262,20 @@ begin
       result := Clipboard.AsText
   else
       result := '';
+end;
+
+{ Try to convert the HTML received (or available in clipboard) to RTF
+ If conversion is possible, it will return RTF text, and also it will be available as RTF format in the clipboard }
+
+function TClipboardHelper.TryOfferRTF (HTMLText: AnsiString=''): AnsiString;
+begin
+    Result:= '';
+    if _ConvertHTMLClipboardToRTF and (not Clipboard.HasRTFformat) and Clipboard.HasHTMLformat then begin
+       if HTMLText = '' then
+          HTMLText:= Clipboard.AsHTML;
+       Clipboard.TrimMetadataFromHTML(HTMLText);
+       ConvertHTMLToRTF(HTMLText, Result)
+    end;
 end;
 
 

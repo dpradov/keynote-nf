@@ -5728,7 +5728,7 @@ begin
   if ( not assigned( ActiveNote )) then exit;
   if NoteIsReadOnly( ActiveNote, true ) then exit;
 
-  TryOfferRTFinClipboard(ActiveNote.Editor);
+  Clipboard.TryOfferRTF();
   if ActiveNote.Editor.PasteSpecialDialog then
   begin
     NoteFile.Modified := true;

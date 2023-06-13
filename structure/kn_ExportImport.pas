@@ -148,6 +148,9 @@ begin
 end; // ConvertRTFToHTML
 
 
+{ Converts HTML to RTF with the help of WebBrowser
+ If conversion is possible, it will return RTF text in the paremeter and also it will be available as
+ RTF format in the clipboard }
 function ConvertHTMLToRTF(HTMLText: string; var RTFText : AnsiString) : boolean;
 begin
   Result := false;

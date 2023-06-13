@@ -34,6 +34,7 @@ uses
     kn_VCLControlsMng,
     kn_Plugins,
     kn_PluginBase,
+    kn_EditorUtils,
     kn_Main;
 
 
@@ -497,7 +498,7 @@ begin
                          ActiveNote.ReadOnly := false;
                       try
                         if ( plReturnsClipboard in Plugin.Features ) then
-                           ActiveNote.Editor.PasteIRichEditOLE(0)
+                           PasteBestAvailableFormat (ActiveNote.Editor, false)
                         else
                         if ( plReturnsRTF in Plugin.Features ) then
                             ActiveNote.Editor.PutRtfText(s, true)
