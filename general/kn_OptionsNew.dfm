@@ -2893,8 +2893,8 @@ object Form_OptionsNew: TForm_OptionsNew
           Width = 136
           Height = 17
           Hint = 
-            'Insert clip source URL, with title if available  (only for Clipb' +
-            'oard Capture)'
+            'Insert clip source URL, with title (unless Divider includes toke' +
+            'n %U) '#13#10#13#10'* only affects Clipboard Capture'
           Caption = 'Include source &URL'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText

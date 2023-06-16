@@ -44,7 +44,7 @@ type
        function TryAsText: string;
        property AsRTF: AnsiString read GetAsRTF write SetAsRTF;
        property AsHTML: AnsiString read GetAsHTML;
-       function GetTitleFromHTML (const HTMLClipboard: AnsiString): string;
+       // function GetTitleFromHTML (const HTMLClipboard: AnsiString): string;
        function GetURLFromHTML (const HTMLClipboard: AnsiString): string;
        procedure TrimMetadataFromHTML (var HTMLClipboard: AnsiString);
        function ToStream (Fmt : Word; Stm : TStream ) : boolean;
@@ -155,7 +155,7 @@ begin
       Result:= '';
 end; // GetURLFromHTMLClipboard
 
-
+{  At the beginning some browsers included title on the clipboard, but currently it does not.
 function TClipboardHelper.GetTitleFromHTML (const HTMLClipboard: AnsiString): string;
 const
   TITLE  = '<TITLE>';
@@ -172,7 +172,7 @@ begin
         Result:= Copy( HTMLClipboard, p+l, pF-p-l);
    end;
 end; // GetURLFromHTMLClipboard
-
+}
 
 procedure TClipboardHelper.TrimMetadataFromHTML (var HTMLClipboard: AnsiString);
 var

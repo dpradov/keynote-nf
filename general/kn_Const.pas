@@ -276,12 +276,27 @@ const
   _ZOOM_MIN = 5;
 
 const
+  // *1  If source URL will not be shown, then it will also be ignored the text included between the enclosure delimiters.
+  //     It is possible to define several fragments enclosed with that delimiters.
+  //     More info in: 'Improvements on Clip Web and Clipboard Capture #532' (https://github.com/dpradov/keynote-nf/issues/532)
+  // *2  It will try to get the title for the URL with WebBrowser (offline, using cache), without time limit (6 seconds, for security..)
+  // *3  As *2, but trying only for a limited time (for now 2 seconds)
+
+  // Normally the title will be figured out in very short time, but in the event that the delay is annoying, it is possible to
+  // use %s instead of %S, to wait for 2 seconds as much. Or even, to use %U, to not try to get Title.
+  // Besides, KeyNote will cache the last URLs/Titles (20/10) to agilize the paste in case you need to paste several times,
+  // possibly intercalating from several pages
+
   // tokens for clipboard capture separator line
   CLIPDIVCHAR           = '^';  // replaced with 1 blank line
   CLIPDATECHAR          = NODEINSDATE; // inserts date
   CLIPTIMECHAR          = NODEINSTIME; // inserts time
-  CLIPSOURCEDELIMITER   = '%|';   // Optionally limit where the source is located
-  CLIPSOURCE            = '%S';   // insert Source
+  CLIPSOURCEDELIMITER   = '%|';   // Encloses source (optional)                    *1
+  CLIPSOURCE            = '%S';   // insert Source URL (with title)                *2
+  CLIPSOURCE_LIMITED    = '%s';   // insert source URL (with title, limited time)  *3
+  CLIPSOURCE_ONLY_URL   = '%U';   // insert source URL (without title)
+
+
 
 const
   // tokens for the MailOptions.FirstLine string

@@ -350,6 +350,8 @@ type
 
 
 implementation
+uses
+    kn_EditorUtils;
 
 {$R *.DFM}
 
@@ -369,12 +371,17 @@ resourcestring
   STR_12 = 'Failed to delete icon: ';
   STR_13 = 'OK to restore factory default icons?';
   STR_14 = 'Divider string can contain the following tokens:' +#13+
-    '(must be UPPERCASE)' +#13#13+
+    '(CASE SENSITIVE)' +#13#13+
      '%s = current date' +#13+
      '%s = current time' +#13+
      '%s = replaced with a blank line' +#13+
-     '%s = encloses source URL (optional)' +#13+
-     '%s = source URL (with title if available)';
+     '%s = encloses what to show only if source is included' +#13+
+     '%s = source URL (with title)' +#13+
+     '%s = source URL (with title, limited waiting time (*))' +#13+
+     '%s = source URL (without title)'  +#13#13+
+     '(*) If title is not figured out in less that 2 seconds (normally will be much faster) only URL will be used' +#13+
+     '    A small cache will be used for titles, so even certain delays will only apply to the first capture on a URL.'
+     ;
   STR_15 = 'The Auto-Close function will work ONLY if Auto-Save is turned ON, and if no dialog box is open at the time KeyNote tries to automatically close the file. (Auto-Save is currently DISABLED.)';
   STR_16 = 'Error in TVChange: PageIndex %d  Node.AbsIdx %d';
 
@@ -586,11 +593,20 @@ function TForm_OptionsNew.FormToClipCap : boolean;
             divider := CLIPDIVCHAR + CLIPDIVCHAR;
    end;
 
+
+var
+  Divider, WCDivider: string;
+
 begin
     result := true;
 
-    DividerComboToOption(Combo_Divider, myClipOpts.Divider);
-    DividerComboToOption(Combo_WCDivider, myClipOpts.WCDivider);
+    DividerComboToOption(Combo_Divider, Divider);
+    DividerComboToOption(Combo_WCDivider, WCDivider);
+    if (Divider <> myClipOpts.Divider) or (WCDivider <> myClipOpts.WCDivider) then
+       CleanCacheURLs (true);
+
+    myClipOpts.Divider  := Divider;
+    myClipOpts.WCDivider:= WCDivider;
 
     // myClipOpts.URLOnly := CheckBox_URLOnly.Checked;
     myClipOpts.IgnoreSelf := CB_IgnoreSelf.Checked;
@@ -1467,7 +1483,7 @@ end;
 
 procedure TForm_OptionsNew.BitBtn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR, CLIPSOURCEDELIMITER, CLIPSOURCE]),
+  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR, CLIPSOURCEDELIMITER, CLIPSOURCE, CLIPSOURCE_LIMITED, CLIPSOURCE_ONLY_URL]),
     mtInformation, [mbOK], 0
   );
 

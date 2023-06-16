@@ -1,4 +1,4 @@
-{
+﻿{
  * The code of this unit accompanies the article "How to load and save documents
  * in TWebBrowser in a Delphi-like way" which can be found at
  * http://www.delphidabbler.com/articles?article=14.
@@ -128,13 +128,19 @@ type
     {$ENDIF}
 
     procedure CopyAll;
+
+    function GetTitleFromURL(const URL: String; MaxTime: integer): String;    // [dpv]
   end;
+
+
 
 implementation
 
 uses
   // Delphi
-  StrUtils, Windows, ActiveX, Forms, MSHTML;
+  StrUtils, Windows, ActiveX, Forms, MSHTML,
+  gf_strings, System.Diagnostics;                             // [dpv]
+
 
 
 { Helper routines }
@@ -525,6 +531,147 @@ procedure TWebBrowserWrapper.CopyAll;
 begin
     WebBrowser.ExecWB( OLECMDID_SELECTALL, OLECMDEXECOPT_DODEFAULT );
     WebBrowser.ExecWB( OLECMDID_COPY,      OLECMDEXECOPT_DODEFAULT );
+end;
+
+
+
+{
+References to TWebBrowser:
+http://www.cryer.co.uk/brian/delphi/twebbrowser/twebbrowser_oleobject.htm
+http://www.cryer.co.uk/brian/delphi/twebbrowser/get_HTML.htm#FromTheBrowserCache
+
+https://www.contentkingapp.com/academy/title-tag/
+}
+
+// MaxTime: > 0: If we can't figure out the title in less than that time (in milliseconds), give up and return ''
+// Even if MaxTime = 0, a maximum of 6 seconds will be used, for security
+function TWebBrowserWrapper.GetTitleFromURL(const URL: String;  MaxTime: integer): String;                           // [dpv]
+var
+  Flags: OleVariant;
+  stream: TMemoryStream;
+  Buffer: array [0..10] of AnsiChar;
+  P: PAnsiChar;
+  pAux, pI, pF: integer;
+
+  T: TStopWatch;
+  N, LargerThan: integer;
+
+begin
+  if MaxTime= 0 then MaxTime:= 6000;
+
+  T:= TStopWatch.Create;
+
+  Flags := navNoHistory or navNoWriteToCache;
+
+  if AnsiStartsText('res://', URL) or AnsiStartsText('file://', URL)
+    or AnsiStartsText('about:', URL) or AnsiStartsText('javascript:', URL)
+    or AnsiStartsText('mailto:', URL) then
+        Flags := Flags or navNoReadFromCache;  // don't use cache for local files
+
+  WebBrowser.Navigate('about:blank');
+  while (WebBrowser.ReadyState <> READYSTATE_COMPLETE)  do
+     Pause(2);
+
+  WebBrowser.Offline:= true;
+  WebBrowser.Silent:= True;        // No error messages, caused by Javascript, ..
+
+  Result := '';
+  Buffer[10]:= #0;
+  pI:= 0;
+  pF:= 0;
+  N:= 0;
+  LargerThan:= 0;
+
+  T.Start;
+
+  stream:= TMemoryStream.Create;
+  try
+      WebBrowser.Navigate(URL, Flags);                    // Try to identify <title> tag as soon as it is possible (looking into raw html)
+
+      while (WebBrowser.ReadyState = READYSTATE_UNINITIALIZED) and (T.ElapsedMilliseconds < MaxTime) do
+         Pause(10);
+
+      while (WebBrowser.ReadyState < READYSTATE_COMPLETE) and (T.ElapsedMilliseconds < MaxTime) do begin
+         Inc(N);
+
+         if (N <=2 ) or ((N mod 10) = 0) then begin          // Check every 10 iterations (and two firsts ones)
+
+             try
+                stream.Clear;
+                Stream.Position:= 0;
+                Self.SaveToStream(stream);
+
+                if (Stream.Size > LargerThan) then begin
+                   P:= PAnsiChar(stream.Memory);
+                   Move(P^, Buffer, 10);                  // Ignore ﻿<html>'#$D#$A'<body>'#$D#$A'<!--StartFragment--
+                   pAux:= pos('<html>', Buffer);
+
+                   if (pAux = 0) or (pAux > 5) then begin
+                      pF:= Pos( '</title>', P);
+                      if pF = 0 then
+                         pF:= Pos( '</TITLE>', P);
+                      if pF > 0 then begin
+                         WebBrowser.Stop;
+                         break;
+                      end;
+                   end;
+
+                   LargerThan:= Stream.Size;
+                end;
+
+             except       // Ignore a possible exception that could raise (if any) trying to consult WebBrowser stream too soon
+             end;
+
+         end;
+
+         Pause(10);
+      end;
+
+
+      WebBrowser.Stop;
+
+      if pF = 0 then begin
+        stream.Clear;
+        Stream.Position:= 0;
+        Self.SaveToStream(stream);
+        P:= PAnsiChar(stream.Memory);
+      end;
+
+      if pF = 0 then begin
+         pF:= Pos( '</title>', P);
+         if pF = 0 then
+            pF:= Pos( '</TITLE>', P);
+      end;
+
+      if pF > 0 then begin
+         pI:= Pos( '<title>', P);
+         if pI = 0 then
+            pI:= Pos( '<TITLE>', P);
+
+         if pI > 0 then
+            pI := pI + 7        // <title> : 7 bytes
+         else begin
+           // Could be a title tag with attributes (for example: <title data-ue-u="title" data-ue-c="innerHTML">......</title>
+            if pI = 0 then
+               pI:= Pos( '<title ', P);
+            if pI = 0 then
+               pI:= Pos( '<TITLE ', P);        // I think it will be usually in lowecase but...
+            if (pI > 0) and (pI < pF) then
+               pI:= Pos( '>', P, pI + 7);
+            if (pI > 0) then Inc(pI);
+
+         end;
+
+         if (pI > 0) and (pI < pF) then
+            Result:= TryUTF8ToUnicodeString(Copy(P, pI, pF-pI));  // DEBUG:  + ' -> ' + T.ElapsedMilliseconds.ToString
+      end;
+
+
+  finally
+     T.Stop;
+     stream.Free;
+  end;
+
 end;
 
 

@@ -120,6 +120,9 @@ uses
 
     procedure ShowTipOfTheDay;
 
+    function GetTitleFromURL (const URL: String; TryForLimitedTime: boolean): String;
+    procedure CleanCacheURLs (OnlyWithoutTitle: boolean);
+
 const
   WordDelimiters = [#9, #10, #13, #32];
 
@@ -131,6 +134,7 @@ uses
    kn_ExportImport,
    kn_VCLControlsMng,
    kn_MacroMng,
+   UWebBrowserWrapper,
    kn_Main;
 
 
@@ -1436,6 +1440,77 @@ begin
 end; // SetClipCapState
 
 
+var
+   cacheURLs:   TStringList;
+   cacheTitles: TStringList;
+
+const
+   CACHE_URLs_MAX: Integer = 20;
+   CACHE_URLs_REDUCE_TO: Integer = 10;
+   MAX_TIME_TO_GET_TITLE: Integer = 2000;   // milliseconds
+
+
+procedure CleanCacheURLs (OnlyWithoutTitle: boolean);
+var
+   I: Integer;
+begin
+   if not assigned(cacheURLs) then exit;
+
+   if not OnlyWithoutTitle then begin
+     cacheURLs.Clear;
+     cacheTitles.Clear;
+   end
+   else begin
+      for I := cacheURLs.Count - 1 downto 0  do
+          if cacheTitles[i] = '' then begin
+             cacheURLs.Delete(i);
+             cacheTitles.Delete(i);
+          end;
+   end;
+end;
+
+function GetTitleFromURL (const URL: String; TryForLimitedTime: boolean): String;
+var
+  I: Integer;
+  MaxTime: Integer;
+begin
+   if URL = '' then begin
+      Result:= '';
+      exit;
+   end;
+
+   if assigned(cacheURLs) then begin
+      I:= cacheURLs.IndexOf(URL);
+      if I >= 0 then begin
+         Result:= cacheTitles[i];
+         exit;
+      end;
+   end
+   else begin
+      cacheURLs:= TStringList.Create;
+      cacheTitles:= TStringList.Create;
+   end;
+
+   if not assigned(_IE) then
+     _IE:= TWebBrowserWrapper.Create(Form_Main);
+
+   MaxTime:= 0;
+   if TryForLimitedTime then
+      MaxTime := MAX_TIME_TO_GET_TITLE;
+   Result:= _IE.GetTitleFromURL(URL, MaxTime);
+
+   cacheURLs.Add(URL);
+   cacheTitles.Add(Result);
+
+   if cacheURLs.Count >= CACHE_URLs_MAX then       // If we reach MAX
+      for I := 1 to CACHE_URLs_REDUCE_TO do begin  // remove the older ones
+         cacheURLs.Delete(0);
+         cacheTitles.Delete(0);
+      end;
+
+end;
+
+
 //=================================================================
 // PasteOnClipCap
 //=================================================================
@@ -1454,6 +1529,11 @@ var
   Note: TTabNote;
   Editor: TTabRichEdit;
 
+  GetTitle: boolean;
+  _S, _SL, _U: integer;
+  TryForLimitedTime: boolean;
+  CLIPSOURCE_Token: string;
+
 begin
   HTMLClipboard:= '';
 
@@ -1470,16 +1550,49 @@ begin
         Editor.OnChange := nil;
         NoteFile.Modified := true; // bugfix 27-10-03
 
+        DividerString := ClipOptions.Divider;
+
+        _S  := pos(CLIPSOURCE, DividerString);
+        _SL := pos(CLIPSOURCE_LIMITED, DividerString);
+        _U  := pos(CLIPSOURCE_ONLY_URL, DividerString);
+
         if ClipOptions.InsertSourceURL then begin
            HTMLClipboard:= Clipboard.AsHTML;
            SourceURLStr := Clipboard.GetURLFromHTML (HTMLClipboard);
-           TitleURL:= Clipboard.GetTitleFromHTML (HTMLClipboard);
+           // TitleURL:= Clipboard.GetTitleFromHTML (HTMLClipboard);       // This data is not currently copied to the clipboard
+
+           if (_S=0) and (_SL=0) and (_U > 0) then begin
+               GetTitle:= False;
+               CLIPSOURCE_Token:= CLIPSOURCE_ONLY_URL;
            end
-        else
-           SourceURLStr := '';
+           else
+           if (_SL > 0) then begin
+              GetTitle:= True;
+              TryForLimitedTime:= True;
+              CLIPSOURCE_Token:= CLIPSOURCE_LIMITED;
+           end
+           else begin
+              GetTitle:= True;
+              TryForLimitedTime:= false;
+              CLIPSOURCE_Token:= CLIPSOURCE;
+           end;
+
+           if GetTitle then
+              TitleURL:= GetTitleFromURL (SourceURLStr, TryForLimitedTime)
+           else
+              TitleURL:= '';
+           end
+        else begin
+            SourceURLStr := '';
+            if _S > 0 then
+               delete( DividerString, _S, length(CLIPSOURCE));
+            if _SL > 0 then
+               delete( DividerString, _SL, length(CLIPSOURCE_LIMITED));
+            if _U > 0 then
+               delete( DividerString, _U, length(CLIPSOURCE_ONLY_URL));
+        end;
 
         PasteOK := true;
-        DividerString := ClipOptions.Divider;
 
         try
           StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_06;
@@ -1493,7 +1606,7 @@ begin
           if not PasteOnlyURL and ( Note.Kind = ntTree ) then begin
               // ClipCapNode := nil;
               if ClipOptions.PasteAsNewNode then begin
-                 if (pos(CLIPDATECHAR, DividerString)=0) and (pos(CLIPTIMECHAR, DividerString)=0) and ((SourceURLStr = '') or (pos(CLIPSOURCE, DividerString)=0)) then
+                 if (pos(CLIPDATECHAR, DividerString)=0) and (pos(CLIPTIMECHAR, DividerString)=0) and ((SourceURLStr = '') or (pos(CLIPSOURCE_Token, DividerString)=0)) then
                     DividerString:= '';   // Si no hay que separar de nada y el propia cadena de separación no incluye fecha, ni hora ni se va a mostrar el origen, ignorarla
 
                  if ( ClipCapNode <> nil ) then
@@ -1545,7 +1658,7 @@ begin
                           j := PosEx( CLIPSOURCEDELIMITER, DividerString, i + 2);
                           if j > 0 then
                              len:= len + j - i;
-                       end;                          
+                       end;
                        delete( DividerString, i, len);
                     end;
                 until i = 0;
@@ -1573,9 +1686,9 @@ begin
                 if (( Note.Kind <> ntRTF ) and ClipOptions.PasteAsNewNode ) then
                    DividerString := trimleft( DividerString );
 
-                i := pos( CLIPSOURCE, DividerString );
+                i := pos( CLIPSOURCE_Token, DividerString );
                 if ( i > 0 ) then begin
-                    delete( DividerString, i, length( CLIPSOURCE ));
+                    delete( DividerString, i, length( CLIPSOURCE_Token ));
                     if ( SourceURLStr <> '' ) then begin
                        Editor.SelText := Copy(DividerString,1, i-1);
                        delete(DividerString, 1, i-1);   // Remaining divider will be pasted after source url
@@ -2072,5 +2185,9 @@ begin
     Application.Minimize;
 end; // ShowTipOfTheDay
 
+
+initialization
+   cacheURLs:= nil;
+   cacheTitles:= nil;
 
 end.
