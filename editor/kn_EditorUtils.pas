@@ -1533,6 +1533,10 @@ var
   _S, _SL, _U: integer;
   TryForLimitedTime: boolean;
   CLIPSOURCE_Token: string;
+  IgnoreCopiedText: boolean;
+
+ const
+    URL_YOUTUBE: string = 'https://www.youtube.com';
 
 begin
   HTMLClipboard:= '';
@@ -1551,6 +1555,23 @@ begin
         NoteFile.Modified := true; // bugfix 27-10-03
 
         DividerString := ClipOptions.Divider;
+
+
+        { *1
+          From now it seems not possible to obtain the title of a page of YouTube, because the html returned by TWebBrowser
+          in this case does'nt contain the final html page
+          To avoid loosing time and to avoid wasting we URLs cache, will not try to return title if URL begins with https://www.youtube.com
+          Now it is easier to click three times in one word of the video title, to select it
+
+          If the URL begins with 'https://www.youtube.com' then
+          - Will not try to look for the title using WebBroser
+          - If the text selected includes only 1 line and it hasn't more that 100 characters, then it wil be assumed as the title
+
+          (https://www.smperth.com/resources/youtube/youtube-character-limit/)
+          }
+
+         IgnoreCopiedText:= false;       // *1
+
 
         _S  := pos(CLIPSOURCE, DividerString);
         _SL := pos(CLIPSOURCE_LIMITED, DividerString);
@@ -1577,8 +1598,17 @@ begin
               CLIPSOURCE_Token:= CLIPSOURCE;
            end;
 
-           if GetTitle then
-              TitleURL:= GetTitleFromURL (SourceURLStr, TryForLimitedTime)
+           if GetTitle then begin
+              if pos(URL_YOUTUBE, SourceURLStr) = 1 then begin  // *1
+                 TitleURL:= Clipboard.AsText;
+                 if (pos(#13, TitleURL) > 0) or (length(TitleURL) > 100) then
+                    TitleURL:= ''
+                 else
+                    IgnoreCopiedText:= True;
+              end
+              else
+                 TitleURL:= GetTitleFromURL (SourceURLStr, TryForLimitedTime);
+           end
            else
               TitleURL:= '';
            end
@@ -1715,10 +1745,11 @@ begin
                      Editor.SelStart :=  Editor.SelStart + Editor.SelLength;
                  end;
 
-                if not ClipOptions.PasteAsText and not Note.PlainText then
-                   TryPasteRTF(Editor, HTMLClipboard)
-                else
-                   PerformCmdPastePlain(Note, ClpStr, HTMLClipboard, false, ClipOptions.MaxSize);
+                if not IgnoreCopiedText then
+                   if not ClipOptions.PasteAsText and not Note.PlainText then
+                      TryPasteRTF(Editor, HTMLClipboard)
+                   else
+                      PerformCmdPastePlain(Note, ClpStr, HTMLClipboard, false, ClipOptions.MaxSize);
 
               end;
 
