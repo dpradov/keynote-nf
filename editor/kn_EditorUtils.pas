@@ -77,6 +77,8 @@ uses
     procedure CleanWordCount;
     procedure CheckWordCount (cleanWC: boolean= false);
     procedure CheckWordCountWaiting;
+    function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
+
 
     procedure MatchBracket;
     procedure TrimBlanks( const TrimWhat : integer );
@@ -362,6 +364,19 @@ begin
     until ( i > len );
   end;
 end; // GetWordCount
+
+
+function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
+var
+  i: integer;
+begin
+  for i := 1 to length(s) do
+    if not ( (AnsiChar(s[i]) in WordDelimiters) or IsCharAlphaNumeric(s[i]) or (s[i]='''')) then        // ': don't ...  Normal in english words
+        Exit(true);
+
+  Result:= False;
+end;
+
 
 //=================================================================
 // UpdateWordCount
@@ -1630,9 +1645,12 @@ begin
           StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_06;
           PasteOnlyURL:= false;
           if ClipOptions.URLOnly and (SourceURLStr <> '') then begin
-             AuxStr:= copy(ClpStr,1,60);
-             if GetWordCount(AuxStr)=1 then
+             AuxStr:= copy(ClpStr,1,30);
+             if (GetWordCount(AuxStr)=1) and (not HasNonAlphaNumericOrWordDelimiter(AuxStr)) then begin
                PasteOnlyURL:= true;
+               if IgnoreCopiedText then            // YouTube...  See *1
+                  TitleURL:= '';
+             end;
           end;
 
           if not PasteOnlyURL and ( Note.Kind = ntTree ) then begin
@@ -1747,9 +1765,12 @@ begin
 
               if ( SourceURLStr <> '' ) or PasteOnlyURL then begin
                    InsertURL(SourceURLStr, TitleURL, Note);
-                   // Si no se ha indicado dónde colocar el origen o se ha puesto justo al final del separador
-                   // añadir un salto de línea
-                   if (DividerString = '') and not PasteOnlyURL then
+                   if PasteOnlyURL then begin
+                     Editor.SelText := #13;
+                     Editor.SelStart :=  Editor.SelStart + 1;
+                   end
+                   else
+                   if (DividerString = '') then  // Si no se ha indicado dónde colocar el origen o se ha puesto justo al final del separador añadir un salto de línea
                        DividerString:= #13;
               end;
 
