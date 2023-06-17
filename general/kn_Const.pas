@@ -276,16 +276,28 @@ const
   _ZOOM_MIN = 5;
 
 const
-  // *1  If source URL will not be shown, then it will also be ignored the text included between the enclosure delimiters.
-  //     It is possible to define several fragments enclosed with that delimiters.
-  //     More info in: 'Improvements on Clip Web and Clipboard Capture #532' (https://github.com/dpradov/keynote-nf/issues/532)
-  // *2  It will try to get the title for the URL with WebBrowser (offline, using cache), without time limit (6 seconds, for security..)
-  // *3  As *2, but trying only for a limited time (for now 2 seconds)
+{
+   *1  If source URL will not be shown, then it will also be ignored the text included between the enclosure delimiters.
+       It is possible to define several fragments enclosed with that delimiters.
+       More info in: 'Improvements on Clip Web and Clipboard Capture #532' (https://github.com/dpradov/keynote-nf/issues/532)
+   *2  It will try to get the title for the URL with WebBrowser (offline, using cache), without time limit (6 seconds, for security..)
+   *3  As *2, but trying only for a limited time (for now 2 seconds)
 
-  // Normally the title will be figured out in very short time, but in the event that the delay is annoying, it is possible to
-  // use %s instead of %S, to wait for 2 seconds as much. Or even, to use %U, to not try to get Title.
-  // Besides, KeyNote will cache the last URLs/Titles (20/10) to agilize the paste in case you need to paste several times,
-  // possibly intercalating from several pages
+   Normally the title will be figured out in very short time, but in the event that the delay is annoying, it is possible to
+   use %s instead of %S, to wait for 2 seconds as much. Or even, to use %U, to not try to get Title.
+   Besides, KeyNote will cache the last URLs/Titles (20/10) to agilize the paste in case you need to paste several times,
+   possibly intercalating from several pages
+
+   *4  Only if URL will not visible, because a hyperlink will be created showing the title, and if the server/domain of the URL
+       is not contained in the title, then that server domain will be shown, in square brackets. Some examples:
+
+      'https://www.teoria.com/en/tutorials/functions/intro/03-dom-sub.php', 'Harmonic Functions : The Dominant and Subdominant'  => [teoria.com]
+      'https://musicnetmaterials.wordpress.com/analisis-musical/', 'Análisis musical | Musicnetmaterials'                        => ''
+      'https://stackoverflow.com/questions/1549145/case-insensitive-pos', 'delphi - case insensitive Pos - Stack Overflow'       => ''
+      'https://martinfowler.com/eaaCatalog/', 'Catalog of Patterns of Enterprise Application Architecture'                       => [martinfowler.com]
+      'https://en.wikipedia.org/wiki/Johann_Sebastian_Bach', 'Johann Sebastian Bach - Wikipedia'                                 => ''
+      'https://www.youtube.com/watch?v=r0R6gMw2s44', 'El Círculo de Quintas: Una explicación detallada | Versión 2.0'            => [YouTube]
+}
 
   // tokens for clipboard capture separator line
   CLIPDIVCHAR           = '^';  // replaced with 1 blank line
@@ -295,6 +307,7 @@ const
   CLIPSOURCE            = '%S';   // insert Source URL (with title)                *2
   CLIPSOURCE_LIMITED    = '%s';   // insert source URL (with title, limited time)  *3
   CLIPSOURCE_ONLY_URL   = '%U';   // insert source URL (without title)
+  CLIPSOURCE_DOMAIN     = '%d';   // insert Source server/domain                   *4
 
 
 

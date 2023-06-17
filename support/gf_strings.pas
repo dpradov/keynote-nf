@@ -68,6 +68,7 @@ function TryUTF8ToUnicodeString(const s: RawByteString): string;
 function CanSaveAsANSI(const cad: string): boolean;
 
 function FirstLineFromString( const str: string; const MaxLen : integer ) : string;
+function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1): integer;
 
 implementation
 
@@ -674,6 +675,23 @@ begin
     end;
   end;
 end; // FirstLineFromString
+
+
+{ Returns the position of the nth occurrence of the character in the string, counting from the end of the string }
+
+function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1): integer;
+var
+  i, n: Integer;
+begin
+  n:= 0;
+  result := 0;
+  for i := length(S) downto 1 do
+    if S[i] = Chr then begin
+       inc(n);
+       if n= nthOccurrence then
+          Exit(i);
+    end;
+end;
 
 
 end.

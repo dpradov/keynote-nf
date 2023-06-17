@@ -212,10 +212,14 @@ function GenerateRandomPassphrase(
     RndPassNonAlphW : integer
   ) : string;
 
+  function DomainFromHttpURL(const URL: string; const Title: string='') : string;
+
 var
   _OSIsWindowsNT : boolean;
 
 implementation
+uses
+   gf_strings;
 
 const
   TIME_ZONE_ID_UNKNOWN  = 0;
@@ -1444,9 +1448,90 @@ begin
    end;
 end;
 
+{ Returns the server associated with the URL as long as it is not already included in the title }
+function DomainFromHttpURL(const URL: string; const Title: string='') : string;
+var
+  p, p2: integer;
+  Server_Subdom: string;
+  titleAux: string;
+  ReturnDomain: boolean;
+
+begin
+   Result:= '';
+   ReturnDomain:= false;
+
+   if (pos('http', URL) = 0) or (Title='') then
+      exit;
+
+   try
+       p:= pos('//', URL);
+       if p <= 7 then begin                 // http: -> 6 https: -> 7
+          p:= p + 2;
+          if pos('www.', URL, p) > 0 then
+             p:= p + 4;
+          p2:= pos('/', URL, p);
+          Result:= Copy(URL, p, p2-p);
+
+          // If the last part of the domain, the main part, appears in the title, we will not show it
+          // https://en.wikipedia.org  --> "wikipedia"
+          p2 := NFromLastCharPos(Result, '.', 1);
+          p  := NFromLastCharPos(Result, '.', 2);
+          Server_Subdom:= Copy(Result, p+1, p2-p-1);
+          if Server_Subdom <> '' then begin
+             Server_Subdom:= AnsiUpperCase(Server_Subdom);
+             titleAux:= AnsiUpperCase( StringReplace(title, ' ', '', [rfReplaceAll]) );
+
+             if pos(Server_Subdom, TitleAux) = 0 then begin
+                p2 := NFromLastCharPos(Result, '.', 3);
+                Server_Subdom:= Copy(Result, p2+1, p-p2-1);
+                if Server_Subdom <> '' then begin
+                   Server_Subdom:= AnsiUpperCase(Server_Subdom);
+                   if pos(Server_Subdom, TitleAux) = 0 then
+                       returnDomain:= true;
+                end
+                else
+                    returnDomain:= true;
+             end;
+          end;
+
+       end;
+
+       if returnDomain then
+          if Result = 'youtube.com' then
+             Result:= ' [YouTube]'
+          else
+             Result:= ' [' + Result + ']'
+       else
+          Result:= '';
+
+   except
+   end;
+
+end;
+
+procedure Test_DomainFromHttpURL;
+var
+  s: string;
+begin
+  s:= DomainFromHttpURL('https://www.teoria.com/en/tutorials/functions/intro/03-dom-sub.php','Harmonic Functions : The Dominant and Subdominant');  //-> [teoria.com]
+  s:= DomainFromHttpURL('https://www.teoria.com/en/tutorials/functions/intro/03-dom-sub.php','');  //-> ''
+  s:= DomainFromHttpURL('https://musicnetmaterials.wordpress.com/analisis-musical/','Análisis musical | Musicnetmaterials'); // -> ''
+  s:= DomainFromHttpURL('https://stackoverflow.com/questions/1549145/case-insensitive-pos','delphi - case insensitive Pos - Stack Overflow'); // -> ''
+  s:= DomainFromHttpURL('https://es.stackoverflow.com/questions/596857/problema-al-imprimir-objeto-de-javascript-en-consola-de-navegador','Problema al imprimir objeto de Javascript en consola de navegador - Stack Overflow en español'); // -> ''
+  s:= DomainFromHttpURL('https://martinfowler.com/eaaCatalog/','Catalog of Patterns of Enterprise Application Architecture');  // -> [martinfowler.com]
+  s:= DomainFromHttpURL('https://synopse.info/files/html/Synopse%20mORMot%20Framework%20SAD%201.18.html','Software Architecture Design 1.18');  // -> [synopse.info]
+  s:= DomainFromHttpURL('https://www.delphitools.info/2013/05/13/immutable-strings-in-delphi/','Immutable strings… in Delphi? - DelphiTools'); // -> ''
+  s:= DomainFromHttpURL('https://en.wikipedia.org/wiki/Johann_Sebastian_Bach','Johann Sebastian Bach - Wikipedia'); // -> ''
+  s:= DomainFromHttpURL('http://www.rvelthuis.de/articles/articles-pchars.html','Rudy''s Delphi Corner - PChars: no strings attached'); //-> [rvelthuis.de]
+  s:= DomainFromHttpURL('https://learn.microsoft.com/es-es/','Microsoft Learn: adquirir conocimientos que le abran las puertas en su carrera profesional'); //  -> ''
+  s:= DomainFromHttpURL('https://www.youtube.com/watch?v=r0R6gMw2s44','El Círculo de Quintas: Una explicación detallada | Versión 2.0'); //  -> [YouTube]
+end;
+
 
 Initialization
   _OSIsWindowsNT := RunsOnWindowsNT;
+
+  // Test_DomainFromHttpURL;
 
 end.
 

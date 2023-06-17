@@ -1718,6 +1718,18 @@ begin
                 if (( Note.Kind <> ntRTF ) and ClipOptions.PasteAsNewNode ) then
                    DividerString := trimleft( DividerString );
 
+                i := pos( CLIPSOURCE_DOMAIN, DividerString );
+                if ( i > 0 ) then begin
+                  delete( DividerString, i, length( CLIPSOURCE_DOMAIN ));
+                  if not Note.PlainText then begin
+                     AuxStr:= DomainFromHttpURL(SourceURLStr, TitleURL);        // If TitleURL = '' will always return '', because URL will be shown
+                     if ( length( DividerString ) > 0 ) then
+                        insert(AuxStr , DividerString, i )
+                     else
+                        DividerString := AuxStr;
+                  end;
+                end;
+
                 i := pos( CLIPSOURCE_Token, DividerString );
                 if ( i > 0 ) then begin
                     delete( DividerString, i, length( CLIPSOURCE_Token ));

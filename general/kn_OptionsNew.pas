@@ -378,12 +378,31 @@ resourcestring
      '%s = encloses what to show only if source is included' +#13+
      '%s = source URL (with title)' +#13+
      '%s = source URL (with title, limited waiting time (*))' +#13+
-     '%s = source URL (without title)'  +#13#13+
-     '(*) If title is not figured out in less that 2 seconds (normally will be much faster) only URL will be used' +#13+
-     '    A small cache will be used for titles, so even certain delays will only apply to the first capture on a URL.'
+     '%s = source URL (without title)'  +#13+
+     '%s = source server/domain (e.g.: "[YouTube]")'  +#13#13+
+
+     'Remember: Source tokens will be ignored if source is not shown. Also, with %%|' +
+     ' you can vary the effective divider depending on whether source URL is shown or not'
      ;
+
+{     '(*) If title is not figured out in less that 2 seconds (normally will be much faster) only URL will be used' +#13+
+     '    A small cache will be used for titles, so even certain delays will only apply to the first capture on a URL.' }
+
   STR_15 = 'The Auto-Close function will work ONLY if Auto-Save is turned ON, and if no dialog box is open at the time KeyNote tries to automatically close the file. (Auto-Save is currently DISABLED.)';
   STR_16 = 'Error in TVChange: PageIndex %d  Node.AbsIdx %d';
+
+const
+  DIVIDER1: string= '^%|^%S%d^%|^';
+  DIVIDER2: string= '^^%|- >  %S %d  %|- - - - - - -%|^%|^';
+  DIVIDER3: string= '^^%|=>  %S %d  %|======%|^%|^';
+  DIVIDER4: string= '^^- - - - - - - - - - - -^ %|>>   %S %d^%|';
+  DIVIDER5: string= '^^--- %S%d^';
+  DIVIDER6: string= '^%|^%|- - - - - - - -  %S%d %|- - - -%|^';
+  DIVIDER7: string= '^- - - - - - - -%|^%S%d%|^';
+  DIVIDER8: string= '^^-- %D %|-  [ %S ] %|--^';
+  DIVIDER9: string= '^^^--- %D, %T %| - - -  %S%|^^';
+  DIVIDER10:string= '^^^--- %D, %T %| -  %U%|^^';
+
 
 procedure TForm_OptionsNew.FormCreate(Sender: TObject);
 var
@@ -407,16 +426,26 @@ begin
   end;
 
   with Combo_Divider.Items do begin
+    Add( DIVIDER9 );
+    Add( DIVIDER8 );
+    Add( DIVIDER5 );
+    Add( DIVIDER6 );
+    Add( DIVIDER2 );
+    Add( DIVIDER3 );
+    Add( DIVIDER4 );
+    Add( DIVIDER1 );
+    Add( DIVIDER7 );
+    Add( DIVIDER10 );
     Add( DIV_1_BLANK );
     Add( DIV_2_BLANK );
-    Add( '^---------------------^' );
-    Add( '^=====================^' );
   end;
+
   with Combo_WCDivider.Items do begin
-    Add('^-- %|%S  (%|%D, %T%|)%| --^');
-    Add('^-- %D, %T %|- [%S] %|--^');
-    Add('^--- %D, %T ---^%|[%S]^%|');
-    Add('^--- %D, %T ---^%S^');
+    Add( DIVIDER2 );
+    Add( DIVIDER3 );
+    Add( DIVIDER5 );
+    Add( DIVIDER6 );
+    Add( DIVIDER8 );
   end;
 
   for u := low( TURLAction ) to high( TURLAction ) do
@@ -1483,7 +1512,7 @@ end;
 
 procedure TForm_OptionsNew.BitBtn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR, CLIPSOURCEDELIMITER, CLIPSOURCE, CLIPSOURCE_LIMITED, CLIPSOURCE_ONLY_URL]),
+  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR, CLIPSOURCEDELIMITER, CLIPSOURCE, CLIPSOURCE_LIMITED, CLIPSOURCE_ONLY_URL, CLIPSOURCE_DOMAIN]),
     mtInformation, [mbOK], 0
   );
 
