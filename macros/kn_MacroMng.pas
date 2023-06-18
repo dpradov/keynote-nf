@@ -1903,7 +1903,7 @@ begin
            end;
     end;
 
-end; // PerformCmdPaste
+end; // PerformCmdPastePlain
 
 procedure PerformCmd( aCmd : TEditCmd );
 var
@@ -1979,7 +1979,7 @@ begin
 
           ecPaste :
             if not EditorOptions.PlainDefaultPaste or not Clipboard.HasFormat(CF_TEXT) then
-               PasteBestAvailableFormat(Activenote.Editor)
+               PasteBestAvailableFormat(Activenote.Editor, true, true)
             else begin
                // We must paste as PlainText (considering also PlainTextMode) if text has been copied from outside KN
                // If text have been copied from inside KNT then CRC will correspond to the value calculated with last copy operation
@@ -2864,7 +2864,7 @@ begin
     if ( assigned( NoteFile ) and assigned( ActiveNote )) then
        if Form_Main.Res_RTF.Focused then begin
           executed:= true;
-          PasteBestAvailableFormat(Form_Main.Res_RTF);
+          PasteBestAvailableFormat(Form_Main.Res_RTF, true, true);
        end
        else
        if ActiveNote.Editor.Focused then begin

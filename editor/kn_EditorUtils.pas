@@ -99,7 +99,7 @@ uses
 
     // clipboard capture and paste
     procedure TryPasteRTF(const Editor: TRxRichEdit; HTMLText: AnsiString='');
-    procedure PasteBestAvailableFormat (const Editor: TRxRichEdit; TryOfferRTF: boolean= True);
+    procedure PasteBestAvailableFormat (const Editor: TRxRichEdit; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
     procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
     procedure SetClipCapState( const IsOn : boolean );
     procedure PasteOnClipCap (ClpStr: string);
@@ -1267,17 +1267,159 @@ end; // ConfigureUAS
 
 
 //=================================================================
+// TryToDetectAndSolveHTMLtoRTFbadConv
+//=================================================================
+
+const
+  RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK: integer= 2000;
+  RTFCONVERSON_MAX_DIF_TO_IGNORE: integer= 10;
+
+
+procedure TryToDetectAndSolveHTMLtoRTFbadConv (const Editor: TRxRichEdit; posI: integer);
+var
+  posF, Dif: integer;
+  PlainText: string;
+
+begin
+    // posI must receive Editor.SelStart before paste the suspicious text
+
+    if not (Clipboard.HasHTMLformat and Clipboard.HasRTFformat) then
+       exit;
+
+    posF := Editor.SelStart;
+    if (posF-posI) > RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK then
+       exit;
+
+    {
+      If the clipboard has HTML and RTF formats, it is possible that the RTF format comes from our conversion (with TWebBrowser)
+      and in some cases it can be wrong. At least, as verified with the following site, whose html seems to be odd: stackoverflow.com
+      For example, consider the following URLs and try to paste several paragraphs altogether. 
+      Most of them will produce '<>' or '', others '<<<' or something similar and a few can truncate some text.
+
+       https://stackoverflow.com/questions/46991729/how-to-load-a-stringstream-with-utf8-characters-to-a-stringlist-in-android
+       https://stackoverflow.com/questions/11122197/why-does-memo-lines-use-tstrings-instead-of-tstringlist
+
+      Even the conversion with MSWord of the HTML copied by the browser to the clipboard it is no ok
+      If in examples we copy (and paste) only fragments of certain paragraphs or just snippets of code, it seems to be ok.
+
+
+        When it's time to find out how to identify this problematic HTMLs with 'correct' ones, it is necessary to view how nor problematic
+        HTMLs behaves, compared with the plain text format offered by clipboard.
+
+        For example, in a page interpreted ok, we could select only a few characters, and observe de following difference:
+        (from : http://www.cryer.co.uk/brian/delphi/twebbrowser/get_HTML.htm)
+
+          'L. '#$D'I'#$D            <- Pasted from our conversion, seen in plain text with Editor.SelText
+          'L.'#$D#$A'I'#$D#$A       <- plain text include in the clipboard:  Clipboard.AsText
+
+        => Clipboard.AsText will include 2 bytes for each line break, whereas the Editor counts a returns 1.
+        => In the exmple, the text copied included the final two characters ('L.') and the first one ('I') of two consecutive
+           bullet list items. In this case we how a space is added after de dot
+
+        On this other example, copied from the same site (http://www.cryer.co.uk/brian/delphi/twebbrowser/navigate_frameset.htm), I selected
+        a text including the following selection, where another difference is observed:
+
+          (...) that does not contain a frameset:</p>
+              <blockquote>
+                <pre>procedure TMyForm.NavigateFrameset (...)
+
+          From our conversion, seen with Editor.SelText:
+            (...) that does not contain a frameset:'#$D'procedure TMyForm.NavigateFrameset (...)
+
+          From Clipboard.AsText:
+            (...) that does not contain a frameset:'#$D#$A#$D#$A'procedure TMyForm.NavigateFrameset (...)
+
+        => Apart from the 'noraml' 2 bytes per break line, Clipboard.AsText has added another line break just before blockquuote.
+          The text selected wasn't little and this was the only difference..
+
+        We need to identify the problematic situation in a fast a 'cheap' way. Even in 'correct' situations may be differences
+        in the length (once counted just 1 byte per line break), although small.
+        On the other side, problematic pages will lead to huge differences, because in this cases normal thing is that nothing
+        is pasted (or something like '<>' o '<<<' )
+
+        In RTFCONVERSON_MAX_DIF_TO_IGNORE we are setting the max. difference that assume can be present normal in normal situations.
+        We are going to conservative
+        To not penalize normal situations, in RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK we are setting the max size of the text pasted
+        that we are going to analize. Problematic cases normally will paste nothing or something ridiculous, but as in some cases
+        text can be truncated, we are going to anlyze text until certain length. 
+        Even in cases with text below RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK we will only get an extra PlainText:= Clipboard.AsText 
+        (if all is finally ok)
+
+
+     NOTES:
+       1.
+       The problem can arise in Clipboard.TryOfferRTF, and manifest itself with Editor.PutRtfText or PasteBestAvailableFormat
+
+       Clipboard.TryOfferRTF is also called from other points:
+         kn_Main.MMEditPasteSpecialClick
+
+       Even PasteBestAvailableFormat can call Clipboard.TryOfferRTF, and PasteBestAvailableFormat is called from:
+         - this method (TryPasteRTF)
+         - kn_MacroMng.PerformCmd (ecPaste)
+
+       From kn_MacroMng.PerformCmdPastePlain could call TryPasteRTF
+
+       When copying and playing from inside KeyNote, we don't need to convert from HTML to RTF. Neither if we are copying and pasting
+       from an external RTF source. These cases are completely unaffected (also in terms of performance).
+       The only points we need to control are the calls originated in ClipCapture and Web Clip, boths coming from
+       kn_EditorUtils.PasteOnClipCap, and from PerformCmd (ecPaste), when we have HTML but not RTF format in clipboard.
+
+       The action Paste Special.... (kn_Main.MMEditPasteSpecialClick) could also insert incorrect RTF if this format is selected.
+       But there the user (we) are consciuous of the problem, and can select another format. Besides, RTF generated can
+       be in some situations imperfect, but include parcial valid RTF conversions, like hyperlinks, for example.
+
+       2. RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK (2000 characters at this moment) it is not so small because can ocurre that some
+         text is truncated, but other is maintained. Also, the text pasted can contains hidden text (because of the presence
+         of hyperlinks).
+         This hidden text can do that the lenth of the pasted text be equal or greater that the one in Clipboard.AsText, even
+         if there is truncated text.
+         This case could be better analyzed using Editor.SelVisibleText, to compare it with Clipboard.AsText
+         But this situation is probably less habitual, can also be more obvious to the user, and we don't want to penalize normal
+         cases. Besides, it will be still possible to use 'Paste Special...'
+     }
+
+
+     PlainText:= Clipboard.AsText;
+     Dif:= (length(PlainText) - CountChars(#13, PlainText))  - (posF-posI);
+
+      if Dif > RTFCONVERSON_MAX_DIF_TO_IGNORE then begin
+        Editor.SuspendUndo;
+        try
+           Editor.SelStart  := posI;
+           Editor.SelLength := posF - posI;
+
+           Editor.SelText := PlainText;
+
+           Editor.SelStart  := posI + Editor.SelLength;
+           Editor.SelLength := 0;
+
+        finally
+           Editor.ResumeUndo;
+        end;
+     end;
+
+end;
+
+
+//=================================================================
 // TryPasteRTF
 //=================================================================
 procedure TryPasteRTF(const Editor: TRxRichEdit; HTMLText: AnsiString='');
 var
   RTFText: AnsiString;
+  posI: integer;
+
 begin
+    posI := Editor.SelStart;
+
     RTFText:= Clipboard.TryOfferRTF(HTMLText);            // Can return '' if clipboard already contained RTF Format
     if RTFText <> '' then
         Editor.PutRtfText(RTFText, true)
     else
-        PasteBestAvailableFormat(Editor, false);          // false: Not to try to offer RTF (Maybe it's already available)
+        PasteBestAvailableFormat(Editor, false, false);      // false: don't to try to offer RTF (Maybe it's already available), false: don't try to detect and correct HTML to RTF (will be done here)
+
+    TryToDetectAndSolveHTMLtoRTFbadConv(Editor, posI);
+
 end;
 
 
@@ -1305,11 +1447,20 @@ end;
   will try to get RTF format from HTML (as we have been doing on Paste Special...)
 }
 
-procedure PasteBestAvailableFormat (const Editor: TRxRichEdit; TryOfferRTF: boolean= True);
+procedure PasteBestAvailableFormat (const Editor: TRxRichEdit; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
+var
+  posI: integer;
 begin
+    if CorrectHTMLtoRTF then
+       posI:= Editor.SelStart;
+
     if TryOfferRTF then
        Clipboard.TryOfferRTF();
     Editor.PasteIRichEditOLE(0);
+
+    if CorrectHTMLtoRTF then
+      TryToDetectAndSolveHTMLtoRTFbadConv(Editor, posI);
+
 end;
 
 
