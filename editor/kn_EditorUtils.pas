@@ -1445,7 +1445,7 @@ var
 begin
     posI := Editor.SelStart;
 
-    RTFText:= Clipboard.TryOfferRTF(HTMLText);            // Can return '' if clipboard already contained RTF Format
+    RTFText:= Clipboard.TryOfferRTF(HTMLText, Editor.SelAttributes);            // Can return '' if clipboard already contained RTF Format
     if RTFText <> '' then
         Editor.PutRtfText(RTFText, true)
     else
@@ -1483,13 +1483,20 @@ end;
 procedure PasteBestAvailableFormat (const Editor: TRxRichEdit; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
 var
   posI: integer;
+  RTFText: AnsiString;
 begin
     if CorrectHTMLtoRTF then
        posI:= Editor.SelStart;
 
     if TryOfferRTF then
-       Clipboard.TryOfferRTF();
-    Editor.PasteIRichEditOLE(0);
+       RTFText:= Clipboard.TryOfferRTF('', Editor.SelAttributes);
+
+    // If we have added RTF, we are going to use it instead of calling PasteIRichEditOLE, because the default font and size
+    // will have set in this returned RTF text, not in the text in the clipboard
+    if RTFText <> '' then
+       Editor.PutRtfText(RTFText, true)
+    else
+       Editor.PasteIRichEditOLE(0);
 
     if CorrectHTMLtoRTF then
       TryToDetectAndSolveHTMLtoRTFbadConv(Editor, posI);

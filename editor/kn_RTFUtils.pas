@@ -69,6 +69,7 @@ function TextToUseInRTF (UnicodeText : string ): string;
 function GetRTFColor (Color: TColor): string;
 
 function CleanRTF(const RTF: string; var nRTF: string): boolean;
+procedure SetDefaultFontAndSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
 
 function GetAuxEditorControl (EditorToLoadFrom: TRxRichEdit= nil; FromSelection: Boolean= True): TRxRichEdit;
 procedure FreeAuxEditorControl (FlushToEditor: TRxRichEdit= nil; DoInsert: boolean= true; FreeAndNilControl: boolean= false);
@@ -247,6 +248,38 @@ begin
        end;
 
     until p <= 0;
+
+end;
+
+procedure SetDefaultFontAndSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
+var
+  Flags: TReplaceFlags;
+  fSize: string;
+begin
+   if (RTFText = '') or (TextAttrib  = nil) then
+      exit;
+
+  { If received TRxTextAttributes, it will use the font and size (normally it will correspond to the current selection
+    in active Editor) to define the default font and size once the conversion from HTML to RTF has finisthed.
+    This values seems to be set always to Times New Roman 12 during the conversion
+
+    Notes:
+     - The command \fsN changes the font size to N half-points—not points, half-points! So \fs24 means 12-point type,
+     - We are setting the font size once defined the table of fonts with \fonttbl,and set the zeroeth font as the default
+       with \deff0, just before {\colortbl\
+    - \plain resets the character formatting: it turns off all characteristics—italics, bold, smallcaps, superscript,
+       and so on. Things that can’t meaningfully be turned off, like point-size, font number, or language are reset to their
+       default values.
+       The RTF specification seems to say that \plain should reset the current font size to 12-point, but some versions of
+       MSWord reset it to 10-point. To be sure the point size resets to what you intend, explicitly set it after every \plain,
+  }
+
+  fSize:= 'fs'+(TextAttrib.Size*2).ToString;
+  RTFText:= StringReplace(RTFText, '{\fonttbl{\f0\froman\fcharset0 Times New Roman;}',
+                                   '{\fonttbl{\f0\froman\fcharset0 ' + TextAttrib.Name + ';}', Flags);
+
+  RTFText:= StringReplace(RTFText, '{\colortbl\',  '\f0\' + fSize + ' {\colortbl\', Flags);
+  RTFText:= StringReplace(RTFText, '\plain\fs24',  '\plain\'+ fSize, [rfReplaceAll]);
 
 end;
 

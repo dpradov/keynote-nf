@@ -26,7 +26,9 @@ uses
    Vcl.Dialogs,
    Vcl.Clipbrd ,
    CRC32,
-   gf_strings;
+   RxRichEd,
+   gf_strings,
+   kn_RTFUtils;
 
 const
   CFHtml : word = 0;
@@ -51,7 +53,7 @@ type
        function HasRTFformat: boolean;
        function HasHTMLformat: boolean;
        function TryGetFirstLine(const MaxLen : integer): string;
-       function TryOfferRTF (HTMLText: AnsiString=''): AnsiString;
+       function TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil): AnsiString;
    end;
 
 
@@ -267,14 +269,33 @@ end;
 { Try to convert the HTML received (or available in clipboard) to RTF
  If conversion is possible, it will return RTF text, and also it will be available as RTF format in the clipboard }
 
-function TClipboardHelper.TryOfferRTF (HTMLText: AnsiString=''): AnsiString;
+function TClipboardHelper.TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil): AnsiString;
+var
+   HTMLTextToConvert: AnsiString;
 begin
+   { *1  The RTF available in the clipboard, if any, probably has been converted by us (with the help of TWebBrowser)
+         We have been reusing directly this RTF format, but now, since the introduction of changes in ConvertHTMLToRTF to allow
+         defining the font and size by default, it is convenient not to do it, because these changes are no reintroduced
+         in the clipboard.
+         It is not necessary to do the conversion again, but simply apply the changes to set the default font and size.
+   }
+
     Result:= '';
-    if _ConvertHTMLClipboardToRTF and (not Clipboard.HasRTFformat) and Clipboard.HasHTMLformat then begin
-       if HTMLText = '' then
-          HTMLText:= Clipboard.AsHTML;
-       Clipboard.TrimMetadataFromHTML(HTMLText);
-       ConvertHTMLToRTF(HTMLText, Result)
+    if _ConvertHTMLClipboardToRTF {and (not Clipboard.HasRTFformat) *1} and Clipboard.HasHTMLformat  then begin
+
+       if Clipboard.HasRTFformat then begin
+          Result:= Clipboard.AsRTF;
+          SetDefaultFontAndSizeInRTF(Result, TextAttrib)
+       end
+       else begin
+          if HTMLText = '' then
+             HTMLTextToConvert:= Clipboard.AsHTML
+          else
+             HTMLTextToConvert:= HTMLText;
+          Clipboard.TrimMetadataFromHTML(HTMLTextToConvert);
+          ConvertHTMLToRTF(HTMLTextToConvert, Result);
+          SetDefaultFontAndSizeInRTF(Result, TextAttrib);
+       end;
     end;
 end;
 

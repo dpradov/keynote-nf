@@ -48,6 +48,7 @@ procedure CSVTextToStrs(
 procedure SplitString( aList : TStrings; aStr : string; const aDelim : char );
 
 function CountChars( const ch : char; const s : string ) : integer;
+function CountNonControlCharsNoSpace( const s : string ) : integer;
 procedure CharToChar( var s : string; const oldchar, newchar : char );
 function RemoveAccelChar( const s : string ) : string;
 procedure CollapseSpaces( var s : string );
@@ -445,6 +446,17 @@ begin
   for i := 1 to length( s ) do
     if s[i] = ch then inc( result );
 end; // CountChars
+
+
+function CountNonControlCharsNoSpace( const s : string ) : integer;
+var
+  i : integer;
+begin
+  result := 0;
+  for i := 1 to length( s ) do
+    if s[i] > #32 then inc(result);
+end; // CountNonControlCharsNoSpace
+
 
 procedure CharToChar( var s : String; const oldchar, newchar : char );
 var
