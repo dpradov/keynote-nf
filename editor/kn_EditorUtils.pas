@@ -1271,13 +1271,13 @@ end; // ConfigureUAS
 //=================================================================
 
 const
-  RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK: integer= 2000;
-  RTFCONVERSON_MAX_DIF_TO_IGNORE: integer= 10;
+  RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK: integer= 15;
+  RTFCONVERSON_MAX_DIF_TO_IGNORE: integer= 5;
 
 
 procedure TryToDetectAndSolveHTMLtoRTFbadConv (const Editor: TRxRichEdit; posI: integer);
 var
-  posF, Dif: integer;
+  posF: integer;
   PlainText: string;
 
 begin
@@ -1376,21 +1376,54 @@ begin
          This case could be better analyzed using Editor.SelVisibleText, to compare it with Clipboard.AsText
          But this situation is probably less habitual, can also be more obvious to the user, and we don't want to penalize normal
          cases. Besides, it will be still possible to use 'Paste Special...'
+
+       3. Although it is not usual, we can find character #11 ($B) when looking at RTF content. And this can have associated,
+          in the plain text version, multiple spaces
+
+          ASCII Table (https://www.ascii-code.com/)
+          ...
+          09 	00001001 	&#9; 	HT 	Horizontal Tab
+          0A 	00001010 	&#10; 	LF 	Line Feed
+          0B 	00001011 	&#11; 	VT 	Vertical Tab
+          0C 	00001100 	&#12; 	FF 	Form Feed
+          0D 	00001101 	&#13; 	CR 	Carriage Return
+
+          So, we are going to count the number of characters non controls nor space (> 32)
+
+       4. http://www.cryer.co.uk/brian/delphi/twebbrowser/navigate_frameset.htm
+          If we copy from "How to navigate a frameset" including part of the code snippet, unformatted version whill show a dashed line,
+          not present in RTF version. When counting characters in both strings, even only >32, unformatted version will have
+          80 more, because of the dash line...
+          And this page can be paste perfectly ok in RTF
+
+       5. CONCLUSION:
+          It's not easy to identify without doubt when RTF is truncating characters. It is not worth spending a lot of resources
+          on distinguish this situation, clearly unusual.
+          I'll to control only the cases more obvious and problematic, where return RTF text is like '', '<>' or similar.
+          The user will always have the RTF and Text formats available in the clipboard (Paste Special..)
+     }
+
+
+     {
+      fragments used..
+      PlainText:= Clipboard.AsText;
+      Dif:= (length(PlainText) - CountChars(#13, PlainText))  - (posF-posI);
+      RTFText:= Editor.GetTextRange(posI, posF);
+      RTFText:= Editor.SelVisibleText;
+      Dif:= CountNonControlCharsNoSpace(PlainText) - CountNonControlCharsNoSpace(RTFText);
      }
 
 
      PlainText:= Clipboard.AsText;
-     Dif:= (length(PlainText) - CountChars(#13, PlainText))  - (posF-posI);
-
-      if Dif > RTFCONVERSON_MAX_DIF_TO_IGNORE then begin
+     if (Length(PlainText) - (posF-posI))  > RTFCONVERSON_MAX_DIF_TO_IGNORE then begin
         Editor.SuspendUndo;
         try
            Editor.SelStart  := posI;
            Editor.SelLength := posF - posI;
 
            Editor.SelText := PlainText;
-
            Editor.SelStart  := posI + Editor.SelLength;
+
            Editor.SelLength := 0;
 
         finally
