@@ -27,7 +27,6 @@ unit RxRichEd;
 {$DEFINE RX_LANGUAGE}                     // [dpv]
 {$DEFINE RX_SELECTDLL}                    // [dpv] Allow to select another DLL available, for example if we have MS Office installed.  See notes at the end of GetDLLProductVersion procedure
 {$DEFINE GetSetAttributes_PUBLIC}         // [dpv]
-{$DEFINE KEEP_SELECTED_AFTER_SetSelText}  // [dpv]
 
 {$R-}
 
@@ -524,9 +523,6 @@ type
     function GetSelText: string; override;
     procedure SetSelLength(Value: Integer); override;
     procedure SetSelStart(Value: Integer); override;
-{$IFDEF KEEP_SELECTED_AFTER_SetSelText}
-    procedure SetSelText(const Value: string); override;                                  // [dpv]
-{$ENDIF}
     function GetSelVisibleText: string;                                                   // [dpv]
     property AllowInPlace: Boolean read FAllowInPlace write FAllowInPlace default True;
 {$ENDIF}
@@ -4790,39 +4786,6 @@ begin
   with GetSelection do
     Result := GetTextRange(cpMin, cpMax);
 end;
-
-{$IFDEF KEEP_SELECTED_AFTER_SetSelText}
-procedure TRxCustomRichEdit.SetSelText(const Value: string);                        // [dpv]
-var
-  len: integer;
-  rg: TCharRange;
-  allowUNDO: integer;
-begin
- { In KeyNote NF, before adapting to UNICODE (in 2009, over D2006, with the call to 
-   CustomCreateWindowHandle from Tnt controls), the message EM_REPLACESEL kept the
-   new text selected, but din't treat ok unicode text.
-   After that adaptation, only the first character of the new text was selected,
-   and so the rest of the program would function incorrectly if we did not maintain
-   the original behaviour. With this procedure the replacement of selected text with
-   unicode worked ok.  This occured with SendMessage and with SendMessageW }
-
-  if (FUndoLimit > 1) and (RichEditVersion >= 2) and not FLinesUpdating then
-     allowUNDO := 1 { allow Undo }
-  else
-     allowUNDO := 0;
-
-  if not FLinesUpdating then
-     rg:= GetSelection;
-
-  SendMessage(Handle, EM_REPLACESEL, allowUNDO, Longint(PChar(Value)));
-
-  if not FLinesUpdating then begin
-     len:= length(value);
-     SetSelection(rg.cpMin, rg.cpMin+len, true);
-  end;
-end;
-{$ENDIF}
-
 
 function TRxCustomRichEdit.GetSelVisibleText: string;
 var

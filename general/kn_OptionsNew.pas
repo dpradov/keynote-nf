@@ -312,6 +312,7 @@ type
     procedure CheckBox_TrackCaretPosClick(Sender: TObject);
     procedure CB_TrackWordCountClick(Sender: TObject);
     procedure CheckBox_AutoSaveOnFocusClick(Sender: TObject);
+    procedure CB_AsTextClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -607,6 +608,9 @@ begin
   RB_ClipTreeActiveClick( RB_ClipTreeActive );
   RB_ClipTreeActive.OnClick := RB_ClipTreeActiveClick;
   RB_ClipTreeNew.OnClick := RB_ClipTreeActiveClick;
+  CB_AsText.OnClick:= CB_AsTextClick;
+
+  CB_AsTextClick(nil);
 
 end; // ClipCapToForm
 
@@ -1688,6 +1692,15 @@ procedure TForm_OptionsNew.CheckBox_TrackCaretPosClick(Sender: TObject);
 begin
   if CheckBox_TrackCaretPos.Checked then
     CB_TrackWordCount.Checked := false;
+end;
+
+procedure TForm_OptionsNew.CB_AsTextClick(Sender: TObject);
+var
+   Plain: boolean;
+begin
+  Plain:= CB_AsText.Checked;
+  Combo_Size.Enabled:= Plain;
+  Label_MaxSize.Enabled:= Plain;
 end;
 
 procedure TForm_OptionsNew.CB_TrackWordCountClick(Sender: TObject);

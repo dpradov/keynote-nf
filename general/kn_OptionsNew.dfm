@@ -160,11 +160,14 @@ object Form_OptionsNew: TForm_OptionsNew
     Top = 6
     Width = 364
     Height = 377
+    PageIndex = 12
     TabOrder = 1
     object PG_Interface: TPage
       Left = 0
       Top = 0
       Caption = 'PG_Interface'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 5
         Top = 5
@@ -2641,8 +2644,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_ClipCap'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label_PlainTextMode: TLabel
         Left = 8
         Top = 348
@@ -2701,7 +2702,8 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 21
           Hint = 
             'Maximum length of text to capture, in bytes (when paste as plain' +
-            ' text)'#13#10'(only for Clipboard Capture)'
+            ' text, and '#39'Plain text mode'#39' is '#39'Plain (without any formatting)'#39 +
+            ' )'#13#10#13#10'(only for Clipboard Capture)'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -2748,7 +2750,9 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 226
           Width = 127
           Height = 16
-          Hint = 'Paste text without any formatting  (only for Clipboard Capture)'
+          Hint = 
+            'Paste text as defined by '#39'Plain text mode'#39'   (only for Clipboard' +
+            ' Capture)'
           Caption = '&Paste as plain text'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText

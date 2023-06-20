@@ -1773,9 +1773,8 @@ procedure PerformCmdPastePlain( Note: TTabNote;
                                 MaxSize: integer = 0 );
 var
    Editor: TTabRichEdit;
-   i, j: integer;
+   SelStart, j: integer;
    TextToReplace: string;
-   SelStart: Integer;
    Ok, DoUndo: boolean;
 
   function PasteOperationWasOK (): boolean;
@@ -1843,21 +1842,25 @@ begin
     Editor:= Note.Editor;
     Ok:= True;
 
+    SelStart := Editor.SelStart;
+
     if ForcePlainText or Note.PlainText or (ClipOptions.PlainTextMode = clptPlainText) then begin
-       if StrClp = '' then
-          StrClp:= Clipboard.TryAsText;
 
-       if (( MaxSize > 0 ) and ( length( StrClp ) > MaxSize )) then
-          delete( StrClp, succ( ClipOptions.MaxSize ), length( StrClp ));
+       if RichEditVersion < 5 then
+          TextToReplace:= Editor.GetTextRange(SelStart, SelStart + 5);    // To use it from PasteOperationWasOK()
 
+       if MaxSize > 0 then begin
+           if StrClp = '' then
+              StrClp:= Clipboard.TryAsText;
+           if ( length( StrClp ) > MaxSize ) then begin
+              delete( StrClp, succ( ClipOptions.MaxSize ), length( StrClp ));
+              Clipboard.AsText:= StrClp;
+           end;
+       end;
 
-       if RichEditVersion >= 5 then
-          Editor.SelText := StrClp
+       Editor.PasteIRichEditOLE(CF_TEXT);
 
-       else begin
-          SelStart:= Editor.SelStart;
-          TextToReplace:= Editor.GetTextRange(SelStart, SelStart + 5);
-          Editor.SelText := StrClp;
+       if RichEditVersion < 5 then begin
           if not PasteOperationWasOK() then begin
              if DoUndo then
                 Editor.Undo;
@@ -1866,15 +1869,11 @@ begin
           end;
        end;
 
-       if Ok then
-          Editor.SelStart := Editor.SelStart + Editor.SelLength - NumberOfLineFeed(StrClp);
-
     end
     else begin
           if HTMLClip = '' then
              HTMLClip:= Clipboard.AsHTML;
 
-           i := Editor.SelStart;
            SaveParagraphAttributes(Editor, ParaFormatToCopy);
            if (ClipOptions.PlainTextMode = clptAllowHyperlink) then
               SaveTextAttributes(Editor, FontFormatToCopy);
@@ -1883,8 +1882,8 @@ begin
            j := Editor.SelStart;
            Editor.SuspendUndo;
            try
-              Editor.SelStart := i;
-              Editor.SelLength := j-i+1;
+              Editor.SelStart := SelStart;
+              Editor.SelLength := j-SelStart+1;
               if (ClipOptions.PlainTextMode = clptAllowHyperlink) then begin
                  ApplyParagraphAttributes(Editor, ParaFormatToCopy);
                  ApplyTextAttributes(Editor, FontFormatToCopy);
