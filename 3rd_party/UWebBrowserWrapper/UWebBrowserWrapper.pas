@@ -662,8 +662,10 @@ begin
 
          end;
 
-         if (pI > 0) and (pI < pF) then
+         if (pI > 0) and (pI < pF) then begin
             Result:= TryUTF8ToUnicodeString(Copy(P, pI, pF-pI));  // DEBUG:  + ' -> ' + T.ElapsedMilliseconds.ToString
+            Result:= ConvertHTMLAsciiCharacters(Result);
+         end;
       end;
 
 

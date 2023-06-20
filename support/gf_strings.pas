@@ -71,6 +71,8 @@ function CanSaveAsANSI(const cad: string): boolean;
 function FirstLineFromString( const str: string; const MaxLen : integer ) : string;
 function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1): integer;
 
+function ConvertHTMLAsciiCharacters(const S: string): string;
+
 implementation
 
 
@@ -703,6 +705,51 @@ begin
        if n= nthOccurrence then
           Exit(i);
     end;
+end;
+
+{
+ ASCII Table (https://www.ascii-code.com/   https://www.rapidtables.com/code/text/ascii-table.html
+
+ Ex: 225 	&#225;  	á
+
+ Ex.
+ https://www.microsoft.com/es-es/windows/windows-11
+ "Descubre Windows 11: la versi&#243;n m&#225;s reciente de Windows | Microsoft"
+-> 
+ "Descubre Windows 11: la versión más reciente de Windows | Microsoft"
+
+}
+
+function ConvertHTMLAsciiCharacters(const S: string): string;
+var
+  p1,p2: integer;
+  ch: char;
+begin
+  Result:= '';
+  if S='' then exit;
+
+  p1:= Pos('&#', S);
+  if p1 = 0 then exit(S);
+
+  try
+    p2:= 0;
+    Result:= S;
+
+    repeat
+       p2:= Pos(';', Result, p1+1);
+       if p2 > 0 then begin
+         ch:= Char(StrToint(Copy(Result, p1+2, p2-p1-2)));
+         delete(Result, p1, p2-p1+1);
+         insert(ch, Result, p1);
+
+         p1:= Pos('&#', Result, p1+1);
+       end;
+    until (p1 = 0) or (p2 = 0);
+
+  except
+    Result:= S;
+  end;
+
 end;
 
 
