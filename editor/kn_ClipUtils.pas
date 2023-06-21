@@ -272,6 +272,7 @@ end;
 function TClipboardHelper.TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil): AnsiString;
 var
    HTMLTextToConvert: AnsiString;
+   p, len: integer;
 begin
    { *1  The RTF available in the clipboard, if any, probably has been converted by us (with the help of TWebBrowser)
          We have been reusing directly this RTF format, but now, since the introduction of changes in ConvertHTMLToRTF to allow
@@ -292,8 +293,19 @@ begin
              HTMLTextToConvert:= Clipboard.AsHTML
           else
              HTMLTextToConvert:= HTMLText;
+
           Clipboard.TrimMetadataFromHTML(HTMLTextToConvert);
           ConvertHTMLToRTF(HTMLTextToConvert, Result);
+
+          len:= Length(Result);
+          p:= Pos('\line\par\pard}', Result, len - 16);
+          if p = 0 then
+             p:= Pos(' \par\pard}', Result, len - 12);
+          if p > 0 then begin
+             delete(Result, p, len-p+1);
+             insert('}', Result, p);
+          end;
+
           SetDefaultFontAndSizeInRTF(Result, TextAttrib);
        end;
     end;
