@@ -166,8 +166,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Interface'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 5
         Top = 5
@@ -403,8 +401,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Editor'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GBox_EditorGlobal: TGroupBox
         Left = 5
         Top = 5
@@ -592,8 +588,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Tree'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GBox_TreeGlobal: TGroupBox
         Left = 5
         Top = 5
@@ -806,8 +800,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_KNTFiles'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 5
         Top = 5
@@ -1011,8 +1003,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_FileOptions'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         Left = 5
         Top = 5
@@ -1213,8 +1203,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_BackupOptions'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox11: TGroupBox
         Left = 5
         Top = 5
@@ -1442,8 +1430,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Actions'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox10: TGroupBox
         Left = 5
         Top = 5
@@ -1695,8 +1681,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Confirmations'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox12: TGroupBox
         Left = 5
         Top = 5
@@ -1884,8 +1868,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Chrome'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox14: TGroupBox
         Left = 5
         Top = 184
@@ -2158,8 +2140,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Icons'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox_ICN: TGroupBox
         Left = 5
         Top = 5
@@ -2271,8 +2251,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Advanced'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox8: TGroupBox
         Left = 5
         Top = 5
@@ -2480,8 +2458,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Formats'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox4: TGroupBox
         Left = 5
         Top = 5
@@ -2721,7 +2697,8 @@ object Form_OptionsNew: TForm_OptionsNew
           Hint = 
             'Text to place between captured items'#13#10#13#10'Only selected divider (c' +
             'an be customized) will be saved in .ini file'
-          DropDownCount = 12
+          DropDownCount = 14
+          DropDownWidth = 290
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -2973,6 +2950,7 @@ object Form_OptionsNew: TForm_OptionsNew
             'Text to place between captured items'#13#10'(*) If empty, '#39'Clip.Capt.'#39 +
             ' divider string will be used'#13#10#13#10'Only selected divider (can be cu' +
             'stomized) will be saved in .ini file'
+          DropDownWidth = 290
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -3033,8 +3011,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_FileTypes'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox19: TGroupBox
         Left = 5
         Top = 5
@@ -3131,8 +3107,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Language'
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox21: TGroupBox
         Left = 5
         Top = 5

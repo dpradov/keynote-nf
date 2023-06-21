@@ -375,12 +375,13 @@ resourcestring
     '(CASE SENSITIVE)' +#13#13+
      '%s = current date' +#13+
      '%s = current time' +#13+
-     '%s = replaced with a blank line' +#13+
+     '%s = replaced with one line break' +#13+
      '%s = encloses what to show only if source is included' +#13+
      '%s = source URL (with title)' +#13+
      '%s = source URL (with title, limited waiting time (*))' +#13+
      '%s = source URL (without title)'  +#13+
-     '%s = source server/domain (e.g.: "[YouTube]")'  +#13#13+
+     '%s = source server/domain (e.g.: "[YouTube]")'  +#13+
+     '%s = delimits divider for 2nd+ (same URL)'  +#13#13+
 
      'Remember: Source tokens will be ignored if source is not shown. Also, with %%|' +
      ' you can vary the effective divider depending on whether source URL is shown or not'
@@ -393,16 +394,18 @@ resourcestring
   STR_16 = 'Error in TVChange: PageIndex %d  Node.AbsIdx %d';
 
 const
-  DIVIDER1: string= '^%|^%S%d^%|^';
-  DIVIDER2: string= '^^%|- >  %S %d  %|- - - - - - -%|^%|^';
-  DIVIDER3: string= '^^%|=>  %S %d  %|======%|^%|^';
-  DIVIDER4: string= '^^- - - - - - - - - - - -^ %|>>   %S %d^%|';
-  DIVIDER5: string= '^^--- %S%d^';
-  DIVIDER6: string= '^%|^%|- - - - - - - -  %S%d %|- - - -%|^';
-  DIVIDER7: string= '^- - - - - - - -%|^%S%d%|^';
-  DIVIDER8: string= '^^-- %D %|-  [ %S ] %|--^';
-  DIVIDER9: string= '^^^--- %D, %T %| - - -  %S%|^^';
-  DIVIDER10:string= '^^^--- %D, %T %| -  %U%|^^';
+  DIVIDER1: string= '^%|^%S%d^%|^%%^- - -^';
+  DIVIDER2: string= '^^%|- >  %S %d  %|- - - - - - -%|^%|^%%^- -^';
+  DIVIDER3: string= '^^%|=>  %S %d  %|======%|^%|^%%^- - - -^';
+  DIVIDER4: string= '^^- - - - - - - - - - - -^ %|>>   %S %d^%|%%^- - -^';
+  DIVIDER5: string= '^^--- %S%d^%%^. . .^';
+  DIVIDER6: string= '^%|^%|- - - - - - - -  %S%d %|- - - -%|^%%^- - -^';
+  DIVIDER7: string= '^- - - - - - - -%|^%S%d%|^%%^--^';
+  DIVIDER8: string= '^^-- %D %|-  [ %S ] %|--^%%^- -^';
+  DIVIDER9: string= '^^^--- %D, %T %| - - -  %S%|^^%%^. . .^';
+  DIVIDER10:string= '^^^--- %D, %T %| -  %U%|^^%%^---^';
+  DIVIDER11:string= '^^%%^';
+  DIVIDER12:string= '^^%%^^';
 
 
 procedure TForm_OptionsNew.FormCreate(Sender: TObject);
@@ -437,6 +440,8 @@ begin
     Add( DIVIDER1 );
     Add( DIVIDER7 );
     Add( DIVIDER10 );
+    Add( DIVIDER11 );
+    Add( DIVIDER12 );
     Add( DIV_1_BLANK );
     Add( DIV_2_BLANK );
   end;
@@ -1516,7 +1521,9 @@ end;
 
 procedure TForm_OptionsNew.BitBtn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR, CLIPSOURCEDELIMITER, CLIPSOURCE, CLIPSOURCE_LIMITED, CLIPSOURCE_ONLY_URL, CLIPSOURCE_DOMAIN]),
+  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR,
+                              CLIPSOURCEDELIMITER, CLIPSOURCE, CLIPSOURCE_LIMITED, CLIPSOURCE_ONLY_URL, CLIPSOURCE_DOMAIN,
+                              CLIPSECONDDIV]),
     mtInformation, [mbOK], 0
   );
 

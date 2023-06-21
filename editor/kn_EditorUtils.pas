@@ -139,6 +139,8 @@ uses
    UWebBrowserWrapper,
    kn_Main;
 
+var
+   LastURLPasted: string;
 
 
 resourcestring
@@ -1516,6 +1518,7 @@ begin
       if ( not assigned( aNote )) then exit;
 
       ClipCapCRC32 := 0; // reset test value
+      LastURLPasted:= '';
 
       try
         try
@@ -1741,6 +1744,8 @@ var
   CLIPSOURCE_Token: string;
   IgnoreCopiedText: boolean;
 
+  Using2ndDivider: boolean;
+
  const
     URL_YOUTUBE: string = 'https://www.youtube.com';
 
@@ -1749,6 +1754,7 @@ begin
 
   with Form_Main do begin
         myTreeNode := nil;
+        SourceURLStr:= '';
 
         Note:= NoteFile.ClipCapNote;
         Editor:= Note.Editor;
@@ -1761,6 +1767,22 @@ begin
         NoteFile.Modified := true; // bugfix 27-10-03
 
         DividerString := ClipOptions.Divider;
+        Using2ndDivider:= False;
+
+
+        i:= pos(CLIPSECONDDIV, DividerString);
+        if (i > 0) then begin
+           HTMLClipboard:= Clipboard.AsHTML;
+           SourceURLStr := Clipboard.GetURLFromHTML (HTMLClipboard);
+           if (SourceURLStr <> '') and (SourceURLStr = lastURLPasted) then begin
+              delete(DividerString, 1, i + length(CLIPSECONDDIV)-1);
+              Using2ndDivider:= true;
+           end
+           else begin
+              delete(DividerString, i, 9999);
+              lastURLPasted:= SourceURLStr;
+           end;
+        end;
 
 
         { *1
@@ -1784,9 +1806,11 @@ begin
         _U  := pos(CLIPSOURCE_ONLY_URL, DividerString);
 
         if ClipOptions.InsertSourceURL then begin
-           HTMLClipboard:= Clipboard.AsHTML;
-           SourceURLStr := Clipboard.GetURLFromHTML (HTMLClipboard);
-           // TitleURL:= Clipboard.GetTitleFromHTML (HTMLClipboard);       // This data is not currently copied to the clipboard
+           if HTMLClipboard ='' then begin
+              HTMLClipboard:= Clipboard.AsHTML;
+              SourceURLStr := Clipboard.GetURLFromHTML (HTMLClipboard);
+              //TitleURL:= Clipboard.GetTitleFromHTML (HTMLClipboard);       // This data is not currently copied to the clipboard
+           end;
 
            if (_S=0) and (_SL=0) and (_U > 0) then begin
                GetTitle:= False;
@@ -1837,7 +1861,7 @@ begin
           PasteOnlyURL:= false;
           if ClipOptions.URLOnly and (SourceURLStr <> '') then begin
              AuxStr:= copy(ClpStr,1,30);
-             if (GetWordCount(AuxStr)=1) and (not HasNonAlphaNumericOrWordDelimiter(AuxStr)) then begin
+             if (GetWordCount(AuxStr)=1) and (not HasNonAlphaNumericOrWordDelimiter(AuxStr)) and (not Using2ndDivider) then begin
                PasteOnlyURL:= true;
                if IgnoreCopiedText then            // YouTube...  See *1
                   TitleURL:= '';
@@ -1954,7 +1978,7 @@ begin
                 Editor.SelStart :=  Editor.SelStart + Editor.SelLength;
               end;
 
-              if ( SourceURLStr <> '' ) or PasteOnlyURL then begin
+              if ((SourceURLStr <> '' ) or PasteOnlyURL) and (not Using2ndDivider) then begin
                    InsertURL(SourceURLStr, TitleURL, Note);
                    if PasteOnlyURL then begin
                      Editor.SelText := #13;
@@ -2446,5 +2470,6 @@ end; // ShowTipOfTheDay
 initialization
    cacheURLs:= nil;
    cacheTitles:= nil;
+   LastURLPasted:= '';
 
 end.

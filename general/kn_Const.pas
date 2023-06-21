@@ -297,10 +297,13 @@ const
       'https://martinfowler.com/eaaCatalog/', 'Catalog of Patterns of Enterprise Application Architecture'                       => [martinfowler.com]
       'https://en.wikipedia.org/wiki/Johann_Sebastian_Bach', 'Johann Sebastian Bach - Wikipedia'                                 => ''
       'https://www.youtube.com/watch?v=r0R6gMw2s44', 'El Círculo de Quintas: Una explicación detallada | Versión 2.0'            => [YouTube]
+
+   *5 Delimits a divider string for the second and following consecutive paste from the same page (same URL). 
+      KNT will remember the last URL from wich pasted in the current [Clipboard Capture] session
 }
 
   // tokens for clipboard capture separator line
-  CLIPDIVCHAR           = '^';  // replaced with 1 blank line
+  CLIPDIVCHAR           = '^';  // replaced with 1 line break
   CLIPDATECHAR          = NODEINSDATE; // inserts date
   CLIPTIMECHAR          = NODEINSTIME; // inserts time
   CLIPSOURCEDELIMITER   = '%|';   // Encloses source (optional)                    *1
@@ -308,6 +311,7 @@ const
   CLIPSOURCE_LIMITED    = '%s';   // insert source URL (with title, limited time)  *3
   CLIPSOURCE_ONLY_URL   = '%U';   // insert source URL (without title)
   CLIPSOURCE_DOMAIN     = '%d';   // insert Source server/domain                   *4
+  CLIPSECONDDIV         = '%%';   // delimits divider for 2nd+ (same URL)          *5
 
 
 
