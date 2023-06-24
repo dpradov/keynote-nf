@@ -17,6 +17,7 @@ unit kn_Main;
 
 
 {.$DEFINE MJ_DEBUG}
+{$DEFINE EXCLUDEEMAIL}
 
 interface
 
@@ -2058,7 +2059,13 @@ begin
   TB_EditPaste.Hint := MMEditPaste.Hint;
   TB_EditRedo.Hint := MMEditRedo.Hint;
   TB_EditUndo.Hint := MMEditUndo.Hint;
+
+{$IFNDEF EXCLUDEEMAIL}
   TB_EmailNote.Hint := MMNoteEmail.Hint;
+{$ELSE}
+  MMNoteEmail.Visible:= False;
+  TB_EmailNote.Visible:= False;
+{$ENDIF}
   TB_Exit.Hint := MMFileExit.Hint;
   TB_FileInfo.Hint := MMFileproperties.Hint;
   TB_FileMgr.Hint := MMFileManager.Hint;
