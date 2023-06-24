@@ -8,6 +8,38 @@
    >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
       in https://github.com/dpradov/keynote-nf     
  --------------------------------------------------------------------------------- *)
+{  // [dpv]
+  *1:
+   When converting the project from Delphi 2006 to Delphi CE 11.3, this control has started to have a strange visual behavior when setting Flat=True (property 
+   that in this control should be set in this way, because False does not look good)
+   When hovering the cursor on the button (main or auxiliary with the arrow), it was highlighted in blue, but not temporarily while the cursor is over 
+   (which would be normal). This color was not removed, but 'added', until it was left with an intense blue. It was as to paint with a blue brush on top
+   of the bottoms. The same happened with the buttons associated with each individual color, in the grid that is offered when clicking on the auxiliary button with
+    the down arrow.
+
+    Both the main buttons and those linked to specific colors are implemented with TSpeedButton controls. The control (TColorBtn) inherits from TCustomPanel, and
+    its main buttons (Btn1 and Btn2) are TSpeedButton. The first of these is actually TColBtn, which is nothing more than a derived class that overrides the Paint
+    method. These buttons had the Self object (TColorBtn, TCustomPanel) defined as the Parent control.
+
+    In the window with the color grid, these are TColBtn and they also had the control that created them as their parent, another TCustomPanel (TColorPicker).
+
+    I don't quite understand what is happening, because this previously worked perfectly.
+
+    I have verified that the TSpeedButton controls work normally, also when added to a Panel control (I have tried to add a panel to a TToolbarPanel control and to
+    the panel a TSpeedButton configured as Flat= True, and the behavior has been normal). The same also happens when the button is added to a panel located anywhere.
+
+    I have done many tests, and the only thing that has worked for me has been to assign as parent of Btn1 and Btn2 buttons the Parent of the control itself 
+    (Self.Parent). And something similar I have done with the buttons of the grid. I have had to adjust the limits of the buttons accordingly. I have also kept the
+    PanelForm itself hidden. In the case of TColorBtn (not TColorPicker) I have needed to offer the initial behavior in case the control is in design mode, or else
+    the IDE would give an error (if it did not have the Parent property set), or it would not allow it to be selected (if we keep it a width equal to zero).
+
+  *2:
+    Another problem I've run into was that, also with Flat=True, inside the Paint method, and after the call to Inherited, the colors set for the Pen and Brush seemed
+    to be ignored: it was painting unfilled rectangles with black borders.
+    That happened only after hovering over the TSpeedButton. The first time he painted it did it correctly. The solution in this case has been to call
+    Canvas.Refresh after the call to Inherited.     
+}
+
 
 unit ColorPicker;
 
@@ -47,6 +79,7 @@ type
     FAutoClicked : Boolean;
     procedure InitButtons;
     procedure UpdateButtons;
+    procedure SetParent(AParent: TWinControl); override;                         // [dpv]  *1
     procedure OtherBtnClick(Sender:TObject);
     procedure BtnClick(Sender:TObject);
     procedure BtnRClick(Sender: TObject;
@@ -115,6 +148,7 @@ type
   protected
     Btn1:TColBtn;
     Btn2:TSpeedButton;
+    procedure Loaded; override;                                    // [dpv]
     procedure SetEnabled(Value:boolean);
     procedure WriteReg;
     procedure ReadReg;
@@ -181,6 +215,9 @@ begin
      else FColor:=clGray;
      B:=Height div 5;
      Inherited;
+
+     Canvas.Refresh;                              // [dpv] *2
+
      with Canvas do
      if Glyph.Handle<>0
      then
@@ -225,7 +262,7 @@ begin
   FColorDlg:=TColorDialog.Create(self);
   FColorDlg.Options:=[cdFullOpen];
   FSeparator := TBevel.Create(self);
-  FSeparator.Parent:=self;
+  //FSeparator.Parent:=self;                          // [dpv]
   FSeparator.SetBounds(5,135,width-10,2);
   InitButtons;
   FDDIsAuto:=true;
@@ -241,7 +278,7 @@ var
 
 begin
   Btn:=TColBtn.Create(Self);
-  Btn.Parent := Self;
+  //Btn.Parent := Self;	                            // [dpv]
   Btn.Flat:=true;
   Btn.Tag:=100;
   Btn.Color:=ClDefault;
@@ -253,7 +290,7 @@ begin
   for I := 0 to 39 do
   begin
     Btn := TColBtn.Create (Self);
-    Btn.Parent := Self;
+    //Btn.Parent := Self;                           // [dpv]
     Btn.Flat:=true;
     Btn.Color:=BtnColors[I];
     Btn.GroupIndex:=1;
@@ -267,7 +304,7 @@ begin
   for I := 0 to 15 do
   begin
     Btn := TColBtn.Create (Self);
-    Btn.Parent := Self;
+    //Btn.Parent := Self;                            // [dpv]
     Btn.Flat:=true;
     Btn.Color:=CustBtnColors[I];
     Btn.GroupIndex:=1;
@@ -280,7 +317,7 @@ begin
     CustColBtns[I] := Btn;
   end;
   Btn:=TColBtn.Create(Self);
-  Btn.Parent := Self;
+  //Btn.Parent := Self;                               // [dpv]
   Btn.Flat:=true;
   Btn.Color:=FColorDlg.Color;
   Btn.SetBounds(5,BtnDim*8+25,BtnDim,BtnDim);
@@ -289,12 +326,31 @@ begin
   OtherColBtn:=Btn;
 
   ABtn:=TSpeedButton.Create(Self);
-  ABtn.Parent := Self;
+  //ABtn.Parent := Self;                              // [dpv]
   ABtn.Flat:=true;
   ABtn.SetBounds(5+BtnDim,BtnDim*8+25,Width-10-BtnDim,BtnDim);
   OtherBtn:=ABtn;
   OtherBtn.OnClick:=OtherBtnClick;
 end;
+
+procedure TColorPicker.SetParent(AParent: TWinControl);    // [dpv]
+var I : integer;
+begin
+     //inherited;        // Commented: The panel will not hide the buttons, to which we have assigned as parent the own parent of TColorPicker (panel)
+
+     AutoBtn.Parent:= AParent;
+     for I:=0 to 39 do
+       ColBtns[I].Parent:= AParent;
+
+     FSeparator.Parent:= AParent;
+
+     for I:=0 to 15 do
+       CustColBtns[I].Parent:= AParent;
+
+     OtherColBtn.Parent:= AParent;
+     OtherBtn.Parent:= AParent;
+end;
+
 
 procedure TColorPicker.UpdateButtons;
 var I : integer;
@@ -489,15 +545,34 @@ procedure TColorBtn.InitButtons;
 
 begin
   Btn1:=TColBtn.Create(Self);
-  Btn1.Parent := Self;
+  //Btn1.Parent := Self;                                  // [dpv]
   Btn1.Color:=FActiveColor;
   Btn1.OnClick:=Btn1Click;
   Btn1.Glyph.Handle:= LoadBitmap(HInstance,'FRCOLOR');
+
   Btn2:=TSpeedButton.Create(Self);
-  Btn2.Parent := Self;
+  //Btn2.Parent := Self;                                  // [dpv]
   Btn2.Glyph.Handle:= LoadBitmap(HInstance,'DROPDOWN');
   Btn2.OnClick:=Btn2Click;
+
+   if (csDesigning in ComponentState) then begin          // [dpv]
+      Btn1.Parent := Self;
+      Btn2.Parent := Self;
+   end;
+
 end;
+
+
+procedure TColorBtn.Loaded;                              // [dpv]
+begin
+   inherited Loaded;
+
+   if not (csDesigning in ComponentState) then begin
+      Btn1.Hint:= Hint;
+      Btn2.Hint:= Hint;
+   end;
+end;
+
 
 procedure TColorBtn.ReadReg;
 var ECIni:TRegistry;
@@ -554,9 +629,14 @@ begin
      then FBeforeDropDown(Self);
      if not (csDesigning in ComponentState)
      then ReadReg;
+{                                                                   // [dpv]  *1
      P.X:=TControl(Sender).Left-TControl(Sender).Parent.height;
      P.Y:=TControl(Sender).Top+TControl(Sender).Parent.height;
      P:=ClientToScreen(P);
+}
+     P.X:= 0;                                                       // [dpv]
+     P.Y:= TControl(Sender).height;
+     P:= Btn1.ClientToScreen(P);
      Dlg:= TColPickDlg.CreateNew(Application);
 
      with Dlg do
@@ -596,12 +676,25 @@ begin
 end;
 
 procedure TColorBtn.AdjustSize (var W: Integer; var H: Integer);
+var
+  L: Integer;
 begin
-  if (csLoading in ComponentState) then Exit;
-  if Btn1 = nil then Exit;
-  W:=H+FDDArrowWidth;
-  Btn1.SetBounds(0,0,H,H);
-  Btn2.SetBounds(H,0,FDDArrowWidth,H);
+   if (csLoading in ComponentState) then Exit;
+   if Btn1 = nil then Exit;
+   W:= H + FDDArrowWidth;
+// Btn1.SetBounds(0,0,H,H);                                     // [dpv]    
+// Btn2.SetBounds(H,0,FDDArrowWidth,H);
+
+   L:= 0;
+   if not (csDesigning in ComponentState) then begin            // [dpv]
+      L:= Left;
+      if Btn1.Parent = nil then begin
+         Btn1.Parent:= Self.Parent;
+         Btn2.Parent:= Self.Parent;
+      end;
+   end;
+   Btn1.SetBounds(L,0,H,H);
+   Btn2.SetBounds(L+H,0,FDDArrowWidth,H);
 end;
 
 procedure TColorBtn.SetBounds(ALeft, ATop, AWidth, AHeight: Integer);
@@ -611,7 +704,9 @@ begin
   W := AWidth;
   H := AHeight;
   AdjustSize (W, H);
- inherited SetBounds (ALeft, ATop, W, H);
+
+  if not (csDesigning in ComponentState) then  W:= 0;          // [dpv] -> Panel will not hide btn1 nor btn2
+  inherited SetBounds (ALeft, ATop, W, H);
 end;
 
 procedure TColorBtn.WMSize(var Message: TWMSize);
@@ -622,8 +717,11 @@ begin
   W := Width;
   H := Height;
   AdjustSize (W, H);
-  if (W <> Width) or (H <> Height) then
-    inherited SetBounds(Left, Top, W, H);
+
+//if (W <> Width) or (H <> Height) then                                         // [dpv]
+  if (csDesigning in ComponentState) and ((W <> Width) or (H <> Height)) then
+      inherited SetBounds(Left, Top, W, H);
+
   message.Result := 0;
 end;
 
