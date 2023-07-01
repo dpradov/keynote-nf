@@ -993,6 +993,23 @@ var
   tf : TTextFile;
   AuxStream : TMemoryStream;
 
+  procedure WriteNote (myNote: TTabNote);
+  begin
+      try
+        if assigned( myNote ) then begin
+          case myNote.Kind of
+            ntRTF : myNote.SaveToFile( tf );
+            ntTree : TTreeNote( myNote ).SaveToFile( tf );
+          end;
+        end;
+      except
+        on E : Exception do begin
+            result := 3;
+            DoMessageBox( Format(STR_13, [myNote.Name, E.Message]), mtError, [mbOK], 0 );
+            exit;
+        end;
+      end;
+  end;
 
   procedure WriteNoteFile;
   var
@@ -1023,20 +1040,7 @@ var
       // this is done so that we preserve the order of tabs.
        for i := 0 to pred( FPageCtrl.PageCount ) do begin
           myNote := TTabNote( FPageCtrl.Pages[i].PrimaryObject );
-          try
-            if assigned( myNote ) then begin
-              case myNote.Kind of
-                ntRTF : myNote.SaveToFile( tf );
-                ntTree : TTreeNote( myNote ).SaveToFile( tf );
-              end;
-            end;
-          except
-            on E : Exception do begin
-                result := 3;
-                DoMessageBox( Format(STR_13, [myNote.Name, E.Message]), mtError, [mbOK], 0 );
-                exit;
-            end;
-          end;
+          WriteNote(myNote);
        end;
     end
     else begin
@@ -1044,19 +1048,7 @@ var
       // This may cause notes to be saved in wrong order.
       for i := 0 to pred( FNotes.Count ) do begin
          myNote := FNotes[i];
-         try
-           if assigned( myNote ) then
-             case myNote.Kind of
-               ntRTF : myNote.SaveToFile( tf );
-               ntTree : TTreeNote( myNote ).SaveToFile( tf );
-             end;
-         except
-           on E : Exception do begin
-              result := 3;
-              DoMessageBox( Format(STR_13, [myNote.Name, E.Message]), mtError, [mbOK], 0 );
-              exit;
-           end;
-         end;
+         WriteNote(myNote);
       end;
     end;
 
