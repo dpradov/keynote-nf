@@ -667,6 +667,7 @@ type
     AllNodes : boolean; // search all nodes in tree
     AllTabs : boolean;   // search all notes in file (resource panel)
     AllTabs_FindReplace : boolean; // search all notes in file (FindReplace dialog)
+    CurrentNodeAndSubtree : boolean;   // search only in current node and subtree (for tree notes)
     AutoClose : boolean; // auto close find dialog box when Find button clicked
     EntireScope : boolean; // search from top of text rather than from current position in active note
     FindAllHistory : string;

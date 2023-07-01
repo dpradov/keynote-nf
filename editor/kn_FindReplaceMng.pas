@@ -242,6 +242,7 @@ var
   nodesSelected: boolean;
   oldActiveNote: TTabNote;
   SearchModeToApply : TSearchMode;
+  TreeNodeToSearchIn : TTreeNTNode;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -286,6 +287,13 @@ type
           Location_List.AddObject(path, Location);
        end;
 
+       procedure GetCurrentNode;
+       begin
+          if myNote.Kind <> ntTree then exit;
+          myTreeNode := TTreeNote(myNote).TV.Selected;
+          TreeNodeToSearchIn:= myTreeNode;
+       end;
+
        procedure GetFirstNode;
        begin
           if myNote.Kind <> ntTree then exit;
@@ -303,6 +311,14 @@ type
              myTreeNode := myTreeNode.GetNext
           else
              myTreeNode := myTreeNode.GetNextNotHidden;
+
+          if (myTreeNode <> nil) and (TreeNodeToSearchIn <> nil) then
+             if ((FindOptions.HiddenNodes) and (TreeNodeToSearchIn.GetNextSibling = myTreeNode))  or
+                (not (FindOptions.HiddenNodes) and (TreeNodeToSearchIn.GetNextSiblingNotHidden = myTreeNode)) then begin
+              myTreeNode := nil;
+              exit;
+             end;
+
        end;
 
        procedure GetNextNote;
@@ -345,6 +361,7 @@ begin
     FindOptions.MatchCase := CB_ResFind_CaseSens.Checked;
     FindOptions.WholeWordsOnly := CB_ResFind_WholeWords.Checked;
     FindOptions.AllTabs := CB_ResFind_AllNotes.Checked;
+    FindOptions.CurrentNodeAndSubtree := CB_ResFind_CurrentNodeAndSubtree.Checked;
     FindOptions.SearchNodeNames := CB_ResFind_NodeNames.Checked;
     FindOptions.SearchMode := TSearchMode( RG_ResFind_Type.ItemIndex );
     FindOptions.HiddenNodes:= CB_ResFind_HiddenNodes.Checked;   // [dpv]
@@ -368,6 +385,7 @@ begin
 
   myTreeNode := nil;
   myNoteNode := nil;
+  TreeNodeToSearchIn:= nil;
 
   FindOptions.FindAllMatches := true;
 
@@ -415,11 +433,15 @@ begin
          myNote := ActiveNote; // will exit after one loop
 
       if myNote.Kind = ntTree then begin
-         GetFirstNode;
-         while (not FindDone) and (not assigned(myTreeNode)) do begin
-                GetNextNote();
+         if FindOptions.CurrentNodeAndSubtree then
+            GetCurrentNode
+         else begin
+            GetFirstNode;
+            while (not FindDone) and (not assigned(myTreeNode)) do begin
+                 GetNextNote();
                 if (myNote.Kind <> ntTree) then break;
             end;
+         end;
       end;
 
 

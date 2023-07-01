@@ -1128,6 +1128,7 @@ begin
                         WholeWordsOnly := ( ArgList[2] = BOOLEANSTR[true] );
                         AllNodes := false;
                         AllTabs := false;
+                        CurrentNodeAndSubtree := false;
                         AllTabs_FindReplace:= false;
                         EntireScope := false;
                         Wrap := false;

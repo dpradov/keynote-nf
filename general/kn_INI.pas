@@ -680,6 +680,7 @@ type
     Section,
     AllNodes,
     AllTabs,
+    CurrentNodeAndSubtree,
     AutoClose,
     EntireScope,
     FindAllHistory,
@@ -709,6 +710,7 @@ const
     Section : 'FindOptions';
     AllNodes : 'AllNodes';
     AllTabs : 'AllTabs';
+    CurrentNodeAndSubtree : 'CurrentNodeAndSubtree';
     AutoClose : 'AutoClose';
     EntireScope : 'EntireScope';
     FindAllHistory : 'FindAllHistory';
@@ -1058,6 +1060,7 @@ begin
     HiddenNodes:= false;    // [dpv]
     AllNodes := false;
     AllTabs := false;
+    CurrentNodeAndSubtree := false;
     AllTabs_FindReplace:= false;    // This option will not be saved in the .ini file. It will be initially false
     AutoClose := false;
     EntireScope := false;
@@ -1374,6 +1377,7 @@ begin
       section := FindOptionsIniStr.section;
       writebool( section, FindOptionsIniStr.AllNodes, FindOptions.AllNodes );
       writebool( section, FindOptionsIniStr.AllTabs, FindOptions.AllTabs );
+      writebool( section, FindOptionsIniStr.CurrentNodeAndSubtree, FindOptions.CurrentNodeAndSubtree );
       writebool( section, FindOptionsIniStr.AutoClose, FindOptions.AutoClose );
       writebool( section, FindOptionsIniStr.EntireScope, FindOptions.EntireScope );
       writestring( section, FindOptionsIniStr.FindAllHistory, '"' + FindOptions.FindAllHistory + '"' );
@@ -1719,6 +1723,7 @@ begin
       section := FindOptionsIniStr.section;
       FindOptions.AllNodes := readbool( section, FindOptionsIniStr.AllNodes, FindOptions.AllNodes );
       FindOptions.AllTabs := readbool( section, FindOptionsIniStr.AllTabs, FindOptions.AllTabs );
+      FindOptions.CurrentNodeAndSubtree := readbool( section, FindOptionsIniStr.CurrentNodeAndSubtree, FindOptions.CurrentNodeAndSubtree );
       FindOptions.AutoClose := readbool( section, FindOptionsIniStr.AutoClose, FindOptions.AutoClose );
       FindOptions.EntireScope := readbool( section, FindOptionsIniStr.EntireScope, FindOptions.EntireScope );
       FindOptions.FindAllHistory := readstring( section, FindOptionsIniStr.FindAllHistory, FindOptions.FindAllHistory );

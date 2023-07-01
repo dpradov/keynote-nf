@@ -863,6 +863,7 @@ type
     TB_CopyFormat: TToolbarButton97;
     ToolbarSep971: TToolbarSep97;
     MMFormatCopy: TMenuItem;
+    CB_ResFind_CurrentNodeAndSubtree: TCheckBox;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1253,6 +1254,7 @@ type
     procedure DisplayAppHint( sender: TObject );
     procedure ShowException( Sender : TObject; E : Exception );
     procedure TB_CopyFormatClick(Sender: TObject);
+    procedure CB_ResFind_AllNotesClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -5243,6 +5245,18 @@ begin
      statusbar.panels[PANEL_HINT].Text := STR_68;
 
 end; // FindTreeNode
+
+procedure TForm_Main.CB_ResFind_AllNotesClick(Sender: TObject);
+var
+  AllNotes: Boolean;
+begin
+    AllNotes:= CB_ResFind_AllNotes.Checked;
+    if AllNotes then
+       CB_ResFind_CurrentNodeAndSubtree.Checked := False;
+
+    CB_ResFind_CurrentNodeAndSubtree.Enabled:= not AllNotes;
+end;
+
 
 procedure TForm_Main.MMFormatLS1Click(Sender: TObject);
 begin

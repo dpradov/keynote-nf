@@ -1012,6 +1012,8 @@ object Form_Main: TForm_Main
     OnDragOver = PagesDragOver
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
+    ExplicitWidth = 666
+    ExplicitHeight = 624
   end
   object Dock_Left: TDock97
     Left = 0
@@ -1028,6 +1030,8 @@ object Form_Main: TForm_Main
     Width = 920
     Height = 26
     Position = dpBottom
+    ExplicitTop = 678
+    ExplicitWidth = 916
     object Toolbar_Tree: TToolbar97
       Tag = 4
       Left = 247
@@ -1286,16 +1290,15 @@ object Form_Main: TForm_Main
     RemoveLastTab = True
     TabOrder = 2
     OnChange = Pages_ResChange
+    ExplicitLeft = 678
+    ExplicitHeight = 624
     object ResTab_Find: TTab95Sheet
       Caption = 'Find'
       GripAlign = gaLeft
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 578
       object Panel_ResFind: TPanel
         Left = 0
         Top = 0
@@ -1386,12 +1389,16 @@ object Form_Main: TForm_Main
         Font.Height = -12
         Font.Name = 'MS Sans Serif'
         Font.Style = []
+        PageIndex = 1
         ParentFont = False
         TabOrder = 1
+        ExplicitHeight = 497
         object PAGE_RES_FIND: TPage
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND'
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object List_ResFind: TTextListBox
             Left = 0
             Top = 0
@@ -1416,8 +1423,7 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
-          ExplicitWidth = 0
-          ExplicitHeight = 0
+          ExplicitHeight = 497
           object CB_ResFind_CaseSens: TCheckBox
             Left = 10
             Top = 15
@@ -1435,7 +1441,7 @@ object Form_Main: TForm_Main
           end
           object CB_ResFind_WholeWords: TCheckBox
             Left = 10
-            Top = 34
+            Top = 35
             Width = 210
             Height = 17
             Hint = 'Find only complete words'
@@ -1446,7 +1452,7 @@ object Form_Main: TForm_Main
             Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
-            TabOrder = 1
+            TabOrder = 7
           end
           object CB_ResFind_AllNotes: TCheckBox
             Left = 10
@@ -1464,10 +1470,26 @@ object Form_Main: TForm_Main
             ParentFont = False
             State = cbChecked
             TabOrder = 2
+            OnClick = CB_ResFind_AllNotesClick
+          end
+          object CB_ResFind_CurrentNodeAndSubtree: TCheckBox
+            Left = 10
+            Top = 82
+            Width = 213
+            Height = 17
+            Hint = 'Search through current node and subtree in active note'
+            Caption = 'Current node and subtree'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
           end
           object CB_ResFind_NodeNames: TCheckBox
             Left = 10
-            Top = 101
+            Top = 122
             Width = 213
             Height = 17
             Hint = 'Include tree node names in search'
@@ -1482,7 +1504,7 @@ object Form_Main: TForm_Main
           end
           object RG_ResFind_Type: TRadioGroup
             Left = 5
-            Top = 161
+            Top = 182
             Width = 215
             Height = 76
             Hint = 'Select type of search to perform'
@@ -1498,7 +1520,7 @@ object Form_Main: TForm_Main
           end
           object CB_ResFind_HiddenNodes: TCheckBox
             Left = 10
-            Top = 81
+            Top = 102
             Width = 210
             Height = 17
             Hint = 'Considerar hidden nodes'
@@ -1515,7 +1537,7 @@ object Form_Main: TForm_Main
           end
           object CB_ResFind_Filter: TCheckBox
             Left = 10
-            Top = 129
+            Top = 150
             Width = 213
             Height = 17
             Hint = 'Show or hide nodes according to search conditions'

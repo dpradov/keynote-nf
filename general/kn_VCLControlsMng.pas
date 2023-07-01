@@ -951,6 +951,8 @@ begin
         CB_ResFind_CaseSens.Checked := FindOptions.MatchCase;
         CB_ResFind_WholeWords.Checked := FindOptions.WholeWordsOnly;
         CB_ResFind_AllNotes.Checked := FindOptions.AllTabs;
+        CB_ResFind_CurrentNodeAndSubtree.Checked := FindOptions.CurrentNodeAndSubtree;
+        CB_ResFind_CurrentNodeAndSubtree.Enabled:= not FindOptions.AllTabs;
         CB_ResFind_NodeNames.Checked := FindOptions.SearchNodeNames;
         RG_ResFind_Type.ItemIndex := ord( FindOptions.SearchMode );
 
