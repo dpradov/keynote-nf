@@ -60,7 +60,8 @@ uses
    kn_MacroMng,
    kn_AlertMng,
    kn_VCLControlsMng,
-   kn_Main
+   kn_Main,
+   kn_History
    {$IFDEF MJ_DEBUG}
    ,GFLog
    {$ENDIF}
@@ -225,7 +226,12 @@ var
     _DllHandle : THandle;
     _IE: TWebBrowserWrapper;
 
+    History : TKNTHistory;         // Global navigation history
+
     ShowingSelectionInformation: boolean;
+
+    LastGoTo : string; // last line number for the "Go to line" command
+
 
 
     {$IFDEF MJ_DEBUG}
@@ -797,6 +803,8 @@ begin
       {$IFDEF WITH_TIMER}
       StoreTick( 'End FileOpen - End FormCreate', GetTickCount );
       {$ENDIF}
+
+      History := TKNTHistory.Create (_MAX_GLOBAL_NAV_HISTORY);
 
 
       Timer.Enabled := true;

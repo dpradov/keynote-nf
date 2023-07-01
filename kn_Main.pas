@@ -102,6 +102,7 @@ uses
    kn_SendMail,
    {$ENDIF}
    kn_LocationObj,
+   kn_History,
    kn_LinksMng,
    kn_VCLControlsMng;
 
@@ -3173,6 +3174,12 @@ begin
     if (( Pages.PageCount > 0 ) and assigned( Pages.ActivePage )) then begin
       if assigned(ActiveNote) then
          ModifiedDataStream:= ActiveNote.EditorToDataStream;   // If its Editor is not modified it will do nothing. Necessary to ensure that changes are seen among mirror nodes
+
+      if not _Executing_History_Jump then begin
+         AddHistoryLocation (ActiveNote, true);                  // true: add to local history maintaining it's index, and without removing forward history
+         _LastMoveWasHistory := false;
+      end;
+
       ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
       if (ActiveNote.Kind = ntTree) then begin
           SelectedNode:= TTreeNote(ActiveNote).SelectedNode;
@@ -3184,17 +3191,20 @@ begin
       TB_Color.AutomaticColor := ActiveNote.EditorChrome.Font.Color;
       if not SearchInProgress then
          FocusActiveNote;
+
     end
     else begin
       ActiveNote := nil;
       TB_Color.AutomaticColor := clWindowText;
       TAM_ActiveName.Caption := STR_15_ActiveNote;
     end;
+
   finally
     UpdateNoteDisplay;
     if assigned(ActiveNote) then
        CheckWordCount(true);
-    UpdateHistoryCommands;
+    if not _Executing_History_Jump then
+       UpdateHistoryCommands;
     StatusBar.Panels[PANEL_HINT].Text := '';
   end;
 end; // PagesChange
@@ -6788,12 +6798,12 @@ end;
 
 procedure TForm_Main.MMTreeGoBackClick(Sender: TObject);
 begin
-  NavigateInHistory( false );
+  NavigateInHistory( hdBack );
 end;
 
 procedure TForm_Main.MMTreeGoForwardClick(Sender: TObject);
 begin
-  NavigateInHistory( true );
+  NavigateInHistory( hdForward );
 end;
 
 procedure TForm_Main.MMUpRomanClick(Sender: TObject);

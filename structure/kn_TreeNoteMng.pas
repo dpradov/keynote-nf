@@ -47,7 +47,8 @@ uses
    kn_nodeList,
    kn_noteObj,
    kn_Macro,
-   kn_Const;
+   kn_Const,
+   kn_History;
 
 
 var
@@ -411,11 +412,11 @@ begin
 
       myTreeNote := TTreeNote( ActiveNote );
 
-      if ( not _Executing_History_Jump ) then
-      begin
-        AddHistoryLocation( myTreeNote );
+      if ( not _Executing_History_Jump ) then begin
+          AddHistoryLocation( myTreeNote, false);        // Add to history the location of current node, before the new node comes to be the selected node
+         _LastMoveWasHistory := false;
+         UpdateHistoryCommands;
       end;
-      _LastMoveWasHistory := false;
 
       myTreeNote.TV.OnChange := nil;
       ActiveNote.Editor.OnChange := nil;
@@ -514,7 +515,6 @@ begin
         RxRTFChange( ActiveNote.Editor );
         ActiveNote.Editor.OnChange := RxRTFChange;
         TTreeNote( ActiveNote ).TV.OnChange := TVChange;
-        UpdateHistoryCommands;
         // inc( __NodeChangeCounter );
         // statusbar.panels[0].text := Format( ' %d', [__NodeChangeCounter ]);
 

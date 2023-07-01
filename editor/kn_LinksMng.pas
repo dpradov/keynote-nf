@@ -15,6 +15,7 @@ unit kn_LinksMng;
 
  *****************************************************************************)
 
+{.$DEFINE DEBUG_HISTORY}
 
 interface
 uses
@@ -51,6 +52,7 @@ uses
 
 
    // Links related routines
+    procedure GetKNTLocation (var Location: TLocation; Simplified: Boolean= false);
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string);
     function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : string;
@@ -65,12 +67,19 @@ uses
     procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
 
     // Navigation history
-    procedure AddHistoryLocation( const aNote : TTreeNote );
-    procedure NavigateInHistory( const GoForward : boolean );
+    procedure AddHistoryLocation( const aNote : TTabNote; const AddLocalMaintainingIndex: boolean;
+                                  aLocation: TLocation= nil; const AddToGlobalHistory: boolean= true);
+    procedure NavigateInHistory( const Direction: THistoryDirection);
     procedure UpdateHistoryCommands;
 
     function TypeURL (var URLText: string; var KNTlocation: boolean): TKntURL;
     function URLFileExists (var URL: string): boolean;
+
+
+var
+   _Executing_History_Jump : boolean;
+   _LastMoveWasHistory : boolean;
+
 
 implementation
 uses
@@ -104,6 +113,14 @@ resourcestring
   STR_22 = ' Cannot navigate to history location';
   STR_23 = ' History navigation error';
 
+  STR_24 = 'Navigate backwards in history';
+  STR_25 = 'Navigate backwards in note (''local'') history';
+  STR_26 = 'Navigate backwards in global history';
+  STR_27 = 'Navigate forward in history';
+  STR_28 = 'Navigate forward in note (''local'') history';
+  STR_29 = 'Navigate forward in global history';
+  STR_30 = ' (Ctrl+click: only in note history)';
+
 type
   EInvalidLocation = Exception;
 
@@ -112,6 +129,12 @@ var
     '*', '?', '"', '<', '>', '|',
     '=', ';', ',');   // this ones are not invalid but very unusual..
 
+
+const
+   IMAGE_GOBACK_IN_NOTE:    integer = 53;
+   IMAGE_GOFORWARD_IN_NOTE: integer = 54;
+   IMAGE_GOBACK_OTHER_NOTE:    integer = 38;
+   IMAGE_GOFORWARD_OTHER_NOTE: integer = 39;
 
 
 //=========================================
@@ -397,6 +420,64 @@ begin
 
 end; // InsertFileOrLink
 
+
+//===============================================================
+// GetKNTLocation
+//===============================================================
+procedure GetKNTLocation (var Location: TLocation; Simplified: Boolean= false);
+var
+  tNote: TTreeNote;
+begin
+{$IFDEF DEBUG_HISTORY}
+   Simplified:= false;
+{$ENDIF}
+
+   if not assigned(Location) then
+      Location:= TLocation.Create;
+
+    with Location do begin
+      if not Simplified then begin
+        FileName := normalFN( NoteFile.FileName );
+        NoteName := ActiveNote.Name;
+      end;
+      NoteID := ActiveNote.ID;
+      NodeName := '';
+      NodeID := 0;
+      if (ActiveNote.Kind = ntTree) then begin
+         tNote:= TTreeNote(ActiveNote);
+         if TTreeNote(ActiveNote).SelectedNode <> nil then begin
+            NodeID := TTreeNote(ActiveNote).SelectedNode.ID;
+            if not Simplified then
+               NodeName := TTreeNote(ActiveNote).SelectedNode.Name;
+         end;
+      end;
+      CaretPos := ActiveNote.Editor.SelStart;
+      SelLength := ActiveNote.Editor.SelLength;
+    end;
+
+end;
+
+function CloneLocation (const Location: TLocation): TLocation;
+begin
+   if not assigned(Location) then
+      Exit(nil);
+
+    Result:= TLocation.Create;
+    with Location do begin
+      Result.FileName:= FileName;
+      Result.NoteName := NoteName;
+      Result.NoteID := NoteID;
+      Result.NodeName := NodeName;
+      Result.NodeID := NodeID;
+      Result.CaretPos := CaretPos;
+      Result.SelLength := SelLength;
+      Result.Tag:= Tag;
+    end;
+
+end;
+
+
+
 //===============================================================
 // InsertOrMarkKNTLink
 //===============================================================
@@ -408,14 +489,12 @@ begin
   if ( not Form_Main.HaveNotes( true, true )) then exit;
   if ( not assigned( ActiveNote )) then exit;
   if ( aLocation = nil ) then
-    aLocation := _KNTLocation;
+     aLocation := _KNTLocation;
 
-  if AsInsert then
-  begin
+  if AsInsert then begin
     // insert link to previously marked location
     if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
-    if ( aLocation.NoteName = '') and (aLocation.NoteID = 0) then
-    begin
+    if ( aLocation.NoteName = '') and (aLocation.NoteID = 0) then begin
       showmessage( STR_08 );
       exit;
     end;
@@ -433,32 +512,10 @@ begin
     InsertHyperlink(BuildKNTLocationText(aLocation),  TextURL, true, ActiveNote);
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_09;
   end
-  else
-  begin
+  else begin
     // mark caret position as TLocation
-    with aLocation do
-    begin
-      // [x] we should use IDs instead, but the
-      // links would then be meaningless to user!
-      FileName := normalFN( NoteFile.FileName );
-      NoteName := ActiveNote.Name;
-      NoteID := ActiveNote.ID;
-      if ( ActiveNote.Kind = ntTree ) then
-      begin
-        NodeName := TTreeNote( ActiveNote ).SelectedNode.Name;
-        NodeID := TTreeNote( ActiveNote ).SelectedNode.ID;
-      end
-      else
-      begin
-        NodeName := '';
-        NodeID := 0;
-      end;
-      CaretPos := ActiveNote.Editor.SelStart;
-      SelLength := ActiveNote.Editor.SelLength;
-    end;
-
+    GetKNTLocation (aLocation);
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
-
   end;
 
 end; // InsertOrMarkKNTLink
@@ -698,6 +755,8 @@ var
   myNote : TTabNote;
   myTreeNode : TTreeNTNode;
   origLocationStr : string;
+  LocBeforeJump: TLocation;
+
 begin
 
   result := false;
@@ -709,6 +768,9 @@ begin
   // the new style link: file:///*filename.knt...
 
   try
+      LocBeforeJump:= nil;
+      GetKntLocation (LocBeforeJump, true);
+
       (*
       showmessage(
         'file: ' + Location.FileName + #13 +
@@ -762,9 +824,24 @@ begin
 
       myNote.Editor.SetFocus;
 
+
+      if _Executing_History_Jump then begin
+         if (LocBeforeJump.NoteID <> Location.NoteID) then
+            ActiveNote.History.SyncWithLocation (Location, hdBack, true);
+      end
+      else
+      if (LocBeforeJump <> nil) and
+         (LocBeforeJump.NoteID = ActiveNote.ID) and ((ActiveNote.Kind = ntRTF) or (TTreeNote(ActiveNote).SelectedNode.ID = LocBeforeJump.NodeID)) then begin
+          AddHistoryLocation (ActiveNote, false, LocBeforeJump);
+          _LastMoveWasHistory:= false;
+          UpdateHistoryCommands;
+      end;
+
+
     except
       on E : EInvalidLocation do
-        DoMessageBox( Format( STR_13, [E.Message] ), mtWarning, [mbOK]);
+        if not _Executing_History_Jump then
+          DoMessageBox( Format( STR_13, [E.Message] ), mtWarning, [mbOK]);
       on E : Exception do
         begin
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_14;
@@ -1354,95 +1431,193 @@ end; // Insert URL
 //=========================================
 // AddHistoryLocation
 //=========================================
-procedure AddHistoryLocation( const aNote : TTreeNote );
+procedure AddHistoryLocation( const aNote : TTabNote; const AddLocalMaintainingIndex: boolean;
+                              aLocation: TLocation= nil;
+                              const AddToGlobalHistory: boolean= true);
 var
-  myLocation : TLocation;
+  gLocation: TLocation;
+
 begin
-  if (( not assigned( aNote )) or ( not assigned( aNote.SelectedNode ))) then
-    exit;
-  myLocation := TLocation.Create;
+  if not assigned(aNote) then exit;
 
   try
+    if aLocation = nil then
+       GetKNTLocation (aLocation, true);                       // true: simplified (register only IDs)
+    aLocation.SelLength := 0;
 
-    myLocation.FileName := notefile.FileName;
-    myLocation.NoteName := aNote.Name;
-    myLocation.NodeName := aNote.SelectedNode.Name;
-    myLocation.CaretPos := aNote.Editor.SelStart;
-    myLocation.SelLength := 0;
-    myLocation.NoteID := aNote.ID;
-    myLocation.NodeID := aNote.SelectedNode.ID;
-    aNote.History.AddLocation( myLocation );
+    if AddToGlobalHistory then begin
+      gLocation:= CloneLocation(aLocation);
+      History.AddLocation( gLocation );                        // History: global navigation history
+    end;
+
+    if AddLocalMaintainingIndex  then
+       aNote.History.AddLocationMaintainingIndex (aLocation)
+    else
+       aNote.History.AddLocation(aLocation);
+
 
   except
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_21;
     aNote.History.Clear;
-    myLocation.Free;
+    History.Clear;
+    if assigned(aLocation) then
+        aLocation.Free;
   end;
 
 end; // AddHistoryLocation
 
 
+
 //=========================================
 // NavigateInHistory
 //=========================================
-procedure NavigateInHistory( const GoForward : boolean );
+
+{
+	Redesigned navigation history mechanism              [dpv] (jul.2023)
+
+    - Default navigation is now global and so we can move between the nodes of a note but also between notes
+    - Local navigation (traveling only active note's history) is also possible, clicking on the toolbar button with Ctrl.
+    - Every jump from an internal keynote link will generate history, not only those that go to another node in the same
+      note.
+    - Bookmark jumps will also generate history
+    - Standard RTF notes (not multi-lvel tree notes) will have its own history navigation
+    - Related buttons have been moved to main toolbar.
+      their color and hint indicates if global and/or local history is available in that direction
+
+
+    When we are travelling the global history, the local history in the active note will be navigated accordingly,
+    in a synchronized way, if possible, looking for an equal or equivalent (same node) item. The same will occur if the
+    local history is leading the history navigation: global history will be synchronized, but in this case in a limited
+    way, only if can go to the same item in the same direction and in one step.
+
+    As usual, if we navigate backwards in history and then create new history (we are jumping or selecting another location,
+    not navigating forward again) the history from the point forward will be truncated, replaced by the new history.
+    This will happen always	in the global history, but in the local (note) history only if we jump to another location in
+    the same note. If we have navigated backwards in a local history and then select another note, global history will be
+    truncated accordingly but the history in the starting note will be kept intact. When we are back again in that note
+    (because of history navigation or not) we can move only in that local history if we want.
+    We can move inside a note (creating new history), select another note and move there, creating also new history.
+    If we navigate backwards from that point we will end up in the starting note, but we can also select directly that initial
+    note and navigate its history (with ctrl+click) directly.
+
+    The color of the arrows in the toolbar buttons will indicate if the forward o backwards navigation (in global history
+    by default) will end up in another note (intense blue) or in the same note (light blue). Even if color is intense blue,
+    we could navigate in that direction to an item in the same note, when clicking with Ctrl key pressed (if local history allows it).
+    If we reach one end of global history navigation but there is local history in that direction, the color of the button will be
+    light blue and clicking in that button will be managed as if we pressed Ctrl+Click.
+    The hint in the buttons will indicate what kind of history navigation is available in each direction (global, local or both)
+}
+
+procedure NavigateInHistory( const Direction: THistoryDirection);
 var
-  myLocation : TLocation;
-  myHistory : TKNTHistory;
-begin
-  if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
+  myLocation, LocBeforeNavigation : TLocation;
+  masterHistory, slaveHistory : TKNTHistory;
+  IterateAllOnSync, MaintainIndexInLocalHist: boolean;
+
+  procedure UpdateIfNil(var LocToUpdate: TLocation; const newLocation: TLocation);
   begin
-    myHistory := TTreeNote( ActiveNote ).History;
+      if LocToUpdate <> nil then exit;
+      LocToUpdate:= newLocation;
+  end;
+
+begin
+  if not assigned(ActiveNote) then exit;
+
+{$IFDEF DEBUG_HISTORY}
+  if NoteFile <> nil then begin
+    if not _LastMoveWasHistory then
+        Form_Main.Res_RTF.Text:= '--------     ' + #13 + 'Last move was history: NO' + #13#13 + Form_Main.Res_RTF.Text;
+  end;
+{$ENDIF}
+
+  LocBeforeNavigation:= nil;
+  GetKntLocation (LocBeforeNavigation, true);
+
+
+  if CtrlDown and ( not _IS_FAKING_MOUSECLICK ) then begin
+     masterHistory:= ActiveNote.History;
+     slaveHistory := History;
+     IterateAllOnSync:= false;
+  end
+  else begin
+     masterHistory:= History;
+     slaveHistory := ActiveNote.History;
+     IterateAllOnSync:= true;
+  end;
+
+  { *1
+    myLocation could be nil => The arrow would be showing light blue because it is possible to go back in the local history,
+    but without global history in that direction. In that case it is not necessary to press CTRl+Click.
+    If we do not get any element with the 'master' history (depending on whether or not CTRL has been pressed), we will get it in the 'slave' history
+    In some of them we must get a location value, or else the button would have been disabled from UpdateHistoryCommands
+
+   *2:
+    If myLocation=nil because we have not been able to advance having pressed CTRL (therefore in the local history), we will not do anything. 
+    We'll go out and that's it.  If you've pressed CTRL you don't want to got to another note.
+  }
+
+  try
+    if Direction = hdForward then begin
+       myLocation := masterHistory.GoForward;
+       if (myLocation = nil) then
+          if (masterHistory <> History)  then   // *2
+             Exit
+          else begin
+             AddHistoryLocation(ActiveNote, True);
+             History.GoBack;
+          end;
+       UpdateIfNil(myLocation, slaveHistory.SyncWithLocation (myLocation, hdForward, IterateAllOnSync));
+    end
+    else begin
+       if ( not _LastMoveWasHistory ) then begin
+         MaintainIndexInLocalHist:= false;
+         myLocation:= masterHistory.PickBack;
+         if (myLocation = nil) or (myLocation.NoteID <> ActiveNote.ID) then
+            MaintainIndexInLocalHist:= True;
+         AddHistoryLocation(ActiveNote, MaintainIndexInLocalHist);
+         myLocation := masterHistory.GoBack;
+         if not MaintainIndexInLocalHist and (slaveHistory <> nil) then
+            slaveHistory.GoBack;
+       end;
+       myLocation := masterHistory.GoBack;
+       if (myLocation = nil) and (masterHistory<>History)  then          // *2   *1
+           exit;
+       UpdateIfNil(myLocation, slaveHistory.SyncWithLocation (myLocation, hdBack, IterateAllOnSync));   // *1
+    end;
+
     try
-      if GoForward then
-      begin
-        myLocation := myHistory.GoForward;
+      _Executing_History_Jump := true;
+      if not ( assigned( myLocation ) and (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation(myLocation) ) then begin
+        if Direction = hdForward then
+            while masterHistory.CanGoForward do begin
+              myLocation := masterHistory.GoForward;
+              UpdateIfNil(myLocation, slaveHistory.SyncWithLocation (myLocation, hdForward, IterateAllOnSync));
+              if (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation( myLocation ) then
+                 break;
+            end
+        else
+            while masterHistory.CanGoBack do begin
+              myLocation := masterHistory.GoBack;
+              UpdateIfNil(myLocation, slaveHistory.SyncWithLocation (myLocation, hdBack, IterateAllOnSync));
+              if (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation( myLocation ) then
+                 break;
+            end;
       end
       else
-      begin
-        if ( not _LastMoveWasHistory ) then
-        begin
-          AddHistoryLocation( TTreeNote( ActiveNote ));
-          myHistory.GoBack;
-        end;
-        myLocation := myHistory.GoBack;
-      end;
-      try
-        _Executing_History_Jump := true;
-        if ( not ( assigned( myLocation ) and JumpToLocation( myLocation ))) then
-        begin
-          if GoForward then
-          begin
-            while myHistory.CanGoForward do
-            begin
-              myLocation := myHistory.GoForward;
-              if JumpToLocation( myLocation ) then
-                break;
-            end;
-          end
-          else
-          begin
-            while myHistory.CanGoBack do
-            begin
-              myLocation := myHistory.GoBack;
-              if JumpToLocation( myLocation ) then
-                break;
-            end;
-          end;
-        end
-        else
-        begin
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_22;
-        end;
-      finally
-        _Executing_History_Jump := false;
-        _LastMoveWasHistory := true;
-      end;
-    except
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_23;
-      myHistory.Clear;
+         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_22;
+
+    finally
+      _Executing_History_Jump := false;
+      _LastMoveWasHistory := true;
+      UpdateHistoryCommands;
     end;
+  except
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_23;
+    masterHistory.Clear;
+    if slaveHistory <> nil then
+       slaveHistory.Clear;
   end;
+
 end; // NavigateInHistory
 
 
@@ -1450,23 +1625,77 @@ end; // NavigateInHistory
 // UpdateHistoryCommands
 //=========================================
 procedure UpdateHistoryCommands;
+var
+  lHistory: TkntHistory;
+  Loc: TLocation;
+  GoBackEnabled, GoForwardEnabled: Boolean;
+  strHint: string;
+
+{$IFDEF DEBUG_HISTORY}
+  i: integer;
+  str: string;
+{$ENDIF}
 begin
+  lHistory:= nil;
+  if assigned(activenote) then
+     lHistory:= ActiveNote.History;
+
   with Form_Main do begin
-      if ( assigned( activenote ) and ( ActiveNote.Kind = ntTree )) then
-      begin
-        MMTreeGoBack.Enabled := TTreeNote( ActiveNote ).History.CanGoBack;
-        MMTreeGoForward.Enabled := TTreeNote( ActiveNote ).History.CanGoForward;
-        TB_GoBack.Enabled := MMTreeGoBack.Enabled;
-        TB_GoForward.Enabled := MMTreeGoForward.Enabled;
-      end
-      else
-      begin
-        TB_GoBack.Enabled := false;
-        TB_GoForward.Enabled := false;
-        MMTreeGoBack.Enabled := false;
-        MMTreeGoForward.Enabled := false;
-      end;
+    GoBackEnabled :=        History.CanGoBack or ((lHistory <> nil) and lHistory.CanGoBack);
+    MMTreeGoBack.Enabled := GoBackEnabled;
+    TB_GoBack.Enabled := GoBackEnabled;
+    strHint:= STR_24;
+    if GoBackEnabled then begin
+       Loc:= History.PickBack;
+       if (Loc <> nil) and (Loc.NoteID <> ActiveNote.ID ) then
+          TB_GoBack.ImageIndex:= IMAGE_GOBACK_OTHER_NOTE
+       else
+          TB_GoBack.ImageIndex:= IMAGE_GOBACK_IN_NOTE;
+
+       if not History.CanGoBack then
+          strHint:= STR_25
+       else begin
+          strHint:= STR_26; //'Navigate backwards in global history';
+          if (lHistory <> nil) and lHistory.CanGoBack and (TB_GoBack.ImageIndex= IMAGE_GOBACK_OTHER_NOTE) then
+             strHint:= strHint + STR_30;
+       end;
+    end;
+    TB_GoBack.Hint:= strHint;
+
+    GoForwardEnabled:= History.CanGoForward or ((lHistory <> nil) and lHistory.CanGoForward);
+    MMTreeGoForward.Enabled := GoForwardEnabled;
+    TB_GoForward.Enabled := GoForwardEnabled;
+    strHint:= STR_27;
+    if GoForwardEnabled then begin
+       Loc:= History.PickForward;
+       if (Loc <> nil) and (Loc.NoteID <> ActiveNote.ID ) then
+          TB_GoForward.ImageIndex:= IMAGE_GOFORWARD_OTHER_NOTE
+       else
+          TB_GoForward.ImageIndex:= IMAGE_GOFORWARD_IN_NOTE;
+
+       if not History.CanGoForward then
+          strHint:= STR_28
+       else begin
+          strHint:= STR_29;
+          if (lHistory <> nil) and lHistory.CanGoForward and (TB_GoForward.ImageIndex= IMAGE_GOFORWARD_OTHER_NOTE) then
+             strHint:= strHint + STR_30;
+       end;
+    end;
+    TB_GoForward.Hint:= strHint;
+
   end;
+
+{$IFDEF DEBUG_HISTORY}
+  if NoteFile <> nil then begin
+    str:= '--------     ' + #13;
+    str:= str + 'Global: ' + History.Summary + #13;
+    for i := 0 to NoteFile.Notes.Count-1 do begin
+       str:= str + NoteFile.Notes[i].Name + ': ' + NoteFile.Notes[i].History.Summary + #13;
+    end;
+    Form_Main.Res_RTF.Text:= str + #13 + Form_Main.Res_RTF.Text;
+  end;
+{$ENDIF}
+
 end; // UpdateHistoryCommands
 
 
@@ -1714,6 +1943,10 @@ begin
   end;
 end; // CreateHyperlink
 *)
+
+Initialization
+   _Executing_History_Jump := false;
+   _LastMoveWasHistory := false;
 
 
 end.

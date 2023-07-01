@@ -28,7 +28,10 @@ uses
   kn_Info,
   kn_NoteObj,
   kn_NodeList,
-  kn_FileObj;
+  kn_FileObj,
+  kn_LocationObj,
+  kn_LinksMng;
+
 
 
     procedure BookmarkAdd( const Number : integer );
@@ -123,6 +126,8 @@ end; // BookmarkGetMenuItem
 procedure BookmarkGoTo( const Number : integer );
 var
   myTreeNode : TTreeNTNode;
+  LocBeforeGoTo: TLocation;
+  Bookmark: PBookmark;
 
     procedure ClearBookmark;
     begin
@@ -136,40 +141,48 @@ begin
 
   myTreeNode := nil;
 
-  if ( NoteFile.Bookmarks[Number].Note <> nil ) then
-  begin
+  Bookmark:= NoteFile.Bookmarks[Number];
+
+  if ( Bookmark.Note <> nil ) then begin
+    LocBeforeGoTo:= nil;
+    GetKntLocation (LocBeforeGoTo, true);
+
     try
-      if ( NoteFile.Bookmarks[Number].Note <> ActiveNote ) then
-      begin
-        Form_Main.Pages.ActivePage := NoteFile.Bookmarks[Number].Note.TabSheet;
+      if ( Bookmark.Note <> ActiveNote ) then begin
+        Form_Main.Pages.ActivePage := Bookmark.Note.TabSheet;
         Form_Main.PagesChange( Form_Main.Pages );
       end;
-      if ( NoteFile.Bookmarks[Number].Node <> nil ) then
-      begin
+
+      if ( Bookmark.Node <> nil ) then begin
         if ( ActiveNote.Kind = ntTree ) then
-        begin
-          myTreeNode := TTreeNote( ActiveNote ).TV.Items.FindNode( [ffData], '', NoteFile.Bookmarks[Number].Node );
-        end;
-        if ( not assigned( myTreeNode )) then
-        begin
+          myTreeNode := TTreeNote( ActiveNote ).TV.Items.FindNode( [ffData], '', Bookmark.Node );
+        if ( not assigned( myTreeNode )) then begin
           ClearBookmark;
           exit;
         end;
         TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
       end;
 
-      with ActiveNote.Editor do
-      begin
-        SelStart := NoteFile.Bookmarks[Number].CaretPos;
-        SelLength := NoteFile.Bookmarks[Number].SelLength;
+      with ActiveNote.Editor do begin
+        SelStart := Bookmark.CaretPos;
+        SelLength := Bookmark.SelLength;
         Perform( EM_SCROLLCARET, 0, 0 );
       end;
 
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Jumped, [Number] );
 
+      if (LocBeforeGoTo.NoteID = ActiveNote.ID)
+          and ((ActiveNote.Kind = ntRTF) or (TTreeNote(ActiveNote).SelectedNode.ID = LocBeforeGoTo.NodeID))
+          and (LocBeforeGoTo.CaretPos <> Bookmark.CaretPos) then begin
+
+          AddHistoryLocation (ActiveNote, false, LocBeforeGoTo);
+          _LastMoveWasHistory:= false;
+          UpdateHistoryCommands;
+      end;
+
+
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         ClearBookmark;
         exit;
       end;
@@ -177,9 +190,7 @@ begin
 
   end
   else
-  begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_NotAssigned, [Number] );
-  end;
+     Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_NotAssigned, [Number] );
 
 end; // BookmarkGoTo
 

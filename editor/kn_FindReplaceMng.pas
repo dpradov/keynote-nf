@@ -58,9 +58,6 @@ var
     StartNote: TTabNote;
     StartNode: TTreeNTNode;
 
-    _Executing_History_Jump : boolean;
-    _LastMoveWasHistory : boolean;
-    LastGoTo : string; // last line number for the "Go to line" command
 
 procedure RunFinder;
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
@@ -1095,7 +1092,5 @@ Initialization
     Form_FindReplace := nil;
     SearchInProgress := false;
     UserBreak := false;
-    _Executing_History_Jump := false;
-    _LastMoveWasHistory := false;
 
 end.

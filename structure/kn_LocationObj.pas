@@ -70,22 +70,16 @@ type
 
     constructor Create;
     procedure Assign( const aLocation : TLocation );
+    function Equal (Location: TLocation; considerCaretPos: boolean = true; considerOnlyKntLinks: boolean = true): boolean;
   end;
 
-
-type
-  TNavigationHistoryTable = array[1..MAX_NAVHISTORY_COUNT] of TLocation;
 
 var
   Location_List : TStringList; // used to build list of matches for the resource panel search function
   Favorites_List : TStringList; // favorites list (saved in keynote.fvr)
   _KNTLocation : TLocation;
-  _NavHistory : TNavigationHistoryTable;
-  _NavHistoryIndex : integer;
 
 procedure ClearLocationList( const aList : TStringList );
-procedure ClearNavigationHistoryFrom( const Start : integer );
-procedure ClearNavigationHistory;
 
 procedure LoadFavorites( const FN : string );
 procedure SaveFavorites( const FN : string );
@@ -251,6 +245,26 @@ begin
 end; // SetKNTLocation
 
 
+function TLocation.Equal (Location: TLocation; considerCaretPos: boolean = true; considerOnlyKntLinks: boolean = true): boolean;
+begin
+  Result:= false;
+  if not assigned(Location) then Exit;
+
+  if FName <> Location.Name then Exit;
+  if FNoteID <> Location.NoteID then Exit;
+  if FNodeID <> Location.NodeID then Exit;
+  if considerOnlyKntLinks then
+     if FCaretPos <> Location.CaretPos then Exit;
+
+  if not considerOnlyKntLinks then begin
+     if FExternalDoc <> Location.ExternalDoc then Exit;
+     if FParams <> Location.Params then Exit;
+  end;
+
+  Result:= true;
+end;
+
+
 function TLocation.GetDisplayText : string;
 var
   CPos : string;
@@ -294,25 +308,6 @@ begin
 end; // GetLinkTextByNames
 *)
 
-procedure ClearNavigationHistoryFrom( const Start : integer );
-var
-  i : integer;
-begin
-  for i := Start to MAX_NAVHISTORY_COUNT do
-  begin
-    if ( _NavHistory[i] <> nil ) then
-    begin
-      _NavHistory[i].Free;
-      _NavHistory[i] := nil;
-    end;
-  end;
-end; // ClearNavigationHistoryFrom
-
-procedure ClearNavigationHistory;
-begin
-  _NavHistoryIndex := 1;
-  ClearNavigationHistoryFrom( 1 );
-end; // ClearNavigationHistory
 
 
 Initialization
@@ -324,7 +319,6 @@ Initialization
   Favorites_List.Duplicates := dupIgnore;
 
   // FillChar( _NavHistory, sizeof( _NavHistory ), 0 );
-  _NavHistoryIndex := 1;
 
 Finalization
   ClearLocationList( Location_List );

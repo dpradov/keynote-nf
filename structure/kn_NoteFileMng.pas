@@ -1143,7 +1143,7 @@ begin
         LastEditCmd := ecNone;
         UpdateLastCommand( ecNone );
         BookmarkClearAll;
-
+        
         if assigned( NoteFile ) then
         begin
           try
@@ -1161,6 +1161,9 @@ begin
             NoteFile := nil;
           end;
         end;
+
+        History.Clear;
+        UpdateHistoryCommands;
 
         ActiveNote := nil;
 

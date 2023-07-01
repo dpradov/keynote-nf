@@ -91,6 +91,9 @@ type
     FTabSheet : TTab95Sheet; // the tabsheet which holds this note
     FEditor : TTabRichEdit;  // for RTF-type notes only
 
+    FHistory : TKNTHistory;        // Note (local) history
+
+
     // events
     FOnChange : TNotifyEvent;
 
@@ -134,6 +137,8 @@ type
     property Modified : boolean read GetModified write SetModified;
     property DateCreated : TDateTime read FDateCreated write FDateCreated;
     property TabIndex : integer read FTabIndex write SetTabIndex;
+
+    property History : TKNTHistory read FHistory;
 
     property PlainText : boolean read FPlainText write FPlainText;
     property WordWrap : boolean read FWordWrap write SetWordWrap;
@@ -250,8 +255,6 @@ type
     FCheckboxes : boolean;
     FVerticalLayout : boolean;
 
-    FHistory : TKNTHistory;
-
     {$IFDEF WITH_IE}
     FMainPanel : TPanel;
     FWebBrowser : TWebBrowser;
@@ -294,8 +297,6 @@ type
     property AutoNumberNodes : boolean read FAutoNumberNodes write FAutoNumberNodes;
     property VerticalLayout : boolean read FVerticalLayout write FVerticalLayout;
     property TreeHidden : boolean read FTreeHidden write FTreeHidden;
-
-    property History : TKNTHistory read FHistory;
 
     {$IFDEF WITH_IE}
     property MainPanel : TPanel read FMainPanel write FMainPanel;
@@ -482,6 +483,9 @@ begin
     y := 0;
   end;
   FAuxiliarAlarmList:= TList.Create;
+
+  FHistory := TKNTHistory.Create;
+
 end; // CREATE
 
 destructor TTabNote.Destroy;
@@ -1867,8 +1871,6 @@ begin
   InitializeChrome( FTreeChrome );
   FDefaultNodeName := DEFAULT_NEW_NODE_NAME;
   FNodes := TNodeList.Create;
-
-  FHistory := TKNTHistory.Create;
 
   {$IFDEF WITH_IE}
   FMainPanel := nil;
