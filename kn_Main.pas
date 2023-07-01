@@ -3830,8 +3830,10 @@ begin
 end;
 
 procedure TForm_Main.MMFileCopyToClick(Sender: TObject);
+var
+  SavedNotes, SavedNodes: integer;
 begin
-  NoteFileCopy;
+  NoteFileCopy (SavedNotes, SavedNodes);
 end;
 
 procedure TForm_Main.MMFindGoToClick(Sender: TObject);

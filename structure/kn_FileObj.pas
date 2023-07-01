@@ -164,7 +164,10 @@ type
     function AddNote( ANote : TTabNote ) : integer;
     procedure DeleteNote( ANote : TTabNote );
 
-    function Save( FN : string ) : integer;
+    function Save(FN: string;
+                  var SavedNotes: integer; var SavedNodes: integer;
+                  ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
+                  OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
     function Load( FN : string ) : integer;
 
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
@@ -984,7 +987,10 @@ end; // Load
       files nodes must be backed (if it applies, based on configuration), it is done.
       The assingment of _VNKeyNoteFileName ensures it (must be done by the caller)
 }
-function TNoteFile.Save(FN: string ) : integer;
+function TNoteFile.Save(FN: string;
+                        var SavedNotes: integer; var SavedNodes: integer;
+                        ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
+                        OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
 var
   i : integer;
   Stream : TFileStream;
@@ -997,10 +1003,15 @@ var
   begin
       try
         if assigned( myNote ) then begin
+          if ExportingMode and not (myNote.Info > 0) then     // Notes to be exported are marked with Info=1
+             Exit;
+
           case myNote.Kind of
             ntRTF : myNote.SaveToFile( tf );
-            ntTree : TTreeNote( myNote ).SaveToFile( tf );
+            ntTree :
+               SavedNodes:= SavedNodes + TTreeNote( myNote ).SaveToFile( tf, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
           end;
+          inc (SavedNotes);
         end;
       except
         on E : Exception do begin
@@ -1061,6 +1072,9 @@ begin
   Stream := nil;
   SetVersion;
   FSavedWithRichEdit3 := ( _LoadedRichEditVersion = 3 );
+
+  SavedNotes:= 0;
+  SavedNodes:= 0;
 
 {$IFDEF WITH_DART}
   if ((FFileFormat in [nffDartNotes]) and HasExtendedNotes ) then

@@ -54,7 +54,8 @@ uses
    kn_ExportImport,
    kn_FileObj,
    kn_TabSelect,
-   kn_Main;
+   kn_Main,
+   kn_NoteFileMng;
 
 
 type
@@ -175,6 +176,7 @@ resourcestring
   STR_17 = 'Current node has no text: nothing to export.';
   STR_18 = ' Node exported to ';
   STR_19 = 'Error exporting node: ';
+  STR_20 = '''Current node'' will be managed as ''Current node and subtree'' for KeyNote format'+ #13 +' Continue?';
 
 
 function ExpandExpTokenString(
@@ -355,7 +357,8 @@ end; // CloseQuery
 
 procedure TForm_ExportNew.RB_SelNotesClick(Sender: TObject);
 begin
-  Combo_TreeSelection.Enabled := ( RB_CurrentNote.Checked and ( myActiveNote.Kind = ntTree ) and ( TExportFmt( Combo_Format.ItemIndex ) in [xfPlainText, xfRTF, xfHTML] ));
+  Combo_TreeSelection.Enabled := ( RB_CurrentNote.Checked and ( myActiveNote.Kind = ntTree )
+                                  and ( TExportFmt(Combo_Format.ItemIndex) in [xfPlainText, xfRTF, xfHTML, xfKeyNote] ));
   Button_Select.Enabled := RB_SelectedNotes.Checked;
 end;
 
@@ -364,13 +367,19 @@ procedure TForm_ExportNew.Combo_FormatClick(Sender: TObject);
 var
    format: TExportFmt;
 begin
-  Combo_TreeSelection.Enabled := ( RB_CurrentNote.Checked and ( myActiveNote.Kind = ntTree ) and ( TExportFmt( Combo_Format.ItemIndex ) in [xfPlainText, xfRTF, xfHTML] ));
+  Combo_TreeSelection.Enabled := ( RB_CurrentNote.Checked and ( myActiveNote.Kind = ntTree )
+                                  and ( TExportFmt(Combo_Format.ItemIndex) in [xfPlainText, xfRTF, xfHTML, xfKeyNote] ));
   format:= TExportFmt( Combo_Format.ItemIndex );
 
   Tab_TreePad.TabVisible:=  (format  = xfTreePad);
-  Tab_Options.TabVisible := (format <> xfTreePad);
-  RG_NodeMode.Enabled :=    (format <> xfTreePad);
-  RG_HTML.Visible := (format = xfHTML);
+  if format = xfKeyNote then
+     Tab_Options.TabVisible:= false
+
+  else begin
+     Tab_Options.TabVisible := (format <> xfTreePad);
+     RG_NodeMode.Enabled :=    (format <> xfTreePad);
+     RG_HTML.Visible := (format = xfHTML);
+  end;
 end;
 
 
@@ -632,32 +641,40 @@ var
   TreePadNodeLevelInc : integer; // 0 or 1
   NodeStreamIsRTF : boolean;
   Encoding: TEncoding;
+  FN, ext: string;
+  OnlyNotHiddenNodes, OnlyCheckedNodes: boolean;
 
 begin
   FormToOptions;
   if ( not Validate ) then exit;
   WriteConfig;
 
+  if (ExportOptions.TargetFormat= xfKeyNote) and (ExportOptions.TreeSelection = tsNode) and (Combo_TreeSelection.Enabled) then
+      if ( messagedlg( STR_20, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
+         Exit;
+
   cnt := 0;
   for i := 1 to myNotes.Notes.Count do begin
+      myNote:= myNotes.Notes[pred(i)];
+
       case ExportOptions.ExportSource of
           expCurrentNote : begin
-            if ( myNotes.Notes[pred( i )] = myActiveNote ) then
-              myNotes.Notes[pred( i )].Info := 1
+            if ( myNote = myActiveNote ) then
+              myNote.Info := 1
             else
-              myNotes.Notes[pred( i )].Info := 0;
+              myNote.Info := 0;
           end;
 
           expAllNotes : begin
-            myNotes.Notes[pred( i )].Info := 1;
+            myNote.Info := 1;
           end;
-      
+
           expSelectedNotes : begin
             // nothing, notes already tagged for exporting
           end;
       end;
-    
-      if ( myNotes.Notes[pred( i )].Info > 0 ) then
+
+      if ( myNote.Info > 0 ) then
          inc( cnt );
   end;
   
@@ -691,7 +708,32 @@ begin
   SaveDlg.InitialDir := ExportOptions.ExportPath;
 
   try
+
     try
+
+      if ExportOptions.TargetFormat = xfKeyNote then begin                           // --- xfKeyNote
+         myTreeNode := nil;
+         OnlyNotHiddenNodes:= ExportOptions.ExcludeHiddenNodes;
+         OnlyCheckedNodes:= false;
+
+         if (ExportOptions.ExportSource = expCurrentNote ) then
+            if (ActiveNote.Kind = ntTree)  then begin
+               if (ExportOptions.TreeSelection in [tsNode, tsSubtree]) then
+                  myTreeNode := TTreeNote(ActiveNote).TV.Selected;
+               if (ExportOptions.TreeSelection = tsCheckedNodes) then
+                  OnlyCheckedNodes:= true;
+            end;
+
+         FN := GetExportFilename('Export_' + ExtractFileName(NoteFile.FileName) );
+         if FN <> ''  then begin
+            ext := Extractfileext( FN );
+            if (ext = '') then FN := FN + ext_KeyNote;
+            NoteFileCopy (ExportedNotes, ExportedNodes, FN, true, myTreeNode, OnlyNotHiddenNodes, OnlyCheckedNodes );
+         end;
+
+         exit;                                                                    // ------------
+      end;
+
 
       NoteHeadingTpl := LoadRTFHeadingTemplate( extractfilepath( application.exename ) + 'notehead.rtf' );
       if ( NoteHeadingTpl = '' ) then
@@ -1074,6 +1116,7 @@ end; // FlushTreePadData
 function TForm_ExportNew.GetExportFilename( const FN : string ) : string;
 var
   ext : string;
+  Filename, FilePath: string;
 begin
   result := '';
 
@@ -1082,35 +1125,42 @@ begin
       SaveDlg.Filter := FILTER_TEXTFILES;
       ext := '.txt';
     end;
-    
+
     xfRTF : begin
       SaveDlg.Filter := FILTER_RTFFILES;
       ext := '.rtf';
     end;
-    
+
     xfHTML : begin
       SaveDlg.Filter := FILTER_HTMLFILES;
       ext := '.html';
     end;
-    
+
     xfTreePad : begin
       SaveDlg.Filter := FILTER_HJTFILES;
       ext := '.hjt';
     end;
-    
+
+    xfKeyNote : begin
+      SaveDlg.Filter := FILTER_NOTEFILES;
+      ext := '.knt';
+    end;
+
     else begin
       SaveDlg.Filter := FILTER_ALLFILES;
       ext := '.txt';
     end;
   end;
 
-  result := ExportOptions.ExportPath + ChangeFileExt( MakeValidFilename( FN, [' '], MAX_FILENAME_LENGTH ), ext );
+  Filename:= ChangeFileExt( MakeValidFilename( FN, [' '], MAX_FILENAME_LENGTH ), ext );
+  result := ExportOptions.ExportPath + Filename;
 
   if ( ExportOptions.ConfirmFilenames or ( ExportOptions.ConfirmOverwrite and FileExists( result ))) then begin
-    SaveDlg.Filename := result;
-    if SaveDlg.Execute then
-      result := SaveDlg.Filename
-      
+     SaveDlg.InitialDir := ExportOptions.ExportPath;
+     SaveDlg.Filename := Filename;
+     if SaveDlg.Execute then
+        result := SaveDlg.Filename
+
     else begin
       result := '';
       ConfirmAbort; // if user clicked Cancel in the SaveDlg, ask if user wants to abort the whole process

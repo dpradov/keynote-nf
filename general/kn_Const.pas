@@ -47,6 +47,7 @@ resourcestring
   STR_14_TreeSelection = 'Full tree';
   STR_15_ExportFormat = 'Plain text';
   STR_16_ExportFormat = 'Rich text (RTF)';
+  STR_62_ExportFormat = 'KeyNote File (knt)';
   STR_17_IconKind = 'None';
   STR_18_IconKind = 'Standard icons';
   STR_19_IconKind = 'Custom icons';
@@ -473,6 +474,7 @@ const
 type
   TExportFmt = (
     xfPlainText, xfRTF, xfHTML,
+    xfKeyNote,
     xfTreePad
   );
 
@@ -481,6 +483,7 @@ const
     STR_15_ExportFormat,
     STR_16_ExportFormat,
     'HTML',
+    STR_62_ExportFormat,
     'TreePad'
   );
 

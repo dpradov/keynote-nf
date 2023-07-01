@@ -58,7 +58,13 @@ uses
     function NoteFileClose : boolean; // close current KNT file
 
     procedure NewFileRequest( FN : string );
-    procedure NoteFileCopy;
+    procedure NoteFileCopy (var SavedNotes: integer; var SavedNodes: integer;
+                            FN: string= '';
+                            ExportingMode: boolean= false;
+                            OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
+                            OnlyNotHiddenNodes: boolean= false;
+                            OnlyCheckedNodes: boolean= false);
+
     procedure MergeFromKNTFile( MergeFN : string );
 
     function CheckFolder( const name, folder : string; const AttemptCreate, Prompt : boolean ) : boolean;
@@ -141,7 +147,7 @@ resourcestring
   STR_19 = ' Saving ';
   STR_20 = 'Specified backup directory "%s" does not exist. Backup files will be created in the original file''s directory.';
   STR_21 = 'Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?'+ #13#13 +' (Note: File was temporary saved in %s)';
-  STR_22 = ' File saved.';
+  STR_22 = ' File saved (%d notes, %d nodes)';
   STR_23 = ' Error %d while saving file.';
 
   STR_InfSaving = '* NOTE:' +  #13 +
@@ -825,6 +831,7 @@ var
   i, LastError: Integer;
   myNote: TTabNote;
   tempDirectory, tempFN : string;
+  SavedNotes, SavedNodes: integer;
 
   procedure RenameTempFile;
   var
@@ -1003,7 +1010,7 @@ begin
 
 
          // SAVE the file (and backup virtual nodes if it applies), on a temporal location, before initiate DoBackup (see *1)
-         Result := NoteFile.Save(tempFN);
+         Result := NoteFile.Save(tempFN, SavedNotes, SavedNodes);
 
          if Result = 0 then begin
             // BACKUP (using previous file, before this saving) of the file
@@ -1020,7 +1027,7 @@ begin
             NoteFile.FileName := FN;
             NoteFile.Modified:= False;      // Must be done here, not in TNotFile.Save, and of course, never before RenameTempFile
 
-            StatusBar.Panels[PANEL_HINT].Text := STR_22;
+            StatusBar.Panels[PANEL_HINT].Text := Format(STR_22, [SavedNotes, SavedNodes]);
             NoteFile.ReadOnly := False;    // We can do SaveAs from a Read-Only file (*)
                  { (*) In Windows XP is possible to select (with SaveDlg) the same file
                     as destination. In W10 it isn't }
@@ -1256,12 +1263,18 @@ begin
 end; // NewFileRequest
 
 
-procedure NoteFileCopy;
+procedure NoteFileCopy (var SavedNotes: integer; var SavedNodes: integer;
+                        FN: string= '';
+                        ExportingMode: boolean= false;
+                        OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
+                        OnlyNotHiddenNodes: boolean= false;
+                        OnlyCheckedNodes: boolean= false);
 var
   currentFN, newFN : string;
   cr : integer;
   oldModified : boolean;
   DirDlg : TdfsBrowseDirectoryDlg;
+
 begin
   with Form_Main do begin
 
@@ -1270,70 +1283,74 @@ begin
         DirDlg := TdfsBrowseDirectoryDlg.Create( Form_Main );
 
         try
-
-          DirDlg.Root := idDesktop;
-          DirDlg.ShowSelectionInStatus := true;
-          DirDlg.Title := STR_32;
-          DirDlg.Center := true;
-
           currentFN := NoteFile.FileName;
-          if ( KeyOptions.LastCopyPath <> '' ) then
-            DirDlg.Selection := KeyOptions.LastCopyPath
+
+          if FN = '' then begin
+              DirDlg.Root := idDesktop;
+              DirDlg.ShowSelectionInStatus := true;
+              DirDlg.Title := STR_32;
+              DirDlg.Center := true;
+
+              if ( KeyOptions.LastCopyPath <> '' ) then
+                DirDlg.Selection := KeyOptions.LastCopyPath
+              else
+                DirDlg.Selection := GetFolderPath( fpPersonal );
+
+                if ( not DirDlg.Execute ) then exit;
+                if ( properfoldername( extractfilepath( currentFN )) = properfoldername( DirDlg.Selection )) then
+                begin
+                  PopupMessage( STR_33, mtError, [mbOK], 0 );
+                  exit;
+                end;
+
+                KeyOptions.LastCopyPath := properfoldername( DirDlg.Selection );
+
+                newFN := KeyOptions.LastCopyPath + ExtractFilename( currentFN );
+                if FileExists( newFN ) then
+                   if ( Popupmessage( Format(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+
+          end
           else
-            DirDlg.Selection := GetFolderPath( fpPersonal );
+             newFN:= FN;
 
-            if ( not DirDlg.Execute ) then exit;
-            if ( properfoldername( extractfilepath( currentFN )) = properfoldername( DirDlg.Selection )) then
-            begin
-              PopupMessage( STR_33, mtError, [mbOK], 0 );
-              exit;
-            end;
-
-            KeyOptions.LastCopyPath := properfoldername( DirDlg.Selection );
-
-            newFN := KeyOptions.LastCopyPath + ExtractFilename( currentFN );
-            if FileExists( newFN ) then
-
-              if ( Popupmessage( Format(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-
-            StatusBar.Panels[PANEL_HINT].Text := STR_35;
+          StatusBar.Panels[PANEL_HINT].Text := STR_35;
 
 
           // Virtual node relative paths are calculated using as base directory the location of the .knt file
           // and it can also be necessary to search this files using this relative path; so this ChDir
           // Each .knt file (copied or not) must have the relative paths of the virtual node files, updated according to their location.
-		  _VNKeyNoteFileName := newFN;
-		  {$I-}
-		  ChDir(ExtractFilePath( _VNKeyNoteFileName )); 
-		  {$I+}
+          _VNKeyNoteFileName := newFN;
+          {$I-}
+          ChDir(ExtractFilePath( _VNKeyNoteFileName ));
+          {$I+}
 
           oldModified := NoteFile.Modified;
           screen.Cursor := crHourGlass;
           try
             try
-            cr := NoteFile.Save( newFN );
-            if ( cr = 0 ) then
-            begin
-              StatusBar.Panels[PANEL_HINT].Text := STR_36;
-              PopUpMessage( STR_37 +#13 + NewFN, mtInformation, [mbOK], 0 );
-            end
-            else
-            begin
-              Popupmessage( STR_38 + inttostr( cr ) + ')', mtError, [mbOK], 0 );
-              {$IFDEF MJ_DEBUG}
-              Log.Add( 'Copying failed (' + inttostr( cr ) + ')' );
-              {$ENDIF}
-            end;
+              cr := NoteFile.Save( newFN, SavedNotes, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+
+              if ( cr = 0 ) then begin
+                StatusBar.Panels[PANEL_HINT].Text := STR_36;
+                PopUpMessage( STR_37 +#13 + NewFN, mtInformation, [mbOK], 0 );
+              end
+              else begin
+                Popupmessage( STR_38 + inttostr( cr ) + ')', mtError, [mbOK], 0 );
+                {$IFDEF MJ_DEBUG}
+                Log.Add( 'Copying failed (' + inttostr( cr ) + ')' );
+                {$ENDIF}
+              end;
+
             except
-              on E : Exception do
-              begin
+              on E : Exception do begin
                 StatusBar.Panels[PANEL_HINT].Text := STR_15;
                 {$IFDEF MJ_DEBUG}
-                Log.Add( 'Exception in NoteFileSave: ' + E.Message );
+                Log.Add( 'Exception in NoteFileCopy: ' + E.Message );
                 {$ENDIF}
                 PopupMessage( E.Message, mtError, [mbOK], 0 );
               end;
             end;
+
           finally
             NoteFile.FileName := currentFN;       // It shouldn't be necesary, because NoteFile.Save doesn't modify NoteFile.FileName
             NoteFile.Modified := oldModified;

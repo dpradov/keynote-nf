@@ -308,7 +308,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure SaveToFile( var tf : TTextFile ); override;
+    function SaveToFile( var tf : TTextFile;  OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
+                         OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
     procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean ); override;
 
     function NewNode( const AParent : TNoteNode; AName : string; const AInheritProperties : boolean ) : TNoteNode;
@@ -2277,7 +2278,8 @@ begin
 end; // CheckTree
 
 
-procedure TTreeNote.SaveToFile( var tf : TTextFile );
+function TTreeNote.SaveToFile( var tf : TTextFile; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
+                               OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false ): integer;
 var
   treenode : TTreeNTNode;
   notenode : TNoteNode;
@@ -2338,7 +2340,10 @@ begin
 
     // obtain first node
     if HaveVCLControls then  begin
-       treenode := FTV.Items.GetFirstNode;
+       if OnlyCurrentNodeAndSubtree <> nil then
+          treenode := OnlyCurrentNodeAndSubtree
+       else
+          treenode := FTV.Items.GetFirstNode;
        if assigned( treenode ) then begin
           notenode := TNoteNode( treenode.data );
           if assigned( notenode ) then
@@ -2351,61 +2356,69 @@ begin
     end;
 
     while assigned( notenode ) do begin
-      inc( nodessaved );
+      if not ( (OnlyCheckedNodes   and not notenode.Checked) or
+               (OnlyNotHiddenNodes and Self.GetTreeNodeByID(notenode.ID).Hidden) )  then begin
 
-      tf.writeln( [_NF_TRN ] );
-      tf.writeln( [_NodeLevel, '=', notenode.Level ] );
+          inc( nodessaved );
 
-      tf.writeln( [_NodeName, '=', notenode.Name ] );
-      tf.writeln( [_NodeID, '=', notenode.ID ] );
-      tf.writeln( [_NodeFlags, '=', notenode.PropertiesToFlagsString ] );
-      tf.writeln( [_NodeRTFBGColor, '=', ColorToString( notenode.RTFBGColor )] );
-      tf.writeln( [_NodeImageIndex, '=', notenode.ImageIndex ] );
-      if noteNode.HasNodeColor then
-         tf.writeln( [_NodeColor, '=', ColorToString( noteNode.NodeColor )] );
-      if noteNode.HasNodeBGColor then
-         tf.writeln( [_NodeBGColor, '=', ColorToString( noteNode.NodeBGColor )] );
-      if noteNode.HasNodeFontFace then
-         tf.writeln( [_NodeFontFace, '=', noteNode.NodeFontFace ] );
+          tf.writeln( [_NF_TRN ] );
+          tf.writeln( [_NodeLevel, '=', notenode.Level ] );
 
-      if (NoteNode.VirtualMode <> vmKNTNode) and (noteNode.HasAlarms(true)) then
-         SaveAlarms(tf, noteNode);
+          tf.writeln( [_NodeName, '=', notenode.Name ] );
+          tf.writeln( [_NodeID, '=', notenode.ID ] );
+          tf.writeln( [_NodeFlags, '=', notenode.PropertiesToFlagsString ] );
+          tf.writeln( [_NodeRTFBGColor, '=', ColorToString( notenode.RTFBGColor )] );
+          tf.writeln( [_NodeImageIndex, '=', notenode.ImageIndex ] );
+          if noteNode.HasNodeColor then
+             tf.writeln( [_NodeColor, '=', ColorToString( noteNode.NodeColor )] );
+          if noteNode.HasNodeBGColor then
+             tf.writeln( [_NodeBGColor, '=', ColorToString( noteNode.NodeBGColor )] );
+          if noteNode.HasNodeFontFace then
+             tf.writeln( [_NodeFontFace, '=', noteNode.NodeFontFace ] );
 
-      if ( _SAVE_RESTORE_CARETPOS and ( notenode.SelStart > 0 )) then
-         tf.writeln( [_NodeSelStart, '=', notenode.SelStart ] );
+          if (NoteNode.VirtualMode <> vmKNTNode) and (noteNode.HasAlarms(true)) then
+             SaveAlarms(tf, noteNode);
+
+          if ( _SAVE_RESTORE_CARETPOS and ( notenode.SelStart > 0 )) then
+             tf.writeln( [_NodeSelStart, '=', notenode.SelStart ] );
 
 
 
-      if (NoteNode.VirtualMode = vmNone ) then
-         SaveRTFToFile(tf, notenode.Stream, FPlainText)
-      
-      else
-      if NoteNode.VirtualMode = vmKNTNode  then
-         tf.writeln( [_VirtualNode, '=', notenode.MirrorNodeID ] )
+          if (NoteNode.VirtualMode = vmNone ) then
+             SaveRTFToFile(tf, notenode.Stream, FPlainText)
 
-      else begin
-        if notenode.HasVNodeError then
-           // there was an error when we tried to load this file, so don't try to save it (assume no valid data in node)
-            tf.writeln( [_VirtualFN, '=', copy( notenode.VirtualFN, 2, length( notenode.VirtualFN ))] )
+          else
+          if NoteNode.VirtualMode = vmKNTNode  then
+             tf.writeln( [_VirtualNode, '=', notenode.MirrorNodeID ] )
 
-        else
-            try
-               NoteNode.SaveVirtualFile;
+          else begin
+            if notenode.HasVNodeError then
+               // there was an error when we tried to load this file, so don't try to save it (assume no valid data in node)
+                tf.writeln( [_VirtualFN, '=', copy( notenode.VirtualFN, 2, length( notenode.VirtualFN ))] )
 
-               tf.writeln( [_RelativeVirtualFN, '=', notenode.RelativeVirtualFN ] ); // MUST be done AFTER NoteNode.SaveVirtualFile. MUST also be saved BERFORE notenode.VirtualFN.
-               tf.writeln( [_VirtualFN, '=', notenode.VirtualFN ] );
-            except
-              on E : Exception do
-                // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages
-                DoMessageBox(Format(STR_08 + #13+ '%s'+ #13#13+ '%s', [notenode.Name, self.Name, notenode.VirtualFN, E.Message]), mtError, [mbOK], 0 );
-            end;
+            else
+                try
+                   NoteNode.SaveVirtualFile;
+
+                   tf.writeln( [_RelativeVirtualFN, '=', notenode.RelativeVirtualFN ] ); // MUST be done AFTER NoteNode.SaveVirtualFile. MUST also be saved BERFORE notenode.VirtualFN.
+                   tf.writeln( [_VirtualFN, '=', notenode.VirtualFN ] );
+                except
+                  on E : Exception do
+                    // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages
+                    DoMessageBox(Format(STR_08 + #13+ '%s'+ #13#13+ '%s', [notenode.Name, self.Name, notenode.VirtualFN, E.Message]), mtError, [mbOK], 0 );
+                end;
+          end;
+
       end;
-
 
       // obtain next node, or bail out if NIL
       notenode := nil;
       if HaveVCLControls then  begin
          treenode := treenode.GetNext;
+         if OnlyCurrentNodeAndSubtree <> nil then begin
+             if (OnlyCurrentNodeAndSubtree.GetNextSibling = treeNode) then
+                treeNode := nil;
+         end;
          if assigned( treenode ) then begin
             notenode := TNoteNode( treenode.data );
             if assigned( notenode ) then
@@ -2422,8 +2435,11 @@ begin
     Modified := false;
 
   finally
-    if ( nodessaved <> FNodes.Count ) then
+    if (OnlyCurrentNodeAndSubtree = nil) and not OnlyCheckedNodes and not OnlyNotHiddenNodes
+       and ( nodessaved <> FNodes.Count ) then
         raise ETabNoteError.CreateFmt(STR_09, [FNodes.Count, nodessaved]);
+
+    Result:= nodesSaved;
   end;
 
 end; // SaveToFile
