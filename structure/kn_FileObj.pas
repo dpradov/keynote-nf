@@ -221,14 +221,10 @@ var
   i : integer;
 begin
   if ( Count > 0 ) then
-    for i := 0 to pred( Count ) do
-    begin
-      if assigned( Items[i] ) then
-      begin
-        Items[i].Free;
-        // Items[i] := nil;
-      end
-    end;
+     for i := 0 to pred( Count ) do begin
+        if assigned( Items[i] ) then
+           Items[i].Free;  // Items[i] := nil;
+     end;
   Clear;
   inherited Destroy;
 end; // TNoteList DESTROY
@@ -293,21 +289,22 @@ begin
   ClearBookmarks;
 end; // CREATE
 
+
 destructor TNoteFile.Destroy;
 begin
-  FFileName:= '<DESTROYING>';       // This way I'll know file is closing   
+  FFileName:= '<DESTROYING>';       // This way I'll know file is closing
   if assigned( FNotes ) then FNotes.Free;
   FNotes := nil;
   inherited Destroy;
 end; // DESTROY
+
 
 procedure TNoteFile.ClearBookmarks;
 var
   b : integer;
 begin
   for b := 0 to MAX_BOOKMARKS do
-    with FBookmarks[b] do
-    begin
+    with FBookmarks[b] do begin
       Name := '';
       CaretPos := 0;
       SelLength := 0;
@@ -335,11 +332,13 @@ begin
   Modified := true;
 end; // AddNote
 
+
 function TNoteFile.InternalAddNote( ANote : TTabNote ) : integer;
 begin
   result := Notes.Add( ANote );
   ANote.Modified := false;
 end; // InternalAddNote
+
 
 procedure TNoteFile.VerifyNoteIds;
 var
@@ -347,13 +346,13 @@ var
   myNote : TTabNote;
 begin
   count := FNotes.Count;
-  for i := 1 to count do
-  begin
-    myNote := FNotes[pred( i )];
-    if ( myNote.ID <= 0 ) then
-      GenerateNoteID( myNote );
+  for i := 1 to count do begin
+     myNote := FNotes[pred( i )];
+     if ( myNote.ID <= 0 ) then
+        GenerateNoteID( myNote );
   end;
 end; // VerifyNoteIds
+
 
 procedure TNoteFile.GenerateNoteID( const ANote : TTabNote );
 var
@@ -364,17 +363,17 @@ begin
   hiID := 0;
 
   count := FNotes.Count;
-  for i := 1 to count do
-  begin
-    myNote := FNotes[pred( i )];
-    if ( myNote.ID > hiID ) then
-      hiID := myNote.ID; // find highest note ID
+  for i := 1 to count do begin
+     myNote := FNotes[pred( i )];
+     if ( myNote.ID > hiID ) then
+        hiID := myNote.ID; // find highest note ID
   end;
 
   inc( hiID ); // make it one higher
   ANote.ID := hiID;
 
 end; // GenerateNoteID
+
 
 procedure TNoteFile.DeleteNote( ANote : TTabNote );
 var
@@ -387,28 +386,25 @@ begin
   Modified := true;
 end; // DeleteNote
 
+
 function TNoteFile.GetModified : boolean;
 var
   i : integer;
 begin
-  if FModified then
-  begin
+  if FModified then begin
     result := true;
     exit;
   end;
-  if ( assigned( FNotes ) and ( FNotes.Count > 0 )) then
-  begin
+  if ( assigned( FNotes ) and ( FNotes.Count > 0 )) then begin
     for i := 0 to pred( FNotes.Count ) do
-    begin
-      if FNotes[i].Modified then
-      begin
-        FModified := true;
-        break;
-      end;
-    end;
+       if FNotes[i].Modified then begin
+          FModified := true;
+          break;
+       end;
   end;
   result := FModified;
 end; // GetModified
+
 
 function TNoteFile.GetCount : integer;
 begin
@@ -418,21 +414,20 @@ begin
     result := 0;
 end; // GetCount
 
-procedure TNoteFile.SetVersion;      
+
+procedure TNoteFile.SetVersion;
 begin
-  
+
   case FFileFormat of
+
     nffKeyNote : begin
-      with FVersion do
-      begin
-        if ( HasExtendedNotes ) then
-        begin
+      with FVersion do begin
+        if ( HasExtendedNotes ) then begin
           ID := NFHDR_ID; // GFKNT
           Major := NFILEVERSION_MAJOR;
           Minor := NFILEVERSION_MINOR;
         end
-        else
-        begin
+        else begin
           if _USE_OLD_KEYNOTE_FILE_FORMAT then
             ID := NFHDR_ID_OLD // GFKNX
           else
@@ -442,28 +437,29 @@ begin
         end;
       end;
     end;
+
     nffKeyNoteZip : begin
-      with FVersion do
-      begin
+      with FVersion do begin
         ID := NFHDR_ID_COMPRESSED; // GFKNZ
         if HasExtendedNotes then
-          Major := NFILEVERSION_MAJOR
+           Major := NFILEVERSION_MAJOR
         else
-          Major := NFILEVERSION_MAJOR_NOTREE;
+           Major := NFILEVERSION_MAJOR_NOTREE;
         Minor := NFILEVERSION_MINOR;
       end;
     end;
+
     nffEncrypted : begin
-      with FVersion do
-      begin
+      with FVersion do begin
         ID := NFHDR_ID_ENCRYPTED; // GFKNE
         if HasExtendedNotes then
-          Major := NFILEVERSION_MAJOR
+           Major := NFILEVERSION_MAJOR
         else
-          Major := NFILEVERSION_MAJOR_NOTREE;
+           Major := NFILEVERSION_MAJOR_NOTREE;
         Minor := NFILEVERSION_MINOR;
       end;
     end;
+
 {$IFDEF WITH_DART}
     nffDartNotes : begin
       with FVersion do begin
@@ -486,6 +482,7 @@ begin
   Modified := true;
 end; // SetDescription
 
+
 procedure TNoteFile.SetComment( AComment : TCommentStr );
 begin
   AComment := trim( AComment );
@@ -494,11 +491,13 @@ begin
   Modified := true;
 end; // SetComment
 
+
 procedure TNoteFile.SetFileFormat( AFileFormat : TNoteFileFormat );
 begin
   if ( FFileFormat = AFileFormat ) then exit;
   FFileFormat := AFileFormat;
 end; // SetFileFormat
+
 
 procedure TNoteFile.SetModified( AModified : boolean );
 var
@@ -552,14 +551,13 @@ begin
   _NEW_NOTE_KIND := ntRTF;
 
   if ( FN = '' ) then
-    FN := FFileName;
+     FN := FFileName;
   if ( FFileName = '' ) then
-    FFileName := FN;
+     FFileName := FN;
 
-  if ( not FileExists( FN )) then
-  begin
-    DoMessageBox(Format( STR_01, [FN] ), mtError, [mbOK], 0);
-    raise Exception.Create('');
+  if ( not FileExists( FN )) then begin
+     DoMessageBox(Format( STR_01, [FN] ), mtError, [mbOK], 0);
+     raise Exception.Create('');
   end;
 
   _VNKeyNoteFileName := FN;
@@ -579,50 +577,45 @@ begin
 
   FileIDTestFailed := true; // assume the worst
   result := 2;
+
   try
     // short test for file format
 
     SetLength( TestString, 12 );
     Stream.ReadBuffer( TestString[1], 12 );
 
-    if ( pos( NFHDR_ID, TestString ) > 0 ) then
-    begin
+    if ( pos( NFHDR_ID, TestString ) > 0 ) then begin
       FFileFormat := nffKeyNote;
       _IS_OLD_KEYNOTE_FILE_FORMAT := false;
       VerID.ID := NFHDR_ID;
     end
     else
-    if ( pos( NFHDR_ID_OLD, TestString ) > 0 ) then
-    begin
+    if ( pos( NFHDR_ID_OLD, TestString ) > 0 ) then begin
       FFileFormat := nffKeyNote;
       _IS_OLD_KEYNOTE_FILE_FORMAT := true;
       VerID.ID := NFHDR_ID_OLD;
     end
     else
-    if ( pos( NFHDR_ID_COMPRESSED, TestString ) > 0 ) then
-    begin
+    if ( pos( NFHDR_ID_COMPRESSED, TestString ) > 0 ) then begin
       FFileFormat := nffKeyNoteZip;
       _IS_OLD_KEYNOTE_FILE_FORMAT := false;
       VerID.ID := NFHDR_ID_COMPRESSED;
     end
     else
-    if ( pos( NFHDR_ID_ENCRYPTED, TestString ) > 0 ) then
-    begin
+    if ( pos( NFHDR_ID_ENCRYPTED, TestString ) > 0 ) then begin
       FFileFormat := nffEncrypted;
       _IS_OLD_KEYNOTE_FILE_FORMAT := false;
       VerID.ID := NFHDR_ID_ENCRYPTED;
     end
 {$IFDEF WITH_DART}
     else
-    if ( pos( _DART_STOP + _DART_ID + _DART_STOP, TestString ) > 0 ) then
-    begin
+    if ( pos( _DART_STOP + _DART_ID + _DART_STOP, TestString ) > 0 ) then begin
       FFileFormat := nffDartNotes;
       _IS_OLD_KEYNOTE_FILE_FORMAT := false;
       VerID.ID := _DART_ID;
     end
 {$ENDIF}
-    else
-    begin
+    else begin
       DoMessageBox(Format( STR_02, [FN] ), mtError, [mbOK], 0);
       raise Exception.Create('');
       exit;
@@ -630,6 +623,7 @@ begin
 
     Stream.Position := 0;
     result := 3;
+
   finally
     Stream.Free;
     Stream := nil;
@@ -638,26 +632,22 @@ begin
   MemStream := nil;
   try
     try
-      if ( FFileFormat = nffEncrypted ) then
-      begin
+      if ( FFileFormat = nffEncrypted ) then begin
         MemStream := TMemoryStream.Create;
 
         repeat // repeatedly prompt for passphrase, unless other action chosen
-          if ( not GetPassphrase( FN )) then
-            raise EKeyNoteFileError.Create( STR_03 );
+            if ( not GetPassphrase( FN )) then
+              raise EKeyNoteFileError.Create( STR_03 );
 
-          try
-            DecryptFileToStream( FN, MemStream );
-            break; // no error, so exit this loop
-          except
-            On e : EPassphraseError do
-            begin
-              HasLoadError := false;
-              if ( messagedlg(
-                STR_04,
-                mtError, [mbYes,mbNo], 0  ) <> mrYes ) then raise;
+            try
+              DecryptFileToStream( FN, MemStream );
+              break; // no error, so exit this loop
+            except
+              On e : EPassphraseError do begin
+                HasLoadError := false;
+                if ( messagedlg(STR_04, mtError, [mbYes,mbNo], 0  ) <> mrYes ) then raise;
+              end;
             end;
-          end;
 
         until false;
 
@@ -686,52 +676,41 @@ begin
 
       case FFileFormat of
         nffKeyNote, nffKeyNoteZip, nffEncrypted : begin
-          if _TEST_KEYNOTE_FILE_VERSION then // global var, allows to bypass testing
-          begin
-            p := pos( VerID.ID, TestString );
-            delete( TestString, 1, p+ID_STR_LENGTH );
-            if ( length( TestString ) > 2 ) then
-            begin
-              VerID.Major := TestString[1];
-              VerId.Minor := TestString[3];
+          if _TEST_KEYNOTE_FILE_VERSION then begin  // global var, allows to bypass testing
+              p := pos( VerID.ID, TestString );
+              delete( TestString, 1, p+ID_STR_LENGTH );
+              if ( length( TestString ) > 2 ) then begin
+                 VerID.Major := TestString[1];
+                 VerId.Minor := TestString[3];
 
-              if (( VerID.Major in ['0'..'9'] ) and ( VerID.Minor in ['0'..'9'] )) then
-              begin
+                 if (( VerID.Major in ['0'..'9'] ) and ( VerID.Minor in ['0'..'9'] )) then begin
+                    if ( VerID.Major > NFILEVERSION_MAJOR ) then begin
+                       DoMessageBox(Format( STR_05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK], 0);
+                       raise EKeyNoteFileError.Create('');
+                    end;
 
-                if ( VerID.Major > NFILEVERSION_MAJOR ) then
-                begin
-                  DoMessageBox(Format( STR_05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK], 0);
-                  raise EKeyNoteFileError.Create('');
-                end;
-
-                if ( VerID.Minor > NFILEVERSION_MINOR ) then
-                begin
-                  case DoMessageBox( ExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
-                    mrNo : begin
-                      // nothing, just fall through
+                    if ( VerID.Minor > NFILEVERSION_MINOR ) then begin
+                       case DoMessageBox( ExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
+                         mrNo : begin
+                           // nothing, just fall through
+                         end;
+                         mrCancel : begin
+                           // do not open the file at all
+                           result := 4;
+                           exit;
+                         end;
+                         else // mrYes and all other responses
+                           FReadOnly := true;
+                       end;
                     end;
-                    mrCancel : begin
-                      // do not open the file at all
-                      result := 4;
-                      exit;
-                    end;
-                    else // mrYes and all other responses
-                    begin
-                      FReadOnly := true;
-                    end;
-                  end;
-                end;
-                FileIDTestFailed := false;
+                    FileIDTestFailed := false;
+                 end;
               end;
-            end;
           end
           else
-          begin
             FileIDTestFailed := false;
-          end;
 
-          if FileIDTestFailed then
-          begin
+          if FileIDTestFailed then begin
             DoMessageBox(Format( STR_07, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
             raise EKeyNoteFileError.Create('');
           end;
@@ -756,134 +735,124 @@ begin
           tf.Reset;
 
           try
-            while ( not tf.eof) do
-            begin
+            while ( not tf.eof) do begin
               ds:= tf.readln();
               if ( ds = '' ) then continue;
-              if ( ds[1] = _NF_COMMENT ) then
-              begin
-                if InHead then
-                begin
-                  if ( length( ds ) > 2 ) then
-                  begin
-                    ID_CHAR := upcase( ds[2] );
-                    delete( ds, 1, 2 );
-                    ds := System.AnsiStrings.Trim( ds );
-                    case ID_CHAR of
-                      _NF_AID : begin // Version ID
-                        // [x] verify ID and version
-                      end;
-                      _NF_DCR : begin // Date Created
-                        try
-                          FDateCreated := strtodatetime( ds );
-                        except
-                          FDateCreated := now;
+
+              if ( ds[1] = _NF_COMMENT ) then begin
+                 if InHead then begin
+                    if ( length( ds ) > 2 ) then begin
+                      ID_CHAR := upcase( ds[2] );
+                      delete( ds, 1, 2 );
+                      ds := System.AnsiStrings.Trim( ds );
+
+                      case ID_CHAR of
+                        _NF_AID : begin // Version ID
+                          // [x] verify ID and version
                         end;
-                      end;
-                      _NF_FCO : begin // File comment
-                        FComment := TryUTF8ToUnicodeString(ds);
-                      end;
-                      _NF_FDE : begin // File description
-                        FDescription := TryUTF8ToUnicodeString(ds);
-                      end;
-                      _NF_ACT : begin // Active note
-                        try
-                          FActiveNote := strtoint( ds );
-                        except
-                          FActiveNote := 0;
+                        _NF_DCR : begin // Date Created
+                          try
+                            FDateCreated := strtodatetime( ds );
+                          except
+                            FDateCreated := now;
+                          end;
                         end;
-                      end;
-                      _NF_ClipCapNote : begin
-                        try
-                          ClipCapIdx := strtoint( ds );
-                        except
-                          ClipCapIdx := -1;
+                        _NF_FCO : begin // File comment
+                          FComment := TryUTF8ToUnicodeString(ds);
                         end;
-                      end;
-                      _NF_FileFlags : begin
-                        FlagsStringToProperties( ds );
-                      end;
-                      _NF_TrayIconFile : begin
-                        if ( ds <> '' ) then
-                          FTrayIconFN := ds;
-                      end;
-                      _NF_TabIconsFile : begin
-                        if ( ds <> '' ) then
-                          FTabIconsFN := ds;
-                      end;
-                      _NF_ReadOnlyOpen : begin // obsolete (flags)
-                        FOpenAsReadOnly := ( ds = BOOLEANSTR[true] );
-                        if FOpenAsReadOnly then FReadOnly := true;
-                      end;
-                      _NF_ShowTabIcons : begin // obsolete (flags)
-                        FShowTabIcons := ( ds = BOOLEANSTR[true] );
-                      end;
-                    end; // case ID_CHAR
-                  end; // length( ds ) > 2
-                end; // InHead
+                        _NF_FDE : begin // File description
+                          FDescription := TryUTF8ToUnicodeString(ds);
+                        end;
+                        _NF_ACT : begin // Active note
+                          try
+                            FActiveNote := strtoint( ds );
+                          except
+                            FActiveNote := 0;
+                          end;
+                        end;
+                        _NF_ClipCapNote : begin
+                          try
+                            ClipCapIdx := strtoint( ds );
+                          except
+                            ClipCapIdx := -1;
+                          end;
+                        end;
+                        _NF_FileFlags : begin
+                          FlagsStringToProperties( ds );
+                        end;
+                        _NF_TrayIconFile : begin
+                          if ( ds <> '' ) then
+                            FTrayIconFN := ds;
+                        end;
+                        _NF_TabIconsFile : begin
+                          if ( ds <> '' ) then
+                            FTabIconsFN := ds;
+                        end;
+                        _NF_ReadOnlyOpen : begin // obsolete (flags)
+                          FOpenAsReadOnly := ( ds = BOOLEANSTR[true] );
+                          if FOpenAsReadOnly then FReadOnly := true;
+                        end;
+                        _NF_ShowTabIcons : begin // obsolete (flags)
+                          FShowTabIcons := ( ds = BOOLEANSTR[true] );
+                        end;
+                      end; // case ID_CHAR
+                    end; // length( ds ) > 2
+                 end; // InHead
                 continue;
               end; // _NF_COMMENT
 
               // '%' markers, start a new entry
-              if ( ds = _NF_TabNote ) then
-              begin
+              if ( ds = _NF_TabNote ) then begin
                 InHead := false;
                 _NEW_NOTE_KIND := ntRTF;
                 break;
               end;
 
-              if ( ds = _NF_TreeNote ) then
-              begin
+              if ( ds = _NF_TreeNote ) then begin
                 InHead := false;
                 _NEW_NOTE_KIND := ntTree;
                 break;
               end;
 
-              if ( ds = _NF_EOF ) then
-              begin
+              if ( ds = _NF_EOF ) then begin
                 InHead := false;
                 FileExhausted := true;
                 break;
               end;
 
-            end; // eof( tf )       
+            end; // eof( tf )
 
-            while ( not ( FileExhausted or tf.eof)) do
-            begin
-              case _NEW_NOTE_KIND of
-                ntRTF : Note := TTabNote.Create;
-                ntTree : Note := TTreeNote.Create;
-              end;
+            while ( not ( FileExhausted or tf.eof)) do begin
+               case _NEW_NOTE_KIND of
+                 ntRTF : Note := TTabNote.Create;
+                 ntTree : Note := TTreeNote.Create;
+               end;
 
-              try
-                Note.LoadFromFile( tf, FileExhausted );
-                InternalAddNote( Note );
-                // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
-              except
-                On E : Exception do
-                begin
-                  HasLoadError := true;
-                  messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
-                  Note.Free;
-                  // raise;
-                end;
-              end;
+               try
+                 Note.LoadFromFile( tf, FileExhausted );
+                 InternalAddNote( Note );
+                 // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
+               except
+                 On E : Exception do
+                 begin
+                   HasLoadError := true;
+                   messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                   Note.Free;
+                   // raise;
+                 end;
+               end;
             end; // EOF( tf )
 
             FClipCapNote := nil;
             if (( ClipCapIdx >= 0 ) and ( ClipCapIdx < FNotes.Count )) then
-            begin
-              for p := 0 to pred( FNotes.Count ) do
-              begin
-                Note := FNotes[p];
-                if (( Note.TabIndex = ClipCapIdx ) and ( not Note.ReadOnly )) then
-                begin
-                  //if ( Note.Kind = ntRTF ) then
-                  FClipCapNote := Note;
-                  break;
-                end;
-              end;
-            end;
+               for p := 0 to pred( FNotes.Count ) do begin
+                  Note := FNotes[p];
+                  if (( Note.TabIndex = ClipCapIdx ) and ( not Note.ReadOnly )) then begin
+                    //if ( Note.Kind = ntRTF ) then
+                    FClipCapNote := Note;
+                    break;
+                  end;
+               end;
 
           finally
             FormatSettings.DateSeparator := OldDateSeparator;
@@ -902,100 +871,98 @@ begin
 {$IFDEF WITH_DART}
         nffDartNotes : begin
 
-          Stream := TFileStream.Create( FN, ( fmOpenRead or fmShareDenyWrite ));
-          ds := '';
-          repeat
-            Stream.ReadBuffer( ch, sizeof( ch ));
-            if ( ch = _DART_STOP ) then break;
-            ds := ds + ch;
-          until ( length( ds ) > 16 ); // means it's not DartNotes file anyway
-          if ( ch = _DART_STOP ) then
-          begin
-            try
-              Hdr.BlockLen := strtoint( ds );
-              ds := '';
-              SetLength( ds, Hdr.BlockLen );
-              Stream.ReadBuffer( ds[1], Hdr.BlockLen );
-              if ( pos( _DART_ID, ds ) = 1 ) then // success
-              begin
-                Hdr.ID := _DART_ID;
-                delete( ds, 1, succ( length( _DART_ID )));
-                p := pos( _DART_STOP, ds );
-                if ( p > 0 ) then
-                begin
-                  Hdr.Ver := strtoint( copy( ds, 1, pred( p )));
-                  if ( ds[length( ds )] = _DART_STOP ) then
-                  begin
-                    // now go backwards from the end,
-                    // since we don't care about the info in the middle
-                    ds1 := '';
-                    p := pred( length( ds ));
-                    repeat
-                      ch := ds[p];
-                      if ( ch = _DART_STOP ) then break;
-                      ds1 := ch + ds1;
-                      dec( p );
-                    until ( p = 0 );
-                    Hdr.LastTabIdx := strtoint( ds1 );
-                    FileIDTestFailed := false; // FINALLY VERIFIED
-                  end;
+            Stream := TFileStream.Create( FN, ( fmOpenRead or fmShareDenyWrite ));
+            ds := '';
+            repeat
+              Stream.ReadBuffer( ch, sizeof( ch ));
+              if ( ch = _DART_STOP ) then break;
+              ds := ds + ch;
+            until ( length( ds ) > 16 ); // means it's not DartNotes file anyway
+
+            if ( ch = _DART_STOP ) then begin
+              try
+                 Hdr.BlockLen := strtoint( ds );
+                 ds := '';
+                 SetLength( ds, Hdr.BlockLen );
+                 Stream.ReadBuffer( ds[1], Hdr.BlockLen );
+                 if ( pos( _DART_ID, ds ) = 1 ) then begin // success
+                    Hdr.ID := _DART_ID;
+                    delete( ds, 1, succ( length( _DART_ID )));
+                    p := pos( _DART_STOP, ds );
+                    if ( p > 0 ) then begin
+                        Hdr.Ver := strtoint( copy( ds, 1, pred( p )));
+                        if ( ds[length( ds )] = _DART_STOP ) then begin
+                          // now go backwards from the end,
+                          // since we don't care about the info in the middle
+                          ds1 := '';
+                          p := pred( length( ds ));
+                          repeat
+                            ch := ds[p];
+                            if ( ch = _DART_STOP ) then break;
+                            ds1 := ch + ds1;
+                            dec( p );
+                          until ( p = 0 );
+                          Hdr.LastTabIdx := strtoint( ds1 );
+                          FileIDTestFailed := false; // FINALLY VERIFIED
+                        end;
+                    end;
+                 end;
+
+              except
+                FileIDTestFailed := true;
+              end;
+            end;
+
+            if FileIDTestFailed then begin
+              DoMessageBox(Format( STR_09 + VerID.ID, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
+              raise Exception.Create('');
+            end;
+
+            // initialize some stuff we got from the file already,
+            // and some stuff that is not present in Dart file header
+            FDescription := '';
+            FComment := '';
+            // FNoteCount := 0; // we don't know yet
+            FDateCreated := now; // UNKNOWN!
+            FActiveNote := Hdr.LastTabIdx;
+            NoteKind := ntRTF;
+
+            while ( Stream.Position < Stream.Size ) do begin
+              Note := TTabNote.Create;
+              try
+                Note.LoadDartNotesFormat( Stream );
+                InternalAddNote( Note );
+                // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
+              except
+                On E : Exception do begin
+                  HasLoadError := true;
+                  messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                  Note.Free;
+                  // raise;
                 end;
               end;
-            except
-              FileIDTestFailed := true;
             end;
-          end;
-
-          if FileIDTestFailed then begin
-            DoMessageBox(Format( STR_09 + VerID.ID, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
-            raise Exception.Create('');
-          end;
-
-          // initialize some stuff we got from the file already,
-          // and some stuff that is not present in Dart file header
-          FDescription := '';
-          FComment := '';
-          // FNoteCount := 0; // we don't know yet
-          FDateCreated := now; // UNKNOWN!
-          FActiveNote := Hdr.LastTabIdx;
-          NoteKind := ntRTF;
-
-          while ( Stream.Position < Stream.Size ) do
-          begin
-            Note := TTabNote.Create;
-            try
-              Note.LoadDartNotesFormat( Stream );
-              InternalAddNote( Note );
-              // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
-            except
-              On E : Exception do
-              begin
-                HasLoadError := true;
-                messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
-                Note.Free;
-                // raise;
-              end;
-            end;
-          end;
         end; // nffDartNotes
 
 {$ENDIF}
 
       end;
+
     except
       raise;
     end;
+
   finally
-    if assigned( Stream ) then Stream.Free;
-    // FNoteCount := Notes.Count;
-    Modified := false;
-    VerifyNoteIds;
+     if assigned( Stream ) then Stream.Free;
+     // FNoteCount := Notes.Count;
+     Modified := false;
+     VerifyNoteIds;
   end;
 
   if HasLoadError then
-    result := 99
+     result := 99
   else
-    result := 0;
+     result := 0;
 
 end; // Load
 
@@ -1052,51 +1019,44 @@ var
     if assigned( FClipCapNote ) then
       tf.writeln([ _NF_COMMENT, _NF_ClipCapNote, FClipCapNote.TabSheet.PageIndex ]);
 
-    if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then
-    begin
+    if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then begin
       // this is done so that we preserve the order of tabs.
-      for i := 0 to pred( FPageCtrl.PageCount ) do
-      begin
-        myNote := TTabNote( FPageCtrl.Pages[i].PrimaryObject );
-        try
-          if assigned( myNote ) then
-          begin
-            case myNote.Kind of
-              ntRTF : myNote.SaveToFile( tf );
-              ntTree : TTreeNote( myNote ).SaveToFile( tf );
+       for i := 0 to pred( FPageCtrl.PageCount ) do begin
+          myNote := TTabNote( FPageCtrl.Pages[i].PrimaryObject );
+          try
+            if assigned( myNote ) then begin
+              case myNote.Kind of
+                ntRTF : myNote.SaveToFile( tf );
+                ntTree : TTreeNote( myNote ).SaveToFile( tf );
+              end;
+            end;
+          except
+            on E : Exception do begin
+                result := 3;
+                DoMessageBox( Format(STR_13, [myNote.Name, E.Message]), mtError, [mbOK], 0 );
+                exit;
             end;
           end;
-        except
-          on E : Exception do begin
-              result := 3;
-              DoMessageBox( Format(STR_13, [myNote.Name, E.Message]), mtError, [mbOK], 0 );
-              exit;
-          end;
-        end;
-      end;
+       end;
     end
-    else
-    begin
+    else begin
       // Go by FNotes instead of using FPageCtrl.
       // This may cause notes to be saved in wrong order.
-      for i := 0 to pred( FNotes.Count ) do
-      begin
-        myNote := FNotes[i];
-        try
-          if assigned( myNote ) then
-          begin
-            case myNote.Kind of
-              ntRTF : myNote.SaveToFile( tf );
-              ntTree : TTreeNote( myNote ).SaveToFile( tf );
-            end;
-          end;
-        except
-          on E : Exception do begin
+      for i := 0 to pred( FNotes.Count ) do begin
+         myNote := FNotes[i];
+         try
+           if assigned( myNote ) then
+             case myNote.Kind of
+               ntRTF : myNote.SaveToFile( tf );
+               ntTree : TTreeNote( myNote ).SaveToFile( tf );
+             end;
+         except
+           on E : Exception do begin
               result := 3;
               DoMessageBox( Format(STR_13, [myNote.Name, E.Message]), mtError, [mbOK], 0 );
               exit;
-          end;
-        end;
+           end;
+         end;
       end;
     end;
 
@@ -1136,7 +1096,9 @@ begin
       if Assigned(kn_global.ActiveNote) then
          kn_global.ActiveNote.EditorToDataStream;
 
+
       case FFileFormat of
+
         nffKeyNote : begin
 
           tf:= TTextFile.Create();
@@ -1149,6 +1111,7 @@ begin
             tf.closefile();
           end;
         end; // nffKeyNote (text file format)
+
 
         nffKeyNoteZip : begin
 
@@ -1213,22 +1176,17 @@ begin
             Stream.WriteBuffer( ds[1], length( ds ));
 
             if ( FPageCtrl.PageCount > 0 ) then
-            begin
               // this is done so that we preserve the order of tabs.
-              for i := 0 to pred( FPageCtrl.PageCount ) do
-              begin
+              for i := 0 to pred( FPageCtrl.PageCount ) do begin
                 myNote := TTabNote( FPageCtrl.Pages[i].PrimaryObject );
                 myNote.SaveDartNotesFormat( Stream );
-              end;
-            end
-            else
-            begin
-              for i := 0 to pred( FNotes.Count ) do
-              begin
-                myNote := TTabNote( FNotes[i] );
-                if assigned( myNote ) then
-                  myNote.SaveDartNotesFormat( Stream );
-              end;
+              end
+            else begin
+               for i := 0 to pred( FNotes.Count ) do begin
+                 myNote := TTabNote( FNotes[i] );
+                 if assigned( myNote ) then
+                   myNote.SaveDartNotesFormat( Stream );
+               end;
             end;
 
             result := 0;
@@ -1273,8 +1231,7 @@ begin
   rewrite( tf, 1 );
   }
 
-  with Info do
-  begin
+  with Info do begin
     Method := FCryptMethod;
     DataSize := streamsize;
     NoteCount := FNotes.Count;
@@ -1293,9 +1250,7 @@ begin
       Encrypt := TDCP_Blowfish.Create( nil );
     end;
     else
-    begin
       Encrypt := TDCP_Idea.Create( nil );
-    end;
   end;
 
   try
@@ -1380,9 +1335,7 @@ begin
         Decrypt := TDCP_Blowfish.Create( nil );
       end;
       else
-      begin
         Decrypt := TDCP_Idea.Create( nil );
-      end;
     end;
 
     try
@@ -1443,13 +1396,11 @@ var
 begin
   result := nil;
   cnt := FNotes.Count;
-  for i := 1 to cnt do
-  begin
-    if ( FNotes[pred( i )].ID = aID ) then
-    begin
-      result := FNotes[pred( i )];
-      break;
-    end;
+  for i := 1 to cnt do begin
+     if ( FNotes[pred( i )].ID = aID ) then begin
+       result := FNotes[pred( i )];
+       break;
+     end;
   end;
 end; // GetNoteByID
 
@@ -1462,13 +1413,10 @@ begin
   myTV := TTreeNT(myTreeNode.TreeView);
   cnt := FNotes.Count;
   for i := 1 to cnt do
-  begin
-    if ( TTreeNote(FNotes[pred( i )]).TV = myTV ) then
-    begin
-      result := FNotes[pred( i )];
-      break;
-    end;
-  end;
+     if ( TTreeNote(FNotes[pred( i )]).TV = myTV ) then begin
+       result := FNotes[pred( i )];
+       break;
+     end;
 end; // GetNoteByTreeNode
 
 
@@ -1480,14 +1428,11 @@ begin
   result := nil;
   cnt := FNotes.Count;
   for i := 1 to cnt do
-  begin
-    if ( ansicomparetext( FNotes[pred( i )].Name, aName ) = 0 ) then
-    begin
-      result := FNotes[pred( i )];
-      break;
-    end;
-  end;
-end; // GetNoteByName
+     if ( ansicomparetext( FNotes[pred( i )].Name, aName ) = 0 ) then begin
+       result := FNotes[pred( i )];
+       break;
+     end;
+end;
 
 
 function TNoteFile.HasExtendedNotes : boolean;
@@ -1497,12 +1442,11 @@ begin
   result := false;
   if ( FNotes.Count > 0 ) then
     for i := 0 to pred( FNotes.Count ) do
-      if ( FNotes[i].Kind <> ntRTF ) then
-      begin
-        result := true;
-        break;
-      end;
-end; // HasExtendedNotes
+       if ( FNotes[i].Kind <> ntRTF ) then begin
+         result := true;
+         break;
+       end;
+end;
 
 
 function TNoteFile.HasVirtualNodes : boolean;
@@ -1511,20 +1455,14 @@ var
 begin
   result := false;
   if ( FNotes.Count > 0 ) then
-  begin
-    for i := 0 to pred( FNotes.Count ) do
-    begin
-      if ( FNotes[i].Kind = ntTree ) then
-      begin
-        if TTreeNote( FNotes[i] ).Nodes.HasVirtualNodes then
-        begin
-          result := true;
-          break;
-        end;
-      end;
-    end;
-  end;
-end; // HasVirtualNodes
+     for i := 0 to pred( FNotes.Count ) do begin
+        if ( FNotes[i].Kind = ntTree ) then
+           if TTreeNote( FNotes[i] ).Nodes.HasVirtualNodes then begin
+             result := true;
+             break;
+           end;
+     end;
+end;
 
 
 function TNoteFile.HasVirtualNodeByFileName( const aNoteNode : TNoteNode; const FN : string ) : boolean;
@@ -1534,34 +1472,22 @@ var
 begin
   result := false;
   cnt := FNotes.Count;
-  if ( cnt > 0 ) then
-  begin
-    for i := 0 to pred( cnt ) do
-    begin
-      if ( FNotes[i].Kind = ntTree ) then
-      begin
+  if ( cnt <= 0 ) then Exit;
+
+  for i := 0 to pred( cnt ) do begin
+     if ( FNotes[i].Kind = ntTree ) then begin
         myTreeNote := TTreeNote( FNotes[i] );
         if ( myTreeNote.Nodes.Count > 0 ) then
-        begin
-          for n := 0 to pred( myTreeNote.Nodes.Count ) do
-          begin
-            if ( myTreeNote.Nodes[n].VirtualMode <> vmNone ) then
-            begin
-              if ( myTreeNote.Nodes[n].VirtualFN = FN ) then
-              begin
-                if ( aNoteNode <> myTreeNote.Nodes[n] ) then
-                begin
-                  result := true;
-                  break;
-                end;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
+            for n := 0 to pred( myTreeNote.Nodes.Count ) do
+               if ( myTreeNote.Nodes[n].VirtualMode <> vmNone ) then
+                 if ( myTreeNote.Nodes[n].VirtualFN = FN ) then
+                    if ( aNoteNode <> myTreeNote.Nodes[n] ) then begin
+                      result := true;
+                      break;
+                    end;
+     end;
   end;
-end; // HasVirtualNodeByFileName
+end;
 
 
 function TNoteFile.PropertiesToFlagsString : TFlagsString;
@@ -1581,14 +1507,14 @@ begin
   FShowTabIcons       := FlagsStr[2] = BOOLEANSTR[true];
   FSavedWithRichEdit3 := FlagsStr[3] = BOOLEANSTR[true];
   FNoMultiBackup      := FlagsStr[4] = BOOLEANSTR[true];
-end; // FlagsStringToProperties
+end;
 
 
 procedure TNoteFile.SetFilename( const Value : string );
 begin
   FFilename := Value;
   _VNKeyNoteFileName := Value;
-end; // SetFilename
+end;
 
 
 function TNoteFile.GetBookmark(Index: integer): PBookmark;
@@ -1618,7 +1544,8 @@ var
               Node := Node.GetNext; // select next node to search
           end;
 
-          if (Note = kn_global.ActiveNote) and assigned(TTreeNote( Note).TV.Selected) and (TNoteNode(TTreeNote( Note).TV.Selected.Data).VirtualMode = vmKNTNode) then
+          if (Note = kn_global.ActiveNote) and assigned(TTreeNote( Note).TV.Selected)
+               and (TNoteNode(TTreeNote( Note).TV.Selected.Data).VirtualMode = vmKNTNode) then
              Note.DataStreamToEditor;
       end;
   end;
@@ -1702,11 +1629,11 @@ begin
          case Action of
             1: ReplaceNonVirtualNode(nonVirtualTreeNode, targetNode);
             3: begin
-               if assigned(newNonVirtualTreeNode) and assigned(newNonVirtualTreeNode.Data) then begin
+                 if assigned(newNonVirtualTreeNode) and assigned(newNonVirtualTreeNode.Data) then begin
                    RemoveMirrorNode(nonVirtualTreeNode, newNonVirtualTreeNode);
                    ReplaceNonVirtualNode(nonVirtualTreeNode, newNonVirtualTreeNode);
                    SelectIconForNode( newNonVirtualTreeNode, TTreeNote(GetNoteByTreeNode(newNonVirtualTreeNode)).IconKind );
-               end;
+                 end;
                end;
          end;
       end;
