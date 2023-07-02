@@ -1173,10 +1173,11 @@ begin
           end;
         end;
 
+        ActiveNote := nil;
+
         History.Clear;
         UpdateHistoryCommands;
 
-        ActiveNote := nil;
 
         TAM_ActiveName.Caption := '';
         UpdateNoteFileState( [fscClose,fscModified] );
