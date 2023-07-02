@@ -280,6 +280,8 @@ begin
   MovingTreeNode:= nil;
   NumberingStart:= 1;
 
+  History := TKNTHistory.Create (_MAX_GLOBAL_NAV_HISTORY);
+
   with Form_Main do begin
       SBGlyph:= TPicture.Create;
 
@@ -803,8 +805,6 @@ begin
       {$IFDEF WITH_TIMER}
       StoreTick( 'End FileOpen - End FormCreate', GetTickCount );
       {$ENDIF}
-
-      History := TKNTHistory.Create (_MAX_GLOBAL_NAV_HISTORY);
 
 
       Timer.Enabled := true;

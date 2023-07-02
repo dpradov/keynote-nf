@@ -511,6 +511,10 @@ begin
                  PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
               if assigned( NoteFile ) then
               begin
+                try
+                  DestroyVCLControls;
+                except
+                end;
                 NoteFile.Free;
                 NoteFile := nil;
               end;
