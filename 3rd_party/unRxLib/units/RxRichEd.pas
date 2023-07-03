@@ -4160,17 +4160,64 @@ begin
       TextType := TextType or SFF_SELECTION;
     SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, LPARAM(@EditStream));
 
-    if (EditStream.dwError <> 0) then
+
+//                                                                            [dpv] *1
+//    if (EditStream.dwError <> 0) then
+//    begin
+//      Stream.Position := Position;
+//      if (TextType and SF_RTF = SF_RTF) then
+//        TextType := SF_TEXT{$IFNDEF RX_D12} or SF_UNICODE{$ENDIF}
+//      else
+//        TextType := SF_RTF;
+//{$IFDEF RX_D12}
+//      StreamInfo.PlainText := not PlainText;
+//{$ENDIF}
+//      SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, LPARAM(@EditStream));
+//      if EditStream.dwError <> 0 then
+//        raise EOutOfResources.Create(ResStr(sRichEditLoadFail));
+//    end;
+
+  {                                                                                                                      [dpv]
+    *1
+        When using an older version of RxRichEd (with some modifications from KeyNote project) in Delphi 2006
+        we only set FEditor.StreamFormat:= sfPlainText. We didn't use FEditor.Mode:= smUnicode previous to LoadFromStream.
+        FEditor.Mode:= smUnicode were used, when necesary, before SaveToStream and with a custom StreamSaveW that included:
+
+          SetString(cad, PChar(pbBuff), cb);
+          cad:= WideStringToUTF8(PWideChar(cad));
+          len:= length(cad);
+          pcb := StreamInfo^.Converter.ConvertWriteStream(StreamInfo^.Stream, PAnsiChar(cad), len);
+
+       In SaveToStream we made a modification:
+        ...
+        if smSelection in Mode then TextType := TextType or SFF_SELECTION;
+        if (TextType and SF_TEXT <> 0) and (TextType and SF_UNICODE <> 0) and (Stream.Size = 0) and (RichEdit.TextLength > 0) then
+           Stream.Write(UTF8_BOM[1], length(UTF8_BOM));
+        SendMessage(RichEdit.Handle, EM_STREAMOUT, TextType, Longint(@EditStream));
+
+      This way the editor were saved in UTF8 format, with BOM
+      Current TRichEditStrings.SaveToStream works ok with TEncoding and it is not necessary to use something like that
+      to save the editor on a stream in UTF8 format.
+
+      But there are some texts, codified in UTF8, that can include some incorrect character conversions, that with the old method
+      worked ok and only ignored the incorrect symbols, and now raises exception.
+      ( See https://github.com/dpradov/keynote-nf/issues/610 )
+
+
+      So, if the normal conversion made with TEncoding in current StreamLoad produces an error, we will retry with no TEncoding 
+      conversion and setting only SF_TEST and not SF_UNICODE. The stream is supposed to be in UTF8 format, with BOM. RichEdit will
+      manage it correctly.
+  }
+
+    if (EditStream.dwError <> 0) then                     // [dpv] *1
     begin
-      Stream.Position := Position;
-      if (TextType and SF_RTF = SF_RTF) then
-        TextType := SF_TEXT{$IFNDEF RX_D12} or SF_UNICODE{$ENDIF}
-      else
-        TextType := SF_RTF;
-{$IFDEF RX_D12}
-      StreamInfo.PlainText := not PlainText;
-{$ENDIF}
-      SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, LPARAM(@EditStream));
+      if PlainText then begin
+         Stream.Position := Position;         
+         TextType := SF_TEXT;                            // No SF_UNICODE
+         StreamInfo.Encoding:= nil;
+         StreamInfo.PlainText:= false;                   // => No TEncoding conversion in StreamLoad
+         SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, LPARAM(@EditStream));
+      end;
       if EditStream.dwError <> 0 then
         raise EOutOfResources.Create(ResStr(sRichEditLoadFail));
     end;
