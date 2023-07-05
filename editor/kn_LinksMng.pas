@@ -457,25 +457,6 @@ begin
 
 end;
 
-function CloneLocation (const Location: TLocation): TLocation;
-begin
-   if not assigned(Location) then
-      Exit(nil);
-
-    Result:= TLocation.Create;
-    with Location do begin
-      Result.FileName:= FileName;
-      Result.NoteName := NoteName;
-      Result.NoteID := NoteID;
-      Result.NodeName := NodeName;
-      Result.NodeID := NodeID;
-      Result.CaretPos := CaretPos;
-      Result.SelLength := SelLength;
-      Result.Tag:= Tag;
-    end;
-
-end;
-
 
 
 //===============================================================
@@ -1446,7 +1427,7 @@ begin
     aLocation.SelLength := 0;
 
     if AddToGlobalHistory then begin
-      gLocation:= CloneLocation(aLocation);
+      gLocation:= aLocation.Clone();
       History.AddLocation( gLocation );                        // History: global navigation history
     end;
 

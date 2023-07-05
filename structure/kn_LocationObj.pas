@@ -70,6 +70,7 @@ type
 
     constructor Create;
     procedure Assign( const aLocation : TLocation );
+    function Clone: TLocation;
     function Equal (Location: TLocation; considerCaretPos: boolean = true; considerOnlyKntLinks: boolean = true): boolean;
   end;
 
@@ -243,6 +244,14 @@ begin
   FExternalDoc := aLocation.FExternalDoc;
   FParams := aLocation.FParams;
 end; // SetKNTLocation
+
+
+function TLocation.Clone: TLocation;
+begin
+    Result:= TLocation.Create;
+    Result.Assign(Self);
+end;
+
 
 
 function TLocation.Equal (Location: TLocation; considerCaretPos: boolean = true; considerOnlyKntLinks: boolean = true): boolean;
