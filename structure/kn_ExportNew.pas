@@ -55,7 +55,8 @@ uses
    kn_FileObj,
    kn_TabSelect,
    kn_Main,
-   kn_NoteFileMng;
+   kn_NoteFileMng,
+   kn_EditorUtils;
 
 
 type
@@ -126,8 +127,8 @@ type
     procedure OptionsToForm;
     function Validate : boolean;
 
-    function FlushExportFile( const RTF : TRxRichEdit; FN : string ) : boolean;
-    procedure FlushTreePadData( var tf : TTextfile; const Name : string; const Level : integer; const RTF : TRxRichEdit; const ClearRTF : boolean);
+    function FlushExportFile( const RTF : TTabRichEdit; FN : string ) : boolean;
+    procedure FlushTreePadData( var tf : TTextfile; const Name : string; const Level : integer; const RTF : TTabRichEdit; const ClearRTF : boolean);
     function GetExportFilename( const FN : string ) : string;
 
     function ConfirmAbort : boolean;
@@ -622,7 +623,7 @@ procedure TForm_ExportNew.PerformExport;
 var
   myNote : TTabNote;
   i, cnt, noteIdx : integer;
-  RTFAux : TRxRichEdit;
+  RTFAux : TTabRichEdit;
 
   NoteHeading, NodeHeading : string;
   NoteHeadingRTF, NodeHeadingRTF : string;
@@ -761,7 +762,7 @@ begin
 
               case myNote.Kind of
 
-                ntRTF : begin                  // -------------------------------------------------------------- ntRTF                                                
+                ntRTF : begin                  // -------------------------------------------------------------- ntRTF
 
                     tmpStream := TMemoryStream.Create;
                     try
@@ -1056,13 +1057,14 @@ procedure TForm_ExportNew.FlushTreePadData(
   var tf : TTextFile;
   const Name : string;
   const Level : integer;
-  const RTF : TRxRichEdit;
+  const RTF : TTabRichEdit;
   const ClearRTF : boolean );
 var
   tmpStream : TMemoryStream;
   StreamSize : integer;
   Encoding: TEncoding;
-  
+  Editor: TTabRichEdit;
+
 begin
 
   if ExportOptions.TreePadRTF then
@@ -1079,12 +1081,22 @@ begin
 
   try
     Encoding:= nil;
+
+    Editor:= RTF;
+    if (ExportOptions.TreePadRTF) then begin
+       if ClearRTF then
+          Editor.RemoveKNTHiddenCharacters(false)
+       else
+          Editor:= GetEditorWithNoKNTHiddenCharacters(false);
+    end;
+
     if (not ExportOptions.TreePadRTF ) then begin
-       RTF.StreamFormat := sfPlainText;
-       if not CanSaveAsANSI(RTF.Text) then
+       Editor.StreamFormat := sfPlainText;
+       if not CanSaveAsANSI(Editor.Text) then
           Encoding:= TEncoding.UTF8;
     end;
-    RTF.Lines.SaveToStream( tmpStream, Encoding );
+
+    Editor.Lines.SaveToStream( tmpStream, Encoding );
     StreamSize := tmpStream.Size;
 
     if StreamSize > 0 then begin
@@ -1105,8 +1117,8 @@ begin
   finally
     tmpStream.Free;
     if ClearRTF then
-       RTF.Clear;
-    RTF.StreamFormat := sfRichText;
+       Editor.Clear;
+    Editor.StreamFormat := sfRichText;
 
   end;
 
@@ -1170,7 +1182,7 @@ begin
 end; // GetExportFilename
 
 
-function TForm_ExportNew.FlushExportFile( const RTF : TRxRichEdit; FN : string ) : boolean;
+function TForm_ExportNew.FlushExportFile( const RTF : TTabRichEdit; FN : string ) : boolean;
 var
   tmpStream : TMemoryStream;
   StreamSize : integer;
@@ -1198,12 +1210,14 @@ begin
 
       xfRTF : begin
         if ( ext = '' ) then FN := FN + ext_RTF;
+        RTF.RemoveKNTHiddenCharacters(false);
         RTF.Lines.SaveToFile( FN );
         result := true;
       end;
 
       xfHTML : begin
         if ( ext = '' ) then FN := FN + ext_HTML;
+        RTF.RemoveKNTHiddenCharacters(false);
         Result:= ConvertRTFToHTML( FN, RTF.RtfText, ExportOptions.HTMLExportMethod);
       end;
     end;

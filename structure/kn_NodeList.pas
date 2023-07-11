@@ -42,6 +42,7 @@ type
   TNoteNode = class( TObject )
   private
     FStream : TMemoryStream;
+    FNodeTextPlain : string;
     FID : longint;
     FName : string;
     FLevel : integer;
@@ -83,6 +84,7 @@ type
 
   public
     property Stream : TMemoryStream read FStream;
+    property NodeTextPlain : string read FNodeTextPlain write FNodeTextPlain;
     property Name : string read FName write SetName;
     property ID : longint read FID write SetID;
     property Level : integer read FLevel write SetLevel;

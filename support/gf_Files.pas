@@ -295,7 +295,7 @@ begin
   // replace invalid characters with "?" (as an auxiliary character)
   for i := 1 to length( r ) do
   begin
-    if ( not ( IsCharAlphaNumericW( r[i] ) or ( CharInSet(r[i], FileNameChars) ) or ( CharInSet(r[i], AdditionalValidChars) ))) then
+    if ( not ( IsCharAlphaNumeric( r[i] ) or ( CharInSet(r[i], FileNameChars) ) or ( CharInSet(r[i], AdditionalValidChars) ))) then
       r[i] := '?';
   end;
 

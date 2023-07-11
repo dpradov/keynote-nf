@@ -528,6 +528,30 @@ const
   KNTLOCATION_MARK_OLD = '?'; // old style links to KNT locations: use note and node names
   KNTLOCATION_MARK_NEW = '*'; // new style links to KNT locations: use note and node IDs
 
+  (* 
+    *1
+    The hidden strings used by KNT will have a variable length, but will normally have a maximum of the form maximum: HT999999H
+    where H:KNT_RTF_HIDDEN_MARK_CHAR, T: Type (B:Bookmark, T:Tag, ...)    
+    A target bookmark will normally be something like HB5H, HB15H, ... In this second example it is assumed that there would be
+    at least 15 different destinations of internal KNT links in the node.    
+    But we can use the format to record other hidden information to process, such as perhaps a tag to associate with a
+    text selection. If we save the ID of the tag, it would not be normal for us to go from an ID > 999999.        
+    In any case, the objective of this constant is to identify the presence of the character that we use as the beginning of the
+    the hidden string, in a -we assume- non-hidden way, by not finding the closing character at an expected distance.       
+    We could make sure that the character is really hidden by asking the RichEdit control, but since it's a character
+    totally unusual to find in a text, we will follow this criterion in principle.
+
+   Example: \v\'11B5\'12\v0   In Delphi, debugging, it is shown as '#$11'B5'#$12' (counted '#$11' or '#$12' as one character)
+   Although we can write RTF in an equivalent way ( {\v\'11B5\'12} ), the RichEdit control will translate it in the old way, with \v and \v0
+  *)
+
+  KNT_RTF_HIDDEN_MARK_L = '\''11';
+  KNT_RTF_HIDDEN_MARK_R = '\''12';
+  KNT_RTF_HIDDEN_MARK_L_CHAR = Chr(17);    // 17 ($11): DC1 (Device Control 1)
+  KNT_RTF_HIDDEN_MARK_R_CHAR = Chr(18);    // 18 ($12): DC2 (Device Control 2)
+  KNT_RTF_HIDDEN_BOOKMARK = 'B';
+  KNT_RTF_HIDDEN_MAX_LENGHT = 10;         // *1
+
 type
   TKNTURL = (
     // urlKNT, UNUSED custom knt:// URL scheme which we use for internal keynote links (only used with version 3 of riched20.dll)

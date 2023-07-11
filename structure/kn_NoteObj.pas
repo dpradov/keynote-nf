@@ -46,7 +46,6 @@ uses
    {$IFDEF WITH_IE}
    SHDocVw_TLB,
    {$ENDIF}
-   kn_RTFUtils,
    gf_streams;
 
 
@@ -76,6 +75,7 @@ type
     FImageIndex : integer;
     FPlainText : boolean; // if true, contents of editor are saved as plain text
     FDataStream : TMemoryStream;
+    FNoteTextPlain : string;
     FFocusMemory : TFocusMemory; // which control was last focused
 
     FWordWrap : boolean;  // for RTF-type notes only
@@ -152,6 +152,7 @@ type
     property TabSheet : TTab95Sheet read FTabSheet write SetTabSheet;
 
     property DataStream : TMemoryStream read FDataStream;
+    property NoteTextPlain : string read FNoteTextPlain;
 
     // events
     property OnChange : TNotifyEvent read FOnChange write FOnChange;
@@ -230,10 +231,13 @@ type
     function FontInfoString : string;
     function ParaInfoString : string;
 
-    function GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False  ) : string;
-    function SelectWordAtCursor : string;
+    function GetWordAtCursor( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False;
+                                 const DiscardKNTHiddenCharacters: boolean= True ) : string;
     procedure GetLinkAtCursor(var URL: string; var TextURL: string; var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
     function ParagraphsSelected: Boolean;
+    procedure HideKNTHiddenMarks(Selection: boolean = true);
+    procedure RemoveKNTHiddenCharacters (selection: boolean= true);
+
   end; // TTabRichEdit
 
 type
@@ -351,6 +355,8 @@ uses
    kn_AlertMng,
    kn_LinksMng,
    kn_Main,
+   kn_EditorUtils,
+   kn_RTFUtils,
    gf_strings,
    gf_miscvcl;
 
@@ -396,6 +402,7 @@ resourcestring
                              and not PFM_NUMBERING and not PFM_STARTINDENT and not PFM_OFFSET and not PFM_RIGHTINDENT and not PFM_ALIGNMENT;
 
      Editor.Paragraph.SetAttributes(Paragraph);
+     ActiveNote.Editor.HideKNTHiddenMarks(true);
   end;
 
 
@@ -445,6 +452,8 @@ resourcestring
         Editor.WordAttributes.SetAttributes(Format)
      else
         Editor.SelAttributes.SetAttributes(Format);
+
+     ActiveNote.Editor.HideKNTHiddenMarks(true);
   end;
 
 
@@ -470,6 +479,7 @@ begin
   FFocusMemory := focNil;
   FModified := false;
   FDataStream := TMemoryStream.Create;
+  FNoteTextPlain := '';
   InitializeChrome( FEditorChrome );
 
   FEditor := nil;
@@ -680,7 +690,9 @@ begin
   Result:= nil;
   Encoding:= nil;
 
-  if assigned(FEditor) and FEditor.Modified then
+  if not assigned(FEditor) then Exit;
+
+  if FEditor.Modified then
     try
       with FDataStream do begin
         Clear;
@@ -699,10 +711,16 @@ begin
       FEditor.Lines.SaveToStream( FDataStream, Encoding);
       FEditor.Modified:= false;
       Result:= FDataStream;
+      FNoteTextPlain:= FEditor.TextPlain;
+
     finally
       FEditor.StreamFormat := sfRichText;
       FEditor.StreamMode := [];
-    end;
+    end
+
+  else
+     if (NoteTextPlain = '') then
+        FNoteTextPlain:= FEditor.TextPlain;
 
 end; // EditorToDataStream
 
@@ -1624,113 +1642,166 @@ begin
   ]);
 end; // ParaInfoString
 
-function TTabRichEdit.SelectWordAtCursor : string;
-{ by Peter Below, TeamB }
+
+
+function TTabRichEdit.GetWordAtCursor( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False;
+                                          const DiscardKNTHiddenCharacters: boolean= True ) : string;
 var
-  i : integer;
-begin
-  result := '';
-  i:= perform( em_findwordbreak, WB_ISDELIMITER, selstart );
-  if i <> 0 then
-  begin
-    // no word at caret
-    exit;
-  end
-  else
-  begin
-    i := perform( em_findwordbreak, WB_MOVEWORDLEFT, selstart );
-    selstart := i;
-    i := perform( em_findwordbreak, WB_MOVEWORDRIGHT, selstart );
-    While (perform( em_findwordbreak, WB_ISDELIMITER, i ) <> 0) and
-          (i > SelStart)
-    Do Dec(i);
-    sellength := i - selstart;
-    result := seltext;
-  end;
-end; // SelectWordAtCursor
+  L, R,  Rm, Offset: integer;
+  SS, SL: integer;
+  SSw: integer;
+  Str: string;
+  KeepSelected: boolean;
 
-(*
-  LeaveSelected = False => Preserve actual selected text
-  IgnoreActualSelection: If word at cursor is "example" and it selected "ample" then if this paremeter is set to false
-      the result will be "example" and not "ample"
-*)
-function TTabRichEdit.GetWordAtCursorNew( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False ) : string;
+
+  function IsWordDelimiter(i: integer; const Str: string): boolean; inline;
+  begin
+    Exit ( (Str[i]<>KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[i]<>KNT_RTF_HIDDEN_MARK_R_CHAR) and not IsCharAlphaNumeric(Str[i]) );
+  end;
+
+begin
+  SL:= SelLength;
+  if (SL > 0) and not IgnoreActualSelection then Exit(SelText);
+
+  SS:=  SelStart;
+  L:= SS-40;
+  if L < 0 then L:= 0;
+  R:= SS + 40;
+
+  BeginUpdate;
+
+  SelStart:= L;
+  SelLength:= R-L;
+
+
+  // We must check the values actually set, at least L, because trying to place the cursor in the middle of
+  // hidden text (eg from a HYPERLINK) or extending the selection over them, can cause the position of this to change,
+  // and we need it as a reference to know where it really is, in the string that we retrieve with TextPlain, the initial position (SS).
+
+  // Although we have tried to get an apparently sufficient number of characters for the word, in anticipation that that the cursor
+  // could be to the left or to the right of it, if there are hidden texts, in the end the selection will be enlarged and we will obtain
+  // more characters.
+
+  L:= SelStart;
+  KeepSelected:= False;
+
+  try
+      Str:= TextPlain(True);
+      if Trim(Str) = '' then Exit;
+
+      SSw:= SS-L +1;
+      Rm:= Length(Str);
+      Offset:= 0;
+      if SSw > Rm then begin
+         SSw:= Rm;
+         dec(SS);
+      end;
+
+      if IsWordDelimiter(SSW, Str) then begin
+        dec(SSw);
+        Offset:= -1;
+        if (SSw=0) or IsWordDelimiter(SSW, Str) then
+           Exit;
+      end;
+
+      KeepSelected:= LeaveSelected;
+
+      L:= SSw;
+      repeat
+         if (Str[L]=KNT_RTF_HIDDEN_MARK_R_CHAR) then begin
+            repeat
+                dec(L);
+            until (L<1) or (Str[L]=KNT_RTF_HIDDEN_MARK_L_CHAR);
+         end;
+         dec(L);
+      until (L<1) or IsWordDelimiter(L, Str);
+      inc(L);
+
+      R:= SSw;
+      repeat
+         if (Str[R]=KNT_RTF_HIDDEN_MARK_L_CHAR) then begin
+            repeat
+                inc(R);
+            until (R>Rm) or (Str[R]=KNT_RTF_HIDDEN_MARK_R_CHAR);
+         end;
+         inc(R);
+      until  (R>Rm) or IsWordDelimiter(R, Str);
+      dec(R);
+
+      Result:= Copy(Str, L, R-L +1);
+
+  finally
+      if DiscardKNTHiddenCharacters then
+         Result:= kn_EditorUtils.RemoveKNTHiddenCharacters(Result);
+
+      if KeepSelected then begin
+         SelStart := SS-(SSw-L) + Offset;
+         SelLength := R-L +1;
+      end
+      else begin
+        SelStart:= SS;
+        SelLength:= SL;
+      end;
+
+      EndUpdate;
+  end;
+
+end;   // GetWordAtCursor
+
+
+procedure TTabRichEdit.HideKNTHiddenMarks(Selection: boolean = true);
 var
-  P : TPoint;
-  LineLen,  NewSelStart, startidx, wordlen : integer;
-
-  lineWStr: string;
-  posFirstChar: integer;
+   p, pF: integer;
+   SS, SL: integer;
+   Str: String;
 begin
-  // a better version of WordAtCursor property
+   // {\rtf1\ansi {\v\'11B5\'12} XXX };   {\rtf1\ansi \v\'11B5\'12\v0 XXX};  {\rtf1\ansi \v\'11T999999\'12\v0 XXX};   '#$11'B5'#$12'
 
-  if ( SelLength > 0 ) and not IgnoreActualSelection then
-  begin
-    result := SelText;
-    exit;
+  Str:= TextPlain(Selection);
+  p:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, 1);
+  if p = 0 then Exit;
+
+  SS:= SelStart;
+  SL:= SelLength;
+
+  BeginUpdate;
+  SuspendUndo;
+  try
+    repeat
+       if p > 0 then begin
+          pF:= Pos(KNT_RTF_HIDDEN_MARK_R_CHAR, Str, p+3);
+          if (pF > 0) and (pF-p <= KNT_RTF_HIDDEN_MAX_LENGHT) then begin
+             SetSelection(p+SS-1, pF+SS, true);
+             SelAttributes.Hidden:= True;
+             p:= pF + 1;
+          end;
+          p:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, p);
+       end;
+    until p = 0;
+
+  finally
+     SetSelection(SS, SS+SL, true);
+     ResumeUndo;
+     EndUpdate;
   end;
 
-  NewSelStart := SelStart + SelLength;
+end;   // HideKNTHiddenMarks
 
-  wordlen := 0;
-  p := CaretPos;
-  LineLen := length( Lines[p.y] );
 
-  if ( LineLen <> 0 ) then begin
+procedure TTabRichEdit.RemoveKNTHiddenCharacters (selection: boolean= true);
+var
+  s: string;
+begin
+    if FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, 0, -1, []) >= 0 then begin
+       if selection then
+          s:= RtfSelText
+       else
+          s:= RtfText;
+       s:= RemoveKNTHiddenCharactersInRTF(s);
+       PutRtfText(s, true, selection, true);
+    end
+end;
 
-      posFirstChar:= Perform( EM_LINEINDEX,p.y,0 );
-      lineWStr:= GetTextRange(posFirstChar, posFirstChar + lineLen );
-
-      if ( p.x = 0 ) then
-      begin
-        p.x := 1; // beginning of line
-        inc( NewSelStart );
-      end;
-      if (lineWStr[p.x] = ' ') or (lineWStr[p.x] = #9) then begin
-          p.x:= p.x + 1;
-          NewSelStart:= NewSelStart + 1;
-      end;
-      startidx := p.x;
-
-      while (( startidx > 0 ) and ( startidx <= LineLen )) do
-      begin
-        if IsCharAlphaNumericW( lineWStr[startidx] ) then
-        begin
-          dec( startidx );
-          dec( NewSelStart );
-          inc( wordlen );
-        end
-        else
-          break;
-      end;
-
-      while ( p.x < LineLen ) do
-      begin
-        if IsCharAlphaNumericW( lineWStr[p.x] ) then
-        begin
-          inc( p.x );
-          inc( wordlen );
-        end
-        else
-          break;
-      end;
-
-      if ( wordlen > 0 ) then
-      begin
-          Result:= Copy(lineWStr,NewSelStart-posFirstChar+1,wordlen);
-          if ( not IsCharAlphaNumericW( result[wordlen] )) then begin
-              dec(wordlen);
-              SetLength(Result,wordlen);
-          end;
-          if LeaveSelected then begin
-             SelStart := NewSelStart;
-             SelLength := wordlen;
-          end;
-      end;
-
-  end;
-
-end; // GetWordAtCursorNew
 
 
 // Returns True if there is one or more paragraphs selected (although partially)
@@ -2264,11 +2335,16 @@ begin
 
            FSelectedNode.Stream.Position := 0;
            Result:= FSelectedNode.Stream;
+           FSelectedNode.NodeTextPlain:= FEditor.TextPlain;
 
         finally
           FEditor.Lines.EndUpdate;
         end;
-     end;
+     end
+     else
+       if (FSelectedNode.NodeTextPlain = '') then
+          FSelectedNode.NodeTextPlain:= FEditor.TextPlain;
+
   end;
 end; // EditorToDataStream
 

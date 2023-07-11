@@ -36,6 +36,7 @@ type
     FNodeID : longint;
     FExternalDoc : boolean;
     FParams : string;
+    FMark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
     FTag : integer; //used in TForm_Main.List_ResFindDrawItem
 
     function GetDisplayText : string;
@@ -55,6 +56,7 @@ type
     property SelLength : integer read FSelLength write FSelLength;
     property NoteID : longint read FNoteID write FNoteID;
     property NodeID : longint read FNodeID write FNodeID;
+    property Mark : Byte read FMark write FMark;
     property ExternalDoc : boolean read FExternalDoc write FExternalDoc;
     property Params : string read FParams write FParams;
     property Tag : integer read FTag write FTag;
@@ -226,8 +228,9 @@ begin
   FSelLength := 0;
   FNoteID := 0;
   FNodeID := 0;
+  FMark := 0;
   FExternalDoc := false;
-  FParams := '';
+  FParams := '';  
   FTag := 0;
 end; // create
 
@@ -241,6 +244,7 @@ begin
   SelLength := aLocation.SelLength;
   FNoteID := aLocation.NoteID;
   FNodeID := aLocation.NodeID;
+  FMark :=  aLocation.FMark;
   FExternalDoc := aLocation.FExternalDoc;
   FParams := aLocation.FParams;
 end; // SetKNTLocation

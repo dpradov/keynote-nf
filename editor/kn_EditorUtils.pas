@@ -79,6 +79,10 @@ uses
     procedure CheckWordCountWaiting;
     function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
 
+    function GetEditorWithNoKNTHiddenCharacters (selection: boolean= true): TTabRichEdit;
+    function RemoveKNTHiddenCharacters(const s: string; checkIfNeeded: boolean = true): string;
+    function RemoveKNTHiddenCharactersInRTF(const s: string): string;
+    function KeepOnlyLeadingKNTHiddenCharacters(const txt: string): string;
 
     procedure MatchBracket;
     procedure TrimBlanks( const TrimWhat : integer );
@@ -227,7 +231,7 @@ begin
         AddMacroEditCommand( ecExpandTerm );
 
       if ( ActiveNote.Editor.SelLength = 0 ) then
-        w := ActiveNote.Editor.GetWordAtCursorNew( true )
+        w := ActiveNote.Editor.GetWordAtCursor( true )
       else
         w := ActiveNote.Editor.SelText;
       wordlen := length( w );
@@ -280,7 +284,7 @@ begin
     if ( ActiveNote.Editor.SelLength > 0 ) then
       nstr := trim( copy( ActiveNote.Editor.SelText, 1, 255 ))
     else
-      nstr := ActiveNote.Editor.GetWordAtCursorNew( true );
+      nstr := ActiveNote.Editor.GetWordAtCursor( true );
     if ( nstr <> '' ) then
       vstr := GlossaryList.Values[nstr];
   end;
@@ -377,6 +381,76 @@ begin
         Exit(true);
 
   Result:= False;
+end;
+
+
+function GetEditorWithNoKNTHiddenCharacters (selection: boolean= true): TTabRichEdit;
+var
+  s: string;
+begin
+    Result:= ActiveNote.Editor;
+
+    if Result.FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, 0, -1, []) >= 0 then begin
+       Result:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
+       if selection then
+          s:= ActiveNote.Editor.RtfSelText
+       else
+          s:= ActiveNote.Editor.RtfText;
+       s:= RemoveKNTHiddenCharactersInRTF(s);
+       Result.PutRtfText(s, true, true, true);
+    end
+end;
+
+
+function RemoveKNTHiddenCharacters(const s: string; checkIfNeeded: boolean= true): string;
+var
+   i: integer;
+   L, R: integer;
+   P: PChar;
+begin
+  if s='' then Exit(s);
+  if checkIfNeeded and (pos(KNT_RTF_HIDDEN_MARK_L_CHAR, s, 1) = 0) then Exit(s);
+
+  Result:= s;
+  P:= PChar(Result);
+  i:= 0;
+  repeat
+     if (P[i]=KNT_RTF_HIDDEN_MARK_L_CHAR) then begin
+        L:= i;
+        repeat
+           inc(i);
+        until (P[i]=#0) or (P[i]=KNT_RTF_HIDDEN_MARK_R_CHAR);
+        Delete(Result, L+1, i-L+1);
+        P:= PChar(Result);
+        i:= L-1;
+     end;
+     inc(i);
+  until (P[i]=#0);
+
+end;
+
+
+function RemoveKNTHiddenCharactersInRTF(const s: string): string;
+var
+   p, pF: integer;
+begin
+  if S='' then Exit('');
+
+  //  {\rtf1\ansi {\v\'11B5\'12} XXX };   {\rtf1\ansi \v\'11B5\'12\v0 XXX};  {\rtf1\ansi \v\'11T999999\'12\v0 XXX};
+
+  Result:= s;
+  p:= 1;
+  repeat
+     p:= Pos('\v' + KNT_RTF_HIDDEN_MARK_L, Result, p);
+     if p > 0 then begin
+        pF:= Pos(KNT_RTF_HIDDEN_MARK_R + '\v0', Result, p+6);
+        if (pF > 0) and (pF-p <= 20) then begin
+           Delete(Result, p, pF-p +8);
+           p:= pF+1;
+        end;
+     end;
+  until p = 0;
+
 end;
 
 
@@ -602,58 +676,68 @@ procedure TrimBlanks( const TrimWhat : integer );
 var
   i : integer;
   tempList : TStringList;
+  s: string;
   wholeNote: boolean;
+
+  function TrimString(const str: string): string;
+  begin
+      case TrimWhat of
+        ITEM_TAG_TRIMLEFT :
+            Result := trimLeft(str);
+        ITEM_TAG_TRIMRIGHT :
+            Result := trimRight(str);
+        ITEM_TAG_TRIMBOTH :
+           Result := trim(str);
+      end;
+  end;
+
+
 begin
   if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
   if ( ActiveNote.Editor.Lines.Count < 1 ) then exit;
 
-  if ( ActiveNote.Editor.SelLength = 0 ) then
-  begin
+  wholeNote:= false;
+  if ( ActiveNote.Editor.SelLength = 0 ) then begin
     wholeNote:= true;
-    if ( messagedlg( STR_Trim_01,
-      mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-  end
-  else
-     wholeNote:= false;
+    if messagedlg(STR_Trim_01, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then exit;
+  end;
 
-  ActiveNote.Editor.Lines.BeginUpdate;
+  ActiveNote.Editor.BeginUpdate;
   Screen.Cursor := crHourGlass;
-  try
 
-      tempList := TStringList.Create;
-      try
-        if wholeNote then
-           tempList.Text:= ActiveNote.Editor.GetTextRange(0, ActiveNote.Editor.TextLength)
-        else
-           tempList.Text := ActiveNote.Editor.SelText;
-        if ( tempList.Count > 0 ) then
-        for i := 0 to tempList.Count-1 do
-        begin
-          case TrimWhat of
-            ITEM_TAG_TRIMLEFT : begin
-                tempList[i] := trimleft( tempList[i] );
-            end;
-            ITEM_TAG_TRIMRIGHT : begin
-              tempList[i] := trimright( tempList[i] );
-            end;
-            ITEM_TAG_TRIMBOTH : begin
-              tempList[i] := trim( tempList[i] );
-            end;
-          end;
-        end;
-        if wholeNote then
-           ActiveNote.Editor.SetSelection(0, ActiveNote.Editor.TextLength, true);
-        ActiveNote.Editor.SelText := tempList.Text;
-        if wholeNote then
-           ActiveNote.Editor.SelStart := 0;
-      finally
-        tempList.Free;
+  try
+      if wholeNote then
+         s:= ActiveNote.Editor.GetTextRange(0, ActiveNote.Editor.TextLength)
+      else
+         s := ActiveNote.Editor.SelText;
+
+      if Length(s) = 0 then Exit;
+
+      if Pos(#13, s, 1) = 0 then
+         s:= TrimString(s)
+
+      else begin
+         tempList := TStringList.Create;
+         try
+            tempList.Text := s;
+            for i := 0 to tempList.Count-1 do
+               tempList[i]:= TrimString(tempList[i]);
+            s:= tempList.Text;
+         finally
+            tempList.Free;
+         end;
       end;
 
+      if wholeNote then
+         ActiveNote.Editor.Text := s
+      else
+         ActiveNote.Editor.SelText := s;
+
+      ActiveNote.Editor.HideKNTHiddenMarks(true);
 
   finally
-    ActiveNote.Editor.Lines.EndUpdate;
+    ActiveNote.Editor.EndUpdate;
     Screen.Cursor := crDefault;
     NoteFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
@@ -682,7 +766,7 @@ begin
          exit;
   end;
 
-  ActiveNote.Editor.Lines.BeginUpdate;
+  ActiveNote.Editor.BeginUpdate;
   Screen.Cursor := crHourGlass;
   WasWhite := false;
 
@@ -710,6 +794,7 @@ begin
             end;
          end;
          ActiveNote.Editor.Lines[l] := s;
+         ActiveNote.Editor.HideKNTHiddenMarks(true);
        end;
        ActiveNote.Editor.SelStart := 0;
 
@@ -731,11 +816,13 @@ begin
           end;
        end;
        ActiveNote.Editor.SelText := s;
+       ActiveNote.Editor.HideKNTHiddenMarks(true);
        ActiveNote.Editor.SelLength := 0;
     end;
 
+
   finally
-     ActiveNote.Editor.Lines.EndUpdate;
+     ActiveNote.Editor.EndUpdate;
      Screen.Cursor := crDefault;
      NoteFile.Modified := true;
      UpdateNoteFileState( [fscModified] );
@@ -943,6 +1030,25 @@ begin
 end; // InsertPictureOrObject
 
 
+//=================================================================
+// KeepOnlyLeadingKNTHiddenMark
+//=================================================================
+function KeepOnlyLeadingKNTHiddenCharacters(const txt: string): string;
+var
+   SS, SL, pR: integer;
+begin
+    Result:= txt;
+    if txt[1] = KNT_RTF_HIDDEN_MARK_L_CHAR then begin
+       SS:= ActiveNote.Editor.SelStart;
+       SL:= ActiveNote.Editor.SelLength;
+       pR:= Pos(KNT_RTF_HIDDEN_MARK_R_CHAR, txt, 1);
+       Result:= Copy(txt, pR+1);
+       ActiveNote.Editor.SelStart:=  SS + pR;
+       ActiveNote.Editor.SelLength:= SL - pR;
+    end;
+    Result:= RemoveKNTHiddenCharacters(Result);
+end;
+
 
 //=================================================================
 // ArabicToRoman
@@ -957,7 +1063,10 @@ begin
 
   s := ActiveNote.Editor.SelText;
   if ( s = '' ) then
-    InputQuery( STR_ConvDec_01, STR_ConvDec_02, s );
+    InputQuery( STR_ConvDec_01, STR_ConvDec_02, s )
+  else
+     s:= KeepOnlyLeadingKNTHiddenCharacters(s);
+
   if ( s = '' ) then exit;
 
   try
@@ -970,7 +1079,6 @@ begin
   end;
 
   ActiveNote.Editor.SelText := s;
-
 end; // ArabicToRoman;
 
 //=================================================================
@@ -987,7 +1095,10 @@ begin
 
   s := ActiveNote.Editor.SelText;
   if ( s = '' ) then
-    InputQuery( STR_ConvRoman_01, STR_ConvRoman_02, s );
+    InputQuery( STR_ConvRoman_01, STR_ConvRoman_02, s )
+  else
+     s:= KeepOnlyLeadingKNTHiddenCharacters(s);
+
   if ( s = '' ) then exit;
 
   try
@@ -1116,7 +1227,7 @@ begin
     if ( ActiveNote.Editor.SelLength > 0 ) then
       myWord := trim( ActiveNote.Editor.SelText )
     else
-      myWord := ActiveNote.Editor.GetWordAtCursorNew( true );
+      myWord := ActiveNote.Editor.GetWordAtCursor( true );
   end;
 
   if ( myWord = '' ) then

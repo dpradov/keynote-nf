@@ -458,14 +458,129 @@ begin
 end;
 
 
+//===============================================================
+// GetLastTargetMarker
+//===============================================================
+function GetLastTargetMarker(const Str: string): integer;
+var
+  p, pF, N, Num: integer;
+  TargetMarker: String;
+begin
+   TargetMarker:= KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_BOOKMARK;          // \v\'11B999\'12\v0      HB999H
+   Num:= 0;
+
+   try
+     p:= 1;
+     repeat
+       p:= pos(TargetMarker, Str, p);
+       if (p > 0) then begin
+          pF:= pos(KNT_RTF_HIDDEN_MARK_R_CHAR, Str, p+1);
+          if (pF > 0 ) and ((pF - p) <= 5) then begin
+             N:= StrToInt(Copy(Str, P + 2, (pF - p)-2));
+             if N > Num then
+                Num:= N;
+          end;
+          p:= pF + 1;
+       end;
+     until (p = 0);
+
+   except
+   end;
+
+   Result:= Num;
+end;
+
+
 
 //===============================================================
 // InsertOrMarkKNTLink
 //===============================================================
+
+(*
+  New KNT Links, vinculated to markers, not only to caret position
+
+	Until now, KNT links only included, in addition to the note and node, the caret position. If the note
+	was edited, the absolute position we were pointing to, would have changed and therefore our link would no longer point
+	to the intended position.
+
+	When marking a KNT location (Ctr+F6) the app will now insert a small hidden bookmark next to the text
+	identified as target. When inserting the link (Shift+F6) the new hyperlink will refer to the created bookmark,
+	and will locate it even though all the text could have been relocated (within the same note/node). If the marker
+	were eliminated, the caret position would be used, as before.
+
+	Note: The bookmark will only be inserted if the destination is a note or RTF node, other than virtual node.
+
+	The format used internally to register these markers is of the form. Ex:
+
+   	{\rtf1\ansi \v\'11B5\'12\v0 Target of a KNT link}
+	   Once retrieved as plain text: '#$11'B5'#$12'Target of a KNT link
+     B: Bookmark   "5" 5º bookmark in the note / node.
+
+	To achieve this, it has been necessary for KNT to be able to handle RTF texts with this type of hidden text from any
+	functionality.
+	Among other things, it has been necessary to replace the mechanism that has been used to carry out the searches, where
+	the rich control (RxRichEdit.FindText) had been called directly iteratively. All the hidden texts are considered
+	in the search by RichEdit control, and would prevent finding the patterns that include them inside.
+
+	Now the search is done directly in Delphi, on a text string previously retrieved from the control.
+	A new method has been added to the RichEdit control, TextPlain, which is supported by the EM_GETTEXTEX message,
+	making use of the option GT_RAWTEXT:
+	<<Text is retrieved exactly as it appears in memory. This includes special structure characters for table row and cell delimiters
+	 (see Remarks for EM_INSERTTABLE) as well as math object delimiters (start delimiter U+FDD0, argument delimiter U+FDEE, and end
+	 delimiter U+FDDF) and object markers (U+FFFC). This maintains character-position alignment between the retrieved text and the
+	 text in memory.>>
+
+	This way, position identified looking for a pattern text in a string returned by this function can be used to move caret to that position.
+
+	As an advantage, the new search mechanism is much faster. For now the application is only retrieving the text
+	flat (with TextPlain) on demand (lazy load), updating it if the note or node is modified. Therefore, the first search
+	with Find All can take about the same time as before, but consecutive searches will now be instantaneous,
+	whereas currently each search incurs the same amount of time, which on a large file can easily be 5 or 6 seconds.
+
+	Subsequently, a modification will be included to try to ensure that these initial data are obtained at times when
+	the application is idle, so even the first search is instantaneous.
+
+	It has been necessary to revise many other points in the application to ensure that these hidden characters are 'transparent'.
+	For example, when copying (cutting or pasting is not necessary) to the clipboard, we must remove our possible hidden characters
+	(not others like hyperlinks). It is also needed to discard those hidden characters when exporting to other files, or when creating
+	templates. It has also been necessary to keep them in mind when performing operations such as changing to uppercase, lowercase, etc.
+
+	Once these changes have been made, the management of this new hidden text format will allow the implementation of other functionalities
+  in which it is necessary to mark or tag any text within a note.
+
+*)
+
 procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean; TextURL: string);
 var
    Note: TTabNote;
    TreeNode: TTreeNTNode;
+   TargetMarker: integer;
+
+   function GetActualTargetMarker (Editor: TRxRichEdit): integer;
+   var
+      SS, L, Len: integer;
+      Str: String;
+   begin
+      // By the check made from TForm_Main.RxRTFKeyDown, when the Left cursor is pressed, if it is already next to 
+      // an existing marker, we'll be just to the left
+      Result:= 0;
+      try
+        with Editor do begin
+           SS:= SelStart;
+           SelStart:= SS+1;
+           L:= SelStart;
+           if L <> SS+1 then begin        // It will have been placed to the left of the first non-hidden character
+              Str:= GetTextRange(SS, L);  // HB999H
+              Len:= Length(Str);
+              if (Str[1]=KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[2]=KNT_RTF_HIDDEN_BOOKMARK) and (Str[Len]=KNT_RTF_HIDDEN_MARK_R_CHAR) then
+                 Result:= StrToInt(Copy(Str, 3, (Len)-3));
+           end;
+           SelStart:= SS;
+        end;
+      except
+      end;
+   end;
+
 begin
   if ( not Form_Main.HaveNotes( true, true )) then exit;
   if ( not assigned( ActiveNote )) then exit;
@@ -496,6 +611,20 @@ begin
   else begin
     // mark caret position as TLocation
     GetKNTLocation (aLocation);
+
+    if (not ActiveNote.PlainText)
+       and ((ActiveNote.Kind <> ntTree) or (TTreeNote(ActiveNote).SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode]) ) then begin        // Allow the mark (hidden) although Note is ReadOnly
+      TargetMarker:= GetActualTargetMarker(ActiveNote.Editor);
+      if TargetMarker = 0 then begin
+         TargetMarker:= 1 + GetLastTargetMarker(ActiveNote.Editor.TextPlain);
+          //  {\rtf1\ansi {\v\'11B5\'12}};    => {\rtf1\ansi \v\'11B5\'12\v0};
+          ActiveNote.Editor.PutRtfText('{\rtf1\ansi {\v' + KNT_RTF_HIDDEN_MARK_L +
+                               KNT_RTF_HIDDEN_BOOKMARK + IntToStr(TargetMarker) +
+                               KNT_RTF_HIDDEN_MARK_R + '}}',  true);
+      end;
+      aLocation.Mark:= TargetMarker;
+    end;
+
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
   end;
 
@@ -508,6 +637,7 @@ end; // InsertOrMarkKNTLink
 function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : string;
 var
   LocationString : string;
+  NoteId, NodeId, LocationMark: string;
 begin
   if ( aLocation.FileName = normalFN( NoteFile.FileName )) then
     LocationString := ''
@@ -518,19 +648,24 @@ begin
     // we cannot do file://computername/pathname/file.knt
 
     if (RichEditVersion >= 4) and (IgnoreActiveNotePlainText or not ActiveNote.PlainText) then begin
-      LocationString := 'file:///' + LocationString + KNTLOCATION_MARK_NEW +
-        inttostr( aLocation.NoteID ) + KNTLINK_SEPARATOR +
-        inttostr( aLocation.NodeID ) + KNTLINK_SEPARATOR +
-        inttostr( aLocation.CaretPos ) + KNTLINK_SEPARATOR +
-        inttostr( aLocation.SelLength );
-       end
+        LocationMark:= KNTLOCATION_MARK_NEW;
+        NoteId:= inttostr( aLocation.NoteID );
+        NodeId:= inttostr( aLocation.NodeID );
+    end
     else begin
-      LocationString := 'file:///' + LocationString + KNTLOCATION_MARK_OLD +
-        FileNameToURL( aLocation.NoteName ) + KNTLINK_SEPARATOR +
-        FileNameToURL( aLocation.NodeName ) + KNTLINK_SEPARATOR +
-        inttostr( aLocation.CaretPos ) + KNTLINK_SEPARATOR +
-        inttostr( aLocation.SelLength );
+        LocationMark:= KNTLOCATION_MARK_OLD;
+        NoteId:= FileNameToURL( aLocation.NoteName );
+        NodeId:= FileNameToURL( aLocation.NodeName );
     end;
+
+    LocationString := 'file:///' + LocationString + LocationMark +
+      NoteId + KNTLINK_SEPARATOR +
+      NodeId + KNTLINK_SEPARATOR +
+      inttostr( aLocation.CaretPos ) + KNTLINK_SEPARATOR +
+      inttostr( aLocation.SelLength );
+
+    if aLocation.Mark > 0 then
+       LocationString := LocationString + KNTLINK_SEPARATOR + inttostr( aLocation.Mark);
 
   result := LocationString;
 end; // BuildKNTLocationText
@@ -568,28 +703,22 @@ begin
       raise EInvalidLocation.Create( origLocationStr );
     // see which marker occurs FIRST
     // (both markers may occur, because '?' and '*' may occur within note or node names
-    if ( pnew < pold ) then
-    begin
-      if ( pnew > 0 ) then
-      begin
+    if ( pnew < pold ) then begin
+      if ( pnew > 0 ) then begin
         NewFormatURL := true;
         p := pnew;
       end
-      else
-      begin
+      else begin
         NewFormatURL := false;
         p := pold;
       end;
     end
-    else
-    begin
-      if ( pold > 0 ) then
-      begin
+    else begin
+      if ( pold > 0 ) then begin
         NewFormatURL := false;
         p := pold;
       end
-      else
-      begin
+      else begin
         NewFormatURL := true;
         p := pnew;
       end;
@@ -599,8 +728,7 @@ begin
     case p of
       0 : raise EInvalidLocation.Create( origLocationStr );
       1 : Location.FileName := ''; // same file as current
-      else
-      begin
+      else begin
         Location.FileName := HTTPDecode( copy( LocationStr, 1, pred( p )));
         if ( Location.FileName = NoteFile.FileName ) then
           Location.FileName := '';
@@ -664,8 +792,7 @@ begin
     delete( LocationStr, 1, p );
 
     if assigned(Note) then
-      if ( Note.Kind = ntTree ) and (Location.NodeID >= 0) then
-      begin
+      if ( Note.Kind = ntTree ) and (Location.NodeID >= 0) then begin
         if ( Location.NodeID <> 0 ) then
           myTreeNode := TTreeNote( Note ).GetTreeNodeByID( Location.NodeID )
         else
@@ -679,27 +806,38 @@ begin
       end;
 
 
-    if ( LocationStr <> '' ) then
-    begin
+    if ( LocationStr <> '' ) then begin
       p := pos( KNTLINK_SEPARATOR, LocationStr );
-      if ( p > 0 ) then
-      begin
-        try
-          Location.CaretPos := strtoint( copy( LocationStr, 1, pred( p )));
-        except
-          Location.CaretPos := 0;
-        end;
-        delete( LocationStr, 1, p );
-        if ( LocationStr <> '' ) then
-        begin
+      if ( p > 0 ) then begin
           try
-            Location.SelLength := strtoint( LocationStr );
+            Location.CaretPos := strtoint( copy( LocationStr, 1, pred( p )));
+          except
+            Location.CaretPos := 0;
+          end;
+          delete( LocationStr, 1, p );
+      end;
+    end;
+
+    if ( LocationStr <> '' ) then begin
+      p := pos( KNTLINK_SEPARATOR, LocationStr );
+      if ( p > 0 ) then begin
+          try
+            Location.SelLength := strtoint(copy(LocationStr, 1, pred(p)));
           except
             Location.SelLength := 0;
           end;
-        end;
+          delete( LocationStr, 1, p );
       end;
     end;
+
+    if ( LocationStr <> '' ) then begin
+        try
+          Location.Mark := strToInt( LocationStr );
+        except
+          Location.Mark := 0;
+        end;
+    end;
+
 
     Result:= Location;
 
@@ -709,7 +847,7 @@ end; // BuildKNTLocationFromString
 //===============================================================
 // NavigateToTreeNode
 //===============================================================
-procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);  
+procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
 var
   myNote: TTabNote;
 begin
@@ -737,6 +875,40 @@ var
   myTreeNode : TTreeNTNode;
   origLocationStr : string;
   LocBeforeJump: TLocation;
+
+  function SearchTargetMark: boolean;
+  var
+     p: integer;
+     TargetMark: string;
+  begin
+      Result:= false;
+      if Location.Mark >= 0 then begin
+        TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_BOOKMARK + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
+        with myNote.Editor do begin
+          p:= FindText(TargetMark, 0, -1, []);
+          if p > 0 then begin
+            SelStart := p;
+            SelLength := Location.SelLength;
+            Perform( EM_SCROLLCARET, 0, 0 );
+            Result:= true;
+          end;
+        end;
+      end;
+  end;
+
+  function SearchCaretPos: boolean;
+  begin
+      Result:= false;
+      if Location.CaretPos >= 0 then begin
+        // place caret
+        with myNote.Editor do begin
+          SelStart := Location.CaretPos;
+          SelLength := Location.SelLength;
+          Perform( EM_SCROLLCARET, 0, 0 );
+        end;
+        Result:= true;
+      end;
+  end;
 
 begin
 
@@ -792,16 +964,8 @@ begin
 
       result := true;
 
-      if Location.CaretPos >= 0 then
-      begin
-        // place caret
-        with myNote.Editor do
-        begin
-          SelStart := Location.CaretPos;
-          SelLength := Location.SelLength;
-          Perform( EM_SCROLLCARET, 0, 0 );
-        end;
-      end;
+      if not SearchTargetMark then
+         SearchCaretPos;
 
       myNote.Editor.SetFocus;
 

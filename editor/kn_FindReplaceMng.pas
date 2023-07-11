@@ -29,6 +29,7 @@ uses
    RxRichEd,
    gf_miscvcl,
    gf_strings,
+   gf_streams,
    kn_const,
    kn_Info,
    kn_Global,
@@ -42,7 +43,8 @@ uses
    kn_NoteMng,
    kn_TreeNoteMng,
    kn_MacroMng,
-   kn_NoteFileMng;
+   kn_NoteFileMng,
+   kn_EditorUtils;
 
 
 var
@@ -106,7 +108,7 @@ begin
      FindOptions.Pattern := trim( ActiveNote.Editor.SelVisibleText )
   else
      if FindOptions.WordAtCursor then
-        FindOptions.Pattern := ActiveNote.Editor.GetWordAtCursorNew( true );
+        FindOptions.Pattern := ActiveNote.Editor.GetWordAtCursor( true );
 
   FindOptions.FindAllMatches := false; // only TRUE when invoked from resource panel
 
@@ -199,13 +201,180 @@ begin
 end; // FindResultsToEditor
 
 
+
+function FindPattern (const Substr: string; Str: String; SearchOrigin: integer; var SizeInternalHiddenText: integer; IgnoreKNTHiddenMarks: boolean = true): integer;
+var
+{ The search string could contain hidden text corresponding to a used marker (for now only this type of hidden marker)
+  as internal KNT link target. This would make it impossible to locate the searched string (currently done with RxRichEdit.FindText) 
+  if it is not taken into account.
+  Assume * a hidden character of KNT and [ and ] delimiting the text to search for. We could find something like: 
+
+   A: [          ]
+   B: ***
+   C: [          ]    ***
+   D: ***    [          ]
+   E: [          *** ]
+   F: [ ***          ]
+   G: [      ***     ]
+   H: [      ***   ***  ]
+   I: [??????***??]    ***   [          ]
+ 
+  p will have the position of the first occurrence of the search text, from the position to search.
+  pH will have the position of the first occurrence of the beginning of the hidden text, from the position to search for.
+
+  If the hidden text is not found (pH=0) or it is placed to the right of the localized text, it does not affect us. We have successfully found
+  the first appearance        
+
+  If we find only hidden text, or the position of the hidden text is lower than that of the serched text, how do we know that there 
+  was no hidden text that we have not located precisely because it is 'mixed' with that hidden text?
+  In this case we must do a search step by step, which ignores possible characters from our hidden string, and which should start
+  some distance to the left of the hidden text (in anticipation of case E) and continue searching assuming that the beginning
+  of the string to search for could be immediately before the hidden text (case F)
+         
+  Although it would not be normal, there could be more than one string hidden within the text to be searched for (case H). If upon 
+  reaching the second hidden string we see keeping the match in the search text comparison, we will simply ignore this second string and continue
+  comparing. If after passing the last character of the first hidden string there was no match, we should continue looking for new possible
+  hidden texts, to repeat the process.  
+}
+
+ p: integer;          // Position of the search text (first occurrence)
+ pH, pHf: integer;    // Start and end position of the first occurrence of hidden text (KNT)
+ PPattern: PChar;     // Pointer to pattern
+ PText: PChar;        // Pointer to the text where to search at any time
+ posIT: integer;      // Comparison start position, for the text to search for
+ iP: integer;         // Index on the pattern, on the comparison started at p
+ iT: integer;         // Index on the text where to search, on comparison started at p
+ LenPattern: integer; // Length of the text to search
+ SizeAux: integer;
+ Dif: boolean;
+ LenStr: integer;
+
+begin   
+    SizeInternalHiddenText:= 0;
+   
+    if (Substr = '') or (Str='') then Exit(0);
+   
+    LenPattern:= Length(Substr);
+    LenStr := Length(Str);
+    pH:= 0;
+    if IgnoreKNTHiddenMarks then begin
+       pH:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, SearchOrigin);
+       PPattern:=  @Substr[1];
+    end;
+
+    repeat
+      p:= Pos(Substr, Str, SearchOrigin);
+      
+      if FindOptions.WholeWordsOnly and (p > 0) then begin
+          if ((p+LenPattern) <= LenStr) and  IsCharAlphaNumeric(Str[p+LenPattern])   then begin
+             SearchOrigin:= p+LenPattern +1;
+             continue;
+          end;
+          if (p > 1) and IsCharAlphaNumeric(Str[p-1]) then begin
+             SearchOrigin:= p+LenPattern +1;
+             continue;
+          end;
+          break;
+      end;
+    until (not FindOptions.WholeWordsOnly) or (p=0) or (SearchOrigin >= LenStr);
+
+    
+    repeat    
+        if (pH=0) or ((pH > p) and (p<>0)) then
+           Exit(p)
+
+        else begin
+           posIT:= pH - LenPattern+ 1;          // in anticipation of case E (at least 1 character would be placed after the hidden string)
+           pHf:= pH;
+           
+           if posIT <= 0 then
+              posIT:= 1;
+
+           repeat                              // New search, starting at posIT
+             iP:= -1;
+             iT:= -1;
+             PText:= @Str[posIT];
+             Dif:= False;             
+
+             if FindOptions.WholeWordsOnly then begin               
+                repeat
+                    if (posIT > 1) and IsCharAlphaNumeric(PText[iT]) then
+                       inc(iT)
+                    else
+                       break;
+                until false or (PText[iT]=#0);
+                if iT > -1 then begin
+                   posIT:= posIT + IT +1;
+                   Dif:= True;
+                   continue;
+                end;
+             end;
+             
+             repeat                          // Keep comparing pattern and text, as long as they match and the end of one or the other is not reached
+                inc(iT);
+                inc(iP);
+
+                if (PText[iT]=KNT_RTF_HIDDEN_MARK_L_CHAR) then begin     // Ignore our possible hidden strings (just count their length)
+                  SizeAux:= 0;
+                  repeat
+                      inc(iT);
+                      inc(SizeInternalHiddenText);
+                      inc(SizeAux);
+                  until (PText[iT]=KNT_RTF_HIDDEN_MARK_R_CHAR) or (PText[iT]=#0) or (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT);      // Looking for <StartHiddenText>.....<EndHiddenText>  (ex: HB5H  where  H=KNT_RTF_HIDDEN_MARK_CHAR)
+                  if (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT) then begin
+                     Dif:= True;
+                     pHf:= pH;
+                  end
+                  else begin
+                    inc(iT);
+                    inc(SizeInternalHiddenText);
+                    if pHf = pH then
+                       pHf:= posIT + iT;
+                    if SizeInternalHiddenText = iT then
+                       Dif:= True;
+                  end;
+                end;
+
+                if (PPattern[iP] <> PText[iT]) then
+                   Dif:= True;
+
+             until Dif or (iP >= LenPattern-1) or (PText[iT]=#0);
+
+             if not Dif then begin
+                if (PText[iT] <> #0) and IsCharAlphaNumeric(PText[iT+1]) then begin
+                   posIT:= posIT + iT +1;
+                   Dif:= True;
+                end
+             end
+             else begin            
+                SizeInternalHiddenText:= 0;
+                if (posIT >= pH) then                  
+                    posIT:= pHf + 1
+                else
+                    inc(posIT);                                   // We will start searching from the next position
+             end;
+
+           until not Dif or (posIT >=LenStr) or (posIT > pHf);
+
+           if not Dif then
+              Exit(posIT)
+           else
+              pH:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, posIT +1);
+
+        end;
+
+    until false;           // We will exit only through the points identified within
+
+end;
+
+{
 // Preparar el editor (TTabRichEdit) al que preguntaremos por el texto buscado
 procedure PrepareEditControl(myNote: TTabNote; myTreeNode: TTreeNTNode);
 var
     myNoteNode : TNoteNode;
 begin
     if (myNote.Kind <> ntTree)  or ((myNote = ActiveNote) and (TTreeNote(ActiveNote).TV.Selected = myTreeNode)) then begin
-        if (myNote.Kind = ntTree) and myNote.Editor.Modified then
+        if myNote.Editor.Modified or (myNote.NoteTextPlain = '') then
             myNote.EditorToDataStream;
         EditControl:= myNote.Editor
     end
@@ -216,6 +385,35 @@ begin
         EditControl:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
         EditControl.Lines.LoadFromStream( myNoteNode.Stream );
     end;
+end;
+}
+
+function PrepareTextPlain(myNote: TTabNote; myTreeNode: TTreeNTNode): string;
+var
+    myNoteNode : TNoteNode;
+begin
+
+   if myNote.Editor.Modified or ((myNote.Kind <> ntTree) and (myNote.NoteTextPlain = '')) then
+      myNote.EditorToDataStream;
+
+   if (myNote.Kind <> ntTree) then
+       Result:= myNote.NoteTextPlain
+   else begin
+      myNoteNode := TNoteNode( myTreeNode.Data );
+      if myNoteNode.NodeTextPlain = '' then begin
+         myNoteNode.Stream.Position := 0;
+         EditControl:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
+         if NodeStreamIsRTF (myNoteNode.Stream) then
+            EditControl.StreamFormat:= sfRichText
+         else
+            EditControl.StreamFormat:= sfPlainText;
+
+         EditControl.Lines.LoadFromStream( myNoteNode.Stream );
+         myNoteNode.NodeTextPlain:= EditControl.TextPlain;
+      end;
+      Result:= myNoteNode.NodeTextPlain;
+   end;
+
 end;
 
 
@@ -243,6 +441,8 @@ var
   oldActiveNote: TTabNote;
   SearchModeToApply : TSearchMode;
   TreeNodeToSearchIn : TTreeNTNode;
+  TextPlain, TextToFind: string;
+  SizeInternalHiddenText: integer;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -265,7 +465,7 @@ type
           case LocationType of
              lsNormal: begin
                  Location.CaretPos := PatternPos;
-                 Location.SelLength := PatternLen;
+                 Location.SelLength := PatternLen + SizeInternalHiddenText;
                  end;
              lsNodeName: begin
                  Location.CaretPos := -1; // means: text found in node name
@@ -379,7 +579,7 @@ begin
   FindOptions.Wrap := false;
 
   FindOptions.FindNew := true;
-  FindOptions.Pattern := trim( Form_Main.Combo_ResFind.Text ); // leading and trailing blanks need to be stripped
+  FindOptions.Pattern := trim( Form_Main.Combo_ResFind.Text ); // leading and trailing blanks need to be stripped  
 
   SearchModeToApply := FindOptions.SearchMode;
 
@@ -396,6 +596,11 @@ begin
   if FindOptions.MatchCase then
     SearchOpts := SearchOpts + [stMatchCase];
 
+  if FindOptions.MatchCase then
+     TextToFind:= FindOptions.Pattern
+  else
+     TextToFind:= AnsiUpperCase(FindOptions.Pattern);
+    
   PatternPos := 0;
   PatternLen := length( FindOptions.Pattern );
   MatchCount := 0;
@@ -415,7 +620,7 @@ begin
       ClearLocationList( Location_List );
       Form_Main.List_ResFind.Items.Clear;
 
-      CSVTextToStrs( wordList, FindOptions.Pattern, #32 );
+      CSVTextToStrs( wordList, TextToFind, #32 );
       wordcnt := wordList.count;
 
       if wordcnt = 1 then
@@ -452,7 +657,11 @@ begin
 
             // Recorremos cada nodo (si es ntTree) o el único texto (si <> ntTree)
             repeat
-                PrepareEditControl(myNote, myTreeNode);
+                // PrepareEditControl(myNote, myTreeNode);
+                TextPlain:= PrepareTextPlain(myNote, myTreeNode);
+                if not FindOptions.MatchCase then
+                   TextPlain:=  AnsiUpperCase(TextPlain);
+                
                 nodeToFilter:= true;                     // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
                 SearchOrigin := 0; // starting a new node
 
@@ -474,11 +683,15 @@ begin
                             end;
 
                             repeat
+                               PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1;
+                               { 
                                PatternPos := EditControl.FindText(
                                  FindOptions.Pattern,
                                  SearchOrigin, -1,
                                  SearchOpts
                                );
+                               }
+                                
                                if ( PatternPos >= 0 ) then begin
                                    SearchOrigin := PatternPos + PatternLen; // move forward in text
                                    inc( Counter );
@@ -495,11 +708,14 @@ begin
                          begin
                             thisWord := wordList[pred( wordidx )];
 
+                            PatternPos:= FindPattern(thisWord, TextPlain, 0, SizeInternalHiddenText) -1;
+                            {
                             PatternPos := EditControl.FindText(
                               thisWord,
                               0, -1,
                               SearchOpts
                             );
+                            }
 
                             case SearchModeToApply of
                                 smAll:
@@ -636,6 +852,9 @@ var
   SearchOpts : TRichSearchTypes;
   handle: HWND;
 
+  l1, l2: integer;
+  SizeInternalHiddenText: integer;
+  TextPlain: string;
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -752,7 +971,7 @@ var
       with myNote.Editor do
       begin
         SelStart := PatternPos;
-        SelLength := length( Text_To_Find);
+        SelLength := length( Text_To_Find) + SizeInternalHiddenText;
       end;
   end;
 
@@ -795,8 +1014,15 @@ begin
           SearchOrigin := 0
       else begin
           SearchOrigin := ActiveNote.Editor.SelStart;
-          if ActiveNote.Editor.SelLength = length( Text_To_Find) then
-             inc(SearchOrigin);
+          l1:= length(ActiveNote.Editor.SelVisibleText);
+          if l1 = length( Text_To_Find)  then begin
+             l2:= length(ActiveNote.Editor.SelText);
+             if l1 = l2 then
+                inc(SearchOrigin)
+             else
+                 SearchOrigin:= SearchOrigin + l2;
+             
+          end;
       end;
 
       myNote := ActiveNote;
@@ -816,14 +1042,21 @@ begin
       // o incluso continuar buscando desde el punto de partida, de manera cíclica.
 
       repeat
-            PrepareEditControl(myNote, myTreeNode);
-
+            //PrepareEditControl(myNote, myTreeNode);
+            TextPlain:= PrepareTextPlain(myNote, myTreeNode);
+            if FindOptions.MatchCase then
+               PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
+            else 
+               PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText) -1;
+            
+            {
             PatternPos := EditControl.FindText(
               Text_To_Find,
               SearchOrigin, -1,
               SearchOpts
             );
-
+            }
+            
             if PatternPos < 0 then begin
                GetNextNode;                 // Podrá actualizar FindDone
                while (not FindDone) and (not assigned(myTreeNode)) do begin
@@ -943,7 +1176,7 @@ var
       Result:= (SelectedTextLength > 0);
       if Result then begin
          if FindOptions.WholeWordsOnly then begin
-             WordAtCursor:= ActiveNote.Editor.GetWordAtCursorNew( false, true );
+             WordAtCursor:= ActiveNote.Editor.GetWordAtCursor( false, true );
              if length(WordAtCursor) <> SelectedTextLength then
                 Result:= False;
          end;

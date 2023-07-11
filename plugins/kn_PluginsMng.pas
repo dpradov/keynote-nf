@@ -263,6 +263,9 @@ begin
 end; // ConfigurePlugin
 
 
+type
+  TOutDataToReturn = (odNone, odSelection, odAll);
+
 function ExecutePlugin( fn : string ) : longint;
 var
   Plugin : TPlugin;
@@ -277,6 +280,8 @@ var
   InsertPluginOutput, NoteWasReadOnly : boolean;
   LoadedPlugin : TLoadedPlugin;
   PluginReceivedSelection : boolean;
+  OutDataToReturn: TOutDataToReturn;
+
 
 begin
   with Form_Main do begin
@@ -377,43 +382,50 @@ begin
                 end;
             end;
 
+
             // Figure out what data type the plugin expects to receive
+            OutDataToReturn:= odNone;
+
             if ( plGetsData in Plugin.Features ) then begin
               if ( plGetsSelection in Plugin.Features ) then begin
-                  if ( ActiveNote.Editor.SelLength > 0 ) then begin
-                     // plugin will get selected text
-                     PluginReceivedSelection := true;
-                     if ( plGetsRTF in Plugin.Features ) then
-                        OutData := ActiveNote.Editor.RtfSelText
-                     else
-                        OutData := ActiveNote.Editor.SelText;
-                  end
+                  if ( ActiveNote.Editor.SelLength > 0 ) then
+                     OutDataToReturn := odSelection          // plugin will get selected text
                   else begin
                       // no text is selected in active note
                       if ( plNeedsSelection in Plugin.Features ) then begin
-                          // selection is required, so we must abort
                           MessageDlg( Format(STR_16, [Plugin.Name]), mtInformation, [mbOK], 0 );
-                          exit;
+                          exit;                             // selection is required, so we must abort
                       end
-                      else begin
-                          // selection is preferred but not required, so plugin gets all text
-                          PluginReceivedSelection := false;
-                          if ( plGetsRTF in Plugin.Features ) then
-                             OutData := ActiveNote.Editor.RtfText
-                          else
-                             OutData := ActiveNote.Editor.Text;
-                      end;
+                      else
+                          OutDataToReturn := odAll;         // selection is preferred but not required, so plugin gets all text
                   end;
               end
-              else begin
-                  // plugin does not want selection, so it gets all text
-                  PluginReceivedSelection := false;
-                  if ( plGetsRTF in Plugin.Features ) then
-                     OutData := ActiveNote.Editor.RtfText
-                  else
-                     OutData := ActiveNote.Editor.Text;
-              end;
+              else
+                  OutDataToReturn := odAll;                 // plugin does not want selection, so it gets all text
             end;
+
+            if OutDataToReturn = odSelection then begin
+               PluginReceivedSelection := true;
+               if ( plGetsRTF in Plugin.Features ) then
+                  OutData := ActiveNote.Editor.RtfSelText
+               else
+                  OutData := ActiveNote.Editor.SelText;
+            end
+            else if OutDataToReturn = odAll then begin
+                PluginReceivedSelection := false;
+                if ( plGetsRTF in Plugin.Features ) then
+                   OutData := ActiveNote.Editor.RtfText
+                else
+                   OutData := ActiveNote.Editor.Text;
+            end;
+
+            if OutData <> '' then begin
+               if ( plGetsRTF in Plugin.Features ) then
+                  OutData:= RemoveKNTHiddenCharactersInRTF (OutData)
+               else
+                  OutData:= RemoveKNTHiddenCharacters (OutData);
+            end;
+
 
             if ( ActiveNote.Kind = ntTree ) then
                 try

@@ -28,7 +28,8 @@ uses
    System.SysUtils,
    System.StrUtils,
    Vcl.Graphics,
-   RxRichEd;
+   RxRichEd,
+   kn_NoteObj;
 
 {
  Removed the following procedures and function. Moved (adapted) as methods of TRxRichEdit
@@ -71,8 +72,8 @@ function GetRTFColor (Color: TColor): string;
 function CleanRTF(const RTF: string; var nRTF: string): boolean;
 procedure SetDefaultFontAndSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
 
-function GetAuxEditorControl (EditorToLoadFrom: TRxRichEdit= nil; FromSelection: Boolean= True): TRxRichEdit;
-procedure FreeAuxEditorControl (FlushToEditor: TRxRichEdit= nil; DoInsert: boolean= true; FreeAndNilControl: boolean= false);
+function GetAuxEditorControl (EditorToLoadFrom: TTabRichEdit= nil; FromSelection: Boolean= True): TTabRichEdit;
+procedure FreeAuxEditorControl (FlushToEditor: TTabRichEdit= nil; DoInsert: boolean= true; FreeAndNilControl: boolean= false);
 
 
 implementation
@@ -80,7 +81,7 @@ uses
    kn_Main;
 
 var
-   RTFAux : TRxRichEdit;
+   RTFAux : TTabRichEdit;
 
 
 
@@ -284,14 +285,14 @@ begin
 end;
 
 
-function GetAuxEditorControl(EditorToLoadFrom: TRxRichEdit= nil; FromSelection: Boolean= True): TRxRichEdit;
+function GetAuxEditorControl(EditorToLoadFrom: TTabRichEdit= nil; FromSelection: Boolean= True): TTabRichEdit;
 var
   Stream: TStream;
   Str: String;
 begin
 
    if not assigned(RTFAux) then begin
-      RTFAux := TRxRichEdit.Create(Form_Main);
+      RTFAux := TTabRichEdit.Create(Form_Main);
       RTFAux.Visible:= False;
       RTFAux.OnProtectChangeEx:= Form_Main.RxRTFAuxiliarProtectChangeEx;
       RTFAux.Parent:= Form_Main;
@@ -317,7 +318,7 @@ begin
    Result:= RTFAux;
 end;
 
-procedure FreeAuxEditorControl(FlushToEditor: TRxRichEdit= nil;
+procedure FreeAuxEditorControl(FlushToEditor: TTabRichEdit= nil;
                                DoInsert: boolean= true;
                                FreeAndNilControl: boolean= false);
 var

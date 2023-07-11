@@ -524,6 +524,7 @@ type
     procedure SetSelLength(Value: Integer); override;
     procedure SetSelStart(Value: Integer); override;
     function GetSelVisibleText: string;                                                   // [dpv]
+    function GetVisibleText: string;                                                      // [dpv]
     property AllowInPlace: Boolean read FAllowInPlace write FAllowInPlace default True;
 {$ENDIF}
     property AllowObjects: Boolean read FAllowObjects write SetAllowObjects default True;
@@ -575,7 +576,9 @@ type
     function GetLineLength(CharIndex: Integer): Integer;
     function GetFirstVisibleLine: Integer;                            // [dpv]
     property SelVisibleText: string read GetSelVisibleText;           // [dpv]
+    property VisibleText: string read GetVisibleText;                 // [dpv]
     function TextLength: integer;                                     // [dpv]
+    function TextPlain (Selection: boolean= False): string;           // [dpv] Alternative to TCumstomEdit.Text (GetText), returning RAWTEXT
     function WordAtCursor: string;
     function FindText(const SearchStr: string;
       StartPos, Length: Integer; Options: TRichSearchTypes): Integer;
@@ -4857,6 +4860,61 @@ begin
 end;
 
 
+function TRxCustomRichEdit.GetVisibleText: string;
+var
+  GetTextEx: TGetTextEx;
+  len: integer;
+begin
+   len:= GetTextLen;
+   SetLength(Result, len);
+
+   with GetTextEx do begin
+      cb:= len * 2;     // size in bytes
+      flags:= GT_NOHIDDENTEXT;
+      codepage:= 1200;
+      lpDefaultChar:= nil;
+      lpUsedDefChar:= nil;
+   end;
+
+   len:= SendMessage(Handle, EM_GETTEXTEX, WPARAM(@GetTextEx), LPARAM(Result));
+   SetLength(Result, len);
+end;
+
+{ [dpv]
+ Uses EM_GETTEXTEX message
+
+ GT_RAWTEXT: Text is retrieved exactly as it appears in memory. This includes special structure characters for table row and cell delimiters
+             (see Remarks for EM_INSERTTABLE) as well as math object delimiters (start delimiter U+FDD0, argument delimiter U+FDEE, and end
+             delimiter U+FDDF) and object markers (U+FFFC). This maintains character-position alignment between the retrieved text and the text in memory.
+  => Position identified looking for a pattern text in a string returned by this function can be used to move caret to that position.
+
+ Also applies other options in GT_DEFAULT: carriage returns (U+000D) are not translated into CRLF (U+000D U+000A)
+}
+function TRxCustomRichEdit.TextPlain (Selection: boolean= False): string;
+var
+  GetTextEx: TGetTextEx;
+  len: integer;
+begin
+   len:= GetTextLen;
+   SetLength(Result, len);
+
+   with GetTextEx do begin
+      cb:= len * 2;           // size in bytes
+      flags:= GT_RAWTEXT; // GT_DEFAULT;
+      if Selection then
+         flags:= flags or GT_SELECTION;
+      codepage:= 1200;
+      lpDefaultChar:= nil;
+      lpUsedDefChar:= nil;
+   end;
+
+   len:= SendMessage(Handle, EM_GETTEXTEX, WPARAM(@GetTextEx), LPARAM(Result));
+   SetLength(Result, len);
+end;
+
+
+
+
 { EM_SETTEXTEX (https://learn.microsoft.com/en-us/windows/win32/controls/em-settextex):
   <<Combines the functionality of the WM_SETTEXT and EM_REPLACESEL messages, and adds the ability to set text using a code page and to use either rich text or plain text.
    Parameters
@@ -5708,7 +5766,7 @@ begin
 end;
 
 
-function TRxCustomRichEdit.TextLength: integer;             // [dpv] Extracted from .Print and .CreatePrnPrew 
+function TRxCustomRichEdit.TextLength: integer;             // [dpv] Extracted from .Print and .CreatePrnPrew
 var
   TextLenEx: TGetTextLengthEx;
 begin

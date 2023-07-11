@@ -55,7 +55,8 @@ uses
    kn_Macro,
    kn_MacroCmd,
    kn_MacroCmdSelect,
-   kn_MacroEdit;
+   kn_MacroEdit,
+   kn_RTFUtils;
 
 
 
@@ -1656,7 +1657,8 @@ begin
   try
       case aCMD of
           ecCopy : begin
-            ActiveNote.Editor.CopyToClipboard;
+            GetEditorWithNoKNTHiddenCharacters.CopyToClipboard;
+
             if EditorOptions.PlainDefaultPaste then
                TestCRCForDuplicates(Clipboard.TryAsText);
           end;
@@ -1708,7 +1710,7 @@ begin
             MatchBracket;
 
           ecSelectWord :
-            ActiveNote.Editor.GetWordAtCursorNew( true );
+            ActiveNote.Editor.GetWordAtCursor( true );
 
           ecGoTo : begin
             s := CommandRecall.GoToIdx;
@@ -2388,6 +2390,7 @@ begin
                  templist.Duplicates := dupAccept;
                  templist.Text := ActiveNote.Editor.SelText;
                  ActiveNote.Editor.SelText := templist.Text;
+                 ActiveNote.Editor.HideKNTHiddenMarks(true);
                finally
                  templist.Free;
                end;
@@ -2410,6 +2413,7 @@ begin
                   p := pos( #32#32, txt );
                 end;
                 ActiveNote.Editor.SelText := txt;
+                ActiveNote.Editor.HideKNTHiddenMarks(true);
               finally
                 screen.cursor := crDefault;
               end;
@@ -2417,9 +2421,11 @@ begin
             else
               ErrNoTextSelected:= True;
 
-          ecReverseText :
+          ecReverseText : begin
             if ( ActiveNote.Editor.SelLength > 0 ) then begin
               txt := ActiveNote.Editor.SelText;
+              txt:= KeepOnlyLeadingKNTHiddenCharacters(txt);
+
               p:= length( txt );
               txt2 := '';
               SetLength( txt2, p );
@@ -2429,12 +2435,15 @@ begin
             end
             else
               ErrNoTextSelected:= True;
+          end;
 
           ecROT13 :
             if ( ActiveNote.Editor.SelLength > 0 ) then begin
               screen.cursor := crHourGlass;
               try
                 txt := ActiveNote.Editor.SelText;
+                txt:= KeepOnlyLeadingKNTHiddenCharacters(txt);
+
                 for i := 1 to length( txt ) do begin
                   p := pos( txt[i], alph13 );
                   if ( p > 0 ) then
@@ -2465,6 +2474,7 @@ begin
                  txt[i] := txt2[1];
                end;
                ActiveNote.Editor.SelText := txt;
+               ActiveNote.Editor.HideKNTHiddenMarks(true);
             end
             else
                ErrNoTextSelected:= True;
@@ -2474,6 +2484,7 @@ begin
                 txt := ActiveNote.Editor.SelText;
                 txt := AnsiUpperCase( txt );
                 ActiveNote.Editor.SelText := txt;
+                ActiveNote.Editor.HideKNTHiddenMarks(true);
             end
             else
               ErrNoTextSelected:= True;
@@ -2483,6 +2494,7 @@ begin
                 txt := ActiveNote.Editor.SelText;
                 txt := AnsiLowercase( txt );
                 ActiveNote.Editor.SelText := txt;
+                ActiveNote.Editor.HideKNTHiddenMarks(true);
             end
             else
                ErrNoTextSelected:= True;
@@ -2504,6 +2516,7 @@ begin
                end;
 
                ActiveNote.Editor.SelText := txt;
+               ActiveNote.Editor.HideKNTHiddenMarks(true);
             end
             else
                ErrNoTextSelected:= True;
@@ -2513,6 +2526,7 @@ begin
                txt := ActiveNote.Editor.SelText;
                txt := AnsiProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
                ActiveNote.Editor.SelText := txt;
+               ActiveNote.Editor.HideKNTHiddenMarks(true);
             end
             else
                ErrNoTextSelected:= True;

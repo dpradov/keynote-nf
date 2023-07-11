@@ -33,7 +33,8 @@ uses
    kn_Info,
    kn_Main,
    kn_NewTemplate,
-   kn_NoteFileMng;
+   kn_NoteFileMng,
+   kn_EditorUtils;
 
 
 
@@ -185,6 +186,8 @@ begin
                 ListBox_ResTpl.Items.Delete(i);
           end;
 
+          if Template_LastWasFormatted then
+             Editor:= GetEditorWithNoKNTHiddenCharacters(useSelection);
 
           if UseSelection then
              Editor.StreamMode := [smSelection];
