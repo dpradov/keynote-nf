@@ -2270,6 +2270,10 @@ begin
     if EditorOptions.WordCountTrack and (MillisecondsIdle >= 450) then
        UpdateWordCount;
 
+    if (NoteFile <> nil) and (not NoteFile.TextPlainVariablesInitialized) and (MillisecondsIdle >= 450) then
+       NoteFile.UpdateTextPlainVariables(150);
+
+
   except
      // drop all exceptions here
   end;
@@ -2784,7 +2788,7 @@ begin
          
          It is not possible to put the cursor inside hidden text, and if we advance from 'LEFT' by pressing the right cursor, we will be able to
          position ourselves just before of <hidden text> or past the 'T' of visible text. Therefore, if after placing the cursor just after LEFT
-         we write something (eg **"), those characters will be written to the left of the hidden text. Ok         
+         we write something (eg **"), those characters will be written to the left of the hidden text. Ok
          
          But if from 'RIGHT visible text' we move to the left with the cursor, we can place it just to the right of <hidden text>, immediately
          before the first visible character from the right. That would be a problem if we don't control it, because if we write something 

@@ -400,17 +400,7 @@ begin
        Result:= myNote.NoteTextPlain
    else begin
       myNoteNode := TNoteNode( myTreeNode.Data );
-      if myNoteNode.NodeTextPlain = '' then begin
-         myNoteNode.Stream.Position := 0;
-         EditControl:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
-         if NodeStreamIsRTF (myNoteNode.Stream) then
-            EditControl.StreamFormat:= sfRichText
-         else
-            EditControl.StreamFormat:= sfPlainText;
-
-         EditControl.Lines.LoadFromStream( myNoteNode.Stream );
-         myNoteNode.NodeTextPlain:= EditControl.TextPlain;
-      end;
+      TTreeNote(myNote).InitializeTextPlain(myNoteNode);
       Result:= myNoteNode.NodeTextPlain;
    end;
 

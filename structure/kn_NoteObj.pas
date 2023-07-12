@@ -31,6 +31,7 @@ uses
    Vcl.FileCtrl,
    Vcl.Controls,
    Vcl.ComCtrls,
+   Vcl.Forms,
    Vcl.Dialogs,
    Vcl.ExtCtrls,
    comctrls95,
@@ -334,6 +335,8 @@ type
     function GetNodeByID( const aID : integer ) : TNoteNode;
     function GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
 
+    function InitializeTextPlainVariables( nMax: integer ): boolean;
+    function InitializeTextPlain(myNoteNode: TNoteNode): boolean;
 
   end;
 
@@ -3099,6 +3102,51 @@ begin
     myTreeNode := myTreeNode.GetNext;
   end;
 end; // GetTreeNodeByID
+
+
+function TTreeNote.InitializeTextPlain(myNoteNode: TNoteNode): boolean;
+var
+    EditControl: TRxRichEdit;
+begin
+    Result:= False;  // Initialization was required?
+
+    if myNoteNode.NodeTextPlain = '' then begin
+       myNoteNode.Stream.Position := 0;
+       EditControl:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
+       if NodeStreamIsRTF (myNoteNode.Stream) then
+          EditControl.StreamFormat:= sfRichText
+       else
+          EditControl.StreamFormat:= sfPlainText;
+
+       EditControl.Lines.LoadFromStream( myNoteNode.Stream );
+       myNoteNode.NodeTextPlain:= EditControl.TextPlain;
+
+       Result:= True;
+    end;
+end;
+
+
+function TTreeNote.InitializeTextPlainVariables( nMax: integer ): boolean;
+var
+  i, N: integer;
+begin
+  Result:= false;          // Returns True if all nodes have TextPlain initialized
+
+  N:= 0;
+  for i := 0 to FNodes.Count - 1 do  begin
+     if (i mod 20) = 0 then begin
+        Application.ProcessMessages;
+        if (MillisecondsIdle <= 450) then Exit;
+     end;
+
+     if InitializeTextPlain (FNodes[i]) then
+        inc (N);
+
+     if N >= nMax then Exit;
+  end;
+
+  Result:= true;
+end;
 
 
 Initialization

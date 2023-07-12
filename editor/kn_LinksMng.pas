@@ -532,10 +532,10 @@ end;
 
 	This way, position identified looking for a pattern text in a string returned by this function can be used to move caret to that position.
 
-	As an advantage, the new search mechanism is much faster. For now the application is only retrieving the text
-	flat (with TextPlain) on demand (lazy load), updating it if the note or node is modified. Therefore, the first search
-	with Find All can take about the same time as before, but consecutive searches will now be instantaneous,
-	whereas currently each search incurs the same amount of time, which on a large file can easily be 5 or 6 seconds.
+	As an advantage, the new search mechanism is much faster. Once initialized [*] new plain text variables (NoteTextPlain / NodeTextPlain),
+  searches will now be almost instantaneous,	whereas currently each search incurs the same amount of time, which on a large file can easily
+  be 5 or 6 seconds.
+    [*] With TNoteFile.UpdateTextPlainVariables, called by TForm_Main.TimerTimer, or on demand by RunFindAllEx (in kn_FindReplaceMng)
 
 	Subsequently, a modification will be included to try to ensure that these initial data are obtained at times when
 	the application is idle, so even the first search is instantaneous.

@@ -110,6 +110,7 @@ type
     FPassphraseFunc : TGetAccessPassphraseFunc;
 
     FBookmarks : TBookmarks; // [?] bookmarks are NOT persistent
+    FTextPlainVariablesInitialized: boolean;
 
     function GetModified : boolean;
     function GetCount : integer;
@@ -158,6 +159,8 @@ type
 
     property Bookmarks[index: integer]: PBookmark read GetBookmark; // write FBookmarks;
 
+    property TextPlainVariablesInitialized: boolean read FTextPlainVariablesInitialized write FTextPlainVariablesInitialized;
+
     constructor Create;
     destructor Destroy; override;
 
@@ -185,6 +188,8 @@ type
 
     procedure SetupMirrorNodes (Note : TTabNote);
     procedure ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
+
+    procedure UpdateTextPlainVariables (nMax: integer);
   end;
 
 
@@ -1648,6 +1653,37 @@ begin
 
   finally
   end;
+
+end;
+
+procedure TNoteFile.UpdateTextPlainVariables (nMax: integer);
+var
+  i: integer;
+  myNote: TTabNote;
+  AllNotesInitialized: boolean;
+begin
+    if FileIsBusy then Exit;
+    if FTextPlainVariablesInitialized then Exit;
+
+    try
+        AllNotesInitialized:= True;
+
+        for i := 0 to pred( FNotes.Count ) do begin
+           myNote := FNotes[i];
+           if (myNote.Kind = ntTree) then begin
+              if not TTreeNote(myNote).InitializeTextPlainVariables(nMax) then
+                  AllNotesInitialized:= false;
+           end
+           else
+              if (myNote.NoteTextPlain = '') then
+                 myNote.EditorToDataStream;
+        end;
+
+        if AllNotesInitialized then
+           FTextPlainVariablesInitialized:= true;
+
+    except
+    end;
 
 end;
 
