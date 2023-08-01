@@ -1,0 +1,314 @@
+
+
+Changes in 1.8.0 Beta 1  (01/08/2023)
+=======================
+
+--------------
+* Find All: Improvement in the output of results
+
+ - Excerpts from the note of the matches found are displayed, where the searched words are highlighted
+
+ - The treatment of the options 'All the words' and 'Any of the words' is extended :
+  Now, results are shown that include all the words considered, and there may be more than one
+  result per node / note.
+
+   - 'All the words': the first word found from the list provided is highlighted, as well
+   as those others that appear within the excerpt, to its right. If the last word found
+   within the identified match is not shown in the excerpt obtained for the first word
+   found, an additional excerpt for the last word is added, where all searched words
+   are highlighted.
+
+   - 'Any of the words': Results are created that include, and highlight, all occurrences
+   of each of the words in the search term. New results are only added for those words
+   that are not visible within the previous excerpt.
+
+----------------
+* Search will be faster from the very beginning
+  Note and Node 'TextPlain' variables, are now initialized automatically
+
+----------------
+* New KNT Links, vinculated to markers, not only to caret position -> Improvement in search
+
+  When marking a KNT location (Ctr+F6) the app will now insert a small hidden bookmark next to the text
+  identified as target. When inserting the link (Shift+F6) the new hyperlink will refer to the created bookmark,
+  and will locate it even though all the text could have been relocated (within the same note/node).
+  If the marker were eliminated, the caret position would be used, as before.
+
+  This has forced to review multiple aspects of the application, mainly the text search (Find Next and Find All).
+
+  Now the search is done directly on a string previously retrieved from the rich edit control.
+  The new search mechanism is much faster. The first search with Find All can take about the same time as before,
+  (at least for now...) but consecutive searches will now be almost instantaneous, whereas currently each search incurred
+  the same amount of time.
+
+  (See a further explanation in the comment before the InsertOrMarkKNTLink method, in kn_LinksMng.pas)
+  
+  * IMPORTANT: a .knt file modified with the last 1.8.0 version, where we used Ctr+F6 and Shift+F6, will
+    have little fragments of hidden text besides the text where the marker is located. 
+    If the file is opened with an older version:
+     - The links will function still ok but using the old behaviour based in caret position.
+     - If on the text including this hidden marks is applied Paste font attributes (or the button 'Copy format'),
+       or certain edit functions like 'Change Case' or 'White Space' (among others), the hidden characters will
+       be made visible.
+         For example, if the text "The new Beta is available" has a marker pointing to word "Beta", it could
+         change to something like: "The new B1Beta is available". Ascii characters #11 (DC1) y #12 (DC2) 
+         will be shown as little squares. (B1: B: Bookmark "1")
+     - When searching text that includes hidden marks, the located pattern could be affected.
+       For example, if we serch for "new Beta", KNT will not be able to find a coincidence.
+     - Also, if text including this hidden marks is copied to other sites inside KNT or outside, the hidden
+       marks will be copied also. If the file is then modified with new version, the links that pointed to that
+       text could now jump to the new pasted text, if it is upper in the node.
+     - In general, that hidden characters could 'emerge' in different situations
+  
+
+----------------
+* Modification in RxRichEd to change the way a retry is made when the load of stream detects an error
+  It will retry with no TEncoding conversion, setting only SF_TEXT (no SF_UNICODE). The stream will be
+  supposed to be in UTF8 format, with BOM. RichEdit will manage it correctly.
+  This is how TRichEditStrings.LoadFromStream (in RxRichEd with KeyNote) worked in previous versions.
+  Now those symbols incorrrectly converted (with previous versions) wil be ignored, but the rest will be
+  shown correctly as UTF8.
+  (Resolves issue #610)
+
+----------------
+* New: Added 'KeyNote' as target format in File/Export...
+
+  Now it is easy to create new KeyNote files from current file, with the export mechanism:
+
+  - Including only active note
+  - Including only current node and subtree of the active note
+  - Including only checked nodes in active note
+  - Including selected notes
+  - Including all notes (this is equivalent to File/Copy To.., but with the possibility to select the file name)
+
+  In all that cases it is possible to consider only not hidden nodes. For example, if we run 'Find All' with
+  'Filter Tree note' option, we can then generate a new .knt with the nodes that include the searched pattern.
+
+  The created .knt file will have the same properties as the original (native, compressed, ..)
+
+----------------
+* Find All: Added new option: "Current node and subtree"
+
+----------------
+* Redesigned navigation history mechanism
+
+  - Default navigation is now global and so we can move between the nodes of a note but also between notes
+  - Local navigation (traveling only active note's history) is also possible, clicking on the toolbar button with Ctrl.
+  - Every jump from an internal keynote link will generate history, not only those that go to another node in the same
+    note.
+  - Bookmark jumps will also generate history
+  - Standard RTF notes (not multi-lvel tree notes) will have its own history navigation
+  - Related buttons have been moved to main toolbar.
+    Their color and hint indicates if global and/or local history is available in that direction
+
+   (An explanation of the new behaviour is available in the comment before 'NavigateInHistory', in kn_LinksMng.pas)
+
+----------------
+* At the moment, the Send Mail functionality will not be included in KNT
+
+  It would be necessary to update it to manage correctly authentication (username and password / smtpAuthXOAuth2 /  smtpAuthOAuthBearer),
+  and I think that this is not, probably, a demanded feature of KeyNote.
+
+  Besides, with the update to 'ICS - Internet Component Suite - V8.70', by Francois Piette, it implies
+  almost 600kB extra in executable file's size.
+
+----------------
+* Clipboard Capture / Web Clip. Added new token: '%%'
+
+  Added a new token (%%) that delimits a divider string for the second and following consecutive paste
+  from the same page (same URL).
+  KNT will remember the last URL it was pasted from in the current [Clipboard Capture] session.
+
+  This allows, for example, to include the URL and title only before the first fragment we paste from a certain web page. 
+  Next (consecutive) fragments of the same URL can include any of the tokens, but normally we will only need a simple 
+  delimiter (like '- - - ').
+
+  Predefined divider strings have beend updated, including this new token and allowing this behaviour.
+  It is of course possible to create a custom divider, and you don't have to use the new token in it.
+
+----------------
+* When converting from HTML to RTF, on pasting from web pages, last aditional line break will be removed
+
+  In most cases, when pasting from web pages, the RTF obtained after convert from HTML adds at least an extra final line break.
+  Now it is removed. This way the result obtained when configuring the divider string (defined in Clipboard Capture or Web Clip),
+  is more clear.
+
+----------------
+* Fixed: Pasting as plain text could move the caret several characters before its correct position
+
+  In solution to issue #539 (Pasting as plain text moves the caret beyond pasted text when it includes several lines)
+  this problem was partially mitigated and caused, on certain occasions, the opposite effect, placing the caret
+  ahead of the position that corresponds to it.
+
+  Now I have changed the way the plain text is pasted, and I think it has finally been correctly resolved.
+
+----------------
+* Titles from web pages: convert HTML Ascii codes
+
+  Some titles are available in UTF8, but others express special characters with HTML Ascii codes of the form "&#999;"
+  For example, from the page 'https://www.microsoft.com/es-es/windows/windows-11' we can obtain the following title:
+
+   "Descubre Windows 11: la versi&#243;n m&#225;s reciente de Windows | Microsoft"
+
+  Now,it is converted to:
+   "Descubre Windows 11: la versión más reciente de Windows | Microsoft"
+
+--------
+* When pasting from HTML (web pages), the current font and size in the active editor will be used as default values,
+  instead of the usual Times New Roman 12.
+
+----------------
+* Fixed: copying and pasting from certain web pages can produce nothing or truncate some text
+
+  KeyNote will paste from web page as plain text (without any formatting) when detected that conversion from HTML to RTF it is no ok
+
+  It can occur that the conversion to RTF (obtained with TWebBrowser) from the HTML copied to the clipboard from certain pages
+  are totally o partially incorrect (even MSWord can't convert correctly that fragments).
+  I have detected this problem with the following site, whose html seems to be odd: stackoverflow.com. But it could happen
+  with other site/s.
+
+  For example, consider the following URLs and try to copy and paste several paragraphs altogether.
+         https://stackoverflow.com/questions/46991729/how-to-load-a-stringstream-with-utf8-characters-to-a-stringlist-in-android
+         https://stackoverflow.com/questions/11122197/why-does-memo-lines-use-tstrings-instead-of-tstringlist
+
+  Most of them will produce '<>' or '', others '<<<' or something similar and a few can truncate some text.
+  If in this examples we copy (and paste) only fragments of certain paragraphs or just snippets of code, it seems to be ok.
+
+----------------
+* Adjustment in the option "URLOnly"
+
+  Option only modifiable from .INI, [Clipboard capture]. When enabled (default option) and we copied at most one word,
+  that text will be ignored and instead of it, the URL (and title if available) will be shown.
+
+  Improvement in the way it is decided to apply or not this option (depending on text selected)
+  Also, URL pasted this way adds line break
+
+----------------
+* Clipboard Capture / Web Clip. Several improvements
+
+ - Added new token: source server/domain
+
+    If when pasting we are including source, the URL is not visible (*) and the the server/domain is not shown
+    in the title (ignoring spaces and case), then the new token '%d' (case sensitive) will show the server in square brackets.
+    Some examples:
+
+  'https://martinfowler.com/eaaCatalog/', 'Catalog of Patterns of Enterprise Application Architecture'                   => [martinfowler.com]
+  'https://stackoverflow.com/questions/1549145/case-insensitive-pos', 'delphi - case insensitive Pos - Stack Overflow'   => ''
+  'https://www.youtube.com/watch?v=r0R6gMw2s44', 'El Círculo de Quintas: Una explicación detallada | Versión 2.0'        => [YouTube]
+
+   (*) URL will be visible, if divider uses %U token or we are pasting in a PlainText note, for example
+
+----------------
+* Revised and improved predefined dividers
+
+----------------
+* Title from YouTube page: exception to the normal paste behaviour
+
+  From now it seems not possible to obtain the title of a page of YouTube, because the html returned by TWebBrowser
+  in this case does'nt contain the final html page.
+  So, KNT will not try to guess title if URL begins with https://www.youtube.com
+  As a easy shortcut to create a hyperlink that includes the URL and the caption of the video, we can do simply:
+  - Select only the caption of the video (just click three times in one word of the video title)
+  - Copy Paste (or Web Clip)
+
+  If the text selected includes only 1 line and it hasn't more that 100 characters, then it wil be assumed as the title
+  and a normal hyperlink with Youtube URL and that title will be inserted.
+
+  (Note: https://www.smperth.com/resources/youtube/youtube-character-limit/ )
+
+----------------
+* Improvements on Clipboard Capture / Web Clip capture: ensure to include Title for URL
+
+  So far, when pasting with Clipboard Capture (and 'Include source URL' selected) or with Web Clip, from a web page,
+  only the URL was include, no the title. At the beginning some browsers included that information on the clipboard,
+  but currently it does not.
+  Now KeyNote NF will try to get the title using WebBrowser (offline, using cache).
+  Although it tries to process as little HTML text as possible to get it, the time it takes can depend on the page.
+  Normally it wil be very fast, but there are very heavy web pages on witch it can takes a little more time.
+  For this reason, the application includes now three tokens to referentiate source URL in the divider string:
+
+    '%S'  insert Source URL (with title)
+    '%s'  insert source URL (with title, limited waiting time)
+    '%U'  insert source URL (without title)
+
+    With '%S', it will get the title for the URL, without time limit (6 seconds, just for security)
+    With '%s', If title is not figured out in less that 2 seconds (normally will be much faster) only URL will be used
+    With '%U', KeyNote will only show URL, not title (even though it's already available (*) )
+
+  (*) A small cache will be used for titles, in case you need to paste several times, from the same pages.
+  So, even certain delays will only apply to the first capture on a certain URL.
+
+  There is more info on on Clip Web and Clipboard Capture on:
+  'Improvements on Clip Web and Clipboard Capture #532' (https://github.com/dpradov/keynote-nf/issues/532)
+
+----------------
+* Try to offer RTF Format in clipboard whenever possible (from HTML format)
+  (as it has been done with 'Paste Special...')
+
+  So far, if we just pasted normal from a web page, without being selected 'Paste external as Plain text'
+  we might end up pasting completely plain text, while selecting 'Paste external as Plain text' we
+  might paste more or rich RTF (depending on 'Plain text mode'). Confusing.
+  This not ocurred when using Clipboard Capture or Web Clip, where conversion from HTML was always needed
+
+  More information in the comment to the procedure PasteBestAvailableFormat, kn_EditorUtils
+
+----------------
+* Fixed possibly difficulty on saving, if file is located in a externally synchronized folder (for example with Dropbox)
+    The way backup was realized lead to a little interval where the actual file was moved to the backup folder.
+    That little gap could be observed by Dropbox, that detected the movement of the file and asked us if we want to delete the file.
+    (more info within the changes: knt_NoteFileMng: NoteFileSave)
+
+  - Minor corrections in the process of saving. Revised some of the messages shown in case of error
+  - Revised some hints in several options of the configuration form, related with file save and backup,
+    emphasizing the convenience of selecting the option "Backup at regular intervals".
+
+----------------
+* Fixed: Ensure that all nodes in a RTF tree note are saved in RTF format,
+       and all nodes in a plain text only tree note are saved in plain format.
+
+  when dropping a file with plain text into a new node of a RTF Tree, or when dragging and dropping a node with plain content
+  (from a tree configured as such) onto a RTF tree, We must ensure that the node's stream is loaded with it's RTF
+  conversion, to avoid ending up saving that node's stream content in plain format to the .knt file when saving
+  (could be problematic when reading the .knt file).
+  Something similar is needed in the opposite case (RTF content into a plain tree), although in this case the only problematic
+  case would be to import a plain file dropping it into a new node of a plain tree (more information in the comments to the
+  changes).
+
+----------------
+* Fixed: The option "Limited size to", in Advanced/Clipboard ("Maximum length of text to capture, in bytes (when paste as plain text)")
+      should only be considered for Clipboard Capture, not for normal plain paste (nor Web clip)
+
+----------------
+* Improvement in the design of the form Configuration Options
+
+----------------
+* Fixed bug that could affect the paste action, when determining if normal or plain paste should be applied:
+  - When calculating if two strings copied to the clipboard are identical, appying CRC32, the length considered
+    were not correct. It should be expressed in bytes, not in characters (different in unicode or WideString)
+  - That comparison is considered, for example, to determine if the text is copied from outside KeyNote.
+    So, in certain cases the text could be pasted as normal, not plain, even if the option "Paste external
+    as plain text" was set.
+
+----------------
+* Fixed bug that made that the option "Ignore duplicate clips" were ignored
+  Option configurable in:
+    Advanced / Clipboard capture
+    keynote.ini: [Clipboard capture] TestDupClips
+
+----------------
+* Adaptation from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).
+
+  I have abandoned some 3rdParty components/libraries, incorporated new releases of some of them, and patched many of the others.
+  In the case of UnRxLib (which I have used to replace RxLibrary), I have made a series of changes to several files, specially
+  RxRichEd.pas. Although the changes are marked as such, I include in this commit only the original files, and in the next commit
+  I will apply the changes (tested with all the rest of project uploaded in this actual commit).
+
+  Along the way I have identified some errors present in actual version of KNT (and some minor improvements). Some of them have
+  been corrected during the process of adaptation to Delphi CE. But in others I have preferred not to correct them at this moment,
+  to not mixing them with all the changes necessary to this adaptation (many files, many changes...). I will make specific commits.
+
+  I have decided to drop support for the 'Dart format'. In the case that someone needs to reuse a file in that format, can use
+  an older version of KeyNote to convert to normal KeyNote format.
+
+  (More information in doc\README_SourceCode.txt and doc\README_News.txt)
+

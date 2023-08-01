@@ -35,6 +35,66 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
 -------------
 
 
+v 1.8.0 .1 Beta (01 aug 2023)
+--------------
+Corrects or implements the following issues:
+(more information in doc/Changes in 1.8.0 Beta1.txt)
+
+* Find All
+ - Search is now much faster
+ - Improvement in the output of results
+ - Added new option: "Current node and subtree"
+* New KNT Links, vinculated to markers, not only to caret position
+* New: Added 'KeyNote' as target format in File/Export...
+* Redesigned navigation history mechanism
+* Clipboard Capture / Web Clip / Paste external
+  - Try to offer RTF Format in clipboard whenever possible (from HTML format)
+  - When pasting from HTML (web pages), the current font and size in the active editor will be used as default values, 
+    instead of the usual Times New Roman 12.
+  - When converting from HTML to RTF, on pasting from web pages, last aditional line break will be removed
+  - Fixed: Pasting as plain text could move the caret several characters before its correct position  
+  - Fixed: copying and pasting from certain web pages can produce nothing or truncate some text
+  - Titles from web pages: convert HTML Ascii codes  
+  
+* Clipboard Capture / Web Clip. 
+  - Ensure to include Title for URL
+  - Title from YouTube page: exception to the normal paste behaviour
+  - Several improvements, with new tokens
+  - Revised and improved predefined dividers
+  - Adjustment in the option "URLOnly"
+  - Fixed: The option "Limited size to", in Advanced/Clipboard 
+   ("Maximum length of text to capture, in bytes (when paste as plain text)")
+    should only be considered for Clipboard Capture, not for normal plain paste (nor Web clip)  
+    
+* Clipboard paste
+  - Fixed bug that could affect the paste action, when determining if normal or plain paste should be applied
+  - Fixed bug that made that the option "Ignore duplicate clips" were ignored
+  
+* At the moment, the Send Mail functionality will not be included in KNT
+ 
+* Fixed possibly difficulty on saving, if file is located in a externally synchronized folder (for example with Dropbox)
+* Fixed: Ensure that all nodes in a RTF tree note are saved in RTF format,
+   and all nodes in a plain text only tree note are saved in plain format.
+* Improvement in the design of the form Configuration Options
+
+* Adaptation from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).
+
+
+
+v 1.7.9.9 Beta (07 jul 2017)  (Distributed as 1.7.9 Beta 9 Test.2)
+--------------
+Corrects or implements the following issues:
+
+* Implements #11 (New button: 'Copy Format') and Improves Copy/Paste Font Attributes and Copy/Paste Paragraph Attributes
+* Fixes #568: Can't paste PHOTOS into KeyNote NF (after June 14, 2017 Win10 update)
+* Fixes #565: Paste as text not working in Beta 8
+  "Paste as text" was doing nothing when adding (not when replacing a selection) more than one line.
+* Fixes: when modifying a node's name, the toolbar save button is not being enabled
+  Also, being the first change in the file, other modifications, like writing in a note, wouldn't enable that button.
+* Fixes #566: How to turn off the prompt "file is not modified, nothing to save"
+* Changed some defaults (#542 #570)
+
+
 v 1.7.9.8 Beta (30 abr 2017)
 --------------
 Corrects or implements the following issues:
