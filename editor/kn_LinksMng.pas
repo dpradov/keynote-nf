@@ -453,6 +453,7 @@ begin
       end;
       CaretPos := ActiveNote.Editor.SelStart;
       SelLength := ActiveNote.Editor.SelLength;
+      Mark := 0;
     end;
 
 end;
@@ -820,22 +821,25 @@ begin
 
     if ( LocationStr <> '' ) then begin
       p := pos( KNTLINK_SEPARATOR, LocationStr );
-      if ( p > 0 ) then begin
+      Location.SelLength := 0;
+      if ( p > 0 ) then begin                              // selLenght|mark
           try
             Location.SelLength := strtoint(copy(LocationStr, 1, pred(p)));
           except
-            Location.SelLength := 0;
           end;
           delete( LocationStr, 1, p );
-      end;
-    end;
-
-    if ( LocationStr <> '' ) then begin
-        try
-          Location.Mark := strToInt( LocationStr );
-        except
-          Location.Mark := 0;
-        end;
+          if ( LocationStr <> '' ) then
+              try
+                Location.Mark := strToInt( LocationStr );
+              except
+                Location.Mark := 0;
+              end;
+      end
+      else                                               // selLenght
+          try
+            Location.SelLength := strtoint(LocationStr);
+          except
+          end;
     end;
 
 
@@ -878,7 +882,7 @@ var
 
   function SearchTargetMark: boolean;
   var
-     p: integer;
+     p, selLen: integer;
      TargetMark: string;
   begin
       Result:= false;
@@ -888,7 +892,10 @@ var
           p:= FindText(TargetMark, 0, -1, []);
           if p > 0 then begin
             SelStart := p;
-            SelLength := Location.SelLength;
+            selLen:= 0;
+            if Location.SelLength > 0 then
+               selLen:= Location.SelLength + Length(TargetMark);
+            SelLength := selLen;
             Perform( EM_SCROLLCARET, 0, 0 );
             Result:= true;
           end;

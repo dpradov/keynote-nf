@@ -232,6 +232,7 @@ begin
   FExternalDoc := false;
   FParams := '';  
   FTag := 0;
+  FMark:= 0;
 end; // create
 
 procedure TLocation.Assign( const aLocation : TLocation );
