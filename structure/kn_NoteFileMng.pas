@@ -110,6 +110,7 @@ uses
    kn_LinksMng,
    kn_PluginsMng,
    kn_ExportImport,
+   kn_FindReplaceMng,
    kn_Main;
 
 
@@ -1116,8 +1117,7 @@ begin
       try
         // close all non-modal forms that might be open
         CloseNonModalDialogs;
-        List_ResFind.Items.Clear;
-        ClearLocationList( Location_List );
+        ClearFindAllResults;
       except
       end;
 

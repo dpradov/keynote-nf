@@ -104,6 +104,7 @@ uses
    kn_Global,
    kn_PluginsMng,
    kn_TemplateMng,
+   kn_FindReplaceMng,
    kn_Main;
 
 
@@ -135,6 +136,10 @@ resourcestring
 procedure SetUpVCLControls( aNote : TTabNote );
 begin
   with Form_Main do begin
+      FindAllResults.OnSelectionChange:= RxFindAllResultsSelectionChange;
+      FindAllResults.ShowHint:= False;
+      FindAllResults.AutoURLDetect:= False;
+
       if assigned( aNote.Editor ) then
       begin
 
@@ -1356,6 +1361,7 @@ begin
               end;
             end;
 
+            {
             // custom draw for List_ResFind
             if ResPanelOptions.ColorFindList then
             begin
@@ -1363,6 +1369,7 @@ begin
               List_ResFind.OnDrawItem := List_ResFindDrawItem;
               List_ResFind.ItemHeight := ScaleFromSmallFontsDimension(List_ResFind.ItemHeight);   // http://stackoverflow.com/questions/8296784/how-do-i-make-my-gui-behave-well-when-windows-font-scaling-is-greater-than-100
             end;
+            }
 
             // add history to combo
             DelimTextToStrs( Combo_ResFind.Items, FindOptions.FindAllHistory, HISTORY_SEPARATOR );

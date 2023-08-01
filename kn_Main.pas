@@ -639,7 +639,8 @@ type
     ResMMacroTab: TMenuItem;
     ResMTemplateTab: TMenuItem;
     ResMPluginTab: TMenuItem;
-    List_ResFind: TTextListBox;
+    //List_ResFind: TTextListBox;
+    FindAllResults: TRxRichEdit;
     MMToolsMacroRunLast: TMenuItem;
     ResMPanelPosition: TMenuItem;
     ResMPanelLeft: TMenuItem;
@@ -863,6 +864,9 @@ type
     ToolbarSep971: TToolbarSep97;
     MMFormatCopy: TMenuItem;
     CB_ResFind_CurrentNodeAndSubtree: TCheckBox;
+    Btn_ResFind_Prev: TToolbarButton97;
+    Btn_ResFind_Next: TToolbarButton97;
+    LblFindAllNumResults: TLabel;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -914,6 +918,7 @@ type
     procedure RxRTFAuxiliarProtectChangeEx(Sender: TObject;
       const Message: TMessage; StartPos, EndPos: Integer;
       var AllowChange: Boolean);
+    procedure RxFindAllResultsSelectionChange(Sender: TObject);
     procedure RxRTFSelectionChange(Sender: TObject);
     procedure RxRTFURLClick(Sender: TObject; const URLText: string; Button: TMouseButton);
     procedure RxRTFKeyPress(Sender: TObject; var Key: Char);
@@ -1153,6 +1158,7 @@ type
     procedure Menu_RTFPopup(Sender: TObject);
     procedure Splitter_ResMoved(Sender: TObject);
     procedure Btn_ResFlipClick(Sender: TObject);
+    procedure VisibilityControlsFindAllResults (Visible: boolean);
     procedure MMEditSelectWordClick(Sender: TObject);
     procedure PLM_ReloadPluginsClick(Sender: TObject);
     procedure ListBox_ResPluginsClick(Sender: TObject);
@@ -1171,9 +1177,11 @@ type
       Shift: TShiftState);
     procedure Combo_FontSizeKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+{ // [dpv]
     procedure List_ResFindDblClick(Sender: TObject);
     procedure List_ResFindKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+}
     procedure ResMPanelRightClick(Sender: TObject);
     procedure StdEMSelectAllClick(Sender: TObject);
     procedure Menu_StdEditPopup(Sender: TObject);
@@ -1222,8 +1230,10 @@ type
     procedure Combo_ZoomDblClick(Sender: TObject);
     procedure MMViewZoomInClick(Sender: TObject);
     procedure MMViewZoomOutClick(Sender: TObject);
+{ // dpv
     procedure List_ResFindDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
+}
     procedure Menu_TVPopup(Sender: TObject);
     procedure MMViewTBSaveConfigClick(Sender: TObject);
     procedure Menu_TimePopup(Sender: TObject);
@@ -1254,6 +1264,9 @@ type
     procedure ShowException( Sender : TObject; E : Exception );
     procedure TB_CopyFormatClick(Sender: TObject);
     procedure CB_ResFind_AllNotesClick(Sender: TObject);
+    procedure Btn_ResFind_PrevClick(Sender: TObject);
+    procedure Btn_ResFind_NextClick(Sender: TObject);
+    procedure FindAllResultsContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
 
   private
     { Private declarations }
@@ -2608,7 +2621,7 @@ begin
         begin
           if ( activecontrol = Combo_FontSize ) or
              ( activecontrol = Combo_Font ) or
-             ( activecontrol = List_ResFind ) or
+             ( activecontrol = FindAllResults ) or
              // ( activecontrol = Res_RTF ) or            // *1  (001)
              ( activecontrol = ListBox_ResMacro ) or
              ( activecontrol = ListBox_ResTpl ) or
@@ -3062,6 +3075,11 @@ begin
   AllowChange := True;
 end; // RxRTFAuxiliarProtectChangeEx
 
+
+procedure TForm_Main.RxFindAllResultsSelectionChange(Sender: TObject);
+begin
+  FindAllResults_OnSelectionChange (sender as TRxRichEdit);
+end;
 
 procedure TForm_Main.RxRTFSelectionChange(Sender: TObject);
 var
@@ -6218,20 +6236,32 @@ procedure TForm_Main.Splitter_ResMoved(Sender: TObject);
 begin
   Combo_ResFind.Width := ResTab_Find.Width - 15;
   RG_ResFind_Type.Width:= Combo_ResFind.Width;
+  UpdateFindAllResultsWidth;
+end;
+
+procedure TForm_Main.VisibilityControlsFindAllResults (Visible: boolean);
+begin
+  Btn_ResFind_Prev.Visible := Visible;
+  Btn_ResFind_Next.Visible := Visible;
+  LblFindAllNumResults.Visible:= Visible;
+  Pages_Res.ShowHint:= not Visible;
 end;
 
 procedure TForm_Main.Btn_ResFlipClick(Sender: TObject);
+var
+  IsShownOptions: boolean;
 begin
-  if Ntbk_ResFind.PageIndex = 0 then
-  begin
+  IsShownOptions:= (Ntbk_ResFind.PageIndex = 0);
+  if IsShownOptions then begin
     Btn_ResFlip.Caption := STR_85;
     Ntbk_ResFind.PageIndex := 1;
   end
-  else
-  begin
+  else begin
     Btn_ResFlip.Caption := STR_86;
     Ntbk_ResFind.PageIndex := 0;
   end;
+
+  VisibilityControlsFindAllResults (not IsShownOptions);
 end;
 
 procedure TForm_Main.MMEditSelectWordClick(Sender: TObject);
@@ -6497,7 +6527,19 @@ end;
 
 procedure TForm_Main.Btn_ResFindClick(Sender: TObject);
 begin
+  VisibilityControlsFindAllResults (true);
+
   RunFindAllEx;
+end;
+
+procedure TForm_Main.Btn_ResFind_PrevClick(Sender: TObject);
+begin
+  FindAllResults_SelectMatch (true);
+end;
+
+procedure TForm_Main.Btn_ResFind_NextClick(Sender: TObject);
+begin
+  FindAllResults_SelectMatch (false);
 end;
 
 procedure TForm_Main.Combo_ResFindKeyDown(Sender: TObject; var Key: Word;
@@ -6525,6 +6567,7 @@ begin
   end;
 end;
 
+{         // [dpv]
 procedure TForm_Main.List_ResFindDblClick(Sender: TObject);
 var
   i : integer;
@@ -6555,6 +6598,7 @@ begin
     end;
   end;
 end;
+}
 
 procedure TForm_Main.ResMPanelRightClick(Sender: TObject);
 var
@@ -7028,6 +7072,11 @@ begin
   ExportNotesEx;
 end;
 
+procedure TForm_Main.FindAllResultsContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+begin
+  FindAllResults_RightClick ( Form_Main.FindAllResults.GetCharFromPos(MousePos) );
+end;
+
 procedure TForm_Main.FindNotify( const Active : boolean );
 begin
 
@@ -7093,6 +7142,8 @@ begin
   end;
 end;
 
+
+{    // [dpv]
 procedure TForm_Main.List_ResFindDrawItem(Control: TWinControl;
   Index: Integer;
   Rect: TRect; State: TOwnerDrawState);
@@ -7136,6 +7187,8 @@ begin
     TCanvas(canvas).TextRect( Rect, Rect.Left+2, Rect.Top, Items[index] );
   end;
 end;
+}
+
 
 procedure TForm_Main.Menu_TVPopup(Sender: TObject);
 var

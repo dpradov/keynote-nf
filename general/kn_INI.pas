@@ -1393,8 +1393,8 @@ begin
       writebool( section, FindOptionsIniStr.SearchNodeNames, FindOptions.SearchNodeNames );
 
       section := ResPanelOptionsIniStr.section;
-      writebool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
-      writestring( section, ResPanelOptionsIniStr.FindListAltColor, ColorToString( ResPanelOptions.FindListAltColor ));
+      //writebool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
+      //writestring( section, ResPanelOptionsIniStr.FindListAltColor, ColorToString( ResPanelOptions.FindListAltColor ));
       writebool( section, ResPanelOptionsIniStr.ShowFind, ResPanelOptions.ShowFind );
       writebool( section, ResPanelOptionsIniStr.ShowMacro, ResPanelOptions.ShowMacro );
       writebool( section, ResPanelOptionsIniStr.ShowPlugin, ResPanelOptions.ShowPlugin );
@@ -1739,11 +1739,13 @@ begin
       FindOptions.SearchNodeNames := readbool( section, FindOptionsIniStr.SearchNodeNames, FindOptions.SearchNodeNames );
 
       section := ResPanelOptionsIniStr.section;
+      {
       ResPanelOptions.ColorFindList := readbool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
       try
         ResPanelOptions.FindListAltColor := StringToColor( readstring( section, ResPanelOptionsIniStr.FindListAltColor, ColorToString( ResPanelOptions.FindListAltColor )));
       except
       end;
+      }
       ResPanelOptions.ShowFind := readbool( section, ResPanelOptionsIniStr.ShowFind, ResPanelOptions.ShowFind );
       ResPanelOptions.ShowMacro := readbool( section, ResPanelOptionsIniStr.ShowMacro, ResPanelOptions.ShowMacro );
       ResPanelOptions.ShowPlugin := readbool( section, ResPanelOptionsIniStr.ShowPlugin, ResPanelOptions.ShowPlugin );
@@ -1974,8 +1976,8 @@ procedure InitializeResPanelOptions( var Struct : TResPanelOptions );
 begin
   with Struct do
   begin
-    ColorFindList := True;
-    FindListAltColor := clInfoBk;
+    //ColorFindList := True;
+    //FindListAltColor := clInfoBk;
     ShowFind := true;
     ShowMacro := true;
     ShowPlugin := true;

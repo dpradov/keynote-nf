@@ -649,8 +649,8 @@ type
 
 type
   TResPanelOptions = record
-    ColorFindList : boolean; // [*]
-    FindListAltColor : TColor; // [*]
+    //ColorFindList : boolean; // [*]
+    //FindListAltColor : TColor; // [*]
     ShowFind : boolean;
     ShowMacro : boolean;
     ShowPlugin : boolean;

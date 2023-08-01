@@ -586,6 +586,7 @@ type
       {$IFDEF RX_D3} override; {$ENDIF}
     function GetCaretPos: TPoint; {$IFDEF RX_V110} override; {$ENDIF}
     function GetCharPos(CharIndex: Integer): TPoint;
+    function GetCharFromPos(Point: TPoint): integer;                   // [dpv]
     procedure ScrollLinesBy(inc: integer);                             // [dpv]
     function InsertObjectDialog: Boolean;
     function ObjectPropertiesDialog: Boolean;
@@ -5254,6 +5255,14 @@ begin
       SendMessage(Handle, Messages.EM_POSFROMCHAR, WPARAM(@Result), LPARAM(CharIndex));
   end;
 end;
+
+function TRxCustomRichEdit.GetCharFromPos(Point: TPoint): integer;                       // [dpv]
+begin
+  if HandleAllocated then begin
+      Result:= SendMessage(Handle, Messages.EM_CHARFROMPOS, WPARAM(nil), LPARAM(@Point));
+  end;
+end;
+
 
 function TRxCustomRichEdit.GetTextRange(StartPos, EndPos: Longint): string;
 var

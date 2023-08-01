@@ -37,7 +37,7 @@ type
     FExternalDoc : boolean;
     FParams : string;
     FMark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
-    FTag : integer; //used in TForm_Main.List_ResFindDrawItem
+    //FTag : integer; //used in TForm_Main.List_ResFindDrawItem    // [dpv]
 
     function GetDisplayText : string;
     function GetDisplayTextLong : string;
@@ -59,7 +59,7 @@ type
     property Mark : Byte read FMark write FMark;
     property ExternalDoc : boolean read FExternalDoc write FExternalDoc;
     property Params : string read FParams write FParams;
-    property Tag : integer read FTag write FTag;
+    // property Tag : integer read FTag write FTag;                 // [dpv]
 
     property DisplayText : string read GetDisplayText;
     property DisplayTextLong : string read GetDisplayTextLong;
@@ -231,7 +231,7 @@ begin
   FMark := 0;
   FExternalDoc := false;
   FParams := '';  
-  FTag := 0;
+  //FTag := 0;
   FMark:= 0;
 end; // create
 

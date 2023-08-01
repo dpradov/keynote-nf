@@ -22,6 +22,7 @@ uses
    Winapi.RichEdit,
    System.Classes,
    System.SysUtils,
+   System.Math,
    Vcl.Dialogs,
    Vcl.Forms,
    Vcl.Controls,
@@ -70,7 +71,11 @@ procedure FindEventProc( sender : TObject );
 procedure ReplaceEventProc( ReplaceAll : boolean );
 procedure Form_FindReplaceClosed( sender : TObject );
 procedure FindResultsToEditor( const SelectedOnly : boolean );
-
+procedure UpdateFindAllResultsWidth;
+procedure ClearFindAllResults;
+procedure FindAllResults_OnSelectionChange(Editor: TRxRichEdit);
+procedure FindAllResults_RightClick (CharIndex: integer);
+procedure FindAllResults_SelectMatch (Prev: boolean);
 
 implementation
 uses
@@ -81,6 +86,9 @@ uses
 var
    NumberFoundItems: integer;
    EditControl: TRxRichEdit;
+   LastResultCellWidth: string;
+   SelectedMatch: integer;
+   FollowMatch: boolean;
 
 
 resourcestring
@@ -96,6 +104,7 @@ resourcestring
   STR_10 = ' Pattern not found.';
   STR_11 = ' Replaced %d occurrence(s)';
   STR_12 = 'Information';
+  STR_13 = ' matches';
 
 
 procedure RunFindReplace (modeReplace: boolean);
@@ -180,8 +189,8 @@ begin
   TreeOptions.CaretInKNTLinks:= True;
   try
       if SelectedOnly then begin
-        i := Form_Main.List_ResFind.ItemIndex;
-        aLocation:= TLocation( Form_Main.List_ResFind.Items.Objects[i]);
+        i := SelectedMatch;
+        aLocation:= TLocation( TLocation( Location_List.Objects[pred( i )] ));
         InsertOrMarkKNTLink(aLocation, true, '');
       end
       else begin
@@ -278,6 +287,8 @@ begin
       end;
     until (not FindOptions.WholeWordsOnly) or (p=0) or (SearchOrigin >= LenStr);
 
+    if SearchOrigin >= LenStr then
+       Exit(0);
     
     repeat    
         if (pH=0) or ((pH > p) and (p<>0)) then
@@ -367,6 +378,112 @@ begin
 
 end;
 
+
+function GetFindedPatternExtract (const Str: string;
+                                  Pattern: string; 
+                                  pPos: integer;          // zero-based
+                                  var lastPos: integer;
+                                  wordList : TStringList = nil;
+                                  LastPattern: string = ''; LastPatternPos: integer= -1; SecondPart: boolean= false): string;
+var
+  pL, pR, p, pGap, pStart, pMin: integer;
+  extR: integer;
+  len, i, iMin, gap: integer;
+  bakFirstChar: char;
+  strSearch: string;
+
+begin
+    if (Str='') then Exit('');
+
+    inc(pPos);
+
+    bakFirstChar:= Str[pPos];
+
+    // Looking for line break to the left
+    for pL := pPos downto Max(1, pPos-50) do
+      if Str[pL] = #13 then
+         break;
+    if pL = 0 then pL:= 1;
+    if Str[pL] = #13 then inc(pL);
+
+    // Looking for line break to the right
+    extR:= 50;
+    if not SecondPart and (wordlist <> nil) then
+       extR:= 75;
+
+    pR:= Pos(#13, Str, pPos)-1;
+    if pR < 0 then
+       pR := Length(Str);
+    pR:= Min(pR, pPos + extR);
+
+    // *1  Mark the first appearance to highlight, there may be others before it, as a consequence 
+    //     of the context recovered by the left ( #26; SUB Substitute )
+    Result:= Copy(Str, pL, pR-pL+1);
+    Result[pPos-pL+1]:= #26;                           // *1
+    Result:= RemoveKNTHiddenCharacters(Result);
+    Result:= ScapeSpecialRTFCharacters(Result);
+
+    len:= length(Pattern);
+    pPos:= Pos(#26, Result, 1);
+    if pPos > 0  then begin                            // Should be > 0 ...
+       Result[pPos]:= bakFirstChar;
+       if not SecondPart  then begin
+          insert('{\b\cf2 ', Result, pPos);
+          insert('}', Result, pPos + len + 8);         // 8= length('{\b\cf2 ')       9: + '}'
+          pStart:= pPos + len + 9;
+       end
+       else
+          pStart:= 1;
+    end;
+
+    if wordlist <> nil then begin
+        // Highlight occurrences of all the words provided, if they are found in the excerpt. In the second part of
+        // the excerpt (if any), highlight only up to the last word found in the match.
+        gap:= 0;
+        if FindOptions.MatchCase then
+           StrSearch:= Result
+        else
+           StrSearch:= AnsiUpperCase(Result);
+
+        repeat
+            pMin:= integer.MaxValue;
+
+            for i := 0 to wordlist.Count-1 do begin
+               p:= Pos(wordlist[i], StrSearch, pStart);
+               if (p > 0) and (p < pMin)  then begin
+                  if FindOptions.WholeWordsOnly then begin
+                     if (p > 1) and IsCharAlphaNumeric(StrSearch[p-1]) then continue;
+                     len:= length(wordlist[i]);
+                     if (p+len < StrSearch.Length) and IsCharAlphaNumeric(StrSearch[p+len]) then continue;
+                  end;
+                  pMin:= p;
+                  iMin:= i;
+               end;
+            end;
+
+            if pMin <> integer.MaxValue then begin
+               if SecondPart and (pMin > pPos) then break;
+
+               pGap:= pMin + gap;
+               len:= length(wordlist[iMin]);
+               insert('{\b\cf2 ', Result, pGap);
+               insert('}', Result, pGap + Len + 8);
+               pStart:= pMin + len;
+               gap:= gap + 9;
+            end
+
+        until pMin = integer.MaxValue;
+    end;
+
+    if pR < LastPatternPos then                    // => only in smAll
+       Result:= Result + '{\b\cf2  . . //. . }' +
+                GetFindedPatternExtract(Str, LastPattern, LastPatternPos, lastPos, wordList, '',-1, true);
+
+    lastPos:= pR;   // To use with smAny
+end;
+
+
+
 {
 // Preparar el editor (TTabRichEdit) al que preguntaremos por el texto buscado
 procedure PrepareEditControl(myNote: TTabNote; myTreeNode: TTreeNTNode);
@@ -407,13 +524,33 @@ begin
 end;
 
 
+
+{
+  New in 1.8.0:
+
+- Excerpts from the note of the matches found are displayed, where the searched words are highlighted
+
+- The treatment of the options 'All the words' and 'Any of the words' is extended :
+  Now results are shown that include all the words considered, and there may be more than one result per node / note.
+
+   - 'All the words': the first word found from the list provided is highlighted, as well
+   as those others that appear within the excerpt, to its right. If the last word found
+   within the identified match is not shown in the excerpt obtained for the first word
+   found, an additional excerpt for the last word is added, where all searched words
+   are highlighted.
+
+   - 'Any of the words': Results are created that include, and highlight, all occurrences
+   of each of the words in the search term. New results are only added for those words
+   that are not visible within the previous excerpt.
+}
+
 procedure RunFindAllEx;
 var
   oldAllNodes, oldEntireScope, oldWrap : boolean;
   FindDone : boolean;
-  Location : TLocation; // object, kn_LocationObj.pas
+  Location : TLocation;
   SearchOpts : TRichSearchTypes;
-  noteidx, i, MatchCount, Counter, PatternPos, PatternLen, SearchOrigin : integer;
+  noteidx, i, MatchCount, PatternPos, PatternPos1, PatternPosN, PatternLen, SearchOrigin : integer;
   myNote : TTabNote;
   myTreeNode : TTreeNTNode;
   myTNote: TTreeNote;
@@ -431,15 +568,21 @@ var
   oldActiveNote: TTabNote;
   SearchModeToApply : TSearchMode;
   TreeNodeToSearchIn : TTreeNTNode;
-  TextPlain, TextToFind: string;
-  SizeInternalHiddenText: integer;
+  TextPlain, TextPlainBAK: string;               // TextPlain = TextPlainBAK, in uppercase if not MatchCase
+  TextToFind, PatternInPos1, PatternInPosN: string;
+  SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
+  str, s: string;
+  widthTwips: integer;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
 
-       procedure AddLocation (LocationType: TLocationType); // INLINE
+       function AddLocation (LocationType: TLocationType;
+                             const FirstPattern: string; PatternPos: integer;
+                             wordList : TStringList = nil;
+                             const LastPattern: string = ''; LastPatternPos: integer= -1): integer;
        var
-         path : string;
+         str, strExtract : string;
        begin
           Location := TLocation.Create;
           Location.FileName := Notefile.FileName;
@@ -452,19 +595,15 @@ type
              Location.NodeID := myNoteNode.ID;
           end;
 
-          case LocationType of
-             lsNormal: begin
-                 Location.CaretPos := PatternPos;
-                 Location.SelLength := PatternLen + SizeInternalHiddenText;
-                 end;
-             lsNodeName: begin
-                 Location.CaretPos := -1; // means: text found in node name
-                 Location.SelLength := 0;
-                 end;
-             lsMultimatch: begin
-                 Location.CaretPos := 0;
-                 Location.SelLength := 0;
-                 end;
+          if LocationType <> lsNodeName then begin
+             str:= TextPlainBAK;                                                      // original text, without case change
+             Location.CaretPos := PatternPos;
+             Location.SelLength := Length(FirstPattern) + SizeInternalHiddenTextInPos1;
+          end
+          else begin
+             str:= myNoteNode.Name;
+             Location.SelLength := 0;
+             Location.CaretPos := -1     // means: text found in node name
           end;
 
           if assigned( myTreeNode ) then begin
@@ -473,8 +612,9 @@ type
             nodeToFilter:= false;
             nodesSelected:= true;
           end;
-          path := Format( '%d. %s', [Counter, PathOfKNTLink(myTreeNode, myNote, location.CaretPos, true, false)] );
-          Location_List.AddObject(path, Location);
+
+          strExtract:= GetFindedPatternExtract(str, FirstPattern, PatternPos, Result, wordList, LastPattern, LastPatternPos);
+          Location_List.AddObject(strExtract, Location);
        end;
 
        procedure GetCurrentNode;
@@ -503,8 +643,8 @@ type
              myTreeNode := myTreeNode.GetNextNotHidden;
 
           if (myTreeNode <> nil) and (TreeNodeToSearchIn <> nil) then
-             if ((FindOptions.HiddenNodes) and (TreeNodeToSearchIn.GetNextSibling = myTreeNode))  or
-                (not (FindOptions.HiddenNodes) and (TreeNodeToSearchIn.GetNextSiblingNotHidden = myTreeNode)) then begin
+             if ((FindOptions.HiddenNodes) and ((TreeNodeToSearchIn.GetNextSibling = nil) or (TreeNodeToSearchIn.GetNextSibling = myTreeNode)))  or
+                (not (FindOptions.HiddenNodes) and ((TreeNodeToSearchIn.GetNextSiblingNotHidden = nil) or (TreeNodeToSearchIn.GetNextSiblingNotHidden = myTreeNode))) then begin
               myTreeNode := nil;
               exit;
              end;
@@ -590,17 +730,20 @@ begin
      TextToFind:= FindOptions.Pattern
   else
      TextToFind:= AnsiUpperCase(FindOptions.Pattern);
-    
+
   PatternPos := 0;
   PatternLen := length( FindOptions.Pattern );
   MatchCount := 0;
   FindDone := false;
   noteidx := 0;
-  Counter := 0;
 
+  LastResultCellWidth:= '';
   SearchInProgress := true;
   screen.Cursor := crHourGlass;
-  Form_Main.List_ResFind.Items.BeginUpdate;
+  Form_Main.FindAllResults.ReadOnly:= False;
+  Form_Main.FindAllResults.Clear;
+  Application.ProcessMessages;
+  Form_Main.FindAllResults.BeginUpdate;
 
   wordList := TStringList.Create;
 
@@ -608,13 +751,17 @@ begin
   try
     try
       ClearLocationList( Location_List );
-      Form_Main.List_ResFind.Items.Clear;
 
       CSVTextToStrs( wordList, TextToFind, #32 );
+      for i := wordList.count - 1 downto 0 do
+         if wordList[i] = '' then wordList.delete(i);
+
       wordcnt := wordList.count;
 
-      if wordcnt = 1 then
+      if wordcnt = 1 then begin
          SearchModeToApply := smPhrase;    // If not used smPhrase then the line number will not be shown, and will be confusing
+         TextToFind:= wordList[0];         // '"Windows 10"' --> 'Windows 10'
+      end;
 
       if wordcnt = 0 then begin
          Form_Main.Combo_ResFind.Text:= '';
@@ -648,7 +795,8 @@ begin
             // Recorremos cada nodo (si es ntTree) o el único texto (si <> ntTree)
             repeat
                 // PrepareEditControl(myNote, myTreeNode);
-                TextPlain:= PrepareTextPlain(myNote, myTreeNode);
+                TextPlainBAK:= PrepareTextPlain(myNote, myTreeNode);
+                TextPlain:= TextPlainBAK;
                 if not FindOptions.MatchCase then
                    TextPlain:=  AnsiUpperCase(TextPlain);
                 
@@ -659,33 +807,31 @@ begin
                     smPhrase :
                         begin
                             // look for match in node name first (si estamos buscando dentro de una nota ntTree)
-                            if assigned(myTreeNode) and FindOptions.SearchNodeNames then
-                            begin
+                            if assigned(myTreeNode) and FindOptions.SearchNodeNames then begin
                               myNoteNode := TNoteNode(myTreeNode.Data);
                               if FindOptions.MatchCase then
-                                 PatternPos := pos( FindOptions.Pattern, myNoteNode.Name )
+                                 PatternPos := pos( TextToFind, myNoteNode.Name )
                               else
-                                 PatternPos := pos( ansilowercase( FindOptions.Pattern ), ansilowercase( myNoteNode.Name ));
+                                 PatternPos := pos( TextToFind, AnsiUpperCase( myNoteNode.Name ));
                               if ( PatternPos > 0 ) then begin
-                                 inc( Counter );
-                                 AddLocation(lsNodeName);
+                                 dec(PatternPos);  // to manage as zero-based
+                                 AddLocation(lsNodeName, TextToFind, PatternPos);
                               end;
                             end;
 
                             repeat
-                               PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1;
-                               { 
+                               PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1) -1;
+                               {
                                PatternPos := EditControl.FindText(
                                  FindOptions.Pattern,
                                  SearchOrigin, -1,
                                  SearchOpts
                                );
                                }
-                                
+
                                if ( PatternPos >= 0 ) then begin
                                    SearchOrigin := PatternPos + PatternLen; // move forward in text
-                                   inc( Counter );
-                                   AddLocation(lsNormal);
+                                   AddLocation(lsNormal, TextToFind, PatternPos);
                                end;
                                Application.ProcessMessages;
                             until UserBreak or (PatternPos < 0);
@@ -693,48 +839,76 @@ begin
 
                     smAny, smAll :
                       begin
-                         MultiMatchOK := false;
-                         for wordidx := 1 to wordcnt do
-                         begin
-                            thisWord := wordList[pred( wordidx )];
+                         repeat
+                             PatternPos1:= Integer.MaxValue;
+                             PatternPosN:= -1;
 
-                            PatternPos:= FindPattern(thisWord, TextPlain, 0, SizeInternalHiddenText) -1;
-                            {
-                            PatternPos := EditControl.FindText(
-                              thisWord,
-                              0, -1,
-                              SearchOpts
-                            );
-                            }
+                             MultiMatchOK := false;
+                             for wordidx := 0 to wordcnt -1 do begin
+                                thisWord := wordList[ wordidx ];
 
-                            case SearchModeToApply of
-                                smAll:
-                                    if ( PatternPos >= 0 ) then
-                                       MultiMatchOK := true // assume success
-                                    else begin
-                                       MultiMatchOK := false;
-                                       break; // note must have ALL words
-                                    end;
+                                PatternPos:= FindPattern(thisWord, TextPlain, SearchOrigin + 1, SizeInternalHiddenText) -1;
+                                {
+                                PatternPos := EditControl.FindText(
+                                  thisWord,
+                                  0, -1,
+                                  SearchOpts
+                                );
+                                }
 
-                                smAny:
-                                    if ( PatternPos >= 0 ) then begin
-                                       MultiMatchOK := true;
-                                       break; // enough to find just 1 word
-                                    end;
+
+                                if ( PatternPos >= 0 ) then begin
+                                   MultiMatchOK := true; // assume success
+                                   if PatternPos < PatternPos1 then begin
+                                      PatternPos1:= PatternPos;
+                                      PatternInPos1:= thisWord;
+                                      SizeInternalHiddenTextInPos1:= SizeInternalHiddenText;
+                                   end;
+                                end;
+
+                                case SearchModeToApply of
+                                    smAll:
+                                        if ( PatternPos >= 0 ) then begin
+                                           if PatternPos > PatternPosN then begin
+                                              PatternPosN:= PatternPos;
+                                              PatternInPosN:= thisWord;
+                                           end;
+                                        end
+                                        else begin
+                                           MultiMatchOK := false;
+                                           break; // note must have ALL words
+                                        end;
+
+                                   { We are going to accept any of the words as a match, looking to be able to highlight all the words, in one or more matches
+                                    smAny:
+                                        if ( PatternPos >= 0 ) then begin
+                                           MultiMatchOK := true;
+                                           break; // enough to find just 1 word
+                                        end;
+                                    }
+                                 end;
+
+                                Application.ProcessMessages;
+                                if UserBreak then begin
+                                   FindDone := true;
+                                   break;
+                                end;
+
+                             end; // for wordidx
+
+                             if MultiMatchOK then begin
+                                if SearchModeToApply = smAll then begin
+                                   AddLocation (lsMultimatch, PatternInPos1, PatternPos1, wordList, PatternInPosN, PatternPosN);
+                                   SearchOrigin := PatternPosN + 1; // move forward in text
+                                end
+                                else
+                                   SearchOrigin:= 1 + AddLocation (lsMultimatch, PatternInPos1, PatternPos1, wordList);
                              end;
 
-                            Application.ProcessMessages;
-                            if UserBreak then begin
-                               FindDone := true;
-                               break;
-                            end;
+                             Application.ProcessMessages;
 
-                         end; // for wordidx
+                         until UserBreak or not MultiMatchOK;
 
-                         if MultiMatchOK then begin
-                            inc( Counter );
-                            AddLocation (lsMultimatch);
-                         end;
 
                       end; // smAny, smAll
 
@@ -771,42 +945,43 @@ begin
 
 
       MatchCount := Location_List.Count;
-      if ( MatchCount > 0 ) then
-      begin
-        lastNoteID := -1;
-        lastNodeID := -1;
-        lastTag := 1;
-        for i := 1 to MatchCount do
-        begin
-          Location := TLocation( Location_List.Objects[pred( i )] );
-          if (( lastNoteID <> Location.NoteID ) or ( lastNodeID <> Location.NodeID )) then begin
-              if lastTag = 1 then
-                 lastTag := 0
-              else
-                 lastTag := 1;
-              lastNoteID := Location.NoteID;
-              lastNodeID := Location.NodeID;
-          end;
-          Location.Tag := lastTag;
-          Form_Main.List_ResFind.Items.AddObject(
-            Location_List[pred( i )],
-            Location
-          );
-        end;
+      Form_Main.LblFindAllNumResults.Caption:= MatchCount.ToString + STR_13;
+      str:=
+            '{\rtf1\ansi{\fonttbl{\f0\fnil\fcharset0 Calibri;}}' +
+            '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;}' +
+            '\pard\fs4\par' +
+            '\pard\fs20 ';
 
-        with Form_Main do
-        begin
-          List_ResFind.ItemIndex := 0;
-          try
-            Btn_ResFlip.Caption := STR_06;
-            Ntbk_ResFind.PageIndex := 0;
-            List_ResFind.SetFocus;
-          except
-          end;
-        end;
-      end
-      else
-         DoMessageBox(Format( STR_02, [FindOptions.Pattern] ), STR_12, 0);
+      if ( MatchCount > 0 ) then begin
+         widthTwips := DotsToTwips(Form_Main.FindAllResults.Width) - 500;
+         LastResultCellWidth:= '\cellx' + widthTwips.ToString;
+
+         lastNoteID := -1;
+         lastNodeID := -1;
+
+         for i := 1 to MatchCount do begin
+           Location := TLocation( Location_List.Objects[pred( i )] );
+           if (( lastNoteID <> Location.NoteID ) or ( lastNodeID <> Location.NodeID )) then begin
+               lastNoteID := Location.NoteID;
+               lastNodeID := Location.NodeID;
+               GetTreeNodeFromLocation(Location, myNote, myTreeNode);
+               s:= '160';
+               if i = 1 then s:= '60';
+               str:= str + '\pard\li80\sa60\sb' + s + ' \trowd\trgaph0' + LastResultCellWidth + ' \intbl {\cf1\b ' +
+                     PathOfKNTLink(myTreeNode, myNote, 0, false, false) +  '}\cell\row ' +
+                    '\pard\li120\sb60\sa60 ';
+           end;
+           str:= str + '\trowd\trgaph0' + LastResultCellWidth + ' \intbl{\v\''11' + i.ToString + ' }' +
+                 Location_List[pred( i )] + '\cell\row ';
+         end;
+
+         str:= str + '}';
+         Form_Main.FindAllResults.PutRtfText(str, true, true);
+         Form_Main.FindAllResults.SelStart:= 0;
+
+         Form_Main.Btn_ResFlip.Caption := STR_06;
+         Form_Main.Ntbk_ResFind.PageIndex := 0;
+      end;
 
     except
       on E : Exception do
@@ -818,7 +993,6 @@ begin
     UpdateNoteDisplay;
 
     // restore previous FindOptions settings
-    Form_Main.List_ResFind.Items.EndUpdate;
     FindOptions.AllNodes := oldAllNodes;
     FindOptions.EntireScope := oldEntireScope;
     FindOptions.Wrap := oldWrap;
@@ -827,9 +1001,145 @@ begin
     screen.Cursor := crDefault;
     wordList.Free;
     FreeAuxEditorControl;
+    Form_Main.FindAllResults.EndUpdate;
+    Form_Main.FindAllResults.ReadOnly:= True;
   end;
 
 end; // RunFindAllEx
+
+
+procedure ClearFindAllResults;
+begin
+  Form_Main.FindAllResults.ReadOnly:= False;
+  Form_Main.FindAllResults.Clear;
+  Form_Main.FindAllResults.PutRtfText('{\rtf1\ansi \pard\par}', true, false);
+  Form_Main.FindAllResults.ReadOnly:= True;
+
+  Form_Main.LblFindAllNumResults.Caption:= '';
+  ClearLocationList( Location_List );
+end;
+
+
+procedure UpdateFindAllResultsWidth;
+var
+  widthTwips: integer;
+  sRTF, cellWidth: string;
+
+begin
+   if LastResultCellWidth <> '' then begin
+      widthTwips:= DotsToTwips(Form_Main.FindAllResults.Width) - 500;
+      cellWidth:= '\cellx' + widthTwips.ToString;
+      if LastResultCellWidth = cellWidth then exit;
+      with Form_Main.FindAllResults do begin
+          sRTF:= RtfText;
+          sRTF:= StringReplace(sRTF, LastResultCellWidth, cellWidth, [rfReplaceAll]);
+          ReadOnly:= False;
+          Clear;
+          PutRtfText(sRTF, true, false);
+          ReadOnly:= True;
+      end;
+      LastResultCellWidth:= cellWidth;
+   end;
+
+end;
+
+
+procedure FindAllResults_SelectedMatch (i: integer);
+begin
+  Form_Main.LblFindAllNumResults.Caption:= i.ToString + ' / ' + Location_List.Count.ToString + STR_13;
+  SelectedMatch:= i;
+end;
+
+
+procedure FindAllResults_FollowMatch(i: integer);
+var
+  Location : TLocation;
+begin
+  Location := TLocation( Location_List.Objects[i-1] );
+  if ( not assigned( Location )) then exit;
+
+  JumpToLocation( Location );
+end;
+
+
+procedure FindAllResults_SelectMatch (Prev: boolean);
+var
+  pS, p, offset: integer;
+  opt: TRichSearchTypes;
+begin
+  opt:= [];
+  offset:= 5;
+  if Prev then begin
+     opt:= [stBackward];
+     offset:= -7;
+  end;
+
+  with Form_Main.FindAllResults do begin
+      pS:= SelStart;
+      p:= FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, pS + offset, -1, opt);
+      if (p > 0) then
+         SetSelection(p+5, p+5, true);
+      end;
+end;
+
+
+procedure FindAllResults_RightClick (CharIndex: integer);
+begin
+  FollowMatch:= false;
+  Form_Main.FindAllResults.SetSelection(CharIndex, CharIndex, true);
+end;
+
+
+procedure FindAllResults_OnSelectionChange(Editor: TRxRichEdit);
+var
+  pS, pLaux, pL, pR: integer;
+  item: integer;
+  s:string;
+  matchSelected: boolean;
+begin
+  if Editor.SelLength > 0 then exit;
+
+  {
+  #$D
+  #$FFF9#$D<path 1>#7#$FFFB#$D
+  #$FFF9#$D#$111 <match 1> #7#$FFFB#$D
+  #$FFF9#$D#$112 <match 2> #7#$FFFB#$D
+  ...
+  #$FFF9#$D<path 13>#7#$FFFB#$D
+  #$FFF9#$D#$1130 <match 30> #7#$FFFB#$D
+  #$FFF9#$D#$1131 <match 31> #7#$FFFB#$D
+  ...
+  }
+
+
+  pS:= Editor.SelStart;
+
+  pLaux:= Editor.FindText(#$FFF9, pS+1, -1, [stBackward]) +1;
+  pL:= Editor.FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, pS+1, -1, [stBackward]) +1;
+  matchSelected:= (pL > 0) and (pL > pLaux);
+  Form_Main.FAMCopytoEditor.Enabled:= matchSelected;
+
+  if matchSelected then begin
+     s:= Editor.GetTextRange(pL, pL+6);
+     pR:= pos(' ', s, 1);
+     item:= StrToInt(Copy(s, 1, pR-1));
+     pR:= Editor.FindText(#$FFFB, pS, -1, []) -1;
+     Editor.SetSelection(pL, pR, true);
+
+     FindAllResults_SelectedMatch (item);
+     if FollowMatch then
+        FindAllResults_FollowMatch(item)
+     else
+         matchSelected:= false;
+     FollowMatch:= true;
+  end
+  else
+     if Editor.FindText(#$FFFB, pS, -1, []) < 0 then
+        FindAllResults_SelectMatch (true)      // Prev
+     else
+        FindAllResults_SelectMatch (false);    // Next
+end;
+
 
 
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
@@ -1337,5 +1647,7 @@ Initialization
     Form_FindReplace := nil;
     SearchInProgress := false;
     UserBreak := false;
+    LastResultCellWidth:= '';
+    FollowMatch:= true;
 
 end.

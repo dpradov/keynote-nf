@@ -31,6 +31,10 @@ uses
    Vcl.StdCtrls;
 
 
+
+const
+  SmallFontsPixelsPerInch = 96;          // 100% scaling for Windows
+
 Procedure PostKeyEx32( key: Word; Const shift: TShiftState;
             specialkey: Boolean );
 
@@ -57,6 +61,7 @@ function DoMessageBox (text: string; caption: string; uType: UINT= 0; hWnd: HWND
 
 
 function ScaleFromSmallFontsDimension(const X: Integer): Integer;
+function DotsToTwips(dots: Integer): integer; inline;
 
 var
   _TahomaFontInstalled : boolean = false;
@@ -340,13 +345,41 @@ begin
 end; // CheckDir
 
 
-const
-  SmallFontsPixelsPerInch = 96;
 
 function ScaleFromSmallFontsDimension(const X: Integer): Integer;
 begin
   Result := MulDiv(X, Screen.PixelsPerInch, SmallFontsPixelsPerInch);
 end;
+
+
+function DotsToTwips(dots: Integer ): integer; inline;
+var
+  DC: HDC;
+  dpi: Integer;
+begin
+
+{ A point is 1/72 inch. With that formula you can convert between inches and points.
+ What() 's missing is the number of pixels in an inch. You can retrieve that by calling
+ GetDeviceCaps( hdc, LOGPIXELSY ) which returns the number of pixels in 1 logical inch of your screen.
+ A logical inch isn't exactly 1 inch if you measure it, but that isn't a problem as the point size
+ only relates to logical inches on your screen.
+ GetDeviceCaps( hdc, LOGPIXELSX )--> Graphics.DpiX
+ A twip is a twentieth of a point, i.e., a 1440th of an inch (72*20)
+}
+{
+   if dpi = 0 then begin
+      DC := GetDC(0);
+      try
+        DPI:= GetDeviceCaps(DC, LOGPIXELSX);
+      finally
+        ReleaseDC(0, DC);
+      end;
+   end;
+}
+  dpi:= Screen.PixelsPerInch;
+  Result := MulDiv( dots, 1440, dpi );
+end;
+
 
 {  TMsgDlgType = (mtWarning, mtError, mtInformation, mtConfirmation, mtCustom);
   TMsgDlgBtn = (mbYes, mbNo, mbOK, mbCancel, mbAbort, mbRetry, mbIgnore,

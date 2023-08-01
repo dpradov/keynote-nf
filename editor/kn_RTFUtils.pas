@@ -66,7 +66,8 @@ function EMStreamOutCallback(dwCookie: Longint; pbBuff: PByte; cb: Longint; var 
 function URLToRTF (fn : string; enTextoURL: boolean ) : string;
 function URLFromRTF (fn : string ) : string;
 
-function TextToUseInRTF (UnicodeText : string ): string;
+function TextToUseInRTF (const UnicodeText : string ): string;
+function ScapeSpecialRTFCharacters (const str : string ): string;
 function GetRTFColor (Color: TColor): string;
 
 function CleanRTF(const RTF: string; var nRTF: string): boolean;
@@ -124,18 +125,17 @@ end;
 //  Delphi: http://www.delphibasics.co.uk/RTL.asp?Name=Char
 //          http://www.delphibasics.co.uk/ByFunction.asp?Main=Strings
 
-function TextToUseInRTF (UnicodeText : string ): string;
+function TextToUseInRTF (const UnicodeText : string ): string;
 var
   i, val: Integer;
+  str: string;
 begin
   Result:= '';
 
-  UnicodeText:= StringReplace(UnicodeText,'\','\\', [rfReplaceAll]);
-  UnicodeText:= StringReplace(UnicodeText,'{','\{', [rfReplaceAll]);
-  UnicodeText:= StringReplace(UnicodeText,'}','\}', [rfReplaceAll]);
+  str:= ScapeSpecialRTFCharacters(UnicodeText);
 
-  for i := 1 to length(UnicodeText) do begin
-    val:= Ord(UnicodeText[i]);
+  for i := 1 to length(str) do begin
+    val:= Ord(str[i]);
     if val = 9 then
        Result := Result + '\tab '
 
@@ -144,16 +144,37 @@ begin
 
     else if (val = 10) then
         // do nothing
-        
+
     else if val >= 127 then
        if val <= 255 then
            Result := Result + '\''' + IntToHex(val, 2)
        else
            Result := Result + '\u' + IntToStr(val) + '?'
     else
-       Result := Result + Char(UnicodeText[i]);
+       Result := Result + Char(str[i]);
   end;
 end;
+
+function ScapeSpecialRTFCharacters (const str : string ): string;
+var
+  p1, p2, p3: integer;
+begin
+  p1:= Pos('\', str, 1);
+  p2:= Pos('{', str, 1);
+  p3:= Pos('}', str, 1);
+  Result:= str;
+
+  if (p1 > 0) or (p2 > 0) or (p3 > 0) then begin
+    if p1 > 0 then
+       Result:= StringReplace(Result,'\','\\', [rfReplaceAll]);
+    if p2 > 0 then
+       Result:= StringReplace(Result,'{','\{', [rfReplaceAll]);
+    if p3 > 0 then
+       Result:= StringReplace(Result,'}','\}', [rfReplaceAll]);
+  end;
+end;
+
+
 
 
 function GetRTFColor (Color: TColor): string;
