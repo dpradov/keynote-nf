@@ -156,7 +156,9 @@ uses
   kn_TreeNoteMng in 'structure\kn_TreeNoteMng.pas',
   kn_VirtualNodeForm in 'structure\kn_VirtualNodeForm.pas' {Form_VNode},
 
+{$IFNDEF EXCLUDEEMAIL}
   kn_SendMail in 'various\kn_SendMail.pas' {Form_Mail},
+{$ENDIF}
   kn_AlertMng in 'various\kn_AlertMng.pas' {Form_Alarm},
   kn_FavExtDlg in 'various\kn_FavExtDlg.pas' {Form_FavExt},
   kn_FavoritesMng in 'various\kn_FavoritesMng.pas',
