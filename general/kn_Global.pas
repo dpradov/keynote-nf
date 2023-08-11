@@ -16,7 +16,7 @@
  *****************************************************************************)
 
 
-{.$DEFINE MJ_DEBUG}
+
 
 interface
 uses
@@ -62,9 +62,9 @@ uses
    kn_VCLControlsMng,
    kn_Main,
    kn_History
-   {$IFDEF MJ_DEBUG}
+ {$IFDEF KNT_DEBUG}
    ,GFLog
-   {$ENDIF}
+ {$ENDIF}
    ;
 
 
@@ -76,6 +76,8 @@ const
    procedure LoadRicheditLibrary;
    procedure AddSearchModes;
 
+   procedure Log_StoreTick (const Msg : string; const DbgLevel: integer= 0; DetailLevel: integer = 0); {$IFNDEF KNT_DEBUG} inline; {$ENDIF}
+   procedure Log_Flush;                                                                                {$IFNDEF KNT_DEBUG} inline; {$ENDIF}
 
 var
 
@@ -89,7 +91,7 @@ var
     MRU_FN : string; // MRU file list and form position/size info
     TIP_FN : string; // tip of the day file
     DEF_FN : string; // defaults for new notes
-    LOG_FN : string; // main log file (unused unless built with MJ_DEBUG)
+    LOG_FN : string; // main log file (unused unless built with KNT_DEBUG)
     MGR_FN : string; // file manager data
     ICN_FN : string; // custom icons
     KEY_FN : string; // keyboard customization file (old - via plugin)
@@ -181,11 +183,12 @@ var
     Timer_Tick : integer; // timer counter, for autosave
     Timer_TickAlarm: integer;  // timer counter, for checking alarms
     AppLastActiveTime : TDateTime; // for auto-minimizing and auto-closing on timeout
+(*
     {$IFDEF WITH_TIMER}
     ThisTick, LastTick : integer;
     TickList : TStringList;
     {$ENDIF}
-
+*)
 
     //================================================== CLIPBOARD
     _IS_CAPTURING_CLIPBOARD : boolean;
@@ -234,9 +237,9 @@ var
 
 
 
-    {$IFDEF MJ_DEBUG}
+  {$IFDEF KNT_DEBUG}
     Log : TGFLog;
-    {$ENDIF}
+  {$ENDIF}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -285,12 +288,7 @@ begin
   with Form_Main do begin
       SBGlyph:= TPicture.Create;
 
-      {$IFDEF WITH_TIMER}
-      TickList := TStringList.Create;
-      LastTick := AppStartTime;
-      StoreTick( 'App start', AppStartTime );
-      StoreTick( 'Begin FormCreate', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'FormCreate - Begin', 0, +1);
 
       // check Windows version
       _SYSTEM_IS_WIN95 := false;
@@ -325,9 +323,9 @@ begin
       Font.Charset := DEFAULT_CHARSET; // seems to be necessary, lest EASTER_EUROPEAN charset got encoded and used on non-EE systems
       Initializing := true;
       Caption := Format( '%s %s', [Program_Name, Program_Version] );
-      {$IFDEF MJ_DEBUG}
+    {$IFDEF KNT_DEBUG}
       Caption := Caption + ' (debug)';
-      {$ENDIF}
+    {$ENDIF}
       Application.Title := Caption;
       FolderMon.Active := false;
       Ntbk_ResFind.PageIndex := 1;
@@ -357,9 +355,7 @@ begin
       MMTreeFullExpand.Shortcut := ShortCut(VK_ADD, [ssShift]);
       MMTreeFullCollapse.Shortcut := ShortCut(VK_SUBTRACT, [ssShift]);
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'Begin init', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'Begin init', 2 );
 
       ClipCapActive := false;
       ClipCapCRC32 := 0;
@@ -484,9 +480,7 @@ begin
       // [x] PRE-RELEASE FIXES
       // MMNotePrintPreview_.Visible := false;
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End init - Begin config', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'End init', 2 );
 
       try
         if opt_SaveMenus then
@@ -519,10 +513,10 @@ begin
       except
         on E : Exception do
         begin
-          {$IFDEF MJ_DEBUG}
-          Log.Add( 'Exception from ReadOptions:' + E.Message );
-          {$ENDIF}
-          PopupMessage( 'There was a non-fatal error while loading program configuration: ' + #13 + e.Message + #13#13 + 'Some options may have been reset to factory default values. The application will now continue.', mtInformation, [mbOK], 0 );
+         {$IFDEF KNT_DEBUG}
+           Log.Add( 'Exception from ReadOptions:' + E.Message );
+         {$ENDIF}
+           PopupMessage( 'There was a non-fatal error while loading program configuration: ' + #13 + e.Message + #13#13 + 'Some options may have been reset to factory default values. The application will now continue.', mtInformation, [mbOK], 0 );
         end;
       end;
 
@@ -560,9 +554,7 @@ begin
       end;
 
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End config - Begin instance check', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'End config', 2 );
 
       // check other instance, and do the job is necessary
       if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) then
@@ -588,7 +580,7 @@ begin
           OnActivate := nil;
           OnDestroy := nil;
           OnClose := nil;
-          OnCloseQuery := nil;                             
+          OnCloseQuery := nil;
           PostMessage( Application.Handle, WM_QUIT, 0, 0 );
           // PostQuitMessage( 0 );
           // Application.Terminate;
@@ -596,9 +588,7 @@ begin
         exit;
       end;
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End instance check - Begin toolbars', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'End instance check', 2 );
 
       opt_Debug := ( opt_Debug or KeyOptions.Debug );
       opt_NoRegistry := ( opt_NoRegistry or opt_Debug or KeyOptions.NoRegistry );
@@ -628,24 +618,16 @@ begin
         _FORMPOS_INIFILENAME := FormStorage.IniFileName;
       end;
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End Toolbars - Begin hotkey and file assoc', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'End Toolbars', 2 );
 
-      {$IFDEF MJ_DEBUG}
-      Log := TGFLog.Create( Form_Main );
-      with Log do
-      begin
-        FileName := LOG_FN;
-        MaxLines := MAX_LOG_LINES;
-        AppendToFile := KeyOptions.DebugLogAppend;
-        DeactivateOnError := false;
-      end;
+    {$IFDEF KNT_DEBUG}
       Log.Active := opt_Debug;
-      {$ENDIF}
+      if not opt_Debug then
+         Log.Flush(false);
+      Log.AppendToFile := KeyOptions.DebugLogAppend;
+    {$ENDIF}
 
-      if opt_Debug then
-      begin
+      if opt_Debug then begin
         debugmenu := TMenuItem.Create( Form_Main );
         debugmenu.Caption := '&Debug Information';
         debugmenu.OnClick := DebugMenuClick;
@@ -681,9 +663,7 @@ begin
 
       HotKeyProc( true );
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End hotkey and file assoc - Begin FileMgr', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'End hotkey and file assoc', 2 );
 
       if opt_SaveDefaultIcons then
         SaveDefaultBitmaps; // for developer only
@@ -694,9 +674,7 @@ begin
 
         // load user icons from "keynote.icn" or
         // load default icon from resource in keynote.exe
-        {$IFDEF WITH_TIMER}
-        StoreTick( 'End FileMgr - Begin tabicons', GetTickCount );
-        {$ENDIF}
+        Log_StoreTick( 'End FileMgr', 2);
         LoadTabImages( true );
 
       except
@@ -706,9 +684,7 @@ begin
         end;
       end;
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End tabicons - Begin formupdate', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'End tabicons', 2 );
 
       // we now have all options set, so apply them
       UpdateFormState;
@@ -719,9 +695,7 @@ begin
       TrayIcon.Hint := ' Loading file...';
       Application.ProcessMessages; // let user see we're busy workin'
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End formupdate - Begin stylemgr', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'End formupdate', 2 );
 
       try
         if ( not opt_NoReadOpt ) then
@@ -741,18 +715,14 @@ begin
         end;
       end;
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End stylemgr - Begin glossary', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'End stylemgr', 2 );
 
 
       if ( not opt_NoReadOpt ) then
          kn_Glossary.LoadGlossaryInfo;
 
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End glossary - Begin FileOpen', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'End glossary', 2 );
 
       if FirstTimeRun then
       begin
@@ -802,17 +772,11 @@ begin
           NoteFileNew( '' );
       end;
 
-      {$IFDEF WITH_TIMER}
-      StoreTick( 'End FileOpen - End FormCreate', GetTickCount );
-      {$ENDIF}
+      Log_StoreTick( 'FormCreate - END', 0, -1 );
 
 
       Timer.Enabled := true;
       FolderMon.OnChange := FolderMonChange;
-
-      {$IFDEF MJ_DEBUG}
-      Log.Add( 'Exiting CREATE' );
-      {$ENDIF}
 
       if opt_Debug then
       begin
@@ -849,6 +813,13 @@ begin
 
       // This is always located in .exe directory
       LOG_FN := normalFN( changefileext( Application.ExeName, ext_LOG ));
+
+    {$IFDEF KNT_DEBUG}
+      Log := TGFLog.Create( Form_Main );
+      Log.MaxLines := MAX_LOG_LINES;
+      Log.DateStamp:= false;
+      Log.FileName := LOG_FN;
+    {$ENDIF}
 
       opt_Minimize := false;
       opt_Setup := false;
@@ -916,15 +887,46 @@ begin
       except
         on E : Exception do
         begin
-          {$IFDEF MJ_DEBUG}
-          Log.Add( 'Exception from ReadOptions:' + E.Message );
-          {$ENDIF}
-          PopupMessage( 'There was a non-fatal error while loading program configuration: ' + #13 + e.Message + #13#13 + 'Some options may have been reset to factory default values. The application will now continue.', mtInformation, [mbOK], 0 );
+         {$IFDEF KNT_DEBUG}
+           Log.Add( 'Exception from ReadOptions:' + E.Message );
+         {$ENDIF}
+           PopupMessage( 'There was a non-fatal error while loading program configuration: ' + #13 + e.Message + #13#13 + 'Some options may have been reset to factory default values. The application will now continue.', mtInformation, [mbOK], 0 );
         end;
       end;
 
 end;
 
+{
+ When compiling without the KNT_DEBUG compilation constant, the Log_StoreTick and Log_Flush methods are defined as inline
+ and they won't do anything.
+ Calls like the following will not generate code, even if they are not inside a conditional compile block like this:
+   StoreTick( 'string', 2);
+   StoreTick( 'string' + s, 2);
+
+ Calls like the following do will generate code:
+ 
+   StoreTick( 'string', 2 * 2);
+   StoreTick( 'string' + intToStr(3));
+   StoreTick( 'string', GetTickCount);    // If any procedure is called as a parameter, code will be generated, due to possible side effects.
+}
+
+procedure Log_StoreTick(const Msg : string; const DbgLevel: integer= 0; DetailLevel: integer = 0);
+begin
+ {$IFDEF KNT_DEBUG}
+    Log.StoreTick(Msg, DbgLevel, DetailLevel);
+ {$ENDIF}
+end;
+
+
+procedure Log_Flush;
+begin
+ {$IFDEF KNT_DEBUG}
+    Log.Flush(True);
+ {$ENDIF}
+end;
+
+
+(*
 {$IFDEF WITH_TIMER}
 procedure StoreTick( const Msg : string; const Tick : integer );
 const
@@ -963,5 +965,6 @@ begin
 end; // SaveTicks
 
 {$ENDIF}
+*)
 
 end.

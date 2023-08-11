@@ -1642,10 +1642,10 @@ begin
   if ( RTFUpdating or FileIsBusy ) then exit;
   if ( not assigned( ActiveNote )) then begin
     if opt_Debug then begin
-      {$IFDEF MJ_DEBUG}
-      Log.Add( 'ActiveNote not assigned in PerformCmd (' + inttostr( ord( aCmd )) + ')' );
+      {$IFDEF KNT_DEBUG}
+       Log.Add( 'ActiveNote not assigned in PerformCmd (' + inttostr( ord( aCmd )) + ')' );
       {$ENDIF}
-      PopupMessage( Format( STR_44, [ord( aCmd )] ), mtError, [mbOK], 0 );
+       PopupMessage( Format( STR_44, [ord( aCmd )] ), mtError, [mbOK], 0 );
     end;
     exit;
   end;
@@ -1760,9 +1760,9 @@ begin
   except
       on E : Exception do begin
         PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
-        {$IFDEF MJ_DEBUG}
+       {$IFDEF KNT_DEBUG}
         Log.Add( 'Exception in PerformCmdEx (' + inttostr( ord( aCMD )) + '): ' + E.Message );
-        {$ENDIF}
+       {$ENDIF}
       end;
   end;
 
@@ -2602,9 +2602,9 @@ begin
       except
         on E : Exception do begin
           PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
-          {$IFDEF MJ_DEBUG}
+         {$IFDEF KNT_DEBUG}
           Log.Add( 'Exception in PerformCmd (' + inttostr( ord( aCMD )) + '): ' + E.Message );
-          {$ENDIF}
+         {$ENDIF}
         end;
       end;
     finally

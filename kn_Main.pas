@@ -16,7 +16,6 @@ unit kn_Main;
  *****************************************************************************)
 
 
-{.$DEFINE MJ_DEBUG}
 
 interface
 
@@ -70,9 +69,9 @@ uses
 
    gf_misc,
    gf_miscvcl,
-   {$IFDEF MJ_DEBUG}
+ {$IFDEF KNT_DEBUG}
    GFLog,
-   {$ENDIF}
+ {$ENDIF}
    kn_INI,
    kn_Cmd,
    kn_Msgs,
@@ -1296,10 +1295,12 @@ type
     RichPrinter: TRichPrinter;
     procedure UpdateWordWrap;
 
+(*
     {$IFDEF WITH_TIMER}
     procedure StoreTick( const Msg : string; const Tick : integer );
     procedure SaveTicks;
     {$ENDIF}
+*)
 
     procedure AssignOnMessage;
 
@@ -1608,16 +1609,11 @@ procedure TForm_Main.FormActivate(Sender: TObject);
 begin
   if ( not Initializing ) then exit;
 
-  {$IFDEF WITH_TIMER}
-  StoreTick( 'Begin FormActivate', GetTickCount );
-  {$ENDIF}
-
+  Log_StoreTick( 'FormActivate - Begin', 1, +1 );
   OnActivate := nil; // don't return here again
 
   try
-    {$IFDEF WITH_TIMER}
-    StoreTick( 'Begin respanel', GetTickCount );
-    {$ENDIF}
+
     UpdateResPanelContents;
     Splitter_ResMoved( Splitter_Res );
     // Pages_Res.Visible := KeyOptions.ResPanelShow;
@@ -1625,12 +1621,9 @@ begin
     Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
   except
   end;
+  Log_StoreTick( 'After update respanel', 2 );
 
   EnableOrDisableUAS;
-
-  {$IFDEF WITH_TIMER}
-  StoreTick( 'End respanel - begin display', GetTickCount );
-  {$ENDIF}
 
   Application.ProcessMessages;
   {
@@ -1641,9 +1634,7 @@ begin
 
   FocusActiveNote;
 
-  {$IFDEF WITH_TIMER}
-  StoreTick( 'Begin automacro', GetTickCount );
-  {$ENDIF}
+  Log_StoreTick( 'After FocusActiveNote', 2 );
 
   if ( KeyOptions.RunAutoMacros and ( StartupMacroFile <> '' )) then
   begin
@@ -1656,9 +1647,7 @@ begin
     end;
   end;
 
-  {$IFDEF WITH_TIMER}
-  StoreTick( 'End automacro - begin autoplugin', GetTickCount );
-  {$ENDIF}
+  Log_StoreTick( 'After automacro', 2 );
 
   if ( StartupPluginFile <> '' ) then
   begin
@@ -1671,9 +1660,7 @@ begin
     end;
   end;
 
-  {$IFDEF WITH_TIMER}
-  StoreTick( 'End autoplugin', GetTickCount );
-  {$ENDIF}
+  Log_StoreTick( 'After autoplugin', 2 );
 
   if KeyOptions.TipOfTheDay then
     postmessage( Handle, WM_TIPOFTHEDAY, 0, 0 );
@@ -1693,17 +1680,11 @@ begin
   Combo_FontSize.OnClick := Combo_FontSizeClick;
   Combo_Zoom.OnClick := Combo_FontSizeClick;
 
-  {$IFDEF MJ_DEBUG}
-  Log.Add( 'Exiting ACTIVATE' );
-  {$ENDIF}
   // Timer.Enabled := true;
   Application.OnDeactivate := AppDeactivate;
   // FolderMon.onChange := FolderMonChange;
 
-  {$IFDEF WITH_TIMER}
-  StoreTick( 'End FormActivate', GetTickCount );
-  SaveTicks;
-  {$ENDIF}
+  Log_StoreTick( 'FormActivate - End', 1, -1 );
 
 end; // ACTIVATE
 
@@ -1964,10 +1945,10 @@ begin
   finally
     if CanClose then
     begin
-      {$IFDEF MJ_DEBUG}
-      Log.Flush( true );
-      Log.Add( 'CloseQuery result: ' + BOOLARRAY[CanClose] );
-      {$ENDIF}
+     {$IFDEF KNT_DEBUG}
+       Log.Flush( true );
+       Log.Add( 'CloseQuery result: ' + BOOLARRAY[CanClose] );
+     {$ENDIF}
     end;
     AppIsClosing := true;
     ClosedByWindows := false;
@@ -1988,10 +1969,10 @@ begin
     SetClipCapState( false );
 
   FolderMon.Active := false;
-  {$IFNDEF MJ_DEBUG}
+{$IFNDEF KNT_DEBUG}
   // in final release, set the event to NIL (keep only for debugging)
   Application.OnException := nil;
-  {$ENDIF}
+{$ENDIF}
   Application.OnDeactivate := nil;
   Application.OnHint := nil;
   ActiveNote := nil;
@@ -2018,21 +1999,18 @@ begin
 
     except
       // at this stage, we can only swallow all exceptions (and pride)
-      {$IFDEF MJ_DEBUG}
-      on E : Exception do
-      begin
-        showmessage( 'Exception in OnDestroy: ' + #13#13 +E.Message );
-        if assigned( Log ) then Log.Add( 'Exception in OnDestroy: ' + E.Message );
-      end;
-      {$ENDIF}
+     {$IFDEF KNT_DEBUG}
+        on E : Exception do begin
+          showmessage( 'Exception in OnDestroy: ' + #13#13 +E.Message );
+          if assigned( Log ) then Log.Add( 'Exception in OnDestroy: ' + E.Message );
+        end;
+     {$ENDIF}
     end;
   finally
-    {$IFDEF MJ_DEBUG}
-    if assigned( Log ) then
-    begin
-      Log.Free;
-    end;
-    log := nil;
+    {$IFDEF KNT_DEBUG}
+      if assigned( Log ) then
+         Log.Free;
+      log := nil;
     {$ENDIF}
   end;
 
@@ -2235,13 +2213,12 @@ begin
     begin
       if (( not FileChangedOnDisk ) and NoteFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then
       begin
-        if (( NoteFile.FileName <> '' ) and ( not NoteFile.ReadOnly )) then
-        begin
+        if (( NoteFile.FileName <> '' ) and ( not NoteFile.ReadOnly )) then begin
           // only if saved previously
-          {$IFDEF MJ_DEBUG}
-          Log.Add( '-- Saving on TIMER' );
-          {$ENDIF}
-          NoteFileSave( NoteFile.FileName );
+         {$IFDEF KNT_DEBUG}
+           Log.Add( '-- Saving on TIMER' );
+         {$ENDIF}
+           NoteFileSave( NoteFile.FileName );
         end;
       end;
     end;
@@ -2310,13 +2287,12 @@ begin
   begin
     if ( KeyOptions.AutoSave and KeyOptions.AutoSaveOnFocus and NoteFile.Modified ) then
     begin
-      if (( NoteFile.FileName <> '' ) and ( not NoteFile.ReadOnly )) then
-      begin
+      if (( NoteFile.FileName <> '' ) and ( not NoteFile.ReadOnly )) then begin
         // only if saved previously
-        {$IFDEF MJ_DEBUG}
-        Log.Add( '-- Saving on Application DEACTIVATE' );
+        {$IFDEF KNT_DEBUG}
+          Log.Add( '-- Saving on Application DEACTIVATE' );
         {$ENDIF}
-        NoteFileSave( NoteFile.FileName );
+          NoteFileSave( NoteFile.FileName );
       end;
     end;
   end;
@@ -2327,13 +2303,12 @@ begin
   if ( msg.Active <> WA_INACTIVE ) then
   begin
     AppIsActive := true; // used with ClipCap to ignore copy events coming from Keynote itself
-    if FileChangedOnDisk then
-    begin
-      {$IFDEF MJ_DEBUG}
-      Log.Add( 'FileChangedOnDisk!' );
+    if FileChangedOnDisk then begin
+      {$IFDEF KNT_DEBUG}
+        Log.Add( 'FileChangedOnDisk!' );
       {$ENDIF}
-      FileChangedOnDisk := false;
-      SomeoneChangedOurFile;
+        FileChangedOnDisk := false;
+        SomeoneChangedOurFile;
     end;
     AppIsClosing := false;
   end
@@ -2357,7 +2332,7 @@ end; // WMHotkey
 procedure TForm_Main.WMQueryEndSession( var Msg : TMessage );
 begin
   ClosedByWindows := true;
-  {$IFDEF MJ_DEBUG}
+  {$IFDEF KNT_DEBUG}
   Log.Add( 'Closed by Windows: WM_QUERYENDSESSION' );
   {$ENDIF}
   Msg.Result := 1;
@@ -2380,7 +2355,7 @@ end; // WndProc
 
 procedure TForm_Main.ShowException( Sender : TObject; E : Exception );
 begin
-  {$IFDEF MJ_DEBUG}
+  {$IFDEF KNT_DEBUG}
   if assigned( Log ) then
   begin
     Log.Add( '!! Unhandled exception: ' + e.message );
@@ -2402,9 +2377,9 @@ end; // ShowException
 procedure TForm_Main.NotImplemented( const aStr : string );
 begin
   PopupMessage( STR_10 + aStr, mtInformation, [mbOK], 0 );
-  {$IFDEF MJ_DEBUG}
+{$IFDEF KNT_DEBUG}
   Log.Add( 'Not implemented call: ' + aStr );
-  {$ENDIF}
+{$ENDIF}
 end; // NotImplemented
 
 procedure TForm_Main.CloseNonModalDialogs;
@@ -2427,9 +2402,9 @@ end; // MMOpenClick
 
 procedure TForm_Main.MMFileSaveClick(Sender: TObject);
 begin
-  {$IFDEF MJ_DEBUG}
+{$IFDEF KNT_DEBUG}
   Log.Add( '-- Saving on user request' );
-  {$ENDIF}
+{$ENDIF}
   if ShiftDown then
   begin
     NoteFileSave( '' )
@@ -3689,9 +3664,9 @@ var
   s : string;
   // i : integer;
 begin
-  {$IFDEF MJ_DEBUG}
+{$IFDEF KNT_DEBUG}
   if assigned( Log ) then Log.Flush( true );
-  {$ENDIF}
+{$ENDIF}
   { [debug] }
 
   s := format( 'Win32Platform: %d', [Win32Platform] ) + #13 +
@@ -3760,9 +3735,9 @@ begin
     s := s + 'File Manager NOT assigned.';
   end;
 
-  {$IFDEF MJ_DEBUG}
+{$IFDEF KNT_DEBUG}
   s := s + #13 + '(Log enabled)';
-  {$ENDIF}
+{$ENDIF}
 
   if DoMessageBox( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel then exit;
 

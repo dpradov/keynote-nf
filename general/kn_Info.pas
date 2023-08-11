@@ -33,10 +33,6 @@ uses
 resourcestring
   Program_Desc     = 'Tabbed notebook for Windows';
 
-{$IFDEF WITH_TIMER}
-const
-  AppStartTime : integer = 0;
-{$ENDIF}
 
 const
   ext_KeyNote    = '.knt'; // KeyNote data file

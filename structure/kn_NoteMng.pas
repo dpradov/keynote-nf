@@ -173,10 +173,10 @@ begin
     except
       on E : Exception do
       begin
-        {$IFDEF MJ_DEBUG}
-        Log.Add( 'Exception in NewNote: ' + E.Message );
+        {$IFDEF KNT_DEBUG}
+         Log.Add( 'Exception in NewNote: ' + E.Message );
         {$ENDIF}
-        PopupMessage( E.Message, mtError, [mbOK], 0 );
+         PopupMessage( E.Message, mtError, [mbOK], 0 );
       end;
     end;
   finally
@@ -185,12 +185,12 @@ begin
     NoteFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
     result := assigned( myNote );
-    {$IFDEF MJ_DEBUG}
+   {$IFDEF KNT_DEBUG}
     if assigned( myNote ) then
       Log.Add( 'Added new note: ' + myNote.Name )
     else
       Log.Add( 'New note NOT added.' );
-    {$ENDIF}
+   {$ENDIF}
   end;
 end; // NewNote
 

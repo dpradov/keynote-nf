@@ -328,6 +328,8 @@ var
   {$ENDIF}
 
 begin
+  Log_StoreTick( 'CreateVCLControlsForNote - Begin', 2, +1);
+
   with Form_Main do begin
         _ALLOW_VCL_UPDATES := false;
         tNote := nil;
@@ -523,12 +525,20 @@ begin
 
               finally
                 myTree.Items.EndUpdate;
+
+                Log_StoreTick( 'After created TreeNodes', 3 );
+
                 ShowOrHideIcons( tNote, true );
                 ShowOrHideCheckBoxes( tNote );
+
+                Log_StoreTick( 'After ShowOrHIdeIcons,CheckBoxes', 3 );
+
                 if tNote.Filtered then             // [dpv]
                    HideFilteredNodes (tnote);
                 if tNote.HideCheckedNodes then     // [dpv]
                    HideCheckedNodes (tnote);
+
+                Log_StoreTick( 'After HideFilteredNodes, HideCheckNodes', 3 );
               end;
 
               // restore selected node: this block must be
@@ -561,6 +571,9 @@ begin
                 tNote.SelectedNode := nil;
               end;
 
+              Log_StoreTick( 'After Restored selected node', 3 );
+
+
               case TreeOptions.ExpandMode of
                 txmFullCollapse : begin
                   // nothing
@@ -587,6 +600,7 @@ begin
               if assigned( myTree.Selected ) then
                 myTree.Selected.MakeVisible;
 
+              Log_StoreTick( 'After UpdateTreeVisible', 3 );
             end;
 
            {$IFDEF WITH_IE}
@@ -669,6 +683,8 @@ begin
             PrimaryObject := aNote;
           end;
 
+          Log_StoreTick( 'After Created TTabRichEdit', 3 );
+
           with aNote do
           begin
             UpdateTabSheet;
@@ -679,6 +695,8 @@ begin
           _ALLOW_VCL_UPDATES := true;
         end;
   end;
+
+  Log_StoreTick( 'CreateVCLControlsForNote - End', 3, -1 );
 
 end; // CreateVCLControlsForNote
 

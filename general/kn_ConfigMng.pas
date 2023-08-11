@@ -94,9 +94,25 @@ begin
           if ( s = swSetup ) then
              opt_Setup := true
           else
+{$IFDEF KNT_DEBUG}
+          if ( s.StartsWith(swDebug) ) then begin
+             opt_Debug := true;
+             delete( s, 1, swDebug.Length );
+             if s <> '' then begin
+                try
+                   log.MaxDbgLevel:= StrToInt(s);
+                except
+                end;
+             end
+             else
+                log.MaxDbgLevel:= 1;          /// default max dbg level = 1
+          end
+          else
+{$ELSE}
           if ( s = swDebug ) then
              opt_Debug := true
           else
+{$ENDIF}
           if ( s = swNoReadOpt ) then
              opt_NoReadOpt := true
           else

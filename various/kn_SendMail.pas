@@ -16,7 +16,7 @@ unit kn_SendMail;
  *****************************************************************************)
 
 
-// - log only when MJ_DEBUG is set
+// - log only when KNT_DEBUG is set
 // - if sending "all" or "file", and the file is encrypted, WARN.
 //   (actually: disable "file" when file is encrypted!)
 

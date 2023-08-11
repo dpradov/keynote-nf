@@ -33,6 +33,12 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Android64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Android64)'!=''">
+        <Cfg_1_Android64>true</Cfg_1_Android64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
         <Cfg_1_Win32>true</Cfg_1_Win32>
         <CfgParent>Cfg_1</CfgParent>
@@ -80,7 +86,7 @@
         <VerInfo_Build>8</VerInfo_Build>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF (New Features);FileVersion=1.7.9.8;InternalName=KeyNote NF;LegalCopyright=(c) Daniel Prado 2007-17  (c) Marek Jedlinski, 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF;ProductVersion=1.7.9 Beta 8 (30/04/17);Comments=Improvements over version 1.6.5 of Marek&apos;s KeyNote;X-Fnord=;X-URL=http://code.google.com/p/keynote-nf/;X-MAILTO=dprado.keynote@gmail.com</VerInfo_Keys>
-        <DCC_Define>TREENT_NO_LOADFROM;TREENT_NO_PRINT;USE_RX_GIF;EXCLUDEEMAIL;$(DCC_Define)</DCC_Define>
+        <DCC_Define>TREENT_NO_LOADFROM;TREENT_NO_PRINT;USE_RX_GIF;EXCLUDEEMAIL;KNT_DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android64)'!=''">
         <Android_LauncherIcon192>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png</Android_LauncherIcon192>
@@ -106,6 +112,9 @@
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Android64)'!=''">
+        <BT_BuildType>Debug</BT_BuildType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -138,6 +147,7 @@
         <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
+        <Debugger_RunParams>-debug3</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

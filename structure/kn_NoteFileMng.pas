@@ -265,9 +265,9 @@ begin
           except
             on E : Exception do
             begin
-              {$IFDEF MJ_DEBUG}
+             {$IFDEF KNT_DEBUG}
               Log.Add( 'Exception in NoteFileNew: ' + E.Message );
-              {$ENDIF}
+             {$ENDIF}
               Popupmessage( STR_01 + E.Message, mtError, [mbOK], 0 );
               result := 1;
               exit;
@@ -282,9 +282,9 @@ begin
           StatusBar.Panels[PANEL_HINT].Text := STR_02;
 
           UpdateNoteFileState( [fscNew,fscModified] );
-          {$IFDEF MJ_DEBUG}
+        {$IFDEF KNT_DEBUG}
           Log.Add( 'NoteFileNew result: ' + inttostr( result ));
-          {$ENDIF}
+        {$ENDIF}
           FileIsBusy := false;
           if ( Pages.PageCount > 0 ) then
           begin
@@ -337,7 +337,7 @@ function NoteFileOpen( FN : string ) : integer;
 var
   i : integer;
   OpenReadOnly : boolean;
-  OpenBegin {$IFDEF MJ_DEBUG}, OpenEnd{$ENDIF} : integer;
+  {$IFDEF KNT_DEBUG}OpenEnd: integer;{$ENDIF}
   opensuccess : boolean;
   FPath, NastyDriveType : string;
 begin
@@ -346,7 +346,6 @@ begin
         MovingTreeNode:= nil;
         AlarmManager.Clear;
         MirrorNodes.Clear;
-        OpenBegin := GetTickCount;
         OpenReadOnly := false;
         opensuccess := false;
         result := -1;
@@ -399,7 +398,15 @@ begin
             NoteFile.PageCtrl := Pages;
 
             // NoteFile.OnNoteLoad := OnNoteLoaded;
+
+            Log_Flush;
+            Log_StoreTick('');
+            Log_StoreTick( 'FileOpen (' + FN + ') - BEGIN', 0, +1);
+
             result := NoteFile.Load( FN );
+
+            Log_StoreTick( 'After parsed .knt file', 1 );
+
             if NoteFile.OpenAsReadOnly then
                OpenReadOnly:= True;
 
@@ -456,17 +463,23 @@ begin
             // LoadDefaults;
             LoadTabImages( false );
 
+            Log_StoreTick( 'CreateVCLControls - BEGIN', 1, +1 );
             CreateVCLControls;
+            Log_StoreTick( 'CreateVCLControls - END', 1, -1 );
+
             NoteFile.SetupMirrorNodes(nil);
+            Log_StoreTick( 'After SetupMirrorNodes', 1 );
+
             SetupAndShowVCLControls;
+            Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
+
 
             opensuccess := true;
 
             StatusBar.Panels[PANEL_HINT].Text := STR_14;
 
             try
-              if EditorOptions.SaveCaretPos then
-              begin
+              if EditorOptions.SaveCaretPos then begin
                 for i := 1 to NoteFile.Notes.Count do
                 begin
                   with NoteFile.Notes[pred( i )] do
@@ -487,8 +500,10 @@ begin
 
               if ClipOptions.Recall then
               begin
-                if assigned( NoteFile.ClipCapNote ) then
+                if assigned( NoteFile.ClipCapNote ) then begin
                   ToggleClipCap( true, NoteFile.ClipCapNote );
+                  Log_StoreTick( 'After recall ClipCapNote', 1 );
+                end;
               end
               else
               begin
@@ -505,9 +520,9 @@ begin
             begin
               opensuccess := false;
               StatusBar.Panels[PANEL_HINT].Text := STR_15;
-              {$IFDEF MJ_DEBUG}
+             {$IFDEF KNT_DEBUG}
               Log.Add( 'Error while opening file: ' + E.Message );
-              {$ENDIF}
+             {$ENDIF}
               if E.Message <> '' then
                  PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
               if assigned( NoteFile ) then
@@ -536,17 +551,18 @@ begin
           except
             on E : Exception do
             begin
-              {$IFDEF MJ_DEBUG}
-              Log.Add( 'Folder monitor error: ' + E.Message );
-              {$ENDIF}
-              PopupMessage( STR_16 + E.Message, mtError, [mbOK], 0 );
+             {$IFDEF KNT_DEBUG}
+               Log.Add( 'Folder monitor error: ' + E.Message );
+             {$ENDIF}
+               PopupMessage( STR_16 + E.Message, mtError, [mbOK], 0 );
             end;
           end;
 
         finally
-          {$IFDEF MJ_DEBUG}
-          Log.Add( 'NoteFileOpen result: ' + inttostr( result ));
-          {$ENDIF}
+         {$IFDEF KNT_DEBUG}
+          Log.Add( 'NoteFileOpen result: ' + inttostr( result ), 0);
+         {$ENDIF}
+
           if opensuccess then
           begin
             if ( Pages.PageCount > 0 ) then
@@ -554,6 +570,7 @@ begin
               ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
               TAM_ActiveName.Caption := ActiveNote.Name;
               FocusActiveNote;
+              Log_StoreTick( 'After GetFileState and FocusActiveNote', 1 );
             end
             else
             begin
@@ -568,6 +585,7 @@ begin
             UpdateNoteDisplay;
             UpdateNoteFileState( [fscOpen,fscModified] );
           end;
+          Log_StoreTick( 'After UpdateNoteDisplay, UpdateFileState', 1 );
           screen.Cursor := crDefault;
           FileIsBusy := false;
           Timer.Enabled := true;
@@ -586,10 +604,9 @@ begin
           StatusBar.Panels[PANEL_HINT].Text := Format( STR_17, [result] );
         end;
 
-        {$IFDEF MJ_DEBUG}
-        OpenEnd := GetTickCount;
-        Log.Add( 'File load time in seconds: ' + inttostr(( OpenEnd - OpenBegin ) DIV 1000 ));
-        {$ENDIF}
+        Log_StoreTick( 'FileOpen - END', 0, -1 );
+        Log_Flush;
+
   end;
 end; // NoteFileOpen
 
@@ -770,9 +787,9 @@ begin
    if not SUCCESS then begin
       bakFN:= '';
       LastError := GetLastError;
-      {$IFDEF MJ_DEBUG}
+     {$IFDEF KNT_DEBUG}
       Log.Add('Backup failed; code ' + IntToStr(LastError));
-      {$ENDIF}
+     {$ENDIF}
    end;
 
 end;
@@ -974,6 +991,10 @@ begin
          This way, the time during which the file "disappears" from the folder where Dropbox (e.g.) looks will be minimal
          }
 
+         Log_Flush;
+         Log_StoreTick('');
+         Log_StoreTick( 'NoteFileSave (' + FN + ') - BEGIN', 0, +1);
+
 
          // Get a random temp file name. For safety, we will write data to the temp file, and only overwrite the actual keynote file
          // after the save process is complete.
@@ -1017,6 +1038,8 @@ begin
          // SAVE the file (and backup virtual nodes if it applies), on a temporal location, before initiate DoBackup (see *1)
          Result := NoteFile.Save(tempFN, SavedNotes, SavedNodes);
 
+         Log_StoreTick( 'After NoteFile.Save (temporal location)', 1 );
+
          if Result = 0 then begin
             // BACKUP (using previous file, before this saving) of the file
             if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
@@ -1027,6 +1050,7 @@ begin
                   end;
                end;
             end;
+            Log_StoreTick( 'After DoBackup', 1 );
 
             RenameTempFile;                 // Now rename the temp file to the actual KeyNote file name
             NoteFile.FileName := FN;
@@ -1039,6 +1063,7 @@ begin
 
             // Backup after saving
             DoIntervalBackup(FN, BakFolder);
+            Log_StoreTick( 'After DoIntervalBackup', 1 );
          end
          else begin
             // ERROR on save
@@ -1056,7 +1081,7 @@ begin
        except
          on E: Exception do
          begin
-           {$IFDEF MJ_DEBUG}
+           {$IFDEF KNT_DEBUG}
            Log.Add('Exception in NoteFileSave: ' + E.Message);
            {$ENDIF}
            StatusBar.Panels[PANEL_HINT].Text := STR_27;
@@ -1086,9 +1111,12 @@ begin
        Screen.Cursor := crDefault;
        FileIsBusy := False;
        UpdateNoteFileState([fscSave,fscModified]);
-       {$IFDEF MJ_DEBUG}
+      {$IFDEF KNT_DEBUG}
        Log.Add( 'NoteFileSave result: ' + IntToStr(Result));
-       {$ENDIF}
+      {$ENDIF}
+
+       Log_StoreTick( 'NoteFileSave - END', 0, -1 );
+       Log_Flush;
      end;
 
      if Result = 0 then begin
@@ -1189,9 +1217,9 @@ begin
         FileIsBusy := false;
         PagesChange( Form_Main );
         screen.Cursor := crDefault;
-        {$IFDEF MJ_DEBUG}
+       {$IFDEF KNT_DEBUG}
         Log.Add( 'NoteFileClose result: ' + BOOLARRAY[result] );
-        {$ENDIF}
+       {$ENDIF}
         LoadTrayIcon( false );
       end;
   end;
@@ -1341,17 +1369,17 @@ begin
               end
               else begin
                 Popupmessage( STR_38 + inttostr( cr ) + ')', mtError, [mbOK], 0 );
-                {$IFDEF MJ_DEBUG}
+               {$IFDEF KNT_DEBUG}
                 Log.Add( 'Copying failed (' + inttostr( cr ) + ')' );
-                {$ENDIF}
+               {$ENDIF}
               end;
 
             except
               on E : Exception do begin
                 StatusBar.Panels[PANEL_HINT].Text := STR_15;
-                {$IFDEF MJ_DEBUG}
+               {$IFDEF KNT_DEBUG}
                 Log.Add( 'Exception in NoteFileCopy: ' + E.Message );
-                {$ENDIF}
+               {$ENDIF}
                 PopupMessage( E.Message, mtError, [mbOK], 0 );
               end;
             end;
@@ -1738,9 +1766,9 @@ begin
         begin
           FileChangedOnDisk := true;
           StatusBar.Panels[PANEL_HINT].Text := STR_53;
-          {$IFDEF MJ_DEBUG}
+         {$IFDEF KNT_DEBUG}
           Log.Add( 'FileChangedOnDisk: ' + s );
-          {$ENDIF}
+         {$ENDIF}
           GetFileState( FileState.Name, FileState );
         end;
   end;
@@ -1761,9 +1789,9 @@ begin
       result := true;
       try
         if ( not HaveNotes( false, true )) then exit;
-        {$IFDEF MJ_DEBUG}
-        Log.Add( 'CheckModified: NoteFile modified? ' + BOOLARRAY[NoteFile.Modified] );
-        {$ENDIF}
+       {$IFDEF KNT_DEBUG}
+        Log.Add( 'CheckModified: NoteFile modified? ' + BOOLARRAY[NoteFile.Modified], 1 );
+       {$ENDIF}
         if ( not NoteFile.Modified ) then exit;
         if Warn then
         begin
@@ -1786,9 +1814,9 @@ begin
            Application.Minimize;  // Liberate the screen to let the user do other things while keyNote is closing
         end;
 
-        {$IFDEF MJ_DEBUG}
-        Log.Add( '-- Saving on CHECKMODIFIED' );
-        {$ENDIF}
+       {$IFDEF KNT_DEBUG}
+        Log.Add( '-- Saving on CHECKMODIFIED', 1 );
+       {$ENDIF}
         if ( NoteFileSave( NoteFile.FileName ) = 0 ) then
           result := true
         else
@@ -1799,8 +1827,8 @@ begin
         end;
 
       finally
-        {$IFDEF MJ_DEBUG}
-        Log.Add( 'CheckModified result: ' + BOOLARRAY[result] );
+        {$IFDEF KNT_DEBUG}
+         Log.Add( 'CheckModified result: ' + BOOLARRAY[result], 1 );
         {$ENDIF}
       end;
   end;
