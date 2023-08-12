@@ -3669,17 +3669,15 @@ begin
 {$ENDIF}
   { [debug] }
 
-  s := format( 'Win32Platform: %d', [Win32Platform] ) + #13 +
-       format( 'Win32MajorVersion: %d ' + #13 +
-               'Win32MinorVersion: %d',
-                [Win32MajorVersion,Win32MinorVersion] ) + #13 +
-       // format( 'RichEdit version from RxLib: %d', [RichEditVersion] ) + #13 +
-       format( 'RichEdit version: %d', [_LoadedRichEditVersion] ) + #13 +
-       format( 'AllocMemSize: %d', [AllocMemSize] );
+  s := 'Win32Platform: ' + Win32Platform.ToString + #13 +
+       'Win32MajorVersion: ' + Win32MajorVersion.ToString + #13 +
+       'Win32MinorVersion: ' + Win32MinorVersion.ToString + #13 +
+       'RichEdit version: '  + _LoadedRichEditVersion.ToString + #13 +
+       'AllocMemSize: ' + AllocMemSize.ToString;
+
   if ( messagedlg( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel ) then exit;
 
-  if HaveNotes( false, false ) then
-  begin
+  if HaveNotes( false, false ) then begin
     s := 'Filename: ' + ExtractFilename( NoteFile.FileName ) +#13+
          'Notes modified: ' + BOOLARRAY[NoteFile.Modified] +#13+
          'Notes count: ' + inttostr( NoteFile.NoteCount ) +#13+
@@ -3692,19 +3690,15 @@ begin
          'USE_OLD_FILE_FMT: ' + BOOLARRAY[_USE_OLD_KEYNOTE_FILE_FORMAT] +#13#13;
 
     if NoteFile.FileFormat = nffEncrypted then
-    begin
       s := s + 'Encrypted with: ' + CRYPT_METHOD_NAMES[NoteFile.CryptMethod] + #13 +
                'Pass: ' + NoteFile.PassPhrase +#13#13;
-    end;
 
-    if assigned( ActiveNote ) then
-    begin
+    if assigned( ActiveNote ) then begin
       s := s +
          'Active note name: ' + ActiveNote.Name +#13+
          'Active note kind: ' + TABNOTE_KIND_NAMES[ActiveNote.Kind] +#13;
 
-      if ( ActiveNote.Kind = ntTree ) then
-      begin
+      if ( ActiveNote.Kind = ntTree ) then begin
         s := s + 'Number of Tree nodes: ' + inttostr( TTreeNote( ActiveNote ).TV.Items.Count ) + #13 +
           'Number of Note nodes: ' + inttostr( TTreeNote( ActiveNote ).NodeCount ) + #13;
         if assigned( TTreeNote( ActiveNote ).SelectedNode ) then
@@ -3712,28 +3706,20 @@ begin
       end;
     end
     else
-    begin
       s := s + 'ActiveNote NOT assigned' + #13;
-    end;
 
     if ( _OTHER_INSTANCE_HANDLE <> 0 ) then
       s := s + 'Found other instance!' + #13;
 
   end
   else
-  begin
-    s := 'No notes.' + #13;
-  end;
+     s := 'No notes.' + #13;
 
 
   if assigned( FileManager ) then
-  begin
-    s := s + #13 + 'File Manager count: ' + inttostr( FileManager.Count );
-  end
+    s := s + #13 + 'File Manager count: ' + inttostr( FileManager.Count )
   else
-  begin
     s := s + 'File Manager NOT assigned.';
-  end;
 
 {$IFDEF KNT_DEBUG}
   s := s + #13 + '(Log enabled)';
