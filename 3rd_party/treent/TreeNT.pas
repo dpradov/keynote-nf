@@ -383,11 +383,11 @@ type
     destructor Destroy; override;
 
     function AddChildFirst(Node: TTreeNTNode; const S: String): TTreeNTNode;
-    function AddChild(Node: TTreeNTNode; const S: String): TTreeNTNode;
+    function AddChild(Node: TTreeNTNode; const S: String; ChildrenCapacity: integer=0): TTreeNTNode;   // [dpv]: ChildrenCapacity
     function AddChildObjectFirst(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
     function AddChildObject(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
     function AddFirst(Node: TTreeNTNode; const S: String): TTreeNTNode;
-    function Add(Node: TTreeNTNode; const S: String): TTreeNTNode;
+    function Add(Node: TTreeNTNode; const S: String; ChildrenCapacity: integer=0): TTreeNTNode;        // [dpv]: ChildrenCapacity
     function AddObjectFirst(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
     function AddObject(Node: TTreeNTNode; const S: String; Ptr: Pointer): TTreeNTNode;
     procedure Assign(Source: TPersistent); override;
@@ -3317,10 +3317,12 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.AddChild(Node: TTreeNTNode; const S: String): TTreeNTNode;
+function TTreeNTNodes.AddChild(Node: TTreeNTNode; const S: String; ChildrenCapacity: integer=0): TTreeNTNode;
 
 begin
   Result := InternalAddObject(Node, S, nil, taAdd);
+  if ChildrenCapacity > 0 then                                                // [dpv]
+     Result.FChildList.SetCapacity(ChildrenCapacity);
 end;
 
 //------------------------------------------------------------------------------
@@ -3351,11 +3353,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-function TTreeNTNodes.Add(Node: TTreeNTNode; const S: String): TTreeNTNode;
+function TTreeNTNodes.Add(Node: TTreeNTNode; const S: String; ChildrenCapacity: integer=0): TTreeNTNode;
 
 begin
   if Node <> nil then Node := Node.FParent;
   Result := InternalAddObject(Node, S, nil, taAdd);
+  if ChildrenCapacity > 0 then                                                       // [dpv]
+     Result.FChildList.SetCapacity(ChildrenCapacity);
 end;
 
 //------------------------------------------------------------------------------

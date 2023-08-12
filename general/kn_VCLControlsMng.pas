@@ -320,8 +320,9 @@ var
   tNote : TTreeNote;
   i, loop : integer;
   tNode, myTreeNode, LastTreeNodeAssigned : TTreeNTNode;
-  NodeCnt, LastNodeLevel : integer;
-  myNode : TNoteNode;
+  LastNodeLevel: integer;
+  j, numChilds, AuxLevel, ChildLevel : integer;
+  myNode: TNoteNode;
   {$IFDEF WITH_IE}
   myPanel : TPanel;
   myBrowser : TWebBrowser;
@@ -461,71 +462,74 @@ begin
             // Create TreeNodes for all nodes in the note
             LastTreeNodeAssigned := nil;
             LastNodeLevel := 0;
-            if ( tNote.Nodes.Count > 0 ) then
-            begin
+
+            if ( tNote.Nodes.Count > 0 ) then begin
+
               myTree.Items.BeginUpdate;
               try
-                NodeCnt := pred( tNote.Nodes.Count );
-                for i := 0 to NodeCnt do
-                begin
-                  myNode := tNote.Nodes[i];
-                  case myNode.Level of
-                    0 : begin
-                      myTreeNode := myTree.Items.Add( nil, myNode.Name );
-                      LastNodeLevel := 0;
-                    end
-                    else
-                    begin
-                      case DoTrinaryCompare( myNode.Level, LastNodeLevel ) of
-                        trinGreater : begin
-                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned, myNode.Name );
-                        end;
-                        trinEqual : begin
-                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned.Parent, myNode.Name );
-                        end;
-                        else
-                        begin // myNode.Level is SMALLER than LastNodeLevel, i.e. we're moving LEFT in the tree
-                          for loop := 1 to ( LastNodeLevel - myNode.Level ) do
-                          begin
-                            if assigned( LastTreeNodeAssigned ) then
-                            begin
-                              if ( LastTreeNodeAssigned.Level <= myNode.Level ) then
-                                break;
-                              LastTreeNodeAssigned := LastTreeNodeAssigned.Parent;
-                            end
-                            else
-                              break;
+                 for i := 0 to tNote.Nodes.Count-1 do begin
+                    myNode := tNote.Nodes[i];
+
+                    numChilds:= 0;
+                    ChildLevel:= myNode.Level+1;
+                    for j := i+1 to tNote.Nodes.Count-1 do begin
+                       AuxLevel:= tNote.Nodes[j].Level;
+                       if AuxLevel = ChildLevel then
+                          inc(numChilds);
+                       if AuxLevel < ChildLevel then
+                          break;
+                    end;
+
+                    case myNode.Level of
+                      0 : begin
+                        myTreeNode := myTree.Items.Add( nil, myNode.Name, numChilds );
+                        LastNodeLevel := 0;
+                      end
+                      else begin
+                        case DoTrinaryCompare( myNode.Level, LastNodeLevel ) of
+                          trinGreater:
+                            myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned, myNode.Name );
+                          trinEqual:
+                            myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned.Parent, myNode.Name );
+                          trinSmaller: begin  // myNode.Level is SMALLER than LastNodeLevel, i.e. we're moving LEFT in the tree
+                             for loop := 1 to ( LastNodeLevel - myNode.Level ) do begin
+                                if assigned( LastTreeNodeAssigned ) then begin
+                                  if ( LastTreeNodeAssigned.Level <= myNode.Level ) then
+                                      break;
+                                  LastTreeNodeAssigned := LastTreeNodeAssigned.Parent;
+                                end
+                                else
+                                  break;
+                             end;
+                             myTreeNode := myTree.Items.Add( LastTreeNodeAssigned, myNode.Name, numChilds );
                           end;
-                          myTreeNode := myTree.Items.Add( LastTreeNodeAssigned, myNode.Name );
                         end;
                       end;
                     end;
-                  end;
-                  LastTreeNodeAssigned := myTreeNode;
-                  LastNodeLevel := myNode.Level;
 
-                  myTreeNode.Data := myNode;
+                    LastTreeNodeAssigned := myTreeNode;
+                    LastNodeLevel := myNode.Level;
 
-                  if myNode.HasNodeFontFace then
-                    myTreeNode.Font.Name := myNode.NodeFontFace;
+                    myTreeNode.Data := myNode;
 
-                  if myNode.Bold then
-                    myTreeNode.Font.Style := [fsBold];
+                    if myNode.HasNodeFontFace then
+                      myTreeNode.Font.Name := myNode.NodeFontFace;
 
-                  if myNode.HasNodeColor then
-                    myTreeNode.Font.Color := myNode.NodeColor;
+                    if myNode.Bold then
+                      myTreeNode.Font.Style := [fsBold];
 
-                  if myNode.HasNodeBGColor then
-                    myTreeNode.Color := myNode.NodeBGColor;
+                    if myNode.HasNodeColor then
+                      myTreeNode.Font.Color := myNode.NodeColor;
 
-                  if myNode.Filtered  then      // [dpv]
-                     tNote.Filtered := True;
+                    if myNode.HasNodeBGColor then
+                      myTreeNode.Color := myNode.NodeBGColor;
 
-                end;
+                    if myNode.Filtered  then      // [dpv]
+                       tNote.Filtered := True;
+
+                 end;
 
               finally
-                myTree.Items.EndUpdate;
-
                 Log_StoreTick( 'After created TreeNodes', 3 );
 
                 ShowOrHideIcons( tNote, true );
@@ -537,6 +541,8 @@ begin
                    HideFilteredNodes (tnote);
                 if tNote.HideCheckedNodes then     // [dpv]
                    HideCheckedNodes (tnote);
+
+                myTree.Items.EndUpdate;
 
                 Log_StoreTick( 'After HideFilteredNodes, HideCheckNodes', 3 );
               end;
