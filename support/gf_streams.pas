@@ -75,7 +75,9 @@ type
     procedure Append;
     procedure CloseFile;
     function Readln: AnsiString;
-    procedure WriteLn (const Args: array of const);
+    //procedure WriteLn (const Args: array of const);
+    procedure WriteLine (const Cad: String; CheckSaveAsUTF8: boolean= false); overload;
+    procedure WriteLine (const Cad: AnsiString; CheckSaveAsUTF8: boolean= false); overload;
     procedure Write (const Buffer; Count: integer); overload;
     procedure Write (const Cad: AnsiString); overload;
     function Eof: boolean;
@@ -84,6 +86,7 @@ type
 
 const
    UTF8_BOM = AnsiString(#$EF#$BB#$BF);
+   FILE_BUFFER_SIZE = 1048576;    // 1 MB
 
 
 implementation
@@ -281,15 +284,11 @@ begin
 
     if NodeStreamIsUTF8_WithoutBOM(Stream, NodeText) then begin
        Stream.Position:= 0;
-       if Stream.Position <> 0 then        //*** En Streams grandes (> 64Kb) no está funcionando Position:= 0, pero sí Seek ¿?
-         Stream.Seek(0, soBeginning);
 
 
        Stream.Write(UTF8_BOM[1], length(UTF8_BOM));
        Stream.Write(NodeText[1], length(NodeText));
        Stream.Position:= 0;
-       if Stream.Position <> 0 then        //*** En Streams grandes (> 64Kb) no está funcionando Position:= 0, pero sí Seek ¿?
-         Stream.Seek(0, soBeginning);
 
        Result:= True;
     end;
@@ -323,7 +322,7 @@ begin
     if assigned(buffer) then
        FreeMem(buffer);
 
-    bufSize:= 1048576;  //1 MB
+    bufSize:= 4096;     //4Kb
     GetMem(buffer, bufSize);
 end;
 
@@ -351,7 +350,7 @@ begin
         if fileName = '' then
            raise Exception.CreateFmt( 'Error: Filename not specified', [''] )
         else
-           F:= TFileStream.Create( fileName, ( fmCreate or fmShareExclusive ));
+           F:= TBufferedFileStream.Create( fileName, (fmCreate or fmShareExclusive), FILE_BUFFER_SIZE);
     end;
 
     posF:= 0;
@@ -364,7 +363,7 @@ begin
     if fileName = '' then
        raise Exception.CreateFmt( 'Error: Filename not specified', [''] )
     else
-       F:= TFileStream.Create( fileName, ( fmOpenWrite or fmShareExclusive ));
+       F:= TBufferedFileStream.Create( fileName, (fmOpenWrite or fmShareExclusive), FILE_BUFFER_SIZE);
 
     F.Seek(0, soEnd);
     posF:= 0;
@@ -380,7 +379,7 @@ begin
         if fileName = '' then
            raise Exception.CreateFmt( 'Error: Filename not specified', [''] )
         else
-           F:= TFileStream.Create( fileName, ( fmOpenRead ));
+           F:= TBufferedFileStream.Create( fileName, (fmOpenRead), FILE_BUFFER_SIZE);
     end;
 
     if F.Size = 0 then
@@ -393,7 +392,7 @@ end;
 
 procedure TTextFile.CloseFile;
 begin
-    if (fileName <> '') and assigned(F) then
+  if (fileName <> '') and assigned(F) then
        FreeAndNil(F);
 end;
 
@@ -446,6 +445,7 @@ begin
    Result:= (posF = 0);
 end;
 
+(*
 {See: Variant Open Array Parameters}
 
 procedure TTextFile.WriteLn (const Args: array of const);
@@ -520,6 +520,37 @@ begin
   line:= line + #13#10;
   checkToWrite (true);
 end;
+*)
+
+
+procedure TTextFile.WriteLine (const Cad: String; CheckSaveAsUTF8: boolean= false);
+  var
+     S: RawByteString;
+begin
+   if not assigned (F) then exit;
+   if CheckSaveAsUTF8 and (not CanSaveAsANSI(cad)) then
+      S:= UTF8Encode(cad)
+   else
+      S:= AnsiString(Cad);
+
+   F.WriteBuffer(PAnsiChar(S)^, length(S));
+   F.WriteBuffer(PAnsiChar(#13#10)^, 2);
+end;
+
+procedure TTextFile.WriteLine (const Cad: AnsiString; CheckSaveAsUTF8: boolean= false);
+  var
+     S: RawByteString;
+begin
+   if not assigned (F) then exit;
+   if CheckSaveAsUTF8 and (not CanSaveAsANSI(cad)) then
+      S:= UTF8Encode(cad)
+   else
+      S:= Cad;
+
+   F.WriteBuffer(PAnsiChar(S)^, length(S));
+   F.WriteBuffer(PAnsiChar(#13#10)^, 2);
+end;
+
 
 procedure TTextFile.Write (const Cad: AnsiString);
 begin

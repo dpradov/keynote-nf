@@ -70,10 +70,10 @@ type
   {** TZStreamRec ***********************************************************}
 
   TZStreamRec = packed record
-    next_in: PChar; // next input byte
+    next_in: PAnsiChar; // next input byte
     avail_in: Longint; // number of bytes available at next_in
     total_in: Longint; // total nb of input bytes read so far
-    next_out: PChar; // next output byte should be put here
+    next_out: PAnsiChar; // next output byte should be put here
     avail_out: Longint; // remaining free space at next_out
     total_out: Longint; // total nb of bytes output so far
     msg: PChar; // last error message, NULL if no error
@@ -94,7 +94,7 @@ type
     FStreamPos: Integer;
     FOnProgress: TNotifyEvent;
     FZStream: TZStreamRec;
-    FBuffer: array[Word] of Char;
+    FBuffer: array[Word] of AnsiChar;
   protected
     constructor Create(stream: TStream);
     procedure DoProgress; dynamic;
@@ -180,17 +180,17 @@ procedure ZDecompressStream(inStream, outStream: TStream);
 
 {** export routines ********************************************************}
 
-function adler32(adler: LongInt; const buf: PChar; len: Integer): LongInt;
+function adler32(adler: LongInt; const buf: PAnsiChar; len: Integer): LongInt;
 procedure MoveI32(const Source; var Dest; Count: Integer);
 procedure ZFastCompressString(var s: string; level: TZCompressionLevel);
 procedure ZFastDecompressString(var s: string);
 procedure ZSendToBrowser(var s: string);
-function deflateInit_(var strm: TZStreamRec; level: Integer; version: PChar; recsize: Integer): Integer;
-function DeflateInit2_(var strm: TZStreamRec; level: integer; method: integer; windowBits: integer; memLevel: integer; strategy: integer; version: PChar; recsize: integer): integer;
+function deflateInit_(var strm: TZStreamRec; level: Integer; version: PAnsiChar; recsize: Integer): Integer;
+function DeflateInit2_(var strm: TZStreamRec; level: integer; method: integer; windowBits: integer; memLevel: integer; strategy: integer; version: PAnsiChar; recsize: integer): integer;
 function deflate(var strm: TZStreamRec; flush: Integer): Integer;
 function deflateEnd(var strm: TZStreamRec): Integer;
-function inflateInit_(var strm: TZStreamRec; version: PChar; recsize: Integer): Integer;
-function inflateInit2_(var strm: TZStreamRec; windowBits: integer;  version: PChar; recsize: integer): integer;
+function inflateInit_(var strm: TZStreamRec; version: PAnsiChar; recsize: Integer): Integer;
+function inflateInit2_(var strm: TZStreamRec; windowBits: integer;  version: PAnsiChar; recsize: integer): integer;
 function inflate(var strm: TZStreamRec; flush: Integer): Integer;
 function inflateEnd(var strm: TZStreamRec): Integer;
 function inflateReset(var strm: TZStreamRec): Integer; 
@@ -313,11 +313,11 @@ end;
 
 {** deflate routines ********************************************************}
 
-function deflateInit_(var strm: TZStreamRec; level: Integer; version: PChar;
+function deflateInit_(var strm: TZStreamRec; level: Integer; version: PAnsiChar;
   recsize: Integer): Integer; external;
 
 function DeflateInit2_(var strm: TZStreamRec; level: integer; method: integer; windowBits: integer;
-  memLevel: integer; strategy: integer; version: PChar; recsize: integer): integer; external;
+  memLevel: integer; strategy: integer; version: PAnsiChar; recsize: integer): integer; external;
 
 function deflate(var strm: TZStreamRec; flush: Integer): Integer;
   external;
@@ -326,11 +326,11 @@ function deflateEnd(var strm: TZStreamRec): Integer; external;
 
 {** inflate routines ********************************************************}
 
-function inflateInit_(var strm: TZStreamRec; version: PChar;
+function inflateInit_(var strm: TZStreamRec; version: PAnsiChar;
   recsize: Integer): Integer; external;
 
 function inflateInit2_(var strm: TZStreamRec; windowBits: integer;
-  version: PChar; recsize: integer): integer; external;
+  version: PAnsiChar; recsize: integer): integer; external;
 
 function inflate(var strm: TZStreamRec; flush: Integer): Integer;
   external;
@@ -451,7 +451,7 @@ begin
         Inc(outSize, delta);
         ReallocMem(outBuffer, outSize);
 
-        zstream.next_out := PChar(Integer(outBuffer) + zstream.total_out);
+        zstream.next_out := PAnsiChar(Integer(outBuffer) + zstream.total_out);
         zstream.avail_out := delta;
       end;
     finally
@@ -492,7 +492,7 @@ begin
         Inc(outSize, delta);
         ReallocMem(outBuffer, outSize);
 
-        zstream.next_out := PChar(Integer(outBuffer) + zstream.total_out);
+        zstream.next_out := PAnsiChar(Integer(outBuffer) + zstream.total_out);
         zstream.avail_out := delta;
       end;
     finally
@@ -536,7 +536,7 @@ begin
         Inc(outSize, delta);
         ReallocMem(outBuffer, outSize);
 
-        zstream.next_out := PChar(Integer(outBuffer) + zstream.total_out);
+        zstream.next_out := PAnsiChar(Integer(outBuffer) + zstream.total_out);
         zstream.avail_out := delta;
       end;
     finally
@@ -558,7 +558,7 @@ var
   buffer: Pointer;
   size: Integer;
 begin
-  ZCompress(PChar(s), Length(s), buffer, size, level);
+  ZCompress(PChar(s), Length(s)*SizeOf(Char), buffer, size, level);
   SetLength(result, size);
   Move(buffer^, pointer(result)^, size);
   FreeMem(buffer);
@@ -569,7 +569,7 @@ var
   outBuf: Pointer;
   outBytes: Integer;
 begin
-  ZCompress(pointer(s), length(s), outBuf, outBytes, level);
+  ZCompress(pointer(s), length(s)*SizeOf(Char), outBuf, outBytes, level);
   SetLength(s, outBytes);
   MoveI32(pointer(outBuf)^, pointer(s)^, outBytes);
   FreeMem(outBuf);
@@ -580,7 +580,7 @@ var
   outBuf: Pointer;
   outBytes: Integer;
 begin
-  ZDecompress(pointer(s), Length(s), outBuf, outBytes);
+  ZDecompress(pointer(s), Length(s)*SizeOf(Char), outBuf, outBytes);
   SetLength(s, outBytes);
   MoveI32(pointer(outBuf)^, pointer(s)^, outBytes);
   FreeMem(outBuf);
@@ -591,7 +591,7 @@ var
   outBuf: Pointer;
   outBytes: Integer;
 begin
-  ZCompress2(pointer(s), length(s), outBuf, outBytes);
+  ZCompress2(pointer(s), length(s)*SizeOf(Char), outBuf, outBytes);
   SetLength(s, outBytes);
   Move(pointer(outBuf)^, pointer(s)^, outBytes);
   FreeMem(outBuf);
@@ -602,7 +602,7 @@ var
   buffer: Pointer;
   size: Integer;
 begin
-  ZDecompress(PChar(s), Length(s), buffer, size);
+  ZDecompress(PChar(s), Length(s)*SizeOf(Char), buffer, size);
   SetLength(result, size);
   Move(buffer^, pointer(result)^, size);
   FreeMem(buffer);
@@ -617,8 +617,8 @@ const
 var
   zstream: TZStreamRec;
   zresult: Integer;
-  inBuffer: array[0..bufferSize - 1] of Char;
-  outBuffer: array[0..bufferSize - 1] of Char;
+  inBuffer: array[0..bufferSize - 1] of AnsiChar;
+  outBuffer: array[0..bufferSize - 1] of AnsiChar;
   inSize: Integer;
   outSize: Integer;
 begin
@@ -730,8 +730,8 @@ const
 var
   zstream: TZStreamRec;
   zresult: Integer;
-  inBuffer: array[0..bufferInSize - 1] of Char;
-  outBuffer: array of Char;
+  inBuffer: array[0..bufferInSize - 1] of AnsiChar;
+  outBuffer: array of AnsiChar;
   bufferOutSize: integer;
   inSize: Integer;
   outSize: Integer;
@@ -763,26 +763,26 @@ begin
         zstream.avail_in := inSize;
 
         repeat
-          zstream.next_out := PChar(@outBuffer[0]);
+          zstream.next_out := PAnsiChar(@outBuffer[0]);
           zstream.avail_out := bufferOutSize;
 
           ZCompressCheck(inflate(zstream, Z_NO_FLUSH));
 
           outSize := bufferOutSize - zstream.avail_out;
-          outStream.Write(PChar(@outBuffer[0])^, outSize);
+          outStream.Write(PAnsiChar(@outBuffer[0])^, outSize);
         until (zstream.avail_in = 0) and (zstream.avail_out > 0);
 
         inSize := inStream.Read(inBuffer, bufferInSize);
       end;
 
       repeat
-        zstream.next_out := PChar(@outBuffer[0]);
+        zstream.next_out := PAnsiChar(@outBuffer[0]);
         zstream.avail_out := bufferOutSize;
 
         zresult := ZCompressCheck(inflate(zstream, Z_FINISH));
 
         outSize := bufferOutSize - zstream.avail_out;
-        outStream.Write(PChar(@outBuffer[0])^, outSize);
+        outStream.Write(PAnsiChar(@outBuffer[0])^, outSize);
       until (zresult = Z_STREAM_END) and (zstream.avail_out > 0);
 
       ZCompressCheck(inflateEnd(zstream));
@@ -974,7 +974,7 @@ end;
 
 function TZDecompressionStream.Seek(Offset: Longint; Origin: Word): Longint;
 var
-  buf: array[0..8191] of Char;
+  buf: array[0..8191] of AnsiChar;
   i: Integer;
 begin
   if (offset = 0) and (origin = soFromBeginning) then

@@ -753,23 +753,23 @@ begin
     end;
   end;
 
-  tf.writeln( [_NoteName, '=', FName ] );
-  tf.writeln( [_NoteID, '=', FID ] );
-  tf.writeln( [_ImageIndex, '=', FImageIndex ] );
-  tf.writeln( [_DateCreated, '=', FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, FDateCreated )] );
-  tf.writeln( [_TabIndex, '=', FTabIndex ] );
-  tf.writeln( [_TabSize, '=', inttostr( FTabSize ) ] );
+  tf.WriteLine( _NoteName + '=' + FName,  True);
+  tf.WriteLine( _NoteID + '=' + FID.ToString  );
+  tf.WriteLine( _ImageIndex + '=' + FImageIndex.ToString  );
+  tf.WriteLine( _DateCreated + '=' + FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, FDateCreated ) );
+  tf.WriteLine( _TabIndex + '=' + FTabIndex.ToString  );
+  tf.WriteLine( _TabSize + '=' + inttostr( FTabSize )  );
 
-  tf.writeln( [_PosX, '=', FCaretPos.X ] );
-  tf.writeln( [_PosY, '=', FCaretPos.Y ] );
-  tf.writeln( [_CHBGColor, '=', ColorToString( FEditorChrome.BGColor ) ] );
-  tf.writeln( [_CHFontCharset, '=', inttostr( FEditorChrome.Font.Charset ) ] );
-  tf.writeln( [_CHFontColor, '=', ColorToString( FEditorChrome.Font.Color ) ] );
-  tf.writeln( [_CHFontName, '=', FEditorChrome.Font.Name ] );
-  tf.writeln( [_CHFontSize, '=', FEditorChrome.Font.Size ] );
-  tf.writeln( [_CHLanguage, '=', FEditorChrome.Language ] );
-  tf.writeln( [_CHFontStyle, '=', FontStyleToStr( FEditorChrome.Font.Style ) ] );
-  tf.writeln( [_Flags, '=', PropertiesToFlagsString ] );
+  tf.WriteLine( _PosX + '=' + FCaretPos.X.ToString  );
+  tf.WriteLine( _PosY + '=' + FCaretPos.Y.ToString  );
+  tf.WriteLine( _CHBGColor + '=' + ColorToString( FEditorChrome.BGColor )  );
+  tf.WriteLine( _CHFontCharset + '=' + inttostr( FEditorChrome.Font.Charset )  );
+  tf.WriteLine( _CHFontColor + '=' + ColorToString( FEditorChrome.Font.Color )  );
+  tf.WriteLine( _CHFontName + '=' + FEditorChrome.Font.Name  );
+  tf.WriteLine( _CHFontSize + '=' + FEditorChrome.Font.Size.ToString  );
+  tf.WriteLine( _CHLanguage + '=' + IntToStr(FEditorChrome.Language) );
+  tf.WriteLine( _CHFontStyle + '=' + FontStyleToStr( FEditorChrome.Font.Style )  );
+  tf.WriteLine( _Flags + '=' + PropertiesToFlagsString  );
 
   { // REMOVED: FlagsString is used instead
   writeln( tf, _UseTabChar, '=', BOOLEANSTR[FUseTabChar] );
@@ -826,7 +826,7 @@ begin
         s:= FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, alarm.AlarmReminder ) + s;
         if alarm.Status = TAlarmDiscarded then
            s:= 'D' + s;
-        tf.writeln( [_NodeAlarm, '=', s ] );
+        tf.WriteLine( _NodeAlarm + '=' + s, True );
 
         I:= I + 1;
      end;
@@ -849,7 +849,7 @@ begin
 
     DataStream.Position := 0;
 
-    tf.writeln( [_NF_RTF] );
+    tf.WriteLine( _NF_RTF );
 
     if PlainText then begin
         // Looking for: ;[<BOM>]first line...
@@ -895,13 +895,13 @@ begin
      raise ETabNoteError.Create(STR_01);
 
 
-  tf.writeln( [_NF_TabNote] ); // marks beginning of TTabNote
+  tf.WriteLine( _NF_TabNote ); // marks beginning of TTabNote
   BaseSaveProc( tf );
 
 
   if HaveVCLControls then begin
     EditorToDataStream;
-    tf.writeln( [_LineCount, '=', FEditor.Lines.Count ]);
+    tf.WriteLine( _LineCount + '=' + FEditor.Lines.Count.ToString );
   end;
 
 
@@ -2395,21 +2395,21 @@ begin
 
 
   try
-    tf.writeln( [_NF_TreeNote ] ); // marks beginning of TTreeNote
+    tf.WriteLine( _NF_TreeNote ); // marks beginning of TTreeNote
     BaseSaveProc( tf );
 
     // basic treenote properties
-    tf.writeln( [_SelectedNode, '=', FOldSelectedIndex ] );
-    tf.writeln( [_TreeWidth, '=', FTreeWidth ] );
-    tf.writeln( [_DefaultNodeName, '=', FDefaultNodeName ] );
+    tf.WriteLine( _SelectedNode + '=' + FOldSelectedIndex.ToString );
+    tf.WriteLine( _TreeWidth + '=' + FTreeWidth.ToString );
+    tf.WriteLine( _DefaultNodeName + '=' + FDefaultNodeName,  True);
 
     // tree chrome
-    tf.writeln( [_CHTRBGColor, '=', ColorToString( FTreeChrome.BGColor ) ] );
-    tf.writeln( [_CHTRFontCharset, '=', inttostr( FTreeChrome.Font.Charset ) ] );
-    tf.writeln( [_CHTRFontColor, '=', ColorToString( FTreeChrome.Font.Color ) ] );
-    tf.writeln( [_CHTRFontName, '=', FTreeChrome.Font.Name ] );
-    tf.writeln( [_CHTRFontSize, '=', FTreeChrome.Font.Size ] );
-    tf.writeln( [_CHTRFontStyle, '=', FontStyleToStr( FTreeChrome.Font.Style ) ] );
+    tf.WriteLine( _CHTRBGColor + '=' + ColorToString( FTreeChrome.BGColor ) );
+    tf.WriteLine( _CHTRFontCharset + '=' + intToStr( FTreeChrome.Font.Charset ) );
+    tf.WriteLine( _CHTRFontColor + '=' + ColorToString( FTreeChrome.Font.Color ) );
+    tf.WriteLine( _CHTRFontName + '=' + FTreeChrome.Font.Name );
+    tf.WriteLine( _CHTRFontSize + '=' + FTreeChrome.Font.Size.ToString );
+    tf.WriteLine( _CHTRFontStyle + '=' + FontStyleToStr( FTreeChrome.Font.Style ) );
 
     NodeCnt := FNodes.Count;
     NodeIdx := 0;
@@ -2440,26 +2440,26 @@ begin
 
           inc( nodessaved );
 
-          tf.writeln( [_NF_TRN ] );
-          tf.writeln( [_NodeLevel, '=', notenode.Level ] );
+          tf.WriteLine( _NF_TRN  );
+          tf.WriteLine( _NodeLevel + '=' + notenode.Level.ToString );
 
-          tf.writeln( [_NodeName, '=', notenode.Name ] );
-          tf.writeln( [_NodeID, '=', notenode.ID ] );
-          tf.writeln( [_NodeFlags, '=', notenode.PropertiesToFlagsString ] );
-          tf.writeln( [_NodeRTFBGColor, '=', ColorToString( notenode.RTFBGColor )] );
-          tf.writeln( [_NodeImageIndex, '=', notenode.ImageIndex ] );
+          tf.WriteLine( _NodeName + '=' + notenode.Name, True);
+          tf.WriteLine( _NodeID + '=' + notenode.ID.ToString  );
+          tf.WriteLine( _NodeFlags + '=' + notenode.PropertiesToFlagsString);
+          tf.WriteLine( _NodeRTFBGColor + '=' + ColorToString(notenode.RTFBGColor) );
+          tf.WriteLine( _NodeImageIndex + '=' + notenode.ImageIndex.ToString  );
           if noteNode.HasNodeColor then
-             tf.writeln( [_NodeColor, '=', ColorToString( noteNode.NodeColor )] );
+             tf.WriteLine( _NodeColor + '=' + ColorToString(noteNode.NodeColor) );
           if noteNode.HasNodeBGColor then
-             tf.writeln( [_NodeBGColor, '=', ColorToString( noteNode.NodeBGColor )] );
+             tf.WriteLine( _NodeBGColor + '=' + ColorToString(noteNode.NodeBGColor) );
           if noteNode.HasNodeFontFace then
-             tf.writeln( [_NodeFontFace, '=', noteNode.NodeFontFace ] );
+             tf.WriteLine( _NodeFontFace + '=' + noteNode.NodeFontFace );
 
           if (NoteNode.VirtualMode <> vmKNTNode) and (noteNode.HasAlarms(true)) then
              SaveAlarms(tf, noteNode);
 
           if ( _SAVE_RESTORE_CARETPOS and ( notenode.SelStart > 0 )) then
-             tf.writeln( [_NodeSelStart, '=', notenode.SelStart ] );
+             tf.WriteLine( _NodeSelStart + '=' + notenode.SelStart.ToString  );
 
 
 
@@ -2468,19 +2468,19 @@ begin
 
           else
           if NoteNode.VirtualMode = vmKNTNode  then
-             tf.writeln( [_VirtualNode, '=', notenode.MirrorNodeID ] )
+             tf.WriteLine( _VirtualNode + '=' + notenode.MirrorNodeID  )
 
           else begin
             if notenode.HasVNodeError then
                // there was an error when we tried to load this file, so don't try to save it (assume no valid data in node)
-                tf.writeln( [_VirtualFN, '=', copy( notenode.VirtualFN, 2, length( notenode.VirtualFN ))] )
+                tf.WriteLine( _VirtualFN + '=' + copy( notenode.VirtualFN, 2, length( notenode.VirtualFN )), True )
 
             else
                 try
                    NoteNode.SaveVirtualFile;
 
-                   tf.writeln( [_RelativeVirtualFN, '=', notenode.RelativeVirtualFN ] ); // MUST be done AFTER NoteNode.SaveVirtualFile. MUST also be saved BERFORE notenode.VirtualFN.
-                   tf.writeln( [_VirtualFN, '=', notenode.VirtualFN ] );
+                   tf.WriteLine( _RelativeVirtualFN + '=' + notenode.RelativeVirtualFN, True  ); // MUST be done AFTER NoteNode.SaveVirtualFile. MUST also be saved BERFORE notenode.VirtualFN.
+                   tf.WriteLine( _VirtualFN + '=' + notenode.VirtualFN, True  );
                 except
                   on E : Exception do
                     // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages

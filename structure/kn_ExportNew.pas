@@ -157,12 +157,6 @@ resourcestring
   STR_02 = 'Please select a valid directory for exported files.';
   STR_03 = 'Specified output directory does not not exit. Please select a valid directory.';
   STR_04 = 'You did not select any notes for exporting.';
-  STR_05 = 'Exported file: ';
-  STR_06 = 'File description: ';
-  STR_07 = 'File comment: ';
-  STR_08 = 'Date created: ';
-  STR_09 = 'Date exported: ';
-  STR_10 = 'Exported note: ';
   STR_11 = 'Error while exporting notes: ';
   STR_12 = 'Exported  %d notes (%d nodes).';
   STR_13 = 'Exporting was aborted due to an error.';
@@ -928,9 +922,9 @@ begin
 
                   // write TreePad header
                   if ExportOptions.TreePadRTF then
-                     TreePadFile.WriteLn([_TREEPAD_HEADER_RTF])   // version 4.0
+                     TreePadFile.WriteLine(_TREEPAD_HEADER_RTF )   // version 4.0
                   else
-                     TreePadFile.WriteLn([_TREEPAD_HEADER_TXT]);   // version 2.7
+                     TreePadFile.WriteLine(_TREEPAD_HEADER_TXT );   // version 2.7
 
                   // TreePad allows only 1 "top level node", i.e. node with level 0.
                   // KeyNote has no such limit. So, we must, in most cases, create a dummy top level node, and put all other nodes as its children.
@@ -947,25 +941,25 @@ begin
                     TreePadNodeLevelInc := 1; // must increase KeyNote's node levels by 1,
                     // because level 0 is the dummy node
 
-                    TreePadFile.WriteLn([_TREEPAD_NODE]);     // <node>
+                    TreePadFile.WriteLine(_TREEPAD_NODE);     // <node>
                     if ( ExportOptions.TreePadForceMaster or ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentNote ))) then
-                       TreePadFile.WriteLn([ExtractFilename( myNotes.Filename )])     // Node title is filename
+                       TreePadFile.WriteLine(ExtractFilename( myNotes.Filename ), True)     // Node title is filename
                     else
-                       TreePadFile.WriteLn([RemoveAccelChar( myNote.Name )]);  // Node title is note name
-                    TreePadFile.WriteLn(['0']);  // top node level
+                       TreePadFile.WriteLine(RemoveAccelChar( myNote.Name ), True);  // Node title is note name
+                    TreePadFile.WriteLine('0');  // top node level
 
                     // some node text:
-                    TreePadFile.WriteLn([STR_05, ExtractFilename( myNotes.Filename )]);
+                    TreePadFile.WriteLine('Exported file: ' + ExtractFilename( myNotes.Filename ), True);
                     if ( myNotes.Description <> '' ) then
-                       TreePadFile.WriteLn([STR_06, myNotes.Description]);
+                       TreePadFile.WriteLine('File description: ' +  myNotes.Description, True);
                     if ( myNotes.Comment <> '' ) then
-                       TreePadFile.WriteLn([STR_07, myNotes.Comment]);
-                    TreePadFile.WriteLn([STR_08, DateTimeToStr( myNotes.DateCreated )]);
-                    TreePadFile.WriteLn([STR_09, DateTimeToStr( now )]);
+                       TreePadFile.WriteLine('File comment: ' + myNotes.Comment, True);
+                    TreePadFile.WriteLine('Date created: ' + DateTimeToStr( myNotes.DateCreated ));
+                    TreePadFile.WriteLine('Date exported: ' + DateTimeToStr( now ));
                     if ( not ExportOptions.TreePadSingleFile ) then
-                       TreePadFile.WriteLn([TreePadFile, STR_10, RemoveAccelChar( myNote.Name )]);
+                       TreePadFile.WriteLine('Exported note: ' + RemoveAccelChar( myNote.Name ), True);
 
-                     TreePadFile.WriteLn([_TREEPAD_ENDNODE]);
+                     TreePadFile.WriteLine(_TREEPAD_ENDNODE);
                   end;
 
                 finally
@@ -1068,13 +1062,13 @@ var
 begin
 
   if ExportOptions.TreePadRTF then
-     tf.WriteLn([_TREEPAD_RTFNODE])
+     tf.WriteLine(_TREEPAD_RTFNODE)
   else
-     tf.WriteLn([_TREEPAD_TXTNODE]);
-  tf.WriteLn([_TREEPAD_NODE]);    // <node>
+     tf.WriteLine(_TREEPAD_TXTNODE);
+  tf.WriteLine(_TREEPAD_NODE);    // <node>
 
-  tf.WriteLn([Name]);
-  tf.WriteLn([Level]);
+  tf.WriteLine(Name, True);
+  tf.WriteLine(Level.ToString);
 
 
   tmpStream := TMemoryStream.Create;
@@ -1108,10 +1102,10 @@ begin
 
        tmpStream.Position := 0;
        tf.F.CopyFrom(tmpStream, StreamSize);
-       tf.WriteLn(['']);
+       tf.WriteLine('');
     end;
 
-    tf.WriteLn([_TREEPAD_ENDNODE]);
+    tf.WriteLine(_TREEPAD_ENDNODE);
 
 
   finally

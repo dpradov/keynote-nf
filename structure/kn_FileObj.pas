@@ -675,6 +675,8 @@ begin
              Stream.Free;
              Stream := nil;
           end;
+
+          Log_StoreTick( 'After decompressed stream', 1 );
       end;
 
       if ( FFileFormat = nffKeyNote ) then begin
@@ -1033,24 +1035,24 @@ var
   begin
     //writeln(tf, _NF_COMMENT, _NF_AID, FVersion.ID, #32, FVersion.Major + '.' + FVersion.Minor );
     if FFileFormat = nffKeyNote then begin
-       tf.writeln([_NF_COMMENT, _NF_AID, AnsiString(FVersion.ID), #32, FVersion.Major + '.' + FVersion.Minor] );
-       tf.writeln([_NF_WARNING]);
+       tf.WriteLine( _NF_COMMENT + _NF_AID + FVersion.ID + ' ' + FVersion.Major + '.' + FVersion.Minor);
+       tf.WriteLine(_NF_WARNING);
     end;
-    tf.writeln([_NF_COMMENT, _NF_FDE, FDescription ]);
-    tf.writeln([_NF_COMMENT, _NF_FCO, FComment ]);
+    tf.WriteLine(_NF_COMMENT + _NF_FDE + FDescription, True );
+    tf.WriteLine(_NF_COMMENT + _NF_FCO + FComment, True );
 
-    tf.writeln([_NF_COMMENT, _NF_ACT, FActiveNote ]);
+    tf.WriteLine(_NF_COMMENT + _NF_ACT + FActiveNote.ToString );
 
-    tf.writeln([_NF_COMMENT, _NF_DCR, FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, FDateCreated ) ]);
-    tf.writeln([_NF_COMMENT, _NF_FileFlags, PropertiesToFlagsString ]);
-    // writeln( tf, _NF_COMMENT, _NF_ReadOnlyOpen, BOOLEANSTR[FOpenAsReadOnly] );
-    // writeln( tf, _NF_COMMENT, _NF_ShowTabIcons, BOOLEANSTR[FShowTabIcons] );
+    tf.WriteLine(_NF_COMMENT + _NF_DCR + FormatDateTime( _SHORTDATEFMT + ' ' + _LONGTIMEFMT, FDateCreated ) );
+    tf.WriteLine(_NF_COMMENT + _NF_FileFlags + PropertiesToFlagsString );
+    // WriteLine( tf, _NF_COMMENT, _NF_ReadOnlyOpen, BOOLEANSTR[FOpenAsReadOnly] );
+    // WriteLine( tf, _NF_COMMENT, _NF_ShowTabIcons, BOOLEANSTR[FShowTabIcons] );
     if ( TrayIconFN <> '' ) then
-      tf.writeln([ _NF_COMMENT, _NF_TrayIconFile, TrayIconFN ]);
+      tf.WriteLine( _NF_COMMENT + _NF_TrayIconFile + TrayIconFN );
     if ( FTabIconsFN <> '' ) then
-      tf.writeln([ _NF_COMMENT, _NF_TabIconsFile, FTabIconsFN ]);
+      tf.WriteLine( _NF_COMMENT + _NF_TabIconsFile + FTabIconsFN );
     if assigned( FClipCapNote ) then
-      tf.writeln([ _NF_COMMENT, _NF_ClipCapNote, FClipCapNote.TabSheet.PageIndex ]);
+      tf.WriteLine( _NF_COMMENT + _NF_ClipCapNote + FClipCapNote.TabSheet.PageIndex.ToString );
 
     if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then begin
       // this is done so that we preserve the order of tabs.
@@ -1068,7 +1070,7 @@ var
       end;
     end;
 
-    tf.writeln( [_NF_EOF ]);
+    tf.WriteLine( _NF_EOF );
     result := 0;
   end;
 
@@ -1113,7 +1115,7 @@ begin
         nffKeyNote : begin
 
           tf:= TTextFile.Create();
-          tf.assignfile(FN );
+          tf.assignfile(FN);
           tf.rewrite();
 
           try
@@ -1127,7 +1129,7 @@ begin
         nffKeyNoteZip : begin
 
           AuxStream := TMemoryStream.Create;
-          Stream := TFileStream.Create( FN, ( fmCreate or fmShareExclusive ));
+          Stream := TFileStream.Create( FN, (fmCreate or fmShareExclusive));
           try
             Stream.WriteBuffer(FVersion, sizeof(FVersion));
             Stream.WriteBuffer(FCompressionLevel, sizeof(FCompressionLevel));
@@ -1141,11 +1143,13 @@ begin
               tf.closefile();
             end;
             AuxStream.Position := 0;
+            Log_StoreTick( 'After write file to stream', 1 );
             ZCompressStream(AuxStream, Stream, FCompressionLevel);
 
           finally
             FreeAndNil(AuxStream);
             FreeAndNil(Stream);
+            Log_StoreTick( 'After compress stream to disk', 1 );
           end;
 
         end; // nffKeyNoteZip format
@@ -1167,7 +1171,9 @@ begin
               tf.closefile();
             end;
 
+            Log_StoreTick( 'After write file to stream', 1 );
             EncryptFileInStream( FN, AuxStream );
+            Log_StoreTick( 'After encrypt stream to disk', 1 );
 
           finally
             AuxStream.Free;
@@ -1228,19 +1234,14 @@ var
   wordsize : integer;
   dataptr : pointer;
   streamsize : integer;
-  // tf : file;
+  F: TFileStream;
 begin
 
   CryptStream.Position := 0;
   streamsize := CryptStream.Size;
 
-  assignfile( savefile, FN );
-  rewrite( savefile, 1 );
+  F:= TFileStream.Create( FN, ( fmCreate or fmShareExclusive ));
 
-  {
-  assignfile( tf, changefileext( FN, '.xxx' ));
-  rewrite( tf, 1 );
-  }
 
   with Info do begin
     Method := FCryptMethod;
@@ -1249,12 +1250,12 @@ begin
   end;
 
   wordsize := sizeof( FVersion );
-  blockwrite( savefile, wordsize, sizeof( wordsize ));
-  blockwrite( savefile, FVersion, sizeof( FVersion ));
+  F.WriteBuffer(wordSize, sizeof(wordsize));
+  F.WriteBuffer(FVersion, sizeof(FVersion));
 
   wordsize := sizeof( Info );
-  blockwrite( savefile, wordsize, sizeof( wordsize ));
-  blockwrite( savefile, Info, sizeof( Info ));
+  F.WriteBuffer(wordSize, sizeof(wordsize));
+  F.WriteBuffer(Info, sizeof(Info));
 
   case FCryptMethod of
     tcmBlowfish : begin
@@ -1280,20 +1281,15 @@ begin
     Encrypt.Reset;
 
     wordsize := sizeof( HashDigest );
-    blockwrite( savefile, wordsize, sizeof( wordsize ));
-    blockwrite( savefile, HashDigest, Sizeof( HashDigest ));
-
-    {
-    blockwrite( tf, wordsize, sizeof( wordsize ));
-    blockwrite( tf, HashDigest, Sizeof( HashDigest ));
-    }
+    F.WriteBuffer(wordSize, sizeof(wordsize));
+    F.WriteBuffer(HashDigest, sizeof(HashDigest));
 
     getmem( dataptr, streamsize );
 
     try
       Encrypt.EncryptCBC( cryptstream.memory^, dataptr^, streamsize );
-      blockwrite( savefile, dataptr^, streamsize );
-      // blockwrite( tf, cryptstream.memory^, streamsize );
+      F.WriteBuffer(dataptr^, streamsize );
+
     finally
       freemem( dataptr, streamsize );
     end;
@@ -1301,8 +1297,8 @@ begin
   finally
     Encrypt.Burn;
     Encrypt.Free;
-    closefile( savefile );
-    // closefile( tf );
+    if assigned(F) then
+       F.Free;
   end;
 
 end; // EncryptFileInStream
