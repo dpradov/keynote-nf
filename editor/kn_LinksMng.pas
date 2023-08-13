@@ -1793,7 +1793,7 @@ begin
      lHistory:= ActiveNote.History;
 
   with Form_Main do begin
-    GoBackEnabled :=        History.CanGoBack or ((lHistory <> nil) and lHistory.CanGoBack);
+    GoBackEnabled :=        assigned(ActiveNote) and ( History.CanGoBack or ((lHistory <> nil) and lHistory.CanGoBack) );
     MMTreeGoBack.Enabled := GoBackEnabled;
     TB_GoBack.Enabled := GoBackEnabled;
     strHint:= STR_24;
@@ -1814,7 +1814,7 @@ begin
     end;
     TB_GoBack.Hint:= strHint;
 
-    GoForwardEnabled:= History.CanGoForward or ((lHistory <> nil) and lHistory.CanGoForward);
+    GoForwardEnabled:= assigned(ActiveNote) and (History.CanGoForward or ((lHistory <> nil) and lHistory.CanGoForward) );
     MMTreeGoForward.Enabled := GoForwardEnabled;
     TB_GoForward.Enabled := GoForwardEnabled;
     strHint:= STR_27;
