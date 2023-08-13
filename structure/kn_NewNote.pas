@@ -89,6 +89,9 @@ implementation
 
 {$R *.DFM}
 
+uses 
+ kn_Main;
+
 resourcestring
   STR_01 = '<no icon>';
   STR_02 = 'Rename note';
@@ -251,7 +254,7 @@ begin
   myTabProperties.Name := trim( Combo_TabName.Text );
   myTabProperties.ImageIndex := pred( Combo_Icons.ItemIndex );
 
-  Form_Defaults := TForm_Defaults.Create( self );
+  Form_Defaults := TForm_Defaults.Create(Form_Main);
   try
     Form_Defaults.StartWithEditorTab := true;
     Form_Defaults.Action := propThisNote;

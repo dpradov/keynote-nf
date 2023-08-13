@@ -522,6 +522,7 @@ object Form_Defaults: TForm_Defaults
     Width = 281
     Height = 21
     MaxLength = 127
+    ReadOnly = True
     TabOrder = 6
   end
   object Button_Help: TButton

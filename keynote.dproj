@@ -135,11 +135,11 @@
         <BT_BuildType>Debug</BT_BuildType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.0 Beta 1;FileVersion=1.8.0.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.0.1;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Build>2</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.0 Beta 2;FileVersion=1.8.0.2;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.0.2;Comments=;ProgramID=</VerInfo_Keys>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
         <UsePackages>true</UsePackages>
         <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
