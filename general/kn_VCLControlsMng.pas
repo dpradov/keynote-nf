@@ -1108,8 +1108,7 @@ begin
             if ( _LoadedRichEditVersion > 2 ) then
             begin
               _LastZoomValue := GetEditorZoom;
-              Combo_Zoom.Text := Format(
-                '%d%%', [_LastZoomValue] );
+              Combo_Zoom.Text := Format('%d%%', [_LastZoomValue] );
             end;
 
             ShowInsMode;

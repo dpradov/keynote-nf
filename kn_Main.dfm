@@ -459,9 +459,12 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 55
         Height = 21
-        Hint = 'Zoom text in editor'
+        Hint = 'Zoom text in editor (Ctrl: apply only to active note)'
+        AutoComplete = False
         TabOrder = 0
+        OnClick = Combo_FontSizeClick
         OnDblClick = Combo_ZoomDblClick
+        OnExit = Combo_ZoomExit
         OnKeyDown = Combo_FontSizeKeyDown
         OnKeyPress = Combo_FontSizeKeyPress
         Items.Strings = (
@@ -959,9 +962,11 @@ object Form_Main: TForm_Main
         Height = 21
         DropDownCount = 16
         TabOrder = 3
+        OnExit = Combo_FontSizeExit
         OnKeyDown = Combo_FontSizeKeyDown
         OnKeyPress = Combo_FontSizeKeyPress
         Items.Strings = (
+          '7'
           '8'
           '9'
           '10'
@@ -2406,12 +2411,12 @@ object Form_Main: TForm_Main
       end
       object MMViewZoomIn: TMenuItem
         Caption = '&Zoom In'
-        Hint = 'Increase zoom'
+        Hint = 'Increase zoom  (Ctrl: apply only to active note)'
         OnClick = MMViewZoomInClick
       end
       object MMViewZoomOut: TMenuItem
         Caption = 'Zoom &Out'
-        Hint = 'Decrease zoom'
+        Hint = 'Decrease zoom  (Ctrl: apply only to active note)'
         OnClick = MMViewZoomOutClick
       end
       object N54: TMenuItem

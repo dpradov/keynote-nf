@@ -1266,6 +1266,8 @@ type
     procedure Btn_ResFind_PrevClick(Sender: TObject);
     procedure Btn_ResFind_NextClick(Sender: TObject);
     procedure FindAllResultsContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+    procedure Combo_ZoomExit(Sender: TObject);
+    procedure Combo_FontSizeExit(Sender: TObject);
 
   private
     { Private declarations }
@@ -2607,6 +2609,8 @@ begin
           begin
             // if these controls are focused,
             // switch focus to editor
+            if activecontrol = Combo_Zoom then
+               Combo_Zoom.Text := '';        // To ignore the value set
             key := 0;
             FocusActiveNote;
           end
@@ -3407,18 +3411,20 @@ var
 begin
   if ( RTFUpdating or FileIsBusy ) then exit;
   if (( Sender = Combo_FontSize ) and ( Combo_FontSize.Text = '' )) then exit;
+
   oldsel := nil;
-  if assigned( ActiveNote ) then
-  begin
+  if assigned( ActiveNote ) then begin
     oldSel := ActiveNote.Editor.OnSelectionChange;
     ActiveNote.Editor.OnSelectionChange := nil;
   end;
+
   try
     if ( Sender = Combo_FontSize ) then
-      PerformCmd( ecFontSize )
-    else
-    if ( Sender = Combo_Zoom ) then
-      SetEditorZoom( -1, Combo_Zoom.Text );
+       PerformCmd( ecFontSize )
+    else if ( Sender = Combo_Zoom ) then begin
+       SetEditorZoom( -1, Combo_Zoom.Text );
+       FocusActiveNote;
+    end;
 
   finally
     if assigned( oldsel ) then
@@ -3426,43 +3432,50 @@ begin
   end;
 end; // Combo_FontSizeClick
 
+
+procedure TForm_Main.Combo_FontSizeExit(Sender: TObject);
+begin
+  if Combo_FontSize.Text <> '' then
+     PerformCmd( ecFontSize )
+  else
+  try
+     Combo_FontSize.Text := IntToStr( ActiveNote.Editor.SelAttributes.Size );
+  except
+  end;
+end;
+
+
 procedure TForm_Main.Combo_FontSizeKeyPress(Sender: TObject;
   var Key: Char);
 begin
   if ( not assigned( ActiveNote )) then exit;
 
-  if ( not ( key in
-    [#8, #9, #13, #27, #37..#40, #46, '0'..'9', '%'] )) then
-  begin
+  if not (key in [#8, #9, #13, #27, #37..#40, #46, '0'..'9', '%']) then begin
     key := #0;
     exit;
   end;
 
-  if ( key = #13 ) then
-  begin
+  if ( key = #13 ) then begin
     key := #0;
 
-    if ( Sender = Combo_FontSize ) then
-      PerformCmd( ecFontSize )
-    else
     if ( Sender = Combo_Zoom ) then
       SetEditorZoom( -1, Combo_Zoom.Text );
 
     try
       if ( ActiveNote.FocusMemory = focRTF ) then
         ActiveNote.Editor.SetFocus
-      else
-      if ( ActiveNote.FocusMemory = focTree ) then
+      else if ( ActiveNote.FocusMemory = focTree ) then
         TTreeNote( ActiveNote ).TV.SetFocus;
     except
     end;
   end
+  {                                      It's controlled from TForm_Main.FormKeyDown
   else
-  if ( key = #27 ) then
-  begin
+  if ( key = #27 ) then begin
     key := #0;
     FocusActiveNote;
   end;
+  }
 end; // Combo_FontSizeKeyPress
 
 
@@ -7082,6 +7095,13 @@ end;
 procedure TForm_Main.Combo_ZoomDblClick(Sender: TObject);
 begin
   SetEditorZoom( 100, '' );
+  FocusActiveNote;
+end;
+
+procedure TForm_Main.Combo_ZoomExit(Sender: TObject);
+begin
+   if Pos('%', Combo_Zoom.Text, 1) = 0 then
+      SetEditorZoom( -1, Combo_Zoom.Text );
 end;
 
 procedure TForm_Main.MMViewZoomInClick(Sender: TObject);
@@ -7089,22 +7109,15 @@ begin
   if ShiftDown then
     SetEditorZoom( 100, '' )
   else
-    SetEditorZoom( GetEditorZoom + KeyOptions.ZoomIncrement, '' );
+    SetEditorZoom( 0, '', KeyOptions.ZoomIncrement );
 end;
 
 procedure TForm_Main.MMViewZoomOutClick(Sender: TObject);
-var
-  NewZoom : integer;
 begin
   if ShiftDown then
     SetEditorZoom( 100, '' )
   else
-  begin
-    NewZoom := GetEditorZoom - KeyOptions.ZoomIncrement;
-    if ( NewZoom <= 0 ) then
-      NewZoom := _ZOOM_MIN;
-    SetEditorZoom( NewZoom, '' );
-  end;
+    SetEditorZoom( 0, '', - KeyOptions.ZoomIncrement );
 end;
 
 

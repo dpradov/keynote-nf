@@ -114,8 +114,8 @@ uses
 
     procedure RunSpellcheckerForNote;
 
-    function GetEditorZoom : integer;
-    procedure SetEditorZoom( ZoomValue : integer; ZoomString : string );
+    function GetEditorZoom (Editor: TRxRichEdit = nil): integer;
+    procedure SetEditorZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );  overload;
 
     procedure GetIndentInformation(Editor: TRxRichEdit;
                                    var Indent: integer; var NextIndent: integer;
@@ -2401,85 +2401,105 @@ begin
 end; // RunSpellcheckerForNote
 
 
-function GetEditorZoom : integer;
+function GetEditorZoom (Editor: TRxRichEdit = nil): integer;
 var
   W, L : integer;
 begin
   result := 100;
   if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
-  if ( not assigned( ActiveNote )) then exit;
-  SendMessage( ActiveNote.Editor.Handle, EM_GETZOOM, integer(@w), integer(@l) );
+  if not assigned( Editor ) and assigned(ActiveNote) then
+      Editor:= ActiveNote.Editor;
+  if ( not assigned( Editor )) then exit;
+
+  SendMessage( Editor.Handle, EM_GETZOOM, integer(@w), integer(@l) );
   if ( w = 0 ) then w := 1;
   if ( l = 0 ) then l := 1;
   result := makepercentage( w, l );
 end; // GetEditorZoom
 
-procedure SetEditorZoom( ZoomValue : integer; ZoomString : string );
+procedure SetEditorZoom( Editor: TRxRichEdit; ZoomValue : integer; ZoomString : string; Increment: integer= 0 ); overload;
 var
   CurrentZoom : integer;
   NewZoom : integer;
   p : integer;
 begin
-  if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( Editor )) then exit;
 
-  CurrentZoom := GetEditorZoom;
+  CurrentZoom := GetEditorZoom (Editor);
   NewZoom := 100; // initialize
 
   // if integer argument is greater than zero, use the integer as zoom value.
-  // if integer is 0, reset zoom to 100%.
-  // if integer is less than 0, derive zoom value from the string argument.
-  // if string argument is an empty string, reset zoom to 100% (this allows
-  // user to delete the text in combobox and press Enter to reset zoom)
+  // if integer is <=0, string argument is '' and increment argrument is not 0, apply increment
+  // if string argument is empty, do nothing
+  // Otherwise try to derive zoom value from the string argument.
+  
+  if ( ZoomValue > 0 ) then
+    NewZoom := ZoomValue
 
-  try
+  else if ( ZoomString = '') and (Increment <> 0) then
+    NewZoom := CurrentZoom + Increment
 
-    if ( ZoomValue > 0 ) then
-      NewZoom := ZoomValue
-    else
-    if ( ZoomValue = 0 ) then
-      NewZoom := 100
-    else
-    begin
-      ZoomString := trim( ZoomString );
-      if ( ZoomString = '' ) then
-      begin
-        NewZoom := 100; // reset is empty string passed
-      end
-      else
-      begin
-        p := pos( '%', ZoomString );
-        if ( p > 0 ) then
-          delete( ZoomString, p, 1 );
-        try
-          NewZoom := strtoint( ZoomString );
-        except
-          on E : Exception do
-          begin
-            messagedlg( STR_Zoom_01 + E.Message, mtError, [mbOK], 0 );
-            NewZoom := CurrentZoom;
-          end;
+  else begin
+    ZoomString := trim( ZoomString );
+    if ( ZoomString = '' ) then
+        //NewZoom := 100 // reset is empty string passed
+        exit         // don't do anything
+
+    else begin
+      p := pos( '%', ZoomString );
+      if ( p > 0 ) then
+        delete( ZoomString, p, 1 );
+      try
+        NewZoom := strtoint( ZoomString );
+      except
+        on E : Exception do begin
+          messagedlg( STR_Zoom_01 + E.Message, mtError, [mbOK], 0 );
+          NewZoom := CurrentZoom;
         end;
       end;
     end;
-
-
-    // Sanity check:
-    if ( NewZoom > 1000 ) then
-      NewZoom := 1000 // max zoom
-    else
-    if ( NewZoom <= 0 ) then
-      NewZoom := _ZOOM_MIN; // min zoom
-    SendMessage( ActiveNote.Editor.Handle, EM_SETZOOM, NewZoom, 100 );
-
-  finally
-    _LastZoomValue := GetEditorZoom;
-    Form_Main.Combo_Zoom.Text := Format(
-      '%d%%',
-      [_LastZoomValue] );
   end;
 
+
+  // Sanity check:
+  if ( NewZoom > 1000 ) then
+     NewZoom := 1000 // max zoom
+  else
+  if ( NewZoom <= 0 ) then
+     NewZoom := _ZOOM_MIN; // min zoom
+
+  SendMessage( Editor.Handle, EM_SETZOOM, NewZoom, 100 );
+
 end; // ZoomEditor
+
+procedure SetEditorZoom( ZoomValue : integer; ZoomString : string; Increment: integer= 0);  overload;
+var
+  Note: TTabNote;
+  Editor: TRxRichEdit;
+  i: integer;
+begin
+  if not assigned( NoteFile ) then exit;
+  if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
+
+  try
+      if CtrlDown then
+         SetEditorZoom (ActiveNote.Editor, ZoomValue, ZoomString, Increment)
+
+      else begin
+         for i := 0 to NoteFile.Notes.Count -1 do
+            SetEditorZoom (NoteFile.Notes[i].Editor, ZoomValue, ZoomString, Increment);
+
+         SetEditorZoom (Form_Main.Res_RTF, ZoomValue, ZoomString, Increment)
+      end;
+
+  finally
+    if assigned(ActiveNote) then begin
+      _LastZoomValue := GetEditorZoom (ActiveNote.Editor);
+      Form_Main.Combo_Zoom.Text := Format('%d%%', [_LastZoomValue] );
+    end;
+  end;
+end;
+
 
 {
  Determines the indent of the current line or paragraph (depending on paragraphMode
