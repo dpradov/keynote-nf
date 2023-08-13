@@ -3975,6 +3975,8 @@ end;
 
 procedure TForm_Main.FormatCopyClick(AlloMultiMode: Boolean);
 begin
+  if not assigned( NoteFile ) then exit;
+
   if CopyFormatMode= cfDisabled then begin
      if AlloMultiMode and (GetKeyState(VK_CONTROL) < 0) then
         CopyFormatMode:= cfEnabledMulti
@@ -4394,6 +4396,8 @@ var
     end;
 
 begin
+   if not assigned( NoteFile ) then exit;
+
     myNode:= nil;
     if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) then begin
        node:= TTreeNote(ActiveNote).TV.Selected;

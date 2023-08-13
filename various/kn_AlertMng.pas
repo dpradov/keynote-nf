@@ -1071,9 +1071,11 @@ end;
 
 procedure TAlarmManager.StopFlashMode;
 begin
-    UpdateAlarmsState;
-    Timer.Enabled := false;
-    SelectStatusbarGlyph( true );      // Reset icon on status bar
+  if assigned( NoteFile ) then begin
+     UpdateAlarmsState;
+     Timer.Enabled := false;
+     SelectStatusbarGlyph( true );      // Reset icon on status bar
+  end;
 end;
 
 
