@@ -1670,6 +1670,7 @@ begin
               ActiveNote.ReadOnly := ( not ActiveNote.ReadOnly );
               UpdateNoteDisplay;
               UpdateCursorPos;
+              NoteFile.Modified := true;
               UpdateNoteFileState( [fscModified] );
             end;
 
