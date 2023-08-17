@@ -89,8 +89,9 @@ implementation
 
 {$R *.DFM}
 
-uses 
- kn_Main;
+uses
+ kn_Main,
+ kn_global;
 
 resourcestring
   STR_01 = '<no icon>';
@@ -158,7 +159,7 @@ begin
   begin
     ItemIndex := ord( TAB_TYPE );
     Enabled := TAB_CHANGEABLE;
-  end;      
+  end;
   Label_Type.Enabled := Combo_TabType.Enabled;
 
   Button_Properties.Enabled := ( Combo_TabName.Text <> '' );
@@ -256,6 +257,10 @@ begin
 
   Form_Defaults := TForm_Defaults.Create(Form_Main);
   try
+    Form_Defaults.myCurrentFileName:= '';
+    if assigned(NoteFile) and (NoteFile.FileName <> '') then
+       Form_Defaults.myCurrentFileName := ExtractFilename( NoteFile.FileName );
+
     Form_Defaults.StartWithEditorTab := true;
     Form_Defaults.Action := propThisNote;
     Form_Defaults.myEditorChrome := myChrome;
@@ -268,8 +273,7 @@ begin
     Form_Defaults.NoteKind := TNoteType( Combo_TabType.ItemIndex );
 
     // Form_Defaults.Defaults := false;
-    if ( Form_Defaults.ShowModal = mrOK ) then
-    begin
+    if ( Form_Defaults.ShowModal = mrOK ) then begin
       myChrome := Form_Defaults.myEditorChrome;
       myTabProperties := Form_Defaults.myTabProperties;
       myEditorProperties := Form_Defaults.myEditorProperties;

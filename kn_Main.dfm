@@ -6786,21 +6786,21 @@ object Form_Main: TForm_Main
     end
     object TVBoldNode: TMenuItem
       Caption = '&Bold'
-      Hint = 'Make selected node bold'
+      Hint = 'Make selected tree node bold'
       ShortCut = 16450
       OnClick = TVBoldNodeClick
     end
     object TVNodeColor_: TMenuItem
       Caption = 'Co&lor'
-      Hint = 'Choose color for selected node'
+      Hint = 'Choose color for selected tree node'
       object TVNodeTextColor: TMenuItem
-        Caption = '&Node Text...'
-        Hint = 'Select custom color for node text'
+        Caption = 'Tree &node Text...'
+        Hint = 'Select custom color for tree node text'
         OnClick = TVNodeTextColorClick
       end
       object TVNodeBGColor: TMenuItem
-        Caption = 'Node &Background...'
-        Hint = 'Select custom color for node background'
+        Caption = 'Tree node &Background...'
+        Hint = 'Select custom color for tree node background'
         OnClick = TVNodeBGColorClick
       end
       object N103: TMenuItem

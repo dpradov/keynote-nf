@@ -344,7 +344,10 @@ var
   oldShowCheckboxes : boolean;
   oldHideChecked: boolean;      // [dpv]
   oldPlainText: boolean;
+  Note: TTabNote;
+  NewPropertiesAction : TPropertiesAction;
 begin
+
   with Form_Main do begin
       if (( PropertiesAction = propThisNote ) and ( not assigned( ActiveNote ))) then
         exit;
@@ -358,8 +361,7 @@ begin
 
       try
 
-        with Form_Defaults do
-        begin
+        with Form_Defaults do begin
           ShowHint := KeyOptions.ShowTooltips;
           Action := PropertiesAction;
           DefaultsFN := DEF_FN;
@@ -367,6 +369,11 @@ begin
           myNoteIsReadOnly := (( PropertiesAction = propThisNote ) and NoteIsReadOnly( ActiveNote, false ));
 
           myNodeNameHistory := KeyOptions.NodeNameHistory;
+
+          myCurrentFileName:= '';
+          if assigned(NoteFile) and (NoteFile.FileName <> '') then
+             myCurrentFileName := ExtractFilename( NoteFile.FileName );
+
 
           case PropertiesAction of
             propThisNote : begin
@@ -376,6 +383,8 @@ begin
               ActiveNote.GetTabProperties( myTabProperties );
               ActiveNote.GetEditorProperties( myEditorProperties );
 
+              myEditorProperties.DefaultZoom:= DefaultEditorProperties.DefaultZoom;    // Just for show it
+
               // [x] bug workaround: despite the fact that RichEdit has
               // protection against losing styles in RecreateWnd, changing
               // wordwrap HERE still causes all font styles to be lost.
@@ -384,18 +393,23 @@ begin
               // anyway, since you can just press Ctrl+W in the editor,
               // which is more convenient and does NOT cause the
               // font style loss.
+              {  *1
+                 Disabling and hiding the combo did not solve the problem: pressing Ok from the properties
+                 of a note after the state of WordWrap have been changed (in the active node or simply for
+                 selecting nodes with different WodWrap state) always caused formatting to be lost. Since version 1.6.5...
+
               CB_WordWrap.Enabled := false;
               CB_WordWrap.Visible := false;
+              }
+              CB_WordWrap.Checked:= myEditorProperties.WordWrap;    // *1
 
-              if ( ActiveNote.Kind = ntTree ) then
-              begin
-                with TTreeNote( ActiveNote ) do
-                begin
 
-                  if (( not TreeOptions.InheritNodeBG ) and assigned( SelectedNode )) then
-                  begin
-                    myEditorChrome.BGColor := SelectedNode.RTFBGColor;
-                  end;
+              if ( ActiveNote.Kind = ntTree ) then begin
+                with TTreeNote( ActiveNote ) do begin
+
+                  myInheritBGColor:= TreeOptions.InheritNodeBG;
+                  if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then
+                     myEditorChrome.BGColor := SelectedNode.RTFBGColor;
 
                   myTreeChrome := TreeChrome;
                   GetTreeProperties( myTreeProperties );
@@ -418,11 +432,8 @@ begin
 
               // this picks the BG color of the current node,
               // rather than DEFAULT BG color for whole note
-              if ( assigned( NoteFile ) and ( NoteFile.FileName <> '' )) then
-              begin
-                myCurrentFileName := ExtractFilename( NoteFile.FileName );
-                mySaveFileDefaults := ( DEF_FN <> OrigDEF_FN );
-              end;
+              if myCurrentFileName <> '' then
+                 mySaveFileDefaults := ( DEF_FN <> OrigDEF_FN );
 
               NoteKind := ntTree;
               myTreeChrome := DefaultTreeChrome;
@@ -432,18 +443,17 @@ begin
           end;
         end;
 
-        if ( Form_Defaults.ShowModal = mrOK ) then
-        begin
+        if ( Form_Defaults.ShowModal = mrOK ) then begin
 
-          with Form_Defaults do
-          begin
+          with Form_Defaults do begin
+            NewPropertiesAction:= Action;        // User can now select the check 'Save as Defaults'
+
             KeyOptions.TabNameHistory := myTabNameHistory;
             KeyOptions.NodeNameHistory := myNodeNameHistory;
 
-            case PropertiesAction of
-
-              propThisNote : begin
-                ActiveNote.SetTabProperties( myTabProperties );
+            if (PropertiesAction = propThisNote) and not myNoteIsReadOnly  then begin
+                ActiveNote.Modified:= True;
+                ActiveNote.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
                 ActiveNote.SetEditorProperties( myEditorProperties );
                 ActiveNote.EditorChrome := myEditorChrome;
 
@@ -451,15 +461,11 @@ begin
                 ActiveNote.UpdateEditor;
                 ActiveNote.UpdateTabSheet;
 
-                if ( ActiveNote.Kind = ntTree ) then
-                begin
-                  with TTreeNote( ActiveNote ) do
-                  begin
-
+                if ( ActiveNote.Kind = ntTree ) then begin
+                  with TTreeNote( ActiveNote ) do begin
                     // this will apply the selected BG color to current NODE
                     // besides setting the new default BG color for whole NOTE.
-                    if (( not TreeOptions.InheritNodeBG ) and assigned( SelectedNode )) then
-                    begin
+                    if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then begin
                       SelectedNode.RTFBGColor := ActiveNote.EditorChrome.BGColor;
                       ActiveNote.Editor.Color := ActiveNote.EditorChrome.BGColor;
                     end;
@@ -471,16 +477,16 @@ begin
 
                   // update changes to tree control
                   if ( oldIconKind <> myTreeProperties.IconKind ) then
-                    ShowOrHideIcons( TTreeNote( ActiveNote ), true );
+                     ShowOrHideIcons( TTreeNote( ActiveNote ), true );
                   if ( oldShowCheckboxes <> myTreeProperties.CheckBoxes ) then
-                    ShowOrHideCheckBoxes( TTreeNote( ActiveNote ));
+                     ShowOrHideCheckBoxes( TTreeNote( ActiveNote ));
                   if ( oldHideChecked <> myTreeProperties.HideChecked ) then    // [dpv]
                      if myTreeProperties.HideChecked then
                         HideCheckedNodes ( TTreeNote( ActiveNote ))
                      else
                         ShowCheckedNodes ( TTreeNote( ActiveNote ));
 
-                  UpdateTreeChrome( TTreeNote( ActiveNote ));
+                  UpdateTreeChrome(TTreeNote(ActiveNote));
                 end;
 
                 if oldPlainText <> ActiveNote.PlainText
@@ -488,24 +494,21 @@ begin
                    ActiveNote.EditorToDataStream;  // Save the content of the editor according to the new formatting (Plain text / RTF)
                    ActiveNote.DataStreamToEditor;
                 end;
-              end;
 
-              propDefaults : begin
+            end;
 
-                // must update all richedits and trees with
-                // the modified EditorOptions and TreeOptions:
-                if HaveNotes( false, true ) then
-                begin
-                  for i := 0 to pred( NoteFile.NoteCount ) do
-                  begin
-                    with NoteFile.Notes[i].Editor do
-                    begin
-                      WordSelection := EditorOptions.WordSelect;
-                      UndoLimit := EditorOptions.UndoLimit;
+
+            if (PropertiesAction = propDefaults) or (NewPropertiesAction = propDefaults) then begin
+
+                // must update all richedits and trees with the modified EditorOptions and TreeOptions:
+                if HaveNotes( false, true ) then begin
+                    for i := 0 to NoteFile.NoteCount -1 do begin
+                       Note:= NoteFile.Notes[i];
+                       Note.Editor.WordSelection := EditorOptions.WordSelect;
+                       Note.Editor.UndoLimit := EditorOptions.UndoLimit;
+                       if Note.Kind = ntTree then
+                          UpdateTreeOptions(TTreeNote(Note));
                     end;
-                    if ( NoteFile.Notes[i].Kind = ntTree ) then
-                      UpdateTreeOptions( TTreeNote( NoteFile.Notes[i] ));
-                  end;
                 end;
 
                 DefaultEditorChrome := myEditorChrome;
@@ -517,23 +520,22 @@ begin
                 DefaultTreeProperties := myTreeProperties;
 
                 if mySaveFileDefaults then
-                begin
-                  DEF_FN := NoteFile.FileName + ext_DEFAULTS;
-                end
-                else
-                begin
-                  // if mySaveFileDefaults was true before,
-                  // and is now false, delete the file-specific .def file
-                  if ( DEF_FN <> OrigDEF_FN ) then
-                    deletefile( DEF_FN );
+                   DEF_FN := NoteFile.FileName + ext_DEFAULTS
+
+                else begin
+                  // if mySaveFileDefaults was true before, and is now false, delete the file-specific .def file
+                  if DEF_FN <> OrigDEF_FN then
+                     deletefile( DEF_FN );
                   DEF_FN := OrigDEF_FN;
                 end;
 
                 SaveDefaults;
-
-              end;
             end;
           end;
+
+          if _LastZoomValue <> 100 then
+             SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
+
         end;
 
       finally
@@ -542,8 +544,7 @@ begin
         Form_Defaults.Free;
       end;
 
-      if TreeLayoutChanged then
-      begin
+      if TreeLayoutChanged then begin
         screen.Cursor := crHourGlass;
         Pages.OnChange := nil;
         try

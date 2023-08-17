@@ -344,6 +344,7 @@ begin
 
       _Is_Dragging_Text := false;
       _LastZoomValue := 100;
+      Combo_Zoom.Text := '100%';
 
       s := GetFolderPath( fpPersonal );
       OpenDlg.InitialDir := s;
@@ -448,7 +449,6 @@ begin
       Timer_TickAlarm:= 0;
       Timer.Interval := _TIMER_INTERVAL;
 
-      Combo_Zoom.Text := '100%';
 
       // Register message ID for DLL (plugin) notifications
       _KNT_WINMSG_ID := RegisterWindowMessage( KeyNote_WinMsgIdStr );

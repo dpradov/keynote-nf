@@ -163,7 +163,8 @@ type
     TabSize,
     URLDetect,
     UseTabChar,
-    WordWrap : string;
+    WordWrap,
+    DefaultZoom : string;
   end;
 
 const
@@ -173,7 +174,8 @@ const
     TabSize : 'TabSize';
     URLDetect : 'URLDetect';
     UseTabChar : 'UseTabChar';
-    WordWrap : 'WordWrap'
+    WordWrap : 'WordWrap';
+    DefaultZoom: 'DefaultZoom'
   );
 
 
@@ -1833,6 +1835,7 @@ begin
       writebool( section, NoteEditorPropertiesIniStr.URLDetect, DefaultEditorProperties.URLDetect );
       writebool( section, NoteEditorPropertiesIniStr.UseTabChar, DefaultEditorProperties.UseTabChar );
       writebool( section, NoteEditorPropertiesIniStr.WordWrap, DefaultEditorProperties.WordWrap );
+      writeinteger( section, NoteEditorPropertiesIniStr.DefaultZoom, DefaultEditorProperties.DefaultZoom );
 
       section := 'EditorChrome';
       writestring( section, ChromeIniStr.BGColor, ColorToString( DefaultEditorChrome.BGColor ));
@@ -1954,6 +1957,7 @@ begin
       DefaultEditorProperties.URLDetect := readbool( section, NoteEditorPropertiesIniStr.URLDetect, DefaultEditorProperties.URLDetect );
       DefaultEditorProperties.UseTabChar := readbool( section, NoteEditorPropertiesIniStr.UseTabChar, DefaultEditorProperties.UseTabChar );
       DefaultEditorProperties.WordWrap := readbool( section, NoteEditorPropertiesIniStr.WordWrap, DefaultEditorProperties.WordWrap );
+      DefaultEditorProperties.DefaultZoom := readinteger( section, NoteEditorPropertiesIniStr.DefaultZoom, DefaultEditorProperties.DefaultZoom );
 
       section := NoteTreePropertiesIniStr.section;
       DefaultTreeProperties.DefaultName := readstring( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );

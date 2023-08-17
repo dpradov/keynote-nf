@@ -4,8 +4,8 @@ object Form_NewNote: TForm_NewNote
   ActiveControl = Combo_TabName
   BorderStyle = bsDialog
   Caption = 'New note'
-  ClientHeight = 139
-  ClientWidth = 310
+  ClientHeight = 153
+  ClientWidth = 326
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,7 +21,7 @@ object Form_NewNote: TForm_NewNote
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Label1: TLabel
-    Left = 10
+    Left = 6
     Top = 15
     Width = 49
     Height = 13
@@ -31,7 +31,7 @@ object Form_NewNote: TForm_NewNote
     FocusControl = Combo_TabName
   end
   object Label2: TLabel
-    Left = 10
+    Left = 6
     Top = 45
     Width = 49
     Height = 13
@@ -40,7 +40,7 @@ object Form_NewNote: TForm_NewNote
     Caption = '&Icon:'
   end
   object Label_Type: TLabel
-    Left = 10
+    Left = 6
     Top = 75
     Width = 49
     Height = 13
@@ -51,7 +51,7 @@ object Form_NewNote: TForm_NewNote
   end
   object Button_OK: TButton
     Left = 15
-    Top = 108
+    Top = 111
     Width = 75
     Height = 25
     Hint = 'Accept settings'
@@ -63,7 +63,7 @@ object Form_NewNote: TForm_NewNote
   end
   object Button_Cancel: TButton
     Left = 95
-    Top = 108
+    Top = 111
     Width = 75
     Height = 25
     Hint = 'Close dialog box'
@@ -73,7 +73,7 @@ object Form_NewNote: TForm_NewNote
     OnClick = Button_CancelClick
   end
   object Combo_TabName: TComboBox
-    Left = 64
+    Left = 60
     Top = 10
     Width = 237
     Height = 21
@@ -92,7 +92,7 @@ object Form_NewNote: TForm_NewNote
   end
   object Button_Properties: TButton
     Left = 216
-    Top = 108
+    Top = 111
     Width = 84
     Height = 25
     Hint = 'Edit properties of the new note'
@@ -101,7 +101,7 @@ object Form_NewNote: TForm_NewNote
     OnClick = Button_PropertiesClick
   end
   object Combo_TabType: TComboBox
-    Left = 64
+    Left = 60
     Top = 70
     Width = 237
     Height = 21
@@ -113,9 +113,9 @@ object Form_NewNote: TForm_NewNote
     OnChange = Combo_TabNameChange
   end
   object Combo_Icons: TGFXComboBox
-    Left = 64
+    Left = 60
     Top = 40
-    Width = 237
+    Width = 80
     Height = 22
     Hint = 'Select icon for note'
     Extended = False

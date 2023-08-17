@@ -292,6 +292,7 @@ type
     URLDetect : boolean;
     UseTabChar : boolean;
     WordWrap : boolean;
+    DefaultZoom: integer;
   end;
 
 type
@@ -779,6 +780,7 @@ begin
     URLDetect := true;
     UseTabChar := true;
     WordWrap := true;
+    DefaultZoom:= 100;
   end;
 end; // InitializeNoteEditorProperties
 

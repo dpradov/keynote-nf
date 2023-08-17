@@ -632,7 +632,7 @@ begin
                  ( NoteFile.TabIconsFN <> '' )) then
                 tmpicnfn := extractfilename( NoteFile.TabIconsFN );
             end;
-            GroupBox_ICN.Caption :=
+            GroupBox_TabIcons.Caption :=
               Format( STR_TabIcons, [tmpicnfn] );
           end;
 

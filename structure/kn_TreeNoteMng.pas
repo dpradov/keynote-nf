@@ -349,9 +349,10 @@ begin
 
       UpdateTreeNode( myTreeNode );
 
+      // assign the color of the currently displayed node
       if TreeOptions.InheritNodeBG then
         myNode.RTFBGColor := ActiveNote.Editor.Color;
-        // assign the color of the currently displayed node
+
 
       myNote.SelectedNode := myNode;
       myNote.DataStreamToEditor;
@@ -496,11 +497,8 @@ begin
           ActiveNote.Editor.ScrollBars := ssBoth;
         }
 
-        if ( _LoadedRichEditVersion > 2 ) then
-        begin
-          if ( _LastZoomValue <> 100 ) then
-            SetEditorZoom( _LastZoomValue, '' );
-        end;
+        if _LastZoomValue <> 100 then
+           SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
 
         ActiveNote.Editor.Lines.EndUpdate;
 

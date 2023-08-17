@@ -4,8 +4,8 @@ object Form_Defaults: TForm_Defaults
   HelpContext = 250
   BorderStyle = bsDialog
   Caption = 'Defaults'
-  ClientHeight = 391
-  ClientWidth = 328
+  ClientHeight = 497
+  ClientWidth = 379
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,12 +19,28 @@ object Form_Defaults: TForm_Defaults
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   TextHeight = 13
+  object LB_Scope: TLabel
+    Left = 8
+    Top = 4
+    Width = 354
+    Height = 18
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'Change properties for current note'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clNavy
+    Font.Height = -12
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    Transparent = False
+    StyleElements = [seClient, seBorder]
+  end
   object Button_OK: TButton
-    Left = 14
-    Top = 360
+    Left = 15
+    Top = 465
     Width = 75
     Height = 25
-    Hint = 'Accept changes and close dialog box'
     Caption = 'OK'
     Default = True
     ModalResult = 1
@@ -32,8 +48,8 @@ object Form_Defaults: TForm_Defaults
     OnClick = Button_OKClick
   end
   object Button_Cancel: TButton
-    Left = 102
-    Top = 360
+    Left = 103
+    Top = 465
     Width = 75
     Height = 25
     Hint = 'Discard changes and close dialog box'
@@ -43,14 +59,14 @@ object Form_Defaults: TForm_Defaults
     OnClick = Button_CancelClick
   end
   object Pages: TPage95Control
-    Left = 5
-    Top = 5
-    Width = 326
-    Height = 340
-    ActivePage = Tab_Tree
+    Left = 3
+    Top = 28
+    Width = 369
+    Height = 376
+    ActivePage = Tab_Main
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -12
     Font.Name = 'Tahoma'
     Font.Style = []
     HotTrack = False
@@ -69,128 +85,243 @@ object Form_Defaults: TForm_Defaults
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GBox_Note: TGroupBox
-        Left = 5
-        Top = 0
-        Width = 306
-        Height = 309
-        Caption = ' Default properties for new notes '
+        Left = 3
+        Top = 3
+        Width = 354
+        Height = 337
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
         TabOrder = 0
-        object Bevel1: TBevel
-          Left = 10
-          Top = 86
-          Width = 286
-          Height = 5
-          Shape = bsTopLine
-        end
         object Label_TabSize: TLabel
-          Left = 189
-          Top = 152
-          Width = 44
-          Height = 13
+          Left = 203
+          Top = 120
+          Width = 77
+          Height = 14
           Alignment = taRightJustify
+          AutoSize = False
           Caption = 'Tab &Size:'
           FocusControl = Spin_TabSize
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
         end
         object Label1: TLabel
-          Left = 10
-          Top = 25
+          Left = 15
+          Top = 12
           Width = 74
           Height = 13
           AutoSize = False
           Caption = '&Note name:'
           FocusControl = Edit_NoteName
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
         end
         object Label4: TLabel
-          Left = 10
-          Top = 55
+          Left = 260
+          Top = 12
           Width = 74
           Height = 13
           AutoSize = False
           Caption = 'Note &icon:'
           FocusControl = Combo_Icons
-        end
-        object Bevel2: TBevel
-          Left = 10
-          Top = 228
-          Width = 286
-          Height = 5
-          Shape = bsTopLine
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
         end
         object Label_EditorFonts: TLabel
-          Left = 35
-          Top = 221
-          Width = 174
+          Left = 7
+          Top = 258
+          Width = 244
           Height = 13
-          Caption = ' Default font and background color: '
-          Enabled = False
+          Caption = 'Default font and background color (Editor): '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
           Transparent = False
         end
         object Label14: TLabel
-          Left = 6
-          Top = 183
-          Width = 68
-          Height = 13
+          Left = 30
+          Top = 175
+          Width = 58
+          Height = 18
           AutoSize = False
           Caption = '&Language:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
         end
         object Label_EditorSettings: TLabel
-          Left = 35
-          Top = 80
-          Width = 104
+          Left = 7
+          Top = 72
+          Width = 116
           Height = 13
-          Caption = ' RTF editor  settings: '
-          Enabled = False
+          Caption = 'RTF editor  settings: '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
           Transparent = False
         end
+        object LB_Zoom: TLabel
+          Left = 167
+          Top = 95
+          Width = 113
+          Height = 13
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'Default Zoom (%)'
+          FocusControl = Combo_Icons
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object Label3: TLabel
+          Left = 171
+          Top = 94
+          Width = 17
+          Height = 22
+          Hint = 
+            'Allows to use a default value other than 100%'#13#10'( Only as default' +
+            's )'
+          AutoSize = False
+          Caption = '(*)'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object Label6: TLabel
+          Left = 305
+          Top = 213
+          Width = 17
+          Height = 22
+          Hint = 'Save as plain text (Not used as defaults)'
+          AutoSize = False
+          Caption = '(*)'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object LB_PlainText: TLabel
+          Left = 33
+          Top = 214
+          Width = 265
+          Height = 13
+          Hint = 
+            'Normally, note contents are saved as Rich Text.'#13#10'If this option ' +
+            'is checked, contents of this note will be saved as plain text (a' +
+            'll formatting will be removed).'#13#10#13#10'( Not used as defaults )'
+          AutoSize = False
+          Caption = '&Plain text only'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          Transparent = True
+          StyleElements = [seClient, seBorder]
+          OnClick = LB_PlainTextClick
+        end
         object CB_WordWrap: TCheckBox
-          Left = 20
-          Top = 100
-          Width = 269
+          Left = 15
+          Top = 94
+          Width = 152
           Height = 17
           Hint = 'Apply word-wrapping to long lines'
           Caption = '&Wrap long lines'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 2
         end
         object CB_URLDetect: TCheckBox
-          Left = 20
-          Top = 125
-          Width = 269
+          Left = 15
+          Top = 143
+          Width = 272
           Height = 17
           Hint = 'Highlight URLs in editor'
           Caption = 'Detect and highlight &URLs in editor'
-          TabOrder = 3
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 6
         end
         object CB_UseTabChar: TCheckBox
-          Left = 20
-          Top = 150
-          Width = 149
+          Left = 15
+          Top = 119
+          Width = 203
           Height = 17
           Hint = 'Insert TAB character (#9) when Tab key pressed'
           Caption = 'Use &Tab character'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 4
           OnClick = CB_UseTabCharClick
         end
         object Spin_TabSize: TSpinEdit
-          Left = 236
-          Top = 149
+          Left = 286
+          Top = 117
           Width = 56
           Height = 22
           Hint = 'Number of spaces to insert when Tab key pressed'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
           MaxLength = 2
           MaxValue = 32
           MinValue = 1
+          ParentFont = False
           TabOrder = 5
           Value = 4
         end
         object Edit_NoteName: TComboBox
-          Left = 88
-          Top = 20
-          Width = 198
+          Left = 17
+          Top = 30
+          Width = 234
           Height = 21
           Hint = 'Enter name for new note'
           Font.Charset = DEFAULT_CHARSET
@@ -203,9 +334,9 @@ object Form_Defaults: TForm_Defaults
           OnKeyPress = Edit_NoteNameKeyPress
         end
         object Combo_Icons: TGFXComboBox
-          Left = 88
-          Top = 50
-          Width = 198
+          Left = 261
+          Top = 30
+          Width = 79
           Height = 22
           Hint = 'Click to select icon for note'
           Extended = False
@@ -219,17 +350,116 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 1
         end
         object Combo_DefEdLang: TLanguagesCombo
-          Left = 76
-          Top = 178
-          Width = 216
+          Left = 94
+          Top = 172
+          Width = 246
           Height = 22
           Language = 2048
           LanguageType = ltInstalled
           ViewType = lvtLocalized
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
           ParentShowHint = False
           ShowFlag = False
           ShowHint = True
-          TabOrder = 6
+          TabOrder = 7
+        end
+        object CB_Zoom: TComboBox
+          Left = 286
+          Top = 90
+          Width = 56
+          Height = 21
+          Hint = 'Allows to use a default value other than 100%'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          OnExit = CB_ZoomExit
+          OnKeyPress = CB_ZoomKeyPress
+          Items.Strings = (
+            '250'
+            '200'
+            '150'
+            '125'
+            '110'
+            '100'
+            '90'
+            '80'
+            '75')
+        end
+        object CB_PlainText: TCheckBox
+          Left = 15
+          Top = 212
+          Width = 17
+          Height = 17
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clRed
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 8
+          StyleElements = [seClient, seBorder]
+          OnClick = CB_PlainTextClick
+        end
+        object BitBtn_NoteHelp: TBitBtn
+          Left = 129
+          Top = 67
+          Width = 25
+          Height = 25
+          Glyph.Data = {
+            F6000000424DF600000000000000760000002800000010000000100000000100
+            0400000000008000000000000000000000001000000010000000000000000000
+            8000008000000080800080000000800080008080000080808000C0C0C0000000
+            FF00C0C0C00000FFFF00FF000000C0C0C000FFFF0000FFFFFF00DADADADADADA
+            0ADAADADADADADA00DADDADA7777770B07DAADA0000000FF007DDA0FFFBFBFBF
+            FF07AD0FBFFF44FFBF07DA0FFFBFFFBFFF07AD0FBFFF47FFBF07DA0FFFBF748F
+            FF07AD0FBFFFB747BF07DA0FFF47FF44FF07AD0FBF44B844BF07DA0FFF844448
+            FF07AD0FBFFFBFFFBF07DA0FFFBFFFBFFF0AADA00000000000AD}
+          TabOrder = 9
+          TabStop = False
+          OnClick = BitBtn_NoteHelpClick
+        end
+        object BitBtn_NoteChromeHelp: TBitBtn
+          Left = 257
+          Top = 251
+          Width = 25
+          Height = 25
+          Glyph.Data = {
+            F6000000424DF600000000000000760000002800000010000000100000000100
+            0400000000008000000000000000000000001000000010000000000000000000
+            8000008000000080800080000000800080008080000080808000C0C0C0000000
+            FF00C0C0C00000FFFF00FF000000C0C0C000FFFF0000FFFFFF00DADADADADADA
+            0ADAADADADADADA00DADDADA7777770B07DAADA0000000FF007DDA0FFFBFBFBF
+            FF07AD0FBFFF44FFBF07DA0FFFBFFFBFFF07AD0FBFFF47FFBF07DA0FFFBF748F
+            FF07AD0FBFFFB747BF07DA0FFF47FF44FF07AD0FBF44B844BF07DA0FFF844448
+            FF07AD0FBFFFBFFFBF07DA0FFFBFFFBFFF0AADA00000000000AD}
+          TabOrder = 10
+          TabStop = False
+          OnClick = BitBtn_NoteChromeHelpClick
+        end
+        object CB_InheritBGColor: TCheckBox
+          Left = 131
+          Top = 312
+          Width = 218
+          Height = 17
+          TabStop = False
+          Caption = 'Inherit &BG color from active node'
+          Enabled = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 11
         end
       end
     end
@@ -241,73 +471,93 @@ object Form_Defaults: TForm_Defaults
       StaticPageIndex = -1
       TabVisible = True
       object GBox_Tree: TGroupBox
-        Left = 6
-        Top = 0
-        Width = 306
-        Height = 309
-        Caption = ' Default properties for new trees '
+        Left = 2
+        Top = 3
+        Width = 349
+        Height = 321
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
         TabOrder = 0
-        object Bevel4: TBevel
-          Left = 10
-          Top = 81
-          Width = 286
-          Height = 5
-          Shape = bsTopLine
-        end
         object Label5: TLabel
-          Left = 15
-          Top = 25
-          Width = 164
-          Height = 13
+          Left = 17
+          Top = 27
+          Width = 108
+          Height = 26
           Caption = 'Default &Name for new tree nodes:'
           FocusControl = Edit_NodeName
-        end
-        object Bevel5: TBevel
-          Left = 13
-          Top = 228
-          Width = 286
-          Height = 5
-          Shape = bsTopLine
-        end
-        object Label_TreeFonts: TLabel
-          Left = 37
-          Top = 221
-          Width = 138
-          Height = 13
-          Caption = ' Font and background color: '
-          Enabled = False
-          Transparent = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          WordWrap = True
         end
         object Label_TreeSettings: TLabel
-          Left = 35
-          Top = 75
-          Width = 73
+          Left = 7
+          Top = 91
+          Width = 84
           Height = 13
           Caption = ' Tree settings: '
-          Enabled = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
           Transparent = False
         end
         object Label2: TLabel
-          Left = 13
-          Top = 181
+          Left = 18
+          Top = 196
           Width = 95
           Height = 13
           Caption = 'I&mage icons in tree:'
           FocusControl = Combo_TreeImages
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object Label8: TLabel
+          Left = 7
+          Top = 258
+          Width = 237
+          Height = 13
+          Caption = 'Default font and background color (Tree): '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          Transparent = False
         end
         object CB_TreeCheck: TCheckBox
-          Left = 20
-          Top = 135
+          Left = 18
+          Top = 141
           Width = 277
           Height = 17
           Hint = 'Display or hide checkboxes in ALL nodes'
           Caption = '&Show checkboxes in all nodes'
-          TabOrder = 4
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
         end
         object Edit_NodeName: TComboBox
-          Left = 15
-          Top = 40
-          Width = 211
+          Left = 132
+          Top = 25
+          Width = 176
           Height = 21
           Hint = 'Enter default name for nodes added to tree'
           Font.Charset = DEFAULT_CHARSET
@@ -319,17 +569,23 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 0
         end
         object CB_AutoNumberNodes: TCheckBox
-          Left = 20
-          Top = 95
-          Width = 277
+          Left = 144
+          Top = 53
+          Width = 188
           Height = 17
           Hint = 'When adding a node, append sequential number to its name'
-          Caption = '&Add sequential number to names of new nodes '
-          TabOrder = 2
+          Caption = '&Append sequential number'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
         end
         object BitBtn_TknHlp: TBitBtn
-          Left = 235
-          Top = 40
+          Left = 315
+          Top = 23
           Width = 25
           Height = 25
           Hint = 'Help for auto-naming tree nodes'
@@ -342,112 +598,80 @@ object Form_Defaults: TForm_Defaults
             FF07AD0FBFFF44FFBF07DA0FFFBFFFBFFF07AD0FBFFF47FFBF07DA0FFFBF748F
             FF07AD0FBFFFB747BF07DA0FFF47FF44FF07AD0FBF44B844BF07DA0FFF844448
             FF07AD0FBFFFBFFFBF07DA0FFFBFFFBFFF0AADA00000000000AD}
-          TabOrder = 1
+          TabOrder = 6
+          TabStop = False
         end
         object CB_Vertical: TCheckBox
-          Left = 20
-          Top = 115
+          Left = 18
+          Top = 118
           Width = 277
           Height = 17
           Hint = 'Check to show tree ABOVE the editor'
           Caption = '&Vertical layout (tree on top)'
-          TabOrder = 3
-        end
-        object Combo_TreeImages: TComboBox
-          Left = 13
-          Top = 196
-          Width = 176
-          Height = 21
-          Style = csDropDownList
-          TabOrder = 5
-        end
-        object CB_HideChecked: TCheckBox
-          Left = 20
-          Top = 156
-          Width = 277
-          Height = 17
-          Hint = 'Show or hide checked nodes'
-          Caption = '&Hide checked nodes'
-          TabOrder = 6
-        end
-      end
-    end
-    object Tab_Adv: TTab95Sheet
-      HelpContext = 253
-      Caption = 'Advanced'
-      GripAlign = gaLeft
-      ImageIndex = -1
-      StaticPageIndex = -1
-      TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object GroupBox1: TGroupBox
-        Left = 3
-        Top = 0
-        Width = 308
-        Height = 309
-        Caption = ' Advanced settings '
-        TabOrder = 0
-        object LB_SaveAsDef: TLabel
-          Left = 10
-          Top = 20
-          Width = 286
-          Height = 61
-          AutoSize = False
-          Caption = 
-            'Normally, these properties are used for all new notes you create' +
-            '. If you select the option below, they will be used as default o' +
-            'nly for the current file.'
-          WordWrap = True
-        end
-        object LB_PlainText: TLabel
-          Left = 10
-          Top = 134
-          Width = 286
-          Height = 67
-          AutoSize = False
-          Caption = 
-            'Normally, note contents are saved as Rich Text. If you select th' +
-            'e option below, contents of this note will be saved as plain tex' +
-            't (all formatting will be rermoved).'
-          WordWrap = True
-        end
-        object CB_SaveAsDef: TCheckBox
-          Left = 10
-          Top = 81
-          Width = 286
-          Height = 17
-          Caption = '&Save as default'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 0
-          OnClick = AM_SaveAsDefClick
+          TabOrder = 2
         end
-        object CB_PlainText: TCheckBox
-          Left = 10
-          Top = 202
-          Width = 286
+        object Combo_TreeImages: TComboBox
+          Left = 132
+          Top = 193
+          Width = 176
+          Height = 21
+          Style = csDropDownList
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+        end
+        object CB_HideChecked: TCheckBox
+          Left = 18
+          Top = 165
+          Width = 277
           Height = 17
-          Caption = '&Plain text only (do not save formatting information)'
-          TabOrder = 1
-          OnClick = AM_SaveAsDefClick
+          Hint = 'Show or hide checked nodes'
+          Caption = '&Hide checked nodes'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+        end
+        object BitBtn_TreeChromeHelp: TBitBtn
+          Left = 257
+          Top = 251
+          Width = 25
+          Height = 25
+          Glyph.Data = {
+            F6000000424DF600000000000000760000002800000010000000100000000100
+            0400000000008000000000000000000000001000000010000000000000000000
+            8000008000000080800080000000800080008080000080808000C0C0C0000000
+            FF00C0C0C00000FFFF00FF000000C0C0C000FFFF0000FFFFFF00DADADADADADA
+            0ADAADADADADADA00DADDADA7777770B07DAADA0000000FF007DDA0FFFBFBFBF
+            FF07AD0FBFFF44FFBF07DA0FFFBFFFBFFF07AD0FBFFF47FFBF07DA0FFFBF748F
+            FF07AD0FBFFFB747BF07DA0FFF47FF44FF07AD0FBF44B844BF07DA0FFF844448
+            FF07AD0FBFFFBFFFBF07DA0FFFBFFFBFFF0AADA00000000000AD}
+          TabOrder = 7
+          TabStop = False
+          OnClick = BitBtn_TreeChromeHelpClick
         end
       end
     end
   end
   object BTN_Font: TBitBtn
-    Left = 28
-    Top = 273
-    Width = 90
+    Left = 29
+    Top = 337
+    Width = 30
     Height = 25
-    Hint = 'Change initial font'
-    Caption = '&Font'
+    Hint = 'Change initial Font'
     Glyph.Data = {
       F6000000424DF600000000000000760000002800000010000000100000000100
       0400000000008000000000000000000000001000000010000000000000000000
@@ -461,12 +685,11 @@ object Form_Defaults: TForm_Defaults
     OnClick = BTN_FontClick
   end
   object BTN_Color: TBitBtn
-    Left = 123
-    Top = 273
-    Width = 90
+    Left = 62
+    Top = 337
+    Width = 30
     Height = 25
-    Hint = 'Change background color'
-    Caption = 'BG &Color'
+    Hint = 'Change Background Color'
     Glyph.Data = {
       36030000424D3603000000000000360000002800000010000000100000000100
       18000000000000030000000000000000000000000000000000009F609F3F003F
@@ -498,12 +721,11 @@ object Form_Defaults: TForm_Defaults
     OnClick = BTN_ColorClick
   end
   object BTN_Defaults: TBitBtn
-    Left = 218
-    Top = 273
-    Width = 90
+    Left = 99
+    Top = 337
+    Width = 27
     Height = 25
     Hint = 'Reset factory default fonts and colors'
-    Caption = '&Reset'
     Glyph.Data = {
       F6000000424DF600000000000000760000002800000010000000100000000100
       0400000000008000000000000000000000001000000010000000000000000000
@@ -517,27 +739,71 @@ object Form_Defaults: TForm_Defaults
     OnClick = BTN_DefaultsClick
   end
   object Edit_Sample: TEdit
-    Left = 28
-    Top = 304
-    Width = 281
+    Left = 140
+    Top = 337
+    Width = 209
     Height = 21
+    TabStop = False
     MaxLength = 127
     ReadOnly = True
-    TabOrder = 6
+    TabOrder = 7
   end
   object Button_Help: TButton
-    Left = 246
-    Top = 360
+    Left = 287
+    Top = 465
     Width = 75
     Height = 25
     Caption = 'Help'
-    TabOrder = 7
+    TabOrder = 8
     OnClick = Button_HelpClick
+  end
+  object GB_Defaults: TGroupBox
+    Left = 5
+    Top = 406
+    Width = 367
+    Height = 53
+    TabOrder = 6
+    object CB_SaveDefaults: TCheckBox
+      Left = 10
+      Top = 7
+      Width = 344
+      Height = 17
+      Caption = 'Save as Defaults'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      StyleElements = [seClient, seBorder]
+      OnClick = CB_SaveDefaultsClick
+    end
+    object CB_SaveAsDef: TCheckBox
+      Left = 44
+      Top = 28
+      Width = 303
+      Height = 17
+      Hint = 
+        'Normally, properties are saved as defaults for all new notes you' +
+        ' create. '#13#10'You can define it as default only for the current fil' +
+        'e.'
+      Caption = 'Only for'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clNavy
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      StyleElements = [seClient, seBorder]
+      OnClick = CB_SaveAsDefClick
+    end
   end
   object ColorDlg: TColorDialog
     Options = [cdFullOpen, cdSolidColor, cdAnyColor]
-    Left = 124
-    Top = 404
+    Left = 221
+    Top = 464
   end
   object FontDlg: TFontDialog
     Font.Charset = DEFAULT_CHARSET
@@ -546,14 +812,14 @@ object Form_Defaults: TForm_Defaults
     Font.Name = 'Tahoma'
     Font.Style = []
     Options = [fdEffects, fdForceFontExist]
-    Left = 89
-    Top = 399
+    Left = 194
+    Top = 467
   end
   object FormPlacement: TFormPlacement
     IniSection = 'PropDlg'
     Options = [fpPosition]
     UseRegistry = True
-    Left = 308
-    Top = 323
+    Left = 245
+    Top = 463
   end
 end

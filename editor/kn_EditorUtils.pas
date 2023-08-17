@@ -116,6 +116,7 @@ uses
 
     function GetEditorZoom (Editor: TRxRichEdit = nil): integer;
     procedure SetEditorZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );  overload;
+    procedure SetEditorZoom( Editor: TRxRichEdit; ZoomValue : integer; ZoomString : string; Increment: integer= 0 ); overload;
 
     procedure GetIndentInformation(Editor: TRxRichEdit;
                                    var Indent: integer; var NextIndent: integer;
@@ -2405,7 +2406,7 @@ function GetEditorZoom (Editor: TRxRichEdit = nil): integer;
 var
   W, L : integer;
 begin
-  result := 100;
+  result := DefaultEditorProperties.DefaultZoom;
   if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
   if not assigned( Editor ) and assigned(ActiveNote) then
       Editor:= ActiveNote.Editor;
@@ -2424,9 +2425,10 @@ var
   p : integer;
 begin
   if ( not assigned( Editor )) then exit;
+  if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
 
   CurrentZoom := GetEditorZoom (Editor);
-  NewZoom := 100; // initialize
+  NewZoom := DefaultEditorProperties.DefaultZoom; // initialize
 
   // if integer argument is greater than zero, use the integer as zoom value.
   // if integer is <=0, string argument is '' and increment argrument is not 0, apply increment

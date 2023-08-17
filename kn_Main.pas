@@ -7094,7 +7094,7 @@ end;
 
 procedure TForm_Main.Combo_ZoomDblClick(Sender: TObject);
 begin
-  SetEditorZoom( 100, '' );
+  SetEditorZoom( DefaultEditorProperties.DefaultZoom, '' );
   FocusActiveNote;
 end;
 
@@ -7107,7 +7107,7 @@ end;
 procedure TForm_Main.MMViewZoomInClick(Sender: TObject);
 begin
   if ShiftDown then
-    SetEditorZoom( 100, '' )
+    SetEditorZoom( DefaultEditorProperties.DefaultZoom, '' )
   else
     SetEditorZoom( 0, '', KeyOptions.ZoomIncrement );
 end;
@@ -7115,7 +7115,7 @@ end;
 procedure TForm_Main.MMViewZoomOutClick(Sender: TObject);
 begin
   if ShiftDown then
-    SetEditorZoom( 100, '' )
+    SetEditorZoom( DefaultEditorProperties.DefaultZoom, '' )
   else
     SetEditorZoom( 0, '', - KeyOptions.ZoomIncrement );
 end;

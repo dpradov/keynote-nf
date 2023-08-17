@@ -175,7 +175,7 @@ type
     procedure SetEditorProperties( const aProps : TNoteEditorProperties );
     procedure GetEditorProperties( var aProps : TNoteEditorProperties );
 
-    procedure SetTabProperties( const aProps : TNoteTabProperties );
+    procedure SetTabProperties( const aProps : TNoteTabProperties; UpdateName: boolean= True );
     procedure GetTabProperties( var aProps : TNoteTabProperties );
 
     procedure UpdateEditor; virtual;
@@ -546,46 +546,52 @@ begin
 end; // UpdateTabSheetProperties
 
 procedure TTabNote.UpdateEditor;
-{
+
 var
-  tabstopcnt : integer;
-}
+//  tabstopcnt : integer;
+  TextLen: integer;
+  SS, SL: integer;
+
 begin
   if ( not CheckEditor ) then exit;
-  FEditor.Lines.BeginUpdate;
+
+  FEditor.BeginUpdate;
   try
     FEditor.WordWrap := FWordWrap;
     FEditor.TabSize := FTabSize;
     FEditor.AutoURLDetect := FURLDetect;
 
     FEditor.Color := FEditorChrome.BGColor;
-    with FEditor.DefAttributes do
-    begin
-      Charset := FEditorChrome.Font.Charset;
-      Name := FEditorChrome.Font.Name;
-      Size := FEditorChrome.Font.Size;
-      Style := FEditorChrome.Font.Style;
-      Color := FEditorChrome.Font.Color;
-      Language := FEditorChrome.Language;
+    TextLen:= FEditor.TextLength;
+    if (TextLen = 0) or PlainText then begin          // Solves the problem indicated in kn_NoteMng.EditProperties...*1
+       with FEditor.DefAttributes do begin
+         Charset := FEditorChrome.Font.Charset;
+         Name := FEditorChrome.Font.Name;
+         Size := FEditorChrome.Font.Size;
+         Style := FEditorChrome.Font.Style;
+         Color := FEditorChrome.Font.Color;
+         Language := FEditorChrome.Language;
+       end;
     end;
-    if ( FEditor.Lines.Count = 0 ) then // IMOPRTANT!
-    begin
-      FEditor.SelectAll;
-      FEditor.SelAttributes.Assign( FEditor.DefAttributes );
 
+    if PlainText and (TextLen > 0) then begin       // Related to *1. If PlainText then we do want it to always change the font format
+       SS:= FEditor.SelStart;
+       SL:= FEditor.SelLength;
+       FEditor.SelectAll;
+       FEditor.SelAttributes.Assign( FEditor.DefAttributes );
       {
       FEditor.Paragraph.TabCount := 8; // max is 32, but what the hell
       for tabstopcnt := 0 to 7 do
         FEditor.Paragraph.Tab[tabstopcnt] := (tabstopcnt+1) * (2*FTabSize); // [x] very rough!
       }
-
-      FEditor.SelLength := 0;
+      FEditor.SetSelection(SS, SS+SL, True);
     end;
     FEditor.UseTabChar := FUseTabChar;
     FEditor.ReadOnly := FReadOnly;
   finally
-    FEditor.Lines.EndUpdate;
+    FEditor.EndUpdate;
   end;
+
 end; // UpdateEditor
 
 procedure TTabNote.SetEditorChrome( AChrome : TChrome );
@@ -613,9 +619,10 @@ begin
   aProps.WordWrap := FWordWrap;
 end; // GetEditorProperties
 
-procedure TTabNote.SetTabProperties( const aProps : TNoteTabProperties );
+procedure TTabNote.SetTabProperties( const aProps : TNoteTabProperties; UpdateName: boolean= True);
 begin
-  FName := aProps.Name;
+  if UpdateName then
+     FName := aProps.Name;
   FImageIndex := aProps.ImageIndex;
   FModified := true;
 end; // SetTabProperties
@@ -2158,47 +2165,31 @@ begin
 end; // GetTreeProperties
 
 procedure TTreeNote.UpdateEditor;
+var
+  TextLen: integer;
+  SS, SL: integer;
+
 begin
   if ( not CheckEditor ) then exit;
 
-  FEditor.Lines.BeginUpdate;
+
+  FEditor.BeginUpdate;
   try
-    if assigned( FSelectedNode ) then
-    begin
-      case FSelectedNode.WordWrap of
-        wwAsNote : FEditor.WordWrap := FWordWrap;
-        wwYes : FEditor.WordWrap := true;
-        wwNo : FEditor.WordWrap := false;
-      end;
-    end
-    else
-      FEditor.WordWrap := FWordWrap;
+      inherited UpdateEditor;
 
-    FEditor.TabSize := FTabSize;
-    FEditor.AutoURLDetect := FURLDetect;
+        if assigned(FSelectedNode) then begin
+           case FSelectedNode.WordWrap of
+              wwAsNote : FEditor.WordWrap := FWordWrap;
+              wwYes : FEditor.WordWrap := true;
+              wwNo : FEditor.WordWrap := false;
+           end;
 
-    if ( not assigned( FSelectedNode )) then
-      FEditor.Color := FEditorChrome.BGColor;
-    with FEditor.DefAttributes do
-    begin
-      Charset := FEditorChrome.Font.Charset;
-      Name := FEditorChrome.Font.Name;
-      Size := FEditorChrome.Font.Size;
-      Style := FEditorChrome.Font.Style;
-      Color := FEditorChrome.Font.Color;
-      Language := FEditorChrome.Language;
-    end;
+           FEditor.Color := FSelectedNode.RTFBGColor;
+        end;
 
-    if ( FEditor.Lines.Count = 0 ) then
-    begin
-      FEditor.SelectAll; // IMOPRTANT!
-      FEditor.SelAttributes.Assign( FEditor.DefAttributes );
-      FEditor.SelLength := 0;
-    end;
-    FEditor.UseTabChar := FUseTabChar;
-    FEditor.ReadOnly := FReadOnly;
+
   finally
-    FEditor.Lines.EndUpdate;
+     FEditor.EndUpdate;
   end;
 end; // UpdateEditor
 
@@ -2232,7 +2223,7 @@ var
 begin
   if not assigned(FEditor) then exit;
   if not assigned(FSelectedNode) then  begin
-    FEditor.Lines.Clear;
+    FEditor.Clear;
     exit;
   end;
 
@@ -2243,7 +2234,7 @@ begin
       try
         FEditor.OnChange := nil;
         FEditor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
-        FEditor.Lines.Clear;
+        FEditor.Clear;
 
         FSelectedNode.Stream.Position := 0;
 
@@ -2259,6 +2250,9 @@ begin
         FEditor.Color := FSelectedNode.RTFBGColor;
         FEditor.SelStart := FSelectedNode.SelStart;
         FEditor.SelLength := FSelectedNode.SelLength;
+
+        if FSelectedNode.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
+           UpdateEditor;
 
       finally
         FEditor.ReadOnly:= ReadOnlyBAK;

@@ -201,6 +201,9 @@ begin
           ShowHint := false;
         end;
       end;
+
+      SetEditorZoom( aNote.Editor, DefaultEditorProperties.DefaultZoom, '' );
+      _LastZoomValue:= DefaultEditorProperties.DefaultZoom;
   end;
 
 end; // SetUpVCLControls
@@ -691,8 +694,7 @@ begin
 
           Log_StoreTick( 'After Created TTabRichEdit', 3 );
 
-          with aNote do
-          begin
+          with aNote do begin
             UpdateTabSheet;
             UpdateEditor; // do this BEFORE placing RTF text in editor
           end;

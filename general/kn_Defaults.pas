@@ -50,14 +50,13 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     ColorDlg: TColorDialog;
-    FontDlg: TFontDialog;            
+    FontDlg: TFontDialog;
     Pages: TPage95Control;
     Tab_Main: TTab95Sheet;
     Tab_Tree: TTab95Sheet;
     GBox_Note: TGroupBox;
     Label_TabSize: TLabel;
     Label1: TLabel;
-    Bevel1: TBevel;
     Label4: TLabel;
     CB_WordWrap: TCheckBox;
     CB_URLDetect: TCheckBox;
@@ -70,32 +69,37 @@ type
     BTN_Color: TBitBtn;
     BTN_Defaults: TBitBtn;
     Edit_Sample: TEdit;
-    Bevel2: TBevel;
     CB_TreeCheck: TCheckBox;
-    Bevel4: TBevel;
     Label5: TLabel;
     Edit_NodeName: TComboBox;
     CB_AutoNumberNodes: TCheckBox;
-    Bevel5: TBevel;
     BitBtn_TknHlp: TBitBtn;
     Label_EditorFonts: TLabel;
-    Label_TreeFonts: TLabel;
     Label_TreeSettings: TLabel;
     Label_EditorSettings: TLabel;
     FormPlacement: TFormPlacement;
     CB_Vertical: TCheckBox;
-    Tab_Adv: TTab95Sheet;
-    GroupBox1: TGroupBox;
-    CB_SaveAsDef: TCheckBox;
-    LB_SaveAsDef: TLabel;
     Button_Help: TButton;
     Label14: TLabel;
-    LB_PlainText: TLabel;
-    CB_PlainText: TCheckBox;
     Label2: TLabel;
     Combo_TreeImages: TComboBox;
     Combo_DefEdLang: TLanguagesCombo;
     CB_HideChecked: TCheckBox;
+    CB_Zoom: TComboBox;
+    LB_Zoom: TLabel;
+    Label8: TLabel;
+    CB_PlainText: TCheckBox;
+    GB_Defaults: TGroupBox;
+    CB_SaveDefaults: TCheckBox;
+    CB_SaveAsDef: TCheckBox;
+    LB_Scope: TLabel;
+    Label3: TLabel;
+    Label6: TLabel;
+    BitBtn_NoteHelp: TBitBtn;
+    BitBtn_NoteChromeHelp: TBitBtn;
+    BitBtn_TreeChromeHelp: TBitBtn;
+    CB_InheritBGColor: TCheckBox;
+    LB_PlainText: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -109,12 +113,26 @@ type
     procedure PagesChange(Sender: TObject);
     procedure CB_UseTabCharClick(Sender: TObject);
     procedure BitBtn_TknHlpClick(Sender: TObject);
-    procedure AM_SaveAsDefClick(Sender: TObject);
+    procedure CB_SaveAsDefClick(Sender: TObject);
     procedure Button_HelpClick(Sender: TObject);
     procedure Edit_NoteNameKeyPress(Sender: TObject; var Key: Char);
+    procedure CB_ZoomKeyPress(Sender: TObject; var Key: Char);
+    procedure CB_ZoomExit(Sender: TObject);
+    procedure CB_SaveDefaultsClick(Sender: TObject);
+    procedure CB_PlainTextClick(Sender: TObject);
+    procedure LB_PlainTextClick(Sender: TObject);
+    procedure BitBtn_NoteChromeHelpClick(Sender: TObject);
+    procedure BitBtn_NoteHelpClick(Sender: TObject);
+    procedure BitBtn_TreeChromeHelpClick(Sender: TObject);
 
   private
     { Private declarations }
+    fDefaultZoom: integer;
+    fOriginalAction : TPropertiesAction;
+
+    procedure CheckScope;
+    procedure CheckZoomValue;
+
   public
     { Public declarations }
     Initializing : boolean;
@@ -135,6 +153,8 @@ type
     myHistoryCnt : integer;
     myNodeNameHistory : string;
 
+    myInheritBGColor: boolean;
+
     mySaveFileDefaults : boolean;
     myCurrentFileName : string;
 
@@ -148,21 +168,25 @@ type
 
 
 implementation
+uses
+  kn_global;
 
 {$R *.DFM}
 
 resourcestring
+  STR_Ok = 'OK';
+  STR_Ok_Hint = 'Accept changes and close dialog box';
   STR_01 = 'Note Properties: %s';
   STR_02 = 'Close';
   STR_03 = 'Note is Read-Only: cannot change properties';
   STR_04 = ' [RO]';
   STR_05 = ' View properties for current note ';
-  STR_06 = ' Change properties for current note ';
+  STR_06 = 'Change properties for current note';
   STR_07 = '&Save as default for "%s"';
   STR_08 = 'Defaults for ';
-  STR_09 = ' Defaults for notes in ';
+  STR_09 = 'Change Defaults for NEW notes in THIS FILE';
   STR_10 = 'Defaults for all files';
-  STR_11 = ' Change default properties for all new notes ';
+  STR_11 = 'Change default properties for all NEW notes';
   STR_12 = 'Note name cannot be blank. Please enter a name.';
   STR_13 = 'Note name cannot contain the "%s" character';
   STR_14 = 'Node name cannot contain the "%s" character';
@@ -180,6 +204,11 @@ resourcestring
   STR_26 = ' = name of active note';
   STR_27 = ' = name of currently open file';
   STR_28 = '<no icon>';
+  STR_29 = 'Invalid zoom ratio: ';
+  STR_30 = ' (and apply to "%s" note)';
+  STR_31 = '&Plain text only  ';
+  STR_32 = '(do not save formatting information)';
+  STR_33 = '(ALL FORMATTING will be REMOVED)';
 
 procedure TForm_Defaults.FormCreate(Sender: TObject);
 var
@@ -193,6 +222,7 @@ begin
 
   mySaveFileDefaults := false;
   myCurrentFileName := '';
+  fDefaultZoom:= 100;
 
   with FormPlacement do
   begin
@@ -229,73 +259,112 @@ begin
   for i := 0 to pred( Chest.IMG_Categories.Count ) do
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
+
+  LB_PlainText.Caption:= STR_31 + STR_32;
 end; // CREATE
 
+
+procedure TForm_Defaults.CheckScope;
+var
+   SaveDefaults: boolean;
+
+begin
+    SaveDefaults:= CB_SaveDefaults.Checked;
+    CB_SaveAsDef.Enabled:= SaveDefaults and not (myCurrentFileName = '');
+
+    CB_Zoom.Enabled := SaveDefaults;
+    LB_Zoom.Enabled := SaveDefaults;
+    CB_PlainText.Enabled := not SaveDefaults;
+    LB_PlainText.Enabled := not SaveDefaults;
+
+    if SaveDefaults then begin
+       Action:= propDefaults;
+       if CB_SaveAsDef.Checked then
+          LB_Scope.Caption := STR_09
+       else
+          LB_Scope.Caption := STR_11;
+
+    end
+    else begin
+       Action:= propThisNote;
+       if myNoteIsReadOnly then
+          LB_Scope.Caption := STR_05
+       else
+          LB_Scope.Caption := STR_06;
+    end;
+
+
+    Button_OK.Hint := STR_Ok_Hint;
+
+    if (fOriginalAction = propThisNote) and (myNoteIsReadOnly) then begin
+       if Action = propThisNote then begin
+          Button_OK.ModalResult := mrCancel;
+          Button_OK.Caption := STR_02;
+          Button_OK.Hint := STR_03;
+       end
+       else begin
+          Button_OK.ModalResult := mrOk;
+          Button_OK.Caption := STR_Ok;
+       end;
+       Button_Cancel.Visible := not (Action = propThisNote);
+    end;
+
+
+    if   ((fOriginalAction = propThisNote) and SaveDefaults)
+      or ((fOriginalAction = propDefaults) and CB_SaveAsDef.Checked)   then
+
+       LB_Scope.Font.Style:= [fsBold]
+    else
+       LB_Scope.Font.Style:= [];
+end;
+
+
+
+
 procedure TForm_Defaults.FormActivate(Sender: TObject);
+var
+  tabName: string;
 begin
   if ( not Initializing ) then exit;
   Initializing := false;
 
+  fOriginalAction:= Action;
 
   try
 
+    if myCurrentFileName <> '' then
+       CB_SaveAsDef.Caption := Format( STR_07, [myCurrentFileName] );
+
     case Action of
       propThisNote : begin
-        // Tab_Adv.TabVisible := false;
+        CB_SaveDefaults.Enabled := (NoteKind = ntTree);
+        CB_SaveDefaults.Checked := false;
+        CB_SaveAsDef.Checked := False;
 
-        LB_SaveAsDef.Enabled := false;
-        CB_SaveAsDef.Enabled := false;
+        tabName:= RemoveAccelChar( myTabProperties.Name );
 
-        LB_PlainText.Enabled := true;
-        CB_PlainText.Enabled := true;
-
-        Caption := Format( STR_01, [RemoveAccelChar( myTabProperties.Name )] );
-
+        Caption := Format( STR_01, [tabName] );
         if myNoteIsReadOnly then
-        begin
-          Button_OK.ModalResult := mrCancel;
-          Button_OK.Caption := STR_02;
-          Button_OK.Hint := STR_03;
-          Button_Cancel.Visible := false;
-          Caption := Caption + STR_04;
-          GBox_Note.Caption := STR_05;
-        end
+           Caption := Caption + STR_04
         else
-        begin
-          GBox_Note.Caption := STR_06;
-        end;
+           CB_SaveDefaults.Caption := CB_SaveDefaults.Caption + Format( STR_30, [tabName] );
       end;
+
       propDefaults : begin
+        CB_SaveDefaults.Enabled := false;
+        CB_SaveDefaults.Checked := true;
+        CB_SaveAsDef.Checked := mySaveFileDefaults;
 
-        LB_PlainText.Enabled := false;
-        CB_PlainText.Enabled := false;
-
-        if ( myCurrentFileName <> '' ) then
-        begin
-          CB_SaveAsDef.Caption := Format( STR_07, [myCurrentFileName] );
-          // Tab_Adv.TabVisible := true;
-          LB_SaveAsDef.Enabled := true;
-          CB_SaveAsDef.Enabled := true;
-        end
-        else
-        begin
-          // Tab_Adv.TabVisible := false;
-          LB_SaveAsDef.Enabled := false;
-          CB_SaveAsDef.Enabled := false;
-        end;
-        if ( CB_SaveAsDef.Enabled and mySaveFileDefaults ) then
-        begin
-          CB_SaveAsDef.Checked := true;
-          Caption := STR_08 + myCurrentFileName;
-          GBox_Note.Caption := STR_09 + myCurrentFileName + ' ';
-        end
-        else
-        begin
+       if mySaveFileDefaults then
+          Caption := STR_08 + myCurrentFileName
+       else
           Caption := STR_10;
-          GBox_Note.Caption := STR_11;
-        end;
+
       end;
     end;
+
+    CheckScope;
+
 
     Edit_NoteName.Items.BeginUpdate;
     try
@@ -304,9 +373,9 @@ begin
       Edit_NoteName.Items.EndUpdate;
     end;
 
-    GBox_Tree.Caption := GBox_Note.Caption;
     BitBtn_TknHlp.OnClick := BitBtn_TknHlpClick;
     Tab_Tree.TabVisible := (( Action in [propDefaults] ) or ( NoteKind = ntTree ));
+    CB_InheritBGColor.Visible := Tab_Tree.TabVisible;
 
     Edit_NodeName.Items.BeginUpdate;
     try
@@ -444,6 +513,7 @@ begin
     ImageIndex := pred( Combo_Icons.ItemIndex );
   end;
 
+  CheckZoomValue;
   with myEditorProperties do
   begin
     TabSize := Spin_TabSize.Value;
@@ -451,6 +521,7 @@ begin
     URLDetect := CB_URLDetect.Checked;
     UseTabChar := CB_UseTabChar.Checked;
     WordWrap := CB_WordWrap.Checked;
+    DefaultZoom:= fDefaultZoom;
   end;
 
   if (( Action in [propDefaults] ) or ( NoteKind = ntTree )) then
@@ -472,6 +543,8 @@ begin
     Language := Combo_DefEdLang.Language;
   end;
 
+  // myInheritBGColor:= CB_InheritBGColor.Checked;      // -> To modify in Global options form
+
 end; // FormToProps
 
 procedure TForm_Defaults.PropsToForm;
@@ -490,6 +563,7 @@ begin
     CB_URLDetect.Checked := URLDetect;
     CB_UseTabChar.Checked := UseTabChar;
     CB_WordWrap.Checked := WordWrap;
+    CB_Zoom.Text:= IntToStr(DefaultZoom);
   end;
 
   if (( Action in [propDefaults] ) or ( NoteKind = ntTree )) then
@@ -510,46 +584,25 @@ begin
     Combo_DefEdLang.Language := Language;
   end;
 
+  CB_InheritBGColor.Checked:= myInheritBGColor;
+
 end; // PropsToForm
 
 procedure TForm_Defaults.UpdateSampleFont;
 begin
-
-  if Pages.ActivePage = Tab_Adv then
-  begin
-    BTN_Font.Visible := false;
-    BTN_Color.Visible := false;
-    BTN_Defaults.Visible := false;
-    Edit_Sample.Visible := false;
+  if Pages.ActivePage = Tab_Tree then begin
+     Edit_Sample.Color := myTreeChrome.BGColor;
+     FontInfoToFont( myTreeChrome.Font, Edit_Sample.Font );
+     with myTreeChrome do
+       Edit_Sample.Text := Font.Name + #32 + inttostr( Font.Size ) + ' pt ' + FontStyleToStr( Font.Style );
   end
-  else
-  begin
-
-    BTN_Font.Visible := true;
-    BTN_Color.Visible := true;
-    BTN_Defaults.Visible := true;
-    Edit_Sample.Visible := true;
-
-    if Pages.ActivePage = Tab_Tree then
-    begin
-      Edit_Sample.Color := myTreeChrome.BGColor;
-      FontInfoToFont( myTreeChrome.Font, Edit_Sample.Font );
-      with myTreeChrome do
-      begin
-        Edit_Sample.Text := Font.Name + #32 + inttostr( Font.Size ) + ' pt ' + FontStyleToStr( Font.Style );
-      end;
-    end
-    else
-    begin
-      Edit_Sample.Color := myEditorChrome.BGColor;
-      FontInfoToFont( myEditorChrome.Font, Edit_Sample.Font );
-      with myEditorChrome do
-      begin
-        Edit_Sample.Text := Font.Name + #32 + inttostr( Font.Size ) + ' pt ' + FontStyleToStr( Font.Style );
-      end;
-    end;
-
+  else begin
+     Edit_Sample.Color := myEditorChrome.BGColor;
+     FontInfoToFont( myEditorChrome.Font, Edit_Sample.Font );
+     with myEditorChrome do
+       Edit_Sample.Text := Font.Name + #32 + inttostr( Font.Size ) + ' pt ' + FontStyleToStr( Font.Style );
   end;
+
 end; // UpdateSampleFont
 
 procedure TForm_Defaults.BTN_FontClick(Sender: TObject);
@@ -675,10 +728,79 @@ begin
 end;
 
 
-procedure TForm_Defaults.AM_SaveAsDefClick(Sender: TObject);
+procedure TForm_Defaults.CB_SaveAsDefClick(Sender: TObject);
 begin
   mySaveFileDefaults := CB_SaveAsDef.Checked;
+  CheckScope;
 end;
+
+
+procedure TForm_Defaults.CB_SaveDefaultsClick(Sender: TObject);
+begin
+   if not CB_SaveDefaults.Checked then begin
+      CB_SaveAsDef.Checked:= false;
+
+      if fOriginalAction = propThisNote then
+         Edit_NoteName.Text := myTabProperties.Name;
+   end
+   else begin
+       Edit_NoteName.Text := DefaultTabProperties.Name;
+       CB_PlainText.Checked:= myEditorProperties.PlainText;
+   end;
+
+   CheckScope;
+end;
+
+procedure TForm_Defaults.CB_PlainTextClick(Sender: TObject);
+begin
+   if CB_PlainText.Checked and (fOriginalAction = propThisNote) and (not myNoteIsReadOnly) and (not myEditorProperties.PlainText) then begin
+      LB_PlainText.Caption:= STR_31 + STR_33;       // warning
+      LB_PlainText.Font.Color:= clRed;
+   end
+   else begin
+      LB_PlainText.Caption:= STR_31 + STR_32;
+      LB_PlainText.Font.Color:= clBlack;
+   end;
+end;
+
+procedure TForm_Defaults.LB_PlainTextClick(Sender: TObject);
+begin
+  CB_PlainText.Checked:= not CB_PlainText.Checked;
+end;
+
+
+procedure TForm_Defaults.CheckZoomValue;
+begin
+    try
+      fDefaultZoom := strtoint( CB_Zoom.Text );
+      if ( fDefaultZoom > 1000 ) then begin
+          fDefaultZoom := 1000;
+          CB_Zoom.Text:= '1000';
+      end;
+
+    except
+      on E : Exception do begin
+        messagedlg( STR_29 + E.Message, mtError, [mbOK], 0 );
+        fDefaultZoom := 100;
+        CB_Zoom.Text:= '100';
+      end;
+    end;
+end;
+
+procedure TForm_Defaults.CB_ZoomExit(Sender: TObject);
+begin
+   CheckZoomValue;
+end;
+
+procedure TForm_Defaults.CB_ZoomKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (key in [#8, #9, #13, #27, '0'..'9']) then begin
+    key := #0;
+    exit;
+  end;
+end;
+
+
 
 
 procedure TForm_Defaults.Button_HelpClick(Sender: TObject);
@@ -694,6 +816,58 @@ begin
 end; // Edit_NoteNameKeyPress
 
 
+
+procedure TForm_Defaults.BitBtn_NoteHelpClick(Sender: TObject);
+var
+   msg: string;
+begin
+  msg:= 'REMEMBER:' + #13#13 +
+        '- Note settings apply only to NEW nodes, except:' + #13 +
+        '   - ''Plain note only'': modifies ALL the notes' + #13 +
+        '   - ''WordWrap'': affects ALL the notes' + #13 +
+        '       (not explicitly set WordWrap previously)' + #13#13 +
+        '* More info in Help menu'
+        ;
+
+  messagedlg(msg , mtInformation, [mbOK], 0  );
+end;
+
+procedure TForm_Defaults.BitBtn_NoteChromeHelpClick(Sender: TObject);
+var
+   msg: string;
+begin
+  msg:= 'REMEMBER:' + #13#13 +
+        '- Font change affect only to NEW nodes (all if Plain note)' + #13 +
+        '- BG Color depends on ''Inherit BG color from active node'':' + #13 +
+        '   - If set, background color of selected node is shown' + #13 +
+        '     (=> BG color of its new child nodes)' + #13 +
+        '   - If not set, default BG color for all NEW nodes is shown' + #13#13 +
+        '- BG Color can be changed for ALL nodes in a Note:' + #13 +
+        '    [Shift] + "Format | Background color"' + #13#13 +
+        '* More info in Help menu'
+        ;
+
+  messagedlg(msg , mtInformation, [mbOK], 0  );
+end;
+
+
+procedure TForm_Defaults.BitBtn_TreeChromeHelpClick(Sender: TObject);
+var
+   msg: string;
+begin
+  msg:= 'REMEMBER:' + #13#13 +
+        '- BG Color sets backgroud color for the Tree Panel and' + #13 +
+        '  default BG color of tree nodes' + #13 +
+        '- Color change doesn''t affect tree nodes explicitly set' + #13 +
+        '- ''Inherit properties from active node'' option is' + #13 +
+        '  considered in NEW nodes' + #13 +
+        '- ''Inherit BG color from active node'' option does NOT' + #13 +
+        '  affect (refers to Editor) ' + #13#13 +
+        '* More info in Help menu'
+        ;
+
+  messagedlg(msg , mtInformation, [mbOK], 0  );
+end;
 
 
 end.

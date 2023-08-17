@@ -166,7 +166,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Interface'
-      object GroupBox1: TGroupBox
+      object GroupBox_General1: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -305,7 +305,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 6
         end
       end
-      object GroupBox7: TGroupBox
+      object GroupBox_General2: TGroupBox
         Left = 5
         Top = 191
         Width = 350
@@ -401,11 +401,11 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Editor'
-      object GBox_EditorGlobal: TGroupBox
+      object GroupBox_RTFEdit1: TGroupBox
         Left = 5
         Top = 5
         Width = 350
-        Height = 164
+        Height = 179
         Caption = ' Global editor settings'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -431,7 +431,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_SaveCaretPos: TCheckBox
           Left = 10
-          Top = 96
+          Top = 100
           Width = 303
           Height = 17
           Hint = 'Restore caret positions in notes when the file is opened'
@@ -446,7 +446,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_TrackCaretPos: TCheckBox
           Left = 10
-          Top = 56
+          Top = 60
           Width = 303
           Height = 17
           Hint = 'Display cursor row and column in status bar'
@@ -462,7 +462,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_AutoIndent: TCheckBox
           Left = 10
-          Top = 121
+          Top = 126
           Width = 303
           Height = 17
           Hint = 'Indent new line to match previous'
@@ -477,7 +477,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_TrackWordCount: TCheckBox
           Left = 10
-          Top = 76
+          Top = 80
           Width = 303
           Height = 17
           Hint = 'Display word and page counts in status bar'
@@ -491,16 +491,33 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
           OnClick = CB_TrackWordCountClick
         end
+        object CheckBox_InheritBGColor: TCheckBox
+          Left = 10
+          Top = 152
+          Width = 311
+          Height = 17
+          Hint = 
+            'Editor background color of newly added node inherits from select' +
+            'ed node'
+          Caption = 'Inherit &BG color from active node  (new nodes)'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+        end
       end
-      object GroupBox20: TGroupBox
+      object GroupBox_RTFEdit2: TGroupBox
         Left = 5
-        Top = 177
+        Top = 190
         Width = 350
-        Height = 152
+        Height = 146
         TabOrder = 1
         object Label12: TLabel
           Left = 10
-          Top = 114
+          Top = 113
           Width = 159
           Height = 13
           AutoSize = False
@@ -509,7 +526,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label11: TLabel
           Left = 10
-          Top = 84
+          Top = 83
           Width = 159
           Height = 13
           AutoSize = False
@@ -518,7 +535,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label1: TLabel
           Left = 10
-          Top = 54
+          Top = 53
           Width = 159
           Height = 13
           AutoSize = False
@@ -527,7 +544,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label_UndoLimit: TLabel
           Left = 10
-          Top = 24
+          Top = 23
           Width = 159
           Height = 13
           AutoSize = False
@@ -536,7 +553,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_UndoLimit: TSpinEdit
           Left = 175
-          Top = 17
+          Top = 16
           Width = 56
           Height = 22
           Hint = 'Number of editing operations that can be undone'
@@ -548,7 +565,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_IndentInc: TSpinEdit
           Left = 175
-          Top = 47
+          Top = 46
           Width = 56
           Height = 22
           Hint = 'Increment line indents by this value'
@@ -560,7 +577,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_FontSizeInc: TSpinEdit
           Left = 175
-          Top = 77
+          Top = 76
           Width = 56
           Height = 22
           Hint = 'Increment font size by this value'
@@ -572,7 +589,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_ParaSpaceInc: TSpinEdit
           Left = 175
-          Top = 107
+          Top = 106
           Width = 56
           Height = 22
           Hint = 'Increment "space before/after paragraph" by this value'
@@ -645,21 +662,6 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 2
         end
-        object CheckBox_InheritBGColor: TCheckBox
-          Left = 10
-          Top = 152
-          Width = 311
-          Height = 17
-          Hint = 'Newly added node inherits BG color from selected node'
-          Caption = 'Inherit &BG color from active node'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 4
-        end
         object CheckBox_AutoNameVNodes: TCheckBox
           Left = 10
           Top = 132
@@ -677,7 +679,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_InheritNodeProperties: TCheckBox
           Left = 10
-          Top = 172
+          Top = 156
           Width = 311
           Height = 17
           Hint = 'Newly added node inherits checked, bold and color state'
@@ -688,11 +690,11 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 4
         end
         object CheckBox_HotTrackTree: TCheckBox
           Left = 10
-          Top = 204
+          Top = 200
           Width = 311
           Height = 17
           Hint = 'Tree selection follows mouse pointer'
@@ -703,11 +705,11 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 5
         end
         object CheckBox_AutoScroll: TCheckBox
           Left = 10
-          Top = 224
+          Top = 220
           Width = 311
           Height = 17
           Hint = 'Auto scroll tree when text doesn'#39't fit in window'
@@ -718,7 +720,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 6
         end
         object CheckBox_TreeTips: TCheckBox
           Left = 10
@@ -733,7 +735,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 7
         end
         object CB_ShowFullPath: TCheckBox
           Left = 10
@@ -748,7 +750,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 9
+          TabOrder = 8
         end
         object CB_ShowFullPathSearch: TCheckBox
           Left = 10
@@ -763,7 +765,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 11
+          TabOrder = 10
         end
         object CB_PathTopToBottom: TCheckBox
           Left = 226
@@ -778,7 +780,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 10
+          TabOrder = 9
         end
         object Combo_ExpandMode: TComboBox
           Left = 10
@@ -800,7 +802,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_KNTFiles'
-      object GroupBox2: TGroupBox
+      object GroupBox_Files1: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -887,7 +889,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 3
         end
       end
-      object GroupBox9: TGroupBox
+      object GroupBox_Files2: TGroupBox
         Left = 5
         Top = 167
         Width = 350
@@ -1003,7 +1005,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_FileOptions'
-      object GroupBox3: TGroupBox
+      object GroupBox_FileOpt1: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -1080,7 +1082,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Value = 5
         end
       end
-      object GroupBox13: TGroupBox
+      object GroupBox_FileOpt2: TGroupBox
         Left = 5
         Top = 124
         Width = 350
@@ -1139,7 +1141,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
         end
       end
-      object GroupBox15: TGroupBox
+      object GroupBox_FileOpt3: TGroupBox
         Left = 5
         Top = 238
         Width = 350
@@ -1203,7 +1205,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_BackupOptions'
-      object GroupBox11: TGroupBox
+      object GroupBox_Back: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -1430,7 +1432,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Actions'
-      object GroupBox10: TGroupBox
+      object GroupBox_Actions1: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -1588,7 +1590,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 6
         end
       end
-      object GroupBox16: TGroupBox
+      object GroupBox_Act2: TGroupBox
         Left = 5
         Top = 209
         Width = 350
@@ -1681,7 +1683,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Confirmations'
-      object GroupBox12: TGroupBox
+      object GroupBox_Conf: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -1868,7 +1870,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Chrome'
-      object GroupBox14: TGroupBox
+      object GroupBox_Chrome2: TGroupBox
         Left = 5
         Top = 184
         Width = 350
@@ -1970,7 +1972,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
         end
       end
-      object GroupBox5: TGroupBox
+      object GroupBox_Chrome1: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -2140,7 +2142,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Icons'
-      object GroupBox_ICN: TGroupBox
+      object GroupBox_TabIcons: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -2251,7 +2253,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Advanced'
-      object GroupBox8: TGroupBox
+      object GroupBox_Adv: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -2458,7 +2460,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Formats'
-      object GroupBox4: TGroupBox
+      object GroupBox_Formats1: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -2571,7 +2573,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
         end
       end
-      object GroupBox17: TGroupBox
+      object GroupBox_Formats2: TGroupBox
         Left = 5
         Top = 191
         Width = 350
@@ -3011,7 +3013,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_FileTypes'
-      object GroupBox19: TGroupBox
+      object GroupBox_FileTypes: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -3107,7 +3109,7 @@ object Form_OptionsNew: TForm_OptionsNew
       Left = 0
       Top = 0
       Caption = 'PG_Language'
-      object GroupBox21: TGroupBox
+      object GroupBox_Other1: TGroupBox
         Left = 5
         Top = 5
         Width = 350
@@ -3167,7 +3169,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 1
         end
       end
-      object GroupBox22: TGroupBox
+      object GroupBox_Other3: TGroupBox
         Left = 5
         Top = 280
         Width = 350
@@ -3213,7 +3215,7 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 1
         end
       end
-      object GroupBox24: TGroupBox
+      object GroupBox_Other2: TGroupBox
         Left = 5
         Top = 148
         Width = 350
