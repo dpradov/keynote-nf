@@ -452,7 +452,10 @@ begin
             KeyOptions.NodeNameHistory := myNodeNameHistory;
 
             if (PropertiesAction = propThisNote) and not myNoteIsReadOnly  then begin
+                NoteFile.Modified:= True;
                 ActiveNote.Modified:= True;
+                UpdateNoteFileState( [fscModified] );
+
                 ActiveNote.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
                 ActiveNote.SetEditorProperties( myEditorProperties );
                 ActiveNote.EditorChrome := myEditorChrome;
