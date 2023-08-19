@@ -751,6 +751,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           ParentFont = False
           TabOrder = 8
+          OnClick = CB_ShowFullPathClick
         end
         object CB_ShowFullPathSearch: TCheckBox
           Left = 10
@@ -772,7 +773,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 276
           Width = 113
           Height = 17
-          Hint = 'Display node path in reverse order'
+          Hint = 'Display node path in reverse order (for use only in status bar)'
           Caption = 'Reverse or&der'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText

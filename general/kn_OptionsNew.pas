@@ -316,6 +316,7 @@ type
     procedure CB_TrackWordCountClick(Sender: TObject);
     procedure CheckBox_AutoSaveOnFocusClick(Sender: TObject);
     procedure CB_AsTextClick(Sender: TObject);
+    procedure CB_ShowFullPathClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -1119,7 +1120,10 @@ begin
     CB_InheritNodeProperties.Checked := InheritNodeProperties;
     CB_ConfirmNodeRefresh.Checked := ConfirmNodeRefresh;
     Combo_ExpandMode.ItemIndex := ord( ExpandMode );
-  end;                                                   
+  end;
+
+  CB_ShowFullPathClick(nil);
+
 end; // OptionsToForm
 
 procedure TForm_OptionsNew.Checkbox_LoadLastFileClick(Sender: TObject);
@@ -1713,6 +1717,13 @@ begin
   Plain:= CB_AsText.Checked;
   Combo_Size.Enabled:= Plain;
   Label_MaxSize.Enabled:= Plain;
+end;
+
+procedure TForm_OptionsNew.CB_ShowFullPathClick(Sender: TObject);
+begin
+  CB_PathTopToBottom.Enabled:= CB_ShowFullPath.Checked;
+  if not CB_ShowFullPath.Checked then
+     CB_PathTopToBottom.Checked:= False;
 end;
 
 procedure TForm_OptionsNew.CB_TrackWordCountClick(Sender: TObject);

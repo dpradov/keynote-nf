@@ -149,19 +149,23 @@ var
   i, j, n, m: integer;
   pDelim: integer;
   ShowFullPath: boolean;
+  PathTopToBottom: boolean;
 
 begin
+  PathTopToBottom:= TreeOptions.PathTopToBottom;
   ShowFullPath:= TreeOptions.ShowFullPath;
-  if forUseInFindResults then
+  if forUseInFindResults then begin
      ShowFullPath:= TreeOptions.ShowFullPathSearch;
+     PathTopToBottom:= true;
+  end;
 
   if assigned(myTreeNode) then begin
      if ShowFullPath then
-        path:= GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, TreeOptions.PathTopToBottom ) // {N}
+        path:= GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, PathTopToBottom ) // {N}
      else
         path:= myTreeNode.Text; // {N}
 
-     if TreeOptions.PathTopToBottom then
+     if PathTopToBottom then
         path:= myNote.Name + TreeOptions.NodeDelimiter + path
      else
         path:= path + TreeOptions.NodeDelimiter + myNote.Name;
