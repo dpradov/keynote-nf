@@ -682,6 +682,7 @@ type
     procedure FullCollapse;
     procedure FullExpand;
     procedure FullNotHidden;                            // [dpv]
+    procedure RecreateTreeWindow;                       // [dpv]
     function GetHitTestInfoAt(X, Y: Integer): THitTests;
     function GetNodeAt(X, Y: Integer): TTreeNTNode;
     function GetToolTips: HWND;
@@ -3235,7 +3236,8 @@ procedure TTreeNTNodes.Delete(Node: TTreeNTNode);
 // deletes the given node from the tree
 
 begin
-  if (Node.ItemId = nil) and assigned(Owner.FOnDeletion) then FOwner.FOnDeletion(Self, Node);
+  if (Node.ItemId = nil) and assigned(Owner.FOnDeletion) then
+   FOwner.FOnDeletion(Self, Node);
 
   // First we assure that this node and all the children are visible, so the delete mechanism works ok
   if Node.ItemId <> nil then
@@ -4333,6 +4335,21 @@ var Node : TTreeNTNode;
 
 begin
   // [x] [MJ] THIS IS where pointers to items become invalid!!!
+
+  { *1  [dpv]
+     I don't see what the FSaveItemHeight variable is actually needed for. In fact, assigning ItemHeight to FSaveItemHeight at
+     this point is being the cause that changes in the tree font that affect the height of the items sometimes consider the correct
+     height and sometimes do not (most...).
+     From what I see, this method only seems to end up being called when the background color of the tree (TV.Color) is changed.
+     The only thing this assignment causes is that from TCustomTreeNT.CreateWnd the value returned at this point by ItemHeight
+     (which calls the TVM_GETITEMHEIGHT message) is used, which in most cases is not correct when there are already items in the tree.
+
+     In fact, in the first call to TCustomTreeNT.CreateWnd, when creating the tree at the beginning (and in many cases the only
+     call to it) , the items are created correctly, and precisely at that moment FSaveItemHeight = -1.
+     The CreateWnd is not entered again until this DestroyWnd method is called first, which seems to happen only when the background
+     color of the tree (TV.Color) is modified.
+  }
+
   DragAcceptFiles( handle, false ); // [MJ]
   FStateChanging := True;
   if Items.Count > 0 then
@@ -4346,7 +4363,7 @@ begin
     if Node <> nil then FSaveIndex := Node.AbsoluteIndex;
   end;
   FSaveIndent := Indent;
-  FSaveItemHeight := ItemHeight;
+  // FSaveItemHeight := ItemHeight;   // *1
   inherited DestroyWnd;
 end;
 
@@ -4556,6 +4573,21 @@ procedure TCustomTreeNT.CMColorChanged(var Message: TMessage);
 begin
   inherited;
   RecreateWnd;
+end;
+
+
+//------------------------------------------------------------------------------
+
+{  [dpv]
+In order to force the display of the tree to be updated considering the new font.
+Currently this update is only taking place when the background color is *modified*.
+See comment *1 in TCustomTreeNT.DestroyWnd
+}
+procedure TCustomTreeNT.RecreateTreeWindow;
+var
+  Message: TMessage;
+begin
+   CMColorChanged(Message);
 end;
 
 //------------------------------------------------------------------------------

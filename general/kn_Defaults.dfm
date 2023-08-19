@@ -474,7 +474,7 @@ object Form_Defaults: TForm_Defaults
         Left = 2
         Top = 3
         Width = 349
-        Height = 321
+        Height = 337
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11

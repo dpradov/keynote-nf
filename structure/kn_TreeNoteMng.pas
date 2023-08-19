@@ -842,26 +842,101 @@ begin
 end; // OutlineNumberNodes
 
 procedure UpdateTreeChrome( const myNote : TTreeNote );
+var
+  myTreeNode: TTreeNTNode;
+  myNode: TNoteNode;
+  FOrig: TFont;
+  FDest: TFontInfo;
+  FontChange: boolean;
+  BGColorChange: boolean;
+  Styles: TFontStyles;
+
 begin
-  // myNote.TV.Items.BeginUpdate;
-  try
-    FontInfoToFont( myNote.TreeChrome.Font, myNote.TV.Font );
-    myNote.TV.Color := myNote.TreeChrome.BGColor;
-    {
-    node := myNote.TV.Items.GetFirstNode;
-    while assigned( node ) do
-    begin
-      // node.Font.Assign( myNote.TV.Font );
-      node.ParentFont := true;
-      node.ParentColor := true;
-      // FontInfoToFont( myNote.TreeChrome.Font, node.Font );
-      node := node.GetNext;
-    end;
-    }
-  finally
-    // myNote.TV.Items.EndUpdate;
-    // myNote.TV.Invalidate;
-  end;
+   { See comments in the methods TCustomTreeNT.RecreateTreeWindow and TCustomTreeNT.DestroyWnd  (TreeNT.pas)
+
+    The indicated explains why font changes in the tree (from 'Note Properties...') were not reflected on it
+    on many occasions, precisely those in which we had not modified the background color.
+    And besides, it was also happening that the font changes, when they were shown, did not give rise to a correct
+    resizing of the height of each item.
+     * These problems were of tree refresh. Saving and reopening the file would show up correctly.
+   }
+
+   FOrig:= myNote.TV.Font;
+   FDest:= myNote.TreeChrome.Font;
+
+   FontChange:=  (FOrig.Color <> FDest.Color) or (FOrig.Size <> FDest.Size) or
+                 (FOrig.Name <> FDest.Name) or (FOrig.Style <> FDest.Style) or
+                 (FOrig.Charset <> FDest.Charset);
+
+   BGColorChange:= (myNote.TV.Color <> myNote.TreeChrome.BGColor);
+
+   if not FontChange and not BGColorChange then
+      Exit;
+
+
+   if FontChange then begin
+      Log_StoreTick('');
+      Log_StoreTick( 'UpdateTreeChrome - Begin changes', 2, +1);
+
+      FontInfoToFont( myNote.TreeChrome.Font, myNote.TV.Font );   // This doesn't force any update (it doesn't end up calling RecreateWnd)
+
+      { The above line does not affect nodes with any changes from the default values, we must explicitly update their size, style and font color.
+        The background color of the node and the its font.name do not need to be updated.
+        Also take into account: if the font of the tree includes the bold style, and we remove it from a node, it will not indicate Bold=True,
+        but for the tree we have explicitly modified it, so we need to also look at the property ParentFont of TTreeNTNode
+      }
+
+      Log_StoreTick( 'After FontInfoToFont', 2);
+
+       myTreeNode := myNote.TV.Items.GetFirstNode;
+       while assigned( myTreeNode ) do begin
+         myNode:= TNoteNode(myTreeNode.Data);
+         if assigned(myNode) then begin
+           if not myTreeNode.ParentFont
+              or myNode.Bold  or myNode.HasNodeFontFace or myNode.HasNodeColor or myNode.HasNodeBGColor then begin
+
+               if not myNode.HasNodeFontFace then
+                  myTreeNode.Font.Name := FDest.Name;
+               //if myNode.HasNodeBGColor then myTreeNode.Color := myNode.NodeBGColor;       // Not necessary
+
+               myTreeNode.Font.Size := FDest.Size;
+
+               Styles:= FDest.Style;
+               if myNode.Bold then
+                  Styles := Styles + [fsBold];
+               myTreeNode.Font.Style := Styles;
+
+               if myNode.HasNodeColor then
+                 myTreeNode.Font.Color := myNode.NodeColor
+               else
+                 myTreeNode.Font.Color := FDest.Color;
+           end;
+         end;
+
+         myTreeNode := myTreeNode.GetNext;
+       end;
+   end;
+
+   Log_StoreTick( 'After modified individual nodes', 2);
+
+   myNote.TV.OnChange := nil;
+   //myNote.TV.Items.BeginUpdate;
+   try
+      myNote.TV.Color := myNote.TreeChrome.BGColor;   // It will do nothing if BGColorChange = False
+      Log_StoreTick( 'After changed TV.Color', 2);
+      if not BGColorChange and FontChange then begin
+         mynote.TV.RecreateTreeWindow;
+         Log_StoreTick( 'After RecreateTreeWindow', 2);
+      end;
+
+   finally
+      //myNote.TV.Items.EndUpdate;
+      myNote.TV.OnChange := Form_Main.TVChange;
+   end;
+
+   Log_StoreTick( 'UpdateTreeChrome - End changes', 2, -1);
+   Log_Flush();
+
 end; // UpdateTreeChrome
 
 procedure UpdateTreeOptions( const myNote : TTreeNote );
