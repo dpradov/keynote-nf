@@ -950,7 +950,7 @@ begin
             '{\rtf1\ansi{\fonttbl{\f0\fnil\fcharset0 Calibri;}}' +
             '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;}' +
             '\pard\fs4\par' +
-            '\pard\fs20 ';
+            '\pard\fs' + (2 * ResPanelOptions.FontSizeFindResults).ToString + ' ';
 
       if ( MatchCount > 0 ) then begin
          widthTwips := DotsToTwips(Form_Main.FindAllResults.Width) - 500;

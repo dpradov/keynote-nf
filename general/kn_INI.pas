@@ -740,8 +740,9 @@ const
 type
   TResPanelOptionsIniStr = record
     Section,
-    ColorFindList,
-    FindListAltColor,
+    //ColorFindList,
+    //FindListAltColor,
+    FontSizeFindResults,
     ShowFind,
     ShowMacro,
     ShowPlugin,
@@ -756,8 +757,9 @@ type
 const
   ResPanelOptionsIniStr : TResPanelOptionsIniStr = (
     Section : 'ResPanelOptions';
-    ColorFindList : 'ColorFindList';
-    FindListAltColor : 'FindListAltColor';
+    //ColorFindList : 'ColorFindList';
+    //FindListAltColor : 'FindListAltColor';
+    FontSizeFindResults: 'FontSizeFindResults';
     ShowFind : 'ShowFind';
     ShowMacro : 'ShowMacro';
     ShowPlugin : 'ShowPlugin';
@@ -1397,6 +1399,7 @@ begin
       section := ResPanelOptionsIniStr.section;
       //writebool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
       //writestring( section, ResPanelOptionsIniStr.FindListAltColor, ColorToString( ResPanelOptions.FindListAltColor ));
+      writeinteger( section, ResPanelOptionsIniStr.FontSizeFindResults, ResPanelOptions.FontSizeFindResults);
       writebool( section, ResPanelOptionsIniStr.ShowFind, ResPanelOptions.ShowFind );
       writebool( section, ResPanelOptionsIniStr.ShowMacro, ResPanelOptions.ShowMacro );
       writebool( section, ResPanelOptionsIniStr.ShowPlugin, ResPanelOptions.ShowPlugin );
@@ -1756,6 +1759,10 @@ begin
       ResPanelOptions.ShowFavorites := readbool( section, ResPanelOptionsIniStr.ShowFavorites, ResPanelOptions.ShowFavorites );
       ResPanelOptions.Stacked := readbool( section, ResPanelOptionsIniStr.Stacked, ResPanelOptions.Stacked );
       ResPanelOptions.TabOrientation := TTabOrientation( readinteger( section, ResPanelOptionsIniStr.TabOrientation, ord( ResPanelOptions.TabOrientation )));
+      try
+         ResPanelOptions.FontSizeFindResults := readinteger( section, ResPanelOptionsIniStr.FontSizeFindResults, ResPanelOptions.FontSizeFindResults);
+      except
+      end;
 
     end;
   finally
@@ -1982,6 +1989,7 @@ begin
   begin
     //ColorFindList := True;
     //FindListAltColor := clInfoBk;
+    FontSizeFindResults:= 12;          // Calibri 12
     ShowFind := true;
     ShowMacro := true;
     ShowPlugin := true;

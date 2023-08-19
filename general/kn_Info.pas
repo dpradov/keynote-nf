@@ -648,6 +648,7 @@ type
   TResPanelOptions = record
     //ColorFindList : boolean; // [*]
     //FindListAltColor : TColor; // [*]
+    FontSizeFindResults: integer;
     ShowFind : boolean;
     ShowMacro : boolean;
     ShowPlugin : boolean;

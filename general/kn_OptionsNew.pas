@@ -50,6 +50,7 @@ uses
    kn_INI,
    kn_DateTime,
    kn_LanguagesMng,
+   kn_global,
    kn_Main;
 
 
@@ -268,6 +269,8 @@ type
     BitBtn_TknHlp2: TBitBtn;
     CB_SourceURL: TCheckBox;
     CheckBox_InheritBGColor: TCheckBox;
+    Spin_FontSizeFindResults: TSpinEdit;
+    Label20: TLabel;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -865,6 +868,7 @@ begin
     AutoClose := CB_FindAutoClose.Checked;
     WordAtCursor := CB_WordAtCursor.Checked;
   end;
+  ResPanelOptions.FontSizeFindResults:= Spin_FontSizeFindResults.Value;
 
   with myEditorOptions do
   begin
@@ -1079,6 +1083,7 @@ begin
     CB_FindAutoClose.Checked := AutoClose;
     CB_WordAtCursor.Checked := WordAtCursor;
   end;
+  Spin_FontSizeFindResults.Value:= ResPanelOptions.FontSizeFindResults;
 
   with myEditorOptions do
   begin

@@ -3171,9 +3171,9 @@ object Form_OptionsNew: TForm_OptionsNew
       end
       object GroupBox_Other3: TGroupBox
         Left = 5
-        Top = 280
+        Top = 271
         Width = 350
-        Height = 86
+        Height = 95
         Caption = ' Find options '
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -3182,9 +3182,22 @@ object Form_OptionsNew: TForm_OptionsNew
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 1
+        object Label20: TLabel
+          Left = 13
+          Top = 70
+          Width = 126
+          Height = 13
+          Caption = 'Font size in Find All results'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
         object CB_WordAtCursor: TCheckBox
           Left = 10
-          Top = 27
+          Top = 24
           Width = 325
           Height = 17
           Hint = 'Prefills search pattern with current word'
@@ -3201,7 +3214,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_FindAutoClose: TCheckBox
           Left = 10
-          Top = 47
+          Top = 45
           Width = 325
           Height = 17
           Hint = 'Close the "Find" dialog box when button clicked'
@@ -3214,10 +3227,27 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 1
         end
+        object Spin_FontSizeFindResults: TSpinEdit
+          Left = 207
+          Top = 66
+          Width = 49
+          Height = 22
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          MaxLength = 2
+          MaxValue = 36
+          MinValue = 8
+          ParentFont = False
+          TabOrder = 2
+          Value = 10
+        end
       end
       object GroupBox_Other2: TGroupBox
         Left = 5
-        Top = 148
+        Top = 142
         Width = 350
         Height = 117
         Caption = ' Web browser options '
