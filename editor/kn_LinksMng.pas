@@ -27,6 +27,7 @@ uses
    System.SysUtils,
    System.StrUtils,
    System.IOUtils,
+   System.Math,
    Vcl.Controls,
    Vcl.Forms,
    Vcl.Dialogs,
@@ -176,7 +177,7 @@ begin
 
          if TreeOptions.PathTopToBottom then begin
             pDelim:= 0;
-            while (i < n) and (path[i] = pathInsertionPoint[i]) do begin
+            while (i < Min(n, m)) and (path[i] = pathInsertionPoint[i]) do begin
                if path[i] = TreeOptions.NodeDelimiter then
                   pDelim:= i;
                i:= i + 1;
