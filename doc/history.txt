@@ -35,6 +35,42 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
 -------------
 
 
+v 1.8.0 .2 Beta (19 aug 2023)
+--------------
+Corrects or implements the following issues:
+(more information in doc/Changes in 1.8.0 Beta2.txt)
+
+* Fixed: High DPI displays. The application should scale correctly based on OS settings
+* Added a new property, "Default Zoom": Allows to use a default value other than 100%
+* Changed behaviour of Zoom Text action.
+
+* New option: Font size in Find All results
+* Improved the display of node path in search results (when option "Show full node path in search results" is checked)
+* Changed: The option "Reverse order" it is used now only with the the option "Show full node path in status bar".
+* Fixed: The option "Show full node path in search results" was not used. 
+* Fixed: Find All with the option 'Current node and subtree' could ignore nodes from some point in certain situations
+
+* Several fixes and enhancements related to 'Note properties...'  and 'Default Settings...'
+  - Changes in design and functionality in "Default settings.." (F6) and "Note properties.." (F4)
+  - Modified several captions and hints to avoid possible confusion between color of nodes and color of editor
+  - Changed: Moved the option 'Inherit BG color from active node' from 'Tree panel' section to 'Rich Text editor'.
+  - Added: Font and BG color can be changed for ALL tree panels at once
+  - Fixed: modifying the properties of a note (Note properties..[F4]) could cause font formatting to be lost in certain situations
+  - Fixed: sometimes the defined default font properties of the note where ignored on new nodes.
+  - Fixed: Changes in tree font didn't update correctly
+  - Fixed: Sometimes changes from Note Properties (F4) did not modify the status of the file (to modified)
+
+* Fixed: Making bold a tree node din't maintain other possible styles of the default TV font
+
+* Optimization in file open/save, mainly in native format
+
+* Fixed: Exception while trying to insert a KNT link in a special case
+* Fixed: Change in read-only state of a note => save button state
+* Fixed possible exceptions when no file was loaded
+* Fixed exception by UpdateHistoryCommands in file without notes
+* Changes in log management
+
+
 v 1.8.0 .1 Beta (01 aug 2023)
 --------------
 Corrects or implements the following issues:

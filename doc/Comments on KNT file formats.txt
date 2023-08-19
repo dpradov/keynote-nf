@@ -1,0 +1,91 @@
+File formats in KeyNote NF. Native vs Compressed format
+=======================================================
+
+To help decide which format may be the most suitable to use with KeyNote NF files, depending on the circumstances,
+I have made a series of measurements that I show below.
+
+I have started from a personal file without images, in which I have duplicated (using Merge Notes...) several of the 
+largest notes. I have then created another file from that one, adding several images. What is interesting are the relative differences in the times obtained. Anyway, for reference: I have used a 7200rpm HDD, on an Intel(R) Core(TM) i5-4570 
+desktop, running Windows 10.
+
+I have used two files as a reference, comparing in both cases the times obtained when loading and saving the files,
+considering the native format and three options of the compressed format: Max, Default, Fastest  
+   
+   
+In general terms I want to highlight the following:
+---------------------------------------------------
+ - Reading the file from disk and parsing it, loading the data model, without building the user interface objects, 
+   requires very similar times in all formats.
+   However, in the compressed format we have to add the time required to compress or decompress (note, it is much 
+   more expensive to compress than to decompress). Something similar happens with the encrypted format, where you also
+   have to add the time needed to encrypt or decrypt.   
+      
+ - When opening a file, what takes the most time is the creation and configuration of the different Tree Panels. See notes (*)
+   I have in mind to use another control to improve this time and also make it possible to manage a larger number
+   of nodes with a lighter memory footprint. Specifically, I am considering using Virtual TreeView, instead of actual
+   one: TTreeNote.
+ 
+ - It could be more convenient to use a compressed format instead of native format when the file contains images, 
+   because of the way images are saved in RTF (at least in RichEdit control), in plain ASCII, as hexadecimal values.
+   
+ - The 'Default' option may be the most convenient if you need to compress a lot, since the size obtained is slightly 
+   greater than that obtained with the 'Max' option and yet it can be much faster. But the 'Fastest' option can be a great
+   compromise option, especially with very large files. You can easily quarter the file size on disk with very little time.   
+   
+ - If encrypting the file is a necessity, there is nothing more to say, it is a matter of using the available format
+    
+ - It is always strongly recommended to conserve backups of .knt files (and of all kind of files that we consider important)
+   But If we use a compressed or encrypted format then it is also more important, because if the file got corrupted for
+   any reason, it won't be able to be opened by KNT. Instead, in a native file, we could try to open with text editors
+   like Notepad++, and perhaps we could recover some information (but this requires to know the internals of KeyNote...)  
+   
+   I personally would never discard using compressed format, if it was the best option on certain files, for that 
+   hipothetic problem. I have been using the compressed format for a lot of years and never had any issue.   
+   But of course, I always use the option 'Backup at regular intervals' (https://github.com/dpradov/keynote-nf/issues/544),
+   so that I know that I will not end up overwriting the file with a corrupted file or with a file in wich a deleted 
+   information by error. Besides, I always conserve backup of my personal files in local, on my NAS, and even in the 
+   cloud (immediately in Dropbox, and periodically in Google Drive... ) :)
+
+ - In coming versions there will be another approach to the way images are saved, more optimized, but in the meantime it 
+   is important to consider this aspect, specially if we have large files with many images, or the files are saved to a
+   network folder
+
+
+---------------------------------------------------
+
+ Test with "File 1"
+ ---------------------
+  File with 16 notes, 1604 nodes    
+  No images. Almost all of the nodes in rich text, RTF
+ 
+                 Disk size    Times in milliseconds
+                              Load       Save
+   - Native:      7.160 KB    1.141 (*)    15
+   - Zip Max:     1.926 KB    1.187       531
+   - Zip Default: 1.936 KB    1.218       375 
+   - Zip Fast:    2.312 KB    1.187       141
+   
+   (*) As an example, in this case, reading and parsing the file, loading the data model, but without building the UI,
+       takes only 47 ms
+   
+
+ Test with "File 2"
+ ---------------------
+  File identical to "File 1", to which I have pasted 2 images from the clipboard, obtained through screenshots.
+ 
+  Saved independently to disk, the two images occupy:
+   Img1:    PNG:   48 KB   GIF: 103 KB    JPG (quality 9/10):  107 KB     
+    Capture of a file explorer window, with much of it blank. Inserted twice in the "File 2"
+  
+   Img2:    PNG: 3399 KB   GIF: 1262 KB   JPG (quality 9/10): 1201 KB     
+     Capture an image of the desktop, with a black and white photo in the background
+   
+                 Disk size    Times in milliseconds
+                              Load       Save      
+   - Native:      27.569 KB   1.438 (*)     47 
+   - Zip Max:      5.418 KB   1.593      2.422
+   - Zip Default:  5.453 KB   1.547      1.328
+   - Zip Fast:     6.827 KB   1.594        391
+
+   (*) Reading and parsing the file, loading the data model, but without building the UI: 188 ms
+   
