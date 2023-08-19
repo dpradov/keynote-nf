@@ -4,8 +4,8 @@ object Form_Defaults: TForm_Defaults
   HelpContext = 250
   BorderStyle = bsDialog
   Caption = 'Defaults'
-  ClientHeight = 497
-  ClientWidth = 379
+  ClientHeight = 496
+  ClientWidth = 375
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -662,6 +662,24 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 7
           TabStop = False
           OnClick = BitBtn_TreeChromeHelpClick
+        end
+        object CB_TreeChrome_AllNotes: TCheckBox
+          Left = 21
+          Top = 312
+          Width = 180
+          Height = 17
+          Hint = 
+            'Font and BG color will be changed in the panels of ALL tree note' +
+            's in current file'
+          TabStop = False
+          Caption = 'A&pply to ALL tree notes'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 8
         end
       end
     end

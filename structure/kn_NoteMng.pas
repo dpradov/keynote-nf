@@ -500,6 +500,21 @@ begin
 
             end;
 
+            if ApplyTreeChromeToAllNotes and HaveNotes( false, true ) then begin
+                for i := 0 to NoteFile.NoteCount -1 do begin
+                   Note:= NoteFile.Notes[i];
+                   if ((PropertiesAction = propThisNote) and (Note = ActiveNote)) or (Note.ReadOnly) then
+                       continue;
+                   if Note.Kind = ntTree then begin
+                      Note.Modified:= True;
+                      TTreeNote(Note).TreeChrome := myTreeChrome;
+                      UpdateTreeChrome(TTreeNote(Note));
+                   end;
+                end;
+                NoteFile.Modified:= True;
+                UpdateNoteFileState( [fscModified] );
+            end;
+
 
             if (PropertiesAction = propDefaults) or (NewPropertiesAction = propDefaults) then begin
 

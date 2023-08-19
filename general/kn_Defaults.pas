@@ -100,6 +100,7 @@ type
     BitBtn_TreeChromeHelp: TBitBtn;
     CB_InheritBGColor: TCheckBox;
     LB_PlainText: TLabel;
+    CB_TreeChrome_AllNotes: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -147,6 +148,7 @@ type
     myTabProperties : TNoteTabProperties;
 
     myTreeChrome : TChrome;
+    ApplyTreeChromeToAllNotes : boolean;
     myTreeProperties : TNoteTreeProperties;
 
     myTabNameHistory : string;
@@ -223,6 +225,7 @@ begin
   mySaveFileDefaults := false;
   myCurrentFileName := '';
   fDefaultZoom:= 100;
+  ApplyTreeChromeToAllNotes:= false;
 
   with FormPlacement do
   begin
@@ -544,6 +547,7 @@ begin
   end;
 
   // myInheritBGColor:= CB_InheritBGColor.Checked;      // -> To modify in Global options form
+  ApplyTreeChromeToAllNotes:= CB_TreeChrome_AllNotes.Checked;
 
 end; // FormToProps
 
@@ -584,7 +588,7 @@ begin
     Combo_DefEdLang.Language := Language;
   end;
 
-  CB_InheritBGColor.Checked:= myInheritBGColor;
+  CB_InheritBGColor.Checked:= ApplyTreeChromeToAllNotes;
 
 end; // PropsToForm
 
@@ -858,10 +862,12 @@ begin
   msg:= 'REMEMBER:' + #13#13 +
         '- BG Color sets backgroud color for the Tree Panel and' + #13 +
         '  default BG color of tree nodes' + #13 +
-        '- Color change doesn''t affect tree nodes explicitly set' + #13 +
+        '- Previous changes to individual nodes won''t be affected' + #13 +
         '- ''Inherit properties from active node'' option is' + #13 +
         '  considered in NEW nodes' + #13 +
-        '- ''Inherit BG color from active node'' option does NOT' + #13 +
+        '- Font and BG color can be changed for ALL tree panels at once:' + #13 +
+        '    "Apply to ALL tree notes"' + #13#13 +
+        '- Note: ''Inherit BG color from active node'' option does NOT' + #13 +
         '  affect (refers to Editor) ' + #13#13 +
         '* More info in Help menu'
         ;

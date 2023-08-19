@@ -843,7 +843,7 @@ end; // OutlineNumberNodes
 
 procedure UpdateTreeChrome( const myNote : TTreeNote );
 var
-  myTreeNode: TTreeNTNode;
+  myTreeNode, selectedTreeNode: TTreeNTNode;
   myNode: TNoteNode;
   FOrig: TFont;
   FDest: TFontInfo;
@@ -919,6 +919,7 @@ begin
 
    Log_StoreTick( 'After modified individual nodes', 2);
 
+   selectedTreeNode:= myNote.TV.Selected;
    myNote.TV.OnChange := nil;
    //myNote.TV.Items.BeginUpdate;
    try
@@ -931,6 +932,7 @@ begin
 
    finally
       //myNote.TV.Items.EndUpdate;
+      myNote.TV.Selected:= selectedTreeNode;
       myNote.TV.OnChange := Form_Main.TVChange;
    end;
 
