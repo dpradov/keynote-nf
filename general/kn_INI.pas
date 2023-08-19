@@ -1128,7 +1128,7 @@ begin
     PathTopToBottom := true;
     RemovableMediaVNodes := _REMOVABLE_MEDIA_VNODES_WARN;
     ShowFullPath := true;
-    ShowFullPathSearch := false;
+    ShowFullPathSearch := true;
     ShowTooltips := true;
     CaretInKNTLinks:= false;
     RelativeKNTLinks:= true;

@@ -568,10 +568,11 @@ var
   oldActiveNote: TTabNote;
   SearchModeToApply : TSearchMode;
   TreeNodeToSearchIn : TTreeNTNode;
+  TreeNodeToSearchIn_AncestorPathLen: integer;
   TextPlain, TextPlainBAK: string;               // TextPlain = TextPlainBAK, in uppercase if not MatchCase
   TextToFind, PatternInPos1, PatternInPosN: string;
   SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
-  str, s: string;
+  str, s, path, strNodeFontSize: string;
   widthTwips: integer;
 
 type
@@ -618,10 +619,18 @@ type
        end;
 
        procedure GetCurrentNode;
+       var
+          path: string;
        begin
           if myNote.Kind <> ntTree then exit;
           myTreeNode := TTreeNote(myNote).TV.Selected;
           TreeNodeToSearchIn:= myTreeNode;
+
+          if (TreeNodeToSearchIn <> nil) and TreeOptions.ShowFullPathSearch then begin
+             path:= GetNodePath( TreeNodeToSearchIn, TreeOptions.NodeDelimiter, true );
+             TreeNodeToSearchIn_AncestorPathLen:= Length(path) + Length(myNote.Name) + 1 - Length(TreeNodeToSearchIn.Text);
+          end;
+
        end;
 
        procedure GetFirstNode;
@@ -716,6 +725,7 @@ begin
   myTreeNode := nil;
   myNoteNode := nil;
   TreeNodeToSearchIn:= nil;
+  TreeNodeToSearchIn_AncestorPathLen:= 0;
 
   FindOptions.FindAllMatches := true;
 
@@ -948,9 +958,11 @@ begin
       Form_Main.LblFindAllNumResults.Caption:= MatchCount.ToString + STR_13;
       str:=
             '{\rtf1\ansi{\fonttbl{\f0\fnil\fcharset0 Calibri;}}' +
-            '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;}' +
+            '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;\red0\green125\blue125;}' +
             '\pard\fs4\par' +
             '\pard\fs' + (2 * ResPanelOptions.FontSizeFindResults).ToString + ' ';
+
+      strNodeFontSize:= (2 * ResPanelOptions.FontSizeFindResults + 3).ToString + ' ';
 
       if ( MatchCount > 0 ) then begin
          widthTwips := DotsToTwips(Form_Main.FindAllResults.Width) - 500;
@@ -958,6 +970,7 @@ begin
 
          lastNoteID := -1;
          lastNodeID := -1;
+         Path:= '';
 
          for i := 1 to MatchCount do begin
            Location := TLocation( Location_List.Objects[pred( i )] );
@@ -965,10 +978,17 @@ begin
                lastNoteID := Location.NoteID;
                lastNodeID := Location.NodeID;
                GetTreeNodeFromLocation(Location, myNote, myTreeNode);
+               if TreeOptions.ShowFullPathSearch then begin
+                  Path:= PathOfKNTLink(myTreeNode.Parent, myNote, 0, false, false, true);
+                  if (TreeNodeToSearchIn_AncestorPathLen > 0) then
+                     Delete(Path, 1, TreeNodeToSearchIn_AncestorPathLen);
+                  if Path <> '' then
+                     Path:= Path + TreeOptions.NodeDelimiter;
+               end;
                s:= '160';
                if i = 1 then s:= '60';
                str:= str + '\pard\li80\sa60\sb' + s + ' \trowd\trgaph0' + LastResultCellWidth + ' \intbl {\cf1\b ' +
-                     PathOfKNTLink(myTreeNode, myNote, 0, false, false, true) +  '}\cell\row ' +
+                     Path + '{\cf3\fs' + strNodeFontSize  + myTreeNode.Text +  ' }}\cell\row ' +
                     '\pard\li120\sb60\sa60 ';
            end;
            str:= str + '\trowd\trgaph0' + LastResultCellWidth + ' \intbl{\v\''11' + i.ToString + ' }' +
@@ -978,10 +998,9 @@ begin
          str:= str + '}';
          Form_Main.FindAllResults.PutRtfText(str, true, true);
          Form_Main.FindAllResults.SelStart:= 0;
-
-         Form_Main.Btn_ResFlip.Caption := STR_06;
-         Form_Main.Ntbk_ResFind.PageIndex := 0;
       end;
+      Form_Main.Btn_ResFlip.Caption := STR_06;
+      Form_Main.Ntbk_ResFind.PageIndex := 0;
 
     except
       on E : Exception do
