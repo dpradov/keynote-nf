@@ -642,12 +642,12 @@ type
           else
              myTreeNode := myTreeNode.GetNextNotHidden;
 
-          if (myTreeNode <> nil) and (TreeNodeToSearchIn <> nil) then
-             if ((FindOptions.HiddenNodes) and ((TreeNodeToSearchIn.GetNextSibling = nil) or (TreeNodeToSearchIn.GetNextSibling = myTreeNode)))  or
-                (not (FindOptions.HiddenNodes) and ((TreeNodeToSearchIn.GetNextSiblingNotHidden = nil) or (TreeNodeToSearchIn.GetNextSiblingNotHidden = myTreeNode))) then begin
+          if (TreeNodeToSearchIn <> nil) and (myTreeNode <> nil) and
+               (myTreeNode.Level <= TreeNodeToSearchIn.Level) then begin
+
               myTreeNode := nil;
               exit;
-             end;
+          end;
 
        end;
 
