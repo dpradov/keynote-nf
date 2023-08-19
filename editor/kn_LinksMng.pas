@@ -62,7 +62,8 @@ uses
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange);
     procedure InsertURL(URLStr : string; TextURL : string; Note: TTabNote);
 
-    function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean): string;
+    function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
+                            forUseInFindResults: boolean = false): string;
     procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TTabNote; var myTreeNode: TTreeNTNode);
 
     procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
@@ -141,16 +142,21 @@ const
 //=========================================
 // PathOfKNTLink
 //=========================================
-function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean): string;
+function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
+                        forUseInFindResults: boolean = false): string;
 var
   path, pathInsertionPoint : string;
   i, j, n, m: integer;
   pDelim: integer;
+  ShowFullPath: boolean;
 
 begin
+  ShowFullPath:= TreeOptions.ShowFullPath;
+  if forUseInFindResults then
+     ShowFullPath:= TreeOptions.ShowFullPathSearch;
 
   if assigned(myTreeNode) then begin
-     if TreeOptions.ShowFullPath then
+     if ShowFullPath then
         path:= GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, TreeOptions.PathTopToBottom ) // {N}
      else
         path:= myTreeNode.Text; // {N}

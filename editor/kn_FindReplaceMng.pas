@@ -968,7 +968,7 @@ begin
                s:= '160';
                if i = 1 then s:= '60';
                str:= str + '\pard\li80\sa60\sb' + s + ' \trowd\trgaph0' + LastResultCellWidth + ' \intbl {\cf1\b ' +
-                     PathOfKNTLink(myTreeNode, myNote, 0, false, false) +  '}\cell\row ' +
+                     PathOfKNTLink(myTreeNode, myNote, 0, false, false, true) +  '}\cell\row ' +
                     '\pard\li120\sb60\sa60 ';
            end;
            str:= str + '\trowd\trgaph0' + LastResultCellWidth + ' \intbl{\v\''11' + i.ToString + ' }' +
