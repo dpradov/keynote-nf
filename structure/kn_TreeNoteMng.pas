@@ -1416,8 +1416,7 @@ var
       myChildNode : TTreeNTNode;
     begin
       myChildNode := StartNode.GetFirstChild;
-      while ( assigned( myChildNode ) and assigned( myChildNode.Data )) do
-      begin
+      while ( assigned( myChildNode ) and assigned( myChildNode.Data )) do begin
         myChildNode.Font.Style := newStyle;
         TNoteNode( myChildNode.Data ).Bold := myNoteNode.Bold;
         if myChildNode.HasChildren then
@@ -1437,21 +1436,14 @@ begin
   myNoteNode.Bold := ( not myNoteNode.Bold );
   Form_Main.TVBoldNode.Checked := myNoteNode.Bold;
 
+  newStyle := TTreeNote(ActiveNote).TV.Font.Style;      // Default TV font can include other styles
   if myNoteNode.Bold then
-  begin
-    newStyle := [fsBold];
-    myTreeNode.Font.Style := newStyle;
-  end
-  else
-  begin
-    newStyle := [];
-    myTreeNode.Font.Style := newStyle;
-  end;
+     newStyle := newStyle + [fsBold];
 
-  if ( DoChildren and myTreeNode.HasChildren ) then
-  begin
-    BoldChildren( myTreeNode );
-  end;
+  myTreeNode.Font.Style := newStyle;
+
+  if DoChildren and myTreeNode.HasChildren then
+     BoldChildren( myTreeNode );
 
   NoteFile.Modified := true;
   UpdateNoteFileState( [fscModified] );
@@ -1867,11 +1859,10 @@ var
   myNoteNode : TNoteNode;
   myTNote : TTreeNote;
 begin
-  if assigned( aTreeNode ) then
-  begin
+  if assigned( aTreeNode ) then begin
+
     myNoteNode := TNoteNode( aTreeNode.Data );
-    if assigned( myNoteNode ) then
-    begin
+    if assigned( myNoteNode ) then begin
       if ActiveNote.Kind = ntTree then begin
          myTNote := TTreeNote( ActiveNote );
          myTNote.TV.OnChecked:= nil;
@@ -1886,7 +1877,7 @@ begin
          aTreeNode.Hidden:= True;
 
       if myNoteNode.Bold then
-        aTreeNode.Font.Style := [fsBold];
+        aTreeNode.Font.Style := myTNote.TV.Font.Style + [fsBold];
 
       if myNoteNode.ChildrenCheckbox then       // [dpv]
          aTreeNode.CheckType  := ctCheckBox

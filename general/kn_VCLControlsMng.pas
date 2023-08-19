@@ -330,6 +330,7 @@ var
   myPanel : TPanel;
   myBrowser : TWebBrowser;
   {$ENDIF}
+  TVFontStyleWithBold : TFontStyles;
 
 begin
   Log_StoreTick( 'CreateVCLControlsForNote - Begin', 2, +1);
@@ -467,6 +468,7 @@ begin
             LastNodeLevel := 0;
 
             if ( tNote.Nodes.Count > 0 ) then begin
+              TVFontStyleWithBold:= tNote.TV.Font.Style + [fsBold];
 
               myTree.Items.BeginUpdate;
               try
@@ -519,7 +521,7 @@ begin
                       myTreeNode.Font.Name := myNode.NodeFontFace;
 
                     if myNode.Bold then
-                      myTreeNode.Font.Style := [fsBold];
+                      myTreeNode.Font.Style := TVFontStyleWithBold;
 
                     if myNode.HasNodeColor then
                       myTreeNode.Font.Color := myNode.NodeColor;
