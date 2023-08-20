@@ -34,6 +34,17 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
     particularly in version changes.
 -------------
 
+v 1.8.0 .3 Beta (20 aug 2023)
+--------------
+Corrects or implements the following issues:
+(more information in doc/Changes in 1.8.0 Beta3.txt)
+
+* Fixed: (Important) Text files imported as a new note note could be saved plain, not RTF
+* New: pressing [Ctrl] + <Hide Tree Panel> will temporarily preserve editor width, reducing the application window width
+
+* Fixed: checkbox 'Inherit BG color from active node' not updated in 'Note Properties..'
+* Added log entries in several points, to obtain information about possible problems related to RichEdit 
+
 
 v 1.8.0 .2 Beta (19 aug 2023)
 --------------
