@@ -2002,11 +2002,23 @@ begin
                   SetUpVCLControls( myNote );
 
                 finally
-                  if assigned( myNote.TabSheet ) then
-                  begin
+                  if assigned( myNote.TabSheet ) then  begin
                     myNote.TabSheet.TabVisible := true; // was created hidden
                     Pages.ActivePage := myNote.TabSheet;
                   end;
+
+                 { ---  Important: See comment * 1 in FileDropped
+                    Was corrected in Commit ac672bb258... 11/06/23
+                     * Fixed: Ensure that all nodes in a RTF tree note are saved in RTF format,
+                       and all nodes in a plain text only tree note are saved in plain format.
+                    but I forgot to apply it also for files imported as notes, not as nodes !!
+                 }
+                 if myNote.PlainText or  (not NodeStreamIsRTF (myNote.DataStream)) then
+                    myNote.Editor.Modified := True
+                 else
+                    myNote.Editor.Modified := False;
+                 //-------
+
                   ActiveNote := myNote;
                 end;
 
