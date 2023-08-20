@@ -588,7 +588,7 @@ begin
     Combo_DefEdLang.Language := Language;
   end;
 
-  CB_InheritBGColor.Checked:= ApplyTreeChromeToAllNotes;
+  CB_InheritBGColor.Checked:= myInheritBGColor;
 
 end; // PropsToForm
 
@@ -845,7 +845,8 @@ begin
         '- BG Color depends on ''Inherit BG color from active node'':' + #13 +
         '   - If set, background color of selected node is shown' + #13 +
         '     (=> BG color of its new child nodes)' + #13 +
-        '   - If not set, default BG color for all NEW nodes is shown' + #13#13 +
+        '   - If not set, default BG color for all NEW nodes is shown' + #13 +
+        '   * To edit this option -> F5 | General settings| Rich Text editor' + #13#13 +
         '- BG Color can be changed for ALL nodes in a Note:' + #13 +
         '    [Shift] + "Format | Background color"' + #13#13 +
         '* More info in Help menu'

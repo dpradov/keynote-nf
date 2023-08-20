@@ -5,7 +5,8 @@ To help decide which format may be the most suitable to use with KeyNote NF file
 I have made a series of measurements that I show below.
 
 I have started from a personal file without images, in which I have duplicated (using Merge Notes...) several of the 
-largest notes. I have then created another file from that one, adding several images. What is interesting are the relative differences in the times obtained. Anyway, for reference: I have used a 7200rpm HDD, on an Intel(R) Core(TM) i5-4570 
+largest notes. I have then created another file from that one, adding several images. What is interesting are the relative
+differences in the times obtained. Anyway, for reference: I have used a 7200rpm HDD, on an Intel(R) Core(TM) i5-4570 
 desktop, running Windows 10.
 
 I have used two files as a reference, comparing in both cases the times obtained when loading and saving the files,
