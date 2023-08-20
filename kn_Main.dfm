@@ -2,8 +2,8 @@ object Form_Main: TForm_Main
   Left = 188
   Top = 178
   Caption = 'KeyNote'
-  ClientHeight = 714
-  ClientWidth = 1046
+  ClientHeight = 713
+  ClientWidth = 1042
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -23,9 +23,9 @@ object Form_Main: TForm_Main
   OnShortCut = FormShortCut
   TextHeight = 13
   object Splitter_Res: TSplitter
-    Left = 733
+    Left = 729
     Top = 54
-    Height = 615
+    Height = 614
     Hint = 'Click and drag to resize panels'
     Align = alRight
     Color = clBtnFace
@@ -37,8 +37,8 @@ object Form_Main: TForm_Main
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 695
-    Width = 1046
+    Top = 694
+    Width = 1042
     Height = 19
     Panels = <
       item
@@ -65,17 +65,14 @@ object Form_Main: TForm_Main
       end>
     OnDblClick = StatusBarDblClick
     OnDrawPanel = StatusBarDrawPanel
-    ExplicitTop = 694
-    ExplicitWidth = 1042
   end
   object Dock_Top: TDock97
     Left = 0
     Top = 0
-    Width = 1046
+    Width = 1042
     Height = 54
     BoundLines = [blTop, blBottom]
     FixAlign = True
-    ExplicitWidth = 1042
     object Toolbar_Main: TToolbar97
       Tag = 1
       Left = 0
@@ -992,8 +989,8 @@ object Form_Main: TForm_Main
   object Pages: TPage95Control
     Left = 9
     Top = 54
-    Width = 724
-    Height = 615
+    Width = 720
+    Height = 614
     AllowTabShifting = True
     Align = alClient
     FlatSeperators = False
@@ -1022,19 +1019,16 @@ object Form_Main: TForm_Main
     Left = 0
     Top = 54
     Width = 9
-    Height = 615
+    Height = 614
     LimitToOneRow = True
     Position = dpLeft
-    ExplicitHeight = 614
   end
   object Dock_Bottom: TDock97
     Left = 0
-    Top = 669
-    Width = 1046
+    Top = 668
+    Width = 1042
     Height = 26
     Position = dpBottom
-    ExplicitTop = 668
-    ExplicitWidth = 1042
     object Toolbar_Tree: TToolbar97
       Tag = 4
       Left = 247
@@ -1273,10 +1267,10 @@ object Form_Main: TForm_Main
     end
   end
   object Pages_Res: TPage95Control
-    Left = 736
+    Left = 732
     Top = 54
     Width = 310
-    Height = 615
+    Height = 614
     Hint = 'Right-click for resource panel options'
     ActivePage = ResTab_Find
     Align = alRight
@@ -1302,7 +1296,6 @@ object Form_Main: TForm_Main
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 586
       object Panel_ResFind: TPanel
         Left = 0
         Top = 0
@@ -1432,7 +1425,7 @@ object Form_Main: TForm_Main
         Left = 0
         Top = 81
         Width = 302
-        Height = 506
+        Height = 505
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -1441,7 +1434,6 @@ object Form_Main: TForm_Main
         Font.Style = []
         ParentFont = False
         TabOrder = 1
-        ExplicitHeight = 505
         object PAGE_RES_FIND: TPage
           Left = 0
           Top = 0
@@ -1476,7 +1468,6 @@ object Form_Main: TForm_Main
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
           ExplicitWidth = 0
-          ExplicitHeight = 505
           object CB_ResFind_CaseSens: TCheckBox
             Left = 10
             Top = 15
@@ -1875,7 +1866,7 @@ object Form_Main: TForm_Main
       end
       object Panel_ResPlugins: TPanel
         Left = 0
-        Top = 534
+        Top = 533
         Width = 302
         Height = 53
         Align = alBottom
@@ -1888,6 +1879,7 @@ object Form_Main: TForm_Main
         Font.Style = []
         ParentFont = False
         TabOrder = 2
+        ExplicitTop = 534
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
@@ -2372,7 +2364,9 @@ object Form_Main: TForm_Main
       end
       object MMViewTree: TMenuItem
         Caption = 'Tree &Panel'
-        Hint = 'Show or hide tree panel'
+        Hint = 
+          'Show or hide tree panel (Ctrl -> Temporarily preserve editor wid' +
+          'th)'
         ShortCut = 8314
         OnClick = MMViewTreeClick
       end

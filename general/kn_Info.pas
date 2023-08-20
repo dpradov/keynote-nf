@@ -578,6 +578,7 @@ type
     UseTray : boolean;
     UserFile : string;
     ZoomIncrement : integer;
+    IgnoreCtrHideTrePanel : boolean;  // [*]
   end;
 
 

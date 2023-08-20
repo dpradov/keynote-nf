@@ -1344,6 +1344,7 @@ type
     procedure UpdateStatusBarState;
 
     procedure UpdateTreeVisible( const ANote : TTreeNote );
+    procedure CheckRestoreAppWindowWidth (EnsureTreeVisible: boolean= False);
 
     procedure UpdateTabAndTreeIconsShow;
     procedure AutoSaveToggled;
@@ -1915,6 +1916,11 @@ begin
             FindOptions.FindAllHistory := FindOptions.FindAllHistory + HISTORY_SEPARATOR + AnsiQuotedStr( Combo_ResFind.Items[pred( i )], '"' )
           else
             FindOptions.FindAllHistory := AnsiQuotedStr( Combo_ResFind.Items[0], '"' );
+        end;
+
+        if not KeyOptions.IgnoreCtrHideTrePanel then begin
+           Visible:= False;
+           CheckRestoreAppWindowWidth;
         end;
 
         SaveOptions;
@@ -2707,7 +2713,8 @@ begin
       end else if Msg.CharCode = Ord('X') then begin
           if CmdCut then Handled:= true;
 
-      end else if (not ShiftPressed) then begin
+      end
+      else if (not ShiftPressed) then begin
         if Msg.CharCode = VK_DOWN then begin
            ActiveNote.Editor.ScrollLinesBy(1);
            Handled:= true;
@@ -2715,6 +2722,14 @@ begin
            ActiveNote.Editor.ScrollLinesBy(-1);
            Handled:= true;
         end;
+      end
+      else if not KeyOptions.IgnoreCtrHideTrePanel then begin
+          // Check if the keys combination, without Ctrl, is a shortcut to MMViewTree
+          ShortCutItem := Menu.FindItem(ShortCut - scCtrl, fkShortCut);
+          if ShortCutItem = MMViewTree then begin
+             MMViewTreeClick(nil);
+             Handled:= true;
+          end;
       end;
 
    end;
@@ -3214,6 +3229,8 @@ begin
   try
     if (( Pages.PageCount > 0 ) and assigned( Pages.ActivePage )) then begin
       if assigned(ActiveNote) then
+         CheckRestoreAppWindowWidth (true);
+
          ModifiedDataStream:= ActiveNote.EditorToDataStream;   // If its Editor is not modified it will do nothing. Necessary to ensure that changes are seen among mirror nodes
 
       if not _Executing_History_Jump then begin
@@ -7456,14 +7473,45 @@ end; // UpdateStatusBarState
 
 
 procedure TForm_Main.UpdateTreeVisible( const ANote : TTreeNote );
+var
+   Inc: Integer;
 begin
-  with ANote do
-  begin
+  with ANote do begin
     TV.Visible := ( not TreeHidden );
     if TreeHidden then
       FocusMemory := focRTF;
+
+    if not KeyOptions.IgnoreCtrHideTrePanel then
+        if TreeHidden then begin
+           if CtrlDown then begin
+              _WindowWidthIncToRestore:= TV.Width;
+              Inc:= _WindowWidthIncToRestore;
+              With Form_Main do
+                SetBounds(Left + Inc, Top, Width - Inc, Height );
+           end;
+        end
+        else
+           CheckRestoreAppWindowWidth;
   end;
 end; // UpdateTreeVisible
+
+
+procedure TForm_Main.CheckRestoreAppWindowWidth (EnsureTreeVisible: boolean= False);
+var
+   Inc: Integer;
+begin
+    if _WindowWidthIncToRestore > 0 then begin
+       if EnsureTreeVisible and (ActiveNote.Kind = ntTree) then
+          TTreeNote(ActiveNote).TV.Visible := True;
+
+       Inc:= _WindowWidthIncToRestore;
+       _WindowWidthIncToRestore:= 0;
+       With Form_Main do
+         SetBounds(Left - Inc, Top, Width + Inc, Height );
+    end;
+end;
+
+
 
 procedure TForm_Main.FavMPropertiesClick(Sender: TObject);
 begin

@@ -411,7 +411,8 @@ type
     UseNewStyleURL,
     UseTray,
     UserFile,
-    ZoomIncrement : string;
+    ZoomIncrement,
+    IgnoreCtrHideTrePanel : string;
   end;
 
 const
@@ -552,6 +553,7 @@ const
     UseTray : 'UseTray';
     UserFile : 'UserFile';
     ZoomIncrement : 'ZoomIncrement';
+    IgnoreCtrHideTrePanel: 'IgnoreCtrHideTrePanel';
   );
 
 
@@ -1031,6 +1033,7 @@ begin
     UseTray := true;
     UserFile := '';
     ZoomIncrement := 10;
+    IgnoreCtrHideTrePanel := false;
   end;
 end; // InitializeKeyOptions
 
@@ -1295,6 +1298,8 @@ begin
       writebool( section, KeyOptionsIniStr.UseOldFileFormat, KeyOptions.UseOldFileFormat );
       writebool( section, KeyOptionsIniStr.UseTray, KeyOptions.UseTray );
       writestring( section, KeyOptionsIniStr.UserFile, ExtractRelativePath(Application.ExeName, KeyOptions.UserFile) );
+      writebool( section, KeyOptionsIniStr.IgnoreCtrHideTrePanel, KeyOptions.IgnoreCtrHideTrePanel );
+
 
       section := EditorOptionsIniStr.section;
       writebool( section, EditorOptionsIniStr.AutoIndent, EditorOptions.AutoIndent );
@@ -1612,6 +1617,8 @@ begin
       KeyOptions.UserFile := NormalFN( readstring( section, KeyOptionsIniStr.UserFile, KeyOptions.UserFile ));
 
       KeyOptions.ZoomIncrement := readinteger( section, KeyOptionsIniStr.ZoomIncrement, KeyOptions.ZoomIncrement );
+      KeyOptions.IgnoreCtrHideTrePanel := readbool( section, KeyOptionsIniStr.IgnoreCtrHideTrePanel, KeyOptions.IgnoreCtrHideTrePanel );
+
 
       if KeyOptions.SingleInstance then KeyOptions.HotKeyWarn := false;
 

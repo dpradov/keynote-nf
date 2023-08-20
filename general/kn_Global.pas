@@ -209,12 +209,32 @@ var
 
     //================================================== VARIOS
 
+    { *1
+     When the user hides the Tree Panel pressing Ctrl (usually: Ctr + Shift+F11  or Ctrl + [View | Tree Panel] ) then,
+     instead of letting the editor panel grow to the left occuping the width of the tree panel, the application window will
+     reduce its width temporarily so that the editor maintain its width and position.
+
+     Once shown the Tree panel again, the application window's size and position will be restored.
+
+     If, after hiding the tree panel in this way (the window's width is now reduced), the user selects another note, then
+     the application will automatically make the tree panel visible and restore the aplication window width, before changing
+     to the other note.
+
+     Opening onother file or closing the application while the windows's width is reduced, will restore it to it's correct size.
+
+     This functionality can be disabled in keynote.ini, with: IgnoreCtrHideTrePanel = 1
+
+     * _WindowWidthIncToRestore will save the width of the Tree Panel, as a way to know that the user hided the Tree Panel pressing Ctrl
+
+    }
+
     _GLOBAL_URLText : string;
     _IS_FAKING_MOUSECLICK : boolean;
     _Global_Location : TLocation;
     _REOPEN_AUTOCLOSED_FILE : boolean;
     _Is_Dragging_Text : boolean;
     _LastZoomValue : integer;
+    _WindowWidthIncToRestore: integer;             // *1
     NumberingStart: integer;
 
     OriginalComboLen : integer;
@@ -347,6 +367,7 @@ begin
       LastImportFilter := 1;
 
       _Is_Dragging_Text := false;
+      _WindowWidthIncToRestore := 0;
       _LastZoomValue := 100;
       Combo_Zoom.Text := '100%';
 
