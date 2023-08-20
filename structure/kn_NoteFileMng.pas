@@ -1981,15 +1981,19 @@ begin
                 try
                   case ImportFileType of
                     itText : begin
+                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TXT)  FN:' + FN,  1 ); {$ENDIF}
                       myNote.DataStream.LoadFromFile( FN );
                       end;
                     itHTML : begin
+                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (HTML)  FN:' + FN,  1 ); {$ENDIF}
                       myNote.DataStream.LoadFromStream(OutStream);
                       end;
                     itRTF : begin
+                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (RTF)  FN:' + FN,  1 ); {$ENDIF}
                       myNote.DataStream.LoadFromFile( FN );
                       end;
                     itTreePad : begin
+                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TreePad)  FN:' + FN,  1 ); {$ENDIF}
                       tNote := TTreeNote( myNote );
                       tNote.SetTreeProperties( DefaultTreeProperties );
                       tNote.TreeChrome := DefaultTreeChrome;
@@ -2357,6 +2361,8 @@ begin
                       else
                         continue;
                     end;
+
+                    {$IFDEF KNT_DEBUG}Log.Add('Import as Node: ' + FName,  1 ); {$ENDIF}
 
                     // first see if we can do the conversion, before we create a new note for the file
                     if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then

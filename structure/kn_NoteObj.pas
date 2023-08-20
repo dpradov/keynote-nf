@@ -11,11 +11,11 @@ unit kn_NoteObj;
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
 
- 
+ *****************************************************************************)
+
+
 interface
 uses
    Winapi.Windows,
@@ -36,6 +36,9 @@ uses
    Vcl.ExtCtrls,
    comctrls95,
    gf_misc,
+ {$IFDEF KNT_DEBUG}
+   GFLog,
+ {$ENDIF}
    TreeNT,
    langs,
    kn_NodeList,
@@ -668,6 +671,10 @@ end; // SetID
 procedure TTabNote.DataStreamToEditor;
 var
   ReadOnlyBAK: boolean;
+  {$IFDEF KNT_DEBUG}
+  str: String;
+  dataSize: integer;
+  {$ENDIF}
 begin
   if CheckEditor then begin
     ReadOnlyBAK:= FEditor.ReadOnly;
@@ -681,7 +688,20 @@ begin
       else
          FEditor.StreamFormat:= sfPlainText;
 
+
+      Log_StoreTick('TTabNote.DataStreamToEditor - BEGIN', 4, +1);
+      {$IFDEF KNT_DEBUG}
+       if log.Active and  (log.MaxDbgLevel >= 4) then begin
+         dataSize:= FDataStream.Size;
+         str:= Copy(String(PAnsiChar(FDataStream.Memory)), 1, 250);
+          Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
+       end;
+      {$ENDIF}
+
       FEditor.Lines.LoadFromStream( FDataStream );
+
+      Log_StoreTick('TTabNote.DataStreamToEditor - END', 4, -1);
+
       FEditor.OnChange := Form_Main.RxRTFChange;
     finally
       FEditor.ReadOnly:= ReadOnlyBAK;
@@ -1566,6 +1586,7 @@ begin
     Lines.BeginUpdate;
     try
       // Lines.Clear;
+     {$IFDEF KNT_DEBUG}Log.Add('TTabRichEdit_CMRecreateWnd. PerformFix',  4 ); {$ENDIF}
       Self.PutRtfText(FRTF, true);
       ClearUndo; // [!] ...we must also do this, otherwise if user hits Ctrl+Z right after Ctrl+W, all text is gone withno way to bring it back!
     finally
@@ -2220,6 +2241,12 @@ var
 {$IFDEF WITH_IE}
   ov : OleVariant;
 {$ENDIF}
+
+{$IFDEF KNT_DEBUG}
+ str: String;
+ dataSize: integer;
+{$ENDIF}
+
 begin
   if not assigned(FEditor) then exit;
   if not assigned(FSelectedNode) then  begin
@@ -2246,7 +2273,19 @@ begin
         else
            FEditor.StreamFormat:= sfPlainText;
 
+        Log_StoreTick('TTreeNote.DataStreamToEditor - BEGIN', 4, +1);
+       {$IFDEF KNT_DEBUG}
+        if log.Active and  (log.MaxDbgLevel >= 4) then begin
+           dataSize:= FSelectedNode.Stream.Size;
+           str:= Copy(String(PAnsiChar(FSelectedNode.Stream.Memory)), 1, 250);
+           Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
+        end;
+       {$ENDIF}
+
         FEditor.Lines.LoadFromStream( FSelectedNode.Stream );
+
+        Log_StoreTick('TTreeNote.DataStreamToEditor - END', 4, -1);
+
         FEditor.Color := FSelectedNode.RTFBGColor;
         FEditor.SelStart := FSelectedNode.SelStart;
         FEditor.SelLength := FSelectedNode.SelLength;

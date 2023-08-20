@@ -288,6 +288,10 @@ begin
   with Form_Main do begin
       SBGlyph:= TPicture.Create;
 
+     {$IFDEF KNT_DEBUG}
+      Log.Add( Format('DEFAULT_CHARSET:%d  Default CODEPAGE:%d  System_LANGUAGE: %d', [DEFAULT_CHARSET, TEncoding.Default.CodePage, GetSystemDefaultLCID]), 0);
+     {$ENDIF}
+
       Log_StoreTick( 'FormCreate - Begin', 0, +1);
 
       // check Windows version

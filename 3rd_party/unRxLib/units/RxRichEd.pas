@@ -761,7 +761,12 @@ uses
  Vcl.Printers, Vcl.ComStrs, Vcl.OleConst, Winapi.OleDlg, {$IFDEF RX_D3} Vcl.OleCtnrs, {$ENDIF}
   {$IFDEF RX_D12}Winapi.CommDlg,{$ENDIF}
   RxMaxMin,
-  Vcl.Clipbrd, tom_TLB;                                                                        // [dpv]
+  Vcl.Clipbrd, tom_TLB                                                                        // [dpv]
+  {$IFDEF KNT_DEBUG}
+  , GFLog, kn_Global                                                                          // [dpv]
+  {$ENDIF}
+  ;
+
 
 
 
@@ -4162,6 +4167,9 @@ begin
     end;
     if smSelection in Mode then
       TextType := TextType or SFF_SELECTION;
+
+    {$IFDEF KNT_DEBUG} Log.Add(string.format('RichEdit_LoadFromStream.  TextType: %s Encoding_CodePage: %d', [TextType.ToString, Encoding.CodePage]),  4 );  {$ENDIF}
+
     SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, LPARAM(@EditStream));
 
 
@@ -4208,18 +4216,20 @@ begin
       ( See https://github.com/dpradov/keynote-nf/issues/610 )
 
 
-      So, if the normal conversion made with TEncoding in current StreamLoad produces an error, we will retry with no TEncoding 
+      So, if the normal conversion made with TEncoding in current StreamLoad produces an error, we will retry with no TEncoding
       conversion and setting only SF_TEST and not SF_UNICODE. The stream is supposed to be in UTF8 format, with BOM. RichEdit will
       manage it correctly.
   }
 
     if (EditStream.dwError <> 0) then                     // [dpv] *1
     begin
+     {$IFDEF KNT_DEBUG} Log.Add(string.format('RichEdit_LoadFromStream.  Error: %s', [EditStream.dwError]),  4 );  {$ENDIF}
       if PlainText then begin
-         Stream.Position := Position;         
+         Stream.Position := Position;
          TextType := SF_TEXT;                            // No SF_UNICODE
          StreamInfo.Encoding:= nil;
          StreamInfo.PlainText:= false;                   // => No TEncoding conversion in StreamLoad
+         {$IFDEF KNT_DEBUG} Log.Add('RichEdit_LoadFromStream.  PlainText -> Retrying as SF_TEXT, no encoding',  4 );  {$ENDIF}
          SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, LPARAM(@EditStream));
       end;
       if EditStream.dwError <> 0 then
@@ -4941,12 +4951,14 @@ begin
 
   try
     if RichEditVersion < 3 then begin
+       {$IFDEF KNT_DEBUG} Log.Add('PutRtfText [string] / RichEdtVer < 3', 4 );  {$ENDIF}
        if (not SelectionOnly) then
 	      Lines.Clear;
        RtfSelText:= sRTF;
        exit;
     end
     else begin
+       {$IFDEF KNT_DEBUG} Log.Add('PutRtfText [string] / RichEdtVer >= 3', 4 );  {$ENDIF}
        if SelectionOnly then
           aSTE.flags:= ST_SELECTION;
        aSTE.flags:= aSTE.flags or ST_KEEPUNDO;
@@ -4978,6 +4990,7 @@ begin
 
   try
     if RichEditVersion < 3 then begin
+       {$IFDEF KNT_DEBUG} Log.Add('PutRtfText [RawByteString] / RichEdtVer < 3', 4 );  {$ENDIF}
        if (not SelectionOnly) then
 	      Lines.Clear;
        RtfSelText:= sRTF;
@@ -4989,7 +5002,7 @@ begin
        aSTE.flags:= aSTE.flags or ST_KEEPUNDO;
        //aSTE.codepage:= CP_ACP;          // CP_ACP= ANSI codepage => use the currently set default Windows ANSI codepage.
        aSTE.codepage:= StringCodePage(sRTF);
-
+       {$IFDEF KNT_DEBUG} Log.Add('PutRtfText [RawByteString] / RichEdtVer >= 3   Codepage:' + aSTE.Codepage.ToString, 4 );  {$ENDIF}
        SendMessage(Handle, EM_SETTEXTEX, longint(@aSTE), longint(PAnsiChar(sRTF)));
     end;
 
@@ -6701,6 +6714,8 @@ var
   sModulePath: string;
 
 begin
+  {$IFDEF KNT_DEBUG} Log.Add(string.format('LoadRichEditDLL - BEGIN.  RichEditLibraryPath: %s', [RichEditLibraryPath]),  4 );  {$ENDIF}
+
   FLibHandle := 0;
   RichEditVersion := 1;
   OldError := SetErrorMode(SEM_NOOPENFILEERRORBOX);
@@ -6714,6 +6729,7 @@ begin
            RichEditVersion := 3;   // assumption (at least that version)
     end;
 
+   {$IFDEF KNT_DEBUG}Log.Add(string.format('LoadRichEditDLL - Custom RichEditLibraryPath. OK?: %s', [BoolToStr(FLibHandle > 0)]),  4 ); {$ENDIF}
 
 {$IFNDEF RICHEDIT_VER_10}
     if FLibHandle = 0 then begin
@@ -6723,6 +6739,8 @@ begin
        if FLibHandle <> 0 then
            RichEditVersion := 4;
     end;
+
+   {$IFDEF KNT_DEBUG}Log.Add(string.format('LoadRichEditDLL - %s. OK?: %s', [RichEdit41ModuleName, BoolToStr(FLibHandle > 0)]),  4 ); {$ENDIF}
 
     if FLibHandle = 0 then begin
         FLibHandle := LoadLibrary(RichEdit20ModuleName);
@@ -6738,23 +6756,29 @@ begin
               RichEditVersion := 3;
           end;
         end;
+        {$IFDEF KNT_DEBUG}Log.Add(string.format('LoadRichEditDLL - %s. OK?: %s', [RichEdit20ModuleName, BoolToStr(FLibHandle > 0)]),  4 ); {$ENDIF}
     end;
 {$ENDIF}
     if FLibHandle = 0 then begin
       FLibHandle := LoadLibrary(RichEdit10ModuleName);
       if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
+
+      {$IFDEF KNT_DEBUG}Log.Add(string.format('LoadRichEditDLL - %s. OK?: %s', [RichEdit10ModuleName, BoolToStr(FLibHandle > 0)]),  4 ); {$ENDIF}
     end;
 
-    
+
     if FLibHandle <> 0 then begin
        GetDLLProductVersion(sModulePath, VersionDLL, VersionRichEdit);
        if VersionRichEdit > RichEditVersion then
           RichEditVersion:= VersionRichEdit;
+
+       {$IFDEF KNT_DEBUG}Log.Add(string.format('LoadRichEditDLL - DLL Loaded: %s  VerDLL:%f  VerRichEd: %d', [sModulePath, VersionDLL, VersionRichEdit]),  4 ); {$ENDIF}
     end;
 
   finally
     SetErrorMode(OldError);
     Result := RichEditVersion;
+   {$IFDEF KNT_DEBUG}Log.Add(string.format('LoadRichEditDLL - Result (RichEditVersion): %d', [RichEditVersion]),  4 ); {$ENDIF}
   end;
 
 end; // LoadRichEditDLL

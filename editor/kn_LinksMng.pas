@@ -296,6 +296,8 @@ begin
          sepR:= ' ';
       SetSelection(SelL, SelR, false);
 
+      {$IFDEF KNT_DEBUG}Log.Add('Insert HyperLink',  4 ); {$ENDIF}
+
       if UseHyperlink then begin
            Note.Editor.PutRtfText('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sepL + '{\field{\*\fldinst{HYPERLINK "'
             + URLToRTF(URLStr, false ) + '"}}{\fldrslt{\cf1\ul '
@@ -628,6 +630,7 @@ begin
        and ((ActiveNote.Kind <> ntTree) or (TTreeNote(ActiveNote).SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode]) ) then begin        // Allow the mark (hidden) although Note is ReadOnly
       TargetMarker:= GetActualTargetMarker(ActiveNote.Editor);
       if TargetMarker = 0 then begin
+         {$IFDEF KNT_DEBUG}Log.Add('Insert Marker for HyperLink',  4 ); {$ENDIF}
          TargetMarker:= 1 + GetLastTargetMarker(ActiveNote.Editor.TextPlain);
           //  {\rtf1\ansi {\v\'11B5\'12}};    => {\rtf1\ansi \v\'11B5\'12\v0};
           ActiveNote.Editor.PutRtfText('{\rtf1\ansi {\v' + KNT_RTF_HIDDEN_MARK_L +
