@@ -3228,10 +3228,10 @@ begin
 
   try
     if (( Pages.PageCount > 0 ) and assigned( Pages.ActivePage )) then begin
-      if assigned(ActiveNote) then
+      if assigned(ActiveNote) then begin
          CheckRestoreAppWindowWidth (true);
-
          ModifiedDataStream:= ActiveNote.EditorToDataStream;   // If its Editor is not modified it will do nothing. Necessary to ensure that changes are seen among mirror nodes
+      end;
 
       if not _Executing_History_Jump then begin
          AddHistoryLocation (ActiveNote, true);                  // true: add to local history maintaining it's index, and without removing forward history
