@@ -572,7 +572,7 @@ var
   TextPlain, TextPlainBAK: string;               // TextPlain = TextPlainBAK, in uppercase if not MatchCase
   TextToFind, PatternInPos1, PatternInPosN: string;
   SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
-  str, s, path, strNodeFontSize: string;
+  str, s, path, strLocationMatch, strNodeFontSize: string;
   widthTwips: integer;
 
 type
@@ -970,7 +970,6 @@ begin
 
          lastNoteID := -1;
          lastNodeID := -1;
-         Path:= '';
 
          for i := 1 to MatchCount do begin
            Location := TLocation( Location_List.Objects[pred( i )] );
@@ -978,7 +977,14 @@ begin
                lastNoteID := Location.NoteID;
                lastNodeID := Location.NodeID;
                GetTreeNodeFromLocation(Location, myNote, myTreeNode);
-               if TreeOptions.ShowFullPathSearch then begin
+
+               Path:= '';
+               if myTreeNode = nil then
+                  strLocationMatch:= myNote.Name
+               else
+                  strLocationMatch:= myTreeNode.Text;
+
+               if (myTreeNode <> nil) and TreeOptions.ShowFullPathSearch then begin
                   Path:= PathOfKNTLink(myTreeNode.Parent, myNote, 0, false, false, true);
                   if (TreeNodeToSearchIn_AncestorPathLen > 0) then
                      Delete(Path, 1, TreeNodeToSearchIn_AncestorPathLen);
@@ -988,7 +994,7 @@ begin
                s:= '160';
                if i = 1 then s:= '60';
                str:= str + '\pard\li80\sa60\sb' + s + ' \trowd\trgaph0' + LastResultCellWidth + ' \intbl {\cf1\b ' +
-                     Path + '{\cf3\fs' + strNodeFontSize  + myTreeNode.Text +  ' }}\cell\row ' +
+                     Path + '{\cf3\fs' + strNodeFontSize  + strLocationMatch +  ' }}\cell\row ' +
                     '\pard\li120\sb60\sa60 ';
            end;
            str:= str + '\trowd\trgaph0' + LastResultCellWidth + ' \intbl{\v\''11' + i.ToString + ' }' +

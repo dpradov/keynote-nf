@@ -3150,8 +3150,11 @@ begin
           EditControl.StreamFormat:= sfRichText
        else
           EditControl.StreamFormat:= sfPlainText;
+       try
+          EditControl.Lines.LoadFromStream( myNoteNode.Stream );
+       except
+       end;
 
-       EditControl.Lines.LoadFromStream( myNoteNode.Stream );
        myNoteNode.NodeTextPlain:= EditControl.TextPlain;
 
        Result:= True;

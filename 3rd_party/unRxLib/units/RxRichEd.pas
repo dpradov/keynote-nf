@@ -4223,7 +4223,7 @@ begin
 
     if (EditStream.dwError <> 0) then                     // [dpv] *1
     begin
-     {$IFDEF KNT_DEBUG} Log.Add(string.format('RichEdit_LoadFromStream.  Error: %s', [EditStream.dwError]),  4 );  {$ENDIF}
+     {$IFDEF KNT_DEBUG} Log.Add(string.format('RichEdit_LoadFromStream.  Error: %d', [EditStream.dwError]),  4 );  {$ENDIF}
       if PlainText then begin
          Stream.Position := Position;
          TextType := SF_TEXT;                            // No SF_UNICODE
