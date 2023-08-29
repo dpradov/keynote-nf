@@ -679,6 +679,7 @@ begin
   end;
 
   IsBusy := true;
+  FileIsBusy := true;             // To avoid that kn_Main.TimerTimer, at the beginning can interfere calling to NoteFile.UpdateTextPlainVariables(); (it also uses the same RTFAux, with GetAuxEditorControl)
   Screen.Cursor := crHourGlass;
   DoAbort := false;
   ExportedNotes := 0;
@@ -1028,6 +1029,7 @@ begin
 
   finally
     FreeConvertLibrary;
+    FileIsBusy := false;
     IsBusy := false;
     Screen.Cursor := crDefault;
     FreeAuxEditorControl;
