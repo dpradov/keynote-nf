@@ -1822,14 +1822,18 @@ end;   // HideKNTHiddenMarks
 procedure TTabRichEdit.RemoveKNTHiddenCharacters (selection: boolean= true);
 var
   s: string;
+  len: integer;
 begin
     if FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, 0, -1, []) >= 0 then begin
        if selection then
           s:= RtfSelText
        else
           s:= RtfText;
+
+       len:= s.Length;
        s:= RemoveKNTHiddenCharactersInRTF(s);
-       PutRtfText(s, true, selection, true);
+       if s.Length <> Len then
+          PutRtfText(s, true, selection, true);
     end
 end;
 

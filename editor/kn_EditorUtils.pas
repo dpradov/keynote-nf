@@ -388,18 +388,25 @@ end;
 function GetEditorWithNoKNTHiddenCharacters (selection: boolean= true): TTabRichEdit;
 var
   s: string;
+  len: integer;
 begin
     Result:= ActiveNote.Editor;
 
     if Result.FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, 0, -1, []) >= 0 then begin
-       Result:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
+
        if selection then
           s:= ActiveNote.Editor.RtfSelText
        else
           s:= ActiveNote.Editor.RtfText;
-       s:= RemoveKNTHiddenCharactersInRTF(s);
-       Result.PutRtfText(s, true, true, true);
-       Result.SelectAll;
+
+       len:= s.Length;                          // There might be a hidden markup in the editor, but maybe not in the selection
+       s:= RemoveKNTHiddenCharactersInRTF(s);   // In that case this method will return the same string
+
+       if s.Length <> Len then begin
+          Result:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
+          Result.PutRtfText(s, true, true, true);
+          Result.SelectAll;
+       end;
     end
 end;
 
