@@ -399,6 +399,7 @@ begin
           s:= ActiveNote.Editor.RtfText;
        s:= RemoveKNTHiddenCharactersInRTF(s);
        Result.PutRtfText(s, true, true, true);
+       Result.SelectAll;
     end
 end;
 

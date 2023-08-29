@@ -320,8 +320,9 @@ begin
    end;
 
    RTFAux.Clear;
-   RTFAux.WordWrap:= false;
+   //RTFAux.WordWrap:= false;          // It's not necessary and its causing TTabRichEdit.CMRecreateWnd to be called
    RTFAux.StreamMode := [];
+   RTFAux.StreamFormat := sfRichText;
 
    if assigned(EditorToLoadFrom) then begin
       if FromSelection then

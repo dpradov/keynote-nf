@@ -762,12 +762,33 @@ uses
   {$IFDEF RX_D12}Winapi.CommDlg,{$ENDIF}
   RxMaxMin,
   Vcl.Clipbrd, tom_TLB                                                                        // [dpv]
+  {$IFDEF RX_ENH}
+  , gf_strings                                                                                // [dpv]
+  {$ENDIF}
   {$IFDEF KNT_DEBUG}
   , GFLog, kn_Global                                                                          // [dpv]
   {$ENDIF}
   ;
 
+{
+// ---------------- gf_strings -> CanSaveAsANSI
 
+function CanSaveAsANSI(const cad: string): boolean;
+var
+   ch: Char;
+begin
+  for ch in cad do
+    if Ord (ch) >= 256 then begin
+       Result:= false;
+       exit;
+     end;
+
+   Result:= true;
+end;
+
+// ---------------- tom_TLB -> ITextDocument
+  -> SuspendUndo, ResumeUndo
+}
 
 
 const
@@ -856,7 +877,7 @@ const
 
 { New edit control styles }
 
-  ES_NOOLEDRAGDROP                    = $00000008; 
+  ES_NOOLEDRAGDROP                    = $00000008;
 
 const
   CFM_LINK = $00000020;  { Exchange hyperlink extension }
@@ -4924,7 +4945,7 @@ begin
 end;
 
 
-
+{$IFDEF RX_ENH}
 
 { EM_SETTEXTEX (https://learn.microsoft.com/en-us/windows/win32/controls/em-settextex):
   <<Combines the functionality of the WM_SETTEXT and EM_REPLACESEL messages, and adds the ability to set text using a code page and to use either rich text or plain text.
@@ -4941,6 +4962,8 @@ procedure TRxCustomRichEdit.PutRtfText (const sRTF: string; const DoInsert: bool
                                         const SelectionOnly: boolean = true; const KeepSelected: boolean = false);
 var
   aSTE: TSetTextEx;
+  s: AnsiString;
+  paramRTF: NativeUInt;
 begin
   if sRTF = '' then exit;
 
@@ -4962,9 +4985,24 @@ begin
        if SelectionOnly then
           aSTE.flags:= ST_SELECTION;
        aSTE.flags:= aSTE.flags or ST_KEEPUNDO;
-       aSTE.codepage:= 1200;   // 1200 (Unicode)
 
-       SendMessage(Handle, EM_SETTEXTEX, longint(@aSTE), longint(PChar(sRTF)));           // EM_SETTEXTEX
+       if RichEditVersion <= 4 then begin          // See https://github.com/dpradov/keynote-nf/issues/602#issuecomment-1688868732  (problem with old RichEdit versions -- W7 ...)
+          if CanSaveAsANSI(sRTF) then begin
+             s:= sRTF;
+             aSTE.codepage:= StringCodePage(s);   // CP_ACP
+          end
+          else begin
+             aSTE.codepage:= CP_UTF8;
+             s:= UTF8Encode(sRTF);
+          end;
+          paramRTF:= longint(PAnsiChar(s));
+       end
+       else begin
+          aSTE.codepage:= 1200;   // 1200 (Unicode)
+          paramRTF:= longint(PChar(sRTF));
+       end;
+
+       SendMessage(Handle, EM_SETTEXTEX, longint(@aSTE), paramRTF);           // EM_SETTEXTEX
     end;
 
     if not KeepSelected then
@@ -5013,6 +5051,7 @@ begin
   end;
 end;
 
+{$ENDIF}
 
 {$ENDIF RX_D3}
 
