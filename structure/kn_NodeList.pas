@@ -433,6 +433,7 @@ begin
           MirrorNode:= nil;
           cad:= TStringList.Create;
           cad.Add(STR_01);
+          cad.WriteBOM:= False;
           cad.SaveToStream(FStream);
           FStream.Position := 0;
           cad.Free;

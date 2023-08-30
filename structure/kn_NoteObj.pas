@@ -1138,6 +1138,7 @@ begin
        end;
     end;
 
+    ListRTFStr.WriteBOM:= False;
     ListRTFStr.SaveToStream(StreamRTF);
 end;
 
@@ -3032,6 +3033,7 @@ var
     procedure AddNewNode;
     begin
       // transfer RTF data from list to node
+      List.WriteBOM:= False;
       List.SaveToStream( myNode.Stream );
       myNode.Stream.Position := 0;
       List.Clear;
