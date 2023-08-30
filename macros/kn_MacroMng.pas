@@ -1632,6 +1632,7 @@ var
   s : string;
   errorStr: string;
   NotImplemented, Canceled: boolean;
+  RTFAux : TTabRichEdit;
 begin
   // Perform command on ActiveNote.
   // The command does not modify the note,  (*1)
@@ -1657,10 +1658,15 @@ begin
   try
       case aCMD of
           ecCopy : begin
-            GetEditorWithNoKNTHiddenCharacters.CopyToClipboard;
-
-            if EditorOptions.PlainDefaultPaste then
-               TestCRCForDuplicates(Clipboard.TryAsText);
+            RTFAux:= GetEditorWithNoKNTHiddenCharacters (ActiveNote.Editor);
+            try
+               RTFAux.CopyToClipboard;
+               if EditorOptions.PlainDefaultPaste then
+                 TestCRCForDuplicates(Clipboard.TryAsText);
+            finally
+               if RTFAux <> ActiveNote.Editor then
+                  RTFAux.Free;
+            end;
           end;
 
           ecReadOnly :

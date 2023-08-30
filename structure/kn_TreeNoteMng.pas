@@ -2096,7 +2096,9 @@ var
      Encoding: TEncoding;
   begin
       Encoding:= nil;
-      RTFAux:= GetAuxEditorControl;
+      RTFAux.Clear;
+      RTFAux.StreamMode := [];
+
       RTFAux.StreamFormat:= FromFormat;
       RTFAux.Lines.LoadFromStream( Stream );
       RTFAux.StreamFormat := ToFormat;
@@ -2221,6 +2223,8 @@ begin
           LastLevel := StartLevel+1;
 
           tNote.TV.Items.BeginUpdate;
+          RTFAux:= CreateRTFAuxEditorControl;
+
           try
             for i := 0 to pred( TransferNodes.Count ) do
             begin
@@ -2333,7 +2337,7 @@ begin
             tNote.TV.Items.EndUpdate;
             tNote.TV.Selected := myTreeNode;
             TreeNodeSelected( myTreeNode );
-            FreeAuxEditorControl(nil,false,true);
+            RTFAux.Free;
             // myTreeNode.Expand( true );
             if ( VirtualNodesConverted > 0 ) then
             begin

@@ -2931,6 +2931,7 @@ var
   L, toLine: integer;
   MoveSelectedLines, ShiftPressed: boolean;
   RTFAux : TRxRichEdit;
+  Str: string;
 
   procedure SendSpaces(Editor: TRxRichEdit; n: integer);
   var
@@ -3005,7 +3006,7 @@ begin
                      end;
                end
                else begin
-                   RTFAux:= GetAuxEditorControl(ActiveNote.Editor);
+                   RTFAux:= CreateRTFAuxEditorControl(ActiveNote.Editor);
                    toLine:=   RTFAux.Lines.Count-1;
                    BeginUpdate;
                    try
@@ -3026,10 +3027,13 @@ begin
                          end;
 
                       SelectionLength:= RTFAux.TextLength;
-                      FreeAuxEditorControl(ActiveNote.Editor);
+                      Str:= RTFAux.RtfText;
+                      ActiveNote.Editor.PutRtfText(Str, True);
+
                       SelStart:= posBegin;                           // MoveSelectedLines=True => posBegin is initialized
                       SelLength:= SelectionLength + 1;
                    finally
+                      RTFAux.Free;
                       EndUpdate;
                    end;
                end;

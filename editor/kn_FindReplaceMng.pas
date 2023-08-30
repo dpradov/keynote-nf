@@ -505,7 +505,7 @@ begin
 end;
 }
 
-function PrepareTextPlain(myNote: TTabNote; myTreeNode: TTreeNTNode): string;
+function PrepareTextPlain(myNote: TTabNote; myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string;
 var
     myNoteNode : TNoteNode;
 begin
@@ -517,7 +517,7 @@ begin
        Result:= myNote.NoteTextPlain
    else begin
       myNoteNode := TNoteNode( myTreeNode.Data );
-      TTreeNote(myNote).InitializeTextPlain(myNoteNode);
+      TTreeNote(myNote).InitializeTextPlain(myNoteNode, RTFAux);
       Result:= myNoteNode.NodeTextPlain;
    end;
 
@@ -574,6 +574,7 @@ var
   SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
   str, s, path, strLocationMatch, strNodeFontSize: string;
   widthTwips: integer;
+  RTFAux : TTabRichEdit;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -756,6 +757,7 @@ begin
   Form_Main.FindAllResults.BeginUpdate;
 
   wordList := TStringList.Create;
+  RTFAux:= CreateRTFAuxEditorControl;
 
 
   try
@@ -805,7 +807,7 @@ begin
             // Recorremos cada nodo (si es ntTree) o el único texto (si <> ntTree)
             repeat
                 // PrepareEditControl(myNote, myTreeNode);
-                TextPlainBAK:= PrepareTextPlain(myNote, myTreeNode);
+                TextPlainBAK:= PrepareTextPlain(myNote, myTreeNode, RTFAux);
                 TextPlain:= TextPlainBAK;
                 if not FindOptions.MatchCase then
                    TextPlain:=  AnsiUpperCase(TextPlain);
@@ -1025,7 +1027,7 @@ begin
     SearchInProgress := false;
     screen.Cursor := crDefault;
     wordList.Free;
-    FreeAuxEditorControl;
+    RTFAux.Free;
     Form_Main.FindAllResults.EndUpdate;
     Form_Main.FindAllResults.ReadOnly:= True;
   end;
@@ -1180,6 +1182,8 @@ var
   l1, l2: integer;
   SizeInternalHiddenText: integer;
   TextPlain: string;
+  RTFAux: TTabRichEdit;
+
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -1329,7 +1333,7 @@ begin
 
   Form_Main.StatusBar.Panels[PANEL_HINT].text := STR_07;
 
-
+  RTFAux:= CreateRTFAuxEditorControl;
   SearchInProgress := true;
   try
     try
@@ -1367,8 +1371,7 @@ begin
       // o incluso continuar buscando desde el punto de partida, de manera cíclica.
 
       repeat
-            //PrepareEditControl(myNote, myTreeNode);
-            TextPlain:= PrepareTextPlain(myNote, myTreeNode);
+            TextPlain:= PrepareTextPlain(myNote, myTreeNode, RTFAux);
             if FindOptions.MatchCase then
                PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
             else 
@@ -1426,6 +1429,7 @@ begin
       result := Found;
       SearchInProgress := false;
       UserBreak := false;
+      RTFAux.Free;
   end;
 
 end; // RunFindNext;
@@ -1655,7 +1659,6 @@ begin
       end;
       FindOptions := Form_FindReplace.MyFindOptions;
       Form_FindReplace.Release;
-      FreeAuxEditorControl;
 
     except
     end;

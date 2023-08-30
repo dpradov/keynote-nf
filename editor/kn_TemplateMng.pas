@@ -187,7 +187,7 @@ begin
           end;
 
           if Template_LastWasFormatted then
-             Editor:= GetEditorWithNoKNTHiddenCharacters(useSelection);
+             Editor:= GetEditorWithNoKNTHiddenCharacters(ActiveNote.Editor, useSelection);       // If editor returned <> ActiveNote.Editor -> free
 
           if UseSelection then
              Editor.StreamMode := [smSelection];
@@ -232,6 +232,9 @@ begin
 
         end;
       finally
+        if Editor <> ActiveNote.Editor then
+           Editor.Free;          // RTFAux...
+
         Form_Template.Free;
       end;
   end;

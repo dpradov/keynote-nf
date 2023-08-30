@@ -693,7 +693,8 @@ begin
   StartLevel := 0;
   TreePadFN := '';
   TreePadNodeLevelInc := 0;
-  RTFAux:= GetAuxEditorControl;
+
+  RTFAux:= CreateRTFAuxEditorControl;
 
 
   if ExportOptions.ConfirmOverwrite then
@@ -1032,7 +1033,7 @@ begin
     FileIsBusy := false;
     IsBusy := false;
     Screen.Cursor := crDefault;
-    FreeAuxEditorControl;
+    RTFAux.Free;
     ExitMessage := Format(STR_12, [ExportedNotes, ExportedNodes] );
     if WasError then
        ExitMessage := ExitMessage + #13 + STR_13
@@ -1083,7 +1084,7 @@ begin
        if ClearRTF then
           Editor.RemoveKNTHiddenCharacters(false)
        else
-          Editor:= GetEditorWithNoKNTHiddenCharacters(false);
+          Editor:= GetEditorWithNoKNTHiddenCharacters(Editor, false);
     end;
 
     if (not ExportOptions.TreePadRTF ) then begin
@@ -1112,9 +1113,15 @@ begin
 
   finally
     tmpStream.Free;
-    if ClearRTF then
-       Editor.Clear;
-    Editor.StreamFormat := sfRichText;
+
+    if Editor <> RTF then
+       Editor.Free
+
+    else begin
+      if ClearRTF then
+         Editor.Clear;
+      Editor.StreamFormat := sfRichText;
+    end;
 
   end;
 

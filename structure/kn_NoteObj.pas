@@ -338,8 +338,8 @@ type
     function GetNodeByID( const aID : integer ) : TNoteNode;
     function GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
 
-    function InitializeTextPlainVariables( nMax: integer ): boolean;
-    function InitializeTextPlain(myNoteNode: TNoteNode): boolean;
+    function InitializeTextPlainVariables( nMax: integer; RTFAux: TTabRichEdit ): boolean;
+    function InitializeTextPlain(myNoteNode: TNoteNode; RTFAux: TRxRichEdit): boolean;
 
   end;
 
@@ -3143,32 +3143,32 @@ begin
 end; // GetTreeNodeByID
 
 
-function TTreeNote.InitializeTextPlain(myNoteNode: TNoteNode): boolean;
-var
-    EditControl: TRxRichEdit;
+function TTreeNote.InitializeTextPlain(myNoteNode: TNoteNode; RTFAux: TRxRichEdit): boolean;
 begin
     Result:= False;  // Initialization was required?
 
     if myNoteNode.NodeTextPlain = '' then begin
        myNoteNode.Stream.Position := 0;
-       EditControl:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
+       RTFAux.Clear;
+       RTFAux.StreamMode := [];
+
        if NodeStreamIsRTF (myNoteNode.Stream) then
-          EditControl.StreamFormat:= sfRichText
+          RTFAux.StreamFormat:= sfRichText
        else
-          EditControl.StreamFormat:= sfPlainText;
+          RTFAux.StreamFormat:= sfPlainText;
        try
-          EditControl.Lines.LoadFromStream( myNoteNode.Stream );
+          RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
        except
        end;
 
-       myNoteNode.NodeTextPlain:= EditControl.TextPlain;
+       myNoteNode.NodeTextPlain:= RTFAux.TextPlain;
 
        Result:= True;
     end;
 end;
 
 
-function TTreeNote.InitializeTextPlainVariables( nMax: integer ): boolean;
+function TTreeNote.InitializeTextPlainVariables( nMax: integer; RTFAux: TTabRichEdit): boolean;
 var
   i, N: integer;
 begin
@@ -3181,7 +3181,7 @@ begin
         if (MillisecondsIdle <= 450) then Exit;
      end;
 
-     if InitializeTextPlain (FNodes[i]) then
+     if InitializeTextPlain (FNodes[i], RTFAux) then
         inc (N);
 
      if N >= nMax then Exit;

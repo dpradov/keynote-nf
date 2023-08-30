@@ -44,7 +44,8 @@ uses
    kn_NodeList,
    kn_NoteObj,
    kn_TreeNoteMng,
-   kn_LinksMng;
+   kn_LinksMng,
+   kn_RTFUtils;
 
 
 type
@@ -1657,17 +1658,20 @@ var
   i: integer;
   myNote: TTabNote;
   AllNotesInitialized: boolean;
+  RTFAux: TTabRichEdit;
 begin
     if FileIsBusy then Exit;
     if FTextPlainVariablesInitialized then Exit;
 
+    RTFAux:= CreateRTFAuxEditorControl;
     try
+      try
         AllNotesInitialized:= True;
 
         for i := 0 to pred( FNotes.Count ) do begin
            myNote := FNotes[i];
            if (myNote.Kind = ntTree) then begin
-              if not TTreeNote(myNote).InitializeTextPlainVariables(nMax) then
+              if not TTreeNote(myNote).InitializeTextPlainVariables(nMax, RTFAux) then
                   AllNotesInitialized:= false;
            end
            else
@@ -1678,7 +1682,11 @@ begin
         if AllNotesInitialized then
            FTextPlainVariablesInitialized:= true;
 
-    except
+      except
+      end;
+
+    finally
+      RTFAux.Free;
     end;
 
 end;

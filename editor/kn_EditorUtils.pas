@@ -79,7 +79,7 @@ uses
     procedure CheckWordCountWaiting;
     function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
 
-    function GetEditorWithNoKNTHiddenCharacters (selection: boolean= true): TTabRichEdit;
+    function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; const selection: boolean= true): TTabRichEdit;
     function RemoveKNTHiddenCharacters(const s: string; checkIfNeeded: boolean = true): string;
     function RemoveKNTHiddenCharactersInRTF(const s: string): string;
     function KeepOnlyLeadingKNTHiddenCharacters(const txt: string): string;
@@ -385,12 +385,12 @@ begin
 end;
 
 
-function GetEditorWithNoKNTHiddenCharacters (selection: boolean= true): TTabRichEdit;
+function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; const selection: boolean= true): TTabRichEdit;
 var
   s: string;
   len: integer;
 begin
-    Result:= ActiveNote.Editor;
+    Result:= Editor;
 
     if Result.FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, 0, -1, []) >= 0 then begin
 
@@ -403,9 +403,10 @@ begin
        s:= RemoveKNTHiddenCharactersInRTF(s);   // In that case this method will return the same string
 
        if s.Length <> Len then begin
-          Result:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
+          Result:= CreateRTFAuxEditorControl;      // Caller should call free on this control after used
           Result.PutRtfText(s, true, true, true);
-          Result.SelectAll;
+          if RichEditVersion <= 4 then
+             Result.SetSelection(0, Result.TextLength, false);
        end;
     end
 end;
@@ -441,11 +442,17 @@ end;
 
 function RemoveKNTHiddenCharactersInRTF(const s: string): string;
 var
-   p, pF: integer;
+   p, pF, len: integer;
 begin
   if S='' then Exit('');
 
   //  {\rtf1\ansi {\v\'11B5\'12} XXX };   {\rtf1\ansi \v\'11B5\'12\v0 XXX};  {\rtf1\ansi \v\'11T999999\'12\v0 XXX};
+
+  { *1
+     hello \v\''11B1\''12\v0\fs36 BIG WORLD  =>  hello \fs36 BIG WORLD
+     hello \v\''11B1\''12\v0 world           =>  hello world    (-> remove space after \v0)
+  }
+
 
   Result:= s;
   p:= 1;
@@ -454,7 +461,10 @@ begin
      if p > 0 then begin
         pF:= Pos(KNT_RTF_HIDDEN_MARK_R + '\v0', Result, p+6);
         if (pF > 0) and (pF-p <= 20) then begin
-           Delete(Result, p, pF-p +8);
+           len:= pF-p +7;
+           if Result[p + len] = ' ' then          // *1
+              Inc(len);
+           Delete(Result, p, len);
            p:= pF+1;
         end;
      end;

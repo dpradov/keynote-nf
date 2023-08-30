@@ -73,17 +73,12 @@ function GetRTFColor (Color: TColor): string;
 function CleanRTF(const RTF: string; var nRTF: string): boolean;
 procedure SetDefaultFontAndSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
 
-function GetAuxEditorControl (EditorToLoadFrom: TTabRichEdit= nil; FromSelection: Boolean= True): TTabRichEdit;
-procedure FreeAuxEditorControl (FlushToEditor: TTabRichEdit= nil; DoInsert: boolean= true; FreeAndNilControl: boolean= false);
+function CreateRTFAuxEditorControl (EditorToLoadFrom: TTabRichEdit= nil; FromSelection: Boolean= True): TTabRichEdit;
 
 
 implementation
 uses
    kn_Main;
-
-var
-   RTFAux : TTabRichEdit;
-
 
 
 // To use the filename in {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
@@ -306,18 +301,17 @@ begin
 end;
 
 
-function GetAuxEditorControl(EditorToLoadFrom: TTabRichEdit= nil; FromSelection: Boolean= True): TTabRichEdit;
+function CreateRTFAuxEditorControl(EditorToLoadFrom: TTabRichEdit= nil; FromSelection: Boolean= True): TTabRichEdit;
 var
   Stream: TStream;
   Str: String;
+  RTFAux : TTabRichEdit;
 begin
 
-   if not assigned(RTFAux) then begin
-      RTFAux := TTabRichEdit.Create(Form_Main);
-      RTFAux.Visible:= False;
-      RTFAux.OnProtectChangeEx:= Form_Main.RxRTFAuxiliarProtectChangeEx;
-      RTFAux.Parent:= Form_Main;
-   end;
+   RTFAux := TTabRichEdit.Create(Form_Main);
+   RTFAux.Visible:= False;
+   RTFAux.OnProtectChangeEx:= Form_Main.RxRTFAuxiliarProtectChangeEx;
+   RTFAux.Parent:= Form_Main;
 
    RTFAux.Clear;
    //RTFAux.WordWrap:= false;          // It's not necessary and its causing TTabRichEdit.CMRecreateWnd to be called
@@ -340,22 +334,5 @@ begin
    Result:= RTFAux;
 end;
 
-procedure FreeAuxEditorControl(FlushToEditor: TTabRichEdit= nil;
-                               DoInsert: boolean= true;
-                               FreeAndNilControl: boolean= false);
-var
-  Str: String;
-begin
-   if assigned(RTFAux) then begin
-      if assigned(FlushToEditor) then begin
-         Str:= RTFAux.RtfText;
-         FlushToEditor.PutRtfText(Str, DoInsert);
-      end;
-
-      RTFAux.Clear;
-      if FreeAndNilControl then
-         FreeAndNil(RTFAux);
-   end;
-end;
 
 end.
