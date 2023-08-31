@@ -214,6 +214,7 @@ resourcestring
   IntervalPrefixBAK = '_BAK@';
   STR_78 = 'Backup at %s before any modification in "%s"';
   STR_79 = 'File is not modified. Nothing to save';
+  STR_80 = #13#13 + 'Option "Autoregister file type" will be unchecked';
 
 
 //=================================================================
@@ -2909,8 +2910,10 @@ begin
       if KeyOptions.AutoRegisterPrompt then
         messagedlg( Format( STR_75, [ext_KeyNote] ), mtInformation, [mbOK], 0 );
     except
-      on E : Exception do
-        MessageDlg( STR_76 + e.Message, mtWarning, [mbOK], 0 );
+      on E : Exception do begin
+        MessageDlg( STR_76 + e.Message + STR_80, mtWarning, [mbOK], 0 );
+        KeyOptions.AutoRegisterFileType:= False;
+      end;
     end;
   end;
 end; // AssociateKeyNoteFile
