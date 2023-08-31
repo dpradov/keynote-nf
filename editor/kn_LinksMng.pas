@@ -122,6 +122,8 @@ resourcestring
   STR_28 = 'Navigate forward in note (''local'') history';
   STR_29 = 'Navigate forward in global history';
   STR_30 = ' (Ctrl+click: only in note history)';
+  STR_31 = ' [Mark: %d]';
+  STR_32 = '   (Undo to remove new hidden markers)';
 
 type
   EInvalidLocation = Exception;
@@ -569,26 +571,40 @@ var
    Note: TTabNote;
    TreeNode: TTreeNTNode;
    TargetMarker: integer;
+   str, strTargetMarker: string;
 
    function GetActualTargetMarker (Editor: TRxRichEdit): integer;
    var
       SS, L, Len: integer;
       Str: String;
    begin
-      // By the check made from TForm_Main.RxRTFKeyDown, when the Left cursor is pressed, if it is already next to 
-      // an existing marker, we'll be just to the left
+      // *1 By the check made from TForm_Main.RxRTFKeyDown, when the Left cursor is pressed, if it is already next to
+      //    an existing marker, we'll be just to the left
+      // *2 But if we insert a marker (CTR+F6) several times without moving the position, there would be a mark just in the left
       Result:= 0;
+      Str:= '';
       try
         with Editor do begin
            SS:= SelStart;
-           SelStart:= SS+1;
-           L:= SelStart;
-           if L <> SS+1 then begin        // It will have been placed to the left of the first non-hidden character
-              Str:= GetTextRange(SS, L);  // HB999H
-              Len:= Length(Str);
+
+           SelStart:= SS + 1;
+           L:= SelStart;                    // *1
+           if L <> SS + 1 then              // It will have been placed to the left of the first non-hidden character, to the right (L > SS )
+              Str:= GetTextRange(SS, L)     // HB999H
+           else begin
+              SelStart:= SS - 1;
+              L:= SelStart;                  // *2
+              if L <> SS - 1 then            // It will have been placed to the left of the first non-hidden character, to the left (L < SS)
+                 Str:= GetTextRange(L, SS);
+           end;
+
+
+           if Str <> '' then begin
+              Len:= Length(Str);             // HB999H
               if (Str[1]=KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[2]=KNT_RTF_HIDDEN_BOOKMARK) and (Str[Len]=KNT_RTF_HIDDEN_MARK_R_CHAR) then
                  Result:= StrToInt(Copy(Str, 3, (Len)-3));
            end;
+
            SelStart:= SS;
         end;
       except
@@ -620,15 +636,20 @@ begin
                                                 aLocation.CaretPos]);
 
     InsertHyperlink(BuildKNTLocationText(aLocation),  TextURL, true, ActiveNote);
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_09;
+    if aLocation.Mark <> 0 then
+       strTargetMarker:= Format(STR_31, [aLocation.Mark]);
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_09 + strTargetMarker;
   end
   else begin
     // mark caret position as TLocation
     GetKNTLocation (aLocation);
 
-    if (not ActiveNote.PlainText)
+    // If we are pointing to the start of a node or a note (CaretPos = 0), we will not create any new markers. We will always aim for that position 0.
+    strTargetMarker:= '';
+
+    if (aLocation.CaretPos <> 0) and (not ActiveNote.PlainText)
        and ((ActiveNote.Kind <> ntTree) or (TTreeNote(ActiveNote).SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode]) ) then begin        // Allow the mark (hidden) although Note is ReadOnly
-      TargetMarker:= GetActualTargetMarker(ActiveNote.Editor);
+      TargetMarker:= GetActualTargetMarker(ActiveNote.Editor);             // If a marker already exists at that position, we will use it
       if TargetMarker = 0 then begin
          {$IFDEF KNT_DEBUG}Log.Add('Insert Marker for HyperLink',  4 ); {$ENDIF}
          TargetMarker:= 1 + GetLastTargetMarker(ActiveNote.Editor.TextPlain);
@@ -637,10 +658,11 @@ begin
                                KNT_RTF_HIDDEN_BOOKMARK + IntToStr(TargetMarker) +
                                KNT_RTF_HIDDEN_MARK_R + '}}',  true);
       end;
+      strTargetMarker:= Format(STR_31 + STR_32, [TargetMarker]);
       aLocation.Mark:= TargetMarker;
     end;
 
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10 + strTargetMarker;
   end;
 
 end; // InsertOrMarkKNTLink
