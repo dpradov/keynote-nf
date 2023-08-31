@@ -4880,7 +4880,7 @@ begin
    SetLength(Result, longSel);
 
    with GetTextEx do begin
-      cb:= longSel * 2;     // size in bytes
+      cb:= longSel * 2 + 4;     // size in bytes
       flags:= GT_SELECTION or GT_NOHIDDENTEXT;
       codepage:= 1200;
       lpDefaultChar:= nil;
@@ -4901,7 +4901,7 @@ begin
    SetLength(Result, len);
 
    with GetTextEx do begin
-      cb:= len * 2;     // size in bytes
+      cb:= len * 2 + 4;     // size in bytes
       flags:= GT_NOHIDDENTEXT;
       codepage:= 1200;
       lpDefaultChar:= nil;
@@ -4931,7 +4931,7 @@ begin
    SetLength(Result, len);
 
    with GetTextEx do begin
-      cb:= len * 2;           // size in bytes
+      cb:= len * 2 + 4;           // size in bytes
       flags:= GT_RAWTEXT; // GT_DEFAULT;
       if Selection then
          flags:= flags or GT_SELECTION;
