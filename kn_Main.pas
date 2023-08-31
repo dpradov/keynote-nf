@@ -2932,6 +2932,7 @@ var
   MoveSelectedLines, ShiftPressed: boolean;
   RTFAux : TRxRichEdit;
   Str: string;
+  SpacesAsTab: string;
 
   procedure SendSpaces(Editor: TRxRichEdit; n: integer);
   var
@@ -3006,6 +3007,8 @@ begin
                      end;
                end
                else begin
+                   SpacesAsTab:= StringOfChar (' ', TabSize);
+
                    RTFAux:= CreateRTFAuxEditorControl(ActiveNote.Editor);
                    toLine:=   RTFAux.Lines.Count-1;
                    BeginUpdate;
@@ -3017,7 +3020,7 @@ begin
                             if UseTabChar then
                                RTFAux.Perform(WM_CHAR, 9, 0)
                             else
-                               SendSpaces(RTFAux, TabSize);
+                               RTFAux.SelText := SpacesAsTab;
                          end;
                       end
                       else

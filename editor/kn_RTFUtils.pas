@@ -307,16 +307,22 @@ var
   Str: String;
   RTFAux : TTabRichEdit;
 begin
+  // *1   Tt's necessary to be able to use RTFAux.Perform(EM_LINEINDEX, L, 0)   (See for example: kn_Main.RxRTF_KeyPress)
+  //      Otherwise, the character position returned by that method will not match the line break, but rather a probably default line width (22).
+  // *2   This sentence must be executed before assigning Parent. If not, then can cause kn_NoteObj:TTabRichEdit.CMRecreateWnd to be called
+  // *3   After migrating to Delphi 11, with the use of unRxLib (instead of RX Library), it is necessary to define StreamFormat as sfRichText in this RTFAux control
+  //      Without it, the indentation of multiple lines done in kn_Main.RxRTF_KeyPress, would not work (would show RTF contet as text)
 
    RTFAux := TTabRichEdit.Create(Form_Main);
    RTFAux.Visible:= False;
+   RTFAux.WordWrap:= false;            // *1
    RTFAux.OnProtectChangeEx:= Form_Main.RxRTFAuxiliarProtectChangeEx;
    RTFAux.Parent:= Form_Main;
 
    RTFAux.Clear;
-   //RTFAux.WordWrap:= false;          // It's not necessary and its causing TTabRichEdit.CMRecreateWnd to be called
    RTFAux.StreamMode := [];
-   RTFAux.StreamFormat := sfRichText;
+   RTFAux.StreamFormat := sfRichText;  // *3
+   //RTFAux.WordWrap:= false;          // Commented: *2
 
    if assigned(EditorToLoadFrom) then begin
       if FromSelection then
