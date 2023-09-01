@@ -1021,12 +1021,12 @@ begin
     UASEnable := false;
     UASPath := '';
     URLAction := urlAsk;
-    URLAltBrowserPath := GetAppFromExt( ext_HTML, true );
+    URLAltBrowserPath := GetDefaultBrowserPath();
     URLFileAuto := true;
     URLFileDecodeSpaces := true;
     URLFileNoPrefix := true;
     URLFileQuoteSpaces := false;
-    URLClickShift := false;
+    //URLClickShift := false;
     URLSystemBrowser := true;
     UseOldColorDlg := false;
     UseOldFileFormat := false;
@@ -1292,7 +1292,7 @@ begin
       writebool( section, KeyOptionsIniStr.URLFileDecodeSpaces, KeyOptions.URLFileDecodeSpaces );
       writebool( section, KeyOptionsIniStr.URLFileNoPrefix, KeyOptions.URLFileNoPrefix );
       writebool( section, KeyOptionsIniStr.URLFileQuoteSpaces, KeyOptions.URLFileQuoteSpaces );
-      writebool( section, KeyOptionsIniStr.URLClickShift, KeyOptions.URLClickShift );
+      //writebool( section, KeyOptionsIniStr.URLClickShift, KeyOptions.URLClickShift );
       writebool( section, KeyOptionsIniStr.URLSystemBrowser, KeyOptions.URLSystembrowser );
       writebool( section, KeyOptionsIniStr.UseOldColorDlg, KeyOptions.UseOldColorDlg );
       writebool( section, KeyOptionsIniStr.UseOldFileFormat, KeyOptions.UseOldFileFormat );
@@ -1606,7 +1606,7 @@ begin
       KeyOptions.URLFileDecodeSpaces := readbool( section, KeyOptionsIniStr.URLFileDecodeSpaces, KeyOptions.URLFileDecodeSpaces );
       KeyOptions.URLFileNoPrefix := readbool( section, KeyOptionsIniStr.URLFileNoPrefix, KeyOptions.URLFileNoPrefix );
       KeyOptions.URLFileQuoteSpaces := readbool( section, KeyOptionsIniStr.URLFileQuoteSpaces, KeyOptions.URLFileQuoteSpaces );
-      KeyOptions.URLClickShift := readbool( section, KeyOptionsIniStr.URLClickShift, KeyOptions.URLClickShift );
+      //KeyOptions.URLClickShift := readbool( section, KeyOptionsIniStr.URLClickShift, KeyOptions.URLClickShift );
       KeyOptions.URLSystembrowser := readbool( section, KeyOptionsIniStr.URLSystembrowser, KeyOptions.URLSystembrowser );
       KeyOptions.UseOldColorDlg := readbool( section, KeyOptionsIniStr.UseOldColorDlg, KeyOptions.UseOldColorDlg );
 

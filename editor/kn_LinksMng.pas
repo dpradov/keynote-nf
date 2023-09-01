@@ -106,7 +106,7 @@ resourcestring
   STR_13 = 'Invalid location string: %s';
   STR_14 = ' Invalid location';
   STR_15 = 'Error executing hyperlink: %s';
-  STR_16 = ' Hold down SHIFT while clicking the URL:  ';
+  // STR_16 = ' Hold down SHIFT while clicking the URL:  ';
   STR_17 = ' URL modified';
   STR_18 = ' URL action canceled';
   STR_19 = ' URL copied to clipboard';
@@ -1241,19 +1241,21 @@ var
   textURLposIni, textURLposFin: Integer;
   ShiftWasDown, AltWasDown, CtrlWasDown : boolean;
   usesHyperlinkCmd: boolean;
-
   path: string;
   Location: TLocation;
   KNTlocation: boolean;
+  FileName, Parameters: String;
+
 
   function GetHTTPClient : string;
   begin
     result := '';
     if ( not KeyOptions.URLSystemBrowser ) then
-      result := NormalFN( KeyOptions.URLAltBrowserPath );
+       result := NormalFN( KeyOptions.URLAltBrowserPath );
+
     if ( result = '' ) then
-     result := GetAppFromExt( ext_HTML, true );
-  end; // GetHTTPClient
+       result := GetDefaultBrowserPath();
+  end;
 
   function KNTPathFromString (url: string): string;
   var
@@ -1310,12 +1312,15 @@ begin
          myURLAction := urlCopy
       else
          if CtrlWasDown and ( KNTLocation or (URLType <> urlFile) or (URLFileExists(myURL)) ) then begin
+            {
             if ( myURLAction <> urlOpenNew ) then
                myURLAction := urlOpenNew // always open in new window if Ctrl pressed
             else
-               myURLAction := urlOpen;
-         end
-      else begin
+            }
+            myURLAction := urlOpen;
+         end;
+      {                    Shift + Click doesn't raise now the event Editor.URLClick
+       else begin
         if (( not _IS_FAKING_MOUSECLICK ) and KeyOptions.URLClickShift and ( not ShiftWasDown )) then begin
             if KNTLocation then
                myURL:= '(KNT) ' + KNTPathFromString(URLstr)
@@ -1325,7 +1330,7 @@ begin
             exit;
         end;
       end;
-
+      }
 
       //-------------------------------------
       if ( URLType = urlFile ) and ( myURLAction in [urlAsk] ) and KeyOptions.URLFileAuto then
@@ -1420,51 +1425,51 @@ begin
 
       //-------------------------------------
       if ( myURLAction in [urlOpen, urlOpenNew, urlBoth] ) then begin
+
+          Parameters:= '';
+
           case URLType of
             urlFILE : begin // it may be a KNT location or a normal file URL.
               if KNTlocation then begin
                 // KNT location!
                 _GLOBAL_URLText := myURL;
                   { Why "postmessage" and not a regular procedure?
-                  Because we are, here, inside an event that belongs
-                  to the TTabRichEdit control. When a link is clicked,
-                  it may cause KeyNote to close this file and open
-                  a different .KNT file. In the process, this TTabRichEdit
-                  will be destroyed. If we called a normal procedure
-                  from here, we would then RETURN HERE: to an event handler
-                  belonging to a control that NO LONGER EXISTS. Which
-                  results in a nice little crash. By posting a message,
-                  we change the sequence, so that the file will be
-                  closed and a new file opened after we have already
+                  Because we are, here, inside an event that belongs to the TTabRichEdit control. When a link is clicked,
+                  it may cause KeyNote to close this file and open a different .KNT file. In the process, this TTabRichEdit
+                  will be destroyed. If we called a normal procedure from here, we would then RETURN HERE: to an event handler
+                  belonging to a control that NO LONGER EXISTS. Which results in a nice little crash. By posting a message,
+                  we change the sequence, so that the file will be closed and a new file opened after we have already
                   returned from this here event handler. }
                 postmessage( Form_Main.Handle, WM_JumpToKNTLink, 0, 0 );
                 exit;
               end
               else begin
                 myURL:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), myURL);
-                ShellExecResult := ShellExecute( 0, 'open', PChar( myURL ), nil, nil, SW_NORMAL );
+                FileName:= myURL;
               end;
             end;
-            else begin // all other URL types
-                screen.Cursor := crAppStart;
-                try
-                  if ( myURLAction = urlOpenNew ) then
-                      ShellExecResult := ShellExecute( 0, 'open', PChar( GetHTTPClient ), PChar( myURL ), nil, SW_NORMAL )
-                  else begin
-                      if ( URLType in [urlHTTP, urlHTTPS] ) then begin
-                        if KeyOptions.URLSystemBrowser then
-                           ShellExecResult := ShellExecute( 0, 'open', PChar( myURL ), nil, nil, SW_NORMAL )
-                        else
-                           ShellExecResult := ShellExecute( 0, 'open', PChar( GetHTTPClient ), PChar( myURL ), nil, SW_NORMAL );
-                      end
-                      else
-                        ShellExecResult := ShellExecute( 0, 'open', PChar( myURL ), nil, nil, SW_NORMAL );
-                  end;
-                finally
-                  screen.Cursor := crDefault;
+            else begin                              // all other URL types
+                FileName:= myURL;                                                             // and by default: Parameters:= ''
+                if URLType in [urlHTTP, urlHTTPS] then begin
+                    browser := GetHTTPClient();
+                    if browser <> '' then begin
+                       FileName:= browser;
+                       Parameters:= myURL;
+                       if ( myURLAction = urlOpenNew ) then
+                          Parameters:= '--new-window ' + Parameters;
+                    end;
                 end;
             end;
           end;
+
+
+          screen.Cursor := crAppStart;
+          try
+              ShellExecResult := ShellExecute( 0, 'open', PChar(FileName), PChar(Parameters), nil, SW_NORMAL );
+          finally
+              screen.Cursor := crDefault;
+          end;
+
 
           if ( ShellExecResult <= 32 ) then begin
             if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then

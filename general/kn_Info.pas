@@ -571,8 +571,8 @@ type
     URLFileDecodeSpaces : boolean; // [*]
     URLFileNoPrefix : boolean; // [*] strip file:/// prefix before launching URLs
     URLFileQuoteSpaces : boolean; // [*]
-    URLClickShift : boolean; // if TRUE, user must hold down SHIFT while clicking an URL to activate it
-    URLSystemBrowser : boolean; 
+    // URLClickShift : boolean; // if TRUE, user must hold down SHIFT while clicking an URL to activate it        (Does not work with recent versions of RichEdit)
+    URLSystemBrowser : boolean;
     UseOldColorDlg : boolean;
     UseOldFileFormat : boolean; // save files using older firmat (GFKNX)
     UseTray : boolean;

@@ -52,7 +52,6 @@ type
     procedure Button_OpenClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;  Shift: TShiftState);
     procedure Button_OpenNewClick(Sender: TObject);
-    procedure Label_URLClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
@@ -331,15 +330,6 @@ begin
   CheckURL(false);
 end;
 
-
-procedure TForm_URLAction.Label_URLClick(Sender: TObject);
-begin
-  if ShiftDown then
-    URLAction := urlOpenNew
-  else
-    URLAction := urlOpen;
-  ModalResult := mrOK;
-end;
 
 function StripFileURLPrefix( const AStr : string ) : string;
 const

@@ -1577,7 +1577,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_TimerCloseAutoReopen: TCheckBox
           Left = 11
-          Top = 155
+          Top = 157
           Width = 330
           Height = 17
           Hint = 'Prompt for password and reopen auto-closed encrypted files'
@@ -1593,9 +1593,9 @@ object Form_OptionsNew: TForm_OptionsNew
       end
       object GroupBox_Act2: TGroupBox
         Left = 5
-        Top = 209
+        Top = 216
         Width = 350
-        Height = 160
+        Height = 153
         Caption = ' URL actions '
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -1606,7 +1606,7 @@ object Form_OptionsNew: TForm_OptionsNew
         TabOrder = 1
         object Label8: TLabel
           Left = 10
-          Top = 31
+          Top = 36
           Width = 87
           Height = 13
           AutoSize = False
@@ -1621,9 +1621,10 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Combo_URLAction: TComboBox
           Left = 101
-          Top = 26
+          Top = 31
           Width = 220
           Height = 21
+          Hint = 'Remember: '#13#10'    ALT+ Click  => Copy'#13#10'  CTRL+ Click  => Open'
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -1633,24 +1634,9 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 0
         end
-        object CheckBox_URLShift: TCheckBox
-          Left = 11
-          Top = 58
-          Width = 330
-          Height = 17
-          Hint = 'Respond to URL clicks only is Dhift key held down'
-          Caption = '&Shift key must be held down when URL is clicked'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 1
-        end
         object CheckBox_MinOnURL: TCheckBox
           Left = 11
-          Top = 81
+          Top = 79
           Width = 330
           Height = 17
           Hint = 'Minimize program on launching a client application for URL'
@@ -1661,7 +1647,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 1
         end
         object CheckBox_URLFileAuto: TCheckBox
           Left = 11
@@ -1676,7 +1662,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 3
+          TabOrder = 2
         end
       end
     end

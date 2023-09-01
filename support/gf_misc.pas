@@ -155,6 +155,8 @@ procedure SetDefaultFont( var theFont : TFontProperties );
 procedure FontPropertiesToFont( const fp : TFontProperties; aFont : TFont );
 procedure FontToFontProperties( const aFont : TFont; var fp : TFontProperties );
 
+
+function GetDefaultBrowserPath(const RemoveArgs : boolean = true): String;
 Function GetAppFromExt( Const Ext : String; const RemoveArgs : boolean ) : String;
 function GetFolderPath( const FolderName: String50 ): String;
 function StripHTML( s : string; var InTag : boolean ) : string;
@@ -361,55 +363,108 @@ begin
    result := F;
 end; // StrToFontStyle
 
+
+function GetDefaultBrowserPath(const RemoveArgs : boolean = true): String;
+var
+  S : string;
+  p : integer;
+begin
+ // https://superuser.com/questions/1111122/path-variable-for-default-browser-in-windows
+
+{
+ Example:
+ HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html\UserChoice\ProgID
+  =>"FirefoxHTML-308046B0AF4A39CB"
+
+-> HKEY_CLASSES_ROOT\FirefoxHTML-308046B0AF4A39CB
+-> HKEY_CLASSES_ROOT\FirefoxHTML-308046B0AF4A39CB\shell\open\command
+  => "C:\Program Files\Mozilla Firefox\firefox.exe" -osint -url "%1"
+
+}
+
+  S := '';
+  with TRegistry.Create(KEY_READ) do
+  try
+     RootKey := HKEY_CURRENT_USER;
+     if OpenKey( '\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html\UserChoice', False ) then begin
+       S := ReadString( 'ProgID' );
+       CloseKey;
+
+       if S <> '' Then begin
+         RootKey := HKEY_CLASSES_ROOT;
+         if OpenKey( '\' + S + '\shell\open\command', False ) then
+            S := ReadString( '' )
+         else
+            S := '';
+       end;
+    end;
+
+  finally
+    Free;
+  end;
+
+  if (S <> '') and RemoveArgs then begin
+    p := pos( ' "%1"', s );
+    if ( p > 0 ) then
+       delete( s, p, length( s ) );
+  end;
+
+  if ( s <> '' ) then  begin
+     if ( s[1] = '"' ) then begin
+         delete( s, 1, 1 );
+         delete( s, pos( '"', s ), length( s ));
+     end;
+  end;
+
+  result := s;
+
+end; // GetDefaultBrowserPath
+
+
+
 function GetAppFromExt( const Ext : string; const RemoveArgs : boolean ) : string;
 // adapted from Borland FAQ
 var
   S : string;
   p : integer;
 begin
+
   s := '';
-  with TRegistry.Create do
+  with TRegistry.Create (KEY_READ) do
   try
     RootKey := HKEY_CLASSES_ROOT;
 
     if OpenKey( '\' + Ext, False ) then
     begin
       S := ReadString( '' );
-      if S <> '' Then
-      begin
+      if S <> '' Then begin
         if OpenKey( '\' + S + '\shell\open\command', False ) then
-        begin
           S := ReadString( '' );
-        end;
       end
       else
-      begin
-        If OpenKey( '\' + Ext + '\shell\open\command', False ) Then
-        begin
+      begin If OpenKey( '\' + Ext + '\shell\open\command', False ) Then
           S := ReadString( '' );
-        end;
       end;
     end;
   finally
     Free;
   end;
 
-  if (( s <> '' ) and RemoveArgs ) then
-  begin
-   p := pos( ' "%1"', s );
-   if ( p > 0 ) then
+  if (S <> '') and RemoveArgs then begin
+    p := pos( ' "%1"', s );
+    if ( p > 0 ) then
        delete( s, p, length( s ) );
   end;
-  if ( s <> '' ) then
-  begin
-   if ( s[1] = '"' ) then
-   begin
-       delete( s, 1, 1 );
-       delete( s, pos( '"', s ), length( s ));
-   end;
+
+  if ( s <> '' ) then  begin
+     if ( s[1] = '"' ) then begin
+         delete( s, 1, 1 );
+         delete( s, pos( '"', s ), length( s ));
+     end;
   end;
   result := s;
 end; // GetAppFromExt
+
 
 function GetFolderPath( const FolderName : String50 ) : string;
 begin

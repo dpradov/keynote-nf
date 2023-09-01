@@ -161,7 +161,7 @@ type
     GroupBox_Act2: TGroupBox;
     Label8: TLabel;
     Combo_URLAction: TComboBox;
-    CheckBox_URLShift: TCheckBox;
+    //CheckBox_URLShift: TCheckBox;
     CheckBox_MinOnURL: TCheckBox;
     CheckBox_URLFileAuto: TCheckBox;
     GroupBox_Conf: TGroupBox;
@@ -789,7 +789,7 @@ begin
     TimerCloseAutoReopen := CB_TimerCloseAutoReopen.Checked;
     EncFileAltExt := CheckBox_EncFileAltExt.Checked;
     URLAction := TURLAction( Combo_URLAction.ItemIndex );
-    URLCLickShift := CheckBox_URLShift.Checked;
+    //URLCLickShift := CheckBox_URLShift.Checked;
     MinimizeOnURL := CheckBox_MinOnURL.Checked;
     URLSystemBrowser := RB_URLSystemBrowser.Checked;
     URLAltBrowserPath := NormalFN( Edit_URLAltBrowserPath.Text );
@@ -968,7 +968,7 @@ begin
     CB_TimerCloseAutoReopen.Checked := TimerCloseAutoReopen;
     CheckBox_EncFileAltExt.Checked := EncFileAltExt;
     Combo_URLAction.ItemIndex := ord( URLAction );
-    CheckBox_URLShift.Checked := URLCLickShift;
+    //CheckBox_URLShift.Checked := URLCLickShift;
     CheckBox_MinOnURL.Checked := MinimizeOnURL;
 
     if URLSystemBrowser then
