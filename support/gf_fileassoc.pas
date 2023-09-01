@@ -1,35 +1,48 @@
 Unit gf_FileAssoc;
- 
+
 (****** LICENSE INFORMATION **************************************************
- 
-  by Peter Below (TeamB)}  
-  - with modifications by [MJ] to make sure registeru entries are correctly quoted} 
-  
+
+  by Peter Below (TeamB)}
+  - with modifications by [MJ] to make sure registeru entries are correctly quoted}
+
   - Original in: <dpradov/keynote-nf> 3rd_party\_Others\_associations.pas.zip
-  
+
   Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
-  in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
- 
+  in https://github.com/dpradov/keynote-nf
+
+ ----
+ sept/23:
+  Created new method by [dpv], based in example in
+   https://subscription.packtpub.com/book/programming/9781783559589/1/ch01lvl1sec19/associating-a-file-extension-with-your-application-on-windows
+  and in the use of current methods, here
+
+ *****************************************************************************)
+
+
 
 Interface
 
-Procedure RegisterFiletype( Const extension, filetype, description,
-             verb: String; ApplicationPath, Params: String );
-Procedure RegisterFileIcon( Const filetype : string; iconsource: String;
-                            iconindex: Cardinal );
-Function  FiletypeIsRegistered( Const extension, filetype: String ) : Boolean;
+Function  FiletypeIsRegistered( Const extension, filetype: String ) : Boolean;                            // [dpv]
+Procedure RegisterFiletype(
+        Const extension, filetype, description, verb, ApplicationFullPath: string;                        // [dpv]
+        ICONResourceFileFullPath: String = '');
+
+
+//Procedure RegisterFiletype( Const extension, filetype, description, verb: String; ApplicationPath, Params: String );
+//Procedure RegisterFileIcon( Const filetype : string; iconsource: String; iconindex: Cardinal );
+//Function  FiletypeIsRegistered( Const extension, filetype: String ) : Boolean;
 
 Implementation
 
 uses
    Winapi.Windows,
+   Winapi.shlobj,
    System.Win.Registry,
    System.Classes,
    System.SysUtils,
    gf_strings;
 
+{
 ResourceString
   msgECannotCreateKeyF =
    'Cannot create key %s, the user account may not have the required '+
@@ -37,6 +50,82 @@ ResourceString
 
 Type
   ERegistryError = Class( Exception );
+}
+
+
+Function FiletypeIsRegistered( Const extension, filetype: String ): Boolean;
+Var
+  R: TRegistry;
+  regstrpos : integer;
+  keystring: string;
+Begin
+  Result := False;
+
+  R:= TRegistry.Create (KEY_READ);
+  Try
+    R.Rootkey := HKEY_CURRENT_USER;
+
+    if R.OpenKey('\Software\Classes\' + extension, false) then begin
+      keystring := R.ReadString('');                                    // Extension is registered, check filetype
+      if CompareText( keystring, filetype) = 0 Then Begin               // Filetype is registered for this extension, check server
+          if R.OpenKey('\Software\Classes\' + filetype + '\shell\open\command', false) then begin
+             keystring := AnsiUpperCase( R.ReadString(''));
+             R.CloseKey;
+             regstrpos := Pos( AnsiUpperCase(ParamStr(0)), keystring );
+             if (( regstrpos = 1 ) or ( regstrpos = 2 )) then           // server string may be enclosed in quotes
+               Result := True;                                          // Yes, server matches!
+        end;
+      End;
+    end;
+
+
+  finally
+    R.free;
+  end;
+
+end;
+
+
+
+Procedure RegisterFiletype(
+        Const extension, filetype, description, verb, ApplicationFullPath: string;
+        ICONResourceFileFullPath: String = '');
+Var
+  R: TRegistry;
+Begin
+  R := TRegistry.Create;
+  try
+  {
+    if OnlyForCurrentUser then
+      R.RootKey := HKEY_CURRENT_USER
+    else
+      R.RootKey := HKEY_LOCAL_MACHINE;
+  }
+    R.RootKey := HKEY_CURRENT_USER;
+
+    if ICONResourceFileFullPath = '' then
+       ICONResourceFileFullPath:= ApplicationFullPath;
+
+    if R.OpenKey('\Software\Classes\' + extension, true) then begin
+      R.WriteString('', filetype);
+      if R.OpenKey('\Software\Classes\' + filetype, true) then begin
+        R.WriteString('', description);
+        if R.OpenKey('\Software\Classes\' + filetype + '\DefaultIcon', true) then  begin
+          R.WriteString('', ICONResourceFileFullPath);
+          if R.OpenKey('\Software\Classes\' + filetype + '\shell\' + verb + '\command', true) then
+            R.WriteString('', ApplicationFullPath + ' "%1"');
+        end;
+      end;
+    end;
+  finally
+    R.Free;
+  end;
+
+  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, 0, 0);
+End;
+
+
+
 
 {+------------------------------------------------------------
  | Procedure CreateKey
@@ -50,12 +139,13 @@ Type
  |   raised.
  | Created: 14.03.99 by P. Below
  +------------------------------------------------------------}
+ (*
 Procedure CreateKey( reg: TRegistry; Const keyname: String );
   Begin
     If not reg.OpenKey( keyname, True ) Then
       raise ERegistryError.CreateFmt( msgECannotCreateKeyF, [keyname] );
   End; { CreateKey }
-
+ *)
 {+------------------------------------------------------------
  | Procedure InternalRegisterFiletype
  |
@@ -87,6 +177,7 @@ Procedure CreateKey( reg: TRegistry; Const keyname: String );
  |   user rights and only a problem on NT.
  | Created: 14.03.99 by P. Below
  +------------------------------------------------------------}
+ (*    Requires administrative rights
 Procedure InternalRegisterFiletype( Const extension, filetype,
 description,
              verb, serverapp: String );
@@ -111,6 +202,8 @@ description,
       reg.free;
     End;
   End; { InternalRegisterFiletype }
+*)
+
 
 
 {+------------------------------------------------------------
@@ -137,6 +230,7 @@ description,
  | Error Conditions: none
  | Created: 20.03.99 by P. Below
  +------------------------------------------------------------}
+ (*
 Procedure RegisterFiletype( Const extension, filetype, description,
              verb: String; ApplicationPath, Params: String );
   Begin
@@ -156,6 +250,7 @@ Procedure RegisterFiletype( Const extension, filetype, description,
       extension, filetype, description, verb,
       Format( '"%s" "%s"', [ApplicationPath, Params] ));     // [MJ]
   End; { RegisterFiletype }
+*)
 
 {+------------------------------------------------------------
  | Procedure RegisterFileIcon
@@ -185,6 +280,7 @@ Procedure RegisterFiletype( Const extension, filetype, description,
  | Error Conditions: none
  | Created: 21.03.99 by P. Below
  +------------------------------------------------------------}
+ (*
 Procedure RegisterFileIcon( Const filetype : string; iconsource: String;
                             iconindex: Cardinal );
   Var
@@ -203,12 +299,13 @@ Procedure RegisterFileIcon( Const filetype : string; iconsource: String;
       else
         UnquoteString( iconsource );
 
-    reg.WriteString( '', Format( '"%s",%d', [iconsource,iconindex] )); // [MJ]
+      reg.WriteString( '', Format( '"%s",%d', [iconsource,iconindex] )); // [MJ]
       reg.CloseKey;
     Finally
       reg.free;
     End;
   End; { RegisterFileIcon }
+  *)
 
 {+------------------------------------------------------------
  | Function FiletypeIsRegistered
@@ -226,6 +323,7 @@ Procedure RegisterFileIcon( Const filetype : string; iconsource: String;
  | Error Conditions: none
  | Created: 21.03.99 by P. Below
  +------------------------------------------------------------}
+ (*
 Function FiletypeIsRegistered( Const extension, filetype: String ):
 Boolean;
   Var
@@ -234,7 +332,7 @@ Boolean;
     regstrpos : integer;
   Begin
     Result := False;
-    reg:= TRegistry.Create;
+    reg:= TRegistry.Create (KEY_READ);
     Try
       reg.Rootkey := HKEY_CLASSES_ROOT;
       if reg.OpenKey(extension, false) Then Begin
@@ -262,6 +360,7 @@ Boolean;
       reg.free;
     end;
   end; { FiletypeIsRegistered }
+*)
 
 end { Unit FileAssoc }.
 

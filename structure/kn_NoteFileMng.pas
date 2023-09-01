@@ -2892,23 +2892,16 @@ end; // CanRegisterFileType
 procedure AssociateKeyNoteFile;
 begin
 
-  if CanRegisterFileType then
-  begin
+  if CanRegisterFileType then begin
     try
-      RegisterFiletype( ext_KeyNote, _KNT_FILETYPE, _KNT_FILETYPE, 'open', '', '' );
-      RegisterFileIcon( _KNT_FILETYPE, ParamStr( 0 ), 0 );
-
-      RegisterFiletype( ext_Encrypted, _KNE_FILETYPE, _KNE_FILETYPE, 'open', '', '' );
-      RegisterFileIcon( _KNE_FILETYPE, ParamStr( 0 ), 0 );
-
-      RegisterFiletype( ext_Macro, _KNM_FILETYPE, _KNM_FILETYPE, 'open', '', '' );
-      RegisterFileIcon( _KNM_FILETYPE, ParamStr( 0 ), 0 );
-
-      RegisterFiletype( ext_Macro, _KNL_FILETYPE, _KNL_FILETYPE, 'open', '', '' );
-      RegisterFileIcon( _KNL_FILETYPE, ParamStr( 0 ), 0 );
+      RegisterFiletype( ext_KeyNote,   _KNT_FILETYPE, _KNT_FILETYPE, 'open', ParamStr( 0 ));
+      RegisterFiletype( ext_Encrypted, _KNE_FILETYPE, _KNE_FILETYPE, 'open', ParamStr( 0 ));
+      RegisterFiletype( ext_Macro,     _KNM_FILETYPE, _KNM_FILETYPE, 'open', ParamStr( 0 ));
+      RegisterFiletype( ext_Macro,     _KNL_FILETYPE, _KNL_FILETYPE, 'open', ParamStr( 0 ));
 
       if KeyOptions.AutoRegisterPrompt then
-        messagedlg( Format( STR_75, [ext_KeyNote] ), mtInformation, [mbOK], 0 );
+         messagedlg( Format( STR_75, [ext_KeyNote] ), mtInformation, [mbOK], 0 );
+
     except
       on E : Exception do begin
         MessageDlg( STR_76 + e.Message + STR_80, mtWarning, [mbOK], 0 );
