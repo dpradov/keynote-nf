@@ -170,9 +170,6 @@ type
 
     lblSubject: TLabel;
     txtSubject: TMemo;
-    TB_Color: TColorBtn;
-    TB_Hilite: TColorBtn;
-    TB_Bold: TToolbarButton97;
 
     CB_FilterDates: TComboBox;
     cFilter: TEdit;
@@ -219,11 +216,14 @@ type
     lblProposedReminder: TLabel;
     lblReminderStatus: TLabel;
     chk_AppyOnExit: TCheckBox;
+    Panel1: TPanel;
+    TB_Bold: TToolbarButton97;
+    TB_Color: TColorBtn;
+    TB_Hilite: TColorBtn;
 
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
-    procedure FormResize(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
     procedure Today_5minClick(Sender: TObject);
@@ -1324,12 +1324,6 @@ begin
     Caption:= Format(str, [FNumberAlarms]);
 end;
 
-
-procedure TForm_Alarm.FormResize(Sender: TObject);
-begin
-    TB_Color.Left:= TB_Bold.Left + TB_Bold.Width;
-    TB_Hilite.Left:= TB_Color.Left + TB_Color.Width;
-end;
 
 //----------------------------------
 //          Keyboard
