@@ -2,12 +2,13 @@ object Form_Alarm: TForm_Alarm
   Left = 330
   Top = 208
   HelpContext = 590
+  Margins.Left = 0
   Caption = 'p'
-  ClientHeight = 407
-  ClientWidth = 991
+  ClientHeight = 540
+  ClientWidth = 943
   Color = clBtnFace
-  Constraints.MinHeight = 416
-  Constraints.MinWidth = 994
+  Constraints.MinHeight = 527
+  Constraints.MinWidth = 617
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -17,18 +18,21 @@ object Form_Alarm: TForm_Alarm
   Position = poScreenCenter
   ShowHint = True
   OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
+  OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
-    991
-    407)
+    943
+    540)
   TextHeight = 13
   object lblFilter: TLabel
-    Left = 629
-    Top = 9
-    Width = 63
+    Left = 602
+    Top = 8
+    Width = 67
     Height = 13
+    Alignment = taRightJustify
     Anchors = [akTop, akRight]
     AutoSize = False
     Caption = 'Filter:'
@@ -38,10 +42,10 @@ object Form_Alarm: TForm_Alarm
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
-    ExplicitLeft = 615
+    ExplicitLeft = 259
   end
   object Button_ClearFilter: TToolbarButton97
-    Left = 892
+    Left = 851
     Top = 6
     Width = 17
     Height = 21
@@ -56,7 +60,7 @@ object Form_Alarm: TForm_Alarm
     ImageIndex = 0
     ParentFont = False
     OnClick = Button_ClearFilterClick
-    ExplicitLeft = 878
+    ExplicitLeft = 813
   end
   object TntLabel2: TLabel
     Left = 10
@@ -73,7 +77,7 @@ object Form_Alarm: TForm_Alarm
     ParentFont = False
   end
   object Button_Sound: TToolbarButton97
-    Left = 948
+    Left = 907
     Top = 4
     Width = 25
     Height = 24
@@ -87,10 +91,10 @@ object Form_Alarm: TForm_Alarm
     ImageIndex = 50
     Images = Form_Main.IMG_Toolbar
     OnClick = Button_SoundClick
-    ExplicitLeft = 934
+    ExplicitLeft = 869
   end
   object TB_ClipCap: TToolbarButton97
-    Left = 922
+    Left = 881
     Top = 4
     Width = 25
     Height = 24
@@ -102,436 +106,31 @@ object Form_Alarm: TForm_Alarm
     ImageIndex = 18
     Images = Form_Main.IMG_Toolbar
     OnClick = TB_ClipCapClick
-    ExplicitLeft = 908
+    ExplicitLeft = 843
   end
   object Panel3: TPanel
-    Left = 0
-    Top = 120
-    Width = 991
-    Height = 287
-    Align = alBottom
+    Left = 1
+    Top = 134
+    Width = 943
+    Height = 405
+    Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 119
-    ExplicitWidth = 969
+    ExplicitTop = 133
+    ExplicitWidth = 939
     DesignSize = (
-      991
-      287)
-    object Bevel1: TBevel
-      Left = 6
-      Top = 35
-      Width = 765
-      Height = 246
-      Anchors = [akLeft, akTop, akRight]
-      Shape = bsFrame
-      ExplicitWidth = 774
-    end
-    object lblSubject: TLabel
-      Left = 460
-      Top = 80
-      Width = 46
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Subject:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object lblExpiration: TLabel
-      Left = 18
-      Top = 79
-      Width = 141
-      Height = 13
-      Alignment = taRightJustify
-      Caption = 'Event or Expiration Time:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object lblExpirationStatus: TLabel
-      Left = 32
-      Top = 119
-      Width = 201
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clGray
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblReminder: TLabel
-      Left = 334
-      Top = 80
-      Width = 87
-      Height = 13
-      Caption = 'Next Reminder:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object lblReminderStatus: TLabel
-      Left = 322
-      Top = 119
-      Width = 119
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clGray
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Today_8AM: TToolbarButton97
-      Left = 16
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '8 AM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Label3: TLabel
-      Left = 46
-      Top = 227
-      Width = 122
-      Height = 13
-      Alignment = taCenter
-      AutoSize = False
-      Caption = 'Today at:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Today_12AM: TToolbarButton97
-      Left = 56
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '12 AM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_3PM: TToolbarButton97
-      Left = 96
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '3 PM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_6PM: TToolbarButton97
-      Left = 137
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '6 PM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_8PM: TToolbarButton97
-      Left = 178
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '8 PM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Label1: TLabel
-      Left = 232
-      Top = 227
-      Width = 200
-      Height = 13
-      Alignment = taCenter
-      AutoSize = False
-      Caption = 'Tomorrow at:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Tomorrow_8AM: TToolbarButton97
-      Left = 231
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '8 AM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Tomorrow_12AM: TToolbarButton97
-      Left = 272
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '12 PM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Tomorrow_3PM: TToolbarButton97
-      Left = 313
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '3 PM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Tomorrow_6PM: TToolbarButton97
-      Left = 354
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '6 PM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Tomorrow_8PM: TToolbarButton97
-      Left = 395
-      Top = 248
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '8 PM'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_5min: TToolbarButton97
-      Left = 17
-      Top = 199
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '5 min'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_10min: TToolbarButton97
-      Left = 70
-      Top = 199
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '10 min'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_15min: TToolbarButton97
-      Left = 123
-      Top = 199
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '15 min'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_30min: TToolbarButton97
-      Left = 177
-      Top = 199
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '30 min'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_1h: TToolbarButton97
-      Left = 230
-      Top = 199
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '1 h'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_2h: TToolbarButton97
-      Left = 284
-      Top = 199
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '2 h'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_3h: TToolbarButton97
-      Left = 339
-      Top = 199
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '3 h'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object Today_5h: TToolbarButton97
-      Left = 394
-      Top = 199
-      Width = 38
-      Height = 21
-      AllowAllUp = True
-      GroupIndex = 1
-      Caption = '5 h'
-      ImageIndex = 37
-      OldDisabledStyle = True
-      RepeatInterval = 101
-      ShowBorderWhenInactive = True
-      OnClick = Today_5minClick
-      OnDblClick = Today_5minDblClick
-    end
-    object TntLabel3: TLabel
-      Left = 18
-      Top = 143
-      Width = 114
-      Height = 13
-      Caption = 'Proposed Reminder:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = cl3DDkShadow
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object lblProposedReminder: TLabel
-      Left = 144
-      Top = 142
-      Width = 249
-      Height = 13
-      AutoSize = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlue
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
+      943
+      405)
     object PanelCalendar: TPanel
-      Left = 784
+      Left = 742
       Top = 0
       Width = 195
       Height = 287
       Anchors = [akTop, akRight]
       BevelEdges = [beRight]
       BevelOuter = bvNone
-      TabOrder = 16
-      ExplicitLeft = 762
+      TabOrder = 0
+      ExplicitLeft = 738
       object cCalendar: TMonthCalendar
         Left = -11
         Top = 113
@@ -562,304 +161,875 @@ object Form_Alarm: TForm_Alarm
         OnChange = CB_FilterDatesChange
       end
     end
-    object Button_Restore: TButton
-      Left = 114
-      Top = 0
-      Width = 100
-      Height = 25
-      Hint = 'Restore the discarded alarms'
-      Caption = 'Res&tore'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
+    object pnlBottons: TPanel
+      Left = 2
+      Top = -1
+      Width = 934
+      Height = 35
+      Anchors = [akLeft, akTop, akRight]
+      BevelOuter = bvNone
       TabOrder = 1
-      OnClick = Button_RestoreClick
+      ExplicitWidth = 930
+      DesignSize = (
+        934
+        35)
+      object Button_Remove: TButton
+        Left = 754
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 'Remove selected alarms (only if discarded)'
+        Anchors = [akTop, akRight]
+        Caption = '&Remove'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 4
+        OnClick = Button_RemoveClick
+        ExplicitLeft = 750
+      end
+      object Button_Restore: TButton
+        Left = 847
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 'Restore the discarded alarms'
+        Anchors = [akTop, akRight]
+        Caption = 'Res&tore'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 5
+        OnClick = Button_RestoreClick
+        ExplicitLeft = 843
+      end
+      object Button_Show: TButton
+        Left = 5
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 'Show location of alarm'
+        Caption = '&Show'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnClick = Button_ShowClick
+      end
+      object Button_New: TButton
+        Left = 192
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 
+          'Create new alarm (in the same node/note that the item selected o' +
+          'r in the active note, if no one is selected)'
+        Caption = '&New'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+        OnClick = Button_NewClick
+      end
+      object Button_Discard: TButton
+        Left = 98
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 'Discard selected alarms  (remove on empty alarms)'
+        Caption = '&Discard'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        OnClick = Button_DiscardClick
+      end
+      object Button_SelectAll: TButton
+        Left = 300
+        Top = 1
+        Width = 84
+        Height = 25
+        Caption = '&Select All'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        OnClick = Button_SelectAllClick
+      end
     end
-    object Button_SelectAll: TButton
-      Left = 876
-      Top = 0
-      Width = 97
-      Height = 25
-      Anchors = [akTop, akRight]
-      Caption = '&Select All'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 5
-      OnClick = Button_SelectAllClick
-    end
-    object Button_Remove: TButton
-      Left = 10
-      Top = 0
-      Width = 96
-      Height = 25
-      Hint = 'Remove selected alarms (only if discarded)'
-      Caption = '&Remove'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 0
-      OnClick = Button_RemoveClick
-    end
-    object Button_Show: TButton
-      Left = 285
-      Top = 0
-      Width = 99
-      Height = 25
-      Hint = 'Show location of alarm'
-      Caption = '&Show'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
+    object PanelAlarm: TPanel
+      Left = 6
+      Top = 39
+      Width = 726
+      Height = 359
+      Anchors = [akLeft, akTop, akRight]
+      Constraints.MinWidth = 585
       TabOrder = 2
-      OnClick = Button_ShowClick
-    end
-    object cIdentifier: TEdit
-      Left = 16
-      Top = 42
-      Width = 744
-      Height = 22
-      TabStop = False
-      Anchors = [akLeft, akTop, akRight]
-      BevelInner = bvNone
-      BevelOuter = bvNone
-      BorderStyle = bsNone
-      Color = clBtnFace
-      Ctl3D = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlue
-      Font.Height = -13
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentCtl3D = False
-      ParentFont = False
-      ReadOnly = True
-      TabOrder = 18
-      Text = 'NODO'
-      ExplicitWidth = 722
-    end
-    object txtSubject: TMemo
-      Left = 459
-      Top = 96
-      Width = 301
-      Height = 141
-      TabStop = False
-      Anchors = [akLeft, akTop, akRight]
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      ScrollBars = ssVertical
-      TabOrder = 11
-      WantTabs = True
-      OnChange = txtSubjectChange
-      ExplicitWidth = 279
-    end
-    object Button_New: TButton
-      Left = 400
-      Top = 0
-      Width = 95
-      Height = 25
-      Hint = 
-        'Create new alarm (in the same node/note that the item selected o' +
-        'r in the active note, if no one is selected)'
-      Caption = '&New'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 3
-      OnClick = Button_NewClick
-    end
-    object Button_Discard: TButton
-      Left = 674
-      Top = 0
-      Width = 97
-      Height = 25
-      Hint = 'Discard selected alarms'
-      Anchors = [akTop, akRight]
-      Caption = '&Discard'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 4
-      OnClick = Button_DiscardClick
-    end
-    object Button_Apply: TButton
-      Left = 458
-      Top = 246
-      Width = 99
-      Height = 25
-      Caption = '&Apply'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 6
-      OnClick = Button_ApplyClick
-    end
-    object CB_ExpirationTime: TComboBox
-      Left = 260
-      Top = 95
-      Width = 62
-      Height = 21
-      HelpContext = 535
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 10
-      TabStop = False
-      OnCloseUp = CB_ExpirationTimeCloseUp
-      OnDropDown = CB_ExpirationTimeDropDown
-      OnSelect = CB_ExpirationTimeSelect
-    end
-    object cExpirationTime: TEdit
-      Left = 263
-      Top = 97
-      Width = 40
-      Height = 16
-      BevelInner = bvNone
-      BevelOuter = bvNone
-      BorderStyle = bsNone
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 9
-      OnExit = cExpirationTimeExit
-    end
-    object CB_ExpirationDate: TDateTimePicker
-      Left = 38
-      Top = 95
-      Width = 218
-      Height = 21
-      Date = 39404.000000000000000000
-      Time = 39404.000000000000000000
-      Checked = False
-      DateFormat = dfLong
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 8
-      OnChange = CB_ExpirationDateChange
-    end
-    object chk_Expiration: TCheckBox
-      Left = 17
-      Top = 96
-      Width = 17
-      Height = 17
-      TabOrder = 7
-      OnClick = chk_ExpirationClick
-    end
-    object cReminder: TEdit
-      Left = 334
-      Top = 97
-      Width = 115
-      Height = 19
-      TabStop = False
-      Ctl3D = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentCtl3D = False
-      ParentFont = False
-      ReadOnly = True
-      TabOrder = 12
-      Text = 'cReminder'
-    end
-    object CB_ProposedIntervalReminder: TComboBox
-      Left = 16
-      Top = 166
-      Width = 95
-      Height = 21
-      HelpContext = 535
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 13
-      TabStop = False
-      OnChange = CB_ProposedIntervalReminderChange
-      OnExit = CB_ProposedIntervalReminderExit
-    end
-    object rb_Before: TRadioButton
-      Left = 122
-      Top = 165
-      Width = 97
-      Height = 26
-      Caption = 'Before event'
-      TabOrder = 14
-      OnClick = rb_FromNowClick
-    end
-    object rb_FromNow: TRadioButton
-      Left = 218
-      Top = 165
-      Width = 113
-      Height = 26
-      Caption = 'From now'
-      TabOrder = 15
-      OnClick = rb_FromNowClick
-    end
-    object chk_AppyOnExit: TCheckBox
-      Left = 563
-      Top = 252
-      Width = 83
-      Height = 17
-      Hint = 
-        'Automatically apply pending changes on exit (for example pressin' +
-        'g ESC)'
-      Caption = 'Apply on exit'
-      TabOrder = 17
+      DesignSize = (
+        726
+        359)
+      object lblExpiration: TLabel
+        Left = 12
+        Top = 150
+        Width = 141
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Event or Expiration Time:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblExpirationStatus: TLabel
+        Left = 124
+        Top = 194
+        Width = 201
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGray
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblReminder: TLabel
+        Left = 344
+        Top = 151
+        Width = 87
+        Height = 13
+        Caption = 'Next Reminder:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblReminderStatus: TLabel
+        Left = 348
+        Top = 194
+        Width = 119
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGray
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Today_8AM: TToolbarButton97
+        Left = 41
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '8 AM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object LblToday: TLabel
+        Left = 71
+        Top = 306
+        Width = 122
+        Height = 13
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'Today at:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Today_12AM: TToolbarButton97
+        Left = 81
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '12 AM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_3PM: TToolbarButton97
+        Left = 121
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '3 PM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_6PM: TToolbarButton97
+        Left = 162
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '6 PM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_8PM: TToolbarButton97
+        Left = 203
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '8 PM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object LblTomorrow: TLabel
+        Left = 257
+        Top = 306
+        Width = 200
+        Height = 13
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'Tomorrow at:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Tomorrow_8AM: TToolbarButton97
+        Left = 256
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '8 AM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Tomorrow_12AM: TToolbarButton97
+        Left = 297
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '12 PM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Tomorrow_3PM: TToolbarButton97
+        Left = 338
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '3 PM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Tomorrow_6PM: TToolbarButton97
+        Left = 379
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '6 PM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Tomorrow_8PM: TToolbarButton97
+        Left = 421
+        Top = 327
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '8 PM'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_5min: TToolbarButton97
+        Left = 42
+        Top = 276
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '5 min'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_10min: TToolbarButton97
+        Left = 95
+        Top = 276
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '10 min'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_15min: TToolbarButton97
+        Left = 148
+        Top = 276
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '15 min'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_30min: TToolbarButton97
+        Left = 202
+        Top = 276
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '30 min'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_1h: TToolbarButton97
+        Left = 255
+        Top = 276
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '1 h'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_2h: TToolbarButton97
+        Left = 309
+        Top = 276
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '2 h'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_3h: TToolbarButton97
+        Left = 364
+        Top = 276
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '3 h'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object Today_5h: TToolbarButton97
+        Left = 419
+        Top = 276
+        Width = 38
+        Height = 21
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = '5 h'
+        ImageIndex = 37
+        OldDisabledStyle = True
+        RepeatInterval = 101
+        ShowBorderWhenInactive = True
+        OnClick = Today_5minClick
+        OnDblClick = Today_5minDblClick
+      end
+      object TntLabel3: TLabel
+        Left = 12
+        Top = 219
+        Width = 114
+        Height = 13
+        Caption = 'Proposed Reminder:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = cl3DDkShadow
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblProposedReminder: TLabel
+        Left = 138
+        Top = 219
+        Width = 249
+        Height = 13
+        AutoSize = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlue
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object CB_ExpirationTime: TComboBox
+        Left = 263
+        Top = 170
+        Width = 62
+        Height = 21
+        HelpContext = 535
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        TabStop = False
+        OnCloseUp = CB_ExpirationTimeCloseUp
+        OnDropDown = CB_ExpirationTimeDropDown
+        OnSelect = CB_ExpirationTimeSelect
+      end
+      object cExpirationTime: TEdit
+        Left = 266
+        Top = 172
+        Width = 40
+        Height = 16
+        BevelInner = bvNone
+        BevelOuter = bvNone
+        BorderStyle = bsNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        OnExit = cExpirationTimeExit
+      end
+      object CB_ExpirationDate: TDateTimePicker
+        Left = 41
+        Top = 170
+        Width = 218
+        Height = 21
+        Date = 39404.000000000000000000
+        Time = 39404.000000000000000000
+        Checked = False
+        DateFormat = dfLong
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        OnChange = CB_ExpirationDateChange
+      end
+      object chk_Expiration: TCheckBox
+        Left = 20
+        Top = 171
+        Width = 17
+        Height = 17
+        TabOrder = 3
+        OnClick = chk_ExpirationClick
+      end
+      object cReminder: TEdit
+        Left = 351
+        Top = 172
+        Width = 115
+        Height = 19
+        TabStop = False
+        Ctl3D = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentCtl3D = False
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 4
+        Text = 'cReminder'
+      end
+      object CB_ProposedIntervalReminder: TComboBox
+        Left = 41
+        Top = 243
+        Width = 95
+        Height = 21
+        HelpContext = 535
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 5
+        TabStop = False
+        OnChange = CB_ProposedIntervalReminderChange
+        OnExit = CB_ProposedIntervalReminderExit
+      end
+      object rb_Before: TRadioButton
+        Left = 156
+        Top = 242
+        Width = 100
+        Height = 26
+        Caption = 'Before event'
+        TabOrder = 6
+        OnClick = rb_FromNowClick
+      end
+      object rb_FromNow: TRadioButton
+        Left = 263
+        Top = 242
+        Width = 116
+        Height = 26
+        Caption = 'From now'
+        TabOrder = 7
+        OnClick = rb_FromNowClick
+      end
+      object Button_Apply: TButton
+        Left = 627
+        Top = 172
+        Width = 84
+        Height = 25
+        Anchors = [akTop, akRight]
+        Caption = '&Apply'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 8
+        OnClick = Button_ApplyClick
+      end
+      object chk_ApplyOnExitChange: TCheckBox
+        Left = 634
+        Top = 202
+        Width = 85
+        Height = 27
+        Hint = 
+          'Automatically apply pending changes on exit (ex. pressing ESC) a' +
+          'nd on selection change'#13#10#13#10'Note: Double Click on Reminder buttons' +
+          ', also apply changes'
+        Anchors = [akTop, akRight]
+        Caption = 'Apply Auto'
+        Checked = True
+        State = cbChecked
+        TabOrder = 9
+        WordWrap = True
+        OnClick = chk_ApplyOnExitChangeClick
+      end
+      object txtSubject: TMemo
+        Left = 9
+        Top = 40
+        Width = 702
+        Height = 87
+        TabStop = False
+        Anchors = [akLeft, akTop, akRight]
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 10
+        WantTabs = True
+        OnChange = txtSubjectChange
+        ExplicitWidth = 698
+      end
+      object cIdentifier: TEdit
+        Left = 10
+        Top = 12
+        Width = 699
+        Height = 22
+        TabStop = False
+        Anchors = [akLeft, akTop, akRight]
+        AutoSize = False
+        BevelInner = bvNone
+        BevelOuter = bvNone
+        BorderStyle = bsNone
+        Color = clBtnFace
+        Ctl3D = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentCtl3D = False
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 11
+        Text = 'NODO'
+        ExplicitWidth = 695
+      end
+      object PanelFormat: TPanel
+        Left = 605
+        Top = 128
+        Width = 119
+        Height = 23
+        Anchors = [akTop, akRight]
+        BevelOuter = bvNone
+        TabOrder = 12
+        object TB_Bold: TToolbarButton97
+          Left = 0
+          Top = 0
+          Width = 24
+          Height = 22
+          AllowAllUp = True
+          GroupIndex = 5
+          Glyph.Data = {00000000}
+          GlyphMask.Data = {00000000}
+          ImageIndex = 0
+          Images = Form_Main.IMG_Format
+          RepeatInterval = 101
+          OnClick = TB_BoldClick
+        end
+        object TB_Color: TColorBtn
+          Left = 34
+          Top = 0
+          Width = 34
+          Height = 22
+          Hint = 'Click to change text color'
+          ActiveColor = clBlack
+          TargetColor = clBlack
+          Flat = True
+          DropDownFlat = True
+          AutomaticColor = clWindowText
+          IsAutomatic = True
+          OnClick = TB_ColorClick
+          Glyph.Data = {
+            42040000424D4204000000000000420000002800000020000000100000000100
+            1000030000000004000000000000000000000000000000000000007C0000E003
+            00001F000000F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EFF7FFF7FFF7FFF7FF75EF75EF75EFF7FFF7FFF7FFF7FFF7F
+            FF7FF75EF75E0F000F000F000F00F75EF75EF75E0F000F000F000F000F000F00
+            F75EF75EF75EEF3DEF3DEF3DEF3DF75EF75EF75EEF3DEF3DEF3DEF3DEF3DEF3D
+            F75EF75EF75EF75EEF3D0F00F75EF75EF75EF75EF75EEF3D0F000F00EF3DF75E
+            F75EF75EF75EF75EF75EEF3DFF7FFF7FF75EF75EF75EF75EEF3DEF3DFF7FF75E
+            F75EF75EF75EF75EF75E0F000F00F75EF75EF75EF75EEF3D0F000F00F75EF75E
+            F75EF75EF75EF75EF75EEF3DEF3DFF7FF75EF75EF75EF75EEF3DEF3DF75EF75E
+            F75EF75EF75EF75EF75EEF3D0F00F75EF75EF75EF75E0F000F00EF3DF75EF75E
+            F75EF75EF75EF75EF75EF75EEF3DFF7FFF7FFF7FFF7FEF3DEF3DFF7FF75EF75E
+            F75EF75EF75EF75EF75EF75E0F000F000F000F000F000F000F00F75EF75EF75E
+            F75EF75EF75EF75EF75EF75EEF3DEF3DEF3DEF3DEF3DEF3DEF3DF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EEF3D0F00F75EF75E0F000F00EF3DF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EEF3DFF7FFF7FEF3DEF3DFF7FF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75E0F000F00F75E0F000F00F75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EEF3DEF3DFF7FEF3DEF3DF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EEF3D0F000F000F00EF3DF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DEF3DFF7FF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75E0F000F000F00F75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DEF3DF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EEF3D0F00EF3DF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DFF7FF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75E0F00F75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EF75E
+            F75EF75EF75E}
+          AutoBtnCaption = 'Default color'
+          OtherBtnCaption = '&Other colors...'
+          RegKey = 'General Frenetics\KeyNote\ColorBtn1'
+          DDArrowWidth = 12
+        end
+        object TB_Hilite: TColorBtn
+          Left = 74
+          Top = 0
+          Width = 34
+          Height = 22
+          Hint = 'Click to add or remove highlight'
+          ActiveColor = clInfoBk
+          TargetColor = clBlack
+          Flat = True
+          DropDownFlat = True
+          AutomaticColor = clWindow
+          IsAutomatic = True
+          OnClick = TB_HiliteClick
+          GlyphType = gtBackground
+          Glyph.Data = {
+            42040000424D4204000000000000420000002800000020000000100000000100
+            1000030000000004000000000000000000000000000000000000007C0000E003
+            00001F000000F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75E0000F75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75E0000EF3D0000F75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EEF3DF75EFF7FF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75E0000EF3DEF3DEF3D0000F75EF75EF75E
+            EF3DF75EF75EF75EF75EF75EF75EF75EEF3DF75EF75EF75EEF3DF75EFF7FF75E
+            F75EFF7FF75EF75EF75EF75EF75E0000F75EF75EF75EEF3DEF3D0000F75EF75E
+            0F00EF3DF75EF75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EEF3DF75EFF7F
+            EF3DFF7FFF7FF75EF75EF75E0000FF7FF75EF75EF75EF75EEF3DEF3D0000F75E
+            0F000F00F75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EF75EF75EEF3DF75E
+            EF3DEF3DFF7FF75EF75E0000F75EFF7FFF7FF75EF75EF75EF75EEF3DEF3D0F00
+            0F000F00F75EF75EF75EEF3DF75EFF7FF75EF75EF75EF75EFF7FF75EF75EEF3D
+            EF3DEF3DFF7FF75EF75EF75E0000F75EFF7FFF7FF75E0000F75EF75EEF3D0F00
+            0F000F00F75EF75EF75EF75EEF3DF75EFF7FF75EF75EEF3DFF7FFF7FF75EEF3D
+            EF3DEF3DFF7FF75EF75EF75EF75E0000F75EFF7F00000F000000F75E0F000F00
+            0F000F00F75EF75EF75EF75EF75EEF3DF75EFF7FEF3DEF3DEF3DF75EEF3DEF3D
+            EF3DEF3DF75EF75EF75EF75EF75EF75E0000F75EFF7F0F00F75EEF3D0F000F00
+            0F00F75EF75EF75EF75EF75EF75EF75EEF3DFF7FFF7FEF3DFF7FF75EEF3DEF3D
+            EF3DF75EF75EF75EF75EF75EF75EF75E0F000000F75E0F00EF3D0000EF3DF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DF75EEF3DFF7FEF3DF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75E0F00F75E00000F000000EF3DF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EEF3DFF7FEF3DEF3DEF3DF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75E0F00F75EF75E0F00EF3DF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EFF7FEF3DF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EEF3D0F000F00EF3DF75EF75EF75EF75E
+            F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DF75EF75EF75EF75EF75E
+            F75EF75EF75E}
+          AutoBtnCaption = 'No Highlight'
+          OtherBtnCaption = '&Other colors...'
+          RegKey = 'General Frenetics\KeyNote\ColorBtn2'
+          DDArrowWidth = 12
+        end
+      end
+      object btnExpandWindow: TButton
+        Left = 678
+        Top = 323
+        Width = 33
+        Height = 25
+        Hint = 
+          'Change width, to include or not full grid size and calendar filt' +
+          'er'
+        Anchors = [akTop, akRight]
+        Caption = '<<'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 13
+        OnClick = btnExpandWindowClick
+      end
     end
   end
   object Grid: TListView
     Left = 8
     Top = 31
-    Width = 965
-    Height = 77
+    Width = 927
+    Height = 98
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
     Columns = <
       item
-        Caption = 'Note'
-        Width = 107
+        Caption = 'Subject'
+        Width = 273
       end
       item
-        Caption = 'Node'
-        Width = 207
+        Caption = 'Reminder Date'
+        Width = 86
+      end
+      item
+        Caption = 'Time'
+        Width = 49
       end
       item
         Caption = 'Expirat./Start  Date'
@@ -869,20 +1039,16 @@ object Form_Alarm: TForm_Alarm
         Caption = 'Time'
       end
       item
-        Caption = 'Subject'
-        Width = 275
+        Caption = 'Note'
+        Width = 103
       end
       item
-        Caption = 'Reminder Date'
-        Width = 86
-      end
-      item
-        Caption = 'Time'
-        Width = 44
+        Caption = 'Node'
+        Width = 203
       end
       item
         Caption = 'Disc.'
-        Width = 38
+        Width = 35
       end>
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -903,13 +1069,13 @@ object Form_Alarm: TForm_Alarm
     OnDblClick = GridDblClick
     OnEnter = GridEnter
     OnSelectItem = GridSelectItem
-    ExplicitWidth = 943
-    ExplicitHeight = 76
+    ExplicitWidth = 923
+    ExplicitHeight = 97
   end
   object cFilter: TEdit
-    Left = 694
+    Left = 675
     Top = 5
-    Width = 196
+    Width = 174
     Height = 21
     Anchors = [akTop, akRight]
     Font.Charset = DEFAULT_CHARSET
@@ -921,7 +1087,7 @@ object Form_Alarm: TForm_Alarm
     TabOrder = 1
     OnChange = cFilterChange
     OnExit = cFilterExit
-    ExplicitLeft = 672
+    ExplicitLeft = 671
   end
   object CB_ShowMode: TComboBox
     Left = 103
@@ -938,137 +1104,5 @@ object Form_Alarm: TForm_Alarm
     ParentFont = False
     TabOrder = 0
     OnChange = CB_ShowModeChange
-  end
-  object Panel1: TPanel
-    Left = 652
-    Top = 370
-    Width = 111
-    Height = 23
-    Anchors = [akRight, akBottom]
-    BevelOuter = bvNone
-    TabOrder = 4
-    object TB_Bold: TToolbarButton97
-      Left = 3
-      Top = 0
-      Width = 24
-      Height = 22
-      AllowAllUp = True
-      GroupIndex = 5
-      Glyph.Data = {00000000}
-      GlyphMask.Data = {00000000}
-      ImageIndex = 0
-      Images = Form_Main.IMG_Format
-      RepeatInterval = 101
-      OnClick = TB_BoldClick
-    end
-    object TB_Color: TColorBtn
-      Left = 34
-      Top = 0
-      Width = 34
-      Height = 22
-      Hint = 'Click to change text color'
-      ActiveColor = clBlack
-      TargetColor = clBlack
-      Flat = True
-      DropDownFlat = True
-      AutomaticColor = clWindowText
-      IsAutomatic = True
-      OnClick = TB_ColorClick
-      Glyph.Data = {
-        42040000424D4204000000000000420000002800000020000000100000000100
-        1000030000000004000000000000000000000000000000000000007C0000E003
-        00001F000000F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EFF7FFF7FFF7FFF7FF75EF75EF75EFF7FFF7FFF7FFF7FFF7F
-        FF7FF75EF75E0F000F000F000F00F75EF75EF75E0F000F000F000F000F000F00
-        F75EF75EF75EEF3DEF3DEF3DEF3DF75EF75EF75EEF3DEF3DEF3DEF3DEF3DEF3D
-        F75EF75EF75EF75EEF3D0F00F75EF75EF75EF75EF75EEF3D0F000F00EF3DF75E
-        F75EF75EF75EF75EF75EEF3DFF7FFF7FF75EF75EF75EF75EEF3DEF3DFF7FF75E
-        F75EF75EF75EF75EF75E0F000F00F75EF75EF75EF75EEF3D0F000F00F75EF75E
-        F75EF75EF75EF75EF75EEF3DEF3DFF7FF75EF75EF75EF75EEF3DEF3DF75EF75E
-        F75EF75EF75EF75EF75EEF3D0F00F75EF75EF75EF75E0F000F00EF3DF75EF75E
-        F75EF75EF75EF75EF75EF75EEF3DFF7FFF7FFF7FFF7FEF3DEF3DFF7FF75EF75E
-        F75EF75EF75EF75EF75EF75E0F000F000F000F000F000F000F00F75EF75EF75E
-        F75EF75EF75EF75EF75EF75EEF3DEF3DEF3DEF3DEF3DEF3DEF3DF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EEF3D0F00F75EF75E0F000F00EF3DF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EEF3DFF7FFF7FEF3DEF3DFF7FF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75E0F000F00F75E0F000F00F75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EEF3DEF3DFF7FEF3DEF3DF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EEF3D0F000F000F00EF3DF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DEF3DFF7FF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75E0F000F000F00F75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DEF3DF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EEF3D0F00EF3DF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DFF7FF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75E0F00F75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EF75E
-        F75EF75EF75E}
-      AutoBtnCaption = 'Default color'
-      OtherBtnCaption = '&Other colors...'
-      RegKey = 'General Frenetics\KeyNote\ColorBtn1'
-      DDArrowWidth = 12
-    end
-    object TB_Hilite: TColorBtn
-      Left = 74
-      Top = 0
-      Width = 34
-      Height = 22
-      Hint = 'Click to add or remove highlight'
-      ActiveColor = clInfoBk
-      TargetColor = clBlack
-      Flat = True
-      DropDownFlat = True
-      AutomaticColor = clWindow
-      IsAutomatic = True
-      OnClick = TB_HiliteClick
-      GlyphType = gtBackground
-      Glyph.Data = {
-        42040000424D4204000000000000420000002800000020000000100000000100
-        1000030000000004000000000000000000000000000000000000007C0000E003
-        00001F000000F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75E0000F75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75E0000EF3D0000F75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EEF3DF75EFF7FF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75E0000EF3DEF3DEF3D0000F75EF75EF75E
-        EF3DF75EF75EF75EF75EF75EF75EF75EEF3DF75EF75EF75EEF3DF75EFF7FF75E
-        F75EFF7FF75EF75EF75EF75EF75E0000F75EF75EF75EEF3DEF3D0000F75EF75E
-        0F00EF3DF75EF75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EEF3DF75EFF7F
-        EF3DFF7FFF7FF75EF75EF75E0000FF7FF75EF75EF75EF75EEF3DEF3D0000F75E
-        0F000F00F75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EF75EF75EEF3DF75E
-        EF3DEF3DFF7FF75EF75E0000F75EFF7FFF7FF75EF75EF75EF75EEF3DEF3D0F00
-        0F000F00F75EF75EF75EEF3DF75EFF7FF75EF75EF75EF75EFF7FF75EF75EEF3D
-        EF3DEF3DFF7FF75EF75EF75E0000F75EFF7FFF7FF75E0000F75EF75EEF3D0F00
-        0F000F00F75EF75EF75EF75EEF3DF75EFF7FF75EF75EEF3DFF7FFF7FF75EEF3D
-        EF3DEF3DFF7FF75EF75EF75EF75E0000F75EFF7F00000F000000F75E0F000F00
-        0F000F00F75EF75EF75EF75EF75EEF3DF75EFF7FEF3DEF3DEF3DF75EEF3DEF3D
-        EF3DEF3DF75EF75EF75EF75EF75EF75E0000F75EFF7F0F00F75EEF3D0F000F00
-        0F00F75EF75EF75EF75EF75EF75EF75EEF3DFF7FFF7FEF3DFF7FF75EEF3DEF3D
-        EF3DF75EF75EF75EF75EF75EF75EF75E0F000000F75E0F00EF3D0000EF3DF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DF75EEF3DFF7FEF3DF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75E0F00F75E00000F000000EF3DF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EEF3DFF7FEF3DEF3DEF3DF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75E0F00F75EF75E0F00EF3DF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EFF7FEF3DF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EEF3D0F000F00EF3DF75EF75EF75EF75E
-        F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DF75EF75EF75EF75EF75E
-        F75EF75EF75E}
-      AutoBtnCaption = 'No Highlight'
-      OtherBtnCaption = '&Other colors...'
-      RegKey = 'General Frenetics\KeyNote\ColorBtn2'
-      DDArrowWidth = 12
-    end
   end
 end
