@@ -34,6 +34,28 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
     particularly in version changes.
 -------------
 
+v 1.8.0 .4 Beta (02 sep 2023)
+--------------
+Corrects or implements the following issues:
+(more information in doc/Changes in 1.8.0 Beta4.txt)
+
+
+* Fixed: KNT Files where displaying RTF content as txt in systems with locale codepage set to UTF8 (65001)
+* Fixed: Certain RTF insertions were interpreted as text plain in RichEdit version <= 4
+
+* Fixed: Indentation of multiple lines done pressing TAB was not working
+
+* Improved Alarm management window. Revised design and usability
+* Improvements in internal KNT links
+
+* Fixed: Option "Autoregister file type" now works ok without any special permissions
+* Fixed: Option "Use system default web browser" was not working 
+* Fixes and changes in URL actions
+
+* Other fixes and improvements
+
+
+
 v 1.8.0 .3 Beta (20 aug 2023)
 --------------
 Corrects or implements the following issues:
