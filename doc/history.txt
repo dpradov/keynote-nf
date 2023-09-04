@@ -34,6 +34,18 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
     particularly in version changes.
 -------------
 
+
+
+v 1.8.0 .5 Beta (04 sep 2023)
+--------------
+Corrects or implements the following issues:
+(more information in doc/Changes in 1.8.0 Beta5.txt)
+
+* Fixed: Selection of search result (from "Find All") was not working in RichEdit <=4
+* Improved click options on hyperlinks
+* Added numbering to serch results
+
+
 v 1.8.0 .4 Beta (02 sep 2023)
 --------------
 Corrects or implements the following issues:
