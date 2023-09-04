@@ -572,7 +572,7 @@ var
   TextPlain, TextPlainBAK: string;               // TextPlain = TextPlainBAK, in uppercase if not MatchCase
   TextToFind, PatternInPos1, PatternInPosN: string;
   SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
-  str, s, path, strLocationMatch, strNodeFontSize: string;
+  str, s, path, strLocationMatch, strNodeFontSize, strNumberingFontSize: string;
   widthTwips: integer;
   RTFAux : TTabRichEdit;
 
@@ -964,7 +964,8 @@ begin
             '\pard\fs4\par' +
             '\pard\fs' + (2 * ResPanelOptions.FontSizeFindResults).ToString + ' ';
 
-      strNodeFontSize:= (2 * ResPanelOptions.FontSizeFindResults + 3).ToString + ' ';
+      strNodeFontSize:= (2 * (ResPanelOptions.FontSizeFindResults + 2)).ToString + ' ';
+      strNumberingFontSize:= (2 * (ResPanelOptions.FontSizeFindResults - 3)).ToString + ' ';
 
       if ( MatchCount > 0 ) then begin
          widthTwips := DotsToTwips(Form_Main.FindAllResults.Width) - 500;
@@ -999,7 +1000,9 @@ begin
                      Path + '{\cf3\fs' + strNodeFontSize  + strLocationMatch +  ' }}\cell\row ' +
                     '\pard\li120\sb60\sa60 ';
            end;
-           str:= str + '\trowd\trgaph0' + LastResultCellWidth + ' \intbl{\v\''11' + i.ToString + ' }' +
+           s:= i.ToString;
+           str:= str + '\trowd\trgaph0' + LastResultCellWidth + ' \intbl{\v\''11' + s + ' }' +
+                '{\b\fs' + strNumberingFontSize + ' ' + s + '.  }' +
                  Location_List[pred( i )] + '\cell\row ';
          end;
 
