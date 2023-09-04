@@ -399,6 +399,7 @@ type
     UASEnable,
     UASPath,
     URLAction,
+    URLCtrlAction,
     URLAltBrowserPath,
     URLFileAuto,
     URLFileDecodeSpaces,
@@ -540,6 +541,7 @@ const
     UASEnable : 'UASEnable';
     UASPath : 'UASPath';
     URLAction : 'URLAction';
+    URLCtrlAction : 'URLCtrlAction';
     URLAltBrowserPath : 'URLAltBrowserPath';
     URLFileAuto : 'URLFileAuto';
     URLFileDecodeSpaces : 'URLFileDecodeSpaces';
@@ -1021,6 +1023,7 @@ begin
     UASEnable := false;
     UASPath := '';
     URLAction := urlAsk;
+    URLCtrlAction := urlOpen;
     URLAltBrowserPath := GetDefaultBrowserPath();
     URLFileAuto := true;
     URLFileDecodeSpaces := true;
@@ -1287,6 +1290,7 @@ begin
       writebool( section, KeyOptionsIniStr.UASEnable, KeyOptions.UASEnable );
       writestring( section, KeyOptionsIniStr.UASPath, KeyOptions.UASPath );
       writeinteger( section, KeyOptionsIniStr.URLAction, ord( KeyOptions.URLAction ));
+      writeinteger( section, KeyOptionsIniStr.URLCtrlAction, ord( KeyOptions.URLCtrlAction ));
       writestring( section, KeyOptionsIniStr.URLAltBrowserPath, KeyOptions.URLAltBrowserPath );
       writebool( section, KeyOptionsIniStr.URLFileAuto, KeyOptions.URLFileAuto );
       writebool( section, KeyOptionsIniStr.URLFileDecodeSpaces, KeyOptions.URLFileDecodeSpaces );
@@ -1601,6 +1605,7 @@ begin
       KeyOptions.UASEnable := readbool( section, KeyOptionsIniStr.UASEnable, KeyOptions.UASEnable );
       KeyOptions.UASPath := readstring( section, KeyOptionsIniStr.UASPath, KeyOptions.UASPath );
       KeyOptions.URLAction := TURLAction( readinteger( section, KeyOptionsIniStr.URLAction, ord( KeyOptions.URLAction )));
+      KeyOptions.URLCtrlAction := TURLAction( readinteger( section, KeyOptionsIniStr.URLCtrlAction, ord( KeyOptions.URLCtrlAction )));
       KeyOptions.URLAltBrowserPath := readstring( section, KeyOptionsIniStr.URLAltBrowserPath, KeyOptions.URLAltBrowserPath );
       KeyOptions.URLFileAuto := readbool( section, KeyOptionsIniStr.URLFileAuto, KeyOptions.URLFileAuto );
       KeyOptions.URLFileDecodeSpaces := readbool( section, KeyOptionsIniStr.URLFileDecodeSpaces, KeyOptions.URLFileDecodeSpaces );

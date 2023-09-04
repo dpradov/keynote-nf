@@ -566,6 +566,7 @@ type
     UASEnable : boolean;
     UASPath : string;
     URLAction : TURLAction;
+    URLCtrlAction: TURLAction;
     URLAltBrowserPath : string;
     URLFileAuto : boolean;  // always launch file:// URLs, regardless of URLAction setting
     URLFileDecodeSpaces : boolean; // [*]

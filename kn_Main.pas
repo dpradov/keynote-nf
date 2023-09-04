@@ -2515,15 +2515,46 @@ end; // PagesDblClick
 
 procedure TForm_Main.RxRTFMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+
+var
+   bakS, S: integer;
+   MousePos: TPoint;
 begin
-  if assigned( ActiveNote ) then ActiveNote.FocusMemory := focRTF;
+  if not assigned( ActiveNote ) then exit;
+
+  ActiveNote.FocusMemory := focRTF;
+
+  if (Button = mbRight) then begin
+      With TTabRichEdit(sender) do begin
+         if SelLength > 0 then exit;
+
+         bakS:= SelStart;
+         MousePos.X  := X;
+         MousePos.Y  := Y;
+         S:= GetCharFromPos(MousePos);
+
+         BeginUpdate;
+         SetSelection(S, S + 1, false);
+         if SelAttributes.Link then
+            TTabRichEdit(sender).PopUpMenu := nil;
+
+         SetSelection(bakS, bakS, false);
+         EndUpdate;
+      end;
+  end;
+
 end;
 
 procedure TForm_Main.RxRTFMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if assigned(ActiveNote) and (CopyFormatMode <> cfDisabled) then
+  if not assigned(ActiveNote) then exit;
+
+  if (CopyFormatMode <> cfDisabled) then
      PerformCmd(ecPasteFormat);
+
+  if Button = mbRight then
+     TTabRichEdit(sender).PopupMenu := Menu_RTF;
 end;
 
 
@@ -6176,12 +6207,35 @@ end;
 procedure TForm_Main.RxRTFURLClick(Sender: TObject; const URLText: string; Button: TMouseButton);
 var
   chrg: TCharRange;
+  myURLAction: TURLAction;
+  CtrlWasDown, AltWasDown: boolean;
+  EnsureAsk: boolean;
+
 begin
+  CtrlWasDown := CtrlDown and ( not _IS_FAKING_MOUSECLICK );
+  AltWasDown := AltDown and ( not _IS_FAKING_MOUSECLICK );
+
+  EnsureAsk:= false;
+
   if Button = mbLeft then begin
-     chrg:= TRxRichEdit(Sender).LinkClickRange;
-     kn_LinksMng.ClickOnURL (URLText, chrg);
+      if CtrlWasDown then
+          myURLAction:= KeyOptions.URLCtrlAction
+      else
+         if AltWasDown then
+            myURLAction:= urlCopy
+         else
+            myURLAction:= KeyOptions.URLAction;
+  end
+  else begin
+      EnsureAsk:= true;
+      if TTabRichEdit(sender).PopUpMenu = nil then
+         myURLAction:= urlAsk
+      else
+         exit;
   end;
-  //TODO: with right button we could customize popup context menu
+
+  chrg:= TRxRichEdit(Sender).LinkClickRange;
+  kn_LinksMng.ClickOnURL (URLText, chrg, myURLAction, EnsureAsk);
 end;
 
 

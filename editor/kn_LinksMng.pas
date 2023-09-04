@@ -59,7 +59,7 @@ uses
     function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : string;
     procedure JumpToKNTLocation( LocationStr : string );
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
-    procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange);
+    procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
     procedure InsertURL(URLStr : string; TextURL : string; Note: TTabNote);
 
     function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
@@ -1229,17 +1229,17 @@ End;
 //===============================================================
 // ClickOnURL
 //===============================================================
-procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange);
+procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
 var
   ShellExecResult : integer;
   Form_URLAction: TForm_URLAction;
-  myURLAction : TURLAction;
+  //myURLAction : TURLAction;
   browser : string;
   URLType : TKNTURL;
   myURL : string; // the actual URL
   TextURL : string; // the text shown for actual URL
   textURLposIni, textURLposFin: Integer;
-  ShiftWasDown, AltWasDown, CtrlWasDown : boolean;
+  //ShiftWasDown, AltWasDown, CtrlWasDown : boolean;
   usesHyperlinkCmd: boolean;
   path: string;
   Location: TLocation;
@@ -1291,9 +1291,9 @@ begin
   // created with earlier versions of richedit20.dll. See
   // TForm_Main.InsertHyperlink for detailed comments on this.
 
-  ShiftWasDown := ShiftDown and ( not _IS_FAKING_MOUSECLICK );
-  CtrlWasDown := CtrlDown and ( not _IS_FAKING_MOUSECLICK );
-  AltWasDown := AltDown and ( not _IS_FAKING_MOUSECLICK );
+  //ShiftWasDown := ShiftDown and ( not _IS_FAKING_MOUSECLICK );
+  //CtrlWasDown := CtrlDown and ( not _IS_FAKING_MOUSECLICK );
+  //AltWasDown := AltDown and ( not _IS_FAKING_MOUSECLICK );
   _GLOBAL_URLText := '';
 
   // Determine type of URL. Parameter of TypeURL can also be modified
@@ -1306,6 +1306,7 @@ begin
   try
     try
 
+    (*
       myURLAction := KeyOptions.URLAction; // assume default action
 
       if AltWasDown then
@@ -1331,9 +1332,10 @@ begin
         end;
       end;
       }
+    *)
 
       //-------------------------------------
-      if ( URLType = urlFile ) and ( myURLAction in [urlAsk] ) and KeyOptions.URLFileAuto then
+      if (not EnsureAsk) and ( URLType = urlFile ) and ( myURLAction in [urlAsk] ) and KeyOptions.URLFileAuto then
            if URLFileExists(myURL) then
               myURLAction := urlOpen;
 

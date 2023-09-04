@@ -271,6 +271,8 @@ type
     CheckBox_InheritBGColor: TCheckBox;
     Spin_FontSizeFindResults: TSpinEdit;
     Label20: TLabel;
+    Label21: TLabel;
+    Combo_URLCtrlAction: TComboBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -458,9 +460,12 @@ begin
     Add( DIVIDER8 );
   end;
 
-  for u := low( TURLAction ) to high( TURLAction ) do
+  for u := low( TURLAction ) to high( TURLAction ) do begin
     Combo_URLAction.Items.Add( URL_ACTIONS[u] );
+    Combo_URLCtrlAction.Items.Add( URL_ACTIONS[u] );
+  end;
   Combo_URLAction.ItemIndex := 0;
+  Combo_URLCtrlAction.ItemIndex := 0;
 
     InitializeKeyOptions( myOpts );
     InitializeTabOptions( myTabOpts );
@@ -700,6 +705,7 @@ begin
       Combo_Divider.DroppedDown or
       Combo_WCDivider.DroppedDown or
       Combo_URLAction.DroppedDown or
+      Combo_URLCtrlAction.DroppedDown or
       Combo_BakLevel.DroppedDown or
       Combo_TabPos.DroppedDown
       )) then
@@ -789,6 +795,7 @@ begin
     TimerCloseAutoReopen := CB_TimerCloseAutoReopen.Checked;
     EncFileAltExt := CheckBox_EncFileAltExt.Checked;
     URLAction := TURLAction( Combo_URLAction.ItemIndex );
+    URLCtrlAction := TURLAction( Combo_URLCtrlAction.ItemIndex );
     //URLCLickShift := CheckBox_URLShift.Checked;
     MinimizeOnURL := CheckBox_MinOnURL.Checked;
     URLSystemBrowser := RB_URLSystemBrowser.Checked;
@@ -968,6 +975,7 @@ begin
     CB_TimerCloseAutoReopen.Checked := TimerCloseAutoReopen;
     CheckBox_EncFileAltExt.Checked := EncFileAltExt;
     Combo_URLAction.ItemIndex := ord( URLAction );
+    Combo_URLCtrlAction.ItemIndex := ord( URLCtrlAction );
     //CheckBox_URLShift.Checked := URLCLickShift;
     CheckBox_MinOnURL.Checked := MinimizeOnURL;
 

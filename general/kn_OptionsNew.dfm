@@ -1619,12 +1619,27 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           ParentFont = False
         end
+        object Label21: TLabel
+          Left = 11
+          Top = 59
+          Width = 86
+          Height = 13
+          AutoSize = False
+          Caption = '  Ctrl + click:'
+          FocusControl = Combo_URLCtrlAction
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
         object Combo_URLAction: TComboBox
           Left = 101
           Top = 31
           Width = 220
           Height = 21
-          Hint = 'Remember: '#13#10'    ALT+ Click  => Copy'#13#10'  CTRL+ Click  => Open'
+          Hint = 'Remember: '#13#10'  Right Click  => Prompt'#13#10'  ALT+ Click  => Copy'
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -1636,7 +1651,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_MinOnURL: TCheckBox
           Left = 11
-          Top = 79
+          Top = 89
           Width = 330
           Height = 17
           Hint = 'Minimize program on launching a client application for URL'
@@ -1647,11 +1662,11 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 1
+          TabOrder = 2
         end
         object CheckBox_URLFileAuto: TCheckBox
           Left = 11
-          Top = 103
+          Top = 113
           Width = 330
           Height = 17
           Hint = 'Never prompt when file:// URL clicked'
@@ -1662,7 +1677,21 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 3
+        end
+        object Combo_URLCtrlAction: TComboBox
+          Left = 101
+          Top = 57
+          Width = 220
+          Height = 21
+          Style = csDropDownList
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
         end
       end
     end
