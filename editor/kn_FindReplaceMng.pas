@@ -87,7 +87,7 @@ var
    NumberFoundItems: integer;
    EditControl: TRxRichEdit;
    LastResultCellWidth: string;
-   SelectedMatch: integer;
+   SelectedMatch: integer;          // < 0: In the process of identify the selectedMatch
    FollowMatch: boolean;
 
 
@@ -1124,7 +1124,26 @@ var
   s:string;
   matchSelected: boolean;
 begin
-  if Editor.SelLength > 0 then exit;
+  if SelectedMatch < 0 then exit;             // *1
+//if Editor.SelLength > 0 then exit;          // *1
+
+  SelectedMatch := -1;
+  try
+  
+
+ { *1
+   The statement Editor.SetSelection(pL, pR, true); will cause FindAllResults_OnSelectionChange to be called again.
+   To avoid recursion, we could easily check Editor.SelLength and exit when the selection length is <> 0. This works fine in
+   newer RichEdit controls (at least with versions available with W10 and W11), but in older versions, such as version 4 (on W7),
+   it doesn't, probably due to a bug in that RichEdit version.
+   After the call to Editor.SetSelection (with a selection > 0), when queried on reentry, Selength returns 0.
+   So, for this to work also in that old version, the reentry control will be done with a variable, managed by
+   this procedure: SelectedMatch. If < 0 => we are in the process of identifying the selected Match
+
+   (See problem described here: https://github.com/dpradov/keynote-nf/issues/602#issuecomment-1704371949)
+ }
+
+ 
 
   {
   #$D
@@ -1160,11 +1179,19 @@ begin
          matchSelected:= false;
      FollowMatch:= true;
   end
-  else
+  else begin
+     SelectedMatch:= 0;          // we are going to force reentrance, but controlled (FindAllResults_SelectMatch)
      if Editor.FindText(#$FFFB, pS, -1, []) < 0 then
         FindAllResults_SelectMatch (true)      // Prev
      else
         FindAllResults_SelectMatch (false);    // Next
+  end;
+
+
+ finally
+    if SelectedMatch < 0 then
+       SelectedMatch:= 0;
+ end;
 end;
 
 
@@ -1677,5 +1704,6 @@ Initialization
     UserBreak := false;
     LastResultCellWidth:= '';
     FollowMatch:= true;
+    SelectedMatch:= 0;
 
 end.
