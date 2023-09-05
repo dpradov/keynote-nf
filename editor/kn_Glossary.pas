@@ -92,12 +92,12 @@ resourcestring
 procedure LoadGlossaryInfo;
 begin
     try
-       GlossaryList.LoadFromFile (Glossary_FN);
+       if FileExists( Glossary_FN) then
+          GlossaryList.LoadFromFile (Glossary_FN);
 
     except
       On E : Exception do begin
         ShowMessage( STR_15 + E.Message );
-        GlossaryList := nil;
       end;
     end;
 
