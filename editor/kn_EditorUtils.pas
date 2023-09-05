@@ -1546,7 +1546,7 @@ begin
      }
 
 
-     PlainText:= Clipboard.AsText;
+     PlainText:= Clipboard.TryAsText;
      if (Length(PlainText) - (posF-posI))  > RTFCONVERSON_MAX_DIF_TO_IGNORE then begin
         Editor.SuspendUndo;
         try
@@ -1960,7 +1960,7 @@ begin
 
            if GetTitle then begin
               if pos(URL_YOUTUBE, SourceURLStr) = 1 then begin  // *1
-                 TitleURL:= Clipboard.AsText;
+                 TitleURL:= Clipboard.TryAsText;
                  i:= pos(#13, TitleURL);
                  j:= length(TitleURL);
                  if (j > 100) or ((i > 0) and (i <= j-2)) then   // If select caption clicking 3 times, #13#10 will be added..

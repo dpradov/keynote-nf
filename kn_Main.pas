@@ -4278,6 +4278,7 @@ begin
 
   _IS_CAPTURING_CLIPBOARD:= True;
   try
+   try
 
       if ( ClipCapActive and assigned( NoteFile ) and ( NoteFile.ClipCapNote <> nil )) then begin
          if (( GetActiveWindow <> self.Handle ) or // only when inactive
@@ -4288,6 +4289,12 @@ begin
                   PasteOnClipCap(ClpStr);
          end;
       end;
+
+   except
+     On E : Exception do
+        //Log_StoreTick( 'WMDrawClipboard- Exception: '+ E.Message, 1);
+   end;
+
   finally
      _IS_CAPTURING_CLIPBOARD:= False;
   end;
@@ -6725,7 +6732,7 @@ begin
       4 : begin // Paste as Text
          with TWordWrapMemo(( Menu_StdEdit.PopupComponent as TCustomMemo )) do
          begin
-           SelText := Clipboard.AsText;
+           SelText := Clipboard.TryAsText;
          end;
       end;
       5 : begin // Delete

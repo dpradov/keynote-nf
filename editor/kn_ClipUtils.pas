@@ -259,11 +259,21 @@ begin
 end;
 
 function TClipboardHelper.TryAsText: string;
+var
+  RetryCount: integer;
 begin
-  if Clipboard.HasFormat (CF_TEXT) then
-      result := Clipboard.AsText
-  else
-      result := '';
+  Result:= '';
+  if not Clipboard.HasFormat (CF_TEXT) then exit;
+
+  RetryCount:= 0;
+  while RetryCount < 6 do
+    try
+      Result:= Clipboard.AsText;
+      break;
+    except
+      Inc(RetryCount);
+      if RetryCount < 6 then Sleep(RetryCount * 100);
+    end;
 end;
 
 { Try to convert the HTML received (or available in clipboard) to RTF
