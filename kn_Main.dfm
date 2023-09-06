@@ -2413,6 +2413,11 @@ object Form_Main: TForm_Main
         Hint = 'Decrease zoom  (Ctrl: apply only to active note)'
         OnClick = MMViewZoomOutClick
       end
+      object MMAlternativeMargins: TMenuItem
+        Caption = 'Alternative &Margins'
+        Hint = 'Toggle between default (minimum) and defined margins in .ini'
+        OnClick = MMAlternativeMarginsClick
+      end
       object N54: TMenuItem
         Caption = '-'
       end

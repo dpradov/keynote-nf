@@ -580,6 +580,8 @@ type
     UserFile : string;
     ZoomIncrement : integer;
     IgnoreCtrHideTrePanel : boolean;  // [*]
+    MarginAltLeft  : integer;  // [*]
+    MarginAltRight : integer;  // [*]
   end;
 
 

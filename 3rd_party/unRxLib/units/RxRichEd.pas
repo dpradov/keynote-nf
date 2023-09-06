@@ -579,6 +579,7 @@ type
     property VisibleText: string read GetVisibleText;                 // [dpv]
     function TextLength: integer;                                     // [dpv]
     function TextPlain (Selection: boolean= False): string;           // [dpv] Alternative to TCumstomEdit.Text (GetText), returning RAWTEXT
+    procedure SetMargins(Left, Right: integer);                       // [dpv]
     function WordAtCursor: string;
     function FindText(const SearchStr: string;
       StartPos, Length: Integer; Options: TRichSearchTypes): Integer;
@@ -5054,6 +5055,22 @@ end;
 {$ENDIF}
 
 {$ENDIF RX_D3}
+
+procedure TRxCustomRichEdit.SetMargins(Left, Right: integer);                       // [dpv]
+var
+  w: WPARAM;
+  l: LPARAM;
+begin
+   if (Left <= 0) or (Right <= 0) then
+       w:= EC_USEFONTINFO
+   else begin
+       w:= EC_LEFTMARGIN or EC_RIGHTMARGIN;
+       l:= MAKELPARAM(Left, Right);            // To query -> LoWord() HiWord()
+   end;
+
+   SendMessage(Handle, EM_SETMARGINS, w, l);
+end;
+
 
 function TRxCustomRichEdit.GetSelTextBuf(Buffer: PChar; BufSize: Integer): Integer;
 var

@@ -117,6 +117,7 @@ uses
     function GetEditorZoom (Editor: TRxRichEdit = nil): integer;
     procedure SetEditorZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );  overload;
     procedure SetEditorZoom( Editor: TRxRichEdit; ZoomValue : integer; ZoomString : string; Increment: integer= 0 ); overload;
+    procedure SetMargins();
 
     procedure GetIndentInformation(Editor: TRxRichEdit;
                                    var Indent: integer; var NextIndent: integer;
@@ -2518,6 +2519,16 @@ begin
       Form_Main.Combo_Zoom.Text := Format('%d%%', [_LastZoomValue] );
     end;
   end;
+end;
+
+
+procedure SetMargins();
+begin
+
+  if Form_Main.MMAlternativeMargins.Checked then
+     ActiveNote.Editor.SetMargins(KeyOptions.MarginAltLeft, KeyOptions.MarginAltRight)
+  else
+     ActiveNote.Editor.SetMargins(0, 0);
 end;
 
 

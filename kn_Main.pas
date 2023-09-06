@@ -866,6 +866,7 @@ type
     Btn_ResFind_Prev: TToolbarButton97;
     Btn_ResFind_Next: TToolbarButton97;
     LblFindAllNumResults: TLabel;
+    MMAlternativeMargins: TMenuItem;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1268,6 +1269,7 @@ type
     procedure FindAllResultsContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
     procedure Combo_ZoomExit(Sender: TObject);
     procedure Combo_FontSizeExit(Sender: TObject);
+    procedure MMAlternativeMarginsClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -7203,6 +7205,17 @@ begin
     SetEditorZoom( DefaultEditorProperties.DefaultZoom, '' )
   else
     SetEditorZoom( 0, '', - KeyOptions.ZoomIncrement );
+end;
+
+
+procedure TForm_Main.MMAlternativeMarginsClick(Sender: TObject);
+begin
+  MMAlternativeMargins.Checked:= not MMAlternativeMargins.Checked;
+
+  if assigned(ActiveNote) then begin
+     SetMargins();
+     ActiveNote.Editor.Refresh;
+  end;
 end;
 
 

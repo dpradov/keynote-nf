@@ -1094,6 +1094,7 @@ begin
 
             TMClipCap.Checked := MMNoteClipCapture.Checked;
 
+            SetMargins();
             UpdateWordWrap;
 
             if EditorOptions.WordCountTrack then begin

@@ -413,7 +413,9 @@ type
     UseTray,
     UserFile,
     ZoomIncrement,
-    IgnoreCtrHideTrePanel : string;
+    IgnoreCtrHideTrePanel,
+    MarginAltLeft,
+    MarginAltRight : string;
   end;
 
 const
@@ -556,6 +558,8 @@ const
     UserFile : 'UserFile';
     ZoomIncrement : 'ZoomIncrement';
     IgnoreCtrHideTrePanel: 'IgnoreCtrHideTrePanel';
+    MarginAltLeft:  'MarginAltLeft';
+    MarginAltRight: 'MarginAltRight';
   );
 
 
@@ -1037,6 +1041,8 @@ begin
     UserFile := '';
     ZoomIncrement := 10;
     IgnoreCtrHideTrePanel := false;
+    MarginAltLeft := 80;
+    MarginAltRight:= 80;
   end;
 end; // InitializeKeyOptions
 
@@ -1303,6 +1309,8 @@ begin
       writebool( section, KeyOptionsIniStr.UseTray, KeyOptions.UseTray );
       writestring( section, KeyOptionsIniStr.UserFile, ExtractRelativePath(Application.ExeName, KeyOptions.UserFile) );
       writebool( section, KeyOptionsIniStr.IgnoreCtrHideTrePanel, KeyOptions.IgnoreCtrHideTrePanel );
+      writeinteger( section, KeyOptionsIniStr.MarginAltLeft,  KeyOptions.MarginAltLeft);
+      writeinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight);
 
 
       section := EditorOptionsIniStr.section;
@@ -1623,6 +1631,8 @@ begin
 
       KeyOptions.ZoomIncrement := readinteger( section, KeyOptionsIniStr.ZoomIncrement, KeyOptions.ZoomIncrement );
       KeyOptions.IgnoreCtrHideTrePanel := readbool( section, KeyOptionsIniStr.IgnoreCtrHideTrePanel, KeyOptions.IgnoreCtrHideTrePanel );
+      KeyOptions.MarginAltLeft  := readinteger( section, KeyOptionsIniStr.MarginAltLeft, KeyOptions.MarginAltLeft );
+      KeyOptions.MarginAltRight := readinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight );
 
 
       if KeyOptions.SingleInstance then KeyOptions.HotKeyWarn := false;
