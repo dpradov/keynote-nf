@@ -35,6 +35,16 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
 -------------
 
 
+v 1.8.0 .6 Beta (06 sep 2023)
+--------------
+Corrects or implements the following issues:
+(more information in doc/Changes in 1.8.0 Beta6.txt)
+
+* Fixed: An exception "Cannot open clipboard: Access Denied" could occasionally be raised
+* Fixed: Error loading Glossary list
+
+* New: View | Alternative Margins
+
 
 v 1.8.0 .5 Beta (04 sep 2023)
 --------------
