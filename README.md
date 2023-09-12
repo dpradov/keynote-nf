@@ -3,17 +3,6 @@
 Tabbed notebook with RichText editor, multi-level notes and strong encryption. 
 
 
-------------------
- **IMPORTANT**
-<br>
-If you work with the version 1703 of W10 (Windows Creator) is very IMPORTANT to use the patch available as a .zip attached to #568: [keynote_1.7.9.Beta9_Test.2.zip](https://github.com/dpradov/keynote-nf/files/1132060/keynote_1.7.9.Beta9_Test.2.zip)
-
-For more information, please, refer to what it is indicated in the <b>[latest release](https://github.com/dpradov/keynote-nf/releases/latest)</b>.
-
-------------------
-
-
-
 This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new features like: 
 
  * *Checkboxes on children of selected nodes* <br>
@@ -36,7 +25,30 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
 	 
  * *Unicode compliant*  
  
- * *New KeyNote file format: compressed*  
+ * *New KeyNote file format: compressed*
+
+ * *New button: 'Copy Format'*
+
+<br>
+ From version 1.8.0: 
+  
+ * *Redesigned navigation history mechanism*
+
+ * *Improved Find All* <br>
+   * Search is now much faster
+   * Excerpts from the note of the matches found are displayed, where the searched words are highlighted
+   * The treatment of the options 'All the words' and 'Any of the words' is extended
+   * Added new option: "Current node and subtree"
+ 
+ * *New internal KNT links*, vinculated to markers, not only to caret position
+ 
+ * *Added 'KeyNote' as target format in File | Export*
+ 
+ * *Improved Clipboard Capture / Web Clip* 
+ 
+ * *Added a new property, "Default Zoom"*, and new action: View | Alternative Margins
+
+
 <br><br>
 
 ### References, documentation and contact information
@@ -64,7 +76,7 @@ From version 1.7.9 Beta 7, a new option have been added that offer the possibili
 ### Installation
 There is no installation project at this moment. You can copy all the files in release archives (eg, "Release_XXXXXX.zip") in a new folder, as KeyNote NF doesn't need installation to work.  
 If you prefer, you can install original [KeyNote (version 1.6.5)](http://www.tranglos.com/free/files/kntsetup.exe) and then copy only the files contained in the new release (zip file), in the installed folder, replacing the original ones. At least the new version will include the executable, `keynote.exe`.
-Please, see the file [BetaReleases_README.txt](https://github.com/dpradov/keynote-nf/releases/download/v1.7.9-Beta.7/BetaReleases_README.txt) for more information about how to install or update to a Beta release.
+Please, see the file [BetaReleases_README.txt](https://github.com/dpradov/keynote-nf/files/12590485/BetaReleases_README.txt) for more information about how to install or update to a Beta release.
 
 Download the <b>[latest release](https://github.com/dpradov/keynote-nf/releases/latest)</b>
 <br><br>
