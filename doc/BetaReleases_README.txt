@@ -26,7 +26,7 @@ extract to a folder and then overwrite it with the files in the following archiv
       See #544: New option to keep backups at regular intervals (https://github.com/dpradov/keynote-nf/issues/544)
     - - - - - - - - - - - - - - -   
 
-* KeyNote_1.8.0 Beta4.zip
+* KeyNote_1.8.0 Beta6.zip
   - KeyNote.exe 
   - kntutils.dll
   - *.txt

@@ -35,75 +35,67 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
 -------------
 
 
-v 1.8.0 .6 Beta (06 sep 2023)
---------------
+v 1.8.0 Beta 1 - Beta 6 (01 aug 2023 -- 06 sep 2023)
+------------------------
 Corrects or implements the following issues:
-(more information in doc/Changes in 1.8.0 Beta6.txt)
-
-* Fixed: An exception "Cannot open clipboard: Access Denied" could occasionally be raised
-* Fixed: Error loading Glossary list
-
-* New: View | Alternative Margins
+(more detail and information in doc/Changes in 1.8.0 Beta1-6.txt)
 
 
-v 1.8.0 .5 Beta (04 sep 2023)
---------------
-Corrects or implements the following issues:
-(more information in doc/Changes in 1.8.0 Beta5.txt)
+* Adaptation from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).
 
-* Fixed: Selection of search result (from "Find All") was not working in RichEdit <=4
-* Improved click options on hyperlinks
-* Added numbering to serch results
+* Find All: Improvements
+ - Excerpts from the note of the matches found, where searched words are highlighted
+ - Search is now much faster
+ - Added new option: "Current node and subtree"
+ - The treatment of the options 'All the words' and 'Any of the words' is extended
 
+  * Changed: The option "Reverse order" it is used now only with the the option "Show full node path in status bar".
+  * Fixed: The option "Show full node path in search results" was not used. 
+  
+* New KNT Links, vinculated to markers, not only to caret position
 
-v 1.8.0 .4 Beta (02 sep 2023)
---------------
-Corrects or implements the following issues:
-(more information in doc/Changes in 1.8.0 Beta4.txt)
+* Redesigned navigation history mechanism
 
-
-* Fixed: KNT Files where displaying RTF content as txt in systems with locale codepage set to UTF8 (65001)
-* Fixed: Certain RTF insertions were interpreted as text plain in RichEdit version <= 4
-
-* Fixed: Indentation of multiple lines done pressing TAB was not working
+* New: Added 'KeyNote' as target format in File/Export...
 
 * Improved Alarm management window. Revised design and usability
-* Improvements in internal KNT links
 
-* Fixed: Option "Autoregister file type" now works ok without any special permissions
-* Fixed: Option "Use system default web browser" was not working 
-* Fixes and changes in URL actions
-
-* Other fixes and improvements
-
-
-
-v 1.8.0 .3 Beta (20 aug 2023)
---------------
-Corrects or implements the following issues:
-(more information in doc/Changes in 1.8.0 Beta3.txt)
-
-* Fixed: (Important) Text files imported as a new note note could be saved plain, not RTF
-* New: pressing [Ctrl] + <Hide Tree Panel> will temporarily preserve editor width, reducing the application window width
-
-* Fixed: checkbox 'Inherit BG color from active node' not updated in 'Note Properties..'
-* Added log entries in several points, to obtain information about possible problems related to RichEdit 
-
-
-v 1.8.0 .2 Beta (19 aug 2023)
---------------
-Corrects or implements the following issues:
-(more information in doc/Changes in 1.8.0 Beta2.txt)
-
-* Fixed: High DPI displays. The application should scale correctly based on OS settings
 * Added a new property, "Default Zoom": Allows to use a default value other than 100%
 * Changed behaviour of Zoom Text action.
+* New: View | Alternative Margins
+* New: pressing [Ctrl] + <Hide Tree Panel> will temporarily preserve editor width, reducing the application window width
+* Fixed: High DPI displays. The application should scale correctly based on OS settings
+* Improvement in the design of the form Configuration Options
 
-* New option: Font size in Find All results
-* Improved the display of node path in search results (when option "Show full node path in search results" is checked)
-* Changed: The option "Reverse order" it is used now only with the the option "Show full node path in status bar".
-* Fixed: The option "Show full node path in search results" was not used. 
-* Fixed: Find All with the option 'Current node and subtree' could ignore nodes from some point in certain situations
+* Optimization in file open/save, mainly in native format
+* Fixed possibly difficulty on saving, if file is located in a externally synchronized folder (for example with Dropbox)
+
+* Fixes and changes in URL actions
+* Improved click options on hyperlinks
+* Fixed: Option "Use system default web browser" was not working 
+
+* Clipboard Capture / Web Clip / Paste external
+  - Try to offer RTF Format in clipboard whenever possible (from HTML format)
+  - When pasting from HTML (web pages), the current font and size in the active editor will be used as default values, 
+    instead of the usual Times New Roman 12.
+  - When converting from HTML to RTF, on pasting from web pages, last aditional line break will be removed
+  - Fixed: Pasting as plain text could move the caret several characters before its correct position  
+  - Fixed: copying and pasting from certain web pages can produce nothing or truncate some text
+  
+* Improvements on Clipboard Capture / Web Clip capture 
+  - Added new token: '%%'
+  - Ensure to include Title for URL  (%S, %s, %U)
+  - Titles from web pages: convert HTML Ascii codes  
+  - Added new token: source server/domain (%d)
+  - Revised and improved predefined dividers
+  - Adjustment in the option "URLOnly"
+      
+* Clipboard paste / copy / cut
+  - Fixed bug that could affect the paste action, when determining if normal or plain paste should be applied
+  - Fixed bug that made that the option "Ignore duplicate clips" were ignored
+  - Fixed: An exception "Cannot open clipboard: Access Denied" could occasionally be raised
+  - Fixed: The option "Limited size to", in Advanced/Clipboard ("Maximum length of text to capture, in bytes (when paste as plain text)")
+    should only be considered for Clipboard Capture, not for normal plain paste (nor Web clip)   
 
 * Several fixes and enhancements related to 'Note properties...'  and 'Default Settings...'
   - Changes in design and functionality in "Default settings.." (F6) and "Note properties.." (F4)
@@ -114,62 +106,19 @@ Corrects or implements the following issues:
   - Fixed: sometimes the defined default font properties of the note where ignored on new nodes.
   - Fixed: Changes in tree font didn't update correctly
   - Fixed: Sometimes changes from Note Properties (F4) did not modify the status of the file (to modified)
-
+  
 * Fixed: Making bold a tree node din't maintain other possible styles of the default TV font
 
-* Optimization in file open/save, mainly in native format
-
-* Fixed: Exception while trying to insert a KNT link in a special case
+* Fixed: Option "Autoregister file type" now works ok without any special permissions
 * Fixed: Change in read-only state of a note => save button state
+
+* Fixed: Ensure that all nodes in a RTF tree note are saved in RTF format, and all nodes in a plain text only tree note are saved in plain format.
+* Fixed: Text files imported as a new note note could be saved plain, not RTF
+* Modification in RxRichEd to change the way a retry is made when the load of stream detects an error
 * Fixed possible exceptions when no file was loaded
-* Fixed exception by UpdateHistoryCommands in file without notes
 * Changes in log management
 
-
-v 1.8.0 .1 Beta (01 aug 2023)
---------------
-Corrects or implements the following issues:
-(more information in doc/Changes in 1.8.0 Beta1.txt)
-
-* Find All
- - Search is now much faster
- - Improvement in the output of results
- - Added new option: "Current node and subtree"
-* New KNT Links, vinculated to markers, not only to caret position
-* New: Added 'KeyNote' as target format in File/Export...
-* Redesigned navigation history mechanism
-* Clipboard Capture / Web Clip / Paste external
-  - Try to offer RTF Format in clipboard whenever possible (from HTML format)
-  - When pasting from HTML (web pages), the current font and size in the active editor will be used as default values, 
-    instead of the usual Times New Roman 12.
-  - When converting from HTML to RTF, on pasting from web pages, last aditional line break will be removed
-  - Fixed: Pasting as plain text could move the caret several characters before its correct position  
-  - Fixed: copying and pasting from certain web pages can produce nothing or truncate some text
-  - Titles from web pages: convert HTML Ascii codes  
-  
-* Clipboard Capture / Web Clip. 
-  - Ensure to include Title for URL
-  - Title from YouTube page: exception to the normal paste behaviour
-  - Several improvements, with new tokens
-  - Revised and improved predefined dividers
-  - Adjustment in the option "URLOnly"
-  - Fixed: The option "Limited size to", in Advanced/Clipboard 
-   ("Maximum length of text to capture, in bytes (when paste as plain text)")
-    should only be considered for Clipboard Capture, not for normal plain paste (nor Web clip)  
-    
-* Clipboard paste
-  - Fixed bug that could affect the paste action, when determining if normal or plain paste should be applied
-  - Fixed bug that made that the option "Ignore duplicate clips" were ignored
-  
 * At the moment, the Send Mail functionality will not be included in KNT
- 
-* Fixed possibly difficulty on saving, if file is located in a externally synchronized folder (for example with Dropbox)
-* Fixed: Ensure that all nodes in a RTF tree note are saved in RTF format,
-   and all nodes in a plain text only tree note are saved in plain format.
-* Improvement in the design of the form Configuration Options
-
-* Adaptation from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).
-
 
 
 v 1.7.9.9 Beta (07 jul 2017)  (Distributed as 1.7.9 Beta 9 Test.2)

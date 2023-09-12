@@ -1,5 +1,5 @@
-File formats in KeyNote NF. Native vs Compressed format
-=======================================================
+File formats in KeyNote NF. Native vs Compressed format / Use of IMAGES
+=======================================================================
 
 To help decide which format may be the most suitable to use with KeyNote NF files, depending on the circumstances,
 I have made a series of measurements that I show below.
@@ -11,7 +11,8 @@ desktop, running Windows 10.
 
 I have used two files as a reference, comparing in both cases the times obtained when loading and saving the files,
 considering the native format and three options of the compressed format: Max, Default, Fastest  
-   
+
+* Note: See the notes at the end regarding sizes after pasting images vs dragging images
    
 In general terms I want to highlight the following:
 ---------------------------------------------------
@@ -86,7 +87,31 @@ In general terms I want to highlight the following:
    - Native:      27.569 KB   1.438 (*)     47 
    - Zip Max:      5.418 KB   1.593      2.422
    - Zip Default:  5.453 KB   1.547      1.328
-   - Zip Fast:     6.827 KB   1.594        391
+   - Zip Fast:     6.828 KB   1.594        391
 
    (*) Reading and parsing the file, loading the data model, but without building the UI: 188 ms
    
+
+ * NOTE - The sizes of "File 2", could be much smaller if the images had been dragged into the editor from files
+  (for example, Img1.png  and Img2.jpg)
+  
+   - Native:       9.800 KB
+   - Zip Max:      3.399 KB
+   - Zip Default:  3.409 KB
+   - Zip Fast:     3.837 KB
+
+
+ IMAGES
+ ------ 
+  Note that in current versions of the RichEdit control it is possible to drag an image file into the editor
+  (from the file explorer, for example) of any of the formats listed above.
+  In these cases, the RichEdit control will save the image in a more optimized RTF format (the file will take up less space).
+  It will still save the image as ASCII in hexadecimal format, but in many cases it will do so once compressed to JPG or PNG:
+ 
+   PNG, GIF, BMP, TIFF => png format (\pngblip)
+   JPG => jpg format (\jpegblip)
+   Capture from clipboard => windows meta file format (WMF) (\wmetafile8)
+   
+   This last format was the only one recognized by older versions (e.g., version 4, available in XP or W7), and it takes up 
+   much more size than the rest (png or jpg).
+ 
