@@ -273,6 +273,10 @@ uses
    kn_Glossary;
 
 
+resourcestring
+  STR_01 = 'KeyNote NF have been configured to allow only one instance at a time' + #13 + 'Closing this instance...';
+  STR_02 = 'There was a non-fatal error while loading program configuration: ' + #13 + '%s' + #13#13 + 'Some options may have been reset to factory default values. The application will now continue.';
+
 
 //-----------------
 
@@ -541,7 +545,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           PopupMessage( 'There was a non-fatal error while loading program configuration: ' + #13 + e.Message + #13#13 + 'Some options may have been reset to factory default values. The application will now continue.', mtInformation, [mbOK], 0 );
+           PopupMessage( Format(STR_02, [e.Message]), mtInformation, [mbOK], 0 );
         end;
       end;
 
@@ -582,9 +586,8 @@ begin
       Log_StoreTick( 'End config', 2 );
 
       // check other instance, and do the job is necessary
-      if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) then
-      begin
-        Messagedlg( 'KeyNote NF have been configured to allow only one instance at a time' + #13 + 'Closing this instance...', mtWarning, [mbOK], 0 );
+      if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) then begin
+        Messagedlg(STR_01, mtWarning, [mbOK], 0 );
         ClosedOnPreviousInstance := true;
         Application.ShowMainForm := false;
         try
@@ -592,8 +595,7 @@ begin
             ActivatePreviousInstance;
 
           except
-            on E : Exception do
-            begin
+            on E : Exception do begin
               showmessage( 'Error on ActivatePreviousInstance: ' + E.Message );
               Halt;
             end;
@@ -621,8 +623,9 @@ begin
       if KeyOptions.ResolveLNK then
         OpenDlg.Options := OpenDlg.Options - [ofNoDereferenceLinks];
 
-      if opt_NoRegistry then
-      begin
+      const RegPath = 'Software\General Frenetics\KeyNote';
+
+      if opt_NoRegistry then begin
         // don't clutter the registry with garbage file names and settings
         IniLoadToolbarPositions( Form_Main, MRU_FN, 'TB97a' );
         FormStorage.UseRegistry := false;
@@ -632,13 +635,12 @@ begin
         _FORMPOS_USE_REGISTRY := false;
         _FORMPOS_INIFILENAME := MRU_FN;
       end
-      else
-      begin
-        RegLoadToolbarPositions( Form_Main, 'Software\General Frenetics\Keynote\FormPos\TB97a' );
+      else begin
+        RegLoadToolbarPositions( Form_Main, RegPath + '\FormPos\TB97a' );
         MRU.UseRegistry := true;
-        MRU.AutoSaveName := '\Software\General Frenetics\KeyNote';
+        MRU.AutoSaveName := '\' + RegPath;
         FormStorage.UseRegistry := true;
-        FormStorage.IniFileName := 'Software\General Frenetics\KeyNote\FormPos';
+        FormStorage.IniFileName := RegPath + '\FormPos';
         _FORMPOS_USE_REGISTRY := true;
         _FORMPOS_INIFILENAME := FormStorage.IniFileName;
       end;
@@ -704,9 +706,7 @@ begin
 
       except
         On E : Exception do
-        begin
           showmessage( E.Message );
-        end;
       end;
 
       Log_StoreTick( 'End tabicons', 2 );
@@ -723,11 +723,9 @@ begin
       Log_StoreTick( 'End formupdate', 2 );
 
       try
-        if ( not opt_NoReadOpt ) then
-        begin
+        if ( not opt_NoReadOpt ) then begin
           LoadStyleManagerInfo( Style_FN );
-          if assigned( StyleManager ) then
-          begin
+          if assigned( StyleManager ) then begin
             StyleManagerToCombo;
             if ( Combo_Style.Items.Count > 0 ) then
               Combo_Style.ItemIndex := 0;
@@ -735,9 +733,7 @@ begin
         end;
       except
         On E : Exception do
-        begin
           showmessage( 'Error loading Style Manager: ' + E.Message );
-        end;
       end;
 
       Log_StoreTick( 'End stylemgr', 2 );
@@ -749,10 +745,8 @@ begin
 
       Log_StoreTick( 'End glossary', 2 );
 
-      if FirstTimeRun then
-      begin
-        if ( NoteFileToLoad = '' ) then
-        begin
+      if FirstTimeRun then begin
+        if ( NoteFileToLoad = '' ) then begin
           // our INI file was not found, so we're probably being used 1st time
           // after installation. Since no .KNT file was specified, let's show
           // the sample file which is part of the distribution.
@@ -762,40 +756,30 @@ begin
         end;
       end
       else
-      begin
         // have we been upgraded?
         NewVersionInformation;
-      end;
 
-      if ( NoteFileToLoad = '' ) then
-      begin
+      if ( NoteFileToLoad = '' ) then begin
         if ( KeyOptions.LoadUserFile and ( KeyOptions.UserFile <> '' )) then
-        begin
-          NoteFileToLoad := KeyOptions.UserFile;
-        end
-        else
-        begin
+          NoteFileToLoad := KeyOptions.UserFile
+        else begin
           if ( KeyOptions.LoadLastFile and ( KeyOptions.LastFile <> '' )) then
             NoteFileToLoad := KeyOptions.LastFile;
         end;
       end;
 
-      if ( NoteFileToLoad <> '' ) then
-      begin
+      if ( NoteFileToLoad <> '' ) then begin
         NoteFileToLoad:= GetAbsolutePath(ExtractFilePath(Application.ExeName), NoteFileToLoad);
 
-        if ( NoteFileOpen( NoteFileToLoad ) <> 0 ) then
-        begin
+        if ( NoteFileOpen( NoteFileToLoad ) <> 0 ) then begin
           // if ( PopupMessage( 'Would you like to create a new Note file?', mtConfirmation, [mbYes,mbNo], 0 ) = mryes ) then
           if KeyOptions.AutoNewFile then
             NoteFileNew( 'untitled' );
         end;
       end
       else
-      begin
         if KeyOptions.AutoNewFile then
           NoteFileNew( '' );
-      end;
 
       Log_StoreTick( 'FormCreate - END', 0, -1 );
 
@@ -803,8 +787,7 @@ begin
       Timer.Enabled := true;
       FolderMon.OnChange := FolderMonChange;
 
-      if opt_Debug then
-      begin
+      if opt_Debug then begin
         // StoreMenuItemIDs;
         // SaveKBD( KBD_FN, KNTMainMenuCmds, KNTTreeMenuCmds ); // in kn_KBD.pas
       end;
@@ -910,12 +893,11 @@ begin
       try
         ReadOptions; // keynote.ini (this is decalred in kn_INI.pas)
       except
-        on E : Exception do
-        begin
+        on E : Exception do begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           PopupMessage( 'There was a non-fatal error while loading program configuration: ' + #13 + e.Message + #13#13 + 'Some options may have been reset to factory default values. The application will now continue.', mtInformation, [mbOK], 0 );
+           PopupMessage(Format(STR_02, [e.Message]), mtInformation, [mbOK], 0 );
         end;
       end;
 

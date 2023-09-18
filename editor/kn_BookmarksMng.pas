@@ -77,10 +77,9 @@ procedure BookmarkClearAll;
 var
   i : integer;
 begin
-  if assigned( NoteFile ) then
-  begin
+  if assigned( NoteFile ) then  begin
     for i := 0 to MAX_BOOKMARKS do
-      BookmarkClear( i );
+       BookmarkClear( i );
   end;
 end; // BookmarkClearAll
 
@@ -89,8 +88,7 @@ begin
   if ( not assigned( NoteFile )) then exit;
   if (( Number < 0 ) or ( Number > MAX_BOOKMARKS )) then exit;
 
-  with NoteFile.Bookmarks[Number]^ do
-  begin
+  with NoteFile.Bookmarks[Number]^ do begin
     Name := '';
     CaretPos := 0;
     SelLength := 0;

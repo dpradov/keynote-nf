@@ -225,22 +225,19 @@ begin
     Edit_Description.Text := myNotes.Description;
     label_Created.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, myNotes.DateCreated );
     Combo_Format.ItemIndex := ord( myNotes.FileFormat );
-    if Fileexists( myNotes.FileName ) then
-    begin
+    if Fileexists( myNotes.FileName ) then begin
       fs := GetFileSize( myNotes.FileName );
       if ( fs < 1025 ) then
         Label_FileSize.Caption := inttostr( fs ) + STR_03
       else
         Label_FileSize.Caption := inttostr( fs DIV 1024 ) + ' Kb';
       label_Modified.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, GetFileDateStamp( myNotes.FileName ));
-      if myNotes.SavedWithRichEdit3 then
-      begin
+      if myNotes.SavedWithRichEdit3 then begin
         // LB_RTF3.Font.Color := clRed;
         LB_RTF3.Visible := true;
       end;
     end
-    else
-    begin
+    else begin
       Label_FileSize.Caption := STR_04;
       Edit_FileName.Visible := false;
       Label_FileNotFound.Visible := true;
@@ -252,42 +249,31 @@ begin
     CB_NoMultiBackup.Checked := myNotes.NoMultiBackup;
 
     // tray icon stuff
-    if (( myNotes.TrayIconFN <> '' ) and fileexists( myNotes.TrayIconFN )) then
-    begin
+    if (( myNotes.TrayIconFN <> '' ) and fileexists( myNotes.TrayIconFN )) then begin
       CB_TrayIcon.Checked := true;
       Edit_TrayIcon.Text := myNotes.TrayIconFN;
       Image_TrayIcon.Picture.LoadFromFile( myNotes.TrayIconFN );
     end
     else
-    begin
       CB_TrayIcon.Checked := false;
-    end;
+
     CheckBox_TrayIconClick( CB_TrayIcon );
     CB_TrayIcon.OnClick := CheckBox_TrayIconClick;
 
     // tab icons stuff
     CB_ShowTabIcons.Checked := myNotes.ShowTabIcons;
     if ( myNotes.TabIconsFN = '' ) then // default
-    begin
-      RB_TabImgDefault.Checked := true;
-    end
-    else
-    begin
+      RB_TabImgDefault.Checked := true
+
+    else begin
       if ( myNotes.TabIconsFN[1] = _NF_Icons_BuiltIn ) then
-      begin
-        RB_TabImgBuiltIn.Checked := true;
-      end
-      else
-      begin
+        RB_TabImgBuiltIn.Checked := true
+      else begin
         Edit_TabImg.Text := myNotes.TabIconsFN;
         if fileexists( myNotes.TabIconsFN ) then
-        begin
-          RB_TabImgOther.Checked := true;
-        end
+          RB_TabImgOther.Checked := true
         else
-        begin
           RB_TabImgDefault.Checked := true;
-        end;
       end;
     end;
     CheckBox_ShowTabIconsClick( CB_ShowTabIcons );
@@ -295,8 +281,7 @@ begin
     CB_ShowTabIcons.OnClick := CheckBox_ShowTabIconsClick;
 
   end
-  else
-  begin
+  else begin
     Edit_FileName.Text := STR_07;
     Label_Count.Caption := '0';
     Edit_Comment.Text := '';
@@ -307,11 +292,9 @@ begin
     Label_IsReadOnly.Visible := false;
 
     Combo_Method.ItemIndex := ord( myNotes.CryptMethod );
-
   end;
 
-  if Edit_Description.Enabled then
-  begin
+  if Edit_Description.Enabled then begin
     Edit_Description.SetFocus;
     Edit_Description.SelectAll;
   end;
@@ -362,30 +345,26 @@ begin
 
   s := '';
 
-  if length( Edit_Pass.Text ) < MinPassLen then
-  begin
+  if length( Edit_Pass.Text ) < MinPassLen then begin
     s := Format( STR_09, [MinPassLen] );
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
   end
   else
-  if ( Edit_Pass.Text <> Edit_Confirm.Text ) then
-  begin
+  if ( Edit_Pass.Text <> Edit_Confirm.Text ) then begin
     s := STR_10;
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
   end;
 
 
-  if ( s <> '' ) then
-  begin
+  if ( s <> '' ) then begin
     result := false;
     messagedlg( s, mtError, [mbOK], 0 );
     exit;
   end;
 
-  if myNotes.HasVirtualNodes then
-  begin
+  if myNotes.HasVirtualNodes then begin
     result := ( messagedlg(STR_11, mtWarning, [mbYes,mbNo], 0 ) = mrYes );
   end;
 
@@ -396,9 +375,8 @@ procedure TForm_FileInfo.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if OK_Click then
-  begin
     CanClose := Verify;
-  end;
+
   OK_Click := false;
 end;
 
@@ -416,12 +394,12 @@ procedure TForm_FileInfo.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   case key of
-    27 : if (( shift = [] ) and ( not ( Combo_Method.DroppedDown or Combo_Format.DroppedDown ))) then
-    begin
-      key := 0;
-      OK_Click := false;
-      Close;
-    end;
+    27 :
+      if (( shift = [] ) and ( not ( Combo_Method.DroppedDown or Combo_Format.DroppedDown ))) then begin
+        key := 0;
+        OK_Click := false;
+        Close;
+      end;
   end;
 end; // KEY DOWN
 
@@ -442,8 +420,7 @@ begin
         Combo_CompressLevel.ItemIndex := ord( zcDefault );
 
   Tab_Pass.TabVisible := ( Combo_Format.ItemIndex = ord( nffEncrypted ));
-  if ( Tab_Pass.TabVisible and ( myNotes.FileFormat <> nffEncrypted )) then
-  begin
+  if ( Tab_Pass.TabVisible and ( myNotes.FileFormat <> nffEncrypted )) then begin
     // the file was NOT encrypted previously,
     // so now passphrase must be entered.
     EnablePassControls;
@@ -471,10 +448,8 @@ end;
 
 procedure TForm_FileInfo.CheckBox_AsReadOnlyClick(Sender: TObject);
 begin
-  if assigned( myNotes ) then
-  begin
-    if (( not CB_AsReadOnly.Checked ) and myNotes.ReadOnly ) then
-    begin
+  if assigned( myNotes ) then begin
+    if (( not CB_AsReadOnly.Checked ) and myNotes.ReadOnly ) then begin
       if ( DoMessageBox( Format(STR_12,[ExtractFilename( myNotes.FileName )]), mtWarning, [mbYes,mbNo], 0, Self.Handle ) = mrYes ) then
         CB_AsReadOnly.OnClick := nil
       else
@@ -537,9 +512,9 @@ var
 begin
   Form_Main.OpenDlg.Filter:= FILTER_TABIMAGES;
   Action:= Form_Main.OpenDlg.Execute;
-  if Action then begin
+  if Action then
      Edit_TabImg.Text := Form_Main.OpenDlg.Filename;
-  end;
+
   TB_OpenDlgTabImg.Down:= false;
   _FILE_TABIMAGES_SELECTION_CHANGED := ( _FILE_TABIMAGES_SELECTION_CHANGED or Action );
 end;

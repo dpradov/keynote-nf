@@ -86,20 +86,21 @@ begin
   b := TBitmap.Create;
 
   try
+
     b.width := Chest.IMG_Categories.Width * Chest.IMG_Categories.Count;
     b.Height := Chest.IMG_Categories.Height;
-    with b.canvas do
-    begin
+    with b.canvas do begin
       brush.color := clOlive;
       brush.style := bsSolid;
       fillrect( cliprect );
     end;
+
     if Chest.IMG_Categories.Count > 0 then
       for i := 0 to pred( Chest.IMG_Categories.Count ) do
-      begin
-        Chest.IMG_Categories.Draw( b.canvas, i*Chest.IMG_Categories.Width, 0, i );
-      end;
+         Chest.IMG_Categories.Draw( b.canvas, i*Chest.IMG_Categories.Width, 0, i );
+
     b.SaveToFile( extractfilepath( application.exename ) + 'catimages.bmp' );
+
   finally
     b.free;
   end;
@@ -110,13 +111,11 @@ function LoadCategoryBitmapsBuiltIn : boolean;
 begin
   result := false;
   Chest.IMG_Categories.Clear;
-  if ( Chest.IMG_Categories.ResInstLoad( HInstance, rtBitmap, 'CATIMAGES',  clOlive )) then
-  begin
+  if ( Chest.IMG_Categories.ResInstLoad( HInstance, rtBitmap, 'CATIMAGES',  clOlive )) then begin
     result := true;
     _LOADED_ICON_FILE := _NF_Icons_BuiltIn; // means: DEFAULT icons loaded from resource
   end
-  else
-  begin
+  else begin
     _LOADED_ICON_FILE := '';
     Messagedlg( STR_FailedLoadBuiltin, mtError, [mbOK], 0 );
   end;
@@ -137,8 +136,7 @@ begin
       s.ReadComponent( Chest.IMG_Categories );
       _LOADED_ICON_FILE := FN;
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         _LOADED_ICON_FILE := '';
         result := false;
         Messagedlg( STR_FailedLoad + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
@@ -163,8 +161,7 @@ begin
     try
       s.WriteComponent( Chest.IMG_Categories );
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         Messagedlg( STR_FailedSave + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;

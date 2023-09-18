@@ -47,6 +47,7 @@ uses
    kn_LocationObj,
    kn_LinksMng,
    kn_VCLControlsMng,
+   kn_Const,
    kn_Main;
 
 
@@ -404,14 +405,14 @@ resourcestring
   STR_IntervalBefore = '(%s before)';
 
   //const COLUMN_AlarmNote = 0;         // item
-  const COLUMN_ReminderDate = 0;        // subitems  
+  const COLUMN_ReminderDate = 0;        // subitems
   const COLUMN_ReminderTime = 1;
   const COLUMN_ExpirationDate = 2;
   const COLUMN_ExpirationTime = 3;
-  const COLUMN_NoteName = 4; 
-  const COLUMN_NodeName = 5;        
+  const COLUMN_NoteName = 4;
+  const COLUMN_NodeName = 5;
   const COLUMN_Discarded = 6;
-  
+
 
   const WAIT_TIME_ON_ESCAPE = 5;
   const IMG_INDEX_NO_OVERDUE_NOR_PENDING = 51;
@@ -1106,7 +1107,7 @@ var
    idAlarm: string;
 begin
    if alarm.AlarmNote <> '' then
-      cad:= ' [' + StringReplace(alarm.AlarmNote, #13#10, ' // ', [rfReplaceAll]) + ']'
+      cad:= Format(' [%s]', [ StringReplace(alarm.AlarmNote, _CRLF, ' // ', [rfReplaceAll]) ])
    else
       cad:= '';
 
@@ -1148,7 +1149,7 @@ begin
    else
       popupState:= STR_PopupOn;
 
-   Result:= Format(STR_PendingAndOverdue, [NumberPendingAlarms, NumberOverdueAlarms]) + popupState + soundState;
+   Result:= Format(STR_PendingAndOverdue, [NumberPendingAlarms, NumberOverdueAlarms, popupState, soundState]);
 end;
 
 
@@ -1345,7 +1346,7 @@ begin
         TShowAllWithDiscarded:  str:= STR_CaptionAll;
     end;
     if (cFilter.Text <> '') or (CB_FilterDates.ItemIndex <> 0) then
-       str:= str + ' ' + STR_FilterApplied;
+       str:= str + STR_FilterApplied;
 
     Caption:= Format(str, [FNumberAlarms]);
 end;
@@ -1464,6 +1465,9 @@ begin
    CB_ExpirationDate.Enabled:= chk_Expiration.Checked;
    cExpirationTime.Enabled:=   chk_Expiration.Checked;
    CB_ExpirationTime.Enabled:= chk_Expiration.Checked;
+
+   lblExpirationStatus.Visible := not SeveralSelected;
+   lblReminderStatus.Visible   := not SeveralSelected;
 
    rb_FromNow.Enabled:= Value;
    rb_Before.Enabled:= Value and chk_Expiration.Checked;
@@ -2160,7 +2164,7 @@ end;
 
 procedure TForm_Alarm.ShowExpirationStatus(Instant: TDateTime);
 var
-   IntervalStr: string;
+   IntervalStr, StateStr: string;
 begin
      if Instant <= 0 then
        lblExpirationStatus.Caption:= ''
@@ -2168,13 +2172,15 @@ begin
      else begin
          IntervalStr:= GetTimeIntervalStr(Instant, Now);
          if Instant < now then begin
-            lblExpirationStatus.Caption:= '(' + IntervalStr + ' overdue)';
+            StateStr:= 'overdue';
             lblExpirationStatus.Font.Color:= clRed;
             end
          else begin
-            lblExpirationStatus.Caption:= '(' + IntervalStr + ' left)';
+            StateStr:= 'left';
             lblExpirationStatus.Font.Color:= clGray;
          end;
+
+         lblExpirationStatus.Caption:= Format('(%s %s)', [IntervalStr, StateStr]);
      end;
 end;
 
@@ -2674,7 +2680,7 @@ begin
     if not assigned(alarm) then begin
        cIdentifier.Text := Format( STR_NumberSelected, [0] );
        EnableControls (false);
-       if not Selected then 
+       if not Selected then
           modeEdit:= TShowAll;
        chk_ApplyOnExitChange.Checked:= FApplyOnExitChangeBAK;
        chk_ApplyOnExitChange.Enabled:= true;
@@ -2809,14 +2815,14 @@ procedure TForm_Alarm.UpdateAlarmOnGrid(alarm: TAlarm; item: TListItem);
 
       item.Data:= Alarm;
       item.subitems.Clear;
-      item.caption := StringReplace(alarm.AlarmNote, #13#10, '··', [rfReplaceAll]);
+      item.caption := StringReplace(alarm.AlarmNote, _CRLF, '··', [rfReplaceAll]);
       item.subitems.Add( FormatDate(alarm.AlarmReminder) );
       item.subitems.Add( FormatDateTime('hh:nn', alarm.AlarmReminder) );
       item.subitems.Add( FormatDate(alarm.ExpirationDate));
       if alarm.ExpirationDate <> 0 then
           item.subitems.Add( FormatDateTime('hh:nn', alarm.ExpirationDate) )
       else
-          item.subitems.Add( '');      
+          item.subitems.Add( '');
       item.subitems.Add( NoteName );
       item.subitems.Add( NodeName);
       item.subitems.Add( Discarded);
@@ -2930,7 +2936,7 @@ var
   //  References: Table definitions in RTF: http://www.biblioscape.com/rtf15_spec.htm#Heading40
   function GenerateHeader(): string;
     begin
-        Result:= '\trowd\trgaph30 \cellx500\cellx1500\cellx3500\cellx4700\cellx5400\cellx8900\cellx9900\cellx10400\cellx10900 \pard\b\cf0\intbl ' +
+        Result:= '\trowd\trgaph30 \cellx500\cellx1500\cellx3500\cellx4900\cellx5600\cellx9100\cellx10600\cellx11250\cellx11800 \pard\b\cf0\intbl ' +
              'Lnk \cell ' +
              'Note \cell ' +
              'Node \cell ' +
@@ -2951,6 +2957,8 @@ var
        pos: integer;
        hyperlink: string;
        location: TLocation;
+    const
+       CELL = '\cell ';
     begin
         if assigned(alarm.node) then
            NodeName:= alarm.Node.Name
@@ -2963,12 +2971,11 @@ var
         location:= CreateLocation(alarm);
         hyperlink:= '';
         if assigned(location) then begin
-            hyperlink:= '{\field{\*\fldinst{HYPERLINK "'
-              + URLToRTF(BuildKNTLocationText(location, true), false ) + '"}}{\fldrslt{\cf1\ul lnk}}}\cf0\ulnone';
+            hyperlink:= Format('{\field{\*\fldinst{HYPERLINK "%s"}}{\fldrslt{\cf1\ul lnk}}}\cf0\ulnone',
+                                 [URLToRTF(BuildKNTLocationText(location, true), false )])
         end;
 
-        colorFont:= ColorToString(alarm.BackColor);
-
+        //colorFont:= ColorToString(alarm.BackColor);
         colorFont:= '\cf0';
         pos:= GetPositionInRTFTable(alarm.FontColor);
         if pos > 0 then
@@ -2979,40 +2986,32 @@ var
         if pos > 0 then
            bgColor:= '\clcbpat' + IntToStr(pos);
 
-        Result:= '\trowd\trgaph30 ' +
-                   bgColor + '\cellx500'+
-                   bgColor + '\cellx1500'+
-                   bgColor + '\cellx3500'+
-                   bgColor + '\cellx4700'+
-                   bgColor + '\cellx5400'+
-                   bgColor + '\cellx8900'+
-                   bgColor + '\cellx9900'+
-                   bgColor + '\cellx10400'+
-                   bgColor + '\cellx10900' +
-                   '\pard\intbl' + colorFont + ' ';
+        Result:= Format('\trowd\trgaph30 %s\cellx500%s\cellx1500%s\cellx3500%s\cellx4900%s\cellx5600%s\cellx9100%s\cellx10600\cellx11250\cellx11800' +
+                        '\pard\intbl%s ',
+                       [bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,  colorFont ]);
 
-        Result:= Result + hyperlink + '\cell ';                                       // Hyperlink
-        Result:= Result + TextToUseInRTF(NoteName) + '\cell ';                        // NoteName
-        Result:= Result + TextToUseInRTF(NodeName) + '\cell ';                        // NodeName
+        Result:= Result + hyperlink + CELL;                                       // Hyperlink
+        Result:= Result + TextToUseInRTF(NoteName) + CELL;                        // NoteName
+        Result:= Result + TextToUseInRTF(NodeName) + CELL;                        // NodeName
 
         if alarm.Bold then
            Result:= Result + '\b ';
 
-        Result:= Result + FormatDate(alarm.ExpirationDate) + '\cell ';                // ExpirationDate
+        Result:= Result + FormatDate(alarm.ExpirationDate) + CELL;                // ExpirationDate
         if alarm.ExpirationDate <> 0 then
-           Result:= Result + FormatDateTime('hh:nn', alarm.ExpirationDate) + '\cell ' // ExpirationTime
+           Result:= Result + FormatDateTime('hh:nn', alarm.ExpirationDate) + CELL // ExpirationTime
         else
-           Result:= Result + '\cell ';
+           Result:= Result + CELL;
 
-        Result:= Result + TextToUseInRTF(alarm.AlarmNote) + '\cell ';                 // AlarmNote
+        Result:= Result + TextToUseInRTF(alarm.AlarmNote) + CELL;                 // AlarmNote
 
         if alarm.Bold then
            Result:= Result + '\b0 ';
 
-        Result:= Result + FormatDateTime('dd/MMM/yyyy', alarm.AlarmReminder) + '\cell ';  // ReminderDate
-        Result:= Result + FormatDateTime('hh:nn', alarm.AlarmReminder) + '\cell ';        // ReminderTime
-        Result:= Result + Discarded + '\cell ';                                           // Discarded
-        Result:= Result + '\row' + #10#13;
+        Result:= Result + FormatDateTime('dd/MMM/yyyy', alarm.AlarmReminder) + CELL;  // ReminderDate
+        Result:= Result + FormatDateTime('hh:nn', alarm.AlarmReminder) + CELL;        // ReminderTime
+        Result:= Result + Discarded + CELL;                                           // Discarded
+        Result:= Result + '\row' + _CRLF;
   end;
 
 
@@ -3034,20 +3033,17 @@ begin
      ProcessColor(alarm.BackColor, clWindow);
      ls := Grid.GetNextItem(ls, sdAll, [isSelected]);
   end;
-  rtfColorsTbl:= rtfColorsTbl + '} ';
-
 
   // Include RTF representation of selected alarms
   ls := Grid.Selected;
-  while Assigned(ls) do
-  begin
+  while Assigned(ls) do begin
      alarm:= TAlarm(ls.Data);
      rtf:= rtf + GenerateAlarmRow(alarm);
      ls := Grid.GetNextItem(ls, sdAll, [isSelected]);
   end;
 
   if rtf <> '' then begin
-     rtf:= '{\rtf1\ansi' + rtfColorsTbl + generateHeader() + rtf + '}';
+     rtf:= Format('{\rtf1\ansi\pard\fs18 %s} %s%s}', [rtfColorsTbl, generateHeader(), rtf]);
      Clipboard.AsRTF:= rtf;
   end;
 

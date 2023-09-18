@@ -89,8 +89,7 @@ const
 
 procedure TForm_Chars.FormCreate(Sender: TObject);
 begin
-  with FormPlacement do
-  begin
+  with FormPlacement do begin
     UseRegistry := _FORMPOS_USE_REGISTRY;
     IniFileName := _FORMPOS_INIFILENAME;
   end;
@@ -100,8 +99,7 @@ begin
   CharInsertEvent := nil;
   FormCloseEvent := nil;
 
-  with Label_Code.Font do
-  begin
+  with Label_Code.Font do begin
     Name := 'Courier New';
     Size := 18;
     Style := [fsBold];
@@ -116,18 +114,17 @@ begin
   Spin_Count.Value := CharsLastCount;
   CheckBox_FullSet.Checked := myShowFullSet;
   CheckBox_FullSet.OnClick := CheckBox_FullSetClick;
-end;                 
+end;
 
 procedure TForm_Chars.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   case key of
-    27 : if ( Shift = [] ) then
-    begin
-      key := 0;
-      ModalResult := mrCancel;
-      Close;
-    end;
+    27 : if ( Shift = [] ) then begin
+            key := 0;
+            ModalResult := mrCancel;
+            Close;
+         end;
   end;
 end;
 
@@ -175,8 +172,7 @@ end; // BuildCharList
 
 procedure TForm_Chars.Button_FontClick(Sender: TObject);
 begin
-  if FontDlg.Execute then
-  begin
+  if FontDlg.Execute then begin
     BuildCharList;
     myFontChanged := true;
   end;
@@ -235,7 +231,7 @@ begin
   inherited CreateParams(Params);
   Params.WndParent := _MainFormHandle;
 end; // CreateParams
-            
+
 
 procedure TForm_Chars.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -252,11 +248,11 @@ procedure TForm_Chars.CharsKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   case key of
-    13 : if ( Shift = [] ) then
-    begin
-      key := 0;
-      Button_InsertClick( Button_Insert );
-    end;
+    13 :
+      if ( Shift = [] ) then begin
+        key := 0;
+        Button_InsertClick( Button_Insert );
+      end;
   end;
 end;
 

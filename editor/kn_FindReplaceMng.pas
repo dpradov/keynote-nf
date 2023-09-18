@@ -996,14 +996,12 @@ begin
                end;
                s:= '160';
                if i = 1 then s:= '60';
-               str:= str + '\pard\li80\sa60\sb' + s + ' \trowd\trgaph0' + LastResultCellWidth + ' \intbl {\cf1\b ' +
-                     Path + '{\cf3\fs' + strNodeFontSize  + strLocationMatch +  ' }}\cell\row ' +
-                    '\pard\li120\sb60\sa60 ';
+               str:= str + Format('\pard\li80\sa60\sb%s \trowd\trgaph0%s \intbl {\cf1\b %s{\cf3\fs%s%s }}\cell\row \pard\li120\sb60\sa60 ',
+                                 [s, LastResultCellWidth, Path, strNodeFontSize, strLocationMatch])
            end;
            s:= i.ToString;
-           str:= str + '\trowd\trgaph0' + LastResultCellWidth + ' \intbl{\v\''11' + s + ' }' +
-                '{\b\fs' + strNumberingFontSize + ' ' + s + '.  }' +
-                 Location_List[pred( i )] + '\cell\row ';
+           str:= str + Format('\trowd\trgaph0%s \intbl{\v\''11%s }{\b\fs%s %s.  }%s\cell\row ',
+                 [LastResultCellWidth, s, strNumberingFontSize, s, Location_List[pred( i )]]);
          end;
 
          str:= str + '}';

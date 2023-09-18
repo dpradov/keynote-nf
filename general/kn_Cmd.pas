@@ -115,7 +115,7 @@ type
   );
 
 const
-  EDITCMD_NAMES : array[TEditCmd] of string = (
+  EDITCMD_NAMES : array[TEditCmd] of AnsiString = (
     'Align Center',
     'Align Justify',
     'Align Left',
@@ -366,7 +366,7 @@ const
   ];
 
 const
-  EDITCMD_MACRO_NAMES : array[TEditCmd] of string = (
+  EDITCMD_MACRO_NAMES : array[TEditCmd] of AnsiString = (
     'aligncenter',
     'alignjustify',
     'alignleft',

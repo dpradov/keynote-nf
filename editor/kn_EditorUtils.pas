@@ -181,9 +181,9 @@ resourcestring
        'Whitespace: %s' + #13#13 +
        'Words: %s' + #13 +
        'Lines: %s';
-  STR_Statistics_05 = 'Number of nodes in tree: %d';
+  STR_Statistics_05 = #13#13+'Number of nodes in tree: %d';
   STR_Statistics_06 = 'Chars: %d  Alph: %d  Words: %d';
-  STR_Statistics_07 = 'Clik OK to copy information to clipboard.';
+  STR_Statistics_07 = #13#13+'Clik OK to copy information to clipboard.';
   STR_WordWeb_01 = 'Lookup in WordWeb';
   STR_WordWeb_02 = 'Enter word to look up:';
   STR_WordWeb_03 = 'Error loading WordWeb. The program may not be installed ' +
@@ -221,8 +221,7 @@ var
   wordlen : integer;
 begin
   with Form_Main do begin
-      if ( not ( assigned( GlossaryList ) and assigned( ActiveNote ) and ( ActiveNote.FocusMemory = focRTF ))) then
-      begin
+      if ( not ( assigned( GlossaryList ) and assigned( ActiveNote ) and ( ActiveNote.FocusMemory = focRTF ))) then begin
         StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_01;
         exit;
       end;
@@ -238,16 +237,14 @@ begin
         w := ActiveNote.Editor.SelText;
       wordlen := length( w );
 
-      if ( length( w ) = 0 ) then
-      begin
+      if ( length( w ) = 0 ) then begin
         StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_02;
         exit;
       end;
 
       replw := GlossaryList.Values[w];
 
-      if ( replw = '' ) then
-      begin
+      if ( replw = '' ) then begin
         StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_03;
         exit;
       end;
@@ -272,8 +269,7 @@ var
   Form_TermDef : TForm_TermDef;
   nstr, vstr : string;
 begin
-  if ( not assigned( GlossaryList )) then
-  begin
+  if ( not assigned( GlossaryList )) then begin
     showmessage( Format(STR_Gloss_04, [Glossary_FN] ));
     exit;
   end;
@@ -281,8 +277,7 @@ begin
   nstr := '';
   vstr := '';
 
-  if assigned( ActiveNote ) then
-  begin
+  if assigned( ActiveNote ) then begin
     if ( ActiveNote.Editor.SelLength > 0 ) then
       nstr := trim( copy( ActiveNote.Editor.SelText, 1, 255 ))
     else
@@ -293,20 +288,16 @@ begin
 
   Form_TermDef := TForm_TermDef.Create( Form_Main );
   try
-    with Form_TermDef do
-    begin
+    with Form_TermDef do begin
       Edit_Term.Text := nstr;
       Edit_Exp.Text := vstr;
-      if ( ShowModal = mrOK ) then
-      begin
+      if ( ShowModal = mrOK ) then begin
         nstr := trim( Edit_Term.Text );
         vstr := trim( Edit_Exp.Text );
 
-        if (( nstr <> '' ) and ( vstr <> '' ) and ( nstr <> vstr )) then
-        begin
+        if (( nstr <> '' ) and ( vstr <> '' ) and ( nstr <> vstr )) then begin
 
-          if ( GlossaryList.IndexOfName( nstr ) >= 0 ) then
-          begin
+          if ( GlossaryList.IndexOfName( nstr ) >= 0 ) then begin
             if ( messagedlg( Format(STR_Gloss_05,
               [nstr,GlossaryList.Values[nstr],vstr] ),
               mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
@@ -573,21 +564,17 @@ begin
   startch := ActiveNote.Editor.Lines[p.y][p.x];
 
   i := pos( startch, OpenBrackets );
-  if ( i > 0 ) then
-  begin
+  if ( i > 0 ) then begin
     seekch := CloseBrackets[i];
     dir := dirFwd;
   end
-  else
-  begin
+  else begin
     i := pos( startch, CloseBrackets );
-    if ( i > 0 ) then
-    begin
+    if ( i > 0 ) then begin
       seekch := OpenBrackets[i];
       dir := dirBack;
     end
-    else
-    begin
+    else begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Bracket_01;
       exit;
     end;
@@ -602,24 +589,16 @@ begin
   case dir of
     dirFwd : begin
       curcol := p.x+1;
-      while ( curline < ActiveNote.Editor.Lines.Count ) do
-      begin
-        while ( curcol <= length( ActiveNote.Editor.Lines[curline] )) do
-        begin
+      while ( curline < ActiveNote.Editor.Lines.Count ) do begin
+        while ( curcol <= length( ActiveNote.Editor.Lines[curline] )) do begin
           curch := ActiveNote.Editor.Lines[curline][curcol];
           if ( curch = startch ) then
-          begin
-            inc( stack );
-          end
+             inc( stack )
           else
-          if ( curch = seekch ) then
-          begin
+          if ( curch = seekch ) then begin
             if ( stack > 0 ) then
-            begin
-              dec( stack );
-            end
-            else
-            begin
+              dec( stack )
+            else begin
               p.x := curcol;
               p.y := curline;
               Found := true;
@@ -636,24 +615,16 @@ begin
     end;
     dirBack : begin
       curcol := p.x-1;
-      while ( curline >= 0 ) do
-      begin
-        while( curcol > 0 ) do
-        begin
+      while ( curline >= 0 ) do begin
+        while( curcol > 0 ) do begin
           curch := ActiveNote.Editor.Lines[curline][curcol];
           if ( curch = startch ) then
-          begin
-            inc( stack );
-          end
+            inc( stack )
           else
-          if ( curch = seekch ) then
-          begin
+          if ( curch = seekch ) then begin
             if ( stack > 0 ) then
-            begin
-              dec( stack );
-            end
-            else
-            begin
+              dec( stack )
+            else begin
               p.x := curcol;
               p.y := curline;
               Found := true;
@@ -671,11 +642,9 @@ begin
     end;
   end;
 
-  if Found then
-  begin
+  if Found then begin
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Bracket_02;
-    with ActiveNote.Editor do
-    begin
+    with ActiveNote.Editor do begin
       SelStart := Perform( EM_LINEINDEX, p.y, 0 );
       SelStart := SelStart + pred( p.x );
       Perform( EM_SCROLLCARET, 0, 0 );
@@ -683,9 +652,7 @@ begin
     end;
   end
   else
-  begin
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Bracket_03;
-  end;
 end; // MatchBracket
 
 
@@ -864,17 +831,15 @@ begin
       if ( not assigned( ActiveNote )) then exit;
 
       if ( ActiveNote.Editor.SelLength = 0 ) then
-      with ActiveNote.Editor do
-      begin
-        lineindex := perform( EM_EXLINEFROMCHAR, 0, SelStart );
-        SelStart  := perform( EM_LINEINDEX, lineindex, 0 );
-        SelLength := perform( EM_LINEINDEX, lineindex + 1, 0 ) - ( SelStart+1 );
-      end;
+        with ActiveNote.Editor do begin
+          lineindex := perform( EM_EXLINEFROMCHAR, 0, SelStart );
+          SelStart  := perform( EM_LINEINDEX, lineindex, 0 );
+          SelLength := perform( EM_LINEINDEX, lineindex + 1, 0 ) - ( SelStart+1 );
+        end;
 
       src := trim( ActiveNote.Editor.SelText );
 
-      if ( src = '' ) then
-      begin
+      if ( src = '' ) then begin
         ErrNoTextSelected;
         exit;
       end;
@@ -887,8 +852,7 @@ begin
         delete( src, length( src ), 1 );
 
       l := length( src );
-      for i := 1 to l do
-      begin
+      for i := 1 to l do begin
         if ( src[i] = ',' ) then
           src[i] := '.';
       end;
@@ -896,38 +860,29 @@ begin
       MathParser := TMathParser.Create( Form_Main );
       try
 
-        with MathParser do
-        begin
+        with MathParser do begin
           OnParseError := MathParserParseError;
           MathParser.ParseString := src;
           Parse;
         end;
 
-        if ( not MathParser.ParseError ) then
-        begin
+        if ( not MathParser.ParseError ) then begin
           LastEvalExprResult := FloatToStrF(MathParser.ParseValue, ffGeneral, 15, 2);
           Clipboard.SetTextBuf( PChar( LastEvalExprResult ));
           StatusBar.Panels[PANEL_HINT].Text := STR_Eval_01 + LastEvalExprResult;
           MMEditPasteEval.Hint := STR_Eval_02 + LastEvalExprResult;
 
-          if ( KeyOptions.AutoPasteEval and ( not NoteIsReadOnly( ActiveNote, false ))) then
-          begin
-            begin
+          if ( KeyOptions.AutoPasteEval and ( not NoteIsReadOnly( ActiveNote, false ))) then begin
               ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
               ActiveNote.Editor.SelText := #32 + LastEvalExprResult;
-            end;
           end
           else
-          begin
-            if ( messagedlg( Format( STR_Eval_03, [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
-            begin
-              if ( not NoteIsReadOnly( ActiveNote, true )) then
-              begin
-                ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
-                ActiveNote.Editor.SelText := #32 + LastEvalExprResult;
-              end;
+            if ( messagedlg( Format( STR_Eval_03, [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
+               if ( not NoteIsReadOnly( ActiveNote, true )) then begin
+                  ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
+                  ActiveNote.Editor.SelText := #32 + LastEvalExprResult;
+               end;
             end;
-          end;
         end;
 
       finally
@@ -946,28 +901,23 @@ begin
       if ( not ( HaveNotes( true, true ) and assigned( ActiveNote ))) then
         exit;
 
-      if ( Form_Chars = nil ) then
-      begin
+      if ( Form_Chars = nil ) then begin
         Form_Chars := TForm_Chars.Create( Form_Main );
-        with Form_Chars.FontDlg.Font do
-        begin
-          if ( KeyOptions.InsCharKeepFont and ( InsCharFont.Size > 0 )) then
-          begin
+        with Form_Chars.FontDlg.Font do begin
+          if ( KeyOptions.InsCharKeepFont and ( InsCharFont.Size > 0 )) then begin
             Name := InsCharFont.Name;
             Charset := InsCharFont.Charset;
             Size := InsCharFont.Size;
             Form_Chars.myFontChanged := true;
           end
-          else
-          begin
+          else begin
             Name := NoteSelText.Name;
             Charset := NoteSelText.Charset;
             Size := NoteSelText.Size;
           end;
         end;
 
-        with Form_Chars do
-        begin
+        with Form_Chars do begin
           ShowHint := KeyOptions.ShowTooltips;
           CharInsertEvent := CharInsertProc;
           FormCloseEvent := Form_Main.Form_CharsClosed;
@@ -1003,14 +953,13 @@ begin
   if ( not Form_Main.HaveNotes( true, true )) then exit;
   if ( not assigned( ActiveNote )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+
   wasmodified := false;
 
   OpenPictureDlg := TOpenPictureDialog.Create( Form_Main );
   try
-    if AsPicture then
-    begin
-      with OpenPictureDlg do
-      begin
+    if AsPicture then begin
+      with OpenPictureDlg do begin
         Options := [ofHideReadOnly,ofPathMustExist,ofFileMustExist];
         Title := STR_Img_01;
         Filter := Format( '%s|%s|%s', [
@@ -1019,8 +968,7 @@ begin
           // GraphicFilter(TJPEGImage),
           GraphicFilter(TMetafile)
         ]);
-        if Execute then
-        begin
+        if Execute then begin
           Pict := TPicture.Create;
           try
             Pict.LoadFromFile(FileName);
@@ -1040,8 +988,7 @@ begin
     end;
 
   finally
-    if wasmodified then
-    begin
+    if wasmodified then begin
       NoteFile.Modified := true;
       UpdateNoteFileState( [fscModified] );
     end;
@@ -1157,13 +1104,11 @@ begin
 
   try
 
-    if ( ActiveNote.Editor.SelLength > 0 ) then
-    begin
+    if ( ActiveNote.Editor.SelLength > 0 ) then begin
       lista.Text := ActiveNote.Editor.SelText;
       title := STR_Statistics_02;
     end
-    else
-    begin
+    else begin
       lista.Text := ActiveNote.Editor.Lines.Text;
       title := STR_Statistics_03;
     end;
@@ -1175,23 +1120,19 @@ begin
     numAlpChars := 0;
     numWords := 0;
 
-    for l := 0 to lista.count-1 do
-    begin
+    for l := 0 to lista.count-1 do begin
       s := lista[l];
       len := length( s );
       inc( numChars, len );
       WasAlpha := false;
 
-      for i := 1 to len do
-      begin
+      for i := 1 to len do begin
         ch := s[i];
-        if IsCharAlpha( ch ) then
-        begin
+        if IsCharAlpha( ch ) then begin
           inc( numAlpChars );
           WasAlpha := true;
         end
-        else
-        begin
+        else begin
           if ( ch in [#9,#32] ) then
             inc( numSpaces );
           if WasAlpha then
@@ -1199,6 +1140,7 @@ begin
           WasAlpha := false;
         end;
       end;
+
       if WasAlpha then
         inc( numWords );
     end;
@@ -1212,16 +1154,15 @@ begin
   s := format(STR_Statistics_04,[Title,inttostr( numChars ),inttostr( numAlpChars ),
                 inttostr( numSpaces ),inttostr( numWords ),inttostr( numLines )]);
 
-  if ( ActiveNote.Kind = ntTree ) then
-  begin
+  if ( ActiveNote.Kind = ntTree ) then begin
     numNodes := TTreeNote( ActiveNote ).TV.Items.Count;
-    s := s + #13#13 + Format( STR_Statistics_05,  [numNodes] );
+    s := s + Format( STR_Statistics_05,  [numNodes] );
   end;
 
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(
     STR_Statistics_06, [numChars, numAlpChars, numWords] );
 
-  if ( messagedlg( s + #13#13 + STR_Statistics_07, mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
+  if ( messagedlg( s + STR_Statistics_07, mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
     Clipboard.SetTextBuf( Pchar( s ));
 
 end; // ShowStatistics
@@ -1234,37 +1175,30 @@ procedure WordWebLookup;
 var
   WordWeb : TFreeWordWeb;
   myWord, newWord : string;
-  errmsg : string;
+
 begin
   if ( not ( assigned( ActiveNote ) and ( ActiveNote.FocusMemory = focRTF ))) then exit;
 
   if ShiftDown then
-  begin
-    myWord := '';
-  end
-  else
-  begin
+    myWord := ''
+  else begin
     if ( ActiveNote.Editor.SelLength > 0 ) then
       myWord := trim( ActiveNote.Editor.SelText )
     else
       myWord := ActiveNote.Editor.GetWordAtCursor( true );
   end;
 
-  if ( myWord = '' ) then
-  begin
+  if ( myWord = '' ) then begin
     if ( not InputQuery( STR_WordWeb_01, STR_WordWeb_02, myWord )) then
       exit;
   end;
-
-  errmsg := STR_WordWeb_03;
 
   WordWeb := nil;
   try
     WordWeb := TFreeWordWeb.Create( Form_Main );
   except
-    On E : Exception do
-    begin
-      messagedlg( errmsg + E.Message, mtError, [mbOK], 0 );
+    On E : Exception do begin
+      messagedlg( STR_WordWeb_03 + E.Message, mtError, [mbOK], 0 );
       exit;
     end;
   end;
@@ -1282,15 +1216,13 @@ begin
         newWord := '';
 
       if (( newWord <> '' ) and ( newWord <> myWord )) then
-      begin
-        ActiveNote.Editor.SelText := newWord + #32;
-      end;
+         ActiveNote.Editor.SelText := newWord + #32;
+
     except
-      On E : Exception do
-      begin
+      On E : Exception do begin
         Form_Main.RTFMWordWeb.Enabled := false;
         Form_Main.TB_WordWeb.Enabled := false;
-        messagedlg( errmsg + E.Message, mtError, [mbOK], 0 );
+        messagedlg( STR_WordWeb_03 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -1308,24 +1240,18 @@ var
   UASPath : string;
 begin
   try
-    if KeyOptions.UASEnable then
-    begin
+    if KeyOptions.UASEnable then begin
       UASPath := GetUASPath; // let UAS find itself
 
-      if ( not fileexists( UASPath )) then
-      begin
+      if ( not fileexists( UASPath )) then begin
         UASPath := KeyOptions.UASPath; // maybe we already have it configured
 
-        if ( not fileexists( UASPath )) then
-        begin
+        if ( not fileexists( UASPath )) then begin
           // ...we don't so ask user and check answer
           if ( InputQuery( STR_UAS_01, STR_UAS_02, UASPath ) and
                fileexists( UASPath )) then
-          begin
-            KeyOptions.UASPath := UASPath; // found it, so store it for later
-          end
-          else
-          begin
+            KeyOptions.UASPath := UASPath // found it, so store it for later
+          else begin
             // user canceled or entered invalid path, so bail out
             messagedlg( STR_UAS_03, mtError, [mbOK], 0 );
             KeyOptions.UASEnable := false;
@@ -1334,36 +1260,26 @@ begin
         end;
       end;
 
-      if LoadUAS( UASPath ) then
-      begin
+      if LoadUAS( UASPath ) then begin
         UAS_Window_Handle := GetUASWnd;
         // check if really loaded
         KeyOptions.UASEnable := ( UAS_Window_Handle <> 0 );
       end
       else
-      begin
         KeyOptions.UASEnable := false;
-      end;
 
       if KeyOptions.UASEnable then
-      begin
         // success
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_04;
-      end
-      else
-      begin
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_04
+      else begin
         // something went wrong
         KeyOptions.UASEnable := false;
         if ( messagedlg( STR_UAS_05, mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
-        begin
           GoDownloadUAS;
-        end;
       end;
     end
-    else
-    begin
-      if ( UAS_Window_Handle <> 0 ) then
-      begin
+    else begin
+      if ( UAS_Window_Handle <> 0 ) then begin
         SendMessage(GetUASWnd,WM_CLOSE,0,0);
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_06;
       end;
@@ -1386,8 +1302,7 @@ procedure ConfigureUAS;
 var
   ptCursor : TPoint;
 begin
-  if ( UAS_Window_Handle = 0 ) then
-  begin
+  if ( UAS_Window_Handle = 0 ) then begin
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_07;
     exit;
   end;
@@ -1653,24 +1568,18 @@ begin
 
       try
         try
-          if TurnOn then
-          begin
+          if TurnOn then begin
             // turn ON clipboard capture for active note
-            if aNote.ReadOnly then
-            begin
+            if aNote.ReadOnly then begin
               TB_ClipCap.Down := false;
               PopupMessage( STR_ClipCap_01, mtInformation, [mbOK], 0 );
               exit;
             end;
 
-            if ( aNote.Kind = ntTree ) then
-            begin
+            if ( aNote.Kind = ntTree ) then begin
               if ( Initializing or ( not ClipOptions.TreeClipConfirm )) then
-              begin
-                ClipCapNode := GetCurrentNoteNode;
-              end
-              else
-              begin
+                ClipCapNode := GetCurrentNoteNode
+              else begin
                 if ClipOptions.PasteAsNewNode then
                   nodemode := STR_ClipCap_02
                 else
@@ -1681,8 +1590,7 @@ begin
                   mrOK : begin
                     ClipCapNode := GetCurrentNoteNode;
                   end;
-                  else
-                  begin
+                  else begin
                     TB_ClipCap.Down := false;
                     exit;
                   end;
@@ -1690,12 +1598,9 @@ begin
               end;
             end
             else
-            begin
               ClipCapNode := nil;
-            end;
 
-            if ( NoteFile.ClipCapNote <> nil ) then
-            begin
+            if ( NoteFile.ClipCapNote <> nil ) then begin
               // some other note was clipcap before
               // NoteFile.ClipCapNote.TabSheet.Caption := NoteFile.ClipCapNote.Name;
               NoteFile.ClipCapNote := nil;
@@ -1708,26 +1613,22 @@ begin
             ClipCapActive := ( NoteFile.ClipCapNote <> nil );
 
           end
-          else
-          begin
+          else begin
             // turn OFF clipboard capture
             ClipCapActive := false;
             ClipCapNode := nil;
-            if ( NoteFile.ClipCapNote = aNote ) then
-            begin
+            if ( NoteFile.ClipCapNote = aNote ) then begin
               // restore note name on the tab
               Pages.MarkedPage := nil;
               SetClipCapState( false );
             end
-            else
-            begin
+            else begin
               // showmessage( 'Error: Tried to turn off ClipCap for a non-active note.' );
             end;
             NoteFile.ClipCapNote := nil;
           end;
         except
-          on e : exception do
-          begin
+          on e : exception do begin
             messagedlg( E.Message, mtError, [mbOK], 0 );
             NoteFile.ClipCapNote := nil;
             Pages.MarkedPage := nil;
@@ -2243,15 +2144,12 @@ begin
   CanPaste := false;
 
   try
-    if AsNewNote then
-    begin
+    if AsNewNote then begin
       NewNote( true, true, ntRTF );
       CanPaste := ( OldCNT < NoteFile.Notes.Count );
     end
-    else
-    begin
-      if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
-      begin
+    else begin
+      if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then begin
         case ClipOptions.ClipNodeNaming of
           clnDefault : myNodeName := '';
           clnClipboard : myNodeName:= Clipboard.TryGetFirstLine(TREENODE_NAME_LENGTH_CAPTURE);
@@ -2266,8 +2164,7 @@ begin
     exit;
   end;
 
-  if CanPaste then
-  begin
+  if CanPaste then begin
     if ShiftDown then
       PerformCmd( ecPastePlain )
     else
@@ -2314,8 +2211,7 @@ begin
       exit;
   end;
 
-  if Form_Main.PrintDlg.Execute then
-  begin
+  if Form_Main.PrintDlg.Execute then begin
     Form_Main.RichPrinter.Title := RemoveAccelChar( ActiveNote.Name );
 
     PrintRe := TRichEdit.Create( nil );
@@ -2325,18 +2221,15 @@ begin
 
       screen.Cursor := crHourGlass;
 
-      with PrintRe do
-      begin
+      with PrintRe do begin
         parent := Form_Main;
         visible := false;
         WordWrap := false;
       end;
 
-      if (( ActiveNote.Kind = ntRTF ) or ( not PrintAllNodes )) then
-      begin
+      if (( ActiveNote.Kind = ntRTF ) or ( not PrintAllNodes )) then begin
 
-        if KeyOptions.SafePrint then
-        begin
+        if KeyOptions.SafePrint then begin
           ActiveNote.Editor.Print( RemoveAccelChar( ActiveNote.Name ));
           (*
           ActiveNote.Editor.Lines.SaveToStream( MS );
@@ -2351,20 +2244,15 @@ begin
           *)
         end
         else
-        begin
           Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( ActiveNote.Editor ), 1 );
-        end;
       end
-      else
-      begin
+      else begin
         tNote := TTreeNote( ActiveNote );
         myTreeNode := tNote.TV.Items.GetFirstNode;
         if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;   // [dpv]
-        while assigned( myTreeNode ) do
-        begin
+        while assigned( myTreeNode ) do begin
           myNoteNode := TNoteNode( myTreeNode.Data );
-          if assigned( myNoteNode ) then
-          begin
+          if assigned( myNoteNode ) then begin
             myNoteNode.Stream.Position := 0;
             PrintRE.Lines.LoadFromStream( myNoteNode.Stream );
             if KeyOptions.SafePrint then
@@ -2402,19 +2290,15 @@ begin
     try
       ActiveNote.Editor.SelectAll;
       ActiveNote.Editor.CopyToClipboard;
-      if AJBSpell.CheckClipboardSpell then
-      begin
+      if AJBSpell.CheckClipboardSpell then begin
         if ( messagedlg( STR_Print_02, mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
-        begin
           ActiveNote.Editor.PasteFromClipboard;
-        end;
       end;
     except
       on E : Exception do
-      begin
         messagedlg( E.Message, mtError, [mbOK], 0 );
-      end;
     end;
+
   finally
     AJBSpell.Free;
   end;
@@ -2593,8 +2477,7 @@ var
   TipDlg : TGFTipDlg;
   wasiconic : boolean;
 begin
-  if ( not fileexists( TIP_FN )) then
-  begin
+  if ( not fileexists( TIP_FN )) then begin
     PopupMessage( Format(STR_Tip_01, [extractfilename( TIP_FN )] ), mtInformation, [mbOK], 0 );
     // turn tips off, so that we don't get this error message
     // every time KeyNote starts. (e.g. if user deleted the .tip file)
@@ -2608,8 +2491,7 @@ begin
 
   TipDlg := TGFTipDlg.Create( Form_Main );
   try
-    with TipDlg do
-    begin
+    with TipDlg do begin
       ShowAtStartup := KeyOptions.TipOfTheDay;
       TipFile := TIP_FN;
       DlgCaption := Program_Name + STR_Tip_02;

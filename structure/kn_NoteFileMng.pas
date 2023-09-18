@@ -210,11 +210,13 @@ resourcestring
   STR_75 = 'Successfully created %s registry entries';
   STR_76 = 'There was an error while creating file type associations: ';
   STR_77 = 'This file is Read-Only. Use "Save As" command to save it with a new name.';
-  IntervalBAKDay = '_BAK_Day.knt';
-  IntervalPrefixBAK = '_BAK@';
   STR_78 = 'Backup at %s before any modification in "%s"';
   STR_79 = 'File is not modified. Nothing to save';
   STR_80 = #13#13 + 'Option "Autoregister file type" will be unchecked';
+
+const
+  IntervalBAKDay = '_BAK_Day.knt';
+  IntervalPrefixBAK = '_BAK@';
 
 
 //=================================================================

@@ -32,7 +32,21 @@ uses
 
 resourcestring
   Program_Desc     = 'Tabbed notebook for Windows';
-
+  URLAct1 = 'Open';
+  URLAct2 = 'Open in new window';
+  URLAct3 = 'Copy to clipboard';
+  URLAct4 = 'Both (open and copy)';
+  URLAct5 = 'Prompt';
+  URLAct6 = 'Do nothing';
+  URLAct7 = 'Create or Modify';
+  DIR1 = 'Up';
+  DIR2 = 'Down';
+  DIR3 = 'Left';
+  DIR4 = 'Right';
+  POS1 = 'Top';
+  POS2 = 'Bottom';
+  POS3 = 'Left';
+  POS4 = 'Right';
 
 const
   ext_KeyNote    = '.knt'; // KeyNote data file
@@ -326,8 +340,7 @@ type
 
 const
   URL_ACTIONS : array[TURLAction] of string = (
-    'Open', 'Open in new window', 'Copy to clipboard',
-    'Both (open and copy)', 'Prompt', 'Do nothing', 'Create or Modify'
+    URLAct1, URLAct2, URLAct3, URLAct4, URLAct5, URLAct6, URLAct7
   );
 
 (*
@@ -411,7 +424,7 @@ type
 
 const
   DIRECTION_NAMES : array[TDirection] of string = (
-    'Up', 'Down', 'Left', 'Right'
+    DIR1, DIR2, DIR3, DIR4
   );
 
 type
@@ -631,7 +644,7 @@ type
 
 const
   TAB_POSITIONS : array[TTabOrientation] of string = (
-    'Top', 'Bottom', 'Left', 'Right'
+     POS1, POS2, POS3, POS4
   );
 
 type
@@ -719,8 +732,7 @@ implementation
 
 procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont );
 begin
-  with aFont do
-  begin
+  with aFont do begin
     Name := FI.Name;
     Color := FI.Color;
     Charset := FI.Charset;
@@ -731,8 +743,7 @@ end; // FontInfoToFont
 
 procedure FontToFontInfo( const aFont : TFont; var FI : TFontInfo );
 begin
-  with aFont do
-  begin
+  with aFont do begin
     FI.Name := Name;
     FI.Color := Color;
     FI.Charset := Charset;
@@ -743,21 +754,18 @@ end; // FontToFontInfo
 
 procedure InitializeChrome( var Struct : TChrome );
 begin
-  with Struct do
-  begin
+  with Struct do begin
     Language := GetSystemDefaultLCID;
     BGColor := clWindow;
     HiColor := clHighlight;
-    with Font do
-    begin
+    with Font do begin
       Name := 'Tahoma';
       Size := 8;
       Style := [];
       Charset := DEFAULT_CHARSET;
       Color := clWindowText;
     end;
-    with HiFont do
-    begin
+    with HiFont do begin
       Name := 'Tahoma';
       Size := 8;
       Style := [];
@@ -769,8 +777,7 @@ end; // InitializeChrome
 
 procedure InitializeNoteTabProperties( var Struct : TNoteTabProperties );
 begin
-  with Struct do
-  begin
+  with Struct do begin
     ImageIndex := 0;
     Name := DEFAULT_NEW_NOTE_NAME;
   end;
@@ -778,8 +785,7 @@ end; // InitializeNoteTabProperties
 
 procedure InitializeNoteEditorProperties( var Struct : TNoteEditorProperties );
 begin
-  with Struct do
-  begin
+  with Struct do begin
     PlainText := false;
     TabSize := 4;
     URLDetect := true;
@@ -791,8 +797,7 @@ end; // InitializeNoteEditorProperties
 
 procedure InitializeNoteTreeProperties( var Struct : TNoteTreeProperties );
 begin
-  with Struct do
-  begin
+  with Struct do begin
     AutoNumberNodes := false;
     DefaultName := DEFAULT_NEW_NODE_NAME;
     CheckBoxes := false;
@@ -818,8 +823,7 @@ begin
     result :=  path + KNT_INI_FN;
 
   // perhaps we are in a plugin, try parent directory
-  if ( not fileexists( result )) then
-  begin
+  if ( not fileexists( result )) then begin
     delete( path, length( path ), 1 );
     p := lastpos( '\', path );
     delete( path, succ( p ), length( path ));
@@ -835,8 +839,7 @@ var
   i, cnt : integer;
 begin
   cnt := AList.Count;
-  for i := 1 to Cnt do
-  begin
+  for i := 1 to Cnt do begin
     if assigned( AList[pred( i )] ) then
       TObject( AList[pred( i )] ).Free;
   end;
@@ -849,8 +852,7 @@ var
   i, cnt : integer;
 begin
   cnt := AList.Count;
-  for i := 1 to Cnt do
-  begin
+  for i := 1 to Cnt do begin
     if assigned( AList.Objects[pred( i )] ) then
       AList.Objects[pred( i )].Free;
   end;

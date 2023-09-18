@@ -256,20 +256,20 @@ const
 
 const
 
-  _Default_NoteHeadingTpl =
+  _Default_NoteHeadingTpl =   AnsiString(
     '{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset1{\*\fname Tahoma;}Tahoma;}}' + #13#10 +
     '{\colortbl ;\red96\green96\blue96;}' + #13#10 +
     '\viewkind4\uc1\pard\cf1\f0\fs32\par' + #13#10 +
     '\b %HEADING\par' + #13#10 +
     '\b0\par' + #13#10 +
-    '}';
-  _Default_NodeHeadingTpl =
+    '}');
+  _Default_NodeHeadingTpl =  AnsiString(
     '{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset1{\*\fname Tahoma;}Tahoma;}}' + #13#10 +
     '{\colortbl ;\red96\green96\blue96;}' + #13#10 +
     '\viewkind4\uc1\pard\cf1\f0\fs24\par' + #13#10 +
     '\ul\b %HEADING\ulnone\b0\par' + #13#10 +
     '\par' + #13#10 +
-    '}';
+    '}');
 
 const
   _VIRTUAL_NODE_ERROR_CHAR = '?';
@@ -562,7 +562,7 @@ type
   );
 
 const
-  KNT_URLS : array[TKNTURL] of string = (
+  KNT_URLS : array[TKNTURL] of AnsiString = (
     '',
     {'knt:', } 'file:', 'http:', 'https:', 'ftp:', 'mailto:',
     'telnet:', 'news:', 'nntp:', 'gopher:', 'wais:', 'prospero:',
@@ -841,8 +841,8 @@ const
 
 
 const
-  alph13 = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz';
-  alph13UP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  alph13 = AnsiString('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz');
+  alph13UP = AnsiString('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
 {$IFDEF WITH_IE}
 type

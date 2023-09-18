@@ -71,6 +71,8 @@ resourcestring
   STR_TabIcons = ' Customize Tab icons (%s) ';
   STR_InvalidCLA = 'Invalid command line arguments:';
   STR_ErrorLoading = 'Error while loading custom keyboard configuration from %s: "%s"';
+  STR_ErrorNonFatal  = 'There was a non-fatal error while loading defaults: ' + #13 +
+                        '%s' + #13#13 +  'Some settings may have been reset to defaults.';
 
 
 procedure ReadCmdLine;
@@ -272,6 +274,7 @@ end; // SaveFuncKeys
 procedure SaveOptions;
 begin
   if opt_NoSaveOpt then exit;
+
   try
     SaveKeyNoteOptions( INI_FN,
       KeyOptions,
@@ -290,11 +293,11 @@ end; // SaveOptions
 procedure ReadOptions;
 begin
   if opt_NoReadOpt then exit;
-  if ( not fileexists( INI_FN )) then
-  begin
+  if ( not fileexists( INI_FN )) then begin
     FirstTimeRun := true;
     exit;
   end;
+
   LoadKeyNoteOptions( INI_FN,
     KeyOptions,
     TabOptions,
@@ -340,9 +343,7 @@ begin
   except
     on E : Exception do
     begin
-      showmessage( 'There was a non-fatal error while loading defaults: ' + #13 +
-        E.Message + #13#13 +
-        'Some settings may have been reset to defaults.' );
+      showmessage( Format(STR_ErrorNonFatal , [E.Message]) );
     end;
   end;
 end; // LoadDefaults
@@ -358,6 +359,7 @@ var
 begin
 
   if opt_NoSaveOpt then exit;
+
   IniFile := TMemIniFile.Create( Toolbar_FN );
 
   try
@@ -606,8 +608,7 @@ var
   oldLanguageUI : string;
   FN: string;
 begin
-  with Form_Options do
-  begin
+  with Form_Options do begin
       Form_Options := TForm_OptionsNew.Create( Form_Main );
       try
           myOpts := KeyOptions;
@@ -623,21 +624,17 @@ begin
             ( opt_NoUserIcons or
             ( assigned( NoteFile ) and ( NoteFile.TabIconsFN = _NF_Icons_BuiltIn )));
 
-          if ( not Icons_Change_Disable ) then
-          begin
+          if ( not Icons_Change_Disable ) then begin
             tmpicnfn := extractfilename( ICN_FN );
-            if assigned( NoteFile ) then
-            begin
+            if assigned( NoteFile ) then begin
               if (( NoteFile.TabIconsFN <> _NF_Icons_BuiltIn ) and
                  ( NoteFile.TabIconsFN <> '' )) then
                 tmpicnfn := extractfilename( NoteFile.TabIconsFN );
             end;
-            GroupBox_TabIcons.Caption :=
-              Format( STR_TabIcons, [tmpicnfn] );
+            GroupBox_TabIcons.Caption := Format( STR_TabIcons, [tmpicnfn] );
           end;
 
-        if ( Form_Options.ShowModal = mrOK ) then
-        begin
+        if ( Form_Options.ShowModal = mrOK ) then begin
           screen.Cursor := crHourGlass;
           try
 
@@ -653,57 +650,46 @@ begin
             FindOptions := Form_Options.myFindOpts;
 
             // update hotkey only if settings changed
-            if (( HotKeySuccess <> KeyOptions.HotKeyActivate ) or ( KeyOptions.HotKey <> oldHotKey )) then
-            begin
+            if (( HotKeySuccess <> KeyOptions.HotKeyActivate ) or ( KeyOptions.HotKey <> oldHotKey )) then begin
               Form_Main.HotKeyProc( false );
               if KeyOptions.HotKeyActivate then
-                Form_Main.HotKeyProc( true );
+                 Form_Main.HotKeyProc( true );
             end;
 
-            if Form_Options.Icons_Changed then
-            begin
+            if Form_Options.Icons_Changed then begin
               // icons were changed, save them
-              if assigned( NoteFile ) then
-              begin
+              if assigned( NoteFile ) then begin
                 if ( NoteFile.TabIconsFN = '' ) then
                   SaveCategoryBitmapsUser( ICN_FN )
                 else
                   SaveCategoryBitmapsUser( NoteFile.TabIconsFN );
               end
               else
-              begin
-                SaveCategoryBitmapsUser( ICN_FN );
-              end;
+                 SaveCategoryBitmapsUser( ICN_FN );
             end;
 
             if oldLanguageUI <> KeyOptions.LanguageUI then
                ApplyLanguageUI (KeyOptions.LanguageUI);
 
             SaveOptions;
-            with Form_Main do
-            begin
-             UpdateFormState;
-             UpdateTabState;
-             UpdateStatusBarState;
-             UpdateResPanelState;
+            with Form_Main do begin
+              UpdateFormState;
+              UpdateTabState;
+              UpdateStatusBarState;
+              UpdateResPanelState;
             end;
 
             if ( assigned( NoteFile ) and assigned( NoteFile.ClipCapNote )) then
-            begin
               LoadTrayIcon( ClipOptions.SwitchIcon );
-            end;
 
           finally
             screen.Cursor := crDefault;
           end;
         end
         else
-        begin
-          if Form_Options.Icon_Change_Canceled then
-          begin
-            LoadTabImages( true );
-          end;
-        end;
+           if Form_Options.Icon_Change_Canceled then
+              LoadTabImages( true );
+
       finally
         Form_Options.Free;
       end;

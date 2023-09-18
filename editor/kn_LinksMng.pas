@@ -301,10 +301,9 @@ begin
       {$IFDEF KNT_DEBUG}Log.Add('Insert HyperLink',  4 ); {$ENDIF}
 
       if UseHyperlink then begin
-           Note.Editor.PutRtfText('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}' + sepL + '{\field{\*\fldinst{HYPERLINK "'
-            + URLToRTF(URLStr, false ) + '"}}{\fldrslt{\cf1\ul '
-            + URLToRTF(TextURL, true) + '}}}' + sepR + '\cf0\ulnone}', true);
-
+           Note.Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s{\field{\*\fldinst{HYPERLINK "'
+                                           + '%s"}}{\fldrslt{\cf1\ul %s}}}%s\cf0\ulnone}',
+                                           [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
       end
       else begin
           if not KNTLink then
