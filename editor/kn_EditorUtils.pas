@@ -79,9 +79,9 @@ uses
     procedure CheckWordCountWaiting;
     function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
 
-    function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; const selection: boolean= true): TTabRichEdit;
+    function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; const selection: boolean= true; onlyBookmarks: boolean= false): TTabRichEdit;
     function RemoveKNTHiddenCharacters(const s: string; checkIfNeeded: boolean = true): string;
-    function RemoveKNTHiddenCharactersInRTF(const s: string): string;
+    function RemoveKNTHiddenCharactersInRTF(const s: string; onlyBookmarks: boolean= false): string;
     function KeepOnlyLeadingKNTHiddenCharacters(const txt: string): string;
 
     procedure MatchBracket;
@@ -377,14 +377,19 @@ begin
 end;
 
 
-function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; const selection: boolean= true): TTabRichEdit;
+function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; const selection: boolean= true; onlyBookmarks: boolean= false): TTabRichEdit;
 var
   s: string;
   len: integer;
 begin
     Result:= Editor;
 
-    if Result.FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, 0, -1, []) >= 0 then begin
+    if onlyBookmarks then
+      s:= KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_BOOKMARK
+    else
+      s:= KNT_RTF_HIDDEN_MARK_L_CHAR;
+
+    if Result.FindText(s, 0, -1, []) >= 0 then begin
 
        if selection then
           s:= ActiveNote.Editor.RtfSelText
@@ -392,7 +397,7 @@ begin
           s:= ActiveNote.Editor.RtfText;
 
        len:= s.Length;                          // There might be a hidden markup in the editor, but maybe not in the selection
-       s:= RemoveKNTHiddenCharactersInRTF(s);   // In that case this method will return the same string
+       s:= RemoveKNTHiddenCharactersInRTF(s, onlyBookmarks);   // In that case this method will return the same string
 
        if s.Length <> Len then begin
           Result:= CreateRTFAuxEditorControl;      // Caller should call free on this control after used
@@ -432,9 +437,10 @@ begin
 end;
 
 
-function RemoveKNTHiddenCharactersInRTF(const s: string): string;
+function RemoveKNTHiddenCharactersInRTF(const s: string; onlyBookmarks: boolean= false): string;
 var
-   p, pF, len: integer;
+   pI, pInext, pPrefix, pF, len: integer;
+   Prefix: string;
 begin
   if S='' then Exit('');
 
@@ -446,21 +452,89 @@ begin
   }
 
 
+  (*
+
+   When looking for our hidden marks as RTF we must take into account that the RichEdit control can alter them, adding
+   control tags within the block that we have bounded between \v and \v0 (actually through {\v....} ). Doesn't seem to have a problem
+   in including the tags inside, although they define hidden content...
+   We may find that an added tag like:	  
+      ...    \v\''11B2\''12\v0 BYE!!
+   it ends up appearing for example as:  
+	  \v\f0\fs16\lang3082\''11B2\''12\v0 BYE!!		
+	 ... \pard\cf1\ul\f0\fs20\lang1033 Hello\ulnone  World \v\f1\fs40\'11B1\'12\v0 BYE!!!\f0\fs20\par
+	 ...  etc.
+
+   We must convert:	
+     "\v\f0\fs16\lang3082\''11B2\''12\v0 BYE!!"   ->  "\f0\fs16\lang3082 BYE!!"
+
+   (This is a problem only when we are looking for the hidden marks through RTF syntax. In most situations, KNT works directly with  
+    hidden characters)
+
+	
+   We will also allow deleting only the hidden marks corresponding to KNT Link markers \v\'11B....\'12\v0
+   KNT will use other marks that we may not want to delete, such as those that will label images.
+
+   The hidden strings used by KNT will have a variable length, but will normally have a maximum of the form maximum: HT999999H
+   where H:KNT_RTF_HIDDEN_MARK_CHAR, T: Type (B:Bookmark, T:Tag, I:Image...)
+     \v\'11T999999\'12\v0    -> 20 max (If necessary we can increase it)
+	   \'11T999999\'12\v0    -> 18 max
+
+  *)
+
+
+  if onlyBookmarks then
+     Prefix:= KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK
+  else
+     Prefix:= KNT_RTF_HIDDEN_MARK_L;
+
   Result:= s;
-  p:= 1;
+  pI:= 1;
+  pInext:= -1;
+
   repeat
-     p:= Pos('\v' + KNT_RTF_HIDDEN_MARK_L, Result, p);
-     if p > 0 then begin
-        pF:= Pos(KNT_RTF_HIDDEN_MARK_R + '\v0', Result, p+6);
-        if (pF > 0) and (pF-p <= 20) then begin
-           len:= pF-p +7;
-           if Result[p + len] = ' ' then          // *1
-              Inc(len);
-           Delete(Result, p, len);
-           p:= pF+1;
+     if (pInext > 0)  then
+        pI:= pInext
+     else
+        pI:= Pos('\v\', Result, pI);
+
+     if pI > 0 then begin
+        pPrefix:= Pos(Prefix, Result, pI+2);
+        if (pPrefix = 0) then break;
+
+        pF:= Pos(KNT_RTF_HIDDEN_MARK_R + '\v0', Result, pPrefix + Length(Prefix));
+        if (pF = 0) then break;
+
+        if pPrefix = pI + 2 then begin
+           // Normal case: \v\'11B5\'12\v0 XXX
+            if (pF-pI <= 20) then begin
+               len:= pF-pI + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
+               if Result[pI + len] = ' ' then          // *1
+                  Inc(len);
+               Delete(Result, pI, len);
+               pI:= pF+1;
+            end;
+            pInext:= -1;                // We do not have the following pI -> search
+        end
+        else begin
+           // Problematic case. Ex:  \v\f1\fs40\'11B1\'12\v0 xxx ---> \f1\fs40 xxx
+            repeat
+              pInext:= Pos('\v\', Result, pI+3);          // We have to make sure that \v corresponds to the prefix ( \'11..)
+              if (pInext > 0) and (pInext < pPrefix) then
+                 pI:= pInext;
+            until (pInext = 0) or (pInext > pPrefix);
+
+            if (pF-pPrefix <= 18) then begin
+               len:= pF-pPrefix + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
+               Delete(Result, pPrefix, len);
+               Delete(Result, pI, 2);             // \v
+               pI:= pF+1;
+            end;
+            if pInext = 0 then break;
         end;
+
      end;
-  until p = 0;
+
+  until pI = 0;
 
 end;
 
