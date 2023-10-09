@@ -2803,6 +2803,8 @@ var
   Editor: TRxRichEdit;
   URLStr, TxtSel: string;
   L, R: Integer;
+  Offset: integer;
+  ch: char;
 
 begin
   _IS_FAKING_MOUSECLICK := false;
@@ -2820,47 +2822,67 @@ begin
        AddMacroKeyPress( Key, Shift );
   end;
 
-  if ( key = 37 ) then begin   // Left cursor
-    with Editor do begin
-       { Suppose something like 'LEFT visible text'<hidden text>'RIGHT visible text' where we use the <hidden text> as metadata linked to the
-         visible text on its right, next to the one we want it to remain. That hidden text can be a marker that we will use as a target reference
-         of a hyperlink.                  
-         
-         It is not possible to put the cursor inside hidden text, and if we advance from 'LEFT' by pressing the right cursor, we will be able to
-         position ourselves just before of <hidden text> or past the 'T' of visible text. Therefore, if after placing the cursor just after LEFT
-         we write something (eg **"), those characters will be written to the left of the hidden text. Ok
-         
-         But if from 'RIGHT visible text' we move to the left with the cursor, we can place it just to the right of <hidden text>, immediately
-         before the first visible character from the right. That would be a problem if we don't control it, because if we write something 
-         (eg ** or line breaks) we would be separating the hidden text from the visible text with which it should be linked.         
-         
-         Note: In MS Word this would not happen, because moving to the left would also skip non-visible characters
-         
-         For this reason, we are interested in detecting if, in the case of completing the displacement to the left, we would place ourselves 
-         immediately leaving to our left the hidden character. Since we are going to use a specific character (completely unusual) to delimit 
-         these hidden texts, we will check if that is the one that would be to our left. And for more security, we will verify if it is hidden,
-         which we will verify in a simple way based on another behavior of the RichEdit control: since it does not allow placing the cursor 
-         inside hidden texts, if we change the position of it (with SelStart) to the left of the character we are checking, the final position
-         of the cursor will not be the one we are setting if it was hidden, but it will correspond to the first position immediately before the hidden text.
-
-         This has the advantage that although our hidden text can be of variable length, we can easily place the cursor at the beginning of the
-         same.
-         If instead of checking if SelStart has been respected we did SelLength:= 1; and then look at SelAttributes.Hidden; we would see that it
-         is True because we would be selecting hidden text.
-       }
-       L:= SelStart;
-       if GetTextRange(L-2, L-1) = KNT_RTF_HIDDEN_MARK_R_CHAR then begin
-         SelStart:= L-2;
-         if SelStart <> L-2 then
-            key:= 0                    // It will have been placed to the left of the first hidden character
-         else
-            SelStart:= L;              // It was not hidden. We leave it where it was and allow the keyboard event to be handled as normal.
-       end;
-    end;
-  end;
 
   if ( shift = [] ) then begin
     case Key of
+
+      VK_LEFT: begin   // Left cursor
+        with Editor do begin
+           { Suppose something like 'LEFT visible text'<hidden text>'RIGHT visible text' where we use the <hidden text> as metadata linked to the
+             visible text on its right, next to the one we want it to remain. That hidden text can be a marker that we will use as a target reference
+             of a hyperlink.
+
+             It is not possible to put the cursor inside hidden text, and if we advance from 'LEFT' by pressing the right cursor, we will be able to
+             position ourselves just before of <hidden text> or past the 'T' of visible text. Therefore, if after placing the cursor just after LEFT
+             we write something (eg **"), those characters will be written to the left of the hidden text. Ok
+
+             But if from 'RIGHT visible text' we move to the left with the cursor, we can place it just to the right of <hidden text>, immediately
+             before the first visible character from the right. That would be a problem if we don't control it, because if we write something
+             (eg ** or line breaks) we would be separating the hidden text from the visible text with which it should be linked.
+
+             Note: In MS Word this would not happen, because moving to the left would also skip non-visible characters
+
+             For this reason, we are interested in detecting if, in the case of completing the displacement to the left, we would place ourselves
+             immediately leaving to our left the hidden character. Since we are going to use a specific character (completely unusual) to delimit
+             these hidden texts, we will check if that is the one that would be to our left. And for more security, we will verify if it is hidden,
+             which we will verify in a simple way based on another behavior of the RichEdit control: since it does not allow placing the cursor
+             inside hidden texts, if we change the position of it (with SelStart) to the left of the character we are checking, the final position
+             of the cursor will not be the one we are setting if it was hidden, but it will correspond to the first position immediately before the hidden text.
+
+             This has the advantage that although our hidden text can be of variable length, we can easily place the cursor at the beginning of the
+             same.
+             If instead of checking if SelStart has been respected we did SelLength:= 1; and then look at SelAttributes.Hidden; we would see that it
+             is True because we would be selecting hidden text.
+
+             Comparison with '"', to detect the possible end of the hidden text of a hyperlink. If we have added a hidden mark next to a link,
+             we are also interested in ensuring that no text or other items are interspersed between the two
+           }
+
+          L:= SelStart;
+          if SelLength = 0 then
+             Offset:= 2
+          else
+             Offset:= 1;
+
+          if L >= Offset then begin
+             ch:= GetTextRange(L-Offset, L-Offset + 1)[1];
+             if (ch = KNT_RTF_HIDDEN_MARK_R_CHAR) or (ch = '"') then begin
+                OnSelectionChange := nil;
+                try
+                  SelStart:= L-Offset;
+                  if SelStart <> L-Offset then
+                     key:= 0                    // It will have been placed to the left of the first hidden character
+                  else
+                     SelStart:= L;              // It was not hidden. We leave it where it was and allow the keyboard event to be handled as normal.
+                finally
+                   OnSelectionChange := RxRTFSelectionChange;
+                end;
+             end;
+          end;
+        end;
+      end;
+
+
       VK_INSERT : begin
         if EditorOptions.DisableINSKey then begin
           key := 0;
