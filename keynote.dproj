@@ -3,7 +3,7 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -147,6 +147,7 @@
         <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
+        <Debugger_RunParams>-debug1</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -176,6 +177,7 @@
         <DCCReference Include="3rd_party\CRCDelphi\crc32.pas"/>
         <DCCReference Include="3rd_party\dcpcrypt-1_3\DCPcrypt.pas"/>
         <DCCReference Include="3rd_party\Kryvich Delphi Localizer\KDL.Localizer.pas"/>
+        <DCCReference Include="3rd_party\SynGdiPlus\SynGdiPlus.pas"/>
         <DCCReference Include="support\gf_Bits.pas"/>
         <DCCReference Include="support\gf_fileassoc.pas"/>
         <DCCReference Include="support\gf_Files.pas"/>
@@ -313,10 +315,16 @@
             <Form>Form_FavExt</Form>
         </DCCReference>
         <DCCReference Include="various\kn_FavoritesMng.pas"/>
+        <DCCReference Include="editor\kn_ImagesUtils.pas"/>
+        <DCCReference Include="editor\kn_ImagesMng.pas"/>
         <DCCReference Include="various\tom_TLB.pas"/>
         <DCCReference Include="kn_DLLinterface.pas"/>
         <DCCReference Include="kn_Main.pas">
             <Form>Form_Main</Form>
+        </DCCReference>
+        <DCCReference Include="editor\kn_ImageForm.pas">
+            <Form>Form_Image</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
         <None Include="support\gf_base.inc">
             <ContainerId>File</ContainerId>
@@ -1095,6 +1103,7 @@
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
             </Deployment>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

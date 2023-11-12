@@ -24,6 +24,7 @@ uses
    Winapi.ShellAPI,
    System.Classes,
    System.SysUtils,
+   System.Zip,
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
@@ -41,6 +42,7 @@ uses
    cmpGFXListBox,
    TB97Ctls,
    TreeNT,
+   SynGdiPlus,
 
    gf_misc,
    gf_strings,
@@ -273,6 +275,30 @@ type
     Label20: TLabel;
     Label21: TLabel;
     Combo_URLCtrlAction: TComboBox;
+    GroupBox_Images: TGroupBox;
+    Label23: TLabel;
+    chkImgDefaultLinkMode: TCheckBox;
+    chkImgLinkRelativePath: TCheckBox;
+    CbImgDefaultFormatFromClipb: TComboBox;
+    chkImgUseRecycleBin: TCheckBox;
+    CbImgDefaultCompression: TComboBox;
+    Label24: TLabel;
+    CbImgBmpPixelFormat: TComboBox;
+    Label25: TLabel;
+    CbImgDefaultStorageMode: TComboBox;
+    Label26: TLabel;
+    CbImgStorageModeOnExport: TComboBox;
+    Label27: TLabel;
+    txtImgMaxAutoWidthGoal: TEdit;
+    Label28: TLabel;
+    btnBGColor: TBitBtn;
+    Label29: TLabel;
+    cbImgDefaultExternalStorage: TComboBox;
+    Label22: TLabel;
+    Label30: TLabel;
+    txtImgRatioSizePngVsJPG: TEdit;
+    txtImgCompressionQuality: TEdit;
+    Label31: TLabel;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -319,8 +345,18 @@ type
     procedure CheckBox_AutoSaveOnFocusClick(Sender: TObject);
     procedure CB_AsTextClick(Sender: TObject);
     procedure CB_ShowFullPathClick(Sender: TObject);
+    procedure btnBGColorClick(Sender: TObject);
+    procedure txtImgMaxAutoWidthGoalExit(Sender: TObject);
+    procedure chkImgDefaultLinkModeClick(Sender: TObject);
+    procedure txtImgCompressionQualityExit(Sender: TObject);
+    procedure txtImgRatioSizePngVsJPGExit(Sender: TObject);
   private
     { Private declarations }
+    procedure CheckImgMaxAutoWidthGoalValue;
+    procedure CheckImgCompressionQualityValue;
+    procedure CheckImgRatioSizePngVsJPGValue;
+
+
   public
     { Public declarations }
     Initializing : boolean;
@@ -516,6 +552,35 @@ begin
 
   Icon_Change_Canceled := false;
   Icons_Change_Disable := false;
+
+
+  // Images
+
+  for var j : TImageFormatFromClipb := low( TImageFormatFromClipb ) to high( TImageFormatFromClipb ) do
+     CbImgDefaultFormatFromClipb.Items.Add( IMAGE_FORMATS_FROM_CLIPB[j].ToUpper );
+  CbImgDefaultFormatFromClipb.ItemIndex := 0;
+
+  for var j : TZipCompressionSelec := low( TZipCompressionSelec ) to high( TZipCompressionSelec ) do
+     CbImgDefaultCompression.Items.Add( ZIP_COMPRESSION_SELEC[j] );
+  CbImgDefaultCompression.ItemIndex := 0;
+
+  for var j : TPixelFormatSelec := low( TPixelFormatSelec ) to high( TPixelFormatSelec ) do
+     CbImgBmpPixelFormat.Items.Add( PIXEL_FORMAT_SELEC[j] );
+  CbImgBmpPixelFormat.ItemIndex := 1;
+
+  for var j : TImagesStorageMode := low( TImagesStorageMode ) to high( TImagesStorageMode ) do
+     CbImgDefaultStorageMode.Items.Add( IMAGES_STORAGE_MODE[j] );
+  CbImgDefaultStorageMode.ItemIndex := 1;
+
+  for var j : TImagesExternalStorage := low( TImagesExternalStorage ) to high( TImagesExternalStorage ) do
+     cbImgDefaultExternalStorage.Items.Add( EXTERNAL_STORAGE_TYPE[j] );
+  cbImgDefaultExternalStorage.ItemIndex := 1;
+
+  for var j : TImagesStorageModeOnExport := low( TImagesStorageModeOnExport ) to high( TImagesStorageModeOnExport ) do
+     CbImgStorageModeOnExport.Items.Add( IMAGES_STORAGE_MODE_ON_EXPORT[j] );
+  CbImgStorageModeOnExport.ItemIndex := 1;
+
+
 end; // CREATE
 
 procedure TForm_OptionsNew.FormActivate(Sender: TObject);
@@ -857,6 +922,34 @@ begin
     HotkeyActivate := ( CheckBox_HotkeyActivate.Checked and ( HotKey > 0 ));
 
     LanguageUI := Combo_Language.Items[Combo_Language.ItemIndex];
+
+
+    case TZipCompressionSelec(cbImgDefaultCompression.ItemIndex) of
+     zcsStored:    ImgDefaultCompression:= zcStored;
+     zcsDeflate:   ImgDefaultCompression:= zcDeflate;
+     zcsDeflate64: ImgDefaultCompression:= zcDeflate64;
+    end;
+
+    case TPixelFormatSelec(cbImgBmpPixelFormat.ItemIndex) of
+     pfs15bit: ImgBmpPixelFormat:= pf15bit;
+     pfs24bit: ImgBmpPixelFormat:= pf24bit;
+     pfs32bit: ImgBmpPixelFormat:= pf32bit;
+    end;
+
+    case TImageFormatFromClipb(cbImgDefaultFormatFromClipb.ItemIndex) of
+     imcPng: ImgDefaultFormatFromClipb:= imgPng;
+     imcJpg: ImgDefaultFormatFromClipb:= imgJpg;
+    end;
+
+    ImgDefaultStorageMode:=     TImagesStorageMode(cbImgDefaultStorageMode.ItemIndex);
+    ImgDefaultExternalStorage:= TImagesExternalStorage(cbImgDefaultExternalStorage.ItemIndex);
+    ImgStorageModeOnExport:=    TImagesStorageModeOnExport(cbImgStorageModeOnExport.ItemIndex);
+    ImgMaxAutoWidthGoal:=       StrToIntDef(TxtImgMaxAutoWidthGoal.Text, 0);
+    ImgDefaultLinkMode:=        chkImgDefaultLinkMode.Checked;
+    ImgLinkRelativePath:=       chkImgLinkRelativePath.Checked;
+    ImgUseRecycleBin :=         chkImgUseRecycleBin.Checked;
+    ImgRatioSizePngVsJPG:=      StrToFloatDef( txtImgRatioSizePngVsJPG.Text, 0.0);
+    ImgCompressionQuality:=     StrToIntDef( txtImgCompressionQuality.Text, KeyOptions.ImgCompressionQuality);
   end;
 
   with myTabOpts do
@@ -1073,6 +1166,40 @@ begin
       end;
     end;
 
+
+    var ImgDefaultFormatFromClipbSelec: TImageFormatFromClipb;
+    case ImgDefaultFormatFromClipb of
+     imgPng: ImgDefaultFormatFromClipbSelec:= imcPng;
+     imgJpg: ImgDefaultFormatFromClipbSelec:= imcJpg;
+    end;
+
+    var ImgDefaultCompressionSelec: TZipCompressionSelec;
+    case ImgDefaultCompression of
+     zcStored: ImgDefaultCompressionSelec:= zcsStored;
+     zcDeflate: ImgDefaultCompressionSelec:= zcsDeflate;
+     zcDeflate64: ImgDefaultCompressionSelec:= zcsDeflate64;
+    end;
+
+    var ImgBmpPixelFormatSelec: TPixelFormatSelec;
+    case ImgBmpPixelFormat of
+     pf15bit: ImgBmpPixelFormatSelec:= pfs15bit;
+     pf24bit: ImgBmpPixelFormatSelec:= pfs24bit;
+     pf32bit: ImgBmpPixelFormatSelec:= pfs32bit;
+    end;
+
+    CbImgDefaultFormatFromClipb.ItemIndex := Ord(ImgDefaultFormatFromClipbSelec);
+    CbImgDefaultCompression.ItemIndex := Ord(ImgDefaultCompressionSelec);
+    CbImgBmpPixelFormat.ItemIndex := Ord(ImgBmpPixelFormatSelec);
+    CbImgDefaultStorageMode.ItemIndex := Ord(ImgDefaultStorageMode);
+    cbImgDefaultExternalStorage.ItemIndex:= Ord(ImgDefaultExternalStorage);
+    CbImgStorageModeOnExport.ItemIndex := Ord(ImgStorageModeOnExport);
+
+    chkImgDefaultLinkMode.Checked:= ImgDefaultLinkMode;
+    chkImgLinkRelativePath.Checked:=   ImgLinkRelativePath;
+    chkImgUseRecycleBin.Checked:= ImgUseRecycleBin;
+    txtImgMaxAutoWidthGoal.Text:= ImgMaxAutoWidthGoal.ToString;
+    txtImgRatioSizePngVsJPG.Text:=  ImgRatioSizePngVsJPG.ToString(ffGeneral,3,2);
+    txtImgCompressionQuality.Text:= ImgCompressionQuality.ToString;
   end;
 
   with myTabOpts do
@@ -1630,7 +1757,8 @@ begin
   if ( not assigned( Node )) then exit;
   try
     Pages.PageIndex := Node.AbsoluteIndex;
-    self.HelpContext := 205 + succ( Pages.PageIndex );
+    //self.HelpContext := 205 + succ( Pages.PageIndex );
+    self.HelpContext := Pages.HelpContext;
   except
     messagedlg( Format( STR_16, [Pages.PageIndex, Node.AbsoluteIndex]), mtError, [mbOK], 0 );
   end;
@@ -1740,7 +1868,77 @@ begin
     CheckBox_TrackCaretPos.Checked := false;
 end;
 
+procedure TForm_OptionsNew.btnBGColorClick(Sender: TObject);
+begin
+    ColorDlg.Color := myOpts.ImgViewerBGColor;
+    if ColorDlg.Execute then
+      myOpts.ImgViewerBGColor := ColorDlg.Color;
+end;
+
+procedure TForm_OptionsNew.txtImgCompressionQualityExit(Sender: TObject);
+begin
+  CheckImgCompressionQualityValue;
+end;
+
+procedure TForm_OptionsNew.txtImgMaxAutoWidthGoalExit(Sender: TObject);
+begin
+  CheckImgMaxAutoWidthGoalValue;
+end;
+
+procedure TForm_OptionsNew.txtImgRatioSizePngVsJPGExit(Sender: TObject);
+begin
+  CheckImgRatioSizePngVsJPGValue;
+end;
 
 
+procedure TForm_OptionsNew.CheckImgMaxAutoWidthGoalValue;
+var
+  MaxAutoWidthGoal: integer;
+begin
+   MaxAutoWidthGoal := strtointDef( txtImgMaxAutoWidthGoal.Text, 0);
+   if ( MaxAutoWidthGoal > 2000 ) then
+       MaxAutoWidthGoal:= 2000
+   else
+     if (MaxAutoWidthGoal < -1) then
+        MaxAutoWidthGoal:= -1;
+
+   txtImgMaxAutoWidthGoal.Text:= MaxAutoWidthGoal.ToString;
+end;
+
+procedure TForm_OptionsNew.CheckImgCompressionQualityValue;
+var
+  CompressQuality: integer;
+begin
+   CompressQuality := Round(StrToFloatDef( txtImgCompressionQuality.Text, 80));
+   if ( CompressQuality > 100 ) then
+       CompressQuality:= 100
+   else
+     if (CompressQuality < 0) then
+        CompressQuality:= 0;
+
+   txtImgCompressionQuality.Text:= CompressQuality.ToString;
+end;
+
+procedure TForm_OptionsNew.CheckImgRatioSizePngVsJPGValue;
+var
+  RatioSize: Single;
+begin
+   RatioSize := StrToFloatDef( txtImgRatioSizePngVsJPG.Text, 0.0);
+   if ( RatioSize > 25 ) then begin
+       RatioSize:= 25
+   end
+   else
+     if (RatioSize < 0) then
+        RatioSize:= 0;
+
+   txtImgRatioSizePngVsJPG.Text:= RatioSize.ToString(ffGeneral,3,2);
+end;
+
+
+
+procedure TForm_OptionsNew.chkImgDefaultLinkModeClick(Sender: TObject);
+begin
+   chkImgLinkRelativePath.Enabled:= chkImgDefaultLinkMode.Checked;
+end;
 
 end.

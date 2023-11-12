@@ -638,6 +638,9 @@ var
   Encoding: TEncoding;
   FN, ext: string;
   OnlyNotHiddenNodes, OnlyCheckedNodes: boolean;
+  ContainsImages: boolean;
+  ImgIDsCorrected: TImageIDs;
+  RTFwithImages: AnsiString;
 
 begin
   FormToOptions;
@@ -771,7 +774,12 @@ begin
                       end;
                       myNote.Editor.Lines.SaveToStream( tmpStream, Encoding );
                       tmpStream.Position := 0;
-                      RTFAux.Lines.LoadFromStream( tmpStream );
+
+                      RTFwithImages:= ImagesManager.ProcessImagesInRTF(tmpStream.Memory, tmpStream.Size, nil, imImage, '', 0, ImgIDsCorrected, ContainsImages, false);
+                      if RTFwithImages <> '' then
+                         RTFAux.PutRtfText(RTFwithImages,false)       // All hidden KNT characters are now removed from FlushExportFile
+                      else
+                         RTFAux.Lines.LoadFromStream( tmpStream );
 
                       if ( ExportOptions.IncludeNoteHeadings and ( NoteHeadingRTF <> '' )) then begin
                          RTFAux.SelStart := 0;
@@ -846,7 +854,11 @@ begin
                                 if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then
                                    RTFAux.PutRtfText(NodeHeadingRTF, true);
 
-                                RTFAux.PutRtfText(NodeText, false);   // append to end of existing data      (*1)
+                                RTFwithImages:= ImagesManager.ProcessImagesInRTF(NodeText, nil, imImage, '', 0, false);
+                                if RTFwithImages <> '' then
+                                   RTFAux.PutRtfText(RTFwithImages, false)           // All hidden KNT characters are now removed from FlushExportFile
+                                else
+                                   RTFAux.PutRtfText(NodeText, false);               // append to end of existing data
                               end;
                               inc( tmpExportedNodes );
                             end;
@@ -854,7 +866,12 @@ begin
                             true : begin
                               // each node is saved to its own file
                               // (Here we do not have to check if node stream is plain text or RTF, because LoadFromStream handles both cases automatically!)
-                              RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
+                              RTFwithImages:= ImagesManager.ProcessImagesInRTF(myNoteNode.Stream.Memory, myNoteNode.Stream.Size, nil, imImage, '', 0, ImgIDsCorrected, ContainsImages, false);
+                              if RTFwithImages <> '' then
+                                 RTFAux.PutRtfText(RTFwithImages,true,false)         // All hidden KNT characters are now removed from FlushExportFile
+                              else
+                                 RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
+
                               if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
                                 RTFAux.SelStart := 0;
                                 RTFAux.PutRtfText(NodeHeadingRTF, true);
@@ -1084,7 +1101,7 @@ begin
        if ClearRTF then
           Editor.RemoveKNTHiddenCharacters(false)
        else
-          Editor:= GetEditorWithNoKNTHiddenCharacters(Editor, false);
+          Editor:= GetEditorWithNoKNTHiddenCharacters(Editor, hmAll, false);
     end;
 
     if (not ExportOptions.TreePadRTF ) then begin
@@ -1307,8 +1324,8 @@ begin
         InitialDir := KeyOptions.LastExportPath
       else
         InitialDir := GetFolderPath( fpPersonal );
-        
-      FileName := KeyOptions.LastExportPath + ExportFN;
+
+      FileName := ExportFN;
       {
       case FilterIndex of
         1 : FileName := KeyOptions.LastExportPath + ExportFN + ext_RTF;

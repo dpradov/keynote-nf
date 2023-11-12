@@ -234,6 +234,7 @@ begin
         Pages.OnChange := nil;
 
         DestroyVCLControlsForNote( ActiveNote, true );
+        NoteFile.RemoveImagesCountReferences(ActiveNote);
         NoteFile.DeleteNote( ActiveNote );
         ActiveNote := nil;
         AddToFileManager( NoteFile.FileName, NoteFile ); // update manager (number of notes has changed)
@@ -344,8 +345,10 @@ var
   oldShowCheckboxes : boolean;
   oldHideChecked: boolean;      // [dpv]
   oldPlainText: boolean;
+  EnsuredPlainText: boolean;
   Note: TTabNote;
   NewPropertiesAction : TPropertiesAction;
+
 begin
 
   with Form_Main do begin
@@ -464,6 +467,10 @@ begin
                 ActiveNote.UpdateEditor;
                 ActiveNote.UpdateTabSheet;
 
+                EnsuredPlainText:= False;
+                if ActiveNote.PlainText then
+                   EnsuredPlainText:= NoteFile.EnsurePlainTextAndRemoveImages(ActiveNote);
+
                 if ( ActiveNote.Kind = ntTree ) then begin
                   with TTreeNote( ActiveNote ) do begin
                     // this will apply the selected BG color to current NODE
@@ -492,7 +499,8 @@ begin
                   UpdateTreeChrome(TTreeNote(ActiveNote));
                 end;
 
-                if oldPlainText <> ActiveNote.PlainText
+                // If we have changed to PlainText we will have already updated the editor from EnsurePlainTextAndRemoveImages
+                if (not EnsuredPlainText) and (oldPlainText <> ActiveNote.PlainText)
                      and (not TreeLayoutChanged or (ActiveNote.Kind <> ntTree))   then begin  // This is done if TreeLayoutChanged too
                    ActiveNote.EditorToDataStream;  // Save the content of the editor according to the new formatting (Plain text / RTF)
                    ActiveNote.DataStreamToEditor;

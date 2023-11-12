@@ -35,29 +35,29 @@ uses
    Vcl.Dialogs,
    Vcl.ExtCtrls,
    comctrls95,
+   TreeNT,
+   RxRichEd,
+   langs,
    gf_misc,
+   gf_streams,
+   gf_strings,
+   gf_miscvcl,
  {$IFDEF KNT_DEBUG}
    GFLog,
  {$ENDIF}
-   TreeNT,
-   langs,
    kn_NodeList,
-   RxRichEd,
    kn_StyleObj,
    kn_Info,
    kn_Const,
-   kn_History,
+   kn_History
    {$IFDEF WITH_IE}
-   SHDocVw_TLB,
+   ,SHDocVw_TLB
    {$ENDIF}
-   gf_streams;
+   ;
 
 
 type
   ETabNoteError = class( Exception );
-
-const
-  _NEW_NOTE_KIND : TNoteType = ntRTF;  // global, passed between this unit and kn_FileObj
 
 
 type
@@ -97,6 +97,9 @@ type
 
     FHistory : TKNTHistory;        // Note (local) history
 
+    FImagesMode: TImagesMode;
+    fImagesReferenceCount: TImageIDs;
+
 
     // events
     FOnChange : TNotifyEvent;
@@ -104,6 +107,7 @@ type
     procedure SetName( AName : TNoteNameStr );
     procedure SetID( AID : longint );
     procedure SetReadOnly( AReadOnly : boolean );
+    procedure SetPlainText( APlainText : boolean );
     procedure SetTabIndex( ATabIndex : integer );
     procedure SetModified( AModified : boolean );
     function  GetModified : boolean;
@@ -127,6 +131,8 @@ type
     procedure SaveAlarms(var tf : TTextFile; node: TNoteNode = nil);
     procedure ProcessAlarm (s: AnsiString; node: TNoteNode = nil);
 
+    procedure SetImagesMode(ImagesMode: TImagesMode);
+
   public
     property Editor : TTabRichEdit read FEditor write SetEditor;
     property ID : longint read FID write SetID;
@@ -144,7 +150,11 @@ type
 
     property History : TKNTHistory read FHistory;
 
-    property PlainText : boolean read FPlainText write FPlainText;
+    property ImagesMode: TImagesMode read FImagesMode write SetImagesMode;
+    property ImagesReferenceCount: TImageIDs read fImagesReferenceCount write fImagesReferenceCount;
+    property ImagesInstances: TImageIDs read fImagesReferenceCount;
+
+    property PlainText : boolean read FPlainText write SetPlainText;
     property WordWrap : boolean read FWordWrap write SetWordWrap;
     property URLDetect : boolean read FURLDetect write SetURLDetect;
     property TabSize : byte read FTabSize write SetTabSize;
@@ -156,7 +166,7 @@ type
     property TabSheet : TTab95Sheet read FTabSheet write SetTabSheet;
 
     property DataStream : TMemoryStream read FDataStream;
-    property NoteTextPlain : string read FNoteTextPlain;
+    property NoteTextPlain : string read FNoteTextPlain write FNoteTextPlain;
 
     // events
     property OnChange : TNotifyEvent read FOnChange write FOnChange;
@@ -165,7 +175,7 @@ type
     destructor Destroy; override;
 
     procedure SaveToFile( var tf : TTextFile ); virtual;
-    procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean ); virtual;
+    procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock); virtual;
 
     procedure SaveRTFToFile(var tf : TTextFile; DataStream : TMemoryStream; PlainText: Boolean; PlaintextLeader: AnsiString = _NF_PLAINTEXTLEADER);
     
@@ -184,9 +194,18 @@ type
     procedure UpdateEditor; virtual;
     procedure UpdateTabSheet;
 
+    function PrepareTextPlain (myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string; overload;
+    function PrepareTextPlain (myNoteNode: TNoteNode; RTFAux: TTabRichEdit): string; overload;
+
     procedure DataStreamToEditor; virtual;
     function EditorToDataStream: TMemoryStream; virtual;
 
+    procedure GetImagesIDInstances (Stream: TMemoryStream; TextPlain: AnsiString);
+    procedure ResetImagesReferenceCount;
+    function CheckSavingImagesOnMode (ImagesMode: TImagesMode;
+                                      Stream: TMemoryStream;
+                                      ReplaceCorrectedIDsOnEditor: boolean = false;
+                                      ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
 
     function GetAlarms(considerDiscarded: boolean): TList;
     function HasAlarms (considerDiscarded: boolean): boolean;
@@ -209,14 +228,15 @@ type
     FUseTabChar : boolean;
     FTabSize : byte;
     FRecreateWndProtect : boolean;
-    FOnFileDropped : TFileDroppedEvent;
+    //FOnFileDropped : TFileDroppedEvent;                                                   // [dpv] Commented
 
     procedure CMDialogKey( var Message: TCMDialogKey ); message CM_DIALOGKEY;
+
     // procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
 
   protected
-    procedure CreateWnd; override;
-    procedure DestroyWnd; override;
+    //procedure CreateWnd; override;                                                        // [dpv] Commented
+    //procedure DestroyWnd; override;
     procedure CMRecreateWnd(var Message: TMessage); message CM_RECREATEWND;
 
   public
@@ -225,7 +245,9 @@ type
     property UseTabChar : boolean read FUseTabChar write FUseTabChar;
     property TabSize : byte read FTabSize write FTabSize;
     property RecreateWndProtect : boolean read FRecreateWndProtect write FRecreateWndProtect;
-    property OnFileDropped : TFileDroppedEvent read FOnFileDropped write FOnFileDropped;
+
+    // [dpv] Did not work. It has now been incorporated into RxRichEdit (see comment *3 in RxRichEd.pas)
+    //property OnFileDropped : TFileDroppedEvent read FOnFileDropped write FOnFileDropped;
 
     constructor Create( AOwner : TComponent ); override;
     destructor Destroy; override;
@@ -318,7 +340,7 @@ type
 
     function SaveToFile( var tf : TTextFile;  OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
                          OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
-    procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean ); override;
+    procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock); override;
 
     function NewNode( const AParent : TNoteNode; AName : string; const AInheritProperties : boolean ) : TNoteNode;
     function AddNode( const aNode : TNoteNode ) : integer;
@@ -327,6 +349,7 @@ type
 
     procedure DataStreamToEditor; override;
     function EditorToDataStream: TMemoryStream; override;
+    function StreamFormatInNode: TRichStreamFormat;
     procedure SetTreeProperties( const aProps : TNoteTreeProperties );
     procedure GetTreeProperties( var aProps : TNoteTreeProperties );
 
@@ -363,8 +386,11 @@ uses
    kn_Main,
    kn_EditorUtils,
    kn_RTFUtils,
-   gf_strings,
-   gf_miscvcl;
+   kn_ImagesMng,
+   kn_NoteFileMng,
+   kn_TreeNoteMng
+   ;
+
 
 resourcestring
   STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
@@ -668,6 +694,38 @@ begin
   // otherwise, never allow the ID to be changed
 end; // SetID
 
+
+function TTabNote.PrepareTextPlain(myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string;
+var
+    myNoteNode : TNoteNode;
+begin
+   if FEditor.Modified or ((Kind <> ntTree) and (NoteTextPlain = '')) then
+      EditorToDataStream;
+
+   if (Kind <> ntTree) then
+       Result:= NoteTextPlain
+   else begin
+      myNoteNode := TNoteNode( myTreeNode.Data );
+      TTreeNote(Self).InitializeTextPlain(myNoteNode, RTFAux);
+      Result:= myNoteNode.NodeTextPlain;
+   end;
+end;
+
+function TTabNote.PrepareTextPlain(myNoteNode: TNoteNode; RTFAux: TTabRichEdit): string;
+begin
+   if FEditor.Modified or ((Kind <> ntTree) and (NoteTextPlain = '')) then
+      EditorToDataStream;
+
+   if (Kind <> ntTree) then
+       Result:= NoteTextPlain
+   else begin
+      TTreeNote(Self).InitializeTextPlain(myNoteNode, RTFAux);
+      Result:= myNoteNode.NodeTextPlain;
+   end;
+end;
+
+
+
 procedure TTabNote.DataStreamToEditor;
 var
   ReadOnlyBAK: boolean;
@@ -675,6 +733,9 @@ var
   str: String;
   dataSize: integer;
   {$ENDIF}
+  strRTF: AnsiString;
+  ImgIDsCorrected: TImageIDs;
+  ContainsImages: boolean;
 begin
   if CheckEditor then begin
     ReadOnlyBAK:= FEditor.ReadOnly;
@@ -682,9 +743,16 @@ begin
       FEditor.ReadOnly:= false;    // To prevent the problem indicated in issue #537
       FEditor.OnChange := nil;
       FDataSTream.Position := 0;
+      strRTF:= '';
 
-      if NodeStreamIsRTF (FDataStream) then
-         FEditor.StreamFormat:= sfRichText
+      fImagesReferenceCount:= nil;
+      if NodeStreamIsRTF (FDataStream) then begin
+         FEditor.StreamFormat:= sfRichText;
+         if (ImagesManager.StorageMode <> smEmbRTF) and (not FPlainText) then begin
+            GetImagesIDInstances (FDataStream, NoteTextPlain);
+            strRTF:= ImagesManager.ProcessImagesInRTF(FDataStream.Memory, FDataStream.Size, Self, ImagesManager.ImagesMode, '', 0, ImgIDsCorrected, ContainsImages, true);
+         end;
+      end
       else
          FEditor.StreamFormat:= sfPlainText;
 
@@ -692,13 +760,19 @@ begin
       Log_StoreTick('TTabNote.DataStreamToEditor - BEGIN', 4, +1);
       {$IFDEF KNT_DEBUG}
        if log.Active and  (log.MaxDbgLevel >= 4) then begin
-         dataSize:= FDataStream.Size;
-         str:= Copy(String(PAnsiChar(FDataStream.Memory)), 1, 250);
+          dataSize:= FDataStream.Size;
+          str:= Copy(String(PAnsiChar(FDataStream.Memory)), 1, 250);
           Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
        end;
       {$ENDIF}
 
-      FEditor.Lines.LoadFromStream( FDataStream );
+      if StrRTF <> '' then begin
+         FEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
+         FEditor.ClearUndo;
+      end
+      else
+         FEditor.Lines.LoadFromStream( FDataStream );
+
 
       Log_StoreTick('TTabNote.DataStreamToEditor - END', 4, -1);
 
@@ -716,6 +790,9 @@ end; // DataStreamToEditor
 function TTabNote.EditorToDataStream: TMemoryStream;
 var
  Encoding: TEncoding;
+ strRTF: AnsiString;
+ ImagesIDs_New: TImageIDs;
+
 begin
   Result:= nil;
   Encoding:= nil;
@@ -739,9 +816,16 @@ begin
         FEditor.StreamFormat := sfRichText;
 
       FEditor.Lines.SaveToStream( FDataStream, Encoding);
+
+      if (ImagesManager.StorageMode <> smEmbRTF) and (not FPlainText) then begin
+         ImagesIDs_New:= CheckSavingImagesOnMode (imLink, FDataStream, true);
+         ImagesManager.UpdateImagesCountReferences (fImagesReferenceCount, ImagesIDs_New);
+         fImagesReferenceCount:= ImagesIDs_New;
+      end;
+
+      NoteTextPlain:= FEditor.TextPlain;
       FEditor.Modified:= false;
       Result:= FDataStream;
-      FNoteTextPlain:= FEditor.TextPlain;
 
     finally
       FEditor.StreamFormat := sfRichText;
@@ -750,9 +834,63 @@ begin
 
   else
      if (NoteTextPlain = '') then
-        FNoteTextPlain:= FEditor.TextPlain;
+        NoteTextPlain:= FEditor.TextPlain;
 
 end; // EditorToDataStream
+
+
+
+function TTabNote.CheckSavingImagesOnMode (ImagesMode: TImagesMode; Stream: TMemoryStream;
+                                           ReplaceCorrectedIDsOnEditor: boolean = false;
+                                           ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
+var
+  strRTF: AnsiString;
+  ImgCodesCorrected: TImageIDs;
+  ContainsImages: boolean;
+
+begin
+    Result:= nil;
+
+    strRTF:= ImagesManager.ProcessImagesInRTF(Stream.Memory, Stream.Size, Self, ImagesMode, '', 0, ImgCodesCorrected, ContainsImages, ExitIfAllImagesInSameModeDest);
+    if strRTF <> '' then begin                                // Changes in images must be reflected (=> ContainsImages=true)
+       if ImagesManager.StorageMode = smEmbRTF then           // If smEmbRTF -> we are calling from UpdateImagesStorageMode (when converting from a different mode to smEmbRTF)
+          strRTF:= RemoveKNTHiddenCharactersInRTF(strRTF, hmOnlyImages);
+
+       { *1 : I'm interested in adding a #0 at the end (in nodes/notes with RTF content), so that methods like ProcessImagesInRTF,
+          which use the Pos() method directly on the Stream.Memory, always have an end...
+          Note: When we execute FEditor.Lines.SaveToStream( FDataStream, Encoding); in the Stream it ends with a #0    }
+       Stream.Size:= Length(StrRTF);
+       Stream.Position := 0;
+       StringToMemoryStream(StrRTF, Stream);
+       if (StrRTF[Length(StrRTF)] <> #0) then                // *1
+          Stream.WriteData(0);
+    end;
+
+
+    if ImagesManager.StorageMode <> smEmbRTF then begin       // If = smEmbRTF =>  fChangingImagesStorage=True
+
+       if ReplaceCorrectedIDsOnEditor and (Length(ImgCodesCorrected) > 0) then
+          ImagesManager.ReplaceCorrectedImageIDs(ImgCodesCorrected, FEditor);
+
+       if ContainsImages then
+          Result:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+    end;
+end;
+
+
+procedure TTabNote.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: AnsiString);
+begin
+   if (TextPlain <> '') then
+      fImagesReferenceCount:= ImagesManager.GetImagesIDInstancesFromTextPlain (TextPlain)
+   else
+      fImagesReferenceCount:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+end;
+
+procedure TTabNote.ResetImagesReferenceCount;
+begin
+    SetLength(fImagesReferenceCount, 0);
+end;
+
 
 function TTabNote.CheckEditor : boolean;
 begin
@@ -869,10 +1007,48 @@ var
   cnt: integer;
   i, pos : integer;
   addCRLF: boolean;
+  StreamAux : TMemoryStream;
+  ImagesIDs: TImageIDs;
 
 begin
     if DataStream.Size = 0 then
        exit;
+
+  StreamAux:= nil;
+  try
+
+    if ImagesManager.ExportingMode then begin
+       var RTFwithProccesedImages: AnsiString;
+       var ImgIDsCorrected: TImageIDs;
+       var ContainsImages: boolean;
+       var ImgMode: TImagesMode;
+
+
+       if KeyOptions.ImgStorageModeOnExport = smeEmbRTF then
+          ImgMode:= imImage
+       else
+          ImgMode:= imLink;
+
+       RTFwithProccesedImages:= ImagesManager.ProcessImagesInRTF(DataStream.Memory, DataStream.Size, nil, ImgMode, '', 0, ImgIDsCorrected, ContainsImages, true);
+       if (RTFwithProccesedImages = '') and ContainsImages and (KeyOptions.ImgStorageModeOnExport <> smeEmbKNT) then
+          RTFwithProccesedImages:= MemoryStreamToString (DataStream);
+
+       if (RTFwithProccesedImages <> '') then begin
+          if (KeyOptions.ImgStorageModeOnExport <> smeEmbKNT) then
+             RTFwithProccesedImages:= RemoveKNTHiddenCharactersInRTF(RTFwithProccesedImages, hmOnlyImages);
+
+          StreamAux := TMemoryStream.Create;
+          StreamAux.Write(RTFwithProccesedImages[1], ByteLength(RTFwithProccesedImages));
+
+          DataStream:= StreamAux;
+       end;
+
+       if ContainsImages and (KeyOptions.ImgStorageModeOnExport = smeEmbKNT) then begin
+          ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (DataStream);
+          ImagesManager.RegisterImagesReferencesExported (ImagesIDs);
+       end;
+    end;
+
 
     DataStream.Position := 0;
 
@@ -889,6 +1065,7 @@ begin
            pos:= PosEx(AnsiString(#13#10), PAnsiChar(DataStream.Memory), i+1);       // The index is 1-based.
            if (pos=0) or (pos > DataStream.Size) then begin
                pos:= DataStream.Size-1;
+               if (i = pos) and (PByte(DataStream.Memory)[i] = 0) then break;
                addCRLF:= true;
            end;
            tf.write(PByte(DataStream.Memory)[i], pos-i+1);
@@ -903,10 +1080,15 @@ begin
        DataStream.Position := 0;
        i:= 0;
        // When compiled in D2006 with RxRichEdit 2.75 not ocurred, but now, when saving the stream in RTF an extra #0 is added. But I checked it
+       // The existence of these final #0s really suits me well. See comment to TTabNote.CheckSavingImagesOnMode
        if PByte(DataStream.Memory)[DataStream.Size-1] = 0 then i:= 1;
        tf.F.CopyFrom(DataStream, DataStream.Size - i);
     end;
 
+  finally
+     if StreamAux <> nil then
+        StreamAux.Free;
+  end;
 end;
 
 
@@ -1140,10 +1322,15 @@ begin
 
     ListRTFStr.WriteBOM:= False;
     ListRTFStr.SaveToStream(StreamRTF);
+    if NodeStreamIsRTF(StreamRTF) then begin
+      // In notes/nodes with RTF content we are interested in the buffer ending in #0 to be able to treat it as a string (accessing .Memory)
+      assert((PByte(StreamRTF.Memory)[StreamRTF.Size-1] <> 0), 'The Stream already ends at 0');
+      StreamRTF.WriteData(0);
+    end;
 end;
 
 
-procedure TTabNote.LoadFromFile( var tf : TTextFile; var FileExhausted : boolean );
+procedure TTabNote.LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock );
 var
   List : TStringList;
   s, key : AnsiString;
@@ -1170,13 +1357,18 @@ begin
       end;
       if ( s = _NF_TabNote ) then
       begin
-        _NEW_NOTE_KIND := ntRTF;
+        NextBlock:= nbRTF;
         break; // New TabNote begins
       end;
       if ( s = _NF_TreeNote ) then
       begin
-        _NEW_NOTE_KIND := ntTree;
+        NextBlock:= nbTree;
         break; // New TreeNote begins
+      end;
+      if ( s = _NF_StoragesDEF ) then
+      begin
+        NextBlock:= nbImages;
+        break; // Images definition begins
       end;
       if ( s = _NF_EOF ) then
       begin
@@ -1466,6 +1658,16 @@ begin
   end;
 end; // TTabNote.SetReadOnly
 
+
+procedure TTabNote.SetPlainText( APlainText : boolean );
+begin
+  if ( APlainText <> FPlainText ) then begin
+    FPlainText := APlainText;
+    FModified := true;
+  end;
+end;
+
+
 function TTabNote.GetModified : boolean;
 begin
   result := FModified;
@@ -1497,6 +1699,32 @@ begin
   if _ALLOW_VCL_UPDATES and assigned( FTabSheet ) then
     FTabSheet.ImageIndex := FImageIndex;
 end; // TTabNote.SetImgIdx
+
+
+procedure TTabNote.SetImagesMode(ImagesMode: TImagesMode);
+var
+   RTFIn, RTFOut: AnsiString;
+   currentNoteModified, currentFileModified: boolean;
+
+begin
+    if FImagesMode <> ImagesMode then begin
+       FImagesMode:= ImagesMode;
+
+       RTFIn:= Editor.RtfText;
+       RTFOut:= ImagesManager.ProcessImagesInRTF(RTFIn, Self, ImagesMode, '', 0, true);
+       if RTFOut <> '' then begin
+          currentNoteModified:= FModified;
+          currentFileModified:= NoteFile.Modified;
+          Editor.PutRtfText(RTFout,True,False);
+          if currentNoteModified <> FModified then begin
+             FModified:=  currentNoteModified;  // <- false...
+             NoteFile.Modified:= currentFileModified;
+             UpdateNoteFileState( [fscModified] );
+          end;
+
+       end;
+    end;
+end;
 
 procedure TTabNote.SetWordWrap( AWordWrap : boolean );
 begin
@@ -1543,7 +1771,7 @@ begin
   FAutoIndent := false;
   FUseTabChar := true;
   FTabSize := DEF_TAB_SIZE;
-  FOnFileDropped := nil;
+// FOnFileDropped := nil;
 end; // TTabRichEdit CREATE
 
 destructor TTabRichEdit.Destroy;
@@ -1551,6 +1779,20 @@ begin
   inherited Destroy;
 end; // TTabRichEdit DESTROY
 
+{
+ NOTE:
+  If DragAcceptFiles is not called from the RxRichEdit control, since we are doing it in the main form of the application (TForm_Main.CreateWnd)
+  we would still be able to receive the WM_DROPFILES message, through the event handler defined within TForm_Main
+  ( procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES; )
+
+  But we will also call that method for the RichEdit control to have the option, if necessary, of being able to distinguish which control is receiving
+  the file. Furthermore, before we were calling DragAcceptFiles from our derived class, TTabRichEdit, but we have started to call it directly from 
+  RxRichEdit itself, in its CreateWnd method, to allow offering from that control, in an integrated way, a new event, OnFileDropped. That event will be
+  launched from WM_DROPFILES, and in order to receive that message it must be enabled by calling DragAcceptFiles
+
+  See more clarifications in comment *3 on RxRichEd.pas
+}
+{                                                                                             [dpv]
 procedure TTabRichEdit.CreateWnd;
 begin
   inherited;
@@ -1562,6 +1804,7 @@ begin
   DragAcceptFiles( handle, false ); // [MJ]
   inherited;
 end; // DestroyWnd
+}
 
 procedure TTabRichEdit.CMRecreateWnd(var Message: TMessage);
 var
@@ -1802,7 +2045,7 @@ begin
     repeat
        if p > 0 then begin
           pF:= Pos(KNT_RTF_HIDDEN_MARK_R_CHAR, Str, p+3);
-          if (pF > 0) and (pF-p <= KNT_RTF_HIDDEN_MAX_LENGHT) then begin
+          if (pF > 0) and (pF-p <= KNT_RTF_HIDDEN_MAX_LENGHT_CHAR) then begin
              SetSelection(p+SS-1, pF+SS, true);
              SelAttributes.Hidden:= True;
              p:= pF + 1;
@@ -1822,7 +2065,7 @@ end;   // HideKNTHiddenMarks
 
 procedure TTabRichEdit.RemoveKNTHiddenCharacters (selection: boolean= true);
 var
-  s: string;
+  s: AnsiString;
   len: integer;
 begin
     if FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, 0, -1, []) >= 0 then begin
@@ -1831,9 +2074,9 @@ begin
        else
           s:= RtfText;
 
-       len:= s.Length;
-       s:= RemoveKNTHiddenCharactersInRTF(s);
-       if s.Length <> Len then
+       len:= Length(s);
+       s:= RemoveKNTHiddenCharactersInRTF(s, hmAll);
+       if Length(s) <> Len then
           PutRtfText(s, true, selection, true);
     end
 end;
@@ -2160,6 +2403,9 @@ end; // VerifyNodeIDs
 procedure TTreeNote.RemoveNode( const aNode : TNoteNode );
 begin
   if ( not assigned( ANode )) then exit;
+
+  NoteFile.RemoveImagesCountReferences(aNode);
+
   FNodes.Remove( aNode );
   FModified := true;
 end;
@@ -2252,6 +2498,10 @@ var
  dataSize: integer;
 {$ENDIF}
 
+ strRTF: AnsiString;
+ ImgCodesCorrected: TImageIDs;
+ ContainsImages: boolean;
+
 begin
   if not assigned(FEditor) then exit;
   if not assigned(FSelectedNode) then  begin
@@ -2269,12 +2519,19 @@ begin
         FEditor.Clear;
 
         FSelectedNode.Stream.Position := 0;
+        strRTF:= '';
 
         if ( FPlainText or ( FSelectedNode.VirtualMode in [vmText, vmHTML] )) then
            UpdateEditor;
 
-        if NodeStreamIsRTF (FSelectedNode.Stream) then
-           FEditor.StreamFormat:= sfRichText
+        fImagesReferenceCount:= nil;
+        if NodeStreamIsRTF (FSelectedNode.Stream) then begin
+           FEditor.StreamFormat:= sfRichText;
+           if (ImagesManager.StorageMode <> smEmbRTF) and (FSelectedNode.VirtualMode in [vmNone, vmKNTNode]) and (not FPlainText) then begin
+              GetImagesIDInstances (FSelectedNode.Stream, FSelectedNode.NodeTextPlain);
+              strRTF:= ImagesManager.ProcessImagesInRTF(FSelectedNode.Stream.Memory, FSelectedNode.Stream.Size, Self, ImagesManager.ImagesMode, '', 0, ImgCodesCorrected, ContainsImages, true);
+           end;
+        end
         else
            FEditor.StreamFormat:= sfPlainText;
 
@@ -2287,7 +2544,12 @@ begin
         end;
        {$ENDIF}
 
-        FEditor.Lines.LoadFromStream( FSelectedNode.Stream );
+        if StrRTF <> '' then begin
+           FEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
+           FEditor.ClearUndo;
+        end
+        else
+           FEditor.Lines.LoadFromStream( FSelectedNode.Stream );
 
         Log_StoreTick('TTreeNote.DataStreamToEditor - END', 4, -1);
 
@@ -2323,6 +2585,9 @@ function TTreeNote.EditorToDataStream: TMemoryStream;
 var
    KeepUTF8: boolean;
    Encoding: TEncoding;
+   strRTF: AnsiString;
+   ImagesIDs_New: TImageIDs;
+   TextPlain: string;
 begin
   Result:= nil;
   Encoding:= nil;
@@ -2341,22 +2606,7 @@ begin
            FSelectedNode.Stream.Clear;
 
            try
-
-             case FSelectedNode.VirtualMode of
-               vmNone, vmKNTNode : begin
-                 if FPlainText then
-                   FEditor.StreamFormat := sfPlainText
-                 else
-                   FEditor.StreamFormat := sfRichText;
-               end;
-               vmText, vmHTML : begin
-                 FEditor.StreamFormat := sfPlainText;
-               end;
-               vmRTF : begin
-                 FEditor.StreamFormat := sfRichText;
-               end;
-             end;
-
+             FEditor.StreamFormat:= StreamFormatInNode();
              FEditor.StreamMode := [];
              if FEditor.StreamFormat = sfPlainText then begin
                 // Si es un nodo virtual respetaremos la codificación UTF8 que pueda tener.
@@ -2367,6 +2617,16 @@ begin
              end;
 
              FEditor.Lines.SaveToStream( FSelectedNode.Stream, Encoding);
+
+             if (ImagesManager.StorageMode <> smEmbRTF) and (FSelectedNode.VirtualMode in [vmNone, vmKNTNode]) and (FEditor.StreamFormat = sfRichText) then begin
+                ImagesIDs_New:= CheckSavingImagesOnMode (imLink, FSelectedNode.Stream, true);
+                ImagesManager.UpdateImagesCountReferences (fImagesReferenceCount, ImagesIDs_New);
+                fImagesReferenceCount:= ImagesIDs_New;
+             end;
+
+             FSelectedNode.NodeTextPlain:= FEditor.TextPlain;
+             FSelectedNode.Stream.Position := 0;
+             Result:= FSelectedNode.Stream;
              FEditor.Modified:= false;
 
            finally
@@ -2374,9 +2634,6 @@ begin
              FEditor.StreamMode := [];
            end;
 
-           FSelectedNode.Stream.Position := 0;
-           Result:= FSelectedNode.Stream;
-           FSelectedNode.NodeTextPlain:= FEditor.TextPlain;
 
         finally
           FEditor.Lines.EndUpdate;
@@ -2388,6 +2645,26 @@ begin
 
   end;
 end; // EditorToDataStream
+
+
+function TTreeNote.StreamFormatInNode: TRichStreamFormat;
+begin
+    case FSelectedNode.VirtualMode of
+      vmNone, vmKNTNode : begin
+        if FPlainText then
+          Result:= sfPlainText
+        else
+          Result:= sfRichText;
+      end;
+      vmText, vmHTML : begin
+        Result:= sfPlainText;
+      end;
+      vmRTF : begin
+        Result:= sfRichText;
+      end;
+    end;
+
+end;
 
 function TTreeNote.CheckTree : boolean;
 begin
@@ -2562,7 +2839,7 @@ begin
 end; // SaveToFile
 
 
-procedure TTreeNote.LoadFromFile( var tf : TTextFile; var FileExhausted : boolean );
+procedure TTreeNote.LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
 var
   InRichText : boolean;
   InNoteNode : boolean;
@@ -2614,16 +2891,23 @@ begin
           end;
           if ( s = _NF_TabNote ) then
           begin
-            _NEW_NOTE_KIND := ntRTF;
+            NextBlock:= nbRTF;
             if assigned( myNode ) then AddNewNode;
             break; // New TabNote begins
           end;
           if ( s = _NF_TreeNote ) then
           begin
-            _NEW_NOTE_KIND := ntTree;
+            NextBlock:= nbTree;
             if ( myNode <> nil ) then
               AddNewNode;
             break; // New TreeNote begins
+          end;
+          if ( s = _NF_StoragesDEF ) then
+          begin
+            NextBlock:= nbImages;
+            if ( myNode <> nil ) then
+              AddNewNode;
+            break; // Images definition begins
           end;
           if ( s = _NF_EOF ) then
           begin

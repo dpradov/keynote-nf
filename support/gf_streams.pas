@@ -1,26 +1,26 @@
 ﻿unit gf_streams;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland) [^1]
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^2]
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^2]
 
  [^1]: Adapted from a set of routines by Ran Biron <Biron01@IBM.NET>
  [^2]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-	 
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 {$I gf_base.inc}
- 
-(* 
+
+(*
  gf_streams - Streams handling routines
- 
+
 *)
 
 
@@ -29,11 +29,16 @@ uses
    Winapi.Windows,
    System.Classes,
    System.SysUtils,
+   System.Math,
    gf_strings;
 
 {$ALIGN OFF}
 
 procedure SaveToFile(FN: string; Str: AnsiString);
+
+function MemoryStreamToString(Stream: TMemoryStream): AnsiString; inline;
+procedure StringToMemoryStream(Str: AnsiString; Stream: TMemoryStream); inline; overload;
+procedure StringToMemoryStream(Str: String; Stream: TMemoryStream); inline; overload;
 
 procedure SaveStringToStream( S : AnsiString; Stream : TStream );
 function LoadStringFromStream( Stream : TStream ) : Ansistring;
@@ -58,7 +63,7 @@ function AddUTF8_BOM ( Stream : TMemoryStream ): boolean;
 
 
 type
-  TTextFile = class           // ToDO: Replace the use of this class for TBufferedFileStream
+  TTextFile = class
   private
     fileName: string;
     buffer: PAnsiChar;
@@ -75,12 +80,14 @@ type
     procedure Append;
     procedure CloseFile;
     function Readln: AnsiString;
+    function ReadToStream(const OutStream: TStream; Size: Integer): Integer;
     //procedure WriteLn (const Args: array of const);
     procedure WriteLine (const Cad: String; CheckSaveAsUTF8: boolean= false); overload;
     procedure WriteLine (const Cad: AnsiString; CheckSaveAsUTF8: boolean= false); overload;
     procedure Write (const Buffer; Count: integer); overload;
     procedure Write (const Cad: AnsiString); overload;
     function Eof: boolean;
+    function Position: Int64;
   end;
 
 
@@ -108,6 +115,29 @@ begin
 end;
 
 
+
+// https://stackoverflow.com/questions/732666/converting-tmemorystream-to-string-in-delphi-2009
+// https://stackoverflow.com/questions/14815146/writing-strings-to-tmemorystream
+
+function MemoryStreamToString(Stream: TMemoryStream): AnsiString;
+begin
+  SetString(Result, PAnsiChar(Stream.Memory), Stream.Size);
+end;
+
+procedure StringToMemoryStream(Str: AnsiString; Stream: TMemoryStream); overload;
+begin
+  Stream.Write(Str[1], ByteLength(Str));
+  //Stream.Write(Str[1], Length(Str) * SizeOf(Str[1]));
+end;
+
+procedure StringToMemoryStream(Str: string; Stream: TMemoryStream); overload;
+begin
+  Stream.Write(Str[1], ByteLength(Str));
+  //Stream.Write(Str[1], Length(Str) * SizeOf(Str[1]));
+end;
+
+
+
 procedure SaveStringToStream( S : AnsiString; Stream : TStream );
 var
  i : integer;
@@ -116,6 +146,7 @@ Begin
  Stream.WriteBuffer( i, SizeOf( Integer ));
  if ( i > 0 ) then Stream.WriteBuffer( S[1], i );
 End;
+
 
 function LoadStringFromStream( Stream : TStream ) : AnsiString;
 var
@@ -221,6 +252,7 @@ begin
     // or plain text data. Yet we must pass the correct information
     // to PutRichText. Which is why we must check manually, like so:
 
+    {
     Result:= False;
     if Stream.Size > 6 then begin
       // transfer stream contents to temp string
@@ -228,6 +260,13 @@ begin
       move( Stream.Memory^, NodeText[1], 6 );
       Result := ( copy( NodeText, 1, 6 ) = '{\rtf1' );
     end;
+    }
+    Result:= False;
+    if Stream.Size > 6 then begin
+      SetString(NodeText, PAnsiChar(Stream.Memory), 6);
+      Result := (NodeText = '{\rtf1');
+    end;
+
 end;
 
 
@@ -295,11 +334,13 @@ begin
 end;
 
 
+
 //===== TWTextFile
 
 constructor TTextFile.Create;
 begin
   posF:= 0;
+  F:= nil;
 end;
 
 destructor TTextFile.Destroy;
@@ -363,7 +404,7 @@ begin
     if fileName = '' then
        raise Exception.CreateFmt( 'Error: Filename not specified', [''] )
     else
-       F:= TBufferedFileStream.Create( fileName, (fmOpenWrite or fmShareExclusive), FILE_BUFFER_SIZE);
+       F:= TBufferedFileStream.Create( fileName, (fmOpenReadWrite or fmShareExclusive), FILE_BUFFER_SIZE);
 
     F.Seek(0, soEnd);
     posF:= 0;
@@ -393,7 +434,9 @@ end;
 procedure TTextFile.CloseFile;
 begin
   if (fileName <> '') and assigned(F) then
-       FreeAndNil(F);
+       FreeAndNil(F)
+  else
+     F:= nil;
 end;
 
 function TTextFile.Readln: AnsiString;
@@ -444,6 +487,65 @@ function TTextFile.Eof: boolean;
 begin
    Result:= (posF = 0);
 end;
+
+
+function TTextFile.Position: Int64;
+begin
+   if not assigned (F) then exit(-1);
+   Result:= F.Position;
+end;
+
+
+
+function TTextFile.ReadToStream(const OutStream: TStream; Size: Integer): Integer;
+var
+   i: integer;
+   SizeAvailableInBuffer: integer;
+   SizePending, SizeToWrite: integer;
+
+
+begin
+   // Result:= OutStream.CopyFrom(F, Size);
+   // We must keep in mind that we are doing internal cache management (see ReadLn)
+
+   if not assigned (F) or (posF=0) then exit;
+
+   SizePending:= Size;
+
+   repeat
+     i:= posI;
+     if i <= posF then begin
+       SizeAvailableInBuffer:= posF - i + 1;
+       SizeToWrite:= Min(SizeAvailableInBuffer, SizePending);
+       OutStream.Write(buffer[i], SizeToWrite);
+       Dec(SizePending, SizeToWrite);
+       Inc(i, SizeToWrite);
+     end;
+
+     if i <= posF then begin
+        posI:= i;
+     end
+     else begin
+        posI:= posF + 1;
+        if F.Position < F.Size then begin
+          try
+            OutStream.CopyFrom(F, SizePending);
+            SizePending:= 0;
+          except
+            break;
+          end;
+        end
+        else begin
+           posF:= 0;               // We have reached final of the file
+           break;
+        end;
+     end;
+
+   until SizePending = 0;
+
+   Result:= Size - SizePending;
+end;
+
 
 (*
 {See: Variant Open Array Parameters}

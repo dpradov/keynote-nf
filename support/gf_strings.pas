@@ -45,7 +45,7 @@ procedure CSVTextToStrs(
   const aStr : string;
   const aDelim : char );
 
-procedure SplitString( aList : TStrings; aStr : string; const aDelim : char );
+procedure SplitString( aList : TStrings; aStr : string; const aDelim : char; ignoreEmptySplit: boolean= true );
 
 function CountChars( const ch : char; const s : string ) : integer;
 function CountNonControlCharsNoSpace( const s : string ) : integer;
@@ -367,7 +367,7 @@ begin
 end; // CSVTextToStrs
 
 
-procedure SplitString( aList : TStrings; aStr : string; const aDelim : char );
+procedure SplitString( aList : TStrings; aStr : string; const aDelim : char; ignoreEmptySplit: boolean= true );
 var
   p : integer;
   s : string;
@@ -377,15 +377,15 @@ begin
 // DO NOT USE FOR PROPERLY FORMATTED CSV DATA!
 
   p := pos( aDelim, aStr );
-  while ( p > 0 ) do
-  begin
-    s := copy( aStr, 1, pred( p ));
+  while ( p > 0 ) do  begin
+    s := copy( aStr, 1, pred(p));
     delete( aStr, 1, p );
-    if ( s <> '' ) then
-      aList.Add( s );
+    if not ignoreEmptySplit or (s <> '') then
+       aList.Add( s );
     p := pos( aDelim, aStr );
   end;
-  if ( aStr <> '' ) then
+
+  if not ignoreEmptySplit or (s <> '') then
     aList.Add( aStr );
 end; // SplitString
 

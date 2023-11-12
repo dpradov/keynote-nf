@@ -33,6 +33,8 @@ INTERFACE
   {$ENDIF}
 {$ENDIF}
 
+  Procedure CalculateCRC32 (Buffer: pointer; ByteCount: DWORD; var CRCValue:  DWORD);        // [dpv]
+
   PROCEDURE CalcCRC32 (p:  pointer; ByteCount:  DWORD; VAR CRCvalue:  DWORD);
 
   PROCEDURE CalcFileCRC32 (FromName:  STRING; VAR CRCvalue:  DWORD;
@@ -118,6 +120,13 @@ IMPLEMENTATION
     $BAD03605, $CDD70693, $54DE5729, $23D967BF,
     $B3667A2E, $C4614AB8, $5D681B02, $2A6F2B94,
     $B40BBE37, $C30C8EA1, $5A05DF1B, $2D02EF8D);
+
+  Procedure CalculateCRC32 (Buffer: pointer; ByteCount: DWORD; var CRCValue:  DWORD);        // [dpv]
+  begin
+      CRCValue := $FFFFFFFF;
+      CalcCRC32(Buffer, ByteCount, CRCValue);
+  end;
+
 
   // Use CalcCRC32 as a procedure so CRCValue can be passed in but
   // also returned.  This allows multiple calls to CalcCRC32 for

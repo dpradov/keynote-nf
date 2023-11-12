@@ -153,6 +153,8 @@ List of required components and libraries:
 * UAS, UltimaShell Autocompletion Server, (flashpeak@yifan.net) [UAS]
 
 * UWebBrowserWrapper, by Peter Johnson (http://www.delphidabbler.com/articles?article=14)  [UWebBrowserWrapper]
+* TSynPicture, by Arnaud Bouchez [SynGdiPlus]   (http://blog.synopse.info/post/2010/03/20/GIF,-TIF,-PNG-and-JPG-pictures-TGraphic-read/write-via-GDI , http://synopse.info/files/SynGdiPlus.zip )
+ 
 
 
 In the process of adapting KeyNote NF to Delphi CE I have used this little utility, by Uwe Raabe, to clean the unit namespaces in the uses clause:  https://github.com/UweRaabe/UsesCleaner

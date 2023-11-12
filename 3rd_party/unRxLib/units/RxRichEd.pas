@@ -367,6 +367,7 @@ type
   TRichEditProtectChangeEx = procedure(Sender: TObject; const Message: TMessage;
     StartPos, EndPos: Integer; var AllowChange: Boolean) of object;
   TRichEditFindErrorEvent = procedure(Sender: TObject; const FindText: string) of object;
+  TRichEditFileDroppedEvent = procedure( sender : Tobject; FileList : TStringList ) of object;        // [dpv]
 {$IFDEF RX_D3}
   TRichEditFindCloseEvent = procedure(Sender: TObject; Dialog: TFindDialog) of object;
 {$ENDIF}
@@ -427,6 +428,7 @@ type
     FOnProtectChangeEx: TRichEditProtectChangeEx;
     FOnSaveClipboard: TRichEditSaveClipboard;
     FOnURLClick: TRichEditURLClickEvent;
+    FOnFileDropped: TRichEditFileDroppedEvent;      // [dpv]
     FOnTextNotFound: TRichEditFindErrorEvent;
 {$IFDEF RX_D3}
     FOnCloseFindDialog: TRichEditFindCloseEvent;
@@ -451,6 +453,7 @@ type
     procedure CloseObjects;
     procedure UpdateHostNames;
     procedure SetAllowObjects(Value: Boolean);
+    procedure SetOnFileDropped(Value: TRichEditFileDroppedEvent);                       // [dpv]
     procedure SetStreamFormat(Value: TRichStreamFormat);
     procedure SetStreamMode(Value: TRichStreamModes);
     procedure SetAutoURLDetect(Value: Boolean);
@@ -491,14 +494,16 @@ type
     procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
     procedure WMSetCursor(var Message: TWMSetCursor); message WM_SETCURSOR;
     procedure WMSetFont(var Message: TWMSetFont); message WM_SETFONT;
+    procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;        // [dpv]  See comment *3
+
 {$IFDEF RX_D5}
     procedure WMRButtonUp(var Message: TMessage); message WM_RBUTTONUP;
 {$ENDIF}
 {$IFDEF RX_ENH}
     function  GetRtfSelText: String;
     procedure SetRtfSelText(const sRtf: String);
-    function  GetRtfText: String;                       // [dpv]
-    procedure SetRtfText(const sRtf: String);           // [dpv]
+    function  GetRtfText: AnsiString;                       // [dpv]
+    procedure SetRtfText(const sRtf: AnsiString);           // [dpv]
 {$ENDIF}
 
   protected
@@ -514,6 +519,7 @@ type
       EndPos: Integer): Boolean; dynamic;
     function SaveClipboard(NumObj, NumChars: Integer): Boolean; dynamic;
     procedure URLClick(const URLText: string; Button: TMouseButton); dynamic;
+    {procedure FileDropped(EndDropFiles: TEndDropFiles); dynamic;                        // [dpv]  See comment *3 }
     procedure SetPlainText(Value: Boolean); virtual;
 {$IFDEF RX_D3}
     procedure CloseFindDialog(Dialog: TFindDialog); virtual;
@@ -554,6 +560,7 @@ type
     property OnResizeRequest: TRichEditResizeEvent read FOnResizeRequest
       write FOnResizeRequest;
     property OnURLClick: TRichEditURLClickEvent read FOnURLClick write FOnURLClick;
+    property OnFileDropped: TRichEditFileDroppedEvent read FOnFileDropped write SetOnFileDropped;        // [dpv]  See comment *3
     property OnTextNotFound: TRichEditFindErrorEvent read FOnTextNotFound write FOnTextNotFound;
 {$IFDEF RX_D3}
     property OnCloseFindDialog: TRichEditFindCloseEvent read FOnCloseFindDialog
@@ -579,6 +586,7 @@ type
     property VisibleText: string read GetVisibleText;                 // [dpv]
     function TextLength: integer;                                     // [dpv]
     function TextPlain (Selection: boolean= False): string;           // [dpv] Alternative to TCumstomEdit.Text (GetText), returning RAWTEXT
+    procedure AddText(const Str: String);                             // [dpv]
     procedure SetMargins(Left, Right: integer);                       // [dpv]
     function WordAtCursor: string;
     function FindText(const SearchStr: string;
@@ -591,7 +599,8 @@ type
     procedure ScrollLinesBy(inc: integer);                             // [dpv]
     function InsertObjectDialog: Boolean;
     function ObjectPropertiesDialog: Boolean;
-    function PasteSpecialDialog: Boolean;
+    //function PasteSpecialDialog: boolean;
+    function PasteSpecialDialog (PasteImg: boolean= true): integer;               // [dpv]
     function PasteIRichEditOLE(cfFormat: TClipFormat): Boolean;        // [dpv]
     function FindDialog(const SearchStr: string): TFindDialog;
     function ReplaceDialog(const SearchStr, ReplaceStr: string): TReplaceDialog;
@@ -632,7 +641,7 @@ type
     property RtfSelText: String read GetRtfSelText write SetRtfSelText;       //selected text in native format (RTF)  (выделеный текст в native формате)
     property LinkClickRange: TCharRange read FClickRange;                     //+GetTextRange  What was clicked on  (на чём кликнули)
 
-    property RtfText: String read GetRtfText write SetRtfText;                                                     // [dpv]
+    property RtfText: AnsiString read GetRtfText write SetRtfText;                                                 // [dpv]
     procedure PutRtfText (const sRTF: string; const DoInsert: boolean;
                           const SelectionOnly: boolean = true; const KeepSelected: boolean = false); overload;     // [dpv]
     procedure PutRtfText (const sRTF: RawByteString; const DoInsert: boolean;
@@ -744,6 +753,7 @@ type
     property OnCloseFindDialog;
 {$ENDIF}
     property OnURLClick;
+    property OnFileDropped;                           // [dpv]
   end;
 
 {$IFDEF RX_SELECTDLL}                                                                          // [dpv]
@@ -762,10 +772,11 @@ uses
  Vcl.Printers, Vcl.ComStrs, Vcl.OleConst, Winapi.OleDlg, {$IFDEF RX_D3} Vcl.OleCtnrs, {$ENDIF}
   {$IFDEF RX_D12}Winapi.CommDlg,{$ENDIF}
   RxMaxMin,
-  Vcl.Clipbrd, tom_TLB                                                                        // [dpv]
+  Vcl.Clipbrd, tom_TLB                                                                        // [dpv]  tom_TLB -> ITextDocument 
   {$IFDEF RX_ENH}
-  , gf_strings                                                                                // [dpv]
+  , gf_strings                                                                                // [dpv]  -> CanSaveAsANSI
   {$ENDIF}
+  , kn_ClipUtils, ShellAPI                                                                    // [dpv]  kn_ClipUtils -> GetDropFiles, ShellAPI -> DragAcceptFiles)
   {$IFDEF KNT_DEBUG}
   , GFLog, kn_Global                                                                          // [dpv]
   {$ENDIF}
@@ -789,7 +800,160 @@ end;
 
 // ---------------- tom_TLB -> ITextDocument
   -> SuspendUndo, ResumeUndo
+
+  
+// ---------------- kn_ClipUtils -> GetDropFiles
+
+function GetDropFiles(hDrop: THANDLE): TStringList;
+var
+  CFileName : array[0..MAX_PATH] of Char;
+  FileList : TStringList;
+  i, count : integer;
+begin
+  FileList := TStringList.Create;
+
+  try
+    count := DragQueryFile( hDrop, $FFFFFFFF, CFileName, MAX_PATH );
+
+    if ( count > 0 ) then begin
+      for i := 0 to count-1 do begin
+        DragQueryFile( hDrop, i, CFileName, MAX_PATH );
+        FileList.Add( CFileName );
+      end;
+    end;
+
+    Result:= FileList;
+
+  finally
+    DragFinish(hDrop);
+  end;
+
+end;
+
 }
+
+
+
+{  *3  NOTES ON USING DRAG AND DROP IN RxRichEdit                         [dpv]
+
+ Using the existing AllowObjects (FAllowObjects) property affects how objects that are dragged into the control are treated, as well as whether
+ or not inserting objects through the InsertObjectDialog is allowed.
+ Viewed individually it seems reasonable: if set to True, objects will be allowed to be added by dragging or via InsertObjectDialog,
+ treating files that can be interpreted as images differently (except for MetaFiles, which always treats them as objects). 
+ Set to False, files that are not interpreted as images (including Metafiles) are ignored and cannot be added to the editor.
+    But this behavior can get confusing if combined with the result returned by TRichEditOleCallback.QueryAcceptData
+ When QueryAcceptData = SR_FALSE, insertion of any file is only prevented precisely if FAllowObjects=True
+ If FAllowObjects=False, regardless of the result of QueryAcceptData, you can drag files (that are interpreted as an image)
+
+
+ * FAllowObjects=True and QueryAcceptData = SR_FALSE
+     => Dragging any file (of any type) is not allowed. It also does not allow dragging texts (or anything), neither from outside nor inside the application
+     => Yes it is allowed to insert objects through the InsertObjectDialog window
+     * If DragAcceptFiles(..,true) was called
+        --> the WM_DROPFILES message will be received. Default handling is allowed (not intercepting it or with a custom handler that calls inherited)
+        --> All files will be embedded as objects, even if they are of image type.
+
+ * FAllowObjects=True and QueryAcceptData = SR_OK
+   => It is allowed to drag (or insert with InsertObjectDialog) any type of file, as well as texts, etc., from outside or inside the application
+    -> image files will be embedded as images, and the rest as objects (the usual behavior until now)
+     * Even if DragAcceptFiles(..,true) had been called --> the WM_DROPFILES message will NOT be received (nor CN_DROPFILES if we had configured it)
+
+ * FAllowObjects=False and QueryAcceptData = SR_OK
+    => Allows dragging files that can be converted to images, but does not allow dragging (or InsertObjectDialog) other files (.txt, .wmf, .emf...)
+    => Allows you to drag text from other applications (and from the editor itself)
+    * If DragAcceptFiles was called...
+      -> The WM_DROPFILES message will only be received for files that are not image files (Those that are image files will be directly embedded as such.)
+        Even if we allow default processing of WM_DROPFILES the remaining files will be ignored
+
+ * FAllowObjects=False and QueryAcceptData = SR_FALSE
+   => Same behavior as FAllowObjects=False and QueryAcceptData = SR_OK
+
+
+=> NOTE: If image files and other non-image files are dragged, they will all be treated as if they were not image files (regarding the treatment
+      indicated before WM_DROPFILES). Querying DragQueryFile will return all files, whether image or not, and regardless of whether FAllowObjects 
+      is True or False
+
+----
+
+  We want to allow the Host application of this control to decide how to manage the dragged files, through a new
+  event: OnFileDropped. That event will return a list with the names of all the files dragged into the editor.
+  The objective is, for example, to allow the insertion of dragged image files to be done in a controlled manner, processing 
+  the images to be inserted as appropriate, and making the necessary format conversions.
+  Obtaining the list of names has been obtained through calls to calls to DragQueryFile, using the handler received in
+  the WM_DROPFILES event.
+
+  In order to receive that message we need to have previously enabled it by calling DragAcceptFiles(Handle, True)
+    (In principle it would also have been possible to obtain that list directly from the received IDataObject object
+       TRichEditOleCallback.QueryAcceptData or using the IDropTarget interface (Winapi.ActiveX unit)
+       https://stackoverflow.com/questions/21245887/retrieving-filename-from-idataobject-in-delphi
+       https://www.freepascal.org/~michael/articles/dragdrop3/dragdrop3.pdf
+     )
+
+  Not calling DragAcceptFiles(Handle, True) means that the WM_DROPFILES event will not be raised and there will be no option to allow default handling.
+  But it can be seen that even if that message is enabled, it will only be received in certain situations (see above).
+  In any case, even if the RxRichEdit control receives the WM_DROPFILES message it will not call the handler by default, and will only call OnFileDropped 
+  when (logically) it is assigned to the application's interest in controlling it.
+
+    Asumiremos que si la aplicación ofrece un manejador para nuestro evento OnFileDropped, querrá poder controlar todos los archivos
+  que se arrastren, con independencia de que puedan ser convertidos a imagen o no.
+  Por ello, tendremos en cuenta si se ha definido un manejador para OnFileDropped:
+   - NOT assigned(OnFileDropped) ->  QueryAcceptData = SR_OK.  Dejaremos el funcionamiento descrito según lo establecido para FAllowObjects
+        -> El comportamiento será el esperado: se incrutarán las imágenes. Y los objetos se permitirán según FAllowObjects
+
+  We'll assume that if the application offers a handler for our OnFileDropped event, it will want to be able to handle all files
+  that are dragged, regardless of whether they can be converted to an image or not.
+  Therefore, we will take into account whether a handler has been defined for OnFileDropped:
+   - NOT assigned(OnFileDropped) -> QueryAcceptData = SR_OK. We will leave the operation described as established for FAllowObjects
+         -> The behavior will be as expected: the images will be embedded. And objects will be allowed based on FAllowObjects
+
+   - assigned(OnFileDropped)
+       -> QueryAcceptData: SR_FALSE if files have been dragged, SR_OK otherwise.
+       -> FAllowObjects will always be treated as True, regardless of what is set by the user.
+
+  ------------------
+  We will not use EN_DROPFILES. WM_DROPFILES is enough for us. The TEndDropFiles parameter of the EN_DROPFILES notification gives us more information
+  than the TWMDropFiles parameter of WM_DROPFILES (such as the position at which it would be inserted and whether it is text with the protected flag),
+  But it is information that we can easily find out if we need it, and also, to receive the notification we must call the handler
+  default of WM_DROPFILES, which does not interest us.
+  -> We will not use the FileDropped(EndDropFiles: TEndDropFiles);
+
+  ---------------
+  Note: We could also receive the WM_DROPFILES and CN_DROPFILES events if we set the ES_NOOLEDRAGDROP style
+  (Disables support for dragging and dropping OLE objects.) during control creation, but we are not interested in this.
+  At the very least, this would make it difficult to simply select an inserted object (even if you inserted it via code, using RTF code).
+
+  Desde Create se hace, al final, FCallback := TRichEditOleCallback.Create(Self);
+  Si posteriormente se llamara a RevokeDragDrop(Handle) -> unregister default IDropTarget interface of Rich Edit.
+  y pasaríamos también a a recibir los eventos WM_DROPFILES y CN_DROPFILES, pero perderíamos toda la funcionadlidad
+  de esa interface, por lo que no podríamos, entre otras cosas, arrastrar texto desde otra aplicación, p.ej.
+  (Recibiría esos eventos si DragMode=dmAutomatic o si fuera dmManual y se llama a BeginDrag... )
+
+  From Create it's done, at the end, FCallback := TRichEditOleCallback.Create(Self);
+  If RevokeDragDrop(Handle) were subsequently called -> unregister default IDropTarget interface of Rich Edit
+  and we would also receive the WM_DROPFILES and CN_DROPFILES events, but we would lose all functionality
+  from that interface, so we could not, among other things, drag text from another application, e.g.
+  (would receive those events if DragMode=dmAutomatic or if it was dmManual and BeginDrag... is called)
+
+  -------------------
+  References:
+  https://www.freepascal.org/~michael/articles/dragdrop2/dragdrop2.pdf (y dragdrop.pdf, dragdrop3.pdf)
+    CF_HDROP This data format signifies existing files in the system
+
+	https://www.freepascal.org/~michael/articles/dragdrop/dragdrop.pdf
+	https://www.freepascal.org/~michael/articles/dragdrop3/dragdrop3.pdf
+
+	https://stackoverflow.com/questions/21245887/retrieving-filename-from-idataobject-in-delphi
+
+   Shell Clipboard Formats - Win32 apps | Microsoft Learn
+   https://learn.microsoft.com/en-us/windows/win32/shell/clipboard?redirectedfrom=MSDN
+	Standard clipboard format identifiers have the form CF_XXX. A common example is CF_TEXT, which is used for transferring ANSI text data.
+	These identifiers have predefined values and can be used directly with FORMATETC structures. With the exception of CF_HDROP, Shell format
+	identifiers are not predefined. With the exception of DragWindow, they have the form CFSTR_XXX. To differentiate these values from predefined
+	formats, they are often referred to as simply formats. However, unlike predefined formats, they must be registered by both source and target
+	before they can be used to transfer data. To register a Shell format, include the Shlobj.h header file and pass the CFSTR_XXX format identifier
+	to RegisterClipboardFormat. This function returns a valid clipboard format value, which can then be used as the cfFormat member of a FORMATETC structure.
+}
+
 
 
 const
@@ -1106,7 +1270,9 @@ const
 type
   PENLink = ^TENLink;
   PENOleOpFailed = ^TENOleOpFailed;
-
+{  See comment *3
+  ENDDROPFILES = ^TEndDropFiles;                                               // [dpv]
+}
   TFindTextEx = {$IFDEF RX_D12}TFindTextExW{$ELSE}TFindTextExA{$ENDIF};
 
 const
@@ -3220,11 +3386,113 @@ begin
   Result := NOERROR;
 end;
 
+
+(*
+  It works, but we don't need it for now
+
+ // Publications by Michael Van Canneyt
+ // https://www.freepascal.org/~michael/articles/#dragdrop3
+
+type
+  TFormatDescription = Record
+      MediaType : Integer;
+      ClipBoardFormat : Integer;
+      FormatName : String;
+    end;
+  TFormatDescriptionArray = Array of TFormatDescription;
+
+
+var
+  FAvailableFormats: TFormatDescriptionArray;
+  ClipNames: array[CF_TEXT..CF_MAX-1] of string =
+     ('CF_TEXT', 'CF_BITMAP', 'CF_METAFILEPICT', 'CF_SYLK', 'CF_DIF', 'CF_TIFF',
+     'CF_OEMTEXT', 'CF_DIB', 'CF_PALETTE', 'CF_PENDATA', 'CF_RIFF', 'CF_WAVE',
+     'CF_UNICODETEXT', 'CF_ENHMETAFILE', 'CF_HDROP', 'CF_LOCALE'{$IF CompilerVersion >= 23.0}, 'CF_DIBV5'{$ifend});
+
+
+function GetFormats(const dataObj: IDataObject): Integer;
+Var
+  N : Array[0..255] of Char;
+  F,M : Array[0..255] of Integer;
+  MediaOK : Boolean;
+  Enum : IEnumFORMATETC;
+  Elt : TFormatEtc;
+  I,E : longint;
+  S : String;
+  //Files: Boolean;
+begin
+  Result:=0;
+  SetLength(FAvailableFormats,0);
+
+  if DataObj.EnumFormatEtc(DATADIR_GET,Enum)<>S_OK then
+     exit;
+  MediaOK:=False;
+  Repeat
+    I:=0;
+    if Enum.Next(1,elt,@I)=S_OK then begin
+      if (Elt.tymed=TYMED_HGLOBAL)
+         or (elt.tymed=TYMED_ISTREAM) then begin
+        F[Result]:=elt.cfFormat;
+        M[Result]:=elt.tymed;
+        // if F[Result] = CF_HDROP then Files:= True;
+        Inc(Result);
+        MediaOK:= True;
+      end;
+    end;
+  Until I<>1;
+  Enum:= Nil; // Release instance
+
+  if Result>0 then begin
+    SetLength(FAvailableFormats,Result);
+    For I:=0 to Result-1 do begin
+      if F[I]<=CF_MAX then
+        S:= ClipNames[F[I]]
+      else begin
+        FillChar(N[0],SizeOf(N),#0);
+        If GetClipboardFormatName(F[I],@N,255)= 0 then
+          S:= 'Predefined format '+IntToStr(F[i])
+        else
+          S:= N;
+      end;
+      FAvailableFormats[I].ClipBoardFormat:= F[i];
+      FAvailableFormats[I].MediaType:= M[i];
+      FAvailableFormats[I].FormatName:= S;
+    end;
+  end;
+end;
+
+*)
+
+
+// https://stackoverflow.com/questions/21245887/retrieving-filename-from-idataobject-in-delphi
+
+function ContainFormat(ADataObject: IDataObject; AFormat: TClipFormat;
+  ATymed: Longint; AAspect: LongInt = DVASPECT_CONTENT; AIndex: LongInt = -1): Boolean;
+var Format: TFormatEtc;
+begin
+  ZeroMemory(@Format, SizeOf(Format));
+  Format.cfFormat := AFormat;
+  Format.dwAspect := AAspect;
+  Format.lindex := AIndex;
+  Format.tymed := ATymed;
+  Result := ADataObject.QueryGetData(Format) = S_OK;
+end;
+
+
 function TRichEditOleCallback.QueryAcceptData(const dataobj: IDataObject;
   var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
   hMetaPict: HGLOBAL): HResult;
 begin
-  Result := S_OK;
+  // See clarification of the treatment given to this method in the comment *3      [dpv]
+
+  //Result := S_OK;
+  //var Count: Integer:= GetFormats(DataObj);
+
+  if ContainFormat(dataobj, CF_HDROP, TYMED_HGLOBAL) then
+     Result := S_FALSE
+  else
+     Result := S_OK;
+
 end;
 
 function TRichEditOleCallback.ContextSensitiveHelp(fEnterMode: BOOL): HResult;
@@ -4473,7 +4741,7 @@ begin
   TabStop := True;
   Width := 185;
   Height := 89;
-{$IFDEF RX_ENHPRINT} 
+{$IFDEF RX_ENHPRINT}
   pagerect:=rect(180,180,1308,1924);
 {$ENDIF RX_ENHPRINT}
   AutoSize := False;
@@ -4603,10 +4871,13 @@ begin
   if (SysLocale.FarEast) and not (SysLocale.PriLangID = LANG_JAPANESE) then
     Font.Charset := GetDefFontCharSet;
 {$ENDIF}
-  Mask := ENM_CHANGE or ENM_SELCHANGE or ENM_REQUESTRESIZE or ENM_PROTECTED;
+  Mask := ENM_CHANGE or ENM_SELCHANGE or ENM_REQUESTRESIZE or ENM_PROTECTED;         // If we wanted to be able to use CN_DROPFILES => "or ENM_DROPFILES"
   if RichEditVersion >= 2 then Mask := Mask or ENM_LINK;
   SendMessage(Handle, EM_SETEVENTMASK, 0, LPARAM(Mask));
   SendMessage(Handle, EM_SETBKGNDCOLOR, 0, ColorToRGB(Color));
+
+  DragAcceptFiles( handle, true );                                                   // [dpv] See comment *3 
+
 {$IFDEF RX_D3}
   DoSetMaxLength(MaxLength);
 {$ENDIF}
@@ -4617,7 +4888,8 @@ begin
     UpdateTextModes(PlainText);
     SetLangOptions(FLangOptions);
   end;
-  if FAllowObjects then begin
+  //if FAllowObjects then begin                                                     // [dpv] See comment *3
+  if FAllowObjects or (assigned(FOnFileDropped)) then begin
     SendMessage(Handle, EM_SETOLECALLBACK, 0,
       LPARAM(TRichEditOleCallback(FCallback) as IRichEditOleCallback));
     GetRichEditOle(Handle, FRichEditOle);
@@ -4666,6 +4938,7 @@ begin
     TRichEditStrings(Lines).Format := StreamFmt;
     TRichEditStrings(Lines).Mode := Mode;
   end;
+  DragAcceptFiles( handle, false);                                 // [dpv]
   inherited DestroyWnd;
 end;
 
@@ -4673,9 +4946,28 @@ procedure TRxCustomRichEdit.SetAllowObjects(Value: Boolean);
 begin
   if FAllowObjects <> Value then begin
     FAllowObjects := Value;
-    RecreateWnd;    
+    RecreateWnd;
   end;
 end;
+
+procedure TRxCustomRichEdit.SetOnFileDropped(Value: TRichEditFileDroppedEvent);                       // [dpv]
+var
+  OldFOnFileDropped: TRichEditFileDroppedEvent;
+begin
+  // See coment *3
+  // https://stackoverflow.com/questions/1026513/comparing-a-pointer-to-functions-value-in-delphi
+
+  OldFOnFileDropped:= FOnFileDropped;
+  FOnFileDropped := Value;  
+    
+  if (assigned(OldFOnFileDropped) <> assigned(FOnFileDropped)) and (@FOnFileDropped <> @OldFOnFileDropped) then begin
+
+    if (not FAllowObjects) and (assigned(FOnFileDropped)) then
+       RecreateWnd;
+  end;
+
+end;
+
 
 {$IFDEF RX_D12}
 procedure TRxCustomRichEdit.UpdateHostNames;
@@ -5036,6 +5328,7 @@ begin
        exit;
     end
     else begin
+       aSTE.flags:= 0;
        if SelectionOnly then
           aSTE.flags:= ST_SELECTION;
        aSTE.flags:= aSTE.flags or ST_KEEPUNDO;
@@ -5521,7 +5814,8 @@ begin
 end;
 
 
-function TRxCustomRichEdit.PasteSpecialDialog: Boolean;
+//function TRxCustomRichEdit.PasteSpecialDialog: Boolean;
+function TRxCustomRichEdit.PasteSpecialDialog (PasteImg: boolean= true): integer;               // [dpv]
 
   procedure SetPasteEntry(var Entry: TOleUIPasteEntry; Format: TClipFormat;
     tymed: DWORD; const FormatName, ResultText: string; Flags: DWORD);
@@ -5567,6 +5861,7 @@ var
   Data: TOleUIPasteSpecial;
   PasteFormats: array[0..PasteFormatCount - 1] of TOleUIPasteEntry;
   Format: Integer;
+  FormatSelected: integer;                                    // [dpv]
   OleClientSite: IOleClientSite;
   Storage: IStorage;
   OleObject: IOleObject;
@@ -5574,7 +5869,7 @@ var
   Selection: TCharRange;
   HTMLText: UTF8string;                                       // [dpv]
 begin
-  Result := False;
+  FormatSelected := -1;
   if not CanPaste or not Assigned(FRichEditOle) then Exit;
   FillChar(Data, SizeOf(Data), 0);
   FillChar(PasteFormats, SizeOf(PasteFormats), 0);
@@ -5604,8 +5899,8 @@ begin
 
   try
     if OleUIPasteSpecial(Data) = OLEUI_OK then begin
-      Result := True;
-      if Data.nSelectedIndex in [0, 1] then begin
+      FormatSelected := Data.nSelectedIndex;
+      if FormatSelected in [0, 1] then begin
         { CFEmbeddedObject, CFLinkSource }
         FillChar(ReObject, SizeOf(TReObject), 0);
         IRichEditOle(FRichEditOle).GetClientSite(OleClientSite);
@@ -5648,22 +5943,25 @@ begin
           ReleaseObject(Storage);
         end;
       end
-      else if Data.nSelectedIndex = 6 then begin                            // [dpv]
+      else if FormatSelected = 6 then begin                            // [dpv]
          HTMLText:= GetAsHTML;
          SelText:= HTMLText;
          SelStart := SelStart + Length(HTMLText);
          SelLength:= 0;
       end
       else begin
-        Format := PasteFormats[Data.nSelectedIndex].fmtetc.cfFormat;
-        OleCheck(IRichEditOle(FRichEditOle).ImportDataObject(
-          Data.lpSrcDataObj, Format, Data.hMetaPict));
+        if PasteImg or (FormatSelected <> 5)  then begin               // [dpv]
+          Format := PasteFormats[FormatSelected].fmtetc.cfFormat;
+          OleCheck(IRichEditOle(FRichEditOle).ImportDataObject(
+            Data.lpSrcDataObj, Format, Data.hMetaPict));
+        end;
       end;
       SendMessage(Handle, EM_SCROLLCARET, 0, 0);
     end;
   finally
     DestroyMetaPict(Data.hMetaPict);
     ReleaseObject(Data.lpSrcDataObj);
+    Result:= FormatSelected;
   end;
 end;
 
@@ -6128,42 +6426,51 @@ Begin
 End;//SetRtfSelText
 
 
-function  TRxCustomRichEdit.GetRtfText: String;
+function  TRxCustomRichEdit.GetRtfText: AnsiString;
 var
-  SS: TStringStream;
   StreamModeBak: TRichStreamModes;
+  MS: TMemoryStream;
+
 Begin
   StreamModeBak:= StreamMode;
   StreamMode:=StreamMode - [smSelection];
 
-  SS:=TStringStream.Create('');
-
+  MS:=TMemoryStream.Create;
   try
-    Lines.SaveToStream(SS);
-    Result:= SS.DataString;
+    Lines.SaveToStream(MS);
+    SetString(Result, PAnsiChar(MS.Memory), MS.Size);
+
   finally
-    SS.FREE;
+    MS.Free;
     StreamMode:= StreamModeBak;
   end;
 End;
 
 
-procedure TRxCustomRichEdit.SetRtfText(const sRtf: String);
+procedure TRxCustomRichEdit.SetRtfText(const sRtf: AnsiString);
 var
-  SS: TStringStream;
+  MS: TMemoryStream;
   StreamModeBak: TRichStreamModes;
 Begin
   StreamModeBak:= StreamMode;
   StreamMode:= StreamMode - [smSelection];
 
-  SS:=TStringStream.Create(sRTF);
-
+  MS:=TMemoryStream.Create;
   try
-    Lines.LoadFromStream(SS);
+    MS.Write(sRtf[1], ByteLength(sRtf));
+    MS.Position:= 0;
+    Lines.LoadFromStream(MS);
   finally
-    SS.FREE;
+    MS.FREE;
     StreamMode:= StreamModeBak;
   end;	 
+End;
+
+
+procedure TRxCustomRichEdit.AddText(const Str: String);
+Begin
+  SelText:= Str;
+  SelStart:= SelStart + Length(Str);
 End;
 
 {$ENDIF}
@@ -6227,6 +6534,12 @@ begin
         begin
           { cannot allocate enough memory to maintain the undo state }
         end;
+      { See comment *3
+      EN_DROPFILES:
+        begin
+          FileDropped (ENDDROPFILES(NMHdr)^);
+        end;
+       }
     end;
 end;
 
@@ -6261,6 +6574,47 @@ procedure TRxCustomRichEdit.URLClick(const URLText: string; Button: TMouseButton
 begin
   if Assigned(OnURLClick) then OnURLClick(Self, URLText, Button);
 end;
+
+
+{
+procedure TRxCustomRichEdit.FileDropped(EndDropFiles: TEndDropFiles);     //  [dpv]  See comment *3
+var
+  FileList: TStringList;
+begin
+  SelText:= '';
+  if not assigned( OnFileDropped ) then exit;
+
+  FileList := GetDropFiles(EndDropFiles.hDrop);
+  try
+    OnFileDropped( self, FileList );
+
+  finally
+    FileList.Free;
+  end;
+
+end;
+}
+
+procedure TRxCustomRichEdit.WMDropFiles(var Msg: TWMDropFiles);            //  [dpv]  See comment *3
+var
+  FileList : TStringList;
+begin
+  if not assigned( OnFileDropped ) then exit;
+
+  FileList := GetDropFiles(Msg.Drop);
+  try
+    OnFileDropped( self, FileList );
+
+  finally
+    FileList.Free;
+  end;
+
+  // If wanted the EN_DROPFILES notification to be received we should let the default handler run (but this is not the case)
+  //inherited;
+end; // WMDropFiles
+
+
+
 
 function TRxCustomRichEdit.FindText(const SearchStr: string;
   StartPos, Length: Integer; Options: TRichSearchTypes): Integer;

@@ -55,7 +55,7 @@ object Form_ExportNew: TForm_ExportNew
     Top = 5
     Width = 301
     Height = 348
-    ActivePage = Tab_Options
+    ActivePage = Tab_Main
     HotTrack = False
     TabInactiveColor = clBtnFace
     TabInactiveFont.Charset = DEFAULT_CHARSET
@@ -70,12 +70,8 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox_Source: TGroupBox
-        Left = 3
+        Left = 2
         Top = 5
         Width = 281
         Height = 141
@@ -140,7 +136,7 @@ object Form_ExportNew: TForm_ExportNew
         end
       end
       object GroupBox_Target: TGroupBox
-        Left = 3
+        Left = 2
         Top = 152
         Width = 281
         Height = 157
@@ -170,6 +166,8 @@ object Form_ExportNew: TForm_ExportNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
+          Glyph.Data = {00000000}
+          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -228,7 +226,7 @@ object Form_ExportNew: TForm_ExportNew
       StaticPageIndex = -1
       TabVisible = True
       object GroupBox1: TGroupBox
-        Left = 5
+        Left = 3
         Top = 5
         Width = 281
         Height = 151
@@ -297,7 +295,7 @@ object Form_ExportNew: TForm_ExportNew
         end
       end
       object RG_NodeMode: TRadioGroup
-        Left = 5
+        Left = 3
         Top = 160
         Width = 281
         Height = 66
@@ -309,9 +307,9 @@ object Form_ExportNew: TForm_ExportNew
         TabOrder = 1
       end
       object RG_HTML: TRadioGroup
-        Left = 5
+        Left = 3
         Top = 232
-        Width = 288
+        Width = 281
         Height = 81
         Margins.Top = 6
         Margins.Bottom = 6
@@ -326,10 +324,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object RG_TreePadVersion: TRadioGroup
         Left = 5
         Top = 5

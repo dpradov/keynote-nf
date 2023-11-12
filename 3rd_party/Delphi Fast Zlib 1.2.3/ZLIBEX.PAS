@@ -176,7 +176,9 @@ function ZDecompressStr(const s: string): string;
 procedure ZCompressStream(inStream, outStream: TStream;
   level: TZCompressionLevel = zcDefault);
 
-procedure ZDecompressStream(inStream, outStream: TStream);
+// procedure ZDecompressStream(inStream, outStream: TStream);       // [dpv]
+
+function ZDecompressStream(inStream, outStream: TStream): Int64;    // [dpv]
 
 {** export routines ********************************************************}
 
@@ -722,7 +724,7 @@ begin
 end;
 *)
 
-procedure ZDecompressStream(inStream, outStream: TStream);     // [dpv]
+function ZDecompressStream(inStream, outStream: TStream): Int64;     // [dpv]
 const
     bufferInSize = 32768;
     InitialBufferOutSize = 32768;
@@ -741,6 +743,7 @@ var
 begin
   Retry:= 0;
   bufferOutSize:= InitialBufferOutSize;
+  Result:= -1;                                 // [dpv] Result: PosIniNonCompressed
 
 
   inStreamPosition:= inStream.Position;
@@ -770,9 +773,15 @@ begin
 
           outSize := bufferOutSize - zstream.avail_out;
           outStream.Write(PAnsiChar(@outBuffer[0])^, outSize);
-        until (zstream.avail_in = 0) and (zstream.avail_out > 0);
+        until ((zstream.avail_in = 0) and (zstream.avail_out > 0))
+              or (outSize = 0);                                     // [dpv]
 
-        inSize := inStream.Read(inBuffer, bufferInSize);
+        if outSize = 0 then begin                                   // [dpv]
+           Result:= inStream.Position - zstream.avail_in;
+           break;
+        end
+        else
+           inSize := inStream.Read(inBuffer, bufferInSize);
       end;
 
       repeat
@@ -801,8 +810,8 @@ begin
                raise E;
     end;
 
-  until (Retry = 0) or (Retry > 10);
-  if Retry > 10 then
+  until (Retry = 0) or (Retry > NumMaxRetriesOnBufferError);
+  if Retry > NumMaxRetriesOnBufferError then
      raise EZCompressionError.Create(_z_errmsg[2 - Z_BUF_ERROR]);
 end;
 

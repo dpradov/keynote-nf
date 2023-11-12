@@ -5,7 +5,7 @@ object Form_URLAction: TForm_URLAction
   BorderStyle = bsDialog
   Caption = 'Choose action for URL'
   ClientHeight = 114
-  ClientWidth = 598
+  ClientWidth = 604
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -36,7 +36,7 @@ object Form_URLAction: TForm_URLAction
     FocusControl = Edit_TextURL
   end
   object Button_Copy: TButton
-    Left = 282
+    Left = 271
     Top = 82
     Width = 97
     Height = 25
@@ -47,7 +47,7 @@ object Form_URLAction: TForm_URLAction
     OnClick = Button_CopyClick
   end
   object Button_Cancel: TButton
-    Left = 499
+    Left = 496
     Top = 82
     Width = 97
     Height = 25
@@ -57,7 +57,7 @@ object Form_URLAction: TForm_URLAction
     TabOrder = 3
   end
   object Button_Open: TButton
-    Left = 168
+    Left = 157
     Top = 82
     Width = 97
     Height = 25
@@ -68,7 +68,7 @@ object Form_URLAction: TForm_URLAction
     OnClick = Button_OpenClick
   end
   object Button_OpenNew: TButton
-    Left = 24
+    Left = 8
     Top = 82
     Width = 137
     Height = 25
@@ -93,7 +93,7 @@ object Form_URLAction: TForm_URLAction
     TabOrder = 5
   end
   object Button_Modify: TButton
-    Left = 384
+    Left = 379
     Top = 82
     Width = 97
     Height = 25

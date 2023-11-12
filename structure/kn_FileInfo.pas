@@ -31,6 +31,7 @@ uses
    Vcl.StdCtrls,
    Vcl.ComCtrls,
    Vcl.ExtCtrls,
+   Vcl.FileCtrl,
    Vcl.Mask,
    RxPlacemnt,
    TB97Ctls,
@@ -40,7 +41,8 @@ uses
    kn_Info,
    kn_Const,
    kn_NoteObj,
-   kn_FileObj;
+   kn_FileObj,
+   kn_ImagesMng;
 
 
 type
@@ -68,7 +70,6 @@ type
     Edit_Description: TEdit;
     Label8: TLabel;
     Combo_Format: TComboBox;
-    Bevel2: TBevel;
     Tab_Pass: TTabSheet;
     GroupBox2: TGroupBox;
     Label_Confirm: TLabel;
@@ -81,7 +82,6 @@ type
     Label_EnterPass: TLabel;
     Tab_Settings: TTabSheet;
     GroupBox3: TGroupBox;
-    Bevel1: TBevel;
     CB_AsReadOnly: TCheckBox;
     FormPlacement: TFormPlacement;
     CB_HidePass: TCheckBox;
@@ -91,7 +91,6 @@ type
     CB_ShowTabIcons: TCheckBox;
     CB_TrayIcon: TCheckBox;
     Image_TrayIcon: TImage;
-    Bevel3: TBevel;
     RB_TabImgDefault: TRadioButton;
     RB_TabImgBuiltIn: TRadioButton;
     RB_TabImgOther: TRadioButton;
@@ -105,8 +104,18 @@ type
     Edit_TabImg: TEdit;
     Label9: TLabel;
     Combo_CompressLevel: TComboBox;
-    Bevel4: TBevel;
     Label_IsReadOnly: TLabel;
+    cbImgStorageMode: TComboBox;
+    Label26: TLabel;
+    gbExternalStorage: TGroupBox;
+    Label22: TLabel;
+    btnOpenDlgExternalPath: TToolbarButton97;
+    cbImgExtStorageType: TComboBox;
+    txtExtStorageLocation: TEdit;
+    Label10: TLabel;
+    rbImagesStRelocate: TRadioButton;
+    rbImagesStChange: TRadioButton;
+    lblImgWarning: TLabel;
     procedure TB_OpenDlgTrayIconClick(Sender: TObject);
     procedure TB_OpenDlgTabImgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -127,8 +136,21 @@ type
     procedure RB_TabImgOtherClick(Sender: TObject);
     procedure Button_SystemClick(Sender: TObject);
     procedure Button_HelpClick(Sender: TObject);
+    procedure cbImgStorageModeChange(Sender: TObject);
+    procedure cbImgExtStorageTypeChange(Sender: TObject);
+    procedure btnOpenDlgExternalPathClick(Sender: TObject);
+    procedure txtExtStorageLocationEnter(Sender: TObject);
+    procedure txtExtStorageLocationExit(Sender: TObject);
+    procedure rbImagesStRelocateClick(Sender: TObject);
+    procedure rbImagesStChangeClick(Sender: TObject);
+    procedure txtExtStorageLocationKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     { Private declarations }
+
+    procedure CheckExternalStorageEnabled;
+    procedure CheckExternalStorageLocation;
+
   public
     { Public declarations }
     myNotes : TNoteFile;
@@ -136,6 +158,7 @@ type
     PassphraseChanged : boolean;
     MinPassLen : integer;
     HidePassText : boolean;
+    ExtStorageLocationFake: boolean;
 
     function Verify : boolean;
     procedure EnablePassControls;
@@ -146,7 +169,9 @@ const
 
 implementation
 uses
-   kn_main;
+   kn_main,
+   kn_Global
+   ;
 
 {$R *.DFM}
 
@@ -163,9 +188,17 @@ resourcestring
   STR_09 = 'The passphrase you entered is too short: Minimum passphrase length is %d characters';
   STR_10 = 'The passphrases you entered do not match. Please enter the exact same passphrase twice.';
   STR_11 = 'You chose to encrypt a file that contains virtual nodes. ' +
-                     'Note that the disk files linked to virtual nodes ' +
+                     'Note that the disk files linked to virtual nodes and images saves in external storage (Zip or Folder) ' +
                      'will NOT be encrypted.' + #13#13 + 'Continue?';
   STR_12 = 'File "%s" was open in READ-ONLY mode. If you uncheck this box, the read-only mode will be turned OFF. Continue?';
+  STR_13 = 'Open images storage folder';
+  STR_14 = 'Open images storage file';
+  STR_15 = 'Set';
+  STR_16 = 'Must save KNT before change images storage again';
+  STR_17 = '(*) Missing current external storage';
+  STR_18 = 'New images will be saved provisionally [only] as Embedded KNT' + #13 +
+           'Deletions will be effective when it is available'+ #13#13 +
+           '(It may be totally fine if you temporarily lose access to image storage)';
 
 
 procedure TForm_FileInfo.FormCreate(Sender: TObject);
@@ -208,6 +241,16 @@ begin
   Combo_CompressLevel.ItemIndex := 0;
   Edit_Comment.MaxLength := MAX_COMMENT_LENGTH;
   Edit_Description.MaxLength := MAX_COMMENT_LENGTH;
+
+  for var j : TImagesStorageMode := low( TImagesStorageMode ) to high( TImagesStorageMode ) do
+     CbImgStorageMode.Items.Add( IMAGES_STORAGE_MODE[j] );
+  CbImgStorageMode.ItemIndex := 1;
+  for var j : TImagesExternalStorage := low( TImagesExternalStorage ) to high( TImagesExternalStorage ) do
+     cbImgExtStorageType.Items.Add( EXTERNAL_STORAGE_TYPE[j] );
+  cbImgExtStorageType.ItemIndex := 1;
+
+  ExtStorageLocationFake:= false;
+
   OK_Click := false;
 end; // CREATE
 
@@ -242,6 +285,7 @@ begin
       Edit_FileName.Visible := false;
       Label_FileNotFound.Visible := true;
       label_Modified.Caption := STR_05;
+      rbImagesStChange.Caption := STR_15;
     end;
     CB_AsReadOnly.Caption := Format( STR_06, [ExtractFilename( myNotes.FileName )] );
     CB_AsReadOnly.Checked := ( myNotes.OpenAsReadOnly or myNotes.ReadOnly );
@@ -279,7 +323,6 @@ begin
     CheckBox_ShowTabIconsClick( CB_ShowTabIcons );
     RB_TabImgOtherClick( RB_TabImgOther );
     CB_ShowTabIcons.OnClick := CheckBox_ShowTabIconsClick;
-
   end
   else begin
     Edit_FileName.Text := STR_07;
@@ -293,6 +336,26 @@ begin
 
     Combo_Method.ItemIndex := ord( myNotes.CryptMethod );
   end;
+
+  lblImgWarning.Visible := false;
+  if ImagesManager.ChangingImagesStorage then begin
+     lblImgWarning.Visible := true;
+     lblImgWarning.Caption:= STR_16;
+     lblImgWarning.Hint:= '';
+  end
+  else
+  if ImagesManager.ExternalStorageIsMissing then begin
+     lblImgWarning.Visible := true;
+     lblImgWarning.Caption:= STR_17;
+     lblImgWarning.Hint:= STR_18;
+  end;
+  cbImgStorageMode.ItemIndex := Ord(ImagesManager.StorageMode);
+  cbImgExtStorageType.ItemIndex:= Ord(ImagesManager.ExternalStorageType);
+  txtExtStorageLocation.Text:= ImagesManager.ExternalStorageLocation;
+  ExtStorageLocationFake:= (NoteFile.FileName = '');
+  cbImgStorageMode.Enabled:= not ImagesManager.ChangingImagesStorage;
+  CheckExternalStorageEnabled;
+
 
   if Edit_Description.Enabled then begin
     Edit_Description.SetFocus;
@@ -311,6 +374,7 @@ begin
   Edit_Pass.OnChange := Edit_PassChange;
   Edit_Confirm.OnChange := Edit_PassChange;
   CB_AsReadOnly.OnClick := CheckBox_AsReadOnlyClick;
+
   _FILE_TABIMAGES_SELECTION_CHANGED := false;
 
 end; // ACTIVATE
@@ -550,6 +614,116 @@ end;
 procedure TForm_FileInfo.Button_HelpClick(Sender: TObject);
 begin
   Application.HelpCommand( HELP_CONTEXT, Pages.ActivePage.HelpContext );
+end;
+
+
+procedure TForm_FileInfo.cbImgStorageModeChange(Sender: TObject);
+begin
+   if not (TImagesStorageMode(cbImgStorageMode.ItemIndex) in [smExternal, smExternalAndEmbKNT]) then begin
+      ExtStorageLocationFake:= (NoteFile.FileName = '');
+      txtExtStorageLocation.Text:= '';
+      rbImagesStChange.Checked:= false;
+   end;
+   CheckExternalStorageEnabled;
+end;
+
+procedure TForm_FileInfo.cbImgExtStorageTypeChange(Sender: TObject);
+begin
+   CheckExternalStorageLocation;
+end;
+
+
+procedure TForm_FileInfo.CheckExternalStorageEnabled;
+var
+  extStorageEnab: boolean;
+begin
+   extStorageEnab:= cbImgStorageMode.Enabled and (TImagesStorageMode(cbImgStorageMode.ItemIndex) in [smExternal, smExternalAndEmbKNT]);
+   rbImagesStChange.Enabled := extStorageEnab;
+   rbImagesStRelocate.Enabled := extStorageEnab and (not ImagesManager.FileIsNew) and (ImagesManager.StorageMode in [smExternal, smExternalAndEmbKNT]);
+   if extStorageEnab and (txtExtStorageLocation.Text= '') then
+      CheckExternalStorageLocation;
+
+   extStorageEnab:= extStorageEnab and (rbImagesStChange.Checked or rbImagesStRelocate.Checked);
+
+   txtExtStorageLocation.Enabled := extStorageEnab;
+   cbImgExtStorageType.Enabled := extStorageEnab;
+   btnOpenDlgExternalPath.Enabled := extStorageEnab;
+end;
+
+
+procedure TForm_FileInfo.CheckExternalStorageLocation;
+var
+  extStorageType: TImagesExternalStorage;
+begin
+   if ExtStorageLocationFake or (txtExtStorageLocation.Text = '') then begin
+      extStorageType:= TImagesExternalStorage(cbImgExtStorageType.ItemIndex);
+      txtExtStorageLocation.Text:= ImagesManager.GetDefaultExternalLocation(extStorageType);
+   end;
+end;
+
+procedure TForm_FileInfo.txtExtStorageLocationEnter(Sender: TObject);
+begin
+    if ExtStorageLocationFake then
+       txtExtStorageLocation.Text:= '';
+end;
+
+procedure TForm_FileInfo.txtExtStorageLocationExit(Sender: TObject);
+begin
+   CheckExternalStorageLocation;
+end;
+
+procedure TForm_FileInfo.txtExtStorageLocationKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  ExtStorageLocationFake:= false;
+end;
+
+procedure TForm_FileInfo.rbImagesStChangeClick(Sender: TObject);
+begin
+   CheckExternalStorageEnabled;
+end;
+
+procedure TForm_FileInfo.rbImagesStRelocateClick(Sender: TObject);
+begin
+   CheckExternalStorageEnabled;
+end;
+
+
+procedure TForm_FileInfo.btnOpenDlgExternalPathClick(Sender: TObject);
+var
+  Dir: string;
+
+begin
+  try
+      btnOpenDlgExternalPath.Down:= False;
+      Dir:= ExtractFilePath( txtExtStorageLocation.Text);
+      if TImagesExternalStorage(cbImgExtStorageType.ItemIndex) = issFolder then begin
+         if SelectDirectory(STR_13,'', Dir) then begin
+            txtExtStorageLocation.Text:= Dir;
+            ExtStorageLocationFake:= false;
+         end;
+      end
+      else begin
+       if Dir <> '' then
+          Dir:= NoteFile.File_Path;
+
+        with Form_Main.OpenDlg do begin
+          Title := STR_14;
+          Filter := FILTER_ZIP;
+          InitialDir:= Dir;
+        end;
+        if Form_Main.OpenDlg.Execute then begin
+           txtExtStorageLocation.Text := Form_Main.OpenDlg.FileName;
+           ExtStorageLocationFake:= false;
+        end;
+      end;
+  except
+    on E : Exception do begin
+     if E.Message <> '' then
+        PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
+    end;
+  end;
+
 end;
 
 end.

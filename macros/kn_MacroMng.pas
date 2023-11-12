@@ -124,6 +124,7 @@ uses
    kn_TemplateMng,
    kn_FindReplaceMng,
    kn_VCLControlsMng,
+   kn_ImagesMng,
    kn_Main;
 
 
@@ -930,6 +931,11 @@ begin
   if ( not assigned( Macro )) then exit;
   if ( MacroAbortRequest or MacroErrorAbort ) then exit;
 
+  if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+     if ActiveNote.Editor.SelLength > 0 then
+        CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+  end;
+
   linecnt := 1;
   ErrorCnt := 0;
 
@@ -1633,6 +1639,7 @@ var
   errorStr: string;
   NotImplemented, Canceled: boolean;
   RTFAux : TTabRichEdit;
+  SelStartOrig, SelLengthOrig, p: integer;
 begin
   // Perform command on ActiveNote.
   // The command does not modify the note,  (*1)
@@ -1658,14 +1665,33 @@ begin
   try
       case aCMD of
           ecCopy : begin
-            RTFAux:= GetEditorWithNoKNTHiddenCharacters (ActiveNote.Editor);
+            if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+               if ActiveNote.Editor.SelLength = 1 then begin
+                  SelStartOrig:= -1;
+                  LastCopiedIDImage:= CheckToIdentifyImageID(ActiveNote.Editor, p);   // We will save the ID associated with the image (if it is and we have it). We want to be able to offer an image format and not just RTF
+                  RTFAux:= ActiveNote.Editor;                                         // A selected image -> SelLength=1
+               end
+               else
+                 CheckToSelectLeftImageHiddenMark(ActiveNote.Editor, SelStartOrig, SelLengthOrig);
+            end;
+
+            RTFAux:= GetEditorWithNoKNTHiddenCharacters (ActiveNote.Editor, hmOnlyBookmarks, true);  // Remove only hidden characters vinculated to bookmarks
             try
                RTFAux.CopyToClipboard;
+               LogRTFHandleInClipboard();
+
+               { Replaced by the use of of LogRTFHandleInClipboard() / ClipboardContentWasCopiedByKNT()
                if EditorOptions.PlainDefaultPaste then
                  TestCRCForDuplicates(Clipboard.TryAsText);
+               }
             finally
                if RTFAux <> ActiveNote.Editor then
                   RTFAux.Free;
+
+               if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+                  if SelStartOrig >= 0 then
+                     ActiveNote.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
+               end;
             end;
           end;
 
@@ -1888,7 +1914,7 @@ begin
            if (ClipOptions.PlainTextMode = clptAllowHyperlink) then
               SaveTextAttributes(Editor, FontFormatToCopy);
 
-           TryPasteRTF(Editor, HTMLClip);
+           TryPasteRTF(Note, HTMLClip);
            j := Editor.SelStart;
            Editor.SuspendUndo;
            try
@@ -1925,6 +1951,7 @@ var
   myPara : TParaFormat2;
   maxIndent: integer;
   ErrNoTextSelected, ErrNotImplemented, Canceled: boolean;
+  SelStartOrig, SelLengthOrig: integer;
 
     Procedure CmdNumbering(tipo : TRxNumbering);
     var
@@ -1981,22 +2008,66 @@ begin
                SetStrikeOut(not (fsStrikeout in Style));
 
           ecCut: begin
-              ActiveNote.Editor.CutToClipboard;
+              if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+                 p:= -1;
+                 if ActiveNote.Editor.SelLength = 1 then begin
+                    SelStartOrig:= -1;
+                    LastCopiedIDImage:= CheckToIdentifyImageID(ActiveNote.Editor, p);   // We will save the ID associated with the image (if it is and we have it). We want to be able to offer an image format and not just RTF
+                 end
+                 else begin
+                    LastCopiedIDImage:= 0;
+                    CheckToSelectLeftImageHiddenMark(ActiveNote.Editor, SelStartOrig, SelLengthOrig);
+                 end;
+
+                 ActiveNote.Editor.CutToClipboard;
+
+                 if p >= 0 then begin
+                    // We have not copied (cut) the hidden label along with the image, and we must delete it from the initial point
+                    // p: posFirstHiddenChar
+                    ActiveNote.Editor.SetSelection(p, ActiveNote.Editor.SelStart, true);
+                    ActiveNote.Editor.SelText:= '';
+                 end;
+                 if SelStartOrig >= 0 then
+                    ActiveNote.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
+              end
+              else
+                 ActiveNote.Editor.CutToClipboard;
+
+
+              LogRTFHandleInClipboard();
+              { Replaced by the use of of LogRTFHandleInClipboard() / ClipboardContentWasCopiedByKNT()
               if EditorOptions.PlainDefaultPaste then
                  TestCRCForDuplicates(Clipboard.TryAsText);
+              }
             end;
 
           ecPaste :
-            if not EditorOptions.PlainDefaultPaste or not Clipboard.HasFormat(CF_TEXT) then
-               PasteBestAvailableFormat(Activenote.Editor, true, true)
-            else begin
-               // We must paste as PlainText (considering also PlainTextMode) if text has been copied from outside KN
-               // If text have been copied from inside KNT then CRC will correspond to the value calculated with last copy operation
-               txt:= Clipboard.TryAsText;
-               if TestCRCForDuplicates(txt, false) then
-                  TryPasteRTF(ActiveNote.Editor)
-               else
-                  PerformCmdPastePlain(ActiveNote, txt);
+            begin
+              if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+                 // If we have an image selected (and maybe more elements), we need to make sure we also select the possible
+                 // hidden mark with the ID, to replace it along with the image with the pasted text
+                 if ActiveNote.Editor.SelLength > 0 then
+                    CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+              end;
+
+              if not EditorOptions.PlainDefaultPaste or not Clipboard.HasFormat(CF_TEXT) then
+                 PasteBestAvailableFormat(Activenote, true, true)
+              else begin
+                { Replaced by the use of of LogRTFHandleInClipboard() / ClipboardContentWasCopiedByKNT()
+                 // We must paste as PlainText (considering also PlainTextMode) if text has been copied from outside KN
+                 // If text have been copied from inside KNT then CRC will correspond to the value calculated with last copy operation
+                 // Unless the copied text also includes an image, in which case Clipboard.TryAsText may return ''...
+                 txt:= Clipboard.TryAsText;
+                 if TestCRCForDuplicates(txt, false) then
+                    TryPasteRTF(ActiveNote.Editor)
+                 else
+                    PerformCmdPastePlain(ActiveNote, txt);
+                 }
+                 if ClipboardContentWasCopiedByKNT() then
+                    TryPasteRTF(ActiveNote)
+                 else
+                    PerformCmdPastePlain(ActiveNote, txt);
+              end;
             end;
 
           ecPastePlain :
@@ -2539,6 +2610,11 @@ begin
                ErrNoTextSelected:= True;
 
           ecInsDate : begin
+            if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+               if ActiveNote.Editor.SelLength > 0 then
+                  CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+            end;
+
             if KeyOptions.DTUseLastSelection then begin
                if ( KeyOptions.DTLastDateFmt = '' ) then
                   KeyOptions.DTLastDateFmt := KeyOptions.DateFmt;
@@ -2552,6 +2628,11 @@ begin
           end;
 
           ecInsTime : begin
+            if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+              if ActiveNote.Editor.SelLength > 0 then
+                  CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+            end;
+
             if KeyOptions.DTUseLastSelection then begin
               if ( KeyOptions.DTLastTimeFmt = '' ) then
                  KeyOptions.DTLastTimeFmt := KeyOptions.TimeFmt;
@@ -2885,7 +2966,7 @@ begin
     if ( assigned( NoteFile ) and assigned( ActiveNote )) then
        if Form_Main.Res_RTF.Focused then begin
           executed:= true;
-          PasteBestAvailableFormat(Form_Main.Res_RTF, true, true);
+          PasteBestAvailableFormatInEditor(Form_Main.Res_RTF, nil, true, true);
        end
        else
        if ActiveNote.Editor.Focused then begin
@@ -2903,7 +2984,8 @@ begin
                 PerformCmd( ecPaste );
           end
           else
-             if ForcePlain or ActiveNote.PlainText then
+             //if ForcePlain or ActiveNote.PlainText then
+             if ForcePlain or not NoteSupportsImages then
                 PerformCmd( ecPastePlain )
              else
                 PerformCmd( ecPaste );

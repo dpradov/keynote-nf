@@ -1,11 +1,11 @@
 unit kn_Const;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
@@ -21,8 +21,10 @@ uses
    Winapi.Windows,
    Winapi.ShellAPI,
    Winapi.Messages,
+   System.Zip,
    Vcl.Graphics,
-   ZLibEx;
+   ZLibEx,
+   SynGdiPlus;
 
 
 resourcestring
@@ -71,6 +73,7 @@ resourcestring
   STR_37_FactStr = 'Import as tree nodes';
   STR_38_FactStr = 'Import as virtual tree nodes';
   STR_39_FactStr = 'Import as Internet Explorer virtual node';
+  STR_40_FactStr = 'Insert content at caret position';
   STR_40_ImportHTML = 'No conversion (HTML source)';
   STR_41_ImportHTML = 'Use Shared HTML Text Converter (html32.cnv + msconv97.dll)';  // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Shared Tools\Text Converters
   STR_42_ImportHTML = 'Use MS Word Converter';
@@ -94,6 +97,14 @@ resourcestring
   STR_59_ClipPlainTextMode = 'Only hyperlinks (without other formatting)';
   STR_60_ClipPlainTextMode = 'Only font style (bold, italic, ...)';
   STR_61_ClipPlainTextMode = 'Only font (without paragraph formatting)';
+  STR_ImagesSM_1 = 'Embedded RTF';
+  STR_ImagesSM_2 = 'Embedded KNT';
+  STR_ImagesSM_3 = 'External (Folder or Zip)';
+  STR_ImagesSM_4 = 'External + Embedded KNT';
+  STR_ImagesSM_5 = 'No export images';
+  STR_ImagesExtSt_1 = 'Folder';
+  STR_ImagesExtSt_2 = 'ZIP';
+
 
 procedure DefineConst;
 
@@ -334,6 +345,12 @@ const
   _NF_COMMENT         = '#';    // comment, but this is really used for file header information
   _NF_WARNING         = _NF_COMMENT + ' This is an automatically generated file. Do not edit.';
   _NF_PLAINTEXTLEADER = ';';
+  _NF_StoragesDEF     = '%S';
+  _StorageMode        = 'SM';
+  _NF_ImagesDEF       = '%I';
+  _IDNextImage        = 'II';
+  _NF_EmbeddedIMAGES  = '%EI';
+
 
 const
   _SHORTDATEFMT  = 'dd-MM-yyyy'; // all these are only internal defaults
@@ -436,6 +453,11 @@ type
   TNoteType = (
     ntRTF, // standard RichEdit control
     ntTree // tree panel plus richedit control (tree-type note)
+  );
+  TNextBlock = (
+    nbRTF,    // = ntRTF
+    nbTree,   // = ntTree
+    nbImages  // = Images Definition
   );
   //TNoteNameStr = String[TABNOTE_NAME_LENGTH];
   TNoteNameStr = string;
@@ -543,6 +565,12 @@ const
 
    Example: \v\'11B5\'12\v0   In Delphi, debugging, it is shown as '#$11'B5'#$12' (counted '#$11' or '#$12' as one character)
    Although we can write RTF in an equivalent way ( {\v\'11B5\'12} ), the RichEdit control will translate it in the old way, with \v and \v0
+
+   *2
+   With image management and conversion between storage modes, I can end up saving to the nodes (or notes) stream without going
+   through the editor. In those cases, if I generate as RTF {\v ...} I should take it into account when having to eliminate hidden
+   characters (for example when converting to smEmbRTF), since I could have RTFs in that format and others like \v. .. \v0, which 
+   is how the control converts them. To avoid all these problems I will insert directly in the last way, with \v and \v0
   *)
 
   KNT_RTF_HIDDEN_MARK_L = '\''11';
@@ -550,7 +578,29 @@ const
   KNT_RTF_HIDDEN_MARK_L_CHAR = Chr(17);    // 17 ($11): DC1 (Device Control 1)
   KNT_RTF_HIDDEN_MARK_R_CHAR = Chr(18);    // 18 ($12): DC2 (Device Control 2)
   KNT_RTF_HIDDEN_BOOKMARK = 'B';
-  KNT_RTF_HIDDEN_MAX_LENGHT = 10;         // *1
+  KNT_RTF_HIDDEN_IMAGE = 'I';
+  KNT_RTF_HIDDEN_MAX_LENGHT_CHAR = 10;         // *1
+  (* *2
+  KNT_RTF_BMK_HIDDEN_MARK = '{\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK + '%d'+ KNT_RTF_HIDDEN_MARK_R + '}';
+  KNT_RTF_IMG_HIDDEN_MARK = '{\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE    + '%d'+ KNT_RTF_HIDDEN_MARK_R + '}';
+  *)
+  KNT_RTF_BMK_HIDDEN_MARK = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
+  KNT_RTF_IMG_HIDDEN_MARK = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE    + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
+
+  KNT_RTF_IMG_HIDDEN_MARK_CHAR =    KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE + '%d' + KNT_RTF_HIDDEN_MARK_R_CHAR;
+
+  {
+     \v\'11T999999\'12\v0    -> 20 max (If necessary we can increase it)
+	   \'11T999999\'12         -> 15 max
+  }
+  KNT_RTF_HIDDEN_MAX_LENGHT = 20;
+  KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT = 15;
+
+  KNT_IMG_LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK "img:';
+  //KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt{\ul\cf0 %s}}}';    // {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
+  KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt{%s}}}';    // If used {\fldrslt{\ul\cf0 %s} it ends up with something like {\fldrslt{\ul\cf0\cf0\ul %s}. (Idem with \ul\cf1 .. \cf1\ul etc)
+
+
 
 type
   TKNTURL = (
@@ -558,7 +608,9 @@ type
     urlUndefined,
     urlFile, urlHTTP, urlHTTPS, urlFTP, urlMailto,
     urlTelnet, urlNews, urlNNTP, urlGopher, urlWais, urlProspero,
-    urlNotes, urlCallto, urlOnenote, urlOutlook, urlTel, urlWebcal, urlOTHER
+    urlNotes, urlCallto, urlOnenote, urlOutlook, urlTel, urlWebcal,
+    urlKNTImage,
+    urlOTHER
   );
 
 const
@@ -566,7 +618,9 @@ const
     '',
     {'knt:', } 'file:', 'http:', 'https:', 'ftp:', 'mailto:',
     'telnet:', 'news:', 'nntp:', 'gopher:', 'wais:', 'prospero:',
-    'notes:', 'callto:', 'onenote:', 'outlook:', 'tel:', 'webcal:', '????:'
+    'notes:', 'callto:', 'onenote:', 'outlook:', 'tel:', 'webcal:',
+    'img:',
+    '????:'
   );
 
 type
@@ -631,6 +685,111 @@ const
     STR_28_ExpandMode
   );
 
+
+
+type
+  TImagesStorageMode = (smEmbRTF, smEmbKNT, smExternal, smExternalAndEmbKNT);  // Emb: Embedeed
+
+const
+  IMAGES_STORAGE_MODE : array[TImagesStorageMode] of string = (
+     STR_ImagesSM_1,
+     STR_ImagesSM_2,
+     STR_ImagesSM_3,
+     STR_ImagesSM_4
+  );
+
+
+type
+  TImagesExternalStorage =  (issFolder, issZIP );
+
+const
+   EXTERNAL_STORAGE_TYPE : array[TImagesExternalStorage] of string = (
+     STR_ImagesExtSt_1,
+     STR_ImagesExtSt_2
+   );
+
+type
+  TImagesStorageModeOnExport = (smeEmbRTF, smeEmbKNT, smeNone);
+
+const
+  IMAGES_STORAGE_MODE_ON_EXPORT : array[TImagesStorageModeOnExport] of string = (
+     STR_ImagesSM_1,
+     STR_ImagesSM_2,
+     STR_ImagesSM_5
+  );
+
+
+type
+  TZipCompressionSelec = (
+    zcsStored,
+    zcsDeflate,
+    zcsDeflate64
+  );
+
+const
+  ZIP_COMPRESSION_SELEC : array[TZipCompressionSelec] of string = (
+    'Stored',
+    'Deflate',
+    'Deflate64'
+  );
+
+
+type
+  TImagesMode = (imImage, imLink);
+  TImageIDs = Array of integer;
+
+const
+ IMAGE_FORMATS : array[TImageFormat] of string = (
+    'gif',
+    'png',
+    'jpg',
+    'bmp',
+    'tif',
+    'wmf',
+    'emf',
+    '*'
+  );
+
+
+type
+  TRTFImageFormat    =  (rtfwmetafile8, rtfEmfblip, rtfPngblip, rtfJpegblip );
+
+const
+  RTF_IMAGE_FORMATS : array[TRTFImageFormat] of AnsiString = (
+    'wmetafile8',
+    'emfblip',
+    'pngblip',
+    'jpegblip'
+  );
+
+type
+  TImageFormatFromClipb = (imcPNG, imcJPG);
+
+const
+  IMAGE_FORMATS_FROM_CLIPB : array[TImageFormatFromClipb] of string = (
+    'png',
+    'jpg'
+  );
+
+
+type
+  TImageFormatToRTF  =  (ifWmetafile8, ifAccordingImage );
+
+  TPixelFormatSelec = (
+    pfs15bit,
+    pfs24bit,
+    pfs32bit
+  );
+
+const
+  PIXEL_FORMAT_SELEC : array[TPixelFormatSelec] of string = (
+    '15 bit',
+    '24 bit',
+    '32 bit'
+  );
+
+
+
 type
   TClipNodeNaming = (
     clnDefault, clnClipboard, clnDateTime
@@ -690,7 +849,8 @@ type
     factHyperlink,
     factImport,
     factImportAsNode,
-    factMakeVirtualNode
+    factMakeVirtualNode,
+    factInsertContent
     {$IFDEF WITH_IE}
     ,
     factMakeVirtualIENode
@@ -708,7 +868,8 @@ const
     STR_36_FactStr,
     STR_35_FactStr,
     STR_37_FactStr,
-    STR_38_FactStr
+    STR_38_FactStr,
+    STR_40_FactStr
     {$IFDEF WITH_IE}
     ,
     STR_39_FactStr
@@ -838,6 +999,13 @@ const
   _FlagHasNodeBGColor = 'B';
   _FlagHasNodeColorBoth = 'A';
   _FlagHasNodeColorNone = '0';
+
+const
+  // tokens related to image processing
+  _StorageDEF = 'SD';
+  _ImageDEF   = 'PD';      // Picture definition
+  _EmbeddedImage = 'EI';
+  _END_OF_EMBEDDED_IMAGE = '##END_IMAGE##';
 
 
 const

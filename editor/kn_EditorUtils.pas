@@ -32,6 +32,7 @@ uses
    Vcl.ComCtrls,
    Vcl.Graphics,
    Vcl.ExtDlgs,
+   ExtCtrls,
 
    BrowseDr,
    TreeNT,
@@ -39,7 +40,7 @@ uses
    FreeWordWeb,
    UAS,
    RxRichEd,
-   RxGIF,
+   SynGdiPlus, // RxGIF,
    RichPrint,
    AJBSpeller,
 
@@ -66,6 +67,8 @@ uses
    kn_LinksMng,
    kn_NoteObj;
 
+type
+   THiddenMarks = (hmOnlyBookmarks, hmOnlyImages, hmAll);
 
     // glossary management
     procedure ExpandTermProc;
@@ -79,10 +82,17 @@ uses
     procedure CheckWordCountWaiting;
     function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
 
-    function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; const selection: boolean= true; onlyBookmarks: boolean= false): TTabRichEdit;
+    function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; HiddenMarksToRemove: THiddenMarks; const selection: boolean= true): TTabRichEdit;
     function RemoveKNTHiddenCharacters(const s: string; checkIfNeeded: boolean = true): string;
-    function RemoveKNTHiddenCharactersInRTF(const s: string; onlyBookmarks: boolean= false): string;
+    function RemoveKNTHiddenCharactersInRTF(const s: AnsiString; HiddenMarks: THiddenMarks): AnsiString;
     function KeepOnlyLeadingKNTHiddenCharacters(const txt: string): string;
+
+    procedure CheckToSelectLeftImageHiddenMark (Editor: TRxRichEdit; var SelStartOrig: integer; var SelLengthOrig: integer; offset: integer= 0); overload;
+    procedure CheckToSelectLeftImageHiddenMark (Editor: TRxRichEdit; offset: integer= 0); overload;
+    procedure CheckToSelectRightImageHiddenMark (Editor: TRxRichEdit);
+    procedure CheckToMoveLefOftHiddenMark (Editor : TRxRichEdit);
+
+    function CheckToIdentifyImageID (Editor : TRxRichEdit; var posFirstHiddenChar: integer): integer;
 
     procedure MatchBracket;
     procedure TrimBlanks( const TrimWhat : integer );
@@ -102,8 +112,9 @@ uses
     procedure ConfigureUAS;
 
     // clipboard capture and paste
-    procedure TryPasteRTF(const Editor: TRxRichEdit; HTMLText: AnsiString='');
-    procedure PasteBestAvailableFormat (const Editor: TRxRichEdit; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
+    procedure TryPasteRTF(Note: TTabNote; HTMLText: AnsiString='');
+    procedure PasteBestAvailableFormat (Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
+    procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
     procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
     procedure SetClipCapState( const IsOn : boolean );
     procedure PasteOnClipCap (ClpStr: string);
@@ -166,6 +177,8 @@ resourcestring
   STR_Eval_02 = 'Paste last eval result: ';
   STR_Eval_03 = 'Expression %s evaluates to: %s' + #13#13 + 'Result was copied to clipboard. Click OK to insert.';
   STR_Img_01 = 'Select image to insert';
+  STR_Img_02 = 'All image files';
+  STR_Img_03 = 'All files';
   STR_ConvDec_01 = 'Convert decimal to Roman';
   STR_ConvDec_02 = 'Enter a decimal number:';
   STR_ConvDec_03 = '%s is not a valid number';
@@ -377,17 +390,18 @@ begin
 end;
 
 
-function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; const selection: boolean= true; onlyBookmarks: boolean= false): TTabRichEdit;
+function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; HiddenMarksToRemove: THiddenMarks; const selection: boolean= true): TTabRichEdit;
 var
   s: string;
   len: integer;
 begin
     Result:= Editor;
 
-    if onlyBookmarks then
-      s:= KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_BOOKMARK
-    else
-      s:= KNT_RTF_HIDDEN_MARK_L_CHAR;
+    case HiddenMarksToRemove of
+       hmOnlyBookmarks: s:= KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_BOOKMARK;
+       hmOnlyImages:    s:= KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE;
+       hmAll:           s:= KNT_RTF_HIDDEN_MARK_L_CHAR;
+    end;
 
     if Result.FindText(s, 0, -1, []) >= 0 then begin
 
@@ -397,7 +411,7 @@ begin
           s:= ActiveNote.Editor.RtfText;
 
        len:= s.Length;                          // There might be a hidden markup in the editor, but maybe not in the selection
-       s:= RemoveKNTHiddenCharactersInRTF(s, onlyBookmarks);   // In that case this method will return the same string
+       s:= RemoveKNTHiddenCharactersInRTF(s, HiddenMarksToRemove);   // In that case this method will return the same string
 
        if s.Length <> Len then begin
           Result:= CreateRTFAuxEditorControl;      // Caller should call free on this control after used
@@ -437,9 +451,9 @@ begin
 end;
 
 
-function RemoveKNTHiddenCharactersInRTF(const s: string; onlyBookmarks: boolean= false): string;
+function RemoveKNTHiddenCharactersInRTF(const s: AnsiString; HiddenMarks: THiddenMarks): AnsiString;
 var
-   pI, pInext, pPrefix, pF, len: integer;
+   pI, pPrefix, pF, len: integer;
    Prefix: string;
 begin
   if S='' then Exit('');
@@ -459,82 +473,246 @@ begin
    in including the tags inside, although they define hidden content...
    We may find that an added tag like:	  
       ...    \v\''11B2\''12\v0 BYE!!
-   it ends up appearing for example as:  
-	  \v\f0\fs16\lang3082\''11B2\''12\v0 BYE!!		
+   it ends up appearing for example as:
+	  \v\f0\fs16\lang3082\''11B2\''12\v0 BYE!!
 	 ... \pard\cf1\ul\f0\fs20\lang1033 Hello\ulnone  World \v\f1\fs40\'11B1\'12\v0 BYE!!!\f0\fs20\par
+   \v\''11I1\''12\cf0\v0\f2\fs16\lang3082{\pict{...
 	 ...  etc.
 
-   We must convert:	
+   We should convert:
      "\v\f0\fs16\lang3082\''11B2\''12\v0 BYE!!"   ->  "\f0\fs16\lang3082 BYE!!"
 
-   (This is a problem only when we are looking for the hidden marks through RTF syntax. In most situations, KNT works directly with  
+   If the hidden mark is in it's normal state it will be completely removed: \v\''11B2\''12\v0 BYE!! -> BYE!!
+   But if it is not, we will only remove our hidden characters ('11T999999\'12) but not the RTF controls. The remaining \v and \v0
+   will be ignored later by RTFEdit control.
+
+   (This is a problem only when we are looking for the hidden marks through RTF syntax. In most situations, KNT works directly with
     hidden characters)
 
-	
+
    We will also allow deleting only the hidden marks corresponding to KNT Link markers \v\'11B....\'12\v0
    KNT will use other marks that we may not want to delete, such as those that will label images.
 
    The hidden strings used by KNT will have a variable length, but will normally have a maximum of the form maximum: HT999999H
    where H:KNT_RTF_HIDDEN_MARK_CHAR, T: Type (B:Bookmark, T:Tag, I:Image...)
-     \v\'11T999999\'12\v0    -> 20 max (If necessary we can increase it)
-	   \'11T999999\'12\v0    -> 18 max
+     \v\'11T999999\'12\v0    -> 20 max (If necessary we can increase it)          KNT_RTF_HIDDEN_MAX_LENGHT
+       \'11T999999\'12       -> 15 max                                            KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT
 
   *)
 
-
-  if onlyBookmarks then
-     Prefix:= KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK
-  else
-     Prefix:= KNT_RTF_HIDDEN_MARK_L;
+  case HiddenMarks of
+     hmOnlyBookmarks: Prefix:= KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK;
+     hmOnlyImages:    Prefix:= KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE;
+     hmAll:           Prefix:= KNT_RTF_HIDDEN_MARK_L;
+  end;
 
   Result:= s;
   pI:= 1;
-  pInext:= -1;
 
   repeat
-     if (pInext > 0)  then
-        pI:= pInext
-     else
-        pI:= Pos('\v\', Result, pI);
+     pI:= Pos('\v\', Result, pI);
 
      if pI > 0 then begin
         pPrefix:= Pos(Prefix, Result, pI+2);
         if (pPrefix = 0) then break;
 
         pF:= Pos(KNT_RTF_HIDDEN_MARK_R + '\v0', Result, pPrefix + Length(Prefix));
-        if (pF = 0) then break;
-
-        if pPrefix = pI + 2 then begin
+        len:= pF-pI + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
+        if (pF > 0) and (pPrefix = pI + 2) and (len <= KNT_RTF_HIDDEN_MAX_LENGHT) then begin
            // Normal case: \v\'11B5\'12\v0 XXX
-            if (pF-pI <= 20) then begin
-               len:= pF-pI + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
-               if Result[pI + len] = ' ' then          // *1
-                  Inc(len);
-               Delete(Result, pI, len);
-               pI:= pF+1;
-            end;
-            pInext:= -1;                // We do not have the following pI -> search
+            if Result[pI + len] = ' ' then          // *1
+               Inc(len);
+            Delete(Result, pI, len);
+            pI:= pF+1;
         end
         else begin
-           // Problematic case. Ex:  \v\f1\fs40\'11B1\'12\v0 xxx ---> \f1\fs40 xxx
-            repeat
-              pInext:= Pos('\v\', Result, pI+3);          // We have to make sure that \v corresponds to the prefix ( \'11..)
-              if (pInext > 0) and (pInext < pPrefix) then
-                 pI:= pInext;
-            until (pInext = 0) or (pInext > pPrefix);
+           // Problematic case. Ex:
+           //  \v\f1\fs40\'11B1\'12\v0 xxx                         --> \v\f1\fs40\v0 xxx                     ...> \v\f1\fs40 xxx
+           //  \v\''11I1\''12\cf0\v0\f2\fs16\lang3082{\pict{...    --> \v\cf0\v0\f2\fs16\lang3082{\pict{...  ...> \cf0\f2\fs16\lang3082{\pict{...
 
-            if (pF-pPrefix <= 18) then begin
-               len:= pF-pPrefix + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
+            pF:= Pos(KNT_RTF_HIDDEN_MARK_R, Result, pPrefix + Length(Prefix));        // Do not include \v0
+            if (pF = 0) then break;
+
+            len:= pF-pPrefix + Length(KNT_RTF_HIDDEN_MARK_R);
+            if (len <= KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT) then
                Delete(Result, pPrefix, len);
-               Delete(Result, pI, 2);             // \v
-               pI:= pF+1;
-            end;
-            if pInext = 0 then break;
+            pI:= pF+1;
         end;
 
      end;
 
   until pI = 0;
+
+end;
+
+
+
+
+{ 
+  If an image is selected (or cursor is just to the left of it and DELETE (SUPR) has been pressed)
+  -> check if the hidden mark KNT_RTF_IMG_HIDDEN_MARK is present (it should) and if so expand the selection to include it.
+  Also, check if just to the left is the hidden " at the end of a hyperlink. If so, select its hidden characters, which will include in the
+  selection our hidden mark, if there is one.
+
+  Result: initial SelStart (original SelStart was modified because a hidden image mark has been selected)
+  If < 0 -> SelStart was not modified
+  Offset: To use with Backspace, we are interested in looking one character further to the left, skipping the possible image that is deleted
+}
+procedure CheckToSelectLeftImageHiddenMark (Editor : TRxRichEdit; var SelStartOrig: integer; var SelLengthOrig: integer; offset: integer= 0); overload;
+var
+  L, S, newS: integer;
+  Ch: Char;
+  UndoSelect: boolean;
+
+begin
+  SelStartOrig:= -1;
+
+  with Editor do begin
+     S:= SelStart;
+     newS:= S-1 +offset;
+     if newS < 0 then exit;
+
+     Ch:= GetTextRange(newS, S +offset)[1];
+     if (ch = KNT_RTF_HIDDEN_MARK_R_CHAR) or (ch = '"') then begin        // (ch = '"'), in case the hidden mark is next to a hyperlink
+       SelLengthOrig:= SelLength;
+       OnSelectionChange := nil;
+       try
+         SelStart:= newS;
+         L:= SelStart;
+         UndoSelect:= true;
+         if L <> newS then begin
+            SetSelection(L, S + SelLengthOrig, true);                     // It will have been placed to the left of the first hidden character. See coment in TForm_Main.RxRTFKeyDown  (Left cursor)
+            if SelText.StartsWith(KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE) then
+               UndoSelect:= false;
+         end;
+
+         if UndoSelect then
+            SetSelection(S, S + SelLengthOrig, true)
+         else
+            SelStartOrig:= S;
+
+       finally
+         OnSelectionChange := Form_Main.RxRTFSelectionChange;
+       end;
+
+     end;
+  end;
+end;
+
+procedure CheckToSelectLeftImageHiddenMark (Editor : TRxRichEdit; offset: integer= 0); overload;
+var
+   SelStartOrig, SelLengthOrig: integer;
+begin
+   CheckToSelectLeftImageHiddenMark (Editor, SelStartOrig, SelLengthOrig, offset);
+end;
+
+
+// It is assumed that SelLenght = 0
+procedure CheckToSelectRightImageHiddenMark (Editor : TRxRichEdit);
+var
+  R, S, newS: integer;
+  SelLengthOrig: integer;
+  Ch: Char;
+  UndoSelect: boolean;
+  TextSelected: string;
+
+begin
+
+  with Editor do begin
+     S:= SelStart;
+     newS:= S+1;
+
+     try
+       Ch:= GetTextRange(S, newS)[1];
+       if (ch = KNT_RTF_HIDDEN_MARK_L_CHAR) or (ch = '"') then begin         // (ch = '"'), in case the hidden mark is next to a hyperlink
+         OnSelectionChange := nil;                                           // *1
+         try
+           SelStart:= newS;
+           R:= SelStart;
+           UndoSelect:= true;
+           if R <> newS then begin
+              // It will have been placed to the right of the last hidden character.  See coment in TForm_Main.RxRTFKeyDown  (Left cursor)
+              SetSelection(S, R, true);
+              TextSelected:= SelText;
+              if TextSelected.StartsWith(KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE) then begin
+                 UndoSelect:= false;
+                 if TextSelected[Length(TextSelected)] = KNT_RTF_HIDDEN_MARK_R_CHAR then
+                    SetSelection(S, R+1, true);                              // We must be next to a visible image ({pict...}). We have to select it too
+              end;
+           end;
+
+           if UndoSelect then
+              SelStart:= S;
+
+         finally
+           OnSelectionChange := Form_Main.RxRTFSelectionChange;
+         end;
+       end;
+
+     except   // If we are in the last position of the note
+     end;
+  end;
+end;
+
+
+
+
+{ Check if there is a hidden image identification mark just to our left }
+
+function CheckToIdentifyImageID (Editor : TRxRichEdit; var posFirstHiddenChar: integer): integer;
+var
+  L, S: integer;
+  SelLengthBak: integer;
+  Str: String;
+
+begin
+
+  Result:= 0;              // 0 is not a valid ID
+
+  // <L>I999999<R>
+
+  with Editor do begin
+     S:= SelStart;
+     if GetTextRange(S-1, S) = KNT_RTF_HIDDEN_MARK_R_CHAR then begin
+       SelLengthBak:= SelLength;
+       OnSelectionChange := nil;
+       try
+         SelStart:= S-1;
+         L:= SelStart;
+         if L <> S-1 then begin
+            // It will have been placed to the left of the first hidden character. See coment in TForm_Main.RxRTFKeyDown  (Left cursor)
+            SetSelection(L, S + 1, true);
+            Str:= Editor.GetTextRange(L, S);
+            if (Str[1] = KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[2] = KNT_RTF_HIDDEN_IMAGE) then
+               Result:= StrToIntDef(Copy(Str, 3, (S - L)-3), 0);
+         end;
+         SetSelection(S, S + SelLengthBak, true);
+         posFirstHiddenChar:= L;
+
+       finally
+         OnSelectionChange := Form_Main.RxRTFSelectionChange;
+       end;
+
+     end;
+  end;
+end;
+
+
+
+// This procedure asumes that SelLength = 0 (it will invoked currently from InsertContent  (kn_NoteFileMng)
+procedure CheckToMoveLefOftHiddenMark (Editor : TRxRichEdit);
+var
+  S: integer;
+begin
+  with Editor do begin
+     S:= SelStart;
+     if GetTextRange(S-1, S) = KNT_RTF_HIDDEN_MARK_R_CHAR then begin
+       SelStart:= S-1;
+       if SelStart <> S-1 then
+       else
+          SelStart:= S;              // It was not hidden. We leave it where it was
+     end;
+  end;
 
 end;
 
@@ -1023,52 +1201,69 @@ var
   Pict: TPicture;
   wasmodified : boolean;
   OpenPictureDlg : TOpenPictureDialog;
+  SelStartOrig, SelLengthOrig: integer;
 begin
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
-  if ( not assigned( ActiveNote )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not Form_Main.HaveNotes(true, true)) then exit;
+  if ( not assigned(ActiveNote)) then exit;
+  if Form_Main.NoteIsReadOnly(ActiveNote, true) then exit;
+  if ActiveNote.PlainText then exit;
 
-  wasmodified := false;
+  wasmodified:= false;
+
 
   OpenPictureDlg := TOpenPictureDialog.Create( Form_Main );
   try
-    if AsPicture then begin
-      with OpenPictureDlg do begin
-        Options := [ofHideReadOnly,ofPathMustExist,ofFileMustExist];
-        Title := STR_Img_01;
-        Filter := Format( '%s|%s|%s', [
-          GraphicFilter(TBitmap),
-          GraphicFilter(TGIFImage),
-          // GraphicFilter(TJPEGImage),
-          GraphicFilter(TMetafile)
-        ]);
-        if Execute then begin
-          Pict := TPicture.Create;
-          try
-            Pict.LoadFromFile(FileName);
-            Clipboard.Assign(Pict);
-            PasteBestAvailableFormat(Activenote.Editor, false);
-          finally
-            Pict.Free;
-            wasmodified := true;
+    if AsPicture then
+       with OpenPictureDlg do begin
+          Options := [ofHideReadOnly,ofPathMustExist,ofFileMustExist];
+          Title:= STR_Img_01;
+          Filter:= STR_Img_02 + FILTER_IMAGES;
+
+          if Execute then begin
+             if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+                if ActiveNote.Editor.SelLength > 0 then
+                   CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+             end;
+
+             ImagesManager.InsertImage(FileName, ActiveNote, KeyOptions.ImgDefaultLinkMode);
+
+              // See comments before TImageManager.InsertImage
+              {
+              Pict := TPicture.Create;
+              try
+                 Pict.LoadFromFile(FileName);
+                 Clipboard.Assign(Pict);
+                 Activenote.Editor.PasteIRichEditOLE(0);
+              finally
+                 Pict.Free;
+                 wasmodified:= true;
+              end;
+              }
           end;
-        end;
-      end;
-    end
-    else
-    begin
-      if Activenote.Editor.InsertObjectDialog then
-        wasmodified := true;
+       end
+    else begin
+      if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+         CheckToSelectLeftImageHiddenMark (ActiveNote.Editor, SelStartOrig, SelLengthOrig);
+         if Activenote.Editor.InsertObjectDialog then
+            wasmodified := true
+         else
+            if SelStartOrig >= 0 then
+               ActiveNote.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
+      end
+      else
+         if Activenote.Editor.InsertObjectDialog then
+            wasmodified := true;
     end;
 
   finally
     if wasmodified then begin
-      NoteFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
+       NoteFile.Modified:= true;
+       UpdateNoteFileState([fscModified]);
     end;
     OpenPictureDlg.Free;
   end;
 end; // InsertPictureOrObject
+
 
 
 //=================================================================
@@ -1559,19 +1754,21 @@ end;
 //=================================================================
 // TryPasteRTF
 //=================================================================
-procedure TryPasteRTF(const Editor: TRxRichEdit; HTMLText: AnsiString='');
+procedure TryPasteRTF(Note: TTabNote; HTMLText: AnsiString='');
 var
   RTFText: AnsiString;
   posI: integer;
+  Editor: TRxRichEdit;
 
 begin
+    Editor:= Note.Editor;
     posI := Editor.SelStart;
 
     RTFText:= Clipboard.TryOfferRTF(HTMLText, Editor.SelAttributes);            // Can return '' if clipboard already contained RTF Format
     if RTFText <> '' then
         Editor.PutRtfText(RTFText, true)
     else
-        PasteBestAvailableFormat(Editor, false, false);      // false: don't to try to offer RTF (Maybe it's already available), false: don't try to detect and correct HTML to RTF (will be done here)
+        PasteBestAvailableFormat(Note, false, false);      // false: don't to try to offer RTF (Maybe it's already available), false: don't try to detect and correct HTML to RTF (will be done here)
 
     TryToDetectAndSolveHTMLtoRTFbadConv(Editor, posI);
 
@@ -1602,27 +1799,63 @@ end;
   will try to get RTF format from HTML (as we have been doing on Paste Special...)
 }
 
-procedure PasteBestAvailableFormat (const Editor: TRxRichEdit; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
+procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
 var
-  posI: integer;
+  posI, pos: integer;
   RTFText: AnsiString;
+  WasCopiedByKNT, ClipbHasRTFFormat: boolean;
+
 begin
-    if CorrectHTMLtoRTF then
-       posI:= Editor.SelStart;
+    WasCopiedByKNT:= ClipboardContentWasCopiedByKNT;         // If not -> it will also make LastCopiedIDImage <-0
+
+    { If we are pasting an image copied from a browser, we must give preference to checking if it contains an image,
+      because in those cases we will also find HTML content with the address and alternative text of the image, 
+      and if we do not do so we will always end up pasting the conversion to RTF from that alt text }
+    if Clipboard.HasFormat(CF_BITMAP) and NoteSupportsImages then begin
+       ImagesManager.InsertImageFromClipboard (Note);
+       exit;
+    end;
+
+    posI:= Editor.SelStart;
 
     if TryOfferRTF then
        RTFText:= Clipboard.TryOfferRTF('', Editor.SelAttributes);
 
-    // If we have added RTF, we are going to use it instead of calling PasteIRichEditOLE, because the default font and size
+    // If we have added RTF, we are going to use it instead of calling PasteFromClipboard, because the default font and size
     // will have set in this returned RTF text, not in the text in the clipboard
     if RTFText <> '' then
        Editor.PutRtfText(RTFText, true)
-    else
-       Editor.PasteIRichEditOLE(0);
+
+    else begin
+      // If I paste text and images from WordPad it may appear as a "Wordpad Document" format, and in that case it only appears to paste the text.
+      // It seems best to try to paste the RTF format if it is available
+      ClipbHasRTFFormat:= Clipboard.HasFormat(CFRtf);
+      if ClipbHasRTFFormat then
+         Editor.PasteIRichEditOLE(CFRtf)
+      else
+         Editor.PasteFromClipboard;       //Editor.PasteIRichEditOLE(0);
+
+      if (ImagesManager.StorageMode <> smEmbRTF) and ClipbHasRTFFormat and NoteSupportsRegisteredImages then begin
+         pos:= Editor.SelStart;
+         { We will have treated Copy or Cut in a special way if SelLength=1 because this implied that an image could be selected individually and we
+           want to be able to offer it as such and not only as RTF (which would happen if we copy the image to the clipboard along with the hidden mark ) 
+          (Although this image copied in this way - without a mark - when it is in PNG or JPB, the control does not offer it as BMP but only as a Metafile
+           and not all programs recognize it. For example, GreenShot does recognize it, but Photoshop or WordPad itself They don't recognize it --WordPad
+           does paste it, but because it uses the RTF format) }
+         if (not WasCopiedByKNT) or ((pos = posI + 1) and (LastCopiedIDImage<>0)) then
+            ImagesManager.ProcessImagesInClipboard (Editor, Note, posI, LastCopiedIDImage);
+      end;
+    end;
 
     if CorrectHTMLtoRTF then
-      TryToDetectAndSolveHTMLtoRTFbadConv(Editor, posI);
+       TryToDetectAndSolveHTMLtoRTFbadConv(Editor, posI);
 
+end;
+
+
+procedure PasteBestAvailableFormat (Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
+begin
+    PasteBestAvailableFormatInEditor(Note.Editor, Note, TryOfferRTF, CorrectHTMLtoRTF);
 end;
 
 
@@ -2103,7 +2336,7 @@ begin
 
                 if not IgnoreCopiedText then
                    if not ClipOptions.PasteAsText and not Note.PlainText then
-                      TryPasteRTF(Editor, HTMLClipboard)
+                      TryPasteRTF(Note, HTMLClipboard)
                    else
                       PerformCmdPastePlain(Note, ClpStr, HTMLClipboard, false, ClipOptions.MaxSize);
 

@@ -421,7 +421,7 @@ begin
 
             if OutData <> '' then begin
                if ( plGetsRTF in Plugin.Features ) then
-                  OutData:= RemoveKNTHiddenCharactersInRTF (OutData)
+                  OutData:= RemoveKNTHiddenCharactersInRTF (OutData, hmAll)
                else
                   OutData:= RemoveKNTHiddenCharacters (OutData);
             end;
@@ -509,8 +509,13 @@ begin
                       if NoteWasReadOnly then
                          ActiveNote.ReadOnly := false;
                       try
+                        if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+                           if ActiveNote.Editor.SelLength > 0 then
+                              CheckToSelectLeftImageHiddenMark(ActiveNote.Editor);
+                        end;
+
                         if ( plReturnsClipboard in Plugin.Features ) then
-                           PasteBestAvailableFormat (ActiveNote.Editor, false)
+                           PasteBestAvailableFormat (ActiveNote, false)
                         else
                         if ( plReturnsRTF in Plugin.Features ) then
                             ActiveNote.Editor.PutRtfText(s, true)

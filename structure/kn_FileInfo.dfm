@@ -5,8 +5,8 @@ object Form_FileInfo: TForm_FileInfo
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'File properties'
-  ClientHeight = 252
-  ClientWidth = 457
+  ClientHeight = 298
+  ClientWidth = 534
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,6 +15,7 @@ object Form_FileInfo: TForm_FileInfo
   Font.Style = []
   KeyPreview = True
   Position = poScreenCenter
+  ShowHint = True
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
@@ -35,8 +36,8 @@ object Form_FileInfo: TForm_FileInfo
     Caption = '(...)'
   end
   object Button_OK: TButton
-    Left = 14
-    Top = 225
+    Left = 38
+    Top = 264
     Width = 79
     Height = 25
     Hint = 'Accept changes and close dialog box'
@@ -47,8 +48,8 @@ object Form_FileInfo: TForm_FileInfo
     OnClick = Button_OKClick
   end
   object Button_Cancel: TButton
-    Left = 98
-    Top = 225
+    Left = 122
+    Top = 264
     Width = 75
     Height = 25
     Hint = 'Discard changes and close dialog box'
@@ -60,8 +61,8 @@ object Form_FileInfo: TForm_FileInfo
   object Pages: TPageControl
     Left = 5
     Top = 5
-    Width = 452
-    Height = 211
+    Width = 522
+    Height = 246
     HelpContext = 230
     ActivePage = Tab_Settings
     TabOrder = 0
@@ -71,19 +72,19 @@ object Form_FileInfo: TForm_FileInfo
       object GroupBox1: TGroupBox
         Left = 5
         Top = 0
-        Width = 432
-        Height = 176
+        Width = 505
+        Height = 211
         TabOrder = 0
         object Label1: TLabel
-          Left = 10
+          Left = 23
           Top = 15
-          Width = 79
+          Width = 108
           Height = 13
           AutoSize = False
           Caption = 'Filename:'
         end
         object Label2: TLabel
-          Left = 10
+          Left = 23
           Top = 75
           Width = 73
           Height = 13
@@ -92,48 +93,48 @@ object Form_FileInfo: TForm_FileInfo
           FocusControl = Edit_Comment
         end
         object Label3: TLabel
-          Left = 10
-          Top = 140
+          Left = 35
+          Top = 158
           Width = 66
           Height = 13
           AutoSize = False
           Caption = 'Created:'
         end
         object Label4: TLabel
-          Left = 10
-          Top = 155
+          Left = 35
+          Top = 173
           Width = 66
           Height = 13
           AutoSize = False
           Caption = 'Modified:'
         end
         object Label_Created: TLabel
-          Left = 80
-          Top = 140
+          Left = 101
+          Top = 158
           Width = 218
           Height = 13
           AutoSize = False
           Caption = '(...)'
         end
         object Label_Modified: TLabel
-          Left = 80
-          Top = 155
+          Left = 101
+          Top = 173
           Width = 218
           Height = 13
           AutoSize = False
           Caption = '(...)'
         end
         object Label5: TLabel
-          Left = 321
-          Top = 140
+          Left = 350
+          Top = 158
           Width = 56
           Height = 13
           AutoSize = False
           Caption = 'Notes:'
         end
         object Label_Count: TLabel
-          Left = 381
-          Top = 140
+          Left = 410
+          Top = 158
           Width = 7
           Height = 13
           Caption = '0'
@@ -145,23 +146,23 @@ object Form_FileInfo: TForm_FileInfo
           ParentFont = False
         end
         object Label7: TLabel
-          Left = 321
-          Top = 155
+          Left = 350
+          Top = 173
           Width = 56
           Height = 13
           AutoSize = False
           Caption = 'File size:'
         end
         object Label_FileSize: TLabel
-          Left = 381
-          Top = 155
-          Width = 44
+          Left = 410
+          Top = 173
+          Width = 79
           Height = 13
           AutoSize = False
           Caption = '(...)'
         end
         object Label_FileNotFound: TLabel
-          Left = 91
+          Left = 104
           Top = 15
           Width = 148
           Height = 13
@@ -177,7 +178,7 @@ object Form_FileInfo: TForm_FileInfo
           Visible = False
         end
         object Label6: TLabel
-          Left = 10
+          Left = 23
           Top = 45
           Width = 73
           Height = 13
@@ -186,7 +187,7 @@ object Form_FileInfo: TForm_FileInfo
           FocusControl = Edit_Description
         end
         object Label8: TLabel
-          Left = 10
+          Left = 23
           Top = 105
           Width = 73
           Height = 13
@@ -194,16 +195,9 @@ object Form_FileInfo: TForm_FileInfo
           Caption = '&Format:'
           FocusControl = Combo_Format
         end
-        object Bevel2: TBevel
-          Left = 10
-          Top = 130
-          Width = 402
-          Height = 2
-          Shape = bsTopLine
-        end
         object LB_RTF3: TLabel
-          Left = 303
-          Top = 155
+          Left = 332
+          Top = 173
           Width = 14
           Height = 13
           Caption = '(3)'
@@ -211,10 +205,10 @@ object Form_FileInfo: TForm_FileInfo
           Visible = False
         end
         object Edit_FileName: TEdit
-          Left = 88
+          Left = 101
           Top = 15
-          Width = 329
-          Height = 21
+          Width = 380
+          Height = 17
           HelpContext = 520
           TabStop = False
           BorderStyle = bsNone
@@ -229,9 +223,9 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 3
         end
         object Edit_Comment: TEdit
-          Left = 88
+          Left = 101
           Top = 70
-          Width = 327
+          Width = 380
           Height = 21
           Hint = 'Enter optional comment for the file'
           HelpContext = 530
@@ -245,9 +239,9 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 1
         end
         object Edit_Description: TEdit
-          Left = 88
+          Left = 101
           Top = 40
-          Width = 327
+          Width = 380
           Height = 21
           Hint = 'Enter optional description for the file'
           HelpContext = 525
@@ -261,9 +255,9 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 0
         end
         object Combo_Format: TComboBox
-          Left = 88
+          Left = 101
           Top = 100
-          Width = 327
+          Width = 380
           Height = 21
           Hint = 'Choose format used when saving the file'
           HelpContext = 535
@@ -283,37 +277,23 @@ object Form_FileInfo: TForm_FileInfo
       Caption = 'Settings'
       object GroupBox3: TGroupBox
         Left = 5
-        Top = 0
-        Width = 433
-        Height = 176
+        Top = 1
+        Width = 505
+        Height = 214
         TabOrder = 0
-        object Bevel1: TBevel
-          Left = 10
-          Top = 65
-          Width = 410
-          Height = 2
-          Shape = bsTopLine
-        end
         object Label9: TLabel
-          Left = 15
-          Top = 129
-          Width = 97
+          Left = 297
+          Top = 44
+          Width = 96
           Height = 13
           AutoSize = False
           Caption = '&Compress Level:'
           FocusControl = Combo_CompressLevel
         end
-        object Bevel4: TBevel
-          Left = 10
-          Top = 113
-          Width = 410
-          Height = 2
-          Shape = bsTopLine
-        end
         object Label_IsReadOnly: TLabel
-          Left = 35
-          Top = 41
-          Width = 180
+          Left = 280
+          Top = 16
+          Width = 211
           Height = 15
           Alignment = taCenter
           AutoSize = False
@@ -328,10 +308,43 @@ object Form_FileInfo: TForm_FileInfo
           ParentFont = False
           Transparent = False
         end
+        object Label26: TLabel
+          Left = 13
+          Top = 82
+          Width = 99
+          Height = 13
+          AutoSize = False
+          Caption = 'Image storage'
+          FocusControl = cbImgStorageMode
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          StyleElements = [seClient, seBorder]
+        end
+        object lblImgWarning: TLabel
+          Left = 300
+          Top = 80
+          Width = 194
+          Height = 26
+          AutoSize = False
+          FocusControl = cbImgStorageMode
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlue
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          Visible = False
+          WordWrap = True
+          StyleElements = [seClient, seBorder]
+        end
         object CB_AsReadOnly: TCheckBox
-          Left = 15
+          Left = 9
           Top = 15
-          Width = 326
+          Width = 254
           Height = 17
           Hint = 'In future, open this file as Read-only'
           HelpContext = 540
@@ -345,9 +358,9 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 0
         end
         object CB_NoMultiBackup: TCheckBox
-          Left = 15
-          Top = 80
-          Width = 346
+          Left = 9
+          Top = 43
+          Width = 282
           Height = 17
           Hint = 'Ignore global backup level setting for this file'
           Caption = 'Do not keep &multiple backups of this file'
@@ -360,9 +373,9 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 1
         end
         object Combo_CompressLevel: TComboBox
-          Left = 123
-          Top = 126
-          Width = 226
+          Left = 399
+          Top = 41
+          Width = 92
           Height = 21
           Hint = 'Choose level of compression used when saving the file'
           Style = csDropDownList
@@ -375,6 +388,121 @@ object Form_FileInfo: TForm_FileInfo
           ParentFont = False
           TabOrder = 2
         end
+        object cbImgStorageMode: TComboBox
+          Left = 116
+          Top = 81
+          Width = 173
+          Height = 21
+          Style = csDropDownList
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          OnChange = cbImgStorageModeChange
+        end
+        object gbExternalStorage: TGroupBox
+          Left = 15
+          Top = 109
+          Width = 478
+          Height = 94
+          Caption = '  External storage  '
+          TabOrder = 4
+          object Label22: TLabel
+            Left = 13
+            Top = 38
+            Width = 50
+            Height = 13
+            AutoSize = False
+            Caption = 'Type'
+            FocusControl = cbImgExtStorageType
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object btnOpenDlgExternalPath: TToolbarButton97
+            Left = 443
+            Top = 57
+            Width = 25
+            Height = 21
+            AllowAllUp = True
+            GroupIndex = 3
+            DropdownArrow = False
+            Enabled = False
+            Flat = False
+            Glyph.Data = {00000000}
+            GlyphMask.Data = {00000000}
+            ImageIndex = 1
+            Images = Form_Main.IMG_Toolbar
+            RepeatInterval = 101
+            OnClick = btnOpenDlgExternalPathClick
+          end
+          object Label10: TLabel
+            Left = 103
+            Top = 37
+            Width = 159
+            Height = 13
+            AutoSize = False
+            Caption = 'Location folder or file (zip)'
+            FocusControl = Combo_CompressLevel
+          end
+          object cbImgExtStorageType: TComboBox
+            Left = 13
+            Top = 57
+            Width = 75
+            Height = 21
+            Style = csDropDownList
+            Enabled = False
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
+            OnChange = cbImgExtStorageTypeChange
+          end
+          object txtExtStorageLocation: TEdit
+            Left = 101
+            Top = 57
+            Width = 336
+            Height = 21
+            Enabled = False
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 3
+            OnEnter = txtExtStorageLocationEnter
+            OnExit = txtExtStorageLocationExit
+            OnKeyDown = txtExtStorageLocationKeyDown
+          end
+          object rbImagesStRelocate: TRadioButton
+            Left = 391
+            Top = 19
+            Width = 81
+            Height = 17
+            Caption = 'Relocated'
+            TabOrder = 1
+            OnClick = rbImagesStRelocateClick
+          end
+          object rbImagesStChange: TRadioButton
+            Left = 300
+            Top = 19
+            Width = 85
+            Height = 17
+            Caption = 'Change'
+            TabOrder = 0
+            OnClick = rbImagesStChangeClick
+          end
+        end
       end
     end
     object Tab_Icons: TTabSheet
@@ -383,27 +511,20 @@ object Form_FileInfo: TForm_FileInfo
       object GroupBox4: TGroupBox
         Left = 5
         Top = 0
-        Width = 433
-        Height = 176
+        Width = 503
+        Height = 213
         TabOrder = 0
         object Image_TrayIcon: TImage
-          Left = 378
-          Top = 127
+          Left = 434
+          Top = 149
           Width = 38
           Height = 38
           AutoSize = True
         end
-        object Bevel3: TBevel
-          Left = 10
-          Top = 100
-          Width = 408
-          Height = 5
-          Shape = bsTopLine
-        end
         object TB_OpenDlgTrayIcon: TToolbarButton97
-          Left = 336
-          Top = 140
-          Width = 25
+          Left = 384
+          Top = 162
+          Width = 29
           Height = 21
           AllowAllUp = True
           GroupIndex = 3
@@ -417,9 +538,9 @@ object Form_FileInfo: TForm_FileInfo
           OnClick = TB_OpenDlgTrayIconClick
         end
         object TB_OpenDlgTabImg: TToolbarButton97
-          Left = 336
-          Top = 60
-          Width = 25
+          Left = 384
+          Top = 78
+          Width = 29
           Height = 21
           AllowAllUp = True
           GroupIndex = 3
@@ -433,8 +554,8 @@ object Form_FileInfo: TForm_FileInfo
           OnClick = TB_OpenDlgTabImgClick
         end
         object CB_ShowTabIcons: TCheckBox
-          Left = 15
-          Top = 15
+          Left = 24
+          Top = 24
           Width = 306
           Height = 17
           Hint = 'Display or hide tab images for this file'
@@ -443,16 +564,16 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 0
         end
         object CB_TrayIcon: TCheckBox
-          Left = 15
-          Top = 115
+          Left = 24
+          Top = 134
           Width = 290
           Height = 17
           Caption = 'Use custom &Tray icon for this file'
           TabOrder = 1
         end
         object RB_TabImgDefault: TRadioButton
-          Left = 15
-          Top = 40
+          Left = 24
+          Top = 55
           Width = 110
           Height = 17
           Caption = '&Default'
@@ -462,8 +583,8 @@ object Form_FileInfo: TForm_FileInfo
           OnClick = RB_TabImgOtherClick
         end
         object RB_TabImgBuiltIn: TRadioButton
-          Left = 131
-          Top = 40
+          Left = 140
+          Top = 55
           Width = 109
           Height = 17
           Caption = '&Built in'
@@ -471,8 +592,8 @@ object Form_FileInfo: TForm_FileInfo
           OnClick = RB_TabImgOtherClick
         end
         object RB_TabImgOther: TRadioButton
-          Left = 247
-          Top = 40
+          Left = 256
+          Top = 55
           Width = 98
           Height = 17
           Caption = '&Other'
@@ -480,9 +601,9 @@ object Form_FileInfo: TForm_FileInfo
           OnClick = RB_TabImgOtherClick
         end
         object Edit_TrayIcon: TEdit
-          Left = 16
-          Top = 140
-          Width = 322
+          Left = 25
+          Top = 162
+          Width = 361
           Height = 21
           Enabled = False
           Font.Charset = DEFAULT_CHARSET
@@ -494,9 +615,9 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 5
         end
         object Edit_TabImg: TEdit
-          Left = 16
-          Top = 60
-          Width = 322
+          Left = 25
+          Top = 78
+          Width = 361
           Height = 21
           Enabled = False
           Font.Charset = DEFAULT_CHARSET
@@ -514,13 +635,13 @@ object Form_FileInfo: TForm_FileInfo
       Caption = 'Security'
       object GroupBox2: TGroupBox
         Left = 5
-        Top = 0
-        Width = 431
-        Height = 176
+        Top = 3
+        Width = 506
+        Height = 209
         TabOrder = 0
         object Label_Confirm: TLabel
-          Left = 10
-          Top = 85
+          Left = 22
+          Top = 99
           Width = 79
           Height = 13
           AutoSize = False
@@ -528,8 +649,8 @@ object Form_FileInfo: TForm_FileInfo
           FocusControl = Edit_Confirm
         end
         object Label_Pass: TLabel
-          Left = 10
-          Top = 55
+          Left = 22
+          Top = 69
           Width = 79
           Height = 13
           AutoSize = False
@@ -537,8 +658,8 @@ object Form_FileInfo: TForm_FileInfo
           FocusControl = Edit_Pass
         end
         object Label_Method: TLabel
-          Left = 10
-          Top = 150
+          Left = 22
+          Top = 164
           Width = 79
           Height = 13
           AutoSize = False
@@ -546,7 +667,7 @@ object Form_FileInfo: TForm_FileInfo
           FocusControl = Combo_Method
         end
         object Label_EnterPass: TLabel
-          Left = 200
+          Left = 212
           Top = 20
           Width = 171
           Height = 13
@@ -561,9 +682,9 @@ object Form_FileInfo: TForm_FileInfo
           ParentFont = False
         end
         object Edit_Confirm: TEdit
-          Left = 96
-          Top = 80
-          Width = 313
+          Left = 108
+          Top = 94
+          Width = 341
           Height = 21
           Hint = 'Carefully re-enter the access passphrase'
           HelpContext = 560
@@ -572,9 +693,9 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 1
         end
         object Edit_Pass: TEdit
-          Left = 96
-          Top = 50
-          Width = 313
+          Left = 108
+          Top = 64
+          Width = 341
           Height = 21
           Hint = 'Enter access passphrase for this file'
           HelpContext = 555
@@ -583,9 +704,9 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 0
         end
         object Combo_Method: TComboBox
-          Left = 96
-          Top = 145
-          Width = 313
+          Left = 108
+          Top = 159
+          Width = 341
           Height = 21
           Hint = 'Select which encryption algorithm to use'
           HelpContext = 565
@@ -593,7 +714,7 @@ object Form_FileInfo: TForm_FileInfo
           TabOrder = 2
         end
         object Button_SetPass: TButton
-          Left = 10
+          Left = 22
           Top = 15
           Width = 181
           Height = 25
@@ -604,8 +725,8 @@ object Form_FileInfo: TForm_FileInfo
           OnClick = Button_SetPassClick
         end
         object CB_HidePass: TCheckBox
-          Left = 96
-          Top = 110
+          Left = 108
+          Top = 124
           Width = 268
           Height = 17
           Hint = 'Obscure passphrase with asterisks'
@@ -619,8 +740,8 @@ object Form_FileInfo: TForm_FileInfo
     end
   end
   object Button_System: TButton
-    Left = 369
-    Top = 225
+    Left = 393
+    Top = 264
     Width = 82
     Height = 25
     Hint = 'Displays system File Properties dialog box'
@@ -629,8 +750,8 @@ object Form_FileInfo: TForm_FileInfo
     OnClick = Button_SystemClick
   end
   object Button_Help: TButton
-    Left = 178
-    Top = 225
+    Left = 202
+    Top = 264
     Width = 75
     Height = 25
     Caption = '&Help'
@@ -640,7 +761,7 @@ object Form_FileInfo: TForm_FileInfo
   object FormPlacement: TFormPlacement
     IniSection = 'InfoDlg'
     Options = [fpPosition]
-    Left = 261
-    Top = 220
+    Left = 285
+    Top = 259
   end
 end

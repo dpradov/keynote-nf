@@ -87,7 +87,10 @@ implementation
 uses
    kn_Global,
    kn_Main,
-   kn_FindReplaceMng;
+   kn_EditorUtils,
+   kn_FindReplaceMng,
+   kn_ImagesMng,
+   kn_ImageForm;
 
 
 resourcestring
@@ -140,6 +143,8 @@ const
    IMAGE_GOBACK_OTHER_NOTE:    integer = 38;
    IMAGE_GOFORWARD_OTHER_NOTE: integer = 39;
 
+
+procedure ClickOnURLImage(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false); forward;
 
 //=========================================
 // PathOfKNTLink
@@ -284,6 +289,11 @@ begin
     if (RichEditVersion >= 4) and (not Note.PlainText) then
        UseHyperlink:= True;
 
+    if ImagesManager.StorageMode <> smEmbRTF then begin
+       if Note.Editor.SelLength > 0 then
+          CheckToSelectLeftImageHiddenMark (Note.Editor);
+    end;
+
     with Note.Editor do begin
       SelL := SelStart;
       SelR := SelL + SelLength;
@@ -390,10 +400,10 @@ begin
        if ( ext = ext_RTF ) then
           ImportFileType := itRTF
        else
-       if Form_Main.ExtIsHTML( ext ) then
+       if ExtIsHTML( ext ) then
           ImportFileType := itHTML
        else
-       if Form_Main.ExtIsText( ext ) then
+       if ExtIsText( ext ) then
           ImportFileType := itText
 
        else begin
@@ -405,16 +415,20 @@ begin
 
        try
          try
+           if ImagesManager.StorageMode <> smEmbRTF then begin
+              if ActiveNote.Editor.SelLength > 0 then
+                 CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+           end;
 
-         case ImportFileType of
-            itText, itHTML : begin
+           case ImportFileType of
+             itText, itHTML : begin
                ActiveNote.Editor.SelText :=  TFile.ReadAllText(FN);
                ActiveNote.Editor.SelLength := 0;
-            end;
+             end;
 
-            itRTF:
+             itRTF:
                ActiveNote.Editor.PutRtfText(TFile.ReadAllText(FN), true);
-         end;
+           end;
 
          except
            on E : Exception do begin
@@ -652,10 +666,8 @@ begin
       if TargetMarker = 0 then begin
          {$IFDEF KNT_DEBUG}Log.Add('Insert Marker for HyperLink',  4 ); {$ENDIF}
          TargetMarker:= 1 + GetLastTargetMarker(ActiveNote.Editor.TextPlain);
-          //  {\rtf1\ansi {\v\'11B5\'12}};    => {\rtf1\ansi \v\'11B5\'12\v0};
-          ActiveNote.Editor.PutRtfText('{\rtf1\ansi {\v' + KNT_RTF_HIDDEN_MARK_L +
-                               KNT_RTF_HIDDEN_BOOKMARK + IntToStr(TargetMarker) +
-                               KNT_RTF_HIDDEN_MARK_R + '}}',  true);
+         //  {\rtf1\ansi {\v\'11B5\'12}};    => {\rtf1\ansi \v\'11B5\'12\v0};  // Finally they will be inserted directly with \v...\v0 (see comment *2 next to KNT_RTF_BMK_HIDDEN_MARK in kn_const.pas)
+         ActiveNote.Editor.PutRtfText(Format('{\rtf1\ansi' + KNT_RTF_BMK_HIDDEN_MARK + '}', [TargetMarker]),  true);
       end;
       strTargetMarker:= Format(STR_31 + STR_32, [TargetMarker]);
       aLocation.Mark:= TargetMarker;
@@ -1299,6 +1311,12 @@ begin
   myURL := URLstr;
   URLType := TypeURL( myURL , KNTlocation);
 
+  if (URLType = urlKNTImage) and (myURLAction <> urlNothing) then begin
+      ClickOnURLImage (URLstr, chrgURL, myURLAction, EnsureAsk);
+      exit;
+  end;
+
+
   ShellExecResult := maxint; // dummy
   usesHyperlinkCmd:= false;
 
@@ -1494,6 +1512,22 @@ begin
   end;
 
 end; // ClickOnURL
+
+
+procedure ClickOnURLImage(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
+var
+  p1, ImgID: integer;
+
+begin
+   if myURLAction in [urlNothing, urlCopy, urlCreateOrModify] then exit;
+
+   p1:= pos(',', URLstr, 5);
+   ImgID  := StrToIntDef(Copy(URLstr, 5, p1- 5), 0);
+
+   if ImgID <> 0 then
+      ImagesManager.OpenImageViewer(ImgID, myURLAction=urlOpenNew, true);
+end;
+
 
 //--------------------------------------------------
 // PathFileOK

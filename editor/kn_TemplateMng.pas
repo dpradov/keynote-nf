@@ -187,7 +187,7 @@ begin
           end;
 
           if Template_LastWasFormatted then
-             Editor:= GetEditorWithNoKNTHiddenCharacters(ActiveNote.Editor, useSelection);       // If editor returned <> ActiveNote.Editor -> free
+             Editor:= GetEditorWithNoKNTHiddenCharacters(ActiveNote.Editor, hmAll, useSelection);       // If editor returned <> ActiveNote.Editor -> free
 
           if UseSelection then
              Editor.StreamMode := [smSelection];
@@ -245,6 +245,8 @@ procedure InsertTemplate( tplFN : string );
 var
   oldFilter : string;
   tplText: string;
+  IsRTF: boolean;
+  RTFText: AnsiString;
 begin
   with Form_Main do begin
       if (not HaveNotes( true, true )) then exit;
@@ -286,8 +288,22 @@ begin
 
       try
         try
-           tplText:= TFile.ReadAllText(tplFN);
-           ActiveNote.Editor.PutRtfText(tplText, true);
+          if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+             if ActiveNote.Editor.SelLength > 0 then
+                CheckToSelectLeftImageHiddenMark(ActiveNote.Editor);
+          end;
+
+          tplText:= TFile.ReadAllText(tplFN);
+          IsRTF:= tplText.StartsWith('{\rtf1');
+
+          RTFText:= '';
+          if IsRTF and (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then
+             RTFText:= ImagesManager.ProcessImagesInRTF(tplText, ActiveNote, ImagesManager.ImagesMode, 'Template');
+
+          if RTFText <> '' then
+             ActiveNote.Editor.PutRtfText(RTFText, True, True)
+          else
+             ActiveNote.Editor.PutRtfText(tplText, true);
 
         except
           on E : Exception do

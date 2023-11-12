@@ -88,6 +88,7 @@ var
     procedure NavigateInTree( NavDirection : TNavDirection );
     function GetNodePath( aNode : TTreeNTNode; const aDelimiter : string; const TopToBottom : boolean ) : string;
 
+    procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit);
     function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TTreeNote; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
 
     procedure HideCheckedNodes (note: TTreeNote);    // [dpv]
@@ -2067,7 +2068,28 @@ begin
   end;
 end; // CopyNodeName
 
-function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TTreeNote; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;   
+
+procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit);
+var
+  Encoding: TEncoding;
+begin
+   Encoding:= nil;
+   RTFAux.Clear;
+   RTFAux.StreamMode := [];
+
+   RTFAux.StreamFormat:= FromFormat;
+   RTFAux.Lines.LoadFromStream( Stream );
+   RTFAux.StreamFormat := ToFormat;
+
+   if (ToFormat = sfPlainText) and (not CanSaveAsANSI(RTFAux.Text)) then
+      Encoding:= TEncoding.UTF8;
+
+   Stream.Clear;
+   RTFAux.Lines.SaveToStream(Stream, Encoding);
+end;
+
+
+function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TTreeNote; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
 var
   newNoteNode : TNoteNode;
   myTreeNode, newTreeNode, LastNodeAssigned, FirstCopiedNode : TTreeNTNode;
@@ -2089,25 +2111,6 @@ var
           if assigned(TransferedNoteNode) and not TransferedNoteNode.Hidden then
              Result:= Result+1;
       end;
-  end;
-
-  procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat);
-  var
-     Encoding: TEncoding;
-  begin
-      Encoding:= nil;
-      RTFAux.Clear;
-      RTFAux.StreamMode := [];
-
-      RTFAux.StreamFormat:= FromFormat;
-      RTFAux.Lines.LoadFromStream( Stream );
-      RTFAux.StreamFormat := ToFormat;
-
-      if (ToFormat = sfPlainText) and (not CanSaveAsANSI(RTFAux.Text)) then
-         Encoding:= TEncoding.UTF8;
-
-      Stream.Clear;
-      RTFAux.Lines.SaveToStream(Stream, Encoding);
   end;
 
 begin
@@ -2237,14 +2240,14 @@ begin
                     // As indicated in comment *1 in FileDropped (kn_NoteFileMng), we must check if it is neccesary to ensure that
                     // the new node's stream is loaded with RTF and not plain text.
                     if (not tNote.PlainText) and (not NodeStreamIsRTF (newNoteNode.Stream)) then
-                        ConvertStreamContent(newNoteNode.Stream, sfPlainText, sfRichText)
+                        ConvertStreamContent(newNoteNode.Stream, sfPlainText, sfRichText, RTFAux)
                     else
                     if (tNote.PlainText) and (NodeStreamIsRTF (newNoteNode.Stream)) then
                         // This case is not as problematic as the other, but if the new node were not modified, it would save
                         // its RTF content in a plain manner. Example:
                         // ;{{\rtf1\fbidis\ ....
                         // ;\par...
-                        ConvertStreamContent(newNoteNode.Stream, sfRichText, sfPlainText);
+                        ConvertStreamContent(newNoteNode.Stream, sfRichText, sfPlainText, RTFAux);
 
                     if MovingSubtree then
                        AlarmManager.MoveAlarms(NoteFile.GetNoteByID(CopyCutFromNoteID), TransferNodes[i],  tNote, newNoteNode);
@@ -2302,7 +2305,26 @@ begin
                                    newNoteNode.VirtualMode := vmNone;
                                    newNoteNode.VirtualFN := '';
                                  end;
-                              end;
+                              end
+                              else
+                              {
+                                The purpose of the UpdateImagesCountReferences call is to increase the references corresponding to images that may contain the
+                                nodes that are being copied or moved
+                                 * if the nodes are moved, the corresponding references will end up being decremented when the source nodes are deleted. 
+                                  But it is also possible for the user to totally or partially cancel this deletion, which in this way -increasing and decrementing 
+                                  independently- is not a problem.
+
+                                Even if nodes containing images are copied or moved to a PlainText note, it is not necessary to expressly address it here, 
+                                to ensure that image references are not increased since earlier in this TreeTransferProc procedure the movements between PlainText
+                                and not PlainText (and vice versa) are managed by calling the ConvertStreamContent(...) method. 
+                                In the case of converting from sfRichText to sfPlainText, in the node stream, which if it has images they will be stored as imLink,
+                                the RTF controls will be eliminated, among which are the labels that identify the images (\v\'11I.. .\v0).
+                                Therefore, calling NoteFile.UpdateImagesCountReferences() will not increment any references. Anyway, to avoid that image search 
+                                (quick but unnecessary), we will avoid the call if the destination note is PlainText.
+                              }
+                               if not (tNote.PlainText) then
+                                  NoteFile.UpdateImagesCountReferences (newNoteNode);
+
                               if MovingSubtree then begin
                                  movingNoteNode:= TransferedNoteNode;
                                  if assigned(movingNoteNode) then

@@ -331,8 +331,8 @@ begin
                       inc(iT);
                       inc(SizeInternalHiddenText);
                       inc(SizeAux);
-                  until (PText[iT]=KNT_RTF_HIDDEN_MARK_R_CHAR) or (PText[iT]=#0) or (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT);      // Looking for <StartHiddenText>.....<EndHiddenText>  (ex: HB5H  where  H=KNT_RTF_HIDDEN_MARK_CHAR)
-                  if (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT) then begin
+                  until (PText[iT]=KNT_RTF_HIDDEN_MARK_R_CHAR) or (PText[iT]=#0) or (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT_CHAR);      // Looking for <StartHiddenText>.....<EndHiddenText>  (ex: HB5H  where  H=KNT_RTF_HIDDEN_MARK_CHAR)
+                  if (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT_CHAR) then begin
                      Dif:= True;
                      pHf:= pH;
                   end
@@ -504,24 +504,6 @@ begin
     end;
 end;
 }
-
-function PrepareTextPlain(myNote: TTabNote; myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string;
-var
-    myNoteNode : TNoteNode;
-begin
-
-   if myNote.Editor.Modified or ((myNote.Kind <> ntTree) and (myNote.NoteTextPlain = '')) then
-      myNote.EditorToDataStream;
-
-   if (myNote.Kind <> ntTree) then
-       Result:= myNote.NoteTextPlain
-   else begin
-      myNoteNode := TNoteNode( myTreeNode.Data );
-      TTreeNote(myNote).InitializeTextPlain(myNoteNode, RTFAux);
-      Result:= myNoteNode.NodeTextPlain;
-   end;
-
-end;
 
 
 
@@ -807,7 +789,7 @@ begin
             // Recorremos cada nodo (si es ntTree) o el único texto (si <> ntTree)
             repeat
                 // PrepareEditControl(myNote, myTreeNode);
-                TextPlainBAK:= PrepareTextPlain(myNote, myTreeNode, RTFAux);
+                TextPlainBAK:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
                 TextPlain:= TextPlainBAK;
                 if not FindOptions.MatchCase then
                    TextPlain:=  AnsiUpperCase(TextPlain);
@@ -1399,7 +1381,7 @@ begin
       // o incluso continuar buscando desde el punto de partida, de manera cíclica.
 
       repeat
-            TextPlain:= PrepareTextPlain(myNote, myTreeNode, RTFAux);
+            TextPlain:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
             if FindOptions.MatchCase then
                PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
             else 

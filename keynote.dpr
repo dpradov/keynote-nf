@@ -70,9 +70,8 @@ uses
   Parser in '3rd_party\expression_evaluator\Parser.pas',
   crc32 in '3rd_party\CRCDelphi\crc32.pas',
   DCPcrypt in '3rd_party\dcpcrypt-1_3\DCPcrypt.pas',
-
   KDL.Localizer in '3rd_party\Kryvich Delphi Localizer\KDL.Localizer.pas',
-
+  SynGdiPlus in '3rd_party\SynGdiPlus\SynGdiPlus.pas',
   gf_Bits in 'support\gf_Bits.pas',
   gf_fileassoc in 'support\gf_fileassoc.pas',
   gf_Files in 'support\gf_Files.pas',
@@ -84,7 +83,6 @@ uses
   gf_strings in 'support\gf_strings.pas',
   GFLog in 'support\GFLog.pas',
   kn_DLLmng in 'support\kn_DLLmng.pas',
-
   GFTipDlg in 'general\GFTipDlg.pas',
   GFTipDlgForm in 'general\GFTipDlgForm.pas' {GFTipForm},
   kn_about in 'general\kn_about.pas' {AboutBox},
@@ -102,7 +100,6 @@ uses
   kn_OptionsNew in 'general\kn_OptionsNew.pas' {Form_OptionsNew},
   kn_VCLControlsMng in 'general\kn_VCLControlsMng.pas',
   dll_Keyboard in 'general\dll_Keyboard.pas',
-
   kn_BookmarksMng in 'editor\kn_BookmarksMng.pas',
   kn_Chars in 'editor\kn_Chars.pas' {Form_Chars},
   kn_ClipUtils in 'editor\kn_ClipUtils.pas',
@@ -122,19 +119,15 @@ uses
   kn_URL in 'editor\kn_URL.pas' {Form_URLAction},
   MSOfficeConverters in 'editor\MSOfficeConverters.pas',
   MSWordConverter in 'editor\MSWordConverter.pas',
-
   kn_LanguagesMng in 'Lang\kn_LanguagesMng.pas',
-
   kn_MacroMng in 'macros\kn_MacroMng.pas',
   kn_Macro in 'macros\kn_Macro.pas',
   kn_MacroCmd in 'macros\kn_MacroCmd.pas',
   kn_MacroCmdSelect in 'macros\kn_MacroCmdSelect.pas' {Form_MacroCmd},
   kn_MacroEdit in 'macros\kn_MacroEdit.pas' {Form_Macro},
-
   kn_PluginsMng in 'plugins\kn_PluginsMng.pas',
   kn_PluginBase in 'plugins\kn_PluginBase.pas',
   kn_Plugins in 'plugins\kn_Plugins.pas',
-
   kn_VirtualNodeMng in 'structure\kn_VirtualNodeMng.pas',
   kn_ExportImport in 'structure\kn_ExportImport.pas',
   kn_ExportNew in 'structure\kn_ExportNew.pas' {Form_ExportNew},
@@ -155,18 +148,19 @@ uses
   kn_TabSelect in 'structure\kn_TabSelect.pas' {Form_SelectTab},
   kn_TreeNoteMng in 'structure\kn_TreeNoteMng.pas',
   kn_VirtualNodeForm in 'structure\kn_VirtualNodeForm.pas' {Form_VNode},
-
-{$IFNDEF EXCLUDEEMAIL}
+  {$IFNDEF EXCLUDEEMAIL}
   kn_SendMail in 'various\kn_SendMail.pas' {Form_Mail},
-{$ENDIF}
+  {$ENDIF }
   kn_AlertMng in 'various\kn_AlertMng.pas' {Form_Alarm},
   kn_FavExtDlg in 'various\kn_FavExtDlg.pas' {Form_FavExt},
   kn_FavoritesMng in 'various\kn_FavoritesMng.pas',
+  kn_ImagesUtils in 'editor\kn_ImagesUtils.pas',
+  kn_ImagesMng in 'editor\kn_ImagesMng.pas',
+  kn_ImageForm in 'editor\kn_ImageForm.pas' {Form_Image},
   tom_TLB in 'various\tom_TLB.pas',
-
   kn_DLLinterface in 'kn_DLLinterface.pas',
   kn_Main in 'kn_Main.pas' {Form_Main}
-  ;
+;
 
 {$R *.RES}
 

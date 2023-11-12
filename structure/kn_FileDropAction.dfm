@@ -3,8 +3,8 @@ object Form_DropFile: TForm_DropFile
   Top = 312
   BorderStyle = bsDialog
   Caption = 'Select import method'
-  ClientHeight = 166
-  ClientWidth = 347
+  ClientHeight = 198
+  ClientWidth = 356
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object Form_DropFile: TForm_DropFile
   TextHeight = 13
   object Button_OK: TButton
     Left = 10
-    Top = 134
+    Top = 171
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -28,7 +28,7 @@ object Form_DropFile: TForm_DropFile
   end
   object Button_Cancel: TButton
     Left = 90
-    Top = 134
+    Top = 171
     Width = 75
     Height = 25
     Cancel = True
@@ -39,25 +39,23 @@ object Form_DropFile: TForm_DropFile
   object PagesImp: TNotebook
     Left = 0
     Top = 0
-    Width = 347
-    Height = 126
+    Width = 356
+    Height = 148
     Align = alTop
     PageIndex = 1
     TabOrder = 0
-    ExplicitWidth = 351
+    ExplicitWidth = 352
     object PAGE_METHOD: TPage
       Left = 0
       Top = 0
       Caption = 'PAGE_METHOD'
-      ExplicitWidth = 304
       object RG_Action: TRadioGroup
         Left = 8
-        Top = 5
+        Top = 17
         Width = 334
-        Height = 111
+        Height = 125
         Margins.Top = 6
         Margins.Bottom = 6
-        Caption = ' &Method for importing files: '
         TabOrder = 0
       end
     end
@@ -65,23 +63,31 @@ object Form_DropFile: TForm_DropFile
       Left = 0
       Top = 0
       Caption = 'PAGE_HTML'
+      ExplicitWidth = 352
       object RG_HTML: TRadioGroup
-        Left = 8
-        Top = 5
+        Left = 11
+        Top = 17
         Width = 332
-        Height = 111
-        Caption = ' &Method for importing HTML files: '
+        Height = 125
         TabOrder = 0
       end
     end
   end
   object Btn_HTML: TButton
     Left = 236
-    Top = 134
+    Top = 171
     Width = 110
     Height = 25
     Caption = '&HTML options'
     TabOrder = 3
     OnClick = Btn_HTMLClick
+  end
+  object chk_ImageLinkMode: TCheckBox
+    Left = 229
+    Top = 148
+    Width = 117
+    Height = 17
+    Caption = 'Images: Link mode'
+    TabOrder = 4
   end
 end

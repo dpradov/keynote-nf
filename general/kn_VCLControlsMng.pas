@@ -158,12 +158,18 @@ begin
           OnSelectionChange := RxRTFSelectionChange;
           OnURLClick := RxRTFURLClick;
           OnMouseMove := nil; // RTFMouseMove;
-          // OnDragOver := RxRTFDragOver;
-          DragMode := dmManual; // dmAutomatic;
+          OnDblClick:= RxRTFDblClick;
+          {
+            By default DragMode=dmManual, and the mechanism in TRxRichEdit is controlled through the IRichEditOleCallback interface.
+            (see comment *3 in RxRichEd.pas)
+          //OnDragOver := RxRTFDragOver;
+          //DragMode := dmManual; // dmAutomatic;
           OnStartDrag := RxRTFStartDrag;
           OnEndDrag := RxRTFEndDrag;
+          }
           OnFileDropped := Form_Main.OnFileDropped;
-          // AllowObjects := true;
+
+          // AllowObjects := true;                      // Should be assigned when creating the control, to not lead to recreate its window
           // AllowInPlace := false;
         end;
       end;
@@ -951,10 +957,12 @@ begin
           Toolbar_Style.Visible := ToolbarStyleShow;
           MMViewTBStyle.Checked := ToolbarStyleShow;
 
+          { // Removed TB_Exit button
           if MinimizeOnClose then
             TB_Exit.Hint := STR_08
           else
             TB_Exit.Hint := STR_09;
+          }
 
         end;
 
@@ -1115,6 +1123,11 @@ begin
               _LastZoomValue := GetEditorZoom;
               Combo_Zoom.Text := Format('%d%%', [_LastZoomValue] );
             end;
+
+            MMShowImages.Checked:= (ImagesManager.ImagesMode = imImage);
+            MMShowImages.Enabled:= (ImagesManager.StorageMode <> smEmbRTF) and (NoteSupportsRegisteredImages);
+            TB_Images.Enabled:=  MMShowImages.Enabled;
+            TB_Images.Down:=     MMShowImages.Checked;
 
             ShowInsMode;
 

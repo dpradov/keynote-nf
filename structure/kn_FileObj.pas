@@ -9,7 +9,7 @@ unit kn_FileObj;
 ------------------------------------------------------------------------------
  (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- 
+
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
 
@@ -45,6 +45,7 @@ uses
    kn_NoteObj,
    kn_TreeNoteMng,
    kn_LinksMng,
+   kn_ImagesMng,
    kn_RTFUtils;
 
 
@@ -130,10 +131,17 @@ type
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); virtual;
     procedure SetFilename( const Value : string );
     function GetBookmark(Index: integer): PBookmark;
+    function GetFile_Name: string;
+    function GetFile_NameNoExt: string;
+    function GetFile_Path: string;
 
   public
     property Version : TNoteFileVersion read FVersion;
     property FileName : string read FFileName write SetFileName;
+    property File_Name : string read GetFile_Name;
+    property File_NameNoExt : string read GetFile_NameNoExt;
+    property File_Path : string read GetFile_Path;
+
     property Comment : TCommentStr read FComment write SetComment;
     property Description : TCommentStr read FDescription write SetDescription;
     property NoteCount : integer read GetCount;
@@ -172,7 +180,7 @@ type
                   var SavedNotes: integer; var SavedNodes: integer;
                   ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
                   OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
-    function Load( FN : string ) : integer;
+    function Load( FN : string; ImgManager: TImageManager ) : integer;
 
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
@@ -191,13 +199,21 @@ type
     procedure ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
 
     procedure UpdateTextPlainVariables (nMax: integer);
+    procedure UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TTabNote= nil; ExitIfAllImagesInSameModeDest: boolean = true);
+    function  EnsurePlainTextAndRemoveImages (myNote: TTabNote): boolean;
+    procedure RemoveImagesCountReferences (myNote: TTabNote); overload;
+    procedure RemoveImagesCountReferences (myNode: TNoteNode); overload;
+    procedure UpdateImagesCountReferences (myNote: TTabNote); overload;
+    procedure UpdateImagesCountReferences (myNode: TNoteNode); overload;
+
   end;
 
 
 implementation
 uses
    kn_Global,
-   kn_Main;
+   kn_Main,
+   kn_EditorUtils;
 
 
 resourcestring
@@ -219,6 +235,7 @@ resourcestring
   STR_14 = 'Cannot save: Passphrase not set';
   STR_17 = 'Stream size error: Encrypted file is invalid or corrupt.';
   STR_18 = 'Invalid passphrase: Cannot open encrypted file.';
+  STR_19 = 'Exception trying to ensure plain text and removing of images: ';
 
 constructor TNoteList.Create;
 begin
@@ -526,7 +543,7 @@ end; // SetModified
 
 
 
-function TNoteFile.Load( FN : string ) : integer;
+function TNoteFile.Load( FN : string; ImgManager: TImageManager ) : integer;
 var
   Note : TTabNote;
   Attrs : TFileAttributes;
@@ -548,6 +565,9 @@ var
   InHead : boolean;
   TestString : string[12];
   VerID : TNoteFileVersion;
+  NextBlock: TNextBlock;
+
+
 {$IFDEF WITH_DART}
   Hdr : TDartNotesHdr;
 {$ENDIF}
@@ -557,7 +577,7 @@ begin
   HasLoadError := false;
 
   FFileFormat := nffKeyNote; // assume
-  _NEW_NOTE_KIND := ntRTF;
+  NextBlock:= nbRTF;
 
   if ( FN = '' ) then
      FN := FFileName;
@@ -665,13 +685,24 @@ begin
       end;
 
       if ( FFileFormat = nffKeyNoteZip ) then begin
+          var PosIniNonCompressed, NToRead, PosToWrite: Int64;
+
           MemStream := TMemoryStream.Create;
           Stream := TFileStream.Create(FN, fmOpenRead);
           try
              Stream.ReadBuffer(FVersion, sizeof( FVersion ));
              Stream.ReadBuffer(FCompressionLevel, sizeof( FCompressionLevel ));
-             ZDecompressStream (Stream, MemStream);
+             PosIniNonCompressed:= ZDecompressStream (Stream, MemStream);
              TestString := FVersion.ID + #32 + FVersion.Major + '.' + FVersion.Minor;
+             if PosIniNonCompressed > 0 then begin
+                 Stream.Position := PosIniNonCompressed;
+                 NToRead:= Stream.Size - (Stream.Position + 1);
+                 PosToWrite:= MemStream.Position;
+                 MemStream.SetSize(MemStream.Size + NToRead);
+                 Stream.Read(PByte(MemStream.Memory)[PosToWrite], NToRead);
+             end;
+
+
           finally
              Stream.Free;
              Stream := nil;
@@ -815,13 +846,19 @@ begin
               // '%' markers, start a new entry
               if ( ds = _NF_TabNote ) then begin
                 InHead := false;
-                _NEW_NOTE_KIND := ntRTF;
+                NextBlock:= nbRTF;
                 break;
               end;
 
               if ( ds = _NF_TreeNote ) then begin
                 InHead := false;
-                _NEW_NOTE_KIND := ntTree;
+                NextBlock:= nbTree;
+                break;
+              end;
+
+              if ( ds = _NF_StoragesDEF ) then begin
+                InHead := false;
+                NextBlock:= nbImages;         // Images definition begins
                 break;
               end;
 
@@ -834,23 +871,27 @@ begin
             end; // eof( tf )
 
             while ( not ( FileExhausted or tf.eof)) do begin
-               case _NEW_NOTE_KIND of
-                 ntRTF : Note := TTabNote.Create;
-                 ntTree : Note := TTreeNote.Create;
-               end;
+               if NextBlock = nbImages then
+                   ImgManager.LoadState(tf, FileExhausted)
 
-               try
-                 Note.LoadFromFile( tf, FileExhausted );
-                 InternalAddNote( Note );
-                 // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
-               except
-                 On E : Exception do
-                 begin
-                   HasLoadError := true;
-                   messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
-                   Note.Free;
-                   // raise;
-                 end;
+               else begin
+                   case NextBlock of
+                     nbRTF  : Note := TTabNote.Create;
+                     nbTree : Note := TTreeNote.Create;
+                   end;
+
+                   try
+                     Note.LoadFromFile( tf, FileExhausted, NextBlock );
+                     InternalAddNote( Note );
+                     // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
+                   except
+                     On E : Exception do begin
+                       HasLoadError := true;
+                       messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                       Note.Free;
+                       // raise;
+                     end;
+                   end;
                end;
             end; // EOF( tf )
 
@@ -968,6 +1009,7 @@ begin
      // FNoteCount := Notes.Count;
      Modified := false;
      VerifyNoteIds;
+     ImgManager.FileIsNew:= false;
   end;
 
   if HasLoadError then
@@ -1030,7 +1072,7 @@ var
       end;
   end;
 
-  procedure WriteNoteFile;
+  procedure WriteNoteFile (SaveImages: boolean);
   var
      i: integer;
   begin
@@ -1071,7 +1113,18 @@ var
       end;
     end;
 
-    tf.WriteLine( _NF_EOF );
+    Log_StoreTick( 'After saving Notes', 1 );
+
+
+    if SaveImages then begin
+       ImagesManager.DeleteOrphanImages;
+       ImagesManager.SaveState(tf);
+       ImagesManager.SaveEmbeddedImages(tf);
+       Log_StoreTick( 'After saving state and embedded images', 1 );
+
+       tf.WriteLine( _NF_EOF );
+    end;
+
     result := 0;
   end;
 
@@ -1120,7 +1173,7 @@ begin
           tf.rewrite();
 
           try
-            WriteNoteFile;
+            WriteNoteFile (true);
           finally
             tf.closefile();
           end;
@@ -1139,12 +1192,15 @@ begin
             try
               tf.assignstream( AuxStream );
               tf.rewrite;
-              WriteNoteFile;
+              WriteNoteFile (false);
+
+              ImagesManager.DeleteOrphanImages;
+              ImagesManager.SaveState(tf);
             finally
               tf.closefile();
             end;
             AuxStream.Position := 0;
-            Log_StoreTick( 'After write file to stream', 1 );
+            Log_StoreTick( 'After saving images state', 1 );
             ZCompressStream(AuxStream, Stream, FCompressionLevel);
 
           finally
@@ -1153,7 +1209,19 @@ begin
             Log_StoreTick( 'After compress stream to disk', 1 );
           end;
 
+          tf.assignfile(FN);
+          tf.Append();
+          try
+             ImagesManager.SaveEmbeddedImages(tf);
+             Log_StoreTick( 'After saving embedded images', 1 );
+
+             tf.WriteLine( _NF_EOF );
+          finally
+             tf.CloseFile ();
+          end;
+
         end; // nffKeyNoteZip format
+
 
         nffEncrypted : begin
 
@@ -1167,7 +1235,7 @@ begin
             tf.rewrite;
 
             try
-              WriteNoteFile;
+              WriteNoteFile (true);
             finally
               tf.closefile();
             end;
@@ -1220,6 +1288,10 @@ begin
       raise;
     end;
   finally
+      if assigned(tf) then
+         tf.Free;
+
+      ImagesManager.ConversionStorageMode_End;
   end;
 
 end; // SAVE
@@ -1525,6 +1597,24 @@ begin
 end;
 
 
+function TNoteFile.GetFile_Name: string;
+begin
+   Result:= ExtractFileName(FileName);
+end;
+
+
+function TNoteFile.GetFile_NameNoExt: string;
+begin
+   Result:= ExtractFileNameNoExt(FileName);
+end;
+
+
+function TNoteFile.GetFile_Path: string;
+begin
+   Result:= ExtractFilePath(FileName);
+end;
+
+
 function TNoteFile.GetBookmark(Index: integer): PBookmark;
 begin
   Result := @FBookmarks[Index];
@@ -1690,6 +1780,224 @@ begin
     end;
 
 end;
+
+
+procedure TNoteFile.UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TTabNote= nil; ExitIfAllImagesInSameModeDest: boolean = true);
+var
+  i, j: integer;
+  myNote: TTabNote;
+  myNodes: TNodeList;
+  Stream: TMemoryStream;
+  ImagesIDs: TImageIDs;
+
+   procedure UpdateImagesStorageMode (Stream: TMemoryStream);
+   var
+     ReplaceCorrectedIDs: boolean;
+   begin
+       if ToMode <> smEmbRTF then begin
+          ReplaceCorrectedIDs:= (ActiveNote = myNote.ID);
+          ImagesIDs:= myNote.CheckSavingImagesOnMode (imLink, Stream, ReplaceCorrectedIDs, ExitIfAllImagesInSameModeDest);
+          ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
+          if (ActiveNote = myNote.ID) then
+             myNote.ImagesReferenceCount:= ImagesIDs;
+       end
+       else
+          myNote.CheckSavingImagesOnMode (imImage, Stream, false, ExitIfAllImagesInSameModeDest);
+   end;
+
+begin
+   if (ApplyOnlyToNote = nil)  then
+      ImagesManager.ResetAllImagesCountReferences;
+
+   // ApplyOnlyToNote: Para usar desde MergeFromKNTFile
+
+   for i := 0 to pred( FNotes.Count ) do begin
+      myNote := FNotes[i];
+      if myNote.PlainText then continue;
+      if (ApplyOnlyToNote <> nil) and (myNote <> ApplyOnlyToNote) then continue;
+
+      myNote.EditorToDataStream;
+
+      if (myNote.Kind = ntTree) then begin
+         myNodes:= TTreeNote(myNote).Nodes;
+         for j := 0 to myNodes.Count - 1 do  begin
+            if (myNodes[j].VirtualMode = vmNone) then begin
+               Stream:= myNodes[j].Stream;
+               UpdateImagesStorageMode (Stream);
+               if Length(ImagesIDs) > 0 then
+                  myNodes[j].NodeTextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
+
+               if myNodes[j] = TTreeNote(myNote).SelectedNode then
+                  myNote.DataStreamToEditor;
+            end;
+         end;
+
+      end
+      else begin
+         Stream:= myNote.DataStream;
+         UpdateImagesStorageMode (Stream);
+         if Length(ImagesIDs) > 0 then
+            myNote.NoteTextPlain:= '';
+
+         myNote.DataStreamToEditor;
+      end;
+
+   end;
+
+end;
+
+
+
+
+function TNoteFile.EnsurePlainTextAndRemoveImages (myNote: TTabNote): boolean;
+var
+  i: integer;
+  myNodes: TNodeList;
+  Stream: TMemoryStream;
+  RTFAux : TRxRichEdit;
+
+  procedure EnsurePlainTextAndCheckRemoveImages (UpdateEditor: boolean);
+  var
+     ImagesIDs: TImageIDs;
+  begin
+      ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+      if Length(ImagesIDs) > 0 then
+         ImagesManager.RemoveImagesReferences (ImagesIDs);
+
+      if NodeStreamIsRTF (Stream) then begin
+         Stream.Position:= 0;
+         ConvertStreamContent(Stream, sfRichText, sfPlainText, RTFAux);
+      end;
+
+      if UpdateEditor then
+         myNote.DataStreamToEditor;
+  end;
+
+
+begin
+   Result:= true;
+
+   try
+      RTFAux:= CreateRTFAuxEditorControl;
+      try
+         if (myNote.Kind = ntTree) then begin
+            myNodes:= TTreeNote(myNote).Nodes;
+            for i := 0 to myNodes.Count - 1 do  begin
+               if (myNodes[i].VirtualMode = vmNone) then begin
+                  Stream:= myNodes[i].Stream;
+                  EnsurePlainTextAndCheckRemoveImages (myNodes[i] = TTreeNote(myNote).SelectedNode);
+               end;
+            end;
+
+         end
+         else begin
+            Stream:= myNote.DataStream;
+            EnsurePlainTextAndCheckRemoveImages (true);
+         end;
+
+         myNote.ResetImagesReferenceCount;
+
+      finally
+        RTFAux.Free;
+      end;
+
+   except on E: Exception do begin
+     MessageDlg( STR_19 + E.Message, mtError, [mbOK], 0 );
+     Result:= false;
+     end
+   end;
+
+
+end;
+
+
+procedure TNoteFile.RemoveImagesCountReferences (myNote: TTabNote);
+var
+  i: integer;
+  myNodes: TNodeList;
+  Stream: TMemoryStream;
+  ImagesIDs: TImageIDs;
+
+begin
+   if (myNote.Kind = ntTree) then begin
+      myNodes:= TTreeNote(myNote).Nodes;
+      for i := 0 to myNodes.Count - 1 do  begin
+         if (myNodes[i].VirtualMode = vmNone) then begin
+            Stream:= myNodes[i].Stream;
+            ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+            if Length(ImagesIDs) > 0 then
+               ImagesManager.RemoveImagesReferences (ImagesIDs);
+         end;
+      end;
+
+   end
+   else begin
+      Stream:= myNote.DataStream;
+      ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+      if Length(ImagesIDs) > 0 then
+        ImagesManager.RemoveImagesReferences (ImagesIDs);
+   end;
+
+   myNote.ResetImagesReferenceCount;
+end;
+
+
+procedure TNoteFile.RemoveImagesCountReferences (myNode: TNoteNode);
+var
+  Stream: TMemoryStream;
+  ImagesIDs: TImageIDs;
+
+begin
+   if (myNode.VirtualMode = vmNone) then begin
+      Stream:= myNode.Stream;
+      ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+      if Length(ImagesIDs) > 0 then
+         ImagesManager.RemoveImagesReferences (ImagesIDs);
+   end;
+end;
+
+procedure TNoteFile.UpdateImagesCountReferences (myNode: TNoteNode);
+var
+  Stream: TMemoryStream;
+  ImagesIDs: TImageIDs;
+
+begin
+   Stream:= myNode.Stream;
+   ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+   if Length(ImagesIDs) > 0 then
+      ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
+end;
+
+
+// To be used from MergeFromKNTFile
+procedure TNoteFile.UpdateImagesCountReferences (myNote: TTabNote);
+var
+  i: integer;
+  myNodes: TNodeList;
+  Stream: TMemoryStream;
+  ImagesIDs: TImageIDs;
+
+begin
+   if (myNote.Kind = ntTree) then begin
+      myNodes:= TTreeNote(myNote).Nodes;
+      for i := 0 to myNodes.Count - 1 do  begin
+         if (myNodes[i].VirtualMode = vmNone) then begin
+            Stream:= myNodes[i].Stream;
+            ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+            ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
+         end;
+      end;
+
+   end
+   else begin
+      Stream:= myNote.DataStream;
+      ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+      ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
+   end;
+
+   myNote.ImagesReferenceCount:= ImagesIDs;
+end;
+
 
 end.
 

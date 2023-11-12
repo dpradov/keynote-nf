@@ -4,7 +4,7 @@ unit kn_FileDropAction;
  
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
@@ -40,6 +40,7 @@ type
     RG_Action: TRadioGroup;
     Btn_HTML: TButton;
     RG_HTML: TRadioGroup;
+    chk_ImageLinkMode: TCheckBox;
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Btn_HTMLClick(Sender: TObject);
@@ -54,6 +55,10 @@ type
 
 
 implementation
+
+uses
+  kn_NoteFileMng,
+  kn_Global;
 
 {$R *.DFM}
 
@@ -73,9 +78,8 @@ begin
   FileExt := '';
   PagesImp.PageIndex := 0;
   for m := low( m ) to high( m ) do
-  begin
-    RG_HTML.Items.Add( HTMLImportMethods[m] );
-  end;
+     RG_HTML.Items.Add( HTMLImportMethods[m] );
+
   RG_HTML.ItemIndex := 0;
 end; // CREATE
 
@@ -89,12 +93,10 @@ begin
     s := STR_01
   else
     s := STR_02;
-  Caption := Format(
-    STR_03,
-    [NumberOfFiles, FileExt, s] );
+
+  Caption := Format(STR_03, [NumberOfFiles, FileExt, s] );
 
   try
-    RG_Action.ItemIndex := 0;
     RG_ActionClick( RG_Action );
     RG_Action.OnClick := RG_ActionClick;
     RG_Action.SetFocus;

@@ -89,7 +89,7 @@ If you have used a similar note program called DaRT Notes before, KeyNote can op
 Please check the program's website for FAQ, a list of known issues, and upgrade information. See Help->About.
 When the program is minimized or hidden behind other windows, it can be brought to the front by pressing Shift+Ctrl+F12. (You can customize the hotkey.)
 Keynote is and will remain free. If you enjoy using it, please consider making a small donation to an animal shelter in your area. Thank you!
-You can export notes from KeyNote and import plain text or RTF files into KeyNote. See Tools->Import and Tools->Export menu items.
+You can export notes from KeyNote and import plain text or RTF files into KeyNote. See File->Import and File->Export menu items.
 You can specify default attributes that will be assigned to each new note you create (such as font style, colors, icon, and others). See Tools->Defaults.
 Most editing functions have keyboard shortcuts assigned to them. You can look them up in the main menu.
 The file SAMPLE.KNT distributed with the program contains many additional hints and tips.

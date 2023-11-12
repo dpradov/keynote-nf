@@ -22,10 +22,12 @@ uses
    System.SysUtils,
    System.RTLConsts,
    System.IniFiles,
+   System.Zip,
    Vcl.Forms,
    Vcl.Graphics,
    Vcl.Menus,
    RxRichEd,
+   SynGdiPlus,
    gf_misc,
    gf_files,
    kn_Info,
@@ -415,7 +417,21 @@ type
     ZoomIncrement,
     IgnoreCtrHideTrePanel,
     MarginAltLeft,
-    MarginAltRight : string;
+    MarginAltRight,
+    ImgDefaultStorageMode,
+    ImgDefaultExternalStorage,
+    ImgDefaultCompression,
+    ImgStorageModeOnExport,
+    ImgFormatInsideRTF,
+    ImgDefaultFormatFromClipb,
+    ImgBmpPixelFormat,
+    ImgMaxAutoWidthGoal,
+    ImgDefaultLinkMode,
+    ImgLinkRelativePath,
+    ImgUseRecycleBin,
+    ImgRatioSizePngVsJPG,
+    ImgCompressionQuality,
+    ImgViewerBGColor: string;
   end;
 
 const
@@ -560,8 +576,21 @@ const
     IgnoreCtrHideTrePanel: 'IgnoreCtrHideTrePanel';
     MarginAltLeft:  'MarginAltLeft';
     MarginAltRight: 'MarginAltRight';
+    ImgDefaultStorageMode: 'ImgDefaultStorageMode';
+    ImgDefaultExternalStorage: 'ImgDefaultExternalStorage';
+    ImgDefaultCompression: 'ImgDefaultCompression';
+    ImgStorageModeOnExport: 'ImgStorageModeOnExport';
+    ImgFormatInsideRTF: 'ImgFormatInsideRTF';
+    ImgDefaultFormatFromClipb: 'ImgDefaultFormatFromClipb';
+    ImgBmpPixelFormat: 'ImgBmpPixelFormat';
+    ImgMaxAutoWidthGoal: 'ImgMaxAutoWidthGoal';
+    ImgDefaultLinkMode: 'ImgDefaultLinkMode';
+    ImgLinkRelativePath: 'ImgLinkRelativePath';
+    ImgUseRecycleBin: 'ImgUseRecycleBin';
+    ImgRatioSizePngVsJPG: 'ImgRatioSizePngVsJPG';
+    ImgCompressionQuality: 'ImgCompressionQuality';
+    ImgViewerBGColor: 'ImgViewerBGColor';
   );
-
 
 type
   TMailOptionsIniStr = packed record
@@ -1043,6 +1072,21 @@ begin
     IgnoreCtrHideTrePanel := false;
     MarginAltLeft := 80;
     MarginAltRight:= 80;
+
+    ImgDefaultStorageMode := smEmbKNT;
+    ImgDefaultExternalStorage := issFolder;
+    ImgDefaultCompression := zcDeflate;
+    ImgStorageModeOnExport:= smeEmbKNT;
+    ImgFormatInsideRTF:= ifAccordingImage;
+    ImgDefaultFormatFromClipb:= imgPNG;
+    ImgBmpPixelFormat     := pf24bit;
+    ImgMaxAutoWidthGoal   := -1;
+    ImgDefaultLinkMode    := false;
+    ImgLinkRelativePath   := false;
+    ImgUseRecycleBin      := true;
+    ImgRatioSizePngVsJPG  := 1.5;
+    ImgCompressionQuality := 80;
+    ImgViewerBGColor      := clGray;
   end;
 end; // InitializeKeyOptions
 
@@ -1312,6 +1356,20 @@ begin
       writeinteger( section, KeyOptionsIniStr.MarginAltLeft,  KeyOptions.MarginAltLeft);
       writeinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight);
 
+      writeinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode ));
+      writeinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage ));
+      writeinteger( section, KeyOptionsIniStr.ImgDefaultCompression, ord( KeyOptions.ImgDefaultCompression ));
+      writeinteger( section, KeyOptionsIniStr.ImgStorageModeOnExport, ord( KeyOptions.ImgStorageModeOnExport ));
+      writeinteger( section, KeyOptionsIniStr.ImgFormatInsideRTF, ord( KeyOptions.ImgFormatInsideRTF ));
+      writeinteger( section, KeyOptionsIniStr.ImgDefaultFormatFromClipb, ord( KeyOptions.ImgDefaultFormatFromClipb ));
+      writeinteger( section, KeyOptionsIniStr.ImgBmpPixelFormat, ord( KeyOptions.ImgBmpPixelFormat ));
+      WriteFloat  ( section, KeyOptionsIniStr.ImgRatioSizePngVsJPG, KeyOptions.ImgRatioSizePngVsJPG);
+      writeinteger( section, KeyOptionsIniStr.ImgCompressionQuality, KeyOptions.ImgCompressionQuality);
+      writeinteger( section, KeyOptionsIniStr.ImgMaxAutoWidthGoal, KeyOptions.ImgMaxAutoWidthGoal );
+      writebool   ( section, KeyOptionsIniStr.ImgDefaultLinkMode, KeyOptions.ImgDefaultLinkMode );
+      writebool   ( section, KeyOptionsIniStr.ImgLinkRelativePath, KeyOptions.ImgLinkRelativePath );
+      writebool   ( section, KeyOptionsIniStr.ImgUseRecycleBin, KeyOptions.ImgUseRecycleBin );
+      writestring ( section, KeyOptionsIniStr.ImgViewerBGColor, ColorToString( KeyOptions.ImgViewerBGColor ));
 
       section := EditorOptionsIniStr.section;
       writebool( section, EditorOptionsIniStr.AutoIndent, EditorOptions.AutoIndent );
@@ -1633,6 +1691,21 @@ begin
       KeyOptions.IgnoreCtrHideTrePanel := readbool( section, KeyOptionsIniStr.IgnoreCtrHideTrePanel, KeyOptions.IgnoreCtrHideTrePanel );
       KeyOptions.MarginAltLeft  := readinteger( section, KeyOptionsIniStr.MarginAltLeft, KeyOptions.MarginAltLeft );
       KeyOptions.MarginAltRight := readinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight );
+
+      KeyOptions.ImgDefaultStorageMode := TImagesStorageMode( readinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode )));
+      KeyOptions.ImgDefaultExternalStorage := TImagesExternalStorage( readinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage )));
+      KeyOptions.ImgDefaultCompression := TZipCompression( readinteger( section, KeyOptionsIniStr.ImgDefaultCompression, ord( KeyOptions.ImgDefaultCompression )));
+      KeyOptions.ImgStorageModeOnExport := TImagesStorageModeOnExport( readinteger( section, KeyOptionsIniStr.ImgStorageModeOnExport, ord( KeyOptions.ImgStorageModeOnExport )));
+      KeyOptions.ImgFormatInsideRTF := TImageFormatToRTF( readinteger( section, KeyOptionsIniStr.ImgFormatInsideRTF, ord( KeyOptions.ImgFormatInsideRTF )));
+      KeyOptions.ImgDefaultFormatFromClipb := TImageFormat( readinteger( section, KeyOptionsIniStr.ImgDefaultFormatFromClipb, ord( KeyOptions.ImgDefaultFormatFromClipb )));
+      KeyOptions.ImgBmpPixelFormat := TPixelFormat( readinteger( section, KeyOptionsIniStr.ImgBmpPixelFormat, ord( KeyOptions.ImgBmpPixelFormat )));
+      KeyOptions.ImgRatioSizePngVsJPG := readfloat( section, KeyOptionsIniStr.ImgRatioSizePngVsJPG, KeyOptions.ImgRatioSizePngVsJPG );
+      KeyOptions.ImgCompressionQuality := readinteger( section, KeyOptionsIniStr.ImgCompressionQuality, KeyOptions.ImgCompressionQuality );
+      KeyOptions.ImgMaxAutoWidthGoal := readinteger( section, KeyOptionsIniStr.ImgMaxAutoWidthGoal, KeyOptions.ImgMaxAutoWidthGoal );
+      KeyOptions.ImgDefaultLinkMode := readbool( section, KeyOptionsIniStr.ImgDefaultLinkMode, KeyOptions.ImgDefaultLinkMode );
+      KeyOptions.ImgLinkRelativePath := readbool( section, KeyOptionsIniStr.ImgLinkRelativePath, KeyOptions.ImgLinkRelativePath );
+      KeyOptions.ImgUseRecycleBin := readbool( section, KeyOptionsIniStr.ImgUseRecycleBin, KeyOptions.ImgUseRecycleBin );
+      KeyOptions.ImgViewerBGColor := StringToColor( readstring( section, KeyOptionsIniStr.ImgViewerBGColor, 'clGray' ));
 
 
       if KeyOptions.SingleInstance then KeyOptions.HotKeyWarn := false;

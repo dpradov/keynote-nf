@@ -814,7 +814,39 @@ uses
    Vcl.Consts,
    Vcl.ComStrs,
    Vcl.Dialogs,
-   Vcl.Printers;
+   Vcl.Printers,
+   kn_ClipUtils;          // [dpv]
+
+{
+// ---------------- kn_ClipUtils -> GetDropFiles
+
+function GetDropFiles(hDrop: THANDLE): TStringList;
+var
+  CFileName : array[0..MAX_PATH] of Char;
+  FileList : TStringList;
+  i, count : integer;
+begin
+  FileList := TStringList.Create;
+
+  try
+    count := DragQueryFile( hDrop, $FFFFFFFF, CFileName, MAX_PATH );
+
+    if ( count > 0 ) then begin
+      for i := 0 to count-1 do begin
+        DragQueryFile( hDrop, i, CFileName, MAX_PATH );
+        FileList.Add( CFileName );
+      end;
+    end;
+
+    Result:= FileList;
+
+  finally
+    DragFinish(hDrop);
+  end;
+
+end;
+}
+
 
 {$R TreeNT.res}
 
@@ -7037,6 +7069,24 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TCustomTreeNT.WMDropFiles(var Msg: TWMDropFiles);
+var
+  FileList : TStringList;
+begin
+  if not assigned( FOnFileDropped ) then exit;                 // [dpv]
+
+  FileList := GetDropFiles(Msg.Drop);
+  try
+    FOnFileDropped( self, FileList );
+
+  finally
+    FileList.Free;
+  end;
+
+end; // WMDropFiles
+
+
+{  // [dpv]
 procedure TCustomTreeNT.WMDropFiles(var Msg: TWMDropFiles);  // [MJ]
 var
   CFileName : array[0..MAX_PATH] of Char;
@@ -7066,6 +7116,7 @@ begin
 
 
 end; // WMDropFiles
+}
 
 //------------------------------------------------------------------------------
 

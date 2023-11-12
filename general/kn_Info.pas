@@ -1,19 +1,19 @@
 unit kn_Info;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 {.$DEFINE DLA_DUNI}
@@ -24,8 +24,10 @@ uses
    Winapi.Messages,
    System.Classes,
    System.SysUtils,
+   System.Zip,
    Vcl.Graphics,
    RxRichEd,
+   SynGdiPlus,
    langs,
    gf_misc,
    kn_Const;
@@ -148,6 +150,16 @@ const
    FILTER_TABIMAGES  = 'Tab image files (*.icn)|*.icn';
    FILTER_WEB_BROWSER= 'Programs|*.exe|All files|*.*';
 
+   IMAGE_EXTENSIONS_RECOGNIZED =  '|*.JPG;*.JPEG;*.PNG;*.GIF;*.TIF;*.TIFF;*.BMP;*.DIB;*.WMF;*.EMF;*.ICO;|';
+
+   FILTER_IMAGES = IMAGE_EXTENSIONS_RECOGNIZED +
+                  'JPEG (*.jpg, *.jpeg)|*.JPG;*.JPEG|PNG (*.png)|*.PNG|GIF (*.gif)|*.GIF|TIFF (*.tif, *.tiff)|*.TIF;*.TIFF|BMP (*.bmp, *.dib)|*.BMP;*.DIB|' +
+                  'Metafiles (*.wmf, *.emf)|*.WMF;*.EMF|ICO (*.ico)|*.ICO|' +
+                  'All files (*.*)|*.*';
+
+   FILTER_ZIP    = 'Zip files (*.zip)|*.zip';
+
+
 const
   // status bar panel indices
   PANEL_FILENAME     = 0; // displays name of currently open file
@@ -212,7 +224,7 @@ type
 
 type
   TImportFileType = (
-    itText, itRTF, itHTML, itTreePad
+    itText, itRTF, itHTML, itTreePad, itImage
   );
 
 
@@ -595,6 +607,21 @@ type
     IgnoreCtrHideTrePanel : boolean;  // [*]
     MarginAltLeft  : integer;  // [*]
     MarginAltRight : integer;  // [*]
+
+    ImgDefaultStorageMode:     TImagesStorageMode;
+    ImgDefaultExternalStorage: TImagesExternalStorage;
+    ImgDefaultCompression:     TZipCompression;
+    ImgStorageModeOnExport:    TImagesStorageModeOnExport;    // (smeEmbRTF, smeEmbKNT, smeNone);
+    ImgFormatInsideRTF:        TImageFormatToRTF;   // [*] Format used to show the images inside RTF: ifWmetafile8, ifAccordingImage (it will use rtfwmetafile8, rtfEmfblip, rtfPngblip, rtfJpegblip )
+    ImgDefaultFormatFromClipb: TImageFormat;        // png or Jpg -> When inserting images from the clipboard, to be used when the image is in BMP, WMF, TIF, GIF  (if PNG, JPG or EMF -> same formats)
+    ImgBmpPixelFormat:         TPixelFormat;
+    ImgMaxAutoWidthGoal:       integer;             // 0: No limit. <0 : Limit the visible width of the editor
+    ImgDefaultLinkMode:        boolean;
+    ImgLinkRelativePath:       boolean;
+    ImgUseRecycleBin:          boolean;
+    ImgRatioSizePngVsJPG:      Single;       // Related to ImgDefaultFormatFromClipb. A value > 0 => A conversion will be performed to both formats (Png and Jpg). If the default format is sizer than the alternative format, in a proportion >= to indicated, the alternative format will be used
+    ImgCompressionQuality:     integer;      // It is used for gptJPG format saving and is expected to be from 0 to 100
+    ImgViewerBGColor:          TColor;
   end;
 
 

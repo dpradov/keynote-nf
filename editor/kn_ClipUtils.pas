@@ -20,6 +20,7 @@ interface
 uses
    Winapi.Windows,
    Winapi.RichEdit,
+   Winapi.ShellAPI,
    System.Classes,
    System.StrUtils,
    System.SysUtils,
@@ -30,8 +31,10 @@ uses
    gf_strings,
    kn_RTFUtils;
 
-const
-  CFHtml : word = 0;
+var
+  CFHtml : Integer; // = 0;
+  CFRtf: Integer;
+  LastCopiedIDImage:   integer;
 
 
 type
@@ -59,6 +62,10 @@ type
 
   function TestCRCForDuplicates(ClpStr: string; UpdateLastCalculated: boolean = true): boolean;
 
+  procedure LogRTFHandleInClipboard();
+  function ClipboardContentWasCopiedByKNT: boolean;
+  function GetDropFiles(hDrop: THANDLE): TStringList;
+
 
 implementation
 
@@ -70,14 +77,101 @@ resourcestring
   STR_28 = 'CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message: ';
 
 
-var
-  CFRtf: Integer;
-
 type
   TClipboardContent = (
     ccRTF, ccUNICODE, ccHtml
   );
 
+
+var
+   LastCopiedRTFHandle: HGLOBAL;
+   //LastCopiedRTFPtr:    Pointer;
+
+
+procedure LogRTFHandleInClipboard();
+var
+  RTFHandle: HGLOBAL;
+begin
+    Clipboard.Open;
+    try
+      RTFHandle := Clipboard.GetAsHandle(CFRtf);
+      LastCopiedRTFHandle :=RTFHandle;
+
+    finally
+      Clipboard.Close;
+    end;
+end;
+
+{
+procedure LogRTFHandleInClipboard();
+var
+  RTFHandle: HGLOBAL;
+  RTFPtr: Pointer;
+  RTFSize: DWORD;
+  str: AnsiString;
+begin
+    Clipboard.Open;
+    try
+      RTFHandle := Clipboard.GetAsHandle(CFRtf);
+      RTFPtr := GlobalLock(RTFHandle);
+      RTFSize := GlobalSize(RTFHandle);
+      Str := Ansistring(PAnsiChar(RTFPtr));
+      LastCopiedRTFHandle :=RTFHandle;
+      LastCopiedRTFPtr:= RTFPtr;
+
+    finally
+      GlobalUnlock(RTFHandle);
+      Clipboard.Close;
+    end;
+end;
+}
+
+
+function ClipboardContentWasCopiedByKNT: boolean;
+var
+  RTFHandle: HGLOBAL;
+begin
+    Result:= False;
+    Clipboard.Open;
+    try
+      RTFHandle := Clipboard.GetAsHandle(CFRtf);
+      if LastCopiedRTFHandle = RTFHandle then
+         Result:= True
+      else
+         LastCopiedIDImage:= 0;
+
+    finally
+      Clipboard.Close;
+    end;
+
+end;
+
+
+function GetDropFiles(hDrop: THANDLE): TStringList;
+var
+  CFileName : array[0..MAX_PATH] of Char;
+  FileList : TStringList;
+  i, count : integer;
+begin
+  FileList := TStringList.Create;
+
+  try
+    count := DragQueryFile( hDrop, $FFFFFFFF, CFileName, MAX_PATH );
+
+    if ( count > 0 ) then begin
+      for i := 0 to count-1 do begin
+        DragQueryFile( hDrop, i, CFileName, MAX_PATH );
+        FileList.Add( CFileName );
+      end;
+    end;
+
+    Result:= FileList;
+
+  finally
+    DragFinish(hDrop);
+  end;
+
+end;
 
 function TClipboardHelper.HasHTMLformat: boolean;
 begin
@@ -202,7 +296,7 @@ begin
 
    if ( ClpStr <> '' ) then begin
       try
-        CalcCRC32( addr(ClpStr[1]), length(ClpStr) * SizeOf(Char), thisClipCRC32 );
+        CalculateCRC32( addr(ClpStr[1]), length(ClpStr) * SizeOf(Char), thisClipCRC32 );
       except
         on E : Exception do begin
           messagedlg( STR_28 + E.Message, mtError, [mbOK], 0 );

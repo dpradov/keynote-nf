@@ -15,7 +15,7 @@ unit kn_Main;
 
  *****************************************************************************)
 
-
+{.$DEFINE DEBUG_IMG}
 
 interface
 
@@ -60,7 +60,7 @@ uses
    RxNotify,
    RXCombos,
    RXCtrls,
-   RxGIF {, jpeg},
+   //RxGIF {, jpeg},
    TopWnd,
    RichPrint,
    TreeNT,
@@ -102,6 +102,7 @@ uses
    kn_LocationObj,
    kn_History,
    kn_LinksMng,
+   kn_ImagesMng,
    kn_VCLControlsMng;
 
 
@@ -189,7 +190,7 @@ type
     TB_NoteNew: TToolbarButton97;
     TB_NoteEdit: TToolbarButton97;
     sm9: TToolbarSep97;
-    TB_Exit: TToolbarButton97;
+    //TB_Exit: TToolbarButton97;
     TB_Options: TToolbarButton97;
     sm10: TToolbarSep97;
     MMNoteReadOnly: TMenuItem;
@@ -527,7 +528,6 @@ type
     RTFMFont: TMenuItem;
     RTFMPara: TMenuItem;
     TB_ParaDlg: TToolbarButton97;
-    sf8: TToolbarSep97;
     TVRefreshVirtualNode: TMenuItem;
     N72: TMenuItem;
     MMHelpVisitWebsite: TMenuItem;
@@ -867,6 +867,9 @@ type
     Btn_ResFind_Next: TToolbarButton97;
     LblFindAllNumResults: TLabel;
     MMAlternativeMargins: TMenuItem;
+    MMShowImages: TMenuItem;
+    ToolbarSep972: TToolbarSep97;
+    TB_Images: TToolbarButton97;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1056,6 +1059,7 @@ type
     procedure MMMergeNotestoFileClick(Sender: TObject);
     procedure RxRTFMouseDown(Sender: TObject;   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RxRTFMouseUP(Sender: TObject;   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure RxRTFDblClick(Sender: TObject);
     procedure MMFormatDisabledClick(Sender: TObject);
     procedure MMFormatSubscriptClick(Sender: TObject);
     procedure MMFormatSpBefIncClick(Sender: TObject);
@@ -1218,8 +1222,8 @@ type
     procedure TVNodeBGColorClick(Sender: TObject);
     procedure Res_RTFKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure RxRTFStartDrag(Sender: TObject; var DragObject: TDragObject);
-    procedure RxRTFEndDrag(Sender, Target: TObject; X, Y: Integer);
+    //procedure RxRTFStartDrag(Sender: TObject; var DragObject: TDragObject);
+    //procedure RxRTFEndDrag(Sender, Target: TObject; X, Y: Integer);
     procedure MMToolsCustomKBDClick(Sender: TObject);
     procedure MMTreeNavRightClick(Sender: TObject);
     procedure MMToolsExportExClick(Sender: TObject);
@@ -1270,6 +1274,8 @@ type
     procedure Combo_ZoomExit(Sender: TObject);
     procedure Combo_FontSizeExit(Sender: TObject);
     procedure MMAlternativeMarginsClick(Sender: TObject);
+    procedure MMShowImagesClick(Sender: TObject);
+    procedure TB_ImagesClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -1333,14 +1339,11 @@ type
 
     // status bar etc. display updates
     procedure ShowInsMode;
+    procedure ShowImages(Show: boolean);
 
     // config file management
     procedure SetupToolbarButtons;
     procedure ResolveToolbarRTFv3Dependencies;
-
-    function ExtIsRTF( const aExt : string ) : boolean;
-    function ExtIsHTML( const aExt : string ) : boolean;
-    function ExtIsText( const aExt : string ) : boolean;
 
     // VCL updates when config loaded or changed
     procedure UpdateStatusBarState;
@@ -1406,7 +1409,8 @@ uses
    kn_VirtualNodeMng,
    kn_NoteFileMng,
    kn_EditorUtils,
-   kn_AlertMng;
+   kn_AlertMng,
+   kn_ImageForm;
 
 {$R *.DFM}
 {$R .\resources\catimages}
@@ -2069,7 +2073,7 @@ begin
   MMNoteEmail.Visible:= False;
   TB_EmailNote.Visible:= False;
 {$ENDIF}
-  TB_Exit.Hint := MMFileExit.Hint;
+  //TB_Exit.Hint := MMFileExit.Hint;
   TB_FileInfo.Hint := MMFileproperties.Hint;
   TB_FileMgr.Hint := MMFileManager.Hint;
   TB_FileNew.Hint := MMFileNew.Hint;
@@ -2214,6 +2218,7 @@ begin
     2. minimizing keynote and/or closing file after a period of inactivity.
 
     3. Show Alarms on nodes           [dpv*]
+    4. Invoke ImagesManager.CleanUp   [dpv]
   }
 
   if ( Timer_Tick >= KeyOptions.AutoSaveOnTimerInt * ( 60000 div _TIMER_INTERVAL ) ) then
@@ -2265,7 +2270,9 @@ begin
     if ( Timer_TickAlarm >=  ( 60000 div _TIMER_INTERVAL )/4 ) then begin    // Comprobamos cada 15 segundos
         Timer_TickAlarm:= 0;
         AlarmManager.checkAlarms;
+        ImagesManager.CheckFreeImageStreamsNotRecentlyUsed;     // This method will only work if ImageManager.Enabled and if more than X minutes have passed since the previous cleanup
     end;
+
 
     if EditorOptions.WordCountTrack and (MillisecondsIdle >= 450) then
        UpdateWordCount;
@@ -2557,7 +2564,28 @@ begin
 
   if Button = mbRight then
      TTabRichEdit(sender).PopupMenu := Menu_RTF;
+
+  if kn_ImageForm.LastFormImageOpened <> nil then begin
+     LastFormImageOpened.BringToFront;
+     LastFormImageOpened:= nil;
+  end;
 end;
+
+
+procedure TForm_Main.RxRTFDblClick(Sender: TObject);
+var
+  ImgID, p: integer;
+
+begin
+   if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+      if ActiveNote.Editor.SelLength = 1 then
+         ImgID:= CheckToIdentifyImageID(ActiveNote.Editor, p);
+   end;
+
+   if ImgID <> 0 then
+      ImagesManager.OpenImageViewer(ImgID, CtrlDown, false);
+end;
+
 
 
 procedure TForm_Main.FormKeyDown(Sender: TObject; var Key: Word;
@@ -2605,7 +2633,7 @@ begin
     end;
 
     VK_ESCAPE : begin
-      _Is_Dragging_Text := false;
+      //_Is_Dragging_Text := false;
       if (( shift = [] ) and ( not (
         Combo_Font.DroppedDown or
         Combo_FontSize.DroppedDown or
@@ -2905,7 +2933,8 @@ begin
           end;
       end;
 
-      13 : if EditorOptions.AutoIndent and (Editor.Paragraph.TableStyle = tsNone) then begin
+      VK_RETURN :
+           if EditorOptions.AutoIndent and (Editor.Paragraph.TableStyle = tsNone) then begin
               if NoteIsReadOnly( ActiveNote, true ) then exit;
               GetIndentInformation(Editor, Indent, NextIndent, LineStr, posFirstChar, true);
               with Editor do begin
@@ -2932,6 +2961,30 @@ begin
 
               end;
            end;
+
+       VK_DELETE:
+          if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+             if Editor.SelLength = 0 then
+                { 
+                  If we are to the left of a hyperlink corresponding to an image, therefore just to the left of its hidden identification characters, 
+                  and we press DELETE (SUPR), the hyperlink would be deleted and our hidden characters would remain.
+                  To avoid this we can select all the hidden characters, to the right, including those of the hyperlink and ours, so that everything is deleted as a block.
+                  #$11'I1'#$12'HYPERLINK "img:1,32,32"N'
+                  Something analogous must be controlled if we are to the left of a visible image
+                }
+                CheckToSelectRightImageHiddenMark(ActiveNote.Editor)
+             else
+                CheckToSelectLeftImageHiddenMark(ActiveNote.Editor);
+          end;
+
+       VK_BACK:
+          if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+             if Editor.SelLength = 0 then
+                Offset:= -1
+             else
+                Offset:= 0;
+             CheckToSelectLeftImageHiddenMark(ActiveNote.Editor, Offset);
+          end;
     end;
 
   end  // if ( shift = [] )
@@ -3098,6 +3151,14 @@ begin
 
             end;
 
+       else begin
+          if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+             if ActiveNote.Editor.SelLength > 0 then
+                CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+          end;
+       end;
+
+
   end;
 
   if EditorOptions.WordCountTrack then begin
@@ -3140,23 +3201,29 @@ end;
 procedure TForm_Main.RxRTFSelectionChange(Sender: TObject);
 var
   myRTF : TTabRichEdit;
+  FontStyles: TFontStyles;
+  SubscriptStyle: TSubscriptStyle;
+  Numbering: TRxNumbering;
 begin
   RTFUpdating := true;
   try
-    myRTF := ( sender as TTabRichEdit );
+     myRTF := ( sender as TTabRichEdit );
+
     Combo_Font.FontName := myRTF.SelAttributes.Name;
     Combo_FontSize.Text := inttostr( myRTF.SelAttributes.Size );
 
-    TB_Bold.Down := fsBold in myRTF.SelAttributes.Style;
+    FontStyles:= myRTF.SelAttributes.Style;
+
+    TB_Bold.Down := fsBold in FontStyles;
     MMFormatBold.Checked := TB_Bold.Down;
 
-    TB_Italics.Down := fsItalic in myRTF.SelAttributes.Style;
+    TB_Italics.Down := fsItalic in FontStyles;
     MMFormatItalics.Checked := TB_Italics.Down;
 
-    TB_Underline.Down := fsUnderline in myRTF.SelAttributes.Style;
+    TB_Underline.Down := fsUnderline in FontStyles;
     MMFormatUnderline.Checked := TB_Underline.Down;
 
-    TB_Strikeout.Down := fsStrikeOut in myRTF.SelAttributes.Style;
+    TB_Strikeout.Down := fsStrikeOut in FontStyles;
     MMFormatStrikeout.Checked := TB_Strikeout.Down;
 
     case myRTF.Paragraph.LineSpacing of
@@ -3174,23 +3241,27 @@ begin
       end;
     end;
 
+    Numbering:= myRTF.Paragraph.Numbering;
+
     if ( _LoadedRichEditVersion > 2 ) then
     begin
-      TB_Bullets.Down := ( myRTF.Paragraph.Numbering = nsBullet );
+      TB_Bullets.Down := ( Numbering = nsBullet );
       MMFormatBullets.Checked := TB_Bullets.Down;
-      TB_Numbers.Down := ( not ( myRTF.Paragraph.Numbering in [nsNone, nsBullet] ));
+      TB_Numbers.Down := ( not ( Numbering in [nsNone, nsBullet] ));
       MMFormatNumbers.Checked := TB_Numbers.Down;
     end
     else
     begin
-      TB_Bullets.Down := ( myRTF.Paragraph.Numbering <> nsNone );
+      TB_Bullets.Down := ( Numbering <> nsNone );
       MMFormatBullets.Checked := TB_Bullets.Down;
     end;
 
     MMFormatDisabled.Checked := myRTF.SelAttributes.Disabled;
-    MMFormatSubscript.Checked := myRTF.SelAttributes.SubscriptStyle = ssSubscript;
+
+    SubscriptStyle:= myRTF.SelAttributes.SubscriptStyle;
+    MMFormatSubscript.Checked := SubscriptStyle = ssSubscript;
     TB_Subscript.Down := MMFormatSubscript.Checked;
-    MMFormatSuperscript.Checked := myRTF.SelAttributes.SubscriptStyle = ssSuperscript;
+    MMFormatSuperscript.Checked := SubscriptStyle = ssSuperscript;
     TB_Superscript.Down := MMFormatSuperscript.Checked;
 
     case myRTF.Paragraph.Alignment of
@@ -3226,6 +3297,8 @@ end; // RxRTFChange
 
 procedure TForm_Main.OnNoteChange(Note: TTabNote);
 begin
+  if not assigned(Note) then exit;                   // It could occur if recreating RichEdit window very soon
+
   Note.Modified := true;
   NoteFile.Modified := true;
   UpdateNoteFileState( [fscModified] );
@@ -3306,6 +3379,9 @@ begin
           if assigned(SelectedNode) and (SelectedNode.Stream = ModifiedDataStream) then
              ActiveNote.DataStreamToEditor;
       end;
+
+      ActiveNote.ImagesMode := ImagesManager.ImagesMode;
+
 
       TAM_ActiveName.Caption := ActiveNote.Name;
       TB_Color.AutomaticColor := ActiveNote.EditorChrome.Font.Color;
@@ -4592,29 +4668,14 @@ end;
 
 procedure TForm_Main.WMDropFiles(var Msg: TWMDropFiles);
 var
-  CFileName : array[0..MAX_PATH] of Char;
   FileList : TStringList;
-  i, count : integer;
 begin
-  FileList := TStringList.Create;
-
+  FileList := GetDropFiles(Msg.Drop);
   try
-    count := DragQueryFileW( Msg.Drop, $FFFFFFFF, CFileName, MAX_PATH );
-
-    if ( count > 0 ) then
-    begin
-      for i := 0 to count-1 do
-      begin
-        DragQueryFileW( Msg.Drop, i, CFileName, MAX_PATH );
-        FileList.Add( CFileName );
-      end;
-    end;
-
     FileDropped( self, FileList );
 
   finally
     FileList.Free;
-    DragFinish(Msg.Drop);
   end;
 
 end; // WMDropFiles
@@ -5709,6 +5770,10 @@ begin
   if NoteIsReadOnly( ActiveNote, true ) then exit;
 
   try
+    if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+       if ActiveNote.Editor.SelLength > 0 then
+          CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+    end;
 
     with CommandRecall do
     begin
@@ -5881,16 +5946,37 @@ begin
 end; // WMJumpToLocation
 
 procedure TForm_Main.MMEditPasteSpecialClick(Sender: TObject);
+var
+  FormatSelected: integer;
+  HasImage: boolean;
+  rtfText: String;
+
 begin
   if ( not assigned( ActiveNote )) then exit;
   if NoteIsReadOnly( ActiveNote, true ) then exit;
 
-  Clipboard.TryOfferRTF();
-  if ActiveNote.Editor.PasteSpecialDialog then
-  begin
-    NoteFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+  HasImage:= Clipboard.HasFormat(CF_BITMAP);
+  if not HasImage then
+     Clipboard.TryOfferRTF();
+
+  FormatSelected:= ActiveNote.Editor.PasteSpecialDialog (false);      // Will paste the user selecton, except if it is Windows Bitmap
+
+  ActiveNote.Editor.BeginUpdate;
+  try
+      if FormatSelected= 5 then                                       // CF_BMP
+         PasteBestAvailableFormat(ActiveNote, false, false)           // It will insert the image, using ImageManager
+      else
+         if HasImage and (FormatSelected= 0) and (ActiveNote.Editor.SelLength = 1) then begin
+            if (ActiveNote.Editor.SelLength = 1) then begin
+                rtfText:= ActiveNote.Editor.RtfSelText;
+                if not rtfText.Contains('{\object') and rtfText.Contains('\pict{') then
+                   PasteBestAvailableFormat(ActiveNote, false, false);       // It will insert the image, using ImageManager
+            end;
+         end;
+  finally
+     ActiveNote.Editor.EndUpdate;
   end;
+
 end;
 
 procedure TForm_Main.MMEditPlainDefaultPasteClick(Sender: TObject);
@@ -6543,22 +6629,6 @@ begin
 
 end; // ResMPluginTabClick
 
-function TForm_Main.ExtIsHTML( const aExt : string ) : boolean;
-begin
-  result := ( pos( ansilowercase( aExt )+'.', KeyOptions.ExtHTML ) > 0 )
-end; // ExtIsHTML
-
-function TForm_Main.ExtIsText( const aExt : string ) : boolean;
-begin
-  result := ( pos( ansilowercase( aExt )+'.', KeyOptions.ExtText ) > 0 )
-end; // ExtIsText
-
-function TForm_Main.ExtIsRTF( const aExt : string ) : boolean;
-begin
-  // result := ( CompareText( aExt, ext_RTF ) = 0  );
-  result := ( pos( ansilowercase( aExt )+'.', KeyOptions.ExtRTF ) > 0 )
-end; // ExtIsRTF
-
 
 procedure TForm_Main.StatusBarDblClick(Sender: TObject);
 var
@@ -7128,6 +7198,8 @@ begin
   end;
 end; // Res_RTFKeyDown
 
+{  See comment in SetUpVCLControls (kn_VCLControlsMng.pas)
+
 procedure TForm_Main.RxRTFStartDrag(Sender: TObject;
   var DragObject: TDragObject);
 begin
@@ -7139,7 +7211,7 @@ begin
   _Is_Dragging_Text := false;
   // StatusBar.Panels[0].Text := 'RTF end drag';
 end;
-
+}
 
 procedure TForm_Main.MMToolsCustomKBDClick(Sender: TObject);
 begin
@@ -7238,6 +7310,54 @@ begin
      SetMargins();
      ActiveNote.Editor.Refresh;
   end;
+end;
+
+procedure TForm_Main.MMShowImagesClick(Sender: TObject);
+begin
+  ShowImages (not MMShowImages.Checked);
+end;
+
+
+procedure TForm_Main.TB_ImagesClick(Sender: TObject);
+begin
+{$IFDEF DEBUG_IMG}
+  if not CtrlDown then
+     ShowImages (TB_Images.Down)
+
+  else begin
+     var str: string;
+     var i: integer;
+
+     if NoteFile <> nil then begin
+        str:=       ActiveNote.NoteTextPlain    + #13 + '--------     ' + #13;
+        str:= str + ActiveNote.Editor.TextPlain + #13 + '--------     ' + #13;
+        str:= str + ActiveNote.Editor.RtfText   + #13 + '--------     ' + #13;
+        Form_Main.Res_RTF.Text:= str;
+     end;
+  end;
+
+{$ELSE}
+   ShowImages (TB_Images.Down);
+{$ENDIF}
+
+end;
+
+
+procedure TForm_Main.ShowImages(Show: boolean);
+var
+   ImageModeDest: TImagesMode;
+
+begin
+  MMShowImages.Checked:= Show;
+  TB_Images.Down := Show;
+
+  if Show then
+     ImageModeDest:= imImage
+  else
+     ImageModeDest:= imLink;
+
+   ImagesManager.ImagesMode:= ImageModeDest;
+   ActiveNote.ImagesMode :=   ImageModeDest;
 end;
 
 
@@ -7443,6 +7563,11 @@ begin
     t := ( sender as TMenuItem ).Tag;
     if (( t > 0 ) and ( t <= high( SYMBOL_CODE_LIST ))) then
     begin
+      if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+         if ActiveNote.Editor.SelLength > 0 then
+            CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+      end;
+
       ActiveNote.Editor.SelText := SYMBOL_CODE_LIST[t];
       ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + 1;
     end;

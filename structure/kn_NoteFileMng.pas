@@ -32,6 +32,7 @@ uses
    TreeNT,
    BrowseDr,
    ZLibEx,
+   RxRichEd,
    gf_misc,
    gf_files,
    gf_strings,
@@ -74,11 +75,12 @@ uses
     function CheckModified( const Warn : boolean; const closing: boolean ) : boolean;
 
     procedure ImportFiles;
-    procedure ImportAsNotes( ImportFileList : TStringList );
+    procedure ImportAsNotes( ImportFileList : TStringList; ImgLinkMode: boolean );
+    procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean );
 
     procedure FileDropped( Sender : TObject; FileList : TStringList );
     function ConsistentFileType( const aList : TStringList ) : boolean;
-    function PromptForFileAction( const FileCnt : integer; const aExt : string ) : TDropFileAction;
+    function PromptForFileAction( const FileCnt : integer; const aExt : string; var ImgLinkMode: boolean ) : TDropFileAction;
 
     procedure NoteFileProperties;
     procedure UpdateNoteFileState( AState : TFileStateChangeSet );
@@ -88,6 +90,12 @@ uses
 
     function CanRegisterFileType : boolean;
     procedure AssociateKeyNoteFile;
+
+    function ExtIsRTF( const aExt : string ) : boolean;
+    function ExtIsHTML( const aExt : string ) : boolean;
+    function ExtIsText( const aExt : string ) : boolean;
+    function ExtIsImage( const aExt : string ) : boolean;
+
 
 implementation
 
@@ -111,6 +119,7 @@ uses
    kn_PluginsMng,
    kn_ExportImport,
    kn_FindReplaceMng,
+   kn_ImagesMng,
    kn_Main;
 
 
@@ -190,7 +199,7 @@ resourcestring
   STR_55 = 'Current file has not been saved. If you continue, changes will be lost.'+ #13 + 'Proceed anyway?';
   STR_56 = 'Warning!';
   STR_57 = 'Select files for importing';
-  STR_58 = 'The file "%s" does not appear to be a text file. The result of importing it may be unpredictable.' + #13#13 +
+  STR_58 = 'The file "%s" does not appear to be a text file (nor image). The result of importing it may be unpredictable.' + #13#13 +
                 'Import as a plain text file, anyway?';
   STR_59 = ' Importing ';
   STR_60 = 'Failed to convert HTML file "%s" to RTF';
@@ -213,10 +222,36 @@ resourcestring
   STR_78 = 'Backup at %s before any modification in "%s"';
   STR_79 = 'File is not modified. Nothing to save';
   STR_80 = #13#13 + 'Option "Autoregister file type" will be unchecked';
+  STR_81 = 'Cannot insert images in a plain text note';
+  STR_82 = 'The file must first be saved (with Save or Save As)';
 
 const
   IntervalBAKDay = '_BAK_Day.knt';
   IntervalPrefixBAK = '_BAK@';
+
+
+
+function ExtIsHTML( const aExt : string ) : boolean;
+begin
+  result := (aExt <> '') and ( pos( ansilowercase( aExt )+'.', KeyOptions.ExtHTML ) > 0 )
+end;
+
+function ExtIsText( const aExt : string ) : boolean;
+begin
+  result := (aExt <> '') and ( pos( ansilowercase( aExt )+'.', KeyOptions.ExtText ) > 0 )
+end;
+
+function ExtIsRTF( const aExt : string ) : boolean;
+begin
+  // result := ( CompareText( aExt, ext_RTF ) = 0  );
+  result := (aExt <> '') and ( pos( ansilowercase( aExt )+'.', KeyOptions.ExtRTF ) > 0 )
+end;
+
+function ExtIsImage( const aExt : string ) : boolean;
+begin
+  Result := (aExt <> '') and ( pos( AnsiUpperCase(aExt )+';', IMAGE_EXTENSIONS_RECOGNIZED ) > 0 )
+end;
+
 
 
 //=================================================================
@@ -226,6 +261,7 @@ function NoteFileNew( FN : string ) : integer;
 begin
   MovingTreeNode:= nil;
   AlarmManager.Clear;
+  ImagesManager.Clear;
   MirrorNodes.Clear;
 
   with Form_Main do begin
@@ -300,6 +336,9 @@ begin
             ActiveNote := nil;
             TAM_ActiveName.Caption := STR_03;
           end;
+
+          ImagesManager.SetInitialImagesStorageMode(KeyOptions.ImgDefaultStorageMode, KeyOptions.ImgDefaultExternalStorage);
+
           UpdateNoteDisplay;
 
           if ( assigned( ActiveNote ) and KeyOptions.RunAutoMacros ) then
@@ -406,7 +445,7 @@ begin
             Log_StoreTick('');
             Log_StoreTick( 'FileOpen (' + FN + ') - BEGIN', 0, +1);
 
-            result := NoteFile.Load( FN );
+            result := NoteFile.Load( FN, ImagesManager );
 
             Log_StoreTick( 'After parsed .knt file', 1 );
 
@@ -965,6 +1004,11 @@ begin
               Exit;
          end;
 
+         // Initialize ImagesManager to reflect the FN in case it is a new file
+         if not ImagesManager.PrepareImagesStorageToSave(FN) then
+            exit;
+
+
          Screen.Cursor := crHourGlass;
          StatusBar.Panels[PANEL_HINT].text := STR_19 + FN;
 
@@ -1215,6 +1259,7 @@ begin
         StatusBar.Panels[PANEL_HINT].Text := STR_30;
       finally
         AlarmManager.Clear;
+        ImagesManager.Clear;
         MirrorNodes.Clear;
 
         FileIsBusy := false;
@@ -1316,10 +1361,15 @@ begin
 
         if ( not HaveNotes( true, false )) then exit;
 
+        currentFN := NoteFile.FileName;
+        if (FN = '') and (currentFN = '') then begin
+           PopupMessage( STR_82, mtError, [mbOK], 0 );
+           exit;
+        end;
+
         DirDlg := TdfsBrowseDirectoryDlg.Create( Form_Main );
 
         try
-          currentFN := NoteFile.FileName;
 
           if FN = '' then begin
               DirDlg.Root := idDesktop;
@@ -1364,7 +1414,12 @@ begin
           screen.Cursor := crHourGlass;
           try
             try
-              cr := NoteFile.Save( newFN, SavedNotes, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+              ImagesManager.ExportingMode:= true;
+              try
+                 cr := NoteFile.Save( newFN, SavedNotes, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+              finally
+                 ImagesManager.ExportingMode:= false;
+              end;
 
               if ( cr = 0 ) then begin
                 StatusBar.Panels[PANEL_HINT].Text := STR_36;
@@ -1407,6 +1462,7 @@ end; // NoteFileCopy
 procedure MergeFromKNTFile( MergeFN : string );
 var
   MergeFile : TNoteFile;
+  ImgManagerMF: TImageManager;
   LoadResult : integer;
   TabSelector : TForm_SelectTab;
   mergecnt, i, n, p : integer;
@@ -1463,9 +1519,12 @@ begin
         MergeFile.PassphraseFunc := GetFilePassphrase;
         mergecnt := 0;
 
+        ImgManagerMF:= TImageManager.Create;
+        ImagesManager.ExternalImagesManager:= ImgManagerMF;
+
         try
           try
-            LoadResult := MergeFile.Load( MergeFN );
+            LoadResult := MergeFile.Load( MergeFN, ImgManagerMF);
             if ( LoadResult <> 0 ) then
             begin
               messagedlg( STR_40, mtError, [mbOK], 0 );
@@ -1605,7 +1664,16 @@ begin
 
               try
                 CreateVCLControlsForNote( newNote );
-                newNote.DataStreamToEditor;
+                if ( MergeFN = NoteFile.FileName ) then begin
+                   NoteFile.UpdateImagesCountReferences(newNote);
+                   newNote.DataStreamToEditor;
+                end
+                else
+                  { We have previously assigned "ImagesManager.ExtenalImagesManager:= ImgManagerMF", to search the Stream of the images
+                    with the help of the ImageManager associated with the MergeFile file }
+                  NoteFile.UpdateImagesStorageModeInFile (ImagesManager.StorageMode, newNote, false);
+                  // newNote.DataStreamToEditor;     // From UpdateImagesStorageModeInFile) the call to DataStreamToEditor is ensured
+
                 SetUpVCLControls( newNote );
               finally
                 newNote.TabSheet.TabVisible := true; // was created hidden
@@ -1633,7 +1701,7 @@ begin
                 if IDs[i].newNote then begin
                    newNote:= NoteFile.GetNoteByID(IDs[i].newID);
                    NoteFile.SetupMirrorNodes(newNote);
-                   end;
+                end;
 
 
           except
@@ -1645,6 +1713,9 @@ begin
           end;
 
         finally
+          MergeFile.Free;
+          ImagesManager.ExternalImagesManager:= nil;
+          ImgManagerMF.Free;
           PagesChange( Form_Main );
           screen.Cursor := crDefault;
           NoteFile.Modified := true;
@@ -1891,9 +1962,60 @@ end; // ImportFiles
 //=================================================================
 // ImportAsNotes
 //=================================================================
-procedure ImportAsNotes( ImportFileList : TStringList );
+
+
+function GetImportFileType(FN: string; var ImportFileType : TImportFileType; AllowTreePad: boolean): boolean;
 var
-  ext, FN, s : string;
+  ext: string;
+begin
+  Result:= True;
+
+  with Form_Main do begin
+      ext := AnsiLowerCase( ExtractFileExt( FN ));
+      ImportFileType := itText;
+
+      if ext = ext_TXT then
+        ImportFileType := itText
+      else
+      if ext = ext_RTF then
+        ImportFileType := itRTF
+      else
+      if ExtIsHTML( ext ) then begin
+        if ( KeyOptions.HTMLImportMethod = htmlSource ) then
+          ImportFileType := itText
+        else
+          ImportFileType := itHTML;
+      end
+      else
+      if AllowTreePad and (ext = ext_TreePad) then
+        ImportFileType := itTreePad
+      else
+      if ExtIsText( ext ) then
+        ImportFileType := itText
+
+      else
+      if ExtIsImage( ext ) then
+        ImportFileType := itImage
+
+      else begin
+          if DirectoryExists( FN ) then begin
+             DoMessageBox( Format( STR_65, [FN] ), mtWarning, [mbOk], 0 );
+             Result:= False;
+          end
+          else
+            case DoMessageBox( Format(STR_58, [ExtractFilename( FN )]), mtWarning, [mbYes,mbNo], 0 ) of
+              mrYes : ImportFileType := itText;
+            else
+              Result:= False;
+            end;
+      end;
+  end;
+
+end;
+
+procedure ImportAsNotes( ImportFileList : TStringList; ImgLinkMode: boolean );
+var
+  FN, s : string;
   myNote : TTabNote;
   filecnt : integer;
   ImportFileType : TImportFileType;
@@ -1909,42 +2031,13 @@ begin
         OutStream:= TMemoryStream.Create;
         try
 
-          for filecnt := 0 to pred( ImportFileList.Count ) do
-          begin
+          for filecnt := 0 to pred( ImportFileList.Count ) do begin
             FN := normalFN( ImportFileList[filecnt] );
             OutStream.Clear;
 
-            ext := AnsiLowerCase( ExtractFileExt( FN ));
-            ImportFileType := itText;
+            if not GetImportFileType(FN, ImportFileType, true) then
+               continue;
 
-            if ext = ext_TXT then
-              ImportFileType := itText
-            else
-            if ext = ext_RTF then
-              ImportFileType := itRTF
-            else
-            if ExtIsHTML( ext ) then
-            begin
-              if ( KeyOptions.HTMLImportMethod = htmlSource ) then
-                ImportFileType := itText
-              else
-                ImportFileType := itHTML;
-            end
-            else
-            if ext = ext_TreePad then
-              ImportFileType := itTreePad
-            else
-            if ExtIsText( ext ) then
-              ImportFileType := itText
-            else
-            begin
-              case DoMessageBox( Format(STR_58, [ExtractFilename( FN )]),
-                mtWarning, [mbYes,mbNo], 0 ) of
-              mrYes : ImportFileType := itText;
-              else
-                continue;
-              end;
-            end;
 
             myNote := nil;
             screen.Cursor := crHourGlass;
@@ -1963,7 +2056,7 @@ begin
 
               try
                 case ImportFileType of
-                  itText, itRTF, itHTML : begin
+                  itText, itRTF, itHTML, itImage : begin
                     myNote := TTabNote.Create;
                   end;
                   itTreePad : begin
@@ -2001,12 +2094,17 @@ begin
                       tNote.SetTreeProperties( DefaultTreeProperties );
                       tNote.TreeChrome := DefaultTreeChrome;
                       tNote.LoadFromTreePadFile( FN );
+                      end;
                     end;
-                  end;
+
 
                   CreateVCLControlsForNote( myNote );
                   myNote.DataStreamToEditor;
                   SetUpVCLControls( myNote );
+
+                  var Owned: boolean:= not ImgLinkMode;
+                  if ImportFileType = itImage then
+                     ImagesManager.InsertImage(FN, myNote, Owned);
 
                 finally
                   if assigned( myNote.TabSheet ) then  begin
@@ -2054,23 +2152,152 @@ begin
 end; // ImportAsNotes
 
 
+
+//=================================================================
+// InsertContent
+//=================================================================
+procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean );
+var
+  FN, strContent : string;
+  myNote : TTabNote;
+  Editor: TRxRichEdit;
+  filecnt : integer;
+  ImportFileType : TImportFileType;
+  tNote : TTreeNote;
+  Stream: TMemoryStream;
+  InformedImgInPlain: boolean;
+
+begin
+ { *1
+  With the control made from TForm_Main.RxRTFKeyDown (Left cursor) it does not seem possible to place the cursor between a hidden mark and the text or
+  image it accompanies. Except if we use Drag and Drop, where it does seem to allow placing the cursor between the hidden mark and the item.
+   => In most cases we only call CheckToSelectImageHiddenMark if there is selected text.
+      Here we must call CheckToMoveLefOftHiddenMark if there is not one
+ }
+
+  with Form_Main do begin
+
+        if not assigned(ActiveNote.Editor) then exit;
+        if (( not assigned( ImportFileList )) or ( ImportFileList.Count = 0 )) then exit;
+
+        Stream:= TMemoryStream.Create;
+        try
+          if ActiveNote.Editor.SelLength > 0 then
+             CheckToSelectLeftImageHiddenMark (ActiveNote.Editor)
+          else
+             CheckToMoveLefOftHiddenMark (ActiveNote.Editor);       // *1
+
+          InformedImgInPlain:= false;
+
+          for filecnt := 0 to pred( ImportFileList.Count ) do begin
+            FN := normalFN( ImportFileList[filecnt] );
+            Stream.Clear;
+
+            if not GetImportFileType(FN, ImportFileType, false) then
+               continue;
+
+
+            myNote := nil;
+            screen.Cursor := crHourGlass;
+
+            try
+
+              StatusBar.Panels[PANEL_HINT].Text := STR_59 + ExtractFilename( FN );
+
+              try
+                myNote:= ActiveNote;
+                Editor:= myNote.Editor;
+
+                if ImportFileType <> itImage then begin
+                   strContent:= TFile.ReadAllText(FN);
+                   if ImportFileList.Count > 1 then
+                      Editor.AddText (FN + ' - - - - - -' + #13);
+                end;
+
+                case ImportFileType of
+                  itText : begin
+                   {$IFDEF KNT_DEBUG}Log.Add('Insert content (TXT)  FN:' + FN,  1 ); {$ENDIF}
+                    Editor.AddText (StrContent);
+                    end;
+                  itHTML : begin
+                   {$IFDEF KNT_DEBUG}Log.Add('Insert content (HTML)  FN:' + FN,  1 ); {$ENDIF}
+                     if not ConvertHTMLToRTF( FN, Stream) then begin
+                       DoMessageBox( Format(STR_60, [FN]), mtWarning, [mbOK], 0 );
+                       exit;
+                     end
+                     else begin
+                       strContent:= MemoryStreamToString(Stream);
+                       Editor.SelText:= StrContent;
+                       Editor.AddText (StrContent);
+                     end;
+                    end;
+                  itRTF : begin
+                   {$IFDEF KNT_DEBUG}Log.Add('Insert content (RTF)  FN:' + FN,  1 ); {$ENDIF}
+                    ActiveNote.Editor.PutRtfText(StrContent, true);
+                    end;
+                  itImage: begin
+                     {$IFDEF KNT_DEBUG}Log.Add('Insert content (Image)  FN:' + FN,  1 ); {$ENDIF}
+                     var Owned: boolean:= not ImgLinkMode;
+                     if not myNote.PlainText then
+                        ImagesManager.InsertImage(FN, myNote, Owned)
+                     else begin
+                         if not InformedImgInPlain then begin
+                            DoMessageBox( Format(STR_81, [FN]), mtWarning, [mbOK], 0 );
+                            InformedImgInPlain:= True;
+                         end;
+                         continue;
+                     end;
+                   end;
+
+                end;
+                if (ImportFileType <> itImage) and (ImportFileList.Count > 1) then
+                   Editor.AddText (FN + ' - - - - - -' + #13#13)
+                else
+                   Editor.AddText (#13#13);
+
+              except
+                on E : Exception do begin
+                  DoMessageBox( STR_61 + FN + #13#13 + E.Message, mtError, [mbOK], 0 );
+                  exit;
+                end;
+              end;
+
+            finally
+              screen.Cursor := crDefault;
+              StatusBar.Panels[PANEL_HINT].text := STR_62;
+              NoteFile.Modified := true;
+              UpdateNoteFileState( [fscModified] );
+            end;
+
+          end;
+
+        finally
+            Stream.Free;
+            FreeConvertLibrary;
+        end;
+  end;
+end; // InsertContent
+
+
+
 //=================================================================
 // PromptForFileAction
 //=================================================================
-function PromptForFileAction( const FileCnt : integer; const aExt : string ) : TDropFileAction;
+function PromptForFileAction( const FileCnt : integer; const aExt : string; var ImgLinkMode: boolean) : TDropFileAction;
 var
   Form_DropFile: TForm_DropFile;
   LastFact, fact : TDropFileAction;
   facts : TDropFileActions;
   actidx : integer;
   actionname : string;
-  FileIsHTML, ActiveNoteIsReadOnly : boolean;
+  FileIsHTML, FileIsImage, ActiveNoteIsReadOnly : boolean;
   myTreeNode : TTreeNTNode;
   IsKnownFileFormat : boolean;
+  i, iSelected: integer;
 begin
+
   with Form_Main do begin
-        if (( aExt = ext_Plugin ) or ( aExt = ext_Macro )) then
-        begin
+        if (( aExt = ext_Plugin ) or ( aExt = ext_Macro )) then begin
           result := factExecute;
           exit;
         end;
@@ -2079,22 +2306,18 @@ begin
         LastFact := FactUnknown;
         ActiveNoteIsReadOnly := NoteIsReadOnly( ActiveNote, false );
 
-        FileIsHTML := ExtIsHTML( aExt );
+        FileIsHTML  := ExtIsHTML( aExt );
+        FileIsImage := ExtIsImage(aExt);
 
-        IsKnownFileFormat := ( FileIsHTML or ExtIsText( aExt ) or ExtIsRTF( aExt ));
+        IsKnownFileFormat := ( FileIsHTML or ExtIsText( aExt ) or ExtIsRTF( aExt ) or FileIsImage);
 
-          // select actions which can be performed
-          // depending on extension of the dropped file
-          // and on whether we are in a tree-type note
+          // Select actions which can be performed depending on extension of the dropped file and on whether we are in a tree-type note
           for fact := low( fact ) to high( fact ) do
-            facts[fact] := false;
+             facts[fact] := false;
 
           facts[factHyperlink] := ( not ActiveNoteIsReadOnly ); // this action can always be perfomed unless current note is read-only
 
-          // .KNT, .KNE and DartNotes files
-          // can only be opened or merged,
-          // regardless of where they were dropped.
-          // This can only be done one file at a time.
+          // .KNT, .KNE and DartNotes files can only be opened or merged, regardless of where they were dropped. This can only be done one file at a time.
           if ( aExt = ext_KeyNote ) or
              ( aExt = ext_Encrypted ) or
              ( aExt = ext_DART ) then
@@ -2104,87 +2327,93 @@ begin
           end
           else
           if ( aExt = ext_TreePad ) then
-          begin
-            facts[factImport] := true;
-          end
-          else
-          begin
+             facts[factImport] := true
+
+          else begin
             // all other files we can attempt to import...
             facts[factImport] := IsKnownFileFormat;
-            if (( ActiveNote.Kind = ntTree ) and ( not ActiveNoteIsReadOnly )) then
-            begin
+            facts[factInsertContent]:= not ActiveNoteIsReadOnly and (not FileIsImage or NoteSupportsRegisteredImages());
+            if (( ActiveNote.Kind = ntTree ) and ( not ActiveNoteIsReadOnly )) then begin
               // ...or, in a tree note, import as a tree node
               myTreeNode := TTreeNote( ActiveNote ).TV.Selected;
-              if assigned( myTreeNode ) then
-              begin
-                facts[factImportAsNode] := IsKnownFileFormat;
-                facts[factMakeVirtualNode] := IsKnownFileFormat;
-                {$IFDEF WITH_IE}
-                facts[factMakeVirtualIENode] := FileIsHTML;
-                {$ENDIF}
+              if assigned( myTreeNode ) then begin
+                 facts[factImportAsNode] := IsKnownFileFormat;
+                 facts[factMakeVirtualNode] := IsKnownFileFormat;
+                 {$IFDEF WITH_IE}
+                 facts[factMakeVirtualIENode] := FileIsHTML;
+                 {$ENDIF}
               end;
             end;
           end;
 
-          if (( LastFact = factUnknown ) or ( not facts[LastFact] )) then
-          begin
+
+          if (( LastFact = factUnknown ) or ( not facts[LastFact] )) then begin
             Form_DropFile := TForm_DropFile.Create( Form_Main );
+
             try
               Form_DropFile.Btn_HTML.Enabled := FileIsHTML;
               Form_DropFile.Btn_HTML.Visible := FileIsHTML;
               if FileIsHTML then
-              begin
                 Form_DropFile.RG_HTML.ItemIndex := ord( KeyOptions.HTMLImportMethod );
+
+              i:= 0;
+              iSelected:= 0;
+              Form_DropFile.chk_ImageLinkMode.Visible:= false;
+              Form_DropFile.chk_ImageLinkMode.Checked := false;
+              for fact := low( fact ) to high( fact ) do begin
+                if facts[fact] then begin
+                   Form_DropFile.RG_Action.Items.Add( FactStrings[fact] );
+                   if FileIsImage and (fact = factInsertContent) then begin
+                      iSelected:= i;
+                      Form_DropFile.chk_ImageLinkMode.Visible:= true;
+                      Form_DropFile.chk_ImageLinkMode.Checked := KeyOptions.ImgDefaultLinkMode;
+                   end;
+                   Inc(i);
+                end;
               end;
-              for fact := low( fact ) to high( fact ) do
-              begin
-                if facts[fact] then
-                  Form_DropFile.RG_Action.Items.Add( FactStrings[fact] );
-              end;
-              if ( Form_DropFile.RG_Action.Items.Count > 0 ) then
-              begin
-                Form_DropFile.RG_Action.ItemIndex := 0;
+
+
+              if ( Form_DropFile.RG_Action.Items.Count > 0 ) then begin
+                Form_DropFile.RG_Action.ItemIndex := iSelected;
                 Form_DropFile.NumberOfFiles := FileCnt;
                 Form_DropFile.FileExt := aExt;
+
                 case Form_DropFile.ShowModal of
-                  mrOK : begin
-                    // since we created the radio items dynamically,
-                    // we can only figure out which one was selected thusly:
-                    if FileIsHTML then
+                  mrOK :
                     begin
-                      KeyOptions.HTMLImportMethod := THTMLImportMethod( Form_DropFile.RG_HTML.ItemIndex );
-                    end;
-                    actidx := Form_DropFile.RG_Action.ItemIndex;
-                    LastFact := factUnknown;
-                    if ( actidx >= 0 ) then
-                    begin
-                      actionname := Form_DropFile.RG_Action.Items[actidx];
-                      for fact := low( fact ) to high( fact ) do
-                      begin
-                        if ( FactStrings[fact] = actionname ) then
-                        begin
-                          LastFact := fact;
-                          break;
+                      ImgLinkMode:= Form_DropFile.chk_ImageLinkMode.Checked;
+                      // since we created the radio items dynamically, we can only figure out which one was selected thusly:
+                      if FileIsHTML then
+                         KeyOptions.HTMLImportMethod := THTMLImportMethod( Form_DropFile.RG_HTML.ItemIndex );
+                      actidx := Form_DropFile.RG_Action.ItemIndex;
+                      LastFact := factUnknown;
+                      if ( actidx >= 0 ) then begin
+                        actionname := Form_DropFile.RG_Action.Items[actidx];
+                        for fact := low( fact ) to high( fact ) do begin
+                           if ( FactStrings[fact] = actionname ) then begin
+                              LastFact := fact;
+                              break;
+                           end;
                         end;
+
                       end;
+                    end; // mrOK
 
+                  mrCancel :
+                    begin
+                      LastFact := factUnknown;
+                      exit;
                     end;
-                  end; // mrOK
-
-                  mrCancel : begin
-                    LastFact := factUnknown;
-                    exit;
-                  end;
                 end;
               end
-              else
-              begin
+              else begin
                 messagedlg( STR_63, mtError, [mbOK], 0 );
                 exit;
               end;
+
             finally
-              result := LastFact;
-              Form_DropFile.Free;
+               result := LastFact;
+               Form_DropFile.Free;
             end;
           end;
   end;
@@ -2216,27 +2445,29 @@ begin
         if ExtisHTML( ext ) then
           ift := itHTML
         else
-        begin
+        if ExtIsImage( ext ) then
+          ift := itImage
+        else begin
           result := FilesAreOfSameType( aList );
           exit;
         end;
 
-        for i := 1 to pred( cnt ) do
-        begin
+        for i := 1 to pred( cnt ) do begin
           ext := extractfileext( aList[i] );
           case ift of
-            itRTF : if ( not ExtIsRTF( ext )) then
-            begin
+            itRTF : if ( not ExtIsRTF( ext )) then begin
               result := false;
               break;
             end;
-            itText : if ( not ExtIsText( ext )) then
-            begin
+            itText : if ( not ExtIsText( ext )) then begin
               result := false;
               break;
             end;
-            itHTML : if ( not ExtIsHTML( ext )) then
-            begin
+            itHTML : if ( not ExtIsHTML( ext )) then begin
+              result := false;
+              break;
+            end;
+            itImage : if ( not ExtIsImage( ext )) then begin
               result := false;
               break;
             end;
@@ -2258,6 +2489,7 @@ var
   i : integer;
   FileIsHTML, FileIsFolder : boolean;
   OutStream: TMemoryStream;
+  ImgLinkMode: boolean;
 
 begin
   with Form_Main do begin
@@ -2266,37 +2498,29 @@ begin
         myAction := factUnknown;
         fName := FileList[0];
         fExt := extractfileext( fName );
-        FileIsHTML := ExtIsHTML( fExt );
         FileIsFolder := DirectoryExists( fName );
 
-        if ( not ( assigned( NoteFile ) and assigned( ActiveNote ))) then
-        begin
-          // no active note; we can only OPEN a file
-          if ((( fExt = ext_KeyNote ) or
-             ( fExt = ext_Encrypted ) or
-             ( fExt = ext_DART )) and ( not FileIsFolder )) then
-          begin
-            myAction := factOpen;
-          end
-          else
-          begin
-            HaveNotes( true, true );
-            exit;
-          end;
+        if ( not ( assigned( NoteFile ) and assigned( ActiveNote ))) then begin
+           // no active note; we can only OPEN a file
+           if ((( fExt = ext_KeyNote ) or
+              ( fExt = ext_Encrypted ) or
+              ( fExt = ext_DART )) and ( not FileIsFolder )) then
+             myAction := factOpen
+           else begin
+             HaveNotes( true, true );
+             exit;
+           end;
         end;
 
         myTreeNode := nil;
 
         WinOnTop.AlwaysOnTop := false;
         try
-
           Application.BringToFront;
 
-          if ( myAction = factUnknown ) then
-          begin
+          if ( myAction = factUnknown ) then begin
 
-            if ( not ConsistentFileType( FileList )) then
-            begin
+            if ( not ConsistentFileType( FileList )) then begin
               //Messagedlg( STR_64, mtError, [mbOK], 0 );
               //exit;
               fExt:= '.*';
@@ -2305,190 +2529,189 @@ begin
             if FileIsFolder then
               myAction := factHyperlink
             else
-              myAction := PromptForFileAction( FileList.Count, fExt );
-
+              myAction := PromptForFileAction( FileList.Count, fExt, ImgLinkMode);
           end;
+
 
           screen.Cursor := crHourGlass;
           try
 
             case myAction of
-              factOpen : begin
+              factOpen :
                 NoteFileOpen( fName );
-              end;
 
-              factExecute : begin
-                if ( fExt = ext_Plugin ) then
+              factExecute :
                 begin
-                  ExecutePlugin( fName );
-                end
-                else
-                if ( fExt = ext_Macro ) then
-                begin
-                  ExecuteMacro( fName, '' );
+                  if ( fExt = ext_Plugin ) then
+                     ExecutePlugin( fName )
+                  else
+                  if ( fExt = ext_Macro ) then
+                     ExecuteMacro( fName, '' );
                 end;
-              end;
 
-              factMerge : begin
+              factMerge :
                 MergeFromKNTFile( fName );
-              end;
 
-              factHyperlink : begin
-                for i := 0 to pred( FileList.Count ) do
-                begin
+              factHyperlink :
+                for i := 0 to pred( FileList.Count ) do begin
                   InsertFileOrLink( FileList[i], true );
                   ActiveNote.Editor.SelText:= #13#10;
                   ActiveNote.Editor.SelLength:= 0;
                   ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart+2;
                 end;
-              end;
 
-              factImport : begin
-                ImportAsNotes( FileList );
-              end;
+              factImport :
+                ImportAsNotes( FileList, ImgLinkMode );
 
-              factImportAsNode : begin
-                ActiveNote.Editor.OnChange := nil;
-                ActiveNote.Editor.Lines.BeginUpdate;
-                SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 ); // don't draw richedit yet
-                OutStream:= TMemoryStream.Create;
-                try
-                  for i := 0 to pred( FileList.Count ) do
-                  begin
-                    OutStream.Clear;
-                    FName := FileList[i];
-                    if DirectoryExists( FName ) then
-                    begin
-                      if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
-                        exit
-                      else
-                        continue;
-                    end;
+              factInsertContent:
+                InsertContent( FileList, ImgLinkMode);
 
-                    {$IFDEF KNT_DEBUG}Log.Add('Import as Node: ' + FName,  1 ); {$ENDIF}
+              factImportAsNode :
+                begin
+                  ActiveNote.Editor.OnChange := nil;
+                  ActiveNote.Editor.Lines.BeginUpdate;
+                  SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 ); // don't draw richedit yet
+                  OutStream:= TMemoryStream.Create;
+                  try
+                    for i := 0 to pred( FileList.Count ) do begin
+                      OutStream.Clear;
+                      FName := FileList[i];
 
-                    // first see if we can do the conversion, before we create a new note for the file
-                    if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then
-                    begin
-                      if not ConvertHTMLToRTF( FName, OutStream) then begin
-                         DoMessageBox( Format(STR_60, [FName]), mtWarning, [mbOK], 0 );
-                         exit;
+                      FileIsHTML := ExtIsHTML( fExt );
+
+                      if DirectoryExists( FName ) then begin
+                        if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                          exit
+                        else
+                          continue;
+                      end;
+
+                      {$IFDEF KNT_DEBUG}Log.Add('Import as Node: ' + FName,  1 ); {$ENDIF}
+
+                      // first see if we can do the conversion, before we create a new note for the file
+                      if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
+                        if not ConvertHTMLToRTF( FName, OutStream) then begin
+                           DoMessageBox( Format(STR_60, [FName]), mtWarning, [mbOK], 0 );
+                           exit;
+                        end;
+                      end;
+
+                      myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
+                      if assigned( myTreeNode ) then begin
+                        myNoteNode := TNoteNode( myTreeNode.Data );
+                        if assigned( myNoteNode ) then begin
+                            if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then
+                              myNoteNode.Stream.LoadFromStream(OutStream)
+                            else if not ExtIsImage( fExt )  then
+                              myNoteNode.Stream.LoadFromFile( FName );
+
+                            SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
+                            if KeyOptions.ImportFileNamesWithExt then
+                              myNoteNode.Name := ExtractFilename( FName )
+                            else
+                              myNoteNode.Name := ExtractFilenameNoExt( FName );
+                            myTreeNode.Text := myNoteNode.Name;
+                            ActiveNote.DataStreamToEditor;
+                            var Owned: boolean:= not ImgLinkMode;
+                            if ExtIsImage( fExt )  then
+                              ImagesManager.InsertImage(FName, ActiveNote, Owned);
+                        end;
                       end;
                     end;
+                  finally
+                    if assigned( OutStream ) then OutStream.Free;
+                    FreeConvertLibrary;
+                    NoteFile.Modified := true;
+                    SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                    ActiveNote.Editor.Lines.EndUpdate;
+                    ActiveNote.Editor.Invalidate; // in fact, I insist on it
+                    UpdateNoteFileState( [fscModified] );
 
-                    myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
-                    if assigned( myTreeNode ) then
-                    begin
-                      myNoteNode := TNoteNode( myTreeNode.Data );
-                      if assigned( myNoteNode ) then begin
-                          if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then
-                            myNoteNode.Stream.LoadFromStream(OutStream)
-                          else
-                            myNoteNode.Stream.LoadFromFile( FName );
+                    // *1
+                    // If myTreeNode is assigned it is because TreeNoteNewNode has returned ok.
+                    // TreeNoteNewNode ends up calling TV.Items.Add, which ends up raising the TV.Change event,
+                    // managed by FormMain.TVChange. The last one, if the editor has modifications, calls TTreeNote.EditorToDataStream, and
+                    // the content of the editor is saved in node's stream.
+                    // But, if there is an exception (or simply we exit) before TreeNoteNewNode, and enter in this finally section, we
+                    // should not do Editor.Modified := False or the modifcations (existing and coming) in the Editor will be lost for the
+                    // actual node.
+                    // *2
+                    // Also, if the new created node belongs to a normal, RTF tree, and the file we have loaded
+                    // (with .LoadFromFile(FName) ) doesn't contain RTF, but ANSI or Unicode plain text, we could end up saving the node's
+                    // stream content in that format to the .knt file when saving (could be problematic when reading the file).
+                    // We must ensure that the node's stream is loaded with its RTF translating. If we mark the editor as modified then, when
+                    // the user selects another node (os simply just before saving the .knt file), TTreeNote.EditorToDataStream will be called,
+                    // and there, FEditor.Lines.SaveToStream will do that that translating. The node will contain RTF.
+                    //
+                    //    Similary, if the file is in RTF and the tree is plained, we should do the same. This case is less problematic,
+                    // because the .knt file would be read ok, but the node could be persisted (if not modified) in an incorrect format.
+                    //   Another case, that do could be problematic: if the file, not RTF, is dropped into a plained tree, and we do nothing, the
+                    // node will be loaded plain (ok) in the node's stream, but with $D instead of $D$A after each line. With the last changes
+                    // in TTreeNote.SaveToFile (use of new SaveRTFToFile, that doesn't rely on TStringList and it's conversions), the content
+                    // will add only a ";" leading character on the first line. Instead of complicating that code, it is simple to mark this
+                    // node as modified, as this will ensure that finally gets saved in the right way.
+                    //  So, when dropping a file on a plained tree, we wil will mark the new node as modified. It is the more secure and simple way.
+                    if assigned(myTreeNode) then begin
+                       if ActiveNote.PlainText or   (not NodeStreamIsRTF (myNoteNode.Stream)) then
+                           ActiveNote.Editor.Modified := True                                              // *2
+                       else
+                           ActiveNote.Editor.Modified := False;                                            // *1
+                    end;
+                    ActiveNote.Editor.OnChange := RxRTFChange;
+                  end;
 
-                          SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
-                          if KeyOptions.ImportFileNamesWithExt then
-                            myNoteNode.Name := ExtractFilename( FName )
-                          else
-                            myNoteNode.Name := ExtractFilenameNoExt( FName );
-                          myTreeNode.Text := myNoteNode.Name;
-                          ActiveNote.DataStreamToEditor;
+                end;
+
+              factMakeVirtualNode :
+                begin
+                  SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 );
+                  try
+                    for i := 0 to pred( FileList.Count ) do begin
+                      FName := FileList[i];
+                      if DirectoryExists( FName ) then begin
+                        if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                          exit
+                        else
+                          continue;
                       end;
+                      myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
+                      VirtualNodeProc( vmNone, myTreeNode, FName );
                     end;
-                  end;
-                finally
-                  if assigned( OutStream ) then OutStream.Free;
-                  FreeConvertLibrary;
-                  NoteFile.Modified := true;
-                  SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
-                  ActiveNote.Editor.Lines.EndUpdate;
-                  ActiveNote.Editor.Invalidate; // in fact, I insist on it
-                  UpdateNoteFileState( [fscModified] );
 
-                  // *1
-                  // If myTreeNode is assigned it is because TreeNoteNewNode has returned ok.
-                  // TreeNoteNewNode ends up calling TV.Items.Add, which ends up raising the TV.Change event,
-                  // managed by FormMain.TVChange. The last one, if the editor has modifications, calls TTreeNote.EditorToDataStream, and
-                  // the content of the editor is saved in node's stream.
-                  // But, if there is an exception (or simply we exit) before TreeNoteNewNode, and enter in this finally section, we
-                  // should not do Editor.Modified := False or the modifcations (existing and coming) in the Editor will be lost for the
-                  // actual node.
-                  // *2
-                  // Also, if the new created node belongs to a normal, RTF tree, and the file we have loaded
-                  // (with .LoadFromFile(FName) ) doesn't contain RTF, but ANSI or Unicode plain text, we could end up saving the node's
-                  // stream content in that format to the .knt file when saving (could be problematic when reading the file).
-                  // We must ensure that the node's stream is loaded with its RTF translating. If we mark the editor as modified then, when
-                  // the user selects another node (os simply just before saving the .knt file), TTreeNote.EditorToDataStream will be called,
-                  // and there, FEditor.Lines.SaveToStream will do that that translating. The node will contain RTF.
-                  //
-                  //    Similary, if the file is in RTF and the tree is plained, we should do the same. This case is less problematic, 
-                  // because the .knt file would be read ok, but the node could be persisted (if not modified) in an incorrect format.
-                  //   Another case, that do could be problematic: if the file, not RTF, is dropped into a plained tree, and we do nothing, the
-                  // node will be loaded plain (ok) in the node's stream, but with $D instead of $D$A after each line. With the last changes
-                  // in TTreeNote.SaveToFile (use of new SaveRTFToFile, that doesn't rely on TStringList and it's conversions), the content
-                  // will add only a ";" leading character on the first line. Instead of complicating that code, it is simple to mark this
-                  // node as modified, as this will ensure that finally gets saved in the right way.
-                  //  So, when dropping a file on a plained tree, we wil will mark the new node as modified. It is the more secure and simple way.
-                  if assigned(myTreeNode) then begin
-                     if ActiveNote.PlainText or   (not NodeStreamIsRTF (myNoteNode.Stream)) then
-                         ActiveNote.Editor.Modified := True                                              // *2
-                     else
-                         ActiveNote.Editor.Modified := False;                                            // *1
+                  finally
+                    SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                    ActiveNote.Editor.Invalidate; // in fact, I insist on it
                   end;
-                  ActiveNote.Editor.OnChange := RxRTFChange;
                 end;
-              end;
-
-              factMakeVirtualNode : begin
-                SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 );
-                try
-                  for i := 0 to pred( FileList.Count ) do
-                  begin
-                    FName := FileList[i];
-                    if DirectoryExists( FName ) then
-                    begin
-                      if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
-                        exit
-                      else
-                        continue;
-                    end;
-                    myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
-                    VirtualNodeProc( vmNone, myTreeNode, FName );
-                  end;
-                finally
-                  SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
-                  ActiveNote.Editor.Invalidate; // in fact, I insist on it
-                end;
-              end;
 
               {$IFDEF WITH_IE}
-              factMakeVirtualIENode : begin
-                SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 );
-                try
-                  for i := 0 to pred( FileList.Count ) do
-                  begin
-                    FName := FileList[i];
-                    if DirectoryExists( FName ) then
-                    begin
-                      if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
-                        exit
-                      else
-                        continue;
+              factMakeVirtualIENode :
+                begin
+                  SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 );
+                  try
+                    for i := 0 to pred( FileList.Count ) do begin
+                      FName := FileList[i];
+                      if DirectoryExists( FName ) then begin
+                        if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                          exit
+                        else
+                          continue;
+                      end;
+                      myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
+                      VirtualNodeProc( vmIELocal, myTreeNode, FName );
                     end;
-                    myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
-                    VirtualNodeProc( vmIELocal, myTreeNode, FName );
+                  finally
+                    SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                    ActiveNote.Editor.Invalidate; // in fact, I insist on it
                   end;
-                finally
-                  SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
-                  ActiveNote.Editor.Invalidate; // in fact, I insist on it
                 end;
-              end;
               {$ENDIF}
 
-              factUnknown : begin
-                // MessageDlg( 'No action was taken: could not determine method for handling files.', mtWarning, [mbOK], 0 );
-                exit;
-              end;
+              factUnknown :
+                begin
+                  // MessageDlg( 'No action was taken: could not determine method for handling files.', mtWarning, [mbOK], 0 );
+                  exit;
+                end;
 
               else begin
                 messagedlg( Format( STR_67, [ord( myAction )] ), mtError, [mbOK], 0 );
@@ -2530,12 +2753,10 @@ begin
       try
         Form_FileInfo.myNotes := NoteFile;
 
-        if ( Form_FileInfo.ShowModal = mrOK ) then
-        begin
+        if ( Form_FileInfo.ShowModal = mrOK ) then begin
           Virtual_UnEncrypt_Warning_Done := false;
 
-          with Form_FileInfo do
-          begin
+          with Form_FileInfo do begin
             ShowHint := KeyOptions.ShowTooltips;
 
             NoteFile.Comment := trim( Edit_Comment.Text );
@@ -2553,55 +2774,57 @@ begin
               NoteFile.TrayIconFN := '';
 
             if RB_TabImgDefault.Checked then
-            begin
-              NoteFile.TabIconsFN := '';
-            end
+              NoteFile.TabIconsFN := ''
             else
             if RB_TabImgBuiltIn.Checked then
-            begin
-              NoteFile.TabIconsFN := _NF_Icons_BuiltIn;
-            end
+              NoteFile.TabIconsFN := _NF_Icons_BuiltIn
             else
             begin
               if ( Edit_TabImg.Text <> '' ) then
-              begin
-                NoteFile.TabIconsFN := normalFN( Edit_TabImg.Text );
-              end
+                NoteFile.TabIconsFN := normalFN( Edit_TabImg.Text )
               else
-              begin
                 NoteFile.TabIconsFN := '';
-              end;
             end;
 
-            if ( NoteFile.FileFormat = nffEncrypted ) then
-            begin
+            if ( NoteFile.FileFormat = nffEncrypted ) then begin
               NoteFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
               if PassphraseChanged then
                 NoteFile.Passphrase := Edit_Pass.Text;
             end;
 
             if ( NoteFile.FileName <> '' ) then
-            case NoteFile.FileFormat of
-              nffKeyNote : NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_KeyNote );
-              nffEncrypted : if KeyOptions.EncFileAltExt then
-                NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_Encrypted )
-              else
-                NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_KeyNote );
-{$IFDEF WITH_DART}
-              nffDartNotes : NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_DART );
-{$ENDIF}
-            end;
+               case NoteFile.FileFormat of
+                 nffKeyNote : NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_KeyNote );
+                 nffEncrypted : if KeyOptions.EncFileAltExt then
+                   NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_Encrypted )
+                 else
+                   NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_KeyNote );
+   {$IFDEF WITH_DART}
+                 nffDartNotes : NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_DART );
+   {$ENDIF}
+               end;
 
+              var NewStorageMode: TImagesStorageMode;
+              NewStorageMode:= TImagesStorageMode(cbImgStorageMode.ItemIndex);
+              Form_Main.MMShowImages.Enabled:= not (NewStorageMode = smEmbRTF);
+              Form_Main.TB_Images.Enabled:= not (NewStorageMode = smEmbRTF);
+              if NewStorageMode = smEmbRTF then
+                 MMShowImages.Checked:= true;
+              var ExtStorageLocation: string;
+              if not ExtStorageLocationFake then
+                 ExtStorageLocation:= txtExtStorageLocation.Text;
+
+              ImagesManager.SetImagesStorage(NewStorageMode, TImagesExternalStorage(cbImgExtStorageType.ItemIndex), ExtStorageLocation,
+                                             false, rbImagesStRelocate.Checked);
           end;
+
           NoteFile.Modified := true;
           AddToFileManager( NoteFile.FileName, NoteFile ); // update manager (properties have changed)
 
           LoadTrayIcon( ClipOptions.SwitchIcon and assigned( NoteFile.ClipCapNote ));
-          if _FILE_TABIMAGES_SELECTION_CHANGED then
-          begin
+          if _FILE_TABIMAGES_SELECTION_CHANGED then begin
             _FILE_TABIMAGES_SELECTION_CHANGED := false;
-            if (( NoteFile.TabIconsFN <> '' ) and ( NoteFile.TabIconsFN <> _NF_Icons_BuiltIn )) then
-            begin
+            if (( NoteFile.TabIconsFN <> '' ) and ( NoteFile.TabIconsFN <> _NF_Icons_BuiltIn )) then begin
               // user specified an "Other" file that does not exist.
               // This means: create this file and use it later
               // (otherwise, to use an "other" file, user would have

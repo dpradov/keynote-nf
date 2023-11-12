@@ -60,6 +60,7 @@ uses
    kn_MacroMng,
    kn_AlertMng,
    kn_VCLControlsMng,
+   kn_ImagesMng,
    kn_Main,
    kn_History
  {$IFDEF KNT_DEBUG}
@@ -75,6 +76,8 @@ const
    procedure InitializeOptions;
    procedure LoadRicheditLibrary;
    procedure AddSearchModes;
+   function NoteSupportsRegisteredImages (AdmitVmRTF: boolean= false): boolean;
+   function NoteSupportsImages: boolean;
 
    procedure Log_StoreTick (const Msg : string; const DbgLevel: integer= 0; DetailLevel: integer = 0); {$IFNDEF KNT_DEBUG} inline; {$ENDIF}
    procedure Log_Flush;                                                                                {$IFNDEF KNT_DEBUG} inline; {$ENDIF}
@@ -232,7 +235,7 @@ var
     _IS_FAKING_MOUSECLICK : boolean;
     _Global_Location : TLocation;
     _REOPEN_AUTOCLOSED_FILE : boolean;
-    _Is_Dragging_Text : boolean;
+    //_Is_Dragging_Text : boolean;
     _LastZoomValue : integer;
     _WindowWidthIncToRestore: integer;             // *1
     NumberingStart: integer;
@@ -246,6 +249,7 @@ var
     _SYSTEM_IS_WINXP : boolean;
 
     AlarmManager: TAlarmManager;    // [dpv]
+    ImagesManager: TImageManager;
     _DllHandle : THandle;
     _IE: TWebBrowserWrapper;
 
@@ -279,6 +283,33 @@ resourcestring
 
 
 //-----------------
+
+function NoteSupportsRegisteredImages (AdmitVmRTF: boolean= false): boolean;
+var
+  Note: TTabNote;
+  treeNTNode: TTreeNTNode;
+begin
+   Result:= false;
+
+   Note:= ActiveNote;
+   if not assigned(Note) then exit;
+   if Note.PlainText then exit;
+
+   if (Note.Kind = ntRTF) then exit(true);
+
+   treeNTNode:= TTreeNote(Note).TV.Selected;
+   if not assigned(treeNTNode) then exit;
+
+   if (TNoteNode(treeNTNode.Data).VirtualMode in [vmNone, vmKNTNode]) or (AdmitVmRTF and (TNoteNode(treeNTNode.Data).VirtualMode = vmRTF)) then
+      Result:= true;
+end;
+
+
+function NoteSupportsImages: boolean;
+begin
+  Result:= NoteSupportsRegisteredImages (true);
+end;
+
 
 
 procedure AddSearchModes;
@@ -336,6 +367,8 @@ begin
       end;
 
       AlarmManager:= TAlarmManager.Create;   // [dpv]
+      ImagesManager:= TImageManager.Create;  // [dpv]
+
       ShowingSelectionInformation:= false;
 
       AppIsActive := true;
@@ -370,7 +403,7 @@ begin
       LastGoTo := '';
       LastImportFilter := 1;
 
-      _Is_Dragging_Text := false;
+      //_Is_Dragging_Text := false;
       _WindowWidthIncToRestore := 0;
       _LastZoomValue := 100;
       Combo_Zoom.Text := '100%';
