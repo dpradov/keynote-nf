@@ -361,6 +361,10 @@ begin
       myTreeNode.MakeVisible;
       myNote.TV.Selected := myTreeNode;
 
+      if _LastZoomValue <> 100 then
+         SetEditorZoom(myNote.Editor, _LastZoomValue, '' );
+
+
     except
       on E : Exception do
       begin
