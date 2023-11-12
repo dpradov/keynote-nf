@@ -725,26 +725,27 @@ var
   p1,p2: integer;
   ch: char;
 begin
-  Result:= '';
+  Result:= S;
   if S='' then exit;
 
-  p1:= Pos('&#', S);
-  if p1 = 0 then exit(S);
-
   try
-    p2:= 0;
-    Result:= S;
+    p1:= Pos('&#', S);
+    if p1 > 0 then begin
+       p2:= 0;
+       repeat
+          p2:= Pos(';', Result, p1+1);
+          if p2 > 0 then begin
+            ch:= Char(StrToint(Copy(Result, p1+2, p2-p1-2)));
+            delete(Result, p1, p2-p1+1);
+            insert(ch, Result, p1);
 
-    repeat
-       p2:= Pos(';', Result, p1+1);
-       if p2 > 0 then begin
-         ch:= Char(StrToint(Copy(Result, p1+2, p2-p1-2)));
-         delete(Result, p1, p2-p1+1);
-         insert(ch, Result, p1);
+            p1:= Pos('&#', Result, p1+1);
+          end;
+       until (p1 = 0) or (p2 = 0);
+    end;
 
-         p1:= Pos('&#', Result, p1+1);
-       end;
-    until (p1 = 0) or (p2 = 0);
+    Result:= StringReplace(Result, '&quot;','"', [rfReplaceAll]);
+
 
   except
     Result:= S;
