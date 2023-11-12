@@ -172,7 +172,9 @@ uses
 
 begin
 
-  _OTHER_INSTANCE_HANDLE := FindWindow( UniqueAppName_KEYNOTE10 + '.UnicodeClass', nil );
+  _OTHER_INSTANCE_HANDLE := FindWindow( UniqueAppName_KEYNOTE10, nil );                      // From version 1.8.0 KNT Class appears as "GFKeyNote10", not "GFKeyNote10.UnicodeClass"
+  if (_OTHER_INSTANCE_HANDLE = 0) then
+     _OTHER_INSTANCE_HANDLE := FindWindow( UniqueAppName_KEYNOTE10 + '.UnicodeClass', nil );
 
   Application.Initialize;
   // AboutBox := nil;
