@@ -889,7 +889,7 @@ var
   {$IFDEF DFS_WIN32}
   RegSettings: TRegIniFile;
   {$ENDIF}
-  IniSettings: TIniFile;
+  IniSettings: TMemIniFile;                       // [dpv] TIniFile -> TMemIniFile
 begin
   Result := FALSE;
   if csDesigning in ComponentState then
@@ -911,7 +911,7 @@ begin
   end else
   {$ENDIF}
   begin
-    IniSettings := TIniFile.Create(FAutoSaveName);
+    IniSettings := TMemIniFile.Create(FAutoSaveName);
     try
       IniSettings.ReadSectionValues(FAutoSaveKey, FMenuItems);
     finally
@@ -928,14 +928,14 @@ var
   {$IFDEF DFS_WIN32}
   RegSettings: TRegIniFile;
   {$ENDIF}
-  IniSettings: TIniFile;
+  IniSettings: TMemIniFile;                       // [dpv] TIniFile -> TMemIniFile
   x: integer;
 begin
   Result := FALSE;
   if (FAutoSaveName = '') or (FAutoSaveKey = '') or
     (csDesigning in ComponentState) then
     exit;
-    
+
   {$IFDEF DFS_WIN32}
   if FUseRegistry then
   begin
@@ -953,12 +953,13 @@ begin
   end else
   {$ENDIF}
   begin
-    IniSettings := TIniFile.Create(FAutoSaveName);
+    IniSettings := TMemIniFile.Create(FAutoSaveName, TEncoding.UTF8);
     try
       IniSettings.EraseSection(FAutoSaveKey);
       for x := 0 to Items.Count-1 do
         IniSettings.WriteString(FAutoSaveKey, 'F'+IntToStr(x), Items[x]);
       Result := TRUE;
+      IniSettings.UpdateFile;                                                     // [dpv]
     finally
       IniSettings.Free;
     end;

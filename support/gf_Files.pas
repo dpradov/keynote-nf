@@ -798,7 +798,8 @@ begin
    if not ValueExists(Section, Ident) then
       Result:= Default
    else
-      Result:= TryUTF8ToUnicodeString(AnsiString(ReadString_Base(Section, Ident, '')));
+      //Result:= TryUTF8ToUnicodeString(AnsiString(ReadString_Base(Section, Ident, '')));
+      Result:= ReadString_Base(Section, Ident, '');
 end;
 
 
@@ -812,7 +813,8 @@ begin
 
    else begin
       rbs:= UTF8String(Value);
-      SetCodePage(rbs, Self.Encoding.CodePage, False);
+      //SetCodePage(rbs, Self.Encoding.CodePage, False);
+      SetCodePage(rbs, TEncoding.UTF8.CodePage, False);
       inherited WriteString(Section, Ident, rbs);
    end;
 end;

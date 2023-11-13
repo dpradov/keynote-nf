@@ -162,7 +162,7 @@ begin
 
   deletefile( FN ); // better this than removing sections one at a time
 
-  IniFile := TMemIniFile.Create( fn );
+  IniFile := TMemIniFile.Create( fn, TEncoding.UTF8 );
   cnt := 0;
 
   with IniFile do
