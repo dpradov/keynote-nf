@@ -341,6 +341,7 @@ type
     WordSelect : boolean;
     WordsPerPage : integer;
     PlainDefaultPaste: boolean;         // paste as plain text (*2) when copied outside KN.  (*3)
+    BulletsInPlainText: string;  // [*] Replace bullets in plain text by the text indicated. Default: ''. Could be something like: ' - '
   end;
      // *2: TClipOptions.PlainTextMode will determine how to show it.
      // *3: Not for Web Clip nor Clipboard Capture, as they have its own options.

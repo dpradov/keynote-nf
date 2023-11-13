@@ -1874,6 +1874,21 @@ var
      Result:= Ok;
   end;
 
+  procedure ReplaceBullets;
+  var
+     NewSelStart: integer;
+     PlainText: string;
+  begin
+       // Replace bullets when pasting in plain text. By default a symbol in Cambria Math font + Tab character are added
+       NewSelStart:= Editor.SelStart;
+       PlainText:= Editor.GetTextRange(SelStart, NewSelStart);
+       if pos(Char(10625), PlainText) > 0 then begin
+          PlainText:= StringReplace(PlainText, Char(10625) + #9, EditorOptions.BulletsInPlainText, [rfReplaceAll]);  // Ord(TextToReplace) = 10625 : Symbol of font Cambria Math
+          Editor.SetSelection(SelStart, NewSelStart, True);
+          Editor.PutRtfText(PlainText, true);
+       end;
+  end;
+
 begin
     Editor:= Note.Editor;
     Ok:= True;
@@ -1895,6 +1910,9 @@ begin
        end;
 
        Editor.PasteIRichEditOLE(CF_TEXT);
+
+       ReplaceBullets;
+
 
        if RichEditVersion < 5 then begin
           if not PasteOperationWasOK() then begin
