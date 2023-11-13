@@ -3,7 +3,7 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -86,7 +86,7 @@
         <VerInfo_Build>8</VerInfo_Build>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF (New Features);FileVersion=1.7.9.8;InternalName=KeyNote NF;LegalCopyright=(c) Daniel Prado 2007-17  (c) Marek Jedlinski, 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF;ProductVersion=1.7.9 Beta 8 (30/04/17);Comments=Improvements over version 1.6.5 of Marek&apos;s KeyNote;X-Fnord=;X-URL=http://code.google.com/p/keynote-nf/;X-MAILTO=dprado.keynote@gmail.com</VerInfo_Keys>
-        <DCC_Define>TREENT_NO_LOADFROM;TREENT_NO_PRINT;USE_RX_GIF;EXCLUDEEMAIL;$(DCC_Define)</DCC_Define>
+        <DCC_Define>TREENT_NO_LOADFROM;TREENT_NO_PRINT;EXCLUDEEMAIL;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android64)'!=''">
         <Android_LauncherIcon192>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png</Android_LauncherIcon192>
@@ -119,9 +119,9 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
-        <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Build>6</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.0 Beta 6;FileVersion=1.8.0.6;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.0.6;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.1 Beta 1;FileVersion=1.8.1.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.1.1;Comments=;ProgramID=</VerInfo_Keys>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -137,9 +137,9 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
-        <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Build>6</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.0 Beta 6;FileVersion=1.8.0.6;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.0.6;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.1 Beta 1;FileVersion=1.8.1.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.1.1;Comments=;ProgramID=</VerInfo_Keys>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
         <UsePackages>true</UsePackages>
         <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
@@ -317,14 +317,14 @@
         <DCCReference Include="various\kn_FavoritesMng.pas"/>
         <DCCReference Include="editor\kn_ImagesUtils.pas"/>
         <DCCReference Include="editor\kn_ImagesMng.pas"/>
+        <DCCReference Include="editor\kn_ImageForm.pas">
+            <Form>Form_Image</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="various\tom_TLB.pas"/>
         <DCCReference Include="kn_DLLinterface.pas"/>
         <DCCReference Include="kn_Main.pas">
             <Form>Form_Main</Form>
-        </DCCReference>
-        <DCCReference Include="editor\kn_ImageForm.pas">
-            <Form>Form_Image</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <None Include="support\gf_base.inc">
             <ContainerId>File</ContainerId>

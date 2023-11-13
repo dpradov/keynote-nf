@@ -35,6 +35,35 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
 -------------
 
 
+v 1.8.1 Beta 1 (13 nov 2023)
+------------------------
+Corrects or implements the following issues:
+(more detail and information in doc/Changes in 1.8.1 Beta1.txt)
+
+* NEW: Significant improvement in image management
+
+* Drag and drop directly to Editor's content
+* New option in the import window: "Insert content at caret position"
+
+* Added option to replace bullets by alternative string when pasting as plain text
+
+* Fixed issue #617: Access violation on exit
+
+* Fixed issue #621: "Allow only one instance" not working
+
+* Fixed: Text selection with Shift + left cursor is canceled when crossing a hidden mark
+
+* Fixed: Convert '&quot;' to '"' in title from web pages
+
+* Fixed: newly added nodes do not respect the established zoom
+
+* Fixed: New KNT Links could jump to an incorrect position
+    
+* Improvement/correction to the RemoveKNTHIddenCharactersInRTF procedure
+* Other minor adjustments
+
+
+
 v 1.8.0 Beta 1 - Beta 6 (01 aug 2023 -- 06 sep 2023)
 ------------------------
 Corrects or implements the following issues:
