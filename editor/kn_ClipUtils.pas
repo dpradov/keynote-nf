@@ -57,6 +57,7 @@ type
        function HasHTMLformat: boolean;
        function TryGetFirstLine(const MaxLen : integer): string;
        function TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil): AnsiString;
+       function TryGetAsHandle(Format: Word): THandle;
    end;
 
 
@@ -89,17 +90,8 @@ var
 
 
 procedure LogRTFHandleInClipboard();
-var
-  RTFHandle: HGLOBAL;
 begin
-    Clipboard.Open;
-    try
-      RTFHandle := Clipboard.GetAsHandle(CFRtf);
-      LastCopiedRTFHandle :=RTFHandle;
-
-    finally
-      Clipboard.Close;
-    end;
+   LastCopiedRTFHandle := Clipboard.TryGetAsHandle(CFRtf);
 end;
 
 {
@@ -131,19 +123,12 @@ function ClipboardContentWasCopiedByKNT: boolean;
 var
   RTFHandle: HGLOBAL;
 begin
-    Result:= False;
-    Clipboard.Open;
-    try
-      RTFHandle := Clipboard.GetAsHandle(CFRtf);
-      if LastCopiedRTFHandle = RTFHandle then
-         Result:= True
-      else
-         LastCopiedIDImage:= 0;
-
-    finally
-      Clipboard.Close;
-    end;
-
+   Result:= False;
+   RTFHandle := Clipboard.TryGetAsHandle(CFRtf);
+   if LastCopiedRTFHandle = RTFHandle then
+      Result:= True
+   else
+      LastCopiedIDImage:= 0;
 end;
 
 
@@ -369,6 +354,30 @@ begin
       if RetryCount < 6 then Sleep(RetryCount * 100);
     end;
 end;
+
+
+function TClipboardHelper.TryGetAsHandle(Format: Word): THandle;
+var
+  RetryCount: integer;
+begin
+  Result:= 0;
+  RetryCount:= 0;
+  while RetryCount < 6 do
+    try
+      Clipboard.Open;
+      try
+        Result:= Clipboard.GetAsHandle(Format);
+        break;
+      finally
+        Clipboard.Close;
+      end;
+
+    except
+      Inc(RetryCount);
+      if RetryCount < 6 then Sleep(RetryCount * 100);
+    end;
+end;
+
 
 { Try to convert the HTML received (or available in clipboard) to RTF
  If conversion is possible, it will return RTF text, and also it will be available as RTF format in the clipboard }
