@@ -2618,6 +2618,8 @@ begin
 
    RTFText:= PAnsiChar(Buffer);
 
+   assert(Length(RTFText) <= BufSize );
+
    // fExtenalImagesManager <> nil : We are processing note images from a file we are merging (see MergeFromKNTFile)
 
    UseExtenalImagesManager:= (ImagesModeDest = imLink) and (fExternalImagesManager <> nil);

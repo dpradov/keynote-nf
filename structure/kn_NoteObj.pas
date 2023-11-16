@@ -1017,7 +1017,7 @@ begin
   StreamAux:= nil;
   try
 
-    if ImagesManager.ExportingMode then begin
+    if (not PlainText) and ImagesManager.ExportingMode then begin
        var RTFwithProccesedImages: AnsiString;
        var ImgIDsCorrected: TImageIDs;
        var ContainsImages: boolean;
