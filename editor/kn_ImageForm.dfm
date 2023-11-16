@@ -17,6 +17,8 @@ object Form_Image: TForm_Image
   KeyPreview = True
   Position = poScreenCenter
   ShowHint = True
+  OnClose = FormClose
+  OnDestroy = FormDestroy
   OnShow = FormShow
   DesignSize = (
     495
@@ -209,8 +211,8 @@ object Form_Image: TForm_Image
     ModalResult = 2
     TabOrder = 0
     OnClick = Button_CancelClick
-    ExplicitLeft = 387
-    ExplicitTop = 419
+    ExplicitLeft = 393
+    ExplicitTop = 416
   end
   object txtCaption: TEdit
     Left = 105
@@ -227,7 +229,7 @@ object Form_Image: TForm_Image
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 1
-    ExplicitWidth = 370
+    ExplicitWidth = 372
   end
   object Button_Modify: TButton
     Left = 295
@@ -240,8 +242,8 @@ object Form_Image: TForm_Image
     ModalResult = 1
     TabOrder = 2
     OnClick = Button_ModifyClick
-    ExplicitLeft = 285
-    ExplicitTop = 419
+    ExplicitLeft = 291
+    ExplicitTop = 416
   end
   object cScrollBox: TScrollBox
     Left = 8
@@ -251,8 +253,8 @@ object Form_Image: TForm_Image
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 3
     OnResize = cScrollBoxResize
-    ExplicitWidth = 463
-    ExplicitHeight = 314
+    ExplicitWidth = 469
+    ExplicitHeight = 311
     object cImage: TImage
       AlignWithMargins = True
       Left = 0
@@ -282,8 +284,8 @@ object Form_Image: TForm_Image
     ParentFont = False
     TabOrder = 4
     OnClick = chkExpandClick
-    ExplicitLeft = 404
-    ExplicitTop = 378
+    ExplicitLeft = 410
+    ExplicitTop = 375
   end
   object txtID: TEdit
     Left = 32

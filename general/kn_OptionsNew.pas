@@ -291,14 +291,16 @@ type
     Label27: TLabel;
     txtImgMaxAutoWidthGoal: TEdit;
     Label28: TLabel;
-    btnBGColor: TBitBtn;
-    Label29: TLabel;
     cbImgDefaultExternalStorage: TComboBox;
     Label22: TLabel;
     Label30: TLabel;
     txtImgRatioSizePngVsJPG: TEdit;
     txtImgCompressionQuality: TEdit;
     Label31: TLabel;
+    gbViewer: TGroupBox;
+    btnBGColor: TBitBtn;
+    Label29: TLabel;
+    chkImgSingleViewerInstance: TCheckBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -394,7 +396,8 @@ type
 
 implementation
 uses
-    kn_EditorUtils;
+    kn_EditorUtils,
+    kn_ImageForm;
 
 {$R *.DFM}
 
@@ -950,6 +953,11 @@ begin
     ImgUseRecycleBin :=         chkImgUseRecycleBin.Checked;
     ImgRatioSizePngVsJPG:=      StrToFloatDef( txtImgRatioSizePngVsJPG.Text, 0.0);
     ImgCompressionQuality:=     StrToIntDef( txtImgCompressionQuality.Text, KeyOptions.ImgCompressionQuality);
+    if ImgSingleViewerInstance <> chkImgSingleViewerInstance.Checked then begin
+       ImgSingleViewerInstance:=  chkImgSingleViewerInstance.Checked;
+       ClearImgViewerInstances;
+    end;
+
   end;
 
   with myTabOpts do
@@ -1200,6 +1208,7 @@ begin
     txtImgMaxAutoWidthGoal.Text:= ImgMaxAutoWidthGoal.ToString;
     txtImgRatioSizePngVsJPG.Text:=  ImgRatioSizePngVsJPG.ToString(ffGeneral,3,2);
     txtImgCompressionQuality.Text:= ImgCompressionQuality.ToString;
+    chkImgSingleViewerInstance.Checked:= ImgSingleViewerInstance;
   end;
 
   with myTabOpts do

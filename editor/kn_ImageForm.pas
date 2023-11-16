@@ -80,6 +80,8 @@ type
     procedure btnNextImageClick(Sender: TObject);
     procedure txtIDKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure txtIDEnter(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
     fCurrentNoteFile: TNoteFile;
@@ -93,7 +95,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure SetImage(value: TKntImage);
     procedure ChangeImage;
-    procedure ConfigureAndShowImage;
+    procedure ConfigureAndShowImage (KeepWindowSize: boolean);
     procedure ResizeImage;
     procedure DoExpand(Expand: boolean);
     procedure UpdatePositionAndZoom;
@@ -104,6 +106,19 @@ type
     property Image : TKntImage read fImage write SetImage;
 
   end;
+
+{
+  kn_ImageForm.LastFormImageOpened is used to ensure that the newly opened viewer window gets focus when launched
+  by clicking on a hyperlink. It is used from TForm_Main.RxRTFMouseUp(), where it will be set to nil right after.
+
+  ImgViewerInstance, NewImageViewer and ClearImgViewerInstances are used when per configuration (KeyOptions.ImgSingleViewerInstance) only
+  it is allowed to have an open instance.  
+}
+
+
+function ImgViewerInstance: TForm_Image;
+procedure NewImageViewer(Instance: TForm_Image);
+procedure ClearImgViewerInstances;
 
 var
    LastFormImageOpened: TForm_Image;
@@ -126,10 +141,69 @@ resourcestring
   STR_02 = 'Open image file  (Ctrl -> open file location)';
 
 
+var
+  ImgViewerInstances: TList;
+  RemovingAll: boolean;
+
+  
+function ImgViewerInstance: TForm_Image;
+begin
+   if ImgViewerInstances.Count > 0 then
+      Result:= ImgViewerInstances[ImgViewerInstances.Count-1]
+   else
+      Result:= nil;
+end;
+
+
+procedure NewImageViewer(Instance: TForm_Image);
+begin    
+    ImgViewerInstances.Add(Instance);
+end;
+
+procedure ClearImgViewerInstances;
+var
+  i: integer;
+  Form: TForm_Image;
+begin
+   RemovingAll:= true;
+   if ImgViewerInstances.Count > 0 then begin
+      for i := 0 to ImgViewerInstances.Count -1 do begin
+          Form:= TForm_Image(ImgViewerInstances[i]);
+          try
+             Form.Free;
+          except
+          end;
+      end;
+      ImgViewerInstances.Clear;
+   end;
+   RemovingAll:= false;
+
+end;
+
+procedure RemoveClosedImgViewerInstance (ImgViewerInstance: TForm_Image);
+begin
+   try
+      ImgViewerInstances.Remove(ImgViewerInstance);
+   except
+   end;
+end;
+
+
+procedure TForm_Image.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+   Free;
+end;
+
 procedure TForm_Image.FormCreate(Sender: TObject);
 begin
   fChangingInCode:= false;
   fImageConfigured:= false;
+end;
+
+procedure TForm_Image.FormDestroy(Sender: TObject);
+begin
+   if not RemovingAll then
+      RemoveClosedImgViewerInstance(Self);
 end;
 
 procedure TForm_Image.Button_CancelClick(Sender: TObject);
@@ -177,8 +251,10 @@ begin
    fImage:= value;
    fCurrentNoteFile:= NoteFile;
    fImageID:= fImage.ID;
-   if Visible then
-     ConfigureAndShowImage;
+   if Visible then begin
+     ConfigureAndShowImage (true);
+     WindowState:= wsNormal;
+   end;
 end;
 
 
@@ -187,14 +263,15 @@ begin
     Button_Modify.Default := true;
     Button_Cancel.SetFocus;
 
-    ConfigureAndShowImage;
+    ConfigureAndShowImage (false);
 end;
 
-procedure TForm_Image.ConfigureAndShowImage;
+procedure TForm_Image.ConfigureAndShowImage (KeepWindowSize: boolean);
 var
   Pic: TSynPicture;
   W, H, MaxW, MaxH: integer;
   Ratio: Single;
+  ImageSizerThanWindow: boolean;
 
 begin
    if Image = nil then exit;
@@ -214,34 +291,48 @@ begin
 
    Caption:= Image.Name;
 
+   
    W:= Image.Width;
    H:= Image.Height;
-   Ratio:= H / W;
-   MaxW:= Screen.Width  - (Self.Width - cImage.Width)   -70;
-   MaxH:= Screen.Height - (Self.Height - cImage.Height) -70;
-
-   if W > MaxW then begin
-      W:= MaxW;
-      H:= Round(W * Ratio);
-      if H > MaxH then
-         H:= MaxH;
+   
+   if KeepWindowSize then begin
+      ImageSizerThanWindow:= true;
+      if (W <= cScrollBox.Width) and (H <= cScrollBox.Height) then
+          ImageSizerThanWindow:= false;
    end
-   else if H > MaxH then begin
-      H:= MaxH;
-      W:= Round(H / Ratio);
-      if W > MaxW then
+   else begin
+      ImageSizerThanWindow:= false;
+      
+      Ratio:= H / W;
+      MaxW:= Screen.Width  - (Self.Width - cImage.Width)   -70;
+      MaxH:= Screen.Height - (Self.Height - cImage.Height) -70;
+
+      if W > MaxW then begin
          W:= MaxW;
+         H:= Round(W * Ratio);
+         if H > MaxH then
+            H:= MaxH;
+      end
+      else if H > MaxH then begin
+         H:= MaxH;
+         W:= Round(H / Ratio);
+         if W > MaxW then
+            W:= MaxW;
+      end;
+
+      Self.Width:=  W +  (Self.Width - cImage.Width) + 35;
+      Self.Height:= H +  (Self.Height - cImage.Height) + 35;
    end;
 
    fZoomFactor:= 1.0;
    fChangingInCode:= true;
-
-   Self.Width:=  W +  (Self.Width - cImage.Width) + 35;
-   Self.Height:= H +  (Self.Height - cImage.Height) + 35;
-
+   
    Pic:= TSynPicture.Create;
    try
       Pic.LoadFromStream(Image.ImageStream);
+      if KeepWindowSize then
+         cImage.Picture:= nil;
+        
       cImage.Picture.Assign(Pic);
 
       cImage.AutoSize:= false;
@@ -249,7 +340,7 @@ begin
 
       fImageConfigured:= true;
 
-      if W = Image.Width then begin
+      if (W = Image.Width) and not ImageSizerThanWindow then begin
          if not chkExpand.Checked then
             DoExpand (false);
          chkExpand.Checked:= false;
@@ -260,6 +351,7 @@ begin
       else begin
         fChangingInCode:= false;
         chkExpand.Checked:= true;
+        UpdatePositionAndZoom;
       end;
 
    finally
@@ -495,5 +587,6 @@ end;
 
 initialization
   LastFormImageOpened:= nil;
+  ImgViewerInstances:= TList.Create;
 
 end.

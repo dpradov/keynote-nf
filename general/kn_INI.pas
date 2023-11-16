@@ -433,7 +433,8 @@ type
     ImgUseRecycleBin,
     ImgRatioSizePngVsJPG,
     ImgCompressionQuality,
-    ImgViewerBGColor: string;
+    ImgViewerBGColor,
+    ImgSingleViewerInstance: string;
   end;
 
 const
@@ -592,6 +593,7 @@ const
     ImgRatioSizePngVsJPG: 'ImgRatioSizePngVsJPG';
     ImgCompressionQuality: 'ImgCompressionQuality';
     ImgViewerBGColor: 'ImgViewerBGColor';
+    ImgSingleViewerInstance: 'ImgSingleViewerInstance';
   );
 
 type
@@ -1090,6 +1092,7 @@ begin
     ImgRatioSizePngVsJPG  := 1.5;
     ImgCompressionQuality := 80;
     ImgViewerBGColor      := clGray;
+    ImgSingleViewerInstance := true;
   end;
 end; // InitializeKeyOptions
 
@@ -1373,6 +1376,7 @@ begin
       writebool   ( section, KeyOptionsIniStr.ImgLinkRelativePath, KeyOptions.ImgLinkRelativePath );
       writebool   ( section, KeyOptionsIniStr.ImgUseRecycleBin, KeyOptions.ImgUseRecycleBin );
       writestring ( section, KeyOptionsIniStr.ImgViewerBGColor, ColorToString( KeyOptions.ImgViewerBGColor ));
+      writebool   ( section, KeyOptionsIniStr.ImgSingleViewerInstance, KeyOptions.ImgSingleViewerInstance );
 
       section := EditorOptionsIniStr.section;
       writebool( section, EditorOptionsIniStr.AutoIndent, EditorOptions.AutoIndent );
@@ -1709,7 +1713,7 @@ begin
       KeyOptions.ImgLinkRelativePath := readbool( section, KeyOptionsIniStr.ImgLinkRelativePath, KeyOptions.ImgLinkRelativePath );
       KeyOptions.ImgUseRecycleBin := readbool( section, KeyOptionsIniStr.ImgUseRecycleBin, KeyOptions.ImgUseRecycleBin );
       KeyOptions.ImgViewerBGColor := StringToColor( readstring( section, KeyOptionsIniStr.ImgViewerBGColor, 'clGray' ));
-
+      KeyOptions.ImgSingleViewerInstance := readbool( section, KeyOptionsIniStr.ImgSingleViewerInstance, KeyOptions.ImgSingleViewerInstance );
 
       if KeyOptions.SingleInstance then KeyOptions.HotKeyWarn := false;
 

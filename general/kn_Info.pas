@@ -623,6 +623,7 @@ type
     ImgRatioSizePngVsJPG:      Single;       // Related to ImgDefaultFormatFromClipb. A value > 0 => A conversion will be performed to both formats (Png and Jpg). If the default format is sizer than the alternative format, in a proportion >= to indicated, the alternative format will be used
     ImgCompressionQuality:     integer;      // It is used for gptJPG format saving and is expected to be from 0 to 100
     ImgViewerBGColor:          TColor;
+    ImgSingleViewerInstance:   boolean;
   end;
 
 

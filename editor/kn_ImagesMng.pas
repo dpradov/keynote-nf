@@ -3230,7 +3230,7 @@ end;
 
 procedure TImageManager.OpenImageViewer (ImgID: integer; ShowExternalViewer: boolean; SetLastFormImageOpened: boolean);
 var
-  Form_Image: TForm_Image;
+  Form_Image, OpenedViewer: TForm_Image;
   Img: TKntImage;
   FilePath: string;
 
@@ -3247,7 +3247,15 @@ begin
       end
       else begin
          ActiveNote.EditorToDataStream;
-         Form_Image := TForm_Image.Create( Form_Main );
+
+         OpenedViewer:= ImgViewerInstance;
+         if (OpenedViewer <> nil) and (KeyOptions.ImgSingleViewerInstance) then
+            Form_Image:= OpenedViewer
+         else begin
+            Form_Image := TForm_Image.Create( Form_Main );
+            NewImageViewer(Form_Image);
+         end;
+
          if SetLastFormImageOpened then
             kn_ImageForm.LastFormImageOpened:= Form_Image;
          Form_Image.Image:= Img;
