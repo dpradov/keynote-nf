@@ -2578,6 +2578,7 @@ var
   ImgID, p: integer;
 
 begin
+   ImgID:= 0;
    if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
       if ActiveNote.Editor.SelLength = 1 then
          ImgID:= CheckToIdentifyImageID(ActiveNote.Editor, p);
