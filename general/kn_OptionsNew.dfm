@@ -959,9 +959,9 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object gbViewer: TGroupBox
           Left = 204
-          Top = 270
+          Top = 266
           Width = 137
-          Height = 85
+          Height = 91
           Caption = ' Viewer '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -971,9 +971,9 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 12
           object Label29: TLabel
-            Left = 19
-            Top = 57
-            Width = 55
+            Left = 41
+            Top = 70
+            Width = 60
             Height = 13
             AutoSize = False
             Caption = 'BG Color'
@@ -985,9 +985,9 @@ object Form_OptionsNew: TForm_OptionsNew
             ParentFont = False
           end
           object btnBGColor: TBitBtn
-            Left = 95
-            Top = 51
-            Width = 30
+            Left = 10
+            Top = 61
+            Width = 25
             Height = 25
             Hint = 'Background color in image viewer'
             Glyph.Data = {
@@ -1021,8 +1021,8 @@ object Form_OptionsNew: TForm_OptionsNew
             OnClick = btnBGColorClick
           end
           object chkImgSingleViewerInstance: TCheckBox
-            Left = 15
-            Top = 21
+            Left = 18
+            Top = 20
             Width = 110
             Height = 17
             Caption = 'Single instance'
@@ -1033,6 +1033,24 @@ object Form_OptionsNew: TForm_OptionsNew
             Font.Style = []
             ParentFont = False
             TabOrder = 1
+            OnClick = chkImgSingleViewerInstanceClick
+          end
+          object chkImgHotTrackViewer: TCheckBox
+            Left = 40
+            Top = 39
+            Width = 89
+            Height = 17
+            Hint = 
+              'If the viewer is open, show any image by selecting or clicking it' +
+              ' (link or image) -- Editor retains focus'
+            Caption = 'Hot track'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
           end
         end
       end

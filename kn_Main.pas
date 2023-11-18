@@ -1410,7 +1410,8 @@ uses
    kn_NoteFileMng,
    kn_EditorUtils,
    kn_AlertMng,
-   kn_ImageForm;
+   kn_ImageForm,
+   kn_ImagesUtils;
 
 {$R *.DFM}
 {$R .\resources\catimages}
@@ -3204,6 +3205,7 @@ var
   FontStyles: TFontStyles;
   SubscriptStyle: TSubscriptStyle;
   Numbering: TRxNumbering;
+  SelAttributes: TRxTextAttributes;
 begin
   RTFUpdating := true;
   try
@@ -3256,9 +3258,10 @@ begin
       MMFormatBullets.Checked := TB_Bullets.Down;
     end;
 
-    MMFormatDisabled.Checked := myRTF.SelAttributes.Disabled;
+    SelAttributes:= myRTF.SelAttributes;
+    MMFormatDisabled.Checked := SelAttributes.Disabled;
 
-    SubscriptStyle:= myRTF.SelAttributes.SubscriptStyle;
+    SubscriptStyle:= SelAttributes.SubscriptStyle;
     MMFormatSubscript.Checked := SubscriptStyle = ssSubscript;
     TB_Subscript.Down := MMFormatSubscript.Checked;
     MMFormatSuperscript.Checked := SubscriptStyle = ssSuperscript;
@@ -3286,6 +3289,36 @@ begin
     UpdateCursorPos;
   finally
     RTFUpdating := false;
+  end;
+
+
+  if KeyOptions.ImgHotTrackViewer then begin
+     if ImgViewerInstance <> nil then begin
+        var ImgID, p: integer;
+        ImgID:= 0;
+
+        if (ActiveNote.Editor.SelLength = 1) then
+           ImgID:= CheckToIdentifyImageID(ActiveNote.Editor, p)
+
+        else begin
+            if ShowingImageOnTrack  then
+               ShowingImageOnTrack:= false
+            else
+              if SelAttributes.Link and (ActiveNote.Editor.SelLength = 0) then begin
+                 var URLText, TxtSel: string;
+                 var chrg: TCharRange;
+                 var L, R: integer;
+                 ActiveNote.Editor.GetLinkAtCursor(URLText, TxtSel, L, R, false);
+                 ImgID:= GetImageIDinPlaintext(URLText);
+              end;
+        end;
+
+        if (ImgID > 0) and (ImgViewerInstance.Image.ID <> ImgID) then begin
+           ImagesManager.OpenImageViewer(ImgID, false, false);
+           ShowingImageOnTrack:= true;
+        end;
+     end;
+
   end;
 end; // RxRTFSelection Change
 
@@ -7788,6 +7821,7 @@ end;
 
 Initialization
    SBGlyph:= nil;
+   ShowingImageOnTrack:= false;
 
 end.
 

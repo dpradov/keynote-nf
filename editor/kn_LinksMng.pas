@@ -1311,8 +1311,22 @@ begin
   myURL := URLstr;
   URLType := TypeURL( myURL , KNTlocation);
 
-  if (URLType = urlKNTImage) and (myURLAction <> urlNothing) then begin
-      ClickOnURLImage (URLstr, chrgURL, myURLAction, EnsureAsk);
+  if (URLType = urlKNTImage) and
+        (not (myURLAction in [urlNothing, urlCopy, urlCreateOrModify])
+          or (KeyOptions.ImgHotTrackViewer and (ImgViewerInstance <> nil) ))  then begin
+
+      if not KeyOptions.ImgHotTrackViewer then
+         ClickOnURLImage (URLstr, chrgURL, myURLAction, EnsureAsk)
+
+      else begin
+         if ShowingImageOnTrack then
+            ShowingImageOnTrack:= false
+         else begin
+           ClickOnURLImage (URLstr, chrgURL, myURLAction, EnsureAsk);
+           ShowingImageOnTrack:= true;
+         end;
+      end;
+
       exit;
   end;
 
@@ -1519,8 +1533,6 @@ var
   p1, ImgID: integer;
 
 begin
-   if myURLAction in [urlNothing, urlCopy, urlCreateOrModify] then exit;
-
    p1:= pos(',', URLstr, 5);
    ImgID  := StrToIntDef(Copy(URLstr, 5, p1- 5), 0);
 

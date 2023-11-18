@@ -25,9 +25,9 @@ object Form_Image: TForm_Image
     450)
   TextHeight = 13
   object lblDetails: TLabel
-    Left = 10
+    Left = 8
     Top = 9
-    Width = 425
+    Width = 427
     Height = 16
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
@@ -38,37 +38,33 @@ object Form_Image: TForm_Image
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
-    ExplicitWidth = 423
   end
   object bGray: TToolbarButton97
-    Left = 26
+    Left = 53
     Top = 427
     Width = 15
     Height = 15
     Anchors = [akLeft, akBottom]
     Color = clGray
     OnClick = bGrayClick
-    ExplicitTop = 425
   end
   object bWhite: TToolbarButton97
-    Left = 47
+    Left = 72
     Top = 427
     Width = 15
     Height = 15
     Anchors = [akLeft, akBottom]
     Color = clWhite
     OnClick = bWhiteClick
-    ExplicitTop = 425
   end
   object bBlack: TToolbarButton97
-    Left = 6
+    Left = 35
     Top = 427
     Width = 15
     Height = 15
     Anchors = [akLeft, akBottom]
     Color = clBlack
     OnClick = bBlackClick
-    ExplicitTop = 425
   end
   object btnOpenFolder: TToolbarButton97
     Left = 6
@@ -200,6 +196,22 @@ object Form_Image: TForm_Image
     Images = Form_Main.IMG_Toolbar
     OnClick = btnNextImageClick
   end
+  object btnAlwaysVisible: TToolbarButton97
+    Left = 5
+    Top = 424
+    Width = 20
+    Height = 22
+    Hint = 'Always visible'
+    AllowAllUp = True
+    Anchors = [akLeft, akBottom]
+    GroupIndex = 1
+    DropdownCombo = True
+    Glyph.Data = {00000000}
+    GlyphMask.Data = {00000000}
+    ImageIndex = 45
+    Images = Form_Main.IMG_Toolbar
+    OnClick = btnAlwaysVisibleClick
+  end
   object Button_Cancel: TButton
     Left = 397
     Top = 417
@@ -217,7 +229,7 @@ object Form_Image: TForm_Image
   object txtCaption: TEdit
     Left = 105
     Top = 31
-    Width = 376
+    Width = 375
     Height = 24
     Hint = 'Caption of the image'
     Alignment = taCenter
@@ -229,7 +241,7 @@ object Form_Image: TForm_Image
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 1
-    ExplicitWidth = 372
+    ExplicitWidth = 371
   end
   object Button_Modify: TButton
     Left = 295
@@ -298,5 +310,10 @@ object Form_Image: TForm_Image
     OnEnter = txtIDEnter
     OnExit = txtIDExit
     OnKeyDown = txtIDKeyDown
+  end
+  object WinOnTop: TTopMostWindow
+    AlwaysOnTop = False
+    Left = 216
+    Top = 400
   end
 end

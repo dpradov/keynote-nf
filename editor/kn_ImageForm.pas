@@ -32,6 +32,7 @@ uses
    Vcl.ExtCtrls,
    SynGdiPlus,
    TB97Ctls,
+   TopWnd,
    kn_ImagesMng,
    kn_const,
    kn_global,
@@ -62,6 +63,8 @@ type
     btnPrevImage: TToolbarButton97;
     btnNextImage: TToolbarButton97;
     txtID: TEdit;
+    WinOnTop: TTopMostWindow;
+    btnAlwaysVisible: TToolbarButton97;
     procedure FormShow(Sender: TObject);
     procedure bGrayClick(Sender: TObject);
     procedure bBlackClick(Sender: TObject);
@@ -82,6 +85,7 @@ type
     procedure txtIDEnter(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnAlwaysVisibleClick(Sender: TObject);
   private
     { Private declarations }
     fCurrentNoteFile: TNoteFile;
@@ -110,9 +114,8 @@ type
 {
   kn_ImageForm.LastFormImageOpened is used to ensure that the newly opened viewer window gets focus when launched
   by clicking on a hyperlink. It is used from TForm_Main.RxRTFMouseUp(), where it will be set to nil right after.
-
   ImgViewerInstance, NewImageViewer and ClearImgViewerInstances are used when per configuration (KeyOptions.ImgSingleViewerInstance) only
-  it is allowed to have an open instance.  
+  it is allowed to have an open instance.
 }
 
 
@@ -156,7 +159,7 @@ end;
 
 
 procedure NewImageViewer(Instance: TForm_Image);
-begin    
+begin
     ImgViewerInstances.Add(Instance);
 end;
 
@@ -264,6 +267,10 @@ begin
     Button_Cancel.SetFocus;
 
     ConfigureAndShowImage (false);
+
+    // By default, always visible
+    WinOnTop.AlwaysOnTop:= true;
+    btnAlwaysVisible.Down:= true;
 end;
 
 procedure TForm_Image.ConfigureAndShowImage (KeepWindowSize: boolean);
@@ -582,6 +589,33 @@ begin
     CheckUpdateCaption;
     Image:= Img;
     Button_Cancel.SetFocus;
+end;
+
+
+procedure TForm_Image.btnAlwaysVisibleClick(Sender: TObject);
+var
+  i: integer;
+  Form: TForm_Image;
+
+begin
+    WinOnTop.AlwaysOnTop:= btnAlwaysVisible.Down;
+
+   { Setting AlwaysOnTop to False, will affect to all viewers open (if any); they will behave as non top
+    (It is the behaviour in TopWnd although the call to SetWindowPos(FHWindow, HWND_NOTOPMOST, x, y, cx, cy, Flags)
+    pass the current handle. By the oppsite, setting AlwaysOnTop to True afects individually to each viewer )
+    To show it visually in the UI, I will reflect it in the btnAlwaysVisible buttom }
+
+   if (not btnAlwaysVisible.Down) and (ImgViewerInstances.Count > 0) then begin
+      for i := 0 to ImgViewerInstances.Count -1 do begin
+          Form:= TForm_Image(ImgViewerInstances[i]);
+          try
+             Form.btnAlwaysVisible.Down:= false;
+             Form.WinOnTop.AlwaysOnTop:= false;
+          except
+          end;
+      end;
+   end;
+
 end;
 
 

@@ -256,6 +256,7 @@ var
     History : TKNTHistory;         // Global navigation history
 
     ShowingSelectionInformation: boolean;
+    ShowingImageOnTrack: boolean;
 
     LastGoTo : string; // last line number for the "Go to line" command
 

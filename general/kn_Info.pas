@@ -624,6 +624,7 @@ type
     ImgCompressionQuality:     integer;      // It is used for gptJPG format saving and is expected to be from 0 to 100
     ImgViewerBGColor:          TColor;
     ImgSingleViewerInstance:   boolean;
+    ImgHotTrackViewer:         boolean;
   end;
 
 

@@ -112,6 +112,8 @@ uses
                            var PosRTFImageEnd: integer
                            ): boolean;
 
+  function GetImageIDinPlaintext (Str: String): integer;
+  function GetImageIDinURLstr (Str: String): integer;
   function CountRTFLinkChars (const RTF: AnsiString; PictOffset: integer): integer;
 
 
@@ -958,6 +960,28 @@ begin
      end;
  end;
 
+end;
+
+
+function GetImageIDinPlaintext (Str: String): integer;
+var
+  L, R: integer;
+begin
+  Result:= 0;              // 0 is not a valid ID
+  // <L>I999999<R>
+   L:= pos(KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE, Str);
+   R:= pos(KNT_RTF_HIDDEN_MARK_R_CHAR, Str);
+   Result:= StrToIntDef(Copy(Str, L+2, R-L-2), 0);
+end;
+
+function GetImageIDinURLstr (Str: String): integer;
+var
+    p: integer;
+begin
+   // img:ID,W.H
+   if not Str.StartsWith('img:') then exit;
+   p:= Pos(',', Str, 5);
+   Result:= StrToIntDef(Copy(Str, 5, p-5), 0);
 end;
 
 

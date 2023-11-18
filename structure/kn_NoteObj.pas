@@ -2139,34 +2139,45 @@ begin
         TextLen:= ActiveNote.Editor.TextLength;
 
         // Buscamos el extremo izquierdo
+
+        { Character "H" of HYPERLINK ".... cannot be selected in versions >= 5. Also in that versiones, when trying to selection
+          one hidden character selection of that hyperlink, the whole link is selected }
         link:= lsLink;
-        while (Left >0) and ((link=lsLink) or ((_LoadedRichEditVersion>=5) and (ActiveNote.Editor.SelLength=0))) do begin  // Character "H" of HYPERLINK ".... cannot be selected in versions >= 5. Also in that versiones, when trying to selection one hidden character selection of that hyperlink, the whole link is selected
+        while (Left >0) and (link=lsLink) and (ActiveNote.Editor.SelLength=1) do begin
               Left:= Left - 1;
               ActiveNote.Editor.SetSelection(Left-1, Left, false);
               link:= ActiveNote.Editor.SelAttributes.LinkStyle;
         end;
 
-        LeftE:= Left;
-        // Ampliamos la selección incluyendo el/los caracteres '<' que pueda haber
-        while (LeftE >0) and (ActiveNote.Editor.SelText='<') do begin
-              LeftE:= LeftE - 1;
-              ActiveNote.Editor.SetSelection(LeftE-1, LeftE, false);
-        end;
+        if (ActiveNote.Editor.SelLength > 1) then begin
+           Left:= ActiveNote.Editor.SelStart;
+           Right:= Left + ActiveNote.Editor.SelLength;
+           LeftE:= Left;
+           RightE:= Right;
+        end
+        else begin
+           LeftE:= Left;
+           // Ampliamos la selección incluyendo el/los caracteres '<' que pueda haber
+           while (LeftE >0) and (ActiveNote.Editor.SelText='<') do begin
+                 LeftE:= LeftE - 1;
+                 ActiveNote.Editor.SetSelection(LeftE-1, LeftE, false);
+           end;
 
 
-        // Buscamos el extremo derecho
-        link:= lsLink;
-        while (Right < TextLen) and (link=lsLink) do begin
-              Right:= Right + 1;
-              ActiveNote.Editor.SetSelection(Right, Right+1, false);
-              link:= ActiveNote.Editor.SelAttributes.LinkStyle;
-        end;
+           // Buscamos el extremo derecho
+           link:= lsLink;
+           while (Right < TextLen) and (link=lsLink) do begin
+                 Right:= Right + 1;
+                 ActiveNote.Editor.SetSelection(Right, Right+1, false);
+                 link:= ActiveNote.Editor.SelAttributes.LinkStyle;
+           end;
 
-        RightE:= Right;
-        // Ampliamos la selección incluyendo el/los caracteres '>' que pueda haber
-        while (Right < TextLen) and (ActiveNote.Editor.SelText='>') do begin
-              RightE:= RightE + 1;
-              ActiveNote.Editor.SetSelection(RightE, RightE+1, false);
+           RightE:= Right;
+           // Ampliamos la selección incluyendo el/los caracteres '>' que pueda haber
+           while (Right < TextLen) and (ActiveNote.Editor.SelText='>') do begin
+                 RightE:= RightE + 1;
+                 ActiveNote.Editor.SetSelection(RightE, RightE+1, false);
+           end;
         end;
 
         URL:= ActiveNote.Editor.GetTextRange(Left, Right);
@@ -2177,7 +2188,8 @@ begin
            URL:= Copy(URL, 12, Length(URL) - Length(TextURL)- 12);
         end
         else
-           ActiveNote.Editor.SetSelection(LeftE, RightE, false);
+          if SelectURL then
+              ActiveNote.Editor.SetSelection(LeftE, RightE, false);
 
         if not SelectURL then
            ActiveNote.Editor.SetSelection(SelS, SelS + SelL, false);

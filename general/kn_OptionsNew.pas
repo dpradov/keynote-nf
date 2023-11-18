@@ -301,6 +301,7 @@ type
     btnBGColor: TBitBtn;
     Label29: TLabel;
     chkImgSingleViewerInstance: TCheckBox;
+    chkImgHotTrackViewer: TCheckBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -352,6 +353,7 @@ type
     procedure chkImgDefaultLinkModeClick(Sender: TObject);
     procedure txtImgCompressionQualityExit(Sender: TObject);
     procedure txtImgRatioSizePngVsJPGExit(Sender: TObject);
+    procedure chkImgSingleViewerInstanceClick(Sender: TObject);
   private
     { Private declarations }
     procedure CheckImgMaxAutoWidthGoalValue;
@@ -957,7 +959,7 @@ begin
        ImgSingleViewerInstance:=  chkImgSingleViewerInstance.Checked;
        ClearImgViewerInstances;
     end;
-
+    ImgHotTrackViewer:= chkImgHotTrackViewer.Checked;
   end;
 
   with myTabOpts do
@@ -1209,6 +1211,8 @@ begin
     txtImgRatioSizePngVsJPG.Text:=  ImgRatioSizePngVsJPG.ToString(ffGeneral,3,2);
     txtImgCompressionQuality.Text:= ImgCompressionQuality.ToString;
     chkImgSingleViewerInstance.Checked:= ImgSingleViewerInstance;
+    chkImgHotTrackViewer.Checked:= ImgHotTrackViewer;
+    chkImgHotTrackViewer.Enabled:= ImgSingleViewerInstance;
   end;
 
   with myTabOpts do
@@ -1948,6 +1952,13 @@ end;
 procedure TForm_OptionsNew.chkImgDefaultLinkModeClick(Sender: TObject);
 begin
    chkImgLinkRelativePath.Enabled:= chkImgDefaultLinkMode.Checked;
+end;
+
+procedure TForm_OptionsNew.chkImgSingleViewerInstanceClick(Sender: TObject);
+begin
+  chkImgHotTrackViewer.Enabled:= chkImgSingleViewerInstance.Checked;
+  if not chkImgSingleViewerInstance.Checked then
+     chkImgHotTrackViewer.Checked:= False;
 end;
 
 end.
