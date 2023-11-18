@@ -1571,6 +1571,7 @@ var
   Form_URLAction: TForm_URLAction;
   askUser: Boolean;
   KNTLocation: boolean;
+  SS, SL: integer;
 
   procedure RemoveAngleBrackets(var Cad : string);
   var
@@ -1635,9 +1636,16 @@ begin
 
 
   if askUser then begin
+      SS:= ActiveNote.Editor.SelStart;
+      SL:= ActiveNote.Editor.SelLength;
+      SelectTextToUse;
+      if URLType = urlKNTImage then begin
+         ActiveNote.Editor.SetSelection(SS, SS+SL, true);
+         exit;
+      end;
+
       Form_URLAction := TForm_URLAction.Create( Form_Main );
       try
-        SelectTextToUse;
         Form_URLAction.Edit_URL.Text := URLStr;
         Form_URLAction.Edit_TextURL.Text := TextURL;
         Form_URLAction.URLAction:= urlCreateOrModify;   // Mode: Create. Only will show buttons Ok and Cancel
@@ -1652,10 +1660,10 @@ begin
       finally
         Form_URLAction.Free;
       end;
-   end;
+  end;
 
-    if URLStr <> '' then
-    begin
+  if URLStr <> '' then
+  begin
     // Determine type of URL. Parameter of TypeURL can also be modified
       URLType := TypeURL( URLStr, KNTLocation );
       if (URLType = urlFile) and ( pos( 'FILE:', AnsiUpperCase(URLStr) ) = 0 ) then
@@ -1663,7 +1671,7 @@ begin
 
       if (TextURL = '') and (not Note.PlainText) then TextURL:= StripFileURLPrefix(URLStr);
       InsertHyperlink(URLStr, TextURL, false, Note);
-    end;
+  end;
 
 end; // Insert URL
 
