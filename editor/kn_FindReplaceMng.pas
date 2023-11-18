@@ -211,10 +211,10 @@ end; // FindResultsToEditor
 
 
 
-function FindPattern (const Substr: string; Str: String; SearchOrigin: integer; var SizeInternalHiddenText: integer; IgnoreKNTHiddenMarks: boolean = true): integer;
+function FindPattern (const Substr: string; const Str: String; SearchOrigin: integer; var SizeInternalHiddenText: integer; IgnoreKNTHiddenMarks: boolean = true): integer;
 var
 { The search string could contain hidden text corresponding to a used marker (for now only this type of hidden marker)
-  as internal KNT link target. This would make it impossible to locate the searched string (currently done with RxRichEdit.FindText) 
+  as internal KNT link target. This would make it impossible to locate the searched string (currently done with RxRichEdit.FindText)
   if it is not taken into account.
   Assume * a hidden character of KNT and [ and ] delimiting the text to search for. We could find something like: 
 
@@ -227,7 +227,7 @@ var
    G: [      ***     ]
    H: [      ***   ***  ]
    I: [??????***??]    ***   [          ]
- 
+
   p will have the position of the first occurrence of the search text, from the position to search.
   pH will have the position of the first occurrence of the beginning of the hidden text, from the position to search for.
 
@@ -243,7 +243,7 @@ var
   Although it would not be normal, there could be more than one string hidden within the text to be searched for (case H). If upon 
   reaching the second hidden string we see keeping the match in the search text comparison, we will simply ignore this second string and continue
   comparing. If after passing the last character of the first hidden string there was no match, we should continue looking for new possible
-  hidden texts, to repeat the process.  
+  hidden texts, to repeat the process.
 }
 
  p: integer;          // Position of the search text (first occurrence)
@@ -258,9 +258,9 @@ var
  Dif: boolean;
  LenStr: integer;
 
-begin   
+begin
     SizeInternalHiddenText:= 0;
-   
+
     if (Substr = '') or (Str='') then Exit(0);
    
     LenPattern:= Length(Substr);
@@ -290,7 +290,7 @@ begin
     if SearchOrigin >= LenStr then
        Exit(0);
     
-    repeat    
+    repeat
         if (pH=0) or ((pH > p) and (p<>0)) then
            Exit(p)
 
@@ -307,7 +307,7 @@ begin
              PText:= @Str[posIT];
              Dif:= False;             
 
-             if FindOptions.WholeWordsOnly then begin               
+             if FindOptions.WholeWordsOnly then begin
                 repeat
                     if (posIT > 1) and IsCharAlphaNumeric(PText[iT]) then
                        inc(iT)
@@ -320,29 +320,36 @@ begin
                    continue;
                 end;
              end;
-             
+
              repeat                          // Keep comparing pattern and text, as long as they match and the end of one or the other is not reached
                 inc(iT);
                 inc(iP);
 
                 if (PText[iT]=KNT_RTF_HIDDEN_MARK_L_CHAR) then begin     // Ignore our possible hidden strings (just count their length)
-                  SizeAux:= 0;
-                  repeat
-                      inc(iT);
-                      inc(SizeInternalHiddenText);
-                      inc(SizeAux);
-                  until (PText[iT]=KNT_RTF_HIDDEN_MARK_R_CHAR) or (PText[iT]=#0) or (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT_CHAR);      // Looking for <StartHiddenText>.....<EndHiddenText>  (ex: HB5H  where  H=KNT_RTF_HIDDEN_MARK_CHAR)
-                  if (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT_CHAR) then begin
+                  if iT = 0 then begin
                      Dif:= True;
-                     pHf:= pH;
+                     posIT := pH;
+                     break;
                   end
                   else begin
-                    inc(iT);
-                    inc(SizeInternalHiddenText);
-                    if pHf = pH then
-                       pHf:= posIT + iT;
-                    if SizeInternalHiddenText = iT then
-                       Dif:= True;
+                     SizeAux:= 0;
+                     repeat
+                         inc(iT);
+                         inc(SizeInternalHiddenText);
+                         inc(SizeAux);
+                     until (PText[iT]=KNT_RTF_HIDDEN_MARK_R_CHAR) or (PText[iT]=#0) or (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT_CHAR);      // Looking for <StartHiddenText>.....<EndHiddenText>  (ex: HB5H  where  H=KNT_RTF_HIDDEN_MARK_CHAR)
+                     if (SizeAux > KNT_RTF_HIDDEN_MAX_LENGHT_CHAR) then begin
+                        Dif:= True;
+                        pHf:= pH;
+                     end
+                     else begin
+                       inc(iT);
+                       inc(SizeInternalHiddenText);
+                       if pHf = pH then
+                          pHf:= pH + SizeAux;
+                       if SizeInternalHiddenText = iT then
+                          Dif:= True;
+                     end;
                   end;
                 end;
 
@@ -359,7 +366,7 @@ begin
              end
              else begin            
                 SizeInternalHiddenText:= 0;
-                if (posIT >= pH) then                  
+                if (posIT >= pH) then
                     posIT:= pHf + 1
                 else
                     inc(posIT);                                   // We will start searching from the next position
