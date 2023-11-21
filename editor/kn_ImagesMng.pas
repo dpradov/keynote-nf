@@ -433,6 +433,10 @@ type
     procedure UpdateImagesCountReferences (const IDsBefore: TImageIDs;  const IDsAfter: TImageIDs);
     function  ImageInCurrentEditors (ImgID: integer): Boolean;
 
+    function GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+    function GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+    function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+
 
     procedure LoadState (const tf: TTextFile; var FileExhausted: Boolean);
     procedure SaveState (const tf: TTextFile);
@@ -3094,8 +3098,8 @@ var
   ImgID, Num: integer;
 
 const
-   beginIDImg = KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE;         // \'11I
-   endIDImg = KNT_RTF_HIDDEN_MARK_R_CHAR;                                  // \'12
+   beginIDImg = KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE;         // $11I
+   endIDImg = KNT_RTF_HIDDEN_MARK_R_CHAR;                                  // $12
    Lb = Length(beginIDImg);
 
 begin
@@ -3193,6 +3197,232 @@ begin
        if fImagesIDExported.IndexOf(Pointer(ID)) < 0 then
           fImagesIDExported.Add(Pointer(ID));
     end;
+end;
+
+
+function TImageManager.GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+var
+  pID,pIDr: integer;
+  pID_e,pIDr_e: integer;
+  Text: PAnsiChar;
+  Offset, charsLink: integer;
+  nLinks, n, nLinksVisible: integer;
+  TextPlainInEditor: AnsiString;
+  ImagesVisible: Array of integer;
+  SomeImagesAreVisible: boolean;
+
+
+const
+   beginIDImg = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE;         // \'11I
+   endIDImg = KNT_RTF_HIDDEN_MARK_R;                                  // \'12
+
+   beginIDImgChar = KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE;         // $11I
+   endIDImgChar = KNT_RTF_HIDDEN_MARK_R_CHAR;                                  // $12
+
+
+   function CheckValidImageHiddenMark: boolean;
+   begin
+       Result:= false;
+       if (pIDr > 0) and ((pIDr-pID) <= 10) then begin
+          // We consider the hidden mark valid -> we count the hyperlink
+          Inc(nLinks);
+          SetLength(ImagesVisible, nLinks);
+          ImagesVisible[nLinks-1]:= 0;
+          if TextPlainInEditor[pIDr_e+1] <> 'H' then begin           // <L>1I999999<R>HYPERLINK
+             ImagesVisible[nLinks-1]:= 1;
+             SomeImagesAreVisible:= true;
+          end;
+          Result:= true;
+       end;
+   end;
+
+begin
+
+   {
+     The position in the editor (Editor.SelStart) corresponds to the one deduced in the plain text string
+     obtained with Editor.TextPlain.
+     When saving, and to perform searches in a homogeneous manner, a plain text string corresponding to the
+     imLink mode is used, in which the images are not visible, and hyperlinks are displayed instead.
+     An image consulted in Editor.TextPlain is equivalent to a single character, while the associated
+     hyperlink takes up more characters, the hidden ones (HYPERLINK plus the URL) and the visible text).
+     In both cases we are using a hidden tag with the image id:
+      In Plain text:
+          imLink  -> <L>I999999<R>HYPERLINK img:<ImgID>,<W>,<H> <textOfHyperlink>
+          imImage -> <L>I999999<R>[I]
+          [I]: Character representing the image
+
+           In imLink mode, for each image we show the hidden characters and a hyperlink,
+           while in imImage mode we only show those hidden characters and the image itself
+          (which only occupies one character in TextPlain):
+
+     As a consequence of the above, the position of a specific character in the TextPlain-imLink string will
+     always be greater than or equal to the position in TextPlan-Editor. If the text does not contain images,
+     it will be the same position. It will also be the same if the images are in a position after this character.
+
+     We must take into account that in the editor there can be both visible (imImage mode) and hidden (imLink mode)
+     individual images.
+
+     This method returns, from a position defined according to TextPlain-imLink (if Pos_ImLinkTextPlain >= 0), 
+     or according to TextPlain-Editor (for the indicated note/node) if CaretPos >=0, the positive difference (offset)
+     with respect to the equivalent position in the alternative TextPlain (for the indicated note/node)
+
+
+     As the searches are carried out using TextPlain-imLink as a reference, this method allows us to obtain
+     the exact position in the editor (subtracting the offset calculated here), to be able to correctly highlight
+     a match in the editor, when this is required .
+     It also allows us, given a position in the editor, to obtain the corresponding position in TextPlain-imLink
+     necessary to know from which point to start the search (in RunFindNext)
+
+
+     - Pos_ImLinkTextPlain: Position in imLinkTextPlain
+     - Stream: the content of the note/node, with the RTF corresponding to the imLink mode
+     - imLinkTextPlain: TextPlain in imLink mode corresponding to the stream received.
+                        Used when saving to disk and for searching
+
+     To calculate the offset we need to have the stream of the note/node, where we have the RTF equivalent to the
+     TextPlain-imLink received. Through it we can count the length of the image hyperlinks that are before the
+     position received as a parameter.
+     (Actually the difference with what the image occupies in imLink mode -> number of hyperlink characters - 1)
+     But we will only calculate and add the lengths of those hyperlinks whose images are visible in the editor. 
+     If an image is also in hidden mode (imLink) in the editor, there will be no difference to account for.
+
+       - -
+       Note: if on a note/node with all the images hidden we insert an image, which will be visible, and we intend
+       to highlight a match from a search prior to said change, it is normal that it will not be highlighted properly,
+       simply because the editor has changed. It is necessary to run the query again.
+       - -
+
+     First: we need to count how many hyperlinks are located in front of the received position, checking it in imLinkTextPlain
+
+     At first, it might seem that if ImagesManager.ImagesMode = imLink no offset needs to be calculated.
+     But it may happen that if the note/node is being edited, some images are visible and others are not. For example,
+     it is possible to set the mode to imLink (hiding already inserted images) and continue adding images.
+     All new images are always incorporated visibly. It could also happen that an image in link format that had
+     previously been copied to the clipboard was pasted and then pasted, when the mode is imImage
+
+     Therefore, unless we can confirm that the above has not happened, we must also go through the TextPlain obtained
+     from the editor (TextPlainInEditor), as it is being displayed at this moment, to know which of the images are in
+     one mode or another and thus consider them or not when calculating the offset.
+     }
+
+
+    Result:= 0;
+
+
+    // Check if no offset needs to be applied
+
+    // There is no need to make any adaptation, since TextPlainInEditor must necessarily be equal to imLinkTextPlain
+    if (ImagesManager.ImagesMode = imLink) and (not RTFModified) then
+       exit;
+
+    // There is no need to adapt anything because there are no images (neither hidden nor visible)
+    if Pos(beginIDImgChar, imLinkTextPlain, 1) = 0 then
+       exit;
+
+    TextPlainInEditor:= ActiveNote.Editor.TextPlain;
+
+    { If the length of TextPlainInEditor = length of imLinkTextPlain this will be because there are images but they
+      are all hidden, hence the coincidence in the lengths. It would be highly unlikely that there would be a number
+      of visible images equal to the number of characters added to the note/node and not yet saved to the stream. }
+    if Length(imLinkTextPlain) = Length(TextPlainInEditor) then
+       exit;
+
+
+
+    pID:= 0;
+    pID_e:= 0;
+    nLinks:= 0;
+
+
+    if CaretPos >= 0 then begin
+
+       repeat
+          pID:= Pos(beginIDImgChar, TextPlainInEditor, pID + 1);
+          if  (pID > 0) and (pID < Length(TextPlainInEditor)) and (pID < CaretPos) then begin
+             pIDr:= Pos(endIDImgChar, TextPlainInEditor, pID);                             // L1I999999R
+             CheckValidImageHiddenMark;     // Can update nLinks, ImagesVisible and SomeImagesAreVisible
+             pID:= pIDr;
+          end
+          else
+             break;
+       until (pID >= Length(TextPlainInEditor)) or (pID >= CaretPos);
+
+    end
+    else begin
+       repeat
+          pID:= Pos(beginIDImgChar, imLinkTextPlain, pID + 1);
+          pID_e:= Pos(beginIDImgChar, TextPlainInEditor, pID_e + 1);
+          if  (pID > 0) and (pID < Length(imLinkTextPlain)) and (pID < Pos_ImLinkTextPlain) and
+              (pID_e > 0) and (pID_e < Length(TextPlainInEditor))
+          then begin
+             pIDr:= Pos(endIDImgChar, imLinkTextPlain, pID);                             // L1I999999R
+             pIDr_e:= Pos(endIDImgChar, TextPlainInEditor, pID_e);
+             if CheckValidImageHiddenMark then     // Can update nLinks, ImagesVisible and SomeImagesAreVisible
+                pID:= pIDr + 20
+             else
+                pID:= pIDr;
+
+             pID_e:= pIDr_e;
+          end
+          else
+             break;
+       until (pID >= Length(imLinkTextPlain)) or (pID >= Pos_ImLinkTextPlain)
+          or (pID_e >= Length(TextPlainInEditor));
+
+    end;
+
+
+
+    if not SomeImagesAreVisible then
+       exit;
+
+
+
+    // Second: add the length of those hyperlinks to consider it as offset
+
+    Offset:= 0;
+    pID:= 0;
+    n:= 0;
+    nLinksVisible:= 0;
+    Text:= PAnsiChar(Stream.Memory);
+
+    repeat
+       pID:= Pos(beginIDImg, Text, pID+1);
+       if (pID > 0) and (pID < Stream.Size) and (n < nLinks) then begin
+          pIDr:= Pos(endIDImg, Text, pID);                             // \v\'11I999999\'12\v0        pID-> \'11I999999  pIDr-> \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
+          if (pIDr > 0) and ((pIDr-pID) <= 12) then begin
+             // Damos por válida la marca oculta -> contabilizamos el hiperenlace
+              if ImagesVisible[n] = 1 then begin
+                 charsLink:= CountRTFLinkChars(Text, pIDr + 1);
+                 Inc(Offset, charsLink);
+                 Inc(nLinksVisible);
+              end
+              else
+                  charsLink:= 20;              // We count at least the hidden part, which will be at least: 'HYPERLINK "img:9,9,9"'
+              Inc(n);                          // We count the hyperlinks that we are processing
+              pID:= pIDr + charsLink;
+          end
+          else
+             pID:= pIDr + 1;
+       end
+       else
+          break;
+
+    until (pID >= Stream.Size) or (n >= nLinks);
+
+    Result:= Offset - nLinksVisible;
+end;
+
+
+function TImageManager.GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+begin
+   Result:= GetPositionOffset(Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified);
+end;
+
+
+function TImageManager.GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+begin
+   Result:= GetPositionOffset(Stream, -1, CaretPos, imLinkTextPlain, RTFModified);
 end;
 
 

@@ -1314,11 +1314,7 @@ var
             TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
          end;
 
-      with myNote.Editor do
-      begin
-        SelStart := PatternPos;
-        SelLength := length( Text_To_Find) + SizeInternalHiddenText;
-      end;
+      SearchCaretPos (myNote, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true);
   end;
 
 
@@ -1355,11 +1351,18 @@ begin
   try
     try
 
+      myNote := ActiveNote;
+      if myNote.Kind = ntTree then
+         myTreeNode := TTreeNote( myNote ).TV.Selected;
+
       // Identificación de la posición de inicio de la búsqueda ---------------------------
       if ( FindOptions.FindNew and FindOptions.EntireScope ) then
           SearchOrigin := 0
       else begin
+          TextPlain:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
           SearchOrigin := ActiveNote.Editor.SelStart;
+          SearchOrigin:= PositionInImLinkTextPlain (myNote, myTreeNode, SearchOrigin);
+
           l1:= length(ActiveNote.Editor.SelVisibleText);
           if l1 = length( Text_To_Find)  then begin
              l2:= length(ActiveNote.Editor.SelText);
@@ -1367,13 +1370,9 @@ begin
                 inc(SearchOrigin)
              else
                  SearchOrigin:= SearchOrigin + l2;
-             
+
           end;
       end;
-
-      myNote := ActiveNote;
-      if myNote.Kind = ntTree then
-         myTreeNode := TTreeNote( myNote ).TV.Selected;
 
       if FindOptions.FindNew then begin
          StartNote:= myNote;

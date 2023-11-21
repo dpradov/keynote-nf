@@ -59,6 +59,9 @@ uses
     function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : string;
     procedure JumpToKNTLocation( LocationStr : string );
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
+    function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean): integer;
+    function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer): integer;
+
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
     procedure InsertURL(URLStr : string; TextURL : string; Note: TTabNote);
 
@@ -917,6 +920,74 @@ begin
 end;
 
 
+function GetPositionOffset (myNote : TTabNote; myTreeNode: TTreeNTNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer): integer;
+var
+  Stream: TMemoryStream;
+  imLinkTextPlain: AnsiString;
+  Offset: integer;
+  RtfModified: boolean;
+begin
+   Offset:= 0;
+   if (CaretPosition < 0) and (Pos_ImLinkTextPlain < 0) then exit;
+
+
+   if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+     imLinkTextPlain:= '';
+      if assigned(myTreeNode) then begin
+          if assigned( myTreeNode.Data ) then begin
+             Stream:= TNoteNode( myTreeNode.Data ).Stream;
+             imLinkTextPlain := TNoteNode( myTreeNode.Data ).NodeTextPlain;
+             RtfModified := TNoteNode( myTreeNode.Data ).RTFModified;
+          end;
+      end
+      else begin
+         Stream:= myNote.DataStream;
+         imLinkTextPlain := myNote.NoteTextPlain;
+         RtfModified := myNote.Modified;
+      end;
+
+   end;
+
+   // See notes in ImagesManager.GetPositionOffset
+
+   if CaretPosition >= 0 then
+      Offset:= ImagesManager.GetPositionOffset_FromEditorTP (Stream, CaretPosition, imLinkTextPlain, RTFModified)
+   else
+      Offset:= ImagesManager.GetPositionOffset_FromImLinkTP (Stream, Pos_ImLinkTextPlain, imLinkTextPlain, RtfModified);
+
+
+   Result:= Offset;
+end;
+
+
+function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean): integer;
+var
+  Offset: integer;
+  Pos_ImLinkTextPlain: integer;
+begin
+  Pos_ImLinkTextPlain:= CaretPosition;            // What we receive we must treat as a position in imLinkTextPlain
+  Offset:= GetPositionOffset(myNote, myTreeNode, Pos_ImLinkTextPlain, -1);
+
+  if PlaceCaret then
+     with myNote.Editor do begin
+       SelStart := CaretPosition - Offset;
+       SelLength := SelectionLength;
+       Perform( EM_SCROLLCARET, 0, 0 );
+     end;
+
+  Result:= Offset;
+end;
+
+function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer): integer;
+var
+   Offset: integer;
+begin
+   Offset:= GetPositionOffset(myNote, myTreeNode, -1, CaretPosition);
+   Result:= CaretPosition + Offset;
+end;
+
+
+
 //===============================================================
 // JumpToLocation
 //===============================================================
@@ -933,7 +1004,7 @@ var
      TargetMark: string;
   begin
       Result:= false;
-      if Location.Mark >= 0 then begin
+      if Location.Mark > 0 then begin
         TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_BOOKMARK + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
         with myNote.Editor do begin
           p:= FindText(TargetMark, 0, -1, []);
@@ -947,20 +1018,6 @@ var
             Result:= true;
           end;
         end;
-      end;
-  end;
-
-  function SearchCaretPos: boolean;
-  begin
-      Result:= false;
-      if Location.CaretPos >= 0 then begin
-        // place caret
-        with myNote.Editor do begin
-          SelStart := Location.CaretPos;
-          SelLength := Location.SelLength;
-          Perform( EM_SCROLLCARET, 0, 0 );
-        end;
-        Result:= true;
       end;
   end;
 
@@ -1012,14 +1069,16 @@ begin
 
       if assigned( myTreeNode ) then begin
          // select the node
-         myTreeNode.MakeVisible;     // It could be hidden
-         TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
+         if TTreeNote( ActiveNote ).TV.Selected <> myTreeNode then begin
+            myTreeNode.MakeVisible;     // It could be hidden
+            TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
+         end;
       end;
 
       result := true;
 
       if not SearchTargetMark then
-         SearchCaretPos;
+         SearchCaretPos(myNote, myTreeNode, Location.CaretPos, Location.SelLength, true);
 
       myNote.Editor.SetFocus;
 

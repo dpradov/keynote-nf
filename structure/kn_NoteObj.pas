@@ -133,6 +133,8 @@ type
 
     procedure SetImagesMode(ImagesMode: TImagesMode);
 
+    function InitializeTextPlain(RTFAux: TRxRichEdit): boolean;
+
   public
     property Editor : TTabRichEdit read FEditor write SetEditor;
     property ID : longint read FID write SetID;
@@ -362,7 +364,7 @@ type
     function GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
 
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TTabRichEdit ): boolean;
-    function InitializeTextPlain(myNoteNode: TNoteNode; RTFAux: TRxRichEdit): boolean;
+    function InitializeTextPlain(myNoteNode: TNoteNode; RTFAux: TRxRichEdit): boolean; overload;
 
   end;
 
@@ -817,13 +819,22 @@ begin
 
       FEditor.Lines.SaveToStream( FDataStream, Encoding);
 
+      ImagesIDs_New:= nil;
       if (ImagesManager.StorageMode <> smEmbRTF) and (not FPlainText) then begin
          ImagesIDs_New:= CheckSavingImagesOnMode (imLink, FDataStream, true);
          ImagesManager.UpdateImagesCountReferences (fImagesReferenceCount, ImagesIDs_New);
          fImagesReferenceCount:= ImagesIDs_New;
       end;
 
-      NoteTextPlain:= FEditor.TextPlain;
+      if ImagesIDs_New = nil then
+         NoteTextPlain:= FEditor.TextPlain
+      else begin
+         { If the node has images we will make sure that in TextPlain we save the version corresponding to imLink,
+           to facilitate search management. See notes on TImageManager.GetSearchOffset }
+         NoteTextPlain:= '';
+         InitializeTextPlain(RTFAux_Note);
+      end;
+
       FEditor.Modified:= false;
       Result:= FDataStream;
 
@@ -834,7 +845,7 @@ begin
 
   else
      if (NoteTextPlain = '') then
-        NoteTextPlain:= FEditor.TextPlain;
+        InitializeTextPlain(RTFAux_Note);
 
 end; // EditorToDataStream
 
@@ -2630,13 +2641,21 @@ begin
 
              FEditor.Lines.SaveToStream( FSelectedNode.Stream, Encoding);
 
+             ImagesIDs_New:= nil;
              if (ImagesManager.StorageMode <> smEmbRTF) and (FSelectedNode.VirtualMode in [vmNone, vmKNTNode]) and (FEditor.StreamFormat = sfRichText) then begin
                 ImagesIDs_New:= CheckSavingImagesOnMode (imLink, FSelectedNode.Stream, true);
                 ImagesManager.UpdateImagesCountReferences (fImagesReferenceCount, ImagesIDs_New);
                 fImagesReferenceCount:= ImagesIDs_New;
              end;
 
-             FSelectedNode.NodeTextPlain:= FEditor.TextPlain;
+             if ImagesIDs_New = nil then
+                FSelectedNode.NodeTextPlain:= FEditor.TextPlain
+             else begin
+                { If the node has images we will make sure that in TextPlain we save the version corresponding to imLink,
+                  to facilitate search management. See notes on TImageManager.GetSearchOffset }
+                FSelectedNode.NodeTextPlain := '';
+                InitializeTextPlain(FSelectedNode, RTFAux_Note);
+             end;
              FSelectedNode.Stream.Position := 0;
              Result:= FSelectedNode.Stream;
              FEditor.Modified:= false;
@@ -2653,7 +2672,7 @@ begin
      end
      else
        if (FSelectedNode.NodeTextPlain = '') then
-          FSelectedNode.NodeTextPlain:= FEditor.TextPlain;
+          InitializeTextPlain(FSelectedNode, RTFAux_Note);
 
   end;
 end; // EditorToDataStream
@@ -3439,26 +3458,46 @@ begin
 end; // GetTreeNodeByID
 
 
+procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TRxRichEdit);
+begin
+    Stream.Position := 0;
+    RTFAux.Clear;
+    RTFAux.StreamMode := [];
+
+    if NodeStreamIsRTF (Stream) then
+       RTFAux.StreamFormat:= sfRichText
+    else
+       RTFAux.StreamFormat:= sfPlainText;
+    try
+       RTFAux.Lines.LoadFromStream( Stream );
+    except
+    end;
+end;
+
+
+function TTabNote.InitializeTextPlain(RTFAux: TRxRichEdit): boolean;
+begin
+    Result:= False;  // Initialization was required?
+
+    if NoteTextPlain = '' then begin
+       if (FImagesMode = imLink) and (not Editor.Modified) then
+          NoteTextPlain:= Editor.TextPlain
+       else begin
+          LoadStreamInRTFAux (DataStream, RTFAux);
+          NoteTextPlain:= RTFAux.TextPlain;
+       end;
+       Result:= True;
+    end;
+end;
+
+
 function TTreeNote.InitializeTextPlain(myNoteNode: TNoteNode; RTFAux: TRxRichEdit): boolean;
 begin
     Result:= False;  // Initialization was required?
 
     if myNoteNode.NodeTextPlain = '' then begin
-       myNoteNode.Stream.Position := 0;
-       RTFAux.Clear;
-       RTFAux.StreamMode := [];
-
-       if NodeStreamIsRTF (myNoteNode.Stream) then
-          RTFAux.StreamFormat:= sfRichText
-       else
-          RTFAux.StreamFormat:= sfPlainText;
-       try
-          RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
-       except
-       end;
-
+       LoadStreamInRTFAux (myNoteNode.Stream, RTFAux);
        myNoteNode.NodeTextPlain:= RTFAux.TextPlain;
-
        Result:= True;
     end;
 end;

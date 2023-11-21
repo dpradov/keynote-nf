@@ -114,7 +114,7 @@ uses
 
   function GetImageIDinPlaintext (Str: String): integer;
   function GetImageIDinURLstr (Str: String): integer;
-  function CountRTFLinkChars (const RTF: AnsiString; PictOffset: integer): integer;
+  function CountRTFLinkChars (RTF: PAnsiChar; LinkOffset: integer): integer;
 
 
   // ----------------
@@ -985,33 +985,38 @@ begin
 end;
 
 
-// Not used
-function CountRTFLinkChars(const RTF: AnsiString; PictOffset: integer): integer;
+
+function CountRTFLinkChars(RTF: PAnsiChar; LinkOffset: integer): integer;
 var
   p1,p2,p3,p4: integer;
   pIni: integer;
   strAux: AnsiString;
+  CharsHidden, CharsVisible: integer;
 
 begin
   Result:= 0;
 
   try
-   // RTF (+ PictOffset): Text that starts with {\field{\*\fldinst{HYPERLINK "img: ...
+   // RTF (+ LinkOffset): Text that starts with {\field{\*\fldinst{HYPERLINK "img: ...
 
    //  {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
+   //  {\field{\*\fldinst{HYPERLINK "img:1,255,142"}}{\fldrslt {NOTE1\\1_Image_15nov.png}}}
 
-   pIni:= 1 + PictOffset;
 
-   p1:= pos('HYPERLINK', RTF, pIni);
+   p1:= pos('HYPERLINK', RTF, LinkOffset);
    p2:= pos('"', RTF, p1 + Length('HYPERLINK')+2);
    p3:= pos(' ', RTF, p2+1);
+   if RTF[p3] = '{' then
+      inc(p3);
    p4:= pos('}', RTF, p3+1);
 
    // Los caracteres \ los hemos debido escapar duplicándolos ->
    StrAux:= Copy(RTF,p3+1,p4-p3-1);
    StrAux:= StringReplace(StrAux,'\\','*', [rfReplaceAll]);
 
-   Result:= (p2-p1)+1 + Length(StrAux);
+   CharsHidden:= (p2-p1)+1;
+   CharsVisible:= Length(StrAux);
+   Result:= CharsHidden + CharsVisible;
 
  except
      on E : Exception do begin

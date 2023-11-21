@@ -250,6 +250,7 @@ var
 
     AlarmManager: TAlarmManager;    // [dpv]
     ImagesManager: TImageManager;
+    RTFAux_Note: TTabRichEdit;       // For exclusive use of TTabNote and TTreeNote when obtaining TextPlain
     _DllHandle : THandle;
     _IE: TWebBrowserWrapper;
 
@@ -275,7 +276,8 @@ uses
    kn_FindReplaceMng,
    kn_TemplateMng,
    kn_StyleMng,
-   kn_Glossary;
+   kn_Glossary,
+   kn_RTFUtils;
 
 
 resourcestring
@@ -369,6 +371,7 @@ begin
 
       AlarmManager:= TAlarmManager.Create;   // [dpv]
       ImagesManager:= TImageManager.Create;  // [dpv]
+      RTFAux_Note:= CreateRTFAuxEditorControl;
 
       ShowingSelectionInformation:= false;
 
