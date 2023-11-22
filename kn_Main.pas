@@ -2965,19 +2965,7 @@ begin
            end;
 
        VK_DELETE:
-          if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-             if Editor.SelLength = 0 then
-                { 
-                  If we are to the left of a hyperlink corresponding to an image, therefore just to the left of its hidden identification characters, 
-                  and we press DELETE (SUPR), the hyperlink would be deleted and our hidden characters would remain.
-                  To avoid this we can select all the hidden characters, to the right, including those of the hyperlink and ours, so that everything is deleted as a block.
-                  #$11'I1'#$12'HYPERLINK "img:1,32,32"N'
-                  Something analogous must be controlled if we are to the left of a visible image
-                }
-                CheckToSelectRightImageHiddenMark(ActiveNote.Editor)
-             else
-                CheckToSelectLeftImageHiddenMark(ActiveNote.Editor);
-          end;
+          CheckToSelectImageHiddenMarkOnDelete (Editor);
 
        VK_BACK:
           if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
@@ -2985,7 +2973,7 @@ begin
                 Offset:= -1
              else
                 Offset:= 0;
-             CheckToSelectLeftImageHiddenMark(ActiveNote.Editor, Offset);
+             CheckToSelectLeftImageHiddenMark(Editor, Offset);
           end;
     end;
 
@@ -7354,7 +7342,7 @@ end;
 
 procedure TForm_Main.TB_ImagesClick(Sender: TObject);
 begin
-{$IFDEF DEBUG_IMG}
+{$IF Defined(DEBUG_IMG) AND Defined(DEBUG)}
   if not CtrlDown then
      ShowImages (TB_Images.Down)
 

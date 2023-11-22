@@ -2092,8 +2092,10 @@ begin
             if ( Clipboard.HasFormat( CF_TEXT )) then
               PerformCmdPastePlain(ActiveNote,'','', True);
 
-          ecDelete :
+          ecDelete : begin
+            CheckToSelectImageHiddenMarkOnDelete (ActiveNote.Editor);
             ActiveNote.Editor.Perform( WM_CLEAR, 0, 0 );
+          end;
 
           ecBullets :
             CmdNumbering(nsBullet);

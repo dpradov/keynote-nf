@@ -91,6 +91,7 @@ type
     procedure CheckToSelectLeftImageHiddenMark (Editor: TRxRichEdit; offset: integer= 0); overload;
     procedure CheckToSelectRightImageHiddenMark (Editor: TRxRichEdit);
     procedure CheckToMoveLefOftHiddenMark (Editor : TRxRichEdit);
+    procedure CheckToSelectImageHiddenMarkOnDelete (Editor: TRxRichEdit);
 
     function CheckToIdentifyImageID (Editor : TRxRichEdit; var posFirstHiddenChar: integer): integer;
 
@@ -654,7 +655,25 @@ begin
   end;
 end;
 
+procedure CheckToSelectImageHiddenMarkOnDelete (Editor: TRxRichEdit);
+begin
+   // Note that it is also possible to right click on an visible image and select Delete
 
+    if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+       if Editor.SelLength = 0 then
+          {
+            If we are to the left of a hyperlink corresponding to an image, therefore just to the left of its hidden identification characters,
+            and we press DELETE (SUPR), the hyperlink would be deleted and our hidden characters would remain.
+            To avoid this we can select all the hidden characters, to the right, including those of the hyperlink and ours, so that everything is deleted as a block.
+            #$11'I1'#$12'HYPERLINK "img:1,32,32"N'
+            Something analogous must be controlled if we are to the left of a visible image
+          }
+          CheckToSelectRightImageHiddenMark(Editor)
+       else
+          CheckToSelectLeftImageHiddenMark(Editor);
+    end;
+
+end;
 
 
 { Check if there is a hidden image identification mark just to our left }
