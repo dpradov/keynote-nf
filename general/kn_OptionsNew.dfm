@@ -674,11 +674,11 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label26: TLabel
           Left = 11
-          Top = 30
+          Top = 27
           Width = 153
           Height = 13
           AutoSize = False
-          Caption = 'Default Storage mode'
+          Caption = 'Storage mode in New files'
           FocusControl = CbImgDefaultStorageMode
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -720,11 +720,11 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label22: TLabel
           Left = 11
-          Top = 57
+          Top = 54
           Width = 153
           Height = 13
           AutoSize = False
-          Caption = 'Default External Storage'
+          Caption = 'External Storage in New files'
           FocusControl = cbImgDefaultExternalStorage
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -771,13 +771,12 @@ object Form_OptionsNew: TForm_OptionsNew
         object chkImgDefaultLinkMode: TCheckBox
           Left = 11
           Top = 279
-          Width = 330
+          Width = 187
           Height = 17
           Hint = 
-            'Normal images (owned) will be incorporated to the defined storag' +
-            'e[s], and can be deleted if unused'#13#10'Link mode: images are indepe' +
-            'ndent'
-          Caption = 'Default &Link mode (not '#39'owned'#39')'
+            'Linked files: accesed from their locations. Never deleted'#13#10'Non L' +
+            'inked: copied to KNT storage[s]. Can be deleted'
+          Caption = '&Link to files by default (no copies)'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -785,16 +784,16 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           ParentFont = False
           TabOrder = 9
-          OnClick = chkImgDefaultLinkModeClick
         end
         object chkImgLinkRelativePath: TCheckBox
-          Left = 31
+          Left = 11
           Top = 302
-          Width = 306
+          Width = 187
           Height = 17
-          Hint = 'Linked image path will be saved relative to document'#39's path'
-          Caption = '&Relative path'
-          Enabled = False
+          Hint = 
+            'Will be saved relative to document'#39's path (applies to new images' +
+            ')'
+          Caption = '&Relative path in Linked files'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -821,7 +820,7 @@ object Form_OptionsNew: TForm_OptionsNew
         object chkImgUseRecycleBin: TCheckBox
           Left = 11
           Top = 333
-          Width = 201
+          Width = 187
           Height = 17
           Caption = 'Use Recycle bin'
           Font.Charset = DEFAULT_CHARSET
@@ -837,6 +836,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 86
           Width = 95
           Height = 21
+          Hint = 'Applies to new files added, individually'
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -863,9 +863,12 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CbImgDefaultStorageMode: TComboBox
           Left = 170
-          Top = 27
+          Top = 24
           Width = 167
           Height = 21
+          Hint = 
+            'Storage mode to use in new KNT files by default'#13#10'( To change it ' +
+            'in current file ->  File / Properties / Settings )'
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -909,7 +912,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object cbImgDefaultExternalStorage: TComboBox
           Left = 170
-          Top = 54
+          Top = 51
           Width = 167
           Height = 21
           Style = csDropDownList
@@ -1041,8 +1044,8 @@ object Form_OptionsNew: TForm_OptionsNew
             Width = 89
             Height = 17
             Hint = 
-              'If the viewer is open, show any image by selecting or clicking it' +
-              ' (link or image) -- Editor retains focus'
+              'If the viewer is open, show any image by selecting or clicking i' +
+              't (link or image) -- Editor retains focus'
             Caption = 'Hot track'
             Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText

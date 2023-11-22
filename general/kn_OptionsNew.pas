@@ -350,7 +350,6 @@ type
     procedure CB_ShowFullPathClick(Sender: TObject);
     procedure btnBGColorClick(Sender: TObject);
     procedure txtImgMaxAutoWidthGoalExit(Sender: TObject);
-    procedure chkImgDefaultLinkModeClick(Sender: TObject);
     procedure txtImgCompressionQualityExit(Sender: TObject);
     procedure txtImgRatioSizePngVsJPGExit(Sender: TObject);
     procedure chkImgSingleViewerInstanceClick(Sender: TObject);
@@ -1947,12 +1946,6 @@ begin
    txtImgRatioSizePngVsJPG.Text:= RatioSize.ToString(ffGeneral,3,2);
 end;
 
-
-
-procedure TForm_OptionsNew.chkImgDefaultLinkModeClick(Sender: TObject);
-begin
-   chkImgLinkRelativePath.Enabled:= chkImgDefaultLinkMode.Checked;
-end;
 
 procedure TForm_OptionsNew.chkImgSingleViewerInstanceClick(Sender: TObject);
 begin
