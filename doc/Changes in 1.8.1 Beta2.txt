@@ -1,0 +1,6 @@
+
+
+Changes in 1.8.1 Beta 2 (16 nov 2023)
+=======================
+
+* Fixed: Possible exception on exporting (File | Copy To...  or File | Export... with KNT format ) when including plaintext notes

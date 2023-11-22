@@ -1,0 +1,51 @@
+Changes in 1.8.1 Beta 3 (22 nov 2023)
+=======================
+
+* Fixed: KNT could get hang doing a Search (Find Next or Find All) [IMPORTANT]
+  It would depend on the presence of several hidden marks in the editor (vinculated to new KNT links or images --since 1.8.1),
+  the distance between them and the length of the search term...
+  This error is present since version 1.8.0
+  
+
+* Fixed: Missing dot-separator on files saved in external image storage
+  The problem is described here:
+  https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1819696740
+  It seems that from some locales the expression 'FormatDateTime( 'ddMMM', Now)' used as part of the file name, adds
+  a dot to the end and in others it doesn't. In the spanish locale it adds the point and I supposed that it was something general.
+  Now the code does not depend on that (possible) dot to separate the extension. It constrols it explicitily
+
+* Fixed: Control the elimination of hidden mark when using Right click on an visible image and selecting Delete
+  As described here:
+  https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1820290308
+
+* Fixed: Searches may not correctly highlight results when images are visible (if storage <> EmbeddedRTF)
+  The positions calculated in the searches (Find All and Find Next) are based on the TextPlain obtained with the images hidden
+  (the format used when saving notes/nodes). When all images are hidden (imLink mode), or there are no images, these positions
+  allow matches to be highlighted directly, but when all or some of the images are visible in the editor it is necessary to
+  adapt these positions, calculating the offset to be considered at the time when it is required to jump to or highlight a match.
+
+ 
+* Images. Added new option to allow to decide whether or not to save images in subfolders
+  Option: ImgSaveInSubfolders
+  False by default. If True: in external storage, save files in subfolders, using the name of the note where the image is first added
+  As requested in https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1821957039
+
+* Images. Added new option: Viewer - Single instance (ImgSingleViewerInstance)
+  When ImgSingleViewerInstance = True [default], each image is shown in the same visible Viewer, if any,
+  and the Viewer window's size is maintained, trying to show images at 100%, adapting to that size.
+  If ImgSingleViewerInstance = False, it is possible to show several images simultaneously,
+  resizing each window to try to show its image at 100%
+
+* Images. Added new option: Viewer - Hot track (ImgHotTrackViewer)
+  When ImgSingleViewerInstance = True and ImgHotTrackViewer is set, if the viewer is open, selecting or clicking
+  in any image (or image link) will show the image in the viewer, maintaining the focus on the editor.
+  Added a button in Viewer that lets makes it always visible (by default it will on)
+
+
+* Review of some captions and hints in Keynote options related to images
+    Allow to independently set 'Relative path in Linked files'
+
+* Fixed: Double click on text could open image viewer with an random image
+
+* Do not allow insert | URL... inside an existing Image link
+

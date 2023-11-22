@@ -35,6 +35,32 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
 -------------
 
 
+v 1.8.1 Beta 3 (22 nov 2023)
+------------------------
+Corrects or implements the following issues:
+(more detail and information in doc/Changes in 1.8.1 Beta3.txt)
+
+* Fixed: KNT could get hang doing a Search (Find Next or Find All) [IMPORTANT]
+
+* Fixed: Missing dot-separator on files saved in external image storage
+* Fixed: Control the elimination of hidden mark when using Right click on an visible image and selecting Delete
+* Fixed: Searches may not correctly highlight results when images are visible (if storage <> EmbeddedRTF)
+* Fixed: Double click on text could open image viewer with an random image
+ 
+* Images. Added new option to allow to decide whether or not to save images in subfolders
+* Images. Added new option: Viewer - Single instance (ImgSingleViewerInstance)
+* Images. Added new option: Viewer - Hot track (ImgHotTrackViewer)
+
+* Review of some captions and hints in Keynote options related to images
+  Allow to independently set 'Relative path in Linked files'
+
+* Do not allow insert | URL... inside an existing Image link
+
+
+v 1.8.1 Beta 2 (16 nov 2023)
+------------------------
+* Fixed: Possible exception on exporting (File | Copy To...  or File | Export... with KNT format ) when including plaintext notes
+
 v 1.8.1 Beta 1 (13 nov 2023)
 ------------------------
 Corrects or implements the following issues:
