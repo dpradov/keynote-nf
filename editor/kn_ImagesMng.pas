@@ -1019,6 +1019,7 @@ end;
 procedure TKntImage.GenerateName(Node: TNoteNode; Note: TTabNote; const Source: string; ZipPathFormat: boolean);
 var
   src: String;
+  strDate: string;
 begin
     if not fOwned then exit;
 
@@ -1031,7 +1032,13 @@ begin
        else
           src:= Source;
 
-       FName:= Format('%d_%s_%s%s', [ID, src, FormatDateTime( 'ddMMM', Now), IMAGE_FORMATS[FImageFormat] ]);
+       // It seems that from some locales the following expression adds a dot to the end and in others it doesn't
+       // We cannot therefore depend on that dot to separate the extension. We must control it explicitily
+       strDate:= FormatDateTime( 'ddMMM', Now);
+       if strDate[Length(strDate)]= '.' then
+          strDate:= Copy(strDate, 1, Length(strDate)-1);
+
+       FName:= Format('%d_%s_%s.%s', [ID, src, strDate, IMAGE_FORMATS[FImageFormat] ]);
     end;
     FPath:= MakeValidFileName( Note.Name, [' '], MAX_FILENAME_LENGTH );
     if ZipPathFormat then
