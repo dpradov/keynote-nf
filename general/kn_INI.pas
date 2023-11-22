@@ -435,7 +435,8 @@ type
     ImgCompressionQuality,
     ImgViewerBGColor,
     ImgSingleViewerInstance,
-    ImgHotTrackViewer: string;
+    ImgHotTrackViewer,
+    ImgSaveInSubfolders: string;
   end;
 
 const
@@ -596,6 +597,7 @@ const
     ImgViewerBGColor: 'ImgViewerBGColor';
     ImgSingleViewerInstance: 'ImgSingleViewerInstance';
     ImgHotTrackViewer: 'ImgHotTrackViewer';
+    ImgSaveInSubfolders: 'ImgSaveInSubfolders';
   );
 
 type
@@ -1096,6 +1098,7 @@ begin
     ImgViewerBGColor      := clGray;
     ImgSingleViewerInstance := true;
     ImgHotTrackViewer:= true;
+    ImgSaveInSubfolders:= false;
   end;
 end; // InitializeKeyOptions
 
@@ -1381,6 +1384,7 @@ begin
       writestring ( section, KeyOptionsIniStr.ImgViewerBGColor, ColorToString( KeyOptions.ImgViewerBGColor ));
       writebool   ( section, KeyOptionsIniStr.ImgSingleViewerInstance, KeyOptions.ImgSingleViewerInstance );
       writebool   ( section, KeyOptionsIniStr.ImgHotTrackViewer, KeyOptions.ImgHotTrackViewer );
+      writebool   ( section, KeyOptionsIniStr.ImgSaveInSubfolders, KeyOptions.ImgSaveInSubfolders );
 
       section := EditorOptionsIniStr.section;
       writebool( section, EditorOptionsIniStr.AutoIndent, EditorOptions.AutoIndent );
@@ -1719,6 +1723,8 @@ begin
       KeyOptions.ImgViewerBGColor := StringToColor( readstring( section, KeyOptionsIniStr.ImgViewerBGColor, 'clGray' ));
       KeyOptions.ImgSingleViewerInstance := readbool( section, KeyOptionsIniStr.ImgSingleViewerInstance, KeyOptions.ImgSingleViewerInstance );
       KeyOptions.ImgHotTrackViewer := readbool( section, KeyOptionsIniStr.ImgHotTrackViewer, KeyOptions.ImgHotTrackViewer );
+      KeyOptions.ImgSaveInSubfolders := readbool( section, KeyOptionsIniStr.ImgSaveInSubfolders, KeyOptions.ImgSaveInSubfolders );
+
 
       if KeyOptions.SingleInstance then KeyOptions.HotKeyWarn := false;
 

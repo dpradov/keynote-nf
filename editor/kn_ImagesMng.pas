@@ -1040,11 +1040,15 @@ begin
 
        FName:= Format('%d_%s_%s.%s', [ID, src, strDate, IMAGE_FORMATS[FImageFormat] ]);
     end;
-    FPath:= MakeValidFileName( Note.Name, [' '], MAX_FILENAME_LENGTH );
-    if ZipPathFormat then
-       FPath:= FPath + '/'
-    else
-       FPath:= FPath + '\'
+
+    if KeyOptions.ImgSaveInSubfolders then begin
+       FPath:= MakeValidFileName( Note.Name, [' '], MAX_FILENAME_LENGTH );
+
+       if ZipPathFormat then
+          FPath:= FPath + '/'
+       else
+          FPath:= FPath + '\'
+    end;
 
 end;
 

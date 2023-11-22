@@ -302,6 +302,7 @@ type
     Label29: TLabel;
     chkImgSingleViewerInstance: TCheckBox;
     chkImgHotTrackViewer: TCheckBox;
+    chkImgSaveInSubfolders: TCheckBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -949,6 +950,7 @@ begin
     ImgDefaultExternalStorage:= TImagesExternalStorage(cbImgDefaultExternalStorage.ItemIndex);
     ImgStorageModeOnExport:=    TImagesStorageModeOnExport(cbImgStorageModeOnExport.ItemIndex);
     ImgMaxAutoWidthGoal:=       StrToIntDef(TxtImgMaxAutoWidthGoal.Text, 0);
+    ImgSaveInSubfolders:=       chkImgSaveInSubfolders.Checked;
     ImgDefaultLinkMode:=        chkImgDefaultLinkMode.Checked;
     ImgLinkRelativePath:=       chkImgLinkRelativePath.Checked;
     ImgUseRecycleBin :=         chkImgUseRecycleBin.Checked;
@@ -1203,6 +1205,7 @@ begin
     cbImgDefaultExternalStorage.ItemIndex:= Ord(ImgDefaultExternalStorage);
     CbImgStorageModeOnExport.ItemIndex := Ord(ImgStorageModeOnExport);
 
+    chkImgSaveInSubfolders.Checked:= ImgSaveInSubfolders;
     chkImgDefaultLinkMode.Checked:= ImgDefaultLinkMode;
     chkImgLinkRelativePath.Checked:=   ImgLinkRelativePath;
     chkImgUseRecycleBin.Checked:= ImgUseRecycleBin;

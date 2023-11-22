@@ -628,7 +628,7 @@ object Form_OptionsNew: TForm_OptionsNew
         TabOrder = 0
         object Label23: TLabel
           Left = 11
-          Top = 184
+          Top = 180
           Width = 153
           Height = 13
           AutoSize = False
@@ -658,7 +658,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label25: TLabel
           Left = 31
-          Top = 211
+          Top = 207
           Width = 127
           Height = 13
           Alignment = taRightJustify
@@ -735,7 +735,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label30: TLabel
           Left = 227
-          Top = 184
+          Top = 180
           Width = 60
           Height = 13
           Alignment = taRightJustify
@@ -751,7 +751,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label31: TLabel
           Left = 16
-          Top = 237
+          Top = 233
           Width = 143
           Height = 13
           Hint = 
@@ -770,7 +770,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object chkImgDefaultLinkMode: TCheckBox
           Left = 11
-          Top = 279
+          Top = 289
           Width = 187
           Height = 17
           Hint = 
@@ -783,11 +783,11 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 9
+          TabOrder = 10
         end
         object chkImgLinkRelativePath: TCheckBox
           Left = 11
-          Top = 302
+          Top = 312
           Width = 187
           Height = 17
           Hint = 
@@ -800,11 +800,11 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 10
+          TabOrder = 11
         end
         object CbImgDefaultFormatFromClipb: TComboBox
           Left = 170
-          Top = 181
+          Top = 177
           Width = 55
           Height = 21
           Hint = 'How to save [BMP] images when inserted from clipboard'
@@ -819,7 +819,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object chkImgUseRecycleBin: TCheckBox
           Left = 11
-          Top = 333
+          Top = 340
           Width = 187
           Height = 17
           Caption = 'Use Recycle bin'
@@ -829,7 +829,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 11
+          TabOrder = 12
         end
         object CbImgDefaultCompression: TComboBox
           Left = 170
@@ -848,7 +848,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CbImgBmpPixelFormat: TComboBox
           Left = 170
-          Top = 208
+          Top = 204
           Width = 55
           Height = 21
           Hint = 'Color depth used on images from clipboard'
@@ -926,7 +926,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object txtImgRatioSizePngVsJPG: TEdit
           Left = 297
-          Top = 181
+          Top = 177
           Width = 40
           Height = 21
           Hint = 
@@ -945,7 +945,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object txtImgCompressionQuality: TEdit
           Left = 170
-          Top = 234
+          Top = 230
           Width = 55
           Height = 21
           Hint = 'For JPG format:  0 - 100'
@@ -972,7 +972,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 12
+          TabOrder = 13
           object Label29: TLabel
             Left = 41
             Top = 70
@@ -1055,6 +1055,23 @@ object Form_OptionsNew: TForm_OptionsNew
             ParentFont = False
             TabOrder = 2
           end
+        end
+        object chkImgSaveInSubfolders: TCheckBox
+          Left = 11
+          Top = 264
+          Width = 187
+          Height = 17
+          Hint = 
+            'In external storage:'#13#10'Save files in subfolders, using the name o' +
+            'f the note where the image is first added'
+          Caption = 'Save in subfolders'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 9
         end
       end
     end

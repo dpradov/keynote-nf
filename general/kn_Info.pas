@@ -625,6 +625,7 @@ type
     ImgViewerBGColor:          TColor;
     ImgSingleViewerInstance:   boolean;
     ImgHotTrackViewer:         boolean;
+    ImgSaveInSubfolders:       boolean;
   end;
 
 
