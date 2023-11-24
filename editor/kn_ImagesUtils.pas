@@ -524,12 +524,67 @@ var
   LengthHeaderToDiscard: integer;
   ExtraLen: integer;
 
+  MaxWidth: integer;
+  RatioRed: Single;
+const
+   MaxGoalTwips = 32760;
+
 begin
   // StreamImgFormat: Format of the image contained in the stream
   // Width, Height: in pixels
   // WidthGoal, HeightGoal: in pixels
 
   // Depending on the Stream has been created from a MF.Enhanced = True or False, this will be the size of it and the RTF obtained...
+
+  (*
+   From the tests I have done, it seems that the RichEdit control supports a maximum visible value, in any of the dimensions (x or y)
+   of approx. 32760 twips (2184 pixels) (1 pixel=15 twips). I have clearly verified it with the image uploaded by Ulfff here:
+    https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1824370437
+   but also with other images playing with the dimensions.
+   When trying to insert that image with its actual size (100%) (=> 16200 x 36000 twips) the control simply ignores it.
+   KeyNote successfully processes the image, registers it, generates the RTF string for display, but the RichEdit control ignores the image.
+   As a consequence, the only thing that is inserted is the hidden mark with the registered ID, which remains isolated. And right now, post
+   processing (by switching to another node, or changing visibility mode) of the note including that isolated hidden mark next to another
+   correct image (with its own hidden mark) causes KNT to ignore the second hidden mark and associate the dimensions of the second image 
+   to the first hidden mark (image not visible). This is the same thing that happened in Beta 2 when deleting an image via the Delete
+   option in the context menu (which I had not controlled)
+
+   Depending on when you saved, the second image (which was being viewed ok) ends up being saved to disk or not.
+
+
+   Regarding the maximum size, I have verified it with the following tests.
+   The example image provided in that link has the following dimensions: 1080 x 2400.
+   When trying to represent it at 100%, the string to be generated includes the following header:
+    {\rtf1\ansi {\pict{\*\picprop}\jpegblip\picw28575\pich63500\picwgoal16200\pichgoal36000
+     100%: 16200/36000
+
+   As I indicated, that image was ignored. If I drag the same image to WordPad I can see that it indicates that it adds it with a display
+   of 53%. And it points out that the size can be changed with a zoom between 1 and 91%
+   When dragged and dropped: 53%: {\pict{\*\picprop}\wmetafile8\picw28575\pich63500\picwgoal8640\pichgoal19200
+
+      Tam. maximo: 1 - 100 / 1- 91
+      1%  -> 162 - 360
+      91% -> 14742 - 32760
+
+   I verify that increasing the Goal dimensions above these values causes the image to not be displayed.
+   Although there are combinations that without knowing very well why they are shown. For example,
+      30400 - 42000: Does not display. Normal
+      40400 - 42000: Yes, it is supported. It shows it as 100% but it still says that the maximum is between 1 and 91
+
+   I verify it with other smaller starting images. Ex:
+
+   250 x 204    Tamaño valido: 2 - 874%
+   Al arrastrar: 100% {\pict{\*\picprop}\wmetafile8\picw6615\pich5398\picwgoal3750\pichgoal3060
+   2%   -> 75 - 61
+   874% -> 32759 - 26747  [*]
+    [*]: In this case, if we ask WordPad to set the maximum it allows (874%) it saves it incorrectly (picwgoal-32759\pichgoal26747)? 
+   When you open the file it doesn't show it... But if we remove the minus sign, it does show it
+
+   120 x 171   Tamaño valido: 3 - 1278%
+   Al arrastrar: 100%: {\pict{\*\picprop}\wmetafile8\picw3175\pich4524\picwgoal1800\pichgoal2565
+   3%     -> 54 - 77
+   1278% -> 23004  - 32781
+  *)
 
   LengthHeaderToDiscard:= 0;
 
@@ -553,6 +608,18 @@ begin
   try
      twipsX:= WidthGoal * 15;
      twipsY:= HeightGoal * 15;
+
+     if (twipsX > MaxGoalTwips) then begin
+         RatioRed:= MaxGoalTwips / twipsX;
+         twipsX:=  MaxGoalTwips;
+         twipsY:= Round(twipsY * RatioRed);
+     end;
+     if (twipsY > MaxGoalTwips) then begin
+         RatioRed:= MaxGoalTwips / twipsY;
+         twipsY:=  MaxGoalTwips;
+         twipsX:= Round(twipsX * RatioRed);
+     end;
+
 
      if AddRTFHeader then begin
         RTFHeader:= '{\rtf1\ansi ';
