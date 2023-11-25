@@ -1351,6 +1351,8 @@ begin
         Inc(NumImagesToBeSavedExternally);
 
      ImgStream:= Img.ImageStream;
+     if ImgStream = nil then continue;     // It could be an unavailable image, and are exporting the file with File | Copy To..
+
      tf.WriteLine(Format('%s=%d|%s|%d', [_EmbeddedImage, Img.ID, Img.FileName, ImgStream.Size]), true);
      ImgStream.Position := 0;
      tf.Write(ImgStream.Memory^, ImgStream.Size);
