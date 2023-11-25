@@ -206,7 +206,6 @@ type
     procedure ResetImagesReferenceCount;
     function CheckSavingImagesOnMode (ImagesMode: TImagesMode;
                                       Stream: TMemoryStream;
-                                      ReplaceCorrectedIDsOnEditor: boolean = false;
                                       ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
 
     function GetAlarms(considerDiscarded: boolean): TList;
@@ -736,7 +735,7 @@ var
   dataSize: integer;
   {$ENDIF}
   strRTF: AnsiString;
-  ImgIDsCorrected: TImageIDs;
+  ContainsImgIDsRemoved: boolean;
   ContainsImages: boolean;
 begin
   if CheckEditor then begin
@@ -752,7 +751,7 @@ begin
          FEditor.StreamFormat:= sfRichText;
          if (ImagesManager.StorageMode <> smEmbRTF) and (not FPlainText) then begin
             GetImagesIDInstances (FDataStream, NoteTextPlain);
-            strRTF:= ImagesManager.ProcessImagesInRTF(FDataStream.Memory, FDataStream.Size, Self, ImagesManager.ImagesMode, '', 0, ImgIDsCorrected, ContainsImages, true);
+            strRTF:= ImagesManager.ProcessImagesInRTF(FDataStream.Memory, FDataStream.Size, Self, ImagesManager.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
          end;
       end
       else
@@ -781,8 +780,9 @@ begin
       FEditor.OnChange := Form_Main.RxRTFChange;
     finally
       FEditor.ReadOnly:= ReadOnlyBAK;
-      FEditor.Modified := false;
-    end;
+      if not ContainsImgIDsRemoved then
+         FEditor.Modified := false;
+     end;
   end;
 end; // DataStreamToEditor
 
@@ -852,17 +852,16 @@ end; // EditorToDataStream
 
 
 function TTabNote.CheckSavingImagesOnMode (ImagesMode: TImagesMode; Stream: TMemoryStream;
-                                           ReplaceCorrectedIDsOnEditor: boolean = false;
                                            ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
 var
   strRTF: AnsiString;
-  ImgCodesCorrected: TImageIDs;
+  ContainsImgIDsRemoved: boolean;
   ContainsImages: boolean;
 
 begin
     Result:= nil;
 
-    strRTF:= ImagesManager.ProcessImagesInRTF(Stream.Memory, Stream.Size, Self, ImagesMode, '', 0, ImgCodesCorrected, ContainsImages, ExitIfAllImagesInSameModeDest);
+    strRTF:= ImagesManager.ProcessImagesInRTF(Stream.Memory, Stream.Size, Self, ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, ExitIfAllImagesInSameModeDest);
     if strRTF <> '' then begin                                // Changes in images must be reflected (=> ContainsImages=true)
        if ImagesManager.StorageMode = smEmbRTF then           // If smEmbRTF -> we are calling from UpdateImagesStorageMode (when converting from a different mode to smEmbRTF)
           strRTF:= RemoveKNTHiddenCharactersInRTF(strRTF, hmOnlyImages);
@@ -879,9 +878,6 @@ begin
 
 
     if ImagesManager.StorageMode <> smEmbRTF then begin       // If = smEmbRTF =>  fChangingImagesStorage=True
-
-       if ReplaceCorrectedIDsOnEditor and (Length(ImgCodesCorrected) > 0) then
-          ImagesManager.ReplaceCorrectedImageIDs(ImgCodesCorrected, FEditor);
 
        if ContainsImages then
           Result:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
@@ -1030,7 +1026,7 @@ begin
 
     if (not PlainText) and ImagesManager.ExportingMode then begin
        var RTFwithProccesedImages: AnsiString;
-       var ImgIDsCorrected: TImageIDs;
+       var ContainsImgIDsRemoved: boolean;
        var ContainsImages: boolean;
        var ImgMode: TImagesMode;
 
@@ -1040,7 +1036,7 @@ begin
        else
           ImgMode:= imLink;
 
-       RTFwithProccesedImages:= ImagesManager.ProcessImagesInRTF(DataStream.Memory, DataStream.Size, nil, ImgMode, '', 0, ImgIDsCorrected, ContainsImages, true);
+       RTFwithProccesedImages:= ImagesManager.ProcessImagesInRTF(DataStream.Memory, DataStream.Size, nil, ImgMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
        if (RTFwithProccesedImages = '') and ContainsImages and (KeyOptions.ImgStorageModeOnExport <> smeEmbKNT) then
           RTFwithProccesedImages:= MemoryStreamToString (DataStream);
 
@@ -2522,7 +2518,7 @@ var
 {$ENDIF}
 
  strRTF: AnsiString;
- ImgCodesCorrected: TImageIDs;
+ ContainsImgIDsRemoved: boolean;
  ContainsImages: boolean;
 
 begin
@@ -2552,7 +2548,7 @@ begin
            FEditor.StreamFormat:= sfRichText;
            if (ImagesManager.StorageMode <> smEmbRTF) and (FSelectedNode.VirtualMode in [vmNone, vmKNTNode]) and (not FPlainText) then begin
               GetImagesIDInstances (FSelectedNode.Stream, FSelectedNode.NodeTextPlain);
-              strRTF:= ImagesManager.ProcessImagesInRTF(FSelectedNode.Stream.Memory, FSelectedNode.Stream.Size, Self, ImagesManager.ImagesMode, '', 0, ImgCodesCorrected, ContainsImages, true);
+              strRTF:= ImagesManager.ProcessImagesInRTF(FSelectedNode.Stream.Memory, FSelectedNode.Stream.Size, Self, ImagesManager.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
            end;
         end
         else
@@ -2586,7 +2582,8 @@ begin
       finally
         FEditor.ReadOnly:= ReadOnlyBAK;
         FEditor.EndUpdate;
-        FEditor.Modified := false;
+        if not ContainsImgIDsRemoved then
+           FEditor.Modified := false;
         FEditor.OnChange := Form_Main.RxRTFChange;
       end;
     end;

@@ -1795,14 +1795,13 @@ var
      ReplaceCorrectedIDs: boolean;
    begin
        if ToMode <> smEmbRTF then begin
-          ReplaceCorrectedIDs:= (ActiveNote = myNote.ID);
-          ImagesIDs:= myNote.CheckSavingImagesOnMode (imLink, Stream, ReplaceCorrectedIDs, ExitIfAllImagesInSameModeDest);
+          ImagesIDs:= myNote.CheckSavingImagesOnMode (imLink, Stream, ExitIfAllImagesInSameModeDest);
           ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
           if (ActiveNote = myNote.ID) then
              myNote.ImagesReferenceCount:= ImagesIDs;
        end
        else
-          myNote.CheckSavingImagesOnMode (imImage, Stream, false, ExitIfAllImagesInSameModeDest);
+          myNote.CheckSavingImagesOnMode (imImage, Stream, ExitIfAllImagesInSameModeDest);
    end;
 
 begin

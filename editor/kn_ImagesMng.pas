@@ -418,13 +418,12 @@ type
                                  ImagesModeDest: TImagesMode;
                                  const Source: string;
                                  FirstImageID: integer;
-                                 var ImgIDsCorrected: TImageIDs;
+                                 var ContainsImgIDsRemoved: boolean;
                                  var ContainsImages: boolean;
                                  ExitIfAllImagesInSameModeDest: boolean = false
                                  ): AnsiString; overload;
                                  
     procedure ProcessImagesInClipboard(Editor: TRxRichEdit; Note: TTabNote; SelStartBeforePaste: integer; FirstImageID: integer= 0);
-    procedure ReplaceCorrectedImageIDs (ImgCodesCorrected: TImageIDs; Editor: TRxRichEdit);
 
     procedure ResetAllImagesCountReferences;
     procedure RemoveImagesReferences (const IDs: TImageIDs);
@@ -2532,10 +2531,10 @@ function TImageManager.ProcessImagesInRTF(const RTFText: AnsiString; Note: TTabN
                                           ExitIfAllImagesInSameModeDest: boolean= false
                                           ): AnsiString;
 var
-   ImgIDsCorrected: TImageIDs;
+   ContainsImgIDsRemoved: boolean;
    ContainsImages: boolean;
 begin
-   Result:= ProcessImagesInRTF(@RTFText[1], ByteLength(RTFText), Note, ImagesModeDest, Source, FirstImageID, ImgIDsCorrected, ContainsImages, ExitIfAllImagesInSameModeDest);
+   Result:= ProcessImagesInRTF(@RTFText[1], ByteLength(RTFText), Note, ImagesModeDest, Source, FirstImageID, ContainsImgIDsRemoved, ContainsImages, ExitIfAllImagesInSameModeDest);
 end;
 
 
@@ -2551,13 +2550,13 @@ function TImageManager.ProcessImagesInRTF(const Buffer: Pointer; BufSize: intege
                                           ImagesModeDest: TImagesMode;
                                           const Source: string;
                                           FirstImageID: integer;
-                                          var ImgIDsCorrected: TImageIDs;
+                                          var ContainsImgIDsRemoved: boolean;
                                           var ContainsImages: boolean;
                                           ExitIfAllImagesInSameModeDest: boolean = false
                                           ): AnsiString;
 var
   SelStartBak: integer;
-  pIn, pOut,  pPict, pLinkImg, pRTFImageEnd, pID,pIDr: integer;
+  pIn, pOut,  pPict, pLinkImg, pRTFImageEnd, pID,pIDr, pIDff, pIDcheck: integer;
   pPatt1,pPatt2, pImgIni: integer;
   In_shppict: boolean;
   ImgRTF, RTFTextOut, ImgIDStr,StrAux: AnsiString;
@@ -2569,11 +2568,12 @@ var
   ImgID, ID: integer;
   Img: TKntImage;
   StreamRegistered, StreamNeeded, UseExtenalImagesManager, Owned: boolean;
-  ImgIDwasPresent, IDcorrected, GetStream, MaintainWMF_EMF: boolean;
+  ImgIDwasPresent, GetStream, MaintainWMF_EMF: boolean;
   ImageMode: TImagesMode;
   ImgCaption: string;
   RTFText: PAnsiChar;
-  i, j: integer;
+  i: integer;
+  ImgIDsToRemove: TImageIDs;
 
 const
    beginIDImg = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE;         // \'11I
@@ -2629,7 +2629,6 @@ begin
    pPatt2:= -99;
    In_shppict:= false;
 
-   SetLength(ImgIDsCorrected, 0);
 
    RTFText:= PAnsiChar(Buffer);
 
@@ -2730,7 +2729,7 @@ begin
             Img:= nil;
             ImgID:= 0;
             ImgIDwasPresent:= false;
-            IDcorrected:= false;
+            ImgIDsToRemove:= nil;
 
             if pPict = -99 then
                pPict:= pos('{\pict{', RTFText, pIn)-1;
@@ -2784,14 +2783,31 @@ begin
 
 
             pID:= Pos(beginIDImg, RTFText, pIn);
-            if (pID >= 1) and (pID < pImgIni) then begin
+            pIDff:= pID;                                                   // first found
+            while (pID >= 1) and (pID < pImgIni) do begin
                pIDr:= Pos(endIDImg, RTFText, pID);                         // \v\'11I999999\'12\v0        pID: \'11I999999  pIDr: \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
                if (pIDr >= 1) and ((pIDr-pID) <= 12) then begin
                   ImgIDStr:= Copy(RTFText, pID + Lb, (pIDr - pID) -Lb);
                   if TryStrToInt(ImgIDStr, ImgID) then
                      ImgIDwasPresent:= true;
+
+                  {  We have to make sure that this hidden mark does not correspond to a deleted or incorrectly inserted image
+                    (see what is described in: https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1824896077 }
+                  pIDcheck:= Pos(beginIDImg, RTFText, pIDr);
+                  if (pIDcheck >= 1) and (pIDcheck < pImgIni) then begin
+                     if ImgIDwasPresent then begin
+                        SetLength(ImgIDsToRemove, Length(ImgIDsToRemove) + 1);
+                        ImgIDsToRemove[Length(ImgIDsToRemove)-1]:= ImgID;
+                        ImgIDwasPresent:= false;
+                     end;
+                     pID:= pIDcheck;
+                  end
+                  else
+                     break;
                end;
             end;
+
+
 
             if (FirstImageID <> 0) and (ImgID = 0) then begin
                ImgID:= FirstImageID;
@@ -2804,7 +2820,7 @@ begin
                { If ImagesModeDest = imImage and the images come in Link mode, we will have to increase the length of the output string.
                  At the end we will adjust the length }
                SetLength(RTFTextOut, BufSize);
-               {$IFDEF KNT_DEBUG}
+               {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
                for var k: integer := 1 to BufSize do RTFTextOut[k]:= ' ';  //ZeroMemory(@RTFTextOut[1], BufSize);
                {$ENDIF}
             end;
@@ -2820,10 +2836,10 @@ begin
             GetStream:= true;
             if ImgID <> 0 then begin
 
-               if UseExtenalImagesManager then
-                  Img:= fExternalImagesManager.GetImageFromID (ImgID)
-               else
-                  Img:= GetImageFromID (ImgID);
+                if UseExtenalImagesManager then
+                   Img:= fExternalImagesManager.GetImageFromID (ImgID)
+                else
+                   Img:= GetImageFromID (ImgID);
 
                 if Img <> nil then begin
                    GetStream:= False;                     // We don't need RTFPictToImage to get the Stream from the content in the RTF
@@ -2842,22 +2858,29 @@ begin
                      in another file. If not, it must be a lost ID, which I should ignore. Maybe it's due to a deleted image
                      (after saving) and recovered in the editor by doing UNDO  }
                      // pID: \'11I999999  pIDr: \'12
-                  if not UseExtenalImagesManager then begin
-                     IDcorrected:= true;
-                     SetLength(ImgIDsCorrected, Length(ImgIDsCorrected) + 2);
-                     ImgIDsCorrected[Length(ImgIDsCorrected)-2]:= ImgID;
+                  if ImgIDwasPresent then begin
+                     SetLength(ImgIDsToRemove, Length(ImgIDsToRemove) + 1);
+                     ImgIDsToRemove[Length(ImgIDsToRemove)-1]:= ImgID;
+                     ImgIDwasPresent:= false;
                   end;
                   ImgID:= 0;
-                  if ImgIDwasPresent then begin
-                     ImgIDwasPresent:= false;
-                     ImgIDStr:= Copy(RTFText, pID, (pIDr - pID) + Length(endIDImg));
-                     StrAux:= Copy(RTFText, pID, pImgIni - pID +1);
-                     StrAux:= StringReplace(StrAux, ImgIDStr, '', []);
-                     Move(StrAux[1], RTFTextOut[pOut - (pImgIni-pID+1)], pImgIni-pID +1);
-                     Dec(pOut, Length(ImgIDStr));
-                  end;
                 end;
             end;
+
+            // Discard abandoned image IDs that may have been left up to this point and have not yet been deleted
+            if Length(ImgIDsToRemove) > 0 then begin
+               ContainsImgIDsRemoved:= true;
+               var Discount: integer:= 0;
+               StrAux:= Copy(RTFText, pIDff, pImgIni - pIDff +1);
+               for i:= 0 to Length(ImgIDsToRemove)-1 do begin
+                  ImgIDStr:= Format(KNT_RTF_IMG_HIDDEN_MARK_CONTENT, [ImgIDsToRemove[i]]);
+                  StrAux:= StringReplace(StrAux, ImgIDStr, '', []);
+                  Inc(Discount, Length(ImgIDStr));
+               end;
+               Move(StrAux[1], RTFTextOut[pOut - (pImgIni-pIDff+1)], Length(StrAux));
+               Dec(pOut, Discount);
+            end;
+
 
 
             if ImageMode = imLink then      // Imge is in link mode
@@ -2869,7 +2892,7 @@ begin
             //   CheckDimensionGoals (Width, Height, WidthGoal, HeightGoal);
 
             if (fStorageMode <> smEmbRTF) then begin
-               if (ImgID = 0) and ((ImageMode = imImage) or UseExtenalImagesManager) and (Stream <> nil) and (Stream.Size > 0) and (Note <> nil) then begin
+               if (ImgID = 0) and ((ImageMode = imImage) or UseExtenalImagesManager) and (Stream <> nil) and (Stream.Size > 0) then begin
                   if Img <> nil then begin            // Processing images from MergeFromKNTFile
                     ImgCaption:= Img.Caption;
                     if CheckRegisterImage (Stream, Img.ImageFormat,  Width, Height, Note, Img.OriginalPath, Img.IsOwned, 'MergeKNT', Img) then begin
@@ -2890,10 +2913,6 @@ begin
                     end;
                   end;
                end;
-            end;
-
-            if IDcorrected then begin
-               ImgIDsCorrected[Length(ImgIDsCorrected)-1]:= ImgID;
             end;
 
 
@@ -2921,12 +2940,8 @@ begin
 
                 end
                 else begin
-                  if Img = nil then begin                    // Image not included in the list of definitions (and we do not have its stream)
-                     if IDcorrected then
-                        ImgCaption:= STR_04 + 'Image ID=' + ImgIDsCorrected[Length(ImgIDsCorrected)-2].ToString
-                     else
-                        ImgCaption:= STR_04 + '?'
-                  end
+                  if Img = nil then                    // Image not included in the list of definitions (and we do not have its stream)
+                     ImgCaption:= STR_04 + '?'
                   else
                      if (ImagesModeDest = imImage) then
                         ImgCaption:= STR_04 + Img.FileName
@@ -2970,15 +2985,63 @@ begin
          until (pPict = -1) and (pLinkImg = -1);
 
 
-         if (RTFTextOut <> '')  then begin
-            if pIn < BufSize then begin
-               NBytes:= BufSize-pIn +1;
+         { Search and mark to eliminate any possible hidden label that may have been left isolated, abandoned, 
+           as a result of some uncontrolled error }
+         pID:= Pos(beginIDImg, RTFText, pIn);
+         pIDff:= pID;
+         while (pID >= 1) and (pID < BufSize) do begin
+            pIDr:= Pos(endIDImg, RTFText, pID);                         // \v\'11I999999\'12\v0        pID: \'11I999999  pIDr: \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
+            if (pIDr >= 1) and ((pIDr-pID) <= 12) and (pID < BufSize) then begin
+               ImgIDStr:= Copy(RTFText, pID + Lb, (pIDr - pID) -Lb);
+               if TryStrToInt(ImgIDStr, ImgID) then begin
+                  SetLength(ImgIDsToRemove, Length(ImgIDsToRemove) + 1);
+                  ImgIDsToRemove[Length(ImgIDsToRemove)-1]:= ImgID;
+               end;
+            end
+            else
+               pIDr:= pID + 12;
+
+            pID:= Pos(beginIDImg, RTFText, pIDr);
+         end;
+
+
+
+         if Length(ImgIDsToRemove) = 0 then begin
+            // Ok. There are no hidden abandoned image marks left. Copy remaining text from RTFText
+            if (RTFTextOut <> '')  then begin
+               if pIn < BufSize then begin
+                  NBytes:= BufSize-pIn +1;
+                  Move(RTFText[pIn], RTFTextOut[pOut], NBytes);
+                  Inc(pOut, NBytes);
+               end;
+               SetLength(RTFTextOut, pOut-2);
+
+               ContainsImages:= true;
+            end;
+
+         end
+         else begin
+            // Abandoned hidden image marks have been located, which must be removed
+            ContainsImgIDsRemoved:= true;
+            if (RTFTextOut = '')  then begin
+               SetLength(RTFTextOut, Length(RTFText));
+               Move(RTFText[1], RTFTextOut[1], pIDff-1);
+               pOut:= pIDff;
+            end
+            else begin
+               NBytes:= pIDff-pIn -1;
                Move(RTFText[pIn], RTFTextOut[pOut], NBytes);
                Inc(pOut, NBytes);
+               ContainsImages:= true;
             end;
-            SetLength(RTFTextOut, pOut-2);
 
-            ContainsImages:= true;
+            StrAux:= Copy(RTFText, pIDff, BufSize - pIDff +1);
+            for i:= 0 to Length(ImgIDsToRemove)-1 do begin
+               ImgIDStr:= Format(KNT_RTF_IMG_HIDDEN_MARK_CONTENT, [ImgIDsToRemove[i]]);
+               StrAux:= StringReplace(StrAux, ImgIDStr, '', []);
+            end;
+            Move(StrAux[1], RTFTextOut[pOut], Length(StrAux));
+            SetLength(RTFTextOut, pOut + Length(StrAux) -1);
          end;
 
          Result:= RTFTextOut;
@@ -2996,55 +3059,6 @@ begin
      if (not StreamRegistered) and (Stream <> nil) then
         Stream.Free;
    end;
-end;
-
-
-
-procedure TImageManager.ReplaceCorrectedImageIDs (ImgCodesCorrected: TImageIDs; Editor: TRxRichEdit);
-var
-    p, SS, SL, Offset: integer;
-    CodInc, CodOk: integer;
-    StrInc, StrOk: AnsiString;
-    txtPlain: AnsiString;
-
-begin
-    txtPlain:= Editor.TextPlain;
-
-    Offset:= 0;
-    p:= 1;
-    SS:= Editor.SelStart;
-    SL:= Editor.SelLength;
-    Editor.BeginUpdate;
-    try
-       for var i: integer := 0 to (Length(ImgCodesCorrected) div 2)-1 do begin
-          CodInc:= ImgCodesCorrected[i];
-          CodOk:=  ImgCodesCorrected[i+1];
-          StrInc:= Format(KNT_RTF_IMG_HIDDEN_MARK_CHAR, [CodInc]);
-          StrOk:= Format(KNT_RTF_IMG_HIDDEN_MARK_CHAR, [CodOk]);
-
-          repeat
-             p:= Pos(StrInc, txtPlain, p);
-             if p > 0 then begin
-                Editor.SetSelection(p + Offset, p + Offset + Length(StrInc)-1, true);
-                if CodOK = 0 then begin
-                   Editor.SelText := '';
-                   StrOk:= '';
-                end
-                else
-                   Editor.PutRtfText('{\rtf1\ansi ' + Format(KNT_RTF_IMG_HIDDEN_MARK, [CodOk]) + '}', true, true,  true);
-
-                Inc(p, Length(StrInc));
-                Inc(Offset, (Length(StrOk) - Length(StrInc)) );
-             end;
-          until p  = 0;
-
-          Editor.SetSelection(SS, SS + SL, true);       // It might not be the exact situation, but it is a rare situation
-       end;
-
-    finally
-       Editor.EndUpdate;
-    end;
-
 end;
 
 

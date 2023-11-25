@@ -639,7 +639,7 @@ var
   FN, ext: string;
   OnlyNotHiddenNodes, OnlyCheckedNodes: boolean;
   ContainsImages: boolean;
-  ImgIDsCorrected: TImageIDs;
+  ContainsImgIDsRemoved: boolean;
   RTFwithImages: AnsiString;
 
 begin
@@ -775,7 +775,7 @@ begin
                       myNote.Editor.Lines.SaveToStream( tmpStream, Encoding );
                       tmpStream.Position := 0;
 
-                      RTFwithImages:= ImagesManager.ProcessImagesInRTF(tmpStream.Memory, tmpStream.Size, nil, imImage, '', 0, ImgIDsCorrected, ContainsImages, false);
+                      RTFwithImages:= ImagesManager.ProcessImagesInRTF(tmpStream.Memory, tmpStream.Size, nil, imImage, '', 0, ContainsImgIDsRemoved, ContainsImages, false);
                       if RTFwithImages <> '' then
                          RTFAux.PutRtfText(RTFwithImages,false)       // All hidden KNT characters are now removed from FlushExportFile
                       else
@@ -866,7 +866,7 @@ begin
                             true : begin
                               // each node is saved to its own file
                               // (Here we do not have to check if node stream is plain text or RTF, because LoadFromStream handles both cases automatically!)
-                              RTFwithImages:= ImagesManager.ProcessImagesInRTF(myNoteNode.Stream.Memory, myNoteNode.Stream.Size, nil, imImage, '', 0, ImgIDsCorrected, ContainsImages, false);
+                              RTFwithImages:= ImagesManager.ProcessImagesInRTF(myNoteNode.Stream.Memory, myNoteNode.Stream.Size, nil, imImage, '', 0, ContainsImgIDsRemoved, ContainsImages, false);
                               if RTFwithImages <> '' then
                                  RTFAux.PutRtfText(RTFwithImages,true,false)         // All hidden KNT characters are now removed from FlushExportFile
                               else

@@ -408,6 +408,7 @@ procedure TreeNodeSelected( Node : TTreeNTNode );
 var
   myTreeNote : TTreeNote;
   myNode : TNoteNode;
+  KeepModified: boolean;
   {$IFDEF WITH_IE}
   NodeControl : TNodeControl;
   {$ENDIF}
@@ -417,6 +418,7 @@ begin
       if ( not ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree ))) then exit;
 
       myTreeNote := TTreeNote( ActiveNote );
+      KeepModified:= false;
 
       if ( not _Executing_History_Jump ) then begin
           AddHistoryLocation( myTreeNote, false);        // Add to history the location of current node, before the new node comes to be the selected node
@@ -452,8 +454,14 @@ begin
               wwno : ActiveNote.Editor.WordWrap := false;
             end;
 
-
             ActiveNote.DataStreamToEditor;
+
+            { The normal thing is to set Editor.Modified = False at the end of the DataStreamToEditor method
+              But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified, 
+              to ensure that this correction ends up persisting. Here we will do the same }
+            if ActiveNote.Editor.Modified then
+               KeepModified:= True;
+
             if ( myNode.VirtualMode = vmNone ) then
             begin
               VirtualNodeUpdateMenu( false, false );
@@ -513,7 +521,9 @@ begin
 
         if KeyOptions.FixScrollBars then
           ActiveNote.Editor.Invalidate; // [x] [?]
-        ActiveNote.Editor.Modified := false;
+
+        if not KeepModified then
+           ActiveNote.Editor.Modified := false;
         RxRTFSelectionChange( ActiveNote.Editor );
         RxRTFChange( ActiveNote.Editor );
         ActiveNote.Editor.OnChange := RxRTFChange;
