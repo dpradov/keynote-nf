@@ -2250,10 +2250,12 @@ begin
                    end;
 
                 end;
-                if (ImportFileType <> itImage) and (ImportFileList.Count > 1) then
-                   Editor.AddText (FN + ' - - - - - -' + #13#13)
-                else
-                   Editor.AddText (#13#13);
+                if (ImportFileList.Count > 1) then begin
+                   if (ImportFileType <> itImage) then
+                      Editor.AddText (FN + ' - - - - - -' + #13#13)
+                   else
+                      Editor.AddText (#13#13);
+                end;
 
               except
                 on E : Exception do begin
