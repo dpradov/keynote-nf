@@ -230,21 +230,26 @@ procedure TForm_Image.CheckUpdateCaption;
 var
   ok: boolean;
 begin
-  ok:= false;
+  ok:= true;
   try
-    if (fCurrentNoteFile = NoteFile) and (Image.ID = fImageID) and ((Image.ReferenceCount > 0))  then begin
-       if Image.Caption <> txtCaption.Text then begin
+    if Image.Caption <> txtCaption.Text then begin
+       ok:= false;
+       if (fCurrentNoteFile = NoteFile) and (Image.ID = fImageID) and ((Image.ReferenceCount > 0))  then begin
           Image.Caption:= txtCaption.Text;
           NoteFile.Modified:= true;
           UpdateNoteFileState( [fscModified] );
+          ok:= true;
        end;
-       ok:= true;
     end;
   except
+    ok:= false;
   end;
 
-  if not ok then
+  if not ok then begin
+     btnAlwaysVisible.Down:= false;
+     btnAlwaysVisibleClick(nil);
      kn_Main.DoMessageBox(STR_01, mtWarning, [mbOK], 0);
+  end;
 end;
 
 procedure TForm_Image.SetImage(value: TKntImage);
