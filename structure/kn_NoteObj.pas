@@ -740,6 +740,8 @@ var
 begin
   if CheckEditor then begin
     ReadOnlyBAK:= FEditor.ReadOnly;
+    ContainsImgIDsRemoved:= false;
+
     try
       FEditor.ReadOnly:= false;    // To prevent the problem indicated in issue #537
       FEditor.OnChange := nil;
@@ -2532,6 +2534,7 @@ begin
     vmNone, vmText, vmRTF, vmHTML, vmKNTNode : begin
       FEditor.BeginUpdate;
       ReadOnlyBAK:= FEditor.ReadOnly;
+      ContainsImgIDsRemoved:= false;
       try
         FEditor.OnChange := nil;
         FEditor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
