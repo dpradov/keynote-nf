@@ -1732,7 +1732,7 @@ begin
    if (fIntendedStorageLocationPath = '') then
       fIntendedStorageLocationPath:= GetDefaultExternalLocation(fIntendedExternalStorageType, FN);
 
-   Result:= SetImagesStorage(fStorageMode, fIntendedExternalStorageType, fIntendedStorageLocationPath, true);
+   Result:= SetImagesStorage(fStorageMode, fIntendedExternalStorageType, fIntendedStorageLocationPath, not (fStorageMode in [smEmbRTF, smEmbKNT]));
 end;
 
 
@@ -1831,7 +1831,7 @@ var
 
 begin
    Result:= false;
-   if fChangingImagesStorage then exit;
+   if fChangingImagesStorage and (not fFileIsNew) then exit;
 
    try
       ModifyPathFormat:= false;
@@ -1965,7 +1965,8 @@ begin
          AdaptPathFormatInImages(ZipPathFormat);
       end;
 
-      DoMessageBox(Format(STR_15, [fImages.Count]), mtInformation, [mbOK]);
+      if not fFileIsNew then
+         DoMessageBox(Format(STR_15, [fImages.Count]), mtInformation, [mbOK]);
 
   except on E: Exception do
      MessageDlg( STR_16 + E.Message, mtError, [mbOK], 0 );
