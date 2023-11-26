@@ -467,15 +467,29 @@ end;
    {\pict{\*\picprop{\sp{\sn wzDescription}{\sv Image}}{\sp{\sn posv}{\sv 1}}}\jpegblip\picw7811\pich6414\picwgoal4428\pichgoal3636 ffd8ffe000...}
 
 
-
+ <<
   \picwN 	xExt field if the picture is a Windows metafile; picture width in pixels if the picture is a bitmap or from QuickDraw.
    The N argument is a long integer.
   \pichN 	yExt field if the picture is a Windows metafile; picture height in pixels if the picture is a bitmap or from QuickDraw.
    The N argument is a long integer.
-
+ >>
    From what I observe, N is expressed in hundredths of mm (HundredthMM) if it is a Windows metafile
    In Windows images metafile N must be expressed in hundredths of mm (HundredthMM)
    WMF images assume a resolution of 96 pixels per inch.
+
+   [ NOTE *1 ]
+   It is not clear how the dimensions should be expressed in the case of other formats such as jpg (jpegblip) or png (pngblip),
+   but from the tests it is observed that it is treated the same as the windows metafile, in hundreds of mm. But I also observe
+   that an image in these formats is automatically modified by the RichEdit control, equating the values of picwN and pichN to
+   those corresponding to the visible dimensions (picwgoalN and pichgoalN).
+   Thus, a jpeg image with a resolution of 1400x957 and displayed as 410x281, and therefore with a header built by KNT in this way:
+      \jpegblip\picw37042\pich25321\picwgoal6150\pichgoal4215 .....
+   is converted by the control to:
+      \jpegblip\picw10848\pich7435\picwgoal6150\pichgoal4215 ...
+
+   This prevents determining the real dimensions of the image from what is reflected in the RTF chain.
+   It is better to calculate from its Stream.
+
 
   HundredthMM (N) <-> pixel (P)
 
@@ -711,6 +725,64 @@ begin
 end;
 
 
+procedure  GetDimensionsFromStream(Stream: TMemoryStream;
+                                   Pic: TSynPicture;
+                                   MF: TMetaFile;
+                                   var StreamImgFormat: TImageFormat;
+                                   var Width, Height, WidthGoal, HeightGoal: integer;
+                                   var MFLoaded: boolean);
+var
+  FreePic, FreeMF: boolean;
+
+begin
+   FreePic:= false;
+   FreeMF:= false;
+
+   if Pic = nil then begin
+      Pic := TSynPicture.Create;
+      FreePic:= true;
+   end;
+   if MF = nil then begin
+      MF:= TMetaFile.Create;
+      FreeMF:= true;
+   end;
+
+   try
+      Pic.LoadFromStream(Stream);                        // will load bmp/gif/tiff/jpeg/png content (and also wmf/emf)
+      Stream.Position:= 0;
+      MFLoaded:= false;
+
+      if (StreamImgFormat = imgUndefined) then
+         StreamImgFormat:= Pic.GetNativeImageFormat();
+
+      if (Width = -1) then begin
+         if StreamImgFormat in [imgWMF, imgEMF] then begin
+            MF.LoadFromStream(Stream);
+            MFLoaded:= true;
+            Width:=  MF.Width;
+            Height:= MF.Height;
+         end
+         else begin
+            Width:=  Pic.Width;
+            Height:= Pic.Height;
+         end;
+      end;
+      if (WidthGoal = -1) then begin
+         // If WidthGoal and HeightGoal are not forced, set them equal to Width and Heigth
+         // and take into account the KeyOptions.ImgMaxAutoWidthGoal option
+         WidthGoal:= Width;
+         HeightGoal:= Height;
+         CheckDimensionGoals (Width, Height, WidthGoal, HeightGoal);
+      end;
+
+   finally
+      if FreeMF then
+         MF.Free;
+      if FreePic then
+         Pic.Free;
+   end;
+end;
+
 
 { Obtains RTF adapted to the format required by configuration, converting the stream if necessary
  (This converted stream is the one required for the Editor, but not necessarily the one we want the image to be saved in)
@@ -739,33 +811,7 @@ begin
       Pic := TSynPicture.Create;
       MF:= TMetaFile.Create;
       try
-         Pic.LoadFromStream(Stream);                        // will load bmp/gif/tiff/jpeg/png content (and also wmf/emf)
-         Stream.Position:= 0;
-         MFLoaded:= false;
-
-         if (StreamImgFormat = imgUndefined) then
-            StreamImgFormat:= Pic.GetNativeImageFormat();
-
-         if (Width = -1) then begin
-            if StreamImgFormat in [imgWMF, imgEMF] then begin
-               MF.LoadFromStream(Stream);
-               MFLoaded:= true;
-               Width:=  MF.Width;
-               Height:= MF.Height;
-            end
-            else begin
-               Width:=  Pic.Width;
-               Height:= Pic.Height;
-            end;
-         end;
-         if (WidthGoal = -1) then begin
-            // If WidthGoal and HeightGoal are not forced, set them equal to Width and Heigth
-            // and take into account the KeyOptions.ImgMaxAutoWidthGoal option
-            WidthGoal:= Width;
-            HeightGoal:= Height;
-            CheckDimensionGoals (Width, Height, WidthGoal, HeightGoal);
-         end;
-
+         GetDimensionsFromStream(Stream, Pic, MF, StreamImgFormat, Width, Height, WidthGoal, HeightGoal, MFLoaded);
 
          if KeyOptions.ImgFormatInsideRTF = ifWmetafile8 then begin
             StreamImgFormatOutput:= imgWMF;   // We will have to convert to WMF, unless the stream is already in that format
@@ -962,7 +1008,13 @@ begin
       HexStringToBin(RTF, Stream, p1, p2-p1-1);
       Stream.Position:= 0;
       //Stream.SaveToFile('E:\_Pruebas\imagenes\desdeClipboard.bin');
+
+      // See [ NOTE *1 ] before function 'ImgStreamToRTF'
+      var MFLoaded: boolean;
+      Width      := -1;
+      GetDimensionsFromStream(Stream, nil, nil, imgFormat, Width, Height, WidthGoal, HeightGoal, MFLoaded);
    end;
+
  except
      on E : Exception do begin
         Messagedlg( STR_02 + E.Message, mtError, [mbOK], 0 );

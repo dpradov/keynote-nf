@@ -2543,11 +2543,40 @@ end;
 
 // ---- ProcessImagesInRTF --------------------
 
-{ If no images are found, '' will be returned
+(* If no images are found, '' will be returned
   If ExitIfAllImagesInSameModeDest and all images, if any, are in the same format, too, it is returned ''
   In all cases it is always indicated in ContainsImages if there are images, whether or not they have had to be processed, and they are
-  in imImage (Pict..) or imLink mode 
-}
+  in imImage (Pict..) or imLink mode
+
+NOTE:
+ Consider the following situation:
+ A registered jpg image, with dimensions of 1400x957 and displayed as 410x281, is deleted and the KNT file is saved.
+ After that the user presses UNDO. This recovers on the RTF control the previous string, with its hidden image mark and the \pict string
+ of the image. But the hidden mark references an image that no longer exists, so the image stream must be analyzed as a new one. And here
+  the following happens:
+ - The content of the jpg image, as seen in the hexadecimal string within \jpegblip, varies slightly in a few points of the beginning of
+   the image (header of the same, surely) with respect to the one built by the application (which corresponds exactly to the content of
+   the jpg image in the file --if it has been obtained from a file). This causes the CRC32 value to be different than that corresponding
+   to the initial image and it is considered a different image. If we have deleted the registered image, we really no longer have it,
+   but we could be processing this image due to an error (see below)
+
+ - The image header tells us, through its labels \picw and \pich, values that do not correspond to the real size of the image, but are
+   equivalent to those of the visible dimensions (\picwgoal and \pichgoal ). If we use these values we will be registering as 410x281
+   an image that is really 1400x957, and thus we will show it in the internal viewer when we do it 100%.
+
+ The above may have occurred previously as a consequence of errors not treated correctly. For example, in a situation like the following:
+  \v\'11I7\'12\v0\par \v\'11I11\'12\v0\v\'11I12\'12\v0{\pict{....
+ The valid tag is the one immediately before the image (->ImgID=2), but it has previously been used (incorrectly) the first one found
+ before the \pict tag (->ImgID=7). If image 7 is not valid, the application will have had to generate a new ID from the stream contained
+ in the image \pict, with the problem indicated above.
+
+ Thus:
+ - Not obtaining the dimensions from the RTF when we can (and should) handle the stream.
+ - We cannot avoid the first case (the user saves the KNT file after deleting the image and before doing UNDO), but at least the new image
+   that can be created will be equivalent, with the same dimensions. In any case, if the 'Use Recycle bin' option is active, can always
+   recover and use the same image again, although it will be assigned a new ID.
+
+*)
 function TImageManager.ProcessImagesInRTF(const Buffer: Pointer; BufSize: integer; Note: TTabNote;
                                           ImagesModeDest: TImagesMode;
                                           const Source: string;
