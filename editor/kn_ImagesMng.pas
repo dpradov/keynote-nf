@@ -432,6 +432,8 @@ type
     procedure UpdateImagesCountReferences (const IDsBefore: TImageIDs;  const IDsAfter: TImageIDs);
     function  ImageInCurrentEditors (ImgID: integer): Boolean;
 
+    procedure ReloadImages(const IDs: TImageIDs);
+
     function GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
     function GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
     function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
@@ -3278,6 +3280,25 @@ begin
     end;
 end;
 
+
+procedure TImageManager.ReloadImages(const IDs: TImageIDs);
+var
+  i, ID: integer;
+  Img: TKntImage;
+begin
+    for i := Low(IDs) to High(IDs) do begin
+        ID:= IDs[i];
+        if ID <> 0 then begin
+           Img:= GetImageFromID (ID);
+           if Img <> nil then begin
+              if Img.IsOwned and (fStorageMode <> smExternal) then continue;
+
+              Img.FreeImageStream;
+              ReloadImageStream(Img);
+           end;
+        end;
+    end;
+end;
 
 procedure TImageManager.RegisterImagesReferencesExported (const IDs: TImageIDs);
 var

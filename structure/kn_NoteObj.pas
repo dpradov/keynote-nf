@@ -207,6 +207,7 @@ type
     function CheckSavingImagesOnMode (ImagesMode: TImagesMode;
                                       Stream: TMemoryStream;
                                       ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
+    procedure ReloadImagesOnEditor;
 
     function GetAlarms(considerDiscarded: boolean): TList;
     function HasAlarms (considerDiscarded: boolean): boolean;
@@ -898,6 +899,18 @@ end;
 procedure TTabNote.ResetImagesReferenceCount;
 begin
     SetLength(fImagesReferenceCount, 0);
+end;
+
+
+procedure TTabNote.ReloadImagesOnEditor;
+var
+   ImgeIDs: TImageIDs;
+begin
+   ImgeIDs:= ImagesManager.GetImagesIDInstancesFromTextPlain (Editor.TextPlain);
+   ImagesManager.ReloadImages(ImgeIDs);
+
+   EditorToDataStream;
+   DataStreamToEditor;
 end;
 
 

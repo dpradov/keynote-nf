@@ -447,7 +447,7 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Hint = 'Show or hide images'
+        Hint = 'Show or hide images (Ctrl: Force reload of external images)'
         AllowAllUp = True
         GroupIndex = 16
         Glyph.Data = {00000000}

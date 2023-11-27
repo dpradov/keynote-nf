@@ -15,7 +15,7 @@ unit kn_Main;
 
  *****************************************************************************)
 
-{.$DEFINE DEBUG_IMG}
+{$DEFINE DEBUG_IMG}
 
 interface
 
@@ -7341,12 +7341,11 @@ end;
 
 
 procedure TForm_Main.TB_ImagesClick(Sender: TObject);
+var
+   SS: integer;
 begin
 {$IF Defined(DEBUG_IMG) AND Defined(DEBUG)}
-  if not CtrlDown then
-     ShowImages (TB_Images.Down)
-
-  else begin
+  if (CtrlDown and AltDown) then begin
      var str: string;
      var i: integer;
 
@@ -7356,11 +7355,27 @@ begin
         str:= str + ActiveNote.Editor.RtfText   + #13 + '--------     ' + #13;
         Form_Main.Res_RTF.Text:= str;
      end;
-  end;
 
-{$ELSE}
-   ShowImages (TB_Images.Down);
+     TB_Images.Down:= not TB_Images.Down;
+     exit;
+  end;
 {$ENDIF}
+
+   if ActiveNote = nil then exit;
+
+   if CtrlDown then begin
+      SS:= ActiveNote.Editor.SelStart;
+      ActiveNote.ReloadImagesOnEditor;
+
+      ActiveNote.Editor.SelStart:= SS;
+      TB_Images.Down:= not TB_Images.Down;
+
+      ActiveNote.Editor.SelStart:= SS;
+      Application.ProcessMessages;
+      ActiveNote.Editor.SelLength:= 0;
+   end
+   else
+      ShowImages (TB_Images.Down);
 
 end;
 
