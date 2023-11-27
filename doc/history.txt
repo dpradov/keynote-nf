@@ -34,6 +34,28 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
     particularly in version changes.
 -------------
 
+v 1.8.1 Beta 4 (27 nov 2023)
+------------------------
+Corrects or implements the following issues:
+(more detail and information in doc/Changes in 1.8.1 Beta4.txt)
+
+* Fixed: Inserting high resolution images for 100% viewing does not add the images
+* Images. Better error handling
+* Images. Not obtaining the dimensions from the RTF when we can (and need) handle the content of the image.
+
+* Images. Alt+Click on Image toolbutton: Reconsider 'Max.auto width'
+* Images. Ctrl+Click on Image toolbutton: Force reload of external images
+
+* Images. Don't add line breaks when inserting individual images
+* Images. Changing cursor to HourGlass while converting storage mode
+
+* Image viewer: AlwaysVisible <-False is needed to show warning
+* Fixed: Images. Couldn't save new files if initially changed its storage format from default
+* Fixed: Exporting to EmbeddedKNT with images no available
+
+* Images. Review and optimization in the use of AnsiStrings
+* Images. Review and optimization in the use of null-terminated strings
+
 
 v 1.8.1 Beta 3 (22 nov 2023)
 ------------------------

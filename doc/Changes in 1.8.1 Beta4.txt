@@ -1,0 +1,45 @@
+Changes in 1.8.1 Beta 4 (27 nov 2023)
+=======================
+
+* Fixed: Inserting high resolution images for 100% viewing does not add the images
+  As it is described in https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1824896077
+  and https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1824370437
+  It seems that the RichEdit control supports a maximum visible value, in any of the dimensions (x or y)
+  of approx. 32760 twips (2184 pixels) (1 pixel=15 twips).
+  Now KNT will consider that limit of 32760 twips. If it is exceeded in any dimension, it will be limited to that value, 
+  proportionally reducing the other.
+
+* Images. Better error handling
+  Trying to avoid the problems described here:
+  https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1824896077
+
+* Images. Not obtaining the dimensions from the RTF when we can (and need) handle the content of the image.
+  The image header in RTF tells us, through its labels \picw and \pich values that do not correspond to the real size
+  of the image (at least in formats distinct to wmetafile8, like jpg), but are equivalent to those of the visible dimensions
+  (\picwgoal and \pichgoal ). If we use these values we will be registering an image with incorrect dimension values,
+  and thus we will show it in the internal viewer when we do it 100%.
+
+* Images. Alt+Click on Image toolbutton: Reconsider 'Max.auto width'
+  It allows to resize the images, respecting the original proportions, adjusting the dimensions as indicated in the
+  'Max.auto width' configuration option.
+  It is applied only to the images of the active node/note.
+
+* Images. Ctrl+Click on Image toolbutton: Force reload of external images
+  In case the image was modified externally. 
+  It is applied only to the images of the active node/note.
+
+* Images. Don't add line breaks when inserting individual images
+  Separation lines are only added in the case of inserting several images at the same time
+
+* Images. Changing cursor to HourGlass while converting storage mode
+
+* Image viewer: AlwaysVisible <-False is needed to show warning
+
+* Fixed: Images. Couldn't save new files if initially changed its storage format from default
+
+* Fixed: Exporting to EmbeddedKNT with images no available
+  When serializing the images that must remain embedded in the KNT file, for example when
+  exporting the file with File | Copy To.. we must control that certain images could be an unavailable
+
+* Images. Review and optimization in the use of AnsiStrings
+* Images. Review and optimization in the use of null-terminated strings
