@@ -29,12 +29,16 @@ uses
    Winapi.Windows,
    System.Classes,
    System.SysUtils,
+   System.AnsiStrings,
    System.Math,
    gf_strings;
 
 {$ALIGN OFF}
 
 procedure SaveToFile(FN: string; Str: AnsiString);
+
+function PosPAnsiChar(const SubStr, Str: PAnsiChar; Offset: integer= 1): integer;
+function CopyPAnsiChar(Str: PAnsiChar; Index, Count: integer): AnsiString;
 
 function MemoryStreamToString(Stream: TMemoryStream): AnsiString; inline;
 procedure StringToMemoryStream(Str: AnsiString; Stream: TMemoryStream); inline; overload;
@@ -112,6 +116,46 @@ begin
   finally
     F.Closefile();
   end;
+end;
+
+
+
+{
+Equivalent to Pos(Substr,Str,Offset), but on null-terminated strings. Offset of first element will be 1, to
+be equivalent to that function.
+Returns the index of the first occurence of Substr in Str, starting the search at Offset.
+Returns 0 if Substr is not found
+The Offset argument is optional. Offset is set to 1 by default, if no value for Offset is specified it takes
+the default value to start the search from the beginning.
+}
+function PosPAnsiChar(const SubStr, Str: PAnsiChar; Offset: integer= 1): integer;
+var
+   pf: PAnsiChar;
+   pStr: PAnsiChar;
+begin
+   pStr:= Str + Offset -1;
+   pf:= System.AnsiStrings.StrPos(pStr, SubStr);
+   if pf = nil then
+      exit(0)
+   else
+      exit(pf-Str+1);
+end;
+
+
+{Equivalent to Copy(Str,Index,Count), but on null-terminated string. Index of first element will be 1, to
+be equivalent to that function.
+}
+function CopyPAnsiChar(Str: PAnsiChar; Index, Count: integer): AnsiString;
+var
+  pStr: PAnsiChar;
+begin
+  if (Str= nil) or (Index <= 1) or (Count <= 0) then
+     exit('');
+
+  pStr:= Str + Index -1;
+  SetLength(Result, Count+1);
+  System.AnsiStrings.StrLCopy(@Result[1], pStr, Count);
+  Result:= PAnsiChar(Result);
 end;
 
 

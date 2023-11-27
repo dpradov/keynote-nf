@@ -25,6 +25,7 @@ uses
    System.Classes,
    System.Contnrs,
    System.IOUtils,
+   System.AnsiStrings,
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
@@ -930,8 +931,8 @@ begin
      {\pict{\*\picprop{\sp{\sn wzDescription}{\sv Image}}{\sp{\sn posv}{\sv 1}}}\jpegblip\picw7811\pich6414\picwgoal4428\pichgoal3636 ffd8ffe000...}
   *)
 
-   DefImgRTF:= Copy(RTF, 1 + PictOffset, 200);          // Ensuring to include up to pichgoalN
-   p1:= pos('\*\nonshppict', DefImgRTF);
+   SetString(DefImgRTF, PAnsiChar(@RTF[1 + PictOffset]), 300);      // Ensuring to include up to pichgoalN
+   p1:= pos(AnsiString('\*\nonshppict'), DefImgRTF);
    if p1 > 0 then
       delete(DefImgRTF, p1, 200);
 
@@ -996,8 +997,8 @@ begin
 
    // Get a stream with the content of the image in binary
    //----------
-   p1:= pos(' ', RTF, p5 + PictOffset);
-   p2:= pos('}', RTF, p1);
+   p1:= PosPAnsiChar(' ', RTF, p5 + PictOffset);
+   p2:= PosPAnsiChar('}', RTF, p1);
 
    PosRTFImageEnd:= p2 -1;       // => RTF[PosRTFImageEnd] = '}'
 
@@ -1055,20 +1056,20 @@ begin
 
    pIni:= 1 + PictOffset + Length(KNT_IMG_LINK_PREFIX);
 
-   p1:= pos(',', RTF, pIni);         // [pIni, p1] -> ID
-   p2:= pos(',', RTF, p1+1);         // [p1, p2]   -> WidthGoal
-   p3:= pos('"', RTF, p2);           // [p2, p3]   -> HeightGoal
+   p1:= PosPAnsiChar(',', RTF, pIni);         // [pIni, p1] -> ID
+   p2:= PosPAnsiChar(',', RTF, p1+1);         // [p1, p2]   -> WidthGoal
+   p3:= PosPAnsiChar('"', RTF, p2);           // [p2, p3]   -> HeightGoal
 
    try
-     WidthGoal  := StrToInt(Copy(RTF, p1 + 1, p2- p1-1));
-     HeightGoal := StrToInt(Copy(RTF, p2 + 1, p3- p2-1));
+     WidthGoal  := StrToInt(CopyPAnsiChar(RTF, p1 + 1, p2- p1-1));
+     HeightGoal := StrToInt(CopyPAnsiChar(RTF, p2 + 1, p3- p2-1));
 
    except
      WidthGoal  := -1;
      HeightGoal := -1;
    end;
 
-   p1:= pos('}}}', RTF, p3);
+   p1:= PosPAnsiChar('}}}', RTF, p3);
 
    PosRTFImageEnd:= p1+2  -1;      // Point to the last character => RTF[PosRTFImageEnd] = '}'
 
@@ -1122,15 +1123,15 @@ begin
    //  {\field{\*\fldinst{HYPERLINK "img:1,255,142"}}{\fldrslt {NOTE1\\1_Image_15nov.png}}}
 
 
-   p1:= pos('HYPERLINK', RTF, LinkOffset);
-   p2:= pos('"', RTF, p1 + Length('HYPERLINK')+2);
-   p3:= pos(' ', RTF, p2+1);
+   p1:= PosPAnsiChar('HYPERLINK', RTF, LinkOffset);
+   p2:= PosPAnsiChar('"', RTF, p1 + Length('HYPERLINK')+2);
+   p3:= PosPAnsiChar(' ', RTF, p2+1);
    if RTF[p3] = '{' then
       inc(p3);
-   p4:= pos('}', RTF, p3+1);
+   p4:= PosPAnsiChar('}', RTF, p3+1);
 
    // Los caracteres \ los hemos debido escapar duplicándolos ->
-   StrAux:= Copy(RTF,p3+1,p4-p3-1);
+   StrAux:= CopyPAnsiChar(RTF, p3+1,p4-p3-1);
    StrAux:= StringReplace(StrAux,'\\','*', [rfReplaceAll]);
 
    CharsHidden:= (p2-p1)+1;

@@ -2649,6 +2649,35 @@ const
 
 
 begin
+{
+*2 Using PosPAnsiChar() instead of Pos()
+    Note, it is important to use the PosPAnsiChar method, added to gf_streams and built from System.AnsiStrings.StrPos, compared to using
+    Pos(..) in these cases in which the search is performed on a null-terminated string ( *)
+    Using Pos(...) which expects to receive a string (either UnicodeString, AnsiString, RawByteString or ShortString), was causing each call
+    to this method to do a conversion of the entire null-terminated string to a unicode string, over which then carried out the search. In
+    addition to being inefficient, it could cause Out of memory when converting EmbeddedRTF files with very large nodes (with many images
+    on the same node)
+    From the tests done, and receiving PosPAnsiChar two PAnsiChar as parameters (in addition to an optional integer), the following calls
+    would be equivalent, it is not necessary to cast the substring, the compiler seems to interpret it correctly:
+     pPict:= PosPAnsiChar('{\pict{', RTFText, pIn) -1;
+     pPict:= PosPAnsiChar(AnsiString('{\pict{'), RTFText, pIn) -1;
+
+   The same does not seem to happen in calls like the following, where TextPlain is of type AnsiString. The first ends up causing a conversion
+   of both strings to UnicodeString before performing the search, the second does not.
+
+    const
+       literal = 'substr';
+    Pos(Literal, TextPlain, pID);
+    Pos(AnsiString(Literal), TextPlain, pID);
+
+   The first call could be used with the same behavior as the second if we define the constant of the form:
+    const
+       literal = AnsiString('substr');
+
+   (*) Starting in this case from the content of a TMemoryStream, in which we have ensured that it ends in #0
+       (See for example comment *1 in TTabNote.CheckSavingImagesOnMode (kn_NoteObj)
+}
+
    ContainsImages:= false;
 
    StreamRegistered:= false;
@@ -2675,8 +2704,8 @@ begin
    if ExitIfAllImagesInSameModeDest then begin
       if fStorageMode <> smEmbRTF then        // If = smEmbRTF =>  fChangingImagesStorage=True
          MaintainWMF_EMF:= true;
-      pPict:= pos('{\pict{', RTFText, pIn) -1;
-      pLinkImg:= pos(KNT_IMG_LINK_PREFIX, RTFText, pIn) -1;
+      pPict:= PosPAnsiChar('{\pict{', RTFText, pIn) -1;                             // *2
+      pLinkImg:= PosPAnsiChar(KNT_IMG_LINK_PREFIX, RTFText, pIn) -1;
       if (pPict >= 0) or (pLinkImg >= 0) then
           ContainsImages:= true;
 
@@ -2764,7 +2793,7 @@ begin
             ImgIDsToRemove:= nil;
 
             if pPict = -99 then
-               pPict:= pos('{\pict{', RTFText, pIn)-1;
+               pPict:= PosPAnsiChar('{\pict{', RTFText, pIn)-1;
 
             if pPict >= BufSize then
                pPict := -1;
@@ -2772,7 +2801,7 @@ begin
             if pPict >= 0 then begin
                 if (pPatt1 <> -1) and (pPatt1 < pPict) then begin
                    if pPatt1 < 0 then
-                      pPatt1:= pos('\result{\pict{', RTFText, pIn)-1;
+                      pPatt1:= PosPAnsiChar('\result{\pict{', RTFText, pIn)-1;
                    if (pPatt1 >= 0) and (pPatt1 < pPict) then begin
                       pIn:= pPatt1 + Length('\result{\pict{');
                       pPatt1:= -99;       // We will go back to look for another one. We have already 'consumed' this one
@@ -2782,7 +2811,7 @@ begin
                 // {\*\shppict{\pict{.... }}{\*\nonshppict{\pict{.... }}     Usually in emfblip
                 if (pPatt2 <> -1) and (pPatt2 < pPict) then begin
                    if pPatt2 < 0 then
-                      pPatt2:= pos('{\*\shppict', RTFText, pIn)-1;
+                      pPatt2:= PosPAnsiChar('{\*\shppict', RTFText, pIn)-1;
                    if (pPatt2 >= 0) and (pPatt2 < pPict) then begin
                       pPatt2:= -99;       // We will go back to look for another one. We have already 'consumed' this one
                       In_shppict:= true;
@@ -2792,7 +2821,7 @@ begin
 
             if (pLinkImg <> -1) and ((pLinkImg < pPict) or (pPict=-1)) then begin
                if pLinkImg < 0 then begin
-                  pLinkImg:= pos(KNT_IMG_LINK_PREFIX, RTFText, pIn)-1;
+                  pLinkImg:= PosPAnsiChar(KNT_IMG_LINK_PREFIX, RTFText, pIn)-1;
                   if pLinkImg >= BufSize then
                      pLinkImg := -1;
                end;
@@ -2814,18 +2843,18 @@ begin
             NBytes:= pImgIni - pRTFImageEnd-1;                // Previous bytes to copy
 
 
-            pID:= Pos(beginIDImg, RTFText, pIn);
+            pID:= PosPAnsiChar(beginIDImg, RTFText, pIn);
             pIDff:= pID;                                                   // first found
             while (pID >= 1) and (pID < pImgIni) do begin
-               pIDr:= Pos(endIDImg, RTFText, pID);                         // \v\'11I999999\'12\v0        pID: \'11I999999  pIDr: \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
+               pIDr:= PosPAnsiChar(endIDImg, RTFText, pID);                         // \v\'11I999999\'12\v0        pID: \'11I999999  pIDr: \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
                if (pIDr >= 1) and ((pIDr-pID) <= 12) then begin
-                  ImgIDStr:= Copy(RTFText, pID + Lb, (pIDr - pID) -Lb);
+                  ImgIDStr:= CopyPAnsiChar(RTFText, pID + Lb, (pIDr - pID) -Lb);
                   if TryStrToInt(ImgIDStr, ImgID) then
                      ImgIDwasPresent:= true;
 
                   {  We have to make sure that this hidden mark does not correspond to a deleted or incorrectly inserted image
                     (see what is described in: https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1824896077 }
-                  pIDcheck:= Pos(beginIDImg, RTFText, pIDr);
+                  pIDcheck:= PosPAnsiChar(beginIDImg, RTFText, pIDr);
                   if (pIDcheck >= 1) and (pIDcheck < pImgIni) then begin
                      if ImgIDwasPresent then begin
                         SetLength(ImgIDsToRemove, Length(ImgIDsToRemove) + 1);
@@ -3002,7 +3031,7 @@ begin
 
 
             if In_shppict then begin
-               pRTFImageEnd:= pos('}}', RTFText, pRTFImageEnd+1 +1); //-1;             '}}' corresponding to: {\*\nonshppict{\pict{
+               pRTFImageEnd:= PosPAnsiChar('}}', RTFText, pRTFImageEnd+1 +1); //-1;             '}}' corresponding to: {\*\nonshppict{\pict{
                //Inc(pRTFImageEnd);
                In_shppict:= false;
             end;
@@ -3019,12 +3048,12 @@ begin
 
          { Search and mark to eliminate any possible hidden label that may have been left isolated, abandoned, 
            as a result of some uncontrolled error }
-         pID:= Pos(beginIDImg, RTFText, pIn);
+         pID:= PosPAnsiChar(beginIDImg, RTFText, pIn);
          pIDff:= pID;
          while (pID >= 1) and (pID < BufSize) do begin
-            pIDr:= Pos(endIDImg, RTFText, pID);                         // \v\'11I999999\'12\v0        pID: \'11I999999  pIDr: \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
+            pIDr:= PosPAnsiChar(endIDImg, RTFText, pID);                         // \v\'11I999999\'12\v0        pID: \'11I999999  pIDr: \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
             if (pIDr >= 1) and ((pIDr-pID) <= 12) and (pID < BufSize) then begin
-               ImgIDStr:= Copy(RTFText, pID + Lb, (pIDr - pID) -Lb);
+               ImgIDStr:= CopyPAnsiChar(RTFText, pID + Lb, (pIDr - pID) -Lb);
                if TryStrToInt(ImgIDStr, ImgID) then begin
                   SetLength(ImgIDsToRemove, Length(ImgIDsToRemove) + 1);
                   ImgIDsToRemove[Length(ImgIDsToRemove)-1]:= ImgID;
@@ -3033,7 +3062,7 @@ begin
             else
                pIDr:= pID + 12;
 
-            pID:= Pos(beginIDImg, RTFText, pIDr);
+            pID:= PosPAnsiChar(beginIDImg, RTFText, pIDr);
          end;
 
 
@@ -3444,9 +3473,9 @@ begin
     Text:= PAnsiChar(Stream.Memory);
 
     repeat
-       pID:= Pos(beginIDImg, Text, pID+1);
+       pID:= PosPAnsiChar(beginIDImg, Text, pID+1);
        if (pID > 0) and (pID < Stream.Size) and (n < nLinks) then begin
-          pIDr:= Pos(endIDImg, Text, pID);                             // \v\'11I999999\'12\v0        pID-> \'11I999999  pIDr-> \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
+          pIDr:= PosPAnsiChar(endIDImg, Text, pID);                             // \v\'11I999999\'12\v0        pID-> \'11I999999  pIDr-> \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
           if (pIDr > 0) and ((pIDr-pID) <= 12) then begin
              // Damos por válida la marca oculta -> contabilizamos el hiperenlace
               if ImagesVisible[n] = 1 then begin
