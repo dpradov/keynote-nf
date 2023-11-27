@@ -202,7 +202,7 @@ type
     procedure DataStreamToEditor; virtual;
     function EditorToDataStream: TMemoryStream; virtual;
 
-    procedure GetImagesIDInstances (Stream: TMemoryStream; TextPlain: AnsiString);
+    procedure GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
     procedure ResetImagesReferenceCount;
     function CheckSavingImagesOnMode (ImagesMode: TImagesMode;
                                       Stream: TMemoryStream;
@@ -887,7 +887,7 @@ begin
 end;
 
 
-procedure TTabNote.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: AnsiString);
+procedure TTabNote.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
 begin
    if (TextPlain <> '') then
       fImagesReferenceCount:= ImagesManager.GetImagesIDInstancesFromTextPlain (TextPlain)

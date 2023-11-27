@@ -428,13 +428,13 @@ type
     procedure ResetAllImagesCountReferences;
     procedure RemoveImagesReferences (const IDs: TImageIDs);
     function  GetImagesIDInstancesFromRTF (Stream: TMemoryStream): TImageIDs;
-    function  GetImagesIDInstancesFromTextPlain (TextPlain: AnsiString): TImageIDs;
+    function  GetImagesIDInstancesFromTextPlain (TextPlain: String): TImageIDs;
     procedure UpdateImagesCountReferences (const IDsBefore: TImageIDs;  const IDsAfter: TImageIDs);
     function  ImageInCurrentEditors (ImgID: integer): Boolean;
 
-    function GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
-    function GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
-    function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+    function GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
+    function GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
+    function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
 
 
     procedure LoadState (const tf: TTextFile; var FileExhausted: Boolean);
@@ -3161,11 +3161,11 @@ begin
     Text:= PAnsiChar(Stream.Memory);
 
     repeat
-       pID:= Pos(beginIDImg, Text, pID+1);
+       pID:= PosPAnsiChar(beginIDImg, Text, pID+1);
        if (pID > 0) and (pID < Stream.Size) then begin
-          pIDr:= Pos(endIDImg, Text, pID);                             // \v\'11I999999\'12\v0        pID-> \'11I999999  pIDr-> \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
+          pIDr:= PosPAnsiChar(endIDImg, Text, pID);                             // \v\'11I999999\'12\v0        pID-> \'11I999999  pIDr-> \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
           if (pIDr > 0) and ((pIDr-pID) <= 12) then begin
-             if TryStrToInt(Copy(Text, pID + Lb, (pIDr - pID) -Lb), ImgID) then begin
+             if TryStrToInt(CopyPAnsiChar(Text, pID + Lb, (pIDr - pID) -Lb), ImgID) then begin
                 Inc(Num);
                 SetLength(Result, Num);
                 Result[Num-1]:= ImgID;
@@ -3178,7 +3178,7 @@ begin
 end;
 
 
-function TImageManager.GetImagesIDInstancesFromTextPlain (TextPlain: AnsiString): TImageIDs;
+function TImageManager.GetImagesIDInstancesFromTextPlain (TextPlain: String): TImageIDs;
 var
   pID,pIDr: integer;
   ImgID, Num: integer;
@@ -3286,14 +3286,14 @@ begin
 end;
 
 
-function TImageManager.GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+function TImageManager.GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
 var
   pID,pIDr: integer;
   pID_e,pIDr_e: integer;
   Text: PAnsiChar;
   Offset, charsLink: integer;
   nLinks, n, nLinksVisible: integer;
-  TextPlainInEditor: AnsiString;
+  TextPlainInEditor: String;
   ImagesVisible: Array of integer;
   SomeImagesAreVisible: boolean;
 
@@ -3500,13 +3500,13 @@ begin
 end;
 
 
-function TImageManager.GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+function TImageManager.GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
 begin
    Result:= GetPositionOffset(Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified);
 end;
 
 
-function TImageManager.GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: AnsiString; RTFModified: boolean): integer;
+function TImageManager.GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
 begin
    Result:= GetPositionOffset(Stream, -1, CaretPos, imLinkTextPlain, RTFModified);
 end;

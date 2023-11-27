@@ -961,11 +961,11 @@ begin
    // Ex: \picw49\pich49\picwgoal28\pichgoal28
    // Note: it can only come \picgoal...
    //----------
-   p1:= pos('\picw', DefImgRTF);
-   p2:= pos('\pich', DefImgRTF);
-   p3:= pos('\picwgoal', DefImgRTF);
-   p4:= pos('\pichgoal', DefImgRTF);
-   p5:= pos(' ', DefImgRTF, p4);
+   p1:= pos(AnsiString('\picw'), DefImgRTF);
+   p2:= pos(AnsiString('\pich'), DefImgRTF);
+   p3:= pos(AnsiString('\picwgoal'), DefImgRTF);
+   p4:= pos(AnsiString('\pichgoal'), DefImgRTF);
+   p5:= pos(AnsiString(' '), DefImgRTF, p4);
 
    try
      const L1 = Length('\picw');              // 5

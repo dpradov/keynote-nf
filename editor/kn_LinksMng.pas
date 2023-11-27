@@ -923,7 +923,7 @@ end;
 function GetPositionOffset (myNote : TTabNote; myTreeNode: TTreeNTNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer): integer;
 var
   Stream: TMemoryStream;
-  imLinkTextPlain: AnsiString;
+  imLinkTextPlain: String;
   Offset: integer;
   RtfModified: boolean;
 begin

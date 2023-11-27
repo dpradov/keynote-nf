@@ -455,7 +455,7 @@ end;
 function RemoveKNTHiddenCharactersInRTF(const s: AnsiString; HiddenMarks: THiddenMarks): AnsiString;
 var
    pI, pPrefix, pF, len: integer;
-   Prefix: string;
+   Prefix: AnsiString;
 begin
   if S='' then Exit('');
 
@@ -511,13 +511,13 @@ begin
   pI:= 1;
 
   repeat
-     pI:= Pos('\v\', Result, pI);
+     pI:= Pos(AnsiString('\v\'), Result, pI);
 
      if pI > 0 then begin
         pPrefix:= Pos(Prefix, Result, pI+2);
         if (pPrefix = 0) then break;
 
-        pF:= Pos(KNT_RTF_HIDDEN_MARK_R + '\v0', Result, pPrefix + Length(Prefix));
+        pF:= Pos(AnsiString(KNT_RTF_HIDDEN_MARK_R + '\v0'), Result, pPrefix + Length(Prefix));
         len:= pF-pI + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
         if (pF > 0) and (pPrefix = pI + 2) and (len <= KNT_RTF_HIDDEN_MAX_LENGHT) then begin
            // Normal case: \v\'11B5\'12\v0 XXX
@@ -531,7 +531,7 @@ begin
            //  \v\f1\fs40\'11B1\'12\v0 xxx                         --> \v\f1\fs40\v0 xxx                     ...> \v\f1\fs40 xxx
            //  \v\''11I1\''12\cf0\v0\f2\fs16\lang3082{\pict{...    --> \v\cf0\v0\f2\fs16\lang3082{\pict{...  ...> \cf0\f2\fs16\lang3082{\pict{...
 
-            pF:= Pos(KNT_RTF_HIDDEN_MARK_R, Result, pPrefix + Length(Prefix));        // Do not include \v0
+            pF:= Pos(AnsiString(KNT_RTF_HIDDEN_MARK_R), Result, pPrefix + Length(Prefix));        // Do not include \v0
             if (pF = 0) then break;
 
             len:= pF-pPrefix + Length(KNT_RTF_HIDDEN_MARK_R);
