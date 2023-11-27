@@ -7363,9 +7363,13 @@ begin
 
    if ActiveNote = nil then exit;
 
-   if CtrlDown then begin
+   if CtrlDown or AltDown then begin
       SS:= ActiveNote.Editor.SelStart;
-      ActiveNote.ReloadImagesOnEditor;
+
+      if CtrlDown then
+         ActiveNote.ReloadImagesOnEditor
+      else
+         ActiveNote.ReconsiderImageDimensionGoalsOnEditor;
 
       ActiveNote.Editor.SelStart:= SS;
       TB_Images.Down:= not TB_Images.Down;

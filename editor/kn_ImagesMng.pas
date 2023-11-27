@@ -332,6 +332,7 @@ type
     fNextImageID: Integer;
     fNextTempImageID: Integer;
     fLastCleanUpImgStreams: TDateTime;
+    fReconsiderImageDimensionsGoal: boolean;
 
     fExportingMode: boolean;
     fImagesIDExported: TList;
@@ -374,6 +375,7 @@ type
     property Images: TList read fImages;
     property ImagesMode: TImagesMode read fImagesMode write fImagesMode;            // See TTabNote.ImagesMode  ==> ImagesManager.ProcessImagesInRTF
     property NextTempImageID: Integer read fNextTempImageID;
+    property ReconsiderImageDimensionsGoal: boolean read fReconsiderImageDimensionsGoal write fReconsiderImageDimensionsGoal;
 
     function CheckRegisterImage (Stream: TMemoryStream; ImgFormat: TImageFormat;
                                  Width, Height: integer;
@@ -1233,6 +1235,7 @@ begin
    fFileIsNew:= true;
    fIntendedExternalStorageType:= issFolder;
    fIntendedStorageLocationPath:= '';
+   fReconsiderImageDimensionsGoal:= false;
 end;
 
 
@@ -2951,13 +2954,16 @@ begin
 
 
 
-            if ImageMode = imLink then      // Imge is in link mode
+            if ImageMode = imLink then      // Image is in link mode
                RTFLinkToImage (RTFText, pLinkImg, WidthGoal, HeightGoal, pRTFImageEnd )
             else
                RTFPictToImage (RTFText, pPict, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, pRTFImageEnd, GetStream);
 
-            //if fChangingImagesStorage and (fChangingImagesStorageFromMode = smEmbRTF) then
-            //   CheckDimensionGoals (Width, Height, WidthGoal, HeightGoal);
+            if fReconsiderImageDimensionsGoal then begin
+               WidthGoal:= Width;
+               HeightGoal:= Height;
+               CheckDimensionGoals (Width, Height, WidthGoal, HeightGoal);
+            end;
 
             if (fStorageMode <> smEmbRTF) then begin
                if (ImgID = 0) and ((ImageMode = imImage) or UseExtenalImagesManager) and (Stream <> nil) and (Stream.Size > 0) then begin

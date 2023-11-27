@@ -208,6 +208,7 @@ type
                                       Stream: TMemoryStream;
                                       ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
     procedure ReloadImagesOnEditor;
+    procedure ReconsiderImageDimensionGoalsOnEditor;
 
     function GetAlarms(considerDiscarded: boolean): TList;
     function HasAlarms (considerDiscarded: boolean): boolean;
@@ -912,6 +913,19 @@ begin
    EditorToDataStream;
    DataStreamToEditor;
 end;
+
+procedure TTabNote.ReconsiderImageDimensionGoalsOnEditor;
+begin
+   ImagesManager.ReconsiderImageDimensionsGoal:= true;
+   try
+      EditorToDataStream;
+      DataStreamToEditor;
+
+   finally
+      ImagesManager.ReconsiderImageDimensionsGoal:= false;
+   end;
+end;
+
 
 
 function TTabNote.CheckEditor : boolean;
