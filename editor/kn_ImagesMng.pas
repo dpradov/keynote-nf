@@ -1950,19 +1950,24 @@ begin
 
 
       fChangingImagesStorage:= true;
+      screen.Cursor := crHourGlass;
+      try
+         if CreateExternalStorage then
+            CreateNewExternalStorage;
 
-      if CreateExternalStorage then
-         CreateNewExternalStorage;
-
-      NoteFile.UpdateImagesStorageModeInFile (fStorageMode);
+         NoteFile.UpdateImagesStorageModeInFile (fStorageMode);
 
 
-      if ModifyPathFormat then begin
-         ZipPathFormat:= false;
-         if assigned(fExternalStorageToSave) and (fExternalStorageToSave.StorageType= stZip) then
-            ZipPathFormat:= true;
+         if ModifyPathFormat then begin
+            ZipPathFormat:= false;
+            if assigned(fExternalStorageToSave) and (fExternalStorageToSave.StorageType= stZip) then
+               ZipPathFormat:= true;
 
-         AdaptPathFormatInImages(ZipPathFormat);
+            AdaptPathFormatInImages(ZipPathFormat);
+         end;
+
+      finally
+         screen.Cursor := crDefault;
       end;
 
       if not fFileIsNew then
