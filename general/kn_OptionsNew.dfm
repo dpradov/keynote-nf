@@ -6,7 +6,7 @@ object Form_OptionsNew: TForm_OptionsNew
   BorderStyle = bsDialog
   Caption = 'Keynote OPTIONS'
   ClientHeight = 424
-  ClientWidth = 531
+  ClientWidth = 536
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -627,10 +627,11 @@ object Form_OptionsNew: TForm_OptionsNew
         ParentFont = False
         TabOrder = 0
         object Label23: TLabel
-          Left = 11
-          Top = 180
+          Left = 5
+          Top = 151
           Width = 153
           Height = 13
+          Alignment = taRightJustify
           AutoSize = False
           Caption = 'Default Format from clipboard'
           FocusControl = CbImgDefaultFormatFromClipb
@@ -642,9 +643,9 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
         end
         object Label24: TLabel
-          Left = 11
-          Top = 89
-          Width = 153
+          Left = 13
+          Top = 118
+          Width = 146
           Height = 13
           AutoSize = False
           Caption = 'Compression in ZIP Storage'
@@ -657,9 +658,9 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
         end
         object Label25: TLabel
-          Left = 31
-          Top = 207
-          Width = 127
+          Left = 71
+          Top = 178
+          Width = 88
           Height = 13
           Alignment = taRightJustify
           AutoSize = False
@@ -672,26 +673,10 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           ParentFont = False
         end
-        object Label26: TLabel
-          Left = 11
-          Top = 27
-          Width = 153
-          Height = 13
-          AutoSize = False
-          Caption = 'Storage mode in New files'
-          FocusControl = CbImgDefaultStorageMode
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          StyleElements = [seClient, seBorder]
-        end
         object Label27: TLabel
-          Left = 11
-          Top = 147
-          Width = 153
+          Left = 13
+          Top = 209
+          Width = 146
           Height = 13
           AutoSize = False
           Caption = 'Max. auto width on Insert'
@@ -704,9 +689,9 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
         end
         object Label28: TLabel
-          Left = 11
-          Top = 117
-          Width = 153
+          Left = 13
+          Top = 91
+          Width = 145
           Height = 13
           AutoSize = False
           Caption = 'Storage mode on export'
@@ -718,24 +703,9 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           ParentFont = False
         end
-        object Label22: TLabel
-          Left = 11
-          Top = 54
-          Width = 153
-          Height = 13
-          AutoSize = False
-          Caption = 'External Storage in New files'
-          FocusControl = cbImgDefaultExternalStorage
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
         object Label30: TLabel
-          Left = 227
-          Top = 180
+          Left = 232
+          Top = 150
           Width = 60
           Height = 13
           Alignment = taRightJustify
@@ -750,16 +720,16 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
         end
         object Label31: TLabel
-          Left = 16
-          Top = 233
-          Width = 143
-          Height = 13
+          Left = 235
+          Top = 171
+          Width = 58
+          Height = 37
           Hint = 
             '>0 => will  compare JPG and PNG conversions, using alt.format if' +
             ' Size(Selected)/ Size(Alt) > ratio'
           Alignment = taRightJustify
           AutoSize = False
-          Caption = 'Compress.Quality'
+          Caption = 'Compress quality'
           FocusControl = txtImgCompressionQuality
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -767,6 +737,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          WordWrap = True
         end
         object chkImgDefaultLinkMode: TCheckBox
           Left = 11
@@ -783,7 +754,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 10
+          TabOrder = 9
         end
         object chkImgLinkRelativePath: TCheckBox
           Left = 11
@@ -800,12 +771,12 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 11
+          TabOrder = 10
         end
         object CbImgDefaultFormatFromClipb: TComboBox
-          Left = 170
-          Top = 177
-          Width = 55
+          Left = 165
+          Top = 147
+          Width = 61
           Height = 21
           Hint = 'How to save [BMP] images when inserted from clipboard'
           Style = csDropDownList
@@ -815,7 +786,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 3
         end
         object chkImgUseRecycleBin: TCheckBox
           Left = 11
@@ -829,12 +800,12 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 12
+          TabOrder = 11
         end
         object CbImgDefaultCompression: TComboBox
-          Left = 170
-          Top = 86
-          Width = 95
+          Left = 166
+          Top = 114
+          Width = 116
           Height = 21
           Hint = 'Applies to new files added, individually'
           Style = csDropDownList
@@ -847,9 +818,9 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 2
         end
         object CbImgBmpPixelFormat: TComboBox
-          Left = 170
-          Top = 204
-          Width = 55
+          Left = 165
+          Top = 174
+          Width = 61
           Height = 21
           Hint = 'Color depth used on images from clipboard'
           Style = csDropDownList
@@ -859,61 +830,12 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 7
-        end
-        object CbImgDefaultStorageMode: TComboBox
-          Left = 170
-          Top = 24
-          Width = 167
-          Height = 21
-          Hint = 
-            'Storage mode to use in new KNT files by default'#13#10'( To change it ' +
-            'in current file ->  File / Properties / Settings )'
-          Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 0
+          TabOrder = 5
         end
         object CbImgStorageModeOnExport: TComboBox
-          Left = 170
-          Top = 114
-          Width = 167
-          Height = 21
-          Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 3
-        end
-        object txtImgMaxAutoWidthGoal: TEdit
-          Left = 170
-          Top = 141
-          Width = 55
-          Height = 21
-          Hint = 
-            'Max. visible width used on  inserting a new image:'#13#10'0: no  limit' +
-            '  <0 : limit to visible size of editor >0: as indicated'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          MaxLength = 127
-          ParentFont = False
-          TabOrder = 4
-          OnExit = txtImgMaxAutoWidthGoalExit
-        end
-        object cbImgDefaultExternalStorage: TComboBox
-          Left = 170
-          Top = 51
-          Width = 167
+          Left = 166
+          Top = 87
+          Width = 116
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -924,10 +846,29 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 1
         end
+        object txtImgMaxAutoWidthGoal: TEdit
+          Left = 165
+          Top = 205
+          Width = 61
+          Height = 21
+          Hint = 
+            'Max. visible width used on  inserting a new image:'#13#10'0: no  limit' +
+            '  <0 : limit to visible size of editor >0: as indicated'
+          Alignment = taCenter
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          MaxLength = 127
+          ParentFont = False
+          TabOrder = 7
+          OnExit = txtImgMaxAutoWidthGoalExit
+        end
         object txtImgRatioSizePngVsJPG: TEdit
-          Left = 297
-          Top = 177
-          Width = 40
+          Left = 301
+          Top = 147
+          Width = 38
           Height = 21
           Hint = 
             '>0 => will  compare JPG and PNG conversions, using alt.format if' +
@@ -940,13 +881,13 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           MaxLength = 127
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 4
           OnExit = txtImgRatioSizePngVsJPGExit
         end
         object txtImgCompressionQuality: TEdit
-          Left = 170
-          Top = 230
-          Width = 55
+          Left = 300
+          Top = 174
+          Width = 39
           Height = 21
           Hint = 'For JPG format:  0 - 100'
           Alignment = taCenter
@@ -957,7 +898,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           MaxLength = 127
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 6
           OnExit = txtImgCompressionQualityExit
         end
         object gbViewer: TGroupBox
@@ -972,7 +913,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 13
+          TabOrder = 12
           object Label29: TLabel
             Left = 41
             Top = 70
@@ -989,9 +930,9 @@ object Form_OptionsNew: TForm_OptionsNew
           end
           object btnBGColor: TBitBtn
             Left = 10
-            Top = 61
+            Top = 63
             Width = 25
-            Height = 25
+            Height = 23
             Hint = 'Background color in image viewer'
             Glyph.Data = {
               36030000424D3603000000000000360000002800000010000000100000000100
@@ -1020,7 +961,7 @@ object Form_OptionsNew: TForm_OptionsNew
               7F7FFF7F7FFF7F7FFF7F7FFF7F7FFF7FFFFF7FFFFF7FFFFF7FFFFF7FFFFF7FFF
               FF7FFFFF3FBFBF000000CFCFCF9F9FDF9F9FDF9F9FDF9F9FDF9F9FDF9F9FDF9F
               DFDF9FDFDF9FDFDF9FDFDF9FDFDF9FDFDF9FDFDF9FDFDF609F9F}
-            TabOrder = 0
+            TabOrder = 2
             OnClick = btnBGColorClick
           end
           object chkImgSingleViewerInstance: TCheckBox
@@ -1035,7 +976,7 @@ object Form_OptionsNew: TForm_OptionsNew
             Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
-            TabOrder = 1
+            TabOrder = 0
             OnClick = chkImgSingleViewerInstanceClick
           end
           object chkImgHotTrackViewer: TCheckBox
@@ -1053,7 +994,7 @@ object Form_OptionsNew: TForm_OptionsNew
             Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
-            TabOrder = 2
+            TabOrder = 1
           end
         end
         object chkImgSaveInSubfolders: TCheckBox
@@ -1071,7 +1012,119 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 9
+          TabOrder = 8
+        end
+        object gbStorage: TGroupBox
+          Left = 6
+          Top = 21
+          Width = 338
+          Height = 55
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          object Label26: TLabel
+            Left = 1
+            Top = 24
+            Width = 44
+            Height = 13
+            Alignment = taRightJustify
+            AutoSize = False
+            Caption = 'Mode'
+            FocusControl = CbImgDefaultStorageMode
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            StyleElements = [seClient, seBorder]
+          end
+          object Label22: TLabel
+            Left = 225
+            Top = 24
+            Width = 41
+            Height = 13
+            AutoSize = False
+            Caption = 'External'
+            FocusControl = cbImgDefaultExternalStorage
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label32: TLabel
+            Left = 2
+            Top = -2
+            Width = 202
+            Height = 13
+            Alignment = taRightJustify
+            Caption = '  Changes in current file:  File | Properties '
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clGray
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentColor = False
+            ParentFont = False
+            Transparent = False
+            StyleElements = [seClient, seBorder]
+          end
+          object Label33: TLabel
+            Left = 216
+            Top = -2
+            Width = 117
+            Height = 13
+            Alignment = taCenter
+            AutoSize = False
+            Caption = ' Storage in New files  '
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clNavy
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentColor = False
+            ParentFont = False
+            Transparent = False
+            StyleElements = [seClient, seBorder]
+          end
+          object CbImgDefaultStorageMode: TComboBox
+            Left = 53
+            Top = 20
+            Width = 157
+            Height = 21
+            Hint = 'Storage mode to use in new KNT files by default'
+            Style = csDropDownList
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+          end
+          object cbImgDefaultExternalStorage: TComboBox
+            Left = 272
+            Top = 19
+            Width = 60
+            Height = 21
+            Hint = 'Default external storage type to use on new files'
+            Style = csDropDownList
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+          end
         end
       end
     end
@@ -1300,8 +1353,6 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -1755,8 +1806,6 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -3767,8 +3816,6 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101

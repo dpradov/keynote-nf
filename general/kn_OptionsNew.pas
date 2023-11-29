@@ -285,14 +285,10 @@ type
     Label24: TLabel;
     CbImgBmpPixelFormat: TComboBox;
     Label25: TLabel;
-    CbImgDefaultStorageMode: TComboBox;
-    Label26: TLabel;
     CbImgStorageModeOnExport: TComboBox;
     Label27: TLabel;
     txtImgMaxAutoWidthGoal: TEdit;
     Label28: TLabel;
-    cbImgDefaultExternalStorage: TComboBox;
-    Label22: TLabel;
     Label30: TLabel;
     txtImgRatioSizePngVsJPG: TEdit;
     txtImgCompressionQuality: TEdit;
@@ -303,6 +299,13 @@ type
     chkImgSingleViewerInstance: TCheckBox;
     chkImgHotTrackViewer: TCheckBox;
     chkImgSaveInSubfolders: TCheckBox;
+    gbStorage: TGroupBox;
+    CbImgDefaultStorageMode: TComboBox;
+    Label26: TLabel;
+    cbImgDefaultExternalStorage: TComboBox;
+    Label22: TLabel;
+    Label32: TLabel;
+    Label33: TLabel;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
