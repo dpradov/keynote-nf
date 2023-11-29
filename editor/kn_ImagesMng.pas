@@ -1122,8 +1122,8 @@ begin
       location:= Name;
       if Path <> '' then
          location:= location + ' | ' + Path;
-      if OriginalPath <> '' then
-         location:= location + ' [ ' + OriginalPath + ' ]';
+      {if OriginalPath <> '' then
+         location:= location + ' [ ' + OriginalPath + ' ]';}
    end
    else
       location:= OriginalPath;

@@ -65,6 +65,7 @@ type
     txtID: TEdit;
     WinOnTop: TTopMostWindow;
     btnAlwaysVisible: TToolbarButton97;
+    chkCompact: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure bGrayClick(Sender: TObject);
     procedure bBlackClick(Sender: TObject);
@@ -86,6 +87,8 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnAlwaysVisibleClick(Sender: TObject);
+    procedure chkCompactClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
     fCurrentNoteFile: TNoteFile;
@@ -96,7 +99,8 @@ type
     fChangingInCode: boolean;
     fImageConfigured: boolean;
 
-    procedure FormCreate(Sender: TObject);
+    cScrollBoxTopInitial: integer;
+
     procedure SetImage(value: TKntImage);
     procedure ChangeImage;
     procedure ConfigureAndShowImage (KeepWindowSize: boolean);
@@ -125,6 +129,7 @@ procedure ClearImgViewerInstances;
 
 var
    LastFormImageOpened: TForm_Image;
+   CompactMode: boolean;
 
 
 implementation
@@ -201,6 +206,7 @@ procedure TForm_Image.FormCreate(Sender: TObject);
 begin
   fChangingInCode:= false;
   fImageConfigured:= false;
+  cScrollBoxTopInitial:= cScrollBox.Top;
 end;
 
 procedure TForm_Image.FormDestroy(Sender: TObject);
@@ -271,6 +277,8 @@ begin
     Button_Modify.Default := true;
     Button_Cancel.SetFocus;
 
+    chkCompact.Checked:= CompactMode;
+
     ConfigureAndShowImage (false);
 
     // By default, always visible
@@ -301,9 +309,12 @@ begin
       btnOpenFolder.Hint:= STR_02 + '   ' + fImagePath;
    end;
 
-   Caption:= Image.Name;
+   if Image.Caption <> '' then
+      Caption:= Image.Name + ' - ' + Image.Caption
+   else
+      Caption:= Image.Name;
 
-   
+
    W:= Image.Width;
    H:= Image.Height;
    
@@ -399,6 +410,25 @@ begin
    UpdatePositionAndZoom;
 end;
 
+
+procedure TForm_Image.chkCompactClick(Sender: TObject);
+var
+   Offset: integer;
+begin
+   CompactMode:= chkCompact.Checked;
+   lblDetails.Visible := not CompactMode;
+   lblLinked.Visible := not CompactMode;
+   txtCaption.Visible := not CompactMode;
+
+   if CompactMode then begin
+      Offset:= cScrollBoxTopInitial - lblDetails.Top;
+      cScrollBox.SetBounds(cScrollBox.Left, lblDetails.Top, cScrollBox.Width, cScrollBox.Height + Offset );
+   end
+   else begin
+      Offset:= cScrollBoxTopInitial - cScrollBox.Top;
+      cScrollBox.SetBounds(cScrollBox.Left, cScrollBoxTopInitial, cScrollBox.Width, cScrollBox.Height - Offset );
+   end;
+end;
 
 procedure TForm_Image.chkExpandClick(Sender: TObject);
 begin
@@ -627,5 +657,6 @@ end;
 initialization
   LastFormImageOpened:= nil;
   ImgViewerInstances:= TList.Create;
+  CompactMode:= False;
 
 end.
