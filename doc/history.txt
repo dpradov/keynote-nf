@@ -34,6 +34,21 @@ Issue #tracker at https://github.com/dpradov/keynote-nf/issues
     particularly in version changes.
 -------------
 
+v 1.8.1 Beta 5 (02 dec 2023)
+------------------------
+Corrects or implements the following issues:
+(more detail and information in doc/Changes in 1.8.1 Beta5.txt)
+
+* Fixed: Ensure that the hidden mark accompanies its image in the event that it moves by dragging
+* Fixed: Image could be duplicated on storage (with new ID) after pasting an image previously copied or cut to clipboard
+* Fixed: Insert | Image... was inserting images considering the 'Link to files by default' option on the contrary
+
+* Images. Added "Restore image[s] proportions" to the RTF context menu
+* Images. Added new option: 'Keep original file name' (ImgKeepOrigName)
+* Images. Revised internal visor layout. Added 'Compact' check
+* Images. Change in options layout
+
+
 v 1.8.1 Beta 4 (27 nov 2023)
 ------------------------
 Corrects or implements the following issues:

@@ -1,0 +1,49 @@
+Changes in 1.8.1 Beta 5 (02 dec 2023)
+=======================
+
+* Fixed: Ensure that the hidden mark accompanies its image in the event that it moves by dragging
+  Problem described here:  https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1834392261
+
+* Fixed: Image could be duplicated on storage (with new ID) after pasting an image previously copied or cut to clipboard
+  The reason for this duplicity is explained here:  https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1834392261
+  Despite the latest corrections made, this problem could still occur when pasting an already registered image from
+  the clipboard, previously copied or cut.
+  - It was not controlled that the size of the RTF string constructed by the application from the image stream could be 
+  greater than that available from the clipboard, because the RichEdit control will have eliminated the following 
+  information if it was present:  Embedded color profile, EXIF metadata, IPTC metadata
+  - Among the consequences: the hidden mark was not being added, so it would end up being interpreted as another image.
+  Besides, data could be being copied beyond the reserved buffer (In debug mode a Range check error exception is 
+  generated...), which it could be causing other errors that are more difficult to detect.
+
+* Fixed: Insert | Image... was inserting images considering the 'Link to files by default' option on the contrary
+
+
+* Images. Added "Restore image[s] proportions" to the RTF context menu
+    As requested here: https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1830661325
+  - The new action will reset proportions and reconsider "Max.auto width" on selected image[s].
+    If there is no selection, it will modify all images in the editor.
+  - The functionality of the Alt+Click (on toolbar image button) has also been expanded to allow
+    acting only on the selection, if any.
+  - As before, the resizing done with Alt-click, when it is applied to all images in the Editor
+    (with no selection) is temporary by default: if the node has no modifications, its status will
+    not change, it will continue to remain unmodified and these changes will not will be saved.
+    But if you want to keep them, just make any minimal change to the node (such as adding or
+    removing a space...), to mark the node (or note) as modified.
+    But when applied to a selection, the changes will mark the node (or note) as modified. In this
+    case, the changes in the images can be reverted with Undo operation.
+  - The new action, "Restore image[s] proportions", by the opposite, will always mark the node/note
+    as modified, even when applied to all images in the editor. Changes can also be reverted with
+    Undo operation.
+
+* Images. Added new option: 'Keep original file name' (ImgKeepOrigName)
+  With the functionality described here as the second option:
+  https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1825998802
+  Notes:
+  - When using File | Insert Picture..., and a file with the same name already exists, the modal window used
+    when dropping a file will be offered, to show the proposed new file name.
+  - If several images are dragged and there are some file/s with a name used, a label will be shown giving
+    a warning. If continue inserting, that files will be automatically renamed.
+
+* Images. Revised internal visor layout. Added 'Compact' check
+
+* Images. Change in options layout

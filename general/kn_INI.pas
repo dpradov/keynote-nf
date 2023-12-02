@@ -1101,7 +1101,7 @@ begin
     ImgSingleViewerInstance := true;
     ImgHotTrackViewer:= true;
     ImgSaveInSubfolders:= false;
-    ImgKeepOrigName:= true;
+    ImgKeepOrigName:= false;
   end;
 end; // InitializeKeyOptions
 
