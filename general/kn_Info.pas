@@ -626,6 +626,7 @@ type
     ImgSingleViewerInstance:   boolean;
     ImgHotTrackViewer:         boolean;
     ImgSaveInSubfolders:       boolean;
+    ImgKeepOrigName:           boolean;      // "Try to keep the original file name" -> If checked, a file named 'MyImage.jpg' will be saved (if possible) with that same name and will not be prefixed with the ID (such as 10_MyImage.jpg)
   end;
 
 

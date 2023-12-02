@@ -3,7 +3,7 @@ object Form_DropFile: TForm_DropFile
   Top = 312
   BorderStyle = bsDialog
   Caption = 'Select import method'
-  ClientHeight = 198
+  ClientHeight = 212
   ClientWidth = 356
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,10 +15,32 @@ object Form_DropFile: TForm_DropFile
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCreate = FormCreate
+  DesignSize = (
+    356
+    212)
   TextHeight = 13
+  object lblRenamed: TLabel
+    Left = 8
+    Top = 155
+    Width = 60
+    Height = 13
+    Anchors = [akLeft, akBottom]
+    Caption = 'Renamed :'
+    Color = clBtnFace
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    Transparent = False
+    Visible = False
+    StyleElements = [seClient, seBorder]
+  end
   object Button_OK: TButton
     Left = 10
-    Top = 171
+    Top = 181
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -28,7 +50,7 @@ object Form_DropFile: TForm_DropFile
   end
   object Button_Cancel: TButton
     Left = 90
-    Top = 171
+    Top = 181
     Width = 75
     Height = 25
     Cancel = True
@@ -75,7 +97,7 @@ object Form_DropFile: TForm_DropFile
   end
   object Btn_HTML: TButton
     Left = 236
-    Top = 171
+    Top = 181
     Width = 110
     Height = 25
     Caption = '&HTML options'
@@ -83,11 +105,31 @@ object Form_DropFile: TForm_DropFile
     OnClick = Btn_HTMLClick
   end
   object chk_ImageLinkMode: TCheckBox
-    Left = 229
-    Top = 148
+    Left = 234
+    Top = 155
     Width = 117
     Height = 17
     Caption = 'Images: Link mode'
     TabOrder = 4
+    OnClick = chk_ImageLinkModeClick
+  end
+  object txtImgNewName: TEdit
+    Left = 77
+    Top = 151
+    Width = 140
+    Height = 21
+    Hint = 'The initial name was already being used'
+    Alignment = taCenter
+    Anchors = [akLeft, akRight, akBottom]
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    MaxLength = 127
+    ParentFont = False
+    TabOrder = 5
+    Visible = False
+    OnExit = txtImgNewNameExit
   end
 end

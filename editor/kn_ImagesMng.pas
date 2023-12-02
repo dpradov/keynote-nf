@@ -274,7 +274,7 @@ type
 
     destructor Destroy; override;
 
-    procedure GenerateName(Node: TNoteNode; Note: TTabNote; const Source: string; ZipPathFormat: boolean);
+    procedure GenerateName(Node: TNoteNode; Note: TTabNote; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 
     property ID: Integer read FID;
     property ImageFormat: TImageFormat read FImageFormat;
@@ -377,13 +377,15 @@ type
     property NextTempImageID: Integer read fNextTempImageID;
     property ReconsiderImageDimensionsGoal: boolean read fReconsiderImageDimensionsGoal write fReconsiderImageDimensionsGoal;
 
+    function CheckUniqueName (var Name: string): boolean;
     function CheckRegisterImage (Stream: TMemoryStream; ImgFormat: TImageFormat;
                                  Width, Height: integer;
                                  Note: TTabNote;
                                  const OriginalPath: String;
                                  Owned: boolean;
                                  const Source: String;
-                                 var Img: TKntImage
+                                 var Img: TKntImage;
+                                 const NameProposed: string = ''
                                  ): boolean;
 
     function RegisterNewImage (Stream: TMemoryStream;
@@ -393,7 +395,8 @@ type
                                const OriginalPath: String;
                                Owned: boolean;
                                const Source: String;
-                               Note: TTabNote
+                               Note: TTabNote;
+                               const NameProposed: string = ''
                                ): TKntImage;
 
     function GetImageFromStream (Stream: TMemoryStream; var CRC32: DWORD; SetLastAccess: boolean= true): TKntImage;
@@ -406,7 +409,7 @@ type
     procedure ReloadImageStream (Img: TKntImage);
     procedure CheckFreeImageStreamsNotRecentlyUsed;
 
-    procedure InsertImage (FileName: String; Note: TTabNote; Owned: boolean);
+    procedure InsertImage (FileName: String; Note: TTabNote; Owned: boolean; const NameProposed: string = '');
     procedure InsertImageFromClipboard (Note: TTabNote; TryAddURLlink: boolean = true);
 
     function ProcessImagesInRTF (const RTFText: AnsiString; Note: TTabNote;
@@ -432,7 +435,7 @@ type
     function  GetImagesIDInstancesFromRTF (Stream: TMemoryStream): TImageIDs;
     function  GetImagesIDInstancesFromTextPlain (TextPlain: String): TImageIDs;
     procedure UpdateImagesCountReferences (const IDsBefore: TImageIDs;  const IDsAfter: TImageIDs);
-    function  ImageInCurrentEditors (ImgID: integer): Boolean;
+    function  ImageInCurrentEditors (ImgID: integer; UseFreshTextPlain: boolean= false): Boolean;
 
     procedure ReloadImages(const IDs: TImageIDs);
 
@@ -1019,16 +1022,23 @@ end;
 
 { Generates a Name and Path for a new image, unique in the storage, and taking into account that it has been created on the indicated node/note  }
 
-procedure TKntImage.GenerateName(Node: TNoteNode; Note: TTabNote; const Source: string; ZipPathFormat: boolean);
+procedure TKntImage.GenerateName(Node: TNoteNode; Note: TTabNote; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 var
   src: String;
   strDate: string;
 begin
     if not fOwned then exit;
 
-    if FOriginalPath <> '' then
-       FName:= Format('%d_%s', [ID, ExtractFilename(FOriginalPath)])
-
+    if FOriginalPath <> '' then begin
+       FName:= ExtractFilename(FOriginalPath);
+       if not KeyOptions.ImgKeepOrigName then
+          FName:= Format('%d_%s', [ID, FName])
+       else begin
+          if NameProposed <> '' then
+             FName:= NameProposed;
+          ImagesManager.CheckUniqueName (FName);
+       end;
+    end
     else begin
        if Source = '' then
           src:= 'Image'
@@ -2252,13 +2262,17 @@ begin
 end;
 
 
-function TImageManager.ImageInCurrentEditors (ImgID: integer): Boolean;
+function TImageManager.ImageInCurrentEditors (ImgID: integer; UseFreshTextPlain: boolean= false): Boolean;
 var
    i, j: integer;
    ImagesIDs: TImageIDs;
 begin
     for i := 0 to NoteFile.NoteCount -1 do begin
-       ImagesIDs:= NoteFile.Notes[i].ImagesInstances;
+       if UseFreshTextPlain then
+          ImagesIDs:= GetImagesIDInstancesFromTextPlain (NoteFile.Notes[i].Editor.TextPlain)
+       else
+          ImagesIDs:= NoteFile.Notes[i].ImagesInstances;
+
        for j := Low(ImagesIDs) to High(ImagesIDs) do begin
            if ImagesIDs[j] = ImgID then
                exit(true);
@@ -2280,7 +2294,8 @@ function TImageManager.RegisterNewImage(
                                          const OriginalPath: String;
                                          Owned: boolean;
                                          const Source: String;
-                                         Note: TTabNote
+                                         Note: TTabNote;
+                                         const NameProposed: string = ''
                                          ): TKntImage;
 var
    Img: TKntImage;
@@ -2312,7 +2327,7 @@ begin
    if (assigned(fExternalStorageToSave)) and (fExternalStorageToSave.StorageType= stZip) then
       ZipPathFormat:= true;
 
-   Img.GenerateName(Node, Note, Source, ZipPathFormat);
+   Img.GenerateName(Node, Note, Source, ZipPathFormat, NameProposed);
 
    fImages.Add(Pointer(Img));
    if Owned and ((fStorageMode = smExternal) or (fStorageMode = smExternalAndEmbKNT)) then
@@ -2332,7 +2347,8 @@ function TImageManager.CheckRegisterImage (
                                            const OriginalPath: String;
                                            Owned: boolean;
                                            const Source: String;
-                                           var Img: TKntImage
+                                           var Img: TKntImage;
+                                           const NameProposed: string = ''
                                            ): boolean;
 var
   crc32: DWORD;
@@ -2341,16 +2357,46 @@ begin
 
     Img:= GetImageFromStream (Stream, crc32);
     if (Img = nil) then begin
-       Img:= RegisterNewImage(Stream, imgFormat, Width, Height, crc32, OriginalPath, Owned, Source, Note);
+       Img:= RegisterNewImage(Stream, imgFormat, Width, Height, crc32, OriginalPath, Owned, Source, Note, NameProposed);
        Result:= True;        // Registered
     end;
 end;
 
 
+function TImageManager.CheckUniqueName (var Name: string): boolean;
+var
+   Img: TKntImage;
+   n: integer;
+   NameNoExt, NewName, Ext: string;
+begin
+   Result:= true;
+   n:= 1;
+   NameNoExt:= ExtractFileNameNoExt(Name);
+   Ext:= ExtractFileExt(Name);
+   NewName:= Name;
+   repeat
+      Img:= GetImageFromFileName(NewName, false);
+      if Img <> nil then begin
+          if (Img.ReferenceCount = 0) and (not ImageInCurrentEditors(Img.ID, true)) then begin
+             Img.FName:= Format('%d_%s', [Img.ID, Img.FName]);
+          end
+          else begin
+            inc(n);
+            NewName:= Format('%s_%d%s', [NameNoExt, n, Ext]);
+          end;
+      end;
+   until Img = nil;
+
+   if n > 1 then begin
+      Name:= NewName;
+      Result:= false;
+   end;
+end;
+
 
 { Explicit insertion of an image. Replaces the current method that relies on the use of the clipboard }
 
-procedure TImageManager.InsertImage(FileName: String; Note: TTabNote; Owned: boolean);
+procedure TImageManager.InsertImage(FileName: String; Note: TTabNote; Owned: boolean; const NameProposed: string= '');
 var
   Stream: TMemoryStream;
   ImgFormat, ImgFormatDest: TImageFormat;
@@ -2373,8 +2419,10 @@ begin
 
      if (fStorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
         ImgFormat:= GetImageFormat(Stream);
-        StreamRegistered:= CheckRegisterImage (Stream, ImgFormat, Width, Height, Note, FileName, Owned, '', Img);
+        StreamRegistered:= CheckRegisterImage (Stream, ImgFormat, Width, Height, Note, FileName, Owned, '', Img, NameProposed);
         ImgID:= Img.ID;
+        if (not StreamRegistered) and (Img.ReferenceCount = 0) and (NameProposed <> '') then
+           Img.FName:= NameProposed;
      end;
 
      Width:= -1;

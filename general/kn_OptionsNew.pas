@@ -306,6 +306,7 @@ type
     Label22: TLabel;
     Label32: TLabel;
     Label33: TLabel;
+    chkImgKeepOrigName: TCheckBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -964,6 +965,7 @@ begin
        ClearImgViewerInstances;
     end;
     ImgHotTrackViewer:= chkImgHotTrackViewer.Checked;
+    ImgKeepOrigName:= chkImgKeepOrigName.Checked;
   end;
 
   with myTabOpts do
@@ -1218,6 +1220,7 @@ begin
     chkImgSingleViewerInstance.Checked:= ImgSingleViewerInstance;
     chkImgHotTrackViewer.Checked:= ImgHotTrackViewer;
     chkImgHotTrackViewer.Enabled:= ImgSingleViewerInstance;
+    chkImgKeepOrigName.Checked:= ImgKeepOrigName;
   end;
 
   with myTabOpts do

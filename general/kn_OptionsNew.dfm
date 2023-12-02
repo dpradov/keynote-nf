@@ -741,7 +741,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object chkImgDefaultLinkMode: TCheckBox
           Left = 11
-          Top = 289
+          Top = 294
           Width = 187
           Height = 17
           Hint = 
@@ -754,11 +754,11 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 9
+          TabOrder = 10
         end
         object chkImgLinkRelativePath: TCheckBox
           Left = 11
-          Top = 312
+          Top = 317
           Width = 187
           Height = 17
           Hint = 
@@ -771,7 +771,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 10
+          TabOrder = 11
         end
         object CbImgDefaultFormatFromClipb: TComboBox
           Left = 165
@@ -800,7 +800,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 11
+          TabOrder = 12
         end
         object CbImgDefaultCompression: TComboBox
           Left = 166
@@ -913,7 +913,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 12
+          TabOrder = 13
           object Label29: TLabel
             Left = 41
             Top = 70
@@ -999,7 +999,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object chkImgSaveInSubfolders: TCheckBox
           Left = 11
-          Top = 264
+          Top = 250
           Width = 187
           Height = 17
           Hint = 
@@ -1125,6 +1125,23 @@ object Form_OptionsNew: TForm_OptionsNew
             ParentFont = False
             TabOrder = 1
           end
+        end
+        object chkImgKeepOrigName: TCheckBox
+          Left = 11
+          Top = 271
+          Width = 187
+          Height = 17
+          Hint = 
+            'Try to keep the original name of unlinked files on storage'#13#10'(if ' +
+            'not set, the ID will be added as a prefix)'
+          Caption = 'Keep original file name'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 9
         end
       end
     end
@@ -1353,6 +1370,8 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
+          Glyph.Data = {00000000}
+          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -1806,6 +1825,8 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
+          Glyph.Data = {00000000}
+          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -3816,6 +3837,8 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
+          Glyph.Data = {00000000}
+          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101

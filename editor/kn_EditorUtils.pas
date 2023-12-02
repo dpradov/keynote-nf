@@ -1221,6 +1221,7 @@ var
   wasmodified : boolean;
   OpenPictureDlg : TOpenPictureDialog;
   SelStartOrig, SelLengthOrig: integer;
+  NewName: string;
 begin
   if ( not Form_Main.HaveNotes(true, true)) then exit;
   if ( not assigned(ActiveNote)) then exit;
@@ -1244,7 +1245,19 @@ begin
                    CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
              end;
 
-             ImagesManager.InsertImage(FileName, ActiveNote, KeyOptions.ImgDefaultLinkMode);
+             NewName:= ExtractFilename(FileName);
+             if (not KeyOptions.ImgDefaultLinkMode) and (not ImagesManager.CheckUniqueName (NewName)) then begin
+                var FileList: TStringList;
+                try
+                   FileList:= TStringList.Create;
+                   FileList.Add (FileName);
+                   FileDropped(nil, FileList);
+                finally
+                   FileList.Free;
+                end;
+             end
+             else
+                ImagesManager.InsertImage(FileName, ActiveNote, not KeyOptions.ImgDefaultLinkMode, NewName);
 
               // See comments before TImageManager.InsertImage
               {

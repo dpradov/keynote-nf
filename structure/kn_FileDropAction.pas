@@ -41,16 +41,22 @@ type
     Btn_HTML: TButton;
     RG_HTML: TRadioGroup;
     chk_ImageLinkMode: TCheckBox;
+    txtImgNewName: TEdit;
+    lblRenamed: TLabel;
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Btn_HTMLClick(Sender: TObject);
     procedure RG_ActionClick(Sender: TObject);
+    procedure txtImgNewNameExit(Sender: TObject);
+    procedure chk_ImageLinkModeClick(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
     NumberOfFiles : integer;
     FileExt : string;
+    ShowNewName: boolean;
+    ShowWarningRenamedNames: boolean;
   end;
 
 
@@ -69,6 +75,7 @@ resourcestring
   STR_04 = '&General options';
   STR_05 = '&Virtual node...';
   STR_06 = '&HTML options';
+  STR_07 = 'Some files will be renamed';
 
 procedure TForm_DropFile.FormCreate(Sender: TObject);
 var
@@ -100,6 +107,17 @@ begin
     RG_ActionClick( RG_Action );
     RG_Action.OnClick := RG_ActionClick;
     RG_Action.SetFocus;
+
+    if ShowNewName then begin
+       lblRenamed.Visible:= true;
+       txtImgNewName.Visible:= true;
+    end
+    else
+    if ShowWarningRenamedNames then begin
+       lblRenamed.Visible:= true;
+       lblRenamed.Caption:= STR_07;
+    end;
+
   except
   end;
 
@@ -127,6 +145,24 @@ begin
     Btn_HTML.Enabled := true;
     Btn_HTML.Caption := STR_06;
   end;
+end;
+
+
+procedure TForm_DropFile.txtImgNewNameExit(Sender: TObject);
+var
+  NewName: string;
+begin
+    NewName:= txtImgNewName.Text;
+    if not ImagesManager.CheckUniqueName(NewName) then begin
+       txtImgNewName.Text:= NewName;
+    end;
+
+end;
+
+procedure TForm_DropFile.chk_ImageLinkModeClick(Sender: TObject);
+begin
+  lblRenamed.Visible:= (ShowNewName or ShowWarningRenamedNames) and not chk_ImageLinkMode.Checked;
+  txtImgNewName.Visible:= ShowNewName and not chk_ImageLinkMode.Checked;;
 end;
 
 

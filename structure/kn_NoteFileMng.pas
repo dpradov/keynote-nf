@@ -76,11 +76,11 @@ uses
 
     procedure ImportFiles;
     procedure ImportAsNotes( ImportFileList : TStringList; ImgLinkMode: boolean );
-    procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean );
+    procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean; const NameProposed: string = '' );
 
     procedure FileDropped( Sender : TObject; FileList : TStringList );
     function ConsistentFileType( const aList : TStringList ) : boolean;
-    function PromptForFileAction( const FileCnt : integer; const aExt : string; var ImgLinkMode: boolean ) : TDropFileAction;
+    function PromptForFileAction( const FileList : TStringList; const aExt : string; var ImgLinkMode: boolean; var NewFileName: string ) : TDropFileAction;
 
     procedure NoteFileProperties;
     procedure UpdateNoteFileState( AState : TFileStateChangeSet );
@@ -2156,7 +2156,7 @@ end; // ImportAsNotes
 //=================================================================
 // InsertContent
 //=================================================================
-procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean );
+procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean; const NameProposed: string = '' );
 var
   FN, strContent : string;
   myNote : TTabNote;
@@ -2239,7 +2239,7 @@ begin
                      {$IFDEF KNT_DEBUG}Log.Add('Insert content (Image)  FN:' + FN,  1 ); {$ENDIF}
                      var Owned: boolean:= not ImgLinkMode;
                      if not myNote.PlainText then
-                        ImagesManager.InsertImage(FN, myNote, Owned)
+                        ImagesManager.InsertImage(FN, myNote, Owned, NameProposed)
                      else begin
                          if not InformedImgInPlain then begin
                             DoMessageBox( Format(STR_81, [FN]), mtWarning, [mbOK], 0 );
@@ -2285,7 +2285,7 @@ end; // InsertContent
 //=================================================================
 // PromptForFileAction
 //=================================================================
-function PromptForFileAction( const FileCnt : integer; const aExt : string; var ImgLinkMode: boolean) : TDropFileAction;
+function PromptForFileAction( const FileList : TStringList; const aExt : string; var ImgLinkMode: boolean; var NewFileName: string) : TDropFileAction;
 var
   Form_DropFile: TForm_DropFile;
   LastFact, fact : TDropFileAction;
@@ -2296,7 +2296,10 @@ var
   myTreeNode : TTreeNTNode;
   IsKnownFileFormat : boolean;
   i, iSelected: integer;
+  FileCnt, j: integer;
 begin
+
+  FileCnt:= FileList.Count;
 
   with Form_Main do begin
         if (( aExt = ext_Plugin ) or ( aExt = ext_Macro )) then begin
@@ -2369,6 +2372,22 @@ begin
                       iSelected:= i;
                       Form_DropFile.chk_ImageLinkMode.Visible:= true;
                       Form_DropFile.chk_ImageLinkMode.Checked := KeyOptions.ImgDefaultLinkMode;
+                      if (FileCnt = 1) then begin
+                         NewFileName:= ExtractFileName(FileList[0]);
+                         if not ImagesManager.CheckUniqueName(NewFileName) then begin
+                            Form_DropFile.ShowNewName:= true;
+                            Form_DropFile.txtImgNewName.Text:= NewFileName;
+                         end;
+                      end
+                      else begin
+                         for j:= 0 to FileList.Count-1 do begin
+                             NewFileName:= ExtractFileName(FileList[j]);
+                             if not ImagesManager.CheckUniqueName(NewFileName) then begin
+                                Form_DropFile.ShowWarningRenamedNames:= true;
+                                break;
+                             end;
+                         end;
+                      end;
                    end;
                    Inc(i);
                 end;
@@ -2387,6 +2406,11 @@ begin
                       // since we created the radio items dynamically, we can only figure out which one was selected thusly:
                       if FileIsHTML then
                          KeyOptions.HTMLImportMethod := THTMLImportMethod( Form_DropFile.RG_HTML.ItemIndex );
+
+                      if FileIsImage and Form_DropFile.txtImgNewName.Visible then begin
+                         NewFileName:= Form_DropFile.txtImgNewName.Text;
+                      end;
+
                       actidx := Form_DropFile.RG_Action.ItemIndex;
                       LastFact := factUnknown;
                       if ( actidx >= 0 ) then begin
@@ -2492,6 +2516,7 @@ var
   FileIsHTML, FileIsFolder : boolean;
   OutStream: TMemoryStream;
   ImgLinkMode: boolean;
+  NewFileName: string;
 
 begin
   with Form_Main do begin
@@ -2501,6 +2526,7 @@ begin
         fName := FileList[0];
         fExt := extractfileext( fName );
         FileIsFolder := DirectoryExists( fName );
+        NewFileName:= '';
 
         if ( not ( assigned( NoteFile ) and assigned( ActiveNote ))) then begin
            // no active note; we can only OPEN a file
@@ -2531,7 +2557,7 @@ begin
             if FileIsFolder then
               myAction := factHyperlink
             else
-              myAction := PromptForFileAction( FileList.Count, fExt, ImgLinkMode);
+              myAction := PromptForFileAction( FileList, fExt, ImgLinkMode, NewFileName);
           end;
 
 
@@ -2566,7 +2592,7 @@ begin
                 ImportAsNotes( FileList, ImgLinkMode );
 
               factInsertContent:
-                InsertContent( FileList, ImgLinkMode);
+                InsertContent( FileList, ImgLinkMode, NewFileName);
 
               factImportAsNode :
                 begin
