@@ -259,6 +259,10 @@ var
     ShowingSelectionInformation: boolean;
     ShowingImageOnTrack: boolean;
 
+    DraggingImageID: integer;
+    DraggingImage_PosImage: integer;
+    DraggingImage_PosFirstHiddenChar: integer;
+
     LastGoTo : string; // last line number for the "Go to line" command
 
 
@@ -408,6 +412,7 @@ begin
       LastImportFilter := 1;
 
       //_Is_Dragging_Text := false;
+      DraggingImageID:= 0;
       _WindowWidthIncToRestore := 0;
       _LastZoomValue := 100;
       Combo_Zoom.Text := '100%';

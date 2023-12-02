@@ -1222,8 +1222,8 @@ type
     procedure TVNodeBGColorClick(Sender: TObject);
     procedure Res_RTFKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    //procedure RxRTFStartDrag(Sender: TObject; var DragObject: TDragObject);
-    //procedure RxRTFEndDrag(Sender, Target: TObject; X, Y: Integer);
+    procedure RxRTFStartDrag(Sender: TObject; var DragObject: TDragObject);
+    procedure RxRTFEndDrag(Sender, Target: TObject; X, Y: Integer);
     procedure MMToolsCustomKBDClick(Sender: TObject);
     procedure MMTreeNavRightClick(Sender: TObject);
     procedure MMToolsExportExClick(Sender: TObject);
@@ -3198,7 +3198,58 @@ var
 begin
   RTFUpdating := true;
   try
-     myRTF := ( sender as TTabRichEdit );
+    myRTF := ( sender as TTabRichEdit );
+
+
+    { Ensure that the hidden mark accompanies its image in the event that it moves by dragging
+      *1:
+       Finally I apply ClearUndo because SupendUndo and ResumeUndo do not work as expected here:
+       if you press Undo then the image does not return to its initial position, and the added
+       hidden characters become visible.
+       Could have not used SupendUndo and ResumeUndo, but in that case we risk pressing Undo an
+       insufficient number of times, and the operation being left halfway, with the image moved
+       but without the hidden label correctly added next to it
+     }
+    if (DraggingImageID > 0) then begin
+       var DraggingImage_NewPosImage: integer;
+       var RTFHiddenMark: AnsiString;
+       var pI, pF, Len: integer;
+
+       RTFHiddenMark:= Format(KNT_RTF_IMG_HIDDEN_MARK_CHAR, [DraggingImageID]);
+       DraggingImageID:= 0;
+
+       with myRTF do begin
+          OnSelectionChange := nil;
+          BeginUpdate;
+          myRTF.SuspendUndo;
+          try
+             DraggingImage_NewPosImage:= myRTF.SelStart;
+             myRTF.SelLength:= 0;
+             myRTF.SelText:= RTFHiddenMark;
+             myRTF.SelAttributes.Hidden := True;
+
+             pI:= DraggingImage_PosFirstHiddenChar;
+             pF:= DraggingImage_PosImage;
+             if DraggingImage_NewPosImage < DraggingImage_PosImage then begin
+                Len:= Length(RTFHiddenMark)+1;
+                inc(pI, Len);
+                inc(pF, Len);
+                inc(DraggingImage_NewPosImage, Len);
+             end;
+             myRTF.SetSelection(pI, pF, true);
+             myRTF.SelText:= '';
+             myRTF.SelStart:= DraggingImage_NewPosImage;
+
+          finally
+            myRTF.ResumeUndo;
+            myRTF.ClearUndo;                                         // *1
+            EndUpdate;
+            OnSelectionChange := Form_Main.RxRTFSelectionChange;
+          end;
+       end;
+    end;
+    DraggingImageID:= 0;
+
 
     Combo_Font.FontName := myRTF.SelAttributes.Name;
     Combo_FontSize.Text := inttostr( myRTF.SelAttributes.Size );
@@ -7234,6 +7285,38 @@ begin
   // StatusBar.Panels[0].Text := 'RTF end drag';
 end;
 }
+
+procedure TForm_Main.RxRTFStartDrag(Sender: TObject; var DragObject: TDragObject);
+var
+  Editor: TRxRichEdit;
+begin
+  // To ensure that the hidden image mark accompanies it in the event that it moves by dragging
+   if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+      Editor:= TRxRichEdit(Sender);
+      if Editor.SelLength = 1 then begin
+         DraggingImageID:= CheckToIdentifyImageID(Editor, DraggingImage_PosFirstHiddenChar);
+         if DraggingImageID > 0 then begin
+            DraggingImage_PosImage:= Editor.SelStart;
+            DraggingImageID:= - DraggingImageID;
+         end;
+      end;
+   end;
+end;
+
+procedure TForm_Main.RxRTFEndDrag(Sender, Target: TObject; X, Y: Integer);
+begin
+  { The action that incorporates the hidden mark near the image is not performed here, since this event
+    does not occur exactly at the completion of the action. If we compare Editor.SelStart here and from
+    RxRTFSelectionChange we can see that when dragging to a later position, the value is different (not
+    updated at this point), but it does match if you drag to an earlier position.
+    To avoid problems, the action will be performed from RxRTFSelectionChange, and from here what we do
+    is confirm that the action must be performed because the dragging action has not been canceled, and
+    has been finished within the same editor. This is the reason why at RxRTFStartDrag we are assigning
+    DraggingImageID a negative value.   }
+  DraggingImageID:= - DraggingImageID;
+end;
+
+
 
 procedure TForm_Main.MMToolsCustomKBDClick(Sender: TObject);
 begin

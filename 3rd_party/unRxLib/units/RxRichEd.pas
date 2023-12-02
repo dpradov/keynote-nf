@@ -894,12 +894,6 @@ end;
   In any case, even if the RxRichEdit control receives the WM_DROPFILES message it will not call the handler by default, and will only call OnFileDropped 
   when (logically) it is assigned to the application's interest in controlling it.
 
-    Asumiremos que si la aplicación ofrece un manejador para nuestro evento OnFileDropped, querrá poder controlar todos los archivos
-  que se arrastren, con independencia de que puedan ser convertidos a imagen o no.
-  Por ello, tendremos en cuenta si se ha definido un manejador para OnFileDropped:
-   - NOT assigned(OnFileDropped) ->  QueryAcceptData = SR_OK.  Dejaremos el funcionamiento descrito según lo establecido para FAllowObjects
-        -> El comportamiento será el esperado: se incrutarán las imágenes. Y los objetos se permitirán según FAllowObjects
-
   We'll assume that if the application offers a handler for our OnFileDropped event, it will want to be able to handle all files
   that are dragged, regardless of whether they can be converted to an image or not.
   Therefore, we will take into account whether a handler has been defined for OnFileDropped:
@@ -921,12 +915,6 @@ end;
   Note: We could also receive the WM_DROPFILES and CN_DROPFILES events if we set the ES_NOOLEDRAGDROP style
   (Disables support for dragging and dropping OLE objects.) during control creation, but we are not interested in this.
   At the very least, this would make it difficult to simply select an inserted object (even if you inserted it via code, using RTF code).
-
-  Desde Create se hace, al final, FCallback := TRichEditOleCallback.Create(Self);
-  Si posteriormente se llamara a RevokeDragDrop(Handle) -> unregister default IDropTarget interface of Rich Edit.
-  y pasaríamos también a a recibir los eventos WM_DROPFILES y CN_DROPFILES, pero perderíamos toda la funcionadlidad
-  de esa interface, por lo que no podríamos, entre otras cosas, arrastrar texto desde otra aplicación, p.ej.
-  (Recibiría esos eventos si DragMode=dmAutomatic o si fuera dmManual y se llama a BeginDrag... )
 
   From Create it's done, at the end, FCallback := TRichEditOleCallback.Create(Self);
   If RevokeDragDrop(Handle) were subsequently called -> unregister default IDropTarget interface of Rich Edit
@@ -952,6 +940,13 @@ end;
 	formats, they are often referred to as simply formats. However, unlike predefined formats, they must be registered by both source and target
 	before they can be used to transfer data. To register a Shell format, include the Shlobj.h header file and pass the CFSTR_XXX format identifier
 	to RegisterClipboardFormat. This function returns a valid clipboard format value, which can then be used as the cfFormat member of a FORMATETC structure.
+
+----------
+*4  OnStartDrag, OnEndDrag, called from TRichEditOleCallback.QueryAcceptData.
+    It is not a clean solution, but it works for our needs. Events are not firing exactly when they should
+     (at least OnEndDrag) and we are not providing all the parameters to the handler.
+     If we did  DragMode := dmManual  then we could use the events OnStartDrag and OnEndDrag of RichEdit, but would
+     lose the behaviour of TRichEditOleCallback, configured as described above
 }
 
 
@@ -3490,8 +3485,20 @@ begin
 
   if ContainFormat(dataobj, CF_HDROP, TYMED_HGLOBAL) then
      Result := S_FALSE
-  else
-     Result := S_OK;
+
+  else begin                                                               // [dpv] See comment *4
+    if (not fReally) then begin
+       var DragObject: TDragObject;
+       if assigned( FRichEdit.OnStartDrag ) then
+          FRichEdit.OnStartDrag(FRichEdit, DragObject);
+    end
+    else begin
+       if assigned( FRichEdit.OnEndDrag ) then
+          FRichEdit.OnEndDrag(FRichEdit, nil, 0,0);
+    end;
+
+    Result := S_OK;
+  end;
 
 end;
 

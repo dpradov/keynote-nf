@@ -167,6 +167,9 @@ begin
           OnStartDrag := RxRTFStartDrag;
           OnEndDrag := RxRTFEndDrag;
           }
+          OnStartDrag := RxRTFStartDrag;    // See comment *4 in RxRichEd
+          OnEndDrag := RxRTFEndDrag;        // ,,
+
           OnFileDropped := Form_Main.OnFileDropped;
 
           // AllowObjects := true;                      // Should be assigned when creating the control, to not lead to recreate its window
