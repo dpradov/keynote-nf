@@ -870,6 +870,8 @@ type
     MMShowImages: TMenuItem;
     ToolbarSep972: TToolbarSep97;
     TB_Images: TToolbarButton97;
+    N118: TMenuItem;
+    RTFMRestoreProportions: TMenuItem;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1276,6 +1278,7 @@ type
     procedure MMAlternativeMarginsClick(Sender: TObject);
     procedure MMShowImagesClick(Sender: TObject);
     procedure TB_ImagesClick(Sender: TObject);
+    procedure RTFMRestoreProportionsClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -5354,6 +5357,11 @@ begin
   // MergeToKNTFile;
 end;
 
+procedure TForm_Main.RTFMRestoreProportionsClick(Sender: TObject);
+begin
+   ActiveNote.ReconsiderImageDimensionGoalsOnEditor (true);
+end;
+
 procedure TForm_Main.RTFMWordWebClick(Sender: TObject);
 begin
   WordWebLookup;
@@ -7452,7 +7460,7 @@ begin
       if CtrlDown then
          ActiveNote.ReloadImagesOnEditor
       else
-         ActiveNote.ReconsiderImageDimensionGoalsOnEditor;
+         ActiveNote.ReconsiderImageDimensionGoalsOnEditor (ActiveNote.Editor.SelLength > 0);
 
       ActiveNote.Editor.SelStart:= SS;
       TB_Images.Down:= not TB_Images.Down;

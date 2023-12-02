@@ -208,7 +208,7 @@ type
                                       Stream: TMemoryStream;
                                       ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
     procedure ReloadImagesOnEditor;
-    procedure ReconsiderImageDimensionGoalsOnEditor;
+    procedure ReconsiderImageDimensionGoalsOnEditor (Selection: boolean);
 
     function GetAlarms(considerDiscarded: boolean): TList;
     function HasAlarms (considerDiscarded: boolean): boolean;
@@ -914,12 +914,33 @@ begin
    DataStreamToEditor;
 end;
 
-procedure TTabNote.ReconsiderImageDimensionGoalsOnEditor;
+procedure TTabNote.ReconsiderImageDimensionGoalsOnEditor(Selection: boolean);
+var
+  strRTF: AnsiString;
+  SelectAll: boolean;
 begin
    ImagesManager.ReconsiderImageDimensionsGoal:= true;
    try
-      EditorToDataStream;
-      DataStreamToEditor;
+      if Selection then begin
+         SelectAll:= false;
+         CheckToSelectLeftImageHiddenMark(Editor);
+         strRTF:= Editor.RtfSelText;
+
+         if strRTF = '' then begin
+            strRTF:= Editor.RtfText;
+            SelectAll:= true;
+         end;
+
+         if strRTF <> '' then begin
+            strRTF:= ImagesManager.ProcessImagesInRTF(strRTF, Self, ImagesMode, '', 0, false);
+            if strRTF <> '' then
+               Editor.PutRtfText(strRTF, True, not SelectAll);
+         end;
+      end
+      else begin
+         EditorToDataStream;
+         DataStreamToEditor;
+      end;
 
    finally
       ImagesManager.ReconsiderImageDimensionsGoal:= false;

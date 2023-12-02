@@ -447,7 +447,9 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Hint = 'Show or hide images (Ctrl: Force reload  / Alt: Reconsider "Max.auto width")'
+        Hint = 
+          'Show or hide images (Ctrl: Force reload  / Alt: Reconsider "Max.' +
+          'auto width")'
         AllowAllUp = True
         GroupIndex = 16
         Glyph.Data = {00000000}
@@ -3847,6 +3849,16 @@ object Form_Main: TForm_Main
       Caption = '&Word Wrap'
       Hint = 'Toggle wrapping at end of lines'
       OnClick = MMFormatWordWrapClick
+    end
+    object N118: TMenuItem
+      Caption = '-'
+    end
+    object RTFMRestoreProportions: TMenuItem
+      Caption = 'Restore &image[s] proportions'
+      Hint = 
+        'Restore proportions and reconsider "Max.auto width" on selected ' +
+        'image[s] (if no selection: all images in editor)'
+      OnClick = RTFMRestoreProportionsClick
     end
   end
   object Menu_TAB: TPopupMenu

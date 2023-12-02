@@ -2943,7 +2943,8 @@ begin
                  At the end we will adjust the length }
                SetLength(RTFTextOut, BufSize);
                {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
-               for var k: integer := 1 to BufSize do RTFTextOut[k]:= ' ';  //ZeroMemory(@RTFTextOut[1], BufSize);
+               for var k: integer := 1 to BufSize do
+                  RTFTextOut[k]:= ' ';  //ZeroMemory(@RTFTextOut[1], BufSize);
                {$ENDIF}
             end;
 
@@ -3011,6 +3012,10 @@ begin
                RTFPictToImage (RTFText, pPict, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, pRTFImageEnd, GetStream);
 
             if fReconsiderImageDimensionsGoal then begin
+               if Img <> nil then begin
+                  Width:= Img.Width;
+                  Height:= Img.Height;
+               end;
                WidthGoal:= Width;
                HeightGoal:= Height;
                CheckDimensionGoals (Width, Height, WidthGoal, HeightGoal);
@@ -3042,7 +3047,7 @@ begin
 
 
 
-            if ImgIDwasPresent and (ImagesModeDest = ImageMode) then begin
+            if ImgIDwasPresent and (ImagesModeDest = ImageMode) and (not fReconsiderImageDimensionsGoal) then begin
               { If ImagesMode = ImagesModeDest and the image is already registered, just copy it to the output string
                 If the current mode is smEmbRTF and we are converting from a node with image registration (smEmbKNT, for example)
                 we will have to remove the hidden ID marks anyway, we will do it later  }
