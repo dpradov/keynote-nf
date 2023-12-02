@@ -13,6 +13,7 @@ object Form_DropFile: TForm_DropFile
   Font.Style = []
   KeyPreview = True
   Position = poScreenCenter
+  ShowHint = True
   OnActivate = FormActivate
   OnCreate = FormCreate
   DesignSize = (
@@ -116,9 +117,9 @@ object Form_DropFile: TForm_DropFile
   object txtImgNewName: TEdit
     Left = 77
     Top = 151
-    Width = 140
+    Width = 132
     Height = 21
-    Hint = 'The initial name was already being used'
+    Hint = 'The initial name is already being used'
     Alignment = taCenter
     Anchors = [akLeft, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
@@ -131,5 +132,7 @@ object Form_DropFile: TForm_DropFile
     TabOrder = 5
     Visible = False
     OnExit = txtImgNewNameExit
+    ExplicitTop = 150
+    ExplicitWidth = 128
   end
 end
