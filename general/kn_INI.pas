@@ -437,7 +437,8 @@ type
     ImgSingleViewerInstance,
     ImgHotTrackViewer,
     ImgSaveInSubfolders,
-    ImgKeepOrigName: string;
+    ImgKeepOrigName,
+    ImgViewerPath: string;
   end;
 
 const
@@ -600,6 +601,7 @@ const
     ImgHotTrackViewer: 'ImgHotTrackViewer';
     ImgSaveInSubfolders: 'ImgSaveInSubfolders';
     ImgKeepOrigName: 'ImgKeepOrigName';
+    ImgViewerPath: 'ImgViewerPath';
   );
 
 type
@@ -1102,6 +1104,7 @@ begin
     ImgHotTrackViewer:= true;
     ImgSaveInSubfolders:= false;
     ImgKeepOrigName:= false;
+    ImgViewerPath:= '';
   end;
 end; // InitializeKeyOptions
 
@@ -1389,6 +1392,7 @@ begin
       writebool   ( section, KeyOptionsIniStr.ImgHotTrackViewer, KeyOptions.ImgHotTrackViewer );
       writebool   ( section, KeyOptionsIniStr.ImgSaveInSubfolders, KeyOptions.ImgSaveInSubfolders );
       writebool   ( section, KeyOptionsIniStr.ImgKeepOrigName, KeyOptions.ImgKeepOrigName );
+      writestring ( section, KeyOptionsIniStr.ImgViewerPath, KeyOptions.ImgViewerPath );
 
       section := EditorOptionsIniStr.section;
       writebool( section, EditorOptionsIniStr.AutoIndent, EditorOptions.AutoIndent );
@@ -1729,6 +1733,7 @@ begin
       KeyOptions.ImgHotTrackViewer := readbool( section, KeyOptionsIniStr.ImgHotTrackViewer, KeyOptions.ImgHotTrackViewer );
       KeyOptions.ImgSaveInSubfolders := readbool( section, KeyOptionsIniStr.ImgSaveInSubfolders, KeyOptions.ImgSaveInSubfolders );
       KeyOptions.ImgKeepOrigName := readbool( section, KeyOptionsIniStr.ImgKeepOrigName, KeyOptions.ImgKeepOrigName );
+      KeyOptions.ImgViewerPath := readstring( section, KeyOptionsIniStr.ImgViewerPath, KeyOptions.ImgViewerPath );
 
       if KeyOptions.SingleInstance then KeyOptions.HotKeyWarn := false;
 

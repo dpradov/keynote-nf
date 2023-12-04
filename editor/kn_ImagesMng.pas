@@ -3615,11 +3615,20 @@ end;
 procedure TImageManager.OpenImageFile(FilePath: string);
 var
   ShellExecResult: integer;
+  Parameters: string;
 
 begin
   screen.Cursor := crAppStart;
+
+  if KeyOptions.ImgViewerPath <> '' then begin
+     Parameters:= FilePath;
+     FilePath:= GetAbsolutePath(ExtractFilePath(Application.ExeName), KeyOptions.ImgViewerPath);
+  end
+  else
+     Parameters:= '';
+
   try
-      ShellExecResult := ShellExecute( 0, 'open', PChar(FilePath), PChar(''), nil, SW_NORMAL );
+      ShellExecResult := ShellExecute( 0, 'open', PChar(FilePath), PChar(Parameters), nil, SW_NORMAL );
   finally
       screen.Cursor := crDefault;
   end;
