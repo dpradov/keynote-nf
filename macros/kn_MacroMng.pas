@@ -221,8 +221,7 @@ begin
     ClearMacroList;
     LoadMacroList;
 
-    for i := 1 to Macro_List.Count do
-    begin
+    for i := 1 to Macro_List.Count do begin
       Macro :=  TMacro( Macro_List.Objects[pred(i)] );
       Form_Main.ListBox_ResMacro.AddItem( Macro.Name, cbUnchecked, GetMacroIconIndex( Macro ));
       // Combo_Macro.AddItem( Macro.Name, GetMacroIconIndex( Macro ));
@@ -272,8 +271,7 @@ begin
 
   IsRecordingMacro := true;
   MacroRecordingPaused := false;
-  with Form_Main do
-  begin
+  with Form_Main do begin
     TB_MacroRecord.ImageIndex := TB_MacroRecord.ImageIndex + 1;
     TB_MacroRecord.Hint := STR_01;
     MacMMacro_Record.Caption := STR_02;
@@ -291,23 +289,21 @@ begin
   if MacroRecordingPaused then exit;
   if ( not assigned( ActiveMacro )) then exit;
 
-  ActiveMacro.Lines.Add( Format(
-    '%d%s%s',
-    [Key,_MACRO_DELIMITER_CHAR,ShiftStateToStr( Shift )]
+  ActiveMacro.Lines.Add( Format('%d%s%s', [Key,_MACRO_DELIMITER_CHAR,ShiftStateToStr( Shift )]
   ));
 end; // AddMacroKeyPress
 
 procedure AddMacroEditCommand( aCmd : TEditCmd );
 var
   OnPlayShowDlg : boolean;
+
 begin
   if MacroRecordingPaused then exit;
   if ( not assigned( ActiveMacro )) then exit;
-
   if ( aCmd = ecNone ) then exit;
 
-  if ( aCmd in CommandsProhibitedInMacros ) then
-  begin
+
+  if ( aCmd in CommandsProhibitedInMacros ) then begin
     messagedlg( Format(
       STR_04,
       [EDITCMD_NAMES[aCmd]]
@@ -315,16 +311,14 @@ begin
     exit;
   end;
 
-  if ( aCMD in EditCommandsWithNoArgs ) then
-  begin
+  if ( aCMD in EditCommandsWithNoArgs ) then begin
     ActiveMacro.Lines.Add( Format(
       '%s%s',
       [_MACRO_CMD_CHAR,EDITCMD_MACRO_NAMES[aCMD]]
     ));
   end
   else
-  if ( aCMD in EditCommandsWithDialogs ) then
-  begin
+  if ( aCMD in EditCommandsWithDialogs ) then begin
     case messagedlg( STR_05,
       mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
         mrYes : OnPlayShowDlg := false;
@@ -333,18 +327,15 @@ begin
           exit;
     end;
 
-    if OnPlayShowDlg then
-    begin
+    if OnPlayShowDlg then begin
       ActiveMacro.Lines.Add( Format(
         '%s%s',
         [_MACRO_CMD_CHAR,
         EDITCMD_MACRO_NAMES[aCMD]
       ]));
     end
-    else
-    begin
+    else begin
       case aCMD of
-
         ecBGColorDlg : begin
           ActiveMacro.Lines.Add( Format(
             '%s%s%s%s',
@@ -363,8 +354,7 @@ begin
             ColorToString( CommandRecall.Font.Color )
           ]));
         end;
-        ecFontDlg : with CommandRecall.Font do
-        begin
+        ecFontDlg : with CommandRecall.Font do begin
           ActiveMacro.Lines.Add( Format(
             '%s%s%s%d%s%s%s%s%s%d%s%s',
             [_MACRO_CMD_CHAR,
@@ -408,8 +398,7 @@ begin
             CommandRecall.Language
           ]));
         end;
-        ecParaDlg : with CommandRecall.Para do
-        begin
+        ecParaDlg : with CommandRecall.Para do begin
           ActiveMacro.Lines.Add( Format(
             '%s%s%s%d%s%d%s%d%s%d%s%d%s%d%s%d%s%d',
             [_MACRO_CMD_CHAR,
@@ -436,8 +425,7 @@ begin
     end;
 
   end
-  else
-  begin
+  else begin
     // special cases
     case aCMD of
       ecFontName : begin
@@ -516,7 +504,6 @@ begin
     end;
   end;
 
-
 end; // AddMacroEditCommand
 
 procedure PauseRecordingMacro;
@@ -540,26 +527,15 @@ begin
         PauseRecordingMacro;
       Form_Main.MacMMacroUserCommand.Enabled := false;
 
-      if ( ActiveMacro.Lines.Count = 0 ) then
-      begin
-        Messagedlg( Format(
-          STR_08,
-          [ActiveMacro.Name]
-        ), mtInformation, [mbOK], 0 );
+      if ( ActiveMacro.Lines.Count = 0 ) then begin
+        Messagedlg( Format(STR_08,[ActiveMacro.Name]), mtInformation, [mbOK], 0 );
         ActiveMacro.Free;
         exit;
       end;
 
-      if ( messagedlg( Format(
-        STR_09,
-        [ActiveMacro.Name,ActiveMacro.Lines.Count]
-        ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrNo ) then
-      begin
-        if ( not ActiveMacro.Save ) then
-        begin
-          messagedlg( Format(
-            STR_10, [ActiveMacro.FileName,ActiveMacro.LastError]
-            ), mtError, [mbOK], 0 );
+      if (messagedlg(Format(STR_09, [ActiveMacro.Name,ActiveMacro.Lines.Count]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrNo ) then begin
+        if ( not ActiveMacro.Save ) then begin
+          messagedlg( Format(STR_10, [ActiveMacro.FileName,ActiveMacro.LastError]), mtError, [mbOK], 0 );
           ActiveMacro.Free;
           exit;
         end;
@@ -568,27 +544,24 @@ begin
         Macro_List.AddObject( ActiveMacro.Name, ActiveMacro );
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11
       end
-      else
-      begin
+      else begin
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_12;
         ActiveMacro.Free;
       end;
+
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_13;
-        messagedlg( Format(
-          STR_14,
-          [ActiveMacro.Name,E.Message] ), mtError, [mbOK], 0 );
+        messagedlg( Format(STR_14, [ActiveMacro.Name,E.Message] ), mtError, [mbOK], 0 );
         ActiveMacro.Free;
       end;
     end;
+
   finally
     ActiveMacro := nil;
     IsRecordingMacro := false;
     MacroRecordingPaused := false;
-    with Form_Main do
-    begin
+    with Form_Main do begin
       SelectStatusbarGlyph( true );
       TB_MacroRecord.ImageIndex := TB_MacroRecord.ImageIndex - 1;
       TB_MacroRecord.Hint := STR_15;
@@ -619,54 +592,37 @@ begin
   // It is the macro author's responsibility to make sure
   // that the macro dooesn't do anything unreasonable, like
   // inserting text before creating a note
-  if ( aFileName <> _MACRO_AUTORUN_NEW_FILE ) then
-  begin
+  if ( aFileName <> _MACRO_AUTORUN_NEW_FILE ) then begin
     if ( not Form_Main.HaveNotes( true, true )) then exit;
     if ( not assigned( ActiveNote )) then exit;
   end;
 
   wasreadonly := Form_Main.NoteIsReadOnly( ActiveNote, false );
-  if wasreadonly then
-  begin
-    if ( DoMessageBox( Format(
-      STR_17,
-      [ActiveNote.Name] ),
-      mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if wasreadonly then begin
+    if ( DoMessageBox( Format(STR_17,[ActiveNote.Name]), mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
+       exit;
     ActiveNote.ReadOnly := false;
   end;
 
-  if ( aFileName <> '' ) then
-  begin
-
+  if ( aFileName <> '' ) then begin
     if ( pos( '\', aFileName ) = 0 ) then
-      aFileName := Macro_Folder + aFileName;
+       aFileName := Macro_Folder + aFileName;
 
     Macro := TMacro.Create;
     Macro.FileName := aFileName;
-    if ( not Macro.Load ) then
-    begin
-      DoMessageBox( Format(
-        STR_18,
-        [aFileName,Macro.LastError]
-      ), mtError, [mbOK], 0 );
+    if ( not Macro.Load ) then begin
+      DoMessageBox( Format(STR_18,  [aFileName,Macro.LastError]), mtError, [mbOK], 0 );
       Macro.Free;
       Macro := nil;
     end;
     wasNewMacro := true;
   end
   else
-  begin
-
     if ( aMacroName = '' ) then
-    begin
-      Macro := GetCurrentMacro( true );
-    end
+       Macro := GetCurrentMacro( true )
     else
-    begin
-      Macro := GetMacroByName( aMacroName, true );
-    end;
+       Macro := GetMacroByName( aMacroName, true );
 
-  end;
   if ( macro = nil ) then
     exit;
 
@@ -684,32 +640,20 @@ begin
   end;
 
   LastMacroFN := ExtractFilename( Macro.FileName );
-  Form_Main.MMToolsMacroRunLast.Hint := Format(
-    STR_20,
-    [ExtractFilename( LastMacroFN )]
-  );
+  Form_Main.MMToolsMacroRunLast.Hint := Format(STR_20, [ExtractFilename( LastMacroFN )]);
 
   try
     try
       if ( not Macro.Load ) then
-      begin
-        DoMessageBox( Format(
-          STR_21, [Macro.FileName,Macro.LastError]
-          ), mtError, [mbOK], 0 );
-      end;
+         DoMessageBox( Format(STR_21, [Macro.FileName,Macro.LastError]), mtError, [mbOK], 0 );
 
       if ( Macro.Version.Major > _MACRO_VERSION_MAJOR ) then
-      begin
-        DoMessageBox( Format(
-          STR_22, [Macro.FileName]
-          ), mtError, [mbOK], 0 );
-      end;
+         DoMessageBox( Format(STR_22, [Macro.FileName]), mtError, [mbOK], 0 );
 
       PlayMacro( Macro );
 
     except
-      On E : Exception do
-      begin
+      On E : Exception do begin
         messagedlg( E.message, mtError, [mbOK], 0 );
         exit;
       end;
@@ -718,18 +662,13 @@ begin
   finally
 
     if MacroErrorAbort then
-    begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_23;
-    end
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_23
     else
     if MacroAbortRequest then
-    begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_24;
-    end
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_24
     else
-    begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_25;
-    end;
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_25;
+
     try
       if wasNewMacro then
         Macro.Free
@@ -764,28 +703,23 @@ begin
   if MacroProcess( true ) then exit;
 
   if AsNew then
-  begin
-    Macro := TMacro.Create;
-  end
-  else
-  begin
+    Macro := TMacro.Create
+
+  else begin
     Macro := GetCurrentMacro( true );
     if ( Macro = nil ) then
       exit;
 
-    if ( not Macro.Load ) then
-    begin
+    if ( not Macro.Load ) then begin
       DoMessageBox( Format( STR_21, [Macro.FileName,Macro.LastError] ), mtError, [mbOK], 0 );
       Macro.Free;
       exit;
     end;
-
   end;
 
   Form_Macro := TForm_Macro.Create( Form_Main );
   try
-    with Form_Macro do
-    begin
+    with Form_Macro do begin
       MName := Macro.Name;
       MDesc := Macro.Description;
       MDate := Macro.DateModified;
@@ -794,49 +728,37 @@ begin
       myNewMacro := AsNew;
     end;
 
-    if ( Form_Macro.ShowModal = mrOK ) then
-    begin
-      with Form_Macro do
-      begin
+    if ( Form_Macro.ShowModal = mrOK ) then begin
+      with Form_Macro do begin
         Macro.Name := MName;
         Macro.Description := MDesc;
         Macro.DateModified := DateTimeToStr( now );
         Macro.AbortOnError := MAbort;
 
-        if AsNew then
-        begin
+        if AsNew then begin
           Macro.FileName := MFileName;
           ActiveMacro := Macro;
         end
-        else
-        begin
+        else begin
           // update existing macro
-          if ( MName <> OriginalName ) then
-          begin
-
+          if ( MName <> OriginalName ) then begin
             Form_Main.ListBox_ResMacro.Items.Delete( Form_Main.ListBox_ResMacro.ItemIndex );
             Form_Main.ListBox_ResMacro.ItemIndex := Form_Main.ListBox_ResMacro.AddItem( Macro.Name, cbUnchecked, GetMacroIconIndex( Macro ));
-
             Macro_List.Delete( Macro_List.IndexOf( OriginalName ));
             Macro_List.AddObject( MName, Macro );
           end;
 
-          if ( not Macro.Save ) then
-          begin
-            DoMessageBox( Format(
-              STR_10, [Macro.FileName,Macro.LastError]
-              ), mtError, [mbOK], 0 );
+          if ( not Macro.Save ) then begin
+            DoMessageBox( Format(STR_10, [Macro.FileName,Macro.LastError]), mtError, [mbOK], 0 );
             exit;
           end;
-
         end;
       end;
     end
-    else
-    begin
+    else begin
       ActiveMacro := nil;
       if AsNew then
-        Macro.Free;
+         Macro.Free;
     end;
 
   finally
@@ -856,49 +778,42 @@ begin
   Macro := GetCurrentMacro( true );
   if ( macro = nil ) then exit;
 
-  if ( DoMessageBox( Format(
-    STR_26,
-    [Macro.Name]
-    ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( DoMessageBox( Format(STR_26, [Macro.Name]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+     exit;
 
   DeleteSuccess := false;
   try
     try
-      if ( not deletefile( Macro_Folder + Macro.FileName )) then
-      begin
+      if ( not deletefile( Macro_Folder + Macro.FileName )) then begin
         DeleteSuccess := false;
-        DoMessageBox( Format(
-          STR_27,
-          [Macro.Filename] ), mtError, [mbOK], 0 );
+        DoMessageBox( Format(STR_27, [Macro.Filename] ), mtError, [mbOK], 0);
         exit;
       end;
       i := Form_Main.ListBox_ResMacro.ItemIndex;
       Form_Main.ListBox_ResMacro.Items.Delete( i );
       i := Macro_List.IndexOf( Macro.Name );
-      if ( i >= 0 ) then
-      begin
+      if ( i >= 0 ) then begin
         Macro.Free;
         Macro_List.Delete( i );
       end;
       DeleteSuccess := true;
 
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         DeleteSuccess := false;
         DoMessageBox( STR_28 + E.Message, mtError, [mbOK], 0 );
       end;
     end;
+
   finally
-    if DeleteSuccess then
-    begin
+    if DeleteSuccess then begin
       if ( Form_Main.ListBox_ResMacro.Items.Count > 0 ) then
-        Form_Main.ListBox_ResMacro.ItemIndex := 0;
+         Form_Main.ListBox_ResMacro.ItemIndex := 0;
     end;
   end;
 
-
 end; // DeleteMacro
+
 
 procedure PlayMacro( const Macro : TMacro );
 var
@@ -916,15 +831,12 @@ var
   sndShift : TShiftState;
 
 
-      procedure AbortMacro( const s : string; i : integer; const line : string );
-      begin
-        messagedlg( Format(
-          STR_29,
-          [i,copy( line, 1, 127 ),s]
-        ), mtError, [mbOK], 0 );
-        MacroFinished := true;
-        MacroErrorAbort := true;
-      end;
+   procedure AbortMacro( const s : string; i : integer; const line : string );
+   begin
+     messagedlg( Format(STR_29, [i,copy( line, 1, 127 ),s]), mtError, [mbOK], 0 );
+     MacroFinished := true;
+     MacroErrorAbort := true;
+   end;
 
 
 begin
@@ -958,15 +870,13 @@ begin
 
   try
     try
+
       repeat
-
         MacroFinished := true;
-        for i := 1 to Macro.Lines.Count do
-        begin
 
+        for i := 1 to Macro.Lines.Count do begin
           Application.ProcessMessages;
-          if MacroAbortRequest then
-          begin
+          if MacroAbortRequest then begin
             MacroFinished := true;
             break;
           end;
@@ -974,6 +884,7 @@ begin
           linecnt := i;
           line := Macro.Lines[pred( i )];
           if ( line = '' ) then continue;
+
           case line[1] of
             _MACRO_COMMENT_CHAR : continue;
 
@@ -985,11 +896,8 @@ begin
               cmdstr := '';
               argstr := '';
               if ( p = 0 ) then
-              begin
-                cmdstr := line;
-              end
-              else
-              begin
+                cmdstr := line
+              else begin
                 cmdstr := copy( line, 1, pred( p ));
                 argstr := copy( line, succ( p ), length( line ));
               end;
@@ -997,49 +905,42 @@ begin
               cmdstr := lowercase( cmdstr );
               cmdidx := EditCmds.IndexOf( cmdstr );
               if ( cmdidx < 0 ) then
-              begin
-                if Macro.AbortOnError then
-                begin
-                  AbortMacro( STR_30, i, Macro.Lines[pred( i )] );
-                  break;
-                end
-                else
-                begin
-                  inc( ErrorCnt );
-                  continue;
-                end;
-              end;
+                 if Macro.AbortOnError then begin
+                   AbortMacro( STR_30, i, Macro.Lines[pred( i )] );
+                   break;
+                 end
+                 else begin
+                   inc( ErrorCnt );
+                   continue;
+                 end;
 
               EditCmd := TEditCmd( cmdidx );
-              if ( EditCmd in EditCommandsWithNoArgs ) then
-              begin
+              if ( EditCmd in EditCommandsWithNoArgs ) then begin
                 LastEditCmd := EditCmd;
                 RepeatLastCommand;
               end
               else
-              if ( EditCmd in EditCommandsWithDialogs ) then
-              begin
-                if ( argstr = '' ) then
-                begin
+              if ( EditCmd in EditCommandsWithDialogs ) then begin
+                if ( argstr = '' ) then begin
                   if ( EditCmd in EditCommandsEx ) then
                     PerformCmdEx( EditCmd )
                   else
                     PerformCmd( EditCmd );
                 end
-                else
-                begin
+                else begin
                   try
                     case EditCmd of
                       ecBGColorDlg : begin
                         CommandRecall.Color := StringToColor( argstr );
                       end;
+
                       ecFontColorDlg : begin
                         CommandRecall.Font.Color := StringToColor( argstr );
                       end;
+
                       ecFontDlg : begin
                         CSVTextToStrs( ArgList, argstr, _MACRO_DELIMITER_CHAR );
-                        with CommandRecall.Font do
-                        begin
+                        with CommandRecall.Font do begin
                           Charset := strtoint( ArgList[0] );
                           Color := StringToColor( Arglist[1] );
                           Name := ArgList[2];
@@ -1047,19 +948,22 @@ begin
                           Style := StrToFontStyle( ArgList[4] );
                         end;
                       end;
+
                       ecLanguage : begin
                         CommandRecall.Language := strtoint( argstr );
                       end;
+
                       ecGoTo : begin
                         CommandRecall.GoToIdx := argstr;
                       end;
+
                       ecHighlightDlg : begin
                         CommandRecall.Color := StringToColor( argstr );
                       end;
+
                       ecParaDlg : begin
                         CSVTextToStrs( ArgList, argstr, _MACRO_DELIMITER_CHAR );
-                        with CommandRecall.Para do
-                        begin
+                        with CommandRecall.Para do begin
                           SpacingRule := TLineSpacingRule( strtoint( ArgList[0] ));
                           LIndent := strtoint( ArgList[1] );
                           RIndent := strtoint( ArgList[2] );
@@ -1071,18 +975,17 @@ begin
                         end;
                       end;
                     end;
+
                     LastEditCmd := EditCmd;
                     RepeatLastCommand;
+
                   except
-                    on E : Exception do
-                    begin
-                      if Macro.AbortOnError then
-                      begin
+                    on E : Exception do begin
+                      if Macro.AbortOnError then begin
                         AbortMacro( E.Message, i, Macro.Lines[pred( i )] );
                         break;
                       end
-                      else
-                      begin
+                      else begin
                         inc( ErrorCnt );
                         continue;
                       end;
@@ -1090,8 +993,8 @@ begin
                   end;
                 end;
               end
-              else
-              begin
+
+              else begin
                 // special cases
                 try
                   // we must set control state here, because these are
@@ -1103,32 +1006,35 @@ begin
                       CommandRecall.Font.Name := argstr;
                       Form_Main.Combo_Font.FontName := CommandRecall.Font.Name;
                     end;
+
                     ecFontSize : begin
                       CommandRecall.Font.Size := strtoint( argstr );
                       Form_Main.Combo_FontSize.Text := argstr;
                     end;
+
                     ecFontColor, ecFontColorBtn : begin
                       CommandRecall.Font.Color := StringToColor( argstr );
                       Form_Main.TB_Color.ActiveColor := CommandRecall.Font.Color;
                     end;
+
                     ecHighlight, ecHighlightBtn : begin
                       CommandRecall.Color := StringToColor( argstr );
                       Form_Main.TB_Hilite.ActiveColor := CommandRecall.Color;
                     end;
+
                     ecInsCharacter : begin
                       CSVTextToStrs( ArgList, argstr, _MACRO_DELIMITER_CHAR );
-                      with CommandRecall.CharInfo do
-                      begin
+                      with CommandRecall.CharInfo do begin
                         Code := strtoint( ArgList[0] );
                         Count := strtoint( ArgList[1] );
                         Name := ArgList[2];
                         Charset := strtoint( ArgList[3] );
                       end;
                     end;
+
                     ecFindText : begin
                       CSVTextToStrs( ArgList, argstr, _MACRO_DELIMITER_CHAR );
-                      with FindOptions do
-                      begin
+                      with FindOptions do begin
                         Pattern := ArgList[0];
                         Text_to_Find := Pattern;
                         MatchCase := ( ArgList[1] = BOOLEANSTR[true] );
@@ -1141,22 +1047,22 @@ begin
                         Wrap := false;
                       end;
                     end;
+
                     ecStyleApply: begin                    //***1
                       CommandRecall.StyleName:= argstr;
                     end;
                   end;
+
                   LastEditCmd := EditCmd;
                   RepeatLastCommand;
+
                 except
-                  on E : Exception do
-                  begin
-                    if Macro.AbortOnError then
-                    begin
+                  on E : Exception do begin
+                    if Macro.AbortOnError then begin
                       AbortMacro( E.Message, i, Macro.Lines[pred( i )] );
                       break;
                     end
-                    else
-                    begin
+                    else begin
                       inc( ErrorCnt );
                       continue;
                     end;
@@ -1173,43 +1079,32 @@ begin
               delete( line, 1, 1 );
               p := pos( '(', line );
               if ( p = 0 ) then
-              begin
-                cmdstr := AnsiUpperCase( line );
-              end
-              else
-              begin
+                cmdstr := AnsiUpperCase( line )
+              else begin
                 cmdstr := AnsiUpperCase( copy( line, 1, pred( p )));
                 delete( line, 1, p );
                 p := pos( ')', line );
-                if ( p = 0 ) then
-                begin
-                  if Macro.AbortOnError then
-                  begin
+                if ( p = 0 ) then begin
+                  if Macro.AbortOnError then begin
                     AbortMacro( STR_31, i, Macro.Lines[pred( i )] );
                     break;
                   end
-                  else
-                  begin
+                  else begin
                     inc( ErrorCnt );
                     continue;
                   end;
                 end
                 else
-                begin
                   argstr := copy( line, 1, pred( p ));
-                end;
               end;
 
               cmdidx := MacroCmds.IndexOf( cmdstr );
-              if ( cmdidx < 0 ) then
-              begin
-                if Macro.AbortOnError then
-                begin
+              if ( cmdidx < 0 ) then begin
+                if Macro.AbortOnError then begin
                   AbortMacro( STR_32, i, Macro.Lines[pred( i )] );
                   break;
                 end
-                else
-                begin
+                else begin
                   inc( ErrorCnt );
                   continue;
                 end;
@@ -1223,33 +1118,29 @@ begin
                   if ( argstr = '' ) then
                     argstr := MACRO_DEFS[macrocmd].DefArg;
                   // still no argument?
-                  if ( argstr = '' ) then
-                  begin
-                    if Macro.AbortOnError then
-                    begin
+                  if ( argstr = '' ) then begin
+                    if Macro.AbortOnError then begin
                       AbortMacro( STR_33, i, Macro.Lines[pred( i )] );
                       break;
                     end
-                    else
-                    begin
+                    else begin
                       inc( ErrorCnt );
                       continue;
                     end;
                   end;
                 end;
+
                 argInteger : begin
                   if ( argstr = '' ) then
                     argstr := MACRO_DEFS[macrocmd].DefArg;
                   try
                     argint := StrToInt( trim( argstr ));
                   except
-                    if Macro.AbortOnError then
-                    begin
+                    if Macro.AbortOnError then begin
                       AbortMacro( STR_34, i, Macro.Lines[pred( i )] );
                       break;
                     end
-                    else
-                    begin
+                    else begin
                       inc( ErrorCnt );
                       continue;
                     end;
@@ -1259,33 +1150,39 @@ begin
 
               case macrocmd of
                 macInsert : begin
-                  with ActiveNote.Editor do
-                  begin
+                  with ActiveNote.Editor do begin
                     SelText := ExpandMetaChars( argstr );
                     SelStart := SelStart + SelLength;
                     SelLength := 0;
                   end;
                 end;
+
                 macWait : begin
                   Sleep( argint );
                   Application.ProcessMessages;
                 end;
+
                 macRewind : begin
                   MacroFinished := false;
                   break;
                 end;
+
                 macMessage : begin
                   DoMessageBox(ExpandMetaChars( argstr ), Macro.Name,
                     MB_OK+MB_ICONASTERISK+MB_DEFBUTTON1+MB_APPLMODAL );
                 end;
+
                 macStatus : begin
                   Form_Main.StatusBar.Panels[PANEL_HINT].Text := argstr;
                 end;
+
                 macPlugin : begin
                 end;
+
                 macFontColor : begin
                   Form_Main.NoteSelText.Color := StringToColor( argstr );
                 end;
+
                 macBGColor : begin
                   // call PerformCmd here, because setting BG color
                   // for a note involves more work than just
@@ -1294,75 +1191,74 @@ begin
                   LastEditCmd := ecBGColorDlg;
                   RepeatLastCommand;
                 end;
+
                 macHighlightColor : begin
                   Form_Main.NoteSelText.BackColor := StringToColor( argstr );
                 end;
+
                 macMacro : begin
                   newMacro := TMacro.Create;
                   try
                     if ( extractfileext( lowercase( argstr )) <> ext_Macro ) then
                       argstr := argstr + ext_Macro;
                     newMacro.FileName := argstr;
-                    if ( not NewMacro.Load ) then
-                    begin
-                      if Macro.AbortOnError then
-                      begin
-                        AbortMacro( Format(
-                          STR_35,
-                          [argstr, Macro.LastError]
-                        ), i, Macro.Lines[pred( i )] );
+                    if ( not NewMacro.Load ) then begin
+                      if Macro.AbortOnError then begin
+                        AbortMacro( Format(STR_35,[argstr, Macro.LastError]), i, Macro.Lines[pred( i )] );
                         break;
                       end
-                      else
-                      begin
+                      else begin
                         inc( ErrorCnt );
                         continue;
                       end;
                     end
                     else
-                    begin
                       PlayMacro( newMacro ); // RECURSIVE CALL
-                    end;
+
                   finally
                     newMacro.Free;
                   end;
                 end;
+
                 macConfirm : begin
                   if ( DoMessageBox( argstr, Macro.Name,
-                    MB_OKCANCEL+MB_ICONQUESTION+MB_DEFBUTTON1+MB_APPLMODAL ) = ID_CANCEL ) then
-                  begin
+                    MB_OKCANCEL+MB_ICONQUESTION+MB_DEFBUTTON1+MB_APPLMODAL ) = ID_CANCEL ) then begin
                     // user clicked CANCEL, so abort macro
                     MacroFinished := true;
                     break;
                   end;
                 end;
+
                 macNoteNewRTF : begin
                   // always abort if fail
-                  if ( not NewNote( true, true, ntRTF )) then
-                  begin
+                  if ( not NewNote( true, true, ntRTF )) then begin
                     AbortMacro( STR_36, i, Macro.Lines[pred( i )] );
                     break;
                   end;
                 end;
+
                 macNoteNewTree : begin
                   // always abort if fail
-                  if ( not NewNote( true, true, ntTree )) then
-                  begin
+                  if ( not NewNote( true, true, ntTree )) then begin
                     AbortMacro( STR_36, i, Macro.Lines[pred( i )] );
                     break;
                   end;
                 end;
+
                 macApplyStyle : begin
                   StyleApply( argstr );
                 end;
+
                 macBookmarkSet : begin
                   if argint in [0..9] then
                     BookmarkAdd( argint );
                 end;
+
                 macBookmarkJump : begin
                   if argint in [0..9] then
                     BookmarkGoTo( argint );
                 end;
+
                 macStyleOn, macStyleOff, macStyleFlip : begin
                   argstr := lowercase( argstr );
                   if argstr = 'bold' then
@@ -1376,50 +1272,38 @@ begin
                   else
                   if argstr = 'strike' then
                     myFontStyle := fsStrikeout
-                  else
-                  begin
-                    if Macro.AbortOnError then
-                    begin
-                      AbortMacro(
-                       STR_37,
-                        i, Macro.Lines[pred( i )] );
+                  else begin
+                    if Macro.AbortOnError then begin
+                      AbortMacro(STR_37, i, Macro.Lines[pred( i )] );
                       break;
                     end
-                    else
-                    begin
+                    else begin
                       inc( ErrorCnt );
                       continue;
                     end;
                   end;
 
                   if ( macrocmd = macStyleOn ) then
-                  begin
-                    with Form_Main.NoteSelText do
-                      Style := Style + [myFontStyle];
-                  end
+                     with Form_Main.NoteSelText do
+                       Style := Style + [myFontStyle]
                   else
                   if ( macrocmd = macStyleOff ) then
-                  begin
-                    with Form_Main.NoteSelText do
-                      Style := Style - [myFontStyle];
-                  end
-                  else // macStyleFlip
-                  begin
-                    with Form_Main.NoteSelText do
-                      if myFontStyle in Style then
+                     with Form_Main.NoteSelText do
                         Style := Style - [myFontStyle]
-                      else
-                        Style := Style + [myFontStyle];
-                  end;
+                  else // macStyleFlip
+                     with Form_Main.NoteSelText do
+                       if myFontStyle in Style then
+                          Style := Style - [myFontStyle]
+                       else
+                          Style := Style + [myFontStyle];
                 end;
 
                 macGoUp : begin
                   for counter := 1 to argint do
-                  with ActiveNote.Editor do
-                  begin
-                    Perform( WM_KEYDOWN, VK_UP, 0 );
-                    Perform( WM_KEYUP, VK_UP, 0 );
-                  end;
+                     with ActiveNote.Editor do begin
+                       Perform( WM_KEYDOWN, VK_UP, 0 );
+                       Perform( WM_KEYUP, VK_UP, 0 );
+                     end;
                 end;
 
                 macGoDown : begin
@@ -1457,26 +1341,23 @@ begin
 
             end;
 
-            else // bare keypress information
-            begin
-              while ( not ActiveNote.Editor.Focused ) do
-              begin
+            else begin // bare keypress information
+              while ( not ActiveNote.Editor.Focused ) do begin
                 // RTF *must* be focused, otherwise keypresses
                 // will be sent to the wrong control.
                 // while RTF is not focused, we just pause
                 Application.ProcessMessages;
-                if MacroAbortRequest then
-                begin
+                if MacroAbortRequest then begin
                   MacroFinished := true;
                   break;
                 end;
               end;
-
               sndKey := 0;
               sndShift := [];
 
               p := pos( _MACRO_DELIMITER_CHAR, line );
               if ( p = 0 ) then continue;
+
               try
                 sndKey := strtoint( copy( line, 1, pred( p )));
               except
@@ -1487,7 +1368,6 @@ begin
               sndShift := StrToShiftState( line );
 
               PostKeyEx( ActiveNote.Editor.Handle, sndKey, sndShift, False )
-
             end;
 
           end;
@@ -1496,15 +1376,13 @@ begin
       until MacroFinished;
 
     except
-      On E : Exception do
-      begin
+      On E : Exception do begin
         MacroFinished := true;
         MacroErrorAbort := true;
-        messagedlg( Format(STR_38,
-          [E.Message,copy( Macro.Lines[pred(linecnt)], 1, 127 ),linecnt]
-        ), mtError, [mbOK], 0 );
+        messagedlg( Format(STR_38,[E.Message,copy( Macro.Lines[pred(linecnt)], 1, 127 ),linecnt]), mtError, [mbOK], 0 );
       end;
     end;
+
   finally
     MacroCmds.Free;
     EditCmds.Free;
@@ -1516,8 +1394,7 @@ function MacroProcess( const DoWarn : boolean ) : boolean;
 begin
   result := ( IsRunningMacro or IsRecordingMacro );
   if ( result and DoWarn ) then
-    messagedlg( STR_39,
-      mtInformation, [mbOK], 0 );
+     messagedlg( STR_39, mtInformation, [mbOK], 0 );
 end; // MacroProcess
 
 procedure AddUserMacroCommand;
@@ -1528,25 +1405,12 @@ begin
 
   Form_MacroCmd := TForm_MacroCmd.Create( Form_Main );
   try
-    if ( Form_MacroCmd.ShowModal = mrOK ) then
-    begin
-      with Form_MacroCmd do
-      begin
+    if ( Form_MacroCmd.ShowModal = mrOK ) then begin
+      with Form_MacroCmd do begin
         if ( myArgs <> '' ) then
-          ActiveMacro.Lines.Add( Format(
-            '%s%s(%s)',
-            [_MACRO_USERCMD_CHAR,MACRO_CMD_NAMES[myCmd],myArgs]
-          ))
+          ActiveMacro.Lines.Add( Format('%s%s(%s)', [_MACRO_USERCMD_CHAR,MACRO_CMD_NAMES[myCmd],myArgs]))
         else
-          ActiveMacro.Lines.Add( Format(
-            '%s%s',
-            [_MACRO_USERCMD_CHAR,MACRO_CMD_NAMES[myCmd]] ));
-        (*
-        if CB_Execute.Checked then
-        begin
-          // execute this command
-        end;
-        *)
+          ActiveMacro.Lines.Add( Format('%s%s', [_MACRO_USERCMD_CHAR,MACRO_CMD_NAMES[myCmd]] ));
       end;
     end;
   finally
@@ -1563,14 +1427,10 @@ begin
   i := Macro_List.IndexOf( aName );
 
   if ( i >= 0 ) then
-  begin
-    result := TMacro( Macro_List.Objects[i] );
-  end
+    result := TMacro( Macro_List.Objects[i] )
   else
-  begin
     if DoWarn then
-      DoMessageBox( Format( STR_40, [aName] ), mtError, [mbOK], 0 );
-  end;
+       DoMessageBox( Format( STR_40, [aName] ), mtError, [mbOK], 0 );
 
 end; // GetMacroByName
 
@@ -1580,15 +1440,13 @@ begin
 
   if ( not CheckResourcePanelVisible( true )) then exit;
 
-  if (( Form_Main.ListBox_ResMacro.Items.Count = 0 ) or ( Form_Main.ListBox_ResMacro.ItemIndex < 0 )) then
-  begin
+  if (( Form_Main.ListBox_ResMacro.Items.Count = 0 ) or ( Form_Main.ListBox_ResMacro.ItemIndex < 0 )) then begin
     if DoWarn then
-      messagedlg( STR_41, mtError, [mbOK], 0 );
+       messagedlg( STR_41, mtError, [mbOK], 0 );
     exit;
   end;
 
   try
-
     try
       result := TMacro(
         Macro_List.Objects[Macro_List.IndexOf( Form_Main.ListBox_ResMacro.Items[Form_Main.ListBox_ResMacro.ItemIndex] )]);
@@ -1598,7 +1456,7 @@ begin
 
   finally
     if (( result = nil ) and DoWarn ) then
-      messagedlg( STR_42, mtError, [mbOK], 0 );
+       messagedlg( STR_42, mtError, [mbOK], 0 );
   end;
 end; // GetCurrentMacro
 
@@ -1606,16 +1464,15 @@ procedure RepeatLastCommand;
 begin
   if ( not assigned( ActiveNote )) then exit;
   if ( LastEditCmd = ecNone ) then exit;
-  if ( LastEditCmd in RepeatableEditCommands ) then
-  begin
+
+  if ( LastEditCmd in RepeatableEditCommands ) then begin
     if ( LastEditCmd in EditCommandsEx ) then
       PerformCmdEx( LastEditCmd )
     else
       PerformCmd( LastEditCmd );
   end
   else
-  if ( LastEditCmd in RememberedEditCommands ) then
-  begin
+  if ( LastEditCmd in RememberedEditCommands ) then begin
     RecallingCommand := true;
     try
       if ( LastEditCmd in EditCommandsEx ) then
@@ -1627,9 +1484,7 @@ begin
     end;
   end
   else
-  begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_43;
-  end;
+     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_43;
 
 end; // RepeatLastCommand
 
@@ -1648,6 +1503,7 @@ begin
   // (*1): Can be used when note is set to ReadOnly, although the command ecReadOnly
   //       CAN modify the note.
   if ( RTFUpdating or FileIsBusy ) then exit;
+
   if ( not assigned( ActiveNote )) then begin
     if opt_Debug then begin
       {$IFDEF KNT_DEBUG}
@@ -1861,12 +1717,12 @@ var
         i:= 1;
         j:= 1;
         while (i <= len) do begin
-            if (j > m) or (TextToReplace[i] <> Selection[j]) then begin
-               DoUndo:= True;
-               break;
-            end;
-            Inc(j);
-            Inc(i);
+          if (j > m) or (TextToReplace[i] <> Selection[j]) then begin
+             DoUndo:= True;
+             break;
+          end;
+          Inc(j);
+          Inc(i);
         end;
 
      end;
@@ -1912,7 +1768,6 @@ begin
        Editor.PasteIRichEditOLE(CF_TEXT);
 
        ReplaceBullets;
-
 
        if RichEditVersion < 5 then begin
           if not PasteOperationWasOK() then begin
@@ -1981,7 +1836,7 @@ var
         actualNumberingStyle:= ActiveNote.Editor.Paragraph.NumberingStyle;
         If (actualNumbering = tipo) and (actualNumberingStyle = KeyOptions.LastNumberingStyle) and (NumberingStart = 1) Then
             ActiveNote.Editor.Paragraph.Numbering := nsNone
-        Else begin
+        else begin
               LeftIndent:= Round(10* Form_Main.NoteSelText.Size/5.7);
               actLeftIndent:= ActiveNote.Editor.Paragraph.LeftIndent;
               if actLeftIndent > LeftIndent then
@@ -2715,6 +2570,7 @@ begin
          {$ENDIF}
         end;
       end;
+
     finally
       ActiveNote.Editor.EndUpdate;
 
@@ -2741,8 +2597,7 @@ begin
     // last command that CAN be repeated
   }
 
-  with Form_Main do
-  begin
+  with Form_Main do begin
       MMEditRepeat.Enabled := ( LastEditCmd <> ecNone );
       RTFMRepeatCmd.Enabled := MMEditRepeat.Enabled;
       TB_Repeat.Enabled := MMEditRepeat.Enabled;
@@ -2766,8 +2621,7 @@ begin
     Form_Lang.RecentLang := KeyOptions.RecentLanguage;
     Form_Lang.DefaultLang := DefaultEditorChrome.Language;
 
-    if ( Form_Lang.ShowModal = mrOK ) then
-    begin
+    if ( Form_Lang.ShowModal = mrOK ) then begin
       result := true;
       CommandRecall.Language := Form_Lang.Combo_Lang.Language;
       KeyOptions.RecentLanguage := CommandRecall.Language;
@@ -2784,8 +2638,7 @@ var
 begin
   result := false;
 
-  with CommandRecall.Para do
-  begin
+  with CommandRecall.Para do begin
     case ActiveNote.Editor.Paragraph.LineSpacing of
       0 : SpacingRule := lsSingle;
       1 : SpacingRule := lsOneAndHalf;
@@ -2813,16 +2666,15 @@ begin
     if ( Form_Para.CurrentNumbering = nsNone ) then
       Form_Para.CurrentNumberingStyle := KeyOptions.LastNumberingStyle;
 
-    with Form_Para do
-    begin
+    with Form_Para do begin
       Spin_First.Increment := EditorOptions.IndentInc;
       Spin_Left.Increment := EditorOptions.IndentInc;
       Spin_Right.Increment := EditorOptions.IndentInc;
       Spin_SpcBef.Increment := EditorOptions.ParaSpaceInc;
       Spin_SpcAft.Increment := EditorOptions.ParaSpaceInc;
     end;
-    if ( Form_Para.ShowModal = mrOK ) then
-    begin
+
+    if ( Form_Para.ShowModal = mrOK ) then begin
       result := true;
       CommandRecall.Para := Form_Para.Para;
 
@@ -2833,6 +2685,7 @@ begin
          ( CommandRecall.Para.LIndent = 0 )) then
             CommandRecall.Para.LIndent := EditorOptions.IndentInc;
     end;
+
   finally
     Form_Para.Free;
   end;
@@ -2850,26 +2703,23 @@ begin
 
   // check if function key
   if ( not ( key in [VK_F1..VK_F12] )) then exit;
+
   s := '';
 
   if ( Shift = [ssAlt] ) then
-  begin
-    s := AltFKeys[Key-111]; // get value from 1 to 12
-  end
+     s := AltFKeys[Key-111] // get value from 1 to 12
   else
   if ( Shift = [ssShift,ssAlt] ) then
-  begin
-    s := ShiftAltFKeys[Key-111]; // get value from 1 to 12
-  end
+     s := ShiftAltFKeys[Key-111] // get value from 1 to 12
   else
   if ( Shift = [ssCtrl,ssAlt] ) then
-  begin
-    s := CtrlAltFKeys[Key-111];  // get value from 1 to 12
-  end;
+     s := CtrlAltFKeys[Key-111];  // get value from 1 to 12
 
   if ( s = '' ) then exit;
+
   p := pos( _KEY_FUNC_DELIMITER, s );
   if ( p < 2 ) then exit;
+
   cmd := s[1];
   delete( s, 1, p );
 
@@ -2879,9 +2729,9 @@ begin
     _KEY_FUNC_TEMPLATE : InsertTemplate( s );
     _KEY_FUNC_STYLE : StyleApply( s );
     _KEY_FUNC_FONT : begin
-      RecallingCommand := true;
-      CommandRecall.Font.Name := s;
-      PerformCmd( ecFontName );
+       RecallingCommand := true;
+       CommandRecall.Font.Name := s;
+       PerformCmd( ecFontName );
     end;
   end;
 
@@ -2897,8 +2747,7 @@ begin
   if CopyFormatMode <> cfDisabled then
      EnableCopyFormat(False);
 
-  with Form_Main.OpenDlg do
-  begin
+  with Form_Main.OpenDlg do begin
     oldFilter := Filter;
     Filter := FILTER_MACROS;
     FilterIndex := 1;
@@ -2909,15 +2758,13 @@ begin
   end;
 
   try
-    if Form_Main.OpenDlg.Execute then
-    begin
+    if Form_Main.OpenDlg.Execute then begin
       fn := normalFN( Form_Main.OpenDlg.Filename );
       ExecuteMacro( fn, '' );
     end;
   finally
     Form_Main.OpenDlg.Filter := oldFilter;
   end;
-
 
 end; // ExecuteMacroFile
 
@@ -2938,27 +2785,24 @@ begin
     UpdateLastCommand( ecNone );
     RecallingCommand := false;
 
-   FontFormatToCopy.szFaceName:= '';
+    FontFormatToCopy.szFaceName:= '';
 
     ParaFormatToCopy.dySpaceBefore := -1; // MARKER: signals a not-yet-assigned format
 
     CopyFormatMode:= cfDisabled;
 
-    with CommandRecall do
-    begin
+    with CommandRecall do begin
       Color := clWindow;
       GoToIdx := '';
       StyleName := '';
-      with Font do // last font properties applied, for repeating last command
-      begin
+      with Font do begin  // last font properties applied, for repeating last command
         Charset := DEFAULT_CHARSET;
         Color := clBlack;
         Name := 'Tahoma';
         Size := 10;
         Style := [];
       end;
-      with Para do // last paragraph properties applied
-      begin
+      with Para do begin  // last paragraph properties applied
         SpacingRule := lsSingle;
         LIndent := 0;
         RIndent := 0;
@@ -2968,8 +2812,7 @@ begin
         Numbering := nsNone;
         Alignment := paLeftJustify;
       end;
-      with CharInfo do // last Insert Character arguments
-      begin
+      with CharInfo do begin // last Insert Character arguments
         Code := 0;
         Name := '';
         Count := 0;

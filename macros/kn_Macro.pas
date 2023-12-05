@@ -1,19 +1,19 @@
 unit kn_Macro;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
@@ -137,8 +137,7 @@ begin
   try
     reset( f );
   except
-    On E : Exception do
-    begin
+    On E : Exception do begin
       ErrStr := E.Message;
       exit;
     end;
@@ -153,8 +152,7 @@ begin
       if (( not result ) or LoadOnlyInfo ) then
         exit;
 
-      while not eof( f ) do
-      begin
+      while not eof( f ) do begin
         readln( f, s );
         Lines.Add( s );
       end;
@@ -162,8 +160,7 @@ begin
       result := true;
 
     except
-      On E : Exception do
-      begin
+      On E : Exception do begin
         ErrStr := E.Message;
         exit;
         result := false;
@@ -209,8 +206,7 @@ begin
   try
     rewrite( f );
   except
-    On E : Exception do
-    begin
+    On E : Exception do begin
       ErrStr := E.Message;
       exit;
     end;
@@ -220,11 +216,10 @@ begin
     try
       writeln( f, UTF8Encode(MakeInfoLine) );
       for i := 1 to Lines.Count do
-        writeln( f, Lines[pred( i )] );
+         writeln( f, Lines[pred( i )] );
       result := true;
     except
-      On E : Exception do
-      begin
+      On E : Exception do begin
         ErrStr := E.Message;
         exit;
       end;
@@ -250,8 +245,8 @@ begin
   ErrStr := STR_Macro_01;
   if ( infostr = '' ) then exit;
   if ( infostr[1] <> _MACRO_COMMENT_CHAR ) then exit;
-  delete( infostr, 1, 1 );
 
+  delete( infostr, 1, 1 );
   p := pos( _MACRO_DELIMITER_CHAR, infostr );
   if ( p = 0 ) then exit;
 
@@ -261,8 +256,10 @@ begin
   // validate version string
   ErrStr := STR_Macro_02;
   if ( length( s ) < 3 ) then exit;
+
   q := pos( '.', s );
   if ( q = 0 ) then exit;
+
   Version.Major := Char(s[pred( q )]);
   Version.Minor := Char(s[succ( q )]);
 
@@ -273,7 +270,7 @@ begin
   Name := copy( infostr, 1, p-1 );
   delete( infostr, 1, p );
   if ( Name = '' ) then
-    Name := ExtractFilename( FileName );
+     Name := ExtractFilename( FileName );
 
   p := pos( _MACRO_DELIMITER_CHAR, infostr );
   Description := copy( infostr, 1, p-1 );
@@ -314,36 +311,27 @@ var
 begin
   Macro_List.BeginUpdate;
 
-  FindResult := FindFirst(
-    Macro_Folder + '*' + ext_MACRO,
-    faAnyFile,
-    DirInfo );
+  FindResult := FindFirst(Macro_Folder + '*' + ext_MACRO, faAnyFile, DirInfo );
 
   try
     try
-      while ( FindResult = 0 ) do
-      begin
-        Macro := TMacro.Create;
-        Macro.FileName := ansilowercase( DirInfo.Name );
-        if Macro.LoadInfo then
-        begin
-          Macro_List.AddObject( Macro.Name, Macro );
-        end
-        else
-        begin
-          if ( messagedlg( Format(STR_Macro_03,[DirInfo.Name, Macro.LastError]),
-            mtWarning, [mbYes, mbNo], 0 ) <> mrYes ) then
-              FindResult := -1; // will abort loop
-          Macro.Free;
-        end;
-        FindResult := FindNext( DirInfo );
+      while ( FindResult = 0 ) do begin
+         Macro := TMacro.Create;
+         Macro.FileName := ansilowercase( DirInfo.Name );
+
+         if Macro.LoadInfo then
+           Macro_List.AddObject( Macro.Name, Macro )
+         else begin
+           if messagedlg( Format(STR_Macro_03,[DirInfo.Name, Macro.LastError]), mtWarning, [mbYes, mbNo], 0 ) <> mrYes then
+             FindResult := -1; // will abort loop
+           Macro.Free;
+         end;
+         FindResult := FindNext( DirInfo );
       end;
 
     except
-      ON E : Exception do
-      begin
+      On E : Exception do
         messagedlg( Format(STR_Macro_04, [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
-      end;
     end;
 
   finally
@@ -359,12 +347,11 @@ var
 begin
   try
     for i := 1 to Macro_List.Count do
-    begin
       try
         TMacro( Macro_List.Objects[pred( i )] ).Free;
       except
       end;
-    end;
+
   finally
     Macro_List.Clear;
   end;
@@ -379,8 +366,7 @@ begin
 
   fn := MakeValidFilename( s, [], MAX_FILENAME_LENGTH );
   result := fn + ext_Macro;
-  while fileexists( Macro_Folder + result ) do
-  begin
+  while fileexists( Macro_Folder + result ) do begin
     result := Format( '%s%d%s', [fn,i,ext_Macro] );
     inc( i );
   end;
