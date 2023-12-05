@@ -22,6 +22,7 @@ uses
    Winapi.ShellAPI,
    System.Classes,
    System.SysUtils,
+   System.IOUtils,
    Vcl.Forms,
    Vcl.Controls,
    Vcl.Dialogs,
@@ -66,15 +67,19 @@ type
     Name : string;
     Description : string;
     DateModified : string;
+    ProfileSpecific: boolean;
     Version : TMacroVersion;
     Lines : TStringList;
     AbortOnError : boolean;
 
+    function GetFolder: string;
+    function IsAutorun: boolean;
+
     constructor Create;
     destructor Destroy; override;
 
-    function Load : boolean;
-    function LoadInfo : boolean;
+    function Load: boolean;
+    function LoadInfo: boolean;
     function Save : boolean;
     procedure Clear;
 
@@ -85,14 +90,19 @@ type
 
 var
   Macro_Folder : string;
+  ProfileMacro_Folder: string;
   Macro_List : TStringList;
 
-procedure LoadMacroList;
+procedure LoadMacroList (DoWarn: boolean);
 procedure ClearMacroList;
 function MakeMacroFileName( const s : string ) : string;
+function IsAutorunMacro (FileName: string): boolean;
+
 
 implementation
-
+uses
+  kn_Global,
+  kn_MacroMng;
 
 resourcestring
   STR_Macro_01 = 'Invalid macro header';
@@ -119,7 +129,20 @@ begin
   inherited Destroy;
 end; // Destroy
 
-function TMacro.Load : boolean;
+function TMacro.GetFolder: string;
+begin
+   if ProfileSpecific then
+      Result:= ProfileMacro_Folder
+   else
+      Result:= Macro_Folder;
+end;
+
+function TMacro.IsAutorun: boolean;
+begin
+   Result:= IsAutorunMacro (FileName);
+end;
+
+function TMacro.Load: boolean;
 var
   f : TextFile;
   fn : string;
@@ -129,7 +152,7 @@ begin
   Lines.Clear;
 
   if ( pos( '\', FileName ) = 0 ) then
-    fn := Macro_Folder + FileName
+    fn := GetFolder + FileName
   else
     fn := FileName;
 
@@ -198,7 +221,7 @@ begin
   DateModified := DateTimeToStr( now );
 
   if ( pos( '\', FileName ) = 0 ) then
-    fn := Macro_Folder + FileName
+    fn := GetFolder + FileName
   else
     fn := FileName;
 
@@ -303,27 +326,58 @@ begin
   ErrStr := '';
 end; // LastError
 
-procedure LoadMacroList;
+
+function IsAutorunMacro (FileName: string): boolean;
+var
+   FN: string;
+begin
+   if FileName = '' then exit(false);
+
+   FN:= AnsiLowerCase(FileName);
+   if (FN = _MACRO_AUTORUN_NEW_NOTE) or (FN = _MACRO_AUTORUN_NEW_TREE) or
+      (FN = _MACRO_AUTORUN_NEW_FILE) or (FN = _MACRO_AUTORUN_NEW_NODE) then
+      Result:= true
+   else
+      Result:= false;
+end;
+
+
+procedure LoadMacroListFromFolder(ProfileSpecific: boolean; DoWarn: boolean);
 var
   DirInfo : TSearchRec;
   FindResult : integer;
   Macro : TMacro;
-begin
-  Macro_List.BeginUpdate;
+  Path: string;
+  i: integer;
 
-  FindResult := FindFirst(Macro_Folder + '*' + ext_MACRO, faAnyFile, DirInfo );
+begin
+  if ProfileSpecific then
+     Path:= ProfileMacro_Folder
+  else
+     Path:= Macro_Folder;
+
+  FindResult := FindFirst(Path + '*' + ext_MACRO, faAnyFile, DirInfo );
 
   try
     try
       while ( FindResult = 0 ) do begin
          Macro := TMacro.Create;
-         Macro.FileName := ansilowercase( DirInfo.Name );
+         Macro.ProfileSpecific:= ProfileSpecific;
+         Macro.FileName := DirInfo.Name;
 
-         if Macro.LoadInfo then
-           Macro_List.AddObject( Macro.Name, Macro )
+         if Macro.LoadInfo then begin
+            i:= GetMacroIndex(Macro.FileName);
+            if i >= 0 then
+                Macro_List.Delete(i);
+
+            if Macro_List.IndexOf( Macro.Name ) >= 0 then
+               Macro.Name:= Macro.Name + ' [Profile] ';
+
+            Macro_List.AddObject( Macro.Name, Macro );
+         end
          else begin
-           if messagedlg( Format(STR_Macro_03,[DirInfo.Name, Macro.LastError]), mtWarning, [mbYes, mbNo], 0 ) <> mrYes then
-             FindResult := -1; // will abort loop
+           if DoWarn and ( messagedlg( Format(STR_Macro_03,[DirInfo.Name, Macro.LastError]), mtWarning, [mbYes, mbNo], 0 ) <> mrYes ) then
+               FindResult := -1; // will abort loop
            Macro.Free;
          end;
          FindResult := FindNext( DirInfo );
@@ -331,12 +385,29 @@ begin
 
     except
       On E : Exception do
-        messagedlg( Format(STR_Macro_04, [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
+        if DoWarn then
+           messagedlg( Format(STR_Macro_04, [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
     end;
 
   finally
-    Macro_List.EndUpdate;
     FindClose( DirInfo );
+  end;
+
+end;
+
+
+procedure LoadMacroList (DoWarn: boolean);
+begin
+  Macro_List.BeginUpdate;
+  try
+     LoadMacroListFromFolder(false, DoWarn);
+
+     ProfileMacro_Folder:= ExtractFilePath( INI_FN ) + _MACRO_FOLDER;
+     if (ProfileMacro_Folder <> Macro_Folder) and TDirectory.Exists(ProfileMacro_Folder) then
+        LoadMacroListFromFolder(true, DoWarn);
+
+  finally
+    Macro_List.EndUpdate;
   end;
 
 end; // LoadMacroList

@@ -158,6 +158,7 @@ const
   _MACRO_FOLDER      = 'macros\';
   _TEMPLATE_FOLDER   = 'templates\';
   _LANGUAGE_FOLDER   = 'Lang\';
+  _DEFAULT_PROFILE_FOLDER   = 'Profiles\Default\';
 
 const
   // help file topics

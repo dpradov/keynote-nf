@@ -735,10 +735,10 @@ begin
       end;
 
 
-      NoteHeadingTpl := LoadRTFHeadingTemplate( extractfilepath( application.exename ) + 'notehead.rtf' );
+      NoteHeadingTpl := LoadRTFHeadingTemplate( NoteHeadingTpl_FN);
       if ( NoteHeadingTpl = '' ) then
          NoteHeadingTpl := _Default_NoteHeadingTpl;
-      NodeHeadingTpl := LoadRTFHeadingTemplate( extractfilepath( application.exename ) + 'nodehead.rtf' );
+      NodeHeadingTpl := LoadRTFHeadingTemplate( NodeHeadingTpl_FN);
       if ( NodeHeadingTpl = '' ) then
          NodeHeadingTpl := _Default_NodeHeadingTpl;
 

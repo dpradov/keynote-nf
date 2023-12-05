@@ -6204,20 +6204,16 @@ end;
 procedure TForm_Main.Combo_MacroClick(Sender: TObject);
 var
   Macro : TMacro;
+  index: integer;
 begin
-  // Combo_Macro.Hint := '';
   ListBox_ResMacro.Hint := '';
-  Macro := GetCurrentMacro( false );
-  if assigned( macro ) then
-  begin
+  Macro := GetCurrentMacro( false, index);
+  if assigned( macro ) then begin
     StatusBar.Panels[PANEL_HINT].Text := Macro.Description;
-    // Combo_Macro.Hint := Macro.Description;
     ListBox_ResMacro.Hint := Macro.Description;
   end
   else
-  begin
     StatusBar.Panels[PANEL_HINT].Text := '';
-  end;
 end;
 
 procedure TForm_Main.Combo_MacroKeyPress(Sender: TObject; var Key: Char);

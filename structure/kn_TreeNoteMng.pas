@@ -160,10 +160,7 @@ function AddNodeToTree( aInsMode : TNodeInsertMode ) : TTreeNTNode;
 begin
   result := TreeNoteNewNode( nil, aInsMode, nil, '', false );
   if ( KeyOptions.RunAutoMacros and assigned( result )) then
-  begin
-    if fileexists( Macro_Folder + _MACRO_AUTORUN_NEW_NODE ) then
-      ExecuteMacro( _MACRO_AUTORUN_NEW_NODE, '' );
-  end;
+     ExecuteMacro( _MACRO_AUTORUN_NEW_NODE, '' );
 end; // AddNodeToTree
 
 function TreeNoteNewNode(

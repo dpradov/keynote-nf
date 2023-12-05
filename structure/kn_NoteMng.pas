@@ -284,14 +284,10 @@ begin
     if KeyOptions.RunAutoMacros then
     begin
       case ActiveNote.Kind of
-        ntRTF : if fileexists( Macro_Folder + _MACRO_AUTORUN_NEW_NOTE ) then
-        begin
+        ntRTF :
           ExecuteMacro( _MACRO_AUTORUN_NEW_NOTE, '' );
-        end;
-        ntTree : if fileexists( Macro_Folder + _MACRO_AUTORUN_NEW_TREE ) then
-        begin
+        ntTree :
           ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
-        end;
       end;
     end;
   end;

@@ -24,6 +24,7 @@ uses
    Winapi.Messages,
    System.Classes,
    System.SysUtils,
+   System.IOUtils,
    Vcl.Graphics,
    Vcl.Forms,
    Vcl.Menus,
@@ -106,6 +107,8 @@ var
     OrigDEF_FN : string;
     MailINI_FN : string; // INI file for email options (keymail.ini)
     Glossary_FN : string;
+    NoteHeadingTpl_FN: string;     // Template for note heading, when exporting (notehead.rtf)
+    NodeHeadingTpl_FN: string;     // Template for node heading, when exporting (nodehead.rtf)
 
     //================================================== OPTIONS
     { These options are seperate from KeyOptions, because then
@@ -846,6 +849,8 @@ end;
 
 // We want to read LanguageUI before creating Form_Main
 procedure InitializeOptions;
+var
+   Path, ExeFilePath, DefaultProfileFolder: string;
 begin
       FirstTimeRun := false;
 
@@ -859,7 +864,15 @@ begin
       KEY_FN := '';
       Keyboard_FN := '';
 
-      INI_FN := normalFN( changefileext( Application.ExeName, ext_INI ));
+      ExeFilePath:= ExtractFilePath(Application.ExeName);
+      DefaultProfileFolder:= ExeFilePath + _DEFAULT_PROFILE_FOLDER;
+
+      if TDirectory.Exists(DefaultProfileFolder) then
+         INI_FN := DefaultProfileFolder + normalFN( changefileext( ExtractFileName(Application.ExeName), ext_INI ))
+      else begin
+         INI_FN := normalFN( changefileext( Application.ExeName, ext_INI ));
+         DefaultProfileFolder:= ExeFilePath;
+      end;
 
       // This is always located in .exe directory
       LOG_FN := normalFN( changefileext( Application.ExeName, ext_LOG ));
@@ -907,6 +920,9 @@ begin
 
       // Adjust location of all config files to that of the INI file
       // (alternate INI file may have been given on command line)
+
+      Path:= ExtractFilePath(INI_FN);
+
       if ( MRU_FN = '' ) then
         MRU_FN := changefileext( INI_FN, ext_MRU );
       if ( KEY_FN = '' ) then
@@ -921,16 +937,25 @@ begin
         MGR_FN := changefileext( INI_FN, ext_MGR );
       Style_FN := changefileext( INI_FN, ext_Style );
       Glossary_FN := changefileext( INI_FN, ext_Expand );
-      Scratch_FN := extractfilepath( INI_FN ) + 'scratch.rtf';
-      Toolbar_FN := extractfilepath( INI_FN ) + ToolbarFileName;
-      Keyboard_FN := extractfilepath( INI_FN ) + KeyboardFileName;
+      Scratch_FN :=  Path + 'scratch.rtf';
+      Toolbar_FN :=  Path + ToolbarFileName;
+      Keyboard_FN := Path + KeyboardFileName;
+      MailINI_FN  := Path + 'keymail' + ext_INI;
 
-      MailINI_FN := extractfilepath( INI_FN ) + 'keymail' + ext_INI;
+      NoteHeadingTpl_FN:= Path + 'notehead.rtf';
+      NodeHeadingTpl_FN:= Path + 'nodehead.rtf';
+      if DefaultProfileFolder <> Path then begin
+         if not TFile.Exists(NoteHeadingTpl_FN) then
+            NoteHeadingTpl_FN:= DefaultProfileFolder + 'notehead.rtf';
+         if not TFile.Exists(NodeHeadingTpl_FN) then
+            NodeHeadingTpl_FN:= DefaultProfileFolder + 'nodehead.rtf';
+      end;
+
 
       if ( StartupMacroFile = '' ) then // was not given on commandline
         StartupMacroFile := _MACRO_AUTORUN_STARTUP;
 
-      Plugin_Folder := properfoldername( extractfilepath( application.exename ) + _PLUGIN_FOLDER );
+      Plugin_Folder := properfoldername( ExeFilePath + _PLUGIN_FOLDER );
 
       try
         ReadOptions; // keynote.ini (this is decalred in kn_INI.pas)

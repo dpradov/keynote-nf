@@ -47,6 +47,7 @@ type
     LB_FileName: TLabel;
     CB_AbortOnError: TCheckBox;
     Button_Help: TButton;
+    chkProfile: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -64,6 +65,7 @@ type
     myNewMacro : boolean;
     MName, MDesc: string;
     MDate, MFileName : string;
+    MProfile: boolean;
     MAbort : boolean;
     OriginalName : string;
   end;
@@ -89,6 +91,7 @@ begin
   MAbort := true;
   MDate := datetostr( now );
   MFileName := '';
+  MProfile := false;
   OriginalName := '';
 end;
 
@@ -103,10 +106,14 @@ begin
   CB_AbortOnError.Checked := MAbort;
   LB_FileName.Caption := MFileName;
   LB_Date.Caption := MDate;
+  chkProfile.Checked:= MProfile;
   if myNewMacro then
     Edit_Name.OnChange := Edit_NameChange
   else
     Edit_Name.onChange := nil;
+
+  if MName <> '' then
+    chkProfile.Enabled:= false;
 end;
 
 procedure TForm_Macro.FormKeyDown(Sender: TObject; var Key: Word;
@@ -155,9 +162,9 @@ begin
     MDesc := trim( Edit_Desc.Text );
     MAbort := CB_AbortOnError.Checked;
     MFileName := LB_FileName.Caption;
+    MProfile := chkProfile.Checked;
 
-    if ( MName = '' ) then
-    begin
+    if ( MName = '' ) then begin
       messagedlg( STR_02, mtError, [mbOK], 0 );
       Edit_Name.SetFocus;
       CanClose := false;
@@ -171,8 +178,8 @@ begin
     else
       CanClose := (( i < 0 ) or
                   ( Macro_List.IndexOf( OriginalName ) = i ));
-    if ( not CanClose ) then
-    begin
+
+    if ( not CanClose ) then begin
       messagedlg( STR_03, mtError, [mbOK], 0 );
       Edit_Name.SetFocus;
       exit;

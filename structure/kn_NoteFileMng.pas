@@ -341,17 +341,15 @@ begin
 
           UpdateNoteDisplay;
 
-          if ( assigned( ActiveNote ) and KeyOptions.RunAutoMacros ) then
-          begin
+          if ( assigned( ActiveNote ) and KeyOptions.RunAutoMacros ) then begin
 
             case ActiveNote.Kind of
-              ntRTF : if fileexists( Macro_Folder + _MACRO_AUTORUN_NEW_NOTE ) then
-              begin
+              ntRTF : begin
                 Application.ProcessMessages;
                 ExecuteMacro( _MACRO_AUTORUN_NEW_NOTE, '' );
               end;
-              ntTree : if fileexists( Macro_Folder + _MACRO_AUTORUN_NEW_TREE ) then
-              begin
+
+              ntTree : begin
                 Application.ProcessMessages;
                 ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
               end;
@@ -1760,26 +1758,18 @@ end; // SomeoneChangedOurFile;
 function CheckFolder( const name, folder : string; const AttemptCreate, Prompt : boolean ) : boolean;
 begin
   result := false;
-  if directoryexists( folder ) then
-  begin
+  if directoryexists( folder ) then begin
     result := true;
     exit;
   end;
-  if ( not AttemptCreate ) then
-  begin
+  if ( not AttemptCreate ) then begin
     if Prompt then
-      DoMessageBox( Format(
-        STR_50,
-        [name,folder]
-      ), mtError, [mbOK], 0 );
+      DoMessageBox( Format(STR_50, [name,folder]), mtError, [mbOK], 0 );
     exit;
   end;
 
-  if Prompt then
-  begin
-    if ( DoMessageBox( Format(STR_50 + STR_51,
-          [name,folder]
-      ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+  if Prompt then begin
+    if DoMessageBox( Format(STR_50 + STR_51, [name,folder]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then
       exit;
   end;
 
@@ -1787,14 +1777,10 @@ begin
     mkdir( folder );
     result := true;
   except
-    on e : exception do
-    begin
+    on e : exception do begin
       result := false;
       if Prompt then
-        messagedlg( Format(
-            STR_52,
-            [E.Message]
-          ), mtError, [mbOK], 0 );
+        messagedlg( Format(STR_52, [E.Message] ), mtError, [mbOK], 0 );
     end;
   end;
 

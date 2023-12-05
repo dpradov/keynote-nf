@@ -92,12 +92,13 @@ var
     procedure StopRecordingMacro;
     procedure AddMacroKeyPress( const Key : Word; const Shift : TShiftState );
     procedure AddMacroEditCommand( aCmd : TEditCmd );
-    function GetCurrentMacro( const DoWarn : boolean ) : TMacro;
+    function GetCurrentMacro( const DoWarn : boolean; var index: integer ) : TMacro;
     function GetMacroByName( const aName : string; const DoWarn : boolean ) : TMacro;
     procedure ExecuteMacroFile;
     procedure AddUserMacroCommand;
     function MacroProcess( const DoWarn : boolean ) : boolean;
     function GetMacroIconIndex( const Macro : TMacro ) : integer;
+    function GetMacroIndex (FileName: string): integer;
 
     // edit commands
     procedure PerformCmd( aCmd : TEditCmd );
@@ -198,6 +199,8 @@ var
     RecallingCommand : boolean; // if TRUE, we use information in CommandRecall
 
 
+function GetMacroByFileName( FileName : string; var wasNewMacro: boolean ) : TMacro; forward;
+
 function GetMacroIconIndex( const Macro : TMacro ) : integer;
 begin
   result := MACRO_IMAGE_BASE;
@@ -219,7 +222,7 @@ begin
     Form_Main.ListBox_ResMacro.Items.Clear;
 
     ClearMacroList;
-    LoadMacroList;
+    LoadMacroList (true);
 
     for i := 1 to Macro_List.Count do begin
       Macro :=  TMacro( Macro_List.Objects[pred(i)] );
@@ -244,8 +247,7 @@ end; // EnumerateMacros
 procedure RecordMacro;
 begin
 
-  if IsRecordingMacro then
-  begin
+  if IsRecordingMacro then begin
     StopRecordingMacro;
     exit;
   end;
@@ -539,7 +541,6 @@ begin
           ActiveMacro.Free;
           exit;
         end;
-        // Combo_Macro.ItemIndex := Combo_Macro.AddItem( ActiveMacro.Name, GetMacroIconIndex( ActiveMacro ));
         Form_Main.ListBox_ResMacro.ItemIndex := Form_Main.ListBox_ResMacro.AddItem( ActiveMacro.Name, cbUnchecked, GetMacroIconIndex( ActiveMacro ));
         Macro_List.AddObject( ActiveMacro.Name, ActiveMacro );
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11
@@ -575,6 +576,7 @@ procedure ExecuteMacro( aFileName, aMacroName : string );
 var
   macro : TMacro;
   wasNewMacro, wasreadonly : boolean;
+  index: integer;
 begin
 
   // if aFileName is specified, the macro is loaded from the file
@@ -604,22 +606,11 @@ begin
     ActiveNote.ReadOnly := false;
   end;
 
-  if ( aFileName <> '' ) then begin
-    if ( pos( '\', aFileName ) = 0 ) then
-       aFileName := Macro_Folder + aFileName;
-
-    Macro := TMacro.Create;
-    Macro.FileName := aFileName;
-    if ( not Macro.Load ) then begin
-      DoMessageBox( Format(STR_18,  [aFileName,Macro.LastError]), mtError, [mbOK], 0 );
-      Macro.Free;
-      Macro := nil;
-    end;
-    wasNewMacro := true;
-  end
+  if ( aFileName <> '' ) then
+    Macro:= GetMacroByFileName (aFileName, wasNewMacro)
   else
     if ( aMacroName = '' ) then
-       Macro := GetCurrentMacro( true )
+       Macro := GetCurrentMacro( true, index )
     else
        Macro := GetMacroByName( aMacroName, true );
 
@@ -640,15 +631,20 @@ begin
   end;
 
   LastMacroFN := ExtractFilename( Macro.FileName );
-  Form_Main.MMToolsMacroRunLast.Hint := Format(STR_20, [ExtractFilename( LastMacroFN )]);
+  Form_Main.MMToolsMacroRunLast.Hint := Format(STR_20, [LastMacroFN]);
 
   try
     try
-      if ( not Macro.Load ) then
-         DoMessageBox( Format(STR_21, [Macro.FileName,Macro.LastError]), mtError, [mbOK], 0 );
+      if ( not Macro.Load ) then begin
+         if not IsAutorunMacro(aFileName) then
+            DoMessageBox( Format(STR_21, [Macro.FileName,Macro.LastError]), mtError, [mbOK], 0 );
+         exit;
+      end;
 
-      if ( Macro.Version.Major > _MACRO_VERSION_MAJOR ) then
+      if ( Macro.Version.Major > _MACRO_VERSION_MAJOR ) then begin
          DoMessageBox( Format(STR_22, [Macro.FileName]), mtError, [mbOK], 0 );
+         exit;
+      end;
 
       PlayMacro( Macro );
 
@@ -698,6 +694,7 @@ procedure EditMacro( const AsNew  : boolean );
 var
   Form_Macro: TForm_Macro;
   Macro : TMacro;
+  index: integer;
 begin
 
   if MacroProcess( true ) then exit;
@@ -706,7 +703,7 @@ begin
     Macro := TMacro.Create
 
   else begin
-    Macro := GetCurrentMacro( true );
+    Macro := GetCurrentMacro( true, index );
     if ( Macro = nil ) then
       exit;
 
@@ -724,6 +721,7 @@ begin
       MDesc := Macro.Description;
       MDate := Macro.DateModified;
       MFileName := Macro.FileName;
+      MProfile := Macro.ProfileSpecific;
       MAbort := Macro.AbortOnError;
       myNewMacro := AsNew;
     end;
@@ -734,6 +732,7 @@ begin
         Macro.Description := MDesc;
         Macro.DateModified := DateTimeToStr( now );
         Macro.AbortOnError := MAbort;
+        Macro.ProfileSpecific:= MProfile;
 
         if AsNew then begin
           Macro.FileName := MFileName;
@@ -741,8 +740,9 @@ begin
         end
         else begin
           // update existing macro
+
           if ( MName <> OriginalName ) then begin
-            Form_Main.ListBox_ResMacro.Items.Delete( Form_Main.ListBox_ResMacro.ItemIndex );
+            Form_Main.ListBox_ResMacro.Items.Delete( Index );
             Form_Main.ListBox_ResMacro.ItemIndex := Form_Main.ListBox_ResMacro.AddItem( Macro.Name, cbUnchecked, GetMacroIconIndex( Macro ));
             Macro_List.Delete( Macro_List.IndexOf( OriginalName ));
             Macro_List.AddObject( MName, Macro );
@@ -772,10 +772,12 @@ var
   Macro : TMacro;
   DeleteSuccess : boolean;
   i : integer;
+  FilePath: string;
+  index: integer;
 begin
 
   if MacroProcess( true ) then exit;
-  Macro := GetCurrentMacro( true );
+  Macro := GetCurrentMacro( true, index );
   if ( macro = nil ) then exit;
 
   if ( DoMessageBox( Format(STR_26, [Macro.Name]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
@@ -784,13 +786,14 @@ begin
   DeleteSuccess := false;
   try
     try
-      if ( not deletefile( Macro_Folder + Macro.FileName )) then begin
+      FilePath:= Macro.GetFolder + Macro.FileName;
+
+      if ( not deletefile( FilePath )) then begin
         DeleteSuccess := false;
-        DoMessageBox( Format(STR_27, [Macro.Filename] ), mtError, [mbOK], 0);
+        DoMessageBox( Format(STR_27, [FilePath] ), mtError, [mbOK], 0);
         exit;
       end;
-      i := Form_Main.ListBox_ResMacro.ItemIndex;
-      Form_Main.ListBox_ResMacro.Items.Delete( i );
+      Form_Main.ListBox_ResMacro.Items.Delete( index );
       i := Macro_List.IndexOf( Macro.Name );
       if ( i >= 0 ) then begin
         Macro.Free;
@@ -1434,13 +1437,15 @@ begin
 
 end; // GetMacroByName
 
-function GetCurrentMacro( const DoWarn : boolean ) : TMacro;
+function GetCurrentMacro( const DoWarn : boolean; var index: integer) : TMacro;
 begin
   result := nil;
 
   if ( not CheckResourcePanelVisible( true )) then exit;
 
-  if (( Form_Main.ListBox_ResMacro.Items.Count = 0 ) or ( Form_Main.ListBox_ResMacro.ItemIndex < 0 )) then begin
+  index:= Form_Main.ListBox_ResMacro.ItemIndex;
+
+  if (( Form_Main.ListBox_ResMacro.Items.Count = 0 ) or (Index < 0)) then begin
     if DoWarn then
        messagedlg( STR_41, mtError, [mbOK], 0 );
     exit;
@@ -1449,7 +1454,7 @@ begin
   try
     try
       result := TMacro(
-        Macro_List.Objects[Macro_List.IndexOf( Form_Main.ListBox_ResMacro.Items[Form_Main.ListBox_ResMacro.ItemIndex] )]);
+        Macro_List.Objects[Macro_List.IndexOf( Form_Main.ListBox_ResMacro.Items[Index] )]);
     except
       result := nil;
     end;
@@ -1459,6 +1464,49 @@ begin
        messagedlg( STR_42, mtError, [mbOK], 0 );
   end;
 end; // GetCurrentMacro
+
+function GetMacroIndex (FileName: string): integer;
+var
+  i: integer;
+  Macro: TMacro;
+begin
+  FileName:= AnsiLowerCase(FileName);
+  for i:= 0 to Macro_List.Count-1 do begin
+     Macro:= TMacro(Macro_List.Objects[i]);
+     if AnsiLowerCase(Macro.FileName) = FileName then
+        exit(i);
+  end;
+  exit(-1);
+end;
+
+
+function GetMacroByFileName( FileName : string; var wasNewMacro: boolean ) : TMacro;
+var
+  i : integer;
+  Macro: TMacro;
+begin
+  result := nil;
+  wasNewMacro:= false;
+
+  i := GetMacroIndex( FileName );
+
+  if ( i >= 0 ) then
+    Macro := TMacro( Macro_List.Objects[i] )
+
+  else begin
+    if ( pos( '\', FileName ) = 0 ) then
+       FileName := Macro_Folder + FileName;
+
+    Macro := TMacro.Create;
+    Macro.FileName := FileName;
+    wasNewMacro := true;
+  end;
+
+  Result:= Macro;
+end;
+// GetMacroByFileName
+
+
 
 procedure RepeatLastCommand;
 begin
@@ -2819,6 +2867,8 @@ begin
         Charset := DEFAULT_CHARSET;
       end;
     end;
+
+    LoadMacroList (false);
 end;
 
 Function CmdPaste(const fromButton: boolean; const ForcePlain: boolean): boolean;
