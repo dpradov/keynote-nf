@@ -30,6 +30,7 @@ uses
    Vcl.Dialogs,
    Vcl.StdCtrls,
    Vcl.ExtCtrls,
+   Vcl.Buttons,
    SynGdiPlus,
    TB97Ctls,
    TopWnd,
@@ -66,6 +67,7 @@ type
     WinOnTop: TTopMostWindow;
     btnAlwaysVisible: TToolbarButton97;
     chkCompact: TCheckBox;
+    btnHelp: TBitBtn;
     procedure FormShow(Sender: TObject);
     procedure bGrayClick(Sender: TObject);
     procedure bBlackClick(Sender: TObject);
@@ -89,6 +91,9 @@ type
     procedure btnAlwaysVisibleClick(Sender: TObject);
     procedure chkCompactClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure CMDialogKey(var Message: TCMDialogKey); message CM_DIALOGKEY;
+    procedure btnHelpClick(Sender: TObject);
   private
     { Private declarations }
     fCurrentNoteFile: TNoteFile;
@@ -108,6 +113,8 @@ type
     procedure DoExpand(Expand: boolean);
     procedure UpdatePositionAndZoom;
     procedure CheckUpdateCaption;
+
+    procedure Zoom (Ratio: Single);
 
   public
     { Public declarations }
@@ -152,6 +159,11 @@ resourcestring
 var
   ImgViewerInstances: TList;
   RemovingAll: boolean;
+
+const
+   MOVE_INC = 50;
+   RATIO_ZOOM_IN = 0.5;
+   RATIO_ZOOM_OUT = -0.1;
 
   
 function ImgViewerInstance: TForm_Image;
@@ -276,6 +288,7 @@ procedure TForm_Image.FormShow(Sender: TObject);
 begin
     Button_Modify.Default := true;
     Button_Cancel.SetFocus;
+    cScrollBox.SetFocus;
 
     chkCompact.Checked:= CompactMode;
 
@@ -382,26 +395,48 @@ begin
    end;
 end;
 
+procedure TForm_Image.Zoom (Ratio: Single);
+var
+   HPos, VPos, RH, RV: integer;
+
+begin
+  HPos:= cScrollBox.HorzScrollBar.Position;
+  VPos:= cScrollBox.VertScrollBar.Position;
+  RH:= cScrollBox.HorzScrollBar.Range;
+  RV:= cScrollBox.VertScrollBar.Range;
+
+  if CtrlDown then
+     Ratio:= Ratio * 2;
+
+  cScrollBox.HorzScrollBar.Position:= 0;
+  cScrollBox.VertScrollBar.Position:= 0;
+
+  fZoomFactor := SimpleRoundTo(fZoomFactor + Ratio, -1);
+  ResizeImage;
+
+  if RH > 0 then
+    cScrollBox.HorzScrollBar.Position:= Round(cScrollBox.HorzScrollBar.Range/RH * HPos);
+
+  if RV > 0 then
+    cScrollBox.VertScrollBar.Position:= Round(cScrollBox.VertScrollBar.Range/RV * VPos);
+end;
 
 
 procedure TForm_Image.btnZoomInClick(Sender: TObject);
 begin
-  fZoomFactor := SimpleRoundTo(fZoomFactor + 0.1, -1);
-  ResizeImage;
+  Zoom (RATIO_ZOOM_IN);
 end;
 
 procedure TForm_Image.btnZoomOutClick(Sender: TObject);
 begin
-  if fZoomFactor > 0.1 then begin
-     fZoomFactor := SimpleRoundTo(fZoomFactor - 0.1, -1);
-     ResizeImage;
-  end;
-
+  Zoom (RATIO_ZOOM_OUT);
 end;
 
 procedure TForm_Image.btnZoomResetClick(Sender: TObject);
 begin
    fZoomFactor:= 1.0;
+   cScrollBox.HorzScrollBar.Position:= 0;
+   cScrollBox.VertScrollBar.Position:= 0;
    ResizeImage;
 end;
 
@@ -651,6 +686,99 @@ begin
       end;
    end;
 
+end;
+
+// https://stackoverflow.com/questions/5064349/onkeydown-event-not-fired-when-pressing-vk-left-on-tcombobox-or-tbutton
+procedure TForm_Image.CMDialogKey(var Message: TCMDialogKey);
+var
+   Inc, HPos, VPos, RH, RV: integer;
+begin
+  if GetKeyState(VK_MENU) >= 0 then begin
+     if Message.CharCode in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN] then begin
+        HPos:= cScrollBox.HorzScrollBar.Position;
+        VPos:= cScrollBox.VertScrollBar.Position;
+        Inc:= MOVE_INC;
+        if CtrlDown then
+           Inc:= Inc * 8;
+        Message.Result := 1;
+     end;
+
+     case Message.CharCode of
+         VK_LEFT: begin   // Left cursor
+            if HPos > 0 then
+               cScrollBox.HorzScrollBar.Position:= Max(HPos-Inc, 0);
+         end;
+         VK_RIGHT: begin
+            RH:= cScrollBox.HorzScrollBar.Range;
+            if HPos < RH then
+               cScrollBox.HorzScrollBar.Position:= Min(HPos+Inc, RH);
+         end;
+         VK_UP: begin
+            if VPos > 0 then
+               cScrollBox.VertScrollBar.Position:= Max(VPos-Inc, 0);
+         end;
+         VK_DOWN: begin
+            RV:= cScrollBox.VertScrollBar.Range;
+            if VPos < RV then
+               cScrollBox.VertScrollBar.Position:= Min(VPos+Inc, RV);
+         end;
+     end;
+  end;
+
+  if Message.Result = 1 then exit;
+
+  inherited;
+end;
+
+procedure TForm_Image.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+
+  case Key of
+     VK_HOME: begin
+        cScrollBox.HorzScrollBar.Position:= 0;
+        if shift = [ssCtrl] then
+           cScrollBox.VertScrollBar.Position:= 0;
+        key:= 0;
+     end;
+     VK_END: begin
+        cScrollBox.HorzScrollBar.Position:= cScrollBox.HorzScrollBar.Range;
+        if shift = [ssCtrl] then
+           cScrollBox.VertScrollBar.Position:= cScrollBox.VertScrollBar.Range;
+        key:= 0;
+     end;
+     VK_PRIOR: begin
+        cScrollBox.VertScrollBar.Position:= 0;
+        key:= 0;
+     end;
+     VK_NEXT: begin
+        cScrollBox.VertScrollBar.Position:= cScrollBox.VertScrollBar.Range;
+        key:= 0;
+     end;
+
+     VK_ADD: begin
+       Zoom (RATIO_ZOOM_IN);
+       key:= 0;
+     end;
+     VK_SUBTRACT: begin
+       Zoom (RATIO_ZOOM_OUT);
+       key:= 0;
+     end;
+     VK_MULTIPLY: begin
+        btnZoomResetClick(nil);
+        key:= 0;
+     end;
+     VK_DIVIDE: begin
+        chkExpand.Checked:= not chkExpand.Checked;
+        key:= 0;
+     end;
+  end;
+
+end;
+
+procedure TForm_Image.btnHelpClick(Sender: TObject);
+begin
+  Messagedlg( btnHelp.Hint, mtInformation, [mbOK], 0 );
 end;
 
 

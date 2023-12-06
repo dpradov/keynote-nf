@@ -2755,6 +2755,8 @@ var
   ShortCut: TShortCut;
   ShortCutItem: TMenuItem;
 begin
+   if not Active then exit;         // => ImgViewerInstance.Active = True
+
    if (GetKeyState(VK_CONTROL) < 0) and not (GetKeyState(VK_MENU) < 0) then
    begin
       ShiftPressed:= (GetKeyState(VK_SHIFT) < 0);
