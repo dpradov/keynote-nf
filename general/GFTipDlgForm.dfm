@@ -3,8 +3,8 @@ object GFTipForm: TGFTipForm
   Top = 228
   BorderStyle = bsDialog
   Caption = 'Tip of the Day'
-  ClientHeight = 232
-  ClientWidth = 423
+  ClientHeight = 247
+  ClientWidth = 461
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,8 +19,8 @@ object GFTipForm: TGFTipForm
   object TipPanel: TPanel
     Left = 4
     Top = 5
-    Width = 309
-    Height = 195
+    Width = 348
+    Height = 207
     BevelOuter = bvLowered
     BevelWidth = 2
     Color = clInfoBk
@@ -28,14 +28,14 @@ object GFTipForm: TGFTipForm
     object TipLbl: TLabel
       Left = 24
       Top = 69
-      Width = 265
-      Height = 114
+      Width = 309
+      Height = 122
       AutoSize = False
       Caption = '...'
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Height = -12
+      Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
       ShowAccelChar = False
@@ -83,14 +83,14 @@ object GFTipForm: TGFTipForm
   end
   object ShowChk: TCheckBox
     Left = 6
-    Top = 206
+    Top = 221
     Width = 310
     Height = 16
     Caption = ' &Show tips at startup'
     TabOrder = 1
   end
   object Button_OK: TButton
-    Left = 323
+    Left = 358
     Top = 8
     Width = 89
     Height = 25
@@ -100,7 +100,7 @@ object GFTipForm: TGFTipForm
     OnClick = Button_OKClick
   end
   object Button_Next: TButton
-    Left = 323
+    Left = 358
     Top = 41
     Width = 89
     Height = 25
@@ -109,7 +109,7 @@ object GFTipForm: TGFTipForm
     OnClick = Button_NextClick
   end
   object Button_Prev: TButton
-    Left = 323
+    Left = 358
     Top = 68
     Width = 89
     Height = 25

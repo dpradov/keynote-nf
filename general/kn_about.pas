@@ -64,6 +64,7 @@ type
     Label_Version: TLabel;
     Image_Program: TImage;
     Label_Version_Date: TLabel;
+    Label_KeynoteNF: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BTN_CloseClick(Sender: TObject);
@@ -104,9 +105,9 @@ var
   nameDLL, pathDLL: string;
   VersionDLL: Single;
   VersionRichEdit: TRichEditVersion;
-  
+
   Icon: TIcon;
-  
+
 begin
 
   if TahomaFontInstalled then
@@ -121,6 +122,7 @@ begin
   Label_URL.Font.Style := [fsUnderline];
   Label_License.Font.Color := _GF_BLACK;
   Label_Dart.Font.Color := _GF_NAVY;
+  Label_KeynoteNF.Font.Color := _GF_NAVY;
 
   GetDLLProductVersion(pathDLL, VersionDLL, VersionRichEdit);
   
@@ -154,7 +156,7 @@ begin
   Icon := TIcon.Create;
   try
     Icon.LoadFromResourceName(HInstance, 'MAINICON');
-    Image_Program.Picture.Icon:= Icon;
+    Image_Program.Picture.Bitmap.Assign(Icon);
   finally
     Icon.Free;
   end;
