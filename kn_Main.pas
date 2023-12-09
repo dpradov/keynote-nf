@@ -2578,13 +2578,25 @@ end;
 
 procedure TForm_Main.RxRTFDblClick(Sender: TObject);
 var
-  ImgID, p: integer;
+  ImgID, p, SL: integer;
+  txt: AnsiString;
+  ImgIDs: TImageIDs;
 
 begin
    ImgID:= 0;
    if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-      if ActiveNote.Editor.SelLength = 1 then
-         ImgID:= CheckToIdentifyImageID(ActiveNote.Editor, p);
+      SL:= ActiveNote.Editor.SelLength;
+      if SL = 1 then
+         ImgID:= CheckToIdentifyImageID(ActiveNote.Editor, p)
+
+      else if SL > 1 then begin
+         txt:= ActiveNote.Editor.SelVisibleText;
+         if Length(txt) < SL then begin
+           ImgIDs:= ImagesManager.GetImagesIDInstancesFromTextPlain(ActiveNote.Editor.SelText);
+           if ImgIDs <> nil then
+              ImgID:= ImgIDs[0];
+         end;
+      end;
    end;
 
    if ImgID <> 0 then
