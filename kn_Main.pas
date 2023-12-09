@@ -15,7 +15,7 @@ unit kn_Main;
 
  *****************************************************************************)
 
-{$DEFINE DEBUG_IMG}
+{.$DEFINE DEBUG_IMG}
 
 interface
 
@@ -1507,8 +1507,7 @@ resourcestring
   STR_80= 'Unexpected error.';
   STR_81= 'Could not open KeyNote file "%s"';
   STR_82= 'This command will start your browser and direct it to KeyNote NF website, where ' +
-    'you can download the latest version of the program, read the FAQ, submit bug reports or feature requests with the Issue Manager. ' +  #13+#13+
-    'There is also a discussion mailing list where you can post questions and discuss about the program.' + #13+#13 + 'Continue?';
+    'you can download the latest version of the program, read the FAQ, submit bug reports or feature requests with the Issue Manager. ' +  #13+#13+ 'Continue?';
   STR_82B= 'Save tree structure to file';
   STR_83= 'Hide &Resource Panel';
   STR_84= 'Show &Resource Panel';

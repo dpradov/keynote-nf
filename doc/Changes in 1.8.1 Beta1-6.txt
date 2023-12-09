@@ -1,0 +1,116 @@
+
+Changes in 1.8.1 Beta 1 - Beta 6  (11 nov 2023 -- 09 dec 2023)
+=================================
+
+* NEW: Significant improvement in image management
+   - Support for GIF, PNG, JPG, TIF, BMP, WMF, EMF and ICO  
+   - Several image storage options: EmbeddedRTF, EmbeddedKNT, External (Zip or Folder), ExternalAndEmbeddedKNT
+   - Image viewer
+   - It is possible to change the visibility of the images in the file
+   Options:
+   * ImgDefaultFormatFromClipb, ImgRatioSizePngVsJPG, ImgCompressionQuality, ImgBmpPixelFormat
+   * ImgFormatInsideRTF  
+   * ImgMaxAutoWidthGoal	 
+   * ImgDefaultLinkMode, ImgLinkRelativePath					  					  
+   * ImgUseRecycleBin
+   * ImgSaveInSubfolders, Keep original file name
+   * ImgSingleViewerInstance, ImgHotTrackViewer, ImgViewerPath
+     
+   ** A detailed explanation of the image management changes is available in "Images_Readme.txt"
+
+* Drag and drop directly to Editor's content
+  Now it is possible to drag and drop any file into the editor's own content, in a specific position.
+  - A new option is offered from the import window: "Insert content at caret position"
+
+
+* Added option to replace bullets by alternative string when pasting as plain text
+
+    By default, Windows replace bullets by a symbol in Cambria Math (something like a big point) plus a tab character
+    In RTF it is of the form:
+    \f1\u10625?\f0\tab One
+    \f1\u10625?\f0\tab Two
+
+    With the new option is possible to replace the symbol and tab characters by other text. By default it is set to "" (empty string)
+    but can be configured (in keynote.ini) with something like " - ", for example.
+
+    [EditorOptions]
+    ...
+    BulletsInPlainText=" - "
+
+    Issue related: #612 don't copy bullets to other apps
+	
+
+* Improvements for profiles management | Profiles\Default | Profiles macros
+	The following improvements have been incorporated to better organize the different files that are used in each profile/session
+	(See the file 'Profiles.txt') :
+
+	- If KeyNote detects the presence of the "Profiles\Default" subfolder within the folder with the executable (keynote.exe), it will
+	  search in that subfolder for the keynote.ini file and the rest of the files (and if they do not exist, it will add them to that
+	  folder according to is requiring it)
+	  The setup program will establish that subfolder to promote better organization of the files, avoiding mixing and confusing those
+	  files with the rest of the application files and with the configurations of other profiles. The rest of the profiles should also
+	  be created within the "Profiles" folder. Ex: "Profiles\F9"
+	  The setup program will appropriately set the permissions for the Profiles folder.
+
+	- The notehead.rtf and nodehead.rtf files so far have not been specific to the profile configuration, but common to all.
+	  From the new version it is possible to customize one or both files from a profile, adding them to the folder containing the
+	  profile's .ini file. If one of these two files is not found in the profile folder, the application will use the one(s) located
+	  in the main profile folder ("Profiles\Default" or the folder that contains the executable).
+
+	- If within the folder with the .ini files there is a subfolder called 'macros' (e.g. "Profiles\F9\macros"), the macros contained
+	  therein will be loaded, taking preference over those loaded from the main macro folder (<exe folder>\macros)
+		- This allows to define different automatic execution macros in each configuration.
+		- When recording new macros it is possible to create them as general or specific to the profile
+	
+
+* Fixed: KNT could get hang doing a Search (Find Next or Find All) [IMPORTANT]
+  It would depend on the presence of several hidden marks in the editor (vinculated to new KNT links or images --since 1.8.1),
+  the distance between them and the length of the search term...
+  This error is present since version 1.8.0
+	
+* Fixed issue #617: Access violation on exit
+  
+  Problem was related to the encoding of file .mgr
+  At the same time has been corrected the names of the files shown in File | Recent file
+  (similar problem, encoding of .mru file)
+
+* Fixed issue #621: "Allow only one instance" not working
+
+* Fixed: Text selection with Shift + left cursor is canceled when crossing a hidden mark
+
+* Fixed: Convert '&quot;' to '"' in title from web pages
+  (Related to commit 'Titles from web pages: convert HTML Ascii codes' (5f9dc27e12))
+
+* Fixed: newly added nodes do not respect the established zoom
+
+* Fixed: New KNT Links could jump to an incorrect position
+
+    KNT links that point to a hidden mark look for a certain pattern and ID bookmark. When the application copies text to the
+    clipboard, it removes the hidden bookmarks. Not doing so could make that if we pasted the text above the one we were pointing to,
+    the link will find the hidden mark before the correct one. (On the contrary, the cutting operation does need that hidden mark.)
+
+    In normal situations, the hidden mark is maintained by the control RichEdit as we inserted it. But I have found that RichEdit
+    can alter some of them, adding control tags within the block that we have bounded between \v and \v0 (actually through {\v....} ).
+
+    (This is a problem only when we are looking for the hidden marks through RTF syntax. In most situations, KNT works directly with
+    hidden characters)
+
+    We may find that an added tag like:
+        ...    \v\''11B2\''12\v0 HELLO
+    it ends up appearing for example as:
+        \v\f0\fs16\lang3082\''11B2\''12\v0 HELLO
+
+    We must convert:
+      "\v\f0\fs16\lang3082\''11B2\''12\v0 HELLO"   ->  "\f0\fs16\lang3082 HELLO"
+
+    * Minor changes (mainly code style), minor correction in AlertMng
+
+    A small reduction in the size of the executable was obtained.
+
+    
+* Fixed: Possible exception on exporting (File | Copy To...  or File | Export... with KNT format ) when including plaintext notes
+
+	
+* Improvement/correction to the RemoveKNTHIddenCharactersInRTF procedure
+* Other minor adjustments
+
