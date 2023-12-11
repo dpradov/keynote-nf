@@ -1,6 +1,14 @@
 File formats in KeyNote NF. Native vs Compressed format / Use of IMAGES
 =======================================================================
 
+   - - - - -
+   UPDATE
+   Take a look at the file 'Images_Readme.txt'. Since version 1.8.1 it is not necessary to save the images in RTF, 
+   in plain ASCII as hexadecimal values. Now can be saved in the image binary format, at the end of the .knt file,
+   or as independent files, in an external folder or zip file.
+   - - - - -
+   
+
 To help decide which format may be the most suitable to use with KeyNote NF files, depending on the circumstances,
 I have made a series of measurements that I show below.
 

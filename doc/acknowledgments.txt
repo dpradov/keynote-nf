@@ -17,6 +17,8 @@ New libraries and components are used in KeyNote NF. Thanks to its authors:
 
 * Arnaud Bouchez, for SynGdiPlus, that implements TGraphic descendants able to load and save GIF, TIF, PNG and JPG pictures, using the GDI+ library (http://blog.synopse.info/post/2010/03/20/GIF,-TIF,-PNG-and-JPG-pictures-TGraphic-read/write-via-GDI)
 
+* Jordan Russell, for Inno Setup (https://jrsoftware.org/isinfo.php)
+
 
 * And of course thanks to Marek Jedlinski for KeyNote  (http://www.tranglos.com/free/keynote.html)   :) 
   This program, KeyNote NF, is just a simple evolution of KeyNote, with a few of enhancements on that.

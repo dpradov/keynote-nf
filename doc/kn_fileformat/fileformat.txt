@@ -110,6 +110,12 @@ marks end of file (KeyNote stops reading the file here, but it will also stop at
 
 No other markers are used. No end-of-section markers are used, except for end-of-file, above.
 
+** NOTE:
+  From version 1.8.1, in the case of using a image storage mode other than Embedded RTF, the application will use an EXTENDED KNT FORMAT when saving in
+  which new blocks have been incorporated at the end of the file, to allow including the registration of stores and images
+  It is describe below (IMAGE SECTIONS)
+ 
+
 --------------------------------
 DATA SECTION:
 
@@ -304,6 +310,76 @@ This is another line of text.\par
 
 End of fie marker follows:
 %%
+
+
+--------------------------------------
+IMAGE SECTIONS
+
+  From version 1.8.1, in the case of using a image storage mode other than Embedded RTF, the application will use an EXTENDED KNT FORMAT when saving in
+  which new blocks have been incorporated at the end of the file, to allow including the registration of stores and images:
+  Example:
+  
+  
+%S
+SM=2
+SD=1|TestIMG_img
+%I
+II=5
+PD=1|NOTE1\|1_Image 24oct.png|1|32|32|343790583||1|6||0
+PD=2|NOTE2\|2_Image 24oct.jpg|1|770|649|1481786765||1|3|CORONA|0
+PD=3|NOTE2\|3_sample.wmf|5|770|649|1976212572|E:\sample.wmf|1|2||0
+PD=4|||1|120|171|1006143828|E:\Avatar.png|0|2||0
+%EI
+EI=1|1_Image 24oct.png|<size>
+<--image in binary-->
+##END_IMAGE##
+EI=<IDImage>|<FileName>|<size>
+<--image in binary-->
+##END_IMAGE##
+...
+%%
+
+
+%S: Storage section
+   SM= Reflects the storage mode.. 0:EmbeddedRTF 1:EmbeddedKNT 2:External 3:ExternalAndEmbeddedKNT	 
+	  (Mode 0 will not actually be displayed, since in that case these new blocks will not be used...)
+	 
+   SD= Type(0:Zip 1:Folder)|Path
+	  (Only included with modes 2 and 3)
+
+%I: Image section. Lists information about the images used in the KNT file:
+  
+   II= Shows the ID to be used for the following image
+   PD= IDImg|Path|Name|Format|Width|Height|crc32|OriginalPath|Owned|RefCount|Caption|MustBeSavedExt
+		 - IDImg: Each image has a unique numerical ID (>=1)
+		 - Path: Relative path to storage, this will normally correspond to the name of an existing note
+		 - Name: Unique name of the file within the storage.
+		 - Format: 0:GIF, 1:PNG, 2:JPG, 3:BMP, 4:TIF, 5:WMF, 6:EMF
+		 - Width, Height: Width and height of the image. Each instance may be using different values.
+		 - crc32: Value obtained from the image content. Used to identify if an added image is new or is another instance
+				  of one already registered.
+		 - Original path: Obtained in the case of insertion from existing files
+		 - Owned: 1:Owned by KNT file. Added to one storage. Can be deleted when unused
+				  0:Linked. Image is independent. The image is obtained from its original path and neve will be deleted by KNT
+		 - ReferenceCount: Number of instances of the image within the KNT file.					  
+				When the number of references becomes 0, the image will be deleted (when saving changes) from the %I block
+				and the %EI block (the latter if the External or ExternalAndEmbKNT modes are used).
+				In the case of using the External or ExternalAndEmbKNT modes (the image being 'owned'), the corresponding
+				file will be deleted from the external storage.
+				A line in KNT with this field set to 0 indicates that the image has been deleted but is missing from external
+				storage, not accessible at the time of saving the KNT file.
+				  
+		 - Caption: Image title
+		 - MustBeSavedExt: 1: Indicates that the image is waiting to be saved to its external storage.
+			Its content will be found in the %EI block					  
+							
+%EI:  Embedded Images		  
+	In the case of using smEmbKNT or smExternalAndEmbKNT (fStorageMode: TImagesStorageMode) as storage mode
+	The content of each image (except linked ones) will be saved within this block		  
+	
+
+
+
 
 -------------------------------------
 

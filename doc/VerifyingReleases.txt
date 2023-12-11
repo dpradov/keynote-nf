@@ -1,0 +1,59 @@
+Check integrity and authenticity of the downloaded releases
+===========================================================
+
+SHA265
+-------
+Since the version 1.8.1 of KeyNote NF all the packages are accompanied with a SHA256 hash file.
+  You can easily compare that hash with the one you obtain from the package running from CMD (command line):
+    CertUtil -hashfile kntSetup.exe SHA256
+	
+  New versions of 7-Zip (www.7-zip.org) also allow you to calculate the hash by right-clicking the file and selecting
+  CRC SHA from the context menu.
+
+
+GnuPG (GNU Privacy Guard)
+-------------------------
+Also, since the release of version 1.8.1 of KeyNote NF, the distributive packages are signed with digital signature by using GnuPG (GNU Privacy Guard). This allows users to reliably validate authenticity and integrity of KeyNote NF packages.
+
+You can use native GnuPG (https://gnupg.org) which works under the command line, or use Gpg4win (https://www.gpg4win.org) which is based on GnuPG and offers a GUI. You can also use PGP Desktop (currently provided by Symantec).
+
+Release Key
+
+KeyNote NF packages are signed using the Release Key, which has the following characteristics:
+
+    Signer: KeyNote NF (Daniel Prado Velasco)
+    E-mail: dprado.keynote@gmail.com
+    Key ID: 0xFDBC8364
+    Key fingerprint: EB6F 9FED 0F62 7568 201C 2117 909F E709 FDBC 8364
+    Created: 2023-12-11
+    Expires: 2026-12-11
+
+
+Obtaining and validating Release Key
+- - - - - - - - - - - - - - - - - - -
+To make signature verification possible, you need to obtain a copy of this Release Key. You can get it from KeyNote NF’s GitHub page:
+  https://github.com/dpradov/keynote-nf/blob/master/KeyNoteNF_0xFDBC8364_public.asc
+
+You can also find it (check the key ID) from the following key server:
+    
+    https://keyserver.ubuntu.com   
+    
+
+In case of Gpg4win you can also search for key on the key server via Kleopatra. PGP Desktop also has such function.
+
+After making sure that the downloaded key match with the key downloaded from the key server, you can import it to your key store. Double click on the file with the Release Key, validate it’s characteristics and make sure that all of them are exactly the same as provided ones. Then sign the Release Key with your private key and set the level of trust which you like.
+
+
+Validating Digital Signature
+- - - - - - - - - - - - - - -
+To validate the Digital Signature (and thus the file authenticity and integrity) you need to download the signature file for the packages you’ve obtained. Signature file (.sig) is located near the package download link.
+
+After download make sure that both files (i.e. package and .sig file) are located in the same location. Then double click on signature to start validation process.
+
+The result should say that file was signed by dprado.keynote@gmail.com
+
+    When using Kleopatra, make sure that label has green background. If it’s in red, then the package is tampered or broken and should be deleted immediately
+
+    When using PGP Desktop, make sure that the result has green check mark. Otherwise get rid of the package
+
+

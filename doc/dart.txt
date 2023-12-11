@@ -2,7 +2,15 @@
 KEYNOTE - COMPATIBILITY WITH DARTNOTES
 -----------------------------------------------------------
 
-The concept of KeyNote is based on a similar tabbed notebook application I have been using for several years: DaRT Notes, by Andrew v.d. Merwe. The URL for DaRT Notes is http://users.iafrica.com/d/da/dart/DaRT/Software/Notes/Notes.html
+--- UPDATE ----------------
+As noted in 'README_News.txt', in June 2023, with version 1.8.0, I performed a major port of KeyNote NF, migrating the code from Borland Delphi 2006 to Embarcadero Delphi CE 11.3 (Community Edition 11.3 Alexandria).
+In that process I decided to drop support for the 'Dart format'. I enclosed the code in a conditional compilation ({$IFDEF WITH_DART}), but I have not revised that code during the adaptation. In the case that someone needs to reuse a file in that format, can use an older version of KeyNote to convert to normal KeyNote format.
+
+Daniel Prado
+----------------
+
+
+The concept of KeyNote is based on a similar tabbed notebook application I have been using for several years: DaRT Notes, by Andrew v.d. Merwe (dart@iafrica.com). The URL for DaRT Notes is http://users.iafrica.com/d/da/dart/DaRT/Software/Notes/Notes.html
 
 DaRT Notes is an excellent and free program. I have gotten used to it so much that I never, literally never use pen and paper anymore. The author was very responsive to all comments, and for a long time the program grew in features and functionality.
 

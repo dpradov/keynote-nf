@@ -1,0 +1,9 @@
+If you are a KeyNote NF user and this is your first time installing or updating the application with this setup program, you may want to read the Profiles\Profiles.txt file.
+
+Since version 1.8.1 KeyNote NF makes use of a folder called "Profiles" to help organize configuration and auxiliary files, created for different users/profiles.
+
+The setup program will appropriately set the permissions for the Profiles folder, to allow the application to add and modify the files. The main installation folder will, on the contrary, maintain the default permissions: in the case of installing in Program Files (or Program Files (x86)) KeyNote NF will not be able to modify or create files in that folder, unless it is executed in elevated privileges mode, which for security reasons is never recommended.
+
+To use your configuration files, mainly keynote.ini, but also keynote.kns, keynote.def or keyboard.ini, etc., just copy them to the "Profiles\Default" folder
+
+Likewise, if you use alternative .ini files, via the command line option, consider placing them in specific folders within Profiles. An example can be the "Profiles\Help" folder, used from the "KeyNote Help 1.6" shortcut to facilitate opening .knt help files.

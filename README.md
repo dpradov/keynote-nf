@@ -5,34 +5,20 @@ Tabbed notebook with RichText editor, multi-level notes and strong encryption.
 
 This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new features like: 
 
- * *Checkboxes on children of selected nodes* <br>
-    Selecting checkboxes for all nodes (View/Tree Checkboxes -- now View/All nodes Checkboxes) is still posible. Besides, checkboxes can be shown only on children of selected nodes (Children Checkbox)
-
- * *Hidden nodes* <br> Capacity to work with hidden nodes. Nodes can be hidden in two ways:
-   * Activating a mode wich automatically hides checked nodes (Show or Hide checked nodes)
-   * Filtering one note's nodes or all notes under a searching criterion (Filter Tree Note)
-
- * *Alarms on nodes*  
- 
- * *Better treatment of tables*  
- 
- * *Improved treatment of links*  
- 
- * *Multilanguage support*  
- 
- * *New kind of virtual nodes: links to other nodes (Mirror nodes)* <br>
-     Allow to organize the information in different ways, because nodes can be simultaneously in different notes. It will be possible to sort, rank and structuring in a free tree hierarchy, independent of the hierarchy in wich 'real' nodes reside.  
-	 
  * *Unicode compliant*  
- 
- * *New KeyNote file format: compressed*
 
- * *New button: 'Copy Format'*
+ * *Improvement in image management*
+   * Support for GIF, PNG, JPG, TIF, BMP, WMF, EMF and ICO   
+   * Several image storage options: EmbeddedRTF, EmbeddedKNT, External (Zip or Folder), ExternalAndEmbeddedKNT
+   * Images can be saved in its own format (binary), and shown in RTF in pngblip and jpegblip, not only wmetafile8 or emfblip
+   * Included internal image viewer (also possible to open with external viewer)
+   * It is possible to change the visibility of the images in the file
 
-<br>
- From version 1.8.0: 
-  
+   A detailed explanation of the image management changes is available in [Images_Readme.txt](doc/Images_Readme.txt)
+
  * *Redesigned navigation history mechanism*
+
+ * *New KeyNote file format: compressed*
 
  * *Improved Find All* <br>
    * Search is now much faster
@@ -40,13 +26,32 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
    * The treatment of the options 'All the words' and 'Any of the words' is extended
    * Added new option: "Current node and subtree"
  
- * *New internal KNT links*, vinculated to markers, not only to caret position
- 
- * *Added 'KeyNote' as target format in File | Export*
+ * *Improved treatment of links, and new internal KNT links*, vinculated to markers, not only to caret position
  
  * *Improved Clipboard Capture / Web Clip* 
+
+ * *Better treatment of tables*  
  
+ * *Checkboxes on children of selected nodes* <br>
+    Selecting checkboxes for all nodes (View/Tree Checkboxes -- now View/All nodes Checkboxes) is still posible. Besides, checkboxes can be shown only on children of selected nodes (Children Checkbox)
+
+ * *Hidden nodes* <br> Capacity to work with hidden nodes. Nodes can be hidden in two ways:
+   * Activating a mode wich automatically hides checked nodes (Show or Hide checked nodes)
+   * Filtering one note's nodes or all notes under a searching criterion (Filter Tree Note)
+
+ * *New kind of virtual nodes: links to other nodes (Mirror nodes)* <br>
+     Allow to organize the information in different ways, because nodes can be simultaneously in different notes. It will be possible to sort, rank and structuring in a free tree hierarchy, independent of the hierarchy in wich 'real' nodes reside.  	 
+
+ * *New button: 'Copy Format'*
+
+ * *Added 'KeyNote' as target format in File | Export*
+
+ * *Alarms on nodes*  
+
  * *Added a new property, "Default Zoom"*, and new action: View | Alternative Margins
+
+ * *Multilanguage support*  
+ 
 
 
 <br><br>
@@ -74,12 +79,26 @@ From version 1.7.9 Beta 7, a new option have been added that offer the possibili
 <br><br>
 
 ### Installation
-There is no installation project at this moment. You can copy all the files in release archives (eg, "Release_XXXXXX.zip") in a new folder, as KeyNote NF doesn't need installation to work.  
-If you prefer, you can install original [KeyNote (version 1.6.5)](http://www.tranglos.com/free/files/kntsetup.exe) and then copy only the files contained in the new release (zip file), in the installed folder, replacing the original ones. At least the new version will include the executable, `keynote.exe`.
-Please, see the file [BetaReleases_README.txt](https://github.com/dpradov/keynote-nf/files/12590485/BetaReleases_README.txt) for more information about how to install or update to a Beta release.
-
+Since version 1.8.1 there is a setup program (based in Inno Setup, by Jordan Russell)
 Download the <b>[latest release](https://github.com/dpradov/keynote-nf/releases/latest)</b>
 <br><br>
+
+### KeyNote NF Release Key
+Since the release of version 1.8.1 KeyNote NF is signed using GPG with the following key:
+
+    Signer: KeyNote NF (Daniel Prado Velasco)
+    E-mail: dprado.keynote@gmail.com
+    Key ID: 0xFDBC8364
+    Key fingerprint: EB6F 9FED 0F62 7568 201C 2117 909F E709 FDBC 8364
+    Created: 2023-12-11
+    Expires: 2026-12-11
+	
+    https://github.com/dpradov/keynote-nf/blob/master/KeyNoteNF_0xFDBC8364_public.asc
+
+It is also included SHA256 hash file (.sh256)
+
+More info in [VerifyingReleases.txt](doc/VerifyingReleases.txt)
+
 
 ### Bugs, new Features
 For any bug report, patch proposal or feature request, add an entry into the [Issue tracker](https://github.com/dpradov/keynote-nf/issues).  
@@ -95,7 +114,8 @@ In case you fork the repository or clone it to your desktop, in the [README_Sour
 ### Copyright and license
 The initial developer of KeyNote is Marek Jedlinski, copyright 2000-2005.  
 
-The adaptation to Delphi 2006 and the new functionalities added since version 1.7.0 corresponds to Daniel Prado Velasco, copyright 2007-2017.  
+The adaptation to Delphi 2006 and the new functionalities added since version 1.7.0 corresponds to Daniel Prado Velasco, copyright 2007-2023.  
+In august 2023, with the version 1.8.0, the code was migrated from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).
 
 Code released under the [Mozilla Public License 2.0](./LICENSE.txt). This license applies only to units written by the authors of KeyNote and KeyNote NF: Marek Jedlinski and Daniel Prado, respectively.
 Note: KeyNote was originally licensed by MPL 1.1. I have contacted with Marek and have obtained his approval to update to MPL 2.0.

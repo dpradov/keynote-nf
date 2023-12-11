@@ -1,137 +1,34 @@
------------------------------------------------------------
-KEYNOTE - RELEASE HISTORY
------------------------------------------------------------
+Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!
 
- Note: The Help file is incomplete and partly outdated.
- Please read the Frequently Asked Questions (FAQ) file at:
- http://www.tranglos.com/free/keynote_faq.html
-
- You can also obtain information about the program in
-   https://github.com/dpradov/keynote-nf
-   http://keynote-newfeat.sourceforge.net/forum
-
-   http://groups.google.com/group/keynote-nf  (read only)
-   https://sourceforge.net/p/keynote-newfeat/discussion  (read only)
-
-Issue #tracker at https://github.com/dpradov/keynote-nf/issues
-
-(More in https://github.com/dpradov/keynote-nf/blob/master/doc/References.md)
+## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
--- NOTE -----------
-   I recommend everybody to use the last version, although marked as Beta but remember:
-
-   Beta releases include normally only 'keynote.exe', but can include other files. For example, 1.7.9 Beta 4 also included: 'kntutils.dll', 'nodehead.rtf' and 'notehead.rtf'. (The .rtf files was needed if you were having problems with export, specially with chinese language.)
-
-   You must download previously a complete version and then replace existing files with the ones included in the .rar file
-
-   Also, and important, the language files are associated to specific versions and so the language files will not be compatible with the beta 
-   executable. It is necessary that (in the meantime) you select 'English (internal)' as language. You can do that from the application: 
-   Tools -> Configuration options -> General settings -> Language or modifying keynote.ini: LanguageUI=English (Internal) 
-   or simply: LanguageUI=
-
-    Of course, I encourage you to make a backup of your .knt files before using the new version. It should be a healthy habit,
-    particularly in version changes.
--------------
-
-v 1.8.1 Beta 5 (02 dec 2023)
-------------------------
-Corrects or implements the following issues:
-(more detail and information in doc/Changes in 1.8.1 Beta5.txt)
-
-* Fixed: Ensure that the hidden mark accompanies its image in the event that it moves by dragging
-* Fixed: Image could be duplicated on storage (with new ID) after pasting an image previously copied or cut to clipboard
-* Fixed: Insert | Image... was inserting images considering the 'Link to files by default' option on the contrary
-
-* Images. Added "Restore image[s] proportions" to the RTF context menu
-* Images. Added new option: 'Keep original file name' (ImgKeepOrigName)
-* Images. Revised internal visor layout. Added 'Compact' check
-* Images. Change in options layout
-
-
-v 1.8.1 Beta 4 (27 nov 2023)
-------------------------
-Corrects or implements the following issues:
-(more detail and information in doc/Changes in 1.8.1 Beta4.txt)
-
-* Fixed: Inserting high resolution images for 100% viewing does not add the images
-* Images. Better error handling
-* Images. Not obtaining the dimensions from the RTF when we can (and need) handle the content of the image.
-
-* Images. Alt+Click on Image toolbutton: Reconsider 'Max.auto width'
-* Images. Ctrl+Click on Image toolbutton: Force reload of external images
-
-* Images. Don't add line breaks when inserting individual images
-* Images. Changing cursor to HourGlass while converting storage mode
-
-* Image viewer: AlwaysVisible <-False is needed to show warning
-* Fixed: Images. Couldn't save new files if initially changed its storage format from default
-* Fixed: Exporting to EmbeddedKNT with images no available
-
-* Images. Review and optimization in the use of AnsiStrings
-* Images. Review and optimization in the use of null-terminated strings
-
-
-v 1.8.1 Beta 3 (22 nov 2023)
-------------------------
-Corrects or implements the following issues:
-(more detail and information in doc/Changes in 1.8.1 Beta3.txt)
-
-* Fixed: KNT could get hang doing a Search (Find Next or Find All) [IMPORTANT]
-
-* Fixed: Missing dot-separator on files saved in external image storage
-* Fixed: Control the elimination of hidden mark when using Right click on an visible image and selecting Delete
-* Fixed: Searches may not correctly highlight results when images are visible (if storage <> EmbeddedRTF)
-* Fixed: Double click on text could open image viewer with an random image
- 
-* Images. Added new option to allow to decide whether or not to save images in subfolders
-* Images. Added new option: Viewer - Single instance (ImgSingleViewerInstance)
-* Images. Added new option: Viewer - Hot track (ImgHotTrackViewer)
-
-* Review of some captions and hints in Keynote options related to images
-  Allow to independently set 'Relative path in Linked files'
-
-* Do not allow insert | URL... inside an existing Image link
-
-
-v 1.8.1 Beta 2 (16 nov 2023)
-------------------------
-* Fixed: Possible exception on exporting (File | Copy To...  or File | Export... with KNT format ) when including plaintext notes
-
-v 1.8.1 Beta 1 (13 nov 2023)
-------------------------
-Corrects or implements the following issues:
-(more detail and information in doc/Changes in 1.8.1 Beta1.txt)
+v 1.8.1 .07  (11 dec 2023)
+--------------------------
+(Detailed info in doc\Changes in 1.8.1 Beta1-6.txt)
 
 * NEW: Significant improvement in image management
-
+  A detailed explanation is available in "doc\Images_Readme.txt"
 * Drag and drop directly to Editor's content
 * New option in the import window: "Insert content at caret position"
-
 * Added option to replace bullets by alternative string when pasting as plain text
-
+* Improvements for profiles management | Profiles\Default | Profiles macros
+* Fixed: KNT could get hang doing a Search (Find Next or Find All) [IMPORTANT]
 * Fixed issue #617: Access violation on exit
-
 * Fixed issue #621: "Allow only one instance" not working
-
 * Fixed: Text selection with Shift + left cursor is canceled when crossing a hidden mark
-
 * Fixed: Convert '&quot;' to '"' in title from web pages
-
 * Fixed: newly added nodes do not respect the established zoom
-
-* Fixed: New KNT Links could jump to an incorrect position
-    
+* Fixed: New KNT Links could jump to an incorrect position  
+* Fixed: Possible exception on exporting (File | Copy To...  or File | Export... with KNT format )
+  when including plaintext notes	
 * Improvement/correction to the RemoveKNTHIddenCharactersInRTF procedure
 * Other minor adjustments
 
 
-
 v 1.8.0 Beta 1 - Beta 6 (01 aug 2023 -- 06 sep 2023)
 ------------------------
-Corrects or implements the following issues:
-(more detail and information in doc/Changes in 1.8.0 Beta1-6.txt)
-
+(Detailed info in doc\Changes in 1.8.0 Beta1-6.txt)
 
 * Adaptation from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).
 
@@ -145,27 +42,20 @@ Corrects or implements the following issues:
   * Fixed: The option "Show full node path in search results" was not used. 
   
 * New KNT Links, vinculated to markers, not only to caret position
-
 * Redesigned navigation history mechanism
-
 * New: Added 'KeyNote' as target format in File/Export...
-
 * Improved Alarm management window. Revised design and usability
-
 * Added a new property, "Default Zoom": Allows to use a default value other than 100%
 * Changed behaviour of Zoom Text action.
 * New: View | Alternative Margins
 * New: pressing [Ctrl] + <Hide Tree Panel> will temporarily preserve editor width, reducing the application window width
 * Fixed: High DPI displays. The application should scale correctly based on OS settings
 * Improvement in the design of the form Configuration Options
-
 * Optimization in file open/save, mainly in native format
 * Fixed possibly difficulty on saving, if file is located in a externally synchronized folder (for example with Dropbox)
-
 * Fixes and changes in URL actions
 * Improved click options on hyperlinks
 * Fixed: Option "Use system default web browser" was not working 
-
 * Clipboard Capture / Web Clip / Paste external
   - Try to offer RTF Format in clipboard whenever possible (from HTML format)
   - When pasting from HTML (web pages), the current font and size in the active editor will be used as default values, 
@@ -200,10 +90,8 @@ Corrects or implements the following issues:
   - Fixed: Sometimes changes from Note Properties (F4) did not modify the status of the file (to modified)
   
 * Fixed: Making bold a tree node din't maintain other possible styles of the default TV font
-
 * Fixed: Option "Autoregister file type" now works ok without any special permissions
 * Fixed: Change in read-only state of a note => save button state
-
 * Fixed: Ensure that all nodes in a RTF tree note are saved in RTF format, and all nodes in a plain text only tree note are saved in plain format.
 * Fixed: Text files imported as a new note note could be saved plain, not RTF
 * Modification in RxRichEd to change the way a retry is made when the load of stream detects an error
@@ -215,8 +103,6 @@ Corrects or implements the following issues:
 
 v 1.7.9.9 Beta (07 jul 2017)  (Distributed as 1.7.9 Beta 9 Test.2)
 --------------
-Corrects or implements the following issues:
-
 * Implements #11 (New button: 'Copy Format') and Improves Copy/Paste Font Attributes and Copy/Paste Paragraph Attributes
 * Fixes #568: Can't paste PHOTOS into KeyNote NF (after June 14, 2017 Win10 update)
 * Fixes #565: Paste as text not working in Beta 8
@@ -229,8 +115,6 @@ Corrects or implements the following issues:
 
 v 1.7.9.8 Beta (30 abr 2017)
 --------------
-Corrects or implements the following issues:
-
 *  #564 : Modified nodes could be truncated (content partially losted) on saving (with RichText 4.1, in XP and W7)
 *  Fixes: File properties -> Settings -> Open '<File>' as Read-Only - Was not working   (5b5a0ad40bc7c54681c5a603c3635d745b61ce02)
 *  Fixes: Filename is converted to lowercase when opened from command line (or explorer) (8428f05d5b3159d9a3edced82a82e09a4cff536b)
@@ -238,11 +122,8 @@ Corrects or implements the following issues:
 *  Minor optimization: 9f28a03da58ae5e0d26cff87dee470c8f47e04d1
 
 
-
 v 1.7.9.7 Beta (08 mar 2017)
 --------------
-Corrects or implements the following issues:
-
 *  #554 : Missing notes (IMPORTANT!)
 *  #544 : New option to keep backups at regular intervals
 *  #552 : Avoid continuous saving / "Failed to create output file" error
@@ -261,11 +142,8 @@ Corrects or implements the following issues:
    4d848a9085d5787071e47602d239aa11bc577aea, 715a8a2ac2c1a28191f82bc8efa25bb94b704628
 
 
-
 v 1.7.9.6 Beta (03 jan 2016)
 --------------
-It includes the following issues:
-
 536 Various corrections and improvements (fixes also several bugs introduced in Beta 5)     
 217 Setting or Changing a node name using an Asian IME garble the name
 534 Corrections related to encoding (ANSI / UTF8)
@@ -280,8 +158,6 @@ It includes the following issues:
 
 v 1.7.9.5 Beta (26 dec 2015)
 --------------
-It includes the following issues:
-
 #533 : New option: "Paste external as plain text"
 #532 : Improvements on Clip Web and Clipboard Capture
 #523 : Use Paste as Text by default when pasting into plain text note
@@ -300,8 +176,6 @@ Correction over issue #403: Hyperlinks should accept any URI protocols (as callt
 
 v 1.7.9.4 Beta (7 jan 2013)
 --------------
-It includes the following issues:
-
     Issue #327: Re-select Find / Replace dialog window after closing the "Not found" pop-up
     Issue #404: Corrected and improved Find/Search behaviour
     Issue #436: Minor improvements in Style combo box
@@ -328,13 +202,9 @@ It includes the following issues:
     Issue #406: Bug when copy/pasting Paragraph Attributes
 
 
-
 v 1.7.9.3 Beta (18 ago 2011)
 --------------
-It includes the following issues:
-
     Issue #193: Adjustments in alarm window 
-
 
 Notes about compatibility:
 
@@ -358,16 +228,12 @@ Notes about compatibility:
 
 v 1.7.9.2 Beta (7 ago 2011)
 --------------
-It includes the following issues:
-
    Issue #395: Keynote NF doesn't open my file, "buffer error"
    Issue #325: Relative paths in Links (relative to .knt file)
 
 
 v 1.7.9.1 Beta (7 jun 2010)
 --------------
-Includes the following issues:
-
     Issue #61: Improve lists (bullets and numbered lists): different styles, sublists, ...
     Issue #325: Relative paths in Links (relative to .knt file) 
 
@@ -530,11 +396,8 @@ Bugfixes:
 	      (bullet or numbering) is not homogeneous
 
  * Issue #14: Context menu for Note tabs didn't appear under cursor
-
  * Issue #15: It is allowing RETURN even in read-only mode
-
  * Issue #16: Failed to save after erasing a node with hidden childs
-
  * Issue #18: Inserting a node doesn't always shows ok if the previous one is hidden.  
 
 
