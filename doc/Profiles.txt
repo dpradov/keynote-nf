@@ -8,7 +8,7 @@ Thus, the files used are:
     .ini : main keynote options 
     .mru : MRU file list and form position/size info  (mru: most recently used)
     .mgr : file manager data
-    .fav : favorites storage file
+    .fvr : favorites storage file
     .kns : custom styles
     .exp : glossary entries
     .icn : custom icons
@@ -33,8 +33,9 @@ This is being achieved by passing the name or path of an alternative .ini file a
 If the application does not receive any .ini file, it looks for the configuration in a 'keynote.ini' file located in the same folder
 in which .exe is located, and it looks for the rest of the files in the same folder, varying the extension ( except for the six files
 indicated)
-If a different .ini file is passed (e.g. "keynote_F9.ini"), the application will use that file and others of the form:
-"keynote_F9.mru", "keynote_F9.mgr", "keynote_F9.fav", etc.
+If a different .ini file is passed, that can be located in the same folder or in another (e.g: "keynote_F9.ini", "myFolder\keynote.ini"
+"myFolder\knt_F9.ini"), the application will use that file and others of the form:
+ "keynote_F9.ini" -> "keynote_F9.mru", "keynote_F9.mgr", "keynote_F9.fvr", etc.
 It is also possible to establish, on the command line, a specific .def and/or .mgr file (See cmdline.txt)
 
 
@@ -58,3 +59,11 @@ Since version 1.8.1, the following improvements have been incorporated in relati
   therein will be loaded, taking preference over those loaded from the main macro folder (<exe folder>\macros)
     - This allows to define different automatic execution macros in each configuration.
     - When recording new macros it is possible to create them as general or specific to the profile
+	
+* NOTE: 
+  An example of the use of an alternative .ini file, via the command line option, using a specific folder within Profiles can
+  be found in "Profiles\Help" folder, used from the "KeyNote Help 1.6" shortcut to facilitate opening .knt help files :
+
+     "C:\Program Files (x86)\KeyNote NF\keynote.exe" Profiles\Help\keynote.ini  help\kntHelpFiles\KN_Help_1.6.knt 
+   
+  In this case, the .knt file to be opened is also being passed as a parameter, but this is optional
