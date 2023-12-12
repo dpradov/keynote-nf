@@ -80,7 +80,8 @@ Name: "{app}\help\kntHelpFiles"; Permissions: users-modify; Components: help
 ;Flags: uninsalwaysuninstall uninsneveruninstall
 
 [InstallDelete]
-;Type: files; Name: "{app}\doc\fileformat_1.6.5.txt"
+Type: files; Name: "{app}\Profiles\Help\dateformats.txt"
+Type: files; Name: "{app}\Profiles\Help\timeformats.txt"
 
 [UninstallDelete]
 Type: files; Name: "{app}\Profiles\Help\keynote.mgr"
@@ -96,13 +97,13 @@ Source: "misc_files\clip.wav"; DestDir: "{app}" ; Components: main; Flags: onlyi
 Source: "misc_files\alert.wav"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
 Source: "doc\Help\KeyNote.chm"; DestDir: "{app}" ; Components: help
 Source: "misc_files\KeyNote.tip"; DestDir: "{app}" ; Components: main
+Source: "misc_files\dateformats.txt"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
+Source: "misc_files\timeformats.txt"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
 
 ; Profiles
 Source: "doc\Profiles.txt"; DestDir: "{app}\Profiles" ; Components: main
 
 ; {#DefaultProfile}
-Source: "misc_files\dateformats.txt"; DestDir: "{#DefaultProfile}" ; Components: main; Flags: onlyifdoesntexist
-Source: "misc_files\timeformats.txt"; DestDir: "{#DefaultProfile}" ; Components: main; Flags: onlyifdoesntexist
 Source: "misc_files\keynote.kns"    ; DestDir: "{#DefaultProfile}" ; Components: main; Flags: onlyifdoesntexist
 Source: "misc_files\keynote.exp"    ; DestDir: "{#DefaultProfile}" ; Components: main; Flags: onlyifdoesntexist
 Source: "misc_files\keynote.icn"    ; DestDir: "{#DefaultProfile}" ; Components: main; Flags: onlyifdoesntexist
@@ -112,8 +113,6 @@ Source: "misc_files\notehead.rtf"   ; DestDir: "{#DefaultProfile}" ; Components:
 
 ; Help profile
 Source: "misc_files\keynote_Help.ini"; DestDir: "{app}\Profiles\Help"; DestName: "keynote.ini" ; Components: help
-Source: "misc_files\dateformats.txt" ; DestDir: "{app}\Profiles\Help" ; Components: help; Flags: onlyifdoesntexist
-Source: "misc_files\timeformats.txt" ; DestDir: "{app}\Profiles\Help" ; Components: help; Flags: onlyifdoesntexist
 Source: "misc_files\keynote.kns"     ; DestDir: "{app}\Profiles\Help" ; Components: help; Flags: onlyifdoesntexist
 Source: "resources\keynote_hlp.ico"  ; DestDir: "{app}\Profiles\Help" ; Components: help
 
