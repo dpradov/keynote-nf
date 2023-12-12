@@ -13,3 +13,11 @@ http://www.tranglos.com/free/keynote_addons.html
 
 It also includes 'Plugin development kit' (kntplugins-dev.zip), with documentation and example source code for 
 those interested in writing plugins for KeyNote.
+
+
+*******  NOTE *************
+* Original links are not available:
+
+  => http://web.archive.org/web/20171030063640/http://www.tranglos.com/free/keynote_addons.html
+  => https://github.com/dpradov/keynote-nf/tree/master/3rd_party/_Add-ons
+  => https://github.com/dpradov/keynote-nf/tree/master/plugins
