@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "1.8.1.7"
-#define AppVersion "1.8.1 .07"
+#define Version "1.8.1.8"
+#define AppVersion "1.8.1 .08"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -35,8 +35,8 @@ UninstallDisplayIcon={app}\{#AppFileExe}
 LicenseFile={#file AddBackslash(SourcePath) + "doc\License_agreement.txt"}
 OutputDir=..\..\Output
 OutputBaseFilename=kntSetup_{#Version}
-TouchDate=2023-12-11
-TouchTime=22:00
+TouchDate=2023-12-14
+TouchTime=21:00
 SetupIconFile=keynote_Icon.ico
 WizardImageFile=resources\keynote_4.bmp
 WizardSmallImageFile=resources\keynote_0.bmp, resources\keynote_1.bmp, resources\keynote_2.bmp, resources\keynote_3.bmp

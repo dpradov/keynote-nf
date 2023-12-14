@@ -120,8 +120,7 @@
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
         <VerInfo_Release>1</VerInfo_Release>
-        <VerInfo_Build>7</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.1 .07;FileVersion=1.8.1.7;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.1.7;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.1 .08;FileVersion=1.8.1.8;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.1.8;Comments=;ProgramID=</VerInfo_Keys>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -138,8 +137,7 @@
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
         <VerInfo_Release>1</VerInfo_Release>
-        <VerInfo_Build>7</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.1 .07;FileVersion=1.8.1.7;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.1.7;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.8.1 .08;FileVersion=1.8.1.8;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.8.1.8;Comments=;ProgramID=</VerInfo_Keys>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
         <UsePackages>true</UsePackages>
         <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
