@@ -46,7 +46,11 @@ type
    TRichEditVersion = 1..8;          // [dpv] See notes at the end of GetDLLProductVersion procedure
 {$ENDIF}
 
-
+{                                  // [dpv]   See comment *5
+var
+  list: TStringList;
+  st1, st2: TMemoryStream;
+}
 
 {$IFNDEF RX_D3}
   TCharFormat2A = record
@@ -772,7 +776,7 @@ uses
  Vcl.Printers, Vcl.ComStrs, Vcl.OleConst, Winapi.OleDlg, {$IFDEF RX_D3} Vcl.OleCtnrs, {$ENDIF}
   {$IFDEF RX_D12}Winapi.CommDlg,{$ENDIF}
   RxMaxMin,
-  Vcl.Clipbrd, tom_TLB                                                                        // [dpv]  tom_TLB -> ITextDocument 
+  Vcl.Clipbrd, tom_TLB                                                                        // [dpv]  tom_TLB -> ITextDocument
   {$IFDEF RX_ENH}
   , gf_strings                                                                                // [dpv]  -> CanSaveAsANSI
   {$ENDIF}
@@ -780,6 +784,7 @@ uses
   {$IFDEF KNT_DEBUG}
   , GFLog, kn_Global                                                                          // [dpv]
   {$ENDIF}
+  //, IOUtils                                                                                   // [dpv] See comment *5
   ;
 
 {
@@ -4207,6 +4212,42 @@ asm
 end;
 {$ENDIF}
 
+(*
+// [dpv] See comment *5
+function AdjustLineBreaksOLD(Dest, Source: PByte): Integer; assembler;
+asm
+        PUSH    ESI
+        PUSH    EDI
+        MOV     EDI,EAX
+        MOV     ESI,EDX
+        MOV     EDX,EAX
+        CLD
+@@1:    LODSB
+@@2:    OR      AL,AL
+        JE      @@4
+        CMP     AL,0AH
+        JE      @@3
+        STOSB
+        CMP     AL,0DH
+        JNE     @@1
+        MOV     AL,0AH
+        STOSB
+        LODSB
+        CMP     AL,0AH
+        JE      @@1
+        JMP     @@2
+@@3:    MOV     EAX,0A0DH
+        STOSW
+        JMP     @@1
+@@4:    STOSB
+        LEA     EAX,[EDI-1]
+        SUB     EAX,EDX
+        POP     EDI
+        POP     ESI
+end;
+*)
+
+
 {$IFDEF RX_D12}
 {$IFDEF RX_D19}
 function StreamSave(dwCookie: DWORD_PTR; pbBuff: PByte;
@@ -4279,10 +4320,12 @@ var
   Buffer, Preamble: TBytes;
   StreamInfo: TRichEditStreamInfo;
   StartIndex: Integer;
+ //pbBuff2: TBytes;                                              // [dpv] See comment *5
 begin
   Result := NoError;
   StreamInfo := PRichEditStreamInfo(dwCookie)^;
   SetLength(Buffer, cb + 1);
+  // SetLength(pbBuff2, cb + 1);                                 // [dpv] See comment *5
   cb := cb div 2;
   if (cb mod 2) > 0 then
     cb := cb -1 ;
@@ -4294,8 +4337,10 @@ begin
     if pcb > 0 then
     begin
       Buffer[pcb] := 0;
-      if Buffer[pcb - 1] = 13 then
+      if Buffer[pcb - 1] = 13 then begin
         Buffer[pcb - 1] := 0;
+        Dec(pcb);                        // [dpv]  See comment *5, below
+      end;
 
       // Convert from desired Encoding to Unicode
       if StreamInfo.PlainText then
@@ -4319,6 +4364,33 @@ begin
         end;
       end;
       pcb := AdjustLineBreaks(pbBuff, Buffer, StartIndex, pcb);
+
+    (*
+      { *5  Tests to identify and resolve the problem described here:
+               https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1853094597
+
+       It was causing seemingly random errors that could truncate the contents of the affected nodes/notes
+       And all because of the insertion of zeros where line breaks should have been added. It happened sporadically,
+       usually only in notes with a lot of text.
+
+       With the following lines I confirm the problem, once I detected that the error did not occur if instead of using
+       the current AdjustLineBreaks method I used the old one.
+       I verify that without the Dec(pcb) instruction the new method works incorrectly, injecting 00 0A at some points
+       instead of 0D 0A. However, the previous method was not affected: the result obtained with and without the instruction
+       Dec(pcb) is exactly the same in this case.
+       I verify that the previous StreamLoad code (which relies on the old AdjustLineBreaks method and did not take into account
+       Enconding), did not include the Dec(pcb) instruction. But I also verify that the code included here is taken
+       from the Delphi file Vcl.ComCtrls. And the instruction Dec(pcb) does appear in it
+      }
+      var pcb1, pcb2: integer;
+      pcb2 :=  AdjustLineBreaks(PByte(pbBuff2), Buffer, StartIndex, pcb);   // new method
+      pcb1 :=  AdjustLineBreaksOLD(pbBuff, PByte(Buffer));                  // old method (with PByte instead PChar)
+      list.Add(format('%d, %d', [pcb1, pcb2]));
+      st1.Write(pbBuff[0],  pcb1);
+      st2.Write(pbBuff2[0], pcb2);
+      pcb:= pcb1;
+    *)
+
     end;
   except
     Result := ReadError;
@@ -4467,6 +4539,12 @@ begin
 
     {$IFDEF KNT_DEBUG} Log.Add(string.format('RichEdit_LoadFromStream.  TextType: %s Encoding_CodePage: %d', [TextType.ToString, Encoding.CodePage]),  4 );  {$ENDIF}
 
+{                  // [dpv]   See comment *5
+    list.Clear;
+    st1.Clear;
+    st2.Clear;
+}
+
     SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, LPARAM(@EditStream));
 
 
@@ -4517,6 +4595,18 @@ begin
       conversion and setting only SF_TEST and not SF_UNICODE. The stream is supposed to be in UTF8 format, with BOM. RichEdit will
       manage it correctly.
   }
+
+
+   {                                                    // [dpv]   See comment *5
+     var Str: String;
+     var Str1, Str2: AnsiString;
+     str:= list.Text;
+     SetString(str1, PAnsiChar(st1.Memory), st1.Size);
+     SetString(str2, PAnsiChar(st2.Memory), st2.Size);
+     IOUtils.TFile.WriteAllText('E:\diferencias.txt', str);
+     IOUtils.TFile.WriteAllText('E:\salida1.txt', str1);
+     IOUtils.TFile.WriteAllText('E:\salida2.txt', str2);
+    }
 
     if (EditStream.dwError <> 0) then                     // [dpv] *1
     begin
@@ -7261,7 +7351,13 @@ initialization
   CFRtf := RegisterClipboardFormat(CF_RTF);
   CFRtfNoObjs := RegisterClipboardFormat(CF_RTFNOOBJS);
   CFHtml := RegisterClipboardFormat(CF_HTML);                  // [dpv]
-  
+
+{                                                              // [dpv]   See comment *5
+  list:= TStringList.Create;
+  st1:= TMemoryStream.Create;
+  st2:= TMemoryStream.Create;
+}
+
 finalization
   if FLibHandle <> 0 then FreeLibrary(FLibHandle);
 end.
