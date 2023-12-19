@@ -6056,22 +6056,32 @@ begin
   if not HasImage then
      Clipboard.TryOfferRTF();
 
-  FormatSelected:= ActiveNote.Editor.PasteSpecialDialog (false);      // Will paste the user selecton, except if it is Windows Bitmap
-
-  ActiveNote.Editor.BeginUpdate;
   try
-      if FormatSelected= 5 then                                       // CF_BMP
-         PasteBestAvailableFormat(ActiveNote, false, false)           // It will insert the image, using ImageManager
-      else
-         if HasImage and (FormatSelected= 0) and (ActiveNote.Editor.SelLength = 1) then begin
-            if (ActiveNote.Editor.SelLength = 1) then begin
-                rtfText:= ActiveNote.Editor.RtfSelText;
-                if not rtfText.Contains('{\object') and rtfText.Contains('\pict{') then
-                   PasteBestAvailableFormat(ActiveNote, false, false);       // It will insert the image, using ImageManager
+     FormatSelected:= ActiveNote.Editor.PasteSpecialDialog (false);      // Will paste the user selecton, except if it is Windows Bitmap
+
+     ActiveNote.Editor.BeginUpdate;
+     try
+         if FormatSelected= 5 then                                       // CF_BMP
+            PasteBestAvailableFormat(ActiveNote, false, false)           // It will insert the image, using ImageManager
+         else
+            if HasImage and (FormatSelected= 0) and (ActiveNote.Editor.SelLength = 1) then begin
+               if (ActiveNote.Editor.SelLength = 1) then begin
+                   rtfText:= ActiveNote.Editor.RtfSelText;
+                   if not rtfText.Contains('{\object') and rtfText.Contains('\pict{') then
+                      PasteBestAvailableFormat(ActiveNote, false, false);       // It will insert the image, using ImageManager
+               end;
             end;
-         end;
-  finally
-     ActiveNote.Editor.EndUpdate;
+     finally
+        ActiveNote.Editor.EndUpdate;
+     end;
+
+  except
+    On E : Exception do begin
+       // ActiveNote.Editor.PasteSpecialDialog can raise an exception if for example RTF format obtained converting HTML is not correct
+       // See PasteBestAvailableFormatInEditor (kn_EditorUtils)
+       MessageDlg( E.Message, mtError, [mbOK], 0 );
+       exit;
+    end;
   end;
 
 end;
