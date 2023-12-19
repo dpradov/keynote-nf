@@ -1869,7 +1869,17 @@ begin
       // It seems best to try to paste the RTF format if it is available
       ClipbHasRTFFormat:= Clipboard.HasFormat(CFRtf);
       if ClipbHasRTFFormat then
-         Editor.PasteIRichEditOLE(CFRtf)
+         try
+            Editor.PasteIRichEditOLE(CFRtf);
+         except
+           { The conversion from HTML to RTF may be incorrect on some pages and cause an exception on the previous line
+             for example returning the message "FORMATEC structure not valid"
+             This happens, for example, when you copy and paste the first answer that appears on this page:
+              https://stackoverflow.com/questions/4960829/how-to-convert-from-dos-path-to-file-scheme-uri-in-batch-file}
+            Editor.PasteFromClipboard;
+            exit;
+         end
+
       else
          Editor.PasteFromClipboard;       //Editor.PasteIRichEditOLE(0);
 
