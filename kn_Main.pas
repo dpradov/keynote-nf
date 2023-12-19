@@ -2911,17 +2911,20 @@ begin
              Offset:= 1;
 
           if L >= Offset then begin
-             ch:= GetTextRange(L-Offset, L-Offset + 1)[1];
-             if (ch = KNT_RTF_HIDDEN_MARK_R_CHAR) or (ch = '"') then begin
-                OnSelectionChange := nil;
-                try
-                  SelStart:= L-Offset;
-                  if SelStart <> L-Offset then
-                     key:= 0                    // It will have been placed to the left of the first hidden character
-                  else
-                     SelStart:= L;              // It was not hidden. We leave it where it was and allow the keyboard event to be handled as normal.
-                finally
-                   OnSelectionChange := RxRTFSelectionChange;
+             TxtSel:= GetTextRange(L-Offset, L-Offset + 1);
+             if Length(TxtSel) > 0 then begin
+                ch:= TxtSel[1];
+                if (ch = KNT_RTF_HIDDEN_MARK_R_CHAR) or (ch = '"') then begin
+                   OnSelectionChange := nil;
+                   try
+                     SelStart:= L-Offset;
+                     if SelStart <> L-Offset then
+                        key:= 0                    // It will have been placed to the left of the first hidden character
+                     else
+                        SelStart:= L;              // It was not hidden. We leave it where it was and allow the keyboard event to be handled as normal.
+                   finally
+                      OnSelectionChange := RxRTFSelectionChange;
+                   end;
                 end;
              end;
           end;

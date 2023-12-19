@@ -564,6 +564,7 @@ var
   L, S, newS: integer;
   Ch: Char;
   UndoSelect: boolean;
+  Str: String;
 
 begin
   SelStartOrig:= -1;
@@ -573,29 +574,31 @@ begin
      newS:= S-1 +offset;
      if newS < 0 then exit;
 
-     Ch:= GetTextRange(newS, S +offset)[1];
-     if (ch = KNT_RTF_HIDDEN_MARK_R_CHAR) or (ch = '"') then begin        // (ch = '"'), in case the hidden mark is next to a hyperlink
-       SelLengthOrig:= SelLength;
-       OnSelectionChange := nil;
-       try
-         SelStart:= newS;
-         L:= SelStart;
-         UndoSelect:= true;
-         if L <> newS then begin
-            SetSelection(L, S + SelLengthOrig, true);                     // It will have been placed to the left of the first hidden character. See coment in TForm_Main.RxRTFKeyDown  (Left cursor)
-            if SelText.StartsWith(KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE) then
-               UndoSelect:= false;
-         end;
+     Str:= GetTextRange(newS, S +offset);
+     if Length(Str) > 0 then begin
+        Ch:= Str[1];
+        if (ch = KNT_RTF_HIDDEN_MARK_R_CHAR) or (ch = '"') then begin        // (ch = '"'), in case the hidden mark is next to a hyperlink
+          SelLengthOrig:= SelLength;
+          OnSelectionChange := nil;
+          try
+            SelStart:= newS;
+            L:= SelStart;
+            UndoSelect:= true;
+            if L <> newS then begin
+               SetSelection(L, S + SelLengthOrig, true);                     // It will have been placed to the left of the first hidden character. See coment in TForm_Main.RxRTFKeyDown  (Left cursor)
+               if SelText.StartsWith(KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE) then
+                  UndoSelect:= false;
+            end;
 
-         if UndoSelect then
-            SetSelection(S, S + SelLengthOrig, true)
-         else
-            SelStartOrig:= S;
+            if UndoSelect then
+               SetSelection(S, S + SelLengthOrig, true)
+            else
+               SelStartOrig:= S;
 
-       finally
-         OnSelectionChange := Form_Main.RxRTFSelectionChange;
-       end;
-
+          finally
+            OnSelectionChange := Form_Main.RxRTFSelectionChange;
+          end;
+        end;
      end;
   end;
 end;
@@ -615,7 +618,7 @@ var
   SelLengthOrig: integer;
   Ch: Char;
   UndoSelect: boolean;
-  TextSelected: string;
+  Str, TextSelected: string;
 
 begin
 
@@ -624,30 +627,33 @@ begin
      newS:= S+1;
 
      try
-       Ch:= GetTextRange(S, newS)[1];
-       if (ch = KNT_RTF_HIDDEN_MARK_L_CHAR) or (ch = '"') then begin         // (ch = '"'), in case the hidden mark is next to a hyperlink
-         OnSelectionChange := nil;                                           // *1
-         try
-           SelStart:= newS;
-           R:= SelStart;
-           UndoSelect:= true;
-           if R <> newS then begin
-              // It will have been placed to the right of the last hidden character.  See coment in TForm_Main.RxRTFKeyDown  (Left cursor)
-              SetSelection(S, R, true);
-              TextSelected:= SelText;
-              if TextSelected.StartsWith(KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE) then begin
-                 UndoSelect:= false;
-                 if TextSelected[Length(TextSelected)] = KNT_RTF_HIDDEN_MARK_R_CHAR then
-                    SetSelection(S, R+1, true);                              // We must be next to a visible image ({pict...}). We have to select it too
+       Str:= GetTextRange(S, newS);
+       if Length(Str) > 0 then begin
+          Ch:= Str[1];
+          if (ch = KNT_RTF_HIDDEN_MARK_L_CHAR) or (ch = '"') then begin         // (ch = '"'), in case the hidden mark is next to a hyperlink
+            OnSelectionChange := nil;                                           // *1
+            try
+              SelStart:= newS;
+              R:= SelStart;
+              UndoSelect:= true;
+              if R <> newS then begin
+                 // It will have been placed to the right of the last hidden character.  See coment in TForm_Main.RxRTFKeyDown  (Left cursor)
+                 SetSelection(S, R, true);
+                 TextSelected:= SelText;
+                 if TextSelected.StartsWith(KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE) then begin
+                    UndoSelect:= false;
+                    if TextSelected[Length(TextSelected)] = KNT_RTF_HIDDEN_MARK_R_CHAR then
+                       SetSelection(S, R+1, true);                              // We must be next to a visible image ({pict...}). We have to select it too
+                 end;
               end;
-           end;
 
-           if UndoSelect then
-              SelStart:= S;
+              if UndoSelect then
+                 SelStart:= S;
 
-         finally
-           OnSelectionChange := Form_Main.RxRTFSelectionChange;
-         end;
+            finally
+              OnSelectionChange := Form_Main.RxRTFSelectionChange;
+            end;
+          end;
        end;
 
      except   // If we are in the last position of the note
@@ -702,7 +708,7 @@ begin
             // It will have been placed to the left of the first hidden character. See coment in TForm_Main.RxRTFKeyDown  (Left cursor)
             SetSelection(L, S + 1, true);
             Str:= Editor.GetTextRange(L, S);
-            if (Str[1] = KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[2] = KNT_RTF_HIDDEN_IMAGE) then
+            if (Length(Str) > 0) and (Str[1] = KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[2] = KNT_RTF_HIDDEN_IMAGE) then
                Result:= StrToIntDef(Copy(Str, 3, (S - L)-3), 0);
          end;
          SetSelection(S, S + SelLengthBak, true);
