@@ -561,7 +561,7 @@ var
   TextPlain, TextPlainBAK: string;               // TextPlain = TextPlainBAK, in uppercase if not MatchCase
   TextToFind, PatternInPos1, PatternInPosN: string;
   SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
-  str, s, path, strLocationMatch, strNodeFontSize, strNumberingFontSize: string;
+  str, s, path, strLocationMatch, strNodeFontSize, strNumberingFontSize, strBgColor: string;
   widthTwips: integer;
   RTFAux : TTabRichEdit;
 
@@ -802,7 +802,7 @@ begin
   FindOptions.Wrap := false;
 
   FindOptions.FindNew := true;
-  FindOptions.Pattern := trim( Form_Main.Combo_ResFind.Text ); // leading and trailing blanks need to be stripped  
+  FindOptions.Pattern := trim( Form_Main.Combo_ResFind.Text ); // leading and trailing blanks need to be stripped
 
   SearchModeToApply := FindOptions.SearchMode;
 
@@ -947,7 +947,7 @@ begin
       Form_Main.LblFindAllNumResults.Caption:= MatchCount.ToString + STR_13;
       str:=
             '{\rtf1\ansi{\fonttbl{\f0\fnil\fcharset0 Calibri;}}' +
-            '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;\red0\green125\blue125;}' +
+            '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;\red0\green125\blue125;\red255\green255\blue235;}' +
             '\pard\fs4\par' +
             '\pard\fs' + (2 * ResPanelOptions.FontSizeFindResults).ToString + ' ';
 
@@ -987,8 +987,12 @@ begin
                                  [s, LastResultCellWidth, Path, strNodeFontSize, strLocationMatch])
            end;
            s:= i.ToString;
-           str:= str + Format('\trowd\trgaph0%s \intbl{\v\''11%s }{\b\fs%s %s.  }%s\cell\row ',
-                 [LastResultCellWidth, s, strNumberingFontSize, s, Location_List[pred( i )]]);
+           strBgColor:= '';
+           if Location.CaretPos < 0 then   // text found in node name
+              strBgColor:= '\clcbpat4';
+
+           str:= str + Format('\trowd\trgaph0%s%s \intbl{\v\''11%s }{\b\fs%s %s.  }%s\cell\row ',
+                 [strBgColor, LastResultCellWidth, s, strNumberingFontSize, s, Location_List[pred( i )]]);
          end;
 
          str:= str + '}';
