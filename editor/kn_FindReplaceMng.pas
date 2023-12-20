@@ -809,11 +809,16 @@ begin
                         begin
                             // look for match in node name first (si estamos buscando dentro de una nota ntTree)
                             if assigned(myTreeNode) and FindOptions.SearchNodeNames then begin
+                              var Aux: integer;
+                              var NodeName: string;
                               myNoteNode := TNoteNode(myTreeNode.Data);
                               if FindOptions.MatchCase then
-                                 PatternPos := pos( TextToFind, myNoteNode.Name )
+                                 NodeName:= myNoteNode.Name
                               else
-                                 PatternPos := pos( TextToFind, AnsiUpperCase( myNoteNode.Name ));
+                                 NodeName:= AnsiUpperCase( myNoteNode.Name);
+
+                              PatternPos:= FindPattern(TextToFind, NodeName, 1, Aux);
+
                               if ( PatternPos > 0 ) then begin
                                  dec(PatternPos);  // to manage as zero-based
                                  AddLocation(lsNodeName, TextToFind, PatternPos);
