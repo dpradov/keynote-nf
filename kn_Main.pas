@@ -656,8 +656,8 @@ type
     StdEMSelectAll: TMenuItem;
     N87: TMenuItem;
     MMTreeMasterNode: TMenuItem;
-    CB_ResFind_NodeNames: TCheckBox;
     RG_ResFind_Type: TRadioGroup;
+    RG_ResFind_Scope: TRadioGroup;
     TVCopyNode_: TMenuItem;
     TVCopyNodePath: TMenuItem;
     TVCopyNodeText: TMenuItem;
@@ -6512,6 +6512,7 @@ procedure TForm_Main.Splitter_ResMoved(Sender: TObject);
 begin
   Combo_ResFind.Width := ResTab_Find.Width - 15;
   RG_ResFind_Type.Width:= Combo_ResFind.Width;
+  RG_ResFind_Scope.Width:= Combo_ResFind.Width;
   UpdateFindAllResultsWidth;
 end;
 

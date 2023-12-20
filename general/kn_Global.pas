@@ -77,6 +77,7 @@ const
    procedure InitializeOptions;
    procedure LoadRicheditLibrary;
    procedure AddSearchModes;
+   procedure AddSearchScopes;
    function NoteSupportsRegisteredImages (AdmitVmRTF: boolean= false): boolean;
    function NoteSupportsImages: boolean;
 
@@ -337,6 +338,21 @@ begin
   end;
 end;
 
+procedure AddSearchScopes;
+var
+   ss : TSearchScope;
+begin
+  if not assigned(Form_Main) then exit;
+  with Form_Main do begin
+      RG_ResFind_Scope.Items.Clear;
+      for ss := low( TSearchScope ) to high( TSearchScope ) do
+      begin
+        RG_ResFind_Scope.Items.Add( SEARCH_SCOPES[ss] );
+      end;
+      RG_ResFind_Scope.ItemIndex := 0;
+  end;
+end;
+
 //====================================================================
 procedure InitializeKeynote (Form_Main: TForm_Main);
 var
@@ -545,6 +561,7 @@ begin
       OpenDlg.Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
 
       AddSearchModes;
+      AddSearchScopes;
 
       Form_Chars := nil;
       InsCharFont.Name := '';

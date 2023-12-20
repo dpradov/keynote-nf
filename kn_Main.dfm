@@ -1508,7 +1508,7 @@ object Form_Main: TForm_Main
             Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
-            TabOrder = 7
+            TabOrder = 1
           end
           object CB_ResFind_AllNotes: TCheckBox
             Left = 10
@@ -1541,38 +1541,38 @@ object Form_Main: TForm_Main
             Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
-            TabOrder = 1
-          end
-          object CB_ResFind_NodeNames: TCheckBox
-            Left = 10
-            Top = 122
-            Width = 213
-            Height = 17
-            Hint = 'Include tree node names in search'
-            Caption = 'Search node names'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
             TabOrder = 3
           end
           object RG_ResFind_Type: TRadioGroup
             Left = 5
-            Top = 182
+            Top = 170
             Width = 215
             Height = 76
             Hint = 'Select type of search to perform'
-            Caption = ' Search type '
+            Caption = ' Search Type '
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
             Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
-            TabOrder = 4
+            TabOrder = 6
             OnClick = RG_ResFind_TypeClick
+          end
+          object RG_ResFind_Scope: TRadioGroup
+            Left = 5
+            Top = 258
+            Width = 215
+            Height = 76
+            Hint = 'Select scope of search to perform'
+            Caption = ' Search Scope '
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 7
           end
           object CB_ResFind_HiddenNodes: TCheckBox
             Left = 10
@@ -1589,11 +1589,11 @@ object Form_Main: TForm_Main
             Font.Style = []
             ParentFont = False
             State = cbChecked
-            TabOrder = 5
+            TabOrder = 4
           end
           object CB_ResFind_Filter: TCheckBox
             Left = 10
-            Top = 150
+            Top = 133
             Width = 213
             Height = 17
             Hint = 'Show or hide nodes according to search conditions'
@@ -1604,7 +1604,7 @@ object Form_Main: TForm_Main
             Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
-            TabOrder = 6
+            TabOrder = 5
           end
         end
       end

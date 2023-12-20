@@ -785,7 +785,7 @@ begin
     FindOptions.WholeWordsOnly := CB_ResFind_WholeWords.Checked;
     FindOptions.AllTabs := CB_ResFind_AllNotes.Checked;
     FindOptions.CurrentNodeAndSubtree := CB_ResFind_CurrentNodeAndSubtree.Checked;
-    FindOptions.SearchNodeNames := CB_ResFind_NodeNames.Checked;
+    FindOptions.SearchScope := TSearchScope( RG_ResFind_Scope.ItemIndex );
     FindOptions.SearchMode := TSearchMode( RG_ResFind_Type.ItemIndex );
     FindOptions.HiddenNodes:= CB_ResFind_HiddenNodes.Checked;   // [dpv]
 
@@ -892,7 +892,7 @@ begin
                 nodeToFilter:= true;               // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
                 SearchOrigin := 0;                 // starting a new node
 
-                if assigned(myTreeNode) and FindOptions.SearchNodeNames then begin
+                if assigned(myTreeNode) and (FindOptions.SearchScope <> ssOnlyContent) then begin
                   var Aux: integer;
                   var NodeName: string;
                   myNoteNode := TNoteNode(myTreeNode.Data);
@@ -904,14 +904,16 @@ begin
                   FindPatternInText(true);
                 end;
 
-                // PrepareEditControl(myNote, myTreeNode);
-                TextPlainBAK:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
-                TextPlain:= TextPlainBAK;
-                if not FindOptions.MatchCase then
-                   TextPlain:=  AnsiUpperCase(TextPlain);
+                if (FindOptions.SearchScope <> ssOnlyNodeName) then begin
+                   // PrepareEditControl(myNote, myTreeNode);
+                   TextPlainBAK:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
+                   TextPlain:= TextPlainBAK;
+                   if not FindOptions.MatchCase then
+                      TextPlain:=  AnsiUpperCase(TextPlain);
 
-                SearchOrigin := 0;
-                FindPatternInText(false);
+                   SearchOrigin := 0;
+                   FindPatternInText(false);
+                end;
 
                 if ApplyFilter and ((myNote.Kind = ntTree) and (not nodeToFilter)) then
                    TNoteNode(myTreeNode.Data).Filtered := false;

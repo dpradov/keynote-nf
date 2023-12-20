@@ -43,6 +43,11 @@ resourcestring
   STR_08_SearchMode = 'Exact phrase';
   STR_09_SearchMode = 'All the words';
   STR_10_SearchMode = 'Any of the words';
+
+  STR_SearchScope1 = 'Only node names';
+  STR_SearchScope2 = 'Only note contents';
+  STR_SearchScope3 = 'All';
+
   STR_11_TreeSelection = 'Current node';
   STR_12_TreeSelection = 'Current node and subtree';
   STR_13_TreeSelection = 'Checked nodes';
@@ -477,6 +482,11 @@ type
 type
   TSearchMode = (
     smPhrase, smAll, smAny
+  );
+
+type
+  TSearchScope = (
+    ssOnlyNodeName, ssOnlyContent, ssContentsAndNodeName
   );
 
 type
@@ -1063,6 +1073,7 @@ var
   FILE_COMPRESSION_LEVEL : array[TZCompressionLevel] of string;
   TABNOTE_KIND_NAMES : array[TNoteType] of string;
   SEARCH_MODES : array[TSearchMode] of string;
+  SEARCH_SCOPES : array[TSearchScope] of string;
   SYMBOL_NAME_LIST : array[1..10] of string;
   HTMLImportMethods : array[THTMLImportMethod] of string;
   HTMLExportMethods : array[THTMLExportMethod] of string;
@@ -1088,6 +1099,11 @@ begin
   SEARCH_MODES[smPhrase] := STR_08_SearchMode;
   SEARCH_MODES[smAll] := STR_09_SearchMode;
   SEARCH_MODES[smAny] := STR_10_SearchMode;
+
+  SEARCH_SCOPES[ssOnlyNodeName ]:= STR_SearchScope1;
+  SEARCH_SCOPES[ssOnlyContent] := STR_SearchScope2;
+  SEARCH_SCOPES[ssContentsAndNodeName] := STR_SearchScope3;
+
 
   SYMBOL_NAME_LIST[1]:=   STR_44_Symb;
   SYMBOL_NAME_LIST[2]:=   STR_45_Symb;

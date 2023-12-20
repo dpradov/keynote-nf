@@ -749,7 +749,7 @@ type
     ReplacePattern,
     ReplaceWith,
     SearchMode,
-    SearchNodeNames,
+    SearchScope,
     WholeWordsOnly,
     WordAtCursor,
     WordCharacters,
@@ -779,7 +779,7 @@ const
     ReplacePattern : 'ReplacePattern';
     ReplaceWith : 'ReplaceWith';
     SearchMode : 'SearchMode';
-    SearchNodeNames : 'SearchNodeNames';
+    SearchScope : 'SearchScope';
     WholeWordsOnly : 'WholeWordsOnly';
     WordAtCursor : 'WordAtCur';
     WordCharacters : 'WordCharacters';
@@ -1153,7 +1153,7 @@ begin
     ReplaceHistory := '';
     ReplaceWith := '';
     SearchMode := low( SearchMode );
-    SearchNodeNames := false;
+    SearchScope := ssContentsAndNodeName;
     WholeWordsOnly := false;
     WordAtCursor := true;
     Wrap := false;
@@ -1492,7 +1492,7 @@ begin
       writebool( section, FindOptionsIniStr.WordAtCursor, FindOptions.WordAtCursor );
       writeinteger( section, FindOptionsIniStr.SearchMode, ord( FindOptions.SearchMode ));
       writebool( section, FindOptionsIniStr.Wrap, FindOptions.Wrap );
-      writebool( section, FindOptionsIniStr.SearchNodeNames, FindOptions.SearchNodeNames );
+      writeinteger( section, FindOptionsIniStr.SearchScope, ord( FindOptions.SearchScope ));
 
       section := ResPanelOptionsIniStr.section;
       //writebool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
@@ -1865,7 +1865,7 @@ begin
       FindOptions.WordAtCursor := readbool( section, FindOptionsIniStr.WordAtCursor, FindOptions.WordAtCursor );
       FindOptions.Wrap := readbool( section, FindOptionsIniStr.Wrap, FindOptions.Wrap );
       FindOptions.SearchMode := TSearchMode( readinteger( section, FindOptionsIniStr.SearchMode, ord( FindOptions.SearchMode )));
-      FindOptions.SearchNodeNames := readbool( section, FindOptionsIniStr.SearchNodeNames, FindOptions.SearchNodeNames );
+      FindOptions.SearchScope := TSearchScope( readinteger( section, FindOptionsIniStr.SearchScope, ord( FindOptions.SearchScope )));
 
       section := ResPanelOptionsIniStr.section;
       {
