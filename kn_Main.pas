@@ -7058,7 +7058,7 @@ end;
 
 procedure TForm_Main.RG_ResFind_TypeClick(Sender: TObject);
 begin
-  CB_ResFind_NodeNames.Enabled := ( TSearchMode( RG_ResFind_Type.ItemIndex ) = smPhrase );
+//  CB_ResFind_NodeNames.Enabled := ( TSearchMode( RG_ResFind_Type.ItemIndex ) = smPhrase );
 end;
 
 procedure TForm_Main.MMTreeNodeFromSelClick(Sender: TObject);

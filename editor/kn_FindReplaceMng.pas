@@ -549,7 +549,7 @@ var
   numNodosNoLimpiables: integer;
   thisWord : string;
   wordList : TStringList;
-  wordidx, wordcnt : integer;
+  wordcnt : integer;
   MultiMatchOK : boolean;
   ApplyFilter: boolean;
   nodeToFilter: boolean;
@@ -568,7 +568,7 @@ var
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
 
-       function AddLocation (LocationType: TLocationType;
+       function AddLocation (SearchingInNodeName: boolean; LocationType: TLocationType;
                              const FirstPattern: string; PatternPos: integer;
                              wordList : TStringList = nil;
                              const LastPattern: string = ''; LastPatternPos: integer= -1): integer;
@@ -586,7 +586,7 @@ type
              Location.NodeID := myNoteNode.ID;
           end;
 
-          if LocationType <> lsNodeName then begin
+          if not SearchingInNodeName then begin
              str:= TextPlainBAK;                                                      // original text, without case change
              Location.CaretPos := PatternPos;
              Location.SelLength := Length(FirstPattern) + SizeInternalHiddenTextInPos1;
@@ -667,6 +667,100 @@ type
             FindDone := true;
        end;
 
+       procedure FindPatternInText (SearchingInNodeName: boolean);
+       var
+          wordidx : integer;
+       begin
+          case SearchModeToApply of
+              smPhrase :
+                  begin
+                      repeat
+                         PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1) -1;
+                         {
+                         PatternPos := EditControl.FindText(
+                           FindOptions.Pattern,
+                           SearchOrigin, -1,
+                           SearchOpts
+                         );
+                         }
+
+                         if ( PatternPos >= 0 ) then begin
+                             SearchOrigin := PatternPos + PatternLen; // move forward in text
+                             AddLocation(SearchingInNodeName, lsNormal, TextToFind, PatternPos);
+                         end;
+                         Application.ProcessMessages;
+                      until UserBreak or (PatternPos < 0);
+                    end;
+
+              smAny, smAll :
+                begin
+                   repeat
+                       PatternPos1:= Integer.MaxValue;
+                       PatternPosN:= -1;
+
+                       MultiMatchOK := false;
+                       for wordidx := 0 to wordcnt -1 do begin
+                          thisWord := wordList[ wordidx ];
+
+                          PatternPos:= FindPattern(thisWord, TextPlain, SearchOrigin + 1, SizeInternalHiddenText) -1;
+                          {
+                          PatternPos := EditControl.FindText(
+                            thisWord,
+                            0, -1,
+                            SearchOpts
+                          );
+                          }
+
+                          if ( PatternPos >= 0 ) then begin
+                             MultiMatchOK := true; // assume success
+                             if PatternPos < PatternPos1 then begin
+                                PatternPos1:= PatternPos;
+                                PatternInPos1:= thisWord;
+                                SizeInternalHiddenTextInPos1:= SizeInternalHiddenText;
+                             end;
+                          end;
+
+                          case SearchModeToApply of
+                              smAll:
+                                  if ( PatternPos >= 0 ) then begin
+                                     if PatternPos > PatternPosN then begin
+                                        PatternPosN:= PatternPos;
+                                        PatternInPosN:= thisWord;
+                                     end;
+                                  end
+                                  else begin
+                                     MultiMatchOK := false;
+                                     break; // note must have ALL words
+                                  end;
+                           end;
+
+                          Application.ProcessMessages;
+                          if UserBreak then begin
+                             FindDone := true;
+                             break;
+                          end;
+
+                       end; // for wordidx
+
+                       if MultiMatchOK then begin
+                          if SearchModeToApply = smAll then begin
+                             AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, PatternInPosN, PatternPosN);
+                             SearchOrigin := PatternPosN + 1; // move forward in text
+                          end
+                          else
+                             SearchOrigin:= 1 + AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList);
+                       end;
+
+                       Application.ProcessMessages;
+
+                   until UserBreak or not MultiMatchOK;
+
+
+                end; // smAny, smAll
+
+          end; // case FindOptions.SearchMode
+
+       end;
 
 begin
 
@@ -795,130 +889,29 @@ begin
 
             // Recorremos cada nodo (si es ntTree) o el único texto (si <> ntTree)
             repeat
+                nodeToFilter:= true;               // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
+                SearchOrigin := 0;                 // starting a new node
+
+                if assigned(myTreeNode) and FindOptions.SearchNodeNames then begin
+                  var Aux: integer;
+                  var NodeName: string;
+                  myNoteNode := TNoteNode(myTreeNode.Data);
+                  if FindOptions.MatchCase then
+                     TextPlain:= myNoteNode.Name
+                  else
+                     TextPlain:= AnsiUpperCase( myNoteNode.Name);
+
+                  FindPatternInText(true);
+                end;
+
                 // PrepareEditControl(myNote, myTreeNode);
                 TextPlainBAK:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
                 TextPlain:= TextPlainBAK;
                 if not FindOptions.MatchCase then
                    TextPlain:=  AnsiUpperCase(TextPlain);
-                
-                nodeToFilter:= true;                     // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
-                SearchOrigin := 0; // starting a new node
 
-                case SearchModeToApply of
-                    smPhrase :
-                        begin
-                            // look for match in node name first (si estamos buscando dentro de una nota ntTree)
-                            if assigned(myTreeNode) and FindOptions.SearchNodeNames then begin
-                              var Aux: integer;
-                              var NodeName: string;
-                              myNoteNode := TNoteNode(myTreeNode.Data);
-                              if FindOptions.MatchCase then
-                                 NodeName:= myNoteNode.Name
-                              else
-                                 NodeName:= AnsiUpperCase( myNoteNode.Name);
-
-                              PatternPos:= FindPattern(TextToFind, NodeName, 1, Aux);
-
-                              if ( PatternPos > 0 ) then begin
-                                 dec(PatternPos);  // to manage as zero-based
-                                 AddLocation(lsNodeName, TextToFind, PatternPos);
-                              end;
-                            end;
-
-                            repeat
-                               PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1) -1;
-                               {
-                               PatternPos := EditControl.FindText(
-                                 FindOptions.Pattern,
-                                 SearchOrigin, -1,
-                                 SearchOpts
-                               );
-                               }
-
-                               if ( PatternPos >= 0 ) then begin
-                                   SearchOrigin := PatternPos + PatternLen; // move forward in text
-                                   AddLocation(lsNormal, TextToFind, PatternPos);
-                               end;
-                               Application.ProcessMessages;
-                            until UserBreak or (PatternPos < 0);
-                          end;
-
-                    smAny, smAll :
-                      begin
-                         repeat
-                             PatternPos1:= Integer.MaxValue;
-                             PatternPosN:= -1;
-
-                             MultiMatchOK := false;
-                             for wordidx := 0 to wordcnt -1 do begin
-                                thisWord := wordList[ wordidx ];
-
-                                PatternPos:= FindPattern(thisWord, TextPlain, SearchOrigin + 1, SizeInternalHiddenText) -1;
-                                {
-                                PatternPos := EditControl.FindText(
-                                  thisWord,
-                                  0, -1,
-                                  SearchOpts
-                                );
-                                }
-
-
-                                if ( PatternPos >= 0 ) then begin
-                                   MultiMatchOK := true; // assume success
-                                   if PatternPos < PatternPos1 then begin
-                                      PatternPos1:= PatternPos;
-                                      PatternInPos1:= thisWord;
-                                      SizeInternalHiddenTextInPos1:= SizeInternalHiddenText;
-                                   end;
-                                end;
-
-                                case SearchModeToApply of
-                                    smAll:
-                                        if ( PatternPos >= 0 ) then begin
-                                           if PatternPos > PatternPosN then begin
-                                              PatternPosN:= PatternPos;
-                                              PatternInPosN:= thisWord;
-                                           end;
-                                        end
-                                        else begin
-                                           MultiMatchOK := false;
-                                           break; // note must have ALL words
-                                        end;
-
-                                   { We are going to accept any of the words as a match, looking to be able to highlight all the words, in one or more matches
-                                    smAny:
-                                        if ( PatternPos >= 0 ) then begin
-                                           MultiMatchOK := true;
-                                           break; // enough to find just 1 word
-                                        end;
-                                    }
-                                 end;
-
-                                Application.ProcessMessages;
-                                if UserBreak then begin
-                                   FindDone := true;
-                                   break;
-                                end;
-
-                             end; // for wordidx
-
-                             if MultiMatchOK then begin
-                                if SearchModeToApply = smAll then begin
-                                   AddLocation (lsMultimatch, PatternInPos1, PatternPos1, wordList, PatternInPosN, PatternPosN);
-                                   SearchOrigin := PatternPosN + 1; // move forward in text
-                                end
-                                else
-                                   SearchOrigin:= 1 + AddLocation (lsMultimatch, PatternInPos1, PatternPos1, wordList);
-                             end;
-
-                             Application.ProcessMessages;
-
-                         until UserBreak or not MultiMatchOK;
-
-
-                      end; // smAny, smAll
-
-                end; // case FindOptions.SearchMode
+                SearchOrigin := 0;
+                FindPatternInText(false);
 
                 if ApplyFilter and ((myNote.Kind = ntTree) and (not nodeToFilter)) then
                    TNoteNode(myTreeNode.Data).Filtered := false;
