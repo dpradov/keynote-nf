@@ -414,6 +414,11 @@ begin
   fZoomFactor := SimpleRoundTo(fZoomFactor + Ratio, -1);
   ResizeImage;
 
+  if (Ratio > 0) and (not cScrollBox.HorzScrollBar.IsScrollBarVisible) and ((cImage.Width > cScrollBox.Width) or (cImage.Height > cScrollBox.Height))  then begin
+    cImage.Align:= alClient;
+    cImage.Align:= alNone;
+  end;
+
   if RH > 0 then
     cScrollBox.HorzScrollBar.Position:= Round(cScrollBox.HorzScrollBar.Range/RH * HPos);
 
