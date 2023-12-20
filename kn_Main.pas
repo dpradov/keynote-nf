@@ -4477,7 +4477,7 @@ begin
             (( not ClipOptions.IgnoreSelf ) and // explicitly configured to capture from self...
             ( not ( NoteFile.ClipCapNote = ActiveNote )))) then begin // but never capture text copied from the note that is being used for capture
                ClpStr := Clipboard.TryAsText;
-               if (ClpStr <> '') and (not TestCRCForDuplicates(ClpStr) or (not ClipOptions.TestDupClips)) then     // *1
+               if ((ClpStr <> '') or not NoteFile.ClipCapNote.PlainText ) and (not TestCRCForDuplicates(ClpStr) or (not ClipOptions.TestDupClips)) then     // *1
                   PasteOnClipCap(ClpStr);
          end;
       end;
