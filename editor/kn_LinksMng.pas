@@ -970,9 +970,15 @@ begin
 
   if PlaceCaret then
      with myNote.Editor do begin
-       SelStart := CaretPosition - Offset;
-       SelLength := SelectionLength;
-       Perform( EM_SCROLLCARET, 0, 0 );
+       BeginUpdate;
+       try
+          SelStart := CaretPosition - Offset;
+          SelLength := SelectionLength;
+          myNote.Editor.ScrollLinesBy(80);
+          Perform( EM_SCROLLCARET, 0, 0 );
+       finally
+          EndUpdate;
+       end;
      end;
 
   Result:= Offset;
@@ -1009,13 +1015,20 @@ var
         with myNote.Editor do begin
           p:= FindText(TargetMark, 0, -1, []);
           if p > 0 then begin
-            SelStart := p;
-            selLen:= 0;
-            if Location.SelLength > 0 then
-               selLen:= Location.SelLength + Length(TargetMark);
-            SelLength := selLen;
-            Perform( EM_SCROLLCARET, 0, 0 );
-            Result:= true;
+            BeginUpdate;
+            try
+               SelStart := p;
+               selLen:= 0;
+               if Location.SelLength > 0 then
+                  selLen:= Location.SelLength + Length(TargetMark);
+               SelLength := selLen;
+
+               myNote.Editor.ScrollLinesBy(80);
+               Perform( EM_SCROLLCARET, 0, 0 );
+               Result:= true;
+            finally
+               EndUpdate;
+            end;
           end;
         end;
       end;
