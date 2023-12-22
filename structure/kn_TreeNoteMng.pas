@@ -62,7 +62,7 @@ var
     // treenote-related methods:
     function AddNodeToTree( aInsMode : TNodeInsertMode ) : TTreeNTNode;
     function TreeNoteNewNode( const aTreeNote : TTreeNote; aInsMode : TNodeInsertMode; const aOriginNode : TTreeNTNode; const aNewNodeName : string; const aDefaultNode : boolean ) : TTreeNTNode;
-    procedure TreeNodeSelected( Node : TTreeNTNode );
+    procedure TreeNodeSelected( Node : TTreeNTNode; OnDeletingNode: boolean= false );
     procedure DeleteTreeNode( const DeleteFocusedNode : boolean );
     function MoveSubtree( myTreeNode : TTreeNTNode ): boolean;
     procedure UpdateTreeNode( const aTreeNode : TTreeNTNode );
@@ -401,7 +401,7 @@ begin
   result := TTreeNote( ActiveNote ).TV.Selected;
 end; // GetCurrentTreeNode
 
-procedure TreeNodeSelected( Node : TTreeNTNode );
+procedure TreeNodeSelected( Node : TTreeNTNode; OnDeletingNode: boolean= false );
 var
   myTreeNote : TTreeNote;
   myNode : TNoteNode;
@@ -434,7 +434,8 @@ begin
       try
         try
 
-          ActiveNote.EditorToDataStream;
+          if not OnDeletingNode then
+             ActiveNote.EditorToDataStream;
           ActiveNote.Editor.Clear;
           ActiveNote.Editor.ClearUndo;
 
@@ -1782,11 +1783,13 @@ begin
           OnChange := TVChange;
           Items.EndUpdate;
         end;
-        if assigned( myTNote.TV.Selected ) then
-          myTNote.SelectedNode := TNoteNode( myTNote.TV.Selected.Data )
+
+        myTreeNode:= myTNote.TV.Selected;
+        if assigned( myTreeNode ) then
+           TreeNodeSelected(myTreeNode, true)
         else
-          myTNote.SelectedNode := nil;
-        myTNote.DataStreamToEditor;
+           myTNote.SelectedNode := nil;
+
         NoteFile.Modified := true;
         UpdateNoteFileState( [fscModified] );
       end;
