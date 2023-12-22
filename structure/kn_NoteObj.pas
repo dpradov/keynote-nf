@@ -2014,7 +2014,6 @@ begin
   if L < 0 then L:= 0;
   R:= SS + 40;
 
-  BeginUpdate;
 
   SelStart:= L;
   SelLength:= R-L;
@@ -2089,7 +2088,6 @@ begin
         SelLength:= SL;
       end;
 
-      EndUpdate;
   end;
 
 end;   // GetWordAtCursor
