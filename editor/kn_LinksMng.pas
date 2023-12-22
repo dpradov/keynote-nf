@@ -60,7 +60,7 @@ uses
     procedure JumpToKNTLocation( LocationStr : string );
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
     function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean): integer;
-    function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer): integer;
+    function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
     procedure InsertURL(URLStr : string; TextURL : string; Note: TTabNote);
@@ -920,7 +920,7 @@ begin
 end;
 
 
-function GetPositionOffset (myNote : TTabNote; myTreeNode: TTreeNTNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer): integer;
+function GetPositionOffset (myNote : TTabNote; myTreeNode: TTreeNTNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
   Stream: TMemoryStream;
   imLinkTextPlain: String;
@@ -928,8 +928,9 @@ var
   RtfModified: boolean;
 begin
    Offset:= 0;
-   if (CaretPosition < 0) and (Pos_ImLinkTextPlain < 0) then exit;
+   if (CaretPosition < 0) and (Pos_ImLinkTextPlain < 0) then exit(0);
 
+   Stream:= nil;
 
    if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
      imLinkTextPlain:= '';
@@ -948,12 +949,26 @@ begin
 
    end;
 
+   if Stream = nil then exit(0);
+
+   if imLinkTextPlain = '' then begin
+      var RTFAux: TTabRichEdit;
+      RTFAux:= CreateRTFAuxEditorControl;
+      try
+         imLinkTextPlain:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
+      finally
+         RTFAux.Free;
+      end;
+   end;
+
+
+
    // See notes in ImagesManager.GetPositionOffset
 
    if CaretPosition >= 0 then
-      Offset:= ImagesManager.GetPositionOffset_FromEditorTP (Stream, CaretPosition, imLinkTextPlain, RTFModified)
+      Offset:= ImagesManager.GetPositionOffset_FromEditorTP (Stream, CaretPosition, imLinkTextPlain, RTFModified, ForceCalc)
    else
-      Offset:= ImagesManager.GetPositionOffset_FromImLinkTP (Stream, Pos_ImLinkTextPlain, imLinkTextPlain, RtfModified);
+      Offset:= ImagesManager.GetPositionOffset_FromImLinkTP (Stream, Pos_ImLinkTextPlain, imLinkTextPlain, RtfModified, ForceCalc);
 
 
    Result:= Offset;
@@ -984,11 +999,11 @@ begin
   Result:= Offset;
 end;
 
-function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer): integer;
+function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
    Offset: integer;
 begin
-   Offset:= GetPositionOffset(myNote, myTreeNode, -1, CaretPosition);
+   Offset:= GetPositionOffset(myNote, myTreeNode, -1, CaretPosition, ForceCalc);
    Result:= CaretPosition + Offset;
 end;
 

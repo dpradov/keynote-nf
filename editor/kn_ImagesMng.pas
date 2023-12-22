@@ -439,9 +439,9 @@ type
 
     procedure ReloadImages(const IDs: TImageIDs);
 
-    function GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
-    function GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
-    function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
+    function GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+    function GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+    function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 
 
     procedure LoadState (const tf: TTextFile; var FileExhausted: Boolean);
@@ -3380,7 +3380,7 @@ begin
 end;
 
 
-function TImageManager.GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
+function TImageManager.GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 var
   pID,pIDr: integer;
   pID_e,pIDr_e: integer;
@@ -3403,7 +3403,7 @@ const
    function CheckValidImageHiddenMark: boolean;
    begin
        Result:= false;
-       if (pIDr > 0) and ((pIDr-pID) <= 10) then begin
+       if (pIDr_e > 0) and ((pIDr_e-pID_e) <= 10) then begin
           // We consider the hidden mark valid -> we count the hyperlink
           Inc(nLinks);
           SetLength(ImagesVisible, nLinks);
@@ -3492,7 +3492,7 @@ begin
     // Check if no offset needs to be applied
 
     // There is no need to make any adaptation, since TextPlainInEditor must necessarily be equal to imLinkTextPlain
-    if (ImagesManager.ImagesMode = imLink) and (not RTFModified) then
+    if (not ForceCalc) and (ImagesManager.ImagesMode = imLink) and (not RTFModified) then
        exit;
 
     // There is no need to adapt anything because there are no images (neither hidden nor visible)
@@ -3504,7 +3504,7 @@ begin
     { If the length of TextPlainInEditor = length of imLinkTextPlain this will be because there are images but they
       are all hidden, hence the coincidence in the lengths. It would be highly unlikely that there would be a number
       of visible images equal to the number of characters added to the note/node and not yet saved to the stream. }
-    if Length(imLinkTextPlain) = Length(TextPlainInEditor) then
+    if (not ForceCalc) and (Length(imLinkTextPlain) = Length(TextPlainInEditor)) then
        exit;
 
 
@@ -3517,15 +3517,15 @@ begin
     if CaretPos >= 0 then begin
 
        repeat
-          pID:= Pos(beginIDImgChar, TextPlainInEditor, pID + 1);
-          if  (pID > 0) and (pID < Length(TextPlainInEditor)) and (pID < CaretPos) then begin
-             pIDr:= Pos(endIDImgChar, TextPlainInEditor, pID);                             // L1I999999R
+          pID_e:= Pos(beginIDImgChar, TextPlainInEditor, pID_e + 1);
+          if  (pID_e > 0) and (pID_e < Length(TextPlainInEditor)) and (pID_e < CaretPos) then begin
+             pIDr_e:= Pos(endIDImgChar, TextPlainInEditor, pID_e);                             // L1I999999R
              CheckValidImageHiddenMark;     // Can update nLinks, ImagesVisible and SomeImagesAreVisible
-             pID:= pIDr;
+             pID_e:= pIDr_e;
           end
           else
              break;
-       until (pID >= Length(TextPlainInEditor)) or (pID >= CaretPos);
+       until (pID_e >= Length(TextPlainInEditor)) or (pID_e >= CaretPos);
 
     end
     else begin
@@ -3594,15 +3594,15 @@ begin
 end;
 
 
-function TImageManager.GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
+function TImageManager.GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 begin
-   Result:= GetPositionOffset(Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified);
+   Result:= GetPositionOffset(Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified, ForceCalc);
 end;
 
 
-function TImageManager.GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean): integer;
+function TImageManager.GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 begin
-   Result:= GetPositionOffset(Stream, -1, CaretPos, imLinkTextPlain, RTFModified);
+   Result:= GetPositionOffset(Stream, -1, CaretPos, imLinkTextPlain, RTFModified, ForceCalc);
 end;
 
 

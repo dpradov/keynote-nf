@@ -1762,27 +1762,41 @@ procedure TTabNote.SetImagesMode(ImagesMode: TImagesMode);
 var
    RTFIn, RTFOut: AnsiString;
    currentNoteModified, currentFileModified: boolean;
+   SS: integer;
+   myTreeNode: TTreeNTNode;
 
 begin
     if FImagesMode <> ImagesMode then begin
+
+       myTreeNode:= nil;
+       if Self.Kind = ntTree then
+          myTreeNode := TTreeNote(Self).TV.Selected;
+       SS:= ActiveNote.Editor.SelStart;
+       if ImagesMode = imLink then                                       // imImage --> imLink
+          SS:= PositionInImLinkTextPlain (Self, myTreeNode, SS, True);   // True: Force calculation
+
        FImagesMode:= ImagesMode;
 
        RTFIn:= Editor.RtfText;
        RTFOut:= ImagesManager.ProcessImagesInRTF(RTFIn, Self, ImagesMode, '', 0, true);
        if RTFOut <> '' then begin
-          currentNoteModified:= FModified;
-          currentFileModified:= NoteFile.Modified;
-          Editor.PutRtfText(RTFout,True,False);
-          if currentNoteModified <> FModified then begin
-             FModified:=  currentNoteModified;  // <- false...
-             NoteFile.Modified:= currentFileModified;
-             UpdateNoteFileState( [fscModified] );
+          Editor.BeginUpdate;
+          try
+             currentNoteModified:= FModified;
+             currentFileModified:= NoteFile.Modified;
+             Editor.PutRtfText(RTFout,True,False);
+             if currentNoteModified <> FModified then begin
+                FModified:=  currentNoteModified;  // <- false...
+                NoteFile.Modified:= currentFileModified;
+                UpdateNoteFileState( [fscModified] );
+             end;
+             SearchCaretPos(Self, myTreeNode, SS, 0, true);
+          finally
+            Editor.EndUpdate;
           end;
-
        end;
     end;
 end;
-
 procedure TTabNote.SetWordWrap( AWordWrap : boolean );
 begin
   if ( FWordWrap = AWordWrap ) then exit;
