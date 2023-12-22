@@ -48,6 +48,10 @@ resourcestring
   STR_SearchScope2 = 'Only note contents';
   STR_SearchScope3 = 'All';
 
+  STR_SearchChkMode1 = 'Only non checked nodes';
+  STR_SearchChkMode2 = 'Only checked nodes';
+  STR_SearchChkMode3 = 'All';
+
   STR_11_TreeSelection = 'Current node';
   STR_12_TreeSelection = 'Current node and subtree';
   STR_13_TreeSelection = 'Checked nodes';
@@ -488,6 +492,12 @@ type
   TSearchScope = (
     ssOnlyNodeName, ssOnlyContent, ssContentsAndNodeName
   );
+
+type
+  TSearchCheckMode = (
+    scOnlyNonChecked, scOnlyChecked, scAll
+  );
+
 
 type
   TPasteNodeNameMode = (
@@ -1074,6 +1084,7 @@ var
   TABNOTE_KIND_NAMES : array[TNoteType] of string;
   SEARCH_MODES : array[TSearchMode] of string;
   SEARCH_SCOPES : array[TSearchScope] of string;
+  SEARCH_CHKMODES : array[TSearchCheckMode] of string;
   SYMBOL_NAME_LIST : array[1..10] of string;
   HTMLImportMethods : array[THTMLImportMethod] of string;
   HTMLExportMethods : array[THTMLExportMethod] of string;
@@ -1104,6 +1115,9 @@ begin
   SEARCH_SCOPES[ssOnlyContent] := STR_SearchScope2;
   SEARCH_SCOPES[ssContentsAndNodeName] := STR_SearchScope3;
 
+  SEARCH_CHKMODES[scOnlyNonChecked]:= STR_SearchChkMode1;
+  SEARCH_CHKMODES[scOnlyChecked]:= STR_SearchChkMode2;
+  SEARCH_CHKMODES[scAll]:= STR_SearchChkMode3;
 
   SYMBOL_NAME_LIST[1]:=   STR_44_Symb;
   SYMBOL_NAME_LIST[2]:=   STR_45_Symb;

@@ -872,6 +872,7 @@ type
     TB_Images: TToolbarButton97;
     N118: TMenuItem;
     RTFMRestoreProportions: TMenuItem;
+    RG_ResFind_ChkMode: TRadioGroup;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -6513,6 +6514,7 @@ begin
   Combo_ResFind.Width := ResTab_Find.Width - 15;
   RG_ResFind_Type.Width:= Combo_ResFind.Width;
   RG_ResFind_Scope.Width:= Combo_ResFind.Width;
+  RG_ResFind_ChkMode.Width:= Combo_ResFind.Width;
   UpdateFindAllResultsWidth;
 end;
 

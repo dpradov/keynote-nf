@@ -280,6 +280,8 @@ type
     function GetLastChild: TTreeNTNode;
     function GetNext: TTreeNTNode;
     function GetNextNotHidden: TTreeNTNode; // [dpv]
+    function GetNextChecked (ConsiderHiddenNodes: boolean= true): TTreeNTNode;    // [dpv]
+    function GetNextNonChecked (ConsiderHiddenNodes: boolean= true): TTreeNTNode;    // [dpv]
     function GetNextChild(Value: TTreeNTNode): TTreeNTNode;
     function GetNextSelected: TTreeNTNode;
     function GetNextSibling: TTreeNTNode;
@@ -2253,6 +2255,33 @@ begin
      until not assigned(node) or (not node.Hidden);
      Result:= node;
 end;
+
+//------------------------------------------------------------------------------
+
+function TTreeNTNode.GetNextNonChecked (ConsiderHiddenNodes: boolean= true): TTreeNTNode;
+var
+   node: TTreeNTNode;
+begin
+     node:= Self;
+     repeat
+        node := node.GetNext;
+     until not assigned(node) or ((node.CheckState = csUnchecked) and (ConsiderHiddenNodes or not node.Hidden) );
+     Result:= node;
+end;
+
+//------------------------------------------------------------------------------
+
+function TTreeNTNode.GetNextChecked (ConsiderHiddenNodes: boolean= true): TTreeNTNode;
+var
+   node: TTreeNTNode;
+begin
+     node:= Self;
+     repeat
+        node := node.GetNext;
+     until not assigned(node) or ((node.CheckState = csChecked) and (ConsiderHiddenNodes or not node.Hidden) );
+     Result:= node;
+end;
+
 
 
 //------------------------------------------------------------------------------

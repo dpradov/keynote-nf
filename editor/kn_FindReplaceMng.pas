@@ -623,13 +623,30 @@ type
 
        end;
 
+       function EnsureCheckMode (myTreeNode: TTreeNTNode): TTreeNTNode;
+       begin
+          if assigned( myTreeNode ) then begin
+             if (myTreeNode.CheckState = csChecked) and (FindOptions.CheckMode = scOnlyNonChecked) then
+                myTreeNode := myTreeNode.GetNextNonChecked (FindOptions.HiddenNodes)
+             else
+             if (myTreeNode.CheckState = csUnchecked) and (FindOptions.CheckMode = scOnlyChecked) then
+                myTreeNode := myTreeNode.GetNextChecked (FindOptions.HiddenNodes);
+          end;
+          Result:= myTreeNode;
+       end;
+
        procedure GetFirstNode;
        begin
           if myNote.Kind <> ntTree then exit;
 
           myTreeNode := TTreeNote(myNote).TV.Items.GetFirstNode;
-          if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindOptions.HiddenNodes) then
-             myTreeNode := myTreeNode.GetNextNotHidden;
+
+          if assigned( myTreeNode ) then begin
+             if myTreeNode.Hidden and (not FindOptions.HiddenNodes) then
+                myTreeNode := myTreeNode.GetNextNotHidden;
+
+             myTreeNode:= EnsureCheckMode(myTreeNode);
+          end;
        end;
 
        procedure GetNextNode;
@@ -640,6 +657,8 @@ type
              myTreeNode := myTreeNode.GetNext
           else
              myTreeNode := myTreeNode.GetNextNotHidden;
+
+          myTreeNode:= EnsureCheckMode(myTreeNode);
 
           if (TreeNodeToSearchIn <> nil) and (myTreeNode <> nil) and
                (myTreeNode.Level <= TreeNodeToSearchIn.Level) then begin
@@ -787,6 +806,7 @@ begin
     FindOptions.CurrentNodeAndSubtree := CB_ResFind_CurrentNodeAndSubtree.Checked;
     FindOptions.SearchScope := TSearchScope( RG_ResFind_Scope.ItemIndex );
     FindOptions.SearchMode := TSearchMode( RG_ResFind_Type.ItemIndex );
+    FindOptions.CheckMode := TSearchCheckMode( RG_ResFind_ChkMode.ItemIndex );
     FindOptions.HiddenNodes:= CB_ResFind_HiddenNodes.Checked;   // [dpv]
 
     ApplyFilter:= CB_ResFind_Filter.Checked;   // [dpv]
@@ -904,7 +924,7 @@ begin
                   FindPatternInText(true);
                 end;
 
-                if (FindOptions.SearchScope <> ssOnlyNodeName) then begin
+                if (assigned(myTreeNode) or (myNote.Kind <> ntTree) ) and (FindOptions.SearchScope <> ssOnlyNodeName) then begin         // TODO - FALTA COMPROBACION assigned(myTreeNode) - REVISAR CON rev. anterior
                    // PrepareEditControl(myNote, myTreeNode);
                    TextPlainBAK:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
                    TextPlain:= TextPlainBAK;
@@ -915,8 +935,9 @@ begin
                    FindPatternInText(false);
                 end;
 
-                if ApplyFilter and ((myNote.Kind = ntTree) and (not nodeToFilter)) then
+                if ApplyFilter and ((myNote.Kind = ntTree) and assigned(myTreeNode) and (not nodeToFilter)) then
                    TNoteNode(myTreeNode.Data).Filtered := false;
+
                 GetNextNode;
 
             until UserBreak or not assigned(myTreeNode);

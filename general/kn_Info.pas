@@ -730,6 +730,7 @@ type
     ReplaceWith : string;
     SearchMode : TSearchMode; // for "Find all" (resource panel) ONLY
     SearchScope : TSearchScope; // for "Find all" (resource panel) ONLY
+    CheckMode: TSearchCheckMode;  // for "Find all" (resource panel) ONLY
     WholeWordsOnly : boolean; // only match whole words
     WordAtCursor : boolean; // auto-select word at cursor when invoking Find dialog box
     Wrap : boolean; // when reaching bottom of active note, wrap around at search again from top

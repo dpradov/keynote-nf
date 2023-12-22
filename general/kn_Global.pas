@@ -353,6 +353,22 @@ begin
   end;
 end;
 
+procedure AddSearchChkModes;
+var
+   sc : TSearchCheckMode;
+begin
+  if not assigned(Form_Main) then exit;
+  with Form_Main do begin
+      RG_ResFind_ChkMode.Items.Clear;
+      for sc := low( TSearchCheckMode ) to high( TSearchCheckMode ) do
+      begin
+        RG_ResFind_ChkMode.Items.Add( SEARCH_CHKMODES[sc] );
+      end;
+      RG_ResFind_ChkMode.ItemIndex := 0;
+  end;
+end;
+
+
 //====================================================================
 procedure InitializeKeynote (Form_Main: TForm_Main);
 var
@@ -562,6 +578,7 @@ begin
 
       AddSearchModes;
       AddSearchScopes;
+      AddSearchChkModes;
 
       Form_Chars := nil;
       InsCharFont.Name := '';

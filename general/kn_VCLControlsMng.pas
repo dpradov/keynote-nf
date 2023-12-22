@@ -999,6 +999,7 @@ begin
         CB_ResFind_CurrentNodeAndSubtree.Enabled:= not FindOptions.AllTabs;
         RG_ResFind_Scope.ItemIndex := ord( FindOptions.SearchScope );
         RG_ResFind_Type.ItemIndex := ord( FindOptions.SearchMode );
+        RG_ResFind_ChkMode.ItemIndex := ord( FindOptions.CheckMode );
 
         PlainDefaultPaste_Toggled;
   end;

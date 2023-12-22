@@ -1508,7 +1508,7 @@ object Form_Main: TForm_Main
             Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
-            TabOrder = 1
+            TabOrder = 8
           end
           object CB_ResFind_AllNotes: TCheckBox
             Left = 10
@@ -1561,7 +1561,7 @@ object Form_Main: TForm_Main
           end
           object RG_ResFind_Scope: TRadioGroup
             Left = 5
-            Top = 258
+            Top = 256
             Width = 215
             Height = 76
             Hint = 'Select scope of search to perform'
@@ -1574,12 +1574,27 @@ object Form_Main: TForm_Main
             ParentFont = False
             TabOrder = 7
           end
+          object RG_ResFind_ChkMode: TRadioGroup
+            Left = 5
+            Top = 341
+            Width = 215
+            Height = 76
+            Hint = 'Select how to include check nodes in search'
+            Caption = 'Check Nodes'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+          end
           object CB_ResFind_HiddenNodes: TCheckBox
             Left = 10
             Top = 102
             Width = 210
             Height = 17
-            Hint = 'Considerar hidden nodes'
+            Hint = 'Consider hidden nodes'
             Caption = 'Search hidden nodes'
             Checked = True
             Font.Charset = DEFAULT_CHARSET
