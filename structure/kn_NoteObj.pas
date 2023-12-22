@@ -131,7 +131,7 @@ type
     procedure SaveAlarms(var tf : TTextFile; node: TNoteNode = nil);
     procedure ProcessAlarm (s: AnsiString; node: TNoteNode = nil);
 
-    procedure SetImagesMode(ImagesMode: TImagesMode);
+    procedure SetImagesMode(ImagesMode: TImagesMode); overload;
 
     function InitializeTextPlain(RTFAux: TRxRichEdit): boolean;
 
@@ -209,6 +209,7 @@ type
                                       ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
     procedure ReloadImagesOnEditor;
     procedure ReconsiderImageDimensionGoalsOnEditor (Selection: boolean);
+    procedure SetImagesMode(ImagesMode: TImagesMode; ForceMode: boolean); overload;
 
     function GetAlarms(considerDiscarded: boolean): TList;
     function HasAlarms (considerDiscarded: boolean): boolean;
@@ -1758,7 +1759,7 @@ begin
 end; // TTabNote.SetImgIdx
 
 
-procedure TTabNote.SetImagesMode(ImagesMode: TImagesMode);
+procedure TTabNote.SetImagesMode(ImagesMode: TImagesMode; ForceMode: boolean);
 var
    RTFIn, RTFOut: AnsiString;
    currentNoteModified, currentFileModified: boolean;
@@ -1766,7 +1767,7 @@ var
    myTreeNode: TTreeNTNode;
 
 begin
-    if FImagesMode <> ImagesMode then begin
+    if ForceMode or (FImagesMode <> ImagesMode) then begin
 
        myTreeNode:= nil;
        if Self.Kind = ntTree then
@@ -1797,6 +1798,13 @@ begin
        end;
     end;
 end;
+
+procedure TTabNote.SetImagesMode(ImagesMode: TImagesMode);
+begin
+   SetImagesMode(ImagesMode, false);
+end;
+
+
 procedure TTabNote.SetWordWrap( AWordWrap : boolean );
 begin
   if ( FWordWrap = AWordWrap ) then exit;

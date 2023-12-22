@@ -448,8 +448,8 @@ object Form_Main: TForm_Main
         Width = 23
         Height = 22
         Hint = 
-          'Show or hide images (Ctrl: Force reload  / Alt: Reconsider "Max.' +
-          'auto width")'
+          'Show or hide images (Ctrl: Reapply [hidden] /  Reload  -- Alt: R' +
+          'econsider "Max.auto width")'
         AllowAllUp = True
         GroupIndex = 16
         Glyph.Data = {00000000}

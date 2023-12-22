@@ -1343,7 +1343,7 @@ type
 
     // status bar etc. display updates
     procedure ShowInsMode;
-    procedure ShowImages(Show: boolean);
+    procedure ShowImages(Show: boolean; ForceMode: boolean);
 
     // config file management
     procedure SetupToolbarButtons;
@@ -7451,8 +7451,24 @@ begin
 end;
 
 procedure TForm_Main.MMShowImagesClick(Sender: TObject);
+var
+  ForceMode, Show: boolean;
 begin
-  ShowImages (not MMShowImages.Checked);
+   ForceMode:= false;
+   Show:= not MMShowImages.Checked;
+
+   if CtrlDown then begin
+      if ImagesManager.ImagesMode = imImage then begin
+         ActiveNote.ReloadImagesOnEditor;
+         exit;
+      end
+      else begin
+         Show:= false;
+         ForceMode:= true;
+      end;
+   end;
+
+  ShowImages (Show, ForceMode);
 end;
 
 
@@ -7481,26 +7497,28 @@ begin
 
    if CtrlDown or AltDown then begin
       SS:= ActiveNote.Editor.SelStart;
+      TB_Images.Down:= not TB_Images.Down;
 
-      if CtrlDown then
-         ActiveNote.ReloadImagesOnEditor
+      if CtrlDown then begin
+         if ImagesManager.ImagesMode = imImage then
+            ActiveNote.ReloadImagesOnEditor
+         else
+            ShowImages (False, True);
+      end
       else
          ActiveNote.ReconsiderImageDimensionGoalsOnEditor (ActiveNote.Editor.SelLength > 0);
-
-      ActiveNote.Editor.SelStart:= SS;
-      TB_Images.Down:= not TB_Images.Down;
 
       ActiveNote.Editor.SelStart:= SS;
       Application.ProcessMessages;
       ActiveNote.Editor.SelLength:= 0;
    end
    else
-      ShowImages (TB_Images.Down);
+      ShowImages (TB_Images.Down, False);
 
 end;
 
 
-procedure TForm_Main.ShowImages(Show: boolean);
+procedure TForm_Main.ShowImages(Show: boolean; ForceMode: boolean);
 var
    ImageModeDest: TImagesMode;
 
@@ -7514,7 +7532,7 @@ begin
      ImageModeDest:= imLink;
 
    ImagesManager.ImagesMode:= ImageModeDest;
-   ActiveNote.ImagesMode :=   ImageModeDest;
+   ActiveNote.SetImagesMode (ImageModeDest, ForceMode);
 end;
 
 
