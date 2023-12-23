@@ -1,0 +1,93 @@
+
+Changes in 1.8.2 .01  (23 dec 2023)
+=================================
+
+* New: Added options in treeview context menu to hide/show child nodes based on checked status
+	Treeview context menu now includes:
+	 Children Checkboxes
+	   Show Checkboxes
+	   ----------
+	   Hide Checked
+	   Hide Unchecked
+	   Show non filtered
+
+	"Hide Checked" and "Hide Unchecked" apply only to current state of children nodes. "Show non filtered" will restore visibility of
+	children nodes that have not been filtered by a search.
+
+	By the opposite, "Hide Checked Nodes" (Menu or toolbar button) dynamically hide all checked nodes in the note (as usual).
+
+	The hint associated to "Hide Checked Nodes" now indicates: "Keep checked nodes hidden / Show non filtered [Ctrl]", to
+	highlight the dynamic behavior of this action, and to remember that when clicked with Ctrl it will ensure that all non filtered
+	nodes in the note will be shown (even if "Hide Checked Nodes" is currently not marked). This is useful to restore visibility of all
+	nodes (in note) hidden with 'Hide Checked' or 'Hide Unchecked'
+
+	Another difference: when saving, Keynote remembers the status of "Hide Checked Nodes", but not what was hidden using 'Hide Checked'
+	or 'Hide Unchecked', which will be considered temporary.
+
+* Improvement in Find All. Added 'Check mode', with three options:
+ - 'Only non checked nodes'
+ - 'Only checked nodes'
+ - 'All'
+
+* Improvement in Find All: replaced 'Search node names' option with 'Search Scope'
+	Checkbox option 'Search node names' is replaced with a radiogroup of three options:
+	- Only node names
+	- Only note contents
+	- All
+	It is therefore now possible to restrict searches to node names
+
+* Improvement in Find All. Matches in node names are highlighted in results list, with background color
+
+* Improvement: Find All. All search types apply with 'Search node names'
+	Match of a node name will consider now any of the possible options, and not only the first one:
+	 - Exact phrase,
+	 - All the words
+	 - Any of the words
+
+* Fixed: Find All. Consider option 'Whole words only' when selected 'Search node names'
+
+-------------------
+* Images. New: Ctr+Click on View Images (menu and toolbar button) -> Reapply hidden if Images Mode is imLink (images hidden)
+	Until now, clicking with CTRL on the button forced the reload of the images in the editor, to allow reconsider from disk
+	those images edited externally (having already been uploaded/cached).
+	This function now applies only if Images Mode is imImage (images are displayed). If Images Mode is imLink (images are not
+	displayed) it will now force any images that may be visible to be hidden.
+
+	This is useful if you are inserting many images and need to hide them from time to time. Even if the Mode is imLink,
+	added images are always shown.
+	It is now possible to hide these new images without having to previously show all the others.
+
+* Fixed: Caret position after changing images visibility / Fixed: Bug in Find Next with images
+	- After changing the visibility of images, the cursor position was being reset to 0
+	- In certain situations, searches with "Find Next" on editor with images could work incorrectly.
+
+* Fixed: Image viewer could not show scroll bars when zooming on certain occasions
+
+* Fixed: Clipboard capture was ignoring images
+  Indicated in issue #448
+
+---------------
+* Improvement: When jumping to a location (eg. click on a hyperlink), show the destination on the first line of the editor
+
+---------------
+
+* Fixed: Pressing left or backspace on the first character of a cell in a table raised an exception
+	The exception could be ignored without further consequences. But it became impossible to edit the beginning of the cells
+
+* Fixed: Eliminated flickering when displaying the search screen (Find Next)
+	It was only happening when the "Search for word at cursor" option was activated (WordAtCursor)
+	It also happened when executing "Select word"
+
+* Fixed: When deleting a node, the new (automatically) selected node was not showing with correct zoom, nor was updated the status bar
+
+
+* Fixed: Non controlled exception "FORMATEC structure not valid" on Paste Special... pasting from certain pages
+  The conversion from HTML to RTF may be incorrect on some pages and cause an exception on the previous line
+  for example returning the message "FORMATEC structure not valid"
+
+* Fixed: "FORMATEC structure not valid" exception pasting from certain pages
+	The conversion from HTML to RTF may be incorrect on some pages and cause an exception on the previous line
+	for example returning the message "FORMATEC structure not valid"
+	This happens, for example, when you copy and paste the first answer that appears on this page:
+	   https://stackoverflow.com/questions/4960829/how-to-convert-from-dos-path-to-file-scheme-uri-in-batch-file
+

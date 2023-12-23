@@ -2,6 +2,28 @@ Thanks for using KeyNote NF. You can show your appreciation and support future d
 
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
+v 1.8.2 .01  (23 dec 2023)
+--------------------------
+* New: Added options in treeview context menu to hide/show child nodes based on checked status
+* Improvement in Find All. Added 'Check mode', with three options
+* Improvement in Find All: replaced 'Search node names' option with 'Search Scope'
+* Improvement in Find All. Matches in node names are highlighted in results list, with background color
+* Improvement: Find All. All search types apply with 'Search node names'
+* Fixed: Find All. Consider option 'Whole words only' when selected 'Search node names'
+---
+* Images. New: Ctr+Click on View Images (menu and toolbar button) -> Reapply hidden if Images Mode is imLink (images hidden)
+* Fixed: Caret position after changing images visibility / Fixed: Bug in Find Next with images
+* Fixed: Image viewer could not show scroll bars when zooming on certain occasions
+* Fixed: Clipboard capture was ignoring images
+---
+* Improvement: When jumping to a location (eg. click on a hyperlink), show the destination on the first line of the editor
+---
+* Fixed: Pressing left or backspace on the first character of a cell in a table raised an exception
+* Fixed: Eliminated flickering when displaying the search screen (Find Next)
+* Fixed: When deleting a node, the new (automatically) selected node was not showing with correct zoom, nor was updated the status bar
+* Fixed: Non controlled exception "FORMATEC structure not valid" on Paste Special... pasting from certain pages
+* Fixed: "FORMATEC structure not valid" exception pasting from certain pages
+
 
 v 1.8.1 .08  (14 dec 2023)
 --------------------------

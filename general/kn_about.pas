@@ -185,7 +185,7 @@ procedure TAboutBox.OpenURL(URL: String; Lbl: TLabel);
 begin
   screen.Cursor := crHourGlass;
   //Lbl.Font.Color := _GF_BLUE;
-  ShellExecute( 0, 'open', PChar( Label_URL.Caption ), nil, nil, SW_NORMAL );
+  ShellExecute( 0, 'open', PChar( URL ), nil, nil, SW_NORMAL );
   //Lbl.Font.Color := _GF_PURPLE;
   screen.Cursor := crDefault;
 end;
