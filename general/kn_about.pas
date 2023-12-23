@@ -65,10 +65,12 @@ type
     Image_Program: TImage;
     Label_Version_Date: TLabel;
     Label_KeynoteNF: TLabel;
+    lblDonations: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BTN_CloseClick(Sender: TObject);
     procedure Label_MAILTODblClick(Sender: TObject);
+    procedure OpenURL(URL: String; Lbl: TLabel);
     procedure Label_URLDblClick(Sender: TObject);
     procedure CopyEmailaddress1Click(Sender: TObject);
     procedure CopyuWebURL1Click(Sender: TObject);
@@ -79,6 +81,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure Image1DblClick(Sender: TObject);
+    procedure lblDonationsClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -123,6 +126,7 @@ begin
   Label_License.Font.Color := _GF_BLACK;
   Label_Dart.Font.Color := _GF_NAVY;
   Label_KeynoteNF.Font.Color := _GF_NAVY;
+
 
   GetDLLProductVersion(pathDLL, VersionDLL, VersionRichEdit);
   
@@ -177,13 +181,23 @@ begin
   screen.Cursor := crDefault;
 end;
 
-procedure TAboutBox.Label_URLDblClick(Sender: TObject);
+procedure TAboutBox.OpenURL(URL: String; Lbl: TLabel);
 begin
   screen.Cursor := crHourGlass;
-  ( sender as TLabel ).Font.Color := _GF_BLUE;
+  //Lbl.Font.Color := _GF_BLUE;
   ShellExecute( 0, 'open', PChar( Label_URL.Caption ), nil, nil, SW_NORMAL );
-  ( sender as TLabel ).Font.Color := _GF_PURPLE;
+  //Lbl.Font.Color := _GF_PURPLE;
   screen.Cursor := crDefault;
+end;
+
+procedure TAboutBox.Label_URLDblClick(Sender: TObject);
+begin
+  OpenURL (Label_URL.Caption, (sender as TLabel));
+end;
+
+procedure TAboutBox.lblDonationsClick(Sender: TObject);
+begin
+  OpenURL (Program_URL_Donations, (sender as TLabel));
 end;
 
 procedure TAboutBox.CopyEmailaddress1Click(Sender: TObject);

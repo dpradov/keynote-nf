@@ -35,11 +35,34 @@ object AboutBox: TAboutBox
     Transparent = False
     OnClick = BTN_CloseClick
   end
+  object lblDonations: TLabel
+    Left = 289
+    Top = 333
+    Width = 119
+    Height = 13
+    Cursor = crHandPoint
+    Hint = 
+      'Thanks for using KeyNote NF. You can show your appreciation and ' +
+      'support future development by donating!'
+    AutoSize = False
+    Caption = 'Donate with PayPal'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clNavy
+    Font.Height = -11
+    Font.Name = 'Verdana'
+    Font.Style = []
+    ParentFont = False
+    PopupMenu = NetMenu
+    StyleElements = [seClient, seBorder]
+    OnClick = lblDonationsClick
+    OnMouseDown = Label_MAILTOMouseDown
+    OnMouseUp = Label_MAILTOMouseUp
+  end
   object Panel_Main: TPanel
     Left = 8
     Top = 10
     Width = 397
-    Height = 314
+    Height = 317
     BevelOuter = bvSpace
     BorderWidth = 1
     BorderStyle = bsSingle
@@ -382,7 +405,7 @@ object AboutBox: TAboutBox
     end
     object LB_RichEditVer: TLabel
       Left = 66
-      Top = 277
+      Top = 282
       Width = 9
       Height = 13
       Caption = 'rtf'
@@ -498,8 +521,8 @@ object AboutBox: TAboutBox
     end
   end
   object NetMenu: TPopupMenu
-    Left = 369
-    Top = 326
+    Left = 17
+    Top = 334
     object CopyEmailaddress1: TMenuItem
       Caption = 'Copy &E-mail address'
       OnClick = CopyEmailaddress1Click
