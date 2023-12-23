@@ -873,6 +873,11 @@ type
     N118: TMenuItem;
     RTFMRestoreProportions: TMenuItem;
     RG_ResFind_ChkMode: TRadioGroup;
+    TVChildrenCheckboxes_: TMenuItem;
+    TVHideCheckedChildren: TMenuItem;
+    TVHideUncheckedChildren: TMenuItem;
+    TVShowNonFilteredChildren: TMenuItem;
+    N119: TMenuItem;
     procedure TAM_SetAlarmClick(Sender: TObject);
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -890,8 +895,11 @@ type
     procedure TB_FilterTreeClick(Sender: TObject);
     procedure PagesMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure TB_HideCheckedClick(Sender: TObject);
     procedure TVChildrenCheckboxClick(Sender: TObject);
-    procedure TVHideCheckedClick(Sender: TObject);
+    procedure TVHideCheckedChildrenClick(Sender: TObject);
+    procedure TVHideUncheckedChildrenClick(Sender: TObject);
+    procedure TVShowNonFilteredClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -5806,23 +5814,56 @@ begin
   ExportTreeNode;
 end;
 
-procedure TForm_Main.TVHideCheckedClick(Sender: TObject);   // [dpv]
+procedure TForm_Main.TB_HideCheckedClick(Sender: TObject);   // [dpv]
 var
   tNote : TTreeNote;
+  Hide: boolean;
 begin
   if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
   begin
     tNote := TTreeNote( ActiveNote );
-    tNote.HideCheckedNodes := ( not tNote.HideCheckedNodes );
-    MMViewHideCheckedNodes.Checked:= tNote.HideCheckedNodes;
-    TB_HideChecked.Down := tNote.HideCheckedNodes;
 
-    if MMViewHideCheckedNodes.Checked then
-       HideCheckedNodes (tNote)
+    Hide:= not tNote.HideCheckedNodes;
+    if CtrlDown and Hide then
+       Hide:= False;
+
+    tNote.HideCheckedNodes := Hide;
+    MMViewHideCheckedNodes.Checked:= Hide;
+    TB_HideChecked.Down := Hide;
+
+    if Hide then
+       HideChildNodesUponCheckState (tNote, nil, csChecked)
     else
-       ShowCheckedNodes (tNote);
+       ShowCheckedNodes (tNote, nil);
   end;
+
 end;
+
+procedure TForm_Main.TVHideCheckedChildrenClick(Sender: TObject);
+var
+  tNote : TTreeNote;
+begin
+    tNote := TTreeNote( ActiveNote );
+    HideChildNodesUponCheckState (tNote, tNote.TV.Selected, csChecked);
+end;
+
+procedure TForm_Main.TVHideUncheckedChildrenClick(Sender: TObject);
+var
+  tNote : TTreeNote;
+begin
+    tNote := TTreeNote( ActiveNote );
+    HideChildNodesUponCheckState (tNote, tNote.TV.Selected, csUnchecked);
+end;
+
+procedure TForm_Main.TVShowNonFilteredClick(Sender: TObject);
+var
+  tNote : TTreeNote;
+begin
+    tNote := TTreeNote( ActiveNote );
+    ShowCheckedNodes (tNote, tNote.TV.Selected);
+end;
+
+
 
 procedure TForm_Main.MMEditTrimLeftClick(Sender: TObject);
 begin

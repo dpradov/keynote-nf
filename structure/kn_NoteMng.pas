@@ -24,6 +24,7 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.Controls,
+   TreeNT,
    gf_miscvcl,
    gf_strings,
    kn_Defaults,
@@ -488,9 +489,9 @@ begin
                      ShowOrHideCheckBoxes( TTreeNote( ActiveNote ));
                   if ( oldHideChecked <> myTreeProperties.HideChecked ) then    // [dpv]
                      if myTreeProperties.HideChecked then
-                        HideCheckedNodes ( TTreeNote( ActiveNote ))
+                        HideChildNodesUponCheckState ( TTreeNote( ActiveNote ), nil, csChecked)
                      else
-                        ShowCheckedNodes ( TTreeNote( ActiveNote ));
+                        ShowCheckedNodes ( TTreeNote( ActiveNote ), nil);
 
                   UpdateTreeChrome(TTreeNote(ActiveNote));
                 end;

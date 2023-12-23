@@ -554,7 +554,7 @@ begin
                 if tNote.Filtered then             // [dpv]
                    HideFilteredNodes (tnote);
                 if tNote.HideCheckedNodes then     // [dpv]
-                   HideCheckedNodes (tnote);
+                   HideChildNodesUponCheckState (tnote, nil, csChecked);
 
                 myTree.Items.EndUpdate;
 

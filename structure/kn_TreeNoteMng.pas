@@ -91,8 +91,8 @@ var
     procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit);
     function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TTreeNote; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
 
-    procedure HideCheckedNodes (note: TTreeNote);    // [dpv]
-    procedure ShowCheckedNodes (note: TTreeNote);    // [dpv]
+    procedure HideChildNodesUponCheckState (note: TTreeNote; ParentNode: TTreeNTNode; CheckState: TCheckState);    // [dpv]
+    procedure ShowCheckedNodes (note: TTreeNote; ParentNode: TTreeNTNode);    // [dpv]
     procedure ShowOrHideChildrenCheckBoxes( const tnode : TTreeNTNode );   // [dpv]
 
     function IsAnyNodeMoving: boolean;              // [dpv]
@@ -2404,33 +2404,55 @@ begin
 end; // TreeTransferProc
 
 
-procedure HideCheckedNodes (note: TTreeNote);    // [dpv]
+procedure HideChildNodesUponCheckState (note: TTreeNote; ParentNode: TTreeNTNode; CheckState: TCheckState);    // [dpv]
 var
   Node : TTreeNTNode;
 begin
     note.TV.Items.BeginUpdate;
 
-    Node := note.TV.Items.GetFirstNode;
-    while assigned( Node ) do begin // go through all nodes
-      if Node.CheckState =  csChecked then
-         Node.Hidden := True;
-      Node := Node.GetNext; // select next node to search
+    if ParentNode = nil then begin
+       Node := note.TV.Items.GetFirstNode;
+       while assigned( Node ) do begin // go through all nodes
+         if Node.CheckState =  CheckState then
+            Node.Hidden := True;
+         Node := Node.GetNext; // select next node to search
+       end;
+    end
+    else begin
+       Node := ParentNode.GetFirstChild;
+       while assigned( Node ) do begin
+         if Node.CheckState =  CheckState then
+            Node.Hidden := True;
+         Node := Node.GetNextSibling;
+        end
+
     end;
 
     note.TV.Items.EndUpdate;
 end;
 
-procedure ShowCheckedNodes (note: TTreeNote);    // [dpv]
+procedure ShowCheckedNodes (note: TTreeNote; ParentNode: TTreeNTNode);    // [dpv]
 var
   Node : TTreeNTNode;
 begin
   note.TV.Items.BeginUpdate;
-  Node := note.TV.Items.GetFirstNode;
-  while Node <> nil do begin
-    if not TNoteNode(Node.Data).Filtered then
-       Node.Hidden := False;
-    Node := Node.GetNext;
+  if ParentNode = nil then begin
+     Node := note.TV.Items.GetFirstNode;
+     while Node <> nil do begin
+       if not TNoteNode(Node.Data).Filtered then
+          Node.Hidden := False;
+       Node := Node.GetNext;
+     end;
+  end
+  else begin
+     Node := ParentNode.GetFirstChild;
+     while Node <> nil do begin
+       if not TNoteNode(Node.Data).Filtered then
+          Node.Hidden := False;
+       Node := Node.GetNextSibling;
+     end;
   end;
+
   note.TV.Items.EndUpdate;
 end;
 
@@ -2469,7 +2491,7 @@ begin
     MarkAllUnfiltered (note);
     note.TV.FullNotHidden;
     if Note.HideCheckedNodes  then
-       HideCheckedNodes (note);
+       HideChildNodesUponCheckState (note, nil, csChecked);
 
     Note.TV.Items.EndUpdate;
 end;

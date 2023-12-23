@@ -1129,7 +1129,7 @@ object Form_Main: TForm_Main
         ImageIndex = 37
         Images = IMG_Toolbar
         RepeatInterval = 101
-        OnClick = TVHideCheckedClick
+        OnClick = TB_HideCheckedClick
       end
       object TB_FilterTree: TToolbarButton97
         Left = 170
@@ -2406,8 +2406,8 @@ object Form_Main: TForm_Main
       end
       object MMViewHideCheckedNodes: TMenuItem
         Caption = '&Hide Checked Nodes'
-        Hint = 'Show or Hide checked nodes'
-        OnClick = TVHideCheckedClick
+        Hint = 'Keep checked nodes hidden / Show non filtered [Ctrl]'
+        OnClick = TB_HideCheckedClick
       end
       object MMViewFilterTree: TMenuItem
         Caption = 'Filter nodes'
@@ -6928,10 +6928,31 @@ object Form_Main: TForm_Main
     object N44: TMenuItem
       Caption = '-'
     end
-    object TVChildrenCheckbox: TMenuItem
-      Caption = 'Children Checkbo&x'
-      Hint = 'Show or hide Checkboxes in children of selected node'
-      OnClick = TVChildrenCheckboxClick
+    object TVChildrenCheckboxes_: TMenuItem
+      Caption = 'Children Checkboxes'
+      object TVChildrenCheckbox: TMenuItem
+        Caption = 'Show Check&boxes'
+        Hint = 'Show or hide Checkboxes in children of selected node'
+        OnClick = TVChildrenCheckboxClick
+      end
+      object N119: TMenuItem
+        Caption = '-'
+      end
+      object TVHideCheckedChildren: TMenuItem
+        Caption = 'Hide &Checked'
+        Hint = 'Hide checked children of selected node'
+        OnClick = TVHideCheckedChildrenClick
+      end
+      object TVHideUncheckedChildren: TMenuItem
+        Caption = 'Hide &Unchecked'
+        Hint = 'Hide unchecked children of selected node'
+        OnClick = TVHideUncheckedChildrenClick
+      end
+      object TVShowNonFilteredChildren: TMenuItem
+        Caption = '&Show non filtered'
+        Hint = 'Show hidden children of selected node, non filtered by search'
+        OnClick = TVShowNonFilteredClick
+      end
     end
     object TVCheckNode: TMenuItem
       Caption = 'Ch&ecked'
