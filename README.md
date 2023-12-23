@@ -51,10 +51,7 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
  * *Added a new property, "Default Zoom"*, and new action: View | Alternative Margins
 
  * *Multilanguage support*  
- 
-
-
-<br><br>
+<br>
 
 ### References, documentation and contact information
 In [References.md](doc/References.md) you will get information about where to find documentation and help about KeyNote, and 
@@ -98,13 +95,12 @@ Since the release of version 1.8.1 KeyNote NF is signed using GPG with the follo
 It is also included SHA256 hash file (.sh256)
 
 More info in [VerifyingReleases.txt](doc/VerifyingReleases.txt)
-
+<br><br>
 
 ### Bugs, new Features
 For any bug report, patch proposal or feature request, add an entry into the [Issue tracker](https://github.com/dpradov/keynote-nf/issues).  
 Please, be specific; it is preferable to create several issues instead of only one very 
 heterogeneous, with many questions. That way it can be managed much better.  
-*Before report any new issue, please read the topic [HOW TO: Report Bugs / Add Feature Requests](http://keynote-newfeat.sourceforge.net/forum/viewtopic.php?f=15&t=20&p=19) in the [forum of KeyNote NF](http://keynote-newfeat.sourceforge.net/forum/index.php)*. There you can discuss about issues itselves, too.
 <br><br>
 
 ### Source Code
@@ -123,3 +119,10 @@ Note: KeyNote was originally licensed by MPL 1.1. I have contacted with Marek an
 Third-party units may be regulated by their own licenses.
 Please, see file [README_SourceCode.txt](doc/README_SourceCode.txt) and [acknowledgments.txt](doc/acknowledgments.txt) for more information about third-party code.
 <br><br>
+
+### Donations
+Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!
+
+[![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=PZB5EZS3V7VY4)
+
+<sup>Legal notice: By making a donation to the KeyNote NF project you signify that you acknowledged, understood, accepted, and agreed to the terms and conditions contained in this notice. Your donation to the KeyNote NF project is voluntary and is not a fee for any services, goods, or advantages, and making this donation does not entitle you to any services, goods, or advantages. I have the right to  use the money you donate to the KeyNote NF project in any lawful way and for any lawful purpose I see fit and I are not obligated to disclose the way and purpose to any party unless required by applicable law. Although KeyNote NF is free software, to my best knowledge the KeyNote NF project does not have any tax exempt status (the KeyNote NF project is neither a registered non-profit corporation nor a registered charity in any country). Your donation may or may not be tax-deductible; please consult this with your tax advisor. I will not publish/disclose your name and e-mail address without your consent, unless required by applicable law. Your donation is non-refundable.</sup>
