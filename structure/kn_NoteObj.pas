@@ -478,10 +478,13 @@ resourcestring
   //
   procedure ApplyTextAttributes(const Editor: TTabRichEdit; var Format: TCharFormat2);
   begin
-     Format.dwMask := DWORD(CFM_ALL2);
+     { *1 We must ignore CFM_HIDDEN or else, when pasting the format from a text that begins with a hyperlink
+          we can hide the text to which we apply it }
+     Format.dwMask := DWORD(CFM_ALL2) and not CFM_HIDDEN;  // *1
      if _LoadedRichEditVersion < 6 then begin     // #529 : Paste Font Attributes destroy selected hyperlinks when applied (in Richedit <= 5.0)
          Format.dwMask := Format.dwMask
-                          and not CFM_HIDDEN and not CFM_LINK;
+                          //and not CFM_HIDDEN
+                          and not CFM_LINK;
      end;
 
      if Editor.SelLength = 0 then
