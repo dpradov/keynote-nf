@@ -1886,7 +1886,7 @@ begin
       if (ImagesManager.StorageMode <> smEmbRTF) and ClipbHasRTFFormat and NoteSupportsRegisteredImages then begin
          pos:= Editor.SelStart;
          { We will have treated Copy or Cut in a special way if SelLength=1 because this implied that an image could be selected individually and we
-           want to be able to offer it as such and not only as RTF (which would happen if we copy the image to the clipboard along with the hidden mark ) 
+           want to be able to offer it as such and not only as RTF (which would happen if we copy the image to the clipboard along with the hidden mark )
           (Although this image copied in this way - without a mark - when it is in PNG or JPB, the control does not offer it as BMP but only as a Metafile
            and not all programs recognize it. For example, GreenShot does recognize it, but Photoshop or WordPad itself They don't recognize it --WordPad
            does paste it, but because it uses the RTF format) }

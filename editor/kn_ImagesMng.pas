@@ -2581,7 +2581,10 @@ begin
     RTFTextOut:= ProcessImagesInRTF(RTFText, Note, ImagesMode, 'Clipboard', FirstImageID);
 
     if RTFTextOut <> '' then
-       Editor.PutRtfText(RTFTextOut,True,True);
+       Editor.PutRtfText(RTFTextOut,True,True)
+    else
+       Editor.SetSelection(p2, p2, true);
+
 end;
 
 
