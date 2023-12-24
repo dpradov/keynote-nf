@@ -4476,10 +4476,15 @@ begin
   {*1 We need to calc CRC32 even if ClipOptions.TestDupClips=False, because it will be used for several other things,
      but here, depending on that configuration (TestDupClips="Ignore duplicate clips") we will consider or not to paste the text }
 
+  {*2 We must register LogRTFHandleInClipboard, since the ecCut or ecCopy operations have been interrupted just after sending content to the
+     clipboard, before we can register the handle that we are using to identify if the Clipboard contains content copied by the application itself }
+
 
   _IS_CAPTURING_CLIPBOARD:= True;
   try
    try
+      if _IS_COPYING_TO_CLIPBOARD then        // *2
+         LogRTFHandleInClipboard();
 
       if ( ClipCapActive and assigned( NoteFile ) and ( NoteFile.ClipCapNote <> nil )) then begin
          if (( GetActiveWindow <> self.Handle ) or // only when inactive

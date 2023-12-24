@@ -200,6 +200,7 @@ var
     //================================================== CLIPBOARD
     _IS_CAPTURING_CLIPBOARD : boolean;
     _IS_CHAINING_CLIPBOARD : boolean;
+    _IS_COPYING_TO_CLIPBOARD : boolean;
     ClipCapNextInChain : HWnd;
     LastEvalExprResult : string; // remembered, so that we can paste it
 
@@ -476,6 +477,7 @@ begin
       _Global_Location := nil;
       _IS_CAPTURING_CLIPBOARD := false;
       _IS_CHAINING_CLIPBOARD := false;
+      _IS_COPYING_TO_CLIPBOARD:= false;
       _IS_FAKING_MOUSECLICK := false;
       _REOPEN_AUTOCLOSED_FILE := false;
 

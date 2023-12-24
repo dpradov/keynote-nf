@@ -67,6 +67,9 @@ type
   function ClipboardContentWasCopiedByKNT: boolean;
   function GetDropFiles(hDrop: THANDLE): TStringList;
 
+  procedure CopyToClipboard (Editor: TRxRichEdit);
+  procedure CutToClipboard (Editor: TRxRichEdit);
+
 
 implementation
 
@@ -129,6 +132,27 @@ begin
       Result:= True
    else
       LastCopiedIDImage:= 0;
+end;
+
+
+procedure CopyToClipboard (Editor: TRxRichEdit);
+begin
+  _IS_COPYING_TO_CLIPBOARD:= true;
+  try
+     Editor.CopyToClipboard;
+  finally
+    _IS_COPYING_TO_CLIPBOARD:= false;
+  end;
+end;
+
+procedure CutToClipboard (Editor: TRxRichEdit);
+begin
+  _IS_COPYING_TO_CLIPBOARD:= true;
+  try
+     Editor.CutToClipboard;
+  finally
+    _IS_COPYING_TO_CLIPBOARD:= false;
+  end;
 end;
 
 

@@ -1581,7 +1581,7 @@ begin
 
             RTFAux:= GetEditorWithNoKNTHiddenCharacters (ActiveNote.Editor, hmOnlyBookmarks, true);  // Remove only hidden characters vinculated to bookmarks
             try
-               RTFAux.CopyToClipboard;
+               CopyToClipboard (RTFAux);
                LogRTFHandleInClipboard();
 
                { Replaced by the use of of LogRTFHandleInClipboard() / ClipboardContentWasCopiedByKNT()
@@ -1940,7 +1940,7 @@ begin
                     CheckToSelectLeftImageHiddenMark(ActiveNote.Editor, SelStartOrig, SelLengthOrig);
                  end;
 
-                 ActiveNote.Editor.CutToClipboard;
+                 CutToClipboard (ActiveNote.Editor);
 
                  if p >= 0 then begin
                     // We have not copied (cut) the hidden label along with the image, and we must delete it from the initial point
@@ -1952,7 +1952,7 @@ begin
                     ActiveNote.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
               end
               else
-                 ActiveNote.Editor.CutToClipboard;
+                 CutToClipboard (ActiveNote.Editor);
 
 
               LogRTFHandleInClipboard();
