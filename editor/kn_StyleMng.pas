@@ -236,6 +236,7 @@ begin
       if IsRecordingMacro then
         AddMacroEditCommand( ecStyleApply );
 
+      ActiveNote.Editor.BeginUpdate;
       try
         with myStyle do
         begin
@@ -243,6 +244,8 @@ begin
             with ActiveNote.Editor.SelAttributes do
             begin
               Charset := Font.Charset;
+              ActiveNote.Editor.SuspendUndo;
+
               Color := Font.Color;
               Name := Font.Name;
               Size := Font.Size;
@@ -252,12 +255,16 @@ begin
               // [l] Language := Text.Language;
               if Text.HasHighlight then
                 BackColor := Text.Highlight;
+
+              ActiveNote.Editor.ResumeUndo;
             end;
 
             if ( Range in [srParagraph, srBoth] ) then
             with ActiveNote.Editor.Paragraph do
             begin
               LineSpacingRule := Para.SpacingRule;
+              ActiveNote.Editor.SuspendUndo;
+
               case LineSpacingRule of
                 lsSingle : begin
                   ActiveNote.Editor.Paragraph.LineSpacingRule := lsSingle;
@@ -280,6 +287,8 @@ begin
               FirstIndent := Para.FIndent;
               SpaceBefore := Para.SpaceBefore;
               SpaceAfter := Para.SpaceAfter;
+
+              ActiveNote.Editor.ResumeUndo
             end;
 
         end;
@@ -290,6 +299,8 @@ begin
         end;
 
       finally
+        ActiveNote.Editor.EndUpdate;
+
         ActiveNote.Modified := true;
         NoteFile.Modified := true;
         RxRTFSelectionChange( ActiveNote.Editor );
