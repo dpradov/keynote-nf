@@ -32,13 +32,15 @@ uses
    Vcl.ExtCtrls,
    Vcl.Buttons,
    SynGdiPlus,
+   RxRichEd,
    TB97Ctls,
    TopWnd,
    kn_ImagesMng,
    kn_const,
    kn_global,
    kn_info,
-   kn_FileObj
+   kn_FileObj,
+   kn_NoteObj
    ;
 
 
@@ -94,6 +96,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CMDialogKey(var Message: TCMDialogKey); message CM_DIALOGKEY;
     procedure btnHelpClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
     fCurrentNoteFile: TNoteFile;
@@ -103,6 +106,9 @@ type
     fZoomFactor: Double;
     fChangingInCode: boolean;
     fImageConfigured: boolean;
+    fNote: TTabNote;              // To allow to scroll through the images in the note
+    fImagesInNote: TImageIDs;
+    fIndexInNote: integer;
 
     cScrollBoxTopInitial: integer;
 
@@ -114,11 +120,15 @@ type
     procedure UpdatePositionAndZoom;
     procedure CheckUpdateCaption;
 
+    procedure GetImagesInNote;
+    procedure SetNote(value: TTabNote);
+
     procedure Zoom (Ratio: Single);
 
   public
     { Public declarations }
     property Image : TKntImage read fImage write SetImage;
+    property Note: TTabNote read fNote write SetNote;
 
   end;
 
@@ -639,14 +649,34 @@ begin
    txtID.Text:= fImageID.ToString;
 end;
 
+procedure TForm_Image.SetNote(value: TTabNote);
+begin
+   fNote:= value;
+   fIndexInNote:= -1;
+   fImagesInNote:= nil;
+end;
 
 procedure TForm_Image.btnPrevImageClick(Sender: TObject);
 var
   Img: TKntImage;
+  ImgID: integer;
 begin
-    Img:= ImagesManager.GetPrevImage (fImageID);
-    if (Img = nil) then
-       Img:= ImagesManager.GetPrevImage (ImagesManager.NextTempImageID);
+    if CtrlDown then begin
+       Img:= ImagesManager.GetPrevImage (fImageID);
+       if (Img = nil) then
+          Img:= ImagesManager.GetPrevImage (ImagesManager.NextTempImageID);
+    end
+    else begin
+       GetImagesInNote;
+       if fImagesInNote = nil then exit;
+       Dec(fIndexInNote);
+       if fIndexInNote < 0 then
+          fIndexInNote:= Length(fImagesInNote)-1;
+
+       fImageID:= fImagesInNote[fIndexInNote];
+       Img:= ImagesManager.GetImageFromID(fImageID);
+    end;
+
 
     CheckUpdateCaption;
     Image:= Img;
@@ -657,9 +687,21 @@ procedure TForm_Image.btnNextImageClick(Sender: TObject);
 var
   Img: TKntImage;
 begin
-    Img:= ImagesManager.GetNextImage (fImageID);
-    if (Img = nil) then
-       Img:= ImagesManager.GetNextImage (0);
+    if CtrlDown then begin
+       Img:= ImagesManager.GetNextImage (fImageID);
+       if (Img = nil) then
+          Img:= ImagesManager.GetNextImage (0);
+    end
+    else begin
+       GetImagesInNote;
+       if fImagesInNote = nil then exit;
+       Inc(fIndexInNote);
+       if fIndexInNote >= Length(fImagesInNote) then
+          fIndexInNote:= 0;
+
+       fImageID:= fImagesInNote[fIndexInNote];
+       Img:= ImagesManager.GetImageFromID(fImageID);
+    end;
 
     CheckUpdateCaption;
     Image:= Img;
@@ -781,9 +823,36 @@ begin
 
 end;
 
+procedure TForm_Image.FormResize(Sender: TObject);
+var
+  Visible: boolean;
+begin
+  Visible:= Self.Width >= 382;
+  bGray.Visible:= Visible;
+  bWhite.Visible:= Visible;
+  bBlack.Visible:= Visible;
+end;
+
 procedure TForm_Image.btnHelpClick(Sender: TObject);
 begin
   Messagedlg( btnHelp.Hint, mtInformation, [mbOK], 0 );
+end;
+
+procedure TForm_Image.GetImagesInNote;
+var
+  i: integer;
+begin
+   if fImagesInNote <> nil then exit;
+   if fNote = nil then exit;
+
+   fImagesInNote:= ImagesManager.GetImagesIDInstancesFromTextPlain (fNote.Editor.TextPlain);
+
+   for i := Low(fImagesInNote) to High(fImagesInNote) do
+      if fImagesInNote[i] = fImageID then begin
+         fIndexInNote:= i;
+         exit;
+      end;
+
 end;
 
 

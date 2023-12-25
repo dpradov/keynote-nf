@@ -3692,6 +3692,7 @@ begin
          if SetLastFormImageOpened and (OpenedViewer = nil) then
             kn_ImageForm.LastFormImageOpened:= Form_Image;
          Form_Image.Image:= Img;
+         Form_Image.Note:= ActiveNote;
          if not UsingOpenViewer then
             Form_Image.Show;
       end;
