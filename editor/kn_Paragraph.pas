@@ -42,7 +42,7 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     FormPlacement: TFormPlacement;
-    GroupBox1: TGroupBox;
+    GB_Spacing: TGroupBox;
     Combo_Spc: TComboBox;
     Spin_SpcBef: TSpinEdit;
     Spin_SpcAft: TSpinEdit;
@@ -50,17 +50,16 @@ type
     Label5: TLabel;
     Label6: TLabel;
     RB_Align: TRadioGroup;
-    GroupBox2: TGroupBox;
+    GB_Indent: TGroupBox;
     Spin_First: TSpinEdit;
     Spin_Left: TSpinEdit;
     Spin_Right: TSpinEdit;
     Label3: TLabel;
     Label2: TLabel;
     Label1: TLabel;
-    GroupBox3: TGroupBox;
+    GB_List: TGroupBox;
     CB_Bullets: TCheckBox;
     CB_Numbers: TCheckBox;
-    procedure GroupBox1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -241,9 +240,6 @@ begin
       3 : Alignment := paJustify;
     end;
   end;
-end; procedure TForm_Para.GroupBox1Click(Sender: TObject);
-begin
-
 end;
 
 // FormToPara

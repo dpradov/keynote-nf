@@ -28,7 +28,7 @@ object Form_Para: TForm_Para
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 3
+    TabOrder = 4
     OnClick = Button_OKClick
   end
   object Button_Cancel: TButton
@@ -39,16 +39,15 @@ object Form_Para: TForm_Para
     Hint = 'Discard changes and close dialog box'
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 4
+    TabOrder = 5
   end
-  object GroupBox1: TGroupBox
+  object GB_Spacing: TGroupBox
     Left = 4
     Top = 113
     Width = 244
     Height = 111
     Caption = ' Spacing '
-    TabOrder = 1
-    OnClick = GroupBox1Click
+    TabOrder = 2
     object Label4: TLabel
       Left = 13
       Top = 20
@@ -123,13 +122,13 @@ object Form_Para: TForm_Para
       'Full')
     TabOrder = 0
   end
-  object GroupBox2: TGroupBox
+  object GB_Indent: TGroupBox
     Left = 4
     Top = 50
     Width = 408
     Height = 57
     Caption = ' Indent '
-    TabOrder = 2
+    TabOrder = 1
     object Label3: TLabel
       Left = 124
       Top = 24
@@ -167,7 +166,7 @@ object Form_Para: TForm_Para
       Height = 22
       MaxValue = 0
       MinValue = 0
-      TabOrder = 0
+      TabOrder = 2
       Value = 0
       OnChange = Spin_SpcBefChange
     end
@@ -178,7 +177,7 @@ object Form_Para: TForm_Para
       Height = 22
       MaxValue = 0
       MinValue = 0
-      TabOrder = 1
+      TabOrder = 0
       Value = 0
       OnChange = Spin_SpcBefChange
     end
@@ -189,26 +188,25 @@ object Form_Para: TForm_Para
       Height = 22
       MaxValue = 0
       MinValue = 0
-      TabOrder = 2
+      TabOrder = 1
       Value = 0
       OnChange = Spin_SpcBefChange
     end
   end
-  object GroupBox3: TGroupBox
+  object GB_List: TGroupBox
     Left = 254
     Top = 113
     Width = 159
     Height = 111
     Caption = ' List '
-    TabOrder = 5
-    OnClick = GroupBox1Click
+    TabOrder = 3
     object CB_Bullets: TCheckBox
       Left = 13
       Top = 42
       Width = 140
       Height = 17
       Caption = '&Bulleted list'
-      TabOrder = 0
+      TabOrder = 1
       OnClick = CB_BulletsClick
     end
     object CB_Numbers: TCheckBox
@@ -217,7 +215,7 @@ object Form_Para: TForm_Para
       Width = 140
       Height = 17
       Caption = '&Numbered list'
-      TabOrder = 1
+      TabOrder = 0
       OnClick = CB_NumbersClick
     end
   end
