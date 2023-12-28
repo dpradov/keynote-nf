@@ -90,11 +90,18 @@ type
     RG_TreePadVersion: TRadioGroup;
     RG_TreePadMode: TRadioGroup;
     RG_NodeMode: TRadioGroup;
-    Btn_TknHlp: TBitBtn;
     RG_TreePadMaster: TRadioGroup;
     CheckBox_ExcludeHiddenNodes: TCheckBox;
     TB_OpenDlgDir: TToolbarButton97;
     RG_HTML: TRadioGroup;
+    CB_LevelTemplates: TCheckBox;
+    CB_FontSizes: TCheckBox;
+    Edit_FontSizes: TEdit;
+    Edit_LengthHeading: TEdit;
+    Btn_TknHlp: TBitBtn;
+    Edit_Symbols: TEdit;
+    Label3: TLabel;
+    Label4: TLabel;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -106,6 +113,7 @@ type
     procedure Button_SelectClick(Sender: TObject);
     procedure Btn_TknHlpClick(Sender: TObject);
     procedure Button_HelpClick(Sender: TObject);
+    procedure CB_FontSizesClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -133,9 +141,10 @@ type
 
     function ConfirmAbort : boolean;
 
+    function ExpandExpTokenString( const tpl, filename, notename, nodename : string; const nodelevel, nodeindex : integer ) : string;
   end;
 
-function ExpandExpTokenString( const tpl, filename, notename, nodename : string; const nodelevel, nodeindex : integer ) : string;
+
 function LoadRTFHeadingTemplate( const Filename : string ) : string;
 function EscapeTextForRTF( const Txt : string ) : string;
 function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : string ) : string;
@@ -149,6 +158,9 @@ var
 
 implementation
 
+var
+  LengthsHeading_Max, LengthsHeading_Inc, LengthsHeading_Min: integer;
+  FontSizes_Max, FontSizes_Inc, FontSizes_Min: integer;
 
 {$R *.DFM}
 
@@ -166,7 +178,11 @@ resourcestring
                   '%s%s - Note name' + #13 +
                   '%s%s - Node name' + #13 +
                   '%s%s - Node level' + #13 +
-                  '%s%s - Node index';
+                  '%s%s - Node index'  + #13 +
+                  '%s%s - Line break'  + #13 +
+                  '%s%s - Symbols, increasing'  + #13 +
+                  '%s%s - Symbols, decreasing';
+
   STR_16 = 'No active tree node: select a node first.';
   STR_17 = 'Current node has no text: nothing to export.';
   STR_18 = ' Node exported to ';
@@ -174,23 +190,87 @@ resourcestring
   STR_20 = '''Current node'' will be managed as ''Current node and subtree'' for KeyNote format'+ #13 +' Continue?';
 
 
-function ExpandExpTokenString(
+procedure PrepareExportOptions (SymbolsRepetition, FontSizesInHeading: string);
+
+   procedure GetIntegers (Str: string; var i1, i2, i3: integer);
+   var
+      p1,p2: integer;
+
+   begin
+      p1:= pos(',', Str, 1);
+      p2:= pos(',', Str, p1+1);
+
+      i1:= -1;
+      i2:= -1;
+      i3:= -1;
+      if TryStrToInt(Trim(Copy(Str, 1, p1-1)), i1) then
+        if TryStrToInt(Trim(Copy(Str, p1+1, p2-p1-1)), i2) then
+            TryStrToInt(Trim(Copy(Str, p2+1)), i3);
+   end;
+
+begin
+    GetIntegers(SymbolsRepetition, LengthsHeading_Max, LengthsHeading_Inc, LengthsHeading_Min);
+    if (LengthsHeading_Max <0) or (LengthsHeading_Inc<0) or (LengthsHeading_Min<0) then
+       LengthsHeading_Max:= -1;
+
+
+    GetIntegers(FontSizesInHeading, FontSizes_Max, FontSizes_Inc, FontSizes_Min);
+    if (FontSizes_Max<0) or (FontSizes_Inc<0) or (FontSizes_Min <0) then
+       FontSizes_Max := -1;
+end;
+
+
+function TForm_ExportNew.ExpandExpTokenString(
   const tpl, filename, notename, nodename : string;
   const nodelevel, nodeindex : integer ) : string;
 var
   i, len : integer;
   wastokenchar : boolean;
   thischar : Char;
-  
+  LenSymbolsLine: integer;
+  foundLineBreak: boolean;
+
+
+  function ExpandSymbolsLevel (token: char; headerLength: integer): string;
+  var
+    LenSymbolsLevel, I: integer;
+    Symbol: char;
+  begin
+     //  Calculate length (repetition) of symbols level
+      if token = EXP_NODELEVELSYMB_INC then begin
+         if nodelevel = 0 then exit('');
+         LenSymbolsLevel:= 1 + (1*(nodelevel-1));
+      end
+      else begin
+         if LengthsHeading_Max < 0 then exit('');
+         LenSymbolsLevel:= LengthsHeading_Max - (LengthsHeading_Inc*nodelevel);
+         if LenSymbolsLevel < LengthsHeading_Min then
+            LenSymbolsLevel:= LengthsHeading_Min;
+
+         Dec(LenSymbolsLevel, headerLength);
+      end;
+
+     // Determine symbol to use
+     { The first element of LevelSymbols always corresponds to level 0 (note) }
+     if (nodeLevel + 1) > Length(ExportOptions.SymbolsInHeading) then
+        Symbol:= ExportOptions.SymbolsInHeading[Length(ExportOptions.SymbolsInHeading)]
+     else
+        Symbol:= ExportOptions.SymbolsInHeading[nodeLevel+1];
+
+     Result:= StringOfChar(Symbol, LenSymbolsLevel);
+  end;
+
 begin
   result := '';
   len := length( tpl );
+  LenSymbolsLine:= 0;
+  foundLineBreak:= false;
 
   wastokenchar := false;
-  
+
   for i := 1 to len do begin
       thischar := tpl[i];
-    
+
       case thischar of
         _TokenChar : begin
           if wastokenchar then begin
@@ -209,7 +289,13 @@ begin
                 EXP_NODENAME : result := result + nodename;
                 EXP_NODELEVEL : if ( nodelevel > 0 ) then result := result + inttostr( nodelevel );
                 EXP_NODEINDEX : if ( nodeindex > 0 ) then result := result + inttostr( nodeindex );
+                EXP_NODELEVELSYMB_INC: result := result + ExpandSymbolsLevel(thisChar, -1);
                 EXP_FILENAME : result := result + ExtractFilename( filename );
+                EXP_LINE_BREAK: begin
+                   foundLineBreak:= true;
+                   LenSymbolsLine:= 0;
+                   result := result + _TokenChar + thischar;
+                end;
                 else
                   result := result + _TokenChar + thischar;
               end;
@@ -217,9 +303,14 @@ begin
           else
              result := result + thischar;
         end;
+
+        if not foundLineBreak then
+           LenSymbolsLine:= Length(result)
     end;
-    
+
   end;
+
+  Result:= StringReplace(Result, _TokenChar + EXP_NODELEVELSYMB_DEC, ExpandSymbolsLevel(thisChar, LenSymbolsLine+2), [rfReplaceAll]);
 
 end; // ExpandExpTokenString
 
@@ -232,7 +323,7 @@ begin
   p := pos( EXP_RTF_HEADING, result );
   if ( p > 0 ) then begin
     delete( result, p, length( EXP_RTF_HEADING ));
-    insert( Heading, result, p );
+    insert( StringReplace(Heading, _TokenChar + EXP_LINE_BREAK, '\par ', [rfReplaceAll]),  result, p );
   end
   else
      result := '';
@@ -358,6 +449,12 @@ begin
 end;
 
 
+procedure TForm_ExportNew.CB_FontSizesClick(Sender: TObject);
+begin
+   Edit_FontSizes.Enabled:= CB_FontSizes.Checked;
+end;
+
+
 procedure TForm_ExportNew.Combo_FormatClick(Sender: TObject);
 var
    format: TExportFmt;
@@ -397,6 +494,11 @@ begin
       ExportOptions.IncludeNodeHeadings := readbool( section, ExportOptionsIniStr.IncludeNodeHeadings, ExportOptions.IncludeNodeHeadings );
       ExportOptions.IncludeNoteHeadings := readbool( section, ExportOptionsIniStr.IncludeNoteHeadings, ExportOptions.IncludeNoteHeadings );
       ExportOptions.ExcludeHiddenNodes  := readbool( section, ExportOptionsIniStr.ExcludeHiddenNodes, ExportOptions.ExcludeHiddenNodes );  // [dpv]
+      ExportOptions.NodeLevelTemplates := readbool( section, ExportOptionsIniStr.UseLevelTemplates, ExportOptions.NodeLevelTemplates );
+      ExportOptions.SymbolsInHeading := readstring( section, ExportOptionsIniStr.SymbolsInHeading, ExportOptions.SymbolsInHeading );
+      ExportOptions.LengthHeading := readstring( section, ExportOptionsIniStr.LengthsHeading, ExportOptions.LengthHeading );
+      ExportOptions.AutoFontSizesInHeading := readbool( section, ExportOptionsIniStr.AutoFontSizesInHeading, ExportOptions.AutoFontSizesInHeading );
+      ExportOptions.FontSizesInHeading := readstring( section, ExportOptionsIniStr.FontSizesInHeading, ExportOptions.FontSizesInHeading );
       {
       ExportOptions.IndentNestedNodes := readbool( section, ExportOptionsIniStr.IndentNestedNodes, ExportOptions.IndentNestedNodes );
       ExportOptions.IndentUsingTabs := readbool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
@@ -456,6 +558,12 @@ begin
       writebool( section, ExportOptionsIniStr.IncludeNodeHeadings, ExportOptions.IncludeNodeHeadings );
       writebool( section, ExportOptionsIniStr.IncludeNoteHeadings, ExportOptions.IncludeNoteHeadings );
       writebool( section, ExportOptionsIniStr.ExcludeHiddenNodes, ExportOptions.ExcludeHiddenNodes );  // [dpv]
+
+      writebool( section, ExportOptionsIniStr.UseLevelTemplates, ExportOptions.NodeLevelTemplates );
+      writestring( section, ExportOptionsIniStr.SymbolsInHeading, ExportOptions.SymbolsInHeading );
+      writestring( section, ExportOptionsIniStr.LengthsHeading, ExportOptions.LengthHeading );
+      writebool( section, ExportOptionsIniStr.AutoFontSizesInHeading, ExportOptions.AutoFontSizesInHeading );
+      writestring( section, ExportOptionsIniStr.FontSizesInHeading, ExportOptions.FontSizesInHeading );
       {
       writebool( section, ExportOptionsIniStr.IndentNestedNodes, ExportOptions.IndentNestedNodes );
       writebool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
@@ -507,6 +615,12 @@ begin
     IncludeNodeHeadings := CB_IncNodeHeading.Checked;
     IncludeNoteHeadings := CB_IncNoteHeading.Checked;
 
+    SymbolsInHeading:= Edit_Symbols.Text;
+    LengthHeading:= Edit_LengthHeading.Text;
+    FontSizesInHeading:=  Edit_FontSizes.Text;
+    NodeLevelTemplates:= CB_LevelTemplates.Checked;
+    AutoFontSizesInHeading:= CB_FontSizes.Checked;
+
     NodeHeading := Edit_NodeHead.Text;
     if ( NodeHeading = '' ) then
       NodeHeading := _TokenChar + EXP_NODENAME;
@@ -554,6 +668,13 @@ begin
     CB_IncNoteHeading.Checked := IncludeNoteHeadings;
     Edit_NodeHead.Text := NodeHeading;
     Edit_NoteHead.Text := NoteHeading;
+
+    Edit_Symbols.Text:= SymbolsInHeading;
+    Edit_LengthHeading.Text:= LengthHeading;
+    Edit_FontSizes.Text:= FontSizesInHeading;
+    CB_LevelTemplates.Checked:= NodeLevelTemplates;
+    CB_FontSizes.Checked:= AutoFontSizesInHeading;
+
 
     {
     CB_IndentNodes.Checked := IndentNestedNodes;
@@ -622,6 +743,8 @@ var
   NoteHeading, NodeHeading : string;
   NoteHeadingRTF, NodeHeadingRTF : string;
   NoteHeadingTpl, NodeHeadingTpl : string;
+  NodeLevelHeadingTpl : array of string;
+  NodeHeadingTpl_Aux: string;
   NodeText: AnsiString;
   ExitMessage : string;
   NodeTextSize : integer;
@@ -641,6 +764,22 @@ var
   ContainsImages: boolean;
   ContainsImgIDsRemoved: boolean;
   RTFwithImages: AnsiString;
+  FSize, SS, SL: integer;
+
+  procedure LoadNodeLevelTemplates;
+  var
+    i: integer;
+    FileName_Aux, FileName: string;
+    Tpl: string;
+  begin
+      SetLength(NodeLevelHeadingTpl, 10);
+      FileName_Aux:= ExtractFilePath(INI_FN) + 'nodehead';
+      for i:= 1 to 10 do begin
+         FileName:= Format('%s_%d%s', [FileName_Aux, i, ext_RTF]);
+         Tpl := LoadRTFHeadingTemplate(FileName);
+         NodeLevelHeadingTpl[i-1]:= Tpl;
+      end;
+  end;
 
 begin
   FormToOptions;
@@ -734,13 +873,19 @@ begin
          exit;                                                                    // ------------
       end;
 
-
+      // load general, default templates
       NoteHeadingTpl := LoadRTFHeadingTemplate( NoteHeadingTpl_FN);
       if ( NoteHeadingTpl = '' ) then
          NoteHeadingTpl := _Default_NoteHeadingTpl;
       NodeHeadingTpl := LoadRTFHeadingTemplate( NodeHeadingTpl_FN);
       if ( NodeHeadingTpl = '' ) then
          NodeHeadingTpl := _Default_NodeHeadingTpl;
+
+      // load level templates, if any
+      if ExportOptions.NodeLevelTemplates then
+         LoadNodeLevelTemplates;
+
+      PrepareExportOptions (ExportOptions.LengthHeading, ExportOptions.FontSizesInHeading);
 
 
       for NoteIdx := 1 to myNotes.Notes.Count do begin             // ----------------------------------------------------------- FOR EACH NOTE :
@@ -782,8 +927,14 @@ begin
                          RTFAux.Lines.LoadFromStream( tmpStream );
 
                       if ( ExportOptions.IncludeNoteHeadings and ( NoteHeadingRTF <> '' )) then begin
+                         var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
                          RTFAux.SelStart := 0;
-                         RTFAux.PutRtfText(NoteHeadingRTF, true);
+                         RTFAux.PutRtfText(NoteHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
+                         if ApplyAutoFontSizes then begin
+                            SL:= RTFAux.SelLength;
+                            RTFAux.SelAttributes.Size:= FontSizes_Max;
+                            RTFAux.SetSelection(SL, SL, true);
+                         end;
                       end;
 
                       if FlushExportFile( RTFAux, RemoveAccelChar( myNote.Name )) then
@@ -830,8 +981,13 @@ begin
                         inc( ThisNodeIndex );
 
                         if ExportOptions.IncludeNodeHeadings then begin
-                           NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), myNoteNode.Name, myNoteNode.Level, ThisNodeIndex );
-                           NodeHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NodeHeading ), NodeHeadingTpl );
+                           NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), myNoteNode.Name, myNoteNode.Level+1, ThisNodeIndex );
+                           NodeHeadingTpl_Aux := '';
+                           if ExportOptions.NodeLevelTemplates then
+                              NodeHeadingTpl_Aux:= NodeLevelHeadingTpl[myNoteNode.Level];
+                           if NodeHeadingTpl_Aux = '' then
+                              NodeHeadingTpl_Aux:= NodeHeadingTpl;
+                           NodeHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NodeHeading ), NodeHeadingTpl_Aux );
                         end;
 
                         case ExportOptions.SingleNodeFiles of
@@ -851,8 +1007,30 @@ begin
                                  //NodeStreamIsRTF := ( copy( NodeText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
 
                                 // now add the node data to temp RTF storage
-                                if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then
-                                   RTFAux.PutRtfText(NodeHeadingRTF, true);
+                                if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
+                                   var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
+                                   var StrAux: string;
+                                   RTFAux.PutRtfText(NodeHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
+
+                                   if ApplyAutoFontSizes then begin
+                                      FSize:= FontSizes_Max - (FontSizes_Inc*(myNoteNode.Level+1));
+                                      if FSize < FontSizes_Min then
+                                         FSize := FontSizes_Min;
+                                      SS:= RTFAux.SelStart;
+                                      SL:= RTFAux.SelLength;
+                                      StrAux:= RTFAux.SelText;
+                                      if Copy(StrAux,SL-1,SL+1) = #13#13 then begin
+                                         RTFAux.SelLength:= SL-2;                   // Not include line break
+                                         RTFAux.SelAttributes.Size:= FSize;
+                                         RTFAux.SetSelection(SS+SL-2, SS+SL, true); // Line break
+                                         RTFAux.SelAttributes.Size:= FSize-4;
+                                      end
+                                      else
+                                         RTFAux.SelAttributes.Size:= FSize;
+
+                                      RTFAux.SetSelection(SS+SL, SS+SL, true);
+                                   end;
+                                end;
 
                                 RTFwithImages:= ImagesManager.ProcessImagesInRTF(NodeText, nil, imImage, '', 0, false);
                                 if RTFwithImages <> '' then
@@ -904,8 +1082,15 @@ begin
                     if ( not ExportOptions.SingleNodeFiles ) then begin
                       // we have gathered all nodes, now flush the file
                       if ( ExportOptions.IncludeNoteHeadings and ( NoteHeadingRTF <> '' )) then begin
+                         var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
                          RTFAux.SelStart := 0;
-                         RTFAux.PutRtfText(NoteHeadingRTF, true);
+                         RTFAux.PutRtfText(NoteHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
+                         if ApplyAutoFontSizes then begin
+                            SL:= RTFAux.SelLength;
+                            RTFAux.SelAttributes.Size:= FontSizes_Max;
+                            RTFAux.SetSelection(SL, SL, true);
+                         end;
+
                       end;
                       if FlushExportFile( RTFAux, RemoveAccelChar( myNote.Name )) then
                          inc( ExportedNodes, tmpExportedNodes );
@@ -1208,7 +1393,7 @@ var
   StreamSize : integer;
   ext: string;
   Encoding: TEncoding;
-  
+
 begin
   result := false;
   Encoding:= nil;
@@ -1276,7 +1461,10 @@ begin
                                    _TokenChar,EXP_NOTENAME,
                                    _TokenChar,EXP_NODENAME,
                                    _TokenChar,EXP_NODELEVEL,
-                                   _TokenChar,EXP_NODEINDEX ]),
+                                   _TokenChar,EXP_NODEINDEX,
+                                   _TokenChar,EXP_LINE_BREAK,
+                                   _TokenChar,EXP_NODELEVELSYMB_INC,
+                                   _TokenChar,EXP_NODELEVELSYMB_DEC ]),
     mtInformation, [mbOK], 0 );
 end;
 

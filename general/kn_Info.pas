@@ -414,6 +414,11 @@ type
     HTMLExportMethod: THTMLExportMethod;
     IncludeNodeHeadings : boolean;
     IncludeNoteHeadings : boolean;
+    NodeLevelTemplates: boolean;
+    SymbolsInHeading: string;
+    LengthHeading: string;
+    AutoFontSizesInHeading: boolean;
+    FontSizesInHeading: string;
     {
     IndentNestedNodes : boolean;
     IndentUsingTabs : boolean;

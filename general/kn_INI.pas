@@ -832,6 +832,11 @@ type
     HTMLExportMethod,
     IncludeNodeHeadings,
     IncludeNoteHeadings,
+    UseLevelTemplates,
+    SymbolsInHeading,
+    LengthsHeading,
+    AutoFontSizesInHeading,
+    FontSizesInHeading,
     {
     IndentNestedNodes,
     IndentUsingTabs,
@@ -858,6 +863,11 @@ const
     HTMLExportMethod : 'HTMLExportMethod';
     IncludeNodeHeadings : 'IncludeNodeHeadings';
     IncludeNoteHeadings : 'IncludeNoteHeadings';
+    UseLevelTemplates : 'UseLevelTemplates';
+    SymbolsInHeading : 'SymbolsInHeading';
+    LengthsHeading : 'LengthsHeading';
+    AutoFontSizesInHeading : 'AutoFontSizesInHeading';
+    FontSizesInHeading : 'FontSizesInHeading';
     {
     IndentNestedNodes : 'IndentNestedNodes';
     IndentUsingTabs : 'IndentUsingTabs';
@@ -2141,6 +2151,12 @@ begin
     HTMLExportMethod := htmlExpMicrosoftHTMLConverter;
     IncludeNodeHeadings := true;
     IncludeNoteHeadings := true;
+    NodeLevelTemplates:= true;
+    SymbolsInHeading:= '#';
+    LengthHeading:= '80,10,35';
+    FontSizesInHeading:= '24,2,12';
+    AutoFontSizesInHeading:= True;
+
     {
     IndentNestedNodes := false;
     IndentUsingTabs := true;

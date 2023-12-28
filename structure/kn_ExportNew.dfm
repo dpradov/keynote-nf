@@ -5,7 +5,7 @@ object Form_ExportNew: TForm_ExportNew
   BorderStyle = bsDialog
   Caption = 'Export notes'
   ClientHeight = 397
-  ClientWidth = 300
+  ClientWidth = 322
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -53,9 +53,9 @@ object Form_ExportNew: TForm_ExportNew
   object Pages: TPage95Control
     Left = 5
     Top = 5
-    Width = 301
+    Width = 311
     Height = 348
-    ActivePage = Tab_Main
+    ActivePage = Tab_Options
     HotTrack = False
     TabInactiveColor = clBtnFace
     TabInactiveFont.Charset = DEFAULT_CHARSET
@@ -73,7 +73,7 @@ object Form_ExportNew: TForm_ExportNew
       object GroupBox_Source: TGroupBox
         Left = 2
         Top = 5
-        Width = 281
+        Width = 292
         Height = 141
         Caption = ' Source: What to export? '
         TabOrder = 0
@@ -107,7 +107,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 3
         end
         object Button_Select: TButton
-          Left = 140
+          Left = 159
           Top = 75
           Width = 111
           Height = 25
@@ -119,7 +119,7 @@ object Form_ExportNew: TForm_ExportNew
         object Combo_TreeSelection: TComboBox
           Left = 35
           Top = 40
-          Width = 216
+          Width = 235
           Height = 21
           Hint = 'For tree notes, select what part of tree to export'
           Style = csDropDownList
@@ -138,7 +138,7 @@ object Form_ExportNew: TForm_ExportNew
       object GroupBox_Target: TGroupBox
         Left = 2
         Top = 152
-        Width = 281
+        Width = 292
         Height = 157
         Caption = ' Target: Where and how to export?  '
         TabOrder = 1
@@ -159,7 +159,7 @@ object Form_ExportNew: TForm_ExportNew
           FocusControl = Edit_Folder
         end
         object TB_OpenDlgDir: TToolbarButton97
-          Left = 241
+          Left = 245
           Top = 80
           Width = 25
           Height = 21
@@ -176,7 +176,7 @@ object Form_ExportNew: TForm_ExportNew
         object Combo_Format: TComboBox
           Left = 15
           Top = 35
-          Width = 251
+          Width = 255
           Height = 21
           Hint = 'Select format for exported files'
           Style = csDropDownList
@@ -197,7 +197,7 @@ object Form_ExportNew: TForm_ExportNew
         object Edit_Folder: TEdit
           Left = 15
           Top = 80
-          Width = 227
+          Width = 231
           Height = 21
           Hint = 'Folder where exported files will be placed'
           Font.Charset = DEFAULT_CHARSET
@@ -228,30 +228,50 @@ object Form_ExportNew: TForm_ExportNew
       object GroupBox1: TGroupBox
         Left = 3
         Top = 5
-        Width = 281
+        Width = 293
         Height = 151
         Caption = ' Optional headings '
         TabOrder = 0
+        object Label3: TLabel
+          Left = 190
+          Top = 74
+          Width = 39
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Symbols'
+          FocusControl = Edit_Folder
+        end
+        object Label4: TLabel
+          Left = 8
+          Top = 123
+          Width = 104
+          Height = 13
+          Alignment = taRightJustify
+          Caption = '(%>) Length heading'
+          FocusControl = Edit_Folder
+        end
         object CB_IncNoteHeading: TCheckBox
-          Left = 15
+          Left = 12
           Top = 20
-          Width = 218
+          Width = 106
           Height = 17
-          Caption = 'Include &note headings'
+          Hint = 'Include note headings'
+          Caption = '&Note headings'
           TabOrder = 0
         end
         object CB_IncNodeHeading: TCheckBox
-          Left = 15
-          Top = 65
-          Width = 218
+          Left = 12
+          Top = 44
+          Width = 106
           Height = 17
-          Caption = 'Include no&de headings'
+          Hint = 'Include node headings'
+          Caption = 'No&de headings'
           TabOrder = 2
         end
         object Edit_NodeHead: TComboBox
-          Left = 35
-          Top = 85
-          Width = 206
+          Left = 121
+          Top = 44
+          Width = 158
           Height = 21
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -262,9 +282,9 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 3
         end
         object Edit_NoteHead: TComboBox
-          Left = 35
-          Top = 40
-          Width = 206
+          Left = 121
+          Top = 19
+          Width = 158
           Height = 21
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -274,30 +294,75 @@ object Form_ExportNew: TForm_ExportNew
           ParentFont = False
           TabOrder = 1
         end
-        object Btn_TknHlp: TBitBtn
-          Left = 35
-          Top = 115
-          Width = 206
-          Height = 25
-          Hint = 'Help for auto-naming tree nodes'
-          Caption = '&Help on headings'
-          Glyph.Data = {
-            F6000000424DF600000000000000760000002800000010000000100000000100
-            0400000000008000000000000000000000001000000010000000000000000000
-            8000008000000080800080000000800080008080000080808000C0C0C0000000
-            FF00C0C0C00000FFFF00FF000000C0C0C000FFFF0000FFFFFF00DADADADADADA
-            0ADAADADADADADA00DADDADA7777770B07DAADA0000000FF007DDA0FFFBFBFBF
-            FF07AD0FBFFF44FFBF07DA0FFFBFFFBFFF07AD0FBFFF47FFBF07DA0FFFBF748F
-            FF07AD0FBFFFB747BF07DA0FFF47FF44FF07AD0FBF44B844BF07DA0FFF844448
-            FF07AD0FBFFFBFFFBF07DA0FFFBFFFBFFF0AADA00000000000AD}
+        object CB_LevelTemplates: TCheckBox
+          Left = 12
+          Top = 69
+          Width = 103
+          Height = 17
+          Hint = 'Try to use files "nodehead_1.rtf", "nodehead_2.rtf", ...'
+          Caption = 'Level templates'
           TabOrder = 4
-          OnClick = Btn_TknHlpClick
+        end
+        object CB_FontSizes: TCheckBox
+          Left = 12
+          Top = 95
+          Width = 80
+          Height = 17
+          Hint = 'Set font size of node headings based on level: Max, Dec, Min'
+          Caption = 'Font sizes'
+          TabOrder = 6
+          OnClick = CB_FontSizesClick
+        end
+        object Edit_FontSizes: TEdit
+          Left = 121
+          Top = 93
+          Width = 55
+          Height = 21
+          Alignment = taCenter
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 7
+        end
+        object Edit_LengthHeading: TEdit
+          Left = 121
+          Top = 120
+          Width = 55
+          Height = 21
+          Hint = 
+            'Length of heading to be reached with %> token, based on level: M' +
+            'ax, Dec, Min'
+          Alignment = taCenter
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 8
+        end
+        object Edit_Symbols: TEdit
+          Left = 234
+          Top = 71
+          Width = 45
+          Height = 21
+          Hint = 'Symbols to use with %< or %>:  Note, Node L1, ...'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
         end
       end
       object RG_NodeMode: TRadioGroup
         Left = 3
         Top = 160
-        Width = 281
+        Width = 292
         Height = 66
         Caption = ' &When exporting tree-type notes...'
         ItemIndex = 0
@@ -308,14 +373,24 @@ object Form_ExportNew: TForm_ExportNew
       end
       object RG_HTML: TRadioGroup
         Left = 3
-        Top = 232
-        Width = 281
+        Top = 233
+        Width = 292
         Height = 81
         Margins.Top = 6
         Margins.Bottom = 6
         Caption = ' &Method for exporting HTML: '
         TabOrder = 2
         OnClick = RG_HTMLClick
+      end
+      object Btn_TknHlp: TBitBtn
+        Left = 258
+        Top = 126
+        Width = 24
+        Height = 22
+        ImageIndex = 60
+        Images = Form_Main.IMG_Toolbar
+        TabOrder = 3
+        OnClick = Btn_TknHlpClick
       end
     end
     object Tab_TreePad: TTab95Sheet
@@ -327,7 +402,7 @@ object Form_ExportNew: TForm_ExportNew
       object RG_TreePadVersion: TRadioGroup
         Left = 5
         Top = 5
-        Width = 281
+        Width = 289
         Height = 66
         Caption = ' Target &TreePad version '
         ItemIndex = 0
@@ -339,7 +414,7 @@ object Form_ExportNew: TForm_ExportNew
       object RG_TreePadMode: TRadioGroup
         Left = 5
         Top = 75
-        Width = 281
+        Width = 288
         Height = 66
         Caption = ' T&arget file mode '
         ItemIndex = 0
@@ -351,7 +426,7 @@ object Form_ExportNew: TForm_ExportNew
       object RG_TreePadMaster: TRadioGroup
         Left = 5
         Top = 145
-        Width = 281
+        Width = 288
         Height = 66
         Caption = ' &Compatibility top-level node '
         ItemIndex = 0

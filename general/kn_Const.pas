@@ -269,6 +269,9 @@ const
   EXP_NODELEVEL         = 'L';
   EXP_NODEINDEX         = 'I';
   EXP_FILENAME          = 'F';
+  EXP_NODELEVELSYMB_INC = '<';
+  EXP_NODELEVELSYMB_DEC = '>';
+  EXP_LINE_BREAK        = '^';
   EXP_RTF_HEADING       = _TokenChar + 'HEADING';
 
   _DefaultNodeHeading = '--- ' + _TokenChar + EXP_NODENAME + ' ---';
