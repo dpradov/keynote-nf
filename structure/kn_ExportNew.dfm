@@ -233,22 +233,32 @@ object Form_ExportNew: TForm_ExportNew
         Caption = ' Optional headings '
         TabOrder = 0
         object Label3: TLabel
-          Left = 190
-          Top = 74
-          Width = 39
+          Left = -4
+          Top = 126
+          Width = 62
           Height = 13
           Alignment = taRightJustify
           Caption = 'Symbols'
           FocusControl = Edit_Folder
         end
         object Label4: TLabel
-          Left = 8
-          Top = 123
-          Width = 104
+          Left = 143
+          Top = 125
+          Width = 74
           Height = 13
           Alignment = taRightJustify
-          Caption = '(%>) Length heading'
+          Caption = 'Length heading'
           FocusControl = Edit_Folder
+        end
+        object lblIndent: TLabel
+          Left = 120
+          Top = 99
+          Width = 97
+          Height = 13
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'Indents by'
+          FocusControl = Spin_Indent
         end
         object CB_IncNoteHeading: TCheckBox
           Left = 12
@@ -296,7 +306,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_LevelTemplates: TCheckBox
           Left = 12
-          Top = 69
+          Top = 72
           Width = 103
           Height = 17
           Hint = 'Try to use files "nodehead_1.rtf", "nodehead_2.rtf", ...'
@@ -304,18 +314,18 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 4
         end
         object CB_FontSizes: TCheckBox
-          Left = 12
-          Top = 95
+          Left = 143
+          Top = 73
           Width = 80
           Height = 17
           Hint = 'Set font size of node headings based on level: Max, Dec, Min'
           Caption = 'Font sizes'
-          TabOrder = 6
+          TabOrder = 5
           OnClick = CB_FontSizesClick
         end
         object Edit_FontSizes: TEdit
-          Left = 121
-          Top = 93
+          Left = 224
+          Top = 70
           Width = 55
           Height = 21
           Alignment = taCenter
@@ -325,11 +335,11 @@ object Form_ExportNew: TForm_ExportNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 6
         end
         object Edit_LengthHeading: TEdit
-          Left = 121
-          Top = 120
+          Left = 224
+          Top = 122
           Width = 55
           Height = 21
           Hint = 
@@ -342,12 +352,12 @@ object Form_ExportNew: TForm_ExportNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 10
         end
         object Edit_Symbols: TEdit
-          Left = 234
-          Top = 71
-          Width = 45
+          Left = 65
+          Top = 122
+          Width = 55
           Height = 21
           Hint = 'Symbols to use with %< or %>:  Note, Node L1, ...'
           Font.Charset = DEFAULT_CHARSET
@@ -356,7 +366,28 @@ object Form_ExportNew: TForm_ExportNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 9
+        end
+        object CB_IndentNodes: TCheckBox
+          Left = 12
+          Top = 97
+          Width = 120
+          Height = 17
+          Hint = 'Indent nested nodes (heading and content)'
+          Caption = 'Indent nodes'
+          TabOrder = 7
+          OnClick = CB_IndentNodesClick
+        end
+        object Spin_Indent: TSpinEdit
+          Left = 224
+          Top = 95
+          Width = 55
+          Height = 22
+          MaxLength = 3
+          MaxValue = 50
+          MinValue = 2
+          TabOrder = 8
+          Value = 16
         end
       end
       object RG_NodeMode: TRadioGroup
@@ -383,8 +414,8 @@ object Form_ExportNew: TForm_ExportNew
         OnClick = RG_HTMLClick
       end
       object Btn_TknHlp: TBitBtn
-        Left = 258
-        Top = 126
+        Left = 275
+        Top = 1
         Width = 24
         Height = 22
         ImageIndex = 60

@@ -837,10 +837,10 @@ type
     LengthsHeading,
     AutoFontSizesInHeading,
     FontSizesInHeading,
-    {
     IndentNestedNodes,
-    IndentUsingTabs,
     IndentValue,
+    {
+    IndentUsingTabs,
     }
     NodeHeading,
     NoteHeading,
@@ -868,10 +868,10 @@ const
     LengthsHeading : 'LengthsHeading';
     AutoFontSizesInHeading : 'AutoFontSizesInHeading';
     FontSizesInHeading : 'FontSizesInHeading';
-    {
     IndentNestedNodes : 'IndentNestedNodes';
-    IndentUsingTabs : 'IndentUsingTabs';
     IndentValue : 'IndentValue';
+    {
+    IndentUsingTabs : 'IndentUsingTabs';
     }
     NodeHeading : 'NodeHeading';
     NoteHeading : 'NoteHeading';
@@ -2156,11 +2156,11 @@ begin
     LengthHeading:= '80,10,35';
     FontSizesInHeading:= '24,2,12';
     AutoFontSizesInHeading:= True;
+    IndentNestedNodes:= False;
+    IndentValue := 16;
 
     {
-    IndentNestedNodes := false;
     IndentUsingTabs := true;
-    IndentValue := 1;
     }
     NodeHeading := _DefaultNodeHeading;
     NoteHeading := _DefaultNoteHeading;

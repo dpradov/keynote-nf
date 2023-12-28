@@ -33,6 +33,7 @@ uses
    Vcl.ExtCtrls,
    Vcl.ComCtrls,
    Vcl.FileCtrl,
+   Vcl.Samples.Spin,
 
    TB97Ctls,
    ComCtrls95,
@@ -102,6 +103,9 @@ type
     Edit_Symbols: TEdit;
     Label3: TLabel;
     Label4: TLabel;
+    CB_IndentNodes: TCheckBox;
+    Spin_Indent: TSpinEdit;
+    lblIndent: TLabel;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -114,6 +118,7 @@ type
     procedure Btn_TknHlpClick(Sender: TObject);
     procedure Button_HelpClick(Sender: TObject);
     procedure CB_FontSizesClick(Sender: TObject);
+    procedure CB_IndentNodesClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -246,6 +251,9 @@ var
          LenSymbolsLevel:= LengthsHeading_Max - (LengthsHeading_Inc*nodelevel);
          if LenSymbolsLevel < LengthsHeading_Min then
             LenSymbolsLevel:= LengthsHeading_Min;
+
+         if ExportOptions.IndentNestedNodes and not ExportOptions.SingleNodeFiles and (ExportOptions.TargetFormat in [xfRTF, xfHTML]) then
+            Dec(LenSymbolsLevel, 2 * (nodelevel-1));
 
          Dec(LenSymbolsLevel, headerLength);
       end;
@@ -455,6 +463,12 @@ begin
 end;
 
 
+procedure TForm_ExportNew.CB_IndentNodesClick(Sender: TObject);
+begin
+   Spin_Indent.Enabled:= CB_IndentNodes.Checked;
+   LblIndent.Enabled:=   CB_IndentNodes.Checked;
+end;
+
 procedure TForm_ExportNew.Combo_FormatClick(Sender: TObject);
 var
    format: TExportFmt;
@@ -499,10 +513,10 @@ begin
       ExportOptions.LengthHeading := readstring( section, ExportOptionsIniStr.LengthsHeading, ExportOptions.LengthHeading );
       ExportOptions.AutoFontSizesInHeading := readbool( section, ExportOptionsIniStr.AutoFontSizesInHeading, ExportOptions.AutoFontSizesInHeading );
       ExportOptions.FontSizesInHeading := readstring( section, ExportOptionsIniStr.FontSizesInHeading, ExportOptions.FontSizesInHeading );
-      {
       ExportOptions.IndentNestedNodes := readbool( section, ExportOptionsIniStr.IndentNestedNodes, ExportOptions.IndentNestedNodes );
-      ExportOptions.IndentUsingTabs := readbool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
       ExportOptions.IndentValue := readinteger( section, ExportOptionsIniStr.IndentValue, ExportOptions.IndentValue );
+      {
+      ExportOptions.IndentUsingTabs := readbool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
       }
       ExportOptions.ExportPath := readstring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
       ExportOptions.NodeHeading := readstring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
@@ -564,10 +578,10 @@ begin
       writestring( section, ExportOptionsIniStr.LengthsHeading, ExportOptions.LengthHeading );
       writebool( section, ExportOptionsIniStr.AutoFontSizesInHeading, ExportOptions.AutoFontSizesInHeading );
       writestring( section, ExportOptionsIniStr.FontSizesInHeading, ExportOptions.FontSizesInHeading );
-      {
       writebool( section, ExportOptionsIniStr.IndentNestedNodes, ExportOptions.IndentNestedNodes );
-      writebool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
       writeinteger( section, ExportOptionsIniStr.IndentValue, ExportOptions.IndentValue );
+      {
+      writebool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
       }
       writestring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
       writestring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
@@ -620,6 +634,8 @@ begin
     FontSizesInHeading:=  Edit_FontSizes.Text;
     NodeLevelTemplates:= CB_LevelTemplates.Checked;
     AutoFontSizesInHeading:= CB_FontSizes.Checked;
+    IndentNestedNodes := CB_IndentNodes.Checked;
+    IndentValue := Spin_Indent.Value;
 
     NodeHeading := Edit_NodeHead.Text;
     if ( NodeHeading = '' ) then
@@ -629,8 +645,6 @@ begin
       NoteHeading := _TokenChar + EXP_NOTENAME;
 
     {
-    IndentNestedNodes := CB_IndentNodes.Checked;
-    IndentValue := Spin_Indent.Value;
     IndentUsingTabs := ( Combo_IndentChar.ItemIndex > 0 );
     }
 
@@ -674,11 +688,11 @@ begin
     Edit_FontSizes.Text:= FontSizesInHeading;
     CB_LevelTemplates.Checked:= NodeLevelTemplates;
     CB_FontSizes.Checked:= AutoFontSizesInHeading;
-
-
-    {
     CB_IndentNodes.Checked := IndentNestedNodes;
+    Spin_Indent.Enabled:= IndentNestedNodes;
+    LblIndent.Enabled:=   IndentNestedNodes;
     Spin_Indent.Value := IndentValue;
+    {
     if IndentUsingTabs then
       Combo_IndentChar.ItemIndex := 1
     else
@@ -765,6 +779,7 @@ var
   ContainsImgIDsRemoved: boolean;
   RTFwithImages: AnsiString;
   FSize, SS, SL: integer;
+  SSNode: integer;
 
   procedure LoadNodeLevelTemplates;
   var
@@ -779,6 +794,16 @@ var
          Tpl := LoadRTFHeadingTemplate(FileName);
          NodeLevelHeadingTpl[i-1]:= Tpl;
       end;
+  end;
+
+  procedure IndentContent (level: integer);
+  var
+     SS: integer;
+  begin
+     SS:= RTFAux.SelStart;
+     RTFAux.SetSelection(SSNode, SS, true);
+     RTFAux.Paragraph.FirstIndentRelative := ExportOptions.IndentValue * (level-1);
+     RTFAux.SelStart:= SS;
   end;
 
 begin
@@ -1006,6 +1031,8 @@ begin
                                 // to PutRichText. Which is why we must check manually, like so:
                                  //NodeStreamIsRTF := ( copy( NodeText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
 
+                                SSNode:= RTFAux.SelStart;
+
                                 // now add the node data to temp RTF storage
                                 if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
                                    var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
@@ -1037,6 +1064,9 @@ begin
                                    RTFAux.PutRtfText(RTFwithImages, false)           // All hidden KNT characters are now removed from FlushExportFile
                                 else
                                    RTFAux.PutRtfText(NodeText, false);               // append to end of existing data
+
+                                if ExportOptions.IndentNestedNodes then
+                                   IndentContent(myNoteNode.Level+1);
                               end;
                               inc( tmpExportedNodes );
                             end;
