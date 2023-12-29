@@ -101,8 +101,8 @@ type
     Edit_LengthHeading: TEdit;
     Btn_TknHlp: TBitBtn;
     Edit_Symbols: TEdit;
-    Label3: TLabel;
-    Label4: TLabel;
+    lblSymbols: TLabel;
+    lblLength: TLabel;
     CB_IndentNodes: TCheckBox;
     Spin_Indent: TSpinEdit;
     lblIndent: TLabel;
@@ -120,6 +120,7 @@ type
     procedure Button_HelpClick(Sender: TObject);
     procedure CB_FontSizesClick(Sender: TObject);
     procedure CB_IndentNodesClick(Sender: TObject);
+    procedure CB_IncNodeHeadingClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -148,7 +149,7 @@ type
 
     function ConfirmAbort : boolean;
 
-    function ExpandExpTokenString( const tpl, filename, notename, nodename : string; const nodelevel, nodeindex : integer ) : string;
+    function ExpandExpTokenString( const tpl, filename, notename, nodename : string; const nodelevel, nodeindex : integer; TabSize: integer ) : string;
   end;
 
 
@@ -229,12 +230,13 @@ end;
 
 function TForm_ExportNew.ExpandExpTokenString(
   const tpl, filename, notename, nodename : string;
-  const nodelevel, nodeindex : integer ) : string;
+  const nodelevel, nodeindex : integer;
+  TabSize: integer ) : string;
 var
   i, len : integer;
   wastokenchar : boolean;
   thischar : Char;
-  LenSymbolsLine: integer;
+  LenSymbolsLine, NumTabsLevel: integer;
   foundLineBreak: boolean;
 
 
@@ -243,29 +245,34 @@ var
     LenSymbolsLevel, I: integer;
     Symbol: char;
   begin
+     if nodelevel = 0 then exit('');
+
      //  Calculate length (repetition) of symbols level
-      if token = EXP_NODELEVELSYMB_INC then begin
-         if nodelevel = 0 then exit('');
-         LenSymbolsLevel:= 1 + (1*(nodelevel-1));
-      end
+      if token = EXP_NODELEVELSYMB_INC then
+         LenSymbolsLevel:= 1 + (1*(nodelevel-1))
+
       else begin
          if LengthsHeading_Max < 0 then exit('');
-         LenSymbolsLevel:= LengthsHeading_Max - (LengthsHeading_Inc*nodelevel);
+         LenSymbolsLevel:= LengthsHeading_Max - (LengthsHeading_Inc* (nodelevel-1));
          if LenSymbolsLevel < LengthsHeading_Min then
             LenSymbolsLevel:= LengthsHeading_Min;
 
-         if ExportOptions.IndentNestedNodes and not ExportOptions.SingleNodeFiles and (ExportOptions.TargetFormat in [xfRTF, xfHTML]) then
-            Dec(LenSymbolsLevel, 2 * (nodelevel-1));
+         if ExportOptions.IndentNestedNodes and not ExportOptions.SingleNodeFiles then begin
+            NumTabsLevel:= 1;
+            if ExportOptions.TargetFormat = xfPlainText then
+               NumTabsLevel:= ExportOptions.IndentValue div EditorOptions.IndentInc;
+            Dec(LenSymbolsLevel, NumTabsLevel*TabSize * (nodelevel-1));
+         end;
 
          Dec(LenSymbolsLevel, headerLength);
       end;
 
      // Determine symbol to use
-     { The first element of LevelSymbols always corresponds to level 0 (note) }
-     if (nodeLevel + 1) > Length(ExportOptions.SymbolsInHeading) then
+     { The first element of LevelSymbols corresponds to node level 1 }
+     if nodeLevel > Length(ExportOptions.SymbolsInHeading) then
         Symbol:= ExportOptions.SymbolsInHeading[Length(ExportOptions.SymbolsInHeading)]
      else
-        Symbol:= ExportOptions.SymbolsInHeading[nodeLevel+1];
+        Symbol:= ExportOptions.SymbolsInHeading[nodeLevel];
 
      Result:= StringOfChar(Symbol, LenSymbolsLevel);
   end;
@@ -320,7 +327,7 @@ begin
 
   end;
 
-  Result:= StringReplace(Result, _TokenChar + EXP_NODELEVELSYMB_DEC, ExpandSymbolsLevel(thisChar, LenSymbolsLine+2), [rfReplaceAll]);
+  Result:= StringReplace(Result, _TokenChar + EXP_NODELEVELSYMB_DEC, ExpandSymbolsLevel(thisChar, LenSymbolsLine), [rfReplaceAll]);
 
 end; // ExpandExpTokenString
 
@@ -463,10 +470,26 @@ begin
 end;
 
 
-procedure TForm_ExportNew.CB_IndentNodesClick(Sender: TObject);
+procedure TForm_ExportNew.CB_IncNodeHeadingClick(Sender: TObject);
+var
+   Enabled: boolean;
 begin
-   Spin_Indent.Enabled:= CB_IndentNodes.Checked;
-   LblIndent.Enabled:=   CB_IndentNodes.Checked;
+   Enabled:= CB_IncNodeHeading.Checked;
+   CB_LevelTemplates.Enabled:= Enabled;
+   Edit_Symbols.Enabled:= Enabled;
+   Edit_LengthHeading.Enabled:= Enabled;
+   lblSymbols.Enabled:= Enabled;
+   lblLength.Enabled:= Enabled;
+end;
+
+procedure TForm_ExportNew.CB_IndentNodesClick(Sender: TObject);
+var
+   Enabled: boolean;
+begin
+   Enabled:= CB_IndentNodes.Checked;
+   Spin_Indent.Enabled:= Enabled;
+   LblIndent.Enabled:= Enabled;
+   CB_UseTab.Enabled:= Enabled;
 end;
 
 procedure TForm_ExportNew.Combo_FormatClick(Sender: TObject);
@@ -485,6 +508,7 @@ begin
      Tab_Options.TabVisible := (format <> xfTreePad);
      RG_NodeMode.Enabled :=    (format <> xfTreePad);
      RG_HTML.Visible := (format = xfHTML);
+     CB_UseTab.Enabled:= (format = xfPlainText) and (CB_IndentNodes.Checked);
   end;
 end;
 
@@ -684,10 +708,11 @@ begin
     CB_LevelTemplates.Checked:= NodeLevelTemplates;
     CB_FontSizes.Checked:= AutoFontSizesInHeading;
     CB_IndentNodes.Checked := IndentNestedNodes;
-    Spin_Indent.Enabled:= IndentNestedNodes;
-    LblIndent.Enabled:=   IndentNestedNodes;
     Spin_Indent.Value:= IndentValue;
     CB_UseTab.Checked:= IndentUsingTabs;
+
+    CB_IndentNodesClick(nil);
+    CB_IncNodeHeadingClick(nil);
 
     if TreePadRTF then
       RG_TreePadVersion.ItemIndex := 1
@@ -733,7 +758,7 @@ begin
     DoMessageBox( STR_03, mtError, [mbOK], 0 );
     exit;
   end;
-  
+
   result := true;
 end; // Validate
 
@@ -912,7 +937,7 @@ begin
           // this note has been marked for exporting
 
           if ExportOptions.IncludeNoteHeadings then begin
-             NoteHeading := ExpandExpTokenString( ExportOptions.NoteHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), '', 0, 0 );
+             NoteHeading := ExpandExpTokenString( ExportOptions.NoteHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), '', 0, 0, myNote.TabSize );
              NoteHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NoteHeading ), NoteHeadingTpl );
           end;
 
@@ -996,7 +1021,7 @@ begin
                         inc( ThisNodeIndex );
 
                         if ExportOptions.IncludeNodeHeadings then begin
-                           NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), myNoteNode.Name, myNoteNode.Level+1, ThisNodeIndex );
+                           NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), myNoteNode.Name, myNoteNode.Level+1, ThisNodeIndex, myNote.TabSize );
                            NodeHeadingTpl_Aux := '';
                            if ExportOptions.NodeLevelTemplates then
                               NodeHeadingTpl_Aux:= NodeLevelHeadingTpl[myNoteNode.Level];

@@ -55,7 +55,7 @@ object Form_ExportNew: TForm_ExportNew
     Top = 5
     Width = 311
     Height = 348
-    ActivePage = Tab_Options
+    ActivePage = Tab_Main
     HotTrack = False
     TabInactiveColor = clBtnFace
     TabInactiveFont.Charset = DEFAULT_CHARSET
@@ -70,10 +70,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox_Source: TGroupBox
         Left = 2
         Top = 5
@@ -229,10 +225,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 3
         Top = 5
@@ -240,7 +232,7 @@ object Form_ExportNew: TForm_ExportNew
         Height = 151
         Caption = ' Optional headings '
         TabOrder = 0
-        object Label3: TLabel
+        object lblSymbols: TLabel
           Left = 19
           Top = 126
           Width = 39
@@ -249,7 +241,7 @@ object Form_ExportNew: TForm_ExportNew
           Caption = 'Symbols'
           FocusControl = Edit_Folder
         end
-        object Label4: TLabel
+        object lblLength: TLabel
           Left = 143
           Top = 125
           Width = 74
@@ -285,6 +277,7 @@ object Form_ExportNew: TForm_ExportNew
           Hint = 'Include node headings'
           Caption = 'No&de headings'
           TabOrder = 2
+          OnClick = CB_IncNodeHeadingClick
         end
         object Edit_NodeHead: TComboBox
           Left = 121
@@ -326,7 +319,9 @@ object Form_ExportNew: TForm_ExportNew
           Top = 73
           Width = 80
           Height = 17
-          Hint = 'Set font size of node headings based on level: Max, Dec, Min'
+          Hint = 
+            'Set font size of headings based on level (including note): Max, ' +
+            'Dec, Min'
           Caption = 'Font sizes'
           TabOrder = 5
           OnClick = CB_FontSizesClick
@@ -351,8 +346,8 @@ object Form_ExportNew: TForm_ExportNew
           Width = 55
           Height = 21
           Hint = 
-            'Length of heading to be reached with %> token, based on level: M' +
-            'ax, Dec, Min'
+            'Length of heading to be reached with %> token, based on node lev' +
+            'el: Max, Dec, Min'
           Alignment = taCenter
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -363,11 +358,11 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 11
         end
         object Edit_Symbols: TEdit
-          Left = 65
-          Top = 122
+          Left = 64
+          Top = 120
           Width = 55
           Height = 21
-          Hint = 'Symbols to use with %< or %>:  Note, Node L1, ...'
+          Hint = 'Symbols to use with %< or %>:  Level1, Level2, ...'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -450,10 +445,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object RG_TreePadVersion: TRadioGroup
         Left = 5
         Top = 5
