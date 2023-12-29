@@ -1,9 +1,24 @@
-Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!
+## Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!
 
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
+
+v 1.8.3 .01  (29 dec 2023)
+--------------------------
+(Detailed info in doc\Changes in 1.8.3 .01.txt)
+* Fixed: Paste operation could keep text selected in certain situations, afecting to ClipCap
+* Export Improvement: Added new tokens and options for note/node heading
+* Export Improvement: Added new options for indenting nested nodes
+* BulletsInPlainText (.INI) now defaults to '- '
+* Image Viewer now allows to scroll through the images of the current node (or note)
+* Improvement: ApplyStyle can now be reverted with just 1 or 2 undo operations
+* Corrected TAB order in Paragraph form
+* Fixed: Pasting format could hide the text where it was applied, if copied from a line starting with a hyperlink
+
+
 v 1.8.2 .01  (23 dec 2023)
 --------------------------
+(Detailed info in doc\Changes in 1.8.2 .01.txt)
 * New: Added options in treeview context menu to hide/show child nodes based on checked status
 * Improvement in Find All. Added 'Check mode', with three options
 * Improvement in Find All: replaced 'Search node names' option with 'Search Scope'

@@ -25,6 +25,8 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
    * Excerpts from the note of the matches found are displayed, where the searched words are highlighted
    * The treatment of the options 'All the words' and 'Any of the words' is extended
    * Added new option: "Current node and subtree"
+   * Added new options to restrict search depending on checked status of nodes
+   * Added new options to define search scope, allowing to restrict search to node names 
  
  * *Improved treatment of links, and new internal KNT links*, vinculated to markers, not only to caret position
  
@@ -32,8 +34,13 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
 
  * *Better treatment of tables*  
  
+ * *Improved Export* 
+   * Added new tokens and options for note/node heading
+   * Added new options for indenting nested nodes
+ 
  * *Checkboxes on children of selected nodes* <br>
-    Selecting checkboxes for all nodes (View/Tree Checkboxes -- now View/All nodes Checkboxes) is still posible. Besides, checkboxes can be shown only on children of selected nodes (Children Checkbox)
+   * Selecting checkboxes for all nodes (View/Tree Checkboxes -- now View/All nodes Checkboxes) is still posible. Besides, checkboxes can be shown only on children of selected nodes (Children Checkbox)
+   * Added options in treeview context menu to hide/show child nodes based on checked status
 
  * *Hidden nodes* <br> Capacity to work with hidden nodes. Nodes can be hidden in two ways:
    * Activating a mode wich automatically hides checked nodes (Show or Hide checked nodes)

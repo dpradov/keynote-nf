@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "1.8.2.1"
-#define AppVersion "1.8.2 .01"
+#define Version "1.8.3.1"
+#define AppVersion "1.8.3 .01"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -16,8 +16,8 @@
 
 
 [Setup]
-TouchDate=2023-12-23
-TouchTime=23:00
+TouchDate=2023-12-29
+TouchTime=16:00
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
@@ -138,6 +138,8 @@ Source: "doc\kn_fileformat\fileformat_readme.txt"; DestDir: "{app}\doc" ; Compon
 Source: "misc_files\wordweb.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.8.0 Beta1-6.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.8.1 Beta1-6.txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\Changes in 1.8.2 .01.txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\Changes in 1.8.3 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Images_Readme.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart_format.txt"; DestDir: "{app}\doc" ; Components: main

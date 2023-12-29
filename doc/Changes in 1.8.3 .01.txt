@@ -1,0 +1,95 @@
+
+Changes in 1.8.3 .01  (29 dec 2023)
+=================================
+
+* Fixed: Paste operation could keep text selected in certain situations (see implications on ClipCap )
+  In .knt files with new image storage mode (other than smEmbeddedRTF), when pasting RTF text in plain mode,
+  the text could stay selected.
+  As a result, if using ClipCap mode, the new copied text was replaced before pasting (in the ClipCap destination note)
+
+* Improvement in Export: Added new tokens and options for note/node heading
+  - When exporting the highest node level will be managed as 1, the next as 2, and so on.
+  - Added three new tokens:
+	%^  -> line break
+	%>  -> add symbols until heading reach a calculated length, based on level (decreasing)
+	%<  -> add symbols based on level (increasing)
+
+	And five new options:
+	- NodeLevelTemplates
+	  Enable the use of node templates based on level, of the form 'nodehead_1.rtf', 'nodehead_2.rtf'
+
+	- SymbolsInHeading
+	  Determines which symbols to repeat in the %> and %< tokens
+
+	- LengthsHeading
+	  Text string that determines the number of repetitions of the symbol corresponding to the level to be used with the %> token.
+	  It is defined from a length to be obtained for the header at the level, using a maximum value, a decrement and a minimum value.
+
+	- AutoFontSizesInHeading
+	  Enables setting the font size automatically, from the following option:
+
+	- FontSizesInHeading
+	  String that determines the font size to use in a header according to its level (also considering the note), using a maximum value, a decrement and a minimum value
+
+	 More detail and screenshots in:
+	  https://github.com/dpradov/keynote-nf/issues/573#issuecomment-1870620841
+	  https://github.com/dpradov/keynote-nf/issues/573#issuecomment-1872048118
+
+
+* Export Improvement: Added new options for indenting nested nodes
+   Added two general export options:
+	- Indent nodes
+	  Enable the indentation of nested nodes
+
+	- Indents by
+	  Value to be used, in a incrementally way, with each new level.
+	  This value is similar to the one used as general configuration in "Increment indents by", in
+	  Tools|Configuration Options..|Rich Text editor
+
+	 Added screenshots in https://github.com/dpradov/keynote-nf/issues/573#issuecomment-1871124640
+
+   And another two options for exporting indenting nested nodes in plain text:
+	- IndentUsingTabs
+	  If checked, the indentation will be with the TAB (#9) characters. If unchecked, multiple spaces
+	  will be used for each level of indentation. The number of spaces to use if not checked will be the
+	  one define in "Tab size", in the Note properties.
+
+	- NumbTabInPlainText   [only editable in .INI file]
+	  Allows replacing the TAB character always used when pasting numbering lists as plain text
+	 (system conversion) by an alternative string. By default a space " " is defined.
+
+	The paragraphs of each node will be indented by the value defined in "Indent by" multiplied with
+	its node level,	added to the indentation they may have (as it is done when exporting to other formats).
+	The resulting value, together with "Increment indents by" (in Tools | Configuration Options.. | Rich Text editor)
+	isused to determine how much 'tabs' to apply:
+	  Number of 'tabs' = [Indentation value] div [Increment indents by]
+
+	  Ex. Suppose [Increment indents by] = 12 and a paragraph in a node of level 2, not previously indented:
+		   if [Indents by] = 24  => (0 + (24*2))/12  => indented with 4 'tabs'  (2 'tabs' for each level)
+
+		 If the paragraph was previously indented with a value of 14:
+		   if [Indents by] = 24  => (14 + (24*2))/12  => indented with 5 'tabs' (2 'tabs' for each level + extra tab)
+
+ 	Added example screenshots in https://github.com/dpradov/keynote-nf/issues/573#issuecomment-1871872205
+
+
+* BulletsInPlainText (.INI) now defaults to '- '
+
+* Image Viewer now allows to scroll through the images of the current node (or note)
+  By default, navigation toolbar buttons will show previous or next image instance in the node (or note)
+  where the selected image is inserted
+  If click with CTRL then it will show image with previous or next ID (in the whole .knt file)
+  As described here: https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1826281735
+
+* Improvement: ApplyStyle can now be reverted with just 1 or 2 undo operations
+  Currently, to revert a combined style applied (font and paragraph) 18 undo operations where needed
+
+* Corrected TAB order in Paragraph form
+  
+* Fixed: Pasting format could hide the text where it was applied, if copied from a line starting with a hyperlink
+  Suppose a line beginning with a hyperlink:
+     MyHyperlink		 Normal Text, no in the hyperlink
+     Target text
+
+   If we copied the format from the first line, starting from the beginning of the line, and then pasted that
+   format over another text (eg. "Target text"), that target text aparently was removed. Was not removed, but hidden...
