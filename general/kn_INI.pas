@@ -839,9 +839,8 @@ type
     FontSizesInHeading,
     IndentNestedNodes,
     IndentValue,
-    {
     IndentUsingTabs,
-    }
+    NumbTabInPlainText,
     NodeHeading,
     NoteHeading,
     SingleNodeFiles,
@@ -870,9 +869,8 @@ const
     FontSizesInHeading : 'FontSizesInHeading';
     IndentNestedNodes : 'IndentNestedNodes';
     IndentValue : 'IndentValue';
-    {
     IndentUsingTabs : 'IndentUsingTabs';
-    }
+    NumbTabInPlainText: 'NumbTabInPlainText';
     NodeHeading : 'NodeHeading';
     NoteHeading : 'NoteHeading';
     SingleNodeFiles : 'SingleNodeFiles';
@@ -942,7 +940,7 @@ begin
     WordSelect := true;
     WordsPerPage := 250;
     PlainDefaultPaste:= true;
-    BulletsInPlainText:= '';
+    BulletsInPlainText:= '- ';
   end;
   _SAVE_RESTORE_CARETPOS := Struct.SaveCaretPos;
 end; // InitializeEditorOptions
@@ -1425,7 +1423,7 @@ begin
       writebool( section, EditorOptionsIniStr.WordSelect, EditorOptions.WordSelect );
       writeinteger( section, EditorOptionsIniStr.WordsPerPage, EditorOptions.WordsPerPage );
       writebool( section, EditorOptionsIniStr.PlainDefaultPaste, EditorOptions.PlainDefaultPaste);
-      writestring( section, EditorOptionsIniStr.BulletsInPlainText, EditorOptions.BulletsInPlainText );
+      writestring( section, EditorOptionsIniStr.BulletsInPlainText, '"' + EditorOptions.BulletsInPlainText + '"' );
 
       section := ClipOptionsIniStr.Section;
       writestring( section, ClipOptionsIniStr.WCDivider, ClipOptions.WCDivider );
@@ -2158,10 +2156,8 @@ begin
     AutoFontSizesInHeading:= True;
     IndentNestedNodes:= False;
     IndentValue := 16;
-
-    {
-    IndentUsingTabs := true;
-    }
+    IndentUsingTabs:= true;
+    NumbTabInPlainText:= ' ';
     NodeHeading := _DefaultNodeHeading;
     NoteHeading := _DefaultNoteHeading;
     SingleNodeFiles := true;

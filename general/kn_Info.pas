@@ -421,9 +421,8 @@ type
     FontSizesInHeading: string;
     IndentNestedNodes : boolean;
     IndentValue : integer;
-    {
     IndentUsingTabs : boolean;
-    }
+    NumbTabInPlainText: string;
     NodeHeading : string;
     NoteHeading : string;
     SingleNodeFiles : boolean;

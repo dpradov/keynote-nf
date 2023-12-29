@@ -106,6 +106,7 @@ type
     CB_IndentNodes: TCheckBox;
     Spin_Indent: TSpinEdit;
     lblIndent: TLabel;
+    CB_UseTab: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -140,9 +141,10 @@ type
     procedure OptionsToForm;
     function Validate : boolean;
 
-    function FlushExportFile( const RTF : TTabRichEdit; FN : string ) : boolean;
+    function FlushExportFile( const RTF : TTabRichEdit; myNote: TTabNote; FN : string ) : boolean;
     procedure FlushTreePadData( var tf : TTextfile; const Name : string; const Level : integer; const RTF : TTabRichEdit; const ClearRTF : boolean);
     function GetExportFilename( const FN : string ) : string;
+    procedure PrepareRTFforPlainText (RTFAux : TTabRichEdit; TabSize: integer; RTFIndentValue: integer);
 
     function ConfirmAbort : boolean;
 
@@ -407,8 +409,6 @@ begin
   Edit_NodeHead.Items.Add( _DefaultNodeHeading );
   Edit_NoteHead.Items.Add( _DefaultNoteHeading );
 
-  // Combo_IndentChar.ItemIndex := 0;
-
   for m := low( m ) to high( m ) do
      RG_HTML.Items.Add( HTMLExportMethods[m] );
 
@@ -515,9 +515,8 @@ begin
       ExportOptions.FontSizesInHeading := readstring( section, ExportOptionsIniStr.FontSizesInHeading, ExportOptions.FontSizesInHeading );
       ExportOptions.IndentNestedNodes := readbool( section, ExportOptionsIniStr.IndentNestedNodes, ExportOptions.IndentNestedNodes );
       ExportOptions.IndentValue := readinteger( section, ExportOptionsIniStr.IndentValue, ExportOptions.IndentValue );
-      {
       ExportOptions.IndentUsingTabs := readbool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
-      }
+      ExportOptions.NumbTabInPlainText := readstring( section, ExportOptionsIniStr.NumbTabInPlainText, ExportOptions.NumbTabInPlainText );
       ExportOptions.ExportPath := readstring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
       ExportOptions.NodeHeading := readstring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
       ExportOptions.NoteHeading := readstring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.NoteHeading );
@@ -580,9 +579,8 @@ begin
       writestring( section, ExportOptionsIniStr.FontSizesInHeading, ExportOptions.FontSizesInHeading );
       writebool( section, ExportOptionsIniStr.IndentNestedNodes, ExportOptions.IndentNestedNodes );
       writeinteger( section, ExportOptionsIniStr.IndentValue, ExportOptions.IndentValue );
-      {
       writebool( section, ExportOptionsIniStr.IndentUsingTabs, ExportOptions.IndentUsingTabs );
-      }
+      writestring( section, ExportOptionsIniStr.NumbTabInPlainText, '"' + ExportOptions.NumbTabInPlainText + '"');
       writestring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
       writestring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
       writestring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.NoteHeading );
@@ -636,6 +634,7 @@ begin
     AutoFontSizesInHeading:= CB_FontSizes.Checked;
     IndentNestedNodes := CB_IndentNodes.Checked;
     IndentValue := Spin_Indent.Value;
+    IndentUsingTabs := CB_UseTab.Checked;
 
     NodeHeading := Edit_NodeHead.Text;
     if ( NodeHeading = '' ) then
@@ -643,10 +642,6 @@ begin
     NoteHeading := Edit_NoteHead.Text;
     if ( NoteHeading = '' ) then
       NoteHeading := _TokenChar + EXP_NOTENAME;
-
-    {
-    IndentUsingTabs := ( Combo_IndentChar.ItemIndex > 0 );
-    }
 
     TreePadRTF := ( RG_TreePadVersion.ItemIndex > 0 );
     TreePadSingleFile := ( RG_TreePadMode.ItemIndex > 0 );
@@ -691,13 +686,8 @@ begin
     CB_IndentNodes.Checked := IndentNestedNodes;
     Spin_Indent.Enabled:= IndentNestedNodes;
     LblIndent.Enabled:=   IndentNestedNodes;
-    Spin_Indent.Value := IndentValue;
-    {
-    if IndentUsingTabs then
-      Combo_IndentChar.ItemIndex := 1
-    else
-      Combo_IndentChar.ItemIndex := 0;
-    }
+    Spin_Indent.Value:= IndentValue;
+    CB_UseTab.Checked:= IndentUsingTabs;
 
     if TreePadRTF then
       RG_TreePadVersion.ItemIndex := 1
@@ -962,7 +952,7 @@ begin
                          end;
                       end;
 
-                      if FlushExportFile( RTFAux, RemoveAccelChar( myNote.Name )) then
+                      if FlushExportFile( RTFAux, myNote, RemoveAccelChar( myNote.Name )) then
                          inc( ExportedNotes );
 
                     finally
@@ -1084,7 +1074,7 @@ begin
                                 RTFAux.SelStart := 0;
                                 RTFAux.PutRtfText(NodeHeadingRTF, true);
                               end;
-                              if FlushExportFile( RTFAux, myNoteNode.Name ) then
+                              if FlushExportFile( RTFAux, myNote, myNoteNode.Name ) then
                                 inc( ExportedNodes );
                             end;
                         end; // case ExportOptions.SingleNodeFiles
@@ -1122,7 +1112,7 @@ begin
                          end;
 
                       end;
-                      if FlushExportFile( RTFAux, RemoveAccelChar( myNote.Name )) then
+                      if FlushExportFile( RTFAux, myNote, RemoveAccelChar( myNote.Name )) then
                          inc( ExportedNodes, tmpExportedNodes );
                     end;
                   end; // ntTree
@@ -1417,7 +1407,7 @@ begin
 end; // GetExportFilename
 
 
-function TForm_ExportNew.FlushExportFile( const RTF : TTabRichEdit; FN : string ) : boolean;
+function TForm_ExportNew.FlushExportFile( const RTF : TTabRichEdit; myNote: TTabNote; FN : string ) : boolean;
 var
   tmpStream : TMemoryStream;
   StreamSize : integer;
@@ -1436,6 +1426,9 @@ begin
     case ExportOptions.TargetFormat of
       xfPlainText : begin
         if ( ext = '' ) then FN := FN + ext_TXT;
+
+        PrepareRTFforPlainText(RTF, myNote.TabSize, EditorOptions.IndentInc);
+
         RTF.StreamFormat := sfPlainText;
         if not CanSaveAsANSI(RTF.Text) then
            Encoding:= TEncoding.UTF8;
@@ -1464,6 +1457,78 @@ begin
 
 
 end; // FlushExportFile
+
+
+procedure TForm_ExportNew.PrepareRTFforPlainText (RTFAux : TTabRichEdit; TabSize: integer; RTFIndentValue: integer);
+var
+  L, SS, SS_NL, STab: integer;
+  FI, LI, LIndent: integer;
+  StringIndent: string;
+  NumTabs: integer;
+  ParaAttrib: TRxParaAttributes;
+  BulletsPT: string;
+
+begin
+   RTFAux.SuspendUndo;
+
+   BulletsPT:= EditorOptions.BulletsInPlainText;
+   if BulletsPT = '' then
+      BulletsPT:= '- ';
+
+   SS:= 0;
+   for L := 0 to RTFAux.Lines.Count-1 do begin
+      SS:= RTFAux.Perform(EM_LINEINDEX, L, 0);
+      RTFAux.SelStart:= SS;
+      ParaAttrib:= RTFAux.Paragraph;
+      FI:= ParaAttrib.FirstIndent;
+      LI:= ParaAttrib.LeftIndent;
+      LIndent:= FI + LI;
+
+      if LIndent > 0 then begin
+         NumTabs:= LIndent div RTFIndentValue;
+
+         if ParaAttrib.Numbering <> nsNone then
+            Dec(NumTabs);
+
+         if ExportOptions.IndentUsingTabs then
+            StringIndent:= StringOfChar (#9, NumTabs)
+         else
+            StringIndent:= StringOfChar (' ', NumTabs * TabSize);
+
+         if (ParaAttrib.Numbering in [nsNone, nsBullet]) then
+            RTFAux.SelText := StringIndent;
+      end;
+
+
+      if ParaAttrib.Numbering = nsBullet then begin
+         RTFAux.SelStart:= SS + RTFAux.SelLength;
+         RTFAux.SelText := BulletsPT;
+      end
+      else
+      if ParaAttrib.Numbering <> nsNone then begin
+         SS_NL:= RTFAux.Perform(EM_LINEINDEX, L+1, 0);
+         RTFAux.SelLength:= SS_NL - SS -1;
+         RTFAux.CopyToClipboard;
+         RTFAux.PasteIRichEditOLE(CF_TEXT);
+
+         if ExportOptions.NumbTabInPlainText <> '' then begin
+            STab:= RTFAux.FindText(#9, SS, 5, []);
+            if (STab >= 0) then begin
+               RTFAux.SetSelection(STab, STab+1, false);
+               RTFAux.SelText := ExportOptions.NumbTabInPlainText;
+            end;
+         end;
+
+         if LIndent > 0 then begin
+            RTFAux.SelStart:= SS;
+            RTFAux.SelText := StringIndent;
+         end;
+
+      end;
+   end;
+
+   RTFAux.ResumeUndo;
+end;     // PrepareRTFforPlainText
 
 
 procedure TForm_ExportNew.Button_SelectClick(Sender: TObject);

@@ -70,6 +70,10 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Source: TGroupBox
         Left = 2
         Top = 5
@@ -225,6 +229,10 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 3
         Top = 5
@@ -233,9 +241,9 @@ object Form_ExportNew: TForm_ExportNew
         Caption = ' Optional headings '
         TabOrder = 0
         object Label3: TLabel
-          Left = -4
+          Left = 19
           Top = 126
-          Width = 62
+          Width = 39
           Height = 13
           Alignment = taRightJustify
           Caption = 'Symbols'
@@ -251,7 +259,7 @@ object Form_ExportNew: TForm_ExportNew
           FocusControl = Edit_Folder
         end
         object lblIndent: TLabel
-          Left = 120
+          Left = 135
           Top = 99
           Width = 97
           Height = 13
@@ -314,7 +322,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 4
         end
         object CB_FontSizes: TCheckBox
-          Left = 143
+          Left = 131
           Top = 73
           Width = 80
           Height = 17
@@ -352,7 +360,7 @@ object Form_ExportNew: TForm_ExportNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 10
+          TabOrder = 11
         end
         object Edit_Symbols: TEdit
           Left = 65
@@ -366,12 +374,12 @@ object Form_ExportNew: TForm_ExportNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 9
+          TabOrder = 10
         end
         object CB_IndentNodes: TCheckBox
           Left = 12
           Top = 97
-          Width = 120
+          Width = 102
           Height = 17
           Hint = 'Indent nested nodes (heading and content)'
           Caption = 'Indent nodes'
@@ -379,15 +387,27 @@ object Form_ExportNew: TForm_ExportNew
           OnClick = CB_IndentNodesClick
         end
         object Spin_Indent: TSpinEdit
-          Left = 224
+          Left = 239
           Top = 95
-          Width = 55
+          Width = 40
           Height = 22
           MaxLength = 3
           MaxValue = 50
           MinValue = 2
-          TabOrder = 8
+          TabOrder = 9
           Value = 16
+        end
+        object CB_UseTab: TCheckBox
+          Left = 131
+          Top = 97
+          Width = 43
+          Height = 17
+          Hint = 
+            'Indent using TAB characters'#13#10'(False: use n'#186' spaces defined in No' +
+            'te'#39's Tab size)'
+          Caption = 'Tab'
+          TabOrder = 8
+          OnClick = CB_IndentNodesClick
         end
       end
       object RG_NodeMode: TRadioGroup
@@ -430,6 +450,10 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object RG_TreePadVersion: TRadioGroup
         Left = 5
         Top = 5
