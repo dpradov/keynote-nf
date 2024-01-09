@@ -2972,7 +2972,7 @@ var
         hyperlink:= '';
         if assigned(location) then begin
             hyperlink:= Format('{\field{\*\fldinst{HYPERLINK "%s"}}{\fldrslt{\cf1\ul lnk}}}\cf0\ulnone',
-                                 [URLToRTF(BuildKNTLocationText(location, true), false )])
+                                 [URLToRTF(BuildKNTLocationText(location), false )])
         end;
 
         //colorFont:= ColorToString(alarm.BackColor);

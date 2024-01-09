@@ -56,7 +56,7 @@ uses
     procedure GetKNTLocation (var Location: TLocation; Simplified: Boolean= false);
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string);
-    function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : string;
+    function BuildKNTLocationText( const aLocation : TLocation) : string;
     procedure JumpToKNTLocation( LocationStr : string );
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
     function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean): integer;
@@ -685,7 +685,7 @@ end; // InsertOrMarkKNTLink
 //===============================================================
 // BuildKNTLocationText
 //===============================================================
-function BuildKNTLocationText( const aLocation : TLocation; IgnoreActiveNotePlainText: Boolean= false) : string;
+function BuildKNTLocationText( const aLocation : TLocation) : string;
 var
   LocationString : string;
   NoteId, NodeId, LocationMark: string;
@@ -698,7 +698,7 @@ begin
     // [x] this does not handle files on another computer, i.e.
     // we cannot do file://computername/pathname/file.knt
 
-    if (RichEditVersion >= 4) and (IgnoreActiveNotePlainText or not ActiveNote.PlainText) then begin
+    if (RichEditVersion >= 4) then begin
         LocationMark:= KNTLOCATION_MARK_NEW;
         NoteId:= inttostr( aLocation.NoteID );
         NodeId:= inttostr( aLocation.NodeID );
