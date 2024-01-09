@@ -321,7 +321,7 @@ begin
       else begin
           if not KNTLink then
              URLStr := FileNameToURL( URLStr );
-          if TextURL <> '' then
+          if (TextURL <> '') and (TextURL <> StripFileURLPrefix(URLStr)) then
              SelText := sepL + '''' + TextURL + '''' + ' (' + URLStr + ') '
           else
              SelText := sepL + URLStr + #32;
