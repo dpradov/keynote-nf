@@ -261,7 +261,7 @@ begin
 
       // obtain NODE
       myTreeNode := nil;
-      if ( Note.Kind = ntTree ) and (NodeID >= 0) then begin   // If NodeID < 0 -> Node will be ignored
+      if ( Note.Kind = ntTree ) and ((NodeID > 0) or (NodeName <> '')) then begin   // If NodeID <= 0 and NodeName = '' -> Node will be ignored
          if ( NodeID <> 0 ) then begin // new format
             myTreeNode := TTreeNote( Note ).GetTreeNodeByID( NodeID );
             if (myTreeNode = nil) then
@@ -823,7 +823,7 @@ begin
     case p of
       0 : begin
         if NewFormatURL then
-          Location.NodeID := strtoint( LocationStr )
+          Location.NodeID := StrToIntDef( LocationStr, -1)
         else
           Location.NodeName := HTTPDecode( LocationStr );
         LocationStr := '';
@@ -835,7 +835,7 @@ begin
       else
       begin
         if NewFormatURL then
-          Location.NodeID := strtoint( copy( LocationStr, 1, pred( p )))
+          Location.NodeID := StrToIntDef( copy( LocationStr, 1, pred( p )), -1)
         else
           Location.NodeName := HTTPDecode( copy( LocationStr, 1, pred( p )));
       end;
@@ -859,14 +859,14 @@ begin
 
     if ( LocationStr <> '' ) then begin
       p := pos( KNTLINK_SEPARATOR, LocationStr );
-      if ( p > 0 ) then begin
-          try
-            Location.CaretPos := strtoint( copy( LocationStr, 1, pred( p )));
-          except
-            Location.CaretPos := 0;
-          end;
-          delete( LocationStr, 1, p );
+      if p <= 0 then
+        p:= 99;
+      try
+         Location.CaretPos := strtoint( copy( LocationStr, 1, pred( p )));
+      except
+         Location.CaretPos := 0;
       end;
+      delete( LocationStr, 1, p );
     end;
 
     if ( LocationStr <> '' ) then begin
@@ -987,8 +987,10 @@ begin
      with myNote.Editor do begin
        BeginUpdate;
        try
-          SelStart := CaretPosition - Offset;
-          SelLength := SelectionLength;
+          if CaretPosition >= 0 then
+             SelStart := CaretPosition - Offset;
+          if SelectionLength >= 0 then
+             SelLength := SelectionLength;
           myNote.Editor.ScrollLinesBy(80);
           Perform( EM_SCROLLCARET, 0, 0 );
        finally
