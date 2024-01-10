@@ -38,6 +38,7 @@ uses
    gf_misc,
    gf_miscvcl,
    gf_files,
+   gf_strings,
    kn_Const,
    kn_Info,
    kn_Ini,
@@ -1173,7 +1174,7 @@ function URLFileExists (var URL: string): boolean;
 var
    AbsolutePath: string;
 begin
-   AbsolutePath:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), URL);
+   AbsolutePath:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), StripFileURLPrefix(URL));
    Result:= FileExists( AbsolutePath) or DirectoryExists( AbsolutePath );
 end;
 
@@ -1566,7 +1567,10 @@ begin
                 exit;
               end
               else begin
-                myURL:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), myURL);
+                UnquoteString(myURL);                      // In case URLFileQuoteSpaces=1
+                myURL:= StripFileURLPrefix(myURL);         // In case URLFileNoPrefix=0
+                if pos( 'file:', myURL) = 0 then
+                   myURL:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), myURL);
                 FileName:= myURL;
               end;
             end;
