@@ -279,14 +279,14 @@ end;
 
 
 //----------------------------------------
-// InsertHyperlink
+// Insertlink
 //----------------------------------------
-procedure InsertHyperlink(URLStr: string; TextURL : string; KNTLink: boolean; Note: TTabNote);
+procedure InsertLink(URLStr: string; TextURL : string; FileLink: Boolean; Note: TTabNote; FromInsertURL: Boolean= false);
 var
   SelL: integer;
   SelR: integer;
   sepL, sepR: string;
-  UseHyperlink: boolean;
+  UseHyperlink, ShowTextAndURL: boolean;
   cad: string;
 begin
     UseHyperlink:= False;
@@ -297,6 +297,12 @@ begin
        if Note.Editor.SelLength > 0 then
           CheckToSelectLeftImageHiddenMark (Note.Editor);
     end;
+
+    // URLFileEncodeName: Default=False   URLFilePrefNoHyp: Default=False
+    if UseHyperlink and (not FromInsertURL) and FileLink and KeyOptions.URLFilePrefNoHyp then
+      if ((not KeyOptions.URLFileEncodeName) and (TextURL = StripFileURLPrefix(URLStr))) or
+             ((KeyOptions.URLFileEncodeName) and (TextURL = StripFileURLPrefix(FileNameToURL(URLStr)))) then
+         UseHyperlink:= false;
 
     with Note.Editor do begin
       SelL := SelStart;
@@ -320,9 +326,14 @@ begin
                                            [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
       end
       else begin
-          if not KNTLink then
+          if FileLink and KeyOptions.URLFileEncodeName then
              URLStr := FileNameToURL( URLStr );
-          if (TextURL <> '') and (TextURL <> StripFileURLPrefix(URLStr)) then
+
+          ShowTextAndURL:= (TextURL <> '') and (TextURL <> StripFileURLPrefix(URLStr));
+          if pos(' ', URLStr) > 0 then
+             URLStr:= '<' + URLStr + '>';
+             
+          if ShowTextAndURL then
              SelText := sepL + '''' + TextURL + '''' + ' (' + URLStr + ') '
           else
              SelText := sepL + URLStr + #32;
@@ -395,7 +406,7 @@ begin
       if pos( 'FILE:', AnsiUpperCase(FN) ) = 0 then
          FN := 'file:///' + FN;
 
-      InsertHyperlink(FN, StripFileURLPrefix(FN), false, ActiveNote);
+      InsertLink(FN, StripFileURLPrefix(FN), true, ActiveNote);
    end
 
    else begin
@@ -652,7 +663,7 @@ begin
                                                 aLocation.NoteName, aLocation.NodeName,
                                                 aLocation.CaretPos]);
 
-    InsertHyperlink(BuildKNTLocationText(aLocation),  TextURL, true, ActiveNote);
+    InsertLink(BuildKNTLocationText(aLocation),  TextURL, false, ActiveNote);
     if aLocation.Mark <> 0 then
        strTargetMarker:= Format(STR_31, [aLocation.Mark]);
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_09 + strTargetMarker;
@@ -1346,6 +1357,7 @@ var
   Location: TLocation;
   KNTlocation: boolean;
   FileName, Parameters: String;
+  SS: integer;
 
 
   function GetHTTPClient : string;
@@ -1514,6 +1526,13 @@ begin
              ActiveNote.Editor.SetSelection(chrgURL.cpMin, chrgURL.cpMax, false);
 
           ActiveNote.Editor.SelText:= '';
+          SS:= ActiveNote.Editor.SelStart;
+          if ActiveNote.Editor.GetTextRange(SS-1, SS+1) = '<>' then begin
+             ActiveNote.Editor.SetSelection(SS-1, SS+1, false);
+             ActiveNote.Editor.SelText:= '';
+          end;
+
+
           if KNTLocation then begin
              Location:= BuildKNTLocationFromString(myURL);
              InsertOrMarkKNTLink(Location, true, TextURL);
@@ -1763,7 +1782,7 @@ begin
          URLStr := 'file:///' + URLStr;
 
       if (TextURL = '') and (not Note.PlainText) then TextURL:= StripFileURLPrefix(URLStr);
-      InsertHyperlink(URLStr, TextURL, false, Note);
+      InsertLink(URLStr, TextURL, (URLType = urlFile), Note, True);
   end;
 
 end; // Insert URL

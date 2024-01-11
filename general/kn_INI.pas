@@ -409,8 +409,10 @@ type
     URLFileDecodeSpaces,
     URLFileNoPrefix,
     URLFileQuoteSpaces,
-    URLClickShift,
-    URLSystemBrowser, 
+    URLFileEncodeName,
+    URLFilePrefNoHyp,
+    //URLClickShift,
+    URLSystemBrowser,
     UseOldColorDlg,
     UseOldFileFormat,
     UseNewStyleURL,
@@ -572,7 +574,9 @@ const
     URLFileDecodeSpaces : 'URLFileDecodeSpaces';
     URLFileNoPrefix : 'URLFileNoPrefix';
     URLFileQuoteSpaces : 'URLFileQuoteSpaces';
-    URLClickShift : 'URLClickShift';
+    URLFileEncodeName : 'URLFileEncodeName';
+    URLFilePrefNoHyp: 'URLFilePrefNoHyp';
+    //URLClickShift : 'URLClickShift';
     URLSystemBrowser : 'URLSystemBrowser';
     UseOldColorDlg : 'UseOldColorDlg';
     UseOldFileFormat : 'UseOldFileFormat';
@@ -1085,6 +1089,8 @@ begin
     URLFileDecodeSpaces := true;
     URLFileNoPrefix := true;
     URLFileQuoteSpaces := false;
+    URLFileEncodeName:= false;
+    URLFilePrefNoHyp:= false;
     //URLClickShift := false;
     URLSystemBrowser := true;
     UseOldColorDlg := false;
@@ -1712,6 +1718,8 @@ begin
       KeyOptions.URLFileDecodeSpaces := readbool( section, KeyOptionsIniStr.URLFileDecodeSpaces, KeyOptions.URLFileDecodeSpaces );
       KeyOptions.URLFileNoPrefix := readbool( section, KeyOptionsIniStr.URLFileNoPrefix, KeyOptions.URLFileNoPrefix );
       KeyOptions.URLFileQuoteSpaces := readbool( section, KeyOptionsIniStr.URLFileQuoteSpaces, KeyOptions.URLFileQuoteSpaces );
+      KeyOptions.URLFileEncodeName := readbool( section, KeyOptionsIniStr.URLFileEncodeName, KeyOptions.URLFileEncodeName );
+      KeyOptions.URLFilePrefNoHyp := readbool( section, KeyOptionsIniStr.URLFilePrefNoHyp, KeyOptions.URLFilePrefNoHyp );
       //KeyOptions.URLClickShift := readbool( section, KeyOptionsIniStr.URLClickShift, KeyOptions.URLClickShift );
       KeyOptions.URLSystembrowser := readbool( section, KeyOptionsIniStr.URLSystembrowser, KeyOptions.URLSystembrowser );
       KeyOptions.UseOldColorDlg := readbool( section, KeyOptionsIniStr.UseOldColorDlg, KeyOptions.UseOldColorDlg );
