@@ -55,7 +55,7 @@ uses
 
    // Links related routines
     procedure GetKNTLocation (var Location: TLocation; Simplified: Boolean= false);
-    procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean );
+    procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean; Relative: boolean= false );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string);
     function BuildKNTLocationText( const aLocation : TLocation) : string;
     procedure JumpToKNTLocation( LocationStr : string );
@@ -354,7 +354,7 @@ end;
 //===============================================================
 // InsertFileOrLink
 //===============================================================
-procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean );
+procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean; Relative: boolean= false );
 var
   FN : string;
   oldFilter : string;
@@ -392,6 +392,7 @@ begin
          if ( not Form_Main.OpenDlg.Execute ) then exit;
          FN := Form_Main.OpenDlg.FileName;
          KeyOptions.LastImportPath := properfoldername( extractfilepath( FN ));
+         Relative:= AltDown;
       finally
          Form_Main.OpenDlg.Filter := oldFilter;
          Form_Main.OpenDlg.FilterIndex := 1;
@@ -400,6 +401,9 @@ begin
    end
    else
       FN := aFileName;
+
+   if Relative then
+      FN:= ExtractRelativePath(NoteFile.File_Path, FN);
 
 
    if AsLink then begin

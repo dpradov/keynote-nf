@@ -65,7 +65,6 @@ object Form_DropFile: TForm_DropFile
     Width = 356
     Height = 148
     Align = alTop
-    PageIndex = 1
     TabOrder = 0
     ExplicitWidth = 352
     object PAGE_METHOD: TPage
@@ -80,6 +79,7 @@ object Form_DropFile: TForm_DropFile
         Margins.Top = 6
         Margins.Bottom = 6
         TabOrder = 0
+        OnClick = RG_ActionClick
       end
     end
     object PAGE_HTML: TPage
@@ -112,6 +112,7 @@ object Form_DropFile: TForm_DropFile
     Height = 17
     Caption = 'Images: Link mode'
     TabOrder = 4
+    Visible = False
     OnClick = chk_ImageLinkModeClick
   end
   object txtImgNewName: TEdit
@@ -134,5 +135,16 @@ object Form_DropFile: TForm_DropFile
     OnExit = txtImgNewNameExit
     ExplicitTop = 150
     ExplicitWidth = 128
+  end
+  object chk_Relative: TCheckBox
+    Left = 264
+    Top = 155
+    Width = 87
+    Height = 17
+    Hint = 'Insert link as relative to .knt file'
+    Caption = 'Relative'
+    TabOrder = 6
+    Visible = False
+    OnClick = chk_ImageLinkModeClick
   end
 end

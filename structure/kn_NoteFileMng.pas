@@ -80,7 +80,7 @@ uses
 
     procedure FileDropped( Sender : TObject; FileList : TStringList );
     function ConsistentFileType( const aList : TStringList ) : boolean;
-    function PromptForFileAction( const FileList : TStringList; const aExt : string; var ImgLinkMode: boolean; var NewFileName: string ) : TDropFileAction;
+    function PromptForFileAction( const FileList : TStringList; const aExt : string; var ImgLinkMode: boolean; var NewFileName: string; var RelativeLink: boolean ) : TDropFileAction;
 
     procedure NoteFileProperties;
     procedure UpdateNoteFileState( AState : TFileStateChangeSet );
@@ -2271,7 +2271,7 @@ end; // InsertContent
 //=================================================================
 // PromptForFileAction
 //=================================================================
-function PromptForFileAction( const FileList : TStringList; const aExt : string; var ImgLinkMode: boolean; var NewFileName: string) : TDropFileAction;
+function PromptForFileAction( const FileList : TStringList; const aExt : string; var ImgLinkMode: boolean; var NewFileName: string; var RelativeLink: boolean) : TDropFileAction;
 var
   Form_DropFile: TForm_DropFile;
   LastFact, fact : TDropFileAction;
@@ -2389,6 +2389,7 @@ begin
                   mrOK :
                     begin
                       ImgLinkMode:= Form_DropFile.chk_ImageLinkMode.Checked;
+                      RelativeLink:= Form_DropFile.chk_Relative.Checked;
                       // since we created the radio items dynamically, we can only figure out which one was selected thusly:
                       if FileIsHTML then
                          KeyOptions.HTMLImportMethod := THTMLImportMethod( Form_DropFile.RG_HTML.ItemIndex );
@@ -2502,6 +2503,7 @@ var
   FileIsHTML, FileIsFolder : boolean;
   OutStream: TMemoryStream;
   ImgLinkMode: boolean;
+  RelativeLink: boolean;
   NewFileName: string;
 
 begin
@@ -2540,10 +2542,12 @@ begin
               fExt:= '.*';
             end;
 
-            if FileIsFolder then
-              myAction := factHyperlink
+            if FileIsFolder then begin
+              myAction := factHyperlink;
+              RelativeLink:= AltDown;
+            end
             else
-              myAction := PromptForFileAction( FileList, fExt, ImgLinkMode, NewFileName);
+              myAction := PromptForFileAction( FileList, fExt, ImgLinkMode, NewFileName, RelativeLink);
           end;
 
 
@@ -2568,7 +2572,7 @@ begin
 
               factHyperlink :
                 for i := 0 to pred( FileList.Count ) do begin
-                  InsertFileOrLink( FileList[i], true );
+                  InsertFileOrLink( FileList[i], true, RelativeLink);
                   ActiveNote.Editor.SelText:= #13#10;
                   ActiveNote.Editor.SelLength:= 0;
                   ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart+2;

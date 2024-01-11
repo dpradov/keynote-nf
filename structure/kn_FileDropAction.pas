@@ -43,6 +43,7 @@ type
     chk_ImageLinkMode: TCheckBox;
     txtImgNewName: TEdit;
     lblRenamed: TLabel;
+    chk_Relative: TCheckBox;
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Btn_HTMLClick(Sender: TObject);
@@ -51,6 +52,7 @@ type
     procedure chk_ImageLinkModeClick(Sender: TObject);
   private
     { Private declarations }
+    OfferImageLinkMode: boolean;
   public
     { Public declarations }
     NumberOfFiles : integer;
@@ -104,6 +106,8 @@ begin
   Caption := Format(STR_03, [NumberOfFiles, FileExt, s] );
 
   try
+    OfferImageLinkMode:= chk_ImageLinkMode.Visible;
+
     RG_ActionClick( RG_Action );
     RG_Action.OnClick := RG_ActionClick;
     RG_Action.SetFocus;
@@ -139,11 +143,19 @@ begin
 end;
 
 procedure TForm_DropFile.RG_ActionClick(Sender: TObject);
+var
+  actionName: string;
+
 begin
-  if Btn_HTML.Visible then
-  begin
+  if Btn_HTML.Visible then begin
     Btn_HTML.Enabled := true;
     Btn_HTML.Caption := STR_06;
+  end;
+
+  if Visible then begin
+     actionName := RG_Action.Items[RG_Action.ItemIndex];
+     chk_ImageLinkMode.Visible:= OfferImageLinkMode and (actionName = FactStrings[factInsertContent]);
+     chk_Relative.Visible:= (actionName = FactStrings[factHyperlink]);
   end;
 end;
 
