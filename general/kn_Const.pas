@@ -575,6 +575,8 @@ const
   KNTLOCATION_MARK_OLD = '?'; // old style links to KNT locations: use note and node names
   KNTLOCATION_MARK_NEW = '*'; // new style links to KNT locations: use note and node IDs
 
+  LINK_RELATIVE_SETUP = '>>';  // Ex.:  file:///>>Profiles\Profiles.txt
+
   (* 
     *1
     The hidden strings used by KNT will have a variable length, but will normally have a maximum of the form maximum: HT999999H

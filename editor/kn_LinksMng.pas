@@ -1592,8 +1592,15 @@ begin
               else begin
                 UnquoteString(myURL);                      // In case URLFileQuoteSpaces=1
                 myURL:= StripFileURLPrefix(myURL);         // In case URLFileNoPrefix=0
-                if pos( 'file:', myURL) = 0 then
-                   myURL:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), myURL);
+                if pos( 'file:', myURL) = 0 then begin
+                   if pos(LINK_RELATIVE_SETUP, myURL) = 1 then begin
+                      var i: integer:= 1;
+                      if myURL[Length(LINK_RELATIVE_SETUP)+1] = '\' then i:= 2;
+                      myURL:= GetAbsolutePath(ExtractFilePath(Application.ExeName), Copy(myURL, Length(LINK_RELATIVE_SETUP) + i, 999));
+                   end
+                   else
+                      myURL:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), myURL);
+                end;
                 FileName:= myURL;
               end;
             end;
