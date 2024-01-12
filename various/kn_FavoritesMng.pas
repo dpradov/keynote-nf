@@ -24,9 +24,11 @@ uses
    Vcl.Controls,
    Vcl.Dialogs,
    Vcl.StdCtrls,
+   Vcl.Forms,
    cmpGFXListBox,
    gf_misc,
    gf_strings,
+   gf_files,
    kn_Info,
    kn_LocationObj,
    kn_NodeList,
@@ -44,6 +46,7 @@ uses
     procedure RefreshFavorites;
     function GetFavoriteIconIndex( const myLocation : TLocation ) : integer;
     function GetSelectedFavorite : TLocation;
+    function AbsolutePath(const PathRelativeToKNTSetup: string): string;
 
 
 implementation
@@ -64,6 +67,16 @@ resourcestring
   STR_09 = 'Delete selected location "%s" from Favorites?';
   STR_10 = 'Error deleting Favorite: ';
   STR_11 = 'Favorites list error: ';
+
+
+
+
+function AbsolutePath(const PathRelativeToKNTSetup: string): string;
+begin
+    Result:= GetAbsolutePath(ExtractFilePath(Application.ExeName), PathRelativeToKNTSetup);
+end;
+
+
 
 procedure DisplayFavorites;
 var
@@ -113,13 +126,16 @@ begin
   myFav := GetSelectedFavorite;
   if ( not assigned( myFav )) then exit;
 
+  myFav := myFav.Clone;
+  myFav.FileName:= AbsolutePath(myFav.FileName);
+
   if myFav.ExternalDoc then
   begin
     // .LNK shortcuts need special handling:
-    if ( Comparetext( ExtractFileExt( myFav.Filename ), ext_Shortcut ) = 0 ) then
-      exresult := ShellExecute( 0, nil, PChar( myFav.Filename ), PChar( myFav.Params ), nil, SW_NORMAL )
+    if ( Comparetext( ExtractFileExt( myFav.FileName ), ext_Shortcut ) = 0 ) then
+      exresult := ShellExecute( 0, nil, PChar( myFav.FileName ), PChar( myFav.Params ), nil, SW_NORMAL )
     else
-      exresult := ShellExecute( 0, 'open', PChar( myFav.Filename ), PChar( myFav.Params ), nil, SW_NORMAL );
+      exresult := ShellExecute( 0, 'open', PChar( myFav.FileName ), PChar( myFav.Params ), nil, SW_NORMAL );
 
     if ( exresult <= 32 ) then
       messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
@@ -354,7 +370,7 @@ end; // AddFavorite
 
 function GetFavoriteIconIndex( const myLocation : TLocation ) : integer;
 begin
-  result := Form_Main.IMG_System.GetImageIndex( myLocation.Filename, true, true, [] );
+  result := Form_Main.IMG_System.GetImageIndex( AbsolutePath(myLocation.Filename), true, true, [] );
 end; // GetFavoriteIconIndex
 
 function GetSelectedFavorite : TLocation;

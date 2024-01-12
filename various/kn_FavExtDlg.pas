@@ -56,7 +56,8 @@ type
 
 implementation
 uses
-   kn_main;
+   kn_main,
+   kn_FavoritesMng;
 
 {$R *.DFM}
 
@@ -87,7 +88,7 @@ procedure TForm_FavExt.FormCloseQuery(Sender: TObject;
 begin
   if ( ModalResult = mrOK ) then
   begin
-    if ( not FileExists( NormalFN( Edit_FN.Text ))) then
+    if ( not FileExists( NormalFN( AbsolutePath(Edit_FN.Text) ))) then
       CanClose := ( messagedlg( STR_01, mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
   end;
 end;
