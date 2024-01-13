@@ -149,6 +149,7 @@ type
     property Modified : boolean read GetModified write SetModified;
     property DateCreated : TDateTime read FDateCreated write FDateCreated;
     property TabIndex : integer read FTabIndex write SetTabIndex;
+    function GetSelectedNode : TNoteNode; virtual;
 
     property History : TKNTHistory read FHistory;
 
@@ -302,7 +303,6 @@ type
     procedure SetTreeChrome( AChrome : TChrome );
 
     // function GetSelectedIndex : integer;
-    function GetSelectedNode : TNoteNode;
     procedure SetSelectedNode( aNode : TNoteNode );
 
     function PropertiesToFlagsString : TFlagsString; override;
@@ -316,6 +316,7 @@ type
   public
     property Nodes : TNodeList read FNodes;
     property NodeCount : integer read GetCount;
+    function GetSelectedNode : TNoteNode; virtual;
 
     property Splitter : TSplitter read FSplitter write FSplitter;
     property TV : TTreeNT read FTV write FTV;
@@ -2384,6 +2385,15 @@ begin
   else
     result := 0;
 end; // GetNodeCount
+
+
+function TTabNote.GetSelectedNode : TNoteNode;
+begin
+   if Kind = ntTree then
+      Result:= TTreeNote(Self).GetSelectedNode
+   else
+      Result:= nil;
+end;
 
 function TTreeNote.GetSelectedNode : TNoteNode;
 begin

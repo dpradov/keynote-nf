@@ -835,7 +835,7 @@ type
     CB_ResFind_Filter: TCheckBox;
     TB_FilterTree: TToolbarButton97;
     MMViewFilterTree: TMenuItem;
-    TB_AlarmNode: TToolbarButton97;
+    TB_SetAlarm: TToolbarButton97;
     N114: TMenuItem;
     TVAlarmNode: TMenuItem;
     TVGraftSubtreeMirror: TMenuItem;
@@ -851,8 +851,6 @@ type
     MMWithoutNextNumber: TMenuItem;
     MMStartsNewNumber: TMenuItem;
     NU02: TMenuItem;
-    TAM_SetAlarm: TMenuItem;
-    MMSetAlarm: TMenuItem;
     MMEditPasteAsWebClipText: TMenuItem;
     MMP_PasteAsWebClipText: TMenuItem;
     MMEditPlainDefaultPaste: TMenuItem;
@@ -878,7 +876,11 @@ type
     TVHideUncheckedChildren: TMenuItem;
     TVShowNonFilteredChildren: TMenuItem;
     N119: TMenuItem;
-    procedure TAM_SetAlarmClick(Sender: TObject);
+    N120: TMenuItem;
+    MMAlarms: TMenuItem;
+    MMSetAlarm: TMenuItem;
+    MMShowAlarms: TMenuItem;
+    MMAlarmsPopup: TMenuItem;
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
     procedure TntFormResize(Sender: TObject);
@@ -889,8 +891,8 @@ type
     procedure TVGraftSubtreeMirrorClick(Sender: TObject);
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure TVAlarmNodeClick(Sender: TObject);
-    procedure TB_AlarmNodeMouseEnter(Sender: TObject);
-    procedure TB_AlarmNodeClick(Sender: TObject);
+    procedure TB_SetAlarmMouseEnter(Sender: TObject);
+    procedure TB_SetAlarmClick(Sender: TObject);
     procedure MMViewFilterTreeClick(Sender: TObject);
     procedure TB_FilterTreeClick(Sender: TObject);
     procedure PagesMouseDown(Sender: TObject; Button: TMouseButton;
@@ -1288,6 +1290,8 @@ type
     procedure MMShowImagesClick(Sender: TObject);
     procedure TB_ImagesClick(Sender: TObject);
     procedure RTFMRestoreProportionsClick(Sender: TObject);
+    procedure MMShowAlarmsClick(Sender: TObject);
+    procedure MMAlarmsPopupClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -1392,6 +1396,9 @@ type
     procedure FilterApplied (note: TTreeNote);   // [dpv]
     procedure FilterRemoved (note: TTreeNote);   // [dpv]
     procedure OnNoteChange(Note: TTabNote);
+
+    procedure ShowAlarmStatus;
+    procedure SetAlarm (ConsiderNoteAlarm: Boolean);
   end;
 
 function GetFilePassphrase( const FN : string ) : string;
@@ -1469,7 +1476,7 @@ resourcestring
   STR_31 = ' Preparing to send note via email...';
   STR_32 = ' Note sent';
   STR_33 = ' Note not sent';
-  STR_35 = 'Set alarm...';
+  STR_35 = 'Set alarm... (Ctrl:Add  Shift:->Note)';
   STR_36 = 'Drag: ';
   STR_37 = 'TV dragover';
   STR_38_Dragged = '<nothing>';
@@ -4624,112 +4631,135 @@ begin
 end; // MMEmailnoteClick
 
 
+procedure TForm_Main.ShowAlarmStatus;
+var
+   HasNoteAlarms, HasNodeAlarms: Boolean;
+   myNode: TNoteNode;
+
+begin
+  HasNodeAlarms:= false;
+  HasNoteAlarms:= false;
+
+  if assigned(ActiveNote) then begin
+     myNode:= ActiveNote.GetSelectedNode;
+     if assigned(myNode) then begin
+        HasNodeAlarms:= myNode.HasAlarms(false);
+        TVAlarmNode.Checked:= HasNodeAlarms;
+     end;
+     HasNoteAlarms:= ActiveNote.HasAlarms(false);
+  end;
+
+  TB_SetAlarm.Down:= HasNoteAlarms or HasNodeAlarms;
+  MMSetAlarm.Checked:= HasNoteAlarms or HasNodeAlarms;
+end;
 
 procedure TForm_Main.TB_AlarmModeClick(Sender: TObject);
 begin
   if (GetKeyState(VK_CONTROL) < 0) then begin
-      if assigned(ActiveNote) then begin
+     if assigned(ActiveNote) then begin
          TB_AlarmMode.Down:= not KeyOptions.DisableAlarmPopup;
          AlarmManager.ShowAlarms(true);
-
-         MMSetAlarm.Checked:= ActiveNote.HasAlarms(false);
-         TAM_SetAlarm.Checked:= MMSetAlarm.Checked;
-      end;
+         ShowAlarmStatus;
+     end;
   end
-  else begin
-      KeyOptions.DisableAlarmPopup:= not KeyOptions.DisableAlarmPopup;
-      TB_AlarmMode.Down:= (not KeyOptions.DisableAlarmPopup);
-      TB_AlarmMode.Hint:= AlarmManager.GetAlarmModeHint;
-  end;
+  else
+      MMAlarmsPopupClick (nil);
 end;
 
-procedure TForm_Main.TAM_SetAlarmClick(Sender: TObject);
+procedure TForm_Main.MMAlarmsPopupClick(Sender: TObject);
 begin
-    if not assigned(ActiveNote) then exit;
-    
-    if (GetKeyState(VK_CONTROL) < 0) then
-        AlarmManager.EditAlarms (nil, ActiveNote, true)
-    else
-        AlarmManager.EditAlarms (nil, ActiveNote);
-
-    MMSetAlarm.Checked:= ActiveNote.HasAlarms(false);
-    TAM_SetAlarm.Checked:= MMSetAlarm.Checked;
+   KeyOptions.DisableAlarmPopup:= not KeyOptions.DisableAlarmPopup;
+   MMAlarmsPopup.Checked:= not KeyOptions.DisableAlarmPopup;
+   TB_AlarmMode.Down:= (not KeyOptions.DisableAlarmPopup);
+   TB_AlarmMode.Hint:= AlarmManager.GetAlarmModeHint;
 end;
+
+
+procedure TForm_Main.MMShowAlarmsClick(Sender: TObject);
+begin
+   if assigned(ActiveNote) then begin
+      AlarmManager.ShowAlarms(false);
+      ShowAlarmStatus;
+   end;
+end;
+
 
 procedure TForm_Main.TB_AlarmModeMouseEnter(Sender: TObject);
 begin
     AlarmManager.StopFlashMode;
 end;
 
-procedure TForm_Main.TB_AlarmNodeClick(Sender: TObject);      // [dpv*]
-var
-    myNode: TNoteNode;
-    node: TTreeNTNode;
 
-    procedure ShowAlarmStatus;
-    begin
-        if assigned(myNode) then begin
-           TB_AlarmNode.Down:= myNode.HasAlarms(false);
-           TVAlarmNode.Checked:= TB_AlarmNode.Down;
-        end;
-        MMSetAlarm.Checked:= ActiveNote.HasAlarms(false);
-        TAM_SetAlarm.Checked:= MMSetAlarm.Checked;
-    end;
-
+procedure TForm_Main.TB_SetAlarmClick(Sender: TObject);      // [dpv*]
 begin
-   if not assigned( NoteFile ) then exit;
-
-    myNode:= nil;
-    if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) then begin
-       node:= TTreeNote(ActiveNote).TV.Selected;
-       if assigned(node) then
-          myNode:= TNoteNode( node.Data );
-    end;
-
-    ShowAlarmStatus;
-
-    if (GetKeyState(VK_CONTROL) < 0) then
-        AlarmManager.EditAlarms (myNode, ActiveNote, true)
-    else
-       AlarmManager.EditAlarms (myNode, ActiveNote);
-
-    ShowAlarmStatus;
+   SetAlarm (True);
 end;
 
-procedure TForm_Main.TB_AlarmNodeMouseEnter(Sender: TObject);    // [dpv*]
+procedure TForm_Main.SetAlarm(ConsiderNoteAlarm: Boolean);      // [dpv*]
 var
     myNode: TNoteNode;
-    node: TTreeNTNode;
+    HasNoteAlarms, HasNodeAlarms: Boolean;
+
+begin
+   if not assigned( NoteFile ) or (not assigned(ActiveNote)) then exit;
+
+   HasNoteAlarms:= ActiveNote.HasAlarms(false);
+   HasNodeAlarms:= false;
+   myNode:= ActiveNote.GetSelectedNode;
+   if myNode <> nil then
+      HasNodeAlarms:= myNode.HasAlarms(false);
+
+   if ConsiderNoteAlarm and (ShiftDown or (HasNoteAlarms and not HasNodeAlarms)) then
+      myNode:= nil;
+
+   AlarmManager.EditAlarms (myNode, ActiveNote, (GetKeyState(VK_CONTROL) < 0));
+   ShowAlarmStatus;
+end;
+
+
+procedure TForm_Main.TB_SetAlarmMouseEnter(Sender: TObject);    // [dpv*]
+var
+    myNode: TNoteNode;
     hint: string;
     sep: String;
-    I: integer;
+    I, N: integer;
     Alarms: TList;
-begin
-    myNode:= nil;
-    sep:= '';
-    if assigned(ActiveNote) and (ActiveNote.Kind = ntTree) then begin
-       node:= TTreeNote(ActiveNote).TV.Selected;
-       if assigned(node) then
-          myNode:= TNoteNode( node.Data );
+
+    procedure AddAlarmsToHint;
+    begin
+        I:= 0;
+        while I <= Alarms.Count - 1 do begin
+           hint:= hint + sep + FormatAlarmInstant(TAlarm(Alarms[i]).ExpirationDate) + ' [' + StringReplace(TAlarm(Alarms[i]).AlarmNote, #13#10, '. ', [rfReplaceAll]) + ']';
+           sep:= ' // ';
+           inc(I);
+           inc(N);
+        end;
     end;
 
-    if assigned(myNode) then begin
-       if myNode.HasAlarms(false) then begin
-           hint:= '';
-           Alarms:= myNode.getAlarms(false);
-           I:= 0;
-           while I <= Alarms.Count - 1 do begin
-              hint:= hint + sep + FormatAlarmInstant(TAlarm(Alarms[i]).ExpirationDate) + ' [' + StringReplace(TAlarm(Alarms[i]).AlarmNote, #13#10, '. ', [rfReplaceAll]) + ']';
-              sep:= ' // ';
-              I:= I + 1;
-           end;
-           if Alarms.Count > 1 then
-              hint:= '(' + intTostr(Alarms.Count) + ') ' + hint;
-           TB_AlarmNode.Hint:= hint;
-       end
-       else
-           TB_AlarmNode.Hint:= STR_35;
-    end
+begin
+    if not assigned(ActiveNote) then exit;
+
+    sep:= '';
+    hint:= '';
+    N:= 0;
+    myNode:= ActiveNote.GetSelectedNode;
+
+    if assigned(myNode) and myNode.HasAlarms(false) then begin
+       Alarms:= myNode.getAlarms(false);
+       AddAlarmsToHint;
+    end;
+    if ActiveNote.HasAlarms(false) and ActiveNote.HasAlarms(false) then begin
+       Alarms:= ActiveNote.getAlarms(false);
+       AddAlarmsToHint;
+    end;
+
+    if hint = '' then
+       hint:= STR_35
+    else
+       hint:= '(' + N.ToString + ') ' + hint;
+
+
+    TB_SetAlarm.Hint:= hint;
 end;
 
 procedure TForm_Main.TB_ClipCapClick(Sender: TObject);
@@ -5127,7 +5157,7 @@ end;
 
 procedure TForm_Main.TVAlarmNodeClick(Sender: TObject);
 begin
-   TB_AlarmNodeClick (nil);
+   SetAlarm (false);
 end;
 
 procedure TForm_Main.TVDeleteNodeClick(Sender: TObject);

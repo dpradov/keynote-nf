@@ -153,7 +153,7 @@ type
   //---------------------------------------------------------------------
 
   TForm_Alarm = class(TForm)
-    Panel3: TPanel;
+    Panel: TPanel;
 
     Grid: TListView;
     Button_Sound: TToolbarButton97;
@@ -169,7 +169,7 @@ type
     TntLabel2: TLabel;
     CB_ShowMode: TComboBox;
     TB_ClipCap: TToolbarButton97;
-    pnlBottons: TPanel;
+    pnlButtons: TPanel;
     Button_Remove: TButton;
     Button_Restore: TButton;
     Button_Show: TButton;
@@ -220,6 +220,7 @@ type
     TB_Color: TColorBtn;
     TB_Hilite: TColorBtn;
     btnExpandWindow: TButton;
+    btnShowHideDetails: TButton;
 
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -281,6 +282,7 @@ type
     procedure btnExpandWindowClick(Sender: TObject);
     procedure chk_ApplyOnExitChangeClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure btnShowHideDetailsClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -334,6 +336,7 @@ type
     procedure HideAlarm(ls: TListItem);
 
     procedure ShowCommonProperties();
+    procedure ShowDetails(Show: boolean);
 
     procedure CopyAlarmList();
     function UnfilteredAlarmList: TList;
@@ -1014,6 +1017,7 @@ begin
   end;
 
   try
+    Form_Alarm.ShowDetails (modeEdit <> TShowAll);
     Form_Alarm.modeEdit:= modeEdit;
 
     Form_Alarm.EnableControls(false);
@@ -1053,16 +1057,8 @@ end;
 
 procedure TAlarmManager.UpdateFormMain ( alarm: TAlarm );
 begin
-    if alarm.note <> ActiveNote then exit;
-
-    if assigned(alarm.node) then begin
-       if assigned(ActiveNote) and (assigned(TTreeNote(ActiveNote).TV.Selected)) and (alarm.node = TTreeNote(ActiveNote).TV.Selected.Data) then
-          Form_Main.TB_AlarmNode.Down:= TNoteNode(TTreeNote(ActiveNote).TV.Selected.Data).HasAlarms(false);
-    end
-    else begin
-        Form_Main.MMSetAlarm.Checked:= ActiveNote.HasAlarms(false);
-        Form_Main.TAM_SetAlarm.Checked:= Form_Main.MMSetAlarm.Checked;
-    end;
+   if alarm.note <> ActiveNote then exit;
+   Form_Main.ShowAlarmStatus;
 end;
 
 
@@ -1394,6 +1390,46 @@ begin
 end;
 
 
+procedure TForm_Alarm.ShowDetails (Show: boolean);
+begin
+  if btnShowHideDetails.Caption = Char(218) then begin
+     if Show then exit;
+     btnShowHideDetails.Caption:= Char(217);
+  end
+  else begin
+     if not Show then exit;
+     btnShowHideDetails.Caption:= Char(218);
+  end;
+
+  PanelCalendar.Visible := Show and (PanelAlarm.Width >  PanelAlarm.Constraints.MinWidth);
+
+  if not Show then begin
+     pnlButtons.Top:= Panel.Height - pnlButtons.Height;
+     Grid.Height:= Grid.Height + PanelAlarm.Height +5;
+     PanelAlarm.BevelOuter:= bvNone;
+  end
+  else begin
+     PanelAlarm.BevelOuter:= bvRaised;
+     pnlButtons.Top:= -1;
+     Grid.Height:= Grid.Height - PanelAlarm.Height -5;
+  end;
+
+end;
+
+
+procedure TForm_Alarm.btnShowHideDetailsClick(Sender: TObject);
+var
+   DetailsShown: boolean;
+begin
+  if btnShowHideDetails.Caption = Char(218) then begin
+     DetailsShown:= true;
+  end
+  else
+     DetailsShown:= false;
+
+  ShowDetails (not DetailsShown);
+end;
+
 //----------------------------------
 //           Edition. General
 //----------------------------------
@@ -1426,7 +1462,6 @@ var
    i: integer;
    alarm: TAlarm;
    ls: TListItem;
-   severalSelected: boolean;
 begin
    FInitializingControls:= FInitializingControls + 1;
 
@@ -1453,11 +1488,9 @@ begin
 
    PanelFormat.Enabled:= Value;
 
-   SeveralSelected:= Grid.SelCount > 1;
-
    alarm:= AlarmSelected;
    chk_Expiration.Enabled:= Value;
-   if not Value or SeveralSelected or (alarm.ExpirationDate = 0) then
+   if not Value or (Grid.SelCount > 1) or (alarm.ExpirationDate = 0) then
       chk_Expiration.Checked:= false
    else
       chk_Expiration.Checked:= true;
@@ -1466,8 +1499,8 @@ begin
    cExpirationTime.Enabled:=   chk_Expiration.Checked;
    CB_ExpirationTime.Enabled:= chk_Expiration.Checked;
 
-   lblExpirationStatus.Visible := not SeveralSelected;
-   lblReminderStatus.Visible   := not SeveralSelected;
+   lblExpirationStatus.Visible := (Grid.SelCount = 1);
+   lblReminderStatus.Visible   := (Grid.SelCount = 1);
 
    rb_FromNow.Enabled:= Value;
    rb_Before.Enabled:= Value and chk_Expiration.Checked;
@@ -2986,7 +3019,7 @@ var
         if pos > 0 then
            bgColor:= '\clcbpat' + IntToStr(pos);
 
-        Result:= Format('\trowd\trgaph30 %s\cellx500%s\cellx1500%s\cellx3500%s\cellx4900%s\cellx5600%s\cellx9100%s\cellx10600\cellx11250\cellx11800' +
+        Result:= Format('\trowd\trgaph30 %s\cellx500%s\cellx1500%s\cellx3500%s\cellx4900%s\cellx5600%s\cellx9100%s\cellx10600%s\cellx11250\cellx11800' +
                         '\pard\intbl%s ',
                        [bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,  colorFont ]);
 

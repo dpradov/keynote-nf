@@ -1101,8 +1101,7 @@ begin
             MMNoteReadOnly.Checked := ActiveNote.ReadOnly;
             TB_ClipCap.Down := ( NoteFile.ClipCapNote = ActiveNote );
             MMNoteClipCapture.Checked := TB_ClipCap.Down;
-            MMSetAlarm.Checked:= ActiveNote.HasAlarms(false);
-            TAM_SetAlarm.Checked:= MMSetAlarm.Checked;
+            ShowAlarmStatus;
 
             TMClipCap.Checked := MMNoteClipCapture.Checked;
 
@@ -1158,11 +1157,6 @@ begin
               else
                  TVCheckNode.Enabled := false;
 
-              if assigned(node) and (TNoteNode(node.Data).HasAlarms(false)) then   // [dpv*]
-                 TB_AlarmNode.Down:= true
-              else
-                 TB_AlarmNode.Down:= false;
-              TVAlarmNode.Checked:= TB_AlarmNode.Down;  // [dpv]
 
               TVChildrenCheckbox.Enabled := not MMViewCheckboxesAllNodes.Checked;       // [dpv]
               Toolbar_Tree.Visible := KeyOptions.ToolbarTreeShow;

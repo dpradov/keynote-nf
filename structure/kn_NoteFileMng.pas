@@ -1227,6 +1227,7 @@ begin
         LastEditCmd := ecNone;
         UpdateLastCommand( ecNone );
         BookmarkClearAll;
+        ShowAlarmStatus;
         
         if assigned( NoteFile ) then
         begin

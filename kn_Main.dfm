@@ -237,7 +237,7 @@ object Form_Main: TForm_Main
         OnClick = MMToolsOptionsClick
       end
       object sm10: TToolbarSep97
-        Left = 753
+        Left = 777
         Top = 0
       end
       object TB_EditRedo: TToolbarButton97
@@ -428,7 +428,7 @@ object Form_Main: TForm_Main
         OnClick = MMViewOnTopClick
       end
       object TB_AlarmMode: TToolbarButton97
-        Left = 729
+        Left = 753
         Top = 0
         Width = 24
         Height = 22
@@ -442,8 +442,23 @@ object Form_Main: TForm_Main
         OnClick = TB_AlarmModeClick
         OnMouseEnter = TB_AlarmModeMouseEnter
       end
+      object TB_SetAlarm: TToolbarButton97
+        Left = 729
+        Top = 0
+        Width = 24
+        Height = 22
+        AllowAllUp = True
+        GroupIndex = 17
+        Glyph.Data = {00000000}
+        GlyphMask.Data = {00000000}
+        ImageIndex = 50
+        Images = IMG_Toolbar
+        RepeatInterval = 101
+        OnClick = TB_SetAlarmClick
+        OnMouseEnter = TB_SetAlarmMouseEnter
+      end
       object TB_Images: TToolbarButton97
-        Left = 759
+        Left = 783
         Top = 0
         Width = 23
         Height = 22
@@ -1118,7 +1133,7 @@ object Form_Main: TForm_Main
         Top = 0
       end
       object TB_HideChecked: TToolbarButton97
-        Left = 146
+        Left = 122
         Top = 0
         Width = 24
         Height = 22
@@ -1132,7 +1147,7 @@ object Form_Main: TForm_Main
         OnClick = TB_HideCheckedClick
       end
       object TB_FilterTree: TToolbarButton97
-        Left = 170
+        Left = 146
         Top = 0
         Width = 24
         Height = 22
@@ -1145,22 +1160,6 @@ object Form_Main: TForm_Main
         Images = IMG_Toolbar
         RepeatInterval = 101
         OnClick = TB_FilterTreeClick
-      end
-      object TB_AlarmNode: TToolbarButton97
-        Left = 122
-        Top = 0
-        Width = 24
-        Height = 22
-        Hint = 'Set alarm on node...'
-        AllowAllUp = True
-        GroupIndex = 3
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
-        ImageIndex = 50
-        Images = IMG_Toolbar
-        RepeatInterval = 101
-        OnClick = TB_AlarmNodeClick
-        OnMouseEnter = TB_AlarmNodeMouseEnter
       end
     end
     object Toolbar_Style: TToolbar97
@@ -2944,13 +2943,6 @@ object Form_Main: TForm_Main
         ShortCut = 16462
         OnClick = MMNoteNewClick
       end
-      object MMSetAlarm: TMenuItem
-        Caption = 'Set &alarm...'
-        Hint = 
-          'Adds or edit an alarm directly to the note (CTR+click forces to ' +
-          'add)'
-        OnClick = TAM_SetAlarmClick
-      end
       object MMNoteRename: TMenuItem
         Caption = '&Rename Note...'
         Hint = 'Rename current note'
@@ -3480,13 +3472,13 @@ object Form_Main: TForm_Main
         Caption = '-'
       end
       object MMToolsGlosAddTerm: TMenuItem
-        Caption = '&Add Glossary Term'
+        Caption = 'Add &Glossary Term'
         Hint = 'Create a new glossary term'
         ShortCut = 8310
         OnClick = MMToolsGlosAddTermClick
       end
       object MMToolsGlosEdit: TMenuItem
-        Caption = 'Edit &Glossary...'
+        Caption = 'Edit Glossary...'
         Hint = 'Edit glossary terms'
         OnClick = MMToolsGlosEditClick
       end
@@ -3510,6 +3502,26 @@ object Form_Main: TForm_Main
           Caption = '&Insert Template...'
           Hint = 'Insert template into current note'
           OnClick = MMToolsTemplateInsertClick
+        end
+      end
+      object N120: TMenuItem
+        Caption = '-'
+      end
+      object MMAlarms: TMenuItem
+        Caption = '&Alarms'
+        object MMSetAlarm: TMenuItem
+          Caption = 'Set alarm...'
+          Hint = 'Add or edit an alarm (Ctrl: Add  Shift: Note alarm)'
+          OnClick = TB_SetAlarmClick
+        end
+        object MMShowAlarms: TMenuItem
+          Caption = 'Show alarms...'
+          OnClick = MMShowAlarmsClick
+        end
+        object MMAlarmsPopup: TMenuItem
+          Caption = 'Reminder Popups'
+          Hint = 'Modal window will be shown on alarms trigger'
+          OnClick = MMAlarmsPopupClick
         end
       end
       object N35: TMenuItem
@@ -3894,13 +3906,6 @@ object Form_Main: TForm_Main
     end
     object N16: TMenuItem
       Caption = '-'
-    end
-    object TAM_SetAlarm: TMenuItem
-      Caption = 'Set &alarm...'
-      Hint = 
-        'Adds or edit an alarm directly to the note (CTR+click forces to ' +
-        'add)'
-      OnClick = TAM_SetAlarmClick
     end
     object TAM_Renametab: TMenuItem
       Caption = '&Rename Note'

@@ -5,7 +5,7 @@ object Form_Alarm: TForm_Alarm
   Margins.Left = 0
   Caption = 'p'
   ClientHeight = 540
-  ClientWidth = 943
+  ClientWidth = 804
   Color = clBtnFace
   Constraints.MinHeight = 527
   Constraints.MinWidth = 617
@@ -24,11 +24,11 @@ object Form_Alarm: TForm_Alarm
   OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
-    943
+    804
     540)
   TextHeight = 13
   object lblFilter: TLabel
-    Left = 602
+    Left = 455
     Top = 8
     Width = 67
     Height = 13
@@ -45,7 +45,7 @@ object Form_Alarm: TForm_Alarm
     ExplicitLeft = 259
   end
   object Button_ClearFilter: TToolbarButton97
-    Left = 851
+    Left = 704
     Top = 6
     Width = 17
     Height = 21
@@ -77,7 +77,7 @@ object Form_Alarm: TForm_Alarm
     ParentFont = False
   end
   object Button_Sound: TToolbarButton97
-    Left = 907
+    Left = 760
     Top = 4
     Width = 25
     Height = 24
@@ -94,7 +94,7 @@ object Form_Alarm: TForm_Alarm
     ExplicitLeft = 869
   end
   object TB_ClipCap: TToolbarButton97
-    Left = 881
+    Left = 734
     Top = 4
     Width = 25
     Height = 24
@@ -108,183 +108,30 @@ object Form_Alarm: TForm_Alarm
     OnClick = TB_ClipCapClick
     ExplicitLeft = 843
   end
-  object Panel3: TPanel
+  object Panel: TPanel
     Left = 1
     Top = 134
-    Width = 943
+    Width = 796
     Height = 405
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 3
     ExplicitTop = 133
-    ExplicitWidth = 939
+    ExplicitWidth = 792
     DesignSize = (
-      943
+      796
       405)
-    object PanelCalendar: TPanel
-      Left = 742
-      Top = 0
-      Width = 195
-      Height = 287
-      Anchors = [akTop, akRight]
-      BevelEdges = [beRight]
-      BevelOuter = bvNone
-      TabOrder = 0
-      ExplicitLeft = 738
-      object cCalendar: TMonthCalendar
-        Left = -11
-        Top = 113
-        Width = 215
-        Height = 160
-        MultiSelect = True
-        Date = 40429.000000000000000000
-        EndDate = 40429.000000000000000000
-        TabOrder = 0
-        OnClick = cCalendarClick
-        OnExit = cCalendarExit
-        OnGetMonthInfo = cCalendarGetMonthInfo
-      end
-      object CB_FilterDates: TComboBox
-        Left = 1
-        Top = 81
-        Width = 188
-        Height = 21
-        HelpContext = 535
-        Style = csDropDownList
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 1
-        OnChange = CB_FilterDatesChange
-      end
-    end
-    object pnlBottons: TPanel
-      Left = 2
-      Top = -1
-      Width = 934
-      Height = 35
-      Anchors = [akLeft, akTop, akRight]
-      BevelOuter = bvNone
-      TabOrder = 1
-      ExplicitWidth = 930
-      DesignSize = (
-        934
-        35)
-      object Button_Remove: TButton
-        Left = 754
-        Top = 2
-        Width = 84
-        Height = 25
-        Hint = 'Remove selected alarms (only if discarded)'
-        Anchors = [akTop, akRight]
-        Caption = '&Remove'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 4
-        OnClick = Button_RemoveClick
-        ExplicitLeft = 750
-      end
-      object Button_Restore: TButton
-        Left = 847
-        Top = 2
-        Width = 84
-        Height = 25
-        Hint = 'Restore the discarded alarms'
-        Anchors = [akTop, akRight]
-        Caption = 'Res&tore'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 5
-        OnClick = Button_RestoreClick
-        ExplicitLeft = 843
-      end
-      object Button_Show: TButton
-        Left = 5
-        Top = 2
-        Width = 84
-        Height = 25
-        Hint = 'Show location of alarm'
-        Caption = '&Show'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 0
-        OnClick = Button_ShowClick
-      end
-      object Button_New: TButton
-        Left = 192
-        Top = 2
-        Width = 84
-        Height = 25
-        Hint = 
-          'Create new alarm (in the same node/note that the item selected o' +
-          'r in the active note, if no one is selected)'
-        Caption = '&New'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentFont = False
-        TabOrder = 2
-        OnClick = Button_NewClick
-      end
-      object Button_Discard: TButton
-        Left = 98
-        Top = 2
-        Width = 84
-        Height = 25
-        Hint = 'Discard selected alarms  (remove on empty alarms)'
-        Caption = '&Discard'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentFont = False
-        TabOrder = 1
-        OnClick = Button_DiscardClick
-      end
-      object Button_SelectAll: TButton
-        Left = 300
-        Top = 1
-        Width = 84
-        Height = 25
-        Caption = '&Select All'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 3
-        OnClick = Button_SelectAllClick
-      end
-    end
     object PanelAlarm: TPanel
       Left = 6
       Top = 39
-      Width = 726
+      Width = 582
       Height = 359
-      Anchors = [akLeft, akTop, akRight]
-      Constraints.MinWidth = 585
+      Anchors = [akLeft, akRight, akBottom]
+      Constraints.MinWidth = 578
       TabOrder = 2
+      ExplicitWidth = 578
       DesignSize = (
-        726
+        582
         359)
       object lblExpiration: TLabel
         Left = 12
@@ -782,7 +629,7 @@ object Form_Alarm: TForm_Alarm
         OnClick = rb_FromNowClick
       end
       object Button_Apply: TButton
-        Left = 627
+        Left = 483
         Top = 172
         Width = 84
         Height = 25
@@ -796,9 +643,10 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 8
         OnClick = Button_ApplyClick
+        ExplicitLeft = 479
       end
       object chk_ApplyOnExitChange: TCheckBox
-        Left = 634
+        Left = 490
         Top = 202
         Width = 85
         Height = 27
@@ -813,11 +661,12 @@ object Form_Alarm: TForm_Alarm
         TabOrder = 9
         WordWrap = True
         OnClick = chk_ApplyOnExitChangeClick
+        ExplicitLeft = 486
       end
       object txtSubject: TMemo
         Left = 9
         Top = 40
-        Width = 702
+        Width = 558
         Height = 87
         TabStop = False
         Anchors = [akLeft, akTop, akRight]
@@ -831,12 +680,12 @@ object Form_Alarm: TForm_Alarm
         TabOrder = 10
         WantTabs = True
         OnChange = txtSubjectChange
-        ExplicitWidth = 698
+        ExplicitWidth = 554
       end
       object cIdentifier: TEdit
         Left = 10
         Top = 12
-        Width = 699
+        Width = 555
         Height = 22
         TabStop = False
         Anchors = [akLeft, akTop, akRight]
@@ -856,16 +705,17 @@ object Form_Alarm: TForm_Alarm
         ReadOnly = True
         TabOrder = 11
         Text = 'NODO'
-        ExplicitWidth = 695
+        ExplicitWidth = 551
       end
       object PanelFormat: TPanel
-        Left = 605
+        Left = 461
         Top = 128
         Width = 119
         Height = 23
         Anchors = [akTop, akRight]
         BevelOuter = bvNone
         TabOrder = 12
+        ExplicitLeft = 457
         object TB_Bold: TToolbarButton97
           Left = 0
           Top = 0
@@ -991,10 +841,10 @@ object Form_Alarm: TForm_Alarm
         end
       end
       object btnExpandWindow: TButton
-        Left = 678
-        Top = 323
+        Left = 534
+        Top = 330
         Width = 33
-        Height = 25
+        Height = 22
         Hint = 
           'Change width, to include or not full grid size and calendar filt' +
           'er'
@@ -1008,13 +858,184 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 13
         OnClick = btnExpandWindowClick
+        ExplicitLeft = 530
+      end
+    end
+    object PanelCalendar: TPanel
+      Left = 599
+      Top = 44
+      Width = 195
+      Height = 204
+      Anchors = [akRight, akBottom]
+      BevelEdges = [beRight]
+      BevelOuter = bvNone
+      TabOrder = 0
+      ExplicitLeft = 595
+      object cCalendar: TMonthCalendar
+        Left = -11
+        Top = 37
+        Width = 215
+        Height = 160
+        MultiSelect = True
+        Date = 40429.000000000000000000
+        EndDate = 40429.000000000000000000
+        TabOrder = 0
+        OnClick = cCalendarClick
+        OnExit = cCalendarExit
+        OnGetMonthInfo = cCalendarGetMonthInfo
+      end
+      object CB_FilterDates: TComboBox
+        Left = 1
+        Top = 5
+        Width = 188
+        Height = 21
+        HelpContext = 535
+        Style = csDropDownList
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        OnChange = CB_FilterDatesChange
+      end
+    end
+    object pnlButtons: TPanel
+      Left = 2
+      Top = -1
+      Width = 787
+      Height = 37
+      Anchors = [akLeft, akTop, akRight]
+      BevelOuter = bvNone
+      TabOrder = 1
+      ExplicitWidth = 783
+      DesignSize = (
+        787
+        37)
+      object Button_Remove: TButton
+        Left = 607
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 'Remove selected alarms (only if discarded)'
+        Anchors = [akTop, akRight]
+        Caption = '&Remove'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 4
+        OnClick = Button_RemoveClick
+        ExplicitLeft = 603
+      end
+      object Button_Restore: TButton
+        Left = 700
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 'Restore the discarded alarms'
+        Anchors = [akTop, akRight]
+        Caption = 'Res&tore'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 5
+        OnClick = Button_RestoreClick
+        ExplicitLeft = 696
+      end
+      object Button_Show: TButton
+        Left = 5
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 'Show location of alarm'
+        Caption = '&Show'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnClick = Button_ShowClick
+      end
+      object Button_New: TButton
+        Left = 192
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 
+          'Create new alarm (in the same node/note that the item selected o' +
+          'r in the active note, if no one is selected)'
+        Caption = '&New'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+        OnClick = Button_NewClick
+      end
+      object Button_Discard: TButton
+        Left = 98
+        Top = 2
+        Width = 84
+        Height = 25
+        Hint = 'Discard selected alarms  (remove on empty alarms)'
+        Caption = '&Discard'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        OnClick = Button_DiscardClick
+      end
+      object Button_SelectAll: TButton
+        Left = 294
+        Top = 2
+        Width = 84
+        Height = 25
+        Caption = '&Select All'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        OnClick = Button_SelectAllClick
+      end
+      object btnShowHideDetails: TButton
+        Left = 384
+        Top = 2
+        Width = 21
+        Height = 25
+        Hint = 'Hide or show details of selected alarm(s)'
+        Caption = #218
+        Font.Charset = SYMBOL_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Symbol'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 6
+        OnClick = btnShowHideDetailsClick
       end
     end
   end
   object Grid: TListView
     Left = 8
     Top = 31
-    Width = 927
+    Width = 780
     Height = 98
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -1069,11 +1090,9 @@ object Form_Alarm: TForm_Alarm
     OnDblClick = GridDblClick
     OnEnter = GridEnter
     OnSelectItem = GridSelectItem
-    ExplicitWidth = 923
-    ExplicitHeight = 97
   end
   object cFilter: TEdit
-    Left = 675
+    Left = 528
     Top = 5
     Width = 174
     Height = 21
@@ -1087,7 +1106,7 @@ object Form_Alarm: TForm_Alarm
     TabOrder = 1
     OnChange = cFilterChange
     OnExit = cFilterExit
-    ExplicitLeft = 671
+    ExplicitLeft = 524
   end
   object CB_ShowMode: TComboBox
     Left = 103
