@@ -1419,8 +1419,6 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object CB_ResFind_CaseSens: TCheckBox
             Left = 10
             Top = 15
@@ -1834,11 +1832,13 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 9
-          Height = 13
+          Width = 296
+          Height = 47
           Align = alClient
           Caption = '...'
           WordWrap = True
+          ExplicitWidth = 9
+          ExplicitHeight = 13
         end
       end
     end
@@ -3801,6 +3801,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_RTF: TPopupMenu
+    Images = IMG_Format
     OnPopup = Menu_RTFPopup
     Left = 361
     Top = 120
@@ -3847,10 +3848,12 @@ object Form_Main: TForm_Main
     end
     object RTFMFont: TMenuItem
       Caption = '&Font...'
+      ImageIndex = 11
       OnClick = MMFormatFontClick
     end
     object RTFMPara: TMenuItem
       Caption = 'P&aragraph...'
+      ImageIndex = 13
       OnClick = MMFormatParagraphClick
     end
     object N43: TMenuItem
@@ -3880,6 +3883,7 @@ object Form_Main: TForm_Main
     object RTFMWordwrap: TMenuItem
       Caption = '&Word Wrap'
       Hint = 'Toggle wrapping at end of lines'
+      ImageIndex = 18
       OnClick = MMFormatWordWrapClick
     end
     object N118: TMenuItem
@@ -3895,6 +3899,7 @@ object Form_Main: TForm_Main
   end
   object Menu_TAB: TPopupMenu
     AutoPopup = False
+    Images = IMG_Toolbar
     Left = 359
     Top = 83
     object TAM_ActiveName: TMenuItem
@@ -3907,6 +3912,7 @@ object Form_Main: TForm_Main
     object TAM_NewTab: TMenuItem
       Caption = '&New Note...'
       Hint = 'Create a new note'
+      ImageIndex = 7
       OnClick = MMNoteNewClick
     end
     object N16: TMenuItem
@@ -3920,6 +3926,7 @@ object Form_Main: TForm_Main
     object TAM_Properties: TMenuItem
       Caption = '&Properties'
       Hint = 'Edit note properties'
+      ImageIndex = 8
       OnClick = MMNotePropertiesClick
     end
     object N17: TMenuItem
@@ -3928,6 +3935,7 @@ object Form_Main: TForm_Main
     object TAM_Delete: TMenuItem
       Caption = 'R&emove Note'
       Hint = 'Delete current note'
+      ImageIndex = 9
       OnClick = MMNoteRemoveClick
     end
   end
@@ -7217,20 +7225,20 @@ object Form_Main: TForm_Main
       Caption = '&Transfer Subtree'
       Hint = 'Copy node and its children; then paste it in another tree'
       object TVCopySubtree: TMenuItem
-        Caption = '&Lift Subtree'
+        Caption = '&Copy Subtree'
         Hint = 'Copy selected node and its children'
         ShortCut = 16473
         OnClick = TVCopySubtreeClick
       end
       object TVGraftSubtree: TMenuItem
         Tag = 1
-        Caption = '&Graft Subtree Here'
+        Caption = '&Paste Subtree Here'
         Hint = 'Paste previously copied nodes at selected position'
         ShortCut = 16455
         OnClick = TVCopySubtreeClick
       end
       object TVGraftSubtreeMirror: TMenuItem
-        Caption = 'Graft Subtree Here as &Mirror'
+        Caption = 'Paste Subtree Here as &Mirror'
         Hint = 
           'Paste previously copied nodes at selected position as mirror nod' +
           'es'
@@ -7275,7 +7283,7 @@ object Form_Main: TForm_Main
       OnClick = MMRenamenodeClick
     end
     object TVCopyNode_: TMenuItem
-      Caption = 'C&opy'
+      Caption = 'C&opy node inf.'
       object TVCopyNodeName: TMenuItem
         Caption = '&Node Name'
         Hint = 'Copy node name to clipboard'
@@ -7853,11 +7861,13 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Macro: TPopupMenu
+    Images = IMG_Toolbar
     Left = 387
     Top = 345
     object MacMMacro_Play: TMenuItem
       Caption = '&Play Macro'
       Hint = 'Run selected macro'
+      ImageIndex = 29
       ShortCut = 13
       OnClick = TB_MacroClick
     end
@@ -7882,6 +7892,7 @@ object Form_Main: TForm_Main
     object MacMMacro_Record: TMenuItem
       Caption = '&Record Macro...'
       Hint = 'Record a new macro'
+      ImageIndex = 31
       ShortCut = 45
       OnClick = TB_MacroRecordClick
     end
@@ -7918,11 +7929,13 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Plugins: TPopupMenu
+    Images = IMG_Toolbar
     Left = 317
     Top = 343
     object PLM_RunPlugin: TMenuItem
       Caption = '&Run Plugin'
       Hint = 'Execute selected plugin'
+      ImageIndex = 29
       ShortCut = 13
       OnClick = PLM_RunPluginClick
     end
@@ -8048,12 +8061,14 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_StdEdit: TPopupMenu
+    Images = IMG_Toolbar
     OnPopup = Menu_StdEditPopup
     Left = 441
     Top = 71
     object StdEMUndo: TMenuItem
       Caption = '&Undo'
       Hint = 'Undo last editing operation'
+      ImageIndex = 6
       ShortCut = 16474
       OnClick = StdEMSelectAllClick
     end
@@ -8064,18 +8079,21 @@ object Form_Main: TForm_Main
       Tag = 1
       Caption = 'Cu&t'
       Hint = 'Cut selection to clipboard (Ctrl+X, Shift+Supr)'
+      ImageIndex = 3
       OnClick = StdEMSelectAllClick
     end
     object StdEMCopy: TMenuItem
       Tag = 2
       Caption = '&Copy'
       Hint = 'Copy selection to clipboard (Ctrl+C, Ctrl+Ins)'
+      ImageIndex = 4
       OnClick = StdEMSelectAllClick
     end
     object StdEMPaste: TMenuItem
       Tag = 3
       Caption = '&Paste'
       Hint = 'Paste text from clipboard (Ctrl+V, Shift+Ins)'
+      ImageIndex = 5
       OnClick = StdEMSelectAllClick
     end
     object StdEMPastePlain: TMenuItem
@@ -8109,8 +8127,8 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_FindAll: TPopupMenu
-    Left = 282
-    Top = 342
+    Left = 250
+    Top = 358
     object FAMCopytoEditor: TMenuItem
       Caption = '&Insert in Note'
       Hint = 'Insert selected location as hyperlink in note'
