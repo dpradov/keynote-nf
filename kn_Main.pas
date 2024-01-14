@@ -1934,7 +1934,7 @@ begin
             FindOptions.FindAllHistory := AnsiQuotedStr( Combo_ResFind.Items[0], '"' );
         end;
 
-        if not KeyOptions.IgnoreCtrHideTrePanel then begin
+        if KeyOptions.UseCtrlHideTreePanel then begin
            Visible:= False;
            CheckRestoreAppWindowWidth;
         end;
@@ -2804,7 +2804,7 @@ begin
            Handled:= true;
         end;
       end
-      else if not KeyOptions.IgnoreCtrHideTrePanel then begin
+      else if KeyOptions.UseCtrlHideTreePanel then begin
           // Check if the keys combination, without Ctrl, is a shortcut to MMViewTree
           ShortCutItem := Menu.FindItem(ShortCut - scCtrl, fkShortCut);
           if ShortCutItem = MMViewTree then begin
@@ -7942,7 +7942,7 @@ begin
     if TreeHidden then
       FocusMemory := focRTF;
 
-    if not KeyOptions.IgnoreCtrHideTrePanel then
+    if KeyOptions.UseCtrlHideTreePanel then
         if TreeHidden then begin
            if CtrlDown then begin
               _WindowWidthIncToRestore:= TV.Width;

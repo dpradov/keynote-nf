@@ -419,7 +419,7 @@ type
     UseTray,
     UserFile,
     ZoomIncrement,
-    IgnoreCtrHideTrePanel,
+    UseCtrlHideTreePanel,
     MarginAltLeft,
     MarginAltRight,
     ImgDefaultStorageMode,
@@ -584,7 +584,7 @@ const
     UseTray : 'UseTray';
     UserFile : 'UserFile';
     ZoomIncrement : 'ZoomIncrement';
-    IgnoreCtrHideTrePanel: 'IgnoreCtrHideTrePanel';
+    UseCtrlHideTreePanel: 'UseCtrlHideTreePanel';
     MarginAltLeft:  'MarginAltLeft';
     MarginAltRight: 'MarginAltRight';
     ImgDefaultStorageMode: 'ImgDefaultStorageMode';
@@ -1098,7 +1098,7 @@ begin
     UseTray := true;
     UserFile := '';
     ZoomIncrement := 10;
-    IgnoreCtrHideTrePanel := false;
+    UseCtrlHideTreePanel := true;
     MarginAltLeft := 80;
     MarginAltRight:= 80;
 
@@ -1387,7 +1387,7 @@ begin
       writebool( section, KeyOptionsIniStr.UseOldFileFormat, KeyOptions.UseOldFileFormat );
       writebool( section, KeyOptionsIniStr.UseTray, KeyOptions.UseTray );
       writestring( section, KeyOptionsIniStr.UserFile, ExtractRelativePath(Application.ExeName, KeyOptions.UserFile) );
-      writebool( section, KeyOptionsIniStr.IgnoreCtrHideTrePanel, KeyOptions.IgnoreCtrHideTrePanel );
+      writebool( section, KeyOptionsIniStr.UseCtrlHideTreePanel, KeyOptions.UseCtrlHideTreePanel );
       writeinteger( section, KeyOptionsIniStr.MarginAltLeft,  KeyOptions.MarginAltLeft);
       writeinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight);
 
@@ -1731,7 +1731,7 @@ begin
       KeyOptions.UserFile := NormalFN( readstring( section, KeyOptionsIniStr.UserFile, KeyOptions.UserFile ));
 
       KeyOptions.ZoomIncrement := readinteger( section, KeyOptionsIniStr.ZoomIncrement, KeyOptions.ZoomIncrement );
-      KeyOptions.IgnoreCtrHideTrePanel := readbool( section, KeyOptionsIniStr.IgnoreCtrHideTrePanel, KeyOptions.IgnoreCtrHideTrePanel );
+      KeyOptions.UseCtrlHideTreePanel := readbool( section, KeyOptionsIniStr.UseCtrlHideTreePanel, KeyOptions.UseCtrlHideTreePanel );
       KeyOptions.MarginAltLeft  := readinteger( section, KeyOptionsIniStr.MarginAltLeft, KeyOptions.MarginAltLeft );
       KeyOptions.MarginAltRight := readinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight );
 
