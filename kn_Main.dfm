@@ -833,7 +833,7 @@ object Form_Main: TForm_Main
         GlyphMask.Data = {00000000}
         ImageIndex = 39
         Images = IMG_Toolbar
-        OnClick = MMTreeGoForwardClick
+        OnClick = MMHistoryGoForwardClick
       end
       object TB_GoBack: TToolbarButton97
         Left = 0
@@ -845,7 +845,7 @@ object Form_Main: TForm_Main
         GlyphMask.Data = {00000000}
         ImageIndex = 53
         Images = IMG_Toolbar
-        OnClick = MMTreeGoBackClick
+        OnClick = MMHistoryGoBackClick
       end
       object ToolbarSep971: TToolbarSep97
         Left = 217
@@ -1068,72 +1068,12 @@ object Form_Main: TForm_Main
       DragHandleStyle = dhSingle
       TabOrder = 0
       OnClose = Toolbar_FormatClose
-      object TB_NodeDelete: TToolbarButton97
-        Left = 98
-        Top = 0
-        Width = 24
-        Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
-        ImageIndex = 23
-        Images = IMG_Toolbar
-        Visible = False
-        OnClick = TVDeleteNodeClick
-      end
-      object TB_NodeFirst: TToolbarButton97
-        Left = 6
-        Top = 0
-        Width = 23
-        Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
-        ImageIndex = 19
-        Images = IMG_Toolbar
-        Visible = False
-        OnClick = TVInsertNodeClick
-      end
-      object TB_NodeLast: TToolbarButton97
-        Left = 29
-        Top = 0
-        Width = 24
-        Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
-        ImageIndex = 20
-        Images = IMG_Toolbar
-        Visible = False
-        OnClick = TVAddNodeClick
-      end
-      object TB_NodeChild: TToolbarButton97
-        Left = 53
-        Top = 0
-        Width = 22
-        Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
-        ImageIndex = 21
-        Images = IMG_Toolbar
-        Visible = False
-        OnClick = TVAddChildNodeClick
-      end
-      object TB_NodeRename: TToolbarButton97
-        Left = 75
-        Top = 0
-        Width = 23
-        Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
-        ImageIndex = 22
-        Images = IMG_Toolbar
-        Visible = False
-        OnClick = MMRenamenodeClick
-      end
       object Sep9722: TToolbarSep97
         Left = 0
         Top = 0
       end
       object TB_HideChecked: TToolbarButton97
-        Left = 122
+        Left = 6
         Top = 0
         Width = 24
         Height = 22
@@ -1147,7 +1087,7 @@ object Form_Main: TForm_Main
         OnClick = TB_HideCheckedClick
       end
       object TB_FilterTree: TToolbarButton97
-        Left = 146
+        Left = 30
         Top = 0
         Width = 24
         Height = 22
@@ -1186,8 +1126,8 @@ object Form_Main: TForm_Main
         DropdownMenu = Menu_Style
         Glyph.Data = {00000000}
         GlyphMask.Data = {00000000}
-        ImageIndex = 25
-        Images = IMG_Toolbar
+        ImageIndex = 12
+        Images = IMG_Format
         OnClick = BtnStyleApplyClick
       end
       object ToolbarSep9717: TToolbarSep97
@@ -1218,12 +1158,12 @@ object Form_Main: TForm_Main
     end
     object Toolbar_Insert: TToolbar97
       Tag = 5
-      Left = 556
+      Left = 333
       Top = 0
       ActivateParent = False
       Caption = 'Insert Toolbar'
       DefaultDock = Dock_Bottom
-      DockPos = 556
+      DockPos = 333
       DragHandleStyle = dhSingle
       TabOrder = 2
       OnClose = Toolbar_FormatClose
@@ -1479,6 +1419,8 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object CB_ResFind_CaseSens: TCheckBox
             Left = 10
             Top = 15
@@ -1892,13 +1834,11 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 296
-          Height = 47
+          Width = 9
+          Height = 13
           Align = alClient
           Caption = '...'
           WordWrap = True
-          ExplicitWidth = 9
-          ExplicitHeight = 13
         end
       end
     end
@@ -1933,26 +1873,31 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Main: TMainMenu
+    Images = IMG_Toolbar
     Left = 286
     Top = 65
     object MMFile_: TMenuItem
       Caption = '&File'
+      SubMenuImages = IMG_Toolbar
       Hint = 'File management commands'
       object MMFileNew: TMenuItem
         Caption = '&New'
         Hint = 'Create a new Keynote file'
+        ImageIndex = 0
         ShortCut = 24654
         OnClick = MMFileNewClick
       end
       object MMFileOpen: TMenuItem
         Caption = '&Open...'
         Hint = 'Open a Keynote file'
+        ImageIndex = 1
         ShortCut = 16463
         OnClick = MMFileOpenClick
       end
       object MMFileSave: TMenuItem
         Caption = '&Save'
         Hint = 'Save Keynote file'
+        ImageIndex = 2
         ShortCut = 16467
         OnClick = MMFileSaveClick
       end
@@ -1981,12 +1926,14 @@ object Form_Main: TForm_Main
       object MMFileProperties: TMenuItem
         Caption = '&Properties'
         Hint = 'Edit Keynote file properties'
+        ImageIndex = 16
         ShortCut = 32781
         OnClick = MMFilePropertiesClick
       end
       object MMFileManager: TMenuItem
         Caption = 'File &Manager'
         Hint = 'Open file manager'
+        ImageIndex = 12
         ShortCut = 123
         OnClick = MMFileManagerClick
       end
@@ -2027,22 +1974,26 @@ object Form_Main: TForm_Main
     end
     object MMEdit_: TMenuItem
       Caption = '&Edit'
+      SubMenuImages = IMG_Toolbar
       Hint = 'Text editing commands'
       object MMEditUndo: TMenuItem
         Caption = '&Undo'
         Hint = 'Undo last change'
+        ImageIndex = 6
         ShortCut = 32776
         OnClick = MMEditUndoClick
       end
       object MMEditRedo: TMenuItem
         Caption = '&Redo'
         Hint = 'Redo the last Undone command'
+        ImageIndex = 13
         ShortCut = 16397
         OnClick = MMEditRedoClick
       end
       object MMEditRepeat: TMenuItem
         Caption = 'R&epeat Last'
         Hint = 'Repeat last editing command'
+        ImageIndex = 40
         ShortCut = 16575
         OnClick = MMEditRepeatClick
       end
@@ -2052,16 +2003,19 @@ object Form_Main: TForm_Main
       object MMEditCut: TMenuItem
         Caption = 'Cu&t'
         Hint = 'Cut text to clipboard (Ctrl+X, Shift+Supr)'
+        ImageIndex = 3
         OnClick = MMEditCutClick
       end
       object MMEditCopy: TMenuItem
         Caption = '&Copy'
         Hint = 'Copy text to clipboard (Ctrl+C, Ctrl+Ins)'
+        ImageIndex = 4
         OnClick = MMEditCopyClick
       end
       object MMEditPaste: TMenuItem
         Caption = '&Paste'
         Hint = 'Paste text from clipboard (Ctrl+P, Shift+Ins)'
+        ImageIndex = 5
         OnClick = MMEditPasteClick
       end
       object MMEditPasteOther_: TMenuItem
@@ -2284,10 +2238,12 @@ object Form_Main: TForm_Main
     end
     object MMView_: TMenuItem
       Caption = '&View'
+      SubMenuImages = IMG_Toolbar
       Hint = 'Show or hide interface elements'
       object MMViewOnTop: TMenuItem
         Caption = '&Always on Top'
         Hint = 'Keep program window on top of other windows'
+        ImageIndex = 45
         ShortCut = 119
         OnClick = MMViewOnTopClick
       end
@@ -2297,6 +2253,7 @@ object Form_Main: TForm_Main
       object MMViewResPanel: TMenuItem
         Caption = '&Resource Panel'
         Hint = 'Show or hide resource panel'
+        ImageIndex = 41
         ShortCut = 120
         OnClick = MMViewResPanelClick
       end
@@ -2365,6 +2322,7 @@ object Form_Main: TForm_Main
         Caption = 'Show Images'
         Checked = True
         Enabled = False
+        ImageIndex = 59
         OnClick = MMShowImagesClick
       end
       object N4: TMenuItem
@@ -2380,8 +2338,27 @@ object Form_Main: TForm_Main
         Hint = 
           'Show or hide tree panel (Ctrl -> Temporarily preserve editor wid' +
           'th)'
+        ImageIndex = 20
         ShortCut = 8314
         OnClick = MMViewTreeClick
+      end
+      object MMViewHistory: TMenuItem
+        Caption = 'History'
+        SubMenuImages = IMG_Toolbar
+        object MMHistoryGoBack: TMenuItem
+          Caption = '&Go Back'
+          Hint = 'Navigate backwards in history'
+          ImageIndex = 38
+          ShortCut = 32805
+          OnClick = MMHistoryGoBackClick
+        end
+        object MMHistoryGoForward: TMenuItem
+          Caption = 'Go &Forward'
+          Hint = 'Navigate forward in history'
+          ImageIndex = 39
+          ShortCut = 32807
+          OnClick = MMHistoryGoForwardClick
+        end
       end
       object N102: TMenuItem
         Caption = '-'
@@ -2406,11 +2383,13 @@ object Form_Main: TForm_Main
       object MMViewHideCheckedNodes: TMenuItem
         Caption = '&Hide Checked Nodes'
         Hint = 'Keep checked nodes hidden / Show non filtered [Ctrl]'
+        ImageIndex = 37
         OnClick = TB_HideCheckedClick
       end
       object MMViewFilterTree: TMenuItem
         Caption = 'Filter nodes'
         Hint = 'Apply or Remove Filter on tree note'
+        ImageIndex = 49
         OnClick = MMViewFilterTreeClick
       end
       object N106: TMenuItem
@@ -2419,11 +2398,13 @@ object Form_Main: TForm_Main
       object MMViewZoomIn: TMenuItem
         Caption = '&Zoom In'
         Hint = 'Increase zoom  (Ctrl: apply only to active note)'
+        ImageIndex = 57
         OnClick = MMViewZoomInClick
       end
       object MMViewZoomOut: TMenuItem
         Caption = 'Zoom &Out'
         Hint = 'Decrease zoom  (Ctrl: apply only to active note)'
+        ImageIndex = 58
         OnClick = MMViewZoomOutClick
       end
       object MMAlternativeMargins: TMenuItem
@@ -2496,16 +2477,19 @@ object Form_Main: TForm_Main
     end
     object MMInsert_: TMenuItem
       Caption = '&Insert'
+      SubMenuImages = IMG_Toolbar
       Hint = 'Insert commands'
       object MMInsertDate: TMenuItem
         Caption = 'Insert &Date'
         Hint = 'Insert date into the note'
+        ImageIndex = 46
         ShortCut = 24644
         OnClick = MMInsertDateClick
       end
       object MMInsertTime: TMenuItem
         Caption = 'Insert &Time'
         Hint = 'Insert time into the note'
+        ImageIndex = 47
         ShortCut = 24660
         OnClick = MMInsertTimeClick
       end
@@ -2515,12 +2499,14 @@ object Form_Main: TForm_Main
       object MMInsertCharacter: TMenuItem
         Caption = '&Character...'
         Hint = 'Insert special characters'
+        ImageIndex = 48
         ShortCut = 24643
         OnClick = MMInsertCharacterClick
       end
       object MMInsertFileContents: TMenuItem
         Caption = '&File Contents...'
         Hint = 'Insert contents of a text file'
+        ImageIndex = 0
         OnClick = MMInsertFileContentsClick
       end
       object N65: TMenuItem
@@ -2557,6 +2543,7 @@ object Form_Main: TForm_Main
       object MMInsertPicture: TMenuItem
         Caption = '&Picture...'
         Hint = 'Insert an image'
+        ImageIndex = 59
         OnClick = MMInsertPictureClick
       end
       object MMInsertObject: TMenuItem
@@ -2576,22 +2563,26 @@ object Form_Main: TForm_Main
       object MMInsertWordWeb: TMenuItem
         Caption = '&WordWeb...'
         Hint = 'Look up word in WordWeb thesaurus'
+        ImageIndex = 24
         ShortCut = 16506
         OnClick = RTFMWordWebClick
       end
     end
     object MMFormat_: TMenuItem
       Caption = 'F&ormat'
+      SubMenuImages = IMG_Format
       Hint = 'Text formatting commands'
       object MMFormatFont: TMenuItem
         Caption = '&Font...'
         Hint = 'View or change font settings'
+        ImageIndex = 11
         ShortCut = 16468
         OnClick = MMFormatFontClick
       end
       object MMFormatParagraph: TMenuItem
         Caption = '&Paragraph...'
         Hint = 'View or change paragraph settings'
+        ImageIndex = 13
         ShortCut = 16464
         OnClick = MMFormatParagraphClick
       end
@@ -2609,24 +2600,28 @@ object Form_Main: TForm_Main
         object MMFormatBold: TMenuItem
           Caption = '&Bold'
           Hint = 'Apply bold attribute'
+          ImageIndex = 0
           ShortCut = 16450
           OnClick = MMFormatBoldClick
         end
         object MMFormatItalics: TMenuItem
           Caption = '&Italics'
           Hint = 'Apply italic attribute'
+          ImageIndex = 1
           ShortCut = 16457
           OnClick = MMFormatItalicsClick
         end
         object MMFormatUnderline: TMenuItem
           Caption = '&Underline'
           Hint = 'Apply underline attribute'
+          ImageIndex = 2
           ShortCut = 16469
           OnClick = MMFormatUnderlineClick
         end
         object MMFormatStrikeout: TMenuItem
           Caption = '&Strikeout'
           Hint = 'Apply strikeout attribute'
+          ImageIndex = 3
           ShortCut = 16459
           OnClick = MMFormatStrikeoutClick
         end
@@ -2642,12 +2637,14 @@ object Form_Main: TForm_Main
         object MMFormatSuperscript: TMenuItem
           Caption = 'Superscr&ipt'
           Hint = 'Apply superscript attribute'
+          ImageIndex = 19
           ShortCut = 16573
           OnClick = MMFormatSuperscriptClick
         end
         object MMFormatSubscript: TMenuItem
           Caption = 'Subsc&ript'
           Hint = 'Apply subscript attribute'
+          ImageIndex = 20
           ShortCut = 24765
           OnClick = MMFormatSubscriptClick
         end
@@ -2688,6 +2685,7 @@ object Form_Main: TForm_Main
           GroupIndex = 1
           HelpContext = 5
           Hint = 'Align lines to the left'
+          ImageIndex = 4
           RadioItem = True
           ShortCut = 49189
           OnClick = MMFormatAlignLeftClick
@@ -2697,6 +2695,7 @@ object Form_Main: TForm_Main
           GroupIndex = 1
           HelpContext = 10
           Hint = 'Center lines'
+          ImageIndex = 5
           RadioItem = True
           ShortCut = 49190
           OnClick = MMFormatAlignCenterClick
@@ -2706,6 +2705,7 @@ object Form_Main: TForm_Main
           GroupIndex = 1
           HelpContext = 15
           Hint = 'Align lines to the right'
+          ImageIndex = 6
           RadioItem = True
           ShortCut = 49191
           OnClick = MMFormatAlignRightClick
@@ -2714,6 +2714,7 @@ object Form_Main: TForm_Main
           Caption = '&Justify'
           GroupIndex = 1
           Hint = 'Align lines with full justification'
+          ImageIndex = 21
           ShortCut = 49192
           OnClick = MMFormatAlignJustifyClick
         end
@@ -2725,6 +2726,7 @@ object Form_Main: TForm_Main
           Caption = 'Line Spacing &Single'
           GroupIndex = 1
           Hint = 'Select single line spacing'
+          ImageIndex = 15
           RadioItem = True
           ShortCut = 16433
           OnClick = MMFormatLS1Click
@@ -2733,6 +2735,7 @@ object Form_Main: TForm_Main
           Caption = '&Line Spacing 1.5'
           GroupIndex = 1
           Hint = 'Select one and a half line spacing'
+          ImageIndex = 16
           RadioItem = True
           ShortCut = 16437
           OnClick = MMFormatLS15Click
@@ -2741,6 +2744,7 @@ object Form_Main: TForm_Main
           Caption = 'Line Spacing &Double'
           GroupIndex = 1
           Hint = 'Select double line spacing'
+          ImageIndex = 17
           RadioItem = True
           ShortCut = 16434
           OnClick = MMFormatLS2Click
@@ -2752,12 +2756,14 @@ object Form_Main: TForm_Main
         object MMFormatBullets: TMenuItem
           Caption = '&Bullets'
           Hint = 'Apply bullet list style'
+          ImageIndex = 7
           ShortCut = 16453
           OnClick = MMFormatBulletsClick
         end
         object MMFormatNumbers: TMenuItem
           Caption = '&Numbers'
           Hint = 'Apply numbered list style'
+          ImageIndex = 14
           ShortCut = 24645
           OnClick = MMFormatNumbersClick
         end
@@ -2782,12 +2788,14 @@ object Form_Main: TForm_Main
         object MMFormatLIndInc: TMenuItem
           Caption = 'Increase &Left Indent'
           Hint = 'Increase left indentation'
+          ImageIndex = 8
           ShortCut = 32954
           OnClick = MMFormatLIndIncClick
         end
         object MMFormatLIndDec: TMenuItem
           Caption = 'Decrease L&eft Indent'
           Hint = 'Decrease left indentation'
+          ImageIndex = 9
           ShortCut = 41146
           OnClick = MMFormatLIndDecClick
         end
@@ -2851,6 +2859,7 @@ object Form_Main: TForm_Main
       end
       object MMFormatTextColor: TMenuItem
         Caption = '&Text Color'
+        ImageIndex = 23
         ShortCut = 16466
         OnClick = MMFormatTextColorClick
       end
@@ -2865,6 +2874,7 @@ object Form_Main: TForm_Main
       end
       object MMFormatHighlight: TMenuItem
         Caption = 'Apply &Highlight'
+        ImageIndex = 24
         ShortCut = 16456
         OnClick = MMFormatHighlightClick
       end
@@ -2880,6 +2890,7 @@ object Form_Main: TForm_Main
       object MMFormatApplyStyle: TMenuItem
         Caption = 'Appl&y Selected Style'
         Hint = 'Apply current style to selection'
+        ImageIndex = 12
         ShortCut = 8307
         OnClick = BtnStyleApplyClick
       end
@@ -2892,6 +2903,7 @@ object Form_Main: TForm_Main
         object MMFormatCopy: TMenuItem
           Caption = '&Copy Formatting'
           Hint = 'Copy the formatting from of a text and apply it to another'
+          ImageIndex = 22
           ShortCut = 16502
           OnClick = MMFormatCopyClick
         end
@@ -2930,16 +2942,19 @@ object Form_Main: TForm_Main
       object MMFormatWordWrap: TMenuItem
         Caption = '&Word Wrap'
         Hint = 'Toggle wrapping at end of lines'
+        ImageIndex = 18
         ShortCut = 32855
         OnClick = MMFormatWordWrapClick
       end
     end
     object MMNote_: TMenuItem
       Caption = '&Note'
+      SubMenuImages = IMG_Toolbar
       Hint = 'Note-related commands'
       object MMNoteNew: TMenuItem
         Caption = '&New Note...'
         Hint = 'Add a new note'
+        ImageIndex = 7
         ShortCut = 16462
         OnClick = MMNoteNewClick
       end
@@ -2952,6 +2967,7 @@ object Form_Main: TForm_Main
       object MMNoteProperties: TMenuItem
         Caption = 'Note &Properties...'
         Hint = 'Edit current note properties'
+        ImageIndex = 8
         ShortCut = 115
         OnClick = MMNotePropertiesClick
       end
@@ -2961,6 +2977,7 @@ object Form_Main: TForm_Main
       object MMNoteRemove: TMenuItem
         Caption = 'R&emove Note'
         Hint = 'Delete current note'
+        ImageIndex = 9
         OnClick = MMNoteRemoveClick
       end
       object N27: TMenuItem
@@ -2974,12 +2991,14 @@ object Form_Main: TForm_Main
       object MMNotePrint: TMenuItem
         Caption = 'Pr&int Note...'
         Hint = 'Print text of current note'
+        ImageIndex = 44
         ShortCut = 24656
         OnClick = MMNotePrintClick
       end
       object MMNoteEmail: TMenuItem
         Caption = '&Email Note...'
         Hint = 'Send current note via e-mail'
+        ImageIndex = 17
         ShortCut = 57413
         OnClick = MMNoteEmailClick
       end
@@ -2989,6 +3008,7 @@ object Form_Main: TForm_Main
       object MMNoteClipCapture: TMenuItem
         Caption = '&Clipboard Capture'
         Hint = 'Toggle clipboard capture for active note'
+        ImageIndex = 18
         ShortCut = 122
         OnClick = MMNoteClipCaptureClick
       end
@@ -2998,6 +3018,7 @@ object Form_Main: TForm_Main
       object MMNoteSpell: TMenuItem
         Caption = 'C&heck Spelling'
         Hint = 'Check spelling in active note'
+        ImageIndex = 43
         OnClick = MMNoteSpellClick
       end
       object MMNoteReadOnly: TMenuItem
@@ -3057,20 +3078,29 @@ object Form_Main: TForm_Main
           OnClick = TVMoveNodeRightClick
         end
       end
+      object MMTreeMasterNode: TMenuItem
+        Caption = 'Create Ma&ster Node'
+        Hint = 'Create a node as parent of all existing nodes'
+        OnClick = MMTreeMasterNodeClick
+      end
+      object MMTreeNodeFromSel: TMenuItem
+        Caption = 'Ne&w Node from Selection'
+        Hint = 'Create a new node using selected text'
+        ShortCut = 32890
+        OnClick = MMTreeNodeFromSelClick
+      end
       object N87: TMenuItem
         Caption = '-'
       end
-      object MMTreeGoBack: TMenuItem
-        Caption = '&Go Back'
-        Hint = 'Navigate backwards in history'
-        ShortCut = 32805
-        OnClick = MMTreeGoBackClick
+      object MMTreeFullExpand: TMenuItem
+        Caption = '&Expand Tree'
+        Hint = 'Fully expand tree'
+        OnClick = MMTreeFullExpandClick
       end
-      object MMTreeGoForward: TMenuItem
-        Caption = 'Go &Forward'
-        Hint = 'Navigate forward in history'
-        ShortCut = 32807
-        OnClick = MMTreeGoForwardClick
+      object MMTreeFullCollapse: TMenuItem
+        Caption = 'Co&llapse Tree'
+        Hint = 'Fully collapse tree'
+        OnClick = MMTreeFullCollapseClick
       end
       object MMTreeNav_: TMenuItem
         Caption = '&Navigate'
@@ -3098,20 +3128,6 @@ object Form_Main: TForm_Main
           ShortCut = 40999
           OnClick = MMTreeNavRightClick
         end
-      end
-      object N93: TMenuItem
-        Caption = '-'
-      end
-      object MMTreeMasterNode: TMenuItem
-        Caption = 'Create Ma&ster Node'
-        Hint = 'Create a node as parent of all existing nodes'
-        OnClick = MMTreeMasterNodeClick
-      end
-      object MMTreeNodeFromSel: TMenuItem
-        Caption = 'Ne&w Node from Selection'
-        Hint = 'Create a new node using selected text'
-        ShortCut = 32890
-        OnClick = MMTreeNodeFromSelClick
       end
       object N41: TMenuItem
         Caption = '-'
@@ -3199,32 +3215,22 @@ object Form_Main: TForm_Main
         Hint = 'Add sequential numbers to node names'
         OnClick = MMTreeOutlineNumClick
       end
-      object N37: TMenuItem
-        Caption = '-'
-      end
-      object MMTreeFullExpand: TMenuItem
-        Caption = '&Expand Tree'
-        Hint = 'Fully expand tree'
-        OnClick = MMTreeFullExpandClick
-      end
-      object MMTreeFullCollapse: TMenuItem
-        Caption = 'Co&llapse Tree'
-        Hint = 'Fully collapse tree'
-        OnClick = MMTreeFullCollapseClick
-      end
     end
     object MMSearch_: TMenuItem
       Caption = '&Search'
+      SubMenuImages = IMG_Toolbar
       Hint = 'Search commands'
       object MMFind: TMenuItem
         Caption = '&Find...'
         Hint = 'Search for text in notes'
+        ImageIndex = 14
         ShortCut = 16454
         OnClick = MMFindClick
       end
       object MMFindNext: TMenuItem
         Caption = 'Find &Next'
         Hint = 'Repeat last search command'
+        ImageIndex = 15
         ShortCut = 114
         OnClick = MMFindNextClick
       end
@@ -3234,6 +3240,7 @@ object Form_Main: TForm_Main
       object MMFindReplace: TMenuItem
         Caption = '&Replace...'
         Hint = 'Replace text in notes'
+        ImageIndex = 42
         ShortCut = 16498
         OnClick = MMFindReplaceClick
       end
@@ -3415,10 +3422,12 @@ object Form_Main: TForm_Main
     end
     object MMTools_: TMenuItem
       Caption = '&Tools'
+      SubMenuImages = IMG_Toolbar
       Hint = 'Configuration and miscellaneous tools'
       object MMToolsOptions: TMenuItem
         Caption = '&Configuration Options...'
         Hint = 'Adjust program options'
+        ImageIndex = 10
         ShortCut = 116
         OnClick = MMToolsOptionsClick
       end
@@ -3512,6 +3521,7 @@ object Form_Main: TForm_Main
         object MMSetAlarm: TMenuItem
           Caption = 'Set alarm...'
           Hint = 'Add or edit an alarm (Ctrl: Add  Shift: Note alarm)'
+          ImageIndex = 50
           OnClick = TB_SetAlarmClick
         end
         object MMShowAlarms: TMenuItem
@@ -3553,23 +3563,12 @@ object Form_Main: TForm_Main
     end
     object MMHelp_: TMenuItem
       Caption = '&Help'
+      SubMenuImages = IMG_Toolbar
       Hint = 'Information about the program'
-      object MMHelpTip: TMenuItem
-        Caption = '&Tip of the Day'
-        Hint = 'Display the Tip of the Day dialog'
-        OnClick = MMHelpTipClick
-      end
-      object N1: TMenuItem
-        Caption = '-'
-      end
-      object MMHelpContents: TMenuItem
-        Caption = '&Help Contents'
-        Hint = 'Display contents of online help'
-        OnClick = MMHelpContentsClick
-      end
       object MMHelpMain: TMenuItem
         Caption = '&General Help'
         Hint = 'Display general help topics'
+        ImageIndex = 23
         OnClick = MMHelpMainClick
       end
       object MMHelpKeyboardRef: TMenuItem
@@ -3579,6 +3578,12 @@ object Form_Main: TForm_Main
       end
       object N79: TMenuItem
         Caption = '-'
+      end
+      object MMHelpTip: TMenuItem
+        Caption = '&Tip of the Day'
+        Hint = 'Display the Tip of the Day dialog'
+        ImageIndex = 60
+        OnClick = MMHelpTipClick
       end
       object MMHelpWhatsNew: TMenuItem
         Caption = '&What'#39's New'
@@ -4082,97 +4087,97 @@ object Form_Main: TForm_Main
       00000000000000000000000000000000000000000000BEC8CD00305060003088
       B00040B8E00090E0F00090D0E0006090A0000000000000000000000000000000
       00000000000000000000000000000000000000000000BEC8CD00305060003088
-      B00040B8E00090E0F00090D0E0006090A0003A3A3A0000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000003A3A3A00000000000000000000000000000000000000
+      B00040B8E00090E0F00090D0E0006090A0003A3A3A00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF003A3A3A00000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000000000000000000000000000EBEC
       EB00B9B9B9009191910069625A005A625A00868C86006F7B7B003080A00040B8
       E00090E0F00090E0F0006098B000CDDAE100000000000000000000000000EBEC
       EB00B9B9B9009191910069625A005A625A00868C86006F7B7B003080A00040B8
-      E00090E0F00090E0F0006098B000CDDAE1003A3A3A00000000006DB9E80064B5
+      E00090E0F00090E0F0006098B000CDDAE1003A3A3A00FFFFFF006DB9E80064B5
       E80064B5E80064B5E80064B5E80064B5E80064B5E80064B5E80064B5E80064B5
-      E8007EC1EA00000000003A3A3A00000000000000000000000000000000000000
+      E8007EC1EA00FFFFFF003A3A3A00000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000DBDBDB009C97
       9100A0909000C0B0A000E0C8B000E0C0B000C0A89000908070008686860080C0
       D000A0D8F0006098B000CDDAE100000000000000000000000000DBDBDB009C97
       9100A0909000C0B0A000E0C8B000E0C0B000C0A89000908070008686860080C0
-      D000A0D8F0006098B000CDDAE100000000003A3A3A000000000099CCEC0064B5
+      D000A0D8F0006098B000CDDAE100000000003A3A3A00FFFFFF0099CCEC0064B5
       E80064B5E80064B5E80064B5E80064B5E80064B5E80064B5E80064B5E80064B5
-      E800D8E7F100000000003A3A3A00000000000000000000000000000000000000
+      E800D8E7F100FFFFFF003A3A3A00000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000EFEEED009C9C9C00B0B0
       A000FFE8E000FFE0D000F0D8C000F0D0C000F0D0B000F0D0B000A09080007B81
       7B0060889000CDDAE100000000000000000000000000EFEEED009C9C9C00B0B0
       A000FFE8E000FFE0D000F0D8C000F0D0C000F0D0B000F0D0B000A09080007B81
-      7B0060889000CDDAE10000000000000000003A3A3A0000000000000000006DB9
-      E80064B5E80064B5E80064B5E80064B5E8006DB9E80064B5E80088C5EB000000
-      000000000000000000003A3A3A00000000000000000000000000000000000000
+      7B0060889000CDDAE10000000000000000003A3A3A00FFFFFF00FFFFFF006DB9
+      E80064B5E80064B5E80064B5E80064B5E8006DB9E80064B5E80088C5EB00FFFF
+      FF00FFFFFF00FFFFFF003A3A3A00000000000000000000000000000000000000
       0000000000000000000000000000535251000000000000000000000000000000
       00000000000000000000000000000000000000000000C7C4C000B0A8A000FFF8
       F000FFF0E000FFE8E0008060500080605000F0D0C000F0D0B000F0D0B0009080
       7000A7AFAF0000000000000000000000000000000000C7C4C000B0A8A000FFF8
       F000FFF0E000FFE8E000FFE0D000F0D8C000F0D0C000F0D0B000F0D0B0009080
-      7000A7AFAF000000000000000000000000003A3A3A00000000000000000099CC
-      EC0064B5E80064B5E80064B5E800ABD4ED00EAEFF30091C8EB00EAEFF3000000
-      000000000000000000003A3A3A00000000000000000000000000000000000000
+      7000A7AFAF000000000000000000000000003A3A3A00FFFFFF00FFFFFF0099CC
+      EC0064B5E80064B5E80064B5E800ABD4ED00EAEFF30091C8EB00EAEFF300FFFF
+      FF00FFFFFF00FFFFFF003A3A3A00000000000000000000000000000000000000
       000000000000000000005F5E5D005F5851005358510000000000000000000000
       00000000000000000000000000000000000000000000A7A79C00D0D0D000FFF8
       FF00FFF8F000FFF0E0008068500080605000F0D8C000F0D0C000F0D0B000C0A8
       9000868C860000000000000000000000000000000000A7A79C00D0D0D000FFF8
       FF00FFF8F000FFF0E000FFE8E000FFE0D000F0D8C000F0D0C000F0D0B000C0A8
-      9000868C86000000000000000000000000003A3A3A000000000000000000D8E7
-      F10064B5E80064B5E80091C8EB00000000000000000000000000000000000000
-      000000000000000000003A3A3A00000000000000000000000000000000000000
+      9000868C86000000000000000000000000003A3A3A00FFFFFF00FFFFFF00D8E7
+      F10064B5E80064B5E80091C8EB00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF003A3A3A00000000000000000000000000000000000000
       0000000000006B6A69006B6A69006B645D005F5E5D005F5E5D00000000000000
       0000000000000000000000000000000000000000000087878700F0F0F000FFFF
       FF00A0887000A080700090786000907060008068500080605000F0D0C000E0C0
       B00069625A000000000000000000000000000000000087878700F0F0F000FFFF
       FF00A0887000A080700090786000907060008068500080605000F0D0C000E0C0
-      B00069625A000000000000000000000000003A3A3A0000000000000000000000
-      000075BBE90064B5E800EAEFF300000000000000000000000000000000000000
-      000000000000000000003A3A3A00000000000000000000000000000000000000
+      B00069625A000000000000000000000000003A3A3A00FFFFFF00FFFFFF00FFFF
+      FF0075BBE90064B5E800EAEFF300FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF003A3A3A00000000000000000000000000000000000000
       0000777675007776750077706900777069006B6A69006B6A69006B645D000000
       0000000000000000000000000000000000000000000097878700F0F0F000FFFF
       FF00A0908000A0908000A0887000908070009070600080685000F0D8C000E0C8
       B000696969000000000000000000000000000000000097878700F0F0F000FFFF
       FF00A0908000A0908000A0887000908070009070600080685000F0D8C000E0C8
-      B000696969000000000000000000000000003A3A3A0000000000000000000000
-      0000A3D1ED006DB9E8000000000000000000000000009EA6E5004A5AD7004A5A
-      D7009EA6E500000000003A3A3A00000000000000000000000000000000008382
+      B000696969000000000000000000000000003A3A3A00FFFFFF00FFFFFF00FFFF
+      FF00A3D1ED006DB9E800FFFFFF00FFFFFF00FFFFFF009EA6E5004A5AD7004A5A
+      D7009EA6E500FFFFFF003A3A3A00000000000000000000000000000000008382
       810083828100837C7500837C7500777675007776750077706900777069006B6A
       69000000000000000000000000000000000000000000B2ADA700E0D8D000FFFF
       FF00FFFFFF00FFFFFF00A0908000A0887000FFF0E000FFE8E000FFE0D000C0B0
       A0009191910000000000000000000000000000000000B2ADA700E0D8D000FFFF
       FF00FFFFFF00FFFFFF00FFF8FF00FFF8F000FFF0E000FFE8E000FFE0D000C0B0
-      A000919191000000000000000000000000003A3A3A0000000000000000000000
-      0000D8E7F100C6E0F0000000000000000000000000004A5AD7004A5AD7004A5A
-      D7004A5AD700000000003A3A3A00000000000000000000000000000000008382
+      A000919191000000000000000000000000003A3A3A00FFFFFF00FFFFFF00FFFF
+      FF00D8E7F100C6E0F000FFFFFF00FFFFFF00FFFFFF004A5AD7004A5AD7004A5A
+      D7004A5AD700FFFFFF003A3A3A00000000000000000000000000000000008382
       810083828100838281008382810083828100837C7500837C7500777675007776
       75000000000000000000000000000000000000000000CECBC700B0B0B000FFFF
       FF00FFFFFF00FFFFFF00A0908000A0908000FFF8F000FFF0E000FFE8E000A090
       9000B9BDB90000000000000000000000000000000000CECBC700B0B0B000FFFF
       FF00FFFFFF00FFFFFF00FFFFFF00FFF8FF00FFF8F000FFF0E000FFE8E000A090
-      9000B9BDB9000000000000000000000000003A3A3A0000000000000000000000
-      000000000000000000000000000000000000000000004A5AD7004A5AD7004A5A
-      D7004A5AD700000000003A3A3A00000000000000000000000000000000000000
+      9000B9BDB9000000000000000000000000003A3A3A00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF004A5AD7004A5AD7004A5A
+      D7004A5AD700FFFFFF003A3A3A00000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000F1F0EF00B2ADA700C0C0
       C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFF8FF00FFF8F000C0B0B0009C9C
       9C00EDECEB0000000000000000000000000000000000F1F0EF00B2ADA700C0C0
       C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFF8FF00FFF8F000C0B0B0009C9C
-      9C00EDECEB000000000000000000000000003A3A3A0000000000000000000000
-      000000000000000000000000000000000000000000009EA6E5004A5AD7004A5A
-      D7009EA6E500000000003A3A3A00000000000000000000000000000000000000
+      9C00EDECEB000000000000000000000000003A3A3A00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF009EA6E5004A5AD7004A5A
+      D7009EA6E500FFFFFF003A3A3A00000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000E3E1DF00B2AD
       A700B0B0B000E0D8D000F0F0F000F0F0F000D0D8D000B0A8A000A7A29C00DBDB
       DB00000000000000000000000000000000000000000000000000E3E1DF00B2AD
       A700B0B0B000E0D8D000F0F0F000F0F0F000D0D8D000B0A8A000A7A29C00DBDB
-      DB00000000000000000000000000000000003A3A3A0000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000003A3A3A00000000000000000000000000000000000000
+      DB00000000000000000000000000000000003A3A3A00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF003A3A3A00000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000000000000000000000000000F1F0
       EF00CECBC700B2ADA700978F870087878700A7A79C00C7C7C000EFEEED000000
@@ -5218,129 +5223,129 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000000000000000000000000000000000000000000000FF00
+      000000000000000000000000000000000000000000000000000000000000EDED
+      ED00CECCCB00C8C1BC00D7CAC400DCCFC700D3C6C000B6ADA70083807E009090
+      9000BCBCBC00E4E4E4000000000000000000000000000000000000000000FF00
       0000FF000000FF00000000000000FF00000000FFFF00FF000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000FFFF0000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000FFFF0000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000FFFF0000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000EAEAEA00C8C4
+      C100D3C9C300ECE2DC00FCF5F100FDF6F200FDF6F200F2EAE500D0C5BF00948D
+      890073737300A7A7A700DEDEDE00000000000000000000000000000000000000
       0000000000000000000000000000FF000000FF000000FF000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000F0F0F000D6D0CC00EDE5
+      E000FEFBFA00DBC1B400A9775E00925B3F0093634B00BB9F9100F5EFEC00F6EF
+      EB00B5ACA7006E6D6D00A7A7A700E4E4E4000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FAFAFA00E1DBD800F4EDE800F5E9
+      E400BD8568009D5029009D4F28009A4E270091492500824121008B593F00D6C3
+      B900FDF9F700B4ABA70074737300BDBDBD000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000FF000000FF000000FF0000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000FF000000FF000000FF000000000000000000000000000000
+      000000000000000000000000000000000000F0EEED00F0E7E100F9F0EC00C078
+      5300B1592D00B55C2E00BA5E2F00BB5E3000B55B2E00A5532A008F4824008146
+      2700D8C4BB00F7F1ED00928C8800909090000000000000000000000000000000
       00000000000000000000000000000000000000FFFF0000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000FF000000FF000000FF000000FF00
       000000000000FF00000000FFFF00FF0000000000000000000000000000000000
       00000000000000000000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-      FF00FFFFFF00FFFFFF0000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000FF000000FF000000FF000000
-      FF00000000000000FF0000FFFF000000FF000000000000000000000000000000
+      FF00FFFFFF00FFFFFF000000000000000000EDE5E100FAF2EE00DAA08300BE60
+      3000C1613100C7643200D5845C00FFFFFF00DA987700BF603100AD582C00934A
+      2500915A3E00F6F0ED00D0C6C00083807E000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000FF00000000000000000000000000
       000000000000FF000000FF000000FF0000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000FF0000000000000000000000
-      0000000000000000FF000000FF000000FF000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000F4E9E300EDC8B400CF6E3E00CA65
+      3300CA653300CC673400CD673400CD673400CC673400CB663300C1613100AA56
+      2B008F482400C3A29100F3EAE500B6ADA7000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000F8EEE800E4AC9000D0714100CE6B
+      3A00CD683500CD673400D7855C00FFFFFF00E1A38500CC673400C9653300BA5E
+      2F00A1512900A76D5000FDF6F200D3C7C0000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000F9F0E900E3AB8F00D47B4F00D070
+      4100CE693700CD673400CD673400EECDBB00FCF5F200DE997700CC673400C262
+      3200AE582C00AB684500FDF6F200DCCFC7000000000000000000000000000000
       00000000000000000000000000000000000000FFFF0000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000FFFF0000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000FFFF0000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000FFFF0000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000F9EFE800EABEA900D7865E00D379
+      4D00CF6D3C00CD683600CD673400CD673400E4AD9200FFFFFF00D47B4F00C764
+      3300B95D2F00C3846400FCF5F100D7CAC3000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000F8EFE900F5E2D800E0A18100D787
+      5E00D2764900F9ECE500F2D7CA00CD683500E4AE9300FFFFFF00D57D5100CD6A
+      3700C5693800E8C9B800EDE4DE00C8C1BC000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FBF5F100FCF6F200F2D5C500DF9D
+      7800D98B6200DB946F00F6E2D900FFFFFF00FCF5F200E3A88A00D47B4A00D98A
+      5900E0A07A00FDFAF900D3C9C300CECCCB000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000000000000000000000000000000000000000FFFF000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000000000000000000000000000000000000000FFFF000000
+      00000000000000000000000000000000000000000000FAF0EB00FEFCFA00EECB
+      B200E7B18A00E3A57B00DD956900DA8D5F00DC906100E19F6F00E6AF7F00E6AF
+      8400F9EDE500EEE5E100C8C4C20000000000000000000000000000FFFF000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000000000000000000000FFFF000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000000000000000000000FFFF000000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000FAF0EB00FEFC
+      F900F4DDC700F0CCA400EFC89B00EEC49600ECC09200EBBD9000EDC4A400FAF1
+      EA00F4EDE800D7D0CC0000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000FAF0
+      EB00FCF6F200F6E5DA00F1D1B700EDC7A900ECC2A800F0D3C200FBF4EF00F0E7
+      E100E2DCD8000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      0000FBF5F100F8EFE900F9EFE800F9EFE900F8EDE800F4E9E300EDE5E100F0EE
+      EC00000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5987,9 +5992,9 @@ object Form_Main: TForm_Main
       8001000000000000800100000000000080410000000000008001000000000000
       8001000000000000808100000000000084210000000000008001000000000000
       8003000000000000C007000000000000FFFFFFE1FFE1FFFFFFFFFFC0FFC00001
-      FFFFFF80FF807FFDFFFFE000E0004005FFFFC001C0014005FFFF80038003601D
-      FEFF80078007601DFC7F8007800761FDF83F8007800771FDF01F800780077385
-      E00F800780077385E00F800780077F85FFFF800780077F85FFFFC00FC00F7FFD
+      FFFFFF80FF800001FFFFE000E0000001FFFFC001C0010001FFFF800380030001
+      FEFF800780070001FC7F800780070001F83F800780070001F01F800780070001
+      E00F800780070001E00F800780070001FFFF800780070001FFFFC00FC00F0001
       FFFFE01FE01F0001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC000FFFFFFFFFFFF
       0000FEFFFF7FFFFF0000FCFFFF3FFFFF0000F8FFFF1FFFFF0000F0FFFF0FFFFF
       0000E0018007E00F0000C0018003E00F0000C0018003F01F0000E0018007F83F
@@ -6022,11 +6027,11 @@ object Form_Main: TForm_Main
       000081C1FFFF81D70000FFEDC003FFD700008075FFFFFFD70000FFF9C1C381D7
       0000801DF3E7FF170000FFFFF9E7FF170000FFFFFC07811700000101FE67FF03
       000001FFFF27FFFF00000101FF878003000001FFFFC7FFFF00000101FFE7FFFF
-      000001FFFFFFF803000001FFFFFFFFFFFE3FFE3FFE3FFE3FC23FC23FC23FC23F
-      DE3FDE3FDE3FDE3FDFFFDFFFDFFFDFFFDE3FDFF8D801DFF8C23FDF08C001DF08
-      DE3FDF78D801DF78DFFFDFFFDFFFDFFFDE3FDE3FDE3FDE3FC23FC23FC23FC23F
-      DE3FDE3FDE3FDE3FFFFFFFFFFFFFFFFF8FFF8FFF8FFF8FFF8FFF8FFF8FFF8FFF
-      8FFF8FFF8FFF8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE3F24FFFFFFFFFFC23F
+      000001FFFFFFF803000001FFFFFFFFFFFE3FFE3FFE3FE003C23FC23FC23FC001
+      DE3FDE3FDE3F8000DFFFDFFFDFFF0000DE3FDFF8D8010000C23FDF08C0010000
+      DE3FDF78D8010000DFFFDFFFDFFF0000DE3FDE3FDE3F0000C23FC23FC23F0000
+      DE3FDE3FDE3F0000FFFFFFFFFFFF00008FFF8FFF8FFF80018FFF8FFF8FFFC003
+      8FFF8FFF8FFFE007FFFFFFFFFFFFF00FFFFFFFFFFFFFFE3F24FFFFFFFFFFC23F
       24FFFFFF8001DE3FFFFFFFFF8001DFFFFFFFF0008001DE3FFFFC40008001C23F
       FBF8F0008001DE3FB1F140008001DFFF1BE3F0000003DE3FBFC740003807C23F
       FF8FF000800FDE3FEF1F0000C3FFFFFFC63FF000C3FF8FFFEC7FFFFFC3FF8FFF
@@ -6064,8 +6069,130 @@ object Form_Main: TForm_Main
     Left = 89
     Top = 109
     Bitmap = {
-      494C010117002800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
-      0000000000003600000028000000400000006000000001002000000000000060
+      494C010119002800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      0000000000003600000028000000400000007000000001002000000000000070
+      000000000000000000000000000000000000FF000000FF000000FF000000FF00
+      0000FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF00
+      0000FF000000FF000000FF000000FF0000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FF000000FF000000FF000000FF00
+      0000FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF00
+      0000FF000000FF000000FF000000FF0000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FF000000FF000000FF000000FF00
+      0000FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF00
+      0000FF000000FF000000FF000000FF0000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FF000000FF000000FF000000FF00
+      0000FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF00
+      0000FF000000FF000000FF000000FF0000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000007B7B7B000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000007B7B7B007B7B7B007B7B7B0000000000000000000000
+      0000000000007B7B7B0000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000F0F0F000F0F0F000F0F0F0007B7B7B007B7B7B00000000000000
+      0000000000007B0000007B7B7B00000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000FFFFFF00F0F0F000F0F0F000F0F0F000F0F0F0007B7B7B007B7B7B000000
+      0000000000007B0000007B000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000F0F0
+      F000FFFFFF00FFFFFF00F0F0F000F0F0F000F0F0F000F0F0F0007B7B7B007B7B
+      7B007B0000007B0000007B000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000F0F0F000FFFFFF00FFFFFF00F0F0F00000000000F0F0F000F0F0F0007B7B
+      7B007B0000007B0000007B000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000F0F0F000FFFFFF00000000007B00000000000000F0F0F0007B00
+      00007B0000007B0000007B000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000F0F0F000FFFFFF007B000000F0F0F0007B7B7B007B00
+      00007B0000007B00000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000007B00000000000000F0F0F0007B0000007B7B7B00000000007B7B
+      7B00000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000007B000000F0F0F000000000007B000000000000007B7B7B000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000007B000000F0F0F000F0F0F0007B0000007B7B7B00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000007B7B7B007B0000007B0000007B7B7B0000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6075,30 +6202,36 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000FF000000FF000000FF000000
+      FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+      FF000000FF000000FF000000FF000000FF000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000B5BDC6005A636B006B7B840000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000FF000000FF000000FF000000
+      FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+      FF000000FF000000FF000000FF000000FF000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000A5B5BD005A8C94005AC6CE00213942009CA5AD00000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000FF000000FF000000FF000000
+      FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+      FF000000FF000000FF000000FF000000FF000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000ADBDC600638C9C006BE7F7006BE7EF005AD6E70021394200A5A5AD000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000FF000000FF000000FF000000
+      FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+      FF000000FF000000FF000000FF000000FF000000000000000000000000000000
       0000000000000000000000000000000000000000000084000000840000008400
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6112,40 +6245,40 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000BDD6DE007BD6
       DE008CEFF7006BEFF70073EFFF0073EFF70073EFFF0073DEEF004ABDD6003142
-      5200CECECE000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      5200CECECE00000000000000000000000000000000007B0000007B0000007B00
+      00007B0000000000000000000000000000007B0000007B0000007B0000007B00
+      00007B0000007B00000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000840000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000ADCED60084DEE700ADF7
       F7006BF7FF006BF7FF006BEFF70073EFFF0073EFF70063D6E7006BBDC6004A52
-      5A00524A4200C6C6BD0000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      5A00524A4200C6C6BD00000000000000000000000000000000007B7B7B007B00
+      000000000000000000000000000000000000000000007B7B7B007B0000007B00
+      00007B7B7B000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000008400
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000073949C008CE7EF00A5F7FF00F7FF
       FF00ADFFFF0073FFFF0073F7FF006BF7FF008CEFF7007BC6CE004A525A00AD9C
-      5A00944A4A007B10100000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      5A00944A4A007B10100000000000000000000000000000000000000000007B00
+      00007B000000000000000000000000000000000000007B7B7B007B0000007B00
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000084000000840000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000ADBDC60073CED60094EFEF00A5FF
       FF00F7FFFF00BDFFFF0084FFFF008CF7FF008CD6DE005A5A6B00CEAD6B00DECE
-      8400C69463008410100000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      8400C69463008410100000000000000000000000000000000000000000007B7B
+      7B007B000000000000000000000000000000000000007B0000007B0000007B7B
+      7B00000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000000000007BBDC6005A9C
       A500B5F7F700F7FFFF00B5FFFF00ADE7E70084848C00DECE8400DECE8C00C684
       5A008C1010009C848C0000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      00007B0000007B0000007B0000007B0000007B0000007B0000007B0000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6153,7 +6286,7 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       000063848C006BCED600B5DEE700B5B5B500F7EFE700DECE8C00BD7B5A009C00
       0000BD7B420052424200C6BDBD00000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      00007B7B7B007B00000000000000000000007B0000007B0000007B7B7B000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6161,7 +6294,7 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000006B7B7B00E7E7E700DED69400C68463009C000000BD7B
       4A00E7A53100BD73390052424200C6BDBD000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000007B0000007B000000000000007B0000007B000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6169,7 +6302,7 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000C6C68400D6C6BD009C08
       0800B5423900E7A53100BD8429006B424A000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000007B7B7B007B0000007B0000007B0000007B7B7B00000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6177,7 +6310,7 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000000000000000000000000000DEBD
       BD00A5181800AD212100E7A53100943129000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000007B0000007B0000007B00000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6185,6 +6318,7 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000D6A58C00AD423100FFEFCE000000000000000000000000000000
+      000000000000000000007B7B7B007B0000007B7B7B0000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6192,8 +6326,7 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000007B0000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6322,129 +6455,129 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000007B7B
-      7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B
-      7B007B7B7B007B7B7B007B7B7B007B7B7B000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000007B0000007B00
+      00007B0000000000000000000000000000008400000084000000840000000000
+      0000000000008400000084000000840000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000000000000000000000007B7B7B007B7B
-      7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B
-      7B007B7B7B007B7B7B007B7B7B007B7B7B000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000084000000000000000000
+      0000000000000000000084000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000007B0000007B000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000007B7B7B007B7B7B000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000007B0000007B00
+      00007B0000007B0000007B000000000000000000000000000000840000008400
+      0000840000008400000084000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000000000007B0000000000
       00007B00000000000000000000000000000000000000000000007B0000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B000000000000FF000000FF
-      000000FF000000000000FFFF0000FFFF0000FFFF000000000000FF00FF00FF00
-      FF00FF00FF00000000007B7B7B007B7B7B000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000008400
+      0000000000000000000084000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000000000007B0000000000
       00007B000000000000000000000000000000000000007B000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B000000000000FF000000FF
-      000000FF000000000000FFFF0000FFFF0000FFFF000000000000FF00FF00FF00
-      FF00FF00FF00000000007B7B7B007B7B7B000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000007B0000007B00
+      00007B0000007B0000007B0000007B0000007B00000000000000000000000000
+      0000840000000000000084000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000000000007B0000000000
       00007B0000000000000000000000000000007B0000007B0000007B0000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B000000000000FF000000FF
-      000000FF000000000000FFFF0000FFFF0000FFFF000000000000FF00FF00FF00
-      FF00FF00FF00000000007B7B7B007B7B7B000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000008400000084000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000000000007B0000000000
       00007B0000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B0000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000007B7B7B007B7B7B000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000007B0000007B00
+      00007B0000007B0000007B0000007B0000007B0000007B0000007B0000000000
+      0000000000000000000084000000000000000000000000000000000000000000
       0000000000000000000000000000000000007B7B7B007B0000007B0000000000
       00007B0000000000000000000000000000007B0000007B0000007B0000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B00000000007B7B7B007B7B
-      7B007B7B7B0000000000FFFFFF00FFFFFF00FFFFFF0000000000000000000000
-      000000000000000000007B7B7B007B7B7B000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000007B0000007B0000007B0000000000
       00007B000000000000000000000000000000000000007B000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B00000000007B7B7B007B7B
-      7B007B7B7B0000000000FFFFFF00FFFFFF00FFFFFF0000000000000000000000
-      000000000000000000007B7B7B007B7B7B000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000007B0000007B0000007B0000000000
       00007B00000000000000000000000000000000000000000000007B0000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B00000000007B7B7B007B7B
-      7B007B7B7B0000000000FFFFFF00FFFFFF00FFFFFF0000000000000000000000
-      000000000000000000007B7B7B007B7B7B000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000007B0000007B0000007B00
+      00007B0000007B0000007B000000000000000000000000000000000000000000
       0000000000000000000000000000000000007B7B7B007B0000007B0000007B00
       00007B0000007B00000000000000000000007B0000007B000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B0000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000007B7B7B007B7B7B000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000FF000000000000FF
+      FF0000FFFF0000FFFF0000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B00000000000000FF000000
-      FF000000FF000000000000FFFF0000FFFF0000FFFF0000000000FF000000FF00
-      0000FF000000000000007B7B7B007B7B7B000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000FF000000000000FF
+      FF0000FFFF0000FFFF000000000000000000000000007B0000007B0000007B00
+      00007B0000007B0000007B000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000007B0000007B0000007B0000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B00000000000000FF000000
-      FF000000FF000000000000FFFF0000FFFF0000FFFF0000000000FF000000FF00
-      0000FF000000000000007B7B7B007B7B7B000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000FF00
+      0000FF000000FF00000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000000000007B000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B00000000000000FF000000
-      FF000000FF000000000000FFFF0000FFFF0000FFFF0000000000FF000000FF00
-      0000FF000000000000007B7B7B00000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000FFFFFF0000000000FF00
+      0000FF000000FF0000000000000000000000000000007B0000007B0000007B00
+      00007B0000007B0000007B000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000007B0000007B000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B0000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000FFFFFF0000000000FF00
+      0000FF000000FF00000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000000000007B000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000007B7B7B007B7B7B007B7B7B007B7B
-      7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B7B007B7B
-      7B007B7B7B000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6835,20 +6968,24 @@ object Form_Main: TForm_Main
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000424D3E000000000000003E000000
-      2800000040000000600000000100010000000000000300000000000000000000
-      000000000000000000000000FFFFFF00FFFFFFFFFFFF0000FFFFFFFFFC7F0000
-      FFFFFFFFF83F0000FFFF0003F01F0000FF8FFFFFE00F0000FFBF0003C0070000
-      FFDFFFFF80030000FFEF000300030000CC9FFFFF00030000E1FF0003C0030000
-      F3FFFFFFF0010000E1FF0003FC000000CCFFFFFFFF800000FFFF0003FFE00000
-      FFFFFFFFFFF80000FFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      2800000040000000700000000100010000000000800300000000000000000000
+      000000000000000000000000FFFFFF0000000000000000000000000000000000
+      00000000000000000000000000000000FC7F000000000000F83B000000000000
+      F019000000000000E009000000000000C001000000000000E001000000000000
+      F001000000000000F803000000000000F80F000000000000F81F000000000000
+      F83F000000000000F87F000000000000FFFFFFFFFFFF0000FFFFFFFFFC7F0000
+      FFFFFFFFF83F0000FFFF0003F01F0000FF8FFFFFE00FFFFFFFBF0003C0078703
+      FFDFFFFF8003CF87FFEF00030003E78FCC9FFFFF0003E78FE1FF0003C003F01F
+      F3FFFFFFF001F31FE1FF0003FC00F93FCCFFFFFFFF80F83FFFFF0003FFE0FC7F
+      FFFFFFFFFFF8FC7FFFFFFFFFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFF043FFFFFFFFFFFFD043E67FFFFFC001BFFFF0FF
       C001FFFFBFFFF9FFFFFFFFFFBFFFF0FFFFFFFFFFCA53E67FC001C001FFFDFFC7
       FFFFFFFFFFFDFFDFFFFFFFFFFFFDFFEFFFFFFFFFC20BFFF7FFFFFFFFC20FFFCF
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE000FFFFFFFFFFFFC000FFFF3FFFFFFF
-      800081D7DFFFFFFF0000FFD7B803FFFF0000FFD71FFFFFFF000081D7FFFFFFFF
-      0000FF171FFFFFFF0000FF17BFFFC00100008117D803FFFF0000FF033FFFC001
-      0000FFFFFFFFFFFF000080031FFFFFFF0000FFFFBFFFFFFF0001FFFF3803FFFF
-      0003F803BFFFFFFF0007FFFFFFFFFFFFFFFFFFFF8000FFFFFEFFFEFF0000F000
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8718FFFFFFFFFFFFFFBDFFFF3FFFFFFF
+      81C181D7DFFFFFFFFFEDFFD7B803FFFF8075FFD71FFFFFFFFFF981D7FFFFFFFF
+      801DFF171FFFFFFFFFFFFF17BFFFC001FFFF8117D803FFFF0101FF033FFFC001
+      01FFFFFFFFFFFFFF010180031FFFFFFF01FFFFFFBFFFFFFF0101FFFF3803FFFF
+      01FFF803BFFFFFFF01FFFFFFFFFFFFFFFFFFFFFF8000FFFFFEFFFEFF0000F000
       FFFFFFFF0000FFFFC27FC27F0000F070FFFFFFFF0000FCF9C200C2000000FE79
       FFFFFFFF0000FF01DE07DE070000FF99CE079E070000BBC907FF07FF000093E1
       CE009E00000083F1DE00DE000000D7F9FFFFFFFF0000D7FFC200C2000000C7FF
@@ -6895,12 +7032,14 @@ object Form_Main: TForm_Main
     Top = 72
   end
   object Menu_TV: TPopupMenu
+    Images = IMG_Toolbar
     OnPopup = Menu_TVPopup
     Left = 285
     Top = 120
     object TVAlarmNode: TMenuItem
       Caption = 'Set alarm on node...'
       Hint = 'Set or remove alarm on node'
+      ImageIndex = 50
       OnClick = TVAlarmNodeClick
     end
     object N114: TMenuItem
@@ -7640,11 +7779,13 @@ object Form_Main: TForm_Main
       000000000000}
   end
   object Menu_Style: TPopupMenu
+    Images = IMG_Toolbar
     Left = 41
     Top = 340
     object MSStyleApply: TMenuItem
       Caption = '&Apply Selected Style'
       Hint = 'Apply style to selection'
+      ImageIndex = 25
       OnClick = BtnStyleApplyClick
     end
     object N51: TMenuItem
@@ -7654,6 +7795,7 @@ object Form_Main: TForm_Main
       Caption = 'Create &Font Style'
       GroupIndex = 1
       Hint = 'Create style for Font properties'
+      ImageIndex = 26
       RadioItem = True
       OnClick = Btn_StyleClick
     end
@@ -7661,6 +7803,7 @@ object Form_Main: TForm_Main
       Caption = 'Create &Paragraph Style'
       GroupIndex = 1
       Hint = 'Create style for Paragraph properties'
+      ImageIndex = 27
       RadioItem = True
       OnClick = Btn_StyleClick
     end
@@ -7668,6 +7811,7 @@ object Form_Main: TForm_Main
       Caption = '&Create Combined Style'
       GroupIndex = 1
       Hint = 'Create style for Font and Paragraph properties'
+      ImageIndex = 28
       RadioItem = True
       OnClick = Btn_StyleClick
     end

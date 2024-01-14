@@ -133,7 +133,6 @@ type
     MMSearch_: TMenuItem;
     MMView_: TMenuItem;
     MMHelpTip: TMenuItem;
-    N1: TMenuItem;
     MMHelpAbout: TMenuItem;
     MMToolsOptions: TMenuItem;
     MMNoteNew: TMenuItem;
@@ -350,12 +349,7 @@ type
     MMTree_: TMenuItem;
     MMTreeAdd_: TMenuItem;
     Toolbar_Tree: TToolbar97;
-    TB_NodeDelete: TToolbarButton97;
-    TB_NodeFirst: TToolbarButton97;
-    TB_NodeLast: TToolbarButton97;
-    TB_NodeChild: TToolbarButton97;
     IMG_TV: TImageList;
-    TB_NodeRename: TToolbarButton97;
     MMViewToolbars_: TMenuItem;
     MMViewTBTree: TMenuItem;
     MMTreeInsert_: TMenuItem;
@@ -373,7 +367,6 @@ type
     MMTreeSortFull_: TMenuItem;
     MMTreeSortSubtree_: TMenuItem;
     Dock_Left: TDock97;
-    N37: TMenuItem;
     MMTreeFullExpand: TMenuItem;
     MMTreeFullCollapse: TMenuItem;
     MMViewNodeIcons: TMenuItem;
@@ -565,7 +558,6 @@ type
     MMToolsMacroSelect: TMenuItem;
     MMTreeSaveToFile: TMenuItem;
     N79: TMenuItem;
-    MMHelpContents: TMenuItem;
     MMHelpKeyboardRef: TMenuItem;
     MMHelpMain: TMenuItem;
     MMTemplates_: TMenuItem;
@@ -686,9 +678,8 @@ type
     StdEMWordWrap: TMenuItem;
     MMTreeOutlineNum: TMenuItem;
     N92: TMenuItem;
-    N93: TMenuItem;
-    MMTreeGoBack: TMenuItem;
-    MMTreeGoForward: TMenuItem;
+    MMHistoryGoBack: TMenuItem;
+    MMHistoryGoForward: TMenuItem;
     Sep9722: TToolbarSep97;
     TB_GoForward: TToolbarButton97;
     TB_GoBack: TToolbarButton97;
@@ -881,6 +872,7 @@ type
     MMSetAlarm: TMenuItem;
     MMShowAlarms: TMenuItem;
     MMAlarmsPopup: TMenuItem;
+    MMViewHistory: TMenuItem;
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
     procedure TntFormResize(Sender: TObject);
@@ -1145,7 +1137,6 @@ type
     procedure MMToolsMacroSelectClick(Sender: TObject);
     procedure MMViewTBHideAllClick(Sender: TObject);
     procedure MMTreeSaveToFileClick(Sender: TObject);
-    procedure MMHelpContentsClick(Sender: TObject);
     procedure MMHelpKeyboardRefClick(Sender: TObject);
     procedure MMHelpMainClick(Sender: TObject);
     // procedure MMToolsCalculatorClick(Sender: TObject);
@@ -1224,8 +1215,8 @@ type
       Y: Integer);
     }
     procedure MMTreeOutlineNumClick(Sender: TObject);
-    procedure MMTreeGoBackClick(Sender: TObject);
-    procedure MMTreeGoForwardClick(Sender: TObject);
+    procedure MMHistoryGoBackClick(Sender: TObject);
+    procedure MMHistoryGoForwardClick(Sender: TObject);
     procedure MMUpRomanClick(Sender: TObject);
     procedure MMHelpWhatsNewClick(Sender: TObject);
     procedure MMViewTBRefreshClick(Sender: TObject);
@@ -2101,18 +2092,13 @@ begin
   TB_Find.Hint := MMFind.Hint;
   TB_FindNext.Hint := MMFindNext.Hint;
   TB_FontDlg.Hint := MMFormatFont.Hint;
-  TB_GoBack.Hint := MMTreeGoBack.Hint;
-  TB_GoForward.Hint := MMTreeGoForward.Hint;
+  TB_GoBack.Hint := MMHistoryGoBack.Hint;
+  TB_GoForward.Hint := MMHistoryGoForward.Hint;
   TB_Indent.Hint := MMFormatLIndInc.Hint;
   TB_Italics.Hint := MMFormatItalics.Hint;
   TB_Macro.Hint := MMToolsMacroRun.Hint;
   // TB_MacroPause.Hint := .Hint;
   // TB_MacroRecord.Hint := .Hint;
-  TB_NodeChild.Hint := MMTreeAddChild_.Hint;
-  TB_NodeDelete.Hint := MMTreeNodeDelete_.Hint;
-  TB_NodeFirst.Hint := MMTreeInsert_.Hint;
-  TB_NodeLast.Hint := MMTreeAdd_.Hint;
-  TB_NodeRename.Hint := MMTreeNodeRename_.Hint;
   TB_HideChecked.Hint := MMViewHideCheckedNodes.Hint;    // [dpv]
   TB_NoteDelete.Hint := MMNoteRemove.Hint;
   TB_NoteEdit.Hint := MMNoteProperties.Hint;
@@ -6377,11 +6363,6 @@ begin
 
 end;
 
-procedure TForm_Main.MMHelpContentsClick(Sender: TObject);
-begin
-  //Application.HelpCommand( HELP_FINDER, 0 );    *1
-  HtmlHelp(0, PAnsiChar(Application.HelpFile), HH_DISPLAY_TOPIC, 0);
-end;
 
 procedure TForm_Main.MMHelpKeyboardRefClick(Sender: TObject);
 begin
@@ -6390,6 +6371,7 @@ end;
 
 procedure TForm_Main.MMHelpMainClick(Sender: TObject);
 begin
+  //Application.HelpCommand( HELP_FINDER, 0 );    *1
   HtmlHelp(0, PAnsiChar(Application.HelpFile), HH_HELP_CONTEXT, 10);
 end;
 
@@ -7237,12 +7219,12 @@ begin
   OutlineNumberNodes;
 end;
 
-procedure TForm_Main.MMTreeGoBackClick(Sender: TObject);
+procedure TForm_Main.MMHistoryGoBackClick(Sender: TObject);
 begin
   NavigateInHistory( hdBack );
 end;
 
-procedure TForm_Main.MMTreeGoForwardClick(Sender: TObject);
+procedure TForm_Main.MMHistoryGoForwardClick(Sender: TObject);
 begin
   NavigateInHistory( hdForward );
 end;

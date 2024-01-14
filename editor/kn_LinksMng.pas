@@ -2013,7 +2013,7 @@ begin
 
   with Form_Main do begin
     GoBackEnabled :=        assigned(ActiveNote) and ( History.CanGoBack or ((lHistory <> nil) and lHistory.CanGoBack) );
-    MMTreeGoBack.Enabled := GoBackEnabled;
+    MMHistoryGoBack.Enabled := GoBackEnabled;
     TB_GoBack.Enabled := GoBackEnabled;
     strHint:= STR_24;
     if GoBackEnabled then begin
@@ -2034,7 +2034,7 @@ begin
     TB_GoBack.Hint:= strHint;
 
     GoForwardEnabled:= assigned(ActiveNote) and (History.CanGoForward or ((lHistory <> nil) and lHistory.CanGoForward) );
-    MMTreeGoForward.Enabled := GoForwardEnabled;
+    MMHistoryGoForward.Enabled := GoForwardEnabled;
     TB_GoForward.Enabled := GoForwardEnabled;
     strHint:= STR_27;
     if GoForwardEnabled then begin
