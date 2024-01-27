@@ -1127,10 +1127,7 @@ begin
               Combo_Zoom.Text := Format('%d%%', [_LastZoomValue] );
             end;
 
-            MMShowImages.Checked:= (ImagesManager.ImagesMode = imImage);
-            MMShowImages.Enabled:= (ImagesManager.StorageMode <> smEmbRTF) and (NoteSupportsRegisteredImages);
-            TB_Images.Enabled:=  MMShowImages.Enabled;
-            TB_Images.Down:=     MMShowImages.Checked;
+            UpdateShowImagesState;
 
             ShowInsMode;
 

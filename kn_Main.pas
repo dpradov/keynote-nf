@@ -1359,6 +1359,7 @@ type
     procedure CheckRestoreAppWindowWidth (EnsureTreeVisible: boolean= False);
 
     procedure UpdateTabAndTreeIconsShow;
+    procedure UpdateShowImagesState;
     procedure AutoSaveToggled;
     //procedure GetKeyStates;                   // {Not used}
     procedure OnNoteLoaded( sender : TObject );
@@ -7507,6 +7508,21 @@ begin
      ActiveNote.Editor.Refresh;
   end;
 end;
+
+procedure TForm_Main.UpdateShowImagesState;
+var
+  Enabled, Checked: boolean;
+begin
+   Checked:= (ImagesManager.ImagesMode = imImage);
+   Enabled:= (ImagesManager.StorageMode <> smEmbRTF) and (NoteSupportsRegisteredImages);
+
+   MMShowImages.Checked:= Checked;
+   MMShowImages.Enabled:= Enabled;
+   TB_Images.Enabled:=  Enabled;
+   TB_Images.Down:=     Checked;
+end;
+
+
 
 procedure TForm_Main.MMShowImagesClick(Sender: TObject);
 var

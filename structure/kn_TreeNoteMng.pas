@@ -486,6 +486,7 @@ begin
                TVCheckNode.Enabled := false;
 
             ShowAlarmStatus;
+            UpdateShowImagesState;
           end
           else
           begin
