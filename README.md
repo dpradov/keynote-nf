@@ -1,3 +1,5 @@
+<p align="right"><sup>Thanks for using KeyNote NF. You can show your appreciation and support future development by <a href="https://github.com/dpradov/keynote-nf#donations">donating!</a></sup></p>
+
 ## KeyNote NF
 
 Tabbed notebook with RichText editor, multi-level notes and strong encryption. 
