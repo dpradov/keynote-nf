@@ -2160,7 +2160,7 @@ begin
     NodeLevelTemplates:= true;
     SymbolsInHeading:= '#';
     LengthHeading:= '80,10,35';
-    FontSizesInHeading:= '24,2,12';
+    FontSizesInHeading:= '18,2,12';
     AutoFontSizesInHeading:= True;
     IndentNestedNodes:= False;
     IndentValue := 16;
