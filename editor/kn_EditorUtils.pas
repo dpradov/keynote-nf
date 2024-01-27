@@ -1228,11 +1228,15 @@ var
   OpenPictureDlg : TOpenPictureDialog;
   SelStartOrig, SelLengthOrig: integer;
   NewName: string;
+  myNode: TNoteNode;
 begin
   if ( not Form_Main.HaveNotes(true, true)) then exit;
   if ( not assigned(ActiveNote)) then exit;
   if Form_Main.NoteIsReadOnly(ActiveNote, true) then exit;
   if ActiveNote.PlainText then exit;
+  myNode:= ActiveNote.GetSelectedNode;
+  if assigned(myNode) and (myNode.VirtualMode = vmText) then exit;
+
 
   wasmodified:= false;
 
