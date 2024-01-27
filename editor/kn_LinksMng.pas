@@ -60,7 +60,9 @@ uses
     function BuildKNTLocationText( const aLocation : TLocation) : string;
     procedure JumpToKNTLocation( LocationStr : string );
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
-    function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean): integer;
+    function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
+                             CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
+                             AdjustVisiblePosition: boolean = true): integer;
     function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
@@ -991,7 +993,9 @@ begin
 end;
 
 
-function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean): integer;
+function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
+                             CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
+                             AdjustVisiblePosition: boolean = true): integer;
 var
   Offset: integer;
   Pos_ImLinkTextPlain: integer;
@@ -1007,8 +1011,11 @@ begin
              SelStart := CaretPosition - Offset;
           if SelectionLength >= 0 then
              SelLength := SelectionLength;
-          myNote.Editor.ScrollLinesBy(80);
-          Perform( EM_SCROLLCARET, 0, 0 );
+          if AdjustVisiblePosition then begin
+             myNote.Editor.ScrollLinesBy(80);
+             Perform( EM_SCROLLCARET, 0, 0 );
+          end;
+
        finally
           EndUpdate;
        end;

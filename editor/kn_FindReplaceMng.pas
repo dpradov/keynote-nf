@@ -1339,7 +1339,7 @@ var
             TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
          end;
 
-      SearchCaretPos (myNote, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true);
+      SearchCaretPos (myNote, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, false);
   end;
 
 
@@ -1513,6 +1513,38 @@ var
   AppliedBeginUpdate: Boolean;
 
 
+  procedure BeginUpdateOnNotes;
+  var
+     i: integer;
+     note: TTabNote;
+  begin
+     AppliedBeginUpdate:= True;
+     for i := 0 to Form_Main.Pages.PageCount - 1 do
+     begin
+          note:= TTabNote(Form_Main.Pages.Pages[i].PrimaryObject);
+          note.Editor.BeginUpdate;
+          note.Editor.OnSelectionChange := nil;
+          note.Editor.Visible:= False;
+     end;
+  end;
+
+  procedure EndUpdateOnNotes;
+  var
+     i: integer;
+     note: TTabNote;
+  begin
+     if not AppliedBeginUpdate then exit;
+
+     for i := 0 to Form_Main.Pages.PageCount - 1 do
+     begin
+        note:= TTabNote(Form_Main.Pages.Pages[i].PrimaryObject);
+        note.Editor.EndUpdate;
+        note.Editor.OnSelectionChange := Form_Main.RxRTFSelectionChange;
+        note.Editor.Visible:= True;
+     end;
+     AppliedBeginUpdate:= False;
+  end;
+
   function GetReplacementConfirmation: Boolean;
   begin
       Result := false;
@@ -1525,6 +1557,8 @@ var
              mrAll:  begin
                      Result := true;
                      FindOptions.ReplaceConfirm := false;
+                     BeginUpdateOnNotes;
+                     screen.Cursor := crHourGlass;
                      end;
              mrCancel: begin
                      Result := false;
@@ -1558,33 +1592,6 @@ var
          end;
   end;
 
-  procedure BeginUpdateOnNotes;
-  var
-     i: integer;
-     note: TTabNote;
-  begin
-     AppliedBeginUpdate:= True;
-     for i := 0 to Form_Main.Pages.PageCount - 1 do
-     begin
-          note:= TTabNote(Form_Main.Pages.Pages[i].PrimaryObject);
-          note.Editor.EndUpdate;
-     end;
-  end;
-
-  procedure EndUpdateOnNotes;
-  var
-     i: integer;
-     note: TTabNote;
-  begin
-     if not AppliedBeginUpdate then exit;
-     
-     for i := 0 to Form_Main.Pages.PageCount - 1 do
-     begin
-        note:= TTabNote(Form_Main.Pages.Pages[i].PrimaryObject);
-        note.Editor.EndUpdate;
-     end;
-     AppliedBeginUpdate:= False;
-  end;
 
 begin
   if assigned( Form_FindReplace ) then begin
@@ -1619,7 +1626,13 @@ begin
     // directamente.
     SelectedTextToReplace:= False;
     if not ReplaceAll then
-       SelectedTextToReplace:= IdentifySelectedTextToReplace;
+       SelectedTextToReplace:= IdentifySelectedTextToReplace
+    else
+        if not FindOptions.ReplaceConfirm then begin
+           BeginUpdateOnNotes;
+           screen.Cursor := crHourGlass;
+        end;
+
 
     if not SelectedTextToReplace then begin
        SelectedTextToReplace:= RunFindNext(ReplaceAll);
@@ -1631,8 +1644,6 @@ begin
 
 
     if DoReplace then begin
-        if ReplaceAll and not FindOptions.ReplaceConfirm then
-           BeginUpdateOnNotes;
 
         while SelectedTextToReplace do
         begin
@@ -1645,8 +1656,7 @@ begin
 
                 if GetReplacementConfirmation then begin
                    inc(ReplaceCnt);
-                   ActiveNote.Editor.SelText := FindOptions.ReplaceWith;
-                   ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + length( ActiveNote.Editor.SelText );
+                   ActiveNote.Editor.AddText(FindOptions.ReplaceWith);
                 end;
 
                 Application.ProcessMessages;
@@ -1667,6 +1677,7 @@ begin
     end;
 
   finally
+    screen.Cursor := crDefault;
     EndUpdateOnNotes;
     Is_Replacing := false;
     UserBreak := false;
