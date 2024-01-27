@@ -2073,7 +2073,7 @@ begin
   if IncludeNoteText then
   begin
     // {N}
-    ClipBoard.AsText:=  myTreeNode.Text + #13#13 + ActiveNote.Editor.Text ;
+    ClipBoard.AsText:=  myTreeNode.Text + #13#13 + RemoveKNTHiddenCharacters(ActiveNote.Editor.Text) ;
   end
   else
   begin
