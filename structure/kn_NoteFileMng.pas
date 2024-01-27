@@ -259,6 +259,9 @@ end;
 //=================================================================
 function NoteFileNew( FN : string ) : integer;
 begin
+  if assigned( NoteFile ) then
+     if (not NoteFileClose ) then exit;
+
   MovingTreeNode:= nil;
   AlarmManager.Clear;
   ImagesManager.Clear;
@@ -271,8 +274,6 @@ begin
         Virtual_UnEncrypt_Warning_Done := false;
         try
           try
-            if assigned( NoteFile ) then
-              if ( not NoteFileClose ) then exit;
             result := 0;
             FolderMon.Active := false;
             FileIsBusy := true;
@@ -381,6 +382,9 @@ var
   opensuccess : boolean;
   FPath, NastyDriveType : string;
 begin
+  if assigned( NoteFile ) then
+    if ( not NoteFileClose ) then exit;
+
   with Form_Main do begin
         _REOPEN_AUTOCLOSED_FILE := false;
         MovingTreeNode:= nil;
@@ -425,8 +429,6 @@ begin
             if ( ExtractFileExt( FN ) = '' ) then
               FN := FN + ext_KeyNote;
 
-            if assigned( NoteFile ) then
-              if ( not NoteFileClose ) then exit;
             StatusBar.Panels[PANEL_HINT].Text := STR_06 + FN;
 
             Timer.Enabled := false;
@@ -1180,7 +1182,14 @@ end; // NoteFileSave
 //=================================================================
 function NoteFileClose : boolean;
 begin
-  MovingTreeNode:= nil;
+
+  if ( not Form_Main.HaveNotes( false, false )) then exit;
+  if ( not CheckModified( not KeyOptions.AutoSave, false )) then
+  begin
+    result := false;
+    exit;
+  end;
+
 
   with Form_Main do begin
 
@@ -1207,12 +1216,6 @@ begin
       screen.Cursor := crHourGlass;
 
       try
-        if ( not HaveNotes( false, false )) then exit;
-        if ( not CheckModified( not KeyOptions.AutoSave, false )) then
-        begin
-          result := false;
-          exit;
-        end;
         FileIsBusy := true;
         FolderMon.Active := false;
 
@@ -1260,6 +1263,7 @@ begin
         AlarmManager.Clear;
         ImagesManager.Clear;
         MirrorNodes.Clear;
+        MovingTreeNode:= nil;
 
         FileIsBusy := false;
         PagesChange( Form_Main );
