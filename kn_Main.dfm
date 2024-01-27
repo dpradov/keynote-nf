@@ -1419,6 +1419,8 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object CB_ResFind_CaseSens: TCheckBox
             Left = 10
             Top = 15
@@ -1518,8 +1520,8 @@ object Form_Main: TForm_Main
             Top = 341
             Width = 215
             Height = 76
-            Hint = 'Select how to include check nodes in search'
-            Caption = 'Check Nodes'
+            Hint = 'Select whether to consider nodes based on checked status'
+            Caption = 'Checked Status'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
@@ -1550,7 +1552,7 @@ object Form_Main: TForm_Main
             Top = 133
             Width = 213
             Height = 17
-            Hint = 'Show or hide nodes according to search conditions'
+            Hint = 'Show or hide nodes based on search conditions'
             Caption = 'Filter Tree note'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -1569,6 +1571,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Res_RTF: TRxRichEdit
         Left = 0
         Top = 0
@@ -1601,6 +1607,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Dock_ResMacro: TDock97
         Left = 0
         Top = 0
@@ -1697,6 +1707,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListBox_ResTpl: TGFXListBox
         Left = 0
         Top = 0
@@ -1726,6 +1740,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter_plugins: TSplitter
         Left = 0
         Top = 530
@@ -1832,13 +1850,11 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 296
-          Height = 47
+          Width = 9
+          Height = 13
           Align = alClient
           Caption = '...'
           WordWrap = True
-          ExplicitWidth = 9
-          ExplicitHeight = 13
         end
       end
     end
@@ -1848,6 +1864,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListBox_ResFav: TGFXListBox
         Left = 0
         Top = 0
