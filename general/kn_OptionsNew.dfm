@@ -2424,19 +2424,6 @@ object Form_OptionsNew: TForm_OptionsNew
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 0
-        object Label14: TLabel
-          Left = 22
-          Top = 91
-          Width = 276
-          Height = 13
-          Caption = 'Settings below will take effect after KeyNote is restarted.'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
         object Label15: TLabel
           Left = 17
           Top = 114

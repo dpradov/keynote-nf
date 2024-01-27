@@ -214,7 +214,6 @@ type
     Label_MaxBak1: TLabel;
     Label13: TLabel;
     CB_SkipNewFilePrompt: TCheckBox;
-    Label14: TLabel;
     Label15: TLabel;
     Combo_TabPos: TComboBox;
     CheckBox_SingleInstance: TCheckBox;
