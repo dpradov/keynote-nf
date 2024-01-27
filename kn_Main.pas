@@ -7531,18 +7531,25 @@ begin
    ForceMode:= false;
    Show:= not MMShowImages.Checked;
 
-   if CtrlDown then begin
-      if ImagesManager.ImagesMode = imImage then begin
-         ActiveNote.ReloadImagesOnEditor;
-         exit;
-      end
-      else begin
-         Show:= false;
-         ForceMode:= true;
+   try
+      if CtrlDown then begin
+         if ImagesManager.ImagesMode = imImage then begin
+            ActiveNote.ReloadImagesOnEditor;
+            exit;
+         end
+         else begin
+            Show:= false;
+            ForceMode:= true;
+         end;
       end;
+
+     ShowImages (Show, ForceMode);
+
+   finally
+     if _LastZoomValue <> 100 then
+        SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
    end;
 
-  ShowImages (Show, ForceMode);
 end;
 
 
@@ -7589,6 +7596,8 @@ begin
    else
       ShowImages (TB_Images.Down, False);
 
+   if _LastZoomValue <> 100 then
+      SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
 end;
 
 
