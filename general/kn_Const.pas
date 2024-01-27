@@ -119,16 +119,16 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '1.8.3 .01';
-  Program_Version_Number  = '1.8.3.1';
-  Program_Version_Date    = '29/12/2023';
+  Program_Version  = '1.8.4 .01';
+  Program_Version_Number  = '1.8.4.1';
+  Program_Version_Date    = '27/01/2024';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL     = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
   Program_URL_Donations  = 'https://github.com/dpradov/keynote-nf/tree/master#donations';
   Program_Email1  = 'dprado.keynote@gmail.com';
   Program_Email2  = 'marekjed@users.sourceforge.net';
-  Program_Credit1 = 'Copyright © 2007-23  Daniel Prado Velasco   (since 1.7.0)';
+  Program_Credit1 = 'Copyright © 2007-24  Daniel Prado Velasco   (since 1.7.0)';
   Program_Credit2 = 'Copyright © 2000-05  Marek Jedlinski';
 
   UniqueAppName_KEYNOTE10   = 'GFKeyNote10';

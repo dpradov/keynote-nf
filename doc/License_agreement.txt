@@ -1,4 +1,4 @@
-Copyright (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com>
+Copyright (c) 2007-2024 Daniel Prado Velasco <dprado.keynote@gmail.com>
 Copyright (C) 2000-2005 Marek Jedlinski <marek@tranglos.com>
 
 KeyNote NF is free. You don't have to pay for it, and you can use it any way you want. It is developed as an Open Source project under the Mozilla Public License, v.2.0 (MPL 2.0). That means you have full access to the source code of this program. You can find it at https://github.com/dpradov/keynote-nf

@@ -119,7 +119,7 @@ In case you fork the repository or clone it to your desktop, in the [README_Sour
 ### Copyright and license
 The initial developer of KeyNote is Marek Jedlinski, copyright 2000-2005.  
 
-The adaptation to Delphi 2006 and the new functionalities added since version 1.7.0 corresponds to Daniel Prado Velasco, copyright 2007-2023.  
+The adaptation to Delphi 2006 and the new functionalities added since version 1.7.0 corresponds to Daniel Prado Velasco, copyright 2007-2024.  
 In august 2023, with the version 1.8.0, the code was migrated from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).
 
 Code released under the [Mozilla Public License 2.0](./LICENSE.txt). This license applies only to units written by the authors of KeyNote and KeyNote NF: Marek Jedlinski and Daniel Prado, respectively.

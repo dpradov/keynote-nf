@@ -47,7 +47,7 @@ object AboutBox: TAboutBox
     AutoSize = False
     Caption = 'Donate with PayPal'
     Font.Charset = ANSI_CHARSET
-    Font.Color = clNavy
+    Font.Color = clBlue
     Font.Height = -11
     Font.Name = 'Verdana'
     Font.Style = []

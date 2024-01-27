@@ -3,6 +3,34 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 1.8.4 .01  (27 ene 2024)
+--------------------------
+(Detailed info in doc\Changes in 1.8.4 .01.txt)
+
+* Fixed (IMPORTANT): Images and alarms can be removed from .knt file if it is saved after the New or Open actions.
+
+* Fixed: Using View|Show Images (or button) showed the Editor content at 100% zoom, ignoring custom zoom applied
+* Fixed: Remove KNT hidden characters from text obtained with "Copy node name" (with Shift)
+* Fixed: Do not allow to insert images with Insert|Picture... in plain text virtual nodes
+* Fixed: Update "Show Images" state after changing selected node
+
+* Optimizations in Replace All
+* Replaced ini option: IgnoreCtrHideTrePanel (default 0) -> UseCtrlHideTreePanel  (default 1)
+
+* Menus: Added some icons, and other minor UI changes
+* Alarms: Revised menu options and toolbar buttons. Other minor fixes
+
+* Favorite items can be relative to Keynote.exe
+* New: Allowed links relative to keynote.exe file
+* It is allowed to select whether to include links to files/folders as relative or absolute
+* Links: Added two INI options: URLFileEncodeName  and URLFilePrefNoHyp
+* Fixed: Activation of relative links of the form file:///...
+* Simplify insertion of external files links on plain text notes
+* Fixed: Insertion of KNT Links in plain text note should use new style
+* Fixed: Corrected the interpretation of several KNT Links variants
+
+
+
 v 1.8.3 .01  (29 dec 2023)
 --------------------------
 (Detailed info in doc\Changes in 1.8.3 .01.txt)

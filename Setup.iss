@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "1.8.3.1"
-#define AppVersion "1.8.3 .01"
+#define Version "1.8.4.1"
+#define AppVersion "1.8.4 .01"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -16,12 +16,12 @@
 
 
 [Setup]
-TouchDate=2023-12-29
-TouchTime=16:00
+TouchDate=2024-01-27
+TouchTime=21:00
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
-AppCopyright=Copyright (C) 2007-2023 Daniel Prado Velasco   (C) 2000-2005 Marek Jedlinski
+AppCopyright=Copyright (C) 2007-2024 Daniel Prado Velasco   (C) 2000-2005 Marek Jedlinski
 ;AppComments=
 AppContact=Daniel Prado Velasco <dprado.keynote@gmail.com>
 AppPublisher=Daniel Prado Velasco
