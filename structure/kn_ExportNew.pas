@@ -159,6 +159,7 @@ function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : string ) : st
 
 procedure ExportNotesEx;
 procedure ExportTreeNode;
+procedure PrepareRTFAuxforPlainText (RTF: TTabRichEdit; myNote: TTabNote);
 
 
 var
@@ -753,7 +754,7 @@ begin
     DoMessageBox( STR_02, mtError, [mbOK], 0 );
     exit;
   end;
-  
+
   if ( not System.SysUtils.DirectoryExists( ExportOptions.ExportPath )) then begin
     DoMessageBox( STR_03, mtError, [mbOK], 0 );
     exit;
@@ -762,6 +763,21 @@ begin
   result := true;
 end; // Validate
 
+
+procedure PrepareRTFAuxforPlainText (RTF: TTabRichEdit; myNote: TTabNote);
+begin
+    if myNote.PlainText then begin
+       with RTF.DefAttributes do begin
+         Charset := myNote.EditorChrome.Font.Charset;
+         Name := myNote.EditorChrome.Font.Name;
+         Size := myNote.EditorChrome.Font.Size;
+         Style := myNote.EditorChrome.Font.Style;
+         Color := myNote.EditorChrome.Font.Color;
+         Language := myNote.EditorChrome.Language;
+       end;
+
+    end;
+end;
 
 procedure TForm_ExportNew.PerformExport;
 var
@@ -936,6 +952,9 @@ begin
         if ( myNote.Info > 0 ) then begin
           // this note has been marked for exporting
 
+          RTFAux.Clear;
+          PrepareRTFAuxForPlainText(RTFAux, myNote);
+
           if ExportOptions.IncludeNoteHeadings then begin
              NoteHeading := ExpandExpTokenString( ExportOptions.NoteHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), '', 0, 0, myNote.TabSize );
              NoteHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NoteHeading ), NoteHeadingTpl );
@@ -960,7 +979,12 @@ begin
                       myNote.Editor.Lines.SaveToStream( tmpStream, Encoding );
                       tmpStream.Position := 0;
 
-                      RTFwithImages:= ImagesManager.ProcessImagesInRTF(tmpStream.Memory, tmpStream.Size, nil, imImage, '', 0, ContainsImgIDsRemoved, ContainsImages, false);
+                      RTFwithImages:= '';
+                      if not myNote.PlainText then
+                         RTFwithImages:= ImagesManager.ProcessImagesInRTF(tmpStream.Memory, tmpStream.Size, nil, imImage, '', 0, ContainsImgIDsRemoved, ContainsImages, false);
+
+                      RTFAux.StreamFormat:= myNote.Editor.StreamFormat;
+
                       if RTFwithImages <> '' then
                          RTFAux.PutRtfText(RTFwithImages,false)       // All hidden KNT characters are now removed from FlushExportFile
                       else
@@ -1074,7 +1098,10 @@ begin
                                    end;
                                 end;
 
-                                RTFwithImages:= ImagesManager.ProcessImagesInRTF(NodeText, nil, imImage, '', 0, false);
+                                RTFwithImages:= '';
+                                if not myNote.PlainText then
+                                   RTFwithImages:= ImagesManager.ProcessImagesInRTF(NodeText, nil, imImage, '', 0, false);
+
                                 if RTFwithImages <> '' then
                                    RTFAux.PutRtfText(RTFwithImages, false)           // All hidden KNT characters are now removed from FlushExportFile
                                 else
@@ -1089,7 +1116,10 @@ begin
                             true : begin
                               // each node is saved to its own file
                               // (Here we do not have to check if node stream is plain text or RTF, because LoadFromStream handles both cases automatically!)
-                              RTFwithImages:= ImagesManager.ProcessImagesInRTF(myNoteNode.Stream.Memory, myNoteNode.Stream.Size, nil, imImage, '', 0, ContainsImgIDsRemoved, ContainsImages, false);
+                              RTFwithImages:= '';
+                              if not myNote.PlainText then
+                                 RTFwithImages:= ImagesManager.ProcessImagesInRTF(myNoteNode.Stream.Memory, myNoteNode.Stream.Size, nil, imImage, '', 0, ContainsImgIDsRemoved, ContainsImages, false);
+
                               if RTFwithImages <> '' then
                                  RTFAux.PutRtfText(RTFwithImages,true,false)         // All hidden KNT characters are now removed from FlushExportFile
                               else
@@ -1464,6 +1494,8 @@ begin
       xfRTF : begin
         if ( ext = '' ) then FN := FN + ext_RTF;
         RTF.RemoveKNTHiddenCharacters(false);
+        RTF.StreamFormat:= sfRichText;
+
         RTF.Lines.SaveToFile( FN );
         result := true;
       end;
@@ -1471,6 +1503,7 @@ begin
       xfHTML : begin
         if ( ext = '' ) then FN := FN + ext_HTML;
         RTF.RemoveKNTHiddenCharacters(false);
+        RTF.StreamFormat:= sfRichText;
         Result:= ConvertRTFToHTML( FN, RTF.RtfText, ExportOptions.HTMLExportMethod);
       end;
     end;
@@ -1599,11 +1632,12 @@ procedure ExportTreeNode;
 var
   myTreeNode : TTreeNTNode;
   myNoteNode : TNoteNode;
-  oldFilter, ext, RTFText: string;
+  oldFilter, ext, RTFText, Txt: string;
   ExportFN : string;
   exportformat : TExportFmt;
   Encoding: TEncoding;
   ExportSelectionOnly : boolean;
+  RTFAux : TTabRichEdit;
 
 begin
 
@@ -1677,14 +1711,27 @@ begin
   myNoteNode := TNoteNode( myTreeNode.Data );
   myNoteNode.Stream.Position := 0;
 
+  RTFAux:= nil;
+ try
   try
     ExportSelectionOnly := ( ActiveNote.Editor.SelLength > 0 );
 
     if exportformat in [xfRTF, xfHTML] then begin
-       if ExportSelectionOnly then
-          RTFText:= ActiveNote.Editor.RtfSelText
+       if ActiveNote.PlainText then begin
+          RTFAux:= CreateRTFAuxEditorControl;
+          PrepareRTFAuxForPlainText(RTFAux, ActiveNote);
+          if ExportSelectionOnly then
+             Txt:= ActiveNote.Editor.SelText
+          else
+             Txt:= ActiveNote.Editor.Text;
+          RTFAux.PutRtfText(Txt, True, False);
+          RTFText:= RTFAux.RtfText;
+       end
        else
-          RTFText:= ActiveNote.Editor.RtfText;
+          if ExportSelectionOnly then
+             RTFText:= ActiveNote.Editor.RtfSelText
+          else
+             RTFText:= ActiveNote.Editor.RtfText;
     end;
 
     case exportformat of
@@ -1719,6 +1766,10 @@ begin
     on E : Exception do
        messagedlg( STR_19 + E.Message, mtError, [mbOK], 0 );
   end;
+ finally
+   if RTFAux <> nil then
+      RTFAux.Free;
+ end;
 
 end; // ExportTreeNode
 

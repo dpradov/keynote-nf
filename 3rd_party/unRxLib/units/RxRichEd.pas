@@ -5379,7 +5379,8 @@ begin
        if RichEditVersion <= 4 then begin          // See https://github.com/dpradov/keynote-nf/issues/602#issuecomment-1688868732  (problem with old RichEdit versions -- W7 ...)
           if CanSaveAsANSI(sRTF) then begin
              s:= sRTF;
-             aSTE.codepage:= StringCodePage(s);   // CP_ACP
+             //aSTE.codepage:= StringCodePage(s);   // CP_ACP
+             aSTE.codepage:= CP_ACP;          // CP_ACP= ANSI codepage => use the currently set default Windows ANSI codepage.
           end
           else begin
              aSTE.codepage:= CP_UTF8;
@@ -5429,8 +5430,8 @@ begin
        if SelectionOnly then
           aSTE.flags:= ST_SELECTION;
        aSTE.flags:= aSTE.flags or ST_KEEPUNDO;
-       //aSTE.codepage:= CP_ACP;          // CP_ACP= ANSI codepage => use the currently set default Windows ANSI codepage.
-       aSTE.codepage:= StringCodePage(sRTF);
+       aSTE.codepage:= CP_ACP;          // CP_ACP= ANSI codepage => use the currently set default Windows ANSI codepage.
+       //aSTE.codepage:= StringCodePage(sRTF);
        {$IFDEF KNT_DEBUG} Log.Add('PutRtfText [RawByteString] / RichEdtVer >= 3   Codepage:' + aSTE.Codepage.ToString, 4 );  {$ENDIF}
        SendMessage(Handle, EM_SETTEXTEX, longint(@aSTE), longint(PAnsiChar(sRTF)));
     end;

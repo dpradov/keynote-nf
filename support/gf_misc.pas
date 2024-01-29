@@ -982,15 +982,15 @@ end; // DateTimeToFileName
 function GetExtAlphChar( aChar : char ) : char;
 begin
   case aChar of
-    '¹', '¥' : result := 'a';
-    'æ', 'Æ' : result := 'c';
-    'ê', 'Ê' : result := 'e';
-    '³', '£' : result := 'l';
-    'ñ', 'Ñ' : result := 'n';
-    'ó', 'Ó' : result := 'o';
-    'œ', 'Œ' : result := 's';
-    'Ÿ', '' : result := 'z';
-    '¿', '¯' : result := 'z';
+    'Â¹', 'Â¥' : result := 'a';
+    'Ã¦', 'Ã†' : result := 'c';
+    'Ãª', 'ÃŠ' : result := 'e';
+    'Â³', 'Â£' : result := 'l';
+    'Ã±', 'Ã‘' : result := 'n';
+    'Ã³', 'Ã“' : result := 'o';
+    'Å“', 'Å’' : result := 's';
+    'Å¸', 'Â' : result := 'z';
+    'Â¿', 'Â¯' : result := 'z';
     else
       result := #0;
   end;
@@ -1570,16 +1570,16 @@ var
 begin
   s:= DomainFromHttpURL('https://www.teoria.com/en/tutorials/functions/intro/03-dom-sub.php','Harmonic Functions : The Dominant and Subdominant');  //-> [teoria.com]
   s:= DomainFromHttpURL('https://www.teoria.com/en/tutorials/functions/intro/03-dom-sub.php','');  //-> ''
-  s:= DomainFromHttpURL('https://musicnetmaterials.wordpress.com/analisis-musical/','Análisis musical | Musicnetmaterials'); // -> ''
+  s:= DomainFromHttpURL('https://musicnetmaterials.wordpress.com/analisis-musical/','AnÃ¡lisis musical | Musicnetmaterials'); // -> ''
   s:= DomainFromHttpURL('https://stackoverflow.com/questions/1549145/case-insensitive-pos','delphi - case insensitive Pos - Stack Overflow'); // -> ''
-  s:= DomainFromHttpURL('https://es.stackoverflow.com/questions/596857/problema-al-imprimir-objeto-de-javascript-en-consola-de-navegador','Problema al imprimir objeto de Javascript en consola de navegador - Stack Overflow en español'); // -> ''
+  s:= DomainFromHttpURL('https://es.stackoverflow.com/questions/596857/problema-al-imprimir-objeto-de-javascript-en-consola-de-navegador','Problema al imprimir objeto de Javascript en consola de navegador - Stack Overflow en espaÃ±ol'); // -> ''
   s:= DomainFromHttpURL('https://martinfowler.com/eaaCatalog/','Catalog of Patterns of Enterprise Application Architecture');  // -> [martinfowler.com]
   s:= DomainFromHttpURL('https://synopse.info/files/html/Synopse%20mORMot%20Framework%20SAD%201.18.html','Software Architecture Design 1.18');  // -> [synopse.info]
-  s:= DomainFromHttpURL('https://www.delphitools.info/2013/05/13/immutable-strings-in-delphi/','Immutable strings… in Delphi? - DelphiTools'); // -> ''
+  s:= DomainFromHttpURL('https://www.delphitools.info/2013/05/13/immutable-strings-in-delphi/','Immutable stringsâ€¦ in Delphi? - DelphiTools'); // -> ''
   s:= DomainFromHttpURL('https://en.wikipedia.org/wiki/Johann_Sebastian_Bach','Johann Sebastian Bach - Wikipedia'); // -> ''
   s:= DomainFromHttpURL('http://www.rvelthuis.de/articles/articles-pchars.html','Rudy''s Delphi Corner - PChars: no strings attached'); //-> [rvelthuis.de]
   s:= DomainFromHttpURL('https://learn.microsoft.com/es-es/','Microsoft Learn: adquirir conocimientos que le abran las puertas en su carrera profesional'); //  -> ''
-  s:= DomainFromHttpURL('https://www.youtube.com/watch?v=r0R6gMw2s44','El Círculo de Quintas: Una explicación detallada | Versión 2.0'); //  -> [YouTube]
+  s:= DomainFromHttpURL('https://www.youtube.com/watch?v=r0R6gMw2s44','El CÃ­rculo de Quintas: Una explicaciÃ³n detallada | VersiÃ³n 2.0'); //  -> [YouTube]
 end;
 
 
