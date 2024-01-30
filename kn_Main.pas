@@ -1920,8 +1920,10 @@ begin
 
   try
     if CanClose then
+       CanClose := CheckModified( not KeyOptions.AutoSave, true );
+
+    if CanClose then
     begin
-      CanClose := CheckModified( not KeyOptions.AutoSave, true );
 
       try
 
