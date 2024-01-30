@@ -2472,8 +2472,12 @@ begin
 
   Editor:= Note.Editor;
 
+ {
+  //  Disabled from now. Perhaps it will be restored and used if enabled via a new INI configuration option
+
   if TryAddURLLink then begin
      HTMLText:= Clipboard.AsHTML;
+     TextAlt:= '';
      if HTMLText <> '' then begin
          p1:= Pos('<img ', HTMLText);
          if p1 > 0 then begin
@@ -2481,11 +2485,14 @@ begin
               p3:= Pos('"', HTMLText, p2+5);
               SourceImg:= Copy(HTMLText, p2+5, p3-p2-5);
               p2:= Pos('alt="', HTMLText, p1);
-              p3:= Pos('"', HTMLText, p2+5);
-              TextAlt:= Copy(HTMLText, p2+5, p3-p2-5);
+              if p2 > 0 then begin
+                 p3:= Pos('"', HTMLText, p2+5);
+                 TextAlt:= Copy(HTMLText, p2+5, p3-p2-5);
+              end;
          end;
      end;
   end;
+}
 
   Stream:= TMemoryStream.Create;
 
@@ -2530,8 +2537,8 @@ begin
      StrRTF:= GetRTFforImageInsertion(ImgID, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, True, StreamRegistered, WasCopiedByKNT);
      Editor.PutRtfText(StrRTF, True);
 
-
-     if TryAddURLLink and (SourceImg <> '') then begin
+ {
+     if TryAddURLLink and (SourceImg <> '') and (TextAlt<>'') then begin
          TextURL:= TryUTF8ToUnicodeString(TextAlt);
          TextURL:= ConvertHTMLAsciiCharacters(TextURL);
          Editor.SelText:= #13;
@@ -2540,7 +2547,7 @@ begin
          if (Img <> nil) and StreamRegistered then
             Img.Caption:= TextURL;
      end;
-
+}
 
   finally
      bmp.Free;
