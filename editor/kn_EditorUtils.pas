@@ -114,8 +114,12 @@ type
 
     // clipboard capture and paste
     procedure TryPasteRTF(Note: TTabNote; HTMLText: AnsiString='');
-    procedure PasteBestAvailableFormat (Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
-    procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
+    procedure PasteBestAvailableFormat (Note: TTabNote;
+                                        TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
+                                        PrioritizeImage: boolean = False);
+    procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TTabNote;
+                                                TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
+                                                PrioritizeImage: boolean = False);
     procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
     procedure SetClipCapState( const IsOn : boolean );
     procedure PasteOnClipCap (ClpStr: string);
@@ -1841,7 +1845,9 @@ end;
   will try to get RTF format from HTML (as we have been doing on Paste Special...)
 }
 
-procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
+procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TTabNote;
+                                           TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
+                                           PrioritizeImage: boolean = False);
 var
   posI, pos: integer;
   RTFText: AnsiString;
@@ -1850,10 +1856,12 @@ var
 begin
     WasCopiedByKNT:= ClipboardContentWasCopiedByKNT;         // If not -> it will also make LastCopiedIDImage <-0
 
+    ClipbHasRTFFormat:= Clipboard.HasFormat(CFRtf);
+
     { If we are pasting an image copied from a browser, we must give preference to checking if it contains an image,
-      because in those cases we will also find HTML content with the address and alternative text of the image, 
+      because in those cases we will also find HTML content with the address and alternative text of the image,
       and if we do not do so we will always end up pasting the conversion to RTF from that alt text }
-    if Clipboard.HasFormat(CF_BITMAP) and NoteSupportsImages then begin
+    if Clipboard.HasFormat(CF_BITMAP) and (PrioritizeImage or (not ClipbHasRTFFormat)) and NoteSupportsImages then begin
        ImagesManager.InsertImageFromClipboard (Note);
        exit;
     end;
@@ -1871,7 +1879,7 @@ begin
     else begin
       // If I paste text and images from WordPad it may appear as a "Wordpad Document" format, and in that case it only appears to paste the text.
       // It seems best to try to paste the RTF format if it is available
-      ClipbHasRTFFormat:= Clipboard.HasFormat(CFRtf);
+
       if ClipbHasRTFFormat then
          try
             Editor.PasteIRichEditOLE(CFRtf);
@@ -1905,9 +1913,9 @@ begin
 end;
 
 
-procedure PasteBestAvailableFormat (Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False);
+procedure PasteBestAvailableFormat (Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False; PrioritizeImage: boolean = False);
 begin
-    PasteBestAvailableFormatInEditor(Note.Editor, Note, TryOfferRTF, CorrectHTMLtoRTF);
+    PasteBestAvailableFormatInEditor(Note.Editor, Note, TryOfferRTF, CorrectHTMLtoRTF, PrioritizeImage);
 end;
 
 
