@@ -3129,7 +3129,8 @@ begin
                else begin
                    SpacesAsTab:= StringOfChar (' ', TabSize);
 
-                   RTFAux:= CreateRTFAuxEditorControl(ActiveNote.Editor);
+                   RTFAux:= CreateRTFAuxEditorControl (ActiveNote);
+
                    toLine:=   RTFAux.Lines.Count-1;
                    BeginUpdate;
                    try
@@ -3150,7 +3151,11 @@ begin
                          end;
 
                       SelectionLength:= RTFAux.TextLength;
-                      Str:= RTFAux.RtfText;
+                      if ActiveNote.PlainText  then
+                         Str:= RTFAux.Text + #13#10
+                      else
+                         Str:= RTFAux.RtfText;
+
                       ActiveNote.Editor.PutRtfText(Str, True);
 
                       SelStart:= posBegin;                           // MoveSelectedLines=True => posBegin is initialized

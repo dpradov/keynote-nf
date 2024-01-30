@@ -73,8 +73,8 @@ function GetRTFColor (Color: TColor): string;
 function CleanRTF(const RTF: string; var nRTF: string): boolean;
 procedure SetDefaultFontAndSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
 
-function CreateRTFAuxEditorControl (EditorToLoadFrom: TTabRichEdit= nil; FromSelection: Boolean= True): TTabRichEdit;
-
+function CreateRTFAuxEditorControl (NoteToLoadFrom: TTabNote= nil; FromSelection: Boolean= True): TTabRichEdit;
+procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TTabNote);
 
 implementation
 uses
@@ -301,11 +301,12 @@ begin
 end;
 
 
-function CreateRTFAuxEditorControl(EditorToLoadFrom: TTabRichEdit= nil; FromSelection: Boolean= True): TTabRichEdit;
+function CreateRTFAuxEditorControl(NoteToLoadFrom: TTabNote= nil; FromSelection: Boolean= True): TTabRichEdit;
 var
   Stream: TStream;
   Str: String;
   RTFAux : TTabRichEdit;
+  Editor: TRxRichEdit;
 begin
   // *1   Tt's necessary to be able to use RTFAux.Perform(EM_LINEINDEX, L, 0)   (See for example: kn_Main.RxRTF_KeyPress)
   //      Otherwise, the character position returned by that method will not match the line break, but rather a probably default line width (22).
@@ -324,11 +325,24 @@ begin
    RTFAux.StreamFormat := sfRichText;  // *3
    //RTFAux.WordWrap:= false;          // Commented: *2
 
-   if assigned(EditorToLoadFrom) then begin
-      if FromSelection then
-         Str:= EditorToLoadFrom.RtfSelText
+
+
+   if assigned(NoteToLoadFrom) then begin
+      Editor:= NoteToLoadFrom.Editor;
+
+      if NoteToLoadFrom.PlainText  then begin
+         RTFAux.StreamFormat := sfPlainText;
+         PrepareRTFAuxforPlainText(RTFAux, NoteToLoadFrom);
+         if FromSelection then
+            Str:= Editor.SelText
+         else
+            Str:= Editor.Text
+      end
       else
-         Str:= EditorToLoadFrom.RtfText;
+         if FromSelection then
+            Str:= Editor.RtfSelText
+         else
+            Str:= Editor.RtfText;
 
       Stream:= TStringStream.Create(Str);
       try
@@ -337,7 +351,23 @@ begin
          Stream.Free;
       end;
    end;
+
    Result:= RTFAux;
+end;
+
+procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TTabNote);
+begin
+    if myNote.PlainText then begin
+       with RTF.DefAttributes do begin
+         Charset := myNote.EditorChrome.Font.Charset;
+         Name := myNote.EditorChrome.Font.Name;
+         Size := myNote.EditorChrome.Font.Size;
+         Style := myNote.EditorChrome.Font.Style;
+         Color := myNote.EditorChrome.Font.Color;
+         Language := myNote.EditorChrome.Language;
+       end;
+
+    end;
 end;
 
 

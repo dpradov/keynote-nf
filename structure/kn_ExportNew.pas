@@ -159,7 +159,6 @@ function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : string ) : st
 
 procedure ExportNotesEx;
 procedure ExportTreeNode;
-procedure PrepareRTFAuxforPlainText (RTF: TTabRichEdit; myNote: TTabNote);
 
 
 var
@@ -763,21 +762,6 @@ begin
   result := true;
 end; // Validate
 
-
-procedure PrepareRTFAuxforPlainText (RTF: TTabRichEdit; myNote: TTabNote);
-begin
-    if myNote.PlainText then begin
-       with RTF.DefAttributes do begin
-         Charset := myNote.EditorChrome.Font.Charset;
-         Name := myNote.EditorChrome.Font.Name;
-         Size := myNote.EditorChrome.Font.Size;
-         Style := myNote.EditorChrome.Font.Style;
-         Color := myNote.EditorChrome.Font.Color;
-         Language := myNote.EditorChrome.Language;
-       end;
-
-    end;
-end;
 
 procedure TForm_ExportNew.PerformExport;
 var
