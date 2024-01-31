@@ -59,7 +59,7 @@ uses
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string);
     function BuildKNTLocationText( const aLocation : TLocation) : string;
     procedure JumpToKNTLocation( LocationStr : string );
-    function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
+    function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true): boolean;
     function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              AdjustVisiblePosition: boolean = true): integer;
@@ -1037,12 +1037,13 @@ end;
 //===============================================================
 // JumpToLocation
 //===============================================================
-function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true): boolean;
+function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true): boolean;
 var
   myNote : TTabNote;
   myTreeNode : TTreeNTNode;
   origLocationStr : string;
   LocBeforeJump: TLocation;
+  SameEditor: boolean;
 
   function SearchTargetMark: boolean;
   var
@@ -1099,9 +1100,12 @@ begin
       );
       *)
 
+      SameEditor:= True;
+
       // open file, if necessary
       if ( Location.FileName <> '' ) and ( Location.FileName <> NoteFile.FileName ) then
       begin
+        SameEditor:= False;
         if IgnoreOtherFiles then
            exit;
         if (( not Fileexists( Location.FileName )) or
@@ -1116,6 +1120,7 @@ begin
       // if not current note, switch to it
       if ( myNote <> ActiveNote ) then
       begin
+        SameEditor:= False;
         Form_Main.Pages.ActivePage := myNote.TabSheet;
         Form_Main.PagesChange( Form_Main.Pages );
       end;
@@ -1123,15 +1128,19 @@ begin
       if assigned( myTreeNode ) then begin
          // select the node
          if TTreeNote( ActiveNote ).TV.Selected <> myTreeNode then begin
+            SameEditor:= False;
             myTreeNode.MakeVisible;     // It could be hidden
             TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
          end;
       end;
 
       result := true;
+      if SameEditor then
+         AdjustVisiblePosition:= True;
+
 
       if not SearchTargetMark then
-         SearchCaretPos(myNote, myTreeNode, Location.CaretPos, Location.SelLength, true);
+         SearchCaretPos(myNote, myTreeNode, Location.CaretPos, Location.SelLength, AdjustVisiblePosition);
 
       myNote.Editor.SetFocus;
 
@@ -1891,6 +1900,8 @@ var
   myLocation, LocBeforeNavigation : TLocation;
   masterHistory, slaveHistory : TKNTHistory;
   IterateAllOnSync, MaintainIndexInLocalHist: boolean;
+  Done: boolean;
+  AdjustVisiblePosition: boolean;
 
   procedure UpdateIfNil(var LocToUpdate: TLocation; const newLocation: TLocation);
   begin
@@ -1965,24 +1976,31 @@ begin
 
     try
       _Executing_History_Jump := true;
-      if not ( assigned( myLocation ) and (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation(myLocation) ) then begin
+      AdjustVisiblePosition:= (Direction = hdForward);  // hdBack -> False by default (except when navigating back to another Editor (node or note))
+      if not ( assigned( myLocation ) and (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation(myLocation, true, AdjustVisiblePosition) ) then begin
+        Done:= False;
         if Direction = hdForward then
             while masterHistory.CanGoForward do begin
               myLocation := masterHistory.GoForward;
               UpdateIfNil(myLocation, slaveHistory.SyncWithLocation (myLocation, hdForward, IterateAllOnSync));
-              if (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation( myLocation ) then
+              if (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation( myLocation ) then begin
+                 Done:= True;
                  break;
+              end;
             end
         else
             while masterHistory.CanGoBack do begin
               myLocation := masterHistory.GoBack;
               UpdateIfNil(myLocation, slaveHistory.SyncWithLocation (myLocation, hdBack, IterateAllOnSync));
-              if (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation( myLocation ) then
+              if (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation( myLocation, true, false ) then begin
+                 Done:= True;
                  break;
+              end;
             end;
-      end
-      else
-         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_22;
+
+        if (not Done) then
+           Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_22;
+      end;
 
     finally
       _Executing_History_Jump := false;
