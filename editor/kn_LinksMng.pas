@@ -1132,7 +1132,11 @@ begin
             myTreeNode.MakeVisible;     // It could be hidden
             TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
          end;
-      end;
+      end
+      else
+          if ActiveNote.Kind = ntTree then
+             Exit;
+
 
       result := true;
       if SameEditor then
