@@ -263,7 +263,9 @@ type
     function ParaInfoString : string;
 
     function GetWordAtCursor( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False;
-                                 const DiscardKNTHiddenCharacters: boolean= True ) : string;
+                                 const DiscardKNTHiddenCharacters: boolean= True;
+                                 const SpacesAsWordDelim: boolean= False
+                                 ) : string;
     procedure GetLinkAtCursor(var URL: string; var TextURL: string; var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
     function ParagraphsSelected: Boolean;
     procedure HideKNTHiddenMarks(Selection: boolean = true);
@@ -2003,7 +2005,9 @@ end; // ParaInfoString
 
 
 function TTabRichEdit.GetWordAtCursor( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False;
-                                          const DiscardKNTHiddenCharacters: boolean= True ) : string;
+                                          const DiscardKNTHiddenCharacters: boolean= True;
+                                          const SpacesAsWordDelim: boolean= False
+                                           ) : string;
 var
   L, R,  Rm, Offset: integer;
   SS, SL: integer;
@@ -2012,9 +2016,11 @@ var
   KeepSelected: boolean;
 
 
-  function IsWordDelimiter(i: integer; const Str: string): boolean; inline;
+  function IsWordDelimiter(i: integer; const Str: string; const SpaceAsWDelim: boolean): boolean; inline;
   begin
-    Exit ( (Str[i]<>KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[i]<>KNT_RTF_HIDDEN_MARK_R_CHAR) and not IsCharAlphaNumeric(Str[i]) );
+    Result:= (Str[i]<>KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[i]<>KNT_RTF_HIDDEN_MARK_R_CHAR)
+               and (   (SpaceAsWDelim and (Str[i] in [#32,#9,#13,#10]))
+                    or (not SpaceAsWDelim and not IsCharAlphaNumeric(Str[i])) );
   end;
 
 begin
@@ -2054,10 +2060,10 @@ begin
          dec(SS);
       end;
 
-      if IsWordDelimiter(SSW, Str) then begin
+      if IsWordDelimiter(SSW, Str, SpacesAsWordDelim) then begin
         dec(SSw);
         Offset:= -1;
-        if (SSw=0) or IsWordDelimiter(SSW, Str) then
+        if (SSw=0) or IsWordDelimiter(SSW, Str, SpacesAsWordDelim) then
            Exit;
       end;
 
@@ -2071,7 +2077,7 @@ begin
             until (L<1) or (Str[L]=KNT_RTF_HIDDEN_MARK_L_CHAR);
          end;
          dec(L);
-      until (L<1) or IsWordDelimiter(L, Str);
+      until (L<1) or IsWordDelimiter(L, Str, SpacesAsWordDelim);
       inc(L);
 
       R:= SSw;
@@ -2082,7 +2088,7 @@ begin
             until (R>Rm) or (Str[R]=KNT_RTF_HIDDEN_MARK_R_CHAR);
          end;
          inc(R);
-      until  (R>Rm) or IsWordDelimiter(R, Str);
+      until  (R>Rm) or IsWordDelimiter(R, Str, SpacesAsWordDelim);
       dec(R);
 
       Result:= Copy(Str, L, R-L +1);

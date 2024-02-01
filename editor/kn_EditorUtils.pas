@@ -236,7 +236,7 @@ resourcestring
 procedure ExpandTermProc;
 var
   w, replw : string;
-  wordlen : integer;
+  SS: integer;
 begin
   with Form_Main do begin
       if ( not ( assigned( GlossaryList ) and assigned( ActiveNote ) and ( ActiveNote.FocusMemory = focRTF ))) then begin
@@ -249,11 +249,13 @@ begin
       if IsRecordingMacro then
         AddMacroEditCommand( ecExpandTerm );
 
-      if ( ActiveNote.Editor.SelLength = 0 ) then
-        w := ActiveNote.Editor.GetWordAtCursor( true )
+      SS:= -1;
+      if ( ActiveNote.Editor.SelLength = 0 ) then begin
+        SS:= ActiveNote.Editor.SelStart;
+        w := ActiveNote.Editor.GetWordAtCursor( true, false, true, true );       // SpacesAsWordDelim=True
+      end
       else
         w := ActiveNote.Editor.SelText;
-      wordlen := length( w );
 
       if ( length( w ) = 0 ) then begin
         StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_02;
@@ -261,6 +263,13 @@ begin
       end;
 
       replw := GlossaryList.Values[w];
+
+      if (replw = '') and (SS > 0) then begin
+         ActiveNote.Editor.SelStart:= SS;
+         w := ActiveNote.Editor.GetWordAtCursor( true, false, true, false );    // SpacesAsWordDelim=False
+         replw := GlossaryList.Values[w];
+      end;
+
 
       if ( replw = '' ) then begin
         StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_03;
