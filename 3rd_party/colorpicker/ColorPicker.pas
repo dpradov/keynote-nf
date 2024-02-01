@@ -111,6 +111,7 @@ type
     SendCtrl:TControl;
     CloseOk:boolean;
     OtherOk:boolean;
+    CustColorsModified: boolean;
     procedure WMKILLFOCUS(var message: TWMKILLFOCUS); message WM_KILLFOCUS;
   public
     SelectedColor:TColor;
@@ -185,8 +186,13 @@ type
 procedure Register;
 
 implementation
+
 uses
    System.Win.Registry;
+
+resourcestring
+  STR_01 = 'Right-click to set custom colors';
+
 {$R *.Res}
 const
      BtnDim=20;
@@ -367,13 +373,20 @@ end;
 
 
 procedure TColorPicker.OtherBtnClick(Sender:TObject);
+var
+   ExecuteOk: boolean;
 begin
      FColorDlg.Color:=OtherColBtn.Color;
      TColPickDlg(Owner).OtherOk:=true;
-     if FColorDlg.Execute
-     then OtherColBtn.Color:=FColorDlg.Color;
+     ExecuteOk:= FColorDlg.Execute;
+     if ExecuteOk then
+        OtherColBtn.Color:=FColorDlg.Color;
+
      TColPickDlg(Owner).OtherOk:=false;
      SendMessage(TColPickDlg(Owner).Handle,WM_SETFOCUS,0,0);
+
+     if ExecuteOk then                     // [dpv]
+        BtnClick(OtherColBtn);
 end;
 
 procedure TColorPicker.BtnClick(Sender:TObject);
@@ -400,6 +413,7 @@ begin
               begin
                    TColorBtn(Sender).Color:=FColorDlg.Color;
                    CustBtnColors[TColorBtn(Sender).Tag]:=FColorDlg.Color;
+                   TColPickDlg(Owner).CustColorsModified:= true;             // [dpv]
               end;
               TColPickDlg(Owner).OtherOk:=false;
               SendMessage(TColPickDlg(Owner).Handle,WM_SETFOCUS,0,0);
@@ -471,6 +485,7 @@ var i:integer;
     ok:boolean;
 begin
      CloseOk:=false;
+     CustColorsModified:= false;                       // [dpv]
      ok:=false;
      for i:=0 to 39 do
      begin
@@ -501,17 +516,20 @@ end;
 
 procedure TColPickDlg.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-     if CloseOk
-          then
-          with TColorBtn(SendCtrl) do
-          begin
+
+     if CustColorsModified then           // [dpv]
+        TColorBtn(SendCtrl).WriteReg;
+
+     if CloseOk then
+          with TColorBtn(SendCtrl) do begin
             Btn1.Color:=SelectedColor;
             FActiveColor:=SelectedColor;
             FTargetColor:=SelectedColor;
             AutoClicked:=ColPick.AutoClicked;
-            WriteReg;
+            //WriteReg;                              // [dpv]
             Btn1Click(Sender);
           end;
+
      Action:=caFree;
 end;
 
@@ -661,6 +679,8 @@ begin
           Left:=P.X;                      // [dpv] Movido desde el ppio del bloque begin
           Top:=P.Y;                       // [dpv]  Idem
           Drop(TColorBtn(self));
+          ColPick.OtherBtn.Hint:= STR_01;  // [dpv]
+          ShowHint:= true;
      end;
 end;
 
