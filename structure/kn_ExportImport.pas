@@ -1,4 +1,4 @@
-unit kn_ExportImport;
+Ôªøunit kn_ExportImport;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -84,9 +84,9 @@ begin
 
 
           htmlIE: begin
-              // Si _IE no est· asignado, saldr· sin estarlo. SÛlo lo estar· cuando se haya usado para convertir un texto disponible
-              // en el portapapeles en formato HTML. En ese caso se dejar· vivo porque lo m·s probable es que se use m·s veces, pues
-              // es seÒal de que se est· usando un programa como Firefox, que no ofrece en el portapapeles el formato RTF
+              // Si _IE no est√° asignado, saldr√° sin estarlo. S√≥lo lo estar√° cuando se haya usado para convertir un texto disponible
+              // en el portapapeles en formato HTML. En ese caso se dejar√° vivo porque lo m√°s probable es que se use m√°s veces, pues
+              // es se√±al de que se est√° usando un programa como Firefox, que no ofrece en el portapapeles el formato RTF
               if not assigned(_IE) then begin
                  _IE:= TWebBrowserWrapper.Create(Form_Main);
                  ReleaseIE:= True;
@@ -152,6 +152,8 @@ end; // ConvertRTFToHTML
  If conversion is possible, it will return RTF text in the paremeter and also it will be available as
  RTF format in the clipboard }
 function ConvertHTMLToRTF(HTMLText: string; var RTFText : AnsiString) : boolean;
+var
+   Str: String;
 begin
   Result := false;
   if (not _ConvertHTMLClipboardToRTF) or (HTMLText = '') then exit;
@@ -160,8 +162,14 @@ begin
       if not assigned(_IE) then
          _IE:= TWebBrowserWrapper.Create(Form_Main);
 
-      _IE.LoadFromString  ( UTF8_BOM + HTMLText );
+      if DefaultSystemCodePage <> CP_UTF8 then
+         Str:= UTF8_BOM + HTMLText
+      else
+          Str:= HTMLText;
+
+      _IE.LoadFromString  ( Str );
       _IE.CopyAll;                           // Select all and then copy to clipboard
+
       RTFText:= Clipboard.AsRTF;
       Result := True;
 

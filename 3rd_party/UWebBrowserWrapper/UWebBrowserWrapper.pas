@@ -259,6 +259,7 @@ begin
 
   fWebBrowser := TWebBrowser.Create(nil);
   fWebBrowser.Width := 0;
+  fWebBrowser.Top := -500;
   TControl(fWebBrowser).Parent := Parent;
   TControl(fWebBrowser).Visible:= False;
   fFreeOnDestroy:= true;
