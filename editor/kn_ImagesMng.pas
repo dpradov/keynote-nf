@@ -2762,7 +2762,13 @@ begin
    In_shppict:= false;
 
 
+   Result:= '';
    RTFText:= PAnsiChar(Buffer);
+
+   if (assigned(Note) and Note.PlainText) or (Length(RTFText) > BufSize) then begin
+      assert(Length(RTFText) <= BufSize );
+      exit;
+   end;
 
    assert(Length(RTFText) <= BufSize );
 
@@ -3033,6 +3039,11 @@ begin
 
             if (fStorageMode <> smEmbRTF) then begin
                if (ImgID = 0) and ((ImageMode = imImage) or UseExtenalImagesManager) and (Stream <> nil) and (Stream.Size > 0) then begin
+                  if Note = nil then begin
+                     assert(Note <> nil);
+                     Exit('');       // It shouldn't happen, but if it does, we are exporting notes. We leave without processing anything
+                  end;
+
                   if Img <> nil then begin            // Processing images from MergeFromKNTFile
                     ImgCaption:= Img.Caption;
                     if CheckRegisterImage (Stream, Img.ImageFormat,  Width, Height, Note, Img.OriginalPath, Img.IsOwned, 'MergeKNT', Img) then begin
