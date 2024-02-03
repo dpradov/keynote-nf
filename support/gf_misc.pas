@@ -1,4 +1,4 @@
-unit gf_misc;
+﻿unit gf_misc;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -982,15 +982,15 @@ end; // DateTimeToFileName
 function GetExtAlphChar( aChar : char ) : char;
 begin
   case aChar of
-    '¹', '¥' : result := 'a';
-    'æ', 'Æ' : result := 'c';
-    'ê', 'Ê' : result := 'e';
-    '³', '£' : result := 'l';
-    'ñ', 'Ñ' : result := 'n';
-    'ó', 'Ó' : result := 'o';
-    'œ', 'Œ' : result := 's';
-    'Ÿ', '' : result := 'z';
-    '¿', '¯' : result := 'z';
+    Char('¹'), '¥' : result := 'a';
+    Char('æ'), 'Æ' : result := 'c';
+    Char('ê'), 'Ê' : result := 'e';
+    Char('³'), '£' : result := 'l';
+    Char('ñ'), 'Ñ' : result := 'n';
+    Char('ó'), 'Ó' : result := 'o';
+    Char('œ'), 'Œ' : result := 's';
+    Char('Ÿ'), '' : result := 'z';
+    Char('¿'), '¯' : result := 'z';
     else
       result := #0;
   end;
