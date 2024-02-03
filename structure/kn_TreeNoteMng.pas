@@ -417,7 +417,7 @@ begin
       myTreeNote := TTreeNote( ActiveNote );
       KeepModified:= false;
 
-      if ( not _Executing_History_Jump ) then begin
+      if ( not _Executing_History_Jump ) and (not _Executing_JumpToKNTLocation_ToOtherNote) then begin
           AddHistoryLocation( myTreeNote, false);        // Add to history the location of current node, before the new node comes to be the selected node
          _LastMoveWasHistory := false;
          UpdateHistoryCommands;

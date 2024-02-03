@@ -90,6 +90,7 @@ uses
 
 var
    _Executing_History_Jump : boolean;
+   _Executing_JumpToKNTLocation_ToOtherNote : boolean;
    _LastMoveWasHistory : boolean;
 
 
@@ -1281,36 +1282,44 @@ begin
       end;
 
       GetTreeNodeFromLocation(Location, myNote, myTreeNode);
-      // if not current note, switch to it
-      if ( myNote <> ActiveNote ) then
-      begin
-        SameEditor:= False;
-        Form_Main.Pages.ActivePage := myNote.TabSheet;
-        Form_Main.PagesChange( Form_Main.Pages );
-      end;
 
-      if assigned( myTreeNode ) then begin
-         // select the node
-         if TTreeNote( ActiveNote ).TV.Selected <> myTreeNode then begin
-            SameEditor:= False;
-            myTreeNode.MakeVisible;     // It could be hidden
-            TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
+      _Executing_JumpToKNTLocation_ToOtherNote:= false;
+      try
+         // if not current note, switch to it
+         if ( myNote <> ActiveNote ) then
+         begin
+           _Executing_JumpToKNTLocation_ToOtherNote:= true;
+           SameEditor:= False;
+           Form_Main.Pages.ActivePage := myNote.TabSheet;
+           Form_Main.PagesChange( Form_Main.Pages );
          end;
-      end
-      else
-          if ActiveNote.Kind = ntTree then
-             Exit;
+
+         if assigned( myTreeNode ) then begin
+            // select the node
+            if TTreeNote( ActiveNote ).TV.Selected <> myTreeNode then begin
+               SameEditor:= False;
+               myTreeNode.MakeVisible;     // It could be hidden
+               TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
+            end;
+         end
+         else
+             if ActiveNote.Kind = ntTree then
+                Exit;
 
 
-      result := true;
-      if SameEditor then
-         AdjustVisiblePosition:= True;
+         result := true;
+         if SameEditor then
+            AdjustVisiblePosition:= True;
 
 
-      if not SearchTargetMark (Location.Bookmark09) then
-         SearchCaretPos(myNote, myTreeNode, Location.CaretPos, Location.SelLength, AdjustVisiblePosition);
+         if not SearchTargetMark (Location.Bookmark09) then
+            SearchCaretPos(myNote, myTreeNode, Location.CaretPos, Location.SelLength, AdjustVisiblePosition);
 
-      myNote.Editor.SetFocus;
+         myNote.Editor.SetFocus;
+
+      finally
+         _Executing_JumpToKNTLocation_ToOtherNote:= false;
+      end;
 
 
       if _Executing_History_Jump then begin
@@ -2510,6 +2519,7 @@ end; // CreateHyperlink
 
 Initialization
    _Executing_History_Jump := false;
+   _Executing_JumpToKNTLocation_ToOtherNote := false;
    _LastMoveWasHistory := false;
 
 
