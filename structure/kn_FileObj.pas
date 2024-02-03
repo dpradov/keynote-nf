@@ -46,7 +46,8 @@ uses
    kn_TreeNoteMng,
    kn_LinksMng,
    kn_ImagesMng,
-   kn_RTFUtils;
+   kn_RTFUtils,
+   kn_LocationObj;
 
 
 type
@@ -58,6 +59,7 @@ type
 
 type
 
+{
   TBookmark = record
     Name : string;
     CaretPos : integer;
@@ -66,8 +68,9 @@ type
     Node : TNoteNode;
   end;
   PBookmark = ^TBookmark;
-
-  TBookmarks = array[0..MAX_BOOKMARKS] of TBookmark;
+}
+  //TBookmarks = array[0..MAX_BOOKMARKS] of TBookmark;
+  TBookmarks = array[0..MAX_BOOKMARKS] of TLocation;
 
 
 type
@@ -130,7 +133,9 @@ type
     function PropertiesToFlagsString : TFlagsString; virtual;
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); virtual;
     procedure SetFilename( const Value : string );
-    function GetBookmark(Index: integer): PBookmark;
+    //function GetBookmark(Index: integer): PBookmark;
+    function GetBookmark(Index: integer): TLocation;
+    procedure WriteBookmark (Index: integer; Value: TLocation);
     function GetFile_Name: string;
     function GetFile_NameNoExt: string;
     function GetFile_Path: string;
@@ -166,7 +171,8 @@ type
     property Passphrase : UTF8String read FPassphrase write FPassphrase;
     property PassphraseFunc : TGetAccessPassphraseFunc read FPassphraseFunc write FPassphraseFunc;
 
-    property Bookmarks[index: integer]: PBookmark read GetBookmark; // write FBookmarks;
+    //property Bookmarks[index: integer]: PBookmark read GetBookmark; // write FBookmarks;
+    property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
 
     property TextPlainVariablesInitialized: boolean read FTextPlainVariablesInitialized write FTextPlainVariablesInitialized;
 
@@ -188,8 +194,6 @@ type
     function HasExtendedNotes : boolean; // TRUE is file contains any notes whose FKind is not ntRTF
     function HasVirtualNodes : boolean; // TRUE is file contains any notes which have VIRTUAL NODES
     function HasVirtualNodeByFileName( const aNoteNode : TNoteNode; const FN : string ) : boolean;
-
-    procedure ClearBookmarks;
 
     function GetNoteByID( const aID : integer ) : TTabNote; // identifies note UNIQUELY
     function GetNoteByName( const aName : string ) : TTabNote; // will return the first note whose name matches aName. If more notes have the same name, function will only return the first one.
@@ -213,7 +217,8 @@ implementation
 uses
    kn_Global,
    kn_Main,
-   kn_EditorUtils;
+   kn_EditorUtils,
+   kn_BookmarksMng;
 
 
 resourcestring
@@ -289,6 +294,8 @@ end; // IndexOf
 // ************************************************** //
 
 constructor TNoteFile.Create;
+var
+  i: integer;
 begin
   inherited Create;
   FFileName := '';
@@ -312,7 +319,10 @@ begin
   FClipCapNote := nil;
   FSavedWithRichEdit3 := false;
   SetVersion;
-  ClearBookmarks;
+
+  for i:= 0 to MAX_BOOKMARKS do
+     FBookmarks[i]:= nil;
+  
 end; // CREATE
 
 
@@ -324,20 +334,6 @@ begin
   inherited Destroy;
 end; // DESTROY
 
-
-procedure TNoteFile.ClearBookmarks;
-var
-  b : integer;
-begin
-  for b := 0 to MAX_BOOKMARKS do
-    with FBookmarks[b] do begin
-      Name := '';
-      CaretPos := 0;
-      SelLength := 0;
-      Note := nil;
-      Node := nil;
-    end;
-end; // ClearBookmarks
 
 function TNoteFile.GetPassphrase( const FN : string ) : boolean;
 begin
@@ -856,6 +852,12 @@ begin
                 break;
               end;
 
+              if ( ds = _NF_Bookmarks ) then begin
+                InHead := false;
+                NextBlock:= nbBookmarks;        // Bookmarks begins
+                break;
+              end;
+
               if ( ds = _NF_StoragesDEF ) then begin
                 InHead := false;
                 NextBlock:= nbImages;         // Images definition begins
@@ -871,7 +873,10 @@ begin
             end; // eof( tf )
 
             while ( not ( FileExhausted or tf.eof)) do begin
-               if NextBlock = nbImages then
+               if NextBlock = nbBookmarks then
+                   LoadBookmarks(tf, FileExhausted, NextBlock)
+
+               else if NextBlock = nbImages then
                    ImgManager.LoadState(tf, FileExhausted)
 
                else begin
@@ -1112,6 +1117,8 @@ var
          WriteNote(myNote);
       end;
     end;
+
+    SerializeBookmarks(tf);
 
     Log_StoreTick( 'After saving Notes', 1 );
 
@@ -1614,10 +1621,21 @@ begin
    Result:= ExtractFilePath(FileName);
 end;
 
-
+{
 function TNoteFile.GetBookmark(Index: integer): PBookmark;
 begin
   Result := @FBookmarks[Index];
+end;
+}
+
+function TNoteFile.GetBookmark(Index: integer): TLocation;
+begin
+  Result := FBookmarks[Index];
+end;
+
+procedure TNoteFile.WriteBookmark (Index: integer; Value: TLocation);
+begin
+   FBookmarks[Index]:= Value;
 end;
 
 

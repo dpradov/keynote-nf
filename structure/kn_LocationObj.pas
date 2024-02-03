@@ -37,6 +37,7 @@ type
     FExternalDoc : boolean;
     FParams : string;
     FMark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
+    FBookmark09: boolean;     // In case FMark <> 0, Is it one of the bookmarks set with Search|Set Bookmark?
     //FTag : integer; //used in TForm_Main.List_ResFindDrawItem    // [dpv]
 
     function GetDisplayText : string;
@@ -57,6 +58,7 @@ type
     property NoteID : longint read FNoteID write FNoteID;
     property NodeID : longint read FNodeID write FNodeID;
     property Mark : Byte read FMark write FMark;
+    property Bookmark09 : boolean read FBookmark09 write FBookmark09;
     property ExternalDoc : boolean read FExternalDoc write FExternalDoc;
     property Params : string read FParams write FParams;
     // property Tag : integer read FTag write FTag;                 // [dpv]
@@ -233,6 +235,7 @@ begin
   FParams := '';  
   //FTag := 0;
   FMark:= 0;
+  FBookmark09:= false;
 end; // create
 
 procedure TLocation.Assign( const aLocation : TLocation );
@@ -246,6 +249,7 @@ begin
   FNoteID := aLocation.NoteID;
   FNodeID := aLocation.NodeID;
   FMark :=  aLocation.FMark;
+  FBookmark09:= aLocation.FBookmark09;
   FExternalDoc := aLocation.FExternalDoc;
   FParams := aLocation.FParams;
 end; // SetKNTLocation
@@ -267,8 +271,13 @@ begin
   if FName <> Location.Name then Exit;
   if FNoteID <> Location.NoteID then Exit;
   if FNodeID <> Location.NodeID then Exit;
-  if considerOnlyKntLinks then
-     if FCaretPos <> Location.CaretPos then Exit;
+  if considerOnlyKntLinks then begin
+     if considerCaretPos then begin
+        if FCaretPos <> Location.CaretPos then Exit;
+        if FMark <> Location.Mark then Exit;
+        if FBookmark09 <> Location.FBookmark09 then Exit;
+     end;
+  end;
 
   if not considerOnlyKntLinks then begin
      if FExternalDoc <> Location.ExternalDoc then Exit;

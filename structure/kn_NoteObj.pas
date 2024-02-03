@@ -1434,6 +1434,11 @@ begin
         NextBlock:= nbImages;
         break; // Images definition begins
       end;
+      if ( s = _NF_Bookmarks ) then
+      begin
+        NextBlock:= nbBookmarks;
+        break; // Bookmarks begins
+      end;
       if ( s = _NF_EOF ) then
       begin
         FileExhausted := true;
@@ -3026,6 +3031,13 @@ begin
             if ( myNode <> nil ) then
               AddNewNode;
             break; // Images definition begins
+          end;
+          if ( s = _NF_Bookmarks ) then
+          begin
+            NextBlock:= nbBookmarks;
+            if ( myNode <> nil ) then
+              AddNewNode;
+            break; // Bookmarks begins
           end;
           if ( s = _NF_EOF ) then
           begin

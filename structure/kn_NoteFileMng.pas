@@ -1229,7 +1229,7 @@ begin
 
         LastEditCmd := ecNone;
         UpdateLastCommand( ecNone );
-        BookmarkClearAll;
+        BookmarkInitializeAll;
         ShowAlarmStatus;
         
         if assigned( NoteFile ) then

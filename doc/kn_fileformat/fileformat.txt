@@ -313,6 +313,18 @@ End of fie marker follows:
 
 
 --------------------------------------
+BOOKMARKS SECTION
+
+  From version 1.8.5, auxiliary bookmarks created with Search|Set Bookmark (Shift+Alt+[0-9]) are saved in file in a new section, at the end
+  of the file, but before Image Sections
+  Example:
+  
+%BK
+BK=0,file:///*8|2|29|0|1
+BK=1,file:///*4|2|29|0|1
+
+
+--------------------------------------
 IMAGE SECTIONS
 
   From version 1.8.1, in the case of using a image storage mode other than Embedded RTF, the application will use an EXTENDED KNT FORMAT when saving in

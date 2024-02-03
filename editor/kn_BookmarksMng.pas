@@ -8,7 +8,7 @@ unit kn_BookmarksMng;
 
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2024 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
@@ -24,6 +24,7 @@ uses
   Vcl.Menus,
   TreeNT,
   gf_strings,
+  gf_streams,
   kn_Const,
   kn_Info,
   kn_NoteObj,
@@ -36,9 +37,13 @@ uses
 
     procedure BookmarkAdd( const Number : integer );
     procedure BookmarkGoTo( const Number : integer );
-    procedure BookmarkClear( const Number : integer );
-    procedure BookmarkClearAll;
+    procedure BookmarkClear( const Number : integer; DeleteBookmark: boolean= true );
+    //procedure BookmarkClearAll;
+    procedure BookmarkInitializeAll;
     function BookmarkGetMenuItem( const Number : integer ) : TMenuItem;
+
+    procedure SerializeBookmarks(const tf: TTextFile);
+    procedure LoadBookmarks(const tf: TTextFile; var FileExhausted: Boolean; var NextBlock: TNextBlock);
 
 implementation
 uses
@@ -51,6 +56,146 @@ resourcestring
   STR_CannotAccess = ' Cannot access bookmark %d - Cleared';
   STR_Jumped = ' Jumped to bookmark %d';
 
+
+
+procedure RegisterBookmark( const Number : integer; aLocation : TLocation);
+begin
+  if aLocation = nil then exit;
+
+  NoteFile.Bookmarks[Number]:= aLocation;
+
+  with BookmarkGetMenuItem( Number ) do begin
+     Enabled := true;
+     Checked := true;
+  end;
+end;
+
+procedure BookmarkAdd( const Number : integer );
+var
+  aLocation : TLocation;
+begin
+  if  not (Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
+
+  BookmarkClear( Number );
+
+  aLocation:= TLocation.Create;
+  ActiveNote.Editor.SelLength:= 0;
+  InsertOrMarkKNTLink( aLocation, false, '', Number + 1 );            // Bookmark0-9 -> [1-10]
+  RegisterBookmark(Number, aLocation);
+
+  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Assigned, [Number] );
+end;
+
+
+procedure BookmarkInitializeAll;
+var
+  i : integer;
+begin
+  if assigned( NoteFile ) then  begin
+    for i := 0 to MAX_BOOKMARKS do
+        BookmarkClear(i, false);
+  end;
+
+end;
+
+
+procedure BookmarkClear( const Number : integer; DeleteBookmark: boolean= true );
+var
+  aLocation : TLocation;
+begin
+  aLocation:= NoteFile.Bookmarks[Number];
+  if assigned(aLocation) then begin
+     if DeleteBookmark then
+        DeleteBookmark09(aLocation);
+     NoteFile.Bookmarks[Number]:= nil;
+     aLocation.Free;
+     with BookmarkGetMenuItem( Number ) do begin
+        Enabled := false;
+        Checked := false;
+     end;
+
+  end;
+end;
+
+
+
+procedure BookmarkGoTo( const Number : integer );
+var
+  aLocation: TLocation;
+
+begin
+  aLocation:= NoteFile.Bookmarks[Number];
+  if assigned(aLocation) then begin
+     if JumpToLocation(aLocation) then
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Jumped, [Number] )
+     else begin
+        BookmarkClear (Number, false);
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_CannotAccess, [Number] );
+     end;
+  end
+  else
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_NotAssigned, [Number] );
+end;
+
+procedure SerializeBookmarks(const tf: TTextFile);
+var
+   i: integer;
+   aLocation: TLocation;
+   Str: AnsiString;
+begin
+    tf.WriteLine(_NF_Bookmarks);
+
+    for i := 0 to MAX_BOOKMARKS do begin
+        aLocation:= NoteFile.Bookmarks[i];
+        if assigned(aLocation) then begin
+           Str:= BuildKNTLocationText(aLocation);
+           tf.WriteLine(Format(_NF_Bookmark + '=%d,%s', [i, Str]), false);
+        end;
+    end;
+end;
+
+procedure LoadBookmarks(const tf: TTextFile; var FileExhausted: Boolean; var NextBlock: TNextBlock);
+var
+  s, key : AnsiString;
+  p, N: Integer;
+  aLocation: TLocation;
+
+begin
+
+    while ( not tf.eof()) do begin
+       s:= tf.readln();
+
+       if ( s = _NF_StoragesDEF ) then begin
+         NextBlock:= nbImages;         // Images definition begins
+         break;
+       end;
+       if ( s = _NF_EOF ) then begin
+         FileExhausted := true;
+         break; // END OF FILE
+       end;
+
+       p := pos('=', s );
+       if p <> 3 then continue;  // not a valid key=value format
+       key := copy(s, 1, 2);
+       delete(s, 1, 3);
+
+       if key = _NF_Bookmark then begin
+         // BK=9,file:///*8|2|4|0|1
+          try
+             N:= StrToInt(s[1]);
+             delete(s, 1, 2);
+             aLocation:= BuildBookmark09FromString(s);
+             RegisterBookmark(N, aLocation);
+          except
+          end;
+         continue;
+       end;
+
+    end;
+end;
+
+
+(*                                                           // [dpv]
 procedure BookmarkAdd( const Number : integer );
 begin
   if  not (Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
@@ -100,6 +245,8 @@ begin
 
 end; // BookmarkClear
 
+*)
+
 function BookmarkGetMenuItem( const Number : integer ) : TMenuItem;
 begin
   with Form_Main do
@@ -120,6 +267,8 @@ begin
       end;
   end;
 end; // BookmarkGetMenuItem
+
+(*
 
 procedure BookmarkGoTo( const Number : integer );
 var
@@ -191,5 +340,7 @@ begin
      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_NotAssigned, [Number] );
 
 end; // BookmarkGoTo
+
+*)
 
 end.

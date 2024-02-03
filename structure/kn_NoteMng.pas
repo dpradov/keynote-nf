@@ -223,12 +223,14 @@ begin
           ToggleClipCap( false, ActiveNote ); // turn it OFF
         end;
 
+        { // [dpv]
         // clear all bookmarks pointing to this note
         for pidx := 0 to MAX_BOOKMARKS do
         begin
           if ( NoteFile.Bookmarks[pidx].Note = ActiveNote ) then
             BookmarkClear( pidx );
         end;
+        }
 
         pidx := ActiveNote.TabSheet.TabIndex;
 

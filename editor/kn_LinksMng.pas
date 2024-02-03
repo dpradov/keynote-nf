@@ -39,6 +39,7 @@ uses
    gf_miscvcl,
    gf_files,
    gf_strings,
+   gf_streams,
    kn_Const,
    kn_Info,
    kn_Ini,
@@ -56,8 +57,10 @@ uses
    // Links related routines
     procedure GetKNTLocation (var Location: TLocation; Simplified: Boolean= false);
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean; Relative: boolean= false );
-    procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string);
+    procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string; NumBookmark09: integer= 0);
     function BuildKNTLocationText( const aLocation : TLocation) : string;
+    function BuildKNTLocationFromString( LocationStr : string ): TLocation;
+    function BuildBookmark09FromString( LocationStr : AnsiString ): TLocation;
     procedure JumpToKNTLocation( LocationStr : string );
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true): boolean;
     function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
@@ -83,6 +86,7 @@ uses
     function TypeURL (var URLText: string; var KNTlocation: boolean): TKntURL;
     function URLFileExists (var URL: string): boolean;
 
+    function DeleteBookmark09 (Location: TLocation): boolean;
 
 var
    _Executing_History_Jump : boolean;
@@ -600,12 +604,14 @@ end;
 
 *)
 
-procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean; TextURL: string);
+procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean; TextURL: string; NumBookmark09: integer= 0);
 var
    Note: TTabNote;
    TreeNode: TTreeNTNode;
    TargetMarker: integer;
    str, strTargetMarker: string;
+   RTFMarker: AnsiString;
+   KEY_Marker: Char;
 
    function GetActualTargetMarker (Editor: TRxRichEdit): integer;
    var
@@ -654,6 +660,7 @@ begin
   if AsInsert then begin
     // insert link to previously marked location
     if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+    if aLocation.Bookmark09 then exit;
     if ( aLocation.NoteName = '') and (aLocation.NoteID = 0) then begin
       showmessage( STR_08 );
       exit;
@@ -683,12 +690,24 @@ begin
 
     if (aLocation.CaretPos <> 0) and (not ActiveNote.PlainText)
        and ((ActiveNote.Kind <> ntTree) or (TTreeNote(ActiveNote).SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode]) ) then begin        // Allow the mark (hidden) although Note is ReadOnly
-      TargetMarker:= GetActualTargetMarker(ActiveNote.Editor);             // If a marker already exists at that position, we will use it
+      if NumBookmark09 <= 0 then
+         TargetMarker:= GetActualTargetMarker(ActiveNote.Editor);             // If a marker already exists at that position, we will use it
+
       if TargetMarker = 0 then begin
          {$IFDEF KNT_DEBUG}Log.Add('Insert Marker for HyperLink',  4 ); {$ENDIF}
-         TargetMarker:= 1 + GetLastTargetMarker(ActiveNote.Editor.TextPlain);
+         if NumBookmark09 >= 1 then begin              // Bookmark0-9 -> [1-10]
+            TargetMarker:= NumBookmark09;
+            aLocation.Bookmark09:= true;
+            KEY_Marker:= KNT_RTF_HIDDEN_Bookmark09;
+         end
+         else begin
+            TargetMarker:= 1 + GetLastTargetMarker(ActiveNote.Editor.TextPlain);
+            KEY_Marker:= KNT_RTF_HIDDEN_BOOKMARK;
+         end;
+
          //  {\rtf1\ansi {\v\'11B5\'12}};    => {\rtf1\ansi \v\'11B5\'12\v0};  // Finally they will be inserted directly with \v...\v0 (see comment *2 next to KNT_RTF_BMK_HIDDEN_MARK in kn_const.pas)
-         ActiveNote.Editor.PutRtfText(Format('{\rtf1\ansi' + KNT_RTF_BMK_HIDDEN_MARK + '}', [TargetMarker]),  true);
+         RTFMarker:= Format('\v' + KNT_RTF_HIDDEN_MARK_L + KEY_Marker + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0', [TargetMarker]);
+         ActiveNote.Editor.PutRtfText('{\rtf1\ansi' + RTFMarker + '}',  true);
       end;
       strTargetMarker:= Format(STR_31 + STR_32, [TargetMarker]);
       aLocation.Mark:= TargetMarker;
@@ -916,6 +935,40 @@ begin
 end; // BuildKNTLocationFromString
 
 
+function BuildBookmark09FromString( LocationStr : AnsiString ): TLocation;
+var
+  Strs: TStrings;
+  s: AnsiString;
+begin
+   // file:///*NoteID|NodeID|CursorPosition|SelectionLength|MarkID
+   // Ex: file:///*8|2|4|0|1
+   Result:= nil;
+   if Pos('file:///*', LocationStr) <> 1 then exit;
+
+   Strs:= TStringList.Create;
+   Result:= TLocation.Create;
+   try
+      try
+         s:= Copy(LocationStr, Length('file:///*')+1);
+         SplitString(Strs, s, '|', false);
+         with Result do begin
+             NoteID:= StrToInt(Strs[0]);
+             NodeID:= StrToInt(Strs[1]);
+             CaretPos:= StrToInt(Strs[2]);
+             SelLength:= StrToInt(Strs[3]);
+             Mark:= StrToInt(Strs[4]);
+             Bookmark09:= true;
+         end;
+
+      except
+      end;
+
+   finally
+      Strs.Free;
+   end;
+
+end;
+
 //===============================================================
 // NavigateToTreeNode
 //===============================================================
@@ -1033,28 +1086,139 @@ begin
 end;
 
 
+//===============================================================
+// DeleteBookmark9
+//===============================================================
 
-//===============================================================
-// JumpToLocation
-//===============================================================
-function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true): boolean;
+function DeleteBookmark09 (Location: TLocation): boolean;
 var
   myNote : TTabNote;
   myTreeNode : TTreeNTNode;
-  origLocationStr : string;
-  LocBeforeJump: TLocation;
-  SameEditor: boolean;
+  myNode: TNoteNode;
+  p, SS, SL, selLen: integer;
+  TargetMark: string;
+  EditorVisible: boolean;
+  Stream: TMemoryStream;
+  RTFText: PAnsiChar;
+  RTFBookmark: AnsiString;
+  NBytes: integer;
+  Str: AnsiString;
 
-  function SearchTargetMark: boolean;
+begin
+   Result:= false;
+   if not Location.Bookmark09 or (Location.Mark < 1) or (Location.Mark > 10) then exit;
+
+   GetTreeNodeFromLocation(Location, myNote, myTreeNode);
+
+   if not assigned( myNote ) then exit;
+
+   // If not included in some of the visible Editors -> make the change directly in the note or node stream
+   // See comment to kn_EditorUtils.RemoveKNTHiddenCharactersInRTF
+
+  EditorVisible:= false;
+
+  if myNote.Kind = ntRTF then
+     EditorVisible:= true
+  else begin
+     if not assigned( myTreeNode ) then exit;
+     if TTreeNote( ActiveNote ).TV.Selected = myTreeNode then
+        EditorVisible:= true;
+  end;
+
+  if EditorVisible then begin
+     SS:= myNote.Editor.SelStart;
+     SL:= myNote.Editor.SelLength;
+
+     TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_Bookmark09 + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
+     with myNote.Editor do begin
+        p:= FindText(TargetMark, 0, -1, [stMatchCase]);
+        if p > 0 then begin
+          SelStart := p;
+          SelLength := Length(TargetMark);
+          if SelLength > Length(TargetMark) then begin
+             // If our hidden mark is next to others, it will select everything hidden. And if it is next to a HYPERLINK it will select it in its entirety
+             Str:= RTFSelText;
+             Str:= StringReplace(Str, Format(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_Bookmark09 + '%d'+ KNT_RTF_HIDDEN_MARK_R, [Location.Mark]), '', []);
+             SelText:= Str;
+          end
+          else
+             SelText := '';
+
+          Result:= true;
+          if SS < p then
+             myNote.Editor.SelStart:= SS
+          else
+             myNote.Editor.SelStart:= SS - Length(TargetMark);
+
+          myNote.Editor.SelLength:= SL;
+        end;
+     end;
+
+  end
+  else begin
+     if myNote.Kind = ntRTF then
+        Stream:= myNote.DataStream
+     else begin
+        myNode:= TNoteNode(myTreeNode.Data);
+        Stream:= myNode.Stream;
+     end;
+
+     RTFText:= PAnsiChar(Stream.Memory);
+     RTFBookmark:= Format(KNT_RTF_Bmk09_HIDDEN_MARK, [Location.Mark]);
+
+     p:= PosPAnsiChar(PAnsiChar(RTFBookmark), RTFText, 1) -1;                        // See comment *2 in ImagesManager.ProcessImagesInRTF
+     if p < 0 then begin
+        RTFBookmark:= Format(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_Bookmark09 + '%d'+ KNT_RTF_HIDDEN_MARK_R, [Location.Mark]);
+        p:= PosPAnsiChar(PAnsiChar(RTFBookmark), RTFText, 1) -1;
+     end;
+
+     if p >= 0 then begin
+        selLen:= Length(RTFBookmark);
+        NBytes:= Stream.Size - p - selLen;
+        Move(RTFText[p+selLen], RTFText[p], NBytes);
+        Stream.Size:= Stream.Size-selLen;
+
+        if myNote.Kind = ntRTF then
+           myNote.NoteTextPlain:= ''
+        else
+           myNode.NodeTextPlain:= '';
+     end;
+
+  end;
+
+
+
+ end;
+
+
+
+//===============================================================
+ // JumpToLocation
+ //===============================================================
+ function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true): boolean;
+ var
+   myNote : TTabNote;
+   myTreeNode : TTreeNTNode;
+   origLocationStr : string;
+   LocBeforeJump: TLocation;
+   SameEditor: boolean;
+
+   function SearchTargetMark (SearchBookmark09: boolean = false): boolean;
   var
-     p, selLen: integer;
-     TargetMark: string;
-  begin
+      p, selLen: integer;
+      TargetMark: string;
+      KeyBookmark: char;
+   begin
+       if SearchBookmark09 then
+         KeyBookmark:= KNT_RTF_HIDDEN_Bookmark09
+      else
+         KeyBookmark:= KNT_RTF_HIDDEN_BOOKMARK;
+
       Result:= false;
       if Location.Mark > 0 then begin
-        TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_BOOKMARK + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
+        TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KeyBookmark + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
         with myNote.Editor do begin
-          p:= FindText(TargetMark, 0, -1, []);
+          p:= FindText(TargetMark, 0, -1, [stMatchCase]);
           if p > 0 then begin
             BeginUpdate;
             try
@@ -1143,7 +1307,7 @@ begin
          AdjustVisiblePosition:= True;
 
 
-      if not SearchTargetMark then
+      if not SearchTargetMark (Location.Bookmark09) then
          SearchCaretPos(myNote, myTreeNode, Location.CaretPos, Location.SelLength, AdjustVisiblePosition);
 
       myNote.Editor.SetFocus;
@@ -1164,7 +1328,7 @@ begin
 
     except
       on E : EInvalidLocation do
-        if not _Executing_History_Jump then
+        if not _Executing_History_Jump and not Location.Bookmark09 then
           DoMessageBox( Format( STR_13, [E.Message] ), mtWarning, [mbOK]);
       on E : Exception do
         begin

@@ -364,6 +364,8 @@ const
   _NF_ImagesDEF       = '%I';
   _IDNextImage        = 'II';
   _NF_EmbeddedIMAGES  = '%EI';
+  _NF_Bookmarks       = '%BK';
+  _NF_Bookmark        = 'BK';
 
 
 const
@@ -469,9 +471,10 @@ type
     ntTree // tree panel plus richedit control (tree-type note)
   );
   TNextBlock = (
-    nbRTF,    // = ntRTF
-    nbTree,   // = ntTree
-    nbImages  // = Images Definition
+    nbRTF,        // = ntRTF
+    nbTree,       // = ntTree
+    nbImages,     // = Images Definition
+    nbBookmarks
   );
   //TNoteNameStr = String[TABNOTE_NAME_LENGTH];
   TNoteNameStr = string;
@@ -605,6 +608,7 @@ const
   KNT_RTF_HIDDEN_MARK_L_CHAR = Chr(17);    // 17 ($11): DC1 (Device Control 1)
   KNT_RTF_HIDDEN_MARK_R_CHAR = Chr(18);    // 18 ($12): DC2 (Device Control 2)
   KNT_RTF_HIDDEN_BOOKMARK = 'B';
+  KNT_RTF_HIDDEN_Bookmark09 = 'b';       // Used with 9 bookmarks set with Search|Set Bookmark
   KNT_RTF_HIDDEN_IMAGE = 'I';
   KNT_RTF_HIDDEN_MAX_LENGHT_CHAR = 10;         // *1
   (* *2
@@ -612,6 +616,7 @@ const
   KNT_RTF_IMG_HIDDEN_MARK = '{\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE    + '%d'+ KNT_RTF_HIDDEN_MARK_R + '}';
   *)
   KNT_RTF_BMK_HIDDEN_MARK = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
+  KNT_RTF_Bmk09_HIDDEN_MARK = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_Bookmark09 + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
   KNT_RTF_IMG_HIDDEN_MARK = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE    + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
   KNT_RTF_IMG_HIDDEN_MARK_CONTENT = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE    + '%d'+ KNT_RTF_HIDDEN_MARK_R;
 
