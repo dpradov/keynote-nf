@@ -1,0 +1,107 @@
+
+Changes in 1.8.5 .01  (03 feb 2024)
+=================================
+
+* Fixed issue #644: Export Notes Crash - Error Message and Application Freeze During Text Notes Export
+  Although the bug describe in issue #644 was fixed in the commit (Fixed some bugs related to Export and UNICODE),
+  included in this 1.8.5 version, this changes introduce some controls to avoid the consequences of that bug
+  (a runaway pointer)
+
+* Fixed issue #642: KeyNote disappear after select 'Cancel' in the confirmation message box for exit with unsaved modification
+  The program continued to function normally, but hidden...
+
+* Improved Bookmarks 0-9: Now are persisted, and are linked to target through a hidden mark
+   Using the same mechanism that Keynote's Mark/Insert Location is based on, we can now use the 9 auxiliary markers:
+	- Search|Set Bookmark (Shift+Alt+[0-9])
+	- Search|Jump to Bookmark (Alt+[0-9])
+
+   As before, the markers are global to the entire knt file.
+   These markers are saved within the file, as well as the small hidden markers used as target.
+
+   Tip: When using the keyboard shortcut Shift+Alt+[0-9] it may be convenient to use the ring and
+    index fingers of the left hand (4 and 2, according to piano terminology), although it is also 
+    possible to assign other shortcuts.
+
+* Glossary: shortcuts formed exclusively by non alphanumeric characters will be automatically recognized
+   We can expand "--" to "—", for example, using F7. It is not necessary to select previously those two
+   characters. KeyNote will first try to find a term in glossary considering spaces (' ', tab and break
+   lines) as word delimiters. If it does not find any terms, it will repeat the search considering any
+   non-alphanumeric character as a word delimiter (as usual)
+
+   So, if we have, "--" -> "—"   and "eg" -> "Example", then:
+   "--eg" --> "--Example"
+   If we also had "--eg" -> "EXAMPLE", then
+	"--eg" --> "--EXAMPLE"
+	"-- eg" --> "-- Example"
+
+   We can define something like "*10" -> "*********"
+
+* Revised behavior of color selection buttons
+ - Added hint to "Other colors.." button to remember to right click on custom colors buttons to set or 
+   modify them
+ - When selected a color from "Other colors.." button, besides assigning that color to the Other color
+   button (in the left down corner), that color will be automatically applied, as if you click on it.
+ - Modifications in custom colors set will be saved even you don't click any of them
+
+
+* Fixed: When navigating back in the history to another Editor (node or note), try to keep visible position
+  It adjusts sligthly the change in version 1.8.2:
+  - When jumping to a location (eg. click on a hyperlink), show the destination on the first line of the editor
+
+* Adjustment in history navigation
+  Currently it could add some unnecessary "history point" when activating an internal Keynote link
+  (or using an auxiliary bookmark (0-9))
+
+  For example, being 'Node 1' the selected node in "Note B", and "Note A" the selected note, after
+  jumping with a internal knt link  to 'Node 2' in "Note B", navigating back should return to Note A
+  and not to 'Node 1' in Note B.
+
+* Fixed: Exception navigating history to a deleted node
+
+
+* Fixed: When pasting from clipboard, RTF should be prioritized over image
+  This should resolve issue #640 "Content copied from MS PowerPoint will be pasted as graph"
+  Pasting from Excel also happened, for example. Now, if you copy a range of Excel cells,
+  will be pasted as a table (RTF). If we want to paste as image, we can use Paste Other.
+
+* Fixed: TAB multiple lines (#31) didn't work in plain text notes
+
+
+* Fixed some bugs related to Export and UNICODE (see details)
+ - Right-click on the node -> Export
+   - Exporting from plain text to RTF and HTML failed
+
+ - File | Export...
+   - Exporting from plain text to RTF and HTML failed
+   - Exporting from RTF was not successful if the system codepage was UTF8 (65001)
+    (In W10 that codepage is enabled with the option "Beta: Use Unicode UTF- 8 for worldwide language support"
+
+   That current codepage in then system can be consulted by looking in the Windows registry, for example with the
+   following instruction from the command line (CMD):
+    REG QUERY "HKLM\SYSTEM\CurrentControlSet\Control\Nls\CodePage" -v ACP | find /I "ACP"
+
+   The modification of the codepage can be done from the Windows configuration:
+    https://github.com/dpradov/keynote-nf/issues/618#issuecomment-1808561198
+
+   Ref:
+    https://learn.microsoft.com/en-us/cpp/text/locales-and-code-pages?view=msvc-170
+
+* Adjustment on converting HTML to RTF
+  Related to UTF8 system codepage
+  
+  * Note that currently KeyNote relies on Windows WebBrowser component to make conversions from HTML to RTF, 
+    copying the HTML text to clipboard. For the tests done, that component doesn't offer the converted RTF format
+  	when system codepage is UTF8 (65001). Note also that this option is marked as Beta in W10 and W11.
+	This implies that text copied from web browsers is always pasted as plain text.
+	However it seems to be situations where this conversions still works with UTF8, and perhaps it depends on the 
+	regional language (at least as I think I understand it from what is indicated in some issues, like #629 --Problem with text coding )
+	I want to continue studying this issue and, if possible, look for an alternative way to do the conversion that 
+	is not affected by the system codepage
+	
+	To see current UTF8 configuration in your system:
+	https://github.com/dpradov/keynote-nf/issues/618#issuecomment-1808561198
+	
+
+* Disabled for now the insertion of a hyperlink when pasting image from a web browser
+  Perhaps it will be restored and used if enabled via a new INI configuration option
+  Currently it could add the link with the source ok but with an incorrect Alt text.

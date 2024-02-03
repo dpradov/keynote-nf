@@ -3,6 +3,25 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 1.8.5 .01  (03 feb 2024)
+--------------------------
+(Detailed info in doc\Changes in 1.8.5 .01.txt)
+
+* Fixed issue #644: Export Notes Crash - Error Message and Application Freeze During Text Notes Export
+* Fixed issue #642: KeyNote disappear after select 'Cancel' in the confirmation message box for exit with unsaved modification
+* Improved Bookmarks 0-9: Now are persisted, and are linked to target through a hidden mark
+* Glossary: shortcuts formed exclusively by non alphanumeric characters will be automatically recognized
+* Revised behavior of color selection buttons
+* Fixed: When navigating back in the history to another Editor (node or note), try to keep visible position
+* Adjustment in history navigation
+* Fixed: Exception navigating history to a deleted node
+* Fixed: When pasting from clipboard, RTF should be prioritized over image
+* Fixed: TAB multiple lines (#31) didn't work in plain text notes
+* Fixed some bugs related to Export and UNICODE (see details)
+* Adjustment on converting HTML to RTF
+* Disabled for now the insertion of a hyperlink when pasting image from a web browser
+
+
 v 1.8.4 .01  (27 ene 2024)
 --------------------------
 (Detailed info in doc\Changes in 1.8.4 .01.txt)
