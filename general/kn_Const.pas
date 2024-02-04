@@ -124,12 +124,18 @@ const
   Program_Version_Date    = '03/02/2024';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
-  Program_URL     = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
-  Program_URL_Donations  = 'https://github.com/dpradov/keynote-nf/tree/master#donations';
+  Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
+  Program_URL_LatestRelease  = '/releases/latest';
+  Program_URL_Donations  = '/tree/master#donations';
+  Program_URL_RawFiles = 'https://raw.githubusercontent.com/dpradov/keynote-nf/master';
+  Program_URL_History_txt  = '/doc/history.txt';
+  Program_URL_API_LatestRelease = 'https://api.github.com/repos/dpradov/keynote-nf/releases/latest';
+
   Program_Email1  = 'dprado.keynote@gmail.com';
   Program_Email2  = 'marekjed@users.sourceforge.net';
   Program_Credit1 = 'Copyright © 2007-24  Daniel Prado Velasco   (since 1.7.0)';
   Program_Credit2 = 'Copyright © 2000-05  Marek Jedlinski';
+  Hint_Support = 'Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!';
 
   UniqueAppName_KEYNOTE10   = 'GFKeyNote10';
 

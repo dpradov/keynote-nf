@@ -36,16 +36,12 @@ object AboutBox: TAboutBox
     OnClick = BTN_CloseClick
   end
   object lblDonations: TLabel
-    Left = 289
+    Left = 283
     Top = 333
-    Width = 119
+    Width = 128
     Height = 13
     Cursor = crHandPoint
-    Hint = 
-      'Thanks for using KeyNote NF. You can show your appreciation and ' +
-      'support future development by donating!'
-    AutoSize = False
-    Caption = 'Donate with PayPal'
+    Caption = 'Support the developer'
     Font.Charset = ANSI_CHARSET
     Font.Color = clBlue
     Font.Height = -11

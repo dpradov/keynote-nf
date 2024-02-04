@@ -345,6 +345,9 @@ type
     LastNumbering,
     LastNumberingStyle,
     LastVersion,
+    LastInformedVersion,
+    CheckUpdOnStartup,
+    VersionLastChecked,
     LoadLastFile,
     LoadUserFile,
     LongCombos,
@@ -510,6 +513,9 @@ const
     LastNumbering : 'LastNumbering';
     LastNumberingStyle : 'LastNumberingStyle';
     LastVersion : 'LastVersion';
+    LastInformedVersion: 'LastInformedVersion';
+    CheckUpdOnStartup: 'CheckUpdOnStartup';
+    VersionLastChecked: 'VersionLastChecked';
     LoadLastFile : 'LoadLastFile';
     LoadUserFile : 'LoadUserFile';
     LongCombos : 'LongCombos';
@@ -1017,6 +1023,9 @@ begin
     LastNumbering := nsArabicNumbers;
     LastNumberingStyle := nsPeriod;
     LastVersion := Program_Version_Number;
+    CheckUpdOnStartup:= true;
+    VersionLastChecked:= 0;
+    LastInformedVersion:= Program_Version_Number;
     LoadLastFile := true;
     LoadUserFile := false;
     LongCombos := false;
@@ -1312,6 +1321,9 @@ begin
       writeinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering ));
       writeinteger( section, KeyOptionsIniStr.LastNumberingStyle, integer(KeyOptions.LastNumberingStyle));
       writestring( section, KeyOptionsIniStr.LastVersion, Program_Version_Number ); // always write current version
+      writestring( section, KeyOptionsIniStr.LastInformedVersion, KeyOptions.LastInformedVersion );
+      writebool( section, KeyOptionsIniStr.CheckUpdOnStartup, KeyOptions.CheckUpdOnStartup );
+      writedate( section, KeyOptionsIniStr.VersionLastChecked, KeyOptions.VersionLastChecked );
       writebool( section, KeyOptionsIniStr.LoadLastFile, KeyOptions.LoadLastFile );
       writebool( section, KeyOptionsIniStr.LoadUserFile, KeyOptions.LoadUserFile );
       writeinteger( section, KeyOptionsIniStr.ZoomIncrement, KeyOptions.ZoomIncrement );
@@ -1642,6 +1654,9 @@ begin
       KeyOptions.LastNumbering := TRxNumbering( readinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering )));
       KeyOptions.LastNumberingStyle := TRxNumberingStyle( readinteger( section, KeyOptionsIniStr.LastNumberingStyle, integer(KeyOptions.LastNumberingStyle)));
       KeyOptions.LastVersion := readstring( section, KeyOptionsIniStr.LastVersion, KeyOptions.LastVersion );
+      KeyOptions.LastInformedVersion := readstring( section, KeyOptionsIniStr.LastInformedVersion, KeyOptions.LastInformedVersion );
+      KeyOptions.CheckUpdOnStartup := readbool( section, KeyOptionsIniStr.CheckUpdOnStartup, KeyOptions.CheckUpdOnStartup );
+      KeyOptions.VersionLastChecked := ReadDate( section, KeyOptionsIniStr.VersionLastChecked, KeyOptions.VersionLastChecked );
       KeyOptions.LoadLastFile := readbool( section, KeyOptionsIniStr.LoadLastFile, KeyOptions.LoadLastFile );
       KeyOptions.LoadUserFile := readbool( section, KeyOptionsIniStr.LoadUserFile, KeyOptions.LoadUserFile );
       KeyOptions.LongCombos := readbool( section, KeyOptionsIniStr.LongCombos, KeyOptions.LongCombos );

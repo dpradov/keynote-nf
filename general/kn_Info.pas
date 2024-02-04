@@ -536,7 +536,10 @@ type
     LastImportPath : string;
     LastNumbering : TRxNumbering;
     LastNumberingStyle: TRxNumberingStyle;
-    LastVersion : string; // last version of KeyNote. Used to detect upgrades
+    LastVersion : string; // last version opened of KeyNote. Used to detect upgrades
+    LastInformedVersion : string; // latest version of which it have been informed
+    CheckUpdOnStartup: boolean;   // Check for updates on startup
+    VersionLastChecked: TDate;
     LoadLastFile : boolean; // if TRUE, open last used file at startup
     LoadUserFile : boolean; // if TRUE, always open user-specified file at startup
     LongCombos : boolean; // combo boxes on toolbar 25% longer

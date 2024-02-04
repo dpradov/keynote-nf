@@ -1607,10 +1607,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Dock_ResMacro: TDock97
         Left = 0
         Top = 0
@@ -1707,10 +1703,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ListBox_ResTpl: TGFXListBox
         Left = 0
         Top = 0
@@ -1740,10 +1732,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter_plugins: TSplitter
         Left = 0
         Top = 530
@@ -1864,10 +1852,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ListBox_ResFav: TGFXListBox
         Left = 0
         Top = 0
@@ -3627,6 +3611,10 @@ object Form_Main: TForm_Main
       end
       object N72: TMenuItem
         Caption = '-'
+      end
+      object MMHelpChkUpd: TMenuItem
+        Caption = 'Check for &Updates'
+        OnClick = MMHelpChkUpdClick
       end
       object MMHelpAbout: TMenuItem
         Caption = '&About KeyNote'

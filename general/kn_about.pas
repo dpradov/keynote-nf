@@ -126,6 +126,7 @@ begin
   Label_License.Font.Color := _GF_BLACK;
   Label_Dart.Font.Color := _GF_NAVY;
   Label_KeynoteNF.Font.Color := _GF_NAVY;
+  lblDonations.Hint:= Hint_Support;
 
 
   GetDLLProductVersion(pathDLL, VersionDLL, VersionRichEdit);
@@ -197,7 +198,7 @@ end;
 
 procedure TAboutBox.lblDonationsClick(Sender: TObject);
 begin
-  OpenURL (Program_URL_Donations, (sender as TLabel));
+  OpenURL (Program_URL + Program_URL_Donations, (sender as TLabel));
 end;
 
 procedure TAboutBox.CopyEmailaddress1Click(Sender: TObject);

@@ -873,6 +873,7 @@ type
     MMShowAlarms: TMenuItem;
     MMAlarmsPopup: TMenuItem;
     MMViewHistory: TMenuItem;
+    MMHelpChkUpd: TMenuItem;
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
     procedure TntFormResize(Sender: TObject);
@@ -1283,6 +1284,7 @@ type
     procedure RTFMRestoreProportionsClick(Sender: TObject);
     procedure MMShowAlarmsClick(Sender: TObject);
     procedure MMAlarmsPopupClick(Sender: TObject);
+    procedure MMHelpChkUpdClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -1422,7 +1424,8 @@ uses
    kn_EditorUtils,
    kn_AlertMng,
    kn_ImageForm,
-   kn_ImagesUtils;
+   kn_ImagesUtils,
+   kn_UpdateVersion;
 
 {$R *.DFM}
 {$R .\resources\catimages}
@@ -2217,6 +2220,7 @@ const
   bools : array[false..true] of string = ( 'No', 'Yes' );
 var
   Hrs, Mins : integer;
+  _MillisecondsIdle: DWord;
 begin
   inc( Timer_Tick );
   inc( Timer_TickAlarm);
@@ -2282,10 +2286,14 @@ begin
     end;
 
 
-    if EditorOptions.WordCountTrack and (MillisecondsIdle >= 450) then
+    _MillisecondsIdle:= MillisecondsIdle;
+    if KeyOptions.CheckUpdOnStartup and (_MillisecondsIdle > 3000) then
+       CheckForUpdate(true);
+
+    if EditorOptions.WordCountTrack and (_MillisecondsIdle >= 450) then
        UpdateWordCount;
 
-    if (NoteFile <> nil) and (not NoteFile.TextPlainVariablesInitialized) and (MillisecondsIdle >= 450) then
+    if (NoteFile <> nil) and (not NoteFile.TextPlainVariablesInitialized) and (_MillisecondsIdle >= 450) then
        NoteFile.UpdateTextPlainVariables(150);
 
 
@@ -3577,18 +3585,18 @@ end;
 
 procedure TForm_Main.NewVersionInformation;
 begin
-  if ( KeyOptions.IgnoreUpgrades or ( KeyOptions.LastVersion >= Program_Version_Number )) then
-    exit;
-  KeyOptions.TipOfTheDay := true;
-  KeyOptions.TipOfTheDayIdx := -1;
-  case messagedlg(
-    Format(STR_17
-    , [KeyOptions.LastVersion, Program_Version, SampleFileName] ),
-    mtInformation, [mbYes,mbNo], 0
-  ) of
-    mrYes : begin
-      DisplayHistoryFile;
-    end;
+  if ( not KeyOptions.IgnoreUpgrades and ( IsLaterVersion(KeyOptions.LastVersion, Program_Version_Number ) )) then begin
+     //KeyOptions.TipOfTheDay := true;
+     KeyOptions.TipOfTheDayIdx := -1;
+     case messagedlg(
+       Format(STR_17
+       , [KeyOptions.LastVersion, Program_Version, SampleFileName] ),
+       mtInformation, [mbYes,mbNo], 0
+     ) of
+       mrYes : begin
+         DisplayHistoryFile;
+       end;
+     end;
   end;
 
 end; // NewVersionInformation
@@ -4015,6 +4023,11 @@ end; // ShowAbout
 procedure TForm_Main.MMToolsOptionsClick(Sender: TObject);
 begin
   AdjustOptions;
+end;
+
+procedure TForm_Main.MMHelpChkUpdClick(Sender: TObject);
+begin
+    CheckForUpdate (false);
 end;
 
 procedure TForm_Main.MMHelpAboutClick(Sender: TObject);
