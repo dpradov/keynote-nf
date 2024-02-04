@@ -3,7 +3,7 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
-v 1.8.5 .01  (03 feb 2024)
+v 1.8.5.1  (03 feb 2024)
 --------------------------
 (Detailed info in doc\Changes in 1.8.5 .01.txt)
 
@@ -22,7 +22,7 @@ v 1.8.5 .01  (03 feb 2024)
 * Disabled for now the insertion of a hyperlink when pasting image from a web browser
 
 
-v 1.8.4 .01  (27 ene 2024)
+v 1.8.4.1  (27 ene 2024)
 --------------------------
 (Detailed info in doc\Changes in 1.8.4 .01.txt)
 
@@ -50,7 +50,7 @@ v 1.8.4 .01  (27 ene 2024)
 
 
 
-v 1.8.3 .01  (29 dec 2023)
+v 1.8.3.1  (29 dec 2023)
 --------------------------
 (Detailed info in doc\Changes in 1.8.3 .01.txt)
 * Fixed: Paste operation could keep text selected in certain situations, afecting to ClipCap
@@ -63,7 +63,7 @@ v 1.8.3 .01  (29 dec 2023)
 * Fixed: Pasting format could hide the text where it was applied, if copied from a line starting with a hyperlink
 
 
-v 1.8.2 .01  (23 dec 2023)
+v 1.8.2.1  (23 dec 2023)
 --------------------------
 (Detailed info in doc\Changes in 1.8.2 .01.txt)
 * New: Added options in treeview context menu to hide/show child nodes based on checked status
@@ -87,12 +87,12 @@ v 1.8.2 .01  (23 dec 2023)
 * Fixed: "FORMATEC structure not valid" exception pasting from certain pages
 
 
-v 1.8.1 .08  (14 dec 2023)
+v 1.8.1.8  (14 dec 2023)
 --------------------------
 * Fixed: Null values (#0) could appear sporadically, corrupting/truncating part of the node content
   More info in https://github.com/dpradov/keynote-nf/issues/623#issuecomment-1856346322
 
-v 1.8.1 .07  (11 dec 2023)
+v 1.8.1.7  (11 dec 2023)
 --------------------------
 (Detailed info in doc\Changes in 1.8.1 Beta1-6.txt)
 
