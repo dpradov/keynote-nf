@@ -2695,7 +2695,7 @@ begin
           if ( activecontrol = Combo_FontSize ) or
              ( activecontrol = Combo_Font ) or
              ( activecontrol = FindAllResults ) or
-             // ( activecontrol = Res_RTF ) or            // *1  (001)
+             ( activecontrol = Res_RTF ) or
              ( activecontrol = ListBox_ResMacro ) or
              ( activecontrol = ListBox_ResTpl ) or
              ( activecontrol = ListBox_ResPlugins ) or
