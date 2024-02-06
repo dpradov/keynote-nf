@@ -2694,7 +2694,8 @@ begin
         begin
           if ( activecontrol = Combo_FontSize ) or
              ( activecontrol = Combo_Font ) or
-             ( activecontrol = FindAllResults ) or
+             ( activecontrol = FindAllResults ) or (activecontrol = Btn_ResFind) or (activecontrol = Btn_ResFlip) or
+             (( activecontrol = combo_ResFind ) and (combo_resfind.Text = '')) or
              ( activecontrol = Res_RTF ) or
              ( activecontrol = ListBox_ResMacro ) or
              ( activecontrol = ListBox_ResTpl ) or
@@ -2711,7 +2712,7 @@ begin
             FocusActiveNote;
           end
           else
-          if ( activecontrol = combo_resfind ) then
+          if ( activecontrol = combo_ResFind ) then
           begin
             combo_resfind.Text := '';
           end
