@@ -36,25 +36,11 @@ uses
    Vcl.ExtCtrls,
 
    ComCtrls95,
-   RxRichEd,
-   MRUFList,
    TB97Ctls,
    TreeNT,
 
-   gf_misc,
-   gf_strings,
-   gf_miscvcl,
-   kn_Info,
-   kn_Const,
-   kn_NodeList,
-   kn_TreeNoteMng,
-   kn_MacroMng,
-   kn_Macro,
-   kn_FavoritesMng,
-   kn_Chest,
-   kn_EditorUtils,
-   kn_NoteObj,
-   kn_NoteFileMng;
+   kn_NoteObj
+;
 
 
 
@@ -101,11 +87,26 @@ var
 
 implementation
 uses
+   MRUFList,
+   RxRichEd,
+   gf_misc,
+   gf_strings,
+   gf_miscvcl,
    kn_Global,
+   kn_Main,
+   kn_Info,
+   kn_Const,
+   kn_NodeList,
+   kn_Macro,
+   kn_Chest,
+   kn_EditorUtils,
+   kn_TreeNoteMng,
+   kn_MacroMng,
    kn_PluginsMng,
+   kn_FavoritesMng,
    kn_TemplateMng,
-   kn_FindReplaceMng,
-   kn_Main;
+   kn_NoteFileMng;
+
 
 
 resourcestring

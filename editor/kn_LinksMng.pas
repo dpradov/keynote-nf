@@ -33,24 +33,14 @@ uses
    Vcl.Dialogs,
    Vcl.StdCtrls,
    Vcl.Clipbrd,
-   RxRichEd,
+
    TreeNT,
-   gf_misc,
-   gf_miscvcl,
-   gf_files,
-   gf_strings,
-   gf_streams,
-   kn_Const,
+
    kn_Info,
-   kn_Ini,
-   kn_RTFUtils,
+   kn_Const,
    kn_NoteObj,
-   kn_NoteFileMng,
-   kn_NodeList,
-   kn_TreeNoteMng,
-   kn_LocationObj,
-   kn_URL,
-   kn_History
+   kn_History,
+   kn_LocationObj
    ;
 
 
@@ -96,12 +86,24 @@ var
 
 implementation
 uses
+   RxRichEd,
+
+   gf_misc,
+   gf_files,
+   gf_strings,
+   gf_streams,
    kn_Global,
    kn_Main,
+   kn_URL,
+   kn_NodeList,
    kn_EditorUtils,
+   kn_RTFUtils,
    kn_FindReplaceMng,
    kn_ImagesMng,
-   kn_ImageForm;
+   kn_ImageForm,
+   kn_NoteFileMng,
+   kn_TreeNoteMng
+  ;
 
 
 resourcestring

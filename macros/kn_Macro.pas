@@ -26,12 +26,7 @@ uses
    Vcl.Forms,
    Vcl.Controls,
    Vcl.Dialogs,
-   gf_misc,
-   gf_files,
-   gf_strings,
-   kn_Const,
-   kn_Info,
-   kn_MacroCmd
+   kn_Info
    ;
 
 const
@@ -101,7 +96,12 @@ function IsAutorunMacro (FileName: string): boolean;
 
 implementation
 uses
+  gf_misc,
+  gf_files,
+  gf_strings,
   kn_Global,
+  kn_Const,
+  kn_MacroCmd,
   kn_MacroMng;
 
 resourcestring

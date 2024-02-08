@@ -38,17 +38,10 @@ uses
    TB97Ctls,
    ColorPicker,
 
-   gf_misc,
-   kn_Info,
-   kn_ClipUtils,
-   kn_RTFUtils,
    kn_NoteObj,
    kn_NodeList,
-   kn_LocationObj,
-   kn_LinksMng,
-   kn_VCLControlsMng,
-   kn_Const,
-   kn_Main;
+   kn_LocationObj
+   ;
 
 
 type
@@ -361,7 +354,16 @@ var
 
 implementation
 uses
-  kn_Global;
+  gf_misc,
+  kn_Global,
+  kn_const,
+  kn_Info,
+  kn_ClipUtils,
+  kn_RTFUtils,
+  kn_LinksMng,
+  kn_VCLControlsMng,
+  kn_Main
+  ;
 
 
 {$R *.DFM}

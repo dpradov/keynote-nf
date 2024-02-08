@@ -28,9 +28,8 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.StdCtrls,
-   Vcl.ExtCtrls,
-   kn_Const,
-   kn_Info;
+   Vcl.ExtCtrls
+   ;
 
 type
   TForm_DropFile = class(TForm)
@@ -66,6 +65,7 @@ implementation
 
 uses
   kn_NoteFileMng,
+  kn_Const,
   kn_Global;
 
 {$R *.DFM}

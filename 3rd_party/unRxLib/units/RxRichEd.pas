@@ -776,20 +776,16 @@ uses
  Vcl.Printers, Vcl.ComStrs, Vcl.OleConst, Winapi.OleDlg, {$IFDEF RX_D3} Vcl.OleCtnrs, {$ENDIF}
   {$IFDEF RX_D12}Winapi.CommDlg,{$ENDIF}
   RxMaxMin,
-  Vcl.Clipbrd, tom_TLB                                                                        // [dpv]  tom_TLB -> ITextDocument
-  {$IFDEF RX_ENH}
-  , gf_strings                                                                                // [dpv]  -> CanSaveAsANSI
-  {$ENDIF}
-  , kn_ClipUtils, ShellAPI                                                                    // [dpv]  kn_ClipUtils -> GetDropFiles, ShellAPI -> DragAcceptFiles)
+  Vcl.Clipbrd, tom_TLB,                                                       // [dpv]  tom_TLB -> ITextDocument
+  ShellAPI                                                                    // [dpv]  ShellAPI -> DragAcceptFiles
   {$IFDEF KNT_DEBUG}
   , GFLog, kn_Global                                                                          // [dpv]
   {$ENDIF}
-  //, IOUtils                                                                                   // [dpv] See comment *5
+  //, IOUtils                                                                                 // [dpv] See comment *5
   ;
 
-{
-// ---------------- gf_strings -> CanSaveAsANSI
 
+{$IFDEF RX_ENH}
 function CanSaveAsANSI(const cad: string): boolean;
 var
    ch: Char;
@@ -802,12 +798,8 @@ begin
 
    Result:= true;
 end;
+{$ENDIF}
 
-// ---------------- tom_TLB -> ITextDocument
-  -> SuspendUndo, ResumeUndo
-
-  
-// ---------------- kn_ClipUtils -> GetDropFiles
 
 function GetDropFiles(hDrop: THANDLE): TStringList;
 var
@@ -835,7 +827,7 @@ begin
 
 end;
 
-}
+
 
 
 

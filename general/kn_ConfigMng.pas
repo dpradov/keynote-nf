@@ -27,18 +27,7 @@ uses
    Vcl.Dialogs,
    Vcl.Menus,
    TB97Ctls,
-   TB97Tlbr,
-   gf_files,
-   dll_Keyboard,
-   kn_Dllmng,
-   kn_DLLinterface,
-   kn_Info,
-   kn_INI,
-   kn_Const,
-   kn_Chest,
-   kn_MacroMng,
-   kn_VCLControlsMng,
-   kn_Main
+   TB97Tlbr
    ;
 
     // config management
@@ -61,9 +50,21 @@ uses
 implementation
 
 uses
-   kn_LanguagesMng,
+   gf_files,
+   kn_Info,
+   kn_INI,
+   kn_Const,
+   kn_global,
+   kn_Chest,
    kn_OptionsNew,
-   kn_global;
+   dll_Keyboard,
+   kn_Dllmng,
+   kn_DLLinterface,
+   kn_LanguagesMng,
+   kn_MacroMng,
+   kn_VCLControlsMng,
+   kn_Main
+   ;
 
 
 resourcestring

@@ -31,14 +31,11 @@ uses
    Vcl.StdCtrls,
    Vcl.ComCtrls,
    Vcl.ExtCtrls,
-   TreeNT,
    RxPlacemnt,
-   gf_misc,
-   gf_files,
-   kn_info,
+   TreeNT,
    kn_Const,
-   kn_Chest,
-   kn_FileObj;
+   kn_FileObj
+   ;
 
 
 
@@ -116,6 +113,10 @@ procedure ClearFileManager;
 
 implementation
 uses
+   gf_misc,
+   gf_files,
+   kn_info,
+   kn_Chest,
    kn_main;
 
 {$R *.DFM}

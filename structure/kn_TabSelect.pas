@@ -29,10 +29,8 @@ uses
    Vcl.Dialogs,
    Vcl.StdCtrls,
    cmpGFXListBox,
-   kn_Const,
-   kn_Chest,
-   kn_NoteObj,
-   kn_FileObj;
+   kn_FileObj
+   ;
 
 
 type
@@ -69,6 +67,12 @@ type
 function SelectTabs( const aNoteFile : TNoteFile ) : boolean;
 
 implementation
+uses
+   kn_Const,
+   kn_Chest,
+   kn_NoteObj
+   ;
+
 
 {$R *.DFM}
 

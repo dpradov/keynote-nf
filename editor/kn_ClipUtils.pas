@@ -26,10 +26,7 @@ uses
    System.SysUtils,
    Vcl.Dialogs,
    Vcl.Clipbrd ,
-   CRC32,
-   RxRichEd,
-   gf_strings,
-   kn_RTFUtils;
+   RxRichEd;
 
 var
   CFHtml : Integer; // = 0;
@@ -74,7 +71,12 @@ type
 implementation
 
 uses
-   kn_global, kn_ExportImport;
+   CRC32,
+   gf_strings,
+   kn_global,
+   kn_ExportImport,
+   kn_RTFUtils
+   ;
 
 
 resourcestring

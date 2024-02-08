@@ -28,16 +28,8 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.Clipbrd,
-   UWebBrowserWrapper,
-   gf_files,
-   gf_streams,
-   kn_const,
-   kn_Info,
-   kn_DllInterface,
-   kn_DLLmng,
-   kn_ClipUtils,
-   Kn_Global,
-   kn_Main;
+   kn_const
+   ;
 
 
    function ConvertHTMLToRTF(const inFilename : string; var OutStream: TMemoryStream) : boolean; overload;
@@ -47,6 +39,15 @@ uses
 
 
 implementation
+uses
+   UWebBrowserWrapper,
+   gf_files,
+   gf_streams,
+   Kn_Global,
+   kn_DllInterface,
+   kn_DLLmng,
+   kn_ClipUtils,
+   kn_Main;
 
 resourcestring
   STR_01 = 'Error while importing HTML text: ';

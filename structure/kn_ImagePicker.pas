@@ -30,9 +30,8 @@ uses
    Vcl.StdCtrls,
    Vcl.ExtCtrls,
    cmpGFXListBox,
-   RxPlacemnt,
-   kn_Info,
-   kn_Chest;
+   RxPlacemnt
+   ;
 
 
 type
@@ -57,6 +56,9 @@ type
 function PickImage( const CurrentIdx : integer; var DoChildren : boolean ) : integer;
 
 implementation
+uses
+   kn_Info,
+   kn_Chest;
 
 {$R *.DFM}
 resourcestring

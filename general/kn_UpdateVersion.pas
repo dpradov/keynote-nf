@@ -31,9 +31,8 @@ uses
    Vcl.Dialogs,
    Vcl.StdCtrls,
    Vcl.ExtCtrls,
-   Vcl.Buttons,
-   gf_miscvcl,
-   kn_Global;
+   Vcl.Buttons
+   ;
 
 type
   TUpdateVersion = class(TForm)
@@ -77,7 +76,8 @@ implementation
 uses
    WinInet,
    gf_strings,
-   kn_const
+   kn_const,
+   kn_Global
    ;
 
 resourcestring

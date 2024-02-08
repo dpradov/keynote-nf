@@ -26,12 +26,8 @@ uses
    Vcl.Forms,
    Vcl.Graphics,
    Vcl.Menus,
-   RxRichEd,
-   SynGdiPlus,
-   gf_misc,
-   gf_files,
-   kn_Info,
-   kn_Const;
+   kn_Info
+   ;
 
 
 procedure LoadKeyNoteOptions(
@@ -896,8 +892,13 @@ const
 
 implementation
 uses
+  RxRichEd,
+  SynGdiPlus,
+  gf_misc,
   kn_Global,
-  kn_NoteObj;
+  kn_NoteObj,
+  kn_Const;
+
 
 
 resourcestring

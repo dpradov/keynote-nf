@@ -25,13 +25,8 @@ uses
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
-   Vcl.Dialogs,
-   KDL.Localizer,
-   gf_misc,
-   kn_info,
-   kn_Const,
-   kn_global,
-   kn_Main;
+   Vcl.Dialogs
+   ;
 
 
   function LoadLanguagesAvailable( FN : string ): boolean;
@@ -51,6 +46,14 @@ var
 
 
 implementation
+uses
+   KDL.Localizer,
+   gf_misc,
+   kn_info,
+   kn_Const,
+   kn_global,
+   kn_Main;
+
 
 resourcestring
   STR_01 = 'Internal Language (English) will be established next time you start KeyNote NF';

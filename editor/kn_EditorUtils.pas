@@ -34,38 +34,11 @@ uses
    Vcl.ExtDlgs,
    ExtCtrls,
 
-   BrowseDr,
-   TreeNT,
-   Parser,
-   FreeWordWeb,
-   UAS,
    RxRichEd,
-   SynGdiPlus, // RxGIF,
-   RichPrint,
-   AJBSpeller,
+   kn_NoteObj
+   ;
 
-   gf_misc,
-   gf_files,
-   gf_strings,
-   gf_miscvcl,
-   GFTipDlg,
-   kn_INI,
-   kn_const,
-   kn_Cmd,
-   kn_Msgs,
-   kn_Info,
-   kn_FileObj,
-   kn_NewNote,
-   kn_NoteFileMng,
-   kn_TreeNoteMng,
-   kn_NoteMng,
-   kn_NodeList,
-   kn_Chars,
-   kn_ClipUtils,
-   kn_ExpTermDef,
-   kn_RTFUtils,
-   kn_LinksMng,
-   kn_NoteObj;
+
 
 type
    THiddenMarks = (hmOnlyBookmarks, hmOnlyImages, hmAll);
@@ -147,19 +120,48 @@ type
     function GetTitleFromURL (const URL: String; TryForLimitedTime: boolean): String;
     procedure CleanCacheURLs (OnlyWithoutTitle: boolean);
 
+    function CreateRTFAuxEditorControl (NoteToLoadFrom: TTabNote= nil; FromSelection: Boolean= True): TTabRichEdit;
+    procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TTabNote);
+
+
 const
   WordDelimiters = [#9, #10, #13, #32];
 
 implementation
 
 uses
+   AJBSpeller,
+   Parser,
+   FreeWordWeb,
+   UWebBrowserWrapper,
+   UAS,
+   RichPrint,
+   TreeNT,
+
+   gf_misc,
+   gf_files,
+   gf_strings,
+   gf_miscvcl,
+   GFTipDlg,
+
    Kn_Global,
    kn_Glossary,
-   kn_ExportImport,
+   kn_Main,
+   kn_const,
+   kn_Cmd,
+   kn_Info,
+   kn_NodeList,
+   kn_Chars,
+   kn_ClipUtils,
+   kn_ExpTermDef,
+   kn_NoteMng,
+   kn_LinksMng,
+   kn_NoteFileMng,
+   kn_TreeNoteMng,
    kn_VCLControlsMng,
-   kn_MacroMng,
-   UWebBrowserWrapper,
-   kn_Main;
+   kn_MacroMng
+   ;
+
 
 var
    LastURLPasted: string;
@@ -2885,6 +2887,76 @@ begin
   if wasiconic then
     Application.Minimize;
 end; // ShowTipOfTheDay
+
+function CreateRTFAuxEditorControl(NoteToLoadFrom: TTabNote= nil; FromSelection: Boolean= True): TTabRichEdit;
+var
+  Stream: TStream;
+  Str: String;
+  RTFAux : TTabRichEdit;
+  Editor: TRxRichEdit;
+begin
+  // *1   Tt's necessary to be able to use RTFAux.Perform(EM_LINEINDEX, L, 0)   (See for example: kn_Main.RxRTF_KeyPress)
+  //      Otherwise, the character position returned by that method will not match the line break, but rather a probably default line width (22).
+  // *2   This sentence must be executed before assigning Parent. If not, then can cause kn_NoteObj:TTabRichEdit.CMRecreateWnd to be called
+  // *3   After migrating to Delphi 11, with the use of unRxLib (instead of RX Library), it is necessary to define StreamFormat as sfRichText in this RTFAux control
+  //      Without it, the indentation of multiple lines done in kn_Main.RxRTF_KeyPress, would not work (would show RTF contet as text)
+
+   RTFAux := TTabRichEdit.Create(Form_Main);
+   RTFAux.Visible:= False;
+   RTFAux.WordWrap:= false;            // *1
+   RTFAux.OnProtectChangeEx:= Form_Main.RxRTFAuxiliarProtectChangeEx;
+   RTFAux.Parent:= Form_Main;
+
+   RTFAux.Clear;
+   RTFAux.StreamMode := [];
+   RTFAux.StreamFormat := sfRichText;  // *3
+   //RTFAux.WordWrap:= false;          // Commented: *2
+
+
+
+   if assigned(NoteToLoadFrom) then begin
+      Editor:= NoteToLoadFrom.Editor;
+
+      if NoteToLoadFrom.PlainText  then begin
+         RTFAux.StreamFormat := sfPlainText;
+         PrepareRTFAuxforPlainText(RTFAux, NoteToLoadFrom);
+         if FromSelection then
+            Str:= Editor.SelText
+         else
+            Str:= Editor.Text
+      end
+      else
+         if FromSelection then
+            Str:= Editor.RtfSelText
+         else
+            Str:= Editor.RtfText;
+
+      Stream:= TStringStream.Create(Str);
+      try
+         RTFAux.Lines.LoadFromStream(Stream);
+      finally
+         Stream.Free;
+      end;
+   end;
+
+   Result:= RTFAux;
+end;
+
+procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TTabNote);
+begin
+    if myNote.PlainText then begin
+       with RTF.DefAttributes do begin
+         Charset := myNote.EditorChrome.Font.Charset;
+         Name := myNote.EditorChrome.Font.Name;
+         Size := myNote.EditorChrome.Font.Size;
+         Style := myNote.EditorChrome.Font.Style;
+         Color := myNote.EditorChrome.Font.Color;
+         Language := myNote.EditorChrome.Language;
+       end;
+
+    end;
+end;
+
 
 
 initialization

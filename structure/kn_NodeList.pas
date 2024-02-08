@@ -24,8 +24,6 @@ uses
    Vcl.Graphics,
    Vcl.ComCtrls,
    TreeNT,
-   gf_misc,
-   gf_files,
    kn_Const,
    kn_Info;
 
@@ -163,6 +161,8 @@ var
 
 implementation
 uses
+   gf_misc,
+   gf_files,
    kn_Global,
    kn_TreeNoteMng,
    kn_NoteObj,

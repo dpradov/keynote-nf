@@ -27,8 +27,7 @@ uses
    Vcl.StdCtrls,
    Vcl.Samples.Spin,
    Vcl.Clipbrd,
-   RxPlacemnt,
-   kn_Info;
+   RxPlacemnt;
 
 
 type
@@ -78,6 +77,8 @@ type
   end;
 
 implementation
+uses
+  kn_Info;
 
 {$R *.DFM}
 

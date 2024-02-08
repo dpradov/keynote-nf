@@ -24,21 +24,8 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.Controls,
-   TreeNT,
-   gf_miscvcl,
-   gf_strings,
-   kn_Defaults,
    kn_Const,
-   kn_Info,
-   kn_Macro,
-   kn_NewNote,
-   kn_TreeNoteMng,
-   kn_FileMgr,
-   kn_NoteObj,
-   kn_BookmarksMng,
-   kn_NoteFileMng;
-
-
+   kn_Info;
 
     // note management
     procedure CreateNewNote;
@@ -50,8 +37,18 @@ uses
 implementation
 
 uses
+   TreeNT,
+   gf_miscvcl,
+   gf_strings,
    kn_Global,
    kn_EditorUtils,
+   kn_Defaults,
+   kn_Macro,
+   kn_NoteObj,
+   kn_FileMgr,
+   kn_NewNote,
+   kn_TreeNoteMng,
+   kn_NoteFileMng,
    kn_MacroMng,
    kn_ConfigMng,
    kn_VCLControlsMng,

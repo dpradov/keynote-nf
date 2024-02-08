@@ -38,26 +38,12 @@ uses
    TB97Ctls,
    ComCtrls95,
    TreeNT,
-   RxRichEd,
 
-   gf_misc,
-   gf_files,
-   gf_strings,
    gf_streams,
-   kn_RTFUtils,
    kn_Info,
-   kn_Const,
-   kn_Ini,
-   kn_Global,
-   kn_NoteObj,
-   kn_NodeList,
-   kn_TreeNoteMng,
-   kn_ExportImport,
    kn_FileObj,
-   kn_TabSelect,
-   kn_Main,
-   kn_NoteFileMng,
-   kn_EditorUtils;
+   kn_NoteObj
+   ;
 
 
 type
@@ -165,6 +151,23 @@ var
   Form_ExportNew: TForm_ExportNew;
 
 implementation
+uses
+   RxRichEd,
+   gf_misc,
+   gf_files,
+   gf_strings,
+   kn_RTFUtils,
+   kn_Const,
+   kn_Ini,
+   kn_Global,
+   kn_NodeList,
+   kn_TreeNoteMng,
+   kn_ExportImport,
+   kn_TabSelect,
+   kn_Main,
+   kn_NoteFileMng,
+   kn_EditorUtils
+   ;
 
 var
   LengthsHeading_Max, LengthsHeading_Inc, LengthsHeading_Min: integer;

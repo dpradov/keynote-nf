@@ -25,10 +25,9 @@ uses
    Vcl.Graphics,
    Vcl.Dialogs,
    RxRichEd,
-   gf_misc,
-   kn_INI,
-   kn_Const,
-   kn_Info;
+   kn_Info,
+   kn_Const
+   ;
 
 
 type
@@ -61,6 +60,12 @@ function TextInfoToStr( const ti : TTextInfo ) : string;
 
 
 implementation
+
+uses
+   gf_misc,
+   kn_INI;
+
+
 
 resourcestring
   STR_01 = 'Face: %s' + #13 +

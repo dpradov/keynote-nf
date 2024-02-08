@@ -3,11 +3,13 @@ unit funckeyform;
 interface
 
 uses
+  System.IniFiles,
   Windows, Messages, SysUtils, Classes, Graphics,
   Controls, Forms, Dialogs,
   StdCtrls, ComCtrls,
-  kn_Info,
-  ExtCtrls, RXCombos;
+  ExtCtrls, RXCombos,
+  kn_Info
+  ;
 
 type
   TForm_FuncKey = class(TForm)
@@ -58,7 +60,10 @@ type
 
 
 implementation
-uses IniFiles, kn_Const, kn_StyleObj, gf_files;
+uses
+  kn_Const,
+  kn_StyleObj,
+  gf_files;
 
 {$R *.DFM}
 
@@ -120,11 +125,11 @@ begin
   end;
   if ( KEY_FN = '' ) then
   begin
-    KEY_FN := ansilowercase( changefileext( ParamStr( 0 ), ext_Keyboard ));
+    KEY_FN := ansilowercase( changefileext( ParamStr( 0 ), ext_Key ));
   end
   else
   begin
-    KEY_FN := changefileext( KEY_FN, ext_Keyboard );
+    KEY_FN := changefileext( KEY_FN, ext_Key );
   end;
 
   // load existing keys

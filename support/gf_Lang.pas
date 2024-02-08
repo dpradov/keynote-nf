@@ -26,8 +26,8 @@ interface
 uses
    Winapi.Windows,
    System.SysUtils,
-   Vcl.Graphics,
-   gf_misc;
+   Vcl.Graphics
+   ;
 
 type
   TgfLanguage     = 0..$FFFF;

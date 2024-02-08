@@ -27,9 +27,8 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.StdCtrls,
-   TB97Ctls,
-   gf_misc,
-   kn_Info;
+   TB97Ctls
+   ;
 
 
 type
@@ -56,6 +55,8 @@ type
 
 implementation
 uses
+   gf_misc,
+   kn_Info,
    kn_main,
    kn_FavoritesMng;
 

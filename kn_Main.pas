@@ -45,15 +45,12 @@ uses
    Vcl.ImgList,
 
    ComCtrls95,
-   Parser,
    SystemImageList,
    cmpGFXListBox,
    TB97Ctls,
    TB97,
    TB97Tlbr,
    MRUFList,
-   BrowseDr,
-   CRC32,
    RxPlacemnt,
    RxRichEd,
    RXShell,
@@ -62,48 +59,14 @@ uses
    RXCtrls,
    //RxGIF {, jpeg},
    TopWnd,
-   RichPrint,
-   TreeNT,
    ColorPicker,
-   Langs,
+   TreeNT,
+   RichPrint,
 
-   gf_misc,
-   gf_miscvcl,
- {$IFDEF KNT_DEBUG}
-   GFLog,
- {$ENDIF}
-   kn_INI,
-   kn_Cmd,
-   kn_Msgs,
    kn_Info,
-   kn_Const,
-   kn_Defaults,
-   kn_clipUtils,
-   kn_NoteObj,
-   kn_FileInfo,
-   kn_About,
-   kn_DateTime,
-   kn_Chest,
-   kn_TabSelect,
-   kn_URL,
-   kn_FindReplace,
-   kn_NodeList,
-   kn_StyleObj,
-   kn_RTFUtils,
-   kn_Pass,
-   kn_Macro,
-   kn_MacroEdit,
-   kn_MacroCmd,
-   kn_Plugins,
-   kn_filemgr,
-   {$IFNDEF EXCLUDEEMAIL}
-   kn_SendMail,
-   {$ENDIF}
-   kn_LocationObj,
-   kn_History,
-   kn_LinksMng,
-   kn_ImagesMng,
-   kn_VCLControlsMng;
+   kn_Msgs,
+   kn_NoteObj
+   ;
 
 
   function DoMessageBox (text: string;
@@ -1406,7 +1369,29 @@ var
 
 implementation
 uses
+   Parser,
+   gf_misc,
+   gf_miscvcl,
    kn_Global,
+   kn_Pass,
+   kn_Macro,
+   kn_Plugins,
+   kn_filemgr,
+   kn_About,
+   kn_DateTime,
+   kn_Chest,
+   kn_clipUtils,
+   kn_LocationObj,
+   kn_History,
+   kn_EditorUtils,
+   kn_LinksMng,
+   kn_Cmd,
+   kn_Const,
+   kn_NodeList,
+   kn_StyleObj,
+   kn_ImageForm,
+   kn_ImagesUtils,
+   kn_UpdateVersion,
    kn_ExportNew,
    kn_NoteMng,
    kn_MacroMng,
@@ -1415,17 +1400,20 @@ uses
    kn_TemplateMng,
    kn_FindReplaceMng,
    kn_ConfigMng,
-   kn_DLLmng,
    kn_StyleMng,
    kn_FavoritesMng,
    kn_BookmarksMng,
    kn_VirtualNodeMng,
    kn_NoteFileMng,
-   kn_EditorUtils,
    kn_AlertMng,
-   kn_ImageForm,
-   kn_ImagesUtils,
-   kn_UpdateVersion;
+   kn_VCLControlsMng
+   {$IFNDEF EXCLUDEEMAIL}
+   ,kn_SendMail,
+   {$ENDIF}
+ {$IFDEF KNT_DEBUG}
+   ,GFLog
+ {$ENDIF}
+   ;
 
 {$R *.DFM}
 {$R .\resources\catimages}

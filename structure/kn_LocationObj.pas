@@ -20,8 +20,8 @@ uses
    Winapi.Windows,
    System.Classes,
    System.SysUtils,
-   System.IniFiles,
-   kn_Const;
+   System.IniFiles;
+
 
 type
   TLocation = class( TObject )
@@ -91,6 +91,8 @@ procedure SaveFavorites( const FN : string );
 
 
 implementation
+uses
+  kn_Const;
 
 procedure LoadFavorites( const FN : string );
 var

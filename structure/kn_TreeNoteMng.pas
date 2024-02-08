@@ -31,24 +31,11 @@ uses
    Vcl.Clipbrd,
    TreeNT,
    RxRichEd,
-   gf_strings,
-   gf_streams,
-   gf_miscvcl,
-   gf_misc,
    kn_Info,
-   kn_Chest,
-   kn_RTFUtils,
-   kn_clipUtils,
-   kn_NodeNum,
-   kn_ImagePicker,
-   kn_LocationObj,
-   kn_VirtualNodeMng,
-   kn_NoteFileMng,
-   kn_nodeList,
-   kn_noteObj,
-   kn_Macro,
    kn_Const,
-   kn_History;
+   kn_noteObj,
+   kn_nodeList
+   ;
 
 
 var
@@ -110,12 +97,23 @@ var
 
 implementation
 uses
+   gf_strings,
+   gf_streams,
+   gf_miscvcl,
+   gf_misc,
    kn_Global,
-   kn_MacroMng,
    kn_EditorUtils,
-   kn_FindReplaceMng,
+   kn_Chest,
+   kn_clipUtils,
+   kn_ImagePicker,
+   kn_NodeNum,
+   kn_Macro,
+   kn_Main,
    kn_LinksMng,
-   kn_Main;
+   kn_VirtualNodeMng,
+   kn_MacroMng,
+   kn_NoteFileMng
+   ;
 
 
 resourcestring

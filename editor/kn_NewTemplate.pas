@@ -27,8 +27,8 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.ExtCtrls,
-   Vcl.StdCtrls,
-   gf_files;
+   Vcl.StdCtrls
+   ;
 
 type
   TForm_Template = class(TForm)
@@ -53,6 +53,9 @@ var
   Form_Template: TForm_Template;
 
 implementation
+
+uses
+  gf_files;
 
 {$R *.DFM}
 

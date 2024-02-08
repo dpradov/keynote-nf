@@ -24,18 +24,9 @@ uses
     Vcl.Dialogs,
     Vcl.Controls,
     Vcl.StdCtrls,
-    cmpGFXListbox,
-    kn_Global,
-    kn_Info,
-    kn_Const,
-    kn_NoteObj,
-    kn_NoteFileMng,
-    kn_TreeNoteMng,
-    kn_VCLControlsMng,
-    kn_Plugins,
-    kn_PluginBase,
-    kn_EditorUtils,
-    kn_Main;
+
+    kn_Plugins
+    ;
 
 
     // plugin-related routines
@@ -53,6 +44,20 @@ var
 
 
 implementation
+
+uses
+  cmpGFXListbox,
+  kn_Global,
+  kn_Info,
+  kn_Const,
+  kn_NoteObj,
+  kn_PluginBase,
+  kn_EditorUtils,
+  kn_Main,
+  kn_NoteFileMng,
+  kn_TreeNoteMng,
+  kn_VCLControlsMng
+  ;
 
 resourcestring
   STR_01 = 'Select plugin to display information';

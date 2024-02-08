@@ -29,14 +29,8 @@ uses
    Vcl.StdCtrls,
    ComCtrls95,
    RxPlacemnt,
-   gf_misc,
-   gf_strings,
-   kn_Info,
-   kn_Const,
-   kn_Ini,
-   kn_NoteObj,
-   kn_MacroMng;
-
+   kn_Info
+   ;
 
 
 type
@@ -109,9 +103,16 @@ type
 
 implementation
 uses
+   gf_misc,
+   gf_strings,
+   kn_Const,
+   kn_Ini,
    kn_Global,
+   kn_NoteObj,
+   kn_Main,
    kn_FindReplaceMng,
-   kn_Main;
+   kn_MacroMng
+   ;
 
 
 {$R *.DFM}

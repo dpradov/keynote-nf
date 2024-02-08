@@ -30,9 +30,8 @@ uses
    Vcl.StdCtrls,
    Vcl.Mask,
    RxToolEdit,
-   gf_misc,
-   kn_Info,
-   kn_Const;
+   kn_Const
+   ;
 
 type
   TForm_VNode = class(TForm)
@@ -63,6 +62,10 @@ var
   Form_VNode: TForm_VNode;
 
 implementation
+uses
+  gf_misc,
+  kn_Info
+  ;
 
 {$R *.DFM}
 

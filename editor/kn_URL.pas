@@ -26,10 +26,8 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.StdCtrls,
-   RxRichEd,
-   gf_misc,
-   kn_Info,
-   kn_const;
+   kn_Info
+   ;
 
 
 type
@@ -70,7 +68,10 @@ function StripFileURLPrefix( const AStr : string ) : string;
 
 implementation
 uses
-   kn_LinksMng;
+   RxRichEd,
+   kn_const,
+   kn_LinksMng
+   ;
 
 
 {$R *.DFM}

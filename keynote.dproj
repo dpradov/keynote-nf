@@ -320,10 +320,12 @@
         <DCCReference Include="editor\kn_ImagesMng.pas"/>
         <DCCReference Include="editor\kn_ImageForm.pas">
             <Form>Form_Image</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="various\tom_TLB.pas"/>
         <DCCReference Include="kn_DLLinterface.pas"/>
+        <DCCReference Include="general\kn_UpdateVersion.pas">
+            <Form>UpdateVersion</Form>
+        </DCCReference>
         <DCCReference Include="kn_Main.pas">
             <Form>Form_Main</Form>
         </DCCReference>

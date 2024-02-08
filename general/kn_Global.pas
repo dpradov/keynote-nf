@@ -37,38 +37,24 @@ uses
    RichPrint,
    TB97,
 
-   gf_misc,
    gf_files,
    gf_strings,
+   kn_History,
    kn_const,
    kn_Info,
-   kn_ini,
-   kn_Cmd,
-   kn_msgs,
-   kn_ConfigMng,
+   kn_Chars,
+   kn_LocationObj,
+   kn_AlertMng,
    kn_NoteObj,
    kn_FileObj,
-   kn_fileMgr,
    kn_NodeList,
-   kn_StyleObj,
-   kn_FindReplace,
-   kn_Chars,
-   kn_Chest,
-   kn_Macro,
-   kn_plugins,
-   kn_LocationObj,
-   kn_NoteFileMng,
-   kn_MacroMng,
-   kn_AlertMng,
-   kn_VCLControlsMng,
-   kn_ImagesMng,
+   kn_Cmd,
    kn_Main,
-   kn_History
+   kn_ImagesMng
  {$IFDEF KNT_DEBUG}
    ,GFLog
  {$ENDIF}
-   ;
-
+ ;
 
 const
   _TIMER_INTERVAL = 2000; // two seconds
@@ -282,11 +268,25 @@ var
 
 implementation
 uses
+   gf_misc,
+   kn_ini,
+   kn_msgs,
+   kn_Glossary,
+   kn_StyleObj,
+   kn_EditorUtils,
+   kn_fileMgr,
+   kn_Chest,
+   kn_Macro,
+   kn_plugins,
+   kn_ConfigMng,
    kn_FindReplaceMng,
    kn_TemplateMng,
    kn_StyleMng,
-   kn_Glossary,
-   kn_RTFUtils;
+   kn_NoteFileMng,
+   kn_MacroMng,
+   kn_VCLControlsMng
+   ;
+
 
 
 resourcestring

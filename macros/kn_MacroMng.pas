@@ -34,29 +34,12 @@ uses
    RxRichEd,
    RxStrUtils,
 
-   gf_miscvcl,
-   gf_strings,
-   gf_misc,
-   kn_Const,
    kn_Cmd,
    kn_Info,
-   kn_NoteObj,
-   kn_NodeList,
-   kn_NoteMng,
-   kn_TreeNoteMng,
-   kn_NoteFileMng,
-   kn_DateTime,
-   kn_LanguageSel,
-   kn_Paragraph,
-   kn_FavoritesMng,
-   kn_BookmarksMng,
-   kn_EditorUtils,
-   kn_clipUtils,
+   kn_const,
    kn_Macro,
-   kn_MacroCmd,
-   kn_MacroCmdSelect,
-   kn_MacroEdit,
-   kn_RTFUtils;
+   kn_NoteObj
+   ;
 
 
 
@@ -119,14 +102,30 @@ var
 implementation
 
 uses
+   gf_miscvcl,
+   gf_strings,
+   gf_misc,
    kn_Global,
+   kn_Main,
+   kn_NodeList,
+   kn_DateTime,
+   kn_LanguageSel,
+   kn_Paragraph,
+   kn_EditorUtils,
+   kn_clipUtils,
+   kn_MacroCmd,
+   kn_MacroCmdSelect,
+   kn_MacroEdit,
+   kn_BookmarksMng,
    kn_StyleMng,
+   kn_NoteMng,
+   kn_TreeNoteMng,
+   kn_NoteFileMng,
    kn_PluginsMng,
    kn_TemplateMng,
    kn_FindReplaceMng,
-   kn_VCLControlsMng,
-   kn_ImagesMng,
-   kn_Main;
+   kn_VCLControlsMng
+   ;
 
 
 resourcestring

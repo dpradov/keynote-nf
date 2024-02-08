@@ -36,13 +36,9 @@ uses
    ComCtrls95,
    RxPlacemnt,
    LCCombo,
-   gf_misc,
-   gf_strings,
-   gf_LangCombo,
-   kn_Const,
    kn_Info,
-   kn_Chest,
-   kn_Ini;
+   kn_Const
+   ;
 
 
 type
@@ -171,7 +167,12 @@ type
 
 implementation
 uses
-  kn_global;
+   gf_misc,
+   gf_strings,
+   kn_global,
+   kn_Chest,
+   kn_Ini
+  ;
 
 {$R *.DFM}
 

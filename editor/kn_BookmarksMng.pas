@@ -22,16 +22,9 @@ uses
   Winapi.Messages,
   System.SysUtils,
   Vcl.Menus,
-  TreeNT,
-  gf_strings,
   gf_streams,
-  kn_Const,
-  kn_Info,
-  kn_NoteObj,
-  kn_NodeList,
-  kn_FileObj,
-  kn_LocationObj,
-  kn_LinksMng;
+  kn_Const
+  ;
 
 
 
@@ -47,8 +40,12 @@ uses
 
 implementation
 uses
+  kn_Info,
   kn_Global,
-  kn_Main;
+  kn_Main,
+  kn_LocationObj,
+  kn_LinksMng
+  ;
 
 resourcestring
   STR_Assigned = ' Bookmark %d assigned.';

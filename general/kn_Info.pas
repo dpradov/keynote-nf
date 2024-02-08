@@ -28,9 +28,9 @@ uses
    Vcl.Graphics,
    RxRichEd,
    SynGdiPlus,
-   langs,
    gf_misc,
-   kn_Const;
+   kn_Const
+   ;
 
 resourcestring
   Program_Desc     = 'Tabbed notebook for Windows';

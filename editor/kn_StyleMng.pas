@@ -22,14 +22,9 @@ uses
    Vcl.Graphics,
    Vcl.Dialogs,
    Vcl.Controls,
-   RxRichEd,
    kn_Info,
-   kn_StyleObj,
-   kn_Cmd,
-   kn_Global,
-   kn_Main,
-   kn_NoteFileMng,
-   kn_MacroMng;
+   kn_StyleObj
+   ;
 
 
 
@@ -48,6 +43,14 @@ var
 
 
 implementation
+uses
+   RxRichEd,
+   kn_Cmd,
+   kn_Global,
+   kn_Main,
+   kn_NoteFileMng,
+   kn_MacroMng
+   ;
 
 resourcestring
   STR_01 = 'Style in active note: ';

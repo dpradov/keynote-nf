@@ -24,7 +24,6 @@ uses
    System.IniFiles,
    System.Classes,
    Vcl.Dialogs,
-   gf_Bits,
    kn_PluginBase;
 
 
@@ -61,6 +60,9 @@ var
   Loaded_Plugins : TStringList; // holds handles of loaded, resident plugins
 
 implementation
+uses
+   gf_Bits;
+
 
 resourcestring
   STR_01 = 'Unexpected error from DLL: ';

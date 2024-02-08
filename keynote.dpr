@@ -159,6 +159,7 @@ uses
   kn_ImageForm in 'editor\kn_ImageForm.pas' {Form_Image},
   tom_TLB in 'various\tom_TLB.pas',
   kn_DLLinterface in 'kn_DLLinterface.pas',
+  kn_UpdateVersion in 'general\kn_UpdateVersion.pas' {UpdateVersion},
   kn_Main in 'kn_Main.pas' {Form_Main}
 ;
 

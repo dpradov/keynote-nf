@@ -24,17 +24,8 @@ uses
    Vcl.Forms,
    Vcl.Controls,
    Vcl.Dialogs,
-   Vcl.StdCtrls,
-   RxRichEd,
-   gf_misc,
-   gf_files,
-   kn_Global,
-   kn_Const,
-   kn_Info,
-   kn_Main,
-   kn_NewTemplate,
-   kn_NoteFileMng,
-   kn_EditorUtils;
+   Vcl.StdCtrls
+   ;
 
 
 
@@ -52,6 +43,18 @@ var
 
 
 implementation
+uses
+   RxRichEd,
+   gf_misc,
+   gf_files,
+   kn_Global,
+   kn_Const,
+   kn_Info,
+   kn_Main,
+   kn_NewTemplate,
+   kn_NoteFileMng,
+   kn_EditorUtils;
+
 
 resourcestring
   STR_01 = 'Template "%s" already exists. Overwrite existing template?';

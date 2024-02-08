@@ -30,11 +30,8 @@ uses
    Vcl.ComCtrls,
    Vcl.StdCtrls,
    Vcl.ExtCtrls,
-   RxPlacemnt,
-   kn_Info,
-   kn_global,
-   kn_ExpTermDef,
-   kn_main;
+   RxPlacemnt
+   ;
 
 
 type
@@ -77,6 +74,11 @@ var
 
 
 implementation
+uses
+   kn_Info,
+   kn_global,
+   kn_ExpTermDef,
+   kn_main;
 
 {$R *.DFM}
 

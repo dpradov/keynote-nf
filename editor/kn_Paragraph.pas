@@ -33,8 +33,8 @@ uses
    Vcl.Samples.Spin,
    RxRichEd,
    RxPlacemnt,
-   kn_Info,
-   kn_NoteObj;
+   kn_Info
+   ;
 
 
 type
@@ -83,6 +83,10 @@ type
 
 
 implementation
+
+uses
+   kn_NoteObj;
+
 
 {$R *.DFM}
 

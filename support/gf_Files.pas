@@ -25,9 +25,8 @@ uses
    System.Classes,
    System.IniFiles,
    System.SysUtils,
-   Vcl.Graphics,
-   gf_misc,
-   gf_strings;
+   Vcl.Graphics
+   ;
 
 const
   // set of characters accepted in filenames (very restrictive)
@@ -139,6 +138,9 @@ var
 
 
 implementation
+uses
+   gf_misc,
+   gf_strings;
 
 (*
 function GetFileKind( const FN : string ) : TFileKind;

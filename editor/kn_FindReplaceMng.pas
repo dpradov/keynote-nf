@@ -28,24 +28,9 @@ uses
    Vcl.Controls,
    TreeNT,
    RxRichEd,
-   gf_miscvcl,
-   gf_strings,
-   gf_streams,
-   kn_const,
-   kn_Info,
-   kn_Global,
-   kn_LocationObj,
-   kn_FindReplace,
    kn_NoteObj,
-   kn_RTFUtils,
-   kn_NodeList,
-   kn_Cmd,
-   kn_VCLControlsMng,
-   kn_NoteMng,
-   kn_TreeNoteMng,
-   kn_MacroMng,
-   kn_NoteFileMng,
-   kn_EditorUtils;
+   kn_FindReplace
+   ;
 
 
 var
@@ -79,9 +64,23 @@ procedure FindAllResults_SelectMatch (Prev: boolean);
 
 implementation
 uses
-  kn_LinksMng,
-  kn_Main;
-
+   gf_miscvcl,
+   gf_strings,
+   kn_const,
+   kn_Info,
+   kn_Global,
+   kn_Cmd,
+   kn_NodeList,
+   kn_LocationObj,
+   kn_EditorUtils,
+   kn_RTFUtils,
+   kn_VCLControlsMng,
+   kn_TreeNoteMng,
+   kn_MacroMng,
+   kn_NoteFileMng,
+   kn_LinksMng,
+   kn_Main
+   ;
 
 var
    NumberFoundItems: integer;

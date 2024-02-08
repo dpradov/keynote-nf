@@ -29,13 +29,9 @@ uses
    Vcl.Dialogs,
    Vcl.StdCtrls,
    cmpGFXComboBox,
-   gf_strings,
-   kn_Defaults,
    kn_Info,
-   kn_Const,
-   kn_INI,
-   kn_Chest,
-   kn_NoteObj;
+   kn_Const
+   ;
 
 
 type
@@ -90,8 +86,13 @@ implementation
 {$R *.DFM}
 
 uses
- kn_Main,
- kn_global;
+   gf_strings,
+   kn_Defaults,
+   kn_global,
+   kn_INI,
+   kn_Chest,
+   kn_Main;
+
 
 resourcestring
   STR_01 = '<no icon>';

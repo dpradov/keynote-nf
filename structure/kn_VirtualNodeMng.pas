@@ -22,12 +22,9 @@ uses
    Vcl.Dialogs,
    Vcl.Controls,
    TreeNT,
-   gf_files,
-   gf_misc,
-   kn_Info,
    kn_Const,
-   kn_NodeList,
-   kn_NoteFileMng;
+   kn_NodeList
+   ;
 
 
     // virtual nodes
@@ -45,9 +42,13 @@ var
 
 implementation
 uses
+   gf_files,
+   gf_misc,
+   kn_Info,
    kn_Global,
-   kn_TreeNoteMng,
    kn_NoteObj,
+   kn_TreeNoteMng,
+   kn_NoteFileMng,
    kn_Main;
 
 

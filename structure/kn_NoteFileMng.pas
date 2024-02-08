@@ -30,27 +30,10 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    TreeNT,
-   BrowseDr,
-   ZLibEx,
-   RxRichEd,
-   gf_misc,
-   gf_files,
-   gf_strings,
-   gf_miscvcl,
-   gf_FileAssoc,
-   gf_streams,
-   kn_INI,
-   kn_Cmd,
-   kn_Msgs,
+
    kn_const,
-   kn_NewNote,
-   kn_FileDropAction,
-   kn_NoteObj,
-   kn_Macro,
-   kn_MacroEdit,
-   kn_MacroCmd,
-   kn_Chest,
-   kn_Info;
+   kn_Info
+   ;
 
 
     function NoteFileNew( FN : string ) : integer; // create new KNT file with 1 blank note
@@ -100,27 +83,40 @@ uses
 implementation
 
 uses
+   BrowseDr,
+   ZLibEx,
+   RxRichEd,
+   gf_misc,
+   gf_files,
+   gf_FileAssoc,
+   gf_streams,
    Kn_Global,
-   kn_ConfigMng,
    kn_filemgr,
    kn_FileObj,
    kn_FileInfo,
    kn_NodeList,
    kn_NoteMng,
+   kn_EditorUtils,
+   kn_TabSelect,
+   kn_FileDropAction,
+   kn_ExportImport,
+   kn_Main,
+   kn_Cmd,
+   kn_NoteObj,
+   kn_Macro,
+   kn_Chest,
+   kn_ConfigMng,
    kn_VirtualNodeMng,
    kn_MacroMng,
    kn_TreeNoteMng,
    kn_VCLControlsMng,
-   kn_EditorUtils,
-   kn_TabSelect,
-   kn_LocationObj,
    kn_BookmarksMng,
    kn_LinksMng,
    kn_PluginsMng,
-   kn_ExportImport,
-   kn_FindReplaceMng,
    kn_ImagesMng,
-   kn_Main;
+   kn_FindReplaceMng
+   ;
+
 
 
 

@@ -37,11 +37,8 @@ uses
    comctrls95,
    TreeNT,
    RxRichEd,
-   langs,
-   gf_misc,
+
    gf_streams,
-   gf_strings,
-   gf_miscvcl,
  {$IFDEF KNT_DEBUG}
    GFLog,
  {$ENDIF}
@@ -387,6 +384,9 @@ var
 
 implementation
 uses
+   gf_misc,
+   gf_strings,
+   gf_miscvcl,
    kn_global,
    kn_AlertMng,
    kn_LinksMng,

@@ -28,8 +28,8 @@ uses
    System.SysUtils,
    System.StrUtils,
    Vcl.Graphics,
-   RxRichEd,
-   kn_NoteObj;
+   RxRichEd
+   ;
 
 {
  Removed the following procedures and function. Moved (adapted) as methods of TRxRichEdit
@@ -73,12 +73,8 @@ function GetRTFColor (Color: TColor): string;
 function CleanRTF(const RTF: string; var nRTF: string): boolean;
 procedure SetDefaultFontAndSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
 
-function CreateRTFAuxEditorControl (NoteToLoadFrom: TTabNote= nil; FromSelection: Boolean= True): TTabRichEdit;
-procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TTabNote);
 
 implementation
-uses
-   kn_Main;
 
 
 // To use the filename in {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
@@ -299,76 +295,5 @@ begin
   RTFText:= StringReplace(RTFText, '\plain\fs24',  '\plain\'+ fSize, [rfReplaceAll]);
 
 end;
-
-
-function CreateRTFAuxEditorControl(NoteToLoadFrom: TTabNote= nil; FromSelection: Boolean= True): TTabRichEdit;
-var
-  Stream: TStream;
-  Str: String;
-  RTFAux : TTabRichEdit;
-  Editor: TRxRichEdit;
-begin
-  // *1   Tt's necessary to be able to use RTFAux.Perform(EM_LINEINDEX, L, 0)   (See for example: kn_Main.RxRTF_KeyPress)
-  //      Otherwise, the character position returned by that method will not match the line break, but rather a probably default line width (22).
-  // *2   This sentence must be executed before assigning Parent. If not, then can cause kn_NoteObj:TTabRichEdit.CMRecreateWnd to be called
-  // *3   After migrating to Delphi 11, with the use of unRxLib (instead of RX Library), it is necessary to define StreamFormat as sfRichText in this RTFAux control
-  //      Without it, the indentation of multiple lines done in kn_Main.RxRTF_KeyPress, would not work (would show RTF contet as text)
-
-   RTFAux := TTabRichEdit.Create(Form_Main);
-   RTFAux.Visible:= False;
-   RTFAux.WordWrap:= false;            // *1
-   RTFAux.OnProtectChangeEx:= Form_Main.RxRTFAuxiliarProtectChangeEx;
-   RTFAux.Parent:= Form_Main;
-
-   RTFAux.Clear;
-   RTFAux.StreamMode := [];
-   RTFAux.StreamFormat := sfRichText;  // *3
-   //RTFAux.WordWrap:= false;          // Commented: *2
-
-
-
-   if assigned(NoteToLoadFrom) then begin
-      Editor:= NoteToLoadFrom.Editor;
-
-      if NoteToLoadFrom.PlainText  then begin
-         RTFAux.StreamFormat := sfPlainText;
-         PrepareRTFAuxforPlainText(RTFAux, NoteToLoadFrom);
-         if FromSelection then
-            Str:= Editor.SelText
-         else
-            Str:= Editor.Text
-      end
-      else
-         if FromSelection then
-            Str:= Editor.RtfSelText
-         else
-            Str:= Editor.RtfText;
-
-      Stream:= TStringStream.Create(Str);
-      try
-         RTFAux.Lines.LoadFromStream(Stream);
-      finally
-         Stream.Free;
-      end;
-   end;
-
-   Result:= RTFAux;
-end;
-
-procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TTabNote);
-begin
-    if myNote.PlainText then begin
-       with RTF.DefAttributes do begin
-         Charset := myNote.EditorChrome.Font.Charset;
-         Name := myNote.EditorChrome.Font.Name;
-         Size := myNote.EditorChrome.Font.Size;
-         Style := myNote.EditorChrome.Font.Style;
-         Color := myNote.EditorChrome.Font.Color;
-         Language := myNote.EditorChrome.Language;
-       end;
-
-    end;
-end;
-
 
 end.

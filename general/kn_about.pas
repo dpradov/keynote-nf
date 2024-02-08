@@ -31,11 +31,8 @@ uses
    Vcl.StdCtrls,
    Vcl.Buttons,
    Vcl.Menus,
-   Vcl.Clipbrd,
-   RxRichEd,
-   kn_const,
-   kn_Info,
-   kn_NoteObj;
+   Vcl.Clipbrd
+   ;
 
 
 type
@@ -91,7 +88,12 @@ type
 
 implementation
 uses
-   kn_Main;
+   RxRichEd,
+   kn_Main,
+   kn_const,
+   kn_Info,
+   kn_NoteObj;
+
 
 {$R *.DFM}
 

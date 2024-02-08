@@ -26,15 +26,8 @@ uses
    Vcl.StdCtrls,
    Vcl.Forms,
    cmpGFXListBox,
-   gf_misc,
-   gf_strings,
-   gf_files,
-   kn_Info,
-   kn_LocationObj,
-   kn_NodeList,
-   kn_FavExtDlg,
-   kn_TreeNoteMng,
-   kn_LinksMng;
+   kn_LocationObj
+   ;
 
 
     // favorites (global bookmarks, "keynote.fvr")
@@ -51,8 +44,16 @@ uses
 
 implementation
 uses
+   gf_misc,
+   gf_strings,
+   gf_files,
    kn_Global,
-   kn_Main;
+   kn_Info,
+   kn_NodeList,
+   kn_Main,
+   kn_FavExtDlg,
+   kn_TreeNoteMng,
+   kn_LinksMng;
 
 
 resourcestring

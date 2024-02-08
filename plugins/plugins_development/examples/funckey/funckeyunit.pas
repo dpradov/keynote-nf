@@ -1,9 +1,15 @@
 unit funckeyunit;
 
 interface
-uses SysUtils, Windows, ShellAPI,
-  Forms, Controls, kn_PluginBase,
-  Clipbrd, Messages;
+uses
+  System.SysUtils,
+  Winapi.Windows,
+  Winapi.ShellAPI,
+  Winapi.Messages,
+  Vcl.Forms,
+  Vcl.Controls,
+  Vcl.Clipbrd
+  ;
 
 function KNTGetPluginName( buf : pointer; size : longint ) : longint stdcall;
 function KNTGetPluginVersion : longint stdcall;
@@ -14,13 +20,16 @@ function KNTPluginExecute(
   AppHandle : THandle;
   OwnerHWND : HWND;
   RichEditHWND : HWND;
-  ActiveFileName, ActiveNoteName : PChar;
-  InText : PChar;
+  ActiveFileName, ActiveNoteName : PAnsiChar;
+  InText : PAnsiChar;
   var OutText : pointer ) : longint; stdcall;
 function KNTPluginCleanup : longint; stdcall;
 
 implementation
-uses gf_Bits, kn_Msgs, funckeyform;
+uses gf_Bits,
+     kn_Msgs,
+     kn_PluginBase,
+     funckeyform;
 
 const
   _PLUGIN_NAME    = 'Function key assignment';
@@ -30,7 +39,7 @@ const
 
 function KNTGetPluginName( buf : pointer; size : longint ) : longint;
 begin
-  StrLCopy( Buf, _PLUGIN_NAME, size-1 );
+  StrLCopy( Buf, AnsiString(_PLUGIN_NAME), size-1 );
   result := 0;
 end; // KNTGetPluginName
 
@@ -41,7 +50,7 @@ end; // KNTGetPluginVersion
 
 function KNTGetPluginDescription( buf : pointer; size : longint ) : longint;
 begin
-  StrLCopy( Buf, _PLUGIN_DESCRIPTION, size-1 );
+  StrLCopy( Buf, AnsiString(_PLUGIN_DESCRIPTION), size-1 );
   result := 0;
 end; // KNTGetPluginDescription
 
@@ -68,8 +77,8 @@ function KNTPluginExecute(
   AppHandle : THandle;
   OwnerHWND : HWND;
   RichEditHWND : HWND;
-  ActiveFileName, ActiveNoteName : PChar;
-  InText : PChar;
+  ActiveFileName, ActiveNoteName : PAnsiChar;
+  InText : PAnsiChar;
   var OutText : pointer ) : longint;
 var
   Form_FuncKey : TForm_FuncKey;
@@ -93,7 +102,7 @@ begin
         copydata.cbData := sizeof( msg );
         copydata.lpData := @msg;
 
-        SendMessage( OwnerHWND,  
+        SendMessage( OwnerHWND,
           WM_COPYDATA,
           Form_FuncKey.Handle,
           integer( @copydata )

@@ -27,27 +27,19 @@ uses
    Vcl.FileCtrl,
    Vcl.Controls,
    Vcl.Dialogs,
+
    TreeNT,
-   RxRichEd,
-   ZLibEx,
    comctrls95,
    DCPcrypt,
-   Blowfish,
-   SHA1,
-   IDEA,
-   gf_misc,
-   gf_streams,
-   gf_strings,
-   gf_files,
-   kn_Info,
+   ZLibEx,
+
    kn_Const,
-   kn_NodeList,
+   kn_LocationObj,
    kn_NoteObj,
-   kn_TreeNoteMng,
-   kn_LinksMng,
-   kn_ImagesMng,
-   kn_RTFUtils,
-   kn_LocationObj;
+   kn_NodeList,
+   kn_ImagesMng
+   ;
+
 
 
 type
@@ -215,10 +207,21 @@ type
 
 implementation
 uses
+   RxRichEd,
+   Blowfish,
+   SHA1,
+   IDEA,
+
+   gf_streams,
+   gf_strings,
+   gf_files,
+
+   kn_TreeNoteMng,
    kn_Global,
    kn_Main,
    kn_EditorUtils,
-   kn_BookmarksMng;
+   kn_BookmarksMng
+   ;
 
 
 resourcestring

@@ -31,14 +31,12 @@ uses
    Vcl.StdCtrls,
    Vcl.ExtCtrls,
    Vcl.Buttons,
-   SynGdiPlus,
-   RxRichEd,
+
    TB97Ctls,
    TopWnd,
+
    kn_ImagesMng,
-   kn_const,
-   kn_global,
-   kn_info,
+   kn_Const,
    kn_FileObj,
    kn_NoteObj
    ;
@@ -152,10 +150,14 @@ var
 implementation
 
 uses
+  SynGdiPlus,
   gf_misc,
   gf_miscvcl,
   kn_Main,
-  kn_NoteFileMng;
+  kn_NoteFileMng,
+  kn_global,
+  kn_info
+  ;
 
 {$R *.DFM}
 

@@ -37,16 +37,15 @@ uses
    Vcl.StdCtrls,
    Vcl.ComCtrls,
    Vcl.Clipbrd,
-   SynGdiPlus,
+
    RxRichEd,
+   SynGdiPlus,
+
    gf_streams,
-   gf_miscvcl,
-   gf_files,
-   kn_Const,
-   kn_NodeList,
    kn_NoteObj,
-   kn_LocationObj,
-   kn_ImagesUtils;
+   kn_NodeList,
+   kn_Const
+   ;
 
 
 
@@ -473,16 +472,19 @@ uses  System.DateUtils,
       ComCtrls95,
       CRC32,
       gf_misc,
+      gf_miscvcl,
+      gf_files,
       gf_strings,
       kn_ClipUtils,
-      kn_info,
-      kn_Main,
       kn_Global,
       kn_TreeNoteMng,
       kn_RTFUtils,
-      kn_LinksMng,
-      kn_VCLControlsMng,
-      kn_ImageForm;
+      kn_ImageForm,
+      kn_ImagesUtils,
+      kn_Main
+      ;
+
+
 
 
 

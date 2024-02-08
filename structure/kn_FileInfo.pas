@@ -35,14 +35,9 @@ uses
    Vcl.Mask,
    RxPlacemnt,
    TB97Ctls,
-   ZLibEx,
-   gf_misc,
-   gf_files,
-   kn_Info,
-   kn_Const,
-   kn_NoteObj,
-   kn_FileObj,
-   kn_ImagesMng;
+
+   kn_FileObj
+   ;
 
 
 type
@@ -169,8 +164,13 @@ const
 
 implementation
 uses
+   ZLibEx,
+   gf_misc,
+   gf_files,
    kn_main,
-   kn_Global
+   kn_Global,
+   kn_Info,
+   kn_Const
    ;
 
 {$R *.DFM}

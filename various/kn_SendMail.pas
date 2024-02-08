@@ -35,23 +35,15 @@ interface
    Vcl.StdCtrls,
    Vcl.ComCtrls,
    Vcl.ExtCtrls,
-
-   RxRichEd,
-   TreeNT,
    OverbyteIcsWndControl,
    OverbyteIcsSmtpProt,
    OverbyteIcsWSocket,
-
-   gf_misc,
-   gf_strings,
-   gf_files,
-   kn_FileObj,
-   kn_Info,
    kn_Const,
+   kn_Info,
+   kn_FileObj,
    kn_NoteObj,
-   kn_NodeList,
-   kn_INI,
-   GFLog;
+   GFLog
+   ;
 
 
 type
@@ -143,6 +135,16 @@ type
 function SMTPErrorDesc( Error : integer ) : string;
 
 implementation
+uses
+   RxRichEd,
+   TreeNT,
+   gf_misc,
+   gf_strings,
+   gf_files,
+   kn_NodeList,
+   kn_INI
+   ;
+
 
 {$R *.DFM}
 

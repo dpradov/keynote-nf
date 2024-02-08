@@ -42,18 +42,10 @@ uses
    cmpGFXListBox,
    TB97Ctls,
    TreeNT,
-   SynGdiPlus,
 
-   gf_misc,
-   gf_strings,
-   kn_Info,
-   kn_Chest,
    kn_Const,
-   kn_INI,
-   kn_DateTime,
-   kn_LanguagesMng,
-   kn_global,
-   kn_Main;
+   kn_Info
+;
 
 
 type
@@ -401,8 +393,18 @@ type
 
 implementation
 uses
+    SynGdiPlus,
+    gf_misc,
+    gf_strings,
     kn_EditorUtils,
-    kn_ImageForm;
+    kn_ImageForm,
+    kn_Chest,
+    kn_INI,
+    kn_DateTime,
+    kn_LanguagesMng,
+    kn_global,
+    kn_Main
+    ;
 
 {$R *.DFM}
 

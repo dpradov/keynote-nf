@@ -19,8 +19,7 @@ interface
 uses
    Winapi.Windows,
    System.Classes,
-   System.SysUtils,
-   gf_misc;
+   System.SysUtils;
 
 const
   _DTFORMAT_COMMENT_CHAR    = '#';
@@ -85,6 +84,8 @@ function LoadTimeFormatsList : boolean;
 function GetDateTimeFormatted( fmtstr : string; const DT : TDateTime ) : string;
 
 implementation
+uses
+  gf_misc;
 
 function GetDateTimeFormatted( fmtstr : string; const DT : TDateTime ) : string;
 begin

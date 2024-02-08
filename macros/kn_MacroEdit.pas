@@ -28,8 +28,8 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.StdCtrls,
-   Vcl.ExtCtrls,
-   kn_Macro;
+   Vcl.ExtCtrls
+   ;
 
 
 type
@@ -73,6 +73,8 @@ type
 
 
 implementation
+uses
+  kn_Macro;
 
 {$R *.DFM}
 

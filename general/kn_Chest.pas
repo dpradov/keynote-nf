@@ -28,8 +28,9 @@ uses
    Vcl.Controls,
    Vcl.Forms,
    Vcl.Dialogs,
-   Vcl.ImgList,
-   kn_Const;
+   Vcl.ImgList
+   ;
+
 
 
 type
@@ -69,6 +70,8 @@ var
   _LOADED_ICON_FILE : string;
 
 implementation
+uses
+   kn_Const;
 
 {$R *.DFM}
 

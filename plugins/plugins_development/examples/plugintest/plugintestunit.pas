@@ -29,8 +29,8 @@ function KNTPluginExecute(
   AppHandle : THandle;
   OwnerHWND : HWND;
   RichEditHWND : HWND;
-  ActiveFileName, ActiveNoteName : PChar;
-  InText : PChar;
+  ActiveFileName, ActiveNoteName : PAnsiChar;
+  InText : PAnsiChar;
   var OutText : pointer ) : longint; stdcall;
 // AppHandle is Application.Handle for KeyNote
 // OwnerHWND is the handle of KeyNote's main window
@@ -67,7 +67,7 @@ function KNTGetPluginName( buf : pointer; size : longint ) : longint;
 begin
   // pass name of the plugin to KeyNote.
   // String must not be longer than 'size'
-  StrLCopy( Buf, _PLUGIN_NAME, size-1 );
+  StrLCopy( Buf, AnsiString(_PLUGIN_NAME), size-1 );
   result := 0;
 end; // KNTGetPluginName
 
@@ -81,7 +81,7 @@ function KNTGetPluginDescription( buf : pointer; size : longint ) : longint;
 begin
   // pass plugin description to KeyNote.
   // String must not be longer than 'size'
-  StrLCopy( Buf, _PLUGIN_DESCRIPTION, size-1 );
+  StrLCopy( Buf, AnsiString(_PLUGIN_DESCRIPTION), size-1 );
   result := 0;
 end; // KNTGetPluginDescription
 
@@ -139,11 +139,11 @@ function KNTPluginExecute(
   AppHandle : THandle;
   OwnerHWND : HWND;
   RichEditHWND : HWND;
-  ActiveFileName, ActiveNoteName : PChar;
-  InText : PChar;
+  ActiveFileName, ActiveNoteName : PAnsiChar;
+  InText : PAnsiChar;
   var OutText : pointer ) : longint;
 var
-  s : string;
+  s : AnsiString;
   i : longint;
   total, vowels, consonants : longint;
 begin
