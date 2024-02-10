@@ -22,6 +22,7 @@ uses
    System.SysUtils,
    System.RTLConsts,
    System.IniFiles,
+   System.IOUtils,
    System.Zip,
    Vcl.Forms,
    Vcl.Graphics,
@@ -1251,9 +1252,13 @@ procedure SaveKeyNoteOptions(
 var
   IniFile : TMemIniFile;
   section : string;
+  Encoding: TEncoding;
 begin
+  Encoding:= nil;
+  if not TFile.Exists(INIFileName) then
+     Encoding:= TEncoding.UTF8;
 
-  IniFile := TMemIniFile.Create( INIFileName );
+  IniFile := TMemIniFile.Create( INIFileName, Encoding);
 
   try
     with IniFile do
