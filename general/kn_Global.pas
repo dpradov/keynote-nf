@@ -464,6 +464,7 @@ begin
       // Only Delphi 5 and higher can display these shortcuts.
       MMTreeFullExpand.Shortcut := ShortCut(VK_ADD, [ssShift]);
       MMTreeFullCollapse.Shortcut := ShortCut(VK_SUBTRACT, [ssShift]);
+      MMInsertURL.Shortcut := 24665;   // Shift + Ctrl + Y
 
       Log_StoreTick( 'Begin init', 2 );
 
