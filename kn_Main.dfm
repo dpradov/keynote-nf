@@ -20,6 +20,7 @@ object Form_Main: TForm_Main
   OnDestroy = FormDestroy
   OnHelp = FormHelp
   OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyUp
   OnResize = TntFormResize
   OnShortCut = FormShortCut
   TextHeight = 13

@@ -1258,6 +1258,7 @@ type
     procedure MMTreeFocusToogleClick(Sender: TObject);
     procedure MMTreeFocusEditorClick(Sender: TObject);
     procedure MMTreeFocusTreeClick(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 
   private
     { Private declarations }
@@ -2755,6 +2756,19 @@ begin
   end;
 
 end; // KEY DOWN
+
+
+
+{ https://answers.microsoft.com/en-us/windows/forum/all/ctrlshift0-in-windows-10/337b6542-4159-4143-83a8-a4496f8f995c
+<< it appears that the KeyDown event is not getting through in some cases for Ctrl+Shift+0, but the KeyUp event is. >>
+}
+procedure TForm_Main.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (key = Ord('0')) and (Shift = [ssCtrl, ssShift]) then
+     PerformCmd( ecClearParaAttr );
+end;
+
 
 
 function TForm_Main.FormHelp(Command: Word; Data: NativeInt;
