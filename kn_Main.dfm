@@ -1037,8 +1037,6 @@ object Form_Main: TForm_Main
     OnDragOver = PagesDragOver
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
-    ExplicitWidth = 716
-    ExplicitHeight = 613
   end
   object Dock_Left: TDock97
     Left = 0
@@ -1239,14 +1237,15 @@ object Form_Main: TForm_Main
     RemoveLastTab = True
     TabOrder = 2
     OnChange = Pages_ResChange
-    ExplicitLeft = 728
-    ExplicitHeight = 613
     object ResTab_Find: TTab95Sheet
       Caption = 'Find'
       GripAlign = gaLeft
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
       ExplicitHeight = 585
       object Panel_ResFind: TPanel
         Left = 0
@@ -1391,6 +1390,7 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND'
+          ExplicitWidth = 0
           ExplicitHeight = 504
           object FindAllResults: TRxRichEdit
             Left = 0
@@ -1608,6 +1608,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Dock_ResMacro: TDock97
         Left = 0
         Top = 0
@@ -1704,6 +1708,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListBox_ResTpl: TGFXListBox
         Left = 0
         Top = 0
@@ -1733,6 +1741,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter_plugins: TSplitter
         Left = 0
         Top = 530
@@ -1853,6 +1865,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListBox_ResFav: TGFXListBox
         Left = 0
         Top = 0
@@ -2239,6 +2255,9 @@ object Form_Main: TForm_Main
         Hint = 'Select all text in note'
         ShortCut = 16449
         OnClick = MMEditSelectAllClick
+      end
+      object N1: TMenuItem
+        Caption = '-'
       end
     end
     object MMView_: TMenuItem
@@ -3219,6 +3238,22 @@ object Form_Main: TForm_Main
         Caption = 'O&utline Numbering...'
         Hint = 'Add sequential numbers to node names'
         OnClick = MMTreeOutlineNumClick
+      end
+      object MMTreeFocus_: TMenuItem
+        Caption = 'Set Focus'
+        object MMTreeFocusToogle: TMenuItem
+          Caption = 'Toggle focus: Editor / Tree panel'
+          ShortCut = 16411
+          OnClick = MMTreeFocusToogleClick
+        end
+        object MMTreeFocusEditor: TMenuItem
+          Caption = 'Set focus in Editor panel'
+          OnClick = MMTreeFocusEditorClick
+        end
+        object MMTreeFocusTree: TMenuItem
+          Caption = 'Set focus in Tree panel'
+          OnClick = MMTreeFocusTreeClick
+        end
       end
     end
     object MMSearch_: TMenuItem

@@ -837,6 +837,11 @@ type
     MMAlarmsPopup: TMenuItem;
     MMViewHistory: TMenuItem;
     MMHelpChkUpd: TMenuItem;
+    N1: TMenuItem;
+    MMTreeFocus_: TMenuItem;
+    MMTreeFocusToogle: TMenuItem;
+    MMTreeFocusEditor: TMenuItem;
+    MMTreeFocusTree: TMenuItem;
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
     procedure TntFormResize(Sender: TObject);
@@ -1250,6 +1255,9 @@ type
     procedure MMHelpChkUpdClick(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
+    procedure MMTreeFocusToogleClick(Sender: TObject);
+    procedure MMTreeFocusEditorClick(Sender: TObject);
+    procedure MMTreeFocusTreeClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -3027,10 +3035,7 @@ begin
       { backslash }
       220 : if ( Shift = [ssCtrl] ) then begin
         Key := 0;
-        if ( ActiveNote.Kind = ntTree ) then begin
-          TTreeNote( ActiveNote ).TV.SetFocus;
-          ActiveNote.FocusMemory := focTree;
-        end;
+        MMTreeFocusTreeClick (nil);
       end;
     end;
 
@@ -3110,10 +3115,7 @@ begin
                if not MoveSelectedLines then begin
                   if ShiftPressed then begin
                      Key := #0;
-                     if ActiveNote.Kind = ntTree then begin
-                        TTreeNote(ActiveNote).TV.SetFocus;
-                        ActiveNote.FocusMemory := focTree;
-                      end;
+                     MMTreeFocusTreeClick (nil);
                   end
                   else
                      if not UseTabChar then begin
@@ -5201,6 +5203,53 @@ begin
   TreeNodeSelected( TTreeNote( ActiveNote ).TV.Selected );
   TTreeNote( ActiveNote ).TV.Selected.MakeVisible;
 end;
+
+procedure TForm_Main.MMTreeFocusToogleClick(Sender: TObject);
+begin
+  if not assigned(ActiveNote) then exit;
+  if ActiveNote.Kind <> ntTree then exit;
+
+  try
+     if TTreeNote(ActiveNote).TV.Focused then begin
+        ActiveNote.FocusMemory := focRTF;
+        ActiveNote.Editor.SetFocus;
+     end
+     else begin
+        MMTreeFocusTreeClick (nil);
+     end;
+
+  except
+  end;
+
+end;
+
+procedure TForm_Main.MMTreeFocusEditorClick(Sender: TObject);
+begin
+  if not assigned(ActiveNote) then exit;
+
+  try
+     ActiveNote.FocusMemory := focRTF;
+     ActiveNote.Editor.SetFocus;
+  except
+  end;
+
+end;
+
+procedure TForm_Main.MMTreeFocusTreeClick(Sender: TObject);
+begin
+  if not assigned(ActiveNote) then exit;
+  if ActiveNote.Kind <> ntTree then exit;
+
+  try
+     if TTreeNote( ActiveNote ).TreeHidden then
+        MMViewTreeClick(nil);
+
+     TTreeNote(ActiveNote).TV.SetFocus;
+  	 ActiveNote.FocusMemory := focTree;
+  except
+  end;
+end;
+
 
 procedure TForm_Main.MMTreeFullCollapseClick(Sender: TObject);
 begin
