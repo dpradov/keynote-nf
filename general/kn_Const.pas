@@ -382,15 +382,6 @@ const
   _TIMESEPARATOR = ':';
   _CRLF          = #13#10;
 
-const
-  // function key customization
-  _KEY_FUNC_DELIMITER = '|';
-  _KEY_FUNC_MACRO     = 'M';
-  _KEY_FUNC_PLUGIN    = 'P';
-  _KEY_FUNC_STYLE     = 'S';
-  _KEY_FUNC_FONT      = 'F';
-  _KEY_FUNC_TEMPLATE  = 'T';
-
 
 const
   _NODE_COLOR_COUNT = 8; // times 2, dark and bright shades

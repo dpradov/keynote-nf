@@ -1248,6 +1248,8 @@ type
     procedure MMShowAlarmsClick(Sender: TObject);
     procedure MMAlarmsPopupClick(Sender: TObject);
     procedure MMHelpChkUpdClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
 
   private
     { Private declarations }
@@ -1788,8 +1790,8 @@ begin
           // [x] not implemented
         end;
         _CFG_RELOAD_KEYS : begin
-          ReadFuncKeys;
-          StatusBar.Panels[PANEL_HINT].Text := STR_05;
+          // ReadFuncKeys;
+          // StatusBar.Panels[PANEL_HINT].Text := STR_05;
         end;
       end;
     end;
@@ -2607,9 +2609,6 @@ end;
 
 procedure TForm_Main.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-//var
-//  myKey: Word;
-//  myShift: TShiftState;
 begin
   case key of
 
@@ -2717,26 +2716,6 @@ begin
       end;
     end;
 
-    VK_F1..VK_F12 : begin
-      // perform custom Alt+FuncKey assignments
-      if (( Key <> VK_F4 ) and ( Shift = [ssAlt] )) then // MUST NOT grab Alt+F4!!
-      begin
-        PerformCustomFuncKey( Key, Shift );
-        Key := 0;
-      end
-      else
-      if ( Shift = [ssShift,ssAlt] ) then
-      begin
-        PerformCustomFuncKey( Key, Shift );
-        Key := 0;
-      end
-      else
-      if ( Shift = [ssCtrl,ssAlt] ) then
-      begin
-        PerformCustomFuncKey( Key, Shift );
-        Key := 0;
-      end;
-    end;
 
     VK_INSERT:
        if ( shift = [ssShift] ) then begin
@@ -2760,7 +2739,24 @@ begin
 //    END;
   end;
 
+  if not (key in [0, 17, 18]) and
+           ( (ssCtrl in Shift) or (ssAlt in Shift) ) or
+           ( (Shift = [ssShift]) and (key in [VK_F1..VK_F4]) ) then begin
+     if PerformOtherCommandShortcut( Key, Shift ) then
+         Key := 0;
+  end;
+
 end; // KEY DOWN
+
+
+function TForm_Main.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   if AltDown or CtrlDown or ShiftDown then
+      CallHelp:= False;
+end;
+
+
 
 procedure TForm_Main.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var

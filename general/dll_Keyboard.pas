@@ -1,19 +1,19 @@
 unit dll_Keyboard;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
 uses
@@ -21,39 +21,57 @@ uses
    System.Classes,
    System.SysUtils,
    System.IniFiles,
+   System.IOUtils,
    Vcl.Forms,
    Vcl.Menus,
    Vcl.Dialogs,
    gf_strings;
 
 type
-  TKeyMenuCategory = (
-    ckmMain, ckmTree
+  TGroupCommand = (
+     cgMenuMain, cgMenuTree, cgOther
   );
+
+  TCommandCategory = (
+     ccMenuMain, ccMenuTree, ccMacro, ccPlugin, ccTemplate, ccStyle, ccFont
+  );
+
+  TKeyMenuCategory = ccMenuMain .. ccMenuTree;
 
   TKeyCustomMenus = array[TKeyMenuCategory] of TMenu;
 
+  TOtherCommandCategory = ccMacro .. ccFont;
+
 const
-  KeyboardConfigSections : array[TKeyMenuCategory] of string = (
-    'MainMenu', 'TreeContextMenu'
+  KeyboardConfigSections : array[TCommandCategory] of string = (
+    'MainMenu', 'TreeContextMenu', 'Macros', 'Plugins', 'Templates', 'Styles', 'Fonts'
   );
 
-  KeyboardConfigMenuNames : array[TKeyMenuCategory] of string = (
-    'Main Menu', 'Tree Panel Context Menu'
+  KeyboardConfigMenuNames : array[TCommandCategory] of string = (
+    'Main Menu', 'Tree Panel Context Menu', 'Execute Macro', 'Execute Plugin', 'Insert Template', 'Apply Style', 'Apply Font'
   );
+
 
 const
   _KBD_DLG_SIZEABLE : boolean = false;
 
 type
   TMenuString = string[127];
-  TKeyMenuItem = class( TObject )
-    Name : TMenuString;
+  TKeyCommandItem = class( TObject )
+    Name : string;
     Caption : string;
     Hint : string;
     Shortcut : TShortCut;
-    Category : TKeyMenuCategory;
+    Category : TCommandCategory;
     Path: string;
+
+    function Group: TGroupCommand;
+  end;
+
+  TKeyOtherCommandItem = class( TObject )
+   	Name : String;
+    Shortcut : TShortCut;
+    Category : TOtherCommandCategory;
   end;
 
 
@@ -62,18 +80,32 @@ procedure BuildKeyboardList( const KeyCustomMenus : TKeyCustomMenus; const MenuL
 function CompareKeyItemsByPath( item1, item2 : pointer ) : integer;
 function CompareKeyItemsByCaption( item1, item2 : pointer ) : integer;
 
-procedure SaveKeyboardList( const FN : string; const MenuList : TList );
-procedure ListKeyboardShortcuts( const FN : string; const IncludeUnassigned : boolean; const MenuList : TList );
+procedure SaveKeyboardList( const FN : string; const CommandList : TList );
+procedure ListKeyboardShortcuts( const FN : string; const IncludeUnassigned : boolean; const CommandList : TList );
 
 
 implementation
+uses
+  gf_files;
+
+function TKeyCommandItem.Group: TGroupCommand;
+begin
+   if Category = ccMenuMain then
+      exit(cgMenuMain)
+   else
+   if Category = ccMenuTree then
+      exit(cgMenuTree);
+
+   exit(cgOther);
+end;
+
 
 function CompareKeyItemsByPath( item1, item2 : pointer ) : integer;
 var
-  k1, k2 : TKeyMenuItem;
+  k1, k2 : TKeyCommandItem;
 begin
-  k1 := TKeyMenuItem( item1 );
-  k2 := TKeyMenuItem( item2 );
+  k1 := TKeyCommandItem( item1 );
+  k2 := TKeyCommandItem( item2 );
   if ( k1.Category = k2.Category ) then
     result := CompareText( k1.Path, k2.Path )
   else begin
@@ -87,10 +119,10 @@ end; // CompareKeyItemsByName
 
 function CompareKeyItemsByCaption( item1, item2 : pointer ) : integer;
 var
-  k1, k2 : TKeyMenuItem;
+  k1, k2 : TKeyCommandItem;
 begin
-  k1 := TKeyMenuItem( item1 );
-  k2 := TKeyMenuItem( item2 );
+  k1 := TKeyCommandItem( item1 );
+  k2 := TKeyCommandItem( item2 );
 
   if ( k1.Category = k2.Category ) then
     result := AnsiCompareText( k1.Caption, k2.Caption )
@@ -125,14 +157,14 @@ procedure ListMenuItems( const Path: string; const StartItem : TMenuItem; const 
 var
   i, cnt : integer;
   myItem : TMenuItem;
-  KeyMenuItem : TKeyMenuItem;
+  KeyMenuItem : TKeyCommandItem;
   newPath: string;
 begin
 
   cnt := StartItem.Count;
   if ( cnt = 0 ) then begin
       if IsValidMenuItem( StartItem ) then begin
-          KeyMenuItem := TKeyMenuItem.Create;
+          KeyMenuItem := TKeyCommandItem.Create;
           KeyMenuItem.Name := TMenuString(StartItem.Name);
           KeyMenuItem.Caption := RemoveAccelChar( StartItem.Caption );
           KeyMenuItem.Path := KeyMenuItem.Caption;
@@ -176,25 +208,47 @@ begin
 end; // BuildKeyboardList
 
 
-procedure SaveKeyboardList( const FN : string; const MenuList : TList );
+procedure SaveKeyboardList( const FN : string; const CommandList : TList );
 var
-  IniFile : TIniFile;
+  IniFile : TMemIniFile;
   i, cnt : integer;
-  myItem : TKeyMenuItem;
+  myItem : TKeyCommandItem;
+  OCCateg: TOtherCommandCategory;
 begin
-  IniFile := TiniFile.Create( FN );
+  { The names of the macros, templates, etc. may contain Unicode characters. If a keyboard.ini file already exists it could be in ANSI.
+    If we create the TMemIniFile object indicating TEncoding.UTF8 an error will occur.
+    We could delete the existing file without further ado, but for security reasons I think it's better to rename the current one
+  }
+
+  IniFile:= nil;
+  if TFile.Exists(FN) then begin
+     IniFile := TMemIniFile.Create( FN );
+     if IniFile.Encoding <> TEncoding.UTF8 then begin
+        MoveFileExW_n (FN, FN + '.bak', 3);
+        FreeAndNil(IniFile);
+     end;
+  end;
+
+  if IniFile = nil then
+     IniFile := TMemIniFile.Create( FN, TEncoding.UTF8);
   try
     try
-      cnt := MenuList.Count;
+      cnt := CommandList.Count;
+
+      for OCCateg := low( TOtherCommandCategory ) to high( TOtherCommandCategory ) do
+          IniFile.EraseSection(KeyboardConfigSections[OCCateg]);
+
       with IniFile do begin
          for i := 1 to cnt do begin
-            myItem := TKeyMenuItem( MenuList.Items[pred( i )] );
+            myItem := TKeyCommandItem( CommandList.Items[pred( i )] );
 
             if assigned( myItem ) then
-               WriteInteger( KeyboardConfigSections[myItem.Category], myItem.Name, myItem.Shortcut );
+               if (myItem.Group <> cgOther) or (myItem.Shortcut <> 0) then
+                  WriteInteger( KeyboardConfigSections[myItem.Category], myItem.Name, myItem.Shortcut );
          end;
       end;
 
+      IniFile.UpdateFile;
     except
     end;
   finally
@@ -203,14 +257,14 @@ begin
 end; // SaveKeyboardList
 
 
-procedure ListKeyboardShortcuts( const FN : string; const IncludeUnassigned : boolean; const MenuList : TList );
+procedure ListKeyboardShortcuts( const FN : string; const IncludeUnassigned : boolean; const CommandList : TList );
 const
   cTitle = 'KeyNote keyboard configuration listing';
 var
   i, cnt : integer;
-  myItem : TKeyMenuItem;
+  myItem : TKeyCommandItem;
   myList : TStringList;
-  category : TKeyMenuCategory;
+  category : TCommandCategory;
   ShortcutText : string;
 begin
 
@@ -229,8 +283,8 @@ begin
 
   try
 
-    MenuList.Sort( CompareKeyItemsByCaption );
-    cnt := MenuList.Count;
+    CommandList.Sort( CompareKeyItemsByCaption );
+    cnt := CommandList.Count;
 
     myList.Add( '<TABLE WIDTH="99%" VALIGN="top" CELLPADDING=2 CELLSPACING=2 BORDER=0>' );
 
@@ -243,7 +297,7 @@ begin
 
       for i := 1 to cnt do
       begin
-        myItem := TKeyMenuItem( MenuList.Items[pred( i )] );
+        myItem := TKeyCommandItem( CommandList.Items[pred( i )] );
         if ( assigned( myItem ) and ( myItem.Category = category )) then
         begin
           case myItem.Shortcut of
@@ -271,7 +325,7 @@ begin
 
     myList.Add( '</BODY></HTML>' );
 
-    myList.SaveToFile( FN );
+    myList.SaveToFile( FN, TEncoding.UTF8 );
   finally
     myList.Free;
   end;

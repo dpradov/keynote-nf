@@ -38,8 +38,6 @@ uses
     procedure SaveToolbars;
     procedure SaveDefaults;
     procedure LoadDefaults;
-    procedure ReadFuncKeys;
-    procedure SaveFuncKeys;
     procedure AdjustOptions;
 //    procedure SetupToolbarButtons;
 //    procedure ResolveToolbarRTFv3Dependencies;
@@ -58,11 +56,16 @@ uses
    kn_Chest,
    kn_OptionsNew,
    dll_Keyboard,
+   kn_Macro,
+   kn_Plugins,
+   kn_StyleObj,
    kn_Dllmng,
    kn_DLLinterface,
    kn_LanguagesMng,
    kn_MacroMng,
    kn_VCLControlsMng,
+   kn_TemplateMng,
+   kn_PluginsMng,
    kn_Main
    ;
 
@@ -199,77 +202,8 @@ end; // ReadCmdLine
 
 
 
-procedure ReadFuncKeys;
-var
-  IniFile : TMemIniFile;
-  section : string;
-  i : integer;
-begin
-  // load function key assignments.
-  // This is rudimentary stuff.
-  // to customize, run FuncKey plugin.
 
-  if opt_NoReadOpt then exit;
-  if ( not fileexists( KEY_FN )) then exit;
 
-  IniFile := TMemIniFile.Create( KEY_FN );
-
-  try
-    with IniFile do begin
-      section := 'Alt';
-      for i := 1 to 12 do
-         AltFKeys[i] := readstring( section, inttostr( i ), '' );
-
-      section := 'ShiftAlt';
-      for i := 1 to 12 do
-         ShiftAltFKeys[i] := readstring( section, inttostr( i ), '' );
-
-      section := 'CtrlAlt';
-      for i := 1 to 12 do
-         CtrlAltFKeys[i] := readstring( section, inttostr( i ), '' );
-    end;
-
-  finally
-    IniFile.Free
-  end;
-
-end; // ReadFuncKeys
-
-procedure SaveFuncKeys;
-var
-  IniFile : TMemIniFile;
-  section : string;
-  i : integer;
-begin
-  if opt_NoSaveOpt then exit;
-
-  IniFile := TMemIniFile.Create( KEY_FN );
-
-  try
-    with IniFile do begin
-       section := 'Alt';
-       for i := 1 to 12 do
-         if ( AltFKeys[i] <> '' ) then
-           writestring( section, inttostr( i ), AltFKeys[i] );
-
-       section := 'ShiftAlt';
-       for i := 1 to 12 do
-         if ( ShiftAltFKeys[i] <> '' ) then
-           writestring( section, inttostr( i ), ShiftAltFKeys[i] );
-
-       section := 'CtrlAlt';
-       for i := 1 to 12 do
-         if ( CtrlAltFKeys[i] <> '' ) then
-           writestring( section, inttostr( i ), CtrlAltFKeys[i] );
-    end;
-
-    IniFile.UpdateFile;
-
-  finally
-    IniFile.Free
-  end;
-
-end; // SaveFuncKeys
 
 
 procedure SaveOptions;
@@ -492,8 +426,11 @@ var
   itemname, keyname : String;
   KeyList : TStringList;
   i, cnt, keyvalue : integer;
-  menusection : TKeyMenuCategory;
+  Category : TCommandCategory;
   myMenuItem : TMenuItem;
+  kOC: TKeyOtherCommandItem;
+  Group: TGroupCommand;
+  IsMenu: boolean;
 
 begin
   result := false;
@@ -501,37 +438,45 @@ begin
 
   IniFile := TMemIniFile.Create( Keyboard_FN );
   KeyList := TStringList.Create;
+  ClearObjectList(OtherCommandsKeys);
 
   try
     try
 
       with IniFile do begin
 
-         for menusection := low( KeyboardConfigSections ) to high( KeyboardConfigSections ) do begin
+         for Category := low( TCommandCategory ) to high( TCommandCategory ) do begin
            Keylist.Clear;
-           ReadSectionValues( KeyboardConfigSections[menusection], KeyList );   // At this file this problem doesn't affect: TMemIniFile Doesn't Handle Quoted Strings Properly (http://qc.embarcadero.com/wc/qcmain.aspx?d=4519)
+           ReadSectionValues( KeyboardConfigSections[Category], KeyList );   // At this file this problem doesn't affect: TMemIniFile Doesn't Handle Quoted Strings Properly (http://qc.embarcadero.com/wc/qcmain.aspx?d=4519)
+
+           IsMenu:= Category in [ccMenuMain .. ccMenuTree];
 
            cnt := KeyList.Count;
-           for i := 1 to cnt do begin
-              itemname := KeyList.Names[pred(i)];
+           for i := 0 to cnt -1 do begin
+              itemname := KeyList.Names[i];
               keyname  := KeyList.Values[itemname];
-              if ( keyname <> '' ) then begin
-                  try
-                    keyvalue := strtoint( keyname );
-                  except
-                    keyvalue := 0;
-                  end;
+              if keyname = '' then continue;
 
-                  // Don't allow shortcuts CTR-C, Ctrl-V, Ctrl-X. This combinations will be managed indepently
-                  if (keyvalue = 16451) or (keyvalue=16470) or (keyvalue = 16472) then
-                     keyvalue:= 0;
+              keyvalue := StrToIntDef( keyname, 0);
 
+               // Don't allow shortcuts CTR-C, Ctrl-V, Ctrl-X. This combinations will be managed indepently
+               if (keyvalue = 16451) or (keyvalue=16470) or (keyvalue = 16472) then
+                  keyvalue:= 0;
+
+               if IsMenu then begin
                   myMenuItem := TMenuItem( Form_Main.FindComponent( itemname ));
                   if assigned( myMenuItem ) then
                      myMenuItem.ShortCut := keyvalue;
-              end;
-           end;
+               end
+               else if keyvalue <> 0 then begin
+                  kOC:= TKeyOtherCommandItem.Create;
+                  kOC.Name := itemname;
+                  kOC.Category:= Category;
+                  kOC.Shortcut := keyvalue;
+                  OtherCommandsKeys.Add(kOC);
+               end;
 
+           end;
          end;
       end;
 
@@ -546,6 +491,57 @@ begin
   end;
 
 end; // LoadCustomKeyboard
+
+
+procedure BuildOtherCommandsList (const OtherCommandsList: TList);
+
+  function GetCurrentShortCut(Category: TOtherCommandCategory; Command: string): TShortCut;
+  var
+     i: integer;
+     Koc: TKeyOtherCommandItem;
+  begin
+       for i:= 0 to OtherCommandsKeys.Count-1 do begin
+          Koc:= OtherCommandsKeys[i];
+          if (Koc.Category = Category) and Koc.Name.Equals(Command) then
+             Exit(Koc.Shortcut)
+       end;
+       exit(0);
+  end;
+
+  procedure CreateItems (Categ: TCommandCategory; Strs: TStrings);
+  var
+     i: integer;
+     kOC: TKeyCommandItem;
+  begin
+      for i := 0 to Strs.Count - 1 do begin
+         kOC:= TKeyCommandItem.Create;
+         kOC.Category:= Categ;
+         kOC.Name:= Strs[i];
+         kOC.Caption:= kOC.Name;
+         kOC.Path:= kOC.Name;
+         if Categ = ccMacro then
+            kOC.Hint:= TMacro( Strs.Objects[i] ).Description;
+         kOC.Shortcut:= GetCurrentShortCut(Categ, kOC.Name);
+         OtherCommandsList.Add(kOC);
+      end;
+  end;
+
+begin
+   EnumerateMacros;
+   CreateItems(ccMacro, Macro_List);
+
+   LoadTemplateList;
+   CreateItems(ccTemplate, Form_Main.ListBox_ResTpl.Items);
+
+   EnumeratePlugins;
+   CreateItems(ccPlugin, Plugin_List);
+
+   LoadStyleManagerInfo( Style_FN );
+   CreateItems(ccStyle, StyleManager);
+
+   CreateItems(ccFont, Form_Main.Combo_Font.Items);
+end;
+
 
 procedure CustomizeKeyboard;
 var
@@ -567,13 +563,14 @@ begin
   if TMenuItem( Form_Main.FindComponent( 'MMEditCut' )).ShortCut = 0 then
      TMenuItem( Form_Main.FindComponent( 'MMEditCut' )).ShortCut:= ShortCut(Ord('X'), [ssCtrl]);  // 16472;
 
-  KeyCustomMenus[ckmMain] := Form_Main.Menu_Main;
-  KeyCustomMenus[ckmTree] := Form_Main.Menu_TV;
+  KeyCustomMenus[ccMenuMain] := Form_Main.Menu_Main;
+  KeyCustomMenus[ccMenuTree] := Form_Main.Menu_TV;
 
   KeyList := TList.Create;
   try
     try
       BuildKeyboardList( KeyCustomMenus, KeyList );
+      BuildOtherCommandsList (KeyList);
 
       if DlgCustomizeKeyboard(Application.Handle, PChar( Keyboard_FN ), KeyList, KeyOptions.HotKey) then begin
           screen.Cursor := crHourGlass;

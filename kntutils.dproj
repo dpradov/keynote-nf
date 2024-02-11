@@ -3,7 +3,7 @@
         <ProjectGuid>{22CA599D-8EAB-498E-846A-AAF5BFF793F6}</ProjectGuid>
         <MainSource>kntutils.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Library</AppType>
         <FrameworkType>None</FrameworkType>
@@ -75,7 +75,7 @@
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_ExeOutput>..\Output\bin</DCC_ExeOutput>
         <DCC_DcuOutput>..\Output\Dcu</DCC_DcuOutput>
-        <DCC_UnitSearchPath>$(BDS)\source\ToolsAPI;.\3rd_party\DcpCrypt-1_3;.\3rd_party\tb97_178a\Source;.\3rd_party\RichPrint;.\3rd_party\ExtListView;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>$(BDS)\source\ToolsAPI;.\3rd_party\DcpCrypt-1_3;.\3rd_party\tb97_178a\Source;.\3rd_party\RichPrint;.\3rd_party\ExtListView;.\3rd_party\unRxLib\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_UsePackage>VCLX30;VCL30;VCLDB30;VCLDBX30;VCLSMP30;Icsdel30;RXCTL;RXTOOLS;$(DCC_UsePackage)</DCC_UsePackage>
         <GenDll>true</GenDll>
         <SanitizedProjectName>kntutils</SanitizedProjectName>
@@ -133,6 +133,8 @@
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <Debugger_HostApplication>E:\Output\bin\keynote.exe</Debugger_HostApplication>
         <VerInfo_Build>1</VerInfo_Build>
+        <Debugger_RunParams>Profiles\F9\keynote.ini</Debugger_RunParams>
+        <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -186,4 +188,5 @@
     </ProjectExtensions>
     <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+    <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>

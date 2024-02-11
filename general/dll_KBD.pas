@@ -8,12 +8,12 @@ unit dll_KBD;
  
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2024 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
    
- *****************************************************************************) 
+ *****************************************************************************)
 
 interface
 
@@ -29,7 +29,9 @@ uses
    Vcl.Dialogs,
    Vcl.ComCtrls,
    Vcl.StdCtrls,
+   Vcl.ExtCtrls,
    Vcl.Menus,
+   RxCombos,
    gf_strings,
    dll_HotKey,
    dll_Keyboard;
@@ -47,7 +49,7 @@ type
     Btn_Remove: TButton;
     Btn_ResetAll: TButton;
     Btn_List: TButton;
-    Label5: TLabel;
+    lblAssig: TLabel;
     GroupBox2: TGroupBox;
     LB_CurrentlyAssignedTo: TLabel;
     LB_CmdHint: TLabel;
@@ -57,15 +59,21 @@ type
     N1: TMenuItem;
     MMListUnassigned: TMenuItem;
     Btn_Help: TButton;
-    Edit1: TEdit;
     Edit_Filter: TEdit;
     Label1: TLabel;
     RBShowMainMenu: TRadioButton;
     RBShowTreeMenu: TRadioButton;
     MMConsiderDescriptionOnFilter: TMenuItem;
+    RBShowMacros: TRadioButton;
+    RBShowPlugins: TRadioButton;
+    RBShowTemplates: TRadioButton;
+    RBShowStyles: TRadioButton;
+    RBShowFonts: TRadioButton;
+    Combo_Font: TFontComboBox;
+    Pnl: TPanel;
+    Edit1: TEdit;
     procedure MMConsiderDescriptionOnFilterClick(Sender: TObject);
-    procedure RBShowTreeMenuClick(Sender: TObject);
-    procedure RBShowMainMenuClick(Sender: TObject);
+    procedure RBShowCommandsCategoryClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Edit_FilterExit(Sender: TObject);
     procedure Edit_FilterKeyDown(Sender: TObject; var Key: Word;
@@ -84,12 +92,16 @@ type
     procedure Edit_HotKeyExit(Sender: TObject);
     procedure MMListUnassignedClick(Sender: TObject);
     procedure Btn_HelpClick(Sender: TObject);
+    procedure Combo_FontChange(Sender: TObject);
+    procedure MessageShortcutInvalid (aShortcut : TShortcut);
+    procedure CleanEdit_Hotkey;
   private
     { Private declarations }
   public
     { Public declarations }
 
     myKeyList : TList;
+    OtherCommandsList: TList;
 
     KeyNoteActivationHotkey : TShortCut;
     myKBD_FN : string;
@@ -105,9 +117,10 @@ type
     procedure DisplayCommands;
     procedure ShowCommandInfo;
 
-    function GetSelectedItem : TKeyMenuItem;
-    function GetItemByShortcut( SelItem : TKeyMenuItem; const aShortcut : TShortcut ) : TKeyMenuItem;
-    function IsValidShortcut( const aItem : TKeyMenuItem; const aShortcut : TShortcut ) : boolean;
+    function GetSelectedItem : TKeyCommandItem;
+    function GetItemByShortcut( SelItem : TKeyCommandItem; const aShortcut : TShortcut;
+             searchInAllCategories: boolean=false ) : TKeyCommandItem;
+    function IsValidShortcut( const aItem : TKeyCommandItem; const aShortcut : TShortcut ) : boolean;
 
     procedure EnableAccelerators( const DoEnable : boolean );
 
@@ -131,7 +144,7 @@ begin
   UserShortcut := 0;
   myKBD_FN := '';
   Edit_HotKey := TKNTHotKey.Create( self );
-  Edit_HotKey.Parent := GroupBox1;
+  Edit_HotKey.Parent := Pnl;
   Edit_HotKey.Left := Edit1.Left;
   Edit_HotKey.Top :=  Edit1.Top;
   Edit_HotKey.Width := Edit1.Width;
@@ -177,29 +190,54 @@ begin
 
 end; // Activate
 
+
 procedure TForm_KBD.DisplayCommands ();
 var
   i, cnt : integer;
-  item : TKeyMenuItem;
+  item : TKeyCommandItem;
+  CategorySelected: TCommandCategory;
   itemStr: string;
   Filter: string;
 begin
   cnt := myKeyList.Count;
   Filter:= Edit_Filter.Text;
 
+  CleanEdit_Hotkey;
+
+  if RBShowMainMenu.Checked then
+     CategorySelected:= ccMenuMain
+  else
+  if RBShowTreeMenu.Checked then
+     CategorySelected:= ccMenuTree
+  else
+  if RBShowMacros.Checked then
+     CategorySelected:= ccMacro
+  else
+  if RBShowPlugins.Checked then
+     CategorySelected:= ccPlugin
+  else
+  if RBShowTemplates.Checked then
+     CategorySelected:= ccTemplate
+  else
+  if RBShowStyles.Checked then
+     CategorySelected:= ccStyle
+  else
+  if RBShowFonts.Checked then
+     CategorySelected:= ccFont;
+
+
+  Combo_Font.Visible:= (CategorySelected = ccFont);
+
   List_Commands.Items.BeginUpdate;
   try
     List_Commands.Items.Clear;
 
     for i := 1 to cnt do begin
-      item := TKeyMenuItem( myKeyList[pred( i )] );
+      item := TKeyCommandItem( myKeyList[pred( i )] );
 
       itemStr:= item.Path;
+      if item.Category <> CategorySelected then continue;
 
-      if RBShowMainMenu.Checked and not (item.Category = ckmMain) then
-         continue;
-      if RBShowTreeMenu.Checked and not (item.Category = ckmTree) then
-         continue;
       if (Filter <> '') and (
           (pos(AnsiLowercase(Filter), AnsiLowercase(itemStr)) = 0)  and
           (not MMConsiderDescriptionOnFilter.Checked or (pos(AnsiLowercase(Filter), AnsiLowercase(item.Hint)) = 0))
@@ -212,20 +250,23 @@ begin
     if ( List_Commands.Items.Count > 0 ) then
        List_Commands.ItemIndex := 0;
 
-    ShowCommandInfo;
+    if CategorySelected = ccFont then
+      List_CommandsClick(nil)
+    else
+      ShowCommandInfo;
 
   finally
     List_Commands.Items.EndUpdate;
   end;
-
 end; // DisplayCommands
+
 
 procedure TForm_KBD.ShowCommandInfo;
 var
-  item : TKeyMenuItem;
+  item : TKeyCommandItem;
 begin
 
-  Edit_HotKey.Text := '';
+  CleanEdit_Hotkey;
 
   LB_CurrentlyAssignedTo.Caption := 'None';
   LB_CurrentlyAssignedTo.Hint := '';
@@ -245,28 +286,66 @@ begin
 end; // ShowCommandInfo
 
 procedure TForm_KBD.List_CommandsClick(Sender: TObject);
+var
+   i: integer;
 begin
-  ShowCommandInfo;
+   ShowCommandInfo;
+
+  if RBShowFonts.Checked then begin
+     i:= Combo_Font.items.IndexOf(List_Commands.Items[List_Commands.ItemIndex]);
+     if i >= 0 then
+        Combo_Font.ItemIndex:= i;
+  end;
+
+end;
+
+procedure TForm_KBD.Combo_FontChange(Sender: TObject);
+var
+   fi, i: integer;
+begin
+   fi:= Combo_Font.ItemIndex;
+   i:= List_Commands.items.IndexOf(Combo_Font.Items[fi]);
+   if i >= 0 then
+      List_Commands.ItemIndex:= i
+   else begin
+      Edit_Filter.Text:= '';
+      DisplayCommands;
+      List_Commands.ItemIndex:= fi;
+      Combo_Font.ItemIndex:= fi;
+   end;
+end;
+
+procedure TForm_KBD.CleanEdit_Hotkey;
+begin
+   Edit_Hotkey.HotKey:= 0;
+   lblAssig.Visible := false;
+   LB_CurrentlyAssignedTo.visible:= false;
+   Pnl.Font.Style := [];
 end;
 
 
 procedure TForm_KBD.Edit_HotKeyKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  item : TKeyMenuItem;
+  selItem, item : TKeyCommandItem;
+  Caption: string;
 begin
     LB_CurrentlyAssignedTo.Hint := '';
     UserShortcut := Edit_HotKey.HotKey;
 
     if ( UserShortcut <> 0 ) then
     begin
+      selItem:= GetSelectedItem;
       // Edit_HotKey.Text := ShortcutToText( UserShortcut );
-      if IsValidShortcut( GetSelectedItem, UserShortcut ) then
+      if IsValidShortcut( selItem, UserShortcut ) then
       begin
-        item := GetItemByShortcut( nil, UserShortcut );
+        item := GetItemByShortcut( nil, UserShortcut, (selItem.Group= cgOther) );
         if assigned( item ) then
         begin
-          LB_CurrentlyAssignedTo.Caption := Item.Caption;
+          Caption:= Item.Caption;
+          if selItem.Group = cgOther then
+             Caption:= KeyboardConfigSections[item.Category] + ' | ' + Caption;
+          LB_CurrentlyAssignedTo.Caption := Caption;
           LB_CurrentlyAssignedTo.Hint := item.Hint;
         end
         else
@@ -276,33 +355,43 @@ begin
       end
       else
       begin
-        LB_CurrentlyAssignedTo.Caption := 'Invalid shortcut';
+        MessageShortcutInvalid (UserShortcut);
+        UserShortcut:= 0;
+        //LB_CurrentlyAssignedTo.Caption := 'Invalid shortcut';
       end;
     end
     else
     begin
-      Edit_HotKey.Text := '<None>';
-      LB_CurrentlyAssignedTo.Caption := 'None';
+      //Edit_HotKey.Text := '<None>';
+      //LB_CurrentlyAssignedTo.Caption := 'None';
     end;
+
+    lblAssig.Visible := ( UserShortcut <> 0 );
+    LB_CurrentlyAssignedTo.visible:= ( UserShortcut <> 0 );
+    if UserShortcut <> 0 then
+       Pnl.Font.Style := [fsBold]
+    else
+       Pnl.Font.Style := [];
+
 end;
 
-function TForm_KBD.GetSelectedItem: TKeyMenuItem;
+function TForm_KBD.GetSelectedItem: TKeyCommandItem;
 var
   i : integer;
 begin
   i := List_Commands.ItemIndex;
   if ( i >= 0 ) then
-    result := TKeyMenuItem( List_Commands.Items.Objects[i] )
+    result := TKeyCommandItem( List_Commands.Items.Objects[i] )
   else
     result := nil;
 end; // GetSelectedItem
 
 
-function TForm_KBD.GetItemByShortcut( SelItem: TKeyMenuItem;
-  const aShortcut: TShortcut): TKeyMenuItem;
+function TForm_KBD.GetItemByShortcut( SelItem: TKeyCommandItem;
+  const aShortcut: TShortcut; searchInAllCategories: boolean=false): TKeyCommandItem;
 var
   i, cnt : integer;
-  Item : TKeyMenuItem;
+  Item : TKeyCommandItem;
 begin
   result := nil;
   cnt := myKeyList.Count;
@@ -315,8 +404,8 @@ begin
 
   for i := 1 to cnt do
   begin
-    item := TKeyMenuItem( myKeyList[pred( i )] );
-    if (( Item <> SelItem ) and ( Item.Category = SelItem.Category )) then
+    item := TKeyCommandItem( myKeyList[pred( i )] );
+    if (( Item <> SelItem ) and (searchInAllCategories or  (Item.Group = SelItem.Group) )) then
     begin
       if ( Item.Shortcut = aShortcut ) then
       begin
@@ -327,7 +416,7 @@ begin
   end;
 end; // GetItemByShortcut
 
-function TForm_KBD.IsValidShortcut(const aItem: TKeyMenuItem;
+function TForm_KBD.IsValidShortcut(const aItem: TKeyCommandItem;
   const aShortcut: TShortcut): boolean;
 var
   Key : Word;
@@ -341,30 +430,25 @@ begin
 
   if ( key = 0 ) then exit;
 
-  if (( ssAlt in Shift ) or ( ssCtrl in Shift )) then
-  begin
+  if (key = VK_F4) and ( Shift = [ssAlt]) then exit;
+
+  if (( ssAlt in Shift ) or ( ssCtrl in Shift )) then begin
     result := true;
     exit;
   end;
 
-  case aItem.Category of
-    ckmMain : begin
-      if ( key in [VK_F1..VK_F12, VK_INSERT, VK_DELETE, VK_HOME, VK_END, VK_PRIOR, VK_NEXT] ) then
-      begin
+  if aItem.Category = ccMenuTree then
+     result:= true
+  else begin
+    if ( key in [VK_F1..VK_F12, VK_INSERT, VK_DELETE, VK_HOME, VK_END, VK_PRIOR, VK_NEXT] ) then
         result := true;
-      end;
-    end;
-    else
-    begin
-      result := true;
-    end;
   end;
 
 end; // IsValidShortcut
 
 procedure TForm_KBD.Btn_RemoveClick(Sender: TObject);
 var
-  item : TKeyMenuItem;
+  item : TKeyCommandItem;
 begin
   item := GetSelectedItem;
   if ( assigned( item ) and ( item.Shortcut <> 0 )) then
@@ -375,9 +459,24 @@ begin
   end;
 end;
 
+procedure TForm_KBD.MessageShortcutInvalid (aShortcut : TShortcut);
+var
+  Str: string;
+begin
+   Str:= ShortcutToText( aShortcut );
+   {if (aShortcut <> 0) and (Str = '') then
+      Str:= ShortcutToText( KeyNoteActivationHotkey );  }
+
+    messagedlg( Format(
+   '"%s" is not a valid keyboard shortcut for the selected command.',
+   [Str]), mtWarning, [mbOK], 0 );
+
+   CleanEdit_Hotkey;
+end;
+
 procedure TForm_KBD.Btn_AssignClick(Sender: TObject);
 var
-  item, olditem : TKeyMenuItem;
+  item, olditem : TKeyCommandItem;
   newShortcut : TShortcut;
 begin
   item := GetSelectedItem;
@@ -385,25 +484,37 @@ begin
   if ( not assigned( item )) then exit;
 
   newShortcut := Edit_Hotkey.Hotkey;
+
+  if newShortcut = 0 then exit;
+
   if ( not IsValidShortcut( item, newShortcut )) then
   begin
-    messagedlg( Format(
-      '"%s" is not a valid keyboard shortcut for the selected command.',
-      [ShortcutToText( newShortcut )] ), mtError, [mbOK], 0 );
+    MessageShortcutInvalid (newShortcut);
     exit;
+  end;
+
+  if item.Group= cgOther then begin
+     oldItem := GetItemByShortcut( item, newShortcut, true );
+     if assigned(oldItem) and (oldItem.Group <> cgOther) then
+       if messagedlg('The menu shortcut will not be deleted and will take priority over this shortcut. CONTINUE?' + #13#13 +
+                    '(You can remove the menu shortcut selecting the corresponding command category)',
+            mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) <> mrYes then
+          exit;
   end;
 
   oldItem := GetItemByShortcut( item, newShortcut );
 
-  if assigned( oldItem ) then
+  if assigned( oldItem ) and ((item.Group <> cgOther) or (oldItem.Group = cgOther)) then
     oldItem.Shortcut := 0;
 
   IsModified := true;
   item.Shortcut := newShortcut;
-  ShowCommandInfo;
 
-  Edit_Hotkey.HotKey:= 0;
+  CleanEdit_Hotkey;
+
+  ShowCommandInfo;
 end;
+
 
 procedure TForm_KBD.Btn_ListClick(Sender: TObject);
 var
@@ -522,15 +633,13 @@ begin
   MMListUnassigned.Checked := ( not MMListUnassigned.Checked );
 end;
 
-procedure TForm_KBD.RBShowMainMenuClick(Sender: TObject);
+procedure TForm_KBD.RBShowCommandsCategoryClick(Sender: TObject);
 begin
+    Edit_Filter.Text:= '';
     DisplayCommands;
 end;
 
-procedure TForm_KBD.RBShowTreeMenuClick(Sender: TObject);
-begin
-    DisplayCommands;
-end;
+
 
 procedure TForm_KBD.Btn_HelpClick(Sender: TObject);
 begin

@@ -6,13 +6,13 @@ object Form_KBD: TForm_KBD
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Customize keyboard shortcuts'
-  ClientHeight = 491
-  ClientWidth = 461
+  ClientHeight = 501
+  ClientWidth = 486
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -14
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -12
+  Font.Name = 'Tahoma'
   Font.Style = []
   Icon.Data = {
     0000010001002020100001000400E80200001600000028000000200000004000
@@ -48,49 +48,47 @@ object Form_KBD: TForm_KBD
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   DesignSize = (
-    461
-    491)
-  TextHeight = 16
+    486
+    501)
+  TextHeight = 14
   object Btn_OK: TButton
     Left = 142
-    Top = 456
+    Top = 468
     Width = 92
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'OK'
-    Font.Charset = DEFAULT_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
-    Font.Name = 'MS Sans Serif'
+    Font.Name = 'Tahoma'
     Font.Style = []
     ModalResult = 1
     ParentFont = False
     TabOrder = 1
-    ExplicitTop = 457
   end
   object Btn_Cancel: TButton
     Left = 248
-    Top = 456
+    Top = 468
     Width = 93
     Height = 25
     Anchors = [akLeft, akBottom]
     Cancel = True
     Caption = 'Cancel'
-    Font.Charset = DEFAULT_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
-    Font.Name = 'MS Sans Serif'
+    Font.Name = 'Tahoma'
     Font.Style = []
     ModalResult = 2
     ParentFont = False
     TabOrder = 2
-    ExplicitTop = 457
   end
   object GroupBox1: TGroupBox
-    Left = 6
-    Top = 0
-    Width = 444
-    Height = 443
+    Left = 7
+    Top = 5
+    Width = 473
+    Height = 454
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -99,59 +97,55 @@ object Form_KBD: TForm_KBD
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitWidth = 452
-    ExplicitHeight = 444
     DesignSize = (
-      444
-      443)
+      473
+      454)
     object LB_Cmd: TLabel
       Left = 11
-      Top = 14
-      Width = 72
-      Height = 16
+      Top = 9
+      Width = 63
+      Height = 14
       Caption = '&Commands:'
       FocusControl = List_Commands
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -15
-      Font.Name = 'MS Sans Serif'
+      Font.Height = -12
+      Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
     end
     object LB_Shortcut: TLabel
-      Left = 45
-      Top = 306
-      Width = 140
+      Left = 245
+      Top = 284
+      Width = 136
       Height = 16
       Anchors = [akLeft, akBottom]
       Caption = '&New keyboard shortcut:'
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -15
-      Font.Name = 'MS Sans Serif'
+      Font.Height = -13
+      Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      ExplicitTop = 307
     end
     object Label4: TLabel
-      Left = 45
-      Top = 257
-      Width = 94
+      Left = 18
+      Top = 284
+      Width = 98
       Height = 16
       Anchors = [akLeft, akBottom]
       Caption = 'Current shortcut:'
       FocusControl = Edit_Current
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -15
-      Font.Name = 'MS Sans Serif'
+      Font.Height = -13
+      Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      ExplicitTop = 258
     end
-    object Label5: TLabel
-      Left = 50
-      Top = 352
+    object lblAssig: TLabel
+      Left = 244
+      Top = 360
       Width = 119
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -162,14 +156,15 @@ object Form_KBD: TForm_KBD
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      ExplicitTop = 353
+      Visible = False
     end
     object LB_CurrentlyAssignedTo: TLabel
-      Left = 172
-      Top = 353
-      Width = 33
-      Height = 13
+      Left = 244
+      Top = 380
+      Width = 217
+      Height = 27
       Anchors = [akLeft, akBottom]
+      AutoSize = False
       Caption = '(None)'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -178,29 +173,29 @@ object Form_KBD: TForm_KBD
       Font.Style = []
       ParentFont = False
       ShowAccelChar = False
-      ExplicitTop = 372
+      Visible = False
+      WordWrap = True
     end
     object Label1: TLabel
-      Left = 296
-      Top = 37
-      Width = 22
-      Height = 13
+      Left = 320
+      Top = 10
+      Width = 26
+      Height = 14
       Anchors = [akTop, akRight]
       Caption = 'Filter'
       FocusControl = Edit_Current
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -12
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      ExplicitLeft = 304
     end
     object List_Commands: TListBox
-      Left = 12
-      Top = 62
-      Width = 416
-      Height = 118
+      Left = 151
+      Top = 38
+      Width = 306
+      Height = 157
       Hint = 'Right-click for options'
       Anchors = [akLeft, akTop, akRight, akBottom]
       Font.Charset = DEFAULT_CHARSET
@@ -215,215 +210,309 @@ object Form_KBD: TForm_KBD
       OnClick = List_CommandsClick
     end
     object Btn_Assign: TButton
-      Left = 313
-      Top = 325
+      Left = 245
+      Top = 331
       Width = 92
       Height = 25
       Anchors = [akRight, akBottom]
       Caption = '&Assign'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 2
-      OnClick = Btn_AssignClick
-      ExplicitLeft = 321
-      ExplicitTop = 326
-    end
-    object Btn_Remove: TButton
-      Left = 313
-      Top = 272
-      Width = 92
-      Height = 25
-      Anchors = [akRight, akBottom]
-      Caption = '&Remove'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 3
-      OnClick = Btn_RemoveClick
-      ExplicitLeft = 321
-      ExplicitTop = 273
-    end
-    object Btn_ResetAll: TButton
-      Left = 313
-      Top = 401
-      Width = 92
-      Height = 25
-      Anchors = [akRight, akBottom]
-      Caption = 'R&eset All'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 5
-      OnClick = Btn_ResetAllClick
-      ExplicitLeft = 321
-      ExplicitTop = 402
-    end
-    object Btn_List: TButton
-      Left = 207
-      Top = 401
-      Width = 92
-      Height = 25
-      Anchors = [akRight, akBottom]
-      Caption = '&List'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 4
-      OnClick = Btn_ListClick
-      ExplicitLeft = 215
-      ExplicitTop = 402
-    end
-    object GroupBox2: TGroupBox
-      Left = 13
-      Top = 188
-      Width = 416
-      Height = 57
-      Anchors = [akLeft, akRight, akBottom]
-      Caption = ' Description '
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -12
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
+      TabOrder = 2
+      OnClick = Btn_AssignClick
+    end
+    object Btn_Remove: TButton
+      Left = 18
+      Top = 330
+      Width = 92
+      Height = 25
+      Anchors = [akRight, akBottom]
+      Caption = '&Remove'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+      OnClick = Btn_RemoveClick
+    end
+    object Btn_ResetAll: TButton
+      Left = 365
+      Top = 419
+      Width = 92
+      Height = 25
+      Anchors = [akRight, akBottom]
+      Caption = 'R&eset All'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      OnClick = Btn_ResetAllClick
+    end
+    object Btn_List: TButton
+      Left = 259
+      Top = 419
+      Width = 92
+      Height = 25
+      Anchors = [akRight, akBottom]
+      Caption = '&List'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 4
+      OnClick = Btn_ListClick
+    end
+    object GroupBox2: TGroupBox
+      Left = 13
+      Top = 219
+      Width = 445
+      Height = 57
+      Anchors = [akLeft, akRight, akBottom]
+      Caption = ' Description '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 7
-      ExplicitTop = 189
-      ExplicitWidth = 424
       DesignSize = (
-        416
+        445
         57)
       object LB_CmdHint: TLabel
-        Left = 10
-        Top = 19
-        Width = 394
+        Left = 16
+        Top = 20
+        Width = 417
         Height = 29
         Anchors = [akLeft, akTop, akRight, akBottom]
         AutoSize = False
         Caption = '(no description)'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
         WordWrap = True
-        ExplicitWidth = 402
-        ExplicitHeight = 34
       end
     end
     object Edit_Current: TEdit
-      Left = 45
-      Top = 276
-      Width = 252
+      Left = 18
+      Top = 303
+      Width = 212
       Height = 19
       TabStop = False
       Anchors = [akLeft, akBottom]
       Ctl3D = False
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
       ParentCtl3D = False
       ParentFont = False
       ReadOnly = True
       TabOrder = 6
-      ExplicitTop = 277
-    end
-    object Edit1: TEdit
-      Left = 44
-      Top = 327
-      Width = 252
-      Height = 21
-      TabStop = False
-      Anchors = [akLeft, akBottom]
-      Ctl3D = True
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentCtl3D = False
-      ParentFont = False
-      ReadOnly = True
-      TabOrder = 8
-      Visible = False
-      ExplicitTop = 328
     end
     object Edit_Filter: TEdit
-      Left = 327
-      Top = 35
+      Left = 356
+      Top = 7
       Width = 101
-      Height = 21
+      Height = 22
       TabStop = False
       Anchors = [akTop, akRight]
       Ctl3D = True
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -12
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = []
       ParentCtl3D = False
       ParentFont = False
       TabOrder = 0
       OnExit = Edit_FilterExit
       OnKeyDown = Edit_FilterKeyDown
-      ExplicitLeft = 335
     end
     object RBShowMainMenu: TRadioButton
-      Left = 17
-      Top = 41
+      Left = 12
+      Top = 36
       Width = 113
       Height = 17
       Caption = 'Main menu'
       Checked = True
-      TabOrder = 9
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 8
       TabStop = True
-      OnClick = RBShowMainMenuClick
+      OnClick = RBShowCommandsCategoryClick
     end
     object RBShowTreeMenu: TRadioButton
-      Left = 136
-      Top = 41
-      Width = 145
+      Left = 12
+      Top = 59
+      Width = 134
       Height = 17
       Caption = 'Tree context menu'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 9
+      OnClick = RBShowCommandsCategoryClick
+    end
+    object RBShowMacros: TRadioButton
+      Left = 12
+      Top = 87
+      Width = 113
+      Height = 17
+      Caption = 'Execute Macro'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 10
-      OnClick = RBShowTreeMenuClick
+      OnClick = RBShowCommandsCategoryClick
+    end
+    object RBShowPlugins: TRadioButton
+      Left = 12
+      Top = 110
+      Width = 113
+      Height = 17
+      Caption = 'Execute Plugin'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 11
+      OnClick = RBShowCommandsCategoryClick
+    end
+    object RBShowTemplates: TRadioButton
+      Left = 12
+      Top = 134
+      Width = 113
+      Height = 17
+      Caption = 'Insert Template'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 12
+      OnClick = RBShowCommandsCategoryClick
+    end
+    object RBShowStyles: TRadioButton
+      Left = 12
+      Top = 157
+      Width = 113
+      Height = 17
+      Caption = 'Apply Style'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 13
+      OnClick = RBShowCommandsCategoryClick
+    end
+    object RBShowFonts: TRadioButton
+      Left = 12
+      Top = 181
+      Width = 113
+      Height = 17
+      Caption = 'Apply Font'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 14
+      OnClick = RBShowCommandsCategoryClick
+    end
+    object Combo_Font: TFontComboBox
+      Left = 151
+      Top = 199
+      Width = 306
+      Height = 20
+      UseFonts = True
+      TabOrder = 15
+      Visible = False
+      OnChange = Combo_FontChange
     end
   end
   object Btn_Help: TButton
-    Left = 20
-    Top = 401
+    Left = 23
+    Top = 424
     Width = 92
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Help'
-    Font.Charset = DEFAULT_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
-    Font.Name = 'MS Sans Serif'
+    Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
     TabOrder = 3
     OnClick = Btn_HelpClick
-    ExplicitTop = 402
+  end
+  object Pnl: TPanel
+    Left = 247
+    Top = 303
+    Width = 227
+    Height = 29
+    BevelOuter = bvNone
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    object Edit1: TEdit
+      Left = 4
+      Top = 3
+      Width = 212
+      Height = 24
+      TabStop = False
+      Ctl3D = True
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentCtl3D = False
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 0
+      Visible = False
+    end
   end
   object Menu_Items: TPopupMenu
-    Left = 105
-    Top = 75
+    Left = 433
+    Top = 467
     object MMConsiderDescriptionOnFilter: TMenuItem
       Caption = 'Consider description when filtering'
       Checked = True

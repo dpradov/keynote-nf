@@ -139,6 +139,8 @@ var
     ShiftAltFKeys : TFuncKeys; // these records keep custom assignments for Alt, Shift+Alt and Ctrl+Alt function key combos.
     CtrlAltFKeys : TFuncKeys;  // They can be modified manually (keynote.key) or by using the FUNCKEY plugin.
 
+    OtherCommandsKeys: TList;      // List of TKeyOtherCommandItem
+
     LastRTFKey : TKeyCode;
     RxRTFKeyProcessed : boolean; // for TAB handling; some tabs are eaten by TRichEdit, others must not be
     RTFUpdating : boolean; // TRUE while in RxRTFSelectionChange; some things cannot be done during that time
@@ -608,8 +610,8 @@ begin
         {$ENDIF}
 
 
+        OtherCommandsKeys:= TList.Create;
         LoadCustomKeyboard; // keyboard.ini
-        ReadFuncKeys; // keynote.key - will override menu shortcuts
 
         if opt_NoReadOpt then
           opt_NoSaveOpt := true; // "no read" implies "no save"

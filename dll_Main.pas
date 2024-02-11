@@ -66,6 +66,7 @@ begin
 
       Form_KBD.myKeyList := KeyList;
       Form_KBD.myKBD_FN := KBD_FN;
+      Form_KBD.KeyNoteActivationHotkey:= ActivationHotkey;
       if ( Form_KBD.ShowModal = mrOK ) then  begin
          result := true;
          SaveKeyboardList( KBD_FN, KeyList );

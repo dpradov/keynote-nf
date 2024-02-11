@@ -29,6 +29,7 @@ uses
    Vcl.StdCtrls,
    Vcl.Controls,
    Vcl.Clipbrd,
+   Vcl.Menus,
 
    TreeNT,
    RxRichEd,
@@ -91,7 +92,7 @@ var
                                     MaxSize: integer = 0 );
     procedure RepeatLastCommand;
     procedure UpdateLastCommand( const aCMD : TEditCmd );
-    procedure PerformCustomFuncKey( const Key : Word; const Shift : TShiftState ); // OBSOLETE
+    function PerformOtherCommandShortcut( const Key : Word; const Shift : TShiftState ) : boolean;
     function RunParagraphDialog : boolean;
     function RunLanguageDialog : boolean;
 
@@ -116,6 +117,7 @@ uses
    kn_MacroCmd,
    kn_MacroCmdSelect,
    kn_MacroEdit,
+   dll_keyboard,
    kn_BookmarksMng,
    kn_StyleMng,
    kn_NoteMng,
@@ -2739,50 +2741,50 @@ begin
 
 end; // RunParagraphDialog
 
-procedure PerformCustomFuncKey( const Key : Word; const Shift : TShiftState );
+
+
+function PerformOtherCommandShortcut( const Key : Word; const Shift : TShiftState ): boolean;
 var
-  s : string;
-  p : integer;
-  cmd : char;
+  i: integer;
+  kOC: TKeyOtherCommandItem;
+  Category: TOtherCommandCategory;
+  Command: string;
+  aShortcut: TShortCut;
+
 begin
+  Result:= false;
+  aShortCut:= ShortCut(Key, Shift);
+
+  for i:= 0 to OtherCommandsKeys.Count-1 do begin
+     kOC:= OtherCommandsKeys[i];
+     if (kOC.Shortcut = aShortcut) then begin
+        Category:= kOC.Category;
+        Command:= kOC.Name;
+        Result:= true;
+        break;
+     end;
+  end;
+
+  if not Result then exit;
+
   if CopyFormatMode <> cfDisabled then
      EnableCopyFormat(False);
 
-  // check if function key
-  if ( not ( key in [VK_F1..VK_F12] )) then exit;
-
-  s := '';
-
-  if ( Shift = [ssAlt] ) then
-     s := AltFKeys[Key-111] // get value from 1 to 12
-  else
-  if ( Shift = [ssShift,ssAlt] ) then
-     s := ShiftAltFKeys[Key-111] // get value from 1 to 12
-  else
-  if ( Shift = [ssCtrl,ssAlt] ) then
-     s := CtrlAltFKeys[Key-111];  // get value from 1 to 12
-
-  if ( s = '' ) then exit;
-
-  p := pos( _KEY_FUNC_DELIMITER, s );
-  if ( p < 2 ) then exit;
-
-  cmd := s[1];
-  delete( s, 1, p );
-
-  case cmd of
-    _KEY_FUNC_MACRO : ExecuteMacro( s, '' );
-    _KEY_FUNC_PLUGIN : ExecutePlugin( s );
-    _KEY_FUNC_TEMPLATE : InsertTemplate( s );
-    _KEY_FUNC_STYLE : StyleApply( s );
-    _KEY_FUNC_FONT : begin
+  case Category of
+    ccMacro    : ExecuteMacro('', Command);
+    ccPlugin   : ExecutePlugin(Command);
+    ccTemplate : InsertTemplate(Command);
+    ccStyle    : StyleApply(Command);
+    ccFont : begin
        RecallingCommand := true;
-       CommandRecall.Font.Name := s;
+       CommandRecall.Font.Name := Command;
        PerformCmd( ecFontName );
     end;
   end;
 
-end; // PerformCustomFuncKey
+  Result:= true;
+end; // PerformOtherCommandShortcut
+
 
 procedure ExecuteMacroFile;
 var

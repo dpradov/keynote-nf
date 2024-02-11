@@ -18,6 +18,7 @@ object Form_Main: TForm_Main
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   OnResize = TntFormResize
   OnShortCut = FormShortCut
