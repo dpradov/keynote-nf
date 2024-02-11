@@ -172,8 +172,7 @@ begin
 
   self.Constraints.MinHeight := self.Height;
 
-  if assigned( myKeyList ) then
-  begin
+  if assigned( myKeyList ) then begin
     ApplySort;
     DisplayCommands;
     try
@@ -182,9 +181,7 @@ begin
     end;
   end
   else
-  begin
     postmessage( self.handle, WM_CLOSE, 0, 0 );
-  end;
 
   IsModified := false;
 
@@ -272,13 +269,11 @@ begin
   LB_CurrentlyAssignedTo.Hint := '';
 
   item := GetSelectedItem;
-  if assigned( item ) then
-  begin
+  if assigned( item ) then begin
     LB_CmdHint.Caption := item.Hint;
     Edit_Current.Text := ShortCutToText( item.ShortCut );
   end
-  else
-  begin
+  else begin
     LB_CmdHint.Caption := '';
     Edit_Current.Text := '';
   end;
@@ -305,8 +300,10 @@ var
 begin
    fi:= Combo_Font.ItemIndex;
    i:= List_Commands.items.IndexOf(Combo_Font.Items[fi]);
+
    if i >= 0 then
       List_Commands.ItemIndex:= i
+
    else begin
       Edit_Filter.Text:= '';
       DisplayCommands;
@@ -333,37 +330,25 @@ begin
     LB_CurrentlyAssignedTo.Hint := '';
     UserShortcut := Edit_HotKey.HotKey;
 
-    if ( UserShortcut <> 0 ) then
-    begin
+    if ( UserShortcut <> 0 ) then begin
       selItem:= GetSelectedItem;
       // Edit_HotKey.Text := ShortcutToText( UserShortcut );
-      if IsValidShortcut( selItem, UserShortcut ) then
-      begin
-        item := GetItemByShortcut( nil, UserShortcut, (selItem.Group= cgOther) );
-        if assigned( item ) then
-        begin
-          Caption:= Item.Caption;
-          if selItem.Group = cgOther then
-             Caption:= KeyboardConfigSections[item.Category] + ' | ' + Caption;
-          LB_CurrentlyAssignedTo.Caption := Caption;
-          LB_CurrentlyAssignedTo.Hint := item.Hint;
+      if IsValidShortcut( selItem, UserShortcut ) then begin
+         item := GetItemByShortcut( nil, UserShortcut, (selItem.Group= cgOther) );
+         if assigned( item ) then begin
+            Caption:= Item.Caption;
+            if selItem.Group = cgOther then
+               Caption:= KeyboardConfigSections[item.Category] + ' | ' + Caption;
+            LB_CurrentlyAssignedTo.Caption := Caption;
+            LB_CurrentlyAssignedTo.Hint := item.Hint;
         end
         else
-        begin
-          LB_CurrentlyAssignedTo.Caption := 'None';
-        end;
+           LB_CurrentlyAssignedTo.Caption := 'None';
       end
-      else
-      begin
-        MessageShortcutInvalid (UserShortcut);
-        UserShortcut:= 0;
-        //LB_CurrentlyAssignedTo.Caption := 'Invalid shortcut';
+      else begin
+         MessageShortcutInvalid (UserShortcut);
+         UserShortcut:= 0;
       end;
-    end
-    else
-    begin
-      //Edit_HotKey.Text := '<None>';
-      //LB_CurrentlyAssignedTo.Caption := 'None';
     end;
 
     lblAssig.Visible := ( UserShortcut <> 0 );
@@ -402,13 +387,10 @@ begin
   if ( not assigned( SelItem )) then
     exit;
 
-  for i := 1 to cnt do
-  begin
+  for i := 1 to cnt do begin
     item := TKeyCommandItem( myKeyList[pred( i )] );
-    if (( Item <> SelItem ) and (searchInAllCategories or  (Item.Group = SelItem.Group) )) then
-    begin
-      if ( Item.Shortcut = aShortcut ) then
-      begin
+    if (( Item <> SelItem ) and (searchInAllCategories or  (Item.Group = SelItem.Group) )) then begin
+      if ( Item.Shortcut = aShortcut ) then begin
         result := Item;
         break;
       end;
@@ -451,8 +433,7 @@ var
   item : TKeyCommandItem;
 begin
   item := GetSelectedItem;
-  if ( assigned( item ) and ( item.Shortcut <> 0 )) then
-  begin
+  if ( assigned( item ) and ( item.Shortcut <> 0 )) then begin
     IsModified := true;
     item.Shortcut := 0;
     ShowCommandInfo;
@@ -487,8 +468,7 @@ begin
 
   if newShortcut = 0 then exit;
 
-  if ( not IsValidShortcut( item, newShortcut )) then
-  begin
+  if ( not IsValidShortcut( item, newShortcut )) then begin
     MessageShortcutInvalid (newShortcut);
     exit;
   end;
@@ -528,10 +508,9 @@ begin
       shellexecute( 0, 'open', PChar( kbdlist_fn ), nil, nil, SW_NORMAL );
     except
       on E : Exception do
-      begin
         messagedlg( E.Message, mtError, [mbOK], 0 );
-      end;
     end;
+
   finally
     screen.Cursor := crDefault;
   end;
@@ -539,25 +518,22 @@ end;
 
 procedure TForm_KBD.Btn_ResetAllClick(Sender: TObject);
 begin
-  if ( not fileexists( myKBD_FN )) then
-  begin
+  if ( not fileexists( myKBD_FN )) then begin
     messagedlg( Format(
       'Keyboard configuration file "%s" does not exist. KeyNote is currently using default keyboard configuration.',
       [myKBD_FN] ), mtInformation, [mbOK], 0 );
     exit;
   end;
+
   if ( messagedlg(
     'Existing keyboard configuration file will be deleted. Original keyboard shortcuts will be restored after you restart KeyNote. Continue?', mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
   begin
-    if deletefile( myKBD_FN ) then
-    begin
+    if deletefile( myKBD_FN ) then begin
       IsModified := false;
       ModalResult := mrCancel;
     end
     else
-    begin
-      messagedlg( Format( 'Could not delete keyboard configuration file "%s"', [myKBD_FN] ), mtError, [mbOK], 0 )
-    end;
+       messagedlg( Format( 'Could not delete keyboard configuration file "%s"', [myKBD_FN] ), mtError, [mbOK], 0 );
   end;
 
 end;
@@ -571,8 +547,7 @@ end;
 
 procedure TForm_KBD.EnableAccelerators(const DoEnable: boolean);
 begin
-  if DoEnable then
-  begin
+  if DoEnable then begin
     LB_Cmd.Caption := '&Commands:';
     LB_Shortcut.Caption := '&New keyboard shortcut:';
     Btn_Assign.Caption := '&Assign';
@@ -580,8 +555,7 @@ begin
     Btn_ResetAll.Caption := 'R&eset All';
     Btn_List.Caption := '&List';
   end
-  else
-  begin
+  else begin
     LB_Cmd.Caption := RemoveAccelChar( LB_Cmd.Caption );
     LB_Shortcut.Caption := RemoveAccelChar( LB_Shortcut.Caption );
     Btn_Assign.Caption := RemoveAccelChar( Btn_Assign.Caption );

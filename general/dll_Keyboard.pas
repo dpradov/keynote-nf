@@ -295,22 +295,18 @@ begin
         '<TR><TH COLSPAN=4>%s</TH></TR>',
         [KeyboardConfigMenuNames[category]] ));
 
-      for i := 1 to cnt do
-      begin
+      for i := 1 to cnt do begin
         myItem := TKeyCommandItem( CommandList.Items[pred( i )] );
-        if ( assigned( myItem ) and ( myItem.Category = category )) then
-        begin
+        if ( assigned( myItem ) and ( myItem.Category = category )) then begin
           case myItem.Shortcut of
             0 : begin
               if IncludeUnassigned then
-                ShortcutText := 'Not assigned'
+                 ShortcutText := 'Not assigned'
               else
-                continue;
+                 continue;
             end;
             else
-            begin
               ShortcutText := ShortcutToText( myItem.Shortcut );
-            end;
           end;
           myList.Add( Format(
             '<TR><TD CLASS="keyname">%s</TD><TD CLASS="keycmd">%s</TD><TD CLASS="key">%s</TD><TD CLASS="keyhint">%s</TD></TR>',
