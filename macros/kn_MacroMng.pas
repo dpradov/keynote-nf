@@ -2361,6 +2361,7 @@ begin
               Disabled := false;
               SubscriptStyle := TSubscriptStyle(ssNone);
               BackColor := clWindow; // ActiveNote.Editor.Color;
+              ActiveNote.Editor.HideKNTHiddenMarks(true);
             end;
 
           ecClearParaAttr :
