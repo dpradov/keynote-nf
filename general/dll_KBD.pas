@@ -526,7 +526,7 @@ begin
   end;
 
   if ( messagedlg(
-    'Existing keyboard configuration file will be deleted. Original keyboard shortcuts will be restored after you restart KeyNote. Continue?', mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
+    'Existing keyboard configuration file will be deleted.'+ #13 + 'ORIGINAL keyboard SHORTCUTS will be RESTORED AFTER you RESTART KeyNote' + #13#13 + 'Continue?', mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
   begin
     if deletefile( myKBD_FN ) then begin
       IsModified := false;
