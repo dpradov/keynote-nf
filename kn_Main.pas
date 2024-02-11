@@ -1278,6 +1278,7 @@ type
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
 
     procedure FormatCopyClick(AlloMultiMode: Boolean);
+    procedure ShowFindAllOptions;
 
   protected
     procedure CreateWnd; override;
@@ -2788,13 +2789,19 @@ var
 begin
    if not Active then exit;         // => ImgViewerInstance.Active = True
 
+   ShortCut := ShortCutFromMessage(Msg);
+   if ShortCut = MMViewResPanel.ShortCut then begin
+       MMViewResPanelClick (nil);
+       Handled:= true;
+   end;
+
    if (GetKeyState(VK_CONTROL) < 0) and not (GetKeyState(VK_MENU) < 0) then
    begin
       ShiftPressed:= (GetKeyState(VK_SHIFT) < 0);
 
       ShortCutItem:= nil;
       if ShiftPressed then begin
-         ShortCut := ShortCutFromMessage(Msg);
+         //ShortCut := ShortCutFromMessage(Msg);
          ShortCutItem := Menu.FindItem(ShortCut, fkShortCut);
       end;
 
@@ -4211,8 +4218,7 @@ begin
 
     note:= TTreeNote(ActiveNote);
     if not note.Filtered then begin
-        MMViewResPanelClick( nil );
-        Pages_Res.ActivePage:= ResTab_Find;
+        ShowFindAllOptions;
         CB_ResFind_Filter.Checked:= true;
         TB_FilterTree.Down:= false;
     end
@@ -6589,6 +6595,13 @@ end;
 
 procedure TForm_Main.MMViewResPanelClick(Sender: TObject);
 begin
+  if (Sender = nil) and KeyOptions.ResPanelShow and assigned(ActiveNote) then begin
+     if ActiveNote.Editor.Focused or ((ActiveNote.Kind = ntTree) and TTreeNote(ActiveNote).TV.Focused) then begin
+        FocusResourcePanel;
+        exit;
+     end;
+  end;
+
   KeyOptions.ResPanelShow := ( not KeyOptions.ResPanelShow );
 
   UpdateResPanelContents;
@@ -6669,6 +6682,17 @@ begin
 
   VisibilityControlsFindAllResults (not IsShownOptions);
 end;
+
+procedure TForm_Main.ShowFindAllOptions;
+begin
+   if not KeyOptions.ResPanelShow then
+      MMViewResPanelClick( MMViewResPanel );
+
+   Pages_Res.ActivePage:= ResTab_Find;
+   if (Ntbk_ResFind.PageIndex = 0) then
+       Btn_ResFlipClick(nil);
+end;
+
 
 procedure TForm_Main.MMEditSelectWordClick(Sender: TObject);
 begin
@@ -6880,7 +6904,7 @@ begin
     DBLCLK_FILEMGR : RunFileManager;
     DBLCLK_NOTEPROP : EditNoteProperties( propThisNote );
     DBLCLK_NEWNOTE : CreateNewNote;
-    DBLCLK_RESPANEL : MMViewResPanelClick( nil );
+    DBLCLK_RESPANEL : MMViewResPanelClick( MMViewResPanel );
   end;
 end;
 
