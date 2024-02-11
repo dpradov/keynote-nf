@@ -47,6 +47,7 @@ var
     StartNode: TTreeNTNode;
 
 
+procedure DoFindNext;
 procedure RunFinder;
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 procedure RunFindAllEx;
@@ -64,6 +65,7 @@ procedure FindAllResults_SelectMatch (Prev: boolean);
 
 implementation
 uses
+   System.DateUtils,
    gf_miscvcl,
    gf_strings,
    kn_const,
@@ -88,6 +90,7 @@ var
    LastResultCellWidth: string;
    SelectedMatch: integer;          // < 0: In the process of identify the selectedMatch
    FollowMatch: boolean;
+   LastFindNextAt: TDateTime;
 
 
 resourcestring
@@ -1209,6 +1212,22 @@ begin
 end;
 
 
+procedure DoFindNext;
+begin
+   if (FindOptions.ResetNextAftN > 0) then begin
+       if (incSecond(LastFindNextAt, FindOptions.ResetNextAftN) < now) then begin
+          FindOptions.FindNew:= true;
+          FindOptions.Pattern:= '';
+       end;
+       LastFindNextAt:= now;
+   end;
+
+   if ( FindOptions.Pattern = '' ) then
+      RunFinder
+   else
+      RunFindNext;
+end;
+
 
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 var
@@ -1729,5 +1748,6 @@ Initialization
     LastResultCellWidth:= '';
     FollowMatch:= true;
     SelectedMatch:= 0;
+    LastFindNextAt := 0;
 
 end.

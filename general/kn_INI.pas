@@ -761,7 +761,8 @@ type
     WholeWordsOnly,
     WordAtCursor,
     WordCharacters,
-    Wrap : string;
+    Wrap,
+    ResetNextAftN: string;
   end;
 
 const
@@ -792,7 +793,8 @@ const
     WholeWordsOnly : 'WholeWordsOnly';
     WordAtCursor : 'WordAtCur';
     WordCharacters : 'WordCharacters';
-    Wrap : 'Wrap'
+    Wrap : 'Wrap';
+    ResetNextAftN: 'ResetNextAftN';
   );
 
 type
@@ -1183,6 +1185,7 @@ begin
     SearchScope := ssContentsAndNodeName;
     CheckMode := scAll;    // [dpv]
     WholeWordsOnly := false;
+    ResetNextAftN := 0;
     WordAtCursor := true;
     Wrap := false;
   end;
@@ -1529,6 +1532,7 @@ begin
       writebool( section, FindOptionsIniStr.Wrap, FindOptions.Wrap );
       writeinteger( section, FindOptionsIniStr.SearchScope, ord( FindOptions.SearchScope ));
       writeinteger( section, FindOptionsIniStr.CheckMode, ord( FindOptions.CheckMode ));
+      writeinteger( section, FindOptionsIniStr.ResetNextAftN, FindOptions.ResetNextAftN);
 
       section := ResPanelOptionsIniStr.section;
       //writebool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
@@ -1908,6 +1912,7 @@ begin
       FindOptions.SearchMode := TSearchMode( readinteger( section, FindOptionsIniStr.SearchMode, ord( FindOptions.SearchMode )));
       FindOptions.SearchScope := TSearchScope( readinteger( section, FindOptionsIniStr.SearchScope, ord( FindOptions.SearchScope )));
       FindOptions.CheckMode := TSearchCheckMode( readinteger( section, FindOptionsIniStr.CheckMode, ord( FindOptions.CheckMode )));
+      FindOptions.ResetNextAftN := readinteger( section, FindOptionsIniStr.ResetNextAftN, FindOptions.ResetNextAftN );
 
       section := ResPanelOptionsIniStr.section;
       {

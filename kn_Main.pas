@@ -842,6 +842,7 @@ type
     MMTreeFocusToogle: TMenuItem;
     MMTreeFocusEditor: TMenuItem;
     MMTreeFocusTree: TMenuItem;
+    MMFindAll: TMenuItem;
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
     procedure TntFormResize(Sender: TObject);
@@ -1259,6 +1260,7 @@ type
     procedure MMTreeFocusEditorClick(Sender: TObject);
     procedure MMTreeFocusTreeClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure MMFindAllClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -4313,13 +4315,8 @@ procedure TForm_Main.MMFindNextClick(Sender: TObject);
 begin
   if assigned(ActiveNote) and ( ActiveNote.FocusMemory = focTree ) then
      MMFindNodeNextClick(nil)
-
-  else begin
-    if ( FindOptions.Pattern = '' ) then
-       RunFinder
-    else
-       RunFindNext;
-  end
+  else
+     DoFindNext;
 end; // MMFindagainClick
 
 procedure TForm_Main.MMFindReplaceClick(Sender: TObject);
@@ -4334,6 +4331,11 @@ begin
   else
     RunReplaceNext;
 end; // MMReplaceNextClick
+
+procedure TForm_Main.MMFindAllClick(Sender: TObject);
+begin
+   ShowFindAllOptions;
+end;
 
 
 function TForm_Main.HaveNotes( const Warn, CheckCount : boolean ) : boolean;
@@ -6691,6 +6693,8 @@ begin
    Pages_Res.ActivePage:= ResTab_Find;
    if (Ntbk_ResFind.PageIndex = 0) then
        Btn_ResFlipClick(nil);
+
+   FocusResourcePanel;
 end;
 
 

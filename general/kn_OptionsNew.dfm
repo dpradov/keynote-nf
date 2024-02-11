@@ -3593,7 +3593,7 @@ object Form_OptionsNew: TForm_OptionsNew
         Left = 5
         Top = 5
         Width = 350
-        Height = 124
+        Height = 121
         Caption = ' Advanced editor language options '
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -3651,9 +3651,9 @@ object Form_OptionsNew: TForm_OptionsNew
       end
       object GroupBox_Other3: TGroupBox
         Left = 5
-        Top = 271
+        Top = 252
         Width = 350
-        Height = 95
+        Height = 117
         Caption = ' Find options '
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -3664,10 +3664,24 @@ object Form_OptionsNew: TForm_OptionsNew
         TabOrder = 1
         object Label20: TLabel
           Left = 13
-          Top = 70
+          Top = 93
           Width = 126
           Height = 13
           Caption = 'Font size in Find All results'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object Label14: TLabel
+          Left = 13
+          Top = 69
+          Width = 104
+          Height = 13
+          Hint = 'Request a new search pattern after N seconds (0, no timeout)'
+          Caption = 'Reset Find Next after'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -3708,8 +3722,8 @@ object Form_OptionsNew: TForm_OptionsNew
           TabOrder = 1
         end
         object Spin_FontSizeFindResults: TSpinEdit
-          Left = 207
-          Top = 66
+          Left = 208
+          Top = 89
           Width = 49
           Height = 22
           Font.Charset = DEFAULT_CHARSET
@@ -3721,15 +3735,32 @@ object Form_OptionsNew: TForm_OptionsNew
           MaxValue = 36
           MinValue = 8
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 3
           Value = 10
+        end
+        object Spin_ResetNextAftN: TSpinEdit
+          Left = 208
+          Top = 63
+          Width = 49
+          Height = 22
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          MaxLength = 2
+          MaxValue = 600
+          MinValue = 0
+          ParentFont = False
+          TabOrder = 2
+          Value = 90
         end
       end
       object GroupBox_Other2: TGroupBox
         Left = 5
-        Top = 142
+        Top = 132
         Width = 350
-        Height = 117
+        Height = 111
         Caption = ' Web browser options '
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText

@@ -3275,6 +3275,11 @@ object Form_Main: TForm_Main
         ShortCut = 114
         OnClick = MMFindNextClick
       end
+      object MMFindAll: TMenuItem
+        Caption = 'Find &All...'
+        Hint = 'Find all occurrences of the searched text'
+        OnClick = MMFindAllClick
+      end
       object N74: TMenuItem
         Caption = '-'
       end

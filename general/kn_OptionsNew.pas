@@ -298,6 +298,8 @@ type
     Label32: TLabel;
     Label33: TLabel;
     chkImgKeepOrigName: TCheckBox;
+    Label14: TLabel;
+    Spin_ResetNextAftN: TSpinEdit;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -985,6 +987,7 @@ begin
   begin
     AutoClose := CB_FindAutoClose.Checked;
     WordAtCursor := CB_WordAtCursor.Checked;
+    ResetNextAftN := Spin_ResetNextAftN.Value;
   end;
   ResPanelOptions.FontSizeFindResults:= Spin_FontSizeFindResults.Value;
 
@@ -1240,6 +1243,7 @@ begin
   begin
     CB_FindAutoClose.Checked := AutoClose;
     CB_WordAtCursor.Checked := WordAtCursor;
+    Spin_ResetNextAftN.Value := ResetNextAftN;
   end;
   Spin_FontSizeFindResults.Value:= ResPanelOptions.FontSizeFindResults;
 
