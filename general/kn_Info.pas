@@ -617,6 +617,7 @@ type
     UseCtrlHideTreePanel : boolean;  // [*]
     MarginAltLeft  : integer;  // [*]
     MarginAltRight : integer;  // [*]
+    ModifiedOnTreeResized: boolean;  // [*]
 
     ImgDefaultStorageMode:     TImagesStorageMode;
     ImgDefaultExternalStorage: TImagesExternalStorage;

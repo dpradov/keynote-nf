@@ -296,6 +296,7 @@ type
 
     // state that needs to be recalled
     FTreeWidth : integer;
+    FTreeMaxWidth: integer;
 
     function GetCount : integer;
     function CheckTree : boolean;
@@ -321,6 +322,7 @@ type
     property TV : TTreeNT read FTV write FTV;
     property IconKind : TNodeIconKind read FIconKind write FIconKind;
     property TreeWidth : integer read FTreeWidth write FTreeWidth;
+    property TreeMaxWidth : integer read FTreeMaxWidth write FTreeMaxWidth;            // [dpv]
     property HideCheckedNodes: Boolean read FHideCheckedNodes write FHideCheckedNodes; // [dpv]
     property Filtered: Boolean read FFiltered write FFiltered;                         // [dpv]
     property SelectedNode : TNoteNode read GetSelectedNode write SetSelectedNode;
@@ -2314,6 +2316,7 @@ begin
   FSplitter := nil;
   FTV := nil;
   FTreeWidth := 0; // flag, so that default width will be used
+  FTreeMaxWidth:= 0;
   FIconKind := niStandard;
   FCheckboxes := false;
   FSelectedNode := nil;
@@ -2535,6 +2538,8 @@ begin
   FIconKind := aProps.IconKind;
   FDefaultNodeName := aProps.DefaultName;
   FAutoNumberNodes := aProps.AutoNumberNodes;
+  if FVerticalLayout <> aProps.VerticalLayout then
+     FTreeMaxWidth:= -Abs(FTreeMaxWidth);
   FVerticalLayout := aProps.VerticalLayout;
   FHideCheckedNodes := aProps.HideChecked;           // [dpv]
 end; // SetTreeProperties
@@ -2819,10 +2824,12 @@ begin
 
 
   if HaveVCLControls then begin
+    {                           // Now updated from TForm_Main.SplitterNoteMoved
     if FVerticalLayout then
        FTreeWidth := FTV.Height
     else
        FTreeWidth := FTV.Width;
+    }
 
     if assigned( FTV.Selected ) then
        FOldSelectedIndex := FTV.Selected.AbsoluteIndex
@@ -2839,6 +2846,7 @@ begin
     // basic treenote properties
     tf.WriteLine( _SelectedNode + '=' + FOldSelectedIndex.ToString );
     tf.WriteLine( _TreeWidth + '=' + FTreeWidth.ToString );
+    tf.WriteLine( _TreeMaxWidth + '=' + Abs(FTreeMaxWidth).ToString );
     tf.WriteLine( _DefaultNodeName + '=' + FDefaultNodeName,  True);
 
     // tree chrome
@@ -3190,13 +3198,10 @@ begin
           end
           else
           if ( key = _TreeWidth ) then
-          begin
-              try
-                FTreeWidth := StrToInt( s );
-              except
-                FTreeWidth := 0;
-              end;
-          end
+             FTreeWidth := StrToIntDef( s, 0)
+          else
+          if ( key = _TreeMaxWidth ) then
+             FTreeMaxWidth := StrToIntDef( s, 0)
           else
           if ( key = _DefaultNodeName ) then
           begin

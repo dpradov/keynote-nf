@@ -110,7 +110,7 @@ uses
 
 
 resourcestring
-  STR_00 = 'Click and drag to resize panels';
+  STR_00 = 'Click and drag to resize panels (Ctrl: tree max width / Alt: Toggle fixed)';
   STR_01 = 'Error destroying tabsheet ';
   STR_02 = 'Select text color';
   STR_03 = 'Select &Highlight...';
@@ -160,6 +160,7 @@ begin
           OnURLClick := RxRTFURLClick;
           OnMouseMove := nil; // RTFMouseMove;
           OnDblClick:= RxRTFDblClick;
+          OnEnter:= RxRTFEnter;
           {
             By default DragMode=dmManual, and the mechanism in TRxRichEdit is controlled through the IRichEditOleCallback interface.
             (see comment *3 in RxRichEd.pas)
@@ -209,6 +210,8 @@ begin
           OnEndDrag := TVEndDrag;
           OnStartDrag := TVStartDrag;
           ShowHint := false;
+          OnHint := TVOnHint;
+          OnEnter:= TVEnter;
         end;
       end;
 
@@ -449,6 +452,7 @@ begin
             begin
               Parent := myTab;
               Align := alNone;
+              mySplitter.OnMoved:= Form_Main.SplitterNoteMoved;
               if tNote.VerticalLayout then
               begin
                 Top := myTree.Height + 5;

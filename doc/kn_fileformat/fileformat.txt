@@ -217,6 +217,9 @@ SN=0
 Width of the tree panel, in pixels
 TW=187
 
+Max width of the tree panel, in pixels
+TM=250
+
 Default name for new nodes
 EN=New node
 

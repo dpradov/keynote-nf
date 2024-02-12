@@ -1005,6 +1005,7 @@ const
   _NodeLevel = 'LV';
   _SelectedNode = 'SN';
   _TreeWidth = 'TW';
+  _TreeMaxWidth = 'TM';
   _VirtualFN = 'VF';
   _RelativeVirtualFN = 'RV';
   _NodeRTFBGColor = 'BC';
