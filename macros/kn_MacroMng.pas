@@ -879,6 +879,8 @@ begin
         MacroFinished := true;
 
         for i := 1 to Macro.Lines.Count do begin
+          ArgList.Clear;                               // [dpv]
+
           Application.ProcessMessages;
           if MacroAbortRequest then begin
             MacroFinished := true;
