@@ -523,7 +523,9 @@ type
     ImportFileNamesWithExt : boolean; // keep filename extension (in node and note names) when importing files
     InitFontColor : TColor; // initial font color
     InitHiColor : TColor; // initial highlight color
-    InsCharFullSet : boolean;
+    //InsCharFullSet : boolean;
+    InsCharAutoAddNew: boolean;
+    InsCharCustom: string;
     InsCharKeepFont : boolean;
     InsCharWinClose : boolean;
     KeyReplayDelay : integer; // MILIseconds { OBSOLETE, unused }

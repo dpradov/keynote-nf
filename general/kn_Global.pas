@@ -42,7 +42,7 @@ uses
    kn_History,
    kn_const,
    kn_Info,
-   kn_Chars,
+   kn_CharsNew,
    kn_LocationObj,
    kn_AlertMng,
    kn_NoteObj,
@@ -147,8 +147,9 @@ var
 
 
     //==================================================
-    InsCharFont : TFontInfo;
-    Form_Chars : TForm_Chars; // GLOBAL FORM!
+    //InsCharFont : TFontInfo;
+    //Form_Chars : TForm_Chars; // GLOBAL FORM!
+    Form_Chars : TForm_CharsNew; // GLOBAL FORM!
 
 
     //================================================== DEFAULT PROPERTIES
@@ -586,9 +587,11 @@ begin
       AddSearchChkModes;
 
       Form_Chars := nil;
+      {                                    // Unncessary with TForm_CharsNew
       InsCharFont.Name := '';
       InsCharFont.Size := 0;
       InsCharFont.Charset := DEFAULT_CHARSET;
+      }
 
       // [x] PRE-RELEASE FIXES
       // MMNotePrintPreview_.Visible := false;

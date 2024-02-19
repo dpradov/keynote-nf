@@ -151,7 +151,7 @@ uses
    kn_Cmd,
    kn_Info,
    kn_NodeList,
-   kn_Chars,
+   kn_CharsNew,
    kn_ClipUtils,
    kn_ExpTermDef,
    kn_NoteMng,
@@ -1194,7 +1194,8 @@ begin
         exit;
 
       if ( Form_Chars = nil ) then begin
-        Form_Chars := TForm_Chars.Create( Form_Main );
+        Form_Chars := TForm_CharsNew.Create( Form_Main );
+        {
         with Form_Chars.FontDlg.Font do begin
           if ( KeyOptions.InsCharKeepFont and ( InsCharFont.Size > 0 )) then begin
             Name := InsCharFont.Name;
@@ -1208,16 +1209,18 @@ begin
             Size := NoteSelText.Size;
           end;
         end;
+        }
 
         with Form_Chars do begin
           ShowHint := KeyOptions.ShowTooltips;
           CharInsertEvent := CharInsertProc;
           FormCloseEvent := Form_Main.Form_CharsClosed;
-          myShowFullSet := KeyOptions.InsCharFullSet;
+          AutoAddNew :=  KeyOptions.InsCharAutoAddNew;
+          RTFCustomChars:= KeyOptions.InsCharCustom;
           if KeyOptions.InsCharWinClose then
-            Button_Insert.ModalResult := mrOK
+            btnInsert.ModalResult := mrOK
           else
-            Button_Insert.ModalResult := mrNone;
+            btnInsert.ModalResult := mrNone;
         end;
       end;
 

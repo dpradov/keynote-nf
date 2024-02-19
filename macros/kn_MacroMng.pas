@@ -467,7 +467,7 @@ begin
           ColorToString( CommandRecall.Color )
         ]));
       end;
-      ecInsCharacter : begin
+      ecInsCharacter, ecInsCharacterU : begin
         ActiveMacro.Lines.Add( Format(
           '%s%s%s%d%s%d%s%s%s%d',
           [_MACRO_CMD_CHAR,
@@ -1028,7 +1028,7 @@ begin
                       Form_Main.TB_Hilite.ActiveColor := CommandRecall.Color;
                     end;
 
-                    ecInsCharacter : begin
+                    ecInsCharacter, ecInsCharacterU : begin
                       CSVTextToStrs( ArgList, argstr, _MACRO_DELIMITER_CHAR );
                       with CommandRecall.CharInfo do begin
                         Code := strtoint( ArgList[0] );
@@ -2583,9 +2583,9 @@ begin
             // ONLY when RecallingCommand (e.g. from macros)
             if RecallingCommand then begin
               case aCmd of
-                 ecInsCharacter :
+                 ecInsCharacter, ecInsCharacterU :
                    with CommandRecall.CharInfo do
-                      Form_Main.CharInsertProc( AnsiChar(chr(code)), Count, Name, Charset );
+                      Form_Main.CharInsertProc( Chr(code), Count, Name, Charset, (aCmd=ecInsCharacterU) );
 
                  ecStyleApply :
                     StyleApply( CommandRecall.StyleName );

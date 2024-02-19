@@ -1362,7 +1362,7 @@ type
     procedure NodesDropOnTabProc( const DropTab : TTab95Sheet );
 
     procedure Form_CharsClosed( sender : TObject );
-    procedure CharInsertProc( const ch : AnsiChar; const Count : integer; const FontName : string; const FontCharset : TFontCharset );
+    procedure CharInsertProc( const ch : Char; const Count : integer; const FontName : string; const FontCharset : TFontCharset; Unicode: boolean= true );
 
     procedure HotKeyProc( const TurnOn : boolean );
 
@@ -6086,8 +6086,10 @@ end;
 
 procedure TForm_Main.Form_CharsClosed( sender : TObject );
 begin
+
   try
     try
+      {                                       // Unncessary with TForm_CharsNew
       with Form_Chars.FontDlg.Font do
       begin
         InsCharFont.Name := Name;
@@ -6095,6 +6097,10 @@ begin
         InsCharFont.Size := Size;
       end;
       KeyOptions.InsCharFullSet := Form_Chars.myShowFullSet;
+      }
+
+      KeyOptions.InsCharAutoAddNew := Form_Chars.AutoAddNew;
+      KeyOptions.InsCharCustom:= Form_Chars.RTFCustomChars;
       Form_Chars.Release;
     except
     end;
@@ -6103,9 +6109,13 @@ begin
   end;
 end; // Form_CharsClosed
 
-procedure TForm_Main.CharInsertProc( const ch : AnsiChar; const Count : integer; const FontName : string; const FontCharset : TFontCharset );
+procedure TForm_Main.CharInsertProc( const ch : Char; const Count : integer; const FontName : string; const FontCharset : TFontCharset; Unicode: boolean= true);
 var
-  s : AnsiString;
+  s : String;
+  CurrentFontName: string;
+  CurrentCharset: TFontCharset;
+  Cmd: TEditCmd;
+  AnsiCh: AnsiChar;
 begin
   if ( not ( HaveNotes( false, true ) and assigned( ActiveNote ))) then
     exit;
@@ -6117,35 +6127,48 @@ begin
           CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
     end;
 
-    with CommandRecall do
-    begin
+    if Unicode then
+       Cmd:= ecInsCharacterU
+    else begin
+       Cmd:= ecInsCharacter;
+       AnsiCh:= AnsiChar(Ch);
+    end;
+
+    with CommandRecall do begin
       CharInfo.Code := ord( ch );
       CharInfo.Name := FontName;
       CharInfo.Count := Count;
       CharInfo.Charset := FontCharset;
     end;
-    UpdateLastCommand( ecInsCharacter );
+    UpdateLastCommand( Cmd );
     if IsRecordingMacro then
-      AddMacroEditCommand( ecInsCharacter );
+      AddMacroEditCommand( Cmd );
 
-
-    if ( FontName <> '' ) then
-    begin
-      NoteSelText.Name := FontName;
-      NoteSelText.Charset := FontCharset;
-    end;
-
-    if ( Count = 1 ) then
-      s := ch
+    if Unicode then begin
+       if ( Count = 1 ) then
+         s := ch
+       else
+         s:= StringOfChar(ch, Count);
+    end
     else begin
-      s := '';
-      setlength( s, Count );
-      fillchar( s[1], Count, ch );
+       if ( Count = 1 ) then
+         s := AnsiCh
+       else
+         s:= StringOfChar(AnsiCh, Count);
     end;
 
     with ActiveNote.Editor do begin
-      SelText := s;
-      SelStart := SelStart + Count;
+       SelText := s;
+       if ( FontName <> '' ) then begin
+         CurrentFontName:= NoteSelText.Name;
+         CurrentCharset:= NoteSelText.Charset;
+         NoteSelText.Name := FontName;
+         NoteSelText.Charset := FontCharset;
+       end;
+       SelStart := SelStart + Count;
+
+       NoteSelText.Name := CurrentFontName;
+       NoteSelText.Charset := CurrentCharset;
     end;
 
     NoteFile.Modified := true;

@@ -622,6 +622,7 @@ type
     procedure StopGroupTyping;
     procedure BeginUpdate;                                             // [dpv]
     procedure EndUpdate;                                               // [dpv]
+    procedure RemoveMargins;                                           // [dpv]
     property CanFindNext: Boolean read GetCanFindNext;
     property CanRedo: Boolean read GetCanRedo;
     property CanPaste: Boolean read GetCanPaste;
@@ -6810,11 +6811,25 @@ procedure TRxCustomRichEdit.EndUpdate;
 begin
     FUpdating:= FUpdating -1;                                        // Deal with nested calls
     if FUpdating <= 0 then begin
-        SendMessage(Handle, WM_SETREDRAW, 1, 0);                     // Allow the control to redraw itself        
+        SendMessage(Handle, WM_SETREDRAW, 1, 0);                     // Allow the control to redraw itself
         SendMessage(Handle, EM_SETEVENTMASK, 0, FOldEventMask);      // Allow the control to raise event messages
         Invalidate;
     end;
 end;
+
+
+procedure TRxCustomRichEdit.RemoveMargins;                          // [dpv]
+var
+   Rect: TRect;
+begin
+   SendMessage(Handle, EM_GETRECT, 0, Longint(@Rect));
+   Rect.Left:= 0;
+   Rect.Top:= 0;
+   Rect.Right:= 0;
+   Rect.Bottom:= 0;
+   SendMessage(Handle, EM_SETRECT, 0, Longint(@Rect));
+end;
+
 
 {$IFDEF RX_D3}
 procedure TRxCustomRichEdit.SetUIActive(Active: Boolean);

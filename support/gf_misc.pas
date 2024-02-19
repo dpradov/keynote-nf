@@ -216,11 +216,26 @@ function GenerateRandomPassphrase(
 
   function DomainFromHttpURL(const URL: string; const Title: string='') : string;
 
+
+type
+  PFindWindowInfo = ^TFindWindowInfo;
+  TFindWindowInfo = record
+    PID: DWORD;
+    WindowHandle: HWND;
+  end;
+
+function StartApp(apchOperation, apchFileName, apchParameters, apchDirectory: PChar; awrdShowCmd: Word): Cardinal;
+procedure KillProcess(hProcess: Cardinal);
+function LoadIconIntoBitmap (filePath: string): TBitmap;
+function FindMainWindow(PID: DWORD): HWND;
+
+
 var
   _OSIsWindowsNT : boolean;
 
 implementation
 uses
+   SynGdiPlus,
    gf_strings;
 
 const
@@ -1581,6 +1596,86 @@ begin
   s:= DomainFromHttpURL('https://learn.microsoft.com/es-es/','Microsoft Learn: adquirir conocimientos que le abran las puertas en su carrera profesional'); //  -> ''
   s:= DomainFromHttpURL('https://www.youtube.com/watch?v=r0R6gMw2s44','El Círculo de Quintas: Una explicación detallada | Versión 2.0'); //  -> [YouTube]
 end;
+
+
+function StartApp(apchOperation, apchFileName, apchParameters, apchDirectory: PChar; awrdShowCmd: Word): Cardinal;
+var
+  lseiInfo: TShellExecuteInfo;
+begin
+  Result := 0;
+  FillChar(lseiInfo, SizeOf(lseiInfo), Chr(0));
+  lseiInfo.cbSize := SizeOf(lseiInfo);
+  lseiInfo.fMask := SEE_MASK_NOCLOSEPROCESS;
+  lseiInfo.lpVerb := apchOperation;
+  lseiInfo.lpFile := apchFileName;
+  lseiInfo.lpParameters := apchParameters;
+  lseiInfo.lpDirectory := apchDirectory;
+  lseiInfo.nShow := awrdShowCmd;
+  if Boolean(ShellExecuteEx(@lseiInfo)) then
+    Result := lseiInfo.hProcess;
+end;
+
+procedure KillProcess(hProcess: Cardinal);
+Var
+  ovExitCode: LongWord;
+begin
+  try
+    if hProcess <> 0 then begin
+      GetExitCodeProcess(hProcess, ovExitCode);
+      if (ovExitCode = STILL_ACTIVE) or (ovExitCode <> WAIT_OBJECT_0) then
+        TerminateProcess(hProcess, ovExitCode);
+      CloseHandle(hProcess);
+    end;
+  except
+  end;
+end;
+
+function EnumWindowsProc(Wnd: HWND; Info: PFindWindowInfo): BOOL; stdcall;
+var
+  WindowPID: DWORD;
+begin
+  GetWindowThreadProcessId(Wnd, @WindowPID);
+  if WindowPID = Info^.PID then begin
+    Info^.WindowHandle := Wnd;
+    Result := False;  // Stop the enumeration
+  end
+  else
+    Result := True;
+end;
+
+function FindMainWindow(PID: DWORD): HWND;
+var
+  Info: TFindWindowInfo;
+begin
+  Info.PID := PID;
+  Info.WindowHandle := 0;
+  EnumWindows(@EnumWindowsProc, LPARAM(@Info));
+  Result := Info.WindowHandle;
+end;
+
+
+function LoadIconIntoBitmap (filePath: string): TBitmap;
+var
+  LargeIcon, SmallIcon: HICON;
+  Icon: TIcon;
+  Pict: TSynPicture;
+begin
+  Result:= nil;
+  Icon := TIcon.Create;
+  Pict:= TSynPicture.Create;
+  try
+    ExtractIconEx(PChar(filePath), 0, LargeIcon, SmallIcon, 1);
+    if LargeIcon <> 0 then begin
+      Icon.Handle := LargeIcon;
+      Pict.Assign(Icon);
+      Result:= Pict.ToBitmap;
+    end;
+  finally
+    Icon.Free;
+    Pict.Free;
+  end;
+end;
+
 
 
 Initialization

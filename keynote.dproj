@@ -219,8 +219,8 @@
         <DCCReference Include="general\kn_VCLControlsMng.pas"/>
         <DCCReference Include="general\dll_Keyboard.pas"/>
         <DCCReference Include="editor\kn_BookmarksMng.pas"/>
-        <DCCReference Include="editor\kn_Chars.pas">
-            <Form>Form_Chars</Form>
+        <DCCReference Include="editor\kn_CharsNew.pas">
+            <Form>Form_CharsNew</Form>
         </DCCReference>
         <DCCReference Include="editor\kn_ClipUtils.pas"/>
         <DCCReference Include="editor\kn_EditorUtils.pas"/>
@@ -306,9 +306,7 @@
         <DCCReference Include="structure\kn_VirtualNodeForm.pas">
             <Form>Form_VNode</Form>
         </DCCReference>
-        <DCCReference Include="various\kn_SendMail.pas">
-            <Form>Form_Mail</Form>
-        </DCCReference>
+        <DCCReference Include="various\kn_SendMail.pas"/>
         <DCCReference Include="various\kn_AlertMng.pas">
             <Form>Form_Alarm</Form>
         </DCCReference>
