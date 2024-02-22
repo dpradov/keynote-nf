@@ -3579,11 +3579,6 @@ object Form_Main: TForm_Main
         Hint = 'Display note statistics'
         OnClick = MMToolsStatisticsClick
       end
-      object MMToolsURL: TMenuItem
-        Caption = 'Activate URL'
-        Hint = 'Activate URL hyperlink under cursor'
-        OnClick = MMToolsURLClick
-      end
     end
     object MMHelp_: TMenuItem
       Caption = '&Help'

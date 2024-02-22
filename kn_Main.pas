@@ -773,7 +773,6 @@ type
     ms8: TMenuItem;
     ms9: TMenuItem;
     ms10: TMenuItem;
-    MMToolsURL: TMenuItem;
     MMEditDecimalToRoman: TMenuItem;
     N112: TMenuItem;
     MMEditRomanToDecimal: TMenuItem;
@@ -1227,7 +1226,7 @@ type
     procedure ms11Click(Sender: TObject);
     procedure Menu_SymbolsPopup(Sender: TObject);
     procedure MMViewTBInsertClick(Sender: TObject);
-    procedure MMToolsURLClick(Sender: TObject);
+    //procedure MMToolsURLClick(Sender: TObject);
     procedure Combo_StyleDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
     procedure DoBorder1Click(Sender: TObject);
@@ -8060,7 +8059,7 @@ begin
 end;
 
 
-
+(*    // [dpv] Unnecessary. It is possible to activate the link with ENTER
 procedure TForm_Main.MMToolsURLClick(Sender: TObject);
 var
   pt : TPoint;
@@ -8086,7 +8085,7 @@ begin
                MakeLParam( pt.x, pt.y ));
 
 end; // MMToolsURLClick
-
+*)
 
 procedure TForm_Main.Combo_StyleDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
