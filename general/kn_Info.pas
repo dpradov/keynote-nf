@@ -526,7 +526,7 @@ type
     //InsCharFullSet : boolean;
     InsCharAutoAddNew: boolean;
     InsCharCustom: string;
-    InsCharKeepFont : boolean;
+    //InsCharKeepFont : boolean;
     InsCharWinClose : boolean;
     KeyReplayDelay : integer; // MILIseconds { OBSOLETE, unused }
     LanguageUI : string;    // Language of ther user interface. Must be in keynote.lan

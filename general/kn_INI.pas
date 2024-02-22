@@ -502,7 +502,7 @@ const
     //InsCharFullSet : 'InsCharFullSet';
     InsCharAutoAddNew: 'InsCharAutoAddNew';
     InsCharCustom: 'InsCharCustom';
-    InsCharKeepFont : 'InsCharKeepFont';
+    //InsCharKeepFont : 'InsCharKeepFont';
     InsCharWinClose : 'InsCharWinClose';
     KeyReplayDelay : 'KeyReplayDelay';
     LanguageUI : 'LanguageUI';
@@ -1029,7 +1029,7 @@ begin
                     '\f0\ldblquote\rdblquote\lquote\rquote\emdash\''ab\''bb\f2\ldblquote\rdblquote\f3\ldblquote\rdblquote\f0\''d7\f4\u8594?' +
                     '\f5\''de\''db\f1\u708?\u709?\f4\u8776?\u8800?\u8801?\u8804?\u8805?\u8721?\f0\''b7\f6\''a5' +
                     '\f7 *12\f0\''b7\f7\''81\''82\''83\''84\''85\f0\''b7\f7\''fb\''fco\''fd\''fe\f6 8\f8\fs16\par}';
-    InsCharKeepFont := true;
+    //InsCharKeepFont := true;
     InsCharWinClose := false;
     LanguageUI := LANGUAGE_DEFAULT;   // Default (English Internal)
     LastCopyPath := '';
@@ -1336,7 +1336,7 @@ begin
       writebool( section, KeyOptionsIniStr.InsCharAutoAddNew, KeyOptions.InsCharAutoAddNew );
       writestring( section, KeyOptionsIniStr.InsCharCustom, KeyOptions.InsCharCustom );
 
-      writebool( section, KeyOptionsIniStr.InsCharKeepFont, KeyOptions.InsCharKeepFont );
+      //writebool( section, KeyOptionsIniStr.InsCharKeepFont, KeyOptions.InsCharKeepFont );
       writebool( section, KeyOptionsIniStr.InsCharWinClose, KeyOptions.InsCharWinClose );
       writestring( section, KeyOptionsIniStr.LanguageUI, KeyOptions.LanguageUI );
       writestring( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );
@@ -1666,7 +1666,7 @@ begin
       //KeyOptions.InsCharFullSet := readbool( section, KeyOptionsIniStr.InsCharFullSet, KeyOptions.InsCharFullSet );
       KeyOptions.InsCharAutoAddNew := readbool( section, KeyOptionsIniStr.InsCharAutoAddNew, KeyOptions.InsCharAutoAddNew );
       KeyOptions.InsCharCustom := readstring( section, KeyOptionsIniStr.InsCharCustom, KeyOptions.InsCharCustom );
-      KeyOptions.InsCharKeepFont := readbool( section, KeyOptionsIniStr.InsCharKeepFont, KeyOptions.InsCharKeepFont );
+      //KeyOptions.InsCharKeepFont := readbool( section, KeyOptionsIniStr.InsCharKeepFont, KeyOptions.InsCharKeepFont );
       KeyOptions.InsCharWinClose := readbool( section, KeyOptionsIniStr.InsCharWinClose, KeyOptions.InsCharWinClose );
       KeyOptions.LanguageUI := readstring( section, KeyOptionsIniStr.LanguageUI, KeyOptions.LanguageUI );
       KeyOptions.LastCopyPath := readstring( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );

@@ -3078,24 +3078,9 @@ object Form_OptionsNew: TForm_OptionsNew
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 1
-        object CheckBox_InsCharKeepFont: TCheckBox
-          Left = 22
-          Top = 32
-          Width = 320
-          Height = 19
-          Hint = 'Always start with current note font'
-          Caption = 'D&efault to current text font'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 0
-        end
         object CheckBox_InsCharWinClose: TCheckBox
           Left = 22
-          Top = 53
+          Top = 28
           Width = 320
           Height = 19
           Hint = 'Automatically close dialog box when characters inserted'
@@ -3106,7 +3091,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 1
+          TabOrder = 0
         end
       end
     end

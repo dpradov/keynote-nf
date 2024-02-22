@@ -150,7 +150,6 @@ type
     Button_ICNDelete: TButton;
     Button_ICNReset: TButton;
     GroupBox_Formats2: TGroupBox;
-    CheckBox_InsCharKeepFont: TCheckBox;
     CheckBox_InsCharWinClose: TCheckBox;
     GroupBox_Act2: TGroupBox;
     Label8: TLabel;
@@ -903,7 +902,7 @@ begin
     ExtText := ExtText + '.';
 
 
-    InsCharKeepFont := ( not CheckBox_InsCharKeepFont.Checked );
+    //InsCharKeepFont := ( not CheckBox_InsCharKeepFont.Checked );
     InsCharWinClose := CheckBox_InsCharWinClose.Checked;
 
     AutoSaveOnTimerInt := Spin_AutoSaveOnTimerInt.Value;
@@ -1131,7 +1130,7 @@ begin
       List_TxtExt.Items.EndUpdate;
     end;
 
-    CheckBox_InsCharKeepFont.Checked := ( not InsCharKeepFont );
+    //CheckBox_InsCharKeepFont.Checked := ( not InsCharKeepFont );
     CheckBox_InsCharWinClose.Checked := InsCharWinClose;
 
     Spin_AutoSaveOnTimerInt.Value := AutoSaveOnTimerInt;
