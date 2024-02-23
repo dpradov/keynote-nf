@@ -75,7 +75,7 @@
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_ExeOutput>..\Output\bin</DCC_ExeOutput>
         <DCC_DcuOutput>..\Output\Dcu</DCC_DcuOutput>
-        <DCC_UnitSearchPath>$(BDS)\source\ToolsAPI;.\3rd_party\DcpCrypt-1_3;.\3rd_party\tb97_178a\Source;.\3rd_party\RichPrint;.\3rd_party\ExtListView;.\3rd_party\unRxLib\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>$(BDS)\source\ToolsAPI;.\3rd_party\DcpCrypt-1_3;.\3rd_party\tb97_178a\Source;.\3rd_party\RichPrint;.\3rd_party\ExtListView;.\3rd_party\unRxLib\units;.\3rd_party\SynGdiPlus;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_UsePackage>VCLX30;VCL30;VCLDB30;VCLDBX30;VCLSMP30;Icsdel30;RXCTL;RXTOOLS;$(DCC_UsePackage)</DCC_UsePackage>
         <GenDll>true</GenDll>
         <SanitizedProjectName>kntutils</SanitizedProjectName>

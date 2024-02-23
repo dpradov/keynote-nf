@@ -287,9 +287,12 @@ begin
    ShowCommandInfo;
 
   if RBShowFonts.Checked then begin
-     i:= Combo_Font.items.IndexOf(List_Commands.Items[List_Commands.ItemIndex]);
-     if i >= 0 then
-        Combo_Font.ItemIndex:= i;
+     if List_Commands.ItemIndex >= 0 then
+        i:= Combo_Font.items.IndexOf(List_Commands.Items[List_Commands.ItemIndex])
+     else
+        i:= -1;
+
+     Combo_Font.ItemIndex:= i;
   end;
 
 end;
