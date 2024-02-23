@@ -1442,86 +1442,69 @@ begin
   // is empty, we load he macros.
 
   with Form_Main do begin
-      if KeyOptions.ResPanelShow then
-      begin
+      if KeyOptions.ResPanelShow then begin
+
+        if KeyOptions.ResPanelActiveUpdate then begin
+          Res_RTF.Clear;
+
+          // if a macro file was copied to macros folder while KeyNote is running, simply hiding and then
+          // showing the resourc2e panel will load the new macro (press F9 twice)
+          ListBox_ResMacro.Items.Clear;
+          ClearMacroList;
+
+          ListBox_ResFav.Clear;
+
+          // clear list of templates
+          ListBox_ResTpl.Clear;
+
+          // List of plugns does NOT get cleared, because it takes a long time to initialize.
+          // Once loaded, the lisy remains available even after the resource panel is hidden. To reload
+          // the list of current plugins, use the "Reload plugins" menu command.
+          { ListBox_ResPlugins.Items.Clear; }
+        end;
 
         MMToolsPluginRun.Enabled := ResTab_Plugins.TabVisible;
         MMToolsMacroRun.Enabled := ResTab_Macro.TabVisible;
 
-        if ( Pages_Res.ActivePage = ResTab_Find ) then
-        begin
+        if ( Pages_Res.ActivePage = ResTab_Find ) then begin
           // nothing to do
         end
         else
-        if ( Pages_Res.ActivePage = ResTab_RTF ) then
-        begin
+        if ( Pages_Res.ActivePage = ResTab_RTF ) then begin
           if ( Res_RTF.Lines.Count = 0 ) then
             LoadResScratchFile;
         end
         else
-        if ( Pages_Res.ActivePage = ResTab_Macro ) then
-        begin
+        if ( Pages_Res.ActivePage = ResTab_Macro ) then begin
           // load macros
           if ( ListBox_ResMacro.Items.Count = 0 ) then
             EnumerateMacros;
         end
         else
-        if ( Pages_Res.ActivePage = ResTab_Template ) then
-        begin
+        if ( Pages_Res.ActivePage = ResTab_Template ) then begin
           // load templates
           if ( ListBox_ResTpl.Items.Count = 0 ) then
             LoadTemplateList;
         end
         else
-        if ( Pages_Res.ActivePage = ResTab_Plugins ) then
-        begin
+        if ( Pages_Res.ActivePage = ResTab_Plugins ) then begin
           if ( ListBox_ResPlugins.Items.Count = 0 ) then
-          begin
             DisplayPlugins;
-          end;
         end
         else
-        if ( Pages_Res.ActivePage = ResTab_Favorites ) then
-        begin
+        if ( Pages_Res.ActivePage = ResTab_Favorites ) then begin
           if ( ListBox_ResFav.Items.Count = 0 ) then
-          begin
             DisplayFavorites;
-          end;
         end;
 
       end
-      else
-      begin
+      else begin
         MMToolsPluginRun.Enabled := false;
         MMToolsMacroRun.Enabled := false;
 
         try
           if Res_RTF.Modified then
             StoreResScratchFile;
-          if KeyOptions.ResPanelActiveUpdate then
-          begin
-            Res_RTF.Clear;
-
-            // if a macro file was copied to macros folder
-            // while KeyNote is running, simply hiding and then
-            // showing the resourc2e panel will load the new macro
-            // (press F9 twice)
-            ListBox_ResMacro.Items.Clear;
-            ClearMacroList;
-
-            ListBox_ResFav.Clear;
-
-            // clear list of templates
-            ListBox_ResTpl.Clear;
-
-            // List of plugns does NOT get cleared,
-            // because it takes a long time to initialize.
-            // Once loaded, the lisy remains available even
-            // after the resource panel is hidden. To reload
-            // the list of current plugins, use the "Reload
-            // plugins" menu command.
-            { ListBox_ResPlugins.Items.Clear; }
-          end;
         except
         end;
       end;

@@ -2936,7 +2936,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 286
           Width = 330
           Height = 17
-          Caption = 'Load Resource panel data only when &necessary'
+          Caption = 'Reload Resource panel data when displaying'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11

@@ -561,7 +561,7 @@ type
     PlaySoundOnAlarm: boolean;   // [*] 
     RecentLanguage : TLanguage; // last language selected in Language dialog box
     ResolveLNK : boolean; // [*]
-    ResPanelActiveUpdate : boolean; // always clear respanel contents when hiding, and reload when shown again
+    ResPanelActiveUpdate : boolean; // Reload respanel content when showing again
     ResPanelLeft : boolean; // show res panel on left side
     ResPanelShow : boolean; // show or hide resource panel
     RichEditv3 : boolean; // force version 3 of riched20.dll
