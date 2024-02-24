@@ -929,6 +929,9 @@ var
   SelectAll: boolean;
 begin
    ImagesManager.ReconsiderImageDimensionsGoal:= true;
+   if ReadOnly then
+      Selection:= False;      // If true -> The note would have to be modified, and since it is not possible, the images would disappear...
+
    try
       if Selection then begin
          SelectAll:= false;
