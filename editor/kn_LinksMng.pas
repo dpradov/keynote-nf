@@ -297,14 +297,22 @@ var
   sepL, sepR: string;
   UseHyperlink, ShowTextAndURL: boolean;
   cad: string;
+  UseScratchPad: boolean;
+  Editor: TRxRichEdit;
 begin
     UseHyperlink:= False;
-    if (RichEditVersion >= 4) and (not Note.PlainText) then
+    UseScratchPad:= Form_Main.Res_RTF.Focused;
+    if UseScratchPad then
+       Editor:= Form_Main.Res_RTF
+    else
+       Editor:= Note.Editor;
+
+    if (RichEditVersion >= 4) and (UseScratchPad or not Note.PlainText) then
        UseHyperlink:= True;
 
-    if ImagesManager.StorageMode <> smEmbRTF then begin
-       if Note.Editor.SelLength > 0 then
-          CheckToSelectLeftImageHiddenMark (Note.Editor);
+    if not UseScratchPad and (ImagesManager.StorageMode <> smEmbRTF) then begin
+       if Editor.SelLength > 0 then
+          CheckToSelectLeftImageHiddenMark (Editor);
     end;
 
     // URLFileEncodeName: Default=False   URLFilePrefNoHyp: Default=False
@@ -313,7 +321,7 @@ begin
              ((KeyOptions.URLFileEncodeName) and (TextURL = StripFileURLPrefix(FileNameToURL(URLStr)))) then
          UseHyperlink:= false;
 
-    with Note.Editor do begin
+    with Editor do begin
       SelL := SelStart;
       SelR := SelL + SelLength;
       sepL:= '';
@@ -330,7 +338,7 @@ begin
       {$IFDEF KNT_DEBUG}Log.Add('Insert HyperLink',  4 ); {$ENDIF}
 
       if UseHyperlink then begin
-           Note.Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s{\field{\*\fldinst{HYPERLINK "'
+           Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s{\field{\*\fldinst{HYPERLINK "'
                                            + '%s"}}{\fldrslt{\cf1\ul %s}}}%s\cf0\ulnone}',
                                            [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
       end
@@ -615,6 +623,7 @@ var
    str, strTargetMarker: string;
    RTFMarker: AnsiString;
    KEY_Marker: Char;
+   UseScratchPad: Boolean;
 
    function GetActualTargetMarker (Editor: TRxRichEdit): integer;
    var
@@ -662,7 +671,9 @@ begin
 
   if AsInsert then begin
     // insert link to previously marked location
-    if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+    UseScratchPad:= Form_Main.Res_RTF.Focused;
+
+    if (not UseScratchPad) and Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
     if aLocation.Bookmark09 then exit;
     if ( aLocation.NoteName = '') and (aLocation.NoteID = 0) then begin
       showmessage( STR_08 );
@@ -672,7 +683,7 @@ begin
     if TextURL = '' then
        if NoteFile.FileName = aLocation.FileName then begin
            GetTreeNodeFromLocation (aLocation, Note, TreeNode);
-           TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos, false, TreeOptions.RelativeKNTLinks);
+           TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos, false, (not UseScratchPad) and TreeOptions.RelativeKNTLinks);
        end
        else
           TextURL:= Format('%s: %s/%s %d', [ExtractFileName(aLocation.FileName),
