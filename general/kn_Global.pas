@@ -103,7 +103,7 @@ var
       opt_XXX := ( commandline_argument_XXX OR inifile_options_XXX );
     }
     opt_Minimize : boolean; // minimize on startup
-    opt_Setup : boolean; // run setup (OBSOLETE, unused)
+    //opt_Setup : boolean; // run setup (OBSOLETE, unused)
     opt_Debug : boolean; // debug info
     opt_NoRegistry : boolean; // use .MRU file instead, do not use registry
     opt_NoReadOpt : boolean; // do not read config files (if TRUE, then opt_NoSaveOpt is also set to TRUE)
@@ -599,8 +599,10 @@ begin
       Log_StoreTick( 'End init', 2 );
 
       try
+        {$IFDEF KNT_DEBUG}
         if opt_SaveMenus then
           SaveMenusAndButtons;
+        {$ENDIF}
         if opt_SaveToolbars then
           SaveToolbars
         else
@@ -927,7 +929,7 @@ begin
     {$ENDIF}
 
       opt_Minimize := false;
-      opt_Setup := false;
+      //opt_Setup := false;
       opt_Debug := false;
       opt_NoRegistry := false;
       opt_NoReadOpt := false;

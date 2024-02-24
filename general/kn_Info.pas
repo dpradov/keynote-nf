@@ -97,7 +97,7 @@ const
 
 const                  
   swMinimize     = 'min'; // minimize on startup
-  swSetup        = 'setup'; // run Setup routine (UNUSED, we have installer now instead)
+  //swSetup        = 'setup'; // run Setup routine (UNUSED, we have installer now instead)
   swDebug        = 'debug'; // save some debug info
   swNoReadOpt    = 'nro'; // do not read options (IMPLIES 'nso')
   swNoSaveOpt    = 'nso'; // do not save options
@@ -400,8 +400,8 @@ type
     ShowFullPath : boolean;
     ShowFullPathSearch : boolean;
     ShowTooltips : boolean;
-    CaretInKNTLinks : boolean;
-    RelativeKNTLinks : boolean;
+    CaretInKNTLinks : boolean;   // [*]
+    RelativeKNTLinks : boolean;  // [*] 
     TopLevelCheck : boolean;  // NOT IMPLEMENTED
   end;
 
@@ -500,7 +500,7 @@ type
     Debug : boolean; // [*]
     DebugLogAppend : boolean; // [*] append or overwrite previous debug log
     DefaultNoteType : TNoteType; // [*] remembers last type of note created
-    DisableAlarmPopup: boolean;   // [*]
+    DisableAlarmPopup: boolean;
     DisableFileMon : boolean; // disable file change monitoring
     DropNodesOnTabMove : boolean; // when dropping nodes on another teb, MOVE them (if false, then COPY)
     DropNodesOnTabPrompt : boolean; // prompt before copying nodes to another tab (note)
@@ -552,13 +552,13 @@ type
     MRUFullPaths : boolean;
     MRUSubmenu : boolean;
     MRUUse : boolean;
-    NoComboIcons : boolean; // [*] kill image list for Style combo box
+    //NoComboIcons : boolean; // [*] kill image list for Style combo box  (Not used)
     NodeNameHistory : string;
     NoRegistry : boolean; // do not use registry (equiv. to "-noreg" cmd line switch
     OpenFloppyReadOnly : boolean;
     OpenNetworkReadOnly : boolean;
     OpenReadOnlyWarn : boolean;
-    PlaySoundOnAlarm: boolean;   // [*] 
+    PlaySoundOnAlarm: boolean;
     RecentLanguage : TLanguage; // last language selected in Language dialog box
     ResolveLNK : boolean; // [*]
     ResPanelActiveUpdate : boolean; // Reload respanel content when showing again

@@ -1866,6 +1866,7 @@ begin
 end; // LoadTabImages
 
 
+{$IFDEF KNT_DEBUG}
 procedure SaveMenusAndButtons;
 var
   bl, ml : TStringList;
@@ -1922,7 +1923,7 @@ begin
         end;
   end;
 end; // SaveMenusAndButtons
-
+{$ENDIF}
 
 procedure EnableCopyFormat(value: Boolean);
 var

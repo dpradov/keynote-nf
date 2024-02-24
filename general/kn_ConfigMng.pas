@@ -97,9 +97,9 @@ begin
           if ( s = swMinimize ) then
              opt_Minimize := true
           else
-          if ( s = swSetup ) then
+          {if ( s = swSetup ) then
              opt_Setup := true
-          else
+          else}
 {$IFDEF KNT_DEBUG}
           if ( s.StartsWith(swDebug) ) then begin
              opt_Debug := true;
@@ -140,8 +140,10 @@ begin
           if ( s = swSaveToolbars ) then
              opt_SaveToolbars := true
           else
+{$IFDEF KNT_DEBUG}
           if ( s = swSaveMenus ) then
              opt_SaveMenus := true
+{$ENDIF}
           else
           if ( s = swNoUserIcn ) then
              opt_NoUserIcons := true
