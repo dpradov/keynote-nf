@@ -904,6 +904,7 @@ uses
   RxRichEd,
   SynGdiPlus,
   gf_misc,
+  gf_files,  // Important. Needed to use TMemIniFileHelper (.ReadString, .WriteString)
   kn_Global,
   kn_NoteObj,
   kn_Const;

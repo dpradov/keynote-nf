@@ -114,7 +114,7 @@ procedure ClearFileManager;
 implementation
 uses
    gf_misc,
-   gf_files,
+   gf_files,  // Important. Needed to use TMemIniFileHelper (.ReadString, .WriteString)
    kn_info,
    kn_Chest,
    kn_main;

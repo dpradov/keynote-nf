@@ -154,7 +154,7 @@ implementation
 uses
    RxRichEd,
    gf_misc,
-   gf_files,
+   gf_files,  // Important. Needed to use TMemIniFileHelper (.ReadString, .WriteString)
    gf_strings,
    kn_RTFUtils,
    kn_Const,

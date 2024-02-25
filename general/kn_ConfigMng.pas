@@ -48,7 +48,7 @@ uses
 implementation
 
 uses
-   gf_files,
+   gf_files,  // Important. Needed (among other things) to use TMemIniFileHelper (.ReadString, .WriteString)
    kn_Info,
    kn_INI,
    kn_Const,
