@@ -123,6 +123,7 @@ procedure JumpToFavorite;
 var
   myFav : TLocation;
   exresult : integer;
+  Args: string;
 begin
   myFav := GetSelectedFavorite;
   if ( not assigned( myFav )) then exit;
@@ -146,9 +147,20 @@ begin
   if (( not Form_Main.HaveNotes( false, false )) or
      ( CompareText( NoteFile.FileName, myFav.FileName ) <> 0 )) then
   begin
-    // open a file
-    _Global_Location := myFav;
-    postmessage( Form_Main.Handle, WM_JumpToLocation, 0, 0 );
+    // Location to another file
+
+    if KeyOptions.ExtKNTLnkInNewInst or CtrlDown then begin
+       Args:= Format('-jmp"%s"', [BuildKNTLocationText(myFav)]);
+       exresult := ShellExecute( 0, 'open', PChar( Application.ExeName ), PChar( Args ), nil, SW_NORMAL );
+       if ( exresult <= 32 ) then
+          messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
+    end
+    else begin
+      // open a file in this instance (closing current knt file)
+      _Global_Location := myFav;
+      postmessage( Form_Main.Handle, WM_JumpToLocation, 0, 0 );
+    end;
+
     exit;
   end
   else

@@ -2838,6 +2838,11 @@ begin
         end else if Msg.CharCode = VK_UP then begin
            ActiveNote.Editor.ScrollLinesBy(-1);
            Handled:= true;
+        end else if Msg.CharCode = VK_RETURN then begin
+           if activeControl = ListBox_ResFav then begin
+             JumpToFavorite;
+             Handled:= true;
+           end;
         end;
       end
       else if KeyOptions.UseCtrlHideTreePanel then begin

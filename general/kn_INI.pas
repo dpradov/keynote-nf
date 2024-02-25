@@ -415,6 +415,7 @@ type
     URLFilePrefNoHyp,
     //URLClickShift,
     URLSystemBrowser,
+    ExtKNTLnkInNewInst,
     UseOldColorDlg,
     UseOldFileFormat,
     UseNewStyleURL,
@@ -586,6 +587,7 @@ const
     URLFilePrefNoHyp: 'URLFilePrefNoHyp';
     //URLClickShift : 'URLClickShift';
     URLSystemBrowser : 'URLSystemBrowser';
+    ExtKNTLnkInNewInst: 'ExtKNTLnkInNewInst';
     UseOldColorDlg : 'UseOldColorDlg';
     UseOldFileFormat : 'UseOldFileFormat';
     UseNewStyleURL : 'UseNewStyleURL';
@@ -1121,6 +1123,7 @@ begin
     URLFilePrefNoHyp:= false;
     //URLClickShift := false;
     URLSystemBrowser := true;
+    ExtKNTLnkInNewInst:= true;
     UseOldColorDlg := false;
     UseOldFileFormat := false;
     UseTray := true;
@@ -1423,6 +1426,7 @@ begin
       writebool( section, KeyOptionsIniStr.URLFileQuoteSpaces, KeyOptions.URLFileQuoteSpaces );
       //writebool( section, KeyOptionsIniStr.URLClickShift, KeyOptions.URLClickShift );
       writebool( section, KeyOptionsIniStr.URLSystemBrowser, KeyOptions.URLSystembrowser );
+      writebool( section, KeyOptionsIniStr.ExtKNTLnkInNewInst, KeyOptions.ExtKNTLnkInNewInst );
       writebool( section, KeyOptionsIniStr.UseOldColorDlg, KeyOptions.UseOldColorDlg );
       writebool( section, KeyOptionsIniStr.UseOldFileFormat, KeyOptions.UseOldFileFormat );
       writebool( section, KeyOptionsIniStr.UseTray, KeyOptions.UseTray );
@@ -1769,6 +1773,7 @@ begin
       KeyOptions.URLFilePrefNoHyp := readbool( section, KeyOptionsIniStr.URLFilePrefNoHyp, KeyOptions.URLFilePrefNoHyp );
       //KeyOptions.URLClickShift := readbool( section, KeyOptionsIniStr.URLClickShift, KeyOptions.URLClickShift );
       KeyOptions.URLSystembrowser := readbool( section, KeyOptionsIniStr.URLSystembrowser, KeyOptions.URLSystembrowser );
+      KeyOptions.ExtKNTLnkInNewInst := readbool( section, KeyOptionsIniStr.ExtKNTLnkInNewInst, KeyOptions.ExtKNTLnkInNewInst );
       KeyOptions.UseOldColorDlg := readbool( section, KeyOptionsIniStr.UseOldColorDlg, KeyOptions.UseOldColorDlg );
 
       KeyOptions.UseOldFileFormat := readbool( section, KeyOptionsIniStr.UseOldFileFormat, KeyOptions.UseOldFileFormat );

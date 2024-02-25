@@ -8168,7 +8168,7 @@ object Form_Main: TForm_Main
     Top = 345
     object FavMJump: TMenuItem
       Caption = '&Jump to Location'
-      Hint = 'Jump to selected Favorite location'
+      Hint = 'Jump to selected Favorite location (Ctrl:  Ext.-> other inst.)'
       ShortCut = 13
       OnClick = FavMJumpClick
     end
