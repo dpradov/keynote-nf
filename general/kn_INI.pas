@@ -2223,8 +2223,8 @@ begin
     TreePadRTF := false;
     TreePadSingleFile := true;
     TreeSelection := low( TTreeSelection );
-
     ExcludeHiddenNodes:= false;              // [dpv]
+    ShowHiddenMarkers:= false;
   end;
 end; // InitializeExportOptions
 

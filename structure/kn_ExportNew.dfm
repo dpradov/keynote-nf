@@ -55,7 +55,7 @@ object Form_ExportNew: TForm_ExportNew
     Top = 5
     Width = 311
     Height = 348
-    ActivePage = Tab_Main
+    ActivePage = Tab_Options
     HotTrack = False
     TabInactiveColor = clBtnFace
     TabInactiveFont.Charset = DEFAULT_CHARSET
@@ -166,8 +166,6 @@ object Form_ExportNew: TForm_ExportNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -437,6 +435,27 @@ object Form_ExportNew: TForm_ExportNew
         Images = Form_Main.IMG_Toolbar
         TabOrder = 3
         OnClick = Btn_TknHlpClick
+      end
+      object GB_Additional: TGroupBox
+        Left = 3
+        Top = 233
+        Width = 292
+        Height = 81
+        Caption = ' Other options '
+        TabOrder = 4
+        Visible = False
+        object CB_ShowHiddenMarkers: TCheckBox
+          Left = 12
+          Top = 24
+          Width = 253
+          Height = 17
+          Hint = 
+            'Makes hidden marks (KNT Links, bmk and img) visible'#13#10'Also shows ' +
+            'Note and Node IDs'
+          Caption = 'Show hidden marks and IDs'
+          TabOrder = 0
+          OnClick = CB_IndentNodesClick
+        end
       end
     end
     object Tab_TreePad: TTab95Sheet

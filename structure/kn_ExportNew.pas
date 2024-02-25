@@ -93,6 +93,8 @@ type
     Spin_Indent: TSpinEdit;
     lblIndent: TLabel;
     CB_UseTab: TCheckBox;
+    GB_Additional: TGroupBox;
+    CB_ShowHiddenMarkers: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -511,6 +513,7 @@ begin
      Tab_Options.TabVisible := (format <> xfTreePad);
      RG_NodeMode.Enabled :=    (format <> xfTreePad);
      RG_HTML.Visible := (format = xfHTML);
+     GB_Additional.Visible := (format = xfPlainText);
      CB_UseTab.Enabled:= (format = xfPlainText) and (CB_IndentNodes.Checked);
   end;
 end;
@@ -641,6 +644,7 @@ begin
       ExportSource := expSelectedNotes;
 
     ExcludeHiddenNodes:= CheckBox_ExcludeHiddenNodes.Checked;
+    ShowHiddenMarkers:= CB_ShowHiddenMarkers.Checked;
 
     TreeSelection := TTreeSelection( Combo_TreeSelection.ItemIndex );
     TargetFormat := TExportFmt( Combo_Format.ItemIndex );
@@ -688,6 +692,7 @@ begin
     end;
 
     CheckBox_ExcludeHiddenNodes.Checked:= ExcludeHiddenNodes;
+    CB_ShowHiddenMarkers.Checked:= ShowHiddenMarkers;
 
     Combo_TreeSelection.ItemIndex := ord( TreeSelection );
     Combo_Format.ItemIndex := ord( TargetFormat );
@@ -944,6 +949,8 @@ begin
 
           if ExportOptions.IncludeNoteHeadings then begin
              NoteHeading := ExpandExpTokenString( ExportOptions.NoteHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), '', 0, 0, myNote.TabSize );
+             if ExportOptions.ShowHiddenMarkers then
+                NoteHeading:= Format('%s [%d]', [NoteHeading, myNote.ID]);
              NoteHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NoteHeading ), NoteHeadingTpl );
           end;
 
@@ -1007,7 +1014,7 @@ begin
                       myTreeNode := TTreeNote( myNote ).TV.Items.GetFirstNode;
 
                     StartTreeNode := myTreeNode;
-                    ThisNodeIndex := 1;
+                    ThisNodeIndex := 0;
 
                     if assigned( myTreeNode ) then begin
                       StartLevel := myTreeNode.Level;
@@ -1033,6 +1040,8 @@ begin
 
                         if ExportOptions.IncludeNodeHeadings then begin
                            NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), myNoteNode.Name, myNoteNode.Level+1, ThisNodeIndex, myNote.TabSize );
+                           if ExportOptions.ShowHiddenMarkers then
+                              NodeHeading:= Format('%s [%d]', [NodeHeading, myNoteNode.ID]);
                            NodeHeadingTpl_Aux := '';
                            if ExportOptions.NodeLevelTemplates then
                               NodeHeadingTpl_Aux:= NodeLevelHeadingTpl[myNoteNode.Level];
@@ -1451,14 +1460,14 @@ end; // GetExportFilename
 
 function TForm_ExportNew.FlushExportFile( const RTF : TTabRichEdit; myNote: TTabNote; FN : string ) : boolean;
 var
-  tmpStream : TMemoryStream;
   StreamSize : integer;
   ext: string;
+  Txt: string;
   Encoding: TEncoding;
 
 begin
   result := false;
-  Encoding:= nil;
+  Encoding:= TEncoding.Default;
   FN := GetExportFilename( FN + '.EXT' );
   if ( FN = '' ) then exit; // break condition
 
@@ -1469,12 +1478,25 @@ begin
       xfPlainText : begin
         if ( ext = '' ) then FN := FN + ext_TXT;
 
+        {if ExportOptions.ShowHiddenMarkers then
+           RTF.MakeKNTHiddenMarksVisible;           // Necessary if we want to use SaveToStream, not making the hidden part of the hyperlinks visible
+        }
+
         PrepareRTFforPlainText(RTF, myNote.TabSize, EditorOptions.IndentInc);
 
-        RTF.StreamFormat := sfPlainText;
-        if not CanSaveAsANSI(RTF.Text) then
+        Txt:= RTF.Text;
+        if not CanSaveAsANSI(Text) then
            Encoding:= TEncoding.UTF8;
-        RTF.Lines.SaveToFile( FN, Encoding );
+
+        if ExportOptions.ShowHiddenMarkers then begin
+           Txt:= GetHumanizedKNTHiddenCharacters(Txt);
+           TFile.WriteAllText(FN, Txt, Encoding);
+        end
+        else begin
+           RTF.StreamFormat := sfPlainText;
+           RTF.Lines.SaveToFile( FN, Encoding );
+        end;
+
         result := true;
       end;
 

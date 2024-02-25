@@ -56,6 +56,7 @@ type
     function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
 
     function GetEditorWithNoKNTHiddenCharacters (const Editor: TTabRichEdit; HiddenMarksToRemove: THiddenMarks; const selection: boolean= true): TTabRichEdit;
+    function GetHumanizedKNTHiddenCharacters (const s: string): string;
     function RemoveKNTHiddenCharacters(const s: string; checkIfNeeded: boolean = true): string;
     function RemoveKNTHiddenCharactersInRTF(const s: AnsiString; HiddenMarks: THiddenMarks): AnsiString;
     function KeepOnlyLeadingKNTHiddenCharacters(const txt: string): string;
@@ -438,6 +439,13 @@ begin
     end
 end;
 
+function GetHumanizedKNTHiddenCharacters (const s: string): string;
+begin
+  Result:= StringReplace(s,      KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_BOOKMARK,   '[BMK:', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_Bookmark09, '[TmpBMK:', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE,      '[IMG:', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_R_CHAR,                             ']', [rfReplaceAll]);
+end;
 
 function RemoveKNTHiddenCharacters(const s: string; checkIfNeeded: boolean= true): string;
 var

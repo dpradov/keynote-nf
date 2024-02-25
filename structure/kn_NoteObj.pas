@@ -265,7 +265,9 @@ type
                                  ) : string;
     procedure GetLinkAtCursor(var URL: string; var TextURL: string; var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
     function ParagraphsSelected: Boolean;
+    function ChangeKNTHiddenMarksVisibility(Hide: boolean; Selection: boolean = true): boolean;
     procedure HideKNTHiddenMarks(Selection: boolean = true);
+    function MakeKNTHiddenMarksVisible: boolean;
     procedure RemoveKNTHiddenCharacters (selection: boolean= true);
 
   end; // TTabRichEdit
@@ -2121,13 +2123,15 @@ begin
 end;   // GetWordAtCursor
 
 
-procedure TTabRichEdit.HideKNTHiddenMarks(Selection: boolean = true);
+function TTabRichEdit.ChangeKNTHiddenMarksVisibility(Hide: boolean; Selection: boolean = true): boolean;
 var
    p, pF: integer;
-   SS, SL: integer;
+   SS, SL, Offset: integer;
    Str: String;
 begin
    // {\rtf1\ansi {\v\'11B5\'12} XXX };   {\rtf1\ansi \v\'11B5\'12\v0 XXX};  {\rtf1\ansi \v\'11T999999\'12\v0 XXX};   '#$11'B5'#$12'
+
+  Result:= false;
 
   Str:= TextPlain(Selection);
   p:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, 1);
@@ -2135,6 +2139,10 @@ begin
 
   SS:= SelStart;
   SL:= SelLength;
+  if Selection then
+     Offset:= SS
+  else
+     Offset:= 0;
 
   BeginUpdate;
   SuspendUndo;
@@ -2143,9 +2151,10 @@ begin
        if p > 0 then begin
           pF:= Pos(KNT_RTF_HIDDEN_MARK_R_CHAR, Str, p+3);
           if (pF > 0) and (pF-p <= KNT_RTF_HIDDEN_MAX_LENGHT_CHAR) then begin
-             SetSelection(p+SS-1, pF+SS, true);
-             SelAttributes.Hidden:= True;
+             SetSelection(p+Offset-1, pF+Offset, true);
+             SelAttributes.Hidden:= Hide;
              p:= pF + 1;
+             Result:= true;
           end;
           p:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, p);
        end;
@@ -2158,6 +2167,17 @@ begin
   end;
 
 end;   // HideKNTHiddenMarks
+
+
+procedure TTabRichEdit.HideKNTHiddenMarks(Selection: boolean = true);
+begin
+   ChangeKNTHiddenMarksVisibility(True, Selection);
+end;
+
+function TTabRichEdit.MakeKNTHiddenMarksVisible: boolean;
+begin
+    Result:= ChangeKNTHiddenMarksVisibility(False, False);
+end;
 
 
 procedure TTabRichEdit.RemoveKNTHiddenCharacters (selection: boolean= true);
