@@ -432,7 +432,6 @@ type
     TreePadSingleFile : boolean;
     TreeSelection : TTreeSelection;
     ExcludeHiddenNodes: boolean;    // [dpv]
-    ShowHiddenMarkers: boolean;
   end;
 
 type

@@ -434,6 +434,8 @@ type
   TTVEditingEvent    = procedure(Sender: TObject; Node: TTreeNTNode; var AllowEdit: Boolean) of object;
   TTVEditedEvent     = procedure(Sender: TObject; Node: TTreeNTNode; var S: String) of object;
 
+  TTVSavingTreeEvent = procedure(Sender: TObject; Node: TTreeNTNode; var S: String) of object;         // [dpv]
+
   // [MJ] added
   TTVEditCanceledEvent = procedure(Sender: TObject) of object;
   TFileDroppedEvent = procedure( sender : Tobject; FileList : TStringList ) of object;
@@ -528,6 +530,7 @@ type
     FOnCollapsing: TTVCollapsingEvent;
     FOnChanging: TTVChangingEvent;
     FOnChange: TTVChangedEvent;
+    FOnSavingTree: TTVSavingTreeEvent;
     FOnCompare: TTVCompareEvent;
     FOnDeletion: TTVExpandedEvent;
     FOnGetImageIndex: TTVExpandedEvent;
@@ -673,6 +676,7 @@ type
     property OnGetSelectedIndex: TTVExpandedEvent read FOnGetSelectedIndex write FOnGetSelectedIndex;
     property OnHint: TTVHintEvent read FOnHint write FOnHint;
     property OnSingleExpanded: TTVSingleExpandingEvent read FOnSingleExpanded write FOnSingleExpanded;
+    property OnSavingTree: TTVSavingTreeEvent read FOnSavingTree write FOnSavingTree;         // [dpv]
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -807,6 +811,7 @@ type
       property OnStartDock;
     {$endif}
     property OnStartDrag;
+    property OnSavingTree;   // [dpv]
   end;
 
 //------------------------------------------------------------------------------
@@ -3215,6 +3220,8 @@ procedure TTreeNTNode.WriteStrings(Stream: TStream; Level: Integer);
 var I      : Integer;
     Buffer : AnsiString;
     us: UTF8String;
+    TV: TCustomTreeNT;
+    NodeText: string;
 
 begin
   if Hidden then exit;      // [dpv]
@@ -3226,7 +3233,12 @@ begin
     Stream.Write(PAnsiChar(Buffer)^, Length(Buffer));
   end;
 
-  us:= FText;
+  NodeText:= FText;
+
+  TV:= TreeView;
+  if assigned(TV.FOnSavingTree) then TV.FOnSavingTree(TV, Self, NodeText);
+
+  us:= NodeText;
   Stream.Write(PUTF8String(us)^, Length(us));
 
   Buffer := #13#10;

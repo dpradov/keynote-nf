@@ -949,7 +949,7 @@ begin
 
           if ExportOptions.IncludeNoteHeadings then begin
              NoteHeading := ExpandExpTokenString( ExportOptions.NoteHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), '', 0, 0, myNote.TabSize );
-             if ExportOptions.ShowHiddenMarkers then
+             if ShowHiddenMarkers then
                 NoteHeading:= Format('%s [%d]', [NoteHeading, myNote.ID]);
              NoteHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NoteHeading ), NoteHeadingTpl );
           end;
@@ -1040,7 +1040,7 @@ begin
 
                         if ExportOptions.IncludeNodeHeadings then begin
                            NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myNotes.Filename, RemoveAccelChar( myNote.Name ), myNoteNode.Name, myNoteNode.Level+1, ThisNodeIndex, myNote.TabSize );
-                           if ExportOptions.ShowHiddenMarkers then
+                           if ShowHiddenMarkers then
                               NodeHeading:= Format('%s [%d]', [NodeHeading, myNoteNode.ID]);
                            NodeHeadingTpl_Aux := '';
                            if ExportOptions.NodeLevelTemplates then
@@ -1488,7 +1488,7 @@ begin
         if not CanSaveAsANSI(Text) then
            Encoding:= TEncoding.UTF8;
 
-        if ExportOptions.ShowHiddenMarkers then begin
+        if ShowHiddenMarkers then begin
            Txt:= GetHumanizedKNTHiddenCharacters(Txt);
            TFile.WriteAllText(FN, Txt, Encoding);
         end

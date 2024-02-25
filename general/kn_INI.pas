@@ -2224,8 +2224,9 @@ begin
     TreePadSingleFile := true;
     TreeSelection := low( TTreeSelection );
     ExcludeHiddenNodes:= false;              // [dpv]
-    ShowHiddenMarkers:= false;
   end;
+  ShowHiddenMarkers:= false;         // Global
+
 end; // InitializeExportOptions
 
 end.

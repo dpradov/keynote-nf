@@ -127,6 +127,7 @@ var
     FindOptions : TFindOptions;
 
     LastExportFilterIndex : integer;
+    ShowHiddenMarkers: boolean;
 
     //================================================== COMMAND LINE
     NoteFileToLoad : string; // name of KNT file we are supposed to open (options + commandline + passed from other instance, etc)

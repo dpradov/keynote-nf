@@ -991,6 +991,7 @@ type
     procedure TVEdited(Sender: TObject; Node: TTreeNTNode; var S: string);
     procedure TVEditCanceled(Sender: TObject);
     procedure TVEditing(Sender: TObject; Node: TTreeNTNode; var AllowEdit: Boolean);
+    procedure TVSavingTree(Sender: TObject; Node: TTreeNTNode; var S: string);
     procedure TVDblClick(Sender: TObject);
     procedure TVDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure TVDragOver(Sender, Source: TObject; X, Y: Integer;
@@ -5473,6 +5474,15 @@ begin
   end;
 end; // TVEditing
 
+
+procedure TForm_Main.TVSavingTree(Sender: TObject; Node: TTreeNTNode; var S: string);
+begin
+   if not ShowHiddenMarkers then exit;
+   if assigned( TNoteNode( Node.Data )) then
+      S:= Format('%s [%d]', [S, TNoteNode(Node.Data).ID]);
+end;
+
+
 procedure TForm_Main.MMRenamenodeClick(Sender: TObject);
 var
   myNode : TNoteNode;
@@ -6546,6 +6556,8 @@ begin
   if ( not assigned( ActiveNote )) then exit;
   if ( ActiveNote.Kind <> ntTree ) then exit;
 
+  ShowHiddenMarkers:= CtrlDown;
+
   with SaveDlg do
   begin
     oldFilter := Filter;
@@ -6562,6 +6574,7 @@ begin
       TTreeNote( ActiveNote ) .TV.SaveToFile( fn, false );
     end;
   finally
+    ShowHiddenMarkers:= false;
     SaveDlg.Filter := oldFilter;
   end;
 

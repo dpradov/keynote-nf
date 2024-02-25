@@ -3193,7 +3193,7 @@ object Form_Main: TForm_Main
       end
       object MMTreeSaveToFile: TMenuItem
         Caption = 'Sa&ve Tree to File...'
-        Hint = 'Save tree structure to file'
+        Hint = 'Save tree structure to file (Ctrl: Show nodes ID)'
         OnClick = MMTreeSaveToFileClick
       end
       object MMTreeSort_: TMenuItem

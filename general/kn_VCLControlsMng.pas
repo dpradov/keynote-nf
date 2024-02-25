@@ -212,6 +212,7 @@ begin
           ShowHint := false;
           OnHint := TVOnHint;
           OnEnter:= TVEnter;
+          OnSavingTree:= TVSavingTree;
         end;
       end;
 
