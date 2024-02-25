@@ -677,7 +677,8 @@ begin
       Log_StoreTick( 'End config', 2 );
 
       // check other instance, and do the job is necessary
-      if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) then begin
+      // _GLOBAL_URLText. If indicated a KNT Link (with -Jmp argument) it will be ignored the SingleInstance option
+      if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) and (_GLOBAL_URLText = '') then begin
         Messagedlg(STR_01, mtWarning, [mbOK], 0 );
         ClosedOnPreviousInstance := true;
         Application.ShowMainForm := false;

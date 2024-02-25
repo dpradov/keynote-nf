@@ -206,9 +206,6 @@ begin
   if (errstr <> '' ) then
       MessageDlg( STR_InvalidCLA + #13 + errstr, mtWarning, [mbOK], 0 );
 
-  if NoteFileToLoad = '' then
-     _GLOBAL_URLText := '';
-
 end; // ReadCmdLine
 
 
