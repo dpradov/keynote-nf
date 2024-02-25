@@ -51,8 +51,10 @@ uses
     function BuildKNTLocationText( const aLocation : TLocation) : string;
     function BuildKNTLocationFromString( LocationStr : string ): TLocation;
     function BuildBookmark09FromString( LocationStr : AnsiString ): TLocation;
-    procedure JumpToKNTLocation( LocationStr : string );
-    function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true): boolean;
+    procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen);
+    function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
+                              myURLAction: TURLAction = urlOpen ): boolean;
+    procedure OpenLocationInOtherInstance( aLocation : TLocation );
     function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              AdjustVisiblePosition: boolean = true): integer;
@@ -1209,13 +1211,15 @@ begin
 //===============================================================
  // JumpToLocation
  //===============================================================
- function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true): boolean;
+ function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
+                          myURLAction: TURLAction = urlOpen): boolean;
  var
    myNote : TTabNote;
    myTreeNode : TTreeNTNode;
    origLocationStr : string;
    LocBeforeJump: TLocation;
    SameEditor: boolean;
+   FN: string;
 
    function SearchTargetMark (SearchBookmark09: boolean = false): boolean;
   var
@@ -1286,12 +1290,22 @@ begin
         SameEditor:= False;
         if IgnoreOtherFiles then
            exit;
-        if (( not Fileexists( Location.FileName )) or
-         ( NoteFileOpen( Location.FileName ) <> 0 )) then
-        begin
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11;
-          raise EInvalidLocation.Create(Format( STR_12, [origLocationStr] ));
+
+        FN:= GetAbsolutePath(ExtractFilePath(Application.ExeName), Location.FileName);
+
+        if FN.ToUpper <> NoteFile.FileName.ToUpper then begin
+           if not Initializing and (KeyOptions.ExtKNTLnkInNewInst or (myURLAction = urlOpenNew)) then begin
+              OpenLocationInOtherInstance (Location);
+              exit;
+           end
+           else begin
+              if (( not Fileexists( FN )) or ( NoteFileOpen( FN ) <> 0 )) then begin
+                Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11;
+                raise EInvalidLocation.Create(Format( STR_12, [origLocationStr] ));
+              end;
+           end;
         end;
+
       end;
 
       GetTreeNodeFromLocation(Location, myNote, myTreeNode);
@@ -1361,17 +1375,30 @@ begin
 
 end; // JumpToLocation
 
+
+procedure OpenLocationInOtherInstance( aLocation : TLocation );
+var
+  Args: string;
+  exresult: integer;
+begin
+   Args:= Format('-jmp"%s"', [BuildKNTLocationText(aLocation)]);
+   exresult := ShellExecute( 0, 'open', PChar( Application.ExeName ), PChar( Args ), nil, SW_NORMAL );
+   if ( exresult <= 32 ) then
+      messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
+end;
+
+
 //===============================================================
 // JumpToKNTLocation
 //===============================================================
-procedure JumpToKNTLocation( LocationStr : string );
+procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen );
 var
   Location : TLocation;
 begin
   try
     Location:= BuildKNTLocationFromString(LocationStr);
     try
-       JumpToLocation(Location, false);
+       JumpToLocation(Location, false, true, myURLAction);
     finally
        Location.Free;
     end;
@@ -1770,10 +1797,10 @@ begin
       end;
 
       //-------------------------------------
-      // urlOpenNew is only for HTTP and HTTPS protocols
-      if ( not ( URLType in [urlHTTP, urlHTTPS] )) and ( myURLAction = urlOpenNew ) then
+      // urlOpenNew is only for HTTP and HTTPS protocols .... No [dpv]
+      {if ( not ( URLType in [urlHTTP, urlHTTPS] )) and ( myURLAction = urlOpenNew ) then
            myURLAction := urlOpen;
-
+      }
 
       //-------------------------------------
       if ( myURLAction in [urlOpen, urlOpenNew, urlBoth] ) then begin
@@ -1792,7 +1819,7 @@ begin
                   belonging to a control that NO LONGER EXISTS. Which results in a nice little crash. By posting a message,
                   we change the sequence, so that the file will be closed and a new file opened after we have already
                   returned from this here event handler. }
-                postmessage( Form_Main.Handle, WM_JumpToKNTLink, 0, 0 );
+                postmessage( Form_Main.Handle, WM_JumpToKNTLink, NativeInt(myURLAction), 0 );
                 exit;
               end
               else begin

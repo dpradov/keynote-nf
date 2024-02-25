@@ -150,10 +150,7 @@ begin
     // Location to another file
 
     if KeyOptions.ExtKNTLnkInNewInst or CtrlDown then begin
-       Args:= Format('-jmp"%s"', [BuildKNTLocationText(myFav)]);
-       exresult := ShellExecute( 0, 'open', PChar( Application.ExeName ), PChar( Args ), nil, SW_NORMAL );
-       if ( exresult <= 32 ) then
-          messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
+       OpenLocationInOtherInstance(myFav);
     end
     else begin
       // open a file in this instance (closing current knt file)

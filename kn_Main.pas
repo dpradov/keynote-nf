@@ -1280,7 +1280,7 @@ type
     procedure WMDrawClipboard( var Msg : TWMDrawClipboard); message WM_DRAWCLIPBOARD; // for Clipboard capture
     procedure CreateParams(var Params: TCreateParams); override;
     procedure WMCopyData(Var msg: TWMCopyData); message WM_COPYDATA; // interprocess comm.
-    procedure WMJumpToKNTLink( var DummyMSG : integer ); message WM_JUMPTOKNTLINK; // custom
+    procedure WMJumpToKNTLink( var Msg : TMessage ); message WM_JUMPTOKNTLINK; // custom
     procedure WMJumpToLocation( var DummyMSG : integer ); message WM_JUMPTOLOCATION; //custom
     procedure WMShowTipOfTheDay( var DummyMSG : integer ); message WM_TIPOFTHEDAY; //custom
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
@@ -6294,9 +6294,12 @@ begin
   InsertPictureOrObject( true );
 end;
 
-procedure TForm_Main.WMJumpToKNTLink( var DummyMSG : integer );
+procedure TForm_Main.WMJumpToKNTLink( var Msg : TMessage );
+var
+   UrlAction: TURLAction;
 begin
-  JumpToKNTLocation( _GLOBAL_URLText );
+  UrlAction:= TURLAction(Msg.WParam);
+  JumpToKNTLocation( _GLOBAL_URLText, UrlAction );
 end; // WMJumpToKNTLink
 
 procedure TForm_Main.WMShowTipOfTheDay( var DummyMSG : integer );
