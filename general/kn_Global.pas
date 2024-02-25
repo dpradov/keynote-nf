@@ -288,7 +288,8 @@ uses
    kn_StyleMng,
    kn_NoteFileMng,
    kn_MacroMng,
-   kn_VCLControlsMng
+   kn_VCLControlsMng,
+   kn_LinksMng
    ;
 
 
@@ -478,7 +479,7 @@ begin
       OriginalComboLen := Combo_Font.Width;
       Pages.MarkedPage := nil;
 
-      _GLOBAL_URLText := '';
+      //_GLOBAL_URLText := '';                 // Can be set in ReadCmdLine, called from InitializeOptions
       _Global_Location := nil;
       _IS_CAPTURING_CLIPBOARD := false;
       _IS_CHAINING_CLIPBOARD := false;
@@ -961,6 +962,7 @@ begin
       InitializeNoteTreeProperties( DefaultTreeProperties );
       //_OLD_NODE_NAME := DEFAULT_NEW_NODE_NAME;
 
+      _GLOBAL_URLText := '';
       ReadCmdLine;
 
       // Adjust location of all config files to that of the INI file

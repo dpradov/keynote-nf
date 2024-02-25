@@ -57,6 +57,14 @@ If this option is specified, KeyNote will not load the custom icons (keynote.icn
 -noreg		do NOT store window size and position and the recently used
 file list in the registry. Instead, this information is stored in a file with the ".mru" extension.
 
+-jmp"<KNTLink>"   Jump to the KNT link on start
+ If a .KNT file have been passed as argument then this option allow to jump to the KeyNote internal link especified in quotes (in any of the recognized formats)
+ (It will be ignored if no .knt file was specified)
+ The KNT link must be bound to the option, without any spaces. Examples:
+  -jmp"file:///*1|10|201|0"
+  -jmp"file:///*1|2"
+
+
 -clean		Clean/repair a file with the problem of hyperlinks signaled in issue #59 (Certain hyperlinks may cause knt file to grow in size suddenly (geometrical increase..))
                 and also the problem indicated in #524 (MS Sans Serif in Windows 10 in certain situations)
 

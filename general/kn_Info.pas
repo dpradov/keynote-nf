@@ -110,6 +110,8 @@ const
   swSaveToolbars = 'savetb'; // save default toolbar button settings (debug)
   swSaveMenus    = 'savemenu'; // save menu information (debug)
   swClean        = 'clean'; // clean/repair the file, actually looking for invalid hyperlinks (see issue #59: http://code.google.com/p/keynote-nf/issues/detail?id=59
+  swJmp          = 'jmp';  // Jump to the KNT link indicated in quotes (in any of the recognized formats. Ex: "file:///*1|10|201|0")
+                           // Will be ignored if no .knt file specified
 
 const
   // Filters for open/save dialogs

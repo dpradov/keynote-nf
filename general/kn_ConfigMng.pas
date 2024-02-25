@@ -154,6 +154,12 @@ begin
           if ( s = swClean ) then
              opt_Clean := true
           else
+          if ( s.StartsWith(swJmp) ) then begin
+             // Jump to the KNT link indicated in quotes (in any of the recognized formats. Ex: "file:///*1|10|201|0")
+             // Note: '-jmp"file:///*8|479|0|0"' is converted to '-jmpfile:///*8|479|0|0'
+              _GLOBAL_URLText:= Copy(s, Length(swJmp)+1);
+          end
+          else
             errstr := errstr + #13 + ParamStr( i );
 
        end
@@ -199,6 +205,9 @@ begin
 
   if (errstr <> '' ) then
       MessageDlg( STR_InvalidCLA + #13 + errstr, mtWarning, [mbOK], 0 );
+
+  if NoteFileToLoad = '' then
+     _GLOBAL_URLText := '';
 
 end; // ReadCmdLine
 

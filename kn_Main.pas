@@ -1656,6 +1656,9 @@ begin
 
   EnableOrDisableUAS;
 
+  if _GLOBAL_URLText <> '' then
+    JumpToKNTLocation( _GLOBAL_URLText );
+
   Application.ProcessMessages;
   {
   if KeyOptions.TipOfTheDay then
@@ -1696,7 +1699,7 @@ begin
   if KeyOptions.TipOfTheDay then
     postmessage( Handle, WM_TIPOFTHEDAY, 0, 0 );
 
-  opt_Minimize := ( opt_Minimize or KeyOptions.StartMinimized );
+  opt_Minimize := ( opt_Minimize or KeyOptions.StartMinimized ) and (_GLOBAL_URLText = '');
 
   MMViewOnTop.Checked := KeyOptions.AlwaysOnTop;
   TB_OnTop.Down := MMViewOnTop.Checked;
