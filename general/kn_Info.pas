@@ -576,6 +576,7 @@ type
     // ShowSplash : boolean;
     ShowTooltips : boolean;
     SingleInstance : boolean;   // allow only one instance of KeyNotes
+    WarnSingleInstance: boolean;  // [*] Give the message: KeyNote NF have been configured to allow only one instance at a time. Closing this instance...
     SkipNewFilePrompt : boolean;
     StartMinimized : boolean;
     StartNoteType : TNoteType; // [*] type of note to create automatically with each new file

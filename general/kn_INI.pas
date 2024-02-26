@@ -378,6 +378,7 @@ type
     // ShowSplash,
     ShowTooltips,
     SingleInstance,
+    WarnSingleInstance,
     SkipNewFilePrompt,
     StartMinimized,
     StartNoteType,
@@ -550,6 +551,7 @@ const
     // ShowSplash : 'ShowSplash';
     ShowTooltips : 'ShowTooltips';
     SingleInstance : 'SingleInstance';
+    WarnSingleInstance : 'WarnSingleInstance';
     SkipNewFilePrompt : 'SkipNewFilePrompt';
     StartMinimized : 'StartMinimized';
     StartNoteType : 'StartNoteType';
@@ -1086,6 +1088,7 @@ begin
     // ShowSplash := true;
     ShowTooltips := true;
     SingleInstance := true;
+    WarnSingleInstance:= true;
     SkipNewFilePrompt := false;
     StartMinimized := false;
     StartNoteType := ntTree;
@@ -1389,6 +1392,7 @@ begin
       // writebool( section, KeyOptionsIniStr.ShowSplash, KeyOptions.ShowSplash );
       writebool( section, KeyOptionsIniStr.ShowTooltips, KeyOptions.ShowTooltips );
       writebool( section, KeyOptionsIniStr.SingleInstance, KeyOptions.SingleInstance );
+      writebool( section, KeyOptionsIniStr.WarnSingleInstance, KeyOptions.WarnSingleInstance );
       writebool( section, KeyOptionsIniStr.SkipNewFilePrompt, KeyOptions.SkipNewFilePrompt );
       writebool( section, KeyOptionsIniStr.StartMinimized, KeyOptions.StartMinimized );
       writeinteger( section, KeyOptionsIniStr.StartNoteType, ord( KeyOptions.StartNoteType ));
@@ -1729,6 +1733,7 @@ begin
       // KeyOptions.ShowSplash := readbool( section, KeyOptionsIniStr.ShowSplash, KeyOptions.ShowSplash );
       KeyOptions.ShowTooltips := readbool( section, KeyOptionsIniStr.ShowTooltips, KeyOptions.ShowTooltips );
       KeyOptions.SingleInstance := readbool( section, KeyOptionsIniStr.SingleInstance, KeyOptions.SingleInstance );
+      KeyOptions.WarnSingleInstance := readbool( section, KeyOptionsIniStr.WarnSingleInstance, KeyOptions.WarnSingleInstance );
       KeyOptions.SkipNewFilePrompt := readbool( section, KeyOptionsIniStr.SkipNewFilePrompt, KeyOptions.SkipNewFilePrompt );
       KeyOptions.StartMinimized := readbool( section, KeyOptionsIniStr.StartMinimized, KeyOptions.StartMinimized );
       KeyOptions.StartNoteType := TNoteType( readinteger( section, KeyOptionsIniStr.StartNoteType, ord( KeyOptions.StartNoteType )));
