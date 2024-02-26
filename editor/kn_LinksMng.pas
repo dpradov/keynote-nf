@@ -142,6 +142,7 @@ resourcestring
   STR_30 = ' (Ctrl+click: only in note history)';
   STR_31 = ' [Mark: %d]';
   STR_32 = '   (Undo to remove new hidden markers)';
+  STR_33 = 'Action canceled';
 
 type
   EInvalidLocation = Exception;
@@ -1220,6 +1221,7 @@ begin
    LocBeforeJump: TLocation;
    SameEditor: boolean;
    FN: string;
+   ResultOpen: integer;
 
    function SearchTargetMark (SearchBookmark09: boolean = false): boolean;
   var
@@ -1299,10 +1301,23 @@ begin
               exit;
            end
            else begin
-              if (( not Fileexists( FN )) or ( NoteFileOpen( FN ) <> 0 )) then begin
-                Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11;
-                raise EInvalidLocation.Create(Format( STR_12, [origLocationStr] ));
+              ResultOpen:= 0;
+              if not Fileexists( FN ) then
+                 ResultOpen:= -1;
+              if ResultOpen = 0 then
+                 ResultOpen:= NoteFileOpen( FN );
+
+              if ResultOpen <> 0 then begin
+                 if ResultOpen <> -2 then begin
+                    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_11;
+                    raise EInvalidLocation.Create(Format( STR_12, [origLocationStr] ));
+                 end
+                 else begin
+                    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_33;
+                    exit;
+                 end;
               end;
+
            end;
         end;
 

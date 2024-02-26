@@ -256,7 +256,7 @@ end;
 function NoteFileNew( FN : string ) : integer;
 begin
   if assigned( NoteFile ) then
-     if (not NoteFileClose ) then exit;
+     if (not NoteFileClose ) then exit(-2);
 
   MovingTreeNode:= nil;
   AlarmManager.Clear;
@@ -379,16 +379,16 @@ var
   FPath, NastyDriveType : string;
 begin
   if assigned( NoteFile ) then
-    if ( not NoteFileClose ) then exit;
+    if ( not NoteFileClose ) then exit(-2);
 
   with Form_Main do begin
+        result := -1;
         _REOPEN_AUTOCLOSED_FILE := false;
         MovingTreeNode:= nil;
         AlarmManager.Clear;
         MirrorNodes.Clear;
         OpenReadOnly := false;
         opensuccess := false;
-        result := -1;
         Virtual_UnEncrypt_Warning_Done := false;
         if FileIsBusy then exit;
         try
