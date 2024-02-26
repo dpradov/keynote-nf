@@ -1848,8 +1848,11 @@ begin
       NoteFileToLoad := '';
       CmdLineFileName := normalFN( kntmsg.strData );
     end;
-    else
-    begin
+    KNT_MSG_SHOW_LOCATION: begin
+       JumpToKNTLocation( kntmsg.strData);
+       exit;
+    end
+    else begin
       ProcessControlMessage( msg.Copydatastruct^.dwData, kntmsg );
       exit;
     end;
@@ -1860,34 +1863,25 @@ begin
   Application.BringToFront;
 
 
-  if ( NoteFileToLoad <> '' ) then
-  begin
-    if HaveNotes( false, false ) then
-    begin
-      if ( NoteFileToLoad = NoteFile.FileName ) then
-      begin
-        if ( PopupMessage( Format(STR_06, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-        NoteFile.Modified := false; // to prevent automatic save if modified
-      end;
-    end;
-    NoteFileOpen( NoteFileToLoad );
+  if ( NoteFileToLoad <> '' ) then begin
+     if HaveNotes( false, false ) then begin
+        if ( NoteFileToLoad = NoteFile.FileName ) then begin
+          if ( PopupMessage( Format(STR_06, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+          NoteFile.Modified := false; // to prevent automatic save if modified
+        end;
+     end;
+     NoteFileOpen( NoteFileToLoad );
   end
   else
-  if ( CmdLineFileName <> '' ) then
-  begin
-    if HaveNotes( false, false ) then
-    begin
-      ext := ansilowercase( extractfileext( CmdLineFileName ));
-      if ( ext = ext_Macro ) then
-      begin
-        ExecuteMacro( CmdLineFileName, '' );
-      end
-      else
-      if ( ext = ext_Plugin ) then
-      begin
-        ExecutePlugin( CmdLineFileName );
-      end;
-    end;
+  if ( CmdLineFileName <> '' ) then begin
+     if HaveNotes( false, false ) then begin
+        ext := ansilowercase( extractfileext( CmdLineFileName ));
+        if ( ext = ext_Macro ) then
+           ExecuteMacro( CmdLineFileName, '' )
+        else
+        if ( ext = ext_Plugin ) then
+           ExecutePlugin( CmdLineFileName );
+     end;
   end;
 
 end; // WMCopyData

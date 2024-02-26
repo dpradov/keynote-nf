@@ -24,6 +24,7 @@ const
   KNT_MSG_SHOW                  = 50; // just restore window
   KNT_MSG_SHOW_AND_LOAD_FILE    = 51; // restore window and open .KNT file
   KNT_MSG_SHOW_AND_EXECUTE_FILE = 52; // restore window and run macro, plugin, etc.
+  KNT_MSG_SHOW_LOCATION         = 53; // Jump to the location indicated
 
   // Message IDs for resident plugins
   KNT_MSG_PERFORMKEY         = 100; // pass a key to TRichEdit
