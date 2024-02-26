@@ -299,6 +299,7 @@ type
     chkImgKeepOrigName: TCheckBox;
     Label14: TLabel;
     Spin_ResetNextAftN: TSpinEdit;
+    CB_ExtKNTLnkInNewInst: TCheckBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -886,6 +887,8 @@ begin
     ConfirmTreePaste := CheckBox_ConfirmTreePaste.Checked;
     NoRegistry := CheckBox_NoRegistry.Checked;
     URLFileAuto := CheckBox_URLFileAuto.Checked;
+    ExtKNTLnkInNewInst := CB_ExtKNTLnkInNewInst.Checked;
+
     HotKeyWarn := CheckBox_HotKeyWarn.Checked;
     UseOldColorDlg := CheckBox_UseOldColorDlg.Checked;
     RunAutoMacros := CheckBox_RunAutoMacros.Checked;
@@ -1105,6 +1108,7 @@ begin
     CheckBox_ConfirmTreePaste.Checked := ConfirmTreePaste;
     CheckBox_NoRegistry.Checked := NoRegistry;
     CheckBox_URLFileAuto.Checked := URLFileAuto;
+    CB_ExtKNTLnkInNewInst.Checked := ExtKNTLnkInNewInst;
     CheckBox_HotKeyWarn.Checked := HotKeyWarn;
     CheckBox_UseOldColorDlg.Checked := UseOldColorDlg;
     CheckBox_RunAutoMacros.Checked := RunAutoMacros;

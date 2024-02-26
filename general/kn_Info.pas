@@ -614,7 +614,7 @@ type
     URLFilePrefNoHyp: boolean; // [*]     Preferably use simple links, not hyperlinks
     // URLClickShift : boolean; // if TRUE, user must hold down SHIFT while clicking an URL to activate it        (Does not work with recent versions of RichEdit)
     URLSystemBrowser : boolean;
-    ExtKNTLnkInNewInst: boolean; // [*] If true, the KNT links located in another file will be open in other instance, and not in current one
+    ExtKNTLnkInNewInst: boolean; // If true, the KNT links located in another file will be opened in other instance, and not in current one
     UseOldColorDlg : boolean;
     UseOldFileFormat : boolean; // save files using older firmat (GFKNX)
     UseTray : boolean;

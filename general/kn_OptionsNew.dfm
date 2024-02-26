@@ -2116,9 +2116,9 @@ object Form_OptionsNew: TForm_OptionsNew
       end
       object GroupBox_Act2: TGroupBox
         Left = 5
-        Top = 216
+        Top = 205
         Width = 350
-        Height = 153
+        Height = 164
         Caption = ' URL actions '
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -2215,6 +2215,23 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           ParentFont = False
           TabOrder = 1
+        end
+        object CB_ExtKNTLnkInNewInst: TCheckBox
+          Left = 11
+          Top = 137
+          Width = 330
+          Height = 17
+          Hint = 
+            'KNT links to another .knt file will be opened in other instance,' +
+            ' not in current one'
+          Caption = 'Open external KNT links in other &instance'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
         end
       end
     end
