@@ -935,7 +935,7 @@ begin
     PasteAsNewNode := true;
     PlaySound := true;
     Recall := false;
-    SleepTime := 1; // 5 = half a second
+    SleepTime := 4; // 5 = half a second
     SwitchIcon := true;
     TestDupClips := true;
     TreeClipConfirm := true;
