@@ -1287,6 +1287,7 @@ type
 
     procedure FormatCopyClick(AlloMultiMode: Boolean);
     procedure ShowFindAllOptions;
+    procedure ExecuteCallArgs (fromKntLauncher: boolean);
 
   protected
     procedure CreateWnd; override;
@@ -1725,8 +1726,10 @@ end; // ACTIVATE
 procedure TForm_Main.ActivatePreviousInstance;
 var
   CopyData : TCopyDataStruct;
-  msg : TKeyNoteMsg;
+  //msg : TKeyNoteMsg;
+  Args: string;
 begin
+{
   if ( NoteFileToLoad <> '' ) then
   begin
     msg.strData := NoteFileToLoad;
@@ -1746,11 +1749,22 @@ begin
 
   copydata.cbData := sizeof( msg );
   copydata.lpData := @msg;
+}
+
+  // The other instance will process the main command line arguments: .KNT, .KNE, .KNL, or .KNM files, as well as the -jmp switch
+  // It is more general than the use of KNT_MSG_SHOW_AND_LOAD_FILE, KNT_MSG_SHOW_AND_EXECUTE_FILE, NO_FILENAME_TO_LOAD
+  Args:= GetCommandLine;
+  copydata.dwData := KNT_MSG_OTHER_INSTANCE_CALL;
+  copydata.cbData:= ByteLength(Args)+1;
+  copydata.lpData := PChar(Args);
 
   SendMessage( _OTHER_INSTANCE_HANDLE,
     WM_COPYDATA,
     Handle,
     integer( @copydata ));
+
+  ShowWindow(_OTHER_INSTANCE_HANDLE, SW_RESTORE);
+  SetForegroundWindow(_OTHER_INSTANCE_HANDLE);
 
 end; // ActivatePreviousInstance
 
@@ -1820,6 +1834,39 @@ begin
 end; // ProcessControlMessage
 
 
+procedure TForm_Main.WMCopyData (Var msg: TWMCopyData);
+var
+  kntmsg : TKeyNoteMsg;
+  TypeMsg: NativeUInt;
+  Args: string;
+begin
+  TypeMsg:= msg.Copydatastruct^.dwData;
+  if TypeMsg <> KNT_MSG_LAUNCHER_CALL then
+     ReplyMessage( 0 );
+
+  case TypeMsg of
+    KNT_MSG_LAUNCHER_CALL, KNT_MSG_OTHER_INSTANCE_CALL: begin
+      //PopupMessage( Format('KNT_MSG_LAUNCHER/OTHER_INSTANCE_CALL: %d', [TypeMsg]), mtConfirmation, [mbYes], 0 );
+      Args:= PChar(msg.Copydatastruct^.lpData);
+      if CheckCallArgs(Args, (TypeMsg = KNT_MSG_LAUNCHER_CALL)) then begin
+         ReplyMessage( 0 );
+         ExecuteCallArgs((TypeMsg = KNT_MSG_LAUNCHER_CALL));
+      end
+      else
+         ReplyMessage( -1 );
+      exit;
+    end
+    else begin
+      kntmsg := PKeyNoteMsg( msg.Copydatastruct^.lpData )^;
+      ProcessControlMessage( msg.Copydatastruct^.dwData, kntmsg );
+      exit;
+    end;
+  end;
+end; // WMCopyData
+
+
+(*    // Old WMCopyData
+
 procedure TForm_Main.WMCopyData(Var msg: TWMCopyData);
 var
   kntmsg : TKeyNoteMsg;
@@ -1885,11 +1932,54 @@ begin
   end;
 
 end; // WMCopyData
+*)
+
+procedure TForm_Main.ExecuteCallArgs (fromKntLauncher: boolean);
+var
+  Open: boolean;
+begin
+{  // It does not work correctly. It is best that the calling application takes care of this, giving it its focus (-> ActivatePreviousInstance)
+   Application.Minimize;
+   Application.Restore;
+   Application.BringToFront;
+}
+
+   if not fromKntLauncher and ( NoteFileToLoad <> '' ) then begin
+      //PopupMessage( Format('NoteFileToLoad: %s', [NoteFileToLoad]), mtConfirmation, [mbYes], 0 );
+      Open:= true;
+      if HaveNotes( false, false ) then begin
+         if ( NoteFileToLoad.ToUpper = NoteFile.FileName.ToUpper ) then begin
+           if ( PopupMessage( Format(STR_06, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+              Open:= false;
+           NoteFile.Modified := false; // to prevent automatic save if modified
+         end;
+      end;
+      if Open then
+         NoteFileOpen( NoteFileToLoad );
+   end;
+
+
+   if _GLOBAL_URLText <> '' then begin
+     //PopupMessage( Format('JUMP: %s', [_GLOBAL_URLText]), mtConfirmation, [mbYes], 0 );
+     JumpToKNTLocation( _GLOBAL_URLText, urlOpen, true);      // OpenInCurrentFile
+   end;
+
+
+   if StartupMacroFile <> '' then
+      ExecuteMacro( StartupMacroFile, '' );
+
+   if StartupPluginFile <> '' then
+      ExecutePlugin( StartupPluginFile );
+end;
+
 
 procedure TForm_Main.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);
-  Params.WinClassName := UniqueAppName_KEYNOTE10;
+  if opt_DoNotDisturb then
+     Params.WinClassName := UniqueAppName_KEYNOTE10_dnd
+  else
+     Params.WinClassName := UniqueAppName_KEYNOTE10;
 end; // CreateParams
 
 

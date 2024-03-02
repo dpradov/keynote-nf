@@ -114,6 +114,7 @@ var
     opt_NoUserIcons : boolean; // do not use custom .ICN file
     opt_SaveToolbars : boolean; // save default toolbar state (debug)
     opt_SaveMenus : boolean; // save menu item information
+    opt_DoNotDisturb : boolean; // Ignore for purposes of "SingleInstance"
 
     opt_Clean : boolean; // Clean the file, actually looking for invalid hyperlinks (see issue #59: http://code.google.com/p/keynote-nf/issues/detail?id=59
 
@@ -677,8 +678,7 @@ begin
       Log_StoreTick( 'End config', 2 );
 
       // check other instance, and do the job is necessary
-      // _GLOBAL_URLText. If indicated a KNT Link (with -Jmp argument) it will be ignored the SingleInstance option
-      if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) and (_GLOBAL_URLText = '') then begin
+      if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) then begin
         if KeyOptions.WarnSingleInstance then
            Messagedlg(STR_01, mtWarning, [mbOK], 0 );
         ClosedOnPreviousInstance := true;
@@ -944,6 +944,7 @@ begin
       opt_NoUserIcons := false;
       opt_SaveToolbars := false;
       opt_SaveMenus := false;
+      opt_DoNotDisturb:= false;
 
       opt_Clean := false;
 

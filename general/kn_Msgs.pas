@@ -20,11 +20,18 @@ interface
 const
   KeyNote_WinMsgIDStr = 'KeyNote1_WinMsgIdStr';
 
+  UniqueAppName_KEYNOTE10   = 'GFKeyNote10';
+  UniqueAppName_KEYNOTE10_dnd = UniqueAppName_KEYNOTE10 + '*';    // dnd: Do Not Disturb (Ignore for the purposes of "SingleInstance")
+
   // Internal KeyNote messages (do NOT use in plugins!!)
+{
   KNT_MSG_SHOW                  = 50; // just restore window
   KNT_MSG_SHOW_AND_LOAD_FILE    = 51; // restore window and open .KNT file
   KNT_MSG_SHOW_AND_EXECUTE_FILE = 52; // restore window and run macro, plugin, etc.
   KNT_MSG_SHOW_LOCATION         = 53; // Jump to the location indicated
+}
+  KNT_MSG_LAUNCHER_CALL         = 54; // Process the call make by KntLauncher
+  KNT_MSG_OTHER_INSTANCE_CALL   = 55; // Process the call make by other instance (due to SingleInstance option)
 
   // Message IDs for resident plugins
   KNT_MSG_PERFORMKEY         = 100; // pass a key to TRichEdit

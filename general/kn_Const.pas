@@ -137,7 +137,7 @@ const
   Program_Credit2 = 'Copyright © 2000-05  Marek Jedlinski';
   Hint_Support = 'Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!';
 
-  UniqueAppName_KEYNOTE10   = 'GFKeyNote10';
+  // UniqueAppName_KEYNOTE10   = 'GFKeyNote10';       // Moved to knt_Msgs
 
 const
   URL_Issues = 'https://github.com/dpradov/keynote-nf/issues';

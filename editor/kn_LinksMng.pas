@@ -51,9 +51,10 @@ uses
     function BuildKNTLocationText( const aLocation : TLocation) : string;
     function BuildKNTLocationFromString( LocationStr : string ): TLocation;
     function BuildBookmark09FromString( LocationStr : AnsiString ): TLocation;
-    procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen);
+    procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen; OpenInCurrentFile: boolean= false);
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
-                              myURLAction: TURLAction = urlOpen ): boolean;
+                              myURLAction: TURLAction = urlOpen;
+                              OpenInCurrentFile: boolean= false ): boolean;
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
     function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
@@ -1213,7 +1214,8 @@ begin
  // JumpToLocation
  //===============================================================
  function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
-                          myURLAction: TURLAction = urlOpen): boolean;
+                          myURLAction: TURLAction = urlOpen;
+                          OpenInCurrentFile: boolean= false): boolean;
  var
    myNote : TTabNote;
    myTreeNode : TTreeNTNode;
@@ -1296,7 +1298,7 @@ begin
         FN:= GetAbsolutePath(ExtractFilePath(Application.ExeName), Location.FileName);
 
         if FN.ToUpper <> NoteFile.FileName.ToUpper then begin
-           if not Initializing and (KeyOptions.ExtKNTLnkInNewInst or (myURLAction = urlOpenNew)) then begin
+           if not Initializing and not OpenInCurrentFile and (KeyOptions.ExtKNTLnkInNewInst or (myURLAction = urlOpenNew)) then begin
               OpenLocationInOtherInstance (Location);
               exit;
            end
@@ -1396,7 +1398,8 @@ var
   Args: string;
   exresult: integer;
 begin
-   Args:= Format('-jmp"%s"', [BuildKNTLocationText(aLocation)]);
+   //-ignSI Ignore single instance option for this call (-> Ensure the file will open in another instance and not finally in this one..)
+   Args:= Format('-ignSI -jmp"%s "', [BuildKNTLocationText(aLocation)]);
    exresult := ShellExecute( 0, 'open', PChar( Application.ExeName ), PChar( Args ), nil, SW_NORMAL );
    if ( exresult <= 32 ) then
       messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
@@ -1406,14 +1409,14 @@ end;
 //===============================================================
 // JumpToKNTLocation
 //===============================================================
-procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen );
+procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen; OpenInCurrentFile: boolean= false );
 var
   Location : TLocation;
 begin
   try
     Location:= BuildKNTLocationFromString(LocationStr);
     try
-       JumpToLocation(Location, false, true, myURLAction);
+       JumpToLocation(Location, false, true, myURLAction, OpenInCurrentFile);
     finally
        Location.Free;
     end;

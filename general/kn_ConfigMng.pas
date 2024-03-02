@@ -32,6 +32,7 @@ uses
 
     // config management
     procedure ReadCmdLine;
+    function CheckCallArgs(const Args: string; FromKntLauncher: boolean): boolean;
     procedure SaveOptions;
     procedure ReadOptions;
     procedure LoadToolbars;
@@ -49,6 +50,7 @@ implementation
 
 uses
    gf_files,  // Important. Needed (among other things) to use TMemIniFileHelper (.ReadString, .WriteString)
+   gf_strings,
    kn_Info,
    kn_INI,
    kn_Const,
@@ -59,6 +61,7 @@ uses
    kn_Macro,
    kn_Plugins,
    kn_StyleObj,
+   kn_LocationObj,
    kn_Dllmng,
    kn_DLLinterface,
    kn_LanguagesMng,
@@ -66,6 +69,7 @@ uses
    kn_VCLControlsMng,
    kn_TemplateMng,
    kn_PluginsMng,
+   kn_LinksMng,
    kn_Main
    ;
 
@@ -143,8 +147,8 @@ begin
 {$IFDEF KNT_DEBUG}
           if ( s = swSaveMenus ) then
              opt_SaveMenus := true
-{$ENDIF}
           else
+{$ENDIF}
           if ( s = swNoUserIcn ) then
              opt_NoUserIcons := true
           else
@@ -153,6 +157,12 @@ begin
           else
           if ( s = swClean ) then
              opt_Clean := true
+          else
+          if  (s = swIgnoreSI) then
+              _OTHER_INSTANCE_HANDLE:= 0
+          else
+          if  (s = swDoNotDisturb) then
+              opt_DoNotDisturb:= true
           else
           if ( s.StartsWith(swJmp) ) then begin
              // Jump to the KNT link indicated in quotes (in any of the recognized formats. Ex: "file:///*1|10|201|0")
@@ -167,6 +177,8 @@ begin
           // not a switch, so it's a filename.
           // Let's see what kind of file.
           ext := extractfileext(s);
+          if ( ext = '.exe' ) then continue;
+
           s:= GetAbsolutePath(ExtractFilePath(Application.ExeName), ParamStr(i));
 
           if (( ext = ext_KeyNote ) or ( ext = ext_Encrypted ) or ( ext = ext_DART )) then
@@ -210,6 +222,91 @@ end; // ReadCmdLine
 
 
 
+
+function CheckCallArgs(const Args: string; FromKntLauncher: boolean): boolean;
+var
+  i : integer;
+  s, ext, FN: string;
+  JmpLocation : string;
+  Strs: TStrings;
+  Location: TLocation;
+begin
+  Result:= false;
+  if Initializing then exit;
+
+  Strs:= TStringList.Create;
+  try
+     SplitString(Strs, Args, ' ', false);
+     NoteFileToLoad := '';
+     JmpLocation:= '';
+     StartupMacroFile:= '';
+     StartupPluginFile := '';
+     _GLOBAL_URLText:= '';
+
+     for i := 1 to Strs.Count-1 do  begin
+       s := AnsiLowerCase( Strs[i]);
+       if s= '' then continue;
+       UnquoteString(s);
+
+       case s[1] of
+          '-', '/' : begin
+             delete( s, 1, 1 );
+             if ( s.StartsWith(swJmp) ) then begin
+                // Jump to the KNT link indicated in quotes (in any of the recognized formats. Ex: "file:///*1|10|201|0")
+                // Note: '-jmp"file:///*8|479|0|0"' is maintained without modification
+                 JmpLocation:= Copy(s, Length(swJmp)+2, Length(s)-(Length(swJmp)+2) );
+             end;
+          end
+          else begin
+             // not a switch, so it's a filename. Let's see what kind of file.
+             ext := extractfileext(s);
+             if ( ext = '.exe' ) then continue;
+
+             s:= GetAbsolutePath(ExtractFilePath(Application.ExeName), s);
+
+             if ( ext = ext_INI ) or ( ext = ext_ICN ) or ( ext = ext_DEFAULTS ) or ( ext = ext_MGR ) then
+                 continue
+             else
+             if ( ext = ext_KeyNote ) or ( ext = ext_Encrypted ) then
+                NoteFileToLoad := s
+             else
+             if ( ext = ext_Macro ) then
+                StartupMacroFile := s
+             else
+             if ( ext = ext_Plugin ) then
+                StartupPluginFile := s
+             else
+                NoteFileToLoad := s;
+          end;
+
+       end;
+     end;
+
+  finally
+     Strs.Free;
+  end;
+
+  FN:= NoteFile.FileName.ToUpper;
+
+  if FromKntLauncher then begin
+     if (NoteFileToLoad <> '') and (NoteFileToLoad.ToUpper = FN) then
+         result:= true
+     else if (JmpLocation <> '') then begin
+         Location:= BuildKNTLocationFromString(JmpLocation);
+         if (Location.FileName.ToUpper = FN) then
+             Result:= true;
+     end;
+  end
+  else
+     Result:= true;
+
+  if Result then begin
+     _GLOBAL_URLText:= JmpLocation;
+     if FromKntLauncher then
+        opt_DoNotDisturb:= true;
+  end;
+
+end; // CheckCallArgs
 
 
 

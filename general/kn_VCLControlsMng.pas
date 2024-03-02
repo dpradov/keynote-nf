@@ -77,7 +77,9 @@ uses
 
     procedure LoadTrayIcon( const UseAltIcon : boolean );
     procedure LoadTabImages( const ForceReload : boolean );
+{$IFDEF KNT_DEBUG}
     procedure SaveMenusAndButtons;
+{$ENDIF}
 
     procedure EnableCopyFormat(value: Boolean);
 
