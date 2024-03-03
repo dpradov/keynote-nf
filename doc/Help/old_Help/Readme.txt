@@ -1,0 +1,1 @@
+Old keynote help files, the one used in KeyNote 1.6.5 and other, incomplete, versions used in later versions
