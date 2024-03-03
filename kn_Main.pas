@@ -1657,6 +1657,12 @@ begin
 
   EnableOrDisableUAS;
 
+  if KeyOptions.AltMargins then begin
+     MMAlternativeMargins.Checked:= true;
+     if assigned(ActiveNote) then
+        SetMargins();
+  end;
+
   if _GLOBAL_URLText <> '' then
     JumpToKNTLocation( _GLOBAL_URLText );
 

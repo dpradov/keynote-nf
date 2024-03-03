@@ -426,6 +426,7 @@ type
     UseCtrlHideTreePanel,
     MarginAltLeft,
     MarginAltRight,
+    AltMargins,                 // Saves the state of View|Alternative margins
     ModifiedOnTreeResized,
     ImgDefaultStorageMode,
     ImgDefaultExternalStorage,
@@ -599,6 +600,7 @@ const
     UseCtrlHideTreePanel: 'UseCtrlHideTreePanel';
     MarginAltLeft:  'MarginAltLeft';
     MarginAltRight: 'MarginAltRight';
+    AltMargins: 'AltMargins';
     ModifiedOnTreeResized : 'ModifiedOnTreeResized';
     ImgDefaultStorageMode: 'ImgDefaultStorageMode';
     ImgDefaultExternalStorage: 'ImgDefaultExternalStorage';
@@ -911,7 +913,8 @@ uses
   gf_files,  // Important. Needed to use TMemIniFileHelper (.ReadString, .WriteString)
   kn_Global,
   kn_NoteObj,
-  kn_Const;
+  kn_Const,
+  kn_Main;
 
 
 
@@ -1438,6 +1441,7 @@ begin
       writebool( section, KeyOptionsIniStr.UseCtrlHideTreePanel, KeyOptions.UseCtrlHideTreePanel );
       writeinteger( section, KeyOptionsIniStr.MarginAltLeft,  KeyOptions.MarginAltLeft);
       writeinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight);
+      writebool( section, KeyOptionsIniStr.AltMargins, Form_Main.MMAlternativeMargins.Checked );
       writebool( section, KeyOptionsIniStr.ModifiedOnTreeResized, KeyOptions.ModifiedOnTreeResized );
 
       writeinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode ));
@@ -1791,6 +1795,7 @@ begin
       KeyOptions.UseCtrlHideTreePanel := readbool( section, KeyOptionsIniStr.UseCtrlHideTreePanel, KeyOptions.UseCtrlHideTreePanel );
       KeyOptions.MarginAltLeft  := readinteger( section, KeyOptionsIniStr.MarginAltLeft, KeyOptions.MarginAltLeft );
       KeyOptions.MarginAltRight := readinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight );
+      KeyOptions.AltMargins:= readbool( section, KeyOptionsIniStr.AltMargins, false );
       KeyOptions.ModifiedOnTreeResized := readbool( section, KeyOptionsIniStr.ModifiedOnTreeResized, KeyOptions.ModifiedOnTreeResized );
 
       KeyOptions.ImgDefaultStorageMode := TImagesStorageMode( readinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode )));

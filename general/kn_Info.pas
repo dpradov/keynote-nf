@@ -625,6 +625,7 @@ type
     UseCtrlHideTreePanel : boolean;  // [*]
     MarginAltLeft  : integer;  // [*]
     MarginAltRight : integer;  // [*]
+    AltMargins: boolean;  // [*] Saves the state of View|Alternative margins
     ModifiedOnTreeResized: boolean;  // [*]
 
     ImgDefaultStorageMode:     TImagesStorageMode;
