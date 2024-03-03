@@ -1783,6 +1783,7 @@ var
    currentNoteModified, currentFileModified: boolean;
    SS: integer;
    myTreeNode: TTreeNTNode;
+   RestoreRO: boolean;
 
 begin
     if ForceMode or (FImagesMode <> ImagesMode) then begin
@@ -1803,11 +1804,22 @@ begin
           try
              currentNoteModified:= FModified;
              currentFileModified:= NoteFile.Modified;
-             Editor.PutRtfText(RTFout,True,False);
-             if currentNoteModified <> FModified then begin
-                FModified:=  currentNoteModified;  // <- false...
-                NoteFile.Modified:= currentFileModified;
-                UpdateNoteFileState( [fscModified] );
+
+             RestoreRO:= ReadOnly;
+             try
+                if ReadOnly then
+                   Editor.ReadOnly:= False;                     // We must allow images to be shown or hidden even if the note is read only
+                Editor.PutRtfText(RTFout,True,False);
+                if not ReadOnly and (currentNoteModified <> FModified) then begin
+                   FModified:=  currentNoteModified;  // <- false...
+                   NoteFile.Modified:= currentFileModified;
+                   UpdateNoteFileState( [fscModified] );
+                end;
+             finally
+                if RestoreRO then begin
+                   Editor.ReadOnly:= True;
+                   Editor.Modified:= False;
+                end;
              end;
              SearchCaretPos(Self, myTreeNode, SS, 0, true);
           finally
