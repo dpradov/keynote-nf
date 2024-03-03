@@ -1796,44 +1796,48 @@ end; // SelectStatusbarGlyph
 
 
 procedure LoadTrayIcon( const UseAltIcon : boolean );
+var
+  Icon: TIcon;
+  UseIcon: integer;
 begin
+{
+ If Application.MainFormOnTaskBar=True -> we need to change the icon of the main form
+ If it is False -> we need to change the icon of the Application object
+
+ Application.MainFormOnTaskbar= False by default. If we need to set True
+   -> After Application.Initialize and before the main form creation
+}
+
   with Form_Main do begin
-        if assigned( NoteFile ) then
-        begin
-          if UseAltIcon then
-          begin
-            // we're capturing clipboard, so indicate this
-            // by using the alternate (orange) tray icon
-            TrayIcon.Icon := TrayIcon.Icons[1];
-          end
-          else
-          if ( NoteFile.TrayIconFN <> '' ) then
-          begin
-            if fileexists( NoteFile.TrayIconFN ) then
-            begin
-              try
-                TrayIcon.Icon.LoadFromFile( NoteFile.TrayIconFN );
-              except
-                TrayIcon.Icon := TrayIcon.Icons[0];
-              end;
-            end
+      UseIcon:= 0;
+
+      if assigned( NoteFile ) then begin
+         if UseAltIcon then
+            UseIcon:= 1        // we're capturing clipboard, so indicate this by using the alternate (orange) tray icon
+         else
+         if ( NoteFile.TrayIconFN <> '' ) then begin
+            if FileExists( NoteFile.TrayIconFN ) then
+               try
+                 TrayIcon.Icon.LoadFromFile( NoteFile.TrayIconFN );
+                 UseIcon:= 2;
+               except
+               end
             else
-            begin
-              NoteFile.TrayIconFN := '';
-              TrayIcon.Icon := TrayIcon.Icons[0];
-            end;
-          end
-          else
-          begin
-            TrayIcon.Icon := TrayIcon.Icons[0];
-          end;
-        end
-        else
-        begin
-          TrayIcon.Icon := TrayIcon.Icons[0];
-        end;
+               NoteFile.TrayIconFN := '';
+         end
+      end;
+
+      if UseIcon in [0, 1] then
+         TrayIcon.Icon:= TrayIcon.Icons[UseIcon];
+
+      Application.Icon:= TrayIcon.Icon;
+      Application.ProcessMessages;
+      sleep( 100 );                        // <- Important. Without this line, the icon of the main window changes, but the icon in the taskbar doesn't
   end;
+
+
 end; // LoadTrayIcon
+
 
 procedure LoadTabImages( const ForceReload : boolean );
 // Typically, we only reload the tab icon file if necessary, i.e.
