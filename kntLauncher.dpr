@@ -36,7 +36,8 @@ type
           if CallInstance = 0 then begin
              Info^.WindowHandle := hWnd;
              Result:= False;
-             ShowWindow(hWnd, SW_RESTORE);
+             //ShowWindow(hWnd, SW_RESTORE);      // See comment to TForm_Main.ExecuteCallArgs, in keynote project
+             sleep(100);
              SetForegroundWindow(hWnd);
           end;
        end;

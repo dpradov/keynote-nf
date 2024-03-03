@@ -1769,7 +1769,8 @@ begin
     Handle,
     integer( @copydata ));
 
-  ShowWindow(_OTHER_INSTANCE_HANDLE, SW_RESTORE);
+  //ShowWindow(_OTHER_INSTANCE_HANDLE, SW_RESTORE);  // See comment to ExecuteCallArgs
+  sleep(100);
   SetForegroundWindow(_OTHER_INSTANCE_HANDLE);
 
 end; // ActivatePreviousInstance
@@ -1944,11 +1945,14 @@ procedure TForm_Main.ExecuteCallArgs (fromKntLauncher: boolean);
 var
   Open: boolean;
 begin
-{  // It does not work correctly. It is best that the calling application takes care of this, giving it its focus (-> ActivatePreviousInstance)
-   Application.Minimize;
-   Application.Restore;
-   Application.BringToFront;
+{
+  It does not work correctly. It is best that the calling application takes care of this, giving it its focus (-> ActivatePreviousInstance)
+  However, restore the window by running ShowWindow(_OTHER_INSTANCE_HANDLE, SW_RESTORE); from the calling instance it is problematic
+  he window is restored but not minimized until the other one is closed (or after multiple minimizes/restorations of that one)
 }
+   Application.Restore;
+// Application.BringToFront;
+
 
    if not fromKntLauncher and ( NoteFileToLoad <> '' ) then begin
       //PopupMessage( Format('NoteFileToLoad: %s', [NoteFileToLoad]), mtConfirmation, [mbYes], 0 );
