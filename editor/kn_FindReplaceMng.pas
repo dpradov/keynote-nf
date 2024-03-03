@@ -432,6 +432,7 @@ begin
     Result[pPos-pL+1]:= #26;                           // *1
     Result:= RemoveKNTHiddenCharacters(Result);
     Result:= ScapeSpecialRTFCharacters(Result);
+    Result:= StringReplace(Result, #7, ' | ', [rfReplaceAll]);    // Replace column separator in Tables
 
     len:= length(ScapeSpecialRTFCharacters(Pattern));
     pPos:= Pos(#26, Result, 1);
