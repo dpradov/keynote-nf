@@ -389,17 +389,18 @@ end;
 
 
 function GetFindedPatternExtract (const Str: string;
-                                  Pattern: string; 
+                                  const Pattern: string;
                                   pPos: integer;          // zero-based
                                   var lastPos: integer;
                                   wordList : TStringList = nil;
-                                  LastPattern: string = ''; LastPatternPos: integer= -1; SecondPart: boolean= false): string;
+                                  const LastPattern: string = ''; LastPatternPos: integer= -1; SecondPart: boolean= false): string;
 var
   pL, pR, p, pGap, pStart, pMin: integer;
   extR: integer;
   len, i, iMin, gap: integer;
   bakFirstChar: char;
   strSearch: string;
+  Word, scapeFirstChar: string;
 
 begin
     if (Str='') then Exit('');
@@ -432,17 +433,24 @@ begin
     Result:= RemoveKNTHiddenCharacters(Result);
     Result:= ScapeSpecialRTFCharacters(Result);
 
-    len:= length(Pattern);
+    len:= length(ScapeSpecialRTFCharacters(Pattern));
     pPos:= Pos(#26, Result, 1);
     if pPos > 0  then begin                            // Should be > 0 ...
        Result[pPos]:= bakFirstChar;
+       scapeFirstChar:= '';
+       if bakFirstChar in ['\','{','}'] then
+          scapeFirstChar:= '\';
+
        if not SecondPart  then begin
-          insert('{\b\cf2 ', Result, pPos);
+          insert('{\b\cf2 ' + scapeFirstChar, Result, pPos);
           insert('}', Result, pPos + len + 8);         // 8= length('{\b\cf2 ')       9: + '}'
           pStart:= pPos + len + 9;
        end
-       else
+       else begin
+          if scapeFirstChar <> '' then
+             insert('\', Result, pPos);
           pStart:= 1;
+       end;
     end;
 
     if wordlist <> nil then begin
@@ -458,11 +466,12 @@ begin
             pMin:= integer.MaxValue;
 
             for i := 0 to wordlist.Count-1 do begin
-               p:= Pos(wordlist[i], StrSearch, pStart);
+               Word:= ScapeSpecialRTFCharacters(wordlist[i]);
+               p:= Pos(Word, StrSearch, pStart);
                if (p > 0) and (p < pMin)  then begin
                   if FindOptions.WholeWordsOnly then begin
                      if (p > 1) and IsCharAlphaNumeric(StrSearch[p-1]) then continue;
-                     len:= length(wordlist[i]);
+                     len:= length(Word);
                      if (p+len < StrSearch.Length) and IsCharAlphaNumeric(StrSearch[p+len]) then continue;
                   end;
                   pMin:= p;
@@ -474,7 +483,7 @@ begin
                if SecondPart and (pMin > pPos) then break;
 
                pGap:= pMin + gap;
-               len:= length(wordlist[iMin]);
+               len:= length(ScapeSpecialRTFCharacters(wordlist[iMin]));
                insert('{\b\cf2 ', Result, pGap);
                insert('}', Result, pGap + Len + 8);
                pStart:= pMin + len;
