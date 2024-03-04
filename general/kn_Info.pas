@@ -114,6 +114,7 @@ const
                            // Will be ignored if no .knt file specified
   swIgnoreSI     = 'ignsi'; // Ignore single instance option for this call
   swDoNotDisturb = 'dnd';  // Ignore for purposes of "SingleInstance"
+  swTitle        = 'title';  // Sets the title of the instance
 
 const
   // Filters for open/save dialogs

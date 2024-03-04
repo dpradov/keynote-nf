@@ -13,6 +13,8 @@ uses
 
 var
   _OTHER_INSTANCE_HANDLE : hwnd = 0;
+  ReceivedCommandLine: string;
+
 
 type
   PFindWindowInfo = ^TFindWindowInfo;
@@ -48,10 +50,34 @@ type
    function ActivateAValidKNTInstance: boolean;
    var
      Info: TFindWindowInfo;
+     Title: String;
+     p1, p2: integer;
    begin
-      Info.WindowHandle := 0;
-      EnumWindows(@EnumWindowsProc, LPARAM(@Info));
-      Result:= (Info.WindowHandle <> 0);
+      Title:= '';
+      Result:= False;
+      p1:= Pos(' -title', ReceivedCommandLine);
+      if p1 > 0 then begin
+         p2:= Pos('"', ReceivedCommandLine, p1+8);
+         if p2 > p1 then
+           Title:= Copy(ReceivedCommandLine, p1+8, p2-(p1+8));
+      end;
+
+      if Title <> '' then begin
+        _OTHER_INSTANCE_HANDLE:= FindWindow(PChar(UniqueAppName_KEYNOTE10_dnd), PChar(Title));
+        if _OTHER_INSTANCE_HANDLE = 0 then
+           _OTHER_INSTANCE_HANDLE:= FindWindow(PChar(UniqueAppName_KEYNOTE10), PChar(Title));
+
+        if (_OTHER_INSTANCE_HANDLE <> 0) and (CallInstance=0) then begin
+           sleep(100);
+           SetForegroundWindow(_OTHER_INSTANCE_HANDLE);
+           Result:= true;
+         end
+      end
+      else begin
+         Info.WindowHandle := 0;
+         EnumWindows(@EnumWindowsProc, LPARAM(@Info));
+         Result:= (Info.WindowHandle <> 0);
+      end;
    end;
 
    function CallInstance: integer;
@@ -59,7 +85,7 @@ type
      CopyData : TCopyDataStruct;
      Args: string;
    begin
-     Args:= GetCommandLine;
+     Args:= ReceivedCommandLine;
      copydata.dwData := KNT_MSG_LAUNCHER_CALL;
      copydata.cbData:= ByteLength(Args)+1;
      copydata.lpData := PChar(Args);
@@ -93,6 +119,7 @@ type
 begin
   try
     if ParamCount >= 1 then begin
+      ReceivedCommandLine:= GetCommandLine;
       if not ActivateAValidKNTInstance() then
          LaunchNewKNTInstance();
     end

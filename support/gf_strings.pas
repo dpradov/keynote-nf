@@ -20,6 +20,7 @@ unit gf_strings;
 interface
 uses
    Winapi.Windows,
+   Winapi.ShellApi,
    System.SysUtils,
    System.Classes,
    System.WideStrUtils;
@@ -44,6 +45,8 @@ procedure CSVTextToStrs(
   aList : TStrings;
   const aStr : string;
   const aDelim : char );
+
+procedure CommandLineToStrings(const CommandLine: String; Strs: TStrings);
 
 procedure SplitString( aList : TStrings; aStr : string; const aDelim : char; ignoreEmptySplit: boolean= true );
 
@@ -365,6 +368,29 @@ begin
   end;
 
 end; // CSVTextToStrs
+
+
+{
+CommandLineToArgvW: Parses a Unicode command line string and returns an array of pointers to the command line arguments, along with a count of those arguments. This is similar to the standard C1 runtime argv and argc values.
+Used to split a command line string into individual arguments, especially when running an application from the command line or passing a command string as an argument to another application.
+}
+procedure CommandLineToStrings(const CommandLine: String; Strs: TStrings);
+var
+  Args, ArgsBak: PPWideChar;
+  ArgCount, I: Integer;
+begin
+  Args := CommandLineToArgvW(PChar(CommandLine), ArgCount);
+  ArgsBak:= Args;
+  try
+    for I := 0 to ArgCount - 1 do begin
+      Strs.Add(Args^);
+      inc(Args);
+    end;
+
+  finally
+    LocalFree(HLOCAL(ArgsBak));
+  end;
+end;
 
 
 procedure SplitString( aList : TStrings; aStr : string; const aDelim : char; ignoreEmptySplit: boolean= true );

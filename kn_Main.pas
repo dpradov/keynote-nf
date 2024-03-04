@@ -1666,6 +1666,11 @@ begin
   if _GLOBAL_URLText <> '' then
     JumpToKNTLocation( _GLOBAL_URLText );
 
+  if opt_Title <> '' then begin
+     Caption:= opt_Title;
+     opt_Title:= '';
+  end;
+
   Application.ProcessMessages;
   {
   if KeyOptions.TipOfTheDay then

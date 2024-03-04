@@ -164,6 +164,9 @@ begin
           if  (s = swDoNotDisturb) then
               opt_DoNotDisturb:= true
           else
+          if  (s.StartsWith(swTitle)) then            // -title"PROJECTX HELP" -> -titlePROJECTX HELP
+              opt_Title:= Copy(ParamStr(i), Length(swTitle)+2)
+          else
           if ( s.StartsWith(swJmp) ) then begin
              // Jump to the KNT link indicated in quotes (in any of the recognized formats. Ex: "file:///*1|10|201|0")
              // Note: '-jmp"file:///*8|479|0|0"' is converted to '-jmpfile:///*8|479|0|0'
@@ -236,7 +239,7 @@ begin
 
   Strs:= TStringList.Create;
   try
-     SplitString(Strs, Args, ' ', false);
+     CommandLineToStrings(Args, Strs);
      NoteFileToLoad := '';
      JmpLocation:= '';
      StartupMacroFile:= '';
@@ -253,8 +256,8 @@ begin
              delete( s, 1, 1 );
              if ( s.StartsWith(swJmp) ) then begin
                 // Jump to the KNT link indicated in quotes (in any of the recognized formats. Ex: "file:///*1|10|201|0")
-                // Note: '-jmp"file:///*8|479|0|0"' is maintained without modification
-                 JmpLocation:= Copy(s, Length(swJmp)+2, Length(s)-(Length(swJmp)+2) );
+                // Note: '-jmp"file:///*8|479|0|0"' is converted to '-jmpfile:///*8|479|0|0'
+                JmpLocation:= Copy(s, Length(swJmp)+1);
              end;
           end
           else begin

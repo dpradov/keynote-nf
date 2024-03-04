@@ -82,17 +82,21 @@ var
     MRU_FN : string; // MRU file list and form position/size info
     TIP_FN : string; // tip of the day file
     DEF_FN : string; // defaults for new notes
+{$IFDEF KNT_DEBUG}
     LOG_FN : string; // main log file (unused unless built with KNT_DEBUG)
+{$ENDIF}
     MGR_FN : string; // file manager data
     ICN_FN : string; // custom icons
-    KEY_FN : string; // keyboard customization file (old - via plugin)
+    //KEY_FN : string; // keyboard customization file (old - via plugin)
     FAV_FN : string; // favorites storage file
     Scratch_FN  : string; // scratchpad filename
     Style_FN    : string; // custom styles
     Toolbar_FN  : string; // toolbar configuration file
     Keyboard_FN : string; // keyboard customization file (NEW - all menu items)
     OrigDEF_FN : string;
+{$IFNDEF EXCLUDEEMAIL}
     MailINI_FN : string; // INI file for email options (keymail.ini)
+{$ENDIF}
     Glossary_FN : string;
     NoteHeadingTpl_FN: string;     // Template for note heading, when exporting (notehead.rtf)
     NodeHeadingTpl_FN: string;     // Template for node heading, when exporting (nodehead.rtf)
@@ -115,6 +119,7 @@ var
     opt_SaveToolbars : boolean; // save default toolbar state (debug)
     opt_SaveMenus : boolean; // save menu item information
     opt_DoNotDisturb : boolean; // Ignore for purposes of "SingleInstance"
+    opt_Title: string; // Title to use in main window (mainly for its use with kntLauncher)
 
     opt_Clean : boolean; // Clean the file, actually looking for invalid hyperlinks (see issue #59: http://code.google.com/p/keynote-nf/issues/detail?id=59
 
@@ -909,7 +914,7 @@ begin
       MGR_FN := '';
       ICN_FN := '';
       MRU_FN := '';
-      KEY_FN := '';
+      //KEY_FN := '';
       Keyboard_FN := '';
 
       ExeFilePath:= ExtractFilePath(Application.ExeName);
@@ -922,10 +927,10 @@ begin
          DefaultProfileFolder:= ExeFilePath;
       end;
 
+    {$IFDEF KNT_DEBUG}
       // This is always located in .exe directory
       LOG_FN := normalFN( changefileext( Application.ExeName, ext_LOG ));
 
-    {$IFDEF KNT_DEBUG}
       Log := TGFLog.Create( Form_Main );
       Log.MaxLines := MAX_LOG_LINES;
       Log.DateStamp:= false;
@@ -945,6 +950,7 @@ begin
       opt_SaveToolbars := false;
       opt_SaveMenus := false;
       opt_DoNotDisturb:= false;
+      opt_Title:= '';
 
       opt_Clean := false;
 
@@ -975,8 +981,8 @@ begin
 
       if ( MRU_FN = '' ) then
         MRU_FN := changefileext( INI_FN, ext_MRU );
-      if ( KEY_FN = '' ) then
-        KEY_FN := changefileext( INI_FN, ext_Key );
+      {if ( KEY_FN = '' ) then
+        KEY_FN := changefileext( INI_FN, ext_Key );   }
       if ( ICN_FN = '' ) then
         ICN_FN := changefileext( INI_FN, ext_ICN );
       if ( DEF_FN = '' ) then
@@ -990,7 +996,11 @@ begin
       Scratch_FN :=  Path + 'scratch.rtf';
       Toolbar_FN :=  Path + ToolbarFileName;
       Keyboard_FN := Path + KeyboardFileName;
+
+{$IFNDEF EXCLUDEEMAIL}
       MailINI_FN  := Path + 'keymail' + ext_INI;
+{$ENDIF}
+
 
       NoteHeadingTpl_FN:= Path + 'notehead.rtf';
       NodeHeadingTpl_FN:= Path + 'nodehead.rtf';
