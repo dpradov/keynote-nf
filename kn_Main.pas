@@ -1671,7 +1671,16 @@ begin
      opt_Title:= '';
   end;
 
+  opt_Minimize := ( opt_Minimize or KeyOptions.StartMinimized ) and (_GLOBAL_URLText = '');
+
   Application.ProcessMessages;
+
+  { Before this method is executed, on Form.DoShow: (FormStorage) => TFormPlacement.RestoreFormPlacement -> RestorePlacement -> RxAppUtils.InternalReadFormPlacement => PostMessage(...)
+    Although at this point WindowState <> wsMinimized, it will end up being, if we do not queue a subsequent request for it to be restored }
+
+  if (not opt_Minimize) then
+     Application.Restore;
+
   {
   if KeyOptions.TipOfTheDay then
     ShowTipOfTheDay;
@@ -1711,7 +1720,6 @@ begin
   if KeyOptions.TipOfTheDay then
     postmessage( Handle, WM_TIPOFTHEDAY, 0, 0 );
 
-  opt_Minimize := ( opt_Minimize or KeyOptions.StartMinimized ) and (_GLOBAL_URLText = '');
 
   MMViewOnTop.Checked := KeyOptions.AlwaysOnTop;
   TB_OnTop.Down := MMViewOnTop.Checked;
