@@ -95,6 +95,8 @@ type
     procedure CMDialogKey(var Message: TCMDialogKey); message CM_DIALOGKEY;
     procedure btnHelpClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
     fCurrentNoteFile: TNoteFile;
@@ -237,6 +239,13 @@ procedure TForm_Image.FormDestroy(Sender: TObject);
 begin
    if not RemovingAll then
       RemoveClosedImgViewerInstance(Self);
+end;
+
+function TForm_Image.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 procedure TForm_Image.Button_CancelClick(Sender: TObject);

@@ -88,6 +88,8 @@ type
     procedure TVChange(Sender: TObject; Node: TTreeNTNode );
     procedure TVmgrDblClick(Sender: TObject);
     procedure CheckBox_FullPathsClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -116,6 +118,7 @@ uses
    gf_misc,
    gf_files,  // Important. Needed to use TMemIniFileHelper (.ReadString, .WriteString)
    kn_info,
+   kn_Global,
    kn_Chest,
    kn_main;
 
@@ -455,7 +458,14 @@ end;
 procedure TForm_FileMgr.FormDestroy(Sender: TObject);
 begin
   TVmgr.OnChange := nil;
-end; // FORM_DESTROY
+end; function TForm_FileMgr.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
+// FORM_DESTROY
 
 procedure TForm_FileMgr.RefreshFileList;
 var

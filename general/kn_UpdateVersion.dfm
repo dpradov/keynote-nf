@@ -1,6 +1,7 @@
 object UpdateVersion: TUpdateVersion
   Left = 348
   Top = 228
+  HelpContext = 547
   Caption = 'Check for Updates - KeyNote NF'
   ClientHeight = 443
   ClientWidth = 840
@@ -17,6 +18,7 @@ object UpdateVersion: TUpdateVersion
   ShowHint = True
   OnClose = FormClose
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   DesignSize = (
     840
@@ -69,7 +71,7 @@ object UpdateVersion: TUpdateVersion
     ExplicitTop = 421
   end
   object lblVisitWeb: TLabel
-    Left = 646
+    Left = 642
     Top = 57
     Width = 174
     Height = 16
@@ -86,6 +88,7 @@ object UpdateVersion: TUpdateVersion
     OnClick = lblVisitWebClick
     OnMouseEnter = lblVisitWebMouseEnter
     OnMouseLeave = lblVisitWebMouseLeave
+    ExplicitLeft = 646
   end
   object lblInstalledVersion: TLabel
     Left = 145
@@ -140,18 +143,18 @@ object UpdateVersion: TUpdateVersion
     ParentFont = False
   end
   object chkCheckUpd: TCheckBox
-    Left = 500
+    Left = 496
     Top = 407
     Width = 205
     Height = 16
     Anchors = [akRight, akBottom]
     Caption = ' &Check for updates on startup'
     TabOrder = 0
-    ExplicitLeft = 487
-    ExplicitTop = 422
+    ExplicitLeft = 492
+    ExplicitTop = 406
   end
   object Button_OK: TButton
-    Left = 725
+    Left = 721
     Top = 406
     Width = 89
     Height = 25
@@ -160,13 +163,13 @@ object UpdateVersion: TUpdateVersion
     Default = True
     TabOrder = 1
     OnClick = Button_OKClick
-    ExplicitLeft = 712
-    ExplicitTop = 421
+    ExplicitLeft = 717
+    ExplicitTop = 405
   end
   object txtChanges: TMemo
     Left = 20
     Top = 89
-    Width = 798
+    Width = 794
     Height = 302
     TabStop = False
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -179,7 +182,7 @@ object UpdateVersion: TUpdateVersion
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 2
-    ExplicitWidth = 785
-    ExplicitHeight = 317
+    ExplicitWidth = 790
+    ExplicitHeight = 301
   end
 end

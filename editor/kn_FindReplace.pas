@@ -75,6 +75,8 @@ type
     procedure Button_CancelClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDeactivate(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
     procedure CreateParams(var Params: TCreateParams); override;
@@ -411,6 +413,16 @@ procedure TForm_FindReplace.FormDeactivate(Sender: TObject);
 begin
   if assigned( myNotifyProc ) then
      myNotifyProc( true );
+end;
+
+function TForm_FindReplace.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   if Pages.ActivePage = Tab_Replace then
+      ActiveKeyNoteHelp(PChar(Tab_Replace.HelpKeyword))
+   else
+      ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 end.

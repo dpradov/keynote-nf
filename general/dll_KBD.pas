@@ -132,6 +132,42 @@ implementation
 
 {$R *.DFM}
 
+const
+  _HELP_PROFILE_FOLDER   = 'Profiles\Help\';
+  _KNT_HELP_FILE = 'Help\KeyNoteNF_Help.knt';
+  _KNT_HELP_FILE_NOTE_ID = 8;
+  _KNT_HELP_FILE_NOTE_WHATSNEW_ID = 14;
+  _KNT_LAUNCHER = 'kntLauncher.exe';
+  _KNT_HELP_TITLE = 'KeyNote NF Topics';
+
+
+function ActiveKeyNoteHelp(Note, Node, Marker: integer): Boolean;
+var
+  Args: string;
+  sMarker: string;
+  HelpINI_FN, Help_FN: string;
+  ExeFilePath, Launcher_FN: string;
+begin
+
+   try
+      ExeFilePath:= ExtractFilePath(Application.ExeName);
+      Help_FN := ExeFilePath + _KNT_HELP_FILE;
+      HelpINI_FN := ExeFilePath + _HELP_PROFILE_FOLDER + 'keynote.ini';
+      Launcher_FN := ExeFilePath + _KNT_LAUNCHER;
+
+      //  file:///*NoteID|NodeID|CursorPosition|SelectionLength|MarkID  -> Ex: file:///*3|16|5|0|1
+      {if Marker > 0 then
+         sMarker:= '|0|0|' + Marker.ToString;
+      }
+      sMarker:= '';
+
+      Args:= Format('"%s" "%s" -jmp"file:///*%d|%d%s" -title"%s"', [Help_FN, HelpINI_FN, Note, Node, sMarker, _KNT_HELP_TITLE]);
+      ShellExecute( 0, 'open', PChar(Launcher_FN), PChar(Args), nil, SW_HIDE );
+   except
+   end;
+end;
+
+
 function IsValidShortcut( const AShortcut : TShortCut ) : boolean;
 begin
   result := true;
@@ -585,6 +621,10 @@ procedure TForm_KBD.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftSta
 begin
     if (key = 13) and (Edit_Filter.Focused ) then begin
        DisplayCommands;
+    end
+    else if Key = VK_F1 then begin
+       Key:= 0;
+       ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, 316, 0);
     end;
 end;
 
@@ -617,10 +657,10 @@ begin
 end;
 
 
-
 procedure TForm_KBD.Btn_HelpClick(Sender: TObject);
 begin
-  Application.HelpCommand( HELP_CONTEXT, 610 );
+   ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, Self.HelpContext,0);
+  //Application.HelpCommand( HELP_CONTEXT, 610 );
 end;
 
 end.

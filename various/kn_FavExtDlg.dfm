@@ -1,6 +1,7 @@
 object Form_FavExt: TForm_FavExt
   Left = 270
   Top = 298
+  HelpContext = 601
   BorderStyle = bsDialog
   Caption = 'Add Favorite document or program'
   ClientHeight = 184
@@ -14,6 +15,7 @@ object Form_FavExt: TForm_FavExt
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
+  OnHelp = FormHelp
   TextHeight = 13
   object GroupBox1: TGroupBox
     Left = 13

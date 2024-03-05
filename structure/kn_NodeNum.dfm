@@ -1,6 +1,8 @@
 object Form_NodeNum: TForm_NodeNum
   Left = 308
   Top = 230
+  HelpType = htKeyword
+  HelpKeyword = '189-33'
   BorderStyle = bsDialog
   Caption = 'Outline node numbering'
   ClientHeight = 230
@@ -14,7 +16,7 @@ object Form_NodeNum: TForm_NodeNum
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
-  OnCreate = FormCreate
+  OnHelp = FormHelp
   TextHeight = 13
   object Button_OK: TButton
     Left = 10

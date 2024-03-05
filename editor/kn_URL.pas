@@ -51,6 +51,8 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word;  Shift: TShiftState);
     procedure Button_OpenNewClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -70,6 +72,7 @@ implementation
 uses
    RxRichEd,
    kn_const,
+   kn_Global,
    kn_LinksMng
    ;
 
@@ -185,6 +188,13 @@ begin
     label2.Enabled := false;
   end;
   AllowURLModification:= True;
+end;
+
+function TForm_URLAction.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 procedure TForm_URLAction.Button_CopyClick(Sender: TObject);

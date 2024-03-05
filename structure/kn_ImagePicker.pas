@@ -46,6 +46,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure List_IcnDblClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -58,6 +60,7 @@ function PickImage( const CurrentIdx : integer; var DoChildren : boolean ) : int
 implementation
 uses
    kn_Info,
+   kn_Global,
    kn_Chest;
 
 {$R *.DFM}
@@ -146,6 +149,13 @@ end; // LoadIcons
 procedure TForm_ImgPick.List_IcnDblClick(Sender: TObject);
 begin
   ModalResult := mrOK;
+end;
+
+function TForm_ImgPick.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 procedure TForm_ImgPick.FormKeyPress(Sender: TObject; var Key: Char);

@@ -351,6 +351,8 @@ type
     procedure txtImgCompressionQualityExit(Sender: TObject);
     procedure txtImgRatioSizePngVsJPGExit(Sender: TObject);
     procedure chkImgSingleViewerInstanceClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
     procedure CheckImgMaxAutoWidthGoalValue;
@@ -771,7 +773,16 @@ begin
     Icons_RefList.Free;
   except
   end;
-end; // DESTROY
+end;
+
+function TForm_OptionsNew.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
+// DESTROY
 
 procedure TForm_OptionsNew.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -1782,12 +1793,55 @@ begin
 end;
 
 procedure TForm_OptionsNew.TVChange(Sender: TObject; Node: TTreeNTNode);
+var
+  HC: THelpContext;
 begin
   if ( not assigned( Node )) then exit;
   try
     Pages.PageIndex := Node.AbsoluteIndex;
     //self.HelpContext := 205 + succ( Pages.PageIndex );
-    self.HelpContext := Pages.HelpContext;
+   {
+     I can’t access the Help Context values associated with each TPage object. ¿? I do it differently:
+
+     Configuration Options [295]
+       General Settings [238]
+         Rich Text Editor [239]
+         Images [573]
+         Tree Panel [240]
+       KeyNote Files [241]
+         File Options [242]
+         Backup Options [243]
+       Actions [244]
+         Confirmations [245]
+       Chrome [246]
+         Tab Icons [247]
+       Advanced [248]
+         Formats [249]
+         Clipboard [250]
+         File Types [251]
+         Other [252]
+   }
+    case Pages.PageIndex of
+      0: HC:= 238;
+      1: HC:= 239;
+      2: HC:= 573;
+      3: HC:= 240;
+      4: HC:= 241;
+      5: HC:= 242;
+      6: HC:= 243;
+      7: HC:= 244;
+      8: HC:= 245;
+      9: HC:= 246;
+      10: HC:= 247;
+      11: HC:= 248;
+      12: HC:= 249;
+      13: HC:= 250;
+      14: HC:= 251;
+      15: HC:= 252;
+    end;
+    //self.HelpContext := Pages.HelpContext;
+    self.HelpContext := HC;
+
   except
     messagedlg( Format( STR_16, [Pages.PageIndex, Node.AbsoluteIndex]), mtError, [mbOK], 0 );
   end;
@@ -1853,7 +1907,7 @@ end;
 
 procedure TForm_OptionsNew.Button_HelpClick(Sender: TObject);
 begin
-  Application.HelpCommand( HELP_CONTEXT, self.HelpContext );
+  ActiveKeyNoteHelp(293);  // Configuring KeyNote [293]
 end;
 
 

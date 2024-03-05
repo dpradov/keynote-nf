@@ -1,6 +1,7 @@
 object GFTipForm: TGFTipForm
   Left = 348
   Top = 228
+  HelpContext = 13
   BorderStyle = bsDialog
   Caption = 'Tip of the Day'
   ClientHeight = 247
@@ -14,6 +15,7 @@ object GFTipForm: TGFTipForm
   KeyPreview = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object TipPanel: TPanel

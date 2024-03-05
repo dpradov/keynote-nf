@@ -311,7 +311,7 @@ object Form_KBD: TForm_KBD
       Left = 18
       Top = 303
       Width = 212
-      Height = 19
+      Height = 22
       TabStop = False
       Anchors = [akLeft, akBottom]
       Ctl3D = False

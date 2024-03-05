@@ -1,6 +1,7 @@
 object Form_URLAction: TForm_URLAction
   Left = 306
   Top = 299
+  HelpContext = 303
   ActiveControl = Edit_TextURL
   BorderStyle = bsDialog
   Caption = 'Choose action for URL'
@@ -15,6 +16,7 @@ object Form_URLAction: TForm_URLAction
   KeyPreview = True
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnShow = FormShow

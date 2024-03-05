@@ -56,6 +56,8 @@ type
     procedure Combo_CmdClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure Button_HelpClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -74,6 +76,8 @@ type
 
 
 implementation
+uses
+  kn_Global;
 
 {$R *.DFM}
 
@@ -171,6 +175,13 @@ begin
   MacroCmds.Free;
 end;
 
+function TForm_MacroCmd.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
 function TForm_MacroCmd.CurrentCmd : TMacroCmd;
 var
   s : string;
@@ -214,7 +225,8 @@ end;
 
 procedure TForm_MacroCmd.Button_HelpClick(Sender: TObject);
 begin
-  Application.HelpCommand( HELP_CONTEXT, self.HelpContext );
+    ActiveKeyNoteHelp(Self.HelpContext);  // Node
+  // Application.HelpCommand( HELP_CONTEXT, self.HelpContext );
 end;
 
 end.

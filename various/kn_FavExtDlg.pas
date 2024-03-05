@@ -47,6 +47,8 @@ type
     procedure FormActivate(Sender: TObject);
     procedure Edit_FNChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -57,6 +59,7 @@ implementation
 uses
    gf_misc,
    kn_Info,
+   kn_Global,
    kn_main,
    kn_FavoritesMng;
 
@@ -92,6 +95,13 @@ begin
     if ( not FileExists( NormalFN( AbsolutePath(Edit_FN.Text) ))) then
       CanClose := ( messagedlg( STR_01, mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
   end;
+end;
+
+function TForm_FavExt.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 procedure TForm_FavExt.TB_OpenDlgClick(Sender: TObject);

@@ -45,6 +45,8 @@ type
     procedure Button_CancelClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormActivate(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -56,7 +58,8 @@ type
   end;
 
 implementation
-
+uses
+  kn_Global;
 
 {$R *.DFM}
 
@@ -80,6 +83,13 @@ end;
 procedure TForm_Password.FormCreate(Sender: TObject);
 begin
   OK_Click := false;
+end;
+
+function TForm_Password.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 procedure TForm_Password.Button_OKClick(Sender: TObject);

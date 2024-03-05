@@ -55,6 +55,8 @@ type
     procedure Combo_TabNameChange(Sender: TObject);
     procedure Button_PropertiesClick(Sender: TObject);
     procedure Combo_TabNameKeyPress(Sender: TObject; var Key: Char);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -133,7 +135,14 @@ begin
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
 
-end; // FORM_CREATE
+end; function TForm_NewNote.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
+// FORM_CREATE
 
 procedure TForm_NewNote.FormActivate(Sender: TObject);
 begin

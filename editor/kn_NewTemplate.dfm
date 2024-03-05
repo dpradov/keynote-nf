@@ -1,6 +1,7 @@
 object Form_Template: TForm_Template
   Left = 382
   Top = 304
+  HelpContext = 307
   ActiveControl = Edit_Name
   BorderStyle = bsDialog
   Caption = 'Create template'
@@ -15,6 +16,7 @@ object Form_Template: TForm_Template
   KeyPreview = True
   Position = poScreenCenter
   OnActivate = FormActivate
+  OnHelp = FormHelp
   TextHeight = 13
   object Button_OK: TButton
     Left = 34

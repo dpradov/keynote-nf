@@ -40,6 +40,8 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormActivate(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -49,8 +51,17 @@ type
 
 
 implementation
+uses
+  kn_Global;
 
 {$R *.DFM}
+
+function TForm_TermDef.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
 
 procedure TForm_TermDef.FormKeyDown(Sender: TObject; var Key: Word;
  Shift: TShiftState);

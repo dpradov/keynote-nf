@@ -1,6 +1,7 @@
 object Form_NewNote: TForm_NewNote
   Left = 382
   Top = 333
+  HelpContext = 317
   ActiveControl = Combo_TabName
   BorderStyle = bsDialog
   Caption = 'New note'
@@ -18,6 +19,7 @@ object Form_NewNote: TForm_NewNote
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Label1: TLabel

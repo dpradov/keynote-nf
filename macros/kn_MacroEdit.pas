@@ -57,6 +57,8 @@ type
     procedure Button_CancelClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure Button_HelpClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -74,6 +76,7 @@ type
 
 implementation
 uses
+  kn_global,
   kn_Macro;
 
 {$R *.DFM}
@@ -95,6 +98,13 @@ begin
   MFileName := '';
   MProfile := false;
   OriginalName := '';
+end;
+
+function TForm_Macro.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 procedure TForm_Macro.FormActivate(Sender: TObject);
@@ -191,7 +201,8 @@ end; // CLOSEQUERY
 
 procedure TForm_Macro.Button_HelpClick(Sender: TObject);
 begin
-  Application.HelpCommand( HELP_CONTEXT, self.HelpContext );
+   ActiveKeyNoteHelp(self.HelpContext);  // Node
+  //Application.HelpCommand( HELP_CONTEXT, self.HelpContext );
 end;
 
 end.

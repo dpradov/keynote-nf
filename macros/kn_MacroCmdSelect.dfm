@@ -1,7 +1,7 @@
 object Form_MacroCmd: TForm_MacroCmd
   Left = 386
   Top = 320
-  HelpContext = 530
+  HelpContext = 304
   ActiveControl = Combo_Cmd
   BorderStyle = bsDialog
   Caption = 'Insert special macro command'
@@ -19,6 +19,7 @@ object Form_MacroCmd: TForm_MacroCmd
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object GroupBox1: TGroupBox

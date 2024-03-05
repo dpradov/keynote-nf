@@ -79,6 +79,8 @@ type
       Shift: TShiftState);
     procedure Image1DblClick(Sender: TObject);
     procedure lblDonationsClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -92,6 +94,7 @@ uses
    kn_Main,
    kn_const,
    kn_Info,
+   kn_Global,
    kn_NoteObj;
 
 
@@ -167,6 +170,13 @@ begin
   finally
     Icon.Free;
   end;
+end;
+
+function TAboutBox.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 procedure TAboutBox.BTN_CloseClick(Sender: TObject);

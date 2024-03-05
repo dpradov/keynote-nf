@@ -1,6 +1,7 @@
 object Form_ImgPick: TForm_ImgPick
   Left = 318
   Top = 222
+  HelpContext = 247
   BorderIcons = [biSystemMenu]
   Caption = 'Select node icon'
   ClientHeight = 293
@@ -14,6 +15,7 @@ object Form_ImgPick: TForm_ImgPick
   Position = poScreenCenter
   Scaled = False
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyPress = FormKeyPress
   TextHeight = 17
   object Panel1: TPanel

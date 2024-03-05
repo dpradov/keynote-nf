@@ -11,7 +11,7 @@ unit kn_Defaults;
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
    
  *****************************************************************************) 
 
@@ -121,6 +121,8 @@ type
     procedure BitBtn_NoteChromeHelpClick(Sender: TObject);
     procedure BitBtn_NoteHelpClick(Sender: TObject);
     procedure BitBtn_TreeChromeHelpClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
 
   private
     { Private declarations }
@@ -265,7 +267,17 @@ begin
   Combo_Icons.ItemIndex := 0;
 
   LB_PlainText.Caption:= STR_31 + STR_32;
-end; // CREATE
+end;
+
+function TForm_Defaults.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
+
+// CREATE
 
 
 procedure TForm_Defaults.CheckScope;
@@ -831,7 +843,7 @@ begin
         '   - ''Plain note only'': modifies ALL the notes' + #13 +
         '   - ''WordWrap'': affects ALL the notes' + #13 +
         '       (not explicitly set WordWrap previously)' + #13#13 +
-        '* More info in Help menu'
+        '>> More info in Help File (F1)'
         ;
 
   messagedlg(msg , mtInformation, [mbOK], 0  );
@@ -850,7 +862,7 @@ begin
         '   * To edit this option -> F5 | General settings| Rich Text editor' + #13#13 +
         '- BG Color can be changed for ALL nodes in a Note:' + #13 +
         '    [Shift] + "Format | Background color"' + #13#13 +
-        '* More info in Help menu'
+        '>> More info in Help File (F1)'
         ;
 
   messagedlg(msg , mtInformation, [mbOK], 0  );
@@ -871,11 +883,12 @@ begin
         '    "Apply to ALL tree notes"' + #13#13 +
         '- Note: ''Inherit BG color from active node'' option does NOT' + #13 +
         '  affect (refers to Editor) ' + #13#13 +
-        '* More info in Help menu'
+        '>> More info in Help File (F1)'
         ;
 
   messagedlg(msg , mtInformation, [mbOK], 0  );
 end;
+
 
 
 end.

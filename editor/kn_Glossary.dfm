@@ -1,7 +1,7 @@
 object Form_Glossary: TForm_Glossary
   Left = 405
   Top = 291
-  HelpContext = 550
+  HelpContext = 306
   Caption = 'Glossary terms'
   ClientHeight = 271
   ClientWidth = 445
@@ -16,6 +16,7 @@ object Form_Glossary: TForm_Glossary
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 17
   object Panel1: TPanel

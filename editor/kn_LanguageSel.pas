@@ -43,6 +43,8 @@ type
     procedure RB_SelectedClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -52,6 +54,8 @@ type
 
 
 implementation
+uses
+ kn_Global;
 
 {$R *.DFM}
 
@@ -86,6 +90,13 @@ begin
   DefaultLang := GetSystemDefaultLCID;
   SystemLang := GetSystemDefaultLCID;
   CurrentLang := GetSystemDefaultLCID;
+end;
+
+function TForm_Lang.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 end.

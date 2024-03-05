@@ -1,6 +1,8 @@
 object Form_Lang: TForm_Lang
   Left = 410
   Top = 312
+  HelpType = htKeyword
+  HelpKeyword = '254-1'
   ActiveControl = Combo_Lang
   BorderStyle = bsDialog
   Caption = 'Select language'
@@ -15,6 +17,7 @@ object Form_Lang: TForm_Lang
   Position = poScreenCenter
   OnActivate = FormActivate
   OnCreate = FormCreate
+  OnHelp = FormHelp
   TextHeight = 13
   object Button_OK: TButton
     Left = 50

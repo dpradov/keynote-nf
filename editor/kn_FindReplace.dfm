@@ -1,6 +1,7 @@
 object Form_FindReplace: TForm_FindReplace
   Left = 390
   Top = 196
+  HelpContext = 479
   ActiveControl = Combo_Text
   BorderStyle = bsDialog
   Caption = 'Find'
@@ -19,6 +20,7 @@ object Form_FindReplace: TForm_FindReplace
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Pages: TPage95Control
@@ -46,6 +48,7 @@ object Form_FindReplace: TForm_FindReplace
     TabWidth = 80
     OnChange = PagesChange
     object Tab_Find: TTab95Sheet
+      HelpContext = 479
       Caption = 'Find'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -57,8 +60,6 @@ object Form_FindReplace: TForm_FindReplace
       StaticPageIndex = -1
       ParentFont = False
       TabVisible = True
-      ExplicitTop = 24
-      ExplicitHeight = 205
       object TntLabel3: TLabel
         Left = 3
         Top = 16
@@ -71,6 +72,8 @@ object Form_FindReplace: TForm_FindReplace
       end
     end
     object Tab_Replace: TTab95Sheet
+      HelpType = htKeyword
+      HelpKeyword = '479-4'
       Caption = ' Replace'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -82,8 +85,6 @@ object Form_FindReplace: TForm_FindReplace
       StaticPageIndex = -1
       ParentFont = False
       TabVisible = True
-      ExplicitTop = 24
-      ExplicitHeight = 205
       object TntLabel1: TLabel
         Left = 2
         Top = 45

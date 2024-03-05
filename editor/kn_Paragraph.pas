@@ -69,6 +69,8 @@ type
     procedure Button_OKClick(Sender: TObject);
     procedure CB_NumbersClick(Sender: TObject);
     procedure CB_BulletsClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -85,6 +87,7 @@ type
 implementation
 
 uses
+   kn_Global,
    kn_NoteObj;
 
 
@@ -123,7 +126,14 @@ begin
   end;
 
 
-end; // CREATE
+end; function TForm_Para.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
+// CREATE
 
 procedure TForm_Para.FormActivate(Sender: TObject);
 begin

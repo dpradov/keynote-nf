@@ -276,6 +276,8 @@ type
     procedure chk_ApplyOnExitChangeClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnShowHideDetailsClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
 
   private
     { Private declarations }
@@ -1246,6 +1248,13 @@ begin
   cCalendar.EndDate:= now;
 end;
 
+
+function TForm_Alarm.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
 
 procedure TForm_Alarm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin

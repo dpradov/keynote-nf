@@ -1,7 +1,8 @@
 object Form_Macro: TForm_Macro
   Left = 496
   Top = 290
-  HelpContext = 530
+  HelpType = htKeyword
+  HelpKeyword = '304-7'
   ActiveControl = Edit_Name
   BorderStyle = bsDialog
   Caption = 'Edit macro'
@@ -18,6 +19,7 @@ object Form_Macro: TForm_Macro
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Button_OK: TButton

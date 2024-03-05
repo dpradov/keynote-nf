@@ -56,6 +56,8 @@ type
     procedure lblVisitWebClick(Sender: TObject);
     procedure lblDonationsClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
 
   private
     { Private declarations }
@@ -281,6 +283,13 @@ begin
    chkCheckUpd.Checked:=  KeyOptions.CheckUpdOnStartup;
    lblVisitWeb.Hint:= Program_URL + Program_URL_LatestRelease;
    lblDonations.Hint:= Hint_Support;
+end;
+
+function TUpdateVersion.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 procedure TUpdateVersion.FormClose(Sender: TObject; var Action: TCloseAction);

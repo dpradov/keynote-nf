@@ -2889,12 +2889,27 @@ begin
 end;
 
 
-
-function TForm_Main.FormHelp(Command: Word; Data: NativeInt;
-  var CallHelp: Boolean): Boolean;
+function TForm_Main.FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
 begin
-   if AltDown or CtrlDown or ShiftDown then
-      CallHelp:= False;
+   CallHelp:= False;
+   if AltDown or CtrlDown or ShiftDown then exit;
+
+   // -1 -> 536-1   "Restore image[s] proportions" -> Dimensions and proportions
+   // -2 -> 284-11  "Children Checkboxes" -> Tree-type Notes [284] / 11 (Using Hidden nodes)
+   // -3 -> 282-9   Menu Number -> KeyNote Editor [282]/ 9 (Using bullets and numbered lists)
+   // -4 -> 11-1    Menu ResPanel -> KeyNote Screen [11] / Marker: 1
+   // -5 -> 479-5   Find All
+   if (Command = HELP_CONTEXT) and (Data < 0) then
+       Command:= HELP_COMMAND;
+       case Data of
+         -1: Data:= NativeInt(PChar('536-1'));
+         -2: Data:= NativeInt(PChar('284-11'));
+         -3: Data:= NativeInt(PChar('282-9'));
+         -4: Data:= NativeInt(PChar('11-1'));
+         -5: Data:= NativeInt(PChar('479-5'));
+       end;
+
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 
@@ -3737,11 +3752,14 @@ procedure TForm_Main.DisplayHistoryFile;
 var
   fn : string;
 begin
+  ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_WHATSNEW_ID, 2, 0);   // What's New [2]
+  {
   fn := extractfilepath( Application.Exename ) + 'doc\history.txt';
   if FileExists( fn ) then
     ShellExecute( 0, 'open', PChar( fn ), nil, nil, SW_NORMAL )
   else
     DoMessageBox( Format( STR_18, [fn] ), mtError, [mbOK], 0 );
+   }
 end; // DisplayHistoryFile
 
 procedure TForm_Main.Combo_FontChange(Sender: TObject);
@@ -6701,13 +6719,14 @@ end;
 
 procedure TForm_Main.MMHelpKeyboardRefClick(Sender: TObject);
 begin
-  HtmlHelp(0, PAnsiChar(Application.HelpFile), HH_HELP_CONTEXT, 30);
+  ActiveKeyNoteHelp(18);  // Keyboard Reference [18]
+  //HtmlHelp(0, PAnsiChar(Application.HelpFile), HH_HELP_CONTEXT, 30);
 end;
 
 procedure TForm_Main.MMHelpMainClick(Sender: TObject);
 begin
-  //Application.HelpCommand( HELP_FINDER, 0 );    *1
-  HtmlHelp(0, PAnsiChar(Application.HelpFile), HH_HELP_CONTEXT, 10);
+  ActiveKeyNoteHelp(2);  // Welcome to KeyNote NF [2]
+  //HtmlHelp(0, PAnsiChar(Application.HelpFile), HH_HELP_CONTEXT, 10);
 end;
 
 procedure TForm_Main.MMToolsTemplateCreateClick(Sender: TObject);

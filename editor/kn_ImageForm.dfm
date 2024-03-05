@@ -1,6 +1,8 @@
 object Form_Image: TForm_Image
   Left = 306
   Top = 299
+  HelpType = htKeyword
+  HelpKeyword = '536-2'
   ActiveControl = txtCaption
   Anchors = [akLeft, akTop, akRight, akBottom]
   Caption = 'Image properties'
@@ -20,6 +22,7 @@ object Form_Image: TForm_Image
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShow = FormShow
@@ -30,7 +33,7 @@ object Form_Image: TForm_Image
   object lblDetails: TLabel
     Left = 8
     Top = 4
-    Width = 315
+    Width = 311
     Height = 16
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
@@ -162,7 +165,7 @@ object Form_Image: TForm_Image
     ExplicitTop = 350
   end
   object lblLinked: TLabel
-    Left = 329
+    Left = 325
     Top = 6
     Width = 56
     Height = 13
@@ -228,7 +231,7 @@ object Form_Image: TForm_Image
     ExplicitTop = 386
   end
   object Button_Cancel: TButton
-    Left = 311
+    Left = 307
     Top = 383
     Width = 60
     Height = 25
@@ -239,13 +242,13 @@ object Form_Image: TForm_Image
     TabOrder = 0
     TabStop = False
     OnClick = Button_CancelClick
-    ExplicitLeft = 300
-    ExplicitTop = 408
+    ExplicitLeft = 303
+    ExplicitTop = 382
   end
   object txtCaption: TEdit
     Left = 8
     Top = 22
-    Width = 365
+    Width = 361
     Height = 24
     Hint = 'Caption of the image'
     TabStop = False
@@ -258,10 +261,10 @@ object Form_Image: TForm_Image
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 1
-    ExplicitWidth = 354
+    ExplicitWidth = 357
   end
   object Button_Modify: TButton
-    Left = 244
+    Left = 240
     Top = 383
     Width = 60
     Height = 25
@@ -272,27 +275,27 @@ object Form_Image: TForm_Image
     TabOrder = 2
     TabStop = False
     OnClick = Button_ModifyClick
-    ExplicitLeft = 233
-    ExplicitTop = 408
+    ExplicitLeft = 236
+    ExplicitTop = 382
   end
   object cScrollBox: TScrollBox
     Left = 8
     Top = 47
-    Width = 365
+    Width = 361
     Height = 298
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 3
     OnResize = cScrollBoxResize
-    ExplicitWidth = 354
-    ExplicitHeight = 323
+    ExplicitWidth = 357
+    ExplicitHeight = 297
     DesignSize = (
-      361
+      357
       294)
     object cImage: TImage
       AlignWithMargins = True
       Left = 0
       Top = 0
-      Width = 358
+      Width = 354
       Height = 292
       Margins.Left = 0
       Margins.Top = 0
@@ -305,7 +308,7 @@ object Form_Image: TForm_Image
     end
   end
   object chkExpand: TCheckBox
-    Left = 289
+    Left = 285
     Top = 346
     Width = 62
     Height = 25
@@ -321,8 +324,8 @@ object Form_Image: TForm_Image
     ParentFont = False
     TabOrder = 4
     OnClick = chkExpandClick
-    ExplicitLeft = 282
-    ExplicitTop = 372
+    ExplicitLeft = 281
+    ExplicitTop = 345
   end
   object txtID: TEdit
     Left = 25
@@ -337,7 +340,7 @@ object Form_Image: TForm_Image
     OnEnter = txtIDEnter
     OnExit = txtIDExit
     OnKeyDown = txtIDKeyDown
-    ExplicitTop = 411
+    ExplicitTop = 385
   end
   object chkCompact: TCheckBox
     Left = 95
@@ -356,25 +359,25 @@ object Form_Image: TForm_Image
     ParentFont = False
     TabOrder = 6
     OnClick = chkCompactClick
-    ExplicitTop = 409
+    ExplicitTop = 383
   end
   object btnHelp: TBitBtn
-    Left = 348
+    Left = 344
     Top = 347
     Width = 25
     Height = 25
     Hint = 
       'Keyboard shortcuts:'#13#10#13#10'Zoom: '#13#10' + In       [ Ctrl ]'#13#10' -  Out    ' +
       ' [ Ctrl ]'#13#10' * 100%'#13#10' / Adjust'#13#10#13#10'Scrolling:'#13#10' Cursors       [ Ct' +
-      'rl ]'#13#10' Home, End  [ Ctrl ]'#13#10' Prior, Next'
+      'rl ]'#13#10' Home, End  [ Ctrl ]'#13#10' Prior, Next'#13#10#13#10'( F1: More Help )'
     Anchors = [akRight, akBottom]
     ImageIndex = 60
     Images = Form_Main.IMG_Toolbar
     TabOrder = 7
     TabStop = False
     OnClick = btnHelpClick
-    ExplicitLeft = 341
-    ExplicitTop = 373
+    ExplicitLeft = 340
+    ExplicitTop = 346
   end
   object WinOnTop: TTopMostWindow
     AlwaysOnTop = False

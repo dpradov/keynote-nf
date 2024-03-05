@@ -45,11 +45,12 @@ type
     Spin_Depth: TSpinEdit;
     CB_FullDepth: TCheckBox;
     Btn_Remove: TButton;
-    procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure RG_MethodClick(Sender: TObject);
     procedure CB_FullDepthClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -60,14 +61,20 @@ var
   Form_NodeNum: TForm_NodeNum;
 
 implementation
+Uses
+  kn_Global;
 
 {$R *.DFM}
 
 
-procedure TForm_NodeNum.FormCreate(Sender: TObject);
+function TForm_NodeNum.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
 begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
 
-end; // create
+// create
 
 procedure TForm_NodeNum.FormActivate(Sender: TObject);
 begin

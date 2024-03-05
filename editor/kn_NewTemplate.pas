@@ -43,6 +43,8 @@ type
     procedure Edit_NameKeyPress(Sender: TObject; var Key: Char);
     procedure Edit_NameChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -55,7 +57,8 @@ var
 implementation
 
 uses
-  gf_files;
+  gf_files,
+  kn_Global;
 
 {$R *.DFM}
 
@@ -87,6 +90,13 @@ procedure TForm_Template.FormActivate(Sender: TObject);
 begin
   Edit_NameChange( Edit_Name );
   Edit_Name.SelectAll;
+end;
+
+function TForm_Template.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
 end.

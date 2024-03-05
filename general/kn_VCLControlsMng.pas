@@ -178,6 +178,7 @@ begin
 
           // AllowObjects := true;                      // Should be assigned when creating the control, to not lead to recreate its window
           // AllowInPlace := false;
+          HelpContext:= 282;  // KeyNote Editor [282]
         end;
       end;
 
@@ -215,6 +216,7 @@ begin
           OnHint := TVOnHint;
           OnEnter:= TVEnter;
           OnSavingTree:= TVSavingTree;
+          HelpContext:= 284;  // Tree-type Notes [284]
         end;
       end;
 

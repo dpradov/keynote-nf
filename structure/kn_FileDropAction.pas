@@ -49,6 +49,8 @@ type
     procedure RG_ActionClick(Sender: TObject);
     procedure txtImgNewNameExit(Sender: TObject);
     procedure chk_ImageLinkModeClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
     OfferImageLinkMode: boolean;
@@ -90,7 +92,16 @@ begin
      RG_HTML.Items.Add( HTMLImportMethods[m] );
 
   RG_HTML.ItemIndex := 0;
-end; // CREATE
+end;
+
+function TForm_DropFile.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
+// CREATE
 
 
 procedure TForm_DropFile.FormActivate(Sender: TObject);

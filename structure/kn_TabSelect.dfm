@@ -1,6 +1,7 @@
 object Form_SelectTab: TForm_SelectTab
   Left = 424
   Top = 295
+  HelpContext = 13
   BorderStyle = bsDialog
   Caption = 'Select Notes'
   ClientHeight = 243
@@ -16,6 +17,7 @@ object Form_SelectTab: TForm_SelectTab
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Button_OK: TButton

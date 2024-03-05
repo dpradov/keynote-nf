@@ -50,6 +50,8 @@ type
     procedure Button_OKClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -65,6 +67,8 @@ var
   GFTipForm: TGFTipForm;
 
 implementation
+uses
+  kn_Global;
 
 {$R *.DFM}
 
@@ -79,6 +83,14 @@ procedure TGFTipForm.FormDestroy(Sender: TObject);
 begin
   Tips.Free;
 end;
+
+function TGFTipForm.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
 
 procedure TGFTipForm.Button_NextClick(Sender: TObject);
 var

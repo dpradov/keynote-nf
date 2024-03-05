@@ -1,12 +1,12 @@
 object Form_FileInfo: TForm_FileInfo
   Left = 298
   Top = 325
-  HelpContext = 500
+  HelpContext = 287
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'File properties'
-  ClientHeight = 298
-  ClientWidth = 534
+  ClientHeight = 297
+  ClientWidth = 530
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,6 +19,7 @@ object Form_FileInfo: TForm_FileInfo
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Label11: TLabel
@@ -63,11 +64,11 @@ object Form_FileInfo: TForm_FileInfo
     Top = 5
     Width = 522
     Height = 246
-    HelpContext = 230
-    ActivePage = Tab_Settings
+    HelpContext = 287
+    ActivePage = Tab_Main
     TabOrder = 0
     object Tab_Main: TTabSheet
-      HelpContext = 231
+      HelpContext = 288
       Caption = 'Information'
       object GroupBox1: TGroupBox
         Left = 5
@@ -228,7 +229,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 380
           Height = 21
           Hint = 'Enter optional comment for the file'
-          HelpContext = 530
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -244,7 +244,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 380
           Height = 21
           Hint = 'Enter optional description for the file'
-          HelpContext = 525
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -260,7 +259,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 380
           Height = 21
           Hint = 'Choose format used when saving the file'
-          HelpContext = 535
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -273,7 +271,7 @@ object Form_FileInfo: TForm_FileInfo
       end
     end
     object Tab_Settings: TTabSheet
-      HelpContext = 232
+      HelpContext = 289
       Caption = 'Settings'
       object GroupBox3: TGroupBox
         Left = 5
@@ -347,7 +345,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 254
           Height = 17
           Hint = 'In future, open this file as Read-only'
-          HelpContext = 540
           Caption = 'Open this file in &Read-Only Mode'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -435,8 +432,6 @@ object Form_FileInfo: TForm_FileInfo
             DropdownArrow = False
             Enabled = False
             Flat = False
-            Glyph.Data = {00000000}
-            GlyphMask.Data = {00000000}
             ImageIndex = 1
             Images = Form_Main.IMG_Toolbar
             RepeatInterval = 101
@@ -506,7 +501,7 @@ object Form_FileInfo: TForm_FileInfo
       end
     end
     object Tab_Icons: TTabSheet
-      HelpContext = 233
+      HelpContext = 290
       Caption = 'File Icons'
       object GroupBox4: TGroupBox
         Left = 5
@@ -530,8 +525,6 @@ object Form_FileInfo: TForm_FileInfo
           GroupIndex = 3
           Enabled = False
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -546,8 +539,6 @@ object Form_FileInfo: TForm_FileInfo
           GroupIndex = 3
           Enabled = False
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -559,7 +550,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 306
           Height = 17
           Hint = 'Display or hide tab images for this file'
-          HelpContext = 545
           Caption = '&Show icon images on tabs'
           TabOrder = 0
         end
@@ -631,7 +621,7 @@ object Form_FileInfo: TForm_FileInfo
       end
     end
     object Tab_Pass: TTabSheet
-      HelpContext = 234
+      HelpContext = 291
       Caption = 'Security'
       object GroupBox2: TGroupBox
         Left = 5
@@ -687,7 +677,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 341
           Height = 21
           Hint = 'Carefully re-enter the access passphrase'
-          HelpContext = 560
           MaxLength = 255
           PasswordChar = '*'
           TabOrder = 1
@@ -698,7 +687,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 341
           Height = 21
           Hint = 'Enter access passphrase for this file'
-          HelpContext = 555
           MaxLength = 255
           PasswordChar = '*'
           TabOrder = 0
@@ -709,7 +697,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 341
           Height = 21
           Hint = 'Select which encryption algorithm to use'
-          HelpContext = 565
           Style = csDropDownList
           TabOrder = 2
         end
@@ -719,7 +706,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 181
           Height = 25
           Hint = 'Click to change access passphrase for the encrypted file'
-          HelpContext = 550
           Caption = '&Set Passphrase'
           TabOrder = 3
           OnClick = Button_SetPassClick
@@ -730,7 +716,6 @@ object Form_FileInfo: TForm_FileInfo
           Width = 268
           Height = 17
           Hint = 'Obscure passphrase with asterisks'
-          HelpContext = 570
           Caption = '&Hide passphrase while typing'
           Checked = True
           State = cbChecked

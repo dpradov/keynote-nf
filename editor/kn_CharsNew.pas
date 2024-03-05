@@ -75,6 +75,8 @@ type
     procedure btnPasteClick(Sender: TObject);
     procedure btnInsertNewClick(Sender: TObject);
     procedure chkAutoAddNewClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
 
@@ -159,6 +161,13 @@ begin
   EditorTable.RemoveMargins;
 end;
 
+
+function TForm_CharsNew.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
 
 procedure TForm_CharsNew.CreateParams(var Params: TCreateParams);
 begin

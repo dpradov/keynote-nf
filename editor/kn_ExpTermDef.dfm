@@ -1,7 +1,7 @@
 object Form_TermDef: TForm_TermDef
   Left = 337
   Top = 311
-  HelpContext = 540
+  HelpContext = 306
   ActiveControl = Edit_Term
   BorderStyle = bsDialog
   Caption = 'Edit Glossary Term'
@@ -16,6 +16,7 @@ object Form_TermDef: TForm_TermDef
   KeyPreview = True
   Position = poScreenCenter
   OnActivate = FormActivate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Label1: TLabel

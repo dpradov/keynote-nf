@@ -1,7 +1,7 @@
 object Form_CharsNew: TForm_CharsNew
   Left = 315
   Top = 236
-  HelpContext = 570
+  HelpContext = 309
   BorderStyle = bsDialog
   Caption = 'Insert character'
   ClientHeight = 402
@@ -17,6 +17,7 @@ object Form_CharsNew: TForm_CharsNew
   OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 14
   object Label3: TLabel

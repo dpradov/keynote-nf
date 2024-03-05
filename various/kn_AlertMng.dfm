@@ -1,7 +1,7 @@
 object Form_Alarm: TForm_Alarm
   Left = 330
   Top = 208
-  HelpContext = 590
+  HelpContext = 567
   Margins.Left = 0
   Caption = 'p'
   ClientHeight = 540
@@ -20,6 +20,7 @@ object Form_Alarm: TForm_Alarm
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShow = FormShow
@@ -28,7 +29,7 @@ object Form_Alarm: TForm_Alarm
     540)
   TextHeight = 13
   object lblFilter: TLabel
-    Left = 455
+    Left = 451
     Top = 8
     Width = 67
     Height = 13
@@ -45,7 +46,7 @@ object Form_Alarm: TForm_Alarm
     ExplicitLeft = 259
   end
   object Button_ClearFilter: TToolbarButton97
-    Left = 704
+    Left = 700
     Top = 6
     Width = 17
     Height = 21
@@ -77,7 +78,7 @@ object Form_Alarm: TForm_Alarm
     ParentFont = False
   end
   object Button_Sound: TToolbarButton97
-    Left = 760
+    Left = 756
     Top = 4
     Width = 25
     Height = 24
@@ -94,7 +95,7 @@ object Form_Alarm: TForm_Alarm
     ExplicitLeft = 869
   end
   object TB_ClipCap: TToolbarButton97
-    Left = 734
+    Left = 730
     Top = 4
     Width = 25
     Height = 24
@@ -111,27 +112,27 @@ object Form_Alarm: TForm_Alarm
   object Panel: TPanel
     Left = 1
     Top = 134
-    Width = 796
+    Width = 792
     Height = 405
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 3
     ExplicitTop = 133
-    ExplicitWidth = 792
+    ExplicitWidth = 788
     DesignSize = (
-      796
+      792
       405)
     object PanelAlarm: TPanel
       Left = 6
       Top = 39
-      Width = 582
+      Width = 578
       Height = 359
       Anchors = [akLeft, akRight, akBottom]
-      Constraints.MinWidth = 578
+      Constraints.MinWidth = 574
       TabOrder = 2
-      ExplicitWidth = 578
+      ExplicitWidth = 574
       DesignSize = (
-        582
+        578
         359)
       object lblExpiration: TLabel
         Left = 12
@@ -629,7 +630,7 @@ object Form_Alarm: TForm_Alarm
         OnClick = rb_FromNowClick
       end
       object Button_Apply: TButton
-        Left = 483
+        Left = 479
         Top = 172
         Width = 84
         Height = 25
@@ -643,10 +644,10 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 8
         OnClick = Button_ApplyClick
-        ExplicitLeft = 479
+        ExplicitLeft = 475
       end
       object chk_ApplyOnExitChange: TCheckBox
-        Left = 490
+        Left = 486
         Top = 202
         Width = 85
         Height = 27
@@ -661,12 +662,12 @@ object Form_Alarm: TForm_Alarm
         TabOrder = 9
         WordWrap = True
         OnClick = chk_ApplyOnExitChangeClick
-        ExplicitLeft = 486
+        ExplicitLeft = 482
       end
       object txtSubject: TMemo
         Left = 9
         Top = 40
-        Width = 558
+        Width = 554
         Height = 87
         TabStop = False
         Anchors = [akLeft, akTop, akRight]
@@ -680,12 +681,12 @@ object Form_Alarm: TForm_Alarm
         TabOrder = 10
         WantTabs = True
         OnChange = txtSubjectChange
-        ExplicitWidth = 554
+        ExplicitWidth = 550
       end
       object cIdentifier: TEdit
         Left = 10
         Top = 12
-        Width = 555
+        Width = 551
         Height = 22
         TabStop = False
         Anchors = [akLeft, akTop, akRight]
@@ -705,17 +706,17 @@ object Form_Alarm: TForm_Alarm
         ReadOnly = True
         TabOrder = 11
         Text = 'NODO'
-        ExplicitWidth = 551
+        ExplicitWidth = 547
       end
       object PanelFormat: TPanel
-        Left = 461
+        Left = 457
         Top = 128
         Width = 119
         Height = 23
         Anchors = [akTop, akRight]
         BevelOuter = bvNone
         TabOrder = 12
-        ExplicitLeft = 457
+        ExplicitLeft = 453
         object TB_Bold: TToolbarButton97
           Left = 0
           Top = 0
@@ -841,7 +842,7 @@ object Form_Alarm: TForm_Alarm
         end
       end
       object btnExpandWindow: TButton
-        Left = 534
+        Left = 530
         Top = 330
         Width = 33
         Height = 22
@@ -858,11 +859,11 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 13
         OnClick = btnExpandWindowClick
-        ExplicitLeft = 530
+        ExplicitLeft = 526
       end
     end
     object PanelCalendar: TPanel
-      Left = 599
+      Left = 595
       Top = 44
       Width = 195
       Height = 204
@@ -870,7 +871,7 @@ object Form_Alarm: TForm_Alarm
       BevelEdges = [beRight]
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 595
+      ExplicitLeft = 591
       object cCalendar: TMonthCalendar
         Left = -11
         Top = 37
@@ -904,17 +905,17 @@ object Form_Alarm: TForm_Alarm
     object pnlButtons: TPanel
       Left = 2
       Top = -1
-      Width = 787
+      Width = 783
       Height = 37
       Anchors = [akLeft, akTop, akRight]
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitWidth = 783
+      ExplicitWidth = 779
       DesignSize = (
-        787
+        783
         37)
       object Button_Remove: TButton
-        Left = 607
+        Left = 603
         Top = 2
         Width = 84
         Height = 25
@@ -929,10 +930,10 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 4
         OnClick = Button_RemoveClick
-        ExplicitLeft = 603
+        ExplicitLeft = 599
       end
       object Button_Restore: TButton
-        Left = 700
+        Left = 696
         Top = 2
         Width = 84
         Height = 25
@@ -947,7 +948,7 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 5
         OnClick = Button_RestoreClick
-        ExplicitLeft = 696
+        ExplicitLeft = 692
       end
       object Button_Show: TButton
         Left = 5
@@ -1035,7 +1036,7 @@ object Form_Alarm: TForm_Alarm
   object Grid: TListView
     Left = 8
     Top = 31
-    Width = 780
+    Width = 776
     Height = 98
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -1092,7 +1093,7 @@ object Form_Alarm: TForm_Alarm
     OnSelectItem = GridSelectItem
   end
   object cFilter: TEdit
-    Left = 528
+    Left = 524
     Top = 5
     Width = 174
     Height = 21
@@ -1106,7 +1107,7 @@ object Form_Alarm: TForm_Alarm
     TabOrder = 1
     OnChange = cFilterChange
     OnExit = cFilterExit
-    ExplicitLeft = 524
+    ExplicitLeft = 520
   end
   object CB_ShowMode: TComboBox
     Left = 103

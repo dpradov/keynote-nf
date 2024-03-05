@@ -109,6 +109,8 @@ type
     procedure CB_FontSizesClick(Sender: TObject);
     procedure CB_IndentNodesClick(Sender: TObject);
     procedure CB_IncNodeHeadingClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -194,7 +196,8 @@ resourcestring
                   '%s%s - Node index'  + #13 +
                   '%s%s - Line break'  + #13 +
                   '%s%s - Symbols, increasing'  + #13 +
-                  '%s%s - Symbols, decreasing';
+                  '%s%s - Symbols, decreasing' + #13#13 +
+                  'F1 => More INFO and usage examples';
 
   STR_16 = 'No active tree node: select a node first.';
   STR_17 = 'Current node has no text: nothing to export.';
@@ -425,7 +428,25 @@ begin
      RG_HTML.Items.Add( HTMLExportMethods[m] );
 
   RG_HTML.ItemIndex:= ord(ExportOptions.HTMLExportMethod);
-end; // CREATE
+end;
+
+
+function TForm_ExportNew.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+
+   // -1 -> 313-9 : Exporting Notes to Disk Files [313] / 9: Available Tokens, and related options
+   if (Command = HELP_CONTEXT) and (Data < 0) then
+       Command:= HELP_COMMAND;
+       case Data of
+         -1: Data:= NativeInt(PChar('313-9'));
+       end;
+
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
+// CREATE
 
 
 procedure TForm_ExportNew.FormActivate(Sender: TObject);
@@ -1627,13 +1648,14 @@ begin
                                    _TokenChar,EXP_LINE_BREAK,
                                    _TokenChar,EXP_NODELEVELSYMB_INC,
                                    _TokenChar,EXP_NODELEVELSYMB_DEC ]),
-    mtInformation, [mbOK], 0 );
+    mtInformation, [mbOK], -1 );     // -1 -> 313-9 : Exporting Notes to Disk Files [313] / 9: Available Tokens, and related options
 end;
 
 
 procedure TForm_ExportNew.Button_HelpClick(Sender: TObject);
 begin
-  Application.HelpCommand( HELP_CONTEXT, HelpContext );
+  ActiveKeyNoteHelp(Pages.ActivePage.HelpContext);  // Node
+  //Application.HelpCommand( HELP_CONTEXT, HelpContext );
 end;
 
 

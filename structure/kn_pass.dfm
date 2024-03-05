@@ -1,6 +1,7 @@
 object Form_Password: TForm_Password
   Left = 424
   Top = 369
+  HelpContext = 299
   ActiveControl = Edit_Pass
   BorderStyle = bsDialog
   Caption = 'File access passphrase'
@@ -18,6 +19,7 @@ object Form_Password: TForm_Password
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Button_OK: TButton

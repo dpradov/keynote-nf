@@ -52,6 +52,8 @@ type
     procedure Button_AllClick(Sender: TObject);
     procedure Button_NoneClick(Sender: TObject);
     procedure Button_InvertClick(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -69,6 +71,7 @@ function SelectTabs( const aNoteFile : TNoteFile ) : boolean;
 implementation
 uses
    kn_Const,
+   kn_Global,
    kn_Chest,
    kn_NoteObj
    ;
@@ -94,7 +97,14 @@ begin
   myNotes := nil;
   OK_Click := false;
   List_Tabs.ImageList := Chest.IMG_Categories;
-end; // CREATE
+end; function TForm_SelectTab.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
+// CREATE
 
 procedure TForm_SelectTab.FormActivate(Sender: TObject);
 begin

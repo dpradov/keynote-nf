@@ -1,7 +1,7 @@
 object AboutBox: TAboutBox
   Left = 302
   Top = 289
-  HelpContext = 50
+  HelpContext = 2
   BorderIcons = []
   BorderStyle = bsToolWindow
   Caption = 'About - KeyNote NF'
@@ -17,6 +17,7 @@ object AboutBox: TAboutBox
   Position = poScreenCenter
   ShowHint = True
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object BTN_Close: TSpeedButton

@@ -1,7 +1,8 @@
 object Form_FileMgr: TForm_FileMgr
   Left = 386
   Top = 310
-  HelpContext = 560
+  HelpType = htKeyword
+  HelpKeyword = '539-1'
   BorderIcons = [biSystemMenu]
   Caption = 'File manager'
   ClientHeight = 271
@@ -20,6 +21,7 @@ object Form_FileMgr: TForm_FileMgr
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 17
   object Panel_Btn: TPanel
@@ -30,6 +32,8 @@ object Form_FileMgr: TForm_FileMgr
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 115
+    ExplicitWidth = 465
     object Label1: TLabel
       Left = 12
       Top = 6
@@ -314,6 +318,8 @@ object Form_FileMgr: TForm_FileMgr
     ScrollTime = 0
     TabOrder = 1
     OnDblClick = TVmgrDblClick
+    ExplicitWidth = 465
+    ExplicitHeight = 115
   end
   object FormPlacement: TFormPlacement
     IniSection = 'MgrDlg'

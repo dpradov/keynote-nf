@@ -140,6 +140,7 @@ type
     procedure rbImagesStChangeClick(Sender: TObject);
     procedure txtExtStorageLocationKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    function FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
 
@@ -611,9 +612,24 @@ begin
   ShellExecuteExW(@sei);
 end;
 
+function TForm_FileInfo.FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
+var
+  Node, Marker: integer;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
 procedure TForm_FileInfo.Button_HelpClick(Sender: TObject);
 begin
-  Application.HelpCommand( HELP_CONTEXT, Pages.ActivePage.HelpContext );
+{
+	File Properties [287]
+		Information [288]
+		Settings [289]
+		File Icons [290]
+		Security [291]
+}
+  ActiveKeyNoteHelp(287);  // Node
 end;
 
 

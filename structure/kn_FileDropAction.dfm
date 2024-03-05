@@ -1,6 +1,8 @@
 object Form_DropFile: TForm_DropFile
   Left = 364
   Top = 312
+  HelpType = htKeyword
+  HelpKeyword = '312-7'
   BorderStyle = bsDialog
   Caption = 'Select import method'
   ClientHeight = 212
@@ -16,6 +18,7 @@ object Form_DropFile: TForm_DropFile
   ShowHint = True
   OnActivate = FormActivate
   OnCreate = FormCreate
+  OnHelp = FormHelp
   DesignSize = (
     356
     212)
@@ -65,6 +68,7 @@ object Form_DropFile: TForm_DropFile
     Width = 356
     Height = 148
     Align = alTop
+    PageIndex = 1
     TabOrder = 0
     ExplicitWidth = 352
     object PAGE_METHOD: TPage
@@ -92,6 +96,8 @@ object Form_DropFile: TForm_DropFile
         Top = 17
         Width = 332
         Height = 125
+        HelpType = htKeyword
+        HelpKeyword = '312-5'
         TabOrder = 0
       end
     end
@@ -118,7 +124,7 @@ object Form_DropFile: TForm_DropFile
   object txtImgNewName: TEdit
     Left = 77
     Top = 151
-    Width = 132
+    Width = 128
     Height = 21
     Hint = 'The initial name is already being used'
     Alignment = taCenter
@@ -134,7 +140,7 @@ object Form_DropFile: TForm_DropFile
     Visible = False
     OnExit = txtImgNewNameExit
     ExplicitTop = 150
-    ExplicitWidth = 128
+    ExplicitWidth = 124
   end
   object chk_Relative: TCheckBox
     Left = 264

@@ -56,6 +56,8 @@ type
     procedure Button_DelClick(Sender: TObject);
     procedure Button_HelpClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    function FormHelp(Command: Word; Data: NativeInt;
+      var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
   public
@@ -153,7 +155,16 @@ begin
     UpdateCount;
   end;
 
-end; // CREATE
+end;
+
+function TForm_Glossary.FormHelp(Command: Word; Data: NativeInt;
+  var CallHelp: Boolean): Boolean;
+begin
+   CallHelp:= False;
+   ActiveKeyNoteHelp_FormHelp(Command, Data);
+end;
+
+// CREATE
 
 procedure TForm_Glossary.EditTerm( const NewTerm : boolean );
 var
@@ -322,7 +333,8 @@ end; // UpdateCount
 
 procedure TForm_Glossary.Button_HelpClick(Sender: TObject);
 begin
-  Application.HelpCommand( HELP_CONTEXT, self.HelpContext );
+  ActiveKeyNoteHelp(self.HelpContext);  // Node
+  //Application.HelpCommand( HELP_CONTEXT, self.HelpContext );
 end;
 
 procedure TForm_Glossary.FormActivate(Sender: TObject);

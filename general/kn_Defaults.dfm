@@ -1,7 +1,7 @@
 object Form_Defaults: TForm_Defaults
   Left = 379
   Top = 248
-  HelpContext = 250
+  HelpContext = 292
   BorderStyle = bsDialog
   Caption = 'Defaults'
   ClientHeight = 496
@@ -17,6 +17,7 @@ object Form_Defaults: TForm_Defaults
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnHelp = FormHelp
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object LB_Scope: TLabel
@@ -63,7 +64,7 @@ object Form_Defaults: TForm_Defaults
     Top = 28
     Width = 369
     Height = 376
-    ActivePage = Tab_Main
+    ActivePage = Tab_Tree
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -79,12 +80,16 @@ object Form_Defaults: TForm_Defaults
     ParentFont = False
     TabOrder = 2
     object Tab_Main: TTab95Sheet
-      HelpContext = 251
+      HelpContext = 254
       Caption = 'Note settings'
       GripAlign = gaLeft
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GBox_Note: TGroupBox
         Left = 3
         Top = 3
@@ -450,7 +455,7 @@ object Form_Defaults: TForm_Defaults
       end
     end
     object Tab_Tree: TTab95Sheet
-      HelpContext = 252
+      HelpContext = 255
       Caption = 'Tree settings'
       GripAlign = gaLeft
       ImageIndex = -1
