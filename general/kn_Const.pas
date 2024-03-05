@@ -175,6 +175,13 @@ const
   _TEMPLATE_FOLDER   = 'templates\';
   _LANGUAGE_FOLDER   = 'Lang\';
   _DEFAULT_PROFILE_FOLDER   = 'Profiles\Default\';
+  _HELP_PROFILE_FOLDER   = 'Profiles\Help\';
+  _KNT_HELP_FILE = 'Help\KeyNoteNF_Help.knt';
+  _KNT_HELP_FILE_NOTE_ID = 8;
+  _KNT_HELP_FILE_NOTE_WHATSNEW_ID = 14;
+  _KNT_HELP_FILE_DEFAULT_NODE_ID = 2;   // Welcome to KeyNote NF
+  _KNT_LAUNCHER = 'kntLauncher.exe';
+  _KNT_HELP_TITLE = 'KeyNote NF Topics';
 
 const
   // help file topics

@@ -22,6 +22,7 @@ interface
 uses
    Winapi.Windows,
    Winapi.Messages,
+   Winapi.ShellAPI,
    System.Classes,
    System.SysUtils,
    System.IOUtils,
@@ -67,6 +68,11 @@ const
    function NoteSupportsRegisteredImages (AdmitVmRTF: boolean= false): boolean;
    function NoteSupportsImages: boolean;
 
+   function ActiveKeyNoteHelp(Note, Node, Marker: integer): Boolean; overload;
+   function ActiveKeyNoteHelp(Node: integer): Boolean; overload;
+   function ActiveKeyNoteHelp(Node_Marker: PChar): Boolean; overload;
+   function ActiveKeyNoteHelp_FormHelp(Command: Word; Data: NativeInt): Boolean;
+
    procedure Log_StoreTick (const Msg : string; const DbgLevel: integer= 0; DetailLevel: integer = 0); {$IFNDEF KNT_DEBUG} inline; {$ENDIF}
    procedure Log_Flush;                                                                                {$IFNDEF KNT_DEBUG} inline; {$ENDIF}
 
@@ -100,6 +106,10 @@ var
     Glossary_FN : string;
     NoteHeadingTpl_FN: string;     // Template for note heading, when exporting (notehead.rtf)
     NodeHeadingTpl_FN: string;     // Template for node heading, when exporting (nodehead.rtf)
+
+    Help_FN : string;     // Help file (.knt)
+    HelpINI_FN : string;  // INI file to use with Help file (.knt)
+    Launcher_FN: string;  // kntLauncher.exe
 
     //================================================== OPTIONS
     { These options are seperate from KeyOptions, because then
@@ -927,6 +937,10 @@ begin
          DefaultProfileFolder:= ExeFilePath;
       end;
 
+      Help_FN := ExeFilePath + _KNT_HELP_FILE;
+      HelpINI_FN := ExeFilePath + _HELP_PROFILE_FOLDER + 'keynote.ini';
+      Launcher_FN := ExeFilePath + _KNT_LAUNCHER;
+
     {$IFDEF KNT_DEBUG}
       // This is always located in .exe directory
       LOG_FN := normalFN( changefileext( Application.ExeName, ext_LOG ));
@@ -1030,6 +1044,60 @@ begin
 
 end;
 
+
+function ActiveKeyNoteHelp(Note, Node, Marker: integer): Boolean;
+var
+  Args: string;
+  sMarker: string;
+begin
+   try
+      //  file:///*NoteID|NodeID|CursorPosition|SelectionLength|MarkID  -> Ex: file:///*3|16|5|0|1
+
+	  sMarker:= '';
+      if Marker > 0 then
+         sMarker:= '|0|0|' + Marker.ToString;
+
+      Args:= Format('"%s" "%s" -jmp"file:///*%d|%d%s" -title"%s"', [Help_FN, HelpINI_FN, Note, Node, sMarker, _KNT_HELP_TITLE]);
+      ShellExecute( 0, 'open', PChar(Launcher_FN), PChar(Args), nil, SW_HIDE );
+
+   except
+   end;
+end;
+
+
+function ActiveKeyNoteHelp(Node: integer): Boolean;
+begin
+   ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, Node, 0);
+end;
+
+
+function ActiveKeyNoteHelp(Node_Marker: PChar): Boolean;
+var
+  Node, Marker: integer;
+  p: integer;
+begin
+   // Node_Marker: "<Node>-<Marker>".
+   // Ex: "479-5"  ->  Using Find and Find All [479] / Find All: Marker:5
+   p:= Pos('-', Node_Marker);
+   if p = 0 then exit;
+
+   Node:=   StrToIntDef(Copy(Node_Marker, 1, p-1), _KNT_HELP_FILE_DEFAULT_NODE_ID);
+   Marker:= StrToIntDef(Copy(Node_Marker, p+1), 0);
+
+   ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, Node, Marker);
+end;
+
+
+function ActiveKeyNoteHelp_FormHelp(Command: Word; Data: NativeInt): Boolean;
+begin
+   if Command = HELP_CONTEXT then
+      ActiveKeyNoteHelp (Data)             // Node
+   else
+      ActiveKeyNoteHelp (PChar(Data));     // Node_Marker
+end;
+
+
+
 {
  When compiling without the KNT_DEBUG compilation constant, the Log_StoreTick and Log_Flush methods are defined as inline
  and they won't do anything.
@@ -1038,7 +1106,7 @@ end;
    StoreTick( 'string' + s, 2);
 
  Calls like the following do will generate code:
- 
+
    StoreTick( 'string', 2 * 2);
    StoreTick( 'string' + intToStr(3));
    StoreTick( 'string', GetTickCount);    // If any procedure is called as a parameter, code will be generated, due to possible side effects.
