@@ -556,9 +556,9 @@ object Form_FileInfo: TForm_FileInfo
         object CB_TrayIcon: TCheckBox
           Left = 24
           Top = 134
-          Width = 290
+          Width = 353
           Height = 17
-          Caption = 'Use custom &Tray icon for this file'
+          Caption = 'Use custom icon for this file (system tray / taskbar)'
           TabOrder = 1
         end
         object RB_TabImgDefault: TRadioButton
