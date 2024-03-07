@@ -1014,7 +1014,7 @@ type
     procedure TVClick(Sender: TObject);
     procedure SplitterNoteMoved(Sender: TObject);
     procedure TVOnHint(Sender: TObject; Node: TTreeNTNode;  var NewText: string);
-    procedure CheckRestoreTreeWidth;
+    procedure CheckRestoreTreeWidth(Delayed: boolean);
     procedure CheckExpandTreeWidth;
     {
     procedure TVBeforeItemPaint(Sender: TObject;
@@ -3542,8 +3542,9 @@ begin
         end;
      end;
 
-     CheckRestoreTreeWidth;
   end;
+
+  CheckRestoreTreeWidth (True);
 end; // RxRTFSelection Change
 
 procedure TForm_Main.RxRTFChange(Sender: TObject);
@@ -5039,6 +5040,9 @@ begin
       NoteFile.Modified := true;
       UpdateNoteFileState( [fscModified] );
    end;
+
+   if keyOptions.AltMargins then
+      ActiveNote.Editor.Refresh;
 end;
 
 
@@ -5060,19 +5064,24 @@ begin
       else
          Width := myNote.TV.Width;
 
-      if (myNote.TreeMaxWidth > 0) and (myNote.TreeMaxWidth > Width) then
+      if (myNote.TreeMaxWidth > 0) and (myNote.TreeMaxWidth > Width) then begin
          if myNote.VerticalLayout then
             myNote.TV.Height:= myNote.TreeMaxWidth
          else
             myNote.TV.Width:= myNote.TreeMaxWidth;
+
+         if keyOptions.AltMargins then
+            ActiveNote.Editor.Refresh;
+      end;
    end;
 end;
 
-procedure TForm_Main.CheckRestoreTreeWidth;
+procedure TForm_Main.CheckRestoreTreeWidth (Delayed: boolean);
 var
    Width: integer;
    myNote: TTreeNote;
 begin
+
    if (ActiveNote.Kind = ntTree) then begin
        myNote:= TTreeNote(ActiveNote);
 
@@ -5083,6 +5092,8 @@ begin
              Width := myNote.TV.Width;
 
           if (Width > TTreeNote(ActiveNote).TreeWidth) then begin
+              if Delayed then
+                 Sleep(250);
               if myNote.VerticalLayout then
                  myNote.TV.Height:= myNote.TreeWidth
               else
@@ -5095,7 +5106,7 @@ end;
 
 procedure TForm_Main.RxRTFEnter(Sender: TObject);
 begin
-   CheckRestoreTreeWidth;
+   CheckRestoreTreeWidth (False);
 end;
 
 procedure TForm_Main.TVEnter(Sender: TObject);
@@ -6877,7 +6888,7 @@ begin
   if (Sender = nil) and KeyOptions.ResPanelShow and assigned(ActiveNote) then begin
      if ActiveNote.Editor.Focused or ((ActiveNote.Kind = ntTree) and TTreeNote(ActiveNote).TV.Focused) then begin
         FocusResourcePanel;
-        CheckRestoreTreeWidth;
+        CheckRestoreTreeWidth (False);
         exit;
      end;
   end;
@@ -6897,7 +6908,7 @@ begin
   else
     FocusActiveNote;
 
-  CheckRestoreTreeWidth;
+  CheckRestoreTreeWidth (False);
 end; // MMViewResPanelClick
 
 
