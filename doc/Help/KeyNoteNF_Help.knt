@@ -5,6 +5,7 @@
 #$0
 #C20-04-2003 22:44:55
 #^010000000000000000000000
+#Tkeynote_hlp.ico
 %+
 NN=KNT Help
 ID=8
@@ -12,7 +13,7 @@ II=3
 DC=20-04-2003 19:33:48
 TI=0
 TS=4
-CX=999
+CX=634
 CY=0
 BG=clWindow
 CH=0
@@ -21,7 +22,7 @@ FN=Tahoma
 FS=10
 LN=1033
 ST=
-FL=101110000000100000000000
+FL=111110000000100000000000
 SN=0
 TW=302
 EN=New node
@@ -106,8 +107,9 @@ Consider the following:\par
 {\pntext\f1\'B7\tab}You can make notes on the "{{\field{\*\fldinst{HYPERLINK "file:///*8|11|448|0|1"}}{\fldrslt{\ul\cf2\cf2\ul scratchpad}}}}\f0\fs20 ", also including links to nodes (See {{\field{\*\fldinst{HYPERLINK "file:///*8|303|13152|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Inserting internal KNT Links}}}}\f0\fs20 )\par
 {\pntext\f1\'B7\tab}You can save links to locations within the help file in the tab {{\field{\*\fldinst{HYPERLINK "file:///*8|601|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Favorites}}}}\f0\fs20 .\par
 
+\pard\sb160 This help file is launched using the "Help" profile (Profiles\\Help), where the .ini file has been configured conveniently.\par
+
 \pard\par
-\par
 Many relationships (with multiple links) have been established to help locate information. So, you can start for example with:\par
 
 \pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360 {{\field{\*\fldinst{HYPERLINK "file:///*8|10|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Quick Start}}}}\f0\fs20  \par
@@ -178,12 +180,12 @@ I recommend using the installer (kntSetup), but in case anyone needs it, a Zip f
 \par
 \par
 \b Note: \par
-\b0 KeyNote NF versions prior to 1.8.6 are not code signed and therefore you could receive a Smart Screen (Windows) alert message. Since version 1.8.6 binaries of KeyNote NF are code signed (you can see that the files are digital signed, in File Properties \f1\emdash\f0 in Windows Explorer).\par
+\b0 KeyNote NF versions prior to 1.9.0 are not code signed and therefore you could receive a Smart Screen (Windows) alert message. Since version 1.9.0 binaries of KeyNote NF are code signed (you can see that the files are digital signed, in File Properties \f1\emdash\f0 in Windows Explorer).\par
 
 \pard\sb80 S\f2\lang3082 ince the release of version 1.8.1 you can {\f0\lang1033{\field{\*\fldinst{HYPERLINK "file:///*8|442|0|0"}}{\fldrslt{\ul\cf2\cf2\ul check integrity and authenticity of the downloaded releases}}}}\f0\fs20\lang1033\par
 
 \pard\par
-Also, since version 1.8.6 KeyNote NF includes a new entry in Help menu: "\b Check for Updates\b0 "\par
+Also, since version 1.9.0 KeyNote NF includes a new entry in Help menu: "\b Check for Updates\b0 "\par
 
 \pard\sb80 The dialog box "Check for Updates" offers the option "\b Check for updates on startup\b0 ". It compares your version (.exe running) and current version (in Github, looking in releases/latest) showing the changes between those versions based on history.txt file\par
 
@@ -1340,7 +1342,13 @@ The KNT link must be bound to the option, without any spaces. Examples:\par
 \par
 \ul Tip\ulnone : You can use the export to plain text with the "Show hidden marks and IDs" option ({{\field{\*\fldinst{HYPERLINK "file:///*8|313|15858|0|11"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 ) to determine the links to use, as well as "Save Tree to File..." by holding down Ctrl ({{\field{\*\fldinst{HYPERLINK "file:///*8|189|7901|0|29"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 ) \par
 \par
-\par
+\b -title"<TITLE>"  (Set title on main window)\par
+
+\pard\sb80\b0 This option allows to set a custom title when opening a KeyNote instance \par
+
+\pard\sb40 It has been incorporated mainly for its use with kntLauncher (see {{\field{\*\fldinst{HYPERLINK "file:///*8|570|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Using KeyNote NF .knt as Help files}}}}\f0\fs20 ) \par
+
+\pard\par
 \b -ignSI   (Ignore single instance option for this call)\par
 
 \pard\sb80\b0 This option will ensure that a new instance is opened, as the newly created instance will ignore the SingleInstance option.\par
@@ -2543,7 +2551,8 @@ IX=0
 
 \pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///*8|284|4545|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Using the Tree panel}}}}\f0\fs20\par
 
-\pard    {{\field{\*\fldinst{HYPERLINK "file:///*8|284|5849|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Using the keyboard in the Tree panel}}}}\f0\fs20\par
+\pard    {{\field{\*\fldinst{HYPERLINK "file:///*8|284|7820|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Normal vs maximum tree width}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///*8|284|5849|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Using the keyboard in the Tree panel}}}}\f0\fs20\par
    {{\field{\*\fldinst{HYPERLINK "file:///*8|284|6952|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Drag and drop operations in the tree}}}}\f0\fs20\par
    {{\field{\*\fldinst{HYPERLINK "file:///*8|284|7821|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Copying or moving Subtrees}}}}\f0\fs20\par
    {{\field{\*\fldinst{HYPERLINK "file:///*8|284|11501|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Hiding the Tree panel}}}}\f0\fs20\par
@@ -2652,7 +2661,7 @@ Many other tree-related settings are global, that is, they apply \b to ALL notes
 
 \pard\sb120\par
 
-\pard\b\v\fs22\'11B12\'12\v0 Normal vs maximum tree size\b0\par
+\pard\b\v\fs22\'11B12\'12\v0 Normal vs maximum tree width\b0\par
 
 \pard\sb80\fs20 Normally\f3  \f0 you\f3  \f0 will\f3  \f0 need\f3  \f0 most\f3  \f0 of\f3  \f0 the\f3  \f0 space\f3  \f0 for\f3  \f0 the\f3  \f0 editor\f3  \f0 panel\f3 , \f0 reducing\f3  \f0 the\f3  \f0 width\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3 , \f0 but\f3  \f0 many\f3  \f0 times\f3  \f0 you\f3  \f0 will\f3  \f0 find\f3  \f0 that\f3  \f0 you\f3  \f0 need\f3  \f0 to\f3  \f0 enlarge\f3  \f0 the\f3  \f0 size\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3  \f0 to\f3  \f0 better\f3  \f0 see\f3  \f0 the\f3  \f0 tree\f3  \f0 nodes\f3 . \f0 Shortly\f3  \f0 after\f3  \f0 you\f3  \f0 will\f3  \f0 find\f3  \f0 yourself\f3  \f0 again\f3  \f0 reducing\f3  \f0 the\f3  \f0 width\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3 ...\f0\par
 Although\f3  \f0 we\f3  \f0 can\f3  \f0 completely\f3  \f0 hide\f3  \f0 the\f3  \f0 tree\f3 , \f0 sometimes\f3  \f0 it\f3  \f0 is\f3  \f0 necessary\f3  \f0 to\f3  \f0 have\f3  \f0 a\f3  \f0 view\f3  \f0 of\f3  \f0 the\f3  \f0 nodes\f3 , \f0 to\f3  \f0 facilitate\f3  \f0 the\f3  \f0 selection\f3  \f0 of\f3  \f0 other\f3  \f0 nodes\f3 , \f0 or\f3  \f0 simply\f3  \f0 as\f3  \f0 context\f3  \f0 or\f3  \f0 to\f3  \f0 help\f3  \f0 us\f3  \f0 with\f3  \f0 their\f3  \f0 nodes\f3  \f0 and\f3  \f0 their\f3  \f0 structure\f3 .\par
@@ -2903,7 +2912,7 @@ Note that you can show the checkbox for all nodes with View | \b All nodes Check
 
 \pard\li360\sb60 In German, the key with VK_OEM_5 corresponds to  \cf3\b ^\cf0\b0 . In Spanish to \cf3\b\\\cf0\b0  (both in the same position, below \cf3\b Esc\cf0\b0  button). As onother example, in Japanese keyboard, VK_OEM_5 corresponds to \cf3\b ]\cf0\b0  while the one below ESC corresponds to 192 as in US Keyboard.\par
 
-\pard\li360\sb180 Since version 1.8.6 there are three \b menu commands\b0  that allow to customize that shortcut, and also allows you to always set the focus in a certain panel. In \b Tree | Set Focus\b0 :\par
+\pard\li360\sb180 Since version 1.9.0 there are three \b menu commands\b0  that allow to customize that shortcut, and also allows you to always set the focus in a certain panel. In \b Tree | Set Focus\b0 :\par
 
 \pard\par
 
@@ -3113,8 +3122,12 @@ IX=0
 \par
 \par
 On this tab you can specify \ul note and editor-related settings\ulnone  for either the \b active note\b0  (\cf2\b F4\cf0\b0 ), or for \b all notes you later create\b0  (\cf2\b F6\cf0\b0 ).\par
-\par
-\lang3082 All the properties described can be changed in active note, or set as default value \lang1033 for newly created notes.\lang3082\par
+
+\pard\sb80\lang3082 All the properties described can be changed in active note, or set as default value \lang1033 for newly created notes.\par
+
+\pard\par
+See also {{\field{\*\fldinst{HYPERLINK "file:///*8|314|0|0"}}{\fldrslt{\ul\cf3\cf3\ul About initial fonts and colors in KeyNote}}}}\f0\fs20 .\par
+\lang3082\par
 \lang1033\par
 \cf1\b\fs22 Save as default for <filename>\cf0\b0\fs20\par
 When editing default settings for a new note, you can choose to apply these settings not just to all notes that you will later create (the normal behavior), but to all notes that you will add to the current file only. That way you can have different default settings for each individual file. For example, you may normally want a white background for new notes, but for one special file you may want a black background instead. \par
@@ -3155,7 +3168,7 @@ If the \b Use Tab character\b0  option is disabled, specifies the number of spac
 More info in {{\field{\*\fldinst{HYPERLINK "file:///*8|303|3323|0|3"}}{\fldrslt{\ul\cf3\cf3\ul Using URL recognition of RTF Editor}}}}\f0\fs20\par
 
 \pard\par
-\cf1\b\fs22 Language\cf0\b0\fs20\par
+\cf1\b\v\fs22\'11B1\'12\v0 Language\cf0\b0\fs20\par
 Set the language for the note text. This property is used to select the proper dictionary for the spell-checker. It does not change the language of the text or the language of the KeyNote program.\par
 \par
 \cf1\b\fs22 Plain text only\cf0\b0\fs20\par
@@ -5859,7 +5872,7 @@ IX=0
 \cf1\b\fs36 File properties: File icons\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\'11I145\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:145,537,331"}}{\fldrslt {145_Clipb_19ene.png}}}\fs26\par
+\pard\li360\v\'11I174\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:174,532,330"}}{\fldrslt {174_Clipb_06mar.png}}}\fs26\par
 
 \pard\par
 \fs20 On this tab you can view or change icons used for \ul current\ulnone  KeyNote file.\par
@@ -5894,11 +5907,13 @@ IX=0
 
 \pard\par
 
-\pard\sa80\cf1\b\fs22 Use custom tray icon for this file\par
+\pard\sa80\cf1\b\fs22 Use custom icon for this file\par
 
-\pard\cf0\b0\fs20 This setting allows you to specify that KeyNote should display a custom icon in the system tray area when the current KeyNote file is open. This allows you to quickly identify which file is currently open in KeyNote, just by looking at the tray icon. If you choose this option, you will have to specify the name of the custom icon (.ICO file) in the edit field below.\par
-\par
-\par
+\pard\cf0\b0\fs20 This setting allows you to specify that KeyNote should display a custom icon in the \b system tray area\b0  and \b taskbar\b0  when the current KeyNote file is open. This allows you to quickly identify which file is currently open in KeyNote, just by looking at the icon. If you choose this option, you will have to specify the name of the custom icon (.ICO file) in the edit field below.\par
+
+\pard\sb80 Note: The path to the icon file will be saved relative to the .knt file.\par
+
+\pard\par
 }
 %-
 LV=2
@@ -6536,7 +6551,7 @@ DI=588
 NF=000001000000000000000000
 BC=clWindow
 IX=0
-RV=..\..\doc\fileformat.txt
+RV=..\..\..\doc\fileformat.txt
 VF=C:\APL\KeyNote NF\doc\fileformat.txt
 %-
 LV=1
@@ -6661,7 +6676,7 @@ When dropping into the Editor you can dynamically change the position of the cur
 \pard\sb80 The {{\field{\*\fldinst{HYPERLINK "file:///*8|115|1758|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Insert | File Contents...}}}}\f0\fs20  helps you to insert the content of a \ul single\ulnone  file, RTF or plain text. You can only insert registered plain text files;  HTML will automatically inserted as plain text, although not registered as such. (See {{\field{\*\fldinst{HYPERLINK "file:///*8|251|0|0"}}{\fldrslt{\ul\cf2\cf2\ul File types}}}}\f0\fs20 )\par
 The {{\field{\*\fldinst{HYPERLINK "file:///*8|115|2952|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Insert | Picture...}}}}\f0\fs20  allows you insert a \ul single\ulnone  image file. Note that the image will be embedded or linked depending on {{\field{\*\fldinst{HYPERLINK "file:///*8|536|10885|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Link to files by default (no copies)}}}}\f0\fs20  general option. With the \cf4\b Import window\cf0\b0  and the "Insert content at caret position" option you can change that default setting for individual files.\par
 \par
-\cf3\b\fs22 Import window\b0\fs20\par
+\cf3\b\v\fs22\'11B7\'12\v0 Import window\b0\fs20\par
 
 \pard\cf0\par
 With {{\field{\*\fldinst{HYPERLINK "file:///*8|29|4356|0|12"}}{\fldrslt{\ul\cf2\cf2\ul File | Import...}}}}\f0\fs20   and when you drag and drop, the \cf4\b Import window\cf0\b0  will be displayed. It allows you to you create a link (or hyperlink) to the file(s), and also to import those file(s) in different ways depending on the selection.\par
@@ -6928,8 +6943,6 @@ Usually, a note heading is inserted only once, at the beginning of an exported f
 \par
 Note: Since version 1.8.3 when exporting, the \b highest node level will be managed as 1\b0 , the next as 2, and so on.\par
 \par
-See also {{\field{\*\fldinst{HYPERLINK "file:///*8|590|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options in Exporting. Examples}}}}\f0\fs20\par
-\par
 \par
 
 \pard\sa80\cf4\b\v\fs22\'11B9\'12\v0 Available Tokens, and related options\b0\par
@@ -6958,6 +6971,10 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///*8|590|0|0"}}{\fldrslt{\ul\cf2\c
 {\pntext\f4\'B7\tab}\f2\lang3082 The tokens \cf4\b %>\cf0\b0  and \cf4\b %<\cf0\b0  will be ignored in note heading.\f0\lang1033\par
 {\pntext\f4\'B7\tab}The character that will be repeated in \cf4\b\f2\lang3082 %>\cf0\b0  or \cf4\b %< \cf0\b0\f0\lang1033 is the one deduced from the \b Symbols\b0  option, see below.\par
 {\pntext\f4\'B7\tab}\cf4\b\f3\fs24\lang3082 %I\cf0\b0\f0\fs20\lang1033  : shows a sequential number for each node in the tree, beginning with 1 for the first top. This value is \ul not\ulnone  the ID of the node. If you need to include the ID of the nodes you can use the "Show hidden marks" option, available when exporting to plain text.\par
+
+\pard\sb80\par
+
+\pard See also {{\field{\*\fldinst{HYPERLINK "file:///*8|590|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options in Exporting. Token usage \b examples}}}}\f0\fs20\par
 
 \pard\sb80\par
 
@@ -7180,7 +7197,7 @@ The IDs of notes and nodes is shown enclosed in "[" and "]". Example:\par
 \cf0\par
 The hyperlinks are visible in the following way (eg. KNT link):\par
 \par
-\cf9 HYPERLINK "{{\field{\*\fldinst{HYPERLINK file:///*8|282|806|0|11 }}{\fldrslt{file:///*8|282|806|0|11\ul0\cf0}}}}\f0\fs20 "Text of hyperlink\par
+\cf9 HYPERLINK "{\cf0{\field{\*\fldinst{HYPERLINK file:///*8|282|806|0|11 }}{\fldrslt{file:///*8|282|806|0|11\ul0\cf0}}}}\f0\fs20 "Text of hyperlink\par
 \cf0\par
 \par
 \par
@@ -7296,9 +7313,9 @@ As already indicated, when exporting to \b HTML\b0 , KeyNote converts the finall
 To show more clearly the differences between the RTF and Plain Text results, a monospaced font type has been used when incorporating the results of the latter: \f2 Lucida Console\f0\par
 \par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 {{\field{\*\fldinst{HYPERLINK "file:///*8|591|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ejemplos de exportaci\'f3n a RTF}}}}\f0\fs20\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 {{\field{\*\fldinst{HYPERLINK "file:///*8|591|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Examples of export to RTF}}}}\f0\fs20\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {{\field{\*\fldinst{HYPERLINK "file:///*8|595|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ejemplos de exportaci\'f3n a TXT}}}}\f0\fs20\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {{\field{\*\fldinst{HYPERLINK "file:///*8|595|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Examples of export to TXT}}}}\f0\fs20\par
 
 \pard\par
 }
@@ -7311,8 +7328,14 @@ BC=clWindow
 IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
+{\colortbl ;\red0\green0\blue255;}
 {\*\generator Riched20 10.0.19041}\viewkind4\uc1 
 \pard\f0\fs20\lang3082\par
+\b Examples of export to RTF\par
+\b0\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|592|0|0"}}{\fldrslt{\ul\cf1\cf1\ul Ex. RTF 1}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|593|0|0"}}{\fldrslt{\ul\cf1\cf1\ul Ex. RTF 2}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|594|0|0"}}{\fldrslt{\ul\cf1\cf1\ul Ex. RTF 3 - Indent.}}}}\f0\fs20\par
 }
 %-
 LV=4
@@ -7505,8 +7528,16 @@ BC=clWindow
 IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
+{\colortbl ;\red0\green0\blue255;}
 {\*\generator Riched20 10.0.19041}\viewkind4\uc1 
 \pard\f0\fs20\lang3082\par
+\b Examples of export to TXT\par
+\b0\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|596|0|0"}}{\fldrslt{\ul\cf1\cf1\ul TXT/Ex. Txt 1}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|597|0|0"}}{\fldrslt{\ul\cf1\cf1\ul TXT/Ex. Txt 2}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|598|0|0"}}{\fldrslt{\ul\cf1\cf1\ul TXT/Ex. Txt 3 - Indent.}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|599|0|0"}}{\fldrslt{\ul\cf1\cf1\ul TXT/Ex. Txt 4 - Indent.}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|600|0|0"}}{\fldrslt{\ul\cf1\cf1\ul TXT/Ex. Txt 5 - Indent.}}}}\f0\fs20\par
 }
 %-
 LV=4
@@ -9578,8 +9609,8 @@ NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red128\green0\blue0;}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red32\green32\blue32;\red64\green64\blue64;\red128\green0\blue0;}
 {\*\generator Riched20 10.0.19041}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Using KeyNote NF .knt as Help files\cf2\lang1033\par
@@ -9606,20 +9637,27 @@ Note: This very file you are reading is a .knt file made with KeyNote NF. The in
 \pard KeyNote NF distribution includes an add-on utility, \b KntLauncher.exe\b0 . Its function is to ensure that a certain .knt file is opened in an independent instance, reusing the instance that may already have that file open.\par
   \par
 
-\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360\ul kntLauncher.exe\ulnone  must be in the same folder where \ul keynote.exe\ulnone  is located\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\ul kntLauncher.exe\ulnone  must be in the same folder where \ul keynote.exe\ulnone  is located\par
 
 \pard\par
 \'bfHow it works?\par
-This utility receives the same parameters as keynote.exe. Begins by going through all open KeyNote instances providing them with the received command line.\par
+This utility receives the same parameters as keynote.exe. Begins by trying to locate an instance of KeyNote that already has the same file that was passed as an argument open.\par
 
-\pard\sb80 All instances will deny command line execution if they do not have the .knt file indicated on the command line open. The first found instance that has that file open will process the request. At a minimum that instance will be activated, restored and become the foreground window, but the command line will normally also include a -jmp parameter, to show a certain location. It may also include additional execution of a macro and/or plugin.\par
+\pard\sb80 If the \b -title\b0  argument has been passed among the input parameters (recommended), then this add-on will search for the existing KeyNote instance looking for the title of the window \f1\emdash\f0 and also the ClassName of KeyNote app. (It will use FindWindow API function). If found, then it will request the instance to process the command line, which the instance will only do if it has the .knt file indicated on the command line open.\par
+If \cf4\b -\cf5 title\b0  \cf0 was not passed, the add-on it will traverse all windows (with EnumWindows) looking for the correct Keynote instance.\par
 
-\pard\sb120 If it does not find any instance that already has the file open, it will launch the opening of a new instance, passing the received command line, to which it adds add the "-ignSI" and "-dnd" options.  \par
+\pard\sb120 If the instance accepts the execution of the command line, at a minimum it will be activated, restored and become the foreground window, but the command line will normally also include a \b -jmp\b0  parameter, to show a certain location. It may also include additional execution of a macro and/or plugin.\par
+
+\pard\par
+
+\pard\sb120 If it does not find any instance that already has the file open, it will launch the opening of a \b new instance\b0 , passing the received command line, to which it adds the \b -ignSI\b0  and \b -dnd\b0  options.  \par
+\par
+\b Tip:\b0  It is recommended to also pass kntLauncher a \b .ini\b0  file, to ensure that the .knt help file is opened within a properly configured profile.\par
 
 \pard  \par
 Usage examples:\par
 
-\pard\li360\b kntLauncher\b0  myHelp.knt -jmp"{{\field{\*\fldinst{HYPERLINK file:///*3|2 }}{\fldrslt{file:///*3|2\ul0\cf0}}}}\f0\fs20 "\par
+\pard\li360\b kntLauncher\b0  myHelp.knt myHelp.ini -jmp"file:///*3|2" -title"MyHelp Topics"\par
 \b kntLauncher\b0  myHelp.knt -jmp"{{\field{\*\fldinst{HYPERLINK file:///*3|16|5|0|1 }}{\fldrslt{file:///*3|16|5|0|1\ul0\cf0}}}}\f0\fs20 "\par
 \b kntLauncher\b0  -jmp"{{\field{\*\fldinst{HYPERLINK file:///..\\\\Doc\\\\myFile.knt*3|2 }}{\fldrslt{file:///..\\Doc\\myFile.knt*3|2\ul0\cf0}}}}\f0\fs20 "\par
 \b kntLauncher\b0  myHelp.knt myMacro.knm myPlugin.knl\par
@@ -9642,13 +9680,13 @@ More information in {{\field{\*\fldinst{HYPERLINK "file:///*8|303|19244|0|4"}}{\
 
 \pard\par
 
-\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can save the structure of a tree-type note in a text file, showing for each node its name and internal ID\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can save the structure of a tree-type note in a text file, showing for each node its name and internal ID\par
 
-\pard\li360\sb80 You must \cf4\b Ctrl\cf0\b0  click in Tree|{{\field{\*\fldinst{HYPERLINK "file:///*8|189|7607|0|29"}}{\fldrslt{\ul\cf2\cf2\ul Save Tree to File...}}}}\f0\fs20  The IDs are shown enclosed in "[" and "]"\par
+\pard\li360\sb80 You must \cf6\b Ctrl\cf0\b0  click in Tree|{{\field{\*\fldinst{HYPERLINK "file:///*8|189|7607|0|29"}}{\fldrslt{\ul\cf2\cf2\ul Save Tree to File...}}}}\f0\fs20  The IDs are shown enclosed in "[" and "]"\par
 
 \pard\sb80\par
 
-\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can export notes to plain text using the \ul Show hidden marks and IDs\ulnone  option\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can export notes to plain text using the \ul Show hidden marks and IDs\ulnone  option\par
 
 \pard\li360\sb80 This option will make the hidden marks used with internal KNT Links, bookmarks and images visible. It also makes hidden part of hyperlinks visible and shows the internal IDs of notes and nodes.\par
 See also {{\field{\*\fldinst{HYPERLINK "file:///*8|313|15769|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Additional settings when exporting to Plain text}}}}\f0\fs20\par
@@ -10396,13 +10434,19 @@ The setup program will appropriately set the permissions for the Profiles folder
 
 \pard\tab\par
 \b Note\b0 :\par
-An example of the use of an alternative .ini file, via the command line option, using a specific folder within Profiles can be found in "Profiles\\Help" folder, used from the "KeyNote NF Help" shortcut to facilitate opening .knt help file :\par
+An example of the use of an alternative .ini file, via the command line option, using a specific folder within Profiles can be found in the root folder, in the "KeyNote NF Help" shortcut to facilitate opening .knt help files from Explorer:\par
 \par
-"C:\\Program Files (x86)\\KeyNote NF\\keynote.exe" Profiles\\Help\\keynote.ini  help\\KeyNoteNF_Help.knt \par
+"C:\\Program Files (x86)\\KeyNote NF\\kntLauncher.exe" Profiles\\Help\\keynote.ini help\\keynoteNF_Help.knt -ignSI -dnd -jmp"{{\field{\*\fldinst{HYPERLINK file:///*8|2 }}{\fldrslt{file:///*8|2\ul0\cf0}}}}\f0\fs20 " -title"KeyNote NF Topics"\par
    \par
-In this case, the .knt file to be opened is also being passed as a parameter, but this is optional\par
 
-\pard\qj\par
+\pard\qj In this case, kntLauncher.exe is used instead of keynote.exe, and the .knt file to be opened is also being passed as a parameter. That parameter and the others added are optional.\par
+\par
+You can use keynote.exe instead of kntLauncher.exe, and only the .ini file parameter.\par
+(See also {{\field{\*\fldinst{HYPERLINK "file:///*8|570|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Using KeyNote NF .knt as Help files}}}}\f0\fs20 )\par
+\par
+     \par
+   \par
+  \par
 }
 %-
 LV=1
@@ -11806,6 +11850,8 @@ IX=0
 See also {{\field{\*\fldinst{HYPERLINK "file:///*8|296|6273|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20\par
 
 \pard\sa80\cf1\b\fs22\par
+{\cf0\b0{\field{\*\fldinst{HYPERLINK "file:///*8|250|1227|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Clipboard Capture}}}}\f0\fs22\par
+{\cf0\b0{\field{\*\fldinst{HYPERLINK "file:///*8|250|3895|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Web Clip}}}}\f0\fs22\par
 \par
 \v\'11B4\'12\v0 Paste external as plain text\cf0\fs20\tab\tab\b0 Default: YES\par
 
@@ -11941,7 +11987,7 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///*8|580|0|0"}}{\fldrslt{\ul\cf2\c
 \pard\par
 \par
 \par
-\cf1\ul\b\fs26 Web Clip\ulnone\fs36\par
+\cf1\ul\b\v\fs26\'11B10\'12\v0 Web Clip\ulnone\fs36\par
 \cf0\b0\fs20\par
 
 \pard\sa100\cf1\b\v\fs22\'11B7\'12\v0 Divider:\cf0\b0\fs20\par
@@ -12387,7 +12433,7 @@ IX=0
 \fs26\par
 \cf0\b0\fs20 The \b Tools | Customize Keyboard...\b0  command allows you to change, add or remove keyboard shortcuts used to invoke KeyNote commands. You can modify the keyboard shortcuts for all \b commands\b0  listed in KeyNote's \b main menu\b0  and the right-click \b menu of the tree panel\b0 . \par
 \par
-Since version 1.8.6 you can also assign any shortcut to \b Macros, Plugins, Templates, Styles and Fonts\b0 . Now there is no need to use the old \b funckey.knl\b0  plugin and you can use any shortcut (and not only Alt+<Fx>, Shift+Alt+<Fx> or Ctrl+Alt+<Fx>.)\par
+Since version 1.9.0 you can also assign any shortcut to \b Macros, Plugins, Templates, Styles and Fonts\b0 . Now there is no need to use the old \b funckey.knl\b0  plugin and you can use any shortcut (and not only Alt+<Fx>, Shift+Alt+<Fx> or Ctrl+Alt+<Fx>.)\par
 
 \pard\li360\sb40\ul Funckey\ulnone  plugin it is not necessary now, and it is \ul abandoned\ulnone . That plugin required KeyNote to listen to a certain message after change was done, to reload shortcuts, and to use a specific config file (keyboard.key), with a limited set of possibles shortcuts.\par
 
@@ -12429,7 +12475,7 @@ The description of the currently selected command and its assigned shortcut \cf4
 {\pntext\f2\'B7\tab}The "Other" commands will share the shortcuts: if you assign one shortcut to a macro (e.g.) it will be removed from any "other" command (plugin, e.g)\par
 {\pntext\f2\'B7\tab}The shortcuts assigned to menus (main or tree) will take priority over shortcuts to Other commands (macros, ...)\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Although you can assign the same shortcut to "another" command as any menu command (main or tree), KeyNote will tell you if the shortcut you want to assign is assigned to any menu command. This "other" command shortcut will ultimately be considered depending on the focus (editor tree or panel) and what type of menu item the shortcut is assigned to.\lang1033\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Although you can assign the same shortcut to "another" command as any menu command (main or tree), KeyNote will tell you if the shortcut you want to assign is assigned to any menu command. This "other" command shortcut will ultimately be considered depending on the focus (editor tree or panel) and what type of menu item the shortcut is assigned to.\par
 
 \pard\par
 \par
@@ -12617,8 +12663,7 @@ At the end of the file is a section called [ResourceStrings], which includes all
 64465_kn_INI_STR_INIMail_01=Attached file: %F\par
 \cf0\par
 \par
-In the files .LNG you don't have to translate all the text. You may keep strings untranslated. It is also possible (althougth not recommended, to facilitate improving the translation) to remove some of the lines. Those ones that are not present will simply\par
-not be translated.\par
+In the files .LNG you don't have to translate all the text. You may keep strings untranslated. It is also possible (althougth not recommended, to facilitate improving the translation) to remove some of the lines. Those ones that are not present will simply not be translated.\par
 \par
 \par
 
@@ -15292,6 +15337,7 @@ IX=0
 \pard\fi-2160\li2160\sa100 {{\field{\*\fldinst{HYPERLINK "file:///*8|272|1348|0|5"}}{\fldrslt{\ul\cf3\cf3\ul What\rquote s New}}}}\f0\fs20\tab Displays the \b history.txt\b0  file, detailing the changes in KeyNote, including those in the current version\par
 {{\field{\*\fldinst{HYPERLINK "file:///*8|272|1521|0|6"}}{\fldrslt{\ul\cf3\cf3\ul Visit Website}}}}\f0\fs20\tab KeyNote prompts you for permission to start your default Internet Browser and display the KeyNote website\par
 {{\field{\*\fldinst{HYPERLINK "file:///*8|272|1915|0|7"}}{\fldrslt{\ul\cf3\cf3\ul About KeyNote}}}}\f0\fs20\tab Display information about KeyNote\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|272|1915|0|7"}}{\fldrslt{\ul\cf3\cf3\ul About KeyNote}}}}\f0\fs20\tab Display information about KeyNote\par
 
 \pard\par
 \par
@@ -15341,7 +15387,18 @@ IX=0
 \pard\li240\cf4\f2 MMHelpVisitWebsite\cf5\b\par
 
 \pard\cf0\b0\f0\par
-\lang3082\par
+\par
+\cf1\b\fs26 Check for Updates\cf3\fs20\par
+\cf0\b0 Allows you to check if a more updated version is available, indicating the changes made to the application since the currently installed version.\par
+
+\pard\sb80 See also {{\field{\*\fldinst{HYPERLINK "file:///*8|547|0|0"}}{\fldrslt{\ul\cf3\cf3\ul How to download and install new versions}}}}\f0\fs20\par
+
+\pard\lang3082\par
+
+\pard\li240\cf4\f2\lang1033 MMHelpChkUpd\cf5\b\par
+
+\pard\cf0\b0\f0\lang3082\par
+\par
 \cf1\b\v\fs26\lang1033\'11B7\'12\v0 About KeyNote\cf3\fs20\par
 \cf0\b0 Display information about KeyNote, including the version number, contact information, and the version of the Microsoft riched20.dll on your computer.\par
 \par
@@ -15368,7 +15425,7 @@ FN=Tahoma
 FS=9
 LN=3082
 ST=
-FL=101110000000110001000000
+FL=111110000000110001000000
 SN=0
 TW=182
 EN=(%D) -
@@ -15392,8 +15449,7 @@ IX=0
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 What's New\cf2\f0\lang1033\par
 \cf0\b0\fs26\par
-\fs20 A list of all changes, fixes and improvements in each new release is contained in the file called "History.txt". The file is located in the "doc" subdirectory, below the directory where KeyNote is installed. \par
-A virtual node to that file is included in this help: {{\field{\*\fldinst{HYPERLINK "file:///*14|4|0|0"}}{\fldrslt{\ul\cf2\cf2\ul history.txt}}}}\f0\fs20\par
+\fs20 A list of all changes, fixes and improvements in each new release is contained in the file called "\b History.txt\b0 ". The file is located in the "doc" subdirectory, below the directory where KeyNote is installed. A virtual node to that file is included in this help: {{\field{\*\fldinst{HYPERLINK "file:///*14|4|0|0"}}{\fldrslt{\ul\cf2\cf2\ul history.txt}}}}\f0\fs20\par
 
 \pard\li360\sb40 You can also view the latest version of the Release History file on the web (in GitHub.com): {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/blob/master/doc/history.txt"}}{\fldrslt{\ul\cf2\cf2\ul history.txt on GitHub}}}}\f0\fs20\par
 Depending on the versions, other files may be provided detailing the changes for each new release. Ex: "Changes in 1.8.2 .01.txt" (although normally that detail will end up being incorporated \f2\emdash\f0 and better documented\f2\emdash\f0  in this help file)\par
@@ -15408,19 +15464,31 @@ In {{\field{\*\fldinst{HYPERLINK "file:///*14|3|0|0"}}{\fldrslt{\ul\cf2\cf2\ul N
 The \b main improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 1.9.0\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Release is signed with a \ul code signing certificate\ulnone\par
+{\pntext\f3\'B7\tab}Added \ul Check for Updates\ulnone  to Help menu. Can also be checked at startup.\par
+{\pntext\f3\'B7\tab}KeyNote NF \ul help\ulnone  have been \ul completely revised/updated\ulnone , based on its own .knt format. Contextual help is included.\par
+{\pntext\f3\'B7\tab}Keyboard \ul shortcuts to macros, templates, plugins, styles and fonts\ulnone  can be configured in Tools | Customize Keyboard...\par
+{\pntext\f3\'B7\tab}Improved \ul Insert | Character....\ulnone  Any Unicode character can be inserted\par
+{\pntext\f3\'B7\tab}KeyNote can be used to generate help files for other applications, as an \ul alternative to .chm\ulnone  files, with the help of a new add-on utility, \ul KntLauncher.exe\ulnone\par
+{\pntext\f3\'B7\tab}KNT links to other files, in Favorites, and in notes/nodes can be opened in the current instance or in a new one, at will\par
+{\pntext\f3\'B7\tab}New optional behavior of Tree panel\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 1.8.5\b0\fs20\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa120\lang1033 Improved Bookmarks 0-9: Now are persisted, and are linked to target through a hidden mark\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa120\lang1033 Improved \ul Bookmarks 0-9\ulnone : Now are persisted, and are linked to target through a hidden mark\par
 
 \pard\sb120\sa120\b\fs26\lang3082 v 1.8.1\b0\fs20\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa120 Significant improvement in image management\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa120 Significant improvement in \ul image management\ulnone\par
 
 \pard\sb120\sa120\b\fs26 v 1.8.0\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 Adaptation from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).\par
-{\pntext\f3\'B7\tab}Find All: Improvements \par
-{\pntext\f3\'B7\tab}New KNT Links, vinculated to markers, not only to caret position\par
+{\pntext\f3\'B7\tab}\ul Find All: Improvements \ulnone\par
+{\pntext\f3\'B7\tab}New \ul KNT Links, vinculated to markers\ulnone , not only to caret position\par
 {\pntext\f3\'B7\tab}Redesigned navigation history mechanism\par
 {\pntext\f3\'B7\tab}Many other minor improvements and fixes were included\par
 
@@ -15441,6 +15509,14 @@ IX=0
 \cf1\b\f1\fs36\lang1045 KeyNote\f0\lang3082  NF:  News\cf2\lang1033\par
 \cf0\b0\fs20\par
 \par
+
+\pard\sa120\cf1\b\fs24\lang3082 07\f1\lang1045  \f0\lang3082 mar\f1\lang1045  202\f0\lang3082 4\cf2\lang1033\par
+
+\pard\sb40\cf0\b0\fs20 Release 1.9.0 is signed with a code signing certificate\par
+KeyNote NF help have been completely revised/updated, based on its own .knt format.\par
+KeyNote NF can be used to generate help files for other applications, as an alternative to .chm files, with the help of a new add-on utility, KntLauncher.exe\par
+
+\pard\par
 
 \pard\sa120\cf1\b\fs24\lang3082 11\f1\lang1045  \f0\lang3082 dec\f1\lang1045  2023\cf2\f0\lang1033\par
 
@@ -15540,21 +15616,24 @@ DI=4
 NF=000001000000000000000000
 BC=clWindow
 IX=0
-RV=..\..\doc\history.txt
+RV=..\..\..\doc\history.txt
 VF=C:\APL\KeyNote NF\doc\history.txt
 %BK
-BK=0,file:///*8|539|1667|0|128
-BK=1,file:///*8|296|6511|0|80
-BK=2,file:///*8|304|1780|0|216
-BK=5,file:///*8|284|14284|0|16
-BK=7,file:///*8|296|0|0
-BK=8,file:///*8|293|0|0
-BK=9,file:///*8|18|787|0|96
+BK=0,file:///*8|2|0|0
+BK=1,file:///*8|13|0|0
+BK=2,file:///*8|281|0|0
+BK=3,file:///*8|293|0|0
+BK=4,file:///*8|18|0|0
+BK=5,file:///*8|293|0|0
+BK=6,file:///*8|292|0|0
+BK=7,file:///*8|536|0|0
+BK=8,file:///*8|582|0|0
+BK=9,file:///*8|479|0|0
 %S
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=174
+II=175
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -15680,7 +15759,6 @@ PD=141||141_Clipb_18ene.png|1|21|19|2802262753||1|1||0
 PD=142||142_Clipb_18ene.png|1|284|166|3671234682||1|1||0
 PD=143||143_Clipb_19ene.png|1|537|330|93519370||1|1||0
 PD=144||144_Clipb_19ene.png|1|538|330|2335395260||1|1||0
-PD=145||145_Clipb_19ene.png|1|537|331|3945834176||1|1||0
 PD=146||146_Clipb_19ene.png|1|537|331|3837106390||1|1||0
 PD=147||147_Clipb_20ene.png|1|214|527|3783386365||1|1||0
 PD=148||148_Clipb_20ene.png|1|510|262|3469532081||1|1||0
@@ -15708,5 +15786,6 @@ PD=170||170_Clipb_22feb.png|1|405|23|3039917069||1|1||0
 PD=171||171_Clipb_22feb.png|1|359|282|3285222098||1|1||0
 PD=172||172_Clipboard_24feb.png|1|391|592|2780831697||1|1||0
 PD=173||173_Clipb_24feb.png|1|88|31|231898908||1|1||0
+PD=174||174_Clipb_06mar.png|1|532|330|3305557142||1|1||0
 %EI
 %%

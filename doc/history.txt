@@ -3,6 +3,55 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 1.9.0.1  (07 mar 2024)
+--------------------------
+(Detailed info in doc\Changes in 1.9.0 .01.txt)
+
+* KeyNote NF release is signed with a Code Signing Certificate
+* New: Added "Check for Updates" to Help menu. Can also be checked at startup (default: true)
+* The application help has been completely updated, based on .knt format (as an alternative to .chm).
+* Contextual help available based on .knt file (KeyNoteNF_Help.knt)
+
+* Improved Tools | Customize Keyboard...
+* Improved Insert | Character...
+* New optional behavior of Tree panel
+* Added 3 new menu commands, in Tree | Set Focus
+* Changes in behavior of 'View Resource Panel' shortcut
+* Changes in behavior of Find Next. Added new menu command: Search | Find All...
+
+* KNT links to other files, in notes/nodes can be opened in the current instance or in a new one, at will
+* KNT links in Favorites can be opened in the current instance or a new one, at will
+* It is allowed to insert a KeyNote link (Shift+F6) in the Scratchpad editor
+* The format of the internal KNT Link now admit relative paths (to keynote.exe) for knt files.
+* The state of View | Alternative Margins is now saved in session/profile file (.ini file)
+* The custom icon associated with a .knt file is now also visible in the taskbar and the main window
+
+* Added a new INI option to make "closing this instance" warning optional
+* Added a new INI option: ModifiedOnTreeResized
+* Set Ctr+Shift+Y as default shortcut for Insert| URL ... (as indicated in help)
+* Restored the original behavior of ESC in the Scratch window
+* Esc in Find tab of Resource panel will also focus note's control editor if..
+* KeyOptions.TipOfTheDay won't be automatically enabled when detected a new version
+* Keynote.ini will be saved as UTF8 by default (if it doesn't exists)
+* Removed menu entry Tools | Activate URL
+
+* Added new command line option: -jmp"<KNTLink>"
+* Added new command line option: -title"<TITLE>"
+* Added two new command line options: -ignSI  -dnd
+* Created a new add-on utility, KntLauncher.exe
+* New: Save Tree to File... If Ctrl -> Show node IDs
+* New option, "Show hidden marks and IDs", when exporting to plain text
+* Improved the way another instance is activated. It will now be truly restored and become the foreground window.
+
+* Fixed: KeyNote should not remember the minimized state of document when saving
+* Fixed: Find All. Search results displayed incorrectly on two situations
+* Fixed: Ctrl+Shift+0 was not working (default shortcut for Clear Paragraph Attributes)
+* Fixed: Changing visibility of images in read only note removed images in the node, marking the note as modified
+* Fixed: When playing macros of certain commands, all of them were executed as the first one
+* Fixed: When restoring image(s) proportions and the Note is Read Only, always use a temporary method
+* Fixed: Hidden characters where showing after 'Clear Font Attributes'
+
+
 v 1.8.5.1  (03 feb 2024)
 --------------------------
 (Detailed info in doc\Changes in 1.8.5 .01.txt)

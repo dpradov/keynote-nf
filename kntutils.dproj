@@ -3,7 +3,7 @@
         <ProjectGuid>{22CA599D-8EAB-498E-846A-AAF5BFF793F6}</ProjectGuid>
         <MainSource>kntutils.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Library</AppType>
         <FrameworkType>None</FrameworkType>
@@ -40,6 +40,12 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Android64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Android64)'!=''">
         <Cfg_1_Android64>true</Cfg_1_Android64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
         <CfgParent>Cfg_1</CfgParent>
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
@@ -116,6 +122,13 @@
     <PropertyGroup Condition="'$(Cfg_1_Android64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <VerInfo_MinorVer>9</VerInfo_MinorVer>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF (Utils) 1.9.0.1;FileVersion=1.9.0.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=kntutils.dll;ProductName=KeyNote NF (Utils);ProductVersion=1.9.0.1;Comments=;ProgramID=</VerInfo_Keys>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
+        <VerInfo_Build>1</VerInfo_Build>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
@@ -127,14 +140,14 @@
         <BT_BuildType>Debug</BT_BuildType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_MinorVer>8</VerInfo_MinorVer>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF (Utils) 1.8.0 Beta 1;FileVersion=1.8.0.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-23 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=;ProductName=KeyNote NF (Utils);ProductVersion=1.8.0.1;Comments=;ProgramID=</VerInfo_Keys>
-        <Manifest_File>(None)</Manifest_File>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <VerInfo_MinorVer>9</VerInfo_MinorVer>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF (Utils) 1.9.0.1;FileVersion=1.9.0.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=kntutils.dll;ProductName=KeyNote NF (Utils);ProductVersion=1.9.0.1;Comments=;ProgramID=</VerInfo_Keys>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <Debugger_HostApplication>E:\Output\bin\keynote.exe</Debugger_HostApplication>
-        <VerInfo_Build>1</VerInfo_Build>
         <Debugger_RunParams>Profiles\F9\keynote.ini</Debugger_RunParams>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
+        <VerInfo_Build>1</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

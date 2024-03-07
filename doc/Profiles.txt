@@ -62,8 +62,11 @@ Since version 1.8.1, the following improvements have been incorporated in relati
 	
 * NOTE: 
   An example of the use of an alternative .ini file, via the command line option, using a specific folder within Profiles can
-  be found in "Profiles\Help" folder, used from the "KeyNote Help 1.6" shortcut to facilitate opening .knt help files :
+  be found in the root folder, used from the "KeyNote NF Help" shortcut to facilitate opening .knt help files from Explorer:
 
-     "C:\Program Files (x86)\KeyNote NF\keynote.exe" Profiles\Help\keynote.ini  help\kntHelpFiles\KN_Help_1.6.knt 
+     "C:\Program Files (x86)\KeyNote NF\kntLauncher.exe" Profiles\Help\keynote.ini help\keynoteNF_Help.knt -ignSI -dnd -jmp"file:///*8|2" -title"KeyNote NF Topics"
    
-  In this case, the .knt file to be opened is also being passed as a parameter, but this is optional
+  In this case, kntLauncher.exe is used instead of keynote.exe, and the .knt file to be opened is also being passed as a parameter.
+  That parameter and the others added are optional.
+
+  

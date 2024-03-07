@@ -5,6 +5,21 @@
 
 
 ------------------------------------------------------------
+07 mar 2024
+------------------------------------------------------------
+Release 1.9.0 is signed with a code signing certificate
+KeyNote NF help have been completely revised/updated, based on its own
+.knt format. 
+KeyNote NF can be used to generate help files for other applications, 
+as an alternative to .chm files, with the help of a new add-on utility,
+KntLauncher.exe
+
+------------------------------------------------------------
+11 dec 2023
+------------------------------------------------------------
+A significant improvement in image management is incorporated in version 1.8.1
+
+------------------------------------------------------------
  09 JUn 2023
 ------------------------------------------------------------
 Adaptation from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3

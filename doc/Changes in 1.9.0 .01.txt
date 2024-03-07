@@ -1,0 +1,330 @@
+
+Changes in 1.9.0 .01  (07 mar 2024)
+=================================
+
+
+* KeyNote NF release is signed with a Code Signing Certificate
+  I trust that this will reduce false positives in some search engines. Also, it is expected that Microsoft's 
+  Smart Screen will stop warning when trying to install the application because it is not an unknown publisher.
+  This is important to allow its use in work environments, where normally the user does not have administrator 
+  permissions to ignore these types of warnings.
+
+* New: Added "Check for Updates" to Help menu. Can also be checked at startup (default: true)
+  The dialog box "Check for Updates" offers the option "Check for updates on startup" (KeyOptions.CheckUpdOnStartup) (Default: True (1))
+  It compares your version (.exe running) and current version (in Github, looking in releases/latest)
+  showing the changes between those versions based on history.txt file
+  If "Check for updates on startup" is enabled, it will be checked several seconds after initialize KeyNote, and only once a day.
+  When found a new version, and shown the dialog box, it will register that version as the last informed version, to only notify
+  again if there is a newer version.
+
+* The application help has been completely revised/updated, based on its own .knt format (as an alternative to .chm).
+* Contextual help available based on .knt file (KeyNoteNF_Help.knt)
+  F1 can be used in many locations of the user interface.
+
+-----------------
+
+* Improved Tools | Customize Keyboard...
+  Now it is possible to set any shortcut to Macros, Plugins, Templates, Styles and Fonts.
+  The shortcuts assigned to menus (main or tree) will take priority over shortctus to other commands (macros, ...)
+  The design and usability have also been reviewed.
+  Funckey plugin it is not necessary now, and it is abandoned. That plugin required KeyNote to listen to a certain
+  message after change was done, to reload shortcuts, and to use a specific config file (keyboard.key), with a limited set of possibles shortcuts.
+  This closes issue #30 and partially cover what it is requested in issue #645
+
+-----
+* Improved Insert|Character...
+  The old dialog has been replace by a new new one with a different behaviour:
+  Now, instead of showing a map of 256 characters of one selected font, based on the default character set
+  (which depends on regional settings), KeyNote integrates with "charmap" Windows tool. That tool allows
+  to see all the glyphs of the installed fonts, in any character set, using Unicode. And it also allows
+  to show that glyphs in an ordered way (eg. you can group characters by Unicode Subset)
+  KeyNote allows you to open that window and to close it when Insert Character dialog is closed.
+
+  From Charmap you can copy to clipboard one or more characters characters. Those characters can be added
+  to a custom table that you can configure with the one you more usually use.
+  It really is possible to add characters from any source (MS Word, Alt + 999 keypresses, etc.)
+  You can also edit the table and reorganize it easily, moving, adding or deleting any characters.
+
+  It is possible to automatically add to the custom table any new char inserted into your notes.
+
+  As a correction over old dialog:
+  Now, when you insert a character into your text, you can continue typing with the font
+  you where using, independently that the new character belongs to another font name or character set.
+
+  You can create macros that incorporate any characters that you insert with this dialog.
+  The new macros created will use a new command (insertcharU), equivalent to old command (insertchar)
+  but adapted to Unicode. The old one will still be recognized in existing macros. You can also edit
+  manually a macro and insert old insertchar commands if you like, where code must be <= 255 and
+  will be interpreted in the default character set of the fontname.
+
+  Ex:
+  #insertchar|148|1|Tahoma|0
+  #insertcharU|8221|1|Tahoma|0
+
+  Ref. [Petición/Sugerencia] Uso de comillas rectas o tipográficas #646
+
+-----
+* New optional behavior of Tree panel
+  If width of tree panel is changed with Ctrl pressed, the new value will be considered the max. width,
+  with the following behavior:
+  - When you mouse over the tree panel, at any node, the tree panel will expand to the maximum width.
+  - The same happens if the focus is moved to the tree panel.
+  - Once focus returns to the Editor panel, the tree restores its normal (minimum) width
+
+  - You can remove the max.value clicking on the splitter with Ctrl pressed, but without changing the width.
+  - You can also keep fixed the current width (normal or maximum) pressing Alt while clicking on the splitter.
+    This is highlighted changing the color of splitter to light blue. This way the tree width will not changed
+    automatically.
+    Clicking again with Alt pressed will deactivate this fixed state.
+    If in this state you change the width of the tree panel, it will also deactivate the fixed state.
+
+  Both values, normal width and optional max. width, will be saved on .knt file
+  (In case of vertical layout of Tree Panel, Heigth instead of width will be used)
+
+----
+* Added 3 new menu commands, in Tree | Set Focus
+ - Toggle focus: Editor / Tree Panel
+ - Set focus in Editor panel
+ - Set focus in Tree panel
+
+ The current toggle shortcut (Ctrl+\) will still work if there is no new shortcut to replace it
+ Also fixed: When changing focus to the Tree panel, it will be shown if it is hidden.
+ (Currently throwing an exception)
+ Requested several times, for example in issues #645
+
+----
+* Changes in behavior of 'View Resource Panel' shortcut
+  If you press the 'View Resource Panel' shortcut (default F9), the focus will shift from the Editor or Tree panel
+  to the resources panel if it is visible. If the resource panel had focus, it will be hidden.
+  The rest of the behavior is the same as current: if the resource panel is hidden, the shortcut will make it visible.
+  Double-click the status bar or click the menu entry (View|Resource Panel) to hide or show the Panel resource, as usual.
+
+----
+* Changes in behavior of Find Next. Added new menu command: Search | Find All...
+  A new option, "Reset Find Next after" (in Configuration Options | Advanced | Other) is incorporated:
+  "Request a new search pattern after N seconds (0, no timeout)" (default,0)
+
+  With this option set to a number > 0, you can normally use Find Next (F3) instead of Find... (Ctr+F):
+
+  If this is the first time you have selected Find Next or more than the configured seconds have passed
+  since the last Find Next, the Find dialog will be shown, to set a new search pattern (and options)
+  This makes it possible to assign the usual Ctrl+F shortcut to Find All.. functionality:
+
+  The new command (Find All...) will focus the 'Find text' field of "Find" tab, in Resource Panel (RP).
+  The RP will be shown and the Find tab selected, if needed.
+
+  Note that after search, if Find tab has the focus, you can press Esc to return to Editor panel (and the RP
+  will keep visible), or press 'View Resource Panel' shortcut (F9). The shortcut will hide the RP
+  and shift focus to Editor.
+
+------
+* Changes in reloading of resource panel data
+  Resource panel content is always loaded only when necessary.
+  The option "Load Resource panel data only when necessary" (in Options|Advanced) has been renamed
+  to "Reload Resource panel data when displaying" (ResPanelActiveUpdate), because that is it's function.
+
+  Aside from that change in the description, the way the update is done has also been changed.
+  Instead of always clearing the respanel content when hiding it and reloading it when it is shown again, the content
+  is updated (by clearing and reloading) just when the Resource panel is displayed again.
+  This way the macro list is not removed when the resource panel is hidden, preventing you from using shortcuts that run macros.
+
+
+-------------------
+
+* New: KNT links in Favorites can be opened in the current instance or a new one, at will
+  A new option has been created: "Open external KNT links in other instance" [ExtKNTLnkInNewInst]
+
+  If set to 1 (enabled, default), KNT links located in another file will be opened in another instance and not the current one.
+  Regardless of that option, if the "Jump to location" action is executed with Ctrl pressed, it will be opened in another instance
+  (Ctrl+Enter or Ctrl+Dbl Click)
+
+-----
+* New: KNT links to other files, in notes/nodes can be opened in the current instance or in a new one, at will
+  Internal KNT Links (in notes/nodes or in scratchpad) that point to locations in files other than the currently open,
+  will be opened in a new KeyNote NF instance if:
+
+   ExtKNTLnkInNewInst=1
+   or
+   URL link has been activated with "Open in new window" (See Options|Actions|URL actions)
+
+----
+* New: It is allowed to insert a KeyNote link (Shift+F6) in the Scratchpad editor
+  And it not matter if the Active note is read only
+
+-----
+* The format of the internal KNT Link now admit relative paths (to keynote.exe) for knt files.
+  Examples of valid internal KNT links:
+
+  "file:///..\Test\myFile.knt*8|301"
+  "file:///c:\myFile.knt*1|10|0|5"
+
+  (file:///PathToKntFile.knt*NoteID|NodeID|CaretPosition|SelectionLength|MarkID)
+
+----
+* The state of View | Alternative Margins is now saved in sessión file (.ini file)
+
+* The custom icon associated with a .knt file is now also visible in the taskbar and the main window
+
+
+---------------------
+
+* Added a new INI option to make "closing this instance" warning optional
+  If SingleInstance=1 and WarnSingleInstance=1 (default) then KeyNote will give the following message if there is another instance open:
+  "KeyNote NF have been configured to allow only one instance at a time. Closing this instance..."
+  If WarnSingleInstance=0 this instance will be close and the other activate, but without any warning message
+  Reference, issue #144
+
+* Added a new INI option: ModifiedOnTreeResized  (default 0, False)
+  If set to 1 (true), changing the width (or max width) of any tree panel will mark the file as modified, and so
+  this changes can be saved.
+
+* Set Ctr+Shift+Y as default shortcut for Insert| URL ... (as indicated in help)
+
+* Restored the original behavior of ESC in the Scratch window
+  Instead of minimizing KeyNote, focus will be set to the note control editor.
+  This way the behavior of Esc will be homogeneous in the Resource Panel
+
+* Esc in Find tab of Resource panel will also focus note's control editor if..
+  active controls are 'Find All' or 'Options' buttons, or Find combo (when empty)
+
+* KeyOptions.TipOfTheDay won't be automatically enabled when detected a new version (shown if KeyOptions.IgnoreUpgrades is disabled)
+
+* Keynote.ini will be saved as UTF8 by default (if it doesn't exists)
+  So far the configuration file (.ini) has not set any default encoding, but has instead used the
+  existing one, and if the .INI file does not exist, it will have been created as ANSI. That causes
+  the search history to not correctly display searched patterns, if they include Unicode characters,
+  unless saved as UTF8 (for example from Notepad++: Encoding -> Convert to UTF8)
+  Now, first time .ini is created, it will be saved as UTF8.
+
+* Removed menu entry Tools | Activate URL
+  Removed menu command "Activate URL hyperlink under cursor"
+  It is unnecessary. It is possible to activate the link by pressing ENTER
+
+
+-------------------------
+
+* Added a new command line option: -jmp"<KNTLink>"
+  -jmp"<KNTLink>"   Jump to the KNT link on start
+    This option allow to jump to the KeyNote internal link especified in quotes (in any of the recognized formats)
+	The KNT link must be bound to the option, without any spaces. Examples:
+	  -jmp"file:///*1|10|201|0"
+	  -jmp"file:///*1|2"
+	  -jmp"file:///C:\myFile.knt*1|3|285|0"
+
+	If the KNT link doesn't include a filename, the link will be executed in the current open file, and if the location
+	is not found, a message warning will be shown.
+
+---
+* Added new command line option: -title"<TITLE>"
+  Title to use in main window (mainly for its use with kntLauncher)
+  If passed to kntLauncher (recommended), this add-on will search for an existing KeyNote instance with the file
+  to open looking for the title of the window (and also the classname of KeyNote app). In this case it will use
+  FindWindow and not EnumWindows.
+
+---
+* Added two new command line options: -ignSI -dnd
+    -ignSI 	Ignore single instance option for this call
+    -dnd 	Do Not Disturb (will be ignored for "Single Instance" purposes)
+
+    The first will ensure that a new instance is opened, as the newly created instance will ignore the SingleInstance option.
+    The second will mark the created instance to be ignored, as if it does not exist, by other knt instances, although it will be accessible
+    to the new utility "kntLauncher.exe"
+
+    Note that currently, when you open the first .knt file or any subsequent .knt file using an .ini file where SingleInstance=0, the
+    files will be opened in a separate instance. However, if at any time you try to open another file using a profile (.ini) where SingleInstance=1
+    then the last open instance will come to the front to close its file and open the new file requested by the user (*)
+    With the -dnd switch you can ensure that an instance will not be disturbed and will not be prompted to change its open file.
+    (You can use this switch if you need, although it has been added primarily for kntLauncher to use, especially for opening knt help files)
+
+  (*) If the file has modifications and AutoSave=0 then you will be prompted for confirmation before closing the file, so you can refuse
+	to change the currently open file.
+
+---
+* Created a new add-on utility, KntLauncher.exe
+  Its function is to ensure that a certain .knt file is opened in an independent instance, reusing the instance
+  that may already have that file open.
+
+  The utility receives the same parameters as keynote.exe.
+  It assumes that "keynote.exe" is located in the same folder in which it (kntLauncher.exe) is located,
+  and begins by going through all open KeyNote instances (regardless of whether they could have been opened with -dpd)
+  providing them with the received command line.
+  All instances will deny command line execution if they do not have the .knt file indicated on the command line open.
+  If any instance has that file open, it will process the request. At a minimum that instance will be activated, restored
+  and become the foreground window, but the command line will normally also include a -jmp parameter, to jump to a certain location.
+  It may also involve additional execution of a macro and/or plugin.
+
+  If it does not find any instance that already has the file open, it will launch the opening of a new instance, passing
+  the received command line, to which it adds add the "-ignSI" and "-dnd" options.
+
+  Usage examples:
+     kntLauncher myHelp.knt myMacro.knm myPlugin.knl
+     kntLauncher myHelp.knt -jmp"file:///*3|2"
+     kntLauncher myHelp.knt -jmp"file:///*3|16|5|0|1"
+     kntLauncher -jmp"file:///..\Doc\myFile.knt*3|2"
+
+----
+* New: Save Tree to File... If Ctrl -> Show node IDs
+  The command Tree|Save Tree to File... will include the IDs of the nodes if it is executed pressing Ctrl key.
+  The IDs are shown enclosed in "[" and "]"
+
+---
+* New option, "Show hidden marks and IDs", when exporting to plain text
+  The additional "Show hidden marks and IDs" option makes the hidden marks used with internal KNT Links, bookmarks and images visible.
+  It also makes hidden part of hyperlinks visible and shows the internal IDs of notes and nodes.
+  This can be useful if you are creating a help file and you want to open the file externally showing a specific location.
+  The hidden marks are shown in a humanized way. Example:
+
+	$11B7$12  	-> [BMK:7]
+	$11b7$12  	-> [TmpBMK:7]         (Bookmarks 0 - 9)
+	$11I7$12	-> [IMG:7]
+
+  The IDs of notes and nodes is shown enclosed in "[" and "]". Example:
+	My NOTE [1]
+	  My node B [123]
+
+  The hyperlinks are visible in the following way (eg. KNT link):
+	HYPERLINK "file:///*8|282|806|0|11"Text of hyperlink
+
+  * Also, %I token (Node index) now begins with 1
+
+-----
+* Improved the way another instance is activated. It will now be truly restored and become the foreground window.
+
+
+-------------------------
+
+* Fixed: KeyNote should not remember the minimized state of document when saving
+  It will continue to restore the other states (normal and maximized) and also the position and sizes.
+  To start minimized, use the corresponding option: "Start program minimized"
+
+* Fixed: Find All. Search results included within tables showed poorly formatted extracts
+* Fixed: Find All. Results displayed incorrectly if the search pattern included "\", "{" or "}"
+
+* Fixed: Ctrl+Shift+0 was not working (default shortcut for Clear Paragraph Attributes)
+  It seems to be something related to W10. Now is activated with KeyUp event
+  << it appears that the KeyDown event is not getting through in some cases for Ctrl+Shift+0, but the KeyUp event is. >>
+  https://answers.microsoft.com/en-us/windows/forum/all/ctrlshift0-in-windows-10/337b6542-4159-4143-83a8-a4496f8f995c
+  
+* Fixed: Changing visibility of images in read only note removed images in the node, marking the note as modified
+  The change of visibility marked the note as modified. Trying to show the images again, once hidden, removed the images
+  on the node.
+
+----  
+* Fixed: When playing macros of certain commands, all of them were executed as the first one
+	When reproducing the macros, a string list type variable is used to separate the command itself from its arguments, on each line. For example, a line can be "#insertchar|148|1|Tahoma|0", and must be separated into the command (insertchar) and its arguments (148, 1, Tahoma, 0).
+	Well, that object was not being cleaned in each iteration (each line of the macro), so it must have been causing four commands to work poorly (those that use arguments), in which each execution of one of those commands would be reproducing really the first of them. Commands affected:
+
+	ecFontDlg
+	ecParaDlg
+	ecInsCharacter
+	ecFindText
+
+	Ref: https://github.com/dpradov/keynote-nf/issues/646
+
+----
+* Fixed: When restoring image(s) proportions and the Note is Read Only, always use a temporary method
+  If the note is marked as Read only, the temporary method will always be applied, regardless of whether you use Alt+Click
+  (with or without selected text) or the "Restore image[s] proportions" command. This also means that all images in the
+  node will be adjusted, and not just selected images.
+
+* Fixed: Hidden characters where showing after 'Clear Font Attributes'

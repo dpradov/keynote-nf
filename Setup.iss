@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "1.8.5.1"
-#define AppVersion "1.8.5 .01"
+#define Version "1.9.0.1"
+#define AppVersion "1.9.0 .1"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -16,8 +16,9 @@
 
 
 [Setup]
-TouchDate=2024-02-03
-TouchTime=15:00
+SignTool=mySignTool
+TouchDate=2024-03-07
+TouchTime=21:00
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
@@ -47,6 +48,7 @@ ChangesAssociations=WizardIsTaskSelected('associate')
 
 InfoBeforeFile=doc\NotesBeforeSetup.txt
 InfoAfterFile=doc\history.txt
+SignedUninstaller=yes
 
 
 [Types]
@@ -68,7 +70,7 @@ Name: associate; Description: "Associate KeyNote NF with the .knt, kne and .knm 
 
 
 [Dirs]
-;Name: "{app}\lang"
+Name: "{app}\lang"; Permissions: users-modify
 Name: "{app}\macros"; Permissions: users-modify
 Name: "{app}\plugins"; Permissions: users-modify;
 Name: "{app}\templates"; Permissions: users-modify
@@ -76,12 +78,23 @@ Name: "{app}\Profiles" ; Permissions: users-modify
 Name: "{app}\Profiles\Default"
 Name: "{app}\Profiles\Default\macros"
 Name: "{app}\Profiles\Help"
-Name: "{app}\help\kntHelpFiles"; Permissions: users-modify; Components: help
 ;Flags: uninsalwaysuninstall uninsneveruninstall
 
 [InstallDelete]
-Type: files; Name: "{app}\Profiles\Help\dateformats.txt"
-Type: files; Name: "{app}\Profiles\Help\timeformats.txt"
+Type: files; Name: "{app}\KeyNote Handbook.lnk"
+Type: files; Name: "{app}\KeyNote Help 1.6.lnk"
+Type: files; Name: "{app}\KeyNote.chm"
+Type: files; Name: "{app}\doc\Images_Readme.txt"
+Type: files; Name: "{app}\help\Comments on KNT file formats.txt"
+Type: files; Name: "{app}\help\sample.knt"
+Type: files; Name: "{app}\help\KeyNote Handbook.lnk"
+Type: files; Name: "{app}\help\KeyNote Help 1.6.lnk"
+Type: files; Name: "{app}\help\KeyNote Help chm.lnk"
+Type: filesandordirs; Name: "{app}\help\kntHelpFiles"
+Type: files; Name: "{app}\plugins\funckey.knl"
+Type: files; Name: "{app}\plugins\funckey_readme.txt"
+Type: files; Name: "{app}\plugins\readme.txt"
+Type: files; Name: "{app}\Profiles\Help\keynote_hlp.ico"
 
 [UninstallDelete]
 Type: files; Name: "{app}\Profiles\Help\keynote.mgr"
@@ -90,12 +103,12 @@ Type: files; Name: "{app}\Profiles\Help\keynote.mru"
 
 [Files]
 Source: "..\Output\bin\{#AppFileExe}"; DestDir: "{app}"; Components: main; Flags: touch
+Source: "..\Output\bin\kntLauncher.exe"; DestDir: "{app}"; Components: main; Flags: touch
 Source: "..\Output\bin\kntutils.dll" ; DestDir: "{app}" ; Components: main
 ;Source: "Lang\keynote.lan"; DestDir: "{app}" ; Components: main
 Source: "general\keyboard.css"; DestDir: "{app}" ; Components: main
 Source: "misc_files\clip.wav"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
 Source: "misc_files\alert.wav"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
-Source: "doc\Help\KeyNote.chm"; DestDir: "{app}" ; Components: help
 Source: "misc_files\KeyNote.tip"; DestDir: "{app}" ; Components: main
 Source: "misc_files\dateformats.txt"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
 Source: "misc_files\timeformats.txt"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
@@ -114,7 +127,6 @@ Source: "misc_files\notehead.rtf"   ; DestDir: "{#DefaultProfile}" ; Components:
 ; Help profile
 Source: "misc_files\keynote_Help.ini"; DestDir: "{app}\Profiles\Help"; DestName: "keynote.ini" ; Components: help
 Source: "misc_files\keynote.kns"     ; DestDir: "{app}\Profiles\Help" ; Components: help; Flags: onlyifdoesntexist
-Source: "resources\keynote_hlp.ico"  ; DestDir: "{app}\Profiles\Help" ; Components: help
 
 ; {app}\macros
 Source: "macros\examples\_AutoNewFile.knm"; DestDir: "{app}\macros\examples" ; Components: main
@@ -142,26 +154,21 @@ Source: "doc\Changes in 1.8.2 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.8.3 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.8.4 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.8.5 .01.txt"; DestDir: "{app}\doc" ; Components: main
-Source: "doc\Images_Readme.txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\Changes in 1.9.0 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart_format.txt"; DestDir: "{app}\doc" ; Components: main
 
 ; {app}\help
-Source: "doc\Help\hlp_1.6.5\KN_Handbook_1.6.knt"; DestDir: "{app}\help\kntHelpFiles" ; Components: help
-Source: "doc\Help\hlp_1.6.5\KN_Help_1.6.knt"; DestDir: "{app}\help\kntHelpFiles" ; Components: help
-Source: "doc\Help\hlp_1.6.5\KN_Help_Readme.txt"; DestDir: "{app}\help\kntHelpFiles" ; Components: help
 Source: "doc\cmdline.txt"; DestDir: "{app}\help" ; Components: help
-Source: "doc\Comments on KNT file formats.txt"; DestDir: "{app}\help" ; Components: help
-Source: "misc_files\sample.knt"; DestDir: "{app}\help" ; Components: help
+Source: "misc_files\KeyNoteNF_Help.knt"; DestDir: "{app}\help" ; Components: help
+Source: "resources\keynote_hlp.ico"  ; DestDir: "{app}\help" ; Components: help
 
 ; {app}\templates
 Source: "misc_files\Meeting template - sample.rtf"; DestDir: "{app}\templates"; Flags: onlyifdoesntexist
 
 ; {app}\plugins
-Source: "plugins\examples\funckey.knl"; DestDir: "{app}\plugins" ; Components: plugins
-Source: "plugins\examples\funckey_readme.txt"; DestDir: "{app}\plugins" ; Components: plugins
-Source: "plugins\examples\kncalendar.knl"; DestDir: "{app}\plugins" ; Components: plugins
-Source: "plugins\examples\readme.txt"; DestDir: "{app}\plugins" ; Components: plugins
+Source: "plugins\Binary examples\kncalendar.knl"; DestDir: "{app}\plugins" ; Components: plugins
+Source: "plugins\Binary examples\kncalendar_readme.txt"; DestDir: "{app}\plugins" ; Components: plugins
 
 ; confirmoverwrite promptifolder
 
@@ -172,15 +179,10 @@ Name: "{group}\{#AppName} GitHub"; Filename: "https://github.com/dpradov/keynote
 Name: "{group}\{#AppName} GitHub - Issues"; Filename: "https://github.com/dpradov/keynote-nf/issues"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppFileExe}"; Tasks: desktopicon
 
-; Links to help files
-Name: "{app}\KeyNote Help 1.6"; Filename: "{app}\{#AppFileExe}"; Parameters: "Profiles\Help\keynote.ini  help\kntHelpFiles\KN_Help_1.6.knt"; Components: help; IconFilename: "{app}\Profiles\Help\keynote_hlp.ico"
-Name: "{app}\KeyNote Handbook"; Filename: "{app}\{#AppFileExe}"; Parameters: "Profiles\Help\keynote.ini  help\kntHelpFiles\KN_Handbook_1.6.knt"; Components: help; IconFilename: "{app}\Profiles\Help\keynote_hlp.ico"
-Name: "{app}\help\KeyNote Help chm"; Filename: "{app}\keynote.chm"; Components: help
-Name: "{app}\help\KeyNote Help 1.6"; Filename: "{app}\{#AppFileExe}"; Parameters: "Profiles\Help\keynote.ini  help\kntHelpFiles\KN_Help_1.6.knt"; Components: help; IconFilename: "{app}\Profiles\Help\keynote_hlp.ico"
-Name: "{app}\help\KeyNote Handbook"; Filename: "{app}\{#AppFileExe}"; Parameters: "Profiles\Help\keynote.ini  help\kntHelpFiles\KN_Handbook_1.6.knt"; Components: help; IconFilename: "{app}\Profiles\Help\keynote_hlp.ico"
+; Links to help file
+Name: "{app}\KeyNote NF Help"; Filename: "{app}\kntLauncher.exe"; Parameters: "Profiles\Help\keynote.ini  help\keynoteNF_Help.knt -ignSI -dnd -jmp""file:///*8|2"" -title""KeyNote NF Topics"""; Components: help; IconFilename: "{app}\help\keynote_hlp.ico"
 
 Name: "{app}\help\Profiles.txt"; Filename: "{app}\Profiles\Profiles.txt"; Components: help
-
 
 [Registry]
 ; Associate .knt, .kne, .knm files with Keynote (requires ChangesAssociations=yes)

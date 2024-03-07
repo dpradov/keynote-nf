@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Console</AppType>
@@ -141,7 +141,7 @@
         <Icon_MainIcon>resources\kntLauncher.ico</Icon_MainIcon>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF Launcher;FileVersion=1.0.0.0;InternalName=;LegalCopyright=(c) Daniel Prado 2024;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=kntLauncher.exe;ProgramID=;ProductName=KeyNote NF Launcher;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <Debugger_RunParams>E:\_Pruebas\Imagenes\TestIMG.knt  -jmp&quot;file:///*3|16|5|0|1&quot;</Debugger_RunParams>
+        <Debugger_RunParams>E:\Output\bin\help\KeyNoteNF_Help.knt  -jmp&quot;file:///*8|2&quot; -title&quot;MI ARCHIVO DE AYUDA&quot;</Debugger_RunParams>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -158,6 +158,7 @@
         <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF Launcher;FileVersion=1.0.0.0;InternalName=;LegalCopyright=(c) Daniel Prado 2024;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=kntLauncher.exe;ProgramID=;ProductName=KeyNote NF Launcher;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_ExeOutput>..\Output\bin</DCC_ExeOutput>
         <DCC_DcuOutput>..\Output\Dcu</DCC_DcuOutput>
+        <Debugger_RunParams>E:\Output\bin\help\KeyNoteNF_Help.knt</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
