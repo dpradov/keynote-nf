@@ -98,20 +98,23 @@ var
   StrsC, StrsL: TStrings;
 begin
   Result:= false;
-  if (CurrentVersion = NewVersion) or (NewVersion = '') then exit;
+  if (CurrentVersion = NewVersion) or (NewVersion = '') or (CurrentVersion = '') then exit;
 
-  StrsC:= TStringList.Create;
-  StrsL:= TStringList.Create;
   try
-     SplitString(StrsC, CurrentVersion, '.', false);
-     SplitString(StrsL, NewVersion, '.', false);
-     for i := 0 to StrsC.Count - 1 do begin
-        if StrToInt(StrsC[i]) < StrToInt(StrsL[i]) then
-           Exit(true);
+     StrsC:= TStringList.Create;
+     StrsL:= TStringList.Create;
+     try
+        SplitString(StrsC, CurrentVersion, '.', false);
+        SplitString(StrsL, NewVersion, '.', false);
+        for i := 0 to StrsC.Count - 1 do begin
+           if StrToInt(StrsC[i]) < StrToInt(StrsL[i]) then
+              Exit(true);
+        end;
+     finally
+        StrsC.Free;
+        StrsL.Free;
      end;
-  finally
-     StrsC.Free;
-     StrsL.Free;
+  except
   end;
 end;
 
@@ -241,11 +244,11 @@ begin
      LastInformedVersion:= KeyOptions.LastInformedVersion;
 
   try
+     KeyOptions.VersionLastChecked := Today();
      newVersionToNotify:= GetLatestVersionInfo (KeyOptions.LastInformedVersion, CurrentVersion, Changes, not ShowOnlyIfNewVersionToNotify, WithoutInternetAccess);
-     if ShowOnlyIfNewVersionToNotify and not newVersionToNotify then begin
-        KeyOptions.VersionLastChecked := Today();
+
+     if ShowOnlyIfNewVersionToNotify and not newVersionToNotify then
         exit;
-     end;
 
      UV := TUpdateVersion.Create( Application );
      try
