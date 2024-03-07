@@ -92,6 +92,7 @@ uses
    MRUFList,
    RxRichEd,
    gf_misc,
+   gf_files,
    gf_strings,
    gf_miscvcl,
    kn_Global,
@@ -1801,6 +1802,7 @@ procedure LoadTrayIcon( const UseAltIcon : boolean );
 var
   Icon: TIcon;
   UseIcon: integer;
+  IconFN: string;
 begin
 {
  If Application.MainFormOnTaskBar=True -> we need to change the icon of the main form
@@ -1818,9 +1820,10 @@ begin
             UseIcon:= 1        // we're capturing clipboard, so indicate this by using the alternate (orange) tray icon
          else
          if ( NoteFile.TrayIconFN <> '' ) then begin
-            if FileExists( NoteFile.TrayIconFN ) then
+            IconFN:= GetAbsolutePath(NoteFile.File_Path, NoteFile.TrayIconFN);
+            if FileExists( IconFN ) then
                try
-                 TrayIcon.Icon.LoadFromFile( NoteFile.TrayIconFN );
+                 TrayIcon.Icon.LoadFromFile( IconFN );
                  UseIcon:= 2;
                except
                end

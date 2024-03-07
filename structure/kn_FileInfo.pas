@@ -297,7 +297,7 @@ begin
     if (( myNotes.TrayIconFN <> '' ) and fileexists( myNotes.TrayIconFN )) then begin
       CB_TrayIcon.Checked := true;
       Edit_TrayIcon.Text := myNotes.TrayIconFN;
-      Image_TrayIcon.Picture.LoadFromFile( myNotes.TrayIconFN );
+      Image_TrayIcon.Picture.LoadFromFile( GetAbsolutePath(NoteFile.File_Path, myNotes.TrayIconFN) );
     end
     else
       CB_TrayIcon.Checked := false;
@@ -594,7 +594,7 @@ begin
   fn := normalfn( Form_Main.OpenDlg.Filename );
   Action := ( Action and Fileexists( fn ));
   if Action then begin
-    Edit_TrayIcon.Text:= fn;
+    Edit_TrayIcon.Text:= ExtractRelativePath(NoteFile.File_Path, fn);
     Image_TrayIcon.Picture.LoadFromFile( fn );
   end;
   TB_OpenDlgTrayIcon.Down:= false;
