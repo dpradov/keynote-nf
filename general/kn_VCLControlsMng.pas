@@ -62,7 +62,7 @@ uses
     procedure UpdateResPanelState;
     procedure SetResPanelPosition;
     procedure HideOrShowResPanel( const DoShow : boolean );
-    procedure UpdateResPanelContents;
+    procedure UpdateResPanelContents (ChangedVisibility: boolean);
     procedure LoadResScratchFile;
     procedure StoreResScratchFile;
     function CheckResourcePanelVisible( const DoWarn : boolean ) : boolean;
@@ -1439,7 +1439,7 @@ begin
 
 end; // UpdateResPanelState
 
-procedure UpdateResPanelContents;
+procedure UpdateResPanelContents (ChangedVisibility: boolean);
 begin
   // General idea: do not load all resource panel information
   // when KeyNote starts. Instead, load data only when
@@ -1450,7 +1450,10 @@ begin
   with Form_Main do begin
       if KeyOptions.ResPanelShow then begin
 
-        if KeyOptions.ResPanelActiveUpdate then begin
+        if ChangedVisibility and KeyOptions.ResPanelActiveUpdate then begin
+          if Res_RTF.Modified then
+             StoreResScratchFile;
+
           Res_RTF.Clear;
 
           // if a macro file was copied to macros folder while KeyNote is running, simply hiding and then
