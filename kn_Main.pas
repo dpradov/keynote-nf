@@ -6948,6 +6948,12 @@ begin
   RG_ResFind_Scope.Width:= Combo_ResFind.Width;
   RG_ResFind_ChkMode.Width:= Combo_ResFind.Width;
   UpdateFindAllResultsWidth;
+
+  if Pages_Res.ActivePage = ResTab_RTF then
+     Res_RTF.Refresh;
+
+  if MMAlternativeMargins.Checked and assigned(ActiveNote) then
+      ActiveNote.Editor.Refresh;
 end;
 
 procedure TForm_Main.VisibilityControlsFindAllResults (Visible: boolean);

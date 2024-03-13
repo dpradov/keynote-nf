@@ -1204,6 +1204,9 @@ begin
               MMViewFilterTree.Enabled := false; // [dpv]
             end;
 
+            if MMAlternativeMargins.Checked then
+               ActiveNote.Editor.Refresh;
+
           except
             // showmessage( 'BUG: error in UpdateNoteDisplay' );
           end;
