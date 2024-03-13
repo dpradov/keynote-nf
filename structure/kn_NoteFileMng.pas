@@ -2070,6 +2070,8 @@ begin
                     itHTML : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (HTML)  FN:' + FN,  1 ); {$ENDIF}
                       myNote.DataStream.LoadFromStream(OutStream);
+                      myNote.DataStream.Position:= myNote.DataStream.Size;
+                      myNote.DataStream.Write(AnsiString(#13#10#0), 3);
                       end;
                     itRTF : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (RTF)  FN:' + FN,  1 ); {$ENDIF}
@@ -2619,8 +2621,11 @@ begin
                       if assigned( myTreeNode ) then begin
                         myNoteNode := TNoteNode( myTreeNode.Data );
                         if assigned( myNoteNode ) then begin
-                            if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then
-                              myNoteNode.Stream.LoadFromStream(OutStream)
+                            if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
+                              myNoteNode.Stream.LoadFromStream(OutStream);
+                              myNoteNode.Stream.Position:= myNoteNode.Stream.Size;
+                              myNoteNode.Stream.Write(AnsiString(#13#10#0), 3);
+                            end
                             else if not ExtIsImage( fExt )  then
                               myNoteNode.Stream.LoadFromFile( FName );
 
