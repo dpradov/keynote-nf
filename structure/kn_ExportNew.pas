@@ -1139,8 +1139,10 @@ begin
 
                               if RTFwithImages <> '' then
                                  RTFAux.PutRtfText(RTFwithImages,true,false)         // All hidden KNT characters are now removed from FlushExportFile
-                              else
+                              else begin
+                                 RTFAux.StreamFormat:= myNote.Editor.StreamFormat;
                                  RTFAux.Lines.LoadFromStream( myNoteNode.Stream );
+                              end;
 
                               if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
                                 RTFAux.SelStart := 0;
