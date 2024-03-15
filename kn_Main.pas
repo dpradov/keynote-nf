@@ -1645,11 +1645,10 @@ begin
   OnActivate := nil; // don't return here again
 
   try
-
+    HideOrShowResPanel( KeyOptions.ResPanelShow );
     UpdateResPanelContents (true);
     Splitter_ResMoved( Splitter_Res );
     // Pages_Res.Visible := KeyOptions.ResPanelShow;
-    HideOrShowResPanel( KeyOptions.ResPanelShow );
     Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
   except
   end;

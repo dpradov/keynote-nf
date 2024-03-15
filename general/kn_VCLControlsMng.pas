@@ -1464,10 +1464,10 @@ begin
           ListBox_ResMacro.Items.Clear;
           ClearMacroList;
 
-          ListBox_ResFav.Clear;
+          ListBox_ResFav.Items.Clear;
 
           // clear list of templates
-          ListBox_ResTpl.Clear;
+          ListBox_ResTpl.Items.Clear;
 
           // List of plugns does NOT get cleared, because it takes a long time to initialize.
           // Once loaded, the lisy remains available even after the resource panel is hidden. To reload
