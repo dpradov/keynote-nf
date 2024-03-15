@@ -2063,19 +2063,15 @@ begin
 
                 try
                   case ImportFileType of
-                    itText : begin
-                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TXT)  FN:' + FN,  1 ); {$ENDIF}
-                      myNote.DataStream.LoadFromFile( FN );
+                    itText, itRTF : begin
+                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TXT or RTF)  FN:' + FN,  1 ); {$ENDIF}
+                      LoadTxtOrRTFFromFile(myNote.DataStream, FN);
                       end;
                     itHTML : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (HTML)  FN:' + FN,  1 ); {$ENDIF}
                       myNote.DataStream.LoadFromStream(OutStream);
                       myNote.DataStream.Position:= myNote.DataStream.Size;
                       myNote.DataStream.Write(AnsiString(#13#10#0), 3);
-                      end;
-                    itRTF : begin
-                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (RTF)  FN:' + FN,  1 ); {$ENDIF}
-                      myNote.DataStream.LoadFromFile( FN );
                       end;
                     itTreePad : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TreePad)  FN:' + FN,  1 ); {$ENDIF}
@@ -2198,7 +2194,7 @@ begin
                 Editor:= myNote.Editor;
 
                 if ImportFileType <> itImage then begin
-                   strContent:= TFile.ReadAllText(FN);
+                   strContent:= ReadAllText(FN);           // gf_streams
                    if ImportFileList.Count > 1 then
                       Editor.AddText (FN + ' - - - - - -' + #13);
                 end;
@@ -2627,7 +2623,7 @@ begin
                               myNoteNode.Stream.Write(AnsiString(#13#10#0), 3);
                             end
                             else if not ExtIsImage( fExt )  then
-                              myNoteNode.Stream.LoadFromFile( FName );
+                              LoadTxtOrRTFFromFile(myNoteNode.Stream, FName);
 
                             SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
                             if KeyOptions.ImportFileNamesWithExt then

@@ -47,6 +47,7 @@ uses
    RxRichEd,
    gf_misc,
    gf_files,
+   gf_streams,
    kn_Global,
    kn_Const,
    kn_Info,
@@ -296,7 +297,7 @@ begin
                 CheckToSelectLeftImageHiddenMark(ActiveNote.Editor);
           end;
 
-          tplText:= TFile.ReadAllText(tplFN);
+          tplText:= ReadAllText(tplFN);      // gf_streams
           IsRTF:= tplText.StartsWith('{\rtf1');
 
           RTFText:= '';

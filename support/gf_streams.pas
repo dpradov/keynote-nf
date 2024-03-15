@@ -30,6 +30,7 @@ uses
    System.Classes,
    System.SysUtils,
    System.AnsiStrings,
+   System.WideStrUtils,
    System.Math,
    gf_strings;
 
@@ -65,6 +66,9 @@ function NodeStreamIsUTF8_WithoutBOM ( Stream : TMemoryStream ): boolean; overlo
 function NodeStreamIsUTF8WithBOM (Stream : TMemoryStream): boolean;
 function AddUTF8_BOM ( Stream : TMemoryStream ): boolean;
 
+function ReadAllText(FN: String): String;
+function ReadAllTextAnsi(FN: String): AnsiString;
+procedure LoadTxtOrRTFFromFile (Stream: TStream; FN: string);
 
 type
   TTextFile = class
@@ -84,6 +88,8 @@ type
     procedure Append;
     procedure CloseFile;
     function Readln: AnsiString;
+    function ReadAllRemainingText: String;
+    function ReadAllRemainingAnsiText: AnsiString;
     function ReadToStream(const OutStream: TStream; Size: Integer): Integer;
     //procedure WriteLn (const Args: array of const);
     procedure WriteLine (const Cad: String; CheckSaveAsUTF8: boolean= false); overload;
@@ -377,6 +383,54 @@ begin
     end;
 end;
 
+{ 
+ Alternative to IOUtils.TFile.ReadAllText
+ It works with ANSI, UTF8 and UTF8-BOM files
+
+ In TFile.ReadAllText, UTF8 files (without BOM) are intepreted as Default encoding (bad)
+}
+
+function ReadAllText(FN: String): String;
+var
+  tf: TTextFile;
+begin
+  tf:= TTextFile.Create;
+  try
+     tf.AssignFile(FN);
+     tf.Reset;
+     Result:= tf.ReadAllRemainingText;
+  finally
+     tf.CloseFile;
+     tf.Free;
+  end;
+end;
+
+function ReadAllTextAnsi(FN: String): AnsiString;
+var
+  tf: TTextFile;
+begin
+  tf:= TTextFile.Create;
+  try
+     tf.AssignFile(FN);
+     tf.Reset;
+     Result:= tf.ReadAllRemainingAnsiText;
+  finally
+     tf.CloseFile;
+     tf.Free;
+  end;
+end;
+
+
+procedure LoadTxtOrRTFFromFile (Stream: TStream; FN: string);
+var
+   Str: AnsiString;
+begin
+   Str:= ReadAllTextAnsi(FN);
+   Stream.Write(Str[1], ByteLength(Str));
+   if Copy(Str, 1, 6) = '{\rtf1' then begin
+      Stream.Write(AnsiString(#13#10#0), 3);
+   end;
+end;
 
 
 //===== TWTextFile
@@ -526,6 +580,31 @@ begin
 
    until lineReaden;
 end;
+
+function TTextFile.ReadAllRemainingText: String;
+var
+   str: RawByteString;
+begin
+   SetLength(str, F.Size);
+   F.Read(Str[1], F.Size);
+   Result:= TryUTF8ToUnicodeString(str);
+end;
+
+function TTextFile.ReadAllRemainingAnsiText: AnsiString;
+var
+   str: RawByteString;
+begin
+   SetLength(str, F.Size);
+   F.Read(str[1], F.Size);
+   if IsUTF8String(str) and (Copy(str,1,3) <> UTF8_BOM) then begin
+      Result:= UTF8_BOM + Str;
+   end
+   else
+      Result:= str;
+end;
+
+
+
 
 function TTextFile.Eof: boolean;
 begin

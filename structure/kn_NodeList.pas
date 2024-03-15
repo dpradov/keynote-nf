@@ -163,6 +163,7 @@ implementation
 uses
    gf_misc,
    gf_files,
+   gf_streams,
    kn_Global,
    kn_TreeNoteMng,
    kn_NoteObj,
@@ -514,7 +515,8 @@ begin
   end;
 
   if ( FVirtualMode in [vmText, vmRTF, vmHTML] ) then
-    FStream.LoadFromFile( FVirtualFN );
+     LoadTxtOrRTFFromFile(FStream, FVirtualFN);
+
   FStream.Position := 0;
 end; // LoadVirtualFile
 

@@ -462,12 +462,12 @@ begin
 
            case ImportFileType of
              itText, itHTML : begin
-               ActiveNote.Editor.SelText :=  TFile.ReadAllText(FN);
+               ActiveNote.Editor.SelText :=  ReadAllText(FN);       // gf_streams
                ActiveNote.Editor.SelLength := 0;
              end;
 
              itRTF:
-               ActiveNote.Editor.PutRtfText(TFile.ReadAllText(FN), true);
+               ActiveNote.Editor.PutRtfText(ReadAllText(FN), true);
            end;
 
          except
