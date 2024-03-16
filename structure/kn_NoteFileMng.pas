@@ -2645,6 +2645,9 @@ begin
                     SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
                     ActiveNote.Editor.Lines.EndUpdate;
                     ActiveNote.Editor.Invalidate; // in fact, I insist on it
+                    if _LastZoomValue <> 100 then
+                       SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
+
                     UpdateNoteFileState( [fscModified] );
 
                     // *1
@@ -2701,6 +2704,8 @@ begin
                   finally
                     SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
                     ActiveNote.Editor.Invalidate; // in fact, I insist on it
+                    if _LastZoomValue <> 100 then
+                       SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
                   end;
                 end;
 
