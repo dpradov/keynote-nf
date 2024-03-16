@@ -415,6 +415,8 @@ begin
       myTreeNote := TTreeNote( ActiveNote );
       KeepModified:= false;
 
+      myTreeNote.SelectedNode.ScrollPosInEditor:= ActiveNote.Editor.GetScrollPosInEditor;
+
       if ( not _Executing_History_Jump ) and (not _Executing_JumpToKNTLocation_ToOtherNote) then begin
           AddHistoryLocation( myTreeNote, false);        // Add to history the location of current node, before the new node comes to be the selected node
          _LastMoveWasHistory := false;
@@ -453,7 +455,7 @@ begin
             ActiveNote.DataStreamToEditor;
 
             { The normal thing is to set Editor.Modified = False at the end of the DataStreamToEditor method
-              But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified, 
+              But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified,
               to ensure that this correction ends up persisting. Here we will do the same }
             if ActiveNote.Editor.Modified then
                KeepModified:= True;
@@ -508,6 +510,9 @@ begin
 
         if _LastZoomValue <> 100 then
            SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
+
+        if assigned(myNode) then
+           ActiveNote.Editor.SetScrollPosInEditor(myNode.ScrollPosInEditor);
 
         ActiveNote.Editor.Lines.EndUpdate;
 

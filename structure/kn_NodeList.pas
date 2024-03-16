@@ -66,6 +66,7 @@ type
     FWordWrap : TNodeWordWrap;
     FChildrenCheckbox: Boolean;    // [dpv]
     FFiltered: Boolean;            // [dpv]: True -> Hidden
+    FScrollPosInEditor: TPoint;
 
     procedure SetName( AName : string );
     procedure SetLevel( ALevel : integer );
@@ -119,6 +120,7 @@ type
     property HasNodeFontFace : boolean read FHasNodeFontFace;
     property NodeFontFace : string read FNodeFontFace write SetNodeFontFace;
     property WordWrap : TNodeWordWrap read FWordWrap write SetWordWrap;
+    property ScrollPosInEditor: TPoint read FScrollPosInEditor write FScrollPosInEditor;
 
     property RTFModified : boolean read FRTFModified write FRTFModified;
 
