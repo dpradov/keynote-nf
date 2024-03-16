@@ -2966,7 +2966,20 @@ begin
            end;
         end;
       end
-      else if KeyOptions.UseCtrlHideTreePanel then begin
+      else begin
+          if Msg.CharCode in [VK_DOWN, VK_UP] then begin
+             var P: TPoint;
+             P:= ActiveNote.Editor.GetScrollPosInEditor;
+             if Msg.CharCode = VK_DOWN then
+                Inc(P.Y, 20)
+             else
+                Dec(P.Y, 20);
+             ActiveNote.Editor.SetScrollPosInEditor(P);
+             Handled:= true;
+          end;
+      end;
+
+      if (not Handled) and KeyOptions.UseCtrlHideTreePanel then begin
           // Check if the keys combination, without Ctrl, is a shortcut to MMViewTree
           ShortCutItem := Menu.FindItem(ShortCut - scCtrl, fkShortCut);
           if ShortCutItem = MMViewTree then begin

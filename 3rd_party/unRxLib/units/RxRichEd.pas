@@ -601,6 +601,8 @@ type
     function GetCharPos(CharIndex: Integer): TPoint;
     function GetCharFromPos(Point: TPoint): integer;                   // [dpv]
     procedure ScrollLinesBy(inc: integer);                             // [dpv]
+    procedure SetScrollPosInEditor(Point: TPoint);                     // [dpv]
+    function GetScrollPosInEditor: TPoint;                             // [dpv]
     function InsertObjectDialog: Boolean;
     function ObjectPropertiesDialog: Boolean;
     //function PasteSpecialDialog: boolean;
@@ -5491,6 +5493,16 @@ end;
 procedure TRxCustomRichEdit.ScrollLinesBy(inc: integer);
 begin
   SendMessage(Handle, EM_LINESCROLL, 0, inc);
+end;
+
+procedure TRxCustomRichEdit.SetScrollPosInEditor(Point: TPoint);
+begin
+  SendMessage(Handle, EM_SETSCROLLPOS, 0, LPARAM(@Point));
+end;
+
+function TRxCustomRichEdit.GetScrollPosInEditor: TPoint;
+begin
+  SendMessage(Handle, EM_GETSCROLLPOS, 0, LPARAM(@Result));
 end;
 
 
