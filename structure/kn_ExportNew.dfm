@@ -393,6 +393,7 @@ object Form_ExportNew: TForm_ExportNew
           Font.Style = []
           ParentFont = False
           TabOrder = 10
+          OnExit = Edit_SymbolsExit
         end
         object CB_IndentNodes: TCheckBox
           Left = 12

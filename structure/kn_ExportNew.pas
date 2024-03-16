@@ -111,6 +111,7 @@ type
     procedure CB_IncNodeHeadingClick(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
+    procedure Edit_SymbolsExit(Sender: TObject);
   private
     { Private declarations }
   public
@@ -235,6 +236,12 @@ begin
        FontSizes_Max := -1;
 end;
 
+
+procedure TForm_ExportNew.Edit_SymbolsExit(Sender: TObject);
+begin
+  if Edit_Symbols.Text = '' then
+     Edit_Symbols.Text:= '#';
+end;
 
 function TForm_ExportNew.ExpandExpTokenString(
   const tpl, filename, notename, nodename : string;
@@ -562,6 +569,9 @@ begin
       ExportOptions.NodeLevelTemplates := readbool( section, ExportOptionsIniStr.UseLevelTemplates, ExportOptions.NodeLevelTemplates );
       ExportOptions.SymbolsInHeading := readstring( section, ExportOptionsIniStr.SymbolsInHeading, ExportOptions.SymbolsInHeading );
       ExportOptions.LengthHeading := readstring( section, ExportOptionsIniStr.LengthsHeading, ExportOptions.LengthHeading );
+      if ExportOptions.SymbolsInHeading = '' then
+         ExportOptions.SymbolsInHeading:= '#';
+
       ExportOptions.AutoFontSizesInHeading := readbool( section, ExportOptionsIniStr.AutoFontSizesInHeading, ExportOptions.AutoFontSizesInHeading );
       ExportOptions.FontSizesInHeading := readstring( section, ExportOptionsIniStr.FontSizesInHeading, ExportOptions.FontSizesInHeading );
       ExportOptions.IndentNestedNodes := readbool( section, ExportOptionsIniStr.IndentNestedNodes, ExportOptions.IndentNestedNodes );
