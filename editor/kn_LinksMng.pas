@@ -58,6 +58,7 @@ uses
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
     function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
+                             ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true): integer;
     function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
@@ -1066,6 +1067,7 @@ end;
 
 function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
+                             ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true): integer;
 var
   Offset: integer;
@@ -1085,6 +1087,10 @@ begin
           if AdjustVisiblePosition then begin
              myNote.Editor.ScrollLinesBy(80);
              Perform( EM_SCROLLCARET, 0, 0 );
+          end
+          else begin
+             if ScrollPosInEditor.Y >= 0 then
+                myNote.Editor.SetScrollPosInEditor(ScrollPosInEditor);
           end;
 
        finally
@@ -1274,6 +1280,7 @@ begin
   try
       LocBeforeJump:= nil;
       GetKntLocation (LocBeforeJump, true);
+      LocBeforeJump.ScrollPosInEditor:= ActiveNote.Editor.GetScrollPosInEditor;
 
       (*
       showmessage(
@@ -1352,12 +1359,9 @@ begin
 
 
          result := true;
-         if SameEditor then
-            AdjustVisiblePosition:= True;
-
 
          if not SearchTargetMark (Location.Bookmark09) then
-            SearchCaretPos(myNote, myTreeNode, Location.CaretPos, Location.SelLength, AdjustVisiblePosition);
+            SearchCaretPos(myNote, myTreeNode, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor, AdjustVisiblePosition);
 
          myNote.Editor.SetFocus;
 
@@ -2063,8 +2067,10 @@ begin
   if not assigned(aNote) then exit;
 
   try
-    if aLocation = nil then
+    if aLocation = nil then begin
        GetKNTLocation (aLocation, true);                       // true: simplified (register only IDs)
+       aLocation.ScrollPosInEditor:= ActiveNote.Editor.GetScrollPosInEditor;
+    end;
     aLocation.SelLength := 0;
 
     if AddToGlobalHistory then begin

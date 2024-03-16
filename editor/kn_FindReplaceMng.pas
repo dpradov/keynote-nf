@@ -1367,7 +1367,7 @@ var
             TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
          end;
 
-      SearchCaretPos (myNote, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, false);
+      SearchCaretPos (myNote, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1), false);
   end;
 
 

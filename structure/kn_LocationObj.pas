@@ -38,6 +38,7 @@ type
     FParams : string;
     FMark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
     FBookmark09: boolean;     // In case FMark <> 0, Is it one of the bookmarks set with Search|Set Bookmark?
+    FScrollPosInEditor: TPoint;
     //FTag : integer; //used in TForm_Main.List_ResFindDrawItem    // [dpv]
 
     function GetDisplayText : string;
@@ -61,6 +62,7 @@ type
     property Bookmark09 : boolean read FBookmark09 write FBookmark09;
     property ExternalDoc : boolean read FExternalDoc write FExternalDoc;
     property Params : string read FParams write FParams;
+    property ScrollPosInEditor: TPoint read FScrollPosInEditor write FScrollPosInEditor;
     // property Tag : integer read FTag write FTag;                 // [dpv]
 
     property DisplayText : string read GetDisplayText;
@@ -238,6 +240,8 @@ begin
   //FTag := 0;
   FMark:= 0;
   FBookmark09:= false;
+  FScrollPosInEditor.X:= -1;
+  FScrollPosInEditor.Y:= -1;
 end; // create
 
 procedure TLocation.Assign( const aLocation : TLocation );
@@ -254,6 +258,7 @@ begin
   FBookmark09:= aLocation.FBookmark09;
   FExternalDoc := aLocation.FExternalDoc;
   FParams := aLocation.FParams;
+  FScrollPosInEditor:= aLocation.FScrollPosInEditor;
 end; // SetKNTLocation
 
 
