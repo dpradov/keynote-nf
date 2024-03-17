@@ -1775,6 +1775,16 @@ begin
              RTFText:= ActiveNote.Editor.RtfSelText
           else
              RTFText:= ActiveNote.Editor.RtfText;
+
+       RTFText:= RemoveKNTHiddenCharactersInRTF(RTFText, hmAll);
+    end
+    else begin
+       if ExportSelectionOnly then
+          RTFText:= ActiveNote.Editor.SelText
+       else
+          RTFText:= ActiveNote.Editor.Text;
+
+       RTFText:= RemoveKNTHiddenCharacters(RTFText);
     end;
 
     case exportformat of
@@ -1790,11 +1800,6 @@ begin
         end;
 
       xfPlainText : begin
-         if ExportSelectionOnly then
-            RTFText:= ActiveNote.Editor.SelText
-         else
-            RTFText:= ActiveNote.Editor.Text;
-
           Encoding:= TEncoding.Default;
           if not CanSaveAsANSI(RTFText) then
              Encoding:= TEncoding.UTF8;
