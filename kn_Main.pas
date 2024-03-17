@@ -3766,7 +3766,7 @@ procedure TForm_Main.DisplayHistoryFile;
 var
   fn : string;
 begin
-  ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_WHATSNEW_ID, 2, 0);   // What's New [2]
+  ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_WHATSNEW_ID, 4, 0);   // History.txt [4]
   {
   fn := extractfilepath( Application.Exename ) + 'doc\history.txt';
   if FileExists( fn ) then
