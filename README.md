@@ -1,5 +1,10 @@
 <p align="right"><sup>Thanks for using KeyNote NF. You can show your appreciation and support future development by <a href="https://github.com/dpradov/keynote-nf#donations">donating!</a></sup></p>
 
+<p align="center">
+<img width="650" src="https://github.com/dpradov/keynote-nf/blob/master/doc/Images/Img1.png">
+<p/>
+
+
 ## KeyNote NF
 
 Tabbed notebook with RichText editor, multi-level notes and strong encryption. 
@@ -18,6 +23,8 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
 
    A detailed explanation of the image management changes is available in [Images_Readme.txt](doc/Images_Readme.txt)
 
+ * *Alternative to .chm files*: can be used to generate help files for other applications
+ 
  * *Redesigned navigation history mechanism*
 
  * *New KeyNote file format: compressed*
