@@ -13,7 +13,7 @@ II=3
 DC=20-04-2003 19:33:48
 TI=0
 TS=4
-CX=634
+CX=6621
 CY=0
 BG=clWindow
 CH=0
@@ -23,8 +23,9 @@ FS=10
 LN=1033
 ST=
 FL=111110000000100000000000
-SN=0
+SN=26
 TW=302
+TM=0
 EN=New node
 TB=clWindow
 TH=0
@@ -1603,9 +1604,9 @@ NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil Arial;}{\f5\fnil Tahoma;}{\f6\fnil\fcharset0 Arial;}{\f7\fnil\fcharset0 Lucida Console;}{\f8\fnil\fcharset2 Symbol;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil\fcharset0 Courier New;}{\f5\fnil Arial;}{\f6\fnil Tahoma;}{\f7\fnil\fcharset0 Arial;}{\f8\fnil\fcharset0 Lucida Console;}{\f9\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red128\green128\blue0;\red0\green128\blue0;\red64\green64\blue64;\red255\green0\blue0;\red0\green0\blue0;\red96\green96\blue96;\red255\green255\blue0;\red255\green255\blue255;\red51\green51\blue153;\red192\green192\blue192;}
-{\*\generator Riched20 10.0.19041}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
+{\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 KeyNote editor\cf2\f0\fs32\lang1033\par
 \cf0\b0\fs20\par
@@ -1634,6 +1635,7 @@ To be productive when editing, it is also advisable to have a minimum knowledge 
 {{\field{\*\fldinst{HYPERLINK "file:///*8|282|23704|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Simple bookmarks}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///*8|282|5021|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Using HOME key}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///*8|282|9698|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Holding Ctrl+up/down}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*8|282|26323|0|15"}}{\fldrslt{\ul\cf2\cf2\ul Holding Ctrl+Shift+up/down}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///*8|282|5441|0|4"}}{\fldrslt{\ul\cf2\cf2\ul TAB multiple lines}}}}\f0\fs20\par
 
 \pard\par
@@ -1642,17 +1644,17 @@ To be productive when editing, it is also advisable to have a minimum knowledge 
 Among other editing features available:\par
 \par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 Most editing and formatting \b commands can be repeated by\b0  pressing \cf3\b Ctrl+\'c7\cf0\b0 .\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Most editing and formatting \b commands can be repeated by\b0  pressing \cf3\b Ctrl+\'c7\cf0\b0 .\par
 
 \pard\li360\sb40\sa80\ul Note\ulnone : Check your current shortcut looking to Edit|Repeat.. entry, because the character will depend on your keyboard layout.\par
 
 \pard\li360\sa80 Most (but not all) edit commands can be repeated across notes. For example, if you use the Font dialog box to select a font style, you can then switch to another note, press \cf3 Ctrl+\'c7\cf0  and the same font style will be applied here.\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can {{\field{\*\fldinst{HYPERLINK "file:///*8|309|0|0"}}{\fldrslt{\ul\cf2\cf2\ul insert characters}}}}\f0\fs20  from a dialog box, based on a selecte font\par
-{\pntext\f8\'B7\tab}KeyNote can calculate the result of an arithmetic operation typed in the editor (see {{\field{\*\fldinst{HYPERLINK "file:///*8|311|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Expression evaluation}}}}\f0\fs20 )\par
-{\pntext\f8\'B7\tab}When typing in the editor, you can still move between tree nodes without switching focus to the tree: hold down the \cf3\b Alt\cf0\b0  key and press one of the direction arrows (Up, Down, or Shift+Left, or Shift+Right).\par
-{\pntext\f8\'B7\tab}A "match bracket" function (Search | Match Bracket)\par
-{\pntext\f8\'B7\tab}ROT-13, reverse text, repeat last edit command, join and sort lines\'85  (Edit | Transform) (Edit | Lines), etc.\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can {{\field{\*\fldinst{HYPERLINK "file:///*8|309|0|0"}}{\fldrslt{\ul\cf2\cf2\ul insert characters}}}}\f0\fs20  from a dialog box, based on a selecte font\par
+{\pntext\f9\'B7\tab}KeyNote can calculate the result of an arithmetic operation typed in the editor (see {{\field{\*\fldinst{HYPERLINK "file:///*8|311|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Expression evaluation}}}}\f0\fs20 )\par
+{\pntext\f9\'B7\tab}When typing in the editor, you can still move between tree nodes without switching focus to the tree: hold down the \cf3\b Alt\cf0\b0  key and press one of the direction arrows (Up, Down, or Shift+Left, or Shift+Right).\par
+{\pntext\f9\'B7\tab}A "match bracket" function (Search | Match Bracket)\par
+{\pntext\f9\'B7\tab}ROT-13, reverse text, repeat last edit command, join and sort lines\'85  (Edit | Transform) (Edit | Lines), etc.\par
 
 \pard\par
 \par
@@ -1706,8 +1708,8 @@ The latter can be done with the \b Copy Format\b0  button (\v\'11I84\'12\v0{\fie
 \par
 Note:\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 When you copy font attributes or paragraph attributes, the copied information persists across file sessions, i.e. you can open a different file and paste attributes copied from the previous file (that is now closed).\par
-{\pntext\f8\'B7\tab}You can also save font, paragraph or mixed formatting attributes as \b Styles\b0 , that you can apply later on selected text ({{\field{\*\fldinst{HYPERLINK "file:///*8|301|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 When you copy font attributes or paragraph attributes, the copied information persists across file sessions, i.e. you can open a different file and paste attributes copied from the previous file (that is now closed).\par
+{\pntext\f9\'B7\tab}You can also save font, paragraph or mixed formatting attributes as \b Styles\b0 , that you can apply later on selected text ({{\field{\*\fldinst{HYPERLINK "file:///*8|301|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 
 \pard\par
 \par
@@ -1730,14 +1732,14 @@ You can use the \ul Format\ulnone  main menu, with many \b shortcuts\b0  that yo
 \pard\par
 In Rich Edit control (and in older versions of KeyNote), the meaning of "first indentation" and "left indentation" is:\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 First Indent: It is the principal indentation; it is set from the left margin in absolute values. Corresponds to the first line.\par
-{\pntext\f8\'B7\tab}Left Indent: This indentation is relative to the paragraph's current indentation (First line's indentation), and controls indentation of 2nd and following lines (can be positive or negative)\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 First Indent: It is the principal indentation; it is set from the left margin in absolute values. Corresponds to the first line.\par
+{\pntext\f9\'B7\tab}Left Indent: This indentation is relative to the paragraph's current indentation (First line's indentation), and controls indentation of 2nd and following lines (can be positive or negative)\par
 
 \pard\par
 On the contrary, MS Word have been using a different semantic, more intuitive:\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Left Indent\b0 :  Indentation of the paragraph, from the left margin\par
-{\pntext\f8\'B7\tab}\b First Indent\b0 : Indentation of the first line regarding to the rest of the lines of the paragraph (can be positive or negative)\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Left Indent\b0 :  Indentation of the paragraph, from the left margin\par
+{\pntext\f9\'B7\tab}\b First Indent\b0 : Indentation of the first line regarding to the rest of the lines of the paragraph (can be positive or negative)\par
 
 \pard\par
 Since version 1.7.5, \b KeyNote NF uses MS Word behavior and terminology\b0 .\par
@@ -1784,8 +1786,8 @@ This way you can select the numbering style, and assuming arabic numbers you can
 The are two options you can use to create more complicated lists. They are available in the same drop-down list of the \v\'11I76\'12\v0{\field{\*\fldinst{HYPERLINK "img:76,17,17"}}{\fldrslt {76_Format_15.png}}} button:\par
 \par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b No Next number or bullet\b0  - Continues a numbered list without applying the next number or bullet\par
-{\pntext\f8\'B7\tab}\b Starts New number...\b0\tab  - Selects a new starting number\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\b No Next number or bullet\b0  - Continues a numbered list without applying the next number or bullet\par
+{\pntext\f9\'B7\tab}\b Starts New number...\b0\tab  - Selects a new starting number\par
 
 \pard\par
 You can better understand how to use them with an example.\par
@@ -1928,7 +1930,7 @@ When you paste a bullet list as plain text (with \cf3\b\lang1033 Shift+Insert\cf
 \par
 \lang3082 Example:\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 One\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 One\par
 
 \pard\par
 turns:\par
@@ -1949,8 +1951,8 @@ You can use "" to completely remove the bullets. You can even replace it by the 
 \par
 \b Note:\b0\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 This option will also be used when \b Exporting Notes to Disk Files\b0  and you select plain text format (see {{\field{\*\fldinst{HYPERLINK "file:///*8|313|8199|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Options for indenting nested nodes}}}}\f0\fs20 ).\par
-{\pntext\f8\'B7\tab}Note also that currently the other option available when exporting (\cf6\b NumbTabInPlainText\cf0\b0 ) cannot be used manually as can be done with \cf6\b BulletsInPlainText\b0 . \cf0 (ToDO)\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 This option will also be used when \b Exporting Notes to Disk Files\b0  and you select plain text format (see {{\field{\*\fldinst{HYPERLINK "file:///*8|313|8199|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Options for indenting nested nodes}}}}\f0\fs20 ).\par
+{\pntext\f9\'B7\tab}Note also that currently the other option available when exporting (\cf6\b NumbTabInPlainText\cf0\b0 ) cannot be used manually as can be done with \cf6\b BulletsInPlainText\b0 . \cf0 (ToDO)\par
 
 \pard\par
 \par
@@ -1966,77 +1968,175 @@ KeyNote includes one button to set or change the text color and other to add or 
 Its use should not entail any mystery. However, it is not difficult to get confused when trying to select new custom colors. Consider the following:\par
 \par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 Custom color buttons [\cf7 1\cf0 ] need to be right clicked to set or modify them\par
-{\pntext\f8\'B7\tab}Once a color is selected in the dialog box that will be displayed, the custom button will reflect that color.\par
-{\pntext\f8\'B7\tab}You can define several custom colors this way, without having to go back to the editor. They will all be saved (in the Windows registry) upon return.\par
-{\pntext\f8\'B7\tab}To apply any color you have to click (left) on its button. They will \ul not\ulnone  be applied automatically after setting the button.\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Custom color buttons [\cf7 1\cf0 ] need to be right clicked to set or modify them\par
+{\pntext\f9\'B7\tab}Once a color is selected in the dialog box that will be displayed, the custom button will reflect that color.\par
+{\pntext\f9\'B7\tab}You can define several custom colors this way, without having to go back to the editor. They will all be saved (in the Windows registry) upon return.\par
+{\pntext\f9\'B7\tab}To apply any color you have to click (left) on its button. They will \ul not\ulnone  be applied automatically after setting the button.\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 An exception to this behavior is the color marked with [\cf7 2\cf0 ]: it can be modified by clicking the "Other colors..." button, not by right-clicking. And also, just after selecting the color in the dialog window, the color will be saved and automatically applied.\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 An exception to this behavior is the color marked with [\cf7 2\cf0 ]: it can be modified by clicking the "Other colors..." button, not by right-clicking. And also, just after selecting the color in the dialog window, the color will be saved and automatically applied.\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 Also note that \ul custom colors defined in the dialog will not be saved\ulnone . Currently it will only be remembered as long as you keep the button color dropdown open.\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Also note that \ul custom colors defined in the dialog will not be saved\ulnone . Currently it will only be remembered as long as you keep the button color dropdown open.\par
 
 \pard\par
 \par
 \b\v\fs24\'11B2\'12\v0 How can you insert tables in Keynote?\b0\par
 \fs20\par
-Currently KeyNote does not allow you to create tables from scratch, but you can paste them from another program like Word or Excel, for example.\par
+There are several ways to create tables in KeyNote NF:\par
 \par
-You can also prepare simple formats of empty tables and save them as {{\field{\*\fldinst{HYPERLINK "file:///*8|307|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Templates}}}}\f0\fs20 , for easy use when you need it. You can give each template a name (e.g. Table2x3).\par
+\b 1. Using lines of the form "+---+--+-------+" and pressing ENTER\par
+\b0\par
+\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5254 
+\pard\intbl Typing the following\cf8\fs18\cell\cell\cf0\fs20  you will get:\cf8\fs18\cell\row 
+\pard\li360\cf0\fs14\par
+\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824 
+\pard\intbl\cf8\fs20 +-+\fs18  [Enter]\cell\cell 
+\pard\intbl\itap2\fs20\nestcell{\*\nesttableprops\trowd\trgaph72\trleft75\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx295\nestrow}{\nonesttables\par}
 
-\pard\li360\par
-\trowd\trgaph30\trleft-30\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\cellx1122\cellx2274\cellx3426 
-\pard\intbl\qr\cf8\f4\fs18\cell\cell\cell\row\trowd\trgaph30\trleft-30\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\cellx1122\cellx2274\cellx3426 
-\pard\intbl\qr\cell\cell\cell\row 
-\pard\cf0\f0\fs20\par
-Once the table is included in KeyNote you can edit it in a basic way. For example, if you press TAB from the last cell in a table, a new row will be added. You can also delete rows, selecting all its cells (and including the hidden character to the right, as you do when you delete a paragraph)\par
+\pard\intbl\fs18\cell\trowd\trgaph30\trleft410\trrh223\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824 
+\pard\intbl\fs20 +-+-+\fs18  [Enter]\cell\cell 
+\pard\intbl\itap2\fs20\nestcell\nestcell{\*\nesttableprops\trowd\trgaph72\trleft75\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx295\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx515\nestrow}{\nonesttables\par}
+
+\pard\intbl\fs18\cell\trowd\trgaph30\trleft410\trrh223\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824\row\trowd\trgaph30\trleft410\trrh330\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824 
+\pard\intbl\cf0\fs20 +-----+-----+-----+\cf8\fs18  [Enter]\cell\cell 
+\pard\intbl\itap2\cf0\fs20\nestcell\nestcell\nestcell{\*\nesttableprops\trowd\trgaph72\trleft75\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx575\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx1075\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx1575\nestrow}{\nonesttables\par}
+
+\pard\intbl\cf8\fs18\cell\trowd\trgaph30\trleft410\trrh330\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824\row 
+\pard\li360\cf0\fs20\par
+Note: The text line can not have leading whitespace to the left of the text\par
 \par
+\b Tip\b0 : You should use a monospaced font, like Courier New or Lucida Console, as it gives the best snap effect, because "+" and "-" have different widths, so two tables with different column counts will look off.\par
+\trowd\trgaph30\trleft770\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3212\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3457\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx6184 
+\pard\intbl\sb120\fs18 Tahoma (default font)\par
 
-\pard\sa40\b Tip\b0 : You can include a cell inside other cell, or even onother table.\par
+\pard\intbl + 11 dashes +\par
++ 5 dashes + 5 dashes +\par
+\fs20 +-----------+\fs18\line\fs20 +-----+-----+\par
 
-\pard\b Tip\b0 : You can also include images in cells if you want.\par
+\pard\intbl\itap2\nestcell{\*\nesttableprops\trowd\trgaph72\trleft75\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx995\nestrow}{\nonesttables\par}
 
-\pard\li360\sa120 Note that it is not possible to resize the image being inside a cell. But you can resize it outside and copy or dragged into the cell\cf9\f5\fs24\lang3082\par
+\pard\intbl\itap2\nestcell\nestcell{\*\nesttableprops\trowd\trgaph72\trleft75\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx575\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx1075\nestrow}{\nonesttables\par}
 
-\pard\li720\v\'11I162\'12\cf0\v0\f0\fs20\lang1033{\field{\*\fldinst{HYPERLINK "img:162,16,16"}}{\fldrslt {162_Image_23ene.png}}}\cf9\fs24\lang3082  \v\f5\'11I162\'12\cf0\v0\f0\fs20\lang1033{\field{\*\fldinst{HYPERLINK "img:162,24,24"}}{\fldrslt {162_Image_23ene.png}}}\cf9\f5\fs24\lang3082\par
+\pard\intbl\cf8\fs18\cell\cell\cf0\f4 Courier New\par
++ 11 dashes +\par
++ 5 dashes + 5 dashes +\par
+\fs20 +-----------+\fs18\par
+\fs20 +-----+-----+\par
+
+\pard\intbl\itap2\nestcell{\*\nesttableprops\trowd\trgaph72\trleft60\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx1500\nestrow}{\nonesttables\par}
+
+\pard\intbl\itap2\nestcell\nestcell{\*\nesttableprops\trowd\trgaph72\trleft60\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx780\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx1500\nestrow}{\nonesttables\par}
+
+\pard\intbl\cf8\f0\fs18\cell\trowd\trgaph30\trleft770\trrh223\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3212\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3457\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx6184\row 
+\pard\li360\cf0\fs20\par
 
 \pard\par
-\trowd\trgaph30\trleft-30\trrh200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\cellx3822\cellx4367\cellx5519 
-\pard\intbl\qr\cf8\f6\fs18 Cell, with text \cf7 aligned \cf8 to the right \highlight10\f4\lang1033\cell\highlight0\cell\cell\row\trowd\trgaph30\trleft-30\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\cellx3822\cellx4367\cellx5519 
-\pard\intbl\qr\highlight10\cell\highlight0\cell\cell\row\trowd\trgaph30\trleft-30\trrh1200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\cellx3822\cellx4367\cellx5519 
-\pard\intbl\sa120\cf9\f0\fs22\lang3082    This is a \cf0\b cell\cf9\b0  with a table \highlight10 inside\highlight0 : \f5\fs24\par
+\b 2. By previously creating them in another application\par
+\b0\par
 
-\pard\intbl\itap2\qr\cf8\f6\fs18 X1\f4\lang1033\nestcell\nestcell\nestcell{\*\nesttableprops\trowd\trgaph30\trleft-30\trqc\trrh200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\pard\li360 You can create a table in Word or Excel (or any other application) and copy it to the clipboard. When you paste it into KeyNote, it will become an RTF table. Note that if you use Excel, any selection of cells makes up a table that you can paste.\par
+\par
+You can also embedd a new or existing file object (like .docx Word or .xlsx, for example), with \ul\b Insert|Object...\ulnone\b0  If the file already exists, you can insert a linked object, so that any changes to the object will be made to the original file (the .knt file will also take up less space) \par
+
+\pard\par
+\par
+\b 3. Using templates\par
+\b0\par
+
+\pard\li360 You can also prepare simple formats of empty tables and save them as {{\field{\*\fldinst{HYPERLINK "file:///*8|307|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Templates}}}}\f0\fs20 , for easy use when you need it. You can give each template a name (e.g. Table2x3).\par
+
+\pard\li720\par
+\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\cellx1562\cellx2714\cellx3866 
+\pard\intbl\qr\cf8\f5\fs18\cell\cell\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\cellx1562\cellx2714\cellx3866 
+\pard\intbl\qr\cell\cell\cell\row 
+\pard\cf0\f0\fs20\par
+\par
+\b General info and tips for tables\par
+\b0\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 In addition to defining templates with tables already created, you can prepare \ul templates\ulnone  that are "precursors" of tables, adding one (or more) lines of the form "+----+-----+". This way you can easily make adjustments to the table to be created before pressing ENTER.\par
+
+\pard\li360\sb40 Note:\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li720 It is necessary to create the template selecting "Formatted text" (obtaining an .RTF)\par
+{\pntext\f9\'B7\tab}It is advisable to create it without including the final character after the last "+", so as not to add a line break so that after inserting the template the cursor is right after the last "+"\par
+
+\pard\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can use the {{\field{\*\fldinst{HYPERLINK "file:///*8|306|0|0"}}{\fldrslt{\ul\cf2\cf2\ul glossary}}}}\f0\fs20  and add one or more terms that can be replaced by this lines of the form "+-+-+". Examples of possible use:\par
+
+\pard            "++"  or "+2" or "t2" or ... \tab =>  "+-------------------+-------------------+"\par
+            "+8" or "t8" or ...\tab\tab =>  "+-------+-------+-------+-------+-------+- ------+-------+-------+"\par
+
+\pard\sb120            It is enough to enter the defined term and press \cf3\b F7\cf0\b0 . You can make some adjustments if you see fit and then press ENTER\par
+
+\pard\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Once the table is included in KeyNote you can edit it in a basic way. For example, if you press TAB from the last cell in a table, a new row will be added. You can also delete rows, selecting all its cells (and including the hidden character to the right, as you do when you delete a paragraph)\par
+
+\pard\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40 You can include a cell inside other cell, or even onother table.\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can also include images in cells if you want.\par
+
+\pard\li360\sa120 Note that it is not possible to resize the image being inside a cell. But you can resize it outside and copy or dragged into the cell\cf9\f6\fs24\lang3082\par
+
+\pard\li720\v\'11I162\'12\cf0\v0\f0\fs20\lang1033{\field{\*\fldinst{HYPERLINK "img:162,16,16"}}{\fldrslt {162_Image_23ene.png}}}\cf9\fs24\lang3082  \v\f6\'11I162\'12\cf0\v0\f0\fs20\lang1033{\field{\*\fldinst{HYPERLINK "img:162,24,24"}}{\fldrslt {162_Image_23ene.png}}}\cf9\f6\fs24\lang3082\par
+
+\pard\li360\par
+\trowd\trgaph30\trleft410\trrh200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\cellx4262\cellx4807\cellx5959 
+\pard\intbl\qr\cf8\f7\fs18 Cell, with text \cf7 aligned \cf8 to the right \highlight10\f5\lang1033\cell\highlight0\cell\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\cellx4262\cellx4807\cellx5959 
+\pard\intbl\qr\highlight10\cell\highlight0\cell\cell\row\trowd\trgaph30\trleft410\trrh1200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\cellx4262\cellx4807\cellx5959 
+\pard\intbl\sa120\cf9\f0\fs22\lang3082    This is a \cf0\b cell\cf9\b0  with a table \highlight10 inside\highlight0 : \f6\fs24\par
+
+\pard\intbl\itap2\qr\cf8\f7\fs18 X1\f5\lang1033\nestcell\nestcell\nestcell{\*\nesttableprops\trowd\trgaph30\trleft-30\trqc\trrh200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \cellx1122\cellx2274\cellx3381\nestrow}{\nonesttables\par}
 
-\pard\intbl\itap2\qr\f6\lang3082 X2\f4\lang1033\nestcell 
-\pard\intbl\itap2\qc\v\'11I53\'12\cf0\v0\f0\fs20{\field{\*\fldinst{HYPERLINK "img:53,16,16"}}{\fldrslt {53_Main_53.png}}}\cf8\f6\fs18\lang3082  \f4\lang1033\nestcell 
+\pard\intbl\itap2\qr\f7\lang3082 X2\f5\lang1033\nestcell 
+\pard\intbl\itap2\qc\v\'11I53\'12\cf0\v0\f0\fs20{\field{\*\fldinst{HYPERLINK "img:53,16,16"}}{\fldrslt {53_Main_53.png}}}\cf8\f7\fs18\lang3082  \f5\lang1033\nestcell 
 \pard\intbl\itap2\qr\nestcell{\*\nesttableprops\trowd\trgaph30\trleft-30\trqc\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \cellx1122\cellx2274\cellx3381\nestrow}{\nonesttables\par}
 
 \pard\intbl\qr\cell 
 \pard\intbl\qc\par
 \par
-\cf0\v\f0\fs20\'11I86\'12\v0{\field{\*\fldinst{HYPERLINK "img:86,24,24"}}{\fldrslt {86_TV_02.png}}}\cf8\f4\fs18\cell\f6\lang3082 This cell is centered\f4\lang1033\cell\trowd\trgaph30\trleft-30\trrh1200\cellx3822\cellx4367\cellx5519\row 
+\cf0\v\f0\fs20\'11I86\'12\v0{\field{\*\fldinst{HYPERLINK "img:86,24,24"}}{\fldrslt {86_TV_02.png}}}\cf8\f5\fs18\cell\f7\lang3082 This cell is centered\f5\lang1033\cell\trowd\trgaph30\trleft410\trrh1200\cellx4262\cellx4807\cellx5959\row 
 \pard\cf0\f0\fs20\par
-\b Tip\b0 : You cannot change the color of a cell from inside KeyNote, but you can prepare the table with colors outside and then paste:\par
-\lang3082\par
-\trowd\trgaph30\trleft-30\trrh255\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\clcfpat12\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw30\brdrs\brdrcf11 \cellx1122\clcfpat12\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw30\brdrs\brdrcf11 \cellx2274\clcfpat12\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw30\brdrs\brdrcf11 \cellx3426 
-\pard\intbl\qc\cf11\f6\fs18 A1\f4\lang1033\cell\f6\lang3082 B1\f4\lang1033\cell\f6\lang3082 C1\f4\lang1033\cell\row\trowd\trgaph30\trleft-30\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\clcfpat13\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1122\clcfpat13\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2274\clcfpat13\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3426 
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You cannot change the color of a cell from inside KeyNote, but you can prepare the table with colors outside and then paste:\par
+
+\pard\li360\lang3082\par
+\trowd\trgaph30\trleft410\trrh255\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clcfpat12\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw30\brdrs\brdrcf11 \cellx1562\clcfpat12\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw30\brdrs\brdrcf11 \cellx2714\clcfpat12\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw30\brdrs\brdrcf11 \cellx3866 
+\pard\intbl\qc\cf11\f7\fs18 A1\f5\lang1033\cell\f7\lang3082 B1\f5\lang1033\cell\f7\lang3082 C1\f5\lang1033\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clcfpat13\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1562\clcfpat13\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2714\clcfpat13\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3866 
 \pard\intbl\qr\cf8\cell\cell\cell\row 
-\pard\cf0\f0\fs20\par
-\b Tip\b0 : You can hide the lines of the table by giving them a color equal to the background of the note:\par
-\par
-\trowd\trgaph30\trleft-30\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1122\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2274\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3426 
-\pard\intbl\cf8\f4\fs18 A1\cell B1\cell C1\cell\row\trowd\trgaph30\trleft-30\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1122\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2274\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3426 
+\pard\li360\cf0\f0\fs20\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can hide the lines of the table by giving them a color equal to the background of the note:\par
+
+\pard\par
+\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1562\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2714\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3866 
+\pard\intbl\cf8\f5\fs18 A1\cell B1\cell C1\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1562\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2714\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3866 
 \pard\intbl A2\cell B2\cell C2\cell\row 
 \pard\cf0\f0\fs20\par
 \par
@@ -2055,7 +2155,7 @@ Please note that the date and time formats available under those drop-down menus
 \par
 Note:    \par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 The toolbar is not displayed initially; you will need to enable it by using the View | Toolbars | Show Insert Toolbar command.\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 The toolbar is not displayed initially; you will need to enable it by using the View | Toolbars | Show Insert Toolbar command.\par
 
 \pard\par
 \par
@@ -2068,25 +2168,25 @@ Note:    \par
 \pard\par
 Usually new zoom value is set by selecting one of the items of the \b combo\b0  (that default to 100%). \par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 Clicking in one value will \b apply it ALL notes\b0  (and also to the Editor of the \ul Scratch\ulnone  panel)\par
-{\pntext\f8\'B7\tab}If \cf3\b Ctrl\cf0\b0  is down while clicking, it will apply only to \b active note\b0 .\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Clicking in one value will \b apply it ALL notes\b0  (and also to the Editor of the \ul Scratch\ulnone  panel)\par
+{\pntext\f9\'B7\tab}If \cf3\b Ctrl\cf0\b0  is down while clicking, it will apply only to \b active note\b0 .\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 If the new zoom value is \b typed\b0  in the control, pressing \cf3\b Enter\cf0\b0  will apply it to \b all notes\b0 . \par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 If the new zoom value is \b typed\b0  in the control, pressing \cf3\b Enter\cf0\b0  will apply it to \b all notes\b0 . \par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 Pressing \cf3 Ctrl+Enter\cf0  will do nothing. To apply a \b typed\b0  zoom value \b only to the active\b0  note, \b click on the note while pressing\b0  \cf3\b Ctrl\cf0\b0 .\par
-
-\pard\par
-
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Double click\b0  resets the zoom to <Default Zoom>%, as before. Now it is controlled also by \cf3\b Ctrl\cf0\b0  key, to apply to all notes or only to active one.\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Pressing \cf3 Ctrl+Enter\cf0  will do nothing. To apply a \b typed\b0  zoom value \b only to the active\b0  note, \b click on the note while pressing\b0  \cf3\b Ctrl\cf0\b0 .\par
 
 \pard\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 If pressing \cf3\b Esc\cf0\b0  inside zoom combo, active note will gain focus, and no change will be done in any zoom.\par
-{\pntext\f8\'B7\tab}Deleting the combo value will be similar to pressing \cf3\b Esc\cf0\b0 .\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Double click\b0  resets the zoom to <Default Zoom>%, as before. Now it is controlled also by \cf3\b Ctrl\cf0\b0  key, to apply to all notes or only to active one.\par
 
 \pard\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3\b Ctrl\cf0\b0  will control also the menu options \b Zoom in\b0  and \b Zoom out\b0 .\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 If pressing \cf3\b Esc\cf0\b0  inside zoom combo, active note will gain focus, and no change will be done in any zoom.\par
+{\pntext\f9\'B7\tab}Deleting the combo value will be similar to pressing \cf3\b Esc\cf0\b0 .\par
+
+\pard\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3\b Ctrl\cf0\b0  will control also the menu options \b Zoom in\b0  and \b Zoom out\b0 .\par
 
 \pard\par
 \par
@@ -2122,9 +2222,9 @@ Using the same mechanism that Keynote's Mark/Insert Location is based on, you ca
 \pard - Search | Jump to Bookmark (\cf3\b Alt+[0-9]\cf0\b0 )\par
 \par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 The bookmarks \b do\b0  move with the text, because they are linked to target through a hidden mark (Of course, the hidden mark is deleted when the corresponding bookmark is set in another location).\par
-{\pntext\f8\'B7\tab}They are not visible. There is no visible marking indicating where it is placed.\par
-{\pntext\f8\'B7\tab}The markers are global to the entire knt file. These markers are saved within the file, as well as the small hidden markers used as target.\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 The bookmarks \b do\b0  move with the text, because they are linked to target through a hidden mark (Of course, the hidden mark is deleted when the corresponding bookmark is set in another location).\par
+{\pntext\f9\'B7\tab}They are not visible. There is no visible marking indicating where it is placed.\par
+{\pntext\f9\'B7\tab}The markers are global to the entire knt file. These markers are saved within the file, as well as the small hidden markers used as target.\par
 
 \pard\par
 \b Tip\b0 :\par
@@ -2139,22 +2239,24 @@ Using the same mechanism that Keynote's Mark/Insert Location is based on, you ca
 The behaviour of \cf3\b Home\cf0\b0  key is similar to other editors (like Notepad++):\par
 Suppose the following line:\par
 \par
-\cf4\f7\tab    Example;\par
+\cf4\f8\tab    Example;\par
 \cf0\f0\par
-If cursor is located at the end the line and you press \cf3 Home\cf0 , it will be moved to the first non "space" character, "\cf4\f7 E\cf0\f0 " in this example.\par
-Pressing \cf3 Home\cf0  again moves caret to beggining of the line. And yet another one again to letter "\cf4\f7 E\cf0\f0 ".\par
+If cursor is located at the end the line and you press \cf3 Home\cf0 , it will be moved to the first non "space" character, "\cf4\f8 E\cf0\f0 " in this example.\par
+Pressing \cf3 Home\cf0  again moves caret to beggining of the line. And yet another one again to letter "\cf4\f8 E\cf0\f0 ".\par
 \par
 \par
 \par
-\b\v\fs24\'11B7\'12\v0 Holding Ctrl+up/down\b0\par
+\b\v\fs24\'11B7\'12\v0 Holding Ctrl+Up/down\b0\par
 \fs20\par
 If you press \cf3\b Ctrl+Up\cf0\b0  or \cf3\b Ctrl+Down\cf0\b0  you will shift the entre document one line down or up, respectively, as if you clicked the vertical scroll bar. The cursor will be still in the same place.\par
 
 \pard\sb40 This allows you to see a few lines beyond the current visible top or bottom of the page while you type, for then continue writing in the same position.\par
 
 \pard\par
-It would be great to hold Ctrl+arrow up/down and shift entire document, while cursor could be still in the same place, by now cursor moves, so sometimes I need to wait until it reaches top or bottom of the page to see what have I written before or after.\par
 \par
+\b\v\fs24\'11B15\'12\v0 Holding Ctrl+\ul Shift\ulnone +Up/down\b0\par
+\fs20\par
+With \cf3\b Ctrl+Shift+Up\cf0\b0  or \cf3\b Ctrl+Shift+Down\cf0\b0  you can smoothly move the scroll bar vertically. This is specially useful when the editor contains images because it allows you to view the image with uniform movement, which is not possible using \cf3 Ctrl+Up\cf0  or \cf3 Ctrl+Down\b .\cf0\b0\par
 \par
 \par
 \b\v\fs24\'11B4\'12\v0 TAB multiple lines\ul\par
@@ -2166,7 +2268,7 @@ KeyNote allows you to indent multiple lines with TAB characters (or spaces), in 
 \pard\par
 Suppose that "\cf4 some code2\cf0 " and "\cf4 some code3"\cf0  need to be alligned together to e.g. 6th column. Instead of push tab few times on every line, you can select both lines and press \cf3\b Tab\cf0\b0 , so that all lines will be tabbed together.\par
 \par
-\cf4\f7\{\par
+\cf4\f8\{\par
   some code1\par
   if\par
     \{\par
@@ -2182,14 +2284,14 @@ Note: If the selected lines have mixed leading Tab and spaces, they will removed
 \par
 Note:\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 This functionality is compatible with the usual use of \cf3\b Tab\cf0\b0  and \cf3\b Shift+Tab\cf0\b0  to \b switch focus\b0  between \b editor and tree\b0 :\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 This functionality is compatible with the usual use of \cf3\b Tab\cf0\b0  and \cf3\b Shift+Tab\cf0\b0  to \b switch focus\b0  between \b editor and tree\b0 :\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li720 Multiline text selected \tab - \cf3\b Shift+Tab\cf0\b0  decreases indent\par
-{\pntext\f8\'B7\tab}No multiline selected \tab - \cf3\b Shift+Tab\cf0\b0  switches focus to the tree\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li720 Multiline text selected \tab - \cf3\b Shift+Tab\cf0\b0  decreases indent\par
+{\pntext\f9\'B7\tab}No multiline selected \tab - \cf3\b Shift+Tab\cf0\b0  switches focus to the tree\par
 
 \pard\par
 
-\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 If you press Tab over multiple selected lines, with bullets or numbering lists, only the text will be moved, not bullets. It would make no sense, what you should do is indent the paragraph.\par
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 If you press Tab over multiple selected lines, with bullets or numbering lists, only the text will be moved, not bullets. It would make no sense, what you should do is indent the paragraph.\par
 
 \pard\li360\sb40 Instead, what you could consider is to firstly copy and paste as text the selected lines, so that the RTF bullets can be replaced with spaces or other string (by default with "- ")\par
 
@@ -2535,13 +2637,13 @@ KeyNote uses the freeware WordWeb integration component written by Mr. Antony Le
 LV=1
 ND=Tree-type Notes
 DI=284
-NF=000000000100000000000000
+NF=000000100100000000000000
 BC=clWindow
 IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;\red64\green64\blue64;}
-{\*\generator Riched20 10.0.19041}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
+{\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Tree-type Notes\cf2\f0\lang1033\par
 \cf0\b0\fs26\par
@@ -2663,7 +2765,7 @@ Many other tree-related settings are global, that is, they apply \b to ALL notes
 
 \pard\b\v\fs22\'11B12\'12\v0 Normal vs maximum tree width\b0\par
 
-\pard\sb80\fs20 Normally\f3  \f0 you\f3  \f0 will\f3  \f0 need\f3  \f0 most\f3  \f0 of\f3  \f0 the\f3  \f0 space\f3  \f0 for\f3  \f0 the\f3  \f0 editor\f3  \f0 panel\f3 , \f0 reducing\f3  \f0 the\f3  \f0 width\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3 , \f0 but\f3  \f0 many\f3  \f0 times\f3  \f0 you\f3  \f0 will\f3  \f0 find\f3  \f0 that\f3  \f0 you\f3  \f0 need\f3  \f0 to\f3  \f0 enlarge\f3  \f0 the\f3  \f0 size\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3  \f0 to\f3  \f0 better\f3  \f0 see\f3  \f0 the\f3  \f0 tree\f3  \f0 nodes\f3 . \f0 Shortly\f3  \f0 after\f3  \f0 you\f3  \f0 will\f3  \f0 find\f3  \f0 yourself\f3  \f0 again\f3  \f0 reducing\f3  \f0 the\f3  \f0 width\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3 ...\f0\par
+\pard\sb80\fs20 Normally\f3  \f0 you\f3  \f0 will\f3  \f0 need\f3  \f0 most\f3  \f0 of\f3  \f0 the\f3  \f0 space\f3  \f0 for\f3  \f0 the\f3  \f0 editor\f3  \f0 panel\f3 , \f0 reducing\f3  \f0 the\f3  \f0 width\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3 , \f0 but\f3  \f0 many\f3  \f0 times\f3  \f0 you\f3  \f0 will\f3  \f0 find\f3  \f0 that\f3  \f0 you\f3  \f0 need\f3  \f0 to\f3  \f0 enlarge\f3  \f0 the\f3  \f0 width\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3  \f0 to\f3  \f0 better\f3  \f0 see\f3  \f0 the\f3  \f0 tree\f3  \f0 nodes\f3 . \f0 Shortly\f3  \f0 after\f3  \f0 you\f3  \f0 will\f3  \f0 find\f3  \f0 yourself\f3  \f0 again\f3  \f0 reducing\f3  \f0 the\f3  \f0 width\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3 ...\f0\par
 Although\f3  \f0 we\f3  \f0 can\f3  \f0 completely\f3  \f0 hide\f3  \f0 the\f3  \f0 tree\f3 , \f0 sometimes\f3  \f0 it\f3  \f0 is\f3  \f0 necessary\f3  \f0 to\f3  \f0 have\f3  \f0 a\f3  \f0 view\f3  \f0 of\f3  \f0 the\f3  \f0 nodes\f3 , \f0 to\f3  \f0 facilitate\f3  \f0 the\f3  \f0 selection\f3  \f0 of\f3  \f0 other\f3  \f0 nodes\f3 , \f0 or\f3  \f0 simply\f3  \f0 as\f3  \f0 context\f3  \f0 or\f3  \f0 to\f3  \f0 help\f3  \f0 us\f3  \f0 with\f3  \f0 their\f3  \f0 nodes\f3  \f0 and\f3  \f0 their\f3  \f0 structure\f3 .\par
 
 \pard\sb120\f0 To\f3  \f0 help\f3  \f0 avoid\f3  \f0 the\f3  \f0 necessity\f3  \f0 of\f3  \f0 making\f3  \f0 these\f3  \f0 continuos\f3  \f0 changes\f3  \f0 in\f3  \f0 the\f3  \f0 width\f3  \f0 of\f3  \f0 the\f3  \f0 tree\f3  \f0 an\f3  \f0 optional\f3  \f0 functionality\f3  \f0 have\f3  \f0 been\f3  \f0 added\f3 : \f0\par
@@ -2674,7 +2776,8 @@ If \ul width of tree panel\ulnone  is \ul changed with\ulnone  \cf3\b\lang1033 C
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 When you mouse over the tree panel, at any node, the tree panel will expand to the maximum width.\par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 The same happens if the focus is moved to the tree panel.\par
-{\pntext\f4\'B7\tab}Once focus returns to the Editor panel, the tree restores its normal (minimum) width\par
+{\pntext\f4\'B7\tab}If the Editor panel maintains the focus and the tree panel is expanded, if you mouse over the editor then the tree restores its normal (minimum) width.\par
+{\pntext\f4\'B7\tab}Also, when focus returns to the Editor panel, the tree restores its normal width\par
 
 \pard\par
 
@@ -2690,9 +2793,13 @@ Both values, normal width and optional maximun width, will be saved on .knt file
 \par
 (Note that in case of vertical layout of Tree Panel, "heigth" instead of "width" will be used)\par
 \par
-\par
 
-\pard\li360\b Tip\b0 :  By default changing exclusively the width of the tree or editor panels will not mark the .knt file as modified and so that changes will not be persisted. You can use the \b ModifiedOnTreeResized\b0  ini option (default 0, False) to change that behaviour: if set to 1 (true), changing the width (or max width) of any tree panel will mark the file as modified, and so this changes can be saved.\par
+\pard\li360\b Tip\b0 :  You can maintain the tree panel expanded by keeping the mouse over the tree panel while you type in the editor at the same time.\par
+
+\pard\li360\sb80\b Tip\b0 :  It is possible to traverse the tree panel with the mouse and not trigger the tree width expansion (just move it a little faster)\par
+
+\pard\li360  \par
+\b Tip\b0 :  By default changing exclusively the width of the tree or editor panels will not mark the .knt file as modified and so that changes will not be persisted. You can use the \b ModifiedOnTreeResized\b0  ini option (default 0, False) to change that behaviour: if set to 1 (true), changing the width (or max width) of any tree panel will mark the file as modified, and so this changes can be saved.\par
 
 \pard\highlight4\lang1033\par
 \highlight0\par
@@ -5963,7 +6070,7 @@ IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\fcharset0 Lucida Console;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset0 Cambria Math;}{\f5\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;\red64\green64\blue64;}
-{\*\generator Riched20 10.0.19041}{\*\mmathPr\mmathFont4\mwrapIndent1440 }\viewkind4\uc1 
+{\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont4\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Opening and Saving KeyNote files\cf2\lang1033\par
 \cf0\b0\fs26\par
@@ -6022,6 +6129,11 @@ You can \b open \b0 a KeyNote file in many ways:\par
 \pard\lang1033\par
 
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 You could also use the \b KntLauncher.exe \b0 add-on utility. This would allow you to open a specific file in a new independent KeyNote NF instance, launching a new instance or activating the one that could have it already open). (See {{\field{\*\fldinst{HYPERLINK "file:///*8|570|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Using KeyNote NF .knt as Help files}}}}\f0\fs20 )\par
+
+\pard\li360\sb80\b Tip\b0 : With the help of kntLauncher.exe you can get a "\b multiple instances, but only one per file\b0 " functionality: dbl-clicking a knt-file should activate the corresponding window if the file is already open or fire up an additional Keynote instance if the file is not open yet.\par
+To achieve this, you can associate the .knt extension with a .bat file. For example, you can create a "kntLauncher.bat" that includes:\par
+
+\pard\li720\sb120\f2\fs18 "<PathToKeyNote NF>\\kntLauncher.exe" %1 -ignSI -dnd -title%1\f0\fs20\par
 
 \pard\par
 \par
@@ -9837,7 +9949,7 @@ IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Editor shortcut keys\cf2\f0\lang1033\par
 \cf0\b0\fs26\par
@@ -9973,13 +10085,18 @@ Alt+`\cf0\b0\tab\tab\tab Increase left \b indent\b0\par
 \pard\cf3\b Ctrl+Shift+4\cf0\b0\tab\tab Reverse selected text \par
 \par
 \cf3\b Alt+Down\cf0\b0\tab\tab In a tree note, \b switch to\b0  NEXT node \par
-\cf3\b Alt+Up\cf0\b0\tab\tab In a tree note, switch to PREVIOUS node \par
+\cf3\b Alt+Up\cf0\b0\tab\tab\tab In a tree note, switch to PREVIOUS node \par
 \cf3\b Shift+Alt+Left\cf0\b0\tab In a tree note, move LEFT in the tree \par
 \cf3\b Shift+Alt+Right\cf0\b0\tab In a tree note, move RIGHT in the tree \par
 
 \pard\fi-2160\li2160\sb100\cf3\b Ctrl+Numpad /\cf0\b0\tab Switch focus to the Macro combo box. (Select a macro, then press Enter to run it or Esc to cancel.)\par
 
 \pard\fi-2160\li2160\tab The Macro toolbar must be visible.\par
+
+\pard\fi-2160\li2160\sb100\cf3\b Ctrl+Up\cf0\b0  / \cf3\b Down\cf0\b0\tab Shift the entre document one line down or up. The cursor will be in the same place.\par
+\cf3\b Ctrl+Shift+Up\cf0\b0  / \cf3\b Down\cf0\b0\tab Smoothly move the scroll bar vertically. The cursor won't change.\par
+
+\pard\fi-2160\li2160\par
 \par
 \tab\par
 
@@ -9991,12 +10108,6 @@ For example, I use a lot of \i Increase \i0 and \i decrease left indent\i0  comm
 \pard\par
   Increase left indent:   \tab\tab\tab\cf2 Ctrl+Alt+Right\cf0\par
   Decrease left indent:  \tab\tab\tab\cf2 Ctrl+Alt+Left\cf0\par
-\par
-I also find more intuitive this other shortcuts:\par
-
-\pard\sb80   Toggle SUPERSCRIPT font style:\tab\cf2 Ctrl+Shift+Up\cf0\par
-
-\pard   Toggle SUBSCRIPT font style: \tab\tab\cf2 Ctrl+Shift+Down\cf0\par
 \par
 }
 %-
@@ -15428,6 +15539,7 @@ ST=
 FL=111110000000110001000000
 SN=0
 TW=182
+TM=0
 EN=(%D) -
 TB=clWindow
 TH=1
