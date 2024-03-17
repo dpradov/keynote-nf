@@ -13,7 +13,7 @@ II=3
 DC=20-04-2003 19:33:48
 TI=0
 TS=4
-CX=6621
+CX=512
 CY=0
 BG=clWindow
 CH=0
@@ -23,7 +23,7 @@ FS=10
 LN=1033
 ST=
 FL=111110000000100000000000
-SN=26
+SN=0
 TW=302
 TM=0
 EN=New node
@@ -2637,7 +2637,7 @@ KeyNote uses the freeware WordWeb integration component written by Mr. Antony Le
 LV=1
 ND=Tree-type Notes
 DI=284
-NF=000000100100000000000000
+NF=000000000100000000000000
 BC=clWindow
 IX=0
 %:

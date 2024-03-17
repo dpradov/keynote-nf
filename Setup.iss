@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "1.9.0.1"
-#define AppVersion "1.9.0 .1"
+#define Version "1.9.1.1"
+#define AppVersion "1.9.1 .1"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -17,8 +17,8 @@
 
 [Setup]
 SignTool=mySignTool
-TouchDate=2024-03-07
-TouchTime=21:00
+TouchDate=2024-03-17
+TouchTime=16:00
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
@@ -155,6 +155,7 @@ Source: "doc\Changes in 1.8.3 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.8.4 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.8.5 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.9.0 .01.txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\Changes in 1.9.1 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart_format.txt"; DestDir: "{app}\doc" ; Components: main
 

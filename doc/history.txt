@@ -3,6 +3,27 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 1.9.1.1  (17 mar 2024)
+--------------------------
+(Detailed info in doc\Changes in 1.9.1 .01.txt)
+
+[IMPORTANT - You could lose data]:
+ * Fixed: Importing RTF or HTML files as new nodes or notes could prevent recognition of the next node or note.
+ * Fixed: Changes made in the Scratch panel are being discarded when selecting another tab in the resources panel.
+
+* Fixed: UTF8 files without BOM were treated as ANSI files
+* Improved: When navigating back in history it will return to the exact visible position in the editor
+* New: Returning to a node now retrieves the exact position in the editor, including status bar scrolling
+* New: Ctrl+Shift+Up/down will smoothly move the scroll bar vertically
+* Improvements in "Normal vs maximum tree width" functionality
+* Fixed: Export... It must be checked in the options that the "Symbols" field is not empty
+* Fixed: Export notes... Error when selecting "Export each node to a separate target file"
+* Fixed: Removed possible hidden characters when exporting from tree panel context menu
+* Fixed: Editor needed to be refreshed in certain situations (if enabled Alternative Margins). Also Scratch editor
+* Fixed: Import as new node or as new note always showed the Editor content at 100% zoom...
+* Minimal change to try to resolve "Resource Panel>Favorites, not autocomplete"
+
+
 v 1.9.0.1  (07 mar 2024)
 --------------------------
 (Detailed info in doc\Changes in 1.9.0 .01.txt)

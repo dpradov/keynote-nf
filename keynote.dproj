@@ -119,8 +119,8 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>9</VerInfo_MinorVer>
-        <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.9.0.1;FileVersion=1.9.0.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.9.0.1;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.9.1.1;FileVersion=1.9.1.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.9.1.1;Comments=;ProgramID=</VerInfo_Keys>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
         <VerInfo_Build>1</VerInfo_Build>
     </PropertyGroup>
@@ -137,8 +137,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>9</VerInfo_MinorVer>
-        <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.9.0.1;FileVersion=1.9.0.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.9.0.1;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 1.9.1.1;FileVersion=1.9.1.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=1.9.1.1;Comments=;ProgramID=</VerInfo_Keys>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
         <UsePackages>true</UsePackages>
         <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
@@ -148,7 +148,7 @@
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <VerInfo_Build>1</VerInfo_Build>
-        <Debugger_RunParams>-ignSI &quot;C:\Program Files (x86)\KeyNote NF\help\KeyNoteNF_Help.knt&quot; &quot;C:\Program Files (x86)\KeyNote NF\Profiles\Help\keynote.ini&quot;</Debugger_RunParams>
+        <Debugger_RunParams>-ignSI E:\Output\bin\help\KeyNoteNF_Help.knt -title&quot;KeyNote NF Topics&quot;</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

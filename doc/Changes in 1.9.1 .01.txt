@@ -1,0 +1,95 @@
+
+Changes in 1.9.1 .01  (17 mar 2024)
+=================================
+ 
+* [IMPORTANT - You could lose data] Fixed: Importing RTF or HTML files as new nodes or new notes could prevent recognition of the next node or note.
+  
+   When written to disk, the line break necessary to separate the RTF text from the start tag of the next node or note was not being incorporated.
+   This would occur only if node or note imported were not modified before saving.
+
+	Ex:
+	Instead of saving as:
+
+	    ... final of converted HTML text\par\pard}
+		%-
+		ND=Another node
+		...
+
+    It was saved as:	
+		... final of converted HTML text\par\pard}%-
+		ND=Another node
+		...
+	
+	=> On open, "Another node" would be not recognized correctly.
+
+	Note: the first time you opened the file after saving with this bug, the data were not lost. All the data were inside the file, but the application did not recognize the format of the affected node or note.
+	The next node or note WOULD HAVE BEEN LOST if the file was saved again after a subsequent open (where they could not be recognized and were ignored)
+	More info in issue #663
+
+- - - - 
+
+* [IMPORTANT - You could lose data] Fixed: Changes made in the Scratch panel are being discarded when selecting another tab in the resources panel.
+  They were saved ok when saving the .knt file or closing the instance. They are also not lost by hiding the resources panel.
+  Ref: #652
+
+	
+- - - - - 
+
+* Fixed: UTF8 files without BOM were treated as ANSI files
+  ... when importing (as new tree node, new note, as content at cursor, or virtual tree node) or inserting templates
+  
+  Ref: KeynoteNF does not correctly import UTF8 files (currently only import UTF8-BOM files) #658
+
+- - - - - 
+
+* Improved: Now when navigating back in history it will return to the exact visible position in the editor
+  It can be clearly seen when jumping and returning from a marker located on the same node.
+
+* New: Returning to a node now retrieves the exact position in the editor, including status bar scrolling
+  This is especially important if the editor contains images because although the cursor kept the correct
+  position in the text, its visual position in the window could be shifted a lot.
+
+* New: Ctrl+Shift+Up/down will smoothly move the scroll bar vertically
+  This is specially useful when the editor contains images because it allows you to view the image with uniform movement, which is not possible using Ctrl+Up or Ctrl+Down.
+
+- - - - - 
+
+* Improvements in "Normal vs maximum tree width" functionality
+	The new behavior is:
+	- When you mouse over the tree panel, at any node, the tree panel will expand to the maximum width.
+	- The same happens if the focus is moved to the tree panel.
+	- If the Editor panel maintains the focus and the tree panel is expanded, if you mouse over the editor then the tree restores its normal (minimum) width.
+	- Also, when focus returns to the Editor panel, the tree restores its normal width
+
+	Tip:  You can maintain the tree panel expanded by keeping the mouse over the tree panel while you type in the editor at the same time.
+
+	Additionally, it is now possible to traverse the tree panel with the mouse and not trigger tree width expansion (just move it a little faster).
+	Besides, it has been avoided the selection of text that sometimes occured as a side effect of switching the focus from tree panel to editor by
+	clicking on the editor panel (restoring the tree panel width).
+
+- - - - - 
+
+* Fixed: Export... It must be checked in the options that the "Symbols" field is not empty
+  Otherwise an exception will be generated if "Node Headings" is selected
+  Symbols: "Symbols to use with %< or %>: Level1, Level2, ..."
+  Ref:  Keynote don't export to disk. #657
+
+* Fixed: Export notes... Error when selecting "Export each node to a separate target file"
+  The error "Error while exporting notes: Failed to Load Stream" was generated when exporting
+  from a plain text note or from an empty node.
+
+* Fixed: Removed possible hidden characters when exporting from tree panel context menu
+
+- - - - - 
+
+* Fixed: Editor needed to be refreshed in certain situations (if enabled Alternative Margins). Also Scratch editor
+
+* Fixed: Import as new node or as new note always showed the Editor content at 100% zoom...
+  .. ignoring the custom zoom that could be applied. Selecting another node established the correct zoom
+
+* Minimal change to try to resolve "Resource Panel>Favorites, not autocomplete"
+  I can't reproduce issue #655. Maybe this small change could prevent the issue, but I'm not sure.
+
+- - - - - 
+
+* Changes in .ini file used with .knt help
