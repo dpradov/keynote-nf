@@ -161,7 +161,7 @@ begin
           OnProtectChangeEx := RxRTFProtectChangeEx;
           OnSelectionChange := RxRTFSelectionChange;
           OnURLClick := RxRTFURLClick;
-          OnMouseMove := nil; // RTFMouseMove;
+          OnMouseMove := RTFMouseMove;
           OnDblClick:= RxRTFDblClick;
           OnEnter:= RxRTFEnter;
           {
@@ -198,7 +198,6 @@ begin
           OnChange := TVChange;
           // OnChanging := TVChanging; // unused
           OnChecked := TVChecked;
-          // OnEnter := TVEnter;
           OnFileDropped := Form_Main.OnFileDropped;
           OnEditing := TVEditing;
           OnEdited := TVEdited;
@@ -217,6 +216,7 @@ begin
           OnHint := TVOnHint;
           OnEnter:= TVEnter;
           OnSavingTree:= TVSavingTree;
+          OnMouseMove:= TVMouseMove;
           HelpContext:= 284;  // Tree-type Notes [284]
         end;
       end;

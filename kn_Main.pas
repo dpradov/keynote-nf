@@ -1014,7 +1014,9 @@ type
     procedure TVClick(Sender: TObject);
     procedure SplitterNoteMoved(Sender: TObject);
     procedure TVOnHint(Sender: TObject; Node: TTreeNTNode;  var NewText: string);
-    procedure CheckRestoreTreeWidth(Delayed: boolean);
+    procedure TVMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
+    procedure CheckingTreeExpansion;
+    function CheckRestoreTreeWidth: boolean;
     procedure CheckExpandTreeWidth;
     {
     procedure TVBeforeItemPaint(Sender: TObject;
@@ -1186,10 +1188,10 @@ type
     procedure TVUnlinkVirtualNodeClick(Sender: TObject);
     procedure FavMAddExternalClick(Sender: TObject);
     procedure MMEditPasteAsNewNodeClick(Sender: TObject);
-    {
+
     procedure RTFMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
-    }
+
     procedure MMTreeOutlineNumClick(Sender: TObject);
     procedure MMHistoryGoBackClick(Sender: TObject);
     procedure MMHistoryGoForwardClick(Sender: TObject);
@@ -3556,7 +3558,6 @@ begin
 
   end;
 
-  CheckRestoreTreeWidth (True);
 end; // RxRTFSelection Change
 
 procedure TForm_Main.RxRTFChange(Sender: TObject);
@@ -5017,6 +5018,13 @@ begin
   end;
 end;
 
+
+var
+  TreeWidthExpanded: boolean;
+  TreeWidth_N: Cardinal;
+  TreeWidthNodeTouched: boolean;
+
+
 procedure TForm_Main.SplitterNoteMoved(Sender: TObject);
 var
   myNote: TTreeNote;
@@ -5045,6 +5053,7 @@ begin
    else begin
       myNote.TreeWidth:= Width;
       myNote.TreeMaxWidth:= Abs(myNote.TreeMaxWidth);
+      TreeWidthExpanded:= True;
    end;
 
    if KeyOptions.ModifiedOnTreeResized then begin
@@ -5058,11 +5067,45 @@ begin
 end;
 
 
+procedure TForm_Main.CheckingTreeExpansion;
+var
+  N2: Cardinal;
+begin
+   if TreeWidth_N = 0 then begin
+      TreeWidth_N:= GetTickCount;           // number of milliseconds that have elapsed since the system was started
+      TreeWidthNodeTouched:= false;
+   end
+   else begin
+      N2:= GetTickCount;
+      if N2 > (TreeWidth_N + 2500) then
+         TreeWidth_N:= 0
+      else
+         if (N2 >= (TreeWidth_N + 300)) and TreeWidthNodeTouched then begin
+            TreeWidth_N:= 0;
+            CheckExpandTreeWidth;
+         end;
+   end;
+end;
+
 procedure TForm_Main.TVOnHint(Sender: TObject; Node: TTreeNTNode;
   var NewText: string);
 begin
-   CheckExpandTreeWidth;
+   TreeWidthNodeTouched:= True;
+   CheckingTreeExpansion;
 end;
+
+procedure TForm_Main.TVMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
+begin
+   CheckingTreeExpansion;
+end;
+
+
+procedure TForm_Main.RTFMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
+begin
+   if TreeWidthExpanded then
+      CheckRestoreTreeWidth;
+end;
+
 
 procedure TForm_Main.CheckExpandTreeWidth;
 var
@@ -5084,16 +5127,18 @@ begin
 
          if keyOptions.AltMargins then
             ActiveNote.Editor.Refresh;
+
+         TreeWidthExpanded:= True;
       end;
    end;
 end;
 
-procedure TForm_Main.CheckRestoreTreeWidth (Delayed: boolean);
+function TForm_Main.CheckRestoreTreeWidth: boolean;
 var
    Width: integer;
    myNote: TTreeNote;
 begin
-
+   Result:= False;
    if (ActiveNote.Kind = ntTree) then begin
        myNote:= TTreeNote(ActiveNote);
 
@@ -5104,12 +5149,16 @@ begin
              Width := myNote.TV.Width;
 
           if (Width > TTreeNote(ActiveNote).TreeWidth) then begin
-              if Delayed then
-                 Sleep(250);
               if myNote.VerticalLayout then
                  myNote.TV.Height:= myNote.TreeWidth
               else
                  myNote.TV.Width:= myNote.TreeWidth;
+
+              TreeWidthExpanded:= false;
+              TreeWidth_N:= 0;
+              Result:= true;
+
+              ActiveNote.Editor.SelLength:= 0;
           end;
        end;
    end;
@@ -5118,7 +5167,10 @@ end;
 
 procedure TForm_Main.RxRTFEnter(Sender: TObject);
 begin
-   CheckRestoreTreeWidth (False);
+   if CheckRestoreTreeWidth then begin
+      Sleep(100);
+      Application.ProcessMessages;
+   end;
 end;
 
 procedure TForm_Main.TVEnter(Sender: TObject);
@@ -6900,7 +6952,7 @@ begin
   if (Sender = nil) and KeyOptions.ResPanelShow and assigned(ActiveNote) then begin
      if ActiveNote.Editor.Focused or ((ActiveNote.Kind = ntTree) and TTreeNote(ActiveNote).TV.Focused) then begin
         FocusResourcePanel;
-        CheckRestoreTreeWidth (False);
+        CheckRestoreTreeWidth;
         exit;
      end;
   end;
@@ -6920,7 +6972,7 @@ begin
   else
     FocusActiveNote;
 
-  CheckRestoreTreeWidth (False);
+  CheckRestoreTreeWidth;
 end; // MMViewResPanelClick
 
 
@@ -8452,5 +8504,8 @@ Initialization
    SBGlyph:= nil;
    ShowingImageOnTrack:= false;
 
+   TreeWidthExpanded:= false;
+   TreeWidth_N:= 0;
+   TreeWidthNodeTouched:= false;
 end.
 
