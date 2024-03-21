@@ -139,9 +139,9 @@ begin
 
   with Form_Main do begin
       if ( not HaveNotes( true, true )) then exit;
-      if ( not assigned( ActiveNote )) then exit;
+      if ( not assigned( ActiveKntFolder )) then exit;
 
-      Editor:= ActiveNote.Editor;
+      Editor:= ActiveKntFolder.Editor;
 
       UseSelection := ( Editor.SelLength > 0 );
       ReplaceExisting := false;
@@ -160,7 +160,7 @@ begin
           else begin
              RG_Source.ItemIndex := 1;
              RG_Source.Enabled := false;
-             Edit_Name.Text := MakeValidFilename( ActiveNote.Name, [' '], MAX_FILENAME_LENGTH );
+             Edit_Name.Text := MakeValidFilename( ActiveKntFolder.Name, [' '], MAX_FILENAME_LENGTH );
           end;
           CB_Formatted.Checked := Template_LastWasFormatted;
         end;
@@ -191,7 +191,7 @@ begin
           end;
 
           if Template_LastWasFormatted then
-             Editor:= GetEditorWithNoKNTHiddenCharacters(ActiveNote.Editor, hmAll, useSelection);       // If editor returned <> ActiveNote.Editor -> free
+             Editor:= GetEditorWithNoKNTHiddenCharacters(ActiveKntFolder.Editor, hmAll, useSelection);       // If editor returned <> ActiveKntFolder.Editor -> free
 
           if UseSelection then
              Editor.StreamMode := [smSelection];
@@ -236,7 +236,7 @@ begin
 
         end;
       finally
-        if Editor <> ActiveNote.Editor then
+        if Editor <> ActiveKntFolder.Editor then
            Editor.Free;          // RTFAux...
 
         Form_Template.Free;
@@ -254,7 +254,7 @@ var
 begin
   with Form_Main do begin
       if (not HaveNotes( true, true )) then exit;
-      if (not assigned( ActiveNote ))  then exit;
+      if (not assigned( ActiveKntFolder ))  then exit;
 
       if ( not checkfolder( 'Template', Template_Folder, true, false )) then
         exit;
@@ -293,8 +293,8 @@ begin
       try
         try
           if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-             if ActiveNote.Editor.SelLength > 0 then
-                CheckToSelectLeftImageHiddenMark(ActiveNote.Editor);
+             if ActiveKntFolder.Editor.SelLength > 0 then
+                CheckToSelectLeftImageHiddenMark(ActiveKntFolder.Editor);
           end;
 
           tplText:= ReadAllText(tplFN);      // gf_streams
@@ -302,12 +302,12 @@ begin
 
           RTFText:= '';
           if IsRTF and (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then
-             RTFText:= ImagesManager.ProcessImagesInRTF(tplText, ActiveNote, ImagesManager.ImagesMode, 'Template');
+             RTFText:= ImagesManager.ProcessImagesInRTF(tplText, ActiveKntFolder, ImagesManager.ImagesMode, 'Template');
 
           if RTFText <> '' then
-             ActiveNote.Editor.PutRtfText(RTFText, True, True)
+             ActiveKntFolder.Editor.PutRtfText(RTFText, True, True)
           else
-             ActiveNote.Editor.PutRtfText(tplText, true);
+             ActiveKntFolder.Editor.PutRtfText(tplText, true);
 
         except
           on E : Exception do
@@ -317,7 +317,7 @@ begin
           end;
         end;
       finally
-        NoteFile.Modified := true;
+        KntFile.Modified := true;
         UpdateNoteFileState( [fscModified] );
       end;
   end;

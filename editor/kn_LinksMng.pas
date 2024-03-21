@@ -56,16 +56,16 @@ uses
                               myURLAction: TURLAction = urlOpen;
                               OpenInCurrentFile: boolean= false ): boolean;
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
-    function SearchCaretPos (myNote : TKntFolder; myTreeNode: TTreeNTNode;
+    function SearchCaretPos (myFolder : TKntFolder; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true): integer;
-    function PositionInImLinkTextPlain (myNote: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+    function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
     procedure InsertURL(URLStr : string; TextURL : string; Note: TKntFolder);
 
-    function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
+    function PathOfKNTLink (myTreeNode: TTreeNTNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                             forUseInFindResults: boolean = false): string;
     procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TKntFolder; var myTreeNode: TTreeNTNode);
 
@@ -167,7 +167,7 @@ procedure ClickOnURLImage(const URLstr: string; chrgURL: TCharRange; myURLAction
 //=========================================
 // PathOfKNTLink
 //=========================================
-function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
+function PathOfKNTLink (myTreeNode: TTreeNTNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                         forUseInFindResults: boolean = false): string;
 var
   path, pathInsertionPoint : string;
@@ -191,17 +191,17 @@ begin
         path:= myTreeNode.Text; // {N}
 
      if PathTopToBottom then
-        path:= myNote.Name + TreeOptions.NodeDelimiter + path
+        path:= myFolder.Name + TreeOptions.NodeDelimiter + path
      else
-        path:= path + TreeOptions.NodeDelimiter + myNote.Name;
+        path:= path + TreeOptions.NodeDelimiter + myFolder.Name;
   end
   else
-     path := myNote.Name;
+     path := myFolder.Name;
 
 
   // Hide common part of the path (common ancestors), if RelativeKNTLink=True
   if RelativeKNTLink then begin
-     pathInsertionPoint:= PathOfKNTLink(GetCurrentTreeNode, ActiveNote, -1, false, false);
+     pathInsertionPoint:= PathOfKNTLink(GetCurrentTreeNode, ActiveKntFolder, -1, false, false);
 
      if path = pathInsertionPoint then
         path:= ''
@@ -263,12 +263,12 @@ begin
       Note := nil;
       if (NoteID <> 0) then // new format
       begin
-         Note := notefile.GetNoteByID( NoteID );
+         Note := KntFile.GetNoteByID( NoteID );
          if (Note = nil ) then
             raise EInvalidLocation.Create(Format( STR_01, [NoteID] ));
       end
       else begin
-         Note := notefile.GetNoteByName( NoteName );
+         Note := KntFile.GetNoteByName( NoteName );
          if (Note = nil) then
             raise EInvalidLocation.Create(Format( STR_02, [NoteName] ));
       end;
@@ -278,12 +278,12 @@ begin
       myTreeNode := nil;
       if (NodeID > 0) or (NodeName <> '') then begin   // If NodeID <= 0 and NodeName = '' -> Node will be ignored
          if ( NodeID <> 0 ) then begin // new format
-            myTreeNode := TKntFolder( Note ).GetTreeNodeByID( NodeID );
+            myTreeNode := Note.GetTreeNodeByID( NodeID );
             if (myTreeNode = nil) then
                raise EInvalidLocation.Create(Format( STR_03, [NodeID] ));
          end
          else begin
-            myTreeNode := TKntFolder( Note ).TV.Items.FindNode( [ffText], NodeName, nil );
+            myTreeNode := Note.TV.Items.FindNode( [ffText], NodeName, nil );
             if (myTreeNode = nil) then
                raise EInvalidLocation.Create(Format( STR_04, [NodeName] ));
          end;
@@ -385,8 +385,8 @@ var
   RTFAux: TRxRichEdit;
 
 begin
-   if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveNote ))) then exit;
-   if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+   if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder ))) then exit;
+   if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
    if ( aFileName = '' ) then begin
       with Form_Main.OpenDlg do begin
@@ -425,14 +425,14 @@ begin
       FN := aFileName;
 
    if Relative then
-      FN:= ExtractRelativePath(NoteFile.File_Path, FN);
+      FN:= ExtractRelativePath(KntFile.File_Path, FN);
 
 
    if AsLink then begin
       if pos( 'FILE:', AnsiUpperCase(FN) ) = 0 then
          FN := 'file:///' + FN;
 
-      InsertLink(FN, StripFileURLPrefix(FN), true, ActiveNote);
+      InsertLink(FN, StripFileURLPrefix(FN), true, ActiveKntFolder);
    end
 
    else begin
@@ -452,23 +452,23 @@ begin
           exit;
        end;
 
-       ActiveNote.Editor.Lines.BeginUpdate;
+       ActiveKntFolder.Editor.Lines.BeginUpdate;
 
        try
          try
            if ImagesManager.StorageMode <> smEmbRTF then begin
-              if ActiveNote.Editor.SelLength > 0 then
-                 CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+              if ActiveKntFolder.Editor.SelLength > 0 then
+                 CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor);
            end;
 
            case ImportFileType of
              itText, itHTML : begin
-               ActiveNote.Editor.SelText :=  ReadAllText(FN);       // gf_streams
-               ActiveNote.Editor.SelLength := 0;
+               ActiveKntFolder.Editor.SelText :=  ReadAllText(FN);       // gf_streams
+               ActiveKntFolder.Editor.SelLength := 0;
              end;
 
              itRTF:
-               ActiveNote.Editor.PutRtfText(ReadAllText(FN), true);
+               ActiveKntFolder.Editor.PutRtfText(ReadAllText(FN), true);
            end;
 
          except
@@ -479,12 +479,12 @@ begin
          end;
 
        finally
-          ActiveNote.Editor.Lines.EndUpdate;
+          ActiveKntFolder.Editor.Lines.EndUpdate;
        end;
 
    end;
 
-   NoteFile.Modified := true;
+   KntFile.Modified := true;
    UpdateNoteFileState( [fscModified] );
 
 end; // InsertFileOrLink
@@ -506,20 +506,20 @@ begin
 
     with Location do begin
       if not Simplified then begin
-        FileName := normalFN( NoteFile.FileName );
-        NoteName := ActiveNote.Name;
+        FileName := normalFN( KntFile.FileName );
+        NoteName := ActiveKntFolder.Name;
       end;
-      NoteID := ActiveNote.ID;
+      NoteID := ActiveKntFolder.ID;
       NodeName := '';
       NodeID := 0;
-      tNote:= TKntFolder(ActiveNote);
-      if TKntFolder(ActiveNote).SelectedNode <> nil then begin
-         NodeID := TKntFolder(ActiveNote).SelectedNode.ID;
+      tNote:= ActiveKntFolder;
+      if ActiveKntFolder.SelectedNode <> nil then begin
+         NodeID := ActiveKntFolder.SelectedNode.ID;
          if not Simplified then
-            NodeName := TKntFolder(ActiveNote).SelectedNode.Name;
+            NodeName := ActiveKntFolder.SelectedNode.Name;
       end;
-      CaretPos := ActiveNote.Editor.SelStart;
-      SelLength := ActiveNote.Editor.SelLength;
+      CaretPos := ActiveKntFolder.Editor.SelStart;
+      SelLength := ActiveKntFolder.Editor.SelLength;
       Mark := 0;
     end;
 
@@ -668,7 +668,7 @@ var
 
 begin
   if ( not Form_Main.HaveNotes( true, true )) then exit;
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
   if ( aLocation = nil ) then
      aLocation := _KNTLocation;
 
@@ -676,7 +676,7 @@ begin
     // insert link to previously marked location
     UseScratchPad:= Form_Main.Res_RTF.Focused;
 
-    if (not UseScratchPad) and Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+    if (not UseScratchPad) and Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
     if aLocation.Bookmark09 then exit;
     if ( aLocation.NoteName = '') and (aLocation.NoteID = 0) then begin
       showmessage( STR_08 );
@@ -684,7 +684,7 @@ begin
     end;
 
     if TextURL = '' then
-       if NoteFile.FileName = aLocation.FileName then begin
+       if KntFile.FileName = aLocation.FileName then begin
            GetTreeNodeFromLocation (aLocation, Note, TreeNode);
            TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos, false, (not UseScratchPad) and TreeOptions.RelativeKNTLinks);
        end
@@ -693,7 +693,7 @@ begin
                                                 aLocation.NoteName, aLocation.NodeName,
                                                 aLocation.CaretPos]);
 
-    InsertLink(BuildKNTLocationText(aLocation),  TextURL, false, ActiveNote);
+    InsertLink(BuildKNTLocationText(aLocation),  TextURL, false, ActiveKntFolder);
     if aLocation.Mark <> 0 then
        strTargetMarker:= Format(STR_31, [aLocation.Mark]);
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_09 + strTargetMarker;
@@ -705,10 +705,10 @@ begin
     // If we are pointing to the start of a node or a note (CaretPos = 0), we will not create any new markers. We will always aim for that position 0.
     strTargetMarker:= '';
 
-    if (aLocation.CaretPos <> 0) and (not ActiveNote.PlainText)
-       and ( TKntFolder(ActiveNote).SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode] ) then begin        // Allow the mark (hidden) although Note is ReadOnly
+    if (aLocation.CaretPos <> 0) and (not ActiveKntFolder.PlainText)
+       and ( ActiveKntFolder.SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode] ) then begin        // Allow the mark (hidden) although Note is ReadOnly
       if NumBookmark09 <= 0 then
-         TargetMarker:= GetActualTargetMarker(ActiveNote.Editor);             // If a marker already exists at that position, we will use it
+         TargetMarker:= GetActualTargetMarker(ActiveKntFolder.Editor);             // If a marker already exists at that position, we will use it
 
       if TargetMarker = 0 then begin
          {$IFDEF KNT_DEBUG}Log.Add('Insert Marker for HyperLink',  4 ); {$ENDIF}
@@ -718,13 +718,13 @@ begin
             KEY_Marker:= KNT_RTF_HIDDEN_Bookmark09;
          end
          else begin
-            TargetMarker:= 1 + GetLastTargetMarker(ActiveNote.Editor.TextPlain);
+            TargetMarker:= 1 + GetLastTargetMarker(ActiveKntFolder.Editor.TextPlain);
             KEY_Marker:= KNT_RTF_HIDDEN_BOOKMARK;
          end;
 
          //  {\rtf1\ansi {\v\'11B5\'12}};    => {\rtf1\ansi \v\'11B5\'12\v0};  // Finally they will be inserted directly with \v...\v0 (see comment *2 next to KNT_RTF_BMK_HIDDEN_MARK in kn_const.pas)
          RTFMarker:= Format('\v' + KNT_RTF_HIDDEN_MARK_L + KEY_Marker + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0', [TargetMarker]);
-         ActiveNote.Editor.PutRtfText('{\rtf1\ansi' + RTFMarker + '}',  true);
+         ActiveKntFolder.Editor.PutRtfText('{\rtf1\ansi' + RTFMarker + '}',  true);
       end;
       strTargetMarker:= Format(STR_31 + STR_32, [TargetMarker]);
       aLocation.Mark:= TargetMarker;
@@ -744,7 +744,7 @@ var
   LocationString : string;
   NoteId, NodeId, LocationMark: string;
 begin
-  if ( aLocation.FileName = normalFN( NoteFile.FileName )) then
+  if ( aLocation.FileName = normalFN( KntFile.FileName )) then
     LocationString := ''
   else
     LocationString := FileNameToURL( aLocation.FileName );
@@ -835,7 +835,7 @@ begin
       1 : Location.FileName := ''; // same file as current
       else begin
         Location.FileName := HTTPDecode( copy( LocationStr, 1, pred( p )));
-        if ( Location.FileName = NoteFile.FileName ) then
+        if ( Location.FileName = KntFile.FileName ) then
           Location.FileName := '';
       end;
     end;
@@ -863,9 +863,9 @@ begin
     end;
 
     if Location.NoteID <> 0 then
-       Note := notefile.GetNoteByID( Location.NoteID )
+       Note := KntFile.GetNoteByID( Location.NoteID )
     else
-       Note := notefile.GetNoteByName( Location.NoteName );
+       Note := KntFile.GetNoteByName( Location.NoteName );
 
     if  assigned(Note) then begin
         Location.NoteID:= Note.ID;
@@ -899,9 +899,9 @@ begin
     if assigned(Note) then
       if (Location.NodeID >= 0) then begin
         if ( Location.NodeID <> 0 ) then
-          myTreeNode := TKntFolder( Note ).GetTreeNodeByID( Location.NodeID )
+          myTreeNode := Note.GetTreeNodeByID( Location.NodeID )
         else
-          myTreeNode := TKntFolder( Note ).TV.Items.FindNode( [ffText], Location.NodeName, nil );
+          myTreeNode := Note.TV.Items.FindNode( [ffText], Location.NodeName, nil );
 
         if assigned(myTreeNode) then
             if assigned( myTreeNode.Data ) then begin
@@ -991,24 +991,24 @@ end;
 //===============================================================
 procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
 var
-  myNote: TKntFolder;
+  myFolder: TKntFolder;
 begin
     if assigned(myTreeNode) then begin
-        myNote:= NoteFile.GetNoteByTreeNode(myTreeNode);
-        if ( myNote <> ActiveNote ) then begin
-          Form_Main.Pages.ActivePage := myNote.TabSheet;
+        myFolder:= KntFile.GetNoteByTreeNode(myTreeNode);
+        if ( myFolder <> ActiveKntFolder ) then begin
+          Form_Main.Pages.ActivePage := myFolder.TabSheet;
           Form_Main.PagesChange( Form_Main.Pages );
         end;
 
         if assigned( myTreeNode ) then begin
            myTreeNode.MakeVisible;
-           TKntFolder( ActiveNote ).TV.Selected := myTreeNode;
+           ActiveKntFolder.TV.Selected := myTreeNode;
         end;
     end;
 end;
 
 
-function GetPositionOffset (myNote : TKntFolder; myTreeNode: TTreeNTNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function GetPositionOffset (myFolder : TKntFolder; myTreeNode: TTreeNTNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
   Stream: TMemoryStream;
   imLinkTextPlain: String;
@@ -1038,7 +1038,7 @@ begin
       var RTFAux: TTabRichEdit;
       RTFAux:= CreateRTFAuxEditorControl;
       try
-         imLinkTextPlain:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
+         imLinkTextPlain:= myFolder.PrepareTextPlain(myTreeNode, RTFAux);
       finally
          RTFAux.Free;
       end;
@@ -1058,7 +1058,7 @@ begin
 end;
 
 
-function SearchCaretPos (myNote : TKntFolder; myTreeNode: TTreeNTNode;
+function SearchCaretPos (myFolder : TKntFolder; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true): integer;
@@ -1067,10 +1067,10 @@ var
   Pos_ImLinkTextPlain: integer;
 begin
   Pos_ImLinkTextPlain:= CaretPosition;            // What we receive we must treat as a position in imLinkTextPlain
-  Offset:= GetPositionOffset(myNote, myTreeNode, Pos_ImLinkTextPlain, -1);
+  Offset:= GetPositionOffset(myFolder, myTreeNode, Pos_ImLinkTextPlain, -1);
 
   if PlaceCaret then
-     with myNote.Editor do begin
+     with myFolder.Editor do begin
        BeginUpdate;
        try
           if CaretPosition >= 0 then
@@ -1078,12 +1078,12 @@ begin
           if SelectionLength >= 0 then
              SelLength := SelectionLength;
           if AdjustVisiblePosition then begin
-             myNote.Editor.ScrollLinesBy(80);
+             myFolder.Editor.ScrollLinesBy(80);
              Perform( EM_SCROLLCARET, 0, 0 );
           end
           else begin
              if ScrollPosInEditor.Y >= 0 then
-                myNote.Editor.SetScrollPosInEditor(ScrollPosInEditor);
+                myFolder.Editor.SetScrollPosInEditor(ScrollPosInEditor);
           end;
 
        finally
@@ -1094,11 +1094,11 @@ begin
   Result:= Offset;
 end;
 
-function PositionInImLinkTextPlain (myNote: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
    Offset: integer;
 begin
-   Offset:= GetPositionOffset(myNote, myTreeNode, -1, CaretPosition, ForceCalc);
+   Offset:= GetPositionOffset(myFolder, myTreeNode, -1, CaretPosition, ForceCalc);
    Result:= CaretPosition + Offset;
 end;
 
@@ -1109,9 +1109,9 @@ end;
 
 function DeleteBookmark09 (Location: TLocation): boolean;
 var
-  myNote : TKntFolder;
+  myFolder : TKntFolder;
   myTreeNode : TTreeNTNode;
-  myNode: TKntNote;
+  myNote: TKntNote;
   p, SS, SL, selLen: integer;
   TargetMark: string;
   EditorVisible: boolean;
@@ -1125,9 +1125,9 @@ begin
    Result:= false;
    if not Location.Bookmark09 or (Location.Mark < 1) or (Location.Mark > 10) then exit;
 
-   GetTreeNodeFromLocation(Location, myNote, myTreeNode);
+   GetTreeNodeFromLocation(Location, myFolder, myTreeNode);
 
-   if not assigned( myNote ) then exit;
+   if not assigned( myFolder ) then exit;
 
    // If not included in some of the visible Editors -> make the change directly in the note or node stream
    // See comment to kn_EditorUtils.RemoveKNTHiddenCharactersInRTF
@@ -1135,15 +1135,15 @@ begin
   EditorVisible:= false;
 
   if not assigned( myTreeNode ) then exit;
-  if TKntFolder( ActiveNote ).TV.Selected = myTreeNode then
+  if ActiveKntFolder.TV.Selected = myTreeNode then
      EditorVisible:= true;
 
   if EditorVisible then begin
-     SS:= myNote.Editor.SelStart;
-     SL:= myNote.Editor.SelLength;
+     SS:= myFolder.Editor.SelStart;
+     SL:= myFolder.Editor.SelLength;
 
      TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_Bookmark09 + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
-     with myNote.Editor do begin
+     with myFolder.Editor do begin
         p:= FindText(TargetMark, 0, -1, [stMatchCase]);
         if p > 0 then begin
           SelStart := p;
@@ -1159,18 +1159,18 @@ begin
 
           Result:= true;
           if SS < p then
-             myNote.Editor.SelStart:= SS
+             myFolder.Editor.SelStart:= SS
           else
-             myNote.Editor.SelStart:= SS - Length(TargetMark);
+             myFolder.Editor.SelStart:= SS - Length(TargetMark);
 
-          myNote.Editor.SelLength:= SL;
+          myFolder.Editor.SelLength:= SL;
         end;
      end;
 
   end
   else begin
-     myNode:= TKntNote(myTreeNode.Data);
-     Stream:= myNode.Stream;
+     myNote:= TKntNote(myTreeNode.Data);
+     Stream:= myNote.Stream;
 
      RTFText:= PAnsiChar(Stream.Memory);
      RTFBookmark:= Format(KNT_RTF_Bmk09_HIDDEN_MARK, [Location.Mark]);
@@ -1186,7 +1186,7 @@ begin
         NBytes:= Stream.Size - p - selLen;
         Move(RTFText[p+selLen], RTFText[p], NBytes);
         Stream.Size:= Stream.Size-selLen;
-        myNode.NodeTextPlain:= '';
+        myNote.NodeTextPlain:= '';
      end;
 
   end;
@@ -1204,7 +1204,7 @@ begin
                           myURLAction: TURLAction = urlOpen;
                           OpenInCurrentFile: boolean= false): boolean;
  var
-   myNote : TKntFolder;
+   myFolder : TKntFolder;
    myTreeNode : TTreeNTNode;
    origLocationStr : string;
    LocBeforeJump: TLocation;
@@ -1226,7 +1226,7 @@ begin
       Result:= false;
       if Location.Mark > 0 then begin
         TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KeyBookmark + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
-        with myNote.Editor do begin
+        with myFolder.Editor do begin
           p:= FindText(TargetMark, 0, -1, [stMatchCase]);
           if p > 0 then begin
             BeginUpdate;
@@ -1237,7 +1237,7 @@ begin
                   selLen:= Location.SelLength + Length(TargetMark);
                SelLength := selLen;
 
-               myNote.Editor.ScrollLinesBy(80);
+               myFolder.Editor.ScrollLinesBy(80);
                Perform( EM_SCROLLCARET, 0, 0 );
                Result:= true;
             finally
@@ -1261,7 +1261,7 @@ begin
   try
       LocBeforeJump:= nil;
       GetKntLocation (LocBeforeJump, true);
-      LocBeforeJump.ScrollPosInEditor:= ActiveNote.Editor.GetScrollPosInEditor;
+      LocBeforeJump.ScrollPosInEditor:= ActiveKntFolder.Editor.GetScrollPosInEditor;
 
       (*
       showmessage(
@@ -1277,7 +1277,7 @@ begin
       SameEditor:= True;
 
       // open file, if necessary
-      if ( Location.FileName <> '' ) and ( Location.FileName <> NoteFile.FileName ) then
+      if ( Location.FileName <> '' ) and ( Location.FileName <> KntFile.FileName ) then
       begin
         SameEditor:= False;
         if IgnoreOtherFiles then
@@ -1285,7 +1285,7 @@ begin
 
         FN:= GetAbsolutePath(ExtractFilePath(Application.ExeName), Location.FileName);
 
-        if FN.ToUpper <> NoteFile.FileName.ToUpper then begin
+        if FN.ToUpper <> KntFile.FileName.ToUpper then begin
            if not Initializing and not OpenInCurrentFile and (KeyOptions.ExtKNTLnkInNewInst or (myURLAction = urlOpenNew)) then begin
               OpenLocationInOtherInstance (Location);
               exit;
@@ -1313,25 +1313,25 @@ begin
 
       end;
 
-      GetTreeNodeFromLocation(Location, myNote, myTreeNode);
+      GetTreeNodeFromLocation(Location, myFolder, myTreeNode);
 
       _Executing_JumpToKNTLocation_ToOtherNote:= false;
       try
          // if not current note, switch to it
-         if ( myNote <> ActiveNote ) then
+         if ( myFolder <> ActiveKntFolder ) then
          begin
            _Executing_JumpToKNTLocation_ToOtherNote:= true;
            SameEditor:= False;
-           Form_Main.Pages.ActivePage := myNote.TabSheet;
+           Form_Main.Pages.ActivePage := myFolder.TabSheet;
            Form_Main.PagesChange( Form_Main.Pages );
          end;
 
          if assigned( myTreeNode ) then begin
             // select the node
-            if TKntFolder( ActiveNote ).TV.Selected <> myTreeNode then begin
+            if ActiveKntFolder.TV.Selected <> myTreeNode then begin
                SameEditor:= False;
                myTreeNode.MakeVisible;     // It could be hidden
-               TKntFolder( ActiveNote ).TV.Selected := myTreeNode;
+               ActiveKntFolder.TV.Selected := myTreeNode;
             end;
          end
          else
@@ -1341,9 +1341,9 @@ begin
          result := true;
 
          if not SearchTargetMark (Location.Bookmark09) then
-            SearchCaretPos(myNote, myTreeNode, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor, AdjustVisiblePosition);
+            SearchCaretPos(myFolder, myTreeNode, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor, AdjustVisiblePosition);
 
-         myNote.Editor.SetFocus;
+         myFolder.Editor.SetFocus;
 
       finally
          _Executing_JumpToKNTLocation_ToOtherNote:= false;
@@ -1352,12 +1352,12 @@ begin
 
       if _Executing_History_Jump then begin
          if (LocBeforeJump.NoteID <> Location.NoteID) then
-            ActiveNote.History.SyncWithLocation (Location, hdBack, true);
+            ActiveKntFolder.History.SyncWithLocation (Location, hdBack, true);
       end
       else
       if (LocBeforeJump <> nil) and
-         (LocBeforeJump.NoteID = ActiveNote.ID) and (TKntFolder(ActiveNote).SelectedNode.ID = LocBeforeJump.NodeID) then begin
-          AddHistoryLocation (ActiveNote, false, LocBeforeJump);
+         (LocBeforeJump.NoteID = ActiveKntFolder.ID) and (ActiveKntFolder.SelectedNode.ID = LocBeforeJump.NodeID) then begin
+          AddHistoryLocation (ActiveKntFolder, false, LocBeforeJump);
           _LastMoveWasHistory:= false;
           UpdateHistoryCommands;
       end;
@@ -1424,7 +1424,7 @@ function URLFileExists (var URL: string): boolean;
 var
    AbsolutePath: string;
 begin
-   AbsolutePath:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), StripFileURLPrefix(URL));
+   AbsolutePath:= GetAbsolutePath(ExtractFilePath(KntFile.FileName), StripFileURLPrefix(URL));
    Result:= FileExists( AbsolutePath) or DirectoryExists( AbsolutePath );
 end;
 
@@ -1540,22 +1540,22 @@ var
     _selectStart: Integer;
     TextLen: Integer;
  begin
-        _selectStart := ActiveNote.Editor.SelStart;
-        _selectionLenght := ActiveNote.Editor.SelLength;
+        _selectStart := ActiveKntFolder.Editor.SelStart;
+        _selectionLenght := ActiveKntFolder.Editor.SelLength;
 
         Try
             // If uses {\field{\*\fldinst{HYPERLINK "hyperlink" ... ) then next char will be "", hidden
-            ActiveNote.Editor.SetSelection(endPosURL+1, endPosURL+1, false);
+            ActiveKntFolder.Editor.SetSelection(endPosURL+1, endPosURL+1, false);
 
-            If (ActiveNote.Editor.SelText = '')
-               and (ActiveNote.Editor.GetTextRange(endPosURL+1, endPosURL+2) = '"') Then begin     // " character doesn't have Hidden mark but is treated as such
+            If (ActiveKntFolder.Editor.SelText = '')
+               and (ActiveKntFolder.Editor.GetTextRange(endPosURL+1, endPosURL+2) = '"') Then begin     // " character doesn't have Hidden mark but is treated as such
                 lastPosLink := endPosURL + 1;
                 pos := lastPosLink;
-                TextLen:= ActiveNote.Editor.TextLength;
+                TextLen:= ActiveKntFolder.Editor.TextLength;
                 repeat
                     pos := pos + 1;
-                    ActiveNote.Editor.SetSelection(pos, pos, false);
-                    esLink:= (ActiveNote.Editor.SelAttributes.LinkStyle = lsLink);
+                    ActiveKntFolder.Editor.SetSelection(pos, pos, false);
+                    esLink:= (ActiveKntFolder.Editor.SelAttributes.LinkStyle = lsLink);
                     If esLink Then
                         lastPosLink := pos;
                 Until Not esLink or (pos > TextLen);
@@ -1563,14 +1563,14 @@ var
                 If lastPosLink >= (endPosURL + 2) Then begin
                     startPos := endPosURL + 2;
                     endPos := lastPosLink;
-                    Result := ActiveNote.Editor.GetTextRange(startPos, endPos+1);
+                    Result := ActiveKntFolder.Editor.GetTextRange(startPos, endPos+1);
                 End;
 
             End;
 
         Finally
-            ActiveNote.Editor.SelStart:= _selectStart;
-            ActiveNote.Editor.SelLength:= _selectionLenght;
+            ActiveKntFolder.Editor.SelStart:= _selectStart;
+            ActiveKntFolder.Editor.SelLength:= _selectionLenght;
         End;
 
 End;
@@ -1617,7 +1617,7 @@ var
   begin
      Location:= BuildKNTLocationFromString(URL);
      try
-       if (NoteFile.FileName = Location.FileName) or (Location.FileName = '') then begin
+       if (KntFile.FileName = Location.FileName) or (Location.FileName = '') then begin
            GetTreeNodeFromLocation (Location, note, treeNode);
            Result:= PathOfKNTLink(treeNode, note, Location.CaretPos, false, false);
        end
@@ -1715,7 +1715,7 @@ begin
       //-------------------------------------
       if ( myURLAction = urlAsk ) then
       begin
-        ActiveNote.Editor.SelLength:= 0;
+        ActiveKntFolder.Editor.SelLength:= 0;
         Form_URLAction := TForm_URLAction.Create( Form_Main );
         try
            if KNTlocation then begin
@@ -1760,15 +1760,15 @@ begin
       if ( myURLAction = urlCreateOrModify ) then begin
           if TextURL = '' then TextURL := myURL;
           if usesHyperlinkCmd then
-             ActiveNote.Editor.SetSelection(chrgURL.cpMin -11, textURLposFin +1, false)    // -11: HYPERLINK "
+             ActiveKntFolder.Editor.SetSelection(chrgURL.cpMin -11, textURLposFin +1, false)    // -11: HYPERLINK "
           else
-             ActiveNote.Editor.SetSelection(chrgURL.cpMin, chrgURL.cpMax, false);
+             ActiveKntFolder.Editor.SetSelection(chrgURL.cpMin, chrgURL.cpMax, false);
 
-          ActiveNote.Editor.SelText:= '';
-          SS:= ActiveNote.Editor.SelStart;
-          if ActiveNote.Editor.GetTextRange(SS-1, SS+1) = '<>' then begin
-             ActiveNote.Editor.SetSelection(SS-1, SS+1, false);
-             ActiveNote.Editor.SelText:= '';
+          ActiveKntFolder.Editor.SelText:= '';
+          SS:= ActiveKntFolder.Editor.SelStart;
+          if ActiveKntFolder.Editor.GetTextRange(SS-1, SS+1) = '<>' then begin
+             ActiveKntFolder.Editor.SetSelection(SS-1, SS+1, false);
+             ActiveKntFolder.Editor.SelText:= '';
           end;
 
 
@@ -1777,7 +1777,7 @@ begin
              InsertOrMarkKNTLink(Location, true, TextURL);
           end
           else
-             InsertURL(myURL, TextURL, ActiveNote);
+             InsertURL(myURL, TextURL, ActiveKntFolder);
 
           Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_17;
           exit;
@@ -1834,7 +1834,7 @@ begin
                       myURL:= GetAbsolutePath(ExtractFilePath(Application.ExeName), Copy(myURL, Length(LINK_RELATIVE_SETUP) + i, 999));
                    end
                    else
-                      myURL:= GetAbsolutePath(ExtractFilePath(NoteFile.FileName), myURL);
+                      myURL:= GetAbsolutePath(ExtractFilePath(KntFile.FileName), myURL);
                 end;
                 FileName:= myURL;
               end;
@@ -1994,11 +1994,11 @@ begin
 
 
   if askUser then begin
-      SS:= ActiveNote.Editor.SelStart;
-      SL:= ActiveNote.Editor.SelLength;
+      SS:= ActiveKntFolder.Editor.SelStart;
+      SL:= ActiveKntFolder.Editor.SelLength;
       SelectTextToUse;
       if URLType = urlKNTImage then begin
-         ActiveNote.Editor.SetSelection(SS, SS+SL, true);
+         ActiveKntFolder.Editor.SetSelection(SS, SS+SL, true);
          exit;
       end;
 
@@ -2049,7 +2049,7 @@ begin
   try
     if aLocation = nil then begin
        GetKNTLocation (aLocation, true);                       // true: simplified (register only IDs)
-       aLocation.ScrollPosInEditor:= ActiveNote.Editor.GetScrollPosInEditor;
+       aLocation.ScrollPosInEditor:= ActiveKntFolder.Editor.GetScrollPosInEditor;
     end;
     aLocation.SelLength := 0;
 
@@ -2131,10 +2131,10 @@ var
   end;
 
 begin
-  if not assigned(ActiveNote) then exit;
+  if not assigned(ActiveKntFolder) then exit;
 
 {$IFDEF DEBUG_HISTORY}
-  if NoteFile <> nil then begin
+  if KntFile <> nil then begin
     if not _LastMoveWasHistory then
         Form_Main.Res_RTF.Text:= '--------     ' + #13 + 'Last move was history: NO' + #13#13 + Form_Main.Res_RTF.Text;
   end;
@@ -2145,13 +2145,13 @@ begin
 
 
   if CtrlDown and ( not _IS_FAKING_MOUSECLICK ) then begin
-     masterHistory:= ActiveNote.History;
+     masterHistory:= ActiveKntFolder.History;
      slaveHistory := History;
      IterateAllOnSync:= false;
   end
   else begin
      masterHistory:= History;
-     slaveHistory := ActiveNote.History;
+     slaveHistory := ActiveKntFolder.History;
      IterateAllOnSync:= true;
   end;
 
@@ -2173,7 +2173,7 @@ begin
           if (masterHistory <> History)  then   // *2
              Exit
           else begin
-             AddHistoryLocation(ActiveNote, True);
+             AddHistoryLocation(ActiveKntFolder, True);
              History.GoBack;
           end;
        UpdateIfNil(myLocation, slaveHistory.SyncWithLocation (myLocation, hdForward, IterateAllOnSync));
@@ -2182,9 +2182,9 @@ begin
        if ( not _LastMoveWasHistory ) then begin
          MaintainIndexInLocalHist:= false;
          myLocation:= masterHistory.PickBack;
-         if (myLocation = nil) or (myLocation.NoteID <> ActiveNote.ID) then
+         if (myLocation = nil) or (myLocation.NoteID <> ActiveKntFolder.ID) then
             MaintainIndexInLocalHist:= True;
-         AddHistoryLocation(ActiveNote, MaintainIndexInLocalHist);
+         AddHistoryLocation(ActiveKntFolder, MaintainIndexInLocalHist);
          myLocation := masterHistory.GoBack;
          if not MaintainIndexInLocalHist and (slaveHistory <> nil) then
             slaveHistory.GoBack;
@@ -2254,17 +2254,17 @@ var
 {$ENDIF}
 begin
   lHistory:= nil;
-  if assigned(activenote) then
-     lHistory:= ActiveNote.History;
+  if assigned(ActiveKntFolder) then
+     lHistory:= ActiveKntFolder.History;
 
   with Form_Main do begin
-    GoBackEnabled :=        assigned(ActiveNote) and ( History.CanGoBack or ((lHistory <> nil) and lHistory.CanGoBack) );
+    GoBackEnabled :=        assigned(ActiveKntFolder) and ( History.CanGoBack or ((lHistory <> nil) and lHistory.CanGoBack) );
     MMHistoryGoBack.Enabled := GoBackEnabled;
     TB_GoBack.Enabled := GoBackEnabled;
     strHint:= STR_24;
     if GoBackEnabled then begin
        Loc:= History.PickBack;
-       if (Loc <> nil) and (Loc.NoteID <> ActiveNote.ID ) then
+       if (Loc <> nil) and (Loc.NoteID <> ActiveKntFolder.ID ) then
           TB_GoBack.ImageIndex:= IMAGE_GOBACK_OTHER_NOTE
        else
           TB_GoBack.ImageIndex:= IMAGE_GOBACK_IN_NOTE;
@@ -2279,13 +2279,13 @@ begin
     end;
     TB_GoBack.Hint:= strHint;
 
-    GoForwardEnabled:= assigned(ActiveNote) and (History.CanGoForward or ((lHistory <> nil) and lHistory.CanGoForward) );
+    GoForwardEnabled:= assigned(ActiveKntFolder) and (History.CanGoForward or ((lHistory <> nil) and lHistory.CanGoForward) );
     MMHistoryGoForward.Enabled := GoForwardEnabled;
     TB_GoForward.Enabled := GoForwardEnabled;
     strHint:= STR_27;
     if GoForwardEnabled then begin
        Loc:= History.PickForward;
-       if (Loc <> nil) and (Loc.NoteID <> ActiveNote.ID ) then
+       if (Loc <> nil) and (Loc.NoteID <> ActiveKntFolder.ID ) then
           TB_GoForward.ImageIndex:= IMAGE_GOFORWARD_OTHER_NOTE
        else
           TB_GoForward.ImageIndex:= IMAGE_GOFORWARD_IN_NOTE;
@@ -2303,11 +2303,11 @@ begin
   end;
 
 {$IFDEF DEBUG_HISTORY}
-  if NoteFile <> nil then begin
+  if KntFile <> nil then begin
     str:= '--------     ' + #13;
     str:= str + 'Global: ' + History.Summary + #13;
-    for i := 0 to NoteFile.Notes.Count-1 do begin
-       str:= str + NoteFile.Notes[i].Name + ': ' + NoteFile.Notes[i].History.Summary + #13;
+    for i := 0 to KntFile.Notes.Count-1 do begin
+       str:= str + KntFile.Notes[i].Name + ': ' + KntFile.Notes[i].History.Summary + #13;
     end;
     Form_Main.Res_RTF.Text:= str + #13 + Form_Main.Res_RTF.Text;
   end;
@@ -2398,11 +2398,11 @@ begin
       inttostr( _KNTLocation.SelLength );
   }
 
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
-  InitialSelStart := ActiveNote.Editor.SelStart;
+  InitialSelStart := ActiveKntFolder.Editor.SelStart;
 
-  ActiveNote.Editor.Lines.BeginUpdate;
+  ActiveKntFolder.Editor.Lines.BeginUpdate;
   try
     if (( _LoadedRichEditVersion > 2 ) and KeyOptions.UseNewStyleURL ) then
     begin
@@ -2436,22 +2436,22 @@ begin
       TextLen := length( aLinkText );
       TargetLen := length( aLinkTarget );
 
-      ActiveNote.Editor.SelText := aLinkText+aLinkTarget+#32;
-      ActiveNote.Editor.SelAttributes.Link := false; // in case we were in link already
-      ActiveNote.Editor.SelAttributes.Hidden := false; // in case we were in hidden font already
+      ActiveKntFolder.Editor.SelText := aLinkText+aLinkTarget+#32;
+      ActiveKntFolder.Editor.SelAttributes.Link := false; // in case we were in link already
+      ActiveKntFolder.Editor.SelAttributes.Hidden := false; // in case we were in hidden font already
 
       // select whole thing and mark as link, excluding the final space
-      ActiveNote.Editor.SelLength := TextLen+TargetLen;
-      ActiveNote.Editor.SelAttributes.Link := true;
+      ActiveKntFolder.Editor.SelLength := TextLen+TargetLen;
+      ActiveKntFolder.Editor.SelAttributes.Link := true;
 
       // now select the LinkTarget part and mark it as hidden
-      ActiveNote.Editor.SelStart := InitialSelStart + TextLen;
-      ActiveNote.Editor.SelLength := TargetLen;
-      ActiveNote.Editor.SelAttributes.Hidden := true;
+      ActiveKntFolder.Editor.SelStart := InitialSelStart + TextLen;
+      ActiveKntFolder.Editor.SelLength := TargetLen;
+      ActiveKntFolder.Editor.SelAttributes.Hidden := true;
 
       // clear any selection
-      ActiveNote.Editor.SelStart := InitialSelStart;
-      ActiveNote.Editor.SelLength := 0;
+      ActiveKntFolder.Editor.SelStart := InitialSelStart;
+      ActiveKntFolder.Editor.SelLength := 0;
 
     end
     else
@@ -2462,15 +2462,15 @@ begin
         end
         else
         begin
-          ActiveNote.Editor.SelText := FileNameToURL( aLinkTarget ) + #32;
-          ActiveNote.Editor.SelLength := 0;
+          ActiveKntFolder.Editor.SelText := FileNameToURL( aLinkTarget ) + #32;
+          ActiveKntFolder.Editor.SelLength := 0;
         end;
       end;
     end;
 
   finally
-    ActiveNote.Editor.Lines.EndUpdate;
-    NoteFile.Modified := true;
+    ActiveKntFolder.Editor.Lines.EndUpdate;
+    KntFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
   end;
 
@@ -2485,13 +2485,13 @@ var
   Form_Hyperlink : TForm_Hyperlink;
   s : string;
 begin
-  if ( not assigned( ActiveNote )) then exit;
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
+  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
   Form_Hyperlink := TForm_Hyperlink.Create( self );
   try
 
-    Form_Hyperlink.LinkText := ActiveNote.Editor.SelText;
+    Form_Hyperlink.LinkText := ActiveKntFolder.Editor.SelText;
     Form_Hyperlink.Edit_Text.Enabled := (( _LoadedRichEditVersion > 2 ) and KeyOptions.UseNewStyleURL );
     Form_Hyperlink.LB_Text.Enabled := Form_Hyperlink.Edit_Text.Enabled;
 
@@ -2501,7 +2501,7 @@ begin
       hyperlinks in RTF text are formatted as follows:
       <LINK>Link title<HIDDEN>target address</HIDDEN></LINK>
       "Link" and "Hidden" are properties of RxRichEdit.SelAttributes,
-      i.e. ActiveNote.Editor.SelAttributes.
+      i.e. ActiveKntFolder.Editor.SelAttributes.
       That way, when the link is clicked, the OnURLClick event handler
       gives us the complete text of the link. We'll then have to search
       for the protocol identifier, e.g. http://, mailto:, file:///, etc.

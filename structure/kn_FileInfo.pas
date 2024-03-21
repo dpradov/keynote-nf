@@ -297,7 +297,7 @@ begin
     if (( myNotes.TrayIconFN <> '' ) and fileexists( myNotes.TrayIconFN )) then begin
       CB_TrayIcon.Checked := true;
       Edit_TrayIcon.Text := myNotes.TrayIconFN;
-      Image_TrayIcon.Picture.LoadFromFile( GetAbsolutePath(NoteFile.File_Path, myNotes.TrayIconFN) );
+      Image_TrayIcon.Picture.LoadFromFile( GetAbsolutePath(KntFile.File_Path, myNotes.TrayIconFN) );
     end
     else
       CB_TrayIcon.Checked := false;
@@ -353,7 +353,7 @@ begin
   cbImgStorageMode.ItemIndex := Ord(ImagesManager.StorageMode);
   cbImgExtStorageType.ItemIndex:= Ord(ImagesManager.ExternalStorageType);
   txtExtStorageLocation.Text:= ImagesManager.ExternalStorageLocation;
-  ExtStorageLocationFake:= (NoteFile.FileName = '');
+  ExtStorageLocationFake:= (KntFile.FileName = '');
   cbImgStorageMode.Enabled:= not ImagesManager.ChangingImagesStorage;
   CheckExternalStorageEnabled;
 
@@ -594,7 +594,7 @@ begin
   fn := normalfn( Form_Main.OpenDlg.Filename );
   Action := ( Action and Fileexists( fn ));
   if Action then begin
-    Edit_TrayIcon.Text:= ExtractRelativePath(NoteFile.File_Path, fn);
+    Edit_TrayIcon.Text:= ExtractRelativePath(KntFile.File_Path, fn);
     Image_TrayIcon.Picture.LoadFromFile( fn );
   end;
   TB_OpenDlgTrayIcon.Down:= false;
@@ -636,7 +636,7 @@ end;
 procedure TForm_FileInfo.cbImgStorageModeChange(Sender: TObject);
 begin
    if not (TImagesStorageMode(cbImgStorageMode.ItemIndex) in [smExternal, smExternalAndEmbKNT]) then begin
-      ExtStorageLocationFake:= (NoteFile.FileName = '');
+      ExtStorageLocationFake:= (KntFile.FileName = '');
       txtExtStorageLocation.Text:= '';
       rbImagesStChange.Checked:= false;
    end;
@@ -721,7 +721,7 @@ begin
       end
       else begin
        if Dir <> '' then
-          Dir:= NoteFile.File_Path;
+          Dir:= KntFile.File_Path;
 
         with Form_Main.OpenDlg do begin
           Title := STR_14;

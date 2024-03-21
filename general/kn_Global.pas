@@ -78,8 +78,8 @@ const
 
 var
 
-    NoteFile : TKntFile; // main data structure
-    ActiveNote : TKntFolder; // the Folder (Note Folder) that is currently visible (can be nil)
+    KntFile : TKntFile; // main data structure
+    ActiveKntFolder : TKntFolder; // the Folder (Note Folder) that is currently visible (can be nil)
 
     RichEditLibraryPath : string;
 
@@ -324,11 +324,11 @@ var
 begin
    Result:= false;
 
-   Note:= ActiveNote;
+   Note:= ActiveKntFolder;
    if not assigned(Note) then exit;
    if Note.PlainText then exit;
 
-   treeNTNode:= TKntFolder(Note).TV.Selected;
+   treeNTNode:= Note.TV.Selected;
    if not assigned(treeNTNode) then exit;
 
    if (TKntNote(treeNTNode.Data).VirtualMode in [vmNone, vmKNTNode]) or (AdmitVmRTF and (TKntNote(treeNTNode.Data).VirtualMode = vmRTF)) then
@@ -454,7 +454,7 @@ begin
       FolderMon.Active := false;
       Ntbk_ResFind.PageIndex := 1;
 
-      ActiveNote := nil;
+      ActiveKntFolder := nil;
       ClipCapNextInChain := 0;
       RTFUpdating := false;
       FileIsBusy := false;

@@ -145,7 +145,7 @@ begin
   end;
 
   if (( not Form_Main.HaveNotes( false, false )) or
-     ( CompareText( NoteFile.FileName, myFav.FileName ) <> 0 )) then
+     ( CompareText( KntFile.FileName, myFav.FileName ) <> 0 )) then
   begin
     // Location to another file
 
@@ -265,7 +265,7 @@ var
   i : integer;
   myFav : TLocation;
   name : string;
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
   Form_FavExt : TForm_FavExt;
   extFilename, extParams : string;
 
@@ -279,7 +279,7 @@ var
 
 begin
 
-  myNoteNode := nil; // eliminate compiler warning
+  myNote := nil; // eliminate compiler warning
 
   if AsExternal then
   begin
@@ -308,13 +308,13 @@ begin
   begin
     // adding a KNT location, so we must have an active note:
     if ( not Form_Main.HaveNotes( true, true )) then exit;
-    if ( not assigned( ActiveNote )) then exit;
+    if ( not assigned( ActiveKntFolder )) then exit;
 
-    myNoteNode := GetCurrentNoteNode;
-    if assigned( myNoteNode ) then
-      name := myNoteNode.Name
+    myNote := GetCurrentNoteNode;
+    if assigned( myNote ) then
+      name := myNote.Name
     else
-      name := RemoveAccelChar( ActiveNote.Name );
+      name := RemoveAccelChar( ActiveKntFolder.Name );
 
     // confirm the name
     name := GetFavName( name );
@@ -352,15 +352,15 @@ begin
     end
     else
     begin
-      myFav.FileName := NoteFile.FileName;
-      myFav.NoteName := RemoveAccelChar( ActiveNote.Name );
-      myFav.NoteID := ActiveNote.ID;
-      if assigned( myNoteNode ) then
+      myFav.FileName := KntFile.FileName;
+      myFav.NoteName := RemoveAccelChar( ActiveKntFolder.Name );
+      myFav.NoteID := ActiveKntFolder.ID;
+      if assigned( myNote ) then
       begin
-        myFav.NodeName := myNoteNode.Name;
-        myFav.NodeID := myNoteNode.ID;
+        myFav.NodeName := myNote.Name;
+        myFav.NodeID := myNote.ID;
       end;
-      myFav.CaretPos := ActiveNote.Editor.SelStart;
+      myFav.CaretPos := ActiveKntFolder.Editor.SelStart;
     end;
 
     Favorites_List.AddObject( name, myFav );

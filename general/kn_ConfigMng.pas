@@ -289,7 +289,7 @@ begin
      Strs.Free;
   end;
 
-  FN:= NoteFile.FileName.ToUpper;
+  FN:= KntFile.FileName.ToUpper;
 
   if FromKntLauncher then begin
      if (NoteFileToLoad <> '') and (NoteFileToLoad.ToUpper = FN) then
@@ -728,14 +728,14 @@ begin
 
           Icons_Change_Disable :=
             ( opt_NoUserIcons or
-            ( assigned( NoteFile ) and ( NoteFile.TabIconsFN = _NF_Icons_BuiltIn )));
+            ( assigned( KntFile ) and ( KntFile.TabIconsFN = _NF_Icons_BuiltIn )));
 
           if ( not Icons_Change_Disable ) then begin
             tmpicnfn := extractfilename( ICN_FN );
-            if assigned( NoteFile ) then begin
-              if (( NoteFile.TabIconsFN <> _NF_Icons_BuiltIn ) and
-                 ( NoteFile.TabIconsFN <> '' )) then
-                tmpicnfn := extractfilename( NoteFile.TabIconsFN );
+            if assigned( KntFile ) then begin
+              if (( KntFile.TabIconsFN <> _NF_Icons_BuiltIn ) and
+                 ( KntFile.TabIconsFN <> '' )) then
+                tmpicnfn := extractfilename( KntFile.TabIconsFN );
             end;
             GroupBox_TabIcons.Caption := Format( STR_TabIcons, [tmpicnfn] );
           end;
@@ -764,11 +764,11 @@ begin
 
             if Form_Options.Icons_Changed then begin
               // icons were changed, save them
-              if assigned( NoteFile ) then begin
-                if ( NoteFile.TabIconsFN = '' ) then
+              if assigned( KntFile ) then begin
+                if ( KntFile.TabIconsFN = '' ) then
                   SaveCategoryBitmapsUser( ICN_FN )
                 else
-                  SaveCategoryBitmapsUser( NoteFile.TabIconsFN );
+                  SaveCategoryBitmapsUser( KntFile.TabIconsFN );
               end
               else
                  SaveCategoryBitmapsUser( ICN_FN );
@@ -785,7 +785,7 @@ begin
               UpdateResPanelState;
             end;
 
-            if ( assigned( NoteFile ) and assigned( NoteFile.ClipCapNote )) then
+            if ( assigned( KntFile ) and assigned( KntFile.ClipCapNote )) then
               LoadTrayIcon( ClipOptions.SwitchIcon );
 
           finally

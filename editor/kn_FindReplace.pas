@@ -166,12 +166,12 @@ begin
   end
   else begin
       if not myFindOptions.AllTabs_FindReplace then
-         if (ActiveNote <> StartNote) or
-            (not myFindOptions.AllNodes) and (TKntFolder(ActiveNote).TV.Selected <> StartNode) then
+         if (ActiveKntFolder <> StartNote) or
+            (not myFindOptions.AllNodes) and (ActiveKntFolder.TV.Selected <> StartNode) then
               myFindOptions.FindNew := true;
   end;
 
-  if Form_Main.NoteIsReadOnly( ActiveNote, true) then begin
+  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true) then begin
      modeReplace:= False;
      Tab_Replace.Enabled:= False;
   end
@@ -186,9 +186,9 @@ begin
 
 
   myFindOptions.SelectedText:= False;
-  if ( ActiveNote.Editor.SelLength > 0 ) then begin
+  if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
       CheckBox_SelectedText.Enabled:= True;
-      myFindOptions.SelectedText:= not IsWord(Trim(ActiveNote.Editor.SelText));
+      myFindOptions.SelectedText:= not IsWord(Trim(ActiveKntFolder.Editor.SelText));
   end
   else
       CheckBox_SelectedText.Enabled:= False;

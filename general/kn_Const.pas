@@ -365,7 +365,7 @@ const
   _NF_TabNote         = '%';    // end-of-record (new TTabNote begins)  (only in old .knt files)
   _NF_EOF             = '%%';   // end-of-file (last line in file)
   _NF_RTF             = '%:';   // end of note header; RTF data follows
-  _NF_TreeNote        = '%+';   // TKntFolder (TTreeNote) begins
+  _NF_TreeNote        = '%+';   // TTreeNote begins
   _NF_TRN             = '%-';   // Tree node begins (many tree nodes within a single note)
   _NF_COMMENT         = '#';    // comment, but this is really used for file header information
   _NF_WARNING         = _NF_COMMENT + ' This is an automatically generated file. Do not edit.';

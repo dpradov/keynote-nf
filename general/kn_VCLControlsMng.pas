@@ -46,10 +46,10 @@ uses
 
     // dynamically create and destroy controls (note tabs, RichEdits, trees, etc)
     procedure SetUpVCLControls( aNote : TKntFolder ); // sets up VCL controls for note (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
-    procedure CreateVCLControls; // creates VCL controls for ALL notes in NoteFile object
+    procedure CreateVCLControls; // creates VCL controls for ALL notes in KntFile object
     procedure SetupAndShowVCLControls;
     procedure CreateVCLControlsForNote( const aNote : TKntFolder ); // creates VCL controls for specified note
-    procedure DestroyVCLControls; // destroys VCL controls for ALL notes in NoteFile object
+    procedure DestroyVCLControls; // destroys VCL controls for ALL notes in KntFile object
     procedure DestroyVCLControlsForNote( const aNote : TKntFolder; const KillTabSheet : boolean ); // destroys VCL contols for specified note
     procedure GetOrSetNodeExpandState( const aTV : TTreeNT; const AsSet, TopLevelOnly : boolean );
 
@@ -188,7 +188,7 @@ begin
       if ( _LoadedRichEditVersion > 2 ) then
         SendMessage( aNote.Editor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
 
-      with TKntFolder( aNote ).TV do
+      with aNote.TV do
       begin
         PopupMenu := Menu_TV;
         OnKeyDown := TVKeyDown;
@@ -231,14 +231,14 @@ procedure CreateVCLControls;
 // creates all VCL controls for a newly loaded Notes file
 var
   i : integer;
-  myNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
   with Form_Main do begin
-      if (( not assigned( NoteFile )) or ( NoteFile.Notes.Count = 0 )) then exit;
+      if (( not assigned( KntFile )) or ( KntFile.Notes.Count = 0 )) then exit;
 
-      for i := 0 to pred( NoteFile.Notes.Count ) do begin
-         myNote := NoteFile.Notes[i];
-         CreateVCLControlsForNote( myNote );
+      for i := 0 to pred( KntFile.Notes.Count ) do begin
+         myFolder := KntFile.Notes[i];
+         CreateVCLControlsForNote( myFolder );
       end;
 
   end;
@@ -252,17 +252,17 @@ procedure SetupAndShowVCLControls;
 // Finalize setup and visualization of all VCL controls for a newly loaded Notes file
 var
   i : integer;
-  myNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
   with Form_Main do begin
-        if (( not assigned( NoteFile )) or ( NoteFile.Notes.Count = 0 )) then exit;
+        if (( not assigned( KntFile )) or ( KntFile.Notes.Count = 0 )) then exit;
 
         try
 
-          for i := 0 to pred( NoteFile.Notes.Count ) do begin
-            myNote := NoteFile.Notes[i];
-            myNote.DataStreamToEditor;
-            SetUpVCLControls( myNote );
+          for i := 0 to pred( KntFile.Notes.Count ) do begin
+            myFolder := KntFile.Notes[i];
+            myFolder.DataStreamToEditor;
+            SetUpVCLControls( myFolder );
           end;
 
         finally
@@ -274,9 +274,9 @@ begin
         end;
 
         // restore the note that was active when file was previously saved
-        if (( NoteFile.ActiveNote >= 0 ) and ( NoteFile.ActiveNote < NoteFile.Notes.Count )) then begin
+        if (( KntFile.ActiveKntFolder >= 0 ) and ( KntFile.ActiveKntFolder < KntFile.Notes.Count )) then begin
           if ( Pages.PageCount > 0 ) then
-            Pages.ActivePage := Pages.Pages[NoteFile.ActiveNote];
+            Pages.ActivePage := Pages.Pages[KntFile.ActiveKntFolder];
         end
         else
            if ( Pages.PageCount > 0 ) then
@@ -291,7 +291,7 @@ end; // SetupAndShowVCLControls
 procedure GetOrSetNodeExpandState( const aTV : TTreeNT; const AsSet, TopLevelOnly : boolean );
 var
   myTreeNode : TTreeNTNode;
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
 begin
   with Form_Main do begin
         // set or get node "expanded" state
@@ -300,8 +300,8 @@ begin
         myTreeNode := aTV.Items.GetFirstNode;
         while assigned( myTreeNode ) do
         begin
-          myNoteNode := TKntNote( myTreeNode.Data );
-          if assigned( myNoteNode ) then
+          myNote := TKntNote( myTreeNode.Data );
+          if assigned( myNote ) then
           begin
             case AsSet of
               true : begin // set
@@ -312,12 +312,12 @@ begin
                 end
                 else
                 begin
-                  myTreeNode.Expanded := myNoteNode.Expanded;
+                  myTreeNode.Expanded := myNote.Expanded;
                   myTreeNode := myTreeNode.GetNext;
                 end;
               end;
               false : begin // get
-                myNoteNode.Expanded := myTreeNode.Expanded;
+                myNote.Expanded := myTreeNode.Expanded;
                 myTreeNode := myTreeNode.GetNext;
               end;
             end;
@@ -341,7 +341,7 @@ var
   tNode, myTreeNode, LastTreeNodeAssigned : TTreeNTNode;
   LastNodeLevel: integer;
   j, numChilds, AuxLevel, ChildLevel : integer;
-  myNode: TKntNote;
+  myNote: TKntNote;
   {$IFDEF WITH_IE}
   myPanel : TPanel;
   myBrowser : TWebBrowser;
@@ -389,7 +389,7 @@ begin
             myTab := aNote.TabSheet;
           end;
 
-          tNote := TKntFolder( aNote );
+          tNote := aNote;
           // [f] tNote.FocusMemory := focTree;
 
           myTree := TTreeNT.Create( myTab );
@@ -484,10 +484,10 @@ begin
             myTree.Items.BeginUpdate;
             try
                for i := 0 to tNote.Nodes.Count-1 do begin
-                  myNode := tNote.Nodes[i];
+                  myNote := tNote.Nodes[i];
 
                   numChilds:= 0;
-                  ChildLevel:= myNode.Level+1;
+                  ChildLevel:= myNote.Level+1;
                   for j := i+1 to tNote.Nodes.Count-1 do begin
                      AuxLevel:= tNote.Nodes[j].Level;
                      if AuxLevel = ChildLevel then
@@ -496,51 +496,51 @@ begin
                         break;
                   end;
 
-                  case myNode.Level of
+                  case myNote.Level of
                     0 : begin
-                      myTreeNode := myTree.Items.Add( nil, myNode.Name, numChilds );
+                      myTreeNode := myTree.Items.Add( nil, myNote.Name, numChilds );
                       LastNodeLevel := 0;
                     end
                     else begin
-                      case DoTrinaryCompare( myNode.Level, LastNodeLevel ) of
+                      case DoTrinaryCompare( myNote.Level, LastNodeLevel ) of
                         trinGreater:
-                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned, myNode.Name );
+                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned, myNote.Name );
                         trinEqual:
-                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned.Parent, myNode.Name );
-                        trinSmaller: begin  // myNode.Level is SMALLER than LastNodeLevel, i.e. we're moving LEFT in the tree
-                           for loop := 1 to ( LastNodeLevel - myNode.Level ) do begin
+                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned.Parent, myNote.Name );
+                        trinSmaller: begin  // myNote.Level is SMALLER than LastNodeLevel, i.e. we're moving LEFT in the tree
+                           for loop := 1 to ( LastNodeLevel - myNote.Level ) do begin
                               if assigned( LastTreeNodeAssigned ) then begin
-                                if ( LastTreeNodeAssigned.Level <= myNode.Level ) then
+                                if ( LastTreeNodeAssigned.Level <= myNote.Level ) then
                                     break;
                                 LastTreeNodeAssigned := LastTreeNodeAssigned.Parent;
                               end
                               else
                                 break;
                            end;
-                           myTreeNode := myTree.Items.Add( LastTreeNodeAssigned, myNode.Name, numChilds );
+                           myTreeNode := myTree.Items.Add( LastTreeNodeAssigned, myNote.Name, numChilds );
                         end;
                       end;
                     end;
                   end;
 
                   LastTreeNodeAssigned := myTreeNode;
-                  LastNodeLevel := myNode.Level;
+                  LastNodeLevel := myNote.Level;
 
-                  myTreeNode.Data := myNode;
+                  myTreeNode.Data := myNote;
 
-                  if myNode.HasNodeFontFace then
-                    myTreeNode.Font.Name := myNode.NodeFontFace;
+                  if myNote.HasNodeFontFace then
+                    myTreeNode.Font.Name := myNote.NodeFontFace;
 
-                  if myNode.Bold then
+                  if myNote.Bold then
                     myTreeNode.Font.Style := TVFontStyleWithBold;
 
-                  if myNode.HasNodeColor then
-                    myTreeNode.Font.Color := myNode.NodeColor;
+                  if myNote.HasNodeColor then
+                    myTreeNode.Font.Color := myNote.NodeColor;
 
-                  if myNode.HasNodeBGColor then
-                    myTreeNode.Color := myNode.NodeBGColor;
+                  if myNote.HasNodeBGColor then
+                    myTreeNode.Color := myNote.NodeBGColor;
 
-                  if myNode.Filtered  then      // [dpv]
+                  if myNote.Filtered  then      // [dpv]
                      tNote.Filtered := True;
 
                end;
@@ -725,9 +725,9 @@ procedure DeleteNodes(Note: TKntFolder);
 var
   Node : TTreeNTNode;
 begin
-    Node := TKntFolder( Note).TV.Items.GetFirstNode;
+    Node := Note.TV.Items.GetFirstNode;
     while assigned( Node ) do begin // go through all nodes
-        NoteFile.ManageMirrorNodes(3, Node, nil);
+        KntFile.ManageMirrorNodes(3, Node, nil);
         Node := Node.GetNext; // select next node to search
     end;
 end;
@@ -758,14 +758,14 @@ begin
             aNote.Editor := nil;
           end;
 
-          if assigned( TKntFolder( aNote ).Splitter ) then
+          if assigned( aNote.Splitter ) then
           begin
-            TKntFolder( aNote ).Splitter.Free;
-            TKntFolder( aNote ).Splitter := nil;
+            aNote.Splitter.Free;
+            aNote.Splitter := nil;
           end;
-          if assigned( TKntFolder( aNote ).TV ) then
+          if assigned( aNote.TV ) then
           begin
-            with TKntFolder( aNote ).TV do
+            with aNote.TV do
             begin
               PopupMenu := nil;
               OnChange := nil;
@@ -780,10 +780,10 @@ begin
               OnEdited := nil;
               OnEditing := nil;
             end;
-            DeleteNodes(TKntFolder( aNote ));
+            DeleteNodes(aNote);
 
-            TKntFolder( aNote ).TV.Free;
-            TKntFolder( aNote ).TV := nil;
+            aNote.TV.Free;
+            aNote.TV := nil;
           end;
 
           if ( KillTabSheet and assigned( aNote.TabSheet )) then
@@ -807,10 +807,10 @@ var
 begin
   with Form_Main do begin
         {
-        if (( not assigned( NoteFile )) or ( NoteFile.Notes.Count = 0 )) then exit;
-        for i := 0 to pred( NoteFile.Notes.Count ) do
+        if (( not assigned( KntFile )) or ( KntFile.Notes.Count = 0 )) then exit;
+        for i := 0 to pred( KntFile.Notes.Count ) do
         begin
-          DestroyVCLControlsForNote( NoteFile.Notes[i]; );
+          DestroyVCLControlsForNote( KntFile.Notes[i]; );
         end;
         }
 
@@ -824,8 +824,8 @@ begin
                   aNote.Editor := nil;
                   if ( aNote.Kind = ntTree ) then
                   begin
-                    TKntFolder( aNote ).TV := nil;
-                    TKntFolder( aNote ).Splitter := nil;
+                    aNote.TV := nil;
+                    aNote.Splitter := nil;
                   end;
                 except
                   on E : Exception do
@@ -1087,17 +1087,17 @@ end; // UpdateTabState
 procedure UpdateNoteDisplay;
 var
   s : string;
-  myTNote : TKntFolder;
+  myFolder : TKntFolder;
   Node: TTreeNTNode;
 
 begin
   with Form_Main do begin
         s := '';
-        if assigned( ActiveNote ) then
+        if assigned( ActiveKntFolder ) then
         begin
           try
-            MMNoteReadOnly.Checked := ActiveNote.ReadOnly;
-            TB_ClipCap.Down := ( NoteFile.ClipCapNote = ActiveNote );
+            MMNoteReadOnly.Checked := ActiveKntFolder.ReadOnly;
+            TB_ClipCap.Down := ( KntFile.ClipCapNote = ActiveKntFolder );
             MMNoteClipCapture.Checked := TB_ClipCap.Down;
             ShowAlarmStatus;
 
@@ -1107,7 +1107,7 @@ begin
             UpdateWordWrap;
 
             if EditorOptions.WordCountTrack then begin
-               if ActiveNote.Editor.TextLength < 2000 then
+               if ActiveKntFolder.Editor.TextLength < 2000 then
                   UpdateWordCount
                else
                   CleanWordCount;   // Lo actualizaremos cuando se dispare el Timer, si corresponde
@@ -1115,9 +1115,9 @@ begin
 
             // if isWordWrap then s := ' W' else s := ' ';
 
-            RxRTFChange( ActiveNote.Editor );
-            RxRTFSelectionChange( ActiveNote.Editor );
-            if ActiveNote.ReadOnly then s := 'R';
+            RxRTFChange( ActiveKntFolder.Editor );
+            RxRTFSelectionChange( ActiveKntFolder.Editor );
+            if ActiveKntFolder.ReadOnly then s := 'R';
 
             if ( _LoadedRichEditVersion > 2 ) then
             begin
@@ -1130,22 +1130,22 @@ begin
             ShowInsMode;
 
 
-            myTNote := TKntFolder( ActiveNote );
+            myFolder := ActiveKntFolder;
             MMTree_.Visible := true;
             {MMViewTree.Visible := true;}
             MMViewTree.Enabled := true;
-            MMViewTree.Checked := myTNote.TV.Visible;
+            MMViewTree.Checked := myFolder.TV.Visible;
             {MMViewNodeIcons.Visible := true;
             MMViewCustomIcons.Visible := true;
             MMViewCheckboxes.Visible := true;}
-            MMViewNodeIcons.Checked := myTNote.IconKind = niStandard;
-            MMViewCustomIcons.Checked := myTNote.IconKind = niCustom;
+            MMViewNodeIcons.Checked := myFolder.IconKind = niStandard;
+            MMViewCustomIcons.Checked := myFolder.IconKind = niCustom;
             MMEditPasteAsNewNode.Visible := true;
             MMP_PasteAsNode.Visible := true;
-            MMViewCheckboxesAllNodes.Checked := TKntFolder( ActiveNote ).Checkboxes;
+            MMViewCheckboxesAllNodes.Checked := ActiveKntFolder.Checkboxes;
             //TVCheckNode.Enabled := MMViewCheckboxesAllNodes.Checked;              // [dpv]
-            node:= myTNote.TV.Selected;
-            if myTNote.Checkboxes or (assigned(node) and assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
+            node:= myFolder.TV.Selected;
+            if myFolder.Checkboxes or (assigned(node) and assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
                TVCheckNode.Enabled := true
             else
                TVCheckNode.Enabled := false;
@@ -1159,16 +1159,16 @@ begin
             MMViewCustomIcons.Enabled := MMViewTree.Checked;
             TVSelectNodeImage.Enabled := ( MMViewCustomIcons.Checked and MMViewCustomIcons.Enabled );
             MMViewHideCheckedNodes.Enabled := true;                      // [dpv]
-            MMViewHideCheckedNodes.Checked:= myTNote.HideCheckedNodes;   // [dpv]
+            MMViewHideCheckedNodes.Checked:= myFolder.HideCheckedNodes;   // [dpv]
             TB_HideChecked.Down := MMViewHideCheckedNodes.Checked;       // [dpv]
-            TB_FilterTree.Down:= myTNote.Filtered;                       // [dpv]
+            TB_FilterTree.Down:= myFolder.Filtered;                       // [dpv]
             MMViewFilterTree.Enabled := true;                            // [dpv]
-            MMViewFilterTree.Checked :=  myTNote.Filtered;               // [dpv]
-            if myTNote.Filtered then FilterApplied (myTNote) else FilterRemoved (myTNote);   // [dpv]
+            MMViewFilterTree.Checked :=  myFolder.Filtered;               // [dpv]
+            if myFolder.Filtered then FilterApplied (myFolder) else FilterRemoved (myFolder);   // [dpv]
 
 
             if MMAlternativeMargins.Checked then
-               ActiveNote.Editor.Refresh;
+               ActiveKntFolder.Editor.Refresh;
 
           except
             // showmessage( 'BUG: error in UpdateNoteDisplay' );
@@ -1206,18 +1206,18 @@ var
   SelLength: integer;
 begin
   with Form_Main do begin
-       if assigned( ActiveNote ) then begin
-          SelLength:= ActiveNote.Editor.SelLength;
+       if assigned( ActiveKntFolder ) then begin
+          SelLength:= ActiveKntFolder.Editor.SelLength;
           if ( SelLength > 0 ) then ShowingSelectionInformation:= true;
 
           if EditorOptions.TrackCaretPos then begin
-             p := ActiveNote.Editor.CaretPos;
+             p := ActiveKntFolder.Editor.CaretPos;
              if ( SelLength = 0 ) then begin
                 StatusBar.Panels[PANEL_CARETPOS].Text :=
-                    Format( STR_10, [succ( p.y ), ActiveNote.Editor.Lines.Count, succ( p.x )] );
+                    Format( STR_10, [succ( p.y ), ActiveKntFolder.Editor.Lines.Count, succ( p.x )] );
              end
              else begin
-                SelectedVisibleText:= ActiveNote.Editor.SelVisibleText;
+                SelectedVisibleText:= ActiveKntFolder.Editor.SelVisibleText;
                 StatusBar.Panels[PANEL_CARETPOS].Text :=
                     Format( STR_11, [Length(SelectedVisibleText), GetWordCount( SelectedVisibleText )] );
              end;
@@ -1240,14 +1240,14 @@ begin
           if EditorOptions.TrackStyle then begin
             case EditorOptions.TrackStyleRange of
               srFont : begin
-                StatusBar.Panels[PANEL_HINT].Text := ActiveNote.Editor.FontInfoString;
+                StatusBar.Panels[PANEL_HINT].Text := ActiveKntFolder.Editor.FontInfoString;
               end;
               srParagraph : begin
-                StatusBar.Panels[PANEL_HINT].Text := ActiveNote.Editor.ParaInfoString;
+                StatusBar.Panels[PANEL_HINT].Text := ActiveKntFolder.Editor.ParaInfoString;
               end;
               srBoth : begin
-                StatusBar.Panels[PANEL_HINT].Text := ActiveNote.Editor.FontInfoString +
-                ActiveNote.Editor.ParaInfoString;
+                StatusBar.Panels[PANEL_HINT].Text := ActiveKntFolder.Editor.FontInfoString +
+                ActiveKntFolder.Editor.ParaInfoString;
               end;
             end;
           end;
@@ -1291,8 +1291,8 @@ begin
 
       finally
         // must redraw editor, otherwise it displays garbage
-        if assigned( ActiveNote ) then
-          ActiveNote.Editor.Invalidate;
+        if assigned( ActiveKntFolder ) then
+          ActiveKntFolder.Editor.Invalidate;
       end;
   end;
 
@@ -1655,14 +1655,14 @@ begin
           begin
             for i := 0 to pred( Pages.PageCount ) do
             begin
-              Pages.Pages[i].ImageIndex := TKntFolder( Pages.Pages[i].PrimaryObject ).ImageIndex;
+              Pages.Pages[i].ImageIndex := TKntFolder(Pages.Pages[i].PrimaryObject).ImageIndex;
             end;
           end;
 
         finally
           Pages.Enabled := true;
-          Pages.ActivePage := ActiveNote.TabSheet;
-          NoteFile.Modified := true;
+          Pages.ActivePage := ActiveKntFolder.TabSheet;
+          KntFile.Modified := true;
           UpdateNoteDisplay;
           UpdateNoteFileState( [fscModified] );
         end;
@@ -1673,12 +1673,12 @@ end; // SortTabs
 procedure FocusActiveNote;
 begin
     try
-      if ( assigned( ActiveNote ) and ( not Initializing )) then
+      if ( assigned( ActiveKntFolder ) and ( not Initializing )) then
       begin
-         if ( TKntFolder( ActiveNote ).TV.Visible and ( ActiveNote.FocusMemory = focTree )) then
-           TKntFolder( ActiveNote ).TV.SetFocus
+         if ( ActiveKntFolder.TV.Visible and ( ActiveKntFolder.FocusMemory = focTree )) then
+           ActiveKntFolder.TV.SetFocus
          else
-           ActiveNote.Editor.SetFocus;
+           ActiveKntFolder.Editor.SetFocus;
       end;
     except
       // Mostly Harmless
@@ -1728,9 +1728,9 @@ begin
       if IsRunningMacro then
         Index:= NODEIMG_MACRORUN
       else
-      if NoteFile.ReadOnly then
+      if KntFile.ReadOnly then
       begin
-        case NoteFile.FileFormat of
+        case KntFile.FileFormat of
           nffKeyNote :   Index:= NODEIMG_TKN_RO;
           nffKeyNoteZip: Index:= NODEIMG_TKNZIP_RO;
           nffEncrypted : Index:= NODEIMG_ENC_RO;
@@ -1741,7 +1741,7 @@ begin
       end
       else
       begin
-        case NoteFile.FileFormat of
+        case KntFile.FileFormat of
           nffKeyNote :   Index:= NODEIMG_TKN;
           nffKeyNoteZip: Index:= NODEIMG_TKNZIP;
           nffEncrypted : Index:= NODEIMG_ENC;
@@ -1779,12 +1779,12 @@ begin
   with Form_Main do begin
       UseIcon:= 0;
 
-      if assigned( NoteFile ) then begin
+      if assigned( KntFile ) then begin
          if UseAltIcon then
             UseIcon:= 1        // we're capturing clipboard, so indicate this by using the alternate (orange) tray icon
          else
-         if ( NoteFile.TrayIconFN <> '' ) then begin
-            IconFN:= GetAbsolutePath(NoteFile.File_Path, NoteFile.TrayIconFN);
+         if ( KntFile.TrayIconFN <> '' ) then begin
+            IconFN:= GetAbsolutePath(KntFile.File_Path, KntFile.TrayIconFN);
             if FileExists( IconFN ) then
                try
                  TrayIcon.Icon.LoadFromFile( IconFN );
@@ -1792,7 +1792,7 @@ begin
                except
                end
             else
-               NoteFile.TrayIconFN := '';
+               KntFile.TrayIconFN := '';
          end
       end;
 
@@ -1816,18 +1816,18 @@ var
   LoadSuccess : boolean;
 begin
   LoadSuccess := false;
-  if assigned( NoteFile ) then
+  if assigned( KntFile ) then
   begin
-    if (( _LOADED_ICON_FILE <> NoteFile.TabIconsFN ) or ForceReload ) then
+    if (( _LOADED_ICON_FILE <> KntFile.TabIconsFN ) or ForceReload ) then
     begin
-      if ( NoteFile.TabIconsFN = '' ) then // means: use KeyNote default
+      if ( KntFile.TabIconsFN = '' ) then // means: use KeyNote default
       begin
         LoadSuccess := LoadCategoryBitmapsUser( ICN_FN );
       end
       else
       begin
-        if ( NoteFile.TabIconsFN <> _NF_Icons_BuiltIn ) then
-          LoadSuccess := LoadCategoryBitmapsUser( NoteFile.TabIconsFN );
+        if ( KntFile.TabIconsFN <> _NF_Icons_BuiltIn ) then
+          LoadSuccess := LoadCategoryBitmapsUser( KntFile.TabIconsFN );
       end;
       if ( not LoadSuccess ) then
         LoadSuccess := LoadCategoryBitmapsBuiltIn;
@@ -1921,7 +1921,7 @@ begin
        Form_Main.StatusBar.Panels[PANEL_HINT].Text := '';
     end;
 
-    with NoteFile do
+    with KntFile do
        for i := 0 to pred(Notes.Count) do begin
           if value then
              Notes[i].Editor.Cursor:= crCopyFormat

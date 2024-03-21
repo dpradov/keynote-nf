@@ -231,7 +231,7 @@ type
     procedure UpdateTabSheet;
 
     function PrepareTextPlain (myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string; overload;
-    function PrepareTextPlain (myNoteNode: TKntNote; RTFAux: TTabRichEdit): string; overload;
+    function PrepareTextPlain (myNote: TKntNote; RTFAux: TTabRichEdit): string; overload;
 
     procedure DataStreamToEditor;
     function EditorToDataStream: TMemoryStream;
@@ -302,7 +302,7 @@ type
     function GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
 
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TTabRichEdit ): boolean;
-    function InitializeTextPlain(myNoteNode: TKntNote; RTFAux: TRxRichEdit): boolean;// overload;
+    function InitializeTextPlain(myNote: TKntNote; RTFAux: TRxRichEdit): boolean;// overload;
 
   end; // TTabNote
 
@@ -431,7 +431,7 @@ resourcestring
                              and not PFM_NUMBERING and not PFM_STARTINDENT and not PFM_OFFSET and not PFM_RIGHTINDENT and not PFM_ALIGNMENT;
 
      Editor.Paragraph.SetAttributes(Paragraph);
-     ActiveNote.Editor.HideKNTHiddenMarks(true);
+     ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
   end;
 
 
@@ -485,7 +485,7 @@ resourcestring
      else
         Editor.SelAttributes.SetAttributes(Format);
 
-     ActiveNote.Editor.HideKNTHiddenMarks(true);
+     ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
   end;
 
 
@@ -768,23 +768,23 @@ end; // SetID
 
 function TKntFolder.PrepareTextPlain(myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string;
 var
-    myNoteNode : TKntNote;
+    myNote : TKntNote;
 begin
    if FEditor.Modified or (NoteTextPlain = '') then
       EditorToDataStream;
 
-   myNoteNode := TKntNote( myTreeNode.Data );
-   TKntFolder(Self).InitializeTextPlain(myNoteNode, RTFAux);
-   Result:= myNoteNode.NodeTextPlain;
+   myNote := TKntNote( myTreeNode.Data );
+   Self.InitializeTextPlain(myNote, RTFAux);
+   Result:= myNote.NodeTextPlain;
 end;
 
-function TKntFolder.PrepareTextPlain(myNoteNode: TKntNote; RTFAux: TTabRichEdit): string;
+function TKntFolder.PrepareTextPlain(myNote: TKntNote; RTFAux: TTabRichEdit): string;
 begin
    if FEditor.Modified or (NoteTextPlain = '') then
       EditorToDataStream;
 
-   TKntFolder(Self).InitializeTextPlain(myNoteNode, RTFAux);
-   Result:= myNoteNode.NodeTextPlain;
+   Self.InitializeTextPlain(myNote, RTFAux);
+   Result:= myNote.NodeTextPlain;
 end;
 
 
@@ -1421,8 +1421,8 @@ begin
     if ForceMode or (FImagesMode <> ImagesMode) then begin
 
        myTreeNode:= nil;
-       myTreeNode := TKntFolder(Self).TV.Selected;
-       SS:= ActiveNote.Editor.SelStart;
+       myTreeNode := Self.TV.Selected;
+       SS:= ActiveKntFolder.Editor.SelStart;
        if ImagesMode = imLink then                                       // imImage --> imLink
           SS:= PositionInImLinkTextPlain (Self, myTreeNode, SS, True);   // True: Force calculation
 
@@ -1434,7 +1434,7 @@ begin
           Editor.BeginUpdate;
           try
              currentNoteModified:= FModified;
-             currentFileModified:= NoteFile.Modified;
+             currentFileModified:= KntFile.Modified;
 
              RestoreRO:= ReadOnly;
              try
@@ -1443,7 +1443,7 @@ begin
                 Editor.PutRtfText(RTFout,True,False);
                 if not ReadOnly and (currentNoteModified <> FModified) then begin
                    FModified:=  currentNoteModified;  // <- false...
-                   NoteFile.Modified:= currentFileModified;
+                   KntFile.Modified:= currentFileModified;
                    UpdateNoteFileState( [fscModified] );
                 end;
              finally
@@ -1873,54 +1873,54 @@ var
     SelS, SelL: integer;
 begin
 
-  ActiveNote.Editor.BeginUpdate;
+  ActiveKntFolder.Editor.BeginUpdate;
   try
 
     URL:= '';
     TextURL:= '';
-    SelS:= ActiveNote.Editor.SelStart;
-    SelL:= ActiveNote.Editor.SelLength;
+    SelS:= ActiveKntFolder.Editor.SelStart;
+    SelL:= ActiveKntFolder.Editor.SelLength;
     Left:= SelS;
     Right:= SelL + Left;
 
-    ActiveNote.Editor.SetSelection(Left, Left+1, false);
-    link:= ActiveNote.Editor.SelAttributes.LinkStyle;
+    ActiveKntFolder.Editor.SetSelection(Left, Left+1, false);
+    link:= ActiveKntFolder.Editor.SelAttributes.LinkStyle;
     if link = lsLink then begin
-       ActiveNote.Editor.SetSelection(Left-1, Left, false);
-       link:= ActiveNote.Editor.SelAttributes.LinkStyle;
+       ActiveKntFolder.Editor.SetSelection(Left-1, Left, false);
+       link:= ActiveKntFolder.Editor.SelAttributes.LinkStyle;
     end;
 
     if (link <> lsLink) then begin
-        ActiveNote.Editor.SetSelection(Left, Right, false);
+        ActiveKntFolder.Editor.SetSelection(Left, Right, false);
         LeftE:= Left;
         RightE:= Left;
     end
     else begin
-        TextLen:= ActiveNote.Editor.TextLength;
+        TextLen:= ActiveKntFolder.Editor.TextLength;
 
         // Buscamos el extremo izquierdo
 
         { Character "H" of HYPERLINK ".... cannot be selected in versions >= 5. Also in that versiones, when trying to selection
           one hidden character selection of that hyperlink, the whole link is selected }
         link:= lsLink;
-        while (Left >0) and (link=lsLink) and (ActiveNote.Editor.SelLength=1) do begin
+        while (Left >0) and (link=lsLink) and (ActiveKntFolder.Editor.SelLength=1) do begin
               Left:= Left - 1;
-              ActiveNote.Editor.SetSelection(Left-1, Left, false);
-              link:= ActiveNote.Editor.SelAttributes.LinkStyle;
+              ActiveKntFolder.Editor.SetSelection(Left-1, Left, false);
+              link:= ActiveKntFolder.Editor.SelAttributes.LinkStyle;
         end;
 
-        if (ActiveNote.Editor.SelLength > 1) then begin
-           Left:= ActiveNote.Editor.SelStart;
-           Right:= Left + ActiveNote.Editor.SelLength;
+        if (ActiveKntFolder.Editor.SelLength > 1) then begin
+           Left:= ActiveKntFolder.Editor.SelStart;
+           Right:= Left + ActiveKntFolder.Editor.SelLength;
            LeftE:= Left;
            RightE:= Right;
         end
         else begin
            LeftE:= Left;
            // Ampliamos la selección incluyendo el/los caracteres '<' que pueda haber
-           while (LeftE >0) and (ActiveNote.Editor.SelText='<') do begin
+           while (LeftE >0) and (ActiveKntFolder.Editor.SelText='<') do begin
                  LeftE:= LeftE - 1;
-                 ActiveNote.Editor.SetSelection(LeftE-1, LeftE, false);
+                 ActiveKntFolder.Editor.SetSelection(LeftE-1, LeftE, false);
            end;
 
 
@@ -1928,36 +1928,36 @@ begin
            link:= lsLink;
            while (Right < TextLen) and (link=lsLink) do begin
                  Right:= Right + 1;
-                 ActiveNote.Editor.SetSelection(Right, Right+1, false);
-                 link:= ActiveNote.Editor.SelAttributes.LinkStyle;
+                 ActiveKntFolder.Editor.SetSelection(Right, Right+1, false);
+                 link:= ActiveKntFolder.Editor.SelAttributes.LinkStyle;
            end;
 
            RightE:= Right;
            // Ampliamos la selección incluyendo el/los caracteres '>' que pueda haber
-           while (Right < TextLen) and (ActiveNote.Editor.SelText='>') do begin
+           while (Right < TextLen) and (ActiveKntFolder.Editor.SelText='>') do begin
                  RightE:= RightE + 1;
-                 ActiveNote.Editor.SetSelection(RightE, RightE+1, false);
+                 ActiveKntFolder.Editor.SetSelection(RightE, RightE+1, false);
            end;
         end;
 
-        URL:= ActiveNote.Editor.GetTextRange(Left, Right);
+        URL:= ActiveKntFolder.Editor.GetTextRange(Left, Right);
         if pos('HYPERLINK "', URL)= 1 then begin
            // If it is an hyperlink with text associated then the string will be: URL"TextURL, where only TextURL is visible
-           ActiveNote.Editor.SetSelection(Left, Right, false);
-           TextURL:= ActiveNote.Editor.SelVisibleText;
+           ActiveKntFolder.Editor.SetSelection(Left, Right, false);
+           TextURL:= ActiveKntFolder.Editor.SelVisibleText;
            URL:= Copy(URL, 12, Length(URL) - Length(TextURL)- 12);
         end
         else
           if SelectURL then
-              ActiveNote.Editor.SetSelection(LeftE, RightE, false);
+              ActiveKntFolder.Editor.SetSelection(LeftE, RightE, false);
 
         if not SelectURL then
-           ActiveNote.Editor.SetSelection(SelS, SelS + SelL, false);
+           ActiveKntFolder.Editor.SetSelection(SelS, SelS + SelL, false);
 
     end;
 
   finally
-     ActiveNote.Editor.EndUpdate;
+     ActiveKntFolder.Editor.EndUpdate;
   end;
 end;
 
@@ -2002,30 +2002,30 @@ function TKntFolder.NewNode(
   AName : string;
   const AInheritProperties : boolean ) : TKntNote;
 var
-  myNode : TKntNote;
+  myNote : TKntNote;
 begin
-  myNode := TKntNote.Create;
-  myNode.Name := AName;
-  myNode.RTFBGColor := FEditorChrome.BGColor;
+  myNote := TKntNote.Create;
+  myNote.Name := AName;
+  myNote.RTFBGColor := FEditorChrome.BGColor;
 
   if assigned( APArent ) then
   begin
-    myNode.Level := succ( AParent.Level ); // else Node is already initialized to Level 0
+    myNote.Level := succ( AParent.Level ); // else Node is already initialized to Level 0
     if AInheritProperties then
     begin
-      myNode.Checked := AParent.Checked;
-      myNode.Bold := AParent.Bold;
-      myNode.HasNodeColor := AParent.HasNodeColor;
-      myNode.HasNodeBGColor := APArent.HasNodeBGColor;
-      myNode.NodeColor := AParent.NodeColor;
-      myNode.NodeBGColor := AParent.NodeBGColor;
-      myNode.ImageIndex := AParent.ImageIndex;
+      myNote.Checked := AParent.Checked;
+      myNote.Bold := AParent.Bold;
+      myNote.HasNodeColor := AParent.HasNodeColor;
+      myNote.HasNodeBGColor := APArent.HasNodeBGColor;
+      myNote.NodeColor := AParent.NodeColor;
+      myNote.NodeBGColor := AParent.NodeBGColor;
+      myNote.ImageIndex := AParent.ImageIndex;
       // [x] inherit other properties here? (flagged?)
     end;
   end;
 
-  AddNode( myNode );
-  result := myNode;
+  AddNode( myNote );
+  result := myNote;
 end; // NewNode
 
 function TKntFolder.AddNode( const aNode : TKntNote ) : integer;
@@ -2061,7 +2061,7 @@ end; // InternalAddNode
 procedure TKntFolder.GenerateNodeID( const aNode : TKntNote );
 var
   i, count, myID, hiID : longint;
-  myNode : TKntNote;
+  myNote : TKntNote;
 begin
   myID := 0;
   hiID := 0;
@@ -2069,9 +2069,9 @@ begin
   Count := FNodes.Count;
   for i := 1 to Count do
   begin
-    myNode := FNodes[pred( i )];
-    if ( myNode.ID > hiID ) then
-      hiID := myNode.ID; // find highest note ID
+    myNote := FNodes[pred( i )];
+    if ( myNote.ID > hiID ) then
+      hiID := myNote.ID; // find highest note ID
   end;
 
   inc( hiID ); // make it one higher
@@ -2082,14 +2082,14 @@ end; // GenerateNodeID
 procedure TKntFolder.VerifyNodeIDs;
 var
   i, count : longint;
-  myNode : TKntNote;
+  myNote : TKntNote;
 begin
   count := FNodes.Count;
   for i := 1 to count do
   begin
-    myNode := FNodes[pred( i )];
-    if ( myNode.ID <= 0 ) then
-      GenerateNodeID( myNode );
+    myNote := FNodes[pred( i )];
+    if ( myNote.ID <= 0 ) then
+      GenerateNodeID( myNote );
   end;
 end; // VerifyNodeIDs
 
@@ -2097,7 +2097,7 @@ procedure TKntFolder.RemoveNode( const aNode : TKntNote );
 begin
   if ( not assigned( ANode )) then exit;
 
-  NoteFile.RemoveImagesCountReferences(aNode);
+  KntFile.RemoveImagesCountReferences(aNode);
 
   FNodes.Remove( aNode );
   FModified := true;
@@ -2388,7 +2388,7 @@ begin
 
 
   try
-    tf.WriteLine( _NF_TreeNote ); // marks beginning of TKntFolder  (TTreeNote)
+    tf.WriteLine( _NF_TreeNote ); // marks beginning of TTreeNote
     BaseSaveProc( tf );
 
     // basic treenote properties
@@ -2525,17 +2525,17 @@ var
   List : TStringList;
   s, key : AnsiString;
   p, linecount : integer;
-  myNode : TKntNote;
+  myNote : TKntNote;
 
     procedure AddNewNode;
     begin
       // transfer RTF data from list to node
       InRichText := false;
-      TransferRTFData(List, myNode.Stream);
-      myNode.Stream.Position := 0;
+      TransferRTFData(List, myNote.Stream);
+      myNote.Stream.Position := 0;
       List.Clear;
-      InternalAddNode( myNode );
-      myNode := nil;
+      InternalAddNode( myNote );
+      myNote := nil;
     end; // AddNewNode
 
 begin
@@ -2543,7 +2543,7 @@ begin
   FileExhausted := false;
   InRichText := false;
   InNoteNode := false;
-  myNode := nil; // DO NOT REMOVE! (Otherwise we get an AV when loading a tree with zero nodes)
+  myNote := nil; // DO NOT REMOVE! (Otherwise we get an AV when loading a tree with zero nodes)
 
   List := TStringList.Create;
   List.BeginUpdate;
@@ -2561,11 +2561,11 @@ begin
                FTreeHidden:= true;
                FIconKind := niCustom;
                // create a new blank node
-               myNode := TKntNote.Create;
-               myNode.RTFBGColor := EditorCHrome.BGColor;
-               myNode.Level:= 0;
-               myNode.ID := 0;
-               myNode.Name := FName;
+               myNote := TKntNote.Create;
+               myNote.RTFBGColor := EditorCHrome.BGColor;
+               myNote.Level:= 0;
+               myNote.ID := 0;
+               myNote.Name := FName;
             end;
             continue;
           end;
@@ -2575,41 +2575,41 @@ begin
             if ( InNoteNode ) then AddNewNode; // we were here previously, i.e. there a node to be added
             InNoteNode := true;
             // create a new blank node
-            myNode := TKntNote.Create;
-            myNode.RTFBGColor := EditorCHrome.BGColor;
+            myNote := TKntNote.Create;
+            myNote.RTFBGColor := EditorCHrome.BGColor;
             continue;
           end;
           if ( s = _NF_TabNote ) then
           begin
             NextBlock:= nbRTF;
-            if assigned( myNode ) then AddNewNode;
+            if assigned( myNote ) then AddNewNode;
             break; // New TabNote begins
           end;
           if ( s = _NF_TreeNote ) then
           begin
             NextBlock:= nbTree;
-            if ( myNode <> nil ) then
+            if ( myNote <> nil ) then
               AddNewNode;
             break; // New TreeNote begins
           end;
           if ( s = _NF_StoragesDEF ) then
           begin
             NextBlock:= nbImages;
-            if ( myNode <> nil ) then
+            if ( myNote <> nil ) then
               AddNewNode;
             break; // Images definition begins
           end;
           if ( s = _NF_Bookmarks ) then
           begin
             NextBlock:= nbBookmarks;
-            if ( myNode <> nil ) then
+            if ( myNote <> nil ) then
               AddNewNode;
             break; // Bookmarks begins
           end;
           if ( s = _NF_EOF ) then
           begin
             FileExhausted := true;
-            if assigned( myNode ) then AddNewNode;
+            if assigned( myNote ) then AddNewNode;
             break; // END OF FILE
           end;
 
@@ -2635,62 +2635,62 @@ begin
           if InNoteNode and (not LoadOldSimpleNote) then begin
                 if ( key = _NodeName ) then
                 begin
-                  myNode.Name := TryUTF8ToUnicodeString(s);
+                  myNote.Name := TryUTF8ToUnicodeString(s);
                 end
                 else
                 if ( key = _NodeID ) then
                 begin
                   try
-                    myNode.ID := strtoint( s );
+                    myNote.ID := strtoint( s );
                   except
-                    myNode.ID := 0;
+                    myNote.ID := 0;
                   end;
                 end
                 else
                 if ( key = _NodeLevel ) then
                 begin
                   try
-                    myNode.Level := StrToInt( s );
+                    myNote.Level := StrToInt( s );
                   except
-                    myNode.Level := 0;
+                    myNote.Level := 0;
                   end;
                 end
                 else
                 if ( key = _NodeFlags ) then
                 begin
-                  myNode.FlagsStringToProperties( s );
+                  myNote.FlagsStringToProperties( s );
                 end
                 else
                 if ( key = _NodeRTFBGColor ) then
                 begin
                   try
-                    myNode.RTFBGColor := StringToColor( s );
+                    myNote.RTFBGColor := StringToColor( s );
                   except
                   end;
                 end
                 else
                 if ( key = _VirtualNode ) then
                 begin
-                  myNode.MirrorNodeID := TryUTF8ToUnicodeString(s);
+                  myNote.MirrorNodeID := TryUTF8ToUnicodeString(s);
                 end
                 else
                 if ( key = _RelativeVirtualFN ) then
                 begin
-                  myNode.RelativeVirtualFN := TryUTF8ToUnicodeString(s);
+                  myNote.RelativeVirtualFN := TryUTF8ToUnicodeString(s);
                 end
                 else
                 if ( key = _VirtualFN ) then
                 begin
-                  myNode.VirtualFN := TryUTF8ToUnicodeString(s);
+                  myNote.VirtualFN := TryUTF8ToUnicodeString(s);
                   try
-                    myNode.LoadVirtualFile;
+                    myNote.LoadVirtualFile;
                   except
                     on E : Exception do
                     begin
                       List.Add( STR_10 );
-                      List.Add( myNode.VirtualFN );
+                      List.Add( myNote.VirtualFN );
                       List.Add( E.Message );
-                      myNode.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + myNode.VirtualFN;
+                      myNote.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + myNote.VirtualFN;
                     end;
                   end;
                 end
@@ -2699,49 +2699,49 @@ begin
                 begin
                   try
                     if _SAVE_RESTORE_CARETPOS then
-                      myNode.SelStart := StrToInt( s )
+                      myNote.SelStart := StrToInt( s )
                     else
-                      myNode.SelStart := 0;
+                      myNote.SelStart := 0;
                   except
-                    myNode.SelStart := 0;
+                    myNote.SelStart := 0;
                   end;
                 end
                 else
                 if ( key = _NodeImageIndex ) then
                 begin
                   try
-                    myNode.ImageIndex := StrToInt( s );
+                    myNote.ImageIndex := StrToInt( s );
                   except
-                    myNode.ImageIndex := -1;
+                    myNote.ImageIndex := -1;
                   end;
                 end
                 else
                 if ( key = _NodeColor ) then
                 begin
                   try
-                    myNode.NodeColor := StringToColor( s );
+                    myNote.NodeColor := StringToColor( s );
                   except
-                    myNode.HasNodeColor := false;
+                    myNote.HasNodeColor := false;
                   end;
                 end
                 else
                 if ( key = _NodeBGColor ) then
                 begin
                   try
-                    myNode.NodeBGColor := StringToColor( s );
+                    myNote.NodeBGColor := StringToColor( s );
                   except
-                    myNode.HasNodeBGColor := false;
+                    myNote.HasNodeBGColor := false;
                   end;
                 end
                 else
                 if ( key = _NodeFontFace ) then
                 begin
-                  myNode.NodeFontFace := s;
+                  myNote.NodeFontFace := s;
                 end
                 else
                 if ( key = _NodeAlarm ) then      // [dpv*]
                 begin
-                    ProcessAlarm(s, myNode);
+                    ProcessAlarm(s, myNote);
                 end;
                 continue;
           end; // if InNoteNode ...
@@ -3005,18 +3005,18 @@ var
   tf : TTextFile;
   InNode : boolean;
   level : integer;
-  myNode : TKntNote;
+  myNote : TKntNote;
   List : TStringList;
 
     procedure AddNewNode;
     begin
       // transfer RTF data from list to node
       List.WriteBOM:= False;
-      List.SaveToStream( myNode.Stream );
-      myNode.Stream.Position := 0;
+      List.SaveToStream( myNote.Stream );
+      myNote.Stream.Position := 0;
       List.Clear;
-      InternalAddNode( myNode );
-      myNode := nil;
+      InternalAddNode( myNote );
+      myNote := nil;
     end; // AddNewNode
 
 begin
@@ -3055,10 +3055,10 @@ begin
                 except
                   level := 0;
                 end;
-                myNode := TKntNote.Create;
-                myNode.RTFBGColor := EditorChrome.BGColor;
-                myNode.Level := Level;
-                myNode.Name := nodeName;
+                myNote := TKntNote.Create;
+                myNote.RTFBGColor := EditorChrome.BGColor;
+                myNote.Level := Level;
+                myNote.Name := nodeName;
               except
                 InNode := false;
               end;
@@ -3138,13 +3138,13 @@ begin
 end;
 
 
-function TKntFolder.InitializeTextPlain(myNoteNode: TKntNote; RTFAux: TRxRichEdit): boolean;
+function TKntFolder.InitializeTextPlain(myNote: TKntNote; RTFAux: TRxRichEdit): boolean;
 begin
     Result:= False;  // Initialization was required?
 
-    if myNoteNode.NodeTextPlain = '' then begin
-       LoadStreamInRTFAux (myNoteNode.Stream, RTFAux);
-       myNoteNode.NodeTextPlain:= RTFAux.TextPlain;
+    if myNote.NodeTextPlain = '' then begin
+       LoadStreamInRTFAux (myNote.Stream, RTFAux);
+       myNote.NodeTextPlain:= RTFAux.TextPlain;
        Result:= True;
     end;
 end;

@@ -255,7 +255,7 @@ begin
 
   if MacroProcess( true ) then exit;
   if ( not Form_Main.HaveNotes( true, true )) then exit;
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
   if ( not CheckFolder( 'Macro', Macro_Folder, true, true )) then exit;
 
@@ -265,7 +265,7 @@ begin
   LastEditCmd := ecNone;
   UpdateLastCommand( ecNone );
   try
-    ActiveNote.Editor.SetFocus;
+    ActiveKntFolder.Editor.SetFocus;
   except
   end;
 
@@ -597,14 +597,14 @@ begin
   // inserting text before creating a note
   if ( aFileName <> _MACRO_AUTORUN_NEW_FILE ) then begin
     if ( not Form_Main.HaveNotes( true, true )) then exit;
-    if ( not assigned( ActiveNote )) then exit;
+    if ( not assigned( ActiveKntFolder )) then exit;
   end;
 
-  wasreadonly := Form_Main.NoteIsReadOnly( ActiveNote, false );
+  wasreadonly := Form_Main.NoteIsReadOnly( ActiveKntFolder, false );
   if wasreadonly then begin
-    if ( DoMessageBox( Format(STR_17,[ActiveNote.Name]), mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
+    if ( DoMessageBox( Format(STR_17,[ActiveKntFolder.Name]), mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
        exit;
-    ActiveNote.ReadOnly := false;
+    ActiveKntFolder.ReadOnly := false;
   end;
 
   if ( aFileName <> '' ) then
@@ -626,8 +626,8 @@ begin
   SelectStatusbarGlyph( true );
 
   try
-    ActiveNote.FocusMemory := focRTF;
-    ActiveNote.Editor.SetFocus;
+    ActiveKntFolder.FocusMemory := focRTF;
+    ActiveKntFolder.Editor.SetFocus;
   except
   end;
 
@@ -678,13 +678,13 @@ begin
     screen.Cursor := crDefault;
     SelectStatusbarGlyph( true );
     if wasreadonly then
-      ActiveNote.ReadOnly := true;
+      ActiveKntFolder.ReadOnly := true;
     UpdateNoteFileState( [fscModified] );
   end;
 
   try
-    ActiveNote.FocusMemory := focRTF;
-    ActiveNote.Editor.SetFocus;
+    ActiveKntFolder.FocusMemory := focRTF;
+    ActiveKntFolder.Editor.SetFocus;
   except
   end;
 
@@ -848,8 +848,8 @@ begin
   if ( MacroAbortRequest or MacroErrorAbort ) then exit;
 
   if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-     if ActiveNote.Editor.SelLength > 0 then
-        CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+     if ActiveKntFolder.Editor.SelLength > 0 then
+        CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor);
   end;
 
   linecnt := 1;
@@ -1156,7 +1156,7 @@ begin
 
               case macrocmd of
                 macInsert : begin
-                  with ActiveNote.Editor do begin
+                  with ActiveKntFolder.Editor do begin
                     SelText := ExpandMetaChars( argstr );
                     SelStart := SelStart + SelLength;
                     SelLength := 0;
@@ -1298,7 +1298,7 @@ begin
 
                 macGoUp : begin
                   for counter := 1 to argint do
-                     with ActiveNote.Editor do begin
+                     with ActiveKntFolder.Editor do begin
                        Perform( WM_KEYDOWN, VK_UP, 0 );
                        Perform( WM_KEYUP, VK_UP, 0 );
                      end;
@@ -1306,7 +1306,7 @@ begin
 
                 macGoDown : begin
                   for counter := 1 to argint do
-                  with ActiveNote.Editor do
+                  with ActiveKntFolder.Editor do
                   begin
                     Perform( WM_KEYDOWN, VK_DOWN, 0 );
                     Perform( WM_KEYUP, VK_DOWN, 0 );
@@ -1315,7 +1315,7 @@ begin
 
                 macGoRight : begin
                   for counter := 1 to argint do
-                  with ActiveNote.Editor do
+                  with ActiveKntFolder.Editor do
                   begin
                     Perform( WM_KEYDOWN, VK_RIGHT, 0 );
                     Perform( WM_KEYUP, VK_RIGHT, 0 );
@@ -1324,7 +1324,7 @@ begin
 
                 macGoLeft : begin
                   for counter := 1 to argint do
-                  with ActiveNote.Editor do
+                  with ActiveKntFolder.Editor do
                   begin
                     Perform( WM_KEYDOWN, VK_LEFT, 0 );
                     Perform( WM_KEYUP, VK_LEFT, 0 );
@@ -1332,7 +1332,7 @@ begin
                 end;
 
                 macSelectAll : begin
-                  ActiveNote.Editor.SelectAll;
+                  ActiveKntFolder.Editor.SelectAll;
                 end;
 
               end; // case cmd
@@ -1340,7 +1340,7 @@ begin
             end;
 
             else begin // bare keypress information
-              while ( not ActiveNote.Editor.Focused ) do begin
+              while ( not ActiveKntFolder.Editor.Focused ) do begin
                 // RTF *must* be focused, otherwise keypresses
                 // will be sent to the wrong control.
                 // while RTF is not focused, we just pause
@@ -1365,7 +1365,7 @@ begin
               delete( line, 1, p );
               sndShift := StrToShiftState( line );
 
-              PostKeyEx( ActiveNote.Editor.Handle, sndKey, sndShift, False )
+              PostKeyEx( ActiveKntFolder.Editor.Handle, sndKey, sndShift, False )
             end;
 
           end;
@@ -1505,7 +1505,7 @@ end;
 
 procedure RepeatLastCommand;
 begin
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
   if ( LastEditCmd = ecNone ) then exit;
 
   if ( LastEditCmd in RepeatableEditCommands ) then begin
@@ -1539,7 +1539,7 @@ var
   RTFAux : TTabRichEdit;
   SelStartOrig, SelLengthOrig, p: integer;
 begin
-  // Perform command on ActiveNote.
+  // Perform command on ActiveKntFolder.
   // The command does not modify the note,  (*1)
   // hence is safe to use when note is set
   // to ReadOnly.
@@ -1547,10 +1547,10 @@ begin
   //       CAN modify the note.
   if ( RTFUpdating or FileIsBusy ) then exit;
 
-  if ( not assigned( ActiveNote )) then begin
+  if ( not assigned( ActiveKntFolder )) then begin
     if opt_Debug then begin
       {$IFDEF KNT_DEBUG}
-       Log.Add( 'ActiveNote not assigned in PerformCmd (' + inttostr( ord( aCmd )) + ')' );
+       Log.Add( 'ActiveKntFolder not assigned in PerformCmd (' + inttostr( ord( aCmd )) + ')' );
       {$ENDIF}
        PopupMessage( Format( STR_44, [ord( aCmd )] ), mtError, [mbOK], 0 );
     end;
@@ -1565,16 +1565,16 @@ begin
       case aCMD of
           ecCopy : begin
             if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-               if ActiveNote.Editor.SelLength = 1 then begin
+               if ActiveKntFolder.Editor.SelLength = 1 then begin
                   SelStartOrig:= -1;
-                  LastCopiedIDImage:= CheckToIdentifyImageID(ActiveNote.Editor, p);   // We will save the ID associated with the image (if it is and we have it). We want to be able to offer an image format and not just RTF
-                  RTFAux:= ActiveNote.Editor;                                         // A selected image -> SelLength=1
+                  LastCopiedIDImage:= CheckToIdentifyImageID(ActiveKntFolder.Editor, p);   // We will save the ID associated with the image (if it is and we have it). We want to be able to offer an image format and not just RTF
+                  RTFAux:= ActiveKntFolder.Editor;                                         // A selected image -> SelLength=1
                end
                else
-                 CheckToSelectLeftImageHiddenMark(ActiveNote.Editor, SelStartOrig, SelLengthOrig);
+                 CheckToSelectLeftImageHiddenMark(ActiveKntFolder.Editor, SelStartOrig, SelLengthOrig);
             end;
 
-            RTFAux:= GetEditorWithNoKNTHiddenCharacters (ActiveNote.Editor, hmOnlyBookmarks, true);  // Remove only hidden characters vinculated to bookmarks
+            RTFAux:= GetEditorWithNoKNTHiddenCharacters (ActiveKntFolder.Editor, hmOnlyBookmarks, true);  // Remove only hidden characters vinculated to bookmarks
             try
                CopyToClipboard (RTFAux);
                LogRTFHandleInClipboard();
@@ -1584,47 +1584,47 @@ begin
                  TestCRCForDuplicates(Clipboard.TryAsText);
                }
             finally
-               if RTFAux <> ActiveNote.Editor then
+               if RTFAux <> ActiveKntFolder.Editor then
                   RTFAux.Free;
 
                if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
                   if SelStartOrig >= 0 then
-                     ActiveNote.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
+                     ActiveKntFolder.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
                end;
             end;
           end;
 
           ecReadOnly :
-            if ( ActiveNote = NoteFile.ClipCapNote ) then
+            if ( ActiveKntFolder = KntFile.ClipCapNote ) then
                errorStr:= STR_45
             else begin
-              ActiveNote.ReadOnly := ( not ActiveNote.ReadOnly );
+              ActiveKntFolder.ReadOnly := ( not ActiveKntFolder.ReadOnly );
               UpdateNoteDisplay;
               UpdateCursorPos;
-              NoteFile.Modified := true;
+              KntFile.Modified := true;
               UpdateNoteFileState( [fscModified] );
             end;
 
           ecFontFormatCopy :
             try
-              SaveTextAttributes(ActiveNote.Editor, FontFormatToCopy);
+              SaveTextAttributes(ActiveKntFolder.Editor, FontFormatToCopy);
             except
               errorStr:= STR_46;
             end;
 
           ecParaFormatCopy :
             try
-              SaveParagraphAttributes(ActiveNote.Editor, ParaFormatToCopy);
+              SaveParagraphAttributes(ActiveKntFolder.Editor, ParaFormatToCopy);
             except
               errorStr:= STR_47;
             end;
 
           ecCopyFormat :
             try
-               with ActiveNote.Editor do begin
-                  SaveTextAttributes( ActiveNote.Editor, FontFormatToCopy );
+               with ActiveKntFolder.Editor do begin
+                  SaveTextAttributes( ActiveKntFolder.Editor, FontFormatToCopy );
                   if (SelLength = 0) or (ParagraphsSelected) then
-                     SaveParagraphAttributes( ActiveNote.Editor, ParaFormatToCopy )
+                     SaveParagraphAttributes( ActiveKntFolder.Editor, ParaFormatToCopy )
                   else
                      ParaFormatToCopy.dySpaceBefore := -1; // MARKER: signals a not-yet-assigned format
                 end;
@@ -1634,7 +1634,7 @@ begin
             end;
 
           ecInsOvrToggle : begin
-            ActiveNote.IsInsertMode := ( not ActiveNote.IsInsertMode );
+            ActiveKntFolder.IsInsertMode := ( not ActiveKntFolder.IsInsertMode );
             Form_Main.ShowInsMode;
           end;
 
@@ -1642,7 +1642,7 @@ begin
             MatchBracket;
 
           ecSelectWord :
-            ActiveNote.Editor.GetWordAtCursor( true );
+            ActiveKntFolder.Editor.GetWordAtCursor( true );
 
           ecGoTo : begin
             s := CommandRecall.GoToIdx;
@@ -1875,35 +1875,35 @@ var
       actualNumberingStyle: TRxNumberingStyle;
       leftIndent, actLeftIndent: integer;
     begin
-        actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
-        actualNumberingStyle:= ActiveNote.Editor.Paragraph.NumberingStyle;
+        actualNumbering:= ActiveKntFolder.Editor.Paragraph.Numbering;
+        actualNumberingStyle:= ActiveKntFolder.Editor.Paragraph.NumberingStyle;
         If (actualNumbering = tipo) and (actualNumberingStyle = KeyOptions.LastNumberingStyle) and (NumberingStart = 1) Then
-            ActiveNote.Editor.Paragraph.Numbering := nsNone
+            ActiveKntFolder.Editor.Paragraph.Numbering := nsNone
         else begin
               LeftIndent:= Round(10* Form_Main.NoteSelText.Size/5.7);
-              actLeftIndent:= ActiveNote.Editor.Paragraph.LeftIndent;
+              actLeftIndent:= ActiveKntFolder.Editor.Paragraph.LeftIndent;
               if actLeftIndent > LeftIndent then
                  LeftIndent:= actLeftIndent;
              if LeftIndent < 13 then LeftIndent := 13;
-             ActiveNote.Editor.Paragraph.SetNumberingList(tipo, KeyOptions.LastNumberingStyle, NumberingStart, leftIndent);
+             ActiveKntFolder.Editor.Paragraph.SetNumberingList(tipo, KeyOptions.LastNumberingStyle, NumberingStart, leftIndent);
         End
     End;
 
 begin
-  // Perform command on ActiveNote.
+  // Perform command on ActiveKntFolder.
   // The command MODIFIES the note,
   // hence cannot be executed when note is set
   // to ReadOnly.
   if ( RTFUpdating or FileIsBusy ) then exit;
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
     Canceled:= False;
     ErrNoTextSelected:= False;
     ErrNotImplemented:= False;
 
-    ActiveNote.Editor.BeginUpdate;
+    ActiveKntFolder.Editor.BeginUpdate;
     try
       try
         case aCMD of
@@ -1926,28 +1926,28 @@ begin
           ecCut: begin
               if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
                  p:= -1;
-                 if ActiveNote.Editor.SelLength = 1 then begin
+                 if ActiveKntFolder.Editor.SelLength = 1 then begin
                     SelStartOrig:= -1;
-                    LastCopiedIDImage:= CheckToIdentifyImageID(ActiveNote.Editor, p);   // We will save the ID associated with the image (if it is and we have it). We want to be able to offer an image format and not just RTF
+                    LastCopiedIDImage:= CheckToIdentifyImageID(ActiveKntFolder.Editor, p);   // We will save the ID associated with the image (if it is and we have it). We want to be able to offer an image format and not just RTF
                  end
                  else begin
                     LastCopiedIDImage:= 0;
-                    CheckToSelectLeftImageHiddenMark(ActiveNote.Editor, SelStartOrig, SelLengthOrig);
+                    CheckToSelectLeftImageHiddenMark(ActiveKntFolder.Editor, SelStartOrig, SelLengthOrig);
                  end;
 
-                 CutToClipboard (ActiveNote.Editor);
+                 CutToClipboard (ActiveKntFolder.Editor);
 
                  if p >= 0 then begin
                     // We have not copied (cut) the hidden label along with the image, and we must delete it from the initial point
                     // p: posFirstHiddenChar
-                    ActiveNote.Editor.SetSelection(p, ActiveNote.Editor.SelStart, true);
-                    ActiveNote.Editor.SelText:= '';
+                    ActiveKntFolder.Editor.SetSelection(p, ActiveKntFolder.Editor.SelStart, true);
+                    ActiveKntFolder.Editor.SelText:= '';
                  end;
                  if SelStartOrig >= 0 then
-                    ActiveNote.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
+                    ActiveKntFolder.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
               end
               else
-                 CutToClipboard (ActiveNote.Editor);
+                 CutToClipboard (ActiveKntFolder.Editor);
 
 
               LogRTFHandleInClipboard();
@@ -1962,12 +1962,12 @@ begin
               if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
                  // If we have an image selected (and maybe more elements), we need to make sure we also select the possible
                  // hidden mark with the ID, to replace it along with the image with the pasted text
-                 if ActiveNote.Editor.SelLength > 0 then
-                    CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+                 if ActiveKntFolder.Editor.SelLength > 0 then
+                    CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor);
               end;
 
               if not EditorOptions.PlainDefaultPaste or not Clipboard.HasFormat(CF_TEXT) then
-                 PasteBestAvailableFormat(Activenote, true, true)
+                 PasteBestAvailableFormat(ActiveKntFolder, true, true)
               else begin
                 { Replaced by the use of of LogRTFHandleInClipboard() / ClipboardContentWasCopiedByKNT()
                  // We must paste as PlainText (considering also PlainTextMode) if text has been copied from outside KN
@@ -1975,134 +1975,134 @@ begin
                  // Unless the copied text also includes an image, in which case Clipboard.TryAsText may return ''...
                  txt:= Clipboard.TryAsText;
                  if TestCRCForDuplicates(txt, false) then
-                    TryPasteRTF(ActiveNote.Editor)
+                    TryPasteRTF(ActiveKntFolder.Editor)
                  else
-                    PerformCmdPastePlain(ActiveNote, txt);
+                    PerformCmdPastePlain(ActiveKntFolder, txt);
                  }
                  if ClipboardContentWasCopiedByKNT() then
-                    TryPasteRTF(ActiveNote)
+                    TryPasteRTF(ActiveKntFolder)
                  else
-                    PerformCmdPastePlain(ActiveNote, txt);
+                    PerformCmdPastePlain(ActiveKntFolder, txt);
               end;
             end;
 
           ecPastePlain :
             if ( Clipboard.HasFormat( CF_TEXT )) then
-              PerformCmdPastePlain(ActiveNote,'','', True);
+              PerformCmdPastePlain(ActiveKntFolder,'','', True);
 
           ecDelete : begin
-            CheckToSelectImageHiddenMarkOnDelete (ActiveNote.Editor);
-            ActiveNote.Editor.Perform( WM_CLEAR, 0, 0 );
+            CheckToSelectImageHiddenMarkOnDelete (ActiveKntFolder.Editor);
+            ActiveKntFolder.Editor.Perform( WM_CLEAR, 0, 0 );
           end;
 
           ecBullets :
             CmdNumbering(nsBullet);
             (* riched20.dll v. 3.0 supports numbering. E.g.:
-            if ( ActiveNote.Editor.Paragraph.Numbering = nsNone ) then
-              ActiveNote.Editor.Paragraph.Numbering := nsBullet
+            if ( ActiveKntFolder.Editor.Paragraph.Numbering = nsNone ) then
+              ActiveKntFolder.Editor.Paragraph.Numbering := nsBullet
             else
-            if ( ActiveNote.Editor.Paragraph.Numbering = nsBullet ) then
-              ActiveNote.Editor.Paragraph.Numbering := nsArabicNumbers
+            if ( ActiveKntFolder.Editor.Paragraph.Numbering = nsBullet ) then
+              ActiveKntFolder.Editor.Paragraph.Numbering := nsArabicNumbers
             else
-              ActiveNote.Editor.Paragraph.Numbering := nsNone;
+              ActiveKntFolder.Editor.Paragraph.Numbering := nsNone;
             *)
 
           ecNumbers :
             CmdNumbering(KeyOptions.LastNumbering);
 
           ecSpace1 : begin
-            ActiveNote.Editor.Paragraph.LineSpacingRule := lsSingle;
-            ActiveNote.Editor.Paragraph.LineSpacing := 0;
+            ActiveKntFolder.Editor.Paragraph.LineSpacingRule := lsSingle;
+            ActiveKntFolder.Editor.Paragraph.LineSpacing := 0;
           end;
 
           ecSpace15 : begin
-            ActiveNote.Editor.Paragraph.LineSpacingRule := lsOneAndHalf;
-            ActiveNote.Editor.Paragraph.LineSpacing := 1; // EditorOptions.LineSpcInc;
+            ActiveKntFolder.Editor.Paragraph.LineSpacingRule := lsOneAndHalf;
+            ActiveKntFolder.Editor.Paragraph.LineSpacing := 1; // EditorOptions.LineSpcInc;
           end;
 
           ecSpace2 : begin
-            ActiveNote.Editor.Paragraph.LineSpacingRule := lsDouble;
-            ActiveNote.Editor.Paragraph.LineSpacing := 2; // 2*EditorOptions.LineSpcInc;
+            ActiveKntFolder.Editor.Paragraph.LineSpacingRule := lsDouble;
+            ActiveKntFolder.Editor.Paragraph.LineSpacing := 2; // 2*EditorOptions.LineSpcInc;
           end;
 
           ecSpaceBeforeInc :
-            ActiveNote.Editor.Paragraph.SpaceBefore := ActiveNote.Editor.Paragraph.SpaceBefore + EditorOptions.ParaSpaceInc;
+            ActiveKntFolder.Editor.Paragraph.SpaceBefore := ActiveKntFolder.Editor.Paragraph.SpaceBefore + EditorOptions.ParaSpaceInc;
 
           ecSpaceBeforeDec :
-            if ( ActiveNote.Editor.Paragraph.SpaceBefore >= EditorOptions.ParaSpaceInc ) then
-              ActiveNote.Editor.Paragraph.SpaceBefore := ActiveNote.Editor.Paragraph.SpaceBefore - EditorOptions.ParaSpaceInc
+            if ( ActiveKntFolder.Editor.Paragraph.SpaceBefore >= EditorOptions.ParaSpaceInc ) then
+              ActiveKntFolder.Editor.Paragraph.SpaceBefore := ActiveKntFolder.Editor.Paragraph.SpaceBefore - EditorOptions.ParaSpaceInc
             else
-              ActiveNote.Editor.Paragraph.SpaceBefore := 0;
+              ActiveKntFolder.Editor.Paragraph.SpaceBefore := 0;
 
           ecSpaceAfterInc :
-            ActiveNote.Editor.Paragraph.SpaceAfter := ActiveNote.Editor.Paragraph.SpaceAfter + EditorOptions.ParaSpaceInc;
+            ActiveKntFolder.Editor.Paragraph.SpaceAfter := ActiveKntFolder.Editor.Paragraph.SpaceAfter + EditorOptions.ParaSpaceInc;
 
           ecSpaceAfterDec :
-            if ( ActiveNote.Editor.Paragraph.SpaceAfter >= EditorOptions.ParaSpaceInc ) then
-              ActiveNote.Editor.Paragraph.SpaceAfter := ActiveNote.Editor.Paragraph.SpaceAfter - EditorOptions.ParaSpaceInc
+            if ( ActiveKntFolder.Editor.Paragraph.SpaceAfter >= EditorOptions.ParaSpaceInc ) then
+              ActiveKntFolder.Editor.Paragraph.SpaceAfter := ActiveKntFolder.Editor.Paragraph.SpaceAfter - EditorOptions.ParaSpaceInc
             else
-              ActiveNote.Editor.Paragraph.SpaceAfter := 0;
+              ActiveKntFolder.Editor.Paragraph.SpaceAfter := 0;
 
           ecIndent :     // Now Left Indent as in MS Word
-            ActiveNote.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
+            ActiveKntFolder.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
 
           ecOutdent :    // Now Left outdent as in MS Word
-            ActiveNote.Editor.Paragraph.FirstIndentRelative := - EditorOptions.IndentInc;
+            ActiveKntFolder.Editor.Paragraph.FirstIndentRelative := - EditorOptions.IndentInc;
 
           ecFirstIndent : begin    // Now behaves as in MS Word
-            ActiveNote.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
-            ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent - EditorOptions.IndentInc;
+            ActiveKntFolder.Editor.Paragraph.FirstIndentRelative := EditorOptions.IndentInc;
+            ActiveKntFolder.Editor.Paragraph.LeftIndent := ActiveKntFolder.Editor.Paragraph.LeftIndent - EditorOptions.IndentInc;
           end;
 
           ecFirstOutdent : begin
-            if ActiveNote.Editor.Paragraph.FirstIndent < EditorOptions.IndentInc then
-               maxIndent:= ActiveNote.Editor.Paragraph.FirstIndent
+            if ActiveKntFolder.Editor.Paragraph.FirstIndent < EditorOptions.IndentInc then
+               maxIndent:= ActiveKntFolder.Editor.Paragraph.FirstIndent
             else
                maxIndent:= EditorOptions.IndentInc;
-            ActiveNote.Editor.Paragraph.FirstIndentRelative := - maxIndent;
-            ActiveNote.Editor.Paragraph.LeftIndent := ActiveNote.Editor.Paragraph.LeftIndent + maxIndent;
+            ActiveKntFolder.Editor.Paragraph.FirstIndentRelative := - maxIndent;
+            ActiveKntFolder.Editor.Paragraph.LeftIndent := ActiveKntFolder.Editor.Paragraph.LeftIndent + maxIndent;
           end;
 
           ecRightIndent :
-            ActiveNote.Editor.Paragraph.RightIndent := ActiveNote.Editor.Paragraph.RightIndent + EditorOptions.IndentInc;
+            ActiveKntFolder.Editor.Paragraph.RightIndent := ActiveKntFolder.Editor.Paragraph.RightIndent + EditorOptions.IndentInc;
 
           ecRightOutdent :
-            if ( ActiveNote.Editor.Paragraph.RightIndent >= EditorOptions.IndentInc ) then
-              ActiveNote.Editor.Paragraph.RightIndent := ActiveNote.Editor.Paragraph.RightIndent - EditorOptions.IndentInc
+            if ( ActiveKntFolder.Editor.Paragraph.RightIndent >= EditorOptions.IndentInc ) then
+              ActiveKntFolder.Editor.Paragraph.RightIndent := ActiveKntFolder.Editor.Paragraph.RightIndent - EditorOptions.IndentInc
             else
-              ActiveNote.Editor.Paragraph.RightIndent := 0;
+              ActiveKntFolder.Editor.Paragraph.RightIndent := 0;
 
           ecFontFormatPaste :
             if FontFormatToCopy.szFaceName <> '' then
-               ApplyTextAttributes(ActiveNote.Editor, FontFormatToCopy )
+               ApplyTextAttributes(ActiveKntFolder.Editor, FontFormatToCopy )
             else
                 popupmessage( STR_52, mtError, [mbOK], 0 );
 
           ecParaFormatPaste :
             if ParaFormatToCopy.dySpaceBefore >= 0 then   // if negative, user has not yet COPIED para format
-               ApplyParagraphAttributes(ActiveNote.Editor, ParaFormatToCopy)
+               ApplyParagraphAttributes(ActiveKntFolder.Editor, ParaFormatToCopy)
             else
                popupmessage( STR_53, mtError, [mbOK], 0 );
 
           ecPasteFormat :
-             with ActiveNote.Editor do begin
+             with ActiveKntFolder.Editor do begin
                 if (ParaFormatToCopy.dySpaceBefore >= 0) and         // paragraph formatting was saved
                    ((SelLength = 0) or (ParagraphsSelected)) then
-                   ApplyParagraphAttributes( ActiveNote.Editor, ParaFormatToCopy );
-                ApplyTextAttributes(ActiveNote.Editor, FontFormatToCopy );
+                   ApplyParagraphAttributes( ActiveKntFolder.Editor, ParaFormatToCopy );
+                ApplyTextAttributes(ActiveKntFolder.Editor, FontFormatToCopy );
              end;
 
           ecAlignLeft :
-            ActiveNote.Editor.Paragraph.Alignment := paLeftJustify;
+            ActiveKntFolder.Editor.Paragraph.Alignment := paLeftJustify;
 
           ecAlignCenter :
-            ActiveNote.Editor.Paragraph.Alignment := paCenter;
+            ActiveKntFolder.Editor.Paragraph.Alignment := paCenter;
 
           ecAlignRight :
-            ActiveNote.Editor.Paragraph.Alignment := paRightJustify;
+            ActiveKntFolder.Editor.Paragraph.Alignment := paRightJustify;
 
           ecAlignJustify :
-            ActiveNote.Editor.Paragraph.Alignment := paJustify;
+            ActiveKntFolder.Editor.Paragraph.Alignment := paJustify;
 
           ecFontDlg : begin
             if RecallingCommand then begin
@@ -2122,37 +2122,37 @@ begin
 
           ecLanguage :
             if ( RecallingCommand or RunLanguageDialog ) then
-              ActiveNote.Editor.SelAttributes.Language := CommandRecall.Language
+              ActiveKntFolder.Editor.SelAttributes.Language := CommandRecall.Language
             else
               Canceled:= True;
 
           ecParaDlg : begin
             if ( RecallingCommand or RunParagraphDialog ) then begin
               with CommandRecall.Para do begin
-                ActiveNote.Editor.Paragraph.LineSpacingRule := SpacingRule;
+                ActiveKntFolder.Editor.Paragraph.LineSpacingRule := SpacingRule;
                 case SpacingRule of
-                  lsSingle : ActiveNote.Editor.Paragraph.LineSpacing := 0;
-                  lsOneAndHalf : ActiveNote.Editor.Paragraph.LineSpacing := 1;
-                  lsDouble : ActiveNote.Editor.Paragraph.LineSpacing := 2;
+                  lsSingle : ActiveKntFolder.Editor.Paragraph.LineSpacing := 0;
+                  lsOneAndHalf : ActiveKntFolder.Editor.Paragraph.LineSpacing := 1;
+                  lsDouble : ActiveKntFolder.Editor.Paragraph.LineSpacing := 2;
                 end;
-                ActiveNote.Editor.Paragraph.SpaceBefore := SpaceBefore;
-                ActiveNote.Editor.Paragraph.SpaceAfter := SpaceAfter;
-                ActiveNote.Editor.Paragraph.Numbering := Numbering;
-                ActiveNote.Editor.Paragraph.NumberingStyle := NumberingStyle;
+                ActiveKntFolder.Editor.Paragraph.SpaceBefore := SpaceBefore;
+                ActiveKntFolder.Editor.Paragraph.SpaceAfter := SpaceAfter;
+                ActiveKntFolder.Editor.Paragraph.Numbering := Numbering;
+                ActiveKntFolder.Editor.Paragraph.NumberingStyle := NumberingStyle;
                 (*
                 if ( Numbering = nsArabicNumbers ) then
                 begin
-                  ActiveNote.Editor.Paragraph.Numbering := KeyOptions.LastNumbering;
+                  ActiveKntFolder.Editor.Paragraph.Numbering := KeyOptions.LastNumbering;
                 end
                 else
                 begin
-                  ActiveNote.Editor.Paragraph.Numbering := Numbering;
+                  ActiveKntFolder.Editor.Paragraph.Numbering := Numbering;
                 end;
                 *)
-                ActiveNote.Editor.Paragraph.Alignment := Alignment;
-                ActiveNote.Editor.Paragraph.FirstIndent := CommandRecall.Para.FIndent;
-                ActiveNote.Editor.Paragraph.LeftIndent := CommandRecall.Para.LIndent;
-                ActiveNote.Editor.Paragraph.RightIndent := CommandRecall.Para.RIndent;
+                ActiveKntFolder.Editor.Paragraph.Alignment := Alignment;
+                ActiveKntFolder.Editor.Paragraph.FirstIndent := CommandRecall.Para.FIndent;
+                ActiveKntFolder.Editor.Paragraph.LeftIndent := CommandRecall.Para.LIndent;
+                ActiveKntFolder.Editor.Paragraph.RightIndent := CommandRecall.Para.RIndent;
               end;
             end
             else
@@ -2269,28 +2269,28 @@ begin
             if RecallingCommand then
               Form_Main.ColorDlg.Color := CommandRecall.Color
             else
-              Form_Main.ColorDlg.Color := ActiveNote.Editor.Color;
+              Form_Main.ColorDlg.Color := ActiveKntFolder.Editor.Color;
             if ( RecallingCommand or Form_Main.ColorDlg.Execute ) then begin
-              // ActiveNote.Editor.Color := ColorDlg.Color; [x] note updates itself
-              // AChrome := ActiveNote.Chrome;
+              // ActiveKntFolder.Editor.Color := ColorDlg.Color; [x] note updates itself
+              // AChrome := ActiveKntFolder.Chrome;
               // AChrome.BGColor := ColorDlg.Color;
-              tempChrome := ActiveNote.EditorChrome;
+              tempChrome := ActiveKntFolder.EditorChrome;
               tempChrome.BGColor := Form_Main.ColorDlg.Color;
               CommandRecall.Color := Form_Main.ColorDlg.Color;
 
-              ActiveNote.Editor.Color := tempChrome.BGColor;
+              ActiveKntFolder.Editor.Color := tempChrome.BGColor;
 
-              if assigned( TKntFolder( ActiveNote ).SelectedNode ) then
-                TKntFolder( ActiveNote ).SelectedNode.RTFBGColor := tempChrome.BGColor;
+              if assigned( ActiveKntFolder.SelectedNode ) then
+                ActiveKntFolder.SelectedNode.RTFBGColor := tempChrome.BGColor;
 
               if ( not TreeOptions.InheritNodeBG ) then
-                ActiveNote.EditorChrome := tempChrome;
+                ActiveKntFolder.EditorChrome := tempChrome;
 
               if ShiftWasDown then begin
-                if ( messagedlg( format(STR_55, [ActiveNote.Name]),
+                if ( messagedlg( format(STR_55, [ActiveKntFolder.Name]),
                     mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
                   try
-                    myTreeNode := TKntFolder( ActiveNote ).TV.Items.GetFirstNode;
+                    myTreeNode := ActiveKntFolder.TV.Items.GetFirstNode;
                     while assigned( myTreeNode ) do begin
                       TKntNote( myTreeNode.Data ).RTFBGColor := tempChrome.BGColor;
                       myTreeNode := myTreeNode.GetNext;
@@ -2307,47 +2307,47 @@ begin
           end;
 
           ecWordWrap : begin
-             if assigned( TKntFolder( ActiveNote ).SelectedNode ) then begin
-                case TKntFolder( ActiveNote ).SelectedNode.WordWrap of
+             if assigned( ActiveKntFolder.SelectedNode ) then begin
+                case ActiveKntFolder.SelectedNode.WordWrap of
                    wwAsNote :
-                    if ActiveNote.WordWrap then
-                       TKntFolder( ActiveNote ).SelectedNode.WordWrap := wwNo
+                    if ActiveKntFolder.WordWrap then
+                       ActiveKntFolder.SelectedNode.WordWrap := wwNo
                     else
-                       TKntFolder( ActiveNote ).SelectedNode.WordWrap := wwYes;
+                       ActiveKntFolder.SelectedNode.WordWrap := wwYes;
 
-                   wwYes : TKntFolder( ActiveNote ).SelectedNode.WordWrap := wwNo;
-                   wwNo : TKntFolder( ActiveNote ).SelectedNode.WordWrap := wwYes;
+                   wwYes : ActiveKntFolder.SelectedNode.WordWrap := wwNo;
+                   wwNo : ActiveKntFolder.SelectedNode.WordWrap := wwYes;
                 end;
-                ActiveNote.Editor.WordWrap := ( TKntFolder( ActiveNote ).SelectedNode.WordWrap = wwYes );
+                ActiveKntFolder.Editor.WordWrap := ( ActiveKntFolder.SelectedNode.WordWrap = wwYes );
              end;
              UpdateNoteDisplay;
           end;
 
           ecSelectAll :
-            ActiveNote.Editor.SelectAll;
+            ActiveKntFolder.Editor.SelectAll;
 
           ecUndo :
-            ActiveNote.Editor.Undo;
+            ActiveKntFolder.Editor.Undo;
 
           ecRedo :
-            ActiveNote.Editor.Redo;
+            ActiveKntFolder.Editor.Redo;
 
           ecClearFontAttr :
             with Form_Main.NoteSelText do begin
               Style := [];
-              Color := ActiveNote.EditorChrome.Font.Color;
-              Name := ActiveNote.EditorChrome.Font.Name;
-              Size := ActiveNote.EditorChrome.Font.Size;
-              Charset := ActiveNote.EditorChrome.Font.Charset;
+              Color := ActiveKntFolder.EditorChrome.Font.Color;
+              Name := ActiveKntFolder.EditorChrome.Font.Name;
+              Size := ActiveKntFolder.EditorChrome.Font.Size;
+              Charset := ActiveKntFolder.EditorChrome.Font.Charset;
               Hidden := false;
               Disabled := false;
               SubscriptStyle := TSubscriptStyle(ssNone);
-              BackColor := clWindow; // ActiveNote.Editor.Color;
-              ActiveNote.Editor.HideKNTHiddenMarks(true);
+              BackColor := clWindow; // ActiveKntFolder.Editor.Color;
+              ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
             end;
 
           ecClearParaAttr :
-            with ActiveNote.Editor.Paragraph do begin
+            with ActiveKntFolder.Editor.Paragraph do begin
               Alignment := paLeftJustify;
               Numbering := nsNone;
               LeftIndent := 0;
@@ -2360,7 +2360,7 @@ begin
             end;
 
           ecDeleteLine :
-              with ActiveNote.Editor do begin
+              with ActiveKntFolder.Editor do begin
                 lineindex := perform( EM_EXLINEFROMCHAR, 0, SelStart );
                 SelStart  := perform( EM_LINEINDEX, lineindex, 0 );
                 SelLength := perform( EM_LINEINDEX, lineindex + 1, 0 ) - SelStart;
@@ -2368,14 +2368,14 @@ begin
               end;
 
           ecSort :
-            if ( ActiveNote.Editor.SelLength > 1 ) then begin
+            if ( ActiveKntFolder.Editor.SelLength > 1 ) then begin
                templist := TStringList.Create;
                try
                  templist.Sorted := true;
                  templist.Duplicates := dupAccept;
-                 templist.Text := ActiveNote.Editor.SelText;
-                 ActiveNote.Editor.SelText := templist.Text;
-                 ActiveNote.Editor.HideKNTHiddenMarks(true);
+                 templist.Text := ActiveKntFolder.Editor.SelText;
+                 ActiveKntFolder.Editor.SelText := templist.Text;
+                 ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
                finally
                  templist.Free;
                end;
@@ -2387,18 +2387,18 @@ begin
             ErrNotImplemented:= True;
 
           ecJoinLines :
-            if ( ActiveNote.Editor.SelLength > 1 ) then begin
+            if ( ActiveKntFolder.Editor.SelLength > 1 ) then begin
               screen.cursor := crHourGlass;
               try
-                txt := ActiveNote.Editor.SelText;
+                txt := ActiveKntFolder.Editor.SelText;
                 CharToChar( txt, #13, #32 );
                 p := pos( #32#32, txt );
                 while ( p > 0 ) do begin
                   delete( txt, p, 1 );
                   p := pos( #32#32, txt );
                 end;
-                ActiveNote.Editor.SelText := txt;
-                ActiveNote.Editor.HideKNTHiddenMarks(true);
+                ActiveKntFolder.Editor.SelText := txt;
+                ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
               finally
                 screen.cursor := crDefault;
               end;
@@ -2407,8 +2407,8 @@ begin
               ErrNoTextSelected:= True;
 
           ecReverseText : begin
-            if ( ActiveNote.Editor.SelLength > 0 ) then begin
-              txt := ActiveNote.Editor.SelText;
+            if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
+              txt := ActiveKntFolder.Editor.SelText;
               txt:= KeepOnlyLeadingKNTHiddenCharacters(txt);
 
               p:= length( txt );
@@ -2416,17 +2416,17 @@ begin
               SetLength( txt2, p );
               for i := p downto 1 do
                 txt2[(p-i)+1] := txt[i];
-              ActiveNote.Editor.SelText := txt2;
+              ActiveKntFolder.Editor.SelText := txt2;
             end
             else
               ErrNoTextSelected:= True;
           end;
 
           ecROT13 :
-            if ( ActiveNote.Editor.SelLength > 0 ) then begin
+            if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
               screen.cursor := crHourGlass;
               try
-                txt := ActiveNote.Editor.SelText;
+                txt := ActiveKntFolder.Editor.SelText;
                 txt:= KeepOnlyLeadingKNTHiddenCharacters(txt);
 
                 for i := 1 to length( txt ) do begin
@@ -2439,7 +2439,7 @@ begin
                        txt[i] := Char(alph13UP[p+13]);
                   end;
                 end;
-                ActiveNote.Editor.SelText := txt;
+                ActiveKntFolder.Editor.SelText := txt;
               finally
                 screen.cursor := crDefault;
               end;
@@ -2449,8 +2449,8 @@ begin
 
 
           ecInvertCase :
-            if ( ActiveNote.Editor.SelLength > 0 ) then begin
-               txt := ActiveNote.Editor.SelText;
+            if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
+               txt := ActiveKntFolder.Editor.SelText;
                for i := 1 to length( txt ) do begin
                  if IsCharUpper( txt[i] ) then
                     txt2 := AnsiLowercase( txt[i] )
@@ -2458,35 +2458,35 @@ begin
                     txt2 := AnsiUpperCase( txt[i] );
                  txt[i] := txt2[1];
                end;
-               ActiveNote.Editor.SelText := txt;
-               ActiveNote.Editor.HideKNTHiddenMarks(true);
+               ActiveKntFolder.Editor.SelText := txt;
+               ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
             end
             else
                ErrNoTextSelected:= True;
 
           ecToUpperCase :
-            if ( ActiveNote.Editor.SelLength > 0 ) then begin
-                txt := ActiveNote.Editor.SelText;
+            if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
+                txt := ActiveKntFolder.Editor.SelText;
                 txt := AnsiUpperCase( txt );
-                ActiveNote.Editor.SelText := txt;
-                ActiveNote.Editor.HideKNTHiddenMarks(true);
+                ActiveKntFolder.Editor.SelText := txt;
+                ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
             end
             else
               ErrNoTextSelected:= True;
 
           ecToLowerCase :
-            if ( ActiveNote.Editor.SelLength > 0 ) then begin
-                txt := ActiveNote.Editor.SelText;
+            if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
+                txt := ActiveKntFolder.Editor.SelText;
                 txt := AnsiLowercase( txt );
-                ActiveNote.Editor.SelText := txt;
-                ActiveNote.Editor.HideKNTHiddenMarks(true);
+                ActiveKntFolder.Editor.SelText := txt;
+                ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
             end
             else
                ErrNoTextSelected:= True;
 
           ecCycleCase :
-            if ( ActiveNote.Editor.SelLength > 0 ) then begin
-               txt := ActiveNote.Editor.SelText;
+            if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
+               txt := ActiveKntFolder.Editor.SelText;
 
                LAST_CASE_CYCLE := GetLetterCase( txt );
                if ( LAST_CASE_CYCLE = high( LAST_CASE_CYCLE )) then
@@ -2500,26 +2500,26 @@ begin
                  ccUpper : txt := AnsiUpperCase( txt );
                end;
 
-               ActiveNote.Editor.SelText := txt;
-               ActiveNote.Editor.HideKNTHiddenMarks(true);
+               ActiveKntFolder.Editor.SelText := txt;
+               ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
             end
             else
                ErrNoTextSelected:= True;
 
           ecToMixedCase :
-            if ( ActiveNote.Editor.SelLength > 0 ) then begin
-               txt := ActiveNote.Editor.SelText;
+            if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
+               txt := ActiveKntFolder.Editor.SelText;
                txt := AnsiProperCase( txt, [#8..#32,',','-','.','?','!',';'] );
-               ActiveNote.Editor.SelText := txt;
-               ActiveNote.Editor.HideKNTHiddenMarks(true);
+               ActiveKntFolder.Editor.SelText := txt;
+               ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
             end
             else
                ErrNoTextSelected:= True;
 
           ecInsDate : begin
             if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-               if ActiveNote.Editor.SelLength > 0 then
-                  CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+               if ActiveKntFolder.Editor.SelLength > 0 then
+                  CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor);
             end;
 
             if KeyOptions.DTUseLastSelection then begin
@@ -2527,17 +2527,17 @@ begin
                   KeyOptions.DTLastDateFmt := KeyOptions.DateFmt;
                if ( KeyOptions.DTLastDateFmt = '' ) then
                   KeyOptions.DTLastDateFmt := FormatSettings.ShortDateFormat;
-               ActiveNote.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
+               ActiveKntFolder.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
             end
             else
-               ActiveNote.Editor.SelText := FormatDateTime( KeyOptions.DateFmt, now ) + #32;
-            ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
+               ActiveKntFolder.Editor.SelText := FormatDateTime( KeyOptions.DateFmt, now ) + #32;
+            ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
           end;
 
           ecInsTime : begin
             if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-              if ActiveNote.Editor.SelLength > 0 then
-                  CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+              if ActiveKntFolder.Editor.SelLength > 0 then
+                  CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor);
             end;
 
             if KeyOptions.DTUseLastSelection then begin
@@ -2545,11 +2545,11 @@ begin
                  KeyOptions.DTLastTimeFmt := KeyOptions.TimeFmt;
               if ( KeyOptions.DTLastTimeFmt = '' ) then
                  KeyOptions.DTLastTimeFmt := FormatSettings.LongTimeFormat;
-              ActiveNote.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastTimeFmt, now ) + #32;
+              ActiveKntFolder.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastTimeFmt, now ) + #32;
             end
             else
-              ActiveNote.Editor.SelText := FormatDateTime( KeyOptions.TimeFmt, now ) + #32;
-            ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
+              ActiveKntFolder.Editor.SelText := FormatDateTime( KeyOptions.TimeFmt, now ) + #32;
+            ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
           end;
 
           ecExpandTerm :
@@ -2604,11 +2604,11 @@ begin
       end;
 
     finally
-      ActiveNote.Editor.EndUpdate;
+      ActiveKntFolder.Editor.EndUpdate;
 
       if ( aCmd <> ecNone ) then begin
-        Form_Main.OnNoteChange(ActiveNote);
-        Form_Main.RxRTFSelectionChange( ActiveNote.Editor );
+        Form_Main.OnNoteChange(ActiveKntFolder);
+        Form_Main.RxRTFSelectionChange( ActiveKntFolder.Editor );
 
         if (CopyFormatMode = cfEnabledMulti) and (aCmd = ecPasteFormat)  then
            EnableCopyFormat(True);
@@ -2648,7 +2648,7 @@ begin
 
   Form_Lang := TForm_Lang.Create( Form_Main );
   try
-    Form_Lang.CurrentLang := ActiveNote.Editor.SelAttributes.Language;
+    Form_Lang.CurrentLang := ActiveKntFolder.Editor.SelAttributes.Language;
     Form_Lang.Combo_Lang.Language := Form_Lang.CurrentLang;
     Form_Lang.RecentLang := KeyOptions.RecentLanguage;
     Form_Lang.DefaultLang := DefaultEditorChrome.Language;
@@ -2671,27 +2671,27 @@ begin
   result := false;
 
   with CommandRecall.Para do begin
-    case ActiveNote.Editor.Paragraph.LineSpacing of
+    case ActiveKntFolder.Editor.Paragraph.LineSpacing of
       0 : SpacingRule := lsSingle;
       1 : SpacingRule := lsOneAndHalf;
       else
         SpacingRule := lsDouble;
     end;
-    LIndent := ActiveNote.Editor.Paragraph.LeftIndent;
-    RIndent := ActiveNote.Editor.Paragraph.RightIndent;
-    FIndent := ActiveNote.Editor.Paragraph.FirstIndent;
-    SpaceBefore := ActiveNote.Editor.Paragraph.SpaceBefore;
-    SpaceAfter := ActiveNote.Editor.Paragraph.SpaceAfter;
-    Numbering := ActiveNote.Editor.Paragraph.Numbering;
-    NumberingStyle := ActiveNote.Editor.Paragraph.NumberingStyle;
-    Alignment := ActiveNote.Editor.Paragraph.Alignment;
+    LIndent := ActiveKntFolder.Editor.Paragraph.LeftIndent;
+    RIndent := ActiveKntFolder.Editor.Paragraph.RightIndent;
+    FIndent := ActiveKntFolder.Editor.Paragraph.FirstIndent;
+    SpaceBefore := ActiveKntFolder.Editor.Paragraph.SpaceBefore;
+    SpaceAfter := ActiveKntFolder.Editor.Paragraph.SpaceAfter;
+    Numbering := ActiveKntFolder.Editor.Paragraph.Numbering;
+    NumberingStyle := ActiveKntFolder.Editor.Paragraph.NumberingStyle;
+    Alignment := ActiveKntFolder.Editor.Paragraph.Alignment;
   end;
 
   Form_Para := TForm_Para.Create( Form_Main );
   try
     Form_Para.Para := CommandRecall.Para;
-    Form_Para.CurrentNumbering := ActiveNote.Editor.Paragraph.Numbering;
-    Form_Para.CurrentNumberingStyle := ActiveNote.Editor.Paragraph.NumberingStyle;
+    Form_Para.CurrentNumbering := ActiveKntFolder.Editor.Paragraph.Numbering;
+    Form_Para.CurrentNumberingStyle := ActiveKntFolder.Editor.Paragraph.NumberingStyle;
     if ( Form_Para.CurrentNumbering in [nsNone, nsBullet] ) then
       Form_Para.CurrentNumbering := KeyOptions.LastNumbering;
 
@@ -2860,13 +2860,13 @@ var
    executed: Boolean;
 begin
     executed:= False;
-    if ( assigned( NoteFile ) and assigned( ActiveNote )) then
+    if ( assigned( KntFile ) and assigned( ActiveKntFolder )) then
        if Form_Main.Res_RTF.Focused then begin
           executed:= true;
           PasteBestAvailableFormatInEditor(Form_Main.Res_RTF, nil, true, true);
        end
        else
-       if ActiveNote.Editor.Focused then begin
+       if ActiveKntFolder.Editor.Focused then begin
           executed:= true;
           if fromButton then begin
               if CtrlDown then
@@ -2875,13 +2875,13 @@ begin
               if AltDown then
                 Form_Main.MMEditPasteSpecialClick( nil )
               else
-              if ShiftDown or ActiveNote.PlainText then
+              if ShiftDown or ActiveKntFolder.PlainText then
                 PerformCmd( ecPastePlain )
               else
                 PerformCmd( ecPaste );
           end
           else
-             //if ForcePlain or ActiveNote.PlainText then
+             //if ForcePlain or ActiveKntFolder.PlainText then
              if ForcePlain or not NoteSupportsImages then
                 PerformCmd( ecPastePlain )
              else
@@ -2889,11 +2889,11 @@ begin
 
        end
        else begin
-           if TKntFolder( ActiveNote ).TV.IsEditing then begin
-              if Form_Main.NoteIsReadOnly( ActiveNote, true ) then
+           if ActiveKntFolder.TV.IsEditing then begin
+              if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then
                  executed:= true;
            end
-           else if TKntFolder( ActiveNote ).TV.Focused then begin
+           else if ActiveKntFolder.TV.Focused then begin
               executed:= true;
               if assigned(MovingTreeNode) then begin
                  if MoveSubtree( MovingTreeNode ) then
@@ -2912,24 +2912,24 @@ var
    executed: Boolean;
 begin
     executed:= False;
-    if ( assigned( NoteFile ) and assigned( ActiveNote )) then
+    if ( assigned( KntFile ) and assigned( ActiveKntFolder )) then
        if Form_Main.Res_RTF.Focused then begin
           executed:= true;
           Form_Main.Res_RTF.CopyToClipboard
        end
        else
-       if ActiveNote.Editor.Focused then begin
+       if ActiveKntFolder.Editor.Focused then begin
            executed:= true;
            PerformCmdEx(ecCopy);
        end
        else begin
-           if TKntFolder( ActiveNote ).TV.IsEditing then begin
+           if ActiveKntFolder.TV.IsEditing then begin
               executed:= false;       // will be managed by the TreeNT component
            end
-           else if TKntFolder( ActiveNote ).TV.Focused then begin
+           else if ActiveKntFolder.TV.Focused then begin
               executed:= true;
               MovingTreeNode:= nil;
-              CopyCutFromNoteID:= ActiveNote.ID;
+              CopyCutFromNoteID:= ActiveKntFolder.ID;
               TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste, false, false );  // Lift Subtree
            end;
        end;
@@ -2941,23 +2941,23 @@ var
    executed: Boolean;
 begin
     executed:= False;
-    if ( assigned( NoteFile ) and assigned( ActiveNote )) then
+    if ( assigned( KntFile ) and assigned( ActiveKntFolder )) then
        if Form_Main.Res_RTF.Focused then begin
           executed:= true;
           Form_Main.Res_RTF.CutToClipboard
        end
        else
-       if ActiveNote.Editor.Focused then begin
+       if ActiveKntFolder.Editor.Focused then begin
            executed:= true;
            PerformCmd(ecCut);
        end
        else begin
-           if TKntFolder( ActiveNote ).TV.IsEditing then begin
+           if ActiveKntFolder.TV.IsEditing then begin
               executed:= false;     // will be managed by the TreeNT component
            end
-           else if TKntFolder( ActiveNote ).TV.Focused then begin
-                MovingTreeNode:= TKntFolder( ActiveNote ).TV.Selected;
-                CopyCutFromNoteID:= ActiveNote.ID;
+           else if ActiveKntFolder.TV.Focused then begin
+                MovingTreeNode:= ActiveKntFolder.TV.Selected;
+                CopyCutFromNoteID:= ActiveKntFolder.ID;
                 TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste, false, false );  // Lift Subtree
                 executed:= true;
            end;

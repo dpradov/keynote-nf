@@ -323,7 +323,7 @@ type
     fSaveAllImagesToExtStorage: boolean;
 
     // Si <> nil => se utilizará para recuperar los Stream de las imágenes que aparezcan referenciadas con sus IDs en los nodos de la
-    // nota indicada (se usará para notas concretas, en combinación con NoteFile.UpdateImagesStorageModeInFile (fStorageMode, ApplyOnlyToNote)
+    // nota indicada (se usará para notas concretas, en combinación con KntFile.UpdateImagesStorageModeInFile (fStorageMode, ApplyOnlyToNote)
     fExternalImagesManager: TImageManager;
 
     fImagesMode: TImagesMode;
@@ -502,8 +502,8 @@ end;
 procedure TFilesStorage.Relocate(const Path: String);
 begin
   FPath:= Path;
-  if assigned(NoteFile) then
-     FAbsolutePath := GetAbsolutePath(NoteFile.File_Path, Path)
+  if assigned(KntFile) then
+     FAbsolutePath := GetAbsolutePath(KntFile.File_Path, Path)
   else
      FAbsolutePath := '';
 end;
@@ -885,7 +885,7 @@ var
 begin
    FilePath:= Path + Name;
    if fNotOwned then
-      FilePath:= GetAbsolutePath(NoteFile.File_Path, FilePath)
+      FilePath:= GetAbsolutePath(KntFile.File_Path, FilePath)
    else
       FilePath:= FAbsolutePath + FilePath;
 
@@ -1833,15 +1833,15 @@ var
    procedure RefreshEditorInAllNotes;
    var
      i: integer;
-     myNote: TKntFolder;
+     myFolder: TKntFolder;
    begin
      // In case they contain images that could not be located because the storage was moved
 
-      for i := 0 to NoteFile.Notes.Count -1 do begin
-         myNote := NoteFile.Notes[i];
-         if not myNote.PlainText then begin
-           myNote.EditorToDataStream;
-           myNote.DataStreamToEditor;
+      for i := 0 to KntFile.Notes.Count -1 do begin
+         myFolder := KntFile.Notes[i];
+         if not myFolder.PlainText then begin
+           myFolder.EditorToDataStream;
+           myFolder.DataStreamToEditor;
          end;
       end;
    end;
@@ -1857,8 +1857,8 @@ begin
       CreateExternalStorage:= false;
       ExternalStoreTypeChanged:= (fExternalStorageToRead <> nil) and (fExternalStorageToRead.StorageType <> GetStorageType(ExternalStorageType));
       ok:= true;
-      Path:= ExtractRelativePath(NoteFile.File_Path, Path);
-      AbsolutePath:= GetAbsolutePath(NoteFile.File_Path, Path);
+      Path:= ExtractRelativePath(KntFile.File_Path, Path);
+      AbsolutePath:= GetAbsolutePath(KntFile.File_Path, Path);
       if ExternalStorageType = issFolder then
          AbsolutePath:= AbsolutePath + '\';             // To be able to compare with fExternalStorageToRead.AbsolutePath
 
@@ -1972,7 +1972,7 @@ begin
          if CreateExternalStorage then
             CreateNewExternalStorage;
 
-         NoteFile.UpdateImagesStorageModeInFile (fStorageMode);
+         KntFile.UpdateImagesStorageModeInFile (fStorageMode);
 
 
          if ModifyPathFormat then begin
@@ -2057,7 +2057,7 @@ end;
 function TImageManager.GetDefaultExternalLocation (ExtType: TImagesExternalStorage; FN: string= ''): string;
 begin
   if FN = '' then
-     FN:= NoteFile.FileName;
+     FN:= KntFile.FileName;
 
   Result:= ExtractFilePath(FN) + ExtractFileNameNoExt(FN);
   if Result = '' then
@@ -2269,11 +2269,11 @@ var
    i, j: integer;
    ImagesIDs: TImageIDs;
 begin
-    for i := 0 to NoteFile.NoteCount -1 do begin
+    for i := 0 to KntFile.NoteCount -1 do begin
        if UseFreshTextPlain then
-          ImagesIDs:= GetImagesIDInstancesFromTextPlain (NoteFile.Notes[i].Editor.TextPlain)
+          ImagesIDs:= GetImagesIDInstancesFromTextPlain (KntFile.Notes[i].Editor.TextPlain)
        else
-          ImagesIDs:= NoteFile.Notes[i].ImagesInstances;
+          ImagesIDs:= KntFile.Notes[i].ImagesInstances;
 
        for j := Low(ImagesIDs) to High(ImagesIDs) do begin
            if ImagesIDs[j] = ImgID then
@@ -2312,7 +2312,7 @@ begin
    ImgID:= GetNewID();
 
    if not Owned and KeyOptions.ImgLinkRelativePath then
-      Path:= ExtractRelativePath(NoteFile.File_Path, OriginalPath)
+      Path:= ExtractRelativePath(KntFile.File_Path, OriginalPath)
    else
       Path:= OriginalPath;
 
@@ -2470,7 +2470,7 @@ begin
   StreamRegistered:= false;
 
   if Note = nil then
-     Note:= ActiveNote;
+     Note:= ActiveKntFolder;
 
   Editor:= Note.Editor;
 
@@ -3522,7 +3522,7 @@ begin
     if Pos(beginIDImgChar, imLinkTextPlain, 1) = 0 then
        exit;
 
-    TextPlainInEditor:= ActiveNote.Editor.TextPlain;
+    TextPlainInEditor:= ActiveKntFolder.Editor.TextPlain;
 
     { If the length of TextPlainInEditor = length of imLinkTextPlain this will be because there are images but they
       are all hidden, hence the coincidence in the lengths. It would be highly unlikely that there would be a number
@@ -3689,7 +3689,7 @@ begin
          OpenImageFile(FilePath);
       end
       else begin
-         ActiveNote.EditorToDataStream;
+         ActiveKntFolder.EditorToDataStream;
 
          UsingOpenViewer:= false;
 
@@ -3712,7 +3712,7 @@ begin
          if SetLastFormImageOpened and (OpenedViewer = nil) then
             kn_ImageForm.LastFormImageOpened:= Form_Image;
          Form_Image.Image:= Img;
-         Form_Image.Note:= ActiveNote;
+         Form_Image.Note:= ActiveKntFolder;
          if not UsingOpenViewer then
             Form_Image.Show;
       end;

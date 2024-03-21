@@ -845,7 +845,7 @@ begin
 
    if (FNumberPending = 0) and (FNumberOverdue = 0) then begin
       Form_Main.TB_AlarmMode.ImageIndex:= IMG_INDEX_NO_OVERDUE_NOR_PENDING;
-      SelectStatusbarGlyph( NoteFile<>nil );      // Reset icon on status bar
+      SelectStatusbarGlyph( KntFile<>nil );      // Reset icon on status bar
    end
    else
       if Form_Main.TB_AlarmMode.ImageIndex = IMG_INDEX_NO_OVERDUE_NOR_PENDING then begin
@@ -1061,7 +1061,7 @@ end;
 
 procedure TAlarmManager.UpdateFormMain ( alarm: TAlarm );
 begin
-   if alarm.note <> ActiveNote then exit;
+   if alarm.note <> ActiveKntFolder then exit;
    Form_Main.ShowAlarmStatus;
 end;
 
@@ -1093,7 +1093,7 @@ end;
 
 procedure TAlarmManager.StopFlashMode;
 begin
-  if assigned( NoteFile ) then begin
+  if assigned( KntFile ) then begin
      UpdateAlarmsState;
      Timer.Enabled := false;
      SelectStatusbarGlyph( true );      // Reset icon on status bar
@@ -1281,7 +1281,7 @@ var
   alarm, alarm_selected: TAlarm;
   I, iNewAlarm, iAlarmSelected: Integer;
   nodeNote: TTreeNTNode;
-  myNode: TKntNote;
+  myNote: TKntNote;
 
   procedure AddAlarm (Alarm: TAlarm);
   var
@@ -1829,7 +1829,7 @@ begin
        node:= TAlarm(ls.Data).node;
     end
     else begin
-       note:= ActiveNote;
+       note:= ActiveKntFolder;
        node:= nil;
     end;
 
@@ -1915,7 +1915,7 @@ begin
         end        
     end;
 
-    NoteFile.Modified := true;
+    KntFile.Modified := true;
 
     if ( (FProposedReminder > now) and ((modeEdit = TShowReminders) or (modeEdit = TShowPending)) ) or
        ( FExpirationDateModified and (FNewExpirationDate > now) and (modeEdit = TShowOverdue) )
@@ -1961,7 +1961,7 @@ begin
         HideAlarm(lsWork);
      end
      else begin
-        NoteFile.Modified := true;
+        KntFile.Modified := true;
         AlarmManager.DiscardAlarm (alarm, (modeEdit = TShowAllWithDiscarded));
         if modeEdit <> TShowAllWithDiscarded then
            HideAlarm(lsWork);
@@ -2005,7 +2005,7 @@ begin
 
      alarm:= TAlarm(lsWork.Data);
      if alarm.Status = TAlarmDiscarded then begin
-        NoteFile.Modified := true;
+        KntFile.Modified := true;
         i:= Grid.Items.IndexOf(lsWork);
         AlarmManager.RestoreAlarm (alarm, (modeEdit = TShowAllWithDiscarded));
         if modeEdit <> TShowAllWithDiscarded then
@@ -2047,7 +2047,7 @@ begin
 
      alarm:= TAlarm(lsWork.Data);
      if alarm.Status = TAlarmDiscarded then begin
-        NoteFile.Modified := true;
+        KntFile.Modified := true;
         i:= Grid.Items.IndexOf(lsWork);
         AlarmManager.RemoveAlarm (alarm);
         HideAlarm(lsWork);
@@ -2443,7 +2443,7 @@ procedure TForm_Alarm.Today_5minClick(Sender: TObject);
 var
    minInc: integer;
    Alarm: TDateTime;
-   myNode: TKntNote;
+   myNote: TKntNote;
    setFromNow: boolean;
    IntervalStr: string;
 begin
@@ -2922,7 +2922,7 @@ begin
       note:= alarm.note;
 
       Result := TLocation.Create;
-      Result.FileName := notefile.FileName;
+      Result.FileName := KntFile.FileName;
       Result.NoteName := note.Name;
       Result.NoteID := alarm.note.ID;
       Result.CaretPos := 0;

@@ -59,7 +59,7 @@ procedure RegisterBookmark( const Number : integer; aLocation : TLocation);
 begin
   if aLocation = nil then exit;
 
-  NoteFile.Bookmarks[Number]:= aLocation;
+  KntFile.Bookmarks[Number]:= aLocation;
 
   with BookmarkGetMenuItem( Number ) do begin
      Enabled := true;
@@ -71,12 +71,12 @@ procedure BookmarkAdd( const Number : integer );
 var
   aLocation : TLocation;
 begin
-  if  not (Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
+  if  not (Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
 
   BookmarkClear( Number );
 
   aLocation:= TLocation.Create;
-  ActiveNote.Editor.SelLength:= 0;
+  ActiveKntFolder.Editor.SelLength:= 0;
   InsertOrMarkKNTLink( aLocation, false, '', Number + 1 );            // Bookmark0-9 -> [1-10]
   RegisterBookmark(Number, aLocation);
 
@@ -88,7 +88,7 @@ procedure BookmarkInitializeAll;
 var
   i : integer;
 begin
-  if assigned( NoteFile ) then  begin
+  if assigned( KntFile ) then  begin
     for i := 0 to MAX_BOOKMARKS do
         BookmarkClear(i, false);
   end;
@@ -100,11 +100,11 @@ procedure BookmarkClear( const Number : integer; DeleteBookmark: boolean= true )
 var
   aLocation : TLocation;
 begin
-  aLocation:= NoteFile.Bookmarks[Number];
+  aLocation:= KntFile.Bookmarks[Number];
   if assigned(aLocation) then begin
      if DeleteBookmark then
         DeleteBookmark09(aLocation);
-     NoteFile.Bookmarks[Number]:= nil;
+     KntFile.Bookmarks[Number]:= nil;
      aLocation.Free;
      with BookmarkGetMenuItem( Number ) do begin
         Enabled := false;
@@ -121,7 +121,7 @@ var
   aLocation: TLocation;
 
 begin
-  aLocation:= NoteFile.Bookmarks[Number];
+  aLocation:= KntFile.Bookmarks[Number];
   if assigned(aLocation) then begin
      if JumpToLocation(aLocation) then
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Jumped, [Number] )
@@ -143,7 +143,7 @@ begin
     tf.WriteLine(_NF_Bookmarks);
 
     for i := 0 to MAX_BOOKMARKS do begin
-        aLocation:= NoteFile.Bookmarks[i];
+        aLocation:= KntFile.Bookmarks[i];
         if assigned(aLocation) then begin
            Str:= BuildKNTLocationText(aLocation);
            tf.WriteLine(Format(_NF_Bookmark + '=%d,%s', [i, Str]), false);
@@ -192,58 +192,6 @@ begin
 end;
 
 
-(*                                                           // [dpv]
-procedure BookmarkAdd( const Number : integer );
-begin
-  if  not (Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
-  if (( Number < 0 ) or ( Number > MAX_BOOKMARKS )) then exit;
-
-  with NoteFile.Bookmarks[Number]^ do
-  begin
-    Name := Format( '%d - %s', [Number, RemoveAccelChar( ActiveNote.Name )] );
-    CaretPos := ActiveNote.Editor.SelStart;
-    SelLength := ActiveNote.Editor.SelLength;
-    Note := ActiveNote;
-    if ( ActiveNote.Kind = ntTree ) then
-      Node := TKntNote( TKntFolder( ActiveNote ).TV.Selected.Data )
-    else
-      Node := nil;
-  end;
-  with BookmarkGetMenuItem( Number ) do
-    Enabled := true;
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Assigned, [Number] );
-
-end; // BookmarkAdd
-
-procedure BookmarkClearAll;
-var
-  i : integer;
-begin
-  if assigned( NoteFile ) then  begin
-    for i := 0 to MAX_BOOKMARKS do
-       BookmarkClear( i );
-  end;
-end; // BookmarkClearAll
-
-procedure BookmarkClear( const Number : integer );
-begin
-  if ( not assigned( NoteFile )) then exit;
-  if (( Number < 0 ) or ( Number > MAX_BOOKMARKS )) then exit;
-
-  with NoteFile.Bookmarks[Number]^ do begin
-    Name := '';
-    CaretPos := 0;
-    SelLength := 0;
-    Note := nil;
-    Node := nil;
-  end;
-  with BookmarkGetMenuItem( Number ) do
-    Enabled := false;
-
-end; // BookmarkClear
-
-*)
-
 function BookmarkGetMenuItem( const Number : integer ) : TMenuItem;
 begin
   with Form_Main do
@@ -265,79 +213,5 @@ begin
   end;
 end; // BookmarkGetMenuItem
 
-(*
-
-procedure BookmarkGoTo( const Number : integer );
-var
-  myTreeNode : TTreeNTNode;
-  LocBeforeGoTo: TLocation;
-  Bookmark: PBookmark;
-
-    procedure ClearBookmark;
-    begin
-      BookmarkClear( Number );
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_CannotAccess, [Number] );
-    end;
-
-begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
-  if (( Number < 0 ) or ( Number > MAX_BOOKMARKS )) then exit;
-
-  myTreeNode := nil;
-
-  Bookmark:= NoteFile.Bookmarks[Number];
-
-  if ( Bookmark.Note <> nil ) then begin
-    LocBeforeGoTo:= nil;
-    GetKntLocation (LocBeforeGoTo, true);
-
-    try
-      if ( Bookmark.Note <> ActiveNote ) then begin
-        Form_Main.Pages.ActivePage := Bookmark.Note.TabSheet;
-        Form_Main.PagesChange( Form_Main.Pages );
-      end;
-
-      if ( Bookmark.Node <> nil ) then begin
-        if ( ActiveNote.Kind = ntTree ) then
-          myTreeNode := TKntFolder( ActiveNote ).TV.Items.FindNode( [ffData], '', Bookmark.Node );
-        if ( not assigned( myTreeNode )) then begin
-          ClearBookmark;
-          exit;
-        end;
-        TKntFolder( ActiveNote ).TV.Selected := myTreeNode;
-      end;
-
-      with ActiveNote.Editor do begin
-        SelStart := Bookmark.CaretPos;
-        SelLength := Bookmark.SelLength;
-        Perform( EM_SCROLLCARET, 0, 0 );
-      end;
-
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Jumped, [Number] );
-
-      if (LocBeforeGoTo.NoteID = ActiveNote.ID)
-          and ((ActiveNote.Kind = ntRTF) or (TKntFolder(ActiveNote).SelectedNode.ID = LocBeforeGoTo.NodeID))
-          and (LocBeforeGoTo.CaretPos <> Bookmark.CaretPos) then begin
-
-          AddHistoryLocation (ActiveNote, false, LocBeforeGoTo);
-          _LastMoveWasHistory:= false;
-          UpdateHistoryCommands;
-      end;
-
-
-    except
-      on E : Exception do begin
-        ClearBookmark;
-        exit;
-      end;
-    end;
-
-  end
-  else
-     Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_NotAssigned, [Number] );
-
-end; // BookmarkGoTo
-
-*)
 
 end.

@@ -255,7 +255,7 @@ end;
 //=================================================================
 function NoteFileNew( FN : string ) : integer;
 begin
-  if assigned( NoteFile ) then
+  if assigned( KntFile ) then
      if (not NoteFileClose ) then exit(-2);
 
   MovingTreeNode:= nil;
@@ -283,10 +283,10 @@ begin
             LoadDefaults;
             LoadTabImages( false );
 
-            NoteFile := TKntFile.Create;
-            NoteFile.PageCtrl := Pages;
-            NoteFile.PassphraseFunc := GetFilePassphrase;
-            NoteFile.FileFormat := KeyOptions.SaveDefaultFormat;
+            KntFile := TKntFile.Create;
+            KntFile.PageCtrl := Pages;
+            KntFile.PassphraseFunc := GetFilePassphrase;
+            KntFile.FileFormat := KeyOptions.SaveDefaultFormat;
 
             if ( KeyOptions.RunAutoMacros and fileexists( _MACRO_AUTORUN_NEW_FILE )) then begin
               Application.ProcessMessages;
@@ -321,13 +321,13 @@ begin
           FileIsBusy := false;
           if ( Pages.PageCount > 0 ) then
           begin
-            ActiveNote := TKntFolder( Pages.ActivePage.PrimaryObject );
-            TAM_ActiveName.Caption := ActiveNote.Name;
+            ActiveKntFolder := TKntFolder(Pages.ActivePage.PrimaryObject);
+            TAM_ActiveName.Caption := ActiveKntFolder.Name;
             FocusActiveNote;
           end
           else
           begin
-            ActiveNote := nil;
+            ActiveKntFolder := nil;
             TAM_ActiveName.Caption := STR_03;
           end;
 
@@ -335,7 +335,7 @@ begin
 
           UpdateNoteDisplay;
 
-          if ( assigned( ActiveNote ) and KeyOptions.RunAutoMacros ) then begin
+          if ( assigned( ActiveKntFolder ) and KeyOptions.RunAutoMacros ) then begin
              Application.ProcessMessages;
              ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
           end;
@@ -345,7 +345,7 @@ begin
         if ( KeyOptions.AutoSave and ( not KeyOptions.SkipNewFilePrompt )) then
         begin
           if ( PopupMessage( STR_04, mtConfirmation, [mbYes,mbNo], 0 ) = mrYes ) then
-            NoteFileSave( NoteFile.FileName );
+            NoteFileSave( KntFile.FileName );
         end;
   end;
 
@@ -365,7 +365,7 @@ var
   opensuccess : boolean;
   FPath, NastyDriveType : string;
 begin
-  if assigned( NoteFile ) then
+  if assigned( KntFile ) then
     if ( not NoteFileClose ) then exit(-2);
 
   with Form_Main do begin
@@ -418,43 +418,43 @@ begin
             screen.Cursor := crHourGlass;
             FileIsBusy := true;
             result := 0;
-            NoteFile := TKntFile.Create;
-            NoteFile.PassphraseFunc := GetFilePassphrase;
-            NoteFile.PageCtrl := Pages;
+            KntFile := TKntFile.Create;
+            KntFile.PassphraseFunc := GetFilePassphrase;
+            KntFile.PageCtrl := Pages;
 
-            // NoteFile.OnNoteLoad := OnNoteLoaded;
+            // KntFile.OnNoteLoad := OnNoteLoaded;
 
             Log_Flush;
             Log_StoreTick('');
             Log_StoreTick( 'FileOpen (' + FN + ') - BEGIN', 0, +1);
 
-            result := NoteFile.Load( FN, ImagesManager );
+            result := KntFile.Load( FN, ImagesManager );
 
             Log_StoreTick( 'After parsed .knt file', 1 );
 
-            if NoteFile.OpenAsReadOnly then
+            if KntFile.OpenAsReadOnly then
                OpenReadOnly:= True;
 
-            for i := 0 to NoteFile.Notes.Count -1 do
+            for i := 0 to KntFile.Notes.Count -1 do
             begin
-              NoteFile.Notes[i].AddProcessedAlarms();
+              KntFile.Notes[i].AddProcessedAlarms();
             end;
 
             if ( result <> 0 ) then
             begin
-              NoteFile.ReadOnly := true;
+              KntFile.ReadOnly := true;
               result := 0;
               messagedlg( STR_07, mtWarning, [mbOK] , 0 );
             end;
 
-            if FileExists( NoteFile.FileName + ext_DEFAULTS ) then
-              DEF_FN := NoteFile.FileName + ext_DEFAULTS
+            if FileExists( KntFile.FileName + ext_DEFAULTS ) then
+              DEF_FN := KntFile.FileName + ext_DEFAULTS
             else
               DEF_FN := OrigDEF_FN;
             LoadDefaults;
 
             NastyDriveType := '';
-            case GetDriveType( PChar( ExtractFileDrive( NoteFile.FileName ) + '\' )) of
+            case GetDriveType( PChar( ExtractFileDrive( KntFile.FileName ) + '\' )) of
               0, 1 : begin
                 NastyDriveType := STR_08;
               end;
@@ -475,9 +475,9 @@ begin
             end;
             if ( NastyDriveType <> '' ) then
             begin
-              NoteFile.ReadOnly := true;
+              KntFile.ReadOnly := true;
               if KeyOptions.OpenReadOnlyWarn then
-                PopupMessage(Format(STR_13, [ExtractFilename(NoteFile.FileName), NastyDriveType, ExtractFileDrive(NoteFile.FileName)]), mtInformation, [mbOK], 0);
+                PopupMessage(Format(STR_13, [ExtractFilename(KntFile.FileName), NastyDriveType, ExtractFileDrive(KntFile.FileName)]), mtInformation, [mbOK], 0);
             end;
 
             LastEditCmd := ecNone;
@@ -492,7 +492,7 @@ begin
             CreateVCLControls;
             Log_StoreTick( 'CreateVCLControls - END', 1, -1 );
 
-            NoteFile.SetupMirrorNodes(nil);
+            KntFile.SetupMirrorNodes(nil);
             Log_StoreTick( 'After SetupMirrorNodes', 1 );
 
             SetupAndShowVCLControls;
@@ -507,17 +507,17 @@ begin
 
               if ClipOptions.Recall then
               begin
-                if assigned( NoteFile.ClipCapNote ) then begin
-                  ToggleClipCap( true, NoteFile.ClipCapNote );
+                if assigned( KntFile.ClipCapNote ) then begin
+                  ToggleClipCap( true, KntFile.ClipCapNote );
                   Log_StoreTick( 'After recall ClipCapNote', 1 );
                 end;
               end
               else
               begin
-                NoteFile.ClipCapNote := nil;
+                KntFile.ClipCapNote := nil;
               end;
 
-              LoadTrayIcon( assigned( NoteFile.ClipCapNote ) and ClipOptions.SwitchIcon );
+              LoadTrayIcon( assigned( KntFile.ClipCapNote ) and ClipOptions.SwitchIcon );
 
             except
             end;
@@ -532,14 +532,14 @@ begin
              {$ENDIF}
               if E.Message <> '' then
                  PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
-              if assigned( NoteFile ) then
+              if assigned( KntFile ) then
               begin
                 try
                   DestroyVCLControls;
                 except
                 end;
-                NoteFile.Free;
-                NoteFile := nil;
+                KntFile.Free;
+                KntFile := nil;
               end;
               result := 1;
             end;
@@ -548,8 +548,8 @@ begin
           try
             if opensuccess then
             begin
-              GetFileState( NoteFile.FileName, FileState );
-              FPath := extractfilepath( NoteFile.FileName );
+              GetFileState( KntFile.FileName, FileState );
+              FPath := extractfilepath( KntFile.FileName );
               FolderMon.FolderName := copy( FPath, 1, pred( length( FPath )));
               // prevent folder monitor if file resides on a read-only medium
               // diskette or network
@@ -574,20 +574,20 @@ begin
           begin
             if ( Pages.PageCount > 0 ) then
             begin
-              ActiveNote := TKntFolder( Pages.ActivePage.PrimaryObject );
-              TAM_ActiveName.Caption := ActiveNote.Name;
+              ActiveKntFolder := TKntFolder(Pages.ActivePage.PrimaryObject);
+              TAM_ActiveName.Caption := ActiveKntFolder.Name;
               FocusActiveNote;
               Log_StoreTick( 'After GetFileState and FocusActiveNote', 1 );
             end
             else
             begin
               TAM_ActiveName.Caption := STR_03;
-              ActiveNote := nil;
+              ActiveKntFolder := nil;
             end;
-            if assigned( NoteFile ) then
+            if assigned( KntFile ) then
             begin
-              NoteFile.ReadOnly := ( OpenReadOnly or NoteFile.ReadOnly );
-              NoteFile.Modified := false;
+              KntFile.ReadOnly := ( OpenReadOnly or KntFile.ReadOnly );
+              KntFile.Modified := false;
             end;
             UpdateNoteDisplay;
             UpdateNoteFileState( [fscOpen,fscModified] );
@@ -604,7 +604,7 @@ begin
           KeyOptions.LastFile := FN;
           if KeyOptions.MRUUse then
             MRU.AddItem( FN );
-          AddToFileManager( FN, NoteFile );
+          AddToFileManager( FN, KntFile );
         end
         else
         begin
@@ -687,7 +687,7 @@ begin
 
    Result := True;
 
-   case GetDriveType(PChar(ExtractFileDrive(NoteFile.FileName) + '\')) of
+   case GetDriveType(PChar(ExtractFileDrive(KntFile.FileName) + '\')) of
      DRIVE_REMOVABLE: Result := (not KeyOptions.OpenFloppyReadOnly);
      DRIVE_REMOTE:    Result := (not KeyOptions.OpenNetworkReadOnly);
      0, 1,
@@ -768,7 +768,7 @@ begin
 
 
        myBackupLevel := KeyOptions.BackupLevel;
-       if NoteFile.NoMultiBackup then
+       if KntFile.NoMultiBackup then
           myBackupLevel := 1;
 
        if myBackupLevel > 1 then begin
@@ -858,7 +858,7 @@ var
   ErrStr, ext, BakFN, BakFolder, FPath: string;
   SUCCESS: LongBool;
   i, LastError: Integer;
-  myNote: TKntFolder;
+  myFolder: TKntFolder;
   tempDirectory, tempFN : string;
   SavedNotes, SavedNodes: integer;
 
@@ -879,12 +879,12 @@ begin
      if not HaveNotes(true, false) then Exit;
      if FileIsBusy then Exit;
 
-     if (FN <> '') and NoteFile.ReadOnly then begin
+     if (FN <> '') and KntFile.ReadOnly then begin
          DoMessageBox(STR_77, mtWarning, [mbOK], 0);
          Exit;
      end;
 
-     if (FN <> '') and not NoteFile.Modified then begin
+     if (FN <> '') and not KntFile.Modified then begin
          StatusBar.Panels[PANEL_HINT].Text := STR_79;
          Exit;
      end;
@@ -900,7 +900,7 @@ begin
 
          if FN <> '' then begin
             FN := NormalFN(FN);
-            case NoteFile.FileFormat of
+            case KntFile.FileFormat of
                nffKeyNote: FN := ChangeFileExt(FN, ext_KeyNote);
                nffEncrypted:
                   if KeyOptions.EncFileAltExt then
@@ -915,7 +915,7 @@ begin
 
          if FN = '' then begin                                     // Save with a new name (Save As...)
            with SaveDlg do begin
-              case NoteFile.FileFormat of
+              case KntFile.FileFormat of
 {$IFDEF WITH_DART}
                 nffDartNotes : Filter := FILTER_DARTFILES + '|' + FILTER_ALLFILES;
 {$ENDIF}
@@ -924,9 +924,9 @@ begin
                   Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
               end;
               FilterIndex := 1;
-              if NoteFile.FileName <> '' then begin
-                 FileName  := ExtractFileName(NoteFile.FileName);
-                 InitialDir:= ExtractFilePath(NoteFile.FileName);
+              if KntFile.FileName <> '' then begin
+                 FileName  := ExtractFileName(KntFile.FileName);
+                 InitialDir:= ExtractFilePath(KntFile.FileName);
               end
               else begin
                  InitialDir := GetFolderPath(fpPersonal);
@@ -935,12 +935,12 @@ begin
            end;
 
            if SaveDlg.Execute then begin
-              NoteFile.OpenAsReadOnly := False;
+              KntFile.OpenAsReadOnly := False;
 
               FN := NormalFN(SaveDlg.FileName);
               ext := ExtractFileExt(FN);
               if ext = '' then begin
-                 case NoteFile.FileFormat of
+                 case KntFile.FileFormat of
                    nffKeyNote, nffKeyNoteZip:
                      FN := FN + ext_KeyNote;
                    nffEncrypted:
@@ -956,10 +956,10 @@ begin
               end;
 
 {$IFDEF WITH_DART}
-              if (NoteFile.FileFormat = nffDartNotes) and KeyOptions.SaveDARTWarn then begin
+              if (KntFile.FileFormat = nffDartNotes) and KeyOptions.SaveDARTWarn then begin
                  case PopupMessage(format(STR_18, [FILE_FORMAT_NAMES[nffDartNotes], Program_Name, FILE_FORMAT_NAMES[nffKeyNote]]),
                                    mtWarning, [mbYes,mbNo,mbCancel], 0 ) of
-                    mrNo: NoteFile.FileFormat := nffKeyNote;
+                    mrNo: KntFile.FileFormat := nffKeyNote;
                     mrCancel: Exit;
                  end;
               end;
@@ -1037,9 +1037,9 @@ begin
 
          // Get (and reflect) the expanded state of all the tree nodes
          try
-           for i := 1 to NoteFile.NoteCount do begin
-              myNote := NoteFile.Notes[pred(i)];
-              GetOrSetNodeExpandState(TKntFolder(myNote).TV, false, false);
+           for i := 1 to KntFile.NoteCount do begin
+              myFolder := KntFile.Notes[pred(i)];
+              GetOrSetNodeExpandState(myFolder.TV, false, false);
            end;
          except
            // nothing
@@ -1047,9 +1047,9 @@ begin
 
 
          // SAVE the file (and backup virtual nodes if it applies), on a temporal location, before initiate DoBackup (see *1)
-         Result := NoteFile.Save(tempFN, SavedNotes, SavedNodes);
+         Result := KntFile.Save(tempFN, SavedNotes, SavedNodes);
 
-         Log_StoreTick( 'After NoteFile.Save (temporal location)', 1 );
+         Log_StoreTick( 'After KntFile.Save (temporal location)', 1 );
 
          if Result = 0 then begin
             // BACKUP (using previous file, before this saving) of the file
@@ -1064,11 +1064,11 @@ begin
             Log_StoreTick( 'After DoBackup', 1 );
 
             RenameTempFile;                 // Now rename the temp file to the actual KeyNote file name
-            NoteFile.FileName := FN;
-            NoteFile.Modified:= False;      // Must be done here, not in TNotFile.Save, and of course, never before RenameTempFile
+            KntFile.FileName := FN;
+            KntFile.Modified:= False;      // Must be done here, not in TNotFile.Save, and of course, never before RenameTempFile
 
             StatusBar.Panels[PANEL_HINT].Text := Format(STR_22, [SavedNotes, SavedNodes]);
-            NoteFile.ReadOnly := False;    // We can do SaveAs from a Read-Only file (*)
+            KntFile.ReadOnly := False;    // We can do SaveAs from a Read-Only file (*)
                  { (*) In Windows XP is possible to select (with SaveDlg) the same file
                     as destination. In W10 it isn't }
 
@@ -1103,8 +1103,8 @@ begin
 
        try // folder monitor
          if not KeyOptions.DisableFileMon then begin
-            GetFileState(NoteFile.FileName, FileState);
-            FPath := ExtractFilePath( NoteFile.FileName );
+            GetFileState(KntFile.FileName, FileState);
+            FPath := ExtractFilePath( KntFile.FileName );
             if (Length(FPath) > 1) and (FPath[Length(FPath)] = '\') then
                Delete(FPath, Length(FPath), 1);
             FolderMon.FolderName := FPath;
@@ -1134,7 +1134,7 @@ begin
         KeyOptions.LastFile := FN;
         if KeyOptions.MRUUse then
            MRU.AddItem(FN);
-        AddToFileManager(FN, NoteFile);
+        AddToFileManager(FN, KntFile);
      end;
   end;
 
@@ -1185,10 +1185,10 @@ begin
 
         ClipCapActive := false;
         Pages.MarkedPage := nil;
-        if ( NoteFile.ClipCapNote <> nil ) then
+        if ( KntFile.ClipCapNote <> nil ) then
         begin
           TB_ClipCap.Down := false;
-          ToggleClipCap( false, NoteFile.ClipCapNote ); // turn it OFF
+          ToggleClipCap( false, KntFile.ClipCapNote ); // turn it OFF
         end;
 
         LastEditCmd := ecNone;
@@ -1196,7 +1196,7 @@ begin
         BookmarkInitializeAll;
         ShowAlarmStatus;
         
-        if assigned( NoteFile ) then
+        if assigned( KntFile ) then
         begin
           try
             DestroyVCLControls;
@@ -1205,16 +1205,16 @@ begin
           end;
           try
             try
-              NoteFile.Free;
+              KntFile.Free;
             except
-              // showmessage( 'BUG: error in NoteFile.Free' );
+              // showmessage( 'BUG: error in KntFile.Free' );
             end;
           finally
-            NoteFile := nil;
+            KntFile := nil;
           end;
         end;
 
-        ActiveNote := nil;
+        ActiveKntFolder := nil;
 
         History.Clear;
         UpdateHistoryCommands;
@@ -1299,10 +1299,10 @@ begin
   if ( tmps = '' ) then exit;
   if Form_Main.HaveNotes( false, false ) then
   begin
-    if ( tmps = NoteFile.FileName ) then
+    if ( tmps = KntFile.FileName ) then
     begin
-      if ( PopupMessage( Format(STR_31, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-      NoteFile.Modified := false; // to prevent automatic save if modified
+      if ( PopupMessage( Format(STR_31, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+      KntFile.Modified := false; // to prevent automatic save if modified
     end;
   end;
 
@@ -1328,7 +1328,7 @@ begin
 
         if ( not HaveNotes( true, false )) then exit;
 
-        currentFN := NoteFile.FileName;
+        currentFN := KntFile.FileName;
         if (FN = '') and (currentFN = '') then begin
            PopupMessage( STR_82, mtError, [mbOK], 0 );
            exit;
@@ -1377,13 +1377,13 @@ begin
           ChDir(ExtractFilePath( _VNKeyNoteFileName ));
           {$I+}
 
-          oldModified := NoteFile.Modified;
+          oldModified := KntFile.Modified;
           screen.Cursor := crHourGlass;
           try
             try
               ImagesManager.ExportingMode:= true;
               try
-                 cr := NoteFile.Save( newFN, SavedNotes, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+                 cr := KntFile.Save( newFN, SavedNotes, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
               finally
                  ImagesManager.ExportingMode:= false;
               end;
@@ -1410,8 +1410,8 @@ begin
             end;
 
           finally
-            NoteFile.FileName := currentFN;       // It shouldn't be necesary, because NoteFile.Save doesn't modify NoteFile.FileName
-            NoteFile.Modified := oldModified;
+            KntFile.FileName := currentFN;       // It shouldn't be necesary, because KntFile.Save doesn't modify KntFile.FileName
+            KntFile.Modified := oldModified;
             screen.Cursor := crDefault;
           end;
 
@@ -1475,7 +1475,7 @@ begin
 
         { this can be safely removed. User can want to copy a whole note,
           and this is a neat way to do that.
-        if ( MergeFN = NoteFile.FileName ) then
+        if ( MergeFN = KntFile.FileName ) then
         begin
           showmessage( Format( 'Cannot merge a file with itself (%s)', [ExtractFilename( MergeFN )] ));
           exit;
@@ -1553,7 +1553,7 @@ begin
               IDs[i].oldID:= MergeFile.Notes[i].ID;
               if ( MergeFile.Notes[i].Info = 0 ) then begin
                  IDs[i].newNote:= false;
-                 if MergeFN <> NoteFile.FileName then
+                 if MergeFN <> KntFile.FileName then
                     IDs[i].newID:= 0
                  else
                     IDs[i].newID:= IDs[i].oldID;
@@ -1579,8 +1579,8 @@ begin
                 NewNote.UseTabChar := UseTabChar;
               end;
 
-              newTNote := TKntFolder( newNote );
-              with TKntFolder( MergeFile.Notes[i] ) do begin
+              newTNote := newNote;
+              with MergeFile.Notes[i] do begin
                  newTNote.IconKind := IconKind;
                  newTNote.TreeWidth := TreeWidth;
                  newTNote.Checkboxes := CheckBoxes;
@@ -1593,7 +1593,7 @@ begin
 
               MergeFile.Notes[i].AddProcessedAlarmsOfNote(newNote);
 
-              mergeTNote:= TKntFolder( MergeFile.Notes[i] );
+              mergeTNote:= MergeFile.Notes[i];
               if ( mergeTNote.NodeCount > 0 ) then
               begin
                 for n := 0 to pred( mergeTNote.NodeCount ) do
@@ -1601,7 +1601,7 @@ begin
                   mergeNode:= mergeTNote.Nodes[n];
                   newNode := TKntNote.Create;
                   newNode.Assign( mergeNode );
-                  TKntFolder( newNote ).AddNode( newNode );
+                  newNote.AddNode( newNode );
                   newNode.ForceID( mergeNode.ID);
                   mergeTNote.AddProcessedAlarmsOfNode(mergeNode, newNote, newNode);
                 end;
@@ -1611,7 +1611,7 @@ begin
                   newTNote.TreeHidden:= true;           // It was an old simple note
 
 
-              NoteFile.AddNote( newNote );
+              KntFile.AddNote( newNote );
               inc( mergecnt );
 
               IDs[i].newID:= newNote.ID;
@@ -1619,14 +1619,14 @@ begin
 
               try
                 CreateVCLControlsForNote( newNote );
-                if ( MergeFN = NoteFile.FileName ) then begin
-                   NoteFile.UpdateImagesCountReferences(newNote);
+                if ( MergeFN = KntFile.FileName ) then begin
+                   KntFile.UpdateImagesCountReferences(newNote);
                    newNote.DataStreamToEditor;
                 end
                 else
                   { We have previously assigned "ImagesManager.ExtenalImagesManager:= ImgManagerMF", to search the Stream of the images
                     with the help of the ImageManager associated with the MergeFile file }
-                  NoteFile.UpdateImagesStorageModeInFile (ImagesManager.StorageMode, newNote, false);
+                  KntFile.UpdateImagesStorageModeInFile (ImagesManager.StorageMode, newNote, false);
                   // newNote.DataStreamToEditor;     // From UpdateImagesStorageModeInFile) the call to DataStreamToEditor is ensured
 
                 SetUpVCLControls( newNote );
@@ -1639,9 +1639,9 @@ begin
             //Mirror nodes (if exists) references old Note IDs. We must use new IDs
             for i := 0 to pred( MergeFile.NoteCount ) do
               if IDs[i].newNote then begin
-                 newNote:= NoteFile.GetNoteByID(IDs[i].newID);
-                 for n := 0 to TKntFolder(newNote).NodeCount - 1 do begin
-                    newNode:= TKntFolder(newNote).Nodes[n];
+                 newNote:= KntFile.GetNoteByID(IDs[i].newID);
+                 for n := 0 to newNote.NodeCount - 1 do begin
+                    newNode:= newNote.Nodes[n];
                     if newNode.VirtualMode = vmKNTNode then begin
                        mirrorID:= newNode.MirrorNodeID;
                        p := pos( KNTLINK_SEPARATOR, mirrorID );
@@ -1654,8 +1654,8 @@ begin
 
             for i := 0 to pred( MergeFile.NoteCount ) do
                 if IDs[i].newNote then begin
-                   newNote:= NoteFile.GetNoteByID(IDs[i].newID);
-                   NoteFile.SetupMirrorNodes(newNote);
+                   newNote:= KntFile.GetNoteByID(IDs[i].newID);
+                   KntFile.SetupMirrorNodes(newNote);
                 end;
 
 
@@ -1673,7 +1673,7 @@ begin
           ImgManagerMF.Free;
           PagesChange( Form_Main );
           screen.Cursor := crDefault;
-          NoteFile.Modified := true;
+          KntFile.Modified := true;
           UpdateNoteFileState( [fscModified] );
           if ( mergecnt > 0 ) then
             StatusBar.Panels[PANEL_HINT].Text := Format( STR_47, [mergecnt, ExtractFilename( MergeFN )] )
@@ -1695,11 +1695,11 @@ begin
   try
     case DoMessageBox( Format(STR_49, [FileState.Name]), mtWarning, [mbYes,mbNo], 0 ) of
       mrYes : begin
-        NoteFile.Modified := false;
-        NoteFileOpen( NoteFile.FileName );
+        KntFile.Modified := false;
+        NoteFileOpen( KntFile.FileName );
       end;
       mrNo : begin
-        NoteFile.Modified := true;
+        KntFile.Modified := true;
       end;
     end;
   finally
@@ -1762,7 +1762,7 @@ begin
         if ( NewState.Size < 0 ) then
         begin
           // means file does not exist (deleted or renamed)
-          NoteFile.Modified := true; // so that we save it
+          KntFile.Modified := true; // so that we save it
           exit;
         end;
         if ( FileState.Time <> NewState.Time ) then
@@ -1807,9 +1807,9 @@ begin
       try
         if ( not HaveNotes( false, true )) then exit;
        {$IFDEF KNT_DEBUG}
-        Log.Add( 'CheckModified: NoteFile modified? ' + BOOLARRAY[NoteFile.Modified], 1 );
+        Log.Add( 'CheckModified: KntFile modified? ' + BOOLARRAY[KntFile.Modified], 1 );
        {$ENDIF}
-        if ( not NoteFile.Modified ) then exit;
+        if ( not KntFile.Modified ) then exit;
         if Warn then
         begin
           case messagedlg( STR_54, mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
@@ -1834,7 +1834,7 @@ begin
        {$IFDEF KNT_DEBUG}
         Log.Add( '-- Saving on CHECKMODIFIED', 1 );
        {$ENDIF}
-        if ( NoteFileSave( NoteFile.FileName ) = 0 ) then
+        if ( NoteFileSave( KntFile.FileName ) = 0 ) then
           result := true
         else
           result := ( Application.MessageBox( PChar(STR_55), PChar(STR_56), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) = ID_YES );
@@ -1959,13 +1959,13 @@ end;
 procedure ImportAsNotes( ImportFileList : TStringList; ImgLinkMode: boolean );
 var
   FN, s : string;
-  myNote : TKntFolder;
+  myFolder : TKntFolder;
   filecnt : integer;
   ImportFileType : TImportFileType;
   tNote : TKntFolder;
   OutStream: TMemoryStream;
 
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
   myTreeNode : TTreeNTNode;
 
 begin
@@ -1986,7 +1986,7 @@ begin
                continue;
 
 
-            myNote := nil;
+            myFolder := nil;
             screen.Cursor := crHourGlass;
 
             try
@@ -2002,40 +2002,40 @@ begin
               end;
 
               try
-                myNote := TKntFolder.Create;
-                myNote.SetEditorProperties( DefaultEditorProperties );
-                myNote.SetTabProperties( DefaultTabProperties );
-                myNote.EditorChrome := DefaultEditorChrome;
+                myFolder := TKntFolder.Create;
+                myFolder.SetEditorProperties( DefaultEditorProperties );
+                myFolder.SetTabProperties( DefaultTabProperties );
+                myFolder.EditorChrome := DefaultEditorChrome;
                 if KeyOptions.ImportFileNamesWithExt then
                   s := ExtractFilename( FN )
                 else
                   s := ExtractFilenameNoExt( FN );
-                myNote.Name := s;
-                NoteFile.AddNote( myNote );
+                myFolder.Name := s;
+                KntFile.AddNote( myFolder );
 
                 try
-                  myNoteNode:= nil;
+                  myNote:= nil;
                   if ImportFileType <> itTreePad then begin
-                     myNoteNode := TKntNote.Create;
-                     myNote.AddNode(myNoteNode);
-                     myNoteNode.Name := s;
-                     myNote.TreeHidden:= true;
+                     myNote := TKntNote.Create;
+                     myFolder.AddNode(myNote);
+                     myNote.Name := s;
+                     myFolder.TreeHidden:= true;
                   end;
 
                   case ImportFileType of
                     itText, itRTF : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TXT or RTF)  FN:' + FN,  1 ); {$ENDIF}
-                      LoadTxtOrRTFFromFile(myNoteNode.Stream, FN);
+                      LoadTxtOrRTFFromFile(myNote.Stream, FN);
                       end;
                     itHTML : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (HTML)  FN:' + FN,  1 ); {$ENDIF}
-                      myNoteNode.Stream.LoadFromStream(OutStream);
-                      myNoteNode.Stream.Position:= myNoteNode.Stream.Size;
-                      myNoteNode.Stream.Write(AnsiString(#13#10#0), 3);
+                      myNote.Stream.LoadFromStream(OutStream);
+                      myNote.Stream.Position:= myNote.Stream.Size;
+                      myNote.Stream.Write(AnsiString(#13#10#0), 3);
                       end;
                     itTreePad : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TreePad)  FN:' + FN,  1 ); {$ENDIF}
-                      tNote := TKntFolder( myNote );
+                      tNote := myFolder;
                       tNote.SetTreeProperties( DefaultTreeProperties );
                       tNote.TreeChrome := DefaultTreeChrome;
                       tNote.LoadFromTreePadFile( FN );
@@ -2043,18 +2043,18 @@ begin
                     end;
 
 
-                  CreateVCLControlsForNote( myNote );
-                  myNote.DataStreamToEditor;
-                  SetUpVCLControls( myNote );
+                  CreateVCLControlsForNote( myFolder );
+                  myFolder.DataStreamToEditor;
+                  SetUpVCLControls( myFolder );
 
                   var Owned: boolean:= not ImgLinkMode;
                   if ImportFileType = itImage then
-                     ImagesManager.InsertImage(FN, myNote, Owned);
+                     ImagesManager.InsertImage(FN, myFolder, Owned);
 
                 finally
-                  if assigned( myNote.TabSheet ) then  begin
-                    myNote.TabSheet.TabVisible := true; // was created hidden
-                    Pages.ActivePage := myNote.TabSheet;
+                  if assigned( myFolder.TabSheet ) then  begin
+                    myFolder.TabSheet.TabVisible := true; // was created hidden
+                    Pages.ActivePage := myFolder.TabSheet;
                   end;
 
                  { ---  Important: See comment * 1 in FileDropped
@@ -2063,13 +2063,13 @@ begin
                        and all nodes in a plain text only tree note are saved in plain format.
                     but I forgot to apply it also for files imported as notes, not as nodes !!
                  }
-                 if myNote.PlainText or  ((myNoteNode <> nil) and not NodeStreamIsRTF (myNoteNode.Stream)) then
-                    myNote.Editor.Modified := True
+                 if myFolder.PlainText or  ((myNote <> nil) and not NodeStreamIsRTF (myNote.Stream)) then
+                    myFolder.Editor.Modified := True
                  else
-                    myNote.Editor.Modified := False;
+                    myFolder.Editor.Modified := False;
                  //-------
 
-                  ActiveNote := myNote;
+                  ActiveKntFolder := myFolder;
                 end;
 
               except
@@ -2081,10 +2081,10 @@ begin
 
             finally
               screen.Cursor := crDefault;
-              AddToFileManager( NoteFile.FileName, NoteFile ); // update manager (number of notes has changed)
+              AddToFileManager( KntFile.FileName, KntFile ); // update manager (number of notes has changed)
               PagesChange( Form_Main );
               StatusBar.Panels[PANEL_HINT].text := STR_62;
-              NoteFile.Modified := true;
+              KntFile.Modified := true;
               UpdateNoteFileState( [fscModified] );
             end;
           end;
@@ -2104,7 +2104,7 @@ end; // ImportAsNotes
 procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean; const NameProposed: string = '' );
 var
   FN, strContent : string;
-  myNote : TKntFolder;
+  myFolder : TKntFolder;
   Editor: TRxRichEdit;
   filecnt : integer;
   ImportFileType : TImportFileType;
@@ -2122,15 +2122,15 @@ begin
 
   with Form_Main do begin
 
-        if not assigned(ActiveNote.Editor) then exit;
+        if not assigned(ActiveKntFolder.Editor) then exit;
         if (( not assigned( ImportFileList )) or ( ImportFileList.Count = 0 )) then exit;
 
         Stream:= TMemoryStream.Create;
         try
-          if ActiveNote.Editor.SelLength > 0 then
-             CheckToSelectLeftImageHiddenMark (ActiveNote.Editor)
+          if ActiveKntFolder.Editor.SelLength > 0 then
+             CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor)
           else
-             CheckToMoveLefOftHiddenMark (ActiveNote.Editor);       // *1
+             CheckToMoveLefOftHiddenMark (ActiveKntFolder.Editor);       // *1
 
           InformedImgInPlain:= false;
 
@@ -2142,7 +2142,7 @@ begin
                continue;
 
 
-            myNote := nil;
+            myFolder := nil;
             screen.Cursor := crHourGlass;
 
             try
@@ -2150,8 +2150,8 @@ begin
               StatusBar.Panels[PANEL_HINT].Text := STR_59 + ExtractFilename( FN );
 
               try
-                myNote:= ActiveNote;
-                Editor:= myNote.Editor;
+                myFolder:= ActiveKntFolder;
+                Editor:= myFolder.Editor;
 
                 if ImportFileType <> itImage then begin
                    strContent:= ReadAllText(FN);           // gf_streams
@@ -2178,13 +2178,13 @@ begin
                     end;
                   itRTF : begin
                    {$IFDEF KNT_DEBUG}Log.Add('Insert content (RTF)  FN:' + FN,  1 ); {$ENDIF}
-                    ActiveNote.Editor.PutRtfText(StrContent, true);
+                    ActiveKntFolder.Editor.PutRtfText(StrContent, true);
                     end;
                   itImage: begin
                      {$IFDEF KNT_DEBUG}Log.Add('Insert content (Image)  FN:' + FN,  1 ); {$ENDIF}
                      var Owned: boolean:= not ImgLinkMode;
-                     if not myNote.PlainText then
-                        ImagesManager.InsertImage(FN, myNote, Owned, NameProposed)
+                     if not myFolder.PlainText then
+                        ImagesManager.InsertImage(FN, myFolder, Owned, NameProposed)
                      else begin
                          if not InformedImgInPlain then begin
                             DoMessageBox( Format(STR_81, [FN]), mtWarning, [mbOK], 0 );
@@ -2212,7 +2212,7 @@ begin
             finally
               screen.Cursor := crDefault;
               StatusBar.Panels[PANEL_HINT].text := STR_62;
-              NoteFile.Modified := true;
+              KntFile.Modified := true;
               UpdateNoteFileState( [fscModified] );
             end;
 
@@ -2254,7 +2254,7 @@ begin
 
         result := factUnknown;
         LastFact := FactUnknown;
-        ActiveNoteIsReadOnly := NoteIsReadOnly( ActiveNote, false );
+        ActiveNoteIsReadOnly := NoteIsReadOnly( ActiveKntFolder, false );
 
         FileIsHTML  := ExtIsHTML( aExt );
         FileIsImage := ExtIsImage(aExt);
@@ -2285,7 +2285,7 @@ begin
             facts[factInsertContent]:= not ActiveNoteIsReadOnly and (not FileIsImage or NoteSupportsRegisteredImages());
             if ( not ActiveNoteIsReadOnly) then begin
               // ...or, in a tree note, import as a tree node
-              myTreeNode := TKntFolder( ActiveNote ).TV.Selected;
+              myTreeNode := ActiveKntFolder.TV.Selected;
               if assigned( myTreeNode ) then begin
                  facts[factImportAsNode] := IsKnownFileFormat;
                  facts[factMakeVirtualNode] := IsKnownFileFormat;
@@ -2455,7 +2455,7 @@ end; // ConsistentFileType
 procedure FileDropped( Sender : TObject; FileList : TStringList );
 var
   myTreeNode : TTreeNTNode;
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
   fName, fExt : string;
   myAction : TDropFileAction;
   i : integer;
@@ -2475,7 +2475,7 @@ begin
         FileIsFolder := DirectoryExists( fName );
         NewFileName:= '';
 
-        if ( not ( assigned( NoteFile ) and assigned( ActiveNote ))) then begin
+        if ( not ( assigned( KntFile ) and assigned( ActiveKntFolder ))) then begin
            // no active note; we can only OPEN a file
            if ((( fExt = ext_KeyNote ) or
               ( fExt = ext_Encrypted ) or
@@ -2532,9 +2532,9 @@ begin
               factHyperlink :
                 for i := 0 to pred( FileList.Count ) do begin
                   InsertFileOrLink( FileList[i], true, RelativeLink);
-                  ActiveNote.Editor.SelText:= #13#10;
-                  ActiveNote.Editor.SelLength:= 0;
-                  ActiveNote.Editor.SelStart:= ActiveNote.Editor.SelStart+2;
+                  ActiveKntFolder.Editor.SelText:= #13#10;
+                  ActiveKntFolder.Editor.SelLength:= 0;
+                  ActiveKntFolder.Editor.SelStart:= ActiveKntFolder.Editor.SelStart+2;
                 end;
 
               factImport :
@@ -2545,9 +2545,9 @@ begin
 
               factImportAsNode :
                 begin
-                  ActiveNote.Editor.OnChange := nil;
-                  ActiveNote.Editor.Lines.BeginUpdate;
-                  SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 ); // don't draw richedit yet
+                  ActiveKntFolder.Editor.OnChange := nil;
+                  ActiveKntFolder.Editor.Lines.BeginUpdate;
+                  SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 0, 0 ); // don't draw richedit yet
                   OutStream:= TMemoryStream.Create;
                   try
                     for i := 0 to pred( FileList.Count ) do begin
@@ -2575,42 +2575,42 @@ begin
 
                       myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
                       if assigned( myTreeNode ) then begin
-                        myNoteNode := TKntNote( myTreeNode.Data );
-                        if assigned( myNoteNode ) then begin
+                        myNote := TKntNote( myTreeNode.Data );
+                        if assigned( myNote ) then begin
                             if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
-                              myNoteNode.Stream.LoadFromStream(OutStream);
-                              myNoteNode.Stream.Position:= myNoteNode.Stream.Size;
-                              myNoteNode.Stream.Write(AnsiString(#13#10#0), 3);
+                              myNote.Stream.LoadFromStream(OutStream);
+                              myNote.Stream.Position:= myNote.Stream.Size;
+                              myNote.Stream.Write(AnsiString(#13#10#0), 3);
                             end
                             else if not ExtIsImage( fExt )  then
-                              LoadTxtOrRTFFromFile(myNoteNode.Stream, FName);
+                              LoadTxtOrRTFFromFile(myNote.Stream, FName);
 
-                            SelectIconForNode( myTreeNode, TKntFolder( ActiveNote ).IconKind );
+                            SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
                             if KeyOptions.ImportFileNamesWithExt then
-                              myNoteNode.Name := ExtractFilename( FName )
+                              myNote.Name := ExtractFilename( FName )
                             else
-                              myNoteNode.Name := ExtractFilenameNoExt( FName );
-                            myTreeNode.Text := myNoteNode.Name;
-                            ActiveNote.DataStreamToEditor;
+                              myNote.Name := ExtractFilenameNoExt( FName );
+                            myTreeNode.Text := myNote.Name;
+                            ActiveKntFolder.DataStreamToEditor;
                             var Owned: boolean:= not ImgLinkMode;
                             if ExtIsImage( fExt )  then
-                              ImagesManager.InsertImage(FName, ActiveNote, Owned);
+                              ImagesManager.InsertImage(FName, ActiveKntFolder, Owned);
                         end;
                       end;
                     end;
                   finally
                     if assigned( OutStream ) then OutStream.Free;
                     FreeConvertLibrary;
-                    NoteFile.Modified := true;
-                    SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
-                    ActiveNote.Editor.Lines.EndUpdate;
-                    ActiveNote.Editor.Invalidate; // in fact, I insist on it
+                    KntFile.Modified := true;
+                    SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                    ActiveKntFolder.Editor.Lines.EndUpdate;
+                    ActiveKntFolder.Editor.Invalidate; // in fact, I insist on it
                     if _LastZoomValue <> 100 then
-                       SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
+                       SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
 
-                    if ActiveNote.TreeHidden then begin
-                       ActiveNote.TreeHidden:= false;
-                       UpdateTreeVisible( ActiveNote );
+                    if ActiveKntFolder.TreeHidden then begin
+                       ActiveKntFolder.TreeHidden:= false;
+                       UpdateTreeVisible( ActiveKntFolder );
                     end;
 
                     UpdateNoteFileState( [fscModified] );
@@ -2640,19 +2640,19 @@ begin
                     // node as modified, as this will ensure that finally gets saved in the right way.
                     //  So, when dropping a file on a plained tree, we wil will mark the new node as modified. It is the more secure and simple way.
                     if assigned(myTreeNode) then begin
-                       if ActiveNote.PlainText or   (not NodeStreamIsRTF (myNoteNode.Stream)) then
-                           ActiveNote.Editor.Modified := True                                              // *2
+                       if ActiveKntFolder.PlainText or   (not NodeStreamIsRTF (myNote.Stream)) then
+                           ActiveKntFolder.Editor.Modified := True                                              // *2
                        else
-                           ActiveNote.Editor.Modified := False;                                            // *1
+                           ActiveKntFolder.Editor.Modified := False;                                            // *1
                     end;
-                    ActiveNote.Editor.OnChange := RxRTFChange;
+                    ActiveKntFolder.Editor.OnChange := RxRTFChange;
                   end;
 
                 end;
 
               factMakeVirtualNode :
                 begin
-                  SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 );
+                  SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 0, 0 );
                   try
                     for i := 0 to pred( FileList.Count ) do begin
                       FName := FileList[i];
@@ -2667,17 +2667,17 @@ begin
                     end;
 
                   finally
-                    SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
-                    ActiveNote.Editor.Invalidate; // in fact, I insist on it
+                    SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                    ActiveKntFolder.Editor.Invalidate; // in fact, I insist on it
                     if _LastZoomValue <> 100 then
-                       SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
+                       SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
                   end;
                 end;
 
               {$IFDEF WITH_IE}
               factMakeVirtualIENode :
                 begin
-                  SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 0, 0 );
+                  SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 0, 0 );
                   try
                     for i := 0 to pred( FileList.Count ) do begin
                       FName := FileList[i];
@@ -2691,8 +2691,8 @@ begin
                       VirtualNodeProc( vmIELocal, myTreeNode, FName );
                     end;
                   finally
-                    SendMessage( ActiveNote.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
-                    ActiveNote.Editor.Invalidate; // in fact, I insist on it
+                    SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                    ActiveKntFolder.Editor.Invalidate; // in fact, I insist on it
                   end;
                 end;
               {$ENDIF}
@@ -2741,7 +2741,7 @@ begin
       Form_FileInfo := TForm_FileInfo.Create( Form_Main );
 
       try
-        Form_FileInfo.myNotes := NoteFile;
+        Form_FileInfo.myNotes := KntFile;
 
         if ( Form_FileInfo.ShowModal = mrOK ) then begin
           Virtual_UnEncrypt_Warning_Done := false;
@@ -2749,48 +2749,48 @@ begin
           with Form_FileInfo do begin
             ShowHint := KeyOptions.ShowTooltips;
 
-            NoteFile.Comment := trim( Edit_Comment.Text );
-            NoteFile.Description := trim( Edit_Description.Text );
-            NoteFile.NoMultiBackup := CB_NoMultiBackup.Checked;
-            NoteFile.OpenAsReadOnly := CB_AsReadOnly.Checked;
-            if ( not CB_AsReadOnly.Checked ) then NoteFile.ReadOnly := false;
-            NoteFile.ShowTabIcons := CB_ShowTabIcons.Checked;
-            NoteFile.FileFormat := TNoteFileFormat( Combo_Format.ItemIndex );
-            NoteFile.CompressionLevel := TZCompressionLevel( Combo_CompressLevel.ItemIndex );
+            KntFile.Comment := trim( Edit_Comment.Text );
+            KntFile.Description := trim( Edit_Description.Text );
+            KntFile.NoMultiBackup := CB_NoMultiBackup.Checked;
+            KntFile.OpenAsReadOnly := CB_AsReadOnly.Checked;
+            if ( not CB_AsReadOnly.Checked ) then KntFile.ReadOnly := false;
+            KntFile.ShowTabIcons := CB_ShowTabIcons.Checked;
+            KntFile.FileFormat := TNoteFileFormat( Combo_Format.ItemIndex );
+            KntFile.CompressionLevel := TZCompressionLevel( Combo_CompressLevel.ItemIndex );
 
             if ( CB_TrayIcon.Checked and ( Edit_TrayIcon.Text <> '' )) then
-              NoteFile.TrayIconFN := normalFN( Edit_TrayIcon.Text )
+              KntFile.TrayIconFN := normalFN( Edit_TrayIcon.Text )
             else
-              NoteFile.TrayIconFN := '';
+              KntFile.TrayIconFN := '';
 
             if RB_TabImgDefault.Checked then
-              NoteFile.TabIconsFN := ''
+              KntFile.TabIconsFN := ''
             else
             if RB_TabImgBuiltIn.Checked then
-              NoteFile.TabIconsFN := _NF_Icons_BuiltIn
+              KntFile.TabIconsFN := _NF_Icons_BuiltIn
             else
             begin
               if ( Edit_TabImg.Text <> '' ) then
-                NoteFile.TabIconsFN := normalFN( Edit_TabImg.Text )
+                KntFile.TabIconsFN := normalFN( Edit_TabImg.Text )
               else
-                NoteFile.TabIconsFN := '';
+                KntFile.TabIconsFN := '';
             end;
 
-            if ( NoteFile.FileFormat = nffEncrypted ) then begin
-              NoteFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
+            if ( KntFile.FileFormat = nffEncrypted ) then begin
+              KntFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
               if PassphraseChanged then
-                NoteFile.Passphrase := Edit_Pass.Text;
+                KntFile.Passphrase := Edit_Pass.Text;
             end;
 
-            if ( NoteFile.FileName <> '' ) then
-               case NoteFile.FileFormat of
-                 nffKeyNote : NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_KeyNote );
+            if ( KntFile.FileName <> '' ) then
+               case KntFile.FileFormat of
+                 nffKeyNote : KntFile.FileName := ChangeFileExt( KntFile.FileName, ext_KeyNote );
                  nffEncrypted : if KeyOptions.EncFileAltExt then
-                   NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_Encrypted )
+                   KntFile.FileName := ChangeFileExt( KntFile.FileName, ext_Encrypted )
                  else
-                   NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_KeyNote );
+                   KntFile.FileName := ChangeFileExt( KntFile.FileName, ext_KeyNote );
    {$IFDEF WITH_DART}
-                 nffDartNotes : NoteFile.FileName := ChangeFileExt( NoteFile.FileName, ext_DART );
+                 nffDartNotes : KntFile.FileName := ChangeFileExt( KntFile.FileName, ext_DART );
    {$ENDIF}
                end;
 
@@ -2808,20 +2808,20 @@ begin
                                              false, rbImagesStRelocate.Checked);
           end;
 
-          NoteFile.Modified := true;
-          AddToFileManager( NoteFile.FileName, NoteFile ); // update manager (properties have changed)
+          KntFile.Modified := true;
+          AddToFileManager( KntFile.FileName, KntFile ); // update manager (properties have changed)
 
-          LoadTrayIcon( ClipOptions.SwitchIcon and assigned( NoteFile.ClipCapNote ));
+          LoadTrayIcon( ClipOptions.SwitchIcon and assigned( KntFile.ClipCapNote ));
           if _FILE_TABIMAGES_SELECTION_CHANGED then begin
             _FILE_TABIMAGES_SELECTION_CHANGED := false;
-            if (( NoteFile.TabIconsFN <> '' ) and ( NoteFile.TabIconsFN <> _NF_Icons_BuiltIn )) then begin
+            if (( KntFile.TabIconsFN <> '' ) and ( KntFile.TabIconsFN <> _NF_Icons_BuiltIn )) then begin
               // user specified an "Other" file that does not exist.
               // This means: create this file and use it later
               // (otherwise, to use an "other" file, user would have
               // to copy the original file manually in Explorer)
               // In essense, we are creating the file the user requested.
-              if ( not fileexists( NoteFile.TabIconsFN )) then
-                SaveCategoryBitmapsUser( NoteFile.TabIconsFN );
+              if ( not fileexists( KntFile.TabIconsFN )) then
+                SaveCategoryBitmapsUser( KntFile.TabIconsFN );
             end;
             LoadTabImages( true );
           end;
@@ -2857,9 +2857,9 @@ begin
           // Pages.OnMouseDown := TabMouseDown;
           Pages.OnDblClick := PagesDblClick;
 
-          if ( NoteFile.FileName <> '' ) then
+          if ( KntFile.FileName <> '' ) then
           begin
-            thisFN := ExtractFilename( NoteFile.FileName );
+            thisFN := ExtractFilename( KntFile.FileName );
             s := thisFN;
           end
           else
@@ -2870,7 +2870,7 @@ begin
           StatusBar.Panels.BeginUpdate;
           try
             SetFilenameInStatusbar(#32 + s + #32);
-            StatusBar.Hint := #32 + NoteFile.FileName;
+            StatusBar.Hint := #32 + KntFile.FileName;
             TrayIcon.Hint := Program_Name + ': ' + s;
             SelectStatusbarGlyph( true );
           finally
@@ -2909,7 +2909,7 @@ begin
         MMShiftTab_.Enabled := ( Pages.PageCount > 0 );
         if NotesOK then
         begin
-          WasModified := NoteFile.Modified;
+          WasModified := KntFile.Modified;
           if WasModified then
              Statusbar.Panels[PANEL_STATUS].Text := STR_73      //MOD
           else
@@ -2990,7 +2990,7 @@ begin
   //             and/or the application is not active.
 
 
-  if (( NoteFile.FileFormat = nffEncrypted ) or ( not KeyOptions.TimerCloseEncOnly )) then
+  if (( KntFile.FileFormat = nffEncrypted ) or ( not KeyOptions.TimerCloseEncOnly )) then
   begin
     // only under these conditions do we try to autoclose...
 
@@ -3032,7 +3032,7 @@ begin
     // if the file was encrypted, we optionally want to be able to
     // automatically prompt for password and reopen the file when
     // user returns to the program. So, set a flag here.
-    if ( NoteFile.FileFormat = nffEncrypted ) then
+    if ( KntFile.FileFormat = nffEncrypted ) then
     begin
       _REOPEN_AUTOCLOSED_FILE := KeyOptions.TimerCloseAutoReopen;
     end;
@@ -3062,8 +3062,8 @@ begin
         MgrFileName := MGR_FN;
         ShowFullPaths := KeyOptions.MgrFullPaths;
         ShowHint := KeyOptions.ShowTooltips;
-        if assigned( NoteFile ) then
-          SelectedFileName := NoteFile.FileName;
+        if assigned( KntFile ) then
+          SelectedFileName := KntFile.FileName;
       end;
       MGROK := ( MGR.ShowModal = mrOK );
       s := MGR.SelectedFileName;
@@ -3073,7 +3073,7 @@ begin
     end;
 
     if Form_Main.HaveNotes( false, false ) then
-      olds := NoteFile.Filename
+      olds := KntFile.Filename
     else
       olds := '';
 

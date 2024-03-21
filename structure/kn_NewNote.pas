@@ -249,8 +249,8 @@ begin
   Form_Defaults := TForm_Defaults.Create(Form_Main);
   try
     Form_Defaults.myCurrentFileName:= '';
-    if assigned(NoteFile) and (NoteFile.FileName <> '') then
-       Form_Defaults.myCurrentFileName := ExtractFilename( NoteFile.FileName );
+    if assigned(KntFile) and (KntFile.FileName <> '') then
+       Form_Defaults.myCurrentFileName := ExtractFilename( KntFile.FileName );
 
     Form_Defaults.StartWithEditorTab := true;
     Form_Defaults.Action := propThisNote;

@@ -1659,7 +1659,7 @@ begin
 
   if KeyOptions.AltMargins then begin
      MMAlternativeMargins.Checked:= true;
-     if assigned(ActiveNote) then
+     if assigned(ActiveKntFolder) then
         SetMargins();
   end;
 
@@ -1795,44 +1795,44 @@ procedure TForm_Main.ProcessControlMessage(
   );
         function Check( mustbereadonly : boolean ) : boolean;
         begin
-          result := ( assigned( NoteFile ) and
+          result := ( assigned( KntFile ) and
             HaveNotes( false, true ));
           if ( result and mustbereadonly ) then
-            result := ( result and ( not NoteIsReadOnly( ActiveNote, false )));
+            result := ( result and ( not NoteIsReadOnly( ActiveKntFolder, false )));
         end;
 begin
   case MsgID of
     KNT_MSG_PERFORMKEY : if Check( true ) then
     begin
       ShortCutToKey( kntmsg.intData1, LastRTFKey.Key, LastRTFKey.Shift );
-      PostKeyEx( ActiveNote.Editor.Handle, LastRTFKey.Key, LastRTFKey.Shift, LastRTFKey.Special );
+      PostKeyEx( ActiveKntFolder.Editor.Handle, LastRTFKey.Key, LastRTFKey.Shift, LastRTFKey.Special );
       Application.ProcessMessages;
     end;
     KNT_MSG_INSERTTEXT : if Check( true ) then
     begin
-      ActiveNote.Editor.SelLength := 0;
+      ActiveKntFolder.Editor.SelLength := 0;
       Text := kntmsg.strData;
-      ActiveNote.Editor.SelLength := 0;
+      ActiveKntFolder.Editor.SelLength := 0;
     end;
     KNT_MSG_MOVECARET : if Check( false ) then
     begin
       case kntmsg.intData1 of
-        _CARET_RIGHT : with ActiveNote.Editor do
+        _CARET_RIGHT : with ActiveKntFolder.Editor do
         begin
           Perform( WM_KEYDOWN, VK_RIGHT, 0 );
           Perform( WM_KEYUP, VK_RIGHT, 0 );
         end;
-        _CARET_LEFT : with ActiveNote.Editor do
+        _CARET_LEFT : with ActiveKntFolder.Editor do
         begin
           Perform( WM_KEYDOWN, VK_LEFT, 0 );
           Perform( WM_KEYUP, VK_LEFT, 0 );
         end;
-        _CARET_UP : with ActiveNote.Editor do
+        _CARET_UP : with ActiveKntFolder.Editor do
         begin
           Perform( WM_KEYDOWN, VK_UP, 0 );
           Perform( WM_KEYUP, VK_UP, 0 );
         end;
-        _CARET_DOWN : with ActiveNote.Editor do
+        _CARET_DOWN : with ActiveKntFolder.Editor do
         begin
           Perform( WM_KEYDOWN, VK_DOWN, 0 );
           Perform( WM_KEYUP, VK_DOWN, 0 );
@@ -1932,9 +1932,9 @@ begin
 
   if ( NoteFileToLoad <> '' ) then begin
      if HaveNotes( false, false ) then begin
-        if ( NoteFileToLoad = NoteFile.FileName ) then begin
-          if ( PopupMessage( Format(STR_06, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-          NoteFile.Modified := false; // to prevent automatic save if modified
+        if ( NoteFileToLoad = KntFile.FileName ) then begin
+          if ( PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+          KntFile.Modified := false; // to prevent automatic save if modified
         end;
      end;
      NoteFileOpen( NoteFileToLoad );
@@ -1971,10 +1971,10 @@ begin
       //PopupMessage( Format('NoteFileToLoad: %s', [NoteFileToLoad]), mtConfirmation, [mbYes], 0 );
       Open:= true;
       if HaveNotes( false, false ) then begin
-         if ( NoteFileToLoad.ToUpper = NoteFile.FileName.ToUpper ) then begin
-           if ( PopupMessage( Format(STR_06, [NoteFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+         if ( NoteFileToLoad.ToUpper = KntFile.FileName.ToUpper ) then begin
+           if ( PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
               Open:= false;
-           NoteFile.Modified := false; // to prevent automatic save if modified
+           KntFile.Modified := false; // to prevent automatic save if modified
          end;
       end;
       if Open then
@@ -2123,7 +2123,7 @@ begin
 {$ENDIF}
   Application.OnDeactivate := nil;
   Application.OnHint := nil;
-  ActiveNote := nil;
+  ActiveKntFolder := nil;
   // ClipCapNote := nil;
   Pages.OnChange := nil;
 
@@ -2141,7 +2141,7 @@ begin
   try
     try
 
-      if assigned( NoteFile ) then NoteFile.Free;
+      if assigned( KntFile ) then KntFile.Free;
       if assigned( TransferNodes ) then TransferNodes.Free;
       // DestroyVCLControls;
 
@@ -2329,8 +2329,8 @@ end;
 procedure TForm_Main.TntFormResize(Sender: TObject);
 begin
   Form_Main.Refresh;
-  if assigned(ActiveNote) then
-     ActiveNote.Editor.Invalidate;
+  if assigned(ActiveKntFolder) then
+     ActiveKntFolder.Editor.Invalidate;
 end;
 
 procedure TForm_Main.TimerTimer(Sender: TObject);
@@ -2356,14 +2356,14 @@ begin
     Timer_Tick := 0;
     if Form_Main.HaveNotes( false, false ) then
     begin
-      if (( not FileChangedOnDisk ) and NoteFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then
+      if (( not FileChangedOnDisk ) and KntFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then
       begin
-        if (( NoteFile.FileName <> '' ) and ( not NoteFile.ReadOnly )) then begin
+        if (( KntFile.FileName <> '' ) and ( not KntFile.ReadOnly )) then begin
           // only if saved previously
          {$IFDEF KNT_DEBUG}
            Log.Add( '-- Saving on TIMER' );
          {$ENDIF}
-           NoteFileSave( NoteFile.FileName );
+           NoteFileSave( KntFile.FileName );
         end;
       end;
     end;
@@ -2411,8 +2411,8 @@ begin
     if EditorOptions.WordCountTrack and (_MillisecondsIdle >= 450) then
        UpdateWordCount;
 
-    if (NoteFile <> nil) and (not NoteFile.TextPlainVariablesInitialized) and (_MillisecondsIdle >= 450) then
-       NoteFile.UpdateTextPlainVariables(150);
+    if (KntFile <> nil) and (not KntFile.TextPlainVariablesInitialized) and (_MillisecondsIdle >= 450) then
+       KntFile.UpdateTextPlainVariables(150);
 
 
   except
@@ -2436,14 +2436,14 @@ begin
   if (( not ( AppIsClosing or Initializing or FileIsBusy )) and
       ( HaveNotes( false, false ))) then
   begin
-    if ( KeyOptions.AutoSave and KeyOptions.AutoSaveOnFocus and NoteFile.Modified ) then
+    if ( KeyOptions.AutoSave and KeyOptions.AutoSaveOnFocus and KntFile.Modified ) then
     begin
-      if (( NoteFile.FileName <> '' ) and ( not NoteFile.ReadOnly )) then begin
+      if (( KntFile.FileName <> '' ) and ( not KntFile.ReadOnly )) then begin
         // only if saved previously
         {$IFDEF KNT_DEBUG}
           Log.Add( '-- Saving on Application DEACTIVATE' );
         {$ENDIF}
-          NoteFileSave( NoteFile.FileName );
+          NoteFileSave( KntFile.FileName );
       end;
     end;
   end;
@@ -2563,7 +2563,7 @@ begin
   else
   begin
     if HaveNotes( false, false ) then
-      NoteFileSave( NoteFile.FileName )
+      NoteFileSave( KntFile.FileName )
     else
       NoteFileSave( '' );
   end;
@@ -2596,10 +2596,10 @@ end;
 
 procedure TForm_Main.UpdateTabAndTreeIconsShow;
 begin
-  if assigned( NoteFile ) then
+  if assigned( KntFile ) then
   begin
-    MMViewTabIcons.Enabled := NoteFile.ShowTabIcons;
-    if ( NoteFile.ShowTabIcons and TabOptions.Images ) then
+    MMViewTabIcons.Enabled := KntFile.ShowTabIcons;
+    if ( KntFile.ShowTabIcons and TabOptions.Images ) then
       Pages.Images := Chest.IMG_Categories
     else
       Pages.Images := nil;
@@ -2642,7 +2642,7 @@ end; // AnotherInstance
 
 procedure TForm_Main.ShowInsMode;
 begin
-  if ActiveNote.IsInsertMode then
+  if ActiveKntFolder.IsInsertMode then
     StatusBar.Panels[PANEL_INS].Text := STR_11
   else
     StatusBar.Panels[PANEL_INS].Text := STR_12;
@@ -2663,9 +2663,9 @@ var
    bakS, S: integer;
    MousePos: TPoint;
 begin
-  if not assigned( ActiveNote ) then exit;
+  if not assigned( ActiveKntFolder ) then exit;
 
-  ActiveNote.FocusMemory := focRTF;
+  ActiveKntFolder.FocusMemory := focRTF;
 
   if (Button = mbRight) then begin
       With TTabRichEdit(sender) do begin
@@ -2691,7 +2691,7 @@ end;
 procedure TForm_Main.RxRTFMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if not assigned(ActiveNote) then exit;
+  if not assigned(ActiveKntFolder) then exit;
 
   if (CopyFormatMode <> cfDisabled) then
      PerformCmd(ecPasteFormat);
@@ -2715,14 +2715,14 @@ var
 begin
    ImgID:= 0;
    if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-      SL:= ActiveNote.Editor.SelLength;
+      SL:= ActiveKntFolder.Editor.SelLength;
       if SL = 1 then
-         ImgID:= CheckToIdentifyImageID(ActiveNote.Editor, p)
+         ImgID:= CheckToIdentifyImageID(ActiveKntFolder.Editor, p)
 
       else if SL > 1 then begin
-         txt:= ActiveNote.Editor.SelVisibleText;
+         txt:= ActiveKntFolder.Editor.SelVisibleText;
          if Length(txt) < SL then begin
-           ImgIDs:= ImagesManager.GetImagesIDInstancesFromTextPlain(ActiveNote.Editor.SelText);
+           ImgIDs:= ImagesManager.GetImagesIDInstancesFromTextPlain(ActiveKntFolder.Editor.SelText);
            if ImgIDs <> nil then
               ImgID:= ImgIDs[0];
          end;
@@ -2955,10 +2955,10 @@ begin
       end
       else if (not ShiftPressed) then begin
         if Msg.CharCode = VK_DOWN then begin
-           ActiveNote.Editor.ScrollLinesBy(1);
+           ActiveKntFolder.Editor.ScrollLinesBy(1);
            Handled:= true;
         end else if Msg.CharCode = VK_UP then begin
-           ActiveNote.Editor.ScrollLinesBy(-1);
+           ActiveKntFolder.Editor.ScrollLinesBy(-1);
            Handled:= true;
         end else if Msg.CharCode = VK_RETURN then begin
            if activeControl = ListBox_ResFav then begin
@@ -2970,12 +2970,12 @@ begin
       else begin
           if Msg.CharCode in [VK_DOWN, VK_UP] then begin
              var P: TPoint;
-             P:= ActiveNote.Editor.GetScrollPosInEditor;
+             P:= ActiveKntFolder.Editor.GetScrollPosInEditor;
              if Msg.CharCode = VK_DOWN then
                 Inc(P.Y, 20)
              else
                 Dec(P.Y, 20);
-             ActiveNote.Editor.SetScrollPosInEditor(P);
+             ActiveKntFolder.Editor.SetScrollPosInEditor(P);
              Handled:= true;
           end;
       end;
@@ -3032,8 +3032,8 @@ var
 
 begin
   _IS_FAKING_MOUSECLICK := false;
-  if assigned( ActiveNote ) then
-     ActiveNote.FocusMemory := focRTF
+  if assigned( ActiveKntFolder ) then
+     ActiveKntFolder.FocusMemory := focRTF
   else
      exit;
 
@@ -3134,7 +3134,7 @@ begin
 
       VK_RETURN :
            if EditorOptions.AutoIndent and (Editor.Paragraph.TableStyle = tsNone) then begin
-              if NoteIsReadOnly( ActiveNote, true ) then exit;
+              if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
               GetIndentInformation(Editor, Indent, NextIndent, LineStr, posFirstChar, true);
               with Editor do begin
                 if (Indent = length(LineStr)) and (Paragraph.Numbering <> nsNone) and (Paragraph.NumberingStyle <> nsNoNumber) then
@@ -3149,7 +3149,7 @@ begin
                   if NextIndent > 0 then begin
                     // insert a linebreak followed by the substring of blanks and tabs
                     // If we are inside a hyperlink, do nothing here. It's risky and unuseful
-                    ActiveNote.Editor.GetLinkAtCursor(URLStr, TxtSel, L, R, false);
+                    ActiveKntFolder.Editor.GetLinkAtCursor(URLStr, TxtSel, L, R, false);
                     if URLStr = '' then begin
                        key := 0;
                        TxtSel:= #13 + Copy(LineStr, 1, NextIndent);
@@ -3263,13 +3263,13 @@ begin
     exit;
   end;
 
-  if not assigned(ActiveNote) or NoteIsReadOnly( ActiveNote, true ) then exit;
+  if not assigned(ActiveKntFolder) or NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
   posBegin:= 0;     // To avoid compiler warning on SelStart:= posBegin (but really no necessary)
 
   case key of
 
-    #9 :    with ActiveNote.Editor do begin
+    #9 :    with ActiveKntFolder.Editor do begin
                ShiftPressed:= (GetKeyState( VK_SHIFT ) < 0 );
                Sel:= GetSelection;
                MoveSelectedLines:= false;
@@ -3292,13 +3292,13 @@ begin
                   else
                      if not UseTabChar then begin
                          Key := #0;
-                         SendSpaces(ActiveNote.Editor, TabSize);
+                         SendSpaces(ActiveKntFolder.Editor, TabSize);
                      end;
                end
                else begin
                    SpacesAsTab:= StringOfChar (' ', TabSize);
 
-                   RTFAux:= CreateRTFAuxEditorControl (ActiveNote);
+                   RTFAux:= CreateRTFAuxEditorControl (ActiveKntFolder);
 
                    toLine:=   RTFAux.Lines.Count-1;
                    BeginUpdate;
@@ -3320,12 +3320,12 @@ begin
                          end;
 
                       SelectionLength:= RTFAux.TextLength;
-                      if ActiveNote.PlainText  then
+                      if ActiveKntFolder.PlainText  then
                          Str:= RTFAux.Text + #13#10
                       else
                          Str:= RTFAux.RtfText;
 
-                      ActiveNote.Editor.PutRtfText(Str, True);
+                      ActiveKntFolder.Editor.PutRtfText(Str, True);
 
                       SelStart:= posBegin;                           // MoveSelectedLines=True => posBegin is initialized
                       SelLength:= SelectionLength + 1;
@@ -3339,8 +3339,8 @@ begin
 
        else begin
           if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-             if ActiveNote.Editor.SelLength > 0 then
-                CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+             if ActiveKntFolder.Editor.SelLength > 0 then
+                CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor);
           end;
        end;
 
@@ -3533,18 +3533,18 @@ begin
         var ImgID, p: integer;
         ImgID:= 0;
 
-        if (ActiveNote.Editor.SelLength = 1) then
-           ImgID:= CheckToIdentifyImageID(ActiveNote.Editor, p)
+        if (ActiveKntFolder.Editor.SelLength = 1) then
+           ImgID:= CheckToIdentifyImageID(ActiveKntFolder.Editor, p)
 
         else begin
             if ShowingImageOnTrack  then
                ShowingImageOnTrack:= false
             else
-              if SelAttributes.Link and (ActiveNote.Editor.SelLength = 0) then begin
+              if SelAttributes.Link and (ActiveKntFolder.Editor.SelLength = 0) then begin
                  var URLText, TxtSel: string;
                  var chrg: TCharRange;
                  var L, R: integer;
-                 ActiveNote.Editor.GetLinkAtCursor(URLText, TxtSel, L, R, false);
+                 ActiveKntFolder.Editor.GetLinkAtCursor(URLText, TxtSel, L, R, false);
                  ImgID:= GetImageIDinPlaintext(URLText);
               end;
         end;
@@ -3562,7 +3562,7 @@ end; // RxRTFSelection Change
 procedure TForm_Main.RxRTFChange(Sender: TObject);
 begin
   if ( sender as TTabRichEdit ).Modified then
-     OnNoteChange(ActiveNote);
+     OnNoteChange(ActiveKntFolder);
 end; // RxRTFChange
 
 procedure TForm_Main.OnNoteChange(Note: TKntFolder);
@@ -3570,10 +3570,10 @@ begin
   if not assigned(Note) then exit;                   // It could occur if recreating RichEdit window very soon
 
   Note.Modified := true;
-  NoteFile.Modified := true;
+  KntFile.Modified := true;
   UpdateNoteFileState( [fscModified] );
 
-  with TKntFolder(ActiveNote) do
+  with TKntFolder(ActiveKntFolder) do
      if assigned(SelectedNode) then
         SelectedNode.RTFModified := true
      else
@@ -3593,9 +3593,9 @@ procedure TForm_Main.UpdateWordWrap;
 var
   isWordWrap : boolean;
 begin
-  if assigned( ActiveNote ) and assigned( ActiveNote.Editor ) then
+  if assigned( ActiveKntFolder ) and assigned( ActiveKntFolder.Editor ) then
   begin
-    isWordWrap := ActiveNote.Editor.WordWrap;
+    isWordWrap := ActiveKntFolder.Editor.WordWrap;
     MMFormatWordWrap.Checked := isWordWrap;
     TB_WordWrap.Down := isWordWrap;
     RTFMWordwrap.Checked := isWordWrap;
@@ -3631,39 +3631,39 @@ begin
 
   try
     if (( Pages.PageCount > 0 ) and assigned( Pages.ActivePage )) then begin
-      if assigned(ActiveNote) then begin
+      if assigned(ActiveKntFolder) then begin
          CheckRestoreAppWindowWidth (true);
-         ModifiedDataStream:= ActiveNote.EditorToDataStream;   // If its Editor is not modified it will do nothing. Necessary to ensure that changes are seen among mirror nodes
+         ModifiedDataStream:= ActiveKntFolder.EditorToDataStream;   // If its Editor is not modified it will do nothing. Necessary to ensure that changes are seen among mirror nodes
       end;
 
       if not _Executing_History_Jump then begin
-         AddHistoryLocation (ActiveNote, true);                  // true: add to local history maintaining it's index, and without removing forward history
+         AddHistoryLocation (ActiveKntFolder, true);                  // true: add to local history maintaining it's index, and without removing forward history
          _LastMoveWasHistory := false;
       end;
 
-      ActiveNote := TKntFolder( Pages.ActivePage.PrimaryObject );
-      SelectedNode:= TKntFolder(ActiveNote).SelectedNode;
+      ActiveKntFolder := TKntFolder( Pages.ActivePage.PrimaryObject );
+      SelectedNode:= TKntFolder(ActiveKntFolder).SelectedNode;
       if assigned(SelectedNode) and (SelectedNode.Stream = ModifiedDataStream) then
-         ActiveNote.DataStreamToEditor;
+         ActiveKntFolder.DataStreamToEditor;
 
-      ActiveNote.ImagesMode := ImagesManager.ImagesMode;
+      ActiveKntFolder.ImagesMode := ImagesManager.ImagesMode;
 
 
-      TAM_ActiveName.Caption := ActiveNote.Name;
-      TB_Color.AutomaticColor := ActiveNote.EditorChrome.Font.Color;
+      TAM_ActiveName.Caption := ActiveKntFolder.Name;
+      TB_Color.AutomaticColor := ActiveKntFolder.EditorChrome.Font.Color;
       if not SearchInProgress then
          FocusActiveNote;
 
     end
     else begin
-      ActiveNote := nil;
+      ActiveKntFolder := nil;
       TB_Color.AutomaticColor := clWindowText;
       TAM_ActiveName.Caption := STR_15_ActiveNote;
     end;
 
   finally
     UpdateNoteDisplay;
-    if assigned(ActiveNote) then
+    if assigned(ActiveKntFolder) then
        CheckWordCount(true);
     if not _Executing_History_Jump then
        UpdateHistoryCommands;
@@ -3674,12 +3674,12 @@ end; // PagesChange
 procedure TForm_Main.PagesTabShift(Sender: TObject);
 begin
   try
-    ActiveNote := TKntFolder( Pages.ActivePage.PrimaryObject );
-    if assigned( ActiveNote ) then
+    ActiveKntFolder := TKntFolder( Pages.ActivePage.PrimaryObject );
+    if assigned( ActiveKntFolder ) then
     begin
-      ActiveNote.TabIndex := Pages.ActivePage.TabIndex;
-      Pages.ActivePage.ImageIndex := ActiveNote.ImageIndex;
-      TAM_ActiveName.Caption := ActiveNote.Name;
+      ActiveKntFolder.TabIndex := Pages.ActivePage.TabIndex;
+      Pages.ActivePage.ImageIndex := ActiveKntFolder.ImageIndex;
+      TAM_ActiveName.Caption := ActiveKntFolder.Name;
       FocusActiveNote;
     end
     else
@@ -3687,7 +3687,7 @@ begin
       TAM_ActiveName.Caption := '';
     end;
   finally
-    NoteFile.Modified := true;
+    KntFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
   end;
 
@@ -3730,7 +3730,7 @@ end;
 
 function TForm_Main.NoteSelText : TRxTextAttributes;
 begin
-  result := ActiveNote.Editor.SelAttributes;
+  result := ActiveKntFolder.Editor.SelAttributes;
 end; // NoteSelText
 
 
@@ -3776,11 +3776,11 @@ var
   oldsel : TNotifyEvent;
 begin
   oldsel := nil;
-  if ( not assigned( ActiveNote )) then exit;
-  oldSel := ActiveNote.Editor.OnSelectionChange;
-  ActiveNote.Editor.OnSelectionChange := nil;
+  if ( not assigned( ActiveKntFolder )) then exit;
+  oldSel := ActiveKntFolder.Editor.OnSelectionChange;
+  ActiveKntFolder.Editor.OnSelectionChange := nil;
   try
-    if ( ActiveNote.FocusMemory = focTree ) then
+    if ( ActiveKntFolder.FocusMemory = focTree ) then
     begin
       SetTreeNodeFontFace( false, ShiftDown );
     end
@@ -3791,7 +3791,7 @@ begin
     // do not jump when in tree
   finally
     if assigned( oldsel ) then
-      ActiveNote.Editor.OnSelectionChange := oldsel;
+      ActiveKntFolder.Editor.OnSelectionChange := oldsel;
   end;
 
 end; // Combo_FontChange
@@ -3799,14 +3799,14 @@ end; // Combo_FontChange
 procedure TForm_Main.Combo_FontKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
   if ( shift = [] ) then
   begin
     case key of
       VK_RETURN, VK_ESCAPE : begin
         if ( key = VK_RETURN ) then
         begin
-          if ( ActiveNote.FocusMemory = focTree ) then
+          if ( ActiveKntFolder.FocusMemory = focTree ) then
           begin
             SetTreeNodeFontFace( false, ShiftDown );
           end
@@ -3817,11 +3817,11 @@ begin
         end;
         key := 0;
         try
-          if ( ActiveNote.FocusMemory = focRTF ) then
-            ActiveNote.Editor.SetFocus
+          if ( ActiveKntFolder.FocusMemory = focRTF ) then
+            ActiveKntFolder.Editor.SetFocus
           else
-          if ( ActiveNote.FocusMemory = focTree ) then
-            TKntFolder( ActiveNote ).TV.SetFocus;
+          if ( ActiveKntFolder.FocusMemory = focTree ) then
+            TKntFolder( ActiveKntFolder ).TV.SetFocus;
         except
         end;
       end;
@@ -3837,9 +3837,9 @@ begin
   if (( Sender = Combo_FontSize ) and ( Combo_FontSize.Text = '' )) then exit;
 
   oldsel := nil;
-  if assigned( ActiveNote ) then begin
-    oldSel := ActiveNote.Editor.OnSelectionChange;
-    ActiveNote.Editor.OnSelectionChange := nil;
+  if assigned( ActiveKntFolder ) then begin
+    oldSel := ActiveKntFolder.Editor.OnSelectionChange;
+    ActiveKntFolder.Editor.OnSelectionChange := nil;
   end;
 
   try
@@ -3852,7 +3852,7 @@ begin
 
   finally
     if assigned( oldsel ) then
-      ActiveNote.Editor.OnSelectionChange := oldsel;
+      ActiveKntFolder.Editor.OnSelectionChange := oldsel;
   end;
 end; // Combo_FontSizeClick
 
@@ -3863,7 +3863,7 @@ begin
      PerformCmd( ecFontSize )
   else
   try
-     Combo_FontSize.Text := IntToStr( ActiveNote.Editor.SelAttributes.Size );
+     Combo_FontSize.Text := IntToStr( ActiveKntFolder.Editor.SelAttributes.Size );
   except
   end;
 end;
@@ -3872,7 +3872,7 @@ end;
 procedure TForm_Main.Combo_FontSizeKeyPress(Sender: TObject;
   var Key: Char);
 begin
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
   if not (key in [#8, #9, #13, #27, #37..#40, #46, '0'..'9', '%']) then begin
     key := #0;
@@ -3886,10 +3886,10 @@ begin
       SetEditorZoom( -1, Combo_Zoom.Text );
 
     try
-      if ( ActiveNote.FocusMemory = focRTF ) then
-        ActiveNote.Editor.SetFocus
-      else if ( ActiveNote.FocusMemory = focTree ) then
-        TKntFolder( ActiveNote ).TV.SetFocus;
+      if ( ActiveKntFolder.FocusMemory = focRTF ) then
+        ActiveKntFolder.Editor.SetFocus
+      else if ( ActiveKntFolder.FocusMemory = focTree ) then
+        TKntFolder( ActiveKntFolder ).TV.SetFocus;
     except
     end;
   end
@@ -4115,32 +4115,32 @@ begin
   if ( messagedlg( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel ) then exit;
 
   if HaveNotes( false, false ) then begin
-    s := 'Filename: ' + ExtractFilename( NoteFile.FileName ) +#13+
-         'Notes modified: ' + BOOLARRAY[NoteFile.Modified] +#13+
-         'Notes count: ' + inttostr( NoteFile.NoteCount ) +#13+
-         'File Read-Only: ' + BOOLARRAY[NoteFile.ReadOnly] +#13+
+    s := 'Filename: ' + ExtractFilename( KntFile.FileName ) +#13+
+         'Notes modified: ' + BOOLARRAY[KntFile.Modified] +#13+
+         'Notes count: ' + inttostr( KntFile.NoteCount ) +#13+
+         'File Read-Only: ' + BOOLARRAY[KntFile.ReadOnly] +#13+
          'File Busy: ' + BOOLARRAY[FileIsBusy] +#13+
-         'File format: ' + FILE_FORMAT_NAMES[NoteFile.FileFormat] + #13#13+
+         'File format: ' + FILE_FORMAT_NAMES[KntFile.FileFormat] + #13#13+
          'FolderMon active: ' + BOOLARRAY[FolderMon.Active] +#13+
          'FolderMon folder: ' + FolderMon.FolderName + #13#13 +
          'IS_OLD_FILE_FMT: ' + BOOLARRAY[_IS_OLD_KEYNOTE_FILE_FORMAT] +#13+
          'USE_OLD_FILE_FMT: ' + BOOLARRAY[_USE_OLD_KEYNOTE_FILE_FORMAT] +#13#13;
 
-    if NoteFile.FileFormat = nffEncrypted then
-      s := s + 'Encrypted with: ' + CRYPT_METHOD_NAMES[NoteFile.CryptMethod] + #13 +
-               'Pass: ' + NoteFile.PassPhrase +#13#13;
+    if KntFile.FileFormat = nffEncrypted then
+      s := s + 'Encrypted with: ' + CRYPT_METHOD_NAMES[KntFile.CryptMethod] + #13 +
+               'Pass: ' + KntFile.PassPhrase +#13#13;
 
-    if assigned( ActiveNote ) then begin
+    if assigned( ActiveKntFolder ) then begin
       s := s +
-         'Active note name: ' + ActiveNote.Name +#13;
+         'Active note name: ' + ActiveKntFolder.Name +#13;
 
-      s := s + 'Number of Tree nodes: ' + inttostr( TKntFolder( ActiveNote ).TV.Items.Count ) + #13 +
-        'Number of Note nodes: ' + inttostr( TKntFolder( ActiveNote ).NodeCount ) + #13;
-      if assigned( TKntFolder( ActiveNote ).SelectedNode ) then
-        s := s + 'Selected node: ' + TKntFolder( ActiveNote ).SelectedNode.Name +#13;
+      s := s + 'Number of Tree nodes: ' + inttostr( TKntFolder( ActiveKntFolder ).TV.Items.Count ) + #13 +
+        'Number of Note nodes: ' + inttostr( TKntFolder( ActiveKntFolder ).NodeCount ) + #13;
+      if assigned( TKntFolder( ActiveKntFolder ).SelectedNode ) then
+        s := s + 'Selected node: ' + TKntFolder( ActiveKntFolder ).SelectedNode.Name +#13;
     end
     else
-      s := s + 'ActiveNote NOT assigned' + #13;
+      s := s + 'ActiveKntFolder NOT assigned' + #13;
 
     if ( _OTHER_INSTANCE_HANDLE <> 0 ) then
       s := s + 'Found other instance!' + #13;
@@ -4248,7 +4248,7 @@ begin
   with KeyOptions do
   begin
     ToolbarTreeShow := ( not ToolbarTreeShow );
-    Toolbar_Tree.Visible := ( ToolbarTreeShow and assigned( ActiveNote ));
+    Toolbar_Tree.Visible := ( ToolbarTreeShow and assigned( ActiveKntFolder ));
     MMViewTBTree.Checked := ToolbarTreeShow;
   end;
 end;
@@ -4362,16 +4362,16 @@ procedure TForm_Main.TB_FilterTreeClick(Sender: TObject);
 var
    note: TKntFolder;
 begin
-    if not assigned (ActiveNote) then exit;
+    if not assigned (ActiveKntFolder) then exit;
 
-    note:= TKntFolder(ActiveNote);
+    note:= TKntFolder(ActiveKntFolder);
     if not note.Filtered then begin
         ShowFindAllOptions;
         CB_ResFind_Filter.Checked:= true;
         TB_FilterTree.Down:= false;
     end
     else begin
-        note:= TKntFolder(ActiveNote);
+        note:= TKntFolder(ActiveKntFolder);
         RemoveFilter (note);
         FilterRemoved (note);
     end;
@@ -4380,7 +4380,7 @@ end;
 procedure TForm_Main.FilterApplied (note: TKntFolder);   // [dpv]
 begin
     note.Filtered:= true;
-    if note = ActiveNote then begin
+    if note = ActiveKntFolder then begin
       TB_FilterTree.Down:= true;
       MMViewFilterTree.Checked:= true;
       TB_FilterTree.Hint:= STR_23;
@@ -4389,7 +4389,7 @@ end;
 procedure TForm_Main.FilterRemoved (note: TKntFolder);   // [dpv]
 begin
     note.Filtered:= false;
-    if note = ActiveNote then begin
+    if note = ActiveKntFolder then begin
       TB_FilterTree.Down:= false;
       MMViewFilterTree.Checked:= false;
       TB_FilterTree.Hint:= STR_24;
@@ -4413,7 +4413,7 @@ end;
 
 procedure TForm_Main.FormatCopyClick(AlloMultiMode: Boolean);
 begin
-  if not assigned( NoteFile ) then exit;
+  if not assigned( KntFile ) then exit;
 
   if CopyFormatMode= cfDisabled then begin
      if AlloMultiMode and (GetKeyState(VK_CONTROL) < 0) then
@@ -4451,7 +4451,7 @@ end;
 
 procedure TForm_Main.MMFindClick(Sender: TObject);
 begin
-  if assigned(ActiveNote) and ( ActiveNote.FocusMemory = focTree ) then
+  if assigned(ActiveKntFolder) and ( ActiveKntFolder.FocusMemory = focTree ) then
      MMFindNodeClick(nil)
   else
      RunFinder;
@@ -4459,7 +4459,7 @@ end;
 
 procedure TForm_Main.MMFindNextClick(Sender: TObject);
 begin
-  if assigned(ActiveNote) and ( ActiveNote.FocusMemory = focTree ) then
+  if assigned(ActiveKntFolder) and ( ActiveKntFolder.FocusMemory = focTree ) then
      MMFindNodeNextClick(nil)
   else
      DoFindNext;
@@ -4490,7 +4490,7 @@ var
 begin
   result := true;
   msg := '';
-  if ( not assigned( NoteFile )) then
+  if ( not assigned( KntFile )) then
   begin
     result := false;
     if Warn then
@@ -4498,7 +4498,7 @@ begin
   end
   else
   begin
-    if ( CheckCount and (( NoteFile.Notes.Count < 1 ) or ( Pages.PageCount < 1 ))) then
+    if ( CheckCount and (( KntFile.Notes.Count < 1 ) or ( Pages.PageCount < 1 ))) then
     begin
       result := false;
       if Warn then
@@ -4552,7 +4552,7 @@ begin
 
   Pages.ActivePage.PageIndex := i;
   Pages.ActivePage.ImageIndex := idx;
-  NoteFile.Modified := true;
+  KntFile.Modified := true;
   UpdateNoteFileState( [fscModified] );
 
 end; // ShiftTab
@@ -4655,12 +4655,12 @@ begin
       if _IS_COPYING_TO_CLIPBOARD then        // *2
          LogRTFHandleInClipboard();
 
-      if ( ClipCapActive and assigned( NoteFile ) and ( NoteFile.ClipCapNote <> nil )) then begin
+      if ( ClipCapActive and assigned( KntFile ) and ( KntFile.ClipCapNote <> nil )) then begin
          if (( GetActiveWindow <> self.Handle ) or // only when inactive
             (( not ClipOptions.IgnoreSelf ) and // explicitly configured to capture from self...
-            ( not ( NoteFile.ClipCapNote = ActiveNote )))) then begin // but never capture text copied from the note that is being used for capture
+            ( not ( KntFile.ClipCapNote = ActiveKntFolder )))) then begin // but never capture text copied from the note that is being used for capture
                ClpStr := Clipboard.TryAsText;
-               if ((ClpStr <> '') or not NoteFile.ClipCapNote.PlainText ) and (not TestCRCForDuplicates(ClpStr) or (not ClipOptions.TestDupClips)) then     // *1
+               if ((ClpStr <> '') or not KntFile.ClipCapNote.PlainText ) and (not TestCRCForDuplicates(ClpStr) or (not ClipOptions.TestDupClips)) then     // *1
                   PasteOnClipCap(ClpStr);
          end;
       end;
@@ -4678,7 +4678,7 @@ end; // WMDrawClipboard
 procedure TForm_Main.MMNoteClipCaptureClick(Sender: TObject);
 begin
   TB_ClipCap.Down := ( not TB_ClipCap.Down );
-  ToggleClipCap( TB_ClipCap.Down, ActiveNote );
+  ToggleClipCap( TB_ClipCap.Down, ActiveKntFolder );
 end;
 
 procedure TForm_Main.MMFilePageSetupClick(Sender: TObject);
@@ -4721,7 +4721,7 @@ end;
 procedure TForm_Main.MMNotePrintPreview_Click(Sender: TObject);
 begin
   if ( not HaveNotes( true, true )) then exit;
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
   if ( not assigned( RichPrinter )) then    // [dpv]
   begin
@@ -4736,7 +4736,7 @@ begin
       end;
   end;
 
-  RichPrinter.PrintRichEditPreview( TCustomRichEdit( ActiveNote.Editor ));
+  RichPrinter.PrintRichEditPreview( TCustomRichEdit( ActiveKntFolder.Editor ));
 end; // MMPrintpreviewClick
 
 procedure TForm_Main.MMEditCopyAllClick(Sender: TObject);
@@ -4768,7 +4768,7 @@ var
 begin
 {$IFNDEF EXCLUDEEMAIL}
   if ( not HaveNotes( true, true )) then exit;
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
   StatusBar.Panels[PANEL_HINT].Text := STR_31;
   Form_Mail := TForm_Mail.Create( self );
@@ -4776,8 +4776,8 @@ begin
     with Form_Mail do
     begin
       ShowHint := KeyOptions.ShowTooltips;
-      myActiveNote := ActiveNote;
-      myNotes := NoteFile;
+      myActiveNote := ActiveKntFolder;
+      myNotes := KntFile;
       myINI_FN := MailINI_FN;
     end;
     case Form_Mail.ShowModal of
@@ -4802,13 +4802,13 @@ begin
   HasNodeAlarms:= false;
   HasNoteAlarms:= false;
 
-  if assigned(ActiveNote) then begin
-     myNode:= ActiveNote.GetSelectedNode;
+  if assigned(ActiveKntFolder) then begin
+     myNode:= ActiveKntFolder.GetSelectedNode;
      if assigned(myNode) then begin
         HasNodeAlarms:= myNode.HasAlarms(false);
         TVAlarmNode.Checked:= HasNodeAlarms;
      end;
-     HasNoteAlarms:= ActiveNote.HasAlarms(false);
+     HasNoteAlarms:= ActiveKntFolder.HasAlarms(false);
   end;
 
   TB_SetAlarm.Down:= HasNoteAlarms or HasNodeAlarms;
@@ -4818,7 +4818,7 @@ end;
 procedure TForm_Main.TB_AlarmModeClick(Sender: TObject);
 begin
   if (GetKeyState(VK_CONTROL) < 0) then begin
-     if assigned(ActiveNote) then begin
+     if assigned(ActiveKntFolder) then begin
          TB_AlarmMode.Down:= not KeyOptions.DisableAlarmPopup;
          AlarmManager.ShowAlarms(true);
          ShowAlarmStatus;
@@ -4839,7 +4839,7 @@ end;
 
 procedure TForm_Main.MMShowAlarmsClick(Sender: TObject);
 begin
-   if assigned(ActiveNote) then begin
+   if assigned(ActiveKntFolder) then begin
       AlarmManager.ShowAlarms(false);
       ShowAlarmStatus;
    end;
@@ -4863,18 +4863,18 @@ var
     HasNoteAlarms, HasNodeAlarms: Boolean;
 
 begin
-   if not assigned( NoteFile ) or (not assigned(ActiveNote)) then exit;
+   if not assigned( KntFile ) or (not assigned(ActiveKntFolder)) then exit;
 
-   HasNoteAlarms:= ActiveNote.HasAlarms(false);
+   HasNoteAlarms:= ActiveKntFolder.HasAlarms(false);
    HasNodeAlarms:= false;
-   myNode:= ActiveNote.GetSelectedNode;
+   myNode:= ActiveKntFolder.GetSelectedNode;
    if myNode <> nil then
       HasNodeAlarms:= myNode.HasAlarms(false);
 
    if ConsiderNoteAlarm and (ShiftDown or (HasNoteAlarms and not HasNodeAlarms)) then
       myNode:= nil;
 
-   AlarmManager.EditAlarms (myNode, ActiveNote, (GetKeyState(VK_CONTROL) < 0));
+   AlarmManager.EditAlarms (myNode, ActiveKntFolder, (GetKeyState(VK_CONTROL) < 0));
    ShowAlarmStatus;
 end;
 
@@ -4899,19 +4899,19 @@ var
     end;
 
 begin
-    if not assigned(ActiveNote) then exit;
+    if not assigned(ActiveKntFolder) then exit;
 
     sep:= '';
     hint:= '';
     N:= 0;
-    myNode:= ActiveNote.GetSelectedNode;
+    myNode:= ActiveKntFolder.GetSelectedNode;
 
     if assigned(myNode) and myNode.HasAlarms(false) then begin
        Alarms:= myNode.getAlarms(false);
        AddAlarmsToHint;
     end;
-    if ActiveNote.HasAlarms(false) and ActiveNote.HasAlarms(false) then begin
-       Alarms:= ActiveNote.getAlarms(false);
+    if ActiveKntFolder.HasAlarms(false) and ActiveKntFolder.HasAlarms(false) then begin
+       Alarms:= ActiveKntFolder.getAlarms(false);
        AddAlarmsToHint;
     end;
 
@@ -4926,7 +4926,7 @@ end;
 
 procedure TForm_Main.TB_ClipCapClick(Sender: TObject);
 begin
-  ToggleClipCap( TB_ClipCap.Down, ActiveNote );
+  ToggleClipCap( TB_ClipCap.Down, ActiveKntFolder );
 end;
 
 procedure TForm_Main.MMViewAlphaTabsClick(Sender: TObject);
@@ -4993,19 +4993,19 @@ end; // DestroyWnd
 
 procedure TForm_Main.TVDeletion(Sender: TObject; Node: TTreeNTNode);
 var
-   myTNote : TKntFolder;
+   myFolder : TKntFolder;
    myNode: TKntNote;
 begin
   if not assigned( Node ) then exit;
 
-  myTNote:= TKntFolder(NoteFile.GetNoteByTreeNode(Node));
-  if assigned( myTNote ) then begin
+  myFolder:= TKntFolder(KntFile.GetNoteByTreeNode(Node));
+  if assigned( myFolder ) then begin
     myNode:= TKntNote( Node.Data );
 
-     if NoteFile.FileName <> '<DESTROYING>' then          // FileName='<DESTROYING>'=> is closing. All nodes will be deleted all the way
-        NoteFile.ManageMirrorNodes(3, Node, nil);
+     if KntFile.FileName <> '<DESTROYING>' then          // FileName='<DESTROYING>'=> is closing. All nodes will be deleted all the way
+        KntFile.ManageMirrorNodes(3, Node, nil);
 
-    myTNote.RemoveNode( myNode);
+    myFolder.RemoveNode( myNode);
 
   end;
 end;
@@ -5022,7 +5022,7 @@ var
   myNote: TKntFolder;
   Width: integer;
 begin
-   myNote:= TKntFolder(ActiveNote);
+   myNote:= TKntFolder(ActiveKntFolder);
    if myNote.VerticalLayout then
       Width := myNote.TV.Height
    else
@@ -5050,12 +5050,12 @@ begin
 
    if KeyOptions.ModifiedOnTreeResized then begin
       myNote.Modified := true;
-      NoteFile.Modified := true;
+      KntFile.Modified := true;
       UpdateNoteFileState( [fscModified] );
    end;
 
    if keyOptions.AltMargins then
-      ActiveNote.Editor.Refresh;
+      ActiveKntFolder.Editor.Refresh;
 end;
 
 
@@ -5104,7 +5104,7 @@ var
   myNote: TKntFolder;
   Width: integer;
 begin
-   myNote:= TKntFolder(ActiveNote);
+   myNote:= TKntFolder(ActiveKntFolder);
    if myNote.VerticalLayout then
       Width := myNote.TV.Height
    else
@@ -5117,7 +5117,7 @@ begin
          myNote.TV.Width:= myNote.TreeMaxWidth;
 
       if keyOptions.AltMargins then
-         ActiveNote.Editor.Refresh;
+         ActiveKntFolder.Editor.Refresh;
 
       TreeWidthExpanded:= True;
    end;
@@ -5129,7 +5129,7 @@ var
    myNote: TKntFolder;
 begin
    Result:= False;
-    myNote:= TKntFolder(ActiveNote);
+    myNote:= TKntFolder(ActiveKntFolder);
 
     if (myNote.TreeMaxWidth > 0) and (myNote.TV.Visible) and (not myNote.TV.Focused) then begin
        if myNote.VerticalLayout then
@@ -5137,7 +5137,7 @@ begin
        else
           Width := myNote.TV.Width;
 
-       if (Width > TKntFolder(ActiveNote).TreeWidth) then begin
+       if (Width > TKntFolder(ActiveKntFolder).TreeWidth) then begin
            if myNote.VerticalLayout then
               myNote.TV.Height:= myNote.TreeWidth
            else
@@ -5147,7 +5147,7 @@ begin
            TreeWidth_N:= 0;
            Result:= true;
 
-           ActiveNote.Editor.SelLength:= 0;
+           ActiveKntFolder.Editor.SelLength:= 0;
        end;
     end;
 
@@ -5171,7 +5171,7 @@ end;
 procedure TForm_Main.TVClick(Sender: TObject);
 begin
  // ( sender as TTreeNT ).PopupMenu := Menu_TV;
- if assigned( ActiveNote ) then ActiveNote.FocusMemory := focTree;
+ if assigned( ActiveKntFolder ) then ActiveKntFolder.FocusMemory := focTree;
 end;
 
 procedure TForm_Main.TVDblClick(Sender: TObject);
@@ -5183,7 +5183,7 @@ procedure TForm_Main.TVStartDrag(Sender: TObject;
   var DragObject: TDragObject);
 begin
   // StatusBar.Panels[PANEL_HINT].Text := 'Drag: ' + DragObject.GetName;
-  DraggedTreeNode := TKntFolder( ActiveNote ).TV.Selected;
+  DraggedTreeNode := TKntFolder( ActiveKntFolder ).TV.Selected;
   if assigned( DraggedTreeNode ) then
   begin
      // {N}
@@ -5251,9 +5251,9 @@ procedure TForm_Main.TVDragDrop(Sender, Source: TObject; X,
 var
   DropTreeNode, PreviousParent : TTreeNTNode;
   s : string;
-  myTNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
-  if NoteIsReadOnly( ActiveNote, true ) then
+  if NoteIsReadOnly( ActiveKntFolder, true ) then
   begin
     DraggedTreeNode := nil;
     if ( Sender is TTreeNT ) then
@@ -5264,7 +5264,7 @@ begin
   s := STR_38_Dragged;
   DropTreeNode := ( sender as TTreeNT ).GetNodeAt( X, Y );
 
-  myTNote := TKntFolder( ActiveNote );
+  myFolder := ActiveKntFolder;
 
   try
 
@@ -5302,10 +5302,10 @@ begin
       //    unless SHIFT is down, in which case
       //    make node FIRST child of that node
 
-      myTNote.TV.OnChange := nil; // stop event
+      myFolder.TV.OnChange := nil; // stop event
       PreviousParent := DraggedTreeNode.Parent;
 
-      myTNote.TV.OnChecked := nil;
+      myFolder.TV.OnChecked := nil;
 
       if (( DropTreeNode.Level = 0 ) and CtrlDown ) then
       begin
@@ -5347,10 +5347,10 @@ begin
       end;
 
       // update node icon
-      SelectIconForNode( DraggedTreeNode, myTNote.IconKind );
-      SelectIconForNode( DraggedTreeNode.Parent, myTNote.IconKind );
-      SelectIconForNode( PreviousParent, myTNote.IconKind );
-      myTNote.TV.Invalidate;
+      SelectIconForNode( DraggedTreeNode, myFolder.IconKind );
+      SelectIconForNode( DraggedTreeNode.Parent, myFolder.IconKind );
+      SelectIconForNode( PreviousParent, myFolder.IconKind );
+      myFolder.TV.Invalidate;
 
     end
     else
@@ -5362,12 +5362,12 @@ begin
     end;
 
   finally
-    NoteFile.Modified := true;
+    KntFile.Modified := true;
     if TKntNote(DraggedTreeNode.Data).Checked then begin
        DraggedTreeNode.CheckState := csChecked;
     end;
-    myTNote.TV.OnChange := TVChange;
-    myTNote.TV.OnChecked:= Form_Main.TVChecked;
+    myFolder.TV.OnChange := TVChange;
+    myFolder.TV.OnChecked:= Form_Main.TVChecked;
     UpdateNoteFileState( [fscModified] );
     StatusBar.Panels[PANEL_HINT].Text := s;
   end;
@@ -5397,11 +5397,11 @@ procedure TForm_Main.TVKeyDown(Sender: TObject; var Key: Word;
 var
   ptCursor : TPoint;
 begin
-  if ( not assigned( activenote ) ) then
+  if ( not assigned( ActiveKntFolder ) ) then
     exit;
-  if TKntFolder( ActiveNote ).TV.IsEditing then exit;
+  if TKntFolder( ActiveKntFolder ).TV.IsEditing then exit;
 
-  ActiveNote.FocusMemory := focTree;
+  ActiveKntFolder.FocusMemory := focTree;
 
   case key of
     VK_F10 : if ( shift = [ssShift] ) then
@@ -5447,16 +5447,16 @@ var
   myTreeNode: TTreeNTNode;
   mirrorNode: TTreeNTNode;
 begin
-  myTreeNode:= TKntFolder( ActiveNote ).TV.Selected;
+  myTreeNode:= TKntFolder( ActiveKntFolder ).TV.Selected;
   if assigned(myTreeNode) then begin
      AddNodeToTree( tnInsertBefore );
-     mirrorNode:= TKntFolder( ActiveNote ).TV.Selected;
+     mirrorNode:= TKntFolder( ActiveKntFolder ).TV.Selected;
      TKntNote(mirrorNode.Data).Assign( myTreeNode.Data );
      UpdateTreeNode(mirrorNode);
      TKntNote(mirrorNode.Data).MirrorNode:= myTreeNode;
-     SelectIconForNode( mirrorNode, TKntFolder(ActiveNote).IconKind );
+     SelectIconForNode( mirrorNode, TKntFolder(ActiveKntFolder).IconKind );
      AddMirrorNode(myTreeNode, mirrorNode); 
-     ActiveNote.DataStreamToEditor;
+     ActiveKntFolder.DataStreamToEditor;
   end;
 end;
 
@@ -5525,17 +5525,17 @@ end;
 
 procedure TForm_Main.MMTreeFullExpandClick(Sender: TObject);
 begin
-  TKntFolder( ActiveNote ).TV.FullExpand;
-  TreeNodeSelected( TKntFolder( ActiveNote ).TV.Selected );
-  TKntFolder( ActiveNote ).TV.Selected.MakeVisible;
+  TKntFolder( ActiveKntFolder ).TV.FullExpand;
+  TreeNodeSelected( TKntFolder( ActiveKntFolder ).TV.Selected );
+  TKntFolder( ActiveKntFolder ).TV.Selected.MakeVisible;
 end;
 
 procedure TForm_Main.MMTreeFocusToogleClick(Sender: TObject);
 begin
-  if not assigned(ActiveNote) then exit;
+  if not assigned(ActiveKntFolder) then exit;
 
   try
-     if TKntFolder(ActiveNote).TV.Focused then
+     if TKntFolder(ActiveKntFolder).TV.Focused then
         MMTreeFocusEditorClick (nil)
      else
         MMTreeFocusTreeClick (nil);
@@ -5547,11 +5547,11 @@ end;
 
 procedure TForm_Main.MMTreeFocusEditorClick(Sender: TObject);
 begin
-  if not assigned(ActiveNote) then exit;
+  if not assigned(ActiveKntFolder) then exit;
 
   try
-     ActiveNote.FocusMemory := focRTF;
-     ActiveNote.Editor.SetFocus;
+     ActiveKntFolder.FocusMemory := focRTF;
+     ActiveKntFolder.Editor.SetFocus;
   except
   end;
 
@@ -5559,14 +5559,14 @@ end;
 
 procedure TForm_Main.MMTreeFocusTreeClick(Sender: TObject);
 begin
-  if not assigned(ActiveNote) then exit;
+  if not assigned(ActiveKntFolder) then exit;
 
   try
-     if TKntFolder( ActiveNote ).TreeHidden then
+     if TKntFolder( ActiveKntFolder ).TreeHidden then
         MMViewTreeClick(nil);
 
-     TKntFolder(ActiveNote).TV.SetFocus;
-  	 ActiveNote.FocusMemory := focTree;
+     TKntFolder(ActiveKntFolder).TV.SetFocus;
+  	 ActiveKntFolder.FocusMemory := focTree;
   except
   end;
 end;
@@ -5574,25 +5574,25 @@ end;
 
 procedure TForm_Main.MMTreeFullCollapseClick(Sender: TObject);
 begin
-  TKntFolder( ActiveNote ).TV.FullCollapse;
-  TreeNodeSelected( TKntFolder( ActiveNote ).TV.Selected );
+  TKntFolder( ActiveKntFolder ).TV.FullCollapse;
+  TreeNodeSelected( TKntFolder( ActiveKntFolder ).TV.Selected );
 end;
 
 procedure TForm_Main.TVSortSubtreeClick(Sender: TObject);
 var
   myTreeNode : TTreeNTNode;
 begin
-  if ( ActiveNote.FocusMemory <> focTree ) then exit;
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
+  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
   myTreeNode := GetCurrentTreeNode;
   if ( assigned( myTreeNode ) and myTreeNode.HasChildren ) then
   begin
-    TKntFolder( ActiveNote ).TV.OnChange := nil;
+    TKntFolder( ActiveKntFolder ).TV.OnChange := nil;
     try
       myTreeNode.AlphaSort;
     finally
-      NoteFile.Modified := true;
-      TKntFolder( ActiveNote ).TV.OnChange := TVChange;
+      KntFile.Modified := true;
+      TKntFolder( ActiveKntFolder ).TV.OnChange := TVChange;
       UpdateNoteFileState( [fscModified] );
     end;
   end;
@@ -5601,20 +5601,20 @@ end; // Sort Child Nodes
 
 procedure TForm_Main.TVSortTreeClick(Sender: TObject);
 begin
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
-  if ( assigned( ActiveNote) ) then
+  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if ( assigned( ActiveKntFolder) ) then
   begin
 
     if ( messagedlg(
       STR_49,
       mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
-    TKntFolder( ActiveNote ).TV.OnChange := nil;
+    TKntFolder( ActiveKntFolder ).TV.OnChange := nil;
     try
-      TKntFolder( ActiveNote ).TV.AlphaSort;
+      TKntFolder( ActiveKntFolder ).TV.AlphaSort;
     finally
-      NoteFile.Modified := true;
-      TKntFolder( ActiveNote ).TV.OnChange := TVChange;
+      KntFile.Modified := true;
+      TKntFolder( ActiveKntFolder ).TV.OnChange := TVChange;
       UpdateNoteFileState( [fscModified] );
     end;
   end;
@@ -5638,10 +5638,10 @@ begin
     if assigned( TKntNote( Node.Data )) then
       TKntNote( Node.Data ).Name := S;  // {N} must add outline numbering, if any
     StatusBar.Panels[PANEL_HINT].Text := STR_51;
-    ActiveNote.Modified := true;
+    ActiveKntFolder.Modified := true;
   finally
     _ALLOW_VCL_UPDATES := true;
-    NoteFile.Modified := true;
+    KntFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
   end;
 end; // TVEdited
@@ -5654,7 +5654,7 @@ end; // TVEditCanceled
 procedure TForm_Main.TVEditing(Sender: TObject; Node: TTreeNTNode;
   var AllowEdit: Boolean);
 begin
-  if (( assigned( ActiveNote )) and ( not ActiveNote.ReadOnly )) then
+  if (( assigned( ActiveKntFolder )) and ( not ActiveKntFolder.ReadOnly )) then
   begin
     // {N}
     _OLD_NODE_NAME := node.text;
@@ -5682,15 +5682,15 @@ var
   myNode : TKntNote;
   myName : string;
 begin
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
+  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
   myNode := GetCurrentNoteNode;
   if assigned( myNode ) then
   begin
-    if ( ActiveNote.FocusMemory <> focTree ) then exit;
+    if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
     if TreeOptions.EditInPlace then
     begin
-      TKntFolder( ActiveNote ).TV.Selected.EditText;
+      TKntFolder( ActiveKntFolder ).TV.Selected.EditText;
     end
     else
     begin
@@ -5703,8 +5703,8 @@ begin
         begin
           myNode.Name := myName;
           // {N}
-          TKntFolder( ActiveNote ).TV.Selected.Text := myNode.Name; // TKntNote does NOT update its treenode's properties!
-          ActiveNote.Modified := true;
+          TKntFolder( ActiveKntFolder ).TV.Selected.Text := myNode.Name; // TKntNote does NOT update its treenode's properties!
+          ActiveKntFolder.Modified := true;
           UpdateNoteFileState( [fscModified] );
         end
         else
@@ -5726,9 +5726,9 @@ var
 begin
   if ( not ( sender is TMenuItem )) then exit;
   mi := ( sender as TMenuItem );
-  if ( assigned( ActiveNote ) ) then
+  if ( assigned( ActiveKntFolder ) ) then
   begin
-    tNote := TKntFolder( ActiveNote );
+    tNote := TKntFolder( ActiveKntFolder );
     if mi.Checked then
     begin
       tNote.IconKind := niNone;
@@ -5738,7 +5738,7 @@ begin
       tNote.IconKind := TNodeIconKind( mi.Tag );
     end;
     ShowOrHideIcons( tNote, ( tNote.IconKind <> niNone ));
-    NoteFile.Modified := true;
+    KntFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
   end;
 end; // MMViewNodeIconsClick
@@ -5750,9 +5750,9 @@ var
   tNote : TKntFolder;
 begin
   // show or hide checkboxes in active note's tree panel
-  if  assigned( ActiveNote )  then
+  if  assigned( ActiveKntFolder )  then
   begin
-    tNote := TKntFolder( ActiveNote );
+    tNote := TKntFolder( ActiveKntFolder );
     tNote.Checkboxes := ( not tNote.Checkboxes );
     MMViewCheckboxesAllNodes.Checked := tNote.Checkboxes;
     TVChildrenCheckbox.Enabled := not MMViewCheckboxesAllNodes.Checked;       // [dpv]
@@ -5775,7 +5775,7 @@ end; // TVChecked
 procedure TForm_Main.TVChecking(Sender: TObject; Node: TTreeNTNode;
   var AllowCheck: Boolean);
 begin
-  AllowCheck := ( not NoteIsReadOnly( ActiveNote, false ));
+  AllowCheck := ( not NoteIsReadOnly( ActiveKntFolder, false ));
 end;
 
 procedure TForm_Main.MMToolsMergeClick(Sender: TObject);
@@ -5790,7 +5790,7 @@ end;
 
 procedure TForm_Main.RTFMRestoreProportionsClick(Sender: TObject);
 begin
-   ActiveNote.ReconsiderImageDimensionGoalsOnEditor (true);
+   ActiveKntFolder.ReconsiderImageDimensionGoalsOnEditor (true);
 end;
 
 procedure TForm_Main.RTFMWordWebClick(Sender: TObject);
@@ -5826,8 +5826,8 @@ end; // MathParserParseError
 
 procedure TForm_Main.MMEditPasteEvalClick(Sender: TObject);
 begin
-  if ( NoteIsReadOnly( ActiveNote, true )) then exit;
-  ActiveNote.Editor.SelText := LastEvalExprResult;
+  if ( NoteIsReadOnly( ActiveKntFolder, true )) then exit;
+  ActiveKntFolder.Editor.SelText := LastEvalExprResult;
 end;
 
 procedure TForm_Main.MMFindNodeClick(Sender: TObject);
@@ -5892,7 +5892,7 @@ begin
   end;
 
   if ( SearchNode_Text = '' ) then begin
-    SearchNode_Text:= ActiveNote.Editor.SelVisibleText;
+    SearchNode_Text:= ActiveKntFolder.Editor.SelVisibleText;
     if ( SearchNode_Text = '' ) then
        SearchNode_Text := SearchNode_TextPrev;
     if InputQuery( STR_66, STR_67, SearchNode_Text ) then
@@ -5906,7 +5906,7 @@ begin
   found := false;
   selectedNode:= myNode;
   GetNextNode;
-  myNote := ActiveNote;
+  myNote := ActiveKntFolder;
 
   FindAllTabs := CB_ResFind_AllNotes.Checked;
   FindHiddenNodes:= CB_ResFind_HiddenNodes.Checked;
@@ -5917,11 +5917,11 @@ begin
 					if ( Pos( SearchNode_Text, AnsiLowercase( myNode.Text )) > 0 ) then
 					begin
 					  found := true;
-					  if (myNote <> ActiveNote) then begin
+					  if (myNote <> ActiveKntFolder) then begin
 						   Form_Main.Pages.ActivePage := myNote.TabSheet;
 						   Form_Main.PagesChange(Pages);
-						   TKntFolder( ActiveNote ).TV.SetFocus;
-						   ActiveNote.FocusMemory := focTree;
+						   TKntFolder( ActiveKntFolder ).TV.SetFocus;
+						   ActiveKntFolder.FocusMemory := focTree;
 					  end;
 					  myNode.MakeVisible;        // Could be hidden
 					  myNode.TreeView.Selected := myNode;
@@ -6095,7 +6095,7 @@ begin
   end;
 
   try // [x]
-    CopyCutFromNoteID:= ActiveNote.ID; 
+    CopyCutFromNoteID:= ActiveKntFolder.ID; 
     if TreeTransferProc( 0, nil, false, false, false ) then // step 1 - copy
     begin
       Pages.ActivePage := DropTab;
@@ -6216,9 +6216,9 @@ var
   tNote : TKntFolder;
   Hide: boolean;
 begin
-  if ( assigned( ActiveNote )) then
+  if ( assigned( ActiveKntFolder )) then
   begin
-    tNote := TKntFolder( ActiveNote );
+    tNote := TKntFolder( ActiveKntFolder );
 
     Hide:= not tNote.HideCheckedNodes;
     if CtrlDown and Hide then
@@ -6240,7 +6240,7 @@ procedure TForm_Main.TVHideCheckedChildrenClick(Sender: TObject);
 var
   tNote : TKntFolder;
 begin
-    tNote := TKntFolder( ActiveNote );
+    tNote := TKntFolder( ActiveKntFolder );
     HideChildNodesUponCheckState (tNote, tNote.TV.Selected, csChecked);
 end;
 
@@ -6248,7 +6248,7 @@ procedure TForm_Main.TVHideUncheckedChildrenClick(Sender: TObject);
 var
   tNote : TKntFolder;
 begin
-    tNote := TKntFolder( ActiveNote );
+    tNote := TKntFolder( ActiveKntFolder );
     HideChildNodesUponCheckState (tNote, tNote.TV.Selected, csUnchecked);
 end;
 
@@ -6256,7 +6256,7 @@ procedure TForm_Main.TVShowNonFilteredClick(Sender: TObject);
 var
   tNote : TKntFolder;
 begin
-    tNote := TKntFolder( ActiveNote );
+    tNote := TKntFolder( ActiveKntFolder );
     ShowCheckedNodes (tNote, tNote.TV.Selected);
 end;
 
@@ -6311,14 +6311,14 @@ var
   Cmd: TEditCmd;
   AnsiCh: AnsiChar;
 begin
-  if ( not ( HaveNotes( false, true ) and assigned( ActiveNote ))) then
+  if ( not ( HaveNotes( false, true ) and assigned( ActiveKntFolder ))) then
     exit;
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
+  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
   try
     if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-       if ActiveNote.Editor.SelLength > 0 then
-          CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+       if ActiveKntFolder.Editor.SelLength > 0 then
+          CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor);
     end;
 
     if Unicode then
@@ -6351,7 +6351,7 @@ begin
          s:= StringOfChar(AnsiCh, Count);
     end;
 
-    with ActiveNote.Editor do begin
+    with ActiveKntFolder.Editor do begin
        SelText := s;
        if ( FontName <> '' ) then begin
          CurrentFontName:= NoteSelText.Name;
@@ -6365,7 +6365,7 @@ begin
        NoteSelText.Charset := CurrentCharset;
     end;
 
-    NoteFile.Modified := true;
+    KntFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
 
   except
@@ -6384,7 +6384,7 @@ var
   curIdx, newIdx : integer;
   P : TPoint;
 begin
-  p := ActiveNote.Editor.CaretPos;
+  p := ActiveKntFolder.Editor.CaretPos;
   curIdx := succ( p.Y ); // zero-based
   if ( s[1] in ['+','-'] ) then
   begin
@@ -6398,11 +6398,11 @@ begin
   if ( newIdx < 1 ) then
     newIdx := 1
   else
-  if ( newIdx > ActiveNote.Editor.Lines.Count ) then
-    newIdx := ActiveNote.Editor.Lines.Count;
+  if ( newIdx > ActiveKntFolder.Editor.Lines.Count ) then
+    newIdx := ActiveKntFolder.Editor.Lines.Count;
 
-  ActiveNote.Editor.selstart := ActiveNote.Editor.Perform( EM_LINEINDEX, pred( newIdx ), 0 );
-  ActiveNote.Editor.Perform( EM_SCROLLCARET, 0, 0 );
+  ActiveKntFolder.Editor.selstart := ActiveKntFolder.Editor.Perform( EM_LINEINDEX, pred( newIdx ), 0 );
+  ActiveKntFolder.Editor.Perform( EM_SCROLLCARET, 0, 0 );
 
 end; // GoToEditorLine
 
@@ -6452,7 +6452,7 @@ end;
 
 procedure TForm_Main.MMInsertURLClick(Sender: TObject);
 begin
-  InsertURL('', '', ActiveNote);   // Ask the user
+  InsertURL('', '', ActiveKntFolder);   // Ask the user
 end; // Insert URL
 
 
@@ -6499,7 +6499,7 @@ begin
         end;
       end;
       JumpToLocation( _Global_Location );
-      ActiveNote.FocusMemory := focRTF;
+      ActiveKntFolder.FocusMemory := focRTF;
       FocusActiveNote;
     end;
   finally
@@ -6514,35 +6514,35 @@ var
   rtfText: String;
 
 begin
-  if ( not assigned( ActiveNote )) then exit;
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
+  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
   HasImage:= Clipboard.HasFormat(CF_BITMAP);
   if not HasImage then
      Clipboard.TryOfferRTF();
 
   try
-     FormatSelected:= ActiveNote.Editor.PasteSpecialDialog (false);      // Will paste the user selecton, except if it is Windows Bitmap
+     FormatSelected:= ActiveKntFolder.Editor.PasteSpecialDialog (false);      // Will paste the user selecton, except if it is Windows Bitmap
 
-     ActiveNote.Editor.BeginUpdate;
+     ActiveKntFolder.Editor.BeginUpdate;
      try
          if FormatSelected= 5 then                                       // CF_BMP
-            PasteBestAvailableFormat(ActiveNote, false, false, true)    // It will insert the image, using ImageManager
+            PasteBestAvailableFormat(ActiveKntFolder, false, false, true)    // It will insert the image, using ImageManager
          else
-            if HasImage and (FormatSelected= 0) and (ActiveNote.Editor.SelLength = 1) then begin
-               if (ActiveNote.Editor.SelLength = 1) then begin
-                   rtfText:= ActiveNote.Editor.RtfSelText;
+            if HasImage and (FormatSelected= 0) and (ActiveKntFolder.Editor.SelLength = 1) then begin
+               if (ActiveKntFolder.Editor.SelLength = 1) then begin
+                   rtfText:= ActiveKntFolder.Editor.RtfSelText;
                    if not rtfText.Contains('{\object') and rtfText.Contains('\pict{') then
-                      PasteBestAvailableFormat(ActiveNote, false, false, true);       // It will insert the image, using ImageManager
+                      PasteBestAvailableFormat(ActiveKntFolder, false, false, true);       // It will insert the image, using ImageManager
                end;
             end;
      finally
-        ActiveNote.Editor.EndUpdate;
+        ActiveKntFolder.Editor.EndUpdate;
      end;
 
   except
     On E : Exception do begin
-       // ActiveNote.Editor.PasteSpecialDialog can raise an exception if for example RTF format obtained converting HTML is not correct
+       // ActiveKntFolder.Editor.PasteSpecialDialog can raise an exception if for example RTF format obtained converting HTML is not correct
        // See PasteBestAvailableFormatInEditor (kn_EditorUtils)
        MessageDlg( E.Message, mtError, [mbOK], 0 );
        exit;
@@ -6608,7 +6608,7 @@ end;
 
 procedure TForm_Main.MMInsertKNTLinkClick(Sender: TObject);
 begin
-  InsertOrMarkKNTLink( nil, true, ActiveNote.Editor.SelVisibleText);
+  InsertOrMarkKNTLink( nil, true, ActiveKntFolder.Editor.SelVisibleText);
 end;
 
 
@@ -6741,7 +6741,7 @@ var
   fn, oldFilter : string;
 begin
   if ( not HaveNotes( true, true )) then exit;
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
   ShowHiddenMarkers:= CtrlDown;
 
@@ -6758,7 +6758,7 @@ begin
     if SaveDlg.Execute then
     begin
       fn := normalFN( SaveDlg.Filename );
-      TKntFolder( ActiveNote ) .TV.SaveToFile( fn, false );
+      TKntFolder( ActiveKntFolder ) .TV.SaveToFile( fn, false );
     end;
   finally
     ShowHiddenMarkers:= false;
@@ -6793,18 +6793,18 @@ end;
 
 procedure TForm_Main.TVCheckNodeClick(Sender: TObject);
 var
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
   myTreeNode : TTreeNTNode;
 begin
-  if NoteIsReadOnly( ActiveNote, false ) then exit;
-  myNoteNode := GetCurrentNoteNode;
-  if ( not assigned( myNoteNode )) then exit;
-  if ( ActiveNote.FocusMemory <> focTree ) then exit;
-  myTreeNode := TKntFolder( ActiveNote ).TV.Selected;
+  if NoteIsReadOnly( ActiveKntFolder, false ) then exit;
+  myNote := GetCurrentNoteNode;
+  if ( not assigned( myNote )) then exit;
+  if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
+  myTreeNode := TKntFolder( ActiveKntFolder ).TV.Selected;
 
-  myNoteNode.Checked := ( not myNoteNode.Checked );
-  TVCheckNode.Checked := myNoteNode.Checked;
-  if myNoteNode.Checked then
+  myNote.Checked := ( not myNote.Checked );
+  TVCheckNode.Checked := myNote.Checked;
+  if myNote.Checked then
     myTreeNode.CheckState := csChecked
   else
     myTreeNode.CheckState := csUnchecked;
@@ -6813,17 +6813,17 @@ end;
 
 procedure TForm_Main.TVChildrenCheckboxClick(Sender: TObject);    // [dpv]
 var
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
   myTreeNode : TTreeNTNode;
 begin
-  if NoteIsReadOnly( ActiveNote, false ) then exit;
-  myNoteNode := GetCurrentNoteNode;
-  if ( not assigned( myNoteNode )) then exit;
-  if ( ActiveNote.FocusMemory <> focTree ) then exit;
-  myTreeNode := TKntFolder( ActiveNote ).TV.Selected;
+  if NoteIsReadOnly( ActiveKntFolder, false ) then exit;
+  myNote := GetCurrentNoteNode;
+  if ( not assigned( myNote )) then exit;
+  if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
+  myTreeNode := TKntFolder( ActiveKntFolder ).TV.Selected;
 
-  myNoteNode.ChildrenCheckbox := ( not myNoteNode.ChildrenCheckbox );
-  TVChildrenCheckbox.Checked := myNoteNode.ChildrenCheckbox;
+  myNote.ChildrenCheckbox := ( not myNote.ChildrenCheckbox );
+  TVChildrenCheckbox.Checked := myNote.ChildrenCheckbox;
   ShowOrHideChildrenCheckBoxes (myTreeNode);
 end;
 
@@ -6837,16 +6837,16 @@ end; // TVMBoldClick
 
 procedure TForm_Main.MMViewTreeClick(Sender: TObject);
 begin
-  if ( assigned( ActiveNote )) then
+  if ( assigned( ActiveKntFolder )) then
   begin
     MMViewTree.Checked := ( not MMViewTree.Checked );
 
-    TKntFolder( ActiveNote ).TreeHidden := ( not MMViewTree.Checked );
-    UpdateTreeVisible( TKntFolder( ActiveNote ));
+    TKntFolder( ActiveKntFolder ).TreeHidden := ( not MMViewTree.Checked );
+    UpdateTreeVisible( TKntFolder( ActiveKntFolder ));
 
     if ( not MMViewTree.Checked ) then
     try
-      ActiveNote.Editor.SetFocus;
+      ActiveKntFolder.Editor.SetFocus;
     except
     end;
 
@@ -6925,8 +6925,8 @@ end;
 
 procedure TForm_Main.MMViewResPanelClick(Sender: TObject);
 begin
-  if (Sender = nil) and KeyOptions.ResPanelShow and assigned(ActiveNote) then begin
-     if ActiveNote.Editor.Focused or TKntFolder(ActiveNote).TV.Focused then begin
+  if (Sender = nil) and KeyOptions.ResPanelShow and assigned(ActiveKntFolder) then begin
+     if ActiveKntFolder.Editor.Focused or TKntFolder(ActiveKntFolder).TV.Focused then begin
         FocusResourcePanel;
         CheckRestoreTreeWidth;
         exit;
@@ -6978,7 +6978,7 @@ end;
 
 procedure TForm_Main.Menu_RTFPopup(Sender: TObject);
 begin
-  RTFMWordwrap.Checked := ActiveNote.Editor.WordWrap;
+  RTFMWordwrap.Checked := ActiveKntFolder.Editor.WordWrap;
 end; // Menu_RTFPopup
 
 procedure TForm_Main.Splitter_ResMoved(Sender: TObject);
@@ -6992,8 +6992,8 @@ begin
   if Pages_Res.ActivePage = ResTab_RTF then
      Res_RTF.Refresh;
 
-  if MMAlternativeMargins.Checked and assigned(ActiveNote) then
-      ActiveNote.Editor.Refresh;
+  if MMAlternativeMargins.Checked and assigned(ActiveKntFolder) then
+      ActiveKntFolder.Editor.Refresh;
 end;
 
 procedure TForm_Main.VisibilityControlsFindAllResults (Visible: boolean);
@@ -7608,7 +7608,7 @@ begin
   end;
 
   if (( not HaveNotes( false, false )) or
-     ( AnsiCompareText( NoteFile.FileName, myFav.FileName ) <> 0 )) then
+     ( AnsiCompareText( KntFile.FileName, myFav.FileName ) <> 0 )) then
   begin
     fn := STR_90 + ExtractFilename( myFav.Filename );
   end
@@ -7669,7 +7669,7 @@ begin
   KeyOptions.LastNumbering := TRxNumbering(( sender as TMenuItem ).Tag );
   ( sender as TMenuItem ).Checked := true;
 
-  actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
+  actualNumbering:= ActiveKntFolder.Editor.Paragraph.Numbering;
   if not (actualNumbering in [nsNone, nsBullet]) then
       PerformCmd( ecNumbers );
 end;
@@ -7681,8 +7681,8 @@ var
   actualNumberingStyle : TRxNumberingStyle;
 begin
   numberingStyle:= TRxNumberingStyle(( sender as TMenuItem ).Tag );
-  actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
-  actualNumberingStyle:= ActiveNote.Editor.Paragraph.NumberingStyle;
+  actualNumbering:= ActiveKntFolder.Editor.Paragraph.Numbering;
+  actualNumberingStyle:= ActiveKntFolder.Editor.Paragraph.NumberingStyle;
 
   KeyOptions.LastNumberingStyle := numberingStyle;
 
@@ -7707,7 +7707,7 @@ procedure TForm_Main.MMStartsNewNumberClick(Sender: TObject);
 var
    actualNumbering : TRxNumbering;
 begin
-   actualNumbering:= ActiveNote.Editor.Paragraph.Numbering;
+   actualNumbering:= ActiveKntFolder.Editor.Paragraph.Numbering;
    try
       NumberingStart:= StrToInt(InputBox( 'KeyNote NF', STR_96, '1' ));
       PerformCmd( ecNumbers );
@@ -7935,9 +7935,9 @@ procedure TForm_Main.MMAlternativeMarginsClick(Sender: TObject);
 begin
   MMAlternativeMargins.Checked:= not MMAlternativeMargins.Checked;
 
-  if assigned(ActiveNote) then begin
+  if assigned(ActiveKntFolder) then begin
      SetMargins();
-     ActiveNote.Editor.Refresh;
+     ActiveKntFolder.Editor.Refresh;
   end;
 end;
 
@@ -7966,7 +7966,7 @@ begin
    try
       if CtrlDown then begin
          if ImagesManager.ImagesMode = imImage then begin
-            ActiveNote.ReloadImagesOnEditor;
+            ActiveKntFolder.ReloadImagesOnEditor;
             exit;
          end
          else begin
@@ -7979,7 +7979,7 @@ begin
 
    finally
      if _LastZoomValue <> 100 then
-        SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
+        SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
    end;
 
 end;
@@ -7994,10 +7994,10 @@ begin
      var str: string;
      var i: integer;
 
-     if NoteFile <> nil then begin
-        str:=       ActiveNote.NoteTextPlain    + #13 + '--------     ' + #13;
-        str:= str + ActiveNote.Editor.TextPlain + #13 + '--------     ' + #13;
-        str:= str + ActiveNote.Editor.RtfText   + #13 + '--------     ' + #13;
+     if KntFile <> nil then begin
+        str:=       ActiveKntFolder.NoteTextPlain    + #13 + '--------     ' + #13;
+        str:= str + ActiveKntFolder.Editor.TextPlain + #13 + '--------     ' + #13;
+        str:= str + ActiveKntFolder.Editor.RtfText   + #13 + '--------     ' + #13;
         Form_Main.Res_RTF.Text:= str;
      end;
 
@@ -8006,30 +8006,30 @@ begin
   end;
 {$ENDIF}
 
-   if ActiveNote = nil then exit;
+   if ActiveKntFolder = nil then exit;
 
    if CtrlDown or AltDown then begin
-      SS:= ActiveNote.Editor.SelStart;
+      SS:= ActiveKntFolder.Editor.SelStart;
       TB_Images.Down:= not TB_Images.Down;
 
       if CtrlDown then begin
          if ImagesManager.ImagesMode = imImage then
-            ActiveNote.ReloadImagesOnEditor
+            ActiveKntFolder.ReloadImagesOnEditor
          else
             ShowImages (False, True);
       end
       else
-         ActiveNote.ReconsiderImageDimensionGoalsOnEditor (ActiveNote.Editor.SelLength > 0);
+         ActiveKntFolder.ReconsiderImageDimensionGoalsOnEditor (ActiveKntFolder.Editor.SelLength > 0);
 
-      ActiveNote.Editor.SelStart:= SS;
+      ActiveKntFolder.Editor.SelStart:= SS;
       Application.ProcessMessages;
-      ActiveNote.Editor.SelLength:= 0;
+      ActiveKntFolder.Editor.SelLength:= 0;
    end
    else
       ShowImages (TB_Images.Down, False);
 
    if _LastZoomValue <> 100 then
-      SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
+      SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
 end;
 
 
@@ -8047,7 +8047,7 @@ begin
      ImageModeDest:= imLink;
 
    ImagesManager.ImagesMode:= ImageModeDest;
-   ActiveNote.SetImagesMode (ImageModeDest, ForceMode);
+   ActiveKntFolder.SetImagesMode (ImageModeDest, ForceMode);
 end;
 
 
@@ -8181,8 +8181,8 @@ procedure TForm_Main.md25Click(Sender: TObject);
 var
   ItemTag : integer;
 begin
-  if ( not assigned( ActiveNote )) then exit;
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
+  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( sender is TMenuItem ) then
   begin
     ItemTag := ( sender as TMenuItem ).Tag;
@@ -8196,8 +8196,8 @@ begin
         end;
       end;
 
-      ActiveNote.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
-      ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
+      ActiveKntFolder.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastDateFmt, now ) + #32;
+      ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
       ( sender as TMenuItem ).Checked := true;
     end;
   end;
@@ -8207,8 +8207,8 @@ procedure TForm_Main.mt8Click(Sender: TObject);
 var
   ItemTag : integer;
 begin
-  if ( not assigned( ActiveNote )) then exit;
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
+  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( sender is TMenuItem ) then
   begin
     ItemTag := ( sender as TMenuItem ).Tag;
@@ -8220,8 +8220,8 @@ begin
           KeyOptions.DTLastTimeFmt := TIME_FORMAT_LIST[ItemTag-1];
       end;
 
-      ActiveNote.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastTimeFmt, now ) + #32;
-      ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
+      ActiveKntFolder.Editor.SelText := GetDateTimeFormatted( KeyOptions.DTLastTimeFmt, now ) + #32;
+      ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
       ( sender as TMenuItem ).Checked := true;
     end;
   end;
@@ -8246,20 +8246,20 @@ procedure TForm_Main.ms11Click(Sender: TObject);
 var
   t : integer;
 begin
-  if ( not assigned( ActiveNote )) then exit;
-  if NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
+  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( sender is TMenuItem ) then
   begin
     t := ( sender as TMenuItem ).Tag;
     if (( t > 0 ) and ( t <= high( SYMBOL_CODE_LIST ))) then
     begin
       if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-         if ActiveNote.Editor.SelLength > 0 then
-            CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+         if ActiveKntFolder.Editor.SelLength > 0 then
+            CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor);
       end;
 
-      ActiveNote.Editor.SelText := SYMBOL_CODE_LIST[t];
-      ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + 1;
+      ActiveKntFolder.Editor.SelText := SYMBOL_CODE_LIST[t];
+      ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + 1;
     end;
   end;
 
@@ -8273,10 +8273,10 @@ var
 begin
   // fake a mouseclick to simulate clicking a hyperlink
 
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
   GetCaretPos( pt );
-  // pt := ActiveNote.Editor.ClientToScreen( pt );
+  // pt := ActiveKntFolder.Editor.ClientToScreen( pt );
   // SetCursorPos( pt.x, pt.y );
   _IS_FAKING_MOUSECLICK := true;
 
@@ -8286,9 +8286,9 @@ begin
   }
 
   // alternate solution, does not move the mouse
-  PostMessage( ActiveNote.Editor.Handle, WM_LBUTTONDOWN, MK_LBUTTON,
+  PostMessage( ActiveKntFolder.Editor.Handle, WM_LBUTTONDOWN, MK_LBUTTON,
                MakeLParam( pt.x, pt.y ));
-  PostMessage( ActiveNote.Editor.Handle, WM_LBUTTONUP, 0,
+  PostMessage( ActiveKntFolder.Editor.Handle, WM_LBUTTONUP, 0,
                MakeLParam( pt.x, pt.y ));
 
 end; // MMToolsURLClick
@@ -8362,7 +8362,7 @@ begin
   Paragraph.dwMask := PFM_BORDER;
   Paragraph.wBorders := 64;
 
-  SendMessage( ActiveNote.Editor.Handle, EM_SETPARAFORMAT, 0, LPARAM(@Paragraph));
+  SendMessage( ActiveKntFolder.Editor.Handle, EM_SETPARAFORMAT, 0, LPARAM(@Paragraph));
 end;
 
 procedure TForm_Main.MMEditDecimalToRomanClick(Sender: TObject);
@@ -8420,7 +8420,7 @@ var
 begin
     if _WindowWidthIncToRestore > 0 then begin
        if EnsureTreeVisible then
-          TKntFolder(ActiveNote).TV.Visible := True;
+          TKntFolder(ActiveKntFolder).TV.Visible := True;
 
        Inc:= _WindowWidthIncToRestore;
        _WindowWidthIncToRestore:= 0;
@@ -8454,8 +8454,8 @@ function DoMessageBox (text: string;
 var
    caption: string;
 begin
-    if assigned(NoteFile) then
-       caption:= ExtractFilename(NoteFile.FileName) + ' - ' + Program_Name
+    if assigned(KntFile) then
+       caption:= ExtractFilename(KntFile.FileName) + ' - ' + Program_Name
     else
        caption:= Program_Name;
 
@@ -8467,8 +8467,8 @@ function PopUpMessage( const mStr : string; const mType : TMsgDlgType;
 var
    caption: string;
 begin
-    if assigned(NoteFile) then
-       caption:= ExtractFilename(NoteFile.FileName) + ' - ' + Program_Name
+    if assigned(KntFile) then
+       caption:= ExtractFilename(KntFile.FileName) + ' - ' + Program_Name
     else
        caption:= Program_Name;
 

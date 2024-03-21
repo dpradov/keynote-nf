@@ -553,7 +553,7 @@ var
 begin
   if not assigned( CharInsertEvent ) then exit;
 
-  ActiveNote.Editor.BeginUpdate;
+  ActiveKntFolder.Editor.BeginUpdate;
   try
      for i:= 1 to EditorNewChars.TextLength do begin
         EditorNewChars.SetSelection(i-1,i,false);
@@ -564,7 +564,7 @@ begin
      if AutoAddNew then
         btnAddToTableClick (nil);
   finally
-     ActiveNote.Editor.EndUpdate;
+     ActiveKntFolder.Editor.EndUpdate;
   end;
 
   CharsLastCount := Spin_Count.Value;

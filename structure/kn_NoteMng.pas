@@ -65,7 +65,7 @@ resourcestring
 function NewNote(
   const DefaultNote, CanFocus : boolean) : boolean;
 var
-  myNote: TKntFolder;
+  myFolder: TKntFolder;
   Form_NewNote : TForm_NewNote;
   FileWasBusy, TimerWasEnabled : boolean;
 begin
@@ -73,7 +73,7 @@ begin
   with Form_Main do
   begin
     if ( not HaveNotes( true, false )) then exit;
-    myNote := nil;
+    myFolder := nil;
     FileWasBusy := FileIsBusy;
     FileIsBusy := true;
     StatusBar.Panels[PANEL_HINT].Text := '';
@@ -84,12 +84,12 @@ begin
     try
       if DefaultNote then
       begin
-        myNote := TKntFolder.Create;
-        myNote.SetEditorProperties( DefaultEditorProperties );
-        myNote.SetTabProperties( DefaultTabProperties );
-        myNote.EditorChrome := DefaultEditorChrome;
-        TKntFolder( myNote ).SetTreeProperties( DefaultTreeProperties );
-        TKntFolder( myNote ).TreeChrome := DefaultTreeChrome;
+        myFolder := TKntFolder.Create;
+        myFolder.SetEditorProperties( DefaultEditorProperties );
+        myFolder.SetTabProperties( DefaultTabProperties );
+        myFolder.EditorChrome := DefaultEditorChrome;
+        myFolder.SetTreeProperties( DefaultTreeProperties );
+        myFolder.TreeChrome := DefaultTreeChrome;
       end
       else
       begin
@@ -112,12 +112,12 @@ begin
           if ( Form_NewNote.ShowModal = mrOK ) then
           begin
             KeyOptions.TabNameHistory := Form_NewNote.myTabNameHistory;
-            myNote := TKntFolder.Create;
-            myNote.SetEditorProperties( Form_NewNote.myEditorProperties );
-            myNote.SetTabProperties( Form_NewNote.myTabProperties );
-            myNote.EditorChrome := Form_NewNote.myChrome;
+            myFolder := TKntFolder.Create;
+            myFolder.SetEditorProperties( Form_NewNote.myEditorProperties );
+            myFolder.SetTabProperties( Form_NewNote.myTabProperties );
+            myFolder.EditorChrome := Form_NewNote.myChrome;
             KeyOptions.NodeNameHistory := Form_NewNote.myNodeNameHistory;
-            with TKntFolder( myNote ) do begin
+            with myFolder do begin
               SetTreeProperties( Form_NewNote.myTreeProperties );
               TreeChrome := Form_NewNote.myTreeChrome;
             end;
@@ -126,24 +126,24 @@ begin
           Form_NewNote.Free;
         end;
       end;
-      if assigned( myNote ) then
+      if assigned( myFolder ) then
       begin
-        NoteFile.AddNote( myNote );
+        KntFile.AddNote( myFolder );
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_01;
         try
           with Form_Main do begin
-          CreateVCLControlsForNote( myNote );
-          SetUpVCLControls( myNote );
-          AddToFileManager( NoteFile.FileName, NoteFile ); // update manager (number of notes has changed)
+          CreateVCLControlsForNote( myFolder );
+          SetUpVCLControls( myFolder );
+          AddToFileManager( KntFile.FileName, KntFile ); // update manager (number of notes has changed)
           end;
 
         finally
-          NoteFile.Modified := ( not DefaultNote );
-          myNote.TabSheet.TabVisible := true; // was created hidden
-          ActiveNote := myNote;
+          KntFile.Modified := ( not DefaultNote );
+          myFolder.TabSheet.TabVisible := true; // was created hidden
+          ActiveKntFolder := myFolder;
         end;
         TreeNoteNewNode( nil, tnTop, nil, '', true );
-        Form_Main.Pages.ActivePage := myNote.TabSheet;
+        Form_Main.Pages.ActivePage := myFolder.TabSheet;
         UpdateNoteDisplay;
         if CanFocus then
         begin
@@ -163,12 +163,12 @@ begin
   finally
     Form_Main.Timer.Enabled := TimerWasEnabled;
     FileIsBusy := FileWasBusy;
-    NoteFile.Modified := true;
+    KntFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
-    result := assigned( myNote );
+    result := assigned( myFolder );
    {$IFDEF KNT_DEBUG}
-    if assigned( myNote ) then
-      Log.Add( 'Added new note: ' + myNote.Name )
+    if assigned( myFolder ) then
+      Log.Add( 'Added new note: ' + myFolder.Name )
     else
       Log.Add( 'New note NOT added.' );
    {$ENDIF}
@@ -182,45 +182,45 @@ begin
   with Form_Main do
   begin
       if ( not HaveNotes( true, true )) then exit;
-      if ( not assigned( ActiveNote )) then exit;
-      if NoteIsReadOnly( ActiveNote, true ) then exit;
+      if ( not assigned( ActiveKntFolder )) then exit;
+      if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
       if KeyOptions.ConfirmTabDelete then
       begin
         if ( DoMessageBox(
-            Format( STR_02, [RemoveAccelChar( ActiveNote.Name )] ),
+            Format( STR_02, [RemoveAccelChar( ActiveKntFolder.Name )] ),
             STR_03,
             MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
       end;
 
       try
         // clear Clipboard capture state if this note is ClipCapNote
-        if ( NoteFile.ClipCapNote = ActiveNote ) then
+        if ( KntFile.ClipCapNote = ActiveKntFolder ) then
         begin
           TB_ClipCap.Down := false;
           ClipCapNode := nil;
           Pages.MarkedPage := nil;
-          ToggleClipCap( false, ActiveNote ); // turn it OFF
+          ToggleClipCap( false, ActiveKntFolder ); // turn it OFF
         end;
 
         { // [dpv]
         // clear all bookmarks pointing to this note
         for pidx := 0 to MAX_BOOKMARKS do
         begin
-          if ( NoteFile.Bookmarks[pidx].Note = ActiveNote ) then
+          if ( KntFile.Bookmarks[pidx].Note = ActiveKntFolder ) then
             BookmarkClear( pidx );
         end;
         }
 
-        pidx := ActiveNote.TabSheet.TabIndex;
+        pidx := ActiveKntFolder.TabSheet.TabIndex;
 
         Pages.OnChange := nil;
 
-        DestroyVCLControlsForNote( ActiveNote, true );
-        NoteFile.RemoveImagesCountReferences(ActiveNote);
-        NoteFile.DeleteNote( ActiveNote );
-        ActiveNote := nil;
-        AddToFileManager( NoteFile.FileName, NoteFile ); // update manager (number of notes has changed)
+        DestroyVCLControlsForNote( ActiveKntFolder, true );
+        KntFile.RemoveImagesCountReferences(ActiveKntFolder);
+        KntFile.DeleteNote( ActiveKntFolder );
+        ActiveKntFolder := nil;
+        AddToFileManager( KntFile.FileName, KntFile ); // update manager (number of notes has changed)
 
         try
           if ( Pages.PageCount > 0 ) then
@@ -245,13 +245,13 @@ begin
       finally
         try
           PagesChange( Form_Main );
-          if assigned( ActiveNote ) then
-            ActiveNote.Editor.SetFocus;
+          if assigned( ActiveKntFolder ) then
+            ActiveKntFolder.Editor.SetFocus;
         except
         end;
         Pages.OnChange := PagesChange;
         StatusBar.Panels[PANEL_HINT].text := STR_04;
-        NoteFile.Modified := true;
+        KntFile.Modified := true;
         UpdateNoteFileState( [fscModified] );
       end;
     end;
@@ -259,8 +259,8 @@ end; // DeleteNote
 
 procedure CreateNewNote;
 begin
-  if assigned(ActiveNote) then
-     ActiveNote.EditorToDataStream;
+  if assigned(ActiveKntFolder) then
+     ActiveKntFolder.EditorToDataStream;
   if NewNote( false, true ) then
   begin
     Application.ProcessMessages;
@@ -275,8 +275,8 @@ var
 begin
   with Form_Main do begin
       if ( not HaveNotes( true, true )) then exit;
-      if ( not assigned( ActiveNote )) then exit;
-      if NoteIsReadOnly( ActiveNote, true ) then exit;
+      if ( not assigned( ActiveKntFolder )) then exit;
+      if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
       Form_NewNote := TForm_NewNote.Create( Form_Main );
       try
@@ -284,8 +284,8 @@ begin
         begin
           TAB_CHANGEABLE := false;
           ShowHint := KeyOptions.ShowTooltips;
-          myTabProperties.Name := ActiveNote.Name;
-          myTabProperties.ImageIndex := ActiveNote.ImageIndex;
+          myTabProperties.Name := ActiveKntFolder.Name;
+          myTabProperties.ImageIndex := ActiveKntFolder.ImageIndex;
           myTabNameHistory := KeyOptions.TabNameHistory;
           myHistoryCnt := FindOptions.HistoryMaxCnt;
           Button_Properties.Enabled := false;
@@ -294,14 +294,14 @@ begin
         if ( Form_NewNote.ShowModal = mrOK ) then
         begin
           KeyOptions.TabNameHistory := Form_NewNote.myTabNameHistory;
-          NoteFile.Modified := true;
-          ActiveNote.Name := Form_NewNote.myTabProperties.Name;
-          ActiveNote.ImageIndex := Form_NewNote.myTabProperties.ImageIndex;
+          KntFile.Modified := true;
+          ActiveKntFolder.Name := Form_NewNote.myTabProperties.Name;
+          ActiveKntFolder.ImageIndex := Form_NewNote.myTabProperties.ImageIndex;
           StatusBar.Panels[PANEL_HINT].Text := STR_05;
         end;
       finally
         Form_NewNote.Free;
-        NoteFile.Modified := true;
+        KntFile.Modified := true;
         UpdateNoteFileState( [fscModified] );
       end;
   end;
@@ -323,7 +323,7 @@ var
 begin
 
   with Form_Main do begin
-      if (( PropertiesAction = propThisNote ) and ( not assigned( ActiveNote ))) then
+      if (( PropertiesAction = propThisNote ) and ( not assigned( ActiveKntFolder ))) then
         exit;
 
       TreeLayoutChanged := false;
@@ -340,21 +340,21 @@ begin
           Action := PropertiesAction;
           DefaultsFN := DEF_FN;
           myTabNameHistory := KeyOptions.TabNameHistory;
-          myNoteIsReadOnly := (( PropertiesAction = propThisNote ) and NoteIsReadOnly( ActiveNote, false ));
+          myNoteIsReadOnly := (( PropertiesAction = propThisNote ) and NoteIsReadOnly( ActiveKntFolder, false ));
 
           myNodeNameHistory := KeyOptions.NodeNameHistory;
 
           myCurrentFileName:= '';
-          if assigned(NoteFile) and (NoteFile.FileName <> '') then
-             myCurrentFileName := ExtractFilename( NoteFile.FileName );
+          if assigned(KntFile) and (KntFile.FileName <> '') then
+             myCurrentFileName := ExtractFilename( KntFile.FileName );
 
 
           case PropertiesAction of
             propThisNote : begin
 
-              myEditorChrome := ActiveNote.EditorChrome;
-              ActiveNote.GetTabProperties( myTabProperties );
-              ActiveNote.GetEditorProperties( myEditorProperties );
+              myEditorChrome := ActiveKntFolder.EditorChrome;
+              ActiveKntFolder.GetTabProperties( myTabProperties );
+              ActiveKntFolder.GetEditorProperties( myEditorProperties );
 
               myEditorProperties.DefaultZoom:= DefaultEditorProperties.DefaultZoom;    // Just for show it
 
@@ -377,7 +377,7 @@ begin
               CB_WordWrap.Checked:= myEditorProperties.WordWrap;    // *1
 
 
-              with TKntFolder( ActiveNote ) do begin
+              with ActiveKntFolder do begin
 
                 myInheritBGColor:= TreeOptions.InheritNodeBG;
                 if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then
@@ -391,7 +391,7 @@ begin
                 oldShowCheckboxes := myTreeProperties.CheckBoxes;
                 oldHideChecked := myTreeProperties.HideChecked;       // [dpv]
               end;
-              oldPlainText := ActiveNote.PlainText;
+              oldPlainText := ActiveKntFolder.PlainText;
             end;
 
             propDefaults : begin
@@ -422,28 +422,28 @@ begin
             KeyOptions.NodeNameHistory := myNodeNameHistory;
 
             if (PropertiesAction = propThisNote) and not myNoteIsReadOnly  then begin
-                NoteFile.Modified:= True;
-                ActiveNote.Modified:= True;
+                KntFile.Modified:= True;
+                ActiveKntFolder.Modified:= True;
                 UpdateNoteFileState( [fscModified] );
 
-                ActiveNote.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
-                ActiveNote.SetEditorProperties( myEditorProperties );
-                ActiveNote.EditorChrome := myEditorChrome;
+                ActiveKntFolder.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
+                ActiveKntFolder.SetEditorProperties( myEditorProperties );
+                ActiveKntFolder.EditorChrome := myEditorChrome;
 
                 // reflect changes in controls
-                ActiveNote.UpdateEditor;
-                ActiveNote.UpdateTabSheet;
+                ActiveKntFolder.UpdateEditor;
+                ActiveKntFolder.UpdateTabSheet;
 
                 EnsuredPlainText:= False;
-                if ActiveNote.PlainText then
-                   EnsuredPlainText:= NoteFile.EnsurePlainTextAndRemoveImages(ActiveNote);
+                if ActiveKntFolder.PlainText then
+                   EnsuredPlainText:= KntFile.EnsurePlainTextAndRemoveImages(ActiveKntFolder);
 
-                with TKntFolder( ActiveNote ) do begin
+                with ActiveKntFolder do begin
                   // this will apply the selected BG color to current NODE
                   // besides setting the new default BG color for whole NOTE.
                   if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then begin
-                    SelectedNode.RTFBGColor := ActiveNote.EditorChrome.BGColor;
-                    ActiveNote.Editor.Color := ActiveNote.EditorChrome.BGColor;
+                    SelectedNode.RTFBGColor := ActiveKntFolder.EditorChrome.BGColor;
+                    ActiveKntFolder.Editor.Color := ActiveKntFolder.EditorChrome.BGColor;
                   end;
 
                   TreeLayoutChanged := ( VerticalLayout <> myTreeProperties.VerticalLayout );
@@ -453,36 +453,36 @@ begin
 
                 // update changes to tree control
                 if ( oldIconKind <> myTreeProperties.IconKind ) then
-                   ShowOrHideIcons( TKntFolder( ActiveNote ), true );
+                   ShowOrHideIcons( ActiveKntFolder, true );
                 if ( oldShowCheckboxes <> myTreeProperties.CheckBoxes ) then
-                   ShowOrHideCheckBoxes( TKntFolder( ActiveNote ));
+                   ShowOrHideCheckBoxes( ActiveKntFolder);
                 if ( oldHideChecked <> myTreeProperties.HideChecked ) then    // [dpv]
                    if myTreeProperties.HideChecked then
-                      HideChildNodesUponCheckState ( TKntFolder( ActiveNote ), nil, csChecked)
+                      HideChildNodesUponCheckState ( ActiveKntFolder, nil, csChecked)
                    else
-                      ShowCheckedNodes ( TKntFolder( ActiveNote ), nil);
+                      ShowCheckedNodes ( ActiveKntFolder, nil);
 
-                UpdateTreeChrome(TKntFolder(ActiveNote));
+                UpdateTreeChrome(ActiveKntFolder);
 
                 // If we have changed to PlainText we will have already updated the editor from EnsurePlainTextAndRemoveImages
-                if (not EnsuredPlainText) and (oldPlainText <> ActiveNote.PlainText)
+                if (not EnsuredPlainText) and (oldPlainText <> ActiveKntFolder.PlainText)
                      and (not TreeLayoutChanged)   then begin  // This is done if TreeLayoutChanged too
-                   ActiveNote.EditorToDataStream;  // Save the content of the editor according to the new formatting (Plain text / RTF)
-                   ActiveNote.DataStreamToEditor;
+                   ActiveKntFolder.EditorToDataStream;  // Save the content of the editor according to the new formatting (Plain text / RTF)
+                   ActiveKntFolder.DataStreamToEditor;
                 end;
 
             end;
 
             if ApplyTreeChromeToAllNotes and HaveNotes( false, true ) then begin
-                for i := 0 to NoteFile.NoteCount -1 do begin
-                   Note:= NoteFile.Notes[i];
-                   if ((PropertiesAction = propThisNote) and (Note = ActiveNote)) or (Note.ReadOnly) then
+                for i := 0 to KntFile.NoteCount -1 do begin
+                   Note:= KntFile.Notes[i];
+                   if ((PropertiesAction = propThisNote) and (Note = ActiveKntFolder)) or (Note.ReadOnly) then
                        continue;
                    Note.Modified:= True;
-                   TKntFolder(Note).TreeChrome := myTreeChrome;
-                   UpdateTreeChrome(TKntFolder(Note));
+                   Note.TreeChrome := myTreeChrome;
+                   UpdateTreeChrome(Note);
                 end;
-                NoteFile.Modified:= True;
+                KntFile.Modified:= True;
                 UpdateNoteFileState( [fscModified] );
             end;
 
@@ -491,11 +491,11 @@ begin
 
                 // must update all richedits and trees with the modified EditorOptions and TreeOptions:
                 if HaveNotes( false, true ) then begin
-                    for i := 0 to NoteFile.NoteCount -1 do begin
-                       Note:= NoteFile.Notes[i];
+                    for i := 0 to KntFile.NoteCount -1 do begin
+                       Note:= KntFile.Notes[i];
                        Note.Editor.WordSelection := EditorOptions.WordSelect;
                        Note.Editor.UndoLimit := EditorOptions.UndoLimit;
-                       UpdateTreeOptions(TKntFolder(Note));
+                       UpdateTreeOptions(Note);
                     end;
                 end;
 
@@ -508,7 +508,7 @@ begin
                 DefaultTreeProperties := myTreeProperties;
 
                 if mySaveFileDefaults then
-                   DEF_FN := NoteFile.FileName + ext_DEFAULTS
+                   DEF_FN := KntFile.FileName + ext_DEFAULTS
 
                 else begin
                   // if mySaveFileDefaults was true before, and is now false, delete the file-specific .def file
@@ -522,7 +522,7 @@ begin
           end;
 
           if _LastZoomValue <> 100 then
-             SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
+             SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
 
         end;
 
@@ -536,14 +536,14 @@ begin
         screen.Cursor := crHourGlass;
         Pages.OnChange := nil;
         try
-          TKntFolder( ActiveNote ).TreeWidth := 0;
-          ActiveNote.EditorToDataStream;
-          ActiveNote.Editor.Clear;
-          ActiveNote.Editor.ClearUndo;
-          DestroyVCLControlsForNote( ActiveNote, false );
-          CreateVCLControlsForNote( ActiveNote );
-          ActiveNote.DataStreamToEditor;
-          SetUpVCLControls( ActiveNote );
+          ActiveKntFolder.TreeWidth := 0;
+          ActiveKntFolder.EditorToDataStream;
+          ActiveKntFolder.Editor.Clear;
+          ActiveKntFolder.Editor.ClearUndo;
+          DestroyVCLControlsForNote( ActiveKntFolder, false );
+          CreateVCLControlsForNote( ActiveKntFolder );
+          ActiveKntFolder.DataStreamToEditor;
+          SetUpVCLControls( ActiveKntFolder );
           FocusActiveNote;
         finally
           screen.Cursor := crDefault;

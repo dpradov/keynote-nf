@@ -452,7 +452,7 @@ procedure TForm_Mail.AddNoteToMailMessage( const aNote : TKntFolder );
 var
   tNote : TKntFolder;
   myTreeNode : TTreeNTNode;
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
   RichEdit : TRxRichEdit;
 begin
 
@@ -466,7 +466,7 @@ begin
     end;
 
     ntTree : begin
-      tNote := TKntFolder( aNote );
+      tNote := aNote;
       // List := TStringList.Create;
       RichEdit := TRxRichEdit.Create( self );
       with RichEdit do
@@ -482,14 +482,14 @@ begin
            myTreeNode := myTreeNode.GetNextNotHidden;
         while assigned( myTreeNode ) do
         begin
-          myNoteNode := TKntNote( myTreeNode.Data );
-          if assigned( myNoteNode ) then
+          myNote := TKntNote( myTreeNode.Data );
+          if assigned( myNote ) then
           begin
             SMTPCli.MailMessage.Add( '' );
-            SMTPCli.MailMessage.Add( '+ Node ' + myNoteNode.Name + '  Level ' + inttostr( myTreeNode.Level ));
+            SMTPCli.MailMessage.Add( '+ Node ' + myNote.Name + '  Level ' + inttostr( myTreeNode.Level ));
 
-            myNoteNode.Stream.Position := 0;
-            RichEdit.Lines.LoadFromStream( myNoteNode.Stream );
+            myNote.Stream.Position := 0;
+            RichEdit.Lines.LoadFromStream( myNote.Stream );
             SMTPCli.MailMessage.AddStrings( RichEdit.Lines );
 
           end;

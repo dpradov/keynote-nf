@@ -709,7 +709,7 @@ begin
       if (KeyOptions.ImgMaxAutoWidthGoal > 0) then
           MaxWidth:= KeyOptions.ImgMaxAutoWidthGoal
       else begin
-          MaxWidth:= ActiveNote.Editor.Width;
+          MaxWidth:= ActiveKntFolder.Editor.Width;
           if Form_Main.MMAlternativeMargins.Checked then
              Dec(MaxWidth, KeyOptions.MarginAltLeft + KeyOptions.MarginAltRight + 20)
           else

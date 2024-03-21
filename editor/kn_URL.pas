@@ -268,7 +268,7 @@ begin
       end;
 
       {
-      if (RichEditVersion < 4) or (ActiveNote.PlainText) then begin
+      if (RichEditVersion < 4) or (ActiveKntFolder.PlainText) then begin
         Edit_TextURL.Text:= '';
         Label2.Enabled:= false;
         Edit_TextURL.Enabled:= false;

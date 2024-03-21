@@ -103,23 +103,23 @@ end; // VirtualNodeGetMode
 
 procedure VirtualNodeProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : string );
 var
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
   oldDlgFilter : string;
   ext : string;
   IsVNError, IsFlushingData, IsChangingFile : boolean;
 begin
-  myNoteNode := nil;
+  myNote := nil;
   if ( myTreeNode = nil ) then
     myTreeNode := GetCurrentTreeNode;
   if ( assigned( myTreeNode )) then
-    myNoteNode := TKntNote( myTreeNode.Data );
+    myNote := TKntNote( myTreeNode.Data );
 
-  if ( not assigned( myNoteNode )) then exit;
+  if ( not assigned( myNote )) then exit;
   IsFlushingData := false;
   IsChangingFile := false;
   IsVNError := false;
 
-  if ( myNoteNode.VirtualMode <> vmNone ) then
+  if ( myNote.VirtualMode <> vmNone ) then
   begin
     // Already a virtual node. Ask if user wants
     // to change the file with which the node is linked.
@@ -129,14 +129,14 @@ begin
     {$IFDEF WITH_IE}
     IsChangingFile := true;
     {$ELSE}
-    if myNoteNode.HasVNodeError then
+    if myNote.HasVNodeError then
     begin
       IsChangingFile := true;
       IsVNError := true;
     end
     else
     begin
-      if ( DoMessageBox( Format(STR_01, [myNoteNode.Name, myNoteNode.VirtualFN] ),
+      if ( DoMessageBox( Format(STR_01, [myNote.Name, myNote.VirtualFN] ),
       mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
         IsChangingFile := true;
     end;
@@ -152,9 +152,9 @@ begin
   else
   begin
     // not a virtual node. If it has text, we have to have an additional prompt
-    if ( ActiveNote.Editor.Lines.Count > 0 ) then
+    if ( ActiveKntFolder.Editor.Lines.Count > 0 ) then
     begin
-      if ( DoMessageBox( Format(STR_02, [myNoteNode.Name] ),
+      if ( DoMessageBox( Format(STR_02, [myNote.Name] ),
         mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
       exit;
       IsFlushingData := true; // needs a SaveDlg, not an OpenDlg
@@ -163,7 +163,7 @@ begin
   end;
 
   with Form_Main do begin
-      if (( NoteFile.FileFormat = nffEncrypted ) and ( not Virtual_UnEncrypt_Warning_Done )) then
+      if (( KntFile.FileFormat = nffEncrypted ) and ( not Virtual_UnEncrypt_Warning_Done )) then
       begin
         if ( messagedlg(STR_03, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
         Virtual_UnEncrypt_Warning_Done := true;
@@ -179,7 +179,7 @@ begin
           oldDlgFilter := SaveDlg.Filter;
           SaveDlg.Filter := FILTER_RTFFILES + '|' + FILTER_TEXTFILES + '|' + FILTER_HTMLFILES + '|' + FILTER_ALLFILES;
           SaveDlg.Title := STR_04;
-          SaveDlg.Filename := myNoteNode.Name;
+          SaveDlg.Filename := myNote.Name;
 
           try
             if ( not SaveDlg.Execute ) then exit;
@@ -193,16 +193,16 @@ begin
         else
         begin
           {$IFDEF WITH_IE}
-          if ( not VirtualNodeGetMode( myNoteNode, VMode, VirtFN )) then exit;
+          if ( not VirtualNodeGetMode( myNote, VMode, VirtFN )) then exit;
           {$ELSE}
           // use OpenDlg
           oldDlgFilter := OpenDlg.Filter;
           OpenDlg.Filter := FILTER_RTFFILES + '|' + FILTER_TEXTFILES + '|' + FILTER_HTMLFILES + '|' + FILTER_ALLFILES;
           OpenDlg.Title := STR_04;
           if IsVNError then
-            OpenDlg.Filename := copy( myNoteNode.VirtualFN, 2, length( myNoteNode.VirtualFN ))
+            OpenDlg.Filename := copy( myNote.VirtualFN, 2, length( myNote.VirtualFN ))
           else
-            OpenDlg.Filename := myNoteNode.VirtualFN;
+            OpenDlg.Filename := myNote.VirtualFN;
 
           try
             if ( not OpenDlg.Execute ) then exit;
@@ -255,7 +255,7 @@ begin
         // any given file can be linked to a virtual node only once
         // per KNT file. So we must check if the selected file already
         // exists as a virtual node in the currently open KNT file.
-        if NoteFile.HasVirtualNodeByFileName( myNoteNode, VirtFN ) then
+        if KntFile.HasVirtualNodeByFileName( myNote, VirtFN ) then
         begin
           messagedlg( STR_08, mtError, [mbOK], 0 );
           exit;
@@ -266,61 +266,61 @@ begin
       try
         try
 
-          ActiveNote.Editor.OnChange := nil;
+          ActiveKntFolder.Editor.OnChange := nil;
 
-          if ( IsChangingFile and ( not ( myNoteNode.VirtualMode in [vmIELocal, vmIERemote] ))) then
+          if ( IsChangingFile and ( not ( myNote.VirtualMode in [vmIELocal, vmIERemote] ))) then
           begin
             // Node must save its existing data first:
             if ( not IsVNError ) then
             begin
-              ActiveNote.EditorToDataStream;
-              myNoteNode.SaveVirtualFile;
+              ActiveKntFolder.EditorToDataStream;
+              myNote.SaveVirtualFile;
             end;
             // now clear the editor
-            ActiveNote.Editor.Clear;
-            ActiveNote.Editor.ClearUndo;
+            ActiveKntFolder.Editor.Clear;
+            ActiveKntFolder.Editor.ClearUndo;
           end;
 
           {$IFDEF WITH_IE}
-          myNoteNode.VirtualMode := VMode;
-          myNoteNode.VirtualFN := VirtFN;
+          myNote.VirtualMode := VMode;
+          myNote.VirtualFN := VirtFN;
           {$ELSE}
-          if ( myNoteNode.VirtualMode in [vmNone, vmText, vmRTF, vmHTML] ) then
-            myNoteNode.VirtualMode := VMode; // so that setting new filename will adjust the vm type
-          myNoteNode.VirtualFN := VirtFN;
+          if ( myNote.VirtualMode in [vmNone, vmText, vmRTF, vmHTML] ) then
+            myNote.VirtualMode := VMode; // so that setting new filename will adjust the vm type
+          myNote.VirtualFN := VirtFN;
           {$ENDIF}
 
-          // myNoteNode.Stream.LoadFromFile( myNoteNode.VirtualFN );
+          // myNote.Stream.LoadFromFile( myNote.VirtualFN );
           if IsFlushingData then
           begin
             // never true for vmIELocal or vmIERemote
-            ActiveNote.EditorToDataStream;
-            myNoteNode.SaveVirtualFile;
+            ActiveKntFolder.EditorToDataStream;
+            myNote.SaveVirtualFile;
           end
           else
           begin
-            myNoteNode.LoadVirtualFile;
-            ActiveNote.DataStreamToEditor;
+            myNote.LoadVirtualFile;
+            ActiveKntFolder.DataStreamToEditor;
           end;
           VirtualNodeUpdateMenu( true, false );
           myTreeNode := GetCurrentTreeNode;
-          SelectIconForNode( myTreeNode, TKntFolder( ActiveNote ).IconKind );
+          SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
           if ( TreeOptions.AutoNameVNodes and ( not IsFlushingData )) then
           begin
-            myNoteNode.Name := ExtractFilename( myNoteNode.VirtualFN ); // {N}
+            myNote.Name := ExtractFilename( myNote.VirtualFN ); // {N}
             (* [x] ImportFileNamesWithExt ignored for virtual nodes, because it is useful to have extension visible
             if KeyOptions.ImportFileNamesWithExt then
-              myNoteNode.Name := ExtractFilename( myNoteNode.VirtualFN ) // {N}
+              myNote.Name := ExtractFilename( myNote.VirtualFN ) // {N}
             else
-              myNoteNode.Name := ExtractFilenameNoExt( myNoteNode.VirtualFN );
+              myNote.Name := ExtractFilenameNoExt( myNote.VirtualFN );
             *)
-            myTreeNode.Text := myNoteNode.Name;
+            myTreeNode.Text := myNote.Name;
           end;
 
         except
           on E : Exception do
           begin
-            myNoteNode.VirtualFN := '';
+            myNote.VirtualFN := '';
             messagedlg( STR_09 + E.Message,
               mtError, [mbOK], 0 );
           end;
@@ -328,10 +328,10 @@ begin
 
       finally
 
-        NoteFile.Modified := true;
+        KntFile.Modified := true;
         UpdateNoteFileState( [fscModified] );
-        ActiveNote.Editor.Modified := false;
-        ActiveNote.Editor.OnChange := RxRTFChange;
+        ActiveKntFolder.Editor.Modified := false;
+        ActiveKntFolder.Editor.OnChange := RxRTFChange;
 
       end;
   end;
@@ -340,55 +340,55 @@ end; // VirtualNodeProc
 
 procedure VirtualNodeUnlink;
 var
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
   myTreeNode, originalTreeNode : TTreeNTNode;
 begin
-  myNoteNode := GetCurrentVirtualNode;
-  if ( not assigned( myNoteNode )) then exit;
+  myNote := GetCurrentVirtualNode;
+  if ( not assigned( myNote )) then exit;
   myTreeNode := GetCurrentTreeNode;
   if ( not assigned( myTreeNode )) then exit;
 
   // cannot unlink vmIERemote virtual nodes,
   // because there's no local file
 
-  if ( myNoteNode.VirtualMode in [vmIELocal, vmIERemote] ) then
+  if ( myNote.VirtualMode in [vmIELocal, vmIERemote] ) then
   begin
-    DoMessageBox( Format(STR_10, [myNoteNode.Name] ), mtError, [mbOK], 0 );
+    DoMessageBox( Format(STR_10, [myNote.Name] ), mtError, [mbOK], 0 );
     exit;
   end;
 
-  if (myNoteNode.VirtualMode= vmKNTNode) then begin
-       originalTreeNode:= myNoteNode.MirrorNode;
+  if (myNote.VirtualMode= vmKNTNode) then begin
+       originalTreeNode:= myNote.MirrorNode;
        if assigned(originalTreeNode) and assigned(TKntNote(originalTreeNode.Data)) then
-          if ( DoMessageBox( Format(STR_18, [myNoteNode.Name, myNoteNode.VirtualFN] ),
+          if ( DoMessageBox( Format(STR_18, [myNote.Name, myNote.VirtualFN] ),
             mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
           begin
             try
               RemoveMirrorNode(originalTreeNode, myTreeNode);
-              myNoteNode.MirrorNode:= nil;
-              TKntNote(originalTreeNode.Data).Stream.SaveToStream(myNoteNode.Stream);
-              ActiveNote.Modified := true;
+              myNote.MirrorNode:= nil;
+              TKntNote(originalTreeNode.Data).Stream.SaveToStream(myNote.Stream);
+              ActiveKntFolder.Modified := true;
               VirtualNodeUpdateMenu( false, false );
-              SelectIconForNode( myTreeNode, TKntFolder( ActiveNote ).IconKind );
+              SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
             finally
-              NoteFile.Modified := true;
+              KntFile.Modified := true;
               UpdateNoteFileState( [fscModified] );
             end;
           end;
 
   end
   else
-      if ( DoMessageBox( Format(STR_11, [myNoteNode.Name, myNoteNode.VirtualFN] ),
+      if ( DoMessageBox( Format(STR_11, [myNote.Name, myNote.VirtualFN] ),
         mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
       begin
         try
-          myNoteNode.VirtualMode := vmNone;
-          myNoteNode.VirtualFN := '';
-          ActiveNote.Modified := true;
+          myNote.VirtualMode := vmNone;
+          myNote.VirtualFN := '';
+          ActiveKntFolder.Modified := true;
           VirtualNodeUpdateMenu( false, false );
-          SelectIconForNode( myTreeNode, TKntFolder( ActiveNote ).IconKind );
+          SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
         finally
-          NoteFile.Modified := true;
+          KntFile.Modified := true;
           UpdateNoteFileState( [fscModified] );
         end;
       end;
@@ -397,17 +397,17 @@ end; // VirtualNodeUnlink
 
 procedure VirtualNodeRefresh( const DoPrompt : boolean );
 var
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
 begin
-  myNoteNode := GetCurrentVirtualNode;
-  if ( not assigned( myNoteNode )) then exit;
+  myNote := GetCurrentVirtualNode;
+  if ( not assigned( myNote )) then exit;
 
-  // if ( ActiveNote.FocusMemory <> focTree ) then exit;
+  // if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
 
-  if myNoteNode.RTFModified then
+  if myNote.RTFModified then
   begin
     if ( DoMessageBox( Format(STR_12,
-      [myNoteNode.Name, ExtractFilename( myNoteNode.VirtualFN )] ),
+      [myNote.Name, ExtractFilename( myNote.VirtualFN )] ),
       mtWarning, [mbOK,mbCancel], 0 ) <> mrOK ) then
     exit;
   end
@@ -415,17 +415,17 @@ begin
   if DoPrompt then
   begin
     if ( DoMessageBox( Format(STR_13,
-      [myNoteNode.Name, ExtractFilename( myNoteNode.VirtualFN )] ),
+      [myNote.Name, ExtractFilename( myNote.VirtualFN )] ),
       mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
     exit;
   end;
 
   with Form_Main do begin
-      ActiveNote.Editor.Lines.BeginUpdate;
-      ActiveNote.Editor.OnChange := nil;
+      ActiveKntFolder.Editor.Lines.BeginUpdate;
+      ActiveKntFolder.Editor.OnChange := nil;
       try
         try
-          myNoteNode.LoadVirtualFile;
+          myNote.LoadVirtualFile;
         except
           on E : Exception do
           begin
@@ -435,19 +435,19 @@ begin
         end;
 
         try
-          ActiveNote.Editor.Clear;
-          ActiveNote.Editor.ClearUndo;
-          ActiveNote.DataStreamToEditor;
+          ActiveKntFolder.Editor.Clear;
+          ActiveKntFolder.Editor.ClearUndo;
+          ActiveKntFolder.DataStreamToEditor;
           StatusBar.Panels[PANEL_HINT].Text := STR_15;
         except
           StatusBar.Panels[PANEL_HINT].Text := STR_16;
         end;
 
       finally
-        ActiveNote.Editor.Lines.EndUpdate;
-        NoteFile.Modified := true;
+        ActiveKntFolder.Editor.Lines.EndUpdate;
+        KntFile.Modified := true;
         UpdateNoteFileState( [fscModified] );
-        ActiveNote.Editor.OnChange := RxRTFChange;
+        ActiveKntFolder.Editor.OnChange := RxRTFChange;
       end;
   end;
 

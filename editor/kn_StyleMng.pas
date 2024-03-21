@@ -81,8 +81,8 @@ begin
       s := '';
       if FromEditor then
       begin
-        if ((( not HaveNotes( true, true )) or ( not assigned( ActiveNote )))) then exit;
-        s := STR_01 + #13#13 + STR_02 + ActiveNote.Editor.FontInfoString + #13#13 + STR_03 + ActiveNote.Editor.ParaInfoString;
+        if ((( not HaveNotes( true, true )) or ( not assigned( ActiveKntFolder )))) then exit;
+        s := STR_01 + #13#13 + STR_02 + ActiveKntFolder.Editor.FontInfoString + #13#13 + STR_03 + ActiveKntFolder.Editor.ParaInfoString;
       end
       else
       begin
@@ -109,7 +109,7 @@ var
   idx : integer;
 begin
   if ( not Form_Main.HaveNotes( true, true )) then exit;
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
   if ( not assigned( StyleManager )) then
   begin
@@ -157,7 +157,7 @@ begin
   begin
 
     if ( Range in [srFont, srBoth] ) then
-    with ActiveNote.Editor.SelAttributes do
+    with ActiveKntFolder.Editor.SelAttributes do
     begin
       Font.Charset := Charset;
       Font.Color := Color;
@@ -175,7 +175,7 @@ begin
     end;
 
     if ( Range in [srParagraph, srBoth] ) then
-    with ActiveNote.Editor.Paragraph do
+    with ActiveKntFolder.Editor.Paragraph do
     begin
 
       case LineSpacing of
@@ -194,7 +194,7 @@ begin
       Para.SpaceAfter := SpaceAfter;
     end;
 
-    ActiveNote.Editor.SetFocus;
+    ActiveKntFolder.Editor.SetFocus;
 
     try
       StylesModified := true;
@@ -219,8 +219,8 @@ var
 begin
   with Form_Main do begin
       if ( not HaveNotes( true, true )) then exit;
-      if ( not assigned( ActiveNote )) then exit;
-      if NoteIsReadOnly( ActiveNote, true ) then exit;
+      if ( not assigned( ActiveKntFolder )) then exit;
+      if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
       try
         if ( aName = '' ) then
@@ -239,15 +239,15 @@ begin
       if IsRecordingMacro then
         AddMacroEditCommand( ecStyleApply );
 
-      ActiveNote.Editor.BeginUpdate;
+      ActiveKntFolder.Editor.BeginUpdate;
       try
         with myStyle do
         begin
             if ( Range in [srFont, srBoth] ) then
-            with ActiveNote.Editor.SelAttributes do
+            with ActiveKntFolder.Editor.SelAttributes do
             begin
               Charset := Font.Charset;
-              ActiveNote.Editor.SuspendUndo;
+              ActiveKntFolder.Editor.SuspendUndo;
 
               Color := Font.Color;
               Name := Font.Name;
@@ -259,27 +259,27 @@ begin
               if Text.HasHighlight then
                 BackColor := Text.Highlight;
 
-              ActiveNote.Editor.ResumeUndo;
+              ActiveKntFolder.Editor.ResumeUndo;
             end;
 
             if ( Range in [srParagraph, srBoth] ) then
-            with ActiveNote.Editor.Paragraph do
+            with ActiveKntFolder.Editor.Paragraph do
             begin
               LineSpacingRule := Para.SpacingRule;
-              ActiveNote.Editor.SuspendUndo;
+              ActiveKntFolder.Editor.SuspendUndo;
 
               case LineSpacingRule of
                 lsSingle : begin
-                  ActiveNote.Editor.Paragraph.LineSpacingRule := lsSingle;
-                  ActiveNote.Editor.Paragraph.LineSpacing := 0;
+                  ActiveKntFolder.Editor.Paragraph.LineSpacingRule := lsSingle;
+                  ActiveKntFolder.Editor.Paragraph.LineSpacing := 0;
                 end;
                 lsOneAndHalf : begin
-                  ActiveNote.Editor.Paragraph.LineSpacingRule := lsOneAndHalf;
-                  ActiveNote.Editor.Paragraph.LineSpacing := 1; // EditorOptions.LineSpcInc;
+                  ActiveKntFolder.Editor.Paragraph.LineSpacingRule := lsOneAndHalf;
+                  ActiveKntFolder.Editor.Paragraph.LineSpacing := 1; // EditorOptions.LineSpcInc;
                 end;
                 lsDouble : begin
-                  ActiveNote.Editor.Paragraph.LineSpacingRule := lsDouble;
-                  ActiveNote.Editor.Paragraph.LineSpacing := 2; // 2*EditorOptions.LineSpcInc;
+                  ActiveKntFolder.Editor.Paragraph.LineSpacingRule := lsDouble;
+                  ActiveKntFolder.Editor.Paragraph.LineSpacing := 2; // 2*EditorOptions.LineSpcInc;
                 end;
               end;
 
@@ -291,22 +291,22 @@ begin
               SpaceBefore := Para.SpaceBefore;
               SpaceAfter := Para.SpaceAfter;
 
-              ActiveNote.Editor.ResumeUndo
+              ActiveKntFolder.Editor.ResumeUndo
             end;
 
         end;
 
         try
-          ActiveNote.Editor.SetFocus;
+          ActiveKntFolder.Editor.SetFocus;
         except
         end;
 
       finally
-        ActiveNote.Editor.EndUpdate;
+        ActiveKntFolder.Editor.EndUpdate;
 
-        ActiveNote.Modified := true;
-        NoteFile.Modified := true;
-        RxRTFSelectionChange( ActiveNote.Editor );
+        ActiveKntFolder.Modified := true;
+        KntFile.Modified := true;
+        RxRTFSelectionChange( ActiveKntFolder.Editor );
         UpdateNoteFileState( [fscModified] );
       end;
   end;

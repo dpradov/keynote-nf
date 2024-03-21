@@ -122,7 +122,7 @@ type
     procedure CleanCacheURLs (OnlyWithoutTitle: boolean);
 
     function CreateRTFAuxEditorControl (NoteToLoadFrom: TKntFolder= nil; FromSelection: Boolean= True): TTabRichEdit;
-    procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TKntFolder);
+    procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myFolder: TKntFolder);
 
 
 const
@@ -242,23 +242,23 @@ var
   SS: integer;
 begin
   with Form_Main do begin
-      if ( not ( assigned( GlossaryList ) and assigned( ActiveNote ) and ( ActiveNote.FocusMemory = focRTF ))) then begin
+      if ( not ( assigned( GlossaryList ) and assigned( ActiveKntFolder ) and ( ActiveKntFolder.FocusMemory = focRTF ))) then begin
         StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_01;
         exit;
       end;
-      if NoteIsReadOnly( ActiveNote, true ) then exit;
+      if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
       UpdateLastCommand( ecExpandTerm );
       if IsRecordingMacro then
         AddMacroEditCommand( ecExpandTerm );
 
       SS:= -1;
-      if ( ActiveNote.Editor.SelLength = 0 ) then begin
-        SS:= ActiveNote.Editor.SelStart;
-        w := ActiveNote.Editor.GetWordAtCursor( true, false, true, true );       // SpacesAsWordDelim=True
+      if ( ActiveKntFolder.Editor.SelLength = 0 ) then begin
+        SS:= ActiveKntFolder.Editor.SelStart;
+        w := ActiveKntFolder.Editor.GetWordAtCursor( true, false, true, true );       // SpacesAsWordDelim=True
       end
       else
-        w := ActiveNote.Editor.SelText;
+        w := ActiveKntFolder.Editor.SelText;
 
       if ( length( w ) = 0 ) then begin
         StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_02;
@@ -268,8 +268,8 @@ begin
       replw := GlossaryList.Values[w];
 
       if (replw = '') and (SS > 0) then begin
-         ActiveNote.Editor.SelStart:= SS;
-         w := ActiveNote.Editor.GetWordAtCursor( true, false, true, false );    // SpacesAsWordDelim=False
+         ActiveKntFolder.Editor.SelStart:= SS;
+         w := ActiveKntFolder.Editor.GetWordAtCursor( true, false, true, false );    // SpacesAsWordDelim=False
          replw := GlossaryList.Values[w];
       end;
 
@@ -281,11 +281,11 @@ begin
 
       StatusBar.Panels[PANEL_HINT].Text := Format( ' %s -> %s', [w,replw] );
       replw := ExpandMetaChars( replw );
-      ActiveNote.Editor.SelText := replw;
+      ActiveKntFolder.Editor.SelText := replw;
 
-      ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
+      ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
 
-      NoteFile.Modified := true;
+      KntFile.Modified := true;
       UpdateNoteFileState( [fscModified] );
   end;
 
@@ -307,11 +307,11 @@ begin
   nstr := '';
   vstr := '';
 
-  if assigned( ActiveNote ) then begin
-    if ( ActiveNote.Editor.SelLength > 0 ) then
-      nstr := trim( copy( ActiveNote.Editor.SelText, 1, 255 ))
+  if assigned( ActiveKntFolder ) then begin
+    if ( ActiveKntFolder.Editor.SelLength > 0 ) then
+      nstr := trim( copy( ActiveKntFolder.Editor.SelText, 1, 255 ))
     else
-      nstr := ActiveNote.Editor.GetWordAtCursor( true );
+      nstr := ActiveKntFolder.Editor.GetWordAtCursor( true );
     if ( nstr <> '' ) then
       vstr := GlossaryList.Values[nstr];
   end;
@@ -423,9 +423,9 @@ begin
     if Result.FindText(s, 0, -1, []) >= 0 then begin
 
        if selection then
-          s:= ActiveNote.Editor.RtfSelText
+          s:= ActiveKntFolder.Editor.RtfSelText
        else
-          s:= ActiveNote.Editor.RtfText;
+          s:= ActiveKntFolder.Editor.RtfText;
 
        len:= s.Length;                          // There might be a hidden markup in the editor, but maybe not in the selection
        s:= RemoveKNTHiddenCharactersInRTF(s, HiddenMarksToRemove);   // In that case this method will return the same string
@@ -775,14 +775,14 @@ var
   i: integer;
   numPag: single;
 begin
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
 
   if EditorOptions.WordCountTrack then begin
 
-    if ( ActiveNote.Editor.SelLength = 0 ) then
-       wc := GetWordCount( ActiveNote.Editor.Text )    // ActiveNote.Editor.Text is much faster than ActiveNote.Editor.Lines.Text
+    if ( ActiveKntFolder.Editor.SelLength = 0 ) then
+       wc := GetWordCount( ActiveKntFolder.Editor.Text )    // ActiveKntFolder.Editor.Text is much faster than ActiveKntFolder.Editor.Lines.Text
     else
-       wc := GetWordCount( ActiveNote.Editor.SelText );
+       wc := GetWordCount( ActiveKntFolder.Editor.SelText );
 
     if ( wc > 0 ) then begin
       if ( EditorOptions.WordsPerPage > 0 ) then
@@ -814,7 +814,7 @@ end;
 procedure CheckWordCount (cleanWC: boolean= false);
 begin
   if EditorOptions.WordCountTrack then
-     if (ActiveNote.Editor.TextLength <= 30000) then
+     if (ActiveKntFolder.Editor.TextLength <= 30000) then
         UpdateWordCount
      else
          if cleanWC then
@@ -826,7 +826,7 @@ const
    Waiting : string = ' (...) ';
 
 begin
-  if EditorOptions.WordCountTrack and (ActiveNote.Editor.TextLength > 30000) then
+  if EditorOptions.WordCountTrack and (ActiveKntFolder.Editor.TextLength > 30000) then
       with Form_Main.StatusBar.Panels[PANEL_CARETPOS] do begin
            if pos(waiting, Text) <> 1 then
               Text:= Waiting + Text;
@@ -850,18 +850,18 @@ var
   dir : TDir;
   Found : boolean;
 begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
-  startsel := ActiveNote.Editor.SelStart;
+  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
+  startsel := ActiveKntFolder.Editor.SelStart;
 
-  p := ActiveNote.Editor.CaretPos;
+  p := ActiveKntFolder.Editor.CaretPos;
 
-  if (( ActiveNote.Editor.Lines.Count = 0 ) or
-      ( length( ActiveNote.Editor.Lines[p.y] ) = 0 )) then
+  if (( ActiveKntFolder.Editor.Lines.Count = 0 ) or
+      ( length( ActiveKntFolder.Editor.Lines[p.y] ) = 0 )) then
       exit;
 
-  if ( ActiveNote.Editor.SelLength = 0 ) then
+  if ( ActiveKntFolder.Editor.SelLength = 0 ) then
     inc( p.x );
-  startch := ActiveNote.Editor.Lines[p.y][p.x];
+  startch := ActiveKntFolder.Editor.Lines[p.y][p.x];
 
   i := pos( startch, OpenBrackets );
   if ( i > 0 ) then begin
@@ -889,9 +889,9 @@ begin
   case dir of
     dirFwd : begin
       curcol := p.x+1;
-      while ( curline < ActiveNote.Editor.Lines.Count ) do begin
-        while ( curcol <= length( ActiveNote.Editor.Lines[curline] )) do begin
-          curch := ActiveNote.Editor.Lines[curline][curcol];
+      while ( curline < ActiveKntFolder.Editor.Lines.Count ) do begin
+        while ( curcol <= length( ActiveKntFolder.Editor.Lines[curline] )) do begin
+          curch := ActiveKntFolder.Editor.Lines[curline][curcol];
           if ( curch = startch ) then
              inc( stack )
           else
@@ -917,7 +917,7 @@ begin
       curcol := p.x-1;
       while ( curline >= 0 ) do begin
         while( curcol > 0 ) do begin
-          curch := ActiveNote.Editor.Lines[curline][curcol];
+          curch := ActiveKntFolder.Editor.Lines[curline][curcol];
           if ( curch = startch ) then
             inc( stack )
           else
@@ -937,14 +937,14 @@ begin
           break;
         dec( curline );
         if ( curline >= 0 ) then
-          curcol := length( ActiveNote.Editor.Lines[curline] );
+          curcol := length( ActiveKntFolder.Editor.Lines[curline] );
       end;
     end;
   end;
 
   if Found then begin
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Bracket_02;
-    with ActiveNote.Editor do begin
+    with ActiveKntFolder.Editor do begin
       SelStart := Perform( EM_LINEINDEX, p.y, 0 );
       SelStart := SelStart + pred( p.x );
       Perform( EM_SCROLLCARET, 0, 0 );
@@ -980,24 +980,24 @@ var
 
 
 begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
-  if ( ActiveNote.Editor.Lines.Count < 1 ) then exit;
+  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
+  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if ( ActiveKntFolder.Editor.Lines.Count < 1 ) then exit;
 
   wholeNote:= false;
-  if ( ActiveNote.Editor.SelLength = 0 ) then begin
+  if ( ActiveKntFolder.Editor.SelLength = 0 ) then begin
     wholeNote:= true;
     if messagedlg(STR_Trim_01, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then exit;
   end;
 
-  ActiveNote.Editor.BeginUpdate;
+  ActiveKntFolder.Editor.BeginUpdate;
   Screen.Cursor := crHourGlass;
 
   try
       if wholeNote then
-         s:= ActiveNote.Editor.GetTextRange(0, ActiveNote.Editor.TextLength)
+         s:= ActiveKntFolder.Editor.GetTextRange(0, ActiveKntFolder.Editor.TextLength)
       else
-         s := ActiveNote.Editor.SelText;
+         s := ActiveKntFolder.Editor.SelText;
 
       if Length(s) = 0 then Exit;
 
@@ -1017,16 +1017,16 @@ begin
       end;
 
       if wholeNote then
-         ActiveNote.Editor.Text := s
+         ActiveKntFolder.Editor.Text := s
       else
-         ActiveNote.Editor.SelText := s;
+         ActiveKntFolder.Editor.SelText := s;
 
-      ActiveNote.Editor.HideKNTHiddenMarks(true);
+      ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
 
   finally
-    ActiveNote.Editor.EndUpdate;
+    ActiveKntFolder.Editor.EndUpdate;
     Screen.Cursor := crDefault;
-    NoteFile.Modified := true;
+    KntFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
   end;
 
@@ -1043,29 +1043,29 @@ var
   i, l : integer;
   s : string;
 begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
-  if ( ActiveNote.Editor.Lines.Count < 1 ) then exit;
+  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
+  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if ( ActiveKntFolder.Editor.Lines.Count < 1 ) then exit;
 
 
-  if ( ActiveNote.Editor.SelLength = 0 ) then begin
+  if ( ActiveKntFolder.Editor.SelLength = 0 ) then begin
      if ( messagedlg(STR_Compress_01, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
          exit;
   end;
 
-  ActiveNote.Editor.BeginUpdate;
+  ActiveKntFolder.Editor.BeginUpdate;
   Screen.Cursor := crHourGlass;
   WasWhite := false;
 
   try
-    if ( ActiveNote.Editor.SelLength = 0 ) then begin
+    if ( ActiveKntFolder.Editor.SelLength = 0 ) then begin
 
-       for l := 0 to ActiveNote.Editor.Lines.Count-1 do begin
-         if (ActiveNote.Editor.Lines[l] = '') then continue;
+       for l := 0 to ActiveKntFolder.Editor.Lines.Count-1 do begin
+         if (ActiveKntFolder.Editor.Lines[l] = '') then continue;
 
          WasWhite := false;
          i := 1;
-         s := ActiveNote.Editor.Lines[l];
+         s := ActiveKntFolder.Editor.Lines[l];
 
          while ( i <= length( s )) do begin
             if ( AnsiChar(s[i]) in WhiteSpace ) then begin
@@ -1080,14 +1080,14 @@ begin
                inc(i);
             end;
          end;
-         ActiveNote.Editor.Lines[l] := s;
-         ActiveNote.Editor.HideKNTHiddenMarks(true);
+         ActiveKntFolder.Editor.Lines[l] := s;
+         ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
        end;
-       ActiveNote.Editor.SelStart := 0;
+       ActiveKntFolder.Editor.SelStart := 0;
 
     end
     else begin
-       s := ActiveNote.Editor.SelText;
+       s := ActiveKntFolder.Editor.SelText;
        i := 1;
        while ( i <= length( s )) do begin
           if ( AnsiChar(s[i]) in WhiteSpace ) then begin
@@ -1102,16 +1102,16 @@ begin
              inc( i );
           end;
        end;
-       ActiveNote.Editor.SelText := s;
-       ActiveNote.Editor.HideKNTHiddenMarks(true);
-       ActiveNote.Editor.SelLength := 0;
+       ActiveKntFolder.Editor.SelText := s;
+       ActiveKntFolder.Editor.HideKNTHiddenMarks(true);
+       ActiveKntFolder.Editor.SelLength := 0;
     end;
 
 
   finally
-     ActiveNote.Editor.EndUpdate;
+     ActiveKntFolder.Editor.EndUpdate;
      Screen.Cursor := crDefault;
-     NoteFile.Modified := true;
+     KntFile.Modified := true;
      UpdateNoteFileState( [fscModified] );
   end;
 
@@ -1128,16 +1128,16 @@ var
   MathParser : TMathParser;
 begin
   with Form_Main do begin
-      if ( not assigned( ActiveNote )) then exit;
+      if ( not assigned( ActiveKntFolder )) then exit;
 
-      if ( ActiveNote.Editor.SelLength = 0 ) then
-        with ActiveNote.Editor do begin
+      if ( ActiveKntFolder.Editor.SelLength = 0 ) then
+        with ActiveKntFolder.Editor do begin
           lineindex := perform( EM_EXLINEFROMCHAR, 0, SelStart );
           SelStart  := perform( EM_LINEINDEX, lineindex, 0 );
           SelLength := perform( EM_LINEINDEX, lineindex + 1, 0 ) - ( SelStart+1 );
         end;
 
-      src := trim( ActiveNote.Editor.SelText );
+      src := trim( ActiveKntFolder.Editor.SelText );
 
       if ( src = '' ) then begin
         ErrNoTextSelected;
@@ -1172,15 +1172,15 @@ begin
           StatusBar.Panels[PANEL_HINT].Text := STR_Eval_01 + LastEvalExprResult;
           MMEditPasteEval.Hint := STR_Eval_02 + LastEvalExprResult;
 
-          if ( KeyOptions.AutoPasteEval and ( not NoteIsReadOnly( ActiveNote, false ))) then begin
-              ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
-              ActiveNote.Editor.SelText := #32 + LastEvalExprResult;
+          if ( KeyOptions.AutoPasteEval and ( not NoteIsReadOnly( ActiveKntFolder, false ))) then begin
+              ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
+              ActiveKntFolder.Editor.SelText := #32 + LastEvalExprResult;
           end
           else
             if ( messagedlg( Format( STR_Eval_03, [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
-               if ( not NoteIsReadOnly( ActiveNote, true )) then begin
-                  ActiveNote.Editor.SelStart := ActiveNote.Editor.SelStart + ActiveNote.Editor.SelLength;
-                  ActiveNote.Editor.SelText := #32 + LastEvalExprResult;
+               if ( not NoteIsReadOnly( ActiveKntFolder, true )) then begin
+                  ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
+                  ActiveKntFolder.Editor.SelText := #32 + LastEvalExprResult;
                end;
             end;
         end;
@@ -1198,7 +1198,7 @@ end; // EvaluateExpression
 procedure InsertSpecialCharacter;
 begin
   with Form_Main do begin
-      if ( not ( HaveNotes( true, true ) and assigned( ActiveNote ))) then
+      if ( not ( HaveNotes( true, true ) and assigned( ActiveKntFolder ))) then
         exit;
 
       if ( Form_Chars = nil ) then begin
@@ -1254,14 +1254,14 @@ var
   OpenPictureDlg : TOpenPictureDialog;
   SelStartOrig, SelLengthOrig: integer;
   NewName: string;
-  myNode: TKntNote;
+  myNote: TKntNote;
 begin
   if ( not Form_Main.HaveNotes(true, true)) then exit;
-  if ( not assigned(ActiveNote)) then exit;
-  if Form_Main.NoteIsReadOnly(ActiveNote, true) then exit;
-  if ActiveNote.PlainText then exit;
-  myNode:= ActiveNote.GetSelectedNode;
-  if assigned(myNode) and (myNode.VirtualMode = vmText) then exit;
+  if ( not assigned(ActiveKntFolder)) then exit;
+  if Form_Main.NoteIsReadOnly(ActiveKntFolder, true) then exit;
+  if ActiveKntFolder.PlainText then exit;
+  myNote:= ActiveKntFolder.GetSelectedNode;
+  if assigned(myNote) and (myNote.VirtualMode = vmText) then exit;
 
 
   wasmodified:= false;
@@ -1277,8 +1277,8 @@ begin
 
           if Execute then begin
              if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-                if ActiveNote.Editor.SelLength > 0 then
-                   CheckToSelectLeftImageHiddenMark (ActiveNote.Editor);
+                if ActiveKntFolder.Editor.SelLength > 0 then
+                   CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor);
              end;
 
              NewName:= ExtractFilename(FileName);
@@ -1293,7 +1293,7 @@ begin
                 end;
              end
              else
-                ImagesManager.InsertImage(FileName, ActiveNote, not KeyOptions.ImgDefaultLinkMode, NewName);
+                ImagesManager.InsertImage(FileName, ActiveKntFolder, not KeyOptions.ImgDefaultLinkMode, NewName);
 
               // See comments before TImageManager.InsertImage
               {
@@ -1301,7 +1301,7 @@ begin
               try
                  Pict.LoadFromFile(FileName);
                  Clipboard.Assign(Pict);
-                 Activenote.Editor.PasteIRichEditOLE(0);
+                 ActiveKntFolder.Editor.PasteIRichEditOLE(0);
               finally
                  Pict.Free;
                  wasmodified:= true;
@@ -1311,21 +1311,21 @@ begin
        end
     else begin
       if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-         CheckToSelectLeftImageHiddenMark (ActiveNote.Editor, SelStartOrig, SelLengthOrig);
-         if Activenote.Editor.InsertObjectDialog then
+         CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor, SelStartOrig, SelLengthOrig);
+         if ActiveKntFolder.Editor.InsertObjectDialog then
             wasmodified := true
          else
             if SelStartOrig >= 0 then
-               ActiveNote.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
+               ActiveKntFolder.Editor.SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
       end
       else
-         if Activenote.Editor.InsertObjectDialog then
+         if ActiveKntFolder.Editor.InsertObjectDialog then
             wasmodified := true;
     end;
 
   finally
     if wasmodified then begin
-       NoteFile.Modified:= true;
+       KntFile.Modified:= true;
        UpdateNoteFileState([fscModified]);
     end;
     OpenPictureDlg.Free;
@@ -1343,12 +1343,12 @@ var
 begin
     Result:= txt;
     if txt[1] = KNT_RTF_HIDDEN_MARK_L_CHAR then begin
-       SS:= ActiveNote.Editor.SelStart;
-       SL:= ActiveNote.Editor.SelLength;
+       SS:= ActiveKntFolder.Editor.SelStart;
+       SL:= ActiveKntFolder.Editor.SelLength;
        pR:= Pos(KNT_RTF_HIDDEN_MARK_R_CHAR, txt, 1);
        Result:= Copy(txt, pR+1);
-       ActiveNote.Editor.SelStart:=  SS + pR;
-       ActiveNote.Editor.SelLength:= SL - pR;
+       ActiveKntFolder.Editor.SelStart:=  SS + pR;
+       ActiveKntFolder.Editor.SelLength:= SL - pR;
     end;
     Result:= RemoveKNTHiddenCharacters(Result);
 end;
@@ -1362,10 +1362,10 @@ var
   s : string;
   i : integer;
 begin
-  if ( not assigned( ActiveNote )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
+  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
-  s := ActiveNote.Editor.SelText;
+  s := ActiveKntFolder.Editor.SelText;
   if ( s = '' ) then
     InputQuery( STR_ConvDec_01, STR_ConvDec_02, s )
   else
@@ -1382,7 +1382,7 @@ begin
     exit;
   end;
 
-  ActiveNote.Editor.SelText := s;
+  ActiveKntFolder.Editor.SelText := s;
 end; // ArabicToRoman;
 
 //=================================================================
@@ -1393,11 +1393,11 @@ var
   s : string;
   i : integer;
 begin
-  if ( not assigned( ActiveNote )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
+  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
   i := -1;
 
-  s := ActiveNote.Editor.SelText;
+  s := ActiveKntFolder.Editor.SelText;
   if ( s = '' ) then
     InputQuery( STR_ConvRoman_01, STR_ConvRoman_02, s )
   else
@@ -1415,7 +1415,7 @@ begin
 
   if ( i < 0 ) then exit;
 
-  ActiveNote.Editor.SelText := inttostr( i );
+  ActiveKntFolder.Editor.SelText := inttostr( i );
 end; // RomanToArabic
 
 
@@ -1431,7 +1431,7 @@ var
   WasAlpha : boolean;
   ch : char;
 begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveNote )) then exit;
+  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
 
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Statistics_01;
 
@@ -1441,12 +1441,12 @@ begin
 
   try
 
-    if ( ActiveNote.Editor.SelLength > 0 ) then begin
-      lista.Text := ActiveNote.Editor.SelText;
+    if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
+      lista.Text := ActiveKntFolder.Editor.SelText;
       title := STR_Statistics_02;
     end
     else begin
-      lista.Text := ActiveNote.Editor.Lines.Text;
+      lista.Text := ActiveKntFolder.Editor.Lines.Text;
       title := STR_Statistics_03;
     end;
 
@@ -1491,7 +1491,7 @@ begin
   s := format(STR_Statistics_04,[Title,inttostr( numChars ),inttostr( numAlpChars ),
                 inttostr( numSpaces ),inttostr( numWords ),inttostr( numLines )]);
 
-  numNodes := TKntFolder( ActiveNote ).TV.Items.Count;
+  numNodes := ActiveKntFolder.TV.Items.Count;
   s := s + Format( STR_Statistics_05,  [numNodes] );
 
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(
@@ -1512,15 +1512,15 @@ var
   myWord, newWord : string;
 
 begin
-  if ( not ( assigned( ActiveNote ) and ( ActiveNote.FocusMemory = focRTF ))) then exit;
+  if ( not ( assigned( ActiveKntFolder ) and ( ActiveKntFolder.FocusMemory = focRTF ))) then exit;
 
   if ShiftDown then
     myWord := ''
   else begin
-    if ( ActiveNote.Editor.SelLength > 0 ) then
-      myWord := trim( ActiveNote.Editor.SelText )
+    if ( ActiveKntFolder.Editor.SelLength > 0 ) then
+      myWord := trim( ActiveKntFolder.Editor.SelText )
     else
-      myWord := ActiveNote.Editor.GetWordAtCursor( true );
+      myWord := ActiveKntFolder.Editor.GetWordAtCursor( true );
   end;
 
   if ( myWord = '' ) then begin
@@ -1551,7 +1551,7 @@ begin
         newWord := '';
 
       if (( newWord <> '' ) and ( newWord <> myWord )) then
-         ActiveNote.Editor.SelText := newWord + #32;
+         ActiveKntFolder.Editor.SelText := newWord + #32;
 
     except
       On E : Exception do begin
@@ -1982,24 +1982,24 @@ begin
               end;
             end;
 
-            if ( NoteFile.ClipCapNote <> nil ) then begin
+            if ( KntFile.ClipCapNote <> nil ) then begin
               // some other note was clipcap before
-              // NoteFile.ClipCapNote.TabSheet.Caption := NoteFile.ClipCapNote.Name;
-              NoteFile.ClipCapNote := nil;
+              // KntFile.ClipCapNote.TabSheet.Caption := KntFile.ClipCapNote.Name;
+              KntFile.ClipCapNote := nil;
               ClipCapActive := false;
               SetClipCapState( false );
             end;
-            NoteFile.ClipCapNote := aNote;
-            Pages.MarkedPage := NoteFile.ClipCapNote.TabSheet;
+            KntFile.ClipCapNote := aNote;
+            Pages.MarkedPage := KntFile.ClipCapNote.TabSheet;
             SetClipCapState( true );
-            ClipCapActive := ( NoteFile.ClipCapNote <> nil );
+            ClipCapActive := ( KntFile.ClipCapNote <> nil );
 
           end
           else begin
             // turn OFF clipboard capture
             ClipCapActive := false;
             ClipCapNode := nil;
-            if ( NoteFile.ClipCapNote = aNote ) then begin
+            if ( KntFile.ClipCapNote = aNote ) then begin
               // restore note name on the tab
               Pages.MarkedPage := nil;
               SetClipCapState( false );
@@ -2007,20 +2007,20 @@ begin
             else begin
               // showmessage( 'Error: Tried to turn off ClipCap for a non-active note.' );
             end;
-            NoteFile.ClipCapNote := nil;
+            KntFile.ClipCapNote := nil;
           end;
         except
           on e : exception do begin
             messagedlg( E.Message, mtError, [mbOK], 0 );
-            NoteFile.ClipCapNote := nil;
+            KntFile.ClipCapNote := nil;
             Pages.MarkedPage := nil;
           end;
         end;
       finally
         Pages.Invalidate; // force redraw to update "MarkedPage" tab color
-        MMNoteClipCapture.Checked := ( NoteFile.ClipCapNote <> nil );
+        MMNoteClipCapture.Checked := ( KntFile.ClipCapNote <> nil );
         TMClipCap.Checked := MMNoteClipCapture.Checked;
-        StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_05 + TOGGLEARRAY[(NoteFile.ClipCapNote <> nil)];
+        StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_05 + TOGGLEARRAY[(KntFile.ClipCapNote <> nil)];
       end;
   end;
 
@@ -2049,8 +2049,8 @@ begin
           end;
         except
           ClipCapNextInChain := 0;
-          if assigned( NoteFile ) then
-            NoteFile.ClipCapNote := nil;
+          if assigned( KntFile ) then
+            KntFile.ClipCapNote := nil;
           Pages.MarkedPage := nil;
           TB_ClipCap.Down := false;
           LoadTrayIcon( false );
@@ -2171,7 +2171,7 @@ begin
         myTreeNode := nil;
         SourceURLStr:= '';
 
-        Note:= NoteFile.ClipCapNote;
+        Note:= KntFile.ClipCapNote;
         Editor:= Note.Editor;
 
 
@@ -2179,7 +2179,7 @@ begin
         LoadTrayIcon( not ClipOptions.SwitchIcon ); // flash tray icon
 
         Editor.OnChange := nil;
-        NoteFile.Modified := true; // bugfix 27-10-03
+        KntFile.Modified := true; // bugfix 27-10-03
 
         DividerString := ClipOptions.Divider;
         Using2ndDivider:= False;
@@ -2292,7 +2292,7 @@ begin
                     DividerString:= '';   // Si no hay que separar de nada y el propia cadena de separación no incluye fecha, ni hora ni se va a mostrar el origen, ignorarla
 
                  if ( ClipCapNode <> nil ) then
-                    myParentNode := TKntFolder( Note ).TV.Items.FindNode( [ffData], '', ClipCapNode )
+                    myParentNode := Note.TV.Items.FindNode( [ffData], '', ClipCapNode )
                  else
                     myParentNode := nil;
 
@@ -2303,15 +2303,15 @@ begin
                  end;
 
                  if assigned( myParentNode ) then
-                    myTreeNode := TreeNoteNewNode( TKntFolder( Note ), tnAddChild, myParentNode, myNodeName, true )
+                    myTreeNode := TreeNoteNewNode( Note, tnAddChild, myParentNode, myNodeName, true )
                  else
-                    myTreeNode := TreeNoteNewNode( TKntFolder( Note ), tnAddLast, nil, myNodeName, true );
+                    myTreeNode := TreeNoteNewNode( Note, tnAddLast, nil, myNodeName, true );
 
               end
               else begin
-                 myTreeNode := TKntFolder( Note ).TV.Selected;
+                 myTreeNode := Note.TV.Selected;
                  if ( not assigned( myTreeNode )) then
-                    myTreeNode := TreeNoteNewNode( TKntFolder( Note ), tnAddLast, nil, myNodeName, true );
+                    myTreeNode := TreeNoteNewNode( Note, tnAddLast, nil, myNodeName, true );
               end;
 
               if ( not assigned( myTreeNode )) then begin
@@ -2426,14 +2426,14 @@ begin
            end;
 
 
-          if Note <> ActiveNote then
+          if Note <> ActiveKntFolder then
              Note.EditorToDataStream;
 
 
         finally
           Editor.OnChange := RxRTFChange;
           if PasteOK then begin
-            NoteFile.Modified := true;
+            KntFile.Modified := true;
             UpdateNoteFileState( [fscModified] );
 
             if assigned ( myTreeNode ) then
@@ -2467,7 +2467,7 @@ var
 begin
   if ( _IS_CAPTURING_CLIPBOARD or _IS_CHAINING_CLIPBOARD ) then exit;
   if ( not Form_Main.HaveNotes( true, true )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
   oldClipPlaySound:= ClipOptions.PlaySound;
   oldDividerString := ClipOptions.Divider;
@@ -2478,7 +2478,7 @@ begin
   oldAsText := ClipOptions.PasteAsText;
   oldPasteAsNewNode:= ClipOptions.PasteAsNewNode;
 
-  oldClipCapNote := NoteFile.ClipCapNote;
+  oldClipCapNote := KntFile.ClipCapNote;
   oldClipCapNode := ClipCapNode;
 
   try
@@ -2493,7 +2493,7 @@ begin
 
     ClipOptions.PasteAsText := PasteAsText;
 
-    NoteFile.ClipCapNote := ActiveNote;
+    KntFile.ClipCapNote := ActiveKntFolder;
     ClipCapNode := nil;
 
     PasteOnClipCap(Clipboard.TryAsText);
@@ -2508,7 +2508,7 @@ begin
     ClipOptions.PasteAsText := oldAsText;
     ClipOptions.PasteAsNewNode:= oldPasteAsNewNode;
 
-    NoteFile.ClipCapNote := oldClipCapNote;
+    KntFile.ClipCapNote := oldClipCapNote;
     ClipCapNode := oldClipCapNode;
   end;
 
@@ -2526,16 +2526,16 @@ var
   myTreeNode : TTreeNTNode;
 begin
   if ( not Form_Main.HaveNotes( true, false )) then exit;
-  oldCNT := NoteFile.Notes.Count;
+  oldCNT := KntFile.Notes.Count;
   CanPaste := false;
 
   try
     if AsNewNote then begin
       NewNote( true, true );
-      CanPaste := ( OldCNT < NoteFile.Notes.Count );
+      CanPaste := ( OldCNT < KntFile.Notes.Count );
     end
     else begin
-      if assigned( ActiveNote ) then begin
+      if assigned( ActiveKntFolder ) then begin
         case ClipOptions.ClipNodeNaming of
           clnDefault : myNodeName := '';
           clnClipboard : myNodeName:= Clipboard.TryGetFirstLine(TREENODE_NAME_LENGTH_CAPTURE);
@@ -2570,10 +2570,10 @@ var
   PrintAllNodes : boolean;
   tNote : TKntFolder;
   myTreeNode : TTreeNTNode;
-  myNoteNode : TKntNote;
+  myNote : TKntNote;
 begin
   if ( not Form_Main.HaveNotes( true, true )) then exit;
-  if ( not assigned( ActiveNote )) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
   if ( not assigned( Form_Main.RichPrinter )) then    // [dpv]
   begin
       try                                     // [DPV]
@@ -2588,7 +2588,7 @@ begin
   end;
   PrintAllNodes := false;
 
-  if (TKntFolder( ActiveNote ).TV.Items.Count > 1 ) then
+  if (ActiveKntFolder.TV.Items.Count > 1 ) then
   case messagedlg(STR_Print_01,
       mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
     mrYes : PrintAllNodes := true;
@@ -2598,7 +2598,7 @@ begin
   end;
 
   if Form_Main.PrintDlg.Execute then begin
-    Form_Main.RichPrinter.Title := RemoveAccelChar( ActiveNote.Name );
+    Form_Main.RichPrinter.Title := RemoveAccelChar( ActiveKntFolder.Name );
 
     PrintRe := TRichEdit.Create( nil );
     MS := TMemoryStream.Create;
@@ -2616,33 +2616,33 @@ begin
       if (not PrintAllNodes ) then begin
 
         if KeyOptions.SafePrint then begin
-          ActiveNote.Editor.Print( RemoveAccelChar( ActiveNote.Name ));
+          ActiveKntFolder.Editor.Print( RemoveAccelChar( ActiveKntFolder.Name ));
           (*
-          ActiveNote.Editor.Lines.SaveToStream( MS );
+          ActiveKntFolder.Editor.Lines.SaveToStream( MS );
           MS.Position := 0;
           PrintRE.Lines.LoadFromStream( MS );
-          if ( ActiveNote.Editor.SelLength > 0 ) then
+          if ( ActiveKntFolder.Editor.SelLength > 0 ) then
           begin
-            PrintRE.SelStart := ActiveNote.Editor.SelStart;
-            PrintRE.SelLength := ActiveNote.Editor.SelLength;
+            PrintRE.SelStart := ActiveKntFolder.Editor.SelStart;
+            PrintRE.SelLength := ActiveKntFolder.Editor.SelLength;
           end;
           RichPrinter.PrintRichEdit( TCustomRichEdit( PrintRE ), 1 );
           *)
         end
         else
-          Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( ActiveNote.Editor ), 1 );
+          Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( ActiveKntFolder.Editor ), 1 );
       end
       else begin
-        tNote := TKntFolder( ActiveNote );
+        tNote := ActiveKntFolder;
         myTreeNode := tNote.TV.Items.GetFirstNode;
         if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;   // [dpv]
         while assigned( myTreeNode ) do begin
-          myNoteNode := TKntNote( myTreeNode.Data );
-          if assigned( myNoteNode ) then begin
-            myNoteNode.Stream.Position := 0;
-            PrintRE.Lines.LoadFromStream( myNoteNode.Stream );
+          myNote := TKntNote( myTreeNode.Data );
+          if assigned( myNote ) then begin
+            myNote.Stream.Position := 0;
+            PrintRE.Lines.LoadFromStream( myNote.Stream );
             if KeyOptions.SafePrint then
-              PrintRE.Print( RemoveAccelChar( ActiveNote.Name ))
+              PrintRE.Print( RemoveAccelChar( ActiveKntFolder.Name ))
             else
               Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( PrintRE ), 1 );
           end;
@@ -2668,17 +2668,17 @@ procedure RunSpellcheckerForNote;
 var
   AJBSpell : TAJBSpell;
 begin
-  if ( not assigned( ActiveNote )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveNote, true ) then exit;
+  if ( not assigned( ActiveKntFolder )) then exit;
+  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
   AJBSpell := TAJBSpell.Create( Form_Main );
   try
     try
-      ActiveNote.Editor.SelectAll;
-      ActiveNote.Editor.CopyToClipboard;
+      ActiveKntFolder.Editor.SelectAll;
+      ActiveKntFolder.Editor.CopyToClipboard;
       if AJBSpell.CheckClipboardSpell then begin
         if ( messagedlg( STR_Print_02, mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
-          ActiveNote.Editor.PasteFromClipboard;
+          ActiveKntFolder.Editor.PasteFromClipboard;
       end;
     except
       on E : Exception do
@@ -2697,8 +2697,8 @@ var
 begin
   result := DefaultEditorProperties.DefaultZoom;
   if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
-  if not assigned( Editor ) and assigned(ActiveNote) then
-      Editor:= ActiveNote.Editor;
+  if not assigned( Editor ) and assigned(ActiveKntFolder) then
+      Editor:= ActiveKntFolder.Editor;
   if ( not assigned( Editor )) then exit;
 
   SendMessage( Editor.Handle, EM_GETZOOM, integer(@w), integer(@l) );
@@ -2769,23 +2769,23 @@ var
   Editor: TRxRichEdit;
   i: integer;
 begin
-  if not assigned( NoteFile ) then exit;
+  if not assigned( KntFile ) then exit;
   if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
 
   try
       if CtrlDown then
-         SetEditorZoom (ActiveNote.Editor, ZoomValue, ZoomString, Increment)
+         SetEditorZoom (ActiveKntFolder.Editor, ZoomValue, ZoomString, Increment)
 
       else begin
-         for i := 0 to NoteFile.Notes.Count -1 do
-            SetEditorZoom (NoteFile.Notes[i].Editor, ZoomValue, ZoomString, Increment);
+         for i := 0 to KntFile.Notes.Count -1 do
+            SetEditorZoom (KntFile.Notes[i].Editor, ZoomValue, ZoomString, Increment);
 
          SetEditorZoom (Form_Main.Res_RTF, ZoomValue, ZoomString, Increment)
       end;
 
   finally
-    if assigned(ActiveNote) then begin
-      _LastZoomValue := GetEditorZoom (ActiveNote.Editor);
+    if assigned(ActiveKntFolder) then begin
+      _LastZoomValue := GetEditorZoom (ActiveKntFolder.Editor);
       Form_Main.Combo_Zoom.Text := Format('%d%%', [_LastZoomValue] );
     end;
   end;
@@ -2796,9 +2796,9 @@ procedure SetMargins();
 begin
 
   if Form_Main.MMAlternativeMargins.Checked then
-     ActiveNote.Editor.SetMargins(KeyOptions.MarginAltLeft, KeyOptions.MarginAltRight)
+     ActiveKntFolder.Editor.SetMargins(KeyOptions.MarginAltLeft, KeyOptions.MarginAltRight)
   else
-     ActiveNote.Editor.SetMargins(0, 0);
+     ActiveKntFolder.Editor.SetMargins(0, 0);
 end;
 
 
@@ -2950,16 +2950,16 @@ begin
    Result:= RTFAux;
 end;
 
-procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TKntFolder);
+procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myFolder: TKntFolder);
 begin
-    if myNote.PlainText then begin
+    if myFolder.PlainText then begin
        with RTF.DefAttributes do begin
-         Charset := myNote.EditorChrome.Font.Charset;
-         Name := myNote.EditorChrome.Font.Name;
-         Size := myNote.EditorChrome.Font.Size;
-         Style := myNote.EditorChrome.Font.Style;
-         Color := myNote.EditorChrome.Font.Color;
-         Language := myNote.EditorChrome.Language;
+         Charset := myFolder.EditorChrome.Font.Charset;
+         Name := myFolder.EditorChrome.Font.Name;
+         Size := myFolder.EditorChrome.Font.Size;
+         Style := myFolder.EditorChrome.Font.Style;
+         Color := myFolder.EditorChrome.Font.Color;
+         Language := myFolder.EditorChrome.Language;
        end;
 
     end;

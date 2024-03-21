@@ -143,7 +143,7 @@ type
     property Description : TCommentStr read FDescription write SetDescription;
     property NoteCount : integer read GetCount;
     property DateCreated : TDateTime read FDateCreated;
-    property ActiveNote : integer read FActiveNote write FActiveNote;
+    property ActiveKntFolder : integer read FActiveNote write FActiveNote;
     property Notes : TNoteList read FNotes write FNotes;
     property PageCtrl : TPage95Control read FPageCtrl write FPageCtrl;
     property Modified : boolean read GetModified write SetModified;
@@ -196,11 +196,11 @@ type
 
     procedure UpdateTextPlainVariables (nMax: integer);
     procedure UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
-    function  EnsurePlainTextAndRemoveImages (myNote: TKntFolder): boolean;
-    procedure RemoveImagesCountReferences (myNote: TKntFolder); overload;
-    procedure RemoveImagesCountReferences (myNode: TKntNote); overload;
-    procedure UpdateImagesCountReferences (myNote: TKntFolder); overload;
-    procedure UpdateImagesCountReferences (myNode: TKntNote); overload;
+    function  EnsurePlainTextAndRemoveImages (myFolder: TKntFolder): boolean;
+    procedure RemoveImagesCountReferences (myFolder: TKntFolder); overload;
+    procedure RemoveImagesCountReferences (myNote: TKntNote); overload;
+    procedure UpdateImagesCountReferences (myFolder: TKntFolder); overload;
+    procedure UpdateImagesCountReferences (myNote: TKntNote); overload;
 
   end;
 
@@ -368,13 +368,13 @@ end; // InternalAddNote
 procedure TKntFile.VerifyNoteIds;
 var
   i, count : longint;
-  myNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
   count := FNotes.Count;
   for i := 1 to count do begin
-     myNote := FNotes[pred( i )];
-     if ( myNote.ID <= 0 ) then
-        GenerateNoteID( myNote );
+     myFolder := FNotes[pred( i )];
+     if ( myFolder.ID <= 0 ) then
+        GenerateNoteID( myFolder );
   end;
 end; // VerifyNoteIds
 
@@ -382,16 +382,16 @@ end; // VerifyNoteIds
 procedure TKntFile.GenerateNoteID( const ANote : TKntFolder );
 var
   i, count, myID, hiID : longint;
-  myNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
   myID := 0;
   hiID := 0;
 
   count := FNotes.Count;
   for i := 1 to count do begin
-     myNote := FNotes[pred( i )];
-     if ( myNote.ID > hiID ) then
-        hiID := myNote.ID; // find highest note ID
+     myFolder := FNotes[pred( i )];
+     if ( myFolder.ID > hiID ) then
+        hiID := myFolder.ID; // find highest note ID
   end;
 
   inc( hiID ); // make it one higher
@@ -1050,25 +1050,25 @@ function TKntFile.Save(FN: string;
 var
   i : integer;
   Stream : TFileStream;
-  myNote : TKntFolder;
+  myFolder : TKntFolder;
   ds : AnsiString;
   tf : TTextFile;
   AuxStream : TMemoryStream;
 
-  procedure WriteNote (myNote: TKntFolder);
+  procedure WriteNote (myFolder: TKntFolder);
   begin
       try
-        if assigned( myNote ) then begin
-          if ExportingMode and not (myNote.Info > 0) then     // Notes to be exported are marked with Info=1
+        if assigned( myFolder ) then begin
+          if ExportingMode and not (myFolder.Info > 0) then     // Notes to be exported are marked with Info=1
              Exit;
 
-          SavedNodes:= SavedNodes + TKntFolder( myNote ).SaveToFile( tf, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+          SavedNodes:= SavedNodes + myFolder.SaveToFile( tf, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
           inc (SavedNotes);
         end;
       except
         on E : Exception do begin
             result := 3;
-            DoMessageBox( Format(STR_13, [myNote.Name, E.Message]), mtError, [mbOK], 0 );
+            DoMessageBox( Format(STR_13, [myFolder.Name, E.Message]), mtError, [mbOK], 0 );
             exit;
         end;
       end;
@@ -1102,16 +1102,16 @@ var
     if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then begin
       // this is done so that we preserve the order of tabs.
        for i := 0 to pred( FPageCtrl.PageCount ) do begin
-          myNote := TKntFolder( FPageCtrl.Pages[i].PrimaryObject );
-          WriteNote(myNote);
+          myFolder := TKntFolder(FPageCtrl.Pages[i].PrimaryObject);
+          WriteNote(myFolder);
        end;
     end
     else begin
       // Go by FNotes instead of using FPageCtrl.
       // This may cause notes to be saved in wrong order.
       for i := 0 to pred( FNotes.Count ) do begin
-         myNote := FNotes[i];
-         WriteNote(myNote);
+         myFolder := FNotes[i];
+         WriteNote(myFolder);
       end;
     end;
 
@@ -1164,8 +1164,8 @@ begin
       else
         FActiveNote := 0;
 
-      if Assigned(kn_global.ActiveNote) then
-         kn_global.ActiveNote.EditorToDataStream;
+      if Assigned(kn_global.ActiveKntFolder) then
+         kn_global.ActiveKntFolder.EditorToDataStream;
 
 
       case FFileFormat of
@@ -1268,14 +1268,14 @@ begin
             if ( FPageCtrl.PageCount > 0 ) then
               // this is done so that we preserve the order of tabs.
               for i := 0 to pred( FPageCtrl.PageCount ) do begin
-                myNote := TKntFolder( FPageCtrl.Pages[i].PrimaryObject );
-                myNote.SaveDartNotesFormat( Stream );
+                myFolder := TKntFolder(FPageCtrl.Pages[i].PrimaryObject);
+                myFolder.SaveDartNotesFormat( Stream );
               end
             else begin
                for i := 0 to pred( FNotes.Count ) do begin
-                 myNote := TKntFolder( FNotes[i] );
-                 if assigned( myNote ) then
-                   myNote.SaveDartNotesFormat( Stream );
+                 myFolder := FNotes[i];
+                 if assigned( myFolder ) then
+                   myFolder.SaveDartNotesFormat( Stream );
                end;
             end;
 
@@ -1536,7 +1536,7 @@ begin
   result := false;
   if ( FNotes.Count > 0 ) then
      for i := 0 to pred( FNotes.Count ) do begin
-        if TKntFolder( FNotes[i] ).Nodes.HasVirtualNodes then begin
+        if FNotes[i].Nodes.HasVirtualNodes then begin
           result := true;
           break;
         end;
@@ -1554,7 +1554,7 @@ begin
   if ( cnt <= 0 ) then Exit;
 
   for i := 0 to pred( cnt ) do begin
-     myTreeNote := TKntFolder( FNotes[i] );
+     myTreeNote := FNotes[i];
      if ( myTreeNote.Nodes.Count > 0 ) then
          for n := 0 to pred( myTreeNote.Nodes.Count ) do
             if ( myTreeNote.Nodes[n].VirtualMode <> vmNone ) then
@@ -1636,7 +1636,7 @@ var
 
   procedure SetupTreeNote;
   begin
-    Node := TKntFolder( Note).TV.Items.GetFirstNode;
+    Node := Note.TV.Items.GetFirstNode;
     while assigned( Node ) do begin // go through all nodes
         if assigned(Node.Data) and (TKntNote(Node.Data).VirtualMode= vmKNTNode) then begin
            TKntNote(Node.Data).LoadMirrorNode;
@@ -1644,13 +1644,13 @@ var
            if assigned(Mirror) then
               AddMirrorNode(Mirror, Node)
            else
-              SelectIconForNode( Node, TKntFolder( Note).IconKind );
+              SelectIconForNode( Node, Note.IconKind);
         end;
         Node := Node.GetNext; // select next node to search
     end;
 
-    if (Note = kn_global.ActiveNote) and assigned(TKntFolder( Note).TV.Selected)
-         and (TKntNote(TKntFolder( Note).TV.Selected.Data).VirtualMode = vmKNTNode) then
+    if (Note = kn_global.ActiveKntFolder) and assigned(Note.TV.Selected)
+         and (TKntNote(Note.TV.Selected.Data).VirtualMode = vmKNTNode) then
        Note.DataStreamToEditor;
   end;
 
@@ -1736,7 +1736,7 @@ begin
                  if assigned(newNonVirtualTreeNode) and assigned(newNonVirtualTreeNode.Data) then begin
                    RemoveMirrorNode(nonVirtualTreeNode, newNonVirtualTreeNode);
                    ReplaceNonVirtualNode(nonVirtualTreeNode, newNonVirtualTreeNode);
-                   SelectIconForNode( newNonVirtualTreeNode, TKntFolder(GetNoteByTreeNode(newNonVirtualTreeNode)).IconKind );
+                   SelectIconForNode( newNonVirtualTreeNode, GetNoteByTreeNode(newNonVirtualTreeNode).IconKind);
                  end;
                end;
          end;
@@ -1752,7 +1752,7 @@ end;
 procedure TKntFile.UpdateTextPlainVariables (nMax: integer);
 var
   i: integer;
-  myNote: TKntFolder;
+  myFolder: TKntFolder;
   AllNotesInitialized: boolean;
   RTFAux: TTabRichEdit;
 begin
@@ -1765,8 +1765,8 @@ begin
         AllNotesInitialized:= True;
 
         for i := 0 to pred( FNotes.Count ) do begin
-           myNote := FNotes[i];
-           if not TKntFolder(myNote).InitializeTextPlainVariables(nMax, RTFAux) then
+           myFolder := FNotes[i];
+           if not myFolder.InitializeTextPlainVariables(nMax, RTFAux) then
                AllNotesInitialized:= false;
         end;
 
@@ -1786,8 +1786,8 @@ end;
 procedure TKntFile.UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
 var
   i, j: integer;
-  myNote: TKntFolder;
-  myNodes: TKntNoteList;
+  myFolder: TKntFolder;
+  myNotes: TKntNoteList;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
 
@@ -1796,13 +1796,13 @@ var
      ReplaceCorrectedIDs: boolean;
    begin
        if ToMode <> smEmbRTF then begin
-          ImagesIDs:= myNote.CheckSavingImagesOnMode (imLink, Stream, ExitIfAllImagesInSameModeDest);
+          ImagesIDs:= myFolder.CheckSavingImagesOnMode (imLink, Stream, ExitIfAllImagesInSameModeDest);
           ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
-          if (ActiveNote = myNote.ID) then
-             myNote.ImagesReferenceCount:= ImagesIDs;
+          if (ActiveKntFolder = myFolder.ID) then
+             myFolder.ImagesReferenceCount:= ImagesIDs;
        end
        else
-          myNote.CheckSavingImagesOnMode (imImage, Stream, ExitIfAllImagesInSameModeDest);
+          myFolder.CheckSavingImagesOnMode (imImage, Stream, ExitIfAllImagesInSameModeDest);
    end;
 
 begin
@@ -1812,22 +1812,22 @@ begin
    // ApplyOnlyToNote: Para usar desde MergeFromKNTFile
 
    for i := 0 to pred( FNotes.Count ) do begin
-      myNote := FNotes[i];
-      if myNote.PlainText then continue;
-      if (ApplyOnlyToNote <> nil) and (myNote <> ApplyOnlyToNote) then continue;
+      myFolder := FNotes[i];
+      if myFolder.PlainText then continue;
+      if (ApplyOnlyToNote <> nil) and (myFolder <> ApplyOnlyToNote) then continue;
 
-      myNote.EditorToDataStream;
+      myFolder.EditorToDataStream;
 
-      myNodes:= TKntFolder(myNote).Nodes;
-      for j := 0 to myNodes.Count - 1 do  begin
-         if (myNodes[j].VirtualMode = vmNone) then begin
-            Stream:= myNodes[j].Stream;
+      myNotes:= myFolder.Nodes;
+      for j := 0 to myNotes.Count - 1 do  begin
+         if (myNotes[j].VirtualMode = vmNone) then begin
+            Stream:= myNotes[j].Stream;
             UpdateImagesStorageMode (Stream);
             if Length(ImagesIDs) > 0 then
-               myNodes[j].NodeTextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
+               myNotes[j].NodeTextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
 
-            if myNodes[j] = TKntFolder(myNote).SelectedNode then
-               myNote.DataStreamToEditor;
+            if myNotes[j] = myFolder.SelectedNode then
+               myFolder.DataStreamToEditor;
          end;
       end;
 
@@ -1838,10 +1838,10 @@ end;
 
 
 
-function TKntFile.EnsurePlainTextAndRemoveImages (myNote: TKntFolder): boolean;
+function TKntFile.EnsurePlainTextAndRemoveImages (myFolder: TKntFolder): boolean;
 var
   i: integer;
-  myNodes: TKntNoteList;
+  myNotes: TKntNoteList;
   Stream: TMemoryStream;
   RTFAux : TRxRichEdit;
 
@@ -1859,7 +1859,7 @@ var
       end;
 
       if UpdateEditor then
-         myNote.DataStreamToEditor;
+         myFolder.DataStreamToEditor;
   end;
 
 
@@ -1869,14 +1869,14 @@ begin
    try
       RTFAux:= CreateRTFAuxEditorControl;
       try
-         myNodes:= TKntFolder(myNote).Nodes;
-         for i := 0 to myNodes.Count - 1 do  begin
-            if (myNodes[i].VirtualMode = vmNone) then begin
-               Stream:= myNodes[i].Stream;
-               EnsurePlainTextAndCheckRemoveImages (myNodes[i] = TKntFolder(myNote).SelectedNode);
+         myNotes:= myFolder.Nodes;
+         for i := 0 to myNotes.Count - 1 do  begin
+            if (myNotes[i].VirtualMode = vmNone) then begin
+               Stream:= myNotes[i].Stream;
+               EnsurePlainTextAndCheckRemoveImages (myNotes[i] = myFolder.SelectedNode);
             end;
          end;
-         myNote.ResetImagesReferenceCount;
+         myFolder.ResetImagesReferenceCount;
 
       finally
         RTFAux.Free;
@@ -1892,48 +1892,48 @@ begin
 end;
 
 
-procedure TKntFile.RemoveImagesCountReferences (myNote: TKntFolder);
+procedure TKntFile.RemoveImagesCountReferences (myFolder: TKntFolder);
 var
   i: integer;
-  myNodes: TKntNoteList;
+  myNotes: TKntNoteList;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
 
 begin
-   myNodes:= TKntFolder(myNote).Nodes;
-   for i := 0 to myNodes.Count - 1 do  begin
-      if (myNodes[i].VirtualMode = vmNone) then begin
-         Stream:= myNodes[i].Stream;
+   myNotes:= myFolder.Nodes;
+   for i := 0 to myNotes.Count - 1 do  begin
+      if (myNotes[i].VirtualMode = vmNone) then begin
+         Stream:= myNotes[i].Stream;
          ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
          if Length(ImagesIDs) > 0 then
             ImagesManager.RemoveImagesReferences (ImagesIDs);
       end;
    end;
-   myNote.ResetImagesReferenceCount;
+   myFolder.ResetImagesReferenceCount;
 end;
 
 
-procedure TKntFile.RemoveImagesCountReferences (myNode: TKntNote);
+procedure TKntFile.RemoveImagesCountReferences (myNote: TKntNote);
 var
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
 
 begin
-   if (myNode.VirtualMode = vmNone) then begin
-      Stream:= myNode.Stream;
+   if (myNote.VirtualMode = vmNone) then begin
+      Stream:= myNote.Stream;
       ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
       if Length(ImagesIDs) > 0 then
          ImagesManager.RemoveImagesReferences (ImagesIDs);
    end;
 end;
 
-procedure TKntFile.UpdateImagesCountReferences (myNode: TKntNote);
+procedure TKntFile.UpdateImagesCountReferences (myNote: TKntNote);
 var
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
 
 begin
-   Stream:= myNode.Stream;
+   Stream:= myNote.Stream;
    ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
    if Length(ImagesIDs) > 0 then
       ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
@@ -1941,23 +1941,23 @@ end;
 
 
 // To be used from MergeFromKNTFile
-procedure TKntFile.UpdateImagesCountReferences (myNote: TKntFolder);
+procedure TKntFile.UpdateImagesCountReferences (myFolder: TKntFolder);
 var
   i: integer;
-  myNodes: TKntNoteList;
+  myNotes: TKntNoteList;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
 
 begin
-   myNodes:= TKntFolder(myNote).Nodes;
-   for i := 0 to myNodes.Count - 1 do  begin
-      if (myNodes[i].VirtualMode = vmNone) then begin
-         Stream:= myNodes[i].Stream;
+   myNotes:= myFolder.Nodes;
+   for i := 0 to myNotes.Count - 1 do  begin
+      if (myNotes[i].VirtualMode = vmNone) then begin
+         Stream:= myNotes[i].Stream;
          ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
          ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
       end;
    end;
-   myNote.ImagesReferenceCount:= ImagesIDs;
+   myFolder.ImagesReferenceCount:= ImagesIDs;
 end;
 
 
