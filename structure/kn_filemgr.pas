@@ -110,7 +110,7 @@ var
 
 function SaveFileManagerInfo( FN : string ) : boolean;
 function LoadFileManagerInfo( FN : string ) : boolean;
-function AddToFileManager( const FN : string; const aFile : TNoteFile ) : boolean;
+function AddToFileManager( const FN : string; const aFile : TKntFile ) : boolean;
 procedure ClearFileManager;
 
 implementation
@@ -281,7 +281,7 @@ begin
   result := ( FileManager.Count > 0 );
 end; // LoadFileManagerInfo
 
-function AddToFileManager( const FN : string; const aFile : TNoteFile ) : boolean;
+function AddToFileManager( const FN : string; const aFile : TKntFile ) : boolean;
 var
   Info : TFileInfo;
   i : integer;

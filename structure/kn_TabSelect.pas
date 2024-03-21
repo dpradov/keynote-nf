@@ -59,14 +59,14 @@ type
   public
     { Public declarations }
     OK_Click : boolean;
-    myNotes : TNoteFile;
+    myNotes : TKntFile;
 
     procedure TabsToForm;
     procedure FormToTabs;
 
   end;
 
-function SelectTabs( const aNoteFile : TNoteFile ) : boolean;
+function SelectTabs( const aNoteFile : TKntFile ) : boolean;
 
 implementation
 uses
@@ -79,7 +79,7 @@ uses
 
 {$R *.DFM}
 
-function SelectTabs( const aNoteFile : TNoteFile ) : boolean;
+function SelectTabs( const aNoteFile : TKntFile ) : boolean;
 var
   Form_SelectTab : TForm_SelectTab;
 begin
@@ -151,7 +151,7 @@ const
 var
   i : integer;
   cb : TCheckBoxState;
-  aNote : TTabNote;
+  aNote : TKntFolder;
 begin
   if ( not assigned( myNotes )) then exit;
   if ( myNotes.NoteCount < 1 ) then exit;
@@ -164,10 +164,8 @@ begin
         cb := cbChecked
       else
         cb := cbUnchecked;
-      if ( aNote.Kind = ntTree ) then
-        List_Tabs.AddItem( aNote.Name + TreeNoteMarker, cb, aNote.ImageIndex )
-      else
-        List_Tabs.AddItem( aNote.Name, cb, aNote.ImageIndex );
+
+      List_Tabs.AddItem( aNote.Name + TreeNoteMarker, cb, aNote.ImageIndex )
     end;
   finally
     List_Tabs.Items.EndUpdate;

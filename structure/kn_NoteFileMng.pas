@@ -283,20 +283,17 @@ begin
             LoadDefaults;
             LoadTabImages( false );
 
-            NoteFile := TNoteFile.Create;
+            NoteFile := TKntFile.Create;
             NoteFile.PageCtrl := Pages;
             NoteFile.PassphraseFunc := GetFilePassphrase;
             NoteFile.FileFormat := KeyOptions.SaveDefaultFormat;
 
-            if ( KeyOptions.RunAutoMacros and fileexists( _MACRO_AUTORUN_NEW_FILE )) then
-            begin
+            if ( KeyOptions.RunAutoMacros and fileexists( _MACRO_AUTORUN_NEW_FILE )) then begin
               Application.ProcessMessages;
               ExecuteMacro( _MACRO_AUTORUN_NEW_FILE, '' );
             end
             else
-            begin
-              NewNote( true, false, KeyOptions.StartNoteType );
-            end;
+              NewNote( true, false );
 
           except
             on E : Exception do
@@ -324,7 +321,7 @@ begin
           FileIsBusy := false;
           if ( Pages.PageCount > 0 ) then
           begin
-            ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
+            ActiveNote := TKntFolder( Pages.ActivePage.PrimaryObject );
             TAM_ActiveName.Caption := ActiveNote.Name;
             FocusActiveNote;
           end
@@ -339,18 +336,8 @@ begin
           UpdateNoteDisplay;
 
           if ( assigned( ActiveNote ) and KeyOptions.RunAutoMacros ) then begin
-
-            case ActiveNote.Kind of
-              ntRTF : begin
-                Application.ProcessMessages;
-                ExecuteMacro( _MACRO_AUTORUN_NEW_NOTE, '' );
-              end;
-
-              ntTree : begin
-                Application.ProcessMessages;
-                ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
-              end;
-            end;
+             Application.ProcessMessages;
+             ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
           end;
 
         end;
@@ -431,7 +418,7 @@ begin
             screen.Cursor := crHourGlass;
             FileIsBusy := true;
             result := 0;
-            NoteFile := TNoteFile.Create;
+            NoteFile := TKntFile.Create;
             NoteFile.PassphraseFunc := GetFilePassphrase;
             NoteFile.PageCtrl := Pages;
 
@@ -517,24 +504,6 @@ begin
             StatusBar.Panels[PANEL_HINT].Text := STR_14;
 
             try
-              if EditorOptions.SaveCaretPos then begin
-                for i := 1 to NoteFile.Notes.Count do
-                begin
-                  with NoteFile.Notes[pred( i )] do
-                  begin
-                    case Kind of
-                      ntRTF : begin
-                        Editor.OnSelectionChange := nil;
-                        try
-                          Editor.Selstart := CaretPos.X;
-                        finally
-                          Editor.OnSelectionChange := RxRTFSelectionChange;
-                        end;
-                      end;
-                    end;
-                  end;
-                end;
-              end;
 
               if ClipOptions.Recall then
               begin
@@ -605,7 +574,7 @@ begin
           begin
             if ( Pages.PageCount > 0 ) then
             begin
-              ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
+              ActiveNote := TKntFolder( Pages.ActivePage.PrimaryObject );
               TAM_ActiveName.Caption := ActiveNote.Name;
               FocusActiveNote;
               Log_StoreTick( 'After GetFileState and FocusActiveNote', 1 );
@@ -889,7 +858,7 @@ var
   ErrStr, ext, BakFN, BakFolder, FPath: string;
   SUCCESS: LongBool;
   i, LastError: Integer;
-  myNote: TTabNote;
+  myNote: TKntFolder;
   tempDirectory, tempFN : string;
   SavedNotes, SavedNodes: integer;
 
@@ -1070,8 +1039,7 @@ begin
          try
            for i := 1 to NoteFile.NoteCount do begin
               myNote := NoteFile.Notes[pred(i)];
-              if myNote.Kind = ntTree then
-                 GetOrSetNodeExpandState(TTreeNote(myNote).TV, false, false);
+              GetOrSetNodeExpandState(TKntFolder(myNote).TV, false, false);
            end;
          except
            // nothing
@@ -1460,14 +1428,14 @@ end; // NoteFileCopy
 //=================================================================
 procedure MergeFromKNTFile( MergeFN : string );
 var
-  MergeFile : TNoteFile;
+  MergeFile : TKntFile;
   ImgManagerMF: TImageManager;
   LoadResult : integer;
   TabSelector : TForm_SelectTab;
   mergecnt, i, n, p : integer;
-  newNote : TTabNote;
-  newTNote, mergeTNote : TTreeNote;
-  newNode, mergeNode : TNoteNode;
+  newNote : TKntFolder;
+  newTNote, mergeTNote : TKntFolder;
+  newNode, mergeNode : TKntNote;
   IDs: array of TMergeNotes;
   mirrorID: string;
   noteID: integer;
@@ -1514,7 +1482,7 @@ begin
         end;
         }
 
-        MergeFile := TNoteFile.Create;
+        MergeFile := TKntFile.Create;
         MergeFile.PassphraseFunc := GetFilePassphrase;
         mergecnt := 0;
 
@@ -1593,11 +1561,7 @@ begin
               end;
 
 
-              case MergeFile.Notes[i].Kind of
-                ntRTF : newNote := TTabNote.Create;
-                else
-                  newNote := TTreeNote.Create;
-              end;
+              newNote := TKntFolder.Create;
 
               NewNote.Visible := true;
               NewNote.Modified := false;
@@ -1615,45 +1579,37 @@ begin
                 NewNote.UseTabChar := UseTabChar;
               end;
 
-              if ( newNote.Kind = ntTree ) then
-              begin
-                newTNote := TTreeNote( newNote );
-                with TTreeNote( MergeFile.Notes[i] ) do
-                begin
-                  newTNote.IconKind := IconKind;
-                  newTNote.TreeWidth := TreeWidth;
-                  newTNote.Checkboxes := CheckBoxes;
-                  newTNote.TreeChrome := TreeChrome;
-                  newTNote.DefaultNodeName := DefaultNodeName;
-                  newTNote.AutoNumberNodes := AutoNumberNodes;
-                  newTNote.VerticalLayout := VerticalLayout;
-                  newTNote.HideCheckedNodes := HideCheckedNodes;
-                end;
+              newTNote := TKntFolder( newNote );
+              with TKntFolder( MergeFile.Notes[i] ) do begin
+                 newTNote.IconKind := IconKind;
+                 newTNote.TreeWidth := TreeWidth;
+                 newTNote.Checkboxes := CheckBoxes;
+                 newTNote.TreeChrome := TreeChrome;
+                 newTNote.DefaultNodeName := DefaultNodeName;
+                 newTNote.AutoNumberNodes := AutoNumberNodes;
+                 newTNote.VerticalLayout := VerticalLayout;
+                 newTNote.HideCheckedNodes := HideCheckedNodes;
               end;
 
               MergeFile.Notes[i].AddProcessedAlarmsOfNote(newNote);
 
-              case newNote.Kind of
-                ntRTF : begin
-                  MergeFile.Notes[i].DataStream.Position := 0;
-                  newNote.DataStream.LoadFromStream( MergeFile.Notes[i].DataStream );
-                end;
-                ntTree : begin
-                  mergeTNote:= TTreeNote( MergeFile.Notes[i] );
-                  if ( mergeTNote.NodeCount > 0 ) then
-                  begin
-                    for n := 0 to pred( mergeTNote.NodeCount ) do
-                    begin
-                      mergeNode:= mergeTNote.Nodes[n];
-                      newNode := TNoteNode.Create;
-                      newNode.Assign( mergeNode );
-                      TTreeNote( newNote ).AddNode( newNode );
-                      newNode.ForceID( mergeNode.ID);
-                      mergeTNote.AddProcessedAlarmsOfNode(mergeNode, newNote, newNode);
-                    end;
-                  end;
+              mergeTNote:= TKntFolder( MergeFile.Notes[i] );
+              if ( mergeTNote.NodeCount > 0 ) then
+              begin
+                for n := 0 to pred( mergeTNote.NodeCount ) do
+                begin
+                  mergeNode:= mergeTNote.Nodes[n];
+                  newNode := TKntNote.Create;
+                  newNode.Assign( mergeNode );
+                  TKntFolder( newNote ).AddNode( newNode );
+                  newNode.ForceID( mergeNode.ID);
+                  mergeTNote.AddProcessedAlarmsOfNode(mergeNode, newNote, newNode);
                 end;
               end;
+
+              if ( mergeTNote.NodeCount = 1 ) and (mergeTNote.Nodes[0].Name= mergeTNote.Name) then
+                  newTNote.TreeHidden:= true;           // It was an old simple note
+
 
               NoteFile.AddNote( newNote );
               inc( mergecnt );
@@ -1684,8 +1640,8 @@ begin
             for i := 0 to pred( MergeFile.NoteCount ) do
               if IDs[i].newNote then begin
                  newNote:= NoteFile.GetNoteByID(IDs[i].newID);
-                 for n := 0 to TTreeNote(newNote).NodeCount - 1 do begin
-                    newNode:= TTreeNote(newNote).Nodes[n];
+                 for n := 0 to TKntFolder(newNote).NodeCount - 1 do begin
+                    newNode:= TKntFolder(newNote).Nodes[n];
                     if newNode.VirtualMode = vmKNTNode then begin
                        mirrorID:= newNode.MirrorNodeID;
                        p := pos( KNTLINK_SEPARATOR, mirrorID );
@@ -2003,13 +1959,17 @@ end;
 procedure ImportAsNotes( ImportFileList : TStringList; ImgLinkMode: boolean );
 var
   FN, s : string;
-  myNote : TTabNote;
+  myNote : TKntFolder;
   filecnt : integer;
   ImportFileType : TImportFileType;
-  tNote : TTreeNote;
+  tNote : TKntFolder;
   OutStream: TMemoryStream;
 
+  myNoteNode : TKntNote;
+  myTreeNode : TTreeNTNode;
+
 begin
+
   with Form_Main do begin
 
         if ( not HaveNotes( true, false )) then exit;
@@ -2042,15 +2002,7 @@ begin
               end;
 
               try
-                case ImportFileType of
-                  itText, itRTF, itHTML, itImage : begin
-                    myNote := TTabNote.Create;
-                  end;
-                  itTreePad : begin
-                    myNote := TTreeNote.Create;
-                  end;
-                end;
-
+                myNote := TKntFolder.Create;
                 myNote.SetEditorProperties( DefaultEditorProperties );
                 myNote.SetTabProperties( DefaultTabProperties );
                 myNote.EditorChrome := DefaultEditorChrome;
@@ -2062,20 +2014,28 @@ begin
                 NoteFile.AddNote( myNote );
 
                 try
+                  myNoteNode:= nil;
+                  if ImportFileType <> itTreePad then begin
+                     myNoteNode := TKntNote.Create;
+                     myNote.AddNode(myNoteNode);
+                     myNoteNode.Name := s;
+                     myNote.TreeHidden:= true;
+                  end;
+
                   case ImportFileType of
                     itText, itRTF : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TXT or RTF)  FN:' + FN,  1 ); {$ENDIF}
-                      LoadTxtOrRTFFromFile(myNote.DataStream, FN);
+                      LoadTxtOrRTFFromFile(myNoteNode.Stream, FN);
                       end;
                     itHTML : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (HTML)  FN:' + FN,  1 ); {$ENDIF}
-                      myNote.DataStream.LoadFromStream(OutStream);
-                      myNote.DataStream.Position:= myNote.DataStream.Size;
-                      myNote.DataStream.Write(AnsiString(#13#10#0), 3);
+                      myNoteNode.Stream.LoadFromStream(OutStream);
+                      myNoteNode.Stream.Position:= myNoteNode.Stream.Size;
+                      myNoteNode.Stream.Write(AnsiString(#13#10#0), 3);
                       end;
                     itTreePad : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TreePad)  FN:' + FN,  1 ); {$ENDIF}
-                      tNote := TTreeNote( myNote );
+                      tNote := TKntFolder( myNote );
                       tNote.SetTreeProperties( DefaultTreeProperties );
                       tNote.TreeChrome := DefaultTreeChrome;
                       tNote.LoadFromTreePadFile( FN );
@@ -2103,7 +2063,7 @@ begin
                        and all nodes in a plain text only tree note are saved in plain format.
                     but I forgot to apply it also for files imported as notes, not as nodes !!
                  }
-                 if myNote.PlainText or  (not NodeStreamIsRTF (myNote.DataStream)) then
+                 if myNote.PlainText or  ((myNoteNode <> nil) and not NodeStreamIsRTF (myNoteNode.Stream)) then
                     myNote.Editor.Modified := True
                  else
                     myNote.Editor.Modified := False;
@@ -2144,11 +2104,11 @@ end; // ImportAsNotes
 procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean; const NameProposed: string = '' );
 var
   FN, strContent : string;
-  myNote : TTabNote;
+  myNote : TKntFolder;
   Editor: TRxRichEdit;
   filecnt : integer;
   ImportFileType : TImportFileType;
-  tNote : TTreeNote;
+  tNote : TKntFolder;
   Stream: TMemoryStream;
   InformedImgInPlain: boolean;
 
@@ -2323,9 +2283,9 @@ begin
             // all other files we can attempt to import...
             facts[factImport] := IsKnownFileFormat;
             facts[factInsertContent]:= not ActiveNoteIsReadOnly and (not FileIsImage or NoteSupportsRegisteredImages());
-            if (( ActiveNote.Kind = ntTree ) and ( not ActiveNoteIsReadOnly )) then begin
+            if ( not ActiveNoteIsReadOnly) then begin
               // ...or, in a tree note, import as a tree node
-              myTreeNode := TTreeNote( ActiveNote ).TV.Selected;
+              myTreeNode := TKntFolder( ActiveNote ).TV.Selected;
               if assigned( myTreeNode ) then begin
                  facts[factImportAsNode] := IsKnownFileFormat;
                  facts[factMakeVirtualNode] := IsKnownFileFormat;
@@ -2495,7 +2455,7 @@ end; // ConsistentFileType
 procedure FileDropped( Sender : TObject; FileList : TStringList );
 var
   myTreeNode : TTreeNTNode;
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
   fName, fExt : string;
   myAction : TDropFileAction;
   i : integer;
@@ -2615,7 +2575,7 @@ begin
 
                       myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
                       if assigned( myTreeNode ) then begin
-                        myNoteNode := TNoteNode( myTreeNode.Data );
+                        myNoteNode := TKntNote( myTreeNode.Data );
                         if assigned( myNoteNode ) then begin
                             if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
                               myNoteNode.Stream.LoadFromStream(OutStream);
@@ -2625,7 +2585,7 @@ begin
                             else if not ExtIsImage( fExt )  then
                               LoadTxtOrRTFFromFile(myNoteNode.Stream, FName);
 
-                            SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
+                            SelectIconForNode( myTreeNode, TKntFolder( ActiveNote ).IconKind );
                             if KeyOptions.ImportFileNamesWithExt then
                               myNoteNode.Name := ExtractFilename( FName )
                             else
@@ -2648,12 +2608,17 @@ begin
                     if _LastZoomValue <> 100 then
                        SetEditorZoom(ActiveNote.Editor, _LastZoomValue, '' );
 
+                    if ActiveNote.TreeHidden then begin
+                       ActiveNote.TreeHidden:= false;
+                       UpdateTreeVisible( ActiveNote );
+                    end;
+
                     UpdateNoteFileState( [fscModified] );
 
                     // *1
                     // If myTreeNode is assigned it is because TreeNoteNewNode has returned ok.
                     // TreeNoteNewNode ends up calling TV.Items.Add, which ends up raising the TV.Change event,
-                    // managed by FormMain.TVChange. The last one, if the editor has modifications, calls TTreeNote.EditorToDataStream, and
+                    // managed by FormMain.TVChange. The last one, if the editor has modifications, calls TKntFolder.EditorToDataStream, and
                     // the content of the editor is saved in node's stream.
                     // But, if there is an exception (or simply we exit) before TreeNoteNewNode, and enter in this finally section, we
                     // should not do Editor.Modified := False or the modifcations (existing and coming) in the Editor will be lost for the
@@ -2663,14 +2628,14 @@ begin
                     // (with .LoadFromFile(FName) ) doesn't contain RTF, but ANSI or Unicode plain text, we could end up saving the node's
                     // stream content in that format to the .knt file when saving (could be problematic when reading the file).
                     // We must ensure that the node's stream is loaded with its RTF translating. If we mark the editor as modified then, when
-                    // the user selects another node (os simply just before saving the .knt file), TTreeNote.EditorToDataStream will be called,
+                    // the user selects another node (os simply just before saving the .knt file), TKntFolder.EditorToDataStream will be called,
                     // and there, FEditor.Lines.SaveToStream will do that that translating. The node will contain RTF.
                     //
                     //    Similary, if the file is in RTF and the tree is plained, we should do the same. This case is less problematic,
                     // because the .knt file would be read ok, but the node could be persisted (if not modified) in an incorrect format.
                     //   Another case, that do could be problematic: if the file, not RTF, is dropped into a plained tree, and we do nothing, the
                     // node will be loaded plain (ok) in the node's stream, but with $D instead of $D$A after each line. With the last changes
-                    // in TTreeNote.SaveToFile (use of new SaveRTFToFile, that doesn't rely on TStringList and it's conversions), the content
+                    // in TKntFolder.SaveToFile (use of new SaveRTFToFile, that doesn't rely on TStringList and it's conversions), the content
                     // will add only a ";" leading character on the first line. Instead of complicating that code, it is simple to mark this
                     // node as modified, as this will ensure that finally gets saved in the right way.
                     //  So, when dropping a file on a plained tree, we wil will mark the new node as modified. It is the more secure and simple way.

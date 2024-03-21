@@ -87,14 +87,14 @@ type
     procedure ConfigureUAS;
 
     // clipboard capture and paste
-    procedure TryPasteRTF(Note: TTabNote; HTMLText: AnsiString='');
-    procedure PasteBestAvailableFormat (Note: TTabNote;
+    procedure TryPasteRTF(Note: TKntFolder; HTMLText: AnsiString='');
+    procedure PasteBestAvailableFormat (Note: TKntFolder;
                                         TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
                                         PrioritizeImage: boolean = False);
-    procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TTabNote;
+    procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TKntFolder;
                                                 TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
                                                 PrioritizeImage: boolean = False);
-    procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
+    procedure ToggleClipCap( const TurnOn : boolean; const aNote : TKntFolder );
     procedure SetClipCapState( const IsOn : boolean );
     procedure PasteOnClipCap (ClpStr: string);
     procedure PasteAsWebClip (const PasteAsText: boolean);
@@ -121,8 +121,8 @@ type
     function GetTitleFromURL (const URL: String; TryForLimitedTime: boolean): String;
     procedure CleanCacheURLs (OnlyWithoutTitle: boolean);
 
-    function CreateRTFAuxEditorControl (NoteToLoadFrom: TTabNote= nil; FromSelection: Boolean= True): TTabRichEdit;
-    procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TTabNote);
+    function CreateRTFAuxEditorControl (NoteToLoadFrom: TKntFolder= nil; FromSelection: Boolean= True): TTabRichEdit;
+    procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TKntFolder);
 
 
 const
@@ -221,12 +221,12 @@ resourcestring
   STR_ClipCap_01 = 'A Read-Only note cannot be used for clipboard capture.';
   STR_ClipCap_02 = 'a new node';
   STR_ClipCap_03 = 'whichever node is currently selected';
-  STR_ClipCap_04 = 'This is a %s note. Each copied item will be pasted into %s in the tree. Continue?';
+  STR_ClipCap_04 = 'Each copied item will be pasted into %s in the tree. Continue?';
   STR_ClipCap_05 = ' Clipboard capture is now ';
   STR_ClipCap_06 = ' Capturing text from clipboard';
   STR_ClipCap_07 = 'Cannot obtain tree node for pasting data.';
   STR_ClipCap_09 = ' Clipboard capture done';
-  STR_Print_01 = 'Current note is a Tree-type note and contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.';
+  STR_Print_01 = 'Current note contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.';
   STR_Print_02 = 'Replace editor contents with result from spellchecker?';
   STR_Zoom_01 = 'Invalid zoom ratio: ';
   STR_Tip_01 = 'Cannot display Tip of the Day: file "%s" not found.';
@@ -1254,7 +1254,7 @@ var
   OpenPictureDlg : TOpenPictureDialog;
   SelStartOrig, SelLengthOrig: integer;
   NewName: string;
-  myNode: TNoteNode;
+  myNode: TKntNote;
 begin
   if ( not Form_Main.HaveNotes(true, true)) then exit;
   if ( not assigned(ActiveNote)) then exit;
@@ -1491,10 +1491,8 @@ begin
   s := format(STR_Statistics_04,[Title,inttostr( numChars ),inttostr( numAlpChars ),
                 inttostr( numSpaces ),inttostr( numWords ),inttostr( numLines )]);
 
-  if ( ActiveNote.Kind = ntTree ) then begin
-    numNodes := TTreeNote( ActiveNote ).TV.Items.Count;
-    s := s + Format( STR_Statistics_05,  [numNodes] );
-  end;
+  numNodes := TKntFolder( ActiveNote ).TV.Items.Count;
+  s := s + Format( STR_Statistics_05,  [numNodes] );
 
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(
     STR_Statistics_06, [numChars, numAlpChars, numWords] );
@@ -1822,7 +1820,7 @@ end;
 //=================================================================
 // TryPasteRTF
 //=================================================================
-procedure TryPasteRTF(Note: TTabNote; HTMLText: AnsiString='');
+procedure TryPasteRTF(Note: TKntFolder; HTMLText: AnsiString='');
 var
   RTFText: AnsiString;
   posI: integer;
@@ -1867,7 +1865,7 @@ end;
   will try to get RTF format from HTML (as we have been doing on Paste Special...)
 }
 
-procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TTabNote;
+procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TKntFolder;
                                            TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
                                            PrioritizeImage: boolean = False);
 var
@@ -1935,7 +1933,7 @@ begin
 end;
 
 
-procedure PasteBestAvailableFormat (Note: TTabNote; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False; PrioritizeImage: boolean = False);
+procedure PasteBestAvailableFormat (Note: TKntFolder; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False; PrioritizeImage: boolean = False);
 begin
     PasteBestAvailableFormatInEditor(Note.Editor, Note, TryOfferRTF, CorrectHTMLtoRTF, PrioritizeImage);
 end;
@@ -1944,7 +1942,7 @@ end;
 //=================================================================
 // ToggleClipCap
 //=================================================================
-procedure ToggleClipCap( const TurnOn : boolean; const aNote : TTabNote );
+procedure ToggleClipCap( const TurnOn : boolean; const aNote : TKntFolder );
 var
   nodemode : string;
 begin
@@ -1965,29 +1963,24 @@ begin
               exit;
             end;
 
-            if ( aNote.Kind = ntTree ) then begin
-              if ( Initializing or ( not ClipOptions.TreeClipConfirm )) then
-                ClipCapNode := GetCurrentNoteNode
-              else begin
-                if ClipOptions.PasteAsNewNode then
-                  nodemode := STR_ClipCap_02
-                else
-                  nodemode := STR_ClipCap_03;
-                case MessageDlg( Format(
-                  STR_ClipCap_04,
-                  [TABNOTE_KIND_NAMES[aNote.Kind], nodemode] ), mtConfirmation, [mbOK,mbCancel], 0 ) of
-                  mrOK : begin
-                    ClipCapNode := GetCurrentNoteNode;
-                  end;
-                  else begin
-                    TB_ClipCap.Down := false;
-                    exit;
-                  end;
+
+            if ( Initializing or ( not ClipOptions.TreeClipConfirm ) or aNote.TreeHidden ) then
+              ClipCapNode := GetCurrentNoteNode
+
+            else begin
+              if ClipOptions.PasteAsNewNode then
+                nodemode := STR_ClipCap_02
+              else
+                nodemode := STR_ClipCap_03;
+
+              case MessageDlg( Format(STR_ClipCap_04, [nodemode] ), mtConfirmation, [mbOK,mbCancel], 0 ) of
+                mrOK: ClipCapNode := GetCurrentNoteNode;
+                else begin
+                  TB_ClipCap.Down := false;
+                  exit;
                 end;
               end;
-            end
-            else
-              ClipCapNode := nil;
+            end;
 
             if ( NoteFile.ClipCapNote <> nil ) then begin
               // some other note was clipcap before
@@ -2156,7 +2149,7 @@ var
   TitleURL : string;
   AuxStr : string;
   HTMLClipboard: string;
-  Note: TTabNote;
+  Note: TKntFolder;
   Editor: TTabRichEdit;
 
   GetTitle: boolean;
@@ -2166,6 +2159,7 @@ var
   IgnoreCopiedText: boolean;
 
   Using2ndDivider: boolean;
+  PasteAsNewNode: boolean;
 
  const
     URL_YOUTUBE: string = 'https://www.youtube.com';
@@ -2289,14 +2283,16 @@ begin
              end;
           end;
 
-          if not PasteOnlyURL and ( Note.Kind = ntTree ) then begin
+          PasteAsNewNode:= ClipOptions.PasteAsNewNode and (not Note.TreeHidden);
+
+          if not PasteOnlyURL then begin
               // ClipCapNode := nil;
-              if ClipOptions.PasteAsNewNode then begin
+              if PasteAsNewNode  then begin
                  if (pos(CLIPDATECHAR, DividerString)=0) and (pos(CLIPTIMECHAR, DividerString)=0) and ((SourceURLStr = '') or (pos(CLIPSOURCE_Token, DividerString)=0)) then
                     DividerString:= '';   // Si no hay que separar de nada y el propia cadena de separación no incluye fecha, ni hora ni se va a mostrar el origen, ignorarla
 
                  if ( ClipCapNode <> nil ) then
-                    myParentNode := TTreeNote( Note ).TV.Items.FindNode( [ffData], '', ClipCapNode )
+                    myParentNode := TKntFolder( Note ).TV.Items.FindNode( [ffData], '', ClipCapNode )
                  else
                     myParentNode := nil;
 
@@ -2307,16 +2303,17 @@ begin
                  end;
 
                  if assigned( myParentNode ) then
-                    myTreeNode := TreeNoteNewNode( TTreeNote( Note ), tnAddChild, myParentNode, myNodeName, true )
+                    myTreeNode := TreeNoteNewNode( TKntFolder( Note ), tnAddChild, myParentNode, myNodeName, true )
                  else
-                    myTreeNode := TreeNoteNewNode( TTreeNote( Note ), tnAddLast, nil, myNodeName, true );
+                    myTreeNode := TreeNoteNewNode( TKntFolder( Note ), tnAddLast, nil, myNodeName, true );
 
               end
               else begin
-                 myTreeNode := TTreeNote( Note ).TV.Selected;
+                 myTreeNode := TKntFolder( Note ).TV.Selected;
                  if ( not assigned( myTreeNode )) then
-                    myTreeNode := TreeNoteNewNode( TTreeNote( Note ), tnAddLast, nil, myNodeName, true );
+                    myTreeNode := TreeNoteNewNode( TKntFolder( Note ), tnAddLast, nil, myNodeName, true );
               end;
+
               if ( not assigned( myTreeNode )) then begin
                  PasteOK := false;
                  PopupMessage( STR_ClipCap_07, mtError, [mbOK], 0 );
@@ -2369,7 +2366,7 @@ begin
                 end;
 
                   // do not add leading blank lines if pasting in a new tree node
-                if (( Note.Kind <> ntRTF ) and ClipOptions.PasteAsNewNode ) then
+                if PasteAsNewNode then
                    DividerString := trimleft( DividerString );
 
                 i := pos( CLIPSOURCE_DOMAIN, DividerString );
@@ -2440,7 +2437,7 @@ begin
             UpdateNoteFileState( [fscModified] );
 
             if assigned ( myTreeNode ) then
-               TNoteNode( myTreeNode.Data ).RTFModified := true;
+               TKntNote( myTreeNode.Data ).RTFModified := true;
 
             StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_09;
             wavfn := extractfilepath( application.exename ) + 'clip.wav';
@@ -2462,8 +2459,8 @@ end; // PasteOnClipCap
 //=================================================================
 procedure PasteAsWebClip (const PasteAsText: boolean);
 var
-  oldClipCapNote : TTabNote;
-  oldClipCapNode : TNoteNode;
+  oldClipCapNote : TKntFolder;
+  oldClipCapNode : TKntNote;
   oldDividerString : string;
   oldAsText, oldTreeClipConfirm, oldInsertSourceURL, oldClipPlaySound, oldPasteAsNewNode : boolean;
   oldMaxSize, oldSleepTime : integer;
@@ -2534,11 +2531,11 @@ begin
 
   try
     if AsNewNote then begin
-      NewNote( true, true, ntRTF );
+      NewNote( true, true );
       CanPaste := ( OldCNT < NoteFile.Notes.Count );
     end
     else begin
-      if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then begin
+      if assigned( ActiveNote ) then begin
         case ClipOptions.ClipNodeNaming of
           clnDefault : myNodeName := '';
           clnClipboard : myNodeName:= Clipboard.TryGetFirstLine(TREENODE_NAME_LENGTH_CAPTURE);
@@ -2571,9 +2568,9 @@ var
   PrintRE : TRichEdit;
   MS : TMemoryStream;
   PrintAllNodes : boolean;
-  tNote : TTreeNote;
+  tNote : TKntFolder;
   myTreeNode : TTreeNTNode;
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
 begin
   if ( not Form_Main.HaveNotes( true, true )) then exit;
   if ( not assigned( ActiveNote )) then exit;
@@ -2591,7 +2588,7 @@ begin
   end;
   PrintAllNodes := false;
 
-  if (( ActiveNote.Kind = ntTree ) and ( TTreeNote( ActiveNote ).TV.Items.Count > 1 )) then
+  if (TKntFolder( ActiveNote ).TV.Items.Count > 1 ) then
   case messagedlg(STR_Print_01,
       mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
     mrYes : PrintAllNodes := true;
@@ -2616,7 +2613,7 @@ begin
         WordWrap := false;
       end;
 
-      if (( ActiveNote.Kind = ntRTF ) or ( not PrintAllNodes )) then begin
+      if (not PrintAllNodes ) then begin
 
         if KeyOptions.SafePrint then begin
           ActiveNote.Editor.Print( RemoveAccelChar( ActiveNote.Name ));
@@ -2636,11 +2633,11 @@ begin
           Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( ActiveNote.Editor ), 1 );
       end
       else begin
-        tNote := TTreeNote( ActiveNote );
+        tNote := TKntFolder( ActiveNote );
         myTreeNode := tNote.TV.Items.GetFirstNode;
         if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;   // [dpv]
         while assigned( myTreeNode ) do begin
-          myNoteNode := TNoteNode( myTreeNode.Data );
+          myNoteNode := TKntNote( myTreeNode.Data );
           if assigned( myNoteNode ) then begin
             myNoteNode.Stream.Position := 0;
             PrintRE.Lines.LoadFromStream( myNoteNode.Stream );
@@ -2768,7 +2765,7 @@ end; // ZoomEditor
 
 procedure SetEditorZoom( ZoomValue : integer; ZoomString : string; Increment: integer= 0);  overload;
 var
-  Note: TTabNote;
+  Note: TKntFolder;
   Editor: TRxRichEdit;
   i: integer;
 begin
@@ -2899,7 +2896,7 @@ begin
     Application.Minimize;
 end; // ShowTipOfTheDay
 
-function CreateRTFAuxEditorControl(NoteToLoadFrom: TTabNote= nil; FromSelection: Boolean= True): TTabRichEdit;
+function CreateRTFAuxEditorControl(NoteToLoadFrom: TKntFolder= nil; FromSelection: Boolean= True): TTabRichEdit;
 var
   Stream: TStream;
   Str: String;
@@ -2953,7 +2950,7 @@ begin
    Result:= RTFAux;
 end;
 
-procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TTabNote);
+procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myNote: TKntFolder);
 begin
     if myNote.PlainText then begin
        with RTF.DefAttributes do begin

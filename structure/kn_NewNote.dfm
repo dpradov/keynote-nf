@@ -24,7 +24,7 @@ object Form_NewNote: TForm_NewNote
   TextHeight = 13
   object Label1: TLabel
     Left = 6
-    Top = 15
+    Top = 26
     Width = 49
     Height = 13
     Alignment = taRightJustify
@@ -34,22 +34,12 @@ object Form_NewNote: TForm_NewNote
   end
   object Label2: TLabel
     Left = 6
-    Top = 45
+    Top = 56
     Width = 49
     Height = 13
     Alignment = taRightJustify
     AutoSize = False
     Caption = '&Icon:'
-  end
-  object Label_Type: TLabel
-    Left = 6
-    Top = 75
-    Width = 49
-    Height = 13
-    Alignment = taRightJustify
-    AutoSize = False
-    Caption = '&Type:'
-    FocusControl = Combo_TabType
   end
   object Button_OK: TButton
     Left = 15
@@ -60,7 +50,7 @@ object Form_NewNote: TForm_NewNote
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 3
+    TabOrder = 2
     OnClick = Button_OKClick
   end
   object Button_Cancel: TButton
@@ -71,12 +61,12 @@ object Form_NewNote: TForm_NewNote
     Hint = 'Close dialog box'
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 4
+    TabOrder = 3
     OnClick = Button_CancelClick
   end
   object Combo_TabName: TComboBox
     Left = 60
-    Top = 10
+    Top = 21
     Width = 237
     Height = 21
     Hint = 'Enter note name'
@@ -99,24 +89,12 @@ object Form_NewNote: TForm_NewNote
     Height = 25
     Hint = 'Edit properties of the new note'
     Caption = '&Properties'
-    TabOrder = 5
+    TabOrder = 4
     OnClick = Button_PropertiesClick
-  end
-  object Combo_TabType: TComboBox
-    Left = 60
-    Top = 70
-    Width = 237
-    Height = 21
-    Hint = 'Select type of note to create'
-    Style = csDropDownList
-    ParentShowHint = False
-    ShowHint = True
-    TabOrder = 2
-    OnChange = Combo_TabNameChange
   end
   object Combo_Icons: TGFXComboBox
     Left = 60
-    Top = 40
+    Top = 54
     Width = 80
     Height = 22
     Hint = 'Select icon for note'

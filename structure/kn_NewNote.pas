@@ -42,8 +42,6 @@ type
     Label2: TLabel;
     Combo_TabName: TComboBox;
     Button_Properties: TButton;
-    Label_Type: TLabel;
-    Combo_TabType: TComboBox;
     Combo_Icons: TGFXComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -62,7 +60,6 @@ type
   public
     { Public declarations }
     OK_Click : boolean;
-    TAB_TYPE : TNoteType;
     TAB_CHANGEABLE : boolean;
     Initializing : boolean;
     // State : TTextControlState;
@@ -105,7 +102,6 @@ resourcestring
 procedure TForm_NewNote.FormCreate(Sender: TObject);
 var
   i : integer;
-  t : TNoteType;
 begin
   Initializing := true;
   OK_Click := false;
@@ -117,7 +113,6 @@ begin
   InitializeNoteTreeProperties( myTreeProperties );
   InitializeTreeOptions( myTreeOptions );
 
-  TAB_TYPE := ntRTF;
   TAB_CHANGEABLE := true;
   StateChanged := false;
   myTabNameHistory := '';
@@ -125,9 +120,6 @@ begin
   myNodeNameHistory := '';
 
   Combo_TabName.MaxLength := TABNOTE_NAME_LENGTH;
-
-  for t := low( TNoteType ) to high( TNoteType ) do
-    Combo_TabType.Items.Add( TABNOTE_KIND_NAMES[t] );
 
   Combo_Icons.ImageList := Chest.IMG_Categories;
   Combo_Icons.AddItem( STR_01, -1 );
@@ -163,14 +155,6 @@ begin
   // Combo_TabName.Items.Insert( 0, DEFAULT_NEW_NOTE_NAME );
   Combo_TabName.Text := myTabProperties.Name;
   Combo_Icons.ItemIndex := succ( myTabProperties.ImageIndex );
-
-
-  with Combo_TabType do
-  begin
-    ItemIndex := ord( TAB_TYPE );
-    Enabled := TAB_CHANGEABLE;
-  end;
-  Label_Type.Enabled := Combo_TabType.Enabled;
 
   Button_Properties.Enabled := ( Combo_TabName.Text <> '' );
 
@@ -215,9 +199,6 @@ begin
       myTabProperties.Name := trim( Combo_TabName.Text );
       myTabProperties.ImageIndex := pred( Combo_Icons.ItemIndex );
 
-      TAB_TYPE := TNoteType( Combo_TabType.ItemIndex );
-      // TAB_TYPE := low( TNoteType );
-
       myTabNameHistory := AnsiQuotedStr( Combo_TabName.Text, '"' );
       for i := 0 to pred( Combo_TabName.Items.Count ) do
       begin
@@ -234,7 +215,7 @@ procedure TForm_NewNote.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   case key of
-    27 : if (( shift = [] ) and ( not ( Combo_TabName.DroppedDown or Combo_Icons.DroppedDown or Combo_TabType.DroppedDown ))) then
+    27 : if (( shift = [] ) and ( not ( Combo_TabName.DroppedDown or Combo_Icons.DroppedDown ))) then
     begin
       key := 0;
       OK_Click := false;
@@ -280,7 +261,6 @@ begin
     Form_Defaults.myNodeNameHistory := myNodeNameHistory;
     Form_Defaults.myTreeProperties := myTreeProperties;
     Form_Defaults.myTreeChrome := myTreeChrome;
-    Form_Defaults.NoteKind := TNoteType( Combo_TabType.ItemIndex );
 
     // Form_Defaults.Defaults := false;
     if ( Form_Defaults.ShowModal = mrOK ) then begin

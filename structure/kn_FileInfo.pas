@@ -149,7 +149,7 @@ type
 
   public
     { Public declarations }
-    myNotes : TNoteFile;
+    myNotes : TKntFile;
     OK_Click : boolean;
     PassphraseChanged : boolean;
     MinPassLen : integer;

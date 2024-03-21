@@ -60,12 +60,11 @@ type
 type
   TTabRichEdit = class; // FORWARD DECLARATION
 
-  TTabNote = class( TPersistent )
+  TKntFolder = class( TPersistent )
   private
     FEditorChrome : TChrome; // user-defined fonts, colors etc.
     FID : longint; // unique note ID
     FName : TNoteNameStr; // user-defined name for the note object
-    FKind : TNoteType; // redundant, because we can check object type at runtime, but it's easier this way
     FVisible : boolean; // UNUSED but may be useful later (with specialized notes)
     FReadOnly : boolean;
     FInfo : longint; // internal use only
@@ -75,7 +74,6 @@ type
     FTabIndex : integer;
     FImageIndex : integer;
     FPlainText : boolean; // if true, contents of editor are saved as plain text
-    FDataStream : TMemoryStream;
     FNoteTextPlain : string;
     FFocusMemory : TFocusMemory; // which control was last focused
 
@@ -96,6 +94,33 @@ type
 
     FImagesMode: TImagesMode;
     fImagesReferenceCount: TImageIDs;
+
+    //-----------
+    FNodes : TKntNoteList;
+    FSplitter : TSplitter;
+    FTV : TTreeNT;
+    FIconKind : TNodeIconKind;
+    FTreeChrome : TChrome;
+    FSelectedNode : TKntNote;
+    FOldSelectedIndex : integer;
+    FTreeHidden : boolean;
+    FHideCheckedNodes: boolean;       // [dpv]
+    FFiltered: boolean;               // [dpv]
+
+    FDefaultNodeName : string;
+    FAutoNumberNodes : boolean;
+    FCheckboxes : boolean;
+    FVerticalLayout : boolean;
+
+    {$IFDEF WITH_IE}
+    FMainPanel : TPanel;
+    FWebBrowser : TWebBrowser;
+    {$ENDIF}
+
+    // state that needs to be recalled
+    FTreeWidth : integer;
+    FTreeMaxWidth: integer;
+    //-----------
 
 
     // events
@@ -122,21 +147,35 @@ type
 
     procedure BaseSaveProc( var tf : TTextFile );
 
-    function PropertiesToFlagsString : TFlagsString; virtual;
-    procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); virtual;
+    function PropertiesToFlagsString : TFlagsString;
+    procedure FlagsStringToProperties( const FlagsStr : TFlagsString );
 
-    procedure SaveAlarms(var tf : TTextFile; node: TNoteNode = nil);
-    procedure ProcessAlarm (s: AnsiString; node: TNoteNode = nil);
+    procedure SaveAlarms(var tf : TTextFile; node: TKntNote = nil);
+    procedure ProcessAlarm (s: AnsiString; node: TKntNote = nil);
 
     procedure SetImagesMode(ImagesMode: TImagesMode); overload;
 
-    function InitializeTextPlain(RTFAux: TRxRichEdit): boolean;
+    //-----------
+    function GetCount : integer;
+    function CheckTree : boolean;
+    procedure SetTreeChrome( AChrome : TChrome );
+
+    // function GetSelectedIndex : integer;
+    procedure SetSelectedNode( aNode : TKntNote );
+
+    //function PropertiesToFlagsString : TFlagsString; override;
+    //procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); override;
+
+    function InternalAddNode( const aNode : TKntNote ) : integer;
+    procedure InternalInsertNode( const aIndex : integer; const aNode : TKntNote );
+    procedure GenerateNodeID( const aNode : TKntNote );
+    procedure VerifyNodeIDs;
+    
 
   public
     property Editor : TTabRichEdit read FEditor write SetEditor;
     property ID : longint read FID write SetID;
     property EditorChrome : TChrome read FEditorChrome write SetEditorChrome;
-    property Kind : TNoteType read FKind;
     property Name : TNoteNameStr read FName write SetName;
     property ImageIndex : integer read FImageIndex write SetImageIndex;
     property Visible : boolean read FVisible write FVisible;
@@ -146,7 +185,7 @@ type
     property Modified : boolean read GetModified write SetModified;
     property DateCreated : TDateTime read FDateCreated write FDateCreated;
     property TabIndex : integer read FTabIndex write SetTabIndex;
-    function GetSelectedNode : TNoteNode; virtual;
+    function GetSelectedNode : TKntNote;
 
     property History : TKNTHistory read FHistory;
 
@@ -165,7 +204,6 @@ type
 
     property TabSheet : TTab95Sheet read FTabSheet write SetTabSheet;
 
-    property DataStream : TMemoryStream read FDataStream;
     property NoteTextPlain : string read FNoteTextPlain write FNoteTextPlain;
 
     // events
@@ -174,11 +212,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure SaveToFile( var tf : TTextFile ); virtual;
-    procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock); virtual;
 
     procedure SaveRTFToFile(var tf : TTextFile; DataStream : TMemoryStream; PlainText: Boolean; PlaintextLeader: AnsiString = _NF_PLAINTEXTLEADER);
-    
+
 
 {$IFDEF WITH_DART}
     procedure SaveDartNotesFormat( Stream : TStream ); virtual;
@@ -191,14 +227,14 @@ type
     procedure SetTabProperties( const aProps : TNoteTabProperties; UpdateName: boolean= True );
     procedure GetTabProperties( var aProps : TNoteTabProperties );
 
-    procedure UpdateEditor; virtual;
+    procedure UpdateEditor;
     procedure UpdateTabSheet;
 
     function PrepareTextPlain (myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string; overload;
-    function PrepareTextPlain (myNoteNode: TNoteNode; RTFAux: TTabRichEdit): string; overload;
+    function PrepareTextPlain (myNoteNode: TKntNote; RTFAux: TTabRichEdit): string; overload;
 
-    procedure DataStreamToEditor; virtual;
-    function EditorToDataStream: TMemoryStream; virtual;
+    procedure DataStreamToEditor;
+    function EditorToDataStream: TMemoryStream;
 
     procedure GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
     procedure ResetImagesReferenceCount;
@@ -213,8 +249,60 @@ type
     function HasAlarms (considerDiscarded: boolean): boolean;
 
     procedure AddProcessedAlarms ();
-    procedure AddProcessedAlarmsOfNote (newNote: TTabNote);
-    procedure AddProcessedAlarmsOfNode (node: TNoteNode; newNote: TTabNote; newNode: TNoteNode);
+    procedure AddProcessedAlarmsOfNote (newNote: TKntFolder);
+    procedure AddProcessedAlarmsOfNode (node: TKntNote; newNote: TKntFolder; newNode: TKntNote);
+
+
+    //-----------
+    property Nodes : TKntNoteList read FNodes;
+    property NodeCount : integer read GetCount;
+    //function GetSelectedNode : TKntNote; virtual;
+    property Splitter : TSplitter read FSplitter write FSplitter;
+    property TV : TTreeNT read FTV write FTV;
+    property IconKind : TNodeIconKind read FIconKind write FIconKind;
+    property TreeWidth : integer read FTreeWidth write FTreeWidth;
+    property TreeMaxWidth : integer read FTreeMaxWidth write FTreeMaxWidth;            // [dpv]
+    property HideCheckedNodes: Boolean read FHideCheckedNodes write FHideCheckedNodes; // [dpv]
+    property Filtered: Boolean read FFiltered write FFiltered;                         // [dpv]
+    property SelectedNode : TKntNote read GetSelectedNode write SetSelectedNode;
+    property OldSelectedIndex : integer read FOldSelectedIndex;
+    property Checkboxes : boolean read FCheckboxes write FCheckboxes;
+    property TreeChrome : TChrome read FTreeChrome write SetTreeChrome;
+    property DefaultNodeName : string read FDefaultNodeName write FDefaultNodeName;
+    property AutoNumberNodes : boolean read FAutoNumberNodes write FAutoNumberNodes;
+    property VerticalLayout : boolean read FVerticalLayout write FVerticalLayout;
+    property TreeHidden : boolean read FTreeHidden write FTreeHidden;
+
+    {$IFDEF WITH_IE}
+    property MainPanel : TPanel read FMainPanel write FMainPanel;
+    property WebBrowser : TWebBrowser read FWebBrowser write FWebBrowser;
+    // property Grid : TStringAlignGrid read FGrid write FGrid;
+    // property GridSplitter : TSplitter read FGridSplitter write FGridSplitter;
+    {$ENDIF}
+
+
+    function SaveToFile( var tf : TTextFile;  OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
+                         OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
+    procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; LoadOldSimpleNote: boolean= false); //override;
+
+    function NewNode( const AParent : TKntNote; AName : string; const AInheritProperties : boolean ) : TKntNote;
+    function AddNode( const aNode : TKntNote ) : integer;
+    procedure InsertNode( const aIndex : integer; const aNode : TKntNote );
+    procedure RemoveNode( const aNode : TKntNote );
+
+    function StreamFormatInNode: TRichStreamFormat;
+    procedure SetTreeProperties( const aProps : TNoteTreeProperties );
+    procedure GetTreeProperties( var aProps : TNoteTreeProperties );
+
+    procedure UpdateTree;
+
+    procedure LoadFromTreePadFile( const FN : string );
+
+    function GetNodeByID( const aID : integer ) : TKntNote;
+    function GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
+
+    function InitializeTextPlainVariables( nMax: integer; RTFAux: TTabRichEdit ): boolean;
+    function InitializeTextPlain(myNoteNode: TKntNote; RTFAux: TRxRichEdit): boolean;// overload;
 
   end; // TTabNote
 
@@ -225,7 +313,7 @@ type
   private
     // just a few properties tacked onto the RxRichEdit
     // to keep them all in one place
-    FNoteObj : TTabNote;
+    FNoteObj : TKntFolder;
     FAutoIndent : boolean;
     FUseTabChar : boolean;
     FTabSize : byte;
@@ -242,7 +330,7 @@ type
     procedure CMRecreateWnd(var Message: TMessage); message CM_RECREATEWND;
 
   public
-    property NoteObj : TTabNote read FNoteObj write FNoteObj;
+    property NoteObj : TKntFolder read FNoteObj write FNoteObj;
     property AutoIndent : boolean read FAutoIndent write FAutoIndent;
     property UseTabChar : boolean read FUseTabChar write FUseTabChar;
     property TabSize : byte read FTabSize write FTabSize;
@@ -271,108 +359,6 @@ type
     procedure RemoveKNTHiddenCharacters (selection: boolean= true);
 
   end; // TTabRichEdit
-
-type
-  TTreeNote = class( TTabNote )
-  private
-    FNodes : TNodeList;
-    FSplitter : TSplitter;
-    FTV : TTreeNT;
-    FIconKind : TNodeIconKind;
-    FTreeChrome : TChrome;
-    FSelectedNode : TNoteNode;
-    FOldSelectedIndex : integer;
-    FTreeHidden : boolean;
-    FHideCheckedNodes: boolean;       // [dpv]
-    FFiltered: boolean;               // [dpv]
-
-    FDefaultNodeName : string;
-    FAutoNumberNodes : boolean;
-    FCheckboxes : boolean;
-    FVerticalLayout : boolean;
-
-    {$IFDEF WITH_IE}
-    FMainPanel : TPanel;
-    FWebBrowser : TWebBrowser;
-    {$ENDIF}
-
-    // state that needs to be recalled
-    FTreeWidth : integer;
-    FTreeMaxWidth: integer;
-
-    function GetCount : integer;
-    function CheckTree : boolean;
-    procedure SetTreeChrome( AChrome : TChrome );
-
-    // function GetSelectedIndex : integer;
-    procedure SetSelectedNode( aNode : TNoteNode );
-
-    function PropertiesToFlagsString : TFlagsString; override;
-    procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); override;
-
-    function InternalAddNode( const aNode : TNoteNode ) : integer;
-    procedure InternalInsertNode( const aIndex : integer; const aNode : TNoteNode );
-    procedure GenerateNodeID( const aNode : TNoteNode );
-    procedure VerifyNodeIDs;
-
-  public
-    property Nodes : TNodeList read FNodes;
-    property NodeCount : integer read GetCount;
-    function GetSelectedNode : TNoteNode; virtual;
-
-    property Splitter : TSplitter read FSplitter write FSplitter;
-    property TV : TTreeNT read FTV write FTV;
-    property IconKind : TNodeIconKind read FIconKind write FIconKind;
-    property TreeWidth : integer read FTreeWidth write FTreeWidth;
-    property TreeMaxWidth : integer read FTreeMaxWidth write FTreeMaxWidth;            // [dpv]
-    property HideCheckedNodes: Boolean read FHideCheckedNodes write FHideCheckedNodes; // [dpv]
-    property Filtered: Boolean read FFiltered write FFiltered;                         // [dpv]
-    property SelectedNode : TNoteNode read GetSelectedNode write SetSelectedNode;
-    property OldSelectedIndex : integer read FOldSelectedIndex;
-    property Checkboxes : boolean read FCheckboxes write FCheckboxes;
-    property TreeChrome : TChrome read FTreeChrome write SetTreeChrome;
-    property DefaultNodeName : string read FDefaultNodeName write FDefaultNodeName;
-    property AutoNumberNodes : boolean read FAutoNumberNodes write FAutoNumberNodes;
-    property VerticalLayout : boolean read FVerticalLayout write FVerticalLayout;
-    property TreeHidden : boolean read FTreeHidden write FTreeHidden;
-
-    {$IFDEF WITH_IE}
-    property MainPanel : TPanel read FMainPanel write FMainPanel;
-    property WebBrowser : TWebBrowser read FWebBrowser write FWebBrowser;
-    // property Grid : TStringAlignGrid read FGrid write FGrid;
-    // property GridSplitter : TSplitter read FGridSplitter write FGridSplitter;
-    {$ENDIF}
-
-    constructor Create;
-    destructor Destroy; override;
-
-    function SaveToFile( var tf : TTextFile;  OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
-                         OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
-    procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock); override;
-
-    function NewNode( const AParent : TNoteNode; AName : string; const AInheritProperties : boolean ) : TNoteNode;
-    function AddNode( const aNode : TNoteNode ) : integer;
-    procedure InsertNode( const aIndex : integer; const aNode : TNoteNode );
-    procedure RemoveNode( const aNode : TNoteNode );
-
-    procedure DataStreamToEditor; override;
-    function EditorToDataStream: TMemoryStream; override;
-    function StreamFormatInNode: TRichStreamFormat;
-    procedure SetTreeProperties( const aProps : TNoteTreeProperties );
-    procedure GetTreeProperties( var aProps : TNoteTreeProperties );
-
-    procedure UpdateEditor; override;
-    procedure UpdateTree;
-
-    procedure LoadFromTreePadFile( const FN : string );
-
-    function GetNodeByID( const aID : integer ) : TNoteNode;
-    function GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
-
-    function InitializeTextPlainVariables( nMax: integer; RTFAux: TTabRichEdit ): boolean;
-    function InitializeTextPlain(myNoteNode: TNoteNode; RTFAux: TRxRichEdit): boolean; overload;
-
-  end;
 
 
   procedure SaveParagraphAttributes(const Editor: TTabRichEdit; var Paragraph: TParaFormat2);
@@ -506,10 +492,9 @@ resourcestring
 
 // ---------------- TTABNOTE -----------------
 
-constructor TTabNote.Create;
+constructor TKntFolder.Create;
 begin
   inherited Create;
-  FKind := ntRTF;
   FOnChange := nil;
   FTabSheet := nil;
   FTabIndex := 0;
@@ -524,7 +509,6 @@ begin
   FDateCreated := now;
   FFocusMemory := focNil;
   FModified := false;
-  FDataStream := TMemoryStream.Create;
   FNoteTextPlain := '';
   InitializeChrome( FEditorChrome );
 
@@ -543,19 +527,48 @@ begin
 
   FHistory := TKNTHistory.Create;
 
+
+  FSplitter := nil;
+  FTV := nil;
+  FTreeWidth := 0; // flag, so that default width will be used
+  FTreeMaxWidth:= 0;
+  FIconKind := niStandard;
+  FCheckboxes := false;
+  FSelectedNode := nil;
+  FTreeHidden := false;
+  FHideCheckedNodes:= false;  // [dpv]
+  FFocusMemory := focTree; // initially focus tree
+  FOldSelectedIndex := -1;
+  FAutoNumberNodes := false;
+  FVerticalLayout := false;
+  InitializeChrome( FTreeChrome );
+  FDefaultNodeName := DEFAULT_NEW_NODE_NAME;
+  FNodes := TKntNoteList.Create;
+
+  {$IFDEF WITH_IE}
+  FMainPanel := nil;
+  FWebBrowser := nil;
+  // FGrid := nil;
+  // FGridSplitter := nil;
+  {$ENDIF}
 end; // CREATE
 
-destructor TTabNote.Destroy;
+destructor TKntFolder.Destroy;
 begin
   FOnChange := nil;
-  if assigned( FDataStream ) then FDataStream.Free;
   AlarmManager.RemoveAlarmsOfNote(Self);
   if assigned (FAuxiliarAlarmList) then FAuxiliarAlarmList.Free;
+
+  try
+    if assigned( FNodes ) then FNodes.Free;
+    FHistory.Free;
+  except
+  end;
 
   inherited Destroy;
 end; // TTabNote .Destroy;
 
-function TTabNote.PropertiesToFlagsString : TFlagsString;
+function TKntFolder.PropertiesToFlagsString : TFlagsString;
 begin
   result := DEFAULT_FLAGS_STRING;
   result[1] := BOOLEANSTR[FVisible];
@@ -564,9 +577,24 @@ begin
   result[4] := BOOLEANSTR[FURLDetect];
   result[5] := BOOLEANSTR[FUseTabChar];
   result[6] := BOOLEANSTR[FPlainText];
+
+
+  // values 1-12 are reserved for TTabNote
+  result[TREENOTE_FLAG_BASE+1] := AnsiChar(inttostr( ord( FIconKind ))[1]);
+  result[TREENOTE_FLAG_BASE+2] := BOOLEANSTR[FAutoNumberNodes];
+  result[TREENOTE_FLAG_BASE+3] := BOOLEANSTR[FCheckboxes];
+  result[TREENOTE_FLAG_BASE+4] := BOOLEANSTR[FVerticalLayout];
+
+  // added in 1.5.9:
+  result[TREENOTE_FLAG_BASE+5] := BOOLEANSTR[FTreeHidden];
+  result[TREENOTE_FLAG_BASE+6] := BOOLEANSTR[(( not FTreeHidden ) and ( FFocusMemory = focTree ))];
+
+  // added in 1.7.0:          // [dpv]
+  result[TREENOTE_FLAG_BASE+7] := BOOLEANSTR[FHideCheckedNodes];
+
 end; // PropertiesToFlagsString
 
-procedure TTabNote.FlagsStringToProperties( const FlagsStr : TFlagsString );
+procedure TKntFolder.FlagsStringToProperties( const FlagsStr : TFlagsString );
 begin
   if ( length( FlagsStr ) < FLAGS_STRING_LENGTH ) then exit;
   FVisible    := FlagsStr[1] = BOOLEANSTR[true];
@@ -575,10 +603,27 @@ begin
   FURLDetect  := FlagsStr[4] = BOOLEANSTR[true];
   FUseTabChar := FlagsStr[5] = BOOLEANSTR[true];
   FPlainText  := FlagsStr[6] = BOOLEANSTR[true];
+
+  case FlagsStr[TREENOTE_FLAG_BASE+1] of
+    '0' : FIconKind := niNone;
+    '1' : FIconKind := niStandard;
+    '2' : FIconKind := niCustom;
+  end;
+  FAutoNumberNodes := FlagsStr[TREENOTE_FLAG_BASE+2] = BOOLEANSTR[true];
+  FCheckboxes      := FlagsStr[TREENOTE_FLAG_BASE+3] = BOOLEANSTR[true];
+  FVerticalLayout  := FlagsStr[TREENOTE_FLAG_BASE+4] = BOOLEANSTR[true];
+
+  FTreeHidden := FlagsStr[TREENOTE_FLAG_BASE+5] = BOOLEANSTR[true];
+  if (( not FTreeHidden ) and ( FlagsStr[TREENOTE_FLAG_BASE+6] = BOOLEANSTR[true] )) then
+    FFocusMemory := focTree
+  else
+    FFocusMemory := focRTF;
+
+  FHideCheckedNodes      := FlagsStr[TREENOTE_FLAG_BASE+7] = BOOLEANSTR[true];    // [dpv]
 end; // FlagsStringToProperties
 
 
-procedure TTabNote.UpdateTabSheet;
+procedure TKntFolder.UpdateTabSheet;
 begin
   // CheckTabSheet;
   with FTabSheet do
@@ -588,8 +633,8 @@ begin
   end;
 end; // UpdateTabSheetProperties
 
-procedure TTabNote.UpdateEditor;
 
+procedure TKntFolder.UpdateEditor;
 var
 //  tabstopcnt : integer;
   TextLen: integer;
@@ -600,50 +645,62 @@ begin
 
   FEditor.BeginUpdate;
   try
-    FEditor.WordWrap := FWordWrap;
-    FEditor.TabSize := FTabSize;
-    FEditor.AutoURLDetect := FURLDetect;
+       FEditor.WordWrap := FWordWrap;
+       FEditor.TabSize := FTabSize;
+       FEditor.AutoURLDetect := FURLDetect;
 
-    FEditor.Color := FEditorChrome.BGColor;
-    TextLen:= FEditor.TextLength;
-    if (TextLen = 0) or PlainText then begin          // Solves the problem indicated in kn_NoteMng.EditProperties...*1
-       with FEditor.DefAttributes do begin
-         Charset := FEditorChrome.Font.Charset;
-         Name := FEditorChrome.Font.Name;
-         Size := FEditorChrome.Font.Size;
-         Style := FEditorChrome.Font.Style;
-         Color := FEditorChrome.Font.Color;
-         Language := FEditorChrome.Language;
+       FEditor.Color := FEditorChrome.BGColor;
+       TextLen:= FEditor.TextLength;
+       if (TextLen = 0) or PlainText then begin          // Solves the problem indicated in kn_NoteMng.EditProperties...*1
+          with FEditor.DefAttributes do begin
+            Charset := FEditorChrome.Font.Charset;
+            Name := FEditorChrome.Font.Name;
+            Size := FEditorChrome.Font.Size;
+            Style := FEditorChrome.Font.Style;
+            Color := FEditorChrome.Font.Color;
+            Language := FEditorChrome.Language;
+          end;
        end;
-    end;
 
-    if PlainText and (TextLen > 0) then begin       // Related to *1. If PlainText then we do want it to always change the font format
-       SS:= FEditor.SelStart;
-       SL:= FEditor.SelLength;
-       FEditor.SelectAll;
-       FEditor.SelAttributes.Assign( FEditor.DefAttributes );
-      {
-      FEditor.Paragraph.TabCount := 8; // max is 32, but what the hell
-      for tabstopcnt := 0 to 7 do
-        FEditor.Paragraph.Tab[tabstopcnt] := (tabstopcnt+1) * (2*FTabSize); // [x] very rough!
-      }
-      FEditor.SetSelection(SS, SS+SL, True);
-    end;
-    FEditor.UseTabChar := FUseTabChar;
-    FEditor.ReadOnly := FReadOnly;
+       if PlainText and (TextLen > 0) then begin       // Related to *1. If PlainText then we do want it to always change the font format
+          SS:= FEditor.SelStart;
+          SL:= FEditor.SelLength;
+          FEditor.SelectAll;
+          FEditor.SelAttributes.Assign( FEditor.DefAttributes );
+         {
+         FEditor.Paragraph.TabCount := 8; // max is 32, but what the hell
+         for tabstopcnt := 0 to 7 do
+           FEditor.Paragraph.Tab[tabstopcnt] := (tabstopcnt+1) * (2*FTabSize); // [x] very rough!
+         }
+         FEditor.SetSelection(SS, SS+SL, True);
+       end;
+       FEditor.UseTabChar := FUseTabChar;
+       FEditor.ReadOnly := FReadOnly;
+
+
+       if assigned(FSelectedNode) then begin
+          case FSelectedNode.WordWrap of
+             wwAsNote : FEditor.WordWrap := FWordWrap;
+             wwYes : FEditor.WordWrap := true;
+             wwNo : FEditor.WordWrap := false;
+          end;
+
+          FEditor.Color := FSelectedNode.RTFBGColor;
+       end;
+
   finally
-    FEditor.EndUpdate;
+     FEditor.EndUpdate;
   end;
-
 end; // UpdateEditor
 
-procedure TTabNote.SetEditorChrome( AChrome : TChrome );
+
+procedure TKntFolder.SetEditorChrome( AChrome : TChrome );
 begin
   FEditorChrome := AChrome;
   FModified := true;
 end; // SetEditorChrome
 
-procedure TTabNote.SetEditorProperties( const aProps : TNoteEditorProperties );
+procedure TKntFolder.SetEditorProperties( const aProps : TNoteEditorProperties );
 begin
   FPlainText := aProps.PlainText;
   FTabSize := aProps.TabSize;
@@ -653,7 +710,7 @@ begin
   FModified := true;
 end; // SetEditorProperties
 
-procedure TTabNote.GetEditorProperties( var aProps : TNoteEditorProperties );
+procedure TKntFolder.GetEditorProperties( var aProps : TNoteEditorProperties );
 begin
   aProps.PlainText := FPlainText;
   aProps.TabSize := FTabSize;
@@ -662,7 +719,7 @@ begin
   aProps.WordWrap := FWordWrap;
 end; // GetEditorProperties
 
-procedure TTabNote.SetTabProperties( const aProps : TNoteTabProperties; UpdateName: boolean= True);
+procedure TKntFolder.SetTabProperties( const aProps : TNoteTabProperties; UpdateName: boolean= True);
 begin
   if UpdateName then
      FName := aProps.Name;
@@ -670,13 +727,13 @@ begin
   FModified := true;
 end; // SetTabProperties
 
-procedure TTabNote.GetTabProperties( var aProps : TNoteTabProperties );
+procedure TKntFolder.GetTabProperties( var aProps : TNoteTabProperties );
 begin
   aProps.ImageIndex := FImageIndex;
   aProps.Name := FName;
 end; // GetTabProperties
 
-procedure TTabNote.SetTabSheet( ATabSheet : TTab95Sheet );
+procedure TKntFolder.SetTabSheet( ATabSheet : TTab95Sheet );
 begin
   if ( ATabSheet <> FTabSheet ) then
   begin
@@ -684,7 +741,7 @@ begin
   end;
 end; // SetTabSheet
 
-procedure TTabNote.SetEditor( AEditor : TTabRichEdit );
+procedure TKntFolder.SetEditor( AEditor : TTabRichEdit );
 begin
   if ( AEditor <> FEditor ) then
   begin
@@ -692,7 +749,7 @@ begin
   end;
 end; // TTabNote.SetEditor
 
-procedure TTabNote.SetName( AName : TNoteNameStr );
+procedure TKntFolder.SetName( AName : TNoteNameStr );
 begin
   AName := trim( AName );
   if (( FName = AName ) or ( AName = '' )) then exit;
@@ -701,7 +758,7 @@ begin
   if _ALLOW_VCL_UPDATES and assigned( FTabSheet ) then FTabSheet.Caption := FName;
 end; // SetName
 
-procedure TTabNote.SetID( AID : longint );
+procedure TKntFolder.SetID( AID : longint );
 begin
   if ( FID = 0 ) then
     FID := AID;
@@ -709,164 +766,29 @@ begin
 end; // SetID
 
 
-function TTabNote.PrepareTextPlain(myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string;
+function TKntFolder.PrepareTextPlain(myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string;
 var
-    myNoteNode : TNoteNode;
+    myNoteNode : TKntNote;
 begin
-   if FEditor.Modified or ((Kind <> ntTree) and (NoteTextPlain = '')) then
+   if FEditor.Modified or (NoteTextPlain = '') then
       EditorToDataStream;
 
-   if (Kind <> ntTree) then
-       Result:= NoteTextPlain
-   else begin
-      myNoteNode := TNoteNode( myTreeNode.Data );
-      TTreeNote(Self).InitializeTextPlain(myNoteNode, RTFAux);
-      Result:= myNoteNode.NodeTextPlain;
-   end;
+   myNoteNode := TKntNote( myTreeNode.Data );
+   TKntFolder(Self).InitializeTextPlain(myNoteNode, RTFAux);
+   Result:= myNoteNode.NodeTextPlain;
 end;
 
-function TTabNote.PrepareTextPlain(myNoteNode: TNoteNode; RTFAux: TTabRichEdit): string;
+function TKntFolder.PrepareTextPlain(myNoteNode: TKntNote; RTFAux: TTabRichEdit): string;
 begin
-   if FEditor.Modified or ((Kind <> ntTree) and (NoteTextPlain = '')) then
+   if FEditor.Modified or (NoteTextPlain = '') then
       EditorToDataStream;
 
-   if (Kind <> ntTree) then
-       Result:= NoteTextPlain
-   else begin
-      TTreeNote(Self).InitializeTextPlain(myNoteNode, RTFAux);
-      Result:= myNoteNode.NodeTextPlain;
-   end;
+   TKntFolder(Self).InitializeTextPlain(myNoteNode, RTFAux);
+   Result:= myNoteNode.NodeTextPlain;
 end;
 
 
-
-procedure TTabNote.DataStreamToEditor;
-var
-  ReadOnlyBAK: boolean;
-  {$IFDEF KNT_DEBUG}
-  str: String;
-  dataSize: integer;
-  {$ENDIF}
-  strRTF: AnsiString;
-  ContainsImgIDsRemoved: boolean;
-  ContainsImages: boolean;
-begin
-  if CheckEditor then begin
-    ReadOnlyBAK:= FEditor.ReadOnly;
-    ContainsImgIDsRemoved:= false;
-
-    try
-      FEditor.ReadOnly:= false;    // To prevent the problem indicated in issue #537
-      FEditor.OnChange := nil;
-      FDataSTream.Position := 0;
-      strRTF:= '';
-
-      fImagesReferenceCount:= nil;
-      if NodeStreamIsRTF (FDataStream) then begin
-         FEditor.StreamFormat:= sfRichText;
-         if (ImagesManager.StorageMode <> smEmbRTF) and (not FPlainText) then begin
-            GetImagesIDInstances (FDataStream, NoteTextPlain);
-            strRTF:= ImagesManager.ProcessImagesInRTF(FDataStream.Memory, FDataStream.Size, Self, ImagesManager.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
-         end;
-      end
-      else
-         FEditor.StreamFormat:= sfPlainText;
-
-
-      Log_StoreTick('TTabNote.DataStreamToEditor - BEGIN', 4, +1);
-      {$IFDEF KNT_DEBUG}
-       if log.Active and  (log.MaxDbgLevel >= 4) then begin
-          dataSize:= FDataStream.Size;
-          str:= Copy(String(PAnsiChar(FDataStream.Memory)), 1, 250);
-          Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
-       end;
-      {$ENDIF}
-
-      if StrRTF <> '' then begin
-         FEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
-         FEditor.ClearUndo;
-      end
-      else
-         FEditor.Lines.LoadFromStream( FDataStream );
-
-
-      Log_StoreTick('TTabNote.DataStreamToEditor - END', 4, -1);
-
-      FEditor.OnChange := Form_Main.RxRTFChange;
-    finally
-      FEditor.ReadOnly:= ReadOnlyBAK;
-      if not ContainsImgIDsRemoved then
-         FEditor.Modified := false;
-     end;
-  end;
-end; // DataStreamToEditor
-
-{
-  If Editor was modified then it will return the Stream associated to the node that will be updated
-}
-function TTabNote.EditorToDataStream: TMemoryStream;
-var
- Encoding: TEncoding;
- strRTF: AnsiString;
- ImagesIDs_New: TImageIDs;
-
-begin
-  Result:= nil;
-  Encoding:= nil;
-
-  if not assigned(FEditor) then Exit;
-
-  if FEditor.Modified then
-    try
-      with FDataStream do begin
-        Clear;
-        Position := 0;
-      end;
-      FEditor.StreamMode := [];
-      if FPlainText then begin
-        FEditor.StreamFormat := sfPlainText;
-        if not CanSaveAsANSI(FEditor.Text) then
-           //FEditor.StreamMode := [smUnicode];
-           Encoding:= TEncoding.UTF8;
-      end
-      else
-        FEditor.StreamFormat := sfRichText;
-
-      FEditor.Lines.SaveToStream( FDataStream, Encoding);
-
-      ImagesIDs_New:= nil;
-      if (ImagesManager.StorageMode <> smEmbRTF) and (not FPlainText) then begin
-         ImagesIDs_New:= CheckSavingImagesOnMode (imLink, FDataStream, true);
-         ImagesManager.UpdateImagesCountReferences (fImagesReferenceCount, ImagesIDs_New);
-         fImagesReferenceCount:= ImagesIDs_New;
-      end;
-
-      if ImagesIDs_New = nil then
-         NoteTextPlain:= FEditor.TextPlain
-      else begin
-         { If the node has images we will make sure that in TextPlain we save the version corresponding to imLink,
-           to facilitate search management. See notes on TImageManager.GetSearchOffset }
-         NoteTextPlain:= '';
-         InitializeTextPlain(RTFAux_Note);
-      end;
-
-      FEditor.Modified:= false;
-      Result:= FDataStream;
-
-    finally
-      FEditor.StreamFormat := sfRichText;
-      FEditor.StreamMode := [];
-    end
-
-  else
-     if (NoteTextPlain = '') then
-        InitializeTextPlain(RTFAux_Note);
-
-end; // EditorToDataStream
-
-
-
-function TTabNote.CheckSavingImagesOnMode (ImagesMode: TImagesMode; Stream: TMemoryStream;
+function TKntFolder.CheckSavingImagesOnMode (ImagesMode: TImagesMode; Stream: TMemoryStream;
                                            ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
 var
   strRTF: AnsiString;
@@ -900,7 +822,7 @@ begin
 end;
 
 
-procedure TTabNote.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
+procedure TKntFolder.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
 begin
    if (TextPlain <> '') then
       fImagesReferenceCount:= ImagesManager.GetImagesIDInstancesFromTextPlain (TextPlain)
@@ -908,13 +830,13 @@ begin
       fImagesReferenceCount:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
 end;
 
-procedure TTabNote.ResetImagesReferenceCount;
+procedure TKntFolder.ResetImagesReferenceCount;
 begin
     SetLength(fImagesReferenceCount, 0);
 end;
 
 
-procedure TTabNote.ReloadImagesOnEditor;
+procedure TKntFolder.ReloadImagesOnEditor;
 var
    ImgeIDs: TImageIDs;
 begin
@@ -925,7 +847,7 @@ begin
    DataStreamToEditor;
 end;
 
-procedure TTabNote.ReconsiderImageDimensionGoalsOnEditor(Selection: boolean);
+procedure TKntFolder.ReconsiderImageDimensionGoalsOnEditor(Selection: boolean);
 var
   strRTF: AnsiString;
   SelectAll: boolean;
@@ -963,17 +885,17 @@ end;
 
 
 
-function TTabNote.CheckEditor : boolean;
+function TKntFolder.CheckEditor : boolean;
 begin
   result := assigned( FEditor );
 end; // CheckEditor
 
-function TTabNote.CheckTabSheet : boolean;
+function TKntFolder.CheckTabSheet : boolean;
 begin
   result := assigned( FTabSheet );
 end; // CheckTabSheet
 
-procedure TTabNote.BaseSaveProc( var tf : TTextFile );
+procedure TKntFolder.BaseSaveProc( var tf : TTextFile );
 var
   HaveVCLControls : boolean;
 begin
@@ -1031,7 +953,7 @@ FontColor - BackColor: number (TColor)
 subject: unicode text
 
 *)
-procedure TTabNote.SaveAlarms(var tf : TTextFile; node: TNoteNode = nil);
+procedure TKntFolder.SaveAlarms(var tf : TTextFile; node: TKntNote = nil);
 var
    I: integer;
    Alarms: TList;
@@ -1072,7 +994,7 @@ begin
 end;
 
 
-procedure TTabNote.SaveRTFToFile(var tf : TTextFile; DataStream : TMemoryStream; PlainText: Boolean; PlaintextLeader: AnsiString = _NF_PLAINTEXTLEADER);
+procedure TKntFolder.SaveRTFToFile(var tf : TTextFile; DataStream : TMemoryStream; PlainText: Boolean; PlaintextLeader: AnsiString = _NF_PLAINTEXTLEADER);
 var
   List : TStringList;
   cnt: integer;
@@ -1163,43 +1085,6 @@ begin
 end;
 
 
-procedure TTabNote.SaveToFile( var tf : TTextFile );
-var
-  HaveVCLControls : boolean;
-
-begin
-
-  HaveVCLControls := CheckEditor;
-
-  if ( FKind <> ntRTF ) then
-     raise ETabNoteError.Create(STR_01);
-
-
-  tf.WriteLine( _NF_TabNote ); // marks beginning of TTabNote
-  BaseSaveProc( tf );
-
-
-  if HaveVCLControls then begin
-    EditorToDataStream;
-    tf.WriteLine( _LineCount + '=' + FEditor.Lines.Count.ToString );
-  end;
-
-
-  case _USE_OLD_KEYNOTE_FILE_FORMAT of
-    false :
-        SaveRTFToFile(tf, FDataStream, FPlainText);
-
-    true :
-        SaveRTFToFile(tf, FDataStream, true, _Lines+'=');
-  end;
-
-
-  Modified := false; // triggers SetModified
-
-end; // TTabNote SaveToFile
-
-
-
 {$IFDEF WITH_DART}
 procedure TTabNote.SaveDartNotesFormat( Stream : TStream );
 var
@@ -1251,12 +1136,12 @@ end; // SaveDartNotesFormat
 {$ENDIF}
 
 
-function TTabNote.HasAlarms(considerDiscarded: boolean): boolean;
+function TKntFolder.HasAlarms(considerDiscarded: boolean): boolean;
 begin
     Result:= AlarmManager.HasAlarms(Self, nil, considerDiscarded);
 end;
 
-function TTabNote.GetAlarms(considerDiscarded: boolean): TList;
+function TKntFolder.GetAlarms(considerDiscarded: boolean): TList;
 begin
    Result:= AlarmManager.GetAlarms(Self, nil, considerDiscarded);
 end;
@@ -1275,7 +1160,7 @@ FontColor - BackColor: number (TColor)
 subject: unicode text
 
 *)
-procedure TTabNote.ProcessAlarm (s: AnsiString; node: TNoteNode = nil);
+procedure TKntFolder.ProcessAlarm (s: AnsiString; node: TKntNote = nil);
 var
     alarm: TAlarm;
     p, p2: integer;
@@ -1324,7 +1209,7 @@ begin
    end;
 end;
 
-procedure TTabNote.AddProcessedAlarms ();
+procedure TKntFolder.AddProcessedAlarms ();
 var
   I: Integer;
   alarm: TAlarm;
@@ -1340,7 +1225,7 @@ begin
    FAuxiliarAlarmList.Clear;
 end;
 
-procedure TTabNote.AddProcessedAlarmsOfNote (newNote: TTabNote);
+procedure TKntFolder.AddProcessedAlarmsOfNote (newNote: TKntFolder);
 var
   I: Integer;
   alarm: TAlarm;
@@ -1358,7 +1243,7 @@ begin
    end;
 end;
 
-procedure TTabNote.AddProcessedAlarmsOfNode (node: TNoteNode; newNote: TTabNote; newNode: TNoteNode);
+procedure TKntFolder.AddProcessedAlarmsOfNode (node: TKntNote; newNote: TKntFolder; newNode: TKntNote);
 var
   I: Integer;
   alarm: TAlarm;
@@ -1399,259 +1284,6 @@ begin
       StreamRTF.WriteData(0);
     end;
 end;
-
-
-procedure TTabNote.LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock );
-var
-  List : TStringList;
-  s, key : AnsiString;
-  p, linecount : integer;
-  InRichText : boolean;
-begin
-  with FDataStream do
-  begin
-    Clear;
-    Position := 0;
-  end;
-  FileExhausted := false;
-  InRichText := false;
-
-  List := TStringList.Create;
-  try
-    while ( not tf.eof()) do
-    begin
-      s:= tf.readln();
-      if ( s = _NF_RTF ) then
-      begin
-        InRichText := ( not _IS_OLD_KEYNOTE_FILE_FORMAT );
-        continue;
-      end;
-      if ( s = _NF_TabNote ) then
-      begin
-        NextBlock:= nbRTF;
-        break; // New TabNote begins
-      end;
-      if ( s = _NF_TreeNote ) then
-      begin
-        NextBlock:= nbTree;
-        break; // New TreeNote begins
-      end;
-      if ( s = _NF_StoragesDEF ) then
-      begin
-        NextBlock:= nbImages;
-        break; // Images definition begins
-      end;
-      if ( s = _NF_Bookmarks ) then
-      begin
-        NextBlock:= nbBookmarks;
-        break; // Bookmarks begins
-      end;
-      if ( s = _NF_EOF ) then
-      begin
-        FileExhausted := true;
-        break; // END OF FILE
-      end;
-
-
-      if InRichText then
-      begin
-        { can only be TRUE if the file uses the new "LI-less" format,
-          because we got the _NF_RTF token, above. Old format doesn't
-          have this token, so InRichText is never true }
-        if FPlainText then
-          delete( s, 1, 1 ); // strip _NF_PLAINTEXTLEADER
-        List.Add( s );
-        continue;
-      end;
-
-      p := pos( '=', s );
-      if ( p <> 3 ) then continue; // not a valid entry
-      key := copy( s, 1, 2 );
-      delete( s, 1, 3 );
-
-      if ( key = _CHBGColor ) then
-      begin
-        try
-          FEditorChrome.BGColor := StringToColor( s );
-        except
-        end;
-      end
-      else
-      if ( key = _CHFontCharset ) then
-      begin
-        try
-          FEditorChrome.Font.Charset := StrToInt( s );
-        except
-          FEditorChrome.Font.Charset := DEFAULT_CHARSET;
-        end;
-      end
-      else
-      if ( key = _CHFontColor ) then
-      begin
-        FEditorChrome.Font.Color := StringToColor( s );
-      end
-      else
-      if ( key = _CHFontName ) then
-      begin
-        FEditorChrome.Font.Name := s;
-      end
-      else
-      if ( key = _CHFontSize ) then
-      begin
-        try
-          FEditorChrome.Font.Size := strtoint( s );
-        except
-          FEditorChrome.Font.Size := 10;
-        end;
-      end
-      else
-      if ( key = _CHFontStyle ) then
-      begin
-        FEditorChrome.Font.Style := StrToFontStyle( s );
-      end
-      else
-      if ( key = _CHLanguage ) then
-      begin
-        try
-          FEditorChrome.Language := strtoint( s );
-        except
-        end;
-      end
-      else
-      if ( key = _DateCreated ) then
-      begin
-        try
-          FDateCreated := strtodatetime( s );
-        except
-          FDateCreated := now;
-        end;
-      end
-      else
-      if ( key = _ImageIndex ) then
-      begin
-        try
-          FImageIndex := strtoint( s );
-        except
-          FImageIndex := 0;
-        end;
-      end
-      else
-      {
-      if ( key = _Info ) then
-      begin
-        try
-          FInfo := strtoint( s );
-        except
-          FInfo := 0;
-        end;
-      end
-      else
-      }
-      if ( key = _LineCount ) then
-      begin
-        try
-          linecount := strtoint( s );
-        except
-          linecount := DEFAULT_CAPACITY;
-        end;
-        if ( List.Capacity < linecount ) then
-          List.Capacity := succ( linecount );
-      end
-      else
-      if ( key = _NoteName ) then
-      begin
-        FName := TryUTF8ToUnicodeString(s) ;
-      end
-      else
-      if ( key = _NoteID ) then
-      begin
-        try
-          FID := strtoint( s );
-        except
-          FID := 0; // owning file will generate new ID when note is added
-        end;
-      end
-      else
-      if ( key = _PosX ) then
-      begin
-        try
-          FCaretPos.X := strtoint( s );
-        except
-          FCaretPos.X := 0;
-        end;
-      end
-      else
-      if ( key = _POSY ) then
-      begin
-        try
-          FCaretPos.Y := strtoint( s );
-        except
-          FCaretPos.Y := 0;
-        end;
-      end
-      else
-      if ( key = _TabIndex ) then
-      begin
-        try
-          FTabIndex := strtoint( s );
-        except
-          FTabIndex := 0;
-        end;
-      end
-      else
-      if ( key = _TabSize ) then
-      begin
-        try
-          FTabSize := strtoint( s );
-        except
-          FTabSize := DEF_TAB_SIZE;
-        end;
-      end
-      else
-      if ( key = _Flags ) then
-      begin
-        FlagsStringToProperties( s );
-      end
-      else
-      if ( key = _Lines ) then
-      begin
-        List.Add( s );
-      end
-      // [x] REMOVE the keys below for version 1.0;
-      // these are only retained so that users of older
-      // versions do not lose important note settings.
-      // These properties are now stored in FlagsString
-      else
-      if ( key = _WordWrap ) then
-      begin
-        FWordWrap := ( s = BOOLEANSTR[true] );
-      end
-      else
-      if ( key = _ReadOnly ) then
-      begin
-        FReadOnly := ( s = BOOLEANSTR[true] );
-      end
-      else
-      if ( key = _URLDetect ) then
-      begin
-        FURLDetect := ( s = BOOLEANSTR[true] );
-      end
-      else if ( key = _NodeAlarm ) then
-      begin
-         ProcessAlarm(s);
-      end;
-
-    end; // eof( tf )
-
-    TransferRTFData(List, FDataStream);
-
-  finally
-    List.Free;
-  end;
-
-  FModified := false;
-
-end; // LoadFromFile
 
 
 {$IFDEF WITH_DART}
@@ -1724,7 +1356,7 @@ end; // LoadDartNotesFormat
 {$ENDIF}
 
 
-procedure TTabNote.SetReadOnly( AReadOnly : boolean );
+procedure TKntFolder.SetReadOnly( AReadOnly : boolean );
 begin
   if ( AReadOnly <> FReadOnly ) then
   begin
@@ -1735,7 +1367,7 @@ begin
 end; // TTabNote.SetReadOnly
 
 
-procedure TTabNote.SetPlainText( APlainText : boolean );
+procedure TKntFolder.SetPlainText( APlainText : boolean );
 begin
   if ( APlainText <> FPlainText ) then begin
     FPlainText := APlainText;
@@ -1744,7 +1376,7 @@ begin
 end;
 
 
-function TTabNote.GetModified : boolean;
+function TKntFolder.GetModified : boolean;
 begin
   result := FModified;
   {
@@ -1753,14 +1385,14 @@ begin
   }
 end; // GetModified
 
-procedure TTabNote.SetModified( AModified : boolean );
+procedure TKntFolder.SetModified( AModified : boolean );
 begin
   FModified := AModified;
   if assigned( FEditor ) then
     FEditor.Modified := FModified;
 end; // SetModified
 
-procedure TTabNote.SetTabIndex( ATabIndex : integer );
+procedure TKntFolder.SetTabIndex( ATabIndex : integer );
 begin
   if ( FTabIndex = ATabIndex ) then exit;
   FTabIndex := ATabIndex;
@@ -1768,7 +1400,7 @@ begin
     FTabSheet.PageIndex := FTabIndex;
 end; // TTabNote.SetTabIndex
 
-procedure TTabNote.SetImageIndex( AImgIdx : integer );
+procedure TKntFolder.SetImageIndex( AImgIdx : integer );
 begin
   if ( FImageIndex = AImgIdx ) then exit;
   FImageIndex := AImgIdx;
@@ -1777,7 +1409,7 @@ begin
 end; // TTabNote.SetImgIdx
 
 
-procedure TTabNote.SetImagesMode(ImagesMode: TImagesMode; ForceMode: boolean);
+procedure TKntFolder.SetImagesMode(ImagesMode: TImagesMode; ForceMode: boolean);
 var
    RTFIn, RTFOut: AnsiString;
    currentNoteModified, currentFileModified: boolean;
@@ -1789,8 +1421,7 @@ begin
     if ForceMode or (FImagesMode <> ImagesMode) then begin
 
        myTreeNode:= nil;
-       if Self.Kind = ntTree then
-          myTreeNode := TTreeNote(Self).TV.Selected;
+       myTreeNode := TKntFolder(Self).TV.Selected;
        SS:= ActiveNote.Editor.SelStart;
        if ImagesMode = imLink then                                       // imImage --> imLink
           SS:= PositionInImLinkTextPlain (Self, myTreeNode, SS, True);   // True: Force calculation
@@ -1829,13 +1460,13 @@ begin
     end;
 end;
 
-procedure TTabNote.SetImagesMode(ImagesMode: TImagesMode);
+procedure TKntFolder.SetImagesMode(ImagesMode: TImagesMode);
 begin
    SetImagesMode(ImagesMode, false);
 end;
 
 
-procedure TTabNote.SetWordWrap( AWordWrap : boolean );
+procedure TKntFolder.SetWordWrap( AWordWrap : boolean );
 begin
   if ( FWordWrap = AWordWrap ) then exit;
   FWordWrap := AWordWrap;
@@ -1844,7 +1475,7 @@ begin
     FEditor.WordWrap := FWordWrap;
 end; // TTabNote.SetWordWrap
 
-procedure TTabNote.SetURLDetect( AURLDetect : boolean );
+procedure TKntFolder.SetURLDetect( AURLDetect : boolean );
 begin
   if ( FURLDetect = AURLDetect ) then exit;
   FURLDetect := AURLDetect;
@@ -1853,7 +1484,7 @@ begin
     FEditor.AutoURLDetect := FURLDetect;
 end; // TTabNote.SetURLDetect
 
-procedure TTabNote.SetTabSize( ATabSize : byte );
+procedure TKntFolder.SetTabSize( ATabSize : byte );
 begin
   if ( FTabSize = ATabSize ) then exit;
   FTabSize := ATabSize;
@@ -2342,92 +1973,11 @@ begin
     MakeLParam( pt.x, pt.y ));
 end; // SimulateDoubleClick
 
-// ------------ TTreeNote --------------
-
-constructor TTreeNote.Create;
-begin
-  inherited Create;
-  FKind := ntTree;
-  FSplitter := nil;
-  FTV := nil;
-  FTreeWidth := 0; // flag, so that default width will be used
-  FTreeMaxWidth:= 0;
-  FIconKind := niStandard;
-  FCheckboxes := false;
-  FSelectedNode := nil;
-  FTreeHidden := false;
-  FHideCheckedNodes:= false;  // [dpv]
-  FFocusMemory := focTree; // initially focus tree
-  FOldSelectedIndex := -1;
-  FAutoNumberNodes := false;
-  FVerticalLayout := false;
-  InitializeChrome( FTreeChrome );
-  FDefaultNodeName := DEFAULT_NEW_NODE_NAME;
-  FNodes := TNodeList.Create;
-
-  {$IFDEF WITH_IE}
-  FMainPanel := nil;
-  FWebBrowser := nil;
-  // FGrid := nil;
-  // FGridSplitter := nil;
-  {$ENDIF}
-end; // CREATE
-
-destructor TTreeNote.Destroy;
-begin
-  try
-    if assigned( FNodes ) then FNodes.Free;
-    FHistory.Free;
-  except
-  end;
-
-  inherited destroy;
-end; // DESTROY
-
-function TTreeNote.PropertiesToFlagsString : TFlagsString;
-begin
-  result := inherited PropertiesToFlagsString;
-
-  // values 1-12 are reserved for TTabNote
-  result[TREENOTE_FLAG_BASE+1] := AnsiChar(inttostr( ord( FIconKind ))[1]);
-  result[TREENOTE_FLAG_BASE+2] := BOOLEANSTR[FAutoNumberNodes];
-  result[TREENOTE_FLAG_BASE+3] := BOOLEANSTR[FCheckboxes];
-  result[TREENOTE_FLAG_BASE+4] := BOOLEANSTR[FVerticalLayout];
-
-  // added in 1.5.9:
-  result[TREENOTE_FLAG_BASE+5] := BOOLEANSTR[FTreeHidden];
-  result[TREENOTE_FLAG_BASE+6] := BOOLEANSTR[(( not FTreeHidden ) and ( FFocusMemory = focTree ))];
-
-  // added in 1.7.0:          // [dpv]
-  result[TREENOTE_FLAG_BASE+7] := BOOLEANSTR[FHideCheckedNodes];
-
-end; // PropertiesToFlagsString
-
-procedure TTreeNote.FlagsStringToProperties( const FlagsStr : TFlagsString );
-begin
-  inherited FlagsStringToProperties( FlagsStr );
-  if ( length( FlagsStr ) < FLAGS_STRING_LENGTH ) then exit;
-  case FlagsStr[TREENOTE_FLAG_BASE+1] of
-    '0' : FIconKind := niNone;
-    '1' : FIconKind := niStandard;
-    '2' : FIconKind := niCustom;
-  end;
-  FAutoNumberNodes := FlagsStr[TREENOTE_FLAG_BASE+2] = BOOLEANSTR[true];
-  FCheckboxes      := FlagsStr[TREENOTE_FLAG_BASE+3] = BOOLEANSTR[true];
-  FVerticalLayout  := FlagsStr[TREENOTE_FLAG_BASE+4] = BOOLEANSTR[true];
-
-  FTreeHidden := FlagsStr[TREENOTE_FLAG_BASE+5] = BOOLEANSTR[true];
-  if (( not FTreeHidden ) and ( FlagsStr[TREENOTE_FLAG_BASE+6] = BOOLEANSTR[true] )) then
-    FFocusMemory := focTree
-  else
-    FFocusMemory := focRTF;
-
-  FHideCheckedNodes      := FlagsStr[TREENOTE_FLAG_BASE+7] = BOOLEANSTR[true];    // [dpv]
-
-end; // FlagsStringToProperties
 
 
-function TTreeNote.GetCount : integer;
+
+
+function TKntFolder.GetCount : integer;
 begin
   if assigned( FNodes ) then
     result := FNodes.Count
@@ -2436,33 +1986,25 @@ begin
 end; // GetNodeCount
 
 
-function TTabNote.GetSelectedNode : TNoteNode;
+function TKntFolder.GetSelectedNode : TKntNote;
 begin
-   if Kind = ntTree then
-      Result:= TTreeNote(Self).GetSelectedNode
-   else
-      Result:= nil;
+   result := FSelectedNode;
 end;
 
-function TTreeNote.GetSelectedNode : TNoteNode;
-begin
-  result := FSelectedNode;
-end; // GetSelectedNode
-
-procedure TTreeNote.SetSelectedNode( aNode : TNoteNode );
+procedure TKntFolder.SetSelectedNode( aNode : TKntNote );
 begin
   FSelectedNode := aNode;
-end; // SetSelectedNode
+end;
 
 
-function TTreeNote.NewNode(
-  const AParent : TNoteNode;
+function TKntFolder.NewNode(
+  const AParent : TKntNote;
   AName : string;
-  const AInheritProperties : boolean ) : TNoteNode;
+  const AInheritProperties : boolean ) : TKntNote;
 var
-  myNode : TNoteNode;
+  myNode : TKntNote;
 begin
-  myNode := TNoteNode.Create;
+  myNode := TKntNote.Create;
   myNode.Name := AName;
   myNode.RTFBGColor := FEditorChrome.BGColor;
 
@@ -2486,7 +2028,7 @@ begin
   result := myNode;
 end; // NewNode
 
-function TTreeNote.AddNode( const aNode : TNoteNode ) : integer;
+function TKntFolder.AddNode( const aNode : TKntNote ) : integer;
 begin
   FModified := true;
   result := InternalAddNode( aNode );
@@ -2494,7 +2036,7 @@ begin
     GenerateNodeID( aNode );
 end; // AddNode
 
-procedure TTreeNote.InsertNode( const aIndex : integer; const aNode : TNoteNode );
+procedure TKntFolder.InsertNode( const aIndex : integer; const aNode : TKntNote );
 begin
   FModified := true;
   InternalInsertNode( aIndex, aNode );
@@ -2502,13 +2044,13 @@ begin
     GenerateNodeID( aNode );
 end; // InternalInsertNode
 
-procedure TTreeNote.InternalInsertNode( const aIndex : integer; const aNode : TNoteNode );
+procedure TKntFolder.InternalInsertNode( const aIndex : integer; const aNode : TKntNote );
 begin
   if assigned( aNode ) then
     FNodes.Insert( aIndex, aNode );
 end; // InternalInsertNode
 
-function TTreeNote.InternalAddNode( const aNode : TNoteNode ) : integer;
+function TKntFolder.InternalAddNode( const aNode : TKntNote ) : integer;
 begin
   if assigned( aNode ) then
     result := FNodes.Add( aNode )
@@ -2516,10 +2058,10 @@ begin
     result := -1;
 end; // InternalAddNode
 
-procedure TTreeNote.GenerateNodeID( const aNode : TNoteNode );
+procedure TKntFolder.GenerateNodeID( const aNode : TKntNote );
 var
   i, count, myID, hiID : longint;
-  myNode : TNoteNode;
+  myNode : TKntNote;
 begin
   myID := 0;
   hiID := 0;
@@ -2537,10 +2079,10 @@ begin
 
 end; // GenerateNodeID
 
-procedure TTreeNote.VerifyNodeIDs;
+procedure TKntFolder.VerifyNodeIDs;
 var
   i, count : longint;
-  myNode : TNoteNode;
+  myNode : TKntNote;
 begin
   count := FNodes.Count;
   for i := 1 to count do
@@ -2551,7 +2093,7 @@ begin
   end;
 end; // VerifyNodeIDs
 
-procedure TTreeNote.RemoveNode( const aNode : TNoteNode );
+procedure TKntFolder.RemoveNode( const aNode : TKntNote );
 begin
   if ( not assigned( ANode )) then exit;
 
@@ -2561,13 +2103,13 @@ begin
   FModified := true;
 end;
 
-procedure TTreeNote.SetTreeChrome( AChrome : TChrome );
+procedure TKntFolder.SetTreeChrome( AChrome : TChrome );
 begin
   FTreeChrome := AChrome;
   FModified := true;
 end; // SetTreeChrome
 
-procedure TTreeNote.SetTreeProperties( const aProps : TNoteTreeProperties );
+procedure TKntFolder.SetTreeProperties( const aProps : TNoteTreeProperties );
 begin
   FCheckboxes := aProps.CheckBoxes;
   FIconKind := aProps.IconKind;
@@ -2579,7 +2121,7 @@ begin
   FHideCheckedNodes := aProps.HideChecked;           // [dpv]
 end; // SetTreeProperties
 
-procedure TTreeNote.GetTreeProperties( var aProps : TNoteTreeProperties );
+procedure TKntFolder.GetTreeProperties( var aProps : TNoteTreeProperties );
 begin
   aProps.CheckBoxes := FCheckboxes;
   aProps.IconKind := FIconKind;
@@ -2589,37 +2131,8 @@ begin
   aProps.HideChecked:= FHideCheckedNodes;          // [dpv]
 end; // GetTreeProperties
 
-procedure TTreeNote.UpdateEditor;
-var
-  TextLen: integer;
-  SS, SL: integer;
 
-begin
-  if ( not CheckEditor ) then exit;
-
-
-  FEditor.BeginUpdate;
-  try
-      inherited UpdateEditor;
-
-        if assigned(FSelectedNode) then begin
-           case FSelectedNode.WordWrap of
-              wwAsNote : FEditor.WordWrap := FWordWrap;
-              wwYes : FEditor.WordWrap := true;
-              wwNo : FEditor.WordWrap := false;
-           end;
-
-           FEditor.Color := FSelectedNode.RTFBGColor;
-        end;
-
-
-  finally
-     FEditor.EndUpdate;
-  end;
-end; // UpdateEditor
-
-
-procedure TTreeNote.UpdateTree;
+procedure TKntFolder.UpdateTree;
 begin
   // CheckTree;
   // FTV.Items.BeginUpdate;
@@ -2639,7 +2152,7 @@ begin
 end; // UpdateTree
 
 
-procedure TTreeNote.DataStreamToEditor;
+procedure TKntFolder.DataStreamToEditor;
 var
   ReadOnlyBAK: boolean;
 {$IFDEF WITH_IE}
@@ -2689,7 +2202,7 @@ begin
         else
            FEditor.StreamFormat:= sfPlainText;
 
-        Log_StoreTick('TTreeNote.DataStreamToEditor - BEGIN', 4, +1);
+        Log_StoreTick('TKntFolder.DataStreamToEditor - BEGIN', 4, +1);
        {$IFDEF KNT_DEBUG}
         if log.Active and  (log.MaxDbgLevel >= 4) then begin
            dataSize:= FSelectedNode.Stream.Size;
@@ -2705,7 +2218,7 @@ begin
         else
            FEditor.Lines.LoadFromStream( FSelectedNode.Stream );
 
-        Log_StoreTick('TTreeNote.DataStreamToEditor - END', 4, -1);
+        Log_StoreTick('TKntFolder.DataStreamToEditor - END', 4, -1);
 
         FEditor.Color := FSelectedNode.RTFBGColor;
         FEditor.SelStart := FSelectedNode.SelStart;
@@ -2736,7 +2249,7 @@ end; // DataStreamToEditor
 {
   If Editor was modified then it will return the Stream associated to the node that will be updated
 }
-function TTreeNote.EditorToDataStream: TMemoryStream;
+function TKntFolder.EditorToDataStream: TMemoryStream;
 var
    KeepUTF8: boolean;
    Encoding: TEncoding;
@@ -2810,7 +2323,7 @@ begin
 end; // EditorToDataStream
 
 
-function TTreeNote.StreamFormatInNode: TRichStreamFormat;
+function TKntFolder.StreamFormatInNode: TRichStreamFormat;
 begin
     case FSelectedNode.VirtualMode of
       vmNone, vmKNTNode : begin
@@ -2829,17 +2342,17 @@ begin
 
 end;
 
-function TTreeNote.CheckTree : boolean;
+function TKntFolder.CheckTree : boolean;
 begin
   result := assigned( FTV );
 end; // CheckTree
 
 
-function TTreeNote.SaveToFile( var tf : TTextFile; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
+function TKntFolder.SaveToFile( var tf : TTextFile; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
                                OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false ): integer;
 var
   treenode : TTreeNTNode;
-  notenode : TNoteNode;
+  notenode : TKntNote;
   nodessaved, NodeCnt, NodeIdx : integer;
   wasmismatch : boolean;
   HaveVCLControls : boolean;
@@ -2875,7 +2388,7 @@ begin
 
 
   try
-    tf.WriteLine( _NF_TreeNote ); // marks beginning of TTreeNote
+    tf.WriteLine( _NF_TreeNote ); // marks beginning of TKntFolder  (TTreeNote)
     BaseSaveProc( tf );
 
     // basic treenote properties
@@ -2905,7 +2418,7 @@ begin
        else
           treenode := FTV.Items.GetFirstNode;
        if assigned( treenode ) then begin
-          notenode := TNoteNode( treenode.data );
+          notenode := TKntNote( treenode.data );
           if assigned( notenode ) then
              notenode.Level := treenode.Level;
        end;
@@ -2980,7 +2493,7 @@ begin
                 treeNode := nil;
          end;
          if assigned( treenode ) then begin
-            notenode := TNoteNode( treenode.data );
+            notenode := TKntNote( treenode.data );
             if assigned( notenode ) then
                notenode.Level := treenode.Level;
          end;
@@ -3005,14 +2518,14 @@ begin
 end; // SaveToFile
 
 
-procedure TTreeNote.LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
+procedure TKntFolder.LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; LoadOldSimpleNote: boolean= false);
 var
   InRichText : boolean;
   InNoteNode : boolean;
   List : TStringList;
   s, key : AnsiString;
   p, linecount : integer;
-  myNode : TNoteNode;
+  myNode : TKntNote;
 
     procedure AddNewNode;
     begin
@@ -3043,6 +2556,17 @@ begin
           begin
             // RTF data begins
             InRichText := true;
+            if LoadOldSimpleNote then begin
+               InNoteNode := true;
+               FTreeHidden:= true;
+               FIconKind := niCustom;
+               // create a new blank node
+               myNode := TKntNote.Create;
+               myNode.RTFBGColor := EditorCHrome.BGColor;
+               myNode.Level:= 0;
+               myNode.ID := 0;
+               myNode.Name := FName;
+            end;
             continue;
           end;
           if ( s = _NF_TRN ) then
@@ -3051,7 +2575,7 @@ begin
             if ( InNoteNode ) then AddNewNode; // we were here previously, i.e. there a node to be added
             InNoteNode := true;
             // create a new blank node
-            myNode := TNoteNode.Create;
+            myNode := TKntNote.Create;
             myNode.RTFBGColor := EditorCHrome.BGColor;
             continue;
           end;
@@ -3107,8 +2631,8 @@ begin
           key := copy( s, 1, 2 );
           delete( s, 1, 3 );
 
-          if InNoteNode then
-          begin
+
+          if InNoteNode and (not LoadOldSimpleNote) then begin
                 if ( key = _NodeName ) then
                 begin
                   myNode.Name := TryUTF8ToUnicodeString(s);
@@ -3475,13 +2999,13 @@ begin
 end; // LoadFromFile
 
 
-procedure TTreeNote.LoadFromTreePadFile( const FN : string );
+procedure TKntFolder.LoadFromTreePadFile( const FN : string );
 var
   s, nodeName : string;
   tf : TTextFile;
   InNode : boolean;
   level : integer;
-  myNode : TNoteNode;
+  myNode : TKntNote;
   List : TStringList;
 
     procedure AddNewNode;
@@ -3531,7 +3055,7 @@ begin
                 except
                   level := 0;
                 end;
-                myNode := TNoteNode.Create;
+                myNode := TKntNote.Create;
                 myNode.RTFBGColor := EditorChrome.BGColor;
                 myNode.Level := Level;
                 myNode.Name := nodeName;
@@ -3564,19 +3088,19 @@ begin
 end; // LoadFromTreePadFile
 
 
-function TTreeNote.GetNodeByID( const aID : integer ) : TNoteNode;
+function TKntFolder.GetNodeByID( const aID : integer ) : TKntNote;
 var
   myTreeNode : TTreeNTNode;
 begin
   myTreeNode := GetTreeNodeByID( aID );
   if assigned( myTreeNode ) then
-    result := TNoteNode( myTreeNode.Data )
+    result := TKntNote( myTreeNode.Data )
   else
     result := nil;
 end; // GetNodeByID
 
 
-function TTreeNote.GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
+function TKntFolder.GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
 var
   myTreeNode : TTreeNTNode;
 begin
@@ -3586,7 +3110,7 @@ begin
   begin
     if assigned( myTreeNode.Data ) then
     begin
-      if ( TNoteNode( myTreeNode.Data ).ID = aID ) then
+      if ( TKntNote( myTreeNode.Data ).ID = aID ) then
       begin
         result := myTreeNode;
         break;
@@ -3614,23 +3138,7 @@ begin
 end;
 
 
-function TTabNote.InitializeTextPlain(RTFAux: TRxRichEdit): boolean;
-begin
-    Result:= False;  // Initialization was required?
-
-    if NoteTextPlain = '' then begin
-       if (FImagesMode = imLink) and (not Editor.Modified) then
-          NoteTextPlain:= Editor.TextPlain
-       else begin
-          LoadStreamInRTFAux (DataStream, RTFAux);
-          NoteTextPlain:= RTFAux.TextPlain;
-       end;
-       Result:= True;
-    end;
-end;
-
-
-function TTreeNote.InitializeTextPlain(myNoteNode: TNoteNode; RTFAux: TRxRichEdit): boolean;
+function TKntFolder.InitializeTextPlain(myNoteNode: TKntNote; RTFAux: TRxRichEdit): boolean;
 begin
     Result:= False;  // Initialization was required?
 
@@ -3642,7 +3150,7 @@ begin
 end;
 
 
-function TTreeNote.InitializeTextPlainVariables( nMax: integer; RTFAux: TTabRichEdit): boolean;
+function TKntFolder.InitializeTextPlainVariables( nMax: integer; RTFAux: TTabRichEdit): boolean;
 var
   i, N: integer;
 begin

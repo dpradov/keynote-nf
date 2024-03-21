@@ -1323,7 +1323,7 @@ type
     // sanity checks. Many functions cannot be performed
     // if we have no active note or if the note is read-only
     function HaveNotes( const Warn, CheckCount : boolean ) : boolean;
-    function NoteIsReadOnly( const aNote : TTabNote; const Warn : boolean ) : boolean;
+    function NoteIsReadOnly( const aNote : TKntFolder; const Warn : boolean ) : boolean;
 
     // search / replace
     procedure FindNotify( const Active : boolean );
@@ -1343,7 +1343,7 @@ type
     // VCL updates when config loaded or changed
     procedure UpdateStatusBarState;
 
-    procedure UpdateTreeVisible( const ANote : TTreeNote );
+    procedure UpdateTreeVisible( const ANote : TKntFolder );
     procedure CheckRestoreAppWindowWidth (EnsureTreeVisible: boolean= False);
 
     procedure UpdateTabAndTreeIconsShow;
@@ -1370,12 +1370,12 @@ type
     procedure HotKeyProc( const TurnOn : boolean );
 
     {$IFDEF WITH_IE}
-    function SelectVisibleControlForNode( const aNode : TNoteNode ) : TNodeControl;
+    function SelectVisibleControlForNode( const aNode : TKntNote ) : TNodeControl;
     {$ENDIF}
 
-    procedure FilterApplied (note: TTreeNote);   // [dpv]
-    procedure FilterRemoved (note: TTreeNote);   // [dpv]
-    procedure OnNoteChange(Note: TTabNote);
+    procedure FilterApplied (note: TKntFolder);   // [dpv]
+    procedure FilterRemoved (note: TKntFolder);   // [dpv]
+    procedure OnNoteChange(Note: TKntFolder);
 
     procedure ShowAlarmStatus;
     procedure SetAlarm (ConsiderNoteAlarm: Boolean);
@@ -1511,7 +1511,7 @@ resourcestring
   STR_62= 'Invalid numeric expression';
   STR_63= 'Cannot evaluate: ';
   STR_64= 'Error at position ';
-  STR_65= 'No notes in file, or current note is not a Tree-type note.';
+  STR_65= 'No notes in file';
   STR_66= 'Find tree node';
   STR_67= 'Find node containing text:';
   STR_68= ' Node not found!';
@@ -1519,7 +1519,6 @@ resourcestring
   STR_70= 'No style available or none selected';
   STR_71= 'Error: StyleManager does not exist.';
   STR_72= 'Tree nodes can only be dropped on the tree, or on another tab.';
-  STR_73= 'Cannot transfer nodes to "%s", because it is not a Tree-type note.';
   STR_74= 'Cannot transfer nodes to "%s", because target note is Read-Only.';
   STR_75= 'Move';
   STR_76= 'Copy';
@@ -3566,7 +3565,7 @@ begin
      OnNoteChange(ActiveNote);
 end; // RxRTFChange
 
-procedure TForm_Main.OnNoteChange(Note: TTabNote);
+procedure TForm_Main.OnNoteChange(Note: TKntFolder);
 begin
   if not assigned(Note) then exit;                   // It could occur if recreating RichEdit window very soon
 
@@ -3574,13 +3573,11 @@ begin
   NoteFile.Modified := true;
   UpdateNoteFileState( [fscModified] );
 
-  if (ActiveNote.Kind = ntTree) then begin
-      with TTreeNote(ActiveNote) do
-        if assigned(SelectedNode) then
-           SelectedNode.RTFModified := true
-        else
-           messagedlg( STR_14, mtError, [mbOK], 0 );
-  end;
+  with TKntFolder(ActiveNote) do
+     if assigned(SelectedNode) then
+        SelectedNode.RTFModified := true
+     else
+        messagedlg( STR_14, mtError, [mbOK], 0 );
 
   TB_EditUndo.Enabled := Note.Editor.CanUndo;
   TB_EditRedo.Enabled := Note.Editor.CanRedo;
@@ -3629,7 +3626,7 @@ end;
 procedure TForm_Main.PagesChange(Sender: TObject);
 var
    ModifiedDataStream: TMemoryStream;
-   SelectedNode: TNoteNode;
+   SelectedNode: TKntNote;
 begin
 
   try
@@ -3644,12 +3641,10 @@ begin
          _LastMoveWasHistory := false;
       end;
 
-      ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
-      if (ActiveNote.Kind = ntTree) then begin
-          SelectedNode:= TTreeNote(ActiveNote).SelectedNode;
-          if assigned(SelectedNode) and (SelectedNode.Stream = ModifiedDataStream) then
-             ActiveNote.DataStreamToEditor;
-      end;
+      ActiveNote := TKntFolder( Pages.ActivePage.PrimaryObject );
+      SelectedNode:= TKntFolder(ActiveNote).SelectedNode;
+      if assigned(SelectedNode) and (SelectedNode.Stream = ModifiedDataStream) then
+         ActiveNote.DataStreamToEditor;
 
       ActiveNote.ImagesMode := ImagesManager.ImagesMode;
 
@@ -3679,7 +3674,7 @@ end; // PagesChange
 procedure TForm_Main.PagesTabShift(Sender: TObject);
 begin
   try
-    ActiveNote := TTabNote( Pages.ActivePage.PrimaryObject );
+    ActiveNote := TKntFolder( Pages.ActivePage.PrimaryObject );
     if assigned( ActiveNote ) then
     begin
       ActiveNote.TabIndex := Pages.ActivePage.TabIndex;
@@ -3826,7 +3821,7 @@ begin
             ActiveNote.Editor.SetFocus
           else
           if ( ActiveNote.FocusMemory = focTree ) then
-            TTreeNote( ActiveNote ).TV.SetFocus;
+            TKntFolder( ActiveNote ).TV.SetFocus;
         except
         end;
       end;
@@ -3894,7 +3889,7 @@ begin
       if ( ActiveNote.FocusMemory = focRTF ) then
         ActiveNote.Editor.SetFocus
       else if ( ActiveNote.FocusMemory = focTree ) then
-        TTreeNote( ActiveNote ).TV.SetFocus;
+        TKntFolder( ActiveNote ).TV.SetFocus;
     except
     end;
   end
@@ -4137,15 +4132,12 @@ begin
 
     if assigned( ActiveNote ) then begin
       s := s +
-         'Active note name: ' + ActiveNote.Name +#13+
-         'Active note kind: ' + TABNOTE_KIND_NAMES[ActiveNote.Kind] +#13;
+         'Active note name: ' + ActiveNote.Name +#13;
 
-      if ( ActiveNote.Kind = ntTree ) then begin
-        s := s + 'Number of Tree nodes: ' + inttostr( TTreeNote( ActiveNote ).TV.Items.Count ) + #13 +
-          'Number of Note nodes: ' + inttostr( TTreeNote( ActiveNote ).NodeCount ) + #13;
-        if assigned( TTreeNote( ActiveNote ).SelectedNode ) then
-          s := s + 'Selected node: ' + TTreeNote( ActiveNote ).SelectedNode.Name +#13;
-      end;
+      s := s + 'Number of Tree nodes: ' + inttostr( TKntFolder( ActiveNote ).TV.Items.Count ) + #13 +
+        'Number of Note nodes: ' + inttostr( TKntFolder( ActiveNote ).NodeCount ) + #13;
+      if assigned( TKntFolder( ActiveNote ).SelectedNode ) then
+        s := s + 'Selected node: ' + TKntFolder( ActiveNote ).SelectedNode.Name +#13;
     end
     else
       s := s + 'ActiveNote NOT assigned' + #13;
@@ -4256,7 +4248,7 @@ begin
   with KeyOptions do
   begin
     ToolbarTreeShow := ( not ToolbarTreeShow );
-    Toolbar_Tree.Visible := ( ToolbarTreeShow and assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree ));
+    Toolbar_Tree.Visible := ( ToolbarTreeShow and assigned( ActiveNote ));
     MMViewTBTree.Checked := ToolbarTreeShow;
   end;
 end;
@@ -4368,24 +4360,24 @@ end;
 
 procedure TForm_Main.TB_FilterTreeClick(Sender: TObject);
 var
-   note: TTreeNote;
+   note: TKntFolder;
 begin
     if not assigned (ActiveNote) then exit;
 
-    note:= TTreeNote(ActiveNote);
+    note:= TKntFolder(ActiveNote);
     if not note.Filtered then begin
         ShowFindAllOptions;
         CB_ResFind_Filter.Checked:= true;
         TB_FilterTree.Down:= false;
     end
     else begin
-        note:= TTreeNote(ActiveNote);
+        note:= TKntFolder(ActiveNote);
         RemoveFilter (note);
         FilterRemoved (note);
     end;
 end;
 
-procedure TForm_Main.FilterApplied (note: TTreeNote);   // [dpv]
+procedure TForm_Main.FilterApplied (note: TKntFolder);   // [dpv]
 begin
     note.Filtered:= true;
     if note = ActiveNote then begin
@@ -4394,7 +4386,7 @@ begin
       TB_FilterTree.Hint:= STR_23;
     end;
 end;
-procedure TForm_Main.FilterRemoved (note: TTreeNote);   // [dpv]
+procedure TForm_Main.FilterRemoved (note: TKntFolder);   // [dpv]
 begin
     note.Filtered:= false;
     if note = ActiveNote then begin
@@ -4519,7 +4511,7 @@ begin
 
 end; // HaveNotes
 
-function TForm_Main.NoteIsReadOnly( const aNote : TTabNote; const Warn : boolean ) : boolean;
+function TForm_Main.NoteIsReadOnly( const aNote : TKntFolder; const Warn : boolean ) : boolean;
 begin
   result := assigned( ANote ) and ANote.ReadOnly;
   if ( result and Warn ) then
@@ -4804,7 +4796,7 @@ end; // MMEmailnoteClick
 procedure TForm_Main.ShowAlarmStatus;
 var
    HasNoteAlarms, HasNodeAlarms: Boolean;
-   myNode: TNoteNode;
+   myNode: TKntNote;
 
 begin
   HasNodeAlarms:= false;
@@ -4867,7 +4859,7 @@ end;
 
 procedure TForm_Main.SetAlarm(ConsiderNoteAlarm: Boolean);      // [dpv*]
 var
-    myNode: TNoteNode;
+    myNode: TKntNote;
     HasNoteAlarms, HasNodeAlarms: Boolean;
 
 begin
@@ -4889,7 +4881,7 @@ end;
 
 procedure TForm_Main.TB_SetAlarmMouseEnter(Sender: TObject);    // [dpv*]
 var
-    myNode: TNoteNode;
+    myNode: TKntNote;
     hint: string;
     sep: String;
     I, N: integer;
@@ -5001,14 +4993,14 @@ end; // DestroyWnd
 
 procedure TForm_Main.TVDeletion(Sender: TObject; Node: TTreeNTNode);
 var
-   myTNote : TTreeNote;
-   myNode: TNoteNode;
+   myTNote : TKntFolder;
+   myNode: TKntNote;
 begin
   if not assigned( Node ) then exit;
 
-  myTNote:= TTreeNote(NoteFile.GetNoteByTreeNode(Node));
+  myTNote:= TKntFolder(NoteFile.GetNoteByTreeNode(Node));
   if assigned( myTNote ) then begin
-    myNode:= TNoteNode( Node.Data );
+    myNode:= TKntNote( Node.Data );
 
      if NoteFile.FileName <> '<DESTROYING>' then          // FileName='<DESTROYING>'=> is closing. All nodes will be deleted all the way
         NoteFile.ManageMirrorNodes(3, Node, nil);
@@ -5027,10 +5019,10 @@ var
 
 procedure TForm_Main.SplitterNoteMoved(Sender: TObject);
 var
-  myNote: TTreeNote;
+  myNote: TKntFolder;
   Width: integer;
 begin
-   myNote:= TTreeNote(ActiveNote);
+   myNote:= TKntFolder(ActiveNote);
    if myNote.VerticalLayout then
       Width := myNote.TV.Height
    else
@@ -5109,59 +5101,55 @@ end;
 
 procedure TForm_Main.CheckExpandTreeWidth;
 var
-  myNote: TTreeNote;
+  myNote: TKntFolder;
   Width: integer;
 begin
-   if (ActiveNote.Kind = ntTree) then begin
-      myNote:= TTreeNote(ActiveNote);
+   myNote:= TKntFolder(ActiveNote);
+   if myNote.VerticalLayout then
+      Width := myNote.TV.Height
+   else
+      Width := myNote.TV.Width;
+
+   if (myNote.TreeMaxWidth > 0) and (myNote.TreeMaxWidth > Width) then begin
       if myNote.VerticalLayout then
-         Width := myNote.TV.Height
+         myNote.TV.Height:= myNote.TreeMaxWidth
       else
-         Width := myNote.TV.Width;
+         myNote.TV.Width:= myNote.TreeMaxWidth;
 
-      if (myNote.TreeMaxWidth > 0) and (myNote.TreeMaxWidth > Width) then begin
-         if myNote.VerticalLayout then
-            myNote.TV.Height:= myNote.TreeMaxWidth
-         else
-            myNote.TV.Width:= myNote.TreeMaxWidth;
+      if keyOptions.AltMargins then
+         ActiveNote.Editor.Refresh;
 
-         if keyOptions.AltMargins then
-            ActiveNote.Editor.Refresh;
-
-         TreeWidthExpanded:= True;
-      end;
+      TreeWidthExpanded:= True;
    end;
 end;
 
 function TForm_Main.CheckRestoreTreeWidth: boolean;
 var
    Width: integer;
-   myNote: TTreeNote;
+   myNote: TKntFolder;
 begin
    Result:= False;
-   if (ActiveNote.Kind = ntTree) then begin
-       myNote:= TTreeNote(ActiveNote);
+    myNote:= TKntFolder(ActiveNote);
 
-       if (myNote.TreeMaxWidth > 0) and (myNote.TV.Visible) and (not myNote.TV.Focused) then begin
-          if myNote.VerticalLayout then
-             Width := myNote.TV.Height
-          else
-             Width := myNote.TV.Width;
+    if (myNote.TreeMaxWidth > 0) and (myNote.TV.Visible) and (not myNote.TV.Focused) then begin
+       if myNote.VerticalLayout then
+          Width := myNote.TV.Height
+       else
+          Width := myNote.TV.Width;
 
-          if (Width > TTreeNote(ActiveNote).TreeWidth) then begin
-              if myNote.VerticalLayout then
-                 myNote.TV.Height:= myNote.TreeWidth
-              else
-                 myNote.TV.Width:= myNote.TreeWidth;
+       if (Width > TKntFolder(ActiveNote).TreeWidth) then begin
+           if myNote.VerticalLayout then
+              myNote.TV.Height:= myNote.TreeWidth
+           else
+              myNote.TV.Width:= myNote.TreeWidth;
 
-              TreeWidthExpanded:= false;
-              TreeWidth_N:= 0;
-              Result:= true;
+           TreeWidthExpanded:= false;
+           TreeWidth_N:= 0;
+           Result:= true;
 
-              ActiveNote.Editor.SelLength:= 0;
-          end;
+           ActiveNote.Editor.SelLength:= 0;
        end;
-   end;
+    end;
 
 end;
 
@@ -5195,7 +5183,7 @@ procedure TForm_Main.TVStartDrag(Sender: TObject;
   var DragObject: TDragObject);
 begin
   // StatusBar.Panels[PANEL_HINT].Text := 'Drag: ' + DragObject.GetName;
-  DraggedTreeNode := TTreeNote( ActiveNote ).TV.Selected;
+  DraggedTreeNode := TKntFolder( ActiveNote ).TV.Selected;
   if assigned( DraggedTreeNode ) then
   begin
      // {N}
@@ -5263,7 +5251,7 @@ procedure TForm_Main.TVDragDrop(Sender, Source: TObject; X,
 var
   DropTreeNode, PreviousParent : TTreeNTNode;
   s : string;
-  myTNote : TTreeNote;
+  myTNote : TKntFolder;
 begin
   if NoteIsReadOnly( ActiveNote, true ) then
   begin
@@ -5276,7 +5264,7 @@ begin
   s := STR_38_Dragged;
   DropTreeNode := ( sender as TTreeNT ).GetNodeAt( X, Y );
 
-  myTNote := TTreeNote( ActiveNote );
+  myTNote := TKntFolder( ActiveNote );
 
   try
 
@@ -5375,7 +5363,7 @@ begin
 
   finally
     NoteFile.Modified := true;
-    if TNoteNode(DraggedTreeNode.Data).Checked then begin
+    if TKntNote(DraggedTreeNode.Data).Checked then begin
        DraggedTreeNode.CheckState := csChecked;
     end;
     myTNote.TV.OnChange := TVChange;
@@ -5409,9 +5397,9 @@ procedure TForm_Main.TVKeyDown(Sender: TObject; var Key: Word;
 var
   ptCursor : TPoint;
 begin
-  if ( not ( assigned( activenote ) and ( activenote.kind = ntTree ))) then
+  if ( not assigned( activenote ) ) then
     exit;
-  if TTreeNote( ActiveNote ).TV.IsEditing then exit;
+  if TKntFolder( ActiveNote ).TV.IsEditing then exit;
 
   ActiveNote.FocusMemory := focTree;
 
@@ -5459,14 +5447,14 @@ var
   myTreeNode: TTreeNTNode;
   mirrorNode: TTreeNTNode;
 begin
-  myTreeNode:= TTreeNote( ActiveNote ).TV.Selected;
+  myTreeNode:= TKntFolder( ActiveNote ).TV.Selected;
   if assigned(myTreeNode) then begin
      AddNodeToTree( tnInsertBefore );
-     mirrorNode:= TTreeNote( ActiveNote ).TV.Selected;
-     TNoteNode(mirrorNode.Data).Assign( myTreeNode.Data );
+     mirrorNode:= TKntFolder( ActiveNote ).TV.Selected;
+     TKntNote(mirrorNode.Data).Assign( myTreeNode.Data );
      UpdateTreeNode(mirrorNode);
-     TNoteNode(mirrorNode.Data).MirrorNode:= myTreeNode;
-     SelectIconForNode( mirrorNode, TTreeNote(ActiveNote).IconKind );
+     TKntNote(mirrorNode.Data).MirrorNode:= myTreeNode;
+     SelectIconForNode( mirrorNode, TKntFolder(ActiveNote).IconKind );
      AddMirrorNode(myTreeNode, mirrorNode); 
      ActiveNote.DataStreamToEditor;
   end;
@@ -5537,18 +5525,17 @@ end;
 
 procedure TForm_Main.MMTreeFullExpandClick(Sender: TObject);
 begin
-  TTreeNote( ActiveNote ).TV.FullExpand;
-  TreeNodeSelected( TTreeNote( ActiveNote ).TV.Selected );
-  TTreeNote( ActiveNote ).TV.Selected.MakeVisible;
+  TKntFolder( ActiveNote ).TV.FullExpand;
+  TreeNodeSelected( TKntFolder( ActiveNote ).TV.Selected );
+  TKntFolder( ActiveNote ).TV.Selected.MakeVisible;
 end;
 
 procedure TForm_Main.MMTreeFocusToogleClick(Sender: TObject);
 begin
   if not assigned(ActiveNote) then exit;
-  if ActiveNote.Kind <> ntTree then exit;
 
   try
-     if TTreeNote(ActiveNote).TV.Focused then
+     if TKntFolder(ActiveNote).TV.Focused then
         MMTreeFocusEditorClick (nil)
      else
         MMTreeFocusTreeClick (nil);
@@ -5573,13 +5560,12 @@ end;
 procedure TForm_Main.MMTreeFocusTreeClick(Sender: TObject);
 begin
   if not assigned(ActiveNote) then exit;
-  if ActiveNote.Kind <> ntTree then exit;
 
   try
-     if TTreeNote( ActiveNote ).TreeHidden then
+     if TKntFolder( ActiveNote ).TreeHidden then
         MMViewTreeClick(nil);
 
-     TTreeNote(ActiveNote).TV.SetFocus;
+     TKntFolder(ActiveNote).TV.SetFocus;
   	 ActiveNote.FocusMemory := focTree;
   except
   end;
@@ -5588,8 +5574,8 @@ end;
 
 procedure TForm_Main.MMTreeFullCollapseClick(Sender: TObject);
 begin
-  TTreeNote( ActiveNote ).TV.FullCollapse;
-  TreeNodeSelected( TTreeNote( ActiveNote ).TV.Selected );
+  TKntFolder( ActiveNote ).TV.FullCollapse;
+  TreeNodeSelected( TKntFolder( ActiveNote ).TV.Selected );
 end;
 
 procedure TForm_Main.TVSortSubtreeClick(Sender: TObject);
@@ -5601,12 +5587,12 @@ begin
   myTreeNode := GetCurrentTreeNode;
   if ( assigned( myTreeNode ) and myTreeNode.HasChildren ) then
   begin
-    TTreeNote( ActiveNote ).TV.OnChange := nil;
+    TKntFolder( ActiveNote ).TV.OnChange := nil;
     try
       myTreeNode.AlphaSort;
     finally
       NoteFile.Modified := true;
-      TTreeNote( ActiveNote ).TV.OnChange := TVChange;
+      TKntFolder( ActiveNote ).TV.OnChange := TVChange;
       UpdateNoteFileState( [fscModified] );
     end;
   end;
@@ -5616,19 +5602,19 @@ end; // Sort Child Nodes
 procedure TForm_Main.TVSortTreeClick(Sender: TObject);
 begin
   if NoteIsReadOnly( ActiveNote, true ) then exit;
-  if ( assigned( ActiveNote ) and ( activenote.Kind = ntTree )) then
+  if ( assigned( ActiveNote) ) then
   begin
 
     if ( messagedlg(
       STR_49,
       mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
-    TTreeNote( ActiveNote ).TV.OnChange := nil;
+    TKntFolder( ActiveNote ).TV.OnChange := nil;
     try
-      TTreeNote( ActiveNote ).TV.AlphaSort;
+      TKntFolder( ActiveNote ).TV.AlphaSort;
     finally
       NoteFile.Modified := true;
-      TTreeNote( ActiveNote ).TV.OnChange := TVChange;
+      TKntFolder( ActiveNote ).TV.OnChange := TVChange;
       UpdateNoteFileState( [fscModified] );
     end;
   end;
@@ -5649,8 +5635,8 @@ begin
   end;
   _ALLOW_VCL_UPDATES := false;
   try
-    if assigned( TNoteNode( Node.Data )) then
-      TNoteNode( Node.Data ).Name := S;  // {N} must add outline numbering, if any
+    if assigned( TKntNote( Node.Data )) then
+      TKntNote( Node.Data ).Name := S;  // {N} must add outline numbering, if any
     StatusBar.Panels[PANEL_HINT].Text := STR_51;
     ActiveNote.Modified := true;
   finally
@@ -5686,14 +5672,14 @@ end; // TVEditing
 procedure TForm_Main.TVSavingTree(Sender: TObject; Node: TTreeNTNode; var S: string);
 begin
    if not ShowHiddenMarkers then exit;
-   if assigned( TNoteNode( Node.Data )) then
-      S:= Format('%s [%d]', [S, TNoteNode(Node.Data).ID]);
+   if assigned( TKntNote( Node.Data )) then
+      S:= Format('%s [%d]', [S, TKntNote(Node.Data).ID]);
 end;
 
 
 procedure TForm_Main.MMRenamenodeClick(Sender: TObject);
 var
-  myNode : TNoteNode;
+  myNode : TKntNote;
   myName : string;
 begin
   if NoteIsReadOnly( ActiveNote, true ) then exit;
@@ -5704,7 +5690,7 @@ begin
     if ( ActiveNote.FocusMemory <> focTree ) then exit;
     if TreeOptions.EditInPlace then
     begin
-      TTreeNote( ActiveNote ).TV.Selected.EditText;
+      TKntFolder( ActiveNote ).TV.Selected.EditText;
     end
     else
     begin
@@ -5717,7 +5703,7 @@ begin
         begin
           myNode.Name := myName;
           // {N}
-          TTreeNote( ActiveNote ).TV.Selected.Text := myNode.Name; // TNoteNode does NOT update its treenode's properties!
+          TKntFolder( ActiveNote ).TV.Selected.Text := myNode.Name; // TKntNote does NOT update its treenode's properties!
           ActiveNote.Modified := true;
           UpdateNoteFileState( [fscModified] );
         end
@@ -5735,14 +5721,14 @@ end;
 
 procedure TForm_Main.MMViewNodeIconsClick(Sender: TObject);
 var
-  tNote : TTreeNote;
+  tNote : TKntFolder;
   mi : TMenuItem;
 begin
   if ( not ( sender is TMenuItem )) then exit;
   mi := ( sender as TMenuItem );
-  if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
+  if ( assigned( ActiveNote ) ) then
   begin
-    tNote := TTreeNote( ActiveNote );
+    tNote := TKntFolder( ActiveNote );
     if mi.Checked then
     begin
       tNote.IconKind := niNone;
@@ -5761,12 +5747,12 @@ end; // MMViewNodeIconsClick
 
 procedure TForm_Main.MMViewCheckboxesAllNodesClick(Sender: TObject);
 var
-  tNote : TTreeNote;
+  tNote : TKntFolder;
 begin
   // show or hide checkboxes in active note's tree panel
-  if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
+  if  assigned( ActiveNote )  then
   begin
-    tNote := TTreeNote( ActiveNote );
+    tNote := TKntFolder( ActiveNote );
     tNote.Checkboxes := ( not tNote.Checkboxes );
     MMViewCheckboxesAllNodes.Checked := tNote.Checkboxes;
     TVChildrenCheckbox.Enabled := not MMViewCheckboxesAllNodes.Checked;       // [dpv]
@@ -5778,7 +5764,7 @@ end;
 
 procedure TForm_Main.TVChecked(Sender: TObject; Node: TTreeNTNode);
 var
-  myNode : TNoteNode;
+  myNode : TKntNote;
 
 begin
   if ( assigned( node ) and assigned( node.Data )) then  begin
@@ -5860,14 +5846,14 @@ procedure TForm_Main.FindTreeNode;
 var
   myNode : TTreeNTNode;
   found : boolean;  
-  myNote : TTabNote;
+  myNote : TKntFolder;
   selectedNode : TTreeNTNode;
   FindAllTabs: boolean;
   FindHiddenNodes: boolean;
 
   procedure GetFirstNode;
   begin
-	  myNode := TTreeNote(myNote).TV.Items.GetFirstNode;
+	  myNode := TKntFolder(myNote).TV.Items.GetFirstNode;
 	  if assigned( myNode ) and myNode.Hidden and (not FindHiddenNodes) then
 		 myNode := myNode.GetNextNotHidden;
   end;
@@ -5892,9 +5878,8 @@ var
           else
              tabidx := 0;
 
-          myNote := TTabNote(Form_Main.Pages.Pages[tabidx].PrimaryObject);
-          if myNote.Kind = ntTree then
-             GetFirstNode;
+          myNote := TKntFolder(Form_Main.Pages.Pages[tabidx].PrimaryObject);
+          GetFirstNode;
       end;
    end;
 begin
@@ -5935,7 +5920,7 @@ begin
 					  if (myNote <> ActiveNote) then begin
 						   Form_Main.Pages.ActivePage := myNote.TabSheet;
 						   Form_Main.PagesChange(Pages);
-						   TTreeNote( ActiveNote ).TV.SetFocus;
+						   TKntFolder( ActiveNote ).TV.SetFocus;
 						   ActiveNote.FocusMemory := focTree;
 					  end;
 					  myNode.MakeVisible;        // Could be hidden
@@ -5945,12 +5930,10 @@ begin
 					GetNextNode;
 			  until not assigned(myNode) or (myNode = selectedNode);
 
-		 if not found and (myNode <> selectedNode) then
-			  repeat
-			 	  GetNextNote();
-			  	if (myNote.Kind = ntTree) then
-				      GetFirstNode();
-		    until (myNote.Kind = ntTree) or (myNode = selectedNode);
+		 if not found and (myNode <> selectedNode) then begin
+	 	    GetNextNote();
+		    GetFirstNode();
+		 end;
 
   until found or (myNode = selectedNode);
 
@@ -6079,7 +6062,7 @@ end;
 procedure TForm_Main.NodesDropOnTabProc( const DropTab : TTab95Sheet );
 var
   oldPage : TTab95Sheet;
-  tNote : TTreeNote;
+  tNote : TKntFolder;
   s : string;
   DoMoveNodes : boolean;
 begin
@@ -6091,13 +6074,7 @@ begin
     exit;
   end;
 
-  if ( TTabNote( DropTab.PrimaryObject ).Kind <> ntTree ) then
-  begin
-    DoMessageBox( Format(STR_73, [DropTab.Caption]), mtError, [mbOK], 0 );
-    exit;
-  end;
-
-  tNote := TTreeNote( DropTab.PrimaryObject );
+  tNote := TKntFolder( DropTab.PrimaryObject );
   oldPage := Pages.ActivePage;
 
   if tNote.ReadOnly then
@@ -6236,12 +6213,12 @@ end;
 
 procedure TForm_Main.TB_HideCheckedClick(Sender: TObject);   // [dpv]
 var
-  tNote : TTreeNote;
+  tNote : TKntFolder;
   Hide: boolean;
 begin
-  if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
+  if ( assigned( ActiveNote )) then
   begin
-    tNote := TTreeNote( ActiveNote );
+    tNote := TKntFolder( ActiveNote );
 
     Hide:= not tNote.HideCheckedNodes;
     if CtrlDown and Hide then
@@ -6261,25 +6238,25 @@ end;
 
 procedure TForm_Main.TVHideCheckedChildrenClick(Sender: TObject);
 var
-  tNote : TTreeNote;
+  tNote : TKntFolder;
 begin
-    tNote := TTreeNote( ActiveNote );
+    tNote := TKntFolder( ActiveNote );
     HideChildNodesUponCheckState (tNote, tNote.TV.Selected, csChecked);
 end;
 
 procedure TForm_Main.TVHideUncheckedChildrenClick(Sender: TObject);
 var
-  tNote : TTreeNote;
+  tNote : TKntFolder;
 begin
-    tNote := TTreeNote( ActiveNote );
+    tNote := TKntFolder( ActiveNote );
     HideChildNodesUponCheckState (tNote, tNote.TV.Selected, csUnchecked);
 end;
 
 procedure TForm_Main.TVShowNonFilteredClick(Sender: TObject);
 var
-  tNote : TTreeNote;
+  tNote : TKntFolder;
 begin
-    tNote := TTreeNote( ActiveNote );
+    tNote := TKntFolder( ActiveNote );
     ShowCheckedNodes (tNote, tNote.TV.Selected);
 end;
 
@@ -6765,7 +6742,6 @@ var
 begin
   if ( not HaveNotes( true, true )) then exit;
   if ( not assigned( ActiveNote )) then exit;
-  if ( ActiveNote.Kind <> ntTree ) then exit;
 
   ShowHiddenMarkers:= CtrlDown;
 
@@ -6782,7 +6758,7 @@ begin
     if SaveDlg.Execute then
     begin
       fn := normalFN( SaveDlg.Filename );
-      TTreeNote( ActiveNote ) .TV.SaveToFile( fn, false );
+      TKntFolder( ActiveNote ) .TV.SaveToFile( fn, false );
     end;
   finally
     ShowHiddenMarkers:= false;
@@ -6817,14 +6793,14 @@ end;
 
 procedure TForm_Main.TVCheckNodeClick(Sender: TObject);
 var
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
   myTreeNode : TTreeNTNode;
 begin
   if NoteIsReadOnly( ActiveNote, false ) then exit;
   myNoteNode := GetCurrentNoteNode;
   if ( not assigned( myNoteNode )) then exit;
   if ( ActiveNote.FocusMemory <> focTree ) then exit;
-  myTreeNode := TTreeNote( ActiveNote ).TV.Selected;
+  myTreeNode := TKntFolder( ActiveNote ).TV.Selected;
 
   myNoteNode.Checked := ( not myNoteNode.Checked );
   TVCheckNode.Checked := myNoteNode.Checked;
@@ -6837,14 +6813,14 @@ end;
 
 procedure TForm_Main.TVChildrenCheckboxClick(Sender: TObject);    // [dpv]
 var
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
   myTreeNode : TTreeNTNode;
 begin
   if NoteIsReadOnly( ActiveNote, false ) then exit;
   myNoteNode := GetCurrentNoteNode;
   if ( not assigned( myNoteNode )) then exit;
   if ( ActiveNote.FocusMemory <> focTree ) then exit;
-  myTreeNode := TTreeNote( ActiveNote ).TV.Selected;
+  myTreeNode := TKntFolder( ActiveNote ).TV.Selected;
 
   myNoteNode.ChildrenCheckbox := ( not myNoteNode.ChildrenCheckbox );
   TVChildrenCheckbox.Checked := myNoteNode.ChildrenCheckbox;
@@ -6861,12 +6837,12 @@ end; // TVMBoldClick
 
 procedure TForm_Main.MMViewTreeClick(Sender: TObject);
 begin
-  if ( assigned( ActiveNote ) and ( ActiveNote.Kind = ntTree )) then
+  if ( assigned( ActiveNote )) then
   begin
     MMViewTree.Checked := ( not MMViewTree.Checked );
 
-    TTreeNote( ActiveNote ).TreeHidden := ( not MMViewTree.Checked );
-    UpdateTreeVisible( TTreeNote( ActiveNote ));
+    TKntFolder( ActiveNote ).TreeHidden := ( not MMViewTree.Checked );
+    UpdateTreeVisible( TKntFolder( ActiveNote ));
 
     if ( not MMViewTree.Checked ) then
     try
@@ -6950,7 +6926,7 @@ end;
 procedure TForm_Main.MMViewResPanelClick(Sender: TObject);
 begin
   if (Sender = nil) and KeyOptions.ResPanelShow and assigned(ActiveNote) then begin
-     if ActiveNote.Editor.Focused or ((ActiveNote.Kind = ntTree) and TTreeNote(ActiveNote).TV.Focused) then begin
+     if ActiveNote.Editor.Focused or TKntFolder(ActiveNote).TV.Focused then begin
         FocusResourcePanel;
         CheckRestoreTreeWidth;
         exit;
@@ -7586,7 +7562,7 @@ end;
 
 
 {$IFDEF WITH_IE}
-function TForm_Main.SelectVisibleControlForNode( const aNode : TNoteNode ) : TNodeControl;
+function TForm_Main.SelectVisibleControlForNode( const aNode : TKntNote ) : TNodeControl;
 begin
   result := ncNone;
   if ( not assigned( aNode )) then exit;
@@ -7795,7 +7771,7 @@ var
 begin
     myTreeNode:= GetCurrentTreeNode;
     if assigned(myTreeNode) and assigned(myTreeNode.Data) then begin
-        NavigateToTreeNode(TNoteNode(myTreeNode.Data).MirrorNode);
+        NavigateToTreeNode(TKntNote(myTreeNode.Data).MirrorNode);
     end;
 end;
 
@@ -8124,7 +8100,7 @@ end;
 
 procedure TForm_Main.Menu_TVPopup(Sender: TObject);
 var
-  myNode : TNoteNode;
+  myNode : TKntNote;
 begin
   myNode := GetCurrentNoteNode;
   if assigned( myNode ) then
@@ -8414,7 +8390,7 @@ begin
 end; // UpdateStatusBarState
 
 
-procedure TForm_Main.UpdateTreeVisible( const ANote : TTreeNote );
+procedure TForm_Main.UpdateTreeVisible( const ANote : TKntFolder );
 var
    Inc: Integer;
 begin
@@ -8443,8 +8419,8 @@ var
    Inc: Integer;
 begin
     if _WindowWidthIncToRestore > 0 then begin
-       if EnsureTreeVisible and (ActiveNote.Kind = ntTree) then
-          TTreeNote(ActiveNote).TV.Visible := True;
+       if EnsureTreeVisible then
+          TKntFolder(ActiveNote).TV.Visible := True;
 
        Inc:= _WindowWidthIncToRestore;
        _WindowWidthIncToRestore:= 0;

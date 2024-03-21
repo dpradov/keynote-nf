@@ -56,8 +56,8 @@ type
     Name : string;
     CaretPos : integer;
     SelLength : integer;
-    Note : TTabNote;
-    Node : TNoteNode;
+    Note : TKntFolder;
+    Node : TKntNote;
   end;
   PBookmark = ^TBookmark;
 }
@@ -68,19 +68,19 @@ type
 type
   TNoteList = class( TList )
   private
-    function GetNote( index : integer ) : TTabNote;
-    procedure PutNote( index : integer; item : TTabNote );
+    function GetNote( index : integer ) : TKntFolder;
+    procedure PutNote( index : integer; item : TKntFolder );
   public
-    property Items[index:integer] : TTabNote read GetNote write PutNote; default;
+    property Items[index:integer] : TKntFolder read GetNote write PutNote; default;
     constructor Create;
     destructor Destroy; override;
-    function Remove( item : TTabNote ) : integer;
+    function Remove( item : TKntFolder ) : integer;
     procedure Delete( index : integer );
-    function IndexOf( item : TTabNote ) : integer;
+    function IndexOf( item : TKntFolder ) : integer;
   end;
 
 type
-  TNoteFile = class( TObject )
+  TKntFile = class( TObject )
   private
     FVersion : TNoteFileVersion;
     FFileName : string;
@@ -97,7 +97,7 @@ type
     FOpenAsReadOnly : boolean;
     FShowTabIcons : boolean;
     FNoMultiBackup : boolean;
-    FClipCapNote : TTabNote;
+    FClipCapNote : TKntFolder;
     FTrayIconFN : string;
     FTabIconsFN : string;
     FSavedWithRichEdit3 : boolean;
@@ -118,8 +118,8 @@ type
     procedure SetModified( AModified : boolean );
     function GetPassphrase( const FN : string ) : boolean;
 
-    function InternalAddNote( ANote : TTabNote ) : integer;
-    procedure GenerateNoteID( const ANote : TTabNote );
+    function InternalAddNote( ANote : TKntFolder ) : integer;
+    procedure GenerateNoteID( const ANote : TKntFolder );
     procedure VerifyNoteIds;
 
     function PropertiesToFlagsString : TFlagsString; virtual;
@@ -157,7 +157,7 @@ type
     property OpenAsReadOnly : boolean read FOpenAsReadOnly write FOpenAsReadOnly;
     property ShowTabIcons : boolean read FShowTabIcons write FShowTabIcons;
     property NoMultiBackup : boolean read FNoMultiBackup write FNoMultiBackup;
-    property ClipCapNote : TTabNote read FClipCapNote write FClipCapNote;
+    property ClipCapNote : TKntFolder read FClipCapNote write FClipCapNote;
 
     property CryptMethod : TCryptMethod read FCryptMethod write FCryptMethod;
     property Passphrase : UTF8String read FPassphrase write FPassphrase;
@@ -171,8 +171,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    function AddNote( ANote : TTabNote ) : integer;
-    procedure DeleteNote( ANote : TTabNote );
+    function AddNote( ANote : TKntFolder ) : integer;
+    procedure DeleteNote( ANote : TKntFolder );
 
     function Save(FN: string;
                   var SavedNotes: integer; var SavedNodes: integer;
@@ -185,22 +185,22 @@ type
 
     function HasExtendedNotes : boolean; // TRUE is file contains any notes whose FKind is not ntRTF
     function HasVirtualNodes : boolean; // TRUE is file contains any notes which have VIRTUAL NODES
-    function HasVirtualNodeByFileName( const aNoteNode : TNoteNode; const FN : string ) : boolean;
+    function HasVirtualNodeByFileName( const aNoteNode : TKntNote; const FN : string ) : boolean;
 
-    function GetNoteByID( const aID : integer ) : TTabNote; // identifies note UNIQUELY
-    function GetNoteByName( const aName : string ) : TTabNote; // will return the first note whose name matches aName. If more notes have the same name, function will only return the first one.
-    function GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TTabNote;  // return the note that contains the tree with the passed node
+    function GetNoteByID( const aID : integer ) : TKntFolder; // identifies note UNIQUELY
+    function GetNoteByName( const aName : string ) : TKntFolder; // will return the first note whose name matches aName. If more notes have the same name, function will only return the first one.
+    function GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TKntFolder;  // return the note that contains the tree with the passed node
 
-    procedure SetupMirrorNodes (Note : TTabNote);
+    procedure SetupMirrorNodes (Note : TKntFolder);
     procedure ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
 
     procedure UpdateTextPlainVariables (nMax: integer);
-    procedure UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TTabNote= nil; ExitIfAllImagesInSameModeDest: boolean = true);
-    function  EnsurePlainTextAndRemoveImages (myNote: TTabNote): boolean;
-    procedure RemoveImagesCountReferences (myNote: TTabNote); overload;
-    procedure RemoveImagesCountReferences (myNode: TNoteNode); overload;
-    procedure UpdateImagesCountReferences (myNote: TTabNote); overload;
-    procedure UpdateImagesCountReferences (myNode: TNoteNode); overload;
+    procedure UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
+    function  EnsurePlainTextAndRemoveImages (myNote: TKntFolder): boolean;
+    procedure RemoveImagesCountReferences (myNote: TKntFolder); overload;
+    procedure RemoveImagesCountReferences (myNode: TKntNote); overload;
+    procedure UpdateImagesCountReferences (myNote: TKntFolder); overload;
+    procedure UpdateImagesCountReferences (myNode: TKntNote); overload;
 
   end;
 
@@ -263,17 +263,17 @@ begin
   inherited Destroy;
 end; // TNoteList DESTROY
 
-function TNoteList.GetNote( index : integer ) : TTabNote;
+function TNoteList.GetNote( index : integer ) : TKntFolder;
 begin
-  result := TTabNote( inherited Items[index] );
+  result := TKntFolder( inherited Items[index] );
 end; // GetNote
 
-procedure TNoteList.PutNote( index : integer; item : TTabNote );
+procedure TNoteList.PutNote( index : integer; item : TKntFolder );
 begin
   inherited Put( index, item );
 end; // PutNote
 
-function TNoteList.Remove( item : TTabNote ) : integer;
+function TNoteList.Remove( item : TKntFolder ) : integer;
 begin
   if assigned( item ) then Item.Free;
   result := inherited remove( item );
@@ -286,7 +286,7 @@ begin
   inherited Delete( index );
 end; // Delete
 
-function TNoteList.IndexOf( item : TTabNote ) : integer;
+function TNoteList.IndexOf( item : TKntFolder ) : integer;
 begin
   result := inherited IndexOf( item );
 end; // IndexOf
@@ -296,7 +296,7 @@ end; // IndexOf
 // NOTE FILE METHODS
 // ************************************************** //
 
-constructor TNoteFile.Create;
+constructor TKntFile.Create;
 var
   i: integer;
 begin
@@ -329,7 +329,7 @@ begin
 end; // CREATE
 
 
-destructor TNoteFile.Destroy;
+destructor TKntFile.Destroy;
 begin
   FFileName:= '<DESTROYING>';       // This way I'll know file is closing
   if assigned( FNotes ) then FNotes.Free;
@@ -338,7 +338,7 @@ begin
 end; // DESTROY
 
 
-function TNoteFile.GetPassphrase( const FN : string ) : boolean;
+function TKntFile.GetPassphrase( const FN : string ) : boolean;
 begin
   result := false;
   if ( not assigned( FPassphraseFunc )) then exit;
@@ -347,7 +347,7 @@ begin
 end; // GetPassphrase
 
 
-function TNoteFile.AddNote( ANote : TTabNote ) : integer;
+function TKntFile.AddNote( ANote : TKntFolder ) : integer;
 begin
   result := -1;
   if ( not assigned( ANote )) then exit;
@@ -358,17 +358,17 @@ begin
 end; // AddNote
 
 
-function TNoteFile.InternalAddNote( ANote : TTabNote ) : integer;
+function TKntFile.InternalAddNote( ANote : TKntFolder ) : integer;
 begin
   result := Notes.Add( ANote );
   ANote.Modified := false;
 end; // InternalAddNote
 
 
-procedure TNoteFile.VerifyNoteIds;
+procedure TKntFile.VerifyNoteIds;
 var
   i, count : longint;
-  myNote : TTabNote;
+  myNote : TKntFolder;
 begin
   count := FNotes.Count;
   for i := 1 to count do begin
@@ -379,10 +379,10 @@ begin
 end; // VerifyNoteIds
 
 
-procedure TNoteFile.GenerateNoteID( const ANote : TTabNote );
+procedure TKntFile.GenerateNoteID( const ANote : TKntFolder );
 var
   i, count, myID, hiID : longint;
-  myNote : TTabNote;
+  myNote : TKntFolder;
 begin
   myID := 0;
   hiID := 0;
@@ -400,7 +400,7 @@ begin
 end; // GenerateNoteID
 
 
-procedure TNoteFile.DeleteNote( ANote : TTabNote );
+procedure TKntFile.DeleteNote( ANote : TKntFolder );
 var
   idx : integer;
 begin
@@ -412,7 +412,7 @@ begin
 end; // DeleteNote
 
 
-function TNoteFile.GetModified : boolean;
+function TKntFile.GetModified : boolean;
 var
   i : integer;
 begin
@@ -431,7 +431,7 @@ begin
 end; // GetModified
 
 
-function TNoteFile.GetCount : integer;
+function TKntFile.GetCount : integer;
 begin
   if assigned( FNotes ) then
     result := FNotes.Count
@@ -440,7 +440,7 @@ begin
 end; // GetCount
 
 
-procedure TNoteFile.SetVersion;
+procedure TKntFile.SetVersion;
 begin
 
   case FFileFormat of
@@ -499,7 +499,7 @@ begin
 end; // SetVersion
 
 
-procedure TNoteFile.SetDescription( ADescription : TCommentStr );
+procedure TKntFile.SetDescription( ADescription : TCommentStr );
 begin
   ADescription := trim( ADescription );
   if ( FDescription = ADescription ) then exit;
@@ -508,7 +508,7 @@ begin
 end; // SetDescription
 
 
-procedure TNoteFile.SetComment( AComment : TCommentStr );
+procedure TKntFile.SetComment( AComment : TCommentStr );
 begin
   AComment := trim( AComment );
   if ( FComment = AComment ) then exit;
@@ -517,14 +517,14 @@ begin
 end; // SetComment
 
 
-procedure TNoteFile.SetFileFormat( AFileFormat : TNoteFileFormat );
+procedure TKntFile.SetFileFormat( AFileFormat : TNoteFileFormat );
 begin
   if ( FFileFormat = AFileFormat ) then exit;
   FFileFormat := AFileFormat;
 end; // SetFileFormat
 
 
-procedure TNoteFile.SetModified( AModified : boolean );
+procedure TKntFile.SetModified( AModified : boolean );
 var
   i : integer;
 begin
@@ -542,13 +542,12 @@ end; // SetModified
 
 
 
-function TNoteFile.Load( FN : string; ImgManager: TImageManager ) : integer;
+function TKntFile.Load( FN : string; ImgManager: TImageManager ) : integer;
 var
-  Note : TTabNote;
+  Note : TKntFolder;
   Attrs : TFileAttributes;
   Stream : TFileStream;
   MemStream : TMemoryStream;
-  NoteKind : TNoteType;
   ds, ds1 : AnsiString;
   ch : AnsiChar;
   p, ClipCapIdx : integer;
@@ -884,12 +883,11 @@ begin
 
                else begin
                    case NextBlock of
-                     nbRTF  : Note := TTabNote.Create;
-                     nbTree : Note := TTreeNote.Create;
+                     nbRTF, nbTree  : Note := TKntFolder.Create;
                    end;
 
                    try
-                     Note.LoadFromFile( tf, FileExhausted, NextBlock );
+                     Note.LoadFromFile( tf, FileExhausted, NextBlock, (NextBlock = nbRTF));
                      InternalAddNote( Note );
                      // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
                    except
@@ -988,7 +986,7 @@ begin
             NoteKind := ntRTF;
 
             while ( Stream.Position < Stream.Size ) do begin
-              Note := TTabNote.Create;
+              Note := TKntFolder.Create;
               try
                 Note.LoadDartNotesFormat( Stream );
                 InternalAddNote( Note );
@@ -1035,7 +1033,7 @@ end; // Load
        - Can be a file selected as a copy (File -> Copy To...)
 
        In both cases, the actual keynote file won't be modified (in the first one, at least here, in this
-       TNoteFile.Save method)
+       TKntFile.Save method)
 
        (FN can't be ''. When the user clicks on Save As.., NoteFileSave, will ask for a new
        filename, that must be passed here, in FN)
@@ -1045,30 +1043,26 @@ end; // Load
       files nodes must be backed (if it applies, based on configuration), it is done.
       The assingment of _VNKeyNoteFileName ensures it (must be done by the caller)
 }
-function TNoteFile.Save(FN: string;
+function TKntFile.Save(FN: string;
                         var SavedNotes: integer; var SavedNodes: integer;
                         ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
                         OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
 var
   i : integer;
   Stream : TFileStream;
-  myNote : TTabNote;
+  myNote : TKntFolder;
   ds : AnsiString;
   tf : TTextFile;
   AuxStream : TMemoryStream;
 
-  procedure WriteNote (myNote: TTabNote);
+  procedure WriteNote (myNote: TKntFolder);
   begin
       try
         if assigned( myNote ) then begin
           if ExportingMode and not (myNote.Info > 0) then     // Notes to be exported are marked with Info=1
              Exit;
 
-          case myNote.Kind of
-            ntRTF : myNote.SaveToFile( tf );
-            ntTree :
-               SavedNodes:= SavedNodes + TTreeNote( myNote ).SaveToFile( tf, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
-          end;
+          SavedNodes:= SavedNodes + TKntFolder( myNote ).SaveToFile( tf, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
           inc (SavedNotes);
         end;
       except
@@ -1108,7 +1102,7 @@ var
     if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then begin
       // this is done so that we preserve the order of tabs.
        for i := 0 to pred( FPageCtrl.PageCount ) do begin
-          myNote := TTabNote( FPageCtrl.Pages[i].PrimaryObject );
+          myNote := TKntFolder( FPageCtrl.Pages[i].PrimaryObject );
           WriteNote(myNote);
        end;
     end
@@ -1274,12 +1268,12 @@ begin
             if ( FPageCtrl.PageCount > 0 ) then
               // this is done so that we preserve the order of tabs.
               for i := 0 to pred( FPageCtrl.PageCount ) do begin
-                myNote := TTabNote( FPageCtrl.Pages[i].PrimaryObject );
+                myNote := TKntFolder( FPageCtrl.Pages[i].PrimaryObject );
                 myNote.SaveDartNotesFormat( Stream );
               end
             else begin
                for i := 0 to pred( FNotes.Count ) do begin
-                 myNote := TTabNote( FNotes[i] );
+                 myNote := TKntFolder( FNotes[i] );
                  if assigned( myNote ) then
                    myNote.SaveDartNotesFormat( Stream );
                end;
@@ -1307,7 +1301,7 @@ begin
 end; // SAVE
 
 
-procedure TNoteFile.EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
+procedure TKntFile.EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
 var
   Hash : TDCP_sha1;
   HashDigest : array[0..31] of byte;
@@ -1393,7 +1387,7 @@ begin
 end; // RaiseStreamReadError
 
 
-procedure TNoteFile.DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
+procedure TKntFile.DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
 var
   Hash: TDCP_sha1;
   HashDigest, HashRead: array[0..31] of byte;
@@ -1480,7 +1474,7 @@ begin
 end; // DecryptFileToStream
 
 
-function TNoteFile.GetNoteByID( const aID : integer ) : TTabNote;
+function TKntFile.GetNoteByID( const aID : integer ) : TKntFolder;
 var
   i, cnt : integer;
 begin
@@ -1494,7 +1488,7 @@ begin
   end;
 end; // GetNoteByID
 
-function TNoteFile.GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TTabNote;
+function TKntFile.GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TKntFolder;
 var
   i, cnt : integer;
   myTV: TTreeNT;
@@ -1503,14 +1497,14 @@ begin
   myTV := TTreeNT(myTreeNode.TreeView);
   cnt := FNotes.Count;
   for i := 1 to cnt do
-     if ( TTreeNote(FNotes[pred( i )]).TV = myTV ) then begin
+     if ( TKntFolder(FNotes[pred( i )]).TV = myTV ) then begin
        result := FNotes[pred( i )];
        break;
      end;
 end; // GetNoteByTreeNode
 
 
-function TNoteFile.GetNoteByName( const aName : string ) : TTabNote;
+function TKntFile.GetNoteByName( const aName : string ) : TKntFolder;
 // aName is NOT case-sensitive
 var
   i, cnt : integer;
@@ -1525,62 +1519,55 @@ begin
 end;
 
 
-function TNoteFile.HasExtendedNotes : boolean;
+function TKntFile.HasExtendedNotes : boolean;           // Dónde se usa?
 var
   i : integer;
 begin
   result := false;
   if ( FNotes.Count > 0 ) then
-    for i := 0 to pred( FNotes.Count ) do
-       if ( FNotes[i].Kind <> ntRTF ) then begin
-         result := true;
-         break;
-       end;
+     Result:= true;
 end;
 
 
-function TNoteFile.HasVirtualNodes : boolean;
+function TKntFile.HasVirtualNodes : boolean;
 var
   i : integer;
 begin
   result := false;
   if ( FNotes.Count > 0 ) then
      for i := 0 to pred( FNotes.Count ) do begin
-        if ( FNotes[i].Kind = ntTree ) then
-           if TTreeNote( FNotes[i] ).Nodes.HasVirtualNodes then begin
-             result := true;
-             break;
-           end;
+        if TKntFolder( FNotes[i] ).Nodes.HasVirtualNodes then begin
+          result := true;
+          break;
+        end;
      end;
 end;
 
 
-function TNoteFile.HasVirtualNodeByFileName( const aNoteNode : TNoteNode; const FN : string ) : boolean;
+function TKntFile.HasVirtualNodeByFileName( const aNoteNode : TKntNote; const FN : string ) : boolean;
 var
   cnt, i, n : integer;
-  myTreeNote : TTreeNote;
+  myTreeNote : TKntFolder;
 begin
   result := false;
   cnt := FNotes.Count;
   if ( cnt <= 0 ) then Exit;
 
   for i := 0 to pred( cnt ) do begin
-     if ( FNotes[i].Kind = ntTree ) then begin
-        myTreeNote := TTreeNote( FNotes[i] );
-        if ( myTreeNote.Nodes.Count > 0 ) then
-            for n := 0 to pred( myTreeNote.Nodes.Count ) do
-               if ( myTreeNote.Nodes[n].VirtualMode <> vmNone ) then
-                 if ( myTreeNote.Nodes[n].VirtualFN = FN ) then
-                    if ( aNoteNode <> myTreeNote.Nodes[n] ) then begin
-                      result := true;
-                      break;
-                    end;
-     end;
+     myTreeNote := TKntFolder( FNotes[i] );
+     if ( myTreeNote.Nodes.Count > 0 ) then
+         for n := 0 to pred( myTreeNote.Nodes.Count ) do
+            if ( myTreeNote.Nodes[n].VirtualMode <> vmNone ) then
+              if ( myTreeNote.Nodes[n].VirtualFN = FN ) then
+                 if ( aNoteNode <> myTreeNote.Nodes[n] ) then begin
+                   result := true;
+                   break;
+                 end;
   end;
 end;
 
 
-function TNoteFile.PropertiesToFlagsString : TFlagsString;
+function TKntFile.PropertiesToFlagsString : TFlagsString;
 begin
   result := DEFAULT_FLAGS_STRING;
   result[1] := BOOLEANSTR[FOpenAsReadOnly];
@@ -1590,7 +1577,7 @@ begin
 end; // PropertiesToFlagsString
 
 
-procedure TNoteFile.FlagsStringToProperties( const FlagsStr : TFlagsString );
+procedure TKntFile.FlagsStringToProperties( const FlagsStr : TFlagsString );
 begin
   if ( length( FlagsStr ) < FLAGS_STRING_LENGTH ) then exit;
   FOpenAsReadOnly     := FlagsStr[1] = BOOLEANSTR[true];
@@ -1600,73 +1587,71 @@ begin
 end;
 
 
-procedure TNoteFile.SetFilename( const Value : string );
+procedure TKntFile.SetFilename( const Value : string );
 begin
   FFilename := Value;
   _VNKeyNoteFileName := Value;
 end;
 
 
-function TNoteFile.GetFile_Name: string;
+function TKntFile.GetFile_Name: string;
 begin
    Result:= ExtractFileName(FileName);
 end;
 
 
-function TNoteFile.GetFile_NameNoExt: string;
+function TKntFile.GetFile_NameNoExt: string;
 begin
    Result:= ExtractFileNameNoExt(FileName);
 end;
 
 
-function TNoteFile.GetFile_Path: string;
+function TKntFile.GetFile_Path: string;
 begin
    Result:= ExtractFilePath(FileName);
 end;
 
 {
-function TNoteFile.GetBookmark(Index: integer): PBookmark;
+function TKntFile.GetBookmark(Index: integer): PBookmark;
 begin
   Result := @FBookmarks[Index];
 end;
 }
 
-function TNoteFile.GetBookmark(Index: integer): TLocation;
+function TKntFile.GetBookmark(Index: integer): TLocation;
 begin
   Result := FBookmarks[Index];
 end;
 
-procedure TNoteFile.WriteBookmark (Index: integer; Value: TLocation);
+procedure TKntFile.WriteBookmark (Index: integer; Value: TLocation);
 begin
    FBookmarks[Index]:= Value;
 end;
 
 
-procedure TNoteFile.SetupMirrorNodes (Note : TTabNote);
+procedure TKntFile.SetupMirrorNodes (Note : TKntFolder);
 var
   Node, Mirror : TTreeNTNode;
   p: integer;
 
   procedure SetupTreeNote;
   begin
-      if Note.Kind = ntTree then begin
-          Node := TTreeNote( Note).TV.Items.GetFirstNode;
-          while assigned( Node ) do begin // go through all nodes
-              if assigned(Node.Data) and (TNoteNode(Node.Data).VirtualMode= vmKNTNode) then begin
-                 TNoteNode(Node.Data).LoadMirrorNode;
-                 Mirror:= TNoteNode(Node.Data).MirrorNode;
-                 if assigned(Mirror) then
-                    AddMirrorNode(Mirror, Node)
-                 else
-                    SelectIconForNode( Node, TTreeNote( Note).IconKind );
-              end;
-              Node := Node.GetNext; // select next node to search
-          end;
+    Node := TKntFolder( Note).TV.Items.GetFirstNode;
+    while assigned( Node ) do begin // go through all nodes
+        if assigned(Node.Data) and (TKntNote(Node.Data).VirtualMode= vmKNTNode) then begin
+           TKntNote(Node.Data).LoadMirrorNode;
+           Mirror:= TKntNote(Node.Data).MirrorNode;
+           if assigned(Mirror) then
+              AddMirrorNode(Mirror, Node)
+           else
+              SelectIconForNode( Node, TKntFolder( Note).IconKind );
+        end;
+        Node := Node.GetNext; // select next node to search
+    end;
 
-          if (Note = kn_global.ActiveNote) and assigned(TTreeNote( Note).TV.Selected)
-               and (TNoteNode(TTreeNote( Note).TV.Selected.Data).VirtualMode = vmKNTNode) then
-             Note.DataStreamToEditor;
-      end;
+    if (Note = kn_global.ActiveNote) and assigned(TKntFolder( Note).TV.Selected)
+         and (TKntNote(TKntFolder( Note).TV.Selected.Data).VirtualMode = vmKNTNode) then
+       Note.DataStreamToEditor;
   end;
 
 begin
@@ -1680,11 +1665,11 @@ begin
 end;
 
 
-procedure TNoteFile.ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
+procedure TKntFile.ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
 var
     nonVirtualTreeNode, newNonVirtualTreeNode: TTreeNTNode;
     i: integer;
-    noteNode: TNoteNode;
+    noteNode: TKntNote;
 
     p: Pointer;
     o: TObject;
@@ -1704,7 +1689,7 @@ var
           3: if not assigned(newNonVirtualTreeNode) then begin
                 newNonVirtualTreeNode:= NodeVirtual;
                 noteNode.MirrorNode:= nil;
-                TNoteNode(node.Data).Stream.SaveToStream(noteNode.Stream);
+                TKntNote(node.Data).Stream.SaveToStream(noteNode.Stream);
               end
               else
                 noteNode.MirrorNode:= newNonVirtualTreeNode;
@@ -1718,7 +1703,7 @@ begin
   // 2: Changed checked state of node
   // 3: Deleting node
   try
-      noteNode:= TNoteNode(node.Data);
+      noteNode:= TKntNote(node.Data);
       if noteNode.VirtualMode = vmKNTNode then begin
           nonVirtualTreeNode:= noteNode.MirrorNode;
           if not assigned(nonVirtualTreeNode) then exit;
@@ -1751,23 +1736,23 @@ begin
                  if assigned(newNonVirtualTreeNode) and assigned(newNonVirtualTreeNode.Data) then begin
                    RemoveMirrorNode(nonVirtualTreeNode, newNonVirtualTreeNode);
                    ReplaceNonVirtualNode(nonVirtualTreeNode, newNonVirtualTreeNode);
-                   SelectIconForNode( newNonVirtualTreeNode, TTreeNote(GetNoteByTreeNode(newNonVirtualTreeNode)).IconKind );
+                   SelectIconForNode( newNonVirtualTreeNode, TKntFolder(GetNoteByTreeNode(newNonVirtualTreeNode)).IconKind );
                  end;
                end;
          end;
       end;
       if (Action = 3) then
-         AlarmManager.RemoveAlarmsOfNode(TNoteNode(nonVirtualTreeNode.Data));
+         AlarmManager.RemoveAlarmsOfNode(TKntNote(nonVirtualTreeNode.Data));
 
   finally
   end;
 
 end;
 
-procedure TNoteFile.UpdateTextPlainVariables (nMax: integer);
+procedure TKntFile.UpdateTextPlainVariables (nMax: integer);
 var
   i: integer;
-  myNote: TTabNote;
+  myNote: TKntFolder;
   AllNotesInitialized: boolean;
   RTFAux: TTabRichEdit;
 begin
@@ -1781,13 +1766,8 @@ begin
 
         for i := 0 to pred( FNotes.Count ) do begin
            myNote := FNotes[i];
-           if (myNote.Kind = ntTree) then begin
-              if not TTreeNote(myNote).InitializeTextPlainVariables(nMax, RTFAux) then
-                  AllNotesInitialized:= false;
-           end
-           else
-              if (myNote.NoteTextPlain = '') then
-                 myNote.EditorToDataStream;
+           if not TKntFolder(myNote).InitializeTextPlainVariables(nMax, RTFAux) then
+               AllNotesInitialized:= false;
         end;
 
         if AllNotesInitialized then
@@ -1803,11 +1783,11 @@ begin
 end;
 
 
-procedure TNoteFile.UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TTabNote= nil; ExitIfAllImagesInSameModeDest: boolean = true);
+procedure TKntFile.UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
 var
   i, j: integer;
-  myNote: TTabNote;
-  myNodes: TNodeList;
+  myNote: TKntFolder;
+  myNodes: TKntNoteList;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
 
@@ -1838,28 +1818,17 @@ begin
 
       myNote.EditorToDataStream;
 
-      if (myNote.Kind = ntTree) then begin
-         myNodes:= TTreeNote(myNote).Nodes;
-         for j := 0 to myNodes.Count - 1 do  begin
-            if (myNodes[j].VirtualMode = vmNone) then begin
-               Stream:= myNodes[j].Stream;
-               UpdateImagesStorageMode (Stream);
-               if Length(ImagesIDs) > 0 then
-                  myNodes[j].NodeTextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
+      myNodes:= TKntFolder(myNote).Nodes;
+      for j := 0 to myNodes.Count - 1 do  begin
+         if (myNodes[j].VirtualMode = vmNone) then begin
+            Stream:= myNodes[j].Stream;
+            UpdateImagesStorageMode (Stream);
+            if Length(ImagesIDs) > 0 then
+               myNodes[j].NodeTextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
 
-               if myNodes[j] = TTreeNote(myNote).SelectedNode then
-                  myNote.DataStreamToEditor;
-            end;
+            if myNodes[j] = TKntFolder(myNote).SelectedNode then
+               myNote.DataStreamToEditor;
          end;
-
-      end
-      else begin
-         Stream:= myNote.DataStream;
-         UpdateImagesStorageMode (Stream);
-         if Length(ImagesIDs) > 0 then
-            myNote.NoteTextPlain:= '';
-
-         myNote.DataStreamToEditor;
       end;
 
    end;
@@ -1869,10 +1838,10 @@ end;
 
 
 
-function TNoteFile.EnsurePlainTextAndRemoveImages (myNote: TTabNote): boolean;
+function TKntFile.EnsurePlainTextAndRemoveImages (myNote: TKntFolder): boolean;
 var
   i: integer;
-  myNodes: TNodeList;
+  myNodes: TKntNoteList;
   Stream: TMemoryStream;
   RTFAux : TRxRichEdit;
 
@@ -1900,21 +1869,13 @@ begin
    try
       RTFAux:= CreateRTFAuxEditorControl;
       try
-         if (myNote.Kind = ntTree) then begin
-            myNodes:= TTreeNote(myNote).Nodes;
-            for i := 0 to myNodes.Count - 1 do  begin
-               if (myNodes[i].VirtualMode = vmNone) then begin
-                  Stream:= myNodes[i].Stream;
-                  EnsurePlainTextAndCheckRemoveImages (myNodes[i] = TTreeNote(myNote).SelectedNode);
-               end;
+         myNodes:= TKntFolder(myNote).Nodes;
+         for i := 0 to myNodes.Count - 1 do  begin
+            if (myNodes[i].VirtualMode = vmNone) then begin
+               Stream:= myNodes[i].Stream;
+               EnsurePlainTextAndCheckRemoveImages (myNodes[i] = TKntFolder(myNote).SelectedNode);
             end;
-
-         end
-         else begin
-            Stream:= myNote.DataStream;
-            EnsurePlainTextAndCheckRemoveImages (true);
          end;
-
          myNote.ResetImagesReferenceCount;
 
       finally
@@ -1931,38 +1892,28 @@ begin
 end;
 
 
-procedure TNoteFile.RemoveImagesCountReferences (myNote: TTabNote);
+procedure TKntFile.RemoveImagesCountReferences (myNote: TKntFolder);
 var
   i: integer;
-  myNodes: TNodeList;
+  myNodes: TKntNoteList;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
 
 begin
-   if (myNote.Kind = ntTree) then begin
-      myNodes:= TTreeNote(myNote).Nodes;
-      for i := 0 to myNodes.Count - 1 do  begin
-         if (myNodes[i].VirtualMode = vmNone) then begin
-            Stream:= myNodes[i].Stream;
-            ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
-            if Length(ImagesIDs) > 0 then
-               ImagesManager.RemoveImagesReferences (ImagesIDs);
-         end;
+   myNodes:= TKntFolder(myNote).Nodes;
+   for i := 0 to myNodes.Count - 1 do  begin
+      if (myNodes[i].VirtualMode = vmNone) then begin
+         Stream:= myNodes[i].Stream;
+         ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+         if Length(ImagesIDs) > 0 then
+            ImagesManager.RemoveImagesReferences (ImagesIDs);
       end;
-
-   end
-   else begin
-      Stream:= myNote.DataStream;
-      ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
-      if Length(ImagesIDs) > 0 then
-        ImagesManager.RemoveImagesReferences (ImagesIDs);
    end;
-
    myNote.ResetImagesReferenceCount;
 end;
 
 
-procedure TNoteFile.RemoveImagesCountReferences (myNode: TNoteNode);
+procedure TKntFile.RemoveImagesCountReferences (myNode: TKntNote);
 var
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
@@ -1976,7 +1927,7 @@ begin
    end;
 end;
 
-procedure TNoteFile.UpdateImagesCountReferences (myNode: TNoteNode);
+procedure TKntFile.UpdateImagesCountReferences (myNode: TKntNote);
 var
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
@@ -1990,31 +1941,22 @@ end;
 
 
 // To be used from MergeFromKNTFile
-procedure TNoteFile.UpdateImagesCountReferences (myNote: TTabNote);
+procedure TKntFile.UpdateImagesCountReferences (myNote: TKntFolder);
 var
   i: integer;
-  myNodes: TNodeList;
+  myNodes: TKntNoteList;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
 
 begin
-   if (myNote.Kind = ntTree) then begin
-      myNodes:= TTreeNote(myNote).Nodes;
-      for i := 0 to myNodes.Count - 1 do  begin
-         if (myNodes[i].VirtualMode = vmNone) then begin
-            Stream:= myNodes[i].Stream;
-            ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
-            ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
-         end;
+   myNodes:= TKntFolder(myNote).Nodes;
+   for i := 0 to myNodes.Count - 1 do  begin
+      if (myNodes[i].VirtualMode = vmNone) then begin
+         Stream:= myNodes[i].Stream;
+         ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
+         ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
       end;
-
-   end
-   else begin
-      Stream:= myNote.DataStream;
-      ImagesIDs:= ImagesManager.GetImagesIDInstancesFromRTF (Stream);
-      ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
    end;
-
    myNote.ImagesReferenceCount:= ImagesIDs;
 end;
 

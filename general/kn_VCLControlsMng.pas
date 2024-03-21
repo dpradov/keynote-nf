@@ -45,12 +45,12 @@ uses
 
 
     // dynamically create and destroy controls (note tabs, RichEdits, trees, etc)
-    procedure SetUpVCLControls( aNote : TTabNote ); // sets up VCL controls for note (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
+    procedure SetUpVCLControls( aNote : TKntFolder ); // sets up VCL controls for note (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
     procedure CreateVCLControls; // creates VCL controls for ALL notes in NoteFile object
     procedure SetupAndShowVCLControls;
-    procedure CreateVCLControlsForNote( const aNote : TTabNote ); // creates VCL controls for specified note
+    procedure CreateVCLControlsForNote( const aNote : TKntFolder ); // creates VCL controls for specified note
     procedure DestroyVCLControls; // destroys VCL controls for ALL notes in NoteFile object
-    procedure DestroyVCLControlsForNote( const aNote : TTabNote; const KillTabSheet : boolean ); // destroys VCL contols for specified note
+    procedure DestroyVCLControlsForNote( const aNote : TKntFolder; const KillTabSheet : boolean ); // destroys VCL contols for specified note
     procedure GetOrSetNodeExpandState( const aTV : TTreeNT; const AsSet, TopLevelOnly : boolean );
 
     // VCL updates when config loaded or changed
@@ -137,7 +137,7 @@ resourcestring
 //=================================================================
 // SetUpVCLControls
 //=================================================================
-procedure SetUpVCLControls( aNote : TTabNote );
+procedure SetUpVCLControls( aNote : TKntFolder );
 begin
   with Form_Main do begin
       FindAllResults.OnSelectionChange:= RxFindAllResultsSelectionChange;
@@ -188,37 +188,34 @@ begin
       if ( _LoadedRichEditVersion > 2 ) then
         SendMessage( aNote.Editor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
 
-      if ( aNote.Kind = ntTree ) then
+      with TKntFolder( aNote ).TV do
       begin
-        with TTreeNote( aNote ).TV do
-        begin
-          PopupMenu := Menu_TV;
-          OnKeyDown := TVKeyDown;
-          OnKeyPress := TVKeyPress;
-          OnChange := TVChange;
-          // OnChanging := TVChanging; // unused
-          OnChecked := TVChecked;
-          OnFileDropped := Form_Main.OnFileDropped;
-          OnEditing := TVEditing;
-          OnEdited := TVEdited;
-          OnEditCanceled := TVEditCanceled;
-          // OnDeletion := TVDeletion;
-          // OnExit := TVExit;
-          OnDeletion := nil;
-          OnClick := TVClick;
-          OnDblClick := TVDblClick;
-          //OnMouseDown := TVMouseDown;
-          OnDragDrop := TVDragDrop;
-          OnDragOver := TVDragOver;
-          OnEndDrag := TVEndDrag;
-          OnStartDrag := TVStartDrag;
-          ShowHint := false;
-          OnHint := TVOnHint;
-          OnEnter:= TVEnter;
-          OnSavingTree:= TVSavingTree;
-          OnMouseMove:= TVMouseMove;
-          HelpContext:= 284;  // Tree-type Notes [284]
-        end;
+        PopupMenu := Menu_TV;
+        OnKeyDown := TVKeyDown;
+        OnKeyPress := TVKeyPress;
+        OnChange := TVChange;
+        // OnChanging := TVChanging; // unused
+        OnChecked := TVChecked;
+        OnFileDropped := Form_Main.OnFileDropped;
+        OnEditing := TVEditing;
+        OnEdited := TVEdited;
+        OnEditCanceled := TVEditCanceled;
+        // OnDeletion := TVDeletion;
+        // OnExit := TVExit;
+        OnDeletion := nil;
+        OnClick := TVClick;
+        OnDblClick := TVDblClick;
+        //OnMouseDown := TVMouseDown;
+        OnDragDrop := TVDragDrop;
+        OnDragOver := TVDragOver;
+        OnEndDrag := TVEndDrag;
+        OnStartDrag := TVStartDrag;
+        ShowHint := false;
+        OnHint := TVOnHint;
+        OnEnter:= TVEnter;
+        OnSavingTree:= TVSavingTree;
+        OnMouseMove:= TVMouseMove;
+        HelpContext:= 284;  // Tree-type Notes [284]
       end;
 
       SetEditorZoom( aNote.Editor, DefaultEditorProperties.DefaultZoom, '' );
@@ -234,7 +231,7 @@ procedure CreateVCLControls;
 // creates all VCL controls for a newly loaded Notes file
 var
   i : integer;
-  myNote : TTabNote;
+  myNote : TKntFolder;
 begin
   with Form_Main do begin
       if (( not assigned( NoteFile )) or ( NoteFile.Notes.Count = 0 )) then exit;
@@ -255,7 +252,7 @@ procedure SetupAndShowVCLControls;
 // Finalize setup and visualization of all VCL controls for a newly loaded Notes file
 var
   i : integer;
-  myNote : TTabNote;
+  myNote : TKntFolder;
 begin
   with Form_Main do begin
         if (( not assigned( NoteFile )) or ( NoteFile.Notes.Count = 0 )) then exit;
@@ -294,7 +291,7 @@ end; // SetupAndShowVCLControls
 procedure GetOrSetNodeExpandState( const aTV : TTreeNT; const AsSet, TopLevelOnly : boolean );
 var
   myTreeNode : TTreeNTNode;
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
 begin
   with Form_Main do begin
         // set or get node "expanded" state
@@ -303,7 +300,7 @@ begin
         myTreeNode := aTV.Items.GetFirstNode;
         while assigned( myTreeNode ) do
         begin
-          myNoteNode := TNoteNode( myTreeNode.Data );
+          myNoteNode := TKntNote( myTreeNode.Data );
           if assigned( myNoteNode ) then
           begin
             case AsSet of
@@ -332,19 +329,19 @@ end; // GetOrSetNodeExpandState
 //=================================================================
 // CreateVCLControlsForNote
 //=================================================================
-procedure CreateVCLControlsForNote( const aNote : TTabNote );
+procedure CreateVCLControlsForNote( const aNote : TKntFolder );
 var
   myTab : TTab95Sheet;
   myEditor : TTabRichEdit;
   // NoteID : string[3];
   myTree : TTreeNT;
   mySplitter : TSplitter;
-  tNote : TTreeNote;
+  tNote : TKntFolder;
   i, loop : integer;
   tNode, myTreeNode, LastTreeNodeAssigned : TTreeNTNode;
   LastNodeLevel: integer;
   j, numChilds, AuxLevel, ChildLevel : integer;
-  myNode: TNoteNode;
+  myNode: TKntNote;
   {$IFDEF WITH_IE}
   myPanel : TPanel;
   myBrowser : TWebBrowser;
@@ -364,11 +361,7 @@ begin
         try
           if ( aNote.FocusMemory = focNil ) then
           begin
-            case aNote.Kind of
-              ntTree : aNote.FocusMemory := focTree;
-              else
-                aNote.FocusMemory := focRTF;
-            end;
+            aNote.FocusMemory := focTree;
           end;
 
           if ( aNote.TabSheet = nil ) then
@@ -396,279 +389,276 @@ begin
             myTab := aNote.TabSheet;
           end;
 
-          if ( aNote.Kind = ntTree ) then
+          tNote := TKntFolder( aNote );
+          // [f] tNote.FocusMemory := focTree;
+
+          myTree := TTreeNT.Create( myTab );
+          with myTree do
           begin
-            tNote := TTreeNote( aNote );
-            // [f] tNote.FocusMemory := focTree;
 
-            myTree := TTreeNT.Create( myTab );
-            with myTree do
+            Parent := myTab;
+            if tNote.VerticalLayout then
+              Align := alTop
+            else
+              Align := alLeft;
+
+            HelpContext := 120;
+
+            // static options that do not change:
+            SortType := TreeNT.TSortType(stNone); // MUST be stNone; sort by manually calling AlphaSort
+            Options := [
+                        //toMultiSelect,                // [dpv]  <<<<<<<<<< PROVISIONAL
+                        toRightClickSelect,
+                        toInfoTip,
+                        // toFullRowSelect,
+                        // toHideSelection,
+                        // toReadOnly,
+                        toToolTips,
+                        // toHotTrack, OPTION!
+                        toShowButtons,
+                        toShowLines,
+                        toShowRoot,
+                        toEvenHeight,
+                        toCheckSupport];
+
+            if TreeOptions.FullRowSelect then
+              Options := Options + [toFullRowSelect];
+
+            if tNote.VerticalLayout then
             begin
-
-              Parent := myTab;
-              if tNote.VerticalLayout then
-                Align := alTop
+              if (( tNote.TreeWidth < 30 ) or
+                  ( tNote.TreeWidth > ( Pages.Height - 30 ))) then
+                Height := ( Pages.Height DIV 3 )
               else
-                Align := alLeft;
-
-              HelpContext := 120;
-
-              // static options that do not change:
-              SortType := TreeNT.TSortType(stNone); // MUST be stNone; sort by manually calling AlphaSort
-              Options := [
-                          //toMultiSelect,                // [dpv]  <<<<<<<<<< PROVISIONAL
-                          toRightClickSelect,
-                          toInfoTip,
-                          // toFullRowSelect,
-                          // toHideSelection,
-                          // toReadOnly,
-                          toToolTips,
-                          // toHotTrack, OPTION!
-                          toShowButtons,
-                          toShowLines,
-                          toShowRoot,
-                          toEvenHeight,
-                          toCheckSupport];
-
-              if TreeOptions.FullRowSelect then
-                Options := Options + [toFullRowSelect];
-
-              if tNote.VerticalLayout then
-              begin
-                if (( tNote.TreeWidth < 30 ) or
-                    ( tNote.TreeWidth > ( Pages.Height - 30 ))) then
-                  Height := ( Pages.Height DIV 3 )
-                else
-                  Height := tNote.TreeWidth;
-                tNote.TreeWidth := Height; // store corrected value
-              end
-              else
-              begin
-                if (( tNote.TreeWidth < 30 ) or
-                    ( tNote.TreeWidth > ( Pages.Width - 30 ))) then
-                  Width := ( Pages.Width DIV 3 )
-                else
-                  Width := tNote.TreeWidth;
-                tNote.TreeWidth := Width; // store corrected value
-              end;
-            end;
-
-            mySplitter := TSplitter.Create( myTab );
-            with mySplitter do
+                Height := tNote.TreeWidth;
+              tNote.TreeWidth := Height; // store corrected value
+            end
+            else
             begin
-              Parent := myTab;
-              Align := alNone;
-              mySplitter.OnMoved:= Form_Main.SplitterNoteMoved;
-              if tNote.VerticalLayout then
-              begin
-                Top := myTree.Height + 5;
-                Align := alTop;
-                Cursor := crVSplit;
-                Height := 3;
-              end
+              if (( tNote.TreeWidth < 30 ) or
+                  ( tNote.TreeWidth > ( Pages.Width - 30 ))) then
+                Width := ( Pages.Width DIV 3 )
               else
-              begin
-                Left := myTree.Width + 5;
-                Align := alLeft;
-                Cursor := crHSplit;
-                Width := 4;
-              end;
-              Hint := STR_00;
+                Width := tNote.TreeWidth;
+              tNote.TreeWidth := Width; // store corrected value
             end;
+          end;
 
-            tNote.Splitter := mySplitter;
+          mySplitter := TSplitter.Create( myTab );
+          with mySplitter do
+          begin
+            Parent := myTab;
+            Align := alNone;
+            mySplitter.OnMoved:= Form_Main.SplitterNoteMoved;
+            if tNote.VerticalLayout then
+            begin
+              Top := myTree.Height + 5;
+              Align := alTop;
+              Cursor := crVSplit;
+              Height := 3;
+            end
+            else
+            begin
+              Left := myTree.Width + 5;
+              Align := alLeft;
+              Cursor := crHSplit;
+              Width := 4;
+            end;
+            Hint := STR_00;
+          end;
 
-            tNote.TV := myTree;
-            UpdateTreeOptions( tNote );
+          tNote.Splitter := mySplitter;
 
-            tNote.UpdateTree; // do this BEFORE creating nodes
+          tNote.TV := myTree;
+          UpdateTreeOptions( tNote );
 
-            // Create TreeNodes for all nodes in the note
-            LastTreeNodeAssigned := nil;
-            LastNodeLevel := 0;
+          tNote.UpdateTree; // do this BEFORE creating nodes
 
-            if ( tNote.Nodes.Count > 0 ) then begin
-              TVFontStyleWithBold:= tNote.TV.Font.Style + [fsBold];
+          // Create TreeNodes for all nodes in the note
+          LastTreeNodeAssigned := nil;
+          LastNodeLevel := 0;
 
-              myTree.Items.BeginUpdate;
-              try
-                 for i := 0 to tNote.Nodes.Count-1 do begin
-                    myNode := tNote.Nodes[i];
+          if ( tNote.Nodes.Count > 0 ) then begin
+            TVFontStyleWithBold:= tNote.TV.Font.Style + [fsBold];
 
-                    numChilds:= 0;
-                    ChildLevel:= myNode.Level+1;
-                    for j := i+1 to tNote.Nodes.Count-1 do begin
-                       AuxLevel:= tNote.Nodes[j].Level;
-                       if AuxLevel = ChildLevel then
-                          inc(numChilds);
-                       if AuxLevel < ChildLevel then
-                          break;
-                    end;
+            myTree.Items.BeginUpdate;
+            try
+               for i := 0 to tNote.Nodes.Count-1 do begin
+                  myNode := tNote.Nodes[i];
 
-                    case myNode.Level of
-                      0 : begin
-                        myTreeNode := myTree.Items.Add( nil, myNode.Name, numChilds );
-                        LastNodeLevel := 0;
-                      end
-                      else begin
-                        case DoTrinaryCompare( myNode.Level, LastNodeLevel ) of
-                          trinGreater:
-                            myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned, myNode.Name );
-                          trinEqual:
-                            myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned.Parent, myNode.Name );
-                          trinSmaller: begin  // myNode.Level is SMALLER than LastNodeLevel, i.e. we're moving LEFT in the tree
-                             for loop := 1 to ( LastNodeLevel - myNode.Level ) do begin
-                                if assigned( LastTreeNodeAssigned ) then begin
-                                  if ( LastTreeNodeAssigned.Level <= myNode.Level ) then
-                                      break;
-                                  LastTreeNodeAssigned := LastTreeNodeAssigned.Parent;
-                                end
-                                else
-                                  break;
-                             end;
-                             myTreeNode := myTree.Items.Add( LastTreeNodeAssigned, myNode.Name, numChilds );
-                          end;
+                  numChilds:= 0;
+                  ChildLevel:= myNode.Level+1;
+                  for j := i+1 to tNote.Nodes.Count-1 do begin
+                     AuxLevel:= tNote.Nodes[j].Level;
+                     if AuxLevel = ChildLevel then
+                        inc(numChilds);
+                     if AuxLevel < ChildLevel then
+                        break;
+                  end;
+
+                  case myNode.Level of
+                    0 : begin
+                      myTreeNode := myTree.Items.Add( nil, myNode.Name, numChilds );
+                      LastNodeLevel := 0;
+                    end
+                    else begin
+                      case DoTrinaryCompare( myNode.Level, LastNodeLevel ) of
+                        trinGreater:
+                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned, myNode.Name );
+                        trinEqual:
+                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned.Parent, myNode.Name );
+                        trinSmaller: begin  // myNode.Level is SMALLER than LastNodeLevel, i.e. we're moving LEFT in the tree
+                           for loop := 1 to ( LastNodeLevel - myNode.Level ) do begin
+                              if assigned( LastTreeNodeAssigned ) then begin
+                                if ( LastTreeNodeAssigned.Level <= myNode.Level ) then
+                                    break;
+                                LastTreeNodeAssigned := LastTreeNodeAssigned.Parent;
+                              end
+                              else
+                                break;
+                           end;
+                           myTreeNode := myTree.Items.Add( LastTreeNodeAssigned, myNode.Name, numChilds );
                         end;
                       end;
                     end;
-
-                    LastTreeNodeAssigned := myTreeNode;
-                    LastNodeLevel := myNode.Level;
-
-                    myTreeNode.Data := myNode;
-
-                    if myNode.HasNodeFontFace then
-                      myTreeNode.Font.Name := myNode.NodeFontFace;
-
-                    if myNode.Bold then
-                      myTreeNode.Font.Style := TVFontStyleWithBold;
-
-                    if myNode.HasNodeColor then
-                      myTreeNode.Font.Color := myNode.NodeColor;
-
-                    if myNode.HasNodeBGColor then
-                      myTreeNode.Color := myNode.NodeBGColor;
-
-                    if myNode.Filtered  then      // [dpv]
-                       tNote.Filtered := True;
-
-                 end;
-
-              finally
-                Log_StoreTick( 'After created TreeNodes', 3 );
-
-                ShowOrHideIcons( tNote, true );
-                ShowOrHideCheckBoxes( tNote );
-
-                Log_StoreTick( 'After ShowOrHIdeIcons,CheckBoxes', 3 );
-
-                if tNote.Filtered then             // [dpv]
-                   HideFilteredNodes (tnote);
-                if tNote.HideCheckedNodes then     // [dpv]
-                   HideChildNodesUponCheckState (tnote, nil, csChecked);
-
-                myTree.Items.EndUpdate;
-
-                Log_StoreTick( 'After HideFilteredNodes, HideCheckNodes', 3 );
-              end;
-
-              // restore selected node: this block must be
-              // OUTSIDE the beginupdate..endupdate range
-
-              //if ( myTree.Items.Count > 0 ) then       // [dpv]
-              if ( myTree.Items.CountNotHidden > 0 ) then
-              begin
-                if (( TreeOptions.ExpandMode <> txmFullCollapse ) and // SaveActiveNode and
-                   ( tNote.OldSelectedIndex >= 0 ) and
-                   ( tNote.OldSelectedIndex < myTree.Items.Count )) then
-                begin
-                  // restore the node which was selected when file was saved
-                  tNode:= myTree.Items[tNote.OldSelectedIndex];
-                  if tNode.Hidden  then begin  // [dpv]
-                     tNode := myTree.Items.GetFirstNode;
-                     if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
                   end;
-                end
-                else
-                begin
-                  tNode := myTree.Items.GetFirstNode;
-                  if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
+
+                  LastTreeNodeAssigned := myTreeNode;
+                  LastNodeLevel := myNode.Level;
+
+                  myTreeNode.Data := myNode;
+
+                  if myNode.HasNodeFontFace then
+                    myTreeNode.Font.Name := myNode.NodeFontFace;
+
+                  if myNode.Bold then
+                    myTreeNode.Font.Style := TVFontStyleWithBold;
+
+                  if myNode.HasNodeColor then
+                    myTreeNode.Font.Color := myNode.NodeColor;
+
+                  if myNode.HasNodeBGColor then
+                    myTreeNode.Color := myNode.NodeBGColor;
+
+                  if myNode.Filtered  then      // [dpv]
+                     tNote.Filtered := True;
+
+               end;
+
+            finally
+              Log_StoreTick( 'After created TreeNodes', 3 );
+
+              ShowOrHideIcons( tNote, true );
+              ShowOrHideCheckBoxes( tNote );
+
+              Log_StoreTick( 'After ShowOrHIdeIcons,CheckBoxes', 3 );
+
+              if tNote.Filtered then             // [dpv]
+                 HideFilteredNodes (tnote);
+              if tNote.HideCheckedNodes then     // [dpv]
+                 HideChildNodesUponCheckState (tnote, nil, csChecked);
+
+              myTree.Items.EndUpdate;
+
+              Log_StoreTick( 'After HideFilteredNodes, HideCheckNodes', 3 );
+            end;
+
+            // restore selected node: this block must be
+            // OUTSIDE the beginupdate..endupdate range
+
+            //if ( myTree.Items.Count > 0 ) then       // [dpv]
+            if ( myTree.Items.CountNotHidden > 0 ) then
+            begin
+              if (( TreeOptions.ExpandMode <> txmFullCollapse ) and // SaveActiveNode and
+                 ( tNote.OldSelectedIndex >= 0 ) and
+                 ( tNote.OldSelectedIndex < myTree.Items.Count )) then
+              begin
+                // restore the node which was selected when file was saved
+                tNode:= myTree.Items[tNote.OldSelectedIndex];
+                if tNode.Hidden  then begin  // [dpv]
+                   tNode := myTree.Items.GetFirstNode;
+                   if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
                 end;
-                myTree.Selected:= tNode;
-                tNote.SelectedNode := TNoteNode( myTree.Selected.Data );
               end
               else
               begin
-                tNote.SelectedNode := nil;
+                tNode := myTree.Items.GetFirstNode;
+                if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
               end;
-
-              Log_StoreTick( 'After Restored selected node', 3 );
-
-
-              case TreeOptions.ExpandMode of
-                txmFullCollapse : begin
-                  // nothing
-                end;
-                txmActiveNode : begin
-                  if assigned( myTree.Selected ) then
-                    myTree.Selected.Expand( false );
-                end;
-                txmTopLevelOnly, txmExact : begin
-                  try
-                    GetOrSetNodeExpandState( myTree, true, ( TreeOptions.ExpandMode = txmTopLevelOnly ));
-                  except
-                    // nothing
-                  end;
-                end;
-                txmFullExpand : begin
-                  myTree.FullExpand;
-                end;
-              end;
-
-
-              UpdateTreeVisible( tNote ); // [f]
-
-              if assigned( myTree.Selected ) then
-                myTree.Selected.MakeVisible;
-
-              Log_StoreTick( 'After UpdateTreeVisible', 3 );
+              myTree.Selected:= tNode;
+              tNote.SelectedNode := TKntNote( myTree.Selected.Data );
+            end
+            else
+            begin
+              tNote.SelectedNode := nil;
             end;
 
-           {$IFDEF WITH_IE}
-             myPanel := TPanel.Create( myTab );
-             with myPanel do
-             begin
-              parent := myTab;
-              Align := alClient;
-              Caption := '';
-              ParentFont := false;
-              BevelInner := bvNone;
-              BevelOuter := bvNone;
-              BorderWidth := 1; // [?]
-              Visible := true;
-             end;
+            Log_StoreTick( 'After Restored selected node', 3 );
 
-             tNote.MainPanel := myPanel;
 
-             if _IE4Available then
-             begin
-             myBrowser := TWebBrowser.Create( myPanel );
-             TControl( myBrowser ).Parent := myPanel;
-             with myBrowser do
-             begin
-              Align := alClient;
-              Visible := false;
-             end;
-             tNote.WebBrowser := myBrowser;
-             end
-             else
-             begin
-              tNote.WebBrowser := nil;
-             end;
+            case TreeOptions.ExpandMode of
+              txmFullCollapse : begin
+                // nothing
+              end;
+              txmActiveNode : begin
+                if assigned( myTree.Selected ) then
+                  myTree.Selected.Expand( false );
+              end;
+              txmTopLevelOnly, txmExact : begin
+                try
+                  GetOrSetNodeExpandState( myTree, true, ( TreeOptions.ExpandMode = txmTopLevelOnly ));
+                except
+                  // nothing
+                end;
+              end;
+              txmFullExpand : begin
+                myTree.FullExpand;
+              end;
+            end;
 
-           {$ENDIF}
 
-          end; // tree-type note
+            UpdateTreeVisible( tNote ); // [f]
+
+            if assigned( myTree.Selected ) then
+              myTree.Selected.MakeVisible;
+
+            Log_StoreTick( 'After UpdateTreeVisible', 3 );
+          end;
+
+         {$IFDEF WITH_IE}
+           myPanel := TPanel.Create( myTab );
+           with myPanel do
+           begin
+            parent := myTab;
+            Align := alClient;
+            Caption := '';
+            ParentFont := false;
+            BevelInner := bvNone;
+            BevelOuter := bvNone;
+            BorderWidth := 1; // [?]
+            Visible := true;
+           end;
+
+           tNote.MainPanel := myPanel;
+
+           if _IE4Available then
+           begin
+           myBrowser := TWebBrowser.Create( myPanel );
+           TControl( myBrowser ).Parent := myPanel;
+           with myBrowser do
+           begin
+            Align := alClient;
+            Visible := false;
+           end;
+           tNote.WebBrowser := myBrowser;
+           end
+           else
+           begin
+            tNote.WebBrowser := nil;
+           end;
+
+         {$ENDIF}
+
 
           myEditor := TTabRichEdit.Create( myTab );
           with myEditor do
@@ -731,11 +721,11 @@ begin
 end; // CreateVCLControlsForNote
 
 
-procedure DeleteNodes(Note: TTreeNote);
+procedure DeleteNodes(Note: TKntFolder);
 var
   Node : TTreeNTNode;
 begin
-    Node := TTreeNote( Note).TV.Items.GetFirstNode;
+    Node := TKntFolder( Note).TV.Items.GetFirstNode;
     while assigned( Node ) do begin // go through all nodes
         NoteFile.ManageMirrorNodes(3, Node, nil);
         Node := Node.GetNext; // select next node to search
@@ -745,7 +735,7 @@ end;
 //=================================================================
 // DestroyVCLControlsForNote
 //=================================================================
-procedure DestroyVCLControlsForNote( const aNote : TTabNote; const KillTabSheet : boolean );
+procedure DestroyVCLControlsForNote( const aNote : TKntFolder; const KillTabSheet : boolean );
 begin
   with Form_Main do begin
         if not assigned( aNote ) then exit;
@@ -768,35 +758,32 @@ begin
             aNote.Editor := nil;
           end;
 
-          if ( aNote.Kind = ntTree ) then
+          if assigned( TKntFolder( aNote ).Splitter ) then
           begin
-            if assigned( TTreeNote( aNote ).Splitter ) then
+            TKntFolder( aNote ).Splitter.Free;
+            TKntFolder( aNote ).Splitter := nil;
+          end;
+          if assigned( TKntFolder( aNote ).TV ) then
+          begin
+            with TKntFolder( aNote ).TV do
             begin
-              TTreeNote( aNote ).Splitter.Free;
-              TTreeNote( aNote ).Splitter := nil;
+              PopupMenu := nil;
+              OnChange := nil;
+              OnChanging := nil;
+              OnDeletion := nil;
+              OnEditing := nil;
+              OnEdited := nil;
+              OnEnter := nil;
+              OnExit := nil;
+              OnKeyDown := nil;
+              OnEditCanceled := nil;
+              OnEdited := nil;
+              OnEditing := nil;
             end;
-            if assigned( TTreeNote( aNote ).TV ) then
-            begin
-              with TTreeNote( aNote ).TV do
-              begin
-                PopupMenu := nil;
-                OnChange := nil;
-                OnChanging := nil;
-                OnDeletion := nil;
-                OnEditing := nil;
-                OnEdited := nil;
-                OnEnter := nil;
-                OnExit := nil;
-                OnKeyDown := nil;
-                OnEditCanceled := nil;
-                OnEdited := nil;
-                OnEditing := nil;
-              end;
-              DeleteNodes(TTreeNote( aNote ));
+            DeleteNodes(TKntFolder( aNote ));
 
-              TTreeNote( aNote ).TV.Free;
-              TTreeNote( aNote ).TV := nil;
-            end;
+            TKntFolder( aNote ).TV.Free;
+            TKntFolder( aNote ).TV := nil;
           end;
 
           if ( KillTabSheet and assigned( aNote.TabSheet )) then
@@ -837,8 +824,8 @@ begin
                   aNote.Editor := nil;
                   if ( aNote.Kind = ntTree ) then
                   begin
-                    TTreeNote( aNote ).TV := nil;
-                    TTreeNote( aNote ).Splitter := nil;
+                    TKntFolder( aNote ).TV := nil;
+                    TKntFolder( aNote ).Splitter := nil;
                   end;
                 except
                   on E : Exception do
@@ -1100,7 +1087,7 @@ end; // UpdateTabState
 procedure UpdateNoteDisplay;
 var
   s : string;
-  myTNote : TTreeNote;
+  myTNote : TKntFolder;
   Node: TTreeNTNode;
 
 begin
@@ -1143,66 +1130,42 @@ begin
             ShowInsMode;
 
 
-            if ( ActiveNote.Kind = ntTree ) then
-            begin
-              myTNote := TTreeNote( ActiveNote );
-              MMTree_.Visible := true;
-              {MMViewTree.Visible := true;}
-              MMViewTree.Enabled := true;
-              MMViewTree.Checked := myTNote.TV.Visible;
-              {MMViewNodeIcons.Visible := true;
-              MMViewCustomIcons.Visible := true;
-              MMViewCheckboxes.Visible := true;}
-              MMViewNodeIcons.Checked := myTNote.IconKind = niStandard;
-              MMViewCustomIcons.Checked := myTNote.IconKind = niCustom;
-              MMEditPasteAsNewNode.Visible := true;
-              MMP_PasteAsNode.Visible := true;
-              MMViewCheckboxesAllNodes.Checked := TTreeNote( ActiveNote ).Checkboxes;
-              //TVCheckNode.Enabled := MMViewCheckboxesAllNodes.Checked;              // [dpv]
-              node:= myTNote.TV.Selected;
-              if myTNote.Checkboxes or (assigned(node) and assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
-                 TVCheckNode.Enabled := true
-              else
-                 TVCheckNode.Enabled := false;
-
-
-              TVChildrenCheckbox.Enabled := not MMViewCheckboxesAllNodes.Checked;       // [dpv]
-              Toolbar_Tree.Visible := KeyOptions.ToolbarTreeShow;
-              MMViewNodeIcons.Enabled := MMViewTree.Checked;
-              MMViewCustomIcons.Enabled := MMViewTree.Checked;
-              MMViewCheckboxesAllNodes.Enabled := MMViewTree.Checked;
-              MMViewCustomIcons.Enabled := MMViewTree.Checked;
-              TVSelectNodeImage.Enabled := ( MMViewCustomIcons.Checked and MMViewCustomIcons.Enabled );
-              MMViewHideCheckedNodes.Enabled := true;                      // [dpv]
-              MMViewHideCheckedNodes.Checked:= myTNote.HideCheckedNodes;   // [dpv]
-              TB_HideChecked.Down := MMViewHideCheckedNodes.Checked;       // [dpv]
-              TB_FilterTree.Down:= myTNote.Filtered;                       // [dpv]
-              MMViewFilterTree.Enabled := true;                            // [dpv]
-              MMViewFilterTree.Checked :=  myTNote.Filtered;               // [dpv]
-              if myTNote.Filtered then FilterApplied (myTNote) else FilterRemoved (myTNote);   // [dpv]
-
-            end
+            myTNote := TKntFolder( ActiveNote );
+            MMTree_.Visible := true;
+            {MMViewTree.Visible := true;}
+            MMViewTree.Enabled := true;
+            MMViewTree.Checked := myTNote.TV.Visible;
+            {MMViewNodeIcons.Visible := true;
+            MMViewCustomIcons.Visible := true;
+            MMViewCheckboxes.Visible := true;}
+            MMViewNodeIcons.Checked := myTNote.IconKind = niStandard;
+            MMViewCustomIcons.Checked := myTNote.IconKind = niCustom;
+            MMEditPasteAsNewNode.Visible := true;
+            MMP_PasteAsNode.Visible := true;
+            MMViewCheckboxesAllNodes.Checked := TKntFolder( ActiveNote ).Checkboxes;
+            //TVCheckNode.Enabled := MMViewCheckboxesAllNodes.Checked;              // [dpv]
+            node:= myTNote.TV.Selected;
+            if myTNote.Checkboxes or (assigned(node) and assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
+               TVCheckNode.Enabled := true
             else
-            begin
-              MMTree_.Visible := false;
-              { MMViewTree.Visible := false;}
-              MMViewTree.Enabled := false;
-              {MMViewNodeIcons.Visible := false;
-              MMViewCustomIcons.Visible := false;
-              MMViewCheckboxes.Visible := false;}
-              MMViewNodeIcons.Enabled := false;
-              MMViewCheckboxesAllNodes.Enabled := false;
-              TVChildrenCheckbox.Enabled := false;       // [dpv]
-              MMViewCustomIcons.Enabled := false;
-              MMEditPasteAsNewNode.Visible := false;
-              MMP_PasteAsNode.Visible := false;
-              Toolbar_Tree.Visible := false;
-              TVSelectNodeImage.Enabled := false;
-              MMViewHideCheckedNodes.Checked := False;  // [dpv]
-              MMViewHideCheckedNodes.Enabled := False;  // [dpv]
-              MMViewFilterTree.Checked := false; // [dpv]
-              MMViewFilterTree.Enabled := false; // [dpv]
-            end;
+               TVCheckNode.Enabled := false;
+
+
+            TVChildrenCheckbox.Enabled := not MMViewCheckboxesAllNodes.Checked;       // [dpv]
+            Toolbar_Tree.Visible := KeyOptions.ToolbarTreeShow;
+            MMViewNodeIcons.Enabled := MMViewTree.Checked;
+            MMViewCustomIcons.Enabled := MMViewTree.Checked;
+            MMViewCheckboxesAllNodes.Enabled := MMViewTree.Checked;
+            MMViewCustomIcons.Enabled := MMViewTree.Checked;
+            TVSelectNodeImage.Enabled := ( MMViewCustomIcons.Checked and MMViewCustomIcons.Enabled );
+            MMViewHideCheckedNodes.Enabled := true;                      // [dpv]
+            MMViewHideCheckedNodes.Checked:= myTNote.HideCheckedNodes;   // [dpv]
+            TB_HideChecked.Down := MMViewHideCheckedNodes.Checked;       // [dpv]
+            TB_FilterTree.Down:= myTNote.Filtered;                       // [dpv]
+            MMViewFilterTree.Enabled := true;                            // [dpv]
+            MMViewFilterTree.Checked :=  myTNote.Filtered;               // [dpv]
+            if myTNote.Filtered then FilterApplied (myTNote) else FilterRemoved (myTNote);   // [dpv]
+
 
             if MMAlternativeMargins.Checked then
                ActiveNote.Editor.Refresh;
@@ -1692,7 +1655,7 @@ begin
           begin
             for i := 0 to pred( Pages.PageCount ) do
             begin
-              Pages.Pages[i].ImageIndex := TTabNote( Pages.Pages[i].PrimaryObject ).ImageIndex;
+              Pages.Pages[i].ImageIndex := TKntFolder( Pages.Pages[i].PrimaryObject ).ImageIndex;
             end;
           end;
 
@@ -1712,15 +1675,10 @@ begin
     try
       if ( assigned( ActiveNote ) and ( not Initializing )) then
       begin
-        case ActiveNote.Kind of
-          ntRTF : ActiveNote.Editor.SetFocus;
-          ntTree : begin
-            if ( TTreeNote( ActiveNote ).TV.Visible and ( ActiveNote.FocusMemory = focTree )) then
-              TTreeNote( ActiveNote ).TV.SetFocus
-            else
-              ActiveNote.Editor.SetFocus;
-          end;
-        end;
+         if ( TKntFolder( ActiveNote ).TV.Visible and ( ActiveNote.FocusMemory = focTree )) then
+           TKntFolder( ActiveNote ).TV.SetFocus
+         else
+           ActiveNote.Editor.SetFocus;
       end;
     except
       // Mostly Harmless

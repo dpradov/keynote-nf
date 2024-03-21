@@ -31,10 +31,10 @@ uses
     procedure VirtualNodeProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : string );
     procedure VirtualNodeRefresh( const DoPrompt : boolean );
     procedure VirtualNodeUnlink;
-    function GetCurrentVirtualNode : TNoteNode;
+    function GetCurrentVirtualNode : TKntNote;
     procedure VirtualNodeUpdateMenu( const IsVirtual : boolean; const IsKNTVirtual: boolean );
     {$IFDEF WITH_IE}
-    function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : string ) : boolean;
+    function VirtualNodeGetMode( const aNode : TKntNote; var newMode : TVirtualMode; var newFN : string ) : boolean;
     {$ENDIF}
 
 var
@@ -78,7 +78,7 @@ resourcestring
   STR_18 = 'Unlink mirror node "%s"? The contents of the node will be retained but the link with the non virtual node will be removed.';
 
 {$IFDEF WITH_IE}
-function VirtualNodeGetMode( const aNode : TNoteNode; var newMode : TVirtualMode; var newFN : string ) : boolean;
+function VirtualNodeGetMode( const aNode : TKntNote; var newMode : TVirtualMode; var newFN : string ) : boolean;
 var
   Form_VNode : TForm_VNode;
 begin
@@ -103,7 +103,7 @@ end; // VirtualNodeGetMode
 
 procedure VirtualNodeProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : string );
 var
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
   oldDlgFilter : string;
   ext : string;
   IsVNError, IsFlushingData, IsChangingFile : boolean;
@@ -112,7 +112,7 @@ begin
   if ( myTreeNode = nil ) then
     myTreeNode := GetCurrentTreeNode;
   if ( assigned( myTreeNode )) then
-    myNoteNode := TNoteNode( myTreeNode.Data );
+    myNoteNode := TKntNote( myTreeNode.Data );
 
   if ( not assigned( myNoteNode )) then exit;
   IsFlushingData := false;
@@ -304,7 +304,7 @@ begin
           end;
           VirtualNodeUpdateMenu( true, false );
           myTreeNode := GetCurrentTreeNode;
-          SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
+          SelectIconForNode( myTreeNode, TKntFolder( ActiveNote ).IconKind );
           if ( TreeOptions.AutoNameVNodes and ( not IsFlushingData )) then
           begin
             myNoteNode.Name := ExtractFilename( myNoteNode.VirtualFN ); // {N}
@@ -340,7 +340,7 @@ end; // VirtualNodeProc
 
 procedure VirtualNodeUnlink;
 var
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
   myTreeNode, originalTreeNode : TTreeNTNode;
 begin
   myNoteNode := GetCurrentVirtualNode;
@@ -359,17 +359,17 @@ begin
 
   if (myNoteNode.VirtualMode= vmKNTNode) then begin
        originalTreeNode:= myNoteNode.MirrorNode;
-       if assigned(originalTreeNode) and assigned(TNoteNode(originalTreeNode.Data)) then
+       if assigned(originalTreeNode) and assigned(TKntNote(originalTreeNode.Data)) then
           if ( DoMessageBox( Format(STR_18, [myNoteNode.Name, myNoteNode.VirtualFN] ),
             mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
           begin
             try
               RemoveMirrorNode(originalTreeNode, myTreeNode);
               myNoteNode.MirrorNode:= nil;
-              TNoteNode(originalTreeNode.Data).Stream.SaveToStream(myNoteNode.Stream);
+              TKntNote(originalTreeNode.Data).Stream.SaveToStream(myNoteNode.Stream);
               ActiveNote.Modified := true;
               VirtualNodeUpdateMenu( false, false );
-              SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
+              SelectIconForNode( myTreeNode, TKntFolder( ActiveNote ).IconKind );
             finally
               NoteFile.Modified := true;
               UpdateNoteFileState( [fscModified] );
@@ -386,7 +386,7 @@ begin
           myNoteNode.VirtualFN := '';
           ActiveNote.Modified := true;
           VirtualNodeUpdateMenu( false, false );
-          SelectIconForNode( myTreeNode, TTreeNote( ActiveNote ).IconKind );
+          SelectIconForNode( myTreeNode, TKntFolder( ActiveNote ).IconKind );
         finally
           NoteFile.Modified := true;
           UpdateNoteFileState( [fscModified] );
@@ -397,7 +397,7 @@ end; // VirtualNodeUnlink
 
 procedure VirtualNodeRefresh( const DoPrompt : boolean );
 var
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
 begin
   myNoteNode := GetCurrentVirtualNode;
   if ( not assigned( myNoteNode )) then exit;
@@ -465,7 +465,7 @@ begin
   end;
 end; // VirtualNodeUpdateMenu
 
-function GetCurrentVirtualNode : TNoteNode;
+function GetCurrentVirtualNode : TKntNote;
 begin
   result := GetCurrentNoteNode;
   if ( result = nil ) then exit;

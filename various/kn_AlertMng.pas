@@ -62,8 +62,8 @@ type
     AlarmReminder: TDateTime;     // Reminder instant
     ExpirationDate: TDateTime;    // Expiration/start instant
     AlarmNote: string;
-    Node: TNoteNode;
-    Note: TTabNote;
+    Node: TKntNote;
+    Note: TKntFolder;
     Bold: boolean;
     FontColor: TColor;
     BackColor: TColor;
@@ -101,12 +101,12 @@ type
     procedure UpdateAlarmsState;
     procedure FlashAlarmState();
     procedure TimerTimer(Sender: TObject);
-    procedure MoveAlarmsInList( List: TList; noteFrom: TTabNote; nodeFrom : TNoteNode; noteTo: TTabNote; nodeTo: TNoteNode );
+    procedure MoveAlarmsInList( List: TList; noteFrom: TKntFolder; nodeFrom : TKntNote; noteTo: TKntFolder; nodeTo: TKntNote );
 
   protected
 
   public
-    procedure EditAlarms (node: TNoteNode; note: TTabNote; forceAdd: boolean= false);
+    procedure EditAlarms (node: TKntNote; note: TKntFolder; forceAdd: boolean= false);
     function GetAlarmModeHint: string;
     procedure CheckAlarms;
 
@@ -115,8 +115,8 @@ type
     property SelectedAlarmList: TList read FSelectedAlarmList;
     property UnfilteredAlarmList: TList read FUnfilteredAlarmList write FUnfilteredAlarmList;
 
-    function HasAlarms( note: TTabNote; node : TNoteNode; considerDiscarded: boolean ): boolean;
-    function GetAlarms( note: TTabNote; node : TNoteNode; considerDiscarded: boolean ): TList;
+    function HasAlarms( note: TKntFolder; node : TKntNote; considerDiscarded: boolean ): boolean;
+    function GetAlarms( note: TKntFolder; node : TKntNote; considerDiscarded: boolean ): TList;
     
     property NumberPendingAlarms: integer read FNumberPending;
     property NumberOverdueAlarms: integer read FNumberOverdue;
@@ -124,9 +124,9 @@ type
     function GetNextPendingAlarmForCommunicate: TAlarm;
     
     procedure AddAlarm( alarm : TAlarm );
-    procedure MoveAlarms( noteFrom: TTabNote; nodeFrom : TNoteNode; noteTo: TTabNote; nodeTo: TNoteNode );
-    procedure RemoveAlarmsOfNode( node : TNoteNode );
-    procedure RemoveAlarmsOfNote( note : TTabNote );
+    procedure MoveAlarms( noteFrom: TKntFolder; nodeFrom : TKntNote; noteTo: TKntFolder; nodeTo: TKntNote );
+    procedure RemoveAlarmsOfNode( node : TKntNote );
+    procedure RemoveAlarmsOfNote( note : TKntFolder );
     procedure RemoveAlarm( alarm : TAlarm );
     procedure DiscardAlarm( alarm : TAlarm; MaintainInUnfilteredList: boolean );
     procedure RestoreAlarm( alarm : TAlarm; MaintainInUnfilteredList: boolean  );
@@ -556,7 +556,7 @@ end;
 //----------------------------------
 
 // Only one of the first two parameters (note, node) is needed, the other can be set to nil
-function TAlarmManager.HasAlarms( note: TTabNote;  node : TNoteNode; considerDiscarded: boolean ): boolean;
+function TAlarmManager.HasAlarms( note: TKntFolder;  node : TKntNote; considerDiscarded: boolean ): boolean;
 
     function HasAlarmsInList (list: TList): boolean;
     var
@@ -592,7 +592,7 @@ end;
 
 
 // Only one of the first two parameters (note, node) is needed, the other can be set to nil
-function TAlarmManager.GetAlarms( note: TTabNote; node : TNoteNode; considerDiscarded: boolean ): TList;
+function TAlarmManager.GetAlarms( note: TKntFolder; node : TKntNote; considerDiscarded: boolean ): TList;
 
     procedure AddAlarmsFromList (list: TList);
     var
@@ -873,7 +873,7 @@ begin
     UpdateFormMain (alarm);
 end;
 
-procedure TAlarmManager.MoveAlarms( noteFrom: TTabNote; nodeFrom : TNoteNode; noteTo: TTabNote; nodeTo: TNoteNode );
+procedure TAlarmManager.MoveAlarms( noteFrom: TKntFolder; nodeFrom : TKntNote; noteTo: TKntFolder; nodeTo: TKntNote );
 begin
     MoveAlarmsInList(FAlarmList, noteFrom, nodeFrom,  noteTo, nodeTo);
     if assigned(FUnfilteredAlarmList) then
@@ -884,7 +884,7 @@ begin
     // TODO: Refrescar el nodo actual
 end;
 
-procedure TAlarmManager.MoveAlarmsInList( List: TList; noteFrom: TTabNote; nodeFrom : TNoteNode; noteTo: TTabNote; nodeTo: TNoteNode );
+procedure TAlarmManager.MoveAlarmsInList( List: TList; noteFrom: TKntFolder; nodeFrom : TKntNote; noteTo: TKntFolder; nodeTo: TKntNote );
 var
   I: Integer;
   alarm: TAlarm;
@@ -900,7 +900,7 @@ begin
    end;
 end;
 
-procedure TAlarmManager.RemoveAlarmsOfNode( node : TNoteNode );
+procedure TAlarmManager.RemoveAlarmsOfNode( node : TKntNote );
 var
   I: Integer;
   alarm: TAlarm;
@@ -914,7 +914,7 @@ begin
    end;
 end;
 
-procedure TAlarmManager.RemoveAlarmsOfNote( note : TTabNote );
+procedure TAlarmManager.RemoveAlarmsOfNote( note : TKntFolder );
 var
   I: Integer;
   alarm: TAlarm;
@@ -983,7 +983,7 @@ begin
 end;
 
 
-procedure TAlarmManager.EditAlarms (node: TNoteNode; note: TTabNote; forceAdd: boolean= false);
+procedure TAlarmManager.EditAlarms (node: TKntNote; note: TKntFolder; forceAdd: boolean= false);
 var
    alarm: TAlarm;
 begin
@@ -1281,7 +1281,7 @@ var
   alarm, alarm_selected: TAlarm;
   I, iNewAlarm, iAlarmSelected: Integer;
   nodeNote: TTreeNTNode;
-  myNode: TNoteNode;
+  myNode: TKntNote;
 
   procedure AddAlarm (Alarm: TAlarm);
   var
@@ -1813,8 +1813,8 @@ procedure TForm_Alarm.Button_NewClick(Sender: TObject);
 var
    alarm: TAlarm;
    ls: TListItem;
-   note: TTabNote;
-   node: TNoteNode;
+   note: TKntFolder;
+   node: TKntNote;
    i: integer;
 begin
     if ChangesToApply then begin
@@ -2443,7 +2443,7 @@ procedure TForm_Alarm.Today_5minClick(Sender: TObject);
 var
    minInc: integer;
    Alarm: TDateTime;
-   myNode: TNoteNode;
+   myNode: TKntNote;
    setFromNow: boolean;
    IntervalStr: string;
 begin
@@ -2914,7 +2914,7 @@ end;
 
 function TForm_Alarm.CreateLocation(alarm: TAlarm): TLocation;
 var
-  note: TTabNote;
+  note: TKntFolder;
 begin
     Result:= nil;
 

@@ -3283,7 +3283,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 111
           Width = 317
           Height = 91
-          Caption = '  When capturing into a tree note :'
+          Caption = '  When tree panel is visible :'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clNavy
           Font.Height = -11

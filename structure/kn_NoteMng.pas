@@ -29,7 +29,7 @@ uses
 
     // note management
     procedure CreateNewNote;
-    function NewNote( const DefaultNote, CanFocus : boolean; const aKind : TNoteType ) : boolean;
+    function NewNote( const DefaultNote, CanFocus : boolean ) : boolean;
     procedure DeleteNote;
     procedure RenameNote;
     procedure EditNoteProperties( const PropertiesAction : TPropertiesAction );
@@ -63,10 +63,9 @@ resourcestring
 
 
 function NewNote(
-  const DefaultNote, CanFocus : boolean;
-  const aKind : TNoteType ) : boolean;
+  const DefaultNote, CanFocus : boolean) : boolean;
 var
-  myNote: TTabNote;
+  myNote: TKntFolder;
   Form_NewNote : TForm_NewNote;
   FileWasBusy, TimerWasEnabled : boolean;
 begin
@@ -85,19 +84,12 @@ begin
     try
       if DefaultNote then
       begin
-        case aKind of
-          ntRTF : myNote := TTabNote.Create;
-          ntTree : myNote := TTreeNote.Create;
-        end;
+        myNote := TKntFolder.Create;
         myNote.SetEditorProperties( DefaultEditorProperties );
         myNote.SetTabProperties( DefaultTabProperties );
         myNote.EditorChrome := DefaultEditorChrome;
-
-        if ( aKind = ntTree ) then
-        begin
-          TTreeNote( myNote ).SetTreeProperties( DefaultTreeProperties );
-          TTreeNote( myNote ).TreeChrome := DefaultTreeChrome;
-        end;
+        TKntFolder( myNote ).SetTreeProperties( DefaultTreeProperties );
+        TKntFolder( myNote ).TreeChrome := DefaultTreeChrome;
       end
       else
       begin
@@ -112,7 +104,6 @@ begin
             myTabNameHistory := KeyOptions.TabNameHistory;
             myNodeNameHistory := KeyOptions.NodeNameHistory;
             myHistoryCnt := FindOptions.HistoryMaxCnt;
-            TAB_TYPE := KeyOptions.DefaultNoteType;
             TAB_CHANGEABLE := true;
             myTreeProperties := DefaultTreeProperties;
             myTreeChrome := DefaultTreeChrome;
@@ -121,19 +112,12 @@ begin
           if ( Form_NewNote.ShowModal = mrOK ) then
           begin
             KeyOptions.TabNameHistory := Form_NewNote.myTabNameHistory;
-
-            case Form_NewNote.TAB_TYPE of
-              ntRTF : myNote := TTabNote.Create;
-              ntTree : myNote := TTreeNote.Create;
-            end;
-            KeyOptions.DefaultNoteType := Form_NewNote.TAB_TYPE;
+            myNote := TKntFolder.Create;
             myNote.SetEditorProperties( Form_NewNote.myEditorProperties );
             myNote.SetTabProperties( Form_NewNote.myTabProperties );
             myNote.EditorChrome := Form_NewNote.myChrome;
             KeyOptions.NodeNameHistory := Form_NewNote.myNodeNameHistory;
-            if ( myNote.Kind = ntTree ) then
-            with TTreeNote( myNote ) do
-            begin
+            with TKntFolder( myNote ) do begin
               SetTreeProperties( Form_NewNote.myTreeProperties );
               TreeChrome := Form_NewNote.myTreeChrome;
             end;
@@ -158,8 +142,7 @@ begin
           myNote.TabSheet.TabVisible := true; // was created hidden
           ActiveNote := myNote;
         end;
-        if ( myNote.Kind = ntTree ) then
-          TreeNoteNewNode( nil, tnTop, nil, '', true );
+        TreeNoteNewNode( nil, tnTop, nil, '', true );
         Form_Main.Pages.ActivePage := myNote.TabSheet;
         UpdateNoteDisplay;
         if CanFocus then
@@ -278,18 +261,11 @@ procedure CreateNewNote;
 begin
   if assigned(ActiveNote) then
      ActiveNote.EditorToDataStream;
-  if NewNote( false, true, ntRTF ) then
+  if NewNote( false, true ) then
   begin
     Application.ProcessMessages;
     if KeyOptions.RunAutoMacros then
-    begin
-      case ActiveNote.Kind of
-        ntRTF :
-          ExecuteMacro( _MACRO_AUTORUN_NEW_NOTE, '' );
-        ntTree :
-          ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
-      end;
-    end;
+       ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
   end;
 end; // CreateNewNote
 
@@ -314,7 +290,6 @@ begin
           myHistoryCnt := FindOptions.HistoryMaxCnt;
           Button_Properties.Enabled := false;
           Button_Properties.Visible := false;
-          TAB_TYPE := ActiveNote.Kind;
         end;
         if ( Form_NewNote.ShowModal = mrOK ) then
         begin
@@ -342,7 +317,7 @@ var
   oldHideChecked: boolean;      // [dpv]
   oldPlainText: boolean;
   EnsuredPlainText: boolean;
-  Note: TTabNote;
+  Note: TKntFolder;
   NewPropertiesAction : TPropertiesAction;
 
 begin
@@ -378,7 +353,6 @@ begin
             propThisNote : begin
 
               myEditorChrome := ActiveNote.EditorChrome;
-              NoteKind := ActiveNote.Kind;
               ActiveNote.GetTabProperties( myTabProperties );
               ActiveNote.GetEditorProperties( myEditorProperties );
 
@@ -403,21 +377,19 @@ begin
               CB_WordWrap.Checked:= myEditorProperties.WordWrap;    // *1
 
 
-              if ( ActiveNote.Kind = ntTree ) then begin
-                with TTreeNote( ActiveNote ) do begin
+              with TKntFolder( ActiveNote ) do begin
 
-                  myInheritBGColor:= TreeOptions.InheritNodeBG;
-                  if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then
-                     myEditorChrome.BGColor := SelectedNode.RTFBGColor;
+                myInheritBGColor:= TreeOptions.InheritNodeBG;
+                if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then
+                   myEditorChrome.BGColor := SelectedNode.RTFBGColor;
 
-                  myTreeChrome := TreeChrome;
-                  GetTreeProperties( myTreeProperties );
-                  StartWithEditorTab := ( not TV.Focused );
+                myTreeChrome := TreeChrome;
+                GetTreeProperties( myTreeProperties );
+                StartWithEditorTab := ( not TV.Focused );
 
-                  oldIconKind := myTreeProperties.IconKind;
-                  oldShowCheckboxes := myTreeProperties.CheckBoxes;
-                  oldHideChecked := myTreeProperties.HideChecked;       // [dpv]
-                end;
+                oldIconKind := myTreeProperties.IconKind;
+                oldShowCheckboxes := myTreeProperties.CheckBoxes;
+                oldHideChecked := myTreeProperties.HideChecked;       // [dpv]
               end;
               oldPlainText := ActiveNote.PlainText;
             end;
@@ -434,7 +406,6 @@ begin
               if myCurrentFileName <> '' then
                  mySaveFileDefaults := ( DEF_FN <> OrigDEF_FN );
 
-              NoteKind := ntTree;
               myTreeChrome := DefaultTreeChrome;
               myTreeProperties := DefaultTreeProperties;
             end;
@@ -467,37 +438,35 @@ begin
                 if ActiveNote.PlainText then
                    EnsuredPlainText:= NoteFile.EnsurePlainTextAndRemoveImages(ActiveNote);
 
-                if ( ActiveNote.Kind = ntTree ) then begin
-                  with TTreeNote( ActiveNote ) do begin
-                    // this will apply the selected BG color to current NODE
-                    // besides setting the new default BG color for whole NOTE.
-                    if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then begin
-                      SelectedNode.RTFBGColor := ActiveNote.EditorChrome.BGColor;
-                      ActiveNote.Editor.Color := ActiveNote.EditorChrome.BGColor;
-                    end;
-
-                    TreeLayoutChanged := ( VerticalLayout <> myTreeProperties.VerticalLayout );
-                    SetTreeProperties( myTreeProperties );
-                    TreeChrome := myTreeChrome;
+                with TKntFolder( ActiveNote ) do begin
+                  // this will apply the selected BG color to current NODE
+                  // besides setting the new default BG color for whole NOTE.
+                  if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then begin
+                    SelectedNode.RTFBGColor := ActiveNote.EditorChrome.BGColor;
+                    ActiveNote.Editor.Color := ActiveNote.EditorChrome.BGColor;
                   end;
 
-                  // update changes to tree control
-                  if ( oldIconKind <> myTreeProperties.IconKind ) then
-                     ShowOrHideIcons( TTreeNote( ActiveNote ), true );
-                  if ( oldShowCheckboxes <> myTreeProperties.CheckBoxes ) then
-                     ShowOrHideCheckBoxes( TTreeNote( ActiveNote ));
-                  if ( oldHideChecked <> myTreeProperties.HideChecked ) then    // [dpv]
-                     if myTreeProperties.HideChecked then
-                        HideChildNodesUponCheckState ( TTreeNote( ActiveNote ), nil, csChecked)
-                     else
-                        ShowCheckedNodes ( TTreeNote( ActiveNote ), nil);
-
-                  UpdateTreeChrome(TTreeNote(ActiveNote));
+                  TreeLayoutChanged := ( VerticalLayout <> myTreeProperties.VerticalLayout );
+                  SetTreeProperties( myTreeProperties );
+                  TreeChrome := myTreeChrome;
                 end;
+
+                // update changes to tree control
+                if ( oldIconKind <> myTreeProperties.IconKind ) then
+                   ShowOrHideIcons( TKntFolder( ActiveNote ), true );
+                if ( oldShowCheckboxes <> myTreeProperties.CheckBoxes ) then
+                   ShowOrHideCheckBoxes( TKntFolder( ActiveNote ));
+                if ( oldHideChecked <> myTreeProperties.HideChecked ) then    // [dpv]
+                   if myTreeProperties.HideChecked then
+                      HideChildNodesUponCheckState ( TKntFolder( ActiveNote ), nil, csChecked)
+                   else
+                      ShowCheckedNodes ( TKntFolder( ActiveNote ), nil);
+
+                UpdateTreeChrome(TKntFolder(ActiveNote));
 
                 // If we have changed to PlainText we will have already updated the editor from EnsurePlainTextAndRemoveImages
                 if (not EnsuredPlainText) and (oldPlainText <> ActiveNote.PlainText)
-                     and (not TreeLayoutChanged or (ActiveNote.Kind <> ntTree))   then begin  // This is done if TreeLayoutChanged too
+                     and (not TreeLayoutChanged)   then begin  // This is done if TreeLayoutChanged too
                    ActiveNote.EditorToDataStream;  // Save the content of the editor according to the new formatting (Plain text / RTF)
                    ActiveNote.DataStreamToEditor;
                 end;
@@ -509,11 +478,9 @@ begin
                    Note:= NoteFile.Notes[i];
                    if ((PropertiesAction = propThisNote) and (Note = ActiveNote)) or (Note.ReadOnly) then
                        continue;
-                   if Note.Kind = ntTree then begin
-                      Note.Modified:= True;
-                      TTreeNote(Note).TreeChrome := myTreeChrome;
-                      UpdateTreeChrome(TTreeNote(Note));
-                   end;
+                   Note.Modified:= True;
+                   TKntFolder(Note).TreeChrome := myTreeChrome;
+                   UpdateTreeChrome(TKntFolder(Note));
                 end;
                 NoteFile.Modified:= True;
                 UpdateNoteFileState( [fscModified] );
@@ -528,8 +495,7 @@ begin
                        Note:= NoteFile.Notes[i];
                        Note.Editor.WordSelection := EditorOptions.WordSelect;
                        Note.Editor.UndoLimit := EditorOptions.UndoLimit;
-                       if Note.Kind = ntTree then
-                          UpdateTreeOptions(TTreeNote(Note));
+                       UpdateTreeOptions(TKntFolder(Note));
                     end;
                 end;
 
@@ -570,7 +536,7 @@ begin
         screen.Cursor := crHourGlass;
         Pages.OnChange := nil;
         try
-          TTreeNote( ActiveNote ).TreeWidth := 0;
+          TKntFolder( ActiveNote ).TreeWidth := 0;
           ActiveNote.EditorToDataStream;
           ActiveNote.Editor.Clear;
           ActiveNote.Editor.ClearUndo;

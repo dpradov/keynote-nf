@@ -504,7 +504,7 @@ type
     DateFmt : string;
     Debug : boolean; // [*]
     DebugLogAppend : boolean; // [*] append or overwrite previous debug log
-    DefaultNoteType : TNoteType; // [*] remembers last type of note created
+    //DefaultNoteType : TNoteType; // [*] remembers last type of note created
     DisableAlarmPopup: boolean;
     DisableFileMon : boolean; // disable file change monitoring
     DropNodesOnTabMove : boolean; // when dropping nodes on another teb, MOVE them (if false, then COPY)
@@ -582,7 +582,7 @@ type
     WarnSingleInstance: boolean;  // [*] Give the message: KeyNote NF have been configured to allow only one instance at a time. Closing this instance...
     SkipNewFilePrompt : boolean;
     StartMinimized : boolean;
-    StartNoteType : TNoteType; // [*] type of note to create automatically with each new file
+    //StartNoteType : TNoteType; // [*] type of note to create automatically with each new file
     StatBarDlbClkAction : integer; // [*] what happens when user double-clicks statusbar
     StatBarDlbClkActionShft : integer; // [*] as above, with Shift held down
     StatBarShow : boolean; // show or hide the statusbar

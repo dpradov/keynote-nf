@@ -78,8 +78,8 @@ const
 
 var
 
-    NoteFile : TNoteFile; // main data structure
-    ActiveNote : TTabNote; // the note that is currently visible (can be nil)
+    NoteFile : TKntFile; // main data structure
+    ActiveNote : TKntFolder; // the Folder (Note Folder) that is currently visible (can be nil)
 
     RichEditLibraryPath : string;
 
@@ -211,7 +211,7 @@ var
     LastEvalExprResult : string; // remembered, so that we can paste it
 
     ClipCapActive : boolean; // TRUE if we have a clipboard capture note
-    ClipCapNode : TNoteNode;
+    ClipCapNode : TKntNote;
     ClipCapCRC32 : DWORD;
 
     AppIsActive : boolean; // used with Clipboard Capture to ignore copy events coming from Keynote itself
@@ -261,7 +261,7 @@ var
 
     AlarmManager: TAlarmManager;    // [dpv]
     ImagesManager: TImageManager;
-    RTFAux_Note: TTabRichEdit;       // For exclusive use of TTabNote and TTreeNote when obtaining TextPlain
+    RTFAux_Note: TTabRichEdit;       // For exclusive use of TKntFolder when obtaining TextPlain
     _DllHandle : THandle;
     _IE: TWebBrowserWrapper;
 
@@ -319,7 +319,7 @@ resourcestring
 
 function NoteSupportsRegisteredImages (AdmitVmRTF: boolean= false): boolean;
 var
-  Note: TTabNote;
+  Note: TKntFolder;
   treeNTNode: TTreeNTNode;
 begin
    Result:= false;
@@ -328,12 +328,10 @@ begin
    if not assigned(Note) then exit;
    if Note.PlainText then exit;
 
-   if (Note.Kind = ntRTF) then exit(true);
-
-   treeNTNode:= TTreeNote(Note).TV.Selected;
+   treeNTNode:= TKntFolder(Note).TV.Selected;
    if not assigned(treeNTNode) then exit;
 
-   if (TNoteNode(treeNTNode.Data).VirtualMode in [vmNone, vmKNTNode]) or (AdmitVmRTF and (TNoteNode(treeNTNode.Data).VirtualMode = vmRTF)) then
+   if (TKntNote(treeNTNode.Data).VirtualMode in [vmNone, vmKNTNode]) or (AdmitVmRTF and (TKntNote(treeNTNode.Data).VirtualMode = vmRTF)) then
       Result:= true;
 end;
 

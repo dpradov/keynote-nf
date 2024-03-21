@@ -43,7 +43,7 @@ var
     UserBreak : boolean;
 
     SearchNode_Text, SearchNode_TextPrev : string;
-    StartNote: TTabNote;
+    StartNote: TKntFolder;
     StartNode: TTreeNTNode;
 
 
@@ -505,18 +505,18 @@ end;
 
 {
 // Preparar el editor (TTabRichEdit) al que preguntaremos por el texto buscado
-procedure PrepareEditControl(myNote: TTabNote; myTreeNode: TTreeNTNode);
+procedure PrepareEditControl(myNote: TKntFolder; myTreeNode: TTreeNTNode);
 var
-    myNoteNode : TNoteNode;
+    myNoteNode : TKntNote;
 begin
-    if (myNote.Kind <> ntTree)  or ((myNote = ActiveNote) and (TTreeNote(ActiveNote).TV.Selected = myTreeNode)) then begin
+    if (myNote.Kind <> ntTree)  or ((myNote = ActiveNote) and (TKntFolder(ActiveNote).TV.Selected = myTreeNode)) then begin
         if myNote.Editor.Modified or (myNote.NoteTextPlain = '') then
             myNote.EditorToDataStream;
         EditControl:= myNote.Editor
     end
     else begin
        // Get the actual node's object and transfer its RTF data to temp editor
-        myNoteNode := TNoteNode( myTreeNode.Data );
+        myNoteNode := TKntNote( myTreeNode.Data );
         myNoteNode.Stream.Position := 0;
         EditControl:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
         EditControl.Lines.LoadFromStream( myNoteNode.Stream );
@@ -552,10 +552,10 @@ var
   Location : TLocation;
   SearchOpts : TRichSearchTypes;
   noteidx, i, MatchCount, PatternPos, PatternPos1, PatternPosN, PatternLen, SearchOrigin : integer;
-  myNote : TTabNote;
+  myNote : TKntFolder;
   myTreeNode : TTreeNTNode;
-  myTNote: TTreeNote;
-  myNoteNode : TNoteNode;
+  myTNote: TKntFolder;
+  myNoteNode : TKntNote;
   lastNoteID, lastNodeID : integer;
   lastTag : integer;
   numNodosNoLimpiables: integer;
@@ -566,7 +566,7 @@ var
   ApplyFilter: boolean;
   nodeToFilter: boolean;
   nodesSelected: boolean;
-  oldActiveNote: TTabNote;
+  oldActiveNote: TKntFolder;
   SearchModeToApply : TSearchMode;
   TreeNodeToSearchIn : TTreeNTNode;
   TreeNodeToSearchIn_AncestorPathLen: integer;
@@ -593,7 +593,7 @@ type
           Location.NoteID := myNote.ID;
 
           if assigned(myTreeNode) then begin
-             myNoteNode := TNoteNode(myTreeNode.Data);
+             myNoteNode := TKntNote(myTreeNode.Data);
              Location.NodeName := myNoteNode.Name;
              Location.NodeID := myNoteNode.ID;
           end;
@@ -624,8 +624,7 @@ type
        var
           path: string;
        begin
-          if myNote.Kind <> ntTree then exit;
-          myTreeNode := TTreeNote(myNote).TV.Selected;
+          myTreeNode := TKntFolder(myNote).TV.Selected;
           TreeNodeToSearchIn:= myTreeNode;
 
           if (TreeNodeToSearchIn <> nil) and TreeOptions.ShowFullPathSearch then begin
@@ -649,9 +648,7 @@ type
 
        procedure GetFirstNode;
        begin
-          if myNote.Kind <> ntTree then exit;
-
-          myTreeNode := TTreeNote(myNote).TV.Items.GetFirstNode;
+          myTreeNode := TKntFolder(myNote).TV.Items.GetFirstNode;
 
           if assigned( myTreeNode ) then begin
              if myTreeNode.Hidden and (not FindOptions.HiddenNodes) then
@@ -663,7 +660,7 @@ type
 
        procedure GetNextNode;
        begin
-          if (myNote.Kind <> ntTree) or (not assigned(myTreeNode)) then exit;
+          if (not assigned(myTreeNode)) then exit;
 
           if FindOptions.HiddenNodes then     // [dpv]
              myTreeNode := myTreeNode.GetNext
@@ -689,10 +686,9 @@ type
              if ( noteidx >= NoteFile.NoteCount ) then
                 FindDone := true
              else begin
-                myNote := TTabNote(Form_Main.Pages.Pages[noteidx].PrimaryObject);
-                if myNote.Kind = ntTree then
-                   GetFirstNode;
-                end;
+                myNote := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject);
+                GetFirstNode;
+             end;
           end
           else
             FindDone := true;
@@ -897,27 +893,23 @@ begin
       end;
 
       if FindOptions.AllTabs then
-         myNote := TTabNote( Form_Main.Pages.Pages[noteidx].PrimaryObject ) // initially 0
+         myNote := TKntFolder( Form_Main.Pages.Pages[noteidx].PrimaryObject ) // initially 0
       else
          myNote := ActiveNote; // will exit after one loop
 
-      if myNote.Kind = ntTree then begin
-         if FindOptions.CurrentNodeAndSubtree then
-            GetCurrentNode
-         else begin
-            GetFirstNode;
-            while (not FindDone) and (not assigned(myTreeNode)) do begin
-                 GetNextNote();
-                if (myNote.Kind <> ntTree) then break;
-            end;
-         end;
+      if FindOptions.CurrentNodeAndSubtree then
+         GetCurrentNode
+      else begin
+         GetFirstNode;
+         while (not FindDone) and (not assigned(myTreeNode)) do
+            GetNextNote();
       end;
 
 
       // Recorremos cada nota
       repeat
             nodesSelected:= false; // in this note, at the moment
-            if myNote.Kind = ntTree then myTNote:= TTreeNote(myNote);
+            myTNote:= TKntFolder(myNote);
 
             // Recorremos cada nodo (si es ntTree) o el único texto (si <> ntTree)
             repeat
@@ -927,7 +919,7 @@ begin
                 if assigned(myTreeNode) and (FindOptions.SearchScope <> ssOnlyContent) then begin
                   var Aux: integer;
                   var NodeName: string;
-                  myNoteNode := TNoteNode(myTreeNode.Data);
+                  myNoteNode := TKntNote(myTreeNode.Data);
                   if FindOptions.MatchCase then
                      TextPlain:= myNoteNode.Name
                   else
@@ -936,7 +928,7 @@ begin
                   FindPatternInText(true);
                 end;
 
-                if (assigned(myTreeNode) or (myNote.Kind <> ntTree) ) and (FindOptions.SearchScope <> ssOnlyNodeName) then begin         // TODO - FALTA COMPROBACION assigned(myTreeNode) - REVISAR CON rev. anterior
+                if assigned(myTreeNode) and (FindOptions.SearchScope <> ssOnlyNodeName) then begin         // TODO - FALTA COMPROBACION assigned(myTreeNode) - REVISAR CON rev. anterior
                    // PrepareEditControl(myNote, myTreeNode);
                    TextPlainBAK:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
                    TextPlain:= TextPlainBAK;
@@ -947,8 +939,8 @@ begin
                    FindPatternInText(false);
                 end;
 
-                if ApplyFilter and ((myNote.Kind = ntTree) and assigned(myTreeNode) and (not nodeToFilter)) then
-                   TNoteNode(myTreeNode.Data).Filtered := false;
+                if ApplyFilter and (assigned(myTreeNode) and (not nodeToFilter)) then
+                   TKntNote(myTreeNode.Data).Filtered := false;
 
                 GetNextNode;
 
@@ -970,10 +962,8 @@ begin
                myTreeNode:= nil;
             end;
 
-            while (not UserBreak) and ((not FindDone) and (not assigned(myTreeNode))) do begin
+            while (not UserBreak) and ((not FindDone) and (not assigned(myTreeNode))) do
                GetNextNote();
-               if (myNote.Kind <> ntTree) then break;
-            end;
 
       until FindDone or UserBreak;
 
@@ -1241,7 +1231,7 @@ end;
 
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 var
-  myNote : TTabNote;
+  myNote : TKntFolder;
   myTreeNode : TTreeNTNode;
   FindDone, Found : boolean;
   PatternPos : integer;
@@ -1263,19 +1253,19 @@ var
 
       if not (
          (myNote = StartNote)
-          and ((myNote.Kind <> ntTree) or (myTreeNode = StartNode))    ) then
+          and (myTreeNode = StartNode)    ) then
          Result:= False
       else
           if Wrap and (NumberFoundItems > 0) then begin    // Wrap será siempre false si Is_ReplacingAll = True
              Result:= False;
              NumberFoundItems:= 0;
-             end;
+          end;
   end;
 
 
   procedure GetFirstNode();
   begin
-      myTreeNode := TTreeNote( myNote ).TV.Items.GetFirstNode;
+      myTreeNode := TKntFolder( myNote ).TV.Items.GetFirstNode;
       if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindOptions.HiddenNodes) then
          myTreeNode := myTreeNode.GetNextNotHidden;
   end;
@@ -1290,7 +1280,7 @@ var
   var
      Wrap: boolean;
   begin
-     FindDone:= (myNote.Kind = ntTree);   // Si es una nota de tipo árbol supondremos inicialmente que no se podrá avanzar más
+     FindDone:= True;     // Supondremos inicialmente que no se podrá avanzar más
 
      if not assigned(myTreeNode) or FindOptions.SelectedText then exit;
 
@@ -1332,22 +1322,15 @@ var
           else
              tabidx := 0;
 
-          myNote := TTabNote(Form_Main.Pages.Pages[tabidx].PrimaryObject);
+          myNote := TKntFolder(Form_Main.Pages.Pages[tabidx].PrimaryObject);
 
-          if myNote.Kind = ntTree then
-             GetFirstNode;
+          GetFirstNode;
 
           if not LoopCompleted(Wrap) then begin
              SearchOrigin := 0;
              FindDone:= False;
           end;
-      end
-      else
-          if (myNote.Kind <> ntTree) and (not LoopCompleted(Wrap)) then begin
-             SearchOrigin := 0;
-             FindDone:= False;
-          end;
-
+      end;
    end;
 
 
@@ -1361,11 +1344,10 @@ var
         end;
       end;
 
-      if ( ActiveNote.Kind = ntTree ) then
-         if TTreeNote( ActiveNote ).TV.Selected <> myTreeNode then begin
-            myTreeNode.MakeVisible;  // Could be hidden
-            TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
-         end;
+      if TKntFolder( ActiveNote ).TV.Selected <> myTreeNode then begin
+         myTreeNode.MakeVisible;  // Could be hidden
+         TKntFolder( ActiveNote ).TV.Selected := myTreeNode;
+      end;
 
       SearchCaretPos (myNote, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1), false);
   end;
@@ -1405,8 +1387,7 @@ begin
     try
 
       myNote := ActiveNote;
-      if myNote.Kind = ntTree then
-         myTreeNode := TTreeNote( myNote ).TV.Selected;
+      myTreeNode := TKntFolder( myNote ).TV.Selected;
 
       // Identificación de la posición de inicio de la búsqueda ---------------------------
       if ( FindOptions.FindNew and FindOptions.EntireScope ) then
@@ -1443,9 +1424,9 @@ begin
             TextPlain:= myNote.PrepareTextPlain(myTreeNode, RTFAux);
             if FindOptions.MatchCase then
                PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
-            else 
+            else
                PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText) -1;
-            
+
             {
             PatternPos := EditControl.FindText(
               Text_To_Find,
@@ -1453,13 +1434,11 @@ begin
               SearchOpts
             );
             }
-            
+
             if PatternPos < 0 then begin
                GetNextNode;                 // Podrá actualizar FindDone
-               while (not FindDone) and (not assigned(myTreeNode)) do begin
+               while (not FindDone) and (not assigned(myTreeNode)) do
                    GetNextNote();
-                   if (myNote.Kind <> ntTree) then break;
-               end;
             end;
             Application.ProcessMessages;    // Para permitir que el usuario cancele (UserBreak)
 
@@ -1544,12 +1523,12 @@ var
   procedure BeginUpdateOnNotes;
   var
      i: integer;
-     note: TTabNote;
+     note: TKntFolder;
   begin
      AppliedBeginUpdate:= True;
      for i := 0 to Form_Main.Pages.PageCount - 1 do
      begin
-          note:= TTabNote(Form_Main.Pages.Pages[i].PrimaryObject);
+          note:= TKntFolder(Form_Main.Pages.Pages[i].PrimaryObject);
           note.Editor.BeginUpdate;
           note.Editor.OnSelectionChange := nil;
           note.Editor.Visible:= False;
@@ -1559,13 +1538,13 @@ var
   procedure EndUpdateOnNotes;
   var
      i: integer;
-     note: TTabNote;
+     note: TKntFolder;
   begin
      if not AppliedBeginUpdate then exit;
 
      for i := 0 to Form_Main.Pages.PageCount - 1 do
      begin
-        note:= TTabNote(Form_Main.Pages.Pages[i].PrimaryObject);
+        note:= TKntFolder(Form_Main.Pages.Pages[i].PrimaryObject);
         note.Editor.EndUpdate;
         note.Editor.OnSelectionChange := Form_Main.RxRTFSelectionChange;
         note.Editor.Visible:= True;

@@ -56,23 +56,23 @@ uses
                               myURLAction: TURLAction = urlOpen;
                               OpenInCurrentFile: boolean= false ): boolean;
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
-    function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
+    function SearchCaretPos (myNote : TKntFolder; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true): integer;
-    function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+    function PositionInImLinkTextPlain (myNote: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
-    procedure InsertURL(URLStr : string; TextURL : string; Note: TTabNote);
+    procedure InsertURL(URLStr : string; TextURL : string; Note: TKntFolder);
 
-    function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
+    function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                             forUseInFindResults: boolean = false): string;
-    procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TTabNote; var myTreeNode: TTreeNTNode);
+    procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TKntFolder; var myTreeNode: TTreeNTNode);
 
     procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
 
     // Navigation history
-    procedure AddHistoryLocation( const aNote : TTabNote; const AddLocalMaintainingIndex: boolean;
+    procedure AddHistoryLocation( const aNote : TKntFolder; const AddLocalMaintainingIndex: boolean;
                                   aLocation: TLocation= nil; const AddToGlobalHistory: boolean= true);
     procedure NavigateInHistory( const Direction: THistoryDirection);
     procedure UpdateHistoryCommands;
@@ -167,7 +167,7 @@ procedure ClickOnURLImage(const URLstr: string; chrgURL: TCharRange; myURLAction
 //=========================================
 // PathOfKNTLink
 //=========================================
-function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TTabNote; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
+function PathOfKNTLink (myTreeNode: TTreeNTNode; myNote : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                         forUseInFindResults: boolean = false): string;
 var
   path, pathInsertionPoint : string;
@@ -256,7 +256,7 @@ end; // PathOfKNTLink
 //=========================================
 // GetTreeNode
 //=========================================
-procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TTabNote; var myTreeNode: TTreeNTNode);
+procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TKntFolder; var myTreeNode: TTreeNTNode);
 begin
    with Location do begin
      // obtain NOTE
@@ -276,14 +276,14 @@ begin
 
       // obtain NODE
       myTreeNode := nil;
-      if ( Note.Kind = ntTree ) and ((NodeID > 0) or (NodeName <> '')) then begin   // If NodeID <= 0 and NodeName = '' -> Node will be ignored
+      if (NodeID > 0) or (NodeName <> '') then begin   // If NodeID <= 0 and NodeName = '' -> Node will be ignored
          if ( NodeID <> 0 ) then begin // new format
-            myTreeNode := TTreeNote( Note ).GetTreeNodeByID( NodeID );
+            myTreeNode := TKntFolder( Note ).GetTreeNodeByID( NodeID );
             if (myTreeNode = nil) then
                raise EInvalidLocation.Create(Format( STR_03, [NodeID] ));
          end
          else begin
-            myTreeNode := TTreeNote( Note ).TV.Items.FindNode( [ffText], NodeName, nil );
+            myTreeNode := TKntFolder( Note ).TV.Items.FindNode( [ffText], NodeName, nil );
             if (myTreeNode = nil) then
                raise EInvalidLocation.Create(Format( STR_04, [NodeName] ));
          end;
@@ -295,7 +295,7 @@ end;
 //----------------------------------------
 // Insertlink
 //----------------------------------------
-procedure InsertLink(URLStr: string; TextURL : string; FileLink: Boolean; Note: TTabNote; FromInsertURL: Boolean= false);
+procedure InsertLink(URLStr: string; TextURL : string; FileLink: Boolean; Note: TKntFolder; FromInsertURL: Boolean= false);
 var
   SelL: integer;
   SelR: integer;
@@ -495,7 +495,7 @@ end; // InsertFileOrLink
 //===============================================================
 procedure GetKNTLocation (var Location: TLocation; Simplified: Boolean= false);
 var
-  tNote: TTreeNote;
+  tNote: TKntFolder;
 begin
 {$IFDEF DEBUG_HISTORY}
    Simplified:= false;
@@ -512,13 +512,11 @@ begin
       NoteID := ActiveNote.ID;
       NodeName := '';
       NodeID := 0;
-      if (ActiveNote.Kind = ntTree) then begin
-         tNote:= TTreeNote(ActiveNote);
-         if TTreeNote(ActiveNote).SelectedNode <> nil then begin
-            NodeID := TTreeNote(ActiveNote).SelectedNode.ID;
-            if not Simplified then
-               NodeName := TTreeNote(ActiveNote).SelectedNode.Name;
-         end;
+      tNote:= TKntFolder(ActiveNote);
+      if TKntFolder(ActiveNote).SelectedNode <> nil then begin
+         NodeID := TKntFolder(ActiveNote).SelectedNode.ID;
+         if not Simplified then
+            NodeName := TKntFolder(ActiveNote).SelectedNode.Name;
       end;
       CaretPos := ActiveNote.Editor.SelStart;
       SelLength := ActiveNote.Editor.SelLength;
@@ -622,7 +620,7 @@ end;
 
 procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean; TextURL: string; NumBookmark09: integer= 0);
 var
-   Note: TTabNote;
+   Note: TKntFolder;
    TreeNode: TTreeNTNode;
    TargetMarker: integer;
    str, strTargetMarker: string;
@@ -708,7 +706,7 @@ begin
     strTargetMarker:= '';
 
     if (aLocation.CaretPos <> 0) and (not ActiveNote.PlainText)
-       and ((ActiveNote.Kind <> ntTree) or (TTreeNote(ActiveNote).SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode]) ) then begin        // Allow the mark (hidden) although Note is ReadOnly
+       and ( TKntFolder(ActiveNote).SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode] ) then begin        // Allow the mark (hidden) although Note is ReadOnly
       if NumBookmark09 <= 0 then
          TargetMarker:= GetActualTargetMarker(ActiveNote.Editor);             // If a marker already exists at that position, we will use it
 
@@ -788,7 +786,7 @@ var
   Location : TLocation;
   NewFormatURL : boolean;
   origLocationStr : string;
-  Note: TTabNote;
+  Note: TKntFolder;
   myTreeNode: TTreeNTNode;
 begin
 
@@ -899,16 +897,16 @@ begin
     delete( LocationStr, 1, p );
 
     if assigned(Note) then
-      if ( Note.Kind = ntTree ) and (Location.NodeID >= 0) then begin
+      if (Location.NodeID >= 0) then begin
         if ( Location.NodeID <> 0 ) then
-          myTreeNode := TTreeNote( Note ).GetTreeNodeByID( Location.NodeID )
+          myTreeNode := TKntFolder( Note ).GetTreeNodeByID( Location.NodeID )
         else
-          myTreeNode := TTreeNote( Note ).TV.Items.FindNode( [ffText], Location.NodeName, nil );
+          myTreeNode := TKntFolder( Note ).TV.Items.FindNode( [ffText], Location.NodeName, nil );
 
         if assigned(myTreeNode) then
             if assigned( myTreeNode.Data ) then begin
-               Location.NodeID:= TNoteNode( myTreeNode.Data ).ID;
-               Location.NoteName:= TNoteNode( myTreeNode.Data ).Name;
+               Location.NodeID:= TKntNote( myTreeNode.Data ).ID;
+               Location.NoteName:= TKntNote( myTreeNode.Data ).Name;
             end;
       end;
 
@@ -993,7 +991,7 @@ end;
 //===============================================================
 procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
 var
-  myNote: TTabNote;
+  myNote: TKntFolder;
 begin
     if assigned(myTreeNode) then begin
         myNote:= NoteFile.GetNoteByTreeNode(myTreeNode);
@@ -1004,13 +1002,13 @@ begin
 
         if assigned( myTreeNode ) then begin
            myTreeNode.MakeVisible;
-           TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
+           TKntFolder( ActiveNote ).TV.Selected := myTreeNode;
         end;
     end;
 end;
 
 
-function GetPositionOffset (myNote : TTabNote; myTreeNode: TTreeNTNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function GetPositionOffset (myNote : TKntFolder; myTreeNode: TTreeNTNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
   Stream: TMemoryStream;
   imLinkTextPlain: String;
@@ -1026,15 +1024,10 @@ begin
      imLinkTextPlain:= '';
       if assigned(myTreeNode) then begin
           if assigned( myTreeNode.Data ) then begin
-             Stream:= TNoteNode( myTreeNode.Data ).Stream;
-             imLinkTextPlain := TNoteNode( myTreeNode.Data ).NodeTextPlain;
-             RtfModified := TNoteNode( myTreeNode.Data ).RTFModified;
+             Stream:= TKntNote( myTreeNode.Data ).Stream;
+             imLinkTextPlain := TKntNote( myTreeNode.Data ).NodeTextPlain;
+             RtfModified := TKntNote( myTreeNode.Data ).RTFModified;
           end;
-      end
-      else begin
-         Stream:= myNote.DataStream;
-         imLinkTextPlain := myNote.NoteTextPlain;
-         RtfModified := myNote.Modified;
       end;
 
    end;
@@ -1065,7 +1058,7 @@ begin
 end;
 
 
-function SearchCaretPos (myNote : TTabNote; myTreeNode: TTreeNTNode;
+function SearchCaretPos (myNote : TKntFolder; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true): integer;
@@ -1101,7 +1094,7 @@ begin
   Result:= Offset;
 end;
 
-function PositionInImLinkTextPlain (myNote: TTabNote; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function PositionInImLinkTextPlain (myNote: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
    Offset: integer;
 begin
@@ -1116,9 +1109,9 @@ end;
 
 function DeleteBookmark09 (Location: TLocation): boolean;
 var
-  myNote : TTabNote;
+  myNote : TKntFolder;
   myTreeNode : TTreeNTNode;
-  myNode: TNoteNode;
+  myNode: TKntNote;
   p, SS, SL, selLen: integer;
   TargetMark: string;
   EditorVisible: boolean;
@@ -1141,13 +1134,9 @@ begin
 
   EditorVisible:= false;
 
-  if myNote.Kind = ntRTF then
-     EditorVisible:= true
-  else begin
-     if not assigned( myTreeNode ) then exit;
-     if TTreeNote( ActiveNote ).TV.Selected = myTreeNode then
-        EditorVisible:= true;
-  end;
+  if not assigned( myTreeNode ) then exit;
+  if TKntFolder( ActiveNote ).TV.Selected = myTreeNode then
+     EditorVisible:= true;
 
   if EditorVisible then begin
      SS:= myNote.Editor.SelStart;
@@ -1180,12 +1169,8 @@ begin
 
   end
   else begin
-     if myNote.Kind = ntRTF then
-        Stream:= myNote.DataStream
-     else begin
-        myNode:= TNoteNode(myTreeNode.Data);
-        Stream:= myNode.Stream;
-     end;
+     myNode:= TKntNote(myTreeNode.Data);
+     Stream:= myNode.Stream;
 
      RTFText:= PAnsiChar(Stream.Memory);
      RTFBookmark:= Format(KNT_RTF_Bmk09_HIDDEN_MARK, [Location.Mark]);
@@ -1201,11 +1186,7 @@ begin
         NBytes:= Stream.Size - p - selLen;
         Move(RTFText[p+selLen], RTFText[p], NBytes);
         Stream.Size:= Stream.Size-selLen;
-
-        if myNote.Kind = ntRTF then
-           myNote.NoteTextPlain:= ''
-        else
-           myNode.NodeTextPlain:= '';
+        myNode.NodeTextPlain:= '';
      end;
 
   end;
@@ -1223,7 +1204,7 @@ begin
                           myURLAction: TURLAction = urlOpen;
                           OpenInCurrentFile: boolean= false): boolean;
  var
-   myNote : TTabNote;
+   myNote : TKntFolder;
    myTreeNode : TTreeNTNode;
    origLocationStr : string;
    LocBeforeJump: TLocation;
@@ -1347,15 +1328,14 @@ begin
 
          if assigned( myTreeNode ) then begin
             // select the node
-            if TTreeNote( ActiveNote ).TV.Selected <> myTreeNode then begin
+            if TKntFolder( ActiveNote ).TV.Selected <> myTreeNode then begin
                SameEditor:= False;
                myTreeNode.MakeVisible;     // It could be hidden
-               TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
+               TKntFolder( ActiveNote ).TV.Selected := myTreeNode;
             end;
          end
          else
-             if ActiveNote.Kind = ntTree then
-                Exit;
+           Exit;
 
 
          result := true;
@@ -1376,7 +1356,7 @@ begin
       end
       else
       if (LocBeforeJump <> nil) and
-         (LocBeforeJump.NoteID = ActiveNote.ID) and ((ActiveNote.Kind = ntRTF) or (TTreeNote(ActiveNote).SelectedNode.ID = LocBeforeJump.NodeID)) then begin
+         (LocBeforeJump.NoteID = ActiveNote.ID) and (TKntFolder(ActiveNote).SelectedNode.ID = LocBeforeJump.NodeID) then begin
           AddHistoryLocation (ActiveNote, false, LocBeforeJump);
           _LastMoveWasHistory:= false;
           UpdateHistoryCommands;
@@ -1632,7 +1612,7 @@ var
   function KNTPathFromString (url: string): string;
   var
     Location: TLocation;
-    note: TTabNote;
+    note: TKntFolder;
     treeNode: TTreeNTNode;
   begin
      Location:= BuildKNTLocationFromString(URL);
@@ -1943,7 +1923,7 @@ end;
 //===============================================================
 // InsertURL
 //===============================================================
-procedure InsertURL(URLStr: string; TextURL : string; Note: TTabNote);
+procedure InsertURL(URLStr: string; TextURL : string; Note: TKntFolder);
 var
   URLType : TKNTURL;
   Form_URLAction: TForm_URLAction;
@@ -2057,7 +2037,7 @@ end; // Insert URL
 //=========================================
 // AddHistoryLocation
 //=========================================
-procedure AddHistoryLocation( const aNote : TTabNote; const AddLocalMaintainingIndex: boolean;
+procedure AddHistoryLocation( const aNote : TKntFolder; const AddLocalMaintainingIndex: boolean;
                               aLocation: TLocation= nil;
                               const AddToGlobalHistory: boolean= true);
 var

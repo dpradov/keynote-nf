@@ -265,7 +265,7 @@ var
   i : integer;
   myFav : TLocation;
   name : string;
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
   Form_FavExt : TForm_FavExt;
   extFilename, extParams : string;
 

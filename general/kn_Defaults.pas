@@ -138,7 +138,6 @@ type
     Action : TPropertiesAction;
     OK_Click : boolean;
     StartWithEditorTab : boolean;
-    NoteKind : TNoteType;
     DefaultsFN : string;
 
     myEditorChrome : TChrome;
@@ -239,7 +238,6 @@ begin
   OK_Click := false;
   Action := low( TPropertiesAction );
   StartWithEditorTab := true;
-  NoteKind := ntRTF;
   DefaultsFN := normalFN( changefileext( Application.ExeName, ext_DEFAULTS ));
 
   myTabNameHistory := '';
@@ -353,7 +351,7 @@ begin
 
     case Action of
       propThisNote : begin
-        CB_SaveDefaults.Enabled := (NoteKind = ntTree);
+        CB_SaveDefaults.Enabled := true;
         CB_SaveDefaults.Checked := false;
         CB_SaveAsDef.Checked := False;
 
@@ -390,7 +388,7 @@ begin
     end;
 
     BitBtn_TknHlp.OnClick := BitBtn_TknHlpClick;
-    Tab_Tree.TabVisible := (( Action in [propDefaults] ) or ( NoteKind = ntTree ));
+    Tab_Tree.TabVisible := true;
     CB_InheritBGColor.Visible := Tab_Tree.TabVisible;
 
     Edit_NodeName.Items.BeginUpdate;
@@ -540,18 +538,15 @@ begin
     DefaultZoom:= fDefaultZoom;
   end;
 
-  if (( Action in [propDefaults] ) or ( NoteKind = ntTree )) then
+  with myTreeProperties do
   begin
-    with myTreeProperties do
-    begin
-      if ( trim( Edit_NodeName.Text ) <> '' ) then
-        DefaultName := trim( Edit_NodeName.Text );
-      IconKind := TNodeIconKind( Combo_TreeImages.ItemIndex );
-      Checkboxes := CB_TreeCheck.Checked;
-      VerticalLayout := CB_Vertical.Checked;
-      AutoNumberNodes := CB_AutoNumberNodes.Checked;
-      HideChecked:= CB_HideChecked.Checked;
-    end;
+    if ( trim( Edit_NodeName.Text ) <> '' ) then
+      DefaultName := trim( Edit_NodeName.Text );
+    IconKind := TNodeIconKind( Combo_TreeImages.ItemIndex );
+    Checkboxes := CB_TreeCheck.Checked;
+    VerticalLayout := CB_Vertical.Checked;
+    AutoNumberNodes := CB_AutoNumberNodes.Checked;
+    HideChecked:= CB_HideChecked.Checked;
   end;
 
   with myEditorChrome do
@@ -583,17 +578,14 @@ begin
     CB_Zoom.Text:= IntToStr(DefaultZoom);
   end;
 
-  if (( Action in [propDefaults] ) or ( NoteKind = ntTree )) then
+  with myTreeProperties do
   begin
-    with myTreeProperties do
-    begin
-      Edit_NodeName.Text := DefaultName;
-      Combo_TreeImages.ItemIndex := ord( IconKind );
-      CB_TreeCheck.Checked := Checkboxes;
-      CB_Vertical.Checked := VerticalLayout;
-      CB_AutoNumberNodes.Checked := AutoNumberNodes;
-      CB_HideChecked.Checked := HideChecked;          // [dpv]
-    end;
+    Edit_NodeName.Text := DefaultName;
+    Combo_TreeImages.ItemIndex := ord( IconKind );
+    CB_TreeCheck.Checked := Checkboxes;
+    CB_Vertical.Checked := VerticalLayout;
+    CB_AutoNumberNodes.Checked := AutoNumberNodes;
+    CB_HideChecked.Checked := HideChecked;          // [dpv]
   end;
 
   with myEditorChrome do

@@ -278,7 +278,7 @@ var
   KNTPluginExecute : KNTPluginExecuteProc;
   KNTPluginCleanup : KNTPluginCleanupProc;
   KNTSetPluginID : KNTSetPluginIDProc;
-  myNote : TTabNote;
+  myNote : TKntFolder;
   OutData : AnsiString;                            //  For compatibility, to be changed..
   Indata : Pointer;
   s, tmpstr : AnsiString;                          // ,,
@@ -432,15 +432,12 @@ begin
             end;
 
 
-            if ( ActiveNote.Kind = ntTree ) then
-                try
-                  with GetCurrentNoteNode do
-                    tmpstr := Name;
-                except
-                  tmpstr := myNote.Name;
-                end
-            else
-               tmpstr := myNote.Name;
+            try
+              with GetCurrentNoteNode do
+                tmpstr := Name;
+            except
+              tmpstr := myNote.Name;
+            end;
 
 
             result := KNTPluginExecute(

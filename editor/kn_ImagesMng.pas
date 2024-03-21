@@ -273,7 +273,7 @@ type
 
     destructor Destroy; override;
 
-    procedure GenerateName(Node: TNoteNode; Note: TTabNote; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+    procedure GenerateName(Node: TKntNote; Note: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 
     property ID: Integer read FID;
     property ImageFormat: TImageFormat read FImageFormat;
@@ -372,14 +372,14 @@ type
 
 
     property Images: TList read fImages;
-    property ImagesMode: TImagesMode read fImagesMode write fImagesMode;            // See TTabNote.ImagesMode  ==> ImagesManager.ProcessImagesInRTF
+    property ImagesMode: TImagesMode read fImagesMode write fImagesMode;            // See TKntFolder.ImagesMode  ==> ImagesManager.ProcessImagesInRTF
     property NextTempImageID: Integer read fNextTempImageID;
     property ReconsiderImageDimensionsGoal: boolean read fReconsiderImageDimensionsGoal write fReconsiderImageDimensionsGoal;
 
     function CheckUniqueName (var Name: string): boolean;
     function CheckRegisterImage (Stream: TMemoryStream; ImgFormat: TImageFormat;
                                  Width, Height: integer;
-                                 Note: TTabNote;
+                                 Note: TKntFolder;
                                  const OriginalPath: String;
                                  Owned: boolean;
                                  const Source: String;
@@ -394,7 +394,7 @@ type
                                const OriginalPath: String;
                                Owned: boolean;
                                const Source: String;
-                               Note: TTabNote;
+                               Note: TKntFolder;
                                const NameProposed: string = ''
                                ): TKntImage;
 
@@ -408,17 +408,17 @@ type
     procedure ReloadImageStream (Img: TKntImage);
     procedure CheckFreeImageStreamsNotRecentlyUsed;
 
-    procedure InsertImage (FileName: String; Note: TTabNote; Owned: boolean; const NameProposed: string = '');
-    procedure InsertImageFromClipboard (Note: TTabNote; TryAddURLlink: boolean = true);
+    procedure InsertImage (FileName: String; Note: TKntFolder; Owned: boolean; const NameProposed: string = '');
+    procedure InsertImageFromClipboard (Note: TKntFolder; TryAddURLlink: boolean = true);
 
-    function ProcessImagesInRTF (const RTFText: AnsiString; Note: TTabNote;
+    function ProcessImagesInRTF (const RTFText: AnsiString; Note: TKntFolder;
                                  ImagesModeDest: TImagesMode;
                                  const Source: string;
                                  FirstImageID: integer= 0;
                                  ExitIfAllImagesInSameModeDest: boolean= false
                                  ): AnsiString; overload;
 
-    function ProcessImagesInRTF (const Buffer: Pointer; BufSize: integer; Note: TTabNote;
+    function ProcessImagesInRTF (const Buffer: Pointer; BufSize: integer; Note: TKntFolder;
                                  ImagesModeDest: TImagesMode;
                                  const Source: string;
                                  FirstImageID: integer;
@@ -427,7 +427,7 @@ type
                                  ExitIfAllImagesInSameModeDest: boolean = false
                                  ): AnsiString; overload;
                                  
-    procedure ProcessImagesInClipboard(Editor: TRxRichEdit; Note: TTabNote; SelStartBeforePaste: integer; FirstImageID: integer= 0);
+    procedure ProcessImagesInClipboard(Editor: TRxRichEdit; Note: TKntFolder; SelStartBeforePaste: integer; FirstImageID: integer= 0);
 
     procedure ResetAllImagesCountReferences;
     procedure RemoveImagesReferences (const IDs: TImageIDs);
@@ -1024,7 +1024,7 @@ end;
 
 { Generates a Name and Path for a new image, unique in the storage, and taking into account that it has been created on the indicated node/note  }
 
-procedure TKntImage.GenerateName(Node: TNoteNode; Note: TTabNote; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+procedure TKntImage.GenerateName(Node: TKntNote; Note: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 var
   src: String;
   strDate: string;
@@ -1833,7 +1833,7 @@ var
    procedure RefreshEditorInAllNotes;
    var
      i: integer;
-     myNote: TTabNote;
+     myNote: TKntFolder;
    begin
      // In case they contain images that could not be located because the storage was moved
 
@@ -2296,13 +2296,13 @@ function TImageManager.RegisterNewImage(
                                          const OriginalPath: String;
                                          Owned: boolean;
                                          const Source: String;
-                                         Note: TTabNote;
+                                         Note: TKntFolder;
                                          const NameProposed: string = ''
                                          ): TKntImage;
 var
    Img: TKntImage;
    Path: string;
-   Node: TNoteNode;
+   Node: TKntNote;
    ImgID: integer;
    ZipPathFormat: boolean;
    StreamIMG: TMemoryStream;
@@ -2345,7 +2345,7 @@ function TImageManager.CheckRegisterImage (
                                            Stream: TMemoryStream;
                                            ImgFormat: TImageFormat;
                                            Width, Height: integer;
-                                           Note: TTabNote;
+                                           Note: TKntFolder;
                                            const OriginalPath: String;
                                            Owned: boolean;
                                            const Source: String;
@@ -2398,7 +2398,7 @@ end;
 
 { Explicit insertion of an image. Replaces the current method that relies on the use of the clipboard }
 
-procedure TImageManager.InsertImage(FileName: String; Note: TTabNote; Owned: boolean; const NameProposed: string= '');
+procedure TImageManager.InsertImage(FileName: String; Note: TKntFolder; Owned: boolean; const NameProposed: string= '');
 var
   Stream: TMemoryStream;
   ImgFormat, ImgFormatDest: TImageFormat;
@@ -2444,7 +2444,7 @@ begin
 end;
 
 
-procedure TImageManager.InsertImageFromClipboard(Note: TTabNote; TryAddURLlink: boolean = true);
+procedure TImageManager.InsertImageFromClipboard(Note: TKntFolder; TryAddURLlink: boolean = true);
 var
   Stream: TMemoryStream;
   bmp: TBitmap;
@@ -2569,7 +2569,7 @@ end;
 { Will only be called when it detects that the content on the clipboard was not copied by this application
  If it has been, there is no need to process the images, since they will already be adapted and with the
  hidden marks that have been precise }
-procedure TImageManager.ProcessImagesInClipboard(Editor: TRxRichEdit; Note: TTabNote; SelStartBeforePaste: integer; FirstImageID: integer= 0);
+procedure TImageManager.ProcessImagesInClipboard(Editor: TRxRichEdit; Note: TKntFolder; SelStartBeforePaste: integer; FirstImageID: integer= 0);
 var
   SelStartBak: integer;
   p1, p2: integer;
@@ -2597,7 +2597,7 @@ begin
 end;
 
 
-function TImageManager.ProcessImagesInRTF(const RTFText: AnsiString; Note: TTabNote;
+function TImageManager.ProcessImagesInRTF(const RTFText: AnsiString; Note: TKntFolder;
                                           ImagesModeDest: TImagesMode;
                                           const Source: string;
                                           FirstImageID: integer= 0;
@@ -2651,7 +2651,7 @@ NOTE:
      from the image, if it finds it:  Embedded color profile, EXIF metada, IPTC metadata
 
 *)
-function TImageManager.ProcessImagesInRTF(const Buffer: Pointer; BufSize: integer; Note: TTabNote;
+function TImageManager.ProcessImagesInRTF(const Buffer: Pointer; BufSize: integer; Note: TKntFolder;
                                           ImagesModeDest: TImagesMode;
                                           const Source: string;
                                           FirstImageID: integer;
@@ -2748,7 +2748,7 @@ begin
        literal = AnsiString('substr');
 
    (*) Starting in this case from the content of a TMemoryStream, in which we have ensured that it ends in #0
-       (See for example comment *1 in TTabNote.CheckSavingImagesOnMode (kn_NoteObj)
+       (See for example comment *1 in TKntFolder.CheckSavingImagesOnMode (kn_NoteObj)
 }
 
    ContainsImages:= false;

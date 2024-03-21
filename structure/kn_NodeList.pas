@@ -37,7 +37,7 @@ type
 type
   EVirtualNodeError = class( Exception);
 
-  TNoteNode = class( TObject )
+  TKntNote = class( TObject )
   private
     FStream : TMemoryStream;
     FNodeTextPlain : string;
@@ -99,7 +99,7 @@ type
     property VirtualMode : TVirtualMode read FVirtualMode write FVirtualMode;
     property VirtualFN : string read GetVirtualFN write SetVirtualFN;
     property RelativeVirtualFN : string read GetRelativeVirtualFN write FRelativeVirtualFN;
-    function NonVirtualNode: TNoteNode;
+    function NonVirtualNode: TKntNote;
     function GetAlarms(considerDiscarded: boolean): TList;
     function HasAlarms (considerDiscarded: boolean): boolean;
 
@@ -130,7 +130,7 @@ type
     function PropertiesToFlagsString : TFlagsString;
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString );
 
-    procedure Assign( Source : TNoteNode );
+    procedure Assign( Source : TKntNote );
     procedure LoadVirtualFile;
     procedure SaveVirtualFile;
     procedure LoadMirrorNode;
@@ -139,18 +139,18 @@ type
   end;
 
 type
-  TNodeList = class( TList )
+  TKntNoteList = class( TList )
   private
-    function GetNode( index : integer ) : TNoteNode;
-    procedure PutNode( index : integer; item : TNoteNode );
+    function GetNode( index : integer ) : TKntNote;
+    procedure PutNode( index : integer; item : TKntNote );
   public
-    property Items[index:integer] : TNoteNode read GetNode write PutNode; default;
+    property Items[index:integer] : TKntNote read GetNode write PutNode; default;
     constructor Create;
     destructor Destroy; override;
-    function Remove( item : TNoteNode ) : integer;
+    function Remove( item : TKntNote ) : integer;
     procedure Delete( index : integer );
     function HasVirtualNodes : boolean;
-    procedure Insert( const aIndex : integer; const item : TNoteNode );
+    procedure Insert( const aIndex : integer; const item : TKntNote );
   end;
 
 var
@@ -177,7 +177,7 @@ resourcestring
 
 
 
-constructor TNoteNode.Create;
+constructor TKntNote.Create;
 begin
   inherited Create;
   FName := '';
@@ -208,7 +208,7 @@ begin
   FFiltered:= false;           // [dpv]
 end; // CREATE
 
-destructor TNoteNode.Destroy;
+destructor TKntNote.Destroy;
 begin
   if assigned( FStream ) and (FVirtualMode <> vmKNTNode) then begin
      FStream.Free;
@@ -216,19 +216,19 @@ begin
   inherited Destroy;
 end; // DESTROY
 
-procedure TNoteNode.SetID( AID : longint );
+procedure TKntNote.SetID( AID : longint );
 begin
   if ( FID = 0 ) then
     FID := AID;
   // otherwise, never allow the ID to be modified
 end; // SetID
 
-procedure TNoteNode.ForceID( AID : longint );
+procedure TKntNote.ForceID( AID : longint );
 begin
    FID := AID;
 end;
 
-function TNoteNode.PropertiesToFlagsString : TFlagsString;
+function TKntNote.PropertiesToFlagsString : TFlagsString;
 begin
   result := DEFAULT_FLAGS_STRING;
   result[1] := BOOLEANSTR[FChecked];
@@ -271,7 +271,7 @@ begin
 
 end; // PropertiesToFlagsString
 
-procedure TNoteNode.FlagsStringToProperties( const FlagsStr : TFlagsString );
+procedure TKntNote.FlagsStringToProperties( const FlagsStr : TFlagsString );
 begin
   if ( length( FlagsStr ) < FLAGS_STRING_LENGTH ) then exit;
   FChecked     := FlagsStr[1] = BOOLEANSTR[true];
@@ -306,7 +306,7 @@ begin
 end; // FlagsStringToProperties
 
 
-procedure TNoteNode.SetVirtualFN( aVirtualFN : string );
+procedure TKntNote.SetVirtualFN( aVirtualFN : string );
 var
   myExt : string;
 begin
@@ -368,21 +368,21 @@ begin
 end; // SetVirtualFN
 
 
-function TNoteNode.HasMirrorNodes: boolean;
+function TKntNote.HasMirrorNodes: boolean;
 begin
    Result:= (FTag = 1);
 end;
 
-procedure TNoteNode.AddedMirrorNode;
+procedure TKntNote.AddedMirrorNode;
 begin
    FTag := 1;
 end;
-procedure TNoteNode.RemovedAllMirrorNodes;
+procedure TKntNote.RemovedAllMirrorNodes;
 begin
    FTag := 0;
 end;
 
-function TNoteNode.GetVirtualFN: string;
+function TKntNote.GetVirtualFN: string;
 begin
     if FVirtualMode <> vmKNTNode then
        Result:= FVirtualFN
@@ -390,13 +390,13 @@ begin
        Result:= GetMirrorNodePath;
 end;
 
-procedure TNoteNode.SetMirrorNodeID( ID : string );
+procedure TKntNote.SetMirrorNodeID( ID : string );
 begin
     FVirtualMode := vmKNTNode;
     FVirtualFN:= ID;
 end;
 
-function TNoteNode.GetMirrorNode: TTreeNTNode;
+function TKntNote.GetMirrorNode: TTreeNTNode;
 var
    p: integer;
 begin
@@ -409,9 +409,9 @@ begin
 end; // GetVirtualKNTNode
 
 
-function TNoteNode.GetMirrorNodePath: string;
+function TKntNote.GetMirrorNodePath: string;
 var
-   note: TTabNote;
+   note: TKntFolder;
    node : TTreeNTNode;
 begin
      node:= GetMirrorNode;
@@ -421,7 +421,7 @@ begin
      end;
 end;
 
-procedure TNoteNode.LoadMirrorNode;
+procedure TKntNote.LoadMirrorNode;
 var
    Node : TTreeNTNode;
    cad: TStringList;
@@ -429,7 +429,7 @@ begin
     if FVirtualMode = vmKNTNode then begin
        node:= GetMirrorNode;
        if assigned(node) then begin
-          FStream:= TNoteNode(Node.Data).FStream;       // This node shares its content with the other node
+          FStream:= TKntNote(Node.Data).FStream;       // This node shares its content with the other node
           FStream.Position := 0;
        end
        else begin
@@ -444,23 +444,23 @@ begin
     end;
 end; // LoadMirrorNode
 
-procedure TNoteNode.SetMirrorNode( aNode : TTreeNTNode );
+procedure TKntNote.SetMirrorNode( aNode : TTreeNTNode );
 var
-   aNote: TTabNote;
+   aNote: TKntFolder;
 begin
      if assigned(aNode) then begin
          if FVirtualMode <> vmKNTNode then begin
             FStream.Free;
          end;
 
-         if TNoteNode(aNode.Data).VirtualMode = vmKNTnode then          // point to non virtual node
-            aNode:= TNoteNode(aNode.Data).MirrorNode;
+         if TKntNote(aNode.Data).VirtualMode = vmKNTnode then          // point to non virtual node
+            aNode:= TKntNote(aNode.Data).MirrorNode;
 
          if assigned(aNode) then begin
             aNote:= NoteFile.GetNoteByTreeNode(aNode);
-            FVirtualFN:= inttostr(aNote.ID) + KNTLINK_SEPARATOR + inttostr(TNoteNode(aNode.Data).ID);
+            FVirtualFN:= inttostr(aNote.ID) + KNTLINK_SEPARATOR + inttostr(TKntNote(aNode.Data).ID);
             FVirtualMode := vmKNTNode;
-            FStream:= TNoteNode(aNode.Data).FStream;   // This node shares its content with the other node
+            FStream:= TKntNote(aNode.Data).FStream;   // This node shares its content with the other node
          end;
      end
      else
@@ -474,31 +474,31 @@ begin
 end; // SetMirrorNode
 
 
-function TNoteNode.NonVirtualNode: TNoteNode;
+function TKntNote.NonVirtualNode: TKntNote;
 var
-   myNode: TNoteNode;
+   myNode: TKntNote;
    node: TTreeNTNode;
 begin
     Result:= Self;
     if (FVirtualMode= vmKNTNode) then begin
        node:= MirrorNode;
        if assigned(node) then
-          Result:= TNoteNode(Node.Data);
+          Result:= TKntNote(Node.Data);
     end;
 end;
 
-function TNoteNode.HasAlarms(considerDiscarded: boolean): boolean;
+function TKntNote.HasAlarms(considerDiscarded: boolean): boolean;
 begin
     Result:= AlarmManager.HasAlarms(nil, NonVirtualNode, considerDiscarded);
 end;
 
-function TNoteNode.GetAlarms(considerDiscarded: boolean): TList;
+function TKntNote.GetAlarms(considerDiscarded: boolean): TList;
 begin
    Result:= AlarmManager.GetAlarms(nil, NonVirtualNode, considerDiscarded);
 end;
 
 
-procedure TNoteNode.LoadVirtualFile;
+procedure TKntNote.LoadVirtualFile;
 var
   NewVirtualFN : string;
 begin
@@ -522,7 +522,7 @@ begin
   FStream.Position := 0;
 end; // LoadVirtualFile
 
-procedure TNoteNode.SaveVirtualFile;
+procedure TKntNote.SaveVirtualFile;
 var
   bakFN : string;
 begin
@@ -557,7 +557,7 @@ begin
   FRTFModified := false;
 end; // SaveVirtualFile
 
-procedure TNoteNode.Assign( Source : TNoteNode );
+procedure TKntNote.Assign( Source : TKntNote );
 begin
   if ( not assigned( Source )) then exit;
 
@@ -593,24 +593,24 @@ begin
 end; // Assign
 
 
-procedure TNoteNode.SetNodeFontFace( const aFace : string );
+procedure TKntNote.SetNodeFontFace( const aFace : string );
 begin
   FNodeFontFace := aFace;
   FHasNodeFontFace := ( aFace <> '' );
 end; // SetNodeFontFace
 
-procedure TNoteNode.SetWordWrap( const Value : TNodeWordWrap );
+procedure TKntNote.SetWordWrap( const Value : TNodeWordWrap );
 begin
   FWordWrap := Value;
 end; // SetWordWrap
 
-function TNoteNode.HasVNodeError : boolean;
+function TKntNote.HasVNodeError : boolean;
 begin
   result := (( FVirtualFN <> '' ) and
     ( FVirtualFN[1] = _VIRTUAL_NODE_ERROR_CHAR ));
 end; // HasVNodeError
 
-procedure TNoteNode.SetName( AName : string );
+procedure TKntNote.SetName( AName : string );
 begin
   if ( AName <> FName ) then
   begin
@@ -627,14 +627,14 @@ begin
   end;
 end; // SetName
 
-procedure TNoteNode.SetLevel( ALevel : integer );
+procedure TKntNote.SetLevel( ALevel : integer );
 begin
   if ( ALevel <> FLevel ) then
     FLevel := ALevel;
   if ( FLevel < 0 ) then FLevel := 0;
 end; // SetLevel
 
-function TNoteNode.GetRelativeVirtualFN : string;
+function TKntNote.GetRelativeVirtualFN : string;
 begin
   if ( FRelativeVirtualFN = '' ) then
   begin
@@ -645,12 +645,12 @@ end; // GetRelativeVirtualFN
 
 // ------- TNODELIST ---------
 
-constructor TNodeList.Create;
+constructor TKntNoteList.Create;
 begin
   inherited Create;
 end; // CREATE
 
-destructor TNodeList.Destroy;
+destructor TKntNoteList.Destroy;
 var
   i : integer;
 begin
@@ -665,30 +665,30 @@ begin
 end; // DESTROY
 
 
-function TNodeList.GetNode( index : integer ) : TNoteNode;
+function TKntNoteList.GetNode( index : integer ) : TKntNote;
 begin
-  result := TNoteNode( inherited items[index] );
+  result := TKntNote( inherited items[index] );
 end; // PutStream
 
-procedure TNodeList.PutNode( index : integer; item : TNoteNode );
+procedure TKntNoteList.PutNode( index : integer; item : TKntNote );
 begin
   inherited Put( index, item );
 end; // PutStream
 
-function TNodeList.Remove( item : TNoteNode ) : integer;
+function TKntNoteList.Remove( item : TKntNote ) : integer;
 begin
   if assigned( item ) then Item.Free;
   result := inherited remove( item );
 end; // Remove
 
-procedure TNodeList.Delete( index : integer );
+procedure TKntNoteList.Delete( index : integer );
 begin
   if (( index >= 0 ) and ( index < Count ) and assigned( items[index] )) then
     Items[index].Free;
   inherited Delete( index );
 end; // Delete
 
-function TNodeList.HasVirtualNodes : boolean;
+function TKntNoteList.HasVirtualNodes : boolean;
 var
   i : integer;
 begin
@@ -706,7 +706,7 @@ begin
 end; // HasVirtualNodes
 
 
-procedure TNodeList.Insert( const aIndex : integer; const item : TNoteNode );
+procedure TKntNoteList.Insert( const aIndex : integer; const item : TKntNote );
 begin
   inherited Insert( aIndex, item );
 end; // Insert

@@ -167,7 +167,7 @@ begin
   else begin
       if not myFindOptions.AllTabs_FindReplace then
          if (ActiveNote <> StartNote) or
-            (not myFindOptions.AllNodes) and ((ActiveNote.Kind = ntTree) and (TTreeNote(ActiveNote).TV.Selected <> StartNode)) then
+            (not myFindOptions.AllNodes) and (TKntFolder(ActiveNote).TV.Selected <> StartNode) then
               myFindOptions.FindNew := true;
   end;
 

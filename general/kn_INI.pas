@@ -1003,7 +1003,6 @@ begin
     ConfirmTabDelete := true;
     Debug := false;
     DebugLogAppend := true;
-    DefaultNoteType := ntTree; // by default, preselect Tree-type note
     DisableAlarmPopup:= false;
     DisableFileMon := false;
     DropNodesOnTabMove := false;
@@ -1094,7 +1093,6 @@ begin
     WarnSingleInstance:= true;
     SkipNewFilePrompt := false;
     StartMinimized := false;
-    StartNoteType := ntTree;
     StatBarDlbClkAction := DBLCLK_RESPANEL;
     StatBarDlbClkActionShft := DBLCLK_FILEPROP;
     StatBarShow := true;
@@ -1317,7 +1315,6 @@ begin
       writebool( section, KeyOptionsIniStr.ConfirmTabDelete, KeyOptions.ConfirmTabDelete );
       writebool( section, KeyOptionsIniStr.Debug, KeyOptions.Debug );
       writebool( section, KeyOptionsIniStr.DebugLogAppend, KeyOptions.DebugLogAppend );
-      writeinteger( section, KeyOptionsIniStr.DefaultNoteType, ord( KeyOptions.DefaultNoteType ));
       writebool( section, KeyOptionsIniStr.DisableAlarmPopup, KeyOptions.DisableAlarmPopup );
       writebool( section, KeyOptionsIniStr.DisableFileMon, KeyOptions.DisableFileMon );
       writebool( section, KeyOptionsIniStr.DropNodesOnTabMove, KeyOptions.DropNodesOnTabMove );
@@ -1398,7 +1395,6 @@ begin
       writebool( section, KeyOptionsIniStr.WarnSingleInstance, KeyOptions.WarnSingleInstance );
       writebool( section, KeyOptionsIniStr.SkipNewFilePrompt, KeyOptions.SkipNewFilePrompt );
       writebool( section, KeyOptionsIniStr.StartMinimized, KeyOptions.StartMinimized );
-      writeinteger( section, KeyOptionsIniStr.StartNoteType, ord( KeyOptions.StartNoteType ));
       writeinteger( section, KeyOptionsIniStr.StatBarDlbClkAction, KeyOptions.StatBarDlbClkAction );
       writeinteger( section, KeyOptionsIniStr.StatBarDlbClkActionShft, KeyOptions.StatBarDlbClkActionShft );
       writebool( section, KeyOptionsIniStr.StatBarShow, KeyOptions.StatBarShow );
@@ -1641,7 +1637,6 @@ begin
       KeyOptions.DateFmt := readstring( section, KeyOptionsIniStr.DateFmt, KeyOptions.DateFmt );
       KeyOptions.Debug := readbool( section, KeyOptionsIniStr.Debug, KeyOptions.Debug );
       KeyOptions.DebugLogAppend := readbool( section, KeyOptionsIniStr.DebugLogAppend, KeyOptions.DebugLogAppend );
-      KeyOptions.DefaultNoteType := TNoteType( readinteger( section, KeyOptionsIniStr.DefaultNoteType, ord( KeyOptions.DefaultNoteType )));
       KeyOptions.DisableAlarmPopup := readbool( section, KeyOptionsIniStr.DisableAlarmPopup, KeyOptions.DisableAlarmPopup );
       KeyOptions.DisableFileMon := readbool( section, KeyOptionsIniStr.DisableFileMon, KeyOptions.DisableFileMon );
       KeyOptions.DropNodesOnTabMove := readbool( section, KeyOptionsIniStr.DropNodesOnTabMove, KeyOptions.DropNodesOnTabMove );
@@ -1740,7 +1735,6 @@ begin
       KeyOptions.WarnSingleInstance := readbool( section, KeyOptionsIniStr.WarnSingleInstance, KeyOptions.WarnSingleInstance );
       KeyOptions.SkipNewFilePrompt := readbool( section, KeyOptionsIniStr.SkipNewFilePrompt, KeyOptions.SkipNewFilePrompt );
       KeyOptions.StartMinimized := readbool( section, KeyOptionsIniStr.StartMinimized, KeyOptions.StartMinimized );
-      KeyOptions.StartNoteType := TNoteType( readinteger( section, KeyOptionsIniStr.StartNoteType, ord( KeyOptions.StartNoteType )));
       KeyOptions.StatBarDlbClkAction := readinteger( section, KeyOptionsIniStr.StatBarDlbClkAction, KeyOptions.StatBarDlbClkAction );
       KeyOptions.StatBarDlbClkActionShft := readinteger( section, KeyOptionsIniStr.StatBarDlbClkActionShft, KeyOptions.StatBarDlbClkActionShft );
       KeyOptions.StatBarShow := readbool( section, KeyOptionsIniStr.StatBarShow, KeyOptions.StatBarShow );

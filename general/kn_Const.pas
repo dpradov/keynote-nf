@@ -38,8 +38,6 @@ resourcestring
   STR_04_Formats = 'Keynote encrypted';
   STR_06_Formats = 'Keynote compressed';
   STR_05_Formats = 'Dart Notes';
-  STR_06_TabnoteKind = 'Standard Rich text editor';
-  STR_07_TabnoteKind = 'Multi-level tree';
   STR_08_SearchMode = 'Exact phrase';
   STR_09_SearchMode = 'All the words';
   STR_10_SearchMode = 'Any of the words';
@@ -364,10 +362,10 @@ const
   MAILNOTECOUNT         = '%C'; // expands to number of notes being sent
 
 const
-  _NF_TabNote         = '%';    // end-of-record (new TTabNote begins)
+  _NF_TabNote         = '%';    // end-of-record (new TTabNote begins)  (only in old .knt files)
   _NF_EOF             = '%%';   // end-of-file (last line in file)
   _NF_RTF             = '%:';   // end of note header; RTF data follows
-  _NF_TreeNote        = '%+';   // TTreeNote begins
+  _NF_TreeNote        = '%+';   // TKntFolder (TTreeNote) begins
   _NF_TRN             = '%-';   // Tree node begins (many tree nodes within a single note)
   _NF_COMMENT         = '#';    // comment, but this is really used for file header information
   _NF_WARNING         = _NF_COMMENT + ' This is an automatically generated file. Do not edit.';
@@ -470,10 +468,12 @@ type
   );
 
 type
+{  // Obsolete
   TNoteType = (
     ntRTF, // standard RichEdit control
     ntTree // tree panel plus richedit control (tree-type note)
   );
+}
   TNextBlock = (
     nbRTF,        // = ntRTF
     nbTree,       // = ntTree
@@ -482,12 +482,6 @@ type
   );
   //TNoteNameStr = String[TABNOTE_NAME_LENGTH];
   TNoteNameStr = string;
-
-const
-  TABNOTE_KIND_IDS : array[TNoteType] of string = (
-    'RTF',
-    'TRN'
-  );
 
 type
   TNavDirection = (
@@ -1006,7 +1000,7 @@ const
 
 
 const
-  // special TTreeNote tokens
+  // special TKntFolder (old TTreeNote) tokens
   _NodeName = 'ND';
   _NodeID = 'DI';
   _NodeLevel = 'LV';
@@ -1097,7 +1091,6 @@ const
 var
   FILE_FORMAT_NAMES : array[TNoteFileFormat] of string;
   FILE_COMPRESSION_LEVEL : array[TZCompressionLevel] of string;
-  TABNOTE_KIND_NAMES : array[TNoteType] of string;
   SEARCH_MODES : array[TSearchMode] of string;
   SEARCH_SCOPES : array[TSearchScope] of string;
   SEARCH_CHKMODES : array[TSearchCheckMode] of string;
@@ -1120,8 +1113,6 @@ begin
   FILE_COMPRESSION_LEVEL[zcDefault]:= STR_56_Compression;
   FILE_COMPRESSION_LEVEL[zcMax]:= STR_57_Compression;
 
-  TABNOTE_KIND_NAMES[ntRTF]:=    STR_06_TabnoteKind;
-  TABNOTE_KIND_NAMES[ntTree]:=   STR_07_TabnoteKind;
 
   SEARCH_MODES[smPhrase] := STR_08_SearchMode;
   SEARCH_MODES[smAll] := STR_09_SearchMode;

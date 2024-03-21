@@ -113,8 +113,8 @@ type
 
     MailOptions : TMailOptions;
     IsBusy : boolean;
-    myNotes : TNoteFile;
-    myActiveNote : TTabNote;
+    myNotes : TKntFile;
+    myActiveNote : TKntFolder;
     myCurNoteName : string;
     UserFieldsAdded : boolean;
     HadError : boolean;
@@ -128,7 +128,7 @@ type
 
     function Verify : boolean;
     function ExpandTokenLine( aLine : string ) : string;
-    procedure AddNoteToMailMessage( const aNote : TTabNote );
+    procedure AddNoteToMailMessage( const aNote : TKntFolder );
 
   end;
 
@@ -448,11 +448,11 @@ begin
 
 end; // ExpandTokenLine
 
-procedure TForm_Mail.AddNoteToMailMessage( const aNote : TTabNote );
+procedure TForm_Mail.AddNoteToMailMessage( const aNote : TKntFolder );
 var
-  tNote : TTreeNote;
+  tNote : TKntFolder;
   myTreeNode : TTreeNTNode;
-  myNoteNode : TNoteNode;
+  myNoteNode : TKntNote;
   RichEdit : TRxRichEdit;
 begin
 
@@ -466,7 +466,7 @@ begin
     end;
 
     ntTree : begin
-      tNote := TTreeNote( aNote );
+      tNote := TKntFolder( aNote );
       // List := TStringList.Create;
       RichEdit := TRxRichEdit.Create( self );
       with RichEdit do
@@ -482,7 +482,7 @@ begin
            myTreeNode := myTreeNode.GetNextNotHidden;
         while assigned( myTreeNode ) do
         begin
-          myNoteNode := TNoteNode( myTreeNode.Data );
+          myNoteNode := TKntNote( myTreeNode.Data );
           if assigned( myNoteNode ) then
           begin
             SMTPCli.MailMessage.Add( '' );

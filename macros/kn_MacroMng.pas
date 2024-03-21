@@ -87,7 +87,7 @@ var
     // edit commands
     procedure PerformCmd( aCmd : TEditCmd );
     procedure PerformCmdEx( aCmd : TEditCmd );
-    procedure PerformCmdPastePlain( Note: TTabNote; StrClp: string = ''; HTMLClip: AnsiString= '';
+    procedure PerformCmdPastePlain( Note: TKntFolder; StrClp: string = ''; HTMLClip: AnsiString= '';
                                     ForcePlainText: boolean = false;
                                     MaxSize: integer = 0 );
     procedure RepeatLastCommand;
@@ -1235,17 +1235,9 @@ begin
                   end;
                 end;
 
-                macNoteNewRTF : begin
+                macNoteNewRTF, macNoteNewTree : begin
                   // always abort if fail
-                  if ( not NewNote( true, true, ntRTF )) then begin
-                    AbortMacro( STR_36, i, Macro.Lines[pred( i )] );
-                    break;
-                  end;
-                end;
-
-                macNoteNewTree : begin
-                  // always abort if fail
-                  if ( not NewNote( true, true, ntTree )) then begin
+                  if ( not NewNote( true, true )) then begin
                     AbortMacro( STR_36, i, Macro.Lines[pred( i )] );
                     break;
                   end;
@@ -1710,7 +1702,7 @@ begin
 end; // PerformCmdEx
 
 
-procedure PerformCmdPastePlain( Note: TTabNote;
+procedure PerformCmdPastePlain( Note: TKntFolder;
                                 StrClp: string = ''; HTMLClip: AnsiString= '';
                                 ForcePlainText: boolean = false;
                                 MaxSize: integer = 0 );
@@ -2287,60 +2279,48 @@ begin
               CommandRecall.Color := Form_Main.ColorDlg.Color;
 
               ActiveNote.Editor.Color := tempChrome.BGColor;
-              case ActiveNote.Kind of
-                ntRTF : begin
-                  ActiveNote.EditorChrome := tempChrome;
-                end;
-                ntTree : begin
-                  if assigned( TTreeNote( ActiveNote ).SelectedNode ) then
-                    TTreeNote( ActiveNote ).SelectedNode.RTFBGColor := tempChrome.BGColor;
 
-                  if ( not TreeOptions.InheritNodeBG ) then
-                    ActiveNote.EditorChrome := tempChrome;
+              if assigned( TKntFolder( ActiveNote ).SelectedNode ) then
+                TKntFolder( ActiveNote ).SelectedNode.RTFBGColor := tempChrome.BGColor;
 
-                  if ShiftWasDown then begin
-                    if ( messagedlg( format(STR_55, [ActiveNote.Name]),
-                        mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
-                      try
-                        myTreeNode := TTreeNote( ActiveNote ).TV.Items.GetFirstNode;
-                        while assigned( myTreeNode ) do begin
-                          TNoteNode( myTreeNode.Data ).RTFBGColor := tempChrome.BGColor;
-                          myTreeNode := myTreeNode.GetNext;
-                        end;
-                      except
-                         //aCmd := ecNone;
-                      end;
+              if ( not TreeOptions.InheritNodeBG ) then
+                ActiveNote.EditorChrome := tempChrome;
+
+              if ShiftWasDown then begin
+                if ( messagedlg( format(STR_55, [ActiveNote.Name]),
+                    mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
+                  try
+                    myTreeNode := TKntFolder( ActiveNote ).TV.Items.GetFirstNode;
+                    while assigned( myTreeNode ) do begin
+                      TKntNote( myTreeNode.Data ).RTFBGColor := tempChrome.BGColor;
+                      myTreeNode := myTreeNode.GetNext;
                     end;
-                  end;  // if ShiftWasDown
-
+                  except
+                     //aCmd := ecNone;
+                  end;
                 end;
-              end;
+              end;  // if ShiftWasDown
+
             end
             else
               Canceled:= True;
           end;
 
           ecWordWrap : begin
-            case ActiveNote.Kind of
-               ntRTF :
-                 ActiveNote.WordWrap := ( not ActiveNote.WordWrap );
+             if assigned( TKntFolder( ActiveNote ).SelectedNode ) then begin
+                case TKntFolder( ActiveNote ).SelectedNode.WordWrap of
+                   wwAsNote :
+                    if ActiveNote.WordWrap then
+                       TKntFolder( ActiveNote ).SelectedNode.WordWrap := wwNo
+                    else
+                       TKntFolder( ActiveNote ).SelectedNode.WordWrap := wwYes;
 
-               ntTree :
-                 if assigned( TTreeNote( ActiveNote ).SelectedNode ) then begin
-                    case TTreeNote( ActiveNote ).SelectedNode.WordWrap of
-                       wwAsNote :
-                        if ActiveNote.WordWrap then
-                           TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwNo
-                        else
-                           TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwYes;
-
-                       wwYes : TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwNo;
-                       wwNo : TTreeNote( ActiveNote ).SelectedNode.WordWrap := wwYes;
-                    end;
-                    ActiveNote.Editor.WordWrap := ( TTreeNote( ActiveNote ).SelectedNode.WordWrap = wwYes );
-                 end;
-            end;
-            UpdateNoteDisplay;
+                   wwYes : TKntFolder( ActiveNote ).SelectedNode.WordWrap := wwNo;
+                   wwNo : TKntFolder( ActiveNote ).SelectedNode.WordWrap := wwYes;
+                end;
+                ActiveNote.Editor.WordWrap := ( TKntFolder( ActiveNote ).SelectedNode.WordWrap = wwYes );
+             end;
+             UpdateNoteDisplay;
           end;
 
           ecSelectAll :
@@ -2908,12 +2888,12 @@ begin
                 PerformCmd( ecPaste );
 
        end
-       else if ActiveNote.Kind = ntTree then begin
-           if TTreeNote( ActiveNote ).TV.IsEditing then begin
+       else begin
+           if TKntFolder( ActiveNote ).TV.IsEditing then begin
               if Form_Main.NoteIsReadOnly( ActiveNote, true ) then
                  executed:= true;
            end
-           else if TTreeNote( ActiveNote ).TV.Focused then begin
+           else if TKntFolder( ActiveNote ).TV.Focused then begin
               executed:= true;
               if assigned(MovingTreeNode) then begin
                  if MoveSubtree( MovingTreeNode ) then
@@ -2942,11 +2922,11 @@ begin
            executed:= true;
            PerformCmdEx(ecCopy);
        end
-       else if ActiveNote.Kind = ntTree then begin
-           if TTreeNote( ActiveNote ).TV.IsEditing then begin
+       else begin
+           if TKntFolder( ActiveNote ).TV.IsEditing then begin
               executed:= false;       // will be managed by the TreeNT component
            end
-           else if TTreeNote( ActiveNote ).TV.Focused then begin
+           else if TKntFolder( ActiveNote ).TV.Focused then begin
               executed:= true;
               MovingTreeNode:= nil;
               CopyCutFromNoteID:= ActiveNote.ID;
@@ -2971,12 +2951,12 @@ begin
            executed:= true;
            PerformCmd(ecCut);
        end
-       else if ActiveNote.Kind = ntTree then begin
-           if TTreeNote( ActiveNote ).TV.IsEditing then begin
+       else begin
+           if TKntFolder( ActiveNote ).TV.IsEditing then begin
               executed:= false;     // will be managed by the TreeNT component
            end
-           else if TTreeNote( ActiveNote ).TV.Focused then begin
-                MovingTreeNode:= TTreeNote( ActiveNote ).TV.Selected;
+           else if TKntFolder( ActiveNote ).TV.Focused then begin
+                MovingTreeNode:= TKntFolder( ActiveNote ).TV.Selected;
                 CopyCutFromNoteID:= ActiveNote.ID;
                 TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste, false, false );  // Lift Subtree
                 executed:= true;

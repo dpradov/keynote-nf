@@ -205,7 +205,7 @@ begin
     SelLength := ActiveNote.Editor.SelLength;
     Note := ActiveNote;
     if ( ActiveNote.Kind = ntTree ) then
-      Node := TNoteNode( TTreeNote( ActiveNote ).TV.Selected.Data )
+      Node := TKntNote( TKntFolder( ActiveNote ).TV.Selected.Data )
     else
       Node := nil;
   end;
@@ -299,12 +299,12 @@ begin
 
       if ( Bookmark.Node <> nil ) then begin
         if ( ActiveNote.Kind = ntTree ) then
-          myTreeNode := TTreeNote( ActiveNote ).TV.Items.FindNode( [ffData], '', Bookmark.Node );
+          myTreeNode := TKntFolder( ActiveNote ).TV.Items.FindNode( [ffData], '', Bookmark.Node );
         if ( not assigned( myTreeNode )) then begin
           ClearBookmark;
           exit;
         end;
-        TTreeNote( ActiveNote ).TV.Selected := myTreeNode;
+        TKntFolder( ActiveNote ).TV.Selected := myTreeNode;
       end;
 
       with ActiveNote.Editor do begin
@@ -316,7 +316,7 @@ begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Jumped, [Number] );
 
       if (LocBeforeGoTo.NoteID = ActiveNote.ID)
-          and ((ActiveNote.Kind = ntRTF) or (TTreeNote(ActiveNote).SelectedNode.ID = LocBeforeGoTo.NodeID))
+          and ((ActiveNote.Kind = ntRTF) or (TKntFolder(ActiveNote).SelectedNode.ID = LocBeforeGoTo.NodeID))
           and (LocBeforeGoTo.CaretPos <> Bookmark.CaretPos) then begin
 
           AddHistoryLocation (ActiveNote, false, LocBeforeGoTo);

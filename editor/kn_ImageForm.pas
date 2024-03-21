@@ -99,14 +99,14 @@ type
       var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
-    fCurrentNoteFile: TNoteFile;
+    fCurrentNoteFile: TKntFile;
     fImageID: integer;
     fImagePath: string;
     fImage : TKntImage;
     fZoomFactor: Double;
     fChangingInCode: boolean;
     fImageConfigured: boolean;
-    fNote: TTabNote;              // To allow to scroll through the images in the note
+    fNote: TKntFolder;              // To allow to scroll through the images in the note
     fImagesInNote: TImageIDs;
     fIndexInNote: integer;
 
@@ -121,14 +121,14 @@ type
     procedure CheckUpdateCaption;
 
     procedure GetImagesInNote;
-    procedure SetNote(value: TTabNote);
+    procedure SetNote(value: TKntFolder);
 
     procedure Zoom (Ratio: Single);
 
   public
     { Public declarations }
     property Image : TKntImage read fImage write SetImage;
-    property Note: TTabNote read fNote write SetNote;
+    property Note: TKntFolder read fNote write SetNote;
 
   end;
 
@@ -660,7 +660,7 @@ begin
    txtID.Text:= fImageID.ToString;
 end;
 
-procedure TForm_Image.SetNote(value: TTabNote);
+procedure TForm_Image.SetNote(value: TKntFolder);
 begin
    fNote:= value;
    fIndexInNote:= -1;
