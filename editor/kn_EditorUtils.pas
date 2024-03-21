@@ -87,14 +87,14 @@ type
     procedure ConfigureUAS;
 
     // clipboard capture and paste
-    procedure TryPasteRTF(Note: TKntFolder; HTMLText: AnsiString='');
-    procedure PasteBestAvailableFormat (Note: TKntFolder;
+    procedure TryPasteRTF(Folder: TKntFolder; HTMLText: AnsiString='');
+    procedure PasteBestAvailableFormat (Folder: TKntFolder;
                                         TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
                                         PrioritizeImage: boolean = False);
-    procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TKntFolder;
+    procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Folder: TKntFolder;
                                                 TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
                                                 PrioritizeImage: boolean = False);
-    procedure ToggleClipCap( const TurnOn : boolean; const aNote : TKntFolder );
+    procedure ToggleClipCap( const TurnOn : boolean; const aFolder : TKntFolder );
     procedure SetClipCapState( const IsOn : boolean );
     procedure PasteOnClipCap (ClpStr: string);
     procedure PasteAsWebClip (const PasteAsText: boolean);
@@ -195,7 +195,7 @@ resourcestring
   STR_ConvRoman_03 = '%s is not a valid Roman number';
   STR_Statistics_01 = ' Calculating statistics... Please wait';
   STR_Statistics_02 = 'Selected text';
-  STR_Statistics_03 = 'Note text';
+  STR_Statistics_03 = 'Folder text';
   STR_Statistics_04 = '%s statistics' + #13#13 +
        'Characters: %s' + #13 +
        'Alphabetic: %s' + #13 +
@@ -218,7 +218,7 @@ resourcestring
   STR_UAS_05 = 'Cannot load UltimaShell Autocompletion Server. It may not be installed. Would you like to go to the UAS website and download the application?';
   STR_UAS_06 = ' UltimaShell Autocompletion Server unloaded.';
   STR_UAS_07 = ' UltimaShell Autocompletion Server is not loaded.';
-  STR_ClipCap_01 = 'A Read-Only note cannot be used for clipboard capture.';
+  STR_ClipCap_01 = 'A Read-Only folder cannot be used for clipboard capture.';
   STR_ClipCap_02 = 'a new node';
   STR_ClipCap_03 = 'whichever node is currently selected';
   STR_ClipCap_04 = 'Each copied item will be pasted into %s in the tree. Continue?';
@@ -226,7 +226,7 @@ resourcestring
   STR_ClipCap_06 = ' Capturing text from clipboard';
   STR_ClipCap_07 = 'Cannot obtain tree node for pasting data.';
   STR_ClipCap_09 = ' Clipboard capture done';
-  STR_Print_01 = 'Current note contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.';
+  STR_Print_01 = 'Current folder contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.';
   STR_Print_02 = 'Replace editor contents with result from spellchecker?';
   STR_Zoom_01 = 'Invalid zoom ratio: ';
   STR_Tip_01 = 'Cannot display Tip of the Day: file "%s" not found.';
@@ -679,7 +679,7 @@ begin
           end;
        end;
 
-     except   // If we are in the last position of the note
+     except   // If we are in the last position of the folder
      end;
   end;
 end;
@@ -1820,21 +1820,21 @@ end;
 //=================================================================
 // TryPasteRTF
 //=================================================================
-procedure TryPasteRTF(Note: TKntFolder; HTMLText: AnsiString='');
+procedure TryPasteRTF(Folder: TKntFolder; HTMLText: AnsiString='');
 var
   RTFText: AnsiString;
   posI: integer;
   Editor: TRxRichEdit;
 
 begin
-    Editor:= Note.Editor;
+    Editor:= Folder.Editor;
     posI := Editor.SelStart;
 
     RTFText:= Clipboard.TryOfferRTF(HTMLText, Editor.SelAttributes);            // Can return '' if clipboard already contained RTF Format
     if RTFText <> '' then
         Editor.PutRtfText(RTFText, true)
     else
-        PasteBestAvailableFormat(Note, false, false);      // false: don't to try to offer RTF (Maybe it's already available), false: don't try to detect and correct HTML to RTF (will be done here)
+        PasteBestAvailableFormat(Folder, false, false);      // false: don't to try to offer RTF (Maybe it's already available), false: don't try to detect and correct HTML to RTF (will be done here)
 
     TryToDetectAndSolveHTMLtoRTFbadConv(Editor, posI);
 
@@ -1865,7 +1865,7 @@ end;
   will try to get RTF format from HTML (as we have been doing on Paste Special...)
 }
 
-procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Note: TKntFolder;
+procedure PasteBestAvailableFormatInEditor (Editor: TRxRichEdit; Folder: TKntFolder;
                                            TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
                                            PrioritizeImage: boolean = False);
 var
@@ -1882,7 +1882,7 @@ begin
       because in those cases we will also find HTML content with the address and alternative text of the image,
       and if we do not do so we will always end up pasting the conversion to RTF from that alt text }
     if Clipboard.HasFormat(CF_BITMAP) and (PrioritizeImage or (not ClipbHasRTFFormat)) and NoteSupportsImages then begin
-       ImagesManager.InsertImageFromClipboard (Note);
+       ImagesManager.InsertImageFromClipboard (Folder);
        exit;
     end;
 
@@ -1923,7 +1923,7 @@ begin
            and not all programs recognize it. For example, GreenShot does recognize it, but Photoshop or WordPad itself They don't recognize it --WordPad
            does paste it, but because it uses the RTF format) }
          if (not WasCopiedByKNT) or ((pos = posI + 1) and (LastCopiedIDImage<>0)) then
-            ImagesManager.ProcessImagesInClipboard (Editor, Note, posI, LastCopiedIDImage);
+            ImagesManager.ProcessImagesInClipboard (Editor, Folder, posI, LastCopiedIDImage);
       end;
     end;
 
@@ -1933,22 +1933,22 @@ begin
 end;
 
 
-procedure PasteBestAvailableFormat (Note: TKntFolder; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False; PrioritizeImage: boolean = False);
+procedure PasteBestAvailableFormat (Folder: TKntFolder; TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False; PrioritizeImage: boolean = False);
 begin
-    PasteBestAvailableFormatInEditor(Note.Editor, Note, TryOfferRTF, CorrectHTMLtoRTF, PrioritizeImage);
+    PasteBestAvailableFormatInEditor(Folder.Editor, Folder, TryOfferRTF, CorrectHTMLtoRTF, PrioritizeImage);
 end;
 
 
 //=================================================================
 // ToggleClipCap
 //=================================================================
-procedure ToggleClipCap( const TurnOn : boolean; const aNote : TKntFolder );
+procedure ToggleClipCap( const TurnOn : boolean; const aFolder : TKntFolder );
 var
   nodemode : string;
 begin
   with Form_Main do begin
       if ( not HaveNotes( true, true )) then exit;
-      if ( not assigned( aNote )) then exit;
+      if ( not assigned( aFolder )) then exit;
 
       ClipCapCRC32 := 0; // reset test value
       LastURLPasted:= '';
@@ -1956,15 +1956,15 @@ begin
       try
         try
           if TurnOn then begin
-            // turn ON clipboard capture for active note
-            if aNote.ReadOnly then begin
+            // turn ON clipboard capture for active folder
+            if aFolder.ReadOnly then begin
               TB_ClipCap.Down := false;
               PopupMessage( STR_ClipCap_01, mtInformation, [mbOK], 0 );
               exit;
             end;
 
 
-            if ( Initializing or ( not ClipOptions.TreeClipConfirm ) or aNote.TreeHidden ) then
+            if ( Initializing or ( not ClipOptions.TreeClipConfirm ) or aFolder.TreeHidden ) then
               ClipCapNode := GetCurrentNoteNode
 
             else begin
@@ -1983,13 +1983,13 @@ begin
             end;
 
             if ( KntFile.ClipCapNote <> nil ) then begin
-              // some other note was clipcap before
+              // some other folder was clipcap before
               // KntFile.ClipCapNote.TabSheet.Caption := KntFile.ClipCapNote.Name;
               KntFile.ClipCapNote := nil;
               ClipCapActive := false;
               SetClipCapState( false );
             end;
-            KntFile.ClipCapNote := aNote;
+            KntFile.ClipCapNote := aFolder;
             Pages.MarkedPage := KntFile.ClipCapNote.TabSheet;
             SetClipCapState( true );
             ClipCapActive := ( KntFile.ClipCapNote <> nil );
@@ -1999,13 +1999,13 @@ begin
             // turn OFF clipboard capture
             ClipCapActive := false;
             ClipCapNode := nil;
-            if ( KntFile.ClipCapNote = aNote ) then begin
-              // restore note name on the tab
+            if ( KntFile.ClipCapNote = aFolder ) then begin
+              // restore folder name on the tab
               Pages.MarkedPage := nil;
               SetClipCapState( false );
             end
             else begin
-              // showmessage( 'Error: Tried to turn off ClipCap for a non-active note.' );
+              // showmessage( 'Error: Tried to turn off ClipCap for a non-active folder.' );
             end;
             KntFile.ClipCapNote := nil;
           end;
@@ -2149,7 +2149,7 @@ var
   TitleURL : string;
   AuxStr : string;
   HTMLClipboard: string;
-  Note: TKntFolder;
+  Folder: TKntFolder;
   Editor: TTabRichEdit;
 
   GetTitle: boolean;
@@ -2171,8 +2171,8 @@ begin
         myTreeNode := nil;
         SourceURLStr:= '';
 
-        Note:= KntFile.ClipCapNote;
-        Editor:= Note.Editor;
+        Folder:= KntFile.ClipCapNote;
+        Editor:= Folder.Editor;
 
 
         // TrayIcon.Icon := TrayIcon.Icons[1];
@@ -2283,7 +2283,7 @@ begin
              end;
           end;
 
-          PasteAsNewNode:= ClipOptions.PasteAsNewNode and (not Note.TreeHidden);
+          PasteAsNewNode:= ClipOptions.PasteAsNewNode and (not Folder.TreeHidden);
 
           if not PasteOnlyURL then begin
               // ClipCapNode := nil;
@@ -2292,7 +2292,7 @@ begin
                     DividerString:= '';   // Si no hay que separar de nada y el propia cadena de separación no incluye fecha, ni hora ni se va a mostrar el origen, ignorarla
 
                  if ( ClipCapNode <> nil ) then
-                    myParentNode := Note.TV.Items.FindNode( [ffData], '', ClipCapNode )
+                    myParentNode := Folder.TV.Items.FindNode( [ffData], '', ClipCapNode )
                  else
                     myParentNode := nil;
 
@@ -2303,15 +2303,15 @@ begin
                  end;
 
                  if assigned( myParentNode ) then
-                    myTreeNode := TreeNoteNewNode( Note, tnAddChild, myParentNode, myNodeName, true )
+                    myTreeNode := TreeNoteNewNode( Folder, tnAddChild, myParentNode, myNodeName, true )
                  else
-                    myTreeNode := TreeNoteNewNode( Note, tnAddLast, nil, myNodeName, true );
+                    myTreeNode := TreeNoteNewNode( Folder, tnAddLast, nil, myNodeName, true );
 
               end
               else begin
-                 myTreeNode := Note.TV.Selected;
+                 myTreeNode := Folder.TV.Selected;
                  if ( not assigned( myTreeNode )) then
-                    myTreeNode := TreeNoteNewNode( Note, tnAddLast, nil, myNodeName, true );
+                    myTreeNode := TreeNoteNewNode( Folder, tnAddLast, nil, myNodeName, true );
               end;
 
               if ( not assigned( myTreeNode )) then begin
@@ -2372,7 +2372,7 @@ begin
                 i := pos( CLIPSOURCE_DOMAIN, DividerString );
                 if ( i > 0 ) then begin
                   delete( DividerString, i, length( CLIPSOURCE_DOMAIN ));
-                  if not Note.PlainText then begin
+                  if not Folder.PlainText then begin
                      AuxStr:= DomainFromHttpURL(SourceURLStr, TitleURL);        // If TitleURL = '' will always return '', because URL will be shown
                      if ( length( DividerString ) > 0 ) then
                         insert(AuxStr , DividerString, i )
@@ -2397,7 +2397,7 @@ begin
               end;
 
               if ((SourceURLStr <> '' ) or PasteOnlyURL) and (not Using2ndDivider) then begin
-                   InsertURL(SourceURLStr, TitleURL, Note);
+                   InsertURL(SourceURLStr, TitleURL, Folder);
                    if PasteOnlyURL then begin
                      Editor.SelText := #13;
                      Editor.SelStart :=  Editor.SelStart + 1;
@@ -2414,10 +2414,10 @@ begin
                  end;
 
                 if not IgnoreCopiedText then
-                   if not ClipOptions.PasteAsText and not Note.PlainText then
-                      TryPasteRTF(Note, HTMLClipboard)
+                   if not ClipOptions.PasteAsText and not Folder.PlainText then
+                      TryPasteRTF(Folder, HTMLClipboard)
                    else
-                      PerformCmdPastePlain(Note, ClpStr, HTMLClipboard, false, ClipOptions.MaxSize);
+                      PerformCmdPastePlain(Folder, ClpStr, HTMLClipboard, false, ClipOptions.MaxSize);
 
               end;
 
@@ -2426,8 +2426,8 @@ begin
            end;
 
 
-          if Note <> ActiveKntFolder then
-             Note.EditorToDataStream;
+          if Folder <> ActiveKntFolder then
+             Folder.EditorToDataStream;
 
 
         finally
@@ -2568,7 +2568,7 @@ var
   PrintRE : TRichEdit;
   MS : TMemoryStream;
   PrintAllNodes : boolean;
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
   myTreeNode : TTreeNTNode;
   myNote : TKntNote;
 begin
@@ -2633,8 +2633,8 @@ begin
           Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( ActiveKntFolder.Editor ), 1 );
       end
       else begin
-        tNote := ActiveKntFolder;
-        myTreeNode := tNote.TV.Items.GetFirstNode;
+        myFolder := ActiveKntFolder;
+        myTreeNode := myFolder.TV.Items.GetFirstNode;
         if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;   // [dpv]
         while assigned( myTreeNode ) do begin
           myNote := TKntNote( myTreeNode.Data );
@@ -2765,7 +2765,7 @@ end; // ZoomEditor
 
 procedure SetEditorZoom( ZoomValue : integer; ZoomString : string; Increment: integer= 0);  overload;
 var
-  Note: TKntFolder;
+  Folder: TKntFolder;
   Editor: TRxRichEdit;
   i: integer;
 begin

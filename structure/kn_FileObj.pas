@@ -56,7 +56,7 @@ type
     Name : string;
     CaretPos : integer;
     SelLength : integer;
-    Note : TKntFolder;
+    Folder : TKntFolder;
     Node : TKntNote;
   end;
   PBookmark = ^TBookmark;
@@ -187,11 +187,11 @@ type
     function HasVirtualNodes : boolean; // TRUE is file contains any notes which have VIRTUAL NODES
     function HasVirtualNodeByFileName( const aNoteNode : TKntNote; const FN : string ) : boolean;
 
-    function GetNoteByID( const aID : integer ) : TKntFolder; // identifies note UNIQUELY
-    function GetNoteByName( const aName : string ) : TKntFolder; // will return the first note whose name matches aName. If more notes have the same name, function will only return the first one.
-    function GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TKntFolder;  // return the note that contains the tree with the passed node
+    function GetNoteByID( const aID : integer ) : TKntFolder; // identifies folder UNIQUELY
+    function GetNoteByName( const aName : string ) : TKntFolder; // will return the first folder whose name matches aName. If more notes have the same name, function will only return the first one.
+    function GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TKntFolder;  // return the folder that contains the tree with the passed node
 
-    procedure SetupMirrorNodes (Note : TKntFolder);
+    procedure SetupMirrorNodes (Folder : TKntFolder);
     procedure ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
 
     procedure UpdateTextPlainVariables (nMax: integer);
@@ -235,11 +235,11 @@ resourcestring
                 'The file can be opened, but some information can be lost or misinterpreted. As a safety measure, the file should be opened in Read-Only mode. ' +
                 'Would you like to open the file as Read-Only?';
   STR_07 = '%s: Invalid file header or version, or corrupt file.';
-  STR_08 = 'Error loading note ';
+  STR_08 = 'Error loading folder ';
   STR_09 = '%s: Invalid DartNotes file header: ';
   STR_10 = 'This file contains notes which are not compatible with %s format. Only %s notes can be saved in this format.';
   STR_12 = 'Error: Filename not specified.';
-  STR_13 = 'Error while saving note "%s": %s';
+  STR_13 = 'Error while saving folder "%s": %s';
   STR_14 = 'Cannot save: Passphrase not set';
   STR_17 = 'Stream size error: Encrypted file is invalid or corrupt.';
   STR_18 = 'Invalid passphrase: Cannot open encrypted file.';
@@ -391,7 +391,7 @@ begin
   for i := 1 to count do begin
      myFolder := FNotes[pred( i )];
      if ( myFolder.ID > hiID ) then
-        hiID := myFolder.ID; // find highest note ID
+        hiID := myFolder.ID; // find highest folder ID
   end;
 
   inc( hiID ); // make it one higher
@@ -544,7 +544,7 @@ end; // SetModified
 
 function TKntFile.Load( FN : string; ImgManager: TImageManager ) : integer;
 var
-  Note : TKntFolder;
+  Folder : TKntFolder;
   Attrs : TFileAttributes;
   Stream : TFileStream;
   MemStream : TMemoryStream;
@@ -571,7 +571,7 @@ var
 {$ENDIF}
 begin
   result := -1; // error before opening file
-  Note := nil;
+  Folder := nil;
   HasLoadError := false;
 
   FFileFormat := nffKeyNote; // assume
@@ -803,7 +803,7 @@ begin
                         _NF_FDE : begin // File description
                           FDescription := TryUTF8ToUnicodeString(ds);
                         end;
-                        _NF_ACT : begin // Active note
+                        _NF_ACT : begin // Active folder
                           try
                             FActiveNote := strtoint( ds );
                           except
@@ -883,18 +883,18 @@ begin
 
                else begin
                    case NextBlock of
-                     nbRTF, nbTree  : Note := TKntFolder.Create;
+                     nbRTF, nbTree  : Folder := TKntFolder.Create;
                    end;
 
                    try
-                     Note.LoadFromFile( tf, FileExhausted, NextBlock, (NextBlock = nbRTF));
-                     InternalAddNote( Note );
+                     Folder.LoadFromFile( tf, FileExhausted, NextBlock, (NextBlock = nbRTF));
+                     InternalAddNote( Folder );
                      // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
                    except
                      On E : Exception do begin
                        HasLoadError := true;
-                       messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
-                       Note.Free;
+                       messagedlg( STR_08 + Folder.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                       Folder.Free;
                        // raise;
                      end;
                    end;
@@ -904,10 +904,10 @@ begin
             FClipCapNote := nil;
             if (( ClipCapIdx >= 0 ) and ( ClipCapIdx < FNotes.Count )) then
                for p := 0 to pred( FNotes.Count ) do begin
-                  Note := FNotes[p];
-                  if (( Note.TabIndex = ClipCapIdx ) and ( not Note.ReadOnly )) then begin
-                    //if ( Note.Kind = ntRTF ) then
-                    FClipCapNote := Note;
+                  Folder := FNotes[p];
+                  if (( Folder.TabIndex = ClipCapIdx ) and ( not Folder.ReadOnly )) then begin
+                    //if ( Folder.Kind = ntRTF ) then
+                    FClipCapNote := Folder;
                     break;
                   end;
                end;
@@ -986,16 +986,16 @@ begin
             NoteKind := ntRTF;
 
             while ( Stream.Position < Stream.Size ) do begin
-              Note := TKntFolder.Create;
+              Folder := TKntFolder.Create;
               try
-                Note.LoadDartNotesFormat( Stream );
-                InternalAddNote( Note );
+                Folder.LoadDartNotesFormat( Stream );
+                InternalAddNote( Folder );
                 // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
               except
                 On E : Exception do begin
                   HasLoadError := true;
-                  messagedlg( STR_08 + Note.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
-                  Note.Free;
+                  messagedlg( STR_08 + Folder.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                  Folder.Free;
                   // raise;
                 end;
               end;
@@ -1629,14 +1629,14 @@ begin
 end;
 
 
-procedure TKntFile.SetupMirrorNodes (Note : TKntFolder);
+procedure TKntFile.SetupMirrorNodes (Folder : TKntFolder);
 var
   Node, Mirror : TTreeNTNode;
   p: integer;
 
   procedure SetupTreeNote;
   begin
-    Node := Note.TV.Items.GetFirstNode;
+    Node := Folder.TV.Items.GetFirstNode;
     while assigned( Node ) do begin // go through all nodes
         if assigned(Node.Data) and (TKntNote(Node.Data).VirtualMode= vmKNTNode) then begin
            TKntNote(Node.Data).LoadMirrorNode;
@@ -1644,22 +1644,22 @@ var
            if assigned(Mirror) then
               AddMirrorNode(Mirror, Node)
            else
-              SelectIconForNode( Node, Note.IconKind);
+              SelectIconForNode( Node, Folder.IconKind);
         end;
         Node := Node.GetNext; // select next node to search
     end;
 
-    if (Note = kn_global.ActiveKntFolder) and assigned(Note.TV.Selected)
-         and (TKntNote(Note.TV.Selected.Data).VirtualMode = vmKNTNode) then
-       Note.DataStreamToEditor;
+    if (Folder = kn_global.ActiveKntFolder) and assigned(Folder.TV.Selected)
+         and (TKntNote(Folder.TV.Selected.Data).VirtualMode = vmKNTNode) then
+       Folder.DataStreamToEditor;
   end;
 
 begin
-    if assigned(Note) then
+    if assigned(Folder) then
        SetupTreeNote
     else
        for p := 0 to pred( Notes.Count ) do begin
-          Note := Notes[p];
+          Folder := Notes[p];
           SetupTreeNote;
        end;
 end;

@@ -446,7 +446,7 @@ end; // LoadMirrorNode
 
 procedure TKntNote.SetMirrorNode( aNode : TTreeNTNode );
 var
-   aNote: TKntFolder;
+   aFolder: TKntFolder;
 begin
      if assigned(aNode) then begin
          if FVirtualMode <> vmKNTNode then begin
@@ -457,8 +457,8 @@ begin
             aNode:= TKntNote(aNode.Data).MirrorNode;
 
          if assigned(aNode) then begin
-            aNote:= KntFile.GetNoteByTreeNode(aNode);
-            FVirtualFN:= inttostr(aNote.ID) + KNTLINK_SEPARATOR + inttostr(TKntNote(aNode.Data).ID);
+            aFolder:= KntFile.GetNoteByTreeNode(aNode);
+            FVirtualFN:= inttostr(aFolder.ID) + KNTLINK_SEPARATOR + inttostr(TKntNote(aNode.Data).ID);
             FVirtualMode := vmKNTNode;
             FStream:= TKntNote(aNode.Data).FStream;   // This node shares its content with the other node
          end;

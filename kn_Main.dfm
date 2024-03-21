@@ -485,7 +485,7 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 55
         Height = 21
-        Hint = 'Zoom text in editor (Ctrl: apply only to active note)'
+        Hint = 'Zoom text in editor (Ctrl: apply only to active folder)'
         HelpType = htKeyword
         HelpKeyword = '282-5'
         AutoComplete = False
@@ -1052,8 +1052,6 @@ object Form_Main: TForm_Main
     OnDragOver = PagesDragOver
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
-    ExplicitWidth = 716
-    ExplicitHeight = 613
   end
   object Dock_Left: TDock97
     Left = 0
@@ -1107,7 +1105,7 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 24
         Height = 22
-        Hint = 'Apply or Remove Filter on tree note'
+        Hint = 'Apply or Remove Filter on folder'
         AllowAllUp = True
         GroupIndex = 2
         Glyph.Data = {00000000}
@@ -1260,8 +1258,6 @@ object Form_Main: TForm_Main
     RemoveLastTab = True
     TabOrder = 2
     OnChange = Pages_ResChange
-    ExplicitLeft = 728
-    ExplicitHeight = 613
     object ResTab_Find: TTab95Sheet
       HelpType = htKeyword
       HelpKeyword = '479-5'
@@ -1270,6 +1266,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel_ResFind: TPanel
         Left = 0
         Top = 0
@@ -1413,6 +1413,8 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND'
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object FindAllResults: TRxRichEdit
             Left = 0
             Top = 0
@@ -1440,6 +1442,8 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object CB_ResFind_CaseSens: TCheckBox
             Left = 10
             Top = 15
@@ -1493,7 +1497,7 @@ object Form_Main: TForm_Main
             Top = 82
             Width = 213
             Height = 17
-            Hint = 'Search through current node and subtree in active note'
+            Hint = 'Search through current node and subtree in active folder'
             Caption = 'Current node and subtree'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -1572,7 +1576,7 @@ object Form_Main: TForm_Main
             Width = 213
             Height = 17
             Hint = 'Show or hide nodes based on search conditions'
-            Caption = 'Filter Tree note'
+            Caption = 'Filter folder'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
@@ -1592,6 +1596,9 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
       ExplicitHeight = 585
       object Res_RTF: TRxRichEdit
         Left = 0
@@ -1627,6 +1634,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Dock_ResMacro: TDock97
         Left = 0
         Top = 0
@@ -1724,6 +1735,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListBox_ResTpl: TGFXListBox
         Left = 0
         Top = 0
@@ -1754,6 +1769,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter_plugins: TSplitter
         Left = 0
         Top = 530
@@ -1860,13 +1879,11 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 296
-          Height = 47
+          Width = 9
+          Height = 13
           Align = alClient
           Caption = '...'
           WordWrap = True
-          ExplicitWidth = 9
-          ExplicitHeight = 13
         end
       end
     end
@@ -1877,6 +1894,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListBox_ResFav: TGFXListBox
         Left = 0
         Top = 0
@@ -2088,8 +2109,8 @@ object Form_Main: TForm_Main
           Caption = '-'
         end
         object MMEditPasteAsNewNote: TMenuItem
-          Caption = 'Paste &Into New Note'
-          Hint = 'Create a new note and paste text from clipboard'
+          Caption = 'Paste &Into New Folder'
+          Hint = 'Create a new folder and paste text from clipboard'
           OnClick = MMEditPasteAsNewNoteClick
         end
         object MMEditPasteAsNewNode: TMenuItem
@@ -2365,7 +2386,7 @@ object Form_Main: TForm_Main
       end
       object MMViewTabIcons: TMenuItem
         Caption = 'Tab &Icons'
-        Hint = 'Show or hide icons on note tabs'
+        Hint = 'Show or hide icons on folder tabs'
         OnClick = MMViewTabIconsClick
       end
       object MMViewTree: TMenuItem
@@ -2423,7 +2444,7 @@ object Form_Main: TForm_Main
       end
       object MMViewFilterTree: TMenuItem
         Caption = 'Filter nodes'
-        Hint = 'Apply or Remove Filter on tree note'
+        Hint = 'Apply or Remove Filter on folder'
         ImageIndex = 49
         OnClick = MMViewFilterTreeClick
       end
@@ -2432,13 +2453,13 @@ object Form_Main: TForm_Main
       end
       object MMViewZoomIn: TMenuItem
         Caption = '&Zoom In'
-        Hint = 'Increase zoom  (Ctrl: apply only to active note)'
+        Hint = 'Increase zoom  (Ctrl: apply only to active folder)'
         ImageIndex = 57
         OnClick = MMViewZoomInClick
       end
       object MMViewZoomOut: TMenuItem
         Caption = 'Zoom &Out'
-        Hint = 'Decrease zoom  (Ctrl: apply only to active note)'
+        Hint = 'Decrease zoom  (Ctrl: apply only to active folder)'
         ImageIndex = 58
         OnClick = MMViewZoomOutClick
       end
@@ -2985,26 +3006,26 @@ object Form_Main: TForm_Main
       end
     end
     object MMNote_: TMenuItem
-      Caption = '&Note'
+      Caption = '&Folder'
       SubMenuImages = IMG_Toolbar
       HelpContext = 179
-      Hint = 'Note-related commands'
+      Hint = 'Folder-related commands'
       object MMNoteNew: TMenuItem
-        Caption = '&New Note...'
-        Hint = 'Add a new note'
+        Caption = '&New Folder...'
+        Hint = 'Add a new folder'
         ImageIndex = 7
         ShortCut = 16462
         OnClick = MMNoteNewClick
       end
       object MMNoteRename: TMenuItem
-        Caption = '&Rename Note...'
-        Hint = 'Rename current note'
+        Caption = '&Rename Folder...'
+        Hint = 'Rename current folder'
         ShortCut = 113
         OnClick = MMNoteRenameClick
       end
       object MMNoteProperties: TMenuItem
-        Caption = 'Note &Properties...'
-        Hint = 'Edit current note properties'
+        Caption = 'Folder &Properties...'
+        Hint = 'Edit current folder properties'
         ImageIndex = 8
         ShortCut = 115
         OnClick = MMNotePropertiesClick
@@ -3013,8 +3034,8 @@ object Form_Main: TForm_Main
         Caption = '-'
       end
       object MMNoteRemove: TMenuItem
-        Caption = 'R&emove Note'
-        Hint = 'Delete current note'
+        Caption = 'R&emove Folder'
+        Hint = 'Delete current folder'
         ImageIndex = 9
         OnClick = MMNoteRemoveClick
       end
@@ -3023,19 +3044,19 @@ object Form_Main: TForm_Main
       end
       object MMNotePrintPreview_: TMenuItem
         Caption = 'Print Pre&view'
-        Hint = 'View how the note will be printed'
+        Hint = 'View how the folder will be printed'
         OnClick = MMNotePrintPreview_Click
       end
       object MMNotePrint: TMenuItem
-        Caption = 'Pr&int Note...'
-        Hint = 'Print text of current note'
+        Caption = 'Pr&int Folder...'
+        Hint = 'Print text of current folder'
         ImageIndex = 44
         ShortCut = 24656
         OnClick = MMNotePrintClick
       end
       object MMNoteEmail: TMenuItem
-        Caption = '&Email Note...'
-        Hint = 'Send current note via e-mail'
+        Caption = '&Email Folder...'
+        Hint = 'Send current folder via e-mail'
         ImageIndex = 17
         ShortCut = 57413
         OnClick = MMNoteEmailClick
@@ -3045,7 +3066,7 @@ object Form_Main: TForm_Main
       end
       object MMNoteClipCapture: TMenuItem
         Caption = '&Clipboard Capture'
-        Hint = 'Toggle clipboard capture for active note'
+        Hint = 'Toggle clipboard capture for active folder'
         ImageIndex = 18
         ShortCut = 122
         OnClick = MMNoteClipCaptureClick
@@ -3061,7 +3082,7 @@ object Form_Main: TForm_Main
       end
       object MMNoteReadOnly: TMenuItem
         Caption = 'Read &Only'
-        Hint = 'Make current note read-only'
+        Hint = 'Make current folder read-only'
         ShortCut = 24658
         OnClick = MMNoteReadOnlyClick
       end
@@ -3582,7 +3603,7 @@ object Form_Main: TForm_Main
         Caption = '&Alarms'
         object MMSetAlarm: TMenuItem
           Caption = 'Set alarm...'
-          Hint = 'Add or edit an alarm (Ctrl: Add  Shift: Note alarm)'
+          Hint = 'Add or edit an alarm (Ctrl: Add  Shift: Folder alarm)'
           ImageIndex = 50
           OnClick = TB_SetAlarmClick
         end
@@ -3614,7 +3635,7 @@ object Form_Main: TForm_Main
       end
       object MMToolsStatistics: TMenuItem
         Caption = '&Text Statistics'
-        Hint = 'Display note statistics'
+        Hint = 'Display folder statistics'
         OnClick = MMToolsStatisticsClick
       end
     end
@@ -3888,8 +3909,8 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object RTFMProperties: TMenuItem
-      Caption = 'Note P&roperties...'
-      Hint = 'Edit note properties'
+      Caption = 'Folder P&roperties...'
+      Hint = 'Edit folder properties'
       OnClick = MMNotePropertiesClick
     end
     object N19: TMenuItem
@@ -3932,8 +3953,8 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object TAM_NewTab: TMenuItem
-      Caption = '&New Note...'
-      Hint = 'Create a new note'
+      Caption = '&New Folder...'
+      Hint = 'Create a new folder'
       ImageIndex = 7
       OnClick = MMNoteNewClick
     end
@@ -3941,13 +3962,13 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object TAM_Renametab: TMenuItem
-      Caption = '&Rename Note'
-      Hint = 'Rename current note'
+      Caption = '&Rename Folder'
+      Hint = 'Rename current folder'
       OnClick = MMNoteRenameClick
     end
     object TAM_Properties: TMenuItem
       Caption = '&Properties'
-      Hint = 'Edit note properties'
+      Hint = 'Edit folder properties'
       ImageIndex = 8
       OnClick = MMNotePropertiesClick
     end
@@ -3955,8 +3976,8 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object TAM_Delete: TMenuItem
-      Caption = 'R&emove Note'
-      Hint = 'Delete current note'
+      Caption = 'R&emove Folder'
+      Hint = 'Delete current folder'
       ImageIndex = 9
       OnClick = MMNoteRemoveClick
     end
@@ -8361,8 +8382,8 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object MMP_PasteAsNote: TMenuItem
-      Caption = 'Paste &Into New Note'
-      Hint = 'Create a new note and paste text from clipboard'
+      Caption = 'Paste &Into New Folder'
+      Hint = 'Create a new folder and paste text from clipboard'
       OnClick = MMEditPasteAsNewNoteClick
     end
     object MMP_PasteAsNode: TMenuItem

@@ -2435,7 +2435,7 @@ object Form_OptionsNew: TForm_OptionsNew
         Top = 184
         Width = 350
         Height = 185
-        Caption = ' Note tabs:  Options '
+        Caption = ' Folder tabs:  Options '
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -2524,7 +2524,7 @@ object Form_OptionsNew: TForm_OptionsNew
         Top = 5
         Width = 350
         Height = 168
-        Caption = ' Note tabs:  Font and colors '
+        Caption = ' Folder tabs:  Font and colors '
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11

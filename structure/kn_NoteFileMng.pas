@@ -36,13 +36,13 @@ uses
    ;
 
 
-    function NoteFileNew( FN : string ) : integer; // create new KNT file with 1 blank note
+    function NoteFileNew( FN : string ) : integer; // create new KNT file with 1 blank folder
     function NoteFileOpen( FN : string ) : integer; // open KNT file on disk
     function NoteFileSave( FN : string ) : integer; // save current KNT file
     function NoteFileClose : boolean; // close current KNT file
 
     procedure NewFileRequest( FN : string );
-    procedure NoteFileCopy (var SavedNotes: integer; var SavedNodes: integer;
+    procedure NoteFileCopy (var SavedFolders: integer; var SavedNodes: integer;
                             FN: string= '';
                             ExportingMode: boolean= false;
                             OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
@@ -218,7 +218,7 @@ resourcestring
   STR_78 = 'Backup at %s before any modification in "%s"';
   STR_79 = 'File is not modified. Nothing to save';
   STR_80 = #13#13 + 'Option "Autoregister file type" will be unchecked';
-  STR_81 = 'Cannot insert images in a plain text note';
+  STR_81 = 'Cannot insert images in a plain text folder';
   STR_82 = 'The file must first be saved (with Save or Save As)';
 
 const
@@ -1017,7 +1017,7 @@ begin
         // if file has tree notes with virtual nodes, they should be backed up as well.
         // We use ugly global vars to pass backup options
         // Note: virtual nodes files will be backed (if configured) during the process of saving
-        // each Note, while all the nodes are iterated.
+        // each folder, while all the nodes are iterated.
 
         _VNDoBackup     := KeyOptions.Backup and KeyOptions.BackupVNodes;
         _VNBackupExt    := KeyOptions.BackupExt;
@@ -1311,7 +1311,7 @@ begin
 end; // NewFileRequest
 
 
-procedure NoteFileCopy (var SavedNotes: integer; var SavedNodes: integer;
+procedure NoteFileCopy (var SavedFolders: integer; var SavedNodes: integer;
                         FN: string= '';
                         ExportingMode: boolean= false;
                         OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
@@ -1383,7 +1383,7 @@ begin
             try
               ImagesManager.ExportingMode:= true;
               try
-                 cr := KntFile.Save( newFN, SavedNotes, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
               finally
                  ImagesManager.ExportingMode:= false;
               end;
@@ -1433,20 +1433,20 @@ var
   LoadResult : integer;
   TabSelector : TForm_SelectTab;
   mergecnt, i, n, p : integer;
-  newNote : TKntFolder;
-  newTNote, mergeTNote : TKntFolder;
-  newNode, mergeNode : TKntNote;
+  newFolder : TKntFolder;
+  mergeFolder : TKntFolder;
+  newNote, mergeNote : TKntNote;
   IDs: array of TMergeNotes;
   mirrorID: string;
-  noteID: integer;
+  FolderID: integer;
 
-  function getNewID(noteID: integer): integer;
+  function getNewID(FolderID: integer): integer;
   var
     i: integer;
   begin
     Result:= 0;
     for i := 0 to High(IDs) do
-        if IDs[i].oldID = noteID then begin
+        if IDs[i].oldID = FolderID then begin
            Result:= IDs[i].newID;
            exit;
            end;
@@ -1473,7 +1473,7 @@ begin
 
         MergeFN := normalFN( MergeFN );
 
-        { this can be safely removed. User can want to copy a whole note,
+        { this can be safely removed. User can want to copy a whole folder,
           and this is a neat way to do that.
         if ( MergeFN = KntFile.FileName ) then
         begin
@@ -1561,101 +1561,100 @@ begin
               end;
 
 
-              newNote := TKntFolder.Create;
+              newFolder := TKntFolder.Create;
 
-              NewNote.Visible := true;
-              NewNote.Modified := false;
+              newFolder.Visible := true;
+              newFolder.Modified := false;
 
               with MergeFile.Notes[i] do
               begin
-                NewNote.EditorChrome := EditorCHrome;
-                NewNote.Name := Name;
-                NewNote.ImageIndex := ImageIndex;
-                NewNote.ReadOnly := ReadOnly;
-                NewNote.DateCreated := DateCreated;
-                NewNote.WordWrap := WordWrap;
-                NewNote.URLDetect := URLDetect;
-                NewNote.TabSize := TabSize;
-                NewNote.UseTabChar := UseTabChar;
+                newFolder.EditorChrome := EditorCHrome;
+                newFolder.Name := Name;
+                newFolder.ImageIndex := ImageIndex;
+                newFolder.ReadOnly := ReadOnly;
+                newFolder.DateCreated := DateCreated;
+                newFolder.WordWrap := WordWrap;
+                newFolder.URLDetect := URLDetect;
+                newFolder.TabSize := TabSize;
+                newFolder.UseTabChar := UseTabChar;
               end;
 
-              newTNote := newNote;
               with MergeFile.Notes[i] do begin
-                 newTNote.IconKind := IconKind;
-                 newTNote.TreeWidth := TreeWidth;
-                 newTNote.Checkboxes := CheckBoxes;
-                 newTNote.TreeChrome := TreeChrome;
-                 newTNote.DefaultNodeName := DefaultNodeName;
-                 newTNote.AutoNumberNodes := AutoNumberNodes;
-                 newTNote.VerticalLayout := VerticalLayout;
-                 newTNote.HideCheckedNodes := HideCheckedNodes;
+                 newFolder.IconKind := IconKind;
+                 newFolder.TreeWidth := TreeWidth;
+                 newFolder.Checkboxes := CheckBoxes;
+                 newFolder.TreeChrome := TreeChrome;
+                 newFolder.DefaultNodeName := DefaultNodeName;
+                 newFolder.AutoNumberNodes := AutoNumberNodes;
+                 newFolder.VerticalLayout := VerticalLayout;
+                 newFolder.HideCheckedNodes := HideCheckedNodes;
               end;
 
-              MergeFile.Notes[i].AddProcessedAlarmsOfNote(newNote);
+              MergeFile.Notes[i].AddProcessedAlarmsOfNote(newFolder);
 
-              mergeTNote:= MergeFile.Notes[i];
-              if ( mergeTNote.NodeCount > 0 ) then
+              mergeFolder:= MergeFile.Notes[i];
+              if ( mergeFolder.NodeCount > 0 ) then
               begin
-                for n := 0 to pred( mergeTNote.NodeCount ) do
+                for n := 0 to pred( mergeFolder.NodeCount ) do
                 begin
-                  mergeNode:= mergeTNote.Nodes[n];
-                  newNode := TKntNote.Create;
-                  newNode.Assign( mergeNode );
-                  newNote.AddNode( newNode );
-                  newNode.ForceID( mergeNode.ID);
-                  mergeTNote.AddProcessedAlarmsOfNode(mergeNode, newNote, newNode);
+                  mergeNote:= mergeFolder.Nodes[n];
+                  newNote := TKntNote.Create;
+                  newNote.Assign( mergeNote );
+                  newFolder.AddNode( newNote );
+                  newNote.ForceID( mergeNote.ID);
+                  mergeFolder.AddProcessedAlarmsOfNode(mergeNote, newFolder, newNote);
                 end;
               end;
 
-              if ( mergeTNote.NodeCount = 1 ) and (mergeTNote.Nodes[0].Name= mergeTNote.Name) then
-                  newTNote.TreeHidden:= true;           // It was an old simple note
+              if ( mergeFolder.NodeCount = 1 ) and (mergeFolder.Nodes[0].Name= mergeFolder.Name) then
+                  newFolder.TreeHidden:= true;           // It was an old simple note
 
 
-              KntFile.AddNote( newNote );
+              KntFile.AddNote( newFolder );
               inc( mergecnt );
 
-              IDs[i].newID:= newNote.ID;
+              IDs[i].newID:= newFolder.ID;
               IDs[i].newNote:= true;
 
               try
-                CreateVCLControlsForNote( newNote );
+                CreateVCLControlsForNote( newFolder );
                 if ( MergeFN = KntFile.FileName ) then begin
-                   KntFile.UpdateImagesCountReferences(newNote);
-                   newNote.DataStreamToEditor;
+                   KntFile.UpdateImagesCountReferences(newFolder);
+                   newFolder.DataStreamToEditor;
                 end
                 else
                   { We have previously assigned "ImagesManager.ExtenalImagesManager:= ImgManagerMF", to search the Stream of the images
                     with the help of the ImageManager associated with the MergeFile file }
-                  KntFile.UpdateImagesStorageModeInFile (ImagesManager.StorageMode, newNote, false);
+                  KntFile.UpdateImagesStorageModeInFile (ImagesManager.StorageMode, newFolder, false);
                   // newNote.DataStreamToEditor;     // From UpdateImagesStorageModeInFile) the call to DataStreamToEditor is ensured
 
-                SetUpVCLControls( newNote );
+                SetUpVCLControls( newFolder );
               finally
-                newNote.TabSheet.TabVisible := true; // was created hidden
+                newFolder.TabSheet.TabVisible := true; // was created hidden
               end;
 
             end;
 
-            //Mirror nodes (if exists) references old Note IDs. We must use new IDs
+            //Mirror nodes (if exists) references old Folder IDs. We must use new IDs
             for i := 0 to pred( MergeFile.NoteCount ) do
               if IDs[i].newNote then begin
-                 newNote:= KntFile.GetNoteByID(IDs[i].newID);
-                 for n := 0 to newNote.NodeCount - 1 do begin
-                    newNode:= newNote.Nodes[n];
-                    if newNode.VirtualMode = vmKNTNode then begin
-                       mirrorID:= newNode.MirrorNodeID;
+                 newFolder:= KntFile.GetNoteByID(IDs[i].newID);
+                 for n := 0 to newFolder.NodeCount - 1 do begin
+                    newNote:= newFolder.Nodes[n];
+                    if newNote.VirtualMode = vmKNTNode then begin
+                       mirrorID:= newNote.MirrorNodeID;
                        p := pos( KNTLINK_SEPARATOR, mirrorID );
-                       noteID:= StrToInt(AnsiLeftStr(mirrorID, p-1));
-                       noteID:= GetNewID(noteID);
-                       newNode.MirrorNodeID:= IntToStr(noteID) + KNTLINK_SEPARATOR + AnsiMidStr (mirrorID, p+1,255);
+                       FolderID:= StrToInt(AnsiLeftStr(mirrorID, p-1));
+                       FolderID:= GetNewID(FolderID);
+                       newNote.MirrorNodeID:= IntToStr(FolderID) + KNTLINK_SEPARATOR + AnsiMidStr (mirrorID, p+1,255);
                     end;
                  end;
               end;
 
             for i := 0 to pred( MergeFile.NoteCount ) do
                 if IDs[i].newNote then begin
-                   newNote:= KntFile.GetNoteByID(IDs[i].newID);
-                   KntFile.SetupMirrorNodes(newNote);
+                   newFolder:= KntFile.GetNoteByID(IDs[i].newID);
+                   KntFile.SetupMirrorNodes(newFolder);
                 end;
 
 
@@ -1962,7 +1961,6 @@ var
   myFolder : TKntFolder;
   filecnt : integer;
   ImportFileType : TImportFileType;
-  tNote : TKntFolder;
   OutStream: TMemoryStream;
 
   myNote : TKntNote;
@@ -1993,7 +1991,7 @@ begin
 
               StatusBar.Panels[PANEL_HINT].Text := STR_59 + ExtractFilename( FN );
 
-              if ( ImportFileType = itHTML ) then   // first see if we can do the conversion, before we create a new note for the file
+              if ( ImportFileType = itHTML ) then   // first see if we can do the conversion, before we create a new folder for the file
               begin
                 if not ConvertHTMLToRTF( FN, OutStream) then begin
                    DoMessageBox( Format(STR_60, [FN]), mtWarning, [mbOK], 0 );
@@ -2024,21 +2022,20 @@ begin
 
                   case ImportFileType of
                     itText, itRTF : begin
-                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TXT or RTF)  FN:' + FN,  1 ); {$ENDIF}
+                     {$IFDEF KNT_DEBUG}Log.Add('Import As Folder. (TXT or RTF)  FN:' + FN,  1 ); {$ENDIF}
                       LoadTxtOrRTFFromFile(myNote.Stream, FN);
                       end;
                     itHTML : begin
-                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (HTML)  FN:' + FN,  1 ); {$ENDIF}
+                     {$IFDEF KNT_DEBUG}Log.Add('Import As Folder. (HTML)  FN:' + FN,  1 ); {$ENDIF}
                       myNote.Stream.LoadFromStream(OutStream);
                       myNote.Stream.Position:= myNote.Stream.Size;
                       myNote.Stream.Write(AnsiString(#13#10#0), 3);
                       end;
                     itTreePad : begin
-                     {$IFDEF KNT_DEBUG}Log.Add('Import As Note. (TreePad)  FN:' + FN,  1 ); {$ENDIF}
-                      tNote := myFolder;
-                      tNote.SetTreeProperties( DefaultTreeProperties );
-                      tNote.TreeChrome := DefaultTreeChrome;
-                      tNote.LoadFromTreePadFile( FN );
+                     {$IFDEF KNT_DEBUG}Log.Add('Import As Folder. (TreePad)  FN:' + FN,  1 ); {$ENDIF}
+                      myFolder.SetTreeProperties( DefaultTreeProperties );
+                      myFolder.TreeChrome := DefaultTreeChrome;
+                      myFolder.LoadFromTreePadFile( FN );
                       end;
                     end;
 
@@ -2059,8 +2056,8 @@ begin
 
                  { ---  Important: See comment * 1 in FileDropped
                     Was corrected in Commit ac672bb258... 11/06/23
-                     * Fixed: Ensure that all nodes in a RTF tree note are saved in RTF format,
-                       and all nodes in a plain text only tree note are saved in plain format.
+                     * Fixed: Ensure that all nodes in a RTF folder are saved in RTF format,
+                       and all nodes in a plain text only folder are saved in plain format.
                     but I forgot to apply it also for files imported as notes, not as nodes !!
                  }
                  if myFolder.PlainText or  ((myNote <> nil) and not NodeStreamIsRTF (myNote.Stream)) then
@@ -2108,7 +2105,6 @@ var
   Editor: TRxRichEdit;
   filecnt : integer;
   ImportFileType : TImportFileType;
-  tNote : TKntFolder;
   Stream: TMemoryStream;
   InformedImgInPlain: boolean;
 
@@ -2261,11 +2257,11 @@ begin
 
         IsKnownFileFormat := ( FileIsHTML or ExtIsText( aExt ) or ExtIsRTF( aExt ) or FileIsImage);
 
-          // Select actions which can be performed depending on extension of the dropped file and on whether we are in a tree-type note
+          // Select actions which can be performed depending on extension of the dropped file
           for fact := low( fact ) to high( fact ) do
              facts[fact] := false;
 
-          facts[factHyperlink] := ( not ActiveNoteIsReadOnly ); // this action can always be perfomed unless current note is read-only
+          facts[factHyperlink] := ( not ActiveNoteIsReadOnly ); // this action can always be perfomed unless current folder is read-only
 
           // .KNT, .KNE and DartNotes files can only be opened or merged, regardless of where they were dropped. This can only be done one file at a time.
           if ( aExt = ext_KeyNote ) or
@@ -2284,7 +2280,6 @@ begin
             facts[factImport] := IsKnownFileFormat;
             facts[factInsertContent]:= not ActiveNoteIsReadOnly and (not FileIsImage or NoteSupportsRegisteredImages());
             if ( not ActiveNoteIsReadOnly) then begin
-              // ...or, in a tree note, import as a tree node
               myTreeNode := ActiveKntFolder.TV.Selected;
               if assigned( myTreeNode ) then begin
                  facts[factImportAsNode] := IsKnownFileFormat;
@@ -2476,7 +2471,7 @@ begin
         NewFileName:= '';
 
         if ( not ( assigned( KntFile ) and assigned( ActiveKntFolder ))) then begin
-           // no active note; we can only OPEN a file
+           // no active folder; we can only OPEN a file
            if ((( fExt = ext_KeyNote ) or
               ( fExt = ext_Encrypted ) or
               ( fExt = ext_DART )) and ( not FileIsFolder )) then
@@ -2565,7 +2560,7 @@ begin
 
                       {$IFDEF KNT_DEBUG}Log.Add('Import as Node: ' + FName,  1 ); {$ENDIF}
 
-                      // first see if we can do the conversion, before we create a new note for the file
+                      // first see if we can do the conversion, before we create a new folder for the file
                       if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
                         if not ConvertHTMLToRTF( FName, OutStream) then begin
                            DoMessageBox( Format(STR_60, [FName]), mtWarning, [mbOK], 0 );

@@ -1323,7 +1323,7 @@ type
     // sanity checks. Many functions cannot be performed
     // if we have no active note or if the note is read-only
     function HaveNotes( const Warn, CheckCount : boolean ) : boolean;
-    function NoteIsReadOnly( const aNote : TKntFolder; const Warn : boolean ) : boolean;
+    function NoteIsReadOnly( const aFolder : TKntFolder; const Warn : boolean ) : boolean;
 
     // search / replace
     procedure FindNotify( const Active : boolean );
@@ -1375,7 +1375,7 @@ type
 
     procedure FilterApplied (note: TKntFolder);   // [dpv]
     procedure FilterRemoved (note: TKntFolder);   // [dpv]
-    procedure OnNoteChange(Note: TKntFolder);
+    procedure OnNoteChange(Folder: TKntFolder);
 
     procedure ShowAlarmStatus;
     procedure SetAlarm (ConsiderNoteAlarm: Boolean);
@@ -1476,13 +1476,13 @@ resourcestring
   STR_24 = 'Apply Filter on tree note';
   STR_25 = 'This operation cannot be performed because no file is open.';
   STR_26 = 'This operation cannot be performed because the currently open file has no notes.';
-  STR_27 = ' Cannot perform operation: Note is Read-Only';
+  STR_27 = ' Cannot perform operation: Folder is Read-Only';
   STR_29 = ' Printing note...';
   STR_30 = ' Finished printing note.';
   STR_31 = ' Preparing to send note via email...';
-  STR_32 = ' Note sent';
-  STR_33 = ' Note not sent';
-  STR_35 = 'Set alarm... (Ctrl:Add  Shift:->Note)';
+  STR_32 = ' Folder sent';
+  STR_33 = ' Folder not sent';
+  STR_35 = 'Set alarm... (Ctrl:Add  Shift:->Folder)';
   STR_36 = 'Drag: ';
   STR_37 = 'TV dragover';
   STR_38_Dragged = '<nothing>';
@@ -1498,7 +1498,7 @@ resourcestring
   STR_49= 'OK to sort the entire tree?';
   STR_50= ' Node name cannot be blank!';
   STR_51= ' Node renamed.';
-  STR_52= ' Cannot edit: Note is read-only.';
+  STR_52= ' Cannot edit: Folder is read-only.';
   STR_53= 'Edit node name';
   STR_54= 'Enter new name:';
   STR_55= 'Node name cannot be blank!';
@@ -1539,7 +1539,7 @@ resourcestring
   STR_89= 'External: %s';
   STR_90= ' File: ';
   STR_91= ' Node: ';
-  STR_92= '%s Note: %s%s';
+  STR_92= '%s Folder: %s%s';
   STR_93= 'Double-click to insert selected template';
   STR_94= 'Toolbar configuration file "%s" not found. Default toolbar configuration file has been created.';
   STR_95= 'Saved toolbar layout to "%s".';
@@ -3565,11 +3565,11 @@ begin
      OnNoteChange(ActiveKntFolder);
 end; // RxRTFChange
 
-procedure TForm_Main.OnNoteChange(Note: TKntFolder);
+procedure TForm_Main.OnNoteChange(Folder: TKntFolder);
 begin
-  if not assigned(Note) then exit;                   // It could occur if recreating RichEdit window very soon
+  if not assigned(Folder) then exit;                   // It could occur if recreating RichEdit window very soon
 
-  Note.Modified := true;
+  Folder.Modified := true;
   KntFile.Modified := true;
   UpdateNoteFileState( [fscModified] );
 
@@ -3579,8 +3579,8 @@ begin
      else
         messagedlg( STR_14, mtError, [mbOK], 0 );
 
-  TB_EditUndo.Enabled := Note.Editor.CanUndo;
-  TB_EditRedo.Enabled := Note.Editor.CanRedo;
+  TB_EditUndo.Enabled := Folder.Editor.CanUndo;
+  TB_EditRedo.Enabled := Folder.Editor.CanRedo;
   RTFMUndo.Enabled := TB_EditUndo.Enabled;
 
   if CopyFormatMode= cfEnabled then
@@ -4135,7 +4135,7 @@ begin
          'Active note name: ' + ActiveKntFolder.Name +#13;
 
       s := s + 'Number of Tree nodes: ' + inttostr( TKntFolder( ActiveKntFolder ).TV.Items.Count ) + #13 +
-        'Number of Note nodes: ' + inttostr( TKntFolder( ActiveKntFolder ).NodeCount ) + #13;
+        'Number of Folder nodes: ' + inttostr( TKntFolder( ActiveKntFolder ).NodeCount ) + #13;
       if assigned( TKntFolder( ActiveKntFolder ).SelectedNode ) then
         s := s + 'Selected node: ' + TKntFolder( ActiveKntFolder ).SelectedNode.Name +#13;
     end
@@ -4511,7 +4511,7 @@ begin
 
 end; // HaveNotes
 
-function TForm_Main.NoteIsReadOnly( const aNote : TKntFolder; const Warn : boolean ) : boolean;
+function TForm_Main.NoteIsReadOnly( const aFolder : TKntFolder; const Warn : boolean ) : boolean;
 begin
   result := assigned( ANote ) and ANote.ReadOnly;
   if ( result and Warn ) then
@@ -5721,23 +5721,23 @@ end;
 
 procedure TForm_Main.MMViewNodeIconsClick(Sender: TObject);
 var
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
   mi : TMenuItem;
 begin
   if ( not ( sender is TMenuItem )) then exit;
   mi := ( sender as TMenuItem );
   if ( assigned( ActiveKntFolder ) ) then
   begin
-    tNote := TKntFolder( ActiveKntFolder );
+    myFolder := TKntFolder( ActiveKntFolder );
     if mi.Checked then
     begin
-      tNote.IconKind := niNone;
+      myFolder.IconKind := niNone;
     end
     else
     begin
-      tNote.IconKind := TNodeIconKind( mi.Tag );
+      myFolder.IconKind := TNodeIconKind( mi.Tag );
     end;
-    ShowOrHideIcons( tNote, ( tNote.IconKind <> niNone ));
+    ShowOrHideIcons( myFolder, ( myFolder.IconKind <> niNone ));
     KntFile.Modified := true;
     UpdateNoteFileState( [fscModified] );
   end;
@@ -5747,16 +5747,16 @@ end; // MMViewNodeIconsClick
 
 procedure TForm_Main.MMViewCheckboxesAllNodesClick(Sender: TObject);
 var
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
   // show or hide checkboxes in active note's tree panel
   if  assigned( ActiveKntFolder )  then
   begin
-    tNote := TKntFolder( ActiveKntFolder );
-    tNote.Checkboxes := ( not tNote.Checkboxes );
-    MMViewCheckboxesAllNodes.Checked := tNote.Checkboxes;
+    myFolder := TKntFolder( ActiveKntFolder );
+    myFolder.Checkboxes := ( not myFolder.Checkboxes );
+    MMViewCheckboxesAllNodes.Checked := myFolder.Checkboxes;
     TVChildrenCheckbox.Enabled := not MMViewCheckboxesAllNodes.Checked;       // [dpv]
-    ShowOrHideCheckBoxes( tNote );
+    ShowOrHideCheckBoxes( myFolder );
   end;
 end;
 
@@ -6062,7 +6062,7 @@ end;
 procedure TForm_Main.NodesDropOnTabProc( const DropTab : TTab95Sheet );
 var
   oldPage : TTab95Sheet;
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
   s : string;
   DoMoveNodes : boolean;
 begin
@@ -6074,10 +6074,10 @@ begin
     exit;
   end;
 
-  tNote := TKntFolder( DropTab.PrimaryObject );
+  myFolder := TKntFolder( DropTab.PrimaryObject );
   oldPage := Pages.ActivePage;
 
-  if tNote.ReadOnly then
+  if myFolder.ReadOnly then
   begin
     DoMessageBox( Format(STR_74, [DropTab.Caption]), mtError, [mbOK], 0 );
     exit;
@@ -6100,7 +6100,7 @@ begin
     begin
       Pages.ActivePage := DropTab;
       PagesChange( Pages );
-      if TreeTransferProc( 1, tNote, false, false, DoMoveNodes ) then // step 2 - paste
+      if TreeTransferProc( 1, myFolder, false, false, DoMoveNodes ) then // step 2 - paste
       begin
         if DoMoveNodes then // MOVE instead of copy, so delete originals
         begin
@@ -6213,51 +6213,51 @@ end;
 
 procedure TForm_Main.TB_HideCheckedClick(Sender: TObject);   // [dpv]
 var
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
   Hide: boolean;
 begin
   if ( assigned( ActiveKntFolder )) then
   begin
-    tNote := TKntFolder( ActiveKntFolder );
+    myFolder := TKntFolder( ActiveKntFolder );
 
-    Hide:= not tNote.HideCheckedNodes;
+    Hide:= not myFolder.HideCheckedNodes;
     if CtrlDown and Hide then
        Hide:= False;
 
-    tNote.HideCheckedNodes := Hide;
+    myFolder.HideCheckedNodes := Hide;
     MMViewHideCheckedNodes.Checked:= Hide;
     TB_HideChecked.Down := Hide;
 
     if Hide then
-       HideChildNodesUponCheckState (tNote, nil, csChecked)
+       HideChildNodesUponCheckState (myFolder, nil, csChecked)
     else
-       ShowCheckedNodes (tNote, nil);
+       ShowCheckedNodes (myFolder, nil);
   end;
 
 end;
 
 procedure TForm_Main.TVHideCheckedChildrenClick(Sender: TObject);
 var
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
-    tNote := TKntFolder( ActiveKntFolder );
-    HideChildNodesUponCheckState (tNote, tNote.TV.Selected, csChecked);
+    myFolder := TKntFolder( ActiveKntFolder );
+    HideChildNodesUponCheckState (myFolder, myFolder.TV.Selected, csChecked);
 end;
 
 procedure TForm_Main.TVHideUncheckedChildrenClick(Sender: TObject);
 var
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
-    tNote := TKntFolder( ActiveKntFolder );
-    HideChildNodesUponCheckState (tNote, tNote.TV.Selected, csUnchecked);
+    myFolder := TKntFolder( ActiveKntFolder );
+    HideChildNodesUponCheckState (myFolder, myFolder.TV.Selected, csUnchecked);
 end;
 
 procedure TForm_Main.TVShowNonFilteredClick(Sender: TObject);
 var
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
-    tNote := TKntFolder( ActiveKntFolder );
-    ShowCheckedNodes (tNote, tNote.TV.Selected);
+    myFolder := TKntFolder( ActiveKntFolder );
+    ShowCheckedNodes (myFolder, myFolder.TV.Selected);
 end;
 
 
@@ -7242,8 +7242,8 @@ begin
     DBLCLK_MINIMIZE : Application.Minimize;
     DBLCLK_FILEPROP : NoteFileProperties;
     DBLCLK_FILEMGR : RunFileManager;
-    DBLCLK_NOTEPROP : EditNoteProperties( propThisNote );
-    DBLCLK_NEWNOTE : CreateNewNote;
+    DBLCLK_FOLDERPROP : EditNoteProperties( propThisNote );
+    DBLCLK_NEWFOLDER : CreateNewNote;
     DBLCLK_RESPANEL : MMViewResPanelClick( MMViewResPanel );
   end;
 end;
@@ -7626,7 +7626,7 @@ begin
     nn := '';
   end;
 
-  StatusBar.Panels[PANEL_HINT].Text := Format(STR_92, [fn, myFav.NoteName, nn]);
+  StatusBar.Panels[PANEL_HINT].Text := Format(STR_92, [fn, myFav.FolderName, nn]);
 
 end; // ListBox_ResFavClick
 

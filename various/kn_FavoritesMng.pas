@@ -353,8 +353,8 @@ begin
     else
     begin
       myFav.FileName := KntFile.FileName;
-      myFav.NoteName := RemoveAccelChar( ActiveKntFolder.Name );
-      myFav.NoteID := ActiveKntFolder.ID;
+      myFav.FolderName := RemoveAccelChar( ActiveKntFolder.Name );
+      myFav.FolderID := ActiveKntFolder.ID;
       if assigned( myNote ) then
       begin
         myFav.NodeName := myNote.Name;

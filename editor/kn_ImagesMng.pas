@@ -273,7 +273,7 @@ type
 
     destructor Destroy; override;
 
-    procedure GenerateName(Node: TKntNote; Note: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+    procedure GenerateName(Node: TKntNote; Folder: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 
     property ID: Integer read FID;
     property ImageFormat: TImageFormat read FImageFormat;
@@ -379,7 +379,7 @@ type
     function CheckUniqueName (var Name: string): boolean;
     function CheckRegisterImage (Stream: TMemoryStream; ImgFormat: TImageFormat;
                                  Width, Height: integer;
-                                 Note: TKntFolder;
+                                 Folder: TKntFolder;
                                  const OriginalPath: String;
                                  Owned: boolean;
                                  const Source: String;
@@ -394,7 +394,7 @@ type
                                const OriginalPath: String;
                                Owned: boolean;
                                const Source: String;
-                               Note: TKntFolder;
+                               Folder: TKntFolder;
                                const NameProposed: string = ''
                                ): TKntImage;
 
@@ -408,17 +408,17 @@ type
     procedure ReloadImageStream (Img: TKntImage);
     procedure CheckFreeImageStreamsNotRecentlyUsed;
 
-    procedure InsertImage (FileName: String; Note: TKntFolder; Owned: boolean; const NameProposed: string = '');
-    procedure InsertImageFromClipboard (Note: TKntFolder; TryAddURLlink: boolean = true);
+    procedure InsertImage (FileName: String; Folder: TKntFolder; Owned: boolean; const NameProposed: string = '');
+    procedure InsertImageFromClipboard (Folder: TKntFolder; TryAddURLlink: boolean = true);
 
-    function ProcessImagesInRTF (const RTFText: AnsiString; Note: TKntFolder;
+    function ProcessImagesInRTF (const RTFText: AnsiString; Folder: TKntFolder;
                                  ImagesModeDest: TImagesMode;
                                  const Source: string;
                                  FirstImageID: integer= 0;
                                  ExitIfAllImagesInSameModeDest: boolean= false
                                  ): AnsiString; overload;
 
-    function ProcessImagesInRTF (const Buffer: Pointer; BufSize: integer; Note: TKntFolder;
+    function ProcessImagesInRTF (const Buffer: Pointer; BufSize: integer; Folder: TKntFolder;
                                  ImagesModeDest: TImagesMode;
                                  const Source: string;
                                  FirstImageID: integer;
@@ -427,7 +427,7 @@ type
                                  ExitIfAllImagesInSameModeDest: boolean = false
                                  ): AnsiString; overload;
                                  
-    procedure ProcessImagesInClipboard(Editor: TRxRichEdit; Note: TKntFolder; SelStartBeforePaste: integer; FirstImageID: integer= 0);
+    procedure ProcessImagesInClipboard(Editor: TRxRichEdit; Folder: TKntFolder; SelStartBeforePaste: integer; FirstImageID: integer= 0);
 
     procedure ResetAllImagesCountReferences;
     procedure RemoveImagesReferences (const IDs: TImageIDs);
@@ -1022,9 +1022,9 @@ begin
 end;
 
 
-{ Generates a Name and Path for a new image, unique in the storage, and taking into account that it has been created on the indicated node/note  }
+{ Generates a Name and Path for a new image, unique in the storage, and taking into account that it has been created on the indicated node/folder  }
 
-procedure TKntImage.GenerateName(Node: TKntNote; Note: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+procedure TKntImage.GenerateName(Node: TKntNote; Folder: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 var
   src: String;
   strDate: string;
@@ -1057,7 +1057,7 @@ begin
     end;
 
     if KeyOptions.ImgSaveInSubfolders then begin
-       FPath:= MakeValidFileName( Note.Name, [' '], MAX_FILENAME_LENGTH );
+       FPath:= MakeValidFileName( Folder.Name, [' '], MAX_FILENAME_LENGTH );
 
        if ZipPathFormat then
           FPath:= FPath + '/'
@@ -2296,7 +2296,7 @@ function TImageManager.RegisterNewImage(
                                          const OriginalPath: String;
                                          Owned: boolean;
                                          const Source: String;
-                                         Note: TKntFolder;
+                                         Folder: TKntFolder;
                                          const NameProposed: string = ''
                                          ): TKntImage;
 var
@@ -2329,7 +2329,7 @@ begin
    if (assigned(fExternalStorageToSave)) and (fExternalStorageToSave.StorageType= stZip) then
       ZipPathFormat:= true;
 
-   Img.GenerateName(Node, Note, Source, ZipPathFormat, NameProposed);
+   Img.GenerateName(Node, Folder, Source, ZipPathFormat, NameProposed);
 
    fImages.Add(Pointer(Img));
    if Owned and ((fStorageMode = smExternal) or (fStorageMode = smExternalAndEmbKNT)) then
@@ -2345,7 +2345,7 @@ function TImageManager.CheckRegisterImage (
                                            Stream: TMemoryStream;
                                            ImgFormat: TImageFormat;
                                            Width, Height: integer;
-                                           Note: TKntFolder;
+                                           Folder: TKntFolder;
                                            const OriginalPath: String;
                                            Owned: boolean;
                                            const Source: String;
@@ -2359,7 +2359,7 @@ begin
 
     Img:= GetImageFromStream (Stream, crc32);
     if (Img = nil) then begin
-       Img:= RegisterNewImage(Stream, imgFormat, Width, Height, crc32, OriginalPath, Owned, Source, Note, NameProposed);
+       Img:= RegisterNewImage(Stream, imgFormat, Width, Height, crc32, OriginalPath, Owned, Source, Folder, NameProposed);
        Result:= True;        // Registered
     end;
 end;
@@ -2398,7 +2398,7 @@ end;
 
 { Explicit insertion of an image. Replaces the current method that relies on the use of the clipboard }
 
-procedure TImageManager.InsertImage(FileName: String; Note: TKntFolder; Owned: boolean; const NameProposed: string= '');
+procedure TImageManager.InsertImage(FileName: String; Folder: TKntFolder; Owned: boolean; const NameProposed: string= '');
 var
   Stream: TMemoryStream;
   ImgFormat, ImgFormatDest: TImageFormat;
@@ -2421,7 +2421,7 @@ begin
 
      if (fStorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
         ImgFormat:= GetImageFormat(Stream);
-        StreamRegistered:= CheckRegisterImage (Stream, ImgFormat, Width, Height, Note, FileName, Owned, '', Img, NameProposed);
+        StreamRegistered:= CheckRegisterImage (Stream, ImgFormat, Width, Height, Folder, FileName, Owned, '', Img, NameProposed);
         ImgID:= Img.ID;
         if (not StreamRegistered) and (Img.ReferenceCount = 0) and (NameProposed <> '') then
            Img.FName:= NameProposed;
@@ -2434,7 +2434,7 @@ begin
      if StreamRegistered then
         Img.SetDimensions(Width, Height);
 
-     Note.Editor.PutRtfText(StrRTF, True);
+     Folder.Editor.PutRtfText(StrRTF, True);
 
   finally
      if not StreamRegistered then
@@ -2444,7 +2444,7 @@ begin
 end;
 
 
-procedure TImageManager.InsertImageFromClipboard(Note: TKntFolder; TryAddURLlink: boolean = true);
+procedure TImageManager.InsertImageFromClipboard(Folder: TKntFolder; TryAddURLlink: boolean = true);
 var
   Stream: TMemoryStream;
   bmp: TBitmap;
@@ -2469,10 +2469,10 @@ begin
   ImgFormat:= imgUndefined;
   StreamRegistered:= false;
 
-  if Note = nil then
-     Note:= ActiveKntFolder;
+  if Folder = nil then
+     Folder:= ActiveKntFolder;
 
-  Editor:= Note.Editor;
+  Editor:= Folder.Editor;
 
  {
   //  Disabled from now. Perhaps it will be restored and used if enabled via a new INI configuration option
@@ -2513,7 +2513,7 @@ begin
      if WasCopiedByKNT then
         ImgID:= LastCopiedIDImage;            // If <> 0 => We have copied this image from KNT and we had already registered it
 
-     if (ImgID = 0) and (fStorageMode <> smEmbRTF) and (Note <> nil) then begin
+     if (ImgID = 0) and (fStorageMode <> smEmbRTF) and (Folder <> nil) then begin
         if _IS_CAPTURING_CLIPBOARD then
            Source:= 'ClipCap'
         else
@@ -2529,7 +2529,7 @@ begin
         ConvertStreamToImgFormatDest (Stream, ImgFormat, imgFormatDest);
         if (fStorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
            ImgFormat:= ImgFormatDest;
-           StreamRegistered:= CheckRegisterImage (Stream, ImgFormatDest, Width, Height, Note, '', True, Source, Img);
+           StreamRegistered:= CheckRegisterImage (Stream, ImgFormatDest, Width, Height, Folder, '', True, Source, Img);
            ImgID:=Img.ID;
         end;
      end;
@@ -2545,7 +2545,7 @@ begin
          TextURL:= ConvertHTMLAsciiCharacters(TextURL);
          Editor.SelText:= #13;
          Editor.SelStart:= Editor.SelStart + 1;
-         InsertURL(SourceImg, TextURL, Note);
+         InsertURL(SourceImg, TextURL, Folder);
          if (Img <> nil) and StreamRegistered then
             Img.Caption:= TextURL;
      end;
@@ -2569,7 +2569,7 @@ end;
 { Will only be called when it detects that the content on the clipboard was not copied by this application
  If it has been, there is no need to process the images, since they will already be adapted and with the
  hidden marks that have been precise }
-procedure TImageManager.ProcessImagesInClipboard(Editor: TRxRichEdit; Note: TKntFolder; SelStartBeforePaste: integer; FirstImageID: integer= 0);
+procedure TImageManager.ProcessImagesInClipboard(Editor: TRxRichEdit; Folder: TKntFolder; SelStartBeforePaste: integer; FirstImageID: integer= 0);
 var
   SelStartBak: integer;
   p1, p2: integer;
@@ -2587,7 +2587,7 @@ begin
     RTFText:= Editor.RtfSelText;
 
     ImagesMode:= FImagesMode;
-    RTFTextOut:= ProcessImagesInRTF(RTFText, Note, ImagesMode, 'Clipboard', FirstImageID);
+    RTFTextOut:= ProcessImagesInRTF(RTFText, Folder, ImagesMode, 'Clipboard', FirstImageID);
 
     if RTFTextOut <> '' then
        Editor.PutRtfText(RTFTextOut,True,True)
@@ -2597,7 +2597,7 @@ begin
 end;
 
 
-function TImageManager.ProcessImagesInRTF(const RTFText: AnsiString; Note: TKntFolder;
+function TImageManager.ProcessImagesInRTF(const RTFText: AnsiString; Folder: TKntFolder;
                                           ImagesModeDest: TImagesMode;
                                           const Source: string;
                                           FirstImageID: integer= 0;
@@ -2607,7 +2607,7 @@ var
    ContainsImgIDsRemoved: boolean;
    ContainsImages: boolean;
 begin
-   Result:= ProcessImagesInRTF(@RTFText[1], ByteLength(RTFText), Note, ImagesModeDest, Source, FirstImageID, ContainsImgIDsRemoved, ContainsImages, ExitIfAllImagesInSameModeDest);
+   Result:= ProcessImagesInRTF(@RTFText[1], ByteLength(RTFText), Folder, ImagesModeDest, Source, FirstImageID, ContainsImgIDsRemoved, ContainsImages, ExitIfAllImagesInSameModeDest);
 end;
 
 
@@ -2651,7 +2651,7 @@ NOTE:
      from the image, if it finds it:  Embedded color profile, EXIF metada, IPTC metadata
 
 *)
-function TImageManager.ProcessImagesInRTF(const Buffer: Pointer; BufSize: integer; Note: TKntFolder;
+function TImageManager.ProcessImagesInRTF(const Buffer: Pointer; BufSize: integer; Folder: TKntFolder;
                                           ImagesModeDest: TImagesMode;
                                           const Source: string;
                                           FirstImageID: integer;
@@ -2767,14 +2767,14 @@ begin
    Result:= '';
    RTFText:= PAnsiChar(Buffer);
 
-   if (assigned(Note) and Note.PlainText) or (Length(RTFText) > BufSize) then begin
+   if (assigned(Folder) and Folder.PlainText) or (Length(RTFText) > BufSize) then begin
       assert(Length(RTFText) <= BufSize );
       exit;
    end;
 
    assert(Length(RTFText) <= BufSize );
 
-   // fExtenalImagesManager <> nil : We are processing note images from a file we are merging (see MergeFromKNTFile)
+   // fExtenalImagesManager <> nil : We are processing folder images from a file we are merging (see MergeFromKNTFile)
 
    UseExtenalImagesManager:= (ImagesModeDest = imLink) and (fExternalImagesManager <> nil);
    StreamNeeded:=  (ImagesModeDest = imImage) or (fExternalImagesManager <> nil);
@@ -3041,14 +3041,14 @@ begin
 
             if (fStorageMode <> smEmbRTF) then begin
                if (ImgID = 0) and ((ImageMode = imImage) or UseExtenalImagesManager) and (Stream <> nil) and (Stream.Size > 0) then begin
-                  if Note = nil then begin
-                     assert(Note <> nil);
+                  if Folder = nil then begin
+                     assert(Folder <> nil);
                      Exit('');       // It shouldn't happen, but if it does, we are exporting notes. We leave without processing anything
                   end;
 
                   if Img <> nil then begin            // Processing images from MergeFromKNTFile
                     ImgCaption:= Img.Caption;
-                    if CheckRegisterImage (Stream, Img.ImageFormat,  Width, Height, Note, Img.OriginalPath, Img.IsOwned, 'MergeKNT', Img) then begin
+                    if CheckRegisterImage (Stream, Img.ImageFormat,  Width, Height, Folder, Img.OriginalPath, Img.IsOwned, 'MergeKNT', Img) then begin
                        StreamRegistered:= true;
                        if ImgCaption <> '' then
                           Img.Caption:= ImgCaption;
@@ -3060,7 +3060,7 @@ begin
                     ConvertStreamToImgFormatDest (Stream, ImgFormat, imgFormatDest);
                     if Stream.Size > 0 then begin
                        ImgFormat:= ImgFormatDest;
-                       if CheckRegisterImage (Stream, ImgFormatDest,  Width, Height, Note, '', true, Source, Img) then
+                       if CheckRegisterImage (Stream, ImgFormatDest,  Width, Height, Folder, '', true, Source, Img) then
                           StreamRegistered:= true;
                        ImgID:= Img.ID;
                     end;
@@ -3466,8 +3466,8 @@ begin
      individual images.
 
      This method returns, from a position defined according to TextPlain-imLink (if Pos_ImLinkTextPlain >= 0), 
-     or according to TextPlain-Editor (for the indicated note/node) if CaretPos >=0, the positive difference (offset)
-     with respect to the equivalent position in the alternative TextPlain (for the indicated note/node)
+     or according to TextPlain-Editor (for the indicated folder/node) if CaretPos >=0, the positive difference (offset)
+     with respect to the equivalent position in the alternative TextPlain (for the indicated folder/node)
 
 
      As the searches are carried out using TextPlain-imLink as a reference, this method allows us to obtain
@@ -3478,11 +3478,11 @@ begin
 
 
      - Pos_ImLinkTextPlain: Position in imLinkTextPlain
-     - Stream: the content of the note/node, with the RTF corresponding to the imLink mode
+     - Stream: the content of the folder/node, with the RTF corresponding to the imLink mode
      - imLinkTextPlain: TextPlain in imLink mode corresponding to the stream received.
                         Used when saving to disk and for searching
 
-     To calculate the offset we need to have the stream of the note/node, where we have the RTF equivalent to the
+     To calculate the offset we need to have the stream of the folder/node, where we have the RTF equivalent to the
      TextPlain-imLink received. Through it we can count the length of the image hyperlinks that are before the
      position received as a parameter.
      (Actually the difference with what the image occupies in imLink mode -> number of hyperlink characters - 1)
@@ -3490,7 +3490,7 @@ begin
      If an image is also in hidden mode (imLink) in the editor, there will be no difference to account for.
 
        - -
-       Note: if on a note/node with all the images hidden we insert an image, which will be visible, and we intend
+       Note: if on a folder/node with all the images hidden we insert an image, which will be visible, and we intend
        to highlight a match from a search prior to said change, it is normal that it will not be highlighted properly,
        simply because the editor has changed. It is necessary to run the query again.
        - -
@@ -3498,7 +3498,7 @@ begin
      First: we need to count how many hyperlinks are located in front of the received position, checking it in imLinkTextPlain
 
      At first, it might seem that if ImagesManager.ImagesMode = imLink no offset needs to be calculated.
-     But it may happen that if the note/node is being edited, some images are visible and others are not. For example,
+     But it may happen that if the folder/node is being edited, some images are visible and others are not. For example,
      it is possible to set the mode to imLink (hiding already inserted images) and continue adding images.
      All new images are always incorporated visibly. It could also happen that an image in link format that had
      previously been copied to the clipboard was pasted and then pasted, when the mode is imImage
@@ -3526,7 +3526,7 @@ begin
 
     { If the length of TextPlainInEditor = length of imLinkTextPlain this will be because there are images but they
       are all hidden, hence the coincidence in the lengths. It would be highly unlikely that there would be a number
-      of visible images equal to the number of characters added to the note/node and not yet saved to the stream. }
+      of visible images equal to the number of characters added to the folder/node and not yet saved to the stream. }
     if (not ForceCalc) and (Length(imLinkTextPlain) = Length(TextPlainInEditor)) then
        exit;
 
@@ -3712,7 +3712,7 @@ begin
          if SetLastFormImageOpened and (OpenedViewer = nil) then
             kn_ImageForm.LastFormImageOpened:= Form_Image;
          Form_Image.Image:= Img;
-         Form_Image.Note:= ActiveKntFolder;
+         Form_Image.Folder:= ActiveKntFolder;
          if not UsingOpenViewer then
             Form_Image.Show;
       end;

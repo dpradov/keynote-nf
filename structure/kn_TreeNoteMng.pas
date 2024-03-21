@@ -65,8 +65,8 @@ var
     procedure PasteNodeName( const PasteMode : TPasteNodeNameMode );
     procedure CopyNodeName( const IncludeNoteText : boolean );
     procedure CopyNodePath( const InsertInEditor : boolean );
-    procedure ShowOrHideIcons( const tNote : TKntFolder; const UpdateNodes : boolean );
-    procedure ShowOrHideCheckBoxes( const tNote : TKntFolder );
+    procedure ShowOrHideIcons( const myFolder : TKntFolder; const UpdateNodes : boolean );
+    procedure ShowOrHideCheckBoxes( const myFolder : TKntFolder );
     procedure SetTreeNodeColor( const UseColorDlg, AsTextColor, ResetDefault, DoChildren : boolean );
     procedure SetTreeNodeBold( const DoChildren : boolean );
     procedure SetTreeNodeCustomImage;
@@ -78,16 +78,16 @@ var
     procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit);
     function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TKntFolder; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
 
-    procedure HideChildNodesUponCheckState (note: TKntFolder; ParentNode: TTreeNTNode; CheckState: TCheckState);    // [dpv]
-    procedure ShowCheckedNodes (note: TKntFolder; ParentNode: TTreeNTNode);    // [dpv]
+    procedure HideChildNodesUponCheckState (folder: TKntFolder; ParentNode: TTreeNTNode; CheckState: TCheckState);    // [dpv]
+    procedure ShowCheckedNodes (folder: TKntFolder; ParentNode: TTreeNTNode);    // [dpv]
     procedure ShowOrHideChildrenCheckBoxes( const tnode : TTreeNTNode );   // [dpv]
 
     function IsAnyNodeMoving: boolean;              // [dpv]
-    procedure MarkAllFiltered (note: TKntFolder);    // [dpv]
-    procedure MarkAllUnfiltered (note: TKntFolder);  // [dpv]
-    procedure RemoveFilter (note: TKntFolder);       // [dpv]
-    procedure HideFilteredNodes (note: TKntFolder);  // [dpv]
-    function GetTreeNode (NoteID: integer; NodeID: integer): TTreeNTNode;
+    procedure MarkAllFiltered (folder: TKntFolder);    // [dpv]
+    procedure MarkAllUnfiltered (folder: TKntFolder);  // [dpv]
+    procedure RemoveFilter (folder: TKntFolder);       // [dpv]
+    procedure HideFilteredNodes (folder: TKntFolder);  // [dpv]
+    function GetTreeNode (FolderID: integer; NodeID: integer): TTreeNTNode;
     procedure ChangeCheckedState(TV: TTreeNT; Node: TTreeNTNode; Checked: Boolean; CalledFromMirrorNode: Boolean);
 
     function GetMirrorNodes(originalNode: TTreeNTNode): Pointer;
@@ -143,7 +143,7 @@ resourcestring
   STR_24 = ' Pasted %d nodes';
   STR_25 = '%d virtual nodes have been converted to normal nodes, because other virtual nodes in current file already link to the same files.';
   STR_26 = 'OK to paste %d nodes as mirror nodes below current node "%s"?' + #13#10 + '(Only not hidden nodes will be pasted)';
-  STR_27 = 'Node not found (Note ID/Node ID): %d/%d';
+  STR_27 = 'Node not found (Folder ID/Node ID): %d/%d';
 
 var
    __NodeChangeCounter : longint;
@@ -871,7 +871,7 @@ var
 begin
    { See comments in the methods TCustomTreeNT.RecreateTreeWindow and TCustomTreeNT.DestroyWnd  (TreeNT.pas)
 
-    The indicated explains why font changes in the tree (from 'Note Properties...') were not reflected on it
+    The indicated explains why font changes in the tree (from 'Folder Properties...') were not reflected on it
     on many occasions, precisely those in which we had not modified the background color.
     And besides, it was also happening that the font changes, when they were shown, did not give rise to a correct
     resizing of the height of each item.
@@ -960,7 +960,7 @@ end; // UpdateTreeChrome
 
 procedure UpdateTreeOptions( const myFolder : TKntFolder );
 begin
-  // updates options for current note's tree
+  // updates options for current folder's tree
   // based on global tree options
 
   with myFolder.TV do
@@ -1172,27 +1172,27 @@ begin
 
 end; // PasteNodeName
 
-procedure ShowOrHideIcons( const tNote : TKntFolder; const UpdateNodes : boolean );
+procedure ShowOrHideIcons( const myFolder : TKntFolder; const UpdateNodes : boolean );
 var
   myTreeNode : TTreeNTNode;
 begin
-  tNote.TV.Items.BeginUpdate;
+  myFolder.TV.Items.BeginUpdate;
   try
    with Form_Main do
    begin
-    case tNote.IconKind of
+    case myFolder.IconKind of
       niNone : begin
-        tNote.TV.Images := nil;
+        myFolder.TV.Images := nil;
         MMViewNodeIcons.Checked := false;
         MMViewCustomIcons.Checked := false;
       end;
       niStandard : begin
-        tNote.TV.Images := IMG_TV;
+        myFolder.TV.Images := IMG_TV;
         MMViewNodeIcons.Checked := true;
         MMViewCustomIcons.Checked := false;
       end;
       niCustom : begin
-        tNote.TV.Images := Chest.IMG_Categories;
+        myFolder.TV.Images := Chest.IMG_Categories;
         MMViewNodeIcons.Checked := false;
         MMViewCustomIcons.Checked := true;
       end;
@@ -1200,42 +1200,42 @@ begin
     TVSelectNodeImage.Enabled := ( MMViewCustomIcons.Checked and MMViewCustomIcons.Enabled );
     if UpdateNodes then
     begin
-      myTreeNode := tNote.TV.Items.GetFirstNode;
+      myTreeNode := myFolder.TV.Items.GetFirstNode;
       while assigned( myTreeNode ) do
       begin
-        SelectIconForNode( myTreeNode, tNote.IconKind );
+        SelectIconForNode( myTreeNode, myFolder.IconKind );
         myTreeNode := myTreeNode.GetNext;
       end;
     end;
    end;
   finally
-    tNote.TV.Items.EndUpdate;
+    myFolder.TV.Items.EndUpdate;
   end;
 end; // ShowOrHideIcons
 
-procedure ShowOrHideCheckBoxes( const tNote : TKntFolder );
+procedure ShowOrHideCheckBoxes( const myFolder : TKntFolder );
 var
   node : TTreeNTNode;
   myNote : TKntNote;
   enableCheck: boolean;
 begin
   enableCheck:= false;
-  if tNote.Checkboxes then                                 // [dpv]
+  if myFolder.Checkboxes then                                 // [dpv]
      enableCheck:= true;
 
-  node:= tNote.TV.Selected;
+  node:= myFolder.TV.Selected;
   if assigned(node) and assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox) then    // [dpv]
      enableCheck:= true;
 
- //Form_Main.TVCheckNode.Enabled := tNote.Checkboxes;  // [dpv]
+ //Form_Main.TVCheckNode.Enabled := myFolder.Checkboxes;  // [dpv]
    Form_Main.TVCheckNode.Enabled := enableCheck;       // [dpv]
 
-  TNote.TV.Items.BeginUpdate;
+  myFolder.TV.Items.BeginUpdate;
   try
-    if tNote.Checkboxes then
+    if myFolder.Checkboxes then
     begin
-      TNote.TV.Items.TopLevelCheckType := ctCheckBox;
-      node := TNote.TV.Items.GetFirstNode;
+      myFolder.TV.Items.TopLevelCheckType := ctCheckBox;
+      node := myFolder.TV.Items.GetFirstNode;
       while assigned( node ) do
       begin
         node.CheckType := ctCheckBox;
@@ -1249,8 +1249,8 @@ begin
     end
     else
     begin
-      TNote.TV.Items.TopLevelCheckType := ctNone;
-      node := TNote.TV.Items.GetFirstNode;
+      myFolder.TV.Items.TopLevelCheckType := ctNone;
+      node := myFolder.TV.Items.GetFirstNode;
       while assigned( node ) do
       begin
         ShowOrHideChildrenCheckBoxes (node);    // [dpv]
@@ -1259,7 +1259,7 @@ begin
       end;
     end;
   finally
-    TNote.TV.Items.EndUpdate;
+    myFolder.TV.Items.EndUpdate;
   end;
 end; // ShowOrHideCheckBoxes
 
@@ -2110,7 +2110,7 @@ var
   newNoteNode : TKntNote;
   myTreeNode, newTreeNode, LastNodeAssigned, FirstCopiedNode : TTreeNTNode;
   i, loop, PasteCount, StartLevel, LastLevel : integer;
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
   VirtualNodesConverted : integer;
   movingNoteNode, TransferedNoteNode : TTreeNTNode;
   RTFAux : TRxRichEdit;
@@ -2232,7 +2232,7 @@ begin
 
           KntFile.Modified := true;
 
-          tNote := ActiveKntFolder;
+          myFolder := ActiveKntFolder;
           LastNodeAssigned := myTreeNode;
           PasteCount := 0;
           VirtualNodesConverted := 0;
@@ -2241,7 +2241,7 @@ begin
           StartLevel := myTreeNode.Level;
           LastLevel := StartLevel+1;
 
-          tNote.TV.Items.BeginUpdate;
+          myFolder.TV.Items.BeginUpdate;
           RTFAux:= CreateRTFAuxEditorControl;
 
           try
@@ -2255,10 +2255,10 @@ begin
 
                     // As indicated in comment *1 in FileDropped (kn_NoteFileMng), we must check if it is neccesary to ensure that
                     // the new node's stream is loaded with RTF and not plain text.
-                    if (not tNote.PlainText) and (not NodeStreamIsRTF (newNoteNode.Stream)) then
+                    if (not myFolder.PlainText) and (not NodeStreamIsRTF (newNoteNode.Stream)) then
                         ConvertStreamContent(newNoteNode.Stream, sfPlainText, sfRichText, RTFAux)
                     else
-                    if (tNote.PlainText) and (NodeStreamIsRTF (newNoteNode.Stream)) then
+                    if (myFolder.PlainText) and (NodeStreamIsRTF (newNoteNode.Stream)) then
                         // This case is not as problematic as the other, but if the new node were not modified, it would save
                         // its RTF content in a plain manner. Example:
                         // ;{{\rtf1\fbidis\ ....
@@ -2266,30 +2266,30 @@ begin
                         ConvertStreamContent(newNoteNode.Stream, sfRichText, sfPlainText, RTFAux);
 
                     if MovingSubtree then
-                       AlarmManager.MoveAlarms(KntFile.GetNoteByID(CopyCutFromNoteID), TransferNodes[i],  tNote, newNoteNode);
+                       AlarmManager.MoveAlarms(KntFile.GetNoteByID(CopyCutFromNoteID), TransferNodes[i],  myFolder, newNoteNode);
 
-                    tNote.AddNode( newNoteNode );
+                    myFolder.AddNode( newNoteNode );
                     newNoteNode.Level := newNoteNode.Level + StartLevel + 1;
 
                     if ( i = 0 ) then
                     begin
-                      newTreeNode := tNote.TV.Items.AddChildFirst( myTreeNode, newNoteNode.Name );
+                      newTreeNode := myFolder.TV.Items.AddChildFirst( myTreeNode, newNoteNode.Name );
                       FirstCopiedNode := newTreeNode;
                     end
                     else
                     begin
                       case DoTrinaryCompare( newNoteNode.Level, LastLevel ) of
                         trinGreater : begin
-                          newTreeNode := tNote.TV.Items.AddChild( LastNodeAssigned, newNoteNode.Name );
+                          newTreeNode := myFolder.TV.Items.AddChild( LastNodeAssigned, newNoteNode.Name );
                         end;
                         trinEqual : begin
-                          newTreeNode := tNote.TV.Items.Add( LastNodeAssigned, newNoteNode.Name );
+                          newTreeNode := myFolder.TV.Items.Add( LastNodeAssigned, newNoteNode.Name );
                         end;
                         else
                         begin
                           for loop := 1 to (( LastLevel - newNoteNode.Level )) do
                             LastNodeAssigned := LastNodeAssigned.Parent;
-                          newTreeNode := tNote.TV.Items.Add( LastNodeAssigned, newNoteNode.Name );
+                          newTreeNode := myFolder.TV.Items.Add( LastNodeAssigned, newNoteNode.Name );
                         end;
                       end;
                     end;
@@ -2330,15 +2330,15 @@ begin
                                   But it is also possible for the user to totally or partially cancel this deletion, which in this way -increasing and decrementing 
                                   independently- is not a problem.
 
-                                Even if nodes containing images are copied or moved to a PlainText note, it is not necessary to expressly address it here, 
+                                Even if nodes containing images are copied or moved to a PlainText folder, it is not necessary to expressly address it here, 
                                 to ensure that image references are not increased since earlier in this TreeTransferProc procedure the movements between PlainText
                                 and not PlainText (and vice versa) are managed by calling the ConvertStreamContent(...) method. 
                                 In the case of converting from sfRichText to sfPlainText, in the node stream, which if it has images they will be stored as imLink,
                                 the RTF controls will be eliminated, among which are the labels that identify the images (\v\'11I.. .\v0).
                                 Therefore, calling KntFile.UpdateImagesCountReferences() will not increment any references. Anyway, to avoid that image search 
-                                (quick but unnecessary), we will avoid the call if the destination note is PlainText.
+                                (quick but unnecessary), we will avoid the call if the destination folder is PlainText.
                               }
-                               if not (tNote.PlainText) then
+                               if not (myFolder.PlainText) then
                                   KntFile.UpdateImagesCountReferences (newNoteNode);
 
                               if MovingSubtree then begin
@@ -2358,7 +2358,7 @@ begin
 
             while assigned( newTreeNode ) do
             begin
-              SelectIconForNode( newTreeNode, tNote.IconKind );
+              SelectIconForNode( newTreeNode, myFolder.IconKind );
                 newTreeNode := newTreeNode.GetNext;
               if (( newTreeNode <> nil ) and ( newTreeNode.Level <= StartLevel )) then
                 newTreeNode := nil; // end of subtree; break out of loop
@@ -2369,11 +2369,11 @@ begin
             begin
               FirstCopiedNode.Collapse( true );
               FirstCopiedNode.MakeVisible;
-              // tNote.TV.Selected := FirstCopiedNode;
+              // myFolder.TV.Selected := FirstCopiedNode;
             end;
           finally
-            tNote.TV.Items.EndUpdate;
-            tNote.TV.Selected := myTreeNode;
+            myFolder.TV.Items.EndUpdate;
+            myFolder.TV.Selected := myTreeNode;
             TreeNodeSelected( myTreeNode );
             RTFAux.Free;
             // myTreeNode.Expand( true );
@@ -2406,14 +2406,14 @@ begin
 end; // TreeTransferProc
 
 
-procedure HideChildNodesUponCheckState (note: TKntFolder; ParentNode: TTreeNTNode; CheckState: TCheckState);    // [dpv]
+procedure HideChildNodesUponCheckState (folder: TKntFolder; ParentNode: TTreeNTNode; CheckState: TCheckState);    // [dpv]
 var
   Node : TTreeNTNode;
 begin
-    note.TV.Items.BeginUpdate;
+    folder.TV.Items.BeginUpdate;
 
     if ParentNode = nil then begin
-       Node := note.TV.Items.GetFirstNode;
+       Node := folder.TV.Items.GetFirstNode;
        while assigned( Node ) do begin // go through all nodes
          if Node.CheckState =  CheckState then
             Node.Hidden := True;
@@ -2430,16 +2430,16 @@ begin
 
     end;
 
-    note.TV.Items.EndUpdate;
+    folder.TV.Items.EndUpdate;
 end;
 
-procedure ShowCheckedNodes (note: TKntFolder; ParentNode: TTreeNTNode);    // [dpv]
+procedure ShowCheckedNodes (folder: TKntFolder; ParentNode: TTreeNTNode);    // [dpv]
 var
   Node : TTreeNTNode;
 begin
-  note.TV.Items.BeginUpdate;
+  folder.TV.Items.BeginUpdate;
   if ParentNode = nil then begin
-     Node := note.TV.Items.GetFirstNode;
+     Node := folder.TV.Items.GetFirstNode;
      while Node <> nil do begin
        if not TKntNote(Node.Data).Filtered then
           Node.Hidden := False;
@@ -2455,29 +2455,29 @@ begin
      end;
   end;
 
-  note.TV.Items.EndUpdate;
+  folder.TV.Items.EndUpdate;
 end;
 
-procedure MarkAllFiltered (note: TKntFolder);  // [dpv]
+procedure MarkAllFiltered (folder: TKntFolder);  // [dpv]
 var
   Node: TTreeNTNode;
 begin
-  if not assigned(note) then exit;
+  if not assigned(folder) then exit;
 
-  Node := note.TV.Items.GetFirstNode;
+  Node := folder.TV.Items.GetFirstNode;
   while Node <> nil do begin
     TKntNote(Node.Data).Filtered := true;
     Node := Node.GetNext;
   end;
 end;
 
-procedure MarkAllUnfiltered (note: TKntFolder);  // [dpv]
+procedure MarkAllUnfiltered (folder: TKntFolder);  // [dpv]
 var
   Node: TTreeNTNode;
 begin
-  if not assigned(note) then exit;
+  if not assigned(folder) then exit;
 
-  Node := note.TV.Items.GetFirstNode;
+  Node := folder.TV.Items.GetFirstNode;
   while Node <> nil do begin
     Node.Font.Color:= TKntNote(Node.Data).NodeColor;
     TKntNote(Node.Data).Filtered := false;
@@ -2485,25 +2485,25 @@ begin
   end;
 end;
 
-procedure RemoveFilter (note: TKntFolder);       // [dpv]
+procedure RemoveFilter (folder: TKntFolder);       // [dpv]
 begin
-    if not assigned(note) then exit;
+    if not assigned(folder) then exit;
 
-    Note.TV.Items.BeginUpdate;
-    MarkAllUnfiltered (note);
-    note.TV.FullNotHidden;
-    if Note.HideCheckedNodes  then
-       HideChildNodesUponCheckState (note, nil, csChecked);
+    Folder.TV.Items.BeginUpdate;
+    MarkAllUnfiltered (folder);
+    folder.TV.FullNotHidden;
+    if Folder.HideCheckedNodes  then
+       HideChildNodesUponCheckState (folder, nil, csChecked);
 
-    Note.TV.Items.EndUpdate;
+    Folder.TV.Items.EndUpdate;
 end;
 
-procedure HideFilteredNodes (note: TKntFolder);  // [dpv]
+procedure HideFilteredNodes (folder: TKntFolder);  // [dpv]
 var
   Node : TTreeNTNode;
 begin
-  note.TV.Items.BeginUpdate;
-  Node := note.TV.Items.GetFirstNode;
+  folder.TV.Items.BeginUpdate;
+  Node := folder.TV.Items.GetFirstNode;
   while Node <> nil do begin
     if TKntNote(Node.Data).Filtered then
        Node.Hidden:= true
@@ -2513,18 +2513,18 @@ begin
     end;
     Node := Node.GetNext;
   end;
-  note.TV.Items.EndUpdate;
+  folder.TV.Items.EndUpdate;
 end;
 
-function GetTreeNode (NoteID: integer; NodeID: integer): TTreeNTNode;
+function GetTreeNode (FolderID: integer; NodeID: integer): TTreeNTNode;
 var
-   note: TKntFolder;
+   folder: TKntFolder;
 begin
    Result:= nil;
-   if ( NoteID <> 0 ) and ( NodeID <> 0 ) then begin
-       Note := KntFile.GetNoteByID( NoteID );
-       if assigned(Note) then
-          Result := Note.GetTreeNodeByID( NodeID );
+   if ( FolderID <> 0 ) and ( NodeID <> 0 ) then begin
+       Folder := KntFile.GetNoteByID( FolderID );
+       if assigned(Folder) then
+          Result := Folder.GetTreeNodeByID( NodeID );
    end;
 end;
 

@@ -27,7 +27,7 @@ uses
    kn_Const,
    kn_Info;
 
-    // note management
+    // folder management
     procedure CreateNewNote;
     function NewNote( const DefaultNote, CanFocus : boolean ) : boolean;
     procedure DeleteNote;
@@ -55,11 +55,11 @@ uses
    kn_Main;
 
 resourcestring
-  STR_01 = ' New note.';
-  STR_02 = 'Are you sure you want to delete note "%s"?' + #13 + 'This operation cannot be undone.';
-  STR_03 = 'Confirm deleting note';
-  STR_04 = ' Note deleted.';
-  STR_05 = ' Note renamed.';
+  STR_01 = ' New folder.';
+  STR_02 = 'Are you sure you want to delete folder "%s"?' + #13 + 'This operation cannot be undone.';
+  STR_03 = 'Confirm deleting folder';
+  STR_04 = ' Folder deleted.';
+  STR_05 = ' Folder renamed.';
 
 
 function NewNote(
@@ -168,9 +168,9 @@ begin
     result := assigned( myFolder );
    {$IFDEF KNT_DEBUG}
     if assigned( myFolder ) then
-      Log.Add( 'Added new note: ' + myFolder.Name )
+      Log.Add( 'Added new folder: ' + myFolder.Name )
     else
-      Log.Add( 'New note NOT added.' );
+      Log.Add( 'New folder NOT added.' );
    {$ENDIF}
   end;
 end; // NewNote
@@ -194,7 +194,7 @@ begin
       end;
 
       try
-        // clear Clipboard capture state if this note is ClipCapNote
+        // clear Clipboard capture state if this folder is ClipCapNote
         if ( KntFile.ClipCapNote = ActiveKntFolder ) then
         begin
           TB_ClipCap.Down := false;
@@ -204,10 +204,10 @@ begin
         end;
 
         { // [dpv]
-        // clear all bookmarks pointing to this note
+        // clear all bookmarks pointing to this folder
         for pidx := 0 to MAX_BOOKMARKS do
         begin
-          if ( KntFile.Bookmarks[pidx].Note = ActiveKntFolder ) then
+          if ( KntFile.Bookmarks[pidx].Folder = ActiveKntFolder ) then
             BookmarkClear( pidx );
         end;
         }
@@ -317,7 +317,7 @@ var
   oldHideChecked: boolean;      // [dpv]
   oldPlainText: boolean;
   EnsuredPlainText: boolean;
-  Note: TKntFolder;
+  Folder: TKntFolder;
   NewPropertiesAction : TPropertiesAction;
 
 begin
@@ -368,7 +368,7 @@ begin
               // font style loss.
               {  *1
                  Disabling and hiding the combo did not solve the problem: pressing Ok from the properties
-                 of a note after the state of WordWrap have been changed (in the active node or simply for
+                 of a folder after the state of WordWrap have been changed (in the active node or simply for
                  selecting nodes with different WodWrap state) always caused formatting to be lost. Since version 1.6.5...
 
               CB_WordWrap.Enabled := false;
@@ -402,7 +402,7 @@ begin
               myEditorProperties := DefaultEditorProperties;
 
               // this picks the BG color of the current node,
-              // rather than DEFAULT BG color for whole note
+              // rather than DEFAULT BG color for whole folder
               if myCurrentFileName <> '' then
                  mySaveFileDefaults := ( DEF_FN <> OrigDEF_FN );
 
@@ -475,12 +475,12 @@ begin
 
             if ApplyTreeChromeToAllNotes and HaveNotes( false, true ) then begin
                 for i := 0 to KntFile.NoteCount -1 do begin
-                   Note:= KntFile.Notes[i];
-                   if ((PropertiesAction = propThisNote) and (Note = ActiveKntFolder)) or (Note.ReadOnly) then
+                   Folder:= KntFile.Notes[i];
+                   if ((PropertiesAction = propThisNote) and (Folder = ActiveKntFolder)) or (Folder.ReadOnly) then
                        continue;
-                   Note.Modified:= True;
-                   Note.TreeChrome := myTreeChrome;
-                   UpdateTreeChrome(Note);
+                   Folder.Modified:= True;
+                   Folder.TreeChrome := myTreeChrome;
+                   UpdateTreeChrome(Folder);
                 end;
                 KntFile.Modified:= True;
                 UpdateNoteFileState( [fscModified] );
@@ -492,10 +492,10 @@ begin
                 // must update all richedits and trees with the modified EditorOptions and TreeOptions:
                 if HaveNotes( false, true ) then begin
                     for i := 0 to KntFile.NoteCount -1 do begin
-                       Note:= KntFile.Notes[i];
-                       Note.Editor.WordSelection := EditorOptions.WordSelect;
-                       Note.Editor.UndoLimit := EditorOptions.UndoLimit;
-                       UpdateTreeOptions(Note);
+                       Folder:= KntFile.Notes[i];
+                       Folder.Editor.WordSelection := EditorOptions.WordSelect;
+                       Folder.Editor.UndoLimit := EditorOptions.UndoLimit;
+                       UpdateTreeOptions(Folder);
                     end;
                 end;
 

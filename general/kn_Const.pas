@@ -275,7 +275,7 @@ const
 
 const
   // tokens for exporting to text and rtf
-  EXP_NOTENAME          = 'N';
+  EXP_FOLDERNAME        = 'N';   // Note folder
   EXP_NODENAME          = 'D';
   EXP_NODELEVEL         = 'L';
   EXP_NODEINDEX         = 'I';
@@ -286,7 +286,7 @@ const
   EXP_RTF_HEADING       = _TokenChar + 'HEADING';
 
   _DefaultNodeHeading = '--- ' + _TokenChar + EXP_NODENAME + ' ---';
-  _DefaultNoteHeading = '=== ' + _TokenChar + EXP_NOTENAME + ' ===';
+  _DefaultNoteHeading = '=== ' + _TokenChar + EXP_FOLDERNAME + ' ===';
 
 
 

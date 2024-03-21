@@ -90,7 +90,7 @@ type
     FTabSheet : TTab95Sheet; // the tabsheet which holds this note
     FEditor : TTabRichEdit;  // for RTF-type notes only
 
-    FHistory : TKNTHistory;        // Note (local) history
+    FHistory : TKNTHistory;        // Folder (local) history
 
     FImagesMode: TImagesMode;
     fImagesReferenceCount: TImageIDs;
@@ -250,7 +250,7 @@ type
 
     procedure AddProcessedAlarms ();
     procedure AddProcessedAlarmsOfNote (newNote: TKntFolder);
-    procedure AddProcessedAlarmsOfNode (node: TKntNote; newNote: TKntFolder; newNode: TKntNote);
+    procedure AddProcessedAlarmsOfNode (node: TKntNote; newFolder: TKntFolder; newNode: TKntNote);
 
 
     //-----------
@@ -390,16 +390,18 @@ uses
 
 
 resourcestring
-  STR_01 = 'Fatal: attempted to save an extended note as a simple RTF note.';
+
+{$IFDEF WITH_DART}  
   STR_02 = '"%s" is a %s note and cannot be saved using %s format';
   STR_03 = 'Stream not assigned in LoadDartNotesFormat';
   STR_04 = 'LoadDartNotes: file format error or file damaged.';
-  STR_05 = 'Problem while saving tree-type note "%s": Node count mismatch (Tree: %d  Internal: %d) ' +
+{$ENDIF}    
+  STR_05 = 'Problem while saving folder "%s": Node count mismatch (Folder: %d  Internal: %d) ' +
       'The note may not be saved correctly. Continue?';
   STR_06 = 'Warning: "%s"';
   STR_07 = 'Node count mismatch.';
-  STR_08 = 'Virtual node "%s" in note "%s" cannot write file ';
-  STR_09 = 'Note contains %d nodes, but only %d were saved.';
+  STR_08 = 'Virtual node "%s" in folder "%s" cannot write file ';
+  STR_09 = 'Folder contains %d nodes, but only %d were saved.';
   STR_10 = 'Could not load Virtual Node file:';
   STR_11 = 'Failed to open TreePad file ';
 
@@ -1201,7 +1203,7 @@ begin
          alarm.ExpirationDate:= 0;
 
       alarm.node:= node;
-      alarm.note:= Self;
+      alarm.Folder:= Self;
 
       FAuxiliarAlarmList.Add(alarm);
 
@@ -1235,15 +1237,15 @@ begin
    I:= 0;
    while I <= FAuxiliarAlarmList.Count - 1 do begin
       alarm:= TAlarm(FAuxiliarAlarmList[i]);
-      if (alarm.note = Self) and (alarm.node= nil) then begin
-         alarm.note := newNote;
+      if (alarm.Folder = Self) and (alarm.node= nil) then begin
+         alarm.Folder := newNote;
          AlarmManager.AddAlarm(alarm);
       end;
       I:= I + 1;
    end;
 end;
 
-procedure TKntFolder.AddProcessedAlarmsOfNode (node: TKntNote; newNote: TKntFolder; newNode: TKntNote);
+procedure TKntFolder.AddProcessedAlarmsOfNode (node: TKntNote; newFolder: TKntFolder; newNode: TKntNote);
 var
   I: Integer;
   alarm: TAlarm;
@@ -1253,8 +1255,8 @@ begin
    I:= 0;
    while I <= FAuxiliarAlarmList.Count - 1 do begin
       alarm:= TAlarm(FAuxiliarAlarmList[i]);
-      if (alarm.note = Self) and (alarm.node = node) then begin
-         alarm.note := newNote;
+      if (alarm.Folder = Self) and (alarm.node = node) then begin
+         alarm.Folder := newFolder;
          alarm.node := newNode;
          AlarmManager.AddAlarm(alarm);
       end;

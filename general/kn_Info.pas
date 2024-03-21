@@ -218,8 +218,8 @@ const
   DBLCLK_MINIMIZE = 1; // minimize KeyNote
   DBLCLK_FILEPROP = 2; // open File Properties dialog box
   DBLCLK_FILEMGR  = 3; // open File Manager dialog box
-  DBLCLK_NOTEPROP = 4; // open Note Properties dialog box
-  DBLCLK_NEWNOTE  = 5; // create a new note
+  DBLCLK_FOLDERPROP = 4; // open Folder Properties dialog box
+  DBLCLK_NEWFOLDER  = 5; // create a new folder
   DBLCLK_RESPANEL = 6; // show or hide resource panel
 
 
@@ -365,11 +365,11 @@ const
 type
   TKNTLocation = record
     FileName : string;
-    NoteName : string;
+    FolderName : string;
     NodeName : string;
     CaretPos : integer;
     SelLength : integer;
-    NoteID : longint;
+    FolderID : longint;
     NodeID : longint;
     Text : string;
   end;
@@ -429,7 +429,7 @@ type
     IndentUsingTabs : boolean;
     NumbTabInPlainText: string;
     NodeHeading : string;
-    NoteHeading : string;
+    FolderHeading : string;
     SingleNodeFiles : boolean;
     TargetFormat : TExportFmt;
     TreePadForceMaster : boolean;

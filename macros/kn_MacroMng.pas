@@ -87,7 +87,7 @@ var
     // edit commands
     procedure PerformCmd( aCmd : TEditCmd );
     procedure PerformCmdEx( aCmd : TEditCmd );
-    procedure PerformCmdPastePlain( Note: TKntFolder; StrClp: string = ''; HTMLClip: AnsiString= '';
+    procedure PerformCmdPastePlain( Folder: TKntFolder; StrClp: string = ''; HTMLClip: AnsiString= '';
                                     ForcePlainText: boolean = false;
                                     MaxSize: integer = 0 );
     procedure RepeatLastCommand;
@@ -152,7 +152,7 @@ resourcestring
   STR_14 = 'Error adding new macro "%s": %s';
   STR_15 = 'Record a new macro';
   STR_16 = '&Record Macro...';
-  STR_17 = 'Active note "%s" is Read-only. Running the macro may cause the note to be modified. Do you want the macro to run anyway?';
+  STR_17 = 'Active folder "%s" is Read-only. Running the macro may cause the folder to be modified. Do you want the macro to run anyway?';
   STR_18 = 'Cannot load macro file "%s". Reason: %s';
   STR_19 = 'Running macro "%s"';
   STR_20 = 'Execute most recent macro "%s"';
@@ -171,7 +171,7 @@ resourcestring
   STR_33 = 'string argument required';
   STR_34 = 'integer argument required';
   STR_35 = 'Cannot run embedded macro "%s". Reason: %s';
-  STR_36 = 'Note creation failed';
+  STR_36 = 'Folder creation failed';
   STR_37 = 'Invalid font style argument';
   STR_38 = 'Unexpected error while executing macro: %s' + #13#13 +
           'Last macro line was: "%s" (line %d)';
@@ -180,8 +180,8 @@ resourcestring
   STR_41 = 'No macros available or none selected.';
   STR_42 = 'Could not access current macro.';
   STR_43 = ' This command cannot be repeated';
-  STR_44 = 'This action cannot be performed, because there is no active note (%d)';
-  STR_45 = 'This note cannot be set as Read-only, because it is being used for clipboard capture.';
+  STR_44 = 'This action cannot be performed, because there is no active folder (%d)';
+  STR_45 = 'This folder cannot be set as Read-only, because it is being used for clipboard capture.';
   STR_46 = 'Failed to assign font attributes.';
   STR_47 = 'Failed to assign paragraph attributes.';
   STR_48 = 'Go to line';
@@ -191,7 +191,7 @@ resourcestring
   STR_52 = 'No font attributes to paste from: Use "Copy font attributes" first.';
   STR_53 = 'No paragraph attributes to paste from: Use "Copy paragraph attributes" first.';
   STR_54 = '"%s" is not a valid number';
-  STR_55 = 'New background color will be assigned to ALL TREE NODES in note %s' + #13 + 'Continue?';
+  STR_55 = 'New background color will be assigned to ALL TREE NODES in folder %s' + #13 + 'Continue?';
   STR_56 = 'Repeat %s';
   STR_57 = 'Select macro to execute';
   STR_58 = 'Failed to copy text formatting';
@@ -594,7 +594,7 @@ begin
   // otherwise the feature would be impossible to implement.
   // It is the macro author's responsibility to make sure
   // that the macro dooesn't do anything unreasonable, like
-  // inserting text before creating a note
+  // inserting text before creating a folder
   if ( aFileName <> _MACRO_AUTORUN_NEW_FILE ) then begin
     if ( not Form_Main.HaveNotes( true, true )) then exit;
     if ( not assigned( ActiveKntFolder )) then exit;
@@ -1191,7 +1191,7 @@ begin
 
                 macBGColor : begin
                   // call PerformCmd here, because setting BG color
-                  // for a note involves more work than just
+                  // for a folder involves more work than just
                   // setting the RichEdit.Color property
                   CommandRecall.Color := StringToColor( argstr );
                   LastEditCmd := ecBGColorDlg;
@@ -1540,11 +1540,11 @@ var
   SelStartOrig, SelLengthOrig, p: integer;
 begin
   // Perform command on ActiveKntFolder.
-  // The command does not modify the note,  (*1)
-  // hence is safe to use when note is set
+  // The command does not modify the folder,  (*1)
+  // hence is safe to use when folder is set
   // to ReadOnly.
-  // (*1): Can be used when note is set to ReadOnly, although the command ecReadOnly
-  //       CAN modify the note.
+  // (*1): Can be used when folder is set to ReadOnly, although the command ecReadOnly
+  //       CAN modify the folder.
   if ( RTFUpdating or FileIsBusy ) then exit;
 
   if ( not assigned( ActiveKntFolder )) then begin
@@ -1702,7 +1702,7 @@ begin
 end; // PerformCmdEx
 
 
-procedure PerformCmdPastePlain( Note: TKntFolder;
+procedure PerformCmdPastePlain( Folder: TKntFolder;
                                 StrClp: string = ''; HTMLClip: AnsiString= '';
                                 ForcePlainText: boolean = false;
                                 MaxSize: integer = 0 );
@@ -1789,12 +1789,12 @@ var
   end;
 
 begin
-    Editor:= Note.Editor;
+    Editor:= Folder.Editor;
     Ok:= True;
 
     SelStart := Editor.SelStart;
 
-    if ForcePlainText or Note.PlainText or (ClipOptions.PlainTextMode = clptPlainText) then begin
+    if ForcePlainText or Folder.PlainText or (ClipOptions.PlainTextMode = clptPlainText) then begin
 
        if RichEditVersion < 5 then
           TextToReplace:= Editor.GetTextRange(SelStart, SelStart + 5);    // To use it from PasteOperationWasOK()
@@ -1830,7 +1830,7 @@ begin
            if (ClipOptions.PlainTextMode = clptAllowHyperlink) then
               SaveTextAttributes(Editor, FontFormatToCopy);
 
-           TryPasteRTF(Note, HTMLClip);
+           TryPasteRTF(Folder, HTMLClip);
            j := Editor.SelStart;
            Editor.SuspendUndo;
            try
@@ -1891,8 +1891,8 @@ var
 
 begin
   // Perform command on ActiveKntFolder.
-  // The command MODIFIES the note,
-  // hence cannot be executed when note is set
+  // The command MODIFIES the folder,
+  // hence cannot be executed when folder is set
   // to ReadOnly.
   if ( RTFUpdating or FileIsBusy ) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
@@ -2271,7 +2271,7 @@ begin
             else
               Form_Main.ColorDlg.Color := ActiveKntFolder.Editor.Color;
             if ( RecallingCommand or Form_Main.ColorDlg.Execute ) then begin
-              // ActiveKntFolder.Editor.Color := ColorDlg.Color; [x] note updates itself
+              // ActiveKntFolder.Editor.Color := ColorDlg.Color; [x] folder updates itself
               // AChrome := ActiveKntFolder.Chrome;
               // AChrome.BGColor := ColorDlg.Color;
               tempChrome := ActiveKntFolder.EditorChrome;

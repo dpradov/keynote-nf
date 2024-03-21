@@ -95,9 +95,9 @@ uses
 
 resourcestring
   STR_01 = '<no icon>';
-  STR_02 = 'Rename note';
-  STR_03 = 'Note name cannot be blank. Please enter a name.';
-  STR_04 = 'Note name cannot contain the "%s" character';
+  STR_02 = 'Rename folder';
+  STR_03 = 'Folder name cannot be blank. Please enter a name.';
+  STR_04 = 'Folder name cannot contain the "%s" character';
 
 procedure TForm_NewNote.FormCreate(Sender: TObject);
 var

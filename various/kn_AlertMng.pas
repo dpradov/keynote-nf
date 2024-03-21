@@ -63,7 +63,7 @@ type
     ExpirationDate: TDateTime;    // Expiration/start instant
     AlarmNote: string;
     Node: TKntNote;
-    Note: TKntFolder;
+    Folder: TKntFolder;
     Bold: boolean;
     FontColor: TColor;
     BackColor: TColor;
@@ -85,7 +85,7 @@ type
     FAlarmList: TList;
 
     FDiscardedAlarmList: TList;          // Alarms discarded. Can be removed or restored
-    FSelectedAlarmList: TList;           // Selection of alarms to show (from reminders triggered, or alarms related to node or note, if editing or adding)
+    FSelectedAlarmList: TList;           // Selection of alarms to show (from reminders triggered, or alarms related to node or folder, if editing or adding)
     FUnfilteredAlarmList: TList;
 
     Timer: TTimer;
@@ -106,7 +106,7 @@ type
   protected
 
   public
-    procedure EditAlarms (node: TKntNote; note: TKntFolder; forceAdd: boolean= false);
+    procedure EditAlarms (node: TKntNote; folder: TKntFolder; forceAdd: boolean= false);
     function GetAlarmModeHint: string;
     procedure CheckAlarms;
 
@@ -115,8 +115,8 @@ type
     property SelectedAlarmList: TList read FSelectedAlarmList;
     property UnfilteredAlarmList: TList read FUnfilteredAlarmList write FUnfilteredAlarmList;
 
-    function HasAlarms( note: TKntFolder; node : TKntNote; considerDiscarded: boolean ): boolean;
-    function GetAlarms( note: TKntFolder; node : TKntNote; considerDiscarded: boolean ): TList;
+    function HasAlarms( folder: TKntFolder; node : TKntNote; considerDiscarded: boolean ): boolean;
+    function GetAlarms( folder: TKntFolder; node : TKntNote; considerDiscarded: boolean ): TList;
     
     property NumberPendingAlarms: integer read FNumberPending;
     property NumberOverdueAlarms: integer read FNumberOverdue;
@@ -126,7 +126,7 @@ type
     procedure AddAlarm( alarm : TAlarm );
     procedure MoveAlarms( noteFrom: TKntFolder; nodeFrom : TKntNote; noteTo: TKntFolder; nodeTo: TKntNote );
     procedure RemoveAlarmsOfNode( node : TKntNote );
-    procedure RemoveAlarmsOfNote( note : TKntFolder );
+    procedure RemoveAlarmsOfNote( folder : TKntFolder );
     procedure RemoveAlarm( alarm : TAlarm );
     procedure DiscardAlarm( alarm : TAlarm; MaintainInUnfilteredList: boolean );
     procedure RestoreAlarm( alarm : TAlarm; MaintainInUnfilteredList: boolean  );
@@ -473,7 +473,7 @@ begin
    ExpirationDate:= 0;
    AlarmNote:= '';
    node:= nil;
-   note:= nil;
+   folder:= nil;
    Bold:= False;
    FontColor:= clWindowText;
    BackColor:= clWindow;
@@ -552,11 +552,11 @@ end;
 
 
 //----------------------------------
-//       Node / Note Information
+//       Node / Folder Information
 //----------------------------------
 
-// Only one of the first two parameters (note, node) is needed, the other can be set to nil
-function TAlarmManager.HasAlarms( note: TKntFolder;  node : TKntNote; considerDiscarded: boolean ): boolean;
+// Only one of the first two parameters (folder, node) is needed, the other can be set to nil
+function TAlarmManager.HasAlarms( folder: TKntFolder;  node : TKntNote; considerDiscarded: boolean ): boolean;
 
     function HasAlarmsInList (list: TList): boolean;
     var
@@ -573,7 +573,7 @@ function TAlarmManager.HasAlarms( note: TKntFolder;  node : TKntNote; considerDi
                    break;
                 end;
            end
-           else if (alarm.node = nil) and (note = alarm.note) then begin
+           else if (alarm.node = nil) and (folder = alarm.folder) then begin
                    Result:= true;
                    break;
                 end;
@@ -591,8 +591,8 @@ begin
 end;
 
 
-// Only one of the first two parameters (note, node) is needed, the other can be set to nil
-function TAlarmManager.GetAlarms( note: TKntFolder; node : TKntNote; considerDiscarded: boolean ): TList;
+// Only one of the first two parameters (folder, node) is needed, the other can be set to nil
+function TAlarmManager.GetAlarms( folder: TKntFolder; node : TKntNote; considerDiscarded: boolean ): TList;
 
     procedure AddAlarmsFromList (list: TList);
     var
@@ -606,7 +606,7 @@ function TAlarmManager.GetAlarms( note: TKntFolder; node : TKntNote; considerDis
              if node = alarm.node then
                 Result.Add(alarm)
           end
-             else if (alarm.node = nil) and (note = alarm.note) then
+             else if (alarm.node = nil) and (folder = alarm.folder) then
                 Result.Add(alarm);
 
           i:= i + 1;
@@ -683,8 +683,8 @@ begin
                begin
                    if assigned (TAlarm(node1).node) then nodeName1:= TAlarm(node1).node.Name else nodeName1:= '';
                    if assigned (TAlarm(node2).node) then nodeName2:= TAlarm(node2).node.Name else nodeName2:= '';
-                   nodeName1:= TAlarm(node1).note.Name + nodeName1;
-                   nodeName2:= TAlarm(node2).note.Name + nodeName2;
+                   nodeName1:= TAlarm(node1).folder.Name + nodeName1;
+                   nodeName2:= TAlarm(node2).folder.Name + nodeName2;
 
                    if nodeName1  = nodeName2 then
                       Result:= compareAlarms_Reminder (node1, node2)
@@ -892,8 +892,8 @@ begin
    I:= 0;
    while I <= List.Count - 1 do begin
       alarm:= TAlarm(List[i]);
-      if (alarm.note = noteFrom) and assigned(alarm.node) and (alarm.node.ID = nodeFrom.ID) then begin
-         alarm.note:= noteTo;
+      if (alarm.folder = noteFrom) and assigned(alarm.node) and (alarm.node.ID = nodeFrom.ID) then begin
+         alarm.folder:= noteTo;
          alarm.node:= nodeTo;
       end;
       I:= I + 1;
@@ -914,7 +914,7 @@ begin
    end;
 end;
 
-procedure TAlarmManager.RemoveAlarmsOfNote( note : TKntFolder );
+procedure TAlarmManager.RemoveAlarmsOfNote( folder : TKntFolder );
 var
   I: Integer;
   alarm: TAlarm;
@@ -922,7 +922,7 @@ begin
    I:= 0;
    while I <= FAlarmList.Count - 1 do begin
       alarm:= TAlarm(FAlarmList[i]);
-      if (alarm.node = nil) and (note = alarm.note) then
+      if (alarm.node = nil) and (folder = alarm.folder) then
          RemoveAlarm(FAlarmList[i]);
       I:= I + 1;
    end;
@@ -983,16 +983,16 @@ begin
 end;
 
 
-procedure TAlarmManager.EditAlarms (node: TKntNote; note: TKntFolder; forceAdd: boolean= false);
+procedure TAlarmManager.EditAlarms (node: TKntNote; folder: TKntFolder; forceAdd: boolean= false);
 var
    alarm: TAlarm;
 begin
       FSelectedAlarmList.Clear;
-      FSelectedAlarmList:= GetAlarms(note, node, false);
+      FSelectedAlarmList:= GetAlarms(folder, node, false);
       if forceAdd or (FSelectedAlarmList.Count = 0) then begin
          alarm:= TAlarm.Create;
          alarm.node:= node;
-         alarm.note:= note;
+         alarm.folder:= folder;
          alarm.Status:= TAlarmUnsaved;
          FSelectedAlarmList.Add(alarm);
       end;
@@ -1061,7 +1061,7 @@ end;
 
 procedure TAlarmManager.UpdateFormMain ( alarm: TAlarm );
 begin
-   if alarm.note <> ActiveKntFolder then exit;
+   if alarm.folder <> ActiveKntFolder then exit;
    Form_Main.ShowAlarmStatus;
 end;
 
@@ -1114,7 +1114,7 @@ begin
    if assigned(alarm.node) then
       idAlarm:= alarm.node.Name
    else
-      idAlarm:= alarm.note.Name;
+      idAlarm:= alarm.folder.Name;
    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Triggered, [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]);
 end;
 
@@ -1786,7 +1786,7 @@ begin
               if (text = '') or
                  (pos(text, ansilowercase(alarm.AlarmNote)) > 0) or
                  (assigned(alarm.node) and (pos(text, ansilowercase(alarm.node.Name)) > 0) ) or
-                 (pos(text, ansilowercase(alarm.note.Name)) > 0) then begin
+                 (pos(text, ansilowercase(alarm.folder.Name)) > 0) then begin
 
                  myExpDate:= RecodeTime(alarm.ExpirationDate, 0,0,0,0);
                  if (CB_FilterDates.ItemIndex = 0) or (myExpDate >= Date ) and (myExpDate <= EndDate ) then
@@ -1813,7 +1813,7 @@ procedure TForm_Alarm.Button_NewClick(Sender: TObject);
 var
    alarm: TAlarm;
    ls: TListItem;
-   note: TKntFolder;
+   folder: TKntFolder;
    node: TKntNote;
    i: integer;
 begin
@@ -1825,17 +1825,17 @@ begin
 
     ls := Grid.Selected;
     if assigned(ls) then begin
-       note:= TAlarm(ls.Data).note;
+       folder:= TAlarm(ls.Data).folder;
        node:= TAlarm(ls.Data).node;
     end
     else begin
-       note:= ActiveKntFolder;
+       folder:= ActiveKntFolder;
        node:= nil;
     end;
 
     alarm:= TAlarm.Create;
     alarm.node:= node;
-    alarm.note:= note;
+    alarm.folder:= folder;
     alarm.Status:= TAlarmUnsaved;
 
     if modeEdit <> TShowNew then
@@ -2746,9 +2746,9 @@ begin
              chk_ApplyOnExitChange.Enabled:= true;
 
              if assigned(alarm.Node) then
-                cIdentifier.Text := alarm.Note.Name + ' / ' + alarm.Node.Name
+                cIdentifier.Text := alarm.Folder.Name + ' / ' + alarm.Node.Name
              else
-                cIdentifier.Text := alarm.Note.Name;
+                cIdentifier.Text := alarm.Folder.Name;
 
              ShowExpirationDate(alarm.ExpirationDate);
              FNewExpirationDate:= alarm.ExpirationDate;
@@ -2846,14 +2846,14 @@ end;
 
 procedure TForm_Alarm.UpdateAlarmOnGrid(alarm: TAlarm; item: TListItem);
   var
-     NodeName, NoteName: string;
+     NodeName, FolderName: string;
      Discarded: string;
   begin
       if assigned(alarm.node) then
          NodeName:= alarm.Node.Name
       else
          NodeName:= '';
-      NoteName:= alarm.Note.Name;
+      FolderName:= alarm.Folder.Name;
       Discarded:= '';
       if alarm.Status = TAlarmDiscarded then Discarded := 'D';
 
@@ -2867,7 +2867,7 @@ procedure TForm_Alarm.UpdateAlarmOnGrid(alarm: TAlarm; item: TListItem);
           item.subitems.Add( FormatDateTime('hh:nn', alarm.ExpirationDate) )
       else
           item.subitems.Add( '');
-      item.subitems.Add( NoteName );
+      item.subitems.Add( FolderName );
       item.subitems.Add( NodeName);
       item.subitems.Add( Discarded);
 end;
@@ -2914,17 +2914,17 @@ end;
 
 function TForm_Alarm.CreateLocation(alarm: TAlarm): TLocation;
 var
-  note: TKntFolder;
+  folder: TKntFolder;
 begin
     Result:= nil;
 
     if assigned(alarm) then begin
-      note:= alarm.note;
+      folder:= alarm.folder;
 
       Result := TLocation.Create;
       Result.FileName := KntFile.FileName;
-      Result.NoteName := note.Name;
-      Result.NoteID := alarm.note.ID;
+      Result.FolderName := folder.Name;
+      Result.FolderID := alarm.folder.ID;
       Result.CaretPos := 0;
       Result.SelLength := 0;
       if assigned(alarm.node) then begin
@@ -2982,7 +2982,7 @@ var
     begin
         Result:= '\trowd\trgaph30 \cellx500\cellx1500\cellx3500\cellx4900\cellx5600\cellx9100\cellx10600\cellx11250\cellx11800 \pard\b\cf0\intbl ' +
              'Lnk \cell ' +
-             'Note \cell ' +
+             'Folder \cell ' +
              'Node \cell ' +
              'Expiration \cell ' +
              'Time \cell ' +
@@ -2995,7 +2995,7 @@ var
 
   function GenerateAlarmRow(alarm: TAlarm): string;
     var
-       NodeName, NoteName: string;
+       NodeName, KntFolderName: string;
        Discarded: string;
        colorFont, bgColor: string;
        pos: integer;
@@ -3008,7 +3008,7 @@ var
            NodeName:= alarm.Node.Name
         else
            NodeName:= '';
-        NoteName:= alarm.Note.Name;
+        KntFolderName:= alarm.Folder.Name;
         Discarded:= '';
         if alarm.Status = TAlarmDiscarded then Discarded := 'D';
 
@@ -3035,7 +3035,7 @@ var
                        [bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,bgColor,  colorFont ]);
 
         Result:= Result + hyperlink + CELL;                                       // Hyperlink
-        Result:= Result + TextToUseInRTF(NoteName) + CELL;                        // NoteName
+        Result:= Result + TextToUseInRTF(KntFolderName) + CELL;                   // FolderName
         Result:= Result + TextToUseInRTF(NodeName) + CELL;                        // NodeName
 
         if alarm.Bold then

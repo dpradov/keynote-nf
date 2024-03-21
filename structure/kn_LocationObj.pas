@@ -52,11 +52,11 @@ type
   public
     property Name : string read FName write FName;
     property FileName : string read FFileName write FFileName;
-    property NoteName : string read FNoteName write FNoteName;
+    property FolderName : string read FNoteName write FNoteName;
     property NodeName : string read FNodeName write FNodeName;
     property CaretPos : integer read FCaretPos write FCaretPos;
     property SelLength : integer read FSelLength write FSelLength;
-    property NoteID : longint read FNoteID write FNoteID;
+    property FolderID : longint read FNoteID write FNoteID;
     property NodeID : longint read FNodeID write FNodeID;
     property Mark : Byte read FMark write FMark;
     property Bookmark09 : boolean read FBookmark09 write FBookmark09;
@@ -134,8 +134,8 @@ begin
           myFav.Name := name;
           myFav.FileName := readstring( section, 'File', '' );
 
-            myFav.NoteName := readstring( section, 'Note', '' );
-            myFav.NoteID := readinteger( section, 'NoteID', 0 );
+            myFav.FolderName := readstring( section, 'Note', '' );
+            myFav.FolderID := readinteger( section, 'FolderID', 0 );
             myFav.NodeName := readstring( section, 'Node', '' );
             myFav.NodeID := readinteger( section, 'NodeID', 0 );
             myFav.CaretPos := readinteger( section, 'Pos', 0 );
@@ -189,8 +189,8 @@ begin
         end
         else
         begin
-          writestring( section, 'Note', myFav.NoteName );
-          writeinteger( section, 'NoteID', myFav.NoteID );
+          writestring( section, 'Note', myFav.FolderName );
+          writeinteger( section, 'FolderID', myFav.FolderID );
           writeinteger( section, 'NodeID', myFav.NodeID );
           writestring( section, 'Node', myFav.NodeName );
           writeinteger( section, 'Pos', myFav.CaretPos );
@@ -248,11 +248,11 @@ procedure TLocation.Assign( const aLocation : TLocation );
 begin
   FName := aLocation.Name;
   FFilename := aLocation.FileName;
-  FNoteName := aLocation.NoteName;
+  FNoteName := aLocation.FolderName;
   FNodeName := aLocation.NodeName;
   FCaretPos := aLocation.CaretPos;
   SelLength := aLocation.SelLength;
-  FNoteID := aLocation.NoteID;
+  FNoteID := aLocation.FolderID;
   FNodeID := aLocation.NodeID;
   FMark :=  aLocation.FMark;
   FBookmark09:= aLocation.FBookmark09;
@@ -276,7 +276,7 @@ begin
   if not assigned(Location) then Exit;
 
   if FName <> Location.Name then Exit;
-  if FNoteID <> Location.NoteID then Exit;
+  if FNoteID <> Location.FolderID then Exit;
   if FNodeID <> Location.NodeID then Exit;
   if considerOnlyKntLinks then begin
      if considerCaretPos then begin

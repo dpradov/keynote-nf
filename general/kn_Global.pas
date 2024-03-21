@@ -68,7 +68,7 @@ const
    function NoteSupportsRegisteredImages (AdmitVmRTF: boolean= false): boolean;
    function NoteSupportsImages: boolean;
 
-   function ActiveKeyNoteHelp(Note, Node, Marker: integer): Boolean; overload;
+   function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean; overload;
    function ActiveKeyNoteHelp(Node: integer): Boolean; overload;
    function ActiveKeyNoteHelp(Node_Marker: PChar): Boolean; overload;
    function ActiveKeyNoteHelp_FormHelp(Command: Word; Data: NativeInt): Boolean;
@@ -219,7 +219,7 @@ var
 
     //================================================== TREE
     MovingTreeNode: TTreeNTNode;            // To use with Paste, after applying Cut on a Tree Node.
-    CopyCutFromNoteID: integer;                 // Copy or Cut from Note
+    CopyCutFromNoteID: integer;             // Copy or Cut from Folder
 
     //================================================== VARIOS
 
@@ -319,16 +319,16 @@ resourcestring
 
 function NoteSupportsRegisteredImages (AdmitVmRTF: boolean= false): boolean;
 var
-  Note: TKntFolder;
+  Folder: TKntFolder;
   treeNTNode: TTreeNTNode;
 begin
    Result:= false;
 
-   Note:= ActiveKntFolder;
-   if not assigned(Note) then exit;
-   if Note.PlainText then exit;
+   Folder:= ActiveKntFolder;
+   if not assigned(Folder) then exit;
+   if Folder.PlainText then exit;
 
-   treeNTNode:= Note.TV.Selected;
+   treeNTNode:= Folder.TV.Selected;
    if not assigned(treeNTNode) then exit;
 
    if (TKntNote(treeNTNode.Data).VirtualMode in [vmNone, vmKNTNode]) or (AdmitVmRTF and (TKntNote(treeNTNode.Data).VirtualMode = vmRTF)) then
@@ -878,7 +878,6 @@ begin
         NoteFileToLoad:= GetAbsolutePath(ExtractFilePath(Application.ExeName), NoteFileToLoad);
 
         if ( NoteFileOpen( NoteFileToLoad ) <> 0 ) then begin
-          // if ( PopupMessage( 'Would you like to create a new Note file?', mtConfirmation, [mbYes,mbNo], 0 ) = mryes ) then
           if KeyOptions.AutoNewFile then
             NoteFileNew( 'untitled' );
         end;
@@ -1043,19 +1042,19 @@ begin
 end;
 
 
-function ActiveKeyNoteHelp(Note, Node, Marker: integer): Boolean;
+function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean;
 var
   Args: string;
   sMarker: string;
 begin
    try
-      //  file:///*NoteID|NodeID|CursorPosition|SelectionLength|MarkID  -> Ex: file:///*3|16|5|0|1
+      //  file:///*FolderID|NodeID|CursorPosition|SelectionLength|MarkID  -> Ex: file:///*3|16|5|0|1
 
 	  sMarker:= '';
       if Marker > 0 then
          sMarker:= '|0|0|' + Marker.ToString;
 
-      Args:= Format('"%s" "%s" -jmp"file:///*%d|%d%s" -title"%s"', [Help_FN, HelpINI_FN, Note, Node, sMarker, _KNT_HELP_TITLE]);
+      Args:= Format('"%s" "%s" -jmp"file:///*%d|%d%s" -title"%s"', [Help_FN, HelpINI_FN, Folder, Node, sMarker, _KNT_HELP_TITLE]);
       ShellExecute( 0, 'open', PChar(Launcher_FN), PChar(Args), nil, SW_HIDE );
 
    except

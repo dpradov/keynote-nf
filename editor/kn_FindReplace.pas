@@ -166,7 +166,7 @@ begin
   end
   else begin
       if not myFindOptions.AllTabs_FindReplace then
-         if (ActiveKntFolder <> StartNote) or
+         if (ActiveKntFolder <> StartFolder) or
             (not myFindOptions.AllNodes) and (ActiveKntFolder.TV.Selected <> StartNode) then
               myFindOptions.FindNew := true;
   end;

@@ -128,7 +128,7 @@ type
 
     function Verify : boolean;
     function ExpandTokenLine( aLine : string ) : string;
-    procedure AddNoteToMailMessage( const aNote : TKntFolder );
+    procedure AddNoteToMailMessage( const aFolder : TKntFolder );
 
   end;
 
@@ -448,25 +448,25 @@ begin
 
 end; // ExpandTokenLine
 
-procedure TForm_Mail.AddNoteToMailMessage( const aNote : TKntFolder );
+procedure TForm_Mail.AddNoteToMailMessage( const aFolder : TKntFolder );
 var
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
   myTreeNode : TTreeNTNode;
   myNote : TKntNote;
   RichEdit : TRxRichEdit;
 begin
 
-  // SMTPCli.MailMessage.Add( Padding + ' Note: ' + aNote.Name + ' ' + Padding );
+  // SMTPCli.MailMessage.Add( Padding + ' Note: ' + aFolder.Name + ' ' + Padding );
   SMTPCli.MailMessage.Add( '' );
 
-  case aNote.Kind of
+  case aFolder.Kind of
 
     ntRTF : begin
-      SMTPCli.MailMessage.AddStrings( aNote.Editor.Lines );
+      SMTPCli.MailMessage.AddStrings( aFolder.Editor.Lines );
     end;
 
     ntTree : begin
-      tNote := aNote;
+      myFolder := aFolder;
       // List := TStringList.Create;
       RichEdit := TRxRichEdit.Create( self );
       with RichEdit do
@@ -477,7 +477,7 @@ begin
       end;
 
       try
-        myTreeNode := tNote.TV.Items.GetFirstNode;
+        myTreeNode := myFolder.TV.Items.GetFirstNode;
         if myTreeNode.Hidden and CheckBox_ExcludeHiddenNodes.Checked then  // [dpv]
            myTreeNode := myTreeNode.GetNextNotHidden;
         while assigned( myTreeNode ) do

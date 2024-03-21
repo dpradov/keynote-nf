@@ -45,12 +45,12 @@ uses
 
 
     // dynamically create and destroy controls (note tabs, RichEdits, trees, etc)
-    procedure SetUpVCLControls( aNote : TKntFolder ); // sets up VCL controls for note (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
+    procedure SetUpVCLControls( aFolder : TKntFolder ); // sets up VCL controls for note (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
     procedure CreateVCLControls; // creates VCL controls for ALL notes in KntFile object
     procedure SetupAndShowVCLControls;
-    procedure CreateVCLControlsForNote( const aNote : TKntFolder ); // creates VCL controls for specified note
+    procedure CreateVCLControlsForNote( const aFolder : TKntFolder ); // creates VCL controls for specified note
     procedure DestroyVCLControls; // destroys VCL controls for ALL notes in KntFile object
-    procedure DestroyVCLControlsForNote( const aNote : TKntFolder; const KillTabSheet : boolean ); // destroys VCL contols for specified note
+    procedure DestroyVCLControlsForNote( const aFolder : TKntFolder; const KillTabSheet : boolean ); // destroys VCL contols for specified note
     procedure GetOrSetNodeExpandState( const aTV : TTreeNT; const AsSet, TopLevelOnly : boolean );
 
     // VCL updates when config loaded or changed
@@ -137,17 +137,17 @@ resourcestring
 //=================================================================
 // SetUpVCLControls
 //=================================================================
-procedure SetUpVCLControls( aNote : TKntFolder );
+procedure SetUpVCLControls( aFolder : TKntFolder );
 begin
   with Form_Main do begin
       FindAllResults.OnSelectionChange:= RxFindAllResultsSelectionChange;
       FindAllResults.ShowHint:= False;
       FindAllResults.AutoURLDetect:= False;
 
-      if assigned( aNote.Editor ) then
+      if assigned( aFolder.Editor ) then
       begin
 
-        with aNote.Editor do
+        with aFolder.Editor do
         begin
           PopUpMenu := Menu_RTF;
           OnChange := RxRTFChange;
@@ -186,9 +186,9 @@ begin
       // enable "advanced typography options" for the richedit;
       // this gives us full justification and other goodies.
       if ( _LoadedRichEditVersion > 2 ) then
-        SendMessage( aNote.Editor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
+        SendMessage( aFolder.Editor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
 
-      with aNote.TV do
+      with aFolder.TV do
       begin
         PopupMenu := Menu_TV;
         OnKeyDown := TVKeyDown;
@@ -218,7 +218,7 @@ begin
         HelpContext:= 284;  // Tree-type Notes [284]
       end;
 
-      SetEditorZoom( aNote.Editor, DefaultEditorProperties.DefaultZoom, '' );
+      SetEditorZoom( aFolder.Editor, DefaultEditorProperties.DefaultZoom, '' );
       _LastZoomValue:= DefaultEditorProperties.DefaultZoom;
   end;
 
@@ -329,14 +329,14 @@ end; // GetOrSetNodeExpandState
 //=================================================================
 // CreateVCLControlsForNote
 //=================================================================
-procedure CreateVCLControlsForNote( const aNote : TKntFolder );
+procedure CreateVCLControlsForNote( const aFolder : TKntFolder );
 var
   myTab : TTab95Sheet;
   myEditor : TTabRichEdit;
-  // NoteID : string[3];
+  // FolderID : string[3];
   myTree : TTreeNT;
   mySplitter : TSplitter;
-  tNote : TKntFolder;
+  myFolder : TKntFolder;
   i, loop : integer;
   tNode, myTreeNode, LastTreeNodeAssigned : TTreeNTNode;
   LastNodeLevel: integer;
@@ -353,18 +353,18 @@ begin
 
   with Form_Main do begin
         _ALLOW_VCL_UPDATES := false;
-        tNote := nil;
+        myFolder := nil;
         {$IFDEF WITH_IE}
         myPanel := nil;
         {$ENDIF}
 
         try
-          if ( aNote.FocusMemory = focNil ) then
+          if ( aFolder.FocusMemory = focNil ) then
           begin
-            aNote.FocusMemory := focTree;
+            aFolder.FocusMemory := focTree;
           end;
 
-          if ( aNote.TabSheet = nil ) then
+          if ( aFolder.TabSheet = nil ) then
           begin
             myTab := TTab95Sheet.Create( Form_Main );
             with myTab do
@@ -373,7 +373,7 @@ begin
               TabVisible := false; // hide tabs initially
               Parent := Pages;
               PageControl := Pages;
-              // name := 'Tab' + NoteID;
+              // name := 'Tab' + FolderID;
 
               if _TABS_ARE_DRAGGABLE then
               begin
@@ -382,22 +382,22 @@ begin
               end;
 
             end;
-            aNote.TabSheet := myTab;
+            aFolder.TabSheet := myTab;
           end
           else
           begin
-            myTab := aNote.TabSheet;
+            myTab := aFolder.TabSheet;
           end;
 
-          tNote := aNote;
-          // [f] tNote.FocusMemory := focTree;
+          myFolder := aFolder;
+          // [f] myFolder.FocusMemory := focTree;
 
           myTree := TTreeNT.Create( myTab );
           with myTree do
           begin
 
             Parent := myTab;
-            if tNote.VerticalLayout then
+            if myFolder.VerticalLayout then
               Align := alTop
             else
               Align := alLeft;
@@ -424,23 +424,23 @@ begin
             if TreeOptions.FullRowSelect then
               Options := Options + [toFullRowSelect];
 
-            if tNote.VerticalLayout then
+            if myFolder.VerticalLayout then
             begin
-              if (( tNote.TreeWidth < 30 ) or
-                  ( tNote.TreeWidth > ( Pages.Height - 30 ))) then
+              if (( myFolder.TreeWidth < 30 ) or
+                  ( myFolder.TreeWidth > ( Pages.Height - 30 ))) then
                 Height := ( Pages.Height DIV 3 )
               else
-                Height := tNote.TreeWidth;
-              tNote.TreeWidth := Height; // store corrected value
+                Height := myFolder.TreeWidth;
+              myFolder.TreeWidth := Height; // store corrected value
             end
             else
             begin
-              if (( tNote.TreeWidth < 30 ) or
-                  ( tNote.TreeWidth > ( Pages.Width - 30 ))) then
+              if (( myFolder.TreeWidth < 30 ) or
+                  ( myFolder.TreeWidth > ( Pages.Width - 30 ))) then
                 Width := ( Pages.Width DIV 3 )
               else
-                Width := tNote.TreeWidth;
-              tNote.TreeWidth := Width; // store corrected value
+                Width := myFolder.TreeWidth;
+              myFolder.TreeWidth := Width; // store corrected value
             end;
           end;
 
@@ -450,7 +450,7 @@ begin
             Parent := myTab;
             Align := alNone;
             mySplitter.OnMoved:= Form_Main.SplitterNoteMoved;
-            if tNote.VerticalLayout then
+            if myFolder.VerticalLayout then
             begin
               Top := myTree.Height + 5;
               Align := alTop;
@@ -467,29 +467,29 @@ begin
             Hint := STR_00;
           end;
 
-          tNote.Splitter := mySplitter;
+          myFolder.Splitter := mySplitter;
 
-          tNote.TV := myTree;
-          UpdateTreeOptions( tNote );
+          myFolder.TV := myTree;
+          UpdateTreeOptions( myFolder );
 
-          tNote.UpdateTree; // do this BEFORE creating nodes
+          myFolder.UpdateTree; // do this BEFORE creating nodes
 
           // Create TreeNodes for all nodes in the note
           LastTreeNodeAssigned := nil;
           LastNodeLevel := 0;
 
-          if ( tNote.Nodes.Count > 0 ) then begin
-            TVFontStyleWithBold:= tNote.TV.Font.Style + [fsBold];
+          if ( myFolder.Nodes.Count > 0 ) then begin
+            TVFontStyleWithBold:= myFolder.TV.Font.Style + [fsBold];
 
             myTree.Items.BeginUpdate;
             try
-               for i := 0 to tNote.Nodes.Count-1 do begin
-                  myNote := tNote.Nodes[i];
+               for i := 0 to myFolder.Nodes.Count-1 do begin
+                  myNote := myFolder.Nodes[i];
 
                   numChilds:= 0;
                   ChildLevel:= myNote.Level+1;
-                  for j := i+1 to tNote.Nodes.Count-1 do begin
-                     AuxLevel:= tNote.Nodes[j].Level;
+                  for j := i+1 to myFolder.Nodes.Count-1 do begin
+                     AuxLevel:= myFolder.Nodes[j].Level;
                      if AuxLevel = ChildLevel then
                         inc(numChilds);
                      if AuxLevel < ChildLevel then
@@ -541,22 +541,22 @@ begin
                     myTreeNode.Color := myNote.NodeBGColor;
 
                   if myNote.Filtered  then      // [dpv]
-                     tNote.Filtered := True;
+                     myFolder.Filtered := True;
 
                end;
 
             finally
               Log_StoreTick( 'After created TreeNodes', 3 );
 
-              ShowOrHideIcons( tNote, true );
-              ShowOrHideCheckBoxes( tNote );
+              ShowOrHideIcons( myFolder, true );
+              ShowOrHideCheckBoxes( myFolder );
 
               Log_StoreTick( 'After ShowOrHIdeIcons,CheckBoxes', 3 );
 
-              if tNote.Filtered then             // [dpv]
-                 HideFilteredNodes (tnote);
-              if tNote.HideCheckedNodes then     // [dpv]
-                 HideChildNodesUponCheckState (tnote, nil, csChecked);
+              if myFolder.Filtered then             // [dpv]
+                 HideFilteredNodes (myFolder);
+              if myFolder.HideCheckedNodes then     // [dpv]
+                 HideChildNodesUponCheckState (myFolder, nil, csChecked);
 
               myTree.Items.EndUpdate;
 
@@ -570,11 +570,11 @@ begin
             if ( myTree.Items.CountNotHidden > 0 ) then
             begin
               if (( TreeOptions.ExpandMode <> txmFullCollapse ) and // SaveActiveNode and
-                 ( tNote.OldSelectedIndex >= 0 ) and
-                 ( tNote.OldSelectedIndex < myTree.Items.Count )) then
+                 ( myFolder.OldSelectedIndex >= 0 ) and
+                 ( myFolder.OldSelectedIndex < myTree.Items.Count )) then
               begin
                 // restore the node which was selected when file was saved
-                tNode:= myTree.Items[tNote.OldSelectedIndex];
+                tNode:= myTree.Items[myFolder.OldSelectedIndex];
                 if tNode.Hidden  then begin  // [dpv]
                    tNode := myTree.Items.GetFirstNode;
                    if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
@@ -586,11 +586,11 @@ begin
                 if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
               end;
               myTree.Selected:= tNode;
-              tNote.SelectedNode := TKntNote( myTree.Selected.Data );
+              myFolder.SelectedNode := TKntNote( myTree.Selected.Data );
             end
             else
             begin
-              tNote.SelectedNode := nil;
+              myFolder.SelectedNode := nil;
             end;
 
             Log_StoreTick( 'After Restored selected node', 3 );
@@ -617,7 +617,7 @@ begin
             end;
 
 
-            UpdateTreeVisible( tNote ); // [f]
+            UpdateTreeVisible( myFolder ); // [f]
 
             if assigned( myTree.Selected ) then
               myTree.Selected.MakeVisible;
@@ -639,7 +639,7 @@ begin
             Visible := true;
            end;
 
-           tNote.MainPanel := myPanel;
+           myFolder.MainPanel := myPanel;
 
            if _IE4Available then
            begin
@@ -650,11 +650,11 @@ begin
             Align := alClient;
             Visible := false;
            end;
-           tNote.WebBrowser := myBrowser;
+           myFolder.WebBrowser := myBrowser;
            end
            else
            begin
-            tNote.WebBrowser := nil;
+            myFolder.WebBrowser := nil;
            end;
 
          {$ENDIF}
@@ -673,14 +673,14 @@ begin
             {$ENDIF}
 
             Align := alClient;
-            // name := 'RTF' + NoteID;
+            // name := 'RTF' + FolderID;
             // HelpContext := 100;
             HelpContext := 10;
             MaxLength := 0; // unlimited text size
             ParentFont := false;
             WantTabs := true;
             WantReturns := true;
-            NoteObj := aNote;
+            NoteObj := aFolder;
             AllowInPlace := true;
             AllowObjects := true;
             AutoVerbMenu := true;
@@ -697,16 +697,16 @@ begin
             ScrollBars := ssBoth;
           end;
 
-          aNote.Editor := myEditor;
+          aFolder.Editor := myEditor;
           with myTab do
           begin
             // PrimaryControl := myEditor;
-            PrimaryObject := aNote;
+            PrimaryObject := aFolder;
           end;
 
           Log_StoreTick( 'After Created TTabRichEdit', 3 );
 
-          with aNote do begin
+          with aFolder do begin
             UpdateTabSheet;
             UpdateEditor; // do this BEFORE placing RTF text in editor
           end;
@@ -721,11 +721,11 @@ begin
 end; // CreateVCLControlsForNote
 
 
-procedure DeleteNodes(Note: TKntFolder);
+procedure DeleteNodes(Folder: TKntFolder);
 var
   Node : TTreeNTNode;
 begin
-    Node := Note.TV.Items.GetFirstNode;
+    Node := Folder.TV.Items.GetFirstNode;
     while assigned( Node ) do begin // go through all nodes
         KntFile.ManageMirrorNodes(3, Node, nil);
         Node := Node.GetNext; // select next node to search
@@ -735,17 +735,17 @@ end;
 //=================================================================
 // DestroyVCLControlsForNote
 //=================================================================
-procedure DestroyVCLControlsForNote( const aNote : TKntFolder; const KillTabSheet : boolean );
+procedure DestroyVCLControlsForNote( const aFolder : TKntFolder; const KillTabSheet : boolean );
 begin
   with Form_Main do begin
-        if not assigned( aNote ) then exit;
+        if not assigned( aFolder ) then exit;
 
         _ALLOW_VCL_UPDATES := false;
         try
 
-          if assigned( aNote.Editor ) then
+          if assigned( aFolder.Editor ) then
           begin
-            with aNote.Editor do
+            with aFolder.Editor do
             begin
               OnChange := nil;
               OnSelectionChange := nil;
@@ -755,17 +755,17 @@ begin
               OnKeyDown := nil;
               Free;
             end;
-            aNote.Editor := nil;
+            aFolder.Editor := nil;
           end;
 
-          if assigned( aNote.Splitter ) then
+          if assigned( aFolder.Splitter ) then
           begin
-            aNote.Splitter.Free;
-            aNote.Splitter := nil;
+            aFolder.Splitter.Free;
+            aFolder.Splitter := nil;
           end;
-          if assigned( aNote.TV ) then
+          if assigned( aFolder.TV ) then
           begin
-            with aNote.TV do
+            with aFolder.TV do
             begin
               PopupMenu := nil;
               OnChange := nil;
@@ -780,15 +780,15 @@ begin
               OnEdited := nil;
               OnEditing := nil;
             end;
-            DeleteNodes(aNote);
+            DeleteNodes(aFolder);
 
-            aNote.TV.Free;
-            aNote.TV := nil;
+            aFolder.TV.Free;
+            aFolder.TV := nil;
           end;
 
-          if ( KillTabSheet and assigned( aNote.TabSheet )) then
+          if ( KillTabSheet and assigned( aFolder.TabSheet )) then
           begin
-            aNote.TabSheet.Free;
+            aFolder.TabSheet.Free;
           end;
         finally
           _ALLOW_VCL_UPDATES := true;
@@ -803,7 +803,7 @@ procedure DestroyVCLControls;
 var
   i : integer;
   s : string;
-  // aNote : TTabNote;
+  // aFolder : TTabNote;
 begin
   with Form_Main do begin
         {
@@ -819,13 +819,13 @@ begin
             for i := pred( pages.pagecount ) downto 0 do
             begin
                 {
-                aNote := TTabNote( pages.pages[i].PrimaryObject );
+                aFolder := TTabNote( pages.pages[i].PrimaryObject );
                 try
-                  aNote.Editor := nil;
-                  if ( aNote.Kind = ntTree ) then
+                  aFolder.Editor := nil;
+                  if ( aFolder.Kind = ntTree ) then
                   begin
-                    aNote.TV := nil;
-                    aNote.Splitter := nil;
+                    aFolder.TV := nil;
+                    aFolder.Splitter := nil;
                   end;
                 except
                   on E : Exception do

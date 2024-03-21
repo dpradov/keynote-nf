@@ -151,7 +151,7 @@ const
 var
   i : integer;
   cb : TCheckBoxState;
-  aNote : TKntFolder;
+  aFolder : TKntFolder;
 begin
   if ( not assigned( myNotes )) then exit;
   if ( myNotes.NoteCount < 1 ) then exit;
@@ -159,13 +159,13 @@ begin
   try
     for i := 0 to pred( myNotes.NoteCount ) do
     begin
-      aNote := myNotes.Notes[i];
-      if ( aNote.Info <> 0 ) then
+      aFolder := myNotes.Notes[i];
+      if ( aFolder.Info <> 0 ) then
         cb := cbChecked
       else
         cb := cbUnchecked;
 
-      List_Tabs.AddItem( aNote.Name + TreeNoteMarker, cb, aNote.ImageIndex )
+      List_Tabs.AddItem( aFolder.Name + TreeNoteMarker, cb, aFolder.ImageIndex )
     end;
   finally
     List_Tabs.Items.EndUpdate;

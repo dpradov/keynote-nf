@@ -2225,7 +2225,7 @@ begin
     IndentUsingTabs:= true;
     NumbTabInPlainText:= ' ';
     NodeHeading := _DefaultNodeHeading;
-    NoteHeading := _DefaultNoteHeading;
+    FolderHeading := _DefaultNoteHeading;
     SingleNodeFiles := true;
     TargetFormat := low( TExportFmt );
     TreePadForceMaster := false;

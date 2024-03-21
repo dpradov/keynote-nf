@@ -81,7 +81,7 @@ object Form_Defaults: TForm_Defaults
     TabOrder = 2
     object Tab_Main: TTab95Sheet
       HelpContext = 254
-      Caption = 'Note settings'
+      Caption = 'Folder settings'
       GripAlign = gaLeft
       ImageIndex = -1
       StaticPageIndex = -1
@@ -124,7 +124,7 @@ object Form_Defaults: TForm_Defaults
           Width = 74
           Height = 13
           AutoSize = False
-          Caption = '&Note name:'
+          Caption = '&Folder name:'
           FocusControl = Edit_NoteName
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -139,7 +139,7 @@ object Form_Defaults: TForm_Defaults
           Width = 74
           Height = 13
           AutoSize = False
-          Caption = 'Note &icon:'
+          Caption = 'Folder &icon:'
           FocusControl = Combo_Icons
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText

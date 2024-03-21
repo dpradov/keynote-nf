@@ -63,16 +63,16 @@ uses
     function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
-    procedure InsertURL(URLStr : string; TextURL : string; Note: TKntFolder);
+    procedure InsertURL(URLStr : string; TextURL : string; Folder: TKntFolder);
 
     function PathOfKNTLink (myTreeNode: TTreeNTNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                             forUseInFindResults: boolean = false): string;
-    procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TKntFolder; var myTreeNode: TTreeNTNode);
+    procedure GetTreeNodeFromLocation (const Location: TLocation; var Folder: TKntFolder; var myTreeNode: TTreeNTNode);
 
     procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
 
     // Navigation history
-    procedure AddHistoryLocation( const aNote : TKntFolder; const AddLocalMaintainingIndex: boolean;
+    procedure AddHistoryLocation( const aFolder : TKntFolder; const AddLocalMaintainingIndex: boolean;
                                   aLocation: TLocation= nil; const AddToGlobalHistory: boolean= true);
     procedure NavigateInHistory( const Direction: THistoryDirection);
     procedure UpdateHistoryCommands;
@@ -111,8 +111,8 @@ uses
 
 
 resourcestring
-  STR_01 = 'Note ID not found: %d';
-  STR_02 = 'Note name not found: %s';
+  STR_01 = 'Folder ID not found: %d';
+  STR_02 = 'Folder name not found: %s';
   STR_03 = 'Node ID not found: %d';
   STR_04 = 'Node name not found: %s';
   STR_05 = 'Select file to link to';
@@ -136,12 +136,12 @@ resourcestring
   STR_23 = ' History navigation error';
 
   STR_24 = 'Navigate backwards in history';
-  STR_25 = 'Navigate backwards in note (''local'') history';
+  STR_25 = 'Navigate backwards in folder (''local'') history';
   STR_26 = 'Navigate backwards in global history';
   STR_27 = 'Navigate forward in history';
-  STR_28 = 'Navigate forward in note (''local'') history';
+  STR_28 = 'Navigate forward in folder (''local'') history';
   STR_29 = 'Navigate forward in global history';
-  STR_30 = ' (Ctrl+click: only in note history)';
+  STR_30 = ' (Ctrl+click: only in folder history)';
   STR_31 = ' [Mark: %d]';
   STR_32 = '   (Undo to remove new hidden markers)';
   STR_33 = 'Action canceled';
@@ -256,21 +256,21 @@ end; // PathOfKNTLink
 //=========================================
 // GetTreeNode
 //=========================================
-procedure GetTreeNodeFromLocation (const Location: TLocation; var Note: TKntFolder; var myTreeNode: TTreeNTNode);
+procedure GetTreeNodeFromLocation (const Location: TLocation; var Folder: TKntFolder; var myTreeNode: TTreeNTNode);
 begin
    with Location do begin
      // obtain NOTE
-      Note := nil;
-      if (NoteID <> 0) then // new format
+      Folder := nil;
+      if (FolderID <> 0) then // new format
       begin
-         Note := KntFile.GetNoteByID( NoteID );
-         if (Note = nil ) then
-            raise EInvalidLocation.Create(Format( STR_01, [NoteID] ));
+         Folder := KntFile.GetNoteByID( FolderID );
+         if (Folder = nil ) then
+            raise EInvalidLocation.Create(Format( STR_01, [FolderID] ));
       end
       else begin
-         Note := KntFile.GetNoteByName( NoteName );
-         if (Note = nil) then
-            raise EInvalidLocation.Create(Format( STR_02, [NoteName] ));
+         Folder := KntFile.GetNoteByName( FolderName );
+         if (Folder = nil) then
+            raise EInvalidLocation.Create(Format( STR_02, [FolderName] ));
       end;
 
 
@@ -278,12 +278,12 @@ begin
       myTreeNode := nil;
       if (NodeID > 0) or (NodeName <> '') then begin   // If NodeID <= 0 and NodeName = '' -> Node will be ignored
          if ( NodeID <> 0 ) then begin // new format
-            myTreeNode := Note.GetTreeNodeByID( NodeID );
+            myTreeNode := Folder.GetTreeNodeByID( NodeID );
             if (myTreeNode = nil) then
                raise EInvalidLocation.Create(Format( STR_03, [NodeID] ));
          end
          else begin
-            myTreeNode := Note.TV.Items.FindNode( [ffText], NodeName, nil );
+            myTreeNode := Folder.TV.Items.FindNode( [ffText], NodeName, nil );
             if (myTreeNode = nil) then
                raise EInvalidLocation.Create(Format( STR_04, [NodeName] ));
          end;
@@ -295,7 +295,7 @@ end;
 //----------------------------------------
 // Insertlink
 //----------------------------------------
-procedure InsertLink(URLStr: string; TextURL : string; FileLink: Boolean; Note: TKntFolder; FromInsertURL: Boolean= false);
+procedure InsertLink(URLStr: string; TextURL : string; FileLink: Boolean; Folder: TKntFolder; FromInsertURL: Boolean= false);
 var
   SelL: integer;
   SelR: integer;
@@ -310,9 +310,9 @@ begin
     if UseScratchPad then
        Editor:= Form_Main.Res_RTF
     else
-       Editor:= Note.Editor;
+       Editor:= Folder.Editor;
 
-    if (RichEditVersion >= 4) and (UseScratchPad or not Note.PlainText) then
+    if (RichEditVersion >= 4) and (UseScratchPad or not Folder.PlainText) then
        UseHyperlink:= True;
 
     if not UseScratchPad and (ImagesManager.StorageMode <> smEmbRTF) then begin
@@ -495,7 +495,7 @@ end; // InsertFileOrLink
 //===============================================================
 procedure GetKNTLocation (var Location: TLocation; Simplified: Boolean= false);
 var
-  tNote: TKntFolder;
+  myFolder: TKntFolder;
 begin
 {$IFDEF DEBUG_HISTORY}
    Simplified:= false;
@@ -507,12 +507,12 @@ begin
     with Location do begin
       if not Simplified then begin
         FileName := normalFN( KntFile.FileName );
-        NoteName := ActiveKntFolder.Name;
+        FolderName := ActiveKntFolder.Name;
       end;
-      NoteID := ActiveKntFolder.ID;
+      FolderID := ActiveKntFolder.ID;
       NodeName := '';
       NodeID := 0;
-      tNote:= ActiveKntFolder;
+      myFolder:= ActiveKntFolder;
       if ActiveKntFolder.SelectedNode <> nil then begin
          NodeID := ActiveKntFolder.SelectedNode.ID;
          if not Simplified then
@@ -567,22 +567,22 @@ end;
 (*
   New KNT Links, vinculated to markers, not only to caret position
 
-	Until now, KNT links only included, in addition to the note and node, the caret position. If the note
+	Until now, KNT links only included, in addition to the folder and node, the caret position. If the folder
 	was edited, the absolute position we were pointing to, would have changed and therefore our link would no longer point
 	to the intended position.
 
 	When marking a KNT location (Ctr+F6) the app will now insert a small hidden bookmark next to the text
 	identified as target. When inserting the link (Shift+F6) the new hyperlink will refer to the created bookmark,
-	and will locate it even though all the text could have been relocated (within the same note/node). If the marker
+	and will locate it even though all the text could have been relocated (within the same folder/node). If the marker
 	were eliminated, the caret position would be used, as before.
 
-	Note: The bookmark will only be inserted if the destination is a note or RTF node, other than virtual node.
+	Note: The bookmark will only be inserted if the destination is a RTF node, other than virtual node.
 
 	The format used internally to register these markers is of the form. Ex:
 
    	{\rtf1\ansi \v\'11B5\'12\v0 Target of a KNT link}
 	   Once retrieved as plain text: '#$11'B5'#$12'Target of a KNT link
-     B: Bookmark   "5" 5º bookmark in the note / node.
+     B: Bookmark   "5" 5º bookmark in the folder / node.
 
 	To achieve this, it has been necessary for KNT to be able to handle RTF texts with this type of hidden text from any
 	functionality.
@@ -614,13 +614,13 @@ end;
 	templates. It has also been necessary to keep them in mind when performing operations such as changing to uppercase, lowercase, etc.
 
 	Once these changes have been made, the management of this new hidden text format will allow the implementation of other functionalities
-  in which it is necessary to mark or tag any text within a note.
+  in which it is necessary to mark or tag any text within a folder.
 
 *)
 
 procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean; TextURL: string; NumBookmark09: integer= 0);
 var
-   Note: TKntFolder;
+   Folder: TKntFolder;
    TreeNode: TTreeNTNode;
    TargetMarker: integer;
    str, strTargetMarker: string;
@@ -678,19 +678,19 @@ begin
 
     if (not UseScratchPad) and Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
     if aLocation.Bookmark09 then exit;
-    if ( aLocation.NoteName = '') and (aLocation.NoteID = 0) then begin
+    if ( aLocation.FolderName = '') and (aLocation.FolderID = 0) then begin
       showmessage( STR_08 );
       exit;
     end;
 
     if TextURL = '' then
        if KntFile.FileName = aLocation.FileName then begin
-           GetTreeNodeFromLocation (aLocation, Note, TreeNode);
-           TextURL:= PathOfKNTLink(TreeNode, Note, aLocation.CaretPos, false, (not UseScratchPad) and TreeOptions.RelativeKNTLinks);
+           GetTreeNodeFromLocation (aLocation, Folder, TreeNode);
+           TextURL:= PathOfKNTLink(TreeNode, Folder, aLocation.CaretPos, false, (not UseScratchPad) and TreeOptions.RelativeKNTLinks);
        end
        else
           TextURL:= Format('%s: %s/%s %d', [ExtractFileName(aLocation.FileName),
-                                                aLocation.NoteName, aLocation.NodeName,
+                                                aLocation.FolderName, aLocation.NodeName,
                                                 aLocation.CaretPos]);
 
     InsertLink(BuildKNTLocationText(aLocation),  TextURL, false, ActiveKntFolder);
@@ -702,11 +702,11 @@ begin
     // mark caret position as TLocation
     GetKNTLocation (aLocation);
 
-    // If we are pointing to the start of a node or a note (CaretPos = 0), we will not create any new markers. We will always aim for that position 0.
+    // If we are pointing to the start of a node or a folder (CaretPos = 0), we will not create any new markers. We will always aim for that position 0.
     strTargetMarker:= '';
 
     if (aLocation.CaretPos <> 0) and (not ActiveKntFolder.PlainText)
-       and ( ActiveKntFolder.SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode] ) then begin        // Allow the mark (hidden) although Note is ReadOnly
+       and ( ActiveKntFolder.SelectedNode.VirtualMode in [vmNone, vmRTF, vmKNTNode] ) then begin        // Allow the mark (hidden) although Folder is ReadOnly
       if NumBookmark09 <= 0 then
          TargetMarker:= GetActualTargetMarker(ActiveKntFolder.Editor);             // If a marker already exists at that position, we will use it
 
@@ -742,7 +742,7 @@ end; // InsertOrMarkKNTLink
 function BuildKNTLocationText( const aLocation : TLocation) : string;
 var
   LocationString : string;
-  NoteId, NodeId, LocationMark: string;
+  FolderID, NodeId, LocationMark: string;
 begin
   if ( aLocation.FileName = normalFN( KntFile.FileName )) then
     LocationString := ''
@@ -754,17 +754,17 @@ begin
 
     if (RichEditVersion >= 4) then begin
         LocationMark:= KNTLOCATION_MARK_NEW;
-        NoteId:= inttostr( aLocation.NoteID );
+        FolderID:= inttostr( aLocation.FolderID );
         NodeId:= inttostr( aLocation.NodeID );
     end
     else begin
         LocationMark:= KNTLOCATION_MARK_OLD;
-        NoteId:= FileNameToURL( aLocation.NoteName );
+        FolderID:= FileNameToURL( aLocation.FolderName );
         NodeId:= FileNameToURL( aLocation.NodeName );
     end;
 
     LocationString := 'file:///' + LocationString + LocationMark +
-      NoteId + KNTLINK_SEPARATOR +
+      FolderID + KNTLINK_SEPARATOR +
       NodeId + KNTLINK_SEPARATOR +
       inttostr( aLocation.CaretPos ) + KNTLINK_SEPARATOR +
       inttostr( aLocation.SelLength );
@@ -786,7 +786,7 @@ var
   Location : TLocation;
   NewFormatURL : boolean;
   origLocationStr : string;
-  Note: TKntFolder;
+  Folder: TKntFolder;
   myTreeNode: TTreeNTNode;
 begin
 
@@ -807,7 +807,7 @@ begin
     if (( pold = 0 ) and ( pnew = 0 )) then
       raise EInvalidLocation.Create( origLocationStr );
     // see which marker occurs FIRST
-    // (both markers may occur, because '?' and '*' may occur within note or node names
+    // (both markers may occur, because '?' and '*' may occur within folder or node names
     if ( pnew < pold ) then begin
       if ( pnew > 0 ) then begin
         NewFormatURL := true;
@@ -841,35 +841,35 @@ begin
     end;
     delete( LocationStr, 1, p ); // delete filename and ? or * marker
 
-    // extract note name or ID
+    // extract folder name or ID
     p := pos( KNTLINK_SEPARATOR, LocationStr );
     case p of
       0 : begin
         if NewFormatURL then
-          Location.NoteID := strtoint( LocationStr ) // get ID
+          Location.FolderID := strtoint( LocationStr ) // get ID
         else
-          Location.NoteName := HTTPDecode( LocationStr ); // get name
+          Location.FolderName := HTTPDecode( LocationStr ); // get name
         LocationStr := '';
       end;
       1 : raise EInvalidLocation.Create( origLocationStr );
       else
       begin
         if NewFormatURL then
-          Location.NoteID := strtoint( copy( LocationStr, 1, pred( p )))
+          Location.FolderID := strtoint( copy( LocationStr, 1, pred( p )))
         else
-          Location.NoteName := HTTPDecode( copy( LocationStr, 1, pred( p )));
+          Location.FolderName := HTTPDecode( copy( LocationStr, 1, pred( p )));
         delete( LocationStr, 1, p );
       end;
     end;
 
-    if Location.NoteID <> 0 then
-       Note := KntFile.GetNoteByID( Location.NoteID )
+    if Location.FolderID <> 0 then
+       Folder := KntFile.GetNoteByID( Location.FolderID )
     else
-       Note := KntFile.GetNoteByName( Location.NoteName );
+       Folder := KntFile.GetNoteByName( Location.FolderName );
 
-    if  assigned(Note) then begin
-        Location.NoteID:= Note.ID;
-        Location.NoteName:= Note.Name;
+    if  assigned(Folder) then begin
+        Location.FolderID:= Folder.ID;
+        Location.FolderName:= Folder.Name;
     end;
 
 
@@ -896,17 +896,17 @@ begin
     end;
     delete( LocationStr, 1, p );
 
-    if assigned(Note) then
+    if assigned(Folder) then
       if (Location.NodeID >= 0) then begin
         if ( Location.NodeID <> 0 ) then
-          myTreeNode := Note.GetTreeNodeByID( Location.NodeID )
+          myTreeNode := Folder.GetTreeNodeByID( Location.NodeID )
         else
-          myTreeNode := Note.TV.Items.FindNode( [ffText], Location.NodeName, nil );
+          myTreeNode := Folder.TV.Items.FindNode( [ffText], Location.NodeName, nil );
 
         if assigned(myTreeNode) then
             if assigned( myTreeNode.Data ) then begin
                Location.NodeID:= TKntNote( myTreeNode.Data ).ID;
-               Location.NoteName:= TKntNote( myTreeNode.Data ).Name;
+               Location.FolderName:= TKntNote( myTreeNode.Data ).Name;
             end;
       end;
 
@@ -957,7 +957,7 @@ var
   Strs: TStrings;
   s: AnsiString;
 begin
-   // file:///*NoteID|NodeID|CursorPosition|SelectionLength|MarkID
+   // file:///*FolderID|NodeID|CursorPosition|SelectionLength|MarkID
    // Ex: file:///*8|2|4|0|1
    Result:= nil;
    if Pos('file:///*', LocationStr) <> 1 then exit;
@@ -969,7 +969,7 @@ begin
          s:= Copy(LocationStr, Length('file:///*')+1);
          SplitString(Strs, s, '|', false);
          with Result do begin
-             NoteID:= StrToInt(Strs[0]);
+             FolderID:= StrToInt(Strs[0]);
              NodeID:= StrToInt(Strs[1]);
              CaretPos:= StrToInt(Strs[2]);
              SelLength:= StrToInt(Strs[3]);
@@ -1129,7 +1129,7 @@ begin
 
    if not assigned( myFolder ) then exit;
 
-   // If not included in some of the visible Editors -> make the change directly in the note or node stream
+   // If not included in some of the visible Editors -> make the change directly in the folder or node stream
    // See comment to kn_EditorUtils.RemoveKNTHiddenCharactersInRTF
 
   EditorVisible:= false;
@@ -1266,8 +1266,8 @@ begin
       (*
       showmessage(
         'file: ' + Location.FileName + #13 +
-        'note: ' + Location.NoteName + #13 +
-        'note id: ' + inttostr( Location.NoteID ) + #13 +
+        'folder: ' + Location.FolderName + #13 +
+        'folder id: ' + inttostr( Location.FolderID ) + #13 +
         'node: ' + Location.NodeName + #13 +
         'node id: ' + inttostr( Location.NodeID ) + #13 +
         inttostr( Location.CaretPos ) + ' / ' + inttostr( Location.SelLength )
@@ -1317,7 +1317,7 @@ begin
 
       _Executing_JumpToKNTLocation_ToOtherNote:= false;
       try
-         // if not current note, switch to it
+         // if not current folder, switch to it
          if ( myFolder <> ActiveKntFolder ) then
          begin
            _Executing_JumpToKNTLocation_ToOtherNote:= true;
@@ -1351,12 +1351,12 @@ begin
 
 
       if _Executing_History_Jump then begin
-         if (LocBeforeJump.NoteID <> Location.NoteID) then
+         if (LocBeforeJump.FolderID <> Location.FolderID) then
             ActiveKntFolder.History.SyncWithLocation (Location, hdBack, true);
       end
       else
       if (LocBeforeJump <> nil) and
-         (LocBeforeJump.NoteID = ActiveKntFolder.ID) and (ActiveKntFolder.SelectedNode.ID = LocBeforeJump.NodeID) then begin
+         (LocBeforeJump.FolderID = ActiveKntFolder.ID) and (ActiveKntFolder.SelectedNode.ID = LocBeforeJump.NodeID) then begin
           AddHistoryLocation (ActiveKntFolder, false, LocBeforeJump);
           _LastMoveWasHistory:= false;
           UpdateHistoryCommands;
@@ -1612,23 +1612,23 @@ var
   function KNTPathFromString (url: string): string;
   var
     Location: TLocation;
-    note: TKntFolder;
+    folder: TKntFolder;
     treeNode: TTreeNTNode;
   begin
      Location:= BuildKNTLocationFromString(URL);
      try
        if (KntFile.FileName = Location.FileName) or (Location.FileName = '') then begin
-           GetTreeNodeFromLocation (Location, note, treeNode);
-           Result:= PathOfKNTLink(treeNode, note, Location.CaretPos, false, false);
+           GetTreeNodeFromLocation (Location, folder, treeNode);
+           Result:= PathOfKNTLink(treeNode, folder, Location.CaretPos, false, false);
        end
        else
           if Location.NodeName <> '' then
              Result:= Format('%s: %s/%s|%d|%d', [ExtractFileName(Location.FileName),
-                                                Location.NoteName, Location.NodeName,
+                                                Location.FolderName, Location.NodeName,
                                                 Location.CaretPos, Location.SelLength])
           else
              Result:= Format('%s: %d|%d|%d|%d', [ExtractFileName(Location.FileName),
-                                                Location.NoteID, Location.NodeID,
+                                                Location.FolderID, Location.NodeID,
                                                 Location.CaretPos, Location.SelLength]);
      finally
        Location.Free;
@@ -1923,7 +1923,7 @@ end;
 //===============================================================
 // InsertURL
 //===============================================================
-procedure InsertURL(URLStr: string; TextURL : string; Note: TKntFolder);
+procedure InsertURL(URLStr: string; TextURL : string; Folder: TKntFolder);
 var
   URLType : TKNTURL;
   Form_URLAction: TForm_URLAction;
@@ -1954,9 +1954,9 @@ var
       p: integer;
       L, R: integer;
   begin
-        if Note.Editor.SelLength > 0 then begin
-           TxtSel:= Trim(Note.Editor.SelVisibleText);
-           UrlSel:= Trim(Note.Editor.SelText);
+        if Folder.Editor.SelLength > 0 then begin
+           TxtSel:= Trim(Folder.Editor.SelVisibleText);
+           UrlSel:= Trim(Folder.Editor.SelText);
            RemoveAngleBrackets(TxtSel);
            RemoveAngleBrackets(UrlSel);
 
@@ -1978,7 +1978,7 @@ var
            end;
         end
         else begin
-           Note.Editor.GetLinkAtCursor(URLStr, TxtSel, L, R);
+           Folder.Editor.GetLinkAtCursor(URLStr, TxtSel, L, R);
            URLType:= TypeURL( UrlStr, KNTlocation);
            if TextURL = '' then TextURL:= TxtSel;
         end;
@@ -1988,8 +1988,8 @@ var
   end;
 
 begin
-  if ( not ( Form_Main.HaveNotes( true, true ) and assigned( Note ))) then exit;
-  if Form_Main.NoteIsReadOnly( Note, true ) then exit;
+  if ( not ( Form_Main.HaveNotes( true, true ) and assigned( Folder ))) then exit;
+  if Form_Main.NoteIsReadOnly( Folder, true ) then exit;
   askUser:= (URLStr = '');
 
 
@@ -2027,8 +2027,8 @@ begin
       if (URLType = urlFile) and ( pos( 'FILE:', AnsiUpperCase(URLStr) ) = 0 ) then
          URLStr := 'file:///' + URLStr;
 
-      if (TextURL = '') and (not Note.PlainText) then TextURL:= StripFileURLPrefix(URLStr);
-      InsertLink(URLStr, TextURL, (URLType = urlFile), Note, True);
+      if (TextURL = '') and (not Folder.PlainText) then TextURL:= StripFileURLPrefix(URLStr);
+      InsertLink(URLStr, TextURL, (URLType = urlFile), Folder, True);
   end;
 
 end; // Insert URL
@@ -2037,14 +2037,14 @@ end; // Insert URL
 //=========================================
 // AddHistoryLocation
 //=========================================
-procedure AddHistoryLocation( const aNote : TKntFolder; const AddLocalMaintainingIndex: boolean;
+procedure AddHistoryLocation( const aFolder : TKntFolder; const AddLocalMaintainingIndex: boolean;
                               aLocation: TLocation= nil;
                               const AddToGlobalHistory: boolean= true);
 var
   gLocation: TLocation;
 
 begin
-  if not assigned(aNote) then exit;
+  if not assigned(aFolder) then exit;
 
   try
     if aLocation = nil then begin
@@ -2059,14 +2059,14 @@ begin
     end;
 
     if AddLocalMaintainingIndex  then
-       aNote.History.AddLocationMaintainingIndex (aLocation)
+       aFolder.History.AddLocationMaintainingIndex (aLocation)
     else
-       aNote.History.AddLocation(aLocation);
+       aFolder.History.AddLocation(aLocation);
 
 
   except
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_21;
-    aNote.History.Clear;
+    aFolder.History.Clear;
     History.Clear;
     if assigned(aLocation) then
         aLocation.Free;
@@ -2083,34 +2083,34 @@ end; // AddHistoryLocation
 {
 	Redesigned navigation history mechanism              [dpv] (jul.2023)
 
-    - Default navigation is now global and so we can move between the nodes of a note but also between notes
-    - Local navigation (traveling only active note's history) is also possible, clicking on the toolbar button with Ctrl.
+    - Default navigation is now global and so we can move between the nodes of a folder but also between notes
+    - Local navigation (traveling only active folder's history) is also possible, clicking on the toolbar button with Ctrl.
     - Every jump from an internal keynote link will generate history, not only those that go to another node in the same
-      note.
+      folder.
     - Bookmark jumps will also generate history
     - Standard RTF notes (not multi-lvel tree notes) will have its own history navigation
     - Related buttons have been moved to main toolbar.
       their color and hint indicates if global and/or local history is available in that direction
 
 
-    When we are travelling the global history, the local history in the active note will be navigated accordingly,
+    When we are travelling the global history, the local history in the active folder will be navigated accordingly,
     in a synchronized way, if possible, looking for an equal or equivalent (same node) item. The same will occur if the
     local history is leading the history navigation: global history will be synchronized, but in this case in a limited
     way, only if can go to the same item in the same direction and in one step.
 
     As usual, if we navigate backwards in history and then create new history (we are jumping or selecting another location,
     not navigating forward again) the history from the point forward will be truncated, replaced by the new history.
-    This will happen always	in the global history, but in the local (note) history only if we jump to another location in
-    the same note. If we have navigated backwards in a local history and then select another note, global history will be
-    truncated accordingly but the history in the starting note will be kept intact. When we are back again in that note
+    This will happen always	in the global history, but in the local (folder) history only if we jump to another location in
+    the same folder. If we have navigated backwards in a local history and then select another folder, global history will be
+    truncated accordingly but the history in the starting folder will be kept intact. When we are back again in that folder
     (because of history navigation or not) we can move only in that local history if we want.
-    We can move inside a note (creating new history), select another note and move there, creating also new history.
-    If we navigate backwards from that point we will end up in the starting note, but we can also select directly that initial
-    note and navigate its history (with ctrl+click) directly.
+    We can move inside a folder (creating new history), select another folder and move there, creating also new history.
+    If we navigate backwards from that point we will end up in the starting folder, but we can also select directly that initial
+    folder and navigate its history (with ctrl+click) directly.
 
     The color of the arrows in the toolbar buttons will indicate if the forward o backwards navigation (in global history
-    by default) will end up in another note (intense blue) or in the same note (light blue). Even if color is intense blue,
-    we could navigate in that direction to an item in the same note, when clicking with Ctrl key pressed (if local history allows it).
+    by default) will end up in another folder (intense blue) or in the same folder (light blue). Even if color is intense blue,
+    we could navigate in that direction to an item in the same folder, when clicking with Ctrl key pressed (if local history allows it).
     If we reach one end of global history navigation but there is local history in that direction, the color of the button will be
     light blue and clicking in that button will be managed as if we pressed Ctrl+Click.
     The hint in the buttons will indicate what kind of history navigation is available in each direction (global, local or both)
@@ -2163,7 +2163,7 @@ begin
 
    *2:
     If myLocation=nil because we have not been able to advance having pressed CTRL (therefore in the local history), we will not do anything. 
-    We'll go out and that's it.  If you've pressed CTRL you don't want to got to another note.
+    We'll go out and that's it.  If you've pressed CTRL you don't want to got to another folder.
   }
 
   try
@@ -2182,7 +2182,7 @@ begin
        if ( not _LastMoveWasHistory ) then begin
          MaintainIndexInLocalHist:= false;
          myLocation:= masterHistory.PickBack;
-         if (myLocation = nil) or (myLocation.NoteID <> ActiveKntFolder.ID) then
+         if (myLocation = nil) or (myLocation.FolderID <> ActiveKntFolder.ID) then
             MaintainIndexInLocalHist:= True;
          AddHistoryLocation(ActiveKntFolder, MaintainIndexInLocalHist);
          myLocation := masterHistory.GoBack;
@@ -2197,7 +2197,7 @@ begin
 
     try
       _Executing_History_Jump := true;
-      AdjustVisiblePosition:= (Direction = hdForward);  // hdBack -> False by default (except when navigating back to another Editor (node or note))
+      AdjustVisiblePosition:= (Direction = hdForward);  // hdBack -> False by default (except when navigating back to another Editor (node or folder))
       if not ( assigned( myLocation ) and (not LocBeforeNavigation.Equal(myLocation)) and JumpToLocation(myLocation, true, AdjustVisiblePosition) ) then begin
         Done:= False;
         if Direction = hdForward then
@@ -2264,7 +2264,7 @@ begin
     strHint:= STR_24;
     if GoBackEnabled then begin
        Loc:= History.PickBack;
-       if (Loc <> nil) and (Loc.NoteID <> ActiveKntFolder.ID ) then
+       if (Loc <> nil) and (Loc.FolderID <> ActiveKntFolder.ID ) then
           TB_GoBack.ImageIndex:= IMAGE_GOBACK_OTHER_NOTE
        else
           TB_GoBack.ImageIndex:= IMAGE_GOBACK_IN_NOTE;
@@ -2285,7 +2285,7 @@ begin
     strHint:= STR_27;
     if GoForwardEnabled then begin
        Loc:= History.PickForward;
-       if (Loc <> nil) and (Loc.NoteID <> ActiveKntFolder.ID ) then
+       if (Loc <> nil) and (Loc.FolderID <> ActiveKntFolder.ID ) then
           TB_GoForward.ImageIndex:= IMAGE_GOFORWARD_OTHER_NOTE
        else
           TB_GoForward.ImageIndex:= IMAGE_GOFORWARD_IN_NOTE;
@@ -2326,7 +2326,7 @@ var
   TextLen, TargetLen : integer;
   Location : TLocation;
 begin
-  { Inserts a hyperlink in active note.
+  { Inserts a hyperlink in active folder.
     Only RichEdit v.3 supports .Link and .Hidden properties.
     For RichEdit 2, we can only display full link address,
     and cannot use not or node IDs
@@ -2337,37 +2337,37 @@ begin
        and still used when RichEditVersion < 2)
 
        (a)
-       file:///filename.knt?NoteName|NodeName|CaretPos|SelLength
+       file:///filename.knt?FolderName|NodeName|CaretPos|SelLength
 
        Filename.knt may be blank if links points to current file.
-       Only NoteName is required.
+       Only FolderName is required.
        The '?' character is invalid in filenames, so it tells us
        this is a hyperlink to a KeyNote location, not a normal
        link to local file.
 
        The problem with this scheme is that it fails when there
-       is more than one note (or tree node) by the same name.
+       is more than one folder (or tree node) by the same name.
 
        (b)
-       Begining with version 1.1, we use note and node IDs instead:
-       file:///filename.knt|NoteID|NodeID|CaretPos|SelLength
+       Begining with version 1.1, we use folder and node IDs instead:
+       file:///filename.knt|FolderID|NodeID|CaretPos|SelLength
        The '|' character has the same function as '?' in (a),
        (also invalid in filenames), but it also tells us this
-       is the new type of link, using Note IDs rather than names.
+       is the new type of link, using Folder IDs rather than names.
        However, we can only use this methof with RichEdit v. 3
        (see below) because it allows us to have an arbitrary description
        assigned to an URL. In RichEdit v. 2 we can only display the
-       URL itself, so we must use note and node names rather than IDs,
+       URL itself, so we must use folder and node names rather than IDs,
        so as to have meaningful links (otherwise, we'd have links
        such as "file:///filename.knt?23|45" which are meaningless).
 
     2) NEW STYLE, used only if RichEditVersion >= 3
 
-       file:///filename.knt*NoteID|NodeID|CaretPos|SelLength
+       file:///filename.knt*FolderID|NodeID|CaretPos|SelLength
 
        (the '*' replaces the '?' and indicates new format)
 
-       This link format uses unique note and node IDs.
+       This link format uses unique folder and node IDs.
        The URL is actually hidden and the displayed link
        is any user-defined text.
 
@@ -2380,19 +2380,19 @@ begin
        +--------------------------------+ has .Link property
                     +-------------------+ has .Hidden property
        This way, when the link is clicked, the full text of the link
-       will be passed to OnURLClick handler. Note that there is no
+       will be passed to OnURLClick handler. Folder that there is no
        separator character that divides the link text from link URL,
        because in the editor only the text link is displayed, and
        the user may type in any character she wishes to. (We could use
        an nprintable character, though?)
 
     Notes: all strings are URL-encoded: filename.knt,
-    as well as note name and node name.
+    as well as folder name and node name.
 
   }
   {
     LocationString := 'file:///' + LocationString + '?' +
-      FileNameToURL( _KNTLocation.NoteName ) + KNTLINK_SEPARATOR +
+      FileNameToURL( _KNTLocation.FolderName ) + KNTLINK_SEPARATOR +
       FileNameToURL( _KNTLocation.NodeName ) + KNTLINK_SEPARATOR +
       inttostr( _KNTLocation.CaretPos ) + KNTLINK_SEPARATOR +
       inttostr( _KNTLocation.SelLength );

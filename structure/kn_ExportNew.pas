@@ -140,7 +140,7 @@ type
 
     function ConfirmAbort : boolean;
 
-    function ExpandExpTokenString( const tpl, filename, notename, nodename : string; const nodelevel, nodeindex : integer; TabSize: integer ) : string;
+    function ExpandExpTokenString( const tpl, filename, folderName, nodename : string; const nodelevel, nodeindex : integer; TabSize: integer ) : string;
   end;
 
 
@@ -191,7 +191,7 @@ resourcestring
   STR_14 = 'Exporting was aborted at user request.';
   STR_15 = 'The following token can be used in headings:' + #13#13 +
                   '%s%s - Filename'  + #13 +
-                  '%s%s - Note name' + #13 +
+                  '%s%s - Folder name' + #13 +
                   '%s%s - Node name' + #13 +
                   '%s%s - Node level' + #13 +
                   '%s%s - Node index'  + #13 +
@@ -244,7 +244,7 @@ begin
 end;
 
 function TForm_ExportNew.ExpandExpTokenString(
-  const tpl, filename, notename, nodename : string;
+  const tpl, filename, folderName, nodename : string;
   const nodelevel, nodeindex : integer;
   TabSize: integer ) : string;
 var
@@ -317,7 +317,7 @@ begin
           if wastokenchar then begin
               wastokenchar := false;
               case thischar of
-                EXP_NOTENAME : result := result + notename;
+                EXP_FOLDERNAME : result := result + folderName;
                 EXP_NODENAME : result := result + nodename;
                 EXP_NODELEVEL : if ( nodelevel > 0 ) then result := result + inttostr( nodelevel );
                 EXP_NODEINDEX : if ( nodeindex > 0 ) then result := result + inttostr( nodeindex );
@@ -580,7 +580,7 @@ begin
       ExportOptions.NumbTabInPlainText := readstring( section, ExportOptionsIniStr.NumbTabInPlainText, ExportOptions.NumbTabInPlainText );
       ExportOptions.ExportPath := readstring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
       ExportOptions.NodeHeading := readstring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
-      ExportOptions.NoteHeading := readstring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.NoteHeading );
+      ExportOptions.FolderHeading := readstring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.FolderHeading );
       ExportOptions.SingleNodeFiles := readbool( section, ExportOptionsIniStr.SingleNodeFiles, ExportOptions.SingleNodeFiles );
       ExportOptions.TargetFormat := TExportFmt( readinteger( section, ExportOptionsIniStr.TargetFormat, ord( ExportOptions.TargetFormat )));
       ExportOptions.TreePadRTF := readbool( section, ExportOptionsIniStr.TreePadRTF, ExportOptions.TreePadRTF );
@@ -644,7 +644,7 @@ begin
       writestring( section, ExportOptionsIniStr.NumbTabInPlainText, '"' + ExportOptions.NumbTabInPlainText + '"');
       writestring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
       writestring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
-      writestring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.NoteHeading );
+      writestring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.FolderHeading );
       writebool( section, ExportOptionsIniStr.SingleNodeFiles, ExportOptions.SingleNodeFiles );
       writeinteger( section, ExportOptionsIniStr.TargetFormat, ord( ExportOptions.TargetFormat ));
       writebool( section, ExportOptionsIniStr.TreePadForceMaster, ExportOptions.TreePadForceMaster );
@@ -701,9 +701,9 @@ begin
     NodeHeading := Edit_NodeHead.Text;
     if ( NodeHeading = '' ) then
       NodeHeading := _TokenChar + EXP_NODENAME;
-    NoteHeading := Edit_NoteHead.Text;
-    if ( NoteHeading = '' ) then
-      NoteHeading := _TokenChar + EXP_NOTENAME;
+    FolderHeading := Edit_NoteHead.Text;
+    if ( FolderHeading = '' ) then
+      FolderHeading := _TokenChar + EXP_FOLDERNAME;
 
     TreePadRTF := ( RG_TreePadVersion.ItemIndex > 0 );
     TreePadSingleFile := ( RG_TreePadMode.ItemIndex > 0 );
@@ -739,7 +739,7 @@ begin
     CB_IncNodeHeading.Checked := IncludeNodeHeadings;
     CB_IncNoteHeading.Checked := IncludeNoteHeadings;
     Edit_NodeHead.Text := NodeHeading;
-    Edit_NoteHead.Text := NoteHeading;
+    Edit_NoteHead.Text := FolderHeading;
 
     Edit_Symbols.Text:= SymbolsInHeading;
     Edit_LengthHeading.Text:= LengthHeading;
@@ -977,7 +977,7 @@ begin
           PrepareRTFAuxForPlainText(RTFAux, myFolder);
 
           if ExportOptions.IncludeNoteHeadings then begin
-             NoteHeading := ExpandExpTokenString( ExportOptions.NoteHeading, myNotes.Filename, RemoveAccelChar( myFolder.Name ), '', 0, 0, myFolder.TabSize );
+             NoteHeading := ExpandExpTokenString( ExportOptions.FolderHeading, myNotes.Filename, RemoveAccelChar( myFolder.Name ), '', 0, 0, myFolder.TabSize );
              if ShowHiddenMarkers then
                 NoteHeading:= Format('%s [%d]', [NoteHeading, myFolder.ID]);
              NoteHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NoteHeading ), NoteHeadingTpl );
@@ -1592,7 +1592,7 @@ end; // BUTTON SELECT CLICK
 procedure TForm_ExportNew.Btn_TknHlpClick(Sender: TObject);
 begin
   messagedlg(format(STR_15,[_TokenChar,EXP_FILENAME,
-                                   _TokenChar,EXP_NOTENAME,
+                                   _TokenChar,EXP_FOLDERNAME,
                                    _TokenChar,EXP_NODENAME,
                                    _TokenChar,EXP_NODELEVEL,
                                    _TokenChar,EXP_NODEINDEX,

@@ -73,6 +73,10 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Source: TGroupBox
         Left = 2
         Top = 5
@@ -85,8 +89,8 @@ object Form_ExportNew: TForm_ExportNew
           Top = 20
           Width = 148
           Height = 17
-          Hint = 'Click to export active note only'
-          Caption = '&Current note'
+          Hint = 'Click to export active folder only'
+          Caption = '&Current folder'
           Checked = True
           TabOrder = 0
           TabStop = True
@@ -230,6 +234,10 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 3
         Top = 5
@@ -270,10 +278,10 @@ object Form_ExportNew: TForm_ExportNew
           Top = 20
           Width = 106
           Height = 17
-          Hint = 'Include note headings'
+          Hint = 'Include folder headings'
           HelpType = htKeyword
           HelpKeyword = '313-6'
-          Caption = '&Note headings'
+          Caption = '&Folder headings'
           TabOrder = 0
         end
         object CB_IncNodeHeading: TCheckBox
@@ -335,7 +343,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 80
           Height = 17
           Hint = 
-            'Set font size of headings based on level (including note): Max, ' +
+            'Set font size of headings based on level (including folder): Max, ' +
             'Dec, Min'
           HelpType = htKeyword
           HelpKeyword = '313-10'
@@ -483,7 +491,7 @@ object Form_ExportNew: TForm_ExportNew
           Height = 17
           Hint = 
             'Makes hidden marks (KNT Links, bmk and img) visible'#13#10'Also shows ' +
-            'Note and Node IDs'
+            'Folder and Note IDs'
           HelpType = htKeyword
           HelpKeyword = '313-11'
           Caption = 'Show hidden marks and IDs'
@@ -500,6 +508,10 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object RG_TreePadVersion: TRadioGroup
         Left = 5
         Top = 5
@@ -520,7 +532,7 @@ object Form_ExportNew: TForm_ExportNew
         Caption = ' T&arget file mode '
         ItemIndex = 0
         Items.Strings = (
-          'Create a TreePad file for each exported note'
+          'Create a TreePad file for each exported folder'
           'Create a Treepad file containing all exported notes')
         TabOrder = 1
       end

@@ -180,9 +180,9 @@ uses
 resourcestring
   STR_Ok = 'OK';
   STR_Ok_Hint = 'Accept changes and close dialog box';
-  STR_01 = 'Note Properties: %s';
+  STR_01 = 'Folder Properties: %s';
   STR_02 = 'Close';
-  STR_03 = 'Note is Read-Only: cannot change properties';
+  STR_03 = 'Folder is Read-Only: cannot change properties';
   STR_04 = ' [RO]';
   STR_05 = ' View properties for current note ';
   STR_06 = 'Change properties for current note';
@@ -191,8 +191,8 @@ resourcestring
   STR_09 = 'Change Defaults for NEW notes in THIS FILE';
   STR_10 = 'Defaults for all files';
   STR_11 = 'Change default properties for all NEW notes';
-  STR_12 = 'Note name cannot be blank. Please enter a name.';
-  STR_13 = 'Note name cannot contain the "%s" character';
+  STR_12 = 'Folder name cannot be blank. Please enter a name.';
+  STR_13 = 'Folder name cannot contain the "%s" character';
   STR_14 = 'Node name cannot contain the "%s" character';
   STR_15 = 'OK to reset Editor font and color settings to default values?';
   STR_16 = 'OK to reset Tree font and color settings to default values?';
@@ -831,7 +831,7 @@ var
    msg: string;
 begin
   msg:= 'REMEMBER:' + #13#13 +
-        '- Note settings apply only to NEW nodes, except:' + #13 +
+        '- Folder settings apply only to NEW nodes, except:' + #13 +
         '   - ''Plain note only'': modifies ALL the notes' + #13 +
         '   - ''WordWrap'': affects ALL the notes' + #13 +
         '       (not explicitly set WordWrap previously)' + #13#13 +
@@ -852,7 +852,7 @@ begin
         '     (=> BG color of its new child nodes)' + #13 +
         '   - If not set, default BG color for all NEW nodes is shown' + #13 +
         '   * To edit this option -> F5 | General settings| Rich Text editor' + #13#13 +
-        '- BG Color can be changed for ALL nodes in a Note:' + #13 +
+        '- BG Color can be changed for ALL nodes in a Folder:' + #13 +
         '    [Shift] + "Format | Background color"' + #13#13 +
         '>> More info in Help File (F1)'
         ;

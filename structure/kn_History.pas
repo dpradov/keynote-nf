@@ -202,7 +202,7 @@ begin
 
     if not IterateAll then begin
        currentLoc:= PickCurrent;
-       if (currentLoc = nil) or (currentLoc.NoteID <> LocationToSync.NoteID) then Exit;
+       if (currentLoc = nil) or (currentLoc.FolderID <> LocationToSync.FolderID) then Exit;
        if (currentLoc.NodeID = LocationToSync.NodeID) then Exit(currentLoc);
     end
 
@@ -214,7 +214,7 @@ begin
            dec(i);
            while not sync and (i >= 0) do begin
               result := TLocation( FHistory.objects[i] );
-              if Result.NoteID <> LocationToSync.NoteID then Exit(nil);
+              if Result.FolderID <> LocationToSync.FolderID then Exit(nil);
               sync:= LocationToSync.Equal(Result);
               dec(i);
            end;
@@ -222,7 +222,7 @@ begin
               i:= FHistory.Count - 1;
               while not sync and (i > FIndex) do begin
                  result := TLocation( FHistory.objects[i] );
-                 if Result.NoteID <> LocationToSync.NoteID then Exit(nil);
+                 if Result.FolderID <> LocationToSync.FolderID then Exit(nil);
                  sync:= LocationToSync.Equal(Result, false);                      // false: ignore caret
                  dec(i);
               end;
@@ -234,7 +234,7 @@ begin
 
            while not sync and (i < pred(pred(FHistory.Count))) do begin
               result := TLocation( FHistory.objects[i+2] );
-              if Result.NoteID <> LocationToSync.NoteID then Exit(nil);
+              if Result.FolderID <> LocationToSync.FolderID then Exit(nil);
               sync:= LocationToSync.Equal(Result);
               inc(i);
            end;
@@ -242,7 +242,7 @@ begin
               i:= - 2;
               while not sync and (i < FIndex+2) and (i < FHistory.Count-2) do begin
                  result := TLocation( FHistory.objects[i+2] );
-                 if Result.NoteID <> LocationToSync.NoteID then Exit(nil);
+                 if Result.FolderID <> LocationToSync.FolderID then Exit(nil);
                  sync:= LocationToSync.Equal(Result, false);
                  inc(i);
               end;

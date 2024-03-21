@@ -141,7 +141,7 @@ const
   _KNT_HELP_TITLE = 'KeyNote NF Topics';
 
 
-function ActiveKeyNoteHelp(Note, Node, Marker: integer): Boolean;
+function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean;
 var
   Args: string;
   sMarker: string;
@@ -155,13 +155,13 @@ begin
       HelpINI_FN := ExeFilePath + _HELP_PROFILE_FOLDER + 'keynote.ini';
       Launcher_FN := ExeFilePath + _KNT_LAUNCHER;
 
-      //  file:///*NoteID|NodeID|CursorPosition|SelectionLength|MarkID  -> Ex: file:///*3|16|5|0|1
+      //  file:///*FolderID|NodeID|CursorPosition|SelectionLength|MarkID  -> Ex: file:///*3|16|5|0|1
       {if Marker > 0 then
          sMarker:= '|0|0|' + Marker.ToString;
       }
       sMarker:= '';
 
-      Args:= Format('"%s" "%s" -jmp"file:///*%d|%d%s" -title"%s"', [Help_FN, HelpINI_FN, Note, Node, sMarker, _KNT_HELP_TITLE]);
+      Args:= Format('"%s" "%s" -jmp"file:///*%d|%d%s" -title"%s"', [Help_FN, HelpINI_FN, Folder, Node, sMarker, _KNT_HELP_TITLE]);
       ShellExecute( 0, 'open', PChar(Launcher_FN), PChar(Args), nil, SW_HIDE );
    except
    end;

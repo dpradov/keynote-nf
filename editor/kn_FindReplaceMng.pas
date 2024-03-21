@@ -43,7 +43,7 @@ var
     UserBreak : boolean;
 
     SearchNode_Text, SearchNode_TextPrev : string;
-    StartNote: TKntFolder;
+    StartFolder: TKntFolder;
     StartNode: TTreeNTNode;
 
 
@@ -96,8 +96,8 @@ var
 resourcestring
   STR_01 = 'Replace this occurrence?';
   STR_02 = 'Pattern not found: "%s"';
-  STR_03 = 'Note "%s" does not exist in this file.';
-  STR_04 = 'Tree node "%s" does not exist in note "%s".';
+  STR_03 = 'Folder "%s" does not exist in this file.';
+  STR_04 = 'Tree node "%s" does not exist in folder "%s".';
   STR_05 = 'Search results are not available.';
   STR_06 = 'Options';
   STR_07 = ' Searching - press ESC to abort.';
@@ -588,8 +588,8 @@ type
        begin
           Location := TLocation.Create;
           Location.FileName := KntFile.FileName;
-          Location.NoteName := myFolder.Name;
-          Location.NoteID := myFolder.ID;
+          Location.FolderName := myFolder.Name;
+          Location.FolderID := myFolder.ID;
 
           if assigned(myTreeNode) then begin
              myNote := TKntNote(myTreeNode.Data);
@@ -986,8 +986,8 @@ begin
 
          for i := 1 to MatchCount do begin
            Location := TLocation( Location_List.Objects[pred( i )] );
-           if (( lastNoteID <> Location.NoteID ) or ( lastNodeID <> Location.NodeID )) then begin
-               lastNoteID := Location.NoteID;
+           if (( lastNoteID <> Location.FolderID ) or ( lastNodeID <> Location.NodeID )) then begin
+               lastNoteID := Location.FolderID;
                lastNodeID := Location.NodeID;
                GetTreeNodeFromLocation(Location, myFolder, myTreeNode);
 
@@ -1250,7 +1250,7 @@ var
       if not assigned(myFolder) then exit;
 
       if not (
-         (myFolder = StartNote)
+         (myFolder = StartFolder)
           and (myTreeNode = StartNode)    ) then
          Result:= False
       else
@@ -1407,7 +1407,7 @@ begin
       end;
 
       if FindOptions.FindNew then begin
-         StartNote:= myFolder;
+         StartFolder:= myFolder;
          StartNode:= myTreeNode;
          NumberFoundItems:= 0;
          FindOptions.FindNew := False;

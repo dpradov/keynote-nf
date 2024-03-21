@@ -106,7 +106,7 @@ type
     fZoomFactor: Double;
     fChangingInCode: boolean;
     fImageConfigured: boolean;
-    fNote: TKntFolder;              // To allow to scroll through the images in the note
+    fFolder: TKntFolder;              // To allow to scroll through the images in the note
     fImagesInNote: TImageIDs;
     fIndexInNote: integer;
 
@@ -121,14 +121,14 @@ type
     procedure CheckUpdateCaption;
 
     procedure GetImagesInNote;
-    procedure SetNote(value: TKntFolder);
+    procedure SetFolder(value: TKntFolder);
 
     procedure Zoom (Ratio: Single);
 
   public
     { Public declarations }
     property Image : TKntImage read fImage write SetImage;
-    property Note: TKntFolder read fNote write SetNote;
+    property Folder: TKntFolder read fFolder write SetFolder;
 
   end;
 
@@ -660,9 +660,9 @@ begin
    txtID.Text:= fImageID.ToString;
 end;
 
-procedure TForm_Image.SetNote(value: TKntFolder);
+procedure TForm_Image.SetFolder(value: TKntFolder);
 begin
-   fNote:= value;
+   fFolder:= value;
    fIndexInNote:= -1;
    fImagesInNote:= nil;
 end;
@@ -854,9 +854,9 @@ var
   i: integer;
 begin
    if fImagesInNote <> nil then exit;
-   if fNote = nil then exit;
+   if fFolder = nil then exit;
 
-   fImagesInNote:= ImagesManager.GetImagesIDInstancesFromTextPlain (fNote.Editor.TextPlain);
+   fImagesInNote:= ImagesManager.GetImagesIDInstancesFromTextPlain (fFolder.Editor.TextPlain);
 
    for i := Low(fImagesInNote) to High(fImagesInNote) do
       if fImagesInNote[i] = fImageID then begin
