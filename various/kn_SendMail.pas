@@ -40,8 +40,8 @@ interface
    OverbyteIcsWSocket,
    kn_Const,
    kn_Info,
-   kn_FileObj,
-   kn_NoteObj,
+   kn_KntFile,
+   kn_KntFolder,
    GFLog
    ;
 
@@ -141,7 +141,7 @@ uses
    gf_misc,
    gf_strings,
    gf_files,
-   kn_NodeList,
+   kn_KntNote,
    kn_INI
    ;
 

@@ -91,17 +91,16 @@ uses
    gf_streams,
    Kn_Global,
    kn_filemgr,
-   kn_FileObj,
+   kn_KntFile,
    kn_FileInfo,
-   kn_NodeList,
-   kn_NoteMng,
+   kn_KntNote,
    kn_EditorUtils,
    kn_TabSelect,
    kn_FileDropAction,
    kn_ExportImport,
    kn_Main,
    kn_Cmd,
-   kn_NoteObj,
+   kn_KntFolder,
    kn_Macro,
    kn_Chest,
    kn_ConfigMng,
@@ -292,7 +291,7 @@ begin
               ExecuteMacro( _MACRO_AUTORUN_NEW_FILE, '' );
             end
             else
-              NewKntFolder( true, false );
+              TKntFolder.NewKntFolder( true, false );
 
           except
             on E : Exception do

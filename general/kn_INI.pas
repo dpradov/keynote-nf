@@ -912,7 +912,7 @@ uses
   gf_misc,
   gf_files,  // Important. Needed to use TMemIniFileHelper (.ReadString, .WriteString)
   kn_Global,
-  kn_NoteObj,
+  kn_KntFolder,
   kn_Const,
   kn_Main;
 

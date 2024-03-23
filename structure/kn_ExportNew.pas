@@ -41,8 +41,8 @@ uses
 
    gf_streams,
    kn_Info,
-   kn_FileObj,
-   kn_NoteObj
+   kn_KntFile,
+   kn_KntFolder
    ;
 
 
@@ -165,7 +165,7 @@ uses
    kn_Const,
    kn_Ini,
    kn_Global,
-   kn_NodeList,
+   kn_KntNote,
    kn_TreeNoteMng,
    kn_ExportImport,
    kn_TabSelect,

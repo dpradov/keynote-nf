@@ -110,7 +110,7 @@ uses
    kn_Const,
    kn_Ini,
    kn_Global,
-   kn_NoteObj,
+   kn_KntFolder,
    kn_Main,
    kn_FindReplaceMng,
    kn_MacroMng

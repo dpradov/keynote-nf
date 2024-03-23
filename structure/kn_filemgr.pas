@@ -34,7 +34,7 @@ uses
    RxPlacemnt,
    TreeNT,
    kn_Const,
-   kn_FileObj
+   kn_KntFile
    ;
 
 

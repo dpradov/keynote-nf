@@ -112,7 +112,7 @@ uses
   kn_Const,
   kn_EditorUtils,
   kn_ClipUtils,
-  kn_NoteObj,
+  kn_KntFolder,
   kn_Global;
 
 {$R *.DFM}

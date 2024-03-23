@@ -28,7 +28,7 @@ uses
    Vcl.Controls,
    TreeNT,
    RxRichEd,
-   kn_NoteObj,
+   kn_KntFolder,
    kn_FindReplace
    ;
 
@@ -72,7 +72,7 @@ uses
    kn_Info,
    kn_Global,
    kn_Cmd,
-   kn_NodeList,
+   kn_KntNote,
    kn_LocationObj,
    kn_EditorUtils,
    kn_RTFUtils,

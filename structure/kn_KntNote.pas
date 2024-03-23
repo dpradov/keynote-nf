@@ -1,4 +1,4 @@
-unit kn_NodeList;
+unit kn_KntNote;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -168,7 +168,7 @@ uses
    gf_streams,
    kn_Global,
    kn_TreeNoteMng,
-   kn_NoteObj,
+   kn_KntFolder,
    kn_LinksMng
    ;
 

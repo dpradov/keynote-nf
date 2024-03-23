@@ -38,8 +38,8 @@ uses
    TB97Ctls,
    ColorPicker,
 
-   kn_NoteObj,
-   kn_NodeList,
+   kn_KntFolder,
+   kn_KntNote,
    kn_LocationObj
    ;
 

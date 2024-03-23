@@ -29,7 +29,7 @@ uses
    Vcl.Dialogs,
    Vcl.StdCtrls,
    cmpGFXListBox,
-   kn_FileObj
+   kn_KntFile
    ;
 
 
@@ -73,7 +73,7 @@ uses
    kn_Const,
    kn_Global,
    kn_Chest,
-   kn_NoteObj
+   kn_KntFolder
    ;
 
 

@@ -49,7 +49,7 @@ uses
    gf_files,
    kn_Global,
    kn_Info,
-   kn_NodeList,
+   kn_KntNote,
    kn_Main,
    kn_FavExtDlg,
    kn_TreeNoteMng,

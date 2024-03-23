@@ -88,7 +88,7 @@ implementation
 
 uses
    kn_Global,
-   kn_NoteObj;
+   kn_KntFolder;
 
 
 {$R *.DFM}

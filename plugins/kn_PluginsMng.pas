@@ -50,7 +50,7 @@ uses
   kn_Global,
   kn_Info,
   kn_Const,
-  kn_NoteObj,
+  kn_KntFolder,
   kn_PluginBase,
   kn_EditorUtils,
   kn_Main,

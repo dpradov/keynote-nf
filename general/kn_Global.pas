@@ -46,9 +46,9 @@ uses
    kn_CharsNew,
    kn_LocationObj,
    kn_AlertMng,
-   kn_NoteObj,
-   kn_FileObj,
-   kn_NodeList,
+   kn_KntFolder,
+   kn_KntFile,
+   kn_KntNote,
    kn_Cmd,
    kn_Main,
    kn_ImagesMng

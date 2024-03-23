@@ -23,7 +23,7 @@ uses
    Vcl.Controls,
    TreeNT,
    kn_Const,
-   kn_NodeList
+   kn_KntNote
    ;
 
 
@@ -46,7 +46,7 @@ uses
    gf_misc,
    kn_Info,
    kn_Global,
-   kn_NoteObj,
+   kn_KntFolder,
    kn_TreeNoteMng,
    kn_NoteFileMng,
    kn_Main;

@@ -39,7 +39,7 @@ uses
    kn_Info,
    kn_const,
    kn_Macro,
-   kn_NoteObj
+   kn_KntFolder
    ;
 
 
@@ -108,7 +108,7 @@ uses
    gf_misc,
    kn_Global,
    kn_Main,
-   kn_NodeList,
+   kn_KntNote,
    kn_DateTime,
    kn_LanguageSel,
    kn_Paragraph,
@@ -120,7 +120,6 @@ uses
    dll_keyboard,
    kn_BookmarksMng,
    kn_StyleMng,
-   kn_NoteMng,
    kn_TreeNoteMng,
    kn_NoteFileMng,
    kn_PluginsMng,
@@ -1237,7 +1236,7 @@ begin
 
                 macNoteNewRTF, macNoteNewTree : begin
                   // always abort if fail
-                  if ( not NewKntFolder( true, true )) then begin
+                  if ( not TKntFolder.NewKntFolder( true, true )) then begin
                     AbortMacro( STR_36, i, Macro.Lines[pred( i )] );
                     break;
                   end;

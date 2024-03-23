@@ -25,28 +25,6 @@ uses
   ShellAPI,
   SysUtils,
   IniFiles,
-
-{
-  TntClasses in '3rd_party\TntUnicodeControls\Source\TntClasses.pas',
-  TntSystem  in '3rd_party\TntUnicodeControls\Source\TntSystem.pas',
-  TntStdCtrls  in '3rd_party\TntUnicodeControls\Source\TntStdCtrls.pas',
-  TntControls  in '3rd_party\TntUnicodeControls\Source\TntControls.pas',
-  TntSysUtils  in '3rd_party\TntUnicodeControls\Source\TntSysUtils.pas',
-
-  WSocket in '3rd_party\ICS_InternetComponentSuite\WSocket.pas',
-  MD5 in '3rd_party\ICS_InternetComponentSuite\MD5.pas',
-  SmtpProt in '3rd_party\ICS_InternetComponentSuite\SmtpProt.pas',
-  WSockbuf in '3rd_party\ICS_InternetComponentSuite\WSockbuf.pas',
-
-  DFSStatusBar in '3rd_party\DFSStatusBar\DFSStatusBar.pas',
-
-  Placemnt in '3rd_party\rx275d2006\Units\Placemnt.pas',
-  RxRichEd in '3rd_party\Rx275d2006\Units\RxRichEd.pas',
-
-  uFreeLocalizer in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uFreeLocalizer.pas',
-  uStringUtils in '3rd_party\kdl32_Kryvich''s Delphi Localizer\uStringUtils.pas',
-}
-
   TreeNT in '3rd_party\treent\TreeNT.pas',
   RxRichEd in '3rd_party\unRxLib\units\RxRichEd.pas',
   RxPlacemnt in '3rd_party\unRxLib\units\RxPlacemnt.pas',
@@ -101,7 +79,6 @@ uses
   kn_VCLControlsMng in 'general\kn_VCLControlsMng.pas',
   dll_Keyboard in 'general\dll_Keyboard.pas',
   kn_BookmarksMng in 'editor\kn_BookmarksMng.pas',
-  //kn_Chars in 'editor\kn_Chars.pas' {Form_Chars},
   kn_CharsNew in 'editor\kn_CharsNew.pas' {Form_CharsNew},
   kn_ClipUtils in 'editor\kn_ClipUtils.pas',
   kn_EditorUtils in 'editor\kn_EditorUtils.pas',
@@ -135,16 +112,15 @@ uses
   kn_FileDropAction in 'structure\kn_FileDropAction.pas' {Form_DropFile},
   kn_FileInfo in 'structure\kn_FileInfo.pas' {Form_KntFileInfo},
   kn_filemgr in 'structure\kn_filemgr.pas' {Form_FileMgr},
-  kn_FileObj in 'structure\kn_FileObj.pas',
+  kn_KntFile in 'structure\kn_KntFile.pas',
   kn_History in 'structure\kn_History.pas',
   kn_ImagePicker in 'structure\kn_ImagePicker.pas' {Form_ImgPick},
   kn_LocationObj in 'structure\kn_LocationObj.pas',
-  kn_NewNote in 'structure\kn_NewNote.pas' {Form_NewNote},
-  kn_NodeList in 'structure\kn_NodeList.pas',
+  kn_KntFolder_New in 'structure\kn_KntFolder_New.pas' {Form_NewKntFolder},
+  kn_KntNote in 'structure\kn_KntNote.pas',
   kn_NodeNum in 'structure\kn_NodeNum.pas' {Form_NodeNum},
   kn_NoteFileMng in 'structure\kn_NoteFileMng.pas',
-  kn_NoteMng in 'structure\kn_NoteMng.pas',
-  kn_NoteObj in 'structure\kn_NoteObj.pas',
+  kn_KntFolder in 'structure\kn_KntFolder.pas',
   kn_pass in 'structure\kn_pass.pas' {Form_Password},
   kn_TabSelect in 'structure\kn_TabSelect.pas' {Form_SelectTab},
   kn_TreeNoteMng in 'structure\kn_TreeNoteMng.pas',

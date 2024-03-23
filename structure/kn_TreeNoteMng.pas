@@ -33,8 +33,8 @@ uses
    RxRichEd,
    kn_Info,
    kn_Const,
-   kn_noteObj,
-   kn_nodeList
+   kn_KntFolder,
+   kn_KntNote
    ;
 
 

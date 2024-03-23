@@ -1,4 +1,4 @@
-unit kn_FileObj;
+unit kn_KntFile;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -35,8 +35,8 @@ uses
 
    kn_Const,
    kn_LocationObj,
-   kn_NoteObj,
-   kn_NodeList,
+   kn_KntFolder,
+   kn_KntNote,
    kn_ImagesMng
    ;
 
@@ -52,20 +52,6 @@ type
 type
   TBookmarks = array[0..MAX_BOOKMARKS] of TLocation;
 
-
-type
-  TKntFolderList = class( TList )
-  private
-    function GetNote( index : integer ) : TKntFolder;
-    procedure PutNote( index : integer; item : TKntFolder );
-  public
-    property Items[index:integer] : TKntFolder read GetNote write PutNote; default;
-    constructor Create;
-    destructor Destroy; override;
-    function Remove( item : TKntFolder ) : integer;
-    procedure Delete( index : integer );
-    function IndexOf( item : TKntFolder ) : integer;
-  end;
 
 type
   TKntFile = class( TObject )
@@ -233,51 +219,6 @@ resourcestring
   STR_18 = 'Invalid passphrase: Cannot open encrypted file.';
   STR_19 = 'Exception trying to ensure plain text and removing of images: ';
 
-constructor TKntFolderList.Create;
-begin
-  inherited Create;
-end; // TNoteList.CREATE
-
-destructor TKntFolderList.Destroy;
-var
-  i : integer;
-begin
-  if ( Count > 0 ) then
-     for i := 0 to pred( Count ) do begin
-        if assigned( Items[i] ) then
-           Items[i].Free;  // Items[i] := nil;
-     end;
-  Clear;
-  inherited Destroy;
-end; // TNoteList DESTROY
-
-function TKntFolderList.GetNote( index : integer ) : TKntFolder;
-begin
-  result := TKntFolder( inherited Items[index] );
-end; // GetNote
-
-procedure TKntFolderList.PutNote( index : integer; item : TKntFolder );
-begin
-  inherited Put( index, item );
-end; // PutNote
-
-function TKntFolderList.Remove( item : TKntFolder ) : integer;
-begin
-  if assigned( item ) then Item.Free;
-  result := inherited remove( item );
-end; // Remove
-
-procedure TKntFolderList.Delete( index : integer );
-begin
-  if (( index >= 0 ) and ( index < Count ) and assigned( items[index] )) then
-    Items[index].Free;
-  inherited Delete( index );
-end; // Delete
-
-function TKntFolderList.IndexOf( item : TKntFolder ) : integer;
-begin
-  result := inherited IndexOf( item );
-end; // IndexOf
 
 
 // ************************************************** //

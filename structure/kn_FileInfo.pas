@@ -36,7 +36,7 @@ uses
    RxPlacemnt,
    TB97Ctls,
 
-   kn_FileObj
+   kn_KntFile
    ;
 
 

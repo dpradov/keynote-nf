@@ -65,7 +65,7 @@ uses
 
    kn_Info,
    kn_Msgs,
-   kn_NoteObj
+   kn_KntFolder
    ;
 
 
@@ -1411,13 +1411,12 @@ uses
    kn_LinksMng,
    kn_Cmd,
    kn_Const,
-   kn_NodeList,
+   kn_KntNote,
    kn_StyleObj,
    kn_ImageForm,
    kn_ImagesUtils,
    kn_UpdateVersion,
    kn_ExportNew,
-   kn_NoteMng,
    kn_MacroMng,
    kn_PluginsMng,
    kn_TreeNoteMng,
@@ -2585,7 +2584,7 @@ end;
 
 procedure TForm_Main.MMNoteNewClick(Sender: TObject);
 begin
-  CreateNewKntFolder;
+  TKntFolder.CreateNewKntFolder;
 end;
 
 procedure TForm_Main.MMHelpTipClick(Sender: TObject);
@@ -2600,7 +2599,7 @@ end;
 
 procedure TForm_Main.MMNoteRenameClick(Sender: TObject);
 begin
-  RenameKntFolder;
+  TKntFolder.RenameKntFolder;
 end;
 
 procedure TForm_Main.UpdateTabAndTreeIconsShow;
@@ -2656,9 +2655,9 @@ end; // ShowInsMode
 procedure TForm_Main.PagesDblClick(Sender: TObject );
 begin
   if ShiftDown then
-    EditKntFolderProperties( propThisFolder )
+    TKntFolder.EditKntFolderProperties( propThisFolder )
   else
-    RenameKntFolder;
+    TKntFolder.RenameKntFolder;
 end; // PagesDblClick
 
 procedure TForm_Main.RxRTFMouseDown(Sender: TObject;
@@ -4292,7 +4291,7 @@ end;
 
 procedure TForm_Main.MMNoteRemoveClick(Sender: TObject);
 begin
-  DeleteKntFolder;
+  TKntFolder.DeleteKntFolder;
 end;
 
 procedure TForm_Main.MMFileCopyToClick(Sender: TObject);
@@ -4350,13 +4349,13 @@ end;
 
 procedure TForm_Main.MMToolsDefaultsClick(Sender: TObject);
 begin
-  EditKntFolderProperties( propDefaults );
+  TKntFolder.EditKntFolderProperties( propDefaults );
 end;
 
 procedure TForm_Main.MMNotePropertiesClick(Sender: TObject);
 begin
   // EditNote;
-  EditKntFolderProperties( propThisFolder );
+  TKntFolder.EditKntFolderProperties( propThisFolder );
 end;
 
 procedure TForm_Main.TB_ExitClick(Sender: TObject);
@@ -7248,8 +7247,8 @@ begin
     DBLCLK_MINIMIZE : Application.Minimize;
     DBLCLK_FILEPROP : KntFileProperties;
     DBLCLK_FILEMGR : RunFileManager;
-    DBLCLK_FOLDERPROP : EditKntFolderProperties( propThisFolder );
-    DBLCLK_NEWFOLDER : CreateNewKntFolder;
+    DBLCLK_FOLDERPROP : TKntFolder.EditKntFolderProperties( propThisFolder );
+    DBLCLK_NEWFOLDER : TKntFolder.CreateNewKntFolder;
     DBLCLK_RESPANEL : MMViewResPanelClick( MMViewResPanel );
   end;
 end;

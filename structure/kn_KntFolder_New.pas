@@ -1,4 +1,4 @@
-unit kn_NewNote;
+unit kn_KntFolder_New;
 
 (****** LICENSE INFORMATION **************************************************
  
@@ -35,7 +35,7 @@ uses
 
 
 type
-  TForm_NewNote = class(TForm)
+  TForm_NewKntFolder = class(TForm)
     Button_OK: TButton;
     Button_Cancel: TButton;
     Label1: TLabel;
@@ -99,7 +99,7 @@ resourcestring
   STR_03 = 'Folder name cannot be blank. Please enter a name.';
   STR_04 = 'Folder name cannot contain the "%s" character';
 
-procedure TForm_NewNote.FormCreate(Sender: TObject);
+procedure TForm_NewKntFolder.FormCreate(Sender: TObject);
 var
   i : integer;
 begin
@@ -127,7 +127,7 @@ begin
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
 
-end; function TForm_NewNote.FormHelp(Command: Word; Data: NativeInt;
+end; function TForm_NewKntFolder.FormHelp(Command: Word; Data: NativeInt;
   var CallHelp: Boolean): Boolean;
 begin
    CallHelp:= False;
@@ -136,7 +136,7 @@ end;
 
 // FORM_CREATE
 
-procedure TForm_NewNote.FormActivate(Sender: TObject);
+procedure TForm_NewKntFolder.FormActivate(Sender: TObject);
 begin
   if ( not Initializing ) then exit;
   Initializing := false;
@@ -166,7 +166,7 @@ begin
 
 end; // FORM_ACTIVATE
 
-function TForm_NewNote.Verify : boolean;
+function TForm_NewKntFolder.Verify : boolean;
 begin
   result := false;
   if ( trim( Combo_TabName.Text ) = '' ) then
@@ -186,7 +186,7 @@ begin
   result := true;
 end; // Verify
 
-procedure TForm_NewNote.FormCloseQuery(Sender: TObject;
+procedure TForm_NewKntFolder.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 var
   i : integer;
@@ -211,7 +211,7 @@ begin
   OK_Click := false;
 end; // FORM_CLOSEQUERY
 
-procedure TForm_NewNote.FormKeyDown(Sender: TObject; var Key: Word;
+procedure TForm_NewKntFolder.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   case key of
@@ -224,22 +224,22 @@ begin
   end;
 end; // FORM_KEYDOWN
 
-procedure TForm_NewNote.Button_OKClick(Sender: TObject);
+procedure TForm_NewKntFolder.Button_OKClick(Sender: TObject);
 begin
   OK_Click := true;
 end;
 
-procedure TForm_NewNote.Button_CancelClick(Sender: TObject);
+procedure TForm_NewKntFolder.Button_CancelClick(Sender: TObject);
 begin
   OK_Click := false;
 end;
 
-procedure TForm_NewNote.Combo_TabNameChange(Sender: TObject);
+procedure TForm_NewKntFolder.Combo_TabNameChange(Sender: TObject);
 begin
   // Button_Properties.Enabled := ( Combo_TabName.Text <> '' );
 end;
 
-procedure TForm_NewNote.ExecuteEditProperties;
+procedure TForm_NewKntFolder.ExecuteEditProperties;
 var
   Form_Defaults : TForm_Defaults;
 begin
@@ -279,12 +279,12 @@ begin
   end;
 end; // ExecuteEditProperties
 
-procedure TForm_NewNote.Button_PropertiesClick(Sender: TObject);
+procedure TForm_NewKntFolder.Button_PropertiesClick(Sender: TObject);
 begin
   ExecuteEditProperties;
 end;
 
-procedure TForm_NewNote.Combo_TabNameKeyPress(Sender: TObject;
+procedure TForm_NewKntFolder.Combo_TabNameKeyPress(Sender: TObject;
   var Key: Char);
 begin
   if ( Key = KNTLINK_SEPARATOR ) then

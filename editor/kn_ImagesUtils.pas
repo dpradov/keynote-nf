@@ -38,8 +38,8 @@ uses
    gf_streams,
    gf_miscvcl,
    kn_Const,
-   kn_NodeList,
-   kn_NoteObj,
+   kn_KntNote,
+   kn_KntFolder,
    kn_LocationObj;
 
 

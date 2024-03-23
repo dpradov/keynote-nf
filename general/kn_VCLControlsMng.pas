@@ -39,7 +39,7 @@ uses
    TB97Ctls,
    TreeNT,
 
-   kn_NoteObj
+   kn_KntFolder
 ;
 
 
@@ -99,7 +99,7 @@ uses
    kn_Main,
    kn_Info,
    kn_Const,
-   kn_NodeList,
+   kn_KntNote,
    kn_Macro,
    kn_Chest,
    kn_EditorUtils,

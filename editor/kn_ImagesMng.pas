@@ -42,8 +42,8 @@ uses
    SynGdiPlus,
 
    gf_streams,
-   kn_NoteObj,
-   kn_NodeList,
+   kn_KntFolder,
+   kn_KntNote,
    kn_Const
    ;
 
@@ -2748,7 +2748,7 @@ begin
        literal = AnsiString('substr');
 
    (*) Starting in this case from the content of a TMemoryStream, in which we have ensured that it ends in #0
-       (See for example comment *1 in TKntFolder.CheckSavingImagesOnMode (kn_NoteObj)
+       (See for example comment *1 in TKntFolder.CheckSavingImagesOnMode (kn_KntFolder)
 }
 
    ContainsImages:= false;

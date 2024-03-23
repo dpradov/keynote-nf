@@ -95,7 +95,7 @@ uses
    kn_const,
    kn_Info,
    kn_Global,
-   kn_NoteObj;
+   kn_KntFolder;
 
 
 {$R *.DFM}

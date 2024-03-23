@@ -37,8 +37,8 @@ uses
 
    kn_ImagesMng,
    kn_Const,
-   kn_FileObj,
-   kn_NoteObj
+   kn_KntFile,
+   kn_KntFolder
    ;
 
 

@@ -35,7 +35,7 @@ uses
    ExtCtrls,
 
    RxRichEd,
-   kn_NoteObj
+   kn_KntFolder
    ;
 
 
@@ -151,11 +151,10 @@ uses
    kn_const,
    kn_Cmd,
    kn_Info,
-   kn_NodeList,
+   kn_KntNote,
    kn_CharsNew,
    kn_ClipUtils,
    kn_ExpTermDef,
-   kn_NoteMng,
    kn_LinksMng,
    kn_NoteFileMng,
    kn_TreeNoteMng,
@@ -2531,7 +2530,7 @@ begin
 
   try
     if AsNewFolder then begin
-      NewKntFolder( true, true );
+      TKntFolder.NewKntFolder( true, true );
       CanPaste := ( OldCNT < KntFile.Folders.Count );
     end
     else begin
@@ -2905,7 +2904,7 @@ var
 begin
   // *1   Tt's necessary to be able to use RTFAux.Perform(EM_LINEINDEX, L, 0)   (See for example: kn_Main.RxRTF_KeyPress)
   //      Otherwise, the character position returned by that method will not match the line break, but rather a probably default line width (22).
-  // *2   This sentence must be executed before assigning Parent. If not, then can cause kn_NoteObj:TTabRichEdit.CMRecreateWnd to be called
+  // *2   This sentence must be executed before assigning Parent. If not, then can cause kn_KntFolder:TTabRichEdit.CMRecreateWnd to be called
   // *3   After migrating to Delphi 11, with the use of unRxLib (instead of RX Library), it is necessary to define StreamFormat as sfRichText in this RTFAux control
   //      Without it, the indentation of multiple lines done in kn_Main.RxRTF_KeyPress, would not work (would show RTF contet as text)
 

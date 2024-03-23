@@ -1,4 +1,4 @@
-unit kn_NoteObj;
+unit kn_KntFolder;
 
 (****** LICENSE INFORMATION **************************************************
  
@@ -42,7 +42,7 @@ uses
  {$IFDEF KNT_DEBUG}
    GFLog,
  {$ENDIF}
-   kn_NodeList,
+   kn_KntNote,
    kn_StyleObj,
    kn_Info,
    kn_Const,
@@ -140,7 +140,6 @@ type
     procedure SetURLDetect( AURLDetect : boolean );
     procedure SetTabSize( ATabSize : byte );
     procedure SetEditor( AEditor : TTabRichEdit );
-
     function CheckEditor : boolean;
     function CheckTabSheet : boolean;
 
@@ -158,9 +157,7 @@ type
     function GetCount : integer;
     function CheckTree : boolean;
     procedure SetTreeChrome( AChrome : TChrome );
-
     procedure SetSelectedNote( aNote : TKntNote );
-
     function InternalAddNote( const aNote : TKntNote ) : integer;
     procedure InternalInsertNote( const aIndex : integer; const aNote : TKntNote );
     procedure GenerateNoteID( const aNote : TKntNote );
@@ -168,6 +165,13 @@ type
     
 
   public
+    class function NewKntFolder(const DefaultFolder, CanFocus : boolean) : boolean;
+    class procedure CreateNewKntFolder;
+    class procedure DeleteKntFolder;
+    class procedure RenameKntFolder;
+    class procedure EditKntFolderProperties( const PropertiesAction : TPropertiesAction );
+
+
     property Editor : TTabRichEdit read FEditor write SetEditor;
     property ID : longint read FID write SetID;
     property EditorChrome : TChrome read FEditorChrome write SetEditorChrome;
@@ -205,7 +209,6 @@ type
     constructor Create;
     destructor Destroy; override;
 
-
     procedure SaveRTFToFile(var tf : TTextFile; DataStream : TMemoryStream; PlainText: Boolean; PlaintextLeader: AnsiString = _NF_PLAINTEXTLEADER);
 
 
@@ -216,7 +219,6 @@ type
 
     procedure SetEditorProperties( const aProps : TFolderEditorProperties );
     procedure GetEditorProperties( var aProps : TFolderEditorProperties );
-
     procedure SetTabProperties( const aProps : TFolderTabProperties; UpdateName: boolean= True );
     procedure GetTabProperties( var aProps : TFolderTabProperties );
 
@@ -295,29 +297,36 @@ type
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TTabRichEdit ): boolean;
     function InitializeTextPlain(myNote: TKntNote; RTFAux: TRxRichEdit): boolean;// overload;
 
-  end; // TTabNote
+  end; // TKntFolder
 
 
-  // TFileDroppedEvent = procedure( sender : Tobject; FileList : TStringList ) of object;
+  TKntFolderList = class( TList )
+  private
+    function GetNote( index : integer ) : TKntFolder;
+    procedure PutNote( index : integer; item : TKntFolder );
+  public
+    property Items[index:integer] : TKntFolder read GetNote write PutNote; default;
+    constructor Create;
+    destructor Destroy; override;
+    function Remove( item : TKntFolder ) : integer;
+    procedure Delete( index : integer );
+    function IndexOf( item : TKntFolder ) : integer;
+  end;
+
+
 
   TTabRichEdit = class( TRxRichEdit )
   private
-    // just a few properties tacked onto the RxRichEdit
-    // to keep them all in one place
+    // just a few properties tacked onto the RxRichEdit to keep them all in one place
     FKntFolder : TKntFolder;
     FAutoIndent : boolean;
     FUseTabChar : boolean;
     FTabSize : byte;
     FRecreateWndProtect : boolean;
-    //FOnFileDropped : TFileDroppedEvent;                                                   // [dpv] Commented
 
     procedure CMDialogKey( var Message: TCMDialogKey ); message CM_DIALOGKEY;
 
-    // procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
-
   protected
-    //procedure CreateWnd; override;                                                        // [dpv] Commented
-    //procedure DestroyWnd; override;
     procedure CMRecreateWnd(var Message: TMessage); message CM_RECREATEWND;
 
   public
@@ -353,8 +362,7 @@ type
 
 
   procedure SaveParagraphAttributes(const Editor: TTabRichEdit; var Paragraph: TParaFormat2);
-  procedure ApplyParagraphAttributes(const Editor: TTabRichEdit; var Paragraph: TParaFormat2;
-                                       const Reduced: Boolean = False);
+  procedure ApplyParagraphAttributes(const Editor: TTabRichEdit; var Paragraph: TParaFormat2; const Reduced: Boolean = False);
 
   procedure SaveTextAttributes(const Editor: TTabRichEdit; var Format: TCharFormat2);
   procedure ApplyTextAttributes(const Editor: TTabRichEdit; var Format: TCharFormat2);
@@ -362,6 +370,7 @@ type
 
 var
   _LoadedRichEditVersion : Single;
+
 
 implementation
 uses
@@ -372,21 +381,28 @@ uses
    kn_AlertMng,
    kn_LinksMng,
    kn_Main,
+   kn_Macro,
    kn_EditorUtils,
+   kn_Defaults,
    kn_RTFUtils,
    kn_ImagesMng,
    kn_NoteFileMng,
-   kn_TreeNoteMng
+   kn_TreeNoteMng,
+   kn_KntFolder_New,
+   kn_MacroMng,
+   kn_ConfigMng,
+   kn_VCLControlsMng,
+   kn_FileMgr
    ;
 
 
 resourcestring
 
-{$IFDEF WITH_DART}  
+{$IFDEF WITH_DART}
   STR_02 = '"%s" is a %s note and cannot be saved using %s format';
   STR_03 = 'Stream not assigned in LoadDartNotesFormat';
   STR_04 = 'LoadDartNotes: file format error or file damaged.';
-{$ENDIF}    
+{$ENDIF}
   STR_05 = 'Problem while saving folder "%s": Note count mismatch (Folder: %d  Internal: %d) ' +
       'The note may not be saved correctly. Continue?';
   STR_06 = 'Warning: "%s"';
@@ -395,6 +411,12 @@ resourcestring
   STR_09 = 'Folder contains %d notes, but only %d were saved.';
   STR_10 = 'Could not load Virtual Node file:';
   STR_11 = 'Failed to open TreePad file ';
+
+  STR_21 = ' New folder.';
+  STR_22 = 'Are you sure you want to delete folder "%s"?' + #13 + 'This operation cannot be undone.';
+  STR_23 = 'Confirm deleting folder';
+  STR_24 = ' Folder deleted.';
+  STR_25 = ' Folder renamed.';
 
 
   /// Save on 'Paragraph' the paragraph formatting attributes of the current selection
@@ -483,7 +505,560 @@ resourcestring
 
 
 
-// ---------------- TTABNOTE -----------------
+// ---------------- TKntFolderList -----------------
+
+constructor TKntFolderList.Create;
+begin
+  inherited Create;
+end;
+
+destructor TKntFolderList.Destroy;
+var
+  i : integer;
+begin
+  if ( Count > 0 ) then
+     for i := 0 to pred( Count ) do begin
+        if assigned( Items[i] ) then
+           Items[i].Free;  // Items[i] := nil;
+     end;
+  Clear;
+  inherited Destroy;
+end;
+
+function TKntFolderList.GetNote( index : integer ) : TKntFolder;
+begin
+  result := TKntFolder( inherited Items[index] );
+end;
+
+procedure TKntFolderList.PutNote( index : integer; item : TKntFolder );
+begin
+  inherited Put( index, item );
+end;
+
+function TKntFolderList.Remove( item : TKntFolder ) : integer;
+begin
+  if assigned( item ) then Item.Free;
+  result := inherited remove( item );
+end;
+
+procedure TKntFolderList.Delete( index : integer );
+begin
+  if (( index >= 0 ) and ( index < Count ) and assigned( items[index] )) then
+    Items[index].Free;
+  inherited Delete( index );
+end;
+
+function TKntFolderList.IndexOf( item : TKntFolder ) : integer;
+begin
+  result := inherited IndexOf( item );
+end;
+
+
+// ---------------- TKntFolder -----------------
+
+
+// -- Class methods
+
+class function TKntFolder.NewKntFolder(const DefaultFolder, CanFocus : boolean) : boolean;
+var
+  myFolder: TKntFolder;
+  Form_NewNote : TForm_NewKntFolder;
+  FileWasBusy, TimerWasEnabled : boolean;
+begin
+  result := false;
+  with Form_Main do
+  begin
+    if ( not HaveKntFolders( true, false )) then exit;
+    myFolder := nil;
+    FileWasBusy := FileIsBusy;
+    FileIsBusy := true;
+    StatusBar.Panels[PANEL_HINT].Text := '';
+    TimerWasEnabled := Timer.Enabled;
+    Timer.Enabled := false;
+  end;
+  try
+    try
+      if DefaultFolder then
+      begin
+        myFolder := TKntFolder.Create;
+        myFolder.SetEditorProperties( DefaultEditorProperties );
+        myFolder.SetTabProperties( DefaultTabProperties );
+        myFolder.EditorChrome := DefaultEditorChrome;
+        myFolder.SetTreeProperties( DefaultTreeProperties );
+        myFolder.TreeChrome := DefaultTreeChrome;
+      end
+      else
+      begin
+        Form_NewNote := TForm_NewKntFolder.Create( Form_Main );
+        try
+          with Form_NewNote do
+          begin
+            ShowHint := KeyOptions.ShowTooltips;
+            myEditorProperties := DefaultEditorProperties;
+            myTabProperties := DefaultTabProperties;
+            myChrome :=  DefaultEditorChrome;
+            myTabNameHistory := KeyOptions.TabNameHistory;
+            myNodeNameHistory := KeyOptions.NodeNameHistory;
+            myHistoryCnt := FindOptions.HistoryMaxCnt;
+            TAB_CHANGEABLE := true;
+            myTreeProperties := DefaultTreeProperties;
+            myTreeChrome := DefaultTreeChrome;
+            myTreeOptions := TreeOptions;
+          end;
+          if ( Form_NewNote.ShowModal = mrOK ) then
+          begin
+            KeyOptions.TabNameHistory := Form_NewNote.myTabNameHistory;
+            myFolder := TKntFolder.Create;
+            myFolder.SetEditorProperties( Form_NewNote.myEditorProperties );
+            myFolder.SetTabProperties( Form_NewNote.myTabProperties );
+            myFolder.EditorChrome := Form_NewNote.myChrome;
+            KeyOptions.NodeNameHistory := Form_NewNote.myNodeNameHistory;
+            with myFolder do begin
+              SetTreeProperties( Form_NewNote.myTreeProperties );
+              TreeChrome := Form_NewNote.myTreeChrome;
+            end;
+          end;
+        finally
+          Form_NewNote.Free;
+        end;
+      end;
+      if assigned( myFolder ) then
+      begin
+        KntFile.AddFolder( myFolder );
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_21;
+        try
+          with Form_Main do begin
+          CreateVCLControlsForFolder( myFolder );
+          SetUpVCLControls( myFolder );
+          AddToFileManager( KntFile.FileName, KntFile ); // update manager (number of notes has changed)
+          end;
+
+        finally
+          KntFile.Modified := ( not DefaultFolder );
+          myFolder.TabSheet.TabVisible := true; // was created hidden
+          ActiveKntFolder := myFolder;
+        end;
+        TreeNewNode( nil, tnTop, nil, '', true );
+        Form_Main.Pages.ActivePage := myFolder.TabSheet;
+        UpdateNoteDisplay;
+        if CanFocus then
+        begin
+          FocusActiveKntFolder;
+        end;
+
+      end;
+    except
+      on E : Exception do
+      begin
+        {$IFDEF KNT_DEBUG}
+         Log.Add( 'Exception in NewKntFolder: ' + E.Message );
+        {$ENDIF}
+         PopupMessage( E.Message, mtError, [mbOK], 0 );
+      end;
+    end;
+  finally
+    Form_Main.Timer.Enabled := TimerWasEnabled;
+    FileIsBusy := FileWasBusy;
+    KntFile.Modified := true;
+    UpdateKntFileState( [fscModified] );
+    result := assigned( myFolder );
+   {$IFDEF KNT_DEBUG}
+    if assigned( myFolder ) then
+      Log.Add( 'Added new folder: ' + myFolder.Name )
+    else
+      Log.Add( 'New folder NOT added.' );
+   {$ENDIF}
+  end;
+end; // NewKntFolder
+
+
+class procedure TKntFolder.DeleteKntFolder;
+var
+  pidx : integer;
+begin
+  with Form_Main do
+  begin
+      if ( not HaveKntFolders( true, true )) then exit;
+      if ( not assigned( ActiveKntFolder )) then exit;
+      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+
+      if KeyOptions.ConfirmTabDelete then
+      begin
+        if ( DoMessageBox(
+            Format( STR_22, [RemoveAccelChar( ActiveKntFolder.Name )] ),
+            STR_23,
+            MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
+      end;
+
+      try
+        // clear Clipboard capture state if this folder is ClipCapFolder
+        if ( KntFile.ClipCapFolder = ActiveKntFolder ) then
+        begin
+          TB_ClipCap.Down := false;
+          ClipCapNote := nil;
+          Pages.MarkedPage := nil;
+          ToggleClipCap( false, ActiveKntFolder ); // turn it OFF
+        end;
+
+        { // [dpv]
+        // clear all bookmarks pointing to this folder
+        for pidx := 0 to MAX_BOOKMARKS do
+        begin
+          if ( KntFile.Bookmarks[pidx].Folder = ActiveKntFolder ) then
+            BookmarkClear( pidx );
+        end;
+        }
+
+        pidx := ActiveKntFolder.TabSheet.TabIndex;
+
+        Pages.OnChange := nil;
+
+        DestroyVCLControlsForFolder( ActiveKntFolder, true );
+        KntFile.RemoveImagesCountReferences(ActiveKntFolder);
+        KntFile.DeleteFolder( ActiveKntFolder );
+        ActiveKntFolder := nil;
+        AddToFileManager( KntFile.FileName, KntFile ); // update manager (number of notes has changed)
+
+        try
+          if ( Pages.PageCount > 0 ) then
+          begin
+            if ( pidx = 0 ) then
+            begin
+              Pages.ActivePage := Pages.Pages[0];
+            end
+            else
+            begin
+              if ( pidx > Pages.PageCount ) then
+                Pages.ActivePage := Pages.Pages[pred( Pages.PageCount )]
+              else
+                Pages.ActivePage := Pages.Pages[pred( pidx )];
+            end;
+          end;
+
+        except
+          // occasionally PageControl throws an exception here, don't know why, but it's harmless
+        end;
+
+      finally
+        try
+          PagesChange( Form_Main );
+          if assigned( ActiveKntFolder ) then
+            ActiveKntFolder.Editor.SetFocus;
+        except
+        end;
+        Pages.OnChange := PagesChange;
+        StatusBar.Panels[PANEL_HINT].text := STR_24;
+        KntFile.Modified := true;
+        UpdateKntFileState( [fscModified] );
+      end;
+    end;
+end; // DeleteKntFolder
+
+class procedure TKntFolder.CreateNewKntFolder;
+begin
+  if assigned(ActiveKntFolder) then
+     ActiveKntFolder.EditorToDataStream;
+  if TKntFolder.NewKntFolder( false, true ) then
+  begin
+    Application.ProcessMessages;
+    if KeyOptions.RunAutoMacros then
+       ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
+  end;
+end; // CreateNewKntFolder
+
+
+class procedure TKntFolder.RenameKntFolder;
+var
+  Form_NewNote : TForm_NewKntFolder;
+begin
+  with Form_Main do begin
+      if ( not HaveKntFolders( true, true )) then exit;
+      if ( not assigned( ActiveKntFolder )) then exit;
+      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+
+      Form_NewNote := TForm_NewKntFolder.Create( Form_Main );
+      try
+        with Form_NewNote do
+        begin
+          TAB_CHANGEABLE := false;
+          ShowHint := KeyOptions.ShowTooltips;
+          myTabProperties.Name := ActiveKntFolder.Name;
+          myTabProperties.ImageIndex := ActiveKntFolder.ImageIndex;
+          myTabNameHistory := KeyOptions.TabNameHistory;
+          myHistoryCnt := FindOptions.HistoryMaxCnt;
+          Button_Properties.Enabled := false;
+          Button_Properties.Visible := false;
+        end;
+        if ( Form_NewNote.ShowModal = mrOK ) then
+        begin
+          KeyOptions.TabNameHistory := Form_NewNote.myTabNameHistory;
+          KntFile.Modified := true;
+          ActiveKntFolder.Name := Form_NewNote.myTabProperties.Name;
+          ActiveKntFolder.ImageIndex := Form_NewNote.myTabProperties.ImageIndex;
+          StatusBar.Panels[PANEL_HINT].Text := STR_25;
+        end;
+      finally
+        Form_NewNote.Free;
+        KntFile.Modified := true;
+        UpdateKntFileState( [fscModified] );
+      end;
+  end;
+end; // RenameKntFolder
+
+
+class procedure TKntFolder.EditKntFolderProperties( const PropertiesAction : TPropertiesAction );
+var
+  Form_Defaults : TForm_Defaults;
+  i : integer;
+  TreeLayoutChanged : boolean;
+  oldIconKind : TNodeIconKind;
+  oldShowCheckboxes : boolean;
+  oldHideChecked: boolean;      // [dpv]
+  oldPlainText: boolean;
+  EnsuredPlainText: boolean;
+  Folder: TKntFolder;
+  NewPropertiesAction : TPropertiesAction;
+
+begin
+
+  with Form_Main do begin
+      if (( PropertiesAction = propThisFolder ) and ( not assigned( ActiveKntFolder ))) then
+        exit;
+
+      TreeLayoutChanged := false;
+
+      Form_Defaults := TForm_Defaults.Create( Form_Main );
+
+      oldIconKind := niStandard;
+      oldShowCheckboxes := false;
+
+      try
+
+        with Form_Defaults do begin
+          ShowHint := KeyOptions.ShowTooltips;
+          Action := PropertiesAction;
+          DefaultsFN := DEF_FN;
+          myTabNameHistory := KeyOptions.TabNameHistory;
+          myNoteIsReadOnly := (( PropertiesAction = propThisFolder ) and FolderIsReadOnly( ActiveKntFolder, false ));
+
+          myNodeNameHistory := KeyOptions.NodeNameHistory;
+
+          myCurrentFileName:= '';
+          if assigned(KntFile) and (KntFile.FileName <> '') then
+             myCurrentFileName := ExtractFilename( KntFile.FileName );
+
+
+          case PropertiesAction of
+            propThisFolder : begin
+
+              myEditorChrome := ActiveKntFolder.EditorChrome;
+              ActiveKntFolder.GetTabProperties( myTabProperties );
+              ActiveKntFolder.GetEditorProperties( myEditorProperties );
+
+              myEditorProperties.DefaultZoom:= DefaultEditorProperties.DefaultZoom;    // Just for show it
+
+              // [x] bug workaround: despite the fact that RichEdit has
+              // protection against losing styles in RecreateWnd, changing
+              // wordwrap HERE still causes all font styles to be lost.
+              // I have no time for investigating this anymore, so the
+              // wordwrap option is disabled here. It's not needed here
+              // anyway, since you can just press Ctrl+W in the editor,
+              // which is more convenient and does NOT cause the
+              // font style loss.
+              {  *1
+                 Disabling and hiding the combo did not solve the problem: pressing Ok from the properties
+                 of a folder after the state of WordWrap have been changed (in the active node or simply for
+                 selecting nodes with different WodWrap state) always caused formatting to be lost. Since version 1.6.5...
+
+              CB_WordWrap.Enabled := false;
+              CB_WordWrap.Visible := false;
+              }
+              CB_WordWrap.Checked:= myEditorProperties.WordWrap;    // *1
+
+
+              with ActiveKntFolder do begin
+
+                myInheritBGColor:= TreeOptions.InheritNodeBG;
+                if TreeOptions.InheritNodeBG  and assigned(SelectedNote) then
+                   myEditorChrome.BGColor := SelectedNote.RTFBGColor;
+
+                myTreeChrome := TreeChrome;
+                GetTreeProperties( myTreeProperties );
+                StartWithEditorTab := ( not TV.Focused );
+
+                oldIconKind := myTreeProperties.IconKind;
+                oldShowCheckboxes := myTreeProperties.CheckBoxes;
+                oldHideChecked := myTreeProperties.HideChecked;       // [dpv]
+              end;
+              oldPlainText := ActiveKntFolder.PlainText;
+            end;
+
+            propDefaults : begin
+              StartWithEditorTab := true;
+
+              myEditorChrome := DefaultEditorChrome;
+              myTabProperties := DefaultTabProperties;
+              myEditorProperties := DefaultEditorProperties;
+
+              // this picks the BG color of the current node,
+              // rather than DEFAULT BG color for whole folder
+              if myCurrentFileName <> '' then
+                 mySaveFileDefaults := ( DEF_FN <> OrigDEF_FN );
+
+              myTreeChrome := DefaultTreeChrome;
+              myTreeProperties := DefaultTreeProperties;
+            end;
+
+          end;
+        end;
+
+        if ( Form_Defaults.ShowModal = mrOK ) then begin
+
+          with Form_Defaults do begin
+            NewPropertiesAction:= Action;        // User can now select the check 'Save as Defaults'
+
+            KeyOptions.TabNameHistory := myTabNameHistory;
+            KeyOptions.NodeNameHistory := myNodeNameHistory;
+
+            if (PropertiesAction = propThisFolder) and not myNoteIsReadOnly  then begin
+                KntFile.Modified:= True;
+                ActiveKntFolder.Modified:= True;
+                UpdateKntFileState( [fscModified] );
+
+                ActiveKntFolder.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
+                ActiveKntFolder.SetEditorProperties( myEditorProperties );
+                ActiveKntFolder.EditorChrome := myEditorChrome;
+
+                // reflect changes in controls
+                ActiveKntFolder.UpdateEditor;
+                ActiveKntFolder.UpdateTabSheet;
+
+                EnsuredPlainText:= False;
+                if ActiveKntFolder.PlainText then
+                   EnsuredPlainText:= KntFile.EnsurePlainTextAndRemoveImages(ActiveKntFolder);
+
+                with ActiveKntFolder do begin
+                  // this will apply the selected BG color to current NODE
+                  // besides setting the new default BG color for whole NOTE.
+                  if TreeOptions.InheritNodeBG  and assigned(SelectedNote) then begin
+                    SelectedNote.RTFBGColor := ActiveKntFolder.EditorChrome.BGColor;
+                    ActiveKntFolder.Editor.Color := ActiveKntFolder.EditorChrome.BGColor;
+                  end;
+
+                  TreeLayoutChanged := ( VerticalLayout <> myTreeProperties.VerticalLayout );
+                  SetTreeProperties( myTreeProperties );
+                  TreeChrome := myTreeChrome;
+                end;
+
+                // update changes to tree control
+                if ( oldIconKind <> myTreeProperties.IconKind ) then
+                   ShowOrHideIcons( ActiveKntFolder, true );
+                if ( oldShowCheckboxes <> myTreeProperties.CheckBoxes ) then
+                   ShowOrHideCheckBoxes( ActiveKntFolder);
+                if ( oldHideChecked <> myTreeProperties.HideChecked ) then    // [dpv]
+                   if myTreeProperties.HideChecked then
+                      HideChildNodesUponCheckState ( ActiveKntFolder, nil, csChecked)
+                   else
+                      ShowCheckedNodes ( ActiveKntFolder, nil);
+
+                UpdateTreeChrome(ActiveKntFolder);
+
+                // If we have changed to PlainText we will have already updated the editor from EnsurePlainTextAndRemoveImages
+                if (not EnsuredPlainText) and (oldPlainText <> ActiveKntFolder.PlainText)
+                     and (not TreeLayoutChanged)   then begin  // This is done if TreeLayoutChanged too
+                   ActiveKntFolder.EditorToDataStream;  // Save the content of the editor according to the new formatting (Plain text / RTF)
+                   ActiveKntFolder.DataStreamToEditor;
+                end;
+
+            end;
+
+            if ApplyTreeChromeToAllFolders and HaveKntFolders( false, true ) then begin
+                for i := 0 to KntFile.NoteCount -1 do begin
+                   Folder:= KntFile.Folders[i];
+                   if ((PropertiesAction = propThisFolder) and (Folder = ActiveKntFolder)) or (Folder.ReadOnly) then
+                       continue;
+                   Folder.Modified:= True;
+                   Folder.TreeChrome := myTreeChrome;
+                   UpdateTreeChrome(Folder);
+                end;
+                KntFile.Modified:= True;
+                UpdateKntFileState( [fscModified] );
+            end;
+
+
+            if (PropertiesAction = propDefaults) or (NewPropertiesAction = propDefaults) then begin
+
+                // must update all richedits and trees with the modified EditorOptions and TreeOptions:
+                if HaveKntFolders( false, true ) then begin
+                    for i := 0 to KntFile.NoteCount -1 do begin
+                       Folder:= KntFile.Folders[i];
+                       Folder.Editor.WordSelection := EditorOptions.WordSelect;
+                       Folder.Editor.UndoLimit := EditorOptions.UndoLimit;
+                       UpdateTreeOptions(Folder);
+                    end;
+                end;
+
+                DefaultEditorChrome := myEditorChrome;
+                DefaultEditorProperties := myEditorProperties;
+                DefaultTabProperties := myTabProperties;
+                DEFAULT_NEW_FOLDER_NAME := DefaultTabProperties.Name;
+
+                DefaultTreeChrome := myTreeChrome;
+                DefaultTreeProperties := myTreeProperties;
+
+                if mySaveFileDefaults then
+                   DEF_FN := KntFile.FileName + ext_DEFAULTS
+
+                else begin
+                  // if mySaveFileDefaults was true before, and is now false, delete the file-specific .def file
+                  if DEF_FN <> OrigDEF_FN then
+                     deletefile( DEF_FN );
+                  DEF_FN := OrigDEF_FN;
+                end;
+
+                SaveDefaults;
+            end;
+          end;
+
+          if _LastZoomValue <> 100 then
+             SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
+
+        end;
+
+      finally
+        UpdateCursorPos;
+        UpdateNoteDisplay;
+        Form_Defaults.Free;
+      end;
+
+      if TreeLayoutChanged then begin
+        screen.Cursor := crHourGlass;
+        Pages.OnChange := nil;
+        try
+          ActiveKntFolder.TreeWidth := 0;
+          ActiveKntFolder.EditorToDataStream;
+          ActiveKntFolder.Editor.Clear;
+          ActiveKntFolder.Editor.ClearUndo;
+          DestroyVCLControlsForFolder( ActiveKntFolder, false );
+          CreateVCLControlsForFolder( ActiveKntFolder );
+          ActiveKntFolder.DataStreamToEditor;
+          SetUpVCLControls( ActiveKntFolder );
+          FocusActiveKntFolder;
+        finally
+          screen.Cursor := crDefault;
+          Pages.OnChange := PagesChange;
+        end;
+
+      end;
+
+  end;
+
+end; // EditKntFolderProperties
+
+
+
+
+// ----------
 
 constructor TKntFolder.Create;
 begin
@@ -643,7 +1218,7 @@ begin
 
        FEditor.Color := FEditorChrome.BGColor;
        TextLen:= FEditor.TextLength;
-       if (TextLen = 0) or PlainText then begin          // Solves the problem indicated in kn_NoteMng.EditProperties...*1
+       if (TextLen = 0) or PlainText then begin          // Solves the problem indicated in EditProperties...*1
           with FEditor.DefAttributes do begin
             Charset := FEditorChrome.Font.Charset;
             Name := FEditorChrome.Font.Name;

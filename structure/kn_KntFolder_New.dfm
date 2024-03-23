@@ -1,4 +1,4 @@
-object Form_NewNote: TForm_NewNote
+object Form_NewKntFolder: TForm_NewKntFolder
   Left = 382
   Top = 333
   HelpContext = 317

@@ -279,22 +279,21 @@
         <DCCReference Include="structure\kn_filemgr.pas">
             <Form>Form_FileMgr</Form>
         </DCCReference>
-        <DCCReference Include="structure\kn_FileObj.pas"/>
+        <DCCReference Include="structure\kn_KntFile.pas"/>
         <DCCReference Include="structure\kn_History.pas"/>
         <DCCReference Include="structure\kn_ImagePicker.pas">
             <Form>Form_ImgPick</Form>
         </DCCReference>
         <DCCReference Include="structure\kn_LocationObj.pas"/>
-        <DCCReference Include="structure\kn_NewNote.pas">
-            <Form>Form_NewNote</Form>
+        <DCCReference Include="structure\kn_KntFolder_New.pas">
+            <Form>Form_NewKntFolder</Form>
         </DCCReference>
-        <DCCReference Include="structure\kn_NodeList.pas"/>
+        <DCCReference Include="structure\kn_KntNote.pas"/>
         <DCCReference Include="structure\kn_NodeNum.pas">
             <Form>Form_NodeNum</Form>
         </DCCReference>
         <DCCReference Include="structure\kn_NoteFileMng.pas"/>
-        <DCCReference Include="structure\kn_NoteMng.pas"/>
-        <DCCReference Include="structure\kn_NoteObj.pas"/>
+        <DCCReference Include="structure\kn_KntFolder.pas"/>
         <DCCReference Include="structure\kn_pass.pas">
             <Form>Form_Password</Form>
         </DCCReference>

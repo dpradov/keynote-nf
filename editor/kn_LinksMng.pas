@@ -38,7 +38,7 @@ uses
 
    kn_Info,
    kn_Const,
-   kn_NoteObj,
+   kn_KntFolder,
    kn_History,
    kn_LocationObj
    ;
@@ -99,7 +99,7 @@ uses
    kn_Global,
    kn_Main,
    kn_URL,
-   kn_NodeList,
+   kn_KntNote,
    kn_EditorUtils,
    kn_RTFUtils,
    kn_FindReplaceMng,
