@@ -3,7 +3,7 @@ object Form_SelectTab: TForm_SelectTab
   Top = 295
   HelpContext = 13
   BorderStyle = bsDialog
-  Caption = 'Select Notes'
+  Caption = 'Select Folders'
   ClientHeight = 243
   ClientWidth = 330
   Color = clBtnFace

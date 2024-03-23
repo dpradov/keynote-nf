@@ -310,7 +310,7 @@ begin
     if ( not Form_Main.HaveKntFolders( true, true )) then exit;
     if ( not assigned( ActiveKntFolder )) then exit;
 
-    myNote := GetCurrentNoteNode;
+    myNote := GetCurrentNote;
     if assigned( myNote ) then
       name := myNote.Name
     else
@@ -357,8 +357,8 @@ begin
       myFav.FolderID := ActiveKntFolder.ID;
       if assigned( myNote ) then
       begin
-        myFav.NodeName := myNote.Name;
-        myFav.NodeID := myNote.ID;
+        myFav.NoteName := myNote.Name;
+        myFav.NoteID := myNote.ID;
       end;
       myFav.CaretPos := ActiveKntFolder.Editor.SelStart;
     end;

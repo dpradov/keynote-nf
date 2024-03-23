@@ -142,7 +142,7 @@ begin
           myFolder.TabSheet.TabVisible := true; // was created hidden
           ActiveKntFolder := myFolder;
         end;
-        TreeNoteNewNode( nil, tnTop, nil, '', true );
+        TreeNewNode( nil, tnTop, nil, '', true );
         Form_Main.Pages.ActivePage := myFolder.TabSheet;
         UpdateNoteDisplay;
         if CanFocus then
@@ -183,7 +183,7 @@ begin
   begin
       if ( not HaveKntFolders( true, true )) then exit;
       if ( not assigned( ActiveKntFolder )) then exit;
-      if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
       if KeyOptions.ConfirmTabDelete then
       begin
@@ -198,7 +198,7 @@ begin
         if ( KntFile.ClipCapFolder = ActiveKntFolder ) then
         begin
           TB_ClipCap.Down := false;
-          ClipCapNode := nil;
+          ClipCapNote := nil;
           Pages.MarkedPage := nil;
           ToggleClipCap( false, ActiveKntFolder ); // turn it OFF
         end;
@@ -276,7 +276,7 @@ begin
   with Form_Main do begin
       if ( not HaveKntFolders( true, true )) then exit;
       if ( not assigned( ActiveKntFolder )) then exit;
-      if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
       Form_NewNote := TForm_NewNote.Create( Form_Main );
       try
@@ -323,7 +323,7 @@ var
 begin
 
   with Form_Main do begin
-      if (( PropertiesAction = propThisNote ) and ( not assigned( ActiveKntFolder ))) then
+      if (( PropertiesAction = propThisFolder ) and ( not assigned( ActiveKntFolder ))) then
         exit;
 
       TreeLayoutChanged := false;
@@ -340,7 +340,7 @@ begin
           Action := PropertiesAction;
           DefaultsFN := DEF_FN;
           myTabNameHistory := KeyOptions.TabNameHistory;
-          myNoteIsReadOnly := (( PropertiesAction = propThisNote ) and NoteIsReadOnly( ActiveKntFolder, false ));
+          myNoteIsReadOnly := (( PropertiesAction = propThisFolder ) and FolderIsReadOnly( ActiveKntFolder, false ));
 
           myNodeNameHistory := KeyOptions.NodeNameHistory;
 
@@ -350,7 +350,7 @@ begin
 
 
           case PropertiesAction of
-            propThisNote : begin
+            propThisFolder : begin
 
               myEditorChrome := ActiveKntFolder.EditorChrome;
               ActiveKntFolder.GetTabProperties( myTabProperties );
@@ -380,8 +380,8 @@ begin
               with ActiveKntFolder do begin
 
                 myInheritBGColor:= TreeOptions.InheritNodeBG;
-                if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then
-                   myEditorChrome.BGColor := SelectedNode.RTFBGColor;
+                if TreeOptions.InheritNodeBG  and assigned(SelectedNote) then
+                   myEditorChrome.BGColor := SelectedNote.RTFBGColor;
 
                 myTreeChrome := TreeChrome;
                 GetTreeProperties( myTreeProperties );
@@ -421,7 +421,7 @@ begin
             KeyOptions.TabNameHistory := myTabNameHistory;
             KeyOptions.NodeNameHistory := myNodeNameHistory;
 
-            if (PropertiesAction = propThisNote) and not myNoteIsReadOnly  then begin
+            if (PropertiesAction = propThisFolder) and not myNoteIsReadOnly  then begin
                 KntFile.Modified:= True;
                 ActiveKntFolder.Modified:= True;
                 UpdateKntFileState( [fscModified] );
@@ -441,8 +441,8 @@ begin
                 with ActiveKntFolder do begin
                   // this will apply the selected BG color to current NODE
                   // besides setting the new default BG color for whole NOTE.
-                  if TreeOptions.InheritNodeBG  and assigned(SelectedNode) then begin
-                    SelectedNode.RTFBGColor := ActiveKntFolder.EditorChrome.BGColor;
+                  if TreeOptions.InheritNodeBG  and assigned(SelectedNote) then begin
+                    SelectedNote.RTFBGColor := ActiveKntFolder.EditorChrome.BGColor;
                     ActiveKntFolder.Editor.Color := ActiveKntFolder.EditorChrome.BGColor;
                   end;
 
@@ -473,10 +473,10 @@ begin
 
             end;
 
-            if ApplyTreeChromeToAllNotes and HaveKntFolders( false, true ) then begin
+            if ApplyTreeChromeToAllFolders and HaveKntFolders( false, true ) then begin
                 for i := 0 to KntFile.NoteCount -1 do begin
                    Folder:= KntFile.Folders[i];
-                   if ((PropertiesAction = propThisNote) and (Folder = ActiveKntFolder)) or (Folder.ReadOnly) then
+                   if ((PropertiesAction = propThisFolder) and (Folder = ActiveKntFolder)) or (Folder.ReadOnly) then
                        continue;
                    Folder.Modified:= True;
                    Folder.TreeChrome := myTreeChrome;
@@ -502,7 +502,7 @@ begin
                 DefaultEditorChrome := myEditorChrome;
                 DefaultEditorProperties := myEditorProperties;
                 DefaultTabProperties := myTabProperties;
-                DEFAULT_NEW_NOTE_NAME := DefaultTabProperties.Name;
+                DEFAULT_NEW_FOLDER_NAME := DefaultTabProperties.Name;
 
                 DefaultTreeChrome := myTreeChrome;
                 DefaultTreeProperties := myTreeProperties;

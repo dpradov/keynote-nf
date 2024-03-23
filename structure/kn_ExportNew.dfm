@@ -3,7 +3,7 @@ object Form_ExportNew: TForm_ExportNew
   Top = 208
   HelpContext = 313
   BorderStyle = bsDialog
-  Caption = 'Export notes'
+  Caption = 'Export note Folders'
   ClientHeight = 397
   ClientWidth = 322
   Color = clBtnFace
@@ -25,7 +25,7 @@ object Form_ExportNew: TForm_ExportNew
     Top = 364
     Width = 75
     Height = 25
-    Hint = 'Begin exporting notes'
+    Hint = 'Begin exporting note folders'
     Caption = 'E&xport'
     Default = True
     TabOrder = 0
@@ -100,8 +100,8 @@ object Form_ExportNew: TForm_ExportNew
           Top = 65
           Width = 119
           Height = 17
-          Hint = 'Click to export all notes in the file'
-          Caption = '&All notes'
+          Hint = 'Click to export all folders in the knt file'
+          Caption = '&All folders'
           TabOrder = 2
         end
         object RB_SelectedNotes: TRadioButton
@@ -109,8 +109,8 @@ object Form_ExportNew: TForm_ExportNew
           Top = 85
           Width = 116
           Height = 17
-          Hint = 'Click to export only selected notes'
-          Caption = '&Selected notes'
+          Hint = 'Click to export only selected folders'
+          Caption = '&Selected folders'
           TabOrder = 3
         end
         object Button_Select: TButton
@@ -118,8 +118,8 @@ object Form_ExportNew: TForm_ExportNew
           Top = 75
           Width = 111
           Height = 25
-          Hint = 'Choose which notes to export'
-          Caption = 'Select &Notes...'
+          Hint = 'Choose which folders to export'
+          Caption = 'Select &Folders...'
           TabOrder = 4
           OnClick = Button_SelectClick
         end
@@ -128,7 +128,7 @@ object Form_ExportNew: TForm_ExportNew
           Top = 40
           Width = 235
           Height = 21
-          Hint = 'For tree notes, select what part of tree to export'
+          Hint = 'Select what part of folder to export'
           Style = csDropDownList
           TabOrder = 1
         end
@@ -343,8 +343,8 @@ object Form_ExportNew: TForm_ExportNew
           Width = 80
           Height = 17
           Hint = 
-            'Set font size of headings based on level (including folder): Max, ' +
-            'Dec, Min'
+            'Set font size of headings based on level (including folder): Max' +
+            ', Dec, Min'
           HelpType = htKeyword
           HelpKeyword = '313-10'
           Caption = 'Font sizes'
@@ -448,11 +448,11 @@ object Form_ExportNew: TForm_ExportNew
         Top = 160
         Width = 292
         Height = 66
-        Caption = ' &When exporting tree-type notes...'
+        Caption = ' &When exporting...'
         ItemIndex = 0
         Items.Strings = (
-          'Put all tree nodes in a single target file'
-          'Export each node to a separate target file')
+          'Put all notes (nodes) in a single target file'
+          'Export each note (node) to a separate target file')
         TabOrder = 1
       end
       object RG_HTML: TRadioGroup
@@ -533,7 +533,7 @@ object Form_ExportNew: TForm_ExportNew
         ItemIndex = 0
         Items.Strings = (
           'Create a TreePad file for each exported folder'
-          'Create a Treepad file containing all exported notes')
+          'Create a Treepad file containing all exported folders')
         TabOrder = 1
       end
       object RG_TreePadMaster: TRadioGroup

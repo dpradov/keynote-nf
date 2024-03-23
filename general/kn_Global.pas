@@ -170,11 +170,11 @@ var
 
 
     //================================================== DEFAULT PROPERTIES
-    DefaultEditorProperties : TNoteEditorProperties;
-    DefaultTabProperties : TNoteTabProperties;
+    DefaultEditorProperties : TFolderEditorProperties;
+    DefaultTabProperties : TFolderTabProperties;
     DefaultEditorChrome : TChrome;
     DefaultTreeChrome : TChrome;
-    DefaultTreeProperties : TNoteTreeProperties;
+    DefaultTreeProperties : TFolderTreeProperties;
 
 
     //================================================== APPLICATION STATE
@@ -211,7 +211,7 @@ var
     LastEvalExprResult : string; // remembered, so that we can paste it
 
     ClipCapActive : boolean; // TRUE if we have a clipboard capture note
-    ClipCapNode : TKntNote;
+    ClipCapNote : TKntNote;
     ClipCapCRC32 : DWORD;
 
     AppIsActive : boolean; // used with Clipboard Capture to ignore copy events coming from Keynote itself
@@ -487,7 +487,7 @@ begin
 
       ClipCapActive := false;
       ClipCapCRC32 := 0;
-      ClipCapNode := nil;
+      ClipCapNote := nil;
       _ConvertHTMLClipboardToRTF:= true;
       ClosedOnPreviousInstance := false;
       OriginalComboLen := Combo_Font.Width;
@@ -974,13 +974,13 @@ begin
       InitializeResPanelOptions( ResPanelOptions );
 
       InitializeChrome( DefaultEditorChrome );
-      InitializeNoteEditorProperties( DefaultEditorProperties );
-      InitializeNoteTabProperties( DefaultTabproperties );
+      InitializeFolderEditorProperties( DefaultEditorProperties );
+      InitializeFolderTabProperties( DefaultTabproperties );
 
       InitializeChrome( DefaultTreeChrome );
       InitializeTreeOptions( TreeOptions );
-      InitializeNoteTreeProperties( DefaultTreeProperties );
-      //_OLD_NODE_NAME := DEFAULT_NEW_NODE_NAME;
+      InitializeFolderTreeProperties( DefaultTreeProperties );
+      //_OLD_NOTE_NAME := DEFAULT_NEW_NOTE_NAME;
 
       _GLOBAL_URLText := '';
       ReadCmdLine;

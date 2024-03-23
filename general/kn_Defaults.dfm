@@ -27,7 +27,7 @@ object Form_Defaults: TForm_Defaults
     Height = 18
     Alignment = taRightJustify
     AutoSize = False
-    Caption = 'Change properties for current note'
+    Caption = 'Change properties for current folder'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clNavy
     Font.Height = -12
@@ -86,10 +86,6 @@ object Form_Defaults: TForm_Defaults
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GBox_Note: TGroupBox
         Left = 3
         Top = 3
@@ -125,7 +121,7 @@ object Form_Defaults: TForm_Defaults
           Height = 13
           AutoSize = False
           Caption = '&Folder name:'
-          FocusControl = Edit_NoteName
+          FocusControl = Edit_FolderName
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -245,8 +241,8 @@ object Form_Defaults: TForm_Defaults
           Height = 13
           Hint = 
             'Normally, note contents are saved as Rich Text.'#13#10'If this option ' +
-            'is checked, contents of this note will be saved as plain text (a' +
-            'll formatting will be removed).'#13#10#13#10'( Not used as defaults )'
+            'is checked, contents of this folder will be saved as plain text ' +
+            '(all formatting will be removed).'#13#10#13#10'( Not used as defaults )'
           AutoSize = False
           Caption = '&Plain text only'
           Font.Charset = DEFAULT_CHARSET
@@ -323,12 +319,12 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 5
           Value = 4
         end
-        object Edit_NoteName: TComboBox
+        object Edit_FolderName: TComboBox
           Left = 17
           Top = 30
           Width = 234
           Height = 21
-          Hint = 'Enter name for new note'
+          Hint = 'Enter name for new folder'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -336,14 +332,14 @@ object Form_Defaults: TForm_Defaults
           Font.Style = []
           ParentFont = False
           TabOrder = 0
-          OnKeyPress = Edit_NoteNameKeyPress
+          OnKeyPress = Edit_FolderNameKeyPress
         end
         object Combo_Icons: TGFXComboBox
           Left = 261
           Top = 30
           Width = 79
           Height = 22
-          Hint = 'Click to select icon for note'
+          Hint = 'Click to select icon for folder'
           Extended = False
           DropDownCount = 10
           Font.Charset = DEFAULT_CHARSET
@@ -414,7 +410,7 @@ object Form_Defaults: TForm_Defaults
           StyleElements = [seClient, seBorder]
           OnClick = CB_PlainTextClick
         end
-        object BitBtn_NoteHelp: TBitBtn
+        object BitBtn_FolderHelp: TBitBtn
           Left = 129
           Top = 67
           Width = 25
@@ -423,9 +419,9 @@ object Form_Defaults: TForm_Defaults
           Images = Form_Main.IMG_Toolbar
           TabOrder = 9
           TabStop = False
-          OnClick = BitBtn_NoteHelpClick
+          OnClick = BitBtn_FolderHelpClick
         end
-        object BitBtn_NoteChromeHelp: TBitBtn
+        object BitBtn_FolderChromeHelp: TBitBtn
           Left = 257
           Top = 251
           Width = 25
@@ -434,7 +430,7 @@ object Form_Defaults: TForm_Defaults
           Images = Form_Main.IMG_Toolbar
           TabOrder = 10
           TabStop = False
-          OnClick = BitBtn_NoteChromeHelpClick
+          OnClick = BitBtn_FolderChromeHelpClick
         end
         object CB_InheritBGColor: TCheckBox
           Left = 131
@@ -646,10 +642,10 @@ object Form_Defaults: TForm_Defaults
           Width = 180
           Height = 17
           Hint = 
-            'Font and BG color will be changed in the panels of ALL tree note' +
-            's in current file'
+            'Font and BG color will be changed in the panels of ALL folders ' +
+            'in current file'
           TabStop = False
-          Caption = 'A&pply to ALL tree notes'
+          Caption = 'A&pply to ALL folders'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -741,9 +737,9 @@ object Form_Defaults: TForm_Defaults
       Width = 303
       Height = 17
       Hint = 
-        'Normally, properties are saved as defaults for all new notes you' +
-        ' create. '#13#10'You can define it as default only for the current fil' +
-        'e.'
+        'Normally, properties are saved as defaults for all new folders y' +
+        'ou create. '#13#10'You can define it as default only for the current f' +
+        'ile.'
       Caption = 'Only for'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy

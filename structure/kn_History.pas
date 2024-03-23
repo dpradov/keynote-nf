@@ -203,7 +203,7 @@ begin
     if not IterateAll then begin
        currentLoc:= PickCurrent;
        if (currentLoc = nil) or (currentLoc.FolderID <> LocationToSync.FolderID) then Exit;
-       if (currentLoc.NodeID = LocationToSync.NodeID) then Exit(currentLoc);
+       if (currentLoc.NoteID = LocationToSync.NoteID) then Exit(currentLoc);
     end
 
     else begin              // IterateAll

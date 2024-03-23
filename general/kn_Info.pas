@@ -235,7 +235,7 @@ type
 
 type
   TPropertiesAction = (
-    propThisNote,
+    propThisFolder,
     propDefaults
     //, propThisFile {removed - for efficiency reasons we do not have separate PER-FILE defaults}
     //, propGeneralSettings {unimplemented}
@@ -312,12 +312,12 @@ type
     Chrome : TChrome;
   end;
 
-  TNoteTabProperties = packed record
+  TFolderTabProperties = packed record
     ImageIndex : integer;
     Name : string;
   end;
 
-  TNoteEditorProperties = packed record
+  TFolderEditorProperties = packed record
     PlainText : boolean;
     TabSize : byte;
     URLDetect : boolean;
@@ -327,7 +327,7 @@ type
   end;
 
 type
-  // global options; NOT note-specific
+  // global options; NOT folder-specific
   TEditorOptions = packed record
     AutoFont : boolean;
     AutoIndent : boolean;
@@ -376,7 +376,7 @@ type
 *)
 
 type
-  TNoteTreeProperties = packed record
+  TFolderTreeProperties = packed record
     AutoNumberNodes : boolean;
     DefaultName : string;
     CheckBoxes : boolean;
@@ -386,7 +386,7 @@ type
   end;
 
 type
-  // global options; NOT note-specific
+  // global options; NOT folder-specific
   TKNTTreeOptions = packed record
     AutoNameVNodes : boolean;
     AutoScroll : boolean;
@@ -418,7 +418,7 @@ type
     ExportSource : TExportSource;
     HTMLExportMethod: THTMLExportMethod;
     IncludeNodeHeadings : boolean;
-    IncludeNoteHeadings : boolean;
+    IncludeFolderHeadings : boolean;
     NodeLevelTemplates: boolean;
     SymbolsInHeading: string;
     LengthHeading: string;
@@ -508,7 +508,7 @@ type
     DisableAlarmPopup: boolean;
     DisableFileMon : boolean; // disable file change monitoring
     DropNodesOnTabMove : boolean; // when dropping nodes on another teb, MOVE them (if false, then COPY)
-    DropNodesOnTabPrompt : boolean; // prompt before copying nodes to another tab (note)
+    DropNodesOnTabPrompt : boolean; // prompt before copying nodes to another tab (folder)
     DTLastDateFmt : string;
     DTLastTimeFmt : string;
     DTUseLastSelection : boolean; // insert date/time commands will use the format last selected in drop-down menu; otherwise the DateFmt/TimeFmt values are used
@@ -525,7 +525,7 @@ type
     HotKeyWarn : boolean;  // warn if failed to register hotkey
     HTMLImportMethod : THTMLImportMethod;
     IgnoreUpgrades : boolean; // do not display info when upgrade detected
-    ImportFileNamesWithExt : boolean; // keep filename extension (in node and note names) when importing files
+    ImportFileNamesWithExt : boolean; // keep filename extension (in node and folder names) when importing files
     InitFontColor : TColor; // initial font color
     InitHiColor : TColor; // initial highlight color
     //InsCharFullSet : boolean;
@@ -733,9 +733,9 @@ type
   TFindOptions = packed record
     HiddenNodes: boolean;  // consider hidden nodes [dpv]
     AllNodes : boolean; // search all nodes in tree
-    AllTabs : boolean;   // search all notes in file (resource panel)
-    AllTabs_FindReplace : boolean; // search all notes in file (FindReplace dialog)
-    CurrentNodeAndSubtree : boolean;   // search only in current node and subtree (for tree notes)
+    AllTabs : boolean;   // search all folders in file (resource panel)
+    AllTabs_FindReplace : boolean; // search all folders in file (FindReplace dialog)
+    CurrentNodeAndSubtree : boolean;   // search only in current node and subtree
     AutoClose : boolean; // auto close find dialog box when Find button clicked
     EntireScope : boolean; // search from top of text rather than from current position in active note
     FindAllHistory : string;
@@ -753,7 +753,7 @@ type
     CheckMode: TSearchCheckMode;  // for "Find all" (resource panel) ONLY
     WholeWordsOnly : boolean; // only match whole words
     WordAtCursor : boolean; // auto-select word at cursor when invoking Find dialog box
-    Wrap : boolean; // when reaching bottom of active note, wrap around at search again from top
+    Wrap : boolean; // when reaching bottom of active folder, wrap around at search again from top
     SelectedText: boolean;    // Restrict replacement to actual selection
     SelectionStart: integer;  // Beginning of selection, where to limit replacement if 'Selected Text' is checked
     SelectionEnd: integer;    // End of selection, where to limit replacement if 'Selected Text' is checked
@@ -771,9 +771,9 @@ var
   // _KNTLocation : TKNTLocation;
 
 procedure InitializeChrome( var Struct : TChrome );
-procedure InitializeNoteTabProperties( var Struct : TNoteTabProperties );
-procedure InitializeNoteEditorProperties( var Struct : TNoteEditorProperties );
-procedure InitializeNoteTreeProperties( var Struct : TNoteTreeProperties );
+procedure InitializeFolderTabProperties( var Struct : TFolderTabProperties );
+procedure InitializeFolderEditorProperties( var Struct : TFolderEditorProperties );
+procedure InitializeFolderTreeProperties( var Struct : TFolderTreeProperties );
 
 procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont );
 procedure FontToFontInfo( const aFont : TFont; var FI : TFontInfo );
@@ -830,15 +830,15 @@ begin
   end;
 end; // InitializeChrome
 
-procedure InitializeNoteTabProperties( var Struct : TNoteTabProperties );
+procedure InitializeFolderTabProperties( var Struct : TFolderTabProperties );
 begin
   with Struct do begin
     ImageIndex := 0;
-    Name := DEFAULT_NEW_NOTE_NAME;
+    Name := DEFAULT_NEW_FOLDER_NAME;
   end;
 end; // InitializeNoteTabProperties
 
-procedure InitializeNoteEditorProperties( var Struct : TNoteEditorProperties );
+procedure InitializeFolderEditorProperties( var Struct : TFolderEditorProperties );
 begin
   with Struct do begin
     PlainText := false;
@@ -850,11 +850,11 @@ begin
   end;
 end; // InitializeNoteEditorProperties
 
-procedure InitializeNoteTreeProperties( var Struct : TNoteTreeProperties );
+procedure InitializeFolderTreeProperties( var Struct : TFolderTreeProperties );
 begin
   with Struct do begin
     AutoNumberNodes := false;
-    DefaultName := DEFAULT_NEW_NODE_NAME;
+    DefaultName := DEFAULT_NEW_NOTE_NAME;
     CheckBoxes := false;
     IconKind := niStandard;
     VerticalLayout := false;

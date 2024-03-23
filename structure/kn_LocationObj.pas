@@ -29,11 +29,11 @@ type
     FName : string;
     FFileName : string;
     FFolderName : string;
-    FNodeName : string;
+    FNoteName : string;
     FCaretPos : integer;
     FSelLength : integer;
     FFolderID : longint;
-    FNodeID : longint;
+    FNoteID : longint;
     FExternalDoc : boolean;
     FParams : string;
     FMark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
@@ -53,11 +53,11 @@ type
     property Name : string read FName write FName;
     property FileName : string read FFileName write FFileName;
     property FolderName : string read FFolderName write FFolderName;
-    property NodeName : string read FNodeName write FNodeName;
+    property NoteName : string read FNoteName write FNoteName;
     property CaretPos : integer read FCaretPos write FCaretPos;
     property SelLength : integer read FSelLength write FSelLength;
     property FolderID : longint read FFolderID write FFolderID;
-    property NodeID : longint read FNodeID write FNodeID;
+    property NoteID : longint read FNoteID write FNoteID;
     property Mark : Byte read FMark write FMark;
     property Bookmark09 : boolean read FBookmark09 write FBookmark09;
     property ExternalDoc : boolean read FExternalDoc write FExternalDoc;
@@ -136,8 +136,8 @@ begin
 
             myFav.FolderName := readstring( section, 'Note', '' );     // Knt Folder...
             myFav.FolderID := readinteger( section, 'NoteID', 0 );     // Knt FolderID...
-            myFav.NodeName := readstring( section, 'Node', '' );
-            myFav.NodeID := readinteger( section, 'NodeID', 0 );
+            myFav.NoteName := readstring( section, 'Node', '' );
+            myFav.NoteID := readinteger( section, 'NodeID', 0 );
             myFav.CaretPos := readinteger( section, 'Pos', 0 );
             myFav.SelLength := readinteger( section, 'Len', 0 );
             myFav.ExternalDoc := readbool( section, 'ExternalDoc', false );
@@ -191,8 +191,8 @@ begin
         begin
           writestring( section, 'Note', myFav.FolderName );         // Knt Folder...
           writeinteger( section, 'NoteID', myFav.FolderID );      // Knt FolderID...
-          writeinteger( section, 'NodeID', myFav.NodeID );
-          writestring( section, 'Node', myFav.NodeName );
+          writeinteger( section, 'NodeID', myFav.NoteID );
+          writestring( section, 'Node', myFav.NoteName );
           writeinteger( section, 'Pos', myFav.CaretPos );
           writeinteger( section, 'Len', myFav.SelLength );
         end;
@@ -229,11 +229,11 @@ begin
   FName := '';
   FFileName := '';
   FFolderName := '';
-  FNodeName := '';
+  FNoteName := '';
   FCaretPos := 0;
   FSelLength := 0;
   FFolderID := 0;
-  FNodeID := 0;
+  FNoteID := 0;
   FMark := 0;
   FExternalDoc := false;
   FParams := '';  
@@ -249,11 +249,11 @@ begin
   FName := aLocation.Name;
   FFilename := aLocation.FileName;
   FFolderName := aLocation.FolderName;
-  FNodeName := aLocation.NodeName;
+  FNoteName := aLocation.NoteName;
   FCaretPos := aLocation.CaretPos;
   SelLength := aLocation.SelLength;
   FFolderID := aLocation.FolderID;
-  FNodeID := aLocation.NodeID;
+  FNoteID := aLocation.NoteID;
   FMark :=  aLocation.FMark;
   FBookmark09:= aLocation.FBookmark09;
   FExternalDoc := aLocation.FExternalDoc;
@@ -277,7 +277,7 @@ begin
 
   if FName <> Location.Name then Exit;
   if FFolderID <> Location.FolderID then Exit;
-  if FNodeID <> Location.NodeID then Exit;
+  if FNoteID <> Location.NoteID then Exit;
   if considerOnlyKntLinks then begin
      if considerCaretPos then begin
         if FCaretPos <> Location.CaretPos then Exit;
@@ -304,10 +304,10 @@ begin
     CPos := Format( '/ %d', [FCaretPos] )
   else
     CPos := '';
-  if ( FNodeID > 0 ) then
+  if ( FNoteID > 0 ) then
     result := Format(
       '%s / %s %s',
-      [FFolderName, FNodeName, CPos]
+      [FFolderName, FNoteName, CPos]
     )
   else
     result := Format(

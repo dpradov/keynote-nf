@@ -50,18 +50,6 @@ type
   TGetAccessPassphraseFunc = function( const FN : string ) : string;
 
 type
-
-{
-  TBookmark = record
-    Name : string;
-    CaretPos : integer;
-    SelLength : integer;
-    Folder : TKntFolder;
-    Node : TKntNote;
-  end;
-  PBookmark = ^TBookmark;
-}
-  //TBookmarks = array[0..MAX_BOOKMARKS] of TBookmark;
   TBookmarks = array[0..MAX_BOOKMARKS] of TLocation;
 
 
@@ -184,8 +172,8 @@ type
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
 
     //function HasExtendedNotes : boolean; // TRUE is file contains any notes whose FKind is not ntRTF
-    function HasVirtualNodes : boolean; // TRUE is file contains any notes which have VIRTUAL NODES
-    function HasVirtualNodeByFileName( const aNoteNode : TKntNote; const FN : string ) : boolean;
+    function HasVirtualNotes : boolean; // TRUE is file contains any notes which have VIRTUAL NODES
+    function HasVirtualNoteByFileName( const aNote : TKntNote; const FN : string ) : boolean;
 
     function GetFolderByID( const aID : integer ) : TKntFolder; // identifies folder UNIQUELY
     function GetFolderByName( const aName : string ) : TKntFolder; // will return the first folder whose name matches aName. If more notes have the same name, function will only return the first one.
@@ -1509,7 +1497,7 @@ begin
   myTV := TTreeNT(myTreeNode.TreeView);
   cnt := FNotes.Count;
   for i := 1 to cnt do
-     if ( TKntFolder(FNotes[pred( i )]).TV = myTV ) then begin
+     if ( FNotes[pred( i )].TV = myTV ) then begin
        result := FNotes[pred( i )];
        break;
      end;
@@ -1541,14 +1529,14 @@ begin
 end;
 }
 
-function TKntFile.HasVirtualNodes : boolean;
+function TKntFile.HasVirtualNotes : boolean;
 var
   i : integer;
 begin
   result := false;
   if ( FNotes.Count > 0 ) then
      for i := 0 to pred( FNotes.Count ) do begin
-        if FNotes[i].Nodes.HasVirtualNodes then begin
+        if FNotes[i].Notes.HasVirtualNotes then begin
           result := true;
           break;
         end;
@@ -1556,7 +1544,7 @@ begin
 end;
 
 
-function TKntFile.HasVirtualNodeByFileName( const aNoteNode : TKntNote; const FN : string ) : boolean;
+function TKntFile.HasVirtualNoteByFileName( const aNote : TKntNote; const FN : string ) : boolean;
 var
   cnt, i, n : integer;
   myFolder : TKntFolder;
@@ -1567,11 +1555,11 @@ begin
 
   for i := 0 to pred( cnt ) do begin
      myFolder := FNotes[i];
-     if ( myFolder.Nodes.Count > 0 ) then
-         for n := 0 to pred( myFolder.Nodes.Count ) do
-            if ( myFolder.Nodes[n].VirtualMode <> vmNone ) then
-              if ( myFolder.Nodes[n].VirtualFN = FN ) then
-                 if ( aNoteNode <> myFolder.Nodes[n] ) then begin
+     if ( myFolder.Notes.Count > 0 ) then
+         for n := 0 to pred( myFolder.Notes.Count ) do
+            if ( myFolder.Notes[n].VirtualMode <> vmNone ) then
+              if ( myFolder.Notes[n].VirtualFN = FN ) then
+                 if ( aNote <> myFolder.Notes[n] ) then begin
                    result := true;
                    break;
                  end;
@@ -1681,7 +1669,7 @@ procedure TKntFile.ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetN
 var
     nonVirtualTreeNode, newNonVirtualTreeNode: TTreeNTNode;
     i: integer;
-    noteNode: TKntNote;
+    myNote: TKntNote;
 
     p: Pointer;
     o: TObject;
@@ -1690,21 +1678,21 @@ var
     procedure ManageVirtualNode (NodeVirtual: TTreeNTNode);
     begin
        if not assigned(NodeVirtual) then exit;
-       noteNode:= NodeVirtual.Data;
-       if not assigned(noteNode) then exit;
+       myNote:= NodeVirtual.Data;
+       if not assigned(myNote) then exit;
        case Action of
-          1: noteNode.MirrorNode:= targetNode;
+          1: myNote.MirrorNode:= targetNode;
 
           2: if NodeVirtual <> node then
                 ChangeCheckedState(TTreeNT(NodeVirtual.TreeView), NodeVirtual, (node.CheckState = csChecked), true);
 
           3: if not assigned(newNonVirtualTreeNode) then begin
                 newNonVirtualTreeNode:= NodeVirtual;
-                noteNode.MirrorNode:= nil;
-                TKntNote(node.Data).Stream.SaveToStream(noteNode.Stream);
+                myNote.MirrorNode:= nil;
+                TKntNote(node.Data).Stream.SaveToStream(myNote.Stream);
               end
               else
-                noteNode.MirrorNode:= newNonVirtualTreeNode;
+                myNote.MirrorNode:= newNonVirtualTreeNode;
        end;
     end;
 
@@ -1715,9 +1703,9 @@ begin
   // 2: Changed checked state of node
   // 3: Deleting node
   try
-      noteNode:= TKntNote(node.Data);
-      if noteNode.VirtualMode = vmKNTNode then begin
-          nonVirtualTreeNode:= noteNode.MirrorNode;
+      myNote:= TKntNote(node.Data);
+      if myNote.VirtualMode = vmKNTNode then begin
+          nonVirtualTreeNode:= myNote.MirrorNode;
           if not assigned(nonVirtualTreeNode) then exit;
           case Action of
             1: exit;
@@ -1743,11 +1731,11 @@ begin
               ManageVirtualNode(NodesVirtual[i]);
          end;
          case Action of
-            1: ReplaceNonVirtualNode(nonVirtualTreeNode, targetNode);
+            1: ReplaceNonVirtualNote(nonVirtualTreeNode, targetNode);
             3: begin
                  if assigned(newNonVirtualTreeNode) and assigned(newNonVirtualTreeNode.Data) then begin
                    RemoveMirrorNode(nonVirtualTreeNode, newNonVirtualTreeNode);
-                   ReplaceNonVirtualNode(nonVirtualTreeNode, newNonVirtualTreeNode);
+                   ReplaceNonVirtualNote(nonVirtualTreeNode, newNonVirtualTreeNode);
                    SelectIconForNode( newNonVirtualTreeNode, GetFolderByTreeNode(newNonVirtualTreeNode).IconKind);
                  end;
                end;
@@ -1830,15 +1818,15 @@ begin
 
       myFolder.EditorToDataStream;
 
-      myNotes:= myFolder.Nodes;
+      myNotes:= myFolder.Notes;
       for j := 0 to myNotes.Count - 1 do  begin
          if (myNotes[j].VirtualMode = vmNone) then begin
             Stream:= myNotes[j].Stream;
             UpdateImagesStorageMode (Stream);
             if Length(ImagesIDs) > 0 then
-               myNotes[j].NodeTextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
+               myNotes[j].NoteTextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
 
-            if myNotes[j] = myFolder.SelectedNode then
+            if myNotes[j] = myFolder.SelectedNote then
                myFolder.DataStreamToEditor;
          end;
       end;
@@ -1881,11 +1869,11 @@ begin
    try
       RTFAux:= CreateRTFAuxEditorControl;
       try
-         myNotes:= myFolder.Nodes;
+         myNotes:= myFolder.Notes;
          for i := 0 to myNotes.Count - 1 do  begin
             if (myNotes[i].VirtualMode = vmNone) then begin
                Stream:= myNotes[i].Stream;
-               EnsurePlainTextAndCheckRemoveImages (myNotes[i] = myFolder.SelectedNode);
+               EnsurePlainTextAndCheckRemoveImages (myNotes[i] = myFolder.SelectedNote);
             end;
          end;
          myFolder.ResetImagesReferenceCount;
@@ -1912,7 +1900,7 @@ var
   ImagesIDs: TImageIDs;
 
 begin
-   myNotes:= myFolder.Nodes;
+   myNotes:= myFolder.Notes;
    for i := 0 to myNotes.Count - 1 do  begin
       if (myNotes[i].VirtualMode = vmNone) then begin
          Stream:= myNotes[i].Stream;
@@ -1961,7 +1949,7 @@ var
   ImagesIDs: TImageIDs;
 
 begin
-   myNotes:= myFolder.Nodes;
+   myNotes:= myFolder.Notes;
    for i := 0 to myNotes.Count - 1 do  begin
       if (myNotes[i].VirtualMode = vmNone) then begin
          Stream:= myNotes[i].Stream;

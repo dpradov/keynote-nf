@@ -250,8 +250,8 @@ const
   MAX_FILENAME_LENGTH   = 127;
   MAX_BOOKMARKS         = 9; // ZERO-based!
   DEFAULT_CAPACITY      = 255; // default capacity for RTF Lines property (to speed up loading)
-  DEFAULT_NEW_NOTE_NAME : string = STR_01_Defaults; // default name for new notes
-  DEFAULT_NEW_NODE_NAME : string = STR_02_Defaults; // default name for new tree nodes
+  DEFAULT_NEW_FOLDER_NAME : string = STR_01_Defaults; // default name for new folders
+  DEFAULT_NEW_NOTE_NAME : string = STR_02_Defaults; // default name for new tree nodes
   DEFAULT_NODE_IMGINDEX : integer = 0;
   TRRENODE_SELIDX       = 4;
   MIN_PASS_LEN          = 5; // minimum length of file access passphrase
@@ -292,7 +292,7 @@ const
 
 const
 
-  _Default_NoteHeadingTpl =   AnsiString(
+  _Default_FolderHeadingTpl =   AnsiString(
     '{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset1{\*\fname Tahoma;}Tahoma;}}' + #13#10 +
     '{\colortbl ;\red96\green96\blue96;}' + #13#10 +
     '\viewkind4\uc1\pard\cf1\f0\fs32\par' + #13#10 +
@@ -1010,7 +1010,7 @@ const
   _VirtualFN = 'VF';
   _RelativeVirtualFN = 'RV';
   _NodeRTFBGColor = 'BC';
-  _DefaultNodeName = 'EN';
+  _DefaultNoteName = 'EN';
   _NodeSelStart = 'SS';
   _NodeColor = 'HC';
   _NodeBGColor = 'HB';

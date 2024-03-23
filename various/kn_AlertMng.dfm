@@ -87,6 +87,8 @@ object Form_Alarm: TForm_Alarm
     Anchors = [akTop, akRight]
     GroupIndex = 1
     Flat = False
+    Glyph.Data = {00000000}
+    GlyphMask.Data = {00000000}
     ImageIndex = 50
     Images = Form_Main.IMG_Toolbar
     OnClick = Button_SoundClick
@@ -100,6 +102,8 @@ object Form_Alarm: TForm_Alarm
     Hint = 'Copy selected alarms to the clipboard'
     Anchors = [akTop, akRight]
     Flat = False
+    Glyph.Data = {00000000}
+    GlyphMask.Data = {00000000}
     ImageIndex = 18
     Images = Form_Main.IMG_Toolbar
     OnClick = TB_ClipCapClick
@@ -720,6 +724,8 @@ object Form_Alarm: TForm_Alarm
           Height = 22
           AllowAllUp = True
           GroupIndex = 5
+          Glyph.Data = {00000000}
+          GlyphMask.Data = {00000000}
           ImageIndex = 0
           Images = Form_Main.IMG_Format
           RepeatInterval = 101
@@ -966,8 +972,8 @@ object Form_Alarm: TForm_Alarm
         Width = 84
         Height = 25
         Hint = 
-          'Create new alarm (in the same node/folder that the item selected o' +
-          'r in the active folder, if no one is selected)'
+          'Create new alarm (in the same node/folder that the item selected' +
+          ' or in the active folder, if no one is selected)'
         Caption = '&New'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText

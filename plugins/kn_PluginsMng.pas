@@ -433,7 +433,7 @@ begin
 
 
             try
-              with GetCurrentNoteNode do
+              with GetCurrentNote do
                 tmpstr := Name;
             except
               tmpstr := myFolder.Name;

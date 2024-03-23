@@ -980,7 +980,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Height = 17
           Hint = 
             'In external storage:'#13#10'Save files in subfolders, using the name o' +
-            'f the note where the image is first added'
+            'f the note folder where the image is first added'
           Caption = 'Save in subfolders'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -1562,7 +1562,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 29
           Width = 227
           Height = 17
-          Hint = 'Keep list of most recently used note files'
+          Hint = 'Keep list of most recently used knt files'
           Caption = '&Remember recently used files:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -2327,8 +2327,8 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 55
           Width = 311
           Height = 17
-          Hint = 'Prompt before removing a note'
-          Caption = 'Confirm &deleting notes'
+          Hint = 'Prompt before removing a folder'
+          Caption = 'Confirm &deleting folders'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -2399,7 +2399,7 @@ object Form_OptionsNew: TForm_OptionsNew
             Top = 43
             Width = 300
             Height = 17
-            Caption = '&Move nodes (delete from original tree)'
+            Caption = '&Move nodes (delete from source tree)'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
@@ -2414,7 +2414,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 147
           Width = 311
           Height = 17
-          Caption = 'Confirm starting clipboard capture in tree-t&ype notes'
+          Caption = 'Confirm starting clipboard capture when tree panel is visible'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -2479,7 +2479,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 53
           Width = 320
           Height = 17
-          Hint = 'Hot-track note tabs with the mouse'
+          Hint = 'Hot-track folder tabs with the mouse'
           Caption = '&Hot track in tabs'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -2494,7 +2494,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 33
           Width = 320
           Height = 17
-          Hint = 'Display pictures on note tabs'
+          Hint = 'Display pictures on folder tabs'
           Caption = '&Show icons on tabs'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -2863,7 +2863,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 186
           Width = 330
           Height = 17
-          Hint = 'Execute Auto-run macros on creating files and notes'
+          Hint = 'Execute Auto-run macros on creating files, folders and notes'
           Caption = '&Allow Auto-run macros'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -2894,9 +2894,9 @@ object Form_OptionsNew: TForm_OptionsNew
           Width = 330
           Height = 17
           Hint = 
-            'Always update scrollbars in tree-type notes (causes some flicker' +
+            'Always update scrollbars (causes some flicker' +
             ')'
-          Caption = '&Fix scroll bars in tree-type notes'
+          Caption = '&Fix scroll bars'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -3253,8 +3253,8 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 86
           Width = 320
           Height = 17
-          Hint = 'When opening a file, restore last active Capture note'
-          Caption = '&Remember capturing note across program sessions'
+          Hint = 'When opening a file, restore last active Capture folder'
+          Caption = '&Remember capturing folder across program sessions'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -3519,7 +3519,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Caption = 
             'Enter extensions which KeyNote should treat as plain text files.' +
             ' '#13#10'This allows to recognize plain text files '#13#10'when importing th' +
-            'em as notes.'
+            'em as folders.'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11

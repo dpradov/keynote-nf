@@ -66,9 +66,9 @@ type
     StateChanged : boolean;
 
     myChrome : TChrome;
-    myEditorProperties : TNoteEditorProperties;
-    myTabProperties : TNoteTabProperties;
-    myTreeProperties : TNoteTreeProperties;
+    myEditorProperties : TFolderEditorProperties;
+    myTabProperties : TFolderTabProperties;
+    myTreeProperties : TFolderTreeProperties;
     myTreeChrome : TChrome;
     myTreeOptions : TKNTTreeOptions;
 
@@ -107,10 +107,10 @@ begin
   OK_Click := false;
 
   InitializeChrome( myChrome );
-  InitializeNoteEditorProperties( myEditorProperties );
-  InitializeNoteTabProperties( myTabProperties );
+  InitializeFolderEditorProperties( myEditorProperties );
+  InitializeFolderTabProperties( myTabProperties );
   InitializeChrome( myTreeChrome );
-  InitializeNoteTreeProperties( myTreeProperties );
+  InitializeFolderTreeProperties( myTreeProperties );
   InitializeTreeOptions( myTreeOptions );
 
   TAB_CHANGEABLE := true;
@@ -253,7 +253,7 @@ begin
        Form_Defaults.myCurrentFileName := ExtractFilename( KntFile.FileName );
 
     Form_Defaults.StartWithEditorTab := true;
-    Form_Defaults.Action := propThisNote;
+    Form_Defaults.Action := propThisFolder;
     Form_Defaults.myEditorChrome := myChrome;
     Form_Defaults.myTabProperties := myTabProperties;
     Form_Defaults.myEditorProperties := myEditorProperties;

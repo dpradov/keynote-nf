@@ -184,9 +184,9 @@ resourcestring
   STR_01 = 'Exporting is underway. OK to abort?';
   STR_02 = 'Please select a valid directory for exported files.';
   STR_03 = 'Specified output directory does not not exit. Please select a valid directory.';
-  STR_04 = 'You did not select any notes for exporting.';
-  STR_11 = 'Error while exporting notes: ';
-  STR_12 = 'Exported  %d notes (%d nodes).';
+  STR_04 = 'You did not select any foldersnotes for exporting.';
+  STR_11 = 'Error while exporting folders: ';
+  STR_12 = 'Exported  %d folders (%d notes).';
   STR_13 = 'Exporting was aborted due to an error.';
   STR_14 = 'Exporting was aborted at user request.';
   STR_15 = 'The following token can be used in headings:' + #13#13 +
@@ -564,7 +564,7 @@ begin
       ExportOptions.ExportSource := TExportSource( readinteger( section, ExportOptionsIniStr.ExportSource, ord( ExportOptions.ExportSource )));
       ExportOptions.HTMLExportMethod := THTMLExportMethod(readinteger( section, ExportOptionsIniStr.HTMLExportMethod, ord(ExportOptions.HTMLExportMethod) ));
       ExportOptions.IncludeNodeHeadings := readbool( section, ExportOptionsIniStr.IncludeNodeHeadings, ExportOptions.IncludeNodeHeadings );
-      ExportOptions.IncludeNoteHeadings := readbool( section, ExportOptionsIniStr.IncludeNoteHeadings, ExportOptions.IncludeNoteHeadings );
+      ExportOptions.IncludeFolderHeadings := readbool( section, ExportOptionsIniStr.IncludeNoteHeadings, ExportOptions.IncludeFolderHeadings );
       ExportOptions.ExcludeHiddenNodes  := readbool( section, ExportOptionsIniStr.ExcludeHiddenNodes, ExportOptions.ExcludeHiddenNodes );  // [dpv]
       ExportOptions.NodeLevelTemplates := readbool( section, ExportOptionsIniStr.UseLevelTemplates, ExportOptions.NodeLevelTemplates );
       ExportOptions.SymbolsInHeading := readstring( section, ExportOptionsIniStr.SymbolsInHeading, ExportOptions.SymbolsInHeading );
@@ -630,7 +630,7 @@ begin
       writeinteger( section, ExportOptionsIniStr.ExportSource, ord( ExportOptions.ExportSource ));
       writeinteger( section, ExportOptionsIniStr.HTMLExportMethod, ord(ExportOptions.HTMLExportMethod) );
       writebool( section, ExportOptionsIniStr.IncludeNodeHeadings, ExportOptions.IncludeNodeHeadings );
-      writebool( section, ExportOptionsIniStr.IncludeNoteHeadings, ExportOptions.IncludeNoteHeadings );
+      writebool( section, ExportOptionsIniStr.IncludeNoteHeadings, ExportOptions.IncludeFolderHeadings );
       writebool( section, ExportOptionsIniStr.ExcludeHiddenNodes, ExportOptions.ExcludeHiddenNodes );  // [dpv]
 
       writebool( section, ExportOptionsIniStr.UseLevelTemplates, ExportOptions.NodeLevelTemplates );
@@ -687,7 +687,7 @@ begin
     ConfirmFilenames := CheckBox_Ask.Checked;
 
     IncludeNodeHeadings := CB_IncNodeHeading.Checked;
-    IncludeNoteHeadings := CB_IncNoteHeading.Checked;
+    IncludeFolderHeadings := CB_IncNoteHeading.Checked;
 
     SymbolsInHeading:= Edit_Symbols.Text;
     LengthHeading:= Edit_LengthHeading.Text;
@@ -737,7 +737,7 @@ begin
     CheckBox_Ask.Checked := ConfirmFilenames;
 
     CB_IncNodeHeading.Checked := IncludeNodeHeadings;
-    CB_IncNoteHeading.Checked := IncludeNoteHeadings;
+    CB_IncNoteHeading.Checked := IncludeFolderHeadings;
     Edit_NodeHead.Text := NodeHeading;
     Edit_NoteHead.Text := FolderHeading;
 
@@ -805,12 +805,12 @@ end; // Validate
 procedure TForm_ExportNew.PerformExport;
 var
   myFolder : TKntFolder;
-  i, cnt, noteIdx : integer;
+  i, cnt, FolderIdx : integer;
   RTFAux : TTabRichEdit;
 
-  NoteHeading, NodeHeading : string;
-  NoteHeadingRTF, NodeHeadingRTF : string;
-  NoteHeadingTpl, NodeHeadingTpl : string;
+  FolderHeading, NodeHeading : string;
+  FolderHeadingRTF, NodeHeadingRTF : string;
+  FolderHeadingTpl, NodeHeadingTpl : string;
   NodeLevelHeadingTpl : array of string;
   NodeHeadingTpl_Aux: string;
   NodeText: AnsiString;
@@ -818,7 +818,7 @@ var
   NodeTextSize : integer;
   StartLevel, ThisNodeIndex : integer;
   tmpStream : TMemoryStream;
-  ExportedNotes, ExportedNodes, tmpExportedNodes : integer;
+  ExportedFolders, ExportedNotes, tmpExportedNodes : integer;
   WasError, WasAborted : boolean;
   StartTreeNode, myTreeNode : TTreeNTNode;
   myNote : TKntNote;
@@ -903,13 +903,13 @@ begin
   FileIsBusy := true;             // To avoid that kn_Main.TimerTimer, at the beginning can interfere calling to KntFile.UpdateTextPlainVariables(); (it also uses the same RTFAux, with GetAuxEditorControl)
   Screen.Cursor := crHourGlass;
   DoAbort := false;
+  ExportedFolders := 0;
   ExportedNotes := 0;
-  ExportedNodes := 0;
-  NoteHeading := '';
+  FolderHeading := '';
   NodeHeading := '';
   WasError := false;
   WasAborted := false;
-  NoteHeadingRTF := '';
+  FolderHeadingRTF := '';
   NodeHeadingRTF := '';
   StartLevel := 0;
   TreePadFN := '';
@@ -944,16 +944,16 @@ begin
          if FN <> ''  then begin
             ext := Extractfileext( FN );
             if (ext = '') then FN := FN + ext_KeyNote;
-            KntFileCopy (ExportedNotes, ExportedNodes, FN, true, myTreeNode, OnlyNotHiddenNodes, OnlyCheckedNodes );
+            KntFileCopy (ExportedFolders, ExportedNotes, FN, true, myTreeNode, OnlyNotHiddenNodes, OnlyCheckedNodes );
          end;
 
          exit;                                                                    // ------------
       end;
 
       // load general, default templates
-      NoteHeadingTpl := LoadRTFHeadingTemplate( NoteHeadingTpl_FN);
-      if ( NoteHeadingTpl = '' ) then
-         NoteHeadingTpl := _Default_NoteHeadingTpl;
+      FolderHeadingTpl := LoadRTFHeadingTemplate( NoteHeadingTpl_FN);
+      if ( FolderHeadingTpl = '' ) then
+         FolderHeadingTpl := _Default_FolderHeadingTpl;
       NodeHeadingTpl := LoadRTFHeadingTemplate( NodeHeadingTpl_FN);
       if ( NodeHeadingTpl = '' ) then
          NodeHeadingTpl := _Default_NodeHeadingTpl;
@@ -965,22 +965,22 @@ begin
       PrepareExportOptions (ExportOptions.LengthHeading, ExportOptions.FontSizesInHeading);
 
 
-      for NoteIdx := 1 to myKntFile.Folders.Count do begin             // ----------------------------------------------------------- FOR EACH NOTE :
+      for FolderIdx := 1 to myKntFile.Folders.Count do begin             // ----------------------------------------------------------- FOR EACH NOTE :
         Application.ProcessMessages;
         if DoAbort then break;
 
-        myFolder := myKntFile.Folders[pred( NoteIdx )];
+        myFolder := myKntFile.Folders[pred( FolderIdx )];
         if ( myFolder.Info > 0 ) then begin
           // this note has been marked for exporting
 
           RTFAux.Clear;
           PrepareRTFAuxForPlainText(RTFAux, myFolder);
 
-          if ExportOptions.IncludeNoteHeadings then begin
-             NoteHeading := ExpandExpTokenString( ExportOptions.FolderHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), '', 0, 0, myFolder.TabSize );
+          if ExportOptions.IncludeFolderHeadings then begin
+             FolderHeading := ExpandExpTokenString( ExportOptions.FolderHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), '', 0, 0, myFolder.TabSize );
              if ShowHiddenMarkers then
-                NoteHeading:= Format('%s [%d]', [NoteHeading, myFolder.ID]);
-             NoteHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NoteHeading ), NoteHeadingTpl );
+                FolderHeading:= Format('%s [%d]', [FolderHeading, myFolder.ID]);
+             FolderHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( FolderHeading ), FolderHeadingTpl );
           end;
 
           case ExportOptions.TargetFormat of
@@ -999,7 +999,7 @@ begin
 
               if assigned( myTreeNode ) then begin
                 StartLevel := myTreeNode.Level;
-                inc( ExportedNotes );
+                inc( ExportedFolders );
               end
               else
                  continue; // could not access starting node - perhaps tree has none
@@ -1109,7 +1109,7 @@ begin
                           RTFAux.PutRtfText(NodeHeadingRTF, true);
                         end;
                         if FlushExportFile( RTFAux, myFolder, myNote.Name ) then
-                          inc( ExportedNodes );
+                          inc( ExportedNotes );
                       end;
                   end; // case ExportOptions.SingleNodeFiles
                 end;
@@ -1135,10 +1135,10 @@ begin
               // if exporting all nodes to one file, flush nodes now
               if ( not ExportOptions.SingleNodeFiles ) then begin
                 // we have gathered all nodes, now flush the file
-                if ( ExportOptions.IncludeNoteHeadings and ( NoteHeadingRTF <> '' )) then begin
+                if ( ExportOptions.IncludeFolderHeadings and ( FolderHeadingRTF <> '' )) then begin
                    var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
                    RTFAux.SelStart := 0;
-                   RTFAux.PutRtfText(NoteHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
+                   RTFAux.PutRtfText(FolderHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
                    if ApplyAutoFontSizes then begin
                       SL:= RTFAux.SelLength;
                       RTFAux.SelAttributes.Size:= FontSizes_Max;
@@ -1147,7 +1147,7 @@ begin
 
                 end;
                 if FlushExportFile( RTFAux, myFolder, RemoveAccelChar( myFolder.Name )) then
-                   inc( ExportedNodes, tmpExportedNodes );
+                   inc( ExportedNotes, tmpExportedNodes );
               end;
             end;
 
@@ -1248,11 +1248,11 @@ begin
                    FlushTreePadData( TreePadFile, myNote.Name, myNote.Level + TreePadNodeLevelInc, RTFAux, true );
 
 
-                   inc( ExportedNodes );
+                   inc( ExportedNotes );
                    myTreeNode := myTreeNode.GetNext;
                  end;
 
-                 inc( ExportedNotes );
+                 inc( ExportedFolders );
 
               finally
                  // close file after every note, because we might break out of the loop at next iteration
@@ -1264,7 +1264,7 @@ begin
           end; // case ExportOptions.TargetFormat
 
         end;
-      end; // for NoteIdx := 1 to myKntFile.Notes.Count do
+      end; // for NoteIdx := 1 to myKntFile.Folders.Count do
 
     except
       on E : Exception do begin
@@ -1279,7 +1279,7 @@ begin
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
-    ExitMessage := Format(STR_12, [ExportedNotes, ExportedNodes] );
+    ExitMessage := Format(STR_12, [ExportedFolders, ExportedNotes] );
     if WasError then
        ExitMessage := ExitMessage + #13 + STR_13
     else

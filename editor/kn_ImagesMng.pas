@@ -273,7 +273,7 @@ type
 
     destructor Destroy; override;
 
-    procedure GenerateName(Node: TKntNote; Folder: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+    procedure GenerateName(Note: TKntNote; Folder: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 
     property ID: Integer read FID;
     property ImageFormat: TImageFormat read FImageFormat;
@@ -1024,7 +1024,7 @@ end;
 
 { Generates a Name and Path for a new image, unique in the storage, and taking into account that it has been created on the indicated node/folder  }
 
-procedure TKntImage.GenerateName(Node: TKntNote; Folder: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+procedure TKntImage.GenerateName(Note: TKntNote; Folder: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 var
   src: String;
   strDate: string;
@@ -2302,13 +2302,13 @@ function TImageManager.RegisterNewImage(
 var
    Img: TKntImage;
    Path: string;
-   Node: TKntNote;
+   Note: TKntNote;
    ImgID: integer;
    ZipPathFormat: boolean;
    StreamIMG: TMemoryStream;
 
 begin
-   Node:= GetCurrentNoteNode;
+   Note:= GetCurrentNote;
    ImgID:= GetNewID();
 
    if not Owned and KeyOptions.ImgLinkRelativePath then
@@ -2329,7 +2329,7 @@ begin
    if (assigned(fExternalStorageToSave)) and (fExternalStorageToSave.StorageType= stZip) then
       ZipPathFormat:= true;
 
-   Img.GenerateName(Node, Folder, Source, ZipPathFormat, NameProposed);
+   Img.GenerateName(Note, Folder, Source, ZipPathFormat, NameProposed);
 
    fImages.Add(Pointer(Img));
    if Owned and ((fStorageMode = smExternal) or (fStorageMode = smExternalAndEmbKNT)) then

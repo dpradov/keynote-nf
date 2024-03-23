@@ -600,7 +600,7 @@ begin
     if ( not assigned( ActiveKntFolder )) then exit;
   end;
 
-  wasreadonly := Form_Main.NoteIsReadOnly( ActiveKntFolder, false );
+  wasreadonly := Form_Main.FolderIsReadOnly( ActiveKntFolder, false );
   if wasreadonly then begin
     if ( DoMessageBox( Format(STR_17,[ActiveKntFolder.Name]), mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
        exit;
@@ -1897,7 +1897,7 @@ begin
   if ( RTFUpdating or FileIsBusy ) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
 
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
     Canceled:= False;
     ErrNoTextSelected:= False;
@@ -2280,8 +2280,8 @@ begin
 
               ActiveKntFolder.Editor.Color := tempChrome.BGColor;
 
-              if assigned( ActiveKntFolder.SelectedNode ) then
-                ActiveKntFolder.SelectedNode.RTFBGColor := tempChrome.BGColor;
+              if assigned( ActiveKntFolder.SelectedNote ) then
+                ActiveKntFolder.SelectedNote.RTFBGColor := tempChrome.BGColor;
 
               if ( not TreeOptions.InheritNodeBG ) then
                 ActiveKntFolder.EditorChrome := tempChrome;
@@ -2307,18 +2307,18 @@ begin
           end;
 
           ecWordWrap : begin
-             if assigned( ActiveKntFolder.SelectedNode ) then begin
-                case ActiveKntFolder.SelectedNode.WordWrap of
+             if assigned( ActiveKntFolder.SelectedNote ) then begin
+                case ActiveKntFolder.SelectedNote.WordWrap of
                    wwAsNote :
                     if ActiveKntFolder.WordWrap then
-                       ActiveKntFolder.SelectedNode.WordWrap := wwNo
+                       ActiveKntFolder.SelectedNote.WordWrap := wwNo
                     else
-                       ActiveKntFolder.SelectedNode.WordWrap := wwYes;
+                       ActiveKntFolder.SelectedNote.WordWrap := wwYes;
 
-                   wwYes : ActiveKntFolder.SelectedNode.WordWrap := wwNo;
-                   wwNo : ActiveKntFolder.SelectedNode.WordWrap := wwYes;
+                   wwYes : ActiveKntFolder.SelectedNote.WordWrap := wwNo;
+                   wwNo : ActiveKntFolder.SelectedNote.WordWrap := wwYes;
                 end;
-                ActiveKntFolder.Editor.WordWrap := ( ActiveKntFolder.SelectedNode.WordWrap = wwYes );
+                ActiveKntFolder.Editor.WordWrap := ( ActiveKntFolder.SelectedNote.WordWrap = wwYes );
              end;
              UpdateNoteDisplay;
           end;
@@ -2890,7 +2890,7 @@ begin
        end
        else begin
            if ActiveKntFolder.TV.IsEditing then begin
-              if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then
+              if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then
                  executed:= true;
            end
            else if ActiveKntFolder.TV.Focused then begin

@@ -1068,8 +1068,6 @@ object Form_Main: TForm_Main
     Width = 1042
     Height = 26
     Position = dpBottom
-    ExplicitTop = 667
-    ExplicitWidth = 1038
     object Toolbar_Tree: TToolbar97
       Tag = 4
       Left = 247
@@ -1479,8 +1477,8 @@ object Form_Main: TForm_Main
             Top = 62
             Width = 213
             Height = 17
-            Hint = 'Search through all notes in current file'
-            Caption = 'Search all notes'
+            Hint = 'Search through all folders in current file'
+            Caption = 'Search all folders'
             Checked = True
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -1993,7 +1991,7 @@ object Form_Main: TForm_Main
       end
       object MMToolsImport: TMenuItem
         Caption = '&Import...'
-        Hint = 'Import files as notes'
+        Hint = 'Import files as folders'
         OnClick = MMToolsImportClick
       end
       object MMToolsExport: TMenuItem
@@ -3578,8 +3576,8 @@ object Form_Main: TForm_Main
         Caption = '-'
       end
       object MMToolsMerge: TMenuItem
-        Caption = '&Merge Notes...'
-        Hint = 'Add notes from a file on disk'
+        Caption = '&Merge Folders...'
+        Hint = 'Add folders from a knt file on disk'
         OnClick = MMToolsMergeClick
       end
       object MMTemplates_: TMenuItem
@@ -7221,13 +7219,13 @@ object Form_Main: TForm_Main
           'ther KeyNote node)'
         OnClick = TVInsertMirrorNodeClick
       end
-      object TVNavigateNonVirtualNode: TMenuItem
+      object TVNavigateNonVirtualNote: TMenuItem
         Caption = 'Navigate to &Non Virtual'
         HelpContext = 383
         Hint = 
           'Navigate to the non virtual node to wich this mirror node is lin' +
           'ked'
-        OnClick = TVNavigateNonVirtualNodeClick
+        OnClick = TVNavigateNonVirtualNoteClick
       end
       object N90: TMenuItem
         Caption = '-'

@@ -27,14 +27,14 @@ uses
    ;
 
 
-    // virtual nodes
-    procedure VirtualNodeProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : string );
-    procedure VirtualNodeRefresh( const DoPrompt : boolean );
-    procedure VirtualNodeUnlink;
-    function GetCurrentVirtualNode : TKntNote;
-    procedure VirtualNodeUpdateMenu( const IsVirtual : boolean; const IsKNTVirtual: boolean );
+    // virtual notes
+    procedure VirtualNoteProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : string );
+    procedure VirtualNoteRefresh( const DoPrompt : boolean );
+    procedure VirtualNoteUnlink;
+    function GetCurrentVirtualNote : TKntNote;
+    procedure VirtualNoteUpdateMenu( const IsVirtual : boolean; const IsKNTVirtual: boolean );
     {$IFDEF WITH_IE}
-    function VirtualNodeGetMode( const aNode : TKntNote; var newMode : TVirtualMode; var newFN : string ) : boolean;
+    function VirtualNoteGetMode( const aNote : TKntNote; var newMode : TVirtualMode; var newFN : string ) : boolean;
     {$ENDIF}
 
 var
@@ -78,17 +78,17 @@ resourcestring
   STR_18 = 'Unlink mirror node "%s"? The contents of the node will be retained but the link with the non virtual node will be removed.';
 
 {$IFDEF WITH_IE}
-function VirtualNodeGetMode( const aNode : TKntNote; var newMode : TVirtualMode; var newFN : string ) : boolean;
+function VirtualNoteGetMode( const aNote : TKntNote; var newMode : TVirtualMode; var newFN : string ) : boolean;
 var
   Form_VNode : TForm_VNode;
 begin
   result := false;
-  if ( not assigned( aNode )) then exit;
+  if ( not assigned( aNote )) then exit;
   Form_VNode := TForm_VNode.Create( self );
   try
-    Form_VNode.myVirtualMode := aNode.VirtualMode;
-    Form_VNode.myVirtualFN := aNode.VirtualFN;
-    Form_VNode.myNodeName := aNode.Name;
+    Form_VNode.myVirtualMode := aNote.VirtualMode;
+    Form_VNode.myVirtualFN := aNote.VirtualFN;
+    Form_VNode.myNodeName := aNote.Name;
     if ( Form_VNode.ShowModal = mrOK ) then
     begin
       newMode := Form_VNode.myVirtualMode;
@@ -98,10 +98,10 @@ begin
   finally
     Form_VNode.Free;
   end;
-end; // VirtualNodeGetMode
+end; // VirtualNoteGetMode
 {$ENDIF}
 
-procedure VirtualNodeProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : string );
+procedure VirtualNoteProc( VMode : TVirtualMode; myTreeNode : TTreeNTNode; VirtFN : string );
 var
   myNote : TKntNote;
   oldDlgFilter : string;
@@ -255,7 +255,7 @@ begin
         // any given file can be linked to a virtual node only once
         // per KNT file. So we must check if the selected file already
         // exists as a virtual node in the currently open KNT file.
-        if KntFile.HasVirtualNodeByFileName( myNote, VirtFN ) then
+        if KntFile.HasVirtualNoteByFileName( myNote, VirtFN ) then
         begin
           messagedlg( STR_08, mtError, [mbOK], 0 );
           exit;
@@ -302,7 +302,7 @@ begin
             myNote.LoadVirtualFile;
             ActiveKntFolder.DataStreamToEditor;
           end;
-          VirtualNodeUpdateMenu( true, false );
+          VirtualNoteUpdateMenu( true, false );
           myTreeNode := GetCurrentTreeNode;
           SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
           if ( TreeOptions.AutoNameVNodes and ( not IsFlushingData )) then
@@ -335,15 +335,15 @@ begin
 
       end;
   end;
-end; // VirtualNodeProc
+end; // VirtualNoteProc
 
 
-procedure VirtualNodeUnlink;
+procedure VirtualNoteUnlink;
 var
   myNote : TKntNote;
   myTreeNode, originalTreeNode : TTreeNTNode;
 begin
-  myNote := GetCurrentVirtualNode;
+  myNote := GetCurrentVirtualNote;
   if ( not assigned( myNote )) then exit;
   myTreeNode := GetCurrentTreeNode;
   if ( not assigned( myTreeNode )) then exit;
@@ -368,7 +368,7 @@ begin
               myNote.MirrorNode:= nil;
               TKntNote(originalTreeNode.Data).Stream.SaveToStream(myNote.Stream);
               ActiveKntFolder.Modified := true;
-              VirtualNodeUpdateMenu( false, false );
+              VirtualNoteUpdateMenu( false, false );
               SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
             finally
               KntFile.Modified := true;
@@ -385,7 +385,7 @@ begin
           myNote.VirtualMode := vmNone;
           myNote.VirtualFN := '';
           ActiveKntFolder.Modified := true;
-          VirtualNodeUpdateMenu( false, false );
+          VirtualNoteUpdateMenu( false, false );
           SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
         finally
           KntFile.Modified := true;
@@ -393,13 +393,13 @@ begin
         end;
       end;
 
-end; // VirtualNodeUnlink
+end; // VirtualNoteUnlink
 
-procedure VirtualNodeRefresh( const DoPrompt : boolean );
+procedure VirtualNoteRefresh( const DoPrompt : boolean );
 var
   myNote : TKntNote;
 begin
-  myNote := GetCurrentVirtualNode;
+  myNote := GetCurrentVirtualNote;
   if ( not assigned( myNote )) then exit;
 
   // if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
@@ -451,23 +451,23 @@ begin
       end;
   end;
 
-end; // VirtualNodeRefresh
+end; // VirtualNoteRefresh
 
-procedure VirtualNodeUpdateMenu( const IsVirtual : boolean; const IsKNTVirtual: boolean );
+procedure VirtualNoteUpdateMenu( const IsVirtual : boolean; const IsKNTVirtual: boolean );
 begin
   with Form_Main do begin
       TVVirtualNode.Checked := IsVirtual and not IsKNTVirtual;
       TVRefreshVirtualNode.Enabled := IsVirtual and not IsKNTVirtual;
       TVUnlinkVirtualNode.Enabled := IsVirtual;
 
-      TVNavigateNonVirtualNode.Enabled := IsKNTVirtual;
+      TVNavigateNonVirtualNote.Enabled := IsKNTVirtual;
       //TVInsertMirrorNode.Enabled := true;
   end;
-end; // VirtualNodeUpdateMenu
+end; // VirtualNoteUpdateMenu
 
-function GetCurrentVirtualNode : TKntNote;
+function GetCurrentVirtualNote : TKntNote;
 begin
-  result := GetCurrentNoteNode;
+  result := GetCurrentNote;
   if ( result = nil ) then exit;
   if ( result.VirtualMode = vmNone ) then
   begin
@@ -476,7 +476,7 @@ begin
       [result.Name] ), mtError, [mbOK], 0 );
     result := nil;
   end;
-end; // GetCurrentVirtualNode
+end; // GetCurrentVirtualNote
 
 initialization
   Virtual_UnEncrypt_Warning_Done := false;

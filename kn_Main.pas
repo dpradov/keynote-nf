@@ -794,7 +794,7 @@ type
     TVGraftSubtreeMirror: TMenuItem;
     TVInsertMirrorNode: TMenuItem;
     N115: TMenuItem;
-    TVNavigateNonVirtualNode: TMenuItem;
+    TVNavigateNonVirtualNote: TMenuItem;
     TB_AlarmMode: TToolbarButton97;
     NU01: TMenuItem;
     MMRightParenthesis: TMenuItem;
@@ -847,7 +847,7 @@ type
     procedure TntFormResize(Sender: TObject);
     procedure TB_AlarmModeMouseEnter(Sender: TObject);
     procedure TB_AlarmModeClick(Sender: TObject);
-    procedure TVNavigateNonVirtualNodeClick(Sender: TObject);
+    procedure TVNavigateNonVirtualNoteClick(Sender: TObject);
     procedure TVInsertMirrorNodeClick(Sender: TObject);
     procedure TVGraftSubtreeMirrorClick(Sender: TObject);
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
@@ -1324,7 +1324,7 @@ type
     // sanity checks. Many functions cannot be performed
     // if we have no active note or if the note is read-only
     function HaveKntFolders( const Warn, CheckCount : boolean ) : boolean;
-    function NoteIsReadOnly( const aFolder : TKntFolder; const Warn : boolean ) : boolean;
+    function FolderIsReadOnly( const aFolder : TKntFolder; const Warn : boolean ) : boolean;
 
     // search / replace
     procedure FindNotify( const Active : boolean );
@@ -1371,7 +1371,7 @@ type
     procedure HotKeyProc( const TurnOn : boolean );
 
     {$IFDEF WITH_IE}
-    function SelectVisibleControlForNode( const aNode : TKntNote ) : TNodeControl;
+    function SelectVisibleControlForNote( const aNote : TKntNote ) : TNodeControl;
     {$ENDIF}
 
     procedure FilterApplied (Folder: TKntFolder);   // [dpv]
@@ -1807,7 +1807,7 @@ procedure TForm_Main.ProcessControlMessage(
           result := ( assigned( KntFile ) and
             HaveKntFolders( false, true ));
           if ( result and mustbereadonly ) then
-            result := ( result and ( not NoteIsReadOnly( ActiveKntFolder, false )));
+            result := ( result and ( not FolderIsReadOnly( ActiveKntFolder, false )));
         end;
 begin
   case MsgID of
@@ -2656,7 +2656,7 @@ end; // ShowInsMode
 procedure TForm_Main.PagesDblClick(Sender: TObject );
 begin
   if ShiftDown then
-    EditKntFolderProperties( propThisNote )
+    EditKntFolderProperties( propThisFolder )
   else
     RenameKntFolder;
 end; // PagesDblClick
@@ -3140,7 +3140,7 @@ begin
 
       VK_RETURN :
            if EditorOptions.AutoIndent and (Editor.Paragraph.TableStyle = tsNone) then begin
-              if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+              if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
               GetIndentInformation(Editor, Indent, NextIndent, LineStr, posFirstChar, true);
               with Editor do begin
                 if (Indent = length(LineStr)) and (Paragraph.Numbering <> nsNone) and (Paragraph.NumberingStyle <> nsNoNumber) then
@@ -3269,7 +3269,7 @@ begin
     exit;
   end;
 
-  if not assigned(ActiveKntFolder) or NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if not assigned(ActiveKntFolder) or FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
   posBegin:= 0;     // To avoid compiler warning on SelStart:= posBegin (but really no necessary)
 
@@ -3579,9 +3579,9 @@ begin
   KntFile.Modified := true;
   UpdateKntFileState( [fscModified] );
 
-  with TKntFolder(ActiveKntFolder) do
-     if assigned(SelectedNode) then
-        SelectedNode.RTFModified := true
+  with ActiveKntFolder do
+     if assigned(SelectedNote) then
+        SelectedNote.RTFModified := true
      else
         messagedlg( STR_14, mtError, [mbOK], 0 );
 
@@ -3632,7 +3632,7 @@ end;
 procedure TForm_Main.PagesChange(Sender: TObject);
 var
    ModifiedDataStream: TMemoryStream;
-   SelectedNode: TKntNote;
+   selectedNote: TKntNote;
 begin
 
   try
@@ -3648,8 +3648,8 @@ begin
       end;
 
       ActiveKntFolder := TKntFolder( Pages.ActivePage.PrimaryObject );
-      SelectedNode:= TKntFolder(ActiveKntFolder).SelectedNode;
-      if assigned(SelectedNode) and (SelectedNode.Stream = ModifiedDataStream) then
+      selectedNote:= ActiveKntFolder.selectedNote;
+      if assigned(selectedNote) and (selectedNote.Stream = ModifiedDataStream) then
          ActiveKntFolder.DataStreamToEditor;
 
       ActiveKntFolder.ImagesMode := ImagesManager.ImagesMode;
@@ -3827,7 +3827,7 @@ begin
             ActiveKntFolder.Editor.SetFocus
           else
           if ( ActiveKntFolder.FocusMemory = focTree ) then
-            TKntFolder( ActiveKntFolder ).TV.SetFocus;
+            ActiveKntFolder.TV.SetFocus;
         except
         end;
       end;
@@ -3895,7 +3895,7 @@ begin
       if ( ActiveKntFolder.FocusMemory = focRTF ) then
         ActiveKntFolder.Editor.SetFocus
       else if ( ActiveKntFolder.FocusMemory = focTree ) then
-        TKntFolder( ActiveKntFolder ).TV.SetFocus;
+        ActiveKntFolder.TV.SetFocus;
     except
     end;
   end
@@ -4140,10 +4140,10 @@ begin
       s := s +
          'Active note name: ' + ActiveKntFolder.Name +#13;
 
-      s := s + 'Number of Tree nodes: ' + inttostr( TKntFolder( ActiveKntFolder ).TV.Items.Count ) + #13 +
-        'Number of Folder nodes: ' + inttostr( TKntFolder( ActiveKntFolder ).NodeCount ) + #13;
-      if assigned( TKntFolder( ActiveKntFolder ).SelectedNode ) then
-        s := s + 'Selected node: ' + TKntFolder( ActiveKntFolder ).SelectedNode.Name +#13;
+      s := s + 'Number of Tree nodes: ' + inttostr( ActiveKntFolder.TV.Items.Count ) + #13 +
+        'Number of Folder notes: ' + inttostr( ActiveKntFolder.NoteCount ) + #13;
+      if assigned( ActiveKntFolder.selectedNote ) then
+        s := s + 'Selected note: ' + ActiveKntFolder.selectedNote.Name +#13;
     end
     else
       s := s + 'ActiveKntFolder NOT assigned' + #13;
@@ -4356,7 +4356,7 @@ end;
 procedure TForm_Main.MMNotePropertiesClick(Sender: TObject);
 begin
   // EditNote;
-  EditKntFolderProperties( propThisNote );
+  EditKntFolderProperties( propThisFolder );
 end;
 
 procedure TForm_Main.TB_ExitClick(Sender: TObject);
@@ -4370,14 +4370,14 @@ var
 begin
     if not assigned (ActiveKntFolder) then exit;
 
-    Folder:= TKntFolder(ActiveKntFolder);
+    Folder:= ActiveKntFolder;
     if not Folder.Filtered then begin
         ShowFindAllOptions;
         CB_ResFind_Filter.Checked:= true;
         TB_FilterTree.Down:= false;
     end
     else begin
-        Folder:= TKntFolder(ActiveKntFolder);
+        Folder:= ActiveKntFolder;
         RemoveFilter (Folder);
         FilterRemoved (Folder);
     end;
@@ -4517,12 +4517,12 @@ begin
 
 end; // HaveKntFolders
 
-function TForm_Main.NoteIsReadOnly( const aFolder : TKntFolder; const Warn : boolean ) : boolean;
+function TForm_Main.FolderIsReadOnly( const aFolder : TKntFolder; const Warn : boolean ) : boolean;
 begin
   result := assigned( aFolder ) and aFolder.ReadOnly;
   if ( result and Warn ) then
     StatusBar.Panels[PANEL_HINT].Text := STR_27;
-end; // NoteIsReadOnly
+end; // FolderIsReadOnly
 
 (*  Not used. Referenced by kn_Main.GetKeyStates, not used
 procedure TForm_Main.GetKeyStates;
@@ -4802,16 +4802,16 @@ end; // MMEmailnoteClick
 procedure TForm_Main.ShowAlarmStatus;
 var
    HasNoteAlarms, HasNodeAlarms: Boolean;
-   myNode: TKntNote;
+   myNote: TKntNote;
 
 begin
   HasNodeAlarms:= false;
   HasNoteAlarms:= false;
 
   if assigned(ActiveKntFolder) then begin
-     myNode:= ActiveKntFolder.GetSelectedNode;
-     if assigned(myNode) then begin
-        HasNodeAlarms:= myNode.HasAlarms(false);
+     myNote:= ActiveKntFolder.GetSelectedNote;
+     if assigned(myNote) then begin
+        HasNodeAlarms:= myNote.HasAlarms(false);
         TVAlarmNode.Checked:= HasNodeAlarms;
      end;
      HasNoteAlarms:= ActiveKntFolder.HasAlarms(false);
@@ -4865,29 +4865,29 @@ end;
 
 procedure TForm_Main.SetAlarm(ConsiderNoteAlarm: Boolean);      // [dpv*]
 var
-    myNode: TKntNote;
-    HasNoteAlarms, HasNodeAlarms: Boolean;
+    myNote: TKntNote;
+    HasFolderAlarms, HasNodeAlarms: Boolean;
 
 begin
    if not assigned( KntFile ) or (not assigned(ActiveKntFolder)) then exit;
 
-   HasNoteAlarms:= ActiveKntFolder.HasAlarms(false);
+   HasFolderAlarms:= ActiveKntFolder.HasAlarms(false);
    HasNodeAlarms:= false;
-   myNode:= ActiveKntFolder.GetSelectedNode;
-   if myNode <> nil then
-      HasNodeAlarms:= myNode.HasAlarms(false);
+   myNote:= ActiveKntFolder.GetSelectedNote;
+   if myNote <> nil then
+      HasNodeAlarms:= myNote.HasAlarms(false);
 
-   if ConsiderNoteAlarm and (ShiftDown or (HasNoteAlarms and not HasNodeAlarms)) then
-      myNode:= nil;
+   if ConsiderNoteAlarm and (ShiftDown or (HasFolderAlarms and not HasNodeAlarms)) then
+      myNote:= nil;
 
-   AlarmManager.EditAlarms (myNode, ActiveKntFolder, (GetKeyState(VK_CONTROL) < 0));
+   AlarmManager.EditAlarms (myNote, ActiveKntFolder, (GetKeyState(VK_CONTROL) < 0));
    ShowAlarmStatus;
 end;
 
 
 procedure TForm_Main.TB_SetAlarmMouseEnter(Sender: TObject);    // [dpv*]
 var
-    myNode: TKntNote;
+    myNote: TKntNote;
     hint: string;
     sep: String;
     I, N: integer;
@@ -4910,10 +4910,10 @@ begin
     sep:= '';
     hint:= '';
     N:= 0;
-    myNode:= ActiveKntFolder.GetSelectedNode;
+    myNote:= ActiveKntFolder.GetSelectedNote;
 
-    if assigned(myNode) and myNode.HasAlarms(false) then begin
-       Alarms:= myNode.getAlarms(false);
+    if assigned(myNote) and myNote.HasAlarms(false) then begin
+       Alarms:= myNote.getAlarms(false);
        AddAlarmsToHint;
     end;
     if ActiveKntFolder.HasAlarms(false) and ActiveKntFolder.HasAlarms(false) then begin
@@ -5000,18 +5000,18 @@ end; // DestroyWnd
 procedure TForm_Main.TVDeletion(Sender: TObject; Node: TTreeNTNode);
 var
    myFolder : TKntFolder;
-   myNode: TKntNote;
+   myNote: TKntNote;
 begin
   if not assigned( Node ) then exit;
 
   myFolder:= TKntFolder(KntFile.GetFolderByTreeNode(Node));
   if assigned( myFolder ) then begin
-    myNode:= TKntNote( Node.Data );
+    myNote:= TKntNote( Node.Data );
 
      if KntFile.FileName <> '<DESTROYING>' then          // FileName='<DESTROYING>'=> is closing. All nodes will be deleted all the way
         KntFile.ManageMirrorNodes(3, Node, nil);
 
-    myFolder.RemoveNode( myNode);
+    myFolder.RemoveNote( myNote);
 
   end;
 end;
@@ -5028,7 +5028,7 @@ var
   myFolder: TKntFolder;
   Width: integer;
 begin
-   myFolder:= TKntFolder(ActiveKntFolder);
+   myFolder:= ActiveKntFolder;
    if myFolder.VerticalLayout then
       Width := myFolder.TV.Height
    else
@@ -5110,7 +5110,7 @@ var
   myFolder: TKntFolder;
   Width: integer;
 begin
-   myFolder:= TKntFolder(ActiveKntFolder);
+   myFolder:= ActiveKntFolder;
    if myFolder.VerticalLayout then
       Width := myFolder.TV.Height
    else
@@ -5135,7 +5135,7 @@ var
    myFolder: TKntFolder;
 begin
    Result:= False;
-    myFolder:= TKntFolder(ActiveKntFolder);
+    myFolder:= ActiveKntFolder;
 
     if (myFolder.TreeMaxWidth > 0) and (myFolder.TV.Visible) and (not myFolder.TV.Focused) then begin
        if myFolder.VerticalLayout then
@@ -5143,7 +5143,7 @@ begin
        else
           Width := myFolder.TV.Width;
 
-       if (Width > TKntFolder(ActiveKntFolder).TreeWidth) then begin
+       if (Width > ActiveKntFolder.TreeWidth) then begin
            if myFolder.VerticalLayout then
               myFolder.TV.Height:= myFolder.TreeWidth
            else
@@ -5189,7 +5189,7 @@ procedure TForm_Main.TVStartDrag(Sender: TObject;
   var DragObject: TDragObject);
 begin
   // StatusBar.Panels[PANEL_HINT].Text := 'Drag: ' + DragObject.GetName;
-  DraggedTreeNode := TKntFolder( ActiveKntFolder ).TV.Selected;
+  DraggedTreeNode := ActiveKntFolder.TV.Selected;
   if assigned( DraggedTreeNode ) then
   begin
      // {N}
@@ -5259,7 +5259,7 @@ var
   s : string;
   myFolder : TKntFolder;
 begin
-  if NoteIsReadOnly( ActiveKntFolder, true ) then
+  if FolderIsReadOnly( ActiveKntFolder, true ) then
   begin
     DraggedTreeNode := nil;
     if ( Sender is TTreeNT ) then
@@ -5389,12 +5389,12 @@ end;
 
 procedure TForm_Main.TVVirtualNodeClick(Sender: TObject);
 begin
-  VirtualNodeProc( vmNone, nil, '' );
+  VirtualNoteProc( vmNone, nil, '' );
 end; // TVMVirtualNodeClick
 
 procedure TForm_Main.TVRefreshVirtualNodeClick(Sender: TObject);
 begin
-  VirtualNodeRefresh( TreeOptions.ConfirmNodeRefresh );
+  VirtualNoteRefresh( TreeOptions.ConfirmNodeRefresh );
 end;
 
 
@@ -5405,7 +5405,7 @@ var
 begin
   if ( not assigned( ActiveKntFolder ) ) then
     exit;
-  if TKntFolder( ActiveKntFolder ).TV.IsEditing then exit;
+  if ActiveKntFolder.TV.IsEditing then exit;
 
   ActiveKntFolder.FocusMemory := focTree;
 
@@ -5453,14 +5453,14 @@ var
   myTreeNode: TTreeNTNode;
   mirrorNode: TTreeNTNode;
 begin
-  myTreeNode:= TKntFolder( ActiveKntFolder ).TV.Selected;
+  myTreeNode:= ActiveKntFolder.TV.Selected;
   if assigned(myTreeNode) then begin
      AddNodeToTree( tnInsertBefore );
-     mirrorNode:= TKntFolder( ActiveKntFolder ).TV.Selected;
+     mirrorNode:= ActiveKntFolder.TV.Selected;
      TKntNote(mirrorNode.Data).Assign( myTreeNode.Data );
      UpdateTreeNode(mirrorNode);
      TKntNote(mirrorNode.Data).MirrorNode:= myTreeNode;
-     SelectIconForNode( mirrorNode, TKntFolder(ActiveKntFolder).IconKind );
+     SelectIconForNode( mirrorNode, ActiveKntFolder.IconKind );
      AddMirrorNode(myTreeNode, mirrorNode); 
      ActiveKntFolder.DataStreamToEditor;
   end;
@@ -5531,9 +5531,9 @@ end;
 
 procedure TForm_Main.MMTreeFullExpandClick(Sender: TObject);
 begin
-  TKntFolder( ActiveKntFolder ).TV.FullExpand;
-  TreeNodeSelected( TKntFolder( ActiveKntFolder ).TV.Selected );
-  TKntFolder( ActiveKntFolder ).TV.Selected.MakeVisible;
+  ActiveKntFolder.TV.FullExpand;
+  TreeNodeSelected( ActiveKntFolder.TV.Selected );
+  ActiveKntFolder.TV.Selected.MakeVisible;
 end;
 
 procedure TForm_Main.MMTreeFocusToogleClick(Sender: TObject);
@@ -5541,7 +5541,7 @@ begin
   if not assigned(ActiveKntFolder) then exit;
 
   try
-     if TKntFolder(ActiveKntFolder).TV.Focused then
+     if ActiveKntFolder.TV.Focused then
         MMTreeFocusEditorClick (nil)
      else
         MMTreeFocusTreeClick (nil);
@@ -5568,10 +5568,10 @@ begin
   if not assigned(ActiveKntFolder) then exit;
 
   try
-     if TKntFolder( ActiveKntFolder ).TreeHidden then
+     if ActiveKntFolder.TreeHidden then
         MMViewTreeClick(nil);
 
-     TKntFolder(ActiveKntFolder).TV.SetFocus;
+     ActiveKntFolder.TV.SetFocus;
   	 ActiveKntFolder.FocusMemory := focTree;
   except
   end;
@@ -5580,8 +5580,8 @@ end;
 
 procedure TForm_Main.MMTreeFullCollapseClick(Sender: TObject);
 begin
-  TKntFolder( ActiveKntFolder ).TV.FullCollapse;
-  TreeNodeSelected( TKntFolder( ActiveKntFolder ).TV.Selected );
+  ActiveKntFolder.TV.FullCollapse;
+  TreeNodeSelected( ActiveKntFolder.TV.Selected );
 end;
 
 procedure TForm_Main.TVSortSubtreeClick(Sender: TObject);
@@ -5589,16 +5589,16 @@ var
   myTreeNode : TTreeNTNode;
 begin
   if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
-  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
   myTreeNode := GetCurrentTreeNode;
   if ( assigned( myTreeNode ) and myTreeNode.HasChildren ) then
   begin
-    TKntFolder( ActiveKntFolder ).TV.OnChange := nil;
+    ActiveKntFolder.TV.OnChange := nil;
     try
       myTreeNode.AlphaSort;
     finally
       KntFile.Modified := true;
-      TKntFolder( ActiveKntFolder ).TV.OnChange := TVChange;
+      ActiveKntFolder.TV.OnChange := TVChange;
       UpdateKntFileState( [fscModified] );
     end;
   end;
@@ -5607,7 +5607,7 @@ end; // Sort Child Nodes
 
 procedure TForm_Main.TVSortTreeClick(Sender: TObject);
 begin
-  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( assigned( ActiveKntFolder) ) then
   begin
 
@@ -5615,12 +5615,12 @@ begin
       STR_49,
       mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
-    TKntFolder( ActiveKntFolder ).TV.OnChange := nil;
+    ActiveKntFolder.TV.OnChange := nil;
     try
-      TKntFolder( ActiveKntFolder ).TV.AlphaSort;
+      ActiveKntFolder.TV.AlphaSort;
     finally
       KntFile.Modified := true;
-      TKntFolder( ActiveKntFolder ).TV.OnChange := TVChange;
+      ActiveKntFolder.TV.OnChange := TVChange;
       UpdateKntFileState( [fscModified] );
     end;
   end;
@@ -5636,7 +5636,7 @@ begin
   if ( S = '' ) then
   begin
     StatusBar.Panels[PANEL_HINT].Text := STR_50;
-    S := _OLD_NODE_NAME;
+    S := _OLD_NOTE_NAME;
     exit;
   end;
   _ALLOW_VCL_UPDATES := false;
@@ -5663,7 +5663,7 @@ begin
   if (( assigned( ActiveKntFolder )) and ( not ActiveKntFolder.ReadOnly )) then
   begin
     // {N}
-    _OLD_NODE_NAME := node.text;
+    _OLD_NOTE_NAME := node.text;
     // stop menu events triggered by shortcut keys:
     ( sender as TTreeNT ).PopupMenu := nil;
   end
@@ -5685,31 +5685,31 @@ end;
 
 procedure TForm_Main.MMRenamenodeClick(Sender: TObject);
 var
-  myNode : TKntNote;
+  myNote : TKntNote;
   myName : string;
 begin
-  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
-  myNode := GetCurrentNoteNode;
-  if assigned( myNode ) then
+  myNote := GetCurrentNote;
+  if assigned( myNote ) then
   begin
     if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
     if TreeOptions.EditInPlace then
     begin
-      TKntFolder( ActiveKntFolder ).TV.Selected.EditText;
+      ActiveKntFolder.TV.Selected.EditText;
     end
     else
     begin
-      myName := myNode.Name;
-      _OLD_NODE_NAME := myName;
+      myName := myNote.Name;
+      _OLD_NOTE_NAME := myName;
       if InputQuery( STR_53, STR_54, myName ) then
       begin
         myName := trim( myName );
         if ( myName <> '' ) then
         begin
-          myNode.Name := myName;
+          myNote.Name := myName;
           // {N}
-          TKntFolder( ActiveKntFolder ).TV.Selected.Text := myNode.Name; // TKntNote does NOT update its treenode's properties!
+          ActiveKntFolder.TV.Selected.Text := myNote.Name; // TKntNote does NOT update its treenode's properties!
           ActiveKntFolder.Modified := true;
           UpdateKntFileState( [fscModified] );
         end
@@ -5734,7 +5734,7 @@ begin
   mi := ( sender as TMenuItem );
   if ( assigned( ActiveKntFolder ) ) then
   begin
-    myFolder := TKntFolder( ActiveKntFolder );
+    myFolder := ActiveKntFolder;
     if mi.Checked then
     begin
       myFolder.IconKind := niNone;
@@ -5758,7 +5758,7 @@ begin
   // show or hide checkboxes in active note's tree panel
   if  assigned( ActiveKntFolder )  then
   begin
-    myFolder := TKntFolder( ActiveKntFolder );
+    myFolder := ActiveKntFolder;
     myFolder.Checkboxes := ( not myFolder.Checkboxes );
     MMViewCheckboxesAllNodes.Checked := myFolder.Checkboxes;
     TVChildrenCheckbox.Enabled := not MMViewCheckboxesAllNodes.Checked;       // [dpv]
@@ -5770,7 +5770,7 @@ end;
 
 procedure TForm_Main.TVChecked(Sender: TObject; Node: TTreeNTNode);
 var
-  myNode : TKntNote;
+  myNote : TKntNote;
 
 begin
   if ( assigned( node ) and assigned( node.Data )) then  begin
@@ -5781,7 +5781,7 @@ end; // TVChecked
 procedure TForm_Main.TVChecking(Sender: TObject; Node: TTreeNTNode;
   var AllowCheck: Boolean);
 begin
-  AllowCheck := ( not NoteIsReadOnly( ActiveKntFolder, false ));
+  AllowCheck := ( not FolderIsReadOnly( ActiveKntFolder, false ));
 end;
 
 procedure TForm_Main.MMToolsMergeClick(Sender: TObject);
@@ -5832,7 +5832,7 @@ end; // MathParserParseError
 
 procedure TForm_Main.MMEditPasteEvalClick(Sender: TObject);
 begin
-  if ( NoteIsReadOnly( ActiveKntFolder, true )) then exit;
+  if ( FolderIsReadOnly( ActiveKntFolder, true )) then exit;
   ActiveKntFolder.Editor.SelText := LastEvalExprResult;
 end;
 
@@ -5850,7 +5850,7 @@ end;
 
 procedure TForm_Main.FindTreeNode;
 var
-  myNode : TTreeNTNode;
+  myNote : TTreeNTNode;
   found : boolean;  
   myFolder : TKntFolder;
   selectedNode : TTreeNTNode;
@@ -5859,17 +5859,17 @@ var
 
   procedure GetFirstNode;
   begin
-	  myNode := TKntFolder(myFolder).TV.Items.GetFirstNode;
-	  if assigned( myNode ) and myNode.Hidden and (not FindHiddenNodes) then
-		 myNode := myNode.GetNextNotHidden;
+	  myNote := TKntFolder(myFolder).TV.Items.GetFirstNode;
+	  if assigned( myNote ) and myNote.Hidden and (not FindHiddenNodes) then
+		 myNote := myNote.GetNextNotHidden;
   end;
   
   procedure GetNextNode();
   begin
 	 if FindHiddenNodes then
-		myNode := myNode.GetNext
+		myNote := myNote.GetNext
 	 else
-		myNode := myNode.GetNextNotHidden;
+		myNote := myNote.GetNextNotHidden;
   end;
   
 
@@ -5886,12 +5886,12 @@ var
 
           myFolder := TKntFolder(Form_Main.Pages.Pages[tabidx].PrimaryObject);
           GetFirstNode;
-      end;
+     end;
    end;
 begin
 
-  myNode := GetCurrentTreeNode;
-  if not assigned( myNode ) then
+  myNote := GetCurrentTreeNode;
+  if not assigned( myNote ) then
   begin
     showmessage( STR_65 );
     exit;
@@ -5910,7 +5910,7 @@ begin
   if ( SearchNode_Text = '' ) then exit;
 
   found := false;
-  selectedNode:= myNode;
+  selectedNode:= myNote;
   GetNextNode;
   myFolder := ActiveKntFolder;
 
@@ -5918,32 +5918,32 @@ begin
   FindHiddenNodes:= CB_ResFind_HiddenNodes.Checked;
 
   repeat
-     if assigned(myNode) then
+     if assigned(myNote) then
      	  repeat
-					if ( Pos( SearchNode_Text, AnsiLowercase( myNode.Text )) > 0 ) then
+					if ( Pos( SearchNode_Text, AnsiLowercase( myNote.Text )) > 0 ) then
 					begin
 					  found := true;
 					  if (myFolder <> ActiveKntFolder) then begin
 						   Form_Main.Pages.ActivePage := myFolder.TabSheet;
 						   Form_Main.PagesChange(Pages);
-						   TKntFolder( ActiveKntFolder ).TV.SetFocus;
+						   ActiveKntFolder.TV.SetFocus;
 						   ActiveKntFolder.FocusMemory := focTree;
 					  end;
-					  myNode.MakeVisible;        // Could be hidden
-					  myNode.TreeView.Selected := myNode;
+					  myNote.MakeVisible;        // Could be hidden
+					  myNote.TreeView.Selected := myNote;
 					  break;
 					end;
 					GetNextNode;
-			  until not assigned(myNode) or (myNode = selectedNode);
+			  until not assigned(myNote) or (myNote = selectedNode);
 
-		 if not found and (myNode <> selectedNode) then begin
+		 if not found and (myNote <> selectedNode) then begin
 	 	    GetNextNote();
 		    GetFirstNode();
 		 end;
 
-  until found or (myNode = selectedNode);
+  until found or (myNote = selectedNode);
 
-  if ( not found ) or (myNode = selectedNode) then
+  if ( not found ) or (myNote = selectedNode) then
      statusbar.panels[PANEL_HINT].Text := STR_68;
 
 end; // FindTreeNode
@@ -6224,7 +6224,7 @@ var
 begin
   if ( assigned( ActiveKntFolder )) then
   begin
-    myFolder := TKntFolder( ActiveKntFolder );
+    myFolder := ActiveKntFolder;
 
     Hide:= not myFolder.HideCheckedNodes;
     if CtrlDown and Hide then
@@ -6246,7 +6246,7 @@ procedure TForm_Main.TVHideCheckedChildrenClick(Sender: TObject);
 var
   myFolder : TKntFolder;
 begin
-    myFolder := TKntFolder( ActiveKntFolder );
+    myFolder := ActiveKntFolder;
     HideChildNodesUponCheckState (myFolder, myFolder.TV.Selected, csChecked);
 end;
 
@@ -6254,7 +6254,7 @@ procedure TForm_Main.TVHideUncheckedChildrenClick(Sender: TObject);
 var
   myFolder : TKntFolder;
 begin
-    myFolder := TKntFolder( ActiveKntFolder );
+    myFolder := ActiveKntFolder;
     HideChildNodesUponCheckState (myFolder, myFolder.TV.Selected, csUnchecked);
 end;
 
@@ -6262,7 +6262,7 @@ procedure TForm_Main.TVShowNonFilteredClick(Sender: TObject);
 var
   myFolder : TKntFolder;
 begin
-    myFolder := TKntFolder( ActiveKntFolder );
+    myFolder := ActiveKntFolder;
     ShowCheckedNodes (myFolder, myFolder.TV.Selected);
 end;
 
@@ -6319,7 +6319,7 @@ var
 begin
   if ( not ( HaveKntFolders( false, true ) and assigned( ActiveKntFolder ))) then
     exit;
-  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
   try
     if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
@@ -6521,7 +6521,7 @@ var
 
 begin
   if ( not assigned( ActiveKntFolder )) then exit;
-  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
   HasImage:= Clipboard.HasFormat(CF_BITMAP);
   if not HasImage then
@@ -6764,7 +6764,7 @@ begin
     if SaveDlg.Execute then
     begin
       fn := normalFN( SaveDlg.Filename );
-      TKntFolder( ActiveKntFolder ) .TV.SaveToFile( fn, false );
+      ActiveKntFolder .TV.SaveToFile( fn, false );
     end;
   finally
     ShowHiddenMarkers:= false;
@@ -6802,11 +6802,11 @@ var
   myNote : TKntNote;
   myTreeNode : TTreeNTNode;
 begin
-  if NoteIsReadOnly( ActiveKntFolder, false ) then exit;
-  myNote := GetCurrentNoteNode;
+  if FolderIsReadOnly( ActiveKntFolder, false ) then exit;
+  myNote := GetCurrentNote;
   if ( not assigned( myNote )) then exit;
   if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
-  myTreeNode := TKntFolder( ActiveKntFolder ).TV.Selected;
+  myTreeNode := ActiveKntFolder.TV.Selected;
 
   myNote.Checked := ( not myNote.Checked );
   TVCheckNode.Checked := myNote.Checked;
@@ -6822,11 +6822,11 @@ var
   myNote : TKntNote;
   myTreeNode : TTreeNTNode;
 begin
-  if NoteIsReadOnly( ActiveKntFolder, false ) then exit;
-  myNote := GetCurrentNoteNode;
+  if FolderIsReadOnly( ActiveKntFolder, false ) then exit;
+  myNote := GetCurrentNote;
   if ( not assigned( myNote )) then exit;
   if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
-  myTreeNode := TKntFolder( ActiveKntFolder ).TV.Selected;
+  myTreeNode := ActiveKntFolder.TV.Selected;
 
   myNote.ChildrenCheckbox := ( not myNote.ChildrenCheckbox );
   TVChildrenCheckbox.Checked := myNote.ChildrenCheckbox;
@@ -6847,8 +6847,8 @@ begin
   begin
     MMViewTree.Checked := ( not MMViewTree.Checked );
 
-    TKntFolder( ActiveKntFolder ).TreeHidden := ( not MMViewTree.Checked );
-    UpdateTreeVisible( TKntFolder( ActiveKntFolder ));
+    ActiveKntFolder.TreeHidden := ( not MMViewTree.Checked );
+    UpdateTreeVisible( ActiveKntFolder);
 
     if ( not MMViewTree.Checked ) then
     try
@@ -6932,7 +6932,7 @@ end;
 procedure TForm_Main.MMViewResPanelClick(Sender: TObject);
 begin
   if (Sender = nil) and KeyOptions.ResPanelShow and assigned(ActiveKntFolder) then begin
-     if ActiveKntFolder.Editor.Focused or TKntFolder(ActiveKntFolder).TV.Focused then begin
+     if ActiveKntFolder.Editor.Focused or ActiveKntFolder.TV.Focused then begin
         FocusResourcePanel;
         CheckRestoreTreeWidth;
         exit;
@@ -7248,7 +7248,7 @@ begin
     DBLCLK_MINIMIZE : Application.Minimize;
     DBLCLK_FILEPROP : KntFileProperties;
     DBLCLK_FILEMGR : RunFileManager;
-    DBLCLK_FOLDERPROP : EditKntFolderProperties( propThisNote );
+    DBLCLK_FOLDERPROP : EditKntFolderProperties( propThisFolder );
     DBLCLK_NEWFOLDER : CreateNewKntFolder;
     DBLCLK_RESPANEL : MMViewResPanelClick( MMViewResPanel );
   end;
@@ -7568,10 +7568,10 @@ end;
 
 
 {$IFDEF WITH_IE}
-function TForm_Main.SelectVisibleControlForNode( const aNode : TKntNote ) : TNodeControl;
+function TForm_Main.SelectVisibleControlForNote( const aNote : TKntNote ) : TNodeControl;
 begin
   result := ncNone;
-  if ( not assigned( aNode )) then exit;
+  if ( not assigned( aNote )) then exit;
 
   case aNode.VirtualMode of
     vmNone, vmText, vmRTF, vmHTML : result := ncRTF;
@@ -7580,7 +7580,7 @@ begin
         result := ncIE;
     end;
   end;
-end; // SelectVisibleControlForNode
+end; // SelectVisibleControlForNote
 {$ENDIF}
 
 
@@ -7623,9 +7623,9 @@ begin
     fn := '';
   end;
 
-  if ( myFav.NodeID > 0 ) then
+  if ( myFav.NoteID > 0 ) then
   begin
-    nn := STR_91 + myFav.NodeName;
+    nn := STR_91 + myFav.NoteName;
   end
   else
   begin
@@ -7643,7 +7643,7 @@ end;
 
 procedure TForm_Main.TVUnlinkVirtualNodeClick(Sender: TObject);
 begin
-  VirtualNodeUnlink;
+  VirtualNoteUnlink;
 end;
 
 procedure TForm_Main.FavMAddExternalClick(Sender: TObject);
@@ -7771,7 +7771,7 @@ begin
   SetTreeNodeFontFace( true, ShiftWasDown );
 end;
 
-procedure TForm_Main.TVNavigateNonVirtualNodeClick(Sender: TObject);
+procedure TForm_Main.TVNavigateNonVirtualNoteClick(Sender: TObject);
 var
   myTreeNode: TTreeNTNode;
 begin
@@ -8106,13 +8106,13 @@ end;
 
 procedure TForm_Main.Menu_TVPopup(Sender: TObject);
 var
-  myNode : TKntNote;
+  myNote : TKntNote;
 begin
-  myNode := GetCurrentNoteNode;
-  if assigned( myNode ) then
-    VirtualNodeUpdateMenu( myNode.VirtualMode <> vmNone, myNode.VirtualMode = vmKNTNode )
+  myNote := GetCurrentNote;
+  if assigned( myNote ) then
+    VirtualNoteUpdateMenu( myNote.VirtualMode <> vmNone, myNote.VirtualMode = vmKNTNode )
   else
-    VirtualNodeUpdateMenu( false, false );
+    VirtualNoteUpdateMenu( false, false );
 end;
 
 
@@ -8188,7 +8188,7 @@ var
   ItemTag : integer;
 begin
   if ( not assigned( ActiveKntFolder )) then exit;
-  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( sender is TMenuItem ) then
   begin
     ItemTag := ( sender as TMenuItem ).Tag;
@@ -8214,7 +8214,7 @@ var
   ItemTag : integer;
 begin
   if ( not assigned( ActiveKntFolder )) then exit;
-  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( sender is TMenuItem ) then
   begin
     ItemTag := ( sender as TMenuItem ).Tag;
@@ -8253,7 +8253,7 @@ var
   t : integer;
 begin
   if ( not assigned( ActiveKntFolder )) then exit;
-  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( sender is TMenuItem ) then
   begin
     t := ( sender as TMenuItem ).Tag;
@@ -8426,7 +8426,7 @@ var
 begin
     if _WindowWidthIncToRestore > 0 then begin
        if EnsureTreeVisible then
-          TKntFolder(ActiveKntFolder).TV.Visible := True;
+          ActiveKntFolder.TV.Visible := True;
 
        Inc:= _WindowWidthIncToRestore;
        _WindowWidthIncToRestore:= 0;

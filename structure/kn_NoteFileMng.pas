@@ -175,22 +175,22 @@ resourcestring
   STR_36 = ' File copied.';
   STR_37 = 'Successfully copied KNT file to';
   STR_38 = 'Copying failed (';
-  STR_39 = 'Select file to merge notes from';
+  STR_39 = 'Select file to merge folders from';
   STR_40 = 'There was an error while loading merge file.';
   STR_41 = 'The file you selected does not contain any folders.';
   STR_42 = 'Error while loading merge file: ';
-  STR_43 = 'Notes in %s';
-  STR_44 = 'You did not select any notes: nothing to merge.';
-  STR_45 = ' Merging notes...';
+  STR_43 = 'Folders in %s';
+  STR_44 = 'You did not select any folder: nothing to merge.';
+  STR_45 = ' Merging folders...';
   STR_46 = 'Error while adding folders: ';
-  STR_47 = 'Merged %d notes from "%s"';
-  STR_48 = 'No notes were merged';
-  STR_49 = 'Another application has modified the note file %s. Reload the file from disk?';
+  STR_47 = 'Merged %d folders from "%s"';
+  STR_48 = 'No folders were merged';
+  STR_49 = 'Another application has modified the knt file %s. Reload the file from disk?';
   STR_50 = '%s folder "%s" does not exist';
   STR_51 = '. Create the folder now?';
   STR_52 = 'Could not create folder: %s';
   STR_53 = ' File modified by external application.';
-  STR_54 = 'Notes were modified. Save file before continuing?' +#13+ 'If you answer No, you will lose all changes made since last save.';
+  STR_54 = 'Folders were modified. Save file before continuing?' +#13+ 'If you answer No, you will lose all changes made since last save.';
   STR_55 = 'Current file has not been saved. If you continue, changes will be lost.'+ #13 + 'Proceed anyway?';
   STR_56 = 'Warning!';
   STR_57 = 'Select files for importing';
@@ -859,7 +859,7 @@ var
   i, LastError: Integer;
   myFolder: TKntFolder;
   tempDirectory, tempFN : string;
-  SavedNotes, SavedNodes: integer;
+  SavedFolders, SavedNotes: integer;
 
   procedure RenameTempFile;
   var
@@ -1046,7 +1046,7 @@ begin
 
 
          // SAVE the file (and backup virtual nodes if it applies), on a temporal location, before initiate DoBackup (see *1)
-         Result := KntFile.Save(tempFN, SavedNotes, SavedNodes);
+         Result := KntFile.Save(tempFN, SavedFolders, SavedNotes);
 
          Log_StoreTick( 'After KntFile.Save (temporal location)', 1 );
 
@@ -1066,7 +1066,7 @@ begin
             KntFile.FileName := FN;
             KntFile.Modified:= False;      // Must be done here, not in TNotFile.Save, and of course, never before RenameTempFile
 
-            StatusBar.Panels[PANEL_HINT].Text := Format(STR_22, [SavedNotes, SavedNodes]);
+            StatusBar.Panels[PANEL_HINT].Text := Format(STR_22, [SavedFolders, SavedNotes]);
             KntFile.ReadOnly := False;    // We can do SaveAs from a Read-Only file (*)
                  { (*) In Windows XP is possible to select (with SaveDlg) the same file
                     as destination. In W10 it isn't }
@@ -1513,29 +1513,29 @@ begin
                  newFolder.TreeWidth := TreeWidth;
                  newFolder.Checkboxes := CheckBoxes;
                  newFolder.TreeChrome := TreeChrome;
-                 newFolder.DefaultNodeName := DefaultNodeName;
+                 newFolder.DefaultNoteName := DefaultNoteName;
                  newFolder.AutoNumberNodes := AutoNumberNodes;
                  newFolder.VerticalLayout := VerticalLayout;
                  newFolder.HideCheckedNodes := HideCheckedNodes;
               end;
 
-              MergeFile.Folders[i].AddProcessedAlarmsOfNote(newFolder);
+              MergeFile.Folders[i].AddProcessedAlarmsOfFolder(newFolder);
 
               mergeFolder:= MergeFile.Folders[i];
-              if ( mergeFolder.NodeCount > 0 ) then
+              if ( mergeFolder.NoteCount > 0 ) then
               begin
-                for n := 0 to pred( mergeFolder.NodeCount ) do
+                for n := 0 to pred( mergeFolder.NoteCount ) do
                 begin
-                  mergeNote:= mergeFolder.Nodes[n];
+                  mergeNote:= mergeFolder.Notes[n];
                   newNote := TKntNote.Create;
                   newNote.Assign( mergeNote );
-                  newFolder.AddNode( newNote );
+                  newFolder.AddNote( newNote );
                   newNote.ForceID( mergeNote.ID);
-                  mergeFolder.AddProcessedAlarmsOfNode(mergeNote, newFolder, newNote);
+                  mergeFolder.AddProcessedAlarmsOfNote(mergeNote, newFolder, newNote);
                 end;
               end;
 
-              if ( mergeFolder.NodeCount = 1 ) and (mergeFolder.Nodes[0].Name= mergeFolder.Name) then
+              if ( mergeFolder.NoteCount = 1 ) and (mergeFolder.Notes[0].Name= mergeFolder.Name) then
                   newFolder.TreeHidden:= true;           // It was an old simple note
 
 
@@ -1568,8 +1568,8 @@ begin
             for i := 0 to pred( MergeFile.NoteCount ) do
               if IDs[i].newFolder then begin
                  newFolder:= KntFile.GetFolderByID(IDs[i].newID);
-                 for n := 0 to newFolder.NodeCount - 1 do begin
-                    newNote:= newFolder.Nodes[n];
+                 for n := 0 to newFolder.NoteCount - 1 do begin
+                    newNote:= newFolder.Notes[n];
                     if newNote.VirtualMode = vmKNTNode then begin
                        mirrorID:= newNote.MirrorNodeID;
                        p := pos( KNTLINK_SEPARATOR, mirrorID );
@@ -1944,7 +1944,7 @@ begin
                   myNote:= nil;
                   if ImportFileType <> itTreePad then begin
                      myNote := TKntNote.Create;
-                     myFolder.AddNode(myNote);
+                     myFolder.AddNote(myNote);
                      myNote.Name := s;
                      myFolder.TreeHidden:= true;
                   end;
@@ -2179,7 +2179,7 @@ begin
 
         result := factUnknown;
         LastFact := FactUnknown;
-        ActiveNoteIsReadOnly := NoteIsReadOnly( ActiveKntFolder, false );
+        ActiveNoteIsReadOnly := FolderIsReadOnly( ActiveKntFolder, false );
 
         FileIsHTML  := ExtIsHTML( aExt );
         FileIsImage := ExtIsImage(aExt);
@@ -2497,7 +2497,7 @@ begin
                         end;
                       end;
 
-                      myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
+                      myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
                       if assigned( myTreeNode ) then begin
                         myNote := TKntNote( myTreeNode.Data );
                         if assigned( myNote ) then begin
@@ -2540,11 +2540,11 @@ begin
                     UpdateKntFileState( [fscModified] );
 
                     // *1
-                    // If myTreeNode is assigned it is because TreeNoteNewNode has returned ok.
-                    // TreeNoteNewNode ends up calling TV.Items.Add, which ends up raising the TV.Change event,
+                    // If myTreeNode is assigned it is because TreeNewNode has returned ok.
+                    // TreeNewNode ends up calling TV.Items.Add, which ends up raising the TV.Change event,
                     // managed by FormMain.TVChange. The last one, if the editor has modifications, calls TKntFolder.EditorToDataStream, and
                     // the content of the editor is saved in node's stream.
-                    // But, if there is an exception (or simply we exit) before TreeNoteNewNode, and enter in this finally section, we
+                    // But, if there is an exception (or simply we exit) before TreeNewNode, and enter in this finally section, we
                     // should not do Editor.Modified := False or the modifcations (existing and coming) in the Editor will be lost for the
                     // actual node.
                     // *2
@@ -2586,8 +2586,8 @@ begin
                         else
                           continue;
                       end;
-                      myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
-                      VirtualNodeProc( vmNone, myTreeNode, FName );
+                      myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
+                      VirtualNoteProc( vmNone, myTreeNode, FName );
                     end;
 
                   finally
@@ -2611,7 +2611,7 @@ begin
                         else
                           continue;
                       end;
-                      myTreeNode := TreeNoteNewNode( nil, tnAddLast, nil, '', true );
+                      myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
                       VirtualNodeProc( vmIELocal, myTreeNode, FName );
                     end;
                   finally

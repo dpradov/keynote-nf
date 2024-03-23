@@ -171,7 +171,7 @@ begin
               myFindOptions.FindNew := true;
   end;
 
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true) then begin
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true) then begin
      modeReplace:= False;
      Tab_Replace.Enabled:= False;
   end

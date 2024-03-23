@@ -28,19 +28,19 @@ uses
    kn_Info;
 
 
-
+{
 type
   TNodeControl = (
     ncNone, ncRTF, ncIE
   );
-
+}
 type
   EVirtualNodeError = class( Exception);
 
   TKntNote = class( TObject )
   private
     FStream : TMemoryStream;
-    FNodeTextPlain : string;
+    FNoteTextPlain : string;
     FID : longint;
     FName : string;
     FLevel : integer;
@@ -83,7 +83,7 @@ type
 
   public
     property Stream : TMemoryStream read FStream;
-    property NodeTextPlain : string read FNodeTextPlain write FNodeTextPlain;
+    property NoteTextPlain : string read FNoteTextPlain write FNoteTextPlain;
     property Name : string read FName write SetName;
     property ID : longint read FID write SetID;
     property Level : integer read FLevel write SetLevel;
@@ -99,7 +99,7 @@ type
     property VirtualMode : TVirtualMode read FVirtualMode write FVirtualMode;
     property VirtualFN : string read GetVirtualFN write SetVirtualFN;
     property RelativeVirtualFN : string read GetRelativeVirtualFN write FRelativeVirtualFN;
-    function NonVirtualNode: TKntNote;
+    function NonVirtualNote: TKntNote;
     function GetAlarms(considerDiscarded: boolean): TList;
     function HasAlarms (considerDiscarded: boolean): boolean;
 
@@ -141,15 +141,15 @@ type
 type
   TKntNoteList = class( TList )
   private
-    function GetNode( index : integer ) : TKntNote;
-    procedure PutNode( index : integer; item : TKntNote );
+    function GetNote( index : integer ) : TKntNote;
+    procedure PutNote( index : integer; item : TKntNote );
   public
-    property Items[index:integer] : TKntNote read GetNode write PutNode; default;
+    property Items[index:integer] : TKntNote read GetNote write PutNote; default;
     constructor Create;
     destructor Destroy; override;
     function Remove( item : TKntNote ) : integer;
     procedure Delete( index : integer );
-    function HasVirtualNodes : boolean;
+    function HasVirtualNotes : boolean;
     procedure Insert( const aIndex : integer; const item : TKntNote );
   end;
 
@@ -474,7 +474,7 @@ begin
 end; // SetMirrorNode
 
 
-function TKntNote.NonVirtualNode: TKntNote;
+function TKntNote.NonVirtualNote: TKntNote;
 var
    myNote: TKntNote;
    node: TTreeNTNode;
@@ -489,12 +489,12 @@ end;
 
 function TKntNote.HasAlarms(considerDiscarded: boolean): boolean;
 begin
-    Result:= AlarmManager.HasAlarms(nil, NonVirtualNode, considerDiscarded);
+    Result:= AlarmManager.HasAlarms(nil, NonVirtualNote, considerDiscarded);
 end;
 
 function TKntNote.GetAlarms(considerDiscarded: boolean): TList;
 begin
-   Result:= AlarmManager.GetAlarms(nil, NonVirtualNode, considerDiscarded);
+   Result:= AlarmManager.GetAlarms(nil, NonVirtualNote, considerDiscarded);
 end;
 
 
@@ -665,12 +665,12 @@ begin
 end; // DESTROY
 
 
-function TKntNoteList.GetNode( index : integer ) : TKntNote;
+function TKntNoteList.GetNote( index : integer ) : TKntNote;
 begin
   result := TKntNote( inherited items[index] );
 end; // PutStream
 
-procedure TKntNoteList.PutNode( index : integer; item : TKntNote );
+procedure TKntNoteList.PutNote( index : integer; item : TKntNote );
 begin
   inherited Put( index, item );
 end; // PutStream
@@ -688,7 +688,7 @@ begin
   inherited Delete( index );
 end; // Delete
 
-function TKntNoteList.HasVirtualNodes : boolean;
+function TKntNoteList.HasVirtualNotes : boolean;
 var
   i : integer;
 begin
@@ -697,13 +697,13 @@ begin
   for i := 0 to pred( Count ) do
   begin
     if ( Items[i].VirtualMode <> vmNone ) and
-       ( Items[i].VirtualMode <> vmKNTnode ) then  // HasVirtualNodes: Virtual and extern...
+       ( Items[i].VirtualMode <> vmKNTnode ) then  // HasVirtualNotes: Virtual and extern...
     begin
       result := true;
       break;
     end;
   end;
-end; // HasVirtualNodes
+end; // HasVirtualNotes
 
 
 procedure TKntNoteList.Insert( const aIndex : integer; const item : TKntNote );

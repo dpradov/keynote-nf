@@ -220,7 +220,7 @@ begin
   with Form_Main do begin
       if ( not HaveKntFolders( true, true )) then exit;
       if ( not assigned( ActiveKntFolder )) then exit;
-      if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
       try
         if ( aName = '' ) then

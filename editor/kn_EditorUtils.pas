@@ -98,7 +98,7 @@ type
     procedure SetClipCapState( const IsOn : boolean );
     procedure PasteOnClipCap (ClpStr: string);
     procedure PasteAsWebClip (const PasteAsText: boolean);
-    procedure PasteIntoNew( const AsNewNote : boolean );
+    procedure PasteIntoNew( const AsNewFolder : boolean );
 
     procedure PrintRTFNote;
 
@@ -246,7 +246,7 @@ begin
         StatusBar.Panels[PANEL_HINT].Text := STR_Gloss_01;
         exit;
       end;
-      if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
       UpdateLastCommand( ecExpandTerm );
       if IsRecordingMacro then
@@ -981,7 +981,7 @@ var
 
 begin
   if ( not Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( ActiveKntFolder.Editor.Lines.Count < 1 ) then exit;
 
   wholeNote:= false;
@@ -1044,7 +1044,7 @@ var
   s : string;
 begin
   if ( not Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( ActiveKntFolder.Editor.Lines.Count < 1 ) then exit;
 
 
@@ -1172,13 +1172,13 @@ begin
           StatusBar.Panels[PANEL_HINT].Text := STR_Eval_01 + LastEvalExprResult;
           MMEditPasteEval.Hint := STR_Eval_02 + LastEvalExprResult;
 
-          if ( KeyOptions.AutoPasteEval and ( not NoteIsReadOnly( ActiveKntFolder, false ))) then begin
+          if ( KeyOptions.AutoPasteEval and ( not FolderIsReadOnly( ActiveKntFolder, false ))) then begin
               ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
               ActiveKntFolder.Editor.SelText := #32 + LastEvalExprResult;
           end
           else
             if ( messagedlg( Format( STR_Eval_03, [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
-               if ( not NoteIsReadOnly( ActiveKntFolder, true )) then begin
+               if ( not FolderIsReadOnly( ActiveKntFolder, true )) then begin
                   ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
                   ActiveKntFolder.Editor.SelText := #32 + LastEvalExprResult;
                end;
@@ -1258,9 +1258,9 @@ var
 begin
   if ( not Form_Main.HaveKntFolders(true, true)) then exit;
   if ( not assigned(ActiveKntFolder)) then exit;
-  if Form_Main.NoteIsReadOnly(ActiveKntFolder, true) then exit;
+  if Form_Main.FolderIsReadOnly(ActiveKntFolder, true) then exit;
   if ActiveKntFolder.PlainText then exit;
-  myNote:= ActiveKntFolder.GetSelectedNode;
+  myNote:= ActiveKntFolder.GetSelectedNote;
   if assigned(myNote) and (myNote.VirtualMode = vmText) then exit;
 
 
@@ -1363,7 +1363,7 @@ var
   i : integer;
 begin
   if ( not assigned( ActiveKntFolder )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
   s := ActiveKntFolder.Editor.SelText;
   if ( s = '' ) then
@@ -1394,7 +1394,7 @@ var
   i : integer;
 begin
   if ( not assigned( ActiveKntFolder )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
   i := -1;
 
   s := ActiveKntFolder.Editor.SelText;
@@ -1965,7 +1965,7 @@ begin
 
 
             if ( Initializing or ( not ClipOptions.TreeClipConfirm ) or aFolder.TreeHidden ) then
-              ClipCapNode := GetCurrentNoteNode
+              ClipCapNote := GetCurrentNote
 
             else begin
               if ClipOptions.PasteAsNewNode then
@@ -1974,7 +1974,7 @@ begin
                 nodemode := STR_ClipCap_03;
 
               case MessageDlg( Format(STR_ClipCap_04, [nodemode] ), mtConfirmation, [mbOK,mbCancel], 0 ) of
-                mrOK: ClipCapNode := GetCurrentNoteNode;
+                mrOK: ClipCapNote := GetCurrentNote;
                 else begin
                   TB_ClipCap.Down := false;
                   exit;
@@ -1998,7 +1998,7 @@ begin
           else begin
             // turn OFF clipboard capture
             ClipCapActive := false;
-            ClipCapNode := nil;
+            ClipCapNote := nil;
             if ( KntFile.ClipCapFolder = aFolder ) then begin
               // restore folder name on the tab
               Pages.MarkedPage := nil;
@@ -2291,8 +2291,8 @@ begin
                  if (pos(CLIPDATECHAR, DividerString)=0) and (pos(CLIPTIMECHAR, DividerString)=0) and ((SourceURLStr = '') or (pos(CLIPSOURCE_Token, DividerString)=0)) then
                     DividerString:= '';   // Si no hay que separar de nada y el propia cadena de separación no incluye fecha, ni hora ni se va a mostrar el origen, ignorarla
 
-                 if ( ClipCapNode <> nil ) then
-                    myParentNode := Folder.TV.Items.FindNode( [ffData], '', ClipCapNode )
+                 if ( ClipCapNote <> nil ) then
+                    myParentNode := Folder.TV.Items.FindNode( [ffData], '', ClipCapNote )
                  else
                     myParentNode := nil;
 
@@ -2303,15 +2303,15 @@ begin
                  end;
 
                  if assigned( myParentNode ) then
-                    myTreeNode := TreeNoteNewNode( Folder, tnAddChild, myParentNode, myNodeName, true )
+                    myTreeNode := TreeNewNode( Folder, tnAddChild, myParentNode, myNodeName, true )
                  else
-                    myTreeNode := TreeNoteNewNode( Folder, tnAddLast, nil, myNodeName, true );
+                    myTreeNode := TreeNewNode( Folder, tnAddLast, nil, myNodeName, true );
 
               end
               else begin
                  myTreeNode := Folder.TV.Selected;
                  if ( not assigned( myTreeNode )) then
-                    myTreeNode := TreeNoteNewNode( Folder, tnAddLast, nil, myNodeName, true );
+                    myTreeNode := TreeNewNode( Folder, tnAddLast, nil, myNodeName, true );
               end;
 
               if ( not assigned( myTreeNode )) then begin
@@ -2460,14 +2460,14 @@ end; // PasteOnClipCap
 procedure PasteAsWebClip (const PasteAsText: boolean);
 var
   oldClipCapFolder : TKntFolder;
-  oldClipCapNode : TKntNote;
+  oldClipCapNote : TKntNote;
   oldDividerString : string;
   oldAsText, oldTreeClipConfirm, oldInsertSourceURL, oldClipPlaySound, oldPasteAsNewNode : boolean;
   oldMaxSize, oldSleepTime : integer;
 begin
   if ( _IS_CAPTURING_CLIPBOARD or _IS_CHAINING_CLIPBOARD ) then exit;
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
   oldClipPlaySound:= ClipOptions.PlaySound;
   oldDividerString := ClipOptions.Divider;
@@ -2479,7 +2479,7 @@ begin
   oldPasteAsNewNode:= ClipOptions.PasteAsNewNode;
 
   oldClipCapFolder := KntFile.ClipCapFolder;
-  oldClipCapNode := ClipCapNode;
+  oldClipCapNote := ClipCapNote;
 
   try
     ClipOptions.PlaySound:= false;
@@ -2494,7 +2494,7 @@ begin
     ClipOptions.PasteAsText := PasteAsText;
 
     KntFile.ClipCapFolder := ActiveKntFolder;
-    ClipCapNode := nil;
+    ClipCapNote := nil;
 
     PasteOnClipCap(Clipboard.TryAsText);
 
@@ -2509,7 +2509,7 @@ begin
     ClipOptions.PasteAsNewNode:= oldPasteAsNewNode;
 
     KntFile.ClipCapFolder := oldClipCapFolder;
-    ClipCapNode := oldClipCapNode;
+    ClipCapNote := oldClipCapNote;
   end;
 
 end; // PasteAsWebClip
@@ -2518,7 +2518,7 @@ end; // PasteAsWebClip
 //=================================================================
 // PasteIntoNew
 //=================================================================
-procedure PasteIntoNew( const AsNewNote : boolean );
+procedure PasteIntoNew( const AsNewFolder : boolean );
 var
   oldCNT : integer;
   CanPaste : boolean;
@@ -2530,7 +2530,7 @@ begin
   CanPaste := false;
 
   try
-    if AsNewNote then begin
+    if AsNewFolder then begin
       NewKntFolder( true, true );
       CanPaste := ( OldCNT < KntFile.Folders.Count );
     end
@@ -2542,7 +2542,7 @@ begin
           clnDateTime :  myNodeName:= FormatDateTime(FormatSettings.ShortDateFormat + #32 + FormatSettings.ShortTimeFormat, now );
         end;
 
-        myTreeNode := TreeNoteNewNode( nil, tnAddAfter, GetCurrentTreeNode, myNodeName, false );
+        myTreeNode := TreeNewNode( nil, tnAddAfter, GetCurrentTreeNode, myNodeName, false );
         CanPaste := assigned( myTreeNode );
       end;
     end;
@@ -2669,7 +2669,7 @@ var
   AJBSpell : TAJBSpell;
 begin
   if ( not assigned( ActiveKntFolder )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
   AJBSpell := TAJBSpell.Create( Form_Main );
   try

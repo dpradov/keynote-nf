@@ -56,20 +56,20 @@ procedure SaveKeyNoteOptions(
 
 procedure SaveKeyNoteDefaults(
   const INIFileName : string;
-  const DefaultEditorProperties : TNoteEditorProperties;
+  const DefaultEditorProperties : TFolderEditorProperties;
   const DefaultEditorChrome : TChrome;
-  const DefaultTabProperties : TNoteTabProperties;
-  const DefaultTreeProperties : TNoteTreeProperties;
+  const DefaultTabProperties : TFolderTabProperties;
+  const DefaultTreeProperties : TFolderTreeProperties;
   const DefaultTreeChrome : TChrome
   );
 
 procedure LoadKeyNoteDefaults(
   const OnlyChrome : boolean;
   const INIFileName : string;
-  var DefaultEditorProperties : TNoteEditorProperties;
+  var DefaultEditorProperties : TFolderEditorProperties;
   var DefaultEditorChrome : TChrome;
-  var DefaultTabProperties : TNoteTabProperties;
-  var DefaultTreeProperties : TNoteTreeProperties;
+  var DefaultTabProperties : TFolderTabProperties;
+  var DefaultTreeProperties : TFolderTreeProperties;
   var DefaultTreeChrome : TChrome
   );
 
@@ -2024,10 +2024,10 @@ end; // LoadMailOptions
 
 procedure SaveKeyNoteDefaults(
   const INIFileName : string;
-  const DefaultEditorProperties : TNoteEditorProperties;
+  const DefaultEditorProperties : TFolderEditorProperties;
   const DefaultEditorChrome : TChrome;
-  const DefaultTabProperties : TNoteTabProperties
-  ; const DefaultTreeProperties : TNoteTreeProperties;
+  const DefaultTabProperties : TFolderTabProperties
+  ; const DefaultTreeProperties : TFolderTreeProperties;
   const DefaultTreeChrome : TChrome
   );
 var
@@ -2101,10 +2101,10 @@ end; // SaveKeyNoteDefaults
 procedure LoadKeyNoteDefaults(
   const OnlyChrome : boolean;
   const INIFileName : string;
-  var DefaultEditorProperties : TNoteEditorProperties;
+  var DefaultEditorProperties : TFolderEditorProperties;
   var DefaultEditorChrome : TChrome;
-  var DefaultTabProperties : TNoteTabProperties
-  ; var DefaultTreeProperties : TNoteTreeProperties;
+  var DefaultTabProperties : TFolderTabProperties
+  ; var DefaultTreeProperties : TFolderTreeProperties;
   var DefaultTreeChrome : TChrome
   );
 var
@@ -2180,7 +2180,7 @@ begin
     end;
   finally
     IniFile.Free;
-    DEFAULT_NEW_NOTE_NAME := DefaultTabProperties.Name;
+    DEFAULT_NEW_FOLDER_NAME := DefaultTabProperties.Name;
   end;
 
 end; // LoadKeyNoteDefaults
@@ -2214,7 +2214,7 @@ begin
     ExportSource := low( TExportSource );
     HTMLExportMethod := htmlExpMicrosoftHTMLConverter;
     IncludeNodeHeadings := true;
-    IncludeNoteHeadings := true;
+    IncludeFolderHeadings := true;
     NodeLevelTemplates:= true;
     SymbolsInHeading:= '#';
     LengthHeading:= '80,10,35';

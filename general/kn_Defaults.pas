@@ -58,7 +58,7 @@ type
     CB_URLDetect: TCheckBox;
     CB_UseTabChar: TCheckBox;
     Spin_TabSize: TSpinEdit;
-    Edit_NoteName: TComboBox;
+    Edit_FolderName: TComboBox;
     Combo_Icons: TGFXComboBox;
     GBox_Tree: TGroupBox;
     BTN_Font: TBitBtn;
@@ -91,8 +91,8 @@ type
     LB_Scope: TLabel;
     Label3: TLabel;
     Label6: TLabel;
-    BitBtn_NoteHelp: TBitBtn;
-    BitBtn_NoteChromeHelp: TBitBtn;
+    BitBtn_FolderHelp: TBitBtn;
+    BitBtn_FolderChromeHelp: TBitBtn;
     BitBtn_TreeChromeHelp: TBitBtn;
     CB_InheritBGColor: TCheckBox;
     LB_PlainText: TLabel;
@@ -112,14 +112,14 @@ type
     procedure BitBtn_TknHlpClick(Sender: TObject);
     procedure CB_SaveAsDefClick(Sender: TObject);
     procedure Button_HelpClick(Sender: TObject);
-    procedure Edit_NoteNameKeyPress(Sender: TObject; var Key: Char);
+    procedure Edit_FolderNameKeyPress(Sender: TObject; var Key: Char);
     procedure CB_ZoomKeyPress(Sender: TObject; var Key: Char);
     procedure CB_ZoomExit(Sender: TObject);
     procedure CB_SaveDefaultsClick(Sender: TObject);
     procedure CB_PlainTextClick(Sender: TObject);
     procedure LB_PlainTextClick(Sender: TObject);
-    procedure BitBtn_NoteChromeHelpClick(Sender: TObject);
-    procedure BitBtn_NoteHelpClick(Sender: TObject);
+    procedure BitBtn_FolderChromeHelpClick(Sender: TObject);
+    procedure BitBtn_FolderHelpClick(Sender: TObject);
     procedure BitBtn_TreeChromeHelpClick(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
@@ -141,12 +141,12 @@ type
     DefaultsFN : string;
 
     myEditorChrome : TChrome;
-    myEditorProperties : TNoteEditorProperties;
-    myTabProperties : TNoteTabProperties;
+    myEditorProperties : TFolderEditorProperties;
+    myTabProperties : TFolderTabProperties;
 
     myTreeChrome : TChrome;
-    ApplyTreeChromeToAllNotes : boolean;
-    myTreeProperties : TNoteTreeProperties;
+    ApplyTreeChromeToAllFolders : boolean;
+    myTreeProperties : TFolderTreeProperties;
 
     myTabNameHistory : string;
     myHistoryCnt : integer;
@@ -184,13 +184,13 @@ resourcestring
   STR_02 = 'Close';
   STR_03 = 'Folder is Read-Only: cannot change properties';
   STR_04 = ' [RO]';
-  STR_05 = ' View properties for current note ';
-  STR_06 = 'Change properties for current note';
+  STR_05 = ' View properties for current folder ';
+  STR_06 = 'Change properties for current folder';
   STR_07 = '&Save as default for "%s"';
   STR_08 = 'Defaults for ';
-  STR_09 = 'Change Defaults for NEW notes in THIS FILE';
+  STR_09 = 'Change Defaults for NEW folders in THIS FILE';
   STR_10 = 'Defaults for all files';
-  STR_11 = 'Change default properties for all NEW notes';
+  STR_11 = 'Change default properties for all NEW folders';
   STR_12 = 'Folder name cannot be blank. Please enter a name.';
   STR_13 = 'Folder name cannot contain the "%s" character';
   STR_14 = 'Node name cannot contain the "%s" character';
@@ -205,11 +205,11 @@ resourcestring
   STR_23 = ' = new node''s index';
   STR_24 = ' = new node''s absolute index';
   STR_25 = ' = parent node''s name';
-  STR_26 = ' = name of active note';
+  STR_26 = ' = name of active folder';
   STR_27 = ' = name of currently open file';
   STR_28 = '<no icon>';
   STR_29 = 'Invalid zoom ratio: ';
-  STR_30 = ' (and apply to "%s" note)';
+  STR_30 = ' (and apply to "%s" folder)';
   STR_31 = '&Plain text only  ';
   STR_32 = '(do not save formatting information)';
   STR_33 = '(ALL FORMATTING will be REMOVED)';
@@ -227,7 +227,7 @@ begin
   mySaveFileDefaults := false;
   myCurrentFileName := '';
   fDefaultZoom:= 100;
-  ApplyTreeChromeToAllNotes:= false;
+  ApplyTreeChromeToAllFolders:= false;
 
   with FormPlacement do
   begin
@@ -244,14 +244,14 @@ begin
   myHistoryCnt := DEFAULT_HISTORY_COUNT;
 
   InitializeChrome( myEditorChrome );
-  InitializeNoteEditorProperties( myEditorProperties );
-  InitializeNoteTabProperties( myTabProperties );
+  InitializeFolderEditorProperties( myEditorProperties );
+  InitializeFolderTabProperties( myTabProperties );
 
   myNodeNameHistory := '';
   InitializeChrome( myTreeChrome );
-  InitializeNoteTreeProperties( myTreeProperties );
+  InitializeFolderTreeProperties( myTreeProperties );
 
-  Edit_NoteName.MaxLength := TABNOTE_NAME_LENGTH;
+  Edit_FolderName.MaxLength := TABNOTE_NAME_LENGTH;
   Edit_NodeName.MaxLength := TREENODE_NAME_LENGTH;
 
   for nodeicn := low( nodeicn ) to high( nodeicn ) do
@@ -300,7 +300,7 @@ begin
 
     end
     else begin
-       Action:= propThisNote;
+       Action:= propThisFolder;
        if myNoteIsReadOnly then
           LB_Scope.Caption := STR_05
        else
@@ -310,8 +310,8 @@ begin
 
     Button_OK.Hint := STR_Ok_Hint;
 
-    if (fOriginalAction = propThisNote) and (myNoteIsReadOnly) then begin
-       if Action = propThisNote then begin
+    if (fOriginalAction = propThisFolder) and (myNoteIsReadOnly) then begin
+       if Action = propThisFolder then begin
           Button_OK.ModalResult := mrCancel;
           Button_OK.Caption := STR_02;
           Button_OK.Hint := STR_03;
@@ -320,11 +320,11 @@ begin
           Button_OK.ModalResult := mrOk;
           Button_OK.Caption := STR_Ok;
        end;
-       Button_Cancel.Visible := not (Action = propThisNote);
+       Button_Cancel.Visible := not (Action = propThisFolder);
     end;
 
 
-    if   ((fOriginalAction = propThisNote) and SaveDefaults)
+    if   ((fOriginalAction = propThisFolder) and SaveDefaults)
       or ((fOriginalAction = propDefaults) and CB_SaveAsDef.Checked)   then
 
        LB_Scope.Font.Style:= [fsBold]
@@ -350,7 +350,7 @@ begin
        CB_SaveAsDef.Caption := Format( STR_07, [myCurrentFileName] );
 
     case Action of
-      propThisNote : begin
+      propThisFolder : begin
         CB_SaveDefaults.Enabled := true;
         CB_SaveDefaults.Checked := false;
         CB_SaveAsDef.Checked := False;
@@ -380,11 +380,11 @@ begin
     CheckScope;
 
 
-    Edit_NoteName.Items.BeginUpdate;
+    Edit_FolderName.Items.BeginUpdate;
     try
-      DelimTextToStrs( Edit_NoteName.Items, myTabNameHistory, HISTORY_SEPARATOR );
+      DelimTextToStrs( Edit_FolderName.Items, myTabNameHistory, HISTORY_SEPARATOR );
     finally
-      Edit_NoteName.Items.EndUpdate;
+      Edit_FolderName.Items.EndUpdate;
     end;
 
     BitBtn_TknHlp.OnClick := BitBtn_TknHlpClick;
@@ -417,8 +417,8 @@ begin
   try
     if ( Pages.ActivePage = Tab_Main ) then
     begin
-      Edit_NoteName.SetFocus;
-      Edit_NoteName.SelectAll;
+      Edit_FolderName.SetFocus;
+      Edit_FolderName.SelectAll;
     end
     else
     begin
@@ -439,16 +439,16 @@ begin
   begin
     OK_Click := false;
 
-    if ( Edit_NoteName.Text = '' ) then
+    if ( Edit_FolderName.Text = '' ) then
     begin
       CanClose := false;
       messagedlg( STR_12, mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Main;
-      Edit_NoteName.SetFocus;
+      Edit_FolderName.SetFocus;
       exit;
     end;
 
-    if ( pos( KNTLINK_SEPARATOR, Edit_NoteName.Text ) > 0 ) then
+    if ( pos( KNTLINK_SEPARATOR, Edit_FolderName.Text ) > 0 ) then
     begin
       CanClose := false;
       messagedlg( Format(
@@ -456,7 +456,7 @@ begin
         [KNTLINK_SEPARATOR]
       ), mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Main;
-      Edit_NoteName.SetFocus;
+      Edit_FolderName.SetFocus;
       exit;
     end;
 
@@ -472,12 +472,12 @@ begin
       exit;
     end;
 
-    myTabNameHistory := AnsiQuotedStr( Edit_NoteName.Text, '"' );
-    for i := 0 to pred( Edit_NoteName.Items.Count ) do
+    myTabNameHistory := AnsiQuotedStr( Edit_FolderName.Text, '"' );
+    for i := 0 to pred( Edit_FolderName.Items.Count ) do
     begin
       if ( i >= myHistoryCnt ) then break;
-      if (( Edit_NoteName.Items[i] <> Edit_NoteName.Text ) and ( Edit_NoteName.Items[i] <> '' )) then
-        myTabNameHistory :=  myTabNameHistory + HISTORY_SEPARATOR + AnsiQuotedStr( Edit_NoteName.Items[i], '"' );
+      if (( Edit_FolderName.Items[i] <> Edit_FolderName.Text ) and ( Edit_FolderName.Items[i] <> '' )) then
+        myTabNameHistory :=  myTabNameHistory + HISTORY_SEPARATOR + AnsiQuotedStr( Edit_FolderName.Items[i], '"' );
     end;
     if ( Edit_NodeName.Text <> '' ) then
       myNodeNameHistory := AnsiQuotedStr( Edit_NodeName.Text, '"' )
@@ -499,7 +499,7 @@ procedure TForm_Defaults.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   case key of
     27 : if (( shift = [] ) and ( not
-      ( Combo_Icons.DroppedDown or Edit_NoteName.DroppedDown or Edit_NodeName.DroppedDown ))) then
+      ( Combo_Icons.DroppedDown or Edit_FolderName.DroppedDown or Edit_NodeName.DroppedDown ))) then
     begin
       key := 0;
       OK_Click := false;
@@ -523,7 +523,7 @@ begin
 
   with myTabProperties do
   begin
-    Name := trim( Edit_NoteName.Text );
+    Name := trim( Edit_FolderName.Text );
     ImageIndex := pred( Combo_Icons.ItemIndex );
   end;
 
@@ -555,7 +555,7 @@ begin
   end;
 
   // myInheritBGColor:= CB_InheritBGColor.Checked;      // -> To modify in Global options form
-  ApplyTreeChromeToAllNotes:= CB_TreeChrome_AllNotes.Checked;
+  ApplyTreeChromeToAllFolders:= CB_TreeChrome_AllNotes.Checked;
 
 end; // FormToProps
 
@@ -564,7 +564,7 @@ begin
 
   with myTabProperties do
   begin
-    Edit_NoteName.Text := Name;
+    Edit_FolderName.Text := Name;
     Combo_Icons.ItemIndex := succ( ImageIndex );
   end;
 
@@ -666,7 +666,7 @@ begin
     // If editing properties for active note, restore defaults from
     // keynote.def file rather than original factory defaults,
     // unless SHIFT is pressed
-    if (( Action = propThisNote ) and ( not ShiftWasDown ) and fileexists( DefaultsFN )) then
+    if (( Action = propThisFolder ) and ( not ShiftWasDown ) and fileexists( DefaultsFN )) then
     begin
       LoadKeyNoteDefaults(
         true, // load ONLY chrome
@@ -685,7 +685,7 @@ begin
     InitializeChrome( myTreeChrome );
     InitializeChrome( tmpChrome );
 
-    if (( Action = propThisNote ) and ( not ShiftWasDown ) and fileexists( DefaultsFN )) then
+    if (( Action = propThisFolder ) and ( not ShiftWasDown ) and fileexists( DefaultsFN )) then
     begin
       LoadKeyNoteDefaults(
         true, // load ONLY chrome
@@ -749,11 +749,11 @@ begin
    if not CB_SaveDefaults.Checked then begin
       CB_SaveAsDef.Checked:= false;
 
-      if fOriginalAction = propThisNote then
-         Edit_NoteName.Text := myTabProperties.Name;
+      if fOriginalAction = propThisFolder then
+         Edit_FolderName.Text := myTabProperties.Name;
    end
    else begin
-       Edit_NoteName.Text := DefaultTabProperties.Name;
+       Edit_FolderName.Text := DefaultTabProperties.Name;
        CB_PlainText.Checked:= myEditorProperties.PlainText;
    end;
 
@@ -762,7 +762,7 @@ end;
 
 procedure TForm_Defaults.CB_PlainTextClick(Sender: TObject);
 begin
-   if CB_PlainText.Checked and (fOriginalAction = propThisNote) and (not myNoteIsReadOnly) and (not myEditorProperties.PlainText) then begin
+   if CB_PlainText.Checked and (fOriginalAction = propThisFolder) and (not myNoteIsReadOnly) and (not myEditorProperties.PlainText) then begin
       LB_PlainText.Caption:= STR_31 + STR_33;       // warning
       LB_PlainText.Font.Color:= clRed;
    end
@@ -817,7 +817,7 @@ begin
   Application.HelpCommand( HELP_CONTEXT, Pages.ActivePage.HelpContext );
 end;
 
-procedure TForm_Defaults.Edit_NoteNameKeyPress(Sender: TObject;
+procedure TForm_Defaults.Edit_FolderNameKeyPress(Sender: TObject;
   var Key: Char);
 begin
   if ( Key = KNTLINK_SEPARATOR ) then
@@ -826,12 +826,12 @@ end; // Edit_NoteNameKeyPress
 
 
 
-procedure TForm_Defaults.BitBtn_NoteHelpClick(Sender: TObject);
+procedure TForm_Defaults.BitBtn_FolderHelpClick(Sender: TObject);
 var
    msg: string;
 begin
   msg:= 'REMEMBER:' + #13#13 +
-        '- Folder settings apply only to NEW nodes, except:' + #13 +
+        '- Folder settings apply only to NEW notes, except:' + #13 +
         '   - ''Plain note only'': modifies ALL the notes' + #13 +
         '   - ''WordWrap'': affects ALL the notes' + #13 +
         '       (not explicitly set WordWrap previously)' + #13#13 +
@@ -841,7 +841,7 @@ begin
   messagedlg(msg , mtInformation, [mbOK], 0  );
 end;
 
-procedure TForm_Defaults.BitBtn_NoteChromeHelpClick(Sender: TObject);
+procedure TForm_Defaults.BitBtn_FolderChromeHelpClick(Sender: TObject);
 var
    msg: string;
 begin
@@ -872,7 +872,7 @@ begin
         '- ''Inherit properties from active node'' option is' + #13 +
         '  considered in NEW nodes' + #13 +
         '- Font and BG color can be changed for ALL tree panels at once:' + #13 +
-        '    "Apply to ALL tree notes"' + #13#13 +
+        '    "Apply to ALL folders"' + #13#13 +
         '- Note: ''Inherit BG color from active node'' option does NOT' + #13 +
         '  affect (refers to Editor) ' + #13#13 +
         '>> More info in Help File (F1)'

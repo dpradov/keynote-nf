@@ -429,7 +429,7 @@ begin
     exit;
   end;
 
-  if myKntFile.HasVirtualNodes then begin
+  if myKntFile.HasVirtualNotes then begin
     result := ( messagedlg(STR_11, mtWarning, [mbYes,mbNo], 0 ) = mrYes );
   end;
 

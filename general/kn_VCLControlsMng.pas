@@ -478,18 +478,18 @@ begin
           LastTreeNodeAssigned := nil;
           LastNodeLevel := 0;
 
-          if ( myFolder.Nodes.Count > 0 ) then begin
+          if ( myFolder.Notes.Count > 0 ) then begin
             TVFontStyleWithBold:= myFolder.TV.Font.Style + [fsBold];
 
             myTree.Items.BeginUpdate;
             try
-               for i := 0 to myFolder.Nodes.Count-1 do begin
-                  myNote := myFolder.Nodes[i];
+               for i := 0 to myFolder.Notes.Count-1 do begin
+                  myNote := myFolder.Notes[i];
 
                   numChilds:= 0;
                   ChildLevel:= myNote.Level+1;
-                  for j := i+1 to myFolder.Nodes.Count-1 do begin
-                     AuxLevel:= myFolder.Nodes[j].Level;
+                  for j := i+1 to myFolder.Notes.Count-1 do begin
+                     AuxLevel:= myFolder.Notes[j].Level;
                      if AuxLevel = ChildLevel then
                         inc(numChilds);
                      if AuxLevel < ChildLevel then
@@ -586,11 +586,11 @@ begin
                 if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
               end;
               myTree.Selected:= tNode;
-              myFolder.SelectedNode := TKntNote( myTree.Selected.Data );
+              myFolder.SelectedNote := TKntNote( myTree.Selected.Data );
             end
             else
             begin
-              myFolder.SelectedNode := nil;
+              myFolder.SelectedNote := nil;
             end;
 
             Log_StoreTick( 'After Restored selected node', 3 );

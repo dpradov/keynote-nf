@@ -164,7 +164,7 @@ end;
 
 procedure RunReplaceNext;
 begin
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
   ReplaceEventProc(false);
 end; // RunReplaceNext
@@ -178,7 +178,7 @@ var
 begin
   if ( not Form_Main.Pages_Res.Visible ) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
-  if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
 
   cnt := Location_List.Count;
   if ( cnt = 0 ) then
@@ -555,7 +555,7 @@ var
   myFolder : TKntFolder;
   myTreeNode : TTreeNTNode;
   myNote : TKntNote;
-  lastNoteID, lastNodeID : integer;
+  LastFolderID, lastNoteID : integer;
   lastTag : integer;
   numNodosNoLimpiables: integer;
   thisWord : string;
@@ -593,8 +593,8 @@ type
 
           if assigned(myTreeNode) then begin
              myNote := TKntNote(myTreeNode.Data);
-             Location.NodeName := myNote.Name;
-             Location.NodeID := myNote.ID;
+             Location.NoteName := myNote.Name;
+             Location.NoteID := myNote.ID;
           end;
 
           if not SearchingInNodeName then begin
@@ -915,8 +915,6 @@ begin
                 SearchOrigin := 0;                 // starting a new node
 
                 if assigned(myTreeNode) and (FindOptions.SearchScope <> ssOnlyContent) then begin
-                  var Aux: integer;
-                  var NodeName: string;
                   myNote := TKntNote(myTreeNode.Data);
                   if FindOptions.MatchCase then
                      TextPlain:= myNote.Name
@@ -981,14 +979,14 @@ begin
          widthTwips := DotsToTwips(Form_Main.FindAllResults.Width) - 500;
          LastResultCellWidth:= '\cellx' + widthTwips.ToString;
 
+         LastFolderID := -1;
          lastNoteID := -1;
-         lastNodeID := -1;
 
          for i := 1 to MatchCount do begin
            Location := TLocation( Location_List.Objects[pred( i )] );
-           if (( lastNoteID <> Location.FolderID ) or ( lastNodeID <> Location.NodeID )) then begin
-               lastNoteID := Location.FolderID;
-               lastNodeID := Location.NodeID;
+           if (( LastFolderID <> Location.FolderID ) or ( lastNoteID <> Location.NoteID )) then begin
+               LastFolderID := Location.FolderID;
+               lastNoteID := Location.NoteID;
                GetTreeNodeFromLocation(Location, myFolder, myTreeNode);
 
                Path:= '';
