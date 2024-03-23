@@ -144,7 +144,7 @@ begin
     exit;
   end;
 
-  if (( not Form_Main.HaveNotes( false, false )) or
+  if (( not Form_Main.HaveKntFolders( false, false )) or
      ( CompareText( KntFile.FileName, myFav.FileName ) <> 0 )) then
   begin
     // Location to another file
@@ -307,7 +307,7 @@ begin
   else
   begin
     // adding a KNT location, so we must have an active note:
-    if ( not Form_Main.HaveNotes( true, true )) then exit;
+    if ( not Form_Main.HaveKntFolders( true, true )) then exit;
     if ( not assigned( ActiveKntFolder )) then exit;
 
     myNote := GetCurrentNoteNode;

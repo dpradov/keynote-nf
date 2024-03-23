@@ -1322,7 +1322,7 @@ type
 
     // sanity checks. Many functions cannot be performed
     // if we have no active note or if the note is read-only
-    function HaveNotes( const Warn, CheckCount : boolean ) : boolean;
+    function HaveKntFolders( const Warn, CheckCount : boolean ) : boolean;
     function NoteIsReadOnly( const aFolder : TKntFolder; const Warn : boolean ) : boolean;
 
     // search / replace
@@ -1343,7 +1343,7 @@ type
     // VCL updates when config loaded or changed
     procedure UpdateStatusBarState;
 
-    procedure UpdateTreeVisible( const ANote : TKntFolder );
+    procedure UpdateTreeVisible( const AFolder : TKntFolder );
     procedure CheckRestoreAppWindowWidth (EnsureTreeVisible: boolean= False);
 
     procedure UpdateTabAndTreeIconsShow;
@@ -1373,8 +1373,8 @@ type
     function SelectVisibleControlForNode( const aNode : TKntNote ) : TNodeControl;
     {$ENDIF}
 
-    procedure FilterApplied (note: TKntFolder);   // [dpv]
-    procedure FilterRemoved (note: TKntFolder);   // [dpv]
+    procedure FilterApplied (Folder: TKntFolder);   // [dpv]
+    procedure FilterRemoved (Folder: TKntFolder);   // [dpv]
     procedure OnNoteChange(Folder: TKntFolder);
 
     procedure ShowAlarmStatus;
@@ -1796,7 +1796,7 @@ procedure TForm_Main.ProcessControlMessage(
         function Check( mustbereadonly : boolean ) : boolean;
         begin
           result := ( assigned( KntFile ) and
-            HaveNotes( false, true ));
+            HaveKntFolders( false, true ));
           if ( result and mustbereadonly ) then
             result := ( result and ( not NoteIsReadOnly( ActiveKntFolder, false )));
         end;
@@ -1931,7 +1931,7 @@ begin
 
 
   if ( NoteFileToLoad <> '' ) then begin
-     if HaveNotes( false, false ) then begin
+     if HaveKntFolders( false, false ) then begin
         if ( NoteFileToLoad = KntFile.FileName ) then begin
           if ( PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
           KntFile.Modified := false; // to prevent automatic save if modified
@@ -1941,7 +1941,7 @@ begin
   end
   else
   if ( CmdLineFileName <> '' ) then begin
-     if HaveNotes( false, false ) then begin
+     if HaveKntFolders( false, false ) then begin
         ext := ansilowercase( extractfileext( CmdLineFileName ));
         if ( ext = ext_Macro ) then
            ExecuteMacro( CmdLineFileName, '' )
@@ -1970,7 +1970,7 @@ begin
    if not fromKntLauncher and ( NoteFileToLoad <> '' ) then begin
       //PopupMessage( Format('NoteFileToLoad: %s', [NoteFileToLoad]), mtConfirmation, [mbYes], 0 );
       Open:= true;
-      if HaveNotes( false, false ) then begin
+      if HaveKntFolders( false, false ) then begin
          if ( NoteFileToLoad.ToUpper = KntFile.FileName.ToUpper ) then begin
            if ( PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
               Open:= false;
@@ -2124,7 +2124,7 @@ begin
   Application.OnDeactivate := nil;
   Application.OnHint := nil;
   ActiveKntFolder := nil;
-  // ClipCapNote := nil;
+  // ClipCapFolder := nil;
   Pages.OnChange := nil;
 
   // [x] The access violation error which happens
@@ -2354,7 +2354,7 @@ begin
   if ( Timer_Tick >= KeyOptions.AutoSaveOnTimerInt * ( 60000 div _TIMER_INTERVAL ) ) then
   begin
     Timer_Tick := 0;
-    if Form_Main.HaveNotes( false, false ) then
+    if Form_Main.HaveKntFolders( false, false ) then
     begin
       if (( not FileChangedOnDisk ) and KntFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then
       begin
@@ -2434,7 +2434,7 @@ procedure TForm_Main.AppDeactivate( sender : TObject );
 begin
   if FileChangedOnDisk then exit;
   if (( not ( AppIsClosing or Initializing or FileIsBusy )) and
-      ( HaveNotes( false, false ))) then
+      ( HaveKntFolders( false, false ))) then
   begin
     if ( KeyOptions.AutoSave and KeyOptions.AutoSaveOnFocus and KntFile.Modified ) then
     begin
@@ -2562,7 +2562,7 @@ begin
   end
   else
   begin
-    if HaveNotes( false, false ) then
+    if HaveKntFolders( false, false ) then
       NoteFileSave( KntFile.FileName )
     else
       NoteFileSave( '' );
@@ -4114,7 +4114,7 @@ begin
 
   if ( messagedlg( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel ) then exit;
 
-  if HaveNotes( false, false ) then begin
+  if HaveKntFolders( false, false ) then begin
     s := 'Filename: ' + ExtractFilename( KntFile.FileName ) +#13+
          'Notes modified: ' + BOOLARRAY[KntFile.Modified] +#13+
          'Notes count: ' + inttostr( KntFile.NoteCount ) +#13+
@@ -4360,36 +4360,36 @@ end;
 
 procedure TForm_Main.TB_FilterTreeClick(Sender: TObject);
 var
-   note: TKntFolder;
+   Folder: TKntFolder;
 begin
     if not assigned (ActiveKntFolder) then exit;
 
-    note:= TKntFolder(ActiveKntFolder);
-    if not note.Filtered then begin
+    Folder:= TKntFolder(ActiveKntFolder);
+    if not Folder.Filtered then begin
         ShowFindAllOptions;
         CB_ResFind_Filter.Checked:= true;
         TB_FilterTree.Down:= false;
     end
     else begin
-        note:= TKntFolder(ActiveKntFolder);
-        RemoveFilter (note);
-        FilterRemoved (note);
+        Folder:= TKntFolder(ActiveKntFolder);
+        RemoveFilter (Folder);
+        FilterRemoved (Folder);
     end;
 end;
 
-procedure TForm_Main.FilterApplied (note: TKntFolder);   // [dpv]
+procedure TForm_Main.FilterApplied (Folder: TKntFolder);   // [dpv]
 begin
-    note.Filtered:= true;
-    if note = ActiveKntFolder then begin
+    Folder.Filtered:= true;
+    if Folder = ActiveKntFolder then begin
       TB_FilterTree.Down:= true;
       MMViewFilterTree.Checked:= true;
       TB_FilterTree.Hint:= STR_23;
     end;
 end;
-procedure TForm_Main.FilterRemoved (note: TKntFolder);   // [dpv]
+procedure TForm_Main.FilterRemoved (Folder: TKntFolder);   // [dpv]
 begin
-    note.Filtered:= false;
-    if note = ActiveKntFolder then begin
+    Folder.Filtered:= false;
+    if Folder = ActiveKntFolder then begin
       TB_FilterTree.Down:= false;
       MMViewFilterTree.Checked:= false;
       TB_FilterTree.Hint:= STR_24;
@@ -4484,7 +4484,7 @@ begin
 end;
 
 
-function TForm_Main.HaveNotes( const Warn, CheckCount : boolean ) : boolean;
+function TForm_Main.HaveKntFolders( const Warn, CheckCount : boolean ) : boolean;
 var
   msg : string;
 begin
@@ -4509,11 +4509,11 @@ begin
   if (( not result ) and Warn ) then
     PopupMessage( msg, mtInformation, [mbOK], 0 );
 
-end; // HaveNotes
+end; // HaveKntFolders
 
 function TForm_Main.NoteIsReadOnly( const aFolder : TKntFolder; const Warn : boolean ) : boolean;
 begin
-  result := assigned( ANote ) and ANote.ReadOnly;
+  result := assigned( aFolder ) and aFolder.ReadOnly;
   if ( result and Warn ) then
     StatusBar.Panels[PANEL_HINT].Text := STR_27;
 end; // NoteIsReadOnly
@@ -4655,12 +4655,12 @@ begin
       if _IS_COPYING_TO_CLIPBOARD then        // *2
          LogRTFHandleInClipboard();
 
-      if ( ClipCapActive and assigned( KntFile ) and ( KntFile.ClipCapNote <> nil )) then begin
+      if ( ClipCapActive and assigned( KntFile ) and ( KntFile.ClipCapFolder <> nil )) then begin
          if (( GetActiveWindow <> self.Handle ) or // only when inactive
             (( not ClipOptions.IgnoreSelf ) and // explicitly configured to capture from self...
-            ( not ( KntFile.ClipCapNote = ActiveKntFolder )))) then begin // but never capture text copied from the note that is being used for capture
+            ( not ( KntFile.ClipCapFolder = ActiveKntFolder )))) then begin // but never capture text copied from the note that is being used for capture
                ClpStr := Clipboard.TryAsText;
-               if ((ClpStr <> '') or not KntFile.ClipCapNote.PlainText ) and (not TestCRCForDuplicates(ClpStr) or (not ClipOptions.TestDupClips)) then     // *1
+               if ((ClpStr <> '') or not KntFile.ClipCapFolder.PlainText ) and (not TestCRCForDuplicates(ClpStr) or (not ClipOptions.TestDupClips)) then     // *1
                   PasteOnClipCap(ClpStr);
          end;
       end;
@@ -4720,7 +4720,7 @@ end;
 
 procedure TForm_Main.MMNotePrintPreview_Click(Sender: TObject);
 begin
-  if ( not HaveNotes( true, true )) then exit;
+  if ( not HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
 
   if ( not assigned( RichPrinter )) then    // [dpv]
@@ -4767,7 +4767,7 @@ var
 {$ENDIF}
 begin
 {$IFNDEF EXCLUDEEMAIL}
-  if ( not HaveNotes( true, true )) then exit;
+  if ( not HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
 
   StatusBar.Panels[PANEL_HINT].Text := STR_31;
@@ -4776,8 +4776,8 @@ begin
     with Form_Mail do
     begin
       ShowHint := KeyOptions.ShowTooltips;
-      myActiveNote := ActiveKntFolder;
-      myNotes := KntFile;
+      myKntFolder := ActiveKntFolder;
+      myKntFile := KntFile;
       myINI_FN := MailINI_FN;
     end;
     case Form_Mail.ShowModal of
@@ -5019,37 +5019,37 @@ var
 
 procedure TForm_Main.SplitterNoteMoved(Sender: TObject);
 var
-  myNote: TKntFolder;
+  myFolder: TKntFolder;
   Width: integer;
 begin
-   myNote:= TKntFolder(ActiveKntFolder);
-   if myNote.VerticalLayout then
-      Width := myNote.TV.Height
+   myFolder:= TKntFolder(ActiveKntFolder);
+   if myFolder.VerticalLayout then
+      Width := myFolder.TV.Height
    else
-      Width := myNote.TV.Width;
+      Width := myFolder.TV.Width;
 
    TSplitter(Sender).Color:= clBtnFace;
 
    if AltDown then begin
-      myNote.TreeMaxWidth:= -myNote.TreeMaxWidth;        // Toggle width fixed
-      if myNote.TreeMaxWidth < 0 then
+      myFolder.TreeMaxWidth:= -myFolder.TreeMaxWidth;        // Toggle width fixed
+      if myFolder.TreeMaxWidth < 0 then
          TSplitter(Sender).Color:= clSkyBlue;
       exit;
    end;
 
    if CtrlDown then begin
-      if Width = Abs(myNote.TreeWidth)  then
+      if Width = Abs(myFolder.TreeWidth)  then
          Width:= 0;
-      myNote.TreeMaxWidth:= Width;
+      myFolder.TreeMaxWidth:= Width;
    end
    else begin
-      myNote.TreeWidth:= Width;
-      myNote.TreeMaxWidth:= Abs(myNote.TreeMaxWidth);
+      myFolder.TreeWidth:= Width;
+      myFolder.TreeMaxWidth:= Abs(myFolder.TreeMaxWidth);
       TreeWidthExpanded:= True;
    end;
 
    if KeyOptions.ModifiedOnTreeResized then begin
-      myNote.Modified := true;
+      myFolder.Modified := true;
       KntFile.Modified := true;
       UpdateNoteFileState( [fscModified] );
    end;
@@ -5101,20 +5101,20 @@ end;
 
 procedure TForm_Main.CheckExpandTreeWidth;
 var
-  myNote: TKntFolder;
+  myFolder: TKntFolder;
   Width: integer;
 begin
-   myNote:= TKntFolder(ActiveKntFolder);
-   if myNote.VerticalLayout then
-      Width := myNote.TV.Height
+   myFolder:= TKntFolder(ActiveKntFolder);
+   if myFolder.VerticalLayout then
+      Width := myFolder.TV.Height
    else
-      Width := myNote.TV.Width;
+      Width := myFolder.TV.Width;
 
-   if (myNote.TreeMaxWidth > 0) and (myNote.TreeMaxWidth > Width) then begin
-      if myNote.VerticalLayout then
-         myNote.TV.Height:= myNote.TreeMaxWidth
+   if (myFolder.TreeMaxWidth > 0) and (myFolder.TreeMaxWidth > Width) then begin
+      if myFolder.VerticalLayout then
+         myFolder.TV.Height:= myFolder.TreeMaxWidth
       else
-         myNote.TV.Width:= myNote.TreeMaxWidth;
+         myFolder.TV.Width:= myFolder.TreeMaxWidth;
 
       if keyOptions.AltMargins then
          ActiveKntFolder.Editor.Refresh;
@@ -5126,22 +5126,22 @@ end;
 function TForm_Main.CheckRestoreTreeWidth: boolean;
 var
    Width: integer;
-   myNote: TKntFolder;
+   myFolder: TKntFolder;
 begin
    Result:= False;
-    myNote:= TKntFolder(ActiveKntFolder);
+    myFolder:= TKntFolder(ActiveKntFolder);
 
-    if (myNote.TreeMaxWidth > 0) and (myNote.TV.Visible) and (not myNote.TV.Focused) then begin
-       if myNote.VerticalLayout then
-          Width := myNote.TV.Height
+    if (myFolder.TreeMaxWidth > 0) and (myFolder.TV.Visible) and (not myFolder.TV.Focused) then begin
+       if myFolder.VerticalLayout then
+          Width := myFolder.TV.Height
        else
-          Width := myNote.TV.Width;
+          Width := myFolder.TV.Width;
 
        if (Width > TKntFolder(ActiveKntFolder).TreeWidth) then begin
-           if myNote.VerticalLayout then
-              myNote.TV.Height:= myNote.TreeWidth
+           if myFolder.VerticalLayout then
+              myFolder.TV.Height:= myFolder.TreeWidth
            else
-              myNote.TV.Width:= myNote.TreeWidth;
+              myFolder.TV.Width:= myFolder.TreeWidth;
 
            TreeWidthExpanded:= false;
            TreeWidth_N:= 0;
@@ -5846,14 +5846,14 @@ procedure TForm_Main.FindTreeNode;
 var
   myNode : TTreeNTNode;
   found : boolean;  
-  myNote : TKntFolder;
+  myFolder : TKntFolder;
   selectedNode : TTreeNTNode;
   FindAllTabs: boolean;
   FindHiddenNodes: boolean;
 
   procedure GetFirstNode;
   begin
-	  myNode := TKntFolder(myNote).TV.Items.GetFirstNode;
+	  myNode := TKntFolder(myFolder).TV.Items.GetFirstNode;
 	  if assigned( myNode ) and myNode.Hidden and (not FindHiddenNodes) then
 		 myNode := myNode.GetNextNotHidden;
   end;
@@ -5872,13 +5872,13 @@ var
      tabidx : integer;
   begin
      if FindAllTabs and (Form_Main.Pages.PageCount > 1) then begin
-          tabidx := myNote.TabSheet.PageIndex;
+          tabidx := myFolder.TabSheet.PageIndex;
           if tabidx < pred(Form_Main.Pages.PageCount) then
              inc(tabidx)
           else
              tabidx := 0;
 
-          myNote := TKntFolder(Form_Main.Pages.Pages[tabidx].PrimaryObject);
+          myFolder := TKntFolder(Form_Main.Pages.Pages[tabidx].PrimaryObject);
           GetFirstNode;
       end;
    end;
@@ -5906,7 +5906,7 @@ begin
   found := false;
   selectedNode:= myNode;
   GetNextNode;
-  myNote := ActiveKntFolder;
+  myFolder := ActiveKntFolder;
 
   FindAllTabs := CB_ResFind_AllNotes.Checked;
   FindHiddenNodes:= CB_ResFind_HiddenNodes.Checked;
@@ -5917,8 +5917,8 @@ begin
 					if ( Pos( SearchNode_Text, AnsiLowercase( myNode.Text )) > 0 ) then
 					begin
 					  found := true;
-					  if (myNote <> ActiveKntFolder) then begin
-						   Form_Main.Pages.ActivePage := myNote.TabSheet;
+					  if (myFolder <> ActiveKntFolder) then begin
+						   Form_Main.Pages.ActivePage := myFolder.TabSheet;
 						   Form_Main.PagesChange(Pages);
 						   TKntFolder( ActiveKntFolder ).TV.SetFocus;
 						   ActiveKntFolder.FocusMemory := focTree;
@@ -6311,7 +6311,7 @@ var
   Cmd: TEditCmd;
   AnsiCh: AnsiChar;
 begin
-  if ( not ( HaveNotes( false, true ) and assigned( ActiveKntFolder ))) then
+  if ( not ( HaveKntFolders( false, true ) and assigned( ActiveKntFolder ))) then
     exit;
   if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
@@ -6740,7 +6740,7 @@ procedure TForm_Main.MMTreeSaveToFileClick(Sender: TObject);
 var
   fn, oldFilter : string;
 begin
-  if ( not HaveNotes( true, true )) then exit;
+  if ( not HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
 
   ShowHiddenMarkers:= CtrlDown;
@@ -7607,7 +7607,7 @@ begin
     exit;
   end;
 
-  if (( not HaveNotes( false, false )) or
+  if (( not HaveKntFolders( false, false )) or
      ( AnsiCompareText( KntFile.FileName, myFav.FileName ) <> 0 )) then
   begin
     fn := STR_90 + ExtractFilename( myFav.Filename );
@@ -8390,11 +8390,11 @@ begin
 end; // UpdateStatusBarState
 
 
-procedure TForm_Main.UpdateTreeVisible( const ANote : TKntFolder );
+procedure TForm_Main.UpdateTreeVisible( const AFolder : TKntFolder );
 var
    Inc: Integer;
 begin
-  with ANote do begin
+  with AFolder do begin
     TV.Visible := ( not TreeHidden );
     if TreeHidden then
       FocusMemory := focRTF;

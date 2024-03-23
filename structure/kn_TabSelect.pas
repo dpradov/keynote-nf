@@ -59,14 +59,14 @@ type
   public
     { Public declarations }
     OK_Click : boolean;
-    myNotes : TKntFile;
+    myKntFile : TKntFile;
 
     procedure TabsToForm;
     procedure FormToTabs;
 
   end;
 
-function SelectTabs( const aNoteFile : TKntFile ) : boolean;
+function SelectTabs( const aKntFile : TKntFile ) : boolean;
 
 implementation
 uses
@@ -79,13 +79,13 @@ uses
 
 {$R *.DFM}
 
-function SelectTabs( const aNoteFile : TKntFile ) : boolean;
+function SelectTabs( const aKntFile : TKntFile ) : boolean;
 var
   Form_SelectTab : TForm_SelectTab;
 begin
   Form_SelectTab := TForm_SelectTab.Create( Application );
   try
-    Form_SelectTab.myNotes := aNoteFile;
+    Form_SelectTab.myKntFile := aKntFile;
     result := ( Form_SelectTab.ShowModal = mrOK );
   finally
     Form_SelectTab.Free;
@@ -94,7 +94,7 @@ end; // SelectTabs
 
 procedure TForm_SelectTab.FormCreate(Sender: TObject);
 begin
-  myNotes := nil;
+  myKntFile := nil;
   OK_Click := false;
   List_Tabs.ImageList := Chest.IMG_Categories;
 end; function TForm_SelectTab.FormHelp(Command: Word; Data: NativeInt;
@@ -153,13 +153,13 @@ var
   cb : TCheckBoxState;
   aFolder : TKntFolder;
 begin
-  if ( not assigned( myNotes )) then exit;
-  if ( myNotes.NoteCount < 1 ) then exit;
+  if ( not assigned( myKntFile )) then exit;
+  if ( myKntFile.NoteCount < 1 ) then exit;
   List_Tabs.Items.BeginUpdate;
   try
-    for i := 0 to pred( myNotes.NoteCount ) do
+    for i := 0 to pred( myKntFile.NoteCount ) do
     begin
-      aFolder := myNotes.Notes[i];
+      aFolder := myKntFile.Notes[i];
       if ( aFolder.Info <> 0 ) then
         cb := cbChecked
       else
@@ -176,14 +176,14 @@ procedure TForm_SelectTab.FormToTabs;
 var
   i : integer;
 begin
-  if ( not assigned( myNotes )) then exit;
-  if ( myNotes.NoteCount < 1 ) then exit;
-  for i := 0 to pred( myNotes.NoteCount ) do
+  if ( not assigned( myKntFile )) then exit;
+  if ( myKntFile.NoteCount < 1 ) then exit;
+  for i := 0 to pred( myKntFile.NoteCount ) do
   begin
     if List_Tabs.Checked[i] then
-      myNotes.Notes[i].Info := 1
+      myKntFile.Notes[i].Info := 1
     else
-      myNotes.Notes[i].Info := 0;
+      myKntFile.Notes[i].Info := 0;
   end;
 end; // FormToTabs
 

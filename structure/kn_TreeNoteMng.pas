@@ -48,7 +48,7 @@ var
 
     // treenote-related methods:
     function AddNodeToTree( aInsMode : TNodeInsertMode ) : TTreeNTNode;
-    function TreeNoteNewNode( const aTreeNote : TKntFolder; aInsMode : TNodeInsertMode; const aOriginNode : TTreeNTNode; const aNewNodeName : string; const aDefaultNode : boolean ) : TTreeNTNode;
+    function TreeNoteNewNode( const aFolder : TKntFolder; aInsMode : TNodeInsertMode; const aOriginNode : TTreeNTNode; const aNewNodeName : string; const aDefaultNode : boolean ) : TTreeNTNode;
     procedure TreeNodeSelected( Node : TTreeNTNode; OnDeletingNode: boolean= false );
     procedure DeleteTreeNode( const DeleteFocusedNode : boolean );
     function MoveSubtree( myTreeNode : TTreeNTNode ): boolean;
@@ -76,7 +76,7 @@ var
     function GetNodePath( aNode : TTreeNTNode; const aDelimiter : string; const TopToBottom : boolean ) : string;
 
     procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit);
-    function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TKntFolder; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
+    function TreeTransferProc( const XferAction : integer; const PasteTargetFolder : TKntFolder; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
 
     procedure HideChildNodesUponCheckState (folder: TKntFolder; ParentNode: TTreeNTNode; CheckState: TCheckState);    // [dpv]
     procedure ShowCheckedNodes (folder: TKntFolder; ParentNode: TTreeNTNode);    // [dpv]
@@ -162,7 +162,7 @@ begin
 end; // AddNodeToTree
 
 function TreeNoteNewNode(
-  const aTreeNote : TKntFolder;
+  const aFolder : TKntFolder;
   aInsMode : TNodeInsertMode;
   const aOriginNode : TTreeNTNode;
   const aNewNodeName : string;
@@ -176,14 +176,14 @@ var
   AddingFirstNode, addnumber : boolean;
 begin
   result := nil;
-  if ( aTreeNote = nil ) then
+  if ( aFolder = nil ) then
   begin
     if not ( assigned( ActiveKntFolder )) then exit;
     myFolder := ActiveKntFolder;
   end
   else
   begin
-    myFolder := aTreeNote;
+    myFolder := aFolder;
   end;
   if Form_Main.NoteIsReadOnly( myFolder, true ) then exit;
 
@@ -401,7 +401,7 @@ end; // GetCurrentTreeNode
 
 procedure TreeNodeSelected( Node : TTreeNTNode; OnDeletingNode: boolean= false );
 var
-  myTreeNote : TKntFolder;
+  myFolder : TKntFolder;
   myNote : TKntNote;
   KeepModified: boolean;
   {$IFDEF WITH_IE}
@@ -412,19 +412,19 @@ begin
       if ( not assigned( Node )) then exit;
       if not assigned( ActiveKntFolder) then exit;
 
-      myTreeNote := ActiveKntFolder;
+      myFolder := ActiveKntFolder;
       KeepModified:= false;
 
-      if assigned(myTreeNote.SelectedNode) then
-         myTreeNote.SelectedNode.ScrollPosInEditor:= ActiveKntFolder.Editor.GetScrollPosInEditor;
+      if assigned(myFolder.SelectedNode) then
+         myFolder.SelectedNode.ScrollPosInEditor:= ActiveKntFolder.Editor.GetScrollPosInEditor;
 
       if ( not _Executing_History_Jump ) and (not _Executing_JumpToKNTLocation_ToOtherNote) then begin
-          AddHistoryLocation( myTreeNote, false);        // Add to history the location of current node, before the new node comes to be the selected node
+          AddHistoryLocation( myFolder, false);        // Add to history the location of current node, before the new node comes to be the selected node
          _LastMoveWasHistory := false;
          UpdateHistoryCommands;
       end;
 
-      myTreeNote.TV.OnChange := nil;
+      myFolder.TV.OnChange := nil;
       ActiveKntFolder.Editor.OnChange := nil;
 
       ActiveKntFolder.Editor.Lines.BeginUpdate;
@@ -442,7 +442,7 @@ begin
 
           myNote := TKntNote( Node.Data );
 
-          myTreeNote.SelectedNode := myNote;
+          myFolder.SelectedNode := myNote;
 
           if assigned( myNote ) then
           begin
@@ -481,7 +481,7 @@ begin
             TVCheckNode.Checked := myNote.Checked;
             TVBoldNode.Checked := myNote.Bold;
             TVChildrenCheckbox.Checked:= myNote.ChildrenCheckbox;   // [dpv]
-            if myTreeNote.Checkboxes or (assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
+            if myFolder.Checkboxes or (assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
                TVCheckNode.Enabled := true
             else
                TVCheckNode.Enabled := false;
@@ -2105,7 +2105,7 @@ begin
 end;
 
 
-function TreeTransferProc( const XferAction : integer; const PasteTargetNote : TKntFolder; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
+function TreeTransferProc( const XferAction : integer; const PasteTargetFolder : TKntFolder; const Prompt : boolean ; const PasteAsVirtualKNTNode: boolean; const MovingSubtree: boolean) : boolean;
 var
   newNoteNode : TKntNote;
   myTreeNode, newTreeNode, LastNodeAssigned, FirstCopiedNode : TTreeNTNode;
@@ -2145,13 +2145,13 @@ begin
     exit;
   end;
 
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
-  if ( PasteTargetNote = nil ) then
+  if ( PasteTargetFolder = nil ) then
     myTreeNode := GetCurrentTreeNode
   else
-    myTreeNode := PasteTargetNote.TV.Selected;
+    myTreeNode := PasteTargetFolder.TV.Selected;
 
   if ( myTreeNode = nil ) then
   begin

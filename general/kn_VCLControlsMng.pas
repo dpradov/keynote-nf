@@ -1097,7 +1097,7 @@ begin
         begin
           try
             MMNoteReadOnly.Checked := ActiveKntFolder.ReadOnly;
-            TB_ClipCap.Down := ( KntFile.ClipCapNote = ActiveKntFolder );
+            TB_ClipCap.Down := ( KntFile.ClipCapFolder = ActiveKntFolder );
             MMNoteClipCapture.Checked := TB_ClipCap.Down;
             ShowAlarmStatus;
 

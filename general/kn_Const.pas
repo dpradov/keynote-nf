@@ -228,7 +228,7 @@ const
   _NF_ACT = '$'; // Active note
   _NF_ReadOnlyOpen  = 'R'; // open file as read-only
   _NF_ShowTabIcons  = 'I'; // per-FILE setting
-  _NF_ClipCapNote   = 'L'; // index of ClipCapNote
+  _NF_ClipCapFolder   = 'L'; // index of ClipCapFolder
   _NF_TrayIconFile  = 'T'; // tray icon file to load
   _NF_TabIconsFile  = 'F'; // tab icons file to load
   _NF_FileFlags     = '^'; // "flags" string (24 boolean values)
@@ -463,7 +463,7 @@ type
   // WITH_DART: From now, DartNotes format is unsupported by default
 
   // supported save/load formats
-  TNoteFileFormat = (
+  TKntFileFormat = (
     nffKeyNote, nffKeyNoteZip, nffEncrypted {$IFDEF WITH_DART}, nffDartNotes{$ENDIF}
   );
 
@@ -673,7 +673,7 @@ const
 
 type
   // In encrypted files, this is saved in cleartext
-  TNoteFileVersion = packed record
+  TKntFileVersion = packed record
     ID : array[1..ID_STR_LENGTH] of AnsiChar;
     Major, Minor : AnsiChar;
   end;
@@ -1089,7 +1089,7 @@ const
   );
 
 var
-  FILE_FORMAT_NAMES : array[TNoteFileFormat] of string;
+  FILE_FORMAT_NAMES : array[TKntFileFormat] of string;
   FILE_COMPRESSION_LEVEL : array[TZCompressionLevel] of string;
   SEARCH_MODES : array[TSearchMode] of string;
   SEARCH_SCOPES : array[TSearchScope] of string;

@@ -411,13 +411,13 @@ end; // GetVirtualKNTNode
 
 function TKntNote.GetMirrorNodePath: string;
 var
-   note: TKntFolder;
+   Folder: TKntFolder;
    node : TTreeNTNode;
 begin
      node:= GetMirrorNode;
      if assigned(Node) then begin
-        note:= KntFile.GetNoteByTreeNode(node);
-        Result:= PathOfKNTLink(node, note, -1, false, false);
+        Folder:= KntFile.GetNoteByTreeNode(node);
+        Result:= PathOfKNTLink(node, Folder, -1, false, false);
      end;
 end;
 

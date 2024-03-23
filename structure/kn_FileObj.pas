@@ -82,9 +82,9 @@ type
 type
   TKntFile = class( TObject )
   private
-    FVersion : TNoteFileVersion;
+    FVersion : TKntFileVersion;
     FFileName : string;
-    FFileFormat : TNoteFileFormat;
+    FFileFormat : TKntFileFormat;
     FCompressionLevel: TZCompressionLevel;
     FDescription : TCommentStr;
     FComment : TCommentStr;
@@ -97,7 +97,7 @@ type
     FOpenAsReadOnly : boolean;
     FShowTabIcons : boolean;
     FNoMultiBackup : boolean;
-    FClipCapNote : TKntFolder;
+    FClipCapFolder : TKntFolder;
     FTrayIconFN : string;
     FTabIconsFN : string;
     FSavedWithRichEdit3 : boolean;
@@ -114,12 +114,12 @@ type
     procedure SetVersion;
     procedure SetDescription( ADescription : TCommentStr );
     procedure SetComment( AComment : TCommentStr );
-    procedure SetFileFormat( AFileFormat : TNoteFileFormat );
+    procedure SetFileFormat( AFileFormat : TKntFileFormat );
     procedure SetModified( AModified : boolean );
     function GetPassphrase( const FN : string ) : boolean;
 
-    function InternalAddNote( ANote : TKntFolder ) : integer;
-    procedure GenerateNoteID( const ANote : TKntFolder );
+    function InternalAddNote( AFolder : TKntFolder ) : integer;
+    procedure GenerateNoteID( const AFolder : TKntFolder );
     procedure VerifyNoteIds;
 
     function PropertiesToFlagsString : TFlagsString; virtual;
@@ -133,7 +133,7 @@ type
     function GetFile_Path: string;
 
   public
-    property Version : TNoteFileVersion read FVersion;
+    property Version : TKntFileVersion read FVersion;
     property FileName : string read FFileName write SetFileName;
     property File_Name : string read GetFile_Name;
     property File_NameNoExt : string read GetFile_NameNoExt;
@@ -147,7 +147,7 @@ type
     property Notes : TNoteList read FNotes write FNotes;
     property PageCtrl : TPage95Control read FPageCtrl write FPageCtrl;
     property Modified : boolean read GetModified write SetModified;
-    property FileFormat : TNoteFileFormat read FFileFormat write SetFileFormat;
+    property FileFormat : TKntFileFormat read FFileFormat write SetFileFormat;
     property CompressionLevel: TZCompressionLevel read FCompressionLevel write FCompressionLevel;
     property TrayIconFN : string read FTrayIconFN write FTrayIconFN;
     property TabIconsFN : string read FTabIconsFN write FTabIconsFN;
@@ -157,7 +157,7 @@ type
     property OpenAsReadOnly : boolean read FOpenAsReadOnly write FOpenAsReadOnly;
     property ShowTabIcons : boolean read FShowTabIcons write FShowTabIcons;
     property NoMultiBackup : boolean read FNoMultiBackup write FNoMultiBackup;
-    property ClipCapNote : TKntFolder read FClipCapNote write FClipCapNote;
+    property ClipCapFolder : TKntFolder read FClipCapFolder write FClipCapFolder;
 
     property CryptMethod : TCryptMethod read FCryptMethod write FCryptMethod;
     property Passphrase : UTF8String read FPassphrase write FPassphrase;
@@ -171,8 +171,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    function AddNote( ANote : TKntFolder ) : integer;
-    procedure DeleteNote( ANote : TKntFolder );
+    function AddNote( AFolder : TKntFolder ) : integer;
+    procedure DeleteNote( AFolder : TKntFolder );
 
     function Save(FN: string;
                   var SavedNotes: integer; var SavedNodes: integer;
@@ -195,7 +195,7 @@ type
     procedure ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
 
     procedure UpdateTextPlainVariables (nMax: integer);
-    procedure UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
+    procedure UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToFolder: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
     function  EnsurePlainTextAndRemoveImages (myFolder: TKntFolder): boolean;
     procedure RemoveImagesCountReferences (myFolder: TKntFolder); overload;
     procedure RemoveImagesCountReferences (myNote: TKntNote); overload;
@@ -319,7 +319,7 @@ begin
   FPassphraseFunc := nil;
   FShowTabIcons := true;
   FNoMultiBackup := false;
-  FClipCapNote := nil;
+  FClipCapFolder := nil;
   FSavedWithRichEdit3 := false;
   SetVersion;
 
@@ -347,21 +347,21 @@ begin
 end; // GetPassphrase
 
 
-function TKntFile.AddNote( ANote : TKntFolder ) : integer;
+function TKntFile.AddNote( AFolder : TKntFolder ) : integer;
 begin
   result := -1;
-  if ( not assigned( ANote )) then exit;
-  result := InternalAddNote( ANote );
-  if ( ANote.ID = 0 ) then
-    GenerateNoteID( ANote );
+  if ( not assigned( AFolder )) then exit;
+  result := InternalAddNote( AFolder );
+  if ( AFolder.ID = 0 ) then
+    GenerateNoteID( AFolder );
   Modified := true;
 end; // AddNote
 
 
-function TKntFile.InternalAddNote( ANote : TKntFolder ) : integer;
+function TKntFile.InternalAddNote( AFolder : TKntFolder ) : integer;
 begin
-  result := Notes.Add( ANote );
-  ANote.Modified := false;
+  result := Notes.Add( AFolder );
+  AFolder.Modified := false;
 end; // InternalAddNote
 
 
@@ -379,7 +379,7 @@ begin
 end; // VerifyNoteIds
 
 
-procedure TKntFile.GenerateNoteID( const ANote : TKntFolder );
+procedure TKntFile.GenerateNoteID( const AFolder : TKntFolder );
 var
   i, count, myID, hiID : longint;
   myFolder : TKntFolder;
@@ -395,17 +395,17 @@ begin
   end;
 
   inc( hiID ); // make it one higher
-  ANote.ID := hiID;
+  AFolder.ID := hiID;
 
 end; // GenerateNoteID
 
 
-procedure TKntFile.DeleteNote( ANote : TKntFolder );
+procedure TKntFile.DeleteNote( AFolder : TKntFolder );
 var
   idx : integer;
 begin
-  if ( not assigned( ANote )) then exit;
-  idx := FNotes.IndexOf( ANote );
+  if ( not assigned( AFolder )) then exit;
+  idx := FNotes.IndexOf( AFolder );
   if ( idx < 0 ) then exit;
   FNotes.Delete( idx );
   Modified := true;
@@ -517,7 +517,7 @@ begin
 end; // SetComment
 
 
-procedure TKntFile.SetFileFormat( AFileFormat : TNoteFileFormat );
+procedure TKntFile.SetFileFormat( AFileFormat : TKntFileFormat );
 begin
   if ( FFileFormat = AFileFormat ) then exit;
   FFileFormat := AFileFormat;
@@ -562,7 +562,7 @@ var
   FileExhausted : boolean;
   InHead : boolean;
   TestString : string[12];
-  VerID : TNoteFileVersion;
+  VerID : TKntFileVersion;
   NextBlock: TNextBlock;
 
 
@@ -810,7 +810,7 @@ begin
                             FActiveNote := 0;
                           end;
                         end;
-                        _NF_ClipCapNote : begin
+                        _NF_ClipCapFolder : begin
                           try
                             ClipCapIdx := strtoint( ds );
                           except
@@ -901,13 +901,13 @@ begin
                end;
             end; // EOF( tf )
 
-            FClipCapNote := nil;
+            FClipCapFolder := nil;
             if (( ClipCapIdx >= 0 ) and ( ClipCapIdx < FNotes.Count )) then
                for p := 0 to pred( FNotes.Count ) do begin
                   Folder := FNotes[p];
                   if (( Folder.TabIndex = ClipCapIdx ) and ( not Folder.ReadOnly )) then begin
                     //if ( Folder.Kind = ntRTF ) then
-                    FClipCapNote := Folder;
+                    FClipCapFolder := Folder;
                     break;
                   end;
                end;
@@ -1096,8 +1096,8 @@ var
       tf.WriteLine( _NF_COMMENT + _NF_TrayIconFile + TrayIconFN );
     if ( FTabIconsFN <> '' ) then
       tf.WriteLine( _NF_COMMENT + _NF_TabIconsFile + FTabIconsFN );
-    if assigned( FClipCapNote ) then
-      tf.WriteLine( _NF_COMMENT + _NF_ClipCapNote + FClipCapNote.TabSheet.PageIndex.ToString );
+    if assigned( FClipCapFolder ) then
+      tf.WriteLine( _NF_COMMENT + _NF_ClipCapFolder + FClipCapFolder.TabSheet.PageIndex.ToString );
 
     if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then begin
       // this is done so that we preserve the order of tabs.
@@ -1547,19 +1547,19 @@ end;
 function TKntFile.HasVirtualNodeByFileName( const aNoteNode : TKntNote; const FN : string ) : boolean;
 var
   cnt, i, n : integer;
-  myTreeNote : TKntFolder;
+  myFolder : TKntFolder;
 begin
   result := false;
   cnt := FNotes.Count;
   if ( cnt <= 0 ) then Exit;
 
   for i := 0 to pred( cnt ) do begin
-     myTreeNote := FNotes[i];
-     if ( myTreeNote.Nodes.Count > 0 ) then
-         for n := 0 to pred( myTreeNote.Nodes.Count ) do
-            if ( myTreeNote.Nodes[n].VirtualMode <> vmNone ) then
-              if ( myTreeNote.Nodes[n].VirtualFN = FN ) then
-                 if ( aNoteNode <> myTreeNote.Nodes[n] ) then begin
+     myFolder := FNotes[i];
+     if ( myFolder.Nodes.Count > 0 ) then
+         for n := 0 to pred( myFolder.Nodes.Count ) do
+            if ( myFolder.Nodes[n].VirtualMode <> vmNone ) then
+              if ( myFolder.Nodes[n].VirtualFN = FN ) then
+                 if ( aNoteNode <> myFolder.Nodes[n] ) then begin
                    result := true;
                    break;
                  end;
@@ -1783,7 +1783,7 @@ begin
 end;
 
 
-procedure TKntFile.UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToNote: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
+procedure TKntFile.UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToFolder: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
 var
   i, j: integer;
   myFolder: TKntFolder;
@@ -1806,7 +1806,7 @@ var
    end;
 
 begin
-   if (ApplyOnlyToNote = nil)  then
+   if (ApplyOnlyToFolder = nil)  then
       ImagesManager.ResetAllImagesCountReferences;
 
    // ApplyOnlyToNote: Para usar desde MergeFromKNTFile
@@ -1814,7 +1814,7 @@ begin
    for i := 0 to pred( FNotes.Count ) do begin
       myFolder := FNotes[i];
       if myFolder.PlainText then continue;
-      if (ApplyOnlyToNote <> nil) and (myFolder <> ApplyOnlyToNote) then continue;
+      if (ApplyOnlyToFolder <> nil) and (myFolder <> ApplyOnlyToFolder) then continue;
 
       myFolder.EditorToDataStream;
 

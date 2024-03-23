@@ -254,7 +254,7 @@ begin
   end;
 
   if MacroProcess( true ) then exit;
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
 
   if ( not CheckFolder( 'Macro', Macro_Folder, true, true )) then exit;
@@ -596,7 +596,7 @@ begin
   // that the macro dooesn't do anything unreasonable, like
   // inserting text before creating a folder
   if ( aFileName <> _MACRO_AUTORUN_NEW_FILE ) then begin
-    if ( not Form_Main.HaveNotes( true, true )) then exit;
+    if ( not Form_Main.HaveKntFolders( true, true )) then exit;
     if ( not assigned( ActiveKntFolder )) then exit;
   end;
 
@@ -1595,7 +1595,7 @@ begin
           end;
 
           ecReadOnly :
-            if ( ActiveKntFolder = KntFile.ClipCapNote ) then
+            if ( ActiveKntFolder = KntFile.ClipCapFolder ) then
                errorStr:= STR_45
             else begin
               ActiveKntFolder.ReadOnly := ( not ActiveKntFolder.ReadOnly );

@@ -72,7 +72,7 @@ begin
   result := false;
   with Form_Main do
   begin
-    if ( not HaveNotes( true, false )) then exit;
+    if ( not HaveKntFolders( true, false )) then exit;
     myFolder := nil;
     FileWasBusy := FileIsBusy;
     FileIsBusy := true;
@@ -181,7 +181,7 @@ var
 begin
   with Form_Main do
   begin
-      if ( not HaveNotes( true, true )) then exit;
+      if ( not HaveKntFolders( true, true )) then exit;
       if ( not assigned( ActiveKntFolder )) then exit;
       if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
@@ -194,8 +194,8 @@ begin
       end;
 
       try
-        // clear Clipboard capture state if this folder is ClipCapNote
-        if ( KntFile.ClipCapNote = ActiveKntFolder ) then
+        // clear Clipboard capture state if this folder is ClipCapFolder
+        if ( KntFile.ClipCapFolder = ActiveKntFolder ) then
         begin
           TB_ClipCap.Down := false;
           ClipCapNode := nil;
@@ -274,7 +274,7 @@ var
   Form_NewNote : TForm_NewNote;
 begin
   with Form_Main do begin
-      if ( not HaveNotes( true, true )) then exit;
+      if ( not HaveKntFolders( true, true )) then exit;
       if ( not assigned( ActiveKntFolder )) then exit;
       if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
@@ -473,7 +473,7 @@ begin
 
             end;
 
-            if ApplyTreeChromeToAllNotes and HaveNotes( false, true ) then begin
+            if ApplyTreeChromeToAllNotes and HaveKntFolders( false, true ) then begin
                 for i := 0 to KntFile.NoteCount -1 do begin
                    Folder:= KntFile.Notes[i];
                    if ((PropertiesAction = propThisNote) and (Folder = ActiveKntFolder)) or (Folder.ReadOnly) then
@@ -490,7 +490,7 @@ begin
             if (PropertiesAction = propDefaults) or (NewPropertiesAction = propDefaults) then begin
 
                 // must update all richedits and trees with the modified EditorOptions and TreeOptions:
-                if HaveNotes( false, true ) then begin
+                if HaveKntFolders( false, true ) then begin
                     for i := 0 to KntFile.NoteCount -1 do begin
                        Folder:= KntFile.Notes[i];
                        Folder.Editor.WordSelection := EditorOptions.WordSelect;

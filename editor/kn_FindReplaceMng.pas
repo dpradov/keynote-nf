@@ -111,7 +111,7 @@ resourcestring
 
 procedure RunFindReplace (modeReplace: boolean);
 begin
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
   if ( FileIsBusy or SearchInProgress ) then exit;
 
@@ -565,7 +565,7 @@ var
   ApplyFilter: boolean;
   nodeToFilter: boolean;
   nodesSelected: boolean;
-  oldActiveNote: TKntFolder;
+  oldActiveFolder: TKntFolder;
   SearchModeToApply : TSearchMode;
   TreeNodeToSearchIn : TTreeNTNode;
   TreeNodeToSearchIn_AncestorPathLen: integer;
@@ -790,13 +790,13 @@ type
 
 begin
 
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
   if ( FileIsBusy or SearchInProgress ) then exit;
 
   if ( Form_Main.Combo_ResFind.Text = '' ) then exit;
 
-  oldActiveNote:= ActiveKntFolder; // [dpv] For use if ApplyFilter=true
+  oldActiveFolder:= ActiveKntFolder; // [dpv] For use if ApplyFilter=true
 
   Form_Main.CloseNonModalDialogs;
 
@@ -1031,7 +1031,7 @@ begin
     end;
 
   finally
-    ActiveKntFolder:= oldActiveNote;
+    ActiveKntFolder:= oldActiveFolder;
     UpdateNoteDisplay;
 
     // restore previous FindOptions settings
@@ -1353,7 +1353,7 @@ var
 
 begin
   result := false;
-  if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder ))) then exit;
+  if ( not ( Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder ))) then exit;
   if ( SearchInProgress or FileIsBusy or ( Text_To_Find = '' )) then exit;
 
 
@@ -1521,31 +1521,31 @@ var
   procedure BeginUpdateOnNotes;
   var
      i: integer;
-     note: TKntFolder;
+     folder: TKntFolder;
   begin
      AppliedBeginUpdate:= True;
      for i := 0 to Form_Main.Pages.PageCount - 1 do
      begin
-          note:= TKntFolder(Form_Main.Pages.Pages[i].PrimaryObject);
-          note.Editor.BeginUpdate;
-          note.Editor.OnSelectionChange := nil;
-          note.Editor.Visible:= False;
+          folder:= TKntFolder(Form_Main.Pages.Pages[i].PrimaryObject);
+          folder.Editor.BeginUpdate;
+          folder.Editor.OnSelectionChange := nil;
+          folder.Editor.Visible:= False;
      end;
   end;
 
   procedure EndUpdateOnNotes;
   var
      i: integer;
-     note: TKntFolder;
+     folder: TKntFolder;
   begin
      if not AppliedBeginUpdate then exit;
 
      for i := 0 to Form_Main.Pages.PageCount - 1 do
      begin
-        note:= TKntFolder(Form_Main.Pages.Pages[i].PrimaryObject);
-        note.Editor.EndUpdate;
-        note.Editor.OnSelectionChange := Form_Main.RxRTFSelectionChange;
-        note.Editor.Visible:= True;
+        folder:= TKntFolder(Form_Main.Pages.Pages[i].PrimaryObject);
+        folder.Editor.EndUpdate;
+        folder.Editor.OnSelectionChange := Form_Main.RxRTFSelectionChange;
+        folder.Editor.Visible:= True;
      end;
      AppliedBeginUpdate:= False;
   end;

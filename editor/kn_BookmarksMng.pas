@@ -71,7 +71,7 @@ procedure BookmarkAdd( const Number : integer );
 var
   aLocation : TLocation;
 begin
-  if  not (Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
+  if  not (Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder )) then exit;
 
   BookmarkClear( Number );
 

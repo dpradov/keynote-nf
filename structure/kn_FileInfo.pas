@@ -149,7 +149,7 @@ type
 
   public
     { Public declarations }
-    myNotes : TKntFile;
+    myKntFile : TKntFile;
     OK_Click : boolean;
     PassphraseChanged : boolean;
     MinPassLen : integer;
@@ -205,7 +205,7 @@ resourcestring
 procedure TForm_FileInfo.FormCreate(Sender: TObject);
 var
   cm : TCryptMethod;
-  ff : TNoteFileFormat;
+  ff : TKntFileFormat;
   cl: TZCompressionLevel;
 begin
   with FormPlacement do
@@ -227,14 +227,14 @@ begin
   Label_EnterPass.Visible := false;
 
   Pages.ActivePage := Tab_Main;
-  myNotes := nil;
+  myKntFile := nil;
   PassphraseChanged := false;
   MinPassLen := MIN_PASS_LEN;
 
   for cm := low( TCryptMethod ) to high( TCryptMethod ) do
     Combo_Method.Items.Add( CRYPT_METHOD_NAMES[cm] );
   Combo_Method.ItemIndex := ord( low( TCryptMethod ));
-  for ff := low( TNoteFileFormat ) to high( TNoteFileFormat ) do
+  for ff := low( TKntFileFormat ) to high( TKntFileFormat ) do
     Combo_Format.Items.Add( FILE_FORMAT_NAMES[ff] + STR_01 );
   Combo_Format.ItemIndex := 0;
   for cl := low( TZCompressionLevel ) to high( TZCompressionLevel ) do
@@ -259,24 +259,24 @@ procedure TForm_FileInfo.FormActivate(Sender: TObject);
 var
   fs : longint;
 begin
-  if assigned( myNotes ) then
+  if assigned( myKntFile ) then
   begin
     // TAB_MAIN
-    Caption := STR_02 + ExtractFilename( myNotes.FileName );
-    Edit_FileName.Text := myNotes.FileName;
-    Label_Count.Caption := inttostr( myNotes.NoteCount );
-    Edit_Comment.Text := myNotes.Comment;
-    Edit_Description.Text := myNotes.Description;
-    label_Created.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, myNotes.DateCreated );
-    Combo_Format.ItemIndex := ord( myNotes.FileFormat );
-    if Fileexists( myNotes.FileName ) then begin
-      fs := GetFileSize( myNotes.FileName );
+    Caption := STR_02 + ExtractFilename( myKntFile.FileName );
+    Edit_FileName.Text := myKntFile.FileName;
+    Label_Count.Caption := inttostr( myKntFile.NoteCount );
+    Edit_Comment.Text := myKntFile.Comment;
+    Edit_Description.Text := myKntFile.Description;
+    label_Created.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, myKntFile.DateCreated );
+    Combo_Format.ItemIndex := ord( myKntFile.FileFormat );
+    if Fileexists( myKntFile.FileName ) then begin
+      fs := GetFileSize( myKntFile.FileName );
       if ( fs < 1025 ) then
         Label_FileSize.Caption := inttostr( fs ) + STR_03
       else
         Label_FileSize.Caption := inttostr( fs DIV 1024 ) + ' Kb';
-      label_Modified.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, GetFileDateStamp( myNotes.FileName ));
-      if myNotes.SavedWithRichEdit3 then begin
+      label_Modified.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, GetFileDateStamp( myKntFile.FileName ));
+      if myKntFile.SavedWithRichEdit3 then begin
         // LB_RTF3.Font.Color := clRed;
         LB_RTF3.Visible := true;
       end;
@@ -288,16 +288,16 @@ begin
       label_Modified.Caption := STR_05;
       rbImagesStChange.Caption := STR_15;
     end;
-    CB_AsReadOnly.Caption := Format( STR_06, [ExtractFilename( myNotes.FileName )] );
-    CB_AsReadOnly.Checked := ( myNotes.OpenAsReadOnly or myNotes.ReadOnly );
-    Label_IsReadOnly.Visible := myNotes.ReadOnly;
-    CB_NoMultiBackup.Checked := myNotes.NoMultiBackup;
+    CB_AsReadOnly.Caption := Format( STR_06, [ExtractFilename( myKntFile.FileName )] );
+    CB_AsReadOnly.Checked := ( myKntFile.OpenAsReadOnly or myKntFile.ReadOnly );
+    Label_IsReadOnly.Visible := myKntFile.ReadOnly;
+    CB_NoMultiBackup.Checked := myKntFile.NoMultiBackup;
 
     // tray icon stuff
-    if (( myNotes.TrayIconFN <> '' ) and fileexists( myNotes.TrayIconFN )) then begin
+    if (( myKntFile.TrayIconFN <> '' ) and fileexists( myKntFile.TrayIconFN )) then begin
       CB_TrayIcon.Checked := true;
-      Edit_TrayIcon.Text := myNotes.TrayIconFN;
-      Image_TrayIcon.Picture.LoadFromFile( GetAbsolutePath(KntFile.File_Path, myNotes.TrayIconFN) );
+      Edit_TrayIcon.Text := myKntFile.TrayIconFN;
+      Image_TrayIcon.Picture.LoadFromFile( GetAbsolutePath(KntFile.File_Path, myKntFile.TrayIconFN) );
     end
     else
       CB_TrayIcon.Checked := false;
@@ -306,16 +306,16 @@ begin
     CB_TrayIcon.OnClick := CheckBox_TrayIconClick;
 
     // tab icons stuff
-    CB_ShowTabIcons.Checked := myNotes.ShowTabIcons;
-    if ( myNotes.TabIconsFN = '' ) then // default
+    CB_ShowTabIcons.Checked := myKntFile.ShowTabIcons;
+    if ( myKntFile.TabIconsFN = '' ) then // default
       RB_TabImgDefault.Checked := true
 
     else begin
-      if ( myNotes.TabIconsFN[1] = _NF_Icons_BuiltIn ) then
+      if ( myKntFile.TabIconsFN[1] = _NF_Icons_BuiltIn ) then
         RB_TabImgBuiltIn.Checked := true
       else begin
-        Edit_TabImg.Text := myNotes.TabIconsFN;
-        if fileexists( myNotes.TabIconsFN ) then
+        Edit_TabImg.Text := myKntFile.TabIconsFN;
+        if fileexists( myKntFile.TabIconsFN ) then
           RB_TabImgOther.Checked := true
         else
           RB_TabImgDefault.Checked := true;
@@ -335,7 +335,7 @@ begin
     Label_FileSize.Caption := '';
     Label_IsReadOnly.Visible := false;
 
-    Combo_Method.ItemIndex := ord( myNotes.CryptMethod );
+    Combo_Method.ItemIndex := ord( myKntFile.CryptMethod );
   end;
 
   lblImgWarning.Visible := false;
@@ -363,7 +363,7 @@ begin
     Edit_Description.SelectAll;
   end;
 
-  Combo_CompressLevel.ItemIndex := ord( myNotes.CompressionLevel );
+  Combo_CompressLevel.ItemIndex := ord( myKntFile.CompressionLevel );
   Combo_FormatChange( Combo_Format );
 
   CB_HidePass.Checked := HidePassText;
@@ -393,7 +393,7 @@ begin
   result := true;
 
 {$IFDEF WITH_DART}
-  if (( Combo_Format.ItemIndex = ord( nffDartNotes )) and myNotes.HasExtendedNotes ) then
+  if (( Combo_Format.ItemIndex = ord( nffDartNotes )) and myKntFile.HasExtendedNotes ) then
   begin
     case messagedlg(STR_08, mtWarning, [mbOK,mbCancel], 0 ) of
       mrOK : Combo_Format.ItemIndex := ord( nffKeyNote );
@@ -429,7 +429,7 @@ begin
     exit;
   end;
 
-  if myNotes.HasVirtualNodes then begin
+  if myKntFile.HasVirtualNodes then begin
     result := ( messagedlg(STR_11, mtWarning, [mbYes,mbNo], 0 ) = mrYes );
   end;
 
@@ -481,11 +481,11 @@ begin
   if not Combo_CompressLevel.Enabled then
      Combo_CompressLevel.ItemIndex := ord( zcNone )
   else
-     if (myNotes.FileFormat <> nffKeyNoteZip) then
+     if (myKntFile.FileFormat <> nffKeyNoteZip) then
         Combo_CompressLevel.ItemIndex := ord( zcDefault );
 
   Tab_Pass.TabVisible := ( Combo_Format.ItemIndex = ord( nffEncrypted ));
-  if ( Tab_Pass.TabVisible and ( myNotes.FileFormat <> nffEncrypted )) then begin
+  if ( Tab_Pass.TabVisible and ( myKntFile.FileFormat <> nffEncrypted )) then begin
     // the file was NOT encrypted previously,
     // so now passphrase must be entered.
     EnablePassControls;
@@ -513,9 +513,9 @@ end;
 
 procedure TForm_FileInfo.CheckBox_AsReadOnlyClick(Sender: TObject);
 begin
-  if assigned( myNotes ) then begin
-    if (( not CB_AsReadOnly.Checked ) and myNotes.ReadOnly ) then begin
-      if ( DoMessageBox( Format(STR_12,[ExtractFilename( myNotes.FileName )]), mtWarning, [mbYes,mbNo], 0, Self.Handle ) = mrYes ) then
+  if assigned( myKntFile ) then begin
+    if (( not CB_AsReadOnly.Checked ) and myKntFile.ReadOnly ) then begin
+      if ( DoMessageBox( Format(STR_12,[ExtractFilename( myKntFile.FileName )]), mtWarning, [mbYes,mbNo], 0, Self.Handle ) = mrYes ) then
         CB_AsReadOnly.OnClick := nil
       else
         CB_AsReadOnly.Checked := true;
@@ -606,7 +606,7 @@ var
 begin
   FillChar(sei,sizeof(sei),0);
   sei.cbSize := sizeof(sei);
-  sei.lpFile := PChar(myNotes.FileName);
+  sei.lpFile := PChar(myKntFile.FileName);
   sei.lpVerb := 'properties';
   sei.fMask  := SEE_MASK_INVOKEIDLIST;
   ShellExecuteExW(@sei);

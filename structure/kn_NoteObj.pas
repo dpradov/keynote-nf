@@ -249,7 +249,7 @@ type
     function HasAlarms (considerDiscarded: boolean): boolean;
 
     procedure AddProcessedAlarms ();
-    procedure AddProcessedAlarmsOfNote (newNote: TKntFolder);
+    procedure AddProcessedAlarmsOfNote (newFolder: TKntFolder);
     procedure AddProcessedAlarmsOfNode (node: TKntNote; newFolder: TKntFolder; newNode: TKntNote);
 
 
@@ -1227,7 +1227,7 @@ begin
    FAuxiliarAlarmList.Clear;
 end;
 
-procedure TKntFolder.AddProcessedAlarmsOfNote (newNote: TKntFolder);
+procedure TKntFolder.AddProcessedAlarmsOfNote (newFolder: TKntFolder);
 var
   I: Integer;
   alarm: TAlarm;
@@ -1238,7 +1238,7 @@ begin
    while I <= FAuxiliarAlarmList.Count - 1 do begin
       alarm:= TAlarm(FAuxiliarAlarmList[i]);
       if (alarm.Folder = Self) and (alarm.node= nil) then begin
-         alarm.Folder := newNote;
+         alarm.Folder := newFolder;
          AlarmManager.AddAlarm(alarm);
       end;
       I:= I + 1;

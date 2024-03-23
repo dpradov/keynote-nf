@@ -507,17 +507,17 @@ begin
 
               if ClipOptions.Recall then
               begin
-                if assigned( KntFile.ClipCapNote ) then begin
-                  ToggleClipCap( true, KntFile.ClipCapNote );
-                  Log_StoreTick( 'After recall ClipCapNote', 1 );
+                if assigned( KntFile.ClipCapFolder ) then begin
+                  ToggleClipCap( true, KntFile.ClipCapFolder );
+                  Log_StoreTick( 'After recall ClipCapFolder', 1 );
                 end;
               end
               else
               begin
-                KntFile.ClipCapNote := nil;
+                KntFile.ClipCapFolder := nil;
               end;
 
-              LoadTrayIcon( assigned( KntFile.ClipCapNote ) and ClipOptions.SwitchIcon );
+              LoadTrayIcon( assigned( KntFile.ClipCapFolder ) and ClipOptions.SwitchIcon );
 
             except
             end;
@@ -876,7 +876,7 @@ var
 begin
   with Form_Main do begin
      result := -1;
-     if not HaveNotes(true, false) then Exit;
+     if not HaveKntFolders(true, false) then Exit;
      if FileIsBusy then Exit;
 
      if (FN <> '') and KntFile.ReadOnly then begin
@@ -896,7 +896,7 @@ begin
        try
          FileIsBusy := true;
          FolderMon.Active := false;
-         if not HaveNotes(true, false) then exit;
+         if not HaveKntFolders(true, false) then exit;
 
          if FN <> '' then begin
             FN := NormalFN(FN);
@@ -1147,7 +1147,7 @@ end; // NoteFileSave
 function NoteFileClose : boolean;
 begin
 
-  if ( not Form_Main.HaveNotes( false, false )) then exit;
+  if ( not Form_Main.HaveKntFolders( false, false )) then exit;
   if ( not CheckModified( not KeyOptions.AutoSave, false )) then
   begin
     result := false;
@@ -1185,10 +1185,10 @@ begin
 
         ClipCapActive := false;
         Pages.MarkedPage := nil;
-        if ( KntFile.ClipCapNote <> nil ) then
+        if ( KntFile.ClipCapFolder <> nil ) then
         begin
           TB_ClipCap.Down := false;
-          ToggleClipCap( false, KntFile.ClipCapNote ); // turn it OFF
+          ToggleClipCap( false, KntFile.ClipCapFolder ); // turn it OFF
         end;
 
         LastEditCmd := ecNone;
@@ -1297,7 +1297,7 @@ begin
   end;
 
   if ( tmps = '' ) then exit;
-  if Form_Main.HaveNotes( false, false ) then
+  if Form_Main.HaveKntFolders( false, false ) then
   begin
     if ( tmps = KntFile.FileName ) then
     begin
@@ -1326,7 +1326,7 @@ var
 begin
   with Form_Main do begin
 
-        if ( not HaveNotes( true, false )) then exit;
+        if ( not HaveKntFolders( true, false )) then exit;
 
         currentFN := KntFile.FileName;
         if (FN = '') and (currentFN = '') then begin
@@ -1455,7 +1455,7 @@ var
 begin
   with Form_Main do begin
 
-        if ( not HaveNotes( true, false )) then exit;
+        if ( not HaveKntFolders( true, false )) then exit;
         if FileIsBusy then exit;
 
         if ( MergeFN = '' ) then
@@ -1520,7 +1520,7 @@ begin
 
           TabSelector := TForm_SelectTab.Create( Form_Main );
           try
-            TabSelector.myNotes := MergeFile;
+            TabSelector.myKntFile := MergeFile;
             TabSelector.Caption := Format( STR_43, [ExtractFilename( MergeFile.FileName )] );
             if ( not ( TabSelector.ShowModal = mrOK )) then exit;
           finally
@@ -1753,7 +1753,7 @@ var
 begin
   with Form_Main do begin
         if FileIsBusy then exit;
-        if ( not HaveNotes( false, false )) then exit;
+        if ( not HaveKntFolders( false, false )) then exit;
         if ( FileState.Name = '' ) then exit;
         Changed := false;
         s := '';
@@ -1804,7 +1804,7 @@ begin
 
       result := true;
       try
-        if ( not HaveNotes( false, true )) then exit;
+        if ( not HaveKntFolders( false, true )) then exit;
        {$IFDEF KNT_DEBUG}
         Log.Add( 'CheckModified: KntFile modified? ' + BOOLARRAY[KntFile.Modified], 1 );
        {$ENDIF}
@@ -1861,7 +1861,7 @@ var
   FilesToImport : TStringList;
 begin
   with Form_Main do begin
-      if ( not HaveNotes( true, true )) then exit;
+      if ( not HaveKntFolders( true, true )) then exit;
 
       FilesToImport := TStringList.Create;
 
@@ -1970,7 +1970,7 @@ begin
 
   with Form_Main do begin
 
-        if ( not HaveNotes( true, false )) then exit;
+        if ( not HaveKntFolders( true, false )) then exit;
         if (( not assigned( ImportFileList )) or ( ImportFileList.Count = 0 )) then exit;
 
         OutStream:= TMemoryStream.Create;
@@ -2477,7 +2477,7 @@ begin
               ( fExt = ext_DART )) and ( not FileIsFolder )) then
              myAction := factOpen
            else begin
-             HaveNotes( true, true );
+             HaveKntFolders( true, true );
              exit;
            end;
         end;
@@ -2731,12 +2731,12 @@ begin
   with Form_Main do begin
       // Edits properties for currently open file
 
-      if ( not HaveNotes( true, false )) then exit;
+      if ( not HaveKntFolders( true, false )) then exit;
 
       Form_FileInfo := TForm_FileInfo.Create( Form_Main );
 
       try
-        Form_FileInfo.myNotes := KntFile;
+        Form_FileInfo.myKntFile := KntFile;
 
         if ( Form_FileInfo.ShowModal = mrOK ) then begin
           Virtual_UnEncrypt_Warning_Done := false;
@@ -2750,7 +2750,7 @@ begin
             KntFile.OpenAsReadOnly := CB_AsReadOnly.Checked;
             if ( not CB_AsReadOnly.Checked ) then KntFile.ReadOnly := false;
             KntFile.ShowTabIcons := CB_ShowTabIcons.Checked;
-            KntFile.FileFormat := TNoteFileFormat( Combo_Format.ItemIndex );
+            KntFile.FileFormat := TKntFileFormat( Combo_Format.ItemIndex );
             KntFile.CompressionLevel := TZCompressionLevel( Combo_CompressLevel.ItemIndex );
 
             if ( CB_TrayIcon.Checked and ( Edit_TrayIcon.Text <> '' )) then
@@ -2806,7 +2806,7 @@ begin
           KntFile.Modified := true;
           AddToFileManager( KntFile.FileName, KntFile ); // update manager (properties have changed)
 
-          LoadTrayIcon( ClipOptions.SwitchIcon and assigned( KntFile.ClipCapNote ));
+          LoadTrayIcon( ClipOptions.SwitchIcon and assigned( KntFile.ClipCapFolder ));
           if _FILE_TABIMAGES_SELECTION_CHANGED then begin
             _FILE_TABIMAGES_SELECTION_CHANGED := false;
             if (( KntFile.TabIconsFN <> '' ) and ( KntFile.TabIconsFN <> _NF_Icons_BuiltIn )) then begin
@@ -2844,7 +2844,7 @@ var
   WasModified : boolean;
 begin
   with Form_Main do begin
-      NotesOK := HaveNotes( false, false );
+      NotesOK := HaveKntFolders( false, false );
       if (( fscNew in AState ) or ( fscOpen in AState ) or ( fscSave in AState ) or ( fscClose in AState )) then
       begin
         if NotesOK then
@@ -2951,7 +2951,7 @@ begin
 
   if FileIsBusy then exit;
   if ( not ( KeyOptions.TimerClose and
-             Form_Main.HaveNotes( false, false ) and
+             Form_Main.HaveKntFolders( false, false ) and
              KeyOptions.AutoSave
            )) then exit;
 
@@ -3067,7 +3067,7 @@ begin
       MGR.Free;
     end;
 
-    if Form_Main.HaveNotes( false, false ) then
+    if Form_Main.HaveKntFolders( false, false ) then
       olds := KntFile.Filename
     else
       olds := '';

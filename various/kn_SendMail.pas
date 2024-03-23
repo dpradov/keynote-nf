@@ -113,8 +113,8 @@ type
 
     MailOptions : TMailOptions;
     IsBusy : boolean;
-    myNotes : TKntFile;
-    myActiveNote : TKntFolder;
+    myKntFile : TKntFile;
+    myKntFolder : TKntFolder;
     myCurNoteName : string;
     UserFieldsAdded : boolean;
     HadError : boolean;
@@ -210,8 +210,8 @@ begin
 
   OK_Click := false;
   IsBusy := false;
-  myActiveNote := nil;
-  myNotes := nil;
+  myKntFolder := nil;
+  myKntFile := nil;
   myCurNoteName := '';
   UserFieldsAdded := false;
   Application.OnException := ShowException;
@@ -265,8 +265,8 @@ begin
   else
     Edit_Port.Text := 'smtp';
 
-  if assigned( myActiveNote ) then
-    myCurNoteName := RemoveAccelChar( myActiveNote.Name );
+  if assigned( myKntFolder ) then
+    myCurNoteName := RemoveAccelChar( myKntFolder.Name );
   if ( myCurNoteName <> '' ) then
   begin
     RB_Current.Caption := RB_Current.Caption + ': "' + myCurNoteName + '"';
@@ -392,7 +392,7 @@ procedure TForm_Mail.RB_CurrentClick(Sender: TObject);
 begin
   if RB_Current.Checked then
   begin
-    RB_RTF.Enabled := ( myActiveNote.Kind = ntRTF );
+    RB_RTF.Enabled := ( myKntFolder.Kind = ntRTF );
     RB_PlainText.Enabled := true;
   end
   else
@@ -419,7 +419,7 @@ begin
   if ( p > 0 ) then
   begin
     delete( result, p, 2 );
-    insert( myNotes.FileName, result, p )
+    insert( myKntFile.FileName, result, p )
   end;
 
   p := pos( MAILNOTENAME, result );
@@ -443,7 +443,7 @@ begin
     if RB_Current.Checked then
       insert( '1', result, p )
     else
-      insert( inttostr( myNotes.Notes.Count ), result, p );
+      insert( inttostr( myKntFile.Notes.Count ), result, p );
   end;
 
 end; // ExpandTokenLine
@@ -602,17 +602,17 @@ begin
         if RB_Current.Checked then
         begin
           SMTPCli.MailMessage.Add( ExpandTokenLine( MailOptions.FirstLine ));
-          AddNoteToMailMessage( myActiveNote );
+          AddNoteToMailMessage( myKntFolder );
         end
         else
         if RB_All.Checked then
         begin
           SMTPCli.MailMessage.Add( ExpandTokenLine( MailOptions.FirstLine ));
-          if ( myNotes.Notes.Count > 0 ) then
+          if ( myKntFile.Notes.Count > 0 ) then
           begin
-            for cnt := 0 to pred( myNotes.Notes.Count ) do
+            for cnt := 0 to pred( myKntFile.Notes.Count ) do
             begin
-              AddNoteToMailMessage( myNotes.Notes[cnt] );
+              AddNoteToMailMessage( myKntFile.Notes[cnt] );
               SMTPCli.MailMessage.Add( '' );
             end;
           end;
@@ -629,7 +629,7 @@ begin
         begin
           s := Extractfilepath( myINI_FN ) + MakeValidFileName( myCurNoteName, [], MAX_FILENAME_LENGTH ) + ext_RTF;
           GFLog.Add( 'Attaching: ' + s );
-          myActiveNote.Editor.Lines.SaveToFile(UTF8Encode(s));
+          myKntFolder.Editor.Lines.SaveToFile(UTF8Encode(s));
           SMTPCli.MailMessage.Add( ExpandTokenLine( MailOptions.FirstLine ));
           // SMTPCli.MailMessage.Add( Padding + ' Note: ' + myCurNoteName + ' ' + Padding );
           SMTPCli.EmailFiles.Add( s );
@@ -639,8 +639,8 @@ begin
         begin
           SMTPCli.MailMessage.Add( ExpandTokenLine( MailOptions.FirstLine ));
           // SMTPCli.MailMessage.Add( Padding + ' Note: ' + myCurNoteName + ' ' + Padding );
-          SMTPCli.EmailFiles.Add( myNotes.FileName );
-          GFLog.Add( 'Attaching: ' + myNotes.FileName );
+          SMTPCli.EmailFiles.Add( myKntFile.FileName );
+          GFLog.Add( 'Attaching: ' + myKntFile.FileName );
         end
         else
         begin
@@ -785,7 +785,7 @@ procedure TForm_Mail.RB_FileClick(Sender: TObject);
 begin
   if ( RB_all.Checked and RB_RTF.Checked ) then
   begin
-    if ( assigned( myNotes ) and myNotes.HasExtendedNotes ) then
+    if ( assigned( myKntFile ) and myKntFile.HasExtendedNotes ) then
     begin
       Label_Status.Caption := STR_33;
     end

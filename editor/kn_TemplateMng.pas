@@ -138,7 +138,7 @@ begin
   Encoding:= nil;
 
   with Form_Main do begin
-      if ( not HaveNotes( true, true )) then exit;
+      if ( not HaveKntFolders( true, true )) then exit;
       if ( not assigned( ActiveKntFolder )) then exit;
 
       Editor:= ActiveKntFolder.Editor;
@@ -253,7 +253,7 @@ var
   RTFText: AnsiString;
 begin
   with Form_Main do begin
-      if (not HaveNotes( true, true )) then exit;
+      if (not HaveKntFolders( true, true )) then exit;
       if (not assigned( ActiveKntFolder ))  then exit;
 
       if ( not checkfolder( 'Template', Template_Folder, true, false )) then

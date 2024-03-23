@@ -785,7 +785,7 @@ begin
               UpdateResPanelState;
             end;
 
-            if ( assigned( KntFile ) and assigned( KntFile.ClipCapNote )) then
+            if ( assigned( KntFile ) and assigned( KntFile.ClipCapFolder )) then
               LoadTrayIcon( ClipOptions.SwitchIcon );
 
           finally

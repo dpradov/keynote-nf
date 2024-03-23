@@ -573,7 +573,7 @@ type
     RunAutoMacros : boolean;
     SafePrint : boolean; // print straight from RxRichEdit, without using TRichPrinter
     SaveDARTWarn : boolean; // [*] warn if saving to DartNOtes format, because some properties will be lost which DartNotes doesn't support
-    SaveDefaultFormat : TNoteFileFormat; // [*]
+    SaveDefaultFormat : TKntFileFormat; // [*]
     ShellExecuteShowAllErrors : boolean; // [*]
     ShowFonts : boolean ; // show real font styles in fton drop-down combo
     // ShowSplash : boolean;

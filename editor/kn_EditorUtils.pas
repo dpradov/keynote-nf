@@ -121,7 +121,7 @@ type
     function GetTitleFromURL (const URL: String; TryForLimitedTime: boolean): String;
     procedure CleanCacheURLs (OnlyWithoutTitle: boolean);
 
-    function CreateRTFAuxEditorControl (NoteToLoadFrom: TKntFolder= nil; FromSelection: Boolean= True): TTabRichEdit;
+    function CreateRTFAuxEditorControl (FolderToLoadFrom: TKntFolder= nil; FromSelection: Boolean= True): TTabRichEdit;
     procedure PrepareRTFAuxforPlainText (RTF: TRxRichEdit; myFolder: TKntFolder);
 
 
@@ -850,7 +850,7 @@ var
   dir : TDir;
   Found : boolean;
 begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder )) then exit;
   startsel := ActiveKntFolder.Editor.SelStart;
 
   p := ActiveKntFolder.Editor.CaretPos;
@@ -980,7 +980,7 @@ var
 
 
 begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( ActiveKntFolder.Editor.Lines.Count < 1 ) then exit;
 
@@ -1043,7 +1043,7 @@ var
   i, l : integer;
   s : string;
 begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
   if ( ActiveKntFolder.Editor.Lines.Count < 1 ) then exit;
 
@@ -1198,7 +1198,7 @@ end; // EvaluateExpression
 procedure InsertSpecialCharacter;
 begin
   with Form_Main do begin
-      if ( not ( HaveNotes( true, true ) and assigned( ActiveKntFolder ))) then
+      if ( not ( HaveKntFolders( true, true ) and assigned( ActiveKntFolder ))) then
         exit;
 
       if ( Form_Chars = nil ) then begin
@@ -1256,7 +1256,7 @@ var
   NewName: string;
   myNote: TKntNote;
 begin
-  if ( not Form_Main.HaveNotes(true, true)) then exit;
+  if ( not Form_Main.HaveKntFolders(true, true)) then exit;
   if ( not assigned(ActiveKntFolder)) then exit;
   if Form_Main.NoteIsReadOnly(ActiveKntFolder, true) then exit;
   if ActiveKntFolder.PlainText then exit;
@@ -1431,7 +1431,7 @@ var
   WasAlpha : boolean;
   ch : char;
 begin
-  if ( not Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder )) then exit;
 
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_Statistics_01;
 
@@ -1947,7 +1947,7 @@ var
   nodemode : string;
 begin
   with Form_Main do begin
-      if ( not HaveNotes( true, true )) then exit;
+      if ( not HaveKntFolders( true, true )) then exit;
       if ( not assigned( aFolder )) then exit;
 
       ClipCapCRC32 := 0; // reset test value
@@ -1982,24 +1982,24 @@ begin
               end;
             end;
 
-            if ( KntFile.ClipCapNote <> nil ) then begin
+            if ( KntFile.ClipCapFolder <> nil ) then begin
               // some other folder was clipcap before
-              // KntFile.ClipCapNote.TabSheet.Caption := KntFile.ClipCapNote.Name;
-              KntFile.ClipCapNote := nil;
+              // KntFile.ClipCapFolder.TabSheet.Caption := KntFile.ClipCapFolder.Name;
+              KntFile.ClipCapFolder := nil;
               ClipCapActive := false;
               SetClipCapState( false );
             end;
-            KntFile.ClipCapNote := aFolder;
-            Pages.MarkedPage := KntFile.ClipCapNote.TabSheet;
+            KntFile.ClipCapFolder := aFolder;
+            Pages.MarkedPage := KntFile.ClipCapFolder.TabSheet;
             SetClipCapState( true );
-            ClipCapActive := ( KntFile.ClipCapNote <> nil );
+            ClipCapActive := ( KntFile.ClipCapFolder <> nil );
 
           end
           else begin
             // turn OFF clipboard capture
             ClipCapActive := false;
             ClipCapNode := nil;
-            if ( KntFile.ClipCapNote = aFolder ) then begin
+            if ( KntFile.ClipCapFolder = aFolder ) then begin
               // restore folder name on the tab
               Pages.MarkedPage := nil;
               SetClipCapState( false );
@@ -2007,20 +2007,20 @@ begin
             else begin
               // showmessage( 'Error: Tried to turn off ClipCap for a non-active folder.' );
             end;
-            KntFile.ClipCapNote := nil;
+            KntFile.ClipCapFolder := nil;
           end;
         except
           on e : exception do begin
             messagedlg( E.Message, mtError, [mbOK], 0 );
-            KntFile.ClipCapNote := nil;
+            KntFile.ClipCapFolder := nil;
             Pages.MarkedPage := nil;
           end;
         end;
       finally
         Pages.Invalidate; // force redraw to update "MarkedPage" tab color
-        MMNoteClipCapture.Checked := ( KntFile.ClipCapNote <> nil );
+        MMNoteClipCapture.Checked := ( KntFile.ClipCapFolder <> nil );
         TMClipCap.Checked := MMNoteClipCapture.Checked;
-        StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_05 + TOGGLEARRAY[(KntFile.ClipCapNote <> nil)];
+        StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_05 + TOGGLEARRAY[(KntFile.ClipCapFolder <> nil)];
       end;
   end;
 
@@ -2050,7 +2050,7 @@ begin
         except
           ClipCapNextInChain := 0;
           if assigned( KntFile ) then
-            KntFile.ClipCapNote := nil;
+            KntFile.ClipCapFolder := nil;
           Pages.MarkedPage := nil;
           TB_ClipCap.Down := false;
           LoadTrayIcon( false );
@@ -2171,7 +2171,7 @@ begin
         myTreeNode := nil;
         SourceURLStr:= '';
 
-        Folder:= KntFile.ClipCapNote;
+        Folder:= KntFile.ClipCapFolder;
         Editor:= Folder.Editor;
 
 
@@ -2459,14 +2459,14 @@ end; // PasteOnClipCap
 //=================================================================
 procedure PasteAsWebClip (const PasteAsText: boolean);
 var
-  oldClipCapNote : TKntFolder;
+  oldClipCapFolder : TKntFolder;
   oldClipCapNode : TKntNote;
   oldDividerString : string;
   oldAsText, oldTreeClipConfirm, oldInsertSourceURL, oldClipPlaySound, oldPasteAsNewNode : boolean;
   oldMaxSize, oldSleepTime : integer;
 begin
   if ( _IS_CAPTURING_CLIPBOARD or _IS_CHAINING_CLIPBOARD ) then exit;
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
   oldClipPlaySound:= ClipOptions.PlaySound;
@@ -2478,7 +2478,7 @@ begin
   oldAsText := ClipOptions.PasteAsText;
   oldPasteAsNewNode:= ClipOptions.PasteAsNewNode;
 
-  oldClipCapNote := KntFile.ClipCapNote;
+  oldClipCapFolder := KntFile.ClipCapFolder;
   oldClipCapNode := ClipCapNode;
 
   try
@@ -2493,7 +2493,7 @@ begin
 
     ClipOptions.PasteAsText := PasteAsText;
 
-    KntFile.ClipCapNote := ActiveKntFolder;
+    KntFile.ClipCapFolder := ActiveKntFolder;
     ClipCapNode := nil;
 
     PasteOnClipCap(Clipboard.TryAsText);
@@ -2508,7 +2508,7 @@ begin
     ClipOptions.PasteAsText := oldAsText;
     ClipOptions.PasteAsNewNode:= oldPasteAsNewNode;
 
-    KntFile.ClipCapNote := oldClipCapNote;
+    KntFile.ClipCapFolder := oldClipCapFolder;
     ClipCapNode := oldClipCapNode;
   end;
 
@@ -2525,7 +2525,7 @@ var
   myNodeName : string;
   myTreeNode : TTreeNTNode;
 begin
-  if ( not Form_Main.HaveNotes( true, false )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, false )) then exit;
   oldCNT := KntFile.Notes.Count;
   CanPaste := false;
 
@@ -2572,7 +2572,7 @@ var
   myTreeNode : TTreeNTNode;
   myNote : TKntNote;
 begin
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
   if ( not assigned( Form_Main.RichPrinter )) then    // [dpv]
   begin
@@ -2896,7 +2896,7 @@ begin
     Application.Minimize;
 end; // ShowTipOfTheDay
 
-function CreateRTFAuxEditorControl(NoteToLoadFrom: TKntFolder= nil; FromSelection: Boolean= True): TTabRichEdit;
+function CreateRTFAuxEditorControl(FolderToLoadFrom: TKntFolder= nil; FromSelection: Boolean= True): TTabRichEdit;
 var
   Stream: TStream;
   Str: String;
@@ -2922,12 +2922,12 @@ begin
 
 
 
-   if assigned(NoteToLoadFrom) then begin
-      Editor:= NoteToLoadFrom.Editor;
+   if assigned(FolderToLoadFrom) then begin
+      Editor:= FolderToLoadFrom.Editor;
 
-      if NoteToLoadFrom.PlainText  then begin
+      if FolderToLoadFrom.PlainText  then begin
          RTFAux.StreamFormat := sfPlainText;
-         PrepareRTFAuxforPlainText(RTFAux, NoteToLoadFrom);
+         PrepareRTFAuxforPlainText(RTFAux, FolderToLoadFrom);
          if FromSelection then
             Str:= Editor.SelText
          else

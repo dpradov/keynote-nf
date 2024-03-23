@@ -385,7 +385,7 @@ var
   RTFAux: TRxRichEdit;
 
 begin
-   if ( not ( Form_Main.HaveNotes( true, true ) and assigned( ActiveKntFolder ))) then exit;
+   if ( not ( Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder ))) then exit;
    if Form_Main.NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
    if ( aFileName = '' ) then begin
@@ -667,7 +667,7 @@ var
    end;
 
 begin
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
   if ( aLocation = nil ) then
      aLocation := _KNTLocation;
@@ -1251,7 +1251,7 @@ begin
 begin
 
   result := false;
-  if IgnoreOtherFiles and ( not Form_Main.HaveNotes( false, true )) then exit;
+  if IgnoreOtherFiles and ( not Form_Main.HaveKntFolders( false, true )) then exit;
 
   // Handles links that point to a "KNT location" rather than normal file:// URLs.
   // We may receive two types of links:
@@ -1988,7 +1988,7 @@ var
   end;
 
 begin
-  if ( not ( Form_Main.HaveNotes( true, true ) and assigned( Folder ))) then exit;
+  if ( not ( Form_Main.HaveKntFolders( true, true ) and assigned( Folder ))) then exit;
   if Form_Main.NoteIsReadOnly( Folder, true ) then exit;
   askUser:= (URLStr = '');
 

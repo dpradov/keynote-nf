@@ -117,8 +117,8 @@ type
   public
     { Public declarations }
     myNoteTree : TTreeNT;
-    myActiveNote : TKntFolder;
-    myNotes : TKntFile;
+    myKntFolder : TKntFolder;
+    myKntFile : TKntFile;
     myINIFN : string;
 
     ExportOptions : TExportOptions;
@@ -415,8 +415,8 @@ begin
   DoAbort := false;
 
   myNoteTree := nil;
-  myActiveNote := nil;
-  myNotes := nil;
+  myKntFolder := nil;
+  myKntFile := nil;
   myINIFN := '';
 
   for f := low( TExportFmt ) to high( TExportFmt ) do
@@ -870,12 +870,12 @@ begin
          Exit;
 
   cnt := 0;
-  for i := 1 to myNotes.Notes.Count do begin
-      myFolder:= myNotes.Notes[pred(i)];
+  for i := 1 to myKntFile.Notes.Count do begin
+      myFolder:= myKntFile.Notes[pred(i)];
 
       case ExportOptions.ExportSource of
           expCurrentNote : begin
-            if ( myFolder = myActiveNote ) then
+            if ( myFolder = myKntFolder ) then
               myFolder.Info := 1
             else
               myFolder.Info := 0;
@@ -965,11 +965,11 @@ begin
       PrepareExportOptions (ExportOptions.LengthHeading, ExportOptions.FontSizesInHeading);
 
 
-      for NoteIdx := 1 to myNotes.Notes.Count do begin             // ----------------------------------------------------------- FOR EACH NOTE :
+      for NoteIdx := 1 to myKntFile.Notes.Count do begin             // ----------------------------------------------------------- FOR EACH NOTE :
         Application.ProcessMessages;
         if DoAbort then break;
 
-        myFolder := myNotes.Notes[pred( NoteIdx )];
+        myFolder := myKntFile.Notes[pred( NoteIdx )];
         if ( myFolder.Info > 0 ) then begin
           // this note has been marked for exporting
 
@@ -977,7 +977,7 @@ begin
           PrepareRTFAuxForPlainText(RTFAux, myFolder);
 
           if ExportOptions.IncludeNoteHeadings then begin
-             NoteHeading := ExpandExpTokenString( ExportOptions.FolderHeading, myNotes.Filename, RemoveAccelChar( myFolder.Name ), '', 0, 0, myFolder.TabSize );
+             NoteHeading := ExpandExpTokenString( ExportOptions.FolderHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), '', 0, 0, myFolder.TabSize );
              if ShowHiddenMarkers then
                 NoteHeading:= Format('%s [%d]', [NoteHeading, myFolder.ID]);
              NoteHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NoteHeading ), NoteHeadingTpl );
@@ -1020,7 +1020,7 @@ begin
                   inc( ThisNodeIndex );
 
                   if ExportOptions.IncludeNodeHeadings then begin
-                     NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myNotes.Filename, RemoveAccelChar( myFolder.Name ), myNote.Name, myNote.Level+1, ThisNodeIndex, myFolder.TabSize );
+                     NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), myNote.Name, myNote.Level+1, ThisNodeIndex, myFolder.TabSize );
                      if ShowHiddenMarkers then
                         NodeHeading:= Format('%s [%d]', [NodeHeading, myNote.ID]);
                      NodeHeadingTpl_Aux := '';
@@ -1161,7 +1161,7 @@ begin
               // or if each note is saved to a separate TreePad file
               if (( TreePadFN = '' ) or ( not ExportOptions.TreePadSingleFile )) then begin
                 if ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentNote )) then
-                   TreePadFN := GetExportFilename( ExtractFilename( myNotes.FileName )) // use file name
+                   TreePadFN := GetExportFilename( ExtractFilename( myKntFile.FileName )) // use file name
                 else
                    TreePadFN := GetExportFilename( RemoveAccelChar( myFolder.Name )); // use note name
 
@@ -1199,18 +1199,18 @@ begin
 
                     TreePadFile.WriteLine(_TREEPAD_NODE);     // <node>
                     if ( ExportOptions.TreePadForceMaster or ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentNote ))) then
-                       TreePadFile.WriteLine(ExtractFilename( myNotes.Filename ), True)     // Node title is filename
+                       TreePadFile.WriteLine(ExtractFilename( myKntFile.Filename ), True)     // Node title is filename
                     else
                        TreePadFile.WriteLine(RemoveAccelChar( myFolder.Name ), True);  // Node title is note name
                     TreePadFile.WriteLine('0');  // top node level
 
                     // some node text:
-                    TreePadFile.WriteLine('Exported file: ' + ExtractFilename( myNotes.Filename ), True);
-                    if ( myNotes.Description <> '' ) then
-                       TreePadFile.WriteLine('File description: ' +  myNotes.Description, True);
-                    if ( myNotes.Comment <> '' ) then
-                       TreePadFile.WriteLine('File comment: ' + myNotes.Comment, True);
-                    TreePadFile.WriteLine('Date created: ' + DateTimeToStr( myNotes.DateCreated ));
+                    TreePadFile.WriteLine('Exported file: ' + ExtractFilename( myKntFile.Filename ), True);
+                    if ( myKntFile.Description <> '' ) then
+                       TreePadFile.WriteLine('File description: ' +  myKntFile.Description, True);
+                    if ( myKntFile.Comment <> '' ) then
+                       TreePadFile.WriteLine('File comment: ' + myKntFile.Comment, True);
+                    TreePadFile.WriteLine('Date created: ' + DateTimeToStr( myKntFile.DateCreated ));
                     TreePadFile.WriteLine('Date exported: ' + DateTimeToStr( now ));
                     if ( not ExportOptions.TreePadSingleFile ) then
                        TreePadFile.WriteLine('Exported note: ' + RemoveAccelChar( myFolder.Name ), True);
@@ -1264,7 +1264,7 @@ begin
           end; // case ExportOptions.TargetFormat
 
         end;
-      end; // for NoteIdx := 1 to myNotes.Notes.Count do
+      end; // for NoteIdx := 1 to myKntFile.Notes.Count do
 
     except
       on E : Exception do begin
@@ -1577,7 +1577,7 @@ begin
   TabSel := TForm_SelectTab.Create( self );
   try
     TabSel.ShowHint := ShowHint;
-    TabSel.myNotes := myNotes;
+    TabSel.myKntFile := myKntFile;
     if ( TabSel.ShowModal = mrOK ) then begin
       RB_SelectedNotes.Checked := true;
       RB_SelNotesClick( RB_SelectedNotes );
@@ -1765,13 +1765,13 @@ procedure ExportNotesEx;
 var
   Form_Export : TForm_ExportNew;
 begin
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   Form_Export := TForm_ExportNew.Create( Form_Main );
   try
     with Form_Export do begin
       ShowHint := KeyOptions.ShowTooltips;
-      myActiveNote := ActiveKntFolder;
-      myNotes := KntFile;
+      myKntFolder := ActiveKntFolder;
+      myKntFile := KntFile;
       myINIFN := INI_FN;
     end;
 

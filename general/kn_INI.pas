@@ -1725,10 +1725,10 @@ begin
       KeyOptions.SafePrint := readbool( section, KeyOptionsIniStr.SafePrint, KeyOptions.SafePrint );
       KeyOptions.SaveDARTWarn := readbool( section, KeyOptionsIniStr.SaveDARTWarn, KeyOptions.SaveDARTWarn );
       i := readinteger( section, KeyOptionsIniStr.SaveDefaultFormat, 0 );
-      if (( i < 0 ) or ( i > ord( high( TNoteFileFormat )))) then i := 0;
+      if (( i < 0 ) or ( i > ord( high( TKntFileFormat )))) then i := 0;
       KeyOptions.ShellExecuteShowAllErrors := readbool( section, KeyOptionsIniStr.ShellExecuteShowAllErrors, KeyOptions.ShellExecuteShowAllErrors );
       KeyOptions.ShowFonts := readbool( section, KeyOptionsIniStr.ShowFonts, KeyOptions.ShowFonts );
-      KeyOptions.SaveDefaultFormat := TNoteFileFormat( i );
+      KeyOptions.SaveDefaultFormat := TKntFileFormat( i );
       // KeyOptions.ShowSplash := readbool( section, KeyOptionsIniStr.ShowSplash, KeyOptions.ShowSplash );
       KeyOptions.ShowTooltips := readbool( section, KeyOptionsIniStr.ShowTooltips, KeyOptions.ShowTooltips );
       KeyOptions.SingleInstance := readbool( section, KeyOptionsIniStr.SingleInstance, KeyOptions.SingleInstance );

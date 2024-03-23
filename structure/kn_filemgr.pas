@@ -49,7 +49,7 @@ type
     Created : TDateTime;
     Modified : TDateTime;
     Count : integer;
-    Format: TNoteFileFormat;
+    Format: TKntFileFormat;
     Version : string;
     constructor Create;
   end;
@@ -146,7 +146,7 @@ begin
   Modified := 0;
   Version := NFILEVERSION_MAJOR + '.' + NFILEVERSION_MINOR;
   Count := 0;
-  Format := low( TNoteFileFormat );
+  Format := low( TKntFileFormat );
 end; // TFileInfo.CREATE
 
 function SaveFileManagerInfo( FN : string ) : boolean;
@@ -256,9 +256,9 @@ begin
             Info.Count := 0;
           end;
           try
-            Info.Format := TNoteFileFormat( readinteger( section, 'Format', ord( low( TNoteFileFormat ))));
+            Info.Format := TKntFileFormat( readinteger( section, 'Format', ord( low( TKntFileFormat ))));
           except
-            Info.Format := low( TNoteFileFormat );
+            Info.Format := low( TKntFileFormat );
           end;
 
           FileManager.AddObject( s, Info );

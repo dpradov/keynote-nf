@@ -291,7 +291,7 @@ var
 begin
   with Form_Main do begin
       result := 0;
-      if (not HaveNotes( true, true )) then exit;
+      if (not HaveKntFolders( true, true )) then exit;
       if (not assigned( ActiveKntFolder )) then exit;
 
       PluginReceivedSelection := false;

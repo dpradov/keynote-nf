@@ -81,7 +81,7 @@ begin
       s := '';
       if FromEditor then
       begin
-        if ((( not HaveNotes( true, true )) or ( not assigned( ActiveKntFolder )))) then exit;
+        if ((( not HaveKntFolders( true, true )) or ( not assigned( ActiveKntFolder )))) then exit;
         s := STR_01 + #13#13 + STR_02 + ActiveKntFolder.Editor.FontInfoString + #13#13 + STR_03 + ActiveKntFolder.Editor.ParaInfoString;
       end
       else
@@ -108,7 +108,7 @@ var
   Style : TStyle;
   idx : integer;
 begin
-  if ( not Form_Main.HaveNotes( true, true )) then exit;
+  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveKntFolder )) then exit;
 
   if ( not assigned( StyleManager )) then
@@ -218,7 +218,7 @@ var
   myStyle : TStyle;
 begin
   with Form_Main do begin
-      if ( not HaveNotes( true, true )) then exit;
+      if ( not HaveKntFolders( true, true )) then exit;
       if ( not assigned( ActiveKntFolder )) then exit;
       if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
 
