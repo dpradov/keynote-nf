@@ -1269,6 +1269,7 @@ type
     procedure MMTreeFocusTreeClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MMFindAllClick(Sender: TObject);
+    procedure FormStorageRestorePlacement(Sender: TObject);
 
   private
     { Private declarations }
@@ -1741,6 +1742,13 @@ begin
   Log_StoreTick( 'FormActivate - End', 1, -1 );
 
 end; // ACTIVATE
+
+
+procedure TForm_Main.FormStorageRestorePlacement(Sender: TObject);
+begin
+   UpdateResPanelContents (false);
+end;
+
 
 
 procedure TForm_Main.ActivatePreviousInstance;

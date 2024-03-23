@@ -3702,6 +3702,7 @@ object Form_Main: TForm_Main
     IniFileName = 'Software\General Frenetics\KeyNote\FormPos'
     IniSection = 'Main'
     UseRegistry = True
+    OnRestorePlacement = FormStorageRestorePlacement
     StoredProps.Strings = (
       'Pages_Res.Width'
       'Pages_Res.ActivePage'
