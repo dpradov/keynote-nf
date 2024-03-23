@@ -307,7 +307,7 @@ begin
         ActiveKntFolder.Modified := true;
         KntFile.Modified := true;
         RxRTFSelectionChange( ActiveKntFolder.Editor );
-        UpdateNoteFileState( [fscModified] );
+        UpdateKntFileState( [fscModified] );
       end;
   end;
 

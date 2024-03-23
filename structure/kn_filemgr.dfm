@@ -1,12 +1,12 @@
-object Form_FileMgr: TForm_FileMgr
+object Form_KntFileMgr: TForm_KntFileMgr
   Left = 386
   Top = 310
   HelpType = htKeyword
   HelpKeyword = '539-1'
   BorderIcons = [biSystemMenu]
   Caption = 'File manager'
-  ClientHeight = 271
-  ClientWidth = 469
+  ClientHeight = 270
+  ClientWidth = 465
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -26,14 +26,12 @@ object Form_FileMgr: TForm_FileMgr
   TextHeight = 17
   object Panel_Btn: TPanel
     Left = 0
-    Top = 116
-    Width = 469
+    Top = 115
+    Width = 465
     Height = 155
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 115
-    ExplicitWidth = 465
     object Label1: TLabel
       Left = 12
       Top = 6
@@ -295,8 +293,8 @@ object Form_FileMgr: TForm_FileMgr
   object TVmgr: TTreeNT
     Left = 0
     Top = 0
-    Width = 469
-    Height = 116
+    Width = 465
+    Height = 115
     Hint = 'Double-click a file to open it in KeyNote'
     Align = alClient
     Ctl3D = True
@@ -318,8 +316,6 @@ object Form_FileMgr: TForm_FileMgr
     ScrollTime = 0
     TabOrder = 1
     OnDblClick = TVmgrDblClick
-    ExplicitWidth = 465
-    ExplicitHeight = 115
   end
   object FormPlacement: TFormPlacement
     IniSection = 'MgrDlg'

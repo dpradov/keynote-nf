@@ -99,7 +99,7 @@ type
       var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
-    fCurrentNoteFile: TKntFile;
+    fCurrentKntFile: TKntFile;
     fImageID: integer;
     fImagePath: string;
     fImage : TKntImage;
@@ -273,10 +273,10 @@ begin
   try
     if Image.Caption <> txtCaption.Text then begin
        ok:= false;
-       if (fCurrentNoteFile = KntFile) and (Image.ID = fImageID) and ((Image.ReferenceCount > 0))  then begin
+       if (fCurrentKntFile = KntFile) and (Image.ID = fImageID) and ((Image.ReferenceCount > 0))  then begin
           Image.Caption:= txtCaption.Text;
           KntFile.Modified:= true;
-          UpdateNoteFileState( [fscModified] );
+          UpdateKntFileState( [fscModified] );
           ok:= true;
        end;
     end;
@@ -296,7 +296,7 @@ begin
    if value = nil then exit;
 
    fImage:= value;
-   fCurrentNoteFile:= KntFile;
+   fCurrentKntFile:= KntFile;
    fImageID:= fImage.ID;
    if Visible then begin
      ConfigureAndShowImage (true);

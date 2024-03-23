@@ -41,7 +41,7 @@ uses
 
 
 type
-  TForm_FileInfo = class(TForm)
+  TForm_KntFileInfo = class(TForm)
     Button_OK: TButton;
     Button_Cancel: TButton;
     Pages: TPageControl;
@@ -202,7 +202,7 @@ resourcestring
            '(It may be totally fine if you temporarily lose access to image storage)';
 
 
-procedure TForm_FileInfo.FormCreate(Sender: TObject);
+procedure TForm_KntFileInfo.FormCreate(Sender: TObject);
 var
   cm : TCryptMethod;
   ff : TKntFileFormat;
@@ -255,7 +255,7 @@ begin
   OK_Click := false;
 end; // CREATE
 
-procedure TForm_FileInfo.FormActivate(Sender: TObject);
+procedure TForm_KntFileInfo.FormActivate(Sender: TObject);
 var
   fs : longint;
 begin
@@ -381,12 +381,12 @@ begin
 end; // ACTIVATE
 
 
-procedure TForm_FileInfo.Combo_MethodChange(Sender: TObject);
+procedure TForm_KntFileInfo.Combo_MethodChange(Sender: TObject);
 begin
   // [x]
 end;
 
-function TForm_FileInfo.Verify : boolean;
+function TForm_KntFileInfo.Verify : boolean;
 var
   s : string;
 begin
@@ -436,7 +436,7 @@ begin
 
 end; // Verify;
 
-procedure TForm_FileInfo.FormCloseQuery(Sender: TObject;
+procedure TForm_KntFileInfo.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if OK_Click then
@@ -445,17 +445,17 @@ begin
   OK_Click := false;
 end;
 
-procedure TForm_FileInfo.Button_OKClick(Sender: TObject);
+procedure TForm_KntFileInfo.Button_OKClick(Sender: TObject);
 begin
   OK_Click := true;
 end;
 
-procedure TForm_FileInfo.Button_CancelClick(Sender: TObject);
+procedure TForm_KntFileInfo.Button_CancelClick(Sender: TObject);
 begin
   OK_Click := false;
 end;
 
-procedure TForm_FileInfo.FormKeyDown(Sender: TObject; var Key: Word;
+procedure TForm_KntFileInfo.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   case key of
@@ -469,7 +469,7 @@ begin
 end; // KEY DOWN
 
 
-procedure TForm_FileInfo.Combo_FormatChange(Sender: TObject);
+procedure TForm_KntFileInfo.Combo_FormatChange(Sender: TObject);
 begin
 {$IFDEF WITH_DART}
   Edit_Description.Enabled := Combo_Format.ItemIndex <> ord( nffDartNotes );
@@ -495,7 +495,7 @@ begin
 end; // Combo_FormatChange
 
 
-procedure TForm_FileInfo.Button_SetPassClick(Sender: TObject);
+procedure TForm_KntFileInfo.Button_SetPassClick(Sender: TObject);
 begin
   PassphraseChanged := true;
   EnablePassControls;
@@ -506,12 +506,12 @@ begin
   end;
 end;
 
-procedure TForm_FileInfo.Edit_PassChange(Sender: TObject);
+procedure TForm_KntFileInfo.Edit_PassChange(Sender: TObject);
 begin
   PassphraseChanged := true;
 end;
 
-procedure TForm_FileInfo.CheckBox_AsReadOnlyClick(Sender: TObject);
+procedure TForm_KntFileInfo.CheckBox_AsReadOnlyClick(Sender: TObject);
 begin
   if assigned( myKntFile ) then begin
     if (( not CB_AsReadOnly.Checked ) and myKntFile.ReadOnly ) then begin
@@ -524,7 +524,7 @@ begin
 end;
 
 
-procedure TForm_FileInfo.CheckBox_HidePassClick(Sender: TObject);
+procedure TForm_KntFileInfo.CheckBox_HidePassClick(Sender: TObject);
 begin
   HidePassText := CB_HidePass.Checked;
   if HidePassText then
@@ -534,7 +534,7 @@ begin
   Edit_Confirm.PasswordChar := Edit_Pass.PasswordChar;
 end;
 
-procedure TForm_FileInfo.EnablePassControls;
+procedure TForm_KntFileInfo.EnablePassControls;
 begin
   Label_Pass.Enabled := true;
   Label_Confirm.Enabled := true;
@@ -547,14 +547,14 @@ begin
 end; // EnablePassControls
 
 
-procedure TForm_FileInfo.CheckBox_TrayIconClick(Sender: TObject);
+procedure TForm_KntFileInfo.CheckBox_TrayIconClick(Sender: TObject);
 begin
   Edit_TrayIcon.Enabled := CB_TrayIcon.Checked;
   TB_OpenDlgTrayIcon.Enabled := Edit_TrayIcon.Enabled;
   Image_TrayIcon.Visible := Edit_TrayIcon.Enabled;
 end;
 
-procedure TForm_FileInfo.CheckBox_ShowTabIconsClick(Sender: TObject);
+procedure TForm_KntFileInfo.CheckBox_ShowTabIconsClick(Sender: TObject);
 begin
   RB_TabImgDefault.Enabled := CB_ShowTabIcons.Checked;
   RB_TabImgBuiltIn.Enabled := RB_TabImgDefault.Enabled;
@@ -563,7 +563,7 @@ begin
   TB_OpenDlgTabImg.Enabled := Edit_TabImg.Enabled;
 end;
 
-procedure TForm_FileInfo.RB_TabImgOtherClick(Sender: TObject);
+procedure TForm_KntFileInfo.RB_TabImgOtherClick(Sender: TObject);
 begin
   _FILE_TABIMAGES_SELECTION_CHANGED := true;
   Edit_TabImg.Enabled := ( RB_TabImgOther.Enabled and RB_TabImgOther.Checked );
@@ -571,7 +571,7 @@ begin
 end;
 
 
-procedure TForm_FileInfo.TB_OpenDlgTabImgClick(Sender: TObject);
+procedure TForm_KntFileInfo.TB_OpenDlgTabImgClick(Sender: TObject);
 var
   Action: Boolean;
 begin
@@ -584,7 +584,7 @@ begin
   _FILE_TABIMAGES_SELECTION_CHANGED := ( _FILE_TABIMAGES_SELECTION_CHANGED or Action );
 end;
 
-procedure TForm_FileInfo.TB_OpenDlgTrayIconClick(Sender: TObject);
+procedure TForm_KntFileInfo.TB_OpenDlgTrayIconClick(Sender: TObject);
 var
   fn : String;
   Action: boolean;
@@ -600,7 +600,7 @@ begin
   TB_OpenDlgTrayIcon.Down:= false;
 end;
 
-procedure TForm_FileInfo.Button_SystemClick(Sender: TObject);
+procedure TForm_KntFileInfo.Button_SystemClick(Sender: TObject);
 var
   sei: TShellExecuteinfoW;
 begin
@@ -612,7 +612,7 @@ begin
   ShellExecuteExW(@sei);
 end;
 
-function TForm_FileInfo.FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
+function TForm_KntFileInfo.FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
 var
   Node, Marker: integer;
 begin
@@ -620,7 +620,7 @@ begin
    ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
-procedure TForm_FileInfo.Button_HelpClick(Sender: TObject);
+procedure TForm_KntFileInfo.Button_HelpClick(Sender: TObject);
 begin
 {
 	File Properties [287]
@@ -633,7 +633,7 @@ begin
 end;
 
 
-procedure TForm_FileInfo.cbImgStorageModeChange(Sender: TObject);
+procedure TForm_KntFileInfo.cbImgStorageModeChange(Sender: TObject);
 begin
    if not (TImagesStorageMode(cbImgStorageMode.ItemIndex) in [smExternal, smExternalAndEmbKNT]) then begin
       ExtStorageLocationFake:= (KntFile.FileName = '');
@@ -643,13 +643,13 @@ begin
    CheckExternalStorageEnabled;
 end;
 
-procedure TForm_FileInfo.cbImgExtStorageTypeChange(Sender: TObject);
+procedure TForm_KntFileInfo.cbImgExtStorageTypeChange(Sender: TObject);
 begin
    CheckExternalStorageLocation;
 end;
 
 
-procedure TForm_FileInfo.CheckExternalStorageEnabled;
+procedure TForm_KntFileInfo.CheckExternalStorageEnabled;
 var
   extStorageEnab: boolean;
 begin
@@ -667,7 +667,7 @@ begin
 end;
 
 
-procedure TForm_FileInfo.CheckExternalStorageLocation;
+procedure TForm_KntFileInfo.CheckExternalStorageLocation;
 var
   extStorageType: TImagesExternalStorage;
 begin
@@ -677,35 +677,35 @@ begin
    end;
 end;
 
-procedure TForm_FileInfo.txtExtStorageLocationEnter(Sender: TObject);
+procedure TForm_KntFileInfo.txtExtStorageLocationEnter(Sender: TObject);
 begin
     if ExtStorageLocationFake then
        txtExtStorageLocation.Text:= '';
 end;
 
-procedure TForm_FileInfo.txtExtStorageLocationExit(Sender: TObject);
+procedure TForm_KntFileInfo.txtExtStorageLocationExit(Sender: TObject);
 begin
    CheckExternalStorageLocation;
 end;
 
-procedure TForm_FileInfo.txtExtStorageLocationKeyDown(Sender: TObject;
+procedure TForm_KntFileInfo.txtExtStorageLocationKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
   ExtStorageLocationFake:= false;
 end;
 
-procedure TForm_FileInfo.rbImagesStChangeClick(Sender: TObject);
+procedure TForm_KntFileInfo.rbImagesStChangeClick(Sender: TObject);
 begin
    CheckExternalStorageEnabled;
 end;
 
-procedure TForm_FileInfo.rbImagesStRelocateClick(Sender: TObject);
+procedure TForm_KntFileInfo.rbImagesStRelocateClick(Sender: TObject);
 begin
    CheckExternalStorageEnabled;
 end;
 
 
-procedure TForm_FileInfo.btnOpenDlgExternalPathClick(Sender: TObject);
+procedure TForm_KntFileInfo.btnOpenDlgExternalPathClick(Sender: TObject);
 var
   Dir: string;
 

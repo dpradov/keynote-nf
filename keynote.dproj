@@ -3,7 +3,7 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -148,7 +148,6 @@
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <VerInfo_Build>1</VerInfo_Build>
-        <Debugger_RunParams>-ignSI E:\Output\bin\help\KeyNoteNF_Help.knt -title&quot;KeyNote NF Topics&quot;</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -275,7 +274,7 @@
             <Form>Form_DropFile</Form>
         </DCCReference>
         <DCCReference Include="structure\kn_FileInfo.pas">
-            <Form>Form_FileInfo</Form>
+            <Form>Form_KntFileInfo</Form>
         </DCCReference>
         <DCCReference Include="structure\kn_filemgr.pas">
             <Form>Form_FileMgr</Form>

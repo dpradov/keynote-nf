@@ -36,13 +36,12 @@ uses
    ;
 
 
-    function NoteFileNew( FN : string ) : integer; // create new KNT file with 1 blank folder
-    function NoteFileOpen( FN : string ) : integer; // open KNT file on disk
-    function NoteFileSave( FN : string ) : integer; // save current KNT file
-    function NoteFileClose : boolean; // close current KNT file
+    function KntFileNew( FN : string ) : integer; // create new KNT file with 1 blank folder
+    function KntFileOpen( FN : string ) : integer; // open KNT file on disk
+    function KntFileSave( FN : string ) : integer; // save current KNT file
+    function KntFileClose : boolean; // close current KNT file
 
-    procedure NewFileRequest( FN : string );
-    procedure NoteFileCopy (var SavedFolders: integer; var SavedNodes: integer;
+    procedure KntFileCopy (var SavedFolders: integer; var SavedNodes: integer;
                             FN: string= '';
                             ExportingMode: boolean= false;
                             OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
@@ -58,21 +57,21 @@ uses
     function CheckModified( const Warn : boolean; const closing: boolean ) : boolean;
 
     procedure ImportFiles;
-    procedure ImportAsNotes( ImportFileList : TStringList; ImgLinkMode: boolean );
+    procedure ImportAsKntFolders( ImportFileList : TStringList; ImgLinkMode: boolean );
     procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean; const NameProposed: string = '' );
 
     procedure FileDropped( Sender : TObject; FileList : TStringList );
     function ConsistentFileType( const aList : TStringList ) : boolean;
     function PromptForFileAction( const FileList : TStringList; const aExt : string; var ImgLinkMode: boolean; var NewFileName: string; var RelativeLink: boolean ) : TDropFileAction;
 
-    procedure NoteFileProperties;
-    procedure UpdateNoteFileState( AState : TFileStateChangeSet );
+    procedure KntFileProperties;
+    procedure UpdateKntFileState( AState : TFileStateChangeSet );
 
-    procedure AutoCloseFile;
+    procedure AutoCloseKntFile;
     procedure RunFileManager;
 
     function CanRegisterFileType : boolean;
-    procedure AssociateKeyNoteFile;
+    procedure AssociateKeyKntFile;
 
     function ExtIsRTF( const aExt : string ) : boolean;
     function ExtIsHTML( const aExt : string ) : boolean;
@@ -121,19 +120,19 @@ uses
 
 
 type
-   TMergeNotes = record
+   TMergeFolders = record
        oldID: integer;
        newID: integer;
-       newNote: boolean;
+       newFolder: boolean;
    end;
 
 
 
 resourcestring
   STR_01 = 'Cannot create a new file: ';
-  STR_02 = ' New Note file created.';
+  STR_02 = ' New KNT file created.';
   STR_03 = '(none)';
-  STR_04 = 'A new Note file has been created. Would you like to save the new file now?' +#13#13+ '(The Auto Save function will not work until the file is named and saved first.)';
+  STR_04 = 'A new KNT file has been created. Would you like to save the new file now?' +#13#13+ '(The Auto Save function will not work until the file is named and saved first.)';
   STR_05 = 'Open Keynote file';
   STR_06 = ' Opening ';
   STR_07 = 'One or more errors occurred while loading the file. The file may not have loaded completely. To minimize the risk of data loss, ' +
@@ -153,7 +152,7 @@ resourcestring
   STR_19 = ' Saving ';
   STR_20 = 'Specified backup directory "%s" does not exist. Backup files will be created in the original file''s directory.';
   STR_21 = 'Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?'+ #13#13 +' (Note: File was temporary saved in %s)';
-  STR_22 = ' File saved (%d notes, %d nodes)';
+  STR_22 = ' File saved (%d folders, %d notes)';
   STR_23 = ' Error %d while saving file.';
 
   STR_InfSaving = '* NOTE:' +  #13 +
@@ -174,16 +173,16 @@ resourcestring
   STR_34 = 'The file %s already exists. OK to overwrite existing file?';
   STR_35 = ' Copying file...';
   STR_36 = ' File copied.';
-  STR_37 = 'Successfully copied Notes file to';
+  STR_37 = 'Successfully copied KNT file to';
   STR_38 = 'Copying failed (';
   STR_39 = 'Select file to merge notes from';
   STR_40 = 'There was an error while loading merge file.';
-  STR_41 = 'The file you selected does not contain any notes.';
+  STR_41 = 'The file you selected does not contain any folders.';
   STR_42 = 'Error while loading merge file: ';
   STR_43 = 'Notes in %s';
   STR_44 = 'You did not select any notes: nothing to merge.';
   STR_45 = ' Merging notes...';
-  STR_46 = 'Error while adding notes: ';
+  STR_46 = 'Error while adding folders: ';
   STR_47 = 'Merged %d notes from "%s"';
   STR_48 = 'No notes were merged';
   STR_49 = 'Another application has modified the note file %s. Reload the file from disk?';
@@ -251,12 +250,12 @@ end;
 
 
 //=================================================================
-// NoteFileNew
+// KntFileNew
 //=================================================================
-function NoteFileNew( FN : string ) : integer;
+function KntFileNew( FN : string ) : integer;
 begin
   if assigned( KntFile ) then
-     if (not NoteFileClose ) then exit(-2);
+     if (not KntFileClose ) then exit(-2);
 
   MovingTreeNode:= nil;
   AlarmManager.Clear;
@@ -293,13 +292,13 @@ begin
               ExecuteMacro( _MACRO_AUTORUN_NEW_FILE, '' );
             end
             else
-              NewNote( true, false );
+              NewKntFolder( true, false );
 
           except
             on E : Exception do
             begin
              {$IFDEF KNT_DEBUG}
-              Log.Add( 'Exception in NoteFileNew: ' + E.Message );
+              Log.Add( 'Exception in KntFileNew: ' + E.Message );
              {$ENDIF}
               Popupmessage( STR_01 + E.Message, mtError, [mbOK], 0 );
               result := 1;
@@ -314,16 +313,16 @@ begin
 
           StatusBar.Panels[PANEL_HINT].Text := STR_02;
 
-          UpdateNoteFileState( [fscNew,fscModified] );
+          UpdateKntFileState( [fscNew,fscModified] );
         {$IFDEF KNT_DEBUG}
-          Log.Add( 'NoteFileNew result: ' + inttostr( result ));
+          Log.Add( 'KntFileNew result: ' + inttostr( result ));
         {$ENDIF}
           FileIsBusy := false;
           if ( Pages.PageCount > 0 ) then
           begin
             ActiveKntFolder := TKntFolder(Pages.ActivePage.PrimaryObject);
             TAM_ActiveName.Caption := ActiveKntFolder.Name;
-            FocusActiveNote;
+            FocusActiveKntFolder;
           end
           else
           begin
@@ -345,19 +344,19 @@ begin
         if ( KeyOptions.AutoSave and ( not KeyOptions.SkipNewFilePrompt )) then
         begin
           if ( PopupMessage( STR_04, mtConfirmation, [mbYes,mbNo], 0 ) = mrYes ) then
-            NoteFileSave( KntFile.FileName );
+            KntFileSave( KntFile.FileName );
         end;
   end;
 
-end; // NoteFileNew
+end; // KntFileNew
 
 
 
 //=================================================================
-// NoteFileOpen
+// KntFileOpen
 //=================================================================
 
-function NoteFileOpen( FN : string ) : integer;
+function KntFileOpen( FN : string ) : integer;
 var
   i : integer;
   OpenReadOnly : boolean;
@@ -366,7 +365,7 @@ var
   FPath, NastyDriveType : string;
 begin
   if assigned( KntFile ) then
-    if ( not NoteFileClose ) then exit(-2);
+    if ( not KntFileClose ) then exit(-2);
 
   with Form_Main do begin
         result := -1;
@@ -567,7 +566,7 @@ begin
 
         finally
          {$IFDEF KNT_DEBUG}
-          Log.Add( 'NoteFileOpen result: ' + inttostr( result ), 0);
+          Log.Add( 'KntFileOpen result: ' + inttostr( result ), 0);
          {$ENDIF}
 
           if opensuccess then
@@ -576,8 +575,8 @@ begin
             begin
               ActiveKntFolder := TKntFolder(Pages.ActivePage.PrimaryObject);
               TAM_ActiveName.Caption := ActiveKntFolder.Name;
-              FocusActiveNote;
-              Log_StoreTick( 'After GetFileState and FocusActiveNote', 1 );
+              FocusActiveKntFolder;
+              Log_StoreTick( 'After GetFileState and FocusActiveKntFolder', 1 );
             end
             else
             begin
@@ -590,7 +589,7 @@ begin
               KntFile.Modified := false;
             end;
             UpdateNoteDisplay;
-            UpdateNoteFileState( [fscOpen,fscModified] );
+            UpdateKntFileState( [fscOpen,fscModified] );
           end;
           Log_StoreTick( 'After UpdateNoteDisplay, UpdateFileState', 1 );
           screen.Cursor := crDefault;
@@ -615,12 +614,12 @@ begin
         Log_Flush;
 
   end;
-end; // NoteFileOpen
+end; // KntFileOpen
 
 
 
 //=================================================================
-// NoteFileSave
+// KntFileSave
 //=================================================================
 
 function ExistingBackup(const Folder, FileName: string;
@@ -851,9 +850,9 @@ begin
 
 end;
 
-//------ NoteFileSave --------------------------------------------
+//------ KntFileSave --------------------------------------------
 
-function NoteFileSave(FN : string) : integer;
+function KntFileSave(FN : string) : integer;
 var
   ErrStr, ext, BakFN, BakFolder, FPath: string;
   SUCCESS: LongBool;
@@ -868,7 +867,7 @@ var
   begin
      if not MoveFileExW_n (tempFN, FN, 5) then begin
         Str:= STR_25 + STR_InfSaving;
-        raise EKeyNoteFileError.CreateFmt(Str, [FN, GetLastError, tempFN, KeyOptions.BackupDir]);
+        raise EKeyKntFileError.CreateFmt(Str, [FN, GetLastError, tempFN, KeyOptions.BackupDir]);
      end;
   end;
 
@@ -1005,7 +1004,7 @@ begin
 
          Log_Flush;
          Log_StoreTick('');
-         Log_StoreTick( 'NoteFileSave (' + FN + ') - BEGIN', 0, +1);
+         Log_StoreTick( 'KntFileSave (' + FN + ') - BEGIN', 0, +1);
 
 
          // Get a random temp file name. For safety, we will write data to the temp file, and only overwrite the actual keynote file
@@ -1028,9 +1027,9 @@ begin
         // Virtual node relative paths are calculated using as base directory the location of the .knt file
         // and it can also be necessary to search this files using this relative path; so this chDir
         // Each .knt file (copied or not) must have the relative paths of the virtual node files, updated according to their location.
-        _VNKeyNoteFileName := FN;
+        _VNKeyKntFileName := FN;
         {$I-}
-        ChDir(ExtractFilePath( _VNKeyNoteFileName ));
+        ChDir(ExtractFilePath( _VNKeyKntFileName ));
         {$I+}
 
 
@@ -1093,7 +1092,7 @@ begin
          on E: Exception do
          begin
            {$IFDEF KNT_DEBUG}
-           Log.Add('Exception in NoteFileSave: ' + E.Message);
+           Log.Add('Exception in KntFileSave: ' + E.Message);
            {$ENDIF}
            StatusBar.Panels[PANEL_HINT].Text := STR_27;
            DoMessageBox(STR_28 + ExtractFileName(FN) + '": ' + #13#13 + E.Message, mtError, [mbOK], 0 );
@@ -1121,12 +1120,12 @@ begin
      finally
        Screen.Cursor := crDefault;
        FileIsBusy := False;
-       UpdateNoteFileState([fscSave,fscModified]);
+       UpdateKntFileState([fscSave,fscModified]);
       {$IFDEF KNT_DEBUG}
-       Log.Add( 'NoteFileSave result: ' + IntToStr(Result));
+       Log.Add( 'KntFileSave result: ' + IntToStr(Result));
       {$ENDIF}
 
-       Log_StoreTick( 'NoteFileSave - END', 0, -1 );
+       Log_StoreTick( 'KntFileSave - END', 0, -1 );
        Log_Flush;
      end;
 
@@ -1138,13 +1137,13 @@ begin
      end;
   end;
 
-end; // NoteFileSave
+end; // KntFileSave
 
 
 //=================================================================
-// NoteFileClose
+// KntFileClose
 //=================================================================
-function NoteFileClose : boolean;
+function KntFileClose : boolean;
 begin
 
   if ( not Form_Main.HaveKntFolders( false, false )) then exit;
@@ -1221,7 +1220,7 @@ begin
 
 
         TAM_ActiveName.Caption := '';
-        UpdateNoteFileState( [fscClose,fscModified] );
+        UpdateKntFileState( [fscClose,fscModified] );
         StatusBar.Panels[PANEL_HINT].Text := STR_30;
       finally
         AlarmManager.Clear;
@@ -1233,85 +1232,15 @@ begin
         PagesChange( Form_Main );
         screen.Cursor := crDefault;
        {$IFDEF KNT_DEBUG}
-        Log.Add( 'NoteFileClose result: ' + BOOLARRAY[result] );
+        Log.Add( 'KntFileClose result: ' + BOOLARRAY[result] );
        {$ENDIF}
         LoadTrayIcon( false );
       end;
   end;
-end; // NoteFileClose
+end; // KntFileClose
 
 
-procedure NewFileRequest( FN : string );
-var
-  p : integer;
-  tmps : string;
-begin
-  FN := AnsiLowercase( FN );
-
-  tmps := '';
-  p := pos( '.exe', FN );
-  if ( p = 0 ) then exit;
-  delete( FN, 1, p+3 );
-  while (( FN <> '' ) and ( FN[1] = '"' )) do
-    delete( FN, 1, 1 );
-  while (( FN <> '' ) and ( FN[1] = #32 )) do
-    delete( FN, 1, 1 );
-
-  while ( FN <> '' ) do
-  begin
-    if ( FN[1] = '"' ) then
-    begin
-      delete( FN, 1, 1 );
-      p := pos( '"', FN );
-      if ( p = 0 ) then
-      begin
-        tmps := FN;
-        FN := '';
-      end
-      else
-      begin
-        tmps := copy( FN, 1, p-1 );
-        delete( FN, 1, p );
-      end;
-    end
-    else
-    begin
-      p := pos( #32, FN );
-      if ( p = 0 ) then
-      begin
-        tmps := FN;
-        FN := '';
-      end
-      else
-      begin
-        tmps := copy( FN, 1, p-1 );
-        delete( FN, 1, p );
-      end;
-    end;
-    if (( tmps = '' ) or ( tmps[1] in ['-','/'] )) then
-    begin
-      tmps := '';
-      continue;
-    end;
-    break;
-  end;
-
-  if ( tmps = '' ) then exit;
-  if Form_Main.HaveKntFolders( false, false ) then
-  begin
-    if ( tmps = KntFile.FileName ) then
-    begin
-      if ( PopupMessage( Format(STR_31, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-      KntFile.Modified := false; // to prevent automatic save if modified
-    end;
-  end;
-
-  NoteFileOpen( tmps );
-
-end; // NewFileRequest
-
-
-procedure NoteFileCopy (var SavedFolders: integer; var SavedNodes: integer;
+procedure KntFileCopy (var SavedFolders: integer; var SavedNodes: integer;
                         FN: string= '';
                         ExportingMode: boolean= false;
                         OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
@@ -1372,9 +1301,9 @@ begin
           // Virtual node relative paths are calculated using as base directory the location of the .knt file
           // and it can also be necessary to search this files using this relative path; so this ChDir
           // Each .knt file (copied or not) must have the relative paths of the virtual node files, updated according to their location.
-          _VNKeyNoteFileName := newFN;
+          _VNKeyKntFileName := newFN;
           {$I-}
-          ChDir(ExtractFilePath( _VNKeyNoteFileName ));
+          ChDir(ExtractFilePath( _VNKeyKntFileName ));
           {$I+}
 
           oldModified := KntFile.Modified;
@@ -1403,7 +1332,7 @@ begin
               on E : Exception do begin
                 StatusBar.Panels[PANEL_HINT].Text := STR_15;
                {$IFDEF KNT_DEBUG}
-                Log.Add( 'Exception in NoteFileCopy: ' + E.Message );
+                Log.Add( 'Exception in KntFileCopy: ' + E.Message );
                {$ENDIF}
                 PopupMessage( E.Message, mtError, [mbOK], 0 );
               end;
@@ -1420,7 +1349,7 @@ begin
         end;
   end;
 
-end; // NoteFileCopy
+end; // KntFileCopy
 
 
 //=================================================================
@@ -1436,7 +1365,7 @@ var
   newFolder : TKntFolder;
   mergeFolder : TKntFolder;
   newNote, mergeNote : TKntNote;
-  IDs: array of TMergeNotes;
+  IDs: array of TMergeFolders;
   mirrorID: string;
   FolderID: integer;
 
@@ -1449,7 +1378,7 @@ var
         if IDs[i].oldID = FolderID then begin
            Result:= IDs[i].newID;
            exit;
-           end;
+        end;
   end;
 
 begin
@@ -1552,7 +1481,7 @@ begin
 
               IDs[i].oldID:= MergeFile.Folders[i].ID;
               if ( MergeFile.Folders[i].Info = 0 ) then begin
-                 IDs[i].newNote:= false;
+                 IDs[i].newFolder:= false;
                  if MergeFN <> KntFile.FileName then
                     IDs[i].newID:= 0
                  else
@@ -1614,10 +1543,10 @@ begin
               inc( mergecnt );
 
               IDs[i].newID:= newFolder.ID;
-              IDs[i].newNote:= true;
+              IDs[i].newFolder:= true;
 
               try
-                CreateVCLControlsForNote( newFolder );
+                CreateVCLControlsForFolder( newFolder );
                 if ( MergeFN = KntFile.FileName ) then begin
                    KntFile.UpdateImagesCountReferences(newFolder);
                    newFolder.DataStreamToEditor;
@@ -1637,7 +1566,7 @@ begin
 
             //Mirror nodes (if exists) references old Folder IDs. We must use new IDs
             for i := 0 to pred( MergeFile.NoteCount ) do
-              if IDs[i].newNote then begin
+              if IDs[i].newFolder then begin
                  newFolder:= KntFile.GetFolderByID(IDs[i].newID);
                  for n := 0 to newFolder.NodeCount - 1 do begin
                     newNote:= newFolder.Nodes[n];
@@ -1652,7 +1581,7 @@ begin
               end;
 
             for i := 0 to pred( MergeFile.NoteCount ) do
-                if IDs[i].newNote then begin
+                if IDs[i].newFolder then begin
                    newFolder:= KntFile.GetFolderByID(IDs[i].newID);
                    KntFile.SetupMirrorNodes(newFolder);
                 end;
@@ -1673,7 +1602,7 @@ begin
           PagesChange( Form_Main );
           screen.Cursor := crDefault;
           KntFile.Modified := true;
-          UpdateNoteFileState( [fscModified] );
+          UpdateKntFileState( [fscModified] );
           if ( mergecnt > 0 ) then
             StatusBar.Panels[PANEL_HINT].Text := Format( STR_47, [mergecnt, ExtractFilename( MergeFN )] )
           else
@@ -1695,7 +1624,7 @@ begin
     case DoMessageBox( Format(STR_49, [FileState.Name]), mtWarning, [mbYes,mbNo], 0 ) of
       mrYes : begin
         KntFile.Modified := false;
-        NoteFileOpen( KntFile.FileName );
+        KntFileOpen( KntFile.FileName );
       end;
       mrNo : begin
         KntFile.Modified := true;
@@ -1833,7 +1762,7 @@ begin
        {$IFDEF KNT_DEBUG}
         Log.Add( '-- Saving on CHECKMODIFIED', 1 );
        {$ENDIF}
-        if ( NoteFileSave( KntFile.FileName ) = 0 ) then
+        if ( KntFileSave( KntFile.FileName ) = 0 ) then
           result := true
         else
           result := ( Application.MessageBox( PChar(STR_55), PChar(STR_56), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) = ID_YES );
@@ -1955,7 +1884,7 @@ begin
 
 end;
 
-procedure ImportAsNotes( ImportFileList : TStringList; ImgLinkMode: boolean );
+procedure ImportAsKntFolders( ImportFileList : TStringList; ImgLinkMode: boolean );
 var
   FN, s : string;
   myFolder : TKntFolder;
@@ -2040,7 +1969,7 @@ begin
                     end;
 
 
-                  CreateVCLControlsForNote( myFolder );
+                  CreateVCLControlsForFolder( myFolder );
                   myFolder.DataStreamToEditor;
                   SetUpVCLControls( myFolder );
 
@@ -2082,7 +2011,7 @@ begin
               PagesChange( Form_Main );
               StatusBar.Panels[PANEL_HINT].text := STR_62;
               KntFile.Modified := true;
-              UpdateNoteFileState( [fscModified] );
+              UpdateKntFileState( [fscModified] );
             end;
           end;
 
@@ -2209,7 +2138,7 @@ begin
               screen.Cursor := crDefault;
               StatusBar.Panels[PANEL_HINT].text := STR_62;
               KntFile.Modified := true;
-              UpdateNoteFileState( [fscModified] );
+              UpdateKntFileState( [fscModified] );
             end;
 
           end;
@@ -2510,7 +2439,7 @@ begin
 
             case myAction of
               factOpen :
-                NoteFileOpen( fName );
+                KntFileOpen( fName );
 
               factExecute :
                 begin
@@ -2533,7 +2462,7 @@ begin
                 end;
 
               factImport :
-                ImportAsNotes( FileList, ImgLinkMode );
+                ImportAsKntFolders( FileList, ImgLinkMode );
 
               factInsertContent:
                 InsertContent( FileList, ImgLinkMode, NewFileName);
@@ -2608,7 +2537,7 @@ begin
                        UpdateTreeVisible( ActiveKntFolder );
                     end;
 
-                    UpdateNoteFileState( [fscModified] );
+                    UpdateKntFileState( [fscModified] );
 
                     // *1
                     // If myTreeNode is assigned it is because TreeNoteNewNode has returned ok.
@@ -2722,18 +2651,18 @@ end; // FileDropped
 
 
 //=================================================================
-// NoteFileProperties
+// KntFileProperties
 //=================================================================
-procedure NoteFileProperties;
+procedure KntFileProperties;
 var
-  Form_FileInfo : TForm_FileInfo;
+  Form_FileInfo : TForm_KntFileInfo;
 begin
   with Form_Main do begin
       // Edits properties for currently open file
 
       if ( not HaveKntFolders( true, false )) then exit;
 
-      Form_FileInfo := TForm_FileInfo.Create( Form_Main );
+      Form_FileInfo := TForm_KntFileInfo.Create( Form_Main );
 
       try
         Form_FileInfo.myKntFile := KntFile;
@@ -2825,19 +2754,19 @@ begin
         Form_FileInfo.Free;
       end;
 
-      UpdateNoteFileState( [fscSave,fscModified] );
+      UpdateKntFileState( [fscSave,fscModified] );
 
       // [x] If passphrase changed or Encrypted state changed,
       // must SAVE FILE immediately.
 
    end;
-end; // NoteFileProperties
+end; // KntFileProperties
 
 
 //=================================================================
-// UpdateNoteFileState
+// UpdateKntFileState
 //=================================================================
-procedure UpdateNoteFileState( AState : TFileStateChangeSet );
+procedure UpdateKntFileState( AState : TFileStateChangeSet );
 var
   s, thisFN : string;
   NotesOK : boolean;
@@ -2918,13 +2847,13 @@ begin
       end;
   end;
 
-end; // UpdateNoteFileState
+end; // UpdateKntFileState
 
 
 //=================================================================
-// AutoCloseFile
+// AutoCloseKntFile
 //=================================================================
-procedure AutoCloseFile;
+procedure AutoCloseKntFile;
 var
   i : integer;
 begin
@@ -3032,25 +2961,25 @@ begin
       _REOPEN_AUTOCLOSED_FILE := KeyOptions.TimerCloseAutoReopen;
     end;
 
-    NoteFileClose;
+    KntFileClose;
     Application.Minimize;
   end;
 
-end; // AutoCloseFile
+end; // AutoCloseKntFile
 
 //=================================================================
 // RunFileManager
 //=================================================================
 procedure RunFileManager;
 var
-  MGR : TForm_FileMgr;
+  MGR : TForm_KntFileMgr;
   s, olds : string;
   MGROK : boolean;
 begin
   try
     MGROK := false;
     s := '';
-    MGR := TForm_FileMgr.Create( Form_Main );
+    MGR := TForm_KntFileMgr.Create( Form_Main );
     try
       with MGR do
       begin
@@ -3075,7 +3004,7 @@ begin
     if MGROK then
     begin
       if (( s <> '' ) and ( s <> olds )) then
-        NoteFileOpen( s );
+        KntFileOpen( s );
     end;
 
   except
@@ -3099,7 +3028,7 @@ begin
   result := false;
 end; // CanRegisterFileType
 
-procedure AssociateKeyNoteFile;
+procedure AssociateKeyKntFile;
 begin
 
   if CanRegisterFileType then begin
@@ -3119,6 +3048,6 @@ begin
       end;
     end;
   end;
-end; // AssociateKeyNoteFile
+end; // AssociateKeyKntFile
 
 end.

@@ -944,7 +944,7 @@ begin
          if FN <> ''  then begin
             ext := Extractfileext( FN );
             if (ext = '') then FN := FN + ext_KeyNote;
-            NoteFileCopy (ExportedNotes, ExportedNodes, FN, true, myTreeNode, OnlyNotHiddenNodes, OnlyCheckedNodes );
+            KntFileCopy (ExportedNotes, ExportedNodes, FN, true, myTreeNode, OnlyNotHiddenNodes, OnlyCheckedNodes );
          end;
 
          exit;                                                                    // ------------

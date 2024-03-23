@@ -43,7 +43,7 @@ uses
 
 
 type
-  EKeyNoteFileError = class( Exception );
+  EKeyKntFileError = class( Exception );
   EPassphraseError = class( Exception );
 
 type
@@ -409,7 +409,7 @@ begin
   if ( idx < 0 ) then exit;
   FNotes.Delete( idx );
   Modified := true;
-end; // DeleteNote
+end; // DeleteKntFolder
 
 
 function TKntFile.GetModified : boolean;
@@ -599,9 +599,9 @@ begin
      raise Exception.Create('');
   end;
 
-  _VNKeyNoteFileName := FN;
+  _VNKeyKntFileName := FN;
   {$I-}
-  ChDir( extractfilepath( _VNKeyNoteFileName )); // virtual node relative paths depend on it
+  ChDir( extractfilepath( _VNKeyKntFileName )); // virtual node relative paths depend on it
   {$I+}
 
   ClipCapIdx := -1;
@@ -676,7 +676,7 @@ begin
 
         repeat // repeatedly prompt for passphrase, unless other action chosen
             if ( not GetPassphrase( FN )) then
-              raise EKeyNoteFileError.Create( STR_03 );
+              raise EKeyKntFileError.Create( STR_03 );
 
             try
               DecryptFileToStream( FN, MemStream );
@@ -738,7 +738,7 @@ begin
                  if (( VerID.Major in ['0'..'9'] ) and ( VerID.Minor in ['0'..'9'] )) then begin
                     if ( VerID.Major > NFILEVERSION_MAJOR ) then begin
                        DoMessageBox(Format( STR_05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK], 0);
-                       raise EKeyNoteFileError.Create('');
+                       raise EKeyKntFileError.Create('');
                     end;
 
                     if ( VerID.Minor > NFILEVERSION_MINOR ) then begin
@@ -764,7 +764,7 @@ begin
 
           if FileIDTestFailed then begin
             DoMessageBox(Format( STR_07, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
-            raise EKeyNoteFileError.Create('');
+            raise EKeyKntFileError.Create('');
           end;
 
           InHead := true;
@@ -1041,19 +1041,19 @@ end; // Load
 {FN:   Where to create and save the file.
        - Can be a temporal file. For safety, we will write data to a temp file, and only overwrite
          the actual keynote file after the save process is complete. This will be done by the caller
-         (NoteFileSave, in kn_NoteFileMng))
+         (KntFileSave, in kn_NoteFileMng))
        - Can be a file selected as a copy (File -> Copy To...)
 
        In both cases, the actual keynote file won't be modified (in the first one, at least here, in this
        TKntFile.Save method)
 
-       (FN can't be ''. When the user clicks on Save As.., NoteFileSave, will ask for a new
+       (FN can't be ''. When the user clicks on Save As.., KntFileSave, will ask for a new
        filename, that must be passed here, in FN)
 
       Also, in both cases, when saving the .knt file, although it may be a copy to another directory,
       modified virtual file nodes will be saved too. So, it is important that, if the virtual
       files nodes must be backed (if it applies, based on configuration), it is done.
-      The assingment of _VNKeyNoteFileName ensures it (must be done by the caller)
+      The assingment of _VNKeyKntFileName ensures it (must be done by the caller)
 }
 function TKntFile.Save(FN: string;
                         var SavedFolders: integer; var SavedNodes: integer;
@@ -1086,7 +1086,7 @@ var
       end;
   end;
 
-  procedure WriteNoteFile (SaveImages: boolean);
+  procedure WriteKntFile (SaveImages: boolean);
   var
      i: integer;
   begin
@@ -1155,15 +1155,15 @@ begin
 
 {$IFDEF WITH_DART}
   if ((FFileFormat in [nffDartNotes]) and HasExtendedNotes ) then
-    raise EKeyNoteFileError.CreateFmt( STR_10, [FILE_FORMAT_NAMES[FFileFormat], TABNOTE_KIND_NAMES[ntRTF]] );
+    raise EKeyKntFileError.CreateFmt( STR_10, [FILE_FORMAT_NAMES[FFileFormat], TABNOTE_KIND_NAMES[ntRTF]] );
 {$ENDIF}
 
   if ( FN = '' ) then
-    raise EKeyNoteFileError.Create( STR_12 );
+    raise EKeyKntFileError.Create( STR_12 );
 
   {
   if ( not assigned( FPageCtrl )) then
-    raise EKeyNoteFileError.Create( 'Error: PageCtrl not assigned.' );
+    raise EKeyKntFileError.Create( 'Error: PageCtrl not assigned.' );
   }
 
 
@@ -1189,7 +1189,7 @@ begin
           tf.rewrite();
 
           try
-            WriteNoteFile (true);
+            WriteKntFile (true);
           finally
             tf.closefile();
           end;
@@ -1208,7 +1208,7 @@ begin
             try
               tf.assignstream( AuxStream );
               tf.rewrite;
-              WriteNoteFile (false);
+              WriteKntFile (false);
 
               ImagesManager.DeleteOrphanImages;
               ImagesManager.SaveState(tf);
@@ -1242,7 +1242,7 @@ begin
         nffEncrypted : begin
 
           if ( FPassphrase = '' ) then
-            raise EKeyNoteFileError.Create( STR_14 );
+            raise EKeyKntFileError.Create( STR_14 );
 
           AuxStream := TMemoryStream.Create;
           try
@@ -1251,7 +1251,7 @@ begin
             tf.rewrite;
 
             try
-              WriteNoteFile (true);
+              WriteKntFile (true);
             finally
               tf.closefile();
             end;
@@ -1395,7 +1395,7 @@ end; // EncryptFileInStream
 
 procedure RaiseStreamReadError;
 begin
-  raise EKeyNoteFileError.Create( STR_17 );
+  raise EKeyKntFileError.Create( STR_17 );
 end; // RaiseStreamReadError
 
 
@@ -1602,7 +1602,7 @@ end;
 procedure TKntFile.SetFilename( const Value : string );
 begin
   FFilename := Value;
-  _VNKeyNoteFileName := Value;
+  _VNKeyKntFileName := Value;
 end;
 
 

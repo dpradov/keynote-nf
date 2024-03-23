@@ -329,7 +329,7 @@ begin
       finally
 
         KntFile.Modified := true;
-        UpdateNoteFileState( [fscModified] );
+        UpdateKntFileState( [fscModified] );
         ActiveKntFolder.Editor.Modified := false;
         ActiveKntFolder.Editor.OnChange := RxRTFChange;
 
@@ -372,7 +372,7 @@ begin
               SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
             finally
               KntFile.Modified := true;
-              UpdateNoteFileState( [fscModified] );
+              UpdateKntFileState( [fscModified] );
             end;
           end;
 
@@ -389,7 +389,7 @@ begin
           SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
         finally
           KntFile.Modified := true;
-          UpdateNoteFileState( [fscModified] );
+          UpdateKntFileState( [fscModified] );
         end;
       end;
 
@@ -446,7 +446,7 @@ begin
       finally
         ActiveKntFolder.Editor.Lines.EndUpdate;
         KntFile.Modified := true;
-        UpdateNoteFileState( [fscModified] );
+        UpdateKntFileState( [fscModified] );
         ActiveKntFolder.Editor.OnChange := RxRTFChange;
       end;
   end;

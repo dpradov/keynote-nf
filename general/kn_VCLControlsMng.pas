@@ -44,13 +44,13 @@ uses
 
 
 
-    // dynamically create and destroy controls (note tabs, RichEdits, trees, etc)
-    procedure SetUpVCLControls( aFolder : TKntFolder ); // sets up VCL controls for note (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
-    procedure CreateVCLControls; // creates VCL controls for ALL notes in KntFile object
+    // dynamically create and destroy controls (folder tabs, RichEdits, trees, etc)
+    procedure SetUpVCLControls( aFolder : TKntFolder ); // sets up VCL controls for knt folder (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
+    procedure CreateVCLControls; // creates VCL controls for ALL folders in KntFile object
     procedure SetupAndShowVCLControls;
-    procedure CreateVCLControlsForNote( const aFolder : TKntFolder ); // creates VCL controls for specified note
+    procedure CreateVCLControlsForFolder( const aFolder : TKntFolder ); // creates VCL controls for specified folder
     procedure DestroyVCLControls; // destroys VCL controls for ALL notes in KntFile object
-    procedure DestroyVCLControlsForNote( const aFolder : TKntFolder; const KillTabSheet : boolean ); // destroys VCL contols for specified note
+    procedure DestroyVCLControlsForFolder( const aFolder : TKntFolder; const KillTabSheet : boolean ); // destroys VCL contols for specified folder
     procedure GetOrSetNodeExpandState( const aTV : TTreeNT; const AsSet, TopLevelOnly : boolean );
 
     // VCL updates when config loaded or changed
@@ -69,10 +69,10 @@ uses
     procedure RecreateResourcePanel;
     procedure FocusResourcePanel;
 
-    procedure SelectStatusbarGlyph( const HaveNoteFile : boolean );
+    procedure SelectStatusbarGlyph( const HaveKntFile : boolean );
     procedure SetFilenameInStatusbar(const FN : string );
     procedure SetStatusbarGlyph(const Value: TPicture);
-    procedure FocusActiveNote;
+    procedure FocusActiveKntFolder;
     procedure SortTabs;
 
     procedure LoadTrayIcon( const UseAltIcon : boolean );
@@ -238,7 +238,7 @@ begin
 
       for i := 0 to pred( KntFile.Folders.Count ) do begin
          myFolder := KntFile.Folders[i];
-         CreateVCLControlsForNote( myFolder );
+         CreateVCLControlsForFolder( myFolder );
       end;
 
   end;
@@ -327,9 +327,9 @@ begin
 end; // GetOrSetNodeExpandState
 
 //=================================================================
-// CreateVCLControlsForNote
+// CreateVCLControlsForFolder
 //=================================================================
-procedure CreateVCLControlsForNote( const aFolder : TKntFolder );
+procedure CreateVCLControlsForFolder( const aFolder : TKntFolder );
 var
   myTab : TTab95Sheet;
   myEditor : TTabRichEdit;
@@ -349,7 +349,7 @@ var
   TVFontStyleWithBold : TFontStyles;
 
 begin
-  Log_StoreTick( 'CreateVCLControlsForNote - Begin', 2, +1);
+  Log_StoreTick( 'CreateVCLControlsForFolder - Begin', 2, +1);
 
   with Form_Main do begin
         _ALLOW_VCL_UPDATES := false;
@@ -680,7 +680,7 @@ begin
             ParentFont := false;
             WantTabs := true;
             WantReturns := true;
-            NoteObj := aFolder;
+            KntFolder := aFolder;
             AllowInPlace := true;
             AllowObjects := true;
             AutoVerbMenu := true;
@@ -716,9 +716,9 @@ begin
         end;
   end;
 
-  Log_StoreTick( 'CreateVCLControlsForNote - End', 3, -1 );
+  Log_StoreTick( 'CreateVCLControlsForFolder - End', 3, -1 );
 
-end; // CreateVCLControlsForNote
+end; // CreateVCLControlsForFolder
 
 
 procedure DeleteNodes(Folder: TKntFolder);
@@ -733,9 +733,9 @@ begin
 end;
 
 //=================================================================
-// DestroyVCLControlsForNote
+// DestroyVCLControlsForFolder
 //=================================================================
-procedure DestroyVCLControlsForNote( const aFolder : TKntFolder; const KillTabSheet : boolean );
+procedure DestroyVCLControlsForFolder( const aFolder : TKntFolder; const KillTabSheet : boolean );
 begin
   with Form_Main do begin
         if not assigned( aFolder ) then exit;
@@ -794,7 +794,7 @@ begin
           _ALLOW_VCL_UPDATES := true;
         end;
   end;
-end; // DestroyVCLControlsForNote
+end; // DestroyVCLControlsForFolder
 
 //=================================================================
 // DestroyVCLControls
@@ -810,7 +810,7 @@ begin
         if (( not assigned( KntFile )) or ( KntFile.Notes.Count = 0 )) then exit;
         for i := 0 to pred( KntFile.Notes.Count ) do
         begin
-          DestroyVCLControlsForNote( KntFile.Notes[i]; );
+          DestroyVCLControlsForFolder( KntFile.Notes[i]; );
         end;
         }
 
@@ -1664,13 +1664,13 @@ begin
           Pages.ActivePage := ActiveKntFolder.TabSheet;
           KntFile.Modified := true;
           UpdateNoteDisplay;
-          UpdateNoteFileState( [fscModified] );
+          UpdateKntFileState( [fscModified] );
         end;
   end;
 
 end; // SortTabs
 
-procedure FocusActiveNote;
+procedure FocusActiveKntFolder;
 begin
     try
       if ( assigned( ActiveKntFolder ) and ( not Initializing )) then
@@ -1683,7 +1683,7 @@ begin
     except
       // Mostly Harmless
     end;
-end; // FocusActiveNote
+end; // FocusActiveKntFolder
 
 
 procedure SetStatusbarGlyph(const Value: TPicture);
@@ -1705,7 +1705,7 @@ begin
    end;
 end;
 
-procedure SelectStatusbarGlyph( const HaveNoteFile : boolean );
+procedure SelectStatusbarGlyph( const HaveKntFile : boolean );
 var
   Glyph : TPicture;
   Index: integer;
@@ -1719,7 +1719,7 @@ begin
 
     Index:= NODEIMG_BLANK;
 
-    if HaveNoteFile then
+    if HaveKntFile then
     begin
 
       if IsRecordingMacro then

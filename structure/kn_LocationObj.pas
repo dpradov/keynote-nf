@@ -28,11 +28,11 @@ type
   private
     FName : string;
     FFileName : string;
-    FNoteName : string;
+    FFolderName : string;
     FNodeName : string;
     FCaretPos : integer;
     FSelLength : integer;
-    FNoteID : longint;
+    FFolderID : longint;
     FNodeID : longint;
     FExternalDoc : boolean;
     FParams : string;
@@ -52,11 +52,11 @@ type
   public
     property Name : string read FName write FName;
     property FileName : string read FFileName write FFileName;
-    property FolderName : string read FNoteName write FNoteName;
+    property FolderName : string read FFolderName write FFolderName;
     property NodeName : string read FNodeName write FNodeName;
     property CaretPos : integer read FCaretPos write FCaretPos;
     property SelLength : integer read FSelLength write FSelLength;
-    property FolderID : longint read FNoteID write FNoteID;
+    property FolderID : longint read FFolderID write FFolderID;
     property NodeID : longint read FNodeID write FNodeID;
     property Mark : Byte read FMark write FMark;
     property Bookmark09 : boolean read FBookmark09 write FBookmark09;
@@ -134,8 +134,8 @@ begin
           myFav.Name := name;
           myFav.FileName := readstring( section, 'File', '' );
 
-            myFav.FolderName := readstring( section, 'Note', '' );
-            myFav.FolderID := readinteger( section, 'FolderID', 0 );
+            myFav.FolderName := readstring( section, 'Note', '' );     // Knt Folder...
+            myFav.FolderID := readinteger( section, 'NoteID', 0 );     // Knt FolderID...
             myFav.NodeName := readstring( section, 'Node', '' );
             myFav.NodeID := readinteger( section, 'NodeID', 0 );
             myFav.CaretPos := readinteger( section, 'Pos', 0 );
@@ -189,8 +189,8 @@ begin
         end
         else
         begin
-          writestring( section, 'Note', myFav.FolderName );
-          writeinteger( section, 'FolderID', myFav.FolderID );
+          writestring( section, 'Note', myFav.FolderName );         // Knt Folder...
+          writeinteger( section, 'NoteID', myFav.FolderID );      // Knt FolderID...
           writeinteger( section, 'NodeID', myFav.NodeID );
           writestring( section, 'Node', myFav.NodeName );
           writeinteger( section, 'Pos', myFav.CaretPos );
@@ -228,11 +228,11 @@ constructor TLocation.Create;
 begin
   FName := '';
   FFileName := '';
-  FNoteName := '';
+  FFolderName := '';
   FNodeName := '';
   FCaretPos := 0;
   FSelLength := 0;
-  FNoteID := 0;
+  FFolderID := 0;
   FNodeID := 0;
   FMark := 0;
   FExternalDoc := false;
@@ -248,11 +248,11 @@ procedure TLocation.Assign( const aLocation : TLocation );
 begin
   FName := aLocation.Name;
   FFilename := aLocation.FileName;
-  FNoteName := aLocation.FolderName;
+  FFolderName := aLocation.FolderName;
   FNodeName := aLocation.NodeName;
   FCaretPos := aLocation.CaretPos;
   SelLength := aLocation.SelLength;
-  FNoteID := aLocation.FolderID;
+  FFolderID := aLocation.FolderID;
   FNodeID := aLocation.NodeID;
   FMark :=  aLocation.FMark;
   FBookmark09:= aLocation.FBookmark09;
@@ -276,7 +276,7 @@ begin
   if not assigned(Location) then Exit;
 
   if FName <> Location.Name then Exit;
-  if FNoteID <> Location.FolderID then Exit;
+  if FFolderID <> Location.FolderID then Exit;
   if FNodeID <> Location.NodeID then Exit;
   if considerOnlyKntLinks then begin
      if considerCaretPos then begin
@@ -307,12 +307,12 @@ begin
   if ( FNodeID > 0 ) then
     result := Format(
       '%s / %s %s',
-      [FNoteName, FNodeName, CPos]
+      [FFolderName, FNodeName, CPos]
     )
   else
     result := Format(
       '%s %s',
-      [FNoteName, CPos]
+      [FFolderName, CPos]
     );
 end; // GetDisplayText
 
@@ -320,23 +320,6 @@ function TLocation.GetDisplayTextLong : string;
 begin
   result := FFilename + ' / ' + GetDisplayText;
 end; // GetDisplayTextLong
-
-(*
-function TLocation.GetPath : string;
-begin
-  result := ''; // [x]
-end; // GetPath
-
-function TLocation.GetLinkText : string;
-begin
-  result := ''; // [x]
-end; // GetLinkText
-
-function TLocation.GetLinkTextByNames : string;
-begin
-  result := ''; // [x]
-end; // GetLinkTextByNames
-*)
 
 
 
@@ -348,8 +331,6 @@ Initialization
   Favorites_List.Sorted := true;
   Favorites_List.Duplicates := dupIgnore;
 
-  // FillChar( _NavHistory, sizeof( _NavHistory ), 0 );
-
 Finalization
   ClearLocationList( Location_List );
   ClearLocationList( Favorites_List );
@@ -359,6 +340,5 @@ Finalization
    _KNTLocation.Free;
   except
   end;
-  // ClearNavigationHistory;
 
 end.

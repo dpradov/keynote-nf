@@ -374,7 +374,7 @@ begin
     myFolder.TV.OnChange := Form_Main.TVChange;
     VirtualNodeUpdateMenu( false, false );
     KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
   end;
 
   if (( not aDefaultNode ) and assigned( myTreeNode ) and TreeOptions.EditNewNodes ) then
@@ -571,7 +571,7 @@ begin
       myFolder.TV.Items.EndUpdate;
       myFolder.TV.Selected := masternode;
       KntFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
+      UpdateKntFileState( [fscModified] );
     end;
 
   end;
@@ -849,7 +849,7 @@ begin
       finally
         myFolder.TV.Items.EndUpdate;
         KntFile.Modified := true;
-        UpdateNoteFileState( [fscModified] );
+        UpdateKntFileState( [fscModified] );
       end;
     end;
   finally
@@ -1093,7 +1093,7 @@ begin
     end;
     myFolder.TV.OnChecked:= Form_Main.TVChecked;
     myFolder.TV.OnChange := Form_Main.TVChange;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
     // {N}
     s := Format( STR_07, [MovingNode.Text,t,DIRECTION_NAMES[aDir]] );
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := s;
@@ -1166,7 +1166,7 @@ begin
       TKntNote( myTreeNode.Data ).Name := myNewName;
     finally
       KntFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
+      UpdateKntFileState( [fscModified] );
     end;
   end;
 
@@ -1417,7 +1417,7 @@ begin
 
   finally
     KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
   end;
 end; // SetTreeNodeColor
 
@@ -1463,7 +1463,7 @@ begin
      BoldChildren( myTreeNode );
 
   KntFile.Modified := true;
-  UpdateNoteFileState( [fscModified] );
+  UpdateKntFileState( [fscModified] );
 end; // SetTreeNodeBold
 
 
@@ -1510,7 +1510,7 @@ begin
 
     finally
       KntFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
+      UpdateKntFileState( [fscModified] );
     end;
   end;
 end; // SetTreeNodeCustomImage
@@ -1573,7 +1573,7 @@ begin
 
   finally
     KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
   end;
 
 
@@ -1795,7 +1795,7 @@ begin
            myFolder.SelectedNode := nil;
 
         KntFile.Modified := true;
-        UpdateNoteFileState( [fscModified] );
+        UpdateKntFileState( [fscModified] );
       end;
   end;
 
@@ -1866,7 +1866,7 @@ begin
       end;
 
       KntFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
+      UpdateKntFileState( [fscModified] );
       Result:= true;
   end;
 
@@ -1979,7 +1979,7 @@ begin
     finally
       myFolder.TV.Items.EndUpdate;
       KntFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
+      UpdateKntFileState( [fscModified] );
     end;
   end;
 
@@ -2399,7 +2399,7 @@ begin
     screen.Cursor := crDefault;
     if (XferAction = 1) and Result then begin
        KntFile.Modified := true;
-       UpdateNoteFileState( [fscModified] );
+       UpdateKntFileState( [fscModified] );
     end;
   end;
 
@@ -2586,7 +2586,7 @@ begin
 
     finally
         KntFile.Modified := true;
-        UpdateNoteFileState( [fscModified] );
+        UpdateKntFileState( [fscModified] );
         if assigned(oldOnChecked) then
            TV.OnChecked := oldOnChecked;
 

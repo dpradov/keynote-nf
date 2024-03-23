@@ -956,7 +956,7 @@ begin
                myFolder.TV.Selected:= myTreeNode;   // force to select -> TreeNodeSelected
 
                KntFile.Modified := true;
-               UpdateNoteFileState( [fscModified] );
+               UpdateKntFileState( [fscModified] );
                myTreeNode:= nil;
             end;
 
@@ -1695,7 +1695,7 @@ begin
   if ( ReplaceCnt > 0 ) then begin
      if ReplaceAll then DoMessageBox(txtMessage, STR_12, 0, handle);
      KntFile.Modified := true;
-     UpdateNoteFileState( [fscModified] );
+     UpdateKntFileState( [fscModified] );
      end
   else
       if not SelectedTextToReplace then begin

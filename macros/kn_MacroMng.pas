@@ -679,7 +679,7 @@ begin
     SelectStatusbarGlyph( true );
     if wasreadonly then
       ActiveKntFolder.ReadOnly := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
   end;
 
   try
@@ -1237,7 +1237,7 @@ begin
 
                 macNoteNewRTF, macNoteNewTree : begin
                   // always abort if fail
-                  if ( not NewNote( true, true )) then begin
+                  if ( not NewKntFolder( true, true )) then begin
                     AbortMacro( STR_36, i, Macro.Lines[pred( i )] );
                     break;
                   end;
@@ -1602,7 +1602,7 @@ begin
               UpdateNoteDisplay;
               UpdateCursorPos;
               KntFile.Modified := true;
-              UpdateNoteFileState( [fscModified] );
+              UpdateKntFileState( [fscModified] );
             end;
 
           ecFontFormatCopy :
@@ -2212,7 +2212,7 @@ begin
               Form_Main.TB_Color.ActiveColor := CommandRecall.Font.Color;
             Form_Main.NoteSelText.Color := Form_Main.TB_Color.ActiveColor;
             CommandRecall.Font.Color := Form_Main.TB_Color.ActiveColor;
-            FocusActiveNote; // DFSColorBtn steals focus
+            FocusActiveKntFolder; // DFSColorBtn steals focus
             KeyOptions.InitFontColor := CommandRecall.Font.Color;
           end;
 
@@ -2221,7 +2221,7 @@ begin
               Form_Main.TB_Hilite.ActiveColor := CommandRecall.Color;
             Form_Main.NoteSelText.BackColor := Form_Main.TB_Hilite.ActiveColor;
             CommandRecall.Color := Form_Main.TB_Hilite.ActiveColor;
-            FocusActiveNote; // DFSColorBtn steals focus
+            FocusActiveKntFolder; // DFSColorBtn steals focus
             KeyOptions.InitHiColor := CommandRecall.Color;
           end;
 

@@ -133,7 +133,7 @@ uses
   kn_ExportImport in 'structure\kn_ExportImport.pas',
   kn_ExportNew in 'structure\kn_ExportNew.pas' {Form_ExportNew},
   kn_FileDropAction in 'structure\kn_FileDropAction.pas' {Form_DropFile},
-  kn_FileInfo in 'structure\kn_FileInfo.pas' {Form_FileInfo},
+  kn_FileInfo in 'structure\kn_FileInfo.pas' {Form_KntFileInfo},
   kn_filemgr in 'structure\kn_filemgr.pas' {Form_FileMgr},
   kn_FileObj in 'structure\kn_FileObj.pas',
   kn_History in 'structure\kn_History.pas',
@@ -150,7 +150,7 @@ uses
   kn_TreeNoteMng in 'structure\kn_TreeNoteMng.pas',
   kn_VirtualNodeForm in 'structure\kn_VirtualNodeForm.pas' {Form_VNode},
   {$IFNDEF EXCLUDEEMAIL}
-  kn_SendMail in 'various\kn_SendMail.pas' {Form_Mail},
+  kn_SendMail in 'various\kn_SendMail.pas',
   {$ENDIF }
   kn_AlertMng in 'various\kn_AlertMng.pas' {Form_Alarm},
   kn_FavExtDlg in 'various\kn_FavExtDlg.pas' {Form_FavExt},
@@ -161,8 +161,7 @@ uses
   tom_TLB in 'various\tom_TLB.pas',
   kn_DLLinterface in 'kn_DLLinterface.pas',
   kn_UpdateVersion in 'general\kn_UpdateVersion.pas' {UpdateVersion},
-  kn_Main in 'kn_Main.pas' {Form_Main}
-;
+  kn_Main in 'kn_Main.pas' {Form_Main};
 
 {$R *.RES}
 

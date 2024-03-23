@@ -41,7 +41,7 @@ uses
 
 
 type
-  TFileInfo = class( TObject )
+  TKntFileInfo = class( TObject )
     Name : string;
     Comment : string;
     Description : string;
@@ -55,7 +55,7 @@ type
   end;
 
 type
-  TForm_FileMgr = class(TForm)
+  TForm_KntFileMgr = class(TForm)
     Panel_Btn: TPanel;
     TVmgr: TTreeNT;
     Label1: TLabel;
@@ -135,7 +135,7 @@ resourcestring
   STR_08 = 'This file does not exist or cannot be accessed.';
 
 
-constructor TFileInfo.Create;
+constructor TKntFileInfo.Create;
 begin
   inherited Create;
   Name := '';
@@ -147,13 +147,13 @@ begin
   Version := NFILEVERSION_MAJOR + '.' + NFILEVERSION_MINOR;
   Count := 0;
   Format := low( TKntFileFormat );
-end; // TFileInfo.CREATE
+end; // TKntFileInfo.CREATE
 
 function SaveFileManagerInfo( FN : string ) : boolean;
 var
   IniFile : TMemIniFile;
   i, cnt : integer;
-  Info : TFileInfo;
+  Info : TKntFileInfo;
   section : string;
 begin
 
@@ -174,7 +174,7 @@ begin
     try
       for i := 0 to pred( FileManager.Count ) do
       begin
-        Info := TFileInfo( FileManager.Objects[i] );
+        Info := TKntFileInfo( FileManager.Objects[i] );
         if ( assigned( Info ) and fileexists( Info.Name )) then
         begin
           inc( cnt );
@@ -209,7 +209,7 @@ function LoadFileManagerInfo( FN : string ) : boolean;
 var
   IniFile : TMemIniFile;
   i : integer;
-  Info : TFileInfo;
+  Info : TKntFileInfo;
   s: string;
   section : string;
   sections : TStringList;
@@ -240,7 +240,7 @@ begin
           s := normalFN( readstring( section, 'Name', '' ));
           if ( not FileExists( s )) then continue;
 
-          Info := TFileInfo.Create;
+          Info := TKntFileInfo.Create;
           Info.Name := s;
           Info.Comment := readstring( section, 'Comment', '' );
           Info.Description := readstring( section, 'Description', '' );
@@ -283,7 +283,7 @@ end; // LoadFileManagerInfo
 
 function AddToFileManager( const FN : string; const aFile : TKntFile ) : boolean;
 var
-  Info : TFileInfo;
+  Info : TKntFileInfo;
   i : integer;
 begin
   result := false;
@@ -299,12 +299,12 @@ begin
     begin
       // this file is already present in FileManager
       // so just reference the existing storage object
-      Info := TFileInfo( FileManager.Objects[i] );
+      Info := TKntFileInfo( FileManager.Objects[i] );
     end
     else
     begin
       // new file, create a new storage object
-      Info := TFileInfo.Create;
+      Info := TKntFileInfo.Create;
     end;
 
     with Info do
@@ -341,7 +341,7 @@ begin
 end; // AddToFileManager
 
 
-procedure TForm_FileMgr.FormCreate(Sender: TObject);
+procedure TForm_KntFileMgr.FormCreate(Sender: TObject);
 begin
   Initializing := true;
   with FormPlacement do
@@ -367,7 +367,7 @@ begin
       GWL_STYLE, GetWindowLong(Handle, GWL_STYLE) or $80 );
 end; // FORM_CREATE
 
-procedure TForm_FileMgr.FormActivate(Sender: TObject);
+procedure TForm_KntFileMgr.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   Initializing := false;
@@ -401,10 +401,10 @@ begin
   end;
 end; // FORM_ACTIVATE
 
-procedure TForm_FileMgr.FormCloseQuery(Sender: TObject;
+procedure TForm_KntFileMgr.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 var
-  Info : TFileInfo;
+  Info : TKntFileInfo;
 begin
   SelectedFileName := '';
   if OK_Click then
@@ -418,7 +418,7 @@ begin
       end
       else
       begin
-        Info := TFileInfo( TVmgr.Selected.Data );
+        Info := TKntFileInfo( TVmgr.Selected.Data );
         if assigned ( Info ) then
           SelectedFileName := Info.Name;
       end;
@@ -427,7 +427,7 @@ begin
   OK_Click := false;
 end; // FORM_CLOSEQUERY
 
-procedure TForm_FileMgr.FormKeyDown(Sender: TObject; var Key: Word;
+procedure TForm_KntFileMgr.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   case key of
@@ -445,20 +445,20 @@ begin
 end; // FORM_KEYDOWN
 
 
-procedure TForm_FileMgr.Button_OKClick(Sender: TObject);
+procedure TForm_KntFileMgr.Button_OKClick(Sender: TObject);
 begin
   OK_Click := true;
 end;
 
-procedure TForm_FileMgr.Button_CancelClick(Sender: TObject);
+procedure TForm_KntFileMgr.Button_CancelClick(Sender: TObject);
 begin
   OK_Click := false;
 end;
 
-procedure TForm_FileMgr.FormDestroy(Sender: TObject);
+procedure TForm_KntFileMgr.FormDestroy(Sender: TObject);
 begin
   TVmgr.OnChange := nil;
-end; function TForm_FileMgr.FormHelp(Command: Word; Data: NativeInt;
+end; function TForm_KntFileMgr.FormHelp(Command: Word; Data: NativeInt;
   var CallHelp: Boolean): Boolean;
 begin
    CallHelp:= False;
@@ -467,9 +467,9 @@ end;
 
 // FORM_DESTROY
 
-procedure TForm_FileMgr.RefreshFileList;
+procedure TForm_KntFileMgr.RefreshFileList;
 var
-  Info : TFileInfo;
+  Info : TKntFileInfo;
   Node : TTreeNTNode;
 begin
 
@@ -481,7 +481,7 @@ begin
   try
     while assigned( Node ) do
     begin
-      Info := TFileInfo( Node.Data );
+      Info := TKntFileInfo( Node.Data );
       if assigned( Info ) then
       begin
         if ShowFullPaths then
@@ -505,12 +505,12 @@ begin
 
 end; // RefreshFileList
 
-procedure TForm_FileMgr.LoadFileList;
+procedure TForm_KntFileMgr.LoadFileList;
 var
   i : integer;
   TVSelNode, Node : TTreeNTNode;
   s : string;
-  Info : TFileInfo;
+  Info : TKntFileInfo;
 begin
 
   Node := nil;
@@ -528,7 +528,7 @@ begin
     try
       for i := 0 to pred( FileManager.Count ) do
       begin
-        Info := TFileInfo( FileManager.Objects[i] );
+        Info := TKntFileInfo( FileManager.Objects[i] );
         try
           if assigned( Info ) then
           begin
@@ -595,13 +595,13 @@ end;
 
 // LoadFileList;
 
-procedure TForm_FileMgr.TVChange(Sender: TObject; Node: TTreeNTNode);
+procedure TForm_KntFileMgr.TVChange(Sender: TObject; Node: TTreeNTNode);
 var
-  Info : TFileInfo;
+  Info : TKntFileInfo;
   ModDate : TDateTime;
 begin
   if ( not assigned( Node )) then exit;
-  Info := TFileInfo( Node.Data );
+  Info := TKntFileInfo( Node.Data );
   if assigned( Info ) then
   begin
     L_Desc.Caption := Info.Description;
@@ -662,7 +662,7 @@ begin
 end; // TVCHange
 
 
-procedure TForm_FileMgr.TVmgrDblClick(Sender: TObject);
+procedure TForm_KntFileMgr.TVmgrDblClick(Sender: TObject);
 begin
   OK_Click := true;
   ModalResult := mrOK;
@@ -690,7 +690,7 @@ begin
     FileManager.Free;
 end;
 
-procedure TForm_FileMgr.CheckBox_FullPathsClick(Sender: TObject);
+procedure TForm_KntFileMgr.CheckBox_FullPathsClick(Sender: TObject);
 begin
   ShowFullPaths := CheckBox_FullPaths.Checked;
   RefreshFileList;

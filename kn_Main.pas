@@ -1549,7 +1549,7 @@ const
   _TIMER_INTERVAL = 2000; // 2 seconds
 
 
-// callback from TNoteFile, to prompt for passphrase
+// callback from TKntFile, to prompt for passphrase
 // when file is encrypted
 function GetFilePassphrase( const FN : string ) : string;
 var
@@ -1687,9 +1687,9 @@ begin
   }
   Initializing := false;
 
-  FocusActiveNote;
+  FocusActiveKntFolder;
 
-  Log_StoreTick( 'After FocusActiveNote', 2 );
+  Log_StoreTick( 'After FocusActiveKntFolder', 2 );
 
   if ( KeyOptions.RunAutoMacros and ( StartupMacroFile <> '' )) then
   begin
@@ -1742,6 +1742,7 @@ begin
 
 end; // ACTIVATE
 
+
 procedure TForm_Main.ActivatePreviousInstance;
 var
   CopyData : TCopyDataStruct;
@@ -1749,9 +1750,9 @@ var
   Args: string;
 begin
 {
-  if ( NoteFileToLoad <> '' ) then
+  if ( KntFileToLoad <> '' ) then
   begin
-    msg.strData := NoteFileToLoad;
+    msg.strData := KntFileToLoad;
     copydata.dwData := KNT_MSG_SHOW_AND_LOAD_FILE;
   end
   else
@@ -1900,19 +1901,19 @@ begin
 
   case msg.Copydatastruct^.dwData of
     KNT_MSG_SHOW : begin
-      NoteFileToLoad := '';
+      KntFileToLoad := '';
       CmdLineFileName := '';
     end;
     KNT_MSG_SHOW_AND_LOAD_FILE : begin
       if ( kntmsg.strData <> NO_FILENAME_TO_LOAD ) then
-        NoteFileToLoad := normalFN( kntmsg.strData )
+        KntFileToLoad := normalFN( kntmsg.strData )
       else
-        NoteFileToLoad := '';
+        KntFileToLoad := '';
       CmdLineFileName := '';
     end;
     KNT_MSG_SHOW_AND_EXECUTE_FILE : begin
       // CmdLineFileName
-      NoteFileToLoad := '';
+      KntFileToLoad := '';
       CmdLineFileName := normalFN( kntmsg.strData );
     end;
     KNT_MSG_SHOW_LOCATION: begin
@@ -1930,14 +1931,14 @@ begin
   Application.BringToFront;
 
 
-  if ( NoteFileToLoad <> '' ) then begin
+  if ( KntFileToLoad <> '' ) then begin
      if HaveKntFolders( false, false ) then begin
-        if ( NoteFileToLoad = KntFile.FileName ) then begin
+        if ( KntFileToLoad = KntFile.FileName ) then begin
           if ( PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
           KntFile.Modified := false; // to prevent automatic save if modified
         end;
      end;
-     NoteFileOpen( NoteFileToLoad );
+     KntFileOpen( KntFileToLoad );
   end
   else
   if ( CmdLineFileName <> '' ) then begin
@@ -1967,18 +1968,18 @@ begin
 // Application.BringToFront;
 
 
-   if not fromKntLauncher and ( NoteFileToLoad <> '' ) then begin
-      //PopupMessage( Format('NoteFileToLoad: %s', [NoteFileToLoad]), mtConfirmation, [mbYes], 0 );
+   if not fromKntLauncher and ( KntFileToLoad <> '' ) then begin
+      //PopupMessage( Format('KntFileToLoad: %s', [KntFileToLoad]), mtConfirmation, [mbYes], 0 );
       Open:= true;
       if HaveKntFolders( false, false ) then begin
-         if ( NoteFileToLoad.ToUpper = KntFile.FileName.ToUpper ) then begin
+         if ( KntFileToLoad.ToUpper = KntFile.FileName.ToUpper ) then begin
            if ( PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
               Open:= false;
            KntFile.Modified := false; // to prevent automatic save if modified
          end;
       end;
       if Open then
-         NoteFileOpen( NoteFileToLoad );
+         KntFileOpen( KntFileToLoad );
    end;
 
 
@@ -2295,7 +2296,7 @@ begin
     if _REOPEN_AUTOCLOSED_FILE then
     begin
       _REOPEN_AUTOCLOSED_FILE := false;
-      NoteFileOpen( KeyOptions.LastFile );
+      KntFileOpen( KeyOptions.LastFile );
     end;
 end; // AppRestore;
 
@@ -2363,7 +2364,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( '-- Saving on TIMER' );
          {$ENDIF}
-           NoteFileSave( KntFile.FileName );
+           KntFileSave( KntFile.FileName );
         end;
       end;
     end;
@@ -2377,7 +2378,7 @@ begin
       if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then
       begin
         Timer_Tick := 0;
-        AutoCloseFile;
+        AutoCloseKntFile;
         // auto-closing minimizes too, so we exit here
         exit;
       end;
@@ -2443,7 +2444,7 @@ begin
         {$IFDEF KNT_DEBUG}
           Log.Add( '-- Saving on Application DEACTIVATE' );
         {$ENDIF}
-          NoteFileSave( KntFile.FileName );
+          KntFileSave( KntFile.FileName );
       end;
     end;
   end;
@@ -2543,12 +2544,12 @@ end; // CloseNonModalDialogs
 
 procedure TForm_Main.MMFileNewClick(Sender: TObject);
 begin
-  NoteFileNew( '' );
+  KntFileNew( '' );
 end;
 
 procedure TForm_Main.MMFileOpenClick(Sender: TObject);
 begin
-  NoteFileOpen( '' );
+  KntFileOpen( '' );
 end; // MMOpenClick
 
 procedure TForm_Main.MMFileSaveClick(Sender: TObject);
@@ -2558,25 +2559,25 @@ begin
 {$ENDIF}
   if ShiftDown then
   begin
-    NoteFileSave( '' )
+    KntFileSave( '' )
   end
   else
   begin
     if HaveKntFolders( false, false ) then
-      NoteFileSave( KntFile.FileName )
+      KntFileSave( KntFile.FileName )
     else
-      NoteFileSave( '' );
+      KntFileSave( '' );
   end;
 end;
 
 procedure TForm_Main.MMFileSaveAsClick(Sender: TObject);
 begin
-  NoteFileSave( '' );
+  KntFileSave( '' );
 end;
 
 procedure TForm_Main.MMNoteNewClick(Sender: TObject);
 begin
-  CreateNewNote;
+  CreateNewKntFolder;
 end;
 
 procedure TForm_Main.MMHelpTipClick(Sender: TObject);
@@ -2586,12 +2587,12 @@ end;
 
 procedure TForm_Main.MMFileCloseClick(Sender: TObject);
 begin
-  NoteFileClose;
+  KntFileClose;
 end;
 
 procedure TForm_Main.MMNoteRenameClick(Sender: TObject);
 begin
-  RenameNote;
+  RenameKntFolder;
 end;
 
 procedure TForm_Main.UpdateTabAndTreeIconsShow;
@@ -2614,7 +2615,7 @@ end; // UpdateTabAndTreeIconsShow
 
 procedure TForm_Main.MMFilePropertiesClick(Sender: TObject);
 begin
-  NoteFileProperties;
+  KntFileProperties;
 end;
 
 procedure TForm_Main.MMFileAutoSaveClick(Sender: TObject);
@@ -2627,17 +2628,13 @@ procedure TForm_Main.AutoSaveToggled;
 begin
   MMFileAutoSave.Checked := KeyOptions.AutoSave;
   if ( not Initializing ) then
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
 end; // AutoSaveToggled;
 
 procedure TForm_Main.AnotherInstance;
 begin
-  // rcvStr contains the commandline passed to
-  // the new instance. We use it to load
-  // a different file.
   Application.Restore;
   Application.BringToFront;
-  // NewFileRequest( rcvStr );
 end; // AnotherInstance
 
 procedure TForm_Main.ShowInsMode;
@@ -2651,9 +2648,9 @@ end; // ShowInsMode
 procedure TForm_Main.PagesDblClick(Sender: TObject );
 begin
   if ShiftDown then
-    EditNoteProperties( propThisNote )
+    EditKntFolderProperties( propThisNote )
   else
-    RenameNote;
+    RenameKntFolder;
 end; // PagesDblClick
 
 procedure TForm_Main.RxRTFMouseDown(Sender: TObject;
@@ -2824,7 +2821,7 @@ begin
             if activecontrol = Combo_Zoom then
                Combo_Zoom.Text := '';        // To ignore the value set
             key := 0;
-            FocusActiveNote;
+            FocusActiveKntFolder;
           end
           else
           if ( activecontrol = combo_ResFind ) then
@@ -2991,6 +2988,7 @@ begin
 
    end;
 end;
+
 
 procedure TForm_Main.Combo_StyleChange(Sender: TObject);
 var
@@ -3571,7 +3569,7 @@ begin
 
   Folder.Modified := true;
   KntFile.Modified := true;
-  UpdateNoteFileState( [fscModified] );
+  UpdateKntFileState( [fscModified] );
 
   with TKntFolder(ActiveKntFolder) do
      if assigned(SelectedNode) then
@@ -3652,7 +3650,7 @@ begin
       TAM_ActiveName.Caption := ActiveKntFolder.Name;
       TB_Color.AutomaticColor := ActiveKntFolder.EditorChrome.Font.Color;
       if not SearchInProgress then
-         FocusActiveNote;
+         FocusActiveKntFolder;
 
     end
     else begin
@@ -3680,7 +3678,7 @@ begin
       ActiveKntFolder.TabIndex := Pages.ActivePage.TabIndex;
       Pages.ActivePage.ImageIndex := ActiveKntFolder.ImageIndex;
       TAM_ActiveName.Caption := ActiveKntFolder.Name;
-      FocusActiveNote;
+      FocusActiveKntFolder;
     end
     else
     begin
@@ -3688,7 +3686,7 @@ begin
     end;
   finally
     KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
   end;
 
 end; // TAB SHIFT
@@ -3847,7 +3845,7 @@ begin
        PerformCmd( ecFontSize )
     else if ( Sender = Combo_Zoom ) then begin
        SetEditorZoom( -1, Combo_Zoom.Text );
-       FocusActiveNote;
+       FocusActiveKntFolder;
     end;
 
   finally
@@ -3897,7 +3895,7 @@ begin
   else
   if ( key = #27 ) then begin
     key := #0;
-    FocusActiveNote;
+    FocusActiveKntFolder;
   end;
   }
 end; // Combo_FontSizeKeyPress
@@ -4092,8 +4090,8 @@ end;
 
 procedure TForm_Main.MRUMRUItemClick(Sender: TObject; AFilename: string);
 begin
-  NoteFileOpen( AFilename );
-  FocusActiveNote;
+  KntFileOpen( AFilename );
+  FocusActiveKntFolder;
 end; // MRUMRUItemClick
 
 procedure TForm_Main.DebugMenuClick(Sender: TObject);
@@ -4286,14 +4284,14 @@ end;
 
 procedure TForm_Main.MMNoteRemoveClick(Sender: TObject);
 begin
-  DeleteNote;
+  DeleteKntFolder;
 end;
 
 procedure TForm_Main.MMFileCopyToClick(Sender: TObject);
 var
   SavedNotes, SavedNodes: integer;
 begin
-  NoteFileCopy (SavedNotes, SavedNodes);
+  KntFileCopy (SavedNotes, SavedNodes);
 end;
 
 procedure TForm_Main.MMFindGoToClick(Sender: TObject);
@@ -4344,13 +4342,13 @@ end;
 
 procedure TForm_Main.MMToolsDefaultsClick(Sender: TObject);
 begin
-  EditNoteProperties( propDefaults );
+  EditKntFolderProperties( propDefaults );
 end;
 
 procedure TForm_Main.MMNotePropertiesClick(Sender: TObject);
 begin
   // EditNote;
-  EditNoteProperties( propThisNote );
+  EditKntFolderProperties( propThisNote );
 end;
 
 procedure TForm_Main.TB_ExitClick(Sender: TObject);
@@ -4553,7 +4551,7 @@ begin
   Pages.ActivePage.PageIndex := i;
   Pages.ActivePage.ImageIndex := idx;
   KntFile.Modified := true;
-  UpdateNoteFileState( [fscModified] );
+  UpdateKntFileState( [fscModified] );
 
 end; // ShiftTab
 
@@ -5051,7 +5049,7 @@ begin
    if KeyOptions.ModifiedOnTreeResized then begin
       myFolder.Modified := true;
       KntFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
+      UpdateKntFileState( [fscModified] );
    end;
 
    if keyOptions.AltMargins then
@@ -5368,7 +5366,7 @@ begin
     end;
     myFolder.TV.OnChange := TVChange;
     myFolder.TV.OnChecked:= Form_Main.TVChecked;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
     StatusBar.Panels[PANEL_HINT].Text := s;
   end;
 
@@ -5593,7 +5591,7 @@ begin
     finally
       KntFile.Modified := true;
       TKntFolder( ActiveKntFolder ).TV.OnChange := TVChange;
-      UpdateNoteFileState( [fscModified] );
+      UpdateKntFileState( [fscModified] );
     end;
   end;
 end; // Sort Child Nodes
@@ -5615,7 +5613,7 @@ begin
     finally
       KntFile.Modified := true;
       TKntFolder( ActiveKntFolder ).TV.OnChange := TVChange;
-      UpdateNoteFileState( [fscModified] );
+      UpdateKntFileState( [fscModified] );
     end;
   end;
 end; // Sort full tree
@@ -5642,7 +5640,7 @@ begin
   finally
     _ALLOW_VCL_UPDATES := true;
     KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
   end;
 end; // TVEdited
 
@@ -5705,7 +5703,7 @@ begin
           // {N}
           TKntFolder( ActiveKntFolder ).TV.Selected.Text := myNode.Name; // TKntNote does NOT update its treenode's properties!
           ActiveKntFolder.Modified := true;
-          UpdateNoteFileState( [fscModified] );
+          UpdateKntFileState( [fscModified] );
         end
         else
         begin
@@ -5739,7 +5737,7 @@ begin
     end;
     ShowOrHideIcons( myFolder, ( myFolder.IconKind <> niNone ));
     KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
   end;
 end; // MMViewNodeIconsClick
 
@@ -6366,7 +6364,7 @@ begin
     end;
 
     KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
 
   except
     showmessage( STR_80 );
@@ -6492,7 +6490,7 @@ begin
       if ( _Global_Location.FileName <> '' ) then
       begin
         if (( not FileExists( _Global_Location.Filename )) or
-           ( NoteFileOpen( _Global_Location.Filename ) <> 0 )) then
+           ( KntFileOpen( _Global_Location.Filename ) <> 0 )) then
         begin
           DoMessageBox( Format(STR_81,[_Global_Location.Filename] ), mtError, [mbOK], 0 );
           exit;
@@ -6500,7 +6498,7 @@ begin
       end;
       JumpToLocation( _Global_Location );
       ActiveKntFolder.FocusMemory := focRTF;
-      FocusActiveNote;
+      FocusActiveKntFolder;
     end;
   finally
     _Global_Location := nil;
@@ -6946,7 +6944,7 @@ begin
   if KeyOptions.ResPanelShow then
     FocusResourcePanel
   else
-    FocusActiveNote;
+    FocusActiveKntFolder;
 
   CheckRestoreTreeWidth;
 end; // MMViewResPanelClick
@@ -7240,10 +7238,10 @@ begin
   case myAction of
     DBLCLK_NOTHING : begin end;
     DBLCLK_MINIMIZE : Application.Minimize;
-    DBLCLK_FILEPROP : NoteFileProperties;
+    DBLCLK_FILEPROP : KntFileProperties;
     DBLCLK_FILEMGR : RunFileManager;
-    DBLCLK_FOLDERPROP : EditNoteProperties( propThisNote );
-    DBLCLK_NEWFOLDER : CreateNewNote;
+    DBLCLK_FOLDERPROP : EditKntFolderProperties( propThisNote );
+    DBLCLK_NEWFOLDER : CreateNewKntFolder;
     DBLCLK_RESPANEL : MMViewResPanelClick( MMViewResPanel );
   end;
 end;
@@ -7317,7 +7315,7 @@ begin
   if key = 27 then
   begin
     key := 0;
-    FocusActiveNote;
+    FocusActiveKntFolder;
   end;
 end;
 
@@ -7905,7 +7903,7 @@ end;
 procedure TForm_Main.Combo_ZoomDblClick(Sender: TObject);
 begin
   SetEditorZoom( DefaultEditorProperties.DefaultZoom, '' );
-  FocusActiveNote;
+  FocusActiveKntFolder;
 end;
 
 procedure TForm_Main.Combo_ZoomExit(Sender: TObject);

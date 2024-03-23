@@ -202,7 +202,7 @@ resourcestring
        'Whitespace: %s' + #13#13 +
        'Words: %s' + #13 +
        'Lines: %s';
-  STR_Statistics_05 = #13#13+'Number of nodes in tree: %d';
+  STR_Statistics_05 = #13#13+'Number of nodes (notes) in tree: %d';
   STR_Statistics_06 = 'Chars: %d  Alph: %d  Words: %d';
   STR_Statistics_07 = #13#13+'Clik OK to copy information to clipboard.';
   STR_WordWeb_01 = 'Lookup in WordWeb';
@@ -286,7 +286,7 @@ begin
       ActiveKntFolder.Editor.SelStart := ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
 
       KntFile.Modified := true;
-      UpdateNoteFileState( [fscModified] );
+      UpdateKntFileState( [fscModified] );
   end;
 
 end; // ExpandTermProc
@@ -1027,7 +1027,7 @@ begin
     ActiveKntFolder.Editor.EndUpdate;
     Screen.Cursor := crDefault;
     KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
   end;
 
 end; // TrimBlanks
@@ -1112,7 +1112,7 @@ begin
      ActiveKntFolder.Editor.EndUpdate;
      Screen.Cursor := crDefault;
      KntFile.Modified := true;
-     UpdateNoteFileState( [fscModified] );
+     UpdateKntFileState( [fscModified] );
   end;
 
 end; // CompressWhiteSpace
@@ -1326,7 +1326,7 @@ begin
   finally
     if wasmodified then begin
        KntFile.Modified:= true;
-       UpdateNoteFileState([fscModified]);
+       UpdateKntFileState([fscModified]);
     end;
     OpenPictureDlg.Free;
   end;
@@ -2434,7 +2434,7 @@ begin
           Editor.OnChange := RxRTFChange;
           if PasteOK then begin
             KntFile.Modified := true;
-            UpdateNoteFileState( [fscModified] );
+            UpdateKntFileState( [fscModified] );
 
             if assigned ( myTreeNode ) then
                TKntNote( myTreeNode.Data ).RTFModified := true;
@@ -2531,7 +2531,7 @@ begin
 
   try
     if AsNewNote then begin
-      NewNote( true, true );
+      NewKntFolder( true, true );
       CanPaste := ( OldCNT < KntFile.Folders.Count );
     end
     else begin

@@ -158,7 +158,7 @@ var
   _VNBackupExt : string;
   _VNBackupAddExt : boolean;
   _VNBackupDir : string;
-  _VNKeyNoteFileName : string;
+  _VNKeyKntFileName : string;
 
 
 implementation
@@ -361,9 +361,9 @@ begin
     // for example, if Save As.. or Copy To.. are used.
     // When saving the .knt file, it will end up calling SaveVirtualFile, where FRelativeVirtualFN will be calculated.
     // Also, will be determined on accesing to GetRelativeVirtualFN. In both cases, it is obtained with the help of
-    // _VNKeyNoteFileName, where is set the base path
+    // _VNKeyKntFileName, where is set the base path
 
-    // FRelativeVirtualFN := ExtractRelativePath( _VNKeyNoteFileName, FVirtualFN );  // *1
+    // FRelativeVirtualFN := ExtractRelativePath( _VNKeyKntFileName, FVirtualFN );  // *1
   end;
 end; // SetVirtualFN
 
@@ -528,7 +528,7 @@ var
 begin
   if ( FVirtualMode in [vmText, vmRTF, vmHTML] ) then
   begin
-    FRelativeVirtualFN := ExtractRelativePath( _VNKeyNoteFileName, FVirtualFN );
+    FRelativeVirtualFN := ExtractRelativePath( _VNKeyKntFileName, FVirtualFN );
 
     // only saved file if was actually changed
     if ( FRTFModified or ( not FileExists( FVirtualFN ))) then
@@ -638,7 +638,7 @@ function TKntNote.GetRelativeVirtualFN : string;
 begin
   if ( FRelativeVirtualFN = '' ) then
   begin
-    FRelativeVirtualFN := ExtractRelativePath( _VNKeyNoteFileName, FVirtualFN );
+    FRelativeVirtualFN := ExtractRelativePath( _VNKeyKntFileName, FVirtualFN );
   end;
   result := FRelativeVirtualFN;
 end; // GetRelativeVirtualFN
@@ -716,6 +716,6 @@ Initialization
   _VNBackupExt := ext_BAK;
   _VNBackupAddExt := true;
   _VNBackupDir := '';
-  _VNKeyNoteFileName := '';
+  _VNKeyKntFileName := '';
 
 end.

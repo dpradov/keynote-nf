@@ -146,7 +146,7 @@ var
     ShowHiddenMarkers: boolean;
 
     //================================================== COMMAND LINE
-    NoteFileToLoad : string; // name of KNT file we are supposed to open (options + commandline + passed from other instance, etc)
+    KntFileToLoad : string; // name of KNT file we are supposed to open (options + commandline + passed from other instance, etc)
     CmdLineFileName : string; // other filename passed on command line (macro, plugin, etc)
 
 
@@ -768,7 +768,7 @@ begin
         Splitter_Res.Color := clLime;
       end;
 
-      AssociateKeyNoteFile;
+      AssociateKeyKntFile;
 
       {
       opt_RegExt := ( opt_RegExt or KeyOptions.AutoRegisterFileType );
@@ -781,7 +781,7 @@ begin
            ( messagedlg( 'Register ' + Program_Name + ' file type (' + ext_KeyNote + ')?' + s, mtConfirmation, [mbYes,mbNo], 0 ) = mrYes )) then
         begin
           try
-            AssociateKeyNoteFile;
+            AssociateKeyKntFile;
             if KeyOptions.AutoRegisterPrompt then
               messagedlg( Program_Name + ' data file type association created:' +#13+ GetAppFromExt( ext_KeyNote, true ), mtInformation, [mbOK], 0 );
           except
@@ -852,39 +852,39 @@ begin
       Log_StoreTick( 'End glossary', 2 );
 
       if FirstTimeRun then begin
-        if ( NoteFileToLoad = '' ) then begin
+        if ( KntFileToLoad = '' ) then begin
           // our INI file was not found, so we're probably being used 1st time
           // after installation. Since no .KNT file was specified, let's show
           // the sample file which is part of the distribution.
-          NoteFileToLoad := NormalFN( extractfilepath( Application.ExeName ) + SampleFileName );
-          if ( not FileExists( NoteFileToLoad )) then
-            NoteFileToLoad := '';
+          KntFileToLoad := NormalFN( extractfilepath( Application.ExeName ) + SampleFileName );
+          if ( not FileExists( KntFileToLoad )) then
+            KntFileToLoad := '';
         end;
       end
       else
         // have we been upgraded?
         NewVersionInformation;
 
-      if ( NoteFileToLoad = '' ) then begin
+      if ( KntFileToLoad = '' ) then begin
         if ( KeyOptions.LoadUserFile and ( KeyOptions.UserFile <> '' )) then
-          NoteFileToLoad := KeyOptions.UserFile
+          KntFileToLoad := KeyOptions.UserFile
         else begin
           if ( KeyOptions.LoadLastFile and ( KeyOptions.LastFile <> '' )) then
-            NoteFileToLoad := KeyOptions.LastFile;
+            KntFileToLoad := KeyOptions.LastFile;
         end;
       end;
 
-      if ( NoteFileToLoad <> '' ) then begin
-        NoteFileToLoad:= GetAbsolutePath(ExtractFilePath(Application.ExeName), NoteFileToLoad);
+      if ( KntFileToLoad <> '' ) then begin
+        KntFileToLoad:= GetAbsolutePath(ExtractFilePath(Application.ExeName), KntFileToLoad);
 
-        if ( NoteFileOpen( NoteFileToLoad ) <> 0 ) then begin
+        if ( KntFileOpen( KntFileToLoad ) <> 0 ) then begin
           if KeyOptions.AutoNewFile then
-            NoteFileNew( 'untitled' );
+            KntFileNew( 'untitled' );
         end;
       end
       else
         if KeyOptions.AutoNewFile then
-          NoteFileNew( '' );
+          KntFileNew( '' );
 
       Log_StoreTick( 'FormCreate - END', 0, -1 );
 
@@ -914,7 +914,7 @@ var
 begin
       FirstTimeRun := false;
 
-      NoteFileToLoad := '';
+      KntFileToLoad := '';
       CmdLineFileName := '';
 
       DEF_FN := '';

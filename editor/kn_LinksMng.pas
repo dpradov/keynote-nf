@@ -485,7 +485,7 @@ begin
    end;
 
    KntFile.Modified := true;
-   UpdateNoteFileState( [fscModified] );
+   UpdateKntFileState( [fscModified] );
 
 end; // InsertFileOrLink
 
@@ -600,10 +600,10 @@ end;
 
 	This way, position identified looking for a pattern text in a string returned by this function can be used to move caret to that position.
 
-	As an advantage, the new search mechanism is much faster. Once initialized [*] new plain text variables (NoteTextPlain / NodeTextPlain),
+	As an advantage, the new search mechanism is much faster. Once initialized [*] new plain text variables (NodeTextPlain),
   searches will now be almost instantaneous,	whereas currently each search incurs the same amount of time, which on a large file can easily
   be 5 or 6 seconds.
-    [*] With TNoteFile.UpdateTextPlainVariables, called by TForm_Main.TimerTimer, or on demand by RunFindAllEx (in kn_FindReplaceMng)
+    [*] With TKntFile.UpdateTextPlainVariables, called by TForm_Main.TimerTimer, or on demand by RunFindAllEx (in kn_FindReplaceMng)
 
 	Subsequently, a modification will be included to try to ensure that these initial data are obtained at times when
 	the application is idle, so even the first search is instantaneous.
@@ -1295,7 +1295,7 @@ begin
               if not Fileexists( FN ) then
                  ResultOpen:= -1;
               if ResultOpen = 0 then
-                 ResultOpen:= NoteFileOpen( FN );
+                 ResultOpen:= KntFileOpen( FN );
 
               if ResultOpen <> 0 then begin
                  if ResultOpen <> -2 then begin
@@ -2316,250 +2316,6 @@ begin
 end; // UpdateHistoryCommands
 
 
-(*
-procedure TForm_Main.InsertHyperlink(
-  const aLinkType : TLinkType;
-  aLinkText, aLinkTarget : string;
-  const aLocation : TLocation );
-var
-  InitialSelStart : integer;
-  TextLen, TargetLen : integer;
-  Location : TLocation;
-begin
-  { Inserts a hyperlink in active folder.
-    Only RichEdit v.3 supports .Link and .Hidden properties.
-    For RichEdit 2, we can only display full link address,
-    and cannot use not or node IDs
-  }
-
-  { Syntax of the "KeyNote location" link:
-    1) OLD STYLE (used in KeyNote versions earlier than 1.1
-       and still used when RichEditVersion < 2)
-
-       (a)
-       file:///filename.knt?FolderName|NodeName|CaretPos|SelLength
-
-       Filename.knt may be blank if links points to current file.
-       Only FolderName is required.
-       The '?' character is invalid in filenames, so it tells us
-       this is a hyperlink to a KeyNote location, not a normal
-       link to local file.
-
-       The problem with this scheme is that it fails when there
-       is more than one folder (or tree node) by the same name.
-
-       (b)
-       Begining with version 1.1, we use folder and node IDs instead:
-       file:///filename.knt|FolderID|NodeID|CaretPos|SelLength
-       The '|' character has the same function as '?' in (a),
-       (also invalid in filenames), but it also tells us this
-       is the new type of link, using Folder IDs rather than names.
-       However, we can only use this methof with RichEdit v. 3
-       (see below) because it allows us to have an arbitrary description
-       assigned to an URL. In RichEdit v. 2 we can only display the
-       URL itself, so we must use folder and node names rather than IDs,
-       so as to have meaningful links (otherwise, we'd have links
-       such as "file:///filename.knt?23|45" which are meaningless).
-
-    2) NEW STYLE, used only if RichEditVersion >= 3
-
-       file:///filename.knt*FolderID|NodeID|CaretPos|SelLength
-
-       (the '*' replaces the '?' and indicates new format)
-
-       This link format uses unique folder and node IDs.
-       The URL is actually hidden and the displayed link
-       is any user-defined text.
-
-       If no link text is specified, it is generated automatically.
-
-       The address part is formatted using hidden text and follows
-       the link description:
-
-       Yahoo websitehttp://www.yahoo.com
-       +--------------------------------+ has .Link property
-                    +-------------------+ has .Hidden property
-       This way, when the link is clicked, the full text of the link
-       will be passed to OnURLClick handler. Folder that there is no
-       separator character that divides the link text from link URL,
-       because in the editor only the text link is displayed, and
-       the user may type in any character she wishes to. (We could use
-       an nprintable character, though?)
-
-    Notes: all strings are URL-encoded: filename.knt,
-    as well as folder name and node name.
-
-  }
-  {
-    LocationString := 'file:///' + LocationString + '?' +
-      FileNameToURL( _KNTLocation.FolderName ) + KNTLINK_SEPARATOR +
-      FileNameToURL( _KNTLocation.NodeName ) + KNTLINK_SEPARATOR +
-      inttostr( _KNTLocation.CaretPos ) + KNTLINK_SEPARATOR +
-      inttostr( _KNTLocation.SelLength );
-  }
-
-  if ( not assigned( ActiveKntFolder )) then exit;
-
-  InitialSelStart := ActiveKntFolder.Editor.SelStart;
-
-  ActiveKntFolder.Editor.Lines.BeginUpdate;
-  try
-    if (( _LoadedRichEditVersion > 2 ) and KeyOptions.UseNewStyleURL ) then
-    begin
-      // use new URL syntax
-      case aLinkType of
-        lnkURL : begin
-          if ( aLinkText = '' ) then
-            aLinkText := aLinkTarget;
-          aLinkTarget := FileNameToURL( aLinkTarget );
-        end;
-        lnkEmail : begin
-          if ( aLinkText = '' ) then
-          begin
-            aLinkText := aLinkTarget;
-            if ( pos( 'mailto:', aLinkText ) = 1 ) then
-              delete( aLinktext, 1, 7 );
-          end;
-          aLinkTarget := FileNameToURL( aLinkTarget );
-        end;
-        lnkFile : begin
-          if ( aLinkText = '' ) then
-            aLinkText := ExtractFilename( aLinkTarget );
-          aLinkTarget := FileNameToURL( aLinkTarget );
-        end;
-        lnkKNT : begin
-
-        end;
-      end; // case
-
-      // format the hyperlink text using .Link and .Hidden properties
-      TextLen := length( aLinkText );
-      TargetLen := length( aLinkTarget );
-
-      ActiveKntFolder.Editor.SelText := aLinkText+aLinkTarget+#32;
-      ActiveKntFolder.Editor.SelAttributes.Link := false; // in case we were in link already
-      ActiveKntFolder.Editor.SelAttributes.Hidden := false; // in case we were in hidden font already
-
-      // select whole thing and mark as link, excluding the final space
-      ActiveKntFolder.Editor.SelLength := TextLen+TargetLen;
-      ActiveKntFolder.Editor.SelAttributes.Link := true;
-
-      // now select the LinkTarget part and mark it as hidden
-      ActiveKntFolder.Editor.SelStart := InitialSelStart + TextLen;
-      ActiveKntFolder.Editor.SelLength := TargetLen;
-      ActiveKntFolder.Editor.SelAttributes.Hidden := true;
-
-      // clear any selection
-      ActiveKntFolder.Editor.SelStart := InitialSelStart;
-      ActiveKntFolder.Editor.SelLength := 0;
-
-    end
-    else
-    begin
-      // use old URL syntax
-      case aLinkType of
-        lnkKNT : begin
-        end
-        else
-        begin
-          ActiveKntFolder.Editor.SelText := FileNameToURL( aLinkTarget ) + #32;
-          ActiveKntFolder.Editor.SelLength := 0;
-        end;
-      end;
-    end;
-
-  finally
-    ActiveKntFolder.Editor.Lines.EndUpdate;
-    KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
-  end;
-
-
-end; // InsertHyperlink
-*)
-
-(*
-
-procedure TForm_Main.CreateHyperlink;
-var
-  Form_Hyperlink : TForm_Hyperlink;
-  s : string;
-begin
-  if ( not assigned( ActiveKntFolder )) then exit;
-  if NoteIsReadOnly( ActiveKntFolder, true ) then exit;
-
-  Form_Hyperlink := TForm_Hyperlink.Create( self );
-  try
-
-    Form_Hyperlink.LinkText := ActiveKntFolder.Editor.SelText;
-    Form_Hyperlink.Edit_Text.Enabled := (( _LoadedRichEditVersion > 2 ) and KeyOptions.UseNewStyleURL );
-    Form_Hyperlink.LB_Text.Enabled := Form_Hyperlink.Edit_Text.Enabled;
-
-    if ( Form_Hyperlink.ShowModal = mrOK ) then
-    begin
-      { New syntax for hyperlinks - requires RichEdit v. 3
-      hyperlinks in RTF text are formatted as follows:
-      <LINK>Link title<HIDDEN>target address</HIDDEN></LINK>
-      "Link" and "Hidden" are properties of RxRichEdit.SelAttributes,
-      i.e. ActiveKntFolder.Editor.SelAttributes.
-      That way, when the link is clicked, the OnURLClick event handler
-      gives us the complete text of the link. We'll then have to search
-      for the protocol identifier, e.g. http://, mailto:, file:///, etc.
-      }
-
-      with Form_Hyperlink do
-      begin
-
-        s := lowercase( LinkTarget );
-        case LinkType of
-          lnkURL : begin
-            // test the URL, esp. see if it has a scheme prefix
-            if ( pos( ':/', LinkTarget ) = 0 ) then
-            begin
-              if ( pos( 'ftp', LinkTarget ) = 1 ) then
-                LinkTarget := 'ftp://' + LinkTarget
-              else
-                LinkTarget := 'http://' + LinkTarget; // [x] very simplistic
-            end;
-          end;
-          lnkEmail : begin
-            if ( pos( 'mailto:', s ) <> 1 ) then
-              LinkTarget := 'mailto:' + LinkTarget;
-          end;
-          lnkFile : begin
-            // may be a file or a folder
-            if fileexists( LinkTarget ) then
-            begin
-              LinkTarget := NormalFN( LinkTarget );
-            end
-            else
-            if DirectoryExists( Linktarget ) then
-            begin
-              LinkTarget := ProperFolderName( LinkTarget );
-            end
-            else
-            begin
-              // not a file and not a folder, must be an error
-              MessageDlg( 'No file or folder by the specified name exists: ' + LinkTarget, mtError, [mbOK], 0 );
-              exit;
-            end;
-            LinkTarget := 'file:///' + LinkTarget;
-          end;
-          lnkKNT : begin
-            // we do not use LinkTarget here. Instead, we use the
-            // location that was last marked and stored in _KntLocation.
-          end;
-        end;
-
-        InsertHyperlink( LinkType, LinkText, LinkTarget, _KNTLocation );
-
-      end;
-    end;
-  finally
-    Form_Hyperlink.Free;
-  end;
-end; // CreateHyperlink
-*)
 
 Initialization
    _Executing_History_Jump := false;

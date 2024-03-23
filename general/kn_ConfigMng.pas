@@ -153,7 +153,7 @@ begin
              opt_NoUserIcons := true
           else
           if ( s = swUseOldFormat ) then
-             _USE_OLD_KEYNOTE_FILE_FORMAT := true // GLOBAL var, used by TTabNote and TNoteFile
+             _USE_OLD_KEYNOTE_FILE_FORMAT := true // GLOBAL var, used by TTabNote and TKntFile
           else
           if ( s = swClean ) then
              opt_Clean := true
@@ -185,7 +185,7 @@ begin
           s:= GetAbsolutePath(ExtractFilePath(Application.ExeName), ParamStr(i));
 
           if (( ext = ext_KeyNote ) or ( ext = ext_Encrypted ) or ( ext = ext_DART )) then
-             NoteFileToLoad := s
+             KntFileToLoad := s
           else
           if ( ext = ext_INI ) then begin
              INI_FN := s;
@@ -211,7 +211,7 @@ begin
              CmdLineFileName := s; // will be passed to other instance
           end
           else
-             NoteFileToLoad := s;
+             KntFileToLoad := s;
 
        end;
 
@@ -240,7 +240,7 @@ begin
   Strs:= TStringList.Create;
   try
      CommandLineToStrings(Args, Strs);
-     NoteFileToLoad := '';
+     KntFileToLoad := '';
      JmpLocation:= '';
      StartupMacroFile:= '';
      StartupPluginFile := '';
@@ -271,7 +271,7 @@ begin
                  continue
              else
              if ( ext = ext_KeyNote ) or ( ext = ext_Encrypted ) then
-                NoteFileToLoad := s
+                KntFileToLoad := s
              else
              if ( ext = ext_Macro ) then
                 StartupMacroFile := s
@@ -279,7 +279,7 @@ begin
              if ( ext = ext_Plugin ) then
                 StartupPluginFile := s
              else
-                NoteFileToLoad := s;
+                KntFileToLoad := s;
           end;
 
        end;
@@ -292,7 +292,7 @@ begin
   FN:= KntFile.FileName.ToUpper;
 
   if FromKntLauncher then begin
-     if (NoteFileToLoad <> '') and (NoteFileToLoad.ToUpper = FN) then
+     if (KntFileToLoad <> '') and (KntFileToLoad.ToUpper = FN) then
          result:= true
      else if (JmpLocation <> '') then begin
          Location:= BuildKNTLocationFromString(JmpLocation);

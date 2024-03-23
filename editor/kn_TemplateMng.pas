@@ -318,7 +318,7 @@ begin
         end;
       finally
         KntFile.Modified := true;
-        UpdateNoteFileState( [fscModified] );
+        UpdateKntFileState( [fscModified] );
       end;
   end;
 

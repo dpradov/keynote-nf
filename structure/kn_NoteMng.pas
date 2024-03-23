@@ -1,4 +1,4 @@
-unit kn_NoteMng;
+﻿unit kn_NoteMng;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -27,12 +27,12 @@ uses
    kn_Const,
    kn_Info;
 
-    // folder management
-    procedure CreateNewNote;
-    function NewNote( const DefaultNote, CanFocus : boolean ) : boolean;
-    procedure DeleteNote;
-    procedure RenameNote;
-    procedure EditNoteProperties( const PropertiesAction : TPropertiesAction );
+    // Knt Folder management
+    procedure CreateNewKntFolder;
+    function NewKntFolder( const DefaultFolder, CanFocus : boolean ) : boolean;
+    procedure DeleteKntFolder;
+    procedure RenameKntFolder;
+    procedure EditKntFolderProperties( const PropertiesAction : TPropertiesAction );
 
 implementation
 
@@ -62,8 +62,8 @@ resourcestring
   STR_05 = ' Folder renamed.';
 
 
-function NewNote(
-  const DefaultNote, CanFocus : boolean) : boolean;
+function NewKntFolder(
+  const DefaultFolder, CanFocus : boolean) : boolean;
 var
   myFolder: TKntFolder;
   Form_NewNote : TForm_NewNote;
@@ -82,7 +82,7 @@ begin
   end;
   try
     try
-      if DefaultNote then
+      if DefaultFolder then
       begin
         myFolder := TKntFolder.Create;
         myFolder.SetEditorProperties( DefaultEditorProperties );
@@ -132,13 +132,13 @@ begin
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_01;
         try
           with Form_Main do begin
-          CreateVCLControlsForNote( myFolder );
+          CreateVCLControlsForFolder( myFolder );
           SetUpVCLControls( myFolder );
           AddToFileManager( KntFile.FileName, KntFile ); // update manager (number of notes has changed)
           end;
 
         finally
-          KntFile.Modified := ( not DefaultNote );
+          KntFile.Modified := ( not DefaultFolder );
           myFolder.TabSheet.TabVisible := true; // was created hidden
           ActiveKntFolder := myFolder;
         end;
@@ -147,7 +147,7 @@ begin
         UpdateNoteDisplay;
         if CanFocus then
         begin
-          FocusActiveNote;
+          FocusActiveKntFolder;
         end;
 
       end;
@@ -155,7 +155,7 @@ begin
       on E : Exception do
       begin
         {$IFDEF KNT_DEBUG}
-         Log.Add( 'Exception in NewNote: ' + E.Message );
+         Log.Add( 'Exception in NewKntFolder: ' + E.Message );
         {$ENDIF}
          PopupMessage( E.Message, mtError, [mbOK], 0 );
       end;
@@ -164,7 +164,7 @@ begin
     Form_Main.Timer.Enabled := TimerWasEnabled;
     FileIsBusy := FileWasBusy;
     KntFile.Modified := true;
-    UpdateNoteFileState( [fscModified] );
+    UpdateKntFileState( [fscModified] );
     result := assigned( myFolder );
    {$IFDEF KNT_DEBUG}
     if assigned( myFolder ) then
@@ -173,9 +173,9 @@ begin
       Log.Add( 'New folder NOT added.' );
    {$ENDIF}
   end;
-end; // NewNote
+end; // NewKntFolder
 
-procedure DeleteNote;
+procedure DeleteKntFolder;
 var
   pidx : integer;
 begin
@@ -216,7 +216,7 @@ begin
 
         Pages.OnChange := nil;
 
-        DestroyVCLControlsForNote( ActiveKntFolder, true );
+        DestroyVCLControlsForFolder( ActiveKntFolder, true );
         KntFile.RemoveImagesCountReferences(ActiveKntFolder);
         KntFile.DeleteFolder( ActiveKntFolder );
         ActiveKntFolder := nil;
@@ -252,24 +252,24 @@ begin
         Pages.OnChange := PagesChange;
         StatusBar.Panels[PANEL_HINT].text := STR_04;
         KntFile.Modified := true;
-        UpdateNoteFileState( [fscModified] );
+        UpdateKntFileState( [fscModified] );
       end;
     end;
-end; // DeleteNote
+end; // DeleteKntFolder
 
-procedure CreateNewNote;
+procedure CreateNewKntFolder;
 begin
   if assigned(ActiveKntFolder) then
      ActiveKntFolder.EditorToDataStream;
-  if NewNote( false, true ) then
+  if NewKntFolder( false, true ) then
   begin
     Application.ProcessMessages;
     if KeyOptions.RunAutoMacros then
        ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
   end;
-end; // CreateNewNote
+end; // CreateNewKntFolder
 
-procedure RenameNote;
+procedure RenameKntFolder;
 var
   Form_NewNote : TForm_NewNote;
 begin
@@ -302,12 +302,12 @@ begin
       finally
         Form_NewNote.Free;
         KntFile.Modified := true;
-        UpdateNoteFileState( [fscModified] );
+        UpdateKntFileState( [fscModified] );
       end;
   end;
-end; // RenameNote
+end; // RenameKntFolder
 
-procedure EditNoteProperties( const PropertiesAction : TPropertiesAction );
+procedure EditKntFolderProperties( const PropertiesAction : TPropertiesAction );
 var
   Form_Defaults : TForm_Defaults;
   i : integer;
@@ -424,7 +424,7 @@ begin
             if (PropertiesAction = propThisNote) and not myNoteIsReadOnly  then begin
                 KntFile.Modified:= True;
                 ActiveKntFolder.Modified:= True;
-                UpdateNoteFileState( [fscModified] );
+                UpdateKntFileState( [fscModified] );
 
                 ActiveKntFolder.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
                 ActiveKntFolder.SetEditorProperties( myEditorProperties );
@@ -483,7 +483,7 @@ begin
                    UpdateTreeChrome(Folder);
                 end;
                 KntFile.Modified:= True;
-                UpdateNoteFileState( [fscModified] );
+                UpdateKntFileState( [fscModified] );
             end;
 
 
@@ -540,11 +540,11 @@ begin
           ActiveKntFolder.EditorToDataStream;
           ActiveKntFolder.Editor.Clear;
           ActiveKntFolder.Editor.ClearUndo;
-          DestroyVCLControlsForNote( ActiveKntFolder, false );
-          CreateVCLControlsForNote( ActiveKntFolder );
+          DestroyVCLControlsForFolder( ActiveKntFolder, false );
+          CreateVCLControlsForFolder( ActiveKntFolder );
           ActiveKntFolder.DataStreamToEditor;
           SetUpVCLControls( ActiveKntFolder );
-          FocusActiveNote;
+          FocusActiveKntFolder;
         finally
           screen.Cursor := crDefault;
           Pages.OnChange := PagesChange;
@@ -554,6 +554,6 @@ begin
 
   end;
 
-end; // EditNoteProperties
+end; // EditKntFolderProperties
 
 end.

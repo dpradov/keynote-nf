@@ -1,4 +1,4 @@
-object Form_FileInfo: TForm_FileInfo
+object Form_KntFileInfo: TForm_KntFileInfo
   Left = 298
   Top = 325
   HelpContext = 287

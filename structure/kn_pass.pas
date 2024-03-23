@@ -127,7 +127,7 @@ begin
   Caption:= Format(STR_02, [ExtractFilename( myFileName )]);
 
   // when auto-reopening previously auto-closed encrypted files,
-  // (see TForm_Main.AutoCloseFile) the password window does not
+  // (see TForm_Main.AutoCloseKntFile) the password window does not
   // properly activate. So we force it to.
   SetForegroundWindow( self.Handle );
 end;

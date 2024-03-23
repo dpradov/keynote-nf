@@ -54,7 +54,7 @@ uses
 
 
 type
-  ETabNoteError = class( Exception );
+  EKntFolderError = class( Exception );
 
 
 type
@@ -74,7 +74,6 @@ type
     FTabIndex : integer;
     FImageIndex : integer;
     FPlainText : boolean; // if true, contents of editor are saved as plain text
-    FNoteTextPlain : string;
     FFocusMemory : TFocusMemory; // which control was last focused
 
     FWordWrap : boolean;  // for RTF-type notes only
@@ -160,11 +159,7 @@ type
     function CheckTree : boolean;
     procedure SetTreeChrome( AChrome : TChrome );
 
-    // function GetSelectedIndex : integer;
     procedure SetSelectedNode( aNode : TKntNote );
-
-    //function PropertiesToFlagsString : TFlagsString; override;
-    //procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); override;
 
     function InternalAddNode( const aNode : TKntNote ) : integer;
     procedure InternalInsertNode( const aIndex : integer; const aNode : TKntNote );
@@ -204,8 +199,6 @@ type
 
     property TabSheet : TTab95Sheet read FTabSheet write SetTabSheet;
 
-    property NoteTextPlain : string read FNoteTextPlain write FNoteTextPlain;
-
     // events
     property OnChange : TNotifyEvent read FOnChange write FOnChange;
 
@@ -230,8 +223,7 @@ type
     procedure UpdateEditor;
     procedure UpdateTabSheet;
 
-    function PrepareTextPlain (myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string; overload;
-    function PrepareTextPlain (myNote: TKntNote; RTFAux: TTabRichEdit): string; overload;
+    function PrepareTextPlain (myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string;
 
     procedure DataStreamToEditor;
     function EditorToDataStream: TMemoryStream;
@@ -313,7 +305,7 @@ type
   private
     // just a few properties tacked onto the RxRichEdit
     // to keep them all in one place
-    FNoteObj : TKntFolder;
+    FKntFolder : TKntFolder;
     FAutoIndent : boolean;
     FUseTabChar : boolean;
     FTabSize : byte;
@@ -330,7 +322,7 @@ type
     procedure CMRecreateWnd(var Message: TMessage); message CM_RECREATEWND;
 
   public
-    property NoteObj : TKntFolder read FNoteObj write FNoteObj;
+    property KntFolder : TKntFolder read FKntFolder write FKntFolder;
     property AutoIndent : boolean read FAutoIndent write FAutoIndent;
     property UseTabChar : boolean read FUseTabChar write FUseTabChar;
     property TabSize : byte read FTabSize write FTabSize;
@@ -396,12 +388,12 @@ resourcestring
   STR_03 = 'Stream not assigned in LoadDartNotesFormat';
   STR_04 = 'LoadDartNotes: file format error or file damaged.';
 {$ENDIF}    
-  STR_05 = 'Problem while saving folder "%s": Node count mismatch (Folder: %d  Internal: %d) ' +
+  STR_05 = 'Problem while saving folder "%s": Note count mismatch (Folder: %d  Internal: %d) ' +
       'The note may not be saved correctly. Continue?';
   STR_06 = 'Warning: "%s"';
   STR_07 = 'Node count mismatch.';
   STR_08 = 'Virtual node "%s" in folder "%s" cannot write file ';
-  STR_09 = 'Folder contains %d nodes, but only %d were saved.';
+  STR_09 = 'Folder contains %d notes, but only %d were saved.';
   STR_10 = 'Could not load Virtual Node file:';
   STR_11 = 'Failed to open TreePad file ';
 
@@ -511,7 +503,6 @@ begin
   FDateCreated := now;
   FFocusMemory := focNil;
   FModified := false;
-  FNoteTextPlain := '';
   InitializeChrome( FEditorChrome );
 
   FEditor := nil;
@@ -772,19 +763,10 @@ function TKntFolder.PrepareTextPlain(myTreeNode: TTreeNTNode; RTFAux: TTabRichEd
 var
     myNote : TKntNote;
 begin
-   if FEditor.Modified or (NoteTextPlain = '') then
+   if FEditor.Modified then
       EditorToDataStream;
 
    myNote := TKntNote( myTreeNode.Data );
-   Self.InitializeTextPlain(myNote, RTFAux);
-   Result:= myNote.NodeTextPlain;
-end;
-
-function TKntFolder.PrepareTextPlain(myNote: TKntNote; RTFAux: TTabRichEdit): string;
-begin
-   if FEditor.Modified or (NoteTextPlain = '') then
-      EditorToDataStream;
-
    Self.InitializeTextPlain(myNote, RTFAux);
    Result:= myNote.NodeTextPlain;
 end;
@@ -1446,7 +1428,7 @@ begin
                 if not ReadOnly and (currentNoteModified <> FModified) then begin
                    FModified:=  currentNoteModified;  // <- false...
                    KntFile.Modified:= currentFileModified;
-                   UpdateNoteFileState( [fscModified] );
+                   UpdateKntFileState( [fscModified] );
                 end;
              finally
                 if RestoreRO then begin
@@ -1509,7 +1491,7 @@ begin
   // richedit control is very new, we keep the protection for all
   // richedit dll versions above 2.
   FRecreateWndProtect := ( _LoadedRichEditVersion > 2 );
-  FNoteObj := nil;
+  FKntFolder := nil;
   FAutoIndent := false;
   FUseTabChar := true;
   FTabSize := DEF_TAB_SIZE;
@@ -2369,7 +2351,7 @@ begin
   if wasmismatch then begin
      if ( DoMessageBox(Format(STR_05, [FName,FTV.Items.Count,FNodes.Count]),
                        Format(STR_06, [FName]), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON1+MB_APPLMODAL ) <> ID_YES ) then
-        raise ETabNoteError.Create(STR_07);
+        raise EKntFolderError.Create(STR_07);
   end;
 
 
@@ -2512,7 +2494,7 @@ begin
   finally
     if (OnlyCurrentNodeAndSubtree = nil) and not OnlyCheckedNodes and not OnlyNotHiddenNodes
        and ( nodessaved <> FNodes.Count ) then
-        raise ETabNoteError.CreateFmt(STR_09, [FNodes.Count, nodessaved]);
+        raise EKntFolderError.CreateFmt(STR_09, [FNodes.Count, nodessaved]);
 
     Result:= nodesSaved;
   end;
