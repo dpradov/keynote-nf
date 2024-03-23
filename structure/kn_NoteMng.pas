@@ -128,7 +128,7 @@ begin
       end;
       if assigned( myFolder ) then
       begin
-        KntFile.AddNote( myFolder );
+        KntFile.AddFolder( myFolder );
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_01;
         try
           with Form_Main do begin
@@ -218,7 +218,7 @@ begin
 
         DestroyVCLControlsForNote( ActiveKntFolder, true );
         KntFile.RemoveImagesCountReferences(ActiveKntFolder);
-        KntFile.DeleteNote( ActiveKntFolder );
+        KntFile.DeleteFolder( ActiveKntFolder );
         ActiveKntFolder := nil;
         AddToFileManager( KntFile.FileName, KntFile ); // update manager (number of notes has changed)
 
@@ -475,7 +475,7 @@ begin
 
             if ApplyTreeChromeToAllNotes and HaveKntFolders( false, true ) then begin
                 for i := 0 to KntFile.NoteCount -1 do begin
-                   Folder:= KntFile.Notes[i];
+                   Folder:= KntFile.Folders[i];
                    if ((PropertiesAction = propThisNote) and (Folder = ActiveKntFolder)) or (Folder.ReadOnly) then
                        continue;
                    Folder.Modified:= True;
@@ -492,7 +492,7 @@ begin
                 // must update all richedits and trees with the modified EditorOptions and TreeOptions:
                 if HaveKntFolders( false, true ) then begin
                     for i := 0 to KntFile.NoteCount -1 do begin
-                       Folder:= KntFile.Notes[i];
+                       Folder:= KntFile.Folders[i];
                        Folder.Editor.WordSelection := EditorOptions.WordSelect;
                        Folder.Editor.UndoLimit := EditorOptions.UndoLimit;
                        UpdateTreeOptions(Folder);

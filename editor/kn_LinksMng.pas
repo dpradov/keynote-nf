@@ -263,12 +263,12 @@ begin
       Folder := nil;
       if (FolderID <> 0) then // new format
       begin
-         Folder := KntFile.GetNoteByID( FolderID );
+         Folder := KntFile.GetFolderByID( FolderID );
          if (Folder = nil ) then
             raise EInvalidLocation.Create(Format( STR_01, [FolderID] ));
       end
       else begin
-         Folder := KntFile.GetNoteByName( FolderName );
+         Folder := KntFile.GetFolderByName( FolderName );
          if (Folder = nil) then
             raise EInvalidLocation.Create(Format( STR_02, [FolderName] ));
       end;
@@ -863,9 +863,9 @@ begin
     end;
 
     if Location.FolderID <> 0 then
-       Folder := KntFile.GetNoteByID( Location.FolderID )
+       Folder := KntFile.GetFolderByID( Location.FolderID )
     else
-       Folder := KntFile.GetNoteByName( Location.FolderName );
+       Folder := KntFile.GetFolderByName( Location.FolderName );
 
     if  assigned(Folder) then begin
         Location.FolderID:= Folder.ID;
@@ -994,7 +994,7 @@ var
   myFolder: TKntFolder;
 begin
     if assigned(myTreeNode) then begin
-        myFolder:= KntFile.GetNoteByTreeNode(myTreeNode);
+        myFolder:= KntFile.GetFolderByTreeNode(myTreeNode);
         if ( myFolder <> ActiveKntFolder ) then begin
           Form_Main.Pages.ActivePage := myFolder.TabSheet;
           Form_Main.PagesChange( Form_Main.Pages );

@@ -159,7 +159,7 @@ begin
   try
     for i := 0 to pred( myKntFile.NoteCount ) do
     begin
-      aFolder := myKntFile.Notes[i];
+      aFolder := myKntFile.Folders[i];
       if ( aFolder.Info <> 0 ) then
         cb := cbChecked
       else
@@ -181,9 +181,9 @@ begin
   for i := 0 to pred( myKntFile.NoteCount ) do
   begin
     if List_Tabs.Checked[i] then
-      myKntFile.Notes[i].Info := 1
+      myKntFile.Folders[i].Info := 1
     else
-      myKntFile.Notes[i].Info := 0;
+      myKntFile.Folders[i].Info := 0;
   end;
 end; // FormToTabs
 

@@ -1837,8 +1837,8 @@ var
    begin
      // In case they contain images that could not be located because the storage was moved
 
-      for i := 0 to KntFile.Notes.Count -1 do begin
-         myFolder := KntFile.Notes[i];
+      for i := 0 to KntFile.Folders.Count -1 do begin
+         myFolder := KntFile.Folders[i];
          if not myFolder.PlainText then begin
            myFolder.EditorToDataStream;
            myFolder.DataStreamToEditor;
@@ -2271,9 +2271,9 @@ var
 begin
     for i := 0 to KntFile.NoteCount -1 do begin
        if UseFreshTextPlain then
-          ImagesIDs:= GetImagesIDInstancesFromTextPlain (KntFile.Notes[i].Editor.TextPlain)
+          ImagesIDs:= GetImagesIDInstancesFromTextPlain (KntFile.Folders[i].Editor.TextPlain)
        else
-          ImagesIDs:= KntFile.Notes[i].ImagesInstances;
+          ImagesIDs:= KntFile.Folders[i].ImagesInstances;
 
        for j := Low(ImagesIDs) to High(ImagesIDs) do begin
            if ImagesIDs[j] = ImgID then

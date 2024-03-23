@@ -2526,13 +2526,13 @@ var
   myTreeNode : TTreeNTNode;
 begin
   if ( not Form_Main.HaveKntFolders( true, false )) then exit;
-  oldCNT := KntFile.Notes.Count;
+  oldCNT := KntFile.Folders.Count;
   CanPaste := false;
 
   try
     if AsNewNote then begin
       NewNote( true, true );
-      CanPaste := ( OldCNT < KntFile.Notes.Count );
+      CanPaste := ( OldCNT < KntFile.Folders.Count );
     end
     else begin
       if assigned( ActiveKntFolder ) then begin
@@ -2777,8 +2777,8 @@ begin
          SetEditorZoom (ActiveKntFolder.Editor, ZoomValue, ZoomString, Increment)
 
       else begin
-         for i := 0 to KntFile.Notes.Count -1 do
-            SetEditorZoom (KntFile.Notes[i].Editor, ZoomValue, ZoomString, Increment);
+         for i := 0 to KntFile.Folders.Count -1 do
+            SetEditorZoom (KntFile.Folders[i].Editor, ZoomValue, ZoomString, Increment);
 
          SetEditorZoom (Form_Main.Res_RTF, ZoomValue, ZoomString, Increment)
       end;

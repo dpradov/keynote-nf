@@ -443,7 +443,7 @@ begin
     if RB_Current.Checked then
       insert( '1', result, p )
     else
-      insert( inttostr( myKntFile.Notes.Count ), result, p );
+      insert( inttostr( myKntFile.Folders.Count ), result, p );
   end;
 
 end; // ExpandTokenLine
@@ -608,11 +608,11 @@ begin
         if RB_All.Checked then
         begin
           SMTPCli.MailMessage.Add( ExpandTokenLine( MailOptions.FirstLine ));
-          if ( myKntFile.Notes.Count > 0 ) then
+          if ( myKntFile.Folders.Count > 0 ) then
           begin
-            for cnt := 0 to pred( myKntFile.Notes.Count ) do
+            for cnt := 0 to pred( myKntFile.Folders.Count ) do
             begin
-              AddNoteToMailMessage( myKntFile.Notes[cnt] );
+              AddNoteToMailMessage( myKntFile.Folders[cnt] );
               SMTPCli.MailMessage.Add( '' );
             end;
           end;

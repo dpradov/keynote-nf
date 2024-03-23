@@ -234,10 +234,10 @@ var
   myFolder : TKntFolder;
 begin
   with Form_Main do begin
-      if (( not assigned( KntFile )) or ( KntFile.Notes.Count = 0 )) then exit;
+      if (( not assigned( KntFile )) or ( KntFile.Folders.Count = 0 )) then exit;
 
-      for i := 0 to pred( KntFile.Notes.Count ) do begin
-         myFolder := KntFile.Notes[i];
+      for i := 0 to pred( KntFile.Folders.Count ) do begin
+         myFolder := KntFile.Folders[i];
          CreateVCLControlsForNote( myFolder );
       end;
 
@@ -255,12 +255,12 @@ var
   myFolder : TKntFolder;
 begin
   with Form_Main do begin
-        if (( not assigned( KntFile )) or ( KntFile.Notes.Count = 0 )) then exit;
+        if (( not assigned( KntFile )) or ( KntFile.Folders.Count = 0 )) then exit;
 
         try
 
-          for i := 0 to pred( KntFile.Notes.Count ) do begin
-            myFolder := KntFile.Notes[i];
+          for i := 0 to pred( KntFile.Folders.Count ) do begin
+            myFolder := KntFile.Folders[i];
             myFolder.DataStreamToEditor;
             SetUpVCLControls( myFolder );
           end;
@@ -274,9 +274,9 @@ begin
         end;
 
         // restore the note that was active when file was previously saved
-        if (( KntFile.ActiveKntFolder >= 0 ) and ( KntFile.ActiveKntFolder < KntFile.Notes.Count )) then begin
+        if (( KntFile.ActiveFolderID >= 0 ) and ( KntFile.ActiveFolderID < KntFile.Folders.Count )) then begin
           if ( Pages.PageCount > 0 ) then
-            Pages.ActivePage := Pages.Pages[KntFile.ActiveKntFolder];
+            Pages.ActivePage := Pages.Pages[KntFile.ActiveFolderID];
         end
         else
            if ( Pages.PageCount > 0 ) then
@@ -1922,11 +1922,11 @@ begin
     end;
 
     with KntFile do
-       for i := 0 to pred(Notes.Count) do begin
+       for i := 0 to pred(Folders.Count) do begin
           if value then
-             Notes[i].Editor.Cursor:= crCopyFormat
+             Folders[i].Editor.Cursor:= crCopyFormat
           else
-             Notes[i].Editor.Cursor:= crDefault;
+             Folders[i].Editor.Cursor:= crDefault;
        end;
 
 end;

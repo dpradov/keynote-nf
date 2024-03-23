@@ -1819,7 +1819,7 @@ begin
       end;
       if ( myTreeNode = selectedNode ) then exit;
 
-      myFolder:= KntFile.GetNoteByTreeNode(myTreeNode);
+      myFolder:= KntFile.GetFolderByTreeNode(myTreeNode);
       if NoteIsReadOnly( myFolder, true ) then exit;
 
       myTV := myFolder.TV;
@@ -2266,7 +2266,7 @@ begin
                         ConvertStreamContent(newNoteNode.Stream, sfRichText, sfPlainText, RTFAux);
 
                     if MovingSubtree then
-                       AlarmManager.MoveAlarms(KntFile.GetNoteByID(CopyCutFromNoteID), TransferNodes[i],  myFolder, newNoteNode);
+                       AlarmManager.MoveAlarms(KntFile.GetFolderByID(CopyCutFromNoteID), TransferNodes[i],  myFolder, newNoteNode);
 
                     myFolder.AddNode( newNoteNode );
                     newNoteNode.Level := newNoteNode.Level + StartLevel + 1;
@@ -2522,7 +2522,7 @@ var
 begin
    Result:= nil;
    if ( FolderID <> 0 ) and ( NodeID <> 0 ) then begin
-       Folder := KntFile.GetNoteByID( FolderID );
+       Folder := KntFile.GetFolderByID( FolderID );
        if assigned(Folder) then
           Result := Folder.GetTreeNodeByID( NodeID );
    end;
@@ -2578,7 +2578,7 @@ begin
         CheckChildren( node );
 
       if not IsAnyNodeMoving
-          and KntFile.GetNoteByTreeNode(Node).HideCheckedNodes  then
+          and KntFile.GetFolderByTreeNode(Node).HideCheckedNodes  then
           if (node.CheckState  = csChecked) then
               node.Hidden := True
           else

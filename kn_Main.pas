@@ -2124,7 +2124,7 @@ begin
   Application.OnDeactivate := nil;
   Application.OnHint := nil;
   ActiveKntFolder := nil;
-  // ClipCapFolder := nil;
+  // ClipCapNote := nil;
   Pages.OnChange := nil;
 
   // [x] The access violation error which happens
@@ -4498,7 +4498,7 @@ begin
   end
   else
   begin
-    if ( CheckCount and (( KntFile.Notes.Count < 1 ) or ( Pages.PageCount < 1 ))) then
+    if ( CheckCount and (( KntFile.Folders.Count < 1 ) or ( Pages.PageCount < 1 ))) then
     begin
       result := false;
       if Warn then
@@ -4998,7 +4998,7 @@ var
 begin
   if not assigned( Node ) then exit;
 
-  myFolder:= TKntFolder(KntFile.GetNoteByTreeNode(Node));
+  myFolder:= TKntFolder(KntFile.GetFolderByTreeNode(Node));
   if assigned( myFolder ) then begin
     myNode:= TKntNote( Node.Data );
 

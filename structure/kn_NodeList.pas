@@ -416,7 +416,7 @@ var
 begin
      node:= GetMirrorNode;
      if assigned(Node) then begin
-        Folder:= KntFile.GetNoteByTreeNode(node);
+        Folder:= KntFile.GetFolderByTreeNode(node);
         Result:= PathOfKNTLink(node, Folder, -1, false, false);
      end;
 end;
@@ -457,7 +457,7 @@ begin
             aNode:= TKntNote(aNode.Data).MirrorNode;
 
          if assigned(aNode) then begin
-            aFolder:= KntFile.GetNoteByTreeNode(aNode);
+            aFolder:= KntFile.GetFolderByTreeNode(aNode);
             FVirtualFN:= inttostr(aFolder.ID) + KNTLINK_SEPARATOR + inttostr(TKntNote(aNode.Data).ID);
             FVirtualMode := vmKNTNode;
             FStream:= TKntNote(aNode.Data).FStream;   // This node shares its content with the other node

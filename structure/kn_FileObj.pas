@@ -66,7 +66,7 @@ type
 
 
 type
-  TNoteList = class( TList )
+  TKntFolderList = class( TList )
   private
     function GetNote( index : integer ) : TKntFolder;
     procedure PutNote( index : integer; item : TKntFolder );
@@ -89,8 +89,8 @@ type
     FDescription : TCommentStr;
     FComment : TCommentStr;
     FDateCreated : TDateTime;
-    FActiveNote : integer;
-    FNotes : TNoteList;
+    FActiveFolderID : integer;
+    FNotes : TKntFolderList;
     FPageCtrl : TPage95Control;
     FModified : boolean;
     FReadOnly : boolean;
@@ -118,9 +118,9 @@ type
     procedure SetModified( AModified : boolean );
     function GetPassphrase( const FN : string ) : boolean;
 
-    function InternalAddNote( AFolder : TKntFolder ) : integer;
-    procedure GenerateNoteID( const AFolder : TKntFolder );
-    procedure VerifyNoteIds;
+    function InternalAddFolder( AFolder : TKntFolder ) : integer;
+    procedure GenerateFolderID( const AFolder : TKntFolder );
+    procedure VerifyFolderIds;
 
     function PropertiesToFlagsString : TFlagsString; virtual;
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); virtual;
@@ -143,8 +143,8 @@ type
     property Description : TCommentStr read FDescription write SetDescription;
     property NoteCount : integer read GetCount;
     property DateCreated : TDateTime read FDateCreated;
-    property ActiveKntFolder : integer read FActiveNote write FActiveNote;
-    property Notes : TNoteList read FNotes write FNotes;
+    property ActiveFolderID : integer read FActiveFolderID write FActiveFolderID;
+    property Folders : TKntFolderList read FNotes write FNotes;
     property PageCtrl : TPage95Control read FPageCtrl write FPageCtrl;
     property Modified : boolean read GetModified write SetModified;
     property FileFormat : TKntFileFormat read FFileFormat write SetFileFormat;
@@ -171,11 +171,11 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    function AddNote( AFolder : TKntFolder ) : integer;
-    procedure DeleteNote( AFolder : TKntFolder );
+    function AddFolder( AFolder : TKntFolder ) : integer;
+    procedure DeleteFolder( AFolder : TKntFolder );
 
     function Save(FN: string;
-                  var SavedNotes: integer; var SavedNodes: integer;
+                  var SavedFolders: integer; var SavedNodes: integer;
                   ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
                   OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
     function Load( FN : string; ImgManager: TImageManager ) : integer;
@@ -183,13 +183,13 @@ type
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
 
-    function HasExtendedNotes : boolean; // TRUE is file contains any notes whose FKind is not ntRTF
+    //function HasExtendedNotes : boolean; // TRUE is file contains any notes whose FKind is not ntRTF
     function HasVirtualNodes : boolean; // TRUE is file contains any notes which have VIRTUAL NODES
     function HasVirtualNodeByFileName( const aNoteNode : TKntNote; const FN : string ) : boolean;
 
-    function GetNoteByID( const aID : integer ) : TKntFolder; // identifies folder UNIQUELY
-    function GetNoteByName( const aName : string ) : TKntFolder; // will return the first folder whose name matches aName. If more notes have the same name, function will only return the first one.
-    function GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TKntFolder;  // return the folder that contains the tree with the passed node
+    function GetFolderByID( const aID : integer ) : TKntFolder; // identifies folder UNIQUELY
+    function GetFolderByName( const aName : string ) : TKntFolder; // will return the first folder whose name matches aName. If more notes have the same name, function will only return the first one.
+    function GetFolderByTreeNode( const myTreeNode: TTreeNTNode ) : TKntFolder;  // return the folder that contains the tree with the passed node
 
     procedure SetupMirrorNodes (Folder : TKntFolder);
     procedure ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
@@ -245,12 +245,12 @@ resourcestring
   STR_18 = 'Invalid passphrase: Cannot open encrypted file.';
   STR_19 = 'Exception trying to ensure plain text and removing of images: ';
 
-constructor TNoteList.Create;
+constructor TKntFolderList.Create;
 begin
   inherited Create;
 end; // TNoteList.CREATE
 
-destructor TNoteList.Destroy;
+destructor TKntFolderList.Destroy;
 var
   i : integer;
 begin
@@ -263,30 +263,30 @@ begin
   inherited Destroy;
 end; // TNoteList DESTROY
 
-function TNoteList.GetNote( index : integer ) : TKntFolder;
+function TKntFolderList.GetNote( index : integer ) : TKntFolder;
 begin
   result := TKntFolder( inherited Items[index] );
 end; // GetNote
 
-procedure TNoteList.PutNote( index : integer; item : TKntFolder );
+procedure TKntFolderList.PutNote( index : integer; item : TKntFolder );
 begin
   inherited Put( index, item );
 end; // PutNote
 
-function TNoteList.Remove( item : TKntFolder ) : integer;
+function TKntFolderList.Remove( item : TKntFolder ) : integer;
 begin
   if assigned( item ) then Item.Free;
   result := inherited remove( item );
 end; // Remove
 
-procedure TNoteList.Delete( index : integer );
+procedure TKntFolderList.Delete( index : integer );
 begin
   if (( index >= 0 ) and ( index < Count ) and assigned( items[index] )) then
     Items[index].Free;
   inherited Delete( index );
 end; // Delete
 
-function TNoteList.IndexOf( item : TKntFolder ) : integer;
+function TKntFolderList.IndexOf( item : TKntFolder ) : integer;
 begin
   result := inherited IndexOf( item );
 end; // IndexOf
@@ -305,8 +305,8 @@ begin
   FDescription := '';
   FComment := '';
   FDateCreated := now;
-  FActiveNote := -1;
-  FNotes := TNoteList.Create;
+  FActiveFolderID := -1;
+  FNotes := TKntFolderList.Create;
   FPageCtrl := nil;
   FModified := false;
   FPassPhrase := '';
@@ -347,25 +347,25 @@ begin
 end; // GetPassphrase
 
 
-function TKntFile.AddNote( AFolder : TKntFolder ) : integer;
+function TKntFile.AddFolder( AFolder : TKntFolder ) : integer;
 begin
   result := -1;
   if ( not assigned( AFolder )) then exit;
-  result := InternalAddNote( AFolder );
+  result := InternalAddFolder( AFolder );
   if ( AFolder.ID = 0 ) then
-    GenerateNoteID( AFolder );
+    GenerateFolderID( AFolder );
   Modified := true;
-end; // AddNote
+end; // AddFolder
 
 
-function TKntFile.InternalAddNote( AFolder : TKntFolder ) : integer;
+function TKntFile.InternalAddFolder( AFolder : TKntFolder ) : integer;
 begin
-  result := Notes.Add( AFolder );
+  result := Folders.Add( AFolder );
   AFolder.Modified := false;
-end; // InternalAddNote
+end; // InternalAddFolder
 
 
-procedure TKntFile.VerifyNoteIds;
+procedure TKntFile.VerifyFolderIds;
 var
   i, count : longint;
   myFolder : TKntFolder;
@@ -374,12 +374,12 @@ begin
   for i := 1 to count do begin
      myFolder := FNotes[pred( i )];
      if ( myFolder.ID <= 0 ) then
-        GenerateNoteID( myFolder );
+        GenerateFolderID( myFolder );
   end;
-end; // VerifyNoteIds
+end; // VerifyFolderIds
 
 
-procedure TKntFile.GenerateNoteID( const AFolder : TKntFolder );
+procedure TKntFile.GenerateFolderID( const AFolder : TKntFolder );
 var
   i, count, myID, hiID : longint;
   myFolder : TKntFolder;
@@ -400,7 +400,7 @@ begin
 end; // GenerateNoteID
 
 
-procedure TKntFile.DeleteNote( AFolder : TKntFolder );
+procedure TKntFile.DeleteFolder( AFolder : TKntFolder );
 var
   idx : integer;
 begin
@@ -447,6 +447,11 @@ begin
 
     nffKeyNote : begin
       with FVersion do begin
+        ID := NFHDR_ID; // GFKNT
+        Major := NFILEVERSION_MAJOR;
+        Minor := NFILEVERSION_MINOR;
+
+        {
         if ( HasExtendedNotes ) then begin
           ID := NFHDR_ID; // GFKNT
           Major := NFILEVERSION_MAJOR;
@@ -460,16 +465,20 @@ begin
           Major := NFILEVERSION_MAJOR_OLD;
           Minor := NFILEVERSION_MINOR_OLD;
         end;
+        }
       end;
     end;
 
     nffKeyNoteZip : begin
       with FVersion do begin
         ID := NFHDR_ID_COMPRESSED; // GFKNZ
+        Major := NFILEVERSION_MAJOR;
+        {
         if HasExtendedNotes then
            Major := NFILEVERSION_MAJOR
         else
            Major := NFILEVERSION_MAJOR_NOTREE;
+        }
         Minor := NFILEVERSION_MINOR;
       end;
     end;
@@ -477,10 +486,13 @@ begin
     nffEncrypted : begin
       with FVersion do begin
         ID := NFHDR_ID_ENCRYPTED; // GFKNE
+        Major := NFILEVERSION_MAJOR;
+        {
         if HasExtendedNotes then
            Major := NFILEVERSION_MAJOR
         else
            Major := NFILEVERSION_MAJOR_NOTREE;
+        }
         Minor := NFILEVERSION_MINOR;
       end;
     end;
@@ -805,9 +817,9 @@ begin
                         end;
                         _NF_ACT : begin // Active folder
                           try
-                            FActiveNote := strtoint( ds );
+                            FActiveFolderID := strtoint( ds );
                           except
-                            FActiveNote := 0;
+                            FActiveFolderID := 0;
                           end;
                         end;
                         _NF_ClipCapFolder : begin
@@ -888,7 +900,7 @@ begin
 
                    try
                      Folder.LoadFromFile( tf, FileExhausted, NextBlock, (NextBlock = nbRTF));
-                     InternalAddNote( Folder );
+                     InternalAddFolder( Folder );
                      // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
                    except
                      On E : Exception do begin
@@ -1014,7 +1026,7 @@ begin
      if assigned( Stream ) then Stream.Free;
      // FNoteCount := Notes.Count;
      Modified := false;
-     VerifyNoteIds;
+     VerifyFolderIds;
      ImgManager.FileIsNew:= false;
   end;
 
@@ -1044,7 +1056,7 @@ end; // Load
       The assingment of _VNKeyNoteFileName ensures it (must be done by the caller)
 }
 function TKntFile.Save(FN: string;
-                        var SavedNotes: integer; var SavedNodes: integer;
+                        var SavedFolders: integer; var SavedNodes: integer;
                         ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
                         OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
 var
@@ -1063,7 +1075,7 @@ var
              Exit;
 
           SavedNodes:= SavedNodes + myFolder.SaveToFile( tf, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
-          inc (SavedNotes);
+          inc (SavedFolders);
         end;
       except
         on E : Exception do begin
@@ -1086,7 +1098,7 @@ var
     tf.WriteLine(_NF_COMMENT + _NF_FDE + FDescription, True );
     tf.WriteLine(_NF_COMMENT + _NF_FCO + FComment, True );
 
-    tf.WriteLine(_NF_COMMENT + _NF_ACT + FActiveNote.ToString );
+    tf.WriteLine(_NF_COMMENT + _NF_ACT + FActiveFolderID.ToString );
 
     tf.WriteLine(_NF_COMMENT + _NF_DCR + FormatDateTime( _SHORTDATEFMT + ' ' + _LONGTIMEFMT, FDateCreated ) );
     tf.WriteLine(_NF_COMMENT + _NF_FileFlags + PropertiesToFlagsString );
@@ -1117,7 +1129,7 @@ var
 
     SerializeBookmarks(tf);
 
-    Log_StoreTick( 'After saving Notes', 1 );
+    Log_StoreTick( 'After saving Folders', 1 );
 
 
     if SaveImages then begin
@@ -1138,7 +1150,7 @@ begin
   SetVersion;
   FSavedWithRichEdit3 := ( _LoadedRichEditVersion = 3 );
 
-  SavedNotes:= 0;
+  SavedFolders:= 0;
   SavedNodes:= 0;
 
 {$IFDEF WITH_DART}
@@ -1159,10 +1171,10 @@ begin
   try
     try
       // FNoteCount := Notes.Count;
-      if (( Notes.Count > 0 ) and assigned( FPageCtrl ) and assigned( FPageCtrl.ActivePage )) then
-        FActiveNote := FPageCtrl.ActivePage.PageIndex
+      if (( Folders.Count > 0 ) and assigned( FPageCtrl ) and assigned( FPageCtrl.ActivePage )) then
+        FActiveFolderID := FPageCtrl.ActivePage.PageIndex
       else
-        FActiveNote := 0;
+        FActiveFolderID := 0;
 
       if Assigned(kn_global.ActiveKntFolder) then
          kn_global.ActiveKntFolder.EditorToDataStream;
@@ -1474,7 +1486,7 @@ begin
 end; // DecryptFileToStream
 
 
-function TKntFile.GetNoteByID( const aID : integer ) : TKntFolder;
+function TKntFile.GetFolderByID( const aID : integer ) : TKntFolder;
 var
   i, cnt : integer;
 begin
@@ -1488,7 +1500,7 @@ begin
   end;
 end; // GetNoteByID
 
-function TKntFile.GetNoteByTreeNode( const myTreeNode: TTreeNTNode ) : TKntFolder;
+function TKntFile.GetFolderByTreeNode( const myTreeNode: TTreeNTNode ) : TKntFolder;
 var
   i, cnt : integer;
   myTV: TTreeNT;
@@ -1501,10 +1513,10 @@ begin
        result := FNotes[pred( i )];
        break;
      end;
-end; // GetNoteByTreeNode
+end; // GetFolderByTreeNode
 
 
-function TKntFile.GetNoteByName( const aName : string ) : TKntFolder;
+function TKntFile.GetFolderByName( const aName : string ) : TKntFolder;
 // aName is NOT case-sensitive
 var
   i, cnt : integer;
@@ -1518,8 +1530,8 @@ begin
      end;
 end;
 
-
-function TKntFile.HasExtendedNotes : boolean;           // Dónde se usa?
+{
+function TKntFile.HasExtendedNotes : boolean;
 var
   i : integer;
 begin
@@ -1527,7 +1539,7 @@ begin
   if ( FNotes.Count > 0 ) then
      Result:= true;
 end;
-
+}
 
 function TKntFile.HasVirtualNodes : boolean;
 var
@@ -1658,8 +1670,8 @@ begin
     if assigned(Folder) then
        SetupTreeNote
     else
-       for p := 0 to pred( Notes.Count ) do begin
-          Folder := Notes[p];
+       for p := 0 to pred( Folders.Count ) do begin
+          Folder := Folders[p];
           SetupTreeNote;
        end;
 end;
@@ -1736,7 +1748,7 @@ begin
                  if assigned(newNonVirtualTreeNode) and assigned(newNonVirtualTreeNode.Data) then begin
                    RemoveMirrorNode(nonVirtualTreeNode, newNonVirtualTreeNode);
                    ReplaceNonVirtualNode(nonVirtualTreeNode, newNonVirtualTreeNode);
-                   SelectIconForNode( newNonVirtualTreeNode, GetNoteByTreeNode(newNonVirtualTreeNode).IconKind);
+                   SelectIconForNode( newNonVirtualTreeNode, GetFolderByTreeNode(newNonVirtualTreeNode).IconKind);
                  end;
                end;
          end;
@@ -1798,7 +1810,7 @@ var
        if ToMode <> smEmbRTF then begin
           ImagesIDs:= myFolder.CheckSavingImagesOnMode (imLink, Stream, ExitIfAllImagesInSameModeDest);
           ImagesManager.UpdateImagesCountReferences (nil, ImagesIDs);
-          if (ActiveKntFolder = myFolder.ID) then
+          if (ActiveFolderID = myFolder.ID) then
              myFolder.ImagesReferenceCount:= ImagesIDs;
        end
        else

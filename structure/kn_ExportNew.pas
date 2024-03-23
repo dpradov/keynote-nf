@@ -870,8 +870,8 @@ begin
          Exit;
 
   cnt := 0;
-  for i := 1 to myKntFile.Notes.Count do begin
-      myFolder:= myKntFile.Notes[pred(i)];
+  for i := 1 to myKntFile.Folders.Count do begin
+      myFolder:= myKntFile.Folders[pred(i)];
 
       case ExportOptions.ExportSource of
           expCurrentNote : begin
@@ -965,11 +965,11 @@ begin
       PrepareExportOptions (ExportOptions.LengthHeading, ExportOptions.FontSizesInHeading);
 
 
-      for NoteIdx := 1 to myKntFile.Notes.Count do begin             // ----------------------------------------------------------- FOR EACH NOTE :
+      for NoteIdx := 1 to myKntFile.Folders.Count do begin             // ----------------------------------------------------------- FOR EACH NOTE :
         Application.ProcessMessages;
         if DoAbort then break;
 
-        myFolder := myKntFile.Notes[pred( NoteIdx )];
+        myFolder := myKntFile.Folders[pred( NoteIdx )];
         if ( myFolder.Info > 0 ) then begin
           // this note has been marked for exporting
 

@@ -435,9 +435,9 @@ begin
             if KntFile.OpenAsReadOnly then
                OpenReadOnly:= True;
 
-            for i := 0 to KntFile.Notes.Count -1 do
+            for i := 0 to KntFile.Folders.Count -1 do
             begin
-              KntFile.Notes[i].AddProcessedAlarms();
+              KntFile.Folders[i].AddProcessedAlarms();
             end;
 
             if ( result <> 0 ) then
@@ -1038,7 +1038,7 @@ begin
          // Get (and reflect) the expanded state of all the tree nodes
          try
            for i := 1 to KntFile.NoteCount do begin
-              myFolder := KntFile.Notes[pred(i)];
+              myFolder := KntFile.Folders[pred(i)];
               GetOrSetNodeExpandState(myFolder.TV, false, false);
            end;
          except
@@ -1507,7 +1507,7 @@ begin
             for i := 0 to pred( MergeFile.NoteCount ) do
             begin
               // initially, UNMARK ALL notes (i.e. no merging)
-              MergeFile.Notes[i].Info := 0;
+              MergeFile.Folders[i].Info := 0;
             end;
 
           except
@@ -1531,7 +1531,7 @@ begin
           for i := 0 to pred( MergeFile.NoteCount ) do
           begin
             // see if user selected ANY notes for merge
-            if ( MergeFile.Notes[i].Info > 0 ) then
+            if ( MergeFile.Folders[i].Info > 0 ) then
               inc( mergecnt );
           end;
 
@@ -1550,8 +1550,8 @@ begin
             for i := 0 to pred( MergeFile.NoteCount ) do
             begin
 
-              IDs[i].oldID:= MergeFile.Notes[i].ID;
-              if ( MergeFile.Notes[i].Info = 0 ) then begin
+              IDs[i].oldID:= MergeFile.Folders[i].ID;
+              if ( MergeFile.Folders[i].Info = 0 ) then begin
                  IDs[i].newNote:= false;
                  if MergeFN <> KntFile.FileName then
                     IDs[i].newID:= 0
@@ -1566,7 +1566,7 @@ begin
               newFolder.Visible := true;
               newFolder.Modified := false;
 
-              with MergeFile.Notes[i] do
+              with MergeFile.Folders[i] do
               begin
                 newFolder.EditorChrome := EditorCHrome;
                 newFolder.Name := Name;
@@ -1579,7 +1579,7 @@ begin
                 newFolder.UseTabChar := UseTabChar;
               end;
 
-              with MergeFile.Notes[i] do begin
+              with MergeFile.Folders[i] do begin
                  newFolder.IconKind := IconKind;
                  newFolder.TreeWidth := TreeWidth;
                  newFolder.Checkboxes := CheckBoxes;
@@ -1590,9 +1590,9 @@ begin
                  newFolder.HideCheckedNodes := HideCheckedNodes;
               end;
 
-              MergeFile.Notes[i].AddProcessedAlarmsOfNote(newFolder);
+              MergeFile.Folders[i].AddProcessedAlarmsOfNote(newFolder);
 
-              mergeFolder:= MergeFile.Notes[i];
+              mergeFolder:= MergeFile.Folders[i];
               if ( mergeFolder.NodeCount > 0 ) then
               begin
                 for n := 0 to pred( mergeFolder.NodeCount ) do
@@ -1610,7 +1610,7 @@ begin
                   newFolder.TreeHidden:= true;           // It was an old simple note
 
 
-              KntFile.AddNote( newFolder );
+              KntFile.AddFolder( newFolder );
               inc( mergecnt );
 
               IDs[i].newID:= newFolder.ID;
@@ -1638,7 +1638,7 @@ begin
             //Mirror nodes (if exists) references old Folder IDs. We must use new IDs
             for i := 0 to pred( MergeFile.NoteCount ) do
               if IDs[i].newNote then begin
-                 newFolder:= KntFile.GetNoteByID(IDs[i].newID);
+                 newFolder:= KntFile.GetFolderByID(IDs[i].newID);
                  for n := 0 to newFolder.NodeCount - 1 do begin
                     newNote:= newFolder.Nodes[n];
                     if newNote.VirtualMode = vmKNTNode then begin
@@ -1653,7 +1653,7 @@ begin
 
             for i := 0 to pred( MergeFile.NoteCount ) do
                 if IDs[i].newNote then begin
-                   newFolder:= KntFile.GetNoteByID(IDs[i].newID);
+                   newFolder:= KntFile.GetFolderByID(IDs[i].newID);
                    KntFile.SetupMirrorNodes(newFolder);
                 end;
 
@@ -2009,7 +2009,7 @@ begin
                 else
                   s := ExtractFilenameNoExt( FN );
                 myFolder.Name := s;
-                KntFile.AddNote( myFolder );
+                KntFile.AddFolder( myFolder );
 
                 try
                   myNote:= nil;
