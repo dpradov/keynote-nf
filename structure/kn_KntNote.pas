@@ -206,6 +206,8 @@ begin
   FWordWrap := wwAsNote;
   FChildrenCheckbox:= false;   // [dpv]
   FFiltered:= false;           // [dpv]
+  FScrollPosInEditor.X:= -1;
+  FScrollPosInEditor.Y:= -1;
 end; // CREATE
 
 destructor TKntNote.Destroy;

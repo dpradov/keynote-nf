@@ -512,7 +512,7 @@ begin
         if _LastZoomValue <> 100 then
            SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
 
-        if assigned(myNote) then
+        if assigned(myNote) and (myNote.ScrollPosInEditor.Y > 0) then
            ActiveKntFolder.Editor.SetScrollPosInEditor(myNote.ScrollPosInEditor);
 
         ActiveKntFolder.Editor.Lines.EndUpdate;
