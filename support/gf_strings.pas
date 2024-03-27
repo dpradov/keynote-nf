@@ -65,7 +65,7 @@ function MatchMask(source, pattern: String): Boolean;
 procedure StripControlChars( var s : string );
 function GetWordChars : string;
 
-function ExpandMetaChars( line : string ) : string;
+function ExpandMetaChars( line : string; AllowNonEscapedBackSlash: boolean = true ) : string;
 function GetIndentOfLine (const S: string): integer;
 
 function TryUTF8ToUnicodeString(const s: RawByteString): string;
@@ -115,7 +115,7 @@ begin
 
 end; // GetLetterCase
 
-function ExpandMetaChars( line : string ) : string;
+function ExpandMetaChars( line : string; AllowNonEscapedBackSlash: boolean = true ) : string;
 var
   i, linelen : integer;
   wasmeta : boolean;
@@ -164,8 +164,10 @@ begin
           result := result + ch;
         wasmeta := false;
       end;
-      else
-      begin
+      else begin
+        if wasmeta and AllowNonEscapedBackSlash then
+           result := result + '\';
+
         wasmeta := false;
         result := result + ch;
       end;
