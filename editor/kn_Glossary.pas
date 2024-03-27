@@ -92,12 +92,30 @@ resourcestring
   STR_14 = 'Glossary terms: %d';
   STR_15 = 'Error loading Glossary list: ';
 
+const
+   NAME_VALUE_SEPARATOR = Chr(18);       // 18 ($12): DC2 (Device Control 2)
 
 procedure LoadGlossaryInfo;
+var
+   i: integer;
+   str: string;
 begin
     try
-       if FileExists( Glossary_FN) then
+       if FileExists( Glossary_FN) then begin
+          GlossaryList.Sorted:= false;
           GlossaryList.LoadFromFile (Glossary_FN);
+
+          if (GlossaryList.Count > 0 ) then begin
+              for i := 0 to pred( GlossaryList.Count ) do begin
+                 str:= GlossaryList[i];
+                 str:= StringReplace(str, '\=', Chr(17),  [rfReplaceAll]);                // 17 ($11): DC1 (Device Control 1)
+                 str:= StringReplace(str, '=', NAME_VALUE_SEPARATOR,  []);
+                 str:= StringReplace(str, Chr(17), '=',  [rfReplaceAll]);
+                 GlossaryList[i]:= str;
+              end;
+          end;
+
+       end;
 
     except
       On E : Exception do begin
@@ -105,6 +123,8 @@ begin
       end;
     end;
 
+    GlossaryList.NameValueSeparator := NAME_VALUE_SEPARATOR;
+    GlossaryList.sorted := true;
 end;
 
 
@@ -143,7 +163,7 @@ begin
     if (GlossaryList.Count > 0 ) then begin
         for i := 0 to pred( GlossaryList.Count ) do begin
           name := GlossaryList.Names[i];
-          value := GlossaryList.Values[name];
+          value := GlossaryList.ValueFromIndex[i];
           item := LV.Items.Add;
           item.caption := name;
           item.subitems.add( value );
@@ -235,6 +255,7 @@ begin
       try
         if ( item = nil ) then
            item := LV.Items.Add;
+
         item.caption := namestr;
         item.subitems.Clear;
         item.subitems.Add( valuestr );
@@ -292,24 +313,32 @@ procedure TForm_Glossary.FormCloseQuery(Sender: TObject;
 var
   i : integer;
   item : TListItem;
+  name: string;
+  Strs : TStringList;
 begin
   if OK_Click then
   begin
       try
+        Strs := TStringList.Create;
         try
           GlossaryList.Sorted := false;
           GlossaryList.Clear;
 
           for i := 0 to pred( LV.Items.Count ) do begin
              item := LV.Items[i];
-             GlossaryList.Add( Format( '%s=%s', [item.caption, item.subitems[0]] ));
+             name:= item.Caption;
+             GlossaryList.Add( name + NAME_VALUE_SEPARATOR + item.subitems[0]);
+
+             name:= StringReplace(name, '=', '\=',  [rfReplaceAll]);          // Escape '=' to avoid problems when using something like: =>=****
+             Strs.Add( Format( '%s=%s', [name, item.subitems[0]] ));
           end;
 
+          Strs.SaveToFile( Glossary_FN, TEncoding.UTF8);
+
         finally
+          Strs.Free;
           GlossaryList.Sorted := true;
         end;
-
-        GlossaryList.SaveToFile( Glossary_FN, TEncoding.UTF8);
 
     except
       on E : Exception do
@@ -367,7 +396,6 @@ end;
 Initialization
   GlossaryList := TStringList.Create;
   with GlossaryList do begin
-     sorted := true;
      duplicates := dupError;
   end;
 
