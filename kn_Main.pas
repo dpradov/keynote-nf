@@ -5197,8 +5197,8 @@ end;
 procedure TForm_Main.RxRTFEnter(Sender: TObject);
 begin
    if CheckRestoreTreeWidth then begin
-      Sleep(100);
       Application.ProcessMessages;
+      Sleep(100);
    end;
 end;
 
