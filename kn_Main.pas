@@ -2958,30 +2958,40 @@ begin
 
       end
       else if (not ShiftPressed) then begin
-        if Msg.CharCode = VK_DOWN then begin
-           ActiveKntFolder.Editor.ScrollLinesBy(1);
-           Handled:= true;
-        end else if Msg.CharCode = VK_UP then begin
-           ActiveKntFolder.Editor.ScrollLinesBy(-1);
-           Handled:= true;
-        end else if Msg.CharCode = VK_RETURN then begin
-           if activeControl = ListBox_ResFav then begin
-             JumpToFavorite;
-             Handled:= true;
+        if Msg.CharCode in [VK_DOWN, VK_UP] then
+           case EditorOptions.CtrlUpDownMode of
+              TCtrlUpDownMode.cudDefault: exit;
+              TCtrlUpDownMode.cudShiftLine: begin
+                 if Msg.CharCode = VK_DOWN then begin
+                    ActiveKntFolder.Editor.ScrollLinesBy(1);
+                    Handled:= true;
+                 end else if Msg.CharCode = VK_UP then begin
+                    ActiveKntFolder.Editor.ScrollLinesBy(-1);
+                    Handled:= true;
+                 end;
+              end;
+
+              TCtrlUpDownMode.cudShiftScrollbar: begin
+                 var P: TPoint;
+                 P:= ActiveKntFolder.Editor.GetScrollPosInEditor;
+                 if Msg.CharCode = VK_DOWN then
+                    Inc(P.Y, 20)
+                 else
+                    Dec(P.Y, 20);
+                 ActiveKntFolder.Editor.SetScrollPosInEditor(P);
+                 Handled:= true;
+              end;
+           end
+
+        else begin
+           if Msg.CharCode = VK_RETURN then begin
+              if activeControl = ListBox_ResFav then begin
+                JumpToFavorite;
+                Handled:= true;
+              end;
            end;
         end;
-      end
-      else begin
-          if Msg.CharCode in [VK_DOWN, VK_UP] then begin
-             var P: TPoint;
-             P:= ActiveKntFolder.Editor.GetScrollPosInEditor;
-             if Msg.CharCode = VK_DOWN then
-                Inc(P.Y, 20)
-             else
-                Dec(P.Y, 20);
-             ActiveKntFolder.Editor.SetScrollPosInEditor(P);
-             Handled:= true;
-          end;
+
       end;
 
       if (not Handled) and KeyOptions.UseCtrlHideTreePanel then begin

@@ -413,7 +413,7 @@ object Form_OptionsNew: TForm_OptionsNew
         Left = 5
         Top = 5
         Width = 350
-        Height = 179
+        Height = 208
         Caption = ' Global editor settings'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -422,6 +422,22 @@ object Form_OptionsNew: TForm_OptionsNew
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 0
+        object Label34: TLabel
+          Left = 12
+          Top = 182
+          Width = 74
+          Height = 13
+          AutoSize = False
+          Caption = 'Ctrl+Up/Down'
+          FocusControl = cbCtrlUpDownMode
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          StyleElements = [seClient, seBorder]
+        end
         object CheckBox_WordSelect: TCheckBox
           Left = 10
           Top = 32
@@ -516,10 +532,24 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 5
         end
+        object cbCtrlUpDownMode: TComboBox
+          Left = 100
+          Top = 178
+          Width = 221
+          Height = 21
+          Style = csDropDownList
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 6
+        end
       end
       object GroupBox_RTFEdit2: TGroupBox
         Left = 5
-        Top = 190
+        Top = 221
         Width = 350
         Height = 146
         TabOrder = 1
@@ -2893,9 +2923,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 226
           Width = 330
           Height = 17
-          Hint = 
-            'Always update scrollbars (causes some flicker' +
-            ')'
+          Hint = 'Always update scrollbars (causes some flicker)'
           Caption = '&Fix scroll bars'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText

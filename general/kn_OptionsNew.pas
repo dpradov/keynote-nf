@@ -301,6 +301,8 @@ type
     Label14: TLabel;
     Spin_ResetNextAftN: TSpinEdit;
     CB_ExtKNTLnkInNewInst: TCheckBox;
+    cbCtrlUpDownMode: TComboBox;
+    Label34: TLabel;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -595,6 +597,9 @@ begin
      CbImgStorageModeOnExport.Items.Add( IMAGES_STORAGE_MODE_ON_EXPORT[j] );
   CbImgStorageModeOnExport.ItemIndex := 1;
 
+  for var j : TCtrlUpDownMode := low( TCtrlUpDownMode ) to high( TCtrlUpDownMode ) do
+     cbCtrlUpDownMode.Items.Add( CTRL_UP_DOWN_MODE[j] );
+  cbCtrlUpDownMode.ItemIndex := 1;
 
 end; // CREATE
 
@@ -1020,6 +1025,7 @@ begin
     AutoKeyboard := CB_AutoKeyboard.Checked;
     PlainDefaultPaste := CB_PlainDefaultPaste.Checked;
     Form_Main.PlainDefaultPaste_Toggled;
+    CtrlUpDownMode:= TCtrlUpDownMode(cbCtrlUpDownMode.ItemIndex);
   end;
 
   with myTreeOptions do
@@ -1275,7 +1281,8 @@ begin
     Spin_ParaSpaceInc.Value := ParaSpaceInc;
     CB_AutoFont.Checked := AutoFont;
     CB_AutoKeyboard.Checked := AutoKeyboard;
-    CB_PlainDefaultPaste.Checked := PlainDefaultPaste; 
+    CB_PlainDefaultPaste.Checked := PlainDefaultPaste;
+    cbCtrlUpDownMode.ItemIndex:= Ord(CtrlUpDownMode);
   end;
 
   with myTreeOptions do

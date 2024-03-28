@@ -111,7 +111,9 @@ resourcestring
   STR_ImagesSM_5 = 'No export images';
   STR_ImagesExtSt_1 = 'Folder';
   STR_ImagesExtSt_2 = 'ZIP';
-
+  STR_CtrlUD_1 = 'Moves cursor to prev or next paragraph';
+  STR_CtrlUD_2 = 'Shift view one line up or down';
+  STR_CtrlUD_3 = 'Smoothly moves scroll bar vertically';
 
 procedure DefineConst;
 
@@ -819,6 +821,25 @@ const
     '32 bit'
   );
 
+
+{
+TCtrlUpDownMode: Defines behaviour of Ctrl+Up/Down shortcut keys:
+
+ cudDefault:         Moves the cursor to the beginning of the previous (up) or the next (down) paragraph
+ cudShiftLine:       Shift the entre document one line down or up. The cursor will be in the same place.
+ cudShiftScrollbar:  Smoothly move the scroll bar vertically. The cursor won't change.
+}
+
+type
+   TCtrlUpDownMode = (cudDefault, cudShiftLine, cudShiftScrollbar);
+
+
+const
+  CTRL_UP_DOWN_MODE : array[TCtrlUpDownMode] of string = (
+     STR_CtrlUD_1,
+     STR_CtrlUD_2,
+     STR_CtrlUD_3
+  );
 
 
 type
