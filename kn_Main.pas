@@ -1013,6 +1013,7 @@ type
     procedure MMTreeFullCollapseClick(Sender: TObject);
     procedure TVClick(Sender: TObject);
     procedure SplitterNoteMoved(Sender: TObject);
+    procedure OnAfterChangesOnTreeWidth;
     procedure TVOnHint(Sender: TObject; Node: TTreeNTNode;  var NewText: string);
     procedure TVMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
     procedure CheckingTreeExpansion;
@@ -5030,47 +5031,68 @@ var
   TreeWidthExpanded: boolean;
   TreeWidth_N: Cardinal;
   TreeWidthNodeTouched: boolean;
+  SplitterNoteMoving: boolean;
 
+
+procedure TForm_Main.OnAfterChangesOnTreeWidth;
+var
+  color: TColor;
+begin
+  if ActiveKntFolder.TreeMaxWidth < 0 then
+     Color:= clSkyBlue
+  else
+     if ActiveKntFolder.TreeMaxWidth > 0 then
+        Color:= clLtGray
+     else
+        Color:= clBtnFace;
+
+   ActiveKntFolder.Splitter.Color:= Color;
+
+   if KeyOptions.ModifiedOnTreeResized then begin
+      ActiveKntFolder.Modified := true;
+      KntFile.Modified := true;
+      UpdateKntFileState( [fscModified] );
+   end;
+end;
 
 procedure TForm_Main.SplitterNoteMoved(Sender: TObject);
 var
   myFolder: TKntFolder;
   Width: integer;
 begin
+   // This method will be called 2 times, from TSplitter.UpdateControlSize and TSplitter.StopSizing
+   // We Will ignore the first one
+   if not SplitterNoteMoving then begin
+      SplitterNoteMoving:= true;
+      exit;
+   end;
+   SplitterNoteMoving:= false;
+
+
    myFolder:= ActiveKntFolder;
    if myFolder.VerticalLayout then
       Width := myFolder.TV.Height
    else
       Width := myFolder.TV.Width;
 
-   TSplitter(Sender).Color:= clBtnFace;
+   if AltDown then
+      myFolder.TreeMaxWidth:= -Width                       // Enable TreeMaxWidth and set fixed state
 
-   if AltDown then begin
-      myFolder.TreeMaxWidth:= -myFolder.TreeMaxWidth;        // Toggle width fixed
-      if myFolder.TreeMaxWidth < 0 then
-         TSplitter(Sender).Color:= clSkyBlue;
-      exit;
-   end;
-
-   if CtrlDown then begin
-      if Width = Abs(myFolder.TreeWidth)  then
-         Width:= 0;
-      myFolder.TreeMaxWidth:= Width;
-   end
    else begin
-      myFolder.TreeWidth:= Width;
-      myFolder.TreeMaxWidth:= Abs(myFolder.TreeMaxWidth);
-      TreeWidthExpanded:= True;
-   end;
-
-   if KeyOptions.ModifiedOnTreeResized then begin
-      myFolder.Modified := true;
-      KntFile.Modified := true;
-      UpdateKntFileState( [fscModified] );
+      if CtrlDown then begin
+         myFolder.TreeMaxWidth:= Width;                          // Change MaxWidth
+         TreeWidthExpanded:= True;
+      end
+      else begin                                                 // Change normal width (MaxWidth not modified)
+         myFolder.TreeWidth:= Width;
+         myFolder.TreeMaxWidth:= Abs(myFolder.TreeMaxWidth);     // Disable fixed state
+      end;
    end;
 
    if keyOptions.AltMargins then
       ActiveKntFolder.Editor.Refresh;
+
+   OnAfterChangesOnTreeWidth;
 end;
 
 
@@ -5097,13 +5119,16 @@ end;
 procedure TForm_Main.TVOnHint(Sender: TObject; Node: TTreeNTNode;
   var NewText: string);
 begin
-   TreeWidthNodeTouched:= True;
-   CheckingTreeExpansion;
+   if not CtrlDown then begin
+      TreeWidthNodeTouched:= True;
+      CheckingTreeExpansion;
+   end;
 end;
 
 procedure TForm_Main.TVMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
 begin
-   CheckingTreeExpansion;
+   if not CtrlDown then
+     CheckingTreeExpansion;
 end;
 
 
@@ -5146,7 +5171,8 @@ begin
    Result:= False;
     myFolder:= ActiveKntFolder;
 
-    if (myFolder.TreeMaxWidth > 0) and (myFolder.TV.Visible) and (not myFolder.TV.Focused) then begin
+    // myFolder.TV.PopupMenu = nil => Is editing node label
+    if (myFolder.TreeMaxWidth > 0) and (myFolder.TV.Visible) and (myFolder.TV.PopupMenu <> nil) and (not myFolder.TV.Focused) then begin
        if myFolder.VerticalLayout then
           Width := myFolder.TV.Height
        else
@@ -5178,7 +5204,8 @@ end;
 
 procedure TForm_Main.TVEnter(Sender: TObject);
 begin
-   CheckExpandTreeWidth;
+   if not ( (CtrlDown or AltDown) and ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) ) then
+      CheckExpandTreeWidth;
 end;
 
 
@@ -5186,7 +5213,17 @@ end;
 procedure TForm_Main.TVClick(Sender: TObject);
 begin
  // ( sender as TTreeNT ).PopupMenu := Menu_TV;
- if assigned( ActiveKntFolder ) then ActiveKntFolder.FocusMemory := focTree;
+  if assigned( ActiveKntFolder ) then ActiveKntFolder.FocusMemory := focTree;
+
+  if AltDown then
+      ActiveKntFolder.TreeMaxWidth:= -ActiveKntFolder.TreeMaxWidth        // Toggle fixed state
+  else
+  if CtrlDown then begin
+     CheckRestoreTreeWidth;
+     ActiveKntFolder.TreeMaxWidth:= 0;                                    // Disable TreeMaxWidth
+  end;
+
+  OnAfterChangesOnTreeWidth;
 end;
 
 procedure TForm_Main.TVDblClick(Sender: TObject);
@@ -5640,7 +5677,7 @@ end; // Sort full tree
 procedure TForm_Main.TVEdited(Sender: TObject; Node: TTreeNTNode;
   var S: string);
 begin
-  ( sender as TTreeNT ).PopupMenu := Menu_TV;
+  ( sender as TTreeNT ).PopupMenu := Menu_TV;               // PopupMenu=nil => IsEditing=True
   S := trim( copy( S, 1, TREENODE_NAME_LENGTH ));
   if ( S = '' ) then
   begin
@@ -8498,5 +8535,6 @@ Initialization
    TreeWidthExpanded:= false;
    TreeWidth_N:= 0;
    TreeWidthNodeTouched:= false;
+   SplitterNoteMoving:= false;
 end.
 

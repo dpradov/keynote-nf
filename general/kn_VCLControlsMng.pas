@@ -468,6 +468,8 @@ begin
           end;
 
           myFolder.Splitter := mySplitter;
+          if myFolder.TreeMaxWidth > myFolder.TreeWidth then
+             myFolder.Splitter.Color:= clLtGray;
 
           myFolder.TV := myTree;
           UpdateTreeOptions( myFolder );
