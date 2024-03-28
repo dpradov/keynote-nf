@@ -152,8 +152,8 @@ function FontPropertiesToStr( const font : TFontProperties ) : string;
 procedure SetDefaultFont( var theFont : TFontProperties );
 
 
-procedure FontPropertiesToFont( const fp : TFontProperties; aFont : TFont );
-procedure FontToFontProperties( const aFont : TFont; var fp : TFontProperties );
+procedure FontPropertiesToFont( const fp : TFontProperties; aFont : TFont; dpi: integer = 96 );
+procedure FontToFontProperties( const aFont : TFont; var fp : TFontProperties; dpi: integer = 96 );
 
 
 function GetDefaultBrowserPath(const RemoveArgs : boolean = true): String;
@@ -934,13 +934,18 @@ begin
 end; // FormatForHTML
 *)
 
-procedure FontPropertiesToFont( const fp : TFontProperties; aFont : TFont );
+procedure FontPropertiesToFont( const fp : TFontProperties; aFont : TFont; dpi: integer = 96); // 96: 100% scaling
 begin
   with aFont do
   begin
     name := fp.fname;
     pitch := fp.fpitch;
     size := fp.fsize;
+    if dpi = 96 then
+       Size := fp.fsize
+    else
+       Height := -MulDiv(fp.fsize, dpi, 72);   // See comments to TaskModalDialog in gf_miscvcl
+
     color := fp.fcolor;
     charset := fp.fcharset;
     style := fp.FStyle;
@@ -948,12 +953,16 @@ begin
 end; // FontPropertiesToFont
 
 
-procedure FontToFontProperties( const aFont : TFont; var fp : TFontProperties );
+procedure FontToFontProperties( const aFont : TFont; var fp : TFontProperties; dpi: integer = 96);
 begin
   with aFont do begin
     fp.fname := name;
     fp.fpitch := pitch;
-    fp.fsize := size;
+    if dpi = 96 then
+       fp.fsize:= Size
+    else
+       fp.fsize := -MulDiv(Height, 72, dpi);   // See comments to TaskModalDialog in gf_miscvcl
+
     fp.fcolor := color;
     fp.fcharset := charset;
     fp.fstyle := style;

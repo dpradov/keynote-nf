@@ -43,6 +43,7 @@ uses
    TB97Ctls,
    TreeNT,
 
+   gf_miscvcl,
    kn_Const,
    kn_Info
 ;
@@ -1418,13 +1419,16 @@ begin
 end; // ResetChromeDefaults
 
 procedure TForm_OptionsNew.BTN_FontClick(Sender: TObject);
-begin 
+var
+  dpi: integer;
+begin
   if RB_ActiveTab.Checked then
   begin
-    FontPropertiesToFont( myTabOpts.Font, FontDlg.Font );
+    dpi:= GetSystemPixelsPerInch;
+    FontPropertiesToFont( myTabOpts.Font, FontDlg.Font, dpi);
     if FontDlg.Execute then
     begin
-      FontToFontProperties( FontDlg.Font, myTabOpts.Font );
+      FontToFontProperties( FontDlg.Font, myTabOpts.Font, dpi);
       UpdateFontSample;
     end;
   end;

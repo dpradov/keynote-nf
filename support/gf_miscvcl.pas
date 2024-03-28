@@ -35,6 +35,16 @@ uses
 const
   SmallFontsPixelsPerInch = 96;          // 100% scaling for Windows
 
+function GetSystemPixelsPerInch: integer;   // See comments below
+
+{
+type
+  TFontDialog = class(Vcl.Dialogs.TFontDialog)
+  protected
+    function TaskModalDialog(DialogFunc: Pointer; var DialogData): Bool; override;
+  end;
+}
+
 Procedure PostKeyEx32( key: Word; Const shift: TShiftState;
             specialkey: Boolean );
 
@@ -352,6 +362,27 @@ begin
 end;
 
 
+function GetSystemPixelsPerInch: integer;
+var
+   previousDpiContext: DPI_AWARENESS_CONTEXT;
+   DC: HDC;
+begin
+   { Since DPI Awareness is set to "GDI Scaling", when using Screen.PixelsPerInch we always get 96,
+     even though temporarily we changed the DPI Awareness.
+     With this method we make sure to obtain the real DPI
+   }
+
+   previousDpiContext := SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+   DC := GetDC(0);
+   try
+     Result:= GetDeviceCaps(DC, LOGPIXELSX);
+   finally
+     ReleaseDC(0, DC);
+     SetThreadDpiAwarenessContext(previousDpiContext);
+   end;
+end;
+
+
 function DotsToTwips(dots: Integer ): integer; inline;
 var
   DC: HDC;
@@ -379,6 +410,36 @@ begin
   dpi:= Screen.PixelsPerInch;
   Result := MulDiv( dots, 1440, dpi );
 end;
+
+{
+There is a known issue with TFontDialog in Delphi when using scaling settings other than 100%.
+This issue can cause the selected font to appear larger than expected.
+The problem lies in how TFontDialog (and, in fact, the underlying Win32 ChooseFont API) handles DPI awareness.
+In particular, TFontDialog does not fully support “Per Monitor V2” DPI awareness.
+As a workaround, it seems that we can temporarily switch to “System aware” DPI awareness while the dialog
+is displayed and switch back afterwards.
+
+https://stackoverflow.com/questions/59679860/delphi-tfontdialog-how-to-scale-for-high-dpi
+
+However, in Alexandria 11.3, it is working ok with “Per Monitor V2”, but not with "GDI Scaling"
+and the solution indicated it is not working
+
+We will use the real DPI calling to GetSystemPixelsPerInch (above), to get the correct font size
+}
+
+{
+function TFontDialog.TaskModalDialog(DialogFunc: Pointer; var DialogData): Bool;
+var
+  previousDpiContext: DPI_AWARENESS_CONTEXT;
+begin
+  previousDpiContext := SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+  try
+    Result := inherited TaskModalDialog(DialogFunc, DialogData);
+  finally
+    SetThreadDpiAwarenessContext(previousDpiContext);
+  end;
+end;
+}
 
 
 {  TMsgDlgType = (mtWarning, mtError, mtInformation, mtConfirmation, mtCustom);

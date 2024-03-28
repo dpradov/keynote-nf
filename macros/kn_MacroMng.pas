@@ -2109,13 +2109,20 @@ begin
               Form_Main.NoteSelText.Assign( Form_Main.FontDlg.Font );
             end
             else begin
-              Form_Main.FontDlg.Font.Assign( Form_Main.NoteSelText );
-              if Form_Main.FontDlg.Execute then begin
-                Form_Main.NoteSelText.Assign( Form_Main.FontDlg.Font );
-                FontToFontInfo( Form_Main.FontDlg.Font, CommandRecall.Font );
-              end
-              else
-                Canceled:= True;
+              var dpi: integer;
+              dpi:= GetSystemPixelsPerInch;
+              with Form_Main.FontDlg do begin
+                 Font.Assign( Form_Main.NoteSelText );
+                 Font.Height:= -MulDiv(Font.Size, dpi, 72);   // See comments to TaskModalDialog in gf_miscvcl
+
+                 if Execute then begin
+                   Font.Size:= -MulDiv(Font.Height, 72, dpi);
+                   Form_Main.NoteSelText.Assign( Form_Main.FontDlg.Font );
+                   FontToFontInfo( Font, CommandRecall.Font );
+                 end
+                 else
+                   Canceled:= True;
+              end;
             end;
           end;
 

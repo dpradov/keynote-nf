@@ -36,6 +36,7 @@ uses
    ComCtrls95,
    RxPlacemnt,
    LCCombo,
+   gf_miscvcl,
    kn_Info,
    kn_Const
    ;
@@ -615,21 +616,24 @@ begin
 end; // UpdateSampleFont
 
 procedure TForm_Defaults.BTN_FontClick(Sender: TObject);
+var
+  dpi: integer;
 begin
+  dpi:= GetSystemPixelsPerInch;
   if ( Pages.ActivePage = Tab_Main ) then
   begin
     FontDlg.Options := FontDlg.Options + [fdEffects];
-    FontInfoToFont( myEditorChrome.Font, FontDlg.Font );
+    FontInfoToFont( myEditorChrome.Font, FontDlg.Font, dpi );
     if FontDlg.Execute then
-      FontToFontInfo( FontDlg.Font, myEditorChrome.Font );
+      FontToFontInfo( FontDlg.Font, myEditorChrome.Font, dpi );
   end
   else
   begin
     if ( not _ALLOW_TREE_FONT_COLOR ) then
       FontDlg.Options := FontDlg.Options - [fdEffects];
-    FontInfoToFont( myTreeChrome.Font, FontDlg.Font );
+    FontInfoToFont( myTreeChrome.Font, FontDlg.Font, dpi );
     if FontDlg.Execute then
-      FontToFontInfo( FontDlg.Font, myTreeChrome.Font );
+      FontToFontInfo( FontDlg.Font, myTreeChrome.Font, dpi );
   end;
   UpdateSampleFont;
 end;

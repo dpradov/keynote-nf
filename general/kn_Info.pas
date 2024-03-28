@@ -775,8 +775,8 @@ procedure InitializeFolderTabProperties( var Struct : TFolderTabProperties );
 procedure InitializeFolderEditorProperties( var Struct : TFolderEditorProperties );
 procedure InitializeFolderTreeProperties( var Struct : TFolderTreeProperties );
 
-procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont );
-procedure FontToFontInfo( const aFont : TFont; var FI : TFontInfo );
+procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont; dpi: integer = 96);
+procedure FontToFontInfo( const aFont : TFont; var FI : TFontInfo; dpi: integer = 96);
 
 function GetKeyNoteIniFile : string;
 
@@ -785,24 +785,34 @@ procedure ClearObjectStringList( const AList : TStringList );
 
 implementation
 
-procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont );
+procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont; dpi: integer = 96); // 96: 100% scaling
 begin
   with aFont do begin
     Name := FI.Name;
     Color := FI.Color;
     Charset := FI.Charset;
-    Size := FI.Size;
+    if dpi = 96 then
+       Size := FI.Size
+    else
+       Height := -MulDiv(FI.Size, dpi, 72);   // See comments to TaskModalDialog in gf_miscvcl
+
     Style := FI.Style;
   end;
 end; // FontInfoToFont
 
-procedure FontToFontInfo( const aFont : TFont; var FI : TFontInfo );
+procedure FontToFontInfo( const aFont : TFont; var FI : TFontInfo; dpi: integer = 96);
 begin
   with aFont do begin
     FI.Name := Name;
     FI.Color := Color;
     FI.Charset := Charset;
     FI.Size := Size;
+
+    if dpi = 96 then
+       FI.Size:= Size
+    else
+       FI.Size := -MulDiv(Height, 72, dpi);   // See comments to TaskModalDialog in gf_miscvcl
+
     FI.Style := Style;
   end;
 end; // FontToFontInfo
