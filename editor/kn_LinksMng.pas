@@ -1435,7 +1435,7 @@ end;
 function TypeURL (var URLText: string; var KNTlocation: boolean): TKNTURL;
 var
    URLType, KntURL: TKNTURL;
-   URLPos : integer; // position at which the actual URL starts in URLText
+   URLPos, MinURLPos : integer; // position at which the actual URL starts in URLText
    URLTextLower: string;
    URLaux, URLaux2: string;
 begin
@@ -1447,7 +1447,9 @@ begin
   end;
 
 
+  // *1  Consider the following case: "https://web.archive.org/web/20171103002946/http://www.s3graphics.com/en/"
 
+  MinURLPos:= Integer.MaxValue;
   URLTextLower:= AnsiLowerCase(URLText);
   for KntURL := low( KntURL ) to high( KntURL ) do
   begin
@@ -1455,13 +1457,17 @@ begin
     URLPos := pos( KNT_URLS[KntURL], URLTextLower );
     if ( URLPos > 0 ) then
     begin
-      URLType := KntURL;
-      break;
+      if URLPos < MinURLPos then begin       // *1
+         URLType := KntURL;
+         MinURLPos:= URLPos;
+      end;
+      if URLPos = 1 then
+         break;
     end;
   end;
 
   if ( URLType  <> urlUndefined ) then
-    URLText := copy( URLText, URLPos, length( URLText ))
+    URLText := copy( URLText, MinURLPos, length( URLText ))
 
   else
       if ( pos( '@', URLText ) > 0 ) then begin
