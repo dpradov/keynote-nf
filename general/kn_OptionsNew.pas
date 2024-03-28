@@ -1789,7 +1789,7 @@ end;
 
 procedure TForm_OptionsNew.TB_OpenDlgUserFileClick(Sender: TObject);
 begin
-  Form_Main.OpenDlg.Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
+  Form_Main.OpenDlg.Filter := FILTER_NOTEFILES {$IFDEF WITH_DART} + '|' + FILTER_DARTFILES + {$ENDIF} + '|' + FILTER_ALLFILES;
   if Form_Main.OpenDlg.Execute then begin
      Edit_UserFile.Text := Form_Main.OpenDlg.Filename;
   end;

@@ -384,7 +384,7 @@ begin
               with OpenDlg do
               begin
                 Title := STR_05;
-                Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
+                Filter := FILTER_NOTEFILES {$IFDEF WITH_DART} + '|' + FILTER_DARTFILES {$ENDIF} + '|' + FILTER_ALLFILES;
                 Options := Options - [ofHideReadOnly];
                 Options := Options - [ofAllowMultiSelect];
                 if ( KeyOptions.LastFile <> '' ) then
@@ -919,7 +919,7 @@ begin
 {$ENDIF}
                 nffKeyNote   : Filter := FILTER_NOTEFILES + '|' + FILTER_ALLFILES;
                 else
-                  Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
+                  Filter := FILTER_NOTEFILES {$IFDEF WITH_DART} + '|' + FILTER_DARTFILES {$ENDIF} + '|' + FILTER_ALLFILES;
               end;
               FilterIndex := 1;
               if KntFile.FileName <> '' then begin

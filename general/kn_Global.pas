@@ -596,7 +596,7 @@ begin
       Application.OnException := ShowException;
       //Application.HelpFile := normalFN( changefileext( Application.ExeName, ext_HLP ));         //*1
       Application.HelpFile := normalFN( changefileext( Application.ExeName, ext_CHM ));
-      OpenDlg.Filter := FILTER_NOTEFILES + '|' + FILTER_DARTFILES + '|' + FILTER_ALLFILES;
+      OpenDlg.Filter := FILTER_NOTEFILES {$IFDEF WITH_DART} + '|' + FILTER_DARTFILES {$ENDIF} + '|' + FILTER_ALLFILES;
 
       AddSearchModes;
       AddSearchScopes;

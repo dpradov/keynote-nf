@@ -122,15 +122,17 @@ const
   FILTER_TEXTFILES   = 'Text files (*' + ext_txt + ')|*' + ext_txt;
   FILTER_TEMPLATES   = 'Template files|*' + ext_txt + ';*' + ext_rtf;
   FILTER_RTFFILES    = 'RTF files (*' + ext_rtf + ')|*' + ext_rtf;
-  FILTER_FILELINK    = 'Documents|*.kn?;*.txt;*.rtf;*.htm*;*.doc;*.xls|' +
+  FILTER_FILELINK    = FILTER_ALLFILES + '|Documents|*.kn?;*.txt;*.rtf;*.htm*;*.odt;*.ods;*.doc*;*.xls*|' +
                        'Programs|*.exe;*.com;*.bat|' +
-                       'Images|*.gif;*.bmp;*.jpg;*.pcx;*.png|' +
-                       FILTER_ALLFILES;
+                       'Images|*.bmp;*.gif;*.png;*.jpg;*.jpeg;*.tif*';
+
   FILTER_HJTFILES    = 'TreePad files (*' + ext_TreePad + ')|*' + ext_TreePad;
   FILTER_HTMLFILES   = 'HTML files (*' + ext_html + ')|*' + ext_html;
   FILTER_PROGRAMS    = 'Programs (*.exe;*.com)|*.exe;*.com;*.bat';
   FILTER_NOTEFILES   = 'Keynote files (*' + ext_KeyNote + ')|*' + ext_KeyNote + ';*' + ext_Encrypted;
+{$IFDEF WITH_DART}
   FILTER_DARTFILES   = 'Dart Notes files (*' + ext_DART + ')|*' + ext_DART;
+{$ENDIF}
   FILTER_MACROS      = 'Macro files (*' + ext_Macro + ')|*' + ext_Macro;
   FILTER_IMPORT      = FILTER_RTFFILES + '|' +
                        FILTER_TEXTFILES + '|' +
@@ -149,7 +151,7 @@ const
                      '|Sounds|*.wav;*.mp3;*.voc;*.au;*.snd;*.m3u;*.ra*;*.shn'+
                      '|Movies|*.avi;*.mpg;*.mpeg;*.mov;*.asf'+
                      '|Programs|*.exe;*.com;*.bat;*.pif;*.scr'+
-                      '|All files|*.*';
+                     '|All files|*.*';
 
    FILTER_ICONS      = 'Icon files (*.ico)|*.ico';
    FILTER_TABIMAGES  = 'Tab image files (*.icn)|*.icn';
