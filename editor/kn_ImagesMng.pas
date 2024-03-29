@@ -56,8 +56,8 @@ resourcestring
   STR_04 = 'Image not found: ';
   STR_09 = ' | %d instances';
 
-  STR_05 = 'External storage not ready' + #13 +
-           'New images will be saved provisionally [only] as Embedded KNT';
+  STR_05 = 'External storage not ready?' + #13 +
+           'New images will be stored provisionally [only] as Embedded KNT when ext.storage not ready on save';
 
   STR_07 = 'Folder "%s" is not empty or valid';
   STR_08 = 'A file with that name already exists (%s)';
@@ -77,6 +77,9 @@ resourcestring
   STR_18 = 'Exception opening image viewer: ';
   STR_19 = 'Exception changing image storage mode: ';
   STR_20 = 'Exception processing image in RTF: ';
+  STR_21 = 'Error saving image "%s" (ID:%d) :' + #13 +
+           '  Content lost' + #13 +
+           '  Will be removed from Images';
 
 
 const
@@ -576,12 +579,20 @@ begin
                    CompressionMethod:= zcStored;
 
                 ImgStream:= Img.ImageStream;
-                ImgStream.Position := 0;
-                if SaveFile(ImgStream, Img.Path, Img.Name, CompressionMethod) then begin
-                   Img.MustBeSavedExternally:= False;
-                   Strs.Add(FormatDateTime('dd/MMM/yyyy HH:nn - ', Now) + 'Added:   ' + Img.ImageDefinition);
+                if (ImgStream <> nil) then begin
+                   ImgStream.Position := 0;
+                   if SaveFile(ImgStream, Img.Path, Img.Name, CompressionMethod) then begin
+                      Img.MustBeSavedExternally:= False;
+                      Strs.Add(FormatDateTime('dd/MMM/yyyy HH:nn - ', Now) + 'Added:   ' + Img.ImageDefinition);
+                      if Img.ID > MaxSavedImgID then
+                         MaxSavedImgID:= Img.ID;
+                   end;
+                end
+                else begin
+                   MessageDlg(Format(STR_21, [Img.Name, Img.ID]), mtWarning, [mbOK], 0);
                    if Img.ID > MaxSavedImgID then
-                      MaxSavedImgID:= Img.ID;
+                      MaxSavedImgID:= Img.ID;          // To avoid confusion we will 'consume' your ID
+                   Images[i]:= nil;                    // It will be deleted in next for loop
                 end;
              end;
 
@@ -3382,7 +3393,7 @@ begin
         if ID <> 0 then begin
            Img:= GetImageFromID (ID);
            if Img <> nil then begin
-              if Img.IsOwned and (fStorageMode <> smExternal) then continue;
+              if Img.IsOwned and (not (fStorageMode in [smExternal, smExternalAndEmbKNT]) or Img.MustBeSavedExternally) then continue;
 
               Img.FreeImageStream;
               ReloadImageStream(Img);
