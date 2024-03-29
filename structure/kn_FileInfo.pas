@@ -111,6 +111,7 @@ type
     rbImagesStRelocate: TRadioButton;
     rbImagesStChange: TRadioButton;
     lblImgWarning: TLabel;
+    btnRecalcNextID: TButton;
     procedure TB_OpenDlgTrayIconClick(Sender: TObject);
     procedure TB_OpenDlgTabImgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -141,6 +142,7 @@ type
     procedure txtExtStorageLocationKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     function FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
+    procedure btnRecalcNextIDClick(Sender: TObject);
   private
     { Private declarations }
 
@@ -171,7 +173,8 @@ uses
    kn_main,
    kn_Global,
    kn_Info,
-   kn_Const
+   kn_Const,
+   kn_NoteFileMng
    ;
 
 {$R *.DFM}
@@ -200,6 +203,14 @@ resourcestring
   STR_18 = 'New images will be saved provisionally [only] as Embedded KNT' + #13 +
            'Deletions will be effective when it is available'+ #13#13 +
            '(It may be totally fine if you temporarily lose access to image storage)';
+
+  STR_19 = 'Current Next ID (%d) cannot be reduced' + #13 + '(Max ID in image list is %d)';
+  STR_20 = 'Max ID in image list is %d and Next ID is %d' + #13#13 +
+           'Do you want the NEXT image to be saved with ID = %d ' + #13#13 +
+           '* YOU MUST MAKE SURE there are no images with larger IDs on the external storage, perhaps referenced by other knt files ' +
+           '(New images could override existing files)'  + #13#13 +
+           'CONTINUE?';
+  STR_21 = 'Next ID was changed ok';
 
 
 procedure TForm_KntFileInfo.FormCreate(Sender: TObject);
@@ -350,6 +361,10 @@ begin
      lblImgWarning.Caption:= STR_17;
      lblImgWarning.Hint:= STR_18;
   end;
+
+  btnRecalcNextID.Visible := not lblImgWarning.Visible;
+  btnRecalcNextID.Enabled := (ImagesManager.StorageMode <> smEmbRTF) and not KntFile.Modified;
+
   cbImgStorageMode.ItemIndex := Ord(ImagesManager.StorageMode);
   cbImgExtStorageType.ItemIndex:= Ord(ImagesManager.ExternalStorageType);
   txtExtStorageLocation.Text:= ImagesManager.ExternalStorageLocation;
@@ -703,6 +718,27 @@ procedure TForm_KntFileInfo.rbImagesStRelocateClick(Sender: TObject);
 begin
    CheckExternalStorageEnabled;
 end;
+
+
+procedure TForm_KntFileInfo.btnRecalcNextIDClick(Sender: TObject);
+var
+  MaxSavedID: integer;
+begin
+  MaxSavedID:= ImagesManager.GetMaxSavedImageID;
+
+  if MaxSavedID+1 = ImagesManager.NextImageID then
+     MessageDlg( Format(STR_19, [MaxSavedID+1, MaxSavedID]), mtInformation, [mbOK], 0 )
+
+  else
+    if ( MessageDlg( Format(STR_20, [MaxSavedID, ImagesManager.NextImageID, MaxSavedID+1]),
+        mtInformation, [mbYes,mbNo,mbCancel], 0 ) = mrYes ) then begin
+      if ImagesManager.RecalcNextID then begin
+         MessageDlg(STR_21, mtInformation, [mbOK], 0 );
+         UpdateKntFileState( [fscSave,fscModified] );
+      end;
+    end;
+end;
+
 
 
 procedure TForm_KntFileInfo.btnOpenDlgExternalPathClick(Sender: TObject);

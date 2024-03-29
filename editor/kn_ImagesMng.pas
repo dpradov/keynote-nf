@@ -376,6 +376,7 @@ type
 
     property Images: TList read fImages;
     property ImagesMode: TImagesMode read fImagesMode write fImagesMode;            // See TKntFolder.ImagesMode  ==> ImagesManager.ProcessImagesInRTF
+    property NextImageID: Integer read fNextImageID;
     property NextTempImageID: Integer read fNextTempImageID;
     property ReconsiderImageDimensionsGoal: boolean read fReconsiderImageDimensionsGoal write fReconsiderImageDimensionsGoal;
 
@@ -401,6 +402,7 @@ type
                                const NameProposed: string = ''
                                ): TKntImage;
 
+    function GetMaxSavedImageID: integer;
     function GetImageFromStream (Stream: TMemoryStream; var CRC32: DWORD; SetLastAccess: boolean= true): TKntImage;
     function GetImageFromID (ImgID: integer; SetLastAccess: boolean= true): TKntImage; overload;
     function GetImageFromFileName (const FileName: string; SetLastAccess: boolean= true): TKntImage; overload;
@@ -410,6 +412,7 @@ type
 
     procedure ReloadImageStream (Img: TKntImage);
     procedure CheckFreeImageStreamsNotRecentlyUsed;
+    function RecalcNextID: boolean;
 
     procedure InsertImage (FileName: String; Folder: TKntFolder; Owned: boolean; const NameProposed: string = '');
     procedure InsertImageFromClipboard (Folder: TKntFolder; TryAddURLlink: boolean = true);
@@ -2114,6 +2117,21 @@ begin
 end;
 
 
+function TImageManager.GetMaxSavedImageID: integer;
+var
+  Img: TKntImage;
+  i, MaxID: integer;
+begin
+   MaxID:= 0;
+   for i := fImages.Count-1 downto 0 do begin
+     Img:= TKntImage(fImages[i]);
+     if Img.ID > MaxID then
+        MaxID:= Img.ID;
+   end;
+   Result:= MaxID;
+end;
+
+
 function TImageManager.GetImageFromID (ImgID: integer; SetLastAccess: boolean= true): TKntImage;
 var
   Img: TKntImage;
@@ -2274,6 +2292,22 @@ begin
 
 end;
 
+function TImageManager.RecalcNextID: boolean;
+var
+   NewID: integer;
+begin
+   Result:= false;
+   if (fStorageMode = smEmbRTF) or KntFile.Modified then exit;
+
+   NewID:= GetMaxSavedImageID + 1;
+   if NewID <> fNextImageID then begin
+      fNextImageID:= NewID;
+      fNextTempImageID:= fNextImageID;
+      KntFile.Modified:= True;
+      Result:= true;
+   end;
+
+end;
 
 function TImageManager.ImageInCurrentEditors (ImgID: integer; UseFreshTextPlain: boolean= false): Boolean;
 var

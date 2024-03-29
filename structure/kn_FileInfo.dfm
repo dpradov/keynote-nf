@@ -498,6 +498,25 @@ object Form_KntFileInfo: TForm_KntFileInfo
             OnClick = rbImagesStChangeClick
           end
         end
+        object btnRecalcNextID: TButton
+          Left = 394
+          Top = 81
+          Width = 98
+          Height = 25
+          Hint = 
+            'Reconsider next image ID ignoring deleted images'#13#10#13#10'(Only enable' +
+            'd when file not modified)'
+          Caption = 'Recalc Next ID ...'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+          TabStop = False
+          OnClick = btnRecalcNextIDClick
+        end
       end
     end
     object Tab_Icons: TTabSheet
