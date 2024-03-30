@@ -48,6 +48,8 @@ uses
                             OnlyNotHiddenNodes: boolean= false;
                             OnlyCheckedNodes: boolean= false);
 
+    procedure EnsureCaretVisibleInEditors;
+
     procedure MergeFromKNTFile( MergeFN : string );
 
     function CheckFolder( const name, folder : string; const AttemptCreate, Prompt : boolean ) : boolean;
@@ -493,6 +495,7 @@ begin
             KntFile.SetupMirrorNodes(nil);
             Log_StoreTick( 'After SetupMirrorNodes', 1 );
 
+            EnsureCaretVisibleInEditors;                                // *1
             SetupAndShowVCLControls;
             Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
 
@@ -515,7 +518,7 @@ begin
                 KntFile.ClipCapFolder := nil;
               end;
 
-              LoadTrayIcon( assigned( KntFile.ClipCapFolder ) and ClipOptions.SwitchIcon );
+              LoadTrayIcon( assigned( KntFile.ClipCapFolder ) and ClipOptions.SwitchIcon, false );   // *1
 
             except
             end;
@@ -568,13 +571,27 @@ begin
           Log.Add( 'KntFileOpen result: ' + inttostr( result ), 0);
          {$ENDIF}
 
+         { *1
+           It seems that it is only after having focus that it correctly attends to the EM_SCROLLCARET message
+           and updates the editor ensuring that the cursor remains visible.
+           On the other hand, from the tests done it seems that it is when we establish Pages.ActivePage (in SetupAndShowVCLControls)
+           when the editor with its content becomes visible. We are interested in ensuring that when this happens, the editor displays
+           the content taking into account the zoom to be applied and the possible alternative margins. That's why we call
+           EnsureCaretVisibleInEditors immediately before SetupAndShowVCLControls. In EnsureCaretVisibleInEditors, both the zoom
+           and the alternative margins are set and it is asked to make the cursor visible.
+           It is also indicated in the call to LoadTrayIcon, with the second parameter set to False, that Application.ProcessMessages
+           is not called, all of this to try to ensure that the editor is displayed from the beginning with the content adapted to
+           the zoom and the corresponding margins, with the cursor correctly positioned.
+         }
           if opensuccess then
           begin
             if ( Pages.PageCount > 0 ) then
             begin
               ActiveKntFolder := TKntFolder(Pages.ActivePage.PrimaryObject);
               TAM_ActiveName.Caption := ActiveKntFolder.Name;
-              FocusActiveKntFolder;
+              FocusActiveKntFolder;                                                // *1
+              ActiveKntFolder.Editor.Perform(EM_SCROLLCARET, 0, 0);                // *1
+              ActiveKntFolder.Editor.Refresh;
               Log_StoreTick( 'After GetFileState and FocusActiveKntFolder', 1 );
             end
             else
@@ -615,6 +632,18 @@ begin
   end;
 end; // KntFileOpen
 
+
+procedure EnsureCaretVisibleInEditors;
+var
+   i: integer;
+   Editor: TRxRichEdit;
+begin
+   for i := 0 to KntFile.Folders.Count -1 do begin
+       Editor:= KntFile.Folders[i].Editor;
+       SetMargins(Editor);
+       SendMessage(Editor.Handle, EM_SCROLLCARET, 0, 0);
+   end;
+end;
 
 
 //=================================================================

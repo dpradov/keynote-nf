@@ -75,7 +75,7 @@ uses
     procedure FocusActiveKntFolder;
     procedure SortTabs;
 
-    procedure LoadTrayIcon( const UseAltIcon : boolean );
+    procedure LoadTrayIcon( const UseAltIcon : boolean; DoProcessMessage: boolean= true );
     procedure LoadTabImages( const ForceReload : boolean );
 {$IFDEF KNT_DEBUG}
     procedure SaveMenusAndButtons;
@@ -218,8 +218,9 @@ begin
         HelpContext:= 284;  // Tree-type Notes [284]
       end;
 
-      SetEditorZoom( aFolder.Editor, DefaultEditorProperties.DefaultZoom, '' );
       _LastZoomValue:= DefaultEditorProperties.DefaultZoom;
+      if _LastZoomValue <> 100 then
+         SetEditorZoom( aFolder.Editor, DefaultEditorProperties.DefaultZoom, '' );
   end;
 
 end; // SetUpVCLControls
@@ -1105,7 +1106,7 @@ begin
 
             TMClipCap.Checked := MMNoteClipCapture.Checked;
 
-            SetMargins();
+            SetMargins(ActiveKntFolder.Editor);
             UpdateWordWrap;
 
             if EditorOptions.WordCountTrack then begin
@@ -1764,7 +1765,7 @@ begin
 end; // SelectStatusbarGlyph
 
 
-procedure LoadTrayIcon( const UseAltIcon : boolean );
+procedure LoadTrayIcon( const UseAltIcon : boolean; DoProcessMessage: boolean= true );
 var
   Icon: TIcon;
   UseIcon: integer;
@@ -1802,7 +1803,8 @@ begin
          TrayIcon.Icon:= TrayIcon.Icons[UseIcon];
 
       Application.Icon:= TrayIcon.Icon;
-      Application.ProcessMessages;
+      if DoProcessMessage then
+         Application.ProcessMessages;
       sleep( 100 );                        // <- Important. Without this line, the icon of the main window changes, but the icon in the taskbar doesn't
   end;
 

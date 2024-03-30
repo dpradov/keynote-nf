@@ -1658,11 +1658,10 @@ begin
 
   EnableOrDisableUAS;
 
-  if KeyOptions.AltMargins then begin
+  if KeyOptions.AltMargins then
      MMAlternativeMargins.Checked:= true;
-     if assigned(ActiveKntFolder) then
-        SetMargins();
-  end;
+
+  EnsureCaretVisibleInEditors;
 
   if _GLOBAL_URLText <> '' then
     JumpToKNTLocation( _GLOBAL_URLText );
@@ -7999,7 +7998,7 @@ begin
   MMAlternativeMargins.Checked:= not MMAlternativeMargins.Checked;
 
   if assigned(ActiveKntFolder) then begin
-     SetMargins();
+     EnsureCaretVisibleInEditors;
      ActiveKntFolder.Editor.Refresh;
   end;
 end;

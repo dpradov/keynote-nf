@@ -107,7 +107,7 @@ type
     function GetEditorZoom (Editor: TRxRichEdit = nil): integer;
     procedure SetEditorZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );  overload;
     procedure SetEditorZoom( Editor: TRxRichEdit; ZoomValue : integer; ZoomString : string; Increment: integer= 0 ); overload;
-    procedure SetMargins();
+    procedure SetMargins(Editor: TRxRichEdit);
 
     procedure GetIndentInformation(Editor: TRxRichEdit;
                                    var Indent: integer; var NextIndent: integer;
@@ -2759,6 +2759,7 @@ begin
      NewZoom := _ZOOM_MIN; // min zoom
 
   SendMessage( Editor.Handle, EM_SETZOOM, NewZoom, 100 );
+  SendMessage( Editor.Handle, EM_SCROLLCARET, 0, 0);
 
 end; // ZoomEditor
 
@@ -2791,13 +2792,13 @@ begin
 end;
 
 
-procedure SetMargins();
+procedure SetMargins(Editor: TRxRichEdit);
 begin
 
   if Form_Main.MMAlternativeMargins.Checked then
-     ActiveKntFolder.Editor.SetMargins(KeyOptions.MarginAltLeft, KeyOptions.MarginAltRight)
+     Editor.SetMargins(KeyOptions.MarginAltLeft, KeyOptions.MarginAltRight)
   else
-     ActiveKntFolder.Editor.SetMargins(0, 0);
+     Editor.SetMargins(0, 0);
 end;
 
 
