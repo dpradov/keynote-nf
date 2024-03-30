@@ -2923,7 +2923,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 226
           Width = 330
           Height = 17
-          Hint = 'Always update scrollbars (causes some flicker)'
+          Hint = 'Trying to resolve the issue of scrollbars not being updated (eg. on Linux-Wine)'
           Caption = '&Fix scroll bars'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
