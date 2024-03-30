@@ -5033,6 +5033,9 @@ var
   TreeWidthNodeTouched: boolean;
   SplitterNoteMoving: boolean;
 
+const
+  TREE_WIDTH_MOUSE_TIMEOUT = 2500;
+
 
 procedure TForm_Main.OnAfterChangesOnTreeWidth;
 var
@@ -5106,7 +5109,7 @@ begin
    end
    else begin
       N2:= GetTickCount;
-      if N2 > (TreeWidth_N + 2500) then
+      if N2 > (TreeWidth_N + TREE_WIDTH_MOUSE_TIMEOUT) then
          TreeWidth_N:= 0
       else
          if (N2 >= (TreeWidth_N + 300)) and TreeWidthNodeTouched then begin
@@ -5119,16 +5122,22 @@ end;
 procedure TForm_Main.TVOnHint(Sender: TObject; Node: TTreeNTNode;
   var NewText: string);
 begin
+  { *1 We make sure that CheckingTreeExpansion doesn't end up calling CheckExpandTreeWidth
+       until we initialize TreeWidth_N to 0 (from RTFMouseMove and CheckRestoreTreeWidth) }
    if not CtrlDown then begin
       TreeWidthNodeTouched:= True;
       CheckingTreeExpansion;
-   end;
+   end
+   else
+      TreeWidth_N:= Cardinal.MaxValue - TREE_WIDTH_MOUSE_TIMEOUT;   // *1
 end;
 
 procedure TForm_Main.TVMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
 begin
    if not CtrlDown then
-     CheckingTreeExpansion;
+     CheckingTreeExpansion
+   else
+      TreeWidth_N:= Cardinal.MaxValue - TREE_WIDTH_MOUSE_TIMEOUT;
 end;
 
 
@@ -5136,6 +5145,8 @@ procedure TForm_Main.RTFMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integ
 begin
    if TreeWidthExpanded then
       CheckRestoreTreeWidth;
+
+   TreeWidth_N:= 0;
 end;
 
 
