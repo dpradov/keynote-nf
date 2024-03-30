@@ -520,9 +520,10 @@ begin
         CheckWordCount(true);
 
         UpdateWordWrap;
-
+        {
         if KeyOptions.FixScrollBars then
           ActiveKntFolder.Editor.Invalidate; // [x] [?]
+        }
 
         if not KeepModified then
            ActiveKntFolder.Editor.Modified := false;

@@ -60,6 +60,9 @@ type
 type
   TTabRichEdit = class; // FORWARD DECLARATION
 
+  TBeforeEditorLoadedEvent = procedure(Note: TKntNote) of object;
+  TAfterEditorLoadedEvent  = procedure(Note: TKntNote) of object;
+
   TKntFolder = class( TPersistent )
   private
     FEditorChrome : TChrome; // user-defined fonts, colors etc.
@@ -124,6 +127,8 @@ type
 
     // events
     FOnChange : TNotifyEvent;
+    FOnBeforeEditorLoaded: TBeforeEditorLoadedEvent;
+    FOnAfterEditorLoaded: TAfterEditorLoadedEvent;
 
     procedure SetName( AName : TNoteNameStr );
     procedure SetID( AID : longint );
@@ -163,6 +168,9 @@ type
     procedure GenerateNoteID( const aNote : TKntNote );
     procedure VerifyNoteIDs;
     
+  protected
+    procedure BeforeEditorLoaded(Note: TKntNote); dynamic;
+    procedure AfterEditorLoaded(Note: TKntNote); dynamic;
 
   public
     class function NewKntFolder(const DefaultFolder, CanFocus : boolean) : boolean;
@@ -205,6 +213,8 @@ type
 
     // events
     property OnChange : TNotifyEvent read FOnChange write FOnChange;
+    property OnBeforeEditorLoaded: TBeforeEditorLoadedEvent read FOnBeforeEditorLoaded write FOnBeforeEditorLoaded;
+    property OnAfterEditorLoaded: TAfterEditorLoadedEvent read FOnAfterEditorLoaded write FOnAfterEditorLoaded;
 
     constructor Create;
     destructor Destroy; override;
@@ -1134,6 +1144,18 @@ begin
 
   inherited Destroy;
 end; // TTabNote .Destroy;
+
+
+procedure TKntFolder.BeforeEditorLoaded(Note: TKntNote);
+begin
+   if assigned(FOnBeforeEditorLoaded) then OnBeforeEditorLoaded(Note);
+end;
+
+procedure TKntFolder.AfterEditorLoaded(Note: TKntNote);
+begin
+   if assigned(FOnAfterEditorLoaded) then OnAfterEditorLoaded(Note);
+end;
+
 
 function TKntFolder.PropertiesToFlagsString : TFlagsString;
 begin
@@ -2726,6 +2748,9 @@ var
  ContainsImgIDsRemoved: boolean;
  ContainsImages: boolean;
 
+ OnEnterBak: TNotifyEvent;
+ ControlWasFocused: TWinControl;
+
 begin
   if not assigned(FEditor) then exit;
   if not assigned(FSelectedNote) then  begin
@@ -2733,74 +2758,93 @@ begin
     exit;
   end;
 
-  case FSelectedNote.VirtualMode of
-    vmNone, vmText, vmRTF, vmHTML, vmKNTNode : begin
-      FEditor.BeginUpdate;
-      ReadOnlyBAK:= FEditor.ReadOnly;
-      ContainsImgIDsRemoved:= false;
-      try
-        FEditor.OnChange := nil;
-        FEditor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
-        FEditor.Clear;
+  BeforeEditorLoaded(FSelectedNote);
 
-        FSelectedNote.Stream.Position := 0;
-        strRTF:= '';
-
-        if ( FPlainText or ( FSelectedNote.VirtualMode in [vmText, vmHTML] )) then
-           UpdateEditor;
-
-        fImagesReferenceCount:= nil;
-        if NodeStreamIsRTF (FSelectedNote.Stream) then begin
-           FEditor.StreamFormat:= sfRichText;
-           if (ImagesManager.StorageMode <> smEmbRTF) and (FSelectedNote.VirtualMode in [vmNone, vmKNTNode]) and (not FPlainText) then begin
-              GetImagesIDInstances (FSelectedNote.Stream, FSelectedNote.NoteTextPlain);
-              strRTF:= ImagesManager.ProcessImagesInRTF(FSelectedNote.Stream.Memory, FSelectedNote.Stream.Size, Self, ImagesManager.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
-           end;
-        end
-        else
-           FEditor.StreamFormat:= sfPlainText;
-
-        Log_StoreTick('TKntFolder.DataStreamToEditor - BEGIN', 4, +1);
-       {$IFDEF KNT_DEBUG}
-        if log.Active and  (log.MaxDbgLevel >= 4) then begin
-           dataSize:= FSelectedNote.Stream.Size;
-           str:= Copy(String(PAnsiChar(FSelectedNote.Stream.Memory)), 1, 250);
-           Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
-        end;
-       {$ENDIF}
-
-        if StrRTF <> '' then begin
-           FEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
-           FEditor.ClearUndo;
-        end
-        else
-           FEditor.Lines.LoadFromStream( FSelectedNote.Stream );
-
-        Log_StoreTick('TKntFolder.DataStreamToEditor - END', 4, -1);
-
-        FEditor.Color := FSelectedNote.RTFBGColor;
-        FEditor.SelStart := FSelectedNote.SelStart;
-        FEditor.SelLength := FSelectedNote.SelLength;
-
-        if FSelectedNote.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
-           UpdateEditor;
-
-      finally
-        FEditor.ReadOnly:= ReadOnlyBAK;
-        FEditor.EndUpdate;
-        if not ContainsImgIDsRemoved then
-           FEditor.Modified := false;
-        FEditor.OnChange := Form_Main.RxRTFChange;
-      end;
-    end;
-    vmIELocal, vmIERemote : begin
-      {$IFDEF WITH_IE}
-      ov := 0;
-      FWebBrowser.Navigate( FSelectedNode.VirtualFN, ov, ov, ov, ov );
-      {$ENDIF}
-    end;
-
+  ControlWasFocused:= nil;
+  if KeyOptions.FixScrollBars and not FEditor.Focused and FEditor.CanFocus then begin
+     OnEnterBak:= FEditor.OnEnter;
+     FEditor.OnEnter:= nil;
+     ControlWasFocused:= Form_Main.ActiveControl;
+     FEditor.SetFocus;
   end;
+
+  try
+     case FSelectedNote.VirtualMode of
+       vmNone, vmText, vmRTF, vmHTML, vmKNTNode : begin
+         FEditor.BeginUpdate;
+         ReadOnlyBAK:= FEditor.ReadOnly;
+         ContainsImgIDsRemoved:= false;
+         try
+           FEditor.OnChange := nil;
+           FEditor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
+           FEditor.Clear;
+
+           FSelectedNote.Stream.Position := 0;
+           strRTF:= '';
+
+           if ( FPlainText or ( FSelectedNote.VirtualMode in [vmText, vmHTML] )) then
+              UpdateEditor;
+
+           fImagesReferenceCount:= nil;
+           if NodeStreamIsRTF (FSelectedNote.Stream) then begin
+              FEditor.StreamFormat:= sfRichText;
+              if (ImagesManager.StorageMode <> smEmbRTF) and (FSelectedNote.VirtualMode in [vmNone, vmKNTNode]) and (not FPlainText) then begin
+                 GetImagesIDInstances (FSelectedNote.Stream, FSelectedNote.NoteTextPlain);
+                 strRTF:= ImagesManager.ProcessImagesInRTF(FSelectedNote.Stream.Memory, FSelectedNote.Stream.Size, Self, ImagesManager.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
+              end;
+           end
+           else
+              FEditor.StreamFormat:= sfPlainText;
+
+           Log_StoreTick('TKntFolder.DataStreamToEditor - BEGIN', 4, +1);
+          {$IFDEF KNT_DEBUG}
+           if log.Active and  (log.MaxDbgLevel >= 4) then begin
+              dataSize:= FSelectedNote.Stream.Size;
+              str:= Copy(String(PAnsiChar(FSelectedNote.Stream.Memory)), 1, 250);
+              Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
+           end;
+          {$ENDIF}
+
+           if StrRTF <> '' then begin
+              FEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
+              FEditor.ClearUndo;
+           end
+           else
+              FEditor.Lines.LoadFromStream( FSelectedNote.Stream );
+
+           Log_StoreTick('TKntFolder.DataStreamToEditor - END', 4, -1);
+
+           FEditor.Color := FSelectedNote.RTFBGColor;
+           FEditor.SelStart := FSelectedNote.SelStart;
+           FEditor.SelLength := FSelectedNote.SelLength;
+
+           if FSelectedNote.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
+              UpdateEditor;
+
+         finally
+           FEditor.ReadOnly:= ReadOnlyBAK;
+           FEditor.EndUpdate;
+           if not ContainsImgIDsRemoved then
+              FEditor.Modified := false;
+           FEditor.OnChange := Form_Main.RxRTFChange;
+         end;
+       end;
+       vmIELocal, vmIERemote : begin
+         {$IFDEF WITH_IE}
+         ov := 0;
+         FWebBrowser.Navigate( FSelectedNode.VirtualFN, ov, ov, ov, ov );
+         {$ENDIF}
+       end;
+     end;
+
+  finally
+     if KeyOptions.FixScrollBars and (ControlWasFocused <> nil) then begin
+        ControlWasFocused.SetFocus;
+        FEditor.OnEnter:= OnEnterBak;
+     end;
+  end;
+
+  AfterEditorLoaded(FSelectedNote);
 
 end; // DataStreamToEditor
 
