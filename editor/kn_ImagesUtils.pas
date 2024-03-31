@@ -140,7 +140,8 @@ uses  System.DateUtils,
       kn_TreeNoteMng,
       kn_RTFUtils,
       kn_LinksMng,
-      kn_VCLControlsMng
+      kn_VCLControlsMng,
+      kn_EditorUtils
       ;
 
 resourcestring
@@ -700,8 +701,9 @@ end;
 
 procedure  CheckDimensionGoals(Width, Heigh: integer; var WidthGoal, HeightGoal: integer);
 var
-   MaxWidth: integer;
+   MaxWidth, AuxW: integer;
    Ratio: Single;
+   Zoom: integer;
 
 begin
    if (KeyOptions.ImgMaxAutoWidthGoal <> 0) then begin
@@ -710,10 +712,14 @@ begin
           MaxWidth:= KeyOptions.ImgMaxAutoWidthGoal
       else begin
           MaxWidth:= ActiveKntFolder.Editor.Width;
+          Zoom:= GetEditorZoom(ActiveKntFolder.Editor);
+          MaxWidth:= Round(MaxWidth / (Zoom / 100));
+          AuxW:= Round(20 / (Zoom / 100)) +10;
+
           if Form_Main.MMAlternativeMargins.Checked then
-             Dec(MaxWidth, KeyOptions.MarginAltLeft + KeyOptions.MarginAltRight + 20)
+             Dec(MaxWidth, KeyOptions.MarginAltLeft + KeyOptions.MarginAltRight + AuxW)
           else
-             Dec(MaxWidth, 35);
+             Dec(MaxWidth, AuxW);
       end;
 
       if (WidthGoal > MaxWidth) then begin
