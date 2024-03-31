@@ -1458,6 +1458,9 @@ begin
          DataStreamToEditor;
       end;
 
+      if _LastZoomValue <> 100 then
+         SetEditorZoom(FEditor, _LastZoomValue, '' );
+
    finally
       ImagesManager.ReconsiderImageDimensionsGoal:= false;
    end;
