@@ -32,7 +32,7 @@ resourcestring
   FILTER_EXECUTABLES = 'Programs|*.exe;*.com';
   LANGUAGE_DEFAULT = 'English (Internal)';
 
-  STR_01_Defaults = 'New note';
+  STR_01_Defaults = 'New folder';
   STR_02_Defaults = 'New node';
   STR_03_Formats = 'Keynote native';
   STR_04_Formats = 'Keynote encrypted';
@@ -74,8 +74,8 @@ resourcestring
   STR_31_ClipNodeNaming = 'Use current date and time';
   STR_32_FactStr = 'Open file in KeyNote';
   STR_33_FactStr = 'Execute (macro or plugin)';
-  STR_34_FactStr = 'Merge notes into current file';
-  STR_35_FactStr = 'Import as a new note';
+  STR_34_FactStr = 'Merge folders into current file';
+  STR_35_FactStr = 'Import as a new folder';
   STR_36_FactStr = 'Create hyperlink to file';
   STR_37_FactStr = 'Import as tree nodes';
   STR_38_FactStr = 'Import as virtual tree nodes';

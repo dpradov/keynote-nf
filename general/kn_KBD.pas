@@ -412,15 +412,15 @@ const
     ( Name : 'Insert_MarkLocation'; Shortcut : 16501; Hint : 'Mark place to which the link will jump' ), { Ctrl+F6 }
     ( Name : 'Insert_WordWeb'; Shortcut : 16506; Hint : 'Look up word in WordWeb thesaurus' ), { Ctrl+F11 }
     ( Name : 'Note_CheckSpelling'; Shortcut : 0; Hint : 'Check spelling in current note' ), {  }
-    ( Name : 'Note_ClipCapEnable'; Shortcut : 122; Hint : 'Toggle clipboard capture for active note' ), { F11 }
-    ( Name : 'Note_Emailnote'; Shortcut : 24645; Hint : 'Send current note via e-mail' ), { Shift+Ctrl+E }
-    ( Name : 'Note_PrintNote'; Shortcut : 24656; Hint : 'Print text of current note' ), { Shift+Ctrl+P }
-    ( Name : 'Note_Printpreview'; Shortcut : 0; Hint : 'View how the note will be printed' ), {  }
-    ( Name : 'Note_Readonly'; Shortcut : 24658; Hint : 'Make current note read-only' ), { Shift+Ctrl+R }
-    ( Name : 'Note_TabNew'; Shortcut : 16462; Hint : 'Add a new note' ), { Ctrl+N }
-    ( Name : 'Note_TabProperties'; Shortcut : 115; Hint : 'Edit current note properties' ), { F4 }
-    ( Name : 'Note_TabRemove'; Shortcut : 0; Hint : 'Delete current note' ), {  }
-    ( Name : 'Note_TabRename'; Shortcut : 113; Hint : 'Rename current note' ), { F2 }
+    ( Name : 'Note_ClipCapEnable'; Shortcut : 122; Hint : 'Toggle clipboard capture for active folder' ), { F11 }
+    ( Name : 'Note_Emailnote'; Shortcut : 24645; Hint : 'Send current folder via e-mail' ), { Shift+Ctrl+E }
+    ( Name : 'Note_PrintNote'; Shortcut : 24656; Hint : 'Print text of current folder' ), { Shift+Ctrl+P }
+    ( Name : 'Note_Printpreview'; Shortcut : 0; Hint : 'View how the folder will be printed' ), {  }
+    ( Name : 'Note_Readonly'; Shortcut : 24658; Hint : 'Make current folder read-only' ), { Shift+Ctrl+R }
+    ( Name : 'Note_TabNew'; Shortcut : 16462; Hint : 'Add a new folder' ), { Ctrl+N }
+    ( Name : 'Note_TabProperties'; Shortcut : 115; Hint : 'Edit current folder properties' ), { F4 }
+    ( Name : 'Note_TabRemove'; Shortcut : 0; Hint : 'Delete current folder' ), {  }
+    ( Name : 'Note_TabRename'; Shortcut : 113; Hint : 'Rename current folder' ), { F2 }
     ( Name : 'Search_BkmJ0'; Shortcut : 32816; Hint : 'Jump to bookmark' ), { Alt+0 }
     ( Name : 'Search_BkmJ1'; Shortcut : 32817; Hint : 'Jump to bookmark' ), { Alt+1 }
     ( Name : 'Search_BkmJ2'; Shortcut : 32818; Hint : 'Jump to bookmark' ), { Alt+2 }
@@ -454,8 +454,8 @@ const
     ( Name : 'Tools_Defaults'; Shortcut : 117; Hint : 'Set defaults for all newly created files' ), { F6 }
     ( Name : 'Tools_EditGlossary'; Shortcut : 0; Hint : 'Edit glossary terms' ), {  }
     ( Name : 'Tools_Export'; Shortcut : 0; Hint : 'Export text to another format' ), {  }
-    ( Name : 'Tools_Import'; Shortcut : 0; Hint : 'Import files as notes' ), {  }
-    ( Name : 'Tools_MergeWithFile'; Shortcut : 0; Hint : 'Add notes from a file on disk' ), {  }
+    ( Name : 'Tools_Import'; Shortcut : 0; Hint : 'Import files as folders' ), {  }
+    ( Name : 'Tools_MergeWithFile'; Shortcut : 0; Hint : 'Add folders from a file on disk' ), {  }
     ( Name : 'Tools_Options'; Shortcut : 116; Hint : 'Adjust program options' ), { F5 }
     ( Name : 'Tools_RunPlugin'; Shortcut : 16507; Hint : 'Execute selected plugin' ), { Ctrl+F12 }
     ( Name : 'Tools_RunLastMacro'; Shortcut : 16500; Hint : 'Execute most recent macro' ), { Ctrl+F5 }
@@ -485,7 +485,7 @@ const
     ( Name : 'Tree_SortChildNodes'; Shortcut : 0; Hint : 'Sort child nodes (subtree)' ), {  }
     ( Name : 'Tree_SortFullTree'; Shortcut : 0; Hint : 'Sort all nodes in tree' ), {  }
     ( Name : 'View_Alphabetizetabs'; Shortcut : 0; Hint : 'Sort notes alphabetically by name' ), {  }
-    ( Name : 'View_Alwaysontop'; Shortcut : 119; Hint : 'Keep program inwod on top of other windows' ), { F8 }
+    ( Name : 'View_Alwaysontop'; Shortcut : 119; Hint : 'Keep program on top of other windows' ), { F8 }
     ( Name : 'View_Checkboxes'; Shortcut : 0; Hint : 'Show or hide tree checkboxes' ), {  }
     ( Name : 'View_FormatToolbar'; Shortcut : 0; Hint : 'Display or hide the Formatting toolbar' ), {  }
     ( Name : 'View_FormatViewBoth'; Shortcut : 0; Hint : 'Display font and paragraph formatting' ), {  }
@@ -499,7 +499,7 @@ const
     ( Name : 'View_ShiftLeft'; Shortcut : 0; Hint : 'Move active tab left' ), {  }
     ( Name : 'View_ShiftRight'; Shortcut : 0; Hint : 'Move active tab right' ), {  }
     ( Name : 'View_ShowAllToolbars'; Shortcut : 0; Hint : 'Display all toolbars' ), {  }
-    ( Name : 'View_ShowIconsontabs'; Shortcut : 0; Hint : 'Show or hide icons on note tabs' ), {  }
+    ( Name : 'View_ShowIconsontabs'; Shortcut : 0; Hint : 'Show or hide icons on folder tabs' ), {  }
     ( Name : 'View_ShowTree'; Shortcut : 8314; Hint : 'Show or hide tree panel' ), { Shift+F11 }
     ( Name : 'View_StyleToolbar'; Shortcut : 0; Hint : 'Display or hide the Style toolbar' ), {  }
     ( Name : 'View_TreeToolbar'; Shortcut : 0; Hint : 'Display or hide the Tree toolbar' ), {  }

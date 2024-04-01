@@ -4,7 +4,7 @@ object Form_NewKntFolder: TForm_NewKntFolder
   HelpContext = 317
   ActiveControl = Combo_TabName
   BorderStyle = bsDialog
-  Caption = 'New note'
+  Caption = 'New folder'
   ClientHeight = 153
   ClientWidth = 326
   Color = clBtnFace
@@ -69,7 +69,7 @@ object Form_NewKntFolder: TForm_NewKntFolder
     Top = 21
     Width = 237
     Height = 21
-    Hint = 'Enter note name'
+    Hint = 'Enter folder name'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -87,7 +87,7 @@ object Form_NewKntFolder: TForm_NewKntFolder
     Top = 111
     Width = 84
     Height = 25
-    Hint = 'Edit properties of the new note'
+    Hint = 'Edit properties of the new folder'
     Caption = '&Properties'
     TabOrder = 4
     OnClick = Button_PropertiesClick
@@ -97,7 +97,7 @@ object Form_NewKntFolder: TForm_NewKntFolder
     Top = 54
     Width = 80
     Height = 22
-    Hint = 'Select icon for note'
+    Hint = 'Select icon for folder'
     Extended = False
     TabOrder = 1
   end

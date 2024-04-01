@@ -182,7 +182,7 @@ object Form_FindReplace: TForm_FindReplace
       Top = 51
       Width = 165
       Height = 17
-      Caption = 'Search A&ll notes'
+      Caption = 'Search A&ll folders'
       TabOrder = 1
       OnClick = CheckBox_ScopeChanged
     end
@@ -210,7 +210,7 @@ object Form_FindReplace: TForm_FindReplace
       Top = 90
       Width = 155
       Height = 17
-      Caption = '&Wrap in note'
+      Caption = '&Wrap in folder'
       TabOrder = 6
     end
   end
