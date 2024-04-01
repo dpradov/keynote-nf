@@ -638,6 +638,8 @@ var
    i: integer;
    Editor: TRxRichEdit;
 begin
+   if not assigned( KntFile ) then exit;
+
    for i := 0 to KntFile.Folders.Count -1 do begin
        Editor:= KntFile.Folders[i].Editor;
        SetMargins(Editor);
