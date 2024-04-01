@@ -3,6 +3,34 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 1.9.2.1  (01 apr 2024)
+--------------------------
+(Detailed info in doc\Changes in 1.9.2 .01.txt)
+
+* Fixed: Nodes not showing cursor position when opening
+* Fixed: Cursor could be not visible on loading if zoom <> 100% and/or alternat. margin was set
+* Modified the implementation of "Fix scrollbars" (e.g. to use with Linux-Wine)
+
+* Fixed: Images not saved (in external storage mode) were lost if 'Reload Images' was executed
+* Fixed: Images. Max.auto width on insert = -1 was not considering current zoom.
+* Fixed: After running "Restore Image Proportions", the editor was displayed at 100% zoom
+* New: It is possible to recalculate the ID of the next image to be saved
+
+* Improvements (and 2 fixes) in "Normal vs maximum tree width" functionality
+* Changes in Ctrl+Up/Down and Ctrl+Shift+Up/Down shortcuts
+* Changed the default extensions filtered in Insert | Link to File menu option
+
+* Fixed: The detection of URLs could be incorrect when other URL prefixes where present
+* Fixed: Setting font size with Font dialog when scaling settings > 100% results in a larger font
+* Fixed: Glossary did not correctly handle the backslash character
+* Fixed: Glossary doesn't display correctly items that include '=' character inside the shortcut
+* Fixed: Favorites in Resource Panel need to be refreshed in certain ocassions
+
+* Refactoring. Simple notes disappear -> Switch to using only Tree-Notes
+* Change of terminology: Simple notes / Tree Notes + nodes ==> "Folders" with "notes"
+
+
+
 v 1.9.1.1  (17 mar 2024)
 --------------------------
 (Detailed info in doc\Changes in 1.9.1 .01.txt)
