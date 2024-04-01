@@ -13,7 +13,7 @@ II=3
 DC=20-04-2003 19:33:48
 TI=0
 TS=4
-CX=2042
+CX=2114
 CY=0
 BG=clWindow
 CH=0
@@ -40,7 +40,6 @@ DI=2
 NF=001000100000000000000000
 BC=clWindow
 IX=0
-SS=2042
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red64\green64\blue64;\red128\green0\blue128;\red255\green0\blue0;\red0\green128\blue0;}
@@ -53,7 +52,7 @@ SS=2042
 
 \pard\sb120\qj The basic idea in KeyNote NF is that \b you can have many separate notes within a single file. \b0 This means that you do not need to open several files \f2\emdash\f0 for most purposes it is enough to create only one file and several folders (tab) inside it. Each \b folder \super 1\nosupersub  \b0 allows multi-level, nested notes (nodes).\par
 
-\pard\sa160\qr\super\b 1\nosupersub\b0  Note: since versi\'f3n 1.9.2 tabs are renamed as \cf3\ul\b folders\cf0\ulnone\b0 , containing one or more notes. See {{\field{\*\fldinst{HYPERLINK "file:///*8|317|2425|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Change of terminology}}}}\f0\fs20\par
+\pard\sa160\qr\super\b 1\nosupersub\b0  Since versi\'f3n 1.9.2 tabs are renamed as \cf3\ul\b folders\cf0\ulnone\b0 , containing one or more notes. {{\field{\*\fldinst{HYPERLINK "file:///*8|317|2425|0|1"}}{\fldrslt{\ul\cf2\cf2\ul More info}}}}\f0\fs20\par
 
 \pard\qj KeyNote NF is as \b simple to use\b0  as any \b text editor\b0 , with a large number of text formatting functions that allows you to create very readable, clear, and well-organized notes. It is very versatile and always accessible with a single keypress, even if you work in another application. It offer many \b advanced features\b0 , such as \b images,\b0  \b glossary, hyperlinks, macros, styles, plugins, virtual nodes, \b0 and much more. Additionally, KeyNote NF's interface and behavior are extremely configurable.\par
 
@@ -1067,7 +1066,6 @@ DI=317
 NF=000000000000000000000000
 BC=clWindow
 IX=0
-SS=656
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;}
@@ -15626,7 +15624,7 @@ II=2
 DC=24-02-2024 13:35:07
 TI=1
 TS=4
-CX=1584
+CX=0
 CY=0
 BG=clWindow
 CH=0
@@ -15653,7 +15651,6 @@ DI=2
 NF=000000000000000000000000
 BC=clWindow
 IX=0
-SS=1584
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green255\blue255;}
@@ -15680,6 +15677,8 @@ The \b main changes/improvements of the latest versions\b0  are highlighted belo
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Refactoring. Simple notes disappear -> Switch to using only Tree-Notes\par
 {\pntext\f3\'B7\tab}Change of terminology: Simple notes / Tree Notes + nodes ==> "Folders" with "notes"\par
+
+\pard\li360 {{\field{\*\fldinst{HYPERLINK "file:///*8|317|2425|0|1"}}{\fldrslt{\ul\cf2\cf2\ul More info}}}}\f0\fs20\par
 
 \pard\sa120\par
 \b\fs26\lang3082 v 1.9.0\b0\fs20\par
