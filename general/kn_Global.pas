@@ -854,11 +854,15 @@ begin
       if FirstTimeRun then begin
         if ( KntFileToLoad = '' ) then begin
           // our INI file was not found, so we're probably being used 1st time
-          // after installation. Since no .KNT file was specified, let's show
-          // the sample file which is part of the distribution.
+          // after installation.
+          // Insted of: Since no .KNT file was specified, let's show the sample file which is part of the distribution.
+          {
           KntFileToLoad := NormalFN( extractfilepath( Application.ExeName ) + SampleFileName );
           if ( not FileExists( KntFileToLoad )) then
             KntFileToLoad := '';
+          }
+          // Show the help file:
+          ActiveKeyNoteHelp(2);  // Welcome to KeyNote NF [2]
         end;
       end
       else
@@ -883,7 +887,7 @@ begin
         end;
       end
       else
-        if KeyOptions.AutoNewFile then
+        if KeyOptions.AutoNewFile and not FirstTimeRun then
           KntFileNew( '' );
 
       Log_StoreTick( 'FormCreate - END', 0, -1 );

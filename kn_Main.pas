@@ -1717,7 +1717,7 @@ begin
 
   Log_StoreTick( 'After autoplugin', 2 );
 
-  if KeyOptions.TipOfTheDay then
+  if KeyOptions.TipOfTheDay and not FirstTimeRun then
     postmessage( Handle, WM_TIPOFTHEDAY, 0, 0 );
 
 
@@ -2413,7 +2413,7 @@ begin
 
 
     _MillisecondsIdle:= MillisecondsIdle;
-    if KeyOptions.CheckUpdOnStartup and (_MillisecondsIdle > 3000) then
+    if KeyOptions.CheckUpdOnStartup and (_MillisecondsIdle > 3000) and not FirstTimeRun then
        CheckForUpdate(true);
 
     if EditorOptions.WordCountTrack and (_MillisecondsIdle >= 450) then

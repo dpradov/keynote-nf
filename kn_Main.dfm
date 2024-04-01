@@ -1052,6 +1052,8 @@ object Form_Main: TForm_Main
     OnDragOver = PagesDragOver
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
+    ExplicitWidth = 716
+    ExplicitHeight = 613
   end
   object Dock_Left: TDock97
     Left = 0
@@ -1068,6 +1070,8 @@ object Form_Main: TForm_Main
     Width = 1042
     Height = 26
     Position = dpBottom
+    ExplicitTop = 667
+    ExplicitWidth = 1038
     object Toolbar_Tree: TToolbar97
       Tag = 4
       Left = 247
@@ -1241,7 +1245,7 @@ object Form_Main: TForm_Main
     Width = 310
     Height = 614
     Hint = 'Right-click for resource panel options'
-    ActivePage = ResTab_RTF
+    ActivePage = ResTab_Find
     Align = alRight
     FlatSeperators = False
     HotTrack = False
@@ -1256,6 +1260,8 @@ object Form_Main: TForm_Main
     RemoveLastTab = True
     TabOrder = 2
     OnChange = Pages_ResChange
+    ExplicitLeft = 728
+    ExplicitHeight = 613
     object ResTab_Find: TTab95Sheet
       HelpType = htKeyword
       HelpKeyword = '479-5'
@@ -1264,10 +1270,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Panel_ResFind: TPanel
         Left = 0
         Top = 0
@@ -1440,8 +1442,6 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object CB_ResFind_CaseSens: TCheckBox
             Left = 10
             Top = 15
@@ -1594,9 +1594,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
       ExplicitHeight = 585
       object Res_RTF: TRxRichEdit
         Left = 0
