@@ -237,7 +237,7 @@ type
 
     function PrepareTextPlain (myTreeNode: TTreeNTNode; RTFAux: TTabRichEdit): string;
 
-    procedure DataStreamToEditor;
+    procedure DataStreamToEditor (KeepEditorFocusedOnFixScrollBars: boolean= false);
     function EditorToDataStream: TMemoryStream;
 
     procedure GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
@@ -2735,7 +2735,7 @@ begin
 end; // UpdateTree
 
 
-procedure TKntFolder.DataStreamToEditor;
+procedure TKntFolder.DataStreamToEditor(KeepEditorFocusedOnFixScrollBars: boolean= false);
 var
   ReadOnlyBAK: boolean;
 {$IFDEF WITH_IE}
@@ -2841,7 +2841,7 @@ begin
      end;
 
   finally
-     if KeyOptions.FixScrollBars and (ControlWasFocused <> nil) then begin
+     if KeyOptions.FixScrollBars and (ControlWasFocused <> nil) and not KeepEditorFocusedOnFixScrollBars then begin
         ControlWasFocused.SetFocus;
         FEditor.OnEnter:= OnEnterBak;
      end;

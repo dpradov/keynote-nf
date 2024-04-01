@@ -404,6 +404,10 @@ var
   myFolder : TKntFolder;
   myNote : TKntNote;
   KeepModified: boolean;
+  KeepEditorFocused: boolean;
+  OnEnterBak: TNotifyEvent;
+  ControlWasFocused: TWinControl;
+
   {$IFDEF WITH_IE}
   NodeControl : TNodeControl;
   {$ENDIF}
@@ -414,6 +418,7 @@ begin
 
       myFolder := ActiveKntFolder;
       KeepModified:= false;
+      KeepEditorFocused:= false;
 
       if assigned(myFolder.SelectedNote) then
          myFolder.SelectedNote.ScrollPosInEditor:= ActiveKntFolder.Editor.GetScrollPosInEditor;
@@ -453,7 +458,12 @@ begin
               wwno : ActiveKntFolder.Editor.WordWrap := false;
             end;
 
-            ActiveKntFolder.DataStreamToEditor;
+            if KeyOptions.FixScrollBars then begin
+               OnEnterBak:= ActiveKntFolder.Editor.OnEnter;
+               ControlWasFocused:= Form_Main.ActiveControl;
+               KeepEditorFocused:= true;        // => DataStreamToEditor will maintain Editor.OnEnter = nil (and Editor.Focused)
+            end;
+            ActiveKntFolder.DataStreamToEditor(KeepEditorFocused);
 
             { The normal thing is to set Editor.Modified = False at the end of the DataStreamToEditor method
               But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified,
@@ -513,7 +523,17 @@ begin
            SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
 
         if assigned(myNote) and (myNote.ScrollPosInEditor.Y > 0) then
-           ActiveKntFolder.Editor.SetScrollPosInEditor(myNote.ScrollPosInEditor);
+           ActiveKntFolder.Editor.SetScrollPosInEditor(myNote.ScrollPosInEditor)
+        else
+           if KeyOptions.FixScrollBars then
+              ActiveKntFolder.Editor.Perform( EM_SCROLLCARET, 0, 0 );
+
+        if KeyOptions.FixScrollBars and KeepEditorFocused then begin
+           if (ControlWasFocused <> nil) then
+              ControlWasFocused.SetFocus;
+           ActiveKntFolder.Editor.OnEnter:= OnEnterBak;
+        end;
+
 
         ActiveKntFolder.Editor.Lines.EndUpdate;
 
