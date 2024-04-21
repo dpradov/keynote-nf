@@ -63,7 +63,8 @@ implementation
 
 uses
    gf_misc,
-   kn_INI;
+   kn_INI
+   ;
 
 
 

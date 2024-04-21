@@ -3,7 +3,7 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -253,6 +253,7 @@
         <DCCReference Include="editor\MSOfficeConverters.pas"/>
         <DCCReference Include="editor\MSWordConverter.pas"/>
         <DCCReference Include="Lang\kn_LanguagesMng.pas"/>
+        <DCCReference Include="ui\knt.ui.editor.pas"/>
         <DCCReference Include="macros\kn_MacroMng.pas"/>
         <DCCReference Include="macros\kn_Macro.pas"/>
         <DCCReference Include="macros\kn_MacroCmd.pas"/>
@@ -325,6 +326,7 @@
         <DCCReference Include="kn_Main.pas">
             <Form>Form_Main</Form>
         </DCCReference>
+        <DCCReference Include="knt.App.pas"/>
         <None Include="support\gf_base.inc">
             <ContainerId>File</ContainerId>
         </None>
@@ -365,6 +367,12 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="E:\Output\bin\keynote.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>keynote.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="keynote_Icon.ico" Configuration="Debug" Class="UWP_DelphiLogo44">
                     <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
@@ -373,6 +381,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="support\gf_base.inc" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="support\gf_base.inc" Configuration="Release" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

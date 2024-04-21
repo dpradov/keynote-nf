@@ -98,6 +98,7 @@ uses
   MSOfficeConverters in 'editor\MSOfficeConverters.pas',
   MSWordConverter in 'editor\MSWordConverter.pas',
   kn_LanguagesMng in 'Lang\kn_LanguagesMng.pas',
+  knt.ui.editor in 'ui\knt.ui.editor.pas',
   kn_MacroMng in 'macros\kn_MacroMng.pas',
   kn_Macro in 'macros\kn_Macro.pas',
   kn_MacroCmd in 'macros\kn_MacroCmd.pas',
@@ -137,7 +138,8 @@ uses
   tom_TLB in 'various\tom_TLB.pas',
   kn_DLLinterface in 'kn_DLLinterface.pas',
   kn_UpdateVersion in 'general\kn_UpdateVersion.pas' {UpdateVersion},
-  kn_Main in 'kn_Main.pas' {Form_Main};
+  kn_Main in 'kn_Main.pas' {Form_Main},
+  knt.App in 'knt.App.pas';
 
 {$R *.RES}
 

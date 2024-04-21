@@ -980,7 +980,7 @@ const
   );
 
 const
-  // common tokens for all notes
+  // common tokens for all Folders
   _AutoIndent = 'AI';
   _BookMarks = 'BM';
   _CHBGColor = 'BG';
@@ -998,9 +998,9 @@ const
   _Info = 'NI';
   _LineCount = 'LC';
   _Lines = 'LI';
-  _NoteKind = 'NK';
-  _NoteName = 'NN';
-  _NoteID = 'ID';
+  _FolderKind = 'NK';
+  _FolderName = 'NN';
+  _FolderID = 'ID';
   _PosX = 'CX';
   _POSY = 'CY';
   _TabIndex = 'TI';
@@ -1009,7 +1009,7 @@ const
   _NodeFlags = 'NF';
 
   (* UNUSED, replaced by _Flags: *)
-  _ReadOnly = 'RO';
+  {_ReadOnly = 'RO';
   _WordWrap = 'WW';
   _URLDetect = 'UD';
   _Visible = 'NV';
@@ -1018,10 +1018,10 @@ const
   _AutoNumberNodes = 'AN';
   _ShowCheckBoxes = 'SC';
   _ShowIcons = 'SI';
-
+  }
 
 const
-  // special TKntFolder (old TTreeNote) tokens
+  // Tokens for nodes (notes in Tree)
   _NodeName = 'ND';
   _NodeID = 'DI';
   _NodeLevel = 'LV';

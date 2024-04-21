@@ -54,7 +54,10 @@ uses
    kn_Main,
    kn_NewTemplate,
    kn_NoteFileMng,
-   kn_EditorUtils;
+   knt.ui.editor,
+   kn_EditorUtils,
+   knt.App
+   ;
 
 
 resourcestring
@@ -139,9 +142,9 @@ begin
 
   with Form_Main do begin
       if ( not HaveKntFolders( true, true )) then exit;
-      if ( not assigned( ActiveKntFolder )) then exit;
+      if ( not assigned( ActiveFolder )) then exit;
 
-      Editor:= ActiveKntFolder.Editor;
+      Editor:= ActiveFolder.Editor;
 
       UseSelection := ( Editor.SelLength > 0 );
       ReplaceExisting := false;
@@ -160,7 +163,7 @@ begin
           else begin
              RG_Source.ItemIndex := 1;
              RG_Source.Enabled := false;
-             Edit_Name.Text := MakeValidFilename( ActiveKntFolder.Name, [' '], MAX_FILENAME_LENGTH );
+             Edit_Name.Text := MakeValidFilename( ActiveFolder.Name, [' '], MAX_FILENAME_LENGTH );
           end;
           CB_Formatted.Checked := Template_LastWasFormatted;
         end;
@@ -191,7 +194,7 @@ begin
           end;
 
           if Template_LastWasFormatted then
-             Editor:= GetEditorWithNoKNTHiddenCharacters(ActiveKntFolder.Editor, hmAll, useSelection);       // If editor returned <> ActiveKntFolder.Editor -> free
+             Editor:= ActiveFolder.Editor.GetRichEditorWithNoKNTHiddenCharacters(hmAll, useSelection);       // If editor returned <> ActiveFolder.Editor -> free
 
           if UseSelection then
              Editor.StreamMode := [smSelection];
@@ -236,7 +239,7 @@ begin
 
         end;
       finally
-        if Editor <> ActiveKntFolder.Editor then
+        if Editor <> ActiveFolder.Editor then
            Editor.Free;          // RTFAux...
 
         Form_Template.Free;
@@ -251,10 +254,21 @@ var
   tplText: string;
   IsRTF: boolean;
   RTFText: AnsiString;
+  Editor: TRxRichEdit;
 begin
   with Form_Main do begin
-      if (not HaveKntFolders( true, true )) then exit;
-      if (not assigned( ActiveKntFolder ))  then exit;
+      if not assigned(ActiveFolder) and not assigned(ActiveEditor) then exit;
+
+      try
+        if not ActiveEditor.Focused then          // Can be Scratchpad editor
+           ActiveFolder.Editor.SetFocus;
+      except
+      end;
+
+      Editor:= ActiveEditor;
+      if not App.CheckActiveEditorNotReadOnly then exit;
+
+
 
       if ( not checkfolder( 'Template', Template_Folder, true, false )) then
         exit;
@@ -290,24 +304,25 @@ begin
 
       LastTemplateUsed := ExtractFilename( tplFN );
 
+
       try
         try
-          if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-             if ActiveKntFolder.Editor.SelLength > 0 then
-                CheckToSelectLeftImageHiddenMark(ActiveKntFolder.Editor);
+          if (ImageMng.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+             if Editor.SelLength > 0 then
+                TKntRichEdit(Editor).CheckToSelectLeftImageHiddenMark;
           end;
 
           tplText:= ReadAllText(tplFN);      // gf_streams
           IsRTF:= tplText.StartsWith('{\rtf1');
 
           RTFText:= '';
-          if IsRTF and (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then
-             RTFText:= ImagesManager.ProcessImagesInRTF(tplText, ActiveKntFolder, ImagesManager.ImagesMode, 'Template');
+          if IsRTF and (ImageMng.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then
+             RTFText:= ImageMng.ProcessImagesInRTF(tplText, ActiveFolder.Name, ImageMng.ImagesMode, 'Template');
 
           if RTFText <> '' then
-             ActiveKntFolder.Editor.PutRtfText(RTFText, True, True)
+             Editor.PutRtfText(RTFText, True, True)
           else
-             ActiveKntFolder.Editor.PutRtfText(tplText, true);
+             Editor.PutRtfText(tplText, true);
 
         except
           on E : Exception do

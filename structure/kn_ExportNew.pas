@@ -38,8 +38,10 @@ uses
    TB97Ctls,
    ComCtrls95,
    TreeNT,
+   RxRichEd,
 
    gf_streams,
+   knt.ui.editor,
    kn_Info,
    kn_KntFile,
    kn_KntFolder
@@ -133,10 +135,10 @@ type
     procedure OptionsToForm;
     function Validate : boolean;
 
-    function FlushExportFile( const RTF : TTabRichEdit; myFolder: TKntFolder; FN : string ) : boolean;
-    procedure FlushTreePadData( var tf : TTextfile; const Name : string; const Level : integer; const RTF : TTabRichEdit; const ClearRTF : boolean);
+    function FlushExportFile( const RTF : TAuxRichEdit; myFolder: TKntFolder; FN : string ) : boolean;
+    procedure FlushTreePadData( var tf : TTextfile; const Name : string; const Level : integer; const RTF : TAuxRichEdit; const ClearRTF : boolean);
     function GetExportFilename( const FN : string ) : string;
-    procedure PrepareRTFforPlainText (RTFAux : TTabRichEdit; TabSize: integer; RTFIndentValue: integer);
+    procedure PrepareRTFforPlainText (RTFAux : TRxRichEdit; TabSize: integer; RTFIndentValue: integer);
 
     function ConfirmAbort : boolean;
 
@@ -157,7 +159,6 @@ var
 
 implementation
 uses
-   RxRichEd,
    gf_misc,
    gf_files,  // Important. Needed to use TMemIniFileHelper (.ReadString, .WriteString)
    gf_strings,
@@ -171,7 +172,8 @@ uses
    kn_TabSelect,
    kn_Main,
    kn_NoteFileMng,
-   kn_EditorUtils
+   kn_EditorUtils,
+   knt.App
    ;
 
 var
@@ -806,7 +808,7 @@ procedure TForm_ExportNew.PerformExport;
 var
   myFolder : TKntFolder;
   i, cnt, FolderIdx : integer;
-  RTFAux : TTabRichEdit;
+  RTFAux : TAuxRichEdit;
 
   FolderHeading, NodeHeading : string;
   FolderHeadingRTF, NodeHeadingRTF : string;
@@ -915,7 +917,7 @@ begin
   TreePadFN := '';
   TreePadNodeLevelInc := 0;
 
-  RTFAux:= CreateRTFAuxEditorControl;
+  RTFAux:= CreateAuxRichEdit;
 
 
   if ExportOptions.ConfirmOverwrite then
@@ -936,7 +938,7 @@ begin
 
          if (ExportOptions.ExportSource = expCurrentNote ) then
             if (ExportOptions.TreeSelection in [tsNode, tsSubtree]) then
-               myTreeNode := ActiveKntFolder.TV.Selected;
+               myTreeNode := ActiveFolder.TV.Selected;
             if (ExportOptions.TreeSelection = tsCheckedNodes) then
                OnlyCheckedNodes:= true;
 
@@ -974,7 +976,7 @@ begin
           // this note has been marked for exporting
 
           RTFAux.Clear;
-          PrepareRTFAuxForPlainText(RTFAux, myFolder);
+          RTFAux.PrepareEditorforPlainText(myFolder.EditorChrome);
 
           if ExportOptions.IncludeFolderHeadings then begin
              FolderHeading := ExpandExpTokenString( ExportOptions.FolderHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), '', 0, 0, myFolder.TabSize );
@@ -1077,7 +1079,7 @@ begin
 
                           RTFwithImages:= '';
                           if not myFolder.PlainText then
-                             RTFwithImages:= ImagesManager.ProcessImagesInRTF(NodeText, nil, imImage, '', 0, false);
+                             RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
 
                           if RTFwithImages <> '' then
                              RTFAux.PutRtfText(RTFwithImages, false)           // All hidden KNT characters are now removed from FlushExportFile
@@ -1095,7 +1097,7 @@ begin
                         // (Here we do not have to check if node stream is plain text or RTF, because LoadFromStream handles both cases automatically!)
                         RTFwithImages:= '';
                         if not myFolder.PlainText then
-                           RTFwithImages:= ImagesManager.ProcessImagesInRTF(myNote.Stream.Memory, myNote.Stream.Size, nil, imImage, '', 0, ContainsImgIDsRemoved, ContainsImages, false);
+                           RTFwithImages:= ImageMng.ProcessImagesInRTF(myNote.Stream.Memory, myNote.Stream.Size, '', imImage, '', 0, ContainsImgIDsRemoved, ContainsImages, false);
 
                         if RTFwithImages <> '' then
                            RTFAux.PutRtfText(RTFwithImages,true,false)         // All hidden KNT characters are now removed from FlushExportFile
@@ -1299,13 +1301,13 @@ procedure TForm_ExportNew.FlushTreePadData(
   var tf : TTextFile;
   const Name : string;
   const Level : integer;
-  const RTF : TTabRichEdit;
+  const RTF : TAuxRichEdit;
   const ClearRTF : boolean );
 var
   tmpStream : TMemoryStream;
   StreamSize : integer;
   Encoding: TEncoding;
-  Editor: TTabRichEdit;
+  Editor: TRxRichEdit;
 
 begin
 
@@ -1327,9 +1329,9 @@ begin
     Editor:= RTF;
     if (ExportOptions.TreePadRTF) then begin
        if ClearRTF then
-          Editor.RemoveKNTHiddenCharacters(false)
+          RTF.RemoveKNTHiddenCharacters(false)
        else
-          Editor:= GetEditorWithNoKNTHiddenCharacters(Editor, hmAll, false);
+          Editor:= RTF.GetRichEditorWithNoKNTHiddenCharacters(hmAll, false);
     end;
 
     if (not ExportOptions.TreePadRTF ) then begin
@@ -1430,7 +1432,7 @@ begin
 end; // GetExportFilename
 
 
-function TForm_ExportNew.FlushExportFile( const RTF : TTabRichEdit; myFolder: TKntFolder; FN : string ) : boolean;
+function TForm_ExportNew.FlushExportFile( const RTF : TAuxRichEdit; myFolder: TKntFolder; FN : string ) : boolean;
 var
   StreamSize : integer;
   ext: string;
@@ -1498,7 +1500,7 @@ begin
 end; // FlushExportFile
 
 
-procedure TForm_ExportNew.PrepareRTFforPlainText (RTFAux : TTabRichEdit; TabSize: integer; RTFIndentValue: integer);
+procedure TForm_ExportNew.PrepareRTFforPlainText (RTFAux : TRxRichEdit; TabSize: integer; RTFIndentValue: integer);
 var
   L, SS, SS_NL, STab: integer;
   FI, LI, LIndent: integer;
@@ -1619,7 +1621,8 @@ var
   exportformat : TExportFmt;
   Encoding: TEncoding;
   ExportSelectionOnly : boolean;
-  RTFAux : TTabRichEdit;
+  RTFAux : TAuxRichEdit;
+  Editor: TKntRichEdit;
 
 begin
 
@@ -1629,12 +1632,13 @@ begin
     exit;
   end;
 
-  if ( ActiveKntFolder.Editor.Lines.Count = 0 ) then begin
+  Editor:= ActiveFolder.Editor;
+  if ( Editor.Lines.Count = 0 ) then begin
     showmessage( STR_17 );
     exit;
   end;
 
-  ActiveKntFolder.EditorToDataStream;
+  ActiveFolder.EditorToDataStream;
 
   // {N}
   ExportFN := MakeValidFileName( myTreeNode.Text, [' '], MAX_FILENAME_LENGTH );
@@ -1696,34 +1700,34 @@ begin
   RTFAux:= nil;
  try
   try
-    ExportSelectionOnly := ( ActiveKntFolder.Editor.SelLength > 0 );
+    ExportSelectionOnly := ( Editor.SelLength > 0 );
 
     if exportformat in [xfRTF, xfHTML] then begin
-       if ActiveKntFolder.PlainText then begin
-          RTFAux:= CreateRTFAuxEditorControl;
-          PrepareRTFAuxForPlainText(RTFAux, ActiveKntFolder);
+       if Editor.PlainText then begin
+          RTFAux:= CreateAuxRichEdit;
+          RTFAux.PrepareEditorforPlainText(Editor.Chrome);
           if ExportSelectionOnly then
-             Txt:= ActiveKntFolder.Editor.SelText
+             Txt:= Editor.SelText
           else
-             Txt:= ActiveKntFolder.Editor.Text;
+             Txt:= Editor.Text;
           RTFAux.PutRtfText(Txt, True, False);
           RTFText:= RTFAux.RtfText;
        end
        else
           if ExportSelectionOnly then
-             RTFText:= ActiveKntFolder.Editor.RtfSelText
+             RTFText:= Editor.RtfSelText
           else
-             RTFText:= ActiveKntFolder.Editor.RtfText;
+             RTFText:= Editor.RtfText;
 
        RTFText:= RemoveKNTHiddenCharactersInRTF(RTFText, hmAll);
     end
     else begin
        if ExportSelectionOnly then
-          RTFText:= ActiveKntFolder.Editor.SelText
+          RTFText:= Editor.SelText
        else
-          RTFText:= ActiveKntFolder.Editor.Text;
+          RTFText:= Editor.Text;
 
-       RTFText:= RemoveKNTHiddenCharacters(RTFText);
+       RTFText:= RemoveKNTHiddenCharactersInText(RTFText);
     end;
 
     case exportformat of
@@ -1770,8 +1774,8 @@ begin
   try
     with Form_Export do begin
       ShowHint := KeyOptions.ShowTooltips;
-      myKntFolder := ActiveKntFolder;
-      myKntFile := KntFile;
+      myKntFolder := ActiveFolder;
+      myKntFile := ActiveFile;
       myINIFN := INI_FN;
     end;
 

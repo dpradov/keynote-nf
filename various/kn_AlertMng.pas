@@ -80,7 +80,7 @@ type
   
   //---------------------------------------------------------------------
   
-  TAlarmManager = class
+  TAlarmMng = class
   private
     FAlarmList: TList;
 
@@ -364,7 +364,8 @@ uses
   kn_RTFUtils,
   kn_LinksMng,
   kn_VCLControlsMng,
-  kn_Main
+  kn_Main,
+  knt.App
   ;
 
 
@@ -496,14 +497,14 @@ end;
 
 
 //==========================================================================================
-//                                   TAlarmManager
+//                                   TAlarmMng
 //==========================================================================================
 
 //----------------------------------
 //          Creation / Destruction
 //----------------------------------
 
-constructor TAlarmManager.Create;
+constructor TAlarmMng.Create;
 begin
    inherited Create;
    //FEnabled:= false;
@@ -524,7 +525,7 @@ begin
    UpdateAlarmsState;
 end;
 
-destructor TAlarmManager.Destroy;
+destructor TAlarmMng.Destroy;
 begin
    if assigned (FAlarmList) then
       FAlarmList.Free;
@@ -537,7 +538,7 @@ begin
    inherited Destroy;
 end;
 
-procedure TAlarmManager.Clear;
+procedure TAlarmMng.Clear;
 begin
    if assigned (FAlarmList) then
       FAlarmList.Clear;
@@ -556,7 +557,7 @@ end;
 //----------------------------------
 
 // Only one of the first two parameters (folder, node) is needed, the other can be set to nil
-function TAlarmManager.HasAlarms( folder: TKntFolder;  note : TKntNote; considerDiscarded: boolean ): boolean;
+function TAlarmMng.HasAlarms( folder: TKntFolder;  note : TKntNote; considerDiscarded: boolean ): boolean;
 
     function HasAlarmsInList (list: TList): boolean;
     var
@@ -592,7 +593,7 @@ end;
 
 
 // Only one of the first two parameters (folder, node) is needed, the other can be set to nil
-function TAlarmManager.GetAlarms( folder: TKntFolder; note : TKntNote; considerDiscarded: boolean ): TList;
+function TAlarmMng.GetAlarms( folder: TKntFolder; note : TKntNote; considerDiscarded: boolean ): TList;
 
     procedure AddAlarmsFromList (list: TList);
     var
@@ -732,7 +733,7 @@ end;
 //----------------------------------
 
 
-procedure TAlarmManager.CheckAlarms;
+procedure TAlarmMng.CheckAlarms;
 var
   ShowRemindersInModalWindow: boolean;
   TriggeredAlarmList: TList;
@@ -818,7 +819,7 @@ begin
 end;
 
 
-procedure TAlarmManager.UpdateAlarmsState;
+procedure TAlarmMng.UpdateAlarmsState;
 var
   I: Integer;
   alarm: TAlarm;
@@ -862,7 +863,7 @@ end;
 //----------------------------------
 
 
-procedure TAlarmManager.AddAlarm( alarm : TAlarm );
+procedure TAlarmMng.AddAlarm( alarm : TAlarm );
 begin
     if not assigned(alarm) then exit;
 
@@ -873,7 +874,7 @@ begin
     UpdateFormMain (alarm);
 end;
 
-procedure TAlarmManager.MoveAlarms( FolderFrom: TKntFolder; NoteFrom : TKntNote; FolderTo: TKntFolder; NoteTo: TKntNote );
+procedure TAlarmMng.MoveAlarms( FolderFrom: TKntFolder; NoteFrom : TKntNote; FolderTo: TKntFolder; NoteTo: TKntNote );
 begin
     MoveAlarmsInList(FAlarmList, FolderFrom, NoteFrom,  FolderTo, NoteTo);
     if assigned(FUnfilteredAlarmList) then
@@ -884,7 +885,7 @@ begin
     // TODO: Refrescar el nodo actual
 end;
 
-procedure TAlarmManager.MoveAlarmsInList( List: TList; FolderFrom: TKntFolder; NoteFrom : TKntNote; FolderTo: TKntFolder; NoteTo: TKntNote );
+procedure TAlarmMng.MoveAlarmsInList( List: TList; FolderFrom: TKntFolder; NoteFrom : TKntNote; FolderTo: TKntFolder; NoteTo: TKntNote );
 var
   I: Integer;
   alarm: TAlarm;
@@ -900,7 +901,7 @@ begin
    end;
 end;
 
-procedure TAlarmManager.RemoveAlarmsOfNode( Note : TKntNote );
+procedure TAlarmMng.RemoveAlarmsOfNode( Note : TKntNote );
 var
   I: Integer;
   alarm: TAlarm;
@@ -914,7 +915,7 @@ begin
    end;
 end;
 
-procedure TAlarmManager.RemoveAlarmsOfNote( folder : TKntFolder );
+procedure TAlarmMng.RemoveAlarmsOfNote( folder : TKntFolder );
 var
   I: Integer;
   alarm: TAlarm;
@@ -929,13 +930,13 @@ begin
 end;
 
 
-procedure TAlarmManager.ModifyAlarm( alarm: TAlarm );
+procedure TAlarmMng.ModifyAlarm( alarm: TAlarm );
 begin
     UpdateAlarmsState;
     UpdateFormMain(alarm);
 end;
 
-procedure TAlarmManager.DiscardAlarm( alarm : TAlarm; MaintainInUnfilteredList: boolean );
+procedure TAlarmMng.DiscardAlarm( alarm : TAlarm; MaintainInUnfilteredList: boolean );
 begin
     alarm.Status:= TAlarmDiscarded;
     FDiscardedAlarmList.Add(alarm);
@@ -948,7 +949,7 @@ begin
     UpdateFormMain(alarm);
 end;
 
-procedure TAlarmManager.RemoveAlarm( alarm : TAlarm );
+procedure TAlarmMng.RemoveAlarm( alarm : TAlarm );
 begin
     FAlarmList.Remove(alarm);
     FDiscardedAlarmList.Remove(alarm);
@@ -960,7 +961,7 @@ begin
     UpdateFormMain(alarm);
 end;
 
-procedure TAlarmManager.RestoreAlarm( alarm : TAlarm; MaintainInUnfilteredList: boolean  );
+procedure TAlarmMng.RestoreAlarm( alarm : TAlarm; MaintainInUnfilteredList: boolean  );
 begin
     alarm.Status:= TAlarmNormal;
     FDiscardedAlarmList.Remove(alarm);
@@ -974,7 +975,7 @@ begin
 end;
 
 
-procedure TAlarmManager.CancelReminders (value: boolean);
+procedure TAlarmMng.CancelReminders (value: boolean);
 begin
    if Value then
       FCanceledAt:= now
@@ -983,7 +984,7 @@ begin
 end;
 
 
-procedure TAlarmManager.EditAlarms (Note: TKntNote; Folder: TKntFolder; forceAdd: boolean= false);
+procedure TAlarmMng.EditAlarms (Note: TKntNote; Folder: TKntFolder; forceAdd: boolean= false);
 var
    alarm: TAlarm;
 begin
@@ -1001,7 +1002,7 @@ begin
 end;
 
 
-procedure TAlarmManager.ShowAlarms (const showOnlyPendings: boolean);
+procedure TAlarmMng.ShowAlarms (const showOnlyPendings: boolean);
 var
    modeEdit: TShowMode;
 begin
@@ -1013,7 +1014,7 @@ begin
       ShowFormAlarm (modeEdit);
 end;
 
-procedure TAlarmManager.ShowFormAlarm (modeEdit: TShowMode);
+procedure TAlarmMng.ShowFormAlarm (modeEdit: TShowMode);
 begin
   if ( Form_Alarm = nil ) then
   begin
@@ -1059,14 +1060,14 @@ end;
 //      Inform Alarms State / Reminders triggered / Overdue events
 //-----------------------------------------------------
 
-procedure TAlarmManager.UpdateFormMain ( alarm: TAlarm );
+procedure TAlarmMng.UpdateFormMain ( alarm: TAlarm );
 begin
-   if alarm.folder <> ActiveKntFolder then exit;
+   if alarm.folder <> ActiveFolder then exit;
    Form_Main.ShowAlarmStatus;
 end;
 
 
-procedure TAlarmManager.FlashAlarmState();
+procedure TAlarmMng.FlashAlarmState();
 var
   Glyph : TPicture;
   Index: integer;
@@ -1091,7 +1092,7 @@ begin
   end;
 end;
 
-procedure TAlarmManager.StopFlashMode;
+procedure TAlarmMng.StopFlashMode;
 begin
   if assigned( KntFile ) then begin
      UpdateAlarmsState;
@@ -1101,7 +1102,7 @@ begin
 end;
 
 
-procedure TAlarmManager.CommunicateAlarm (alarm : TAlarm);
+procedure TAlarmMng.CommunicateAlarm (alarm : TAlarm);
 var
    cad: string;
    idAlarm: string;
@@ -1118,7 +1119,7 @@ begin
    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Triggered, [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]);
 end;
 
-procedure TAlarmManager.TimerTimer(Sender: TObject);
+procedure TAlarmMng.TimerTimer(Sender: TObject);
 var
   alarm: TAlarm;
 begin
@@ -1135,7 +1136,7 @@ begin
 end;
 
 
-function TAlarmManager.GetAlarmModeHint: string;
+function TAlarmMng.GetAlarmModeHint: string;
 var
   soundState, popupState: string;
 begin
@@ -1153,7 +1154,7 @@ begin
 end;
 
 
-function TAlarmManager.GetNextPendingAlarmForCommunicate: TAlarm;
+function TAlarmMng.GetNextPendingAlarmForCommunicate: TAlarm;
 var
   I: Integer;
   alarm: TAlarm;
@@ -1265,9 +1266,9 @@ end;
 procedure TForm_Alarm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
    if (modeEdit = TShowReminders) or (modeEdit = TShowAll) or (modeEdit = TShowPending) or (modeEdit = TShowAllWithDiscarded) then
-        AlarmManager.CancelReminders(true);
+        AlarmMng.CancelReminders(true);
 
-   AlarmManager.StopFlashMode;
+   AlarmMng.StopFlashMode;
 end;
 
 
@@ -1293,7 +1294,7 @@ var
 
 begin
    ResetModifiedState();
-   AlarmManager.CancelReminders(false);
+   AlarmMng.CancelReminders(false);
    Button_Sound.Down:= KeyOptions.PlaySoundOnAlarm;
    if (FFilteredAlarmList.Count = 0) then begin
        Grid.Items.Clear;
@@ -1368,7 +1369,7 @@ procedure TForm_Alarm.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   if key = VK_ESCAPE then begin
      if (modeEdit = TShowReminders) or (modeEdit = TShowAll) or (modeEdit = TShowPending) or (modeEdit = TShowAllWithDiscarded) then
-        AlarmManager.CancelReminders(true);
+        AlarmMng.CancelReminders(true);
      Close;
      end
   else
@@ -1608,9 +1609,9 @@ begin
         CB_ShowMode.ItemIndex:= i;
     end;
 
-    if assigned (AlarmManager.UnfilteredAlarmList) then begin
-       AlarmManager.UnfilteredAlarmList.Free;
-       AlarmManager.UnfilteredAlarmList:= nil;
+    if assigned (AlarmMng.UnfilteredAlarmList) then begin
+       AlarmMng.UnfilteredAlarmList.Free;
+       AlarmMng.UnfilteredAlarmList:= nil;
     end;
 
     UpdateCaption;
@@ -1720,41 +1721,41 @@ var
    I: Integer;
    alarm: TAlarm;
 begin
-   if not assigned(AlarmManager.UnfilteredAlarmList) then
+   if not assigned(AlarmMng.UnfilteredAlarmList) then
    begin
-       AlarmManager.UnfilteredAlarmList:= TList.Create;
+       AlarmMng.UnfilteredAlarmList:= TList.Create;
        if modeEdit <> TShowAllWithDiscarded then
        begin
            case modeEdit of
-                TShowAll:       AlarmManager.UnfilteredAlarmList.Assign(AlarmManager.AlarmList);
-                TShowDiscarded: AlarmManager.UnfilteredAlarmList.Assign(AlarmManager.DiscardedAlarmList);
+                TShowAll:       AlarmMng.UnfilteredAlarmList.Assign(AlarmMng.AlarmList);
+                TShowDiscarded: AlarmMng.UnfilteredAlarmList.Assign(AlarmMng.DiscardedAlarmList);
                 TShowPending:
-                     for I := 0 to AlarmManager.AlarmList.Count - 1 do begin
-                        alarm:= AlarmManager.AlarmList[I];
+                     for I := 0 to AlarmMng.AlarmList.Count - 1 do begin
+                        alarm:= AlarmMng.AlarmList[I];
                         if alarm.Pending then
-                           AlarmManager.UnfilteredAlarmList.Add(alarm);
+                           AlarmMng.UnfilteredAlarmList.Add(alarm);
                      end;
 
                 TShowOverdue:
-                     for I := 0 to AlarmManager.AlarmList.Count - 1 do begin
-                        alarm:= AlarmManager.AlarmList[I];
+                     for I := 0 to AlarmMng.AlarmList.Count - 1 do begin
+                        alarm:= AlarmMng.AlarmList[I];
                         if alarm.Overdue then
-                           AlarmManager.UnfilteredAlarmList.Add(alarm);
+                           AlarmMng.UnfilteredAlarmList.Add(alarm);
                      end;
 
                 else
-                    AlarmManager.UnfilteredAlarmList.Assign(AlarmManager.SelectedAlarmList);
+                    AlarmMng.UnfilteredAlarmList.Assign(AlarmMng.SelectedAlarmList);
            end;
        end
        else
        begin
-           AlarmManager.UnfilteredAlarmList.Assign(AlarmManager.AlarmList);
-           for I := 0 to AlarmManager.DiscardedAlarmList.Count - 1 do
-              AlarmManager.UnfilteredAlarmList.Add( TAlarm (AlarmManager.DiscardedAlarmList[I]) );
+           AlarmMng.UnfilteredAlarmList.Assign(AlarmMng.AlarmList);
+           for I := 0 to AlarmMng.DiscardedAlarmList.Count - 1 do
+              AlarmMng.UnfilteredAlarmList.Add( TAlarm (AlarmMng.DiscardedAlarmList[I]) );
        end;
    end;
 
-   Result:= AlarmManager.UnfilteredAlarmList;
+   Result:= AlarmMng.UnfilteredAlarmList;
 end;
 
 procedure TForm_Alarm.FilterAlarmList();
@@ -1829,7 +1830,7 @@ begin
        note:= TAlarm(ls.Data).Note;
     end
     else begin
-       folder:= ActiveKntFolder;
+       folder:= ActiveFolder;
        note:= nil;
     end;
 
@@ -1839,8 +1840,8 @@ begin
     alarm.Status:= TAlarmUnsaved;
 
     if modeEdit <> TShowNew then
-       AlarmManager.SelectedAlarmList.Assign(Self.UnfilteredAlarmList);  // Make a copy over SelectedAlarmList
-    AlarmManager.SelectedAlarmList.Add(alarm);
+       AlarmMng.SelectedAlarmList.Assign(Self.UnfilteredAlarmList);  // Make a copy over SelectedAlarmList
+    AlarmMng.SelectedAlarmList.Add(alarm);
 
     // A change in modeEdit will trigger a change in CB_ShowMode, except with TShowNew:
     // CB_ShowMode will keep its value to resalt that the alarms visible comes from that selection, but we need to know
@@ -1886,10 +1887,10 @@ var
 
         if Alarm.Status= TAlarmUnsaved then begin
            alarm.Status:= TAlarmNormal;
-           AlarmManager.AddAlarm(alarm);
+           AlarmMng.AddAlarm(alarm);
            end
         else
-           AlarmManager.ModifyAlarm(alarm);
+           AlarmMng.ModifyAlarm(alarm);
             
         UpdateAlarmOnGrid(alarm, ls);
     end;
@@ -1910,7 +1911,7 @@ begin
            ApplyChangesOnAlarm(ls, alarm);
            
         if alarm.Empty then begin
-           AlarmManager.RemoveAlarm (alarm);
+           AlarmMng.RemoveAlarm (alarm);
            HideAlarm(ls);
         end        
     end;
@@ -1957,12 +1958,12 @@ begin
      alarm:= TAlarm(lsWork.Data);     
      i:= Grid.Items.IndexOf(lsWork);
      if alarm.Empty then begin
-        AlarmManager.RemoveAlarm (alarm);
+        AlarmMng.RemoveAlarm (alarm);
         HideAlarm(lsWork);
      end
      else begin
         KntFile.Modified := true;
-        AlarmManager.DiscardAlarm (alarm, (modeEdit = TShowAllWithDiscarded));
+        AlarmMng.DiscardAlarm (alarm, (modeEdit = TShowAllWithDiscarded));
         if modeEdit <> TShowAllWithDiscarded then
            HideAlarm(lsWork);
      end;
@@ -2007,7 +2008,7 @@ begin
      if alarm.Status = TAlarmDiscarded then begin
         KntFile.Modified := true;
         i:= Grid.Items.IndexOf(lsWork);
-        AlarmManager.RestoreAlarm (alarm, (modeEdit = TShowAllWithDiscarded));
+        AlarmMng.RestoreAlarm (alarm, (modeEdit = TShowAllWithDiscarded));
         if modeEdit <> TShowAllWithDiscarded then
            HideAlarm(lsWork);
      end;
@@ -2049,7 +2050,7 @@ begin
      if alarm.Status = TAlarmDiscarded then begin
         KntFile.Modified := true;
         i:= Grid.Items.IndexOf(lsWork);
-        AlarmManager.RemoveAlarm (alarm);
+        AlarmMng.RemoveAlarm (alarm);
         HideAlarm(lsWork);
      end;
   end;
@@ -2932,7 +2933,7 @@ begin
          Result.NoteID := alarm.Note.ID
       end
       else
-         Result.NoteID := -1;
+         Result.NoteID := 0;
     end;
 end;
 

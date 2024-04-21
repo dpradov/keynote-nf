@@ -44,6 +44,7 @@ uses
    gf_streams,
    kn_KntFolder,
    kn_KntNote,
+   knt.ui.editor,
    kn_Const
    ;
 
@@ -276,7 +277,7 @@ type
 
     destructor Destroy; override;
 
-    procedure GenerateName(Note: TKntNote; Folder: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+    procedure GenerateName(Note: TKntNote; const FolderName: string; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 
     property ID: Integer read FID;
     property ImageFormat: TImageFormat read FImageFormat;
@@ -306,10 +307,10 @@ type
 
 
 //---------------------------------------------------------------------
-//  TImageManager
+//  TImageMng
 //---------------------------------------------------------------------
 
-  TImageManager = class
+  TImageMng = class
 
   strict private
 
@@ -327,7 +328,7 @@ type
 
     // Si <> nil => se utilizará para recuperar los Stream de las imágenes que aparezcan referenciadas con sus IDs en los nodos de la
     // nota indicada (se usará para notas concretas, en combinación con KntFile.UpdateImagesStorageModeInFile (fStorageMode, ApplyOnlyToNote)
-    fExternalImagesManager: TImageManager;
+    fExternalImagesManager: TImageMng;
 
     fImagesMode: TImagesMode;
     fImages: TList;                             // All images (TKntImage)
@@ -350,6 +351,8 @@ type
 
 
   protected
+     function GetImgViewerIsOpen: boolean;
+     function GetImgIDinViewer: integer;
 
   public
     constructor Create;
@@ -383,7 +386,7 @@ type
     function CheckUniqueName (var Name: string): boolean;
     function CheckRegisterImage (Stream: TMemoryStream; ImgFormat: TImageFormat;
                                  Width, Height: integer;
-                                 Folder: TKntFolder;
+                                 const FolderName: string;
                                  const OriginalPath: String;
                                  Owned: boolean;
                                  const Source: String;
@@ -398,7 +401,7 @@ type
                                const OriginalPath: String;
                                Owned: boolean;
                                const Source: String;
-                               Folder: TKntFolder;
+                               const FolderName: String;
                                const NameProposed: string = ''
                                ): TKntImage;
 
@@ -414,17 +417,19 @@ type
     procedure CheckFreeImageStreamsNotRecentlyUsed;
     function RecalcNextID: boolean;
 
-    procedure InsertImage (FileName: String; Folder: TKntFolder; Owned: boolean; const NameProposed: string = '');
-    procedure InsertImageFromClipboard (Folder: TKntFolder; TryAddURLlink: boolean = true);
+    procedure InsertImage (FileName: String; Editor: TKntRichEdit; Owned: boolean; const NameProposed: string = '');
+    procedure InsertImageFromClipboard (Editor: TRxRichEdit; FolderName: string; TryAddURLlink: boolean = true);
 
-    function ProcessImagesInRTF (const RTFText: AnsiString; Folder: TKntFolder;
+    function ProcessImagesInRTF (const RTFText: AnsiString;
+                                 const FolderName: string;
                                  ImagesModeDest: TImagesMode;
                                  const Source: string;
                                  FirstImageID: integer= 0;
                                  ExitIfAllImagesInSameModeDest: boolean= false
                                  ): AnsiString; overload;
 
-    function ProcessImagesInRTF (const Buffer: Pointer; BufSize: integer; Folder: TKntFolder;
+    function ProcessImagesInRTF (const Buffer: Pointer; BufSize: integer;
+                                 const FolderName: string;
                                  ImagesModeDest: TImagesMode;
                                  const Source: string;
                                  FirstImageID: integer;
@@ -433,7 +438,7 @@ type
                                  ExitIfAllImagesInSameModeDest: boolean = false
                                  ): AnsiString; overload;
                                  
-    procedure ProcessImagesInClipboard(Editor: TRxRichEdit; Folder: TKntFolder; SelStartBeforePaste: integer; FirstImageID: integer= 0);
+    procedure ProcessImagesInClipboard(Editor: TRxRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0);
 
     procedure ResetAllImagesCountReferences;
     procedure RemoveImagesReferences (const IDs: TImageIDs);
@@ -459,10 +464,13 @@ type
     procedure SaveStateInExportingMode (const tf: TTextFile);
     procedure RegisterImagesReferencesExported (const IDs: TImageIDs);
 
-    property ExternalImagesManager: TImageManager read fExternalImagesManager write fExternalImagesManager;
+    property ExternalImagesManager: TImageMng read fExternalImagesManager write fExternalImagesManager;
 
+    property ImgViewerIsOpen: boolean read GetImgViewerIsOpen;
+    property ImgIDinViewer: integer read GetImgIDinViewer;
     procedure OpenImageFile(FilePath: string);
     procedure OpenImageViewer (ImgID: integer; ShowExternalViewer: boolean; SetLastFormImageOpened: boolean);
+    procedure CheckBringToFrontLastImageViewer;
   end;
 
 
@@ -487,7 +495,8 @@ uses  System.DateUtils,
       kn_RTFUtils,
       kn_ImageForm,
       kn_ImagesUtils,
-      kn_Main
+      kn_Main,
+      knt.App
       ;
 
 
@@ -553,7 +562,7 @@ begin
      At that time it is not removed from this list (FImagesToSave) in anticipation of it being rolled back based on the use of the UNDO mechanism.
      Now, when saving, we check if they are still marked for deletion. If so, they will be removed from both lists and of course not saved to disk.
    }
-   Images:= ImagesManager.Images;
+   Images:= ImageMng.Images;
 
    MaxSavedImgID:= 0;
 
@@ -1038,7 +1047,7 @@ end;
 
 { Generates a Name and Path for a new image, unique in the storage, and taking into account that it has been created on the indicated node/folder  }
 
-procedure TKntImage.GenerateName(Note: TKntNote; Folder: TKntFolder; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+procedure TKntImage.GenerateName(Note: TKntNote; const FolderName: string; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 var
   src: String;
   strDate: string;
@@ -1052,7 +1061,7 @@ begin
        else begin
           if NameProposed <> '' then
              FName:= NameProposed;
-          ImagesManager.CheckUniqueName (FName);
+          ImageMng.CheckUniqueName (FName);
        end;
     end
     else begin
@@ -1070,8 +1079,8 @@ begin
        FName:= Format('%d_%s_%s.%s', [ID, src, strDate, IMAGE_FORMATS[FImageFormat] ]);
     end;
 
-    if KeyOptions.ImgSaveInSubfolders then begin
-       FPath:= MakeValidFileName( Folder.Name, [' '], MAX_FILENAME_LENGTH );
+    if KeyOptions.ImgSaveInSubfolders and (FolderName <> '') then begin
+       FPath:= MakeValidFileName( FolderName, [' '], MAX_FILENAME_LENGTH );
 
        if ZipPathFormat then
           FPath:= FPath + '/'
@@ -1179,7 +1188,7 @@ end;
 function TKntImage.GetImageStream: TMemoryStream;
 begin
    if FImageStream = nil then
-      ImagesManager.ReloadImageStream(Self);
+      ImageMng.ReloadImageStream(Self);
 
    Result:= FImageStream;
 end;
@@ -1204,7 +1213,7 @@ end;
 
 
 //==========================================================================================
-//                                   TImageManager
+//                                   TImageMng
 //==========================================================================================
 
 //----------------------------------
@@ -1212,9 +1221,9 @@ end;
 //----------------------------------
 
 { Not created as Singleton because for the MergeFromKNTFile functionality we need to have a
-  TImageManager object that manages the file to be merged. }
+  TImageMng object that manages the file to be merged. }
 
-constructor TImageManager.Create;
+constructor TImageMng.Create;
 begin
   inherited Create;
 
@@ -1231,7 +1240,7 @@ begin
 end;
 
 
-destructor TImageManager.Destroy;
+destructor TImageMng.Destroy;
 var
    i: Integer;
 begin
@@ -1248,7 +1257,7 @@ begin
    inherited Destroy;
 end;
 
-procedure TImageManager.SetInitialValues;
+procedure TImageMng.SetInitialValues;
 begin
    fImagesMode:= imImage;
    fStorageMode:= smEmbRTF;
@@ -1265,7 +1274,7 @@ begin
 end;
 
 
-procedure TImageManager.Clear (SetIniValues: boolean= true; ClearImages: boolean = true);
+procedure TImageMng.Clear (SetIniValues: boolean= true; ClearImages: boolean = true);
 var
   i: integer;
   Img: TKntImage;
@@ -1293,7 +1302,7 @@ begin
 end;
 
 
-procedure TImageManager.SetExportingMode(Value: boolean);
+procedure TImageMng.SetExportingMode(Value: boolean);
 begin
   if fExportingMode = Value then exit;
 
@@ -1313,7 +1322,7 @@ end;
 //-----------------------------------------
 
 
-procedure TImageManager.SerializeImagesDefinition(const tf: TTextFile);
+procedure TImageMng.SerializeImagesDefinition(const tf: TTextFile);
 var
    Img: TKntImage;
    i: integer;
@@ -1339,7 +1348,7 @@ end;
 
 { Serializes the images that must remain embedded in the KNT file }
 
-procedure TImageManager.SerializeEmbeddedImages(const tf: TTextFile);
+procedure TImageMng.SerializeEmbeddedImages(const tf: TTextFile);
 var
    Img: TKntImage;
    ImgStream: TMemoryStream;
@@ -1398,7 +1407,7 @@ begin
 end;
 
 
-procedure TImageManager.SaveState(const tf: TTextFile);
+procedure TImageMng.SaveState(const tf: TTextFile);
 var
    MaxSavedImgID: integer;
    ModeUseExternalStorage: boolean;
@@ -1451,7 +1460,7 @@ begin
 end;
 
 
-procedure TImageManager.SaveEmbeddedImages(const tf: TTextFile);
+procedure TImageMng.SaveEmbeddedImages(const tf: TTextFile);
 begin
    if ExportingMode and (KeyOptions.ImgStorageModeOnExport <> smeEmbKNT) then exit;
 
@@ -1466,7 +1475,7 @@ begin
 end;
 
 
-procedure TImageManager.SaveStateInExportingMode(const tf: TTextFile);
+procedure TImageMng.SaveStateInExportingMode(const tf: TTextFile);
 var
    i: Integer;
    MaxSavedImgID: integer;
@@ -1486,7 +1495,7 @@ end;
 
 
 
-procedure TImageManager.DeleteOrphanImages();
+procedure TImageMng.DeleteOrphanImages();
 var
   Img: TKntImage;
   i: integer;
@@ -1547,7 +1556,7 @@ end;
 //      OPEN KNT -> LOAD IMAGES AND STATE
 //-----------------------------------------
 
-procedure TImageManager.LoadState(const tf: TTextFile; var FileExhausted: Boolean);
+procedure TImageMng.LoadState(const tf: TTextFile; var FileExhausted: Boolean);
 var
   s, key : AnsiString;
   ws: String;
@@ -1750,13 +1759,13 @@ end;
 //    CHANGE/SET - STORAGE MODE
 //-----------------------------------------
 
-procedure TImageManager.SetInitialImagesStorageMode(StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage);
+procedure TImageMng.SetInitialImagesStorageMode(StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage);
 begin
   fStorageMode:= StorageMode;
 end;
 
 
-function TImageManager.PrepareImagesStorageToSave (const FN: string): boolean;
+function TImageMng.PrepareImagesStorageToSave (const FN: string): boolean;
 begin
    if not fFileIsNew then exit (true);
 
@@ -1767,7 +1776,7 @@ begin
 end;
 
 
-function TImageManager.SetImagesStorage(StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage; Path: string;
+function TImageMng.SetImagesStorage(StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage; Path: string;
                                          CreateExternalStorageOnNewFile: boolean= false;
                                          ExternalStorageRelocated: boolean= false): boolean;
 var
@@ -2010,7 +2019,7 @@ begin
 end;
 
 
-procedure TImageManager.ConversionStorageMode_End();
+procedure TImageMng.ConversionStorageMode_End();
 begin
    case fStorageMode of
       smExternal, smExternalAndEmbKNT:
@@ -2032,7 +2041,7 @@ end;
 //      STORAGE MANAGEMENT
 //-----------------------------------------
 
-function TImageManager.GetExternalStorageType: TImagesExternalStorage;
+function TImageMng.GetExternalStorageType: TImagesExternalStorage;
 begin
  Result:= KeyOptions.ImgDefaultExternalStorage;
 
@@ -2048,7 +2057,7 @@ begin
 end;
 
 
-function TImageManager.GetExternalStorageLocation: string;
+function TImageMng.GetExternalStorageLocation: string;
 begin
  Result:= '';
 
@@ -2062,13 +2071,13 @@ begin
 end;
 
 
-function TImageManager.GetExternalStorageIsMissing: boolean;
+function TImageMng.GetExternalStorageIsMissing: boolean;
 begin
    Result:=  (fExternalStorageToRead <> nil) and not fExternalStorageToRead.IsValid;
 end;
 
 
-function TImageManager.GetDefaultExternalLocation (ExtType: TImagesExternalStorage; FN: string= ''): string;
+function TImageMng.GetDefaultExternalLocation (ExtType: TImagesExternalStorage; FN: string= ''): string;
 begin
   if FN = '' then
      FN:= KntFile.FileName;
@@ -2090,14 +2099,14 @@ end;
 //-----------------------------------------
 
 
-function TImageManager.GetNewID(): Integer;
+function TImageMng.GetNewID(): Integer;
 begin
    Result:= fNextTempImageID;
    Inc(fNextTempImageID);
 end;
 
 
-function TImageManager.GetImageFromStream (Stream: TMemoryStream; var CRC32: DWORD; SetLastAccess: boolean= true): TKntImage;
+function TImageMng.GetImageFromStream (Stream: TMemoryStream; var CRC32: DWORD; SetLastAccess: boolean= true): TKntImage;
 var
   Img: TKntImage;
   i: integer;
@@ -2117,7 +2126,7 @@ begin
 end;
 
 
-function TImageManager.GetMaxSavedImageID: integer;
+function TImageMng.GetMaxSavedImageID: integer;
 var
   Img: TKntImage;
   i, MaxID: integer;
@@ -2132,7 +2141,7 @@ begin
 end;
 
 
-function TImageManager.GetImageFromID (ImgID: integer; SetLastAccess: boolean= true): TKntImage;
+function TImageMng.GetImageFromID (ImgID: integer; SetLastAccess: boolean= true): TKntImage;
 var
   Img: TKntImage;
   i: integer;
@@ -2149,7 +2158,7 @@ begin
 end;
 
 
-function TImageManager.GetNextImage (ImgID: integer; SetLastAccess: boolean= true): TKntImage;
+function TImageMng.GetNextImage (ImgID: integer; SetLastAccess: boolean= true): TKntImage;
 var
   Img: TKntImage;
 begin
@@ -2160,7 +2169,7 @@ begin
    Result:= Img;
 end;
 
-function TImageManager.GetPrevImage (ImgID: integer; SetLastAccess: boolean= true): TKntImage;
+function TImageMng.GetPrevImage (ImgID: integer; SetLastAccess: boolean= true): TKntImage;
 var
   Img: TKntImage;
 begin
@@ -2172,7 +2181,7 @@ begin
 end;
 
 
-function TImageManager.GetImageFromFileName (const FileName: string; SetLastAccess: boolean= true): TKntImage;
+function TImageMng.GetImageFromFileName (const FileName: string; SetLastAccess: boolean= true): TKntImage;
 var
   Img: TKntImage;
   i: integer;
@@ -2189,7 +2198,7 @@ begin
 end;
 
 
-function TImageManager.GetImagePath (Img: TKntImage): string;
+function TImageMng.GetImagePath (Img: TKntImage): string;
 var
    Strg: TFilesStorage;
 
@@ -2210,7 +2219,7 @@ begin
 end;
 
 
-procedure TImageManager.AdaptPathFormatInImages (ZipPathFormat: boolean);
+procedure TImageMng.AdaptPathFormatInImages (ZipPathFormat: boolean);
 var
   Img: TKntImage;
   i: integer;
@@ -2235,7 +2244,7 @@ end;
 
 
 
-procedure TImageManager.ReloadImageStream (Img: TKntImage);
+procedure TImageMng.ReloadImageStream (Img: TKntImage);
 var
    i: integer;
    Strg: TFilesStorage;
@@ -2263,7 +2272,7 @@ begin
     end;
 end;
 
-procedure TImageManager.CheckFreeImageStreamsNotRecentlyUsed;
+procedure TImageMng.CheckFreeImageStreamsNotRecentlyUsed;
 var
   Img: TKntImage;
   i: integer;
@@ -2292,7 +2301,7 @@ begin
 
 end;
 
-function TImageManager.RecalcNextID: boolean;
+function TImageMng.RecalcNextID: boolean;
 var
    NewID: integer;
 begin
@@ -2309,7 +2318,7 @@ begin
 
 end;
 
-function TImageManager.ImageInCurrentEditors (ImgID: integer; UseFreshTextPlain: boolean= false): Boolean;
+function TImageMng.ImageInCurrentEditors (ImgID: integer; UseFreshTextPlain: boolean= false): Boolean;
 var
    i, j: integer;
    ImagesIDs: TImageIDs;
@@ -2333,7 +2342,7 @@ end;
 //      IMAGES - Adding NEW images
 //-----------------------------------------
 
-function TImageManager.RegisterNewImage(
+function TImageMng.RegisterNewImage(
                                          Stream: TMemoryStream;
                                          ImageFormat: TImageFormat;
                                          Width, Height: integer;
@@ -2341,7 +2350,7 @@ function TImageManager.RegisterNewImage(
                                          const OriginalPath: String;
                                          Owned: boolean;
                                          const Source: String;
-                                         Folder: TKntFolder;
+                                         const FolderName: string;
                                          const NameProposed: string = ''
                                          ): TKntImage;
 var
@@ -2374,7 +2383,7 @@ begin
    if (assigned(fExternalStorageToSave)) and (fExternalStorageToSave.StorageType= stZip) then
       ZipPathFormat:= true;
 
-   Img.GenerateName(Note, Folder, Source, ZipPathFormat, NameProposed);
+   Img.GenerateName(Note, FolderName, Source, ZipPathFormat, NameProposed);
 
    fImages.Add(Pointer(Img));
    if Owned and ((fStorageMode = smExternal) or (fStorageMode = smExternalAndEmbKNT)) then
@@ -2386,11 +2395,11 @@ end;
 
 
 // Returns True if it has just been registered
-function TImageManager.CheckRegisterImage (
+function TImageMng.CheckRegisterImage (
                                            Stream: TMemoryStream;
                                            ImgFormat: TImageFormat;
                                            Width, Height: integer;
-                                           Folder: TKntFolder;
+                                           const FolderName: string;
                                            const OriginalPath: String;
                                            Owned: boolean;
                                            const Source: String;
@@ -2404,13 +2413,13 @@ begin
 
     Img:= GetImageFromStream (Stream, crc32);
     if (Img = nil) then begin
-       Img:= RegisterNewImage(Stream, imgFormat, Width, Height, crc32, OriginalPath, Owned, Source, Folder, NameProposed);
+       Img:= RegisterNewImage(Stream, imgFormat, Width, Height, crc32, OriginalPath, Owned, Source, FolderName, NameProposed);
        Result:= True;        // Registered
     end;
 end;
 
 
-function TImageManager.CheckUniqueName (var Name: string): boolean;
+function TImageMng.CheckUniqueName (var Name: string): boolean;
 var
    Img: TKntImage;
    n: integer;
@@ -2443,7 +2452,7 @@ end;
 
 { Explicit insertion of an image. Replaces the current method that relies on the use of the clipboard }
 
-procedure TImageManager.InsertImage(FileName: String; Folder: TKntFolder; Owned: boolean; const NameProposed: string= '');
+procedure TImageMng.InsertImage(FileName: String; Editor: TKntRichEdit; Owned: boolean; const NameProposed: string= '');
 var
   Stream: TMemoryStream;
   ImgFormat, ImgFormatDest: TImageFormat;
@@ -2453,11 +2462,19 @@ var
   ImgID: integer;
   Img: TKntImage;
   StreamRegistered: boolean;
+  Folder: TKntFolder;
+  FolderName: String;
 
 begin
   ImgID:= 0;
   ImgFormat:= imgUndefined;
   StreamRegistered:= False;
+
+  Folder:= TKntFolder(Editor.FolderObj);
+  FolderName:= '';
+  if assigned(Folder) then
+     FolderName:= Folder.Name;
+
 
   Stream:= TMemoryStream.Create;
   try
@@ -2466,7 +2483,7 @@ begin
 
      if (fStorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
         ImgFormat:= GetImageFormat(Stream);
-        StreamRegistered:= CheckRegisterImage (Stream, ImgFormat, Width, Height, Folder, FileName, Owned, '', Img, NameProposed);
+        StreamRegistered:= CheckRegisterImage (Stream, ImgFormat, Width, Height, FolderName, FileName, Owned, '', Img, NameProposed);
         ImgID:= Img.ID;
         if (not StreamRegistered) and (Img.ReferenceCount = 0) and (NameProposed <> '') then
            Img.FName:= NameProposed;
@@ -2479,7 +2496,7 @@ begin
      if StreamRegistered then
         Img.SetDimensions(Width, Height);
 
-     Folder.Editor.PutRtfText(StrRTF, True);
+     Editor.PutRtfText(StrRTF, True);
 
   finally
      if not StreamRegistered then
@@ -2489,7 +2506,7 @@ begin
 end;
 
 
-procedure TImageManager.InsertImageFromClipboard(Folder: TKntFolder; TryAddURLlink: boolean = true);
+procedure TImageMng.InsertImageFromClipboard(Editor: TRxRichEdit; FolderName: string; TryAddURLlink: boolean = true);
 var
   Stream: TMemoryStream;
   bmp: TBitmap;
@@ -2504,7 +2521,6 @@ var
   TextURL: String;
   DefaultImageFormat_Bak: TImageFormat;
 
-  Editor: TRxRichEdit;
   WasCopiedByKNT, StreamRegistered: boolean;
   Source: String;
 
@@ -2513,11 +2529,6 @@ begin
   ImgID:= 0;
   ImgFormat:= imgUndefined;
   StreamRegistered:= false;
-
-  if Folder = nil then
-     Folder:= ActiveKntFolder;
-
-  Editor:= Folder.Editor;
 
  {
   //  Disabled from now. Perhaps it will be restored and used if enabled via a new INI configuration option
@@ -2558,8 +2569,8 @@ begin
      if WasCopiedByKNT then
         ImgID:= LastCopiedIDImage;            // If <> 0 => We have copied this image from KNT and we had already registered it
 
-     if (ImgID = 0) and (fStorageMode <> smEmbRTF) and (Folder <> nil) then begin
-        if _IS_CAPTURING_CLIPBOARD then
+     if (ImgID = 0) and (fStorageMode <> smEmbRTF) then begin
+        if ClipCapMng.IsBusy then
            Source:= 'ClipCap'
         else
            Source:= 'Clipb';
@@ -2574,7 +2585,7 @@ begin
         ConvertStreamToImgFormatDest (Stream, ImgFormat, imgFormatDest);
         if (fStorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
            ImgFormat:= ImgFormatDest;
-           StreamRegistered:= CheckRegisterImage (Stream, ImgFormatDest, Width, Height, Folder, '', True, Source, Img);
+           StreamRegistered:= CheckRegisterImage (Stream, ImgFormatDest, Width, Height, FolderName, '', True, Source, Img);
            ImgID:=Img.ID;
         end;
      end;
@@ -2614,7 +2625,7 @@ end;
 { Will only be called when it detects that the content on the clipboard was not copied by this application
  If it has been, there is no need to process the images, since they will already be adapted and with the
  hidden marks that have been precise }
-procedure TImageManager.ProcessImagesInClipboard(Editor: TRxRichEdit; Folder: TKntFolder; SelStartBeforePaste: integer; FirstImageID: integer= 0);
+procedure TImageMng.ProcessImagesInClipboard(Editor: TRxRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0);
 var
   SelStartBak: integer;
   p1, p2: integer;
@@ -2632,7 +2643,7 @@ begin
     RTFText:= Editor.RtfSelText;
 
     ImagesMode:= FImagesMode;
-    RTFTextOut:= ProcessImagesInRTF(RTFText, Folder, ImagesMode, 'Clipboard', FirstImageID);
+    RTFTextOut:= ProcessImagesInRTF(RTFText, FolderName, ImagesMode, 'Clipboard', FirstImageID);
 
     if RTFTextOut <> '' then
        Editor.PutRtfText(RTFTextOut,True,True)
@@ -2642,7 +2653,8 @@ begin
 end;
 
 
-function TImageManager.ProcessImagesInRTF(const RTFText: AnsiString; Folder: TKntFolder;
+function TImageMng.ProcessImagesInRTF(const RTFText: AnsiString;
+                                          const FolderName: String;
                                           ImagesModeDest: TImagesMode;
                                           const Source: string;
                                           FirstImageID: integer= 0;
@@ -2652,7 +2664,9 @@ var
    ContainsImgIDsRemoved: boolean;
    ContainsImages: boolean;
 begin
-   Result:= ProcessImagesInRTF(@RTFText[1], ByteLength(RTFText), Folder, ImagesModeDest, Source, FirstImageID, ContainsImgIDsRemoved, ContainsImages, ExitIfAllImagesInSameModeDest);
+   if RTFText = '' then exit('');
+
+   Result:= ProcessImagesInRTF(@RTFText[1], ByteLength(RTFText), FolderName, ImagesModeDest, Source, FirstImageID, ContainsImgIDsRemoved, ContainsImages, ExitIfAllImagesInSameModeDest);
 end;
 
 
@@ -2696,7 +2710,8 @@ NOTE:
      from the image, if it finds it:  Embedded color profile, EXIF metada, IPTC metadata
 
 *)
-function TImageManager.ProcessImagesInRTF(const Buffer: Pointer; BufSize: integer; Folder: TKntFolder;
+function TImageMng.ProcessImagesInRTF(const Buffer: Pointer; BufSize: integer;
+                                          const FolderName: string;
                                           ImagesModeDest: TImagesMode;
                                           const Source: string;
                                           FirstImageID: integer;
@@ -2812,12 +2827,10 @@ begin
    Result:= '';
    RTFText:= PAnsiChar(Buffer);
 
-   if (assigned(Folder) and Folder.PlainText) or (Length(RTFText) > BufSize) then begin
+   if (Length(RTFText) > BufSize) then begin
       assert(Length(RTFText) <= BufSize );
       exit;
    end;
-
-   assert(Length(RTFText) <= BufSize );
 
    // fExtenalImagesManager <> nil : We are processing folder images from a file we are merging (see MergeFromKNTFile)
 
@@ -3086,14 +3099,14 @@ begin
 
             if (fStorageMode <> smEmbRTF) then begin
                if (ImgID = 0) and ((ImageMode = imImage) or UseExtenalImagesManager) and (Stream <> nil) and (Stream.Size > 0) then begin
-                  if Folder = nil then begin
-                     assert(Folder <> nil);
+                  {if FolderName = '' then begin
+                     assert(FolderName <> '');
                      Exit('');       // It shouldn't happen, but if it does, we are exporting notes. We leave without processing anything
-                  end;
+                  end;}
 
                   if Img <> nil then begin            // Processing images from MergeFromKNTFile
                     ImgCaption:= Img.Caption;
-                    if CheckRegisterImage (Stream, Img.ImageFormat,  Width, Height, Folder, Img.OriginalPath, Img.IsOwned, 'MergeKNT', Img) then begin
+                    if CheckRegisterImage (Stream, Img.ImageFormat,  Width, Height, FolderName, Img.OriginalPath, Img.IsOwned, 'MergeKNT', Img) then begin
                        StreamRegistered:= true;
                        if ImgCaption <> '' then
                           Img.Caption:= ImgCaption;
@@ -3105,7 +3118,7 @@ begin
                     ConvertStreamToImgFormatDest (Stream, ImgFormat, imgFormatDest);
                     if Stream.Size > 0 then begin
                        ImgFormat:= ImgFormatDest;
-                       if CheckRegisterImage (Stream, ImgFormatDest,  Width, Height, Folder, '', true, Source, Img) then
+                       if CheckRegisterImage (Stream, ImgFormatDest,  Width, Height, FolderName, '', true, Source, Img) then
                           StreamRegistered:= true;
                        ImgID:= Img.ID;
                     end;
@@ -3273,7 +3286,7 @@ end;
 //-----------------------------------------
 
 
-procedure TImageManager.ResetAllImagesCountReferences;
+procedure TImageMng.ResetAllImagesCountReferences;
 var
   Img: TKntImage;
   i: integer;
@@ -3285,7 +3298,7 @@ begin
 end;
 
 
-function TImageManager.GetImagesIDInstancesFromRTF (Stream: TMemoryStream): TImageIDs;
+function TImageMng.GetImagesIDInstancesFromRTF (Stream: TMemoryStream): TImageIDs;
 var
   pID,pIDr: integer;
   ImgID, Num: integer;
@@ -3321,7 +3334,7 @@ begin
 end;
 
 
-function TImageManager.GetImagesIDInstancesFromTextPlain (TextPlain: String): TImageIDs;
+function TImageMng.GetImagesIDInstancesFromTextPlain (TextPlain: String): TImageIDs;
 var
   pID,pIDr: integer;
   ImgID, Num: integer;
@@ -3354,7 +3367,7 @@ begin
 end;
 
 
-procedure TImageManager.UpdateImagesCountReferences (const IDsBefore: TImageIDs;  const IDsAfter: TImageIDs);
+procedure TImageMng.UpdateImagesCountReferences (const IDsBefore: TImageIDs;  const IDsAfter: TImageIDs);
 var
    a, b, IDAfter, ID: integer;
    Img: TKntImage;
@@ -3401,7 +3414,7 @@ begin
 end;
 
 
-procedure TImageManager.RemoveImagesReferences (const IDs: TImageIDs);
+procedure TImageMng.RemoveImagesReferences (const IDs: TImageIDs);
 var
   i, ID: integer;
   Img: TKntImage;
@@ -3417,7 +3430,7 @@ begin
 end;
 
 
-procedure TImageManager.ReloadImages(const IDs: TImageIDs);
+procedure TImageMng.ReloadImages(const IDs: TImageIDs);
 var
   i, ID: integer;
   Img: TKntImage;
@@ -3436,7 +3449,7 @@ begin
     end;
 end;
 
-procedure TImageManager.RegisterImagesReferencesExported (const IDs: TImageIDs);
+procedure TImageMng.RegisterImagesReferencesExported (const IDs: TImageIDs);
 var
   i, ID: integer;
 begin
@@ -3448,7 +3461,7 @@ begin
 end;
 
 
-function TImageManager.GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 var
   pID,pIDr: integer;
   pID_e,pIDr_e: integer;
@@ -3560,14 +3573,14 @@ begin
     // Check if no offset needs to be applied
 
     // There is no need to make any adaptation, since TextPlainInEditor must necessarily be equal to imLinkTextPlain
-    if (not ForceCalc) and (ImagesManager.ImagesMode = imLink) and (not RTFModified) then
+    if (not ForceCalc) and (ImageMng.ImagesMode = imLink) and (not RTFModified) then
        exit;
 
     // There is no need to adapt anything because there are no images (neither hidden nor visible)
     if Pos(beginIDImgChar, imLinkTextPlain, 1) = 0 then
        exit;
 
-    TextPlainInEditor:= ActiveKntFolder.Editor.TextPlain;
+    TextPlainInEditor:= ActiveEditor.TextPlain;
 
     { If the length of TextPlainInEditor = length of imLinkTextPlain this will be because there are images but they
       are all hidden, hence the coincidence in the lengths. It would be highly unlikely that there would be a number
@@ -3662,13 +3675,13 @@ begin
 end;
 
 
-function TImageManager.GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 begin
    Result:= GetPositionOffset(Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified, ForceCalc);
 end;
 
 
-function TImageManager.GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 begin
    Result:= GetPositionOffset(Stream, -1, CaretPos, imLinkTextPlain, RTFModified, ForceCalc);
 end;
@@ -3680,7 +3693,7 @@ end;
 //-----------------------------------------
 
 
-procedure TImageManager.OpenImageFile(FilePath: string);
+procedure TImageMng.OpenImageFile(FilePath: string);
 var
   ShellExecResult: integer;
   Parameters: string;
@@ -3715,7 +3728,31 @@ begin
 end;
 
 
-procedure TImageManager.OpenImageViewer (ImgID: integer; ShowExternalViewer: boolean; SetLastFormImageOpened: boolean);
+function TImageMng.GetImgViewerIsOpen: boolean;
+begin
+   Result:= ImgViewerInstance <> nil;
+end;
+
+function TImageMng.GetImgIDinViewer: integer;
+var
+   imgViewer: TForm_Image;
+begin
+   Result:= -1;
+   imgViewer:= ImgViewerInstance;
+   if imgViewer <> nil then
+      Result:= imgViewer.Image.ID;
+end;
+
+procedure TImageMng.CheckBringToFrontLastImageViewer;
+begin
+  if kn_ImageForm.LastImgViewerOpen <> nil then begin
+     LastImgViewerOpen.BringToFront;
+     LastImgViewerOpen:= nil;
+  end;
+
+end;
+
+procedure TImageMng.OpenImageViewer (ImgID: integer; ShowExternalViewer: boolean; SetLastFormImageOpened: boolean);
 var
   Form_Image, OpenedViewer: TForm_Image;
   Img: TKntImage;
@@ -3734,7 +3771,7 @@ begin
          OpenImageFile(FilePath);
       end
       else begin
-         ActiveKntFolder.EditorToDataStream;
+         ActiveFolder.EditorToDataStream;
 
          UsingOpenViewer:= false;
 
@@ -3755,9 +3792,9 @@ begin
            ImgHotTrackViewer option. For this we look at ImgViewerInstance
          }
          if SetLastFormImageOpened and (OpenedViewer = nil) then
-            kn_ImageForm.LastFormImageOpened:= Form_Image;
+            kn_ImageForm.LastImgViewerOpen:= Form_Image;
          Form_Image.Image:= Img;
-         Form_Image.Folder:= ActiveKntFolder;
+         Form_Image.Folder:= ActiveFolder;
          if not UsingOpenViewer then
             Form_Image.Show;
       end;

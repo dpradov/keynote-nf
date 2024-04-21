@@ -47,7 +47,8 @@ uses
    kn_DllInterface,
    kn_DLLmng,
    kn_ClipUtils,
-   kn_Main;
+   kn_Main,
+   knt.App;
 
 resourcestring
   STR_01 = 'Error while importing HTML text: ';

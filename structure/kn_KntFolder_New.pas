@@ -90,7 +90,8 @@ uses
    kn_global,
    kn_INI,
    kn_Chest,
-   kn_Main;
+   kn_Main,
+   knt.App;
 
 
 resourcestring

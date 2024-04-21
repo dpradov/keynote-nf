@@ -113,7 +113,8 @@ uses
   kn_EditorUtils,
   kn_ClipUtils,
   kn_KntFolder,
-  kn_Global;
+  kn_Global,
+  knt.App;
 
 {$R *.DFM}
 
@@ -552,8 +553,10 @@ var
    Ch: Char;
 begin
   if not assigned( CharInsertEvent ) then exit;
+  if not assigned(ActiveEditor) then exit;
 
-  ActiveKntFolder.Editor.BeginUpdate;
+
+  ActiveEditor.BeginUpdate;
   try
      for i:= 1 to EditorNewChars.TextLength do begin
         EditorNewChars.SetSelection(i-1,i,false);
@@ -564,7 +567,7 @@ begin
      if AutoAddNew then
         btnAddToTableClick (nil);
   finally
-     ActiveKntFolder.Editor.EndUpdate;
+     ActiveEditor.EndUpdate;
   end;
 
   CharsLastCount := Spin_Count.Value;

@@ -145,7 +145,7 @@ procedure NewImageViewer(Instance: TForm_Image);
 procedure ClearImgViewerInstances;
 
 var
-   LastFormImageOpened: TForm_Image;
+   LastImgViewerOpen: TForm_Image;
    CompactMode: boolean;
 
 
@@ -158,7 +158,8 @@ uses
   kn_Main,
   kn_NoteFileMng,
   kn_global,
-  kn_info
+  kn_info,
+  knt.App
   ;
 
 {$R *.DFM}
@@ -337,7 +338,7 @@ begin
    lblLinked.Visible:= not Image.IsOwned;
    cScrollBox.Color:= KeyOptions.ImgViewerBGColor;
 
-   fImagePath:= ImagesManager.GetImagePath(Image);
+   fImagePath:= ImageMng.GetImagePath(Image);
    if fImagePath <> '' then begin
       btnOpenFolder.Enabled:= true;
       btnOpenFolder.Hint:= STR_02 + '   ' + fImagePath;
@@ -620,7 +621,7 @@ begin
   else
      FilePath:= fImagePath;
 
-  ImagesManager.OpenImageFile(FilePath);
+  ImageMng.OpenImageFile(FilePath);
 end;
 
 
@@ -651,7 +652,7 @@ var
   ID: integer;
 begin
    if TryStrToInt(txtID.Text, ID) and (ID <> fImageID) then begin
-      Img:= ImagesManager.GetImageFromID(ID);
+      Img:= ImageMng.GetImageFromID(ID);
       if (Img <> nil) then begin
          CheckUpdateCaption;
          Image:= Img;
@@ -673,9 +674,9 @@ var
   ImgID: integer;
 begin
     if CtrlDown then begin
-       Img:= ImagesManager.GetPrevImage (fImageID);
+       Img:= ImageMng.GetPrevImage (fImageID);
        if (Img = nil) then
-          Img:= ImagesManager.GetPrevImage (ImagesManager.NextTempImageID);
+          Img:= ImageMng.GetPrevImage (ImageMng.NextTempImageID);
     end
     else begin
        GetImagesInNote;
@@ -685,7 +686,7 @@ begin
           fIndexInNote:= Length(fImagesInNote)-1;
 
        fImageID:= fImagesInNote[fIndexInNote];
-       Img:= ImagesManager.GetImageFromID(fImageID);
+       Img:= ImageMng.GetImageFromID(fImageID);
     end;
 
 
@@ -699,9 +700,9 @@ var
   Img: TKntImage;
 begin
     if CtrlDown then begin
-       Img:= ImagesManager.GetNextImage (fImageID);
+       Img:= ImageMng.GetNextImage (fImageID);
        if (Img = nil) then
-          Img:= ImagesManager.GetNextImage (0);
+          Img:= ImageMng.GetNextImage (0);
     end
     else begin
        GetImagesInNote;
@@ -711,7 +712,7 @@ begin
           fIndexInNote:= 0;
 
        fImageID:= fImagesInNote[fIndexInNote];
-       Img:= ImagesManager.GetImageFromID(fImageID);
+       Img:= ImageMng.GetImageFromID(fImageID);
     end;
 
     CheckUpdateCaption;
@@ -856,7 +857,7 @@ begin
    if fImagesInNote <> nil then exit;
    if fFolder = nil then exit;
 
-   fImagesInNote:= ImagesManager.GetImagesIDInstancesFromTextPlain (fFolder.Editor.TextPlain);
+   fImagesInNote:= ImageMng.GetImagesIDInstancesFromTextPlain (fFolder.Editor.TextPlain);
 
    for i := Low(fImagesInNote) to High(fImagesInNote) do
       if fImagesInNote[i] = fImageID then begin
@@ -868,7 +869,7 @@ end;
 
 
 initialization
-  LastFormImageOpened:= nil;
+  LastImgViewerOpen:= nil;
   ImgViewerInstances:= TList.Create;
   CompactMode:= False;
 

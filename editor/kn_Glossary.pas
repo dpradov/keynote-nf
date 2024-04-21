@@ -80,7 +80,8 @@ uses
    kn_Info,
    kn_global,
    kn_ExpTermDef,
-   kn_main;
+   kn_main,
+   knt.App;
 
 {$R *.DFM}
 

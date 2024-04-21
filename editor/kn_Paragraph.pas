@@ -88,7 +88,7 @@ implementation
 
 uses
    kn_Global,
-   kn_KntFolder;
+   knt.ui.editor;
 
 
 {$R *.DFM}
@@ -105,13 +105,11 @@ begin
 
   CurrentNumbering := nsNone;
   CurrentNumberingStyle := nsPeriod;
-
   if ( _LoadedRichEditVersion <= 2 ) then
   begin
     CB_Numbers.Checked := false;
     CB_Numbers.Enabled := false;
   end;
-
   with Para do
   begin
     SpacingRule := lsSingle;
@@ -205,6 +203,7 @@ begin
 
     Spin_SpcBef.Value := SpaceBefore;
     Spin_SpcAft.Value := SpaceAfter;
+
     if ( _LoadedRichEditVersion > 2 ) then
     begin
       if ( Numbering = nsBullet ) then

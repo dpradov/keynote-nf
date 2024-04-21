@@ -49,7 +49,9 @@ uses
    kn_Global,
    kn_Main,
    kn_NoteFileMng,
-   kn_MacroMng
+   kn_MacroMng,
+   knt.ui.editor,
+   knt.App
    ;
 
 resourcestring
@@ -76,16 +78,18 @@ procedure StyleDescribe( const FromEditor, LongDesc : boolean );
 var
   s : string;
   style : TStyle;
+  Editor: TKntRichEdit;
 begin
+
   with Form_Main do begin
       s := '';
-      if FromEditor then
-      begin
-        if ((( not HaveKntFolders( true, true )) or ( not assigned( ActiveKntFolder )))) then exit;
-        s := STR_01 + #13#13 + STR_02 + ActiveKntFolder.Editor.FontInfoString + #13#13 + STR_03 + ActiveKntFolder.Editor.ParaInfoString;
+
+      if FromEditor then begin
+        if not App.CheckActiveEditor then exit;
+        Editor:= ActiveEditor;
+        s := STR_01 + #13#13 + STR_02 + Editor.FontInfoString + #13#13 + STR_03 + Editor.ParaInfoString;
       end
-      else
-      begin
+      else begin
         if ( Combo_Style.ItemIndex < 0 ) or
         ( Combo_Style.ItemIndex >= StyleManager.Count ) then exit;
 
@@ -102,99 +106,84 @@ begin
   end;
 end; // StyleDescribe
 
+
 procedure StyleCreate( aRange : TStyleRange; ExistingStyle : TStyle );
 var
   name : string;
   Style : TStyle;
   idx : integer;
+  Editor: TKntRichEdit;
 begin
-  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
-  if ( not assigned( ActiveKntFolder )) then exit;
+  if not App.CheckActiveEditor then exit;
 
-  if ( not assigned( StyleManager )) then
-  begin
+  if ( not assigned( StyleManager )) then begin
     showmessage( STR_06 );
     exit;
   end;
 
-
-  if ( ExistingStyle = nil ) then
-  begin
-    if ( not InputQuery(
-      Format( STR_07, [STYLE_RANGES[aRange]] ),
-      STR_08, name )) then exit;
+  if ( ExistingStyle = nil ) then begin
+    if ( not InputQuery(Format( STR_07, [STYLE_RANGES[aRange]] ), STR_08, name )) then exit;
     if ( name = '' ) then exit;
     idx := StyleManager.IndexOf( name );
     if ( idx >= 0 ) then
       ExistingStyle := TStyle( StyleManager.Objects[idx] );
   end
   else
-  begin
     name := ExistingStyle.Name;
+
+  if ( ExistingStyle <> nil ) then begin
+    if (DoMessageBox(Format(STR_09, [STYLE_RANGES[ExistingStyle.Range],ExistingStyle.Name]),
+           mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
   end;
 
-  if ( ExistingStyle <> nil ) then
-  begin
-    if ( DoMessageBox( Format(
-      STR_09,
-      [STYLE_RANGES[ExistingStyle.Range],ExistingStyle.Name] ),
-      mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-  end;
-
-  if ( ExistingStyle = nil ) then
-  begin
+  if ( ExistingStyle = nil ) then begin
     Style := TStyle.Create;
     Style.Name := name;
     Style.Range := aRange;
   end
   else
-  begin
     Style := ExistingStyle;
-  end;
 
+  Editor:= ActiveEditor;
 
-  with Style do
-  begin
+  with Style do begin
 
     if ( Range in [srFont, srBoth] ) then
-    with ActiveKntFolder.Editor.SelAttributes do
-    begin
-      Font.Charset := Charset;
-      Font.Color := Color;
-      Font.Name := Name;
-      Font.Size := Size;
-      Font.Style := Style;
-      Text.Disabled := Disabled;
-      Text.SubscriptStyle := SubscriptStyle;
-      // [l] Text.Language := Language;
+       with Editor.SelAttributes do begin
+         Font.Charset := Charset;
+         Font.Color := Color;
+         Font.Name := Name;
+         Font.Size := Size;
+         Font.Style := Style;
+         Text.Disabled := Disabled;
+         Text.SubscriptStyle := SubscriptStyle;
+         // [l] Text.Language := Language;
 
-      Text.HasHighlight := ( BackColor <> clWindow );
-      if Text.HasHighlight then
-        Text.Highlight := BackColor;
-
-    end;
+         Text.HasHighlight := ( BackColor <> clWindow );
+         if Text.HasHighlight then
+           Text.Highlight := BackColor;
+       end;
 
     if ( Range in [srParagraph, srBoth] ) then
-    with ActiveKntFolder.Editor.Paragraph do
-    begin
+       with Editor.Paragraph do begin
 
-      case LineSpacing of
-        0 : Para.SpacingRule := lsSingle;
-        1 : Para.SpacingRule := lsOneAndHalf;
-        else
-          Para.SpacingRule := lsDouble;
-      end;
+         case LineSpacing of
+           0 : Para.SpacingRule := lsSingle;
+           1 : Para.SpacingRule := lsOneAndHalf;
+           else
+             Para.SpacingRule := lsDouble;
+         end;
 
-      Para.Numbering := Numbering;
-      Para.Alignment := Alignment;
-      Para.LIndent := LeftIndent;
-      Para.RIndent := RightIndent;
-      Para.FIndent := FirstIndent;
-      Para.SpaceBefore := SpaceBefore;
-      Para.SpaceAfter := SpaceAfter;
-    end;
+         Para.Numbering := Numbering;
+         Para.Alignment := Alignment;
+         Para.LIndent := LeftIndent;
+         Para.RIndent := RightIndent;
+         Para.FIndent := FirstIndent;
+         Para.SpaceBefore := SpaceBefore;
+         Para.SpaceAfter := SpaceAfter;
+       end;
 
-    ActiveKntFolder.Editor.SetFocus;
+    Editor.SetFocus;
 
     try
       StylesModified := true;
@@ -204,8 +193,7 @@ begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_10, [Name,STYLE_RANGES[aRange]] );
 
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         messagedlg( STR_11 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
@@ -216,11 +204,10 @@ end; // StyleCreate
 procedure StyleApply( aName : string );
 var
   myStyle : TStyle;
+  Editor: TKntRichEdit;
 begin
   with Form_Main do begin
-      if ( not HaveKntFolders( true, true )) then exit;
-      if ( not assigned( ActiveKntFolder )) then exit;
-      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+      if not App.CheckActiveEditorNotReadOnly then exit;
 
       try
         if ( aName = '' ) then
@@ -239,15 +226,15 @@ begin
       if IsRecordingMacro then
         AddMacroEditCommand( ecStyleApply );
 
-      ActiveKntFolder.Editor.BeginUpdate;
+      Editor:= ActiveEditor;
+
+      Editor.BeginUpdate;
       try
-        with myStyle do
-        begin
+        with myStyle do begin
             if ( Range in [srFont, srBoth] ) then
-            with ActiveKntFolder.Editor.SelAttributes do
-            begin
+            with Editor.SelAttributes do begin
               Charset := Font.Charset;
-              ActiveKntFolder.Editor.SuspendUndo;
+              Editor.SuspendUndo;
 
               Color := Font.Color;
               Name := Font.Name;
@@ -259,55 +246,52 @@ begin
               if Text.HasHighlight then
                 BackColor := Text.Highlight;
 
-              ActiveKntFolder.Editor.ResumeUndo;
+              Editor.ResumeUndo;
             end;
 
             if ( Range in [srParagraph, srBoth] ) then
-            with ActiveKntFolder.Editor.Paragraph do
-            begin
-              LineSpacingRule := Para.SpacingRule;
-              ActiveKntFolder.Editor.SuspendUndo;
+               with Editor.Paragraph do begin
+                 LineSpacingRule := Para.SpacingRule;
+                 Editor.SuspendUndo;
 
-              case LineSpacingRule of
-                lsSingle : begin
-                  ActiveKntFolder.Editor.Paragraph.LineSpacingRule := lsSingle;
-                  ActiveKntFolder.Editor.Paragraph.LineSpacing := 0;
-                end;
-                lsOneAndHalf : begin
-                  ActiveKntFolder.Editor.Paragraph.LineSpacingRule := lsOneAndHalf;
-                  ActiveKntFolder.Editor.Paragraph.LineSpacing := 1; // EditorOptions.LineSpcInc;
-                end;
-                lsDouble : begin
-                  ActiveKntFolder.Editor.Paragraph.LineSpacingRule := lsDouble;
-                  ActiveKntFolder.Editor.Paragraph.LineSpacing := 2; // 2*EditorOptions.LineSpcInc;
-                end;
-              end;
+                 case LineSpacingRule of
+                   lsSingle : begin
+                     Editor.Paragraph.LineSpacingRule := lsSingle;
+                     Editor.Paragraph.LineSpacing := 0;
+                   end;
+                   lsOneAndHalf : begin
+                     Editor.Paragraph.LineSpacingRule := lsOneAndHalf;
+                     Editor.Paragraph.LineSpacing := 1; // EditorOptions.LineSpcInc;
+                   end;
+                   lsDouble : begin
+                     Editor.Paragraph.LineSpacingRule := lsDouble;
+                     Editor.Paragraph.LineSpacing := 2; // 2*EditorOptions.LineSpcInc;
+                   end;
+                 end;
 
-              Numbering := Para.Numbering;
-              Alignment := Para.Alignment;
-              LeftIndent := Para.LIndent;
-              RightIndent := Para.RIndent;
-              FirstIndent := Para.FIndent;
-              SpaceBefore := Para.SpaceBefore;
-              SpaceAfter := Para.SpaceAfter;
+                 Numbering := Para.Numbering;
+                 Alignment := Para.Alignment;
+                 LeftIndent := Para.LIndent;
+                 RightIndent := Para.RIndent;
+                 FirstIndent := Para.FIndent;
+                 SpaceBefore := Para.SpaceBefore;
+                 SpaceAfter := Para.SpaceAfter;
 
-              ActiveKntFolder.Editor.ResumeUndo
-            end;
+                 Editor.ResumeUndo
+               end;
 
         end;
 
         try
-          ActiveKntFolder.Editor.SetFocus;
+          Editor.SetFocus;
         except
         end;
 
       finally
-        ActiveKntFolder.Editor.EndUpdate;
+        Editor.EndUpdate;
 
-        ActiveKntFolder.Modified := true;
-        KntFile.Modified := true;
-        RxRTFSelectionChange( ActiveKntFolder.Editor );
-        UpdateKntFileState( [fscModified] );
+        Editor.Change;
+        Editor.ChangedSelection;
       end;
   end;
 

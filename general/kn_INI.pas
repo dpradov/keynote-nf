@@ -916,7 +916,8 @@ uses
   kn_Global,
   kn_KntFolder,
   kn_Const,
-  kn_Main;
+  kn_Main,
+  knt.ui.editor;
 
 
 
@@ -1440,7 +1441,7 @@ begin
       writebool( section, KeyOptionsIniStr.UseCtrlHideTreePanel, KeyOptions.UseCtrlHideTreePanel );
       writeinteger( section, KeyOptionsIniStr.MarginAltLeft,  KeyOptions.MarginAltLeft);
       writeinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight);
-      writebool( section, KeyOptionsIniStr.AltMargins, Form_Main.MMAlternativeMargins.Checked );
+      writebool( section, KeyOptionsIniStr.AltMargins, KeyOptions.AltMargins );
       writebool( section, KeyOptionsIniStr.ModifiedOnTreeResized, KeyOptions.ModifiedOnTreeResized );
 
       writeinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode ));

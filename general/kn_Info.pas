@@ -226,7 +226,7 @@ const
 
 
 type
-  TNodeWordWrap = ( wwAsNote, wwYes, wwNo );
+  TNodeWordWrap = ( wwAsFolder, wwYes, wwNo );
 
 
 type

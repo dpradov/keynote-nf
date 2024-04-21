@@ -32,7 +32,8 @@ uses
    TreeNT,
 
    kn_const,
-   kn_Info
+   kn_Info,
+   knt.ui.editor
    ;
 
 
@@ -62,7 +63,7 @@ uses
     procedure ImportAsKntFolders( ImportFileList : TStringList; ImgLinkMode: boolean );
     procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean; const NameProposed: string = '' );
 
-    procedure FileDropped( Sender : TObject; FileList : TStringList );
+    procedure FileDropped( Sender : TObject; FileList : TStringList; Editor: TKntRichEdit = nil );
     function ConsistentFileType( const aList : TStringList ) : boolean;
     function PromptForFileAction( const FileList : TStringList; const aExt : string; var ImgLinkMode: boolean; var NewFileName: string; var RelativeLink: boolean ) : TDropFileAction;
 
@@ -114,7 +115,8 @@ uses
    kn_LinksMng,
    kn_PluginsMng,
    kn_ImagesMng,
-   kn_FindReplaceMng
+   kn_FindReplaceMng,
+   knt.App
    ;
 
 
@@ -122,8 +124,8 @@ uses
 
 type
    TMergeFolders = record
-       oldID: integer;
-       newID: integer;
+       oldID: Cardinal;
+       newID: Cardinal;
        newFolder: boolean;
    end;
 
@@ -132,7 +134,6 @@ type
 resourcestring
   STR_01 = 'Cannot create a new file: ';
   STR_02 = ' New KNT file created.';
-  STR_03 = '(none)';
   STR_04 = 'A new KNT file has been created. Would you like to save the new file now?' +#13#13+ '(The Auto Save function will not work until the file is named and saved first.)';
   STR_05 = 'Open Keynote file';
   STR_06 = ' Opening ';
@@ -259,8 +260,8 @@ begin
      if (not KntFileClose ) then exit(-2);
 
   MovingTreeNode:= nil;
-  AlarmManager.Clear;
-  ImagesManager.Clear;
+  AlarmMng.Clear;
+  ImageMng.Clear;
   MirrorNodes.Clear;
 
   with Form_Main do begin
@@ -284,9 +285,11 @@ begin
             LoadTabImages( false );
 
             KntFile := TKntFile.Create;
+            App.FileNew(KntFile);
             KntFile.PageCtrl := Pages;
             KntFile.PassphraseFunc := GetFilePassphrase;
             KntFile.FileFormat := KeyOptions.SaveDefaultFormat;
+            ImageMng.SetInitialImagesStorageMode(KeyOptions.ImgDefaultStorageMode, KeyOptions.ImgDefaultExternalStorage);
 
             if ( KeyOptions.RunAutoMacros and fileexists( _MACRO_AUTORUN_NEW_FILE )) then begin
               Application.ProcessMessages;
@@ -313,29 +316,14 @@ begin
           TB_Repeat.ENabled := false;
 
           StatusBar.Panels[PANEL_HINT].Text := STR_02;
-
+          KntFile.Modified:= True;
           UpdateKntFileState( [fscNew,fscModified] );
         {$IFDEF KNT_DEBUG}
           Log.Add( 'KntFileNew result: ' + inttostr( result ));
         {$ENDIF}
           FileIsBusy := false;
-          if ( Pages.PageCount > 0 ) then
-          begin
-            ActiveKntFolder := TKntFolder(Pages.ActivePage.PrimaryObject);
-            TAM_ActiveName.Caption := ActiveKntFolder.Name;
-            FocusActiveKntFolder;
-          end
-          else
-          begin
-            ActiveKntFolder := nil;
-            TAM_ActiveName.Caption := STR_03;
-          end;
 
-          ImagesManager.SetInitialImagesStorageMode(KeyOptions.ImgDefaultStorageMode, KeyOptions.ImgDefaultExternalStorage);
-
-          UpdateNoteDisplay;
-
-          if ( assigned( ActiveKntFolder ) and KeyOptions.RunAutoMacros ) then begin
+          if ( assigned( ActiveFolder ) and KeyOptions.RunAutoMacros ) then begin
              Application.ProcessMessages;
              ExecuteMacro( _MACRO_AUTORUN_NEW_TREE, '' );
           end;
@@ -364,6 +352,9 @@ var
   {$IFDEF KNT_DEBUG}OpenEnd: integer;{$ENDIF}
   opensuccess : boolean;
   FPath, NastyDriveType : string;
+  Folder: TKntFolder;
+  ClipCapIdx: integer;
+  Editor: TKntRichEdit;
 begin
   if assigned( KntFile ) then
     if ( not KntFileClose ) then exit(-2);
@@ -372,42 +363,41 @@ begin
         result := -1;
         _REOPEN_AUTOCLOSED_FILE := false;
         MovingTreeNode:= nil;
-        AlarmManager.Clear;
+        AlarmMng.Clear;
         MirrorNodes.Clear;
         OpenReadOnly := false;
         opensuccess := false;
         Virtual_UnEncrypt_Warning_Done := false;
         if FileIsBusy then exit;
+
         try
           try
             FolderMon.Active := false;
-            if ( FN = '' ) then
-            begin
-              with OpenDlg do
-              begin
+            if ( FN = '' ) then begin
+              with OpenDlg do begin
                 Title := STR_05;
                 Filter := FILTER_NOTEFILES {$IFDEF WITH_DART} + '|' + FILTER_DARTFILES {$ENDIF} + '|' + FILTER_ALLFILES;
                 Options := Options - [ofHideReadOnly];
                 Options := Options - [ofAllowMultiSelect];
                 if ( KeyOptions.LastFile <> '' ) then
-                  InitialDir := ExtractFilePath( KeyOptions.LastFile )
+                   InitialDir := ExtractFilePath( KeyOptions.LastFile )
                 else
-                  InitialDir := GetFolderPath( fpPersonal );
+                   InitialDir := GetFolderPath( fpPersonal );
               end;
+
               try
-                if OpenDlg.Execute then
-                begin
-                  FN := OpenDlg.FileName;
-                  OpenReadOnly := ( ofReadOnly in OpenDlg.Options );
+                if OpenDlg.Execute then begin
+                   FN := OpenDlg.FileName;
+                   OpenReadOnly := ( ofReadOnly in OpenDlg.Options );
                 end
                 else
-                begin
                   exit;
-                end;
+
               finally
                 OpenDlg.Options := OpenDlg.Options + [ofHideReadOnly];
               end;
             end;
+
             FN := normalFN( FN );
             if ( ExtractFileExt( FN ) = '' ) then
               FN := FN + ext_KeyNote;
@@ -422,26 +412,23 @@ begin
             KntFile.PassphraseFunc := GetFilePassphrase;
             KntFile.PageCtrl := Pages;
 
-            // KntFile.OnNoteLoad := OnNoteLoaded;
-
             Log_Flush;
             Log_StoreTick('');
             Log_StoreTick( 'FileOpen (' + FN + ') - BEGIN', 0, +1);
 
-            result := KntFile.Load( FN, ImagesManager );
+            result := KntFile.Load( FN, ImageMng, ClipCapIdx );
+            ActiveFile:= KntFile;
 
             Log_StoreTick( 'After parsed .knt file', 1 );
 
             if KntFile.OpenAsReadOnly then
                OpenReadOnly:= True;
 
-            for i := 0 to KntFile.Folders.Count -1 do
-            begin
+            for i := 0 to KntFile.Folders.Count -1 do begin
               KntFile.Folders[i].AddProcessedAlarms();
             end;
 
-            if ( result <> 0 ) then
-            begin
+            if ( result <> 0 ) then begin
               KntFile.ReadOnly := true;
               result := 0;
               messagedlg( STR_07, mtWarning, [mbOK] , 0 );
@@ -473,8 +460,8 @@ begin
                 NastyDriveType := STR_12;
               end;
             end;
-            if ( NastyDriveType <> '' ) then
-            begin
+
+            if ( NastyDriveType <> '' ) then begin
               KntFile.ReadOnly := true;
               if KeyOptions.OpenReadOnlyWarn then
                 PopupMessage(Format(STR_13, [ExtractFilename(KntFile.FileName), NastyDriveType, ExtractFileDrive(KntFile.FileName)]), mtInformation, [mbOK], 0);
@@ -495,8 +482,8 @@ begin
             KntFile.SetupMirrorNodes(nil);
             Log_StoreTick( 'After SetupMirrorNodes', 1 );
 
-            EnsureCaretVisibleInEditors;                                // *1
             SetupAndShowVCLControls;
+            EnsureCaretVisibleInEditors;                                // *1
             Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
 
 
@@ -505,60 +492,58 @@ begin
             StatusBar.Panels[PANEL_HINT].Text := STR_14;
 
             try
-
-              if ClipOptions.Recall then
-              begin
-                if assigned( KntFile.ClipCapFolder ) then begin
-                  ToggleClipCap( true, KntFile.ClipCapFolder );
-                  Log_StoreTick( 'After recall ClipCapFolder', 1 );
-                end;
-              end
-              else
-              begin
-                KntFile.ClipCapFolder := nil;
+              with ClipCapMng do begin
+                 Editor:= nil;
+                 if ClipOptions.Recall and (ClipCapIdx >=0) then begin
+                    if ClipCapIdx = Scratch_TabIdX then
+                       Editor := Form_Main.Res_RTF
+                    else begin
+                       Folder:= KntFile.GetFolderByTabIndex (ClipCapIdx);
+                       if not Folder.ReadOnly then
+                          Editor := Folder.Editor;
+                    end;
+                    if assigned(Editor) then begin
+                       ToggleOn(Editor);
+                       Log_StoreTick( 'After recall ClipCapFolder', 1 );
+                    end;
+                 end;
+                 LoadTrayIcon( ClipCapActive and ClipOptions.SwitchIcon, false );   // *1
               end;
-
-              LoadTrayIcon( assigned( KntFile.ClipCapFolder ) and ClipOptions.SwitchIcon, false );   // *1
 
             except
             end;
 
           except
-            on E : Exception do
-            begin
-              opensuccess := false;
-              StatusBar.Panels[PANEL_HINT].Text := STR_15;
-             {$IFDEF KNT_DEBUG}
-              Log.Add( 'Error while opening file: ' + E.Message );
-             {$ENDIF}
-              if E.Message <> '' then
-                 PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
-              if assigned( KntFile ) then
-              begin
-                try
-                  DestroyVCLControls;
-                except
-                end;
-                KntFile.Free;
-                KntFile := nil;
-              end;
-              result := 1;
-            end;
+             on E : Exception do begin
+               opensuccess := false;
+               StatusBar.Panels[PANEL_HINT].Text := STR_15;
+              {$IFDEF KNT_DEBUG}
+               Log.Add( 'Error while opening file: ' + E.Message );
+              {$ENDIF}
+               if E.Message <> '' then
+                  PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
+               if assigned( KntFile ) then begin
+                 try
+                   DestroyVCLControls;
+                 except
+                 end;
+                 KntFile.Free;
+                 KntFile := nil;
+               end;
+               result := 1;
+             end;
           end;
 
           try
-            if opensuccess then
-            begin
+            if opensuccess then begin
               GetFileState( KntFile.FileName, FileState );
               FPath := extractfilepath( KntFile.FileName );
               FolderMon.FolderName := copy( FPath, 1, pred( length( FPath )));
-              // prevent folder monitor if file resides on a read-only medium
-              // diskette or network
+              // prevent folder monitor if file resides on a read-only medium,  diskette or network
               FolderMon.Active := (( not KeyOptions.DisableFileMon ) and ( NastyDriveType = '' ));
             end;
           except
-            on E : Exception do
-            begin
+            on E : Exception do begin
              {$IFDEF KNT_DEBUG}
                Log.Add( 'Folder monitor error: ' + E.Message );
              {$ENDIF}
@@ -572,59 +557,45 @@ begin
          {$ENDIF}
 
          { *1
-           It seems that it is only after having focus that it correctly attends to the EM_SCROLLCARET message
+           It seems that it is only being visible that it correctly attends to the EM_SCROLLCARET message
            and updates the editor ensuring that the cursor remains visible.
-           On the other hand, from the tests done it seems that it is when we establish Pages.ActivePage (in SetupAndShowVCLControls)
-           when the editor with its content becomes visible. We are interested in ensuring that when this happens, the editor displays
-           the content taking into account the zoom to be applied and the possible alternative margins. That's why we call
-           EnsureCaretVisibleInEditors immediately before SetupAndShowVCLControls. In EnsureCaretVisibleInEditors, both the zoom
-           and the alternative margins are set and it is asked to make the cursor visible.
+           On the other hand, from the tests done it seems that it is when we establish Pages.ActivePage
+           when the editor with its content becomes visible. We are interested in ensuring that when this happens,
+           the editor displays the content taking into account the zoom to be applied and the possible alternative
+           margins. In EnsureCaretVisibleInEditors, both the zoom and the alternative margins are set and it is asked to
+           make the cursor visible.
            It is also indicated in the call to LoadTrayIcon, with the second parameter set to False, that Application.ProcessMessages
            is not called, all of this to try to ensure that the editor is displayed from the beginning with the content adapted to
            the zoom and the corresponding margins, with the cursor correctly positioned.
+           Note: If this KntFileOpen ins called on initiating the application, then the above call to EnsureCaretVisibleInEditors
+           and the below call to App.ActivateFolder will not ensure that the carets are visbile. For this reason there is also
+           a call to these methods in Form_Main.Activate (they will run only the first time, when opening the app).
          }
-          if opensuccess then
-          begin
-            if ( Pages.PageCount > 0 ) then
-            begin
-              ActiveKntFolder := TKntFolder(Pages.ActivePage.PrimaryObject);
-              TAM_ActiveName.Caption := ActiveKntFolder.Name;
-              FocusActiveKntFolder;                                                // *1
-              ActiveKntFolder.Editor.Perform(EM_SCROLLCARET, 0, 0);                // *1
-              ActiveKntFolder.Editor.Refresh;
-              Log_StoreTick( 'After GetFileState and FocusActiveKntFolder', 1 );
-            end
-            else
-            begin
-              TAM_ActiveName.Caption := STR_03;
-              ActiveKntFolder := nil;
+          if opensuccess then begin
+            if assigned( KntFile ) then begin
+               KntFile.ReadOnly := ( OpenReadOnly or KntFile.ReadOnly );
+               KntFile.Modified := false;
             end;
-            if assigned( KntFile ) then
-            begin
-              KntFile.ReadOnly := ( OpenReadOnly or KntFile.ReadOnly );
-              KntFile.Modified := false;
-            end;
-            UpdateNoteDisplay;
+            App.ActivateFolder(nil);                   // *1  Activate (and focus) current active folder
+            Log_StoreTick( 'After GetFileState and activate KntFolder', 1 );
             UpdateKntFileState( [fscOpen,fscModified] );
           end;
-          Log_StoreTick( 'After UpdateNoteDisplay, UpdateFileState', 1 );
+
+          Log_StoreTick( 'After UpdateFolderDisplay, UpdateFileState', 1 );
           screen.Cursor := crDefault;
           FileIsBusy := false;
           Timer.Enabled := true;
         end;
 
 
-        if ( result = 0 ) then
-        begin
+        if ( result = 0 ) then begin
           KeyOptions.LastFile := FN;
           if KeyOptions.MRUUse then
             MRU.AddItem( FN );
           AddToFileManager( FN, KntFile );
         end
         else
-        begin
           StatusBar.Panels[PANEL_HINT].Text := Format( STR_17, [result] );
-        end;
 
         Log_StoreTick( 'FileOpen - END', 0, -1 );
         Log_Flush;
@@ -636,13 +607,13 @@ end; // KntFileOpen
 procedure EnsureCaretVisibleInEditors;
 var
    i: integer;
-   Editor: TRxRichEdit;
+   Editor: TKntRichEdit;
 begin
    if not assigned( KntFile ) then exit;
 
    for i := 0 to KntFile.Folders.Count -1 do begin
        Editor:= KntFile.Folders[i].Editor;
-       SetMargins(Editor);
+       Editor.SetMargins;
        SendMessage(Editor.Handle, EM_SCROLLCARET, 0, 0);
    end;
 end;
@@ -999,7 +970,7 @@ begin
          end;
 
          // Initialize ImagesManager to reflect the FN in case it is a new file
-         if not ImagesManager.PrepareImagesStorageToSave(FN) then
+         if not ImageMng.PrepareImagesStorageToSave(FN) then
             exit;
 
 
@@ -1212,12 +1183,10 @@ begin
         FileIsBusy := true;
         FolderMon.Active := false;
 
-        ClipCapActive := false;
         Pages.MarkedPage := nil;
-        if ( KntFile.ClipCapFolder <> nil ) then
-        begin
-          TB_ClipCap.Down := false;
-          ToggleClipCap( false, KntFile.ClipCapFolder ); // turn it OFF
+        if (ClipCapMng.ClipCapActive) then begin
+           TB_ClipCap.Down := false;
+           ClipCapMng.ToggleOff;
         end;
 
         LastEditCmd := ecNone;
@@ -1234,6 +1203,7 @@ begin
           end;
           try
             try
+              App.FileClosed(KntFile);
               KntFile.Free;
             except
               // showmessage( 'BUG: error in KntFile.Free' );
@@ -1243,8 +1213,6 @@ begin
           end;
         end;
 
-        ActiveKntFolder := nil;
-
         History.Clear;
         UpdateHistoryCommands;
 
@@ -1253,13 +1221,12 @@ begin
         UpdateKntFileState( [fscClose,fscModified] );
         StatusBar.Panels[PANEL_HINT].Text := STR_30;
       finally
-        AlarmManager.Clear;
-        ImagesManager.Clear;
+        AlarmMng.Clear;
+        ImageMng.Clear;
         MirrorNodes.Clear;
         MovingTreeNode:= nil;
 
         FileIsBusy := false;
-        PagesChange( Form_Main );
         screen.Cursor := crDefault;
        {$IFDEF KNT_DEBUG}
         Log.Add( 'KntFileClose result: ' + BOOLARRAY[result] );
@@ -1340,11 +1307,11 @@ begin
           screen.Cursor := crHourGlass;
           try
             try
-              ImagesManager.ExportingMode:= true;
+              ImageMng.ExportingMode:= true;
               try
                  cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
               finally
-                 ImagesManager.ExportingMode:= false;
+                 ImageMng.ExportingMode:= false;
               end;
 
               if ( cr = 0 ) then begin
@@ -1388,7 +1355,7 @@ end; // KntFileCopy
 procedure MergeFromKNTFile( MergeFN : string );
 var
   MergeFile : TKntFile;
-  ImgManagerMF: TImageManager;
+  ImgManagerMF: TImageMng;
   LoadResult : integer;
   TabSelector : TForm_SelectTab;
   mergecnt, i, n, p : integer;
@@ -1417,8 +1384,7 @@ begin
         if ( not HaveKntFolders( true, false )) then exit;
         if FileIsBusy then exit;
 
-        if ( MergeFN = '' ) then
-        begin
+        if ( MergeFN = '' ) then begin
 
           if ( KeyOptions.LastExportPath <> '' ) then
             OpenDlg.InitialDir := KeyOptions.LastExportPath;
@@ -1427,8 +1393,8 @@ begin
           if ( not OpenDlg.Execute ) then exit;
           MergeFN := OpenDlg.FileName;
           KeyOptions.LastExportPath := extractfilepath( MergeFN );
-
         end;
+
 
         MergeFN := normalFN( MergeFN );
 
@@ -1445,33 +1411,30 @@ begin
         MergeFile.PassphraseFunc := GetFilePassphrase;
         mergecnt := 0;
 
-        ImgManagerMF:= TImageManager.Create;
-        ImagesManager.ExternalImagesManager:= ImgManagerMF;
+        ImgManagerMF:= TImageMng.Create;
+        ImageMng.ExternalImagesManager:= ImgManagerMF;
 
         try
           try
-            LoadResult := MergeFile.Load( MergeFN, ImgManagerMF);
-            if ( LoadResult <> 0 ) then
-            begin
+            var ClipCapIdx: integer;
+            LoadResult := MergeFile.Load( MergeFN, ImgManagerMF, ClipCapIdx);
+            if ( LoadResult <> 0 ) then begin
               messagedlg( STR_40, mtError, [mbOK], 0 );
               exit;
             end;
 
-            if ( MergeFile.NoteCount = 0 ) then
-            begin
+            if ( MergeFile.NoteCount = 0 ) then begin
               messagedlg( STR_41, mtInformation, [mbOK], 0 );
               exit;
             end;
 
-            for i := 0 to pred( MergeFile.NoteCount ) do
-            begin
+            for i := 0 to pred( MergeFile.NoteCount ) do begin
               // initially, UNMARK ALL notes (i.e. no merging)
               MergeFile.Folders[i].Info := 0;
             end;
 
           except
-            on E : Exception do
-            begin
+            on E : Exception do begin
               messagedlg( STR_42 + E.Message, mtError, [mbOK], 0 );
               exit;
             end;
@@ -1487,15 +1450,13 @@ begin
           end;
 
           SetLength(IDs, MergeFile.NoteCount);
-          for i := 0 to pred( MergeFile.NoteCount ) do
-          begin
+          for i := 0 to pred( MergeFile.NoteCount ) do begin
             // see if user selected ANY notes for merge
             if ( MergeFile.Folders[i].Info > 0 ) then
               inc( mergecnt );
           end;
 
-          if ( mergecnt = 0 ) then
-          begin
+          if ( mergecnt = 0 ) then begin
             messagedlg( STR_44, mtInformation, [mbOK], 0 );
             exit;
           end;
@@ -1506,11 +1467,10 @@ begin
           screen.Cursor := crHourGlass;
 
           try
-            for i := 0 to pred( MergeFile.NoteCount ) do
-            begin
+            for i := 0 to pred( MergeFile.NoteCount ) do begin
 
               IDs[i].oldID:= MergeFile.Folders[i].ID;
-              if ( MergeFile.Folders[i].Info = 0 ) then begin
+              if (MergeFile.Folders[i].Info = 0) then begin
                  IDs[i].newFolder:= false;
                  if MergeFN <> KntFile.FileName then
                     IDs[i].newID:= 0
@@ -1520,13 +1480,14 @@ begin
               end;
 
 
-              newFolder := TKntFolder.Create;
+              newFolder := TKntFolder.Create(KntFile);
 
               newFolder.Visible := true;
               newFolder.Modified := false;
 
-              with MergeFile.Folders[i] do
-              begin
+              with MergeFile.Folders[i] do begin
+                newFolder.PlainText := PlainText;         //**
+
                 newFolder.EditorChrome := EditorCHrome;
                 newFolder.Name := Name;
                 newFolder.ImageIndex := ImageIndex;
@@ -1536,33 +1497,29 @@ begin
                 newFolder.URLDetect := URLDetect;
                 newFolder.TabSize := TabSize;
                 newFolder.UseTabChar := UseTabChar;
-              end;
 
-              with MergeFile.Folders[i] do begin
-                 newFolder.IconKind := IconKind;
-                 newFolder.TreeWidth := TreeWidth;
-                 newFolder.Checkboxes := CheckBoxes;
-                 newFolder.TreeChrome := TreeChrome;
-                 newFolder.DefaultNoteName := DefaultNoteName;
-                 newFolder.AutoNumberNodes := AutoNumberNodes;
-                 newFolder.VerticalLayout := VerticalLayout;
-                 newFolder.HideCheckedNodes := HideCheckedNodes;
+                newFolder.IconKind := IconKind;
+                newFolder.TreeWidth := TreeWidth;
+                newFolder.Checkboxes := CheckBoxes;
+                newFolder.TreeChrome := TreeChrome;
+                newFolder.DefaultNoteName := DefaultNoteName;
+                newFolder.AutoNumberNodes := AutoNumberNodes;
+                newFolder.VerticalLayout := VerticalLayout;
+                newFolder.HideCheckedNodes := HideCheckedNodes;
               end;
 
               MergeFile.Folders[i].AddProcessedAlarmsOfFolder(newFolder);
 
               mergeFolder:= MergeFile.Folders[i];
-              if ( mergeFolder.NoteCount > 0 ) then
-              begin
-                for n := 0 to pred( mergeFolder.NoteCount ) do
-                begin
-                  mergeNote:= mergeFolder.Notes[n];
-                  newNote := TKntNote.Create;
-                  newNote.Assign( mergeNote );
-                  newFolder.AddNote( newNote );
-                  newNote.ForceID( mergeNote.ID);
-                  mergeFolder.AddProcessedAlarmsOfNote(mergeNote, newFolder, newNote);
-                end;
+              if (mergeFolder.NoteCount > 0 ) then begin
+                  for n := 0 to pred( mergeFolder.NoteCount ) do begin
+                     mergeNote:= mergeFolder.Notes[n];
+                     newNote := TKntNote.Create;
+                     newNote.Assign( mergeNote );
+                     newFolder.AddNote( newNote );
+                     newNote.ForceID( mergeNote.ID);
+                     mergeFolder.AddProcessedAlarmsOfNote(mergeNote, newFolder, newNote);
+                  end;
               end;
 
               if ( mergeFolder.NoteCount = 1 ) and (mergeFolder.Notes[0].Name= mergeFolder.Name) then
@@ -1584,7 +1541,7 @@ begin
                 else
                   { We have previously assigned "ImagesManager.ExtenalImagesManager:= ImgManagerMF", to search the Stream of the images
                     with the help of the ImageManager associated with the MergeFile file }
-                  KntFile.UpdateImagesStorageModeInFile (ImagesManager.StorageMode, newFolder, false);
+                  KntFile.UpdateImagesStorageModeInFile (ImageMng.StorageMode, newFolder, false);
                   // newNote.DataStreamToEditor;     // From UpdateImagesStorageModeInFile) the call to DataStreamToEditor is ensured
 
                 SetUpVCLControls( newFolder );
@@ -1618,8 +1575,7 @@ begin
 
 
           except
-            On E : Exception do
-            begin
+            On E : Exception do begin
               messagedlg( STR_46 + E.Message, mtError, [mbOK], 0 );
               exit;
             end;
@@ -1627,7 +1583,7 @@ begin
 
         finally
           MergeFile.Free;
-          ImagesManager.ExternalImagesManager:= nil;
+          ImageMng.ExternalImagesManager:= nil;
           ImgManagerMF.Free;
           PagesChange( Form_Main );
           screen.Cursor := crDefault;
@@ -1959,7 +1915,7 @@ begin
               end;
 
               try
-                myFolder := TKntFolder.Create;
+                myFolder := TKntFolder.Create(KntFile);
                 myFolder.SetEditorProperties( DefaultEditorProperties );
                 myFolder.SetTabProperties( DefaultTabProperties );
                 myFolder.EditorChrome := DefaultEditorChrome;
@@ -2005,13 +1961,11 @@ begin
 
                   var Owned: boolean:= not ImgLinkMode;
                   if ImportFileType = itImage then
-                     ImagesManager.InsertImage(FN, myFolder, Owned);
+                     ImageMng.InsertImage(FN, myFolder.Editor , Owned);
 
                 finally
-                  if assigned( myFolder.TabSheet ) then  begin
-                    myFolder.TabSheet.TabVisible := true; // was created hidden
-                    Pages.ActivePage := myFolder.TabSheet;
-                  end;
+                  if assigned( myFolder.TabSheet ) then
+                      myFolder.TabSheet.TabVisible := true; // was created hidden
 
                  { ---  Important: See comment * 1 in FileDropped
                     Was corrected in Commit ac672bb258... 11/06/23
@@ -2023,9 +1977,6 @@ begin
                     myFolder.Editor.Modified := True
                  else
                     myFolder.Editor.Modified := False;
-                 //-------
-
-                  ActiveKntFolder := myFolder;
                 end;
 
               except
@@ -2038,7 +1989,8 @@ begin
             finally
               screen.Cursor := crDefault;
               AddToFileManager( KntFile.FileName, KntFile ); // update manager (number of notes has changed)
-              PagesChange( Form_Main );
+			        if assigned(myFolder) then
+			          App.ActivateFolder(myFolder);
               StatusBar.Panels[PANEL_HINT].text := STR_62;
               KntFile.Modified := true;
               UpdateKntFileState( [fscModified] );
@@ -2050,7 +2002,7 @@ begin
             FreeConvertLibrary;
         end;
   end;
-end; // ImportAsNotes
+end; // ImportAsKntFolders
 
 
 
@@ -2060,8 +2012,7 @@ end; // ImportAsNotes
 procedure InsertContent( ImportFileList : TStringList; ImgLinkMode: boolean; const NameProposed: string = '' );
 var
   FN, strContent : string;
-  myFolder : TKntFolder;
-  Editor: TRxRichEdit;
+  Editor: TKntRichEdit;
   filecnt : integer;
   ImportFileType : TImportFileType;
   Stream: TMemoryStream;
@@ -2077,15 +2028,17 @@ begin
 
   with Form_Main do begin
 
-        if not assigned(ActiveKntFolder.Editor) then exit;
+        if not assigned(ActiveEditor) then exit;
         if (( not assigned( ImportFileList )) or ( ImportFileList.Count = 0 )) then exit;
+
+        Editor:= ActiveEditor;
 
         Stream:= TMemoryStream.Create;
         try
-          if ActiveKntFolder.Editor.SelLength > 0 then
-             CheckToSelectLeftImageHiddenMark (ActiveKntFolder.Editor)
+          if Editor.SelLength > 0 then
+             Editor.CheckToSelectLeftImageHiddenMark
           else
-             CheckToMoveLefOftHiddenMark (ActiveKntFolder.Editor);       // *1
+             Editor.CheckToMoveLefOftHiddenMark;       // *1
 
           InformedImgInPlain:= false;
 
@@ -2097,17 +2050,12 @@ begin
                continue;
 
 
-            myFolder := nil;
             screen.Cursor := crHourGlass;
 
             try
-
-              StatusBar.Panels[PANEL_HINT].Text := STR_59 + ExtractFilename( FN );
+              App.ShowInfoInStatusBar(STR_59 + ExtractFilename( FN ));
 
               try
-                myFolder:= ActiveKntFolder;
-                Editor:= myFolder.Editor;
-
                 if ImportFileType <> itImage then begin
                    strContent:= ReadAllText(FN);           // gf_streams
                    if ImportFileList.Count > 1 then
@@ -2133,13 +2081,13 @@ begin
                     end;
                   itRTF : begin
                    {$IFDEF KNT_DEBUG}Log.Add('Insert content (RTF)  FN:' + FN,  1 ); {$ENDIF}
-                    ActiveKntFolder.Editor.PutRtfText(StrContent, true);
+                    Editor.PutRtfText(StrContent, true);
                     end;
                   itImage: begin
                      {$IFDEF KNT_DEBUG}Log.Add('Insert content (Image)  FN:' + FN,  1 ); {$ENDIF}
                      var Owned: boolean:= not ImgLinkMode;
-                     if not myFolder.PlainText then
-                        ImagesManager.InsertImage(FN, myFolder, Owned, NameProposed)
+                     if not Editor.PlainText then
+                        ImageMng.InsertImage(FN, Editor, Owned, NameProposed)
                      else begin
                          if not InformedImgInPlain then begin
                             DoMessageBox( Format(STR_81, [FN]), mtWarning, [mbOK], 0 );
@@ -2166,9 +2114,8 @@ begin
 
             finally
               screen.Cursor := crDefault;
-              StatusBar.Panels[PANEL_HINT].text := STR_62;
-              KntFile.Modified := true;
-              UpdateKntFileState( [fscModified] );
+              App.ShowInfoInStatusBar(STR_62);
+              Editor.Change;
             end;
 
           end;
@@ -2209,7 +2156,7 @@ begin
 
         result := factUnknown;
         LastFact := FactUnknown;
-        ActiveNoteIsReadOnly := FolderIsReadOnly( ActiveKntFolder, false );
+        ActiveNoteIsReadOnly := FolderIsReadOnly( ActiveFolder, false );
 
         FileIsHTML  := ExtIsHTML( aExt );
         FileIsImage := ExtIsImage(aExt);
@@ -2239,7 +2186,7 @@ begin
             facts[factImport] := IsKnownFileFormat;
             facts[factInsertContent]:= not ActiveNoteIsReadOnly and (not FileIsImage or NoteSupportsRegisteredImages());
             if ( not ActiveNoteIsReadOnly) then begin
-              myTreeNode := ActiveKntFolder.TV.Selected;
+              myTreeNode := ActiveFolder.TV.Selected;
               if assigned( myTreeNode ) then begin
                  facts[factImportAsNode] := IsKnownFileFormat;
                  facts[factMakeVirtualNode] := IsKnownFileFormat;
@@ -2273,7 +2220,7 @@ begin
                       Form_DropFile.chk_ImageLinkMode.Checked := KeyOptions.ImgDefaultLinkMode;
                       if (FileCnt = 1) then begin
                          NewFileName:= ExtractFileName(FileList[0]);
-                         if not ImagesManager.CheckUniqueName(NewFileName) then begin
+                         if not ImageMng.CheckUniqueName(NewFileName) then begin
                             Form_DropFile.ShowNewName:= true;
                             Form_DropFile.txtImgNewName.Text:= NewFileName;
                          end;
@@ -2281,7 +2228,7 @@ begin
                       else begin
                          for j:= 0 to FileList.Count-1 do begin
                              NewFileName:= ExtractFileName(FileList[j]);
-                             if not ImagesManager.CheckUniqueName(NewFileName) then begin
+                             if not ImageMng.CheckUniqueName(NewFileName) then begin
                                 Form_DropFile.ShowWarningRenamedNames:= true;
                                 break;
                              end;
@@ -2406,7 +2353,7 @@ end; // ConsistentFileType
 //=================================================================
 // FileDropped
 //=================================================================
-procedure FileDropped( Sender : TObject; FileList : TStringList );
+procedure FileDropped( Sender : TObject; FileList : TStringList; Editor: TKntRichEdit = nil);
 var
   myTreeNode : TTreeNTNode;
   myNote : TKntNote;
@@ -2421,260 +2368,260 @@ var
 
 begin
   with Form_Main do begin
-        if ( FileList.Count = 0 ) then exit;
+     if ( FileList.Count = 0 ) then exit;
 
-        myAction := factUnknown;
-        fName := FileList[0];
-        fExt := extractfileext( fName );
-        FileIsFolder := DirectoryExists( fName );
-        NewFileName:= '';
+     myAction := factUnknown;
+     fName := FileList[0];
+     fExt := extractfileext( fName );
+     FileIsFolder := DirectoryExists( fName );
+     NewFileName:= '';
 
-        if ( not ( assigned( KntFile ) and assigned( ActiveKntFolder ))) then begin
-           // no active folder; we can only OPEN a file
-           if ((( fExt = ext_KeyNote ) or
-              ( fExt = ext_Encrypted ) or
-              ( fExt = ext_DART )) and ( not FileIsFolder )) then
-             myAction := factOpen
+     if not assigned(ActiveFolder) then begin
+        // no active folder; we can only OPEN a file
+        if ((( fExt = ext_KeyNote ) or
+           ( fExt = ext_Encrypted ) or
+           ( fExt = ext_DART )) and ( not FileIsFolder )) then
+          myAction := factOpen
+        else begin
+          HaveKntFolders( true, true );
+          exit;
+        end;
+     end;
+
+     myTreeNode := nil;
+     if Editor = nil then
+        Editor:= ActiveEditor;
+
+     WinOnTop.AlwaysOnTop := false;
+     try
+       Application.BringToFront;
+
+       if ( myAction = factUnknown ) then begin
+
+         if ( not ConsistentFileType( FileList )) then begin
+           //Messagedlg( STR_64, mtError, [mbOK], 0 );
+           //exit;
+           fExt:= '.*';
+         end;
+
+         if FileIsFolder then begin
+           myAction := factHyperlink;
+           RelativeLink:= AltDown;
+         end
+         else
+           myAction := PromptForFileAction( FileList, fExt, ImgLinkMode, NewFileName, RelativeLink);
+       end;
+
+
+       screen.Cursor := crHourGlass;
+       try
+
+         case myAction of
+           factOpen :
+             KntFileOpen( fName );
+
+           factExecute :
+             begin
+               if ( fExt = ext_Plugin ) then
+                  ExecutePlugin( fName )
+               else
+               if ( fExt = ext_Macro ) then
+                  ExecuteMacro( fName, '' );
+             end;
+
+           factMerge :
+             MergeFromKNTFile( fName );
+
+           factHyperlink :
+             for i := 0 to pred( FileList.Count ) do begin
+               InsertFileOrLink( FileList[i], true, RelativeLink);
+               Editor.SelText:= #13#10;
+               Editor.SelLength:= 0;
+               Editor.SelStart:= Editor.SelStart+2;
+             end;
+
+           factImport :
+             ImportAsKntFolders( FileList, ImgLinkMode );
+
+           factInsertContent:
+             InsertContent( FileList, ImgLinkMode, NewFileName);
+
+           factImportAsNode :
+             begin
+               Editor.BeginUpdate;
+               //SendMessage( Editor.Handle, WM_SetRedraw, 0, 0 ); // don't draw richedit yet           // commented: Using BeginUpdate
+               OutStream:= TMemoryStream.Create;
+               try
+                 for i := 0 to pred( FileList.Count ) do begin
+                   OutStream.Clear;
+                   FName := FileList[i];
+
+                   FileIsHTML := ExtIsHTML( fExt );
+
+                   if DirectoryExists( FName ) then begin
+                     if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                       exit
+                     else
+                       continue;
+                   end;
+
+                   {$IFDEF KNT_DEBUG}Log.Add('Import as Node: ' + FName,  1 ); {$ENDIF}
+
+                   // first see if we can do the conversion, before we create a new folder for the file
+                   if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
+                     if not ConvertHTMLToRTF( FName, OutStream) then begin
+                        DoMessageBox( Format(STR_60, [FName]), mtWarning, [mbOK], 0 );
+                        exit;
+                     end;
+                   end;
+
+                   myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
+                   if assigned( myTreeNode ) then begin
+                     myNote := TKntNote( myTreeNode.Data );
+                     if assigned( myNote ) then begin
+                         if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
+                           myNote.Stream.LoadFromStream(OutStream);
+                           myNote.Stream.Position:= myNote.Stream.Size;
+                           myNote.Stream.Write(AnsiString(#13#10#0), 3);
+                         end
+                         else if not ExtIsImage( fExt )  then
+                           LoadTxtOrRTFFromFile(myNote.Stream, FName);
+
+                         SelectIconForNode( myTreeNode, ActiveFolder.IconKind );
+                         if KeyOptions.ImportFileNamesWithExt then
+                           myNote.Name := ExtractFilename( FName )
+                         else
+                           myNote.Name := ExtractFilenameNoExt( FName );
+                         myTreeNode.Text := myNote.Name;
+                         ActiveFolder.DataStreamToEditor;
+                         var Owned: boolean:= not ImgLinkMode;
+                         if ExtIsImage( fExt )  then
+                           ImageMng.InsertImage(FName, Editor, Owned);
+                     end;
+                   end;
+                 end;
+               finally
+                 if assigned( OutStream ) then OutStream.Free;
+                 FreeConvertLibrary;
+                 KntFile.Modified := true;
+                 //SendMessage( Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                 Editor.EndUpdate;
+                 Editor.Invalidate; // in fact, I insist on it
+                 if _LastZoomValue <> 100 then
+                    Editor.SetZoom(_LastZoomValue, '' );
+
+                 if ActiveFolder.TreeHidden then begin
+                    ActiveFolder.TreeHidden:= false;
+                    UpdateTreeVisible( ActiveFolder );
+                 end;
+
+                 UpdateKntFileState( [fscModified] );
+
+                 // *1
+                 // If myTreeNode is assigned it is because TreeNewNode has returned ok.
+                 // TreeNewNode ends up calling TV.Items.Add, which ends up raising the TV.Change event,
+                 // managed by FormMain.TVChange. The last one, if the editor has modifications, calls TKntFolder.EditorToDataStream, and
+                 // the content of the editor is saved in node's stream.
+                 // But, if there is an exception (or simply we exit) before TreeNewNode, and enter in this finally section, we
+                 // should not do Editor.Modified := False or the modifcations (existing and coming) in the Editor will be lost for the
+                 // actual node.
+                 // *2
+                 // Also, if the new created node belongs to a normal, RTF tree, and the file we have loaded
+                 // (with .LoadFromFile(FName) ) doesn't contain RTF, but ANSI or Unicode plain text, we could end up saving the node's
+                 // stream content in that format to the .knt file when saving (could be problematic when reading the file).
+                 // We must ensure that the node's stream is loaded with its RTF translating. If we mark the editor as modified then, when
+                 // the user selects another node (os simply just before saving the .knt file), TKntFolder.EditorToDataStream will be called,
+                 // and there, FEditor.Lines.SaveToStream will do that that translating. The node will contain RTF.
+                 //
+                 //    Similary, if the file is in RTF and the tree is plained, we should do the same. This case is less problematic,
+                 // because the .knt file would be read ok, but the node could be persisted (if not modified) in an incorrect format.
+                 //   Another case, that do could be problematic: if the file, not RTF, is dropped into a plained tree, and we do nothing, the
+                 // node will be loaded plain (ok) in the node's stream, but with $D instead of $D$A after each line. With the last changes
+                 // in TKntFolder.SaveToFile (use of new SaveRTFToFile, that doesn't rely on TStringList and it's conversions), the content
+                 // will add only a ";" leading character on the first line. Instead of complicating that code, it is simple to mark this
+                 // node as modified, as this will ensure that finally gets saved in the right way.
+                 //  So, when dropping a file on a plained tree, we wil will mark the new node as modified. It is the more secure and simple way.
+                 if assigned(myTreeNode) then begin
+                    if Editor.PlainText or   (not NodeStreamIsRTF (myNote.Stream)) then
+                        Editor.Modified := True                                              // *2
+                    else
+                        Editor.Modified := False;                                            // *1
+                 end;
+               end;
+
+             end;
+
+           factMakeVirtualNode :
+             begin
+               SendMessage( Editor.Handle, WM_SetRedraw, 0, 0 );
+               try
+                 for i := 0 to pred( FileList.Count ) do begin
+                   FName := FileList[i];
+                   if DirectoryExists( FName ) then begin
+                     if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                       exit
+                     else
+                       continue;
+                   end;
+                   myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
+                   VirtualNoteProc( vmNone, myTreeNode, FName );
+                 end;
+
+               finally
+                 SendMessage( Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                 Editor.Invalidate; // in fact, I insist on it
+                 if _LastZoomValue <> 100 then
+                    Editor.SetZoom(_LastZoomValue, '' );
+               end;
+             end;
+
+           {$IFDEF WITH_IE}
+           factMakeVirtualIENode :
+             begin
+               SendMessage( Editor.Handle, WM_SetRedraw, 0, 0 );
+               try
+                 for i := 0 to pred( FileList.Count ) do begin
+                   FName := FileList[i];
+                   if DirectoryExists( FName ) then begin
+                     if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                       exit
+                     else
+                       continue;
+                   end;
+                   myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
+                   VirtualNodeProc( vmIELocal, myTreeNode, FName );
+                 end;
+               finally
+                 SendMessage( Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                 Editor.Invalidate; // in fact, I insist on it
+               end;
+             end;
+           {$ENDIF}
+
+           factUnknown :
+             begin
+               // MessageDlg( 'No action was taken: could not determine method for handling files.', mtWarning, [mbOK], 0 );
+               exit;
+             end;
+
            else begin
-             HaveKntFolders( true, true );
+             messagedlg( Format( STR_67, [ord( myAction )] ), mtError, [mbOK], 0 );
              exit;
            end;
-        end;
 
-        myTreeNode := nil;
+         end; // case myAction
 
-        WinOnTop.AlwaysOnTop := false;
-        try
-          Application.BringToFront;
+       except
+         on E : Exception do begin
+           messagedlg( STR_68 + E.Message, mtError, [mbOK], 0 );
+           exit;
+         end;
+       end;
 
-          if ( myAction = factUnknown ) then begin
-
-            if ( not ConsistentFileType( FileList )) then begin
-              //Messagedlg( STR_64, mtError, [mbOK], 0 );
-              //exit;
-              fExt:= '.*';
-            end;
-
-            if FileIsFolder then begin
-              myAction := factHyperlink;
-              RelativeLink:= AltDown;
-            end
-            else
-              myAction := PromptForFileAction( FileList, fExt, ImgLinkMode, NewFileName, RelativeLink);
-          end;
-
-
-          screen.Cursor := crHourGlass;
-          try
-
-            case myAction of
-              factOpen :
-                KntFileOpen( fName );
-
-              factExecute :
-                begin
-                  if ( fExt = ext_Plugin ) then
-                     ExecutePlugin( fName )
-                  else
-                  if ( fExt = ext_Macro ) then
-                     ExecuteMacro( fName, '' );
-                end;
-
-              factMerge :
-                MergeFromKNTFile( fName );
-
-              factHyperlink :
-                for i := 0 to pred( FileList.Count ) do begin
-                  InsertFileOrLink( FileList[i], true, RelativeLink);
-                  ActiveKntFolder.Editor.SelText:= #13#10;
-                  ActiveKntFolder.Editor.SelLength:= 0;
-                  ActiveKntFolder.Editor.SelStart:= ActiveKntFolder.Editor.SelStart+2;
-                end;
-
-              factImport :
-                ImportAsKntFolders( FileList, ImgLinkMode );
-
-              factInsertContent:
-                InsertContent( FileList, ImgLinkMode, NewFileName);
-
-              factImportAsNode :
-                begin
-                  ActiveKntFolder.Editor.OnChange := nil;
-                  ActiveKntFolder.Editor.Lines.BeginUpdate;
-                  SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 0, 0 ); // don't draw richedit yet
-                  OutStream:= TMemoryStream.Create;
-                  try
-                    for i := 0 to pred( FileList.Count ) do begin
-                      OutStream.Clear;
-                      FName := FileList[i];
-
-                      FileIsHTML := ExtIsHTML( fExt );
-
-                      if DirectoryExists( FName ) then begin
-                        if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
-                          exit
-                        else
-                          continue;
-                      end;
-
-                      {$IFDEF KNT_DEBUG}Log.Add('Import as Node: ' + FName,  1 ); {$ENDIF}
-
-                      // first see if we can do the conversion, before we create a new folder for the file
-                      if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
-                        if not ConvertHTMLToRTF( FName, OutStream) then begin
-                           DoMessageBox( Format(STR_60, [FName]), mtWarning, [mbOK], 0 );
-                           exit;
-                        end;
-                      end;
-
-                      myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
-                      if assigned( myTreeNode ) then begin
-                        myNote := TKntNote( myTreeNode.Data );
-                        if assigned( myNote ) then begin
-                            if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
-                              myNote.Stream.LoadFromStream(OutStream);
-                              myNote.Stream.Position:= myNote.Stream.Size;
-                              myNote.Stream.Write(AnsiString(#13#10#0), 3);
-                            end
-                            else if not ExtIsImage( fExt )  then
-                              LoadTxtOrRTFFromFile(myNote.Stream, FName);
-
-                            SelectIconForNode( myTreeNode, ActiveKntFolder.IconKind );
-                            if KeyOptions.ImportFileNamesWithExt then
-                              myNote.Name := ExtractFilename( FName )
-                            else
-                              myNote.Name := ExtractFilenameNoExt( FName );
-                            myTreeNode.Text := myNote.Name;
-                            ActiveKntFolder.DataStreamToEditor;
-                            var Owned: boolean:= not ImgLinkMode;
-                            if ExtIsImage( fExt )  then
-                              ImagesManager.InsertImage(FName, ActiveKntFolder, Owned);
-                        end;
-                      end;
-                    end;
-                  finally
-                    if assigned( OutStream ) then OutStream.Free;
-                    FreeConvertLibrary;
-                    KntFile.Modified := true;
-                    SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
-                    ActiveKntFolder.Editor.Lines.EndUpdate;
-                    ActiveKntFolder.Editor.Invalidate; // in fact, I insist on it
-                    if _LastZoomValue <> 100 then
-                       SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
-
-                    if ActiveKntFolder.TreeHidden then begin
-                       ActiveKntFolder.TreeHidden:= false;
-                       UpdateTreeVisible( ActiveKntFolder );
-                    end;
-
-                    UpdateKntFileState( [fscModified] );
-
-                    // *1
-                    // If myTreeNode is assigned it is because TreeNewNode has returned ok.
-                    // TreeNewNode ends up calling TV.Items.Add, which ends up raising the TV.Change event,
-                    // managed by FormMain.TVChange. The last one, if the editor has modifications, calls TKntFolder.EditorToDataStream, and
-                    // the content of the editor is saved in node's stream.
-                    // But, if there is an exception (or simply we exit) before TreeNewNode, and enter in this finally section, we
-                    // should not do Editor.Modified := False or the modifcations (existing and coming) in the Editor will be lost for the
-                    // actual node.
-                    // *2
-                    // Also, if the new created node belongs to a normal, RTF tree, and the file we have loaded
-                    // (with .LoadFromFile(FName) ) doesn't contain RTF, but ANSI or Unicode plain text, we could end up saving the node's
-                    // stream content in that format to the .knt file when saving (could be problematic when reading the file).
-                    // We must ensure that the node's stream is loaded with its RTF translating. If we mark the editor as modified then, when
-                    // the user selects another node (os simply just before saving the .knt file), TKntFolder.EditorToDataStream will be called,
-                    // and there, FEditor.Lines.SaveToStream will do that that translating. The node will contain RTF.
-                    //
-                    //    Similary, if the file is in RTF and the tree is plained, we should do the same. This case is less problematic,
-                    // because the .knt file would be read ok, but the node could be persisted (if not modified) in an incorrect format.
-                    //   Another case, that do could be problematic: if the file, not RTF, is dropped into a plained tree, and we do nothing, the
-                    // node will be loaded plain (ok) in the node's stream, but with $D instead of $D$A after each line. With the last changes
-                    // in TKntFolder.SaveToFile (use of new SaveRTFToFile, that doesn't rely on TStringList and it's conversions), the content
-                    // will add only a ";" leading character on the first line. Instead of complicating that code, it is simple to mark this
-                    // node as modified, as this will ensure that finally gets saved in the right way.
-                    //  So, when dropping a file on a plained tree, we wil will mark the new node as modified. It is the more secure and simple way.
-                    if assigned(myTreeNode) then begin
-                       if ActiveKntFolder.PlainText or   (not NodeStreamIsRTF (myNote.Stream)) then
-                           ActiveKntFolder.Editor.Modified := True                                              // *2
-                       else
-                           ActiveKntFolder.Editor.Modified := False;                                            // *1
-                    end;
-                    ActiveKntFolder.Editor.OnChange := RxRTFChange;
-                  end;
-
-                end;
-
-              factMakeVirtualNode :
-                begin
-                  SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 0, 0 );
-                  try
-                    for i := 0 to pred( FileList.Count ) do begin
-                      FName := FileList[i];
-                      if DirectoryExists( FName ) then begin
-                        if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
-                          exit
-                        else
-                          continue;
-                      end;
-                      myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
-                      VirtualNoteProc( vmNone, myTreeNode, FName );
-                    end;
-
-                  finally
-                    SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
-                    ActiveKntFolder.Editor.Invalidate; // in fact, I insist on it
-                    if _LastZoomValue <> 100 then
-                       SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
-                  end;
-                end;
-
-              {$IFDEF WITH_IE}
-              factMakeVirtualIENode :
-                begin
-                  SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 0, 0 );
-                  try
-                    for i := 0 to pred( FileList.Count ) do begin
-                      FName := FileList[i];
-                      if DirectoryExists( FName ) then begin
-                        if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
-                          exit
-                        else
-                          continue;
-                      end;
-                      myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
-                      VirtualNodeProc( vmIELocal, myTreeNode, FName );
-                    end;
-                  finally
-                    SendMessage( ActiveKntFolder.Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
-                    ActiveKntFolder.Editor.Invalidate; // in fact, I insist on it
-                  end;
-                end;
-              {$ENDIF}
-
-              factUnknown :
-                begin
-                  // MessageDlg( 'No action was taken: could not determine method for handling files.', mtWarning, [mbOK], 0 );
-                  exit;
-                end;
-
-              else begin
-                messagedlg( Format( STR_67, [ord( myAction )] ), mtError, [mbOK], 0 );
-                exit;
-              end;
-
-            end; // case myAction
-
-          except
-            on E : Exception do begin
-              messagedlg( STR_68 + E.Message, mtError, [mbOK], 0 );
-              exit;
-            end;
-          end;
-
-        finally
-          screen.Cursor := crDefault;
-          WinOnTop.AlwaysOnTop := KeyOptions.AlwaysOnTop;
-        end;
+     finally
+       screen.Cursor := crDefault;
+       WinOnTop.AlwaysOnTop := KeyOptions.AlwaysOnTop;
+     end;
   end;
 
 end; // FileDropped
@@ -2758,14 +2705,14 @@ begin
               if not ExtStorageLocationFake then
                  ExtStorageLocation:= txtExtStorageLocation.Text;
 
-              ImagesManager.SetImagesStorage(NewStorageMode, TImagesExternalStorage(cbImgExtStorageType.ItemIndex), ExtStorageLocation,
+              ImageMng.SetImagesStorage(NewStorageMode, TImagesExternalStorage(cbImgExtStorageType.ItemIndex), ExtStorageLocation,
                                              false, rbImagesStRelocate.Checked);
           end;
 
           KntFile.Modified := true;
           AddToFileManager( KntFile.FileName, KntFile ); // update manager (properties have changed)
 
-          LoadTrayIcon( ClipOptions.SwitchIcon and assigned( KntFile.ClipCapFolder ));
+          LoadTrayIcon( ClipOptions.SwitchIcon and ClipCapMng.ClipCapActive);
           if _FILE_TABIMAGES_SELECTION_CHANGED then begin
             _FILE_TABIMAGES_SELECTION_CHANGED := false;
             if (( KntFile.TabIconsFN <> '' ) and ( KntFile.TabIconsFN <> _NF_Icons_BuiltIn )) then begin
@@ -2800,80 +2747,77 @@ procedure UpdateKntFileState( AState : TFileStateChangeSet );
 var
   s, thisFN : string;
   NotesOK : boolean;
-  WasModified : boolean;
+  status: string;
+  Modif: boolean;
 begin
+
   with Form_Main do begin
       NotesOK := HaveKntFolders( false, false );
-      if (( fscNew in AState ) or ( fscOpen in AState ) or ( fscSave in AState ) or ( fscClose in AState )) then
-      begin
-        if NotesOK then
-        begin
-          // Pages.OnMouseDown := TabMouseDown;
-          Pages.OnDblClick := PagesDblClick;
+      if (( fscNew in AState ) or ( fscOpen in AState ) or ( fscSave in AState ) or ( fscClose in AState )) then begin
+         if NotesOK then begin
+            Pages.OnDblClick := PagesDblClick;
 
-          if ( KntFile.FileName <> '' ) then
-          begin
-            thisFN := ExtractFilename( KntFile.FileName );
-            s := thisFN;
-          end
-          else
-          begin
-            s := STR_69;
-          end;
+            if ( KntFile.FileName <> '' ) then begin
+              thisFN := ExtractFilename( KntFile.FileName );
+              s := thisFN;
+            end
+            else
+              s := STR_69;
 
-          StatusBar.Panels.BeginUpdate;
-          try
-            SetFilenameInStatusbar(#32 + s + #32);
-            StatusBar.Hint := #32 + KntFile.FileName;
-            TrayIcon.Hint := Program_Name + ': ' + s;
-            SelectStatusbarGlyph( true );
-          finally
-            Caption:= Format('%s  %s - %s', [Program_Name, Program_Version, s]);
-            Application.Title := Format( '%s - %s', [s, Program_Name] );
-            StatusBar.Panels.EndUpdate;
-          end;
-        end
-        else
-        begin
-          // Pages.OnMouseDown := nil;
-          Pages.OnDblClick := nil;
-          StatusBar.Panels.BeginUpdate;
-          try
-            SetFilenameInStatusbar(STR_70);
-            StatusBar.Panels[PANEL_CARETPOS].Text := '';
-            StatusBar.Panels[PANEL_NOTEINFO].Text := '';
-            StatusBar.Panels[PANEL_STATUS].Text := '';
-            StatusBar.Panels[PANEL_FILEICON].Text := '';
-            SelectStatusBarGlyph( false );
+           StatusBar.Panels.BeginUpdate;
+            try
+              SetFilenameInStatusbar(#32 + s + #32);
+              StatusBar.Hint := #32 + KntFile.FileName;
+              TrayIcon.Hint := Program_Name + ': ' + s;
+              SelectStatusbarGlyph( true );
+            finally
+              Caption:= Format('%s  %s - %s', [Program_Name, Program_Version, s]);
+              Application.Title := Format( '%s - %s', [s, Program_Name] );
+              StatusBar.Panels.EndUpdate;
+            end;
+         end
+         else begin
+            Pages.OnDblClick := nil;
+            StatusBar.Panels.BeginUpdate;
+            try
+              SetFilenameInStatusbar(STR_70);
+              StatusBar.Panels[PANEL_CARETPOS].Text := '';
+              StatusBar.Panels[PANEL_NOTEINFO].Text := '';
+              StatusBar.Panels[PANEL_STATUS].Text := '';
+              StatusBar.Panels[PANEL_FILEICON].Text := '';
+              SelectStatusBarGlyph( false );
 
-          finally
-            StatusBar.Panels.EndUpdate;
-          end;
-          StatusBar.Hint := '';
-          TrayIcon.Hint := Program_Name + STR_71;
-          Caption:= Format('%s  %s -' + STR_71, [Program_Name, Program_Version]);
-          TB_FileSave.Enabled := False;
-          Application.Title := Program_Name;
-        end;
-        UpdateTabAndTreeIconsShow;
+            finally
+              StatusBar.Panels.EndUpdate;
+            end;
+            StatusBar.Hint := '';
+            TrayIcon.Hint := Program_Name + STR_71;
+            Caption:= Format('%s  %s -' + STR_71, [Program_Name, Program_Version]);
+            TB_FileSave.Enabled := False;
+            Application.Title := Program_Name;
+         end;
+         UpdateTabAndTreeIconsShow;
       end;
 
-      if ( fscModified in AState ) then
-      begin
-        MMShiftTab_.Enabled := ( Pages.PageCount > 0 );
-        if NotesOK then
-        begin
-          WasModified := KntFile.Modified;
-          if WasModified then
-             Statusbar.Panels[PANEL_STATUS].Text := STR_73      //MOD
-          else
-             if KeyOptions.AutoSave then
-                Statusbar.Panels[PANEL_STATUS].Text := STR_72   //Auto
-             else
-                Statusbar.Panels[PANEL_STATUS].Text := STR_74;   //Saved
-        end
-        else
-          Statusbar.Panels[PANEL_STATUS].Text := ' ---';
+      if ( fscModified in AState ) then begin
+         Modif:= false;
+         if assigned(KntFile) then
+            Modif:= KntFile.Modified;
+         Form_Main.TB_FileSave.Enabled := Modif;
+         MMShiftTab_.Enabled := ( Pages.PageCount > 0 );
+         if NotesOK then begin
+            if Modif then
+               status:= STR_73      //MOD
+            else
+               if KeyOptions.AutoSave then
+                  status:= STR_72   //Auto
+               else
+                  status:= STR_74;   //Saved
+         end
+         else
+            status:= ' ---';
+
+         Statusbar.Panels[PANEL_STATUS].Text := status;
       end;
   end;
 
@@ -3049,7 +2993,7 @@ end; // RunFileManager
 function CanRegisterFileType : boolean;
 begin
   result := true;
-  if opt_RegExt then
+  if App.opt_RegExt then
     exit;
   if KeyOptions.AutoRegisterFileType then
     if ( not FiletypeIsRegistered( ext_KeyNote, _KNT_FILETYPE )) then

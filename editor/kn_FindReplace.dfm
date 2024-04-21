@@ -210,7 +210,7 @@ object Form_FindReplace: TForm_FindReplace
       Top = 90
       Width = 155
       Height = 17
-      Caption = '&Wrap in folder'
+      Caption = '&Wrap'
       TabOrder = 6
     end
   end

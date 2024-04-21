@@ -32,8 +32,8 @@ type
     FNoteName : string;
     FCaretPos : integer;
     FSelLength : integer;
-    FFolderID : longint;
-    FNoteID : longint;
+    FFolderID : Cardinal;
+    FNoteID : Cardinal;
     FExternalDoc : boolean;
     FParams : string;
     FMark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
@@ -56,8 +56,8 @@ type
     property NoteName : string read FNoteName write FNoteName;
     property CaretPos : integer read FCaretPos write FCaretPos;
     property SelLength : integer read FSelLength write FSelLength;
-    property FolderID : longint read FFolderID write FFolderID;
-    property NoteID : longint read FNoteID write FNoteID;
+    property FolderID : Cardinal read FFolderID write FFolderID;
+    property NoteID : Cardinal read FNoteID write FNoteID;
     property Mark : Byte read FMark write FMark;
     property Bookmark09 : boolean read FBookmark09 write FBookmark09;
     property ExternalDoc : boolean read FExternalDoc write FExternalDoc;

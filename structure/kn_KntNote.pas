@@ -41,7 +41,7 @@ type
   private
     FStream : TMemoryStream;
     FNoteTextPlain : string;
-    FID : longint;
+    FID : Cardinal;
     FName : string;
     FLevel : integer;
     FSelStart : integer;
@@ -76,7 +76,7 @@ type
     procedure SetMirrorNode( aNode : TTreeNTNode );
     function GetMirrorNodePath: string;
     procedure SetMirrorNodeID( ID : string );
-    procedure SetID( AID : longint );
+    procedure SetID( ID : Cardinal );
     procedure SetNodeFontFace( const aFace : string );
     function GetRelativeVirtualFN : string;
     procedure SetWordWrap( const Value : TNodeWordWrap );
@@ -85,7 +85,7 @@ type
     property Stream : TMemoryStream read FStream;
     property NoteTextPlain : string read FNoteTextPlain write FNoteTextPlain;
     property Name : string read FName write SetName;
-    property ID : longint read FID write SetID;
+    property ID : Cardinal read FID write SetID;
     property Level : integer read FLevel write SetLevel;
     property SelStart : integer read FSelStart write FSelStart;
     property SelLength : integer read FSelLength write FSelLength;
@@ -109,7 +109,7 @@ type
     procedure AddedMirrorNode;
     procedure RemovedAllMirrorNodes;
     function HasMirrorNodes: boolean;
-    procedure ForceID( AID : longint );
+    procedure ForceID( ID : longint );
 
     property Expanded : boolean read FExpanded write FExpanded;
     property ImageIndex : integer read FImageIndex write FImageIndex;
@@ -169,7 +169,8 @@ uses
    kn_Global,
    kn_TreeNoteMng,
    kn_KntFolder,
-   kn_LinksMng
+   kn_LinksMng,
+   knt.App
    ;
 
 resourcestring
@@ -203,7 +204,7 @@ begin
   FNodeBGColor := clWindow;
   FHasNodeFontFace := false;
   FNodeFontFace := '';
-  FWordWrap := wwAsNote;
+  FWordWrap := wwAsFolder;
   FChildrenCheckbox:= false;   // [dpv]
   FFiltered:= false;           // [dpv]
   FScrollPosInEditor.X:= -1;
@@ -218,16 +219,16 @@ begin
   inherited Destroy;
 end; // DESTROY
 
-procedure TKntNote.SetID( AID : longint );
+procedure TKntNote.SetID( ID : Cardinal );
 begin
   if ( FID = 0 ) then
-    FID := AID;
+    FID := ID;
   // otherwise, never allow the ID to be modified
 end; // SetID
 
-procedure TKntNote.ForceID( AID : longint );
+procedure TKntNote.ForceID( ID : longint );
 begin
-   FID := AID;
+   FID := ID;
 end;
 
 function TKntNote.PropertiesToFlagsString : TFlagsString;
@@ -263,7 +264,7 @@ begin
   result[9] := BOOLEANSTR[FHasNodeBGColor];
 
   case FWordWrap of
-    wwAsNote : result[10] := '0';
+    wwAsFolder : result[10] := '0';
     wwYes : result[10] := '1';
     else
       result[10] := '2';
@@ -288,7 +289,7 @@ begin
     '1' : FWordWrap := wwYes;
     '2' : FWordWrap := wwNo;
     else
-      FWordWrap := wwAsNote;
+      FWordWrap := wwAsFolder;
   end;
 
   // backward-compatibility hassle:
@@ -460,7 +461,7 @@ begin
 
          if assigned(aNode) then begin
             aFolder:= KntFile.GetFolderByTreeNode(aNode);
-            FVirtualFN:= inttostr(aFolder.ID) + KNTLINK_SEPARATOR + inttostr(TKntNote(aNode.Data).ID);
+            FVirtualFN:= uinttostr(aFolder.ID) + KNTLINK_SEPARATOR + uinttostr(TKntNote(aNode.Data).ID);
             FVirtualMode := vmKNTNode;
             FStream:= TKntNote(aNode.Data).FStream;   // This node shares its content with the other node
          end;
@@ -491,12 +492,12 @@ end;
 
 function TKntNote.HasAlarms(considerDiscarded: boolean): boolean;
 begin
-    Result:= AlarmManager.HasAlarms(nil, NonVirtualNote, considerDiscarded);
+    Result:= AlarmMng.HasAlarms(nil, NonVirtualNote, considerDiscarded);
 end;
 
 function TKntNote.GetAlarms(considerDiscarded: boolean): TList;
 begin
-   Result:= AlarmManager.GetAlarms(nil, NonVirtualNote, considerDiscarded);
+   Result:= AlarmMng.GetAlarms(nil, NonVirtualNote, considerDiscarded);
 end;
 
 
@@ -593,7 +594,6 @@ begin
 //  FAlarm:= Source.FAlarm;
 
 end; // Assign
-
 
 procedure TKntNote.SetNodeFontFace( const aFace : string );
 begin

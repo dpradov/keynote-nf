@@ -174,7 +174,8 @@ uses
    kn_Global,
    kn_Info,
    kn_Const,
-   kn_NoteFileMng
+   kn_NoteFileMng,
+   Knt.App
    ;
 
 {$R *.DFM}
@@ -350,26 +351,26 @@ begin
   end;
 
   lblImgWarning.Visible := false;
-  if ImagesManager.ChangingImagesStorage then begin
+  if ImageMng.ChangingImagesStorage then begin
      lblImgWarning.Visible := true;
      lblImgWarning.Caption:= STR_16;
      lblImgWarning.Hint:= '';
   end
   else
-  if ImagesManager.ExternalStorageIsMissing then begin
+  if ImageMng.ExternalStorageIsMissing then begin
      lblImgWarning.Visible := true;
      lblImgWarning.Caption:= STR_17;
      lblImgWarning.Hint:= STR_18;
   end;
 
   btnRecalcNextID.Visible := not lblImgWarning.Visible;
-  btnRecalcNextID.Enabled := (ImagesManager.StorageMode <> smEmbRTF) and not KntFile.Modified;
+  btnRecalcNextID.Enabled := (ImageMng.StorageMode <> smEmbRTF) and not KntFile.Modified;
 
-  cbImgStorageMode.ItemIndex := Ord(ImagesManager.StorageMode);
-  cbImgExtStorageType.ItemIndex:= Ord(ImagesManager.ExternalStorageType);
-  txtExtStorageLocation.Text:= ImagesManager.ExternalStorageLocation;
+  cbImgStorageMode.ItemIndex := Ord(ImageMng.StorageMode);
+  cbImgExtStorageType.ItemIndex:= Ord(ImageMng.ExternalStorageType);
+  txtExtStorageLocation.Text:= ImageMng.ExternalStorageLocation;
   ExtStorageLocationFake:= (KntFile.FileName = '');
-  cbImgStorageMode.Enabled:= not ImagesManager.ChangingImagesStorage;
+  cbImgStorageMode.Enabled:= not ImageMng.ChangingImagesStorage;
   CheckExternalStorageEnabled;
 
 
@@ -670,7 +671,7 @@ var
 begin
    extStorageEnab:= cbImgStorageMode.Enabled and (TImagesStorageMode(cbImgStorageMode.ItemIndex) in [smExternal, smExternalAndEmbKNT]);
    rbImagesStChange.Enabled := extStorageEnab;
-   rbImagesStRelocate.Enabled := extStorageEnab and (not ImagesManager.FileIsNew) and (ImagesManager.StorageMode in [smExternal, smExternalAndEmbKNT]);
+   rbImagesStRelocate.Enabled := extStorageEnab and (not ImageMng.FileIsNew) and (ImageMng.StorageMode in [smExternal, smExternalAndEmbKNT]);
    if extStorageEnab and (txtExtStorageLocation.Text= '') then
       CheckExternalStorageLocation;
 
@@ -688,7 +689,7 @@ var
 begin
    if ExtStorageLocationFake or (txtExtStorageLocation.Text = '') then begin
       extStorageType:= TImagesExternalStorage(cbImgExtStorageType.ItemIndex);
-      txtExtStorageLocation.Text:= ImagesManager.GetDefaultExternalLocation(extStorageType);
+      txtExtStorageLocation.Text:= ImageMng.GetDefaultExternalLocation(extStorageType);
    end;
 end;
 
@@ -724,15 +725,15 @@ procedure TForm_KntFileInfo.btnRecalcNextIDClick(Sender: TObject);
 var
   MaxSavedID: integer;
 begin
-  MaxSavedID:= ImagesManager.GetMaxSavedImageID;
+  MaxSavedID:= ImageMng.GetMaxSavedImageID;
 
-  if MaxSavedID+1 = ImagesManager.NextImageID then
+  if MaxSavedID+1 = ImageMng.NextImageID then
      MessageDlg( Format(STR_19, [MaxSavedID+1, MaxSavedID]), mtInformation, [mbOK], 0 )
 
   else
-    if ( MessageDlg( Format(STR_20, [MaxSavedID, ImagesManager.NextImageID, MaxSavedID+1]),
+    if ( MessageDlg( Format(STR_20, [MaxSavedID, ImageMng.NextImageID, MaxSavedID+1]),
         mtInformation, [mbYes,mbNo,mbCancel], 0 ) = mrYes ) then begin
-      if ImagesManager.RecalcNextID then begin
+      if ImageMng.RecalcNextID then begin
          MessageDlg(STR_21, mtInformation, [mbOK], 0 );
          UpdateKntFileState( [fscSave,fscModified] );
       end;

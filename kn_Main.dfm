@@ -213,7 +213,7 @@ object Form_Main: TForm_Main
         GlyphMask.Data = {00000000}
         ImageIndex = 7
         Images = IMG_Toolbar
-        OnClick = MMNoteNewClick
+        OnClick = MMFolderNewClick
       end
       object TB_NoteEdit: TToolbarButton97
         Left = 334
@@ -1595,32 +1595,6 @@ object Form_Main: TForm_Main
       StaticPageIndex = -1
       TabVisible = True
       ExplicitHeight = 585
-      object Res_RTF: TRxRichEdit
-        Left = 0
-        Top = 0
-        Width = 302
-        Height = 586
-        Hint = 'Right-click for menu'
-        DrawEndPage = False
-        Align = alClient
-        AllowInPlace = False
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'MS Sans Serif'
-        Font.Style = []
-        HideSelection = False
-        ParentFont = False
-        PopupMenu = Menu_StdEdit
-        TabOrder = 0
-        UndoLimit = 10
-        WantTabs = True
-        OnKeyDown = Res_RTFKeyDown
-        OnProtectChange = RxRTFProtectChange
-        OnProtectChangeEx = RxRTFProtectChangeEx
-        OnURLClick = RxRTFURLClick
-        ExplicitHeight = 585
-      end
     end
     object ResTab_Macro: TTab95Sheet
       HelpContext = 304
@@ -2087,10 +2061,10 @@ object Form_Main: TForm_Main
         object N67: TMenuItem
           Caption = '-'
         end
-        object MMEditPasteAsNewNote: TMenuItem
+        object MMEditPasteAsNewFolder: TMenuItem
           Caption = 'Paste &Into New Folder'
           Hint = 'Create a new folder and paste text from clipboard'
-          OnClick = MMEditPasteAsNewNoteClick
+          OnClick = MMEditPasteAsNewFolderClick
         end
         object MMEditPasteAsNewNode: TMenuItem
           Caption = 'Paste Into New &Node'
@@ -2989,12 +2963,12 @@ object Form_Main: TForm_Main
       SubMenuImages = IMG_Toolbar
       HelpContext = 179
       Hint = 'Folder-related commands'
-      object MMNoteNew: TMenuItem
+      object MMFolderNew: TMenuItem
         Caption = '&New Folder...'
         Hint = 'Add a new folder'
         ImageIndex = 7
         ShortCut = 16462
-        OnClick = MMNoteNewClick
+        OnClick = MMFolderNewClick
       end
       object MMNoteRename: TMenuItem
         Caption = '&Rename Folder...'
@@ -3684,8 +3658,7 @@ object Form_Main: TForm_Main
     OnRestorePlacement = FormStorageRestorePlacement
     StoredProps.Strings = (
       'Pages_Res.Width'
-      'Pages_Res.ActivePage'
-      'Res_RTF.WordWrap')
+      'Pages_Res.ActivePage')
     StoredValues = <>
     Left = 622
     Top = 164
@@ -3822,7 +3795,6 @@ object Form_Main: TForm_Main
   object Menu_RTF: TPopupMenu
     HelpContext = 282
     Images = IMG_Format
-    OnPopup = Menu_RTFPopup
     Left = 361
     Top = 120
     object RTFMUndo: TMenuItem
@@ -3936,7 +3908,7 @@ object Form_Main: TForm_Main
       Caption = '&New Folder...'
       Hint = 'Create a new folder'
       ImageIndex = 7
-      OnClick = MMNoteNewClick
+      OnClick = MMFolderNewClick
     end
     object N16: TMenuItem
       Caption = '-'
@@ -7145,7 +7117,7 @@ object Form_Main: TForm_Main
       OnClick = TVBoldNodeClick
     end
     object TVNodeColor_: TMenuItem
-      Caption = 'Co&lor'
+      Caption = 'Co&lor / Reset'
       Hint = 'Choose color for selected tree node'
       object TVNodeTextColor: TMenuItem
         Caption = 'Tree &node Text...'
@@ -7162,7 +7134,7 @@ object Form_Main: TForm_Main
       end
       object TVDefaultNodeFont: TMenuItem
         Caption = '&Reset to Default'
-        Hint = 'Reset node color to default'
+        Hint = 'Reset node color and font face to default'
         ShortCut = 16452
         OnClick = TVDefaultNodeFontClick
       end
@@ -8364,7 +8336,7 @@ object Form_Main: TForm_Main
     object MMP_PasteAsNote: TMenuItem
       Caption = 'Paste &Into New Folder'
       Hint = 'Create a new folder and paste text from clipboard'
-      OnClick = MMEditPasteAsNewNoteClick
+      OnClick = MMEditPasteAsNewFolderClick
     end
     object MMP_PasteAsNode: TMenuItem
       Caption = 'Paste Into New &Node'

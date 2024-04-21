@@ -173,7 +173,8 @@ uses
    gf_strings,
    kn_global,
    kn_Chest,
-   kn_Ini
+   kn_Ini,
+   knt.App
   ;
 
 {$R *.DFM}

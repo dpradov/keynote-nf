@@ -1,19 +1,19 @@
 unit kn_History;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 {.$DEFINE DEBUG_HISTORY}
 
@@ -276,7 +276,7 @@ begin
 
   if ( FIndex = FHistory.Count ) then
 {$IFDEF DEBUG_HISTORY}
-     FHistory.AddObject(aLocation.NodeName, aLocation)
+     FHistory.AddObject(aLocation.NoteName, aLocation)
 {$ELSE}
      FHistory.AddObject('', aLocation )
 {$ENDIF}
@@ -315,7 +315,7 @@ begin
 
   if ( FIndex = FHistory.Count ) then
 {$IFDEF DEBUG_HISTORY}
-     FHistory.AddObject(aLocation.NodeName, aLocation)
+     FHistory.AddObject(aLocation.NoteName, aLocation)
 {$ELSE}
      FHistory.AddObject('', aLocation )
 {$ENDIF}
@@ -344,7 +344,7 @@ begin
       if FIndex = i then
          BackItem:= ' #';
 
-      Result:= Result + SEP + BackItem + TLocation(FHistory.Objects[i]).NodeName + '(' + TLocation(FHistory.Objects[i]).CaretPos.ToString  + ')';
+      Result:= Result + SEP + BackItem + TLocation(FHistory.Objects[i]).NoteName + '(' + TLocation(FHistory.Objects[i]).CaretPos.ToString  + ')';
       SEP:= ', ';
    end;
 

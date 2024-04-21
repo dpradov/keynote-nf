@@ -47,6 +47,7 @@ uses
     // dynamically create and destroy controls (folder tabs, RichEdits, trees, etc)
     procedure SetUpVCLControls( aFolder : TKntFolder ); // sets up VCL controls for knt folder (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
     procedure CreateVCLControls; // creates VCL controls for ALL folders in KntFile object
+    procedure CreateScratchEditor;
     procedure SetupAndShowVCLControls;
     procedure CreateVCLControlsForFolder( const aFolder : TKntFolder ); // creates VCL controls for specified folder
     procedure DestroyVCLControls; // destroys VCL controls for ALL notes in KntFile object
@@ -56,8 +57,7 @@ uses
     // VCL updates when config loaded or changed
     procedure UpdateFormState;
     procedure UpdateTabState;
-    procedure UpdateNoteDisplay;
-    procedure UpdateCursorPos;
+    procedure UpdateFolderDisplay;
 
     procedure UpdateResPanelState;
     procedure SetResPanelPosition;
@@ -72,6 +72,7 @@ uses
     procedure SelectStatusbarGlyph( const HaveKntFile : boolean );
     procedure SetFilenameInStatusbar(const FN : string );
     procedure SetStatusbarGlyph(const Value: TPicture);
+    procedure FocusActiveEditor;
     procedure FocusActiveKntFolder;
     procedure SortTabs;
 
@@ -103,12 +104,16 @@ uses
    kn_Macro,
    kn_Chest,
    kn_EditorUtils,
+   knt.ui.editor,
    kn_TreeNoteMng,
    kn_MacroMng,
    kn_PluginsMng,
    kn_FavoritesMng,
    kn_TemplateMng,
-   kn_NoteFileMng;
+   kn_FindReplaceMng,
+   kn_NoteFileMng,
+   kn_KntFile,
+   knt.App;
 
 
 
@@ -123,8 +128,6 @@ resourcestring
   STR_07 = 'Apply current highlight color to text';
   STR_08 = 'Minimize application';
   STR_09 = 'Exit application';
-  STR_10 = ' L %d / %d  C %d';
-  STR_11 = ' Sel: %d  W: %d';
   STR_12 = 'Hide &Resource Panel';
   STR_13 = 'Show &Resource Panel';
   STR_14 = 'The Resource panel must be visible to use this command. Show the Resource panel now?';
@@ -139,6 +142,7 @@ resourcestring
 //=================================================================
 procedure SetUpVCLControls( aFolder : TKntFolder );
 begin
+
   with Form_Main do begin
       FindAllResults.OnSelectionChange:= RxFindAllResultsSelectionChange;
       FindAllResults.ShowHint:= False;
@@ -147,34 +151,15 @@ begin
       if assigned( aFolder.Editor ) then
       begin
 
-        with aFolder.Editor do
-        begin
+        aFolder.ConfigureEditor;
+        with aFolder.Editor do begin
           PopUpMenu := Menu_RTF;
-          OnChange := RxRTFChange;
-          // OnEnter := RxRTFEnter;
-          // OnExit := RxRTFExit;
-          OnKeyDown := RxRTFKeyDown;
-          OnKeyPress := RxRTFKeyPress;
-          OnMouseDown := RxRTFMouseDown;
-          OnMouseUp := RxRTFMouseUp;
-          OnProtectChange := RxRTFProtectChange;
-          OnProtectChangeEx := RxRTFProtectChangeEx;
-          OnSelectionChange := RxRTFSelectionChange;
-          OnURLClick := RxRTFURLClick;
-          OnMouseMove := RTFMouseMove;
-          OnDblClick:= RxRTFDblClick;
-          OnEnter:= RxRTFEnter;
-          {
-            By default DragMode=dmManual, and the mechanism in TRxRichEdit is controlled through the IRichEditOleCallback interface.
-            (see comment *3 in RxRichEd.pas)
-          //OnDragOver := RxRTFDragOver;
-          //DragMode := dmManual; // dmAutomatic;
-          OnStartDrag := RxRTFStartDrag;
-          OnEndDrag := RxRTFEndDrag;
-          }
-          OnStartDrag := RxRTFStartDrag;    // See comment *4 in RxRichEd
-          OnEndDrag := RxRTFEndDrag;        // ,,
+          OnChangedSelection:= RxChangedSelection;
 
+          OnKeyDown:= RxRTFKeyDown;
+          OnKeyPress:= RxRTFKeyPress;
+          OnEnter:= RxRTFEnter;
+          OnMouseMove := RTFMouseMove;
           OnFileDropped := Form_Main.OnFileDropped;
 
           // AllowObjects := true;                      // Should be assigned when creating the control, to not lead to recreate its window
@@ -188,8 +173,8 @@ begin
       if ( _LoadedRichEditVersion > 2 ) then
         SendMessage( aFolder.Editor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
 
-      with aFolder.TV do
-      begin
+      with aFolder.TV do begin
+        Tag:= aFolder.ID;
         PopupMenu := Menu_TV;
         OnKeyDown := TVKeyDown;
         OnKeyPress := TVKeyPress;
@@ -220,7 +205,7 @@ begin
 
       _LastZoomValue:= DefaultEditorProperties.DefaultZoom;
       if _LastZoomValue <> 100 then
-         SetEditorZoom( aFolder.Editor, DefaultEditorProperties.DefaultZoom, '' );
+         aFolder.Editor.SetZoom(DefaultEditorProperties.DefaultZoom, '' );
   end;
 
 end; // SetUpVCLControls
@@ -228,6 +213,38 @@ end; // SetUpVCLControls
 //=================================================================
 // CreateVCLControls
 //=================================================================
+
+procedure CreateScratchEditor;
+begin
+  Form_Main.Res_RTF := TKntRichEdit.Create( Form_Main.ResTab_RTF );
+  with Form_Main.Res_RTF do begin
+     Parent := Form_Main.ResTab_RTF;
+     Hint := 'Right-click for menu';
+     DrawEndPage := False;
+     Align := alClient;
+     AllowInPlace := False;
+     Font.Charset := ANSI_CHARSET;
+     Font.Color := clWindowText;
+     Font.Height := -12;
+     Font.Name := 'Tahoma';
+     //Font.Style := [];
+     HideSelection := False;
+     ParentFont := False;
+     //PopupMenu := Form_Main.Menu_StdEdit;
+     PopupMenu := Form_Main.Menu_RTF;
+     UndoLimit := 10;
+     WantTabs := True;
+     OnChangedSelection:= Form_Main.RxChangedSelection;
+
+     SetVinculatedObjs(nil, nil, nil);
+
+     PlainText:= False;
+     Chrome:= Knt.App.DefaultEditorChrome;
+     SupportsRegisteredImages:= False;
+     SupportsImages:= True;
+   end;
+end;
+
 procedure CreateVCLControls;
 // creates all VCL controls for a newly loaded Notes file
 var
@@ -270,18 +287,12 @@ begin
 
           // show all tabs (they were created hidden)
           if ( Pages.PageCount > 0 ) then
-            for i := 0 to pred( Pages.PageCount ) do
+             for i := 0 to pred( Pages.PageCount ) do
                 Pages.Pages[i].TabVisible := true;
         end;
 
-        // restore the note that was active when file was previously saved
-        if (( KntFile.ActiveFolderID >= 0 ) and ( KntFile.ActiveFolderID < KntFile.Folders.Count )) then begin
-          if ( Pages.PageCount > 0 ) then
-            Pages.ActivePage := Pages.Pages[KntFile.ActiveFolderID];
-        end
-        else
-           if ( Pages.PageCount > 0 ) then
-              Pages.ActivePage := Pages.Pages[0];
+        // The folder that was active when file was previously saved will be restored in
+        // KntFileOpen (see comment *1)
   end;
 
 end; // SetupAndShowVCLControls
@@ -295,35 +306,34 @@ var
   myNote : TKntNote;
 begin
   with Form_Main do begin
-        // set or get node "expanded" state
+     // set or get node "expanded" state
 
-        if ( not assigned( aTV )) then exit;
-        myTreeNode := aTV.Items.GetFirstNode;
-        while assigned( myTreeNode ) do
-        begin
+     if ( not assigned( aTV )) then exit;
+
+     myTreeNode := aTV.Items.GetFirstNode;
+
+     while assigned( myTreeNode ) do begin
           myNote := TKntNote( myTreeNode.Data );
-          if assigned( myNote ) then
-          begin
-            case AsSet of
-              true : begin // set
-                if TopLevelOnly then
-                begin
-                  myTreeNode.Expand( false );
-                  myTreeNode := myTreeNode.GetNextSibling
-                end
-                else
-                begin
-                  myTreeNode.Expanded := myNote.Expanded;
-                  myTreeNode := myTreeNode.GetNext;
-                end;
-              end;
-              false : begin // get
-                myNote.Expanded := myTreeNode.Expanded;
-                myTreeNode := myTreeNode.GetNext;
-              end;
-            end;
+          if assigned( myNote ) then begin
+             case AsSet of
+               true : begin // set
+                 if TopLevelOnly then begin
+                   myTreeNode.Expand( false );
+                   myTreeNode := myTreeNode.GetNextSibling
+                 end
+                 else begin
+                   myTreeNode.Expanded := myNote.Expanded;
+                   myTreeNode := myTreeNode.GetNext;
+                 end;
+               end;
+
+               false : begin // get
+                 myNote.Expanded := myTreeNode.Expanded;
+                 myTreeNode := myTreeNode.GetNext;
+               end;
+             end;
           end;
-        end;
+     end;
   end;
 end; // GetOrSetNodeExpandState
 
@@ -333,7 +343,7 @@ end; // GetOrSetNodeExpandState
 procedure CreateVCLControlsForFolder( const aFolder : TKntFolder );
 var
   myTab : TTab95Sheet;
-  myEditor : TTabRichEdit;
+  myEditor : TKntRichEdit;
   // FolderID : string[3];
   myTree : TTreeNT;
   mySplitter : TSplitter;
@@ -361,23 +371,16 @@ begin
 
         try
           if ( aFolder.FocusMemory = focNil ) then
-          begin
             aFolder.FocusMemory := focTree;
-          end;
 
-          if ( aFolder.TabSheet = nil ) then
-          begin
+          if ( aFolder.TabSheet = nil ) then begin
             myTab := TTab95Sheet.Create( Form_Main );
-            with myTab do
-            begin
-              // Visible := false;
+            with myTab do begin
               TabVisible := false; // hide tabs initially
               Parent := Pages;
               PageControl := Pages;
-              // name := 'Tab' + FolderID;
 
-              if _TABS_ARE_DRAGGABLE then
-              begin
+              if _TABS_ARE_DRAGGABLE then begin
                 Dragable := true;
                 FloatOnTop := false;
               end;
@@ -386,16 +389,12 @@ begin
             aFolder.TabSheet := myTab;
           end
           else
-          begin
             myTab := aFolder.TabSheet;
-          end;
 
           myFolder := aFolder;
-          // [f] myFolder.FocusMemory := focTree;
 
           myTree := TTreeNT.Create( myTab );
-          with myTree do
-          begin
+          with myTree do begin
 
             Parent := myTab;
             if myFolder.VerticalLayout then
@@ -425,8 +424,7 @@ begin
             if TreeOptions.FullRowSelect then
               Options := Options + [toFullRowSelect];
 
-            if myFolder.VerticalLayout then
-            begin
+            if myFolder.VerticalLayout then begin
               if (( myFolder.TreeWidth < 30 ) or
                   ( myFolder.TreeWidth > ( Pages.Height - 30 ))) then
                 Height := ( Pages.Height DIV 3 )
@@ -434,32 +432,28 @@ begin
                 Height := myFolder.TreeWidth;
               myFolder.TreeWidth := Height; // store corrected value
             end
-            else
-            begin
+            else begin
               if (( myFolder.TreeWidth < 30 ) or
                   ( myFolder.TreeWidth > ( Pages.Width - 30 ))) then
-                Width := ( Pages.Width DIV 3 )
+                 Width := ( Pages.Width DIV 3 )
               else
-                Width := myFolder.TreeWidth;
+                 Width := myFolder.TreeWidth;
               myFolder.TreeWidth := Width; // store corrected value
             end;
           end;
 
           mySplitter := TSplitter.Create( myTab );
-          with mySplitter do
-          begin
+          with mySplitter do begin
             Parent := myTab;
             Align := alNone;
             mySplitter.OnMoved:= Form_Main.SplitterNoteMoved;
-            if myFolder.VerticalLayout then
-            begin
+            if myFolder.VerticalLayout then begin
               Top := myTree.Height + 5;
               Align := alTop;
               Cursor := crVSplit;
               Height := 3;
             end
-            else
-            begin
+            else begin
               Left := myTree.Width + 5;
               Align := alLeft;
               Cursor := crHSplit;
@@ -570,8 +564,7 @@ begin
             // OUTSIDE the beginupdate..endupdate range
 
             //if ( myTree.Items.Count > 0 ) then       // [dpv]
-            if ( myTree.Items.CountNotHidden > 0 ) then
-            begin
+            if ( myTree.Items.CountNotHidden > 0 ) then begin
               if (( TreeOptions.ExpandMode <> txmFullCollapse ) and // SaveActiveNode and
                  ( myFolder.OldSelectedIndex >= 0 ) and
                  ( myFolder.OldSelectedIndex < myTree.Items.Count )) then
@@ -583,8 +576,7 @@ begin
                    if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
                 end;
               end
-              else
-              begin
+              else begin
                 tNode := myTree.Items.GetFirstNode;
                 if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
               end;
@@ -592,9 +584,7 @@ begin
               myFolder.SelectedNote := TKntNote( myTree.Selected.Data );
             end
             else
-            begin
               myFolder.SelectedNote := nil;
-            end;
 
             Log_StoreTick( 'After Restored selected node', 3 );
 
@@ -630,8 +620,7 @@ begin
 
          {$IFDEF WITH_IE}
            myPanel := TPanel.Create( myTab );
-           with myPanel do
-           begin
+           with myPanel do begin
             parent := myTab;
             Align := alClient;
             Caption := '';
@@ -644,8 +633,7 @@ begin
 
            myFolder.MainPanel := myPanel;
 
-           if _IE4Available then
-           begin
+           if _IE4Available then begin
            myBrowser := TWebBrowser.Create( myPanel );
            TControl( myBrowser ).Parent := myPanel;
            with myBrowser do
@@ -663,9 +651,8 @@ begin
          {$ENDIF}
 
 
-          myEditor := TTabRichEdit.Create( myTab );
-          with myEditor do
-          begin
+          myEditor := TKntRichEdit.Create( myTab );
+          with myEditor do begin
             {$IFDEF WITH_IE}
             if assigned( myPanel ) then
               Parent := myPanel
@@ -676,14 +663,11 @@ begin
             {$ENDIF}
 
             Align := alClient;
-            // name := 'RTF' + FolderID;
-            // HelpContext := 100;
             HelpContext := 10;
             MaxLength := 0; // unlimited text size
             ParentFont := false;
             WantTabs := true;
             WantReturns := true;
-            KntFolder := aFolder;
             AllowInPlace := true;
             AllowObjects := true;
             AutoVerbMenu := true;
@@ -702,12 +686,9 @@ begin
 
           aFolder.Editor := myEditor;
           with myTab do
-          begin
-            // PrimaryControl := myEditor;
-            PrimaryObject := aFolder;
-          end;
+             PrimaryObject := aFolder;
 
-          Log_StoreTick( 'After Created TTabRichEdit', 3 );
+          Log_StoreTick( 'After Created TKntRichEdit', 3 );
 
           with aFolder do begin
             UpdateTabSheet;
@@ -747,52 +728,37 @@ begin
         try
 
           if assigned( aFolder.Editor ) then
-          begin
-            with aFolder.Editor do
-            begin
-              OnChange := nil;
-              OnSelectionChange := nil;
-              OnProtectChange := nil;
-              OnEnter := nil;
-              OnExit := nil;
-              OnKeyDown := nil;
-              Free;
-            end;
-            aFolder.Editor := nil;
-          end;
+            FreeAndNil(aFolder.Editor);
 
-          if assigned( aFolder.Splitter ) then
-          begin
+          if assigned( aFolder.Splitter ) then begin
             aFolder.Splitter.Free;
             aFolder.Splitter := nil;
           end;
-          if assigned( aFolder.TV ) then
-          begin
-            with aFolder.TV do
-            begin
-              PopupMenu := nil;
-              OnChange := nil;
-              OnChanging := nil;
-              OnDeletion := nil;
-              OnEditing := nil;
-              OnEdited := nil;
-              OnEnter := nil;
-              OnExit := nil;
-              OnKeyDown := nil;
-              OnEditCanceled := nil;
-              OnEdited := nil;
-              OnEditing := nil;
-            end;
-            DeleteNodes(aFolder);
 
-            aFolder.TV.Free;
-            aFolder.TV := nil;
+          if assigned( aFolder.TV ) then begin
+             with aFolder.TV do begin
+               PopupMenu := nil;
+               OnChange := nil;
+               OnChanging := nil;
+               OnDeletion := nil;
+               OnEditing := nil;
+               OnEdited := nil;
+               OnEnter := nil;
+               OnExit := nil;
+               OnKeyDown := nil;
+               OnEditCanceled := nil;
+               OnEdited := nil;
+               OnEditing := nil;
+             end;
+             DeleteNodes(aFolder);
+
+             aFolder.TV.Free;
+             aFolder.TV := nil;
           end;
 
           if ( KillTabSheet and assigned( aFolder.TabSheet )) then
-          begin
-            aFolder.TabSheet.Free;
-          end;
+             aFolder.TabSheet.Free;
+
         finally
           _ALLOW_VCL_UPDATES := true;
         end;
@@ -806,50 +772,21 @@ procedure DestroyVCLControls;
 var
   i : integer;
   s : string;
-  // aFolder : TTabNote;
 begin
   with Form_Main do begin
-        {
-        if (( not assigned( KntFile )) or ( KntFile.Notes.Count = 0 )) then exit;
-        for i := 0 to pred( KntFile.Notes.Count ) do
-        begin
-          DestroyVCLControlsForFolder( KntFile.Notes[i]; );
-        end;
-        }
-
-          if ( pages.pagecount > 0 ) then
-          begin
-            for i := pred( pages.pagecount ) downto 0 do
-            begin
-                {
-                aFolder := TTabNote( pages.pages[i].PrimaryObject );
-                try
-                  aFolder.Editor := nil;
-                  if ( aFolder.Kind = ntTree ) then
-                  begin
-                    aFolder.TV := nil;
-                    aFolder.Splitter := nil;
-                  end;
-                except
-                  on E : Exception do
-                  begin
-                    showmessage( 'Error while killing note controls ' + pages.pages[i].Caption + #13#13 +
-                     E.Message );
-                  end;
-                end;
-                }
-                try
-                  s := pages.pages[i].Caption;
-                  pages.pages[i].Free;
-                except
-                  on E : Exception do
-                  begin
-                    showmessage( STR_01 + s + #13#13 +
-                     E.Message );
-                  end;
-                end;
-            end;
-          end;
+       if ( pages.pagecount > 0 ) then begin
+         for i := pred( pages.pagecount ) downto 0 do begin
+             try
+               s := pages.pages[i].Caption;
+               pages.pages[i].Free;
+             except
+               on E : Exception do begin
+                 showmessage( STR_01 + s + #13#13 +
+                  E.Message );
+               end;
+             end;
+         end;
+       end;
   end;
 
 end; // DestroyVCLControls
@@ -1085,46 +1022,39 @@ begin
 end; // UpdateTabState
 
 //=================================================================
-// UpdateNoteDisplay
+// UpdateFolderDisplay
 //=================================================================
-procedure UpdateNoteDisplay;
+procedure UpdateFolderDisplay;
 var
   s : string;
   myFolder : TKntFolder;
+  Editor: TKntRichEdit;
   Node: TTreeNTNode;
 
 begin
   with Form_Main do begin
         s := '';
-        if assigned( ActiveKntFolder ) then
-        begin
+        myFolder := ActiveFolder;
+
+        if assigned( myFolder ) then begin
           try
-            MMNoteReadOnly.Checked := ActiveKntFolder.ReadOnly;
-            TB_ClipCap.Down := ( KntFile.ClipCapFolder = ActiveKntFolder );
-            MMNoteClipCapture.Checked := TB_ClipCap.Down;
+            Editor:= myFolder.Editor;
+
+            MMNoteReadOnly.Checked := myFolder.ReadOnly;
+            ClipCapMng.ShowState;
             ShowAlarmStatus;
 
-            TMClipCap.Checked := MMNoteClipCapture.Checked;
-
-            SetMargins(ActiveKntFolder.Editor);
+            Editor.SetMargins;
             UpdateWordWrap;
 
-            if EditorOptions.WordCountTrack then begin
-               if ActiveKntFolder.Editor.TextLength < 2000 then
-                  UpdateWordCount
-               else
-                  CleanWordCount;   // Lo actualizaremos cuando se dispare el Timer, si corresponde
-            end;
+            Editor.CheckWordCount(true);
 
-            // if isWordWrap then s := ' W' else s := ' ';
+            Editor.Change;                 // It will only refresh UI if there is changes
+            Editor.ChangedSelection;
+            if ActiveFolder.ReadOnly then s := 'R';
 
-            RxRTFChange( ActiveKntFolder.Editor );
-            RxRTFSelectionChange( ActiveKntFolder.Editor );
-            if ActiveKntFolder.ReadOnly then s := 'R';
-
-            if ( _LoadedRichEditVersion > 2 ) then
-            begin
-              _LastZoomValue := GetEditorZoom;
+            if ( _LoadedRichEditVersion > 2 ) then begin
+              _LastZoomValue := Editor.GetZoom;
               Combo_Zoom.Text := Format('%d%%', [_LastZoomValue] );
             end;
 
@@ -1133,20 +1063,14 @@ begin
             ShowInsMode;
 
 
-            myFolder := ActiveKntFolder;
             MMTree_.Visible := true;
-            {MMViewTree.Visible := true;}
             MMViewTree.Enabled := true;
             MMViewTree.Checked := myFolder.TV.Visible;
-            {MMViewNodeIcons.Visible := true;
-            MMViewCustomIcons.Visible := true;
-            MMViewCheckboxes.Visible := true;}
             MMViewNodeIcons.Checked := myFolder.IconKind = niStandard;
             MMViewCustomIcons.Checked := myFolder.IconKind = niCustom;
             MMEditPasteAsNewNode.Visible := true;
             MMP_PasteAsNode.Visible := true;
-            MMViewCheckboxesAllNodes.Checked := ActiveKntFolder.Checkboxes;
-            //TVCheckNode.Enabled := MMViewCheckboxesAllNodes.Checked;              // [dpv]
+            MMViewCheckboxesAllNodes.Checked := ActiveFolder.Checkboxes;
             node:= myFolder.TV.Selected;
             if myFolder.Checkboxes or (assigned(node) and assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
                TVCheckNode.Enabled := true
@@ -1171,14 +1095,13 @@ begin
 
 
             if MMAlternativeMargins.Checked then
-               ActiveKntFolder.Editor.Refresh;
+               Editor.Refresh;
 
           except
-            // showmessage( 'BUG: error in UpdateNoteDisplay' );
+            // showmessage( 'BUG: error in UpdateFolderDisplay' );
           end;
         end
-        else
-        begin
+        else begin
           MMNoteReadonly.Checked := false;
           MMFormatWordWrap.Checked := false;
           MMSetAlarm.Checked:= false;
@@ -1197,80 +1120,9 @@ begin
         StatusBar.Panels[PANEL_NOTEINFO].Text := s;
   end;
 
-end; // UpdateNoteDisplay
-
-//=================================================================
-// UpdateCursorPos
-//=================================================================
-procedure UpdateCursorPos;
-var
-  p : TPoint;
-  SelectedVisibleText: string;
-  SelLength: integer;
-begin
-  with Form_Main do begin
-       if assigned( ActiveKntFolder ) then begin
-          SelLength:= ActiveKntFolder.Editor.SelLength;
-          if ( SelLength > 0 ) then ShowingSelectionInformation:= true;
-
-          if EditorOptions.TrackCaretPos then begin
-             p := ActiveKntFolder.Editor.CaretPos;
-             if ( SelLength = 0 ) then begin
-                StatusBar.Panels[PANEL_CARETPOS].Text :=
-                    Format( STR_10, [succ( p.y ), ActiveKntFolder.Editor.Lines.Count, succ( p.x )] );
-             end
-             else begin
-                SelectedVisibleText:= ActiveKntFolder.Editor.SelVisibleText;
-                StatusBar.Panels[PANEL_CARETPOS].Text :=
-                    Format( STR_11, [Length(SelectedVisibleText), GetWordCount( SelectedVisibleText )] );
-             end;
-          end
-          else begin
-            if EditorOptions.WordCountTrack  then begin
-               if ( SelLength > 0 ) then
-                  UpdateWordCount
-               else
-                  if ShowingSelectionInformation then
-                     CheckWordCount(true);
-            end else
-              StatusBar.Panels[PANEL_CARETPOS].Text := '';
-          end;
-
-          if ( SelLength = 0 ) then
-             ShowingSelectionInformation:= false;
+end; // UpdateFolderDisplay
 
 
-          if EditorOptions.TrackStyle then begin
-            case EditorOptions.TrackStyleRange of
-              srFont : begin
-                StatusBar.Panels[PANEL_HINT].Text := ActiveKntFolder.Editor.FontInfoString;
-              end;
-              srParagraph : begin
-                StatusBar.Panels[PANEL_HINT].Text := ActiveKntFolder.Editor.ParaInfoString;
-              end;
-              srBoth : begin
-                StatusBar.Panels[PANEL_HINT].Text := ActiveKntFolder.Editor.FontInfoString +
-                ActiveKntFolder.Editor.ParaInfoString;
-              end;
-            end;
-          end;
-
-          TB_EditCut.Enabled := ( SelLength > 0 );
-
-          TB_EditCopy.Enabled := TB_EditCut.Enabled;
-          MMEditCut.Enabled := TB_EditCut.Enabled;
-          MMEditCopy.Enabled := TB_EditCut.Enabled;
-          RTFMCut.Enabled := TB_EditCut.Enabled;
-          RTFMCopy.Enabled := TB_EditCut.Enabled;
-
-       end
-       else begin
-          StatusBar.Panels[PANEL_CARETPOS].Text := '';
-          StatusBar.Panels[PANEL_HINT].Text := '';
-       end;
-  end;
-
-end; // UpdateCursorPos
 
 
 //======================
@@ -1286,7 +1138,7 @@ begin
         if KeyOptions.ResPanelLeft then begin
            Splitter_Res.Visible := DoShow;
            Pages_Res.Visible := DoShow;
-           end
+        End
         else begin
            Pages_Res.Visible := DoShow;
            Splitter_Res.Visible := DoShow;
@@ -1294,12 +1146,13 @@ begin
 
       finally
         // must redraw editor, otherwise it displays garbage
-        if assigned( ActiveKntFolder ) then
-          ActiveKntFolder.Editor.Invalidate;
+        if assigned(ActiveFolder) then
+          ActiveFolder.Editor.Invalidate;
       end;
   end;
 
 end; // HideOrShowResPanel
+
 
 procedure SetResPanelPosition;
 begin
@@ -1308,8 +1161,7 @@ begin
          (( not KeyOptions.ResPanelLeft ) and ( Splitter_Res.Align = alRight )) then
         exit;
 
-      // these settings must be applied
-      // in order.
+      // these settings must be applied in order.
       // Will be much easier in D5.
 
       case KeyOptions.ResPanelLeft of
@@ -1331,11 +1183,11 @@ begin
   end;
 end; // SetResPanelPosition
 
+
 procedure UpdateResPanelState;
 begin
   with Form_Main do begin
-        with Pages_Res do
-        begin
+        with Pages_Res do begin
           Images := nil;
           ButtonStyle := false;
           // AllowTabShifting := false;
@@ -1345,8 +1197,7 @@ begin
           // ie before we have any notes loaded. This is
           // to prevent loss of RTF text formatting when
           // tabsheets are recreated
-          if Initializing then
-          begin
+          if Initializing then begin
 
             SetResPanelPosition;
 
@@ -1408,6 +1259,7 @@ begin
 
 end; // UpdateResPanelState
 
+
 procedure UpdateResPanelContents (ChangedVisibility: boolean);
 begin
   // General idea: do not load all resource panel information
@@ -1419,14 +1271,16 @@ begin
   with Form_Main do begin
       if KeyOptions.ResPanelShow then begin
 
-        if ChangedVisibility and KeyOptions.ResPanelActiveUpdate then begin
-          if Res_RTF.Modified then
-             StoreResScratchFile;
+        if not Initializing and ChangedVisibility and KeyOptions.ResPanelActiveUpdate then begin
+          if assigned(Res_RTF) then begin
+             if Res_RTF.Modified then
+                StoreResScratchFile;
 
-          Res_RTF.Clear;
+             Res_RTF.Clear;
+          end;
 
           // if a macro file was copied to macros folder while KeyNote is running, simply hiding and then
-          // showing the resourc2e panel will load the new macro (press F9 twice)
+          // showing the resource panel will load the new macro (press F9 twice)
           ListBox_ResMacro.Items.Clear;
           ClearMacroList;
 
@@ -1481,7 +1335,7 @@ begin
         MMToolsMacroRun.Enabled := false;
 
         try
-          if Res_RTF.Modified then
+          if assigned(Res_RTF) and Res_RTF.Modified then
             StoreResScratchFile;
         except
         end;
@@ -1489,6 +1343,7 @@ begin
   end;
 
 end; // UpdateResPanelContents
+
 
 procedure RecreateResourcePanel;
 begin
@@ -1498,8 +1353,7 @@ begin
 
       try
 
-        with Pages_Res do
-        begin
+        with Pages_Res do begin
           MultiLine := ResPanelOptions.Stacked;
 
           case ResPanelOptions.TabOrientation of
@@ -1534,41 +1388,30 @@ begin
   end;
 end; // RecreateResourcePanel
 
+
 procedure FocusResourcePanel;
 begin
   with Form_Main do begin
-      if Pages_Res.Visible then
-      begin
+      if Pages_Res.Visible then begin
         try
           if ( Pages_Res.ActivePage = ResTab_Find ) then
-          begin
-            Combo_ResFind.SetFocus;
-          end
+            Combo_ResFind.SetFocus
           else
           if ( Pages_Res.ActivePage = ResTab_RTF ) then
-          begin
-            Res_RTF.SetFocus;
-          end
+            Res_RTF.SetFocus
           else
           if ( Pages_Res.ActivePage = ResTab_Macro ) then
-          begin
-            ListBox_ResMacro.SetFocus;
-          end
+            ListBox_ResMacro.SetFocus
           else
           if ( Pages_Res.ActivePage = ResTab_Template ) then
-          begin
-            ListBox_ResTpl.SetFocus;
-          end
+            ListBox_ResTpl.SetFocus
           else
           if ( Pages_Res.ActivePage = ResTab_Plugins ) then
-          begin
-            ListBox_ResPlugins.SetFocus;
-          end
+            ListBox_ResPlugins.SetFocus
           else
           if ( Pages_Res.ActivePage = ResTab_Favorites ) then
-          begin
             ListBox_ResFav.SetFocus;
-          end;
+
         except
           // nothing
         end;
@@ -1576,13 +1419,12 @@ begin
   end;
 end; // FocusResourcePanel
 
+
 function CheckResourcePanelVisible( const DoWarn : boolean ) : boolean;
 begin
   result := Form_Main.Pages_Res.Visible;
-  if ( not result ) then
-  begin
-    if DoWarn then
-    begin
+  if ( not result ) then begin
+    if DoWarn then  begin
       case messagedlg(STR_14, mtConfirmation, [mbYes,mbNo], 0 ) of
         mrYes : begin
           Form_Main.MMViewResPanelClick( Form_Main.MMViewResPanel );
@@ -1597,20 +1439,22 @@ end; // CheckResourcePanelVisible
 procedure LoadResScratchFile;
 begin
   with Form_Main do begin
-      if fileexists( Scratch_FN ) then
-      begin
+      if fileexists( Scratch_FN ) then begin
         Res_RTF.Lines.BeginUpdate;
         try
           try
             Res_RTF.Lines.LoadFromFile( Scratch_FN );
           except
           end;
+
         finally
           Res_RTF.Lines.EndUpdate;
+          Res_RTF.Modified:= false;
         end;
       end;
   end;
 end; // LoadResScratchFile
+
 
 procedure StoreResScratchFile;
 begin
@@ -1629,59 +1473,60 @@ var
   namei, namej : string;
 begin
   with Form_Main do begin
-        if ( Pages.PageCount < 2 ) then exit;
-        Pages.ActivePage := Pages.Pages[0];
-        Pages.Enabled := false;
-        try
+     if ( Pages.PageCount < 2 ) then exit;
 
-          for i := 0 to pred( Pages.PageCount ) do
-          begin
-            for j := succ( i ) to pred( Pages.PageCount ) do
-            begin
-              namei := pages.Pages[i].Caption;
-              namej := pages.Pages[j].Caption;
-              p := pos( '&', namei );
-              if p > 0 then
-                delete( namei, p, 1 );
-              p := pos( '&', namej );
-              if p > 0 then
-                delete( namej, p, 1 );
-              if ( ansicomparetext( namei, namej ) > 0 ) then
-              begin
-                Pages.Pages[j].PageIndex := i;
-              end;
-            end;
-          end;
+     Pages.Enabled := false;
+     try
 
-          // must reassign images, because they get lost on sort
-          if ( Pages.Images <> nil ) then
-          begin
-            for i := 0 to pred( Pages.PageCount ) do
-            begin
-              Pages.Pages[i].ImageIndex := TKntFolder(Pages.Pages[i].PrimaryObject).ImageIndex;
-            end;
-          end;
+       for i := 0 to Pages.PageCount - 1 do begin
+         for j := succ(i) to Pages.PageCount - 1 do begin
+           namei := pages.Pages[i].Caption;
+           namej := pages.Pages[j].Caption;
+           p := pos( '&', namei );
+           if p > 0 then
+              delete( namei, p, 1 );
+           p := pos( '&', namej );
+           if p > 0 then
+              delete( namej, p, 1 );
+           if ( ansicomparetext( namei, namej ) > 0 ) then
+              Pages.Pages[j].PageIndex := i;
+         end;
+       end;
 
-        finally
-          Pages.Enabled := true;
-          Pages.ActivePage := ActiveKntFolder.TabSheet;
-          KntFile.Modified := true;
-          UpdateNoteDisplay;
-          UpdateKntFileState( [fscModified] );
-        end;
+       // must reassign images, because they get lost on sort
+       if ( Pages.Images <> nil ) then begin
+         for i := 0 to Pages.PageCount - 1 do
+            Pages.Pages[i].ImageIndex := TKntFolder(Pages.Pages[i].PrimaryObject).ImageIndex;
+       end;
+
+     finally
+       Pages.Enabled := true;
+       App.ActivateFolder(ActiveFolder);
+       ActiveFile.Modified := true;
+       UpdateKntFileState( [fscModified] );
+     end;
   end;
 
 end; // SortTabs
 
+
+procedure FocusActiveEditor;
+begin
+   if not assigned(ActiveEditor) then exit;
+   try
+      ActiveEditor.SetFocus;
+   except
+   end;
+end;
+
 procedure FocusActiveKntFolder;
 begin
     try
-      if ( assigned( ActiveKntFolder ) and ( not Initializing )) then
-      begin
-         if ( ActiveKntFolder.TV.Visible and ( ActiveKntFolder.FocusMemory = focTree )) then
-           ActiveKntFolder.TV.SetFocus
+      if assigned(ActiveFolder) and (not Initializing) then begin
+         if ActiveFolder.TV.Visible and (ActiveFolder.FocusMemory = focTree) then
+            ActiveFolder.TV.SetFocus
          else
-           ActiveKntFolder.Editor.SetFocus;
+            ActiveFolder.Editor.SetFocus;
       end;
     except
       // Mostly Harmless
@@ -1700,6 +1545,7 @@ begin
 
 end;
 
+
 procedure SetFilenameInStatusbar(const FN : string );
 begin
    with Form_Main.StatusBar do begin
@@ -1707,6 +1553,7 @@ begin
       Panels[PANEL_FILENAME].Width := Canvas.TextWidth(Panels[PANEL_FILENAME].Text) + 8;
    end;
 end;
+
 
 procedure SelectStatusbarGlyph( const HaveKntFile : boolean );
 var
@@ -1722,17 +1569,15 @@ begin
 
     Index:= NODEIMG_BLANK;
 
-    if HaveKntFile then
-    begin
+    if HaveKntFile then begin
 
       if IsRecordingMacro then
-        Index:= NODEIMG_MACROREC
+         Index:= NODEIMG_MACROREC
       else
       if IsRunningMacro then
-        Index:= NODEIMG_MACRORUN
+         Index:= NODEIMG_MACRORUN
       else
-      if KntFile.ReadOnly then
-      begin
+      if KntFile.ReadOnly then begin
         case KntFile.FileFormat of
           nffKeyNote :   Index:= NODEIMG_TKN_RO;
           nffKeyNoteZip: Index:= NODEIMG_TKNZIP_RO;
@@ -1742,8 +1587,7 @@ begin
 {$ENDIF}
         end;
       end
-      else
-      begin
+      else begin
         case KntFile.FileFormat of
           nffKeyNote :   Index:= NODEIMG_TKN;
           nffKeyNoteZip: Index:= NODEIMG_TKNZIP;
@@ -1770,6 +1614,7 @@ var
   Icon: TIcon;
   UseIcon: integer;
   IconFN: string;
+  myFile: TKntFile;
 begin
 {
  If Application.MainFormOnTaskBar=True -> we need to change the icon of the main form
@@ -1779,24 +1624,24 @@ begin
    -> After Application.Initialize and before the main form creation
 }
 
+  myFile:= ActiveFile;
+
   with Form_Main do begin
       UseIcon:= 0;
 
-      if assigned( KntFile ) then begin
-         if UseAltIcon then
-            UseIcon:= 1        // we're capturing clipboard, so indicate this by using the alternate (orange) tray icon
+      if UseAltIcon then
+         UseIcon:= 1        // we're capturing clipboard, so indicate this by using the alternate (orange) tray icon
+      else
+      if assigned(myFile) and (myFile.TrayIconFN <> '' ) then begin
+         IconFN:= GetAbsolutePath(myFile.File_Path, myFile.TrayIconFN);
+         if FileExists( IconFN ) then
+            try
+              TrayIcon.Icon.LoadFromFile( IconFN );
+              UseIcon:= 2;
+            except
+            end
          else
-         if ( KntFile.TrayIconFN <> '' ) then begin
-            IconFN:= GetAbsolutePath(KntFile.File_Path, KntFile.TrayIconFN);
-            if FileExists( IconFN ) then
-               try
-                 TrayIcon.Icon.LoadFromFile( IconFN );
-                 UseIcon:= 2;
-               except
-               end
-            else
-               KntFile.TrayIconFN := '';
-         end
+            myFile.TrayIconFN := '';
       end;
 
       if UseIcon in [0, 1] then
@@ -1820,27 +1665,21 @@ var
   LoadSuccess : boolean;
 begin
   LoadSuccess := false;
-  if assigned( KntFile ) then
-  begin
-    if (( _LOADED_ICON_FILE <> KntFile.TabIconsFN ) or ForceReload ) then
-    begin
-      if ( KntFile.TabIconsFN = '' ) then // means: use KeyNote default
-      begin
-        LoadSuccess := LoadCategoryBitmapsUser( ICN_FN );
-      end
-      else
-      begin
-        if ( KntFile.TabIconsFN <> _NF_Icons_BuiltIn ) then
-          LoadSuccess := LoadCategoryBitmapsUser( KntFile.TabIconsFN );
-      end;
-      if ( not LoadSuccess ) then
-        LoadSuccess := LoadCategoryBitmapsBuiltIn;
-    end;
+  if assigned( KntFile ) then begin
+     if (( _LOADED_ICON_FILE <> KntFile.TabIconsFN ) or ForceReload ) then begin
+       if ( KntFile.TabIconsFN = '' ) then // means: use KeyNote default
+         LoadSuccess := LoadCategoryBitmapsUser( ICN_FN )
+       else begin
+         if ( KntFile.TabIconsFN <> _NF_Icons_BuiltIn ) then
+            LoadSuccess := LoadCategoryBitmapsUser( KntFile.TabIconsFN );
+       end;
+       if ( not LoadSuccess ) then
+         LoadSuccess := LoadCategoryBitmapsBuiltIn;
+     end;
   end
-  else
-  begin
-    if ( opt_NoUserIcons or ( not LoadCategoryBitmapsUser( ICN_FN ))) then
-      LoadCategoryBitmapsBuiltIn;
+  else begin
+     if ( App.opt_NoUserIcons or ( not LoadCategoryBitmapsUser( ICN_FN ))) then
+        LoadCategoryBitmapsBuiltIn;
   end;
 
 end; // LoadTabImages
@@ -1857,58 +1696,53 @@ var
   mi : TMenuItem;
 begin
   with Form_Main do begin
-        bl := TStringList.Create;
-        ml := TStringList.Create;
+     bl := TStringList.Create;
+     ml := TStringList.Create;
 
-        try
-          try
-            bl.Sorted := true;
-            ml.Sorted := true;
+     try
+       try
+         bl.Sorted := true;
+         ml.Sorted := true;
 
-            cnt := pred( Form_Main.ComponentCount );
-            for i := 0 to cnt do
-            begin
-              comp := Form_Main.Components[i];
-              if comp is TMenuItem then
-              begin
-                mi := ( comp as TMenuItem );
-                s := format(
-                  '%s = %s = %s = %s',
-                  [mi.Name, mi.Caption, mi.Hint, ShortcutToText( mi.Shortcut ) ]
-                );
-                ml.Add( s );
-              end
-              else
-              if comp is TToolbarButton97 then
-              begin
-                tb := ( comp as TToolbarButton97 );
-                s := Format(
-                  '%s = %s = %s',
-                  [tb.Name, tb.Caption, tb.Hint]
-                );
-                bl.add( s );
-              end;
-            end;
+         cnt := pred( Form_Main.ComponentCount );
+         for i := 0 to cnt do begin
+           comp := Form_Main.Components[i];
+           if comp is TMenuItem then begin
+             mi := ( comp as TMenuItem );
+             s := format('%s = %s = %s = %s',
+                         [mi.Name, mi.Caption, mi.Hint, ShortcutToText( mi.Shortcut ) ] );
+             ml.Add( s );
+           end
+           else
+           if comp is TToolbarButton97 then begin
+             tb := ( comp as TToolbarButton97 );
+             s := Format('%s = %s = %s', [tb.Name, tb.Caption, tb.Hint]);
+             bl.add( s );
+           end;
+         end;
 
-            fn := extractfilepath( application.exename ) + 'buttonnames.txt';
-            bl.savetofile( fn );
-            fn := extractfilepath( application.exename ) + 'menunames.txt';
-            ml.savetofile( fn );
+         fn := extractfilepath( application.exename ) + 'buttonnames.txt';
+         bl.savetofile( fn );
+         fn := extractfilepath( application.exename ) + 'menunames.txt';
+         ml.savetofile( fn );
 
-          except
-          end;
-        finally
-          bl.Free;
-          ml.Free;
-        end;
+       except
+       end;
+
+     finally
+       bl.Free;
+       ml.Free;
+     end;
   end;
 end; // SaveMenusAndButtons
 {$ENDIF}
+
 
 procedure EnableCopyFormat(value: Boolean);
 var
   i : integer;
   Str: String;
+  myCursor: TCursor;
 begin
     Form_Main.TB_CopyFormat.Down:= value;
 
@@ -1925,12 +1759,12 @@ begin
        Form_Main.StatusBar.Panels[PANEL_HINT].Text := '';
     end;
 
-    with KntFile do
-       for i := 0 to pred(Folders.Count) do begin
+    with ActiveFile do
+       for i := 0 to Folders.Count - 1 do begin
+          myCursor:= crDefault;
           if value then
-             Folders[i].Editor.Cursor:= crCopyFormat
-          else
-             Folders[i].Editor.Cursor:= crDefault;
+             myCursor:= crCopyFormat;
+          Folders[i].Editor.Cursor:= myCursor;
        end;
 
 end;

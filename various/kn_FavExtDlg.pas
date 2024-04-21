@@ -61,7 +61,8 @@ uses
    kn_Info,
    kn_Global,
    kn_main,
-   kn_FavoritesMng;
+   kn_FavoritesMng,
+   knt.App;
 
 {$R *.DFM}
 

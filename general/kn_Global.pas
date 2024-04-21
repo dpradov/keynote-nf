@@ -49,6 +49,7 @@ uses
    kn_KntFolder,
    kn_KntFile,
    kn_KntNote,
+   knt.ui.editor,
    kn_Cmd,
    kn_Main,
    kn_ImagesMng
@@ -79,7 +80,6 @@ const
 var
 
     KntFile : TKntFile; // main data structure
-    ActiveKntFolder : TKntFolder; // the Folder (Note Folder) that is currently visible (can be nil)
 
     RichEditLibraryPath : string;
 
@@ -111,37 +111,6 @@ var
     HelpINI_FN : string;  // INI file to use with Help file (.knt)
     Launcher_FN: string;  // kntLauncher.exe
 
-    //================================================== OPTIONS
-    { These options are seperate from KeyOptions, because then
-      may also be set via commandline. Basically, the logic is:
-      opt_XXX := ( commandline_argument_XXX OR inifile_options_XXX );
-    }
-    opt_Minimize : boolean; // minimize on startup
-    //opt_Setup : boolean; // run setup (OBSOLETE, unused)
-    opt_Debug : boolean; // debug info
-    opt_NoRegistry : boolean; // use .MRU file instead, do not use registry
-    opt_NoReadOpt : boolean; // do not read config files (if TRUE, then opt_NoSaveOpt is also set to TRUE)
-    opt_NoSaveOpt : boolean; // do not save config files
-    opt_NoDefaults : boolean; // do not load .DEF file (editor and tree defaults)
-    opt_RegExt : boolean; // register .KNT and .KNE extensions
-    opt_SaveDefaultIcons : boolean; // save default tab icons to file
-    opt_NoUserIcons : boolean; // do not use custom .ICN file
-    opt_SaveToolbars : boolean; // save default toolbar state (debug)
-    opt_SaveMenus : boolean; // save menu item information
-    opt_DoNotDisturb : boolean; // Ignore for purposes of "SingleInstance"
-    opt_Title: string; // Title to use in main window (mainly for its use with kntLauncher)
-
-    opt_Clean : boolean; // Clean the file, actually looking for invalid hyperlinks (see issue #59: http://code.google.com/p/keynote-nf/issues/detail?id=59
-
-    // these are declared in kn_Info.pas
-    KeyOptions : TKeyOptions; // general program config
-    TabOptions : TTabOptions; // options related to tabs, icons etc
-    ClipOptions : TClipOptions; // clipboard capture options
-    EditorOptions : TEditorOptions;
-    ResPanelOptions : TResPanelOptions;
-    TreeOptions : TKNTTreeOptions;
-    FindOptions : TFindOptions;
-
     LastExportFilterIndex : integer;
     ShowHiddenMarkers: boolean;
 
@@ -149,32 +118,10 @@ var
     KntFileToLoad : string; // name of KNT file we are supposed to open (options + commandline + passed from other instance, etc)
     CmdLineFileName : string; // other filename passed on command line (macro, plugin, etc)
 
-
-    //================================================== KEYBOARD / HOTKEY
-    HotKeySuccess : boolean; // if true, we registered the hotkey successully, so we will remember to unregister it when we shut down
-    AltFKeys : TFuncKeys;      // primitive, but that's all we can do for now (0.999)
-    ShiftAltFKeys : TFuncKeys; // these records keep custom assignments for Alt, Shift+Alt and Ctrl+Alt function key combos.
-    CtrlAltFKeys : TFuncKeys;  // They can be modified manually (keynote.key) or by using the FUNCKEY plugin.
-
-    OtherCommandsKeys: TList;      // List of TKeyOtherCommandItem
-
-    LastRTFKey : TKeyCode;
-    RxRTFKeyProcessed : boolean; // for TAB handling; some tabs are eaten by TRichEdit, others must not be
-    RTFUpdating : boolean; // TRUE while in RxRTFSelectionChange; some things cannot be done during that time
-
-
     //==================================================
     //InsCharFont : TFontInfo;
     //Form_Chars : TForm_Chars; // GLOBAL FORM!
     Form_Chars : TForm_CharsNew; // GLOBAL FORM!
-
-
-    //================================================== DEFAULT PROPERTIES
-    DefaultEditorProperties : TFolderEditorProperties;
-    DefaultTabProperties : TFolderTabProperties;
-    DefaultEditorChrome : TChrome;
-    DefaultTreeChrome : TChrome;
-    DefaultTreeProperties : TFolderTreeProperties;
 
 
     //================================================== APPLICATION STATE
@@ -204,22 +151,16 @@ var
 *)
 
     //================================================== CLIPBOARD
-    _IS_CAPTURING_CLIPBOARD : boolean;
-    _IS_CHAINING_CLIPBOARD : boolean;
     _IS_COPYING_TO_CLIPBOARD : boolean;
-    ClipCapNextInChain : HWnd;
     LastEvalExprResult : string; // remembered, so that we can paste it
 
-    ClipCapActive : boolean; // TRUE if we have a clipboard capture note
-    ClipCapNote : TKntNote;
     ClipCapCRC32 : DWORD;
 
-    AppIsActive : boolean; // used with Clipboard Capture to ignore copy events coming from Keynote itself
     _ConvertHTMLClipboardToRTF: boolean;
 
     //================================================== TREE
     MovingTreeNode: TTreeNTNode;            // To use with Paste, after applying Cut on a Tree Node.
-    CopyCutFromNoteID: integer;             // Copy or Cut from Folder
+    CopyCutFromFolderID: integer;             // Copy or Cut from Folder
 
     //================================================== VARIOS
 
@@ -243,7 +184,6 @@ var
     }
 
     _GLOBAL_URLText : string;
-    _IS_FAKING_MOUSECLICK : boolean;
     _Global_Location : TLocation;
     _REOPEN_AUTOCLOSED_FILE : boolean;
     //_Is_Dragging_Text : boolean;
@@ -259,20 +199,11 @@ var
     _SYSTEM_IS_WIN95 : boolean;
     _SYSTEM_IS_WINXP : boolean;
 
-    AlarmManager: TAlarmManager;    // [dpv]
-    ImagesManager: TImageManager;
-    RTFAux_Note: TTabRichEdit;       // For exclusive use of TKntFolder when obtaining TextPlain
+    RTFAux_Note: TAuxRichEdit;       // For exclusive use of TKntFolder when obtaining TextPlain
     _DllHandle : THandle;
     _IE: TWebBrowserWrapper;
 
     History : TKNTHistory;         // Global navigation history
-
-    ShowingSelectionInformation: boolean;
-    ShowingImageOnTrack: boolean;
-
-    DraggingImageID: integer;
-    DraggingImage_PosImage: integer;
-    DraggingImage_PosFirstHiddenChar: integer;
 
     LastGoTo : string; // last line number for the "Go to line" command
 
@@ -305,7 +236,8 @@ uses
    kn_NoteFileMng,
    kn_MacroMng,
    kn_VCLControlsMng,
-   kn_LinksMng
+   kn_LinksMng,
+   knt.App
    ;
 
 
@@ -324,7 +256,7 @@ var
 begin
    Result:= false;
 
-   Folder:= ActiveKntFolder;
+   Folder:= ActiveFolder;
    if not assigned(Folder) then exit;
    if Folder.PlainText then exit;
 
@@ -428,13 +360,12 @@ begin
         end;
       end;
 
-      AlarmManager:= TAlarmManager.Create;   // [dpv]
-      ImagesManager:= TImageManager.Create;  // [dpv]
-      RTFAux_Note:= CreateRTFAuxEditorControl;
+      Knt.App.AlarmMng:= TAlarmMng.Create;   // [dpv]
+      Knt.App.ImageMng:= TImageMng.Create;  // [dpv]
+      Knt.App.ClipCapMng:= TClipCapMng.Create;
+      RTFAux_Note:= CreateAuxRichEdit;
 
-      ShowingSelectionInformation:= false;
 
-      AppIsActive := true;
       try
         // Used to be used for instance management, but isn't anymore.
         // It is still necessary for the Setup program, so that it knows
@@ -454,9 +385,6 @@ begin
       FolderMon.Active := false;
       Ntbk_ResFind.PageIndex := 1;
 
-      ActiveKntFolder := nil;
-      ClipCapNextInChain := 0;
-      RTFUpdating := false;
       FileIsBusy := false;
       LastEvalExprResult := '';
       FileChangedOnDisk := false;
@@ -467,7 +395,6 @@ begin
       LastImportFilter := 1;
 
       //_Is_Dragging_Text := false;
-      DraggingImageID:= 0;
       _WindowWidthIncToRestore := 0;
       _LastZoomValue := 100;
       Combo_Zoom.Text := '100%';
@@ -485,9 +412,7 @@ begin
 
       Log_StoreTick( 'Begin init', 2 );
 
-      ClipCapActive := false;
       ClipCapCRC32 := 0;
-      ClipCapNote := nil;
       _ConvertHTMLClipboardToRTF:= true;
       ClosedOnPreviousInstance := false;
       OriginalComboLen := Combo_Font.Width;
@@ -495,10 +420,7 @@ begin
 
       //_GLOBAL_URLText := '';                 // Can be set in ReadCmdLine, called from InitializeOptions
       _Global_Location := nil;
-      _IS_CAPTURING_CLIPBOARD := false;
-      _IS_CHAINING_CLIPBOARD := false;
       _IS_COPYING_TO_CLIPBOARD:= false;
-      _IS_FAKING_MOUSECLICK := false;
       _REOPEN_AUTOCLOSED_FILE := false;
 
       TB_Color.AutomaticColor := clWindowText;
@@ -513,7 +435,7 @@ begin
         end;
       end;
 
-      with LastRTFKey do
+      with App.Kbd.LastRTFKey do
       begin
         Key := 0;
         Shift := [];
@@ -567,8 +489,8 @@ begin
       TVRefreshVirtualNode.Enabled := false;
       TVUnlinkVirtualNode.Enabled := false;
 
-      HotKeySuccess := false;
-      RxRTFKeyProcessed := false;
+      App.Kbd.HotKeySuccess := false;
+      App.Kbd.RxRTFKeyProcessed := false;
       SearchNode_Text := '';
       SearchNode_TextPrev := '';
 
@@ -616,10 +538,10 @@ begin
 
       try
         {$IFDEF KNT_DEBUG}
-        if opt_SaveMenus then
+        if App.opt_SaveMenus then
           SaveMenusAndButtons;
         {$ENDIF}
-        if opt_SaveToolbars then
+        if App.opt_SaveToolbars then
           SaveToolbars
         else
           LoadToolbars; // toolbar.ini
@@ -632,11 +554,11 @@ begin
         {$ENDIF}
 
 
-        OtherCommandsKeys:= TList.Create;
+        App.Kbd.OtherCommandsKeys:= TList.Create;
         LoadCustomKeyboard; // keyboard.ini
 
-        if opt_NoReadOpt then
-          opt_NoSaveOpt := true; // "no read" implies "no save"
+        if App.opt_NoReadOpt then
+          App.opt_NoSaveOpt := true; // "no read" implies "no save"
 
         // set some options for which there is no UI
         Combo_Font.UseFonts := KeyOptions.ShowFonts;
@@ -708,7 +630,7 @@ begin
           end;
         finally
           // ShowWindow(Application.Handle, SW_HIDE);
-          opt_NoSaveOpt := true; // do not save any config
+          App.opt_NoSaveOpt := true; // do not save any config
           MRU.AutoSave := false; // MRU throws exception when trying to save here
           OnActivate := nil;
           OnDestroy := nil;
@@ -723,15 +645,15 @@ begin
 
       Log_StoreTick( 'End instance check', 2 );
 
-      opt_Debug := ( opt_Debug or KeyOptions.Debug );
-      opt_NoRegistry := ( opt_NoRegistry or opt_Debug or KeyOptions.NoRegistry );
+      App.opt_Debug := ( App.opt_Debug or KeyOptions.Debug );
+      App.opt_NoRegistry := ( App.opt_NoRegistry or App.opt_Debug or KeyOptions.NoRegistry );
 
       if KeyOptions.ResolveLNK then
         OpenDlg.Options := OpenDlg.Options - [ofNoDereferenceLinks];
 
       const RegPath = 'Software\General Frenetics\KeyNote';
 
-      if opt_NoRegistry then begin
+      if App.opt_NoRegistry then begin
         // don't clutter the registry with garbage file names and settings
         IniLoadToolbarPositions( Form_Main, MRU_FN, 'TB97a' );
         FormStorage.UseRegistry := false;
@@ -754,13 +676,13 @@ begin
       Log_StoreTick( 'End Toolbars', 2 );
 
     {$IFDEF KNT_DEBUG}
-      Log.Active := opt_Debug;
-      if not opt_Debug then
+      Log.Active := App.opt_Debug;
+      if not App.opt_Debug then
          Log.Flush(false);
       Log.AppendToFile := KeyOptions.DebugLogAppend;
     {$ENDIF}
 
-      if opt_Debug then begin
+      if App.opt_Debug then begin
         debugmenu := TMenuItem.Create( Form_Main );
         debugmenu.Caption := '&Debug Information';
         debugmenu.OnClick := DebugMenuClick;
@@ -798,11 +720,11 @@ begin
 
       Log_StoreTick( 'End hotkey and file assoc', 2 );
 
-      if opt_SaveDefaultIcons then
+      if App.opt_SaveDefaultIcons then
         SaveDefaultBitmaps; // for developer only
 
       try
-        if ( not opt_NoReadOpt ) then
+        if ( not App.opt_NoReadOpt ) then
           LoadFileManagerInfo( MGR_FN );
 
         // load user icons from "keynote.icn" or
@@ -817,6 +739,8 @@ begin
 
       Log_StoreTick( 'End tabicons', 2 );
 
+      CreateScratchEditor;
+
       // we now have all options set, so apply them
       UpdateFormState;
       UpdateTabState;
@@ -829,7 +753,7 @@ begin
       Log_StoreTick( 'End formupdate', 2 );
 
       try
-        if ( not opt_NoReadOpt ) then begin
+        if ( not App.opt_NoReadOpt ) then begin
           LoadStyleManagerInfo( Style_FN );
           if assigned( StyleManager ) then begin
             StyleManagerToCombo;
@@ -845,7 +769,7 @@ begin
       Log_StoreTick( 'End stylemgr', 2 );
 
 
-      if ( not opt_NoReadOpt ) then
+      if ( not App.opt_NoReadOpt ) then
          kn_Glossary.LoadGlossaryInfo;
 
 
@@ -896,7 +820,7 @@ begin
       Timer.Enabled := true;
       FolderMon.OnChange := FolderMonChange;
 
-      if opt_Debug then begin
+      if App.opt_Debug then begin
         // StoreMenuItemIDs;
         // SaveKBD( KBD_FN, KNTMainMenuCmds, KNTTreeMenuCmds ); // in kn_KBD.pas
       end;
@@ -952,22 +876,7 @@ begin
       Log.FileName := LOG_FN;
     {$ENDIF}
 
-      opt_Minimize := false;
-      //opt_Setup := false;
-      opt_Debug := false;
-      opt_NoRegistry := false;
-      opt_NoReadOpt := false;
-      opt_NoSaveOpt := false;
-      opt_NoDefaults := false;
-      opt_RegExt := false;
-      opt_SaveDefaultIcons  := false;
-      opt_NoUserIcons := false;
-      opt_SaveToolbars := false;
-      opt_SaveMenus := false;
-      opt_DoNotDisturb:= false;
-      opt_Title:= '';
-
-      opt_Clean := false;
+      // opt_xxx will have been initialized in App.Create
 
       // set up default values for all config options
       InitializeKeyOptions( KeyOptions );

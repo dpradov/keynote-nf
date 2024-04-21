@@ -410,7 +410,8 @@ uses
     kn_DateTime,
     kn_LanguagesMng,
     kn_global,
-    kn_Main
+    kn_Main,
+    knt.App
     ;
 
 {$R *.DFM}
@@ -735,7 +736,7 @@ begin
     DividerComboToOption(Combo_Divider, Divider);
     DividerComboToOption(Combo_WCDivider, WCDivider);
     if (Divider <> myClipOpts.Divider) or (WCDivider <> myClipOpts.WCDivider) then
-       CleanCacheURLs (true);
+       ClipCapMng.CleanCacheURLs (true);
 
     myClipOpts.Divider  := Divider;
     myClipOpts.WCDivider:= WCDivider;

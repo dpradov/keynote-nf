@@ -79,7 +79,8 @@ uses
    WinInet,
    gf_strings,
    kn_const,
-   kn_Global
+   kn_Global,
+   knt.App
    ;
 
 resourcestring

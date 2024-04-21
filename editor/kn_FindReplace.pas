@@ -113,7 +113,9 @@ uses
    kn_KntFolder,
    kn_Main,
    kn_FindReplaceMng,
-   kn_MacroMng
+   kn_MacroMng,
+   knt.ui.editor,
+   knt.App
    ;
 
 
@@ -146,12 +148,17 @@ end; // CREATE
 procedure TForm_FindReplace.FormActivate(Sender: TObject);
 var
   enableReplace: boolean;
+  Editor: TKntRichEdit;
+  Folder: TKntFolder;
+  SearchInNotes: boolean;
 begin
   if assigned( myNotifyProc ) then
     myNotifyProc( false );
 
-  if Initializing then
-  begin
+  Editor:= ActiveEditor;
+  Folder:= TKntFolder(ActiveEditor.FolderObj);
+
+  if Initializing then begin
     Initializing := false;
     OptionsToForm;
     Button_Find.Enabled := ( Combo_Text.Text <> '' );
@@ -165,13 +172,19 @@ begin
     end;
   end
   else begin
-      if not myFindOptions.AllTabs_FindReplace then
-         if (ActiveKntFolder <> StartFolder) or
-            (not myFindOptions.AllNodes) and (ActiveKntFolder.TV.Selected <> StartNode) then
-              myFindOptions.FindNew := true;
+     if not myFindOptions.AllTabs_FindReplace and assigned(Folder) then
+        if (Folder <> StartFolder) or
+           (not myFindOptions.AllNodes) and (Folder.TV.Selected <> StartNode) then
+             myFindOptions.FindNew := true;
   end;
 
-  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true) then begin
+  SearchInNotes:= assigned(Folder);
+  CheckBox_AllTabs.Enabled:= SearchInNotes;
+  CheckBox_AllNodes.Enabled := SearchInNotes;
+  CheckBox_HiddenNodes.Enabled := SearchInNotes;
+
+
+  if not App.CheckActiveEditorNotReadOnly then begin
      modeReplace:= False;
      Tab_Replace.Enabled:= False;
   end
@@ -186,14 +199,14 @@ begin
 
 
   myFindOptions.SelectedText:= False;
-  if ( ActiveKntFolder.Editor.SelLength > 0 ) then begin
+  if ( Editor.SelLength > 0 ) then begin
       CheckBox_SelectedText.Enabled:= True;
-      myFindOptions.SelectedText:= not IsWord(Trim(ActiveKntFolder.Editor.SelText));
+      myFindOptions.SelectedText:= not IsWord(Trim(Editor.SelText));
   end
   else
       CheckBox_SelectedText.Enabled:= False;
   CheckBox_SelectedText.Checked:= myFindOptions.SelectedText;
-  
+
 end; // ACTIVATE
 
 procedure TForm_FindReplace.FormCloseQuery(Sender: TObject;
@@ -211,6 +224,7 @@ begin
       )) then
     begin
       key := 0;
+      UserBreak:= True;
       OK_Click := false;
       Close;
     end;

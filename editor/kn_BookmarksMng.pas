@@ -44,7 +44,8 @@ uses
   kn_Global,
   kn_Main,
   kn_LocationObj,
-  kn_LinksMng
+  kn_LinksMng,
+  knt.App
   ;
 
 resourcestring
@@ -71,12 +72,12 @@ procedure BookmarkAdd( const Number : integer );
 var
   aLocation : TLocation;
 begin
-  if  not (Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder )) then exit;
+  if  not (Form_Main.HaveKntFolders( true, true ) and assigned( ActiveFolder )) then exit;
 
   BookmarkClear( Number );
 
   aLocation:= TLocation.Create;
-  ActiveKntFolder.Editor.SelLength:= 0;
+  ActiveFolder.Editor.SelLength:= 0;
   InsertOrMarkKNTLink( aLocation, false, '', Number + 1 );            // Bookmark0-9 -> [1-10]
   RegisterBookmark(Number, aLocation);
 

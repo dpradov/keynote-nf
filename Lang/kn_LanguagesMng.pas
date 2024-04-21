@@ -52,7 +52,8 @@ uses
    kn_info,
    kn_Const,
    kn_global,
-   kn_Main;
+   kn_Main,
+   knt.App;
 
 
 resourcestring

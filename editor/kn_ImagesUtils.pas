@@ -34,13 +34,10 @@ uses
    Vcl.ComCtrls,
    Vcl.Clipbrd,
    SynGdiPlus,
-   RxRichEd,
    gf_streams,
    gf_miscvcl,
-   kn_Const,
-   kn_KntNote,
-   kn_KntFolder,
-   kn_LocationObj;
+   kn_Const
+   ;
 
 
 
@@ -48,10 +45,10 @@ uses
 
   // ----------------
   function  String2Hex (const Buffer: AnsiString): AnsiString;
-  
+
   function  BinToHexString (const Stream: TMemoryStream): AnsiString; overload;
-  procedure BinToHexString (const Stream: TMemoryStream; 
-                            var StringToAppend: AnsiString; 
+  procedure BinToHexString (const Stream: TMemoryStream;
+                            var StringToAppend: AnsiString;
                             ExtraLength: Integer= 0); overload;
 
   procedure HexStringToBin (const HexStr: AnsiString; 
@@ -67,11 +64,11 @@ uses
   // ----------------
   function GetImageFormat (Stream: TMemoryStream): TImageFormat;
   function GetGDIPPictureType (Format: TImageFormat): TGDIPPictureType;
-  
+
   // ----------------
   function PixelsToHundredthMM (Pixels: integer): integer; inline;
   function HundredthMMToPixels (HundredthMM: integer): integer; inline;
-    
+
   function  ImgStreamToMetafile (Stream: TMemoryStream; PixelFormat: TPixelFormat= pfCustom): TMetaFile;
   procedure MetafileToWMFStream (MF: TMetaFile; Stream: TMemoryStream);
   
@@ -133,15 +130,9 @@ uses  System.DateUtils,
       CRC32,
       gf_misc,
       gf_strings,
-      kn_ClipUtils,
       kn_info,
-      kn_Main,
       kn_Global,
-      kn_TreeNoteMng,
-      kn_RTFUtils,
-      kn_LinksMng,
-      kn_VCLControlsMng,
-      kn_EditorUtils
+      knt.App
       ;
 
 resourcestring
@@ -711,12 +702,12 @@ begin
       if (KeyOptions.ImgMaxAutoWidthGoal > 0) then
           MaxWidth:= KeyOptions.ImgMaxAutoWidthGoal
       else begin
-          MaxWidth:= ActiveKntFolder.Editor.Width;
-          Zoom:= GetEditorZoom(ActiveKntFolder.Editor);
+          MaxWidth:= ActiveEditor.Width;
+          Zoom:= ActiveEditor.GetZoom();
           MaxWidth:= Round(MaxWidth / (Zoom / 100));
           AuxW:= Round(20 / (Zoom / 100)) +10;
 
-          if Form_Main.MMAlternativeMargins.Checked then
+          if KeyOptions.AltMargins then
              Dec(MaxWidth, KeyOptions.MarginAltLeft + KeyOptions.MarginAltRight + AuxW)
           else
              Dec(MaxWidth, AuxW);

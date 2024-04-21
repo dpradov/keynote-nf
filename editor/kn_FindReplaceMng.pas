@@ -53,15 +53,15 @@ function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 procedure RunFindAllEx;
 procedure RunReplace;
 procedure RunReplaceNext;
-procedure FindEventProc( sender : TObject );
-procedure ReplaceEventProc( ReplaceAll : boolean );
-procedure Form_FindReplaceClosed( sender : TObject );
-procedure FindResultsToEditor( const SelectedOnly : boolean );
-procedure UpdateFindAllResultsWidth;
+
 procedure ClearFindAllResults;
+procedure UpdateFindAllResultsWidth;
+procedure FindResultsToEditor( const SelectedOnly : boolean );
+
+procedure FindAllResults_SelectMatch (Prev: boolean);
 procedure FindAllResults_OnSelectionChange(Editor: TRxRichEdit);
 procedure FindAllResults_RightClick (CharIndex: integer);
-procedure FindAllResults_SelectMatch (Prev: boolean);
+
 
 implementation
 uses
@@ -75,22 +75,30 @@ uses
    kn_KntNote,
    kn_LocationObj,
    kn_EditorUtils,
+   knt.ui.editor,
    kn_RTFUtils,
    kn_VCLControlsMng,
    kn_TreeNoteMng,
    kn_MacroMng,
    kn_NoteFileMng,
    kn_LinksMng,
-   kn_Main
+   kn_Main,
+   knt.App
    ;
 
 var
    NumberFoundItems: integer;
+   SearchOriginNew : integer;
    EditControl: TRxRichEdit;
    LastResultCellWidth: string;
    SelectedMatch: integer;          // < 0: In the process of identify the selectedMatch
    FollowMatch: boolean;
    LastFindNextAt: TDateTime;
+
+   ReplacingLastNode: TTreeNTNode;                 // ReplaceLastSearchedNode ReplaceLastNode
+   ReplacingLastNodeHasRegImg: Boolean;
+   SearchingFolder: TKntFolder;
+   SearchingInEditor: TKntRichEdit;
 
 
 resourcestring
@@ -109,17 +117,29 @@ resourcestring
   STR_13 = ' matches';
 
 
+function RunFindNextInNotes (Is_ReplacingAll: Boolean= False): boolean; forward;
+function RunFindNextInEditor (Is_ReplacingAll: Boolean= False): boolean; forward;
+
+procedure FindEventProc( sender : TObject ); forward;
+procedure ReplaceEventProc( ReplaceAll : boolean ); forward;
+procedure Form_FindReplaceClosed( sender : TObject ); forward;
+
+
+
 procedure RunFindReplace (modeReplace: boolean);
+var
+  Editor: TKntRichEdit;
 begin
-  if ( not Form_Main.HaveKntFolders( true, true )) then exit;
-  if ( not assigned( ActiveKntFolder )) then exit;
+  if not App.CheckActiveEditor then exit;
   if ( FileIsBusy or SearchInProgress ) then exit;
 
-  if ( ActiveKntFolder.Editor.SelLength > 0 ) then
-     FindOptions.Pattern := trim( ActiveKntFolder.Editor.SelVisibleText )
+  Editor:= ActiveEditor;
+
+  if ( Editor.SelLength > 0 ) then
+     FindOptions.Pattern := trim( Editor.SelVisibleText )
   else
      if FindOptions.WordAtCursor then
-        FindOptions.Pattern := ActiveKntFolder.Editor.GetWordAtCursor( true );
+        FindOptions.Pattern := Editor.GetWordAtCursor( true );
 
   FindOptions.FindAllMatches := false; // only TRUE when invoked from resource panel
 
@@ -164,7 +184,7 @@ end;
 
 procedure RunReplaceNext;
 begin
-  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+  if not App.CheckActiveEditorNotReadOnly then exit;
 
   ReplaceEventProc(false);
 end; // RunReplaceNext
@@ -175,10 +195,10 @@ var
   i, cnt : integer;
   aLocation: TLocation;
   CaretInKNTLinksBAK: boolean;
+  Editor: TKntRichEdit;
 begin
   if ( not Form_Main.Pages_Res.Visible ) then exit;
-  if ( not assigned( ActiveKntFolder )) then exit;
-  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+  if not App.CheckActiveEditorNotReadOnly then exit;
 
   cnt := Location_List.Count;
   if ( cnt = 0 ) then
@@ -186,6 +206,8 @@ begin
     showmessage( STR_05 );
     exit;
   end;
+
+  Editor:= ActiveEditor;
 
   CaretInKNTLinksBAK:= TreeOptions.CaretInKNTLinks;
   TreeOptions.CaretInKNTLinks:= True;
@@ -198,12 +220,12 @@ begin
       else begin
         for i := 1 to cnt do begin
           aLocation:= TLocation( TLocation( Location_List.Objects[pred( i )] ));
-          ActiveKntFolder.Editor.SelText := #13 + Format( '%d. ', [i] );
-          ActiveKntFolder.Editor.SelStart:= ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength;
+          Editor.SelText := #13 + Format( '%d. ', [i] );
+          Editor.SelStart:= Editor.SelStart + Editor.SelLength;
           InsertOrMarkKNTLink(aLocation, true, '');
         end;
       end;
-      ActiveKntFolder.Editor.SelLength := 0;
+      Editor.SelLength := 0;
 
   finally
     TreeOptions.CaretInKNTLinks:= CaretInKNTLinksBAK;
@@ -430,7 +452,7 @@ begin
     //     of the context recovered by the left ( #26; SUB Substitute )
     Result:= Copy(Str, pL, pR-pL+1);
     Result[pPos-pL+1]:= #26;                           // *1
-    Result:= RemoveKNTHiddenCharacters(Result);
+    Result:= RemoveKNTHiddenCharactersInText(Result);
     Result:= ScapeSpecialRTFCharacters(Result);
     Result:= StringReplace(Result, #7, ' | ', [rfReplaceAll]);    // Replace column separator in Tables
 
@@ -503,28 +525,6 @@ end;
 
 
 
-{
-// Preparar el editor (TTabRichEdit) al que preguntaremos por el texto buscado
-procedure PrepareEditControl(myFolder: TKntFolder; myTreeNode: TTreeNTNode);
-var
-    myNote : TKntNote;
-begin
-    if (myFolder.Kind <> ntTree)  or ((myFolder = ActiveKntFolder) and (ActiveKntFolder.TV.Selected = myTreeNode)) then begin
-        if myFolder.Editor.Modified or (myFolder.NoteTextPlain = '') then
-            myFolder.EditorToDataStream;
-        EditControl:= myFolder.Editor
-    end
-    else begin
-       // Get the actual node's object and transfer its RTF data to temp editor
-        myNote := TKntNote( myTreeNode.Data );
-        myNote.Stream.Position := 0;
-        EditControl:= GetAuxEditorControl;              // It will create if it's necessary (lazy load)
-        EditControl.Lines.LoadFromStream( myNote.Stream );
-    end;
-end;
-}
-
-
 
 {
   New in 1.8.0:
@@ -574,7 +574,7 @@ var
   SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
   str, s, path, strLocationMatch, strNodeFontSize, strNumberingFontSize, strBgColor: string;
   widthTwips: integer;
-  RTFAux : TTabRichEdit;
+  RTFAux : TAuxRichEdit;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -682,7 +682,7 @@ type
           if FindOptions.AllTabs then begin
              inc( noteidx );
 
-             if ( noteidx >= KntFile.NoteCount ) then
+             if ( noteidx >= ActiveFile.NoteCount ) then
                 FindDone := true
              else begin
                 myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject);
@@ -791,12 +791,12 @@ type
 begin
 
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
-  if ( not assigned( ActiveKntFolder )) then exit;
+  if ( not assigned( ActiveFolder )) then exit;
   if ( FileIsBusy or SearchInProgress ) then exit;
 
   if ( Form_Main.Combo_ResFind.Text = '' ) then exit;
 
-  oldActiveFolder:= ActiveKntFolder; // [dpv] For use if ApplyFilter=true
+  oldActiveFolder:= ActiveFolder; // [dpv] For use if ApplyFilter=true
 
   Form_Main.CloseNonModalDialogs;
 
@@ -867,7 +867,7 @@ begin
   Form_Main.FindAllResults.BeginUpdate;
 
   wordList := TStringList.Create;
-  RTFAux:= CreateRTFAuxEditorControl;
+  RTFAux:= CreateAuxRichEdit;
 
 
   try
@@ -894,7 +894,7 @@ begin
       if FindOptions.AllTabs then
          myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject) // initially 0
       else
-         myFolder := ActiveKntFolder; // will exit after one loop
+         myFolder := ActiveFolder; // will exit after one loop
 
       if FindOptions.CurrentNodeAndSubtree then
          GetCurrentNode
@@ -924,8 +924,7 @@ begin
                   FindPatternInText(true);
                 end;
 
-                if assigned(myTreeNode) and (FindOptions.SearchScope <> ssOnlyNodeName) then begin         // TODO - FALTA COMPROBACION assigned(myTreeNode) - REVISAR CON rev. anterior
-                   // PrepareEditControl(myFolder, myTreeNode);
+                if assigned(myTreeNode) and (FindOptions.SearchScope <> ssOnlyNodeName) then begin
                    TextPlainBAK:= myFolder.PrepareTextPlain(myTreeNode, RTFAux);
                    TextPlain:= TextPlainBAK;
                    if not FindOptions.MatchCase then
@@ -945,16 +944,17 @@ begin
 
             if ApplyFilter and nodesSelected then begin
                Form_Main.FilterApplied(myFolder);
-               ActiveKntFolder:= nil;      // -> TreeNodeSelected will exit doing nothing
+
+               ActiveFolder:= nil;      // -> TreeNodeSelected will exit doing nothing    ToDO: Not use ActiveFolder for this...
                HideFilteredNodes (myFolder);
-               ActiveKntFolder:= myFolder;
+
                myTreeNode := myFolder.TV.Items.GetFirstNode;
                if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;
                myFolder.TV.Selected:= nil;
                myFolder.TV.Selected:= myTreeNode;   // force to select -> TreeNodeSelected
+               ActiveFolder:= myFolder;
 
                KntFile.Modified := true;
-               UpdateKntFileState( [fscModified] );
                myTreeNode:= nil;
             end;
 
@@ -963,6 +963,7 @@ begin
 
       until FindDone or UserBreak;
 
+      UpdateKntFileState( [fscModified] );
 
       MatchCount := Location_List.Count;
       Form_Main.LblFindAllNumResults.Caption:= MatchCount.ToString + STR_13;
@@ -1029,8 +1030,8 @@ begin
     end;
 
   finally
-    ActiveKntFolder:= oldActiveFolder;
-    UpdateNoteDisplay;
+    ActiveFolder:= oldActiveFolder;
+    UpdateFolderDisplay;
 
     // restore previous FindOptions settings
     FindOptions.AllNodes := oldAllNodes;
@@ -1156,7 +1157,7 @@ begin
    (See problem described here: https://github.com/dpradov/keynote-nf/issues/602#issuecomment-1704371949)
  }
 
- 
+
 
   {
   #$D
@@ -1210,6 +1211,7 @@ end;
 
 procedure DoFindNext;
 begin
+   SearchingFolder:= nil;
    if (FindOptions.ResetNextAftN > 0) then begin
        if (incSecond(LastFindNextAt, FindOptions.ResetNextAftN) < now) then begin
           FindOptions.FindNew:= true;
@@ -1226,8 +1228,20 @@ end;
 
 
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
+begin
+   if ActiveEditor = nil then exit(false);
+
+   if ActiveEditor.NoteObj <> nil then
+      Result:= RunFindNextInNotes (Is_ReplacingAll)
+   else
+      Result:= RunFindNextInEditor (Is_ReplacingAll);
+end;
+
+
+function RunFindNextInNotes (Is_ReplacingAll: Boolean= False): boolean;
 var
   myFolder : TKntFolder;
+  Editor: TKntRichEdit;
   myTreeNode : TTreeNTNode;
   FindDone, Found : boolean;
   PatternPos : integer;
@@ -1238,8 +1252,7 @@ var
   l1, l2: integer;
   SizeInternalHiddenText: integer;
   TextPlain: string;
-  RTFAux: TTabRichEdit;
-
+  RTFAux: TAuxRichEdit;
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -1302,7 +1315,7 @@ var
 
   end;
 
-  procedure GetNextNote();
+  procedure GetNextFolder();
   var
      tabidx : integer;
      wrap: boolean;
@@ -1332,26 +1345,31 @@ var
 
   procedure SelectPatternFound();
   begin
-      if (myFolder <> ActiveKntFolder) then
-      begin
-        with Form_Main do begin
-          Pages.ActivePage := myFolder.TabSheet;
-          PagesChange( Pages );
-        end;
-      end;
+      if (myFolder <> ActiveFolder) then
+         App.ActivateFolder(myFolder);
 
-      if ActiveKntFolder.TV.Selected <> myTreeNode then begin
+      if myFolder.TV.Selected <> myTreeNode then begin
          myTreeNode.MakeVisible;  // Could be hidden
-         ActiveKntFolder.TV.Selected := myTreeNode;
+         myFolder.TV.Selected := myTreeNode;
       end;
 
-      SearchCaretPos (myFolder, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1), false);
+      SearchCaretPos (myFolder.Editor, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1), false, ReplacingLastNodeHasRegImg);
+  end;
+
+  procedure UpdateReplacingLastNodeHasRegImg;
+  begin
+      if Is_ReplacingAll and (myTreeNode <> ReplacingLastNode) then begin
+         if not Editor.SupportsRegisteredImages then
+            ReplacingLastNodeHasRegImg:= false
+         else
+            ReplacingLastNodeHasRegImg:= Editor.ContainsRegisteredImages;
+         ReplacingLastNode:= myTreeNode;
+      end;
   end;
 
 
 begin
   result := false;
-  if ( not ( Form_Main.HaveKntFolders( true, true ) and assigned( ActiveKntFolder ))) then exit;
   if ( SearchInProgress or FileIsBusy or ( Text_To_Find = '' )) then exit;
 
 
@@ -1377,30 +1395,40 @@ begin
 
   Form_Main.StatusBar.Panels[PANEL_HINT].text := STR_07;
 
-  RTFAux:= CreateRTFAuxEditorControl;
+  RTFAux:= CreateAuxRichEdit;
   SearchInProgress := true;
   try
     try
+      myFolder:= nil;
+      if not FindOptions.FindNew then
+         myFolder:= SearchingFolder;
+      if not assigned(myFolder) then begin
+         myFolder := ActiveFolder;
+         SearchingFolder:= myFolder;
+      end;
+      if not assigned(myFolder) then exit;
 
-      myFolder := ActiveKntFolder;
+      Editor:= myFolder.Editor;
       myTreeNode := myFolder.TV.Selected;
+
+      UpdateReplacingLastNodeHasRegImg;
 
       // Identificación de la posición de inicio de la búsqueda ---------------------------
       if ( FindOptions.FindNew and FindOptions.EntireScope ) then
           SearchOrigin := 0
-      else begin
-          TextPlain:= myFolder.PrepareTextPlain(myTreeNode, RTFAux);
-          SearchOrigin := ActiveKntFolder.Editor.SelStart;
-          SearchOrigin:= PositionInImLinkTextPlain (myFolder, myTreeNode, SearchOrigin);
 
-          l1:= length(ActiveKntFolder.Editor.SelVisibleText);
+      else begin
+          SearchOrigin := Editor.SelStart;
+          if ReplacingLastNodeHasRegImg then
+             SearchOrigin:= PositionInImLinkTextPlain (myFolder, myTreeNode, SearchOrigin);
+
+          l1:= length(Editor.SelVisibleText);
           if l1 = length( Text_To_Find)  then begin
-             l2:= length(ActiveKntFolder.Editor.SelText);
+             l2:= length(Editor.SelText);
              if l1 = l2 then
                 inc(SearchOrigin)
              else
                  SearchOrigin:= SearchOrigin + l2;
-
           end;
       end;
 
@@ -1417,7 +1445,13 @@ begin
       // o incluso continuar buscando desde el punto de partida, de manera cíclica.
 
       repeat
-            TextPlain:= myFolder.PrepareTextPlain(myTreeNode, RTFAux);
+            UpdateReplacingLastNodeHasRegImg;
+
+            if ReplacingLastNodeHasRegImg then
+               TextPlain:= myFolder.PrepareTextPlain(myTreeNode, RTFAux)
+            else
+               TextPlain:= myFolder.GetTextPlainFromNode(myTreeNode, RTFAux);
+
             if FindOptions.MatchCase then
                PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
             else
@@ -1434,7 +1468,7 @@ begin
             if PatternPos < 0 then begin
                GetNextNode;                 // Podrá actualizar FindDone
                while (not FindDone) and (not assigned(myTreeNode)) do
-                   GetNextNote();
+                   GetNextFolder();
             end;
             Application.ProcessMessages;    // Para permitir que el usuario cancele (UserBreak)
 
@@ -1460,7 +1494,8 @@ begin
 
   finally
       if Found then begin
-          Form_Main.StatusBar.Panels[PANEL_HINT].text := Format(STR_09, [PatternPos, NumberFoundItems]);
+          if not Is_ReplacingAll then
+             Form_Main.StatusBar.Panels[PANEL_HINT].text := Format(STR_09, [PatternPos, NumberFoundItems]);
           if IsRecordingMacro then
              AddMacroEditCommand( ecFindText );
       end
@@ -1470,6 +1505,8 @@ begin
              DoMessageBox(Format( STR_02, [Text_To_Find] ), STR_12, 0, handle);
       end;
 
+      SearchingFolder:= myFolder;
+      SearchingInEditor:= myFolder.Editor;
       result := Found;
       SearchInProgress := false;
       UserBreak := false;
@@ -1479,17 +1516,159 @@ begin
 end; // RunFindNext;
 
 
+function RunFindNextInEditor (Is_ReplacingAll: Boolean= False): boolean;
+var
+  Editor: TKntRichEdit;
+  FindDone, Found : boolean;
+  PatternPos : integer;
+  SearchOrigin : integer;
+  SearchOpts : TRichSearchTypes;
+  handle: HWND;
+
+  l1, l2: integer;
+  SizeInternalHiddenText: integer;
+  TextPlain: string;
+
+  function LoopCompleted(Wrap: boolean): Boolean;
+  begin
+     Result:= True;
+      if Wrap and (SearchOrigin < SearchOriginNew ) and (NumberFoundItems > 0) then begin    // Wrap será siempre false si Is_ReplacingAll = True
+         Result:= False;
+         NumberFoundItems:= 0;
+      end;
+  end;
+
+  procedure SelectPatternFound();
+  begin
+     SearchCaretPos (Editor, nil, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1), false);
+  end;
+
+
+begin
+  result := false;
+  if not App.CheckActiveEditor then exit;
+
+  if ( SearchInProgress or FileIsBusy or ( Text_To_Find = '' )) then exit;
+
+  if assigned( Form_FindReplace ) then
+      handle:= Form_FindReplace.Handle
+  else
+      handle:= 0;
+
+  FindOptions.FindAllMatches := false; // only TRUE when invoked from resource panel
+  Found := false;
+
+  PatternPos := -1;
+
+  if FindOptions.WholeWordsOnly then
+     SearchOpts := [stWholeWord]
+  else
+     SearchOpts := [];
+
+  if FindOptions.MatchCase then
+     SearchOpts := SearchOpts + [stMatchCase];
+
+  Form_Main.StatusBar.Panels[PANEL_HINT].text := STR_07;
+
+
+  SearchInProgress := true;
+
+  try
+    try
+
+      Editor:= ActiveEditor;
+      SearchingInEditor:= Editor;
+      TextPlain:= Editor.TextPlain();
+
+      if ( FindOptions.FindNew and FindOptions.EntireScope ) then
+          SearchOrigin := 0
+
+      else begin
+          SearchOrigin := Editor.SelStart;
+
+          l1:= length(Editor.SelVisibleText);
+          if l1 = length( Text_To_Find)  then begin
+             l2:= length(Editor.SelText);
+             if l1 = l2 then
+                inc(SearchOrigin)
+             else
+                 SearchOrigin:= SearchOrigin + l2;
+          end;
+      end;
+
+      if FindOptions.FindNew then begin
+         NumberFoundItems:= 0;
+         FindOptions.FindNew := False;
+         SearchOriginNew:= SearchOrigin;
+      end;
+
+      repeat
+         if FindOptions.MatchCase then
+            PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
+         else
+            PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText) -1;
+
+         if PatternPos < 0 then begin
+            var Wrap: boolean := FindOptions.Wrap and not Is_ReplacingAll;
+            FindDone:= True;
+            if not (FindOptions.SelectedText or not Wrap or LoopCompleted(Wrap)) then begin
+               FindDone:= False;
+               SearchOrigin := 0;
+            end;
+         end;
+
+      until FindDone or (PatternPos >= 0) or UserBreak;
+
+      if ( PatternPos >= 0 ) then begin
+          Found := true;
+          FindOptions.FindNew := false;
+          inc(NumberFoundItems);
+          SelectPatternFound();
+      end;
+
+    except
+      on E: Exception do begin
+          PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK], 0 );
+          exit;
+      end;
+    end;
+
+  finally
+      if Found then begin
+          if not Is_ReplacingAll then
+             App.ShowInfoInStatusBar(Format(STR_09, [PatternPos, NumberFoundItems]));
+          if IsRecordingMacro then
+             AddMacroEditCommand( ecFindText );
+      end
+      else begin
+          App.ShowInfoInStatusBar(STR_10);
+          if not Is_Replacing then
+             DoMessageBox(Format( STR_02, [Text_To_Find] ), STR_12, 0, handle);
+      end;
+
+      result := Found;
+      SearchInProgress := false;
+  end;
+
+end; // RunFindNextInEditor;
+
+
+
 procedure FindEventProc( sender : TObject );
 var
    autoClose: boolean;
+   ResultFind: boolean;
 begin
-  if assigned( Form_FindReplace ) then
-  begin
+  if assigned( Form_FindReplace ) then begin
       FindOptions := Form_FindReplace.MyFindOptions;
       Text_To_Find := FindOptions.Pattern;
       autoClose:= FindOptions.AutoClose and not Form_FindReplace.ModeReplace;
-      if RunFindNext then
-      begin
+      if ActiveEditor.NoteObj <> nil then
+         ResultFind:= RunFindNext
+      else
+         ResultFind:= RunFindNextInEditor;
+
+      if ResultFind then begin
           Form_FindReplace.MyFindOptions := FindOptions; // must preserve .FindNew field
           if autoClose then
             Form_FindReplace.Close
@@ -1514,36 +1693,42 @@ var
   txtMessage: string;
   handle: HWND;
   AppliedBeginUpdate: Boolean;
+  Editor: TKntRichEdit;
 
 
-  procedure BeginUpdateOnNotes;
+  procedure BeginUpdateOnFolders;
   var
      i: integer;
      folder: TKntFolder;
   begin
      AppliedBeginUpdate:= True;
-     for i := 0 to Form_Main.Pages.PageCount - 1 do
-     begin
-          folder:= TKntFolder(Form_Main.Pages.Pages[i].PrimaryObject);
+
+     if Editor.NoteObj = nil then begin
+        Editor.BeginUpdate;
+        exit;
+     end;
+
+     for i := 0 to ActiveFile.Folders.Count-1 do begin
+          folder:= ActiveFile.Folders[i];
           folder.Editor.BeginUpdate;
-          folder.Editor.OnSelectionChange := nil;
-          folder.Editor.Visible:= False;
      end;
   end;
 
-  procedure EndUpdateOnNotes;
+  procedure EndUpdateOnFolders;
   var
      i: integer;
      folder: TKntFolder;
   begin
      if not AppliedBeginUpdate then exit;
 
-     for i := 0 to Form_Main.Pages.PageCount - 1 do
-     begin
-        folder:= TKntFolder(Form_Main.Pages.Pages[i].PrimaryObject);
+     if Editor.NoteObj = nil then begin
+        Editor.EndUpdate;
+        exit;
+     end;
+
+     for i := 0 to ActiveFile.Folders.Count-1 do begin
+        folder:= ActiveFile.Folders[i];
         folder.Editor.EndUpdate;
-        folder.Editor.OnSelectionChange := Form_Main.RxRTFSelectionChange;
-        folder.Editor.Visible:= True;
      end;
      AppliedBeginUpdate:= False;
   end;
@@ -1560,7 +1745,7 @@ var
              mrAll:  begin
                      Result := true;
                      FindOptions.ReplaceConfirm := false;
-                     BeginUpdateOnNotes;
+                     BeginUpdateOnFolders;
                      screen.Cursor := crHourGlass;
                      end;
              mrCancel: begin
@@ -1578,20 +1763,20 @@ var
     WordAtCursor: string;
     SelectedTextLength: integer;
   begin
-      SelectedTextLength:= ActiveKntFolder.Editor.SelLength;
+      SelectedTextLength:= Editor.SelLength;
 
       Result:= (SelectedTextLength > 0);
       if Result then begin
          if FindOptions.WholeWordsOnly then begin
-             WordAtCursor:= ActiveKntFolder.Editor.GetWordAtCursor( false, true );
+             WordAtCursor:= Editor.GetWordAtCursor( false, true );
              if length(WordAtCursor) <> SelectedTextLength then
                 Result:= False;
          end;
          if Result then
             if FindOptions.MatchCase then
-               Result:= (ActiveKntFolder.Editor.SelText = Text_To_Find)
+               Result:= (Editor.SelText = Text_To_Find)
             else
-               Result:= AnsiSameText(ActiveKntFolder.Editor.SelText, Text_To_Find);
+               Result:= AnsiSameText(Editor.SelText, Text_To_Find);
          end;
   end;
 
@@ -1604,6 +1789,10 @@ begin
   else
      handle:= 0;
 
+  SearchingFolder:= ActiveFolder;
+  SearchingInEditor:= ActiveEditor;
+  Editor:= SearchingInEditor;
+
   ReplaceCnt := 0;
   Text_To_Find := FindOptions.Pattern;
   Original_Confirm := FindOptions.ReplaceConfirm;
@@ -1611,6 +1800,8 @@ begin
 
   Is_Replacing := true;
   AppliedBeginUpdate:= False;
+  ReplacingLastNode:= nil;
+  ReplacingLastNodeHasRegImg:= true;
 
   try
     DoReplace:= True;
@@ -1618,8 +1809,8 @@ begin
     // Verificamos si hay que restringir la búsqueda a la selección actual
     if FindOptions.FindNew then begin
         if ReplaceAll and FindOptions.SelectedText then begin
-           FindOptions.SelectionStart:= ActiveKntFolder.Editor.SelStart;
-           FindOptions.SelectionEnd:= FindOptions.SelectionStart + ActiveKntFolder.Editor.SelLength;
+           FindOptions.SelectionStart:= Editor.SelStart;
+           FindOptions.SelectionEnd:= FindOptions.SelectionStart + Editor.SelLength;
            FindOptions.EntireScope := False;
         end;
     end;
@@ -1632,13 +1823,14 @@ begin
        SelectedTextToReplace:= IdentifySelectedTextToReplace
     else
         if not FindOptions.ReplaceConfirm then begin
-           BeginUpdateOnNotes;
+           BeginUpdateOnFolders;
            screen.Cursor := crHourGlass;
         end;
 
 
     if not SelectedTextToReplace then begin
        SelectedTextToReplace:= RunFindNext(ReplaceAll);
+       Editor:= SearchingInEditor;
        if not ReplaceAll then
           DoReplace:= False;   // Lo dejaremos seleccionado pero no lo reemplazaremos. El usuario no ha llegado
                                //a ver ese texto y debe confirmarlo pulsando conscientemente en Replace (el
@@ -1647,25 +1839,26 @@ begin
 
 
     if DoReplace then begin
-
-        while SelectedTextToReplace do
-        begin
+        while SelectedTextToReplace do begin
             try
                 // ¿Hay que restringirse al texto inicialmente seleccionado?
                 if ReplaceAll and FindOptions.SelectedText then
-                   if (ActiveKntFolder.Editor.SelStart < FindOptions.SelectionStart) or
-                     ((ActiveKntFolder.Editor.SelStart + ActiveKntFolder.Editor.SelLength) > FindOptions.SelectionEnd) then
+                   if (Editor.SelStart < FindOptions.SelectionStart) or
+                     ((Editor.SelStart + Editor.SelLength) > FindOptions.SelectionEnd) then
                        break;
 
                 if GetReplacementConfirmation then begin
                    inc(ReplaceCnt);
-                   ActiveKntFolder.Editor.AddText(FindOptions.ReplaceWith);
+                   Editor.AddText(FindOptions.ReplaceWith);
+                   if Editor.NoteObj <> nil then
+                      App.NoteModified(TKntNote(Editor.NoteObj), TKntFolder(Editor.FolderObj), false);   // false: don't update UI
                 end;
 
                 Application.ProcessMessages;
                 if UserBreak then break;
 
                 SelectedTextToReplace:= RunFindNext(ReplaceAll);     // Localizamos el siguiente patrón a remplazar
+                Editor:= SearchingInEditor;
 
                 if (not ReplaceAll) then break;          // Dejamos simplemente localizado el texto si no ReplaceAll
 
@@ -1681,7 +1874,7 @@ begin
 
   finally
     screen.Cursor := crDefault;
-    EndUpdateOnNotes;
+    EndUpdateOnFolders;
     Is_Replacing := false;
     UserBreak := false;
     FindOptions.ReplaceConfirm := Original_Confirm;
@@ -1691,8 +1884,11 @@ begin
   txtMessage:= Format( STR_11, [ReplaceCnt] );
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := txtMessage;
   if ( ReplaceCnt > 0 ) then begin
-     if ReplaceAll then DoMessageBox(txtMessage, STR_12, 0, handle);
-     KntFile.Modified := true;
+     if ReplaceAll then begin
+        Editor.SelLength:= 0;
+        DoMessageBox(txtMessage, STR_12, 0, handle);
+     end;
+     App.ActivateFolder(ActiveFolder);
      UpdateKntFileState( [fscModified] );
      end
   else

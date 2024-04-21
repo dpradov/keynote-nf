@@ -75,7 +75,8 @@ uses
    gf_strings,
    kn_global,
    kn_ExportImport,
-   kn_RTFUtils
+   kn_RTFUtils,
+   knt.App
    ;
 
 

@@ -53,7 +53,8 @@ uses
    kn_Main,
    kn_FavExtDlg,
    kn_TreeNoteMng,
-   kn_LinksMng;
+   kn_LinksMng,
+   knt.App;
 
 
 resourcestring
@@ -281,13 +282,11 @@ begin
 
   myNote := nil; // eliminate compiler warning
 
-  if AsExternal then
-  begin
+  if AsExternal then begin
 
     Form_FavExt := TForm_FavExt.Create( Form_Main );
     try
-      if ( Form_FavExt.ShowModal = mrOK ) then
-      begin
+      if ( Form_FavExt.ShowModal = mrOK ) then begin
         extFilename := NormalFN( Form_FavExt.Edit_FN.Text );
         if ( extFilename = '' ) then exit;
         extParams := Form_FavExt.Edit_Params.Text;
@@ -296,25 +295,22 @@ begin
           name := ExtractFilename( extFilename );
       end
       else
-      begin
         exit;
-      end;
     finally
       Form_FavExt.Free;
     end;
 
   end
-  else
-  begin
+  else begin
     // adding a KNT location, so we must have an active note:
     if ( not Form_Main.HaveKntFolders( true, true )) then exit;
-    if ( not assigned( ActiveKntFolder )) then exit;
+    if ( not assigned( ActiveFolder )) then exit;
 
     myNote := GetCurrentNote;
     if assigned( myNote ) then
       name := myNote.Name
     else
-      name := RemoveAccelChar( ActiveKntFolder.Name );
+      name := RemoveAccelChar( ActiveFolder.Name );
 
     // confirm the name
     name := GetFavName( name );
@@ -325,56 +321,50 @@ begin
     name := trim( name );
     if ( name = '' ) then exit;
     i := Favorites_List.IndexOf( name );
-    if ( i >= 0 ) then
-    begin
-      case DoMessageBox( Format(
-        STR_08,
-        [name] ), mtError, [mbOK,mbCancel], 0 ) of
+    if ( i >= 0 ) then begin
+      case DoMessageBox(Format(STR_08, [name] ), mtError, [mbOK,mbCancel], 0 ) of
         mrOK : name := GetFavName( name );
         else
           exit;
       end;
     end
     else
-      break; // name is OK, so continue
+       break; // name is OK, so continue
   until false;
 
 
-    myFav := TLocation.Create;
-    myFav.ExternalDoc := AsExternal;
+  myFav := TLocation.Create;
+  myFav.ExternalDoc := AsExternal;
 
-    myFav.Name := name;
+  myFav.Name := name;
 
-    if AsExternal then
-    begin
-      myFav.FileName := extFilename;
-      myFav.Params := extParams;
-    end
-    else
-    begin
-      myFav.FileName := KntFile.FileName;
-      myFav.FolderName := RemoveAccelChar( ActiveKntFolder.Name );
-      myFav.FolderID := ActiveKntFolder.ID;
-      if assigned( myNote ) then
-      begin
-        myFav.NoteName := myNote.Name;
-        myFav.NoteID := myNote.ID;
-      end;
-      myFav.CaretPos := ActiveKntFolder.Editor.SelStart;
+  if AsExternal then begin
+    myFav.FileName := extFilename;
+    myFav.Params := extParams;
+  end
+  else begin
+    myFav.FileName := KntFile.FileName;
+    myFav.FolderName := RemoveAccelChar( ActiveFolder.Name );
+    myFav.FolderID := ActiveFolder.ID;
+    if assigned( myNote ) then begin
+      myFav.NoteName := myNote.Name;
+      myFav.NoteID := myNote.ID;
     end;
+    myFav.CaretPos := ActiveFolder.Editor.SelStart;
+  end;
 
-    Favorites_List.AddObject( name, myFav );
-    i := Form_Main.ListBox_ResFav.AddItem(
-            name,
-            cbUnchecked, GetFavoriteIconIndex( myFav ));
-    TItemObject( Form_Main.ListBox_ResFav.Items.Objects[i] ).Data := myFav;
+  Favorites_List.AddObject( name, myFav );
+  i := Form_Main.ListBox_ResFav.AddItem(
+          name,
+          cbUnchecked, GetFavoriteIconIndex( myFav ));
+  TItemObject( Form_Main.ListBox_ResFav.Items.Objects[i] ).Data := myFav;
 
-    SaveFavorites( FAV_FN );
+  SaveFavorites( FAV_FN );
 
-    try
-      Form_Main.ListBox_ResFav.ItemIndex := i;
-    except
-    end;
+  try
+    Form_Main.ListBox_ResFav.ItemIndex := i;
+  except
+  end;
 
 end; // AddFavorite
 

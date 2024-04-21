@@ -40,41 +40,50 @@ procedure DelimTextToStrs(
 
 
 
-function StrToCSVText( const aStr : string; const aDelim : char; const QuoteAll : boolean ) : string;
+function StrToCSVText(const aStr : string; const aDelim : char; const QuoteAll : boolean ) : string;
 procedure CSVTextToStrs(
   aList : TStrings;
   const aStr : string;
-  const aDelim : char );
+  const aDelim : char);
 
 procedure CommandLineToStrings(const CommandLine: String; Strs: TStrings);
 
-procedure SplitString( aList : TStrings; aStr : string; const aDelim : char; ignoreEmptySplit: boolean= true );
+procedure SplitString(aList : TStrings; aStr : string; const aDelim : char; ignoreEmptySplit: boolean= true);
 
-function CountChars( const ch : char; const s : string ) : integer;
-function CountNonControlCharsNoSpace( const s : string ) : integer;
-procedure CharToChar( var s : string; const oldchar, newchar : char );
-function RemoveAccelChar( const s : string ) : string;
-procedure CollapseSpaces( var s : string );
-function TrimPunct( s : string ) : string;
+function CountChars(const ch : char; const s : string) : integer;
+function CountNonControlCharsNoSpace(const s : string) : integer;
+procedure CharToChar(var s : string; const oldchar, newchar : char);
+function RemoveAccelChar(const s : string) : string;
+procedure CollapseSpaces(var s : string);
+function TrimPunct(s : string) : string;
 
-function TailMatch( const LongerString, ShorterString : string ) : boolean;
-procedure UnquoteString( var s : string );
-function StringsToString( const AStrs : TStrings; const aDelim : char; const WrapWithDelim : boolean ) : string;
+function TailMatch(const LongerString, ShorterString : string) : boolean;
+procedure UnquoteString(var s : string);
+function StringsToString(const AStrs : TStrings; const aDelim : char; const WrapWithDelim : boolean) : string;
 
 function MatchMask(source, pattern: String): Boolean;
-procedure StripControlChars( var s : string );
+procedure StripControlChars(var s : string);
 function GetWordChars : string;
 
-function ExpandMetaChars( line : string; AllowNonEscapedBackSlash: boolean = true ) : string;
+function ExpandMetaChars(line : string; AllowNonEscapedBackSlash: boolean = true) : string;
 function GetIndentOfLine (const S: string): integer;
 
 function TryUTF8ToUnicodeString(const s: RawByteString): string;
 function CanSaveAsANSI(const cad: string): boolean;
 
-function FirstLineFromString( const str: string; const MaxLen : integer ) : string;
+function FirstLineFromString(const str: string; const MaxLen : integer) : string;
 function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1): integer;
 
 function ConvertHTMLAsciiCharacters(const S: string): string;
+
+const
+  WordDelimiters = [#9, #10, #13, #32];
+
+function GetWordCount( const t : string ) : longint;
+function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
+function NumberOfLineFeed(Str: string): integer;
+
+
 
 implementation
 
@@ -779,6 +788,55 @@ begin
     Result:= S;
   end;
 
+end;
+
+
+function GetWordCount( const t : string ) : longint;
+var
+  i, len : longint;
+begin
+  len := length( t );
+  result := 0;
+  if (len > 0) then begin
+    i := 1;
+    repeat
+      if AnsiChar(t[i]) in WordDelimiters then begin
+         inc( i );
+         continue;
+      end
+      else
+        inc( result );
+
+      // scan to end of word
+      while (i <= len) and (not (AnsiChar(t[i]) in WordDelimiters)) do
+        inc( i );
+    until ( i > len );
+  end;
+end; // GetWordCount
+
+
+function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
+var
+  i: integer;
+begin
+  for i := 1 to length(s) do
+    if not ( (AnsiChar(s[i]) in WordDelimiters) or IsCharAlphaNumeric(s[i]) or (s[i]='''')) then        // ': don't ...  Normal in english words
+        Exit(true);
+
+  Result:= False;
+end;
+
+function NumberOfLineFeed(Str: string): integer;
+var
+  i: integer;
+begin
+   Result:= 0;
+   i:= 1;
+   while i <= Length(Str) do begin
+      if (Str[i] = #10) then
+         Inc(Result);
+      Inc(i);
+   end;
 end;
 
 

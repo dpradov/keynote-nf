@@ -437,7 +437,6 @@ type
 {$IFDEF RX_D3}
     FOnCloseFindDialog: TRichEditFindCloseEvent;
 {$ENDIF}
-    FUpdating: integer;                             // [dpv] For use with BeginUpdate/EndUpdate
     FOldEventMask: integer;                         // [dpv]   ,,
     function GetAutoURLDetect: Boolean;
     function GetWordSelection: Boolean;
@@ -511,6 +510,8 @@ type
 {$ENDIF}
 
   protected
+    FUpdating: integer;                             // [dpv] For use with BeginUpdate/EndUpdate
+
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWindowHandle(const Params: TCreateParams); override;
     procedure CreateWnd; override;
@@ -6826,6 +6827,7 @@ begin
         SendMessage(Handle, WM_SETREDRAW, 1, 0);                     // Allow the control to redraw itself
         SendMessage(Handle, EM_SETEVENTMASK, 0, FOldEventMask);      // Allow the control to raise event messages
         Invalidate;
+        Refresh;
     end;
 end;
 

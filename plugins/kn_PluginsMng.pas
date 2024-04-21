@@ -53,10 +53,12 @@ uses
   kn_KntFolder,
   kn_PluginBase,
   kn_EditorUtils,
+  knt.ui.editor,
   kn_Main,
   kn_NoteFileMng,
   kn_TreeNoteMng,
-  kn_VCLControlsMng
+  kn_VCLControlsMng,
+  knt.App
   ;
 
 resourcestring
@@ -278,7 +280,7 @@ var
   KNTPluginExecute : KNTPluginExecuteProc;
   KNTPluginCleanup : KNTPluginCleanupProc;
   KNTSetPluginID : KNTSetPluginIDProc;
-  myFolder : TKntFolder;
+  Editor: TKntRichEdit;
   OutData : AnsiString;                            //  For compatibility, to be changed..
   Indata : Pointer;
   s, tmpstr : AnsiString;                          // ,,
@@ -286,13 +288,22 @@ var
   LoadedPlugin : TLoadedPlugin;
   PluginReceivedSelection : boolean;
   OutDataToReturn: TOutDataToReturn;
+  FolderName: string;
 
 
 begin
   with Form_Main do begin
       result := 0;
-      if (not HaveKntFolders( true, true )) then exit;
-      if (not assigned( ActiveKntFolder )) then exit;
+      if not App.CheckActiveEditor then exit;
+      Editor:= ActiveEditor;
+
+      if Editor.ReadOnly and not assigned(ActiveFolder) then exit;
+
+      if assigned(ActiveFolder) then
+         FolderName:= ActiveFolder.Name
+      else
+         FolderName:= '';
+
 
       PluginReceivedSelection := false;
 
@@ -364,8 +375,6 @@ begin
             OutData := '';
             InData := nil;
 
-            myFolder := ActiveKntFolder;
-
             // if plugin is resident, see if it is already running and prevent from starting another instance of the same plugin
             if ( plStaysResident in Plugin.Features ) then begin
                 if ( Loaded_Plugins.IndexOf( Plugin.Name ) >= 0 ) then begin
@@ -387,13 +396,12 @@ begin
                 end;
             end;
 
-
             // Figure out what data type the plugin expects to receive
             OutDataToReturn:= odNone;
 
             if ( plGetsData in Plugin.Features ) then begin
               if ( plGetsSelection in Plugin.Features ) then begin
-                  if ( ActiveKntFolder.Editor.SelLength > 0 ) then
+                  if ( Editor.SelLength > 0 ) then
                      OutDataToReturn := odSelection          // plugin will get selected text
                   else begin
                       // no text is selected in active note
@@ -412,23 +420,23 @@ begin
             if OutDataToReturn = odSelection then begin
                PluginReceivedSelection := true;
                if ( plGetsRTF in Plugin.Features ) then
-                  OutData := ActiveKntFolder.Editor.RtfSelText
+                  OutData := Editor.RtfSelText
                else
-                  OutData := ActiveKntFolder.Editor.SelText;
+                  OutData := Editor.SelText;
             end
             else if OutDataToReturn = odAll then begin
                 PluginReceivedSelection := false;
                 if ( plGetsRTF in Plugin.Features ) then
-                   OutData := ActiveKntFolder.Editor.RtfText
+                   OutData := Editor.RtfText
                 else
-                   OutData := ActiveKntFolder.Editor.Text;
+                   OutData := Editor.Text;
             end;
 
             if OutData <> '' then begin
                if ( plGetsRTF in Plugin.Features ) then
                   OutData:= RemoveKNTHiddenCharactersInRTF (OutData, hmAll)
                else
-                  OutData:= RemoveKNTHiddenCharacters (OutData);
+                  OutData:= RemoveKNTHiddenCharactersInText (OutData);
             end;
 
 
@@ -436,15 +444,15 @@ begin
               with GetCurrentNote do
                 tmpstr := Name;
             except
-              tmpstr := myFolder.Name;
+                 tmpstr := FolderName
             end;
 
 
             result := KNTPluginExecute(
                         Application.Handle,
                         Form_Main.Handle,
-                        ActiveKntFolder.Editor.Handle,
-                        PAnsiChar(AnsiString(KntFile.FileName)),
+                        Editor.Handle,
+                        PAnsiChar(AnsiString(ActiveFile.FileName)),
                         PAnsiChar(AnsiString(tmpstr)),
                         PAnsiChar(OutData),
                         InData );
@@ -502,33 +510,33 @@ begin
 
                   // check for read-only note
                   if InsertPluginOutput then begin
-                     NoteWasReadOnly := ActiveKntFolder.ReadOnly;
+                     NoteWasReadOnly := Editor.ReadOnly;
                      if NoteWasReadOnly then
-                        InsertPluginOutput:= (MessageDlg(Format(STR_20,[ActiveKntFolder.Name]), mtWarning, [mbOK, mbCancel], 0 ) = mrOK);
+                        InsertPluginOutput:= (MessageDlg(Format(STR_20,[ActiveNote.Name]), mtWarning, [mbOK, mbCancel], 0 ) = mrOK);
                   end;
 
                   if InsertPluginOutput then begin
                       if NoteWasReadOnly then
-                         ActiveKntFolder.ReadOnly := false;
+                         ActiveFolder.ReadOnly := false;       // ToDO: Contemplar que cada nota pueda ser ReadOnly individualmente
                       try
-                        if (ImagesManager.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
-                           if ActiveKntFolder.Editor.SelLength > 0 then
-                              CheckToSelectLeftImageHiddenMark(ActiveKntFolder.Editor);
+                        if Editor.SupportsRegisteredImages then begin
+                           if Editor.SelLength > 0 then
+                              Editor.CheckToSelectLeftImageHiddenMark;
                         end;
 
                         if ( plReturnsClipboard in Plugin.Features ) then
-                           PasteBestAvailableFormat (ActiveKntFolder, false)
+                           Editor.PasteBestAvailableFormat (FolderName, false)
                         else
                         if ( plReturnsRTF in Plugin.Features ) then
-                            ActiveKntFolder.Editor.PutRtfText(s, true)
+                           Editor.PutRtfText(s, true)
                         else begin
-                            ActiveKntFolder.Editor.SelText := s;
-                            ActiveKntFolder.Editor.SelLength:= 0;
+                           Editor.SelText := s;
+                           Editor.SelLength:= 0;
                         end;
 
                       finally
                          if NoteWasReadOnly then
-                            ActiveKntFolder.ReadOnly := true;
+                            ActiveFolder.ReadOnly := true;
                       end;
                   end;
 

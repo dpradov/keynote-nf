@@ -70,7 +70,8 @@ uses
    kn_TemplateMng,
    kn_PluginsMng,
    kn_LinksMng,
-   kn_Main
+   kn_Main,
+   knt.App
    ;
 
 
@@ -99,14 +100,14 @@ begin
 
 
           if ( s = swMinimize ) then
-             opt_Minimize := true
+             App.opt_Minimize := true
           else
           {if ( s = swSetup ) then
-             opt_Setup := true
+             App.opt_Setup := true
           else}
 {$IFDEF KNT_DEBUG}
           if ( s.StartsWith(swDebug) ) then begin
-             opt_Debug := true;
+             App.opt_Debug := true;
              delete( s, 1, swDebug.Length );
              if s <> '' then begin
                 try
@@ -120,52 +121,52 @@ begin
           else
 {$ELSE}
           if ( s = swDebug ) then
-             opt_Debug := true
+             App.opt_Debug := true
           else
 {$ENDIF}
           if ( s = swNoReadOpt ) then
-             opt_NoReadOpt := true
+             App.opt_NoReadOpt := true
           else
           if ( s = swNoSaveOpt ) then
-             opt_NoSaveOpt := true
+             App.opt_NoSaveOpt := true
           else
           if ( s = swNoDefaults ) then
-             opt_NoDefaults := true
+             App.opt_NoDefaults := true
           else
           if ( s = swNoReg ) then
-             opt_NoRegistry := true
+             App.opt_NoRegistry := true
           else
           if ( s = swRegExt ) then
-             opt_RegExt := true
+             App.opt_RegExt := true
           else
           if ( s = swSaveDefIcn ) then
-             opt_SaveDefaultIcons := true
+             App.opt_SaveDefaultIcons := true
           else
           if ( s = swSaveToolbars ) then
-             opt_SaveToolbars := true
+             App.opt_SaveToolbars := true
           else
 {$IFDEF KNT_DEBUG}
           if ( s = swSaveMenus ) then
-             opt_SaveMenus := true
+             App.opt_SaveMenus := true
           else
 {$ENDIF}
           if ( s = swNoUserIcn ) then
-             opt_NoUserIcons := true
+             App.opt_NoUserIcons := true
           else
           if ( s = swUseOldFormat ) then
              _USE_OLD_KEYNOTE_FILE_FORMAT := true // GLOBAL var, used by TTabNote and TKntFile
           else
           if ( s = swClean ) then
-             opt_Clean := true
+             App.opt_Clean := true
           else
           if  (s = swIgnoreSI) then
               _OTHER_INSTANCE_HANDLE:= 0
           else
           if  (s = swDoNotDisturb) then
-              opt_DoNotDisturb:= true
+              App.opt_DoNotDisturb:= true
           else
           if  (s.StartsWith(swTitle)) then            // -title"PROJECTX HELP" -> -titlePROJECTX HELP
-              opt_Title:= Copy(ParamStr(i), Length(swTitle)+2)
+              App.opt_Title:= Copy(ParamStr(i), Length(swTitle)+2)
           else
           if ( s.StartsWith(swJmp) ) then begin
              // Jump to the KNT link indicated in quotes (in any of the recognized formats. Ex: "file:///*1|10|201|0")
@@ -189,7 +190,7 @@ begin
           else
           if ( ext = ext_INI ) then begin
              INI_FN := s;
-             opt_NoRegistry := true;
+             App.opt_NoRegistry := true;
           end
           else
           if ( ext = ext_ICN ) then
@@ -306,7 +307,7 @@ begin
   if Result then begin
      _GLOBAL_URLText:= JmpLocation;
      if FromKntLauncher then
-        opt_DoNotDisturb:= true;
+        App.opt_DoNotDisturb:= true;
   end;
 
 end; // CheckCallArgs
@@ -316,7 +317,7 @@ end; // CheckCallArgs
 
 procedure SaveOptions;
 begin
-  if opt_NoSaveOpt then exit;
+  if App.opt_NoSaveOpt then exit;
 
   try
     SaveKeyNoteOptions( INI_FN,
@@ -335,7 +336,7 @@ end; // SaveOptions
 
 procedure ReadOptions;
 begin
-  if opt_NoReadOpt then exit;
+  if App.opt_NoReadOpt then exit;
   if ( not fileexists( INI_FN )) then begin
     FirstTimeRun := true;
     exit;
@@ -355,7 +356,7 @@ end; // ReadOptions
 
 procedure SaveDefaults;
 begin
-  if opt_NoDefaults then exit;
+  if App.opt_NoDefaults then exit;
 
   SaveKeyNoteDefaults(
     DEF_FN,
@@ -370,7 +371,7 @@ end; // SaveDefaults
 
 procedure LoadDefaults;
 begin
-  if ( opt_NoDefaults or ( not fileexists( DEF_FN ))) then exit;
+  if ( App.opt_NoDefaults or ( not fileexists( DEF_FN ))) then exit;
 
   try
     LoadKeyNoteDefaults(
@@ -401,7 +402,7 @@ var
   ts : TToolbarSep97;
 begin
 
-  if opt_NoSaveOpt then exit;
+  if App.opt_NoSaveOpt then exit;
 
   IniFile := TMemIniFile.Create( Toolbar_FN );
 
@@ -466,7 +467,7 @@ var
   i, cnt : integer;
   myC : TComponent;
 begin
-  if ( opt_NoReadOpt or ( not fileexists( Toolbar_FN ))) then exit;
+  if ( App.opt_NoReadOpt or ( not fileexists( Toolbar_FN ))) then exit;
 
   IniFile := TMemIniFile.Create( Toolbar_FN );
   list := TStringList.Create;
@@ -542,11 +543,11 @@ var
 
 begin
   result := false;
-  if ( opt_NoReadOpt or ( not fileexists( Keyboard_FN ))) then exit;
+  if ( App.opt_NoReadOpt or ( not fileexists( Keyboard_FN ))) then exit;
 
   IniFile := TMemIniFile.Create( Keyboard_FN );
   KeyList := TStringList.Create;
-  ClearObjectList(OtherCommandsKeys);
+  ClearObjectList(App.Kbd.OtherCommandsKeys);
 
   try
     try
@@ -581,7 +582,7 @@ begin
                   kOC.Name := itemname;
                   kOC.Category:= Category;
                   kOC.Shortcut := keyvalue;
-                  OtherCommandsKeys.Add(kOC);
+                  App.Kbd.OtherCommandsKeys.Add(kOC);
                end;
 
            end;
@@ -608,8 +609,8 @@ procedure BuildOtherCommandsList (const OtherCommandsList: TList);
      i: integer;
      Koc: TKeyOtherCommandItem;
   begin
-       for i:= 0 to OtherCommandsKeys.Count-1 do begin
-          Koc:= OtherCommandsKeys[i];
+       for i:= 0 to App.Kbd.OtherCommandsKeys.Count-1 do begin
+          Koc:= App.Kbd.OtherCommandsKeys[i];
           if (Koc.Category = Category) and Koc.Name.Equals(Command) then
              Exit(Koc.Shortcut)
        end;
@@ -727,7 +728,7 @@ begin
           ShowHint := KeyOptions.ShowTooltips;
 
           Icons_Change_Disable :=
-            ( opt_NoUserIcons or
+            ( App.opt_NoUserIcons or
             ( assigned( KntFile ) and ( KntFile.TabIconsFN = _NF_Icons_BuiltIn )));
 
           if ( not Icons_Change_Disable ) then begin
@@ -743,7 +744,6 @@ begin
         if ( Form_Options.ShowModal = mrOK ) then begin
           screen.Cursor := crHourGlass;
           try
-
             oldHotKey := KeyOptions.HotKey; // save previous state
             oldLanguageUI := KeyOptions.LanguageUI;
 
@@ -756,7 +756,7 @@ begin
             FindOptions := Form_Options.myFindOpts;
 
             // update hotkey only if settings changed
-            if (( HotKeySuccess <> KeyOptions.HotKeyActivate ) or ( KeyOptions.HotKey <> oldHotKey )) then begin
+            if (( App.Kbd.HotKeySuccess <> KeyOptions.HotKeyActivate ) or ( KeyOptions.HotKey <> oldHotKey )) then begin
               Form_Main.HotKeyProc( false );
               if KeyOptions.HotKeyActivate then
                  Form_Main.HotKeyProc( true );
@@ -785,7 +785,7 @@ begin
               UpdateResPanelState;
             end;
 
-            if ( assigned( KntFile ) and assigned( KntFile.ClipCapFolder )) then
+            if ClipCapMng.ClipCapActive then
               LoadTrayIcon( ClipOptions.SwitchIcon );
 
           finally

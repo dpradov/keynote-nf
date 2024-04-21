@@ -68,7 +68,8 @@ implementation
 uses
   kn_NoteFileMng,
   kn_Const,
-  kn_Global;
+  kn_Global,
+  knt.App;
 
 {$R *.DFM}
 
@@ -176,7 +177,7 @@ var
   NewName: string;
 begin
     NewName:= txtImgNewName.Text;
-    if not ImagesManager.CheckUniqueName(NewName) then begin
+    if not ImageMng.CheckUniqueName(NewName) then begin
        txtImgNewName.Text:= NewName;
     end;
 

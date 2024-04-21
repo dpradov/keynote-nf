@@ -52,13 +52,14 @@ var
     procedure TreeNodeSelected( Node : TTreeNTNode; OnDeletingNode: boolean= false );
     procedure DeleteTreeNode( const DeleteFocusedNode : boolean );
     function MoveSubtree( myTreeNode : TTreeNTNode ): boolean;
-    procedure UpdateTreeNode( const aTreeNode : TTreeNTNode );
+    procedure UpdateTreeNode( const aTreeNode : TTreeNTNode; Folder: TKntFolder );
     procedure CreateMasterNode;
     procedure OutlineNumberNodes;
     procedure CreateNodefromSelection;
     function GetCurrentNote : TKntNote;
     function GetCurrentTreeNode : TTreeNTNode;
     procedure SelectIconForNode( const myTreeNode : TTreeNTNode; const IconKind : TNodeIconKind );
+    function GetNodeFontFace (TreeNode: TTreeNTNode): string;
     procedure UpdateTreeChrome( const myFolder : TKntFolder );
     procedure UpdateTreeOptions( const myFolder : TKntFolder );
     procedure MoveTreeNode( MovingNode : TTreeNTNode; const aDir : TDirection );
@@ -103,6 +104,7 @@ uses
    gf_misc,
    kn_Global,
    kn_EditorUtils,
+   knt.ui.editor,
    kn_Chest,
    kn_clipUtils,
    kn_ImagePicker,
@@ -112,7 +114,8 @@ uses
    kn_LinksMng,
    kn_VirtualNodeMng,
    kn_MacroMng,
-   kn_NoteFileMng
+   kn_NoteFileMng,
+   Knt.App
    ;
 
 
@@ -176,49 +179,42 @@ var
   AddingFirstNode, addnumber : boolean;
 begin
   result := nil;
-  if ( aFolder = nil ) then
-  begin
-    if not ( assigned( ActiveKntFolder )) then exit;
-    myFolder := ActiveKntFolder;
+  if (aFolder = nil) then begin
+    if not assigned(ActiveFolder) then exit;
+    myFolder := ActiveFolder;
   end
   else
-  begin
     myFolder := aFolder;
-  end;
-  if Form_Main.FolderIsReadOnly( myFolder, true ) then exit;
+
+  if Form_Main.FolderIsReadOnly(myFolder, true) then exit;
 
   myTreeNode := nil; { just to avoid }
   myNote := nil;     { compiler warning }
 
   addnumber := myFolder.AutoNumberNodes;
   if ( aNewNodeName <> '' ) then
-  begin
-    myName := aNewNodeName;
-  end
-  else
-  begin
+    myName := aNewNodeName
+
+  else begin
     myName := myFolder.DefaultNoteName;
 
     // check for special tokens
     p := pos( NODEINSDATE, myName );
-    if ( p > 0 ) then
-    begin
+    if ( p > 0 ) then begin
       delete( myName, p, length( NODEINSDATE ));
       insert( FormatDateTime( KeyOptions.DateFmt, now ), myName, p );
       addnumber := false;
     end;
 
     p := pos( NODEINSTIME, myName );
-    if ( p > 0 ) then
-    begin
+    if ( p > 0 ) then begin
       delete( myName, p, length( NODEINSTIME ));
       insert( FormatDateTime( KeyOptions.TimeFmt, now ), myName, p );
       addnumber := false;
     end;
 
     p := pos( NODECOUNT, myName );
-    if ( p > 0 ) then
-    begin
+    if ( p > 0 ) then begin
       delete( myName, p, length( NODECOUNT ));
       insert( inttostr( succ( myFolder.TV.Items.Count )), myName, p );
       addnumber := false;
@@ -229,31 +225,28 @@ begin
 
   end;
 
-  if ( myFolder.TV.Items.Count = 0 ) or ( not assigned( myFolder.TV.Selected )) then
-  begin
+  if ( myFolder.TV.Items.Count = 0 ) or ( not assigned( myFolder.TV.Selected )) then begin
     AddingFirstNode := true;
     aInsMode := tnTop; // no children or siblings if no nodes
   end
   else
-  begin
     AddingFirstNode := false;
-  end;
 
   try
     try
 
       // myFolder.TV.OnChange := nil;
       if ( aOriginNode = nil ) then
-        myOriginNode := myFolder.TV.Selected
+         myOriginNode := myFolder.TV.Selected
       else
-        myOriginNode := aOriginNode;
+         myOriginNode := aOriginNode;
 
       case aInsMode of
-        tnTop : begin
-          myTreeNode := myFolder.TV.Items.AddFirst( nil, myName );
-        end;
-        tnInsertBefore : begin
-          myTreeNode := myFolder.TV.Items.Insert( myOriginNode, myName );
+         tnTop : begin
+           myTreeNode := myFolder.TV.Items.AddFirst( nil, myName );
+         end;
+         tnInsertBefore : begin
+           myTreeNode := myFolder.TV.Items.Insert( myOriginNode, myName );
         end;
         tnAddLast : begin
           myTreeNode := myFolder.TV.Items.Add( myOriginNode, myName );
@@ -262,67 +255,59 @@ begin
           myTreeNode := myFolder.TV.Items.AddChild( myOriginNode, myName );
         end;
         tnAddAfter : begin
-          mySiblingNode := myOriginNode.GetNextSibling;
-          if assigned( mySiblingNode ) then
-            myTreeNode := myFolder.TV.Items.Insert( mySiblingNode, myName )
-          else
-            myTreeNode := myFolder.TV.Items.Add( myOriginNode, myName );
+         mySiblingNode := myOriginNode.GetNextSibling;
+         if assigned( mySiblingNode ) then
+           myTreeNode := myFolder.TV.Items.Insert( mySiblingNode, myName )
+         else
+           myTreeNode := myFolder.TV.Items.Add( myOriginNode, myName );
         end;
       end;
 
       result := myTreeNode;
 
       // these tokens can be expanded only after the node was created
-      if ( aNewNodeName = '' ) then
-      begin
-        if ( pos( '%', myName ) > 0 ) then
-        begin
-          p := pos( NODELEVEL, myName );
-          if ( p > 0 ) then
-          begin
-            delete( myName, p, length( NODELEVEL ));
-            insert( inttostr( myTreeNode.Level ), myName, p );
-          end;
+      if ( aNewNodeName = '' ) then begin
+         if ( pos( '%', myName ) > 0 ) then begin
+           p := pos( NODELEVEL, myName );
+           if ( p > 0 ) then begin
+             delete( myName, p, length( NODELEVEL ));
+             insert( inttostr( myTreeNode.Level ), myName, p );
+           end;
 
-          p := pos( NODEINDEX, myName );
-          if ( p > 0 ) then
-          begin
-            delete( myName, p, length( NODEINDEX ));
-            insert( inttostr( succ( myTreeNode.Index )), myName, p );
-          end;
+           p := pos( NODEINDEX, myName );
+           if ( p > 0 ) then begin
+             delete( myName, p, length( NODEINDEX ));
+             insert( inttostr( succ( myTreeNode.Index )), myName, p );
+           end;
 
-          p := pos( NODEABSINDEX, myName );
-          if ( p > 0 ) then
-          begin
-            delete( myName, p, length( NODEABSINDEX ));
-            insert( inttostr( succ( myTreeNode.AbsoluteIndex )), myName, p );
-          end;
+           p := pos( NODEABSINDEX, myName );
+           if ( p > 0 ) then begin
+             delete( myName, p, length( NODEABSINDEX ));
+             insert( inttostr( succ( myTreeNode.AbsoluteIndex )), myName, p );
+           end;
 
-          p := pos( NODEPARENT, myName );
-          if ( p > 0 ) then
-          begin
-            delete( myName, p, length( NODEPARENT ));
-            if assigned( myTreeNode.Parent ) then
-              insert( myTreeNode.Parent.Text, myName, p )
-            else
-              insert( '<NONE>', myName, p );
-          end;
+           p := pos( NODEPARENT, myName );
+           if ( p > 0 ) then begin
+             delete( myName, p, length( NODEPARENT ));
+             if assigned( myTreeNode.Parent ) then
+               insert( myTreeNode.Parent.Text, myName, p )
+             else
+               insert( '<NONE>', myName, p );
+           end;
 
-          p := pos( NODENOTENAME, myName );
-          if ( p > 0 ) then
-          begin
-            delete( myName, p, length( NODENOTENAME ));
-            insert( RemoveAccelChar( ActiveKntFolder.Name ), myName, p );
-          end;
+           p := pos( NODENOTENAME, myName );
+           if ( p > 0 ) then begin
+             delete( myName, p, length( NODENOTENAME ));
+             insert( RemoveAccelChar( myFolder.Name ), myName, p );
+           end;
 
-          p := pos( NODEFILENAME, myName );
-          if ( p > 0 ) then
-          begin
-            delete( myName, p, length( NODEFILENAME ));
-            insert( ExtractFilename( KntFile.FileName ), myName, p );
-          end;
+           p := pos( NODEFILENAME, myName );
+           if ( p > 0 ) then begin
+             delete( myName, p, length( NODEFILENAME ));
+             insert( ExtractFilename( ActiveFile.FileName ), myName, p );
+           end;
 
-        end;
+         end;
       end;
 
       if assigned( myOriginNode ) then
@@ -334,8 +319,7 @@ begin
 
       myTreeNode.Data := myNote;
 
-      if AddingFirstNode then
-      begin
+      if AddingFirstNode then begin
         ShowOrHideIcons( myFolder, true );
         ShowOrHideCheckBoxes( myFolder );
       end;
@@ -343,11 +327,11 @@ begin
       SelectIconForNode( myTreeNode.Parent, myFolder.IconKind );
       SelectIconForNode( myTreeNode, myFolder.IconKind );
 
-      UpdateTreeNode( myTreeNode );
+      UpdateTreeNode( myTreeNode, myFolder );
 
       // assign the color of the currently displayed node
       if TreeOptions.InheritNodeBG then
-        myNote.RTFBGColor := ActiveKntFolder.Editor.Color;
+        myNote.RTFBGColor := ActiveFolder.Editor.Color;
 
 
       myFolder.SelectedNote := myNote;
@@ -357,12 +341,11 @@ begin
       myFolder.TV.Selected := myTreeNode;
 
       if _LastZoomValue <> 100 then
-         SetEditorZoom(myFolder.Editor, _LastZoomValue, '' );
+         myFolder.Editor.SetZoom(_LastZoomValue, '' );
 
 
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
         // if assigned( myTreeNode ) then myTreeNode.Free;
         // if assigned( myNote ) then myNote.Free;
@@ -378,31 +361,33 @@ begin
   end;
 
   if (( not aDefaultNode ) and assigned( myTreeNode ) and TreeOptions.EditNewNodes ) then
-  begin
-    Form_Main.MMRenamenodeClick( nil );
-  end;
+     Form_Main.MMRenamenodeClick( nil );
 
 end; // TreeNewNode
 
-function GetCurrentNote : TKntNote;
+
+function GetCurrentNote : TKntNote;                                          // It should be equal to ActiveNote
 begin
   result := nil;
-  if ( not ( assigned( ActiveKntFolder ))) then exit;
-  if assigned( ActiveKntFolder.TV.Selected ) then
-    result := TKntNote( ActiveKntFolder.TV.Selected.Data );
+  if not assigned(ActiveFolder) then exit;
+  if assigned( ActiveFolder.TV.Selected ) then
+    result := TKntNote(ActiveFolder.TV.Selected.Data);
 end; // GetCurrentNote
+
 
 function GetCurrentTreeNode : TTreeNTNode;
 begin
   result := nil;
-  if ( not (assigned( KntFile ) and assigned( ActiveKntFolder ) )) then exit;
-  result := ActiveKntFolder.TV.Selected;
+  if not assigned(ActiveFolder) then exit;
+  result := ActiveFolder.TV.Selected;
 end; // GetCurrentTreeNode
+
 
 procedure TreeNodeSelected( Node : TTreeNTNode; OnDeletingNode: boolean= false );
 var
   myFolder : TKntFolder;
   myNote : TKntNote;
+  Editor: TKntRichEdit;
   KeepModified: boolean;
   KeepEditorFocused: boolean;
   OnEnterBak: TNotifyEvent;
@@ -414,14 +399,20 @@ var
 begin
   with Form_Main do begin
       if ( not assigned( Node )) then exit;
-      if not assigned( ActiveKntFolder) then exit;
 
-      myFolder := ActiveKntFolder;
+      myFolder := ActiveFolder;
+      if not assigned(myFolder) then exit;
+
+      if (not Initializing) and (Node.TreeView <> myFolder.TV) then exit;
+
+      myNote := TKntNote( Node.Data );
+      Editor:= myFolder.Editor;
+
       KeepModified:= false;
       KeepEditorFocused:= false;
 
       if assigned(myFolder.SelectedNote) then
-         myFolder.SelectedNote.ScrollPosInEditor:= ActiveKntFolder.Editor.GetScrollPosInEditor;
+         myFolder.SelectedNote.ScrollPosInEditor:= Editor.GetScrollPosInEditor;
 
       if ( not _Executing_History_Jump ) and (not _Executing_JumpToKNTLocation_ToOtherNote) then begin
           AddHistoryLocation( myFolder, false);        // Add to history the location of current node, before the new node comes to be the selected node
@@ -430,127 +421,104 @@ begin
       end;
 
       myFolder.TV.OnChange := nil;
-      ActiveKntFolder.Editor.OnChange := nil;
+      Editor.BeginUpdate;         // -> It will also ignore Enter and Change events
 
-      ActiveKntFolder.Editor.Lines.BeginUpdate;
-      {
-      if KeyOptions.FixScrollBars then
-        ActiveKntFolder.Editor.ScrollBars := low( TScrollStyle );
-      }
+      ControlWasFocused:= nil;
+      if KeyOptions.FixScrollBars and not ClipCapMng.IsBusy then begin
+         if (not Editor.Focused) and Editor.CanFocus then begin
+             ControlWasFocused:= Form_Main.ActiveControl;
+             Editor.SetFocus;
+         end;
+      end;
+
       try
         try
 
           if not OnDeletingNode then
-             ActiveKntFolder.EditorToDataStream;
-          ActiveKntFolder.Editor.Clear;
-          ActiveKntFolder.Editor.ClearUndo;
-
-          myNote := TKntNote( Node.Data );
+             myFolder.EditorToDataStream;
+          Editor.Clear;
+          Editor.ClearUndo;
 
           myFolder.SelectedNote := myNote;
 
-          if assigned( myNote ) then
-          begin
+          if assigned(myNote) then begin
 
-            case myNote.WordWrap of
-              wwAsNote : ActiveKntFolder.Editor.WordWrap := ActiveKntFolder.WordWrap;
-              wwYes : ActiveKntFolder.Editor.WordWrap := true;
-              wwno : ActiveKntFolder.Editor.WordWrap := false;
-            end;
+             case myNote.WordWrap of
+               wwAsFolder : myFolder.Editor.WordWrap := myFolder.WordWrap;
+               wwYes : myFolder.Editor.WordWrap := true;
+               wwno : myFolder.Editor.WordWrap := false;
+             end;
 
-            if KeyOptions.FixScrollBars then begin
-               OnEnterBak:= ActiveKntFolder.Editor.OnEnter;
-               ControlWasFocused:= Form_Main.ActiveControl;
-               KeepEditorFocused:= true;        // => DataStreamToEditor will maintain Editor.OnEnter = nil (and Editor.Focused)
-            end;
-            ActiveKntFolder.DataStreamToEditor(KeepEditorFocused);
+             myFolder.DataStreamToEditor;
 
-            { The normal thing is to set Editor.Modified = False at the end of the DataStreamToEditor method
-              But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified,
-              to ensure that this correction ends up persisting. Here we will do the same }
-            if ActiveKntFolder.Editor.Modified then
-               KeepModified:= True;
+             { The normal thing is to set Editor.Modified = False at the end of the DataStreamToEditor method
+               But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified,
+               to ensure that this correction ends up persisting. Here we will do the same }
+             if Editor.Modified then
+                KeepModified:= True;
 
-            if ( myNote.VirtualMode = vmNone ) then
-            begin
-              VirtualNoteUpdateMenu( false, false );
-              if ( not EditorOptions.TrackStyle ) then
-              begin
-                if TreeOptions.ShowFullPath then
-                  StatusBar.Panels[PANEL_HINT].Text := GetNodePath( Node, TreeOptions.NodeDelimiter, TreeOptions.PathTopToBottom ) // {N}
-                else
-                  StatusBar.Panels[PANEL_HINT].Text := Node.Text; // {N}
-              end;
-            end
-            else
-            begin
-              VirtualNoteUpdateMenu( true, myNote.VirtualMode = vmKNTNode );
-              if ( not EditorOptions.TrackStyle ) then
-                StatusBar.Panels[PANEL_HINT].Text := STR_02 + myNote.VirtualFN;
-            end;
-            TVCheckNode.Checked := myNote.Checked;
-            TVBoldNode.Checked := myNote.Bold;
-            TVChildrenCheckbox.Checked:= myNote.ChildrenCheckbox;   // [dpv]
-            if myFolder.Checkboxes or (assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
-               TVCheckNode.Enabled := true
-            else
-               TVCheckNode.Enabled := false;
+             if ( myNote.VirtualMode = vmNone ) then begin
+                VirtualNoteUpdateMenu( false, false );
+                if ( not EditorOptions.TrackStyle ) then begin
+                  if TreeOptions.ShowFullPath then
+                    StatusBar.Panels[PANEL_HINT].Text := GetNodePath( Node, TreeOptions.NodeDelimiter, TreeOptions.PathTopToBottom ) // {N}
+                  else
+                    StatusBar.Panels[PANEL_HINT].Text := Node.Text; // {N}
+                end;
+             end
+             else begin
+               VirtualNoteUpdateMenu( true, myNote.VirtualMode = vmKNTNode );
+               if ( not EditorOptions.TrackStyle ) then
+                 StatusBar.Panels[PANEL_HINT].Text := STR_02 + myNote.VirtualFN;
+             end;
+             TVCheckNode.Checked := myNote.Checked;
+             TVBoldNode.Checked :=  myNote.Bold;
+             TVChildrenCheckbox.Checked:= myNote.ChildrenCheckbox;   // [dpv]
+             if myFolder.Checkboxes or (assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
+                TVCheckNode.Enabled := true
+             else
+                TVCheckNode.Enabled := false;
 
-            ShowAlarmStatus;
-            UpdateShowImagesState;
+             ShowAlarmStatus;
+             UpdateShowImagesState;
           end
-          else
-          begin
+          else begin
             VirtualNoteUpdateMenu( false, false );
             if ( not EditorOptions.TrackStyle ) then
-              StatusBar.Panels[PANEL_HINT].Text := '';
+               StatusBar.Panels[PANEL_HINT].Text := '';
           end;
+
         except
-          On E : Exception do
-          begin
-            ActiveKntFolder.SelectedNote := nil;
+          On E : Exception do begin
+            myFolder.SelectedNote := nil;
             messagedlg( E.Message, mtError, [mbOK], 0 );
             exit;
           end;
         end;
+
       finally
-        {
-        if KeyOptions.FixScrollBars then
-          ActiveKntFolder.Editor.ScrollBars := ssBoth;
-        }
 
         if _LastZoomValue <> 100 then
-           SetEditorZoom(ActiveKntFolder.Editor, _LastZoomValue, '' );
+           Editor.SetZoom(_LastZoomValue, '' );
 
         if assigned(myNote) and (myNote.ScrollPosInEditor.Y > 0) then
-           ActiveKntFolder.Editor.SetScrollPosInEditor(myNote.ScrollPosInEditor)
+           Editor.SetScrollPosInEditor(myNote.ScrollPosInEditor)
         else
            if KeyOptions.FixScrollBars then
-              ActiveKntFolder.Editor.Perform( EM_SCROLLCARET, 0, 0 );
+              Editor.Perform( EM_SCROLLCARET, 0, 0 );
 
-        if KeyOptions.FixScrollBars and KeepEditorFocused then begin
-           if (ControlWasFocused <> nil) then
-              ControlWasFocused.SetFocus;
-           ActiveKntFolder.Editor.OnEnter:= OnEnterBak;
-        end;
+        if KeyOptions.FixScrollBars and (ControlWasFocused <> nil) then
+           ControlWasFocused.SetFocus;
 
+        Editor.EndUpdate;
 
-        ActiveKntFolder.Editor.Lines.EndUpdate;
-
-        CheckWordCount(true);
-
-        UpdateWordWrap;
-        {
-        if KeyOptions.FixScrollBars then
-          ActiveKntFolder.Editor.Invalidate; // [x] [?]
-        }
+        Editor.CheckWordCount(true);
 
         if not KeepModified then
-           ActiveKntFolder.Editor.Modified := false;
-        RxRTFSelectionChange( ActiveKntFolder.Editor );
-        RxRTFChange( ActiveKntFolder.Editor );
-        ActiveKntFolder.Editor.OnChange := RxRTFChange;
-        ActiveKntFolder.TV.OnChange := TVChange;
+           Editor.Modified := false;
+        Editor.ChangedSelection;
+        Editor.Change;
+        myFolder.TV.OnChange := TVChange;
         // inc( __NodeChangeCounter );
         // statusbar.panels[0].text := Format( ' %d', [__NodeChangeCounter ]);
 
@@ -559,45 +527,43 @@ begin
 
 end; // TreeNodeSelected
 
+
 procedure CreateMasterNode;
 var
   myNote, nextnode, masternode : TTreeNTNode;
   myFolder : TKntFolder;
 begin
-  if ( not assigned( ActiveKntFolder)) then exit;
-  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
-  ActiveKntFolder.FocusMemory := focTree;
+  if ( not assigned( ActiveFolder)) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveFolder, true ) then exit;
 
-  myFolder := ActiveKntFolder;
+  myFolder := ActiveFolder;
 
   if ( myFolder.TV.Items.Count > 0 ) then
     myFolder.TV.Selected := myFolder.TV.Items.GetFirstNode;
 
-  masternode := TreeNewNode( nil, tnInsertBefore, nil, '', true );
-  if assigned( masternode ) then
-  begin
+  masternode := TreeNewNode(myFolder, tnInsertBefore, nil, '', true );
 
-    myFolder.TV.Items.BeginUpdate;
-    try
-      myNote := masternode.GetNext;
-      while assigned( myNote ) do
-      begin
-        nextnode := myNote.GetNextSibling;
-        myNote.MoveTo( masternode, naAddChild );
-        SelectIconForNode( myNote, myFolder.IconKind );
-        myNote := nextnode;
-      end;
-    finally
-      SelectIconForNode( masternode, myFolder.IconKind );
-      myFolder.TV.Items.EndUpdate;
-      myFolder.TV.Selected := masternode;
-      KntFile.Modified := true;
-      UpdateKntFileState( [fscModified] );
-    end;
+  if assigned( masternode ) then begin
+     myFolder.TV.Items.BeginUpdate;
+     try
+       myNote := masternode.GetNext;
+       while assigned( myNote ) do begin
+         nextnode := myNote.GetNextSibling;
+         myNote.MoveTo( masternode, naAddChild );
+         SelectIconForNode( myNote, myFolder.IconKind );
+         myNote := nextnode;
+       end;
+     finally
+       SelectIconForNode( masternode, myFolder.IconKind );
+       myFolder.TV.Items.EndUpdate;
+       myFolder.TV.Selected := masternode;
+       myFolder.TV.SetFocus;
+     end;
 
   end;
 
 end; // CreateMasterNode
+
 
 procedure OutlineNumberNodes;
 type
@@ -616,140 +582,118 @@ var
   DepthLimit : integer;
   ModalResponse : Word;
 
-            function ExtractNodeNumber( const aNode : TTreeNTNode ) : string;
-            var
-              p : integer;
-            begin
-              result := '';
-              if assigned( aNode ) then
-              begin
-                if StripNames then
-                begin
-                  result := aNode.Text;
+     function ExtractNodeNumber( const aNode : TTreeNTNode ) : string;
+     var
+       p : integer;
+     begin
+       result := '';
+       if assigned( aNode ) then begin
+          if StripNames then
+            result := aNode.Text
+          else begin
+            p := pos( #32, aNode.Text );
+            if ( p > 1 ) then
+              result := copy( aNode.Text, 1, pred( p ));
+          end;
+       end;
+     end; // ExtractNodeNumber
+
+
+     procedure AddNumberToNode;
+     var
+       tmpstr : string;
+       i, SpacePos : integer;
+
+     begin
+       if StripNames then
+         myNote.Name := LevelStr
+
+       else begin
+         case ExistingNumbers of
+           enNo : begin
+             myNote.Name := LevelStr + #32 + myNote.Name;
+           end;
+           enYes : begin
+             SpacePos := AnsiPos( #32, myNote.Name );
+             if ( SpacePos > 0 ) then begin
+               tmpstr := myNote.Name;
+               delete( tmpstr, 1, SpacePos );
+               myNote.Name := LevelStr + #32 + tmpstr;
+             end
+             else
+               myNote.Name := LevelStr;
+           end;
+           enAuto : begin
+             // check if node name begins with a number
+             // and if so, strip it
+             SpacePos := -1; // flag: node has NO number
+             for i := 1 to length( myNote.Name ) do begin
+                if ( i = 1 ) then begin
+                  if ( AnsiChar(myNote.Name[1]) in ['0'..'9'] ) then
+                    SpacePos := 0 // flag: node HAS number
+                  else
+                    break; // node does NOT begin with a number
                 end
-                else
-                begin
-                  p := pos( #32, aNode.Text );
-                  if ( p > 1 ) then
-                  begin
-                    result := copy( aNode.Text, 1, pred( p ));
+                else begin
+                  if ( AnsiChar(myNote.Name[i]) in ['0'..'9', '.'] ) then
+                    continue
+                  else
+                  if ( myNote.Name[i] = #32 ) then begin
+                    SpacePos := i;
+                    break;
+                  end
+                  else begin
+                    SpacePos := pred( i );
+                    break;
                   end;
                 end;
-              end;
-            end; // ExtractNodeNumber
+             end;
 
-            procedure AddNumberToNode;
-            var
-              tmpstr : string;
-              i, SpacePos : integer;
-            begin
-              if StripNames then
-              begin
-                myNote.Name := LevelStr;
-              end
-              else
-              begin
-                case ExistingNumbers of
-                  enNo : begin
-                    myNote.Name := LevelStr + #32 + myNote.Name;
-                  end;
-                  enYes : begin
-                    SpacePos := AnsiPos( #32, myNote.Name );
-                    if ( SpacePos > 0 ) then
-                    begin
-                      tmpstr := myNote.Name;
-                      delete( tmpstr, 1, SpacePos );
-                      myNote.Name := LevelStr + #32 + tmpstr;
-                    end
-                    else
-                    begin
-                      myNote.Name := LevelStr;
-                    end;
-                  end;
-                  enAuto : begin
-                    // check if node name begins with a number
-                    // and if so, strip it
-                    SpacePos := -1; // flag: node has NO number
-                    for i := 1 to length( myNote.Name ) do
-                    begin
-                      if ( i = 1 ) then
-                      begin
-                        if ( AnsiChar(myNote.Name[1]) in ['0'..'9'] ) then
-                          SpacePos := 0 // flag: node HAS number
-                        else
-                          break; // node does NOT begin with a number
-                      end
-                      else
-                      begin
-                        if ( AnsiChar(myNote.Name[i]) in ['0'..'9', '.'] ) then
-                        begin
-                          continue;
-                        end
-                        else
-                        if ( myNote.Name[i] = #32 ) then
-                        begin
-                          SpacePos := i;
-                          break;
-                        end
-                        else
-                        begin
-                          SpacePos := pred( i );
-                          break;
-                        end;
-                      end;
-                    end;
-
-                    if ( SpacePos < 0 ) then
-                    begin
-                      // node name does not have a number
-                      if ( ModalResponse = mrOK ) then
-                        myNote.Name := LevelStr + #32 + myNote.Name;
-                    end
-                    else
-                    if ( SpacePos = 0 ) then
-                    begin
-                      // whole node name is a number
-                      if ( ModalResponse = mrOK ) then
-                        myNote.Name := LevelStr;
-                    end
-                    else
-                    begin
-                      // node has a number followed by text
-                      tmpstr := myNote.Name;
-                      delete( tmpstr, 1, SpacePos );
-                      if ( ModalResponse = mrOK ) then
-                        myNote.Name := LevelStr + #32 + tmpstr
-                      else
-                        myNote.Name := tmpstr;
-                    end;
-                  end;
-                end;
-              end;
-              myTreeNode.Text := myNote.Name;
-            end; // AddNumberToNode
+             if ( SpacePos < 0 ) then begin
+               // node name does not have a number
+               if ( ModalResponse = mrOK ) then
+                 myNote.Name := LevelStr + #32 + myNote.Name;
+             end
+             else
+             if ( SpacePos = 0 ) then begin
+               // whole node name is a number
+               if ( ModalResponse = mrOK ) then
+                 myNote.Name := LevelStr;
+             end
+             else begin
+               // node has a number followed by text
+               tmpstr := myNote.Name;
+               delete( tmpstr, 1, SpacePos );
+               if ( ModalResponse = mrOK ) then
+                  myNote.Name := LevelStr + #32 + tmpstr
+               else
+                  myNote.Name := tmpstr;
+             end;
+           end;
+         end;
+       end;
+       myTreeNode.Text := myNote.Name;
+     end; // AddNumberToNode
 
 begin
-  if ( not assigned( ActiveKntFolder )) then exit;
-  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+  if ( not assigned( ActiveFolder )) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveFolder, true ) then exit;
 
-  myFolder := ActiveKntFolder;
+  myFolder := ActiveFolder;
 
   if ( myFolder.TV.Items.Count = 0 ) then exit;
 
   Form_NodeNum := TForm_NodeNum.Create( Form_Main );
   try
     ModalResponse := Form_NodeNum.ShowModal;
-    if ( ModalResponse in [mrOK, mrYesToAll] ) then
-    begin
+    if ( ModalResponse in [mrOK, mrYesToAll] ) then begin
 
-      if ( ModalResponse = mrYesToAll ) then
-      begin
+      if ( ModalResponse = mrYesToAll ) then begin
         if ( messagedlg( STR_03, mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
           exit;
       end;
 
-      with Form_NodeNum do
-      begin
+      with Form_NodeNum do begin
         SubtreeOnly := ( RG_Scope.ItemIndex > 0 );
         if SubtreeOnly then
           StartNode := myFolder.TV.Selected
@@ -764,8 +708,7 @@ begin
           DepthLimit := Spin_Depth.Value; // descend only DepthLimit levels
       end;
 
-      if ( not assigned( StartNode )) then
-      begin
+      if ( not assigned( StartNode )) then begin
         messagedlg( STR_04, mtError, [mbOK], 0 );
         exit;
       end;
@@ -781,13 +724,11 @@ begin
           ThisNumber := StartNumber;
           LevelStr := '';
 
-          if ( ModalResponse = mrYesToAll ) then
-          begin
+          if ( ModalResponse = mrYesToAll ) then begin
             StripNames := false;
             SubtreeOnly := false;
             ExistingNumbers := enAuto;
-            while assigned( myTreeNode ) do
-            begin
+            while assigned( myTreeNode ) do begin
               myNote := TKntNote( myTreeNode.Data );
               AddNumberToNode;
               myTreeNode := myTreeNode.GetNext;
@@ -800,8 +741,7 @@ begin
           // because they need different treatment
           // (numbering starts with StartNumber and is not based on .index property)
 
-          while assigned( myTreeNode ) do
-          begin
+          while assigned( myTreeNode ) do begin
             myNote := TKntNote( myTreeNode.Data );
             LevelStr := inttostr( ThisNumber );
             inc( ThisNumber );
@@ -814,8 +754,7 @@ begin
 
           myTreeNode := StartNode;
 
-          if ( DepthLimit <> 1 ) then // only if applying numbers more than 1 level deep
-          begin
+          if ( DepthLimit <> 1 ) then begin // only if applying numbers more than 1 level deep
 
             StartNodeLevel := StartNode.Level; // return to original starting position
             // from now on, we only need to number nodes which are below the
@@ -825,15 +764,12 @@ begin
             LevelStr := '';
             ParentNode := nil;
 
-            while assigned( myTreeNode ) do
-            begin
+            while assigned( myTreeNode ) do begin
               thisNodeLevel := myTreeNode.Level;
               myNote := TKntNote( myTreeNode.Data );
 
-              if (( DepthLimit = 0 ) or ( thisNodeLevel < ( StartNodeLevel + DepthLimit ))) then
-              begin
-                if ( thisNodeLevel > StartNodeLevel ) then
-                begin
+              if (( DepthLimit = 0 ) or ( thisNodeLevel < ( StartNodeLevel + DepthLimit ))) then begin
+                if ( thisNodeLevel > StartNodeLevel ) then begin
                   if ( ParentNode <> myTreeNode.Parent ) then
                     ParentLevelStr := ExtractNodeNumber( myTreeNode.Parent );
                   ParentNode := myTreeNode.Parent;
@@ -850,8 +786,7 @@ begin
               LastNodeLevel := myTreeNode.Level;
               myTreeNode := myTreeNode.GetNext;
 
-              if SubtreeOnly then
-              begin
+              if SubtreeOnly then begin
                 // bail out, we have finished the subtree
                 if ( assigned( myTreeNode ) and ( myTreeNode.Level = StartNodeLevel )) then
                   break;
@@ -862,9 +797,7 @@ begin
 
         except
           on E : Exception do
-          begin
             messagedlg( e.message, mtError, [mbOK], 0 );
-          end;
         end;
 
       finally
@@ -873,11 +806,35 @@ begin
         UpdateKntFileState( [fscModified] );
       end;
     end;
+
   finally
     Form_NodeNum.Free;
   end;
 
 end; // OutlineNumberNodes
+
+
+function GetNodeFontFace (TreeNode: TTreeNTNode): string;
+var
+  Note: TKntNote;
+  Folder: TKntFolder;
+begin
+   Result:= '';
+   if not assigned(TreeNode) then exit;
+
+   Note:= TKntNote(TreeNode.Data);
+   if not assigned(Note) then exit;
+
+   if Note.HasNodeFontFace then
+      Result:= Note.NodeFontFace
+   else begin
+      Folder:= ActiveFile.GetFolderByTreeNode(TreeNode);
+      if assigned(Folder) then
+        Result:= Folder.TreeChrome.Font.Name;
+   end;
+
+end;
+
 
 procedure UpdateTreeChrome( const myFolder : TKntFolder );
 var
@@ -1017,22 +974,24 @@ begin
 
 end; // UpdateTreeOptions
 
+
 procedure MoveTreeNode( MovingNode : TTreeNTNode; const aDir : TDirection );
 var
   s, t : string;
   PreviousParent, theSibling : TTreeNTNode;
   myFolder : TKntFolder;
 begin
-  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
-  if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
-  if ( not assigned( MovingNode )) then // try to get tree's selected node...
-    MovingNode := GetCurrentTreeNode;
-  if ( not assigned( MovingNode )) then // still nothing, so bail out
-    exit;
+  if Form_Main.FolderIsReadOnly(ActiveFolder, true) then exit;
+  if ( ActiveFolder.FocusMemory <> focTree ) then exit;
+
+  if not assigned( MovingNode) then // try to get tree's selected node...
+     MovingNode := GetCurrentTreeNode;
+  if not assigned( MovingNode) then // still nothing, so bail out
+     exit;
 
   s := '';
   t := STR_05;
-  myFolder := ActiveKntFolder;
+  myFolder := ActiveFolder;
   myFolder.TV.OnChange := nil;
   myFolder.TV.OnChecked:= nil;
 
@@ -1047,8 +1006,7 @@ begin
         dirUp : begin
           //theSibling := MovingNode.GetPrevSibling; [dpv]
           theSibling := MovingNode.GetPrevSiblingNotHidden;
-          if assigned( theSibling ) then
-          begin
+          if assigned( theSibling ) then begin
             //theSibling := theSibling.GetPrevSibling; // looks weird but does the Right Thing
             theSibling := theSibling.GetPrevSiblingNotHidden; // looks weird but does the Right Thing
             if assigned( theSibling ) then
@@ -1061,8 +1019,7 @@ begin
         dirDown : begin
           //theSibling := MovingNode.GetNextSibling;   [dpv]
           theSibling := MovingNode.GetNextSiblingNotHidden;
-          if assigned( theSibling ) then
-          begin
+          if assigned( theSibling ) then begin
             MovingNode.MoveTo( theSibling, naInsert );
             t := '';
           end;
@@ -1071,8 +1028,7 @@ begin
         // LEFT promotes node 1 level up
         // RIGHT demotes node 1 level down
         dirLeft : begin
-          if assigned( MovingNode.Parent ) then
-          begin
+          if assigned( MovingNode.Parent ) then begin
             // becomes its parent's sibling
             MovingNode.Moveto( MovingNode.Parent, naInsert );
             t := '';
@@ -1080,8 +1036,7 @@ begin
         end;
         dirRight : begin
           theSibling := MovingNode.GetPrevSibling;
-          if assigned( theSibling ) then
-          begin
+          if assigned( theSibling ) then begin
             // becomes the last child of its previous sibling
             MovingNode.MoveTo( theSibling, naAddChild );
             t := '';
@@ -1090,8 +1045,7 @@ begin
       end;
 
 
-      if ( t = '' ) then // means node was successfully moved
-      begin
+      if ( t = '' ) then begin // means node was successfully moved
         // update node icon
         SelectIconForNode( PreviousParent, myFolder.IconKind );
         SelectIconForNode( MovingNode, myFolder.IconKind );
@@ -1109,9 +1063,9 @@ begin
   finally
     FNodeMoving:= false;       // [dpv]
     KntFile.Modified := true;
-    if TKntNote(MovingNode.Data).Checked then begin
+    if TKntNote(MovingNode.Data).Checked then
        MovingNode.CheckState := csChecked;
-    end;
+
     myFolder.TV.OnChecked:= Form_Main.TVChecked;
     myFolder.TV.OnChange := Form_Main.TVChange;
     UpdateKntFileState( [fscModified] );
@@ -1134,10 +1088,11 @@ begin
   ClipBoard.SetTextBuf( PChar( s ));
   if InsertInEditor then
   begin
-    ActiveKntFolder.Editor.SelText := s + ' ';
-    ActiveKntFolder.Editor.SelLength := 0;
+    ActiveEditor.SelText := s + ' ';
+    ActiveEditor.SelLength := 0;
   end
 end; // CopyNodePath
+
 
 procedure PasteNodeName( const PasteMode : TPasteNodeNameMode );
 var
@@ -1149,7 +1104,7 @@ begin
   myTreeNode := GetCurrentTreeNode;
   if ( not assigned( myTreeNode )) then exit;
 
-  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveFolder, true ) then exit;
   myNewName := '';
 
   case PasteMode of
@@ -1166,12 +1121,12 @@ begin
       myNewName := FormatDateTime( KeyOptions.DateFmt + #32 + KeyOptions.TimeFmt, now );
     end;
     pnnSelection : begin
-      if ( ActiveKntFolder.Editor.SelLength = 0 ) then
+      if ( ActiveEditor.SelLength = 0 ) then
       begin
-        Form_Main.ErrNoTextSelected;
+        App.WarnNoTextSelected;
         exit;
       end;
-      s := ActiveKntFolder.Editor.SelVisibleText;
+      s := ActiveEditor.SelVisibleText;
       p := Pos( #13, s );
       if ( p > 0 ) then
         delete( s, p, length( s ));
@@ -1180,8 +1135,7 @@ begin
     end;
   end;
 
-  if ( myNewName <> '' ) then
-  begin
+  if ( myNewName <> '' ) then begin
     try
       myTreeNode.Text := myNewName;  // {N}
       TKntNote( myTreeNode.Data ).Name := myNewName;
@@ -1193,46 +1147,47 @@ begin
 
 end; // PasteNodeName
 
+
 procedure ShowOrHideIcons( const myFolder : TKntFolder; const UpdateNodes : boolean );
 var
   myTreeNode : TTreeNTNode;
 begin
   myFolder.TV.Items.BeginUpdate;
   try
-   with Form_Main do
-   begin
-    case myFolder.IconKind of
-      niNone : begin
-        myFolder.TV.Images := nil;
-        MMViewNodeIcons.Checked := false;
-        MMViewCustomIcons.Checked := false;
-      end;
-      niStandard : begin
-        myFolder.TV.Images := IMG_TV;
-        MMViewNodeIcons.Checked := true;
-        MMViewCustomIcons.Checked := false;
-      end;
-      niCustom : begin
-        myFolder.TV.Images := Chest.IMG_Categories;
-        MMViewNodeIcons.Checked := false;
-        MMViewCustomIcons.Checked := true;
-      end;
+   with Form_Main do begin
+     case myFolder.IconKind of
+       niNone : begin
+         myFolder.TV.Images := nil;
+         MMViewNodeIcons.Checked := false;
+         MMViewCustomIcons.Checked := false;
+       end;
+       niStandard : begin
+         myFolder.TV.Images := IMG_TV;
+         MMViewNodeIcons.Checked := true;
+         MMViewCustomIcons.Checked := false;
+       end;
+       niCustom : begin
+         myFolder.TV.Images := Chest.IMG_Categories;
+         MMViewNodeIcons.Checked := false;
+         MMViewCustomIcons.Checked := true;
+       end;
     end;
     TVSelectNodeImage.Enabled := ( MMViewCustomIcons.Checked and MMViewCustomIcons.Enabled );
-    if UpdateNodes then
-    begin
-      myTreeNode := myFolder.TV.Items.GetFirstNode;
-      while assigned( myTreeNode ) do
-      begin
-        SelectIconForNode( myTreeNode, myFolder.IconKind );
-        myTreeNode := myTreeNode.GetNext;
-      end;
+
+    if UpdateNodes then begin
+       myTreeNode := myFolder.TV.Items.GetFirstNode;
+       while assigned( myTreeNode ) do begin
+         SelectIconForNode( myTreeNode, myFolder.IconKind );
+         myTreeNode := myTreeNode.GetNext;
+       end;
     end;
    end;
+
   finally
     myFolder.TV.Items.EndUpdate;
   end;
 end; // ShowOrHideIcons
+
 
 procedure ShowOrHideCheckBoxes( const myFolder : TKntFolder );
 var
@@ -1253,12 +1208,10 @@ begin
 
   myFolder.TV.Items.BeginUpdate;
   try
-    if myFolder.Checkboxes then
-    begin
+    if myFolder.Checkboxes then begin
       myFolder.TV.Items.TopLevelCheckType := ctCheckBox;
       node := myFolder.TV.Items.GetFirstNode;
-      while assigned( node ) do
-      begin
+      while assigned( node ) do begin
         node.CheckType := ctCheckBox;
         myNote := TKntNote( node.Data );
         if myNote.Checked then
@@ -1268,12 +1221,10 @@ begin
         node := node.GetNext;
       end;
     end
-    else
-    begin
+    else begin
       myFolder.TV.Items.TopLevelCheckType := ctNone;
       node := myFolder.TV.Items.GetFirstNode;
-      while assigned( node ) do
-      begin
+      while assigned( node ) do begin
         ShowOrHideChildrenCheckBoxes (node);    // [dpv]
         //node.CheckType := ctNone;             // [dpv]
         node := node.GetNext;
@@ -1283,6 +1234,7 @@ begin
     myFolder.TV.Items.EndUpdate;
   end;
 end; // ShowOrHideCheckBoxes
+
 
 procedure ShowOrHideChildrenCheckBoxes( const tnode : TTreeNTNode );
 var
@@ -1297,8 +1249,7 @@ begin
   if myNote.ChildrenCheckbox then begin
     tNode.CheckType  := ctCheckBox;
     node := tnode.GetFirstChild;
-    while assigned( node ) do
-    begin
+    while assigned( node ) do begin
       myNote := TKntNote( node.Data );
       if myNote.Checked then
         node.CheckState := csChecked
@@ -1329,22 +1280,17 @@ var
       myChildNode : TTreeNTNode;
     begin
       myChildNode := StartNode.GetFirstChild;
-      while ( assigned( myChildNode ) and assigned( myChildNode.Data )) do
-      begin
-        if AsTextColor then
-        begin
+      while ( assigned( myChildNode ) and assigned( myChildNode.Data )) do begin
+        if AsTextColor then begin
           myChildNode.Font.Color := myColor;
-          with TKntNote( myChildNode.Data ) do
-          begin
+          with TKntNote( myChildNode.Data ) do begin
             NodeColor := myColor;
             HasNodeColor := myHasThisColor;
           end;
         end
-        else
-        begin
+        else begin
           myChildNode.Color := myColor;
-          with TKntNote( myChildNode.Data ) do
-          begin
+          with TKntNote( myChildNode.Data ) do begin
             NodeBGColor := myColor;
             HasNodeBGColor := myHasThisColor;
           end;
@@ -1358,14 +1304,14 @@ var
 
 begin
   myTreeNode := GetCurrentTreeNode;
-  if (( not assigned( myTreeNode )) or Form_Main.FolderIsReadOnly( ActiveKntFolder, false )) then exit;
-  myFolder := ActiveKntFolder;
-  myNote := TKntNote( myTreeNode.Data );
+  if (not assigned( myTreeNode )) or Form_Main.FolderIsReadOnly(ActiveFolder, true) then exit;
+
+  myFolder := ActiveFolder;
+  myNote := TKntNote(myTreeNode.Data);
   try
     case AsTextColor of
       true : begin
-        if UseColorDlg then
-        begin
+        if UseColorDlg then begin
           if myNote.HasNodeColor then
             myColor := myNote.NodeColor
           else
@@ -1376,16 +1322,11 @@ begin
           else
             exit;
         end
-        else
-        begin
+        else begin
           if ResetDefault then
-          begin
-            myColor := myFolder.TreeChrome.Font.Color;
-          end
+            myColor := myFolder.TreeChrome.Font.Color
           else
-          begin
             myColor := Form_Main.TB_Color.ActiveColor;
-          end;
         end;
 
         myHasThisColor := ( myColor <> myFolder.TreeChrome.Font.Color );
@@ -1398,14 +1339,12 @@ begin
 
       false : begin
 
-        if UseColorDlg then
-        begin
+        if UseColorDlg then begin
           if myNote.HasNodeBGColor then
             myColor := myNote.NodeBGColor
           else
             myColor := myFolder.TV.Color;
-          with Form_Main do
-          begin
+          with Form_Main do begin
             ColorDlg.Color := myColor;
             if ColorDlg.Execute then
               myColor := ColorDlg.Color
@@ -1413,16 +1352,11 @@ begin
               exit;
           end;
         end
-        else
-        begin
+        else begin
           if ResetDefault then
-          begin
-            myColor := myFolder.TV.Color;
-          end
+            myColor := myFolder.TV.Color
           else
-          begin
             myColor := Form_Main.TB_Hilite.ActiveColor;
-          end;
         end;
 
         myHasThisColor := ( myColor <> myFolder.TV.Color );
@@ -1437,7 +1371,7 @@ begin
       ColorChildren( myTreeNode );
 
   finally
-    KntFile.Modified := true;
+    ActiveFile.Modified := true;
     UpdateKntFileState( [fscModified] );
   end;
 end; // SetTreeNodeColor
@@ -1463,18 +1397,18 @@ var
       end;
     end;
 begin
-  if (( not assigned( ActiveKntFolder )) or Form_Main.FolderIsReadOnly( ActiveKntFolder, false )) then exit;
+  if (not assigned( ActiveFolder )) or Form_Main.FolderIsReadOnly(ActiveFolder, true) then exit;
 
   myNote := GetCurrentNote;
   if ( not assigned( myNote )) then exit;
-  if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
-  myTreeNode := ActiveKntFolder.TV.Selected;
+  if ( ActiveFolder.FocusMemory <> focTree ) then exit;
+  myTreeNode := ActiveFolder.TV.Selected;
   if ( not assigned( myTreeNode )) then exit;
 
   myNote.Bold := ( not myNote.Bold );
   Form_Main.TVBoldNode.Checked := myNote.Bold;
 
-  newStyle := ActiveKntFolder.TV.Font.Style;      // Default TV font can include other styles
+  newStyle := ActiveFolder.TV.Font.Style;      // Default TV font can include other styles
   if myNote.Bold then
      newStyle := newStyle + [fsBold];
 
@@ -1483,7 +1417,7 @@ begin
   if DoChildren and myTreeNode.HasChildren then
      BoldChildren( myTreeNode );
 
-  KntFile.Modified := true;
+  ActiveFile.Modified := true;
   UpdateKntFileState( [fscModified] );
 end; // SetTreeNodeBold
 
@@ -1513,28 +1447,28 @@ var
 
 begin
   myTreeNode := GetCurrentTreeNode;
-  if (( not assigned( myTreeNode )) or Form_Main.FolderIsReadOnly( ActiveKntFolder, false )) then exit;
+  if (not assigned( myTreeNode )) or Form_Main.FolderIsReadOnly(ActiveFolder, true) then exit;
+
   myNote := TKntNote( myTreeNode.Data );
   DoChildren := myTreeNode.HasChildren;
   ImgIdx := myNote.ImageIndex;
   newIdx := PickImage( ImgIdx, DoChildren );
-  if (( newIdx <> ImgIdx ) and ( newIdx <> -1 )) then
-  begin
+
+  if (( newIdx <> ImgIdx ) and ( newIdx <> -1 )) then begin
     try
       myNote.ImageIndex := newIdx;
       SelectIconForNode( myTreeNode, niCustom );
 
       if DoChildren then
-      begin
-        SetChildren( myTreeNode );
-      end;
+         SetChildren( myTreeNode );
 
     finally
-      KntFile.Modified := true;
+      ActiveFile.Modified := true;
       UpdateKntFileState( [fscModified] );
     end;
   end;
 end; // SetTreeNodeCustomImage
+
 
 procedure SetTreeNodeFontFace( const ResetDefault, DoChildren : boolean );
 var
@@ -1548,13 +1482,11 @@ var
       myChildNode : TTreeNTNode;
     begin
       myChildNode := StartNode.GetFirstChild;
-      while ( assigned( myChildNode ) and assigned( myChildNode.Data )) do
-      begin
 
+      while ( assigned( myChildNode ) and assigned( myChildNode.Data )) do begin
         myChildNode.Font.Name := myFontFace;
 
-        with TKntNote( myChildNode.Data ) do
-        begin
+        with TKntNote( myChildNode.Data ) do begin
           if ResetDefault then
             NodeFontFace := ''
           else
@@ -1562,7 +1494,7 @@ var
         end;
 
         if myChildNode.HasChildren then
-          SetFontChildren( myChildNode ); // RECURSIVE CALL
+           SetFontChildren( myChildNode ); // RECURSIVE CALL
         myChildNode := StartNode.GetNextChild( myChildNode );
       end;
     end;
@@ -1570,19 +1502,17 @@ var
 
 begin
   myTreeNode := GetCurrentTreeNode;
-  if (( not assigned( myTreeNode )) or Form_Main.FolderIsReadOnly( ActiveKntFolder, false )) then exit;
-  myFolder := ActiveKntFolder;
+  if (not assigned( myTreeNode )) or Form_Main.FolderIsReadOnly(ActiveFolder, true) then exit;
+
+  myFolder := ActiveFolder;
   myNote := TKntNote( myTreeNode.Data );
 
   try
-
-    if ResetDefault then
-    begin
-      myFontFace := ActiveKntFolder.TreeChrome.Font.Name;
+    if ResetDefault then begin
+      myFontFace := ActiveFolder.TreeChrome.Font.Name;
       myNote.NodeFontFace := '';
     end
-    else
-    begin
+    else begin
       myFontFace := Form_Main.Combo_Font.FontName;
       myNote.NodeFontFace := myFontFace;
     end;
@@ -1593,12 +1523,13 @@ begin
       SetFontChildren( myTreeNode );
 
   finally
-    KntFile.Modified := true;
+    ActiveFile.Modified := true;
     UpdateKntFileState( [fscModified] );
   end;
 
 
 end; // SetTreeNodeFontFace
+
 
 procedure SetTreeNodeFontSize( const ResetDefault, DoChildren : boolean );
 var
@@ -1607,18 +1538,20 @@ var
   myFolder : TKntFolder;
 begin
   myTreeNode := GetCurrentTreeNode;
-  if (( not assigned( myTreeNode )) or Form_Main.FolderIsReadOnly( ActiveKntFolder, false )) then exit;
-  myFolder := ActiveKntFolder;
+  if (not assigned( myTreeNode )) or Form_Main.FolderIsReadOnly(ActiveFolder, false) then exit;
+
+  myFolder := ActiveFolder;
   myNote := TKntNote( myTreeNode.Data );
 
   try
     myTreeNode.Font.Size := strtoint( Form_Main.Combo_FontSize.Text );
-    if ( myTreeNode.Font.Size >= ( ActiveKntFolder.tv.ItemHeight -4 )) then
-      ActiveKntFolder.tv.ItemHeight := myTreeNode.Font.Size+6;
+    if ( myTreeNode.Font.Size >= ( ActiveFolder.TV.ItemHeight -4 )) then
+      ActiveFolder.TV.ItemHeight := myTreeNode.Font.Size+6;
   except
   end;
 
 end; // SetTreeNodeFontSize
+
 
 function GetNodePath( aNode : TTreeNTNode; const aDelimiter : string; const TopToBottom : boolean ) : string;
 var
@@ -1627,16 +1560,12 @@ var
 begin
   result := '';
 
-  while assigned( aNode ) do
-  begin
+  while assigned( aNode ) do begin
     myNote := TKntNote( aNode.Data );
 
     if ( s = '' ) then
-    begin
-      s := myNote.Name;
-    end
-    else
-    begin
+      s := myNote.Name
+    else begin
       case TopToBottom of
         false : begin
           s := s + aDelimiter + myNote.Name;
@@ -1653,53 +1582,55 @@ begin
 
 end; // GetNodePath
 
+
 procedure SelectIconForNode( const myTreeNode : TTreeNTNode; const IconKind : TNodeIconKind );
 begin
-  if assigned( myTreeNode ) then
-  begin
-    case IconKind of
-      niStandard : begin
-        case TKntNote( myTreeNode.Data ).VirtualMode of
-          vmNone : begin
-            if myTreeNode.HasChildren then
-            begin
-              if ( myTreeNode.Level > 0 ) then
-                myTreeNode.ImageIndex := ICON_BOOK
-              else
-                myTreeNode.ImageIndex := ICON_FOLDER;
-            end
-            else
-            begin
-              myTreeNode.ImageIndex := ICON_NOTE;
-            end;
-          end;
+  if not assigned(myTreeNode) then exit;
 
-          vmText, vmRTF, vmHTML : begin
-            myTreeNode.ImageIndex := ICON_VIRTUAL;
-          end;
-          vmIELocal : begin
-            myTreeNode.ImageIndex := ICON_VIRTUALIELOCAL;
-          end;
-          vmIERemote : begin
-            myTreeNode.ImageIndex := ICON_VIRTUALIEREMOTE;
-          end;
-          vmKNTNode : begin          
-            myTreeNode.ImageIndex := ICON_VIRTUAL_KNT_NODE;
-          end;
+  case IconKind of
+
+    niStandard : begin
+      case TKntNote( myTreeNode.Data ).VirtualMode of
+        vmNone : begin
+          if myTreeNode.HasChildren then begin
+            if ( myTreeNode.Level > 0 ) then
+              myTreeNode.ImageIndex := ICON_BOOK
+            else
+              myTreeNode.ImageIndex := ICON_FOLDER;
+          end
+          else
+            myTreeNode.ImageIndex := ICON_NOTE;
         end;
-        myTreeNode.SelectedIndex := succ( myTreeNode.ImageIndex );
+
+        vmText, vmRTF, vmHTML : begin
+          myTreeNode.ImageIndex := ICON_VIRTUAL;
+        end;
+        vmIELocal : begin
+          myTreeNode.ImageIndex := ICON_VIRTUALIELOCAL;
+        end;
+        vmIERemote : begin
+          myTreeNode.ImageIndex := ICON_VIRTUALIEREMOTE;
+        end;
+        vmKNTNode : begin
+          myTreeNode.ImageIndex := ICON_VIRTUAL_KNT_NODE;
+        end;
       end;
-      niCustom : begin
-        myTreeNode.ImageIndex := TKntNote( myTreeNode.Data ).ImageIndex;
-        myTreeNode.SelectedIndex := myTreeNode.ImageIndex;
-      end;
-      niNone : begin
-        myTreeNode.ImageIndex := -1;
-        myTreeNode.SelectedIndex := -1;
-      end;
+      myTreeNode.SelectedIndex := succ( myTreeNode.ImageIndex );
+    end;
+
+    niCustom : begin
+      myTreeNode.ImageIndex := TKntNote( myTreeNode.Data ).ImageIndex;
+      myTreeNode.SelectedIndex := myTreeNode.ImageIndex;
+    end;
+
+    niNone : begin
+      myTreeNode.ImageIndex := -1;
+      myTreeNode.SelectedIndex := -1;
     end;
   end;
+
 end; // SelectIconForNode
+
 
 procedure DeleteTreeNode( const DeleteFocusedNode : boolean );
 var
@@ -1711,75 +1642,62 @@ var
 begin
   with Form_Main do begin
       KeepChildNodes := true;
-      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+      if FolderIsReadOnly( ActiveFolder, true ) then exit;
+      myFolder := ActiveFolder;
       myNote := GetCurrentNote;
       if ( not assigned( myNote )) then exit;
-      if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
-      myFolder := ActiveKntFolder;
+      if ( myFolder.FocusMemory <> focTree ) then exit;
+
+
       myTV := myFolder.TV;
       myTreeNode := myTV.Selected;
       myTreeParent := myTreeNode.Parent;
 
-      if DeleteFocusedNode then
-      begin
+      if DeleteFocusedNode then begin
         // delete focused node and all its children, if any
 
-        if myTreeNode.HasChildren then
-        begin
+        if myTreeNode.HasChildren then begin
           // ALWAYS warn if node has children
           case DoMessageBox(
-            Format( STR_09, [myTreeNode.Text, myTreeNode.Count] ) + STR_08,
-            STR_10,
-              MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL ) of
+            Format( STR_09, [myTreeNode.Text, myTreeNode.Count] ) + STR_08, STR_10,
+                MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL ) of
             ID_YES : KeepChildNodes := false;
-            ID_NO : KeepChildNodes := true;
+            ID_NO  : KeepChildNodes := true;
             else
               exit;
           end;
         end
-        else
-        begin
-          if TreeOptions.ConfirmNodeDelete then
-          begin
-            // {N}
+        else begin
+          if TreeOptions.ConfirmNodeDelete then begin
             if ( DoMessageBox( Format( STR_11, [myTreeNode.Text] ) + STR_08, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
           end;
         end;
 
       end
-      else
-      begin
+      else begin
         // command was to delete CHILDREN of focused node
-        if myTreeNode.HasChildren then
-        begin
+        if myTreeNode.HasChildren then begin
           if ( DoMessageBox(
-            // {N}
-            Format( STR_12, [myTreeNode.Count, myTreeNode.Text] ) + STR_08,
-            STR_10,
-            MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
+            Format( STR_12, [myTreeNode.Count, myTreeNode.Text] ) + STR_08, STR_10,
+               MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
          end
-        else
-        begin
+        else begin
           showmessage( STR_13 );
           exit;
         end;
       end;
 
-      with myTV do
-      begin
+      with myTV do begin
         OnChange := nil;
         OnDeletion := TVDeletion;
         Items.BeginUpdate;
       end;
       try
         try
-          if DeleteFocusedNode then
-          begin
-            if KeepChildNodes then
-            begin
+          if DeleteFocusedNode then begin
+            if KeepChildNodes then begin
               myTreeChild := myTreeNode.GetFirstChild;
-              while assigned( myTreeChild ) do
-              begin
+              while assigned( myTreeChild ) do begin
                 myNextChild := myTreeNode.GetNextChild( myTreeChild );
                 myTreeChild.MoveTo( myTreeParent, naAddChild );
                 SelectIconForNode( myTreeChild, myFolder.IconKind );
@@ -1790,20 +1708,18 @@ begin
             myTV.Items.Delete( myTreeNode );
             SelectIconForNode( myTreeParent, myFolder.IconKind );
           end
-          else
-          begin
+          else begin
             myTreeNode.DeleteChildren;
             SelectIconForNode( myTreeNode, myFolder.IconKind );
           end;
+
         except
           on E : Exception do
-          begin
             messagedlg( STR_14 + #13 + E.Message, mtError, [mbOK], 0 );
-          end;
         end;
+
       finally
-        with myTV do
-        begin
+        with myTV do begin
           OnDeletion := nil;
           OnChange := TVChange;
           Items.EndUpdate;
@@ -1812,15 +1728,20 @@ begin
         myTreeNode:= myFolder.TV.Selected;
         if assigned( myTreeNode ) then
            TreeNodeSelected(myTreeNode, true)
-        else
+        else begin
            myFolder.SelectedNote := nil;
+           myFolder.Editor.Clear;
+           myFolder.Editor.Enabled:= False;
+           App.EditorLoaded(myFolder.Editor);
+        end;
 
-        KntFile.Modified := true;
+        ActiveFile.Modified := true;
         UpdateKntFileState( [fscModified] );
       end;
   end;
 
 end; // DeleteTreeNode
+
 
 function MoveSubtree( myTreeNode : TTreeNTNode ): boolean;
 var
@@ -1832,48 +1753,45 @@ begin
   Result:= false;
   with Form_Main do begin
       if ( not assigned( myTreeNode )) then exit;
-      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
-      selectedNode := ActiveKntFolder.TV.Selected;
-      if not assigned( selectedNode ) then begin
+      if FolderIsReadOnly( ActiveFolder, true ) then exit;
+      selectedNode := ActiveFolder.TV.Selected;
+      if not assigned(selectedNode) then begin
         showmessage( STR_15 );
         exit;
       end;
       if ( myTreeNode = selectedNode ) then exit;
 
-      myFolder:= KntFile.GetFolderByTreeNode(myTreeNode);
-      if FolderIsReadOnly( myFolder, true ) then exit;
+      myFolder:= ActiveFile.GetFolderByTreeNode(myTreeNode);
+      if FolderIsReadOnly(myFolder, true) then exit;
 
       myTV := myFolder.TV;
       myTreeParent := myTreeNode.Parent;
 
-      if ( DoMessageBox( Format(
-        STR_16,
-        [TransferNodes.Count, myTreeNode.Text, selectedNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+      if (DoMessageBox(Format(STR_16,
+        [TransferNodes.Count, myTreeNode.Text, selectedNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes) then
           exit;
 
-      // Paste                                                      
+      // Paste
       TreeTransferProc(1, nil, false, false, true );  // Graft Subtree
 
       // .. and Cut
-      with myTV do
-      begin
+      with myTV do begin
         OnChange := nil;
         OnDeletion := TVDeletion;
         Items.BeginUpdate;
       end;
+
       try
         try
             myTV.Items.Delete( myTreeNode );
             SelectIconForNode( myTreeParent, myFolder.IconKind );
         except
           on E : Exception do
-          begin
             messagedlg( STR_14 + #13 + E.Message, mtError, [mbOK], 0 );
-          end;
         end;
+
       finally
-        with myTV do
-        begin
+        with myTV do begin
           OnDeletion := nil;
           OnChange := TVChange;
           Items.EndUpdate;
@@ -1886,7 +1804,7 @@ begin
         myFolder.DataStreamToEditor;
       end;
 
-      KntFile.Modified := true;
+      ActiveFile.Modified := true;
       UpdateKntFileState( [fscModified] );
       Result:= true;
   end;
@@ -1894,17 +1812,15 @@ begin
 end; // MoveSubtree
 
 
-procedure UpdateTreeNode( const aTreeNode : TTreeNTNode );
+procedure UpdateTreeNode( const aTreeNode : TTreeNTNode; Folder: TKntFolder );
 var
   myNote : TKntNote;
-  myFolder : TKntFolder;
 begin
   if assigned( aTreeNode ) then begin
 
     myNote := TKntNote( aTreeNode.Data );
     if assigned( myNote ) then begin
-      myFolder := ActiveKntFolder;
-      myFolder.TV.OnChecked:= nil;
+      Folder.TV.OnChecked:= nil;
 
       // [x] FIXME: in many cases by doing this we are setting
       // the treenode text TWICE. In some cases this line is
@@ -1915,7 +1831,7 @@ begin
          aTreeNode.Hidden:= True;
 
       if myNote.Bold then
-        aTreeNode.Font.Style := myFolder.TV.Font.Style + [fsBold];
+        aTreeNode.Font.Style := Folder.TV.Font.Style + [fsBold];
 
       if myNote.ChildrenCheckbox then       // [dpv]
          aTreeNode.CheckType  := ctCheckBox
@@ -1936,11 +1852,11 @@ begin
       if myNote.HasNodeBGColor then
         aTreeNode.Color := myNote.NodeBGColor;
 
-      if assigned(myFolder) then
-         myFolder.TV.OnChecked:= Form_Main.TVChecked;
+      Folder.TV.OnChecked:= Form_Main.TVChecked;
     end;
   end;
 end; // UpdateTreeNode
+
 
 procedure CreateNodefromSelection;
 var
@@ -1952,40 +1868,36 @@ var
   p : integer;
 begin
   with Form_Main do begin
-      if ( not assigned( ActiveKntFolder )) then exit;
-      if FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+      if ( not assigned( ActiveFolder )) then exit;
+      myFolder := ActiveFolder;
+      if FolderIsReadOnly(myFolder, true ) then exit;
 
-      myFolder := ActiveKntFolder;
 
-      if ( myFolder.Editor.SelLength = 0 ) then
-      begin
-        ErrNoTextSelected;
+      if ( ActiveEditor.SelLength = 0 ) then begin
+        App.WarnNoTextSelected;
         exit;
       end;
   end;
 
   SelectedNode := myFolder.TV.Selected;
-  if ( not assigned( SelectedNode )) then
-  begin
+  if ( not assigned( SelectedNode )) then begin
     Form_Main.Statusbar.Panels[PANEL_HINT].Text := STR_17;
     exit;
   end;
 
-  myNodeName:= FirstLineFromString(trimleft( myFolder.Editor.SelText ), TREENODE_NAME_LENGTH_CAPTURE);
+  myNodeName:= FirstLineFromString(TrimLeft( ActiveEditor.SelText ), TREENODE_NAME_LENGTH_CAPTURE);
 
-  myRTFText := myFolder.Editor.RtfSelText;
+  myRTFText := ActiveEditor.RtfSelText;
 
   myTreeNode := TreeNewNode( nil, tnAddAfter, nil, '', true );
-  if assigned( myTreeNode ) then
-  begin
+  if assigned( myTreeNode ) then begin
     myFolder.TV.Items.BeginUpdate;
     try
 
       myFolder.TV.Selected := myTreeNode;
       myNote := TKntNote( myTreeNode.Data );
 
-      if ( myNodeName <> '' ) then // can be blank
-      begin
+      if ( myNodeName <> '' ) then begin   // can be blank
         myNote.Name := myNodeName;
         myTreeNode.Text := myNote.Name;
       end;
@@ -1999,12 +1911,13 @@ begin
 
     finally
       myFolder.TV.Items.EndUpdate;
-      KntFile.Modified := true;
+      ActiveFile.Modified := true;
       UpdateKntFileState( [fscModified] );
     end;
   end;
 
 end; // CreateNodefromSelection
+
 
 procedure NavigateInTree( NavDirection : TNavDirection );
 var
@@ -2012,7 +1925,7 @@ var
   SBVal, ScrollVal, ScrollMsg : integer;
 begin
 
-  if not assigned( ActiveKntFolder ) then exit;
+  if not assigned( ActiveFolder ) then exit;
 
   VKey := 0;
   SBVal := SB_LINEDOWN;
@@ -2025,8 +1938,7 @@ begin
     if the editor is focused, Alt+arrow scrolls the tree
   }
 
-  if ActiveKntFolder.TV.Focused then
-  begin
+  if ActiveFolder.TV.Focused then begin
 
     case NavDirection of
       navUp : begin
@@ -2051,39 +1963,25 @@ begin
       end;
     end;
 
-    with ActiveKntFolder.Editor do
-    begin
-      perform( ScrollMsg,
-               MakeLong( SBVal, GetScrollPos( handle, ScrollVal )),
-               0 );
-      perform( ScrollMsg,
-               MakeLong( SB_ENDSCROLL, GetScrollPos( handle, ScrollVal )),
-               0 );
+    with ActiveFolder.Editor do begin
+      perform( ScrollMsg, MakeLong( SBVal, GetScrollPos( handle, ScrollVal )), 0 );
+      perform( ScrollMsg, MakeLong( SB_ENDSCROLL, GetScrollPos( handle, ScrollVal )), 0 );
     end;
   end
-  else
-  begin
+  else begin
     case NavDirection of
-      navUp : begin
-        VKey := VK_UP;
-      end;
-      navDown : begin
-        VKey := VK_DOWN;
-      end;
-      navLeft : begin
-        VKey := VK_LEFT;
-      end;
-      navRight : begin
-        VKey := VK_RIGHT;
-      end;
+      navUp  :  VKey := VK_UP;
+      navDown:  VKey := VK_DOWN;
+      navLeft:  VKey := VK_LEFT;
+      navRight: VKey := VK_RIGHT;
     end;
-    with ActiveKntFolder.TV do
-    begin
+    with ActiveFolder.TV do begin
       Perform( WM_KEYDOWN, VKey, 0 );
       Perform( WM_KEYUP, VKey, 0 );
     end;
   end;
 end; // NavigateInTree
+
 
 procedure CopyNodeName( const IncludeNoteText : boolean );
 var
@@ -2091,18 +1989,11 @@ var
 begin
   myTreeNode := GetCurrentTreeNode;
   if ( not assigned( myTreeNode )) then exit;
-  // if ( ActiveKntFolder.FocusMemory <> focTree ) then exit;
 
   if IncludeNoteText then
-  begin
-    // {N}
-    ClipBoard.AsText:=  myTreeNode.Text + #13#13 + RemoveKNTHiddenCharacters(ActiveKntFolder.Editor.Text) ;
-  end
+     ClipBoard.AsText:=  myTreeNode.Text + #13#13 + RemoveKNTHiddenCharactersInText(ActiveFolder.Editor.Text)
   else
-  begin
-    // {N}
-    ClipBoard.AsText:= myTreeNode.Text;
-  end;
+     ClipBoard.AsText:= myTreeNode.Text;
 end; // CopyNodeName
 
 
@@ -2142,9 +2033,8 @@ var
      TransferedNoteNode : TTreeNTNode;
   begin
       Result:= 0;
-      for i := 0 to pred( TransferNodes.Count ) do
-      begin
-          TransferedNoteNode:= GetTreeNode(CopyCutFromNoteID, TransferNodes[i].ID);
+      for i := 0 to pred( TransferNodes.Count ) do begin
+          TransferedNoteNode:= GetTreeNode(CopyCutFromFolderID, TransferNodes[i].ID);
           if assigned(TransferedNoteNode) and not TransferedNoteNode.Hidden then
              Result:= Result+1;
       end;
@@ -2152,13 +2042,10 @@ var
 
 begin
   result := false;
-  if ( XferAction = 2 ) then // clear
-  begin
+  if ( XferAction = 2 ) then begin   // clear
     result := true;
-    if assigned( TransferNodes ) then
-    begin
-      if ( messagedlg( Format(
-        STR_18,
+    if assigned( TransferNodes ) then begin
+      if (messagedlg(Format( STR_18,
         [TransferNodes.Count] ), mtConfirmation, [mbYes,mbNo], 0 ) = mrYes ) then
         TransferNodes.Free;
       TransferNodes := nil;
@@ -2167,15 +2054,14 @@ begin
   end;
 
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
-  if Form_Main.FolderIsReadOnly( ActiveKntFolder, true ) then exit;
+  if Form_Main.FolderIsReadOnly( ActiveFolder, true ) then exit;
 
   if ( PasteTargetFolder = nil ) then
-    myTreeNode := GetCurrentTreeNode
+     myTreeNode := GetCurrentTreeNode
   else
-    myTreeNode := PasteTargetFolder.TV.Selected;
+     myTreeNode := PasteTargetFolder.TV.Selected;
 
-  if ( myTreeNode = nil ) then
-  begin
+  if ( myTreeNode = nil ) then begin
     showmessage( STR_15 );
     exit;
   end;
@@ -2187,15 +2073,14 @@ begin
       case XferAction of
         0 : begin // COPY subtree
 
-          ActiveKntFolder.EditorToDataStream;
-          CopyCutFromNoteID:= ActiveKntFolder.ID; 
+          ActiveFolder.EditorToDataStream;
+          CopyCutFromFolderID:= ActiveFolder.ID;
 
           if assigned( TransferNodes ) then
-            TransferNodes.Free;
+             TransferNodes.Free;
           TransferNodes := TKntNoteList.Create;
           StartLevel := myTreeNode.Level;
-          while assigned( myTreeNode ) do
-          begin
+          while assigned( myTreeNode ) do begin
               newNote := TKntNote.Create;
               newNote.Assign( TKntNote( myTreeNode.Data ));
               newNote.Level := myTreeNode.Level - StartLevel;
@@ -2206,22 +2091,19 @@ begin
                   myTreeNode := nil; // end of subtree; break out of loop
           end;
 
-          if ( TransferNodes.Count = 0 ) then
-          begin
+          if ( TransferNodes.Count = 0 ) then begin
             showmessage( STR_19 );
             TransferNodes.Free;
             TransferNodes := nil;
           end
-          else
-          begin
+          else begin
             result := true;
             Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_20, [TransferNodes.Count] );
           end;
         end;
 
         1 : begin // PASTE subtree
-          if ( not assigned( TransferNodes )) then
-          begin
+          if ( not assigned( TransferNodes )) then begin
             showmessage( STR_21 );
             exit;
           end;
@@ -2232,28 +2114,23 @@ begin
                   STR_26,
                   [CountVisibleTransferNodes, myTreeNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
                     exit;
-              end
+          end
           else begin
-              if TransferNodes.HasVirtualNotes then
-              begin
-                if ( messagedlg(
-                  STR_22,
-                  mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
-                    exit;
+              if TransferNodes.HasVirtualNotes then begin
+                if ( messagedlg(STR_22, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
+                   exit;
               end
-              else
-              begin
-              if Prompt then
-                if ( DoMessageBox( Format(
-                  STR_23,
-                  [TransferNodes.Count,myTreeNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then // {N}
-                    exit;
+              else begin
+                 if Prompt then
+                   if ( DoMessageBox(Format(STR_23,
+                     [TransferNodes.Count,myTreeNode.Text] ), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then // {N}
+                       exit;
               end;
           end;
 
-          KntFile.Modified := true;
+          ActiveFile.Modified := true;
 
-          myFolder := ActiveKntFolder;
+          myFolder := ActiveFolder;
           LastNodeAssigned := myTreeNode;
           PasteCount := 0;
           VirtualNodesConverted := 0;
@@ -2263,12 +2140,11 @@ begin
           LastLevel := StartLevel+1;
 
           myFolder.TV.Items.BeginUpdate;
-          RTFAux:= CreateRTFAuxEditorControl;
+          RTFAux:= CreateAuxRichEdit;
 
           try
-            for i := 0 to pred( TransferNodes.Count ) do
-            begin
-                TransferedNoteNode:= GetTreeNode(CopyCutFromNoteID, TransferNodes[i].ID);
+            for i := 0 to pred( TransferNodes.Count ) do begin
+                TransferedNoteNode:= GetTreeNode(CopyCutFromFolderID, TransferNodes[i].ID);
 
                 if not (PasteAsVirtualKNTNode and TransferedNoteNode.Hidden) then begin
                     newNote := TKntNote.Create;
@@ -2287,18 +2163,16 @@ begin
                         ConvertStreamContent(newNote.Stream, sfRichText, sfPlainText, RTFAux);
 
                     if MovingSubtree then
-                       AlarmManager.MoveAlarms(KntFile.GetFolderByID(CopyCutFromNoteID), TransferNodes[i],  myFolder, newNote);
+                       AlarmMng.MoveAlarms(KntFile.GetFolderByID(CopyCutFromFolderID), TransferNodes[i],  myFolder, newNote);
 
                     myFolder.AddNote( newNote );
                     newNote.Level := newNote.Level + StartLevel + 1;
 
-                    if ( i = 0 ) then
-                    begin
+                    if ( i = 0 ) then begin
                       newTreeNode := myFolder.TV.Items.AddChildFirst( myTreeNode, newNote.Name );
                       FirstCopiedNode := newTreeNode;
                     end
-                    else
-                    begin
+                    else begin
                       case DoTrinaryCompare( newNote.Level, LastLevel ) of
                         trinGreater : begin
                           newTreeNode := myFolder.TV.Items.AddChild( LastNodeAssigned, newNote.Name );
@@ -2306,38 +2180,35 @@ begin
                         trinEqual : begin
                           newTreeNode := myFolder.TV.Items.Add( LastNodeAssigned, newNote.Name );
                         end;
-                        else
-                        begin
+                        else begin
                           for loop := 1 to (( LastLevel - newNote.Level )) do
-                            LastNodeAssigned := LastNodeAssigned.Parent;
+                             LastNodeAssigned := LastNodeAssigned.Parent;
                           newTreeNode := myFolder.TV.Items.Add( LastNodeAssigned, newNote.Name );
                         end;
                       end;
                     end;
 
-                    if assigned( newNote ) then
-                    begin
+                    if assigned( newNote ) then begin
 
                       LastLevel := newTreeNode.Level;
                       LastNodeAssigned := newTreeNode;
                       newNote.Level := newTreeNode.Level;
 
                       newTreeNode.Data := newNote;
-                      UpdateTreeNode( newTreeNode );
+                      UpdateTreeNode( newTreeNode, myFolder );
 
                       if PasteAsVirtualKNTNode then begin
                          newNote.MirrorNode:= TransferedNoteNode;
                          AddMirrorNode(TransferedNoteNode, newTreeNode);
-                         end
+                      end
                       else
                           if newNote.VirtualMode = vmKNTNode  then begin
                              newNote.MirrorNode:= TKntNote(TransferedNoteNode.Data).MirrorNode;
                              AddMirrorNode(newNote.MirrorNode, newTreeNode);
-                             end
+                          end
                           else begin
-                             if ( newNote.VirtualMode <> vmNone) then begin
-                                 if KntFile.HasVirtualNoteByFileName( newNote, newNote.VirtualFN ) then
-                                 begin
+                              if ( newNote.VirtualMode <> vmNone) then begin
+                                 if KntFile.HasVirtualNoteByFileName( newNote, newNote.VirtualFN ) then begin
                                    inc( VirtualNodesConverted );
                                    newNote.VirtualMode := vmNone;
                                    newNote.VirtualFN := '';
@@ -2360,12 +2231,12 @@ begin
                                 (quick but unnecessary), we will avoid the call if the destination folder is PlainText.
                               }
                                if not (myFolder.PlainText) then
-                                  KntFile.UpdateImagesCountReferences (newNote);
+                                  ActiveFile.UpdateImagesCountReferences (newNote);
 
                               if MovingSubtree then begin
                                  movingNoteNode:= TransferedNoteNode;
                                  if assigned(movingNoteNode) then
-                                     KntFile.ManageMirrorNodes(1, movingNoteNode, newTreeNode);
+                                     ActiveFile.ManageMirrorNodes(1, movingNoteNode, newTreeNode);
                               end
                           end;
                     end;
@@ -2377,8 +2248,7 @@ begin
 
             newTreeNode := myTreeNode;
 
-            while assigned( newTreeNode ) do
-            begin
+            while assigned( newTreeNode ) do begin
               SelectIconForNode( newTreeNode, myFolder.IconKind );
                 newTreeNode := newTreeNode.GetNext;
               if (( newTreeNode <> nil ) and ( newTreeNode.Level <= StartLevel )) then
@@ -2386,24 +2256,20 @@ begin
             end;
             result := true;
             Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_24, [PasteCount] );
-            if assigned( FirstCopiedNode ) then
-            begin
+            if assigned( FirstCopiedNode ) then begin
               FirstCopiedNode.Collapse( true );
               FirstCopiedNode.MakeVisible;
               // myFolder.TV.Selected := FirstCopiedNode;
             end;
+
           finally
             myFolder.TV.Items.EndUpdate;
             myFolder.TV.Selected := myTreeNode;
             TreeNodeSelected( myTreeNode );
             RTFAux.Free;
             // myTreeNode.Expand( true );
-            if ( VirtualNodesConverted > 0 ) then
-            begin
-              showmessage( Format(
-                STR_25,
-                [VirtualNodesConverted]
-              ));
+            if ( VirtualNodesConverted > 0 ) then begin
+              showmessage( Format(STR_25,[VirtualNodesConverted]));
             end;
           end;
         end;
@@ -2411,15 +2277,13 @@ begin
 
     except
       on E : Exception do
-      begin
         showmessage( E.Message );
-      end;
     end;
 
   finally
     screen.Cursor := crDefault;
     if (XferAction = 1) and Result then begin
-       KntFile.Modified := true;
+       ActiveFile.Modified := true;
        UpdateKntFileState( [fscModified] );
     end;
   end;
