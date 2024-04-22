@@ -1448,7 +1448,7 @@ begin
       writeinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage ));
       writeinteger( section, KeyOptionsIniStr.ImgDefaultCompression, ord( KeyOptions.ImgDefaultCompression ));
       writeinteger( section, KeyOptionsIniStr.ImgStorageModeOnExport, ord( KeyOptions.ImgStorageModeOnExport ));
-      writeinteger( section, KeyOptionsIniStr.ImgFormatInsideRTF, ord( KeyOptions.ImgFormatInsideRTF ));
+      //writeinteger( section, KeyOptionsIniStr.ImgFormatInsideRTF, ord( KeyOptions.ImgFormatInsideRTF ));     // Do not persist if set internally by Keynote because of RichEdit version
       writeinteger( section, KeyOptionsIniStr.ImgDefaultFormatFromClipb, ord( KeyOptions.ImgDefaultFormatFromClipb ));
       writeinteger( section, KeyOptionsIniStr.ImgBmpPixelFormat, ord( KeyOptions.ImgBmpPixelFormat ));
       WriteFloat  ( section, KeyOptionsIniStr.ImgRatioSizePngVsJPG, KeyOptions.ImgRatioSizePngVsJPG);

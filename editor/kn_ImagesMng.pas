@@ -3041,7 +3041,8 @@ begin
                    Img:= GetImageFromID (ImgID);
 
                 if Img <> nil then begin
-                   GetStream:= False;                     // We don't need RTFPictToImage to get the Stream from the content in the RTF
+                   if KeyOptions.ImgFormatInsideRTF = ifAccordingImage then
+                      GetStream:= False;                     // We don't need RTFPictToImage to get the Stream from the content in the RTF
                    if StreamNeeded then
                       Stream:= Img.ImageStream;
 
