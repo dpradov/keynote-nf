@@ -1173,8 +1173,8 @@ type
     procedure FavMAddExternalClick(Sender: TObject);
     procedure MMEditPasteAsNewNodeClick(Sender: TObject);
 
-    procedure RTFMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
+    procedure RTFMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure RTFMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 
     procedure MMTreeOutlineNumClick(Sender: TObject);
     procedure MMHistoryGoBackClick(Sender: TObject);
@@ -4357,10 +4357,17 @@ end;
 
 procedure TForm_Main.RTFMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
 begin
+   if TreeWidthExpanded then begin
+      if ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) then exit;
+      CheckRestoreTreeWidth;
+   end;
+   TreeWidth_N:= 0;
+end;
+
+procedure TForm_Main.RTFMouseUp(Sender: TObject; Button: TMouseButton; Shift:TShiftState; X,Y: integer);
+begin
    if TreeWidthExpanded then
       CheckRestoreTreeWidth;
-
-   TreeWidth_N:= 0;
 end;
 
 
@@ -4412,8 +4419,6 @@ begin
            TreeWidthExpanded:= false;
            TreeWidth_N:= 0;
            Result:= true;
-
-           myFolder.Editor.SelLength:= 0;
        end;
     end;
 
@@ -4421,10 +4426,8 @@ end;
 
 procedure TForm_Main.RxRTFEnter(Sender: TObject);
 begin
-   if CheckRestoreTreeWidth then begin
-      Application.ProcessMessages;
-      Sleep(100);
-   end;
+   if not ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) then
+      CheckRestoreTreeWidth;
 end;
 
 procedure TForm_Main.TVEnter(Sender: TObject);

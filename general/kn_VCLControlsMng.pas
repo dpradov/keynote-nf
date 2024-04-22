@@ -160,6 +160,7 @@ begin
           OnKeyPress:= RxRTFKeyPress;
           OnEnter:= RxRTFEnter;
           OnMouseMove := RTFMouseMove;
+          OnMouseUp := RTFMouseUp;
           OnFileDropped := Form_Main.OnFileDropped;
 
           // AllowObjects := true;                      // Should be assigned when creating the control, to not lead to recreate its window
