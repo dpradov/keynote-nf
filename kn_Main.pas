@@ -4434,7 +4434,7 @@ procedure TForm_Main.TVEnter(Sender: TObject);
 begin
    App.TreeFocused(TTreeNT(Sender));
 
-   if not ( (CtrlDown or AltDown) and ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) ) then
+   if (ActiveFolder.FocusMemory = focTree) and not ( (CtrlDown or AltDown) and ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) ) then
       CheckExpandTreeWidth;
 end;
 
