@@ -1459,7 +1459,7 @@ begin
         PrepareRTFforPlainText(RTF, myFolder.TabSize, EditorOptions.IndentInc);
 
         Txt:= RTF.Text;
-        if not CanSaveAsANSI(Text) then
+        if not CanSaveAsANSI(Txt) then
            Encoding:= TEncoding.UTF8;
 
         if ShowHiddenMarkers then begin
