@@ -62,7 +62,7 @@ uses
     procedure UpdateResPanelState;
     procedure SetResPanelPosition;
     procedure HideOrShowResPanel( const DoShow : boolean );
-    procedure UpdateResPanelContents (ChangedVisibility: boolean);
+    procedure UpdateResPanelContents;
     procedure LoadResScratchFile;
     procedure StoreResScratchFile;
     function CheckResourcePanelVisible( const DoWarn : boolean ) : boolean;
@@ -1261,7 +1261,7 @@ begin
 end; // UpdateResPanelState
 
 
-procedure UpdateResPanelContents (ChangedVisibility: boolean);
+procedure UpdateResPanelContents;
 begin
   // General idea: do not load all resource panel information
   // when KeyNote starts. Instead, load data only when
@@ -1269,32 +1269,21 @@ begin
   // when user clicks the Macros tab and the list of macros
   // is empty, we load he macros.
 
+  // [dpv]
+  // As macros, plugins and templates can be inserted via keyboard shortcuts it seems not a good idea
+  // to not load that resources at the beginning or to unload them later.
+  // However only list of macros needs to be loaded to be able to execute a particular macro.
+  // This is done at the beginning, in InitializeKeyNote.MacroInitialize (-> LoadMacroList)
+  // Templates can be inserted with shortcuts even if the list of templates is not loaded
+  // At the beginning, in kn_ConfigMng.LoadCustomKeyboard, the application loads from Keyboard.ini
+  // the custom commands. In the case of templates, the name of the file is the command.
+  //
+  // KeyOptions.ResPanelActiveUpdate = 1 is used to to reload the resources from disk  (for the selected tab).
+  // Eg. if a macro file was copied to macros folder while KeyNote is running, simply hiding and then
+  // showing the resource panel will load the new macro (press F9 twice)
+
   with Form_Main do begin
-      if KeyOptions.ResPanelShow then begin
-
-        if not Initializing and ChangedVisibility and KeyOptions.ResPanelActiveUpdate then begin
-          if assigned(Res_RTF) then begin
-             if Res_RTF.Modified then
-                StoreResScratchFile;
-
-             Res_RTF.Clear;
-          end;
-
-          // if a macro file was copied to macros folder while KeyNote is running, simply hiding and then
-          // showing the resource panel will load the new macro (press F9 twice)
-          ListBox_ResMacro.Items.Clear;
-          ClearMacroList;
-
-          ListBox_ResFav.Items.Clear;
-
-          // clear list of templates
-          ListBox_ResTpl.Items.Clear;
-
-          // List of plugns does NOT get cleared, because it takes a long time to initialize.
-          // Once loaded, the lisy remains available even after the resource panel is hidden. To reload
-          // the list of current plugins, use the "Reload plugins" menu command.
-          { ListBox_ResPlugins.Items.Clear; }
-        end;
+     if KeyOptions.ResPanelShow then begin
 
         MMToolsPluginRun.Enabled := ResTab_Plugins.TabVisible;
         MMToolsMacroRun.Enabled := ResTab_Macro.TabVisible;
@@ -1304,34 +1293,56 @@ begin
         end
         else
         if ( Pages_Res.ActivePage = ResTab_RTF ) then begin
+          if not Initializing and KeyOptions.ResPanelActiveUpdate then begin
+             if assigned(Res_RTF) then begin
+                if Res_RTF.Modified then
+                   StoreResScratchFile;
+                Res_RTF.Clear;
+             end;
+          end;
           if ( Res_RTF.Lines.Count = 0 ) then
             LoadResScratchFile;
         end
         else
         if ( Pages_Res.ActivePage = ResTab_Macro ) then begin
+          if not Initializing and KeyOptions.ResPanelActiveUpdate then begin
+             // if a macro file was copied to macros folder while KeyNote is running, simply hiding and then
+             // showing the resource panel will load the new macro (press F9 twice)
+             ListBox_ResMacro.Items.Clear;
+             ClearMacroList;
+          end;
           // load macros
           if ( ListBox_ResMacro.Items.Count = 0 ) then
             EnumerateMacros;
         end
         else
         if ( Pages_Res.ActivePage = ResTab_Template ) then begin
+          if not Initializing and KeyOptions.ResPanelActiveUpdate then
+             ListBox_ResTpl.Items.Clear;
           // load templates
           if ( ListBox_ResTpl.Items.Count = 0 ) then
             LoadTemplateList;
         end
         else
         if ( Pages_Res.ActivePage = ResTab_Plugins ) then begin
+          // List of plugns does NOT get cleared, because it takes a long time to initialize.
+          // Once loaded, the list remains available even after the resource panel is hidden. To reload
+          // the list of current plugins, use the "Reload plugins" menu command.
+          {if not Initializing and KeyOptions.ResPanelActiveUpdate then
+             ListBox_ResPlugins.Items.Clear; }
           if ( ListBox_ResPlugins.Items.Count = 0 ) then
             DisplayPlugins;
         end
         else
         if ( Pages_Res.ActivePage = ResTab_Favorites ) then begin
+          if not Initializing and KeyOptions.ResPanelActiveUpdate then
+             ListBox_ResFav.Items.Clear;
           if ( ListBox_ResFav.Items.Count = 0 ) then
             DisplayFavorites;
         end;
 
-      end
-      else begin
+     end
+     else begin
         MMToolsPluginRun.Enabled := false;
         MMToolsMacroRun.Enabled := false;
 
@@ -1340,7 +1351,7 @@ begin
             StoreResScratchFile;
         except
         end;
-      end;
+     end;
   end;
 
 end; // UpdateResPanelContents
@@ -1441,7 +1452,7 @@ procedure LoadResScratchFile;
 begin
   with Form_Main do begin
       if fileexists( Scratch_FN ) then begin
-        Res_RTF.Lines.BeginUpdate;
+        Res_RTF.BeginUpdate;
         try
           try
             Res_RTF.Lines.LoadFromFile( Scratch_FN );
@@ -1449,7 +1460,7 @@ begin
           end;
 
         finally
-          Res_RTF.Lines.EndUpdate;
+          Res_RTF.EndUpdate;
           Res_RTF.Modified:= false;
         end;
       end;

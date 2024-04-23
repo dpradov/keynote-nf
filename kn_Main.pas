@@ -1619,7 +1619,7 @@ begin
 
   try
     HideOrShowResPanel( KeyOptions.ResPanelShow );
-    UpdateResPanelContents (true);
+    UpdateResPanelContents;
     Splitter_ResMoved( Splitter_Res );
     // Pages_Res.Visible := KeyOptions.ResPanelShow;
     Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
@@ -1716,7 +1716,7 @@ end; // ACTIVATE
 
 procedure TForm_Main.FormStorageRestorePlacement(Sender: TObject);
 begin
-   UpdateResPanelContents (false);
+   UpdateResPanelContents;
 end;
 
 
@@ -6018,7 +6018,7 @@ begin
 
   KeyOptions.ResPanelShow := ( not KeyOptions.ResPanelShow );
 
-  UpdateResPanelContents (true);
+  UpdateResPanelContents;
   HideOrShowResPanel( KeyOptions.ResPanelShow );
   MMViewResPanel.Checked := KeyOptions.ResPanelShow;
   if KeyOptions.ResPanelShow then
@@ -6119,7 +6119,7 @@ end;
 
 procedure TForm_Main.Pages_ResChange(Sender: TObject);
 begin
-  UpdateResPanelContents (false);
+  UpdateResPanelContents;
   if KeyOptions.ResPanelShow then
     FocusResourcePanel;
 end; // Pages_ResChange
@@ -6299,7 +6299,7 @@ begin
       Pages_Res.ActivePage := sheet
     else
       Pages_Res.SelectNextPage( false );
-    UpdateResPanelContents (true);
+    UpdateResPanelContents;
   end;
 
 end; // ResMPluginTabClick
