@@ -1037,7 +1037,7 @@ begin
 
          // Get (and reflect) the expanded state of all the tree nodes
          try
-           for i := 1 to KntFile.NoteCount do begin
+           for i := 1 to KntFile.FolderCount do begin
               myFolder := KntFile.Folders[pred(i)];
               GetOrSetNodeExpandState(myFolder.TV, false, false);
            end;
@@ -1423,12 +1423,12 @@ begin
               exit;
             end;
 
-            if ( MergeFile.NoteCount = 0 ) then begin
+            if ( MergeFile.FolderCount = 0 ) then begin
               messagedlg( STR_41, mtInformation, [mbOK], 0 );
               exit;
             end;
 
-            for i := 0 to pred( MergeFile.NoteCount ) do begin
+            for i := 0 to pred( MergeFile.FolderCount ) do begin
               // initially, UNMARK ALL notes (i.e. no merging)
               MergeFile.Folders[i].Info := 0;
             end;
@@ -1449,8 +1449,8 @@ begin
             TabSelector.Free;
           end;
 
-          SetLength(IDs, MergeFile.NoteCount);
-          for i := 0 to pred( MergeFile.NoteCount ) do begin
+          SetLength(IDs, MergeFile.FolderCount);
+          for i := 0 to pred( MergeFile.FolderCount ) do begin
             // see if user selected ANY notes for merge
             if ( MergeFile.Folders[i].Info > 0 ) then
               inc( mergecnt );
@@ -1467,7 +1467,7 @@ begin
           screen.Cursor := crHourGlass;
 
           try
-            for i := 0 to pred( MergeFile.NoteCount ) do begin
+            for i := 0 to pred( MergeFile.FolderCount ) do begin
 
               IDs[i].oldID:= MergeFile.Folders[i].ID;
               if (MergeFile.Folders[i].Info = 0) then begin
@@ -1552,7 +1552,7 @@ begin
             end;
 
             //Mirror nodes (if exists) references old Folder IDs. We must use new IDs
-            for i := 0 to pred( MergeFile.NoteCount ) do
+            for i := 0 to pred( MergeFile.FolderCount ) do
               if IDs[i].newFolder then begin
                  newFolder:= KntFile.GetFolderByID(IDs[i].newID);
                  for n := 0 to newFolder.NoteCount - 1 do begin
@@ -1567,7 +1567,7 @@ begin
                  end;
               end;
 
-            for i := 0 to pred( MergeFile.NoteCount ) do
+            for i := 0 to pred( MergeFile.FolderCount ) do
                 if IDs[i].newFolder then begin
                    newFolder:= KntFile.GetFolderByID(IDs[i].newID);
                    KntFile.SetupMirrorNodes(newFolder);

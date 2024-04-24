@@ -114,7 +114,7 @@ type
 
     property Comment : TCommentStr read FComment write SetComment;
     property Description : TCommentStr read FDescription write SetDescription;
-    property NoteCount : integer read GetCount;
+    property FolderCount : integer read GetCount;
     property DateCreated : TDateTime read FDateCreated;
     property ActiveFolderID : Cardinal read FActiveFolderID write FActiveFolderID;
     property Folders : TKntFolderList read FFolders write FFolders;

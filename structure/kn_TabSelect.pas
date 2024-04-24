@@ -154,10 +154,10 @@ var
   aFolder : TKntFolder;
 begin
   if ( not assigned( myKntFile )) then exit;
-  if ( myKntFile.NoteCount < 1 ) then exit;
+  if ( myKntFile.FolderCount < 1 ) then exit;
   List_Tabs.Items.BeginUpdate;
   try
-    for i := 0 to pred( myKntFile.NoteCount ) do
+    for i := 0 to pred( myKntFile.FolderCount ) do
     begin
       aFolder := myKntFile.Folders[i];
       if ( aFolder.Info <> 0 ) then
@@ -177,8 +177,8 @@ var
   i : integer;
 begin
   if ( not assigned( myKntFile )) then exit;
-  if ( myKntFile.NoteCount < 1 ) then exit;
-  for i := 0 to pred( myKntFile.NoteCount ) do
+  if ( myKntFile.FolderCount < 1 ) then exit;
+  for i := 0 to pred( myKntFile.FolderCount ) do
   begin
     if List_Tabs.Checked[i] then
       myKntFile.Folders[i].Info := 1

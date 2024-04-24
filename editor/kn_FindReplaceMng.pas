@@ -682,7 +682,7 @@ type
           if FindOptions.AllTabs then begin
              inc( noteidx );
 
-             if ( noteidx >= ActiveFile.NoteCount ) then
+             if ( noteidx >= ActiveFile.FolderCount ) then
                 FindDone := true
              else begin
                 myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject);

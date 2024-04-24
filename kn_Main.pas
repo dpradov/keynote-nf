@@ -3419,7 +3419,7 @@ begin
   if HaveKntFolders( false, false ) then begin
     s := 'Filename: ' + ExtractFilename( KntFile.FileName ) +#13+
          'Notes modified: ' + BOOLARRAY[KntFile.Modified] +#13+
-         'Notes count: ' + inttostr( KntFile.NoteCount ) +#13+
+         'Folders count: ' + inttostr( KntFile.FolderCount ) +#13+
          'File Read-Only: ' + BOOLARRAY[KntFile.ReadOnly] +#13+
          'File Busy: ' + BOOLARRAY[FileIsBusy] +#13+
          'File format: ' + FILE_FORMAT_NAMES[KntFile.FileFormat] + #13#13+

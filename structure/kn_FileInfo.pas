@@ -276,7 +276,7 @@ begin
     // TAB_MAIN
     Caption := STR_02 + ExtractFilename( myKntFile.FileName );
     Edit_FileName.Text := myKntFile.FileName;
-    Label_Count.Caption := inttostr( myKntFile.NoteCount );
+    Label_Count.Caption := inttostr( myKntFile.FolderCount );
     Edit_Comment.Text := myKntFile.Comment;
     Edit_Description.Text := myKntFile.Description;
     label_Created.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, myKntFile.DateCreated );

@@ -797,7 +797,7 @@ begin
             end;
 
             if ApplyTreeChromeToAllFolders and HaveKntFolders( false, true ) then begin
-                for i := 0 to myFile.NoteCount -1 do begin
+                for i := 0 to myFile.FolderCount -1 do begin
                    F:= myFile.Folders[i];
                    if ((PropertiesAction = propThisFolder) and (F = myFolder)) or (F.ReadOnly) then
                        continue;
@@ -814,7 +814,7 @@ begin
 
                 // must update all richedits and trees with the modified EditorOptions and TreeOptions:
                 if HaveKntFolders( false, true ) then begin
-                    for i := 0 to myFile.NoteCount -1 do begin
+                    for i := 0 to myFile.FolderCount -1 do begin
                        F:= myFile.Folders[i];
                        F.Editor.WordSelection := EditorOptions.WordSelect;
                        F.Editor.UndoLimit := EditorOptions.UndoLimit;

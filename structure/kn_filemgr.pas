@@ -315,7 +315,7 @@ begin
       Size := 0; // don't keep this
       Created := aFile.DateCreated;
       // Modified := GetFileDateStamp( FN );
-      Count := aFile.NoteCount;
+      Count := aFile.FolderCount;
       Version := aFile.Version.Major + '.' + aFile.Version.Minor;
       Format := aFile.FileFormat;
     end;

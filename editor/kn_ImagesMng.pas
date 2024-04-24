@@ -2323,7 +2323,7 @@ var
    i, j: integer;
    ImagesIDs: TImageIDs;
 begin
-    for i := 0 to KntFile.NoteCount -1 do begin
+    for i := 0 to KntFile.FolderCount -1 do begin
        if UseFreshTextPlain then
           ImagesIDs:= GetImagesIDInstancesFromTextPlain (KntFile.Folders[i].Editor.TextPlain)
        else
