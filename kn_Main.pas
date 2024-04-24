@@ -4402,6 +4402,7 @@ var
 begin
    Result:= False;
     myFolder:= ActiveFolder;
+    if not assigned(myFolder) then exit;
 
     // myFolder.TV.PopupMenu = nil => Is editing node label
     if (myFolder.TreeMaxWidth > 0) and (myFolder.TV.Visible) and (myFolder.TV.PopupMenu <> nil) and (not myFolder.TV.Focused) then begin
