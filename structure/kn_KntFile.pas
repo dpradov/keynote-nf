@@ -812,7 +812,7 @@ begin
                    LoadBookmarks(tf, FileExhausted, NextBlock)
 
                else if NextBlock = nbImages then
-                   ImgManager.LoadState(tf, FileExhausted)
+                   ImgManager.LoadState(Self, tf, FileExhausted)
 
                else begin
                    case NextBlock of

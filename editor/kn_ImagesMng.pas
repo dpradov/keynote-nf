@@ -94,7 +94,7 @@ type
 //---------------------------------------------------------------------
 //  TFilesStorage
 //---------------------------------------------------------------------
-  
+
  TStorageType = (stZIP, stFolder, stEmbeddedKNT, stEmbeddedRTF);
 
 
@@ -109,10 +109,11 @@ type
   strict protected
     FPath: String;
     FAbsolutePath: String;
+    FBasePath: String;                                          // Path of KeyNote file..
     function GeStorageType: TStorageType; virtual; abstract;
 
   public
-    constructor Create(const Path: String); virtual;
+    constructor Create(const Path: String; const BasePath: String); virtual;
     procedure Relocate(const Path: String); virtual;
 
     property StorageType: TStorageType read GeStorageType;
@@ -121,6 +122,7 @@ type
 
     property Path: String read FPath;
     property AbsolutePath: String read FAbsolutePath;
+    property BasePath: String read FBasePath;
 
     function OpenForRead: boolean; virtual;
     function OpenForWrite: boolean; virtual;
@@ -152,7 +154,7 @@ type
     function CreateZipFile (const Path: String): boolean;
 
   public
-    constructor Create(const Path: String); override;
+    constructor Create(const Path: String; const BasePath: String); override;
     procedure Relocate(const Path: String); override;
     destructor Destroy; override;
 
@@ -190,7 +192,7 @@ type
     function GeStorageType: TStorageType; override;
 
   public
-    constructor Create(const Path: String); override;
+    constructor Create(const Path: String; const BasePath: String); override;
     procedure Relocate(const Path: String); override;
 
     function IsValid: Boolean; override;
@@ -325,6 +327,7 @@ type
     fIntendedStorageLocationPath: string;
     fChangingImagesStorage: boolean;
     fSaveAllImagesToExtStorage: boolean;
+    fKntFile: TObject;                       // Not TKntFile to avoid circular reference with kn_KntFile
 
     // Si <> nil => se utilizará para recuperar los Stream de las imágenes que aparezcan referenciadas con sus IDs en los nodos de la
     // nota indicada (se usará para notas concretas, en combinación con KntFile.UpdateImagesStorageModeInFile (fStorageMode, ApplyOnlyToNote)
@@ -454,7 +457,7 @@ type
     function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 
 
-    procedure LoadState (const tf: TTextFile; var FileExhausted: Boolean);
+    procedure LoadState (const KntFile: TObject; const tf: TTextFile; var FileExhausted: Boolean);
     procedure SaveState (const tf: TTextFile);
     procedure DeleteOrphanImages();
     procedure SerializeImagesDefinition  (const tf: TTextFile);
@@ -496,6 +499,7 @@ uses  System.DateUtils,
       kn_ImageForm,
       kn_ImagesUtils,
       kn_Main,
+      kn_KntFile,
       knt.App
       ;
 
@@ -508,17 +512,18 @@ uses  System.DateUtils,
 //                                         TFilesStorage
 //==========================================================================================
 
-constructor TFilesStorage.Create(const Path: String);
+constructor TFilesStorage.Create(const Path: String; const BasePath: String);
 begin
   inherited Create;
+  FBasePath:= BasePath;
   Relocate(Path);
 end;
 
 procedure TFilesStorage.Relocate(const Path: String);
 begin
   FPath:= Path;
-  if assigned(KntFile) then
-     FAbsolutePath := GetAbsolutePath(KntFile.File_Path, Path)
+  if FBasePath <> '' then
+     FAbsolutePath := GetAbsolutePath(FBasePath, Path)
   else
      FAbsolutePath := '';
 end;
@@ -651,9 +656,9 @@ end;
 //  TZipStorage
 //=====================================================================
 
-constructor TZipStorage.Create(const Path: String);
+constructor TZipStorage.Create(const Path: String; const BasePath: String);
 begin
-  inherited Create (Path);
+  inherited Create (Path, BasePath);
   try
      fZip:= TZipFile.Create();
      fZipDeleted:= TZipFile.Create();
@@ -855,9 +860,9 @@ end;
 //  TFolderStorage
 //=====================================================================
 
-constructor TFolderStorage.Create(const Path: String);
+constructor TFolderStorage.Create(const Path: String; const BasePath: String);
 begin
-  inherited Create (Path);
+  inherited Create (Path, BasePath);
   fNotOwned:= false;
   Relocate(Path);
 end;
@@ -908,7 +913,7 @@ var
 begin
    FilePath:= Path + Name;
    if fNotOwned then
-      FilePath:= GetAbsolutePath(KntFile.File_Path, FilePath)
+      FilePath:= GetAbsolutePath(FBasePath, FilePath)
    else
       FilePath:= FAbsolutePath + FilePath;
 
@@ -1227,9 +1232,8 @@ constructor TImageMng.Create;
 begin
   inherited Create;
 
+  fKntFile:= nil;
   fImages:= TList.Create;
-  fNotOwnedStorage:= TFolderStorage.Create('');
-  fNotOwnedStorage.fNotOwned:= True;
   fExternalImagesManager:= nil;
   fImagesIDExported:= nil;
 
@@ -1556,7 +1560,7 @@ end;
 //      OPEN KNT -> LOAD IMAGES AND STATE
 //-----------------------------------------
 
-procedure TImageMng.LoadState(const tf: TTextFile; var FileExhausted: Boolean);
+procedure TImageMng.LoadState(const KntFile: TObject; const tf: TTextFile; var FileExhausted: Boolean);
 var
   s, key : AnsiString;
   ws: String;
@@ -1581,6 +1585,7 @@ var
   MaxImageID: Integer;
 
 begin
+  fKntFile:= KntFile;
   section:= sStoragesDef;
   MaxImageID:= 0;
   FNextImageID:= -1;
@@ -1635,8 +1640,8 @@ begin
 
                StorageType:=  TStorageType(StrToInt(Strs[0]));
                case StorageType of
-                 stZIP:         FExternalStorageToRead:= TZipStorage.Create(Strs[1]);
-                 stFolder:      FExternalStorageToRead:= TFolderStorage.Create(Strs[1]);
+                 stZIP:         FExternalStorageToRead:= TZipStorage.Create(Strs[1], TKntFile(fKntFile).File_Path);
+                 stFolder:      FExternalStorageToRead:= TFolderStorage.Create(Strs[1], TKntFile(fKntFile).File_Path);
                end;
 
                FExternalStorageToSave:= FExternalStorageToRead;
@@ -1744,6 +1749,9 @@ begin
     end;
 
   finally
+     fNotOwnedStorage:= TFolderStorage.Create('', TKntFile(fKntFile).File_Path);
+     fNotOwnedStorage.fNotOwned:= True;
+
      if assigned(Strs) then
         Strs.Free;
 
@@ -1843,11 +1851,11 @@ var
    procedure CreateNewExternalStorage;
    begin
       if ExternalStorageType = issFolder then begin
-         fExternalStorageToSave:= TFolderStorage.Create(Path);
+         fExternalStorageToSave:= TFolderStorage.Create(Path, TKntFile(fKntFile).File_Path);
          TDirectory.CreateDirectory(AbsolutePath);
       end
       else begin
-         fExternalStorageToSave:= TZipStorage.Create(Path);
+         fExternalStorageToSave:= TZipStorage.Create(Path, TKntFile(fKntFile).File_Path);
          TZipStorage(fExternalStorageToSave).CreateImagesZipFile;
       end;
       fSaveAllImagesToExtStorage:= true;
@@ -1860,8 +1868,8 @@ var
    begin
      // In case they contain images that could not be located because the storage was moved
 
-      for i := 0 to KntFile.Folders.Count -1 do begin
-         myFolder := KntFile.Folders[i];
+      for i := 0 to TKntFile(fKntFile).Folders.Count -1 do begin
+         myFolder := TKntFile(fKntFile).Folders[i];
          if not myFolder.PlainText then begin
            myFolder.EditorToDataStream;
            myFolder.DataStreamToEditor;
@@ -1880,8 +1888,8 @@ begin
       CreateExternalStorage:= false;
       ExternalStoreTypeChanged:= (fExternalStorageToRead <> nil) and (fExternalStorageToRead.StorageType <> GetStorageType(ExternalStorageType));
       ok:= true;
-      Path:= ExtractRelativePath(KntFile.File_Path, Path);
-      AbsolutePath:= GetAbsolutePath(KntFile.File_Path, Path);
+      Path:= ExtractRelativePath(TKntFile(fKntFile).File_Path, Path);
+      AbsolutePath:= GetAbsolutePath(TKntFile(fKntFile).File_Path, Path);
       if ExternalStorageType = issFolder then
          AbsolutePath:= AbsolutePath + '\';             // To be able to compare with fExternalStorageToRead.AbsolutePath
 
@@ -1995,7 +2003,7 @@ begin
          if CreateExternalStorage then
             CreateNewExternalStorage;
 
-         KntFile.UpdateImagesStorageModeInFile (fStorageMode);
+         TKntFile(fKntFile).UpdateImagesStorageModeInFile (fStorageMode);
 
 
          if ModifyPathFormat then begin
@@ -2080,7 +2088,7 @@ end;
 function TImageMng.GetDefaultExternalLocation (ExtType: TImagesExternalStorage; FN: string= ''): string;
 begin
   if FN = '' then
-     FN:= KntFile.FileName;
+     FN:= TKntFile(fKntFile).FileName;
 
   Result:= ExtractFilePath(FN) + ExtractFileNameNoExt(FN);
   if Result = '' then
@@ -2306,13 +2314,13 @@ var
    NewID: integer;
 begin
    Result:= false;
-   if (fStorageMode = smEmbRTF) or KntFile.Modified then exit;
+   if (fStorageMode = smEmbRTF) or TKntFile(fKntFile).Modified then exit;
 
    NewID:= GetMaxSavedImageID + 1;
    if NewID <> fNextImageID then begin
       fNextImageID:= NewID;
       fNextTempImageID:= fNextImageID;
-      KntFile.Modified:= True;
+      TKntFile(fKntFile).Modified:= True;
       Result:= true;
    end;
 
@@ -2323,11 +2331,11 @@ var
    i, j: integer;
    ImagesIDs: TImageIDs;
 begin
-    for i := 0 to KntFile.FolderCount -1 do begin
+    for i := 0 to TKntFile(fKntFile).FolderCount -1 do begin
        if UseFreshTextPlain then
-          ImagesIDs:= GetImagesIDInstancesFromTextPlain (KntFile.Folders[i].Editor.TextPlain)
+          ImagesIDs:= GetImagesIDInstancesFromTextPlain (TKntFile(fKntFile).Folders[i].Editor.TextPlain)
        else
-          ImagesIDs:= KntFile.Folders[i].ImagesInstances;
+          ImagesIDs:= TKntFile(fKntFile).Folders[i].ImagesInstances;
 
        for j := Low(ImagesIDs) to High(ImagesIDs) do begin
            if ImagesIDs[j] = ImgID then
@@ -2366,7 +2374,7 @@ begin
    ImgID:= GetNewID();
 
    if not Owned and KeyOptions.ImgLinkRelativePath then
-      Path:= ExtractRelativePath(KntFile.File_Path, OriginalPath)
+      Path:= ExtractRelativePath(TKntFile(fKntFile).File_Path, OriginalPath)
    else
       Path:= OriginalPath;
 
