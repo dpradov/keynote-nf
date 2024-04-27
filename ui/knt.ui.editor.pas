@@ -258,6 +258,7 @@ uses
    kn_EditorUtils,
    kn_RTFUtils,
    kn_ClipUtils,
+   kn_ImagesMng,
    kn_ImagesUtils,
    kn_MacroMng,
    kn_NoteFileMng,
@@ -1590,9 +1591,11 @@ var
   ImgID, p, SL: integer;
   txt: AnsiString;
   ImgIDs: TImageIDs;
+  Img: TKntImage;
 
 begin
    ImgID:= 0;
+   Img:= nil;
    if FSupportsRegisteredImages then begin
       SL:= SelLength;
       if SL = 1 then
@@ -1608,8 +1611,14 @@ begin
       end;
    end;
 
-   if ImgID <> 0 then
-      ImageMng.OpenImageViewer(ImgID, CtrlDown, false);
+   if (ImgID = 0) and FSupportsImages and (not FSupportsRegisteredImages or not assigned(NoteObj) ) then begin
+      txt:= RtfSelText;
+      if length(txt) > 0 then
+         ImageMng.TryRTFPictToImage (@txt[1], Length(txt), Img);
+   end;
+
+   if (ImgID <> 0) or (Img <> nil) then
+      ImageMng.OpenImageViewer(ImgID, false, false, Img);
 
    inherited;
 end;

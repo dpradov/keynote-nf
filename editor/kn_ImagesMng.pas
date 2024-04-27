@@ -82,6 +82,7 @@ resourcestring
            '  Content lost' + #13 +
            '  Will be removed from Images';
 
+  STR_22 = '< Unregistered image >';
 
 const
   SEP = '|';
@@ -420,6 +421,7 @@ type
 
     procedure ReloadImageStream (Img: TKntImage);
     procedure CheckFreeImageStreamsNotRecentlyUsed;
+    procedure FreeImage (Img: TKntImage);
     function RecalcNextID: boolean;
 
     procedure InsertImage (FileName: String; Editor: TKntRichEdit; Owned: boolean; const NameProposed: string = '');
@@ -444,6 +446,7 @@ type
                                  ): AnsiString; overload;
 
     function ProcessImagesInClipboard(Editor: TRxRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0): boolean;
+    function TryRTFPictToImage (Buffer: Pointer; BufSize: integer; var Img: TKntImage): boolean;
 
     procedure ResetAllImagesCountReferences;
     procedure RemoveImagesReferences (const IDs: TImageIDs);
@@ -474,7 +477,7 @@ type
     property ImgViewerIsOpen: boolean read GetImgViewerIsOpen;
     property ImgIDinViewer: integer read GetImgIDinViewer;
     procedure OpenImageFile(FilePath: string);
-    procedure OpenImageViewer (ImgID: integer; ShowExternalViewer: boolean; SetLastFormImageOpened: boolean);
+    procedure OpenImageViewer (ImgID: integer; ShowExternalViewer: boolean; SetLastFormImageOpened: boolean; Img: TKntImage = nil);
     procedure CheckBringToFrontLastImageViewer;
   end;
 
@@ -2312,6 +2315,13 @@ begin
 
 end;
 
+procedure TImageMng.FreeImage (Img: TKntImage);
+begin
+   if assigned(Img) and (Img.ID = 0) then
+      Img.FreeImageStream;
+end;
+
+
 function TImageMng.RecalcNextID: boolean;
 var
    NewID: integer;
@@ -3301,6 +3311,41 @@ begin
 end;
 
 
+function TImageMng.TryRTFPictToImage (Buffer: Pointer; BufSize: integer; var Img: TKntImage): boolean;
+var
+  pPict, pRTFImageEnd: integer;
+  Stream: TMemoryStream;
+  Width, Height, WidthGoal, HeightGoal: integer;
+  ImgFormat: TImageFormat;
+
+  ImgID: integer;
+  RTFText: PAnsiChar;
+
+begin
+   Img:= nil;
+   RTFText:= PAnsiChar(Buffer);
+
+   if (Length(RTFText) > BufSize) then begin
+      assert(Length(RTFText) <= BufSize );
+      exit;
+   end;
+
+   pPict:= PosPAnsiChar('{\pict{', RTFText, 1) -1;
+   if pPict = -1 then exit;
+
+   Stream:= TMemoryStream.Create;
+   try
+      if RTFPictToImage (RTFText, pPict, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, pRTFImageEnd, true) then begin
+         Img:= TKntImage.Create(0, '', true, ImgFormat, Width, Height, 0,0, Stream);
+         Img.Caption:= STR_22;
+      end;
+
+   finally
+      if Img = nil then
+         Stream.Free;
+   end;
+
+end;
 
 
 //-----------------------------------------
@@ -3774,18 +3819,18 @@ begin
 
 end;
 
-procedure TImageMng.OpenImageViewer (ImgID: integer; ShowExternalViewer: boolean; SetLastFormImageOpened: boolean);
+procedure TImageMng.OpenImageViewer (ImgID: integer; ShowExternalViewer: boolean; SetLastFormImageOpened: boolean; Img: TKntImage = nil);
 var
   Form_Image, OpenedViewer: TForm_Image;
-  Img: TKntImage;
   FilePath: string;
   UsingOpenViewer: boolean;
 
 begin
-   if ImgID = 0 then exit;
+   if (ImgID = 0) and not assigned(Img) then exit;
 
    try
-      Img:= GetImageFromID(ImgID);
+      if not assigned(Img) then
+         Img:= GetImageFromID(ImgID);
       if Img= nil then exit;
 
       if ShowExternalViewer then begin
@@ -3793,7 +3838,8 @@ begin
          OpenImageFile(FilePath);
       end
       else begin
-         ActiveFolder.EditorToDataStream;
+         if ActiveEditor.NoteObj <> nil then
+            ActiveFolder.EditorToDataStream;
 
          UsingOpenViewer:= false;
 

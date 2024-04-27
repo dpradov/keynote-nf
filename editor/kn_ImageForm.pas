@@ -115,6 +115,7 @@ type
     procedure SetImage(value: TKntImage);
     procedure ChangeImage;
     procedure ConfigureAndShowImage (KeepWindowSize: boolean);
+    procedure CheckClearUnregisteredImage;
     procedure ResizeImage;
     procedure DoExpand(Expand: boolean);
     procedure UpdatePositionAndZoom;
@@ -226,6 +227,7 @@ end;
 
 procedure TForm_Image.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+   CheckClearUnregisteredImage;
    Free;
 end;
 
@@ -296,15 +298,25 @@ procedure TForm_Image.SetImage(value: TKntImage);
 begin
    if value = nil then exit;
 
+   CheckClearUnregisteredImage;
+
    fImage:= value;
    fCurrentKntFile:= KntFile;
    fImageID:= fImage.ID;
+
    if Visible then begin
      ConfigureAndShowImage (true);
      WindowState:= wsNormal;
    end;
 end;
 
+procedure TForm_Image.CheckClearUnregisteredImage;
+begin
+   if assigned(fImage) and (fImage.ID = 0) then begin
+      ImageMng.FreeImage(fImage);
+      fImage.Free;
+   end;
+end;
 
 procedure TForm_Image.FormShow(Sender: TObject);
 begin
@@ -327,6 +339,7 @@ var
   W, H, MaxW, MaxH: integer;
   Ratio: Single;
   ImageSizerThanWindow: boolean;
+  RegisteredImg: boolean;
 
 begin
    if Image = nil then exit;
@@ -338,10 +351,17 @@ begin
    lblLinked.Visible:= not Image.IsOwned;
    cScrollBox.Color:= KeyOptions.ImgViewerBGColor;
 
+   RegisteredImg:= (fImageID <> 0);
+   txtCaption.Enabled:= RegisteredImg;
+
    fImagePath:= ImageMng.GetImagePath(Image);
-   if fImagePath <> '' then begin
+   if RegisteredImg and (fImagePath <> '') then begin
       btnOpenFolder.Enabled:= true;
       btnOpenFolder.Hint:= STR_02 + '   ' + fImagePath;
+   end
+   else begin
+      btnOpenFolder.Enabled:= false;
+      btnOpenFolder.Hint:= '';
    end;
 
    if Image.Caption <> '' then
