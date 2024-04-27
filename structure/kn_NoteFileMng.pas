@@ -1231,13 +1231,13 @@ begin
         UpdateKntFileState( [fscClose,fscModified] );
         StatusBar.Panels[PANEL_HINT].Text := STR_30;
       finally
+        if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then
+           Res_RTF.RemoveKNTHiddenCharacters(false);
+
         AlarmMng.Clear;
         ImageMng.Clear;
         MirrorNodes.Clear;
         MovingTreeNode:= nil;
-
-        if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then
-           Res_RTF.RemoveKNTHiddenCharacters(false);
 
         FileIsBusy := false;
         screen.Cursor := crDefault;
