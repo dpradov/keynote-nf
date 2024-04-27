@@ -703,7 +703,7 @@ begin
           MaxWidth:= KeyOptions.ImgMaxAutoWidthGoal
       else begin
           MaxWidth:= ActiveEditor.Width;
-          Zoom:= ActiveEditor.GetZoom();
+          Zoom:= ActiveEditor.ZoomCurrent;
           MaxWidth:= Round(MaxWidth / (Zoom / 100));
           AuxW:= Round(20 / (Zoom / 100)) +10;
 

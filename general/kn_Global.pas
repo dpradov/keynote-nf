@@ -187,7 +187,6 @@ var
     _Global_Location : TLocation;
     _REOPEN_AUTOCLOSED_FILE : boolean;
     //_Is_Dragging_Text : boolean;
-    _LastZoomValue : integer;
     _WindowWidthIncToRestore: integer;             // *1
     NumberingStart: integer;
 
@@ -396,7 +395,6 @@ begin
 
       //_Is_Dragging_Text := false;
       _WindowWidthIncToRestore := 0;
-      _LastZoomValue := 100;
       Combo_Zoom.Text := '100%';
 
       s := GetFolderPath( fpPersonal );

@@ -37,7 +37,8 @@ uses
    Vcl.ExtCtrls,
    Vcl.Menus,
    RxRichEd,
-   kn_Info
+   kn_Info,
+   kn_Const
 ;
 
 type
@@ -91,6 +92,9 @@ type
     FSupportsImages: boolean;
     FChrome: TChrome;
 
+    FZoomGoal: integer;
+    FZoomCurrent: integer;
+
     FIgnoreSelectionChange: boolean;
     FChangedSelection: TChangedSelectionEvent;
 
@@ -127,6 +131,8 @@ type
     property SupportsRegisteredImages: boolean read FSupportsRegisteredImages write FSupportsRegisteredImages;
     property SupportsImages: boolean read FSupportsImages write FSupportsImages;
     property Chrome: TChrome read FChrome write FChrome;
+    property ZoomGoal: integer read FZoomGoal;
+    property ZoomCurrent: integer read FZoomCurrent;
 
     procedure SetVinculatedObjs(FileObj, FolderObj, NoteObj: TObject);
     function ContainsRegisteredImages: boolean;
@@ -167,6 +173,7 @@ type
     function MakeKNTHiddenMarksVisible: boolean;
     function ChangeKNTHiddenMarksVisibility(Hide: boolean; Selection: boolean = true): boolean;
     function GetRichEditorWithNoKNTHiddenCharacters (HiddenMarksToRemove: THiddenMarks; const selection: boolean= true): TRxRichEdit;
+    procedure RemoveKNTHiddenCharacters (selection: boolean= true);
     function KeepOnlyLeadingKNTHiddenCharacters(const txt: string): string;
     procedure HideKNTHiddenMarks(Selection: boolean = true);
     procedure CheckToSelectLeftImageHiddenMark (var SelStartOrig: integer; var SelLengthOrig: integer; offset: integer= 0); overload;
@@ -175,9 +182,15 @@ type
     procedure CheckToMoveLefOftHiddenMark;
     procedure CheckToSelectImageHiddenMarkOnDelete;
     function CheckToIdentifyImageID (var posFirstHiddenChar: integer): integer;
+    procedure ReconsiderImageDimensionGoals(Selection: boolean; ImagesMode: TImagesMode);
+    procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode; ReconsiderDimensionsGoal: boolean); overload;
+    procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode); overload;
 
     function GetZoom: integer;
     procedure SetZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );
+    procedure RestoreZoomGoal;
+    procedure RestoreZoomCurrent;
+    function GetAndRememberCurrentZoom: integer;
     procedure SetMargins;
 
     procedure TryPasteRTF(HTMLText: AnsiString=''; FolderName: String= '');
@@ -240,7 +253,6 @@ uses
    gf_strings,
    gf_miscvcl,
    kn_global,
-   kn_const,
    kn_LinksMng,
    kn_Macro,
    kn_EditorUtils,
@@ -431,6 +443,9 @@ begin
 
   FIgnoreSelectionChange:= false;
   DraggingImageID:= 0;
+
+  FZoomGoal:= 100;
+  FZoomCurrent:= -1;
 
   OnProtectChangeEx:= RxRTFProtectChangeEx;
   OnURLClick:= RxRTFURLClick;
@@ -774,6 +789,11 @@ begin
    Result:= knt.ui.editor.GetRichEditorWithNoKNTHiddenCharacters(Self, HiddenMarksToRemove, selection);
 end;
 
+procedure TKntRichEdit.RemoveKNTHiddenCharacters (selection: boolean= true);
+begin
+   RemoveKNTHiddenCharactersFromEditor(Self, selection);
+end;
+
 
 function TKntRichEdit.KeepOnlyLeadingKNTHiddenCharacters(const txt: string): string;
 var
@@ -1025,7 +1045,54 @@ begin
 end;
 
 
+procedure TKntRichEdit.ReconsiderImageDimensionGoals(Selection: boolean; ImagesMode: TImagesMode);
+begin
+   ReconsiderImages(Selection, ImagesMode, true);
+end;
 
+procedure TKntRichEdit.ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode);
+begin
+   ReconsiderImages(Selection, ImagesMode, false);
+end;
+
+procedure TKntRichEdit.ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode; ReconsiderDimensionsGoal: boolean);
+var
+  strRTF: AnsiString;
+  SelectAll: boolean;
+  SS: integer;
+begin
+   if ReadOnly then exit;
+
+   GetAndRememberCurrentZoom;
+   ImageMng.DoNotRegisterNewImages:= (NoteObj = nil);
+   if ReconsiderDimensionsGoal then
+      ImageMng.ReconsiderImageDimensionsGoal:= true;
+   try
+      if Selection then begin
+         SelectAll:= false;
+         CheckToSelectLeftImageHiddenMark;
+         strRTF:= RtfSelText;
+      end;
+
+      if strRTF = '' then begin
+         strRTF:= RtfText;
+         SelectAll:= true;
+      end;
+
+      if strRTF <> '' then begin
+         strRTF:= ImageMng.ProcessImagesInRTF(strRTF, Self.Name, ImagesMode, '', 0, false);
+         if strRTF <> '' then begin
+            SS:= SelStart;
+            PutRtfText(strRTF, True, not SelectAll);
+            SelStart:= SS;
+         end;
+      end;
+
+   finally
+      ImageMng.ReconsiderImageDimensionsGoal:= false;
+      RestoreZoomCurrent;
+   end;
+end;
 
 //-----------------------------------------------------------
 
@@ -1035,6 +1102,7 @@ begin
   if FUpdating > 0 then exit;
 
   App.EditorFocused(Self);
+  ImageMng.DoNotRegisterNewImages:= (NoteObj = nil);
 
   inherited;
 end;
@@ -1878,11 +1946,14 @@ begin
          pos:= SelStart;
          { We will have treated Copy or Cut in a special way if SelLength=1 because this implied that an image could be selected individually and we
            want to be able to offer it as such and not only as RTF (which would happen if we copy the image to the clipboard along with the hidden mark )
-          (Although this image copied in this way - without a mark - when it is in PNG or JPB, the control does not offer it as BMP but only as a Metafile
+          (Although this image copied in this way - without a mark - when it is in PNG or JPG, the control does not offer it as BMP but only as a Metafile
            and not all programs recognize it. For example, GreenShot does recognize it, but Photoshop or WordPad itself They don't recognize it --WordPad
            does paste it, but because it uses the RTF format) }
-         if (not WasCopiedByKNT) or ((pos = posI + 1) and (LastCopiedIDImage<>0)) then
-            ImageMng.ProcessImagesInClipboard (Self, FolderName, posI, LastCopiedIDImage);
+         if (not WasCopiedByKNT) or LastCopyFromScratchpad or ((pos = posI + 1) and (LastCopiedIDImage<>0)) then
+            if ImageMng.ProcessImagesInClipboard (Self, FolderName, posI, LastCopiedIDImage) then begin
+               if (LastCopiedIDImage=0) and LastCopyFromScratchpad then
+                  Form_Main.Res_RTF.ReconsiderImages(true, imImage);      // Tag the image[s] with the hidden mark[s] in Sratchpad
+            end;
       end;
 
     end;
@@ -2122,7 +2193,37 @@ begin
   SendMessage( Handle, EM_SETZOOM, NewZoom, 100 );
   SendMessage( Handle, EM_SCROLLCARET, 0, 0);
 
-end; // ZoomEditor
+  FZoomGoal:= NewZoom;
+  FZoomCurrent:= NewZoom;
+
+  if Focused then
+     App.ShowCurrentZoom(NewZoom);
+
+end; // SetZoom
+
+
+procedure TKntRichEdit.RestoreZoomGoal;
+begin
+   if fZoomGoal <> GetZoom then
+      SetZoom(fZoomGoal, '');
+end;
+
+procedure TKntRichEdit.RestoreZoomCurrent;
+begin
+  if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
+
+  SendMessage( Handle, EM_SETZOOM, FZoomCurrent, 100 );
+  SendMessage( Handle, EM_SCROLLCARET, 0, 0);
+
+  if Focused then
+     App.ShowCurrentZoom(FZoomCurrent);
+end; // RestoreZoomTemp
+
+function TKntRichEdit.GetAndRememberCurrentZoom: integer;
+begin
+   FZoomCurrent:= GetZoom;
+end;
+
 
 
 procedure TKntRichEdit.SetMargins;

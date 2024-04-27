@@ -339,6 +339,7 @@ type
     fNextTempImageID: Integer;
     fLastCleanUpImgStreams: TDateTime;
     fReconsiderImageDimensionsGoal: boolean;
+    fDoNotRegisterNewImages: boolean;
 
     fExportingMode: boolean;
     fImagesIDExported: TList;
@@ -385,6 +386,7 @@ type
     property NextImageID: Integer read fNextImageID;
     property NextTempImageID: Integer read fNextTempImageID;
     property ReconsiderImageDimensionsGoal: boolean read fReconsiderImageDimensionsGoal write fReconsiderImageDimensionsGoal;
+    property DoNotRegisterNewImages: boolean read fDoNotRegisterNewImages write fDoNotRegisterNewImages;
 
     function CheckUniqueName (var Name: string): boolean;
     function CheckRegisterImage (Stream: TMemoryStream; ImgFormat: TImageFormat;
@@ -440,8 +442,8 @@ type
                                  var ContainsImages: boolean;
                                  ExitIfAllImagesInSameModeDest: boolean = false
                                  ): AnsiString; overload;
-                                 
-    procedure ProcessImagesInClipboard(Editor: TRxRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0);
+
+    function ProcessImagesInClipboard(Editor: TRxRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0): boolean;
 
     procedure ResetAllImagesCountReferences;
     procedure RemoveImagesReferences (const IDs: TImageIDs);
@@ -1275,6 +1277,7 @@ begin
    fIntendedExternalStorageType:= issFolder;
    fIntendedStorageLocationPath:= '';
    fReconsiderImageDimensionsGoal:= false;
+   fDoNotRegisterNewImages:= false;
 end;
 
 
@@ -2420,7 +2423,7 @@ begin
     Result:= false;          // No need to register
 
     Img:= GetImageFromStream (Stream, crc32);
-    if (Img = nil) then begin
+    if (Img = nil) and not fDoNotRegisterNewImages then begin
        Img:= RegisterNewImage(Stream, imgFormat, Width, Height, crc32, OriginalPath, Owned, Source, FolderName, NameProposed);
        Result:= True;        // Registered
     end;
@@ -2492,9 +2495,11 @@ begin
      if (fStorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
         ImgFormat:= GetImageFormat(Stream);
         StreamRegistered:= CheckRegisterImage (Stream, ImgFormat, Width, Height, FolderName, FileName, Owned, '', Img, NameProposed);
-        ImgID:= Img.ID;
-        if (not StreamRegistered) and (Img.ReferenceCount = 0) and (NameProposed <> '') then
-           Img.FName:= NameProposed;
+        if Img <> nil then begin           //  DoNotRegisterNewImages coult it be = True and the image not included in the file
+           ImgID:= Img.ID;
+           if (not StreamRegistered) and (Img.ReferenceCount = 0) and (NameProposed <> '') then
+              Img.FName:= NameProposed;
+        end;
      end;
 
      Width:= -1;
@@ -2594,7 +2599,8 @@ begin
         if (fStorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
            ImgFormat:= ImgFormatDest;
            StreamRegistered:= CheckRegisterImage (Stream, ImgFormatDest, Width, Height, FolderName, '', True, Source, Img);
-           ImgID:=Img.ID;
+           if Img <> nil then            //  DoNotRegisterNewImages coult it be = True and the image not included in the file
+              ImgID:=Img.ID;
         end;
      end;
 
@@ -2632,8 +2638,10 @@ end;
 
 { Will only be called when it detects that the content on the clipboard was not copied by this application
  If it has been, there is no need to process the images, since they will already be adapted and with the
- hidden marks that have been precise }
-procedure TImageMng.ProcessImagesInClipboard(Editor: TRxRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0);
+ hidden marks that have been precise
+ * There are situations where it is also called when copied from KeyNote. See comments in TKntRichEdit.PasteBestAvailableFormat
+}
+function TImageMng.ProcessImagesInClipboard(Editor: TRxRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0): boolean;
 var
   SelStartBak: integer;
   p1, p2: integer;
@@ -2641,6 +2649,8 @@ var
   ImagesMode: TImagesMode;
 
 begin
+    Result:= false;
+
     p1:= SelStartBeforePaste;
     p2:= Editor.SelStart;
     SelStartBak:= p2;
@@ -2653,8 +2663,10 @@ begin
     ImagesMode:= FImagesMode;
     RTFTextOut:= ProcessImagesInRTF(RTFText, FolderName, ImagesMode, 'Clipboard', FirstImageID);
 
-    if RTFTextOut <> '' then
-       Editor.PutRtfText(RTFTextOut,True,True)
+    if RTFTextOut <> '' then begin
+       Editor.PutRtfText(RTFTextOut,True,True);
+       Result:= true;
+    end
     else
        Editor.SetSelection(p2, p2, true);
 
@@ -3129,7 +3141,8 @@ begin
                        ImgFormat:= ImgFormatDest;
                        if CheckRegisterImage (Stream, ImgFormatDest,  Width, Height, FolderName, '', true, Source, Img) then
                           StreamRegistered:= true;
-                       ImgID:= Img.ID;
+                       if Img <> nil then            //  DoNotRegisterNewImages coult it be = True and the image not included in the file
+                          ImgID:= Img.ID;
                     end;
                   end;
                end;

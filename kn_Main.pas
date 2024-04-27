@@ -1288,7 +1288,7 @@ type
 
     procedure UpdateWordWrap;
     procedure EnableActionsForEditor(SupportsRTF: boolean); overload;
-    procedure EnableActionsForEditor(VinculatedToNote, SupportsRegImages: boolean); overload;
+    procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean); overload;
     procedure EnableActionsForTree(TV: TTreeNT; ReadOnly: boolean= false);
     procedure ShowNodeChromeState(TV: TTreeNT);
 
@@ -1619,7 +1619,7 @@ begin
 
   try
     HideOrShowResPanel( KeyOptions.ResPanelShow );
-    UpdateResPanelContents;
+    UpdateResPanelContents (true);
     Splitter_ResMoved( Splitter_Res );
     // Pages_Res.Visible := KeyOptions.ResPanelShow;
     Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
@@ -1716,7 +1716,7 @@ end; // ACTIVATE
 
 procedure TForm_Main.FormStorageRestorePlacement(Sender: TObject);
 begin
-   UpdateResPanelContents;
+   UpdateResPanelContents (false);
 end;
 
 
@@ -5029,7 +5029,10 @@ end;
 
 procedure TForm_Main.RTFMRestoreProportionsClick(Sender: TObject);
 begin
-   ActiveFolder.ReconsiderImageDimensionGoalsOnEditor (true);
+   if Assigned(ActiveEditor.NoteObj) then
+      ActiveFolder.ReconsiderImageDimensionGoalsOnEditor (true)
+   else
+      ActiveEditor.ReconsiderImageDimensionGoals(true, imImage);        // Scratchpad
 end;
 
 procedure TForm_Main.RTFMWordWebClick(Sender: TObject);
@@ -6019,7 +6022,7 @@ begin
 
   KeyOptions.ResPanelShow := ( not KeyOptions.ResPanelShow );
 
-  UpdateResPanelContents;
+  UpdateResPanelContents (true);
   HideOrShowResPanel( KeyOptions.ResPanelShow );
   MMViewResPanel.Checked := KeyOptions.ResPanelShow;
   if KeyOptions.ResPanelShow then
@@ -6120,7 +6123,7 @@ end;
 
 procedure TForm_Main.Pages_ResChange(Sender: TObject);
 begin
-  UpdateResPanelContents;
+  UpdateResPanelContents (false);
   if KeyOptions.ResPanelShow then
     FocusResourcePanel;
 end; // Pages_ResChange
@@ -6300,7 +6303,7 @@ begin
       Pages_Res.ActivePage := sheet
     else
       Pages_Res.SelectNextPage( false );
-    UpdateResPanelContents;
+    UpdateResPanelContents (true);
   end;
 
 end; // ResMPluginTabClick
@@ -7019,8 +7022,7 @@ begin
      ShowImages (Show, ForceMode);
 
    finally
-     if _LastZoomValue <> 100 then
-        ActiveEditor.SetZoom(_LastZoomValue, '' );
+     ActiveEditor.RestoreZoomCurrent;
    end;
 
 end;
@@ -7072,8 +7074,7 @@ begin
    else
       ShowImages (TB_Images.Down, False);
 
-   if _LastZoomValue <> 100 then
-      Editor.SetZoom(_LastZoomValue, '' );
+   Editor.RestoreZoomCurrent;
 end;
 
 
@@ -7688,14 +7689,14 @@ begin
 
 end;
 
-procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsRegImages: boolean);
+procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean);
 begin
     MMInsertMarkLocation.Enabled := VinculatedToNote;
     MMBkmSet_.Enabled:= VinculatedToNote;
 
-    RTFMRestoreProportions.Enabled:= SupportsRegImages;
-    MMShowImages.Enabled:= SupportsRegImages;
-    TB_Images.Enabled:=  SupportsRegImages;
+    RTFMRestoreProportions.Enabled:= SupportsImages;
+    MMShowImages.Enabled:= SupportsRegImages and VinculatedToNote;
+    TB_Images.Enabled:=  SupportsRegImages and VinculatedToNote;
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TV: TTreeNT);

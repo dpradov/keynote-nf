@@ -844,8 +844,7 @@ begin
             end;
           end;
 
-          if _LastZoomValue <> 100 then
-             myFolder.Editor.SetZoom(_LastZoomValue, '' );
+     		  myFolder.Editor.RestoreZoomGoal;
 
         end;
 
@@ -1059,7 +1058,7 @@ begin
 
        FEditor.Color := FEditorChrome.BGColor;
        TextLen:= FEditor.TextLength;
-       if (TextLen = 0) or PlainText then begin          // Solves the problem indicated in EditProperties...*1
+       if (TextLen = 0) or FEditor.PlainText then begin          // Solves the problem indicated in EditProperties...*1
           with FEditor.DefAttributes do begin
             Charset := FEditorChrome.Font.Charset;
             Name := FEditorChrome.Font.Name;
@@ -1070,7 +1069,7 @@ begin
           end;
        end;
 
-       if PlainText and (TextLen > 0) then begin       // Related to *1. If PlainText then we do want it to always change the font format
+       if FEditor.PlainText and (TextLen > 0) then begin       // Related to *1. If PlainText then we do want it to always change the font format
           SS:= FEditor.SelStart;
           SL:= FEditor.SelLength;
           FEditor.SelectAll;
@@ -1261,41 +1260,29 @@ end;
 
 procedure TKntFolder.ReconsiderImageDimensionGoalsOnEditor(Selection: boolean);
 var
-  strRTF: AnsiString;
-  SelectAll: boolean;
+   SS: integer;
 begin
-   ImageMng.ReconsiderImageDimensionsGoal:= true;
    if ReadOnly then
       Selection:= False;      // If true -> The note would have to be modified, and since it is not possible, the images would disappear...
 
-   try
-      if Selection then begin
-         SelectAll:= false;
-         Editor.CheckToSelectLeftImageHiddenMark;
-         strRTF:= Editor.RtfSelText;
+    if Selection then
+       Editor.ReconsiderImageDimensionGoals(Selection, ImagesMode)
 
-         if strRTF = '' then begin
-            strRTF:= Editor.RtfText;
-            SelectAll:= true;
-         end;
+    else begin
+       ImageMng.ReconsiderImageDimensionsGoal:= true;
+       Editor.GetAndRememberCurrentZoom;
+       try
+          SS:= Editor.SelStart;
+          EditorToDataStream;
+          DataStreamToEditor;
+          Editor.SelStart:= SS;
 
-         if strRTF <> '' then begin
-            strRTF:= ImageMng.ProcessImagesInRTF(strRTF, Self.Name, ImagesMode, '', 0, false);
-            if strRTF <> '' then
-               Editor.PutRtfText(strRTF, True, not SelectAll);
-         end;
-      end
-      else begin
-         EditorToDataStream;
-         DataStreamToEditor;
-      end;
+       finally
+          Editor.RestoreZoomCurrent;
+          ImageMng.ReconsiderImageDimensionsGoal:= false;
+       end;
+    end;
 
-      if _LastZoomValue <> 100 then
-         FEditor.SetZoom(_LastZoomValue, '' );
-
-   finally
-      ImageMng.ReconsiderImageDimensionsGoal:= false;
-   end;
 end;
 
 

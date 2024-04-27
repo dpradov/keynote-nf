@@ -340,9 +340,7 @@ begin
       myTreeNode.MakeVisible;
       myFolder.TV.Selected := myTreeNode;
 
-      if _LastZoomValue <> 100 then
-         myFolder.Editor.SetZoom(_LastZoomValue, '' );
-
+      myFolder.Editor.RestoreZoomGoal;
 
     except
       on E : Exception do begin
@@ -498,8 +496,7 @@ begin
 
       finally
 
-        if _LastZoomValue <> 100 then
-           Editor.SetZoom(_LastZoomValue, '' );
+        myFolder.Editor.RestoreZoomGoal;
 
         if assigned(myNote) and (myNote.ScrollPosInEditor.Y > 0) then
            Editor.SetScrollPosInEditor(myNote.ScrollPosInEditor)

@@ -1570,7 +1570,9 @@ begin
   try
       case aCMD of
           ecCopy : begin
-            if (ImageMng.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+            LastCopyFromScratchpad:= (Editor.NoteObj=nil);
+            LastCopiedIDImage:= 0;
+            if Editor.SupportsRegisteredImages then begin
                if Editor.SelLength = 1 then begin
                   SelStartOrig:= -1;
                   LastCopiedIDImage:= Editor.CheckToIdentifyImageID(p);   // We will save the ID associated with the image (if it is and we have it). We want to be able to offer an image format and not just RTF
@@ -1819,7 +1821,7 @@ begin
 
           ecPaste :
             begin
-              if (ImageMng.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+              if Editor.SupportsRegisteredImages then begin
                  // If we have an image selected (and maybe more elements), we need to make sure we also select the possible
                  // hidden mark with the ID, to replace it along with the image with the pasted text
                  if SelLength > 0 then

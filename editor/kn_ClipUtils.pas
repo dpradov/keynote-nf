@@ -32,6 +32,7 @@ var
   CFHtml : Integer; // = 0;
   CFRtf: Integer;
   LastCopiedIDImage:   integer;
+  LastCopyFromScratchpad: boolean;
 
 
 type

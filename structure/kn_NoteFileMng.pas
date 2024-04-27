@@ -585,6 +585,10 @@ begin
           screen.Cursor := crDefault;
           FileIsBusy := false;
           Timer.Enabled := true;
+
+          if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then
+             Res_RTF.ReconsiderImages(false, imImage);
+
         end;
 
 
@@ -1128,6 +1132,12 @@ begin
 
        Log_StoreTick( 'KntFileSave - END', 0, -1 );
        Log_Flush;
+
+       if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then begin
+          Res_RTF.RemoveKNTHiddenCharacters(false);
+          Res_RTF.ReconsiderImages(false, imImage);
+       end;
+
      end;
 
      if Result = 0 then begin
@@ -1193,7 +1203,7 @@ begin
         UpdateLastCommand( ecNone );
         BookmarkInitializeAll;
         ShowAlarmStatus;
-        
+
         if assigned( KntFile ) then
         begin
           try
@@ -1225,6 +1235,9 @@ begin
         ImageMng.Clear;
         MirrorNodes.Clear;
         MovingTreeNode:= nil;
+
+        if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then
+           Res_RTF.RemoveKNTHiddenCharacters(false);
 
         FileIsBusy := false;
         screen.Cursor := crDefault;
@@ -2139,11 +2152,12 @@ var
   facts : TDropFileActions;
   actidx : integer;
   actionname : string;
-  FileIsHTML, FileIsImage, ActiveNoteIsReadOnly : boolean;
+  FileIsHTML, FileIsImage, EditorIsNotReadOnly, ActiveFileReady : boolean;
   myTreeNode : TTreeNTNode;
   IsKnownFileFormat : boolean;
   i, iSelected: integer;
   FileCnt, j: integer;
+  Editor: TKntRichEdit;
 begin
 
   FileCnt:= FileList.Count;
@@ -2156,7 +2170,9 @@ begin
 
         result := factUnknown;
         LastFact := FactUnknown;
-        ActiveNoteIsReadOnly := FolderIsReadOnly( ActiveFolder, false );
+        Editor:= ActiveEditor;
+        EditorIsNotReadOnly := not Editor.ReadOnly;
+        ActiveFileReady:= assigned(ActiveFile);
 
         FileIsHTML  := ExtIsHTML( aExt );
         FileIsImage := ExtIsImage(aExt);
@@ -2167,7 +2183,7 @@ begin
           for fact := low( fact ) to high( fact ) do
              facts[fact] := false;
 
-          facts[factHyperlink] := ( not ActiveNoteIsReadOnly ); // this action can always be perfomed unless current folder is read-only
+          facts[factHyperlink] := ( EditorIsNotReadOnly ); // this action can always be perfomed unless current editor is read-only
 
           // .KNT, .KNE and DartNotes files can only be opened or merged, regardless of where they were dropped. This can only be done one file at a time.
           if ( aExt = ext_KeyNote ) or
@@ -2175,18 +2191,20 @@ begin
              ( aExt = ext_DART ) then
           begin
             facts[factOpen] := true;
-            facts[factMerge] := ( not ActiveNoteIsReadOnly );
+            facts[factMerge] := ActiveFileReady;
           end
           else
           if ( aExt = ext_TreePad ) then
-             facts[factImport] := true
+             facts[factImport] := ActiveFileReady
 
           else begin
             // all other files we can attempt to import...
-            facts[factImport] := IsKnownFileFormat;
-            facts[factInsertContent]:= not ActiveNoteIsReadOnly and (not FileIsImage or NoteSupportsRegisteredImages());
-            if ( not ActiveNoteIsReadOnly) then begin
-              myTreeNode := ActiveFolder.TV.Selected;
+            facts[factImport] := ActiveFileReady and IsKnownFileFormat;
+            facts[factInsertContent]:= EditorIsNotReadOnly and (not FileIsImage or Editor.SupportsImages);
+            if ( ActiveFileReady and EditorIsNotReadOnly) then begin
+              myTreeNode:= nil;
+              if (ActiveFolder <> nil) then
+                 myTreeNode := ActiveFolder.TV.Selected;
               if assigned( myTreeNode ) then begin
                  facts[factImportAsNode] := IsKnownFileFormat;
                  facts[factMakeVirtualNode] := IsKnownFileFormat;
@@ -2376,17 +2394,8 @@ begin
      FileIsFolder := DirectoryExists( fName );
      NewFileName:= '';
 
-     if not assigned(ActiveFolder) then begin
-        // no active folder; we can only OPEN a file
-        if ((( fExt = ext_KeyNote ) or
-           ( fExt = ext_Encrypted ) or
-           ( fExt = ext_DART )) and ( not FileIsFolder )) then
-          myAction := factOpen
-        else begin
-          HaveKntFolders( true, true );
-          exit;
-        end;
-     end;
+     if not App.CheckActiveEditor then exit;
+
 
      myTreeNode := nil;
      if Editor = nil then
@@ -2404,7 +2413,7 @@ begin
            fExt:= '.*';
          end;
 
-         if FileIsFolder then begin
+         if FileIsFolder and not Editor.ReadOnly  then begin
            myAction := factHyperlink;
            RelativeLink:= AltDown;
          end
@@ -2507,8 +2516,7 @@ begin
                  //SendMessage( Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
                  Editor.EndUpdate;
                  Editor.Invalidate; // in fact, I insist on it
-                 if _LastZoomValue <> 100 then
-                    Editor.SetZoom(_LastZoomValue, '' );
+                 Editor.RestoreZoomGoal;
 
                  if ActiveFolder.TreeHidden then begin
                     ActiveFolder.TreeHidden:= false;
@@ -2570,8 +2578,7 @@ begin
                finally
                  SendMessage( Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
                  Editor.Invalidate; // in fact, I insist on it
-                 if _LastZoomValue <> 100 then
-                    Editor.SetZoom(_LastZoomValue, '' );
+                 Editor.RestoreZoomGoal;
                end;
              end;
 

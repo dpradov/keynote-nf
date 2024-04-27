@@ -62,7 +62,7 @@ uses
     procedure UpdateResPanelState;
     procedure SetResPanelPosition;
     procedure HideOrShowResPanel( const DoShow : boolean );
-    procedure UpdateResPanelContents;
+    procedure UpdateResPanelContents (ChangedVisibility: boolean);
     procedure LoadResScratchFile;
     procedure StoreResScratchFile;
     function CheckResourcePanelVisible( const DoWarn : boolean ) : boolean;
@@ -204,9 +204,7 @@ begin
         HelpContext:= 284;  // Tree-type Notes [284]
       end;
 
-      _LastZoomValue:= DefaultEditorProperties.DefaultZoom;
-      if _LastZoomValue <> 100 then
-         aFolder.Editor.SetZoom(DefaultEditorProperties.DefaultZoom, '' );
+      aFolder.Editor.SetZoom(DefaultEditorProperties.DefaultZoom, '' );
   end;
 
 end; // SetUpVCLControls
@@ -236,12 +234,13 @@ begin
      UndoLimit := 10;
      WantTabs := True;
      OnChangedSelection:= Form_Main.RxChangedSelection;
+     OnFileDropped := Form_Main.OnFileDropped;
 
      SetVinculatedObjs(nil, nil, nil);
 
      PlainText:= False;
      Chrome:= Knt.App.DefaultEditorChrome;
-     SupportsRegisteredImages:= False;
+     SupportsRegisteredImages:= True;
      SupportsImages:= True;
    end;
 end;
@@ -1051,13 +1050,8 @@ begin
             Editor.CheckWordCount(true);
 
             Editor.Change;                 // It will only refresh UI if there is changes
-            Editor.ChangedSelection;
+            RxChangedSelection(Editor, true);
             if ActiveFolder.ReadOnly then s := 'R';
-
-            if ( _LoadedRichEditVersion > 2 ) then begin
-              _LastZoomValue := Editor.GetZoom;
-              Combo_Zoom.Text := Format('%d%%', [_LastZoomValue] );
-            end;
 
             UpdateShowImagesState;
 
@@ -1261,7 +1255,7 @@ begin
 end; // UpdateResPanelState
 
 
-procedure UpdateResPanelContents;
+procedure UpdateResPanelContents (ChangedVisibility: boolean);
 begin
   // General idea: do not load all resource panel information
   // when KeyNote starts. Instead, load data only when
@@ -1293,15 +1287,20 @@ begin
         end
         else
         if ( Pages_Res.ActivePage = ResTab_RTF ) then begin
-          if not Initializing and KeyOptions.ResPanelActiveUpdate then begin
+          Res_RTF.BeginUpdate;
+          if not Initializing and KeyOptions.ResPanelActiveUpdate and ChangedVisibility then begin
              if assigned(Res_RTF) then begin
                 if Res_RTF.Modified then
                    StoreResScratchFile;
+                Res_RTF.GetAndRememberCurrentZoom;
                 Res_RTF.Clear;
              end;
           end;
           if ( Res_RTF.Lines.Count = 0 ) then
             LoadResScratchFile;
+            if (Res_RTF.ZoomCurrent < 0) and (ImageMng.StorageMode <> smEmbRTF) then
+               Res_RTF.ReconsiderImages(false, imImage);
+          Res_RTF.EndUpdate;
         end
         else
         if ( Pages_Res.ActivePage = ResTab_Macro ) then begin
@@ -1460,6 +1459,7 @@ begin
           end;
 
         finally
+          Res_RTF.RestoreZoomCurrent;
           Res_RTF.EndUpdate;
           Res_RTF.Modified:= false;
         end;

@@ -123,6 +123,7 @@ type
       procedure NoteModified (Note: TKntNote; Folder: TKntFolder; UpdateUI: boolean= true);
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
+      procedure ShowCurrentZoom (Zoom: integer);
 
       procedure TreeFocused (Tree: TTreeNT);
       procedure FolderDeleted (Folder: TKntFolder; TabIndex: integer);
@@ -320,22 +321,24 @@ end;
 
 procedure TKntApp.UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 var
-  Edit_PlainText, Edit_SupportsRegImages, Edit_NoteObj: boolean;
+  Edit_PlainText, Edit_SupportsImages, Edit_SupportsRegImages, Edit_NoteObj: boolean;
 
 begin
   if (Editor = nil) or not Editor.Enabled then begin
       Edit_PlainText:= true;
+      Edit_SupportsImages:= false;
       Edit_SupportsRegImages:= false;
       Edit_NoteObj:= false;
   end
   else begin
       Edit_PlainText:= Editor.PlainText or Editor.ReadOnly;
+      Edit_SupportsImages:= Editor.SupportsImages;
       Edit_SupportsRegImages:= Editor.SupportsRegisteredImages;
       Edit_NoteObj:= (Editor.NoteObj <> nil);
   end;
 
   Form_Main.EnableActionsForEditor(not Edit_PlainText);
-  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsRegImages);
+  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages);
   Form_Main.RxChangedSelection(Editor, true);
   Form_Main.UpdateWordWrap;
   ClipCapMng.ShowState;
@@ -364,8 +367,10 @@ var
 begin
     ActiveEditor:= Editor;
 
-    if Editor.Focused then
+    if Editor.Focused then begin
        UpdateEnabledActionsAndRTFState(Editor);
+       ShowCurrentZoom(Editor.GetZoom);
+    end;
 
     if assigned(Editor.NoteObj) then begin
        OldFolder:= ActiveFolder;
@@ -568,28 +573,26 @@ begin
   if not assigned(ActiveFile) and not assigned(ActiveEditor) then exit;
   if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
 
-  try
-      if CtrlDown then begin
-         if assigned(ActiveEditor) then
-            ActiveEditor.SetZoom (ZoomValue, ZoomString, Increment)
-      end
-      else begin
-         if assigned(ActiveFile) then
-            for i := 0 to ActiveFile.Folders.Count -1 do
-               ActiveFile.Folders[i].Editor.SetZoom (ZoomValue, ZoomString, Increment);
+  if CtrlDown then begin
+     if assigned(ActiveEditor) then
+        ActiveEditor.SetZoom (ZoomValue, ZoomString, Increment)
+  end
+  else begin
+     if assigned(ActiveFile) then
+        for i := 0 to ActiveFile.Folders.Count -1 do
+           ActiveFile.Folders[i].Editor.SetZoom (ZoomValue, ZoomString, Increment);
 
-         Form_Main.Res_RTF.SetZoom (ZoomValue, ZoomString, Increment);
-      end;
-
-  finally
-    if assigned(ActiveEditor) then begin
-       _LastZoomValue := ActiveEditor.GetZoom;
-       Form_Main.Combo_Zoom.Text := Format('%d%%', [_LastZoomValue] );
-    end;
+     Form_Main.Res_RTF.SetZoom (ZoomValue, ZoomString, Increment);
   end;
+
 end;
 
 
+
+procedure TKntApp.ShowCurrentZoom (Zoom: integer);
+begin
+  Form_Main.Combo_Zoom.Text := Format('%d%%', [Zoom] );
+end;
 
 procedure TKntApp.ShowInfoInStatusBar(const str: string);
 begin
