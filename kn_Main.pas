@@ -842,6 +842,7 @@ type
     MMTreeFocusEditor: TMenuItem;
     MMTreeFocusTree: TMenuItem;
     MMFindAll: TMenuItem;
+    TVCutSubtree: TMenuItem;
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
     procedure TntFormResize(Sender: TObject);
@@ -1256,6 +1257,7 @@ type
     procedure RxChangedSelection(Sender: TKntRichEdit; ConsiderAllOnPlainText: boolean = false);
     procedure RxRTFKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure RxRTFKeyPress(Sender: TObject; var Key: Char);
+    procedure TVCutSubtreeClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -5290,6 +5292,11 @@ end;
 procedure TForm_Main.TVCopySubtreeClick(Sender: TObject);
 begin
   TreeTransferProc(( sender as TMenuItem ).Tag, nil, KeyOptions.ConfirmTreePaste, false, false );
+end;
+
+procedure TForm_Main.TVCutSubtreeClick(Sender: TObject);
+begin
+  CmdCut;
 end;
 
 procedure TForm_Main.TVGraftSubtreeMirrorClick(Sender: TObject);

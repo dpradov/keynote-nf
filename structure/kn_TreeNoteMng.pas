@@ -88,7 +88,6 @@ var
     procedure MarkAllUnfiltered (folder: TKntFolder);  // [dpv]
     procedure RemoveFilter (folder: TKntFolder);       // [dpv]
     procedure HideFilteredNodes (folder: TKntFolder);  // [dpv]
-    function GetTreeNode (FolderID: integer; NodeID: integer): TTreeNTNode;
     procedure ChangeCheckedState(TV: TTreeNT; Node: TTreeNTNode; Checked: Boolean; CalledFromMirrorNode: Boolean);
 
     function GetMirrorNodes(originalNode: TTreeNTNode): Pointer;
@@ -2035,7 +2034,7 @@ var
   begin
       Result:= 0;
       for i := 0 to pred( TransferNodes.Count ) do begin
-          TransferedNoteNode:= GetTreeNode(CopyCutFromFolderID, TransferNodes[i].ID);
+          TransferedNoteNode:= ActiveFile.GetTreeNode(CopyCutFromFolderID, TransferNodes[i].ID, TransferNodes[i].GID);
           if assigned(TransferedNoteNode) and not TransferedNoteNode.Hidden then
              Result:= Result+1;
       end;
@@ -2147,7 +2146,7 @@ begin
 
           try
             for i := 0 to pred( TransferNodes.Count ) do begin
-                TransferedNoteNode:= GetTreeNode(CopyCutFromFolderID, TransferNodes[i].ID);
+                TransferedNoteNode:= ActiveFile.GetTreeNode(CopyCutFromFolderID, TransferNodes[i].ID, TransferNodes[i].GID);
 
                 if not (PasteAsVirtualKNTNode and TransferedNoteNode.Hidden) then begin
                     newNote := TKntNote.Create;
@@ -2405,19 +2404,6 @@ begin
   end;
   folder.TV.Items.EndUpdate;
 end;
-
-function GetTreeNode (FolderID: integer; NodeID: integer): TTreeNTNode;
-var
-   folder: TKntFolder;
-begin
-   Result:= nil;
-   if ( FolderID <> 0 ) and ( NodeID <> 0 ) then begin
-       Folder := KntFile.GetFolderByID( FolderID );
-       if assigned(Folder) then
-          Result := Folder.GetTreeNodeByID( NodeID );
-   end;
-end;
-
 
 procedure ChangeCheckedState(TV: TTreeNT; Node: TTreeNTNode; Checked: Boolean; CalledFromMirrorNode: Boolean);
 var

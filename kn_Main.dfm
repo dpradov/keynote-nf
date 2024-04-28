@@ -2019,7 +2019,7 @@ object Form_Main: TForm_Main
       end
       object MMEditPaste: TMenuItem
         Caption = '&Paste'
-        Hint = 'Paste text from clipboard (Ctrl+P, Shift+Ins)'
+        Hint = 'Paste text from clipboard (Ctrl+V, Shift+Ins)'
         ImageIndex = 5
         OnClick = MMEditPasteClick
       end
@@ -7225,17 +7225,27 @@ object Form_Main: TForm_Main
     object TVTransfer_: TMenuItem
       Caption = '&Transfer Subtree'
       Hint = 'Copy node and its children; then paste it in another tree'
+      object TVCutSubtree: TMenuItem
+        Caption = 'C&ut Subtree'
+        Hint = 
+          'Cut selected node and its children (to move with Paste) (Ctrl+X,' +
+          ' Shift+Supr)'
+        ShortCut = 16472
+        OnClick = TVCutSubtreeClick
+      end
       object TVCopySubtree: TMenuItem
         Caption = '&Copy Subtree'
-        Hint = 'Copy selected node and its children'
-        ShortCut = 16473
+        Hint = 'Copy selected node and its children (Ctrl+C, Ctrl+Ins)'
+        ShortCut = 16451
         OnClick = TVCopySubtreeClick
       end
       object TVGraftSubtree: TMenuItem
         Tag = 1
         Caption = '&Paste Subtree Here'
-        Hint = 'Paste previously copied nodes at selected position'
-        ShortCut = 16455
+        Hint = 
+          'Paste previously copied nodes at selected position (Ctrl+V, Shif' +
+          't+Ins)'
+        ShortCut = 16470
         OnClick = TVCopySubtreeClick
       end
       object TVGraftSubtreeMirror: TMenuItem

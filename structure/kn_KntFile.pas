@@ -147,6 +147,7 @@ type
     procedure RecalcNextNoteGID;
     procedure VerifyNoteGIDs;
     procedure GetNoteByGID (const aGID : Cardinal; var Note: TKntNote; var Folder: TKntFolder);
+    function GetTreeNode (FolderID: Cardinal; NodeID: Cardinal; NodeGID: Cardinal): TTreeNTNode;
 
     constructor Create;
     destructor Destroy; override;
@@ -411,6 +412,25 @@ begin
 
   Note:= nil;
   Folder:= nil;
+end;
+
+function TKntFile.GetTreeNode (FolderID: Cardinal; NodeID: Cardinal; NodeGID: Cardinal): TTreeNTNode;
+var
+   Folder: TKntFolder;
+   Note: TKntNote;
+begin
+   Result:= nil;
+   if (NodeGID <> 0) then begin
+      GetNoteByGID(NodeGID, Note, Folder);
+      if Folder <> nil then
+         Result:= Folder.GetTreeNodeByGID(NodeGID);
+   end
+   else
+   if ( FolderID <> 0 ) and ( NodeID <> 0 ) then begin
+       Folder := GetFolderByID(FolderID);
+       if assigned(Folder) then
+          Result := Folder.GetTreeNodeByID(NodeID);
+   end;
 end;
 
 

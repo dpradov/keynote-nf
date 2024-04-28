@@ -419,7 +419,7 @@ begin
     if FVirtualMode = vmKNTNode then begin
        p := pos( KNTLINK_SEPARATOR, FVirtualFN );
        if p > 0 then
-          Result:= GetTreeNode(strtoint(Copy(FVirtualFN,1, p-1) ), strtoint(Copy(FVirtualFN, p+1)))
+          Result:= ActiveFile.GetTreeNode(strtoint(Copy(FVirtualFN,1, p-1) ), strtoint(Copy(FVirtualFN, p+1)), 0)
        else begin
           GID:= StrToIntDef(FVirtualFN, 0);
           ActiveFile.GetNoteByGID(GID, Note, Folder);
