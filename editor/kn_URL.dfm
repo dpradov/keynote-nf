@@ -5,8 +5,8 @@ object Form_URLAction: TForm_URLAction
   ActiveControl = Edit_TextURL
   BorderStyle = bsDialog
   Caption = 'Choose action for URL'
-  ClientHeight = 114
-  ClientWidth = 604
+  ClientHeight = 128
+  ClientWidth = 637
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -38,8 +38,8 @@ object Form_URLAction: TForm_URLAction
     FocusControl = Edit_TextURL
   end
   object Button_Copy: TButton
-    Left = 271
-    Top = 82
+    Left = 275
+    Top = 89
     Width = 97
     Height = 25
     Hint = 'Copy to clipboard'
@@ -49,8 +49,8 @@ object Form_URLAction: TForm_URLAction
     OnClick = Button_CopyClick
   end
   object Button_Cancel: TButton
-    Left = 496
-    Top = 82
+    Left = 525
+    Top = 89
     Width = 97
     Height = 25
     Cancel = True
@@ -59,8 +59,8 @@ object Form_URLAction: TForm_URLAction
     TabOrder = 3
   end
   object Button_Open: TButton
-    Left = 157
-    Top = 82
+    Left = 161
+    Top = 89
     Width = 97
     Height = 25
     Caption = '&Open'
@@ -71,7 +71,7 @@ object Form_URLAction: TForm_URLAction
   end
   object Button_OpenNew: TButton
     Left = 8
-    Top = 82
+    Top = 89
     Width = 137
     Height = 25
     Caption = 'Open in &New window'
@@ -82,7 +82,7 @@ object Form_URLAction: TForm_URLAction
   object Edit_URL: TEdit
     Left = 64
     Top = 17
-    Width = 529
+    Width = 558
     Height = 21
     TabOrder = 4
     OnExit = Edit_URLExit
@@ -90,13 +90,13 @@ object Form_URLAction: TForm_URLAction
   object Edit_TextURL: TEdit
     Left = 64
     Top = 46
-    Width = 529
+    Width = 558
     Height = 21
     TabOrder = 5
   end
   object Button_Modify: TButton
-    Left = 379
-    Top = 82
+    Left = 383
+    Top = 89
     Width = 97
     Height = 25
     Hint = 'Modify Hyperlink'

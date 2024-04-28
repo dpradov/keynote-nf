@@ -84,7 +84,6 @@ resourcestring
   STR_02 = 'Create Hyperlink';
   STR_03 = 'Modify';
   STR_04 = 'Choose Action for Hyperlink';
-  STR_05 = '(KNT Location)';
 
 
 function FileNameToURL( fn : string ) : string;
@@ -261,7 +260,6 @@ begin
         Edit_URL.SelectAll;
       end
       else begin
-        Edit_URL.Text:= STR_05 + ' ' + Edit_URL.Text;
         Edit_URL.ReadOnly:= True;
         Edit_TextURL.SetFocus;
         Edit_TextURL.SelectAll;
@@ -301,8 +299,6 @@ begin
  if Edit_TextURL.Text = '' then begin
     EnsureLink:= False;
     url:= Edit_URL.Text;
-    if ( pos(STR_05, url) = 1 ) then
-        delete( url, 1, length( STR_05 ));
 
      url:= trim(url);
      if url='' then exit;

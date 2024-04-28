@@ -1763,6 +1763,9 @@ begin
           else
              Form_URLAction.Edit_TextURL.Text := TextURL;
 
+          if KNTlocation then
+             Form_URLAction.Edit_URL.Text := Format('[ %s ]  %s', [myURL, path]);
+
           Form_URLAction.URLAction:= urlOpen;   // Default action
           Form_URLAction.Button_OpenNew.Enabled := ( URLType in [urlHTTP, urlHTTPS] );
           if ( Form_URLAction.ShowModal = mrOK ) then begin
