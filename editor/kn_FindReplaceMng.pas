@@ -1099,7 +1099,7 @@ begin
   Location := TLocation( Location_List.Objects[i-1] );
   if ( not assigned( Location )) then exit;
 
-  JumpToLocation( Location );
+  JumpToLocation( Location, true,true,urlOpen,false,  true );
 end;
 
 
@@ -1353,7 +1353,8 @@ var
          myFolder.TV.Selected := myTreeNode;
       end;
 
-      SearchCaretPos (myFolder.Editor, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1), false, ReplacingLastNodeHasRegImg);
+      SearchCaretPos (myFolder.Editor, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1),
+                      false, ReplacingLastNodeHasRegImg, true);
   end;
 
   procedure UpdateReplacingLastNodeHasRegImg;

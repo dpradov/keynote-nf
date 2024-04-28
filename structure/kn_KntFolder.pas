@@ -1878,7 +1878,7 @@ begin
                    Editor.Modified:= False;
                 end;
              end;
-             SearchCaretPos(Self.Editor, myTreeNode, SS, 0, true, Point(-1,-1));
+             SearchCaretPos(Self.Editor, myTreeNode, SS, 0, true, Point(-1,-1), true,true,true);
           finally
             Editor.EndUpdate;
           end;

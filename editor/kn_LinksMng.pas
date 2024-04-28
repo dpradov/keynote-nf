@@ -55,13 +55,15 @@ uses
     procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen; OpenInCurrentFile: boolean= false);
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
                               myURLAction: TURLAction = urlOpen;
-                              OpenInCurrentFile: boolean= false ): boolean;
+                              OpenInCurrentFile: boolean= false;
+                              ConsiderOffset: boolean = false ): boolean;
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
     function SearchCaretPos (Editor: TKntRichEdit; myTreeNode: TTreeNTNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true;
-                             ContainsRegImages: boolean = true): integer;
+                             ContainsRegImages: boolean = true;
+                             ConsiderOffset: boolean = false): integer;
     function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
@@ -1096,17 +1098,19 @@ function SearchCaretPos (Editor: TKntRichEdit; myTreeNode: TTreeNTNode;
                          CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                          ScrollPosInEditor: TPoint;
                          AdjustVisiblePosition: boolean = true;
-                         ContainsRegImages: boolean = true): integer;
+                         ContainsRegImages: boolean = true;
+                         ConsiderOffset: boolean = false): integer;
 var
   Offset: integer;
   Pos_ImLinkTextPlain: integer;
   myFolder : TKntFolder;
 begin
-  // ContainsRegImages = True => No hemos comprobado que no tenga imágenes registradas
+  // ContainsRegImages = True => We have not verified that there are no registered images
+  // ConsiderOffset = True    => What we receive in CaretPosition is a position in imLinkTextPlain
 
-  Pos_ImLinkTextPlain:= CaretPosition;            // What we receive we must treat as a position in imLinkTextPlain
   Offset:= 0;
-  if Editor.SupportsRegisteredImages and ContainsRegImages then begin
+  if ConsiderOffset and Editor.SupportsRegisteredImages and ContainsRegImages then begin
+     Pos_ImLinkTextPlain:= CaretPosition;
      myFolder:= TKntFolder(Editor.FolderObj);
      if (myFolder <> nil) then
         Offset:= GetPositionOffset(myFolder, myTreeNode, Pos_ImLinkTextPlain, -1);
@@ -1245,7 +1249,8 @@ begin
  //===============================================================
  function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
                           myURLAction: TURLAction = urlOpen;
-                          OpenInCurrentFile: boolean= false): boolean;
+                          OpenInCurrentFile: boolean= false;
+                          ConsiderOffset: boolean = false): boolean;
  var
    myFolder : TKntFolder;
    myTreeNode : TTreeNTNode;
@@ -1380,7 +1385,8 @@ begin
          result := true;
 
          if not SearchTargetMark (Location.Bookmark09) then
-            SearchCaretPos(myFolder.Editor, myTreeNode, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor, AdjustVisiblePosition);
+            SearchCaretPos(myFolder.Editor, myTreeNode, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor,
+                          AdjustVisiblePosition, true, ConsiderOffset);
 
          myFolder.Editor.SetFocus;
 
