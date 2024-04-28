@@ -49,8 +49,8 @@ var
     // treenote-related methods:
     function AddNodeToTree( aInsMode : TNodeInsertMode ) : TTreeNTNode;
     function TreeNewNode( const aFolder : TKntFolder; aInsMode : TNodeInsertMode; const aOriginNode : TTreeNTNode; const aNewNodeName : string; const aDefaultNode : boolean ) : TTreeNTNode;
-    procedure TreeNodeSelected( Node : TTreeNTNode; OnDeletingNode: boolean= false );
-    procedure DeleteTreeNode( const DeleteFocusedNode : boolean );
+    procedure TreeNodeSelected(const Node : TTreeNTNode; OnDeletingNode: boolean= false );
+    procedure DeleteTreeNode( const DeleteFocusedNode : boolean;  const MovingNode: boolean = false );
     function MoveSubtree( myTreeNode : TTreeNTNode ): boolean;
     procedure UpdateTreeNode( const aTreeNode : TTreeNTNode; Folder: TKntFolder );
     procedure CreateMasterNode;
@@ -381,7 +381,7 @@ begin
 end; // GetCurrentTreeNode
 
 
-procedure TreeNodeSelected( Node : TTreeNTNode; OnDeletingNode: boolean= false );
+procedure TreeNodeSelected(const Node : TTreeNTNode; OnDeletingNode: boolean= false );
 var
   myFolder : TKntFolder;
   myNote : TKntNote;
@@ -496,6 +496,7 @@ begin
 
       finally
 
+        _LAST_NODE_SELECTED := Node;
         myFolder.Editor.RestoreZoomGoal;
 
         if assigned(myNote) and (myNote.ScrollPosInEditor.Y > 0) then
@@ -1629,7 +1630,7 @@ begin
 end; // SelectIconForNode
 
 
-procedure DeleteTreeNode( const DeleteFocusedNode : boolean );
+procedure DeleteTreeNode( const DeleteFocusedNode : boolean;  const MovingNode: boolean = false );
 var
   myTreeNode, myTreeParent, myTreeChild, myNextChild : TTreeNTNode;
   myTV : TTreeNT;
@@ -1650,38 +1651,41 @@ begin
       myTreeNode := myTV.Selected;
       myTreeParent := myTreeNode.Parent;
 
-      if DeleteFocusedNode then begin
-        // delete focused node and all its children, if any
+      if not MovingNode then begin             // Moving -> Don't ask for confirmation
 
-        if myTreeNode.HasChildren then begin
-          // ALWAYS warn if node has children
-          case DoMessageBox(
-            Format( STR_09, [myTreeNode.Text, myTreeNode.Count] ) + STR_08, STR_10,
-                MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL ) of
-            ID_YES : KeepChildNodes := false;
-            ID_NO  : KeepChildNodes := true;
-            else
-              exit;
-          end;
-        end
-        else begin
-          if TreeOptions.ConfirmNodeDelete then begin
-            if ( DoMessageBox( Format( STR_11, [myTreeNode.Text] ) + STR_08, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-          end;
-        end;
+         if DeleteFocusedNode then begin
+           // delete focused node and all its children, if any
 
-      end
-      else begin
-        // command was to delete CHILDREN of focused node
-        if myTreeNode.HasChildren then begin
-          if ( DoMessageBox(
-            Format( STR_12, [myTreeNode.Count, myTreeNode.Text] ) + STR_08, STR_10,
-               MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
+           if myTreeNode.HasChildren then begin
+             // ALWAYS warn if node has children (except if we are moving to another location)
+             case DoMessageBox(
+               Format( STR_09, [myTreeNode.Text, myTreeNode.Count] ) + STR_08, STR_10,
+                   MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL ) of
+               ID_YES : KeepChildNodes := false;
+               ID_NO  : KeepChildNodes := true;
+               else
+                 exit;
+             end;
+           end
+           else begin
+             if TreeOptions.ConfirmNodeDelete then begin
+               if ( DoMessageBox( Format( STR_11, [myTreeNode.Text] ) + STR_08, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+             end;
+           end;
+
          end
-        else begin
-          showmessage( STR_13 );
-          exit;
-        end;
+         else begin
+           // command was to delete CHILDREN of focused node
+           if myTreeNode.HasChildren then begin
+             if ( DoMessageBox(
+               Format( STR_12, [myTreeNode.Count, myTreeNode.Text] ) + STR_08, STR_10,
+                  MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
+            end
+           else begin
+             showmessage( STR_13 );
+             exit;
+           end;
+         end;
       end;
 
       with myTV do begin
@@ -2082,6 +2086,8 @@ begin
               newNote.Assign( TKntNote( myTreeNode.Data ));
               newNote.Level := myTreeNode.Level - StartLevel;
               newNote.ID:= TKntNote( myTreeNode.Data ).ID;
+              newNote.GID:= TKntNote(myTreeNode.Data).GID;
+
               TransferNodes.Add( newNote );
               myTreeNode := myTreeNode.GetNext;
               if (( myTreeNode <> nil ) and ( myTreeNode.Level <= StartLevel )) then
@@ -2159,8 +2165,10 @@ begin
                         // ;\par...
                         ConvertStreamContent(newNote.Stream, sfRichText, sfPlainText, RTFAux);
 
-                    if MovingSubtree then
+                    if MovingSubtree then begin
+                       newNote.GID:= TransferNodes[i].GID;
                        AlarmMng.MoveAlarms(KntFile.GetFolderByID(CopyCutFromFolderID), TransferNodes[i],  myFolder, newNote);
+                    end;
 
                     myFolder.AddNote( newNote );
                     newNote.Level := newNote.Level + StartLevel + 1;

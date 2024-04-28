@@ -4178,15 +4178,9 @@ end; // MMViewTabIconsClick
 
 procedure TForm_Main.TVChange(Sender: TObject; Node: TTreeNTNode);
 begin
-  if ( Node <> _LAST_NODE_SELECTED ) then
-  begin
-    try
-      TreeNodeSelected( Node );
-    finally
-      _LAST_NODE_SELECTED := Node;
-    end;
-  end;
-end; // TVChange
+  if (Node <> _LAST_NODE_SELECTED) then
+     TreeNodeSelected( Node );
+end;
 
 procedure TForm_Main.OnFileDropped( Sender : TObject; FileList : TStringList );
 begin
@@ -5341,7 +5335,8 @@ begin
        if TreeTransferProc( 1, myFolder, false, false, DoMoveNodes ) then begin // step 2 - paste
           if DoMoveNodes then begin // MOVE instead of copy, so delete originals
             App.ActivateFolder(oldPage.TabIndex);
-            DeleteTreeNode( true );
+            DeleteTreeNode( true, true);                  // Do not ask for confirmation. Copied nodes have the same GIDs
+            App.ActivateFolder(DropTab.TabIndex);
           end;
        end;
     end

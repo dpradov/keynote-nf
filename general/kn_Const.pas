@@ -575,21 +575,27 @@ const
 
 
 const
-  KNTLOCATION_MARK_OLD = '?'; // old style links to KNT locations: use note and node names
-  KNTLOCATION_MARK_NEW = '*'; // new style links to KNT locations: use note and node IDs
+  KNTLOCATION_MARK_OLD = '?'; // old style links to KNT locations: use folder and note names
+  KNTLOCATION_MARK_NEW = '*'; // new style links to KNT locations: use folder and note IDs
+  KNTLOCATION_MARK_NEW2 = '<'; // newer style links to KNT locations: use note GIDs
 
   LINK_RELATIVE_SETUP = '>>';  // Ex.:  file:///>>Profiles\Profiles.txt
 
-  (* 
+type
+  TKntLinkFormat = (
+    lfOld, lfNew, lfNew2, lfNone
+  );
+
+  (*
     *1
     The hidden strings used by KNT will have a variable length, but will normally have a maximum of the form maximum: HT999999H
-    where H:KNT_RTF_HIDDEN_MARK_CHAR, T: Type (B:Bookmark, T:Tag, ...)    
+    where H:KNT_RTF_HIDDEN_MARK_CHAR, T: Type (B:Bookmark, T:Tag, ...)
     A target bookmark will normally be something like HB5H, HB15H, ... In this second example it is assumed that there would be
-    at least 15 different destinations of internal KNT links in the node.    
+    at least 15 different destinations of internal KNT links in the node.
     But we can use the format to record other hidden information to process, such as perhaps a tag to associate with a
-    text selection. If we save the ID of the tag, it would not be normal for us to go from an ID > 999999.        
+    text selection. If we save the ID of the tag, it would not be normal for us to go from an ID > 999999.
     In any case, the objective of this constant is to identify the presence of the character that we use as the beginning of the
-    the hidden string, in a -we assume- non-hidden way, by not finding the closing character at an expected distance.       
+    the hidden string, in a -we assume- non-hidden way, by not finding the closing character at an expected distance.
     We could make sure that the character is really hidden by asking the RichEdit control, but since it's a character
     totally unusual to find in a text, we will follow this criterion in principle.
 
@@ -599,9 +605,11 @@ const
    *2
    With image management and conversion between storage modes, I can end up saving to the nodes (or notes) stream without going
    through the editor. In those cases, if I generate as RTF {\v ...} I should take it into account when having to eliminate hidden
-   characters (for example when converting to smEmbRTF), since I could have RTFs in that format and others like \v. .. \v0, which 
+   characters (for example when converting to smEmbRTF), since I could have RTFs in that format and others like \v. .. \v0, which
    is how the control converts them. To avoid all these problems I will insert directly in the last way, with \v and \v0
   *)
+
+const
 
   KNT_RTF_HIDDEN_MARK_L = '\''11';
   KNT_RTF_HIDDEN_MARK_R = '\''12';
@@ -1024,6 +1032,7 @@ const
   // Tokens for nodes (notes in Tree)
   _NodeName = 'ND';
   _NodeID = 'DI';
+  _NodeGID = 'GI';
   _NodeLevel = 'LV';
   _SelectedNode = 'SN';
   _TreeWidth = 'TW';

@@ -178,7 +178,8 @@ begin
        delete(s, 1, 3);
 
        if key = _NF_Bookmark then begin
-         // BK=9,file:///*8|2|4|0|1
+         // BK=9,file:///*8|2|4|0|1     or   BK=9,file:///*8|2|4|0  or
+         // BK=9,file:///<23|4|0|1      or   BK=9,file:///<23|4|0
           try
              N:= StrToInt(s[1]);
              delete(s, 1, 2);

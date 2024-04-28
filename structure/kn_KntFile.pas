@@ -82,6 +82,8 @@ type
     FBookmarks : TBookmarks; // [?] bookmarks are NOT persistent
     FTextPlainVariablesInitialized: boolean;
 
+    FNextNoteGID: Cardinal;     // Global ID of next note to be created
+
     function GetModified : boolean;
     function GetCount : integer;
     procedure SetVersion;
@@ -139,6 +141,12 @@ type
     property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
 
     property TextPlainVariablesInitialized: boolean read FTextPlainVariablesInitialized write FTextPlainVariablesInitialized;
+
+    property NextNoteGID: Cardinal read FNextNoteGID;             // NoteGID:  identifies Note UNIQUELY in whole file
+    procedure GenerateNoteGID(const aNote : TKntNote);
+    procedure RecalcNextNoteGID;
+    procedure VerifyNoteGIDs;
+    procedure GetNoteByGID (const aGID : Cardinal; var Note: TKntNote; var Folder: TKntFolder);
 
     constructor Create;
     destructor Destroy; override;
@@ -328,6 +336,82 @@ begin
   AFolder.ID := hiID;
 
 end; // GenerateFolderID
+
+
+procedure TKntFile.GenerateNoteGID( const aNote : TKntNote );
+begin
+  aNote.GID := FNextNoteGID;
+  inc(FNextNoteGID);
+end;
+
+procedure TKntFile.RecalcNextNoteGID;
+var
+  i, j, hiGID : Cardinal;
+  myFolder : TKntFolder;
+  myNote: TKntNote;
+
+begin
+  if FFolders.Count = 0 then exit;
+  hiGID:= 0;
+
+  for i := 0 to FFolders.Count-1 do begin
+     myFolder := FFolders[i];
+     if myFolder.Notes.Count = 0 then continue;
+     for j := 0 to myFolder.Notes.Count-1 do begin
+        myNote := myFolder.Notes[j];
+        if ( myNote.GID > hiGID ) then
+           hiGID := myNote.GID;   // find highest note GID
+     end;
+  end;
+
+  inc(hiGID);
+  FNextNoteGID:= hiGID;
+end;
+
+
+procedure TKntFile.VerifyNoteGIDs;
+var
+  i, j, hiGID : Cardinal;
+  myFolder : TKntFolder;
+  myNote: TKntNote;
+
+begin
+  if FFolders.Count = 0 then exit;
+
+  for i := 0 to FFolders.Count-1 do begin
+     myFolder := FFolders[i];
+     if myFolder.Notes.Count = 0 then continue;
+
+     for j := 0 to myFolder.Notes.Count-1 do begin
+        myNote := myFolder.Notes[j];
+        if ( myNote.GID = 0 ) then begin
+           myNote.GID := FNextNoteGID;
+           inc(FNextNoteGID);
+        end;
+     end;
+  end;
+end;
+
+
+procedure TKntFile.GetNoteByGID( const aGID : Cardinal; var Note: TKntNote; var Folder: TKntFolder);
+var
+  i, j : Cardinal;
+  Found: boolean;
+begin
+  Found:= false;
+  for i := 0 to FFolders.Count-1 do begin
+     Folder := FFolders[i];
+     if Folder.Notes.Count = 0 then continue;
+     for j := 0 to Folder.Notes.Count-1 do begin
+        Note := Folder.Notes[j];
+        if ( Note.GID = aGID ) then
+           exit;
+     end;
+  end;
+
+  Note:= nil;
+  Folder:= nil;
+end;
 
 
 procedure TKntFile.DeleteFolder( AFolder : TKntFolder );
@@ -745,7 +829,7 @@ begin
                           FDescription := TryUTF8ToUnicodeString(ds);
                         end;
                         _NF_ACT : begin // Active folder
-                            FActiveFolderID := StrToIntDef( ds, 0 );
+                            FActiveFolderID := StrToUIntDef( ds, 0 );
                         end;
                         _NF_ClipCapFolder : begin
                             ClipCapIdx := StrToIntDef( ds, -1 );
@@ -938,6 +1022,8 @@ begin
      // FNoteCount := Notes.Count;
      Modified := false;
      VerifyFolderIds;
+     RecalcNextNoteGID;
+     VerifyNoteGIDs;
      ImgManager.FileIsNew:= false;
   end;
 

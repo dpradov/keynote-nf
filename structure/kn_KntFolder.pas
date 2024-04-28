@@ -168,8 +168,8 @@ type
     procedure SetSelectedNote( aNote : TKntNote );
     function InternalAddNote( const aNote : TKntNote ) : integer;
     procedure InternalInsertNote( const aIndex : integer; const aNote : TKntNote );
-    procedure GenerateNoteID( const aNote : TKntNote );
-    procedure VerifyNoteIDs;
+    //procedure GenerateNoteID( const aNote : TKntNote );
+    //procedure VerifyNoteIDs;
 
   protected
     procedure BeforeEditorLoaded(Note: TKntNote); dynamic;
@@ -310,6 +310,7 @@ type
 
     function GetNoteByID( const aID : integer ) : TKntNote;
     function GetTreeNodeByID( const aID : integer ) : TTreeNTNode;
+    function GetTreeNodeByGID( const aGID : integer ) : TTreeNTNode;
 
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit ): boolean;
     function InitializeTextPlain(myNote: TKntNote; RTFAux: TAuxRichEdit): boolean;// overload;
@@ -1975,23 +1976,23 @@ function TKntFolder.AddNote( const aNote : TKntNote ) : integer;
 begin
   FModified := true;
   result := InternalAddNote( aNote );
-  if (( result >= 0 ) and ( aNote.ID = 0 )) then
-     GenerateNoteID( aNote );
-end; // AddNode
+  if (( result >= 0 ) and ( aNote.GID = 0 )) then
+     TKntFile(KntFile).GenerateNoteGID(aNote);
+end;
 
 procedure TKntFolder.InsertNote( const aIndex : integer; const aNote : TKntNote );
 begin
   FModified := true;
   InternalInsertNote( aIndex, aNote );
-  if ( aNote.ID = 0 ) then
-     GenerateNoteID( aNote );
-end; // InternalInsertNode
+  if ( aNote.GID = 0 ) then
+     TKntFile(KntFile).GenerateNoteGID(aNote);
+end;
 
 procedure TKntFolder.InternalInsertNote( const aIndex : integer; const aNote : TKntNote );
 begin
   if assigned( aNote ) then
     FNotes.Insert( aIndex, aNote );
-end; // InternalInsertNode
+end;
 
 function TKntFolder.InternalAddNote( const aNote : TKntNote ) : integer;
 begin
@@ -1999,9 +2000,9 @@ begin
     result := FNotes.Add( aNote )
   else
     result := -1;
-end; // InternalAddNode
+end;
 
-
+{                                                                   // Not necessary -> For new Notes: GenerateNoteGID
 procedure TKntFolder.GenerateNoteID( const aNote : TKntNote );
 var
   i, hiID : Cardinal;
@@ -2019,7 +2020,9 @@ begin
   aNote.ID := hiID;
 
 end; // GenerateNodeID
+}
 
+{                                                                    // Not necessary -> Ensure GIDs <> 0 with VerifyNoteGIDs
 procedure TKntFolder.VerifyNoteIDs;
 var
   i: Cardinal;
@@ -2031,16 +2034,24 @@ begin
     if ( myNote.ID <= 0 ) then
         GenerateNoteID( myNote );
   end;
-end; // VerifyNodeIDs
+end; // VerifyNoteIDs
+}
 
 procedure TKntFolder.RemoveNote( const aNote : TKntNote );
+var
+  GID: Cardinal;
 begin
   if ( not assigned( aNote )) then exit;
 
   TKntFile(KntFile).RemoveImagesCountReferences(aNote);
 
+  GID:= aNote.GID;
   FNotes.Remove( aNote );
   FModified := true;
+
+  if GID+1 = TKntFile(KntFile).NextNoteGID  then
+     TKntFile(KntFile).RecalcNextNoteGID;
+
 end;
 
 procedure TKntFolder.SetTreeChrome( AChrome : TChrome );
@@ -2425,7 +2436,9 @@ begin
           tf.WriteLine( _NodeLevel + '=' + note.Level.ToString );
 
           tf.WriteLine( _NodeName + '=' + note.Name, True);
-          tf.WriteLine( _NodeID + '=' + note.ID.ToString  );
+          if note.ID <> 0 then
+             tf.WriteLine( _NodeID + '=' + note.ID.ToString );
+          tf.WriteLine( _NodeGID + '=' + note.GID.ToString );
           tf.WriteLine( _NodeFlags + '=' + note.PropertiesToFlagsString);
           tf.WriteLine( _NodeRTFBGColor + '=' + ColorToString(note.RTFBGColor) );
           tf.WriteLine( _NodeImageIndex + '=' + note.ImageIndex.ToString  );
@@ -2614,6 +2627,9 @@ begin
           if ( key = _NodeName ) then
             myNote.Name := TryUTF8ToUnicodeString(s)
           else
+          if ( key = _NodeGID ) then
+              myNote.GID := StrToUIntDef( s, 0 )
+          else
           if ( key = _NodeID ) then
               myNote.ID := StrToUIntDef( s, 0 )
           else
@@ -2793,7 +2809,6 @@ begin
     end; { while not eof( tf ) }
 
   finally
-    VerifyNoteIDs;
     List.EndUpdate;
     List.Free;
   end;
@@ -2884,7 +2899,7 @@ begin
     end;
 
   finally
-    VerifyNoteIDs;
+    TKntFile(KntFile).VerifyNoteGIDs;
     List.Free;
     tf.CloseFile;
   end;
@@ -2911,19 +2926,34 @@ var
 begin
   result := nil;
   myTreeNode := FTV.Items.GetFirstNode;
-  while assigned( myTreeNode ) do
-  begin
-    if assigned( myTreeNode.Data ) then
-    begin
-      if ( TKntNote( myTreeNode.Data ).ID = aID ) then
-      begin
-        result := myTreeNode;
-        break;
-      end;
-    end;
-    myTreeNode := myTreeNode.GetNext;
+  while assigned( myTreeNode ) do begin
+     if assigned( myTreeNode.Data ) then begin
+        if ( TKntNote( myTreeNode.Data ).ID = aID ) then begin
+           result := myTreeNode;
+           break;
+        end;
+     end;
+     myTreeNode := myTreeNode.GetNext;
   end;
 end; // GetTreeNodeByID
+
+
+function TKntFolder.GetTreeNodeByGID( const aGID : integer ) : TTreeNTNode;
+var
+  myTreeNode : TTreeNTNode;
+begin
+  result := nil;
+  myTreeNode := FTV.Items.GetFirstNode;
+  while assigned( myTreeNode ) do begin
+     if assigned( myTreeNode.Data ) then begin
+        if ( TKntNote( myTreeNode.Data ).GID = aGID ) then begin
+           result := myTreeNode;
+           break;
+        end;
+     end;
+     myTreeNode := myTreeNode.GetNext;
+  end;
+end; // GetTreeNodeByGID
 
 
 procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TAuxRichEdit);

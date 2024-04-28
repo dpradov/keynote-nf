@@ -34,6 +34,7 @@ type
     FSelLength : integer;
     FFolderID : Cardinal;
     FNoteID : Cardinal;
+    FNoteGID : Cardinal;
     FExternalDoc : boolean;
     FParams : string;
     FMark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
@@ -58,6 +59,7 @@ type
     property SelLength : integer read FSelLength write FSelLength;
     property FolderID : Cardinal read FFolderID write FFolderID;
     property NoteID : Cardinal read FNoteID write FNoteID;
+    property NoteGID : Cardinal read FNoteGID write FNoteGID;
     property Mark : Byte read FMark write FMark;
     property Bookmark09 : boolean read FBookmark09 write FBookmark09;
     property ExternalDoc : boolean read FExternalDoc write FExternalDoc;
@@ -138,6 +140,7 @@ begin
             myFav.FolderID := readinteger( section, 'NoteID', 0 );     // Knt FolderID...
             myFav.NoteName := readstring( section, 'Node', '' );
             myFav.NoteID := readinteger( section, 'NodeID', 0 );
+            myFav.NoteGID := readinteger( section, 'NodeGID', 0 );
             myFav.CaretPos := readinteger( section, 'Pos', 0 );
             myFav.SelLength := readinteger( section, 'Len', 0 );
             myFav.ExternalDoc := readbool( section, 'ExternalDoc', false );
@@ -173,25 +176,22 @@ begin
 
   try
     cnt := Favorites_List.Count;
-    for i := 0 to pred( cnt ) do
-    begin
+    for i := 0 to pred( cnt ) do begin
       section := Format( '%d', [succ( i )] );
       myFav := TLocation( Favorites_List.Objects[i] );
 
-      with IniFile do
-      begin
+      with IniFile do begin
         writestring( section, 'Name', myFav.Name );
         writestring( section, 'File', myFav.FileName );
-        if myFav.ExternalDoc then
-        begin
+        if myFav.ExternalDoc then begin
           writebool( section, 'ExternalDoc', myFav.ExternalDoc );
           writestring( section, 'Params', myFav.Params );
         end
-        else
-        begin
+        else begin
           writestring( section, 'Note', myFav.FolderName );         // Knt Folder...
           writeinteger( section, 'NoteID', myFav.FolderID );      // Knt FolderID...
           writeinteger( section, 'NodeID', myFav.NoteID );
+          writeinteger( section, 'NodeGID', myFav.NoteGID );
           writestring( section, 'Node', myFav.NoteName );
           writeinteger( section, 'Pos', myFav.CaretPos );
           writeinteger( section, 'Len', myFav.SelLength );
@@ -214,9 +214,7 @@ begin
   try
     try
       for i := 1 to cnt do
-      begin
         aList.Objects[pred( i )].Free;
-      end;
     except
     end;
   finally
@@ -234,9 +232,10 @@ begin
   FSelLength := 0;
   FFolderID := 0;
   FNoteID := 0;
+  FNoteGID := 0;
   FMark := 0;
   FExternalDoc := false;
-  FParams := '';  
+  FParams := '';
   //FTag := 0;
   FMark:= 0;
   FBookmark09:= false;
@@ -254,6 +253,7 @@ begin
   SelLength := aLocation.SelLength;
   FFolderID := aLocation.FolderID;
   FNoteID := aLocation.NoteID;
+  FNoteGID := aLocation.NoteGID;
   FMark :=  aLocation.FMark;
   FBookmark09:= aLocation.FBookmark09;
   FExternalDoc := aLocation.FExternalDoc;
@@ -278,6 +278,7 @@ begin
   if FName <> Location.Name then Exit;
   if FFolderID <> Location.FolderID then Exit;
   if FNoteID <> Location.NoteID then Exit;
+  if FNoteGID <> Location.NoteGID then Exit;
   if considerOnlyKntLinks then begin
      if considerCaretPos then begin
         if FCaretPos <> Location.CaretPos then Exit;
@@ -301,20 +302,16 @@ var
 begin
   result := '';
   if ( FCaretPos >= 0 ) then
-    CPos := Format( '/ %d', [FCaretPos] )
+     CPos := Format( '/ %d', [FCaretPos] )
   else
-    CPos := '';
+     CPos := '';
+
   if ( FNoteID > 0 ) then
-    result := Format(
-      '%s / %s %s',
-      [FFolderName, FNoteName, CPos]
-    )
+     result := Format('%s / %s %s', [FFolderName, FNoteName, CPos])
   else
-    result := Format(
-      '%s %s',
-      [FFolderName, CPos]
-    );
+     result := Format('%s %s',      [FFolderName, CPos] );
 end; // GetDisplayText
+
 
 function TLocation.GetDisplayTextLong : string;
 begin

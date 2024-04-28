@@ -42,6 +42,7 @@ type
     FStream : TMemoryStream;
     FNoteTextPlain : string;
     FID : Cardinal;
+    FGID : Cardinal;
     FName : string;
     FLevel : integer;
     FSelStart : integer;
@@ -77,6 +78,7 @@ type
     function GetMirrorNodePath: string;
     procedure SetMirrorNodeID( ID : string );
     procedure SetID( ID : Cardinal );
+    procedure SetGID( ID : Cardinal );
     procedure SetNodeFontFace( const aFace : string );
     function GetRelativeVirtualFN : string;
     procedure SetWordWrap( const Value : TNodeWordWrap );
@@ -85,7 +87,8 @@ type
     property Stream : TMemoryStream read FStream;
     property NoteTextPlain : string read FNoteTextPlain write FNoteTextPlain;
     property Name : string read FName write SetName;
-    property ID : Cardinal read FID write SetID;
+    property ID : Cardinal read FID write SetID;                 // Unique within the folder in which it was created
+    property GID : Cardinal read FGID write SetGID;              // Global ID. Unique note number within the .knt file
     property Level : integer read FLevel write SetLevel;
     property SelStart : integer read FSelStart write FSelStart;
     property SelLength : integer read FSelLength write FSelLength;
@@ -225,6 +228,12 @@ begin
     FID := ID;
   // otherwise, never allow the ID to be modified
 end; // SetID
+
+procedure TKntNote.SetGID( ID : Cardinal );
+begin
+  if ( FGID = 0 ) then
+    FGID := ID;
+end;
 
 procedure TKntNote.ForceID( ID : longint );
 begin
@@ -402,13 +411,23 @@ end;
 function TKntNote.GetMirrorNode: TTreeNTNode;
 var
    p: integer;
+   GID: Integer;
+   Note: TKntNote;
+   Folder: TKntFolder;
 begin
+    Result:= nil;
     if FVirtualMode = vmKNTNode then begin
        p := pos( KNTLINK_SEPARATOR, FVirtualFN );
-       Result:= GetTreeNode(strtoint( AnsiLeftStr(FVirtualFN, p-1) ), strtoint( AnsiMidStr (FVirtualFN, p+1,255)));
-    end
-    else
-      Result:= nil;
+       if p > 0 then
+          Result:= GetTreeNode(strtoint(Copy(FVirtualFN,1, p-1) ), strtoint(Copy(FVirtualFN, p+1)))
+       else begin
+          GID:= StrToIntDef(FVirtualFN, 0);
+          ActiveFile.GetNoteByGID(GID, Note, Folder);
+          if Folder <> nil then begin
+             Result:= Folder.GetTreeNodeByGID(GID);
+          end;
+       end;
+    end;
 end; // GetVirtualKNTNode
 
 
@@ -461,7 +480,7 @@ begin
 
          if assigned(aNode) then begin
             aFolder:= KntFile.GetFolderByTreeNode(aNode);
-            FVirtualFN:= uinttostr(aFolder.ID) + KNTLINK_SEPARATOR + uinttostr(TKntNote(aNode.Data).ID);
+            FVirtualFN:= UIntToStr(TKntNote(aNode.Data).GID);
             FVirtualMode := vmKNTNode;
             FStream:= TKntNote(aNode.Data).FStream;   // This node shares its content with the other node
          end;

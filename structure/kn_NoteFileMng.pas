@@ -121,16 +121,6 @@ uses
 
 
 
-
-type
-   TMergeFolders = record
-       oldID: Cardinal;
-       newID: Cardinal;
-       newFolder: boolean;
-   end;
-
-
-
 resourcestring
   STR_01 = 'Cannot create a new file: ';
   STR_02 = ' New KNT file created.';
@@ -1365,7 +1355,20 @@ end; // KntFileCopy
 //=================================================================
 // MergeFromKNTFile
 //=================================================================
+
 procedure MergeFromKNTFile( MergeFN : string );
+
+type
+   TMergeFolders = record
+       oldID: Cardinal;
+       newID: Cardinal;
+       newFolder: boolean;
+   end;
+   TMergeNotes = record
+       oldGID: Cardinal;
+       newGID: Cardinal;
+   end;
+
 var
   MergeFile : TKntFile;
   ImgManagerMF: TImageMng;
@@ -1375,21 +1378,39 @@ var
   newFolder : TKntFolder;
   mergeFolder : TKntFolder;
   newNote, mergeNote : TKntNote;
-  IDs: array of TMergeFolders;
+  TargetFolder: TKntFolder;
+  TargetNoteID_: Cardinal;
+  FolderIDs: array of TMergeFolders;
+  NoteGIDs: array of TMergeNotes;
+  MergeNotesCount, iNote: integer;
   mirrorID: string;
   FolderID: integer;
 
-  function getNewID(FolderID: integer): integer;
+
+  function GetNewFolderID(FolderID: integer): integer;
   var
     i: integer;
   begin
     Result:= 0;
-    for i := 0 to High(IDs) do
-        if IDs[i].oldID = FolderID then begin
-           Result:= IDs[i].newID;
+    for i := 0 to High(FolderIDs) do
+        if FolderIDs[i].oldID = FolderID then begin
+           Result:= FolderIDs[i].newID;
            exit;
         end;
   end;
+
+  function GetNewNoteGID(GID: integer): integer;
+  var
+    i: integer;
+  begin
+    Result:= 0;
+    for i := 0 to MergeNotesCount - 1 do
+        if NoteGIDs[i].oldGID = GID then begin
+           Result:= NoteGIDs[i].newGID;
+           exit;
+        end;
+  end;
+
 
 begin
   with Form_Main do begin
@@ -1462,18 +1483,24 @@ begin
             TabSelector.Free;
           end;
 
-          SetLength(IDs, MergeFile.FolderCount);
+          MergeNotesCount:= 0;
+          SetLength(FolderIDs, MergeFile.FolderCount);
           for i := 0 to pred( MergeFile.FolderCount ) do begin
             // see if user selected ANY notes for merge
-            if ( MergeFile.Folders[i].Info > 0 ) then
+            if ( MergeFile.Folders[i].Info > 0 ) then begin
               inc( mergecnt );
+              inc(MergeNotesCount, MergeFile.Folders[i].NoteCount);
+            end;
           end;
 
           if ( mergecnt = 0 ) then begin
             messagedlg( STR_44, mtInformation, [mbOK], 0 );
             exit;
           end;
+
           mergecnt := 0;
+          iNote:= 0;
+          SetLength(NoteGIDs, MergeNotesCount);
 
           StatusBar.Panels[PANEL_HINT].Text := STR_45;
 
@@ -1482,13 +1509,13 @@ begin
           try
             for i := 0 to pred( MergeFile.FolderCount ) do begin
 
-              IDs[i].oldID:= MergeFile.Folders[i].ID;
+              FolderIDs[i].oldID:= MergeFile.Folders[i].ID;
               if (MergeFile.Folders[i].Info = 0) then begin
-                 IDs[i].newFolder:= false;
+                 FolderIDs[i].newFolder:= false;
                  if MergeFN <> KntFile.FileName then
-                    IDs[i].newID:= 0
+                    FolderIDs[i].newID:= 0
                  else
-                    IDs[i].newID:= IDs[i].oldID;
+                    FolderIDs[i].newID:= FolderIDs[i].oldID;
                   continue;
               end;
 
@@ -1531,7 +1558,10 @@ begin
                      newNote.Assign( mergeNote );
                      newFolder.AddNote( newNote );
                      newNote.ForceID( mergeNote.ID);
+                     NoteGIDs[iNote].oldGID:= mergeNote.GID;
+                     NoteGIDs[iNote].newGID:= newNote.GID;
                      mergeFolder.AddProcessedAlarmsOfNote(mergeNote, newFolder, newNote);
+                     inc(iNote)
                   end;
               end;
 
@@ -1542,8 +1572,8 @@ begin
               KntFile.AddFolder( newFolder );
               inc( mergecnt );
 
-              IDs[i].newID:= newFolder.ID;
-              IDs[i].newFolder:= true;
+              FolderIDs[i].newID:= newFolder.ID;
+              FolderIDs[i].newFolder:= true;
 
               try
                 CreateVCLControlsForFolder( newFolder );
@@ -1564,25 +1594,39 @@ begin
 
             end;
 
-            //Mirror nodes (if exists) references old Folder IDs. We must use new IDs
+            //Mirror nodes (if exists) references old Folder IDs (or old GIDs). We must use new IDs
             for i := 0 to pred( MergeFile.FolderCount ) do
-              if IDs[i].newFolder then begin
-                 newFolder:= KntFile.GetFolderByID(IDs[i].newID);
+              if FolderIDs[i].newFolder then begin
+                 newFolder:= ActiveFile.GetFolderByID(FolderIDs[i].newID);
                  for n := 0 to newFolder.NoteCount - 1 do begin
                     newNote:= newFolder.Notes[n];
                     if newNote.VirtualMode = vmKNTNode then begin
                        mirrorID:= newNote.MirrorNodeID;
-                       p := pos( KNTLINK_SEPARATOR, mirrorID );
-                       FolderID:= StrToInt(AnsiLeftStr(mirrorID, p-1));
-                       FolderID:= GetNewID(FolderID);
-                       newNote.MirrorNodeID:= IntToStr(FolderID) + KNTLINK_SEPARATOR + AnsiMidStr (mirrorID, p+1,255);
+                       try
+                          p := pos( KNTLINK_SEPARATOR, mirrorID );
+                          TargetNoteID_:= StrToUInt(Copy(mirrorID, p+1));     // ID or GID
+                          if p > 0 then begin
+                             FolderID:= StrToUInt(Copy(mirrorID, 1, p-1));
+                             FolderID:= GetNewFolderID(FolderID);
+                             TargetFolder:= ActiveFile.GetFolderByID(FolderID);
+                             TargetNoteID_:= TargetFolder.GetNoteByID(TargetNoteID_).GID;
+                          end
+                          else
+                             TargetNoteID_:= GetNewNoteGID(TargetNoteID_);
+
+                          newNote.MirrorNodeID:= TargetNoteID_.ToString;
+
+                       except
+                          newNote.MirrorNodeID:= '0';
+                       end;
+
                     end;
                  end;
               end;
 
             for i := 0 to pred( MergeFile.FolderCount ) do
-                if IDs[i].newFolder then begin
-                   newFolder:= KntFile.GetFolderByID(IDs[i].newID);
+                if FolderIDs[i].newFolder then begin
+                   newFolder:= KntFile.GetFolderByID(FolderIDs[i].newID);
                    KntFile.SetupMirrorNodes(newFolder);
                 end;
 

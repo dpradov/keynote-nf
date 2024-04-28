@@ -555,7 +555,7 @@ var
   myFolder : TKntFolder;
   myTreeNode : TTreeNTNode;
   myNote : TKntNote;
-  LastFolderID, lastNoteID : integer;
+  LastFolderID, lastNoteGID : Cardinal;
   lastTag : integer;
   numNodosNoLimpiables: integer;
   thisWord : string;
@@ -587,14 +587,14 @@ type
          str, strExtract : string;
        begin
           Location := TLocation.Create;
-          Location.FileName := KntFile.FileName;
-          Location.FolderName := myFolder.Name;
+          //Location.FileName := KntFile.FileName;
+          //Location.FolderName := myFolder.Name;
           Location.FolderID := myFolder.ID;
 
           if assigned(myTreeNode) then begin
              myNote := TKntNote(myTreeNode.Data);
-             Location.NoteName := myNote.Name;
-             Location.NoteID := myNote.ID;
+             //Location.NoteName := myNote.Name;
+             Location.NoteGID := myNote.GID;
           end;
 
           if not SearchingInNodeName then begin
@@ -980,14 +980,14 @@ begin
          widthTwips := DotsToTwips(Form_Main.FindAllResults.Width) - 500;
          LastResultCellWidth:= '\cellx' + widthTwips.ToString;
 
-         LastFolderID := -1;
-         lastNoteID := -1;
+         LastFolderID := 0;
+         lastNoteGID := 0;
 
          for i := 1 to MatchCount do begin
            Location := TLocation( Location_List.Objects[pred( i )] );
-           if (( LastFolderID <> Location.FolderID ) or ( lastNoteID <> Location.NoteID )) then begin
+           if (( LastFolderID <> Location.FolderID ) or ( lastNoteGID <> Location.NoteGID )) then begin
                LastFolderID := Location.FolderID;
-               lastNoteID := Location.NoteID;
+               lastNoteGID := Location.NoteGID;
                GetTreeNodeFromLocation(Location, myFolder, myTreeNode);
 
                Path:= '';
