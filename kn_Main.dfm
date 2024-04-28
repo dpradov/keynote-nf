@@ -3047,24 +3047,24 @@ object Form_Main: TForm_Main
       object MMAddTreeNode_: TMenuItem
         Caption = '&Add Tree Node'
         object MMTreeInsert_: TMenuItem
-          Caption = '&Insert Node'
-          Hint = 'Insert new tree node'
+          Caption = 'Add &Above'
+          Hint = 'Insert a Sibling node Above the selected one'
           OnClick = TVInsertNodeClick
-        end
-        object MMTreeAdd_: TMenuItem
-          Caption = '&Add Node'
-          Hint = 'Add new tree node'
-          OnClick = TVAddNodeClick
         end
         object MMTreeAddChild_: TMenuItem
           Caption = 'Add &Child'
-          Hint = 'Add new tree node as child'
+          Hint = 'Add a Child node of selected one'
           OnClick = TVAddChildNodeClick
         end
         object MMTreeAddSibling_: TMenuItem
-          Caption = 'Add &Sibling'
-          Hint = 'Add node immediately after current node'
+          Caption = 'Add &Below'
+          Hint = 'Add a Sibling node immediately Below selected one'
           OnClick = TVAddSiblingClick
+        end
+        object MMTreeAdd_: TMenuItem
+          Caption = 'Add &Last sibling'
+          Hint = 'Add a Sibling node in the bottom (Last)'
+          OnClick = TVAddNodeClick
         end
       end
       object MMMovenode_: TMenuItem
@@ -7051,28 +7051,28 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object TVInsertNode: TMenuItem
-      Caption = 'Insert &Node'
-      Hint = 'Add node before current node'
+      Caption = 'Add &Above'
+      Hint = 'Insert a Sibling node Above the selected one'
       ShortCut = 45
       OnClick = TVInsertNodeClick
     end
-    object TVAddNode: TMenuItem
-      Caption = '&Add Node'
-      Hint = 'Add node as last sibling'
-      ShortCut = 13
-      OnClick = TVAddNodeClick
-    end
     object TVAddChildNode: TMenuItem
       Caption = 'Add &Child'
-      Hint = 'Add node as child of current node'
+      Hint = 'Add a Child node of selected one'
       ShortCut = 8205
       OnClick = TVAddChildNodeClick
     end
     object TVAddSibling: TMenuItem
-      Caption = 'Add S&ibling'
-      Hint = 'Add node immediately after current node'
+      Caption = 'Add B&elow'
+      Hint = 'Add a Sibling node immediately Below selected one'
       ShortCut = 16397
       OnClick = TVAddSiblingClick
+    end
+    object TVAddNode: TMenuItem
+      Caption = 'Add &Last sibling'
+      Hint = 'Add a Sibling node in the bottom (Last)'
+      ShortCut = 13
+      OnClick = TVAddNodeClick
     end
     object N44: TMenuItem
       Caption = '-'
