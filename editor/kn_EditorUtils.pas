@@ -772,7 +772,7 @@ procedure TClipCapMng.PasteAsWebClip (const pPasteAsText: boolean);
 var
   oldClipCapEditor : TKntRichEdit;
   oldDividerString : string;
-  oldAsText, oldTreeClipConfirm, oldInsertSourceURL, oldClipPlaySound, oldPasteAsNewNode : boolean;
+  oldAsText, oldTreeClipConfirm, oldInsertSourceURL, oldClipPlaySound, oldPasteAsNewNode, oldSwitchIcon : boolean;
   oldMaxSize, oldSleepTime : integer;
 begin
   if (IsBusy) then exit;
@@ -790,6 +790,7 @@ begin
      oldTreeClipConfirm := TreeClipConfirm;
      oldAsText := PasteAsText;
      oldPasteAsNewNode:= PasteAsNewNode;
+     oldSwitchIcon:= SwitchIcon;
 
      oldClipCapEditor := ClipCapEditor;
 
@@ -803,6 +804,7 @@ begin
        if WCDivider <> '' then                // Let use Divider also for Web Clip if WCDivider = ''
           Divider := WCDivider;
        PasteAsText := pPasteAsText;
+       SwitchIcon:= false;
        ClipCapEditor := ActiveEditor;
 
        PasteOnClipCap(Clipboard.TryAsText);
@@ -816,7 +818,10 @@ begin
        TreeClipConfirm := oldTreeClipConfirm;
        PasteAsText := oldAsText;
        PasteAsNewNode:= oldPasteAsNewNode;
+       SwitchIcon:= oldSwitchIcon;
        ClipCapEditor := oldClipCapEditor;
+       if ClipCapActive then
+          LoadTrayIcon(SwitchIcon); // restaure tray icon
      end;
 
   end;
