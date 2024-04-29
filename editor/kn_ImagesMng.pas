@@ -372,9 +372,11 @@ type
 
     property  ChangingImagesStorage: boolean read fChangingImagesStorage;
     procedure ConversionStorageMode_End;
-    function  PrepareImagesStorageToSave(const FN: string): boolean;
+    function  PrepareImagesStorageToSave(KntFile: TObject; const FN: string): boolean;
     procedure SetInitialImagesStorageMode (StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage);
-    function  SetImagesStorage (StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage; Path: string;
+    function  SetImagesStorage (StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage;
+                                Path: string;
+                                KntFilePath: string;
                                 CreateExternalStorageOnNewFile: boolean= false;
                                 ExternalStorageRelocated: boolean= false): boolean;
     procedure AdaptPathFormatInImages (ZipPathFormat: boolean);
@@ -1779,20 +1781,31 @@ begin
 end;
 
 
-function TImageMng.PrepareImagesStorageToSave (const FN: string): boolean;
+function TImageMng.PrepareImagesStorageToSave (KntFile: TObject; const FN: string): boolean;
+var
+  KntFilePath: string;
 begin
    if not fFileIsNew then exit (true);
+
+   fKntFile:= KntFile;
+   KntFilePath:= ExtractFilePath(FN);
+   fNotOwnedStorage:= TFolderStorage.Create('', KntFilePath);
+   fNotOwnedStorage.fNotOwned:= True;
 
    if (fIntendedStorageLocationPath = '') then
       fIntendedStorageLocationPath:= GetDefaultExternalLocation(fIntendedExternalStorageType, FN);
 
-   Result:= SetImagesStorage(fStorageMode, fIntendedExternalStorageType, fIntendedStorageLocationPath, not (fStorageMode in [smEmbRTF, smEmbKNT]));
+   Result:= SetImagesStorage(fStorageMode, fIntendedExternalStorageType, fIntendedStorageLocationPath,
+                             KntFilePath,
+                             not (fStorageMode in [smEmbRTF, smEmbKNT]));
 end;
 
 
-function TImageMng.SetImagesStorage(StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage; Path: string;
-                                         CreateExternalStorageOnNewFile: boolean= false;
-                                         ExternalStorageRelocated: boolean= false): boolean;
+function TImageMng.SetImagesStorage(StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage;
+                                    Path: string;
+                                    KntFilePath: string;
+                                    CreateExternalStorageOnNewFile: boolean= false;
+                                    ExternalStorageRelocated: boolean= false): boolean;
 var
    AbsolutePath: String;
    CurrentStorageMode: TImagesStorageMode;
@@ -1857,11 +1870,11 @@ var
    procedure CreateNewExternalStorage;
    begin
       if ExternalStorageType = issFolder then begin
-         fExternalStorageToSave:= TFolderStorage.Create(Path, TKntFile(fKntFile).File_Path);
+         fExternalStorageToSave:= TFolderStorage.Create(Path, KntFilePath);
          TDirectory.CreateDirectory(AbsolutePath);
       end
       else begin
-         fExternalStorageToSave:= TZipStorage.Create(Path, TKntFile(fKntFile).File_Path);
+         fExternalStorageToSave:= TZipStorage.Create(Path, KntFilePath);
          TZipStorage(fExternalStorageToSave).CreateImagesZipFile;
       end;
       fSaveAllImagesToExtStorage:= true;
@@ -1894,8 +1907,8 @@ begin
       CreateExternalStorage:= false;
       ExternalStoreTypeChanged:= (fExternalStorageToRead <> nil) and (fExternalStorageToRead.StorageType <> GetStorageType(ExternalStorageType));
       ok:= true;
-      Path:= ExtractRelativePath(TKntFile(fKntFile).File_Path, Path);
-      AbsolutePath:= GetAbsolutePath(TKntFile(fKntFile).File_Path, Path);
+      Path:= ExtractRelativePath(KntFilePath, Path);
+      AbsolutePath:= GetAbsolutePath(KntFilePath, Path);
       if ExternalStorageType = issFolder then
          AbsolutePath:= AbsolutePath + '\';             // To be able to compare with fExternalStorageToRead.AbsolutePath
 

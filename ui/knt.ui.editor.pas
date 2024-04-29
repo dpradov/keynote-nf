@@ -1091,6 +1091,7 @@ begin
 
    finally
       ImageMng.ReconsiderImageDimensionsGoal:= false;
+      ImageMng.DoNotRegisterNewImages:= (ActiveEditor.NoteObj = nil);
       RestoreZoomCurrent;
    end;
 end;

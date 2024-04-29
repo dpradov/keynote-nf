@@ -964,7 +964,7 @@ begin
          end;
 
          // Initialize ImagesManager to reflect the FN in case it is a new file
-         if not ImageMng.PrepareImagesStorageToSave(FN) then
+         if not ImageMng.PrepareImagesStorageToSave(KntFile, FN) then
             exit;
 
 
@@ -2757,7 +2757,7 @@ begin
                  ExtStorageLocation:= txtExtStorageLocation.Text;
 
               ImageMng.SetImagesStorage(NewStorageMode, TImagesExternalStorage(cbImgExtStorageType.ItemIndex), ExtStorageLocation,
-                                             false, rbImagesStRelocate.Checked);
+                                        KntFile.File_Path, false, rbImagesStRelocate.Checked);
           end;
 
           KntFile.Modified := true;
