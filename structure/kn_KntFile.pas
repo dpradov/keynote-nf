@@ -160,6 +160,7 @@ type
                   ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
                   OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
     function Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer) : integer;
+    function ConvertKNTLinksToNewFormatInNotes: boolean;
 
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
@@ -207,6 +208,7 @@ uses
    kn_EditorUtils,
    knt.ui.editor,
    kn_BookmarksMng,
+   kn_LinksMng,
    knt.App
    ;
 
@@ -595,7 +597,7 @@ var
   MemStream : TMemoryStream;
   ds, ds1 : AnsiString;
   ch : AnsiChar;
-  p : integer;
+  p, i : integer;
   HasLoadError, FileIDTestFailed : boolean;
   tf: TTextFile;
   OldLongDateFormat,
@@ -1039,7 +1041,7 @@ begin
 
   finally
      if assigned( Stream ) then Stream.Free;
-     // FNoteCount := Notes.Count;
+
      Modified := false;
      VerifyFolderIds;
      RecalcNextNoteGID;
@@ -1053,6 +1055,38 @@ begin
      result := 0;
 
 end; // Load
+
+
+
+function TKntFile.ConvertKNTLinksToNewFormatInNotes: boolean;
+var
+   i, j: integer;
+   Note: TKntNote;
+   Folder: TKntFolder;
+   NewRTF: AnsiString;
+begin
+  Result:= false;
+
+  for i := 0 to FFolders.Count-1 do begin
+     Folder := FFolders[i];
+     if Folder.PlainText then continue;
+     if Folder.Notes.Count = 0 then continue;
+
+     for j := 0 to Folder.Notes.Count-1 do begin
+        Note := Folder.Notes[j];
+        if not (Note.VirtualMode in [vmNone, vmRTF]) then continue;
+
+        NewRTF:= ConvertKNTLinksToNewFormat(Note.Stream.Memory, Note.Stream.Size);
+        if NewRTF <> '' then begin
+           Note.Stream.SetSize(Length(NewRTF));
+           Note.Stream.Position:= 0;
+           StringToMemoryStream(NewRTF, Note.Stream);
+           Result:= true;
+        end;
+     end;
+  end;
+
+end;
 
 
 {FN:   Where to create and save the file.

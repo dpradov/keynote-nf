@@ -340,7 +340,7 @@ var
   i : integer;
   OpenReadOnly : boolean;
   {$IFDEF KNT_DEBUG}OpenEnd: integer;{$ENDIF}
-  opensuccess : boolean;
+  opensuccess, linksModified: boolean;
   FPath, NastyDriveType : string;
   Folder: TKntFolder;
   ClipCapIdx: integer;
@@ -357,6 +357,7 @@ begin
         MirrorNodes.Clear;
         OpenReadOnly := false;
         opensuccess := false;
+        linksModified:= false;
         Virtual_UnEncrypt_Warning_Done := false;
         if FileIsBusy then exit;
 
@@ -472,6 +473,11 @@ begin
             KntFile.SetupMirrorNodes(nil);
             Log_StoreTick( 'After SetupMirrorNodes', 1 );
 
+            if App.opt_ConvKNTLinks then begin
+               linksModified:= KntFile.ConvertKNTLinksToNewFormatInNotes;
+               Log_StoreTick( 'After convert KntLinks to new format', 1 );
+            end;
+
             SetupAndShowVCLControls;
             EnsureCaretVisibleInEditors;                                // *1
             Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
@@ -564,7 +570,7 @@ begin
           if opensuccess then begin
             if assigned( KntFile ) then begin
                KntFile.ReadOnly := ( OpenReadOnly or KntFile.ReadOnly );
-               KntFile.Modified := false;
+               KntFile.Modified := linksModified;
             end;
             App.ActivateFolder(nil);                   // *1  Activate (and focus) current active folder
             Log_StoreTick( 'After GetFileState and activate KntFolder', 1 );

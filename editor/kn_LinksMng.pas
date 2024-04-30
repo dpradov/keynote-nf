@@ -51,6 +51,7 @@ uses
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string; NumBookmark09: integer= 0);
     function BuildKNTLocationText( const aLocation : TLocation) : string;
     function BuildKNTLocationFromString( LocationStr : string ): TLocation;
+    function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer): AnsiString;
     function BuildBookmark09FromString( LocationStr : AnsiString ): TLocation;
     procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen; OpenInCurrentFile: boolean= false);
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
@@ -912,16 +913,20 @@ begin
     end;
     delete(LocationStr, 1, p);
 
-
+    myTreeNode:= nil;
     if assigned(Folder) then begin
        if (Location.NoteID > 0) then
           myTreeNode := Folder.GetTreeNodeByID( Location.NoteID )
        else if Location.NoteName <> '' then
           myTreeNode:= Folder.TV.Items.FindNode( [ffText], Location.NoteName, nil );
 
-       if assigned(myTreeNode) and assigned(myTreeNode.Data) then begin
-          Location.NoteID:= TKntNote(myTreeNode.Data).ID;
-          Location.FolderName:= TKntNote(myTreeNode.Data).Name;
+       if assigned(myTreeNode) then begin
+          Note:= TKntNote(myTreeNode.Data);
+          if assigned(Note) then begin
+             Location.NoteID:= Note.ID;
+             Location.NoteGID:= Note.GID;
+             Location.FolderName:= Note.Name;
+          end;
        end;
     end
     else
@@ -2062,6 +2067,167 @@ begin
   end;
 
 end; // Insert URL
+
+
+
+function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer): AnsiString;
+const
+   LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
+   KntLINK_PREFIX_1 = LINK_PREFIX + '"file:///*';
+   KntLINK_PREFIX_2 = LINK_PREFIX + 'file:///*';
+
+var
+  pIn, pOut,  pLink, pLinkEnd : integer;
+  RTFTextOut, NewFormat: AnsiString;
+  NBytes: integer;
+  LinksConverted: boolean;
+  RTFText: PAnsiChar;
+  i, L: integer;
+
+
+  function RTFLinkToNewFormat(Buffer: Pointer; LinkOffset: integer; var PosLinkEnd: integer): string;
+  var
+    pf, pIni, i: integer;
+    RTF: PAnsiChar;
+    Location: TLocation;
+    Link: AnsiString;
+
+  begin
+    Result:= '';
+
+    try
+        // RTF (+ LinkOffset): Text that starts with {\field{\*\fldinst{HYPERLINK "file:///*...   (or ...HYPERLINK file:///*...  )
+        (*
+             ...{\field{\*\fldinst{HYPERLINK "file:///* ..."}}{...
+             ...{\field{\*\fldinst{HYPERLINK file:///*  ... }}{...
+        *)
+
+        RTF:= PAnsiChar(Buffer);
+
+        pIni:= 1 + LinkOffset + Length(LINK_PREFIX);
+        pf:= PosPAnsiChar('}}', RTF, pIni);
+
+        PosLinkEnd:= pf+1  -1;      // Point to the last character => RTF[PosLinkEnd] = '}'
+        i:= 0;
+        if RTF[pIni-1] = '"' then
+           i:= 1;
+
+        Link:= Copy(RTF, pIni +i, PosLinkEnd-pIni-1 -i);
+        Location:= BuildKNTLocationFromString(Link);
+        try
+           if Location <> nil then begin
+              Result:= BuildKNTLocationText(Location) + ' }}';
+              Result:= Copy(RTF, 1+LinkOffset, pIni - LinkOffset-1) + Result;
+           end;
+        finally
+           if Location <> nil then
+              Location.Free;
+        end;
+
+    except
+      Result:= '';
+    end;
+  end;
+
+
+begin
+{
+  Using PosPAnsiChar() instead of Pos():  See coment *2 in kn_ImagesMng.ProcessImagesInRTF
+}
+
+   pLinkEnd:= -1;
+   pIn:= 1;
+   pOut:= 1;
+   pLink:= -99;
+
+
+   Result:= '';
+   LinksConverted:= false;
+   RTFText:= PAnsiChar(Buffer);
+
+   if (Length(RTFText) > BufSize) then begin
+      assert(Length(RTFText) <= BufSize );
+      exit;
+   end;
+
+   try
+      RTFTextOut:= '';
+
+      repeat
+         if pLink = -99 then begin
+            pLink:= PosPAnsiChar(KntLINK_PREFIX_1, RTFText, pIn)-1;
+            L:= 1;
+         end;
+
+         if pLink = -1 then begin
+            pLink:= PosPAnsiChar(KntLINK_PREFIX_2, RTFText, pIn)-1;
+            L:= 2;
+         end;
+
+         if pLink >= BufSize then
+            pLink := -1;
+
+         if (pLink = -1) then
+            break;
+
+         NBytes:= pLink - pLinkEnd-1;                // Previous bytes to copy
+
+         if RTFTextOut = '' then begin
+            SetLength(RTFTextOut, BufSize);
+            {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+            for var k: integer := 1 to BufSize do
+               RTFTextOut[k]:= ' ';  //ZeroMemory(@RTFTextOut[1], BufSize);
+            {$ENDIF}
+         end;
+
+         // Copy bytes previous to the link found
+         Move(RTFText[pLinkEnd+1], RTFTextOut[pOut], NBytes);
+         Inc(pOut, NBytes);
+
+         NewFormat:= RTFLinkToNewFormat(RTFText, pLink, pLinkEnd );
+
+         if NewFormat = '' then  begin
+            if L= 1 then
+               NewFormat:= KntLINK_PREFIX_1
+            else
+               NewFormat:= KntLINK_PREFIX_2;
+            pLinkEnd:= pLink + Length(NewFormat) -1;
+         end
+         else begin
+            SetLength(RTFTextOut, Length(RTFTextOut) + 5);     // The new format will normally take up less, but just in case we increase the length. In the end we will adjust
+            if pos(KNTLOCATION_MARK_NEW2, NewFormat) > 0 then
+               LinksConverted:= true;
+         end;
+
+         NBytes:= Length(NewFormat);
+         Move(NewFormat[1], RTFTextOut[pOut], NBytes);
+         Inc(pOut, NBytes);
+
+         pLink:= -99;                  // We will go back to look for another one. We have already 'consumed' this one
+         pIn:= pLinkEnd + 1;
+
+      until (pLink = -1);
+
+      if not LinksConverted then exit;
+
+      if (RTFTextOut <> '')  then begin
+         if pIn < BufSize then begin
+            NBytes:= BufSize-pIn +1;
+            Move(RTFText[pIn], RTFTextOut[pOut], NBytes);
+            Inc(pOut, NBytes);
+         end;
+         SetLength(RTFTextOut, pOut-2);
+      end;
+
+      Result:= RTFTextOut;
+
+   except
+     on E: Exception do
+        MessageDlg( STR_20 + E.Message, mtError, [mbOK], 0 );
+   end;
+
+end;
+
 
 
 //=========================================

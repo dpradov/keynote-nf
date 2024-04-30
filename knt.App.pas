@@ -90,6 +90,7 @@ type
       opt_DoNotDisturb : boolean; // Ignore for purposes of "SingleInstance"
       opt_Title: string; // Title to use in main window (mainly for its use with kntLauncher)
       opt_Clean : boolean; // Clean the file, actually looking for invalid hyperlinks (see issue #59: http://code.google.com/p/keynote-nf/issues/detail?id=59
+      opt_ConvKNTLinks: boolean;  // Convert Knt Links to the new format (using GID)
 
       ShowingImageOnTrack: boolean;
 
@@ -242,6 +243,7 @@ begin
    opt_DoNotDisturb:= false;
    opt_Title:= '';
    opt_Clean := false;
+   opt_ConvKNTLinks:= false;
 end;
 
 

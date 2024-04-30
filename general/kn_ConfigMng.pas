@@ -168,6 +168,9 @@ begin
           if  (s.StartsWith(swTitle)) then            // -title"PROJECTX HELP" -> -titlePROJECTX HELP
               App.opt_Title:= Copy(ParamStr(i), Length(swTitle)+2)
           else
+          if (s = swConvKNTLinks) then
+              App.opt_ConvKNTLinks:= true
+          else
           if ( s.StartsWith(swJmp) ) then begin
              // Jump to the KNT link indicated in quotes (in any of the recognized formats. Ex: "file:///*1|10|201|0")
              // Note: '-jmp"file:///*8|479|0|0"' is converted to '-jmpfile:///*8|479|0|0'
