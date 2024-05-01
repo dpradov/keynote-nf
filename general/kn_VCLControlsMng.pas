@@ -692,7 +692,7 @@ begin
 
           with aFolder do begin
             UpdateTabSheet;
-            UpdateEditor; // do this BEFORE placing RTF text in editor
+            UpdateEditor (true); // do this BEFORE placing RTF text in editor
           end;
 
         finally

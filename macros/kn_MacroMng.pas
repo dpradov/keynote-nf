@@ -1728,6 +1728,7 @@ var
   ErrNoTextSelected, ErrNotImplemented, Canceled: boolean;
   SelStartOrig, SelLengthOrig: integer;
   Editor: TKntRichEdit;
+  Folder: TKntFolder;
 
     Procedure CmdNumbering(tipo : TRxNumbering);
     var
@@ -2115,7 +2116,7 @@ begin
           ecNoHighlight :
             SelAttributes.BackColor := clWindow;
 
-          ecBGColorDlg : begin 
+          ecBGColorDlg : begin
             ShiftWasDown := ShiftDown;
             if RecallingCommand then
               Form_Main.ColorDlg.Color := CommandRecall.Color
@@ -2130,6 +2131,7 @@ begin
               Editor.Color := tempChrome.BGColor;
 
               if assigned(ActiveFolder) then begin
+                 ActiveFolder.Modified:= true;
                  if assigned(ActiveFolder.SelectedNote) then
                     ActiveFolder.SelectedNote.RTFBGColor := tempChrome.BGColor;
 
@@ -2161,9 +2163,10 @@ begin
              var wwActive: boolean;
              var Note:= TKntNote(NoteObj);
              if Note <> nil then begin
+                Folder:= TKntFolder(FolderObj);
                 case Note.WordWrap of
                    wwAsFolder :
-                    if TKntFolder(FolderObj).WordWrap then
+                    if Folder.WordWrap then
                        Note.WordWrap := wwNo
                     else
                        Note.WordWrap := wwYes;
@@ -2176,7 +2179,12 @@ begin
                 wwActive:= not ActiveEditor.WordWrap;
 
              WordWrap := wwActive;
-             UpdateFolderDisplay;
+             if assigned(Folder) then begin
+               UpdateFolderDisplay;
+               if (Editor.PlainText) then
+                  Folder.UpdateEditor (false);
+             end;
+
           end;
 
           ecSelectAll :

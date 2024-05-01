@@ -237,7 +237,7 @@ type
     procedure SetTabProperties( const aProps : TFolderTabProperties; UpdateName: boolean= True );
     procedure GetTabProperties( var aProps : TFolderTabProperties );
 
-    procedure UpdateEditor;
+    procedure UpdateEditor (SetWordWrap: boolean= true);
     procedure UpdateTabSheet;
 
     function PrepareTextPlain (myTreeNode: TTreeNTNode; RTFAux: TAuxRichEdit): string;
@@ -755,7 +755,7 @@ begin
                 myFolder.EditorChrome := myEditorChrome;
 
                 // reflect changes in controls
-                myFolder.UpdateEditor;
+                myFolder.UpdateEditor (true);
                 myFolder.UpdateTabSheet;
 
                 EnsuredPlainText:= False;
@@ -1042,7 +1042,7 @@ begin
 end; // UpdateTabSheetProperties
 
 
-procedure TKntFolder.UpdateEditor;
+procedure TKntFolder.UpdateEditor (SetWordWrap: boolean= true);
 var
 //  tabstopcnt : integer;
   TextLen: integer;
@@ -1051,9 +1051,13 @@ var
 begin
   if ( not CheckEditor ) then exit;
 
+  // Note: Currently WordWrap is set in Editor in CreateVCLControlsForFolder and EditKntFolderProperties (calling here with SetWordWrap=true)
+  //       and in TreeNodeSelected
+
   FEditor.BeginUpdate;
   try
-       FEditor.WordWrap := FWordWrap;
+       if SetWordWrap then                         // Setting Editor.WordWrap => calling CMRecreateWnd
+          FEditor.WordWrap := FWordWrap;
        FEditor.TabSize := FTabSize;
        FEditor.AutoURLDetect := FURLDetect;
 
@@ -1087,11 +1091,12 @@ begin
 
 
        if assigned(FSelectedNote) then begin
-          case FSelectedNote.WordWrap of
-             wwAsFolder : FEditor.WordWrap := FWordWrap;
-             wwYes : FEditor.WordWrap := true;
-             wwNo : FEditor.WordWrap := false;
-          end;
+          if SetWordWrap then
+             case FSelectedNote.WordWrap of
+                wwAsFolder : FEditor.WordWrap := FWordWrap;
+                wwYes : FEditor.WordWrap := true;
+                wwNo : FEditor.WordWrap := false;
+             end;
 
           FEditor.Color := FSelectedNote.RTFBGColor;
        end;
@@ -2179,7 +2184,7 @@ begin
         strRTF:= '';
 
         if ( FPlainText or ( FSelectedNote.VirtualMode in [vmText, vmHTML] )) then
-           UpdateEditor;
+           UpdateEditor (False);
 
         fImagesReferenceCount:= nil;
         if NodeStreamIsRTF (FSelectedNote.Stream) then begin
@@ -2215,7 +2220,7 @@ begin
         FEditor.SelLength := FSelectedNote.SelLength;
 
         if FSelectedNote.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
-           UpdateEditor;
+           UpdateEditor (false);
 
       finally
         FEditor.ReadOnly:= ReadOnlyBAK;
