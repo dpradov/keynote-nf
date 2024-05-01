@@ -446,6 +446,8 @@ begin
   if ( idx < 0 ) then exit;
   FFolders.Delete( idx );
   Modified := true;
+
+  RecalcNextNoteGID;
 end; // DeleteKntFolder
 
 
