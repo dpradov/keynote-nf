@@ -82,6 +82,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     function GetModeReplace: boolean;
     procedure SetModeReplace(value: boolean);
+    procedure CheckEnableChkControls;
 
   public
     { Public declarations }
@@ -150,13 +151,12 @@ var
   enableReplace: boolean;
   Editor: TKntRichEdit;
   Folder: TKntFolder;
-  SearchInNotes: boolean;
 begin
   if assigned( myNotifyProc ) then
     myNotifyProc( false );
 
   Editor:= ActiveEditor;
-  Folder:= TKntFolder(ActiveEditor.FolderObj);
+  Folder:= TKntFolder(Editor.FolderObj);
 
   if Initializing then begin
     Initializing := false;
@@ -178,11 +178,7 @@ begin
              myFindOptions.FindNew := true;
   end;
 
-  SearchInNotes:= assigned(Folder);
-  CheckBox_AllTabs.Enabled:= SearchInNotes;
-  CheckBox_AllNodes.Enabled := SearchInNotes;
-  CheckBox_HiddenNodes.Enabled := SearchInNotes;
-
+  CheckEnableChkControls;
 
   if not App.CheckActiveEditorNotReadOnly then begin
      modeReplace:= False;
@@ -208,6 +204,21 @@ begin
   CheckBox_SelectedText.Checked:= myFindOptions.SelectedText;
 
 end; // ACTIVATE
+
+procedure TForm_FindReplace.CheckEnableChkControls;
+var
+  Folder: TKntFolder;
+  SearchInNotes: boolean;
+begin
+  Folder:= TKntFolder(ActiveEditor.FolderObj);
+
+  SearchInNotes:= assigned(Folder);
+  CheckBox_AllTabs.Enabled:= SearchInNotes;
+  CheckBox_AllNodes.Enabled := SearchInNotes and not CheckBox_AllTabs.Checked;
+  if CheckBox_AllTabs.Checked then
+     CheckBox_AllNodes.Checked:= true;
+  CheckBox_HiddenNodes.Enabled := SearchInNotes and (CheckBox_AllNodes.Checked or CheckBox_AllTabs.Checked);
+end;
 
 procedure TForm_FindReplace.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
@@ -254,13 +265,14 @@ end;
 
 procedure TForm_FindReplace.CheckBox_AllNodesClick(Sender: TObject);
 begin
-   CheckBox_HiddenNodes.Enabled := CheckBox_AllNodes.Checked;
    myFindOptions.FindNew := true;
+   CheckEnableChkControls;
 end;
 
 procedure TForm_FindReplace.CheckBox_ScopeChanged(Sender: TObject);
 begin
-     myFindOptions.FindNew := true;
+   myFindOptions.FindNew := true;
+   CheckEnableChkControls;
 end;
 
 procedure TForm_FindReplace.ComboToHistory;
