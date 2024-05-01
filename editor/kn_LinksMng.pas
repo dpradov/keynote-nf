@@ -51,7 +51,7 @@ uses
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string; NumBookmark09: integer= 0);
     function BuildKNTLocationText( const aLocation : TLocation) : string;
     function BuildKNTLocationFromString( LocationStr : string ): TLocation;
-    function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer): AnsiString;
+    function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): AnsiString;
     function BuildBookmark09FromString( LocationStr : AnsiString ): TLocation;
     procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen; OpenInCurrentFile: boolean= false);
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
@@ -72,7 +72,7 @@ uses
 
     function PathOfKNTLink (myTreeNode: TTreeNTNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                             forUseInFindResults: boolean = false): string;
-    procedure GetTreeNodeFromLocation (const Location: TLocation; var Folder: TKntFolder; var myTreeNode: TTreeNTNode);
+    procedure GetTreeNodeFromLocation (const Location: TLocation; var Folder: TKntFolder; var myTreeNode: TTreeNTNode; raiseExcept: boolean= true);
 
     procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
 
@@ -264,7 +264,7 @@ end; // PathOfKNTLink
 //=========================================
 // GetTreeNode
 //=========================================
-procedure GetTreeNodeFromLocation (const Location: TLocation; var Folder: TKntFolder; var myTreeNode: TTreeNTNode);
+procedure GetTreeNodeFromLocation (const Location: TLocation; var Folder: TKntFolder; var myTreeNode: TTreeNTNode; RaiseExcept: boolean= true);
 var
    Note: TKntNote;
 
@@ -272,43 +272,45 @@ begin
    with Location do begin
      // obtain FOLDER
       Folder := nil;
+      myTreeNode := nil;
 
       if NoteGID <> 0 then begin  // lfNew2 format
          ActiveFile.GetNoteByGID(NoteGID, Note, Folder);
-         if Note = nil then
+         if (Note = nil) and RaiseExcept then
             raise EInvalidLocation.Create(Format(STR_03b, [NoteGID]))
       end
       else
       if (FolderID <> 0) then begin // lfNew format
          Folder := KntFile.GetFolderByID(FolderID);
-         if (Folder = nil ) then
+         if (Folder = nil) and RaiseExcept then
             raise EInvalidLocation.Create(Format(STR_01, [FolderID]));
       end
       else begin                    // lfOld format
          Folder := KntFile.GetFolderByName( FolderName );
-         if (Folder = nil) then
+         if (Folder = nil) and RaiseExcept then
             raise EInvalidLocation.Create(Format( STR_02, [FolderName] ));
       end;
 
+      if (Folder=nil) then exit;
+
 
       // obtain NODE
-      myTreeNode := nil;
 
       if NoteGID <> 0 then begin
          myTreeNode := Folder.GetTreeNodeByGID(NoteGID);
-         if (myTreeNode = nil) then
+         if (myTreeNode = nil) and RaiseExcept  then
             raise EInvalidLocation.Create(Format( STR_03b, [NoteGID] ));
       end
       else
       if (NoteID > 0) or (NoteName <> '') then begin   // If NodeID <= 0 and NodeName = '' -> Node will be ignored
          if (NoteID <> 0) then begin    // lfNew2 or lfNew format
             myTreeNode := Folder.GetTreeNodeByID(NoteID);
-            if (myTreeNode = nil) then
+            if (myTreeNode = nil) and RaiseExcept then
                raise EInvalidLocation.Create(Format( STR_03, [NoteID] ));
          end
          else begin
             myTreeNode := Folder.TV.Items.FindNode( [ffText], NoteName, nil );
-            if (myTreeNode = nil) then
+            if (myTreeNode = nil) and RaiseExcept  then
                raise EInvalidLocation.Create(Format( STR_04, [NoteName] ));
          end;
        end;
@@ -1678,8 +1680,11 @@ var
      Location:= BuildKNTLocationFromString(URL);
      try
        if (ActiveFile.FileName = Location.FileName) or (Location.FileName = '') then begin
-           GetTreeNodeFromLocation (Location, folder, treeNode);
-           Result:= PathOfKNTLink(treeNode, folder, Location.CaretPos, false, false);
+           GetTreeNodeFromLocation (Location, folder, treeNode, false);
+           if treeNode = nil then
+              Result:= UpperCase(STR_14)
+           else
+              Result:= PathOfKNTLink(treeNode, folder, Location.CaretPos, false, false);
        end
        else begin
           FN:= ExtractFileName(Location.FileName);
@@ -2070,18 +2075,21 @@ end; // Insert URL
 
 
 
-function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer): AnsiString;
+function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): AnsiString;
 const
    LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
-   KntLINK_PREFIX_1 = LINK_PREFIX + '"file:///*';
-   KntLINK_PREFIX_2 = LINK_PREFIX + 'file:///*';
+   KntLINK_PREFIX_2 = 'file:///*';
+   KntLINK_PREFIX_1 = '"' + KntLINK_PREFIX_2;
+   KntLINK_PREFIX_4 = 'file:///<';
+   KntLINK_PREFIX_3 = '"' + KntLINK_PREFIX_4;
 
 var
-  pIn, pOut,  pLink, pLinkEnd : integer;
+  pIn, pOut,  pLink, pLinkEnd, k : integer;
   RTFTextOut, NewFormat: AnsiString;
   NBytes: integer;
   LinksConverted: boolean;
   RTFText: PAnsiChar;
+  StrAux: AnsiString;
   i, L: integer;
 
 
@@ -2098,8 +2106,11 @@ var
     try
         // RTF (+ LinkOffset): Text that starts with {\field{\*\fldinst{HYPERLINK "file:///*...   (or ...HYPERLINK file:///*...  )
         (*
+            We are only going to automatically convert the usual links, within the same file::
+
              ...{\field{\*\fldinst{HYPERLINK "file:///* ..."}}{...
              ...{\field{\*\fldinst{HYPERLINK file:///*  ... }}{...
+             ...{\field{\*\fldinst{HYPERLINK "file:///<  ... }}{...
         *)
 
         RTF:= PAnsiChar(Buffer);
@@ -2114,9 +2125,15 @@ var
 
         Link:= Copy(RTF, pIni +i, PosLinkEnd-pIni-1 -i);
         Location:= BuildKNTLocationFromString(Link);
+        if assigned(NoteGIDs) and (Location.NoteGID <> 0 ) then begin
+            Location.NoteGID:= NoteGIDs.GetNewGID(Location.NoteGID);
+            if Location.NoteGID = NoteGID_NotConverted then
+               inc(GIDsNotConverted);
+        end;
+
         try
            if Location <> nil then begin
-              Result:= BuildKNTLocationText(Location) + ' }}';
+              Result:= '"' + BuildKNTLocationText(Location) + '"}}';
               Result:= Copy(RTF, 1+LinkOffset, pIni - LinkOffset-1) + Result;
            end;
         finally
@@ -2154,28 +2171,40 @@ begin
       RTFTextOut:= '';
 
       repeat
-         if pLink = -99 then begin
-            pLink:= PosPAnsiChar(KntLINK_PREFIX_1, RTFText, pIn)-1;
-            L:= 1;
-         end;
+         k:= 0;
+         repeat
+            L:= 0;
+            pLink:= PosPAnsiChar(LINK_PREFIX, RTFText, pIn + k)-1;
+            if (pLink = -1) or (pLink >= BufSize) then
+               break;
 
-         if pLink = -1 then begin
-            pLink:= PosPAnsiChar(KntLINK_PREFIX_2, RTFText, pIn)-1;
-            L:= 2;
-         end;
+            StrAux:= CopyPAnsiChar(RTFText, pLink+ Length(LINK_PREFIX)+1, Length(KntLINK_PREFIX_1));
+            if Pos(KntLINK_PREFIX_1, StrAux) = 1 then
+               L:= 1
+            else
+            if Pos(KntLINK_PREFIX_2, StrAux) = 1 then
+               L:= 2
+            else
+            if assigned(NoteGIDs) and (Pos(KntLINK_PREFIX_3, StrAux) = 1) then
+               L:= 3
+            else
+            if assigned(NoteGIDs) and (Pos(KntLINK_PREFIX_4, StrAux) = 1) then
+               L:= 4;
 
-         if pLink >= BufSize then
-            pLink := -1;
+            if L = 0 then
+               k:=  pLink-pIn +  Length(LINK_PREFIX) + Length(KntLINK_PREFIX_1);
 
-         if (pLink = -1) then
-            break;
+         until L <> 0;
+
+         if L= 0 then break;
+
 
          NBytes:= pLink - pLinkEnd-1;                // Previous bytes to copy
 
          if RTFTextOut = '' then begin
             SetLength(RTFTextOut, BufSize);
             {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
-            for var k: integer := 1 to BufSize do
+            for k := 1 to BufSize do
                RTFTextOut[k]:= ' ';  //ZeroMemory(@RTFTextOut[1], BufSize);
             {$ENDIF}
          end;
@@ -2187,10 +2216,13 @@ begin
          NewFormat:= RTFLinkToNewFormat(RTFText, pLink, pLinkEnd );
 
          if NewFormat = '' then  begin
-            if L= 1 then
-               NewFormat:= KntLINK_PREFIX_1
-            else
-               NewFormat:= KntLINK_PREFIX_2;
+            NewFormat:= LINK_PREFIX;
+            case L of
+               1: NewFormat:= NewFormat + KntLINK_PREFIX_1;
+               2: NewFormat:= NewFormat + KntLINK_PREFIX_2;
+               3: NewFormat:= NewFormat + KntLINK_PREFIX_3;
+               4: NewFormat:= NewFormat + KntLINK_PREFIX_4;
+            end;
             pLinkEnd:= pLink + Length(NewFormat) -1;
          end
          else begin

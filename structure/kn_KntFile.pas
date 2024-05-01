@@ -34,10 +34,12 @@ uses
    ZLibEx,
 
    kn_Const,
+   kn_Info,
    kn_LocationObj,
    kn_KntFolder,
    kn_KntNote,
-   kn_ImagesMng
+   kn_ImagesMng,
+   kn_LinksMng
    ;
 
 
@@ -160,7 +162,7 @@ type
                   ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: TTreeNTNode= nil;
                   OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
     function Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer) : integer;
-    function ConvertKNTLinksToNewFormatInNotes: boolean;
+    function ConvertKNTLinksToNewFormatInNotes(NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
 
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
@@ -208,7 +210,6 @@ uses
    kn_EditorUtils,
    knt.ui.editor,
    kn_BookmarksMng,
-   kn_LinksMng,
    knt.App
    ;
 
@@ -1058,7 +1059,7 @@ end; // Load
 
 
 
-function TKntFile.ConvertKNTLinksToNewFormatInNotes: boolean;
+function TKntFile.ConvertKNTLinksToNewFormatInNotes (NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
 var
    i, j: integer;
    Note: TKntNote;
@@ -1069,6 +1070,7 @@ begin
 
   for i := 0 to FFolders.Count-1 do begin
      Folder := FFolders[i];
+     if assigned(NoteGIDs) and (Folder.Info = 0) then continue;                   // only selected folders
      if Folder.PlainText then continue;
      if Folder.Notes.Count = 0 then continue;
 
@@ -1076,7 +1078,7 @@ begin
         Note := Folder.Notes[j];
         if not (Note.VirtualMode in [vmNone, vmRTF]) then continue;
 
-        NewRTF:= ConvertKNTLinksToNewFormat(Note.Stream.Memory, Note.Stream.Size);
+        NewRTF:= ConvertKNTLinksToNewFormat(Note.Stream.Memory, Note.Stream.Size, NoteGIDs, GIDsNotConverted);
         if NewRTF <> '' then begin
            Note.Stream.SetSize(Length(NewRTF));
            Note.Stream.Position:= 0;

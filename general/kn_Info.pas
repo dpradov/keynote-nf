@@ -764,6 +764,29 @@ type
     ResetNextAftN: integer;   // Reset find next after N seconds (0 no reset). If reset, Find Next (F3) will ask for a new pattern
   end;
 
+const
+   NoteGID_NotConverted = 9999999;
+
+type
+
+  TMergedNotes = class
+    type
+     TPairValues = record
+       oldGID: Cardinal;
+       newGID: Cardinal;
+     end;
+
+    private
+      NoteGIDs: array of TPairValues;
+      iNote: integer;
+
+    public
+      SameFile: boolean;
+      constructor Create(N: integer);
+      destructor Destroy;  override;
+      procedure AddOldNewGIDs (Old, New: Cardinal);
+      function GetNewGID (GID: Cardinal): Cardinal;
+  end;
 
 var
   _KNT_WINMSG_ID : word; // GLOBAL MESSAGE ID (used for DLL notifications)
@@ -927,6 +950,43 @@ begin
   end;
   AList.Clear;
 end; // ClearObjectStringList
+
+
+//=====  TMergedNotes ================
+
+constructor TMergedNotes.Create(N: integer);
+begin
+   SetLength(NoteGIDs, N);
+   iNote:= 0;
+end;
+
+destructor TMergedNotes.Destroy;
+begin
+   NoteGIDs:= nil;
+end;
+
+procedure TMergedNotes.AddOldNewGIDs (Old, New: Cardinal);
+begin
+  NoteGIDs[iNote].oldGID:= Old;
+  NoteGIDs[iNote].newGID:= New;
+  inc(iNote);
+end;
+
+function TMergedNotes.GetNewGID (GID: Cardinal): Cardinal;
+ var
+   i: integer;
+begin
+  Result:= NoteGID_NotConverted;
+  for i := 0 to High(NoteGIDs) - 1 do
+     if NoteGIDs[i].oldGID = GID then begin
+        Result:= NoteGIDs[i].newGID;
+        exit;
+     end;
+
+  if SameFile then
+     Result:= GID;
+end;
+
 
 Initialization
 

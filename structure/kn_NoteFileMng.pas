@@ -177,6 +177,7 @@ resourcestring
   STR_46 = 'Error while adding folders: ';
   STR_47 = 'Merged %d folders from "%s"';
   STR_48 = 'No folders were merged';
+  STR_83 = '%d Links or Mirror nodes couldn''t be adapted'+#13+'Links can be found searching for "file///<%d"';
   STR_49 = 'Another application has modified the knt file %s. Reload the file from disk?';
   STR_50 = '%s folder "%s" does not exist';
   STR_51 = '. Create the folder now?';
@@ -474,7 +475,8 @@ begin
             Log_StoreTick( 'After SetupMirrorNodes', 1 );
 
             if App.opt_ConvKNTLinks then begin
-               linksModified:= KntFile.ConvertKNTLinksToNewFormatInNotes;
+               var GIDsNotConverted: integer:= 0;
+               linksModified:= KntFile.ConvertKNTLinksToNewFormatInNotes(nil, GIDsNotConverted);
                Log_StoreTick( 'After convert KntLinks to new format', 1 );
             end;
 
@@ -1370,10 +1372,6 @@ type
        newID: Cardinal;
        newFolder: boolean;
    end;
-   TMergeNotes = record
-       oldGID: Cardinal;
-       newGID: Cardinal;
-   end;
 
 var
   MergeFile : TKntFile;
@@ -1387,10 +1385,11 @@ var
   TargetFolder: TKntFolder;
   TargetNoteID_: Cardinal;
   FolderIDs: array of TMergeFolders;
-  NoteGIDs: array of TMergeNotes;
-  MergeNotesCount, iNote: integer;
+  NoteGIDs: TMergedNotes;
+  MergeNotesCount: integer;
   mirrorID: string;
   FolderID: integer;
+  GIDsNotConverted: integer;
 
 
   function GetNewFolderID(FolderID: integer): integer;
@@ -1401,18 +1400,6 @@ var
     for i := 0 to High(FolderIDs) do
         if FolderIDs[i].oldID = FolderID then begin
            Result:= FolderIDs[i].newID;
-           exit;
-        end;
-  end;
-
-  function GetNewNoteGID(GID: integer): integer;
-  var
-    i: integer;
-  begin
-    Result:= 0;
-    for i := 0 to MergeNotesCount - 1 do
-        if NoteGIDs[i].oldGID = GID then begin
-           Result:= NoteGIDs[i].newGID;
            exit;
         end;
   end;
@@ -1505,20 +1492,24 @@ begin
           end;
 
           mergecnt := 0;
-          iNote:= 0;
-          SetLength(NoteGIDs, MergeNotesCount);
+          GIDsNotConverted:= 0;
+          NoteGIDs:= TMergedNotes.Create(MergeNotesCount);
+          NoteGIDs.SameFile := (MergeFN = KntFile.FileName);
 
           StatusBar.Panels[PANEL_HINT].Text := STR_45;
 
           screen.Cursor := crHourGlass;
 
           try
+            for i := 0 to pred( KntFile.FolderCount ) do      // to convert KntLinks to new format only on new, merged, folders
+               KntFile.Folders[i].Info:= 0;
+
             for i := 0 to pred( MergeFile.FolderCount ) do begin
 
               FolderIDs[i].oldID:= MergeFile.Folders[i].ID;
               if (MergeFile.Folders[i].Info = 0) then begin
                  FolderIDs[i].newFolder:= false;
-                 if MergeFN <> KntFile.FileName then
+                 if not NoteGIDs.SameFile then
                     FolderIDs[i].newID:= 0
                  else
                     FolderIDs[i].newID:= FolderIDs[i].oldID;
@@ -1530,6 +1521,7 @@ begin
 
               newFolder.Visible := true;
               newFolder.Modified := false;
+              newFolder.Info := 1;
 
               with MergeFile.Folders[i] do begin
                 newFolder.PlainText := PlainText;         //**
@@ -1564,10 +1556,8 @@ begin
                      newNote.Assign( mergeNote );
                      newFolder.AddNote( newNote );
                      newNote.ForceID( mergeNote.ID);
-                     NoteGIDs[iNote].oldGID:= mergeNote.GID;
-                     NoteGIDs[iNote].newGID:= newNote.GID;
+                     NoteGIDs.AddOldNewGIDs(mergeNote.GID, newNote.GID);
                      mergeFolder.AddProcessedAlarmsOfNote(mergeNote, newFolder, newNote);
-                     inc(iNote)
                   end;
               end;
 
@@ -1614,26 +1604,35 @@ begin
                           if p > 0 then begin
                              FolderID:= StrToUInt(Copy(mirrorID, 1, p-1));
                              FolderID:= GetNewFolderID(FolderID);
-                             TargetFolder:= ActiveFile.GetFolderByID(FolderID);
+                             TargetFolder:= ActiveFile.GetFolderByID(FolderID);            // It will fail if it is linked to a note in a folder not selected or not loaded still
                              TargetNoteID_:= TargetFolder.GetNoteByID(TargetNoteID_).GID;
                           end
-                          else
-                             TargetNoteID_:= GetNewNoteGID(TargetNoteID_);
+                          else begin
+                             TargetNoteID_:= NoteGIDs.GetNewGID(TargetNoteID_);
+                             if TargetNoteID_ = NoteGID_NotConverted then
+                                inc(GIDsNotConverted);
+                          end;
 
                           newNote.MirrorNodeID:= TargetNoteID_.ToString;
 
                        except
-                          newNote.MirrorNodeID:= '0';
+                          newNote.MirrorNodeID:= NoteGID_NotConverted.ToString;
+                          inc(GIDsNotConverted);
                        end;
 
                     end;
                  end;
               end;
 
+            KntFile.ConvertKNTLinksToNewFormatInNotes(NoteGIDs, GIDsNotConverted);      // only on selected folders (with .Info=1)
+            if GIDsNotConverted > 0 then
+               messagedlg( Format(STR_83, [GIDsNotConverted, NoteGID_NotConverted]), mtWarning, [mbOK], 0 );
+
             for i := 0 to pred( MergeFile.FolderCount ) do
                 if FolderIDs[i].newFolder then begin
                    newFolder:= KntFile.GetFolderByID(FolderIDs[i].newID);
                    KntFile.SetupMirrorNodes(newFolder);
+                   newFolder.DataStreamToEditor;
                 end;
 
 
@@ -1645,6 +1644,8 @@ begin
           end;
 
         finally
+          if assigned(NoteGIDs) then
+             NoteGIDs.Free;
           MergeFile.Free;
           ImageMng.ExternalImagesManager:= nil;
           ImgManagerMF.Free;
