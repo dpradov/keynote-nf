@@ -95,6 +95,8 @@ type
     FZoomGoal: integer;
     FZoomCurrent: integer;
 
+    LastSS, LastPy, LastPx, LastX : integer;
+
     FIgnoreSelectionChange: boolean;
     FChangedSelection: TChangedSelectionEvent;
 
@@ -447,6 +449,11 @@ begin
 
   FZoomGoal:= 100;
   FZoomCurrent:= -1;
+
+  LastSS:= -1;
+  LastPy:= -1;
+  LastPx:= -1;
+  LastX:= -1;
 
   OnProtectChangeEx:= RxRTFProtectChangeEx;
   OnURLClick:= RxRTFURLClick;
@@ -1184,6 +1191,7 @@ begin
                         SelStart:= L;              // It was not hidden. We leave it where it was and allow the keyboard event to be handled as normal.
                    finally
                       FIgnoreSelectionChange:= false;
+                      UpdateCursorPos;
                    end;
                 end;
              end;
@@ -2320,23 +2328,106 @@ begin
    end;
 end;
 
+
+
+
 procedure TKntRichEdit.UpdateCursorPos;
 var
   p : TPoint;
-  SelectedVisibleText: string;
-  SL: integer;
+  Str: string;
+  SSi, SS, SSexp, SL, V, X, IncX: integer;
 begin
     SL:= SelLength;
+    SS:= SelStart;
     if ( SL > 0 ) then ShowingSelectionInformation:= true;
 
     if EditorOptions.TrackCaretPos then begin
+      {
+       CaretPos returns the position of the cursor on the line as x (p.X), counting both visible and hidden characters.
+       Hidden are mainly those corresponding to hyperlinks (HYPERLINK "<URL>"), although there may also be some hidden
+       characters used by KeyNote to identify images or set bookmarks for the location of KNT Links.
+       The first thing is to check if we have any hidden characters in the line position we are in. A quick way can be to search
+       for the word HYPERLINK and one of the hidden characters that KNT uses. If there are none, we can safely use the value
+       returned by CaretPos. If the word HYPERLINK was not hidden, nothing happens, we will simply do the calculation by one of
+       the other ways.
+
+       If there are hidden characters on the left, the second thing is to check if the cursor is inside a hyperlink or not.
+       The reason? We will need to select the text from the beginning of the line to be able to obtain the visible text, but
+       if we are within a hyperlink this will select not only to the position we are in, but to the end of the hyperlink.
+       Everything that is selected beyond our position (the rest of the hyperlink) is visible text.
+       After selection -> Consult both the length of the visible text obtained and the most extreme position reached, therefore
+       including the end of the hyperlink. Anything that has expanded the selection too much will be hidden characters that we
+       must subtract from the length of the visible text:
+
+        .....Text of some hyperlink
+        ^         ^               ^
+        SSi       SS              SSexp
+                  <------ D ------>
+        <-------------------------> V
+        <---------> X
+
+       If SS = SSexpand => the cursor is not over any hyperlink.
+
+       Although we use BeginUpdate and EndUpdate(false) (false so that it does not trigger an Invalidate and Refresh after the
+       EndUpdate), a slight flicker is still noticeable in certain parts of the editor at certain times when quickly scrolling
+       through a line in which there are hidden characters (e.g., by having a hidden marker).
+       To avoid this I am going to apply a certain optimization:
+       I am going to save the latest calculated data and try to take advantage of it to minimize the number of times it is necessary
+       to change the selection to see the length of the visible text.
+      }
+
        p := CaretPos;
        if ( SL = 0 ) then begin
-          App.WordCountInfoInStatusBar:= Format( STR_10, [succ( p.y ), Lines.Count, succ( p.x )] );
+          IncX:= 0;
+          X:= -1;
+          SSi:= -1;
+          if (p.Y = LastPy) then begin
+             if (p.X = LastPx+1) or (p.X = LastPx-1) then
+                X:= LastX + (p.X - LastPx)
+             else
+             if (SS > LastSS) and (LastX > 0) then begin
+                SSi:= LastSS;
+                IncX:= LastX;
+             end
+             else
+                LastPx:= 0;
+          end
+          else
+              LastPx:= 0;
+
+          if X < 0 then begin
+             if SSi = -1 then
+                SSi:= Perform(EM_LINEINDEX, p.y, 0);
+
+             Str:= GetTextRange(SSi, SSi + p.X - LastPx);
+             if (pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, 1) = 0) and (pos('HYPERLINK ', Str, 1) = 0) then
+                X:= (p.X - LastPx) + IncX
+
+             else begin
+                FIgnoreSelectionChange:= True;
+                BeginUpdate;
+                try
+                  SetSelection(SSi, SS, false);
+                  SSexp:= SelStart + SelLength;
+                  V:= Length(Self.SelVisibleText);
+                  X:= V - (SSexp-SS) + IncX;
+                  SelStart:= SS;
+                finally
+                  EndUpdate (False);
+                  FIgnoreSelectionChange:= False;
+                end;
+             end;
+          end;
+          LastSS:= SS;
+          LastPx:= p.X;
+          LastPy:= p.Y;
+          LastX:= X;
+          App.WordCountInfoInStatusBar:= Format( STR_10, [succ( p.y ), Lines.Count, succ(X)] );
        end
        else begin
-          SelectedVisibleText:= SelVisibleText;
-          App.WordCountInfoInStatusBar:= Format( STR_11, [Length(SelectedVisibleText), GetWordCount( SelectedVisibleText )] );
+          LastPy:= -1;
+          Str:= SelVisibleText;
+          App.WordCountInfoInStatusBar:= Format( STR_11, [Length(Str), GetWordCount(Str)] );
        end;
     end
     else begin

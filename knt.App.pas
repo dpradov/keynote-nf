@@ -372,6 +372,7 @@ begin
     if Editor.Focused then begin
        UpdateEnabledActionsAndRTFState(Editor);
        ShowCurrentZoom(Editor.GetZoom);
+       Editor.UpdateCursorPos;
     end;
 
     if assigned(Editor.NoteObj) then begin

@@ -624,7 +624,7 @@ type
     procedure Redo;
     procedure StopGroupTyping;
     procedure BeginUpdate;                                             // [dpv]
-    procedure EndUpdate;                                               // [dpv]
+    procedure EndUpdate (InvalidateAndRefresh: boolean= true);         // [dpv]
     procedure RemoveMargins;                                           // [dpv]
     property CanFindNext: Boolean read GetCanFindNext;
     property CanRedo: Boolean read GetCanRedo;
@@ -6820,14 +6820,16 @@ end;
   This method should be called every time a call is made made to BeginUpdate. It resets the event mask to it's
   original value and enables redrawing of the control.}
 
-procedure TRxCustomRichEdit.EndUpdate;
+procedure TRxCustomRichEdit.EndUpdate (InvalidateAndRefresh: boolean= true);
 begin
     FUpdating:= FUpdating -1;                                        // Deal with nested calls
     if FUpdating <= 0 then begin
         SendMessage(Handle, WM_SETREDRAW, 1, 0);                     // Allow the control to redraw itself
         SendMessage(Handle, EM_SETEVENTMASK, 0, FOldEventMask);      // Allow the control to raise event messages
-        Invalidate;
-        Refresh;
+        if InvalidateAndRefresh then begin
+           Invalidate;
+           Refresh;
+        end;
     end;
 end;
 
