@@ -1456,8 +1456,10 @@ begin
       myNote.ImageIndex := newIdx;
       SelectIconForNode( myTreeNode, niCustom );
 
-      if DoChildren then
+      if DoChildren then begin
          SetChildren( myTreeNode );
+         myTreeNode.TreeView.Invalidate;
+      end;
 
     finally
       ActiveFile.Modified := true;
