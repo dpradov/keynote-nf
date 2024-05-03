@@ -202,6 +202,8 @@ begin
         OnSavingTree:= TVSavingTree;
         OnMouseMove:= TVMouseMove;
         HelpContext:= 284;  // Tree-type Notes [284]
+
+        Perform(WM_HSCROLL, SB_TOP, 0);  // scroll to left border
       end;
 
       aFolder.Editor.SetZoom(DefaultEditorProperties.DefaultZoom, '' );
