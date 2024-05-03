@@ -214,7 +214,7 @@ resourcestring
   STR_82 = 'The file must first be saved (with Save or Save As)';
 
 const
-  IntervalBAKDay = '_BAK_Day.knt';
+  IntervalBAKDay = '_BAK_Day';
   IntervalPrefixBAK = '_BAK@';
 
 
@@ -700,6 +700,7 @@ begin
 
    if Result then begin
       FileName:= ExtractFilename(FN);
+      ext:= ExtractFileExt(FN);
 
       // Check if alternate backup directory exists
       if KeyOptions.BackupDir <> '' then begin
@@ -720,7 +721,7 @@ begin
       if KeyOptions.BackupRegularIntervals then begin
          // Is it the first time we save this day? (there is no Interval BAK day or it corresponds to other day)
          FirstSaveInDay:= False;
-         DayBakFN := ChangeFileExt(bakFolder + FileName, IntervalBAKDay);
+         DayBakFN := ChangeFileExt(bakFolder + FileName, IntervalBAKDay + ext);
          DayBakFN_Txt:= DayBakFN + '.TXT';
          if not FileExists(DayBakFN_Txt) or
             (RecodeTime(GetFileDateStamp(DayBakFN_Txt), 0,0,0,0) <> Date) then
@@ -813,17 +814,18 @@ var
    Year, Month, Day: Word;
    dayOfW, bakIndex: Integer;
    BeginOfWeek: TDateTime;
-   FileName, BakFN: string;
+   FileName, BakFN, ext: string;
    bakFNfrom, bakFNTo: string;
 begin
    if not KeyOptions.BackupRegularIntervals then Exit;
 
    DecodeDate(Date, Year, Month, Day);
    FileName:= ExtractFilename(FN);
+   ext:= ExtractFileExt(FN);
 
    BakFN := Format(
                ChangeFileExt(BakFolder + '\' + FileName,
-                  IntervalPrefixBAK + '%d_%.2d' + ext_KeyNote), [Year, Month]);
+                  IntervalPrefixBAK + '%d_%.2d' + ext), [Year, Month]);
 
    if not FileExists(BakFN) then
       CopyFile(PChar(FN), PChar(BakFN), False)   // Monthly backup
@@ -839,14 +841,14 @@ begin
          BakFN := ChangeFileExt(BakFolder + '\' + FileName, IntervalPrefixBAK + 'W');
 
          for bakIndex := Pred(4) downto 1 do begin
-            bakFNfrom := BakFN + IntToStr(bakIndex)       + ext_KeyNote;
-            bakFNto   := BakFN + IntToStr(Succ(bakIndex)) + ext_KeyNote;
+            bakFNfrom := BakFN + IntToStr(bakIndex)       + ext;
+            bakFNto   := BakFN + IntToStr(Succ(bakIndex)) + ext;
             if FileExists(bakFNfrom) then
                MoveFileEx(
                   PChar(bakFNfrom), PChar(bakFNto),
                   MOVEFILE_REPLACE_EXISTING or MOVEFILE_COPY_ALLOWED);
          end; // for
-         CopyFile(PChar(FN), PChar(BakFN + '1' + ext_KeyNote), False);   // Weekly backup
+         CopyFile(PChar(FN), PChar(BakFN + '1' + ext), False);   // Weekly backup
       end;
 
    end;
