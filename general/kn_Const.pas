@@ -119,9 +119,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '1.9.2 .1';
-  Program_Version_Number  = '1.9.2.1';
-  Program_Version_Date    = '01/04/2024';
+  Program_Version  = '1.9.3 .1';
+  Program_Version_Number  = '1.9.3.1';
+  Program_Version_Date    = '04/05/2024';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -204,9 +204,8 @@ const
   NFHDR_ID_COMPRESSED = 'GFKNZ'; // compressed KeyNote file header ID
   NFILEVERSION_MAJOR = '2';     // and version numbers
   // NFILEVERSION_MAJOR = '1';     // non-tree version ID, obsolete
-  NFILEVERSION_MINOR = '0';     //
-  NENCFILEVER_MAJOR  = '1';     // and version numbers
-  NENCFILEVER_MINOR  = '0';     //
+  NFILEVERSION_MINOR = '1';     // Since version 1.9.3.1: Use of GID as note identifier, with a new default internal Knt Links format, based on GIDs
+  // NFILEVERSION_MINOR = '0';
 
 const
   FLAGS_STRING_LENGTH  = 24; // can store up to 24 booleans

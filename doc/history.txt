@@ -3,6 +3,40 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 1.9.3.1  (04 may 2024)
+--------------------------
+(Detailed info in doc\Changes in 1.9.3 .01.txt)
+
+* IMPORTANT: 
+  Files edited with this version should not be modified from a previous one (More in details file)
+  -> Please, keep backup files previous to this version
+  
+* Scratchpad is now a normal full editor, equivalent to notes editor.
+* The format and style toolbars, and menu options related to format now adjust to the selected editor
+* Unregistered images can also be displayed in internal Image Viewer
+* Scratchpad: Improvements in management of images (as a special editor, used from multiple files)
+* Added new identification to each note (node), unique in the entire file: "GID"
+* A new default format is defined for internal KNT Links based on the new GID identifier
+* Added new command line option (-clnks) to convert links to new format based on GID
+* Added "Cut Subtree" to entry "Transfer subtree" in tree contextual menu
+* Adjustment in "Normal vs maximum tree width" functionality
+* Optimizations in Replace All
+
+* Fixed: Regression in exporting nodes with non ANSI characters to plain text
+* Fixed: MergeFiles did not import images when the merged file used external type storage mode
+* Fixed: Toggling word wrap in plain text notes lost font formatting
+* Fixed: External storage path not being saved relative to .knt file in new files
+* Fixed problem with ClipCap on some case use (see details)
+* Fixed: Macro 'xxx' not found [Reload Resource panel data when displaying]
+* Fixed: Using ImgFormatInsideRTF=ifWmetafile8, images were removed when executing "Restore Image[s] proportions"
+* Fixed: Merge Folders- Did not respect plain text property. It always treated them as full RTF
+* Fixed: Position of caret now only consider visible characters
+* Fixed: Some (unusual) KNT Links didn't work ok (see details)
+* Fixed: KNT Links not including mark ID could jump to an incorrect position in nodes with registered images
+
+* Many other minor fixes and improvements (see details in Changes in 1.9.3 .01.txt)
+
+
 v 1.9.2.1  (01 apr 2024)
 --------------------------
 (Detailed info in doc\Changes in 1.9.2 .01.txt)

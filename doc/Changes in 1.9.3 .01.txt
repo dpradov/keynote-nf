@@ -1,0 +1,290 @@
+
+Changes in 1.9.3 .01  (04 may. 2024)
+===================================
+
+* IMPORTANT: Files edited with this version should not be modified from a previous one:
+
+ The KeyNote format version has changed from 2.0 to 2.1 (can be seen right at the beginning of the file. Ex: #!GFKNT 2.1 )
+ In this way KeyNote will warn if a file edited with this version 1.9.3 (or later) is opened from a previous one.
+
+ - KeyNote will allow its opening by giving a warning and recommending opening the file in read-only mode
+
+ - The new version 1.9.3 makes use of a new field to identify each note (node): GID
+   This new field is unique at the file level and not only within each folder, as used until now.
+   This will make it easier to implement certain improvements. At the moment it makes it possible to define a new internal link format,
+   supported by the new identifier, which is not affected by the movement, to another folder, of the note to which it points.  
+ 
+ - Starting with version 1.9.3, each new note is associated with a GID, but no new ID is associated (kept at 0), which avoids 
+   the need to record ID values in the .knt file which are not required. Existing IDs are kept because they may be in use from
+   hyperlinks or mirrored notes.  
+  
+ - If a file created from a previous version is opened from version 1.9.3, KeyNote automatically calculates a GID for all existing
+   nodes, going through the different folders and notes within them. New notes created will receive new GIDs, consecutive to the
+   last ones assigned, regardless of which folder they were created in.
+  
+ - If this file, saved from 1.9.3, is opened and modified from a previous version, as it does not recognize the new GIDs, it will be
+   saved without registering the GIDs in the .knt file. And so:
+    - If the file, already modified from the previous version, is opened again with the current version, the GIDs will be recalculated,
+      and the existence of new notes may cause the GIDs created the first time to not match those now generated. This will cause the
+	  new created links (and mirror nodes) to stop working.
+    - If all old links were converted (with the -clnks option) to the new format, all of them will be affected.
+    - If this error has been made you should go back to a previous backup. And you could then add the changes added later, now correctly.
+
+ => It is always important to KEEP BACKUPS, but especially in situations like this.
+    * Please, keep backup files previous to this version
+	
+- - - - - - - - - - - - - - 
+
+* Scratchpad is now a normal full editor, equivalent to notes editor:
+  - It is possible to use styles, insert special characters, apply formatting, insert images(*), etc.
+  - Can be used as a ClipCap Capture destination (or as a source, if another folder is chosen as the destination)
+    (The activated ClipCap icon will be activated regardless of whether you are in the Scratchpad editor or other folders
+     to facilitate deactivation without first having to focus on Scratchpad)
+  - It is possible to run macros on this editor, as well as plugins
+  - Templates, styles and fonts can also be inserted using shortcut keys
+  - It is possible to drag files, including images, even if no KNT file is open
+  - It is possible to execute the Restore Image[s] Proportions action on any image (as was previously possible 
+    even in images on RTF virtual nodes or EmbeddedRTF image storage format files)
+
+  (*) Images are currently managed as EmbeddedRTF (as it is done with RTF virtual nodes)
+
+- - -
+* The format and style toolbars, as well as the menu options related to the format now adjust to the selected editor,
+  whether this is one corresponding to a note (in a folder) or the Scratchpad editor, taking into account whether the 
+  content supports RTF or just plain text, or if the content is read-only.
+  - In the case of placing the focus on the tree, the button panel and other format elements also adapt to the possibilities
+    of the tree panel.
+	
+- - -
+* Unregistered images can also be displayed in internal Image Viewer
+  Images without an associated ID, in Scratchpad or in a note that doesn't support registered images,
+  like virtual RTF nodes or notes in a EmbeddedRTF image storage format file, can now be displayed using
+  the Image Viewer (double clicking the image)
+
+- - -
+* Scratchpad: Improvements in management of images (as a special editor, used from multiple files)
+  
+   Scratchpad (Sp) allows managing registered images, that is, with assigned IDs (through hidden tags):
+
+   This makes it possible to copy images from file notes to Sp ensuring that they are identified as exactly the same 
+   image. In this way, when copying those images thus identified to notes in the same file, they are always treated 
+   as new instances and not like new images.
+
+   - Registered images (with ID) can be copied onto the Sp and these IDs will be remembered as long as the KNT file is still open
+   - The insertion of new images in Sp, not existing in the KNT file, does not register them in the file (therefore it does not
+    "consume" IDs in the file).
+   - When an image that does not exist in the KNT file is pasted from Sp, is registered in the file and automatically and
+     at the same moment is identified with the same ID in Sp.
+
+   - When the KNT file is closed, the hidden marks in Sp are eliminated, so all its images remain unidentified
+   - When opening a KNT file, the application identifies images in SP but without registering any, only labeling the existing ones
+     with their corresponding ID
+   - Saving the KNT file acts as if you had then closed and reopened the KNT file:
+     The hidden marks in Sp are eliminated and the images are reconsidered again, thus discarding the IDs of those that could have
+	 been deleted in the KNT file.
+
+   In this way the images included in Sp can be pasted into different KNT files, as new instances or new images, as appropriate.
+   It should be taken into account that some Sp images previously copied from a KNT file may not be recognized as the same image
+   (the same ID), since the RichEdit control sometimes makes certain modifications to the data of some images, eliminating possible
+   metadata (for example). This results in the content of the image varying with respect to that recorded in the KNT file and
+   identifiable through the calculated CRC32)
+
+- - - - 
+* Added new identification to each note (node), "GID", unique in the entire file
+  The previous identification, "ID", will be maintained and saved on the .KNT file only for
+  the already existing notes [*]. New notes (nodes) will use the new global identifier (GID)
+  Example in .knt:
+
+  ND=Existing node
+  DI=22                     <-- "ID":  Unique within the folder
+  GI=12                     <-- "GID": Unique within the .knt file
+  NF=...
+  ...
+  ND=New node
+  GI=13
+  NF=...
+
+  * The new mirror nodes created will be registered in .knt as follows:
+    VN=<GID>                (Ex: VN=122 )
+    instead of as before:
+    VN=<FolderID>|<NoteID>  (Ex: VN=2|34 )
+	
+  [*]: It is required to maintain the ID of the existing notes because even if the current internal links
+      (KNT Links) can be converted to the new format there may be notes referenced with the previous format 
+	  from external files.
+
+- - - - 
+* A new default format is defined for internal KNT Links based on the new GID identifier
+
+  file:///<NoteGID|CursorPosition|SelectionLength|MarkID
+  file:///PathToKntFile.knt<NoteGID|CaretPosition|SelectionLength|MarkID
+
+  file:///<50|10|0|1       // E.g. GID:50 CaretPos:10  Mark: 1
+
+  => The use of GIDs and the new KNT Links format now allows internal hyperlinks pointing to a note
+     to continue working even if the note is moved to another folder.
+
+  * KNT links with new format (based on GIDs) in Merged notes will be 'translated' to use their new GIDs
+    If the target of an internal Knt link is included in one of the notes of the merged folders, then it is
+    adapted to use the new GID associated of the target note.
+    Also, old format links in merged folders are converted to the new format, based on GIDs, when possible.
+
+- - - - 
+* Added new command line option (-clnks) to convert links to new format based on GID
+  Links in RTF notes with the old format based on note IDs are converted to the new format based on note GIDs
+  (moving a note to another folder does not break any KNT link based on the new format)
+  Ex. If the note with ID=10 in folder with ID=3 has GID=12 then:
+   file:///*3|10|55|0|1  =>   file:///<12|55|0|1
+   
+- - - - 
+* Added "Cut Subtree" to entry "Transfer subtree" in tree contextual menu
+   Also removed default shortcuts Ctrl+Y and Ctrl+J, because default cut, copy and paste shortcuts can be used
+   (indicated in hints )
+
+- - -
+* Adjustment in "Normal vs maximum tree width" functionality
+  The way in which the width of the tree is restored when the focus is passed from it to the RTF editor by clicking
+  with the mouse has been modified.
+  Depending on the speed of the press, text could be selected in an unwanted way. Also, the partial solution that
+  sought to avoid this was causing the selection made by following a bookmark (with selection) or a Find All result
+  to not show the target text selected.
+
+* Optimizations in Replace All
+
+
+= = = = = = = = 
+
+* Fixed: Regression in exporting nodes with non ANSI characters to plain text
+  The commit 'New option, "Show hidden flags and IDs", when exporting to plain text' introduced a bug where 
+  exporting to plain text with Unicode stopped working
+
+* Fixed: MergeFiles did not import images when the merged file used external type storage mode
+  Images were searched in a path relative to the current file, not to the merged file.
+
+* Fixed: Toggling word wrap in plain text notes lost font formatting
+  Ref: #687
+
+* Fixed: External storage path not being saved relative to .knt file in new files
+  It did work fine when converting storage or making other changes, once the file was created
+
+* Fixed: ClipCap, with "Ignore clips from KeyNote" not activated: 
+   When copying from a folder with a different one selected as the destination, the content of the note 
+   from which it was copied was deleted (just on executing Copy)
+
+* Fixed: Macro 'xxx' not found [Reload Resource panel data when displaying]
+  If the "Reload resource panel data on screen" option was selected, when displaying the resource panel and selecting a tab
+  other than Macro, the macro list was cleared and therefore the macro execution was seen affected.
+  This option now allows you to reload the list of items for the selected tab in the resources panel from disk, but without
+  keeping them cleared.
+
+- - -
+* Fixed: When using ImgFormatInsideRTF = ifWmetafile8 (INI option), images in editor were removed when 
+         executing "Restore Image[s] proportions"
+    As indicated in help file:
+	<<
+	In order to make the images visible in the editor, in RTF, the formats currently available in the RichEdit control that can 
+	be used are: \wmetafile8, \emfblip, \pngblip or \jpegblip
+	When inserting the image programmatically, the format that KeyNote NF will used depends on this option:
+	-	ifWmetafile8 [0]
+	All images will be embedded in RTF with the format \wmetafile8. It will be the only option offered on systems with an older
+	version of RichEdit (<= 4 ).
+	-	ifAccordingImage [1]
+	The application will use jpegblip for JPG images, emfblip for images that come from EMF files, wmetafile8 for those that come
+	from WMF files, and pngblip for the rest: PNG, GIF, TIF, BMP and ICO.
+	>>
+
+   ifAccordingImage allows to use a more optimum formats and the size of images will be greatly reduced, and it is the default value in KeyNote.
+
+- - -
+* MergeFolders - Did not respect plain text property. It always treated them as full RTF
+
+* Fixed: Position of caret now only consider visible characters
+  CaretPos returns the location of the cursor on the line Y and position X, counting both visible and hidden characters.
+  Hidden are mainly those corresponding to hyperlinks (HYPERLINK "<URL>"), although there may also be some hidden
+  characters used by KeyNote to identify images or set bookmarks for the location of KNT Links.
+  The way RichEdit manages selection of hyperlinks does not make it easy to obtain the visible number of characters
+  from the left of current line to current position.
+   KeyNote now calculates the visible value, optimizing the way it is done so to avoid any slight flickering that
+  could be noticeable in certain parts of the editor.
+  Ref: #672
+
+- - -
+* Fixed: The cursor position and selection length part was not being treated correctly in the KNT Links
+  that did not include the ID of any node. In all these cases the position of the cursor was always keep
+  unchanged in the destination
+  Ex: file:///*8||30|0
+
+
+* Fixed: KNT Links not including mark ID could jump to an incorrect position in nodes with registered images
+  file:///*FolderID|NoteID|CursorPosition|SelectionLength
+  file:///<NoteGID|CursorPosition|SelectionLength
+
+  (Without MarkID: file:///*FolderID|NoteID|CursorPosition|SelectionLength|MarkID )
+
+   Note: Since version 1.8.0 new KNT Links created with Ctr+F6/Shift+F6 are vinculated to hidden markers,
+         not only to caret position (Idem with Bookmarks 0-9, since version 1.8.5 )
+
+
+= = = = = = = = = = = = = 
+
+* Now, in addition to the options already existing in the tree's own contextual menu, it is possible to modify 
+  the node text color or its highlight through the corresponding options of the format menu or their shortcuts:
+  Text color (Ctrl+R), Highlight (Ctrl+H), No highlight (Ctrl+Shift+H)
+
+* Internal format of KNT Links is now displayed with the path, in URL form
+
+* The URL of KNT links pointing to invalid locations can now be displayed in URL form
+
+* Some improvements related to the display of current zoom:
+  - In the editors (notes or Sp) there is an internal distinction between target zoom, set at the beginning according to the
+    general configuration or through the combo, and current zoom, which can be changed using Ctrl+Mouse wheel.
+  - Activating an editor now shows its current zoom
+  - When switching between the nodes of a folder the target zoom is restored, meanwhile the current zoom is taken into account
+    and respected (e.g. when hiding/showing images or resizing them)
+	
+* When resizing images the current cursor position is now respected
+
+* When changing the default font of the editor (F4), now it is immediately reflected in the active editor that is displaying the
+  content of virtual plain text type nodes included in non-plain text folders.
+
+* Dragging images into RTF virtual nodes is allowed
+
+* 'Merge folders' option is offered when dragging KNT files onto read-only folders
+
+* Clarified names for "Add Tree Node" actions, in Main Menu (Tree) and TV context menu
+  Changed the order and the captions:
+   "Add Above"        (Instead of "Insert node")
+   "Add Child"
+   "Add Below"        (Instead of "Add sibling")
+   "Add Last sibling" (instead of "Add node")
+    Ref: #673
+
+* On opening the file, set tree horizontal scroll bar to the left border
+  When the name of any of the nodes is longer than the width of the tree panel, the horizontal scroll bar is displayed.
+  By default, if the selected note in the tree also has a longer node name, the horizontal scroll bar was set automatically
+  to the right edge, causing the node hierarchy structure to not be clearly displayed.
+
+* In relation to the movement of nodes (and subtrees):
+   Once the nodes have been copied to the destination folder (having previously confirmed that you want
+   to move the nodes) you will no longer be asked if you want to delete the nodes in the source folder.
+
+
+= = = = = = = = = = = = = 
+
+* Fixed: Alternate tray icon stuck after using web clip
+  When the "Use alternate tray icon" option was enabled in the Clipboard capture settings,
+  using the Web Clip function kept the alternate (orange) icon stuck in the title and tray bar.
+
+* Fixed: "Backup at regular intervals" always used '.knt' extension
+  It now uses the current file extension, which can be .kne in encrypted files.  Ref: #683
+
+* Fixed: Corrected enable of checkboxes "Search All folders" vs "Search all tree Nodes" vs "Search Hidden nodes" in Find form
+  Ref: #685
+
+* Fixed: Refresh tree after use "Custom icon..." with "Also use this icon for all child nodes" option checked.
+  Ref: #684
+
+* Fixed: Applying templates to read-only notes did not modify them but did mark them as such.
+
+* Fixed: When the last node of the tree was deleted, the content of the editor was not being deleted.
+  Now the editor will be disabled

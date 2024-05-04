@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "1.9.2.1"
-#define AppVersion "1.9.2 .1"
+#define Version "1.9.3.1"
+#define AppVersion "1.9.3 .1"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -17,8 +17,8 @@
 
 [Setup]
 SignTool=mySignTool
-TouchDate=2024-04-01
-TouchTime=22:00
+TouchDate=2024-05-04
+TouchTime=23:00
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
@@ -125,7 +125,7 @@ Source: "misc_files\notehead.rtf"   ; DestDir: "{#DefaultProfile}" ; Components:
 ;Source: "misc_files\keyboard.ini"; DestDir: "{#DefaultProfile}" ; Components: main; Flags: onlyifdoesntexist
 
 ; Help profile
-Source: "misc_files\keynote_Help.ini"; DestDir: "{app}\Profiles\Help"; DestName: "keynote.ini" ; Components: help
+Source: "misc_files\keynote_Help.ini"; DestDir: "{app}\Profiles\Help"; DestName: "keynote.ini" ; Components: help; Flags: onlyifdoesntexist
 Source: "misc_files\keynote.kns"     ; DestDir: "{app}\Profiles\Help" ; Components: help; Flags: onlyifdoesntexist
 
 ; {app}\macros
@@ -157,6 +157,7 @@ Source: "doc\Changes in 1.8.5 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.9.0 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.9.1 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.9.2 .01.txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\Changes in 1.9.3 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart_format.txt"; DestDir: "{app}\doc" ; Components: main
 
