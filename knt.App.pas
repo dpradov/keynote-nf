@@ -285,6 +285,8 @@ var
  TabIndex: integer;
  FocusedOk: boolean;
 begin
+    if not assigned(ActiveFile) then exit;
+
     with Form_Main do begin
        if not assigned(Folder) then begin
           Folder:= ActiveFile.GetFolderByID(ActiveFile.ActiveFolderID);
