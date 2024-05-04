@@ -12,7 +12,7 @@ II=3
 DC=20-04-2003 19:33:48
 TI=0
 TS=4
-CX=731
+CX=40
 CY=0
 BG=clWindow
 CH=0
@@ -22,7 +22,7 @@ FS=10
 LN=1033
 ST=
 FL=111110000000100000000000
-SN=37
+SN=0
 TW=302
 TM=0
 EN=New node
@@ -40,7 +40,7 @@ GI=1
 NF=001000100000000000000000
 BC=clWindow
 IX=0
-SS=2051
+SS=40
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red64\green64\blue64;\red128\green0\blue128;\red255\green0\blue0;\red0\green128\blue0;}
@@ -142,6 +142,7 @@ GI=3
 NF=000000000000000000000000
 BC=clWindow
 IX=0
+SS=967
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -1001,6 +1002,7 @@ GI=12
 NF=000000000000000000000000
 BC=clWindow
 IX=0
+SS=915
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;}
@@ -2384,7 +2386,7 @@ Note:\par
 \par
 \b\v\fs24\'11B16\'12\v0 Scratchpad editor\ul\par
 \ulnone\b0\fs20\par
-The scratch tab, in {{\field{\*\fldinst{HYPERLINK "file:///<12|448|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Resource panel}}}}\f0\fs20 , is associated with the the \b scratch.rtf\b0  file, one of the files specific to a KeyNote {{\field{\*\fldinst{HYPERLINK "file:///<86|0|0"}}{\fldrslt{\ul\cf2\cf2\ul profile}}}}\f0\fs20 .\par
+The scratch tab, in {{\field{\*\fldinst{HYPERLINK "file:///<12|448|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Resource panel}}}}\f0\fs20 , is associated with the \b scratch.rtf\b0  file, one of the files specific to a KeyNote {{\field{\*\fldinst{HYPERLINK "file:///<86|0|0"}}{\fldrslt{\ul\cf2\cf2\ul profile}}}}\f0\fs20 .\par
 
 \pard\sb80 You can use Scratchpad as an auxiliary editor, where you can easily drag and drop text from notes and back, and share it with other .knt files. Since version 1.9.3 of KeyNote, Scratchpad is now a normal full editor, equivalent to notes editor:\par
 
@@ -6897,8 +6899,8 @@ GI=55
 NF=000001000000000000000000
 BC=clWindow
 IX=0
-RV=C:\APL\KeyNote NF\doc\fileformat.txt
-VF=C:\APL\KeyNote NF\doc\fileformat.txt
+RV=..\doc\fileformat.txt
+VF=D:\Dani\PROYECTOS\TESELA KN\_Auxiliar\doc\fileformat.txt
 %-
 LV=1
 ND=Importing Files in KeyNote
@@ -7130,7 +7132,7 @@ LV=1
 ND=Exporting Notes to Disk Files
 DI=313
 GI=57
-NF=000000000000000000000000
+NF=000000100000000000000000
 BC=clWindow
 IX=0
 %:
@@ -7631,7 +7633,7 @@ LV=2
 ND=Options in Exporting. Examples
 DI=590
 GI=58
-NF=000000000000000000000000
+NF=000000100000000000000000
 BC=clWindow
 IX=0
 %:
@@ -15822,7 +15824,7 @@ FN=Tahoma
 FS=9
 LN=3082
 ST=
-FL=111110000000110000000000
+FL=111110000000110001000000
 SN=0
 TW=182
 TM=0
@@ -16034,8 +16036,9 @@ GI=121
 NF=000001000000000000000000
 BC=clWindow
 IX=0
-RV=C:\APL\KeyNote NF\doc\history.txt
-VF=C:\APL\KeyNote NF\doc\history.txt
+SS=876
+RV=..\doc\history.txt
+VF=D:\Dani\PROYECTOS\TESELA KN\_Auxiliar\doc\history.txt
 %BK
 BK=0,file:///*8|2|0|0
 BK=1,file:///*8|13|0|0
