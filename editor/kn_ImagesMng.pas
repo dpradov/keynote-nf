@@ -2106,7 +2106,7 @@ end;
 
 function TImageMng.GetDefaultExternalLocation (ExtType: TImagesExternalStorage; FN: string= ''): string;
 begin
-  if FN = '' then
+  if (FN = '') and (fKntFile <> nil) then
      FN:= TKntFile(fKntFile).FileName;
 
   Result:= ExtractFilePath(FN) + ExtractFileNameNoExt(FN);
