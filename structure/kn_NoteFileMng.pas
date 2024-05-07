@@ -2559,6 +2559,36 @@ begin
                          var Owned: boolean:= not ImgLinkMode;
                          if ExtIsImage( fExt )  then
                            ImageMng.InsertImage(FName, Editor, Owned);
+
+
+                         // *1
+                         // If myTreeNode is assigned it is because TreeNewNode has returned ok.
+                         // TreeNewNode ends up calling TV.Items.Add, which ends up raising the TV.Change event,
+                         // managed by FormMain.TVChange. The last one, if the editor has modifications, calls TKntFolder.EditorToDataStream, and
+                         // the content of the editor is saved in node's stream.
+                         // But, if there is an exception (or simply we exit) before TreeNewNode, and enter in this finally section, we
+                         // should not do Editor.Modified := False or the modifcations (existing and coming) in the Editor will be lost for the
+                         // actual node.
+                         // *2
+                         // Also, if the new created node belongs to a normal, RTF tree, and the file we have loaded
+                         // (with .LoadFromFile(FName) ) doesn't contain RTF, but ANSI or Unicode plain text, we could end up saving the node's
+                         // stream content in that format to the .knt file when saving (could be problematic when reading the file).
+                         // We must ensure that the node's stream is loaded with its RTF translating. If we mark the editor as modified then, when
+                         // the user selects another node (os simply just before saving the .knt file), TKntFolder.EditorToDataStream will be called,
+                         // and there, FEditor.Lines.SaveToStream will do that that translating. The node will contain RTF.
+                         //
+                         //    Similary, if the file is in RTF and the tree is plained, we should do the same. This case is less problematic,
+                         // because the .knt file would be read ok, but the node could be persisted (if not modified) in an incorrect format.
+                         //   Another case, that do could be problematic: if the file, not RTF, is dropped into a plained tree, and we do nothing, the
+                         // node will be loaded plain (ok) in the node's stream, but with $D instead of $D$A after each line. With the last changes
+                         // in TKntFolder.SaveToFile (use of new SaveRTFToFile, that doesn't rely on TStringList and it's conversions), the content
+                         // will add only a ";" leading character on the first line. Instead of complicating that code, it is simple to mark this
+                         // node as modified, as this will ensure that finally gets saved in the right way.
+                         //  So, when dropping a file on a plained tree, we wil will mark the new node as modified. It is the more secure and simple way.
+                         if Editor.PlainText or   (not NodeStreamIsRTF (myNote.Stream)) then
+                            Editor.Modified := True                                              // *2
+                         else
+                            Editor.Modified := False;                                            // *1
                      end;
                    end;
                  end;
@@ -2577,37 +2607,6 @@ begin
                  end;
 
                  UpdateKntFileState( [fscModified] );
-
-                 // *1
-                 // If myTreeNode is assigned it is because TreeNewNode has returned ok.
-                 // TreeNewNode ends up calling TV.Items.Add, which ends up raising the TV.Change event,
-                 // managed by FormMain.TVChange. The last one, if the editor has modifications, calls TKntFolder.EditorToDataStream, and
-                 // the content of the editor is saved in node's stream.
-                 // But, if there is an exception (or simply we exit) before TreeNewNode, and enter in this finally section, we
-                 // should not do Editor.Modified := False or the modifcations (existing and coming) in the Editor will be lost for the
-                 // actual node.
-                 // *2
-                 // Also, if the new created node belongs to a normal, RTF tree, and the file we have loaded
-                 // (with .LoadFromFile(FName) ) doesn't contain RTF, but ANSI or Unicode plain text, we could end up saving the node's
-                 // stream content in that format to the .knt file when saving (could be problematic when reading the file).
-                 // We must ensure that the node's stream is loaded with its RTF translating. If we mark the editor as modified then, when
-                 // the user selects another node (os simply just before saving the .knt file), TKntFolder.EditorToDataStream will be called,
-                 // and there, FEditor.Lines.SaveToStream will do that that translating. The node will contain RTF.
-                 //
-                 //    Similary, if the file is in RTF and the tree is plained, we should do the same. This case is less problematic,
-                 // because the .knt file would be read ok, but the node could be persisted (if not modified) in an incorrect format.
-                 //   Another case, that do could be problematic: if the file, not RTF, is dropped into a plained tree, and we do nothing, the
-                 // node will be loaded plain (ok) in the node's stream, but with $D instead of $D$A after each line. With the last changes
-                 // in TKntFolder.SaveToFile (use of new SaveRTFToFile, that doesn't rely on TStringList and it's conversions), the content
-                 // will add only a ";" leading character on the first line. Instead of complicating that code, it is simple to mark this
-                 // node as modified, as this will ensure that finally gets saved in the right way.
-                 //  So, when dropping a file on a plained tree, we wil will mark the new node as modified. It is the more secure and simple way.
-                 if assigned(myTreeNode) then begin
-                    if Editor.PlainText or   (not NodeStreamIsRTF (myNote.Stream)) then
-                        Editor.Modified := True                                              // *2
-                    else
-                        Editor.Modified := False;                                            // *1
-                 end;
                end;
 
              end;
