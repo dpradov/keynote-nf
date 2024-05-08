@@ -67,7 +67,7 @@ function NodeStreamIsUTF8WithBOM (Stream : TMemoryStream): boolean;
 function AddUTF8_BOM ( Stream : TMemoryStream ): boolean;
 
 function ReadAllText(FN: String): String;
-function ReadAllTextAnsi(FN: String): AnsiString;
+function ReadAllTextAsAnsiString(FN: String): AnsiString;
 procedure LoadTxtOrRTFFromFile (Stream: TStream; FN: string);
 
 type
@@ -89,7 +89,7 @@ type
     procedure CloseFile;
     function Readln: AnsiString;
     function ReadAllRemainingText: String;
-    function ReadAllRemainingAnsiText: AnsiString;
+    function ReadAllRemainingTextAsAnsiString: AnsiString;
     function ReadToStream(const OutStream: TStream; Size: Integer): Integer;
     //procedure WriteLn (const Args: array of const);
     procedure WriteLine (const Cad: String; CheckSaveAsUTF8: boolean= false); overload;
@@ -103,6 +103,8 @@ type
 
 const
    UTF8_BOM = AnsiString(#$EF#$BB#$BF);
+   UTF16_LE_BOM = AnsiString(#$FF#$FE);
+   UTF16_BE_BOM = AnsiString(#$FE#$FF);
    FILE_BUFFER_SIZE = 1048576;    // 1 MB
 
 
@@ -385,7 +387,7 @@ end;
 
 { 
  Alternative to IOUtils.TFile.ReadAllText
- It works with ANSI, UTF8 and UTF8-BOM files
+ It works with ANSI, UTF8 and UTF8-BOM files. Also with UTF16-LE and UTF16-BE
 
  In TFile.ReadAllText, UTF8 files (without BOM) are intepreted as Default encoding (bad)
 }
@@ -405,7 +407,14 @@ begin
   end;
 end;
 
-function ReadAllTextAnsi(FN: String): AnsiString;
+
+{ The string returned would normally correspond to ANSI or UTF8 (with BOM), but
+  it could also be in UTF16-LE or UTF16-BE, with its BOM (preamble)
+  Currently this method is used from LoadTxtOrRTFFromFile, to save the content of the file in
+  a stream. This stream is then loaded in a RichEdit, that manages correctly the stream
+  because of the BOM characters.
+}
+function ReadAllTextAsAnsiString(FN: String): AnsiString;
 var
   tf: TTextFile;
 begin
@@ -413,7 +422,7 @@ begin
   try
      tf.AssignFile(FN);
      tf.Reset;
-     Result:= tf.ReadAllRemainingAnsiText;
+     Result:= tf.ReadAllRemainingTextAsAnsiString;
   finally
      tf.CloseFile;
      tf.Free;
@@ -425,7 +434,7 @@ procedure LoadTxtOrRTFFromFile (Stream: TStream; FN: string);
 var
    Str: AnsiString;
 begin
-   Str:= ReadAllTextAnsi(FN);
+   Str:= ReadAllTextAsAnsiString(FN);      // -> Str would normally correspond to ANSI or UTF8 (with BOM), but it could also be in UTF16-LE or UTF16-BE, with its BOM (preamble)
    Stream.Write(Str[1], ByteLength(Str));
    if Copy(Str, 1, 6) = '{\rtf1' then begin
       Stream.Write(AnsiString(#13#10#0), 3);
@@ -581,16 +590,25 @@ begin
    until lineReaden;
 end;
 
+// Recognizes ANSI, UTF8, UTF8-BOM, UTF16-LE, UTF16-BE, at least
 function TTextFile.ReadAllRemainingText: String;
 var
-   str: RawByteString;
+   //str: RawByteString;
+   LBuffer: TBytes;
 begin
-   SetLength(str, F.Size);
-   F.Read(Str[1], F.Size);
-   Result:= TryUTF8ToUnicodeString(str);
+   //SetLength(str, F.Size);
+   //F.Read(Str[1], F.Size);
+   //Result:= TryUTF8ToUnicodeString(str);
+
+   SetLength(LBuffer, F.Size);
+   F.Read(LBuffer[0], F.Size);          // = F.ReadBuffer(Pointer(LBuffer)^, Length(LBuffer));
+   Result:= ConvertToUnicodeString(LBuffer);
 end;
 
-function TTextFile.ReadAllRemainingAnsiText: AnsiString;
+{ The string returned would normally correspond to ANSI or UTF8 (with BOM), but
+  it could also be in UTF16-LE or UTF16-BE, with its BOM (preamble)
+}
+function TTextFile.ReadAllRemainingTextAsAnsiString: AnsiString;
 var
    str: RawByteString;
 begin

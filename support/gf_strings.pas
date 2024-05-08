@@ -70,6 +70,8 @@ function GetIndentOfLine (const S: string): integer;
 
 function TryUTF8ToUnicodeString(const s: RawByteString): string;
 function CanSaveAsANSI(const cad: string): boolean;
+function ConvertToUnicodeString(LBuffer: TBytes): string;
+function BytesToRawByteString(const bytes: TBytes): RawByteString;
 
 function FirstLineFromString(const str: string; const MaxLen : integer) : string;
 function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1): integer;
@@ -78,6 +80,9 @@ function ConvertHTMLAsciiCharacters(const S: string): string;
 
 const
   WordDelimiters = [#9, #10, #13, #32];
+  UTF16_LE_BOM = AnsiString(#$FF#$FE);
+  UTF16_BE_BOM = AnsiString(#$FE#$FF);
+
 
 function GetWordCount( const t : string ) : longint;
 function HasNonAlphaNumericOrWordDelimiter(const s : string) : boolean;
@@ -680,6 +685,38 @@ begin
        Result := UTF8ToUnicodeString(s)
     else
        Result:= s;
+end;
+
+
+function BytesToRawByteString(const bytes: TBytes): RawByteString;
+begin
+  SetString(Result, PAnsiChar(@bytes[0]), Length(bytes));
+end;
+
+
+function ConvertToUnicodeString(LBuffer: TBytes): string;
+var
+  LOffset: Integer;
+  LEncoding, DestEncoding: TEncoding;
+  s: RawByteString;
+
+begin
+
+  LEncoding:= nil;
+  LOffset := TEncoding.GetBufferEncoding(LBuffer, LEncoding);  // Get data encoding of read data.
+
+  if LOffset = 0 then begin
+    s:= BytesToRawByteString(LBuffer);
+    if IsUTF8String(s) then begin
+       Result := UTF8ToUnicodeString(s);
+       exit;
+    end;
+  end;
+
+  DestEncoding := TEncoding.Unicode;
+  LBuffer := LEncoding.Convert(LEncoding, DestEncoding, LBuffer, LOffset, Length(LBuffer) - LOffset);
+  LOffset := TEncoding.GetBufferEncoding(LBuffer, DestEncoding);
+  Result := DestEncoding.GetString(LBuffer, LOffset, Length(LBuffer) - LOffset);
 end;
 
 
