@@ -2053,11 +2053,7 @@ begin
         if ( not App.opt_NoSaveOpt ) then
         begin
           SaveFileManagerInfo( MGR_FN );
-          if StylesModified then
-          begin
-            SaveStyleManagerInfo( Style_FN );
-            StylesModified := false;
-          end;
+          CheckSaveStyleManagerInfo;
           SaveFavorites( FAV_FN );
           if App.opt_NoRegistry then
             IniSaveToolbarPositions( Self, changefileext( INI_FN, ext_MRU ), 'TB97a' )

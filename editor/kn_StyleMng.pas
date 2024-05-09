@@ -37,6 +37,8 @@ uses
     procedure StyleDescribe( const FromEditor, LongDesc : boolean );
     procedure StyleRedefine;
 
+    procedure CheckSaveStyleManagerInfo;
+
 var
     StylesModified : boolean; // styles are only saved if this flag is TRUE
     LastStyleRange : TStyleRange; // obsolete
@@ -192,6 +194,8 @@ begin
       Form_Main.Combo_Style.ItemIndex := idx;
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_10, [Name,STYLE_RANGES[aRange]] );
 
+      CheckSaveStyleManagerInfo;
+
     except
       on E : Exception do begin
         messagedlg( STR_11 + E.Message, mtError, [mbOK], 0 );
@@ -331,6 +335,8 @@ begin
 
     Form_Main.Combo_Style.ItemIndex := Form_Main.Combo_Style.Items.IndexOf( name );
 
+    CheckSaveStyleManagerInfo;
+
   except
     showmessage( STR_16 );
   end;
@@ -359,6 +365,8 @@ begin
 
         if ( Form_Main.Combo_Style.Items.Count > 0 ) then
           Form_Main.Combo_Style.ItemIndex := 0;
+
+        CheckSaveStyleManagerInfo;
 
       except
         showmessage( STR_18 );
@@ -394,6 +402,14 @@ end; // StyleManagerToCombo
 procedure StyleRedefine;
 begin
   StyleCreate( LastStyleRange, TStyle( StyleManager.Objects[Form_Main.Combo_Style.ItemIndex] ));
+end;
+
+procedure CheckSaveStyleManagerInfo;
+begin
+  if StylesModified and (not App.opt_NoSaveOpt) then begin
+     if SaveStyleManagerInfo( Style_FN ) then
+        StylesModified := false;
+  end;
 end;
 
 initialization
