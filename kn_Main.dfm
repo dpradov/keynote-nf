@@ -7246,14 +7246,14 @@ object Form_Main: TForm_Main
           'Paste previously copied nodes at selected position (Ctrl+V, Shif' +
           't+Ins)'
         ShortCut = 16470
-        OnClick = TVCopySubtreeClick
+        OnClick = TVPasteSubtreeClick
       end
       object TVGraftSubtreeMirror: TMenuItem
         Caption = 'Paste Subtree Here as &Mirror'
         Hint = 
           'Paste previously copied nodes at selected position as mirror nod' +
           'es'
-        OnClick = TVGraftSubtreeMirrorClick
+        OnClick = TVPasteSubtreeMirrorClick
       end
       object N56: TMenuItem
         Caption = '-'

@@ -850,7 +850,7 @@ type
     procedure TB_AlarmModeClick(Sender: TObject);
     procedure TVNavigateNonVirtualNoteClick(Sender: TObject);
     procedure TVInsertMirrorNodeClick(Sender: TObject);
-    procedure TVGraftSubtreeMirrorClick(Sender: TObject);
+    procedure TVPasteSubtreeMirrorClick(Sender: TObject);
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure TVAlarmNodeClick(Sender: TObject);
     procedure TB_SetAlarmMouseEnter(Sender: TObject);
@@ -1258,6 +1258,7 @@ type
     procedure RxRTFKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure RxRTFKeyPress(Sender: TObject; var Key: Char);
     procedure TVCutSubtreeClick(Sender: TObject);
+    procedure TVPasteSubtreeClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -5291,7 +5292,7 @@ end;
 
 procedure TForm_Main.TVCopySubtreeClick(Sender: TObject);
 begin
-  TreeTransferProc(( sender as TMenuItem ).Tag, nil, KeyOptions.ConfirmTreePaste, false, false );
+  CmdCopy;
 end;
 
 procedure TForm_Main.TVCutSubtreeClick(Sender: TObject);
@@ -5299,7 +5300,12 @@ begin
   CmdCut;
 end;
 
-procedure TForm_Main.TVGraftSubtreeMirrorClick(Sender: TObject);
+procedure TForm_Main.TVPasteSubtreeClick(Sender: TObject);
+begin
+  CmdPaste (false, false);
+end;
+
+procedure TForm_Main.TVPasteSubtreeMirrorClick(Sender: TObject);
 begin
   TreeTransferProc(1, nil, KeyOptions.ConfirmTreePaste, true, false );
 end;
