@@ -831,8 +831,6 @@ var
   Encoding: TEncoding;
   FN, ext: string;
   OnlyNotHiddenNodes, OnlyCheckedNodes: boolean;
-  ContainsImages: boolean;
-  ContainsImgIDsRemoved: boolean;
   RTFwithImages: AnsiString;
   FSize, SS, SL: integer;
   SSNode: integer;
@@ -1033,21 +1031,29 @@ begin
                      NodeHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NodeHeading ), NodeHeadingTpl_Aux );
                   end;
 
+                  NodeTextSize := myNote.Stream.Size;
+                  if NodeTextSize > 0 then begin
+                     SetLength( NodeText, NodeTextSize );
+                     move( myNote.Stream.Memory^, NodeText[1], NodeTextSize );   // transfer stream contents to temp string
+                     NodeStreamIsRTF := (copy(NodeText, 1, 6) = '{\rtf1');       // *2
+                  end;
+
                   case ExportOptions.SingleNodeFiles of
                       false : begin
                         // nodes are gathered into a single file
-                        NodeTextSize := myNote.Stream.Size;
                         if NodeTextSize > 0 then begin
-                          SetLength( NodeText, NodeTextSize );
-                          // transfer stream contents to temp string
-                          move( myNote.Stream.Memory^, NodeText[1], NodeTextSize );
 
                           // now for some treachery. In KeyNote, a user can mark a note as "plain text only". In such a node, all nodes are stored as
                           // plain text, not RTF. However, the change from RTF to text (or back) occurs only when a node is DISPLAYED. So, it is possible
                           // that user enabled "plain text only", but some tree nodes have not been viewed, hence are still in RTF. So, at this point
                           // we cannot know if the node data we're about to export is RTF or plain text data. Yet we must pass the correct information
                           // to PutRichText. Which is why we must check manually, like so:
-                           //NodeStreamIsRTF := ( copy( NodeText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
+                          // NodeStreamIsRTF := ( copy( NodeText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
+                          //
+                          // *2 :
+                          // <<the change from RTF to text (or back) occurs only when a node is DISPLAYED>> That is not true currently. However:
+                          //  Folder can be PlainText and include a virtual node with RTF content
+                          //  Or it can be a RTF folder and include a virtual node with plaint text content (eg. .txt)
 
                           SSNode:= RTFAux.SelStart;
 
@@ -1078,7 +1084,7 @@ begin
                           end;
 
                           RTFwithImages:= '';
-                          if not myFolder.PlainText then
+                          if NodeStreamIsRTF then
                              RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
 
                           if RTFwithImages <> '' then
@@ -1094,21 +1100,22 @@ begin
 
                       true : begin
                         // each node is saved to its own file
-                        // (Here we do not have to check if node stream is plain text or RTF, because LoadFromStream handles both cases automatically!)
-                        RTFwithImages:= '';
-                        if not myFolder.PlainText then
-                           RTFwithImages:= ImageMng.ProcessImagesInRTF(myNote.Stream.Memory, myNote.Stream.Size, '', imImage, '', 0, ContainsImgIDsRemoved, ContainsImages, false);
+                        //// (Here we do not have to check if node stream is plain text or RTF, because LoadFromStream handles both cases automatically!)
 
-                        if RTFwithImages <> '' then
-                           RTFAux.PutRtfText(RTFwithImages,true,false)         // All hidden KNT characters are now removed from FlushExportFile
-                        else begin
-                           RTFAux.StreamFormat:= myFolder.Editor.StreamFormat;
-                           RTFAux.Lines.LoadFromStream( myNote.Stream );
-                        end;
+                        if NodeTextSize > 0 then begin
+                           RTFwithImages:= '';
+                           if NodeStreamIsRTF then
+                              RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
 
-                        if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
-                          RTFAux.SelStart := 0;
-                          RTFAux.PutRtfText(NodeHeadingRTF, true);
+                           if RTFwithImages <> '' then
+                              RTFAux.PutRtfText(RTFwithImages,true,false)         // All hidden KNT characters are now removed from FlushExportFile
+                           else
+                              RTFAux.PutRtfText(NodeText, false, false);
+
+                           if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
+                              RTFAux.SelStart := 0;
+                              RTFAux.PutRtfText(NodeHeadingRTF, true);
+                           end;
                         end;
                         if FlushExportFile( RTFAux, myFolder, myNote.Name ) then
                           inc( ExportedNotes );
