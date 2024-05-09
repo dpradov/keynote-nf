@@ -2322,14 +2322,10 @@ var
 begin
    if EditorOptions.WordCountTrack and (TextLength > 30000) then begin
       txt:= App.WordCountInfoInStatusBar;
-      if pos(waiting, txt) <> 1 then
-        Text:= Waiting + Text;
-        App.WordCountInfoInStatusBar:= Waiting + txt;
+      if (pos('...', txt) = 0) then
+         App.WordCountInfoInStatusBar:= Waiting + txt;
    end;
 end;
-
-
-
 
 procedure TKntRichEdit.UpdateCursorPos;
 var
