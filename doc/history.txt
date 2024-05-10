@@ -3,6 +3,20 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 1.9.4.1  (10 may 2024)
+--------------------------
+IMPORTANT:
+ * Fixed: When importing *multiple* plain text files as new nodes, you may lose data when saving (Ref: #692)
+ * Fixed: "Show word count in status bar" in notes with 30000+ chars can corrupt that note (Ref: #695)
+
+* Fixed: Export could fail when exporting each note to a separate file (Ref: #696)
+* Fixed: "Cut subtree" and then "Paste subtree" make a copy instead of move  (Ref: #690)
+* Fixed: Exception in File|Properties on new file, not saved, if default image storage is External
+
+* Now it is possible to import text files in UTF-16 LE and UTF-16 BE  (Ref: #692)
+* The style definition file (keynote.kns) is now updated after each modification, not just on exit (Ref: #697)
+
+
 v 1.9.3.1  (04 may 2024)
 --------------------------
 (Detailed info in doc\Changes in 1.9.3 .01.txt)
