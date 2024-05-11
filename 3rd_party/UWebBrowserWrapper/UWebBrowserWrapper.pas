@@ -101,8 +101,8 @@ type
     procedure LoadFromStream(const Stream: TStream);
     procedure LoadFromString(const HTML: string); overload;
     {$IFDEF UNICODE}
-    procedure LoadFromString(const HTML: string;
-      const Encoding: TEncoding); overload;
+    procedure LoadFromString(const HTML: string; const Encoding: TEncoding); overload;
+    procedure LoadFromString(const HTML: RawByteString; const Encoding: TEncoding); overload;  // [dpv]
     {$ENDIF}
     function NavigateToLocalFile(const FileName: string): Boolean;
     procedure NavigateToResource(const Module: HMODULE; const ResName: PChar;
@@ -139,8 +139,11 @@ implementation
 uses
   // Delphi
   StrUtils, Windows, ActiveX, Forms, MSHTML,
-  gf_strings, System.Diagnostics;                             // [dpv]
-
+  System.WideStrUtils,
+{$IFDEF KNT_DEBUG}
+ GFLog, kn_Global,
+{$ENDIF}
+ gf_strings, System.Diagnostics;                             // [dpv]
 
 
 { Helper routines }
@@ -171,7 +174,7 @@ end;
 }
 {$IFDEF UNICODE}
 procedure StringToStreamBOM(const S: string; const Stm: TStream;
-  const Encoding: TEncoding);
+  const Encoding: TEncoding); overload;
 var
   Bytes: TBytes;
   Preamble: TBytes;
@@ -183,6 +186,33 @@ begin
     Stm.WriteBuffer(Preamble[0], Length(Preamble));
   Stm.WriteBuffer(Bytes[0], Length(Bytes));
 end;
+
+procedure StringToStreamBOM(const S: RawByteString; const Stm: TStream; const DestEncoding: TEncoding); overload;
+var
+  LEncoding: TEncoding;
+  LBuffer, Preamble: TBytes;
+  LOffset: Integer;
+  len:integer;
+begin
+  len := Length(s);
+  if len > 0 then begin
+     SetLength(LBuffer, len);
+     Move(s[1], LBuffer[0], len);
+
+     LEncoding:= nil;
+     LOffset := TEncoding.GetBufferEncoding(LBuffer, LEncoding);  // Get data encoding of input data.
+     if (LOffset = 0) and IsUTF8String(S) then
+        LEncoding:= TEncoding.UTF8;
+
+     LBuffer := LEncoding.Convert(LEncoding, DestEncoding, LBuffer, LOffset, Length(LBuffer) - LOffset);
+     Preamble := DestEncoding.GetPreamble;
+     if Length(Preamble) > 0 then
+        Stm.WriteBuffer(Preamble[0], Length(Preamble));
+     Stm.WriteBuffer(LBuffer[0], Length(LBuffer));
+  end;
+
+end;
+
 {$ENDIF}
 
 {
@@ -382,6 +412,29 @@ begin
   try
     StringToStreamBOM(HTML, HTMLStm, Encoding);
     HTMLStm.Position := 0;
+    LoadFromStream(HTMLStm);
+  finally
+    HTMLStm.Free;
+  end;
+end;
+
+procedure TWebBrowserWrapper.LoadFromString(const HTML: RawByteString; const Encoding: TEncoding);
+var
+  HTMLStm: TMemoryStream;
+begin
+  Assert(Assigned(Encoding));
+  HTMLStm := TMemoryStream.Create;
+  try
+    StringToStreamBOM(HTML, HTMLStm, Encoding);
+    HTMLStm.Position := 0;
+
+    {$IFDEF KNT_DEBUG}
+     var str: RawByteString;
+     SetString(str, PAnsiChar(HTMLStm.Memory), HTMLStm.Size);
+     Log.Add('WebBrowser. LoadFromString:', 4);
+     Log.Add(str, 4 );
+    {$ENDIF}
+
     LoadFromStream(HTMLStm);
   finally
     HTMLStm.Free;

@@ -33,7 +33,7 @@ uses
 
 
    function ConvertHTMLToRTF(const inFilename : string; var OutStream: TMemoryStream) : boolean; overload;
-   function ConvertHTMLToRTF(HTMLText: string; var RTFText : AnsiString) : boolean; overload;
+   function ConvertHTMLToRTF(HTMLText: RawByteString; var RTFText : AnsiString) : boolean; overload;
    function ConvertRTFToHTML(const outFilename : String; const RTFText : AnsiString; const HTMLExpMethod : THTMLExportMethod) : boolean;
    procedure FreeConvertLibrary;
 
@@ -151,25 +151,20 @@ end; // ConvertRTFToHTML
 
 
 { Converts HTML to RTF with the help of WebBrowser
- If conversion is possible, it will return RTF text in the paremeter and also it will be available as
+ If conversion is possible, it will return RTF text in the parameter and also it will be available as
  RTF format in the clipboard }
-function ConvertHTMLToRTF(HTMLText: string; var RTFText : AnsiString) : boolean;
-var
-   Str: String;
+function ConvertHTMLToRTF(HTMLText: RawByteString; var RTFText : AnsiString) : boolean;
 begin
   Result := false;
   if (not _ConvertHTMLClipboardToRTF) or (HTMLText = '') then exit;
 
   try
+      {$IFDEF KNT_DEBUG} Log.Add('ConvertHTMLToRTF.  HTML:', 4 );  {$ENDIF}
+      {$IFDEF KNT_DEBUG} Log.Add(HTMLText, 4 );  {$ENDIF}
       if not assigned(_IE) then
          _IE:= TWebBrowserWrapper.Create(Form_Main);
 
-      if DefaultSystemCodePage <> CP_UTF8 then
-         Str:= UTF8_BOM + HTMLText
-      else
-          Str:= HTMLText;
-
-      _IE.LoadFromString  ( Str );
+      _IE.LoadFromString  (HTMLText, TEncoding.UTF8);
       _IE.CopyAll;                           // Select all and then copy to clipboard
 
       RTFText:= Clipboard.AsRTF;
