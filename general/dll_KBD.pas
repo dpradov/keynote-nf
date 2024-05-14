@@ -622,7 +622,7 @@ begin
     if (key = 13) and (Edit_Filter.Focused ) then begin
        DisplayCommands;
     end
-    else if Key = VK_F1 then begin
+    else if (Key = VK_F1) and (Shift = []) then begin
        Key:= 0;
        ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, 316, 0);
     end;
