@@ -426,6 +426,15 @@ begin
             if TreeOptions.FullRowSelect then
               Options := Options + [toFullRowSelect];
 
+
+            if myFolder.VerticalLayout then
+               Height := myFolder.TreeWidth
+            else
+               Width := myFolder.TreeWidth;
+          { 
+           // When this is checked, the window has not yet been resized to its final size.
+           // This verification is removed as it seems unnecessary.
+
             if myFolder.VerticalLayout then begin
               if (( myFolder.TreeWidth < 30 ) or
                   ( myFolder.TreeWidth > ( Pages.Height - 30 ))) then
@@ -442,6 +451,8 @@ begin
                  Width := myFolder.TreeWidth;
               myFolder.TreeWidth := Width; // store corrected value
             end;
+          }
+
           end;
 
           mySplitter := TSplitter.Create( myTab );
