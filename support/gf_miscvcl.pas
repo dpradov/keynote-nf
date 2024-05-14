@@ -372,13 +372,18 @@ begin
      With this method we make sure to obtain the real DPI
    }
 
-   previousDpiContext := SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
-   DC := GetDC(0);
    try
-     Result:= GetDeviceCaps(DC, LOGPIXELSX);
-   finally
-     ReleaseDC(0, DC);
-     SetThreadDpiAwarenessContext(previousDpiContext);
+      previousDpiContext := SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+      DC := GetDC(0);
+      try
+        Result:= GetDeviceCaps(DC, LOGPIXELSX);
+      finally
+        ReleaseDC(0, DC);
+        SetThreadDpiAwarenessContext(previousDpiContext);
+      end;
+
+   except
+      Result:= Screen.PixelsPerInch;
    end;
 end;
 
