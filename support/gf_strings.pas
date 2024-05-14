@@ -1,4 +1,4 @@
-unit gf_strings;
+﻿unit gf_strings;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -77,6 +77,7 @@ function FirstLineFromString(const str: string; const MaxLen : integer) : string
 function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1): integer;
 
 function ConvertHTMLAsciiCharacters(const S: string): string;
+function DecodeURLWebUTF8Characters(const S: string): string;
 
 const
   WordDelimiters = [#9, #10, #13, #32];
@@ -784,13 +785,13 @@ end;
 {
  ASCII Table (https://www.ascii-code.com/   https://www.rapidtables.com/code/text/ascii-table.html
 
- Ex: 225 	&#225;  	�
+ Ex: 225 	&#225;  	á
 
  Ex.
  https://www.microsoft.com/es-es/windows/windows-11
  "Descubre Windows 11: la versi&#243;n m&#225;s reciente de Windows | Microsoft"
 -> 
- "Descubre Windows 11: la versi�n m�s reciente de Windows | Microsoft"
+ "Descubre Windows 11: la versión más reciente de Windows | Microsoft"
 
 }
 
@@ -820,6 +821,87 @@ begin
 
     Result:= StringReplace(Result, '&quot;','"', [rfReplaceAll]);
 
+
+  except
+    Result:= S;
+  end;
+
+end;
+
+
+function DecodeURLWebUTF8Characters(const S: string): string;
+var
+  p, L, i, iBytes: integer;
+  ByteStr: string;
+  Bytes: TBytes;
+  FoundNoConv: boolean;
+
+const
+  NoConvert = [' ', '/', '?','!','''', '&', '%', '#', '$', '[', ']', '(',')', ',', ';', '*', ':', '@', '=', '+'];
+
+begin
+ {
+  Examples:
+   https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%B3%D0%B0,_%D0%9B%D0%BE%D0%BF%D0%B5_%D0%B4%D0%B5
+   ->
+   https://ru.wikipedia.org/wiki/Вега,_Лопе_де
+   https://es.quora.com/Por-qu%C3%A9-las-URL-tienen-20-para-representar-un-espacio
+   ->
+   https://es.quora.com/Por-qué-las-URL-tienen-20-para-representar-un-espacio
+   https://github.com/dpradov/keynote-nf/issues/618  -> Unchanged
+   http://www.example.com/space%20here.html          -> Unchanged
+  }
+
+  Result:= S;
+  if S='' then exit;
+
+  try
+    p:= Pos('%', S);
+    if p <= 0 then
+       Result:= S
+
+    else begin
+       i:= 1;
+       Result:= '';
+       L:= length(S);
+
+       repeat
+          Result:= Result + Copy(S, i, p-i);
+          SetLength(Bytes, L div 3);
+          iBytes:= 0;
+          i:= p+1;
+          FoundNoConv:= false;
+
+          repeat
+             if (i+1) <= L then begin
+                ByteStr:= Copy(S, i, 2);
+                Bytes[iBytes]:= StrToInt('$' + ByteStr);
+                if (Chr(Bytes[iBytes]) in NoConvert) then begin
+                   dec(iBytes);
+                   FoundNoConv:= true;
+                end;
+                if FoundNoConv or ((i+2 > L) or (S[i+2] <> '%') or (Copy(S, i+2,3) = '%20')) then begin
+                   if iBytes >= 0 then begin
+                      SetLength(Bytes, iBytes+1);
+                      Bytes := TEncoding.Convert(TEncoding.UTF8, TEncoding.Unicode, Bytes, 0, Length(Bytes));
+                      Result := Result + TEncoding.Unicode.GetString(Bytes, 0, Length(Bytes));
+                   end;
+                   inc(i, 2);
+                   break;
+                end;
+
+                inc(i, 3);
+                inc(iBytes);
+             end;
+          until (false);
+
+          p:= Pos('%', S, i);
+          if FoundNoConv then
+             dec(i, 3);
+        until (p <= 0);
+
+        Result:= Result + Copy(S, i);
+    end;
 
   except
     Result:= S;

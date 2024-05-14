@@ -520,6 +520,9 @@ begin
         if (i > 0) then begin
            HTMLClipboard:= Clipboard.AsHTML;
            SourceURLStr := Clipboard.GetURLFromHTML (HTMLClipboard);
+           if KeyOptions.URLWebDecode then
+              SourceURLStr:= DecodeURLWebUTF8Characters(SourceURLStr);
+
            if (SourceURLStr <> '') and (SourceURLStr = FLastURLPasted) then begin
               delete(DividerString, 1, i + length(CLIPSECONDDIV)-1);
               Using2ndDivider:= true;

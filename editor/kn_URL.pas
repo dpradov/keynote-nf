@@ -41,7 +41,7 @@ type
     Label2: TLabel;
     Edit_TextURL: TEdit;
     Button_Modify: TButton;
-    procedure CheckURL(OnlyEnsureLink: boolean);
+    procedure CheckURL(OnlyEnsureLink: boolean; const DecodedURL: string);
     procedure Edit_URLExit(Sender: TObject);
     procedure Button_ModifyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -55,6 +55,7 @@ type
       var CallHelp: Boolean): Boolean;
   private
     { Private declarations }
+    fNoDecodeURL: boolean;
   public
     { Public declarations }
     URLAction : TURLAction;
@@ -70,10 +71,13 @@ function StripFileURLPrefix( const AStr : string ) : string;
 
 implementation
 uses
+   gf_strings,
+   gf_misc,
    RxRichEd,
    kn_const,
    kn_Global,
-   kn_LinksMng
+   kn_LinksMng,
+   knt.App
    ;
 
 
@@ -187,6 +191,7 @@ begin
     label2.Enabled := false;
   end;
   AllowURLModification:= True;
+  fNoDecodeURL:= false;
 end;
 
 function TForm_URLAction.FormHelp(Command: Word; Data: NativeInt;
@@ -203,9 +208,8 @@ end;
 
 procedure TForm_URLAction.Button_ModifyClick(Sender: TObject);
 begin
-     if Edit_TextURL.Text = '' then
-        CheckURL(true);
-     URLAction := urlCreateOrModify;
+   Edit_URLExit (nil);
+   URLAction := urlCreateOrModify;
 end;
 
 procedure TForm_URLAction.Button_OpenClick(Sender: TObject);
@@ -257,7 +261,8 @@ begin
 
       if AllowURLModification then begin
         Edit_URL.ReadOnly:= False;
-        Edit_URL.SelectAll;
+        if not Edit_TextURL.Enabled then
+           Edit_URL.SelectAll;
       end
       else begin
         Edit_URL.ReadOnly:= True;
@@ -286,7 +291,7 @@ end;
     URL sin texto asociado (vía HYPERLINK "...) al tratarse de tipo de URL no reconocido por RichEdit o
     tener algún problema con su último carácter.
 }
-procedure TForm_URLAction.CheckURL(OnlyEnsureLink: boolean);
+procedure TForm_URLAction.CheckURL(OnlyEnsureLink: boolean; const DecodedURL: string);
 var
   url: string;
   InterpretedUrl: string;
@@ -298,7 +303,7 @@ begin
 
  if Edit_TextURL.Text = '' then begin
     EnsureLink:= False;
-    url:= Edit_URL.Text;
+    url:= DecodedURL;
 
      url:= trim(url);
      if url='' then exit;
@@ -324,8 +329,21 @@ begin
 end;
 
 procedure TForm_URLAction.Edit_URLExit(Sender: TObject);
+var
+  DecodedURL: string;
 begin
-  CheckURL(false);
+  if ShiftDown then
+     fNoDecodeURL:= true;
+
+  if Edit_TextURL.Text = Edit_URL.Text then
+     Edit_TextURL.Text:= '';
+
+  DecodedURL:= DecodeURLWebUTF8Characters(Edit_URL.Text);
+
+  if KeyOptions.URLWebDecode and not fNoDecodeURL then
+     Edit_URL.Text:= DecodedURL;
+
+  CheckURL(false, DecodedURL);
 end;
 
 
