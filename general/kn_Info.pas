@@ -619,6 +619,8 @@ type
     URLFileQuoteSpaces : boolean; // [*]
     URLFileEncodeName : boolean; // [*]   Names will not be URL-encoded. Specifically, spaces will not be converetd to %20 (link will be enclosed between < and >)
     URLFilePrefNoHyp: boolean; // [*]     Preferably use simple links, not hyperlinks
+    URLFileSepParams : string; // [*]
+    URLFileSpaceInParams : string; // [*]
     // URLClickShift : boolean; // if TRUE, user must hold down SHIFT while clicking an URL to activate it        (Does not work with recent versions of RichEdit)
     URLSystemBrowser : boolean;
     URLWebDecode : boolean;     // [*] if True -> it will manage %XX in URL as UTF8, finally converting the whole URL to ANSI or UTF8

@@ -301,7 +301,7 @@ var
 begin
  if not Edit_TextURL.Enabled then exit;
 
- if Edit_TextURL.Text = '' then begin
+ if (Edit_TextURL.Text = '') and not ActiveEditor.PlainText then begin
     EnsureLink:= False;
     url:= DecodedURL;
 
@@ -330,20 +330,27 @@ end;
 
 procedure TForm_URLAction.Edit_URLExit(Sender: TObject);
 var
-  DecodedURL: string;
+  URL: string;
+  KNTlocation: boolean;
+  URLType: TKNTURL;
+
 begin
   if ShiftDown then
      fNoDecodeURL:= true;
 
-  if Edit_TextURL.Text = Edit_URL.Text then
+  URL:= Edit_URL.Text;
+  if Edit_TextURL.Text = URL then
      Edit_TextURL.Text:= '';
 
-  DecodedURL:= DecodeURLWebUTF8Characters(Edit_URL.Text);
+  URLType:= TypeURL(URL, KNTlocation);
+  case URLType of
+     urlHTTP, urlHTTPS: URL:= DecodeURLWebUTF8Characters(URL);
+  end;
 
   if KeyOptions.URLWebDecode and not fNoDecodeURL then
-     Edit_URL.Text:= DecodedURL;
+     Edit_URL.Text:= URL;
 
-  CheckURL(false, DecodedURL);
+  CheckURL(false, URL);
 end;
 
 

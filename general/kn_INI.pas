@@ -416,6 +416,8 @@ type
     URLFileQuoteSpaces,
     URLFileEncodeName,
     URLFilePrefNoHyp,
+    URLFileSepParams,
+    URLFileSpaceInParams,
     //URLClickShift,
     URLSystemBrowser,
     URLWebDecode,
@@ -591,6 +593,8 @@ const
     URLFileQuoteSpaces : 'URLFileQuoteSpaces';
     URLFileEncodeName : 'URLFileEncodeName';
     URLFilePrefNoHyp: 'URLFilePrefNoHyp';
+    URLFileSepParams: 'URLFileSepParams';
+    URLFileSpaceInParams: 'URLFileSpaceInParams';
     //URLClickShift : 'URLClickShift';
     URLSystemBrowser : 'URLSystemBrowser';
     URLWebDecode: 'URLWebDecode';
@@ -1131,6 +1135,8 @@ begin
     URLFileQuoteSpaces := false;
     URLFileEncodeName:= false;
     URLFilePrefNoHyp:= false;
+    URLFileSepParams:= '##';
+    URLFileSpaceInParams:= '+';
     //URLClickShift := false;
     URLSystemBrowser := true;
     URLWebDecode := true;
@@ -1434,6 +1440,8 @@ begin
       writebool( section, KeyOptionsIniStr.URLFileDecodeSpaces, KeyOptions.URLFileDecodeSpaces );
       writebool( section, KeyOptionsIniStr.URLFileNoPrefix, KeyOptions.URLFileNoPrefix );
       writebool( section, KeyOptionsIniStr.URLFileQuoteSpaces, KeyOptions.URLFileQuoteSpaces );
+      writestring( section, KeyOptionsIniStr.URLFileSepParams, KeyOptions.URLFileSepParams );
+      writestring( section, KeyOptionsIniStr.URLFileSpaceInParams, KeyOptions.URLFileSpaceInParams );
       //writebool( section, KeyOptionsIniStr.URLClickShift, KeyOptions.URLClickShift );
       writebool( section, KeyOptionsIniStr.URLSystemBrowser, KeyOptions.URLSystembrowser );
       writebool( section, KeyOptionsIniStr.URLWebDecode, KeyOptions.URLWebDecode );
@@ -1783,6 +1791,8 @@ begin
       KeyOptions.URLFileQuoteSpaces := readbool( section, KeyOptionsIniStr.URLFileQuoteSpaces, KeyOptions.URLFileQuoteSpaces );
       KeyOptions.URLFileEncodeName := readbool( section, KeyOptionsIniStr.URLFileEncodeName, KeyOptions.URLFileEncodeName );
       KeyOptions.URLFilePrefNoHyp := readbool( section, KeyOptionsIniStr.URLFilePrefNoHyp, KeyOptions.URLFilePrefNoHyp );
+      KeyOptions.URLFileSepParams := readstring( section, KeyOptionsIniStr.URLFileSepParams, KeyOptions.URLFileSepParams );
+      KeyOptions.URLFileSpaceInParams := readstring( section, KeyOptionsIniStr.URLFileSpaceInParams, KeyOptions.URLFileSpaceInParams );
       //KeyOptions.URLClickShift := readbool( section, KeyOptionsIniStr.URLClickShift, KeyOptions.URLClickShift );
       KeyOptions.URLSystembrowser := readbool( section, KeyOptionsIniStr.URLSystembrowser, KeyOptions.URLSystembrowser );
       KeyOptions.URLWebDecode := readbool( section, KeyOptionsIniStr.URLWebDecode, KeyOptions.URLWebDecode );

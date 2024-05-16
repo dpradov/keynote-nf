@@ -1486,9 +1486,10 @@ end;
 function TypeURL (var URLText: string; var KNTlocation: boolean): TKNTURL;
 var
    URLType, KntURL: TKNTURL;
-   URLPos, MinURLPos : integer; // position at which the actual URL starts in URLText
+   URLPos, MinURLPos: integer; // position at which the actual URL starts in URLText
    URLTextLower: string;
    URLaux, URLaux2: string;
+   pParams, p1, p2, p3: integer;
 begin
   // determine where URL address starts in URLText
   URLType := urlUndefined;
@@ -1536,8 +1537,16 @@ begin
 
 
   if (URLType = urlFile) then begin
-      if (pos(KNTLOCATION_MARK_NEW2, URLText) > 0) or (pos(KNTLOCATION_MARK_NEW, URLText) > 0) or
-         (pos(KNTLOCATION_MARK_OLD,  URLText) > 0) then
+      pParams:= pos(KeyOptions.URLFileSepParams, URLText);
+      if pParams = 0 then
+         pParams:= integer.MaxValue;
+      p1:= pos(KNTLOCATION_MARK_NEW2, URLText);
+      p2:= pos(KNTLOCATION_MARK_NEW, URLText);
+      p3:= pos(KNTLOCATION_MARK_OLD,  URLText);
+
+      if ((p1 > 0) and (p1 < pParams)) or
+         ((p2 > 0) and (p2 < pParams)) or
+         ((p3 > 0) and (p3 < pParams))  then
           KNTlocation:= True
 
       else begin
@@ -1572,6 +1581,33 @@ begin
       URLType := urlOther;
 
   result:= URLType;
+end;
+
+
+procedure AdaptURLFileWithParams (var myURL: string; FromUser: boolean);
+var
+  p: integer;
+  Parameters: string;
+begin
+  if myURL = '' then exit;
+
+  if FromUser then
+     myURL:= StringReplace(myURL, '"', '''''', [rfReplaceAll])
+  else
+     myURL := StringReplace(myURL, '''''', '"', [rfReplaceAll]);   // For the user, show and use ", but internally use two '
+
+  if ActiveEditor.PlainText and
+     (KeyOptions.URLFileSepParams <> '') and (KeyOptions.URLFileSpaceInParams <> '') then begin
+     p:= pos(KeyOptions.URLFileSepParams, myURL);
+     if p > 0 then begin
+        Parameters:= Copy(myURL, p);
+        if FromUser then
+           Parameters:= StringReplace(Parameters, ' ', KeyOptions.URLFileSpaceInParams, [rfReplaceAll])
+        else
+           Parameters:= StringReplace(Parameters, KeyOptions.URLFileSpaceInParams, ' ', [rfReplaceAll]);
+        myURL:= Copy(myURL, 1, p-1) + Parameters;
+     end;
+  end;
 end;
 
 
@@ -1649,7 +1685,7 @@ var
   URLType : TKNTURL;
   myURL : string; // the actual URL
   TextURL : string; // the text shown for actual URL
-  textURLposIni, textURLposFin: Integer;
+  textURLposIni, textURLposFin, p: Integer;
   //ShiftWasDown, AltWasDown, CtrlWasDown : boolean;
   usesHyperlinkCmd: boolean;
   path: string;
@@ -1763,18 +1799,22 @@ begin
               Form_URLAction.AllowURLModification:= false;
               Form_URLAction.Edit_URL.Text := path;
            end
-           else
+           else begin
+              if URLType = urlFILE then
+                 AdaptURLFileWithParams(myURL, false);
               Form_URLAction.Edit_URL.Text := myURL;
+           end;
 
           // Seleccionar el texto correspondiente al hipervinculo
           usesHyperlinkCmd:= true;
           TextURL:= TextOfLink(chrgURL.cpMax-1, textURLposIni, textURLposFin);
           if TextURL = '' then begin
-             if length(URLstr) < Length(myURL) then
-                Form_URLAction.Edit_TextURL.Text := URLstr
-             else
-                Form_URLAction.Edit_TextURL.Text := Form_URLAction.Edit_URL.Text;
              usesHyperlinkCmd:= false;
+             if not ActiveEditor.PlainText then
+                if length(URLstr) < Length(myURL) then
+                   Form_URLAction.Edit_TextURL.Text := URLstr
+                else
+                   Form_URLAction.Edit_TextURL.Text := Form_URLAction.Edit_URL.Text;
           end
           else
              Form_URLAction.Edit_TextURL.Text := TextURL;
@@ -1790,6 +1830,8 @@ begin
               if not KNTlocation then begin                  // If it was a KNT Location then URL will not be modified
                  myURL := trim( Form_URLAction.Edit_URL.Text );
                  URLType := TypeURL( myURL, KNTlocation );    // The type could have been modified
+                 if URLType = urlFILE then
+                    AdaptURLFileWithParams(myURL, true);
               end;
           end
           else
@@ -1879,7 +1921,19 @@ begin
                    else
                       myURL:= GetAbsolutePath(ExtractFilePath(ActiveFile.FileName), myURL);
                 end;
-                FileName:= myURL;
+
+                // Process optional params
+                p:= pos(KeyOptions.URLFileSepParams, myURL);
+                if p = 0 then
+                   FileName:= myURL
+                else begin
+                   FileName:= Copy(myURL,1, p-1);
+                   Parameters:= Copy(myURL, p + Length(KeyOptions.URLFileSepParams));
+                   Parameters:= StringReplace(Parameters, '''''', '"', [rfReplaceAll]);
+                   if (KeyOptions.URLFileSpaceInParams <> '') and ActiveEditor.PlainText then
+                      Parameters:= StringReplace(Parameters, KeyOptions.URLFileSpaceInParams, ' ', [rfReplaceAll]);
+                end;
+
               end;
             end;
             else begin                              // all other URL types
@@ -2046,6 +2100,8 @@ begin
 
       Form_URLAction := TForm_URLAction.Create( Form_Main );
       try
+        if URLType = urlFILE then
+           AdaptURLFileWithParams(URLStr, false);
         Form_URLAction.Edit_URL.Text := URLStr;
         Form_URLAction.Edit_TextURL.Text := TextURL;
         Form_URLAction.URLAction:= urlCreateOrModify;   // Mode: Create. Only will show buttons Ok and Cancel
@@ -2053,6 +2109,9 @@ begin
         if ( Form_URLAction.ShowModal = mrOK ) then begin
             URLStr := trim( Form_URLAction.Edit_URL.Text );
             TextURL:= trim( Form_URLAction.Edit_TextURL.Text );
+            URLType := TypeURL( URLStr, KNTLocation );
+            if URLType = urlFILE then
+               AdaptURLFileWithParams(URLStr, true);
         end
         else
             URLStr := '';
