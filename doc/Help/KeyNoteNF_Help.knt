@@ -12,7 +12,7 @@ II=3
 DC=20-04-2003 19:33:48
 TI=0
 TS=4
-CX=40
+CX=1339
 CY=0
 BG=clWindow
 CH=0
@@ -22,7 +22,7 @@ FS=10
 LN=1033
 ST=
 FL=111110000000100000000000
-SN=0
+SN=69
 TW=302
 TM=0
 EN=New node
@@ -40,7 +40,6 @@ GI=1
 NF=001000100000000000000000
 BC=clWindow
 IX=0
-SS=40
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red64\green64\blue64;\red128\green0\blue128;\red255\green0\blue0;\red0\green128\blue0;}
@@ -90,7 +89,6 @@ NF=000000010000000000000000
 BC=clWindow
 IX=0
 HC=clBlue
-SS=1937
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -142,7 +140,6 @@ GI=3
 NF=000000000000000000000000
 BC=clWindow
 IX=0
-SS=967
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -827,7 +824,7 @@ LV=1
 ND=Getting Started
 DI=10
 GI=11
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -1002,7 +999,6 @@ GI=12
 NF=000000000000000000000000
 BC=clWindow
 IX=0
-SS=915
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;}
@@ -1607,7 +1603,6 @@ GI=19
 NF=001000100000000000000000
 BC=clWindow
 IX=0
-SS=854
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset238 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red0\green0\blue0;}
@@ -1660,7 +1655,7 @@ LV=1
 ND=KeyNote Editor
 DI=282
 GI=20
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -2783,7 +2778,7 @@ LV=1
 ND=Folders as note trees
 DI=284
 GI=27
-NF=000000100100000000000000
+NF=000000000100000000000000
 BC=clWindow
 IX=0
 %:
@@ -3590,7 +3585,7 @@ LV=1
 ND=Clipboard. Paste. Capture
 DI=582
 GI=33
-NF=000000000000000000000000
+NF=000000100000000000000000
 BC=clWindow
 IX=0
 %:
@@ -3693,10 +3688,6 @@ Using custom paste is in fact especially convenient when copying and pasting tex
 \pard\f2\lang3082\par
 \par
 \ul Limitations\ulnone :\par
-
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 In some cases, \b pasting from certain encodings\b0  (e.g. Cyrillic text) could no work as expected depending on system settings. If you run into that problem, please check your \ul default code page\ulnone  in your local/regional setting. It may be necessary to activate or deactivate \b UTF8\b0 .\par
-
-\pard\li360 In the following issues (in GitHub) were described examples of such situations and how they were resolved:{{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/issues/609"}}{\fldrslt{\ul\cf2\cf2\ul #609}}}}\f2\fs20 , {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/issues/629"}}{\fldrslt{\ul\cf2\cf2\ul #629}}}}\f2\fs20 , {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/issues/618"}}{\fldrslt{\ul\cf2\cf2\ul #618}}}}\f2\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb100 Currently, when pasting from a browser, \b images interspersed with the text\b0  will not be included. You must copy and paste those images individually. You can, for example, select an image with the right button and press Copy Image from the browser; and then paste it from KeyNote.\par
 
@@ -3806,7 +3797,7 @@ LV=2
 ND=Clipboard Capture
 DI=310
 GI=35
-NF=000000000000000000000000
+NF=000000100000000000000000
 BC=clWindow
 IX=0
 %:
@@ -3916,6 +3907,8 @@ Note:\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 A \b small cache\b0  will be used for titles, in case you need to paste several times, from the same pages. So, even certain delays will only apply to the first capture on a certain URL.\par
 {\pntext\f3\'B7\tab}%S, %s, and %U will be ignored if option \b Include source URL\b0  is not enabled.\b\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b0 The URL included by %S, %s or %U will be 'decoded', translating %XY sequences into their corresponding UTF8 characters, if the {{\field{\*\fldinst{HYPERLINK "file:///<104|9062|0|9"}}{\fldrslt{\ul\cf2\cf2\ul URLWebDecode}}}}\f0\fs20  INI option is enabled.\b\par
 
 \pard\b0\par
 
@@ -4414,10 +4407,9 @@ GI=38
 NF=000000000000000000000000
 BC=clWindow
 IX=0
-SS=731
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red0\green128\blue0;\red128\green0\blue0;\red128\green128\blue0;}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red0\green128\blue0;\red128\green0\blue0;\red64\green64\blue0;\red64\green64\blue64;\red128\green128\blue0;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Hyperlinks in KeyNote\cf2\f0\lang1033\par
@@ -4433,6 +4425,7 @@ SS=731
 
 \pard       {{\field{\*\fldinst{HYPERLINK "file:///<38|7546|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Using Insert URL...}}}}\f0\fs20\par
       {{\field{\*\fldinst{HYPERLINK "file:///<38|11553|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Inserting links to Local files}}}}\f0\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<38|13732|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Using parameters with hyperlinks}}}}\f0\fs20\par
       {{\field{\*\fldinst{HYPERLINK "file:///<38|13152|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Inserting internal Keynote Links (KNT Links)}}}}\f0\fs20\par
 
 \pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<38|16878|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Activating Links}}}}\f0\fs20\par
@@ -4707,7 +4700,52 @@ The default selected option will be "Create hyperlink to file" except for:\par
 \pard\sa180\par
 \par
 
-\pard\b\v\fs22\'11B5\'12\v0 Inserting internal Keynote Links (KNT Links)\b0\par
+\pard\b\v\fs22\'11B12\'12\v0 Using parameters with hyperlinks\par
+\b0\fs20\par
+
+\pard\sa180 Hyperlinks can use parameters, behaving similar to {{\field{\*\fldinst{HYPERLINK "file:///<70|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Favorites}}}}\f0\fs20 . This way you can organize \i favorites\i0  as you want inside notes. \par
+
+\pard\sa60 Two INI options have been added to allow the use of parameters in hyperlinks:\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 {{\field{\*\fldinst{HYPERLINK "file:///<104|9062|0|10"}}{\fldrslt{\ul\cf2\cf2\ul URLFileSepParams}}}}\f0\fs20 , defined by default as '##', allows to identify the beginning of the parameters section.\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa180 {{\field{\*\fldinst{HYPERLINK "file:///<104|9614|0|11"}}{\fldrslt{\ul\cf2\cf2\ul URLFileSpaceInParams}}}}\f0\fs20 , defined by default as '+', allows the use of spaces in hyperlinks of plain notes.\par
+
+\pard\sa60\b Example\b0 . The following command:\par
+
+\pard\sa180      \cf6 E:\\Output\\bin\\keynote.exe  Profiles\\F9\\keynote.ini -dnd "E:\\Path\\With spaces\\myFile.knt" -title"MY TITLE"\cf0\par
+
+\pard\sa100 Can be inserted as a hyperlink of an RTF note, using \cf7\b Insert|URL\cf0\b0  and \cf7\b Choose Action for Hyperlink\cf0\b0  dialogs, typing:\par
+
+\pard      \cf8 E:\\Output\\bin\\keynote.exe ## Profiles\\F9\\keynote.ini -dnd "E:\\Path\\With spaces\\myFile.knt" -title"MY TITLE"\cf0\par
+
+\pard\sa20      \cf8 E:\\Output\\bin\\keynote.exe##Profiles\\F9\\keynote.ini -dnd "E:\\Path\\With spaces\\myFile.knt" -title"MY TITLE"\cf0\par
+
+\pard\sb80\sa140 or, eg., if using '<=' as params separator:\par
+
+\pard\sa100      \cf8 E:\\Output\\bin\\keynote.exe <= Profiles\\F9\\keynote.ini -dnd "E:\\Path\\With spaces\\myFile.knt" -title"MY TITLE"\cf0\par
+
+\pard\sb120\sa100\b Notes:\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140\b0 You can use quotation marks (") to enclose parameters, but note that they will be converted to single quotation marks internally in the URL. In case you type the URLs 'manually' in the editor without the help of \cf7\b Insert|URL\cf0\b0  or \cf7\b Choose Action for Hyperlink\cf0\b0  dialogs, you have to type ''(two single quotation marks) instead of ".\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa180 You can use spaces in the parameters part, also inmediately after characters defined by \cf7\b URLFileSepParams\cf0\b0 . But you can use spaces before that characters only in hyperlinks of RTF notes.\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa100 In a \b plain text \b0 note you can't use spaces before the parameters separator. Ex:\par
+
+\pard\li360\sa20 OK:    \cf8 E:\\Output\\bin\\keynote.exe<= Profiles\\F9\\keynote.ini -dnd "E:\\Path\\With spaces\\myFile.knt" -title"MY TITLE"\cf0\par
+BAD:  \cf8 E:\\Output\\bin\\keynote.exe <= Profiles\\F9\\keynote.ini -dnd "E:\\Path\\With spaces\\myFile.knt" -title"MY TITLE"\cf0\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa60 Once introduced in the dialogs, the above URL will be inserted and visible in the plain note as:\par
+
+\pard\sa180    {{\field{\*\fldinst{HYPERLINK file:///E:\\\\Output\\\\bin\\\\keynote.exe<=+Profiles\\\\F9\\\\keynote.ini+-dnd+''E:\\\\Path\\\\With spaces\\\\myFile.knt''+-title''MY+TITLE'' }}{\fldrslt{file:///E:\\Output\\bin\\keynote.exe<=+Profiles\\F9\\keynote.ini+-dnd+''E:\\Path\\With spaces\\myFile.knt''+-title''MY+TITLE''\ul0\cf0}}}}\f0\fs20\par
+
+\pard\sb80 Note that you can write that final string directly in a plain text editor, but you cannot in in a RTF note, because of the presence of spaces. By design, spaces will not be modified in hyperlinks of RTF notes and so you can use the character[s] defined in URLFileSpaceInParams inside any part of the parameters in hyperlinks of RTF notes.\par
+
+\pard\par
+\par
+\par
+\b\v\fs22\'11B5\'12\v0 Inserting internal Keynote Links (KNT Links)\b0\par
 \fs20\par
 As a special kind of link, inserting a KeyNote link requires two steps: marking the target, i.e. the place to which the link will jump, and then inserting the link somewhere else.\par
 \par
@@ -4933,31 +4971,31 @@ The special sections of the link are separated with the '|' character. Using {{\
 {{\field{\*\fldinst{HYPERLINK file:///*1|12|30|0 }}{\fldrslt{file:///*1|12|30|0\ul0\cf0}}}}\f0\fs20  or {{\field{\*\fldinst{HYPERLINK file:///<15|30|0 }}{\fldrslt{file:///<15|30|0\ul0\cf0}}}}\f0\fs20  \par
 ...in current file, switch to the folder with ID=1, select the node with ID=12 in the tree, and place the cursor on the 30th character, \f3\lang3082 with no characters selected.\f0\lang1033\par
 \par
-{{\field{\*\fldinst{HYPERLINK "file:///*1|12|30|0"}}{\fldrslt{\ul\cf2 file:///*1|12|30}}}}\f0\fs20  or {{\field{\*\fldinst{HYPERLINK file:///<15|30 }}{\fldrslt{file:///<15|30\ul0\cf0}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*1|12|30|0"}}{\fldrslt{\ul\cf2\cf2\ul file:///*1|12|30}}}}\f0\fs20  or {{\field{\*\fldinst{HYPERLINK file:///<15|30 }}{\fldrslt{file:///<15|30\ul0\cf0}}}}\f0\fs20\par
 \'85 same as above\par
 \par
-{{\field{\*\fldinst{HYPERLINK "file:///*1|12|-1|0"}}{\fldrslt{\ul\cf2 file:///*1|12|-1}}}}\f0\fs20  or {{\field{\*\fldinst{HYPERLINK file:///<15|-1 }}{\fldrslt{file:///<15|-1\ul0\cf0}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*1|12|-1|0"}}{\fldrslt{\ul\cf2\cf2\ul file:///*1|12|-1}}}}\f0\fs20  or {{\field{\*\fldinst{HYPERLINK file:///<15|-1 }}{\fldrslt{file:///<15|-1\ul0\cf0}}}}\f0\fs20\par
 \'85 same as above, but without changing cursor position\par
 \par
 {{\field{\*\fldinst{HYPERLINK file:///*1|12|-1|-1 }}{\fldrslt{file:///*1|12|-1|-1\ul0\cf0}}}}\f0\fs20  or {{\field{\*\fldinst{HYPERLINK file:///<15|-1|-1 }}{\fldrslt{file:///<15|-1|-1\ul0\cf0}}}}\f0\fs20\par
 \'85 same as above, but without altering the current selected text\par
 \par
-{{\field{\*\fldinst{HYPERLINK "file:///*1|0|0|0"}}{\fldrslt{\ul\cf2 file:///*1}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*1|0|0|0"}}{\fldrslt{\ul\cf2\cf2\ul file:///*1}}}}\f0\fs20\par
 \'85 in current file, switch to the folder with ID = 1. Place the cursor at the start of the current selected node, with no characters selected. \par
 \par
-{{\field{\*\fldinst{HYPERLINK "file:///*1|0|0|0"}}{\fldrslt{\ul\cf2 file:///*1||0}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*1|0|0|0"}}{\fldrslt{\ul\cf2\cf2\ul file:///*1||0}}}}\f0\fs20\par
 \'85 same as above\par
 \par
-{{\field{\*\fldinst{HYPERLINK "file:///*1|0|40|0"}}{\fldrslt{\ul\cf2 file:///*1||40}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*1|0|40|0"}}{\fldrslt{\ul\cf2\cf2\ul file:///*1||40}}}}\f0\fs20\par
 \'85 in current file, switch to the folder with ID = 1. Place the cursor on the 40th character of the current selected node, with no characters selected. \par
 \par
-{{\field{\*\fldinst{HYPERLINK "file:///*1|0|40|0"}}{\fldrslt{\ul\cf2 file:///*1|-1|40}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*1|0|40|0"}}{\fldrslt{\ul\cf2\cf2\ul file:///*1|-1|40}}}}\f0\fs20\par
 \'85 same as above\par
 \par
-{{\field{\*\fldinst{HYPERLINK "file:///*1|0|-1|0"}}{\fldrslt{\ul\cf2 file:///*1||-1}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*1|0|-1|0"}}{\fldrslt{\ul\cf2\cf2\ul file:///*1||-1}}}}\f0\fs20\par
 \'85 same as above, but without changing cursor position\par
 \par
-{{\field{\*\fldinst{HYPERLINK "file:///*1|0|-1|-1"}}{\fldrslt{\ul\cf2 file:///*1||-1|-1}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///*1|0|-1|-1"}}{\fldrslt{\ul\cf2\cf2\ul file:///*1||-1|-1}}}}\f0\fs20\par
 \'85 same as above, but without altering the current selected text\par
 \par
 
@@ -4986,8 +5024,8 @@ The special sections of the link are separated with the '|' character. Using {{\
 \par
 The format used internally by KeyNote NF to register the hidden markers, needed to ensure that the link always follow the target is like:\par
 \par
-\cf4\{\\rtf1\\ansi \cf6\\v\\'11\b B5\b0\\'12\\v0\cf4  Target of a KNT link\}\par
-\cf0   \cf6 B\cf0 : Bookmark    \cf6 5\cf0 : 5\'ba bookmark in the note / node.\par
+\cf4\{\\rtf1\\ansi \cf8\\v\\'11\b B5\b0\\'12\\v0\cf4  Target of a KNT link\}\par
+\cf0   \cf8 B\cf0 : Bookmark    \cf8 5\cf0 : 5\'ba bookmark in the note / node.\par
 \par
 \par
 \b\fs22 OLD Style KNT Links\par
@@ -6051,7 +6089,7 @@ LV=1
 ND=File Properties
 DI=287
 GI=45
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -6295,7 +6333,7 @@ LV=1
 ND=Opening and Saving KeyNote files
 DI=539
 GI=50
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -6899,8 +6937,8 @@ GI=55
 NF=000001000000000000000000
 BC=clWindow
 IX=0
-RV=..\doc\fileformat.txt
-VF=D:\Dani\PROYECTOS\TESELA KN\_Auxiliar\doc\fileformat.txt
+RV=C:\APL\KeyNote NF\doc\fileformat.txt
+VF=C:\APL\KeyNote NF\doc\fileformat.txt
 %-
 LV=1
 ND=Importing Files in KeyNote
@@ -7132,7 +7170,7 @@ LV=1
 ND=Exporting Notes to Disk Files
 DI=313
 GI=57
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -7633,7 +7671,7 @@ LV=2
 ND=Options in Exporting. Examples
 DI=590
 GI=58
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -8370,6 +8408,8 @@ Right-click the favorites panel to display its context\f1  \f0 menu:\par
 \pard\li360\sb80 See also {{\field{\*\fldinst{HYPERLINK "file:///<86|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Use of Profiles}}}}\f0\fs20\par
 
 \pard\par
+\b Tip\b0 : \ul Hyperlinks\ulnone  can be used as another way to define 'favorites'. They can also store links to locations to nodes and folders in KeyNote files and links to external programs and documents, optionally specifying parameters.\par
+More in {{\field{\*\fldinst{HYPERLINK "file:///<38|13732|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Using parameters with hyperlinks}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<38|13152|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Inserting internal Keynote Links (KNT Links)}}}}\f0\fs20\par
 }
 %-
 LV=1
@@ -10060,7 +10100,7 @@ LV=1
 ND=Keyboard Reference
 DI=18
 GI=78
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -12055,7 +12095,7 @@ LV=2
 ND=Advanced
 DI=248
 GI=99
-NF=000000000000000000000000
+NF=000000100000000000000000
 BC=clWindow
 IX=0
 %:
@@ -12503,7 +12543,7 @@ NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset204 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue128;\red128\green0\blue0;\red144\green144\blue144;\red0\green128\blue0;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
@@ -12649,8 +12689,8 @@ If disabled (0, default), they will not be URL-encoded. Specifically, spaces wil
 
 \pard\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li460 If disabled (0, default), links to file will always created as hyperlinks if possible (in plain text notes it isn't)\par
-{\pntext\f2\'B7\tab}If enabled (1), when inserting a link to a file or directory with {{\field{\*\fldinst{HYPERLINK "file:///<112|2194|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Insert | Link to File...}}}}\f0\fs20  or with drag and drop, the link will not use hyperlinks. It will insert the path adding "{{\field{\*\fldinst{HYPERLINK file:/// }}{\fldrslt{file:///\ul0\cf0}}}}\f0\fs20 " and enclosing with < and > if necessary.\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li460 If disabled (0, default), links to file will always created as hyperlinks if possible (in plain text notes it isn't)\par
+{\pntext\f3\'B7\tab}If enabled (1), when inserting a link to a file or directory with {{\field{\*\fldinst{HYPERLINK "file:///<112|2194|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Insert | Link to File...}}}}\f0\fs20  or with drag and drop, the link will not use hyperlinks. It will insert the path adding "{{\field{\*\fldinst{HYPERLINK file:/// }}{\fldrslt{file:///\ul0\cf0}}}}\f0\fs20 " and enclosing with < and > if necessary.\par
 
 \pard\li460\sb80 What you see in the Editor is then the URL, that you can modify directly.\par
 
@@ -12672,6 +12712,45 @@ If disabled (0, default), they will not be URL-encoded. Specifically, spaces wil
 
 \pard\par
 \par
+\b\v\'11B10\'12\v0 URLFileSepParams\b0 =##\b\par
+
+\pard\li100\sb60\b0 If not empty, it allows to specify parameters in hyperlinks, after those characters\par
+It is defined by default as '##', but can be replaced with other character/s with some exceptions. You can use for example '==' or '<=' but not '<', '<<', '>>' or '>='. Some of these strings should not be used because they are problematic if you try to use them in plain notes. Others simply don't work even in RTF notes. Before changing this option you can test if can be used normally including it in an URL (in RTF and Plan Text editors) \par
+
+\pard\par
+\b\v\'11B11\'12\v0 URLFileSpaceInParams\b0 =+\b\par
+
+\pard\li100\sb60\b0 If not empty, it allows the use of spaces in hyperlinks of plain notes (where spaces can only be used in the program/document part, and most times only if enclosed between < and >). It is defined by default as '+'.\par
+This option will be ignored in RTF notes, because there you can use spaces normally in hyperlinks.\par
+
+\pard\par
+
+\pard\li100\sb60 More info in {{\field{\*\fldinst{HYPERLINK "file:///<38|13732|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Using parameters with hyperlinks}}}}\f0\fs20\par
+
+\pard\par
+\par
+\b\v\'11B9\'12\v0 URLWebDecode\b0 =1\b\par
+
+\pard\li100\sb60\b0 If set to 1 (enabled) it will 'decode' web URL links, translating %XY sequences into their corresponding UTF8 characters. Example:\par
+  {{\field{\*\fldinst{HYPERLINK https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%B3%D0%B0,_%D0%9B%D0%BE%D0%BF%D0%B5_%D0%B4%D0%B5 }}{\fldrslt{https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%B3%D0%B0,_%D0%9B%D0%BE%D0%BF%D0%B5_%D0%B4%D0%B5\ul0\cf0}}}}\f0\fs20\par
+will be converted to:\par
+  {{\field{\*\fldinst{HYPERLINK https://ru.wikipedia.org/wiki/\f2\'c2\'e5\'e3\'e0,_\'cb\'ee\'ef\'e5_\'e4\'e5 }}{\fldrslt{https://ru.wikipedia.org/wiki/\f2\lang1049\'c2\'e5\'e3\'e0,_\'cb\'ee\'ef\'e5_\'e4\'e5\ul0\cf0\f2 }}}}\f2\fs20\lang1049\par
+
+\pard\li100\sb220 Certain characters that could be encoded with %X\f0\lang3082 Y\f2\lang1049  won't be converted:\par
+
+\pard\li100\sb60     ' ', '/', '?','!','''', '&', '%', '#', '$', '[', ']', '(',')', ',', ';', '*', ':', '@', '=', '+'\par
+
+\pard\li100\sb140 Ex: {{\field{\*\fldinst{HYPERLINK http://www.example.com/space%20here.html }}{\fldrslt{http://www.example.com/space%20here.html\ul0\cf0}}}}\f2\fs20  won't be modified\par
+
+\pard\li100\sb180 On "Insert URL" and "Choose Action for URL" dialogs\f0\lang3082  (see {{\field{\*\fldinst{HYPERLINK "file:///<38|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Hyperlinks}}}}\f0\fs20 )\f2\lang1049 , although URLWebDecode=1, you can force the URL not to be modified pressing \cf4\b\f0\lang1033 Shift\cf0\b0\f2\lang1049  when exiting URL field or when clicking on OK (Insert URL) or Modify (Choose Action for URL).\par
+
+\pard\li100\sb60 Even if URL is not modified (because of \cf4\f0\lang1033 Shift\cf0\f2\lang1049  or URLWebDecode=0), when text is empty or equal to URL it will be set with the\f0\lang3082  \f2\lang1049 decoded version of the URL field.\par
+So, for example, if you pressed \cf4\f0\lang1033 Shift\cf0\f2\lang1049  while changing focus from "URL" to "Text", the URL field will maintain the %XY characters, but the "Text" field will be set decoded.\par
+\par
+When using {{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf2\ul ClipCap}}}}\f2\fs20  or {{\field{\*\fldinst{HYPERLINK "file:///<34|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Web Clip}}}}\f2\fs20 , the clip URL will be automatically adapted if URLWebDecode= 1.\f0\lang3082  \f2\lang1049 Any other pasted hyperlinks, interspersed in the text, will be adapted only by opening and modifying via the "Choose Action for URL" dialog box.\f0\lang1033\par
+
+\pard\par
+\par
 \b ImgViewerPath\par
 
 \pard\li100\sb60\b0 Allows to enter an absolute or relative (to keynote.exe) path to an external image viewer\par
@@ -12682,11 +12761,11 @@ If disabled (0, default), they will not be URL-encoded. Specifically, spaces wil
 \pard\li100\sb60\b0 In order to make the images visible in the editor, in RTF, the formats currently available in the RichEdit control that can be used are: \\wmetafile8, \\emfblip, \\pngblip or \\jpegblip\par
 When inserting the image programmatically, the format that KeyNote NF will used depends on this option:\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li460\sa60 ifWmetafile8 [0] \par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li460\sa60 ifWmetafile8 [0] \par
 
 \pard\li460\sa100 All images will be embedded in RTF with the format \\wmetafile8. It will be the only option offered on systems with an older version of RichEdit (<= 4 ).\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li460\sa60 ifAccordingImage [1]\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li460\sa60 ifAccordingImage [1]\par
 
 \pard\li460\sa100 The application will use jpegblip for JPG images, emfblip for images that come from EMF \i files\i0 , wmetafile8 for those that come from WMF \i files\i0 , and pngblip for the rest: PNG, GIF, TIF, BMP and ICO.\par
 
@@ -15825,7 +15904,7 @@ FS=9
 LN=3082
 ST=
 FL=111110000000110001000000
-SN=0
+SN=2
 TW=182
 TM=0
 EN=(%D) -
@@ -15865,6 +15944,12 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ne
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 1.9.5\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 New: Hyperlinks can use parameters, behaving similar to Favorites\par
+{\pntext\f3\'B7\tab}Fixed: Copy/Paste from web browsers did not work on systems configured for MBCS languages (e.g., Russian with codepage 1251)\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 1.9.3\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Important refactoring. Changes in the way editor and notes are managed internally\par
@@ -16036,9 +16121,8 @@ GI=121
 NF=000001000000000000000000
 BC=clWindow
 IX=0
-SS=876
-RV=..\doc\history.txt
-VF=D:\Dani\PROYECTOS\TESELA KN\_Auxiliar\doc\history.txt
+RV=C:\APL\KeyNote NF\doc\history.txt
+VF=C:\APL\KeyNote NF\doc\history.txt
 %BK
 BK=0,file:///*8|2|0|0
 BK=1,file:///*8|13|0|0
