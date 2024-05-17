@@ -3,6 +3,19 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 1.9.5.1  (17 may 2024)
+--------------------------
+(Detailed info in doc\Changes in 1.9.5 .01.txt)
+
+* New: Hyperlinks can use parameters, behaving similar to Favorites
+* Added a new INI option: URLWebDecode to adapt URLs with %XY characters
+
+* Fixed: Copy/Paste from web browsers did not work on systems with MBCS language (eg. Russian, codepage 1251)
+* Handle possible exception in Windows 8.1 when trying to open the Font dialog
+* Fixed: Tree panel width could be reduced on restart (if it was wide enough)
+* Fixed: "F1" key cannot be used for any shortcut
+
+
 v 1.9.4.1  (10 may 2024)
 --------------------------
 IMPORTANT:

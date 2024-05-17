@@ -1,0 +1,117 @@
+Changes in 1.9.5 .01  (17 may. 2024)
+===================================
+
+* New: Hyperlinks can use parameters, behaving similar to Favorites
+
+  This way you can organize favorites as you want inside notes.
+
+  Added two new INI options:
+  - URLFileSepParams: If not empty, it allows to specify parameters in hyperlinks, after those characters
+     It is defined by default as '##', but can be replaced with other character/s with some exceptions.
+	 You can use for example '==' or '<=' but not '<', '<<', '>>' or '>='. Some of these strings should
+	 not be used because they are problematic if you try to use them in plain notes. Others simply don't
+	 work even in RTF	notes.
+	 Before changing this option you can test if can be used normally including it in an URL
+	 (in RTF and Plan Text -if you use plain text)
+
+  - URLFileSpaceInParams: If not empty, it allows the use of spaces in hyperlinks of plain notes (where spaces
+     can only be used in the program/document part, and most times only if enclosed between < and >)
+     This option will be ignored in RTF notes, because there you can use spaces normally in hyperlinks.
+	 It is defined by default as '+'
+
+  Note:
+  - You can use quotation marks (") to enclose parameters, but note that they will be converted to single
+  quotation marks internally in the URL. In case you type the URLs 'manually' in the editor without the help
+  of Insert|URL or 'Choose Action for Hyperlink' dialogs, you have to type '' instead of ".
+  - You can use spaces in the parameters part, also after characters defined by URLFileSepParams.
+   But you can use spaces before that characters only in hyperlinks of RTF notes.
+
+  Examples. The following command:
+     E:\Output\bin\keynote.exe  Profiles\F9\keynote.ini -dnd "E:\Path\With spaces\myFile.knt" -title"MY TITLE"
+
+  Can be introduced in a hyperlink of a RTF note using "Insert|URL" and "Choose Action for Hyperlink" dialogs typing:
+     E:\Output\bin\keynote.exe ## Profiles\F9\keynote.ini -dnd "E:\Path\With spaces\myFile.knt" -title"MY TITLE"
+   or
+	 E:\Output\bin\keynote.exe##Profiles\F9\keynote.ini -dnd "E:\Path\With spaces\myFile.knt" -title"MY TITLE"
+
+   or, eg., if using '<=' as params separator:
+    E:\Output\bin\keynote.exe <= Profiles\F9\keynote.ini -dnd "E:\Path\With spaces\myFile.knt" -title"MY TITLE"
+
+  In a plain text note, you can write the same in "Insert|URL" and "Choose Action for Hyperlink" dialogs, but without
+  spaces before the parameters separator. Ex:
+   OK:   E:\Output\bin\keynote.exe<= Profiles\F9\keynote.ini -dnd "E:\Path\With spaces\myFile.knt" -title"MY TITLE"
+   BAD:  E:\Output\bin\keynote.exe <= Profiles\F9\keynote.ini -dnd "E:\Path\With spaces\myFile.knt" -title"MY TITLE"
+
+  Once introduced in the dialogs, the URL will be inserted and visible in the plain note as:
+   file:///E:\Output\bin\keynote.exe<=+Profiles\F9\keynote.ini+-dnd+''E:\Path\With spaces\myFile.knt''+-title''MY+TITLE''
+
+  Note that you can write that last internal directly in a plain text editor, but you cannot in in a RTF note,
+  because of the presence of spaces. By design, spaces will not be modified in hyperlinks of RTF notes and so
+  you can use the character[s] defined in URLFileSpaceInParams inside any part of the parameters in hyperlinks
+  of RTF notes.
+  
+- - - - - - - - - -
+* Added a new INI option: URLWebDecode to adapt URLs with %XY characters
+
+  If True (1) it will manage %XX in URL as UTF8, finally converting the whole URL to ANSI or UTF8
+  depending on current codepage
+
+  Example:
+   https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%B3%D0%B0,_%D0%9B%D0%BE%D0%BF%D0%B5_%D0%B4%D0%B5
+   ->
+   https://ru.wikipedia.org/wiki/Вега,_Лопе_де
+
+   Certain characters that could be encoded with %XX won't be converted:
+    ' ', '/', '?','!','''', '&', '%', '#', '$', '[', ']', '(',')', ',', ';', '*', ':', '@', '=', '+'
+
+  Ex: http://www.example.com/space%20here.html won't be modified
+
+  On "Insert URL" and "Choose Action for URL" dialogs, although URLWebDecode=1, you can force the URL not to be
+  modified pressing Shift when exiting URL field, or when clicking on OK (Insert URL) or Modify (Choose Action for URL).
+  Even if URL is not modified (because of Shift or URLWebDecode=0), when text is empty or equal to URL it will be set
+  with the decoded version of the URL field.
+  So, for example, if you pressed Shift while changing focus from "URL" to "Text", the URL field will maintain the %XY
+  characters, but the "Text" field will be set decoded. In the example, this way you can automatically have:
+    URL: https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%B3%D0%B0,_%D0%9B%D0%BE%D0%BF%D0%B5_%D0%B4%D0%B5
+   Text: https://ru.wikipedia.org/wiki/Вега,_Лопе_де
+
+  When using ClipCap or Web Copy (Ctrl+W or Ctrl+Shift+W), the clip URL will be automatically adapted if URLWebDecode = 1.
+  Any other pasted hyperlinks, interspersed in the text, will be adapted only by opening and modifying via the
+  "Choose Action for URL" dialog box.
+  Ref: #618
+
+
+- - - 
+* Fixed: Copy/Paste from web browsers did not work on systems with multi-byte character set (eg. Russian, codepage 1251)
+  This affected, for example, to Cyrillic text
+  It will now work regardless of whether UTF8 is the default codepage in your local/regional settings.
+  Ref: #618, #629, #609
+  
+- - -  
+* Handle possible exception in Windows 8.1 when trying to open the Font dialog
+  A change was made in version 1.9.1, in response to issue #613, that could be affecting negatively when
+  executing KeyNote in Windows 8.1:
+
+  Fixed: Setting the font size with the Font dialog when using scaling settings other than 100% results in a larger font than expected
+  --
+  There is an issue with TFontDialog in Delphi when using scaling settings other than 100%. This issue can cause the selected font to
+  appear larger than expected.
+  The problem lies in how TFontDialog (and, in fact, the underlying Win32 ChooseFont API) handles DPI awareness.
+
+  I suspect that maybe the change made, which works perfectly in W10 and W11, might not be compatible with W8.1
+  On Issue #618 it is confirmed that the exception that appears when opening the Fonts dialog (in W8.1) does not occur
+  in version 1.9.0 (last version before the change)
+
+  Ref: #618, https://github.com/dpradov/keynote-nf/issues/618#issuecomment-2110784020
+
+- - -  
+* Fixed: Tree panel width could be reduced on restart (if it was wide enough)
+  KeyNote checks the width of the tree at startup to make sure it is > 30 and < Pages.Width-30,
+  but when this is done, the window has not yet been resized to its final size.
+  This verification is removed as it seems unnecessary.
+  Ref: #700
+  
+- - -
+* Fixed: "F1" key cannot be used for any shortcut
+  Now it can be used in combination with one or several modification key (ex: Alt+F1, Ctrl+F1, Shift+Ctrl+F1, ...)
+  Ref:  #703
