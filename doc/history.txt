@@ -3,6 +3,10 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 1.9.5.2  (18 may 2024)
+--------------------------
+* Fixed: New created folders didn't show tree panel (Patch on 1.9.5.1)
+
 v 1.9.5.1  (17 may 2024)
 --------------------------
 (Detailed info in doc\Changes in 1.9.5 .01.txt)
