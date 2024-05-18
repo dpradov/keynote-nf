@@ -427,31 +427,27 @@ begin
               Options := Options + [toFullRowSelect];
 
 
-            if myFolder.VerticalLayout then
-               Height := myFolder.TreeWidth
-            else
-               Width := myFolder.TreeWidth;
-          { 
-           // When this is checked, the window has not yet been resized to its final size.
-           // This verification is removed as it seems unnecessary.
+           // *1 Commented because: when this is checked, the window has not yet been resized to its final size.
+           //    This verification is removed as it seems unnecessary.
 
             if myFolder.VerticalLayout then begin
-              if (( myFolder.TreeWidth < 30 ) or
-                  ( myFolder.TreeWidth > ( Pages.Height - 30 ))) then
+              if ( myFolder.TreeWidth < 30 )
+                  // or ( myFolder.TreeWidth > ( Pages.Height - 30 )))   // *1
+              then
                 Height := ( Pages.Height DIV 3 )
               else
                 Height := myFolder.TreeWidth;
               myFolder.TreeWidth := Height; // store corrected value
             end
             else begin
-              if (( myFolder.TreeWidth < 30 ) or
-                  ( myFolder.TreeWidth > ( Pages.Width - 30 ))) then
+              if ( myFolder.TreeWidth < 30 )
+                 // or ( myFolder.TreeWidth > ( Pages.Width - 30 )))       // *1
+              then
                  Width := ( Pages.Width DIV 3 )
               else
                  Width := myFolder.TreeWidth;
               myFolder.TreeWidth := Width; // store corrected value
             end;
-          }
 
           end;
 
