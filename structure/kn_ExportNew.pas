@@ -1021,8 +1021,11 @@ begin
 
                   if ExportOptions.IncludeNodeHeadings then begin
                      NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), myNote.Name, myNote.Level+1, ThisNodeIndex, myFolder.TabSize );
-                     if ShowHiddenMarkers then
-                        NodeHeading:= Format('%s [%d]', [NodeHeading, myNote.ID]);
+                     if ShowHiddenMarkers then begin
+                        NodeHeading:= NodeHeading + Format(' [%u]', [myNote.GID]);
+                        if myNote.ID > 0 then
+                           NodeHeading:= NodeHeading + Format('(id:%d)', [myNote.ID]);
+                     end;
                      NodeHeadingTpl_Aux := '';
                      if ExportOptions.NodeLevelTemplates then
                         NodeHeadingTpl_Aux:= NodeLevelHeadingTpl[myNote.Level];
@@ -1278,7 +1281,7 @@ begin
     except
       on E : Exception do begin
          WasError := true;
-         messagedlg( STR_11 + E.Message, mtError, [mbOK], 0 );
+         App.ErrorPopup(E, STR_11);
       end;
     end;
 
