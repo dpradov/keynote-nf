@@ -1958,7 +1958,6 @@ procedure TKntFolder.NoNodeInTree;
 begin
    Editor.Clear;
    Editor.Enabled:= False;
-   App.EditorLoaded(Editor);
 end;
 
 procedure TKntFolder.NodeSelected(const Node: TTreeNTNode; const LastNodeSelected: TTreeNTNode);
@@ -2407,8 +2406,6 @@ begin
 
   FEditor.Enabled:= true;
   AfterEditorLoaded(SelecNote);
-
-  App.EditorLoaded(FEditor);
 
 end; // DataStreamToEditor
 

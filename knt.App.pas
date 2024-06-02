@@ -120,7 +120,6 @@ type
       property OnFolderSelected: TFolderSelectedEvent read FFolderSelected write FFolderSelected;
 
       procedure EditorFocused (Editor: TKntRichEdit);
-      procedure EditorLoaded (Editor: TKntRichEdit);
       procedure ChangeInEditor (Editor: TKntRichEdit);
       procedure NoteModified (Note: TKntNote; Folder: TKntFolder);
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
@@ -369,14 +368,6 @@ end;
 procedure TKntApp.EditorFocused (Editor: TKntRichEdit);
 begin
    EditorSelected(Editor, true);
-end;
-
-procedure TKntApp.EditorLoaded (Editor: TKntRichEdit);
-begin
-   if not assigned(Editor) then exit;
-
-   if (Editor.FolderObj = ActiveFolder) then
-      EditorSelected(Editor, false);
 end;
 
 
