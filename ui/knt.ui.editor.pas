@@ -170,6 +170,7 @@ type
     procedure CheckWordCount (cleanWC: boolean= false);
     procedure UpdateCursorPos;
     procedure GoToLine(const s : string);
+    procedure Navigate(NavDirection: TNavDirection);
     function GetStatistics (var numChars, numAlpChars, numWords: integer): string;
 
     function MakeKNTHiddenMarksVisible: boolean;
@@ -203,7 +204,7 @@ type
     procedure TryToDetectAndSolveHTMLtoRTFbadConv (posI: integer);
 
 
-    function CheckNotReadOnly: boolean;
+    function CheckReadOnly: boolean;
     procedure ArabicToRoman;
     procedure RomanToArabic;
 
@@ -1223,10 +1224,7 @@ begin
 
       VK_RETURN :
            if EditorOptions.AutoIndent and (Paragraph.TableStyle = tsNone) then begin
-              if ReadOnly then begin
-                App.WarnEditorIsReadOnly;
-                exit;
-              end;
+              if CheckReadOnly then exit;
 
               GetIndentInformation(Indent, NextIndent, LineStr, posFirstChar, true);
               if (Indent = length(LineStr)) and (Paragraph.Numbering <> nsNone) and (Paragraph.NumberingStyle <> nsNoNumber) then
@@ -1330,10 +1328,7 @@ begin
     exit;
   end;
 
-  if ReadOnly then begin
-     App.WarnEditorIsReadOnly;
-     exit;
-  end;
+  if CheckReadOnly then exit;
 
   posBegin:= 0;     // To avoid compiler warning on SelStart:= posBegin (but really no necessary)
 
@@ -2193,7 +2188,7 @@ begin
         NewZoom := strtoint( ZoomString );
       except
         on E : Exception do begin
-          messagedlg( STR_Zoom_01 + E.Message, mtError, [mbOK], 0 );
+          App.ErrorPopup(E, STR_Zoom_01);
           NewZoom := CurrentZoom;
         end;
       end;
@@ -2465,6 +2460,45 @@ begin
    Perform( EM_SCROLLCARET, 0, 0 );
 
 end; // GoToLine
+
+procedure TKntRichEdit.Navigate(NavDirection : TNavDirection);
+var
+  VKey : Word;
+  SBVal, ScrollVal, ScrollMsg : integer;
+begin
+
+  VKey := 0;
+  SBVal := SB_LINEDOWN;
+  ScrollVal := SB_VERT;
+  ScrollMsg := WM_VSCROLL;
+
+    case NavDirection of
+      navUp : begin
+        SBVal := SB_LINEUP;
+        ScrollVal := SB_VERT;
+        ScrollMsg := WM_VSCROLL;
+      end;
+      navDown : begin
+        SBVal := SB_LINEDOWN;
+        ScrollVal := SB_VERT;
+        ScrollMsg := WM_VSCROLL;
+      end;
+      navLeft : begin
+        SBVal := SB_LINELEFT;
+        ScrollVal := SB_HORZ;
+        ScrollMsg := WM_HSCROLL;
+      end;
+      navRight : begin
+        SBVal := SB_LINERIGHT;
+        ScrollVal := SB_HORZ;
+        ScrollMsg := WM_HSCROLL;
+      end;
+    end;
+
+    perform(ScrollMsg, MakeLong(SBVal, GetScrollPos(handle, ScrollVal)), 0);
+    perform(ScrollMsg, MakeLong(SB_ENDSCROLL, GetScrollPos(handle, ScrollVal)), 0);
+
+end; // Navigate
 
 
 function TKntRichEdit.GetStatistics (var numChars, numAlpChars, numWords: integer): string;
@@ -2928,16 +2962,15 @@ begin
 end;   // GetWordAtCursor
 
 
-function TKntRichEdit.CheckNotReadOnly: boolean;
+function TKntRichEdit.CheckReadOnly: boolean;
 begin
     Result:= False;
 
     if ReadOnly then begin
        App.WarnEditorIsReadOnly;
+       Result:= True;
        exit;
     end;
-
-    Result:= True;
 end;
 
 //----------------------------------------------------------------------------
@@ -2947,7 +2980,7 @@ var
   s : string;
   i : integer;
 begin
-  if not CheckNotReadOnly then exit;
+  if CheckReadOnly then exit;
 
   s := SelText;
   if (s = '') then
@@ -2962,7 +2995,7 @@ begin
     i := strtoint( s );
     s := DecToRoman( i );
   except
-    messagedlg( Format( STR_ConvDec_03, [s] ), mtError, [mbOK], 0 );
+    App.ErrorPopup(Format(STR_ConvDec_03, [s]));
     exit;
   end;
 
@@ -2976,7 +3009,7 @@ var
   s : string;
   i : integer;
 begin
-  if not CheckNotReadOnly then exit;
+  if CheckReadOnly then exit;
   i := -1;
 
   s := SelText;
@@ -2991,7 +3024,7 @@ begin
     s := AnsiUpperCase(trim(s));
     i := RomanToDec(s);
   except
-    messagedlg( Format( STR_ConvRoman_03, [s] ), mtError, [mbOK], 0 );
+    App.ErrorPopup(Format(STR_ConvRoman_03, [s]));
     exit;
   end;
 
@@ -3143,7 +3176,7 @@ var
 
 
 begin
-  if not CheckNotReadOnly then exit;
+  if CheckReadOnly then exit;
 
 
   if ( Lines.Count < 1 ) then exit;
@@ -3206,7 +3239,7 @@ var
   s : string;
 
 begin
-  if not CheckNotReadOnly then exit;
+  if CheckReadOnly then exit;
   if ( Lines.Count < 1 ) then exit;
 
   if ( SelLength = 0 ) then begin
@@ -3335,7 +3368,7 @@ begin
        end
        else
           if ( messagedlg( Format( STR_Eval_03, [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
-             if CheckNotReadOnly then begin
+             if not CheckReadOnly then begin
                SelStart := SelStart + SelLength;
                SelText := #32 + LastEvalExprResult;
              end;
@@ -3360,7 +3393,7 @@ var
   NewName: string;
 
 begin
-  if not CheckNotReadOnly then exit;
+  if CheckReadOnly then exit;
   if not SupportsImages then exit;
 
   wasmodified:= false;
@@ -3435,7 +3468,7 @@ end; // InsertPictureOrObject
 
 procedure TKntRichEdit.InsertSpecialCharacter;
 begin
-   if not CheckNotReadOnly then exit;
+   if CheckReadOnly then exit;
 
    if (Form_Chars = nil) then begin
       Form_Chars := TForm_CharsNew.Create( Form_Main );
@@ -3483,7 +3516,7 @@ var
   AnsiCh: AnsiChar;
 
 begin
-  if not CheckNotReadOnly then exit;
+  if CheckReadOnly then exit;
 
   try
     if FSupportsRegisteredImages then begin
@@ -3536,7 +3569,8 @@ begin
     Changed;
 
   except
-    App.WarnUnexpectedError;
+  on E: Exception do
+    App.ErrorPopup(E);
   end;
 
 end; // InsertChar
@@ -3572,7 +3606,7 @@ begin
       exit;
     end;
 
-    if not CheckNotReadOnly then exit;
+    if CheckReadOnly then exit;
 
     UpdateLastCommand( ecExpandTerm );
     if IsRecordingMacro then
@@ -3704,7 +3738,7 @@ var
   AJBSpell : TAJBSpell;
 
 begin
-  if not CheckNotReadOnly then exit;
+  if CheckReadOnly then exit;
 
   AJBSpell := TAJBSpell.Create( Form_Main );
 
@@ -3719,7 +3753,7 @@ begin
 
     except
       on E : Exception do
-        messagedlg( E.Message, mtError, [mbOK], 0 );
+         App.ErrorPopup(E);
     end;
 
   finally
@@ -3737,7 +3771,7 @@ var
   myWord, newWord : string;
 
 begin
-  if not CheckNotReadOnly then exit;
+  if CheckReadOnly then exit;
 
   if ShiftDown then
     myWord := ''
@@ -3758,7 +3792,7 @@ begin
     WordWeb := TFreeWordWeb.Create(Form_Main);
   except
     On E : Exception do begin
-      messagedlg( STR_WordWeb_03 + E.Message, mtError, [mbOK], 0 );
+      App.ErrorPopup(E, STR_WordWeb_03);
       exit;
     end;
   end;
@@ -3782,7 +3816,7 @@ begin
       On E : Exception do begin
         Form_Main.RTFMWordWeb.Enabled := false;
         Form_Main.TB_WordWeb.Enabled := false;
-        messagedlg( STR_WordWeb_03 + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, STR_WordWeb_03);
         exit;
       end;
     end;

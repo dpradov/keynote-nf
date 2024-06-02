@@ -107,7 +107,6 @@ uses
   kn_PluginsMng in 'plugins\kn_PluginsMng.pas',
   kn_PluginBase in 'plugins\kn_PluginBase.pas',
   kn_Plugins in 'plugins\kn_Plugins.pas',
-  kn_VirtualNodeMng in 'structure\kn_VirtualNodeMng.pas',
   kn_ExportImport in 'structure\kn_ExportImport.pas',
   kn_ExportNew in 'structure\kn_ExportNew.pas' {Form_ExportNew},
   kn_FileDropAction in 'structure\kn_FileDropAction.pas' {Form_DropFile},
@@ -124,7 +123,6 @@ uses
   kn_KntFolder in 'structure\kn_KntFolder.pas',
   kn_pass in 'structure\kn_pass.pas' {Form_Password},
   kn_TabSelect in 'structure\kn_TabSelect.pas' {Form_SelectTab},
-  kn_TreeNoteMng in 'structure\kn_TreeNoteMng.pas',
   kn_VirtualNodeForm in 'structure\kn_VirtualNodeForm.pas' {Form_VNode},
   {$IFNDEF EXCLUDEEMAIL}
   kn_SendMail in 'various\kn_SendMail.pas',
@@ -139,7 +137,8 @@ uses
   kn_DLLinterface in 'kn_DLLinterface.pas',
   kn_UpdateVersion in 'general\kn_UpdateVersion.pas' {UpdateVersion},
   kn_Main in 'kn_Main.pas' {Form_Main},
-  knt.App in 'knt.App.pas';
+  knt.App in 'knt.App.pas',
+  knt.ui.tree in 'ui\knt.ui.tree.pas' {KntTreeUI: TFrame};
 
 {$R *.RES}
 

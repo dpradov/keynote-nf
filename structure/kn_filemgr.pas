@@ -120,7 +120,7 @@ uses
    kn_info,
    kn_Global,
    kn_Chest,
-   kn_main;
+   knt.App;
 
 {$R *.DFM}
 
@@ -269,7 +269,7 @@ begin
     except
       on E : Exception do
       begin
-        DoMessageBox( STR_01 + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
+        App.DoMessageBox( STR_01 + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;

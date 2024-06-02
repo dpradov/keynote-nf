@@ -279,7 +279,6 @@ begin
        if (fCurrentKntFile = KntFile) and (Image.ID = fImageID) and ((Image.ReferenceCount > 0))  then begin
           Image.Caption:= txtCaption.Text;
           KntFile.Modified:= true;
-          UpdateKntFileState( [fscModified] );
           ok:= true;
        end;
     end;
@@ -290,7 +289,7 @@ begin
   if not ok then begin
      btnAlwaysVisible.Down:= false;
      btnAlwaysVisibleClick(nil);
-     kn_Main.DoMessageBox(STR_01, mtWarning, [mbOK], 0);
+     App.DoMessageBox(STR_01, mtWarning, [mbOK], 0);
   end;
 end;
 

@@ -44,7 +44,7 @@ procedure PasteIntoNew (const AsNewFolder: boolean);
 procedure PrintRTFNote;
 procedure EnableOrDisableUAS;
 procedure ConfigureUAS;
-
+procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit);
 
 type
    TClipCapMng = class
@@ -118,7 +118,7 @@ uses
    kn_Info,
    kn_ClipUtils,
    kn_LinksMng,
-   kn_TreeNoteMng,
+   knt.ui.tree,
    kn_VCLControlsMng,
    kn_MacroMng,
    knt.App
@@ -202,7 +202,7 @@ begin
 
             if Editor.ReadOnly then begin
                TB_ClipCap.Down := false;
-               PopupMessage( STR_ClipCap_01, mtInformation, [mbOK], 0 );
+               App.InfoPopup(STR_ClipCap_01);
                exit;
             end;
 
@@ -342,7 +342,7 @@ begin
 
    except
      On E : Exception do
-        App.WarnUnexpectedError(E);
+        App.ErrorPopup(E);
         //Log_StoreTick( 'WMDrawClipboard- Exception: '+ E.Message, 1);
    end;
 
@@ -637,9 +637,9 @@ begin
                  end;
 
                  if assigned( myParentNode ) then
-                    myTreeNode := TreeNewNode( Folder, tnAddChild, myParentNode, myNodeName, true )
+                    myTreeNode := Folder.TreeUI.NewNode(tnAddChild, myParentNode, myNodeName, true )
                  else
-                    myTreeNode := TreeNewNode( Folder, tnAddLast, nil, myNodeName, true );
+                    myTreeNode := Folder.TreeUI.NewNode(tnAddLast, nil, myNodeName, true );
 
               end
           end;
@@ -861,7 +861,7 @@ begin
            clnDateTime :  myNodeName:= FormatDateTime(FormatSettings.ShortDateFormat + #32 + FormatSettings.ShortTimeFormat, now );
         end;
 
-        myTreeNode := TreeNewNode(ActiveFolder, tnAddAfter, GetCurrentTreeNode, myNodeName, false );
+        myTreeNode := ActiveFolder.TreeUI.NewNode(tnAddAfter, GetCurrentTreeNode, myNodeName, false );
         CanPaste := assigned( myTreeNode );
       end;
     end;
@@ -1060,6 +1060,27 @@ begin
 
 end; // ConfigureUAS
 
+
+//=======================================================
+
+procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit);
+var
+  Encoding: TEncoding;
+begin
+   Encoding:= nil;
+   RTFAux.Clear;
+   RTFAux.StreamMode := [];
+
+   RTFAux.StreamFormat:= FromFormat;
+   RTFAux.Lines.LoadFromStream(Stream);
+   RTFAux.StreamFormat := ToFormat;
+
+   if (ToFormat = sfPlainText) and (not CanSaveAsANSI(RTFAux.Text)) then
+      Encoding:= TEncoding.UTF8;
+
+   Stream.Clear;
+   RTFAux.Lines.SaveToStream(Stream, Encoding);
+end;
 
 
 

@@ -118,7 +118,7 @@ uses
    dll_keyboard,
    kn_BookmarksMng,
    kn_StyleMng,
-   kn_TreeNoteMng,
+   knt.ui.tree,
    kn_NoteFileMng,
    kn_PluginsMng,
    kn_TemplateMng,
@@ -603,7 +603,7 @@ begin
 
   wasreadonly := Form_Main.FolderIsReadOnly(ActiveFolder, false);
   if wasreadonly then begin
-    if ( DoMessageBox( Format(STR_17,[ActiveFolder.Name]), mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
+    if ( App.DoMessageBox( Format(STR_17,[ActiveFolder.Name]), mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
        exit;
     ActiveFolder.ReadOnly := false;
   end;
@@ -639,12 +639,12 @@ begin
     try
       if ( not Macro.Load ) then begin
          if not IsAutorunMacro(aFileName) then
-            DoMessageBox( Format(STR_21, [Macro.FileName,Macro.LastError]), mtError, [mbOK], 0 );
+            App.ErrorPopup(Format(STR_21, [Macro.FileName,Macro.LastError]));
          exit;
       end;
 
       if ( Macro.Version.Major > _MACRO_VERSION_MAJOR ) then begin
-         DoMessageBox( Format(STR_22, [Macro.FileName]), mtError, [mbOK], 0 );
+         App.ErrorPopup(Format(STR_22, [Macro.FileName]));
          exit;
       end;
 
@@ -652,7 +652,7 @@ begin
 
     except
       On E : Exception do begin
-        messagedlg( E.message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E);
         exit;
       end;
     end;
@@ -680,7 +680,6 @@ begin
     SelectStatusbarGlyph( true );
     if wasreadonly then
       ActiveFolder.ReadOnly := true;
-    UpdateKntFileState( [fscModified] );
   end;
 
   try
@@ -709,7 +708,7 @@ begin
       exit;
 
     if ( not Macro.Load ) then begin
-      DoMessageBox(Format( STR_21, [Macro.FileName, Macro.LastError]), mtError, [mbOK], 0 );
+      App.ErrorPopup(Format(STR_21, [Macro.FileName, Macro.LastError]));
       Macro.Free;
       exit;
     end;
@@ -750,7 +749,7 @@ begin
           end;
 
           if ( not Macro.Save ) then begin
-            DoMessageBox( Format(STR_10, [Macro.FileName,Macro.LastError]), mtError, [mbOK], 0 );
+            App.ErrorPopup(Format(STR_10, [Macro.FileName,Macro.LastError]));
             exit;
           end;
         end;
@@ -782,7 +781,7 @@ begin
   Macro := GetCurrentMacro( true, index );
   if ( macro = nil ) then exit;
 
-  if ( DoMessageBox( Format(STR_26, [Macro.Name]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+  if ( App.DoMessageBox( Format(STR_26, [Macro.Name]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
      exit;
 
   DeleteSuccess := false;
@@ -792,7 +791,7 @@ begin
 
       if ( not deletefile( FilePath )) then begin
         DeleteSuccess := false;
-        DoMessageBox( Format(STR_27, [FilePath] ), mtError, [mbOK], 0);
+        App.ErrorPopup(Format(STR_27, [FilePath]));
         exit;
       end;
       Form_Main.ListBox_ResMacro.Items.Delete( index );
@@ -806,7 +805,7 @@ begin
     except
       on E : Exception do begin
         DeleteSuccess := false;
-        DoMessageBox( STR_28 + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, STR_28);
       end;
     end;
 
@@ -1429,7 +1428,7 @@ begin
     result := TMacro( Macro_List.Objects[i] )
   else
     if DoWarn then
-       DoMessageBox( Format( STR_40, [aName] ), mtError, [mbOK], 0 );
+       App.ErrorPopup(Format( STR_40, [aName]));
 
 end; // GetMacroByName
 
@@ -1556,7 +1555,7 @@ begin
       {$IFDEF KNT_DEBUG}
        Log.Add( 'ActiveEditor not assigned in PerformCmd (' + inttostr( ord( aCmd )) + ')' );
       {$ENDIF}
-       PopupMessage( Format( STR_44, [ord( aCmd )] ), mtError, [mbOK], 0 );
+       App.PopupMessage( Format( STR_44, [ord( aCmd )] ), mtError, [mbOK], 0 );
     end;
     exit;
   end;
@@ -1609,10 +1608,9 @@ begin
                errorStr:= STR_45
             else begin
               ActiveFolder.ReadOnly := (not ActiveFolder.ReadOnly);
-              UpdateFolderDisplay;
+              Form_Main.UpdateFolderDisplay;
               ActiveFolder.Editor.UpdateCursorPos;
-              ActiveFile.Modified := true;
-              UpdateKntFileState( [fscModified] );
+              ActiveFolder.Modified := true;
             end;
           end;
 
@@ -1692,7 +1690,7 @@ begin
          if NotImplemented then
             App.WarnCommandNotImplemented( EDITCMD_NAMES[aCMD] )
          else if errorStr <> '' then
-            PopupMessage( errorStr, mtError, [mbOK], 0 );
+            App.PopupMessage( errorStr, mtError, [mbOK], 0 );
          aCmd := ecNone;
       end
       else begin
@@ -1703,7 +1701,7 @@ begin
 
   except
       on E : Exception do begin
-        PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
+        App.PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
        {$IFDEF KNT_DEBUG}
         Log.Add( 'Exception in PerformCmdEx (' + inttostr( ord( aCMD )) + '): ' + E.Message );
        {$ENDIF}
@@ -1935,13 +1933,13 @@ begin
             if FontFormatToCopy.szFaceName <> '' then
                ApplyTextAttributes(FontFormatToCopy )
             else
-               PopupMessage( STR_52, mtError, [mbOK], 0 );
+               App.PopupMessage( STR_52, mtError, [mbOK], 0 );
 
           ecParaFormatPaste :
             if ParaFormatToCopy.dySpaceBefore >= 0 then   // if negative, user has not yet COPIED para format
                ApplyParagraphAttributes(ParaFormatToCopy)
             else
-               PopupMessage( STR_53, mtError, [mbOK], 0 );
+               App.PopupMessage( STR_53, mtError, [mbOK], 0 );
 
           ecPasteFormat : begin
              if (ParaFormatToCopy.dySpaceBefore >= 0) and         // paragraph formatting was saved
@@ -2180,7 +2178,7 @@ begin
 
              WordWrap := wwActive;
              if assigned(Folder) then begin
-               UpdateFolderDisplay;
+               Form_Main.UpdateFolderDisplay;
                if (Editor.PlainText) then
                   Folder.UpdateEditor (false);
              end;
@@ -2462,7 +2460,7 @@ begin
 
       except
         on E : Exception do begin
-          PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
+          App.PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
          {$IFDEF KNT_DEBUG}
           Log.Add( 'Exception in PerformCmd (' + inttostr( ord( aCMD )) + '): ' + E.Message );
          {$ENDIF}
@@ -2766,20 +2764,14 @@ begin
        end
     end
     else begin
-        if not assigned(ActiveFolder) then exit;
-
-        if ActiveFolder.TV.IsEditing then begin
-           if Form_Main.FolderIsReadOnly(ActiveFolder, true ) then
+        if not assigned(ActiveTreeUI) then exit;
+        if ActiveTreeUI.IsEditing then begin
+           if ActiveTreeUI.CheckReadOnly then
               executed:= true;
         end
-        else if ActiveFolder.TV.Focused then begin
+        else if ActiveTreeUI.Focused then begin
            executed:= true;
-           if assigned(MovingTreeNode) then begin
-              if MoveSubtree( MovingTreeNode ) then
-                 MovingTreeNode:= nil;
-           end
-           else
-              TreeTransferProc(1, nil, KeyOptions.ConfirmTreePaste, false, false );  // Graft Subtree
+           ActiveTreeUI.PasteSubtree;
         end;
     end;
 
@@ -2797,15 +2789,13 @@ begin
        PerformCmdEx(ecCopy);
     end
     else begin
-        if not assigned(ActiveFolder) then exit;
-        if ActiveFolder.TV.IsEditing then begin
-           executed:= false;       // will be managed by the TreeNT component
+        if not assigned(ActiveTreeUI) then exit;
+        if ActiveTreeUI.IsEditing then begin
+           executed:= false;       // will be managed by the Tree component
         end
-        else if ActiveFolder.TV.Focused then begin
+        else if ActiveTreeUI.Focused then begin
            executed:= true;
-           MovingTreeNode:= nil;
-           CopyCutFromFolderID:= ActiveFolder.ID;
-           TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste, false, false );  // Lift Subtree
+           ActiveFolder.TreeUI.TreeTransferProc(ttCopy, KeyOptions.ConfirmTreePaste, false, false );  // Lift Subtree
         end;
     end;
     Result:= Executed;
@@ -2822,14 +2812,12 @@ begin
        PerformCmd(ecCut);
     end
     else begin
-        if not assigned(ActiveFolder) then exit;
-        if ActiveFolder.TV.IsEditing then begin
+        if not assigned(ActiveTreeUI) then exit;
+        if ActiveTreeUI.IsEditing then begin
            executed:= false;     // will be managed by the TreeNT component
         end
-        else if ActiveFolder.TV.Focused then begin
-             MovingTreeNode:= ActiveFolder.TV.Selected;
-             CopyCutFromFolderID:= ActiveFolder.ID;
-             TreeTransferProc(0, nil, KeyOptions.ConfirmTreePaste, false, false );  // Lift Subtree
+        else if ActiveTreeUI.Focused then begin
+             ActiveTreeUI.TreeTransferProc(ttCopy, KeyOptions.ConfirmTreePaste, false, true );  // Copy Subtree for moving
              executed:= true;
         end;
     end;

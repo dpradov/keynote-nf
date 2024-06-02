@@ -177,7 +177,6 @@ type
     function GetFolderByTabIndex(TabIdx: integer): TKntFolder;
 
     procedure SetupMirrorNodes (Folder : TKntFolder);
-    procedure ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
 
     procedure UpdateTextPlainVariables (nMax: integer);
     procedure UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToFolder: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
@@ -204,7 +203,7 @@ uses
    gf_strings,
    gf_files,
 
-   kn_TreeNoteMng,
+   knt.ui.tree,
    kn_Global,
    kn_Main,
    kn_EditorUtils,
@@ -274,7 +273,6 @@ end; // CREATE
 
 destructor TKntFile.Destroy;
 begin
-  FFileName:= '<DESTROYING>';       // This way I'll know file is closing
   if assigned( FFolders ) then FFolders.Free;
   FFolders := nil;
   inherited Destroy;
@@ -633,7 +631,7 @@ begin
      FFileName := FN;
 
   if ( not FileExists( FN )) then begin
-     DoMessageBox(Format( STR_01, [FN] ), mtError, [mbOK], 0);
+     App.DoMessageBox(Format( STR_01, [FN] ), mtError, [mbOK], 0);
      raise Exception.Create('');
   end;
 
@@ -693,7 +691,7 @@ begin
     end
 {$ENDIF}
     else begin
-      DoMessageBox(Format( STR_02, [FN] ), mtError, [mbOK], 0);
+      App.DoMessageBox(Format( STR_02, [FN] ), mtError, [mbOK], 0);
       raise Exception.Create('');
       exit;
     end;
@@ -775,12 +773,12 @@ begin
 
                  if (( VerID.Major in ['0'..'9'] ) and ( VerID.Minor in ['0'..'9'] )) then begin
                     if ( VerID.Major > NFILEVERSION_MAJOR ) then begin
-                       DoMessageBox(Format( STR_05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK], 0);
+                       App.DoMessageBox(Format( STR_05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK], 0);
                        raise EKeyKntFileError.Create('');
                     end;
 
                     if ( VerID.Minor > NFILEVERSION_MINOR ) then begin
-                       case DoMessageBox( ExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
+                       case App.DoMessageBox( ExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
                          mrNo : begin
                            // nothing, just fall through
                          end;
@@ -801,7 +799,7 @@ begin
             FileIDTestFailed := false;
 
           if FileIDTestFailed then begin
-            DoMessageBox(Format( STR_07, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
+            App.DoMessageBox(Format( STR_07, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
             raise EKeyKntFileError.Create('');
           end;
 
@@ -1135,7 +1133,7 @@ var
       except
         on E : Exception do begin
             result := 3;
-            DoMessageBox( Format(STR_13, [myFolder.Name, E.Message]), mtError, [mbOK], 0 );
+            App.DoMessageBox( Format(STR_13, [myFolder.Name, E.Message]), mtError, [mbOK], 0 );
             exit;
         end;
       end;
@@ -1731,123 +1729,17 @@ end;
 
 procedure TKntFile.SetupMirrorNodes (Folder : TKntFolder);
 var
-  Node, Mirror : TTreeNTNode;
-  p: integer;
-
-  procedure SetupTreeNote;
-  begin
-    Node := Folder.TV.Items.GetFirstNode;
-    while assigned( Node ) do begin // go through all nodes
-        if assigned(Node.Data) and (TKntNote(Node.Data).VirtualMode= vmKNTNode) then begin
-           TKntNote(Node.Data).LoadMirrorNode;
-           Mirror:= TKntNote(Node.Data).MirrorNode;
-           if assigned(Mirror) then
-              AddMirrorNode(Mirror, Node)
-           else
-              SelectIconForNode( Node, Folder.IconKind);
-        end;
-        Node := Node.GetNext; // select next node to search
-    end;
-
-    if (Folder = ActiveFolder) and assigned(Folder.TV.Selected)
-         and (TKntNote(Folder.TV.Selected.Data).VirtualMode = vmKNTNode) then
-       Folder.DataStreamToEditor;
-  end;
-
+  i: integer;
 begin
     if assigned(Folder) then
-       SetupTreeNote
+       Folder.TreeUI.SetupMirrorNodes
     else
-       for p := 0 to pred( Folders.Count ) do begin
-          Folder := Folders[p];
-          SetupTreeNote;
+       for i := 0 to pred( Folders.Count ) do begin
+          Folder := Folders[i];
+          Folder.TreeUI.SetupMirrorNodes
        end;
 end;
 
-
-procedure TKntFile.ManageMirrorNodes(Action: integer; node: TTreeNTNode; targetNode: TTreeNTNode);
-var
-    nonVirtualTreeNode, newNonVirtualTreeNode: TTreeNTNode;
-    i: integer;
-    myNote: TKntNote;
-
-    p: Pointer;
-    o: TObject;
-    NodesVirtual: TList;
-
-    procedure ManageVirtualNode (NodeVirtual: TTreeNTNode);
-    begin
-       if not assigned(NodeVirtual) then exit;
-       myNote:= NodeVirtual.Data;
-       if not assigned(myNote) then exit;
-       case Action of
-          1: myNote.MirrorNode:= targetNode;
-
-          2: if NodeVirtual <> node then
-                ChangeCheckedState(TTreeNT(NodeVirtual.TreeView), NodeVirtual, (node.CheckState = csChecked), true);
-
-          3: if not assigned(newNonVirtualTreeNode) then begin
-                newNonVirtualTreeNode:= NodeVirtual;
-                myNote.MirrorNode:= nil;
-                TKntNote(node.Data).Stream.SaveToStream(myNote.Stream);
-              end
-              else
-                myNote.MirrorNode:= newNonVirtualTreeNode;
-       end;
-    end;
-
-begin
-   if not assigned(node) or not assigned(node.Data) then exit;
-
-  // 1: Moving node to targetNode
-  // 2: Changed checked state of node
-  // 3: Deleting node
-  try
-      myNote:= TKntNote(node.Data);
-      if myNote.VirtualMode = vmKNTNode then begin
-          nonVirtualTreeNode:= myNote.MirrorNode;
-          if not assigned(nonVirtualTreeNode) then exit;
-          case Action of
-            1: exit;
-            2: ChangeCheckedState(TTreeNT(nonVirtualTreeNode.TreeView), nonVirtualTreeNode, (node.CheckState = csChecked), true);
-            3: begin
-               RemoveMirrorNode(nonVirtualTreeNode, Node);
-               exit;
-               end;
-          end;
-      end
-      else
-          nonVirtualTreeNode:= node;
-
-      p:= GetMirrorNodes(nonVirtualTreeNode);
-      if assigned(p) then begin
-         newNonVirtualTreeNode:= nil;
-         o:= p;
-         if o is TTreeNTNode then
-            ManageVirtualNode(TTreeNTNode(p))
-         else begin
-           NodesVirtual:= p;
-           for i := 0 to pred( NodesVirtual.Count ) do
-              ManageVirtualNode(NodesVirtual[i]);
-         end;
-         case Action of
-            1: ReplaceNonVirtualNote(nonVirtualTreeNode, targetNode);
-            3: begin
-                 if assigned(newNonVirtualTreeNode) and assigned(newNonVirtualTreeNode.Data) then begin
-                   RemoveMirrorNode(nonVirtualTreeNode, newNonVirtualTreeNode);
-                   ReplaceNonVirtualNote(nonVirtualTreeNode, newNonVirtualTreeNode);
-                   SelectIconForNode( newNonVirtualTreeNode, GetFolderByTreeNode(newNonVirtualTreeNode).IconKind);
-                 end;
-               end;
-         end;
-      end;
-      if (Action = 3) then
-         AlarmMng.RemoveAlarmsOfNode(TKntNote(nonVirtualTreeNode.Data));
-
-  finally
-  end;
-
-end;
 
 procedure TKntFile.UpdateTextPlainVariables (nMax: integer);
 var

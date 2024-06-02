@@ -3,7 +3,7 @@ object Form_Main: TForm_Main
   Top = 178
   HelpContext = 2
   Caption = 'KeyNote'
-  ClientHeight = 713
+  ClientHeight = 733
   ClientWidth = 1042
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -28,7 +28,7 @@ object Form_Main: TForm_Main
   object Splitter_Res: TSplitter
     Left = 729
     Top = 54
-    Height = 614
+    Height = 634
     Hint = 'Click and drag to resize panels'
     Align = alRight
     Color = clBtnFace
@@ -40,7 +40,7 @@ object Form_Main: TForm_Main
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 694
+    Top = 714
     Width = 1042
     Height = 19
     Panels = <
@@ -68,7 +68,7 @@ object Form_Main: TForm_Main
       end>
     OnDblClick = StatusBarDblClick
     OnDrawPanel = StatusBarDrawPanel
-    ExplicitTop = 693
+    ExplicitTop = 713
     ExplicitWidth = 1038
   end
   object Dock_Top: TDock97
@@ -97,12 +97,11 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Enabled = False
+        Action = actFileSave
+        DisplayMode = dmGlyphOnly
         Glyph.Data = {00000000}
         GlyphMask.Data = {00000000}
-        ImageIndex = 2
         Images = IMG_Toolbar
-        OnClick = MMFileSaveClick
       end
       object TB_FileNew: TToolbarButton97
         Left = 0
@@ -198,7 +197,7 @@ object Form_Main: TForm_Main
         ImageIndex = 9
         Images = IMG_Toolbar
         Visible = False
-        OnClick = MMNoteRemoveClick
+        OnClick = MMFolderRemoveClick
       end
       object sm5: TToolbarSep97
         Left = 306
@@ -1027,7 +1026,7 @@ object Form_Main: TForm_Main
     Left = 9
     Top = 54
     Width = 720
-    Height = 614
+    Height = 634
     HelpContext = 282
     AllowTabShifting = True
     Align = alClient
@@ -1053,24 +1052,24 @@ object Form_Main: TForm_Main
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
     ExplicitWidth = 716
-    ExplicitHeight = 613
+    ExplicitHeight = 633
   end
   object Dock_Left: TDock97
     Left = 0
     Top = 54
     Width = 9
-    Height = 614
+    Height = 634
     LimitToOneRow = True
     Position = dpLeft
-    ExplicitHeight = 613
+    ExplicitHeight = 633
   end
   object Dock_Bottom: TDock97
     Left = 0
-    Top = 668
+    Top = 688
     Width = 1042
     Height = 26
     Position = dpBottom
-    ExplicitTop = 667
+    ExplicitTop = 687
     ExplicitWidth = 1038
     object Toolbar_Tree: TToolbar97
       Tag = 4
@@ -1243,7 +1242,7 @@ object Form_Main: TForm_Main
     Left = 732
     Top = 54
     Width = 310
-    Height = 614
+    Height = 634
     Hint = 'Right-click for resource panel options'
     ActivePage = ResTab_Find
     Align = alRight
@@ -1261,7 +1260,7 @@ object Form_Main: TForm_Main
     TabOrder = 2
     OnChange = Pages_ResChange
     ExplicitLeft = 728
-    ExplicitHeight = 613
+    ExplicitHeight = 633
     object ResTab_Find: TTab95Sheet
       HelpType = htKeyword
       HelpKeyword = '479-5'
@@ -1270,6 +1269,7 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitHeight = 605
       object Panel_ResFind: TPanel
         Left = 0
         Top = 0
@@ -1399,7 +1399,7 @@ object Form_Main: TForm_Main
         Left = 0
         Top = 81
         Width = 302
-        Height = 505
+        Height = 525
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -1409,6 +1409,7 @@ object Form_Main: TForm_Main
         PageIndex = 1
         ParentFont = False
         TabOrder = 1
+        ExplicitHeight = 524
         object PAGE_RES_FIND: TPage
           Left = 0
           Top = 0
@@ -1419,7 +1420,7 @@ object Form_Main: TForm_Main
             Left = 0
             Top = 0
             Width = 302
-            Height = 505
+            Height = 525
             DrawEndPage = False
             Align = alClient
             AllowInPlace = False
@@ -1442,6 +1443,7 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
+          ExplicitHeight = 524
           object CB_ResFind_CaseSens: TCheckBox
             Left = 10
             Top = 15
@@ -1594,7 +1596,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 585
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object ResTab_Macro: TTab95Sheet
       HelpContext = 304
@@ -1603,6 +1608,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Dock_ResMacro: TDock97
         Left = 0
         Top = 0
@@ -1674,7 +1683,7 @@ object Form_Main: TForm_Main
         Left = 0
         Top = 26
         Width = 302
-        Height = 560
+        Height = 580
         Hint = 'Double-click to run macro; right-click for menu'
         ImageList = IMG_Toolbar
         CheckBoxes = False
@@ -1700,11 +1709,15 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListBox_ResTpl: TGFXListBox
         Left = 0
         Top = 0
         Width = 302
-        Height = 586
+        Height = 606
         Hint = 'Double-click to insert template; right-click for menu'
         ImageList = IMG_Toolbar
         CheckBoxes = False
@@ -1730,9 +1743,13 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter_plugins: TSplitter
         Left = 0
-        Top = 530
+        Top = 550
         Width = 302
         Height = 3
         Cursor = crVSplit
@@ -1800,7 +1817,7 @@ object Form_Main: TForm_Main
         Left = 0
         Top = 26
         Width = 302
-        Height = 504
+        Height = 524
         Hint = 'Double-click to run plugin; right-click for menu'
         ImageList = IMG_Toolbar
         CheckBoxes = False
@@ -1820,7 +1837,7 @@ object Form_Main: TForm_Main
       end
       object Panel_ResPlugins: TPanel
         Left = 0
-        Top = 533
+        Top = 553
         Width = 302
         Height = 53
         Align = alBottom
@@ -1851,11 +1868,15 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListBox_ResFav: TGFXListBox
         Left = 0
         Top = 0
         Width = 302
-        Height = 586
+        Height = 606
         Hint = 'Double-click to jump; right-click for menu'
         ImageList = Img_System
         CheckBoxes = False
@@ -1873,6 +1894,257 @@ object Form_Main: TForm_Main
         OnClick = ListBox_ResFavClick
         OnDblClick = FavMJumpClick
       end
+    end
+  end
+  object actList_TV: TActionList
+    Images = IMG_Toolbar
+    Left = 448
+    Top = 464
+    object actTVAlarmNode: TAction
+      Caption = 'Set alarm on node...'
+      HelpContext = 567
+      Hint = 'Set or remove alarm on node'
+      ImageIndex = 50
+      OnExecute = actTVAlarmNodeExecute
+    end
+    object actTVAddNode_Above: TAction
+      Caption = 'Add &Above'
+      Hint = 'Insert a Sibling node Above the selected one'
+      OnExecute = actTVAddNode_AboveExecute
+    end
+    object actTVAddNode_Child: TAction
+      Caption = 'Add &Child'
+      Hint = 'Add a Child node of selected one'
+      OnExecute = actTVAddNode_ChildExecute
+    end
+    object actTVAddNode_Below: TAction
+      Caption = 'Add B&elow'
+      Hint = 'Add a Sibling node immediately Below selected one'
+      OnExecute = actTVAddNode_BelowExecute
+    end
+    object actTVAddNode_Last: TAction
+      Caption = 'Add &Last sibling'
+      Hint = 'Add a Sibling node in the bottom (Last)'
+      OnExecute = actTVAddNode_LastExecute
+    end
+    object actTVHideCheckedChildren: TAction
+      Caption = 'Hide &Checked'
+      Hint = 'Hide checked children of selected node'
+      OnExecute = actTVHideCheckedChildrenExecute
+    end
+    object actTVHideUncheckedChildren: TAction
+      Caption = 'Hide &Unchecked'
+      Hint = 'Hide unchecked children of selected node'
+      OnExecute = actTVHideUncheckedChildrenExecute
+    end
+    object actTVShowNonFilteredChildren: TAction
+      Caption = '&Show non filtered'
+      Hint = 'Show hidden children of selected node, non filtered by search'
+      OnExecute = actTVShowNonFilteredExecute
+    end
+    object actTVBoldNode: TAction
+      Caption = '&Bold'
+      Hint = 'Make selected tree node bold'
+      OnExecute = actTVBoldNodeExecute
+    end
+    object actTVNodeTextColor: TAction
+      Caption = 'Tree &node Text...'
+      Hint = 'Select custom color for tree node text'
+      OnExecute = actTVNodeTextColorExecute
+    end
+    object actTVNodeBGColor: TAction
+      Caption = 'Tree node &Background...'
+      Hint = 'Select custom color for tree node background'
+      OnExecute = actTVNodeBGColorExecute
+    end
+    object actTVDefaultNodeFont: TAction
+      Caption = '&Reset to Default'
+      Hint = 'Reset node color and font face to default'
+      OnExecute = actTVDefaultNodeFontExecute
+    end
+    object actTVVirtualNode: TAction
+      Caption = 'Make &Virtual'
+      Hint = 'Link a file on disk to selected node'
+      OnExecute = actTVVirtualNodeExecute
+    end
+    object actTVInsertMirrorNode: TAction
+      Caption = 'Insert &Mirror node'
+      HelpContext = 383
+      Hint = 
+        'Insert duplicate node as mirror node (virtual node linked to ano' +
+        'ther KeyNote node)'
+      OnExecute = actTVInsertMirrorNodeExecute
+    end
+    object actTVMoveNodeUp: TAction
+      Caption = '&Up'
+      Hint = 'Move node UP'
+      OnExecute = actTVMoveNodeUpExecute
+    end
+    object actTVMoveNodeDown: TAction
+      Caption = '&Down'
+      Hint = 'Move node DOWN'
+      OnExecute = actTVMoveNodeDownExecute
+    end
+    object actTVMoveNodeLeft: TAction
+      Caption = '&Left'
+      Hint = 'Shift node LEFT by 1 level'
+      OnExecute = actTVMoveNodeLeftExecute
+    end
+    object actTVMoveNodeRight: TAction
+      Caption = '&Right'
+      Hint = 'Shift node RIGHT by 1 level'
+      OnExecute = actTVMoveNodeRightExecute
+    end
+    object actTVCutSubtree: TAction
+      Caption = 'C&ut Subtree'
+      Hint = 
+        'Cut selected node and its children (to move with Paste) (Ctrl+X,' +
+        ' Shift+Supr)'
+      OnExecute = actTVCutSubtreeExecute
+    end
+    object actTVCopySubtree: TAction
+      Caption = '&Copy Subtree'
+      Hint = 'Copy selected node and its children (Ctrl+C, Ctrl+Ins)'
+      OnExecute = actTVCopySubtreeExecute
+    end
+    object actTVGraftSubtree: TAction
+      Caption = '&Paste Subtree Here'
+      Hint = 
+        'Paste previously copied nodes at selected position (Ctrl+V, Shif' +
+        't+Ins)'
+      OnExecute = actTVPasteSubtreeExecute
+    end
+    object actTVGraftSubtreeMirror: TAction
+      Caption = 'Paste Subtree Here as &Mirror'
+      Hint = 
+        'Paste previously copied nodes at selected position as mirror nod' +
+        'es'
+      OnExecute = actTVPasteSubtreeMirrorExecute
+    end
+    object actTVEraseTreeMem: TAction
+      Caption = '&Erase Memory'
+      Hint = 'Forget previously copied nodes'
+      OnExecute = actTVEraseTreeMemExecute
+    end
+    object actTVExport: TAction
+      Caption = 'E&xport...'
+      HelpContext = 313
+      Hint = 'Export node contents to file'
+      OnExecute = actTVExportExecute
+    end
+    object actTVDeleteNode: TAction
+      Caption = '&Delete Node'
+      Hint = 'Delete selected node'
+      OnExecute = actTVDeleteNodeExecute
+    end
+    object actTVDeleteChildren: TAction
+      Caption = 'Delete C&hildren'
+      Hint = 'Delete child nodes of selected node'
+      OnExecute = actTVDeleteChildrenExecute
+    end
+    object actTVRenameNode: TAction
+      Caption = '&Rename Node'
+      Hint = 'Rename node'
+      OnExecute = actTVRenameNodeExecute
+    end
+    object actTVCopyNodeName: TAction
+      Caption = '&Node Name'
+      Hint = 'Copy node name to clipboard'
+      OnExecute = actTVCopyNodeNameExecute
+    end
+    object actTVCopyNodePath: TAction
+      Caption = 'Node &Path'
+      Hint = 'Copy full node path to clipboard'
+      OnExecute = actTVCopyNodePathExecute
+    end
+    object actTVCopyNodeText: TAction
+      Caption = 'Node &Text'
+      Hint = 'Copy full contents of node to clipboard'
+      OnExecute = actTVCopyNodeTextExecute
+    end
+    object actTVCopyPathtoEditor: TAction
+      Caption = 'Path to &Editor'
+      Hint = 'Insert full node path in editor'
+      OnExecute = actTVCopyPathtoEditorExecute
+    end
+    object actTVPasteNodeName: TAction
+      Caption = 'From &Clipboard'
+      Hint = 'Use clipboard contents as selected node name'
+      OnExecute = actTVPasteNodeNameExecute
+    end
+    object actTVPasteNodeNameAsDate: TAction
+      Tag = 1
+      Caption = 'As &Date'
+      Hint = 'Use current date as selected node name'
+      OnExecute = actTVPasteNodeNameExecute
+    end
+    object actTVPasteNodeNameAsTime: TAction
+      Tag = 2
+      Caption = 'As &Time'
+      Hint = 'Use current time as selected node name'
+      OnExecute = actTVPasteNodeNameExecute
+    end
+    object actTVPasteNodeNameAsDateTime: TAction
+      Tag = 3
+      Caption = '&As Date and Time'
+      Hint = 'Use current date and time as selected node name'
+      OnExecute = actTVPasteNodeNameExecute
+    end
+    object actTVPasteNodeNameAsSel: TAction
+      Tag = 4
+      Caption = 'From &Selected Text'
+      Hint = 'Rename node using selected text'
+      OnExecute = actTVPasteNodeNameExecute
+    end
+    object actTVSortSubtree: TAction
+      Caption = '&Sort Subtree'
+      Hint = 'Sort children of current node'
+      OnExecute = actTVSortSubtreeExecute
+    end
+    object actTVSortTree: TAction
+      Caption = 'Sort Entire &Tree'
+      Hint = 'Sort all nodes in tree'
+      OnExecute = actTVSortTreeExecute
+    end
+  end
+  object actList_TVs: TActionList
+    OnUpdate = actList_TVsUpdate
+    Left = 512
+    Top = 464
+    object actTVCheckNode: TAction
+      Caption = 'Ch&ecked'
+      Hint = 'Check or uncheck selected node'
+      OnExecute = actTVCheckNodeExecute
+    end
+    object actTVRefreshVirtualNode: TAction
+      Caption = 'Re&fresh'
+      Hint = 'Refresh contents from original file on disk'
+      OnExecute = actTVRefreshVirtualNodeExecute
+    end
+    object actTVNavigateNonVirtualNote: TAction
+      Caption = 'Navigate to &Non Virtual'
+      HelpContext = 383
+      Hint = 
+        'Navigate to the non virtual node to wich this mirror node is lin' +
+        'ked'
+      OnExecute = actTVNavigateNonVirtualNoteExecute
+    end
+    object actTVUnlinkVirtualNode: TAction
+      Caption = '&Unlink Node'
+      Hint = 
+        'Unlink the virtual node from file on disk or non virtual node (m' +
+        'irror nodes)'
+      OnExecute = actTVUnlinkVirtualNodeExecute
+    end
+    object actTVChildrenCheckbox: TAction
+      Caption = 'Show Check&boxes'
+      Hint = 'Show or hide Checkboxes in children of selected node'
+      OnExecute = actTVChildrenCheckboxExecute
+    end
+    object actTVSelectNodeImage: TAction
+      Caption = 'C&ustom icon...'
+      Hint = 'Choose custom icon for selected node'
+      OnExecute = actTVSelectNodeImageExecute
     end
   end
   object Menu_Main: TMainMenu
@@ -1899,11 +2171,8 @@ object Form_Main: TForm_Main
         OnClick = MMFileOpenClick
       end
       object MMFileSave: TMenuItem
-        Caption = '&Save'
-        Hint = 'Save Keynote file'
-        ImageIndex = 2
+        Action = actFileSave
         ShortCut = 16467
-        OnClick = MMFileSaveClick
       end
       object MMFileSaveAs: TMenuItem
         Caption = 'Save &As...'
@@ -2986,11 +3255,11 @@ object Form_Main: TForm_Main
       object N2: TMenuItem
         Caption = '-'
       end
-      object MMNoteRemove: TMenuItem
+      object MMFolderRemove: TMenuItem
         Caption = 'R&emove Folder'
         Hint = 'Delete current folder'
         ImageIndex = 9
-        OnClick = MMNoteRemoveClick
+        OnClick = MMFolderRemoveClick
       end
       object N27: TMenuItem
         Caption = '-'
@@ -3046,49 +3315,37 @@ object Form_Main: TForm_Main
       Hint = 'Tree-related commands'
       object MMAddTreeNode_: TMenuItem
         Caption = '&Add Tree Node'
-        object MMTreeInsert_: TMenuItem
-          Caption = 'Add &Above'
-          Hint = 'Insert a Sibling node Above the selected one'
-          OnClick = TVInsertNodeClick
+        object MMTreeAddNode_Above: TMenuItem
+          Action = actTVAddNode_Above
         end
-        object MMTreeAddChild_: TMenuItem
-          Caption = 'Add &Child'
-          Hint = 'Add a Child node of selected one'
-          OnClick = TVAddChildNodeClick
+        object MMTreeAddNode_Child: TMenuItem
+          Action = actTVAddNode_Child
         end
-        object MMTreeAddSibling_: TMenuItem
-          Caption = 'Add &Below'
-          Hint = 'Add a Sibling node immediately Below selected one'
-          OnClick = TVAddSiblingClick
+        object MMTreeAddNode_Below: TMenuItem
+          Action = actTVAddNode_Below
         end
-        object MMTreeAdd_: TMenuItem
-          Caption = 'Add &Last sibling'
-          Hint = 'Add a Sibling node in the bottom (Last)'
-          OnClick = TVAddNodeClick
+        object MMTreeAddNode_Last: TMenuItem
+          Action = actTVAddNode_Last
         end
       end
       object MMMovenode_: TMenuItem
         Caption = '&Move Node'
         Hint = 'Move selected node in tree'
         object MMTreeMoveNodeUp_: TMenuItem
+          Action = actTVMoveNodeUp
           Caption = 'Move Node &Up'
-          Hint = 'Shift node up'
-          OnClick = TVMoveNodeUpClick
         end
         object MMTreeMoveNodeDown_: TMenuItem
+          Action = actTVMoveNodeDown
           Caption = 'Move Node &Down'
-          Hint = 'Shift node down'
-          OnClick = TVMoveNodeDownClick
         end
         object MMTreeMoveNodeLeft_: TMenuItem
+          Action = actTVMoveNodeLeft
           Caption = 'Move Node &Left'
-          Hint = 'Shift node left by 1 level'
-          OnClick = TVMoveNodeLeftClick
         end
         object MMTreeMoveNodeRight_: TMenuItem
+          Action = actTVMoveNodeRight
           Caption = 'Move Node &Right'
-          Hint = 'Shift node right by 1 level'
-          OnClick = TVMoveNodeRightClick
         end
       end
       object MMTreeMasterNode: TMenuItem
@@ -3146,56 +3403,40 @@ object Form_Main: TForm_Main
         Caption = '-'
       end
       object MMTreeNodeDelete_: TMenuItem
-        Caption = '&Delete Node'
-        Hint = 'Delete selected node'
-        OnClick = TVDeleteNodeClick
+        Action = actTVDeleteNode
       end
       object MMTreeDeleteSubtree_: TMenuItem
-        Caption = 'Delete C&hild Nodes'
-        Hint = 'Delete children of selected node'
-        OnClick = TVDeleteChildrenClick
+        Action = actTVDeleteChildren
       end
       object N34: TMenuItem
         Caption = '-'
       end
       object MMTreeNodeRename_: TMenuItem
-        Caption = '&Rename Node'
-        Hint = 'Rename node'
-        OnClick = MMRenamenodeClick
+        Action = actTVRenameNode
       end
       object MMNodePaste_: TMenuItem
         Caption = '&Paste Node Name'
         Hint = 'Rename node from clipboard'
         object MMTreeNodeNamePaste: TMenuItem
-          Caption = 'From &Clipboard'
-          Hint = 'Use clipboard contents as node name'
-          OnClick = TVPasteNodeNameClick
+          Action = actTVPasteNodeName
         end
         object N61: TMenuItem
           Caption = '-'
         end
         object MMTreeNodeNameAsDate: TMenuItem
-          Caption = 'As &Date'
-          Hint = 'Use current date as node name_'
-          OnClick = TVPasteNodeNameClick
+          Action = actTVPasteNodeNameAsDate
         end
         object MMTreeNodeNameAsTime: TMenuItem
-          Caption = 'As &Time'
-          Hint = 'Use current time as node name'
-          OnClick = TVPasteNodeNameClick
+          Action = actTVPasteNodeNameAsTime
         end
         object MMTreeNodeNameAsDateTime: TMenuItem
-          Caption = '&As Date and Time'
-          Hint = 'Use current date and time as node name'
-          OnClick = TVPasteNodeNameClick
+          Action = actTVPasteNodeNameAsDateTime
         end
         object N82: TMenuItem
           Caption = '-'
         end
         object MMTreeNodeNameAsSel: TMenuItem
-          Caption = 'From &Selected Text'
-          Hint = 'Rename node using selected text'
-          OnClick = TVPasteNodeNameClick
+          Action = actTVPasteNodeNameAsSel
         end
       end
       object N36: TMenuItem
@@ -3210,14 +3451,10 @@ object Form_Main: TForm_Main
         Caption = 'S&ort'
         Hint = 'Sort nodes'
         object MMTreeSortSubtree_: TMenuItem
-          Caption = '&Sort Subtree'
-          Hint = 'Sort child nodes (subtree)'
-          OnClick = TVSortSubtreeClick
+          Action = actTVSortSubtree
         end
         object MMTreeSortFull_: TMenuItem
-          Caption = 'Sort Full &Tree'
-          Hint = 'Sort all nodes in tree'
-          OnClick = TVSortTreeClick
+          Action = actTVSortTree
         end
       end
       object N92: TMenuItem
@@ -3931,7 +4168,7 @@ object Form_Main: TForm_Main
       Caption = 'R&emove Folder'
       Hint = 'Delete current folder'
       ImageIndex = 9
-      OnClick = MMNoteRemoveClick
+      OnClick = MMFolderRemoveClick
     end
   end
   object IMG_Toolbar: TImageList
@@ -7034,353 +7271,6 @@ object Form_Main: TForm_Main
     Left = 28
     Top = 72
   end
-  object Menu_TV: TPopupMenu
-    HelpContext = 284
-    Images = IMG_Toolbar
-    OnPopup = Menu_TVPopup
-    Left = 285
-    Top = 120
-    object TVAlarmNode: TMenuItem
-      Caption = 'Set alarm on node...'
-      HelpContext = 567
-      Hint = 'Set or remove alarm on node'
-      ImageIndex = 50
-      OnClick = TVAlarmNodeClick
-    end
-    object N114: TMenuItem
-      Caption = '-'
-    end
-    object TVInsertNode: TMenuItem
-      Caption = 'Add &Above'
-      Hint = 'Insert a Sibling node Above the selected one'
-      ShortCut = 45
-      OnClick = TVInsertNodeClick
-    end
-    object TVAddChildNode: TMenuItem
-      Caption = 'Add &Child'
-      Hint = 'Add a Child node of selected one'
-      ShortCut = 8205
-      OnClick = TVAddChildNodeClick
-    end
-    object TVAddSibling: TMenuItem
-      Caption = 'Add B&elow'
-      Hint = 'Add a Sibling node immediately Below selected one'
-      ShortCut = 16397
-      OnClick = TVAddSiblingClick
-    end
-    object TVAddNode: TMenuItem
-      Caption = 'Add &Last sibling'
-      Hint = 'Add a Sibling node in the bottom (Last)'
-      ShortCut = 13
-      OnClick = TVAddNodeClick
-    end
-    object N44: TMenuItem
-      Caption = '-'
-    end
-    object TVChildrenCheckboxes_: TMenuItem
-      Caption = 'Children Checkboxes'
-      HelpContext = -2
-      object TVChildrenCheckbox: TMenuItem
-        Caption = 'Show Check&boxes'
-        Hint = 'Show or hide Checkboxes in children of selected node'
-        OnClick = TVChildrenCheckboxClick
-      end
-      object N119: TMenuItem
-        Caption = '-'
-      end
-      object TVHideCheckedChildren: TMenuItem
-        Caption = 'Hide &Checked'
-        Hint = 'Hide checked children of selected node'
-        OnClick = TVHideCheckedChildrenClick
-      end
-      object TVHideUncheckedChildren: TMenuItem
-        Caption = 'Hide &Unchecked'
-        Hint = 'Hide unchecked children of selected node'
-        OnClick = TVHideUncheckedChildrenClick
-      end
-      object TVShowNonFilteredChildren: TMenuItem
-        Caption = '&Show non filtered'
-        Hint = 'Show hidden children of selected node, non filtered by search'
-        OnClick = TVShowNonFilteredClick
-      end
-    end
-    object TVCheckNode: TMenuItem
-      Caption = 'Ch&ecked'
-      Hint = 'Check or uncheck selected node'
-      ShortCut = 16576
-      OnClick = TVCheckNodeClick
-    end
-    object TVBoldNode: TMenuItem
-      Caption = '&Bold'
-      Hint = 'Make selected tree node bold'
-      ShortCut = 16450
-      OnClick = TVBoldNodeClick
-    end
-    object TVNodeColor_: TMenuItem
-      Caption = 'Co&lor / Reset'
-      Hint = 'Choose color for selected tree node'
-      object TVNodeTextColor: TMenuItem
-        Caption = 'Tree &node Text...'
-        Hint = 'Select custom color for tree node text'
-        OnClick = TVNodeTextColorClick
-      end
-      object TVNodeBGColor: TMenuItem
-        Caption = 'Tree node &Background...'
-        Hint = 'Select custom color for tree node background'
-        OnClick = TVNodeBGColorClick
-      end
-      object N103: TMenuItem
-        Caption = '-'
-      end
-      object TVDefaultNodeFont: TMenuItem
-        Caption = '&Reset to Default'
-        Hint = 'Reset node color and font face to default'
-        ShortCut = 16452
-        OnClick = TVDefaultNodeFontClick
-      end
-    end
-    object TVSelectNodeImage: TMenuItem
-      Caption = 'C&ustom icon...'
-      Hint = 'Choose custom icon for selected node'
-      OnClick = TVSelectNodeImageClick
-    end
-    object N80: TMenuItem
-      Caption = '-'
-    end
-    object TVVirtualNode_: TMenuItem
-      Caption = '&Virtual Node'
-      HelpContext = 285
-      object TVVirtualNode: TMenuItem
-        Caption = 'Make &Virtual'
-        Hint = 'Link a file on disk to selected node'
-        OnClick = TVVirtualNodeClick
-      end
-      object TVRefreshVirtualNode: TMenuItem
-        Caption = 'Re&fresh'
-        Hint = 'Refresh contents from original file on disk'
-        ShortCut = 16466
-        OnClick = TVRefreshVirtualNodeClick
-      end
-      object N115: TMenuItem
-        Caption = '-'
-      end
-      object TVInsertMirrorNode: TMenuItem
-        Caption = 'Insert &Mirror node'
-        HelpContext = 383
-        Hint = 
-          'Insert duplicate node as mirror node (virtual node linked to ano' +
-          'ther KeyNote node)'
-        OnClick = TVInsertMirrorNodeClick
-      end
-      object TVNavigateNonVirtualNote: TMenuItem
-        Caption = 'Navigate to &Non Virtual'
-        HelpContext = 383
-        Hint = 
-          'Navigate to the non virtual node to wich this mirror node is lin' +
-          'ked'
-        OnClick = TVNavigateNonVirtualNoteClick
-      end
-      object N90: TMenuItem
-        Caption = '-'
-      end
-      object TVUnlinkVirtualNode: TMenuItem
-        Caption = '&Unlink Node'
-        Hint = 
-          'Unlink the virtual node from file on disk or non virtual node (m' +
-          'irror nodes)'
-        OnClick = TVUnlinkVirtualNodeClick
-      end
-    end
-    object N30: TMenuItem
-      Caption = '-'
-    end
-    object TVMovenode_: TMenuItem
-      Caption = '&Move Node'
-      Hint = 'Move selected node in tree'
-      object TVMoveNodeUp: TMenuItem
-        Caption = '&Up'
-        Hint = 'Move node UP'
-        ShortCut = 8230
-        OnClick = TVMoveNodeUpClick
-      end
-      object TVMoveNodeDown: TMenuItem
-        Caption = '&Down'
-        Hint = 'Move node DOWN'
-        ShortCut = 8232
-        OnClick = TVMoveNodeDownClick
-      end
-      object TVMoveNodeLeft: TMenuItem
-        Caption = '&Left'
-        Hint = 'Shift node LEFT by 1 level'
-        ShortCut = 8229
-        OnClick = TVMoveNodeLeftClick
-      end
-      object TVMoveNodeRight: TMenuItem
-        Caption = '&Right'
-        Hint = 'Shift node RIGHT by 1 level'
-        ShortCut = 8231
-        OnClick = TVMoveNodeRightClick
-      end
-    end
-    object TVTransfer_: TMenuItem
-      Caption = '&Transfer Subtree'
-      Hint = 'Copy node and its children; then paste it in another tree'
-      object TVCutSubtree: TMenuItem
-        Caption = 'C&ut Subtree'
-        Hint = 
-          'Cut selected node and its children (to move with Paste) (Ctrl+X,' +
-          ' Shift+Supr)'
-        ShortCut = 16472
-        OnClick = TVCutSubtreeClick
-      end
-      object TVCopySubtree: TMenuItem
-        Caption = '&Copy Subtree'
-        Hint = 'Copy selected node and its children (Ctrl+C, Ctrl+Ins)'
-        ShortCut = 16451
-        OnClick = TVCopySubtreeClick
-      end
-      object TVGraftSubtree: TMenuItem
-        Tag = 1
-        Caption = '&Paste Subtree Here'
-        Hint = 
-          'Paste previously copied nodes at selected position (Ctrl+V, Shif' +
-          't+Ins)'
-        ShortCut = 16470
-        OnClick = TVPasteSubtreeClick
-      end
-      object TVGraftSubtreeMirror: TMenuItem
-        Caption = 'Paste Subtree Here as &Mirror'
-        Hint = 
-          'Paste previously copied nodes at selected position as mirror nod' +
-          'es'
-        OnClick = TVPasteSubtreeMirrorClick
-      end
-      object N56: TMenuItem
-        Caption = '-'
-      end
-      object TVEraseTreeMem: TMenuItem
-        Tag = 2
-        Caption = '&Erase Memory'
-        Hint = 'Forget previously copied nodes'
-        OnClick = TVCopySubtreeClick
-      end
-    end
-    object TVExport: TMenuItem
-      Caption = 'E&xport...'
-      HelpContext = 313
-      Hint = 'Export node contents to file'
-      OnClick = TVExportClick
-    end
-    object N40: TMenuItem
-      Caption = '-'
-    end
-    object TVDeleteNode: TMenuItem
-      Caption = '&Delete Node'
-      Hint = 'Delete selected node'
-      ShortCut = 46
-      OnClick = TVDeleteNodeClick
-    end
-    object TVDeleteChildren: TMenuItem
-      Caption = 'Delete C&hildren'
-      Hint = 'Delete child nodes of selected node'
-      OnClick = TVDeleteChildrenClick
-    end
-    object N32: TMenuItem
-      Caption = '-'
-    end
-    object TVRenameNode: TMenuItem
-      Caption = '&Rename Node'
-      Hint = 'Rename node'
-      ShortCut = 113
-      OnClick = MMRenamenodeClick
-    end
-    object TVCopyNode_: TMenuItem
-      Caption = 'C&opy node inf.'
-      object TVCopyNodeName: TMenuItem
-        Caption = '&Node Name'
-        Hint = 'Copy node name to clipboard'
-        OnClick = TVCopyNodeNameClick
-      end
-      object TVCopyNodePath: TMenuItem
-        Caption = 'Node &Path'
-        Hint = 'Copy full node path to clipboard'
-        ShortCut = 16464
-        OnClick = TVCopyNodePathClick
-      end
-      object TVCopyNodeText: TMenuItem
-        Caption = 'Node &Text'
-        Hint = 'Copy full contents of node to clipboard'
-        ShortCut = 16468
-        OnClick = TVCopyNodeTextClick
-      end
-      object N88: TMenuItem
-        Caption = '-'
-      end
-      object TVCopyPathtoEditor: TMenuItem
-        Caption = 'Path to &Editor'
-        Hint = 'Insert full node path in editor'
-        ShortCut = 16453
-        OnClick = TVCopyPathtoEditorClick
-      end
-    end
-    object TVPasteNode_: TMenuItem
-      Caption = '&Paste Name'
-      object TVPasteNodeName: TMenuItem
-        Caption = 'From &Clipboard'
-        Hint = 'Use clipboard contents as selected node name'
-        OnClick = TVPasteNodeNameClick
-      end
-      object N42: TMenuItem
-        Caption = '-'
-      end
-      object TVPasteNodeNameAsDate: TMenuItem
-        Caption = 'As &Date'
-        Hint = 'Use current date as selected node name'
-        ShortCut = 32836
-        OnClick = TVPasteNodeNameClick
-      end
-      object TVPasteNodeNameAsTime: TMenuItem
-        Caption = 'As &Time'
-        Hint = 'Use current time as selected node name'
-        ShortCut = 32852
-        OnClick = TVPasteNodeNameClick
-      end
-      object TVPasteNodeNameAsDateTime: TMenuItem
-        Caption = '&As Date and Time'
-        Hint = 'Use current date and time as selected node name'
-        ShortCut = 41028
-        OnClick = TVPasteNodeNameClick
-      end
-      object N104: TMenuItem
-        Caption = '-'
-      end
-      object TVPasteNodeNameAsSel: TMenuItem
-        Caption = 'From &Selected Text'
-        Hint = 'Rename node using selected text'
-        OnClick = TVPasteNodeNameClick
-      end
-    end
-    object N31: TMenuItem
-      Caption = '-'
-    end
-    object TVSortNodes_: TMenuItem
-      Caption = '&Sort'
-      HelpContext = 313
-      Hint = 'Sort nodes'
-      object TVSortSubtree: TMenuItem
-        Caption = '&Sort Subtree'
-        Hint = 'Sort children of current node'
-        ShortCut = 24661
-        OnClick = TVSortSubtreeClick
-      end
-      object TVSortTree: TMenuItem
-        Caption = 'Sort Entire &Tree'
-        Hint = 'Sort all nodes in tree'
-        ShortCut = 24659
-        OnClick = TVSortTreeClick
-      end
-    end
-  end
   object MRUMenu: TPopupMenu
     HelpContext = 539
     Left = 509
@@ -8643,5 +8533,255 @@ object Form_Main: TForm_Main
     ImageSize = isSmall
     Left = 89
     Top = 176
+  end
+  object Menu_TV: TPopupMenu
+    HelpContext = 284
+    Images = IMG_Toolbar
+    Left = 266
+    Top = 130
+    object TVAlarmNode: TMenuItem
+      Action = actTVAlarmNode
+    end
+    object N114: TMenuItem
+      Caption = '-'
+    end
+    object TVInsertNode: TMenuItem
+      Action = actTVAddNode_Above
+      ShortCut = 45
+    end
+    object TVAddChildNode: TMenuItem
+      Action = actTVAddNode_Child
+      ShortCut = 8205
+    end
+    object TVAddSibling: TMenuItem
+      Action = actTVAddNode_Below
+      ShortCut = 16397
+    end
+    object TVAddNode: TMenuItem
+      Action = actTVAddNode_Last
+      ShortCut = 13
+    end
+    object N44: TMenuItem
+      Caption = '-'
+    end
+    object TVChildrenCheckboxes_: TMenuItem
+      Caption = 'Children Checkboxes'
+      HelpContext = -2
+      object TVChildrenCheckbox: TMenuItem
+        Action = actTVChildrenCheckbox
+      end
+      object N119: TMenuItem
+        Caption = '-'
+      end
+      object TVHideCheckedChildren: TMenuItem
+        Action = actTVHideCheckedChildren
+      end
+      object TVHideUncheckedChildren: TMenuItem
+        Action = actTVHideUncheckedChildren
+      end
+      object TVShowNonFilteredChildren: TMenuItem
+        Action = actTVShowNonFilteredChildren
+      end
+    end
+    object TVCheckNode: TMenuItem
+      Action = actTVCheckNode
+      ShortCut = 16576
+    end
+    object TVBoldNode: TMenuItem
+      Action = actTVBoldNode
+      ShortCut = 16450
+    end
+    object TVNodeColor_: TMenuItem
+      Caption = 'Co&lor / Reset'
+      Hint = 'Choose color for selected tree node'
+      object TVNodeTextColor: TMenuItem
+        Action = actTVNodeTextColor
+      end
+      object TVNodeBGColor: TMenuItem
+        Action = actTVNodeBGColor
+      end
+      object N103: TMenuItem
+        Caption = '-'
+      end
+      object TVDefaultNodeFont: TMenuItem
+        Action = actTVDefaultNodeFont
+        ShortCut = 16452
+      end
+    end
+    object TVSelectNodeImage: TMenuItem
+      Action = actTVSelectNodeImage
+    end
+    object N80: TMenuItem
+      Caption = '-'
+    end
+    object TVVirtualNode_: TMenuItem
+      Caption = '&Virtual Node'
+      HelpContext = 285
+      object TVVirtualNode: TMenuItem
+        Action = actTVVirtualNode
+      end
+      object TVRefreshVirtualNode: TMenuItem
+        Action = actTVRefreshVirtualNode
+        ShortCut = 16466
+      end
+      object N115: TMenuItem
+        Caption = '-'
+      end
+      object TVInsertMirrorNode: TMenuItem
+        Action = actTVInsertMirrorNode
+      end
+      object TVNavigateNonVirtualNote: TMenuItem
+        Action = actTVNavigateNonVirtualNote
+      end
+      object N90: TMenuItem
+        Caption = '-'
+      end
+      object TVUnlinkVirtualNode: TMenuItem
+        Action = actTVUnlinkVirtualNode
+      end
+    end
+    object N30: TMenuItem
+      Caption = '-'
+    end
+    object TVMovenode_: TMenuItem
+      Caption = '&Move Node'
+      Hint = 'Move selected node in tree'
+      object TVMoveNodeUp: TMenuItem
+        Action = actTVMoveNodeUp
+        ShortCut = 8230
+      end
+      object TVMoveNodeDown: TMenuItem
+        Action = actTVMoveNodeDown
+        ShortCut = 8232
+      end
+      object TVMoveNodeLeft: TMenuItem
+        Action = actTVMoveNodeLeft
+        ShortCut = 8229
+      end
+      object TVMoveNodeRight: TMenuItem
+        Action = actTVMoveNodeRight
+        ShortCut = 8231
+      end
+    end
+    object TVTransfer_: TMenuItem
+      Caption = '&Transfer Subtree'
+      Hint = 'Copy node and its children; then paste it in another tree'
+      object TVCutSubtree: TMenuItem
+        Action = actTVCutSubtree
+        ShortCut = 16472
+      end
+      object TVCopySubtree: TMenuItem
+        Action = actTVCopySubtree
+        ShortCut = 16451
+      end
+      object TVGraftSubtree: TMenuItem
+        Tag = 1
+        Action = actTVGraftSubtree
+        ShortCut = 16470
+      end
+      object TVGraftSubtreeMirror: TMenuItem
+        Action = actTVGraftSubtreeMirror
+      end
+      object N56: TMenuItem
+        Caption = '-'
+      end
+      object TVEraseTreeMem: TMenuItem
+        Tag = 2
+        Action = actTVEraseTreeMem
+      end
+    end
+    object TVExport: TMenuItem
+      Action = actTVExport
+    end
+    object N40: TMenuItem
+      Caption = '-'
+    end
+    object TVDeleteNode: TMenuItem
+      Action = actTVDeleteNode
+      ShortCut = 46
+    end
+    object TVDeleteChildren: TMenuItem
+      Action = actTVDeleteChildren
+    end
+    object N32: TMenuItem
+      Caption = '-'
+    end
+    object TVRenameNode: TMenuItem
+      Action = actTVRenameNode
+      ShortCut = 113
+    end
+    object TVCopyNode_: TMenuItem
+      Caption = 'C&opy node inf.'
+      object TVCopyNodeName: TMenuItem
+        Action = actTVCopyNodeName
+      end
+      object TVCopyNodePath: TMenuItem
+        Action = actTVCopyNodePath
+        ShortCut = 16464
+      end
+      object TVCopyNodeText: TMenuItem
+        Action = actTVCopyNodeText
+        ShortCut = 16468
+      end
+      object TVCopyPathtoEditor: TMenuItem
+        Action = actTVCopyPathtoEditor
+        ShortCut = 16453
+      end
+    end
+    object TVPasteNode_: TMenuItem
+      Caption = '&Paste Name'
+      object TVPasteNodeName: TMenuItem
+        Action = actTVPasteNodeName
+      end
+      object N42: TMenuItem
+        Caption = '-'
+      end
+      object TVPasteNodeNameAsDate: TMenuItem
+        Action = actTVPasteNodeNameAsDate
+        ShortCut = 32836
+      end
+      object TVPasteNodeNameAsTime: TMenuItem
+        Action = actTVPasteNodeNameAsTime
+        ShortCut = 32852
+      end
+      object TVPasteNodeNameAsDateTime: TMenuItem
+        Action = actTVPasteNodeNameAsDateTime
+        ShortCut = 41028
+      end
+      object N104: TMenuItem
+        Caption = '-'
+      end
+      object TVPasteNodeNameAsSel: TMenuItem
+        Action = actTVPasteNodeNameAsSel
+      end
+    end
+    object N31: TMenuItem
+      Caption = '-'
+    end
+    object TVSortNodes_: TMenuItem
+      Caption = '&Sort'
+      HelpContext = 313
+      Hint = 'Sort nodes'
+      object TVSortSubtree: TMenuItem
+        Action = actTVSortSubtree
+        ShortCut = 24661
+      end
+      object TVSortTree: TMenuItem
+        Action = actTVSortTree
+        ShortCut = 24659
+      end
+    end
+  end
+  object actList_File: TActionList
+    Images = IMG_Toolbar
+    OnUpdate = actList_FileUpdate
+    Left = 328
+    Top = 472
+    object actFileSave: TAction
+      Caption = '&Save'
+      Hint = 'Save Keynote file'
+      ImageIndex = 2
+      OnExecute = actFileSaveExecute
+    end
   end
 end

@@ -246,7 +246,7 @@ begin
           end;
 
           if assigned( dupItem ) then begin
-             if ( DoMessageBox( Format(STR_12, [namestr,dupItem.subitems[0] ,valuestr] ),
+             if ( App.DoMessageBox( Format(STR_12, [namestr,dupItem.subitems[0] ,valuestr] ),
                                  mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
                  exit;
              item := dupItem;

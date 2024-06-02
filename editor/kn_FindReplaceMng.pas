@@ -78,7 +78,6 @@ uses
    knt.ui.editor,
    kn_RTFUtils,
    kn_VCLControlsMng,
-   kn_TreeNoteMng,
    kn_MacroMng,
    kn_NoteFileMng,
    kn_LinksMng,
@@ -610,7 +609,8 @@ type
 
           if assigned( myTreeNode ) then begin
             if ApplyFilter and (not nodesSelected) then     // Only once per note
-               MarkAllFiltered(myFolder);           // There will be at least one node in the selection
+               myFolder.TreeUI.MarkAllFiltered;     // There will be at least one node in the selection
+
             nodeToFilter:= false;
             nodesSelected:= true;
           end;
@@ -623,11 +623,11 @@ type
        var
           path: string;
        begin
-          myTreeNode := myFolder.TV.Selected;
+          myTreeNode := myFolder.TreeUI.SelectedNode;
           TreeNodeToSearchIn:= myTreeNode;
 
           if (TreeNodeToSearchIn <> nil) and TreeOptions.ShowFullPathSearch then begin
-             path:= GetNodePath( TreeNodeToSearchIn, TreeOptions.NodeDelimiter, true );
+             path:= myFolder.TreeUI.GetNodePath( TreeNodeToSearchIn, TreeOptions.NodeDelimiter, true );
              TreeNodeToSearchIn_AncestorPathLen:= Length(path) + Length(myFolder.Name) + 1 - Length(TreeNodeToSearchIn.Text);
           end;
 
@@ -647,7 +647,7 @@ type
 
        procedure GetFirstNode;
        begin
-          myTreeNode := myFolder.TV.Items.GetFirstNode;
+          myTreeNode := myFolder.TreeUI.GetFirstNode;
 
           if assigned( myTreeNode ) then begin
              if myTreeNode.Hidden and (not FindOptions.HiddenNodes) then
@@ -946,12 +946,12 @@ begin
                Form_Main.FilterApplied(myFolder);
 
                ActiveFolder:= nil;      // -> TreeNodeSelected will exit doing nothing    ToDO: Not use ActiveFolder for this...
-               HideFilteredNodes (myFolder);
+               myFolder.TreeUI.HideFilteredNodes;
 
-               myTreeNode := myFolder.TV.Items.GetFirstNode;
+               myTreeNode:= myFolder.TreeUI.GetFirstNode;
                if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;
-               myFolder.TV.Selected:= nil;
-               myFolder.TV.Selected:= myTreeNode;   // force to select -> TreeNodeSelected
+               myFolder.TreeUI.SelectedNode:= nil;
+               myFolder.TreeUI.SelectedNode:= myTreeNode;   // force to select -> Folder.NodeSelected
                ActiveFolder:= myFolder;
 
                KntFile.Modified := true;
@@ -962,8 +962,6 @@ begin
                GetNextNote();
 
       until FindDone or UserBreak;
-
-      UpdateKntFileState( [fscModified] );
 
       MatchCount := Location_List.Count;
       Form_Main.LblFindAllNumResults.Caption:= MatchCount.ToString + STR_13;
@@ -1031,7 +1029,7 @@ begin
 
   finally
     ActiveFolder:= oldActiveFolder;
-    UpdateFolderDisplay;
+    Form_Main.UpdateFolderDisplay;
 
     // restore previous FindOptions settings
     FindOptions.AllNodes := oldAllNodes;
@@ -1274,7 +1272,7 @@ var
 
   procedure GetFirstNode();
   begin
-      myTreeNode := myFolder.TV.Items.GetFirstNode;
+      myTreeNode := myFolder.TreeUI.GetFirstNode;
       if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindOptions.HiddenNodes) then
          myTreeNode := myTreeNode.GetNextNotHidden;
   end;
@@ -1348,9 +1346,9 @@ var
       if (myFolder <> ActiveFolder) then
          App.ActivateFolder(myFolder);
 
-      if myFolder.TV.Selected <> myTreeNode then begin
+      if myFolder.TreeUI.SelectedNode <> myTreeNode then begin
          myTreeNode.MakeVisible;  // Could be hidden
-         myFolder.TV.Selected := myTreeNode;
+         myFolder.TreeUI.SelectedNode := myTreeNode;
       end;
 
       SearchCaretPos (myFolder.Editor, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1),
@@ -1410,7 +1408,7 @@ begin
       if not assigned(myFolder) then exit;
 
       Editor:= myFolder.Editor;
-      myTreeNode := myFolder.TV.Selected;
+      myTreeNode := myFolder.TreeUI.SelectedNode;
 
       UpdateReplacingLastNodeHasRegImg;
 
@@ -1488,7 +1486,7 @@ begin
 
     except
       on E: Exception do begin
-          PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK], 0 );
+          App.PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK], 0 );
           exit;
       end;
     end;
@@ -1629,7 +1627,7 @@ begin
 
     except
       on E: Exception do begin
-          PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK], 0 );
+          App.PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK], 0 );
           exit;
       end;
     end;
@@ -1852,7 +1850,7 @@ begin
                    inc(ReplaceCnt);
                    Editor.AddText(FindOptions.ReplaceWith);
                    if Editor.NoteObj <> nil then
-                      App.NoteModified(TKntNote(Editor.NoteObj), TKntFolder(Editor.FolderObj), false);   // false: don't update UI
+                      App.NoteModified(TKntNote(Editor.NoteObj), TKntFolder(Editor.FolderObj));
                 end;
 
                 Application.ProcessMessages;
@@ -1890,8 +1888,7 @@ begin
         DoMessageBox(txtMessage, STR_12, 0, handle);
      end;
      App.ActivateFolder(ActiveFolder);
-     UpdateKntFileState( [fscModified] );
-     end
+  end
   else
       if not SelectedTextToReplace then begin
          DoMessageBox(Format( STR_02, [Text_To_Find] ), STR_12, 0, handle);

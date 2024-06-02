@@ -501,7 +501,6 @@ uses  System.DateUtils,
       gf_strings,
       kn_ClipUtils,
       kn_Global,
-      kn_TreeNoteMng,
       kn_RTFUtils,
       kn_ImageForm,
       kn_ImagesUtils,
@@ -613,7 +612,7 @@ begin
                    end;
                 end
                 else begin
-                   MessageDlg(Format(STR_21, [Img.Name, Img.ID]), mtWarning, [mbOK], 0);
+                   App.WarningPopup(Format(STR_21, [Img.Name, Img.ID]));
                    if Img.ID > MaxSavedImgID then
                       MaxSavedImgID:= Img.ID;          // To avoid confusion we will 'consume' your ID
                    Images[i]:= nil;                    // It will be deleted in next for loop
@@ -673,7 +672,7 @@ begin
      Relocate (Path);
 
   except on E: Exception do
-     MessageDlg( STR_16 + E.Message, mtError, [mbOK], 0 );
+     App.ErrorPopup(E, STR_16);
   end;
 end;
 
@@ -826,7 +825,7 @@ begin
     Result:= true;
 
   except on E: Exception do
-     MessageDlg( STR_17 + E.Message, mtError, [mbOK], 0 );
+     App.ErrorPopup(E, STR_17);
   end;
 end;
 
@@ -1413,7 +1412,7 @@ begin
    end;
 
    if (not ExportingMode) and (NumImagesToBeSavedExternally > 0) and not fWasInformedOfStorageNotAvailable then begin
-      MessageDlg(STR_05, mtWarning, [mbOK], 0);
+      App.WarningPopup(STR_05);
       fWasInformedOfStorageNotAvailable:= true;
    end;
 end;
@@ -1656,7 +1655,7 @@ begin
 
              except
                 On E : Exception do
-                  MessageDlg(STR_01 + ws, mtError, [mbOK], 0);
+                  App.ErrorPopup(STR_01 + ws);
              end;
             continue;
           end;
@@ -1702,7 +1701,7 @@ begin
 
              except
                 On E : Exception do
-                  MessageDlg(STR_02 + ws + ' :' + E.Message , mtError, [mbOK], 0);
+                  App.ErrorPopup(E, STR_02 + ws);
              end;
             continue;
           end;
@@ -1743,12 +1742,12 @@ begin
              except
                 On E : Exception do begin
                   Error:= True;
-                  MessageDlg(STR_03 + ws + ' :' + E.Message , mtError, [mbOK], 0);
+                  App.ErrorPopup(E, STR_03 + ws);
                 end;
              end;
 
              if Error then
-                MessageDlg(STR_03 + ws, mtError, [mbOK], 0);
+                App.ErrorPopup(STR_03 + ws);
 
             continue;
           end;
@@ -1820,20 +1819,20 @@ var
 
       if not fFileIsNew then begin
         if (fExternalStorageToRead <> nil) and not fExternalStorageToRead.IsValid then begin
-           DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk], 0);
+           App.DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk], 0);
            exit;
         end;
       end;
 
       if ExternalStorageType = issFolder then begin
          if (TDirectory.Exists(AbsolutePath) and not TDirectory.IsEmpty(AbsolutePath)) or FileExists(AbsolutePath) then begin
-            DoMessageBox(Format(STR_07, [AbsolutePath]), mtWarning, [mbOk], 0);
+            App.DoMessageBox(Format(STR_07, [AbsolutePath]), mtWarning, [mbOk], 0);
             exit;
          end;
       end
       else begin
          if TFile.Exists(AbsolutePath) then begin
-            DoMessageBox(Format(STR_08, [AbsolutePath]), mtWarning, [mbOk], 0);
+            App.DoMessageBox(Format(STR_08, [AbsolutePath]), mtWarning, [mbOk], 0);
             exit;
          end;
       end;
@@ -1855,13 +1854,13 @@ var
 
       if ExternalStorageType = issFolder then begin
          if not TDirectory.Exists(AbsolutePath) or TDirectory.IsEmpty(AbsolutePath) then begin
-            DoMessageBox(Format(STR_11, [AbsolutePath]), mtWarning, [mbOk], 0);
+            App.DoMessageBox(Format(STR_11, [AbsolutePath]), mtWarning, [mbOk], 0);
             Result:= false;
          end;
       end
       else begin
          if not TZipStorage.IsValidZip(Path) then begin
-            DoMessageBox(Format(STR_12, [AbsolutePath]), mtWarning, [mbOk], 0);
+            App.DoMessageBox(Format(STR_12, [AbsolutePath]), mtWarning, [mbOk], 0);
             Result:= false;
          end;
       end;
@@ -1940,7 +1939,7 @@ begin
                smEmbRTF, smEmbKNT: begin
                   ModifyPathFormat:= (fStorageMode in [smExternal, smExternalAndEmbKNT]) and (fExternalStorageToRead.StorageType = stZip);
                   if (not (fStorageMode in [smEmbKNT, smExternalAndEmbKNT])) and ExternalStorageIsMissing then begin
-                     DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk], 0);
+                     App.DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk], 0);
                      exit;
                   end;
                end;
@@ -1950,7 +1949,7 @@ begin
                       ((StorageMode = smExternalAndEmbKNT) and (fStorageMode = smExternal)) then begin
                       // It was External + [EmbKNT] and it is still External + [EmbKNT]. Has incorporated or removed the use of embKNT
                       if ExternalStorageIsMissing then begin
-                         DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk], 0);
+                         App.DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk], 0);
                          exit;
                       end;
                       ModifyPathFormat:= ((ExternalStoreTypeChanged) or (ExternalStorageType = issZip));
@@ -1999,7 +1998,7 @@ begin
       end;
 
       if not ok then exit;
-      if (not fFileIsNew) and not OnlyRelocated and (DoMessageBox(STR_13, mtConfirmation, [mbOK,mbCancel], 0) <> mrOK) then
+      if (not fFileIsNew) and not OnlyRelocated and (App.DoMessageBox(STR_13, mtConfirmation, [mbOK,mbCancel], 0) <> mrOK) then
          exit;
 
 
@@ -2038,10 +2037,10 @@ begin
       end;
 
       if not fFileIsNew then
-         DoMessageBox(Format(STR_15, [fImages.Count]), mtInformation, [mbOK]);
+         App.InfoPopup(Format(STR_15, [fImages.Count]));
 
   except on E: Exception do
-     MessageDlg( STR_16 + E.Message, mtError, [mbOK], 0 );
+     App.ErrorPopup(E, STR_16);
   end;
 end;
 
@@ -2396,7 +2395,7 @@ var
    StreamIMG: TMemoryStream;
 
 begin
-   Note:= GetCurrentNote;
+   Note:= ActiveNote;
    ImgID:= GetNewID();
 
    if not Owned and KeyOptions.ImgLinkRelativePath then
@@ -3310,7 +3309,7 @@ begin
 
       except
         on E: Exception do
-           MessageDlg( STR_20 + E.Message, mtError, [mbOK], 0 );
+           App.ErrorPopup(E, STR_20);
       end;
 
 
@@ -3796,9 +3795,7 @@ begin
 
   if ( ShellExecResult <= 32 ) then begin
     if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
-      PopupMessage( Format(
-        STR_10,
-        [ShellExecResult, FilePath, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK], 0 );
+      App.ErrorPopup(Format(STR_10, [ShellExecResult, FilePath, TranslateShellExecuteError(ShellExecResult)]));
   end
   else begin
     if KeyOptions.MinimizeOnURL then
@@ -3882,7 +3879,7 @@ begin
 
    except
      on E: Exception do
-       MessageDlg( STR_18 + E.Message, mtError, [mbOK], 0 );
+       App.ErrorPopup(E, STR_18);
    end;
 end;
 

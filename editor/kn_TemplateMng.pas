@@ -181,7 +181,7 @@ begin
              fn := Template_Folder + fn + ext_TXT;
 
           if FileExists(fn) then begin
-             if (DoMessageBox(Format(STR_01, [ExtractFilename(fn)]), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK) then
+             if (App.DoMessageBox(Format(STR_01, [ExtractFilename(fn)]), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK) then
                 exit
              else
                 ReplaceExisting := true;
@@ -333,7 +333,6 @@ begin
         end;
       finally
         KntFile.Modified := true;
-        UpdateKntFileState( [fscModified] );
       end;
   end;
 
@@ -348,7 +347,7 @@ begin
       i := ListBox_ResTpl.ItemIndex;
       if (i < 0 ) then exit;
       fn := Template_Folder + ListBox_ResTpl.Items[i];
-      if (DoMessageBox( Format(STR_04, [ListBox_ResTpl.Items[i]]), mtConfirmation, [mbOK, mbCancel], 0 ) <> mrOK ) then
+      if (App.DoMessageBox( Format(STR_04, [ListBox_ResTpl.Items[i]]), mtConfirmation, [mbOK, mbCancel], 0 ) <> mrOK ) then
           exit;
 
       ListBox_ResTpl.Items.Delete( i );

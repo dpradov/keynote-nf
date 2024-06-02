@@ -29,6 +29,7 @@ uses
    System.Classes,
    System.IniFiles,
    System.ImageList,
+   System.Actions, 
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
@@ -43,6 +44,7 @@ uses
    Vcl.ExtCtrls,
    Vcl.HtmlHelpViewer,
    Vcl.ImgList,
+   Vcl.ActnList,
 
    ComCtrls95,
    SystemImageList,
@@ -66,15 +68,9 @@ uses
 
    kn_Info,
    kn_Msgs,
-   kn_KntFolder
+   kn_KntFolder,
+   knt.ui.tree
    ;
-
-
-  function DoMessageBox (text: string;
-        DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
-        HelpCtx: Longint = 0; hWnd: HWND= 0): integer; overload;
-  function PopUpMessage( const mStr : string; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons;
-        const mHelpCtx : integer) : word; overload;
 
 
 type
@@ -102,7 +98,7 @@ type
     MMFolderNew: TMenuItem;
     MMNoteProperties: TMenuItem;
     N2: TMenuItem;
-    MMNoteRemove: TMenuItem;
+    MMFolderRemove: TMenuItem;
     MMFind: TMenuItem;
     MMFindNext: TMenuItem;
     MMFileNew: TMenuItem;
@@ -290,34 +286,17 @@ type
     MMEditSort: TMenuItem;
     N29: TMenuItem;
     MMViewTabIcons: TMenuItem;
-    Menu_TV: TPopupMenu;
-    TVInsertNode: TMenuItem;
-    TVAddNode: TMenuItem;
-    TVAddChildNode: TMenuItem;
-    N30: TMenuItem;
-    TVDeleteNode: TMenuItem;
-    N31: TMenuItem;
-    TVSortNodes_: TMenuItem;
-    N32: TMenuItem;
-    TVRenameNode: TMenuItem;
-    TVPasteNode_: TMenuItem;
-    TVPasteNodeName: TMenuItem;
-    TVPasteNodeNameAsDate: TMenuItem;
-    TVPasteNodeNameAsTime: TMenuItem;
-    TVPasteNodeNameAsDateTime: TMenuItem;
-    TVSortSubtree: TMenuItem;
-    TVSortTree: TMenuItem;
     MRUMenu: TPopupMenu;
     MruM_MRUSeparatorBTN_: TMenuItem;
     N33: TMenuItem;
     MMTree_: TMenuItem;
-    MMTreeAdd_: TMenuItem;
+    MMTreeAddNode_Last: TMenuItem;
     Toolbar_Tree: TToolbar97;
     IMG_TV: TImageList;
     MMViewToolbars_: TMenuItem;
     MMViewTBTree: TMenuItem;
-    MMTreeInsert_: TMenuItem;
-    MMTreeAddChild_: TMenuItem;
+    MMTreeAddNode_Above: TMenuItem;
+    MMTreeAddNode_Child: TMenuItem;
     MMTreeNodeDelete_: TMenuItem;
     N34: TMenuItem;
     MMTreeNodeRename_: TMenuItem;
@@ -334,13 +313,6 @@ type
     MMTreeFullExpand: TMenuItem;
     MMTreeFullCollapse: TMenuItem;
     MMViewNodeIcons: TMenuItem;
-    TVDeleteChildren: TMenuItem;
-    N40: TMenuItem;
-    TVMovenode_: TMenuItem;
-    TVMoveNodeUp: TMenuItem;
-    TVMoveNodeDown: TMenuItem;
-    TVMoveNodeLeft: TMenuItem;
-    TVMoveNodeRight: TMenuItem;
     MMTreeDeleteSubtree_: TMenuItem;
     N41: TMenuItem;
     MMMovenode_: TMenuItem;
@@ -351,14 +323,10 @@ type
     MMToolsDefaults: TMenuItem;
     MMToolsMerge: TMenuItem;
     N35: TMenuItem;
-    TVCopyNodeName: TMenuItem;
-    N42: TMenuItem;
     N43: TMenuItem;
     RTFMWordWeb: TMenuItem;
     TB_WordWeb: TToolbarButton97;
     sm7: TToolbarSep97;
-    N44: TMenuItem;
-    TVVirtualNode: TMenuItem;
     N45: TMenuItem;
     MMFormatClearParaAttr: TMenuItem;
     MMFormatRIndInc: TMenuItem;
@@ -419,14 +387,8 @@ type
     N49: TMenuItem;
     TB_Color: TColorBtn;
     TB_Hilite: TColorBtn;
-    TVTransfer_: TMenuItem;
-    TVCopySubtree: TMenuItem;
-    TVGraftSubtree: TMenuItem;
-    N56: TMenuItem;
-    TVEraseTreeMem: TMenuItem;
     MMInsertTerm: TMenuItem;
     MMToolsGlosAddTerm: TMenuItem;
-    TVExport: TMenuItem;
     N58: TMenuItem;
     MMEditTrim_: TMenuItem;
     MMEditTrimLeft: TMenuItem;
@@ -485,7 +447,6 @@ type
     RTFMFont: TMenuItem;
     RTFMPara: TMenuItem;
     TB_ParaDlg: TToolbarButton97;
-    TVRefreshVirtualNode: TMenuItem;
     N72: TMenuItem;
     MMHelpVisitWebsite: TMenuItem;
     MMHelpEmailAuthor: TMenuItem;
@@ -528,12 +489,7 @@ type
     MMToolsTemplateCreate: TMenuItem;
     MMToolsTemplateInsert: TMenuItem;
     MMViewCheckboxesAllNodes: TMenuItem;
-    N80: TMenuItem;
-    TVBoldNode: TMenuItem;
-    TVCheckNode: TMenuItem;
     MMViewTree: TMenuItem;
-    TVNodeColor_: TMenuItem;
-    TVDefaultNodeFont: TMenuItem;
     MMFormatLanguage: TMenuItem;
     MMNoteSpell: TMenuItem;
     Pages_Res: TPage95Control;
@@ -613,18 +569,11 @@ type
     MMTreeMasterNode: TMenuItem;
     RG_ResFind_Type: TRadioGroup;
     RG_ResFind_Scope: TRadioGroup;
-    TVCopyNode_: TMenuItem;
-    TVCopyNodePath: TMenuItem;
-    TVCopyNodeText: TMenuItem;
-    N88: TMenuItem;
-    TVCopyPathtoEditor: TMenuItem;
     Menu_FindAll: TPopupMenu;
     FAMCopytoEditor: TMenuItem;
     FAMCopyAlltoEditor: TMenuItem;
     MMTreeNodeFromSel: TMenuItem;
-    TVAddSibling: TMenuItem;
-    MMTreeAddSibling_: TMenuItem;
-    TVVirtualNode_: TMenuItem;
+    MMTreeAddNode_Below: TMenuItem;
     ResTab_Favorites: TTab95Sheet;
     ListBox_ResFav: TGFXListBox;
     ResMFavTab: TMenuItem;
@@ -633,8 +582,6 @@ type
     N89: TMenuItem;
     FavMAdd: TMenuItem;
     FavMDel: TMenuItem;
-    N90: TMenuItem;
-    TVUnlinkVirtualNode: TMenuItem;
     FavMAddExternal: TMenuItem;
     N91: TMenuItem;
     MMEditPasteAsNewNode: TMenuItem;
@@ -678,18 +625,12 @@ type
     MMHelpWhatsNew: TMenuItem;
     N101: TMenuItem;
     MMViewTBRefresh: TMenuItem;
-    TVSelectNodeImage: TMenuItem;
     N102: TMenuItem;
     MMViewCustomIcons: TMenuItem;
-    N103: TMenuItem;
-    TVNodeTextColor: TMenuItem;
-    TVNodeBGColor: TMenuItem;
     MMToolsCustomKBD: TMenuItem;
     N61: TMenuItem;
     N82: TMenuItem;
     MMTreeNodeNameAsSel: TMenuItem;
-    N104: TMenuItem;
-    TVPasteNodeNameAsSel: TMenuItem;
     MMTreeNav_: TMenuItem;
     MMTreeNavUp: TMenuItem;
     MMTreeNavDown: TMenuItem;
@@ -783,18 +724,11 @@ type
     Img_System: TdfsSystemImageList;
     MMViewHideCheckedNodes: TMenuItem;
     TB_HideChecked: TToolbarButton97;
-    TVChildrenCheckbox: TMenuItem;
     CB_ResFind_HiddenNodes: TCheckBox;
     CB_ResFind_Filter: TCheckBox;
     TB_FilterTree: TToolbarButton97;
     MMViewFilterTree: TMenuItem;
     TB_SetAlarm: TToolbarButton97;
-    N114: TMenuItem;
-    TVAlarmNode: TMenuItem;
-    TVGraftSubtreeMirror: TMenuItem;
-    TVInsertMirrorNode: TMenuItem;
-    N115: TMenuItem;
-    TVNavigateNonVirtualNote: TMenuItem;
     TB_AlarmMode: TToolbarButton97;
     NU01: TMenuItem;
     MMRightParenthesis: TMenuItem;
@@ -824,11 +758,6 @@ type
     N118: TMenuItem;
     RTFMRestoreProportions: TMenuItem;
     RG_ResFind_ChkMode: TRadioGroup;
-    TVChildrenCheckboxes_: TMenuItem;
-    TVHideCheckedChildren: TMenuItem;
-    TVHideUncheckedChildren: TMenuItem;
-    TVShowNonFilteredChildren: TMenuItem;
-    N119: TMenuItem;
     N120: TMenuItem;
     MMAlarms: TMenuItem;
     MMSetAlarm: TMenuItem;
@@ -842,17 +771,86 @@ type
     MMTreeFocusEditor: TMenuItem;
     MMTreeFocusTree: TMenuItem;
     MMFindAll: TMenuItem;
+    actList_TV: TActionList;
+    actList_TVs: TActionList;
+    //-------------- Menu_TV -----------
+    Menu_TV: TPopupMenu;
+    TVAlarmNode: TMenuItem;
+    N114: TMenuItem;
+    TVInsertNode: TMenuItem;
+    TVAddChildNode: TMenuItem;
+    TVAddSibling: TMenuItem;
+    TVAddNode: TMenuItem;
+    N44: TMenuItem;
+    TVChildrenCheckboxes_: TMenuItem;
+    TVChildrenCheckbox: TMenuItem;
+    N119: TMenuItem;
+    TVHideCheckedChildren: TMenuItem;
+    TVHideUncheckedChildren: TMenuItem;
+    TVShowNonFilteredChildren: TMenuItem;
+    TVCheckNode: TMenuItem;
+    TVBoldNode: TMenuItem;
+    TVNodeColor_: TMenuItem;
+    TVNodeTextColor: TMenuItem;
+    TVNodeBGColor: TMenuItem;
+    N103: TMenuItem;
+    TVDefaultNodeFont: TMenuItem;
+    TVSelectNodeImage: TMenuItem;
+    N80: TMenuItem;
+    TVVirtualNode_: TMenuItem;
+    TVVirtualNode: TMenuItem;
+    TVRefreshVirtualNode: TMenuItem;
+    N115: TMenuItem;
+    TVInsertMirrorNode: TMenuItem;
+    TVNavigateNonVirtualNote: TMenuItem;
+    N90: TMenuItem;
+    TVUnlinkVirtualNode: TMenuItem;
+    N30: TMenuItem;
+    TVMovenode_: TMenuItem;
+    TVMoveNodeUp: TMenuItem;
+    TVMoveNodeDown: TMenuItem;
+    TVMoveNodeLeft: TMenuItem;
+    TVMoveNodeRight: TMenuItem;
+    TVTransfer_: TMenuItem;
     TVCutSubtree: TMenuItem;
+    TVCopySubtree: TMenuItem;
+    TVGraftSubtree: TMenuItem;
+    TVGraftSubtreeMirror: TMenuItem;
+    N56: TMenuItem;
+    TVEraseTreeMem: TMenuItem;
+    TVExport: TMenuItem;
+    N40: TMenuItem;
+    TVDeleteNode: TMenuItem;
+    TVDeleteChildren: TMenuItem;
+    N32: TMenuItem;
+    TVRenameNode: TMenuItem;
+    TVCopyNode_: TMenuItem;
+    TVCopyNodeName: TMenuItem;
+    TVCopyNodePath: TMenuItem;
+    TVCopyNodeText: TMenuItem;
+    TVCopyPathtoEditor: TMenuItem;
+    TVPasteNode_: TMenuItem;
+    TVPasteNodeName: TMenuItem;
+    N42: TMenuItem;
+    TVPasteNodeNameAsDate: TMenuItem;
+    TVPasteNodeNameAsTime: TMenuItem;
+    TVPasteNodeNameAsDateTime: TMenuItem;
+    N104: TMenuItem;
+    TVPasteNodeNameAsSel: TMenuItem;
+    N31: TMenuItem;
+    TVSortNodes_: TMenuItem;
+    TVSortSubtree: TMenuItem;
+    TVSortTree: TMenuItem;
+    actTVAlarmNode: TAction;
+    actList_File: TActionList;
+    actFileSave: TAction;
+    //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
     procedure TntFormResize(Sender: TObject);
     procedure TB_AlarmModeMouseEnter(Sender: TObject);
     procedure TB_AlarmModeClick(Sender: TObject);
-    procedure TVNavigateNonVirtualNoteClick(Sender: TObject);
-    procedure TVInsertMirrorNodeClick(Sender: TObject);
-    procedure TVPasteSubtreeMirrorClick(Sender: TObject);
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
-    procedure TVAlarmNodeClick(Sender: TObject);
     procedure TB_SetAlarmMouseEnter(Sender: TObject);
     procedure TB_SetAlarmClick(Sender: TObject);
     procedure MMViewFilterTreeClick(Sender: TObject);
@@ -860,10 +858,6 @@ type
     procedure PagesMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure TB_HideCheckedClick(Sender: TObject);
-    procedure TVChildrenCheckboxClick(Sender: TObject);
-    procedure TVHideCheckedChildrenClick(Sender: TObject);
-    procedure TVHideUncheckedChildrenClick(Sender: TObject);
-    procedure TVShowNonFilteredClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -877,8 +871,6 @@ type
     procedure TMRestoreClick(Sender: TObject);
     procedure MMFileNewClick(Sender: TObject);
     procedure MMFileOpenClick(Sender: TObject);
-    procedure MMFileSaveClick(Sender: TObject);
-    procedure MMFileSaveAsClick(Sender: TObject);
     procedure MMFolderNewClick(Sender: TObject);
     procedure MMHelpTipClick(Sender: TObject);
     procedure MMFileCloseClick(Sender: TObject);
@@ -925,7 +917,7 @@ type
     procedure MMFileManagerClick(Sender: TObject);
     procedure MMInsertDateClick(Sender: TObject);
     procedure MMInsertTimeClick(Sender: TObject);
-    procedure MMNoteRemoveClick(Sender: TObject);
+    procedure MMFolderRemoveClick(Sender: TObject);
     procedure MMFileCopyToClick(Sender: TObject);
     procedure MMFindGoToClick(Sender: TObject);
     procedure MMToolsImportClick(Sender: TObject);
@@ -974,60 +966,19 @@ type
     procedure MMEditEvaluateClick(Sender: TObject);
     procedure MMEditPasteEvalClick(Sender: TObject);
 
-    procedure TVChange(Sender: TObject; Node: TTreeNTNode);
-    procedure TVEdited(Sender: TObject; Node: TTreeNTNode; var S: string);
-    procedure TVEditCanceled(Sender: TObject);
-    procedure TVEditing(Sender: TObject; Node: TTreeNTNode; var AllowEdit: Boolean);
-    procedure TVSavingTree(Sender: TObject; Node: TTreeNTNode; var S: string);
-    procedure TVDblClick(Sender: TObject);
-    procedure TVDragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure TVDragOver(Sender, Source: TObject; X, Y: Integer;
-      State: TDragState; var Accept: Boolean);
-    procedure TVEndDrag(Sender, Target: TObject; X, Y: Integer);
-    procedure TVKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure TVStartDrag(Sender: TObject;
-      var DragObject: TDragObject);
-    procedure TVAddNodeClick(Sender: TObject);
-    (* procedure TVM_SelectIconClick(Sender: TObject); REMOVED *)
-    procedure TVInsertNodeClick(Sender: TObject);
-    procedure TVAddChildNodeClick(Sender: TObject);
-    procedure MMRenamenodeClick(Sender: TObject);
     procedure MMViewTBTreeClick(Sender: TObject);
-    procedure TVDeleteNodeClick(Sender: TObject);
-    procedure TVDeletion(Sender: TObject; Node: TTreeNTNode);
     procedure MMTreeFullExpandClick(Sender: TObject);
     procedure MMTreeFullCollapseClick(Sender: TObject);
-    procedure TVClick(Sender: TObject);
-    procedure SplitterNoteMoved(Sender: TObject);
-    procedure OnAfterChangesOnTreeWidth;
-    procedure TVOnHint(Sender: TObject; Node: TTreeNTNode;  var NewText: string);
-    procedure TVMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
-    procedure CheckingTreeExpansion;
-    function CheckRestoreTreeWidth: boolean;
-    procedure CheckExpandTreeWidth;
     {
     procedure TVBeforeItemPaint(Sender: TObject;
       Node: TTreeNTNode; ItemRect: TRect; NodeStates: TNodeStates;
       var OwnerDraw: Boolean);
     }
-    procedure TVSortSubtreeClick(Sender: TObject);
-    procedure TVDeleteChildrenClick(Sender: TObject);
-    procedure TVSortTreeClick(Sender: TObject);
-    procedure TVMoveNodeUpClick(Sender: TObject);
-    procedure TVMoveNodeDownClick(Sender: TObject);
-    procedure TVMoveNodeLeftClick(Sender: TObject);
-    procedure TVMoveNodeRightClick(Sender: TObject);
-    procedure TVPasteNodeNameClick(Sender: TObject);
-    procedure TVCopyNodeNameClick(Sender: TObject);
     procedure MMViewNodeIconsClick(Sender: TObject);
-    procedure TVVirtualNodeClick(Sender: TObject);
     procedure PagesDblClick(Sender: TObject );
     procedure MMFindNodeClick(Sender: TObject);
     procedure MMFindNodeNextClick(Sender: TObject);
     procedure MMMergeNotestoFileClick(Sender: TObject);
-    procedure RxRTFEnter(Sender: TObject);
-    procedure TVEnter(Sender: TObject);
     procedure MMFormatDisabledClick(Sender: TObject);
     procedure MMFormatSubscriptClick(Sender: TObject);
     procedure MMFormatSpBefIncClick(Sender: TObject);
@@ -1051,14 +1002,12 @@ type
     procedure MMFormatNoHighlightClick(Sender: TObject);
     procedure TB_ColorClick(Sender: TObject);
     procedure TB_HiliteClick(Sender: TObject);
-    procedure TVCopySubtreeClick(Sender: TObject);
     procedure PagesDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
     procedure PagesDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure MMInsertTermClick(Sender: TObject);
     procedure MMToolsGlosAddTermClick(Sender: TObject);
     procedure Toolbar_FormatClose(Sender: TObject);
-    procedure TVExportClick(Sender: TObject);
     procedure MMEditTrimLeftClick(Sender: TObject);
     procedure MMEditCompressClick(Sender: TObject);
     procedure MMEditInvertCaseClick(Sender: TObject);
@@ -1075,7 +1024,6 @@ type
     procedure MMEditPasteSpecialClick(Sender: TObject);
     procedure MMInsertFileContentsClick(Sender: TObject);
     procedure MMToolsGlosEditClick(Sender: TObject);
-    procedure TVRefreshVirtualNodeClick(Sender: TObject);
     procedure MMHelpVisitWebsiteClick(Sender: TObject);
     //procedure MMHelpEmailAuthorClick(Sender: TObject);
     procedure Combo_FontSizeKeyPress(Sender: TObject; var Key: Char);
@@ -1106,13 +1054,7 @@ type
     // procedure MMToolsCalculatorClick(Sender: TObject);
     procedure MMToolsTemplateCreateClick(Sender: TObject);
     procedure MMToolsTemplateInsertClick(Sender: TObject);
-    procedure TVKeyPress(Sender: TObject; var Key: Char);
     procedure MMViewCheckboxesAllNodesClick(Sender: TObject);
-    procedure TVChecked(Sender: TObject; Node: TTreeNTNode);
-    procedure TVChecking(Sender: TObject; Node: TTreeNTNode;
-      var AllowCheck: Boolean);
-    procedure TVCheckNodeClick(Sender: TObject);
-    procedure TVBoldNodeClick(Sender: TObject);
     procedure MMViewTreeClick(Sender: TObject);
     procedure MMFormatLanguageClick(Sender: TObject);
     procedure MMNoteSpellClick(Sender: TObject);
@@ -1157,38 +1099,24 @@ type
     procedure StdEMSelectAllClick(Sender: TObject);
     procedure Menu_StdEditPopup(Sender: TObject);
     procedure MMTreeMasterNodeClick(Sender: TObject);
-    procedure TVCopyNodePathClick(Sender: TObject);
-    procedure TVCopyNodeTextClick(Sender: TObject);
-    procedure TVCopyPathtoEditorClick(Sender: TObject);
     procedure FAMCopytoEditorClick(Sender: TObject);
     procedure FAMCopyAlltoEditorClick(Sender: TObject);
     procedure RG_ResFind_TypeClick(Sender: TObject);
     procedure MMTreeNodeFromSelClick(Sender: TObject);
-    procedure TVAddSiblingClick(Sender: TObject);
     procedure FavMJumpClick(Sender: TObject);
     procedure FavMAddClick(Sender: TObject);
     procedure FavMDelClick(Sender: TObject);
     procedure ListBox_ResFavClick(Sender: TObject);
     procedure ListBox_ResTplClick(Sender: TObject);
-    procedure TVUnlinkVirtualNodeClick(Sender: TObject);
     procedure FavMAddExternalClick(Sender: TObject);
     procedure MMEditPasteAsNewNodeClick(Sender: TObject);
-
-    procedure RTFMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-    procedure RTFMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-
     procedure MMTreeOutlineNumClick(Sender: TObject);
     procedure MMHistoryGoBackClick(Sender: TObject);
     procedure MMHistoryGoForwardClick(Sender: TObject);
     procedure MMUpRomanClick(Sender: TObject);
     procedure MMHelpWhatsNewClick(Sender: TObject);
     procedure MMViewTBRefreshClick(Sender: TObject);
-    procedure TVSelectNodeImageClick(Sender: TObject);
-    procedure TVNodeTextColorClick(Sender: TObject);
-    procedure TVDefaultNodeFontClick(Sender: TObject);
-    procedure TVNodeBGColorClick(Sender: TObject);
-    procedure Res_RTFKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure Res_RTFKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MMToolsCustomKBDClick(Sender: TObject);
     procedure MMTreeNavRightClick(Sender: TObject);
     procedure MMToolsExportExClick(Sender: TObject);
@@ -1203,7 +1131,7 @@ type
     procedure List_ResFindDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
 }
-    procedure Menu_TVPopup(Sender: TObject);
+
     procedure MMViewTBSaveConfigClick(Sender: TObject);
     procedure Menu_TimePopup(Sender: TObject);
     procedure Menu_DatePopup(Sender: TObject);
@@ -1225,6 +1153,47 @@ type
     procedure MMEditPlainDefaultPasteClick(Sender: TObject);
     procedure MMP_PlainDefaultPasteClick(Sender: TObject);
     procedure PlainDefaultPaste_Toggled;
+
+    // Tree commands
+    procedure actTVAddNode_AboveExecute(Sender: TObject);
+    procedure actTVAddNode_ChildExecute(Sender: TObject);
+    procedure actTVAddNode_BelowExecute(Sender: TObject);
+    procedure actTVAddNode_LastExecute(Sender: TObject);
+    procedure actTVCheckNodeExecute(Sender: TObject);
+    procedure actTVBoldNodeExecute(Sender: TObject);
+    procedure actTVNodeTextColorExecute(Sender: TObject);
+    procedure actTVNodeBGColorExecute(Sender: TObject);
+    procedure actTVDefaultNodeFontExecute(Sender: TObject);
+    procedure actTVSelectNodeImageExecute(Sender: TObject);
+    procedure actTVChildrenCheckboxExecute(Sender: TObject);
+    procedure actTVHideCheckedChildrenExecute(Sender: TObject);
+    procedure actTVHideUncheckedChildrenExecute(Sender: TObject);
+    procedure actTVShowNonFilteredExecute(Sender: TObject);
+    procedure actTVDeleteNodeExecute(Sender: TObject);
+    procedure actTVDeleteChildrenExecute(Sender: TObject);
+    procedure actTVMoveNodeUpExecute(Sender: TObject);
+    procedure actTVMoveNodeDownExecute(Sender: TObject);
+    procedure actTVMoveNodeLeftExecute(Sender: TObject);
+    procedure actTVMoveNodeRightExecute(Sender: TObject);
+    procedure actTVPasteNodeNameExecute(Sender: TObject);
+    procedure actTVCopyNodeNameExecute(Sender: TObject);
+    procedure actTVCopyNodeTextExecute(Sender: TObject);
+    procedure actTVCopyNodePathExecute(Sender: TObject);
+    procedure actTVCopyPathtoEditorExecute(Sender: TObject);
+    procedure actTVAlarmNodeExecute(Sender: TObject);
+    procedure actTVVirtualNodeExecute(Sender: TObject);
+    procedure actTVRefreshVirtualNodeExecute(Sender: TObject);
+    procedure actTVInsertMirrorNodeExecute(Sender: TObject);
+    procedure actTVNavigateNonVirtualNoteExecute(Sender: TObject);
+    procedure actTVUnlinkVirtualNodeExecute(Sender: TObject);
+    procedure actTVCutSubtreeExecute(Sender: TObject);
+    procedure actTVCopySubtreeExecute(Sender: TObject);
+    procedure actTVPasteSubtreeExecute(Sender: TObject);
+    procedure actTVPasteSubtreeMirrorExecute(Sender: TObject);
+    procedure actTVExportExecute(Sender: TObject);
+    procedure actTVSortSubtreeExecute(Sender: TObject);
+    procedure actTVSortTreeExecute(Sender: TObject);
+    procedure actTVRenameNodeExecute(Sender: TObject);
 
     // Antes privadas...
     procedure AppMinimize(Sender: TObject);
@@ -1257,8 +1226,12 @@ type
     procedure RxChangedSelection(Sender: TKntRichEdit; ConsiderAllOnPlainText: boolean = false);
     procedure RxRTFKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure RxRTFKeyPress(Sender: TObject; var Key: Char);
-    procedure TVCutSubtreeClick(Sender: TObject);
-    procedure TVPasteSubtreeClick(Sender: TObject);
+    procedure actTVEraseTreeMemExecute(Sender: TObject);
+    procedure actFileSaveExecute(Sender: TObject);
+    procedure MMFileSaveAsClick(Sender: TObject);
+    procedure actList_FileUpdate(Action: TBasicAction; var Handled: Boolean);
+    procedure actList_TVsUpdate(Action: TBasicAction; var Handled: Boolean);
+
 
   private
     { Private declarations }
@@ -1289,11 +1262,14 @@ type
     Res_RTF: TKntRichEdit;
     RichPrinter: TRichPrinter;
 
+    procedure UpdateOpenFile;
+    procedure UpdateFileModifiedState;
+    procedure UpdateFolderDisplay (OnlyActionsState: boolean = false);
     procedure UpdateWordWrap;
     procedure EnableActionsForEditor(SupportsRTF: boolean); overload;
     procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean); overload;
-    procedure EnableActionsForTree(TV: TTreeNT; ReadOnly: boolean= false);
-    procedure ShowNodeChromeState(TV: TTreeNT);
+    procedure EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
+    procedure ShowNodeChromeState(TreeUI: TKntTreeUI);
 
 (*
     {$IFDEF WITH_TIMER}
@@ -1358,15 +1334,14 @@ type
     function SelectVisibleControlForNote( const aNote : TKntNote ) : TNodeControl;
     {$ENDIF}
 
-    procedure FilterApplied (Folder: TKntFolder);   // [dpv]
-    procedure FilterRemoved (Folder: TKntFolder);   // [dpv]
+    procedure FilterApplied (Folder: TKntFolder);
+    procedure FilterRemoved (Folder: TKntFolder);
 
-    procedure ShowAlarmStatus;
+    procedure UpdateAlarmStatus;
     procedure SetAlarm (ConsiderNoteAlarm: Boolean);
   end;
 
 function GetFilePassphrase( const FN : string ) : string;
-function IsAParentOf( aPerhapsParent, aChild : TTreeNTNode ) : boolean;
 function MillisecondsIdle: DWord;
 
 
@@ -1399,16 +1374,15 @@ uses
    kn_ExportNew,
    kn_MacroMng,
    kn_PluginsMng,
-   kn_TreeNoteMng,
    kn_TemplateMng,
    kn_FindReplaceMng,
    kn_ConfigMng,
    kn_StyleMng,
    kn_FavoritesMng,
    kn_BookmarksMng,
-   kn_VirtualNodeMng,
    kn_NoteFileMng,
    kn_AlertMng,
+   kn_KntFile,
    kn_VCLControlsMng,
    knt.App
    {$IFNDEF EXCLUDEEMAIL}
@@ -1425,7 +1399,7 @@ uses
 
 resourcestring
   STR_01 = 'Unable to assign "%s" as activation hotkey.';
-  STR_02 = 'Unexpcted error while turning %s Activation hotkey "%s": %s';
+  STR_02 = 'Unexpected error while turning %s Activation hotkey "%s": %s';
   STR_03 = '&Restore (%s)';
   STR_04 = '&Restore';
   STR_05 = 'Function key assignment updated';
@@ -1459,25 +1433,7 @@ resourcestring
   STR_32 = ' Folder sent';
   STR_33 = ' Folder not sent';
   STR_35 = 'Set alarm... (Ctrl:Add  Shift:->Folder)';
-  STR_36 = 'Drag: ';
-  STR_37 = 'TV dragover';
-  STR_38_Dragged = '<nothing>';
-  STR_39 = 'Cannot drop node %s on itself';
-  STR_41= 'Cannot drop node %s - invalid source';
-  STR_42= 'Cannot drop node %s onto its child %s';
-  STR_43= 'Node "%s" promoted to TOP';
-  STR_44= 'Node "%s" promoted to parent''s level';
-  STR_45= 'Node "%s" moved to top of siblings';
-  STR_46= 'Node "%s" inserted after node "%s"';
-  STR_47= 'Node "%s" made child of node "%s"';
-  STR_48= 'Nothing to drop or invalid drop target';
-  STR_49= 'OK to sort the entire tree?';
-  STR_50= ' Node name cannot be blank!';
-  STR_51= ' Node renamed.';
-  STR_52= ' Cannot edit: Folder is read-only.';
-  STR_53= 'Edit node name';
-  STR_54= 'Enter new name:';
-  STR_55= 'Node name cannot be blank!';
+
   STR_56= 'Parser stack overflow';
   STR_57= 'Bad cell range';
   STR_58= 'Expected expression';
@@ -1494,6 +1450,7 @@ resourcestring
   STR_69= 'The Style toolbar must be visible to use this command. Show the Style toolbar now?';
   STR_70= 'No style available or none selected';
   STR_71= 'Error: StyleManager does not exist.';
+
   STR_72= 'Tree nodes can only be dropped on the tree, or on another tab.';
   STR_74= 'Cannot transfer nodes to "%s", because target note is Read-Only.';
   STR_75= 'Move';
@@ -1501,6 +1458,7 @@ resourcestring
   STR_77= '%s dragged nodes to tab "%s"?';
   STR_78= 'Failed to acquire source nodes.';
   STR_79= ' Tab %d: %s';
+
   STR_81= 'Could not open KeyNote file "%s"';
   STR_82= 'This command will start your browser and direct it to KeyNote NF website, where ' +
     'you can download the latest version of the program, read the FAQ, submit bug reports or feature requests with the Issue Manager. ' +  #13+#13+ 'Continue?';
@@ -1519,6 +1477,13 @@ resourcestring
   STR_94= 'Toolbar configuration file "%s" not found. Default toolbar configuration file has been created.';
   STR_95= 'Saved toolbar layout to "%s".';
   STR_96= 'Starting number for numbered paragraphs:';
+
+  STR_fs0= 'Untitled';
+  STR_fs1 = 'No file';
+  STR_fs2 = ' (no file)';
+  STR_fs3 = ' Auto';
+  STR_fs4 = ' MOD';
+  STR_fs5 = ' Saved';
 
 const
   _TIMER_INTERVAL = 2000; // 2 seconds
@@ -1951,7 +1916,7 @@ begin
       Open:= true;
       if HaveKntFolders( false, false ) then begin
          if ( KntFileToLoad.ToUpper = KntFile.FileName.ToUpper ) then begin
-           if ( PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+           if ( App.PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
               Open:= false;
            KntFile.Modified := false; // to prevent automatic save if modified
          end;
@@ -2015,7 +1980,7 @@ begin
 
   if CanClose then
     if ( KeyOptions.ConfirmExit and ( not ClosedByWindows )) then
-      CanClose := ( PopupMessage( format(STR_07, [Program_Name]), mtConfirmation, [mbYes,mbNo], 0 ) = mrYes );
+      CanClose := ( App.PopupMessage( format(STR_07, [Program_Name]), mtConfirmation, [mbYes,mbNo], 0 ) = mrYes );
   { note: if windows is closing, we do not honor the "Confirm exit" config option }
 
   try
@@ -2114,7 +2079,6 @@ begin
     try
 
       if assigned( KntFile ) then KntFile.Free;
-      if assigned( TransferNodes ) then TransferNodes.Free;
       // DestroyVCLControls;
 
     except
@@ -2196,7 +2160,7 @@ begin
   // TB_MacroPause.Hint := .Hint;
   // TB_MacroRecord.Hint := .Hint;
   TB_HideChecked.Hint := MMViewHideCheckedNodes.Hint;    // [dpv]
-  TB_NoteDelete.Hint := MMNoteRemove.Hint;
+  TB_NoteDelete.Hint := MMFolderRemove.Hint;
   TB_NoteEdit.Hint := MMNoteProperties.Hint;
   TB_NoteNew.Hint := MMFolderNew.Hint;
   TB_Numbers.Hint := MMFormatNumbers.Hint;
@@ -2512,21 +2476,18 @@ begin
   KntFileOpen( '' );
 end; // MMOpenClick
 
-procedure TForm_Main.MMFileSaveClick(Sender: TObject);
+procedure TForm_Main.actFileSaveExecute(Sender: TObject);
 begin
 {$IFDEF KNT_DEBUG}
   Log.Add( '-- Saving on user request' );
 {$ENDIF}
   if ShiftDown then
-  begin
-    KntFileSave( '' )
-  end
-  else
-  begin
-    if HaveKntFolders( false, false ) then
-      KntFileSave( KntFile.FileName )
+     KntFileSave('')
+  else begin
+    if HaveKntFolders(false, false) then
+       KntFileSave(KntFile.FileName)
     else
-      KntFileSave( '' );
+       KntFileSave('');
   end;
 end;
 
@@ -2587,9 +2548,7 @@ end;
 procedure TForm_Main.AutoSaveToggled;
 begin
   MMFileAutoSave.Checked := KeyOptions.AutoSave;
-  if ( not Initializing ) then
-    UpdateKntFileState( [fscModified] );
-end; // AutoSaveToggled;
+end;
 
 procedure TForm_Main.AnotherInstance;
 begin
@@ -2950,7 +2909,6 @@ begin
     App.ActivateFolder(Folder);
 
     KntFile.Modified := true;
-    UpdateKntFileState( [fscModified] );
  end;
 end; // TAB SHIFT
 
@@ -2987,7 +2945,6 @@ begin
     App.ActivateFolder(Folder);
 
     KntFile.Modified := true;
-    UpdateKntFileState( [fscModified] );
  end;
 
 end; // ShiftTab
@@ -3074,7 +3031,7 @@ end; // DisplayHistoryFile
 procedure TForm_Main.Combo_FontChange(Sender: TObject);
 begin
   if assigned(ActiveFolder) and (ActiveFolder.FocusMemory = focTree) then
-     SetTreeNodeFontFace( false, ShiftDown )
+     ActiveFolder.TreeUI.SetNodeFontFace(nil, false, ShiftDown )
   else
      PerformCmd( ecFontName );
 end; // Combo_FontChange
@@ -3093,7 +3050,7 @@ begin
          VK_RETURN, VK_ESCAPE : begin
            if (key = VK_RETURN) then begin
              if FocusTree then
-                SetTreeNodeFontFace(false, ShiftDown)
+                ActiveFolder.TreeUI.SetNodeFontFace(nil, false, ShiftDown)
              else
                 PerformCmd(ecFontName);
            end;
@@ -3188,7 +3145,7 @@ var
   BoldWasDown : boolean;
 begin
   if (self.ActiveControl is TTreeNT) and (assigned(ActiveFolder.SelectedNote)) then begin
-     SetTreeNodeBold(ShiftDown);
+     ActiveFolder.TreeUI.SetNodeBold(nil, ShiftDown);
      TB_Bold.Down := ActiveNote.Bold;           // Change could be rejected and button .Down state has ALREADY changed
   end
   else
@@ -3289,7 +3246,7 @@ end;
 procedure TForm_Main.MMFormatTextColorClick(Sender: TObject);
 begin
    if (self.ActiveControl is TTreeNT) then
-      SetTreeNodeColor( KeyOptions.UseOldColorDlg, true, false, ShiftDown  )
+      ActiveFolder.TreeUI.SetNodeColor(nil,  KeyOptions.UseOldColorDlg, true, false, ShiftDown  )
    else
      if KeyOptions.UseOldColorDlg then
        PerformCmd( ecFontColorDlg ) // bring up color dialog
@@ -3300,7 +3257,7 @@ end;
 procedure TForm_Main.MMFormatHighlightClick(Sender: TObject);
 begin
    if (self.ActiveControl is TTreeNT) then
-      SetTreeNodeColor(KeyOptions.UseOldColorDlg, false, false, ShiftDown)
+      ActiveFolder.TreeUI.SetNodeColor(nil, KeyOptions.UseOldColorDlg, false, false, ShiftDown)
    else
      if KeyOptions.UseOldColorDlg then
        PerformCmd( ecHighlightDlg )
@@ -3356,7 +3313,7 @@ end;
 procedure TForm_Main.MMFormatNoHighlightClick(Sender: TObject);
 begin
    if (self.ActiveControl is TTreeNT) then
-      SetTreeNodeColor( false, false, true, ShiftDown  )
+      ActiveFolder.TreeUI.SetNodeColor(nil, false, false, true, ShiftDown  )
    else
       PerformCmd( ecNoHighlight );
 end;
@@ -3366,7 +3323,7 @@ begin
   TB_Color.OnClick := nil;
   try
     if (self.ActiveControl is TTreeNT) then
-      SetTreeNodeColor( false, true, false, ShiftDown  )
+      ActiveFolder.TreeUI.SetNodeColor(nil, false, true, false, ShiftDown  )
     else
       PerformCmd( ecFontColorBtn );
   finally
@@ -3379,7 +3336,7 @@ begin
   TB_Hilite.OnClick := nil;
   try
     if (self.ActiveControl is TTreeNT) then
-      SetTreeNodeColor( false, false, false, ShiftDown )
+      ActiveFolder.TreeUI.SetNodeColor(nil, false, false, false, ShiftDown )
     else
       PerformCmd( ecHighlightBtn );
   finally
@@ -3460,7 +3417,7 @@ begin
   s := s + #13 + '(Log enabled)';
 {$ENDIF}
 
-  if DoMessageBox( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel then exit;
+  if App.DoMessageBox( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel then exit;
 
 end; // DEBUG MENU CLICK
 
@@ -3584,7 +3541,7 @@ begin
     PerformCmd( ecInsTime );
 end;
 
-procedure TForm_Main.MMNoteRemoveClick(Sender: TObject);
+procedure TForm_Main.MMFolderRemoveClick(Sender: TObject);
 begin
   TKntFolder.DeleteKntFolder;
 end;
@@ -3672,8 +3629,8 @@ begin
         TB_FilterTree.Down:= false;
     end
     else begin
-        RemoveFilter (Folder);
-        FilterRemoved (Folder);
+        Folder.TreeUI.RemoveFilter;
+        FilterRemoved(Folder);
     end;
 end;
 
@@ -3806,7 +3763,7 @@ begin
   end;
 
   if (( not result ) and Warn ) then
-    PopupMessage( msg, mtInformation, [mbOK], 0 );
+    App.PopupMessage( msg, mtInformation, [mbOK], 0 );
 
 end; // HaveKntFolders
 
@@ -3914,9 +3871,9 @@ end;
 
 procedure TForm_Main.MMFilePageSetupClick(Sender: TObject);
 begin
-  if ( not assigned( RichPrinter )) then    // [dpv]
+  if ( not assigned( RichPrinter )) then
   begin
-      try                                     // [DPV]
+      try
          RichPrinter := TRichPrinter.Create(Form_Main);
       except
         On E : Exception do
@@ -3927,7 +3884,7 @@ begin
       end;
   end;
 
-   try                                     // [DPV]
+   try
       RichPrinter.PageDialog;
     // PageSetupDlg.Execute;
    except
@@ -4020,7 +3977,11 @@ begin
 end; // MMEmailnoteClick
 
 
-procedure TForm_Main.ShowAlarmStatus;
+//  Alarm related actions ==================================
+
+{$REGION Alarm related actions}
+
+procedure TForm_Main.UpdateAlarmStatus;
 var
    HasNoteAlarms, HasNodeAlarms: Boolean;
    myNote: TKntNote;
@@ -4049,11 +4010,11 @@ begin
      if assigned(ActiveFolder) then begin
          TB_AlarmMode.Down:= not KeyOptions.DisableAlarmPopup;
          AlarmMng.ShowAlarms(true);
-         ShowAlarmStatus;
+         UpdateAlarmStatus;
      end;
   end
   else
-      MMAlarmsPopupClick (nil);
+     MMAlarmsPopupClick (nil);
 end;
 
 
@@ -4070,7 +4031,7 @@ procedure TForm_Main.MMShowAlarmsClick(Sender: TObject);
 begin
    if assigned(ActiveFolder) then begin
       AlarmMng.ShowAlarms(false);
-      ShowAlarmStatus;
+      UpdateAlarmStatus;
    end;
 end;
 
@@ -4081,12 +4042,12 @@ begin
 end;
 
 
-procedure TForm_Main.TB_SetAlarmClick(Sender: TObject);      // [dpv*]
+procedure TForm_Main.TB_SetAlarmClick(Sender: TObject);
 begin
    SetAlarm (True);
 end;
 
-procedure TForm_Main.SetAlarm(ConsiderNoteAlarm: Boolean);      // [dpv*]
+procedure TForm_Main.SetAlarm(ConsiderNoteAlarm: Boolean);
 var
     myNote: TKntNote;
     HasFolderAlarms, HasNodeAlarms: Boolean;
@@ -4104,11 +4065,11 @@ begin
       myNote:= nil;
 
    AlarmMng.EditAlarms (myNote, ActiveFolder, (GetKeyState(VK_CONTROL) < 0));
-   ShowAlarmStatus;
+   UpdateAlarmStatus;
 end;
 
 
-procedure TForm_Main.TB_SetAlarmMouseEnter(Sender: TObject);    // [dpv*]
+procedure TForm_Main.TB_SetAlarmMouseEnter(Sender: TObject);
 var
     myNote: TKntNote;
     hint: string;
@@ -4153,6 +4114,9 @@ begin
     TB_SetAlarm.Hint:= hint;
 end;
 
+{$ENDREGION}   //  Alarms ==================================
+
+
 procedure TForm_Main.TB_ClipCapClick(Sender: TObject);
 begin
   ClipCapMng.Toggle (TB_ClipCap.Down, ActiveEditor);
@@ -4174,12 +4138,6 @@ begin
     Pages.Images := nil;
 end; // MMViewTabIconsClick
 
-
-procedure TForm_Main.TVChange(Sender: TObject; Node: TTreeNTNode);
-begin
-  if (Node <> _LAST_NODE_SELECTED) then
-     TreeNodeSelected( Node );
-end;
 
 procedure TForm_Main.OnFileDropped( Sender : TObject; FileList : TStringList );
 begin
@@ -4206,752 +4164,52 @@ procedure TForm_Main.CreateWnd;
 begin
   inherited;
   DragAcceptFiles( handle, true );
-end; // CreateWnd
+end;
 
 procedure TForm_Main.DestroyWnd;
 begin
   DragAcceptFiles( handle, false );
   inherited;
-end; // DestroyWnd
-
-procedure TForm_Main.TVDeletion(Sender: TObject; Node: TTreeNTNode);
-var
-   myFolder : TKntFolder;
-   myNote: TKntNote;
-begin
-  if not assigned( Node ) then exit;
-
-  myFolder:= TKntFolder(KntFile.GetFolderByTreeNode(Node));
-  if assigned( myFolder ) then begin
-    myNote:= TKntNote( Node.Data );
-
-     if KntFile.FileName <> '<DESTROYING>' then          // FileName='<DESTROYING>'=> is closing. All nodes will be deleted all the way
-        KntFile.ManageMirrorNodes(3, Node, nil);
-
-    myFolder.RemoveNote( myNote);
-
-  end;
 end;
 
-
-var
-  TreeWidthExpanded: boolean;
-  TreeWidth_N: Cardinal;
-  TreeWidthNodeTouched: boolean;
-  SplitterNoteMoving: boolean;
-
-const
-  TREE_WIDTH_MOUSE_TIMEOUT = 2500;
-
-
-procedure TForm_Main.OnAfterChangesOnTreeWidth;
-var
-  color: TColor;
-begin
-  if ActiveFolder.TreeMaxWidth < 0 then
-     Color:= clSkyBlue
-  else
-     if ActiveFolder.TreeMaxWidth > 0 then
-        Color:= clLtGray
-     else
-        Color:= clBtnFace;
-
-   ActiveFolder.Splitter.Color:= Color;
-
-   if KeyOptions.ModifiedOnTreeResized then begin
-      ActiveFolder.Modified := true;
-      ActiveFile.Modified := true;
-      UpdateKntFileState( [fscModified] );
-   end;
-end;
-
-procedure TForm_Main.SplitterNoteMoved(Sender: TObject);
-var
-  myFolder: TKntFolder;
-  Width: integer;
-begin
-   // This method will be called 2 times, from TSplitter.UpdateControlSize and TSplitter.StopSizing
-   // We Will ignore the first one
-   if not SplitterNoteMoving then begin
-      SplitterNoteMoving:= true;
-      exit;
-   end;
-   SplitterNoteMoving:= false;
-
-
-   myFolder:= ActiveFolder;
-   if myFolder.VerticalLayout then
-      Width := myFolder.TV.Height
-   else
-      Width := myFolder.TV.Width;
-
-   if AltDown then
-      myFolder.TreeMaxWidth:= -Width                       // Enable TreeMaxWidth and set fixed state
-
-   else begin
-      if CtrlDown then begin
-         myFolder.TreeMaxWidth:= Width;                          // Change MaxWidth
-         TreeWidthExpanded:= True;
-      end
-      else begin                                                 // Change normal width (MaxWidth not modified)
-         myFolder.TreeWidth:= Width;
-         myFolder.TreeMaxWidth:= Abs(myFolder.TreeMaxWidth);     // Disable fixed state
-      end;
-   end;
-
-   if KeyOptions.AltMargins then
-      myFolder.Editor.Refresh;
-
-   OnAfterChangesOnTreeWidth;
-end;
-
-
-procedure TForm_Main.CheckingTreeExpansion;
-var
-  N2: Cardinal;
-begin
-   if TreeWidth_N = 0 then begin
-      TreeWidth_N:= GetTickCount;           // number of milliseconds that have elapsed since the system was started
-      TreeWidthNodeTouched:= false;
-   end
-   else begin
-      N2:= GetTickCount;
-      if N2 > (TreeWidth_N + TREE_WIDTH_MOUSE_TIMEOUT) then
-         TreeWidth_N:= 0
-      else
-         if (N2 >= (TreeWidth_N + 300)) and TreeWidthNodeTouched then begin
-            TreeWidth_N:= 0;
-            CheckExpandTreeWidth;
-         end;
-   end;
-end;
-
-procedure TForm_Main.TVOnHint(Sender: TObject; Node: TTreeNTNode;
-  var NewText: string);
-begin
-  { *1 We make sure that CheckingTreeExpansion doesn't end up calling CheckExpandTreeWidth
-       until we initialize TreeWidth_N to 0 (from RTFMouseMove and CheckRestoreTreeWidth) }
-   if not CtrlDown then begin
-      TreeWidthNodeTouched:= True;
-      CheckingTreeExpansion;
-   end
-   else
-      TreeWidth_N:= Cardinal.MaxValue - TREE_WIDTH_MOUSE_TIMEOUT;   // *1
-end;
-
-procedure TForm_Main.TVMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
-begin
-   if not CtrlDown then
-     CheckingTreeExpansion
-   else
-      TreeWidth_N:= Cardinal.MaxValue - TREE_WIDTH_MOUSE_TIMEOUT;
-end;
-
-
-procedure TForm_Main.RTFMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
-begin
-   if TreeWidthExpanded then begin
-      if ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) then exit;
-      CheckRestoreTreeWidth;
-   end;
-   TreeWidth_N:= 0;
-end;
-
-procedure TForm_Main.RTFMouseUp(Sender: TObject; Button: TMouseButton; Shift:TShiftState; X,Y: integer);
-begin
-   if TreeWidthExpanded then
-      CheckRestoreTreeWidth;
-end;
-
-
-procedure TForm_Main.CheckExpandTreeWidth;
-var
-  myFolder: TKntFolder;
-  Width: integer;
-begin
-   myFolder:= ActiveFolder;
-   if myFolder.VerticalLayout then
-      Width := myFolder.TV.Height
-   else
-      Width := myFolder.TV.Width;
-
-   if (myFolder.TreeMaxWidth > 0) and (myFolder.TreeMaxWidth > Width) then begin
-      if myFolder.VerticalLayout then
-         myFolder.TV.Height:= myFolder.TreeMaxWidth
-      else
-         myFolder.TV.Width:= myFolder.TreeMaxWidth;
-
-      if KeyOptions.AltMargins then
-         myFolder.Editor.Refresh;
-
-      TreeWidthExpanded:= True;
-   end;
-end;
-
-function TForm_Main.CheckRestoreTreeWidth: boolean;
-var
-   Width: integer;
-   myFolder: TKntFolder;
-begin
-   Result:= False;
-    myFolder:= ActiveFolder;
-    if not assigned(myFolder) then exit;
-
-    // myFolder.TV.PopupMenu = nil => Is editing node label
-    if (myFolder.TreeMaxWidth > 0) and (myFolder.TV.Visible) and (myFolder.TV.PopupMenu <> nil) and (not myFolder.TV.Focused) then begin
-       if myFolder.VerticalLayout then
-          Width := myFolder.TV.Height
-       else
-          Width := myFolder.TV.Width;
-
-       if (Width > myFolder.TreeWidth) then begin
-           if myFolder.VerticalLayout then
-              myFolder.TV.Height:= myFolder.TreeWidth
-           else
-              myFolder.TV.Width:= myFolder.TreeWidth;
-
-           TreeWidthExpanded:= false;
-           TreeWidth_N:= 0;
-           Result:= true;
-       end;
-    end;
-
-end;
-
-procedure TForm_Main.RxRTFEnter(Sender: TObject);
-begin
-   if not ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) then
-      CheckRestoreTreeWidth;
-end;
-
-procedure TForm_Main.TVEnter(Sender: TObject);
-begin
-   App.TreeFocused(TTreeNT(Sender));
-
-   if (ActiveFolder.FocusMemory = focTree) and not ( (CtrlDown or AltDown) and ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) ) then
-      CheckExpandTreeWidth;
-end;
-
-
-
-procedure TForm_Main.TVClick(Sender: TObject);
-begin
-  if AltDown then
-      ActiveFolder.TreeMaxWidth:= -ActiveFolder.TreeMaxWidth        // Toggle fixed state
-  else
-  if CtrlDown then begin
-     CheckRestoreTreeWidth;
-     ActiveFolder.TreeMaxWidth:= 0;                                    // Disable TreeMaxWidth
-  end;
-
-  OnAfterChangesOnTreeWidth;
-end;
-
-procedure TForm_Main.TVDblClick(Sender: TObject);
-begin
-  // MMRenamenodeClick( Sender );
-end;
-
-procedure TForm_Main.TVStartDrag(Sender: TObject;
-  var DragObject: TDragObject);
-begin
-  // StatusBar.Panels[PANEL_HINT].Text := 'Drag: ' + DragObject.GetName;
-  DraggedTreeNode := ActiveFolder.TV.Selected;
-  if assigned( DraggedTreeNode ) then
-    StatusBar.Panels[PANEL_HINT].Text := STR_36 + DraggedTreeNode.Text;
-end; // TVStartDrag
-
-
-procedure TForm_Main.TVDragOver(Sender, Source: TObject; X,
-  Y: Integer; State: TDragState; var Accept: Boolean);
-var
-  ThisNode : TTreeNTNode;
-begin
-
-  StatusBar.Panels[0].Text := STR_37;
-
-  if (( source is TRxRichEdit )) then
-     accept := true;
-
-
-  accept := false;
-  if (( not assigned( DraggedTreeNode )) or ( sender <> source )) then
-     exit;
-
-  ThisNode := ( sender as TTreeNT ).GetNodeAt( X, Y );
-  if ( not ( assigned( ThisNode ) and ( ThisNode <> DraggedTreeNode ))) then
-     exit;
-
-  Accept := true;
-
-end; // TVDragOver
-
-
-function IsAParentOf( aPerhapsParent, aChild : TTreeNTNode ) : boolean;
-var
-  i, leveldifference : integer;
-begin
-  result := false;
-  if ( not ( assigned( aPerhapsParent ) and assigned( aChild ))) then exit;
-
-  leveldifference := aChild.Level - aPerhapsParent.Level;
-  if ( leveldifference < 1 ) then exit; // cannot be a parent if its level is same or greater than "child's"
-
-  for i := 1 to leveldifference do begin
-    aChild := aChild.Parent;
-    if assigned( aChild ) then begin
-       if ( aChild = aPerhapsParent ) then begin
-          result := true;
-          break;
-       end;
-    end
-    else
-       break; // result = false
-  end;
-end; // IsAParentOf
-
-
-procedure TForm_Main.TVDragDrop(Sender, Source: TObject; X,
-  Y: Integer);
-var
-  DropTreeNode, PreviousParent : TTreeNTNode;
-  s : string;
-  myFolder : TKntFolder;
-begin
-  myFolder := ActiveFolder;
-
-  if FolderIsReadOnly( myFolder, true ) then begin
-    DraggedTreeNode := nil;
-    if (Sender is TTreeNT) then
-       (sender as TTreeNT).EndDrag( false );
-    exit;
-  end;
-
-  s := STR_38_Dragged;
-  DropTreeNode := ( sender as TTreeNT ).GetNodeAt( X, Y );
-
-  try
-    if assigned( DraggedTreeNode ) and assigned( DropTreeNode ) then
-    begin
-
-      // check if we can drop DraggedTreeNode onto DropNode
-      // 1. Cannot drop node on itself
-      if ( DropTreeNode = DraggedTreeNode ) then begin
-        // {N}
-        s := Format( STR_39, [DraggedTreeNode.Text] );
-        exit;
-      end;
-
-      // 2. Cannot drop between treeviews
-      if ( DropTreeNode.TreeView <> DraggedTreeNode.TreeView ) then begin
-        // {N}
-        s := Format( STR_41, [DraggedTreeNode.Text] );
-        exit;
-      end;
-
-      // 3. Cannot drop a node onto its own child
-      if IsAParentOf( DraggedTreeNode, DropTreeNode ) then begin
-        // {N}
-        s := Format( STR_42, [DraggedTreeNode.Text, DropTreeNode.Text] );
-        exit;
-      end;
-
-      // now figure out where to move the node
-      // 1. If dropping on immediate parent, then make node first child of parent
-      // 2. If dropping on any other node, then make node LAST child of that node,
-      //    unless SHIFT is down, in which case make node FIRST child of that node
-
-      myFolder.TV.OnChange := nil; // stop event
-      PreviousParent := DraggedTreeNode.Parent;
-
-      myFolder.TV.OnChecked := nil;
-
-      if (( DropTreeNode.Level = 0 ) and CtrlDown ) then begin
-        // make TOP node
-        DraggedTreeNode.MoveTo( nil, naAddFirst );
-        s := Format( STR_43, [DraggedTreeNode.Text] );
-      end
-      else
-      if ( DraggedTreeNode.Parent = DropTreeNode ) then begin
-         if ShiftDown then begin
-           DraggedTreeNode.MoveTo( DropTreeNode, naInsert );
-           s := Format( STR_44, [DraggedTreeNode.Text] );
-         end
-         else begin
-           DraggedTreeNode.MoveTo( DropTreeNode, naAddChildFirst );
-           s := Format( STR_45, [DraggedTreeNode.Text] );
-         end;
-      end
-      else begin
-         if ShiftDown then begin
-           DraggedTreeNode.MoveTo( DropTreeNode, naInsert );
-           s := Format( STR_46, [DraggedTreeNode.Text, DropTreeNode.Text] );
-         end
-         else begin
-           DraggedTreeNode.MoveTo( DropTreeNode, naAddChildFirst );
-           s := Format( STR_47, [DraggedTreeNode.Text, DropTreeNode.Text] );
-         end;
-      end;
-
-      // update node icon
-      SelectIconForNode( DraggedTreeNode, myFolder.IconKind );
-      SelectIconForNode( DraggedTreeNode.Parent, myFolder.IconKind );
-      SelectIconForNode( PreviousParent, myFolder.IconKind );
-      myFolder.TV.Invalidate;
-
-    end
-    else begin
-      s := STR_48;
-      DraggedTreeNode := nil;
-      if (Sender is TTreeNT) then
-         (sender as TTreeNT).EndDrag( false );
-    end;
-
-  finally
-    KntFile.Modified := true;
-    if TKntNote(DraggedTreeNode.Data).Checked then begin
-       DraggedTreeNode.CheckState := csChecked;
-    end;
-    myFolder.TV.OnChange := TVChange;
-    myFolder.TV.OnChecked:= Form_Main.TVChecked;
-    UpdateKntFileState( [fscModified] );
-    StatusBar.Panels[PANEL_HINT].Text := s;
-  end;
-
-end; // TVDragDrop
-
-procedure TForm_Main.TVEndDrag(Sender, Target: TObject; X,
-  Y: Integer);
-begin
-  // StatusBar.Panels[PANEL_HINT].Text := 'End drag';
-  DraggedTreeNode := nil;
-end;
-
-procedure TForm_Main.TVVirtualNodeClick(Sender: TObject);
-begin
-  VirtualNoteProc( vmNone, nil, '' );
-end; // TVMVirtualNodeClick
-
-procedure TForm_Main.TVRefreshVirtualNodeClick(Sender: TObject);
-begin
-  VirtualNoteRefresh( TreeOptions.ConfirmNodeRefresh );
-end;
-
-
-procedure TForm_Main.TVKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-var
-  ptCursor : TPoint;
-begin
-  if ( not assigned( ActiveFolder ) ) then exit;
-  if (sender as TTreeNT).IsEditing then exit;
-
-  case key of
-    VK_F10 : if ( shift = [ssShift] ) then begin
-      key := 0;
-      GetCursorPos( ptCursor );
-      Menu_TV.Popup( ptCursor.X, ptCursor.Y );
-    end;
-
-    VK_SPACE : if ( Shift = [] ) then begin
-      // rename node
-      key := 0;
-      MMRenamenodeClick( sender );
-    end;
-
-    220 : if ( Shift = [ssCtrl] ) then begin // backslash
-      Key := 0;
-      MMTreeFocusEditorClick (nil);
-    end;
-
-  end;
-
-end; // TVKeyDown
-
-
-procedure TForm_Main.TVKeyPress(Sender: TObject; var Key: Char);
-begin
-  if (sender as TTreeNT).IsEditing then begin
-     if ( key = KNTLINK_SEPARATOR ) then
-        key := #0; // disallow | character in node name, because it breaks KNT links (which use | as delimiter)
-  end;
-end; // TVKeyPress
-
-procedure TForm_Main.TVAddNodeClick(Sender: TObject);
-begin
-  AddNodeToTree( tnAddLast );
-end; // TVMAddNodeClick
-
-procedure TForm_Main.TVInsertMirrorNodeClick(Sender: TObject);
-var
-  myTreeNode: TTreeNTNode;
-  mirrorNode: TTreeNTNode;
-  Folder: TKntFolder;
-begin
-  Folder:= ActiveFolder;
-  myTreeNode:= Folder.TV.Selected;
-  if assigned(myTreeNode) then begin
-     AddNodeToTree( tnInsertBefore );
-     mirrorNode:= Folder.TV.Selected;
-     TKntNote(mirrorNode.Data).Assign( myTreeNode.Data );
-     UpdateTreeNode(mirrorNode, Folder);
-     TKntNote(mirrorNode.Data).MirrorNode:= myTreeNode;
-     SelectIconForNode( mirrorNode, Folder.IconKind );
-     AddMirrorNode(myTreeNode, mirrorNode);
-     Folder.DataStreamToEditor;
-  end;
-end;
-
-procedure TForm_Main.TVInsertNodeClick(Sender: TObject);
-begin
-  AddNodeToTree( tnInsertBefore );
-end; // TVMInsertNodeClick
-
-procedure TForm_Main.TVAddChildNodeClick(Sender: TObject);
-begin
-  AddNodeToTree( tnAddChild );
-end;
-
-procedure TForm_Main.TVAddSiblingClick(Sender: TObject);
-begin
-  AddNodeToTree( tnAddAfter );
-end;
-
-procedure TForm_Main.TVAlarmNodeClick(Sender: TObject);
-begin
-   SetAlarm (false);
-end;
-
-procedure TForm_Main.TVDeleteNodeClick(Sender: TObject);
-begin
-  DeleteTreeNode( true );
-end;
-
-procedure TForm_Main.TVDeleteChildrenClick(Sender: TObject);
-begin
-  DeleteTreeNode( false );
-end;
-
-procedure TForm_Main.TVMoveNodeUpClick(Sender: TObject);
-begin
-  MoveTreeNode( nil, dirUp );
-end;
-
-procedure TForm_Main.TVMoveNodeDownClick(Sender: TObject);
-begin
-  MoveTreeNode( nil, dirDown );
-end;
-
-procedure TForm_Main.TVMoveNodeLeftClick(Sender: TObject);
-begin
-  MoveTreeNode( nil, dirLeft );
-end;
-
-procedure TForm_Main.TVMoveNodeRightClick(Sender: TObject);
-begin
-  MoveTreeNode( nil, dirRight );
-end;
-
-procedure TForm_Main.TVPasteNodeNameClick(Sender: TObject);
-begin
-  if ( sender is TMenuItem ) then
-    PasteNodeName( TPasteNodeNameMode(( sender as TMenuItem ).Tag ));
-end;
-
-
-
-procedure TForm_Main.TVCopyNodeNameClick(Sender: TObject);
-begin
-  CopyNodeName( ShiftDown );
-end;
-
-procedure TForm_Main.MMTreeFullExpandClick(Sender: TObject);
-var
-  TV: TTreeNT;
-begin
-  TV:= ActiveFolder.TV;
-  TV.FullExpand;
-  TreeNodeSelected(TV.Selected);
-  TV.Selected.MakeVisible;
-end;
 
 procedure TForm_Main.MMTreeFocusToogleClick(Sender: TObject);
 begin
   if not assigned(ActiveFolder) then exit;
 
-  try
-     if ActiveFolder.TV.Focused then
-        MMTreeFocusEditorClick (nil)
-     else
-        MMTreeFocusTreeClick (nil);
-
-  except
-  end;
-
+  if ActiveFolder.TV.Focused then
+     ActiveFolder.SetFocusOnEditor
+  else
+     MMTreeFocusTreeClick (nil);
 end;
 
 procedure TForm_Main.MMTreeFocusEditorClick(Sender: TObject);
 begin
   if not assigned(ActiveFolder) then exit;
 
-  try
-     ActiveFolder.Editor.SetFocus;
-  except
-  end;
-
+  ActiveFolder.SetFocusOnEditor
 end;
 
 procedure TForm_Main.MMTreeFocusTreeClick(Sender: TObject);
 begin
   if not assigned(ActiveFolder) then exit;
 
-  try
-     if ActiveFolder.TreeHidden then
-        MMViewTreeClick(nil);
+  if ActiveFolder.TreeHidden then
+     MMViewTreeClick(nil);
 
-     ActiveFolder.TV.SetFocus;
-  except
-  end;
+  ActiveFolder.SetFocusOnTree;
 end;
 
 
 procedure TForm_Main.MMTreeFullCollapseClick(Sender: TObject);
 begin
-  ActiveFolder.TV.FullCollapse;
-  TreeNodeSelected(ActiveFolder.TV.Selected );
+  ActiveTreeUI.FullCollapse;
 end;
 
-procedure TForm_Main.TVSortSubtreeClick(Sender: TObject);
-var
-  myTreeNode : TTreeNTNode;
+procedure TForm_Main.MMTreeFullExpandClick(Sender: TObject);
 begin
-  if ( ActiveFolder.FocusMemory <> focTree ) then exit;
-  if FolderIsReadOnly( ActiveFolder, true ) then exit;
-
-  myTreeNode := GetCurrentTreeNode;
-  if ( assigned( myTreeNode ) and myTreeNode.HasChildren ) then begin
-    ActiveFolder.TV.OnChange := nil;
-    try
-      myTreeNode.AlphaSort;
-    finally
-      ActiveFile.Modified := true;
-      ActiveFolder.TV.OnChange := TVChange;
-      UpdateKntFileState( [fscModified] );
-    end;
-  end;
-end; // Sort Child Nodes
-
-
-procedure TForm_Main.TVSortTreeClick(Sender: TObject);
-begin
-  if FolderIsReadOnly( ActiveFolder, true ) then exit;
-
-  if assigned( ActiveFolder) then begin
-
-    if (MessageDlg(STR_49, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-
-    ActiveFolder.TV.OnChange := nil;
-    try
-      ActiveFolder.TV.AlphaSort;
-    finally
-      ActiveFile.Modified := true;
-      ActiveFolder.TV.OnChange := TVChange;
-      UpdateKntFileState( [fscModified] );
-    end;
-  end;
-end; // Sort full tree
-
-
-
-procedure TForm_Main.TVEdited(Sender: TObject; Node: TTreeNTNode; var S: string);
-begin
-  ( sender as TTreeNT ).PopupMenu := Menu_TV;               // PopupMenu=nil => IsEditing=True
-  S := trim( copy( S, 1, TREENODE_NAME_LENGTH ));
-
-  if ( S = '' ) then begin
-    StatusBar.Panels[PANEL_HINT].Text := STR_50;
-    S := _OLD_NOTE_NAME;
-    exit;
-  end;
-
-  _ALLOW_VCL_UPDATES := false;
-  try
-    if assigned( TKntNote( Node.Data )) then
-      TKntNote( Node.Data ).Name := S;  // {N} must add outline numbering, if any
-    StatusBar.Panels[PANEL_HINT].Text := STR_51;
-    ActiveFolder.Modified := true;
-  finally
-    _ALLOW_VCL_UPDATES := true;
-    ActiveFile.Modified := true;
-    UpdateKntFileState( [fscModified] );
-  end;
-end; // TVEdited
-
-
-procedure TForm_Main.TVEditCanceled(Sender: TObject);
-begin
-  (Sender as TTreeNT).PopupMenu := Menu_TV;
-end; // TVEditCanceled
-
-
-procedure TForm_Main.TVEditing(Sender: TObject; Node: TTreeNTNode;
-  var AllowEdit: Boolean);
-begin
-  if (( assigned( ActiveFolder )) and ( not ActiveFolder.ReadOnly )) then begin
-    _OLD_NOTE_NAME := node.text;
-    (Sender as TTreeNT).PopupMenu := nil;       // stop menu events triggered by shortcut keys
-  end
-  else begin
-    StatusBar.Panels[PANEL_HINT].Text := STR_52;
-    AllowEdit := false;
-  end;
-end; // TVEditing
-
-
-procedure TForm_Main.TVSavingTree(Sender: TObject; Node: TTreeNTNode; var S: string);
-begin
-   if not ShowHiddenMarkers then exit;
-   if assigned( TKntNote( Node.Data )) then
-      S:= Format('%s [%d]', [S, TKntNote(Node.Data).ID]);
+  ActiveTreeUI.FullExpand;
 end;
-
-
-procedure TForm_Main.MMRenamenodeClick(Sender: TObject);
-var
-  myFolder: TKntFolder;
-  myNote : TKntNote;
-  myName : string;
-begin
-  if FolderIsReadOnly( ActiveFolder, true ) then exit;
-
-  myFolder:= ActiveFolder;
-  myNote := GetCurrentNote;
-
-  if assigned( myNote ) then begin
-    if (myFolder.FocusMemory <> focTree) then exit;
-
-    if TreeOptions.EditInPlace then
-       myFolder.TV.Selected.EditText
-
-    else begin
-       myName := myNote.Name;
-       _OLD_NOTE_NAME := myName;
-       if InputQuery( STR_53, STR_54, myName ) then begin
-          myName := trim( myName );
-          if ( myName <> '' ) then begin
-            myNote.Name := myName;
-            myFolder.TV.Selected.Text := myNote.Name;  // TKntNote does NOT update its treenode's properties!
-            myFolder.Modified := true;
-            UpdateKntFileState( [fscModified] );
-          end
-          else
-            messagedlg( STR_55, mtError, [mbOK], 0 );
-       end;
-    end;
-  end;
-end;
-
-// RenameNode
 
 
 procedure TForm_Main.MMViewNodeIconsClick(Sender: TObject);
@@ -4970,9 +4228,9 @@ begin
     else
       myFolder.IconKind := TNodeIconKind( mi.Tag );
 
-    ShowOrHideIcons( myFolder, ( myFolder.IconKind <> niNone ));
+    myFolder.TreeUI.ShowOrHideIcons((myFolder.IconKind <> niNone));
+    UpdateFolderDisplay(true);
     ActiveFile.Modified := true;
-    UpdateKntFileState( [fscModified] );
   end;
 end; // MMViewNodeIconsClick
 
@@ -4988,27 +4246,10 @@ begin
   if assigned(myFolder) then begin
     myFolder.Checkboxes := ( not myFolder.Checkboxes );
     MMViewCheckboxesAllNodes.Checked := myFolder.Checkboxes;
-    TVChildrenCheckbox.Enabled := not MMViewCheckboxesAllNodes.Checked;       // [dpv]
-    ShowOrHideCheckBoxes( myFolder );
+    myFolder.TreeUI.ShowOrHideCheckBoxes;
   end;
 end;
 
-
-
-procedure TForm_Main.TVChecked(Sender: TObject; Node: TTreeNTNode);
-var
-  myNote : TKntNote;
-
-begin
-  if assigned(node) and assigned(node.Data) then
-     ChangeCheckedState(TTreeNT(Node.TreeView), Node, Node.CheckState = csChecked, false);
-end;
-
-procedure TForm_Main.TVChecking(Sender: TObject; Node: TTreeNTNode;
-  var AllowCheck: Boolean);
-begin
-  AllowCheck := ( not FolderIsReadOnly( ActiveFolder, false ));
-end;
 
 procedure TForm_Main.MMToolsMergeClick(Sender: TObject);
 begin
@@ -5286,32 +4527,14 @@ begin
 end;
 
 
-procedure TForm_Main.TVCopySubtreeClick(Sender: TObject);
-begin
-  CmdCopy;
-end;
-
-procedure TForm_Main.TVCutSubtreeClick(Sender: TObject);
-begin
-  CmdCut;
-end;
-
-procedure TForm_Main.TVPasteSubtreeClick(Sender: TObject);
-begin
-  CmdPaste (false, false);
-end;
-
-procedure TForm_Main.TVPasteSubtreeMirrorClick(Sender: TObject);
-begin
-  TreeTransferProc(1, nil, KeyOptions.ConfirmTreePaste, true, false );
-end;
+// Move Subtree by drag and drop over the Tabs ------------------------
 
 procedure TForm_Main.NodesDropOnTabProc( const DropTab : TTab95Sheet );
 var
-  oldPage : TTab95Sheet;
-  myFolder : TKntFolder;
   s : string;
   DoMoveNodes : boolean;
+  sFolder, tFolder : TKntFolder;   // Source and target folders
+  sTree, tTree: TKntTreeUI;        // Source and target trees
 begin
   DoMoveNodes := ( ShiftDown or KeyOptions.DropNodesOnTabMove );
 
@@ -5320,11 +4543,11 @@ begin
     exit;
   end;
 
-  myFolder := TKntFolder( DropTab.PrimaryObject );
-  oldPage := Pages.ActivePage;
+  sFolder := ActiveFolder;
+  tFolder := TKntFolder( DropTab.PrimaryObject );
 
-  if myFolder.ReadOnly then begin
-    DoMessageBox( Format(STR_74, [DropTab.Caption]), mtError, [mbOK], 0 );
+  if tFolder.ReadOnly then begin
+    App.DoMessageBox( Format(STR_74, [tFolder.Name]), mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -5333,33 +4556,39 @@ begin
       s := STR_75
     else
       s := STR_76;
-    if (DoMessageBox(Format(STR_77, [s, DropTab.Caption]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes) then
+    if (App.DoMessageBox(Format(STR_77, [s, DropTab.Caption]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes) then
        exit;
   end;
 
-  try // [x]
-    CopyCutFromFolderID:= ActiveFolder.ID;
-    if TreeTransferProc( 0, nil, false, false, false ) then begin  // step 1 - copy
+  try
+    sTree:= ActiveFolder.TreeUI;
+    tTree:= tFolder.TreeUI;
+    if sTree.TreeTransferProc( ttCopy, false, false, false ) then begin              // step 1 - copy
        App.ActivateFolder(DropTab.TabIndex);
-       if TreeTransferProc( 1, myFolder, false, false, DoMoveNodes ) then begin // step 2 - paste
-          if DoMoveNodes then begin // MOVE instead of copy, so delete originals
-            App.ActivateFolder(oldPage.TabIndex);
-            DeleteTreeNode( true, true);                  // Do not ask for confirmation. Copied nodes have the same GIDs
-            App.ActivateFolder(DropTab.TabIndex);
-          end;
+       if tTree.TreeTransferProc( ttPaste, false, false, DoMoveNodes ) then begin    // step 2 - paste
+          if DoMoveNodes then                                      // MOVE instead of copy, so delete originals
+            sTree.DeleteNode(nil, false, false);                   // Do not ask for confirmation. Copied nodes have the same GIDs
        end;
     end
     else
        messagedlg( STR_78, mtError, [mbOK], 0 );
 
   finally
-    if (TransferNodes <> nil) then begin
-       TransferNodes.Free;
-       TransferNodes := nil;
-    end;
+     TKntTreeUI.ClearTransferNodes;
   end;
 
 end; // NodesDropOnTabProc
+
+procedure TForm_Main.PagesDragDrop(Sender, Source: TObject; X, Y: Integer);
+var
+  DropTabIdx : integer;
+
+begin
+  DropTabIdx := Pages.GetTabAt( X, Y );
+  if (( DropTabIdx >= 0 ) and ( DropTabIdx < Pages.PageCount )) then
+    NodesDropOnTabProc( Pages.Pages[DropTabIdx] );
+end; // PagesDragDrop
+
 
 procedure TForm_Main.PagesDragOver(Sender, Source: TObject; X, Y: Integer;
   State: TDragState; var Accept: Boolean);
@@ -5387,17 +4616,6 @@ begin
   end;
 
 end;
-
-
-procedure TForm_Main.PagesDragDrop(Sender, Source: TObject; X, Y: Integer);
-var
-  DropTabIdx : integer;
-
-begin
-  DropTabIdx := Pages.GetTabAt( X, Y );
-  if (( DropTabIdx >= 0 ) and ( DropTabIdx < Pages.PageCount )) then
-    NodesDropOnTabProc( Pages.Pages[DropTabIdx] );
-end; // PagesDragDrop
 
 
 procedure TForm_Main.MMInsertTermClick(Sender: TObject);
@@ -5442,11 +4660,6 @@ begin
 
 end;
 
-procedure TForm_Main.TVExportClick(Sender: TObject);
-begin
-  ExportTreeNode;
-end;
-
 procedure TForm_Main.TB_HideCheckedClick(Sender: TObject);   // [dpv]
 var
   myFolder : TKntFolder;
@@ -5464,37 +4677,12 @@ begin
     TB_HideChecked.Down := Hide;
 
     if Hide then
-       HideChildNodesUponCheckState (myFolder, nil, csChecked)
+       myFolder.TreeUI.HideChildNodesUponCheckState (nil, csChecked)
     else
-       ShowCheckedNodes (myFolder, nil);
+       myFolder.TreeUI.ShowCheckedNodes (nil);
   end;
 
 end;
-
-procedure TForm_Main.TVHideCheckedChildrenClick(Sender: TObject);
-var
-  myFolder : TKntFolder;
-begin
-   myFolder := ActiveFolder;
-   HideChildNodesUponCheckState (myFolder, myFolder.TV.Selected, csChecked);
-end;
-
-procedure TForm_Main.TVHideUncheckedChildrenClick(Sender: TObject);
-var
-  myFolder : TKntFolder;
-begin
-   myFolder := ActiveFolder;
-   HideChildNodesUponCheckState (myFolder, myFolder.TV.Selected, csUnchecked);
-end;
-
-procedure TForm_Main.TVShowNonFilteredClick(Sender: TObject);
-var
-  myFolder : TKntFolder;
-begin
-   myFolder := ActiveFolder;
-   ShowCheckedNodes (myFolder, myFolder.TV.Selected);
-end;
-
 
 
 procedure TForm_Main.MMEditTrimLeftClick(Sender: TObject);
@@ -5609,7 +4797,7 @@ begin
        if ( _Global_Location.FileName <> '' ) then begin
           if (( not FileExists( _Global_Location.Filename )) or
              ( KntFileOpen( _Global_Location.Filename ) <> 0 )) then begin
-            DoMessageBox( Format(STR_81,[_Global_Location.Filename] ), mtError, [mbOK], 0 );
+            App.DoMessageBox( Format(STR_81,[_Global_Location.Filename] ), mtError, [mbOK], 0 );
             exit;
           end;
        end;
@@ -5912,70 +5100,26 @@ begin
   InsertTemplate( '' );
 end;
 
-procedure TForm_Main.TVCheckNodeClick(Sender: TObject);
-var
-  myNote : TKntNote;
-  myTreeNode : TTreeNTNode;
-begin
-  if FolderIsReadOnly( ActiveFolder, false ) then exit;
-  myNote := GetCurrentNote;
-  if ( not assigned( myNote )) then exit;
-  if ( ActiveFolder.FocusMemory <> focTree ) then exit;
-  myTreeNode := ActiveFolder.TV.Selected;
-
-  myNote.Checked := ( not myNote.Checked );
-  TVCheckNode.Checked := myNote.Checked;
-  if myNote.Checked then
-    myTreeNode.CheckState := csChecked
-  else
-    myTreeNode.CheckState := csUnchecked;
-
-end;
-
-procedure TForm_Main.TVChildrenCheckboxClick(Sender: TObject);    // [dpv]
-var
-  myNote : TKntNote;
-  myTreeNode : TTreeNTNode;
-begin
-  if FolderIsReadOnly( ActiveFolder, false ) then exit;
-  myNote := GetCurrentNote;
-  if ( not assigned( myNote )) then exit;
-  if ( ActiveFolder.FocusMemory <> focTree ) then exit;
-  myTreeNode := ActiveFolder.TV.Selected;
-
-  myNote.ChildrenCheckbox := ( not myNote.ChildrenCheckbox );
-  TVChildrenCheckbox.Checked := myNote.ChildrenCheckbox;
-  ShowOrHideChildrenCheckBoxes (myTreeNode);
-end;
-
-// TVCheckNodeClick
-
-
-procedure TForm_Main.TVBoldNodeClick(Sender: TObject);
-begin
-  SetTreeNodeBold( ShiftDown );
-end; // TVMBoldClick
 
 procedure TForm_Main.MMViewTreeClick(Sender: TObject);
+var
+   TreeVisible: boolean;
 begin
   if assigned( ActiveFolder) then begin
-    MMViewTree.Checked := ( not MMViewTree.Checked );
-
-    ActiveFolder.TreeHidden := ( not MMViewTree.Checked );
+    ActiveFolder.TreeHidden := ( not ActiveFolder.TreeHidden );
+    TreeVisible:= not ActiveFolder.TreeHidden;
     UpdateTreeVisible( ActiveFolder);
 
     if ( ActiveFolder.TreeHidden ) then
-      try
-         if not ActiveEditor.Focused then     // Could be scratch editor
-            ActiveFolder.Editor.SetFocus;
-      except
-      end;
+       if not ActiveEditor.Focused then     // Could be scratch editor
+          ActiveFolder.SetFocusOnEditor;
     ActiveFolder.Editor.Invalidate;
 
-    MMViewNodeIcons.Enabled := MMViewTree.Checked;
-    MMViewCustomIcons.Enabled := MMViewTree.Checked;
-    MMViewCheckboxesAllNodes.Enabled := MMViewTree.Checked;
-    MMViewHideCheckedNodes.Enabled := MMViewTree.Checked;     // [dpv]
+    MMViewTree.Checked := TreeVisible;
+    MMViewNodeIcons.Enabled := TreeVisible;
+    MMViewCustomIcons.Enabled := TreeVisible;
+    MMViewCheckboxesAllNodes.Enabled := TreeVisible;
+    MMViewHideCheckedNodes.Enabled := TreeVisible;
   end;
 end; // MMViewTreeClick
 
@@ -6017,9 +5161,9 @@ end;
 procedure TForm_Main.MMViewResPanelClick(Sender: TObject);
 begin
   if (Sender = nil) and KeyOptions.ResPanelShow and assigned(ActiveFolder) then begin
-     if ActiveFolder.Editor.Focused or ActiveFolder.TV.Focused then begin
+     if ActiveFolder.Editor.Focused or ActiveTreeUI.Focused then begin
         FocusResourcePanel;
-        CheckRestoreTreeWidth;
+        ActiveTreeUI.CheckRestoreTreeWidth;
         exit;
      end;
   end;
@@ -6039,7 +5183,7 @@ begin
   else
     FocusActiveKntFolder;
 
-  CheckRestoreTreeWidth;
+  ActiveTreeUI.CheckRestoreTreeWidth;
 end; // MMViewResPanelClick
 
 
@@ -6614,22 +5758,7 @@ end; // Menu_StdEditPopup
 
 procedure TForm_Main.MMTreeMasterNodeClick(Sender: TObject);
 begin
-  CreateMasterNode;
-end;
-
-procedure TForm_Main.TVCopyNodePathClick(Sender: TObject);
-begin
-  CopyNodePath( false );
-end;
-
-procedure TForm_Main.TVCopyNodeTextClick(Sender: TObject);
-begin
-  CopyNodeName( true );
-end;
-
-procedure TForm_Main.TVCopyPathtoEditorClick(Sender: TObject);
-begin
-  CopyNodePath( true );
+  ActiveTreeUI.CreateMasterNode;
 end;
 
 procedure TForm_Main.FAMCopytoEditorClick(Sender: TObject);
@@ -6649,7 +5778,7 @@ end;
 
 procedure TForm_Main.MMTreeNodeFromSelClick(Sender: TObject);
 begin
-  CreateNodefromSelection;
+  ActiveFolder.TreeUI.CreateNodefromSelection;
 end;
 
 
@@ -6727,21 +5856,15 @@ begin
   StatusBar.Panels[PANEL_HINT].Text := STR_93;
 end;
 
-procedure TForm_Main.TVUnlinkVirtualNodeClick(Sender: TObject);
-begin
-  VirtualNoteUnlink;
-end;
-
 procedure TForm_Main.FavMAddExternalClick(Sender: TObject);
 begin
   AddFavorite( true );
 end;
 
 
-
 procedure TForm_Main.MMTreeOutlineNumClick(Sender: TObject);
 begin
-  OutlineNumberNodes;
+  ActiveFolder.TreeUI.OutlineNumberNodes;
 end;
 
 procedure TForm_Main.MMHistoryGoBackClick(Sender: TObject);
@@ -6833,45 +5956,8 @@ begin
     STR_95, [Toolbar_FN] ), mtInformation, [mbOK], 0 );
 end;
 
-procedure TForm_Main.TVSelectNodeImageClick(Sender: TObject);
-begin
-  SetTreeNodeCustomImage;
-end;
 
-
-procedure TForm_Main.TVNodeTextColorClick(Sender: TObject);
-begin
-  SetTreeNodeColor( true, true, false, ShiftDown );
-end;
-
-procedure TForm_Main.TVDefaultNodeFontClick(Sender: TObject);
-var
-  ShiftWasDown : boolean;
-begin
-  ShiftWasDown := ShiftDown;
-  SetTreeNodeColor( false, true, true, ShiftWasDown );
-  SetTreeNodeColor( false, false, true, ShiftWasDown );
-  SetTreeNodeFontFace( true, ShiftWasDown );
-  ShowNodeChromeState(ActiveFolder.TV);
-end;
-
-procedure TForm_Main.TVNavigateNonVirtualNoteClick(Sender: TObject);
-var
-  myTreeNode: TTreeNTNode;
-begin
-    myTreeNode:= GetCurrentTreeNode;
-    if assigned(myTreeNode) and assigned(myTreeNode.Data) then begin
-        NavigateToTreeNode(TKntNote(myTreeNode.Data).MirrorNode);
-    end;
-end;
-
-procedure TForm_Main.TVNodeBGColorClick(Sender: TObject);
-begin
-  SetTreeNodeColor( true, false, false, ShiftDown );
-end;
-
-procedure TForm_Main.Res_RTFKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TForm_Main.Res_RTFKeyDown(Sender: TObject; var Key: Word;  Shift: TShiftState);
 var
   ptCursor : TPoint;
 begin
@@ -6898,8 +5984,18 @@ end;
 
 procedure TForm_Main.MMTreeNavRightClick(Sender: TObject);
 begin
-  if ( sender is TMenuItem ) then
-    NavigateInTree( TNavDirection(( sender as TMenuItem ).Tag ));
+  {
+    If the tree has focus, Alt+arrow scrolls the editor;         (Alt+Up, ALt+Down, Alt+Shift+Left,Alt+Shift+Right)
+    if the editor is focused, Alt+arrow scrolls the tree
+  }
+
+  if ( sender is TMenuItem ) then begin
+    if Assigned(ActiveTreeUI) and ActiveTreeUI.Focused then
+       ActiveEditor.Navigate(TNavDirection((sender as TMenuItem ).Tag))
+    else
+    if Assigned(ActiveEditor) then
+       ActiveTreeUI.Navigate(TNavDirection((sender as TMenuItem).Tag ));
+  end;
 end;
 
 procedure TForm_Main.MMToolsExportExClick(Sender: TObject);
@@ -7147,17 +6243,6 @@ begin
 end;
 }
 
-
-procedure TForm_Main.Menu_TVPopup(Sender: TObject);
-var
-  myNote : TKntNote;
-begin
-  myNote := GetCurrentNote;
-  if assigned( myNote ) then
-    VirtualNoteUpdateMenu( myNote.VirtualMode <> vmNone, myNote.VirtualMode = vmKNTNode )
-  else
-    VirtualNoteUpdateMenu( false, false );
-end;
 
 
 procedure TForm_Main.Menu_TimePopup(Sender: TObject);
@@ -7437,12 +6522,12 @@ var
    Inc: Integer;
 begin
   with AFolder do begin
-    TV.Visible := ( not TreeHidden );
+    TreeUI.Visible := ( not TreeHidden );
 
     if KeyOptions.UseCtrlHideTreePanel then
         if TreeHidden then begin
            if CtrlDown then begin
-              _WindowWidthIncToRestore:= TV.Width;
+              _WindowWidthIncToRestore:= TreeUI.Width;
               Inc:= _WindowWidthIncToRestore;
               With Form_Main do
                 SetBounds(Left + Inc, Top, Width - Inc, Height );
@@ -7488,33 +6573,6 @@ begin
   ClipCapMng.PasteAsWebClip(true);
 end;
 
-function DoMessageBox (text: string;
-        DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
-        HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
-var
-   caption: string;
-begin
-    if assigned(ActiveFile) then
-       caption:= ExtractFilename(ActiveFile.FileName) + ' - ' + Program_Name
-    else
-       caption:= Program_Name;
-
-    Result:= DoMessageBox(text,caption, DlgType, Buttons,0, hWnd);
-end;
-
-function PopUpMessage( const mStr : string; const mType : TMsgDlgType;
-        const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word;
-var
-   caption: string;
-begin
-    if assigned(ActiveFile) then
-       caption:= ExtractFilename(ActiveFile.FileName) + ' - ' + Program_Name
-    else
-       caption:= Program_Name;
-
-    Result:= PopUpMessage(mStr, caption, mType, mButtons, mHelpCtx);
-end;
-
 
 procedure TForm_Main.RxRTFKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
@@ -7555,6 +6613,234 @@ begin
       MMTreeFocusTreeClick (nil);
    end
 end;
+
+
+// Tree panel context menu commands ===========================================
+
+{$REGION 'Tree commands'}
+
+
+procedure TForm_Main.actTVAlarmNodeExecute(Sender: TObject);
+begin
+   SetAlarm (false);
+end;
+
+procedure TForm_Main.actTVAddNode_AboveExecute(Sender: TObject);
+begin
+  ActiveTreeUI.AddNode(tnInsertBefore);
+end;
+
+procedure TForm_Main.actTVAddNode_ChildExecute(Sender: TObject);
+begin
+  ActiveTreeUI.AddNode(tnAddChild)
+end;
+
+procedure TForm_Main.actTVAddNode_BelowExecute(Sender: TObject);
+begin
+  ActiveTreeUI.AddNode(tnAddAfter);
+end;
+
+procedure TForm_Main.actTVAddNode_LastExecute(Sender: TObject);
+begin
+  ActiveTreeUI.AddNode( tnAddLast );
+end;
+
+procedure TForm_Main.actTVCheckNodeExecute(Sender: TObject);
+begin
+  ActiveTreeUI.ToggleCheckNode(ActiveTreeUI.SelectedNode);
+end;
+
+procedure TForm_Main.actTVBoldNodeExecute(Sender: TObject);
+begin
+  ActiveTreeUI.SetNodeBold(nil, ShiftDown );
+end;
+
+procedure TForm_Main.actTVNodeTextColorExecute(Sender: TObject);
+begin
+  ActiveTreeUI.SetNodeColor(nil, true, true, false, ShiftDown );
+end;
+
+procedure TForm_Main.actTVNodeBGColorExecute(Sender: TObject);
+begin
+  ActiveTreeUI.SetNodeColor(nil, true, false, false, ShiftDown );
+end;
+
+procedure TForm_Main.actTVDefaultNodeFontExecute(Sender: TObject);
+var
+  ShiftWasDown : boolean;
+begin
+  ShiftWasDown := ShiftDown;
+  ActiveTreeUI.SetNodeColor(nil, false, true, true, ShiftWasDown );
+  ActiveTreeUI.SetNodeColor(nil, false, false, true, ShiftWasDown );
+  ActiveTreeUI.SetNodeFontFace(nil, true, ShiftWasDown );
+  ShowNodeChromeState(ActiveTreeUI);
+end;
+
+procedure TForm_Main.actTVSelectNodeImageExecute(Sender: TObject);
+begin
+  ActiveTreeUI.SetNodeCustomImage(nil);
+end;
+
+
+procedure TForm_Main.actTVChildrenCheckboxExecute(Sender: TObject);    // [dpv]
+begin
+  ActiveTreeUI.ToggleChildrenCheckbox(ActiveTreeUI.SelectedNode);
+end;
+
+procedure TForm_Main.actTVHideCheckedChildrenExecute(Sender: TObject);
+begin
+   ActiveTreeUI.HideChildNodesUponCheckState (ActiveTreeUI.SelectedNode, csChecked);
+end;
+
+procedure TForm_Main.actTVHideUncheckedChildrenExecute(Sender: TObject);
+begin
+   ActiveTreeUI.HideChildNodesUponCheckState (ActiveTreeUI.SelectedNode, csUnchecked);
+end;
+
+procedure TForm_Main.actTVShowNonFilteredExecute(Sender: TObject);
+begin
+   ActiveTreeUI.ShowCheckedNodes (ActiveTreeUI.SelectedNode);
+end;
+
+procedure TForm_Main.actTVDeleteNodeExecute(Sender: TObject);
+begin
+  ActiveTreeUI.DeleteNode(nil, false );
+end;
+
+procedure TForm_Main.actTVDeleteChildrenExecute(Sender: TObject);
+begin
+  ActiveTreeUI.DeleteNode(nil, true );
+end;
+
+procedure TForm_Main.actTVMoveNodeUpExecute(Sender: TObject);
+begin
+  ActiveTreeUI.MoveTreeNode( nil, dirUp );
+end;
+
+procedure TForm_Main.actTVMoveNodeDownExecute(Sender: TObject);
+begin
+  ActiveTreeUI.MoveTreeNode( nil, dirDown );
+end;
+
+procedure TForm_Main.actTVMoveNodeLeftExecute(Sender: TObject);
+begin
+  ActiveTreeUI.MoveTreeNode( nil, dirLeft );
+end;
+
+procedure TForm_Main.actTVMoveNodeRightExecute(Sender: TObject);
+begin
+  ActiveTreeUI.MoveTreeNode( nil, dirRight );
+end;
+
+procedure TForm_Main.actTVPasteNodeNameExecute(Sender: TObject);
+begin
+  if (sender is TAction) then
+     ActiveTreeUI.PasteNodeName(nil, TPasteNodeNameMode((sender as TAction).Tag));
+end;
+
+procedure TForm_Main.actTVCopyNodeNameExecute(Sender: TObject);
+begin
+  ActiveTreeUI.CopyNodeName( ShiftDown );
+end;
+
+procedure TForm_Main.actTVCopyNodeTextExecute(Sender: TObject);
+begin
+  ActiveTreeUI.CopyNodeName( true );
+end;
+
+procedure TForm_Main.actTVCopyNodePathExecute(Sender: TObject);
+begin
+  ActiveTreeUI.CopyNodePath(nil, false );
+end;
+
+procedure TForm_Main.actTVCopyPathtoEditorExecute(Sender: TObject);
+begin
+  ActiveTreeUI.CopyNodePath(nil, true );
+end;
+
+
+procedure TForm_Main.actTVVirtualNodeExecute(Sender: TObject);
+begin
+  ActiveTreeUI.VirtualNoteProc( vmNone, nil, '' );
+end;
+
+procedure TForm_Main.actTVRefreshVirtualNodeExecute(Sender: TObject);
+begin
+  ActiveTreeUI.VirtualNoteRefresh( TreeOptions.ConfirmNodeRefresh );
+end;
+
+procedure TForm_Main.actTVInsertMirrorNodeExecute(Sender: TObject);
+begin
+  ActiveTreeUI.InsertMirrorNode(ActiveTreeUI.SelectedNode);
+end;
+
+procedure TForm_Main.actTVNavigateNonVirtualNoteExecute(Sender: TObject);
+var
+  myTreeNode: TTreeNTNode;
+begin
+    myTreeNode:= ActiveTreeUI.SelectedNode;
+    if assigned(myTreeNode) and assigned(myTreeNode.Data) then begin
+        NavigateToTreeNode(TKntNote(myTreeNode.Data).MirrorNode);
+    end;
+end;
+
+procedure TForm_Main.actTVUnlinkVirtualNodeExecute(Sender: TObject);
+begin
+  ActiveTreeUI.VirtualNoteUnlink;
+end;
+
+procedure TForm_Main.actTVCutSubtreeExecute(Sender: TObject);
+begin
+  CmdCut;
+end;
+
+procedure TForm_Main.actTVCopySubtreeExecute(Sender: TObject);
+begin
+  CmdCopy;
+end;
+
+procedure TForm_Main.actTVPasteSubtreeExecute(Sender: TObject);
+begin
+  CmdPaste (false, false);
+end;
+
+procedure TForm_Main.actTVPasteSubtreeMirrorExecute(Sender: TObject);
+begin
+  ActiveTreeUI.TreeTransferProc(ttPaste, KeyOptions.ConfirmTreePaste, true, false );
+end;
+
+procedure TForm_Main.actTVEraseTreeMemExecute(Sender: TObject);
+begin
+  ActiveTreeUI.TreeTransferProc(ttClear, false, false, false );
+end;
+
+procedure TForm_Main.actTVExportExecute(Sender: TObject);
+begin
+  ExportTreeNode;
+end;
+
+procedure TForm_Main.actTVSortSubtreeExecute(Sender: TObject);
+begin
+  ActiveTreeUI.SortSubtree(ActiveTreeUI.SelectedNode);
+end;
+
+
+procedure TForm_Main.actTVSortTreeExecute(Sender: TObject);
+begin
+  ActiveTreeUI.SortTree;
+end; // Sort full tree
+
+procedure TForm_Main.actTVRenameNodeExecute(Sender: TObject);
+begin
+   ActiveTreeUI.RenameFocusedNode;
+end;
+
+{$ENDREGION}   //  'Tree commands' ==================================
+
+
+//=================================================================
+// Update UI State
+//=================================================================
 
 procedure TForm_Main.RxChangedSelection(Sender: TKntRichEdit; ConsiderAllOnPlainText: boolean = false);
 var
@@ -7703,16 +6989,16 @@ begin
     TB_Images.Enabled:=  SupportsRegImages and VinculatedToNote;
 end;
 
-procedure TForm_Main.ShowNodeChromeState(TV: TTreeNT);
+procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);
 begin
     if assigned(ActiveNote) then begin
-      Combo_Font.FontName := GetNodeFontFace(TV.Selected);
+      Combo_Font.FontName := TreeUI.GetNodeFontFace(TreeUI.SelectedNode);
       Combo_FontSize.Text := inttostr( ActiveFolder.TreeChrome.Font.Size);
       TB_Bold.Down := ActiveNote.Bold;
     end;
 end;
 
-procedure TForm_Main.EnableActionsForTree(TV: TTreeNT; ReadOnly: boolean= false);
+procedure TForm_Main.EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
 var
   i: integer;
 
@@ -7746,17 +7032,201 @@ begin
        MMFormatNoHighlight.Enabled:= true;
     end;
 
-    ShowNodeChromeState (TV);
+    ShowNodeChromeState (TreeUI);
 end;
 
+
+procedure TForm_Main.actList_FileUpdate(Action: TBasicAction; var Handled: Boolean);
+begin
+   UpdateFileModifiedState;
+   Handled:= true;
+end;
+
+
+procedure TForm_Main.actList_TVsUpdate(Action: TBasicAction; var Handled: Boolean);
+var
+  SelNote : TKntNote;
+  SelTreeNode: TTreeNTNode;
+  IsVirtual : boolean;
+  IsKNTVirtual: boolean;
+
+begin
+   Handled:= true;
+   if ActiveTreeUI = nil then exit;
+   SelTreeNode:= ActiveTreeUI.SelectedNode;
+
+   IsVirtual := false;
+   if SelTreeNode <> nil then begin
+      SelNote := TKntNote(SelTreeNode.Data);
+      IsVirtual := (SelNote.VirtualMode <> vmNone);
+      IsKNTVirtual := (SelNote.VirtualMode = vmKNTNode);
+      TVCheckNode.Checked := SelNote.Checked;
+      TVChildrenCheckbox.Checked := SelNote.ChildrenCheckbox;
+      TVBoldNode.Checked := SelNote.Bold;
+   end
+   else
+      TVCheckNode.Checked := false;
+
+   TVVirtualNode.Checked := IsVirtual and not IsKNTVirtual;
+   TVRefreshVirtualNode.Enabled := IsVirtual and not IsKNTVirtual;
+   TVUnlinkVirtualNode.Enabled := IsVirtual;
+   TVNavigateNonVirtualNote.Enabled := IsKNTVirtual;
+
+   TVChildrenCheckbox.Enabled := not ActiveFolder.Checkboxes;
+   if ActiveFolder.Checkboxes or (assigned(SelTreeNode) and assigned(SelTreeNode.Parent) and (SelTreeNode.Parent.CheckType = ctCheckBox)) then
+      TVCheckNode.Enabled := true
+   else
+      TVCheckNode.Enabled := false;
+end;
+
+procedure TForm_Main.UpdateOpenFile;
+var
+  FN : string;
+  F: TKntFile;
+begin
+   F:= ActiveFile;
+   StatusBar.Panels.BeginUpdate;
+   try
+      if not assigned(F) then begin
+        FN:= STR_fs2;                                 // (No file)
+        StatusBar.Panels[PANEL_CARETPOS].Text := '';
+        StatusBar.Panels[PANEL_NOTEINFO].Text := '';
+        StatusBar.Panels[PANEL_STATUS].Text := '';
+        StatusBar.Panels[PANEL_FILEICON].Text := '';
+        SelectStatusBarGlyph(false);
+        StatusBar.Hint := '';
+      end
+      else begin
+         if (KntFile.FileName <> '') then
+           FN := F.File_Name
+         else
+           FN := STR_fs0;
+
+         StatusBar.Hint := #32 + F.FileName;
+         SelectStatusbarGlyph(true);
+      end;
+
+      Application.Title := Format( '%s - %s', [FN, Program_Name] );
+      Caption:= Format('%s  %s - %s', [Program_Name, Program_Version, FN]);
+      SetFilenameInStatusbar(#32 + FN + #32);
+      TrayIcon.Hint := Program_Name + ': ' + FN;
+      UpdateTabAndTreeIconsShow;
+
+   finally
+      StatusBar.Panels.EndUpdate;
+   end;
+end; // UpdateOpenFile
+
+
+procedure TForm_Main.UpdateFileModifiedState;
+var
+  status: string;
+  WasModif, Modif: boolean;
+  F: TKntFile;
+begin
+   F:= ActiveFile;
+   if not assigned(F) then exit;
+
+   WasModif:= actFileSave.Enabled;
+   Modif:= KntFile.Modified;
+   actFileSave.Enabled:= Modif;
+   if WasModif and Modif then exit;
+
+   if Modif then
+      status:= STR_fs4      // MOD
+   else
+   if KeyOptions.AutoSave then
+      status:= STR_fs3   // Auto
+   else
+      status:= STR_fs5;  // Saved
+
+   Statusbar.Panels[PANEL_STATUS].Text := status;
+end;
+
+
+procedure TForm_Main.UpdateFolderDisplay (OnlyActionsState: boolean = false);
+var
+  s : string;
+  myFolder : TKntFolder;
+  Editor: TKntRichEdit;
+  Node: TTreeNTNode;
+
+begin
+  s := '';
+  myFolder := ActiveFolder;
+
+  if assigned( myFolder ) then begin
+    try
+      MMTree_.Visible := true;
+      MMNoteReadOnly.Checked := myFolder.ReadOnly;
+      MMViewTree.Enabled := true;
+      MMViewTree.Checked := myFolder.TreeUI.Visible;
+      MMViewNodeIcons.Checked := myFolder.IconKind = niStandard;
+      MMViewCustomIcons.Checked := myFolder.IconKind = niCustom;
+      MMEditPasteAsNewNode.Visible := true;
+      MMP_PasteAsNode.Visible := true;
+      MMViewCheckboxesAllNodes.Checked := myFolder.Checkboxes;
+
+      Toolbar_Tree.Visible := KeyOptions.ToolbarTreeShow;
+      MMViewNodeIcons.Enabled := MMViewTree.Checked;
+      MMViewCustomIcons.Enabled := MMViewTree.Checked;
+      MMViewCheckboxesAllNodes.Enabled := MMViewTree.Checked;
+      MMViewCustomIcons.Enabled := MMViewTree.Checked;
+      TVSelectNodeImage.Enabled := ( MMViewCustomIcons.Checked and MMViewCustomIcons.Enabled );
+      MMViewHideCheckedNodes.Enabled := true;
+      MMViewHideCheckedNodes.Checked:= myFolder.HideCheckedNodes;
+      TB_HideChecked.Down := MMViewHideCheckedNodes.Checked;
+      TB_FilterTree.Down:= myFolder.Filtered;
+      MMViewFilterTree.Enabled := true;
+      MMViewFilterTree.Checked :=  myFolder.Filtered;
+
+      if not OnlyActionsState then begin
+         Editor:= myFolder.Editor;
+         ClipCapMng.ShowState;
+         UpdateAlarmStatus;
+         Editor.SetMargins;
+         UpdateWordWrap;
+         Editor.CheckWordCount(true);
+         Editor.Change;                 // It will only refresh UI if there is changes
+         RxChangedSelection(Editor, true);
+
+         if myFolder.ReadOnly then s := 'R';
+
+         UpdateShowImagesState;
+         ShowInsMode;
+
+         if myFolder.Filtered then FilterApplied (myFolder) else FilterRemoved (myFolder);
+         if MMAlternativeMargins.Checked then
+            Editor.Refresh;
+      end;
+
+    except
+      // showmessage( 'BUG: error in UpdateFolderDisplay' );
+    end;
+  end
+  else begin
+    MMNoteReadonly.Checked := false;
+    MMFormatWordWrap.Checked := false;
+    MMSetAlarm.Checked:= false;
+    TB_WordWrap.Down := false;
+    RTFMWordwrap.Checked := false;
+    TB_ClipCap.Down := false;
+    MMNoteClipCapture.Checked := false;
+    TMClipCap.Checked := false;
+    s := '';
+    StatusBar.Panels[PANEL_INS].Text := '';
+
+    MMTree_.Visible := false;
+    Toolbar_Tree.Visible := false;
+  end;
+
+  if not OnlyActionsState then
+    StatusBar.Panels[PANEL_NOTEINFO].Text := s;
+
+end; // UpdateFolderDisplay
 
 
 Initialization
    SBGlyph:= nil;
-
-   TreeWidthExpanded:= false;
-   TreeWidth_N:= 0;
-   TreeWidthNodeTouched:= false;
-   SplitterNoteMoving:= false;
 end.
 

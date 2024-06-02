@@ -174,7 +174,7 @@ begin
   else begin
      if not myFindOptions.AllTabs_FindReplace and assigned(Folder) then
         if (Folder <> StartFolder) or
-           (not myFindOptions.AllNodes) and (Folder.TV.Selected <> StartNode) then
+           (not myFindOptions.AllNodes) and (Folder.TreeUI.SelectedNode <> StartNode) then
              myFindOptions.FindNew := true;
   end;
 

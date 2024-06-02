@@ -47,6 +47,7 @@ uses
    kn_Info,
    kn_Const,
    knt.ui.editor,
+   knt.ui.tree,
    kn_History
    {$IFDEF WITH_IE}
    ,SHDocVw_TLB
@@ -93,6 +94,7 @@ type
     // VCL controls. By default, the folder does NOT access them in any way
     FTabSheet : TTab95Sheet; // the tabsheet which holds this note
     FEditor : TKntRichEdit;  // for RTF-type notes only
+    FTreeUI: TKntTreeUI;
 
     FHistory : TKNTHistory;        // Folder (local) history
 
@@ -105,11 +107,10 @@ type
     FTV : TTreeNT;
     FIconKind : TNodeIconKind;
     FTreeChrome : TChrome;
-    FSelectedNote : TKntNote;
     FOldSelectedIndex : integer;
     FTreeHidden : boolean;
-    FHideCheckedNodes: boolean;       // [dpv]
-    FFiltered: boolean;               // [dpv]
+    FHideCheckedNodes: boolean;
+    FFiltered: boolean;
 
     FDefaultNoteName : string;
     FAutoNumberNotes : boolean;
@@ -164,8 +165,8 @@ type
     //-----------
     function GetCount : integer;
     function CheckTree : boolean;
+    procedure SetTreeUI(tree: TKntTreeUI);
     procedure SetTreeChrome( AChrome : TChrome );
-    procedure SetSelectedNote( aNote : TKntNote );
     function InternalAddNote( const aNote : TKntNote ) : integer;
     procedure InternalInsertNote( const aIndex : integer; const aNote : TKntNote );
     //procedure GenerateNoteID( const aNote : TKntNote );
@@ -184,11 +185,12 @@ type
 
 
     property Editor : TKntRichEdit read FEditor write SetEditor;
+    property TreeUI: TKntTreeUI read fTreeUI write SetTreeUI;
     property ID : Cardinal read FID write SetID;
     property KntFile: TObject read FKntFile;
 
     property EditorChrome : TChrome read FEditorChrome write SetEditorChrome;
-    property Name : TNoteNameStr read FName write SetName;
+    property Name : string read fName write SetName;
     property ImageIndex : integer read FImageIndex write SetImageIndex;
     property Visible : boolean read FVisible write FVisible;
     property ReadOnly : boolean read FReadOnly write SetReadOnly;
@@ -221,6 +223,10 @@ type
     property OnBeforeEditorLoaded: TBeforeEditorLoadedEvent read FOnBeforeEditorLoaded write FOnBeforeEditorLoaded;
     property OnAfterEditorLoaded: TAfterEditorLoadedEvent read FOnAfterEditorLoaded write FOnAfterEditorLoaded;
 
+    procedure NoNodeInTree;
+    procedure NodeSelected(const Node : TTreeNTNode; const LastNodeSelected: TTreeNTNode);
+    procedure NewNodeAdded(const Node, OriginNode: TTreeNTNode; AName: string);
+
     constructor Create(KntFile: TObject);
     destructor Destroy; override;
 
@@ -245,7 +251,10 @@ type
 
     procedure ConfigureEditor;
     procedure DataStreamToEditor;
-    function EditorToDataStream: TMemoryStream;
+    function EditorToDataStream  (Node: TTreeNTNode= nil): TMemoryStream;
+
+    procedure SetFocusOnEditor;
+    procedure SetFocusOnTree;
 
     procedure GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
     procedure ResetImagesReferenceCount;
@@ -271,10 +280,10 @@ type
     property TV : TTreeNT read FTV write FTV;
     property IconKind : TNodeIconKind read FIconKind write FIconKind;
     property TreeWidth : integer read FTreeWidth write FTreeWidth;
-    property TreeMaxWidth : integer read FTreeMaxWidth write FTreeMaxWidth;            // [dpv]
-    property HideCheckedNodes: Boolean read FHideCheckedNodes write FHideCheckedNodes; // [dpv]
-    property Filtered: Boolean read FFiltered write FFiltered;                         // [dpv]
-    property SelectedNote : TKntNote read GetSelectedNote write SetSelectedNote;
+    property TreeMaxWidth : integer read FTreeMaxWidth write FTreeMaxWidth;
+    property HideCheckedNodes: Boolean read FHideCheckedNodes write FHideCheckedNodes;
+    property Filtered: Boolean read FFiltered write FFiltered;
+    property SelectedNote : TKntNote read GetSelectedNote;
     property OldSelectedIndex : integer read FOldSelectedIndex;
     property Checkboxes : boolean read FCheckboxes write FCheckboxes;
     property TreeChrome : TChrome read FTreeChrome write SetTreeChrome;
@@ -298,7 +307,7 @@ type
     function NewNote( const AParent : TKntNote; AName : string; const AInheritProperties : boolean ) : TKntNote;
     function AddNote( const aNote : TKntNote ) : integer;
     procedure InsertNote( const aIndex : integer; const aNote : TKntNote );
-    procedure RemoveNote( const aNote : TKntNote );
+    procedure RemoveNote( const aNote : TKntNote; HasMirrorNodes: boolean);
 
     function StreamFormatInNote: TRichStreamFormat;
     procedure SetTreeProperties( const aProps : TFolderTreeProperties );
@@ -340,6 +349,7 @@ uses
    kn_global,
    kn_AlertMng,
    kn_LinksMng,
+   kn_LocationObj,
    kn_Main,
    kn_Macro,
    kn_EditorUtils,
@@ -347,7 +357,6 @@ uses
    kn_RTFUtils,
    kn_ImagesMng,
    kn_NoteFileMng,
-   kn_TreeNoteMng,
    kn_KntFolder_New,
    kn_MacroMng,
    kn_ConfigMng,
@@ -359,7 +368,7 @@ uses
 
 
 resourcestring
-
+  STR_01 = ' Virtual: ';
 {$IFDEF WITH_DART}
   STR_02 = '"%s" is a %s note and cannot be saved using %s format';
   STR_03 = 'Stream not assigned in LoadDartNotesFormat';
@@ -512,7 +521,7 @@ begin
           TTab95Sheet(myFolder.TabSheet).TabVisible := true; // was created hidden
         end;
 
-        TreeNewNode( myFolder, tnTop, nil, '', true );
+        myFolder.TreeUI.NewNode(tnTop, nil, '', true );
 
         App.ActivateFolder(myFolder);
 
@@ -524,7 +533,7 @@ begin
         {$IFDEF KNT_DEBUG}
          Log.Add( 'Exception in NewKntFolder: ' + E.Message );
         {$ENDIF}
-         PopupMessage( E.Message, mtError, [mbOK], 0 );
+         App.ErrorPopup(E);
       end;
     end;
 
@@ -532,7 +541,6 @@ begin
     Form_Main.Timer.Enabled := TimerWasEnabled;
     FileIsBusy := FileWasBusy;
     ActiveFile.Modified := true;
-    UpdateKntFileState( [fscModified] );
     result := assigned( myFolder );
    {$IFDEF KNT_DEBUG}
     if assigned( myFolder ) then
@@ -556,18 +564,16 @@ begin
       if FolderIsReadOnly( Folder, true ) then exit;
 
       if KeyOptions.ConfirmTabDelete then begin
-        if ( DoMessageBox(
-            Format( STR_22, [RemoveAccelChar( Folder.Name )] ),
-            STR_23,
+        if (DoMessageBox(Format(STR_22, [RemoveAccelChar( Folder.Name )]), STR_23,
             MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
       end;
 
       try
         TabIdx := Folder.TabSheet.TabIndex;
 
-        DestroyVCLControlsForFolder( Folder, true );
+        DestroyVCLControlsForFolder(Folder, true);
         ActiveFile.RemoveImagesCountReferences(Folder);
-        ActiveFile.DeleteFolder( Folder );
+        ActiveFile.DeleteFolder(Folder);
         AddToFileManager( ActiveFile.FileName, ActiveFile ); // update manager (number of notes has changed)
 
       finally
@@ -622,7 +628,6 @@ begin
       finally
         Form_NewNote.Free;
         ActiveFile.Modified := true;
-        UpdateKntFileState( [fscModified] );
       end;
   end;
 end; // RenameKntFolder
@@ -642,6 +647,7 @@ var
   myFolder: TKntFolder;
   F: TKntFolder;
   NewPropertiesAction : TPropertiesAction;
+  TreeUI: TKntTreeUI;
 
 begin
   myFile:= ActiveFile;
@@ -709,7 +715,7 @@ begin
 
                 myTreeChrome := TreeChrome;
                 GetTreeProperties( myTreeProperties );
-                StartWithEditorTab := ( not TV.Focused );
+                StartWithEditorTab := ( not TreeUI.Focused );
 
                 oldIconKind := myTreeProperties.IconKind;
                 oldShowCheckboxes := myTreeProperties.CheckBoxes;
@@ -745,10 +751,11 @@ begin
             KeyOptions.TabNameHistory := myTabNameHistory;
             KeyOptions.NodeNameHistory := myNodeNameHistory;
 
+            TreeUI:= myFolder.TreeUI;
+
             if (PropertiesAction = propThisFolder) and not myNoteIsReadOnly  then begin
                 myFile.Modified:= True;
                 myFolder.Modified:= True;
-                UpdateKntFileState( [fscModified] );
 
                 myFolder.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
                 myFolder.SetEditorProperties( myEditorProperties );
@@ -777,16 +784,16 @@ begin
 
                 // update changes to tree control
                 if ( oldIconKind <> myTreeProperties.IconKind ) then
-                   ShowOrHideIcons( myFolder, true );
+                   TreeUI.ShowOrHideIcons(true);
                 if ( oldShowCheckboxes <> myTreeProperties.CheckBoxes ) then
-                   ShowOrHideCheckBoxes( myFolder);
+                   TreeUI.ShowOrHideCheckBoxes;
                 if ( oldHideChecked <> myTreeProperties.HideChecked ) then    // [dpv]
                    if myTreeProperties.HideChecked then
-                      HideChildNodesUponCheckState ( myFolder, nil, csChecked)
+                      TreeUI.HideChildNodesUponCheckState (nil, csChecked)
                    else
-                      ShowCheckedNodes ( myFolder, nil);
+                      TreeUI.ShowCheckedNodes (nil);
 
-                UpdateTreeChrome(myFolder);
+                TreeUI.UpdateTreeChrome;
 
                 // If we have changed to PlainText we will have already updated the editor from EnsurePlainTextAndRemoveImages
                 if (not EnsuredPlainText) and (oldPlainText <> myFolder.PlainText)
@@ -804,10 +811,8 @@ begin
                        continue;
                    F.Modified:= True;
                    F.TreeChrome := myTreeChrome;
-                   UpdateTreeChrome(F);
+                   F.TreeUI.UpdateTreeChrome;
                 end;
-                myFile.Modified:= True;
-                UpdateKntFileState( [fscModified] );
             end;
 
 
@@ -819,7 +824,7 @@ begin
                        F:= myFile.Folders[i];
                        F.Editor.WordSelection := EditorOptions.WordSelect;
                        F.Editor.UndoLimit := EditorOptions.UndoLimit;
-                       UpdateTreeOptions(F);
+                       F.TreeUI.UpdateTreeOptions;
                     end;
                 end;
 
@@ -930,7 +935,6 @@ begin
   FTreeMaxWidth:= 0;
   FIconKind := niStandard;
   FCheckboxes := false;
-  FSelectedNote := nil;
   FTreeHidden := false;
   FHideCheckedNodes:= false;  // [dpv]
   FFocusMemory := focTree; // initially focus tree
@@ -1047,6 +1051,7 @@ var
 //  tabstopcnt : integer;
   TextLen: integer;
   SS, SL: integer;
+  SelecNote: TKntNote;
 
 begin
   if ( not CheckEditor ) then exit;
@@ -1089,16 +1094,17 @@ begin
        FEditor.UseTabChar := FUseTabChar;
        FEditor.ReadOnly := FReadOnly;
 
+       SelecNote:= SelectedNote;
 
-       if assigned(FSelectedNote) then begin
+       if assigned(SelecNote) then begin
           if SetWordWrap then
-             case FSelectedNote.WordWrap of
+             case SelecNote.WordWrap of
                 wwAsFolder : FEditor.WordWrap := FWordWrap;
                 wwYes : FEditor.WordWrap := true;
                 wwNo : FEditor.WordWrap := false;
              end;
 
-          FEditor.Color := FSelectedNote.RTFBGColor;
+          FEditor.Color := SelecNote.RTFBGColor;
        end;
 
   finally
@@ -1110,7 +1116,7 @@ end; // UpdateEditor
 procedure TKntFolder.SetEditorChrome( AChrome : TChrome );
 begin
   FEditorChrome := AChrome;
-  FModified := true;
+  Modified := true;
 end; // SetEditorChrome
 
 procedure TKntFolder.SetEditorProperties( const aProps : TFolderEditorProperties );
@@ -1120,7 +1126,7 @@ begin
   FURLDetect := aProps.URLDetect;
   FUseTabChar := aProps.UseTabChar;
   FWordWrap := aProps.WordWrap;
-  FModified := true;
+  Modified := true;
 end; // SetEditorProperties
 
 procedure TKntFolder.GetEditorProperties( var aProps : TFolderEditorProperties );
@@ -1137,7 +1143,7 @@ begin
   if UpdateName then
      FName := aProps.Name;
   FImageIndex := aProps.ImageIndex;
-  FModified := true;
+  Modified := true;
 end;
 
 procedure TKntFolder.GetTabProperties( var aProps : TFolderTabProperties );
@@ -1152,6 +1158,12 @@ begin
     FTabSheet := ATabSheet;
 end;
 
+procedure TKntFolder.SetTreeUI(tree: TKntTreeUI);
+begin
+   fTreeUI:= tree;
+   TV:= fTreeUI.TV;
+end;
+
 procedure TKntFolder.SetEditor( AEditor : TKntRichEdit );
 begin
   if ( AEditor <> FEditor ) then
@@ -1163,7 +1175,7 @@ begin
   AName := trim( AName );
   if (( FName = AName ) or ( AName = '' )) then exit;
   FName := copy( AName, 1, TABNOTE_NAME_LENGTH );
-  FModified := true;
+  Modified := true;
   if _ALLOW_VCL_UPDATES and assigned( FTabSheet ) then FTabSheet.Caption := FName;
 end; // SetName
 
@@ -1193,7 +1205,7 @@ function TKntFolder.GetTextPlainFromNode(myTreeNode: TTreeNTNode; RTFAux: TAuxRi
 var
     myNote : TKntNote;
 begin
-   if TV.Selected = myTreeNode then
+   if TreeUI.SelectedNode = myTreeNode then
       Result:= Editor.TextPlain
 
    else begin
@@ -1758,7 +1770,7 @@ begin
   finally
   end;
 
-  FModified := false;
+  Modified := false;
 
 end; // LoadDartNotesFormat
 {$ENDIF}
@@ -1769,7 +1781,8 @@ begin
   if ( AReadOnly <> FReadOnly ) then
   begin
     FReadOnly := AReadOnly;
-    FModified := true;
+    TreeUI.ReadOnly:= AReadOnly;
+    Modified := true;
     if _ALLOW_VCL_UPDATES and assigned( FEditor ) then FEditor.ReadOnly := FReadOnly;
 
     ConfigureEditor;
@@ -1783,7 +1796,7 @@ procedure TKntFolder.SetPlainText( APlainText : boolean );
 begin
   if ( APlainText <> FPlainText ) then begin
     FPlainText := APlainText;
-    FModified := true;
+    Modified := true;
 
     ConfigureEditor;
     App.FolderPropertiesModified(Self);
@@ -1795,19 +1808,17 @@ end;
 function TKntFolder.GetModified : boolean;
 begin
   result := FModified;
-  {
-  if assigned( FEditor ) then
-    result := result or FEditor.Modified;
-  }
-end; // GetModified
+end;
 
 procedure TKntFolder.SetModified( AModified : boolean );
 var
   i : Cardinal;
 begin
+  if FModified = AModified then exit;
+
   FModified := AModified;
-  if assigned( FEditor ) then
-    FEditor.Modified := FModified;
+  if AModified then
+     TKntFile(KntFile).Modified:= True;
 
   if not AModified and (FNotes.Count > 0) then begin
      for i := 0 to FNotes.Count-1 do
@@ -1850,9 +1861,7 @@ var
 
 begin
     if ForceMode or (FImagesMode <> ImagesMode) then begin
-
-       myTreeNode:= nil;
-       myTreeNode := Self.TV.Selected;
+       myTreeNode := TreeUI.SelectedNode;
        SS:= Editor.SelStart;
        if ImagesMode = imLink then                                       // imImage --> imLink
           SS:= PositionInImLinkTextPlain (Self, myTreeNode, SS, True);   // True: Force calculation
@@ -1864,7 +1873,7 @@ begin
        if RTFOut <> '' then begin
           Editor.BeginUpdate;
           try
-             currentNoteModified:= FModified;
+             currentNoteModified:= fModified;
              currentFileModified:= TKntFile(KntFile).Modified;
 
              RestoreRO:= ReadOnly;
@@ -1872,10 +1881,9 @@ begin
                 if ReadOnly then
                    Editor.ReadOnly:= False;                     // We must allow images to be shown or hidden even if the note is read only
                 Editor.PutRtfText(RTFout,True,False);
-                if not ReadOnly and (currentNoteModified <> FModified) then begin
-                   FModified:=  currentNoteModified;  // <- false...
+                if not ReadOnly and (currentNoteModified <> fModified) then begin
+                   fModified:=  currentNoteModified;  // <- false...
                    TKntFile(KntFile).Modified:= currentFileModified;
-                   UpdateKntFileState( [fscModified] );
                 end;
              finally
                 if RestoreRO then begin
@@ -1902,7 +1910,7 @@ procedure TKntFolder.SetWordWrap( AWordWrap : boolean );
 begin
   if ( FWordWrap = AWordWrap ) then exit;
   FWordWrap := AWordWrap;
-  FModified := true;
+  Modified := true;
   if _ALLOW_VCL_UPDATES and assigned( FEditor ) then
     FEditor.WordWrap := FWordWrap;
 end;
@@ -1911,7 +1919,7 @@ procedure TKntFolder.SetURLDetect( AURLDetect : boolean );
 begin
   if ( FURLDetect = AURLDetect ) then exit;
   FURLDetect := AURLDetect;
-  FModified := true;
+  Modified := true;
   if _ALLOW_VCL_UPDATES and assigned( FEditor ) then
     FEditor.AutoURLDetect := FURLDetect;
 end;
@@ -1920,7 +1928,7 @@ procedure TKntFolder.SetTabSize( ATabSize : byte );
 begin
   if ( FTabSize = ATabSize ) then exit;
   FTabSize := ATabSize;
-  FModified := true;
+  Modified := true;
   if _ALLOW_VCL_UPDATES and assigned( FEditor ) then
     FEditor.TabSize := FTabSize;
 end;
@@ -1936,13 +1944,170 @@ end; // GetNodeCount
 
 
 function TKntFolder.GetSelectedNote : TKntNote;
+var
+   TreeNode: TTreeNTNode;
 begin
-   result := FSelectedNote;
+   TreeNode:= TreeUI.TV.Selected;
+   if assigned(TreeNode) then
+      Result:= TKntNote(TreeNode.Data)
+   else
+      Result:= nil;
 end;
 
-procedure TKntFolder.SetSelectedNote( aNote : TKntNote );
+procedure TKntFolder.NoNodeInTree;
 begin
-  FSelectedNote := aNote;
+   Editor.Clear;
+   Editor.Enabled:= False;
+   App.EditorLoaded(Editor);
+end;
+
+procedure TKntFolder.NodeSelected(const Node: TTreeNTNode; const LastNodeSelected: TTreeNTNode);
+var
+  myNote : TKntNote;
+  KeepModified: boolean;
+  KeepEditorFocused: boolean;
+  OnEnterBak: TNotifyEvent;
+  ControlWasFocused: TWinControl;
+  LocBeforeSelChanged: TLocation;
+  LastNoteSelected: TKntNote;
+
+  {$IFDEF WITH_IE}
+  NodeControl : TNodeControl;
+  {$ENDIF}
+begin
+  with Form_Main do begin
+      if (not assigned(Node)) then exit;
+
+      myNote := TKntNote(Node.Data);
+
+      KeepModified:= false;
+      KeepEditorFocused:= false;
+
+      if LastNodeSelected <> nil then begin
+         LastNoteSelected:= TKntNote(LastNodeSelected.Data);
+         LastNoteSelected.ScrollPosInEditor:= Editor.GetScrollPosInEditor;
+      end;
+
+      if (not _Executing_History_Jump) and (not _Executing_JumpToKNTLocation_ToOtherNote) then begin
+          if LastNoteSelected <> nil then begin
+             // Add to history the location of previous node, before new selection. Editor (and so caret position) has not been changed yet (It is done in this method)
+             LocBeforeSelChanged:= nil;
+             GetKntLocation (ActiveFolder, LocBeforeSelChanged, true, LastNoteSelected);
+             AddHistoryLocation(Self, false, LocBeforeSelChanged);
+          end;
+         _LastMoveWasHistory := false;
+         UpdateHistoryCommands;
+      end;
+
+      Editor.BeginUpdate;         // -> It will also ignore Enter and Change events
+
+      ControlWasFocused:= nil;
+      if KeyOptions.FixScrollBars and not ClipCapMng.IsBusy then begin
+         if (not Editor.Focused) and Editor.CanFocus then begin
+             ControlWasFocused:= Form_Main.ActiveControl;
+             Editor.SetFocus;
+         end;
+      end;
+
+      try
+        try
+          if LastNodeSelected <> nil then
+             EditorToDataStream(LastNodeSelected);
+
+          Editor.Clear;
+          Editor.ClearUndo;
+
+          if assigned(myNote) then begin
+
+             case myNote.WordWrap of
+               wwAsFolder : Editor.WordWrap := Self.WordWrap;
+               wwYes : Editor.WordWrap := true;
+               wwno : Editor.WordWrap := false;
+             end;
+
+             DataStreamToEditor;
+
+             { The normal thing is to set Editor.Modified = False at the end of the DataStreamToEditor method
+               But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified,
+               to ensure that this correction ends up persisting. Here we will do the same }
+             if Editor.Modified then
+                KeepModified:= True;
+
+             if (myNote.VirtualMode = vmNone) then begin
+                if (not EditorOptions.TrackStyle) then begin
+                  if TreeOptions.ShowFullPath then
+                    StatusBar.Panels[PANEL_HINT].Text := TreeUI.GetNodePath(Node, TreeOptions.NodeDelimiter, TreeOptions.PathTopToBottom) // {N}
+                  else
+                    StatusBar.Panels[PANEL_HINT].Text := Node.Text; // {N}
+                end;
+             end
+             else begin
+               if (not EditorOptions.TrackStyle) then
+                 StatusBar.Panels[PANEL_HINT].Text := STR_01 + myNote.VirtualFN;
+             end;
+             TVCheckNode.Checked := myNote.Checked;
+             TVBoldNode.Checked :=  myNote.Bold;
+             TVChildrenCheckbox.Checked:= myNote.ChildrenCheckbox;   // [dpv]
+
+             UpdateAlarmStatus;
+             UpdateShowImagesState;
+          end
+          else begin
+            if (not EditorOptions.TrackStyle) then
+               StatusBar.Panels[PANEL_HINT].Text := '';
+          end;
+
+        except
+          On E : Exception do begin
+            messagedlg(E.Message, mtError, [mbOK], 0);
+            exit;
+          end;
+        end;
+
+      finally
+        Editor.RestoreZoomGoal;
+
+        if assigned(myNote) and (myNote.ScrollPosInEditor.Y > 0) then
+           Editor.SetScrollPosInEditor(myNote.ScrollPosInEditor)
+        else
+           if KeyOptions.FixScrollBars then
+              Editor.Perform(EM_SCROLLCARET, 0, 0);
+
+        if KeyOptions.FixScrollBars and (ControlWasFocused <> nil) then
+           ControlWasFocused.SetFocus;
+
+        Editor.EndUpdate;
+
+        Editor.CheckWordCount(true);
+
+        if not KeepModified then
+           Editor.Modified := false;
+        Editor.ChangedSelection;
+        Editor.Change;
+      end;
+  end;
+
+end; // NodeSelected
+
+
+procedure TKntFolder.NewNodeAdded(const Node, OriginNode: TTreeNTNode; AName: string);
+var
+  myNote, myParentNote : TKntNote;
+
+begin
+   if assigned(OriginNode) then
+     myParentNote := TKntNote(OriginNode.Data)
+   else
+     myParentNote := nil;
+
+   myNote := NewNote(myParentNote, AName, TreeOptions.InheritNodeProperties);
+   Node.Data := myNote;
+
+   // assign the color of the currently displayed node  (Node has not been selected yet)
+   if TreeOptions.InheritNodeBG then
+      myNote.RTFBGColor := ActiveFolder.Editor.Color;
+
+   TKntFile(KntFile).Modified:= true;
 end;
 
 
@@ -1979,7 +2144,7 @@ end; // NewNode
 
 function TKntFolder.AddNote( const aNote : TKntNote ) : integer;
 begin
-  FModified := true;
+  Modified := true;
   result := InternalAddNote( aNote );
   if (( result >= 0 ) and ( aNote.GID = 0 )) then
      TKntFile(KntFile).GenerateNoteGID(aNote);
@@ -1987,7 +2152,7 @@ end;
 
 procedure TKntFolder.InsertNote( const aIndex : integer; const aNote : TKntNote );
 begin
-  FModified := true;
+  Modified := true;
   InternalInsertNote( aIndex, aNote );
   if ( aNote.GID = 0 ) then
      TKntFile(KntFile).GenerateNoteGID(aNote);
@@ -2042,17 +2207,18 @@ begin
 end; // VerifyNoteIDs
 }
 
-procedure TKntFolder.RemoveNote( const aNote : TKntNote );
+procedure TKntFolder.RemoveNote( const aNote : TKntNote; HasMirrorNodes: boolean);
 var
   GID: Cardinal;
 begin
   if ( not assigned( aNote )) then exit;
 
-  TKntFile(KntFile).RemoveImagesCountReferences(aNote);
+  if not HasMirrorNodes then
+     TKntFile(KntFile).RemoveImagesCountReferences(aNote);
 
   GID:= aNote.GID;
   FNotes.Remove( aNote );
-  FModified := true;
+  Modified := true;
 
   if GID+1 = TKntFile(KntFile).NextNoteGID  then
      TKntFile(KntFile).RecalcNextNoteGID;
@@ -2062,8 +2228,9 @@ end;
 procedure TKntFolder.SetTreeChrome( AChrome : TChrome );
 begin
   FTreeChrome := AChrome;
-  FModified := true;
+  Modified := true;
 end; // SetTreeChrome
+
 
 procedure TKntFolder.SetTreeProperties( const aProps : TFolderTreeProperties );
 begin
@@ -2090,21 +2257,14 @@ end; // GetTreeProperties
 
 procedure TKntFolder.UpdateTree;
 begin
-  // CheckTree;
-  // FTV.Items.BeginUpdate;
-  try
     FTV.Color := FTreeChrome.BGColor;
-    with FTreeChrome.Font do
-    begin
+    with FTreeChrome.Font do begin
       FTV.Font.Name := Name;
       FTV.Font.Size := Size;
       FTV.Font.Style := Style;
       FTV.Font.Charset := Charset;
       FTV.Font.Color := Color;
     end;
-  finally
-    // FTV.Items.EndUpdate;
-  end;
 end; // UpdateTree
 
 procedure TKntFolder.ConfigureEditor;
@@ -2150,20 +2310,22 @@ var
 
  OnEnterBak: TNotifyEvent;
  ControlWasFocused: TWinControl;
+ SelecNote: TKntNote;
 
 begin
   if not assigned(FEditor) then exit;
-  if not assigned(FSelectedNote) then  begin
+  SelecNote:= SelectedNote;
+  if not assigned(SelecNote) then  begin
     FEditor.Clear;
     exit;
   end;
 
-  BeforeEditorLoaded(FSelectedNote);
+  BeforeEditorLoaded(SelecNote);
 
   ConfigureEditor;
   ControlWasFocused:= nil;
 
-  case FSelectedNote.VirtualMode of
+  case SelecNote.VirtualMode of
     vmNone, vmText, vmRTF, vmHTML, vmKNTNode : begin
       FEditor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
@@ -2180,18 +2342,18 @@ begin
         FEditor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
         FEditor.Clear;
 
-        FSelectedNote.Stream.Position := 0;
+        SelecNote.Stream.Position := 0;
         strRTF:= '';
 
-        if ( FPlainText or ( FSelectedNote.VirtualMode in [vmText, vmHTML] )) then
+        if ( FPlainText or ( SelecNote.VirtualMode in [vmText, vmHTML] )) then
            UpdateEditor (False);
 
         fImagesReferenceCount:= nil;
-        if NodeStreamIsRTF (FSelectedNote.Stream) then begin
+        if NodeStreamIsRTF (SelecNote.Stream) then begin
            FEditor.StreamFormat:= sfRichText;
-           if (ImageMng.StorageMode <> smEmbRTF) and (FSelectedNote.VirtualMode in [vmNone, vmKNTNode]) and (not FPlainText) then begin
-              GetImagesIDInstances (FSelectedNote.Stream, FSelectedNote.NoteTextPlain);
-              strRTF:= ImageMng.ProcessImagesInRTF(FSelectedNote.Stream.Memory, FSelectedNote.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
+           if (ImageMng.StorageMode <> smEmbRTF) and (SelecNote.VirtualMode in [vmNone, vmKNTNode]) and (not FPlainText) then begin
+              GetImagesIDInstances (SelecNote.Stream, SelecNote.NoteTextPlain);
+              strRTF:= ImageMng.ProcessImagesInRTF(SelecNote.Stream.Memory, SelecNote.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
            end;
         end
         else
@@ -2200,8 +2362,8 @@ begin
         Log_StoreTick('TKntFolder.DataStreamToEditor - BEGIN', 4, +1);
        {$IFDEF KNT_DEBUG}
         if log.Active and  (log.MaxDbgLevel >= 4) then begin
-           dataSize:= FSelectedNote.Stream.Size;
-           str:= Copy(String(PAnsiChar(FSelectedNote.Stream.Memory)), 1, 250);
+           dataSize:= SelecNote.Stream.Size;
+           str:= Copy(String(PAnsiChar(SelecNote.Stream.Memory)), 1, 250);
            Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
         end;
        {$ENDIF}
@@ -2211,15 +2373,15 @@ begin
            FEditor.ClearUndo;
         end
         else
-           FEditor.Lines.LoadFromStream( FSelectedNote.Stream );
+           FEditor.Lines.LoadFromStream( SelecNote.Stream );
 
         Log_StoreTick('TKntFolder.DataStreamToEditor - END', 4, -1);
 
-        FEditor.Color := FSelectedNote.RTFBGColor;
-        FEditor.SelStart := FSelectedNote.SelStart;
-        FEditor.SelLength := FSelectedNote.SelLength;
+        FEditor.Color := SelecNote.RTFBGColor;
+        FEditor.SelStart := SelecNote.SelStart;
+        FEditor.SelLength := SelecNote.SelLength;
 
-        if FSelectedNote.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
+        if SelecNote.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
            UpdateEditor (false);
 
       finally
@@ -2243,7 +2405,7 @@ begin
   end;
 
   FEditor.Enabled:= true;
-  AfterEditorLoaded(FSelectedNote);
+  AfterEditorLoaded(SelecNote);
 
   App.EditorLoaded(FEditor);
 
@@ -2252,29 +2414,34 @@ end; // DataStreamToEditor
 {
   If Editor was modified then it will return the Stream associated to the node that will be updated
 }
-function TKntFolder.EditorToDataStream: TMemoryStream;
+function TKntFolder.EditorToDataStream(Node: TTreeNTNode= nil): TMemoryStream;
 var
    KeepUTF8: boolean;
    Encoding: TEncoding;
    strRTF: AnsiString;
    ImagesIDs_New: TImageIDs;
    TextPlain: string;
+   SelectedNote_: TKntNote;
 begin
   Result:= nil;
   Encoding:= nil;
-  if assigned(FEditor) and assigned(FSelectedNote) then begin
-     FSelectedNote.SelStart  := FEditor.SelStart;
-     FSelectedNote.SelLength := FEditor.SelLength;
+  if Node <> nil then
+     SelectedNote_:= TKntNote(Node.Data)
+  else
+     SelectedNote_:= SelectedNote;
+
+  if assigned(FEditor) and assigned(SelectedNote_) then begin
+     SelectedNote_.SelStart  := FEditor.SelStart;
+     SelectedNote_.SelLength := FEditor.SelLength;
 
      if FEditor.Modified then begin
         FEditor.BeginUpdate;
         try
            KeepUTF8:= False;
-           if (FSelectedNote.VirtualMode in [vmText, vmHTML]) and NodeStreamIsUTF8WithBOM(FSelectedNote.Stream) then
+           if (SelectedNote_.VirtualMode in [vmText, vmHTML]) and NodeStreamIsUTF8WithBOM(SelectedNote_.Stream) then
                KeepUTF8:= True;
 
-           FModified := FModified or FEditor.Modified;
-           FSelectedNote.Stream.Clear;
+           SelectedNote_.Stream.Clear;
 
            try
              FEditor.StreamFormat:= StreamFormatInNote();
@@ -2287,25 +2454,25 @@ begin
                    Encoding:= TEncoding.UTF8;
              end;
 
-             FEditor.Lines.SaveToStream( FSelectedNote.Stream, Encoding);
+             FEditor.Lines.SaveToStream( SelectedNote_.Stream, Encoding);
 
              ImagesIDs_New:= nil;
-             if (ImageMng.StorageMode <> smEmbRTF) and (FSelectedNote.VirtualMode in [vmNone, vmKNTNode]) and (FEditor.StreamFormat = sfRichText) then begin
-                ImagesIDs_New:= CheckSavingImagesOnMode (imLink, FSelectedNote.Stream, true);
+             if (ImageMng.StorageMode <> smEmbRTF) and (SelectedNote_.VirtualMode in [vmNone, vmKNTNode]) and (FEditor.StreamFormat = sfRichText) then begin
+                ImagesIDs_New:= CheckSavingImagesOnMode (imLink, SelectedNote_.Stream, true);
                 ImageMng.UpdateImagesCountReferences (fImagesReferenceCount, ImagesIDs_New);
                 fImagesReferenceCount:= ImagesIDs_New;
              end;
 
              if ImagesIDs_New = nil then
-                FSelectedNote.NoteTextPlain:= FEditor.TextPlain
+                SelectedNote_.NoteTextPlain:= FEditor.TextPlain
              else begin
                 { If the node has images we will make sure that in TextPlain we save the version corresponding to imLink,
                   to facilitate search management. See notes on TImageMng.GetPositionOffset }
-                FSelectedNote.NoteTextPlain := '';
-                InitializeTextPlain(FSelectedNote, RTFAux_Note);
+                SelectedNote_.NoteTextPlain := '';
+                InitializeTextPlain(SelectedNote_, RTFAux_Note);
              end;
-             FSelectedNote.Stream.Position := 0;
-             Result:= FSelectedNote.Stream;
+             SelectedNote_.Stream.Position := 0;
+             Result:= SelectedNote_.Stream;
              FEditor.Modified:= false;
 
            finally
@@ -2319,16 +2486,33 @@ begin
         end;
      end
      else
-       if (FSelectedNote.NoteTextPlain = '') then
-          InitializeTextPlain(FSelectedNote, RTFAux_Note);
+       if (SelectedNote_.NoteTextPlain = '') then
+          InitializeTextPlain(SelectedNote_, RTFAux_Note);
 
   end;
 end; // EditorToDataStream
 
 
+procedure TKntFolder.SetFocusOnEditor;
+begin
+  try
+     Editor.SetFocus;
+  except
+  end;
+end;
+
+procedure TKntFolder.SetFocusOnTree;
+begin
+  try
+     TV.SetFocus;
+  except
+  end;
+end;
+
+
 function TKntFolder.StreamFormatInNote: TRichStreamFormat;
 begin
-    case FSelectedNote.VirtualMode of
+    case SelectedNote.VirtualMode of
       vmNone, vmKNTNode : begin
         if FPlainText then
           Result:= sfPlainText
@@ -2375,7 +2559,7 @@ begin
 
 
   if HaveVCLControls then begin
-    {                           // Now updated from TForm_Main.SplitterNoteMoved
+    {                           // Now updated from TKntTreeUI.SplitterNoteMoved
     if FVerticalLayout then
        FTreeWidth := FTV.Height
     else
@@ -2483,7 +2667,7 @@ begin
                 except
                   on E : Exception do
                     // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages
-                    DoMessageBox(Format(STR_08 + #13+ '%s'+ #13#13+ '%s', [note.Name, self.Name, note.VirtualFN, E.Message]), mtError, [mbOK], 0 );
+                    App.DoMessageBox(Format(STR_08 + #13+ '%s'+ #13#13+ '%s', [note.Name, self.Name, note.VirtualFN, E.Message]), mtError, [mbOK], 0 );
                 end;
           end;
 

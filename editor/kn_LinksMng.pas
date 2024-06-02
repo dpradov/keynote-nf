@@ -39,6 +39,7 @@ uses
    kn_Info,
    kn_Const,
    kn_KntFolder,
+   kn_KntNote,
    kn_History,
    kn_LocationObj,
    knt.ui.editor
@@ -46,7 +47,7 @@ uses
 
 
    // Links related routines
-    procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; Simplified: Boolean= false);
+    procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; Simplified: Boolean= false; Note: TKntNote = nil);
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean; Relative: boolean= false );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string; NumBookmark09: integer= 0);
     function BuildKNTLocationText( const aLocation : TLocation) : string;
@@ -104,14 +105,12 @@ uses
    kn_Global,
    kn_Main,
    kn_URL,
-   kn_KntNote,
    kn_EditorUtils,
    kn_RTFUtils,
    kn_FindReplaceMng,
    kn_ImagesMng,
    kn_ImageForm,
    kn_NoteFileMng,
-   kn_TreeNoteMng,
    kn_KntFile,
    knt.App
   ;
@@ -194,7 +193,7 @@ begin
 
   if assigned(myTreeNode) then begin
      if ShowFullPath then
-        path:= GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, PathTopToBottom ) // {N}
+        path:= myFolder.TreeUI.GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, PathTopToBottom ) // {N}
      else
         path:= myTreeNode.Text; // {N}
 
@@ -471,7 +470,7 @@ begin
           ImportFileType := itText
 
        else begin
-          DoMessageBox( STR_07, mtError, [mbOK]);
+          App.DoMessageBox( STR_07, mtError, [mbOK]);
           exit;
        end;
 
@@ -496,7 +495,7 @@ begin
 
          except
            on E : Exception do begin
-              DoMessageBox( E.Message, mtError, [mbOK] );
+              App.DoMessageBox( E.Message, mtError, [mbOK] );
               exit;
            end;
          end;
@@ -513,9 +512,7 @@ end; // InsertFileOrLink
 //===============================================================
 // GetKNTLocation
 //===============================================================
-procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; Simplified: Boolean= false);
-var
-  Note: TKntNote;
+procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; Simplified: Boolean= false; Note: TKntNote = nil);
 begin
 {$IFDEF DEBUG_HISTORY}
    Simplified:= false;
@@ -526,7 +523,8 @@ begin
 
    if not assigned(aFolder) then exit;
 
-   Note:= aFolder.SelectedNote;
+   if Note = nil then
+      Note:= aFolder.SelectedNote;
    with Location do begin
       if not Simplified then begin
          FileName := normalFN( TKntFile(aFolder.KntFile).FileName );
@@ -1418,10 +1416,10 @@ begin
     except
       on E : EInvalidLocation do
         if not _Executing_History_Jump and not Location.Bookmark09 then
-          DoMessageBox( Format( STR_13, [E.Message] ), mtWarning, [mbOK]);
+          App.DoMessageBox( Format( STR_13, [E.Message] ), mtWarning, [mbOK]);
       on E : Exception do begin
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_14;
-        DoMessageBox( Format( STR_15, [E.Message] ), mtWarning, [mbOK]);
+        App.DoMessageBox( Format( STR_15, [E.Message] ), mtWarning, [mbOK]);
       end;
   end;
 
@@ -1458,12 +1456,12 @@ begin
 
   except
     on E : EInvalidLocation do
-      DoMessageBox( Format( STR_13, [E.Message] ), mtWarning, [mbOK]);
+      App.DoMessageBox( Format( STR_13, [E.Message] ), mtWarning, [mbOK]);
 
     on E : Exception do
       begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_14;
-      DoMessageBox( Format( STR_15, [E.Message]  ), mtError, [mbOK] );
+      App.DoMessageBox( Format( STR_15, [E.Message]  ), mtError, [mbOK] );
       end;
   end;
 
@@ -1961,7 +1959,7 @@ begin
 
           if ( ShellExecResult <= 32 ) then begin
             if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
-              PopupMessage( Format(
+              App.PopupMessage( Format(
                 STR_20,
                 [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK], 0 );
           end
@@ -1973,7 +1971,7 @@ begin
 
   except
      on E : Exception do
-       DoMessageBox( E.Message, mtWarning, [mbOK] );
+       App.DoMessageBox( E.Message, mtWarning, [mbOK] );
   end;
 
 end; // ClickOnURL

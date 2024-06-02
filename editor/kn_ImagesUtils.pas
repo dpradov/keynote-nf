@@ -883,7 +883,7 @@ begin
 
   except
      on E : Exception do begin
-        Messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, STR_01);
         Result:= '';
         exit;
      end;
@@ -1015,7 +1015,7 @@ begin
 
  except
      on E : Exception do begin
-        Messagedlg( STR_02 + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, STR_02);
         Result:= false;
      end;
  end;
@@ -1072,7 +1072,7 @@ begin
 
  except
      on E : Exception do begin
-        Messagedlg( STR_03 + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, STR_03);
         Result:= false;
      end;
  end;
@@ -1272,7 +1272,7 @@ begin
 
   except
      on E : Exception do begin
-        Messagedlg( STR_04 + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, STR_04);
      end;
   end;
 

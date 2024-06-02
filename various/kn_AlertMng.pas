@@ -1063,7 +1063,7 @@ end;
 procedure TAlarmMng.UpdateFormMain ( alarm: TAlarm );
 begin
    if alarm.folder <> ActiveFolder then exit;
-   Form_Main.ShowAlarmStatus;
+   Form_Main.UpdateAlarmStatus;
 end;
 
 
@@ -1650,7 +1650,7 @@ begin
 
        msgResult:= mrYes;
        if (ask) then
-          MsgResult:= DoMessageBox( STR_ConfirmApplyPendingChanges, mtConfirmation, Buttons, 0, Handle );
+          MsgResult:= App.DoMessageBox( STR_ConfirmApplyPendingChanges, mtConfirmation, Buttons, 0, Handle );
 
        if MsgResult <> mrCancel then begin
          if MsgResult = mrYes then
@@ -1900,7 +1900,7 @@ begin
 
     if (FProposedReminder >= 0) and (FProposedReminder < Now) then begin
        CB_ProposedIntervalReminder.SetFocus;
-       DoMessageBox( STR_ReminderorDateINC, mtError, [mbOK], 0, Handle );
+       App.DoMessageBox( STR_ReminderorDateINC, mtError, [mbOK], 0, Handle );
        exit;
     end;
 
@@ -1947,7 +1947,7 @@ var
   i: integer;
 begin
   if Grid.SelCount > 1 then
-     if ( DoMessageBox( Format( STR_ConfirmDiscardALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+     if ( App.DoMessageBox( Format( STR_ConfirmDiscardALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;
@@ -1995,7 +1995,7 @@ var
   i: integer;
 begin
    if Grid.SelCount > 1 then
-      if ( DoMessageBox( Format( STR_ConfirmRestoreALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+      if ( App.DoMessageBox( Format( STR_ConfirmRestoreALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;
@@ -2037,7 +2037,7 @@ begin
   else
      strConfirm := STR_ConfirmRemove;
 
-  if ( DoMessageBox( Format( strConfirm, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+  if ( App.DoMessageBox( Format( strConfirm, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;

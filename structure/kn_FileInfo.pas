@@ -531,7 +531,7 @@ procedure TForm_KntFileInfo.CheckBox_AsReadOnlyClick(Sender: TObject);
 begin
   if assigned( myKntFile ) then begin
     if (( not CB_AsReadOnly.Checked ) and myKntFile.ReadOnly ) then begin
-      if ( DoMessageBox( Format(STR_12,[ExtractFilename( myKntFile.FileName )]), mtWarning, [mbYes,mbNo], 0, Self.Handle ) = mrYes ) then
+      if ( App.DoMessageBox( Format(STR_12,[ExtractFilename( myKntFile.FileName )]), mtWarning, [mbYes,mbNo], 0, Self.Handle ) = mrYes ) then
         CB_AsReadOnly.OnClick := nil
       else
         CB_AsReadOnly.Checked := true;
@@ -731,12 +731,10 @@ begin
      MessageDlg( Format(STR_19, [MaxSavedID+1, MaxSavedID]), mtInformation, [mbOK], 0 )
 
   else
-    if ( MessageDlg( Format(STR_20, [MaxSavedID, ImageMng.NextImageID, MaxSavedID+1]),
-        mtInformation, [mbYes,mbNo,mbCancel], 0 ) = mrYes ) then begin
-      if ImageMng.RecalcNextID then begin
-         MessageDlg(STR_21, mtInformation, [mbOK], 0 );
-         UpdateKntFileState( [fscSave,fscModified] );
-      end;
+    if (MessageDlg( Format(STR_20, [MaxSavedID, ImageMng.NextImageID, MaxSavedID+1]),
+       mtInformation, [mbYes,mbNo,mbCancel], 0 ) = mrYes ) then begin
+       if ImageMng.RecalcNextID then
+          App.InfoPopup(STR_21);
     end;
 end;
 
@@ -773,7 +771,7 @@ begin
   except
     on E : Exception do begin
      if E.Message <> '' then
-        PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
+        App.PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
     end;
   end;
 

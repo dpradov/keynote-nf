@@ -167,7 +167,7 @@ uses
    kn_Ini,
    kn_Global,
    kn_KntNote,
-   kn_TreeNoteMng,
+   knt.ui.tree,
    kn_ExportImport,
    kn_TabSelect,
    kn_Main,
@@ -791,12 +791,12 @@ function TForm_ExportNew.Validate : boolean;
 begin
   result := false;
   if ( ExportOptions.ExportPath = '' ) then begin
-    DoMessageBox( STR_02, mtError, [mbOK], 0 );
+    App.DoMessageBox( STR_02, mtError, [mbOK], 0 );
     exit;
   end;
 
   if ( not System.SysUtils.DirectoryExists( ExportOptions.ExportPath )) then begin
-    DoMessageBox( STR_03, mtError, [mbOK], 0 );
+    App.DoMessageBox( STR_03, mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -1014,7 +1014,7 @@ begin
                     (( ExportOptions.ExportSource <> expCurrentNote ) or
                     ( ExportOptions.TreeSelection in [tsNode, tsFullTree] ) or
                     (( ExportOptions.TreeSelection = tsCheckedNodes ) and myNote.Checked ) or
-                    (( ExportOptions.TreeSelection = tsSubtree ) and ( IsAParentOf( StartTreeNode, myTreeNode ) or ( StartTreeNode = myTreeNode )))) then
+                    (( ExportOptions.TreeSelection = tsSubtree ) and ( TKntTreeUI.IsAParentOf( StartTreeNode, myTreeNode ) or ( StartTreeNode = myTreeNode )))) then
                 begin
                   myNote.Stream.Position := 0;
                   inc( ThisNodeIndex );

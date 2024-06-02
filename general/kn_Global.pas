@@ -158,10 +158,6 @@ var
 
     _ConvertHTMLClipboardToRTF: boolean;
 
-    //================================================== TREE
-    MovingTreeNode: TTreeNTNode;            // To use with Paste, after applying Cut on a Tree Node.
-    CopyCutFromFolderID: integer;             // Copy or Cut from Folder
-
     //================================================== VARIOS
 
     { *1
@@ -328,7 +324,6 @@ var
   sm : TSearchMode;
   V : TOSVersionInfo;
 begin
-  MovingTreeNode:= nil;
   NumberingStart:= 1;
 
   History := TKNTHistory.Create (_MAX_GLOBAL_NAV_HISTORY);
@@ -570,7 +565,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           PopupMessage( Format(STR_02, [e.Message]), mtInformation, [mbOK], 0 );
+           App.PopupMessage( Format(STR_02, [e.Message]), mtInformation, [mbOK], 0 );
         end;
       end;
 
@@ -946,7 +941,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           PopupMessage(Format(STR_02, [e.Message]), mtInformation, [mbOK], 0 );
+           App.PopupMessage(Format(STR_02, [e.Message]), mtInformation, [mbOK], 0 );
         end;
       end;
 

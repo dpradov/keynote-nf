@@ -4,7 +4,7 @@ unit kn_VCLControlsMng;
  
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
@@ -52,12 +52,10 @@ uses
     procedure CreateVCLControlsForFolder( const aFolder : TKntFolder ); // creates VCL controls for specified folder
     procedure DestroyVCLControls; // destroys VCL controls for ALL notes in KntFile object
     procedure DestroyVCLControlsForFolder( const aFolder : TKntFolder; const KillTabSheet : boolean ); // destroys VCL contols for specified folder
-    procedure GetOrSetNodeExpandState( const aTV : TTreeNT; const AsSet, TopLevelOnly : boolean );
 
     // VCL updates when config loaded or changed
     procedure UpdateFormState;
     procedure UpdateTabState;
-    procedure UpdateFolderDisplay;
 
     procedure UpdateResPanelState;
     procedure SetResPanelPosition;
@@ -105,7 +103,7 @@ uses
    kn_Chest,
    kn_EditorUtils,
    knt.ui.editor,
-   kn_TreeNoteMng,
+   knt.ui.tree,
    kn_MacroMng,
    kn_PluginsMng,
    kn_FavoritesMng,
@@ -148,9 +146,7 @@ begin
       FindAllResults.ShowHint:= False;
       FindAllResults.AutoURLDetect:= False;
 
-      if assigned( aFolder.Editor ) then
-      begin
-
+      if assigned( aFolder.Editor ) then begin
         aFolder.ConfigureEditor;
         with aFolder.Editor do begin
           PopUpMenu := Menu_RTF;
@@ -158,9 +154,6 @@ begin
 
           OnKeyDown:= RxRTFKeyDown;
           OnKeyPress:= RxRTFKeyPress;
-          OnEnter:= RxRTFEnter;
-          OnMouseMove := RTFMouseMove;
-          OnMouseUp := RTFMouseUp;
           OnFileDropped := Form_Main.OnFileDropped;
 
           // AllowObjects := true;                      // Should be assigned when creating the control, to not lead to recreate its window
@@ -175,34 +168,7 @@ begin
         SendMessage( aFolder.Editor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
 
       with aFolder.TV do begin
-        Tag:= aFolder.ID;
-        PopupMenu := Menu_TV;
-        OnKeyDown := TVKeyDown;
-        OnKeyPress := TVKeyPress;
-        OnChange := TVChange;
-        // OnChanging := TVChanging; // unused
-        OnChecked := TVChecked;
         OnFileDropped := Form_Main.OnFileDropped;
-        OnEditing := TVEditing;
-        OnEdited := TVEdited;
-        OnEditCanceled := TVEditCanceled;
-        // OnDeletion := TVDeletion;
-        // OnExit := TVExit;
-        OnDeletion := nil;
-        OnClick := TVClick;
-        OnDblClick := TVDblClick;
-        //OnMouseDown := TVMouseDown;
-        OnDragDrop := TVDragDrop;
-        OnDragOver := TVDragOver;
-        OnEndDrag := TVEndDrag;
-        OnStartDrag := TVStartDrag;
-        ShowHint := false;
-        OnHint := TVOnHint;
-        OnEnter:= TVEnter;
-        OnSavingTree:= TVSavingTree;
-        OnMouseMove:= TVMouseMove;
-        HelpContext:= 284;  // Tree-type Notes [284]
-
         Perform(WM_HSCROLL, SB_TOP, 0);  // scroll to left border
       end;
 
@@ -274,70 +240,31 @@ var
   i : integer;
   myFolder : TKntFolder;
 begin
-  with Form_Main do begin
-        if (( not assigned( KntFile )) or ( KntFile.Folders.Count = 0 )) then exit;
+  if (( not assigned( KntFile )) or ( KntFile.Folders.Count = 0 )) then exit;
 
-        try
+  try
 
-          for i := 0 to pred( KntFile.Folders.Count ) do begin
-            myFolder := KntFile.Folders[i];
-            myFolder.DataStreamToEditor;
-            SetUpVCLControls( myFolder );
-          end;
+    for i := 0 to pred( KntFile.Folders.Count ) do begin
+      myFolder := KntFile.Folders[i];
+      myFolder.DataStreamToEditor;
+      SetUpVCLControls( myFolder );
+    end;
 
-        finally
-
-          // show all tabs (they were created hidden)
-          if ( Pages.PageCount > 0 ) then
-             for i := 0 to pred( Pages.PageCount ) do
-                Pages.Pages[i].TabVisible := true;
-        end;
-
-        // The folder that was active when file was previously saved will be restored in
-        // KntFileOpen (see comment *1)
+  finally
+    with Form_Main do begin
+       // show all tabs (they were created hidden)
+       if (Pages.PageCount > 0) then
+          for i := 0 to pred( Pages.PageCount ) do
+             Pages.Pages[i].TabVisible := true;
+    end;
   end;
+
+  // The folder that was active when file was previously saved will be restored in
+  // KntFileOpen (see comment *1)
 
 end; // SetupAndShowVCLControls
 
-//=================================================================
-// GetOrSetNodeExpandState
-//=================================================================
-procedure GetOrSetNodeExpandState( const aTV : TTreeNT; const AsSet, TopLevelOnly : boolean );
-var
-  myTreeNode : TTreeNTNode;
-  myNote : TKntNote;
-begin
-  with Form_Main do begin
-     // set or get node "expanded" state
 
-     if ( not assigned( aTV )) then exit;
-
-     myTreeNode := aTV.Items.GetFirstNode;
-
-     while assigned( myTreeNode ) do begin
-          myNote := TKntNote( myTreeNode.Data );
-          if assigned( myNote ) then begin
-             case AsSet of
-               true : begin // set
-                 if TopLevelOnly then begin
-                   myTreeNode.Expand( false );
-                   myTreeNode := myTreeNode.GetNextSibling
-                 end
-                 else begin
-                   myTreeNode.Expanded := myNote.Expanded;
-                   myTreeNode := myTreeNode.GetNext;
-                 end;
-               end;
-
-               false : begin // get
-                 myNote.Expanded := myTreeNode.Expanded;
-                 myTreeNode := myTreeNode.GetNext;
-               end;
-             end;
-          end;
-     end;
-  end;
-end; // GetOrSetNodeExpandState
 
 //=================================================================
 // CreateVCLControlsForFolder
@@ -346,20 +273,14 @@ procedure CreateVCLControlsForFolder( const aFolder : TKntFolder );
 var
   myTab : TTab95Sheet;
   myEditor : TKntRichEdit;
-  // FolderID : string[3];
-  myTree : TTreeNT;
+  myTreeUI: TKntTreeUI;
   mySplitter : TSplitter;
   myFolder : TKntFolder;
-  i, loop : integer;
-  tNode, myTreeNode, LastTreeNodeAssigned : TTreeNTNode;
-  LastNodeLevel: integer;
-  j, numChilds, AuxLevel, ChildLevel : integer;
-  myNote: TKntNote;
   {$IFDEF WITH_IE}
   myPanel : TPanel;
   myBrowser : TWebBrowser;
   {$ENDIF}
-  TVFontStyleWithBold : TFontStyles;
+
 
 begin
   Log_StoreTick( 'CreateVCLControlsForFolder - Begin', 2, +1);
@@ -372,9 +293,13 @@ begin
         {$ENDIF}
 
         try
-          if ( aFolder.FocusMemory = focNil ) then
-            aFolder.FocusMemory := focTree;
+          myFolder := aFolder;
 
+          if ( aFolder.FocusMemory = focNil ) then
+             aFolder.FocusMemory := focTree;
+
+
+          // TabSheet --------------
           if ( aFolder.TabSheet = nil ) then begin
             myTab := TTab95Sheet.Create( Form_Main );
             with myTab do begin
@@ -393,77 +318,20 @@ begin
           else
             myTab := aFolder.TabSheet;
 
-          myFolder := aFolder;
 
-          myTree := TTreeNT.Create( myTab );
-          with myTree do begin
-
-            Parent := myTab;
-            if myFolder.VerticalLayout then
-              Align := alTop
-            else
-              Align := alLeft;
-
-            HelpContext := 120;
-
-            // static options that do not change:
-            SortType := TreeNT.TSortType(stNone); // MUST be stNone; sort by manually calling AlphaSort
-            Options := [
-                        //toMultiSelect,                // [dpv]  <<<<<<<<<< PROVISIONAL
-                        toRightClickSelect,
-                        toInfoTip,
-                        // toFullRowSelect,
-                        // toHideSelection,
-                        // toReadOnly,
-                        toToolTips,
-                        // toHotTrack, OPTION!
-                        toShowButtons,
-                        toShowLines,
-                        toShowRoot,
-                        toEvenHeight,
-                        toCheckSupport];
-
-            if TreeOptions.FullRowSelect then
-              Options := Options + [toFullRowSelect];
-
-
-           // *1 Commented because: when this is checked, the window has not yet been resized to its final size.
-           //    This verification is removed as it seems unnecessary.
-
-            if myFolder.VerticalLayout then begin
-              if ( myFolder.TreeWidth < 30 )
-                  // or ( myFolder.TreeWidth > ( Pages.Height - 30 )))   // *1
-              then
-                Height := ( Pages.Height DIV 3 )
-              else
-                Height := myFolder.TreeWidth;
-              myFolder.TreeWidth := Height; // store corrected value
-            end
-            else begin
-              if ( myFolder.TreeWidth < 30 )
-                 // or ( myFolder.TreeWidth > ( Pages.Width - 30 )))       // *1
-              then
-                 Width := ( Pages.Width DIV 3 )
-              else
-                 Width := myFolder.TreeWidth;
-              myFolder.TreeWidth := Width; // store corrected value
-            end;
-
-          end;
-
+          // Splitter --------------
           mySplitter := TSplitter.Create( myTab );
           with mySplitter do begin
             Parent := myTab;
             Align := alNone;
-            mySplitter.OnMoved:= Form_Main.SplitterNoteMoved;
             if myFolder.VerticalLayout then begin
-              Top := myTree.Height + 5;
+              Top := myTreeUI.Height + 5;
               Align := alTop;
               Cursor := crVSplit;
               Height := 3;
             end
             else begin
-              Left := myTree.Width + 5;
+              Left := myTreeUI.Width + 5;
               Align := alLeft;
               Cursor := crHSplit;
               Width := 4;
@@ -471,161 +339,15 @@ begin
             Hint := STR_00;
           end;
 
+          // TreeUI --------------
+          myTreeUI:= TKntTreeUI.Create(myTab);
+          myTreeUI.Parent:= myTab;
+          myTreeUI.SplitterNote := mySplitter;
+          myTreeUI.PopupMenu := Form_Main.Menu_TV;
+
+          myFolder.TreeUI:= myTreeUI;
           myFolder.Splitter := mySplitter;
-          if myFolder.TreeMaxWidth > myFolder.TreeWidth then
-             myFolder.Splitter.Color:= clLtGray;
 
-          myFolder.TV := myTree;
-          UpdateTreeOptions( myFolder );
-
-          myFolder.UpdateTree; // do this BEFORE creating nodes
-
-          // Create TreeNodes for all nodes in the note
-          LastTreeNodeAssigned := nil;
-          LastNodeLevel := 0;
-
-          if ( myFolder.Notes.Count > 0 ) then begin
-            TVFontStyleWithBold:= myFolder.TV.Font.Style + [fsBold];
-
-            myTree.Items.BeginUpdate;
-            try
-               for i := 0 to myFolder.Notes.Count-1 do begin
-                  myNote := myFolder.Notes[i];
-
-                  numChilds:= 0;
-                  ChildLevel:= myNote.Level+1;
-                  for j := i+1 to myFolder.Notes.Count-1 do begin
-                     AuxLevel:= myFolder.Notes[j].Level;
-                     if AuxLevel = ChildLevel then
-                        inc(numChilds);
-                     if AuxLevel < ChildLevel then
-                        break;
-                  end;
-
-                  case myNote.Level of
-                    0 : begin
-                      myTreeNode := myTree.Items.Add( nil, myNote.Name, numChilds );
-                      LastNodeLevel := 0;
-                    end
-                    else begin
-                      case DoTrinaryCompare( myNote.Level, LastNodeLevel ) of
-                        trinGreater:
-                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned, myNote.Name );
-                        trinEqual:
-                          myTreeNode := myTree.Items.AddChild( LastTreeNodeAssigned.Parent, myNote.Name );
-                        trinSmaller: begin  // myNote.Level is SMALLER than LastNodeLevel, i.e. we're moving LEFT in the tree
-                           for loop := 1 to ( LastNodeLevel - myNote.Level ) do begin
-                              if assigned( LastTreeNodeAssigned ) then begin
-                                if ( LastTreeNodeAssigned.Level <= myNote.Level ) then
-                                    break;
-                                LastTreeNodeAssigned := LastTreeNodeAssigned.Parent;
-                              end
-                              else
-                                break;
-                           end;
-                           myTreeNode := myTree.Items.Add( LastTreeNodeAssigned, myNote.Name, numChilds );
-                        end;
-                      end;
-                    end;
-                  end;
-
-                  LastTreeNodeAssigned := myTreeNode;
-                  LastNodeLevel := myNote.Level;
-
-                  myTreeNode.Data := myNote;
-
-                  if myNote.HasNodeFontFace then
-                    myTreeNode.Font.Name := myNote.NodeFontFace;
-
-                  if myNote.Bold then
-                    myTreeNode.Font.Style := TVFontStyleWithBold;
-
-                  if myNote.HasNodeColor then
-                    myTreeNode.Font.Color := myNote.NodeColor;
-
-                  if myNote.HasNodeBGColor then
-                    myTreeNode.Color := myNote.NodeBGColor;
-
-                  if myNote.Filtered  then      // [dpv]
-                     myFolder.Filtered := True;
-
-               end;
-
-            finally
-              Log_StoreTick( 'After created TreeNodes', 3 );
-
-              ShowOrHideIcons( myFolder, true );
-              ShowOrHideCheckBoxes( myFolder );
-
-              Log_StoreTick( 'After ShowOrHIdeIcons,CheckBoxes', 3 );
-
-              if myFolder.Filtered then             // [dpv]
-                 HideFilteredNodes (myFolder);
-              if myFolder.HideCheckedNodes then     // [dpv]
-                 HideChildNodesUponCheckState (myFolder, nil, csChecked);
-
-              myTree.Items.EndUpdate;
-
-              Log_StoreTick( 'After HideFilteredNodes, HideCheckNodes', 3 );
-            end;
-
-            // restore selected node: this block must be
-            // OUTSIDE the beginupdate..endupdate range
-
-            //if ( myTree.Items.Count > 0 ) then       // [dpv]
-            if ( myTree.Items.CountNotHidden > 0 ) then begin
-              if (( TreeOptions.ExpandMode <> txmFullCollapse ) and // SaveActiveNode and
-                 ( myFolder.OldSelectedIndex >= 0 ) and
-                 ( myFolder.OldSelectedIndex < myTree.Items.Count )) then
-              begin
-                // restore the node which was selected when file was saved
-                tNode:= myTree.Items[myFolder.OldSelectedIndex];
-                if tNode.Hidden  then begin  // [dpv]
-                   tNode := myTree.Items.GetFirstNode;
-                   if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
-                end;
-              end
-              else begin
-                tNode := myTree.Items.GetFirstNode;
-                if tNode.Hidden then tNode:= tNode.GetNextNotHidden;
-              end;
-              myTree.Selected:= tNode;
-              myFolder.SelectedNote := TKntNote( myTree.Selected.Data );
-            end
-            else
-              myFolder.SelectedNote := nil;
-
-            Log_StoreTick( 'After Restored selected node', 3 );
-
-
-            case TreeOptions.ExpandMode of
-              txmFullCollapse : begin
-                // nothing
-              end;
-              txmActiveNode : begin
-                if assigned( myTree.Selected ) then
-                  myTree.Selected.Expand( false );
-              end;
-              txmTopLevelOnly, txmExact : begin
-                try
-                  GetOrSetNodeExpandState( myTree, true, ( TreeOptions.ExpandMode = txmTopLevelOnly ));
-                except
-                  // nothing
-                end;
-              end;
-              txmFullExpand : begin
-                myTree.FullExpand;
-              end;
-            end;
-
-
-            UpdateTreeVisible( myFolder ); // [f]
-
-            if assigned( myTree.Selected ) then
-              myTree.Selected.MakeVisible;
-
-            Log_StoreTick( 'After UpdateTreeVisible', 3 );
-          end;
 
          {$IFDEF WITH_IE}
            myPanel := TPanel.Create( myTab );
@@ -643,23 +365,21 @@ begin
            myFolder.MainPanel := myPanel;
 
            if _IE4Available then begin
-           myBrowser := TWebBrowser.Create( myPanel );
-           TControl( myBrowser ).Parent := myPanel;
-           with myBrowser do
-           begin
-            Align := alClient;
-            Visible := false;
-           end;
-           myFolder.WebBrowser := myBrowser;
+              myBrowser := TWebBrowser.Create( myPanel );
+              TControl( myBrowser ).Parent := myPanel;
+              with myBrowser do begin
+                Align := alClient;
+                Visible := false;
+              end;
+              myFolder.WebBrowser := myBrowser;
            end
            else
-           begin
             myFolder.WebBrowser := nil;
-           end;
 
          {$ENDIF}
 
 
+          // Editor (KntRichEdit) ----------------------------
           myEditor := TKntRichEdit.Create( myTab );
           with myEditor do begin
             {$IFDEF WITH_IE}
@@ -704,6 +424,10 @@ begin
             UpdateEditor (true); // do this BEFORE placing RTF text in editor
           end;
 
+
+          myTreeUI.Folder:= myFolder;  // => PopulateTree...
+
+
         finally
           _ALLOW_VCL_UPDATES := true;
         end;
@@ -714,64 +438,31 @@ begin
 end; // CreateVCLControlsForFolder
 
 
-procedure DeleteNodes(Folder: TKntFolder);
-var
-  Node : TTreeNTNode;
-begin
-    Node := Folder.TV.Items.GetFirstNode;
-    while assigned( Node ) do begin // go through all nodes
-        KntFile.ManageMirrorNodes(3, Node, nil);
-        Node := Node.GetNext; // select next node to search
-    end;
-end;
-
 //=================================================================
 // DestroyVCLControlsForFolder
 //=================================================================
 procedure DestroyVCLControlsForFolder( const aFolder : TKntFolder; const KillTabSheet : boolean );
 begin
-  with Form_Main do begin
-        if not assigned( aFolder ) then exit;
+   if not assigned( aFolder ) then exit;
 
-        _ALLOW_VCL_UPDATES := false;
-        try
+   _ALLOW_VCL_UPDATES := false;
+   try
+     if assigned( aFolder.Editor ) then
+       FreeAndNil(aFolder.Editor);
 
-          if assigned( aFolder.Editor ) then
-            FreeAndNil(aFolder.Editor);
+     if assigned( aFolder.Splitter ) then
+       FreeAndNil(aFolder.Splitter);
 
-          if assigned( aFolder.Splitter ) then begin
-            aFolder.Splitter.Free;
-            aFolder.Splitter := nil;
-          end;
+     if assigned(aFolder.TreeUI) then
+       FreeAndNil(aFolder.TreeUI);
 
-          if assigned( aFolder.TV ) then begin
-             with aFolder.TV do begin
-               PopupMenu := nil;
-               OnChange := nil;
-               OnChanging := nil;
-               OnDeletion := nil;
-               OnEditing := nil;
-               OnEdited := nil;
-               OnEnter := nil;
-               OnExit := nil;
-               OnKeyDown := nil;
-               OnEditCanceled := nil;
-               OnEdited := nil;
-               OnEditing := nil;
-             end;
-             DeleteNodes(aFolder);
+     if ( KillTabSheet and assigned(aFolder.TabSheet)) then
+        aFolder.TabSheet.Free;
 
-             aFolder.TV.Free;
-             aFolder.TV := nil;
-          end;
+   finally
+     _ALLOW_VCL_UPDATES := true;
+   end;
 
-          if ( KillTabSheet and assigned( aFolder.TabSheet )) then
-             aFolder.TabSheet.Free;
-
-        finally
-          _ALLOW_VCL_UPDATES := true;
-        end;
-  end;
 end; // DestroyVCLControlsForFolder
 
 //=================================================================
@@ -783,19 +474,17 @@ var
   s : string;
 begin
   with Form_Main do begin
-       if ( pages.pagecount > 0 ) then begin
-         for i := pred( pages.pagecount ) downto 0 do begin
-             try
-               s := pages.pages[i].Caption;
-               pages.pages[i].Free;
-             except
-               on E : Exception do begin
-                 showmessage( STR_01 + s + #13#13 +
-                  E.Message );
-               end;
-             end;
-         end;
+     if ( pages.pagecount > 0 ) then begin
+       for i := pred( pages.pagecount ) downto 0 do begin
+           try
+             s := pages.pages[i].Caption;
+             pages.pages[i].Free;
+           except
+             on E : Exception do
+                App.ErrorPopup(E, STR_01 + s);
+           end;
        end;
+     end;
   end;
 
 end; // DestroyVCLControls
@@ -809,146 +498,134 @@ var
    aux: integer;
 begin
   with Form_Main do begin
-        _SAVE_RESTORE_CARETPOS := EditorOptions.SaveCaretPos;
+     _SAVE_RESTORE_CARETPOS := EditorOptions.SaveCaretPos;
 
-        Combo_Font.DropDownCount := KeyOptions.ComboDropDownCount;
-        Combo_FontSize.DropDownCount := KeyOptions.ComboDropDownCount;
-        Combo_Style.DropDownCount := KeyOptions.ComboDropDownCount;
-        Combo_ResFind.DropDownCount := KeyOptions.ComboDropDownCount;
-        Combo_Zoom.DropDownCount := KeyOptions.ComboDropDownCount;
+     Combo_Font.DropDownCount := KeyOptions.ComboDropDownCount;
+     Combo_FontSize.DropDownCount := KeyOptions.ComboDropDownCount;
+     Combo_Style.DropDownCount := KeyOptions.ComboDropDownCount;
+     Combo_ResFind.DropDownCount := KeyOptions.ComboDropDownCount;
+     Combo_Zoom.DropDownCount := KeyOptions.ComboDropDownCount;
 
-        with KeyOptions do
-        begin
+     with KeyOptions do begin
 
-          // apply settings to VCL stuff
+       // apply settings to VCL stuff
 
-          if ColorDlgBig then
-            ColorDlg.Options := [cdFullOpen,cdSolidColor,cdAnyColor]
-          else
-            ColorDlg.Options := [cdSolidColor,cdAnyColor];
+       if ColorDlgBig then
+         ColorDlg.Options := [cdFullOpen,cdSolidColor,cdAnyColor]
+       else
+         ColorDlg.Options := [cdSolidColor,cdAnyColor];
 
-          if LongCombos then
-          begin
-            Combo_Font.Width := OriginalComboLen + ( OriginalComboLen DIV 4 );
-            Combo_Style.Width := Combo_Font.Width;
-          end
-          else
-          begin
-            if ( ComboFontLen > MIN_COMBO_LENGTH ) then begin  //***  Directamente da un error interno al compilar ¿??
-               //Combo_Font.Width := ComboFontLen;
-                 aux:= ComboFontLen;
-                 Combo_Font.Width := aux;
-            end;
-
-            if ( ComboStyleLen > MIN_COMBO_LENGTH ) then begin
-              //Combo_Style.Width := ComboStyleLen;
-              aux:= ComboStyleLen;
-              Combo_Style.Width:= aux;
-            end;
+       if LongCombos then begin
+         Combo_Font.Width := OriginalComboLen + ( OriginalComboLen DIV 4 );
+         Combo_Style.Width := Combo_Font.Width;
+       end
+       else begin
+          if ( ComboFontLen > MIN_COMBO_LENGTH ) then begin  //***  Directamente da un error interno al compilar ¿??
+             //Combo_Font.Width := ComboFontLen;
+               aux:= ComboFontLen;
+               Combo_Font.Width := aux;
           end;
 
-          // [style]
-          if StyleShowSamples then
-            Combo_Style.ItemHeight := 19
-          else
-            Combo_Style.ItemHeight := 16;
-
-
-          if EditorOptions.TrackStyle then
-          begin
-            case EditorOptions.TrackStyleRange of
-              srFont : MMViewFormatFont.Checked := true;
-              srParagraph : MMViewFormatPara.Checked := true;
-              srBoth : MMViewFormatBoth.Checked := true;
-            end;
-          end
-          else
-          begin
-            MMViewFormatNone.Checked := true;
+          if ( ComboStyleLen > MIN_COMBO_LENGTH ) then begin
+            //Combo_Style.Width := ComboStyleLen;
+            aux:= ComboStyleLen;
+            Combo_Style.Width:= aux;
           end;
+       end;
 
-          if UseOldColorDlg then
-          begin
-            MMFormatTextColor.Hint := STR_02;
-            MMFormatHighlight.Caption := STR_03;
-            MMFormatHighlight.Hint := STR_04;
-          end
-          else
-          begin
-            MMFormatTextColor.Hint := STR_05;
-            MMFormatHighlight.Caption := STR_06;
-            MMFormatHighlight.Hint := STR_07;
-          end;
+       // [style]
+       if StyleShowSamples then
+         Combo_Style.ItemHeight := 19
+       else
+         Combo_Style.ItemHeight := 16;
 
-          AppLastActiveTime := now;
-          if ( TimerMinimize or TimerClose ) then
-            Form_Main.AssignOnMessage
-          else
-            Application.OnMessage := nil;
 
-          ShowHint := ShowTooltips;
-          TrayIcon.Active := UseTray;
-          AutoSaveToggled;
+       if EditorOptions.TrackStyle then begin
+         case EditorOptions.TrackStyleRange of
+           srFont : MMViewFormatFont.Checked := true;
+           srParagraph : MMViewFormatPara.Checked := true;
+           srBoth : MMViewFormatBoth.Checked := true;
+         end;
+       end
+       else
+         MMViewFormatNone.Checked := true;
 
-          Toolbar_Main.Visible := ToolbarMainShow;
-          MMViewTBMain.Checked := ToolbarMainShow;
+       if UseOldColorDlg then begin
+         MMFormatTextColor.Hint := STR_02;
+         MMFormatHighlight.Caption := STR_03;
+         MMFormatHighlight.Hint := STR_04;
+       end
+       else begin
+         MMFormatTextColor.Hint := STR_05;
+         MMFormatHighlight.Caption := STR_06;
+         MMFormatHighlight.Hint := STR_07;
+       end;
 
-          Toolbar_Format.Visible := ToolbarFormatShow;
-          MMViewTBFormat.Checked := ToolbarFormatShow;
+       AppLastActiveTime := now;
+       if ( TimerMinimize or TimerClose ) then
+         Form_Main.AssignOnMessage
+       else
+         Application.OnMessage := nil;
 
-          Toolbar_Insert.Visible := ToolbarInsertShow;
-          MMViewTBInsert.Checked := ToolbarInsertShow;
+       ShowHint := ShowTooltips;
+       TrayIcon.Active := UseTray;
+       AutoSaveToggled;
 
-          Toolbar_Macro.Visible := true; // ToolbarMacroShow;
-          MMToolsMacroRun.Enabled := Toolbar_Macro.Visible;
+       Toolbar_Main.Visible := ToolbarMainShow;
+       MMViewTBMain.Checked := ToolbarMainShow;
 
-          MMViewTBTree.Checked := ToolbarTreeShow;
+       Toolbar_Format.Visible := ToolbarFormatShow;
+       MMViewTBFormat.Checked := ToolbarFormatShow;
 
-          Toolbar_Style.Visible := ToolbarStyleShow;
-          MMViewTBStyle.Checked := ToolbarStyleShow;
+       Toolbar_Insert.Visible := ToolbarInsertShow;
+       MMViewTBInsert.Checked := ToolbarInsertShow;
 
-          { // Removed TB_Exit button
-          if MinimizeOnClose then
-            TB_Exit.Hint := STR_08
-          else
-            TB_Exit.Hint := STR_09;
-          }
+       Toolbar_Macro.Visible := true; // ToolbarMacroShow;
+       MMToolsMacroRun.Enabled := Toolbar_Macro.Visible;
 
-        end;
+       MMViewTBTree.Checked := ToolbarTreeShow;
 
-        if KeyOptions.MRUUse then
-        begin
-          with KeyOptions do
-          begin
-            MRU.Maximum := MRUCount;
-            MRU.AutoSave := true;
-            MRU.UseSubmenu := MRUSubmenu;
-            if MRUFullPaths then
-              MRU.MRUDisplay := mdFullPath
-            else
-              MRU.MRUDisplay := mdFileNameExt;
-          end;
-        end
-        else
-        begin
-          with KeyOptions do
-          begin
-           MRU.Maximum := 0;
-           MRU.RemoveAllItems;
-           MRU.AutoSave := false;
-          end;
-        end;
+       Toolbar_Style.Visible := ToolbarStyleShow;
+       MMViewTBStyle.Checked := ToolbarStyleShow;
 
-        CB_ResFind_CaseSens.Checked := FindOptions.MatchCase;
-        CB_ResFind_WholeWords.Checked := FindOptions.WholeWordsOnly;
-        CB_ResFind_AllNotes.Checked := FindOptions.AllTabs;
-        CB_ResFind_CurrentNodeAndSubtree.Checked := FindOptions.CurrentNodeAndSubtree;
-        CB_ResFind_CurrentNodeAndSubtree.Enabled:= not FindOptions.AllTabs;
-        RG_ResFind_Scope.ItemIndex := ord( FindOptions.SearchScope );
-        RG_ResFind_Type.ItemIndex := ord( FindOptions.SearchMode );
-        RG_ResFind_ChkMode.ItemIndex := ord( FindOptions.CheckMode );
+       { // Removed TB_Exit button
+       if MinimizeOnClose then
+         TB_Exit.Hint := STR_08
+       else
+         TB_Exit.Hint := STR_09;
+       }
 
-        PlainDefaultPaste_Toggled;
+     end;
+
+     if KeyOptions.MRUUse then begin
+       with KeyOptions do begin
+         MRU.Maximum := MRUCount;
+         MRU.AutoSave := true;
+         MRU.UseSubmenu := MRUSubmenu;
+         if MRUFullPaths then
+           MRU.MRUDisplay := mdFullPath
+         else
+           MRU.MRUDisplay := mdFileNameExt;
+       end;
+     end
+     else begin
+       with KeyOptions do begin
+        MRU.Maximum := 0;
+        MRU.RemoveAllItems;
+        MRU.AutoSave := false;
+       end;
+     end;
+
+     CB_ResFind_CaseSens.Checked := FindOptions.MatchCase;
+     CB_ResFind_WholeWords.Checked := FindOptions.WholeWordsOnly;
+     CB_ResFind_AllNotes.Checked := FindOptions.AllTabs;
+     CB_ResFind_CurrentNodeAndSubtree.Checked := FindOptions.CurrentNodeAndSubtree;
+     CB_ResFind_CurrentNodeAndSubtree.Enabled:= not FindOptions.AllTabs;
+     RG_ResFind_Scope.ItemIndex := ord( FindOptions.SearchScope );
+     RG_ResFind_Type.ItemIndex := ord( FindOptions.SearchMode );
+     RG_ResFind_ChkMode.ItemIndex := ord( FindOptions.CheckMode );
+
+     PlainDefaultPaste_Toggled;
   end;
 
 
@@ -960,172 +637,72 @@ end; // UpdateFormState
 procedure UpdateTabState;
 begin
   with Form_Main do begin
-        Pages.ButtonStyle := false;
-        Pages.AllowTabShifting := true;
-        Pages.HotTrack := TabOptions.HotTrack;
+     Pages.ButtonStyle := false;
+     Pages.AllowTabShifting := true;
+     Pages.HotTrack := TabOptions.HotTrack;
 
-        if ( TabOptions.Images and MMViewTabIcons.Enabled ) then
-          Pages.Images := Chest.IMG_Categories
-        else
-          Pages.Images := nil;
-        MMViewTabIcons.Checked := TabOptions.Images;
+     if ( TabOptions.Images and MMViewTabIcons.Enabled ) then
+       Pages.Images := Chest.IMG_Categories
+     else
+       Pages.Images := nil;
+     MMViewTabIcons.Checked := TabOptions.Images;
 
 
-        // update these settings only if Initializing,
-        // ie before we have any notes loaded. This is
-        // to prevent loss of RTF text formatting when
-        // tabsheets are recreated. Changes made to these
-        // settings will take effect after restarting KeyNote.
-        if ( Initializing or ( not KeyOptions.RichEditv3 )) then
-        begin
-          case TabOptions.TabOrientation of
-            tabposTop : begin
-              Pages.TabPosition := tpTopLeft;
-              Pages.VerticalTabs := false;
-              Pages.TextRotation := trHorizontal;
-            end;
-            tabposBottom : begin
-              Pages.TabPosition := tpBottomRight;
-              Pages.VerticalTabs := false;
-              Pages.TextRotation := trHorizontal;
-            end;
-            tabposLeft : begin
-              Pages.TabPosition := tpTopLeft;
-              Pages.VerticalTabs := true;
-              Pages.TextRotation := trVertical;
-            end;
-            tabposRight : begin
-              Pages.TabPosition := tpBottomRight;
-              Pages.VerticalTabs := true;
-              Pages.TextRotation := trVertical;
-            end;
-          end;
-          Pages.MultiLine := TabOptions.Stacked;
-          Splitter_ResMoved( Splitter_Res );
-        end;
+     // update these settings only if Initializing, ie before we have any notes loaded. This is
+     // to prevent loss of RTF text formatting when tabsheets are recreated. Changes made to these
+     // settings will take effect after restarting KeyNote.
 
-        with Pages.Font do
-        begin
-          Name := TabOptions.Font.FName;
-          Size := TabOptions.Font.FSize;
-          Color := TabOptions.Font.FColor;
-          Style := TabOptions.Font.FStyle;
-          Charset := TabOptions.Font.FCharset;
-        end;
-        with Pages.TabInactiveFont do
-        begin
-          Name := TabOptions.Font.FName;
-          Size := TabOptions.Font.FSize;
-          if TabOptions.ColorAllTabs then
-            Color := TabOptions.Font.FColor
-          else
-            Color := clWindowText;
-          Style := [];
-          Charset := TabOptions.Font.FCharset;
-        end;
+     if ( Initializing or ( not KeyOptions.RichEditv3 )) then begin
+       case TabOptions.TabOrientation of
+         tabposTop : begin
+           Pages.TabPosition := tpTopLeft;
+           Pages.VerticalTabs := false;
+           Pages.TextRotation := trHorizontal;
+         end;
+         tabposBottom : begin
+           Pages.TabPosition := tpBottomRight;
+           Pages.VerticalTabs := false;
+           Pages.TextRotation := trHorizontal;
+         end;
+         tabposLeft : begin
+           Pages.TabPosition := tpTopLeft;
+           Pages.VerticalTabs := true;
+           Pages.TextRotation := trVertical;
+         end;
+         tabposRight : begin
+           Pages.TabPosition := tpBottomRight;
+           Pages.VerticalTabs := true;
+           Pages.TextRotation := trVertical;
+         end;
+       end;
+       Pages.MultiLine := TabOptions.Stacked;
+       Splitter_ResMoved( Splitter_Res );
+     end;
 
-        Pages.Color := TabOptions.ActiveColor;
-        Pages.TabInactiveColor := TabOptions.InactiveColor;
+     with Pages.Font do begin
+       Name := TabOptions.Font.FName;
+       Size := TabOptions.Font.FSize;
+       Color := TabOptions.Font.FColor;
+       Style := TabOptions.Font.FStyle;
+       Charset := TabOptions.Font.FCharset;
+     end;
+
+     with Pages.TabInactiveFont do begin
+       Name := TabOptions.Font.FName;
+       Size := TabOptions.Font.FSize;
+       if TabOptions.ColorAllTabs then
+         Color := TabOptions.Font.FColor
+       else
+         Color := clWindowText;
+       Style := [];
+       Charset := TabOptions.Font.FCharset;
+     end;
+
+     Pages.Color := TabOptions.ActiveColor;
+     Pages.TabInactiveColor := TabOptions.InactiveColor;
   end;
 
 end; // UpdateTabState
-
-//=================================================================
-// UpdateFolderDisplay
-//=================================================================
-procedure UpdateFolderDisplay;
-var
-  s : string;
-  myFolder : TKntFolder;
-  Editor: TKntRichEdit;
-  Node: TTreeNTNode;
-
-begin
-  with Form_Main do begin
-        s := '';
-        myFolder := ActiveFolder;
-
-        if assigned( myFolder ) then begin
-          try
-            Editor:= myFolder.Editor;
-
-            MMNoteReadOnly.Checked := myFolder.ReadOnly;
-            ClipCapMng.ShowState;
-            ShowAlarmStatus;
-
-            Editor.SetMargins;
-            UpdateWordWrap;
-
-            Editor.CheckWordCount(true);
-
-            Editor.Change;                 // It will only refresh UI if there is changes
-            RxChangedSelection(Editor, true);
-            if ActiveFolder.ReadOnly then s := 'R';
-
-            UpdateShowImagesState;
-
-            ShowInsMode;
-
-
-            MMTree_.Visible := true;
-            MMViewTree.Enabled := true;
-            MMViewTree.Checked := myFolder.TV.Visible;
-            MMViewNodeIcons.Checked := myFolder.IconKind = niStandard;
-            MMViewCustomIcons.Checked := myFolder.IconKind = niCustom;
-            MMEditPasteAsNewNode.Visible := true;
-            MMP_PasteAsNode.Visible := true;
-            MMViewCheckboxesAllNodes.Checked := ActiveFolder.Checkboxes;
-            node:= myFolder.TV.Selected;
-            if myFolder.Checkboxes or (assigned(node) and assigned(node.Parent) and (node.Parent.CheckType =ctCheckBox)) then  // [dpv]
-               TVCheckNode.Enabled := true
-            else
-               TVCheckNode.Enabled := false;
-
-
-            TVChildrenCheckbox.Enabled := not MMViewCheckboxesAllNodes.Checked;       // [dpv]
-            Toolbar_Tree.Visible := KeyOptions.ToolbarTreeShow;
-            MMViewNodeIcons.Enabled := MMViewTree.Checked;
-            MMViewCustomIcons.Enabled := MMViewTree.Checked;
-            MMViewCheckboxesAllNodes.Enabled := MMViewTree.Checked;
-            MMViewCustomIcons.Enabled := MMViewTree.Checked;
-            TVSelectNodeImage.Enabled := ( MMViewCustomIcons.Checked and MMViewCustomIcons.Enabled );
-            MMViewHideCheckedNodes.Enabled := true;                      // [dpv]
-            MMViewHideCheckedNodes.Checked:= myFolder.HideCheckedNodes;   // [dpv]
-            TB_HideChecked.Down := MMViewHideCheckedNodes.Checked;       // [dpv]
-            TB_FilterTree.Down:= myFolder.Filtered;                       // [dpv]
-            MMViewFilterTree.Enabled := true;                            // [dpv]
-            MMViewFilterTree.Checked :=  myFolder.Filtered;               // [dpv]
-            if myFolder.Filtered then FilterApplied (myFolder) else FilterRemoved (myFolder);   // [dpv]
-
-
-            if MMAlternativeMargins.Checked then
-               Editor.Refresh;
-
-          except
-            // showmessage( 'BUG: error in UpdateFolderDisplay' );
-          end;
-        end
-        else begin
-          MMNoteReadonly.Checked := false;
-          MMFormatWordWrap.Checked := false;
-          MMSetAlarm.Checked:= false;
-          TB_WordWrap.Down := false;
-          RTFMWordwrap.Checked := false;
-          TB_ClipCap.Down := false;
-          MMNoteClipCapture.Checked := false;
-          TMClipCap.Checked := false;
-          s := '';
-          StatusBar.Panels[PANEL_INS].Text := '';
-
-          MMTree_.Visible := false;
-          Toolbar_Tree.Visible := false;
-
-        end;
-        StatusBar.Panels[PANEL_NOTEINFO].Text := s;
-  end;
-
-end; // UpdateFolderDisplay
-
 
 
 
@@ -1524,7 +1101,6 @@ begin
        Pages.Enabled := true;
        App.ActivateFolder(ActiveFolder);
        ActiveFile.Modified := true;
-       UpdateKntFileState( [fscModified] );
      end;
   end;
 
@@ -1534,24 +1110,17 @@ end; // SortTabs
 procedure FocusActiveEditor;
 begin
    if not assigned(ActiveEditor) then exit;
-   try
-      ActiveEditor.SetFocus;
-   except
-   end;
+   ActiveFolder.SetFocusOnEditor;
 end;
 
 procedure FocusActiveKntFolder;
 begin
-    try
-      if assigned(ActiveFolder) and (not Initializing) then begin
-         if ActiveFolder.TV.Visible and (ActiveFolder.FocusMemory = focTree) then
-            ActiveFolder.TV.SetFocus
-         else
-            ActiveFolder.Editor.SetFocus;
-      end;
-    except
-      // Mostly Harmless
-    end;
+   if assigned(ActiveFolder) and (not Initializing) then begin
+      if ActiveFolder.TreeUI.Visible and (ActiveFolder.FocusMemory = focTree) then
+         ActiveFolder.SetFocusOnTree
+      else
+         ActiveFolder.SetFocusOnEditor;
+   end;
 end; // FocusActiveKntFolder
 
 

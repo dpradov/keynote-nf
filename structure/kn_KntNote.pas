@@ -170,7 +170,6 @@ uses
    gf_files,
    gf_streams,
    kn_Global,
-   kn_TreeNoteMng,
    kn_KntFolder,
    kn_LinksMng,
    knt.App
@@ -633,18 +632,14 @@ end; // HasVNodeError
 
 procedure TKntNote.SetName( AName : string );
 begin
-  if ( AName <> FName ) then
-  begin
+  if ( AName <> FName ) then begin
     FName := AName;
     // must enforce max node name length, because
     // if it exceeds 255 characters, KeyNote will crash
     // on Windows 95/98
     if ( length( FName ) > TREENODE_NAME_LENGTH ) then
       delete( FName, TREENODE_NAME_LENGTH, length( FName ));
-    {
-    if ( _ALLOW_VCL_UPDATES and assigned( FTreeNode )) then
-      FTreeNode.Text := FName;
-    }
+
   end;
 end; // SetName
 

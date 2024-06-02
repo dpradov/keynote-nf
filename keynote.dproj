@@ -3,7 +3,7 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -266,7 +266,6 @@
         <DCCReference Include="plugins\kn_PluginsMng.pas"/>
         <DCCReference Include="plugins\kn_PluginBase.pas"/>
         <DCCReference Include="plugins\kn_Plugins.pas"/>
-        <DCCReference Include="structure\kn_VirtualNodeMng.pas"/>
         <DCCReference Include="structure\kn_ExportImport.pas"/>
         <DCCReference Include="structure\kn_ExportNew.pas">
             <Form>Form_ExportNew</Form>
@@ -301,7 +300,6 @@
         <DCCReference Include="structure\kn_TabSelect.pas">
             <Form>Form_SelectTab</Form>
         </DCCReference>
-        <DCCReference Include="structure\kn_TreeNoteMng.pas"/>
         <DCCReference Include="structure\kn_VirtualNodeForm.pas">
             <Form>Form_VNode</Form>
         </DCCReference>
@@ -327,6 +325,11 @@
             <Form>Form_Main</Form>
         </DCCReference>
         <DCCReference Include="knt.App.pas"/>
+        <DCCReference Include="ui\knt.ui.tree.pas">
+            <Form>KntTreeUI</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <None Include="support\gf_base.inc">
             <ContainerId>File</ContainerId>
         </None>

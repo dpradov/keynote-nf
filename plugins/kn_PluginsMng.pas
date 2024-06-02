@@ -56,7 +56,6 @@ uses
   knt.ui.editor,
   kn_Main,
   kn_NoteFileMng,
-  kn_TreeNoteMng,
   kn_VCLControlsMng,
   knt.App
   ;
@@ -441,10 +440,10 @@ begin
 
 
             try
-              with GetCurrentNote do
-                tmpstr := Name;
+              with ActiveNote do
+                 tmpstr := Name;
             except
-                 tmpstr := FolderName
+                tmpstr := FolderName
             end;
 
 

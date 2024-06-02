@@ -52,7 +52,6 @@ uses
    kn_KntNote,
    kn_Main,
    kn_FavExtDlg,
-   kn_TreeNoteMng,
    kn_LinksMng,
    knt.App;
 
@@ -141,7 +140,8 @@ begin
       exresult := ShellExecute( 0, 'open', PChar( myFav.FileName ), PChar( myFav.Params ), nil, SW_NORMAL );
 
     if ( exresult <= 32 ) then
-      messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
+       App.ErrorPopup(TranslateShellExecuteError(exresult));
+	  
     exit;
   end;
 
@@ -191,11 +191,8 @@ begin
       begin
         newname := trim( newname );
         if (( newname = '' ) or ( AnsiCompareText( newname, myFav.Name ) = 0 )) then exit;
-        if ( Form_Main.ListBox_ResFav.Items.IndexOf( newname ) >= 0 ) then
-        begin
-          messagedlg( Format(
-            STR_04,
-            [newname] ), mtError, [mbOK], 0 );
+        if ( Form_Main.ListBox_ResFav.Items.IndexOf( newname ) >= 0 ) then begin
+		  App.ErrorPopup(Format(STR_04, [newname]));
           exit;
         end;
         myFav.Name := newname;
@@ -251,9 +248,7 @@ begin
 
   except
     on E : Exception do
-    begin
-      messagedlg( STR_05 + E.Message, mtError, [mbOK], 0 );
-    end;
+	  App.ErrorPopup(E, STR_05);
   end;
 
 
@@ -306,7 +301,7 @@ begin
     if ( not Form_Main.HaveKntFolders( true, true )) then exit;
     if ( not assigned( ActiveFolder )) then exit;
 
-    myNote := GetCurrentNote;
+    myNote := ActiveNote;
     if assigned( myNote ) then
       name := myNote.Name
     else
@@ -322,7 +317,7 @@ begin
     if ( name = '' ) then exit;
     i := Favorites_List.IndexOf( name );
     if ( i >= 0 ) then begin
-      case DoMessageBox(Format(STR_08, [name] ), mtError, [mbOK,mbCancel], 0 ) of
+      case App.DoMessageBox(Format(STR_08, [name] ), mtError, [mbOK,mbCancel], 0 ) of
         mrOK : name := GetFavName( name );
         else
           exit;
@@ -417,9 +412,7 @@ begin
       SaveFavorites( FAV_FN );
     except
       on E : Exception do
-      begin
-        messagedlg( STR_10 + E.Message, mtError, [mbOK], 0 );
-      end;
+	     App.ErrorPopup(E, STR_10);  
     end;
   end;
 end; // DeleteFavorite
@@ -432,9 +425,8 @@ begin
       Form_Main.ListBox_ResFav.Clear;
       ClearLocationList( Favorites_List );
     except
-      on E : Exception do
-      begin
-        messagedlg( STR_11 + E.Message, mtError, [mbOK], 0 );
+      on E : Exception do begin
+	    App.ErrorPopup(E, STR_11);    
         exit;
       end;
     end;

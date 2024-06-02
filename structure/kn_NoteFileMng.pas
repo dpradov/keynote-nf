@@ -68,7 +68,6 @@ uses
     function PromptForFileAction( const FileList : TStringList; const aExt : string; var ImgLinkMode: boolean; var NewFileName: string; var RelativeLink: boolean ) : TDropFileAction;
 
     procedure KntFileProperties;
-    procedure UpdateKntFileState( AState : TFileStateChangeSet );
 
     procedure AutoCloseKntFile;
     procedure RunFileManager;
@@ -107,15 +106,14 @@ uses
    kn_Macro,
    kn_Chest,
    kn_ConfigMng,
-   kn_VirtualNodeMng,
    kn_MacroMng,
-   kn_TreeNoteMng,
    kn_VCLControlsMng,
    kn_BookmarksMng,
    kn_LinksMng,
    kn_PluginsMng,
    kn_ImagesMng,
    kn_FindReplaceMng,
+   knt.ui.tree,
    knt.App
    ;
 
@@ -198,12 +196,7 @@ resourcestring
   STR_65 = 'Cannot import a directory "%s"';
   STR_67 = 'Unknown or unexpected file action (%d)';
   STR_68 = 'Error while importing files: ';
-  STR_69 = 'Untitled';
-  STR_70 = ' No file ';
-  STR_71 = ' (no file)';
-  STR_72 = ' Auto';
-  STR_73 = ' MOD';
-  STR_74 = ' Saved';
+
   STR_75 = 'Successfully created %s registry entries';
   STR_76 = 'There was an error while creating file type associations: ';
   STR_77 = 'This file is Read-Only. Use "Save As" command to save it with a new name.';
@@ -250,16 +243,16 @@ begin
   if assigned( KntFile ) then
      if (not KntFileClose ) then exit(-2);
 
-  MovingTreeNode:= nil;
+  TKntTreeUI.ClearMovingTreeNode;
   AlarmMng.Clear;
   ImageMng.Clear;
-  MirrorNodes.Clear;
+  TKntTreeUI.ClearMirrorNodes;
 
   with Form_Main do begin
         result := -1;
         _REOPEN_AUTOCLOSED_FILE := false;
         if FileIsBusy then exit;
-        Virtual_UnEncrypt_Warning_Done := false;
+        TKntTreeUI.Virtual_UnEncrypt_Warning_Done:= false;
         try
           try
             result := 0;
@@ -295,7 +288,7 @@ begin
              {$IFDEF KNT_DEBUG}
               Log.Add( 'Exception in KntFileNew: ' + E.Message );
              {$ENDIF}
-              Popupmessage( STR_01 + E.Message, mtError, [mbOK], 0 );
+              App.Popupmessage( STR_01 + E.Message, mtError, [mbOK], 0 );
               result := 1;
               exit;
             end;
@@ -308,7 +301,7 @@ begin
 
           StatusBar.Panels[PANEL_HINT].Text := STR_02;
           KntFile.Modified:= True;
-          UpdateKntFileState( [fscNew,fscModified] );
+          UpdateOpenFile;
         {$IFDEF KNT_DEBUG}
           Log.Add( 'KntFileNew result: ' + inttostr( result ));
         {$ENDIF}
@@ -323,7 +316,7 @@ begin
 
         if ( KeyOptions.AutoSave and ( not KeyOptions.SkipNewFilePrompt )) then
         begin
-          if ( PopupMessage( STR_04, mtConfirmation, [mbYes,mbNo], 0 ) = mrYes ) then
+          if ( App.PopupMessage( STR_04, mtConfirmation, [mbYes,mbNo], 0 ) = mrYes ) then
             KntFileSave( KntFile.FileName );
         end;
   end;
@@ -353,13 +346,13 @@ begin
   with Form_Main do begin
         result := -1;
         _REOPEN_AUTOCLOSED_FILE := false;
-        MovingTreeNode:= nil;
+        TKntTreeUI.ClearMovingTreeNode;
         AlarmMng.Clear;
-        MirrorNodes.Clear;
+        TKntTreeUI.ClearMirrorNodes;
         OpenReadOnly := false;
         opensuccess := false;
         linksModified:= false;
-        Virtual_UnEncrypt_Warning_Done := false;
+        TKntTreeUI.Virtual_UnEncrypt_Warning_Done:= false;
         if FileIsBusy then exit;
 
         try
@@ -456,7 +449,7 @@ begin
             if ( NastyDriveType <> '' ) then begin
               KntFile.ReadOnly := true;
               if KeyOptions.OpenReadOnlyWarn then
-                PopupMessage(Format(STR_13, [ExtractFilename(KntFile.FileName), NastyDriveType, ExtractFileDrive(KntFile.FileName)]), mtInformation, [mbOK], 0);
+                App.PopupMessage(Format(STR_13, [ExtractFilename(KntFile.FileName), NastyDriveType, ExtractFileDrive(KntFile.FileName)]), mtInformation, [mbOK], 0);
             end;
 
             LastEditCmd := ecNone;
@@ -519,7 +512,7 @@ begin
                Log.Add( 'Error while opening file: ' + E.Message );
               {$ENDIF}
                if E.Message <> '' then
-                  PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
+                  App.PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
                if assigned( KntFile ) then begin
                  try
                    DestroyVCLControls;
@@ -545,7 +538,7 @@ begin
              {$IFDEF KNT_DEBUG}
                Log.Add( 'Folder monitor error: ' + E.Message );
              {$ENDIF}
-               PopupMessage( STR_16 + E.Message, mtError, [mbOK], 0 );
+               App.PopupMessage( STR_16 + E.Message, mtError, [mbOK], 0 );
             end;
           end;
 
@@ -576,7 +569,7 @@ begin
             end;
             App.ActivateFolder(nil);                   // *1  Activate (and focus) current active folder
             Log_StoreTick( 'After GetFileState and activate KntFolder', 1 );
-            UpdateKntFileState( [fscOpen,fscModified] );
+            UpdateOpenFile;
           end;
 
           Log_StoreTick( 'After UpdateFolderDisplay, UpdateFileState', 1 );
@@ -705,9 +698,7 @@ begin
       // Check if alternate backup directory exists
       if KeyOptions.BackupDir <> '' then begin
         if not DirectoryExists(KeyOptions.BackupDir) then begin
-          DoMessageBox(
-            Format(STR_20, [KeyOptions.BackupDir]),
-            mtWarning, [mbOK], 0);
+          App.WarningPopup(Format(STR_20, [KeyOptions.BackupDir]));
           KeyOptions.BackupDir := '';
         end;
       end;
@@ -884,7 +875,7 @@ begin
      if FileIsBusy then Exit;
 
      if (FN <> '') and KntFile.ReadOnly then begin
-         DoMessageBox(STR_77, mtWarning, [mbOK], 0);
+         App.WarningPopup(STR_77);
          Exit;
      end;
 
@@ -1043,7 +1034,7 @@ begin
          try
            for i := 1 to KntFile.FolderCount do begin
               myFolder := KntFile.Folders[pred(i)];
-              GetOrSetNodeExpandState(myFolder.TV, false, false);
+              myFolder.TreeUI.GetOrSetNodeExpandState(false, false);
            end;
          except
            // nothing
@@ -1090,17 +1081,16 @@ begin
                ErrStr := ErrStr + STR_26;
             end;
 
-            DoMessageBox(ErrStr, mtError, [mbOK], 0);
+            App.ErrorPopup(ErrStr);
          end;
 
        except
-         on E: Exception do
-         begin
+         on E: Exception do begin
            {$IFDEF KNT_DEBUG}
            Log.Add('Exception in KntFileSave: ' + E.Message);
            {$ENDIF}
            StatusBar.Panels[PANEL_HINT].Text := STR_27;
-           DoMessageBox(STR_28 + ExtractFileName(FN) + '": ' + #13#13 + E.Message, mtError, [mbOK], 0 );
+           App.ErrorPopup(E, STR_28 + ExtractFileName(FN));
            Result := 1;
          end;
        end;
@@ -1118,14 +1108,14 @@ begin
          on E: Exception do
          begin
            FolderMon.Active := False;
-           PopupMessage(STR_29 + E.Message, mtError, [mbOK], 0);
+           App.PopupMessage(STR_29 + E.Message, mtError, [mbOK], 0);
          end;
        end;
 
      finally
        Screen.Cursor := crDefault;
        FileIsBusy := False;
-       UpdateKntFileState([fscSave,fscModified]);
+       UpdateOpenFile;
       {$IFDEF KNT_DEBUG}
        Log.Add( 'KntFileSave result: ' + IntToStr(Result));
       {$ENDIF}
@@ -1202,7 +1192,7 @@ begin
         LastEditCmd := ecNone;
         UpdateLastCommand( ecNone );
         BookmarkInitializeAll;
-        ShowAlarmStatus;
+        UpdateAlarmStatus;
 
         if assigned( KntFile ) then
         begin
@@ -1228,7 +1218,7 @@ begin
 
 
         TAM_ActiveName.Caption := '';
-        UpdateKntFileState( [fscClose,fscModified] );
+        UpdateOpenFile;
         StatusBar.Panels[PANEL_HINT].Text := STR_30;
       finally
         if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then
@@ -1236,8 +1226,8 @@ begin
 
         AlarmMng.Clear;
         ImageMng.Clear;
-        MirrorNodes.Clear;
-        MovingTreeNode:= nil;
+        TKntTreeUI.ClearMirrorNodes;
+        TKntTreeUI.ClearMovingTreeNode;
 
         FileIsBusy := false;
         screen.Cursor := crDefault;
@@ -1269,7 +1259,7 @@ begin
 
         currentFN := KntFile.FileName;
         if (FN = '') and (currentFN = '') then begin
-           PopupMessage( STR_82, mtError, [mbOK], 0 );
+           App.PopupMessage( STR_82, mtError, [mbOK], 0 );
            exit;
         end;
 
@@ -1291,7 +1281,7 @@ begin
                 if ( not DirDlg.Execute ) then exit;
                 if ( properfoldername( extractfilepath( currentFN )) = properfoldername( DirDlg.Selection )) then
                 begin
-                  PopupMessage( STR_33, mtError, [mbOK], 0 );
+                  App.PopupMessage( STR_33, mtError, [mbOK], 0 );
                   exit;
                 end;
 
@@ -1299,7 +1289,7 @@ begin
 
                 newFN := KeyOptions.LastCopyPath + ExtractFilename( currentFN );
                 if FileExists( newFN ) then
-                   if ( Popupmessage( Format(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+                   if ( App.Popupmessage( Format(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
           end
           else
@@ -1329,10 +1319,10 @@ begin
 
               if ( cr = 0 ) then begin
                 StatusBar.Panels[PANEL_HINT].Text := STR_36;
-                PopUpMessage( STR_37 +#13 + NewFN, mtInformation, [mbOK], 0 );
+                App.PopUpMessage( STR_37 +#13 + NewFN, mtInformation, [mbOK], 0 );
               end
               else begin
-                Popupmessage( STR_38 + inttostr( cr ) + ')', mtError, [mbOK], 0 );
+                App.Popupmessage( STR_38 + inttostr( cr ) + ')', mtError, [mbOK], 0 );
                {$IFDEF KNT_DEBUG}
                 Log.Add( 'Copying failed (' + inttostr( cr ) + ')' );
                {$ENDIF}
@@ -1344,7 +1334,7 @@ begin
                {$IFDEF KNT_DEBUG}
                 Log.Add( 'Exception in KntFileCopy: ' + E.Message );
                {$ENDIF}
-                PopupMessage( E.Message, mtError, [mbOK], 0 );
+                App.PopupMessage( E.Message, mtError, [mbOK], 0 );
               end;
             end;
 
@@ -1654,7 +1644,6 @@ begin
           PagesChange( Form_Main );
           screen.Cursor := crDefault;
           KntFile.Modified := true;
-          UpdateKntFileState( [fscModified] );
           if ( mergecnt > 0 ) then
             StatusBar.Panels[PANEL_HINT].Text := Format( STR_47, [mergecnt, ExtractFilename( MergeFN )] )
           else
@@ -1673,7 +1662,7 @@ begin
   Application.BringToFront;
   Form_Main.FolderMon.Active := false;
   try
-    case DoMessageBox( Format(STR_49, [FileState.Name]), mtWarning, [mbYes,mbNo], 0 ) of
+    case App.DoMessageBox( Format(STR_49, [FileState.Name]), mtWarning, [mbYes,mbNo], 0 ) of
       mrYes : begin
         KntFile.Modified := false;
         KntFileOpen( KntFile.FileName );
@@ -1701,12 +1690,12 @@ begin
   end;
   if ( not AttemptCreate ) then begin
     if Prompt then
-      DoMessageBox( Format(STR_50, [name,folder]), mtError, [mbOK], 0 );
+      App.ErrorPopup(Format(STR_50, [name,folder]));
     exit;
   end;
 
   if Prompt then begin
-    if DoMessageBox( Format(STR_50 + STR_51, [name,folder]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then
+    if App.DoMessageBox( Format(STR_50 + STR_51, [name,folder]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then
       exit;
   end;
 
@@ -1922,11 +1911,11 @@ begin
 
       else begin
           if DirectoryExists( FN ) then begin
-             DoMessageBox( Format( STR_65, [FN] ), mtWarning, [mbOk], 0 );
+             App.WarningPopup(Format(STR_65, [FN]));
              Result:= False;
           end
           else
-            case DoMessageBox( Format(STR_58, [ExtractFilename( FN )]), mtWarning, [mbYes,mbNo], 0 ) of
+            case App.DoMessageBox( Format(STR_58, [ExtractFilename( FN )]), mtWarning, [mbYes,mbNo], 0 ) of
               mrYes : ImportFileType := itText;
             else
               Result:= False;
@@ -1975,7 +1964,7 @@ begin
               if ( ImportFileType = itHTML ) then   // first see if we can do the conversion, before we create a new folder for the file
               begin
                 if not ConvertHTMLToRTF( FN, OutStream) then begin
-                   DoMessageBox( Format(STR_60, [FN]), mtWarning, [mbOK], 0 );
+                   App.WarningPopup(Format(STR_60, [FN]));
                    exit;
                 end;
               end;
@@ -2047,7 +2036,7 @@ begin
 
               except
                 on E : Exception do begin
-                  DoMessageBox( STR_61 + FN + #13#13 + E.Message, mtError, [mbOK], 0 );
+                  App.ErrorPopup(E, STR_61 + FN);
                   exit;
                 end;
               end;
@@ -2059,7 +2048,6 @@ begin
 			          App.ActivateFolder(myFolder);
               StatusBar.Panels[PANEL_HINT].text := STR_62;
               KntFile.Modified := true;
-              UpdateKntFileState( [fscModified] );
             end;
           end;
 
@@ -2136,7 +2124,7 @@ begin
                   itHTML : begin
                    {$IFDEF KNT_DEBUG}Log.Add('Insert content (HTML)  FN:' + FN,  1 ); {$ENDIF}
                      if not ConvertHTMLToRTF( FN, Stream) then begin
-                       DoMessageBox( Format(STR_60, [FN]), mtWarning, [mbOK], 0 );
+                       App.WarningPopup(Format(STR_60, [FN]));
                        exit;
                      end
                      else begin
@@ -2156,7 +2144,7 @@ begin
                         ImageMng.InsertImage(FN, Editor, Owned, NameProposed)
                      else begin
                          if not InformedImgInPlain then begin
-                            DoMessageBox( Format(STR_81, [FN]), mtWarning, [mbOK], 0 );
+                            App.WarningPopup(Format(STR_81, [FN]));
                             InformedImgInPlain:= True;
                          end;
                          continue;
@@ -2173,7 +2161,7 @@ begin
 
               except
                 on E : Exception do begin
-                  DoMessageBox( STR_61 + FN + #13#13 + E.Message, mtError, [mbOK], 0 );
+                  App.ErrorPopup(E, STR_61 + FN);
                   exit;
                 end;
               end;
@@ -2521,7 +2509,7 @@ begin
                    FileIsHTML := ExtIsHTML( fExt );
 
                    if DirectoryExists( FName ) then begin
-                     if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
                        exit
                      else
                        continue;
@@ -2532,12 +2520,12 @@ begin
                    // first see if we can do the conversion, before we create a new folder for the file
                    if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
                      if not ConvertHTMLToRTF( FName, OutStream) then begin
-                        DoMessageBox( Format(STR_60, [FName]), mtWarning, [mbOK], 0 );
+                        App.WarningPopup(Format(STR_60, [FName]));
                         exit;
                      end;
                    end;
 
-                   myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
+                   myTreeNode := ActiveTreeUI.NewNode(tnAddLast, nil, '', true);
                    if assigned( myTreeNode ) then begin
                      myNote := TKntNote( myTreeNode.Data );
                      if assigned( myNote ) then begin
@@ -2549,7 +2537,7 @@ begin
                          else if not ExtIsImage( fExt )  then
                            LoadTxtOrRTFFromFile(myNote.Stream, FName);
 
-                         SelectIconForNode( myTreeNode, ActiveFolder.IconKind );
+                         ActiveTreeUI.SelectIconForNode( myTreeNode);
                          if KeyOptions.ImportFileNamesWithExt then
                            myNote.Name := ExtractFilename( FName )
                          else
@@ -2605,8 +2593,6 @@ begin
                     ActiveFolder.TreeHidden:= false;
                     UpdateTreeVisible( ActiveFolder );
                  end;
-
-                 UpdateKntFileState( [fscModified] );
                end;
 
              end;
@@ -2618,13 +2604,13 @@ begin
                  for i := 0 to pred( FileList.Count ) do begin
                    FName := FileList[i];
                    if DirectoryExists( FName ) then begin
-                     if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
                        exit
                      else
                        continue;
                    end;
-                   myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
-                   VirtualNoteProc( vmNone, myTreeNode, FName );
+                   myTreeNode := ActiveTreeUI.NewNode(tnAddLast, nil, '', true );
+                   ActiveTreeUI.VirtualNoteProc(vmNone, myTreeNode, FName );
                  end;
 
                finally
@@ -2642,7 +2628,7 @@ begin
                  for i := 0 to pred( FileList.Count ) do begin
                    FName := FileList[i];
                    if DirectoryExists( FName ) then begin
-                     if ( DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
                        exit
                      else
                        continue;
@@ -2704,7 +2690,7 @@ begin
         Form_FileInfo.myKntFile := KntFile;
 
         if ( Form_FileInfo.ShowModal = mrOK ) then begin
-          Virtual_UnEncrypt_Warning_Done := false;
+          TKntTreeUI.Virtual_UnEncrypt_Warning_Done := false;
 
           with Form_FileInfo do begin
             ShowHint := KeyOptions.ShowTooltips;
@@ -2790,7 +2776,7 @@ begin
         Form_FileInfo.Free;
       end;
 
-      UpdateKntFileState( [fscSave,fscModified] );
+      UpdateOpenFile;
 
       // [x] If passphrase changed or Encrypted state changed,
       // must SAVE FILE immediately.
@@ -2798,89 +2784,6 @@ begin
    end;
 end; // KntFileProperties
 
-
-//=================================================================
-// UpdateKntFileState
-//=================================================================
-procedure UpdateKntFileState( AState : TFileStateChangeSet );
-var
-  s, thisFN : string;
-  NotesOK : boolean;
-  status: string;
-  Modif: boolean;
-begin
-
-  with Form_Main do begin
-      NotesOK := HaveKntFolders( false, false );
-      if (( fscNew in AState ) or ( fscOpen in AState ) or ( fscSave in AState ) or ( fscClose in AState )) then begin
-         if NotesOK then begin
-            Pages.OnDblClick := PagesDblClick;
-
-            if ( KntFile.FileName <> '' ) then begin
-              thisFN := ExtractFilename( KntFile.FileName );
-              s := thisFN;
-            end
-            else
-              s := STR_69;
-
-           StatusBar.Panels.BeginUpdate;
-            try
-              SetFilenameInStatusbar(#32 + s + #32);
-              StatusBar.Hint := #32 + KntFile.FileName;
-              TrayIcon.Hint := Program_Name + ': ' + s;
-              SelectStatusbarGlyph( true );
-            finally
-              Caption:= Format('%s  %s - %s', [Program_Name, Program_Version, s]);
-              Application.Title := Format( '%s - %s', [s, Program_Name] );
-              StatusBar.Panels.EndUpdate;
-            end;
-         end
-         else begin
-            Pages.OnDblClick := nil;
-            StatusBar.Panels.BeginUpdate;
-            try
-              SetFilenameInStatusbar(STR_70);
-              StatusBar.Panels[PANEL_CARETPOS].Text := '';
-              StatusBar.Panels[PANEL_NOTEINFO].Text := '';
-              StatusBar.Panels[PANEL_STATUS].Text := '';
-              StatusBar.Panels[PANEL_FILEICON].Text := '';
-              SelectStatusBarGlyph( false );
-
-            finally
-              StatusBar.Panels.EndUpdate;
-            end;
-            StatusBar.Hint := '';
-            TrayIcon.Hint := Program_Name + STR_71;
-            Caption:= Format('%s  %s -' + STR_71, [Program_Name, Program_Version]);
-            TB_FileSave.Enabled := False;
-            Application.Title := Program_Name;
-         end;
-         UpdateTabAndTreeIconsShow;
-      end;
-
-      if ( fscModified in AState ) then begin
-         Modif:= false;
-         if assigned(KntFile) then
-            Modif:= KntFile.Modified;
-         Form_Main.TB_FileSave.Enabled := Modif;
-         MMShiftTab_.Enabled := ( Pages.PageCount > 0 );
-         if NotesOK then begin
-            if Modif then
-               status:= STR_73      //MOD
-            else
-               if KeyOptions.AutoSave then
-                  status:= STR_72   //Auto
-               else
-                  status:= STR_74;   //Saved
-         end
-         else
-            status:= ' ---';
-
-         Statusbar.Panels[PANEL_STATUS].Text := status;
-      end;
-  end;
-
-end; // UpdateKntFileState
 
 
 //=================================================================
@@ -2902,14 +2805,7 @@ begin
   // file will not be autoclosed id any modal dialog
   // is open, leading to a potential security breach.
 
-  if ( TransferNodes <> nil ) then
-  begin
-    try
-      TransferNodes.Free;
-    except
-    end;
-    TransferNodes := nil;
-  end;
+  TKntTreeUI.ClearTransferNodes;
 
   if FileIsBusy then exit;
   if ( not ( KeyOptions.TimerClose and

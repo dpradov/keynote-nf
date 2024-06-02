@@ -26,6 +26,7 @@ uses
    System.SysUtils,
    System.Zip,
    Vcl.Graphics,
+   TreeNT,
    RxRichEd,
    SynGdiPlus,
    gf_misc,
@@ -771,7 +772,6 @@ const
    NoteGID_NotConverted = 9999999;
 
 type
-
   TMergedNotes = class
     type
      TPairValues = record
@@ -790,6 +790,14 @@ type
       procedure AddOldNewGIDs (Old, New: Cardinal);
       function GetNewGID (GID: Cardinal): Cardinal;
   end;
+
+type
+  TMirrorAction = (
+    maMovingToTarget,                 // Moving node to targetNode
+    maChangingChkState,               // Changed checked state of node
+    maDeleting                        // Deleting node
+  );
+
 
 var
   _KNT_WINMSG_ID : word; // GLOBAL MESSAGE ID (used for DLL notifications)

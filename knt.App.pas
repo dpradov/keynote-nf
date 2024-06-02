@@ -49,6 +49,7 @@ uses
    kn_KntNote,
    kn_EditorUtils,
    knt.ui.editor,
+   knt.ui.tree,
    kn_Main
    ;
 
@@ -121,12 +122,12 @@ type
       procedure EditorFocused (Editor: TKntRichEdit);
       procedure EditorLoaded (Editor: TKntRichEdit);
       procedure ChangeInEditor (Editor: TKntRichEdit);
-      procedure NoteModified (Note: TKntNote; Folder: TKntFolder; UpdateUI: boolean= true);
+      procedure NoteModified (Note: TKntNote; Folder: TKntFolder);
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
       procedure ShowCurrentZoom (Zoom: integer);
 
-      procedure TreeFocused (Tree: TTreeNT);
+      procedure TreeFocused (Tree: TKntTreeUI);
       procedure FolderDeleted (Folder: TKntFolder; TabIndex: integer);
       procedure FolderPropertiesModified (Folder: TKntFolder);
 
@@ -142,13 +143,26 @@ type
 
       function CheckActiveEditor: boolean;
       function CheckActiveEditorNotReadOnly: boolean;
+
       procedure ShowInfoInStatusBar(const str: string);
       procedure WarnEditorIsReadOnly;
       procedure WarnNoTextSelected;
+
+      function DoMessageBox(const Str: string; DlgType: TMsgDlgType;
+                            const Buttons: TMsgDlgButtons; HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
+      function PopUpMessage(const Str: string; const mType: TMsgDlgType;
+                            const Buttons: TMsgDlgButtons; const HelpCtx: integer): word;
+      procedure InfoPopup(const aStr: string);
+      procedure WarningPopup(const aStr: string);
+      procedure ErrorPopup(const aStr: string); overload;
+      procedure ErrorPopup(const E: Exception = nil; const Str: string = ''); overload;
       procedure WarnFunctionNotImplemented(const aStr: string);
       procedure WarnCommandNotImplemented(const aStr: string);
-      procedure WarnUnexpectedError (E: Exception =nil);
    end;
+
+
+  function GetCurrentTreeNode : TTreeNTNode;
+  function GetTreeUI(TV: TTreeNT): TKntTreeUI;
 
 
 var
@@ -158,6 +172,7 @@ var
    ActiveFolder : TKntFolder;
    ActiveNote   : TKntNote;
    ActiveEditor : TKntRichEdit;
+   ActiveTreeUI:  TKntTreeUI;
 
    Form_Main:  TForm_Main;
    ImageMng:   TImageMng;
@@ -186,6 +201,7 @@ implementation
 uses
    GFTipDlg,
    gf_misc,
+   gf_miscvcl,
    kn_MacroMng,
    kn_VCLControlsMng,
    kn_LinksMng,
@@ -384,6 +400,10 @@ begin
        ActiveNote:= TKntNote(Editor.NoteObj);
        ActiveFolder:= TKntFolder(Editor.FolderObj);
        ActiveFile:= TKntFile(Editor.FileObj);
+       ActiveTreeUI:= nil;
+       if ActiveFolder <> nil then
+          ActiveTreeUI:= ActiveFolder.TreeUI;
+
        if Focused then
           ActiveFolder.FocusMemory:= focRTF;
 
@@ -399,7 +419,7 @@ procedure TKntApp.NoteSelected(Note: TKntNote);
 begin
    if assigned(Note) then begin
       if ActiveFolder.FocusMemory = focTree then
-         Form_Main.ShowNodeChromeState (ActiveFolder.TV);
+         Form_Main.ShowNodeChromeState (ActiveFolder.TreeUI);
    end
    else
       Self.UpdateEnabledActionsAndRTFState(TKntRichEdit(nil));
@@ -430,14 +450,10 @@ begin
 end;
 
 
-procedure TKntApp.NoteModified(Note: TKntNote; Folder: TKntFolder; UpdateUI: boolean= true);
+procedure TKntApp.NoteModified(Note: TKntNote; Folder: TKntFolder);
 begin
   Note.RTFModified:= true;
-  Folder.Modified := true;
-  KntFile.Modified := true;
-  if UpdateUI then
-     UpdateKntFileState( [fscModified] );
-
+  Folder.Modified := true;      // => KntFile.Modified := true;
 end;
 
 
@@ -450,22 +466,19 @@ end;
 procedure TKntApp.FolderPropertiesModified (Folder: TKntFolder);
 begin
     if (Folder = ActiveFolder) and (ActiveFolder.FocusMemory= focTree) then
-       Form_Main.EnableActionsForTree(Folder.TV, Folder.ReadOnly);
+       Form_Main.EnableActionsForTree(Folder.TreeUI, Folder.ReadOnly);
 end;
 
 
 
-procedure TKntApp.TreeFocused (Tree: TTreeNT);
+procedure TKntApp.TreeFocused (Tree: TKntTreeUI);
 var
-  Note: TKntNote;
-  ID: Cardinal;
   PrevFolder: TKntFolder;
 begin
-  ID:= Tree.Tag;
-
-  if not assigned(ActiveFolder) or (ID <> ActiveFolder.ID) then begin
+  if Tree <> ActiveTreeUI then begin
      PrevFolder:= ActiveFolder;
-     ActiveFolder:= ActiveFile.GetFolderByID(ID);
+     ActiveTreeUI:= Tree;
+     ActiveFolder:= TKntFolder(Tree.Folder);
      ActiveNote:= ActiveFolder.SelectedNote;
      ActiveFile:= TKntFile(ActiveFolder.KntFile);
      ActiveEditor:= ActiveFolder.Editor;
@@ -513,7 +526,7 @@ begin
       end;
 
    finally
-       UpdateFolderDisplay;
+       Form_Main.UpdateFolderDisplay;
        if assigned(Folder) then
           Folder.Editor.CheckWordCount(true);
        if not _Executing_History_Jump then
@@ -533,9 +546,9 @@ begin
    if Folder = ActiveFolder then begin
       ActiveFolder:= nil;
       ActiveNote:= nil;
+      ActiveTreeUI:= nil;
       if ActiveEditor.NoteObj <> nil then
          ActiveEditor:= nil;
-      UpdateKntFileState( [fscModified] );
    end;
    ActivateFolder (TabIndex-1);
 end;
@@ -547,6 +560,7 @@ begin
       ActiveFolder:= nil;
       ActiveNote:= nil;
       ActiveFile:= nil;
+      ActiveTreeUI:= nil;
       if assigned(ActiveEditor) and (ActiveEditor.NoteObj <> nil) then begin
          ActiveEditor:= nil;
          with Form_Main do
@@ -564,6 +578,7 @@ begin
    ActiveFolder:= nil;
    ActiveNote:= nil;
    ActiveFile:= aFile;
+   ActiveTreeUI:= nil;
    if assigned(ActiveEditor) and (ActiveEditor.NoteObj <> nil) then
       ActiveEditor:= nil;
 end;
@@ -599,6 +614,8 @@ begin
   Form_Main.Combo_Zoom.Text := Format('%d%%', [Zoom] );
 end;
 
+
+
 procedure TKntApp.ShowInfoInStatusBar(const str: string);
 begin
    Form_Main.StatusBar.Panels[PANEL_HINT].Text := str;
@@ -614,30 +631,52 @@ begin
   ShowInfoInStatusBar(STR_16);
 end;
 
+
+procedure TKntApp.InfoPopup(const aStr: string);
+begin
+  PopupMessage(aStr, TMsgDlgType.mtInformation, [mbOK], 0);
+end;
+
+procedure TKntApp.WarningPopup(const aStr: string);
+begin
+  PopupMessage(aStr, TMsgDlgType.mtWarning, [mbOK], 0);
+end;
+
+procedure TKntApp.ErrorPopup(const aStr: string);
+begin
+  PopupMessage(aStr, TMsgDlgType.mtError, [mbOK], 0);
+end;
+
+
 procedure TKntApp.WarnFunctionNotImplemented(const aStr: string);
 begin
-  PopupMessage( STR_10 + aStr, mtInformation, [mbOK], 0 );
+  WarningPopup(STR_10 + aStr);
 {$IFDEF KNT_DEBUG}
   Log.Add( 'Not implemented call: ' + aStr );
 {$ENDIF}
+end;
+
+procedure TKntApp.ErrorPopup(const E: Exception = nil; const Str: string = '');
+var
+  msg: string;
+begin
+  if Str = '' then
+     msg:= STR_80
+  else
+     msg:= Str;
+
+  if E <> nil then
+     msg:= msg + #13 + E.Message;
+
+  ErrorPopup(msg);
 end;
 
 procedure TKntApp.WarnCommandNotImplemented(const aStr: string);
 begin
-  PopupMessage( STR_50 + aStr, mtInformation, [mbOK], 0 );
+  WarningPopup(STR_50 + aStr);
 {$IFDEF KNT_DEBUG}
   Log.Add( 'Not implemented call: ' + aStr );
 {$ENDIF}
-end;
-
-procedure TKntApp.WarnUnexpectedError (E: Exception = nil);
-var
-  msg: string;
-begin
-  msg:= '';
-  if E <> nil then
-     msg:= E.Message;
-  PopupMessage( STR_80 + msg, TMsgDlgType.mtError, [mbOK], 0 );
 end;
 
 
@@ -719,6 +758,47 @@ begin
 end; // ShowTipOfTheDay
 
 
+function GetCaptionMessage: string;
+begin
+   if assigned(ActiveFile) then
+      Result:= ExtractFilename(ActiveFile.FileName) + ' - ' + Program_Name
+   else
+      Result:= Program_Name;
+end;
+
+function TKntApp.DoMessageBox (const Str: string; DlgType: TMsgDlgType;
+                               const Buttons: TMsgDlgButtons; HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
+begin
+   Result:= gf_miscvcl.DoMessageBox(Str, GetCaptionMessage, DlgType, Buttons,0, hWnd);
+end;
+
+function TKntApp.PopUpMessage( const Str: string; const mType: TMsgDlgType;
+                               const Buttons: TMsgDlgButtons; const HelpCtx: integer): word;
+begin
+   Result:= gf_miscvcl.PopUpMessage(Str, GetCaptionMessage, mType, Buttons, HelpCtx);
+end;
+
+function GetCurrentTreeNode : TTreeNTNode;
+begin
+  result := nil;
+  if not assigned(ActiveTreeUI) then exit;
+  result:= ActiveTreeUI.SelectedNode;
+end;
+
+function GetTreeUI(TV: TTreeNT): TKntTreeUI;
+var
+  i: Cardinal;
+  Folder: TKntFolder;
+begin
+  Result:= nil;
+  for i := 0 to ActiveFile.Folders.Count-1 do begin
+     Folder := ActiveFile.Folders[i];
+     if Folder.TV = TV then begin
+        Result:= Folder.TreeUI;
+        exit;
+     end;
+  end;
+end;
 
 
 Initialization

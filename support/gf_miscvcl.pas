@@ -56,7 +56,7 @@ function CheckDir( const aDir : string; const AutoCreate : boolean ) : boolean;
 procedure SleepWell( const TenthsOfSecond : cardinal );
 function VerdanaInstalled : boolean;
 function TahomaInstalled : boolean;
-function PopUpMessage( const mStr : string; const caption: string; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word; overload;
+function PopUpMessage(const mStr : string; const caption: string; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word; overload;
 Function DefMessageDlg(const aCaption: String;
                        const Msg: string;
                        DlgType: TMsgDlgType;
@@ -64,10 +64,10 @@ Function DefMessageDlg(const aCaption: String;
                        DefButton: Integer;
                        HelpCtx: Longint): Integer;
 
-function DoMessageBox (text: string; caption: string;
-        DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
-        HelpCtx: Longint = 0; hWnd: HWND= 0): integer; overload;
-function DoMessageBox (text: string; caption: string; uType: UINT= 0; hWnd: HWND= 0): integer; overload;
+function DoMessageBox (const text: string; caption: string;
+                       DlgType: TMsgDlgType; Buttons: TMsgDlgButtons;
+                       HelpCtx: Longint = 0; hWnd: HWND= 0): integer; overload;
+function DoMessageBox (const text: string; caption: string; uType: UINT= 0; hWnd: HWND= 0): integer; overload;
 
 
 function ScaleFromSmallFontsDimension(const X: Integer): Integer;
@@ -90,34 +90,6 @@ begin
   end;
 end; // SleepWell
 
-Function DefMessageDlg(const aCaption: String;
-                       const Msg: string;
-                       DlgType: TMsgDlgType;
-                       Buttons: TMsgDlgButtons;
-                       DefButton: Integer;
-                       HelpCtx: Longint): Integer;
-// code by Peter Below (TeamB)
-Var
-  i: Integer;
-  btn: TButton;
-Begin
-  With CreateMessageDialog(Msg, DlgType, Buttons) Do
-  try
-    Caption := aCaption;
-    HelpContext := HelpCtx;
-    For i := 0 To ComponentCount-1 Do Begin
-      If Components[i] Is TButton Then Begin
-        btn := TButton(Components[i]);
-        btn.Default := btn.ModalResult = DefButton;
-        If btn.Default Then
-          ActiveControl := Btn;
-      End;
-    End; { For }
-    Result := ShowModal;
-  finally
-    Free;
-  end;
-End; // DefMessageDlg
 
 function VerdanaInstalled : boolean;
 var
@@ -150,22 +122,6 @@ begin
       break;
     end;
 end; // TahomaInstalled
-
-function PopUpMessage( const mStr : string; const caption: string; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word;
-// Like MessageDlg, but brings application window to front before
-// displaying the message, and minimizes application if it was
-// minimized before the message was shown.
-var
-  wasiconic : boolean;
-begin
-  wasiconic := ( IsIconic(Application.Handle) = TRUE );
-  if wasiconic then
-    Application.Restore;
-  Application.BringToFront;
-  result := DoMessageBox( mStr, caption, mType, mButtons, mHelpCtx );
-  if wasiconic then
-    Application.Minimize;
-end; // PopUpMessage
 
 
 {************************************************************
@@ -472,9 +428,9 @@ end;
 
 
 //http://msdn.microsoft.com/en-us/library/ms645505%28VS.85%29.aspx
-function DoMessageBox (text: string; caption: string;
-        DlgType: TMsgDlgType;  Buttons: TMsgDlgButtons;
-        HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
+function DoMessageBox (const text: string; caption: string;
+                       DlgType: TMsgDlgType; Buttons: TMsgDlgButtons;
+                       HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
 var
    uType: UINT;
 begin
@@ -503,12 +459,58 @@ begin
     Result:= MessageBox(hWnd, PChar(text), PChar(caption), uType);
 end;
 
-function DoMessageBox (text: string; caption: string; uType: UINT= 0; hWnd: HWND= 0): integer;
+function DoMessageBox (const text: string; caption: string; uType: UINT= 0; hWnd: HWND= 0): integer;
 begin
     if hWnd = 0 then
        hWnd:= Application.MainFormHandle;
     Result:= MessageBox(hWnd, PChar(text), PChar(caption), uType);
 end;
+
+
+function PopUpMessage(const mStr: string; const caption: string; const mType: TMsgDlgType;
+                      const mButtons: TMsgDlgButtons; const mHelpCtx: integer) : word;
+
+// Like MessageDlg, but brings application window to front before
+// displaying the message, and minimizes application if it was
+// minimized before the message was shown.
+var
+  WasIconic : boolean;
+begin
+  WasIconic := ( IsIconic(Application.Handle) = TRUE );
+  if WasIconic then
+    Application.Restore;
+  Application.BringToFront;
+  result := DoMessageBox( mStr, caption, mType, mButtons, mHelpCtx );
+  if WasIconic then
+    Application.Minimize;
+end; // PopUpMessage
+
+
+Function DefMessageDlg(const aCaption: String; const Msg: string;
+                       DlgType: TMsgDlgType; Buttons: TMsgDlgButtons;
+                       DefButton: Integer;   HelpCtx: Longint): Integer;
+// code by Peter Below (TeamB)
+Var
+  i: Integer;
+  btn: TButton;
+Begin
+  With CreateMessageDialog(Msg, DlgType, Buttons) Do
+  try
+    Caption := aCaption;
+    HelpContext := HelpCtx;
+    For i := 0 To ComponentCount-1 Do Begin
+      If Components[i] Is TButton Then Begin
+        btn := TButton(Components[i]);
+        btn.Default := btn.ModalResult = DefButton;
+        If btn.Default Then
+          ActiveControl := Btn;
+      End;
+    End; { For }
+    Result := ShowModal;
+  finally
+    Free;
+  end;
+End; // DefMessageDlg
 
 end.
 
