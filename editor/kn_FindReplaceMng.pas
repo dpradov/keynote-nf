@@ -797,7 +797,7 @@ begin
   if ( Form_Main.Combo_ResFind.Text = '' ) then exit;
 
   oldActiveFolder:= ActiveFolder; // [dpv] For use if ApplyFilter=true
-
+  UserBreak := false;
   Form_Main.CloseNonModalDialogs;
 
   with Form_Main do
@@ -1556,6 +1556,7 @@ begin
 
   FindOptions.FindAllMatches := false; // only TRUE when invoked from resource panel
   Found := false;
+  UserBreak := false;
 
   PatternPos := -1;
 
