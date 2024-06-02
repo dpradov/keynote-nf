@@ -1983,6 +1983,7 @@ begin
       KeepModified:= false;
       KeepEditorFocused:= false;
 
+      LastNoteSelected:= nil;
       if LastNodeSelected <> nil then begin
          LastNoteSelected:= TKntNote(LastNodeSelected.Data);
          LastNoteSelected.ScrollPosInEditor:= Editor.GetScrollPosInEditor;
