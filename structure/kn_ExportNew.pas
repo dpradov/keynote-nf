@@ -37,7 +37,7 @@ uses
 
    TB97Ctls,
    ComCtrls95,
-   TreeNT,
+   VirtualTrees,
    RxRichEd,
 
    gf_streams,
@@ -118,7 +118,6 @@ type
     { Private declarations }
   public
     { Public declarations }
-    myNoteTree : TTreeNT;
     myKntFolder : TKntFolder;
     myKntFile : TKntFile;
     myINIFN : string;
@@ -166,7 +165,7 @@ uses
    kn_Const,
    kn_Ini,
    kn_Global,
-   kn_KntNote,
+   knt.model.note,
    knt.ui.tree,
    kn_ExportImport,
    kn_TabSelect,
@@ -183,6 +182,7 @@ var
 {$R *.DFM}
 
 resourcestring
+  STR_00 = 'Export node content';
   STR_01 = 'Exporting is underway. OK to abort?';
   STR_02 = 'Please select a valid directory for exported files.';
   STR_03 = 'Specified output directory does not not exit. Please select a valid directory.';
@@ -416,7 +416,6 @@ begin
   IsBusy := false;
   DoAbort := false;
 
-  myNoteTree := nil;
   myKntFolder := nil;
   myKntFile := nil;
   myINIFN := '';
@@ -545,6 +544,8 @@ begin
      RG_HTML.Visible := (format = xfHTML);
      GB_Additional.Visible := (format = xfPlainText);
      CB_UseTab.Enabled:= (format = xfPlainText) and (CB_IndentNodes.Checked);
+     if TExportFmt(Combo_Format.ItemIndex) <> xfPlainText then
+         CB_ShowHiddenMarkers.Checked:= False;
   end;
 end;
 
@@ -807,6 +808,7 @@ end; // Validate
 procedure TForm_ExportNew.PerformExport;
 var
   myFolder : TKntFolder;
+  TreeUI: TKntTreeUI;
   i, cnt, FolderIdx : integer;
   RTFAux : TAuxRichEdit;
 
@@ -818,12 +820,13 @@ var
   NodeText: AnsiString;
   ExitMessage : string;
   NodeTextSize : integer;
-  StartLevel, ThisNodeIndex : integer;
+  StartLevel, Level, ThisNodeIndex : integer;
   tmpStream : TMemoryStream;
   ExportedFolders, ExportedNotes, tmpExportedNodes : integer;
   WasError, WasAborted : boolean;
-  StartTreeNode, myTreeNode : TTreeNTNode;
-  myNote : TKntNote;
+  StartTreeNode, myTreeNode : PVirtualNode;
+  NNode : TNoteNode;
+  NEntry: TNoteEntry;
   TreePadFile : TTextfile;
   TreePadFN : string;
   TreePadNodeLevelInc : integer; // 0 or 1
@@ -936,11 +939,11 @@ begin
 
          if (ExportOptions.ExportSource = expCurrentNote ) then
             if (ExportOptions.TreeSelection in [tsNode, tsSubtree]) then
-               myTreeNode := ActiveFolder.TV.Selected;
+               myTreeNode := ActiveFolder.TV.FocusedNode;
             if (ExportOptions.TreeSelection = tsCheckedNodes) then
                OnlyCheckedNodes:= true;
 
-         FN := GetExportFilename('Export_' + ExtractFileName(KntFile.FileName) );
+         FN := GetExportFilename('Export_' + ExtractFileName(ActiveFile.FileName) );
          if FN <> ''  then begin
             ext := Extractfileext( FN );
             if (ext = '') then FN := FN + ext_KeyNote;
@@ -970,6 +973,7 @@ begin
         if DoAbort then break;
 
         myFolder := myKntFile.Folders[pred( FolderIdx )];
+        TreeUI:= myFolder.TreeUI;
         if ( myFolder.Info > 0 ) then begin
           // this note has been marked for exporting
 
@@ -990,15 +994,16 @@ begin
 
               if (( ExportOptions.ExportSource = expCurrentNote ) and
                   ( ExportOptions.TreeSelection in [tsNode, tsSubtree] )) then
-                myTreeNode := myFolder.TV.Selected
+                myTreeNode := TreeUI.FocusedNode
               else
-                myTreeNode := myFolder.TV.Items.GetFirstNode;
+                myTreeNode := TreeUI.GetFirstNode;
 
               StartTreeNode := myTreeNode;
               ThisNodeIndex := 0;
 
               if assigned( myTreeNode ) then begin
-                StartLevel := myTreeNode.Level;
+                StartLevel := TreeUI.TV.GetNodeLevel(myTreeNode);
+                Level:= StartLevel;
                 inc( ExportedFolders );
               end
               else
@@ -1007,37 +1012,39 @@ begin
               tmpExportedNodes := 0;
 
               while assigned( myTreeNode ) do begin          // ---------------------- Iterate each node
-                myNote := TKntNote( myTreeNode.Data );
+                NNode:= TreeUI.GetNNode(myTreeNode);
 
                 // check if we should export this node
-                if  (not myTreeNode.Hidden or not ExportOptions.ExcludeHiddenNodes) and   // [dpv]
+                if  (TreeUI.TV.IsVisible[myTreeNode] or
+                      not ExportOptions.ExcludeHiddenNodes) and   // [dpv]
                     (( ExportOptions.ExportSource <> expCurrentNote ) or
                     ( ExportOptions.TreeSelection in [tsNode, tsFullTree] ) or
-                    (( ExportOptions.TreeSelection = tsCheckedNodes ) and myNote.Checked ) or
-                    (( ExportOptions.TreeSelection = tsSubtree ) and ( TKntTreeUI.IsAParentOf( StartTreeNode, myTreeNode ) or ( StartTreeNode = myTreeNode )))) then
+                    (( ExportOptions.TreeSelection = tsCheckedNodes ) and (myTreeNode.CheckState = csCheckedNormal)) or
+                    (( ExportOptions.TreeSelection = tsSubtree ) and ( TreeUI.TV.HasAsParent(myTreeNode, StartTreeNode) or ( StartTreeNode = myTreeNode )))) then
                 begin
-                  myNote.Stream.Position := 0;
+                  NEntry:= NNode.Note.Entries[0];          //%%%
+                  NEntry.Stream.Position := 0;
                   inc( ThisNodeIndex );
 
                   if ExportOptions.IncludeNodeHeadings then begin
-                     NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), myNote.Name, myNote.Level+1, ThisNodeIndex, myFolder.TabSize );
+                     NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), NNode.NodeName(TreeUI), Level+1, ThisNodeIndex, myFolder.TabSize );
                      if ShowHiddenMarkers then begin
-                        NodeHeading:= NodeHeading + Format(' [%u]', [myNote.GID]);
-                        if myNote.ID > 0 then
-                           NodeHeading:= NodeHeading + Format('(id:%d)', [myNote.ID]);
+                        NodeHeading:= NodeHeading + Format(' [%u]', [NNode.GID]);
+                        if NNode.ID > 0 then
+                           NodeHeading:= NodeHeading + Format('(id:%d)', [NNode.ID]);
                      end;
                      NodeHeadingTpl_Aux := '';
                      if ExportOptions.NodeLevelTemplates then
-                        NodeHeadingTpl_Aux:= NodeLevelHeadingTpl[myNote.Level];
+                        NodeHeadingTpl_Aux:= NodeLevelHeadingTpl[Level];
                      if NodeHeadingTpl_Aux = '' then
                         NodeHeadingTpl_Aux:= NodeHeadingTpl;
                      NodeHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NodeHeading ), NodeHeadingTpl_Aux );
                   end;
 
-                  NodeTextSize := myNote.Stream.Size;
+                  NodeTextSize := NEntry.Stream.Size;
                   if NodeTextSize > 0 then begin
                      SetLength( NodeText, NodeTextSize );
-                     move( myNote.Stream.Memory^, NodeText[1], NodeTextSize );   // transfer stream contents to temp string
+                     move( NEntry.Stream.Memory^, NodeText[1], NodeTextSize );   // transfer stream contents to temp string
                      NodeStreamIsRTF := (copy(NodeText, 1, 6) = '{\rtf1');       // *2
                   end;
 
@@ -1067,7 +1074,7 @@ begin
                              RTFAux.PutRtfText(NodeHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
 
                              if ApplyAutoFontSizes then begin
-                                FSize:= FontSizes_Max - (FontSizes_Inc*(myNote.Level+1));
+                                FSize:= FontSizes_Max - (FontSizes_Inc*(Level+1));
                                 if FSize < FontSizes_Min then
                                    FSize := FontSizes_Min;
                                 SS:= RTFAux.SelStart;
@@ -1096,7 +1103,7 @@ begin
                              RTFAux.PutRtfText(NodeText, false);               // append to end of existing data
 
                           if ExportOptions.IndentNestedNodes then
-                             IndentContent(myNote.Level+1);
+                             IndentContent(Level+1);
                         end;
                         inc( tmpExportedNodes );
                       end;
@@ -1120,14 +1127,15 @@ begin
                               RTFAux.PutRtfText(NodeHeadingRTF, true);
                            end;
                         end;
-                        if FlushExportFile( RTFAux, myFolder, myNote.Name ) then
+                        if FlushExportFile( RTFAux, myFolder, NNode.NodeName(TreeUI) ) then
                           inc( ExportedNotes );
                       end;
                   end; // case ExportOptions.SingleNodeFiles
                 end;
 
                 // access next node
-                myTreeNode := myTreeNode.GetNext;
+                myTreeNode := TreeUI.TV.GetNext(myTreeNode);
+                Level:= TreeUI.TV.GetNodeLevel(myTreeNode);
 
                 Application.ProcessMessages;
                 if DoAbort then break;
@@ -1138,11 +1146,11 @@ begin
                     break;
                   case ExportOptions.TreeSelection of
                     tsNode : break;
-                    tsSubtree : if ( myTreeNode.Level <= StartLevel ) then break;
+                    tsSubtree : if (Level <= StartLevel ) then break;
                   end;
                 end;
               end;                                   // <<<<<------------------ Iterate each node  (xfPlainText, xfRTF, xfHTML / ntTree)
-                    
+
 
               // if exporting all nodes to one file, flush nodes now
               if ( not ExportOptions.SingleNodeFiles ) then begin
@@ -1202,7 +1210,7 @@ begin
 
                   if ( ExportOptions.TreePadForceMaster or
                      ((( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentNote )) or
-                     (( myFolder.TV.Items.GetFirstNode <> nil ) and ( myFolder.TV.Items.GetFirstNode.GetNextSibling <> nil ))))) then
+                     (( TreeUI.GetFirstNode <> nil ) and ( TreeUI.GetFirstNode.NextSibling <> nil ))))) then
                   begin
                     // create a dummy top-level node
 
@@ -1245,23 +1253,24 @@ begin
                 // At this point we only need to check the kind of note
 
                  myFolder.EditorToDataStream; // must flush contents of richedit to active node's internal stream
-                 myTreeNode := myFolder.TV.Items.GetFirstNode;
+                 myTreeNode := TreeUI.GetFirstNode;
 
                  while assigned( myTreeNode ) do begin
-                   myNote := TKntNote( myTreeNode.Data );
+                   NNode := TreeUI.GetNNode(myTreeNode);
+                   NEntry:= NNode.Note.Entries[0];              //%%%
 
-                   NodeTextSize := myNote.Stream.Size;
+                   NodeTextSize := NEntry.Stream.Size;
                    NodeText:= '';
                    if NodeTextSize > 0 then begin
                      SetLength( NodeText, NodeTextSize );
-                     move( myNote.Stream.Memory^, NodeText[1], NodeTextSize );
+                     move(NEntry.Stream.Memory^, NodeText[1], NodeTextSize );
                      RTFAux.PutRtfText(NodeText, false);   // append to end of existing data
                    end;
-                   FlushTreePadData( TreePadFile, myNote.Name, myNote.Level + TreePadNodeLevelInc, RTFAux, true );
+                   FlushTreePadData( TreePadFile, NNode.NodeName(TreeUI), TreeUI.TV.GetNodeLevel(myTreeNode) + TreePadNodeLevelInc, RTFAux, true );
 
 
                    inc( ExportedNotes );
-                   myTreeNode := myTreeNode.GetNext;
+                   myTreeNode := TreeUI.TV.GetNext(myTreeNode);
                  end;
 
                  inc( ExportedFolders );
@@ -1624,8 +1633,8 @@ end;
 
 procedure ExportTreeNode;
 var
-  myTreeNode : TTreeNTNode;
-  myNote : TKntNote;
+  NNode : TNoteNode;
+  NEntry: TNoteEntry;
   oldFilter, ext, RTFText, Txt: string;
   ExportFN : string;
   exportformat : TExportFmt;
@@ -1635,9 +1644,8 @@ var
   Editor: TKntRichEdit;
 
 begin
-
-  myTreeNode := GetCurrentTreeNode;
-  if ( not assigned( myTreeNode )) then begin
+  NNode:= ActiveTreeUI.GetFocusedNNode;
+  if not assigned(NNode) then begin
     showmessage( STR_16 );
     exit;
   end;
@@ -1651,10 +1659,11 @@ begin
   ActiveFolder.EditorToDataStream;
 
   // {N}
-  ExportFN := MakeValidFileName( myTreeNode.Text, [' '], MAX_FILENAME_LENGTH );
+  ExportFN := MakeValidFileName(NNode.NodeName(ActiveTreeUI), [' '], MAX_FILENAME_LENGTH );
 
   with Form_Main.SaveDlg do begin
     try
+      Title:= STR_00;
       oldFilter := Filter;
       Filter := FILTER_EXPORT;
       FilterIndex := LastExportFilterIndex;
@@ -1690,7 +1699,7 @@ begin
       if ( ext = '' ) then
          ExportFN := ExportFN + ext_RTF;
     end;
-    
+
     3 : begin
       exportformat := xfHTML;
       if ( ext = '' ) then
@@ -1704,8 +1713,8 @@ begin
     end;
   end;
 
-  myNote := TKntNote( myTreeNode.Data );
-  myNote.Stream.Position := 0;
+  NEntry:= NNode.Note.Entries[0];          //%%%
+  NEntry.Stream.Position := 0;
 
   RTFAux:= nil;
  try

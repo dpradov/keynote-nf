@@ -53,14 +53,10 @@ type
     Tab_Tree: TTab95Sheet;
     GBox_Note: TGroupBox;
     Label_TabSize: TLabel;
-    Label1: TLabel;
-    Label4: TLabel;
     CB_WordWrap: TCheckBox;
     CB_URLDetect: TCheckBox;
     CB_UseTabChar: TCheckBox;
     Spin_TabSize: TSpinEdit;
-    Edit_FolderName: TComboBox;
-    Combo_Icons: TGFXComboBox;
     GBox_Tree: TGroupBox;
     BTN_Font: TBitBtn;
     BTN_Color: TBitBtn;
@@ -72,8 +68,6 @@ type
     CB_AutoNumberNodes: TCheckBox;
     BitBtn_TknHlp: TBitBtn;
     Label_EditorFonts: TLabel;
-    Label_TreeSettings: TLabel;
-    Label_EditorSettings: TLabel;
     FormPlacement: TFormPlacement;
     CB_Vertical: TCheckBox;
     Button_Help: TButton;
@@ -91,13 +85,16 @@ type
     CB_SaveAsDef: TCheckBox;
     LB_Scope: TLabel;
     Label3: TLabel;
-    Label6: TLabel;
     BitBtn_FolderHelp: TBitBtn;
     BitBtn_FolderChromeHelp: TBitBtn;
     BitBtn_TreeChromeHelp: TBitBtn;
     CB_InheritBGColor: TCheckBox;
     LB_PlainText: TLabel;
     CB_TreeChrome_AllNotes: TCheckBox;
+    Edit_FolderName: TComboBox;
+    Label1: TLabel;
+    Label4: TLabel;
+    Combo_Icons: TGFXComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -117,8 +114,6 @@ type
     procedure CB_ZoomKeyPress(Sender: TObject; var Key: Char);
     procedure CB_ZoomExit(Sender: TObject);
     procedure CB_SaveDefaultsClick(Sender: TObject);
-    procedure CB_PlainTextClick(Sender: TObject);
-    procedure LB_PlainTextClick(Sender: TObject);
     procedure BitBtn_FolderChromeHelpClick(Sender: TObject);
     procedure BitBtn_FolderHelpClick(Sender: TObject);
     procedure BitBtn_TreeChromeHelpClick(Sender: TObject);
@@ -212,9 +207,6 @@ resourcestring
   STR_28 = '<no icon>';
   STR_29 = 'Invalid zoom ratio: ';
   STR_30 = ' (and apply to "%s" folder)';
-  STR_31 = '&Plain text only  ';
-  STR_32 = '(do not save formatting information)';
-  STR_33 = '(ALL FORMATTING will be REMOVED)';
 
 procedure TForm_Defaults.FormCreate(Sender: TObject);
 var
@@ -266,7 +258,6 @@ begin
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
 
-  LB_PlainText.Caption:= STR_31 + STR_32;
 end;
 
 function TForm_Defaults.FormHelp(Command: Word; Data: NativeInt;
@@ -290,8 +281,6 @@ begin
 
     CB_Zoom.Enabled := SaveDefaults;
     LB_Zoom.Enabled := SaveDefaults;
-    CB_PlainText.Enabled := not SaveDefaults;
-    LB_PlainText.Enabled := not SaveDefaults;
 
     if SaveDefaults then begin
        Action:= propDefaults;
@@ -763,23 +752,6 @@ begin
    end;
 
    CheckScope;
-end;
-
-procedure TForm_Defaults.CB_PlainTextClick(Sender: TObject);
-begin
-   if CB_PlainText.Checked and (fOriginalAction = propThisFolder) and (not myNoteIsReadOnly) and (not myEditorProperties.PlainText) then begin
-      LB_PlainText.Caption:= STR_31 + STR_33;       // warning
-      LB_PlainText.Font.Color:= clRed;
-   end
-   else begin
-      LB_PlainText.Caption:= STR_31 + STR_32;
-      LB_PlainText.Font.Color:= clBlack;
-   end;
-end;
-
-procedure TForm_Defaults.LB_PlainTextClick(Sender: TObject);
-begin
-  CB_PlainText.Checked:= not CB_PlainText.Checked;
 end;
 
 

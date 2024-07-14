@@ -27,6 +27,7 @@ uses
    System.StrUtils,
    System.AnsiStrings,
    System.IniFiles,
+   System.Generics.Collections,
    Vcl.Clipbrd,
    Vcl.Graphics,
    Vcl.FileCtrl,
@@ -36,7 +37,7 @@ uses
    Vcl.Dialogs,
    Vcl.ExtCtrls,
 
-   TreeNT,
+   VirtualTrees,
 
    kn_ImagesMng,
    kn_AlertMng,
@@ -46,7 +47,7 @@ uses
    kn_cmd,
    kn_KntFile,
    kn_KntFolder,
-   kn_KntNote,
+   knt.model.note,
    kn_EditorUtils,
    knt.ui.editor,
    knt.ui.tree,
@@ -62,8 +63,11 @@ type
       RTFUpdating : boolean;          // TRUE while in RxRTFSelectionChange; some things cannot be done during that time
    end;
 
-   TNoteSelectedEvent = procedure(Note: TKntNote) of object;
+   TNNodeSelectedEvent = procedure(NNode: TNoteNode) of object;
    TFolderSelectedEvent = procedure(Folder: TKntFolder) of object;
+
+   TKntRichEditList =  TList<TKntRichEdit>;
+
 
    TKntApp = class
    private class var
@@ -96,8 +100,11 @@ type
       ShowingImageOnTrack: boolean;
 
    private
-      FNoteSelected:   TNoteSelectedEvent;
-      FFolderSelected: TFolderSelectedEvent;
+      fNNodeSelected:   TNNodeSelectedEvent;
+      fFolderSelected: TFolderSelectedEvent;
+      fAvailableEditors: TKntRichEditList;
+
+      fVirtualUnEncryptWarningDone: boolean;
 
       constructor Create;
       procedure Initialize;
@@ -105,9 +112,10 @@ type
    protected
       procedure UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 
-      procedure EditorSelected (Editor: TKntRichEdit; Focused: boolean);
-      procedure NoteSelected(Note: TKntNote);
+      procedure EditorSelected (Editor: TKntRichEdit; Focused: boolean); overload;
+      procedure EnsureContentEditorUpdated (Editor: TKntRichEdit);
       procedure FolderSelected(Folder: TKntFolder; PrevFolder: TKntFolder);
+      procedure NNodeSelected(NNode: TNoteNode);
 
       procedure ShowWordCountInfoInStatusBar(const str: string);
       function GetWordCountInfoInStatusBar: string;
@@ -116,17 +124,23 @@ type
    public
       class function GetInstance: TKntApp; static;
 
-      property OnNoteSelected: TNoteSelectedEvent read FNoteSelected write FNoteSelected;
+      class procedure FileSetModified; inline;
+
+      property OnNNodeSelected: TNNodeSelectedEvent read FNNodeSelected write FNNodeSelected;
       property OnFolderSelected: TFolderSelectedEvent read FFolderSelected write FFolderSelected;
 
+      procedure EditorAvailable (Editor: TKntRichEdit);
+      procedure EditorUnavailable (Editor: TKntRichEdit);
       procedure EditorFocused (Editor: TKntRichEdit);
+      procedure EditorReloaded (Editor: TKntRichEdit); overload;
       procedure ChangeInEditor (Editor: TKntRichEdit);
-      procedure NoteModified (Note: TKntNote; Folder: TKntFolder);
+      procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
       procedure ShowCurrentZoom (Zoom: integer);
 
       procedure TreeFocused (Tree: TKntTreeUI);
+      procedure NNodeFocused(NNode: TNoteNode);
       procedure FolderDeleted (Folder: TKntFolder; TabIndex: integer);
       procedure FolderPropertiesModified (Folder: TKntFolder);
 
@@ -135,6 +149,8 @@ type
 
       procedure ActivateFolder (Folder: TKntFolder); overload;
       procedure ActivateFolder (TabIndex: Integer); overload;
+
+      procedure NoteNameModified(Note: TNote);
 
       property WordCountInfoInStatusBar: string read GetWordCountInfoInStatusBar write ShowWordCountInfoInStatusBar;
       procedure ShowStatistics;
@@ -157,11 +173,14 @@ type
       procedure ErrorPopup(const E: Exception = nil; const Str: string = ''); overload;
       procedure WarnFunctionNotImplemented(const aStr: string);
       procedure WarnCommandNotImplemented(const aStr: string);
+
+      property Virtual_UnEncrypt_Warning_Done: boolean read fVirtualUnEncryptWarningDone write fVirtualUnEncryptWarningDone;
    end;
 
 
-  function GetCurrentTreeNode : TTreeNTNode;
-  function GetTreeUI(TV: TTreeNT): TKntTreeUI;
+  function GetCurrentTreeNode : PVirtualNode;
+  function GetTreeUI(TV: TVirtualStringTree): TKntTreeUI;
+
 
 
 var
@@ -169,9 +188,11 @@ var
 
    ActiveFile   : TKntFile;
    ActiveFolder : TKntFolder;
-   ActiveNote   : TKntNote;
+   ActiveNNode  : TNoteNode;
+   ActiveNEntry : TNoteEntry;
+
    ActiveEditor : TKntRichEdit;
-   ActiveTreeUI:  TKntTreeUI;
+   ActiveTreeUI : TKntTreeUI;
 
    Form_Main:  TForm_Main;
    ImageMng:   TImageMng;
@@ -185,7 +206,7 @@ var
    ClipOptions : TClipOptions; // clipboard capture options
    EditorOptions : TEditorOptions;
    ResPanelOptions : TResPanelOptions;
-   TreeOptions : TKNTTreeOptions;
+   KntTreeOptions : TKntTreeOptions;
    FindOptions : TFindOptions;
 
    //================================================== DEFAULT PROPERTIES
@@ -259,6 +280,9 @@ begin
    opt_Title:= '';
    opt_Clean := false;
    opt_ConvKNTLinks:= false;
+
+   fAvailableEditors:= TKntRichEditList.Create;
+   fVirtualUnEncryptWarningDone:= false;
 end;
 
 
@@ -304,7 +328,7 @@ begin
 
     with Form_Main do begin
        if not assigned(Folder) then begin
-          Folder:= ActiveFile.GetFolderByID(ActiveFile.ActiveFolderID);
+          Folder:= ActiveFile.GetFolderByID(ActiveFile.SavedActiveFolderID);
        end;
 
        if assigned(Folder) then
@@ -337,6 +361,22 @@ begin
     end;
 end;
 
+procedure TKntApp.NoteNameModified(Note: TNote);
+var
+  i: integer;
+  nnf: TNoteNodeInFolder;
+  Folder: TKntFolder;
+begin
+   if FileIsBusy then exit;
+
+   for i:= 0 to High(Note.NNodes) do begin
+       nnf:= Note.NNodes[i];
+       Folder:= TKntFolder(nnf.Folder);
+       if nnf.NNode.TVNode <> nil then                         // Name may not have been assigned yet and is being modified
+          Folder.TV.InvalidateNode(nnf.NNode.TVNode);
+   end;
+end;
+
 
 procedure TKntApp.UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 var
@@ -353,7 +393,7 @@ begin
       Edit_PlainText:= Editor.PlainText or Editor.ReadOnly;
       Edit_SupportsImages:= Editor.SupportsImages;
       Edit_SupportsRegImages:= Editor.SupportsRegisteredImages;
-      Edit_NoteObj:= (Editor.NoteObj <> nil);
+      Edit_NoteObj:= (Editor.NNodeObj <> nil);
   end;
 
   Form_Main.EnableActionsForEditor(not Edit_PlainText);
@@ -364,18 +404,32 @@ begin
 end;
 
 
-
 procedure TKntApp.EditorFocused (Editor: TKntRichEdit);
 begin
    EditorSelected(Editor, true);
 end;
 
+procedure TKntApp.EditorReloaded (Editor: TKntRichEdit);
+begin
+   if Editor = nil then exit;
+
+    if Editor.Focused then begin
+       UpdateEnabledActionsAndRTFState(Editor);
+       ShowCurrentZoom(Editor.GetZoom);
+       Editor.UpdateCursorPos;
+    end;
+
+   EditorSelected(Editor, False);     // False: Will not set ActiveFolder.FocusMemory:= focRTF (but will not set := focTree either)
+end;
+
 
 procedure TKntApp.EditorSelected (Editor: TKntRichEdit; Focused: boolean);
 var
-   OldNote: TKntNote;
+   OldNNode: TNoteNode;
    OldFolder: TKntFolder;
 begin
+    EnsureContentEditorUpdated (Editor);
+
     ActiveEditor:= Editor;
 
     if Editor.Focused then begin
@@ -384,11 +438,12 @@ begin
        Editor.UpdateCursorPos;
     end;
 
-    if assigned(Editor.NoteObj) then begin
+    if assigned(Editor.NNodeObj) then begin
        OldFolder:= ActiveFolder;
-       OldNote:= ActiveNote;
+       OldNNode:= ActiveNNode;
 
-       ActiveNote:= TKntNote(Editor.NoteObj);
+       ActiveNEntry:= TNoteEntry(Editor.NEntryObj);
+       ActiveNNode:= TNoteNode(Editor.NNodeObj);
        ActiveFolder:= TKntFolder(Editor.FolderObj);
        ActiveFile:= TKntFile(Editor.FileObj);
        ActiveTreeUI:= nil;
@@ -400,29 +455,82 @@ begin
 
        if OldFolder <> ActiveFolder then
           FolderSelected(ActiveFolder, OldFolder);
-       if OldNote <> ActiveNote then
-          NoteSelected(ActiveNote);
+       if OldNNode <> ActiveNNode then
+          NNodeSelected(ActiveNNode);
     end;
 end;
 
-
-procedure TKntApp.NoteSelected(Note: TKntNote);
+procedure TKntApp.EditorAvailable (Editor: TKntRichEdit);
 begin
-   if assigned(Note) then begin
+   if fAvailableEditors.IndexOf(Editor) < 0 then
+      fAvailableEditors.Add(Editor);
+end;
+
+procedure TKntApp.EditorUnavailable (Editor: TKntRichEdit);
+begin
+   fAvailableEditors.Remove(Editor);
+end;
+
+procedure TKntApp.EnsureContentEditorUpdated (Editor: TKntRichEdit);
+var
+   NNodeSelecEditor, NNode: TNoteNode;
+   NoteSelecEditor: TNote;
+   E: TKntRichEdit;
+   Folder: TKntFolder;
+   i: integer;
+begin
+   if Editor = nil then exit;
+
+   NNodeSelecEditor:= TNoteNode(Editor.NNodeObj);
+   if NNodeSelecEditor = nil then exit;
+   NoteSelecEditor:= NNodeSelecEditor.Note;
+
+   if NoteSelecEditor.NumNNodes <= 1 then exit;
+
+   for i:= 0 to fAvailableEditors.Count-1 do begin
+      E:= fAvailableEditors[i];
+
+      if (E = Editor) or (not E.Modified) then continue;
+
+      NNode:= TNoteNode(E.NNodeObj);
+      if NNode = nil then continue;
+      if NoteSelecEditor = NNode.Note then begin
+         Folder:= TKntFolder(E.FolderObj);
+         Folder.EditorToDataStream;
+
+         Folder:= TKntFolder(Editor.FolderObj);
+         Folder.DataStreamToEditor;
+         exit;
+      end;
+   end;
+
+end;
+
+
+procedure TKntApp.NNodeFocused(NNode: TNoteNode);
+begin
+   ActiveNNode:= NNode;
+   NNodeSelected(NNode);
+end;
+
+procedure TKntApp.NNodeSelected(NNode: TNoteNode);
+begin
+   if assigned(NNode) then begin
       if ActiveFolder.FocusMemory = focTree then
          Form_Main.ShowNodeChromeState (ActiveFolder.TreeUI);
    end
    else
-      Self.UpdateEnabledActionsAndRTFState(TKntRichEdit(nil));
+      UpdateEnabledActionsAndRTFState(TKntRichEdit(nil));
 
-   if assigned(FNoteSelected) then
-      OnNoteSelected(Note);
+   if assigned(fNNodeSelected) then
+      OnNNodeSelected(NNode);
 end;
 
 
 procedure TKntApp.ChangeInEditor (Editor: TKntRichEdit);
 var
-   Note: TKntNote;
+   NNode: TNoteNode;
+   NEntry: TNoteEntry;
 begin
   with Form_Main do begin
      TB_EditUndo.Enabled := Editor.CanUndo;
@@ -433,17 +541,20 @@ begin
   if CopyFormatMode= cfEnabled then
      EnableCopyFormat(False);
 
-  Note:= TKntNote(Editor.NoteObj);
-  if not assigned(Note) then exit;           // Eg. Scratchpad
+  NNode:= TNoteNode(Editor.NNodeObj);
+  if not assigned(NNode) then exit;           // Eg. Scratchpad
 
-  if not Note.RTFModified then
-     NoteModified(Note, TKntFolder(Editor.FolderObj));
+  NEntry:= TNoteEntry(Editor.NEntryObj);
+
+  if not NEntry.Modified then
+     NEntryModified(NEntry, NNode.Note, TKntFolder(Editor.FolderObj));
 end;
 
 
-procedure TKntApp.NoteModified(Note: TKntNote; Folder: TKntFolder);
+procedure TKntApp.NEntryModified(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
 begin
-  Note.RTFModified:= true;
+  NEntry.Modified:= true;
+  Note.Modified:= true;
   Folder.Modified := true;      // => KntFile.Modified := true;
 end;
 
@@ -470,12 +581,14 @@ begin
      PrevFolder:= ActiveFolder;
      ActiveTreeUI:= Tree;
      ActiveFolder:= TKntFolder(Tree.Folder);
-     ActiveNote:= ActiveFolder.SelectedNote;
+     ActiveNNode:= ActiveFolder.FocusedNNode;
      ActiveFile:= TKntFile(ActiveFolder.KntFile);
      ActiveEditor:= ActiveFolder.Editor;
 
+     EnsureContentEditorUpdated (ActiveEditor);
+
      FolderSelected(ActiveFolder, PrevFolder);
-     NoteSelected(ActiveNote);
+     NNodeSelected(ActiveNNode);
   end
   else
      ActiveFolder.FocusMemory:= focTree;
@@ -496,7 +609,6 @@ begin
 
          if assigned(PrevFolder) then begin
             Form_Main.CheckRestoreAppWindowWidth (true);
-            ModifiedDataStream:= PrevFolder.EditorToDataStream;   // If its Editor is not modified it will do nothing. Necessary to ensure that changes are seen among mirror nodes
 
             if not _Executing_History_Jump then begin
                AddHistoryLocation (PrevFolder, true);                  // true: add to local history maintaining it's index, and without removing forward history
@@ -504,8 +616,6 @@ begin
             end;
          end;
 
-         if assigned(ActiveNote) and (ActiveNote.Stream = ModifiedDataStream) then
-            Folder.DataStreamToEditor;
          Folder.ImagesMode := ImageMng.ImagesMode;
 
          Form_Main.TAM_ActiveName.Caption := Folder.Name;
@@ -536,9 +646,9 @@ procedure TKntApp.FolderDeleted (Folder: TKntFolder; TabIndex: integer);
 begin
    if Folder = ActiveFolder then begin
       ActiveFolder:= nil;
-      ActiveNote:= nil;
+      ActiveNNode:= nil;
       ActiveTreeUI:= nil;
-      if ActiveEditor.NoteObj <> nil then
+      if ActiveEditor.NNodeObj <> nil then
          ActiveEditor:= nil;
    end;
    ActivateFolder (TabIndex-1);
@@ -549,10 +659,10 @@ procedure TKntApp.FileClosed (aFile: TKntFile);
 begin
    if aFile = ActiveFile then begin
       ActiveFolder:= nil;
-      ActiveNote:= nil;
+      ActiveNNode:= nil;
       ActiveFile:= nil;
       ActiveTreeUI:= nil;
-      if assigned(ActiveEditor) and (ActiveEditor.NoteObj <> nil) then begin
+      if assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then begin
          ActiveEditor:= nil;
          with Form_Main do
             if (Pages_Res.ActivePage = ResTab_RTF) and (ResTab_RTF.Visible) then
@@ -567,14 +677,18 @@ end;
 procedure TKntApp.FileNew (aFile: TKntFile);
 begin
    ActiveFolder:= nil;
-   ActiveNote:= nil;
+   ActiveNNode:= nil;
    ActiveFile:= aFile;
    ActiveTreeUI:= nil;
-   if assigned(ActiveEditor) and (ActiveEditor.NoteObj <> nil) then
+   if assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then
       ActiveEditor:= nil;
 end;
 
 
+class procedure TKntApp.FileSetModified;
+begin
+    ActiveFile.Modified:= true;
+end;
 
 procedure TKntApp.SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
 var
@@ -696,7 +810,7 @@ begin
      s:= ActiveEditor.GetStatistics (numChars, numAlpChars, numWords);
 
   if assigned(ActiveFolder) then begin
-     numNodes := ActiveFolder.TV.Items.Count;
+     numNodes := ActiveFolder.TV.TotalCount;
      s := s + Format( STR_Stat_05,  [numNodes] );
   end;
 
@@ -769,14 +883,14 @@ begin
    Result:= gf_miscvcl.PopUpMessage(Str, GetCaptionMessage, mType, Buttons, HelpCtx);
 end;
 
-function GetCurrentTreeNode : TTreeNTNode;
+function GetCurrentTreeNode : PVirtualNode;
 begin
   result := nil;
   if not assigned(ActiveTreeUI) then exit;
-  result:= ActiveTreeUI.SelectedNode;
+  result:= ActiveTreeUI.FocusedNode;
 end;
 
-function GetTreeUI(TV: TTreeNT): TKntTreeUI;
+function GetTreeUI(TV: TVTree): TKntTreeUI;
 var
   i: Cardinal;
   Folder: TKntFolder;

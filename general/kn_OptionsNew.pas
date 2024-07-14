@@ -41,12 +41,20 @@ uses
    ComCtrls95,
    cmpGFXListBox,
    TB97Ctls,
-   TreeNT,
+   VirtualTrees, VirtualTrees.BaseTree, VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL,
 
    gf_miscvcl,
    kn_Const,
    kn_Info
 ;
+
+
+type
+  TOption = record
+     Caption: string;
+     Parent: boolean;
+  end;
+  POption = ^TOption;
 
 
 type
@@ -56,7 +64,7 @@ type
     FontDlg: TFontDialog;
     ColorDlg: TColorDialog;
     IconDlg: TOpenDialog;
-    TV: TTreeNT;
+    TV: TVirtualStringTree;
     Pages: TNotebook;
     GroupBox_General1: TGroupBox;
     checkbox_IconInTray: TCheckBox;
@@ -220,7 +228,6 @@ type
     Bevel6: TBevel;
     GroupBox18: TGroupBox;
     CB_DropNodesOnTabPrompt: TCheckBox;
-    CB_DropNodesOnTabMove: TCheckBox;
     CB_ResPanelActiveUpdate: TCheckBox;
     Label17: TLabel;
     Combo_ExpandMode: TComboBox;
@@ -337,7 +344,6 @@ type
     procedure CheckBox_TimerMinimizeClick(Sender: TObject);
     procedure CheckBox_TimerCloseClick(Sender: TObject);
     procedure CheckBox_HotkeyActivateClick(Sender: TObject);
-    procedure TVChange(Sender: TObject; Node: TTreeNTNode);
     procedure Button_AddTxtExtClick(Sender: TObject);
     procedure Button_DeleteTxtExtClick(Sender: TObject);
     procedure Button_ResetTxtExtClick(Sender: TObject);
@@ -356,25 +362,30 @@ type
     procedure chkImgSingleViewerInstanceClick(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
+    procedure TVChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure TVGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+    procedure TVPaintText(Sender: TBaseVirtualTree;
+      const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+      TextType: TVSTTextType);
   private
-    { Private declarations }
+    fOptions: array[0..15] of TOption;
     procedure CheckImgMaxAutoWidthGoalValue;
     procedure CheckImgCompressionQualityValue;
     procedure CheckImgRatioSizePngVsJPGValue;
-
+    procedure CreateMenu;
 
   public
-    { Public declarations }
     Initializing : boolean;
     OK_Click : boolean;
     myOpts : TKeyOptions;
     myTabOpts : TTabOptions;
     myClipOpts : TClipOptions;
-    myTreeOpts : TKNTTreeOptions;
+    myTreeOpts : TKntTreeOptions;
     myFindOpts : TFindOptions;
 
     myEditorOptions : TEditorOptions;
-    myTreeOptions : TKNTTreeOptions;
+    myTreeOptions : TKntTreeOptions;
 
     Icons_Changed : boolean;
     Icons_RefList : TStringList;
@@ -452,6 +463,24 @@ resourcestring
 
   STR_15 = 'The Auto-Close function will work ONLY if Auto-Save is turned ON, and if no dialog box is open at the time KeyNote tries to automatically close the file. (Auto-Save is currently DISABLED.)';
   STR_16 = 'Error in TVChange: PageIndex %d  Node.AbsIdx %d';
+
+   S00 = 'General Settings';
+   S01 = 'Rich Text Editor';
+   S02 = 'Images';
+   S03 = 'Tree Panel';
+   S04 = 'KeyNote Files';
+   S05 = 'File Options';
+   S06 = 'Backup Options';
+   S07 = 'Actions';
+   S08 = 'Confirmations';
+   S09 = 'Chrome';
+   S10 = 'Tab Icons';
+   S11 = 'Advanced';
+   S12 = 'Formats';
+   S13 = 'Clipboard';
+   S14 = 'File Types';
+   S15 = 'Other';
+
 
 const
   DIVIDER1: string= '^%|^%S%d^%|^%%^- - -^';
@@ -602,7 +631,72 @@ begin
      cbCtrlUpDownMode.Items.Add( CTRL_UP_DOWN_MODE[j] );
   cbCtrlUpDownMode.ItemIndex := 1;
 
+  CreateMenu;
 end; // CREATE
+
+procedure TForm_OptionsNew.CreateMenu;
+var
+  i: integer;
+  ParentNode: PVirtualNode;
+begin
+{
+ General Settings [238]          0
+   Rich Text Editor [239]
+   Images [573]
+   Tree Panel [240]
+ KeyNote Files [241]             4
+   File Options [242]
+   Backup Options [243]
+ Actions [244]                   7
+   Confirmations [245]
+ Chrome [246]                    9
+   Tab Icons [247]
+ Advanced [248]                 11
+   Formats [249]
+   Clipboard [250]
+   File Types [251]
+   Other [252]
+}
+
+  TV.TreeOptions.MiscOptions:= [];
+  TV.BeginUpdate;
+
+  fOptions[0].Caption:= S00;
+  fOptions[1].Caption:= S01;
+  fOptions[2].Caption:= S02;
+  fOptions[3].Caption:= S03;
+  fOptions[4].Caption:= S04;
+  fOptions[5].Caption:= S05;
+  fOptions[6].Caption:= S06;
+  fOptions[7].Caption:= S07;
+  fOptions[8].Caption:= S08;
+  fOptions[9].Caption:= S09;
+  fOptions[10].Caption:= S10;
+  fOptions[11].Caption:= S11;
+  fOptions[12].Caption:= S12;
+  fOptions[13].Caption:= S13;
+  fOptions[14].Caption:= S14;
+  fOptions[15].Caption:= S15;
+
+  fOptions[0].Parent:= True;
+  fOptions[4].Parent:= True;
+  fOptions[7].Parent:= True;
+  fOptions[9].Parent:= True;
+  fOptions[11].Parent:= True;
+
+  for i:= 0 to high(fOptions) do begin
+      if fOptions[i].Parent then
+         ParentNode:= TV.AddChild(nil, @fOptions[i])
+      else
+         TV.AddChild(ParentNode, @fOptions[i]);
+  end;
+
+  TV.TreeOptions.MiscOptions:= [TVTMiscOption.toReadOnly];
+  TV.FullExpand;
+  TV.EndUpdate;
+end;
+
+
 
 procedure TForm_OptionsNew.FormActivate(Sender: TObject);
 begin
@@ -666,7 +760,7 @@ begin
   BitBtn_TknHlp2.OnClick := BitBtn_TknHlpClick;
   Combo_Size.OnKeyPress := Combo_SizeKeyPress;
 
-  TV.Selected := TV.Items[0];
+  TV.FocusedNode:= TV.GetFirst();
 
 
 end; // ACTIVATE
@@ -872,7 +966,7 @@ begin
     AutoPasteEval := CheckBox_AutoPasteEval.Checked;
     AutoPastePlugin := CheckBox_AutoPastePlugin.Checked;
 
-    DropNodesOnTabMove := CB_DropNodesOnTabMove.Checked;
+    //DropNodesOnTabMove := CB_DropNodesOnTabMove.Checked;
     DropNodesOnTabPrompt := CB_DropNodesOnTabPrompt.CHecked;
 
     SkipNewFilePrompt := CB_SkipNewFilePrompt.Checked;
@@ -1089,7 +1183,7 @@ begin
     CheckBox_AutoPasteEval.Checked := AutoPasteEval;
     CheckBox_AutoPastePlugin.Checked := AutoPastePlugin;
 
-    CB_DropNodesOnTabMove.Checked := DropNodesOnTabMove;
+    //CB_DropNodesOnTabMove.Checked := DropNodesOnTabMove;
     CB_DropNodesOnTabPrompt.Checked := DropNodesOnTabPrompt;
 
     CB_SkipNewFilePrompt.Checked := SkipNewFilePrompt;
@@ -1804,13 +1898,42 @@ begin
   TB_OpenDlgUserFile.Down:= false;
 end;
 
-procedure TForm_OptionsNew.TVChange(Sender: TObject; Node: TTreeNTNode);
+procedure TForm_OptionsNew.TVGetText(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
+  var CellText: string);
+var
+  myData: POption;
+
+begin
+   myData:= TV.GetNodeData<POption>(Node);
+   CellText:= myData.Caption;
+end;
+
+procedure TForm_OptionsNew.TVPaintText(Sender: TBaseVirtualTree;
+  const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  TextType: TVSTTextType);
+var
+  myData: POption;
+
+begin
+   myData:= TV.GetNodeData<POption>(Node);
+
+  if myData.Parent then begin
+     TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
+     TargetCanvas.Font.Color := clNavy;
+  end;
+
+end;
+
+procedure TForm_OptionsNew.TVChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
   HC: THelpContext;
+  Idx: integer;
+
 begin
-  if ( not assigned( Node )) then exit;
   try
-    Pages.PageIndex := Node.AbsoluteIndex;
+    Idx:= TV.AbsoluteIndex(Node);
+    Pages.PageIndex := Idx;
     //self.HelpContext := 205 + succ( Pages.PageIndex );
    {
      I can’t access the Help Context values associated with each TPage object. ¿? I do it differently:
@@ -1855,9 +1978,10 @@ begin
     self.HelpContext := HC;
 
   except
-    messagedlg( Format( STR_16, [Pages.PageIndex, Node.AbsoluteIndex]), mtError, [mbOK], 0 );
+    messagedlg( Format( STR_16, [Pages.PageIndex, Idx]), mtError, [mbOK], 0 );
   end;
 end;
+
 
 procedure TForm_OptionsNew.Button_AddTxtExtClick(Sender: TObject);
 var

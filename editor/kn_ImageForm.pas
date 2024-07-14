@@ -276,9 +276,9 @@ begin
   try
     if Image.Caption <> txtCaption.Text then begin
        ok:= false;
-       if (fCurrentKntFile = KntFile) and (Image.ID = fImageID) and ((Image.ReferenceCount > 0))  then begin
+       if (fCurrentKntFile = ActiveFile) and (Image.ID = fImageID) and ((Image.ReferenceCount > 0))  then begin
           Image.Caption:= txtCaption.Text;
-          KntFile.Modified:= true;
+          App.FileSetModified;
           ok:= true;
        end;
     end;
@@ -300,7 +300,7 @@ begin
    CheckClearUnregisteredImage;
 
    fImage:= value;
-   fCurrentKntFile:= KntFile;
+   fCurrentKntFile:= ActiveFile;
    fImageID:= fImage.ID;
 
    if Visible then begin

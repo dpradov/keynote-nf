@@ -137,7 +137,6 @@ function SMTPErrorDesc( Error : integer ) : string;
 implementation
 uses
    RxRichEd,
-   TreeNT,
    gf_misc,
    gf_strings,
    gf_files,
@@ -451,7 +450,7 @@ end; // ExpandTokenLine
 procedure TForm_Mail.AddNoteToMailMessage( const aFolder : TKntFolder );
 var
   myFolder : TKntFolder;
-  myTreeNode : TTreeNTNode;
+  myTreeNode : PVirtualNode;
   myNote : TKntNote;
   RichEdit : TRxRichEdit;
 begin

@@ -43,7 +43,7 @@ uses
 
    gf_streams,
    kn_KntFolder,
-   kn_KntNote,
+   knt.model.note,
    knt.ui.editor,
    kn_Const
    ;
@@ -280,7 +280,7 @@ type
 
     destructor Destroy; override;
 
-    procedure GenerateName(Note: TKntNote; const FolderName: string; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+    procedure GenerateName(const FolderName: string; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 
     property ID: Integer read FID;
     property ImageFormat: TImageFormat read FImageFormat;
@@ -427,7 +427,7 @@ type
     function RecalcNextID: boolean;
 
     procedure InsertImage (FileName: String; Editor: TKntRichEdit; Owned: boolean; const NameProposed: string = '');
-    procedure InsertImageFromClipboard (Editor: TRxRichEdit; FolderName: string; TryAddURLlink: boolean = true);
+    procedure InsertImageFromClipboard (Editor: TKntRichEdit; FolderName: string; TryAddURLlink: boolean = true);
 
     function ProcessImagesInRTF (const RTFText: AnsiString;
                                  const FolderName: string;
@@ -1058,7 +1058,7 @@ end;
 
 { Generates a Name and Path for a new image, unique in the storage, and taking into account that it has been created on the indicated node/folder  }
 
-procedure TKntImage.GenerateName(Note: TKntNote; const FolderName: string; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+procedure TKntImage.GenerateName(const FolderName: string; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
 var
   src: String;
   strDate: string;
@@ -1448,7 +1448,7 @@ begin
    ModeUseExternalStorage:= (fStorageMode = smExternal) or (fStorageMode = smExternalAndEmbKNT);
 
    tf.WriteLine(_NF_StoragesDEF);
-   tf.WriteLine(_StorageMode + '=' + IntToStr(Ord(fStorageMode)));
+   tf.WriteLine(_NF_StorageMode + '=' + IntToStr(Ord(fStorageMode)));
    if ModeUseExternalStorage and (fExternalStorageToSave <> nil) then begin
       tf.WriteLine(fExternalStorageToSave.GetStorageDefinition(), true);
       MaxSavedImgID:= FExternalStorageToSave.Save (fSaveAllImagesToExtStorage);
@@ -1465,7 +1465,7 @@ begin
 
    // Get the information to be saved about the images
    tf.WriteLine(_NF_ImagesDEF);
-   tf.WriteLine(_IDNextImage + '=' + IntToStr(fNextImageID));
+   tf.WriteLine(_NF_IDNextImage + '=' + IntToStr(fNextImageID));
    SerializeImagesDefinition(tf);
 
 end;
@@ -1496,11 +1496,11 @@ begin
    if KeyOptions.ImgStorageModeOnExport <> smeEmbKNT then exit;
 
    tf.WriteLine(_NF_StoragesDEF);
-   tf.WriteLine(_StorageMode + '=' + IntToStr(Ord(smEmbKNT)));
+   tf.WriteLine(_NF_StorageMode + '=' + IntToStr(Ord(smEmbKNT)));
 
    // Get the information to be saved about the images
    tf.WriteLine(_NF_ImagesDEF);
-   tf.WriteLine(_IDNextImage + '=' + IntToStr(fNextImageID));
+   tf.WriteLine(_NF_IDNextImage + '=' + IntToStr(fNextImageID));
    SerializeImagesDefinition(tf);
 end;
 
@@ -1634,7 +1634,7 @@ begin
 
        // Storages definition
        if section = sStoragesDef then begin
-          if ( key = _StorageMode ) then
+          if ( key = _NF_StorageMode ) then
              FStorageMode := TImagesStorageMode(StrToInt( s ))
 
           else
@@ -1663,7 +1663,7 @@ begin
        else
        // Images definition
        if section = sImagesDef then begin
-          if ( key = _IDNextImage ) then
+          if ( key = _NF_IDNextImage ) then
              FNextImageID := StrToInt( s )
 
           else
@@ -1888,7 +1888,7 @@ var
 
       for i := 0 to TKntFile(fKntFile).Folders.Count -1 do begin
          myFolder := TKntFile(fKntFile).Folders[i];
-         if not myFolder.PlainText then begin
+         if not myFolder.Editor.PlainText then begin
            myFolder.EditorToDataStream;
            myFolder.DataStreamToEditor;
          end;
@@ -2389,13 +2389,11 @@ function TImageMng.RegisterNewImage(
 var
    Img: TKntImage;
    Path: string;
-   Note: TKntNote;
    ImgID: integer;
    ZipPathFormat: boolean;
    StreamIMG: TMemoryStream;
 
 begin
-   Note:= ActiveNote;
    ImgID:= GetNewID();
 
    if not Owned and KeyOptions.ImgLinkRelativePath then
@@ -2416,7 +2414,7 @@ begin
    if (assigned(fExternalStorageToSave)) and (fExternalStorageToSave.StorageType= stZip) then
       ZipPathFormat:= true;
 
-   Img.GenerateName(Note, FolderName, Source, ZipPathFormat, NameProposed);
+   Img.GenerateName(FolderName, Source, ZipPathFormat, NameProposed);
 
    fImages.Add(Pointer(Img));
    if Owned and ((fStorageMode = smExternal) or (fStorageMode = smExternalAndEmbKNT)) then
@@ -2514,7 +2512,7 @@ begin
      Stream.LoadFromFile(FileName);
      Stream.Position:= 0;
 
-     if (fStorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+     if Editor.SupportsRegisteredImages then begin
         ImgFormat:= GetImageFormat(Stream);
         StreamRegistered:= CheckRegisterImage (Stream, ImgFormat, Width, Height, FolderName, FileName, Owned, '', Img, NameProposed);
         if Img <> nil then begin           //  DoNotRegisterNewImages coult it be = True and the image not included in the file
@@ -2541,7 +2539,7 @@ begin
 end;
 
 
-procedure TImageMng.InsertImageFromClipboard(Editor: TRxRichEdit; FolderName: string; TryAddURLlink: boolean = true);
+procedure TImageMng.InsertImageFromClipboard(Editor: TKntRichEdit; FolderName: string; TryAddURLlink: boolean = true);
 var
   Stream: TMemoryStream;
   bmp: TBitmap;
@@ -2618,7 +2616,7 @@ begin
         end;
 
         ConvertStreamToImgFormatDest (Stream, ImgFormat, imgFormatDest);
-        if (fStorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+        if Editor.SupportsRegisteredImages then begin
            ImgFormat:= ImgFormatDest;
            StreamRegistered:= CheckRegisterImage (Stream, ImgFormatDest, Width, Height, FolderName, '', True, Source, Img);
            if Img <> nil then            //  DoNotRegisterNewImages coult it be = True and the image not included in the file
@@ -3848,7 +3846,7 @@ begin
          OpenImageFile(FilePath);
       end
       else begin
-         if ActiveEditor.NoteObj <> nil then
+         if ActiveEditor.NNodeObj <> nil then
             ActiveFolder.EditorToDataStream;
 
          UsingOpenViewer:= false;

@@ -70,7 +70,7 @@ type
     myTabProperties : TFolderTabProperties;
     myTreeProperties : TFolderTreeProperties;
     myTreeChrome : TChrome;
-    myTreeOptions : TKNTTreeOptions;
+    myTreeOptions : TKntTreeOptions;
 
     myTabNameHistory : string;
     myHistoryCnt : integer;
@@ -250,8 +250,8 @@ begin
   Form_Defaults := TForm_Defaults.Create(Form_Main);
   try
     Form_Defaults.myCurrentFileName:= '';
-    if assigned(KntFile) and (KntFile.FileName <> '') then
-       Form_Defaults.myCurrentFileName := ExtractFilename( KntFile.FileName );
+    if assigned(ActiveFile) and (ActiveFile.FileName <> '') then
+       Form_Defaults.myCurrentFileName := ActiveFile.File_Name;
 
     Form_Defaults.StartWithEditorTab := true;
     Form_Defaults.Action := propThisFolder;

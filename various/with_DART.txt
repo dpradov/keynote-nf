@@ -1,0 +1,318 @@
+kn_KntFile:
+============
+
+  STR_09 = '%s: Invalid DartNotes file header: ';
+
+{$IFDEF WITH_DART}
+    nffDartNotes : begin
+      with FVersion do begin
+        ID := NFHDR_ID;
+        Major := NFILEVERSION_MAJOR;
+        Minor := NFILEVERSION_MINOR;
+      end;
+    end;
+{$ENDIF}
+
+Load:
+{$IFDEF WITH_DART}
+  Hdr : TDartNotesHdr;
+{$ENDIF}
+...
+{$IFDEF WITH_DART}
+    else
+    if ( pos( _DART_STOP + _DART_ID + _DART_STOP, TestString ) > 0 ) then begin
+      FFileFormat := nffDartNotes;
+      _IS_OLD_KEYNOTE_FILE_FORMAT := false;
+      VerID.ID := _DART_ID;
+    end
+{$ENDIF}
+...
+{$IFDEF WITH_DART}
+        nffDartNotes : begin
+
+            Stream := TFileStream.Create( FN, ( fmOpenRead or fmShareDenyWrite ));
+            ds := '';
+            repeat
+              Stream.ReadBuffer( ch, sizeof( ch ));
+              if ( ch = _DART_STOP ) then break;
+              ds := ds + ch;
+            until ( length( ds ) > 16 ); // means it's not DartNotes file anyway
+
+            if ( ch = _DART_STOP ) then begin
+              try
+                 Hdr.BlockLen := strtoint( ds );
+                 ds := '';
+                 SetLength( ds, Hdr.BlockLen );
+                 Stream.ReadBuffer( ds[1], Hdr.BlockLen );
+                 if ( pos( _DART_ID, ds ) = 1 ) then begin // success
+                    Hdr.ID := _DART_ID;
+                    delete( ds, 1, succ( length( _DART_ID )));
+                    p := pos( _DART_STOP, ds );
+                    if ( p > 0 ) then begin
+                        Hdr.Ver := strtoint( copy( ds, 1, pred( p )));
+                        if ( ds[length( ds )] = _DART_STOP ) then begin
+                          // now go backwards from the end,
+                          // since we don't care about the info in the middle
+                          ds1 := '';
+                          p := pred( length( ds ));
+                          repeat
+                            ch := ds[p];
+                            if ( ch = _DART_STOP ) then break;
+                            ds1 := ch + ds1;
+                            dec( p );
+                          until ( p = 0 );
+                          Hdr.LastTabIdx := strtoint( ds1 );
+                          FileIDTestFailed := false; // FINALLY VERIFIED
+                        end;
+                    end;
+                 end;
+
+              except
+                FileIDTestFailed := true;
+              end;
+            end;
+
+            if FileIDTestFailed then begin
+              DoMessageBox(Format( STR_09 + VerID.ID, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
+              raise Exception.Create('');
+            end;
+
+            // initialize some stuff we got from the file already,
+            // and some stuff that is not present in Dart file header
+            FDescription := '';
+            FComment := '';
+            // FNoteCount := 0; // we don't know yet
+            FDateCreated := now; // UNKNOWN!
+            FActiveNote := Hdr.LastTabIdx;
+            NoteKind := ntRTF;
+
+            while ( Stream.Position < Stream.Size ) do begin
+              Folder := TKntFolder.Create;
+              try
+                Folder.LoadDartNotesFormat( Stream );
+                InternalAddNote( Folder );
+                // if assigned( FOnNoteLoad ) then FOnNoteLoad( self );
+              except
+                On E : Exception do begin
+                  HasLoadError := true;
+                  messagedlg( STR_08 + Folder.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                  Folder.Free;
+                  // raise;
+                end;
+              end;
+            end;
+        end; // nffDartNotes
+
+{$ENDIF}
+
+Save:
+
+..
+{$IFDEF WITH_DART}
+  if ((FFileFormat in [nffDartNotes]) and HasExtendedFolders ) then
+    raise EKeyKntFileError.CreateFmt( STR_10, [FILE_FORMAT_NAMES[FFileFormat], TABNOTE_KIND_NAMES[ntRTF]] );
+{$ENDIF}
+...
+{$IFDEF WITH_DART}
+        nffDartNotes : begin
+          Stream := TFileStream.Create( FN, ( fmCreate or fmShareExclusive ));
+          try
+            ds := _DART_ID + _DART_STOP +
+                  _DART_VER + _DART_STOP + _DART_VEROK +
+                  _DART_STOP + _DART_VEROK + _DART_STOP +
+                  inttostr( FActiveNote ) + _DART_STOP;
+            ds := ( inttostr( length( ds )) + _DART_STOP ) + ds;
+            Stream.WriteBuffer( ds[1], length( ds ));
+
+            if ( FPageCtrl.PageCount > 0 ) then
+              // this is done so that we preserve the order of tabs.
+              for i := 0 to pred( FPageCtrl.PageCount ) do begin
+                myFolder := TKntFolder(FPageCtrl.Pages[i].PrimaryObject);
+                myFolder.SaveDartNotesFormat( Stream );
+              end
+            else begin
+               for i := 0 to pred( FNotes.Count ) do begin
+                 myFolder := FNotes[i];
+                 if assigned( myFolder ) then
+                   myFolder.SaveDartNotesFormat( Stream );
+               end;
+            end;
+
+            result := 0;
+          finally
+            Stream.Free;
+          end;
+        end; // nffDartNotes
+{$ENDIF}
+
+
+kn_NoteFileMng:
+=============
+KntFileSave:
+
+...
+{$IFDEF WITH_DART}
+                   nffDartNotes:
+                     FN := FN + ext_DART;
+{$ENDIF}
+                 end;
+              end;
+
+{$IFDEF WITH_DART}
+              if (KntFile.FileFormat = nffDartNotes) and KeyOptions.SaveDARTWarn then begin
+                 case PopupMessage(format(STR_18, [FILE_FORMAT_NAMES[nffDartNotes], Program_Name, FILE_FORMAT_NAMES[nffKeyNote]]),
+                                   mtWarning, [mbYes,mbNo,mbCancel], 0 ) of
+                    mrNo: KntFile.FileFormat := nffKeyNote;
+                    mrCancel: Exit;
+                 end;
+              end;
+{$ENDIF}
+
+
+
+
+Kn_KntFolder:
+=================
+{$IFDEF WITH_DART}
+  STR_02 = '"%s" is a %s note and cannot be saved using %s format';
+  STR_03 = 'Stream not assigned in LoadDartNotesFormat';
+  STR_04 = 'LoadDartNotes: file format error or file damaged.';
+{$ENDIF}
+
+
+{$IFDEF WITH_DART}
+    procedure SaveDartNotesFormat( Stream : TStream ); virtual;
+    procedure LoadDartNotesFormat( Stream : TStream ); virtual;
+{$ENDIF}
+
+
+{$IFDEF WITH_DART}
+procedure TTabNote.LoadDartNotesFormat( Stream : TStream );
+var
+  TextSize : longint;
+  ds : string;
+  ch : char;
+  p, blocklen, rtfoffset : integer;
+begin
+  if ( not assigned( Stream )) then
+    raise ETabNoteError.Create( STR_03 );
+
+  with FDataStream do
+  begin
+    Clear;
+    Position := 0;
+  end;
+
+  try
+    ds := '';
+    repeat
+      Stream.ReadBuffer( ch, sizeof( ch ));
+      if ( ch = _DART_STOP ) then break;
+      ds := ds + ch;
+    until ( Stream.Position = Stream.Size ); // safety check
+
+    try
+      blocklen := strtoint( ds );
+      ds := '';
+      repeat
+        Stream.ReadBuffer( ch, sizeof( ch ));
+        if ( ch = _DART_STOP ) then break;
+        ds := ds + ch;
+      until ( Stream.Position = Stream.Size ); // safety check
+      rtfoffset := strtoint( ds );
+      ds := '';
+      SetLength( ds, rtfoffset );
+      Stream.ReadBuffer( ds[1], rtfoffset );
+      p := pos( _DART_STOP, ds );
+      FName := copy( ds, 1, pred( p ));
+      delete( ds, 1, p );
+      p := pos( _DART_STOP, ds );
+      FEditorChrome.BGColor := strtoint( copy( ds, 1, pred( p )));
+      delete( ds, 1, p );
+      if ( ds <> '' ) then
+        FWordWrap := ( ds[1] = '1' );
+      ds := '';
+      repeat
+        Stream.ReadBuffer( ch, sizeof( ch ));
+        if ( ch = _DART_STOP ) then break;
+        ds := ds + ch;
+      until ( Stream.Position = Stream.Size ); // safety check
+      TextSize := strtoint( ds );
+      FDataStream.CopyFrom( Stream, TextSize );
+    except
+      on E : EConvertError do
+      begin
+        raise Exception.Create( STR_04 );
+      end;
+      on E : Exception do raise;
+    end;
+
+  finally
+  end;
+
+  Modified := false;
+
+end; // LoadDartNotesFormat
+{$ENDIF}
+
+
+{$IFDEF WITH_DART}
+procedure TTabNote.SaveDartNotesFormat( Stream : TStream );
+var
+  ds, ds1 : string;
+  dsi : integer;
+  HaveVCLControls : boolean;
+begin
+
+  // Only simple RTF notes are compatible with DartNotes format.
+  // If FKind is not ntRTF, bail out
+  if ( FKind <> ntRTF ) then
+    raise ETabNoteError.CreateFmt( STR_02, [FName, TABNOTE_KIND_NAMES[FKind], FILE_FORMAT_NAMES[nffDartNotes]] );
+
+  HaveVCLControls := ( CheckTabSheet and CheckEditor );
+  if HaveVCLControls then
+  begin
+    with FDataStream do
+    begin
+      Clear;
+      Position := 0;
+    end;
+    FTabIndex := FTabSheet.PageIndex; // remember tab position
+    FEditor.Lines.SaveToStream( FDataStream );
+  end;
+
+  FDataStream.Position := 0;
+
+  try
+    ds := FName + _DART_STOP +
+          inttostr( integer( FEditorChrome.BgColor )) + _DART_STOP +
+          BOOLEANSTR[FWordWrap] + _DART_STOP;
+    dsi := length( ds );
+    ds := ds + inttostr( FDataStream.Size ) + _DART_STOP;
+    ds1 := inttostr( length( ds ) + FDataStream.Size );
+    ds := _DART_STOP + inttostr( dsi ) + _DART_STOP + ds;
+    Stream.WriteBuffer( ds1[1], length( ds1 ));
+    Stream.WriteBuffer( ds[1], length( ds ));
+
+    Stream.CopyFrom( FDataStream, 0 );
+
+  finally
+    if HaveVCLControls then
+      FDataStream.Clear;
+  end;
+
+  Modified := false; // triggers SetModified
+
+end; // SaveDartNotesFormat
+{$ENDIF}
+
+
+
+kn_filemgr.pas
+============
+LoadFileList
+...
+{$IFDEF WITH_DART}
+                nffDartNotes :  Info.ImageIndex := NODEIMG_DART;
+{$ENDIF}
+

@@ -202,15 +202,16 @@ const
   NFHDR_ID_OLD       = 'GFKNX'; // KeyNote token text file header ID
   NFHDR_ID_ENCRYPTED = 'GFKNE'; // encrypted KeyNote file header ID
   NFHDR_ID_COMPRESSED = 'GFKNZ'; // compressed KeyNote file header ID
-  NFILEVERSION_MAJOR = '2';     // and version numbers
+  NFILEVERSION_MAJOR = '3';     // and version numbers
   // NFILEVERSION_MAJOR = '1';     // non-tree version ID, obsolete
-  NFILEVERSION_MINOR = '1';     // Since version 1.9.3.1: Use of GID as note identifier, with a new default internal Knt Links format, based on GIDs
-  // NFILEVERSION_MINOR = '0';
+  NFILEVERSION_MINOR = '0';     
+ 
+ // 2.1 : Since version 1.9.3.1: Use of GID as note identifier, with a new default internal Knt Links format, based on GIDs
+ // 3.0 : New major version associated to an important rework: TNote, TNoteNode, TNoteEntry, ...
 
 const
   FLAGS_STRING_LENGTH  = 24; // can store up to 24 booleans
   DEFAULT_FLAGS_STRING = '000000000000000000000000';
-  TREENOTE_FLAG_BASE   = 12; // chars 1-12 are for both types of notes; chars 13-24 are only used by tree-type notes
 
 type
   TFlagsString = string[FLAGS_STRING_LENGTH];
@@ -363,24 +364,39 @@ const
   MAILNOTECOUNT         = '%C'; // expands to number of notes being sent
 
 const
-  _NF_TabNote         = '%';    // end-of-record (new TTabNote begins)  (only in old .knt files)
-  _NF_EOF             = '%%';   // end-of-file (last line in file)
+  // Used on files with NFILEVERSION_MAJOR < 3
+  _NF_TabFolder       = '%';    // end-of-record (new simple folder begins)
   _NF_RTF             = '%:';   // end of note header; RTF data follows
-  _NF_TreeNote        = '%+';   // TTreeNote begins
+  _NF_TreeFolder      = '%+';   // tree folder begins
   _NF_TRN             = '%-';   // Tree node begins (many tree nodes within a single note)
+
+  // Used on files with NFILEVERSION_MAJOR >= 3
+  _NumNotes = 'N:';       // Number of notes
+  _NF_Note = '%*';        // TNote begins
+  _NF_NEntry = '%·';      // TNoteEntry begins
+  _NF_Folder = '%+';      // TKntFolder begins
+  _NF_TxtContent  = '%>'; // end of TNoteEntry header; Plain Text data follows
+  _NF_RTFContent  = '%:'; // end of TNoteEntry header; RTF data follows
+  _NF_NNode = '%-';       // TNoteNode begins
+  _NumNNodes = 'n:';      // Number of note nodes (in folder)
+
+
+
+  _NF_EOF             = '%%';   // end-of-file (last line in file)
   _NF_COMMENT         = '#';    // comment, but this is really used for file header information
   _NF_WARNING         = _NF_COMMENT + ' This is an automatically generated file. Do not edit.';
   _NF_PLAINTEXTLEADER = ';';
   _NF_StoragesDEF     = '%S';
-  _StorageMode        = 'SM';
+  _NF_StorageMode     = 'SM';
   _NF_ImagesDEF       = '%I';
-  _IDNextImage        = 'II';
+  _NF_IDNextImage     = 'II';
   _NF_EmbeddedIMAGES  = '%EI';
   _NF_Bookmarks       = '%BK';
   _NF_Bookmark        = 'BK';
 
 
 const
+  _DATETOFILE    = 'ddMMyy';
   _SHORTDATEFMT  = 'dd-MM-yyyy'; // all these are only internal defaults
   _LONGDATEFMT   = 'd MMMM yyyy';
   _LONGTIMEFMT   = 'HH:mm:ss';
@@ -476,8 +492,9 @@ type
   );
 }
   TNextBlock = (
-    nbRTF,        // = ntRTF
-    nbTree,       // = ntTree
+    nbNotes,      // Used on files with NFILEVERSION_MAJOR >= 3
+    nbRTF,        // = ntRTF                  (old knt files)
+    nbTree,       // = ntTree                 (= Folder)
     nbImages,     // = Images Definition
     nbBookmarks
   );
@@ -700,11 +717,11 @@ type
 
 type
   TNodeInsertMode = (
-    tnTop,
-    tnInsertBefore,
-    tnAddLast,
-    tnAddChild,
-    tnAddAfter
+    tnTop,       //                   -> AddChild(nil)
+    tnAddAbove,  // Add Above         -> InsertNode, TVTNodeAttachMode.amInsertBefore   - insert node just before destination (as sibling of destination)
+    tnAddChild,  // Add child         -> AddChild(Node) - Adds a node as the last child of the given node.
+    tnAddBelow,  // Add Below         -> InsertNode, TVTNodeAttachMode.amInsertAfter    - insert node just after destionation (as sibling of destination)
+    tnAddLast    // Add Last sibling  -> AddChild(ParentNode) - Adds a node as the last child of the given node.
   );
 
 type
@@ -906,7 +923,7 @@ type
     factExecute, // macros and plugins only
     factMerge,
     factHyperlink,
-    factImport,
+    factImportAsFolder,
     factImportAsNode,
     factMakeVirtualNode,
     factInsertContent
@@ -1028,19 +1045,32 @@ const
   }
 
 const
-  // Tokens for nodes (notes in Tree)
-  _NodeName = 'ND';
+  // Tokens for notes
+  _NoteName = 'ND';
+  _NoteGID = 'GI';
+  _NoteAlias = 'AL';
+  _NoteState = 'NS';
+  _LastModified = 'LM';
+  _NoteSelEntry = 'SE';
+  _NEntrySelStart = 'SS';
+  _NoteResources = 'NR';
+
+  _NEntryID = 'id';
+
+  // Tokens for note nodes (in folder)
   _NodeID = 'DI';
-  _NodeGID = 'GI';
+  _NodeGID = 'gi';
   _NodeLevel = 'LV';
+  _NodeState = 'ns';
+
   _SelectedNode = 'SN';
   _TreeWidth = 'TW';
   _TreeMaxWidth = 'TM';
   _VirtualFN = 'VF';
   _RelativeVirtualFN = 'RV';
-  _NodeRTFBGColor = 'BC';
+  _NodeEditorBGColor = 'BC';
   _DefaultNoteName = 'EN';
-  _NodeSelStart = 'SS';
+
   _NodeColor = 'HC';
   _NodeBGColor = 'HB';
   _NodeFontFace = 'FF';
@@ -1052,7 +1082,7 @@ const
   _CHTRFontStyle = 'TY';
   _NodeImageIndex = 'IX';
   _NodeAlarm = 'NA';        // [dpv]
-  _VirtualNode = 'VN';
+  _VirtualNode = 'VN';      // Replaced by normal "linked" nodes (TNoteNode) since NFILEVERSION_MAJOR >= 3
 
 const
   // special FlagsStr constant characters

@@ -77,9 +77,10 @@ type
     FPopupMenuBAK: TPopupMenu;
 
   private
-    FFileObj: TObject;
-    FFolderObj: TObject;
-    FNoteObj: TObject;
+    fFileObj:   TObject;
+    fFolderObj: TObject;
+    fNNodeObj:  TObject;
+    fNEntryObj: TObject;
 
     FAutoIndent : boolean;
     FUseTabChar : boolean;
@@ -125,9 +126,10 @@ type
     constructor Create( AOwner : TComponent ); override;
     destructor Destroy; override;
 
-    property FileObj: TObject read FFileObj;
-    property FolderObj: TObject read FFolderObj;
-    property NoteObj: TObject read FNoteObj;
+    property FileObj: TObject read fFileObj;
+    property FolderObj: TObject read fFolderObj;
+    property NNodeObj: TObject read fNNodeObj;
+    property NEntryObj: TObject read fNEntryObj;
 
     property PlainText: boolean read FPlainText write FPlainText;
     property SupportsRegisteredImages: boolean read FSupportsRegisteredImages write FSupportsRegisteredImages;
@@ -136,7 +138,7 @@ type
     property ZoomGoal: integer read FZoomGoal;
     property ZoomCurrent: integer read FZoomCurrent;
 
-    procedure SetVinculatedObjs(FileObj, FolderObj, NoteObj: TObject);
+    procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject);
     function ContainsRegisteredImages: boolean;
 
     property AutoIndent : boolean read FAutoIndent write FAutoIndent;
@@ -443,7 +445,6 @@ begin
   FAutoIndent := false;
   FUseTabChar := true;
   FTabSize := DEF_TAB_SIZE;
-// FOnFileDropped := nil;
 
   FIgnoreSelectionChange:= false;
   DraggingImageID:= 0;
@@ -475,11 +476,12 @@ begin
   inherited Destroy;
 end;
 
-procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NoteObj: TObject);
+procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject);
 begin
-   FFileObj:= FileObj;
-   FFolderObj:= FolderObj;
-   FNoteObj:= NoteObj;
+   fFileObj:= FileObj;
+   fFolderObj:= FolderObj;
+   fNNodeObj:= NNodeObj;
+   fNEntryObj:= NEntryObj;
 end;
 
 
@@ -1073,7 +1075,7 @@ begin
    if ReadOnly then exit;
 
    GetAndRememberCurrentZoom;
-   ImageMng.DoNotRegisterNewImages:= (NoteObj = nil);
+   ImageMng.DoNotRegisterNewImages:= (NNodeObj = nil);
    if ReconsiderDimensionsGoal then
       ImageMng.ReconsiderImageDimensionsGoal:= true;
    try
@@ -1099,7 +1101,7 @@ begin
 
    finally
       ImageMng.ReconsiderImageDimensionsGoal:= false;
-      ImageMng.DoNotRegisterNewImages:= (ActiveEditor.NoteObj = nil);
+      ImageMng.DoNotRegisterNewImages:= (ActiveEditor.NNodeObj = nil);
       RestoreZoomCurrent;
    end;
 end;
@@ -1112,7 +1114,7 @@ begin
   if FUpdating > 0 then exit;
 
   App.EditorFocused(Self);
-  ImageMng.DoNotRegisterNewImages:= (NoteObj = nil);
+  ImageMng.DoNotRegisterNewImages:= (NNodeObj = nil);
 
   inherited;
 end;
@@ -1615,7 +1617,7 @@ begin
       end;
    end;
 
-   if (ImgID = 0) and FSupportsImages and (not FSupportsRegisteredImages or not assigned(NoteObj) ) then begin
+   if (ImgID = 0) and FSupportsImages and (not FSupportsRegisteredImages or not assigned(NNodeObj) ) then begin
       txt:= RtfSelText;
       if length(txt) > 0 then
          ImageMng.TryRTFPictToImage (@txt[1], Length(txt), Img);

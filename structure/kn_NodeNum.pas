@@ -35,16 +35,12 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     RG_Scope: TRadioGroup;
-    RG_CurNum: TRadioGroup;
     RG_Method: TRadioGroup;
-    GroupBox1: TGroupBox;
-    Label1: TLabel;
-    Spin_StartNum: TSpinEdit;
-    GroupBox2: TGroupBox;
+    gbDepth: TGroupBox;
     LB_Depth: TLabel;
     Spin_Depth: TSpinEdit;
     CB_FullDepth: TCheckBox;
-    Btn_Remove: TButton;
+    Label1: TLabel;
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure RG_MethodClick(Sender: TObject);
@@ -67,8 +63,7 @@ Uses
 {$R *.DFM}
 
 
-function TForm_NodeNum.FormHelp(Command: Word; Data: NativeInt;
-  var CallHelp: Boolean): Boolean;
+function TForm_NodeNum.FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
 begin
    CallHelp:= False;
    ActiveKeyNoteHelp_FormHelp(Command, Data);
@@ -88,7 +83,8 @@ end; // close query
 
 procedure TForm_NodeNum.RG_MethodClick(Sender: TObject);
 begin
-  RG_CurNum.Enabled := ( RG_Method.ItemIndex = 0 );
+  CB_FullDepth.Enabled := ( RG_Method.ItemIndex <> 2 );
+  LB_Depth.Enabled:= CB_FullDepth.Enabled;
 end;
 
 

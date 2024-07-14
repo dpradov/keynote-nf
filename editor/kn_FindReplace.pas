@@ -7,7 +7,7 @@ unit kn_FindReplace;
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
  
 ------------------------------------------------------------------------------
- (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2024 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
@@ -34,7 +34,6 @@ uses
 
 
 type
-  //TReplaceEvent = procedure( ReplaceAll : boolean ) of object;
   TReplaceEvent = procedure( ReplaceAll : boolean );
   TNotifyEvent_ = procedure(Sender: TObject);
 
@@ -75,17 +74,15 @@ type
     procedure Button_CancelClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDeactivate(Sender: TObject);
-    function FormHelp(Command: Word; Data: NativeInt;
-      var CallHelp: Boolean): Boolean;
+    function FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
+
   private
-    { Private declarations }
     procedure CreateParams(var Params: TCreateParams); override;
     function GetModeReplace: boolean;
     procedure SetModeReplace(value: boolean);
     procedure CheckEnableChkControls;
 
   public
-    { Public declarations }
     OK_Click : boolean;
     Initializing : boolean;
     myFindOptions : TFindOptions;
@@ -174,7 +171,7 @@ begin
   else begin
      if not myFindOptions.AllTabs_FindReplace and assigned(Folder) then
         if (Folder <> StartFolder) or
-           (not myFindOptions.AllNodes) and (Folder.TreeUI.SelectedNode <> StartNode) then
+           (not myFindOptions.AllNodes) and (Folder.TreeUI.FocusedNode <> StartNode) then
              myFindOptions.FindNew := true;
   end;
 
@@ -261,7 +258,6 @@ begin
 
 end;
 
-// HistoryToCombo
 
 procedure TForm_FindReplace.CheckBox_AllNodesClick(Sender: TObject);
 begin
@@ -279,34 +275,30 @@ procedure TForm_FindReplace.ComboToHistory;
 var
   i : integer;
 begin
-  if ( Combo_Text.Text <> '' ) then
-  begin
+  if ( Combo_Text.Text <> '' ) then begin
     myFindOptions.History := AnsiQuotedStr( Combo_Text.Text, '"' );
-    for i := 0 to pred( Combo_Text.Items.Count ) do
-    begin
+    for i := 0 to pred( Combo_Text.Items.Count ) do begin
       if ( i >= myFindOptions.HistoryMaxCnt ) then break;
       if ( Combo_Text.Items[i] <> Combo_Text.Text ) then
         myFindOptions.History :=  myFindOptions.History + HISTORY_SEPARATOR + AnsiQuotedStr( Combo_Text.Items[i], '"' );
     end;
   end;
-  if ( Combo_Replace.Text <> '' ) then
-  begin
+
+  if ( Combo_Replace.Text <> '' ) then begin
     myFindOptions.ReplaceHistory := AnsiQuotedStr( Combo_Replace.Text, '"' );
-    for i := 0 to pred( Combo_Replace.Items.Count ) do
-    begin
+    for i := 0 to pred( Combo_Replace.Items.Count ) do begin
       if ( i >= myFindOptions.HistoryMaxCnt ) then break;
       if ( Combo_Replace.Items[i] <> Combo_Replace.Text ) then
         myFindOptions.ReplaceHistory :=  myFindOptions.ReplaceHistory + HISTORY_SEPARATOR + AnsiQuotedStr( Combo_Replace.Items[i], '"' );
     end;
   end;
 
-end; // ComboToHistory
+end;
 
 procedure TForm_FindReplace.OptionsToForm;
 begin
   HistoryToCombo;
-  with myFindOptions do
-  begin
+  with myFindOptions do begin
     CheckBox_MatchCase.Checked := MatchCase;
     CheckBox_WholeWordsOnly.Checked := WholeWordsOnly;
 
@@ -356,12 +348,9 @@ begin
 
 end;
 
-// OptionsToForm
-
 procedure TForm_FindReplace.FormToOptions;
 begin
-  with myFindOptions do
-  begin
+  with myFindOptions do begin
     AllNodes := CheckBox_AllNodes.Checked;
     AllTabs_FindReplace := CheckBox_AllTabs.Checked;
     EntireScope := CheckBox_EntireScope.Checked;
@@ -374,8 +363,7 @@ begin
     SelectedText:= CheckBox_SelectedText.Checked;
     Wrap := CheckBox_Wrap.Checked;
   end;
-  // ComboToHistory;
-end; // FormToOptions
+end;
 
 procedure TForm_FindReplace.Combo_TextChange(Sender: TObject);
 var

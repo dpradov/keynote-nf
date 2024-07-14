@@ -20,75 +20,68 @@ uses
    Winapi.Windows,
    System.Classes,
    System.SysUtils,
-   System.IniFiles;
+   System.IniFiles,
+   System.Generics.Collections,
+
+   VirtualTrees.Types,
+
+   kn_KntFolder,
+   knt.model.note;
 
 
 type
-  TLocation = class( TObject )
-  private
-    FName : string;
-    FFileName : string;
-    FFolderName : string;
-    FNoteName : string;
-    FCaretPos : integer;
-    FSelLength : integer;
-    FFolderID : Cardinal;
-    FNoteID : Cardinal;
-    FNoteGID : Cardinal;
-    FExternalDoc : boolean;
-    FParams : string;
-    FMark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
-    FBookmark09: boolean;     // In case FMark <> 0, Is it one of the bookmarks set with Search|Set Bookmark?
-    FScrollPosInEditor: TPoint;
-    //FTag : integer; //used in TForm_Main.List_ResFindDrawItem    // [dpv]
+  TLocation = class;
+  TLocationList = TList<TLocation>;
 
-    function GetDisplayText : string;
-    function GetDisplayTextLong : string;
-    {
-    function GetPath : string;
-    function GetLinkText : string;
-    function GetLinkTextByNames : string;
-    }
+
+  TLocation = class(TObject)
+  protected
+    function GetNode: PVirtualNode;
 
   public
-    property Name : string read FName write FName;
-    property FileName : string read FFileName write FFileName;
-    property FolderName : string read FFolderName write FFolderName;
-    property NoteName : string read FNoteName write FNoteName;
-    property CaretPos : integer read FCaretPos write FCaretPos;
-    property SelLength : integer read FSelLength write FSelLength;
-    property FolderID : Cardinal read FFolderID write FFolderID;
-    property NoteID : Cardinal read FNoteID write FNoteID;
-    property NoteGID : Cardinal read FNoteGID write FNoteGID;
-    property Mark : Byte read FMark write FMark;
-    property Bookmark09 : boolean read FBookmark09 write FBookmark09;
-    property ExternalDoc : boolean read FExternalDoc write FExternalDoc;
-    property Params : string read FParams write FParams;
-    property ScrollPosInEditor: TPoint read FScrollPosInEditor write FScrollPosInEditor;
-    // property Tag : integer read FTag write FTag;                 // [dpv]
+    FileName : string;
 
-    property DisplayText : string read GetDisplayText;
-    property DisplayTextLong : string read GetDisplayTextLong;
+    Name : string;
+    ExternalDoc : boolean;
+    Params : string;
 
-    {
-    property Path : string read GetPath;
-    property LinkText : string read GetLinkText;
-    property LinkTextByNames : string read GetLinkTextByNames;
-    }
+    Folder: TKntFolder;
+    NNode: TNoteNode;
+    NEntry: TNoteEntry;
+    Calculated: boolean;
+
+    FolderID : Cardinal;
+    NNodeID : Word;
+    NNodeGID : Cardinal;
+    NEntryID : Word;        // %%%
+    Mark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
+    CaretPos : integer;
+    SelLength : integer;
+
+    Bookmark09: boolean;     // In case FMark <> 0, Is it one of the bookmarks set with Search|Set Bookmark?
+    ScrollPosInEditor: TPoint;
+
+    FolderName: string;       // to use in certain cases
+    NoteName: string;
 
     constructor Create;
     procedure Assign( const aLocation : TLocation );
     function Clone: TLocation;
     function Equal (Location: TLocation; considerCaretPos: boolean = true; considerOnlyKntLinks: boolean = true): boolean;
+
+    property Node: PVirtualNode read GetNode;
+
+    function GetDisplayText : string;
+    function GetDisplayTextLong : string;
   end;
 
 
 var
-  Location_List : TStringList; // used to build list of matches for the resource panel search function
-  Favorites_List : TStringList; // favorites list (saved in keynote.fvr)
+  Location_List : TLocationList; // used to build list of matches for the resource panel search function
+  Favorites_List : TLocationList; // favorites list (saved in keynote.fvr)
   _KNTLocation : TLocation;
 
-procedure ClearLocationList( const aList : TStringList );
+procedure ClearLocationList( const aList : TLocationList);
 
 procedure LoadFavorites( const FN : string );
 procedure SaveFavorites( const FN : string );
@@ -123,15 +116,12 @@ begin
     IniFile.ReadSections( sections );
 
     cnt := sections.Count;
-    for i := 0 to pred( cnt ) do
-    begin
+    for i := 0 to pred( cnt ) do begin
       section := sections[i];
 
-      with IniFile do
-      begin
+      with IniFile do begin
         name := readstring( section, 'Name', '' );
-        if ( name <> '' ) then
-        begin
+        if ( name <> '' ) then begin
           myFav := TLocation.Create;
           myFav.Name := name;
           myFav.FileName := readstring( section, 'File', '' );
@@ -139,13 +129,13 @@ begin
             myFav.FolderName := readstring( section, 'Note', '' );     // Knt Folder...
             myFav.FolderID := readinteger( section, 'NoteID', 0 );     // Knt FolderID...
             myFav.NoteName := readstring( section, 'Node', '' );
-            myFav.NoteID := readinteger( section, 'NodeID', 0 );
-            myFav.NoteGID := readinteger( section, 'NodeGID', 0 );
+            myFav.NNodeID := readinteger( section, 'NodeID', 0 );
+            myFav.NNodeGID := readinteger( section, 'NodeGID', 0 );
             myFav.CaretPos := readinteger( section, 'Pos', 0 );
             myFav.SelLength := readinteger( section, 'Len', 0 );
             myFav.ExternalDoc := readbool( section, 'ExternalDoc', false );
             myFav.Params := readstring( section, 'Params', '' );
-            Favorites_List.AddObject( myFav.Name, myFav )
+            Favorites_List.Add(myFav )
         end;
       end;
     end;
@@ -178,7 +168,7 @@ begin
     cnt := Favorites_List.Count;
     for i := 0 to pred( cnt ) do begin
       section := Format( '%d', [succ( i )] );
-      myFav := TLocation( Favorites_List.Objects[i] );
+      myFav := TLocation( Favorites_List[i] );
 
       with IniFile do begin
         writestring( section, 'Name', myFav.Name );
@@ -190,8 +180,8 @@ begin
         else begin
           writestring( section, 'Note', myFav.FolderName );         // Knt Folder...
           writeinteger( section, 'NoteID', myFav.FolderID );      // Knt FolderID...
-          writeinteger( section, 'NodeID', myFav.NoteID );
-          writeinteger( section, 'NodeGID', myFav.NoteGID );
+          writeinteger( section, 'NodeID', myFav.NNodeID );
+          writeinteger( section, 'NodeGID', myFav.NNodeGID );
           writestring( section, 'Node', myFav.NoteName );
           writeinteger( section, 'Pos', myFav.CaretPos );
           writeinteger( section, 'Len', myFav.SelLength );
@@ -206,7 +196,7 @@ begin
   end;
 end; // SaveFavorites
 
-procedure ClearLocationList( const aList : TStringList );
+procedure ClearLocationList( const aList : TLocationList );
 var
   i, cnt : integer;
 begin
@@ -214,7 +204,7 @@ begin
   try
     try
       for i := 1 to cnt do
-        aList.Objects[pred( i )].Free;
+        aList[pred( i )].Free;
     except
     end;
   finally
@@ -224,41 +214,54 @@ end; // ClearLocationList
 
 constructor TLocation.Create;
 begin
-  FName := '';
-  FFileName := '';
-  FFolderName := '';
-  FNoteName := '';
-  FCaretPos := 0;
-  FSelLength := 0;
-  FFolderID := 0;
-  FNoteID := 0;
-  FNoteGID := 0;
-  FMark := 0;
-  FExternalDoc := false;
-  FParams := '';
-  //FTag := 0;
-  FMark:= 0;
-  FBookmark09:= false;
-  FScrollPosInEditor.X:= -1;
-  FScrollPosInEditor.Y:= -1;
+  Name := '';
+  FileName := '';
+  FolderName:= '';
+  NoteName:= '';
+  CaretPos := 0;
+  SelLength := 0;
+  FolderID := 0;
+  NNodeID := 0;
+  NNodeGID := 0;
+  NEntryID := 0;
+  Mark := 0;
+  ExternalDoc := false;
+  Params := '';
+  Mark:= 0;
+  Bookmark09:= false;
+  ScrollPosInEditor.X:= -1;
+  ScrollPosInEditor.Y:= -1;
+
+  Folder:= nil;
+  NNode:= nil;
+  NEntry:= nil;
+  Calculated:= false;
+
 end; // create
 
 procedure TLocation.Assign( const aLocation : TLocation );
 begin
-  FName := aLocation.Name;
-  FFilename := aLocation.FileName;
-  FFolderName := aLocation.FolderName;
-  FNoteName := aLocation.NoteName;
-  FCaretPos := aLocation.CaretPos;
+  Name := aLocation.Name;
+  Filename := aLocation.FileName;
+  FolderName := aLocation.FolderName;
+  NoteName := aLocation.NoteName;
+  CaretPos := aLocation.CaretPos;
   SelLength := aLocation.SelLength;
-  FFolderID := aLocation.FolderID;
-  FNoteID := aLocation.NoteID;
-  FNoteGID := aLocation.NoteGID;
-  FMark :=  aLocation.FMark;
-  FBookmark09:= aLocation.FBookmark09;
-  FExternalDoc := aLocation.FExternalDoc;
-  FParams := aLocation.FParams;
-  FScrollPosInEditor:= aLocation.FScrollPosInEditor;
+  FolderID := aLocation.FolderID;
+  NNodeID := aLocation.NNodeID;
+  NNodeGID := aLocation.NNodeGID;
+  NEntryID := aLocation.NEntryID;
+  Mark :=  aLocation.Mark;
+  Bookmark09:= aLocation.Bookmark09;
+  ExternalDoc := aLocation.ExternalDoc;
+  Params := aLocation.Params;
+  ScrollPosInEditor:= aLocation.ScrollPosInEditor;
+
+  Folder:= aLocation.Folder;
+  NNode:= aLocation.NNode;
+  NEntry:= aLocation.NEntry;
+  Calculated:= aLocation.Calculated;
+
 end; // SetKNTLocation
 
 
@@ -275,58 +278,65 @@ begin
   Result:= false;
   if not assigned(Location) then Exit;
 
-  if FName <> Location.Name then Exit;
-  if FFolderID <> Location.FolderID then Exit;
-  if FNoteID <> Location.NoteID then Exit;
-  if FNoteGID <> Location.NoteGID then Exit;
+  if Name <> Location.Name then Exit;
+  if FolderID <> Location.FolderID then Exit;
+  if NNodeID <> Location.NNodeID then Exit;
+  if NNodeGID <> Location.NNodeGID then Exit;
+  if NEntryID <> Location.NEntryID then Exit;
   if considerOnlyKntLinks then begin
      if considerCaretPos then begin
-        if FCaretPos <> Location.CaretPos then Exit;
-        if FMark <> Location.Mark then Exit;
-        if FBookmark09 <> Location.FBookmark09 then Exit;
+        if CaretPos <> Location.CaretPos then Exit;
+        if Mark <> Location.Mark then Exit;
+        if Bookmark09 <> Location.Bookmark09 then Exit;
      end;
   end;
 
   if not considerOnlyKntLinks then begin
-     if FExternalDoc <> Location.ExternalDoc then Exit;
-     if FParams <> Location.Params then Exit;
+     if ExternalDoc <> Location.ExternalDoc then Exit;
+     if Params <> Location.Params then Exit;
   end;
 
   Result:= true;
 end;
 
 
+function TLocation.GetNode: PVirtualNode;
+begin
+   Result:= nil;
+   if NNode <> nil then
+      Result:= NNode.TVNode;
+end;
+
 function TLocation.GetDisplayText : string;
 var
   CPos : string;
 begin
   result := '';
-  if ( FCaretPos >= 0 ) then
-     CPos := Format( '/ %d', [FCaretPos] )
+  if (CaretPos >= 0) then
+     CPos := Format( '/ %d', [CaretPos] )
   else
      CPos := '';
 
-  if ( FNoteID > 0 ) then
-     result := Format('%s / %s %s', [FFolderName, FNoteName, CPos])
+  if ( NNodeID > 0 ) then
+     result := Format('%s / %s %s', [FolderName, NoteName, CPos])
   else
-     result := Format('%s %s',      [FFolderName, CPos] );
-end; // GetDisplayText
+     result := Format('%s %s',      [FolderName, CPos] );
+end;
 
 
 function TLocation.GetDisplayTextLong : string;
 begin
-  result := FFilename + ' / ' + GetDisplayText;
-end; // GetDisplayTextLong
+  result := Filename + ' / ' + GetDisplayText;
+end;
 
 
 
 Initialization
-  Location_List := TStringList.Create;
+  Location_List := TLocationList.Create;
   _KNTLocation := TLocation.Create; // used for jumps to KNT locations
 
-  Favorites_List := TStringList.Create;
-  Favorites_List.Sorted := true;
-  Favorites_List.Duplicates := dupIgnore;
+  Favorites_List := TLocationList.Create;
+
 
 Finalization
   ClearLocationList( Location_List );

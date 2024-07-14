@@ -32,7 +32,7 @@ uses
    Vcl.Controls,
    Vcl.Dialogs,
 
-   TreeNT,
+   VirtualTrees,
    RxRichEd,
    UWebBrowserWrapper,
    RichPrint,
@@ -48,7 +48,7 @@ uses
    kn_AlertMng,
    kn_KntFolder,
    kn_KntFile,
-   kn_KntNote,
+   knt.model.note,
    knt.ui.editor,
    kn_Cmd,
    kn_Main,
@@ -66,20 +66,23 @@ const
    procedure LoadRicheditLibrary;
    procedure AddSearchModes;
    procedure AddSearchScopes;
-   function NoteSupportsRegisteredImages (AdmitVmRTF: boolean= false): boolean;
-   function NoteSupportsImages: boolean;
 
    function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean; overload;
    function ActiveKeyNoteHelp(Node: integer): Boolean; overload;
    function ActiveKeyNoteHelp(Node_Marker: PChar): Boolean; overload;
    function ActiveKeyNoteHelp_FormHelp(Command: Word; Data: NativeInt): Boolean;
 
+   function ExtIsRTF( const aExt : string ) : boolean;
+   function ExtIsHTML( const aExt : string ) : boolean;
+   function ExtIsText( const aExt : string ) : boolean;
+   function ExtIsImage( const aExt : string ) : boolean;
+
+
    procedure Log_StoreTick (const Msg : string; const DbgLevel: integer= 0; DetailLevel: integer = 0); {$IFNDEF KNT_DEBUG} inline; {$ENDIF}
    procedure Log_Flush;                                                                                {$IFNDEF KNT_DEBUG} inline; {$ENDIF}
 
 var
 
-    KntFile : TKntFile; // main data structure
 
     RichEditLibraryPath : string;
 
@@ -243,31 +246,6 @@ resourcestring
 
 
 //-----------------
-
-function NoteSupportsRegisteredImages (AdmitVmRTF: boolean= false): boolean;
-var
-  Folder: TKntFolder;
-  treeNTNode: TTreeNTNode;
-begin
-   Result:= false;
-
-   Folder:= ActiveFolder;
-   if not assigned(Folder) then exit;
-   if Folder.PlainText then exit;
-
-   treeNTNode:= Folder.TV.Selected;
-   if not assigned(treeNTNode) then exit;
-
-   if (TKntNote(treeNTNode.Data).VirtualMode in [vmNone, vmKNTNode]) or (AdmitVmRTF and (TKntNote(treeNTNode.Data).VirtualMode = vmRTF)) then
-      Result:= true;
-end;
-
-
-function NoteSupportsImages: boolean;
-begin
-  Result:= NoteSupportsRegisteredImages (true);
-end;
-
 
 
 procedure AddSearchModes;
@@ -884,7 +862,7 @@ begin
       InitializeFolderTabProperties( DefaultTabproperties );
 
       InitializeChrome( DefaultTreeChrome );
-      InitializeTreeOptions( TreeOptions );
+      InitializeTreeOptions( KntTreeOptions );
       InitializeFolderTreeProperties( DefaultTreeProperties );
       //_OLD_NOTE_NAME := DEFAULT_NEW_NOTE_NAME;
 
@@ -997,6 +975,28 @@ begin
       ActiveKeyNoteHelp (Data)             // Node
    else
       ActiveKeyNoteHelp (PChar(Data));     // Node_Marker
+end;
+
+
+function ExtIsHTML( const aExt : string ) : boolean;
+begin
+  result := (aExt <> '') and ( pos( ansilowercase( aExt )+'.', KeyOptions.ExtHTML ) > 0 )
+end;
+
+function ExtIsText( const aExt : string ) : boolean;
+begin
+  result := (aExt <> '') and ( pos( ansilowercase( aExt )+'.', KeyOptions.ExtText ) > 0 )
+end;
+
+function ExtIsRTF( const aExt : string ) : boolean;
+begin
+  // result := ( CompareText( aExt, ext_RTF ) = 0  );
+  result := (aExt <> '') and ( pos( ansilowercase( aExt )+'.', KeyOptions.ExtRTF ) > 0 )
+end;
+
+function ExtIsImage( const aExt : string ) : boolean;
+begin
+  Result := (aExt <> '') and ( pos( AnsiUpperCase(aExt )+';', IMAGE_EXTENSIONS_RECOGNIZED ) > 0 )
 end;
 
 

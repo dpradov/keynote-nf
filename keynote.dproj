@@ -77,7 +77,7 @@
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_ExeOutput>..\Output\bin</DCC_ExeOutput>
         <DCC_DcuOutput>..\Output\Dcu</DCC_DcuOutput>
-        <DCC_UnitSearchPath>$(BDS)\source\ToolsAPI;.\3rd_party\DcpCrypt-1_3;.\3rd_party\tb97_178a\Source;.\3rd_party\RichPrint;.\3rd_party\unRxLib\units;.\3rd_party\Kryvich Delphi Localizer;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>$(BDS)\source\ToolsAPI;.\3rd_party\DcpCrypt-1_3;.\3rd_party\tb97_178a\Source;.\3rd_party\RichPrint;.\3rd_party\unRxLib\units;.\3rd_party\Kryvich Delphi Localizer;.\3rd_party\Virtual-TreeView\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <SanitizedProjectName>keynote</SanitizedProjectName>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;DUnitX.CommandLine;System.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -153,7 +153,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="3rd_party\treent\TreeNT.pas"/>
         <DCCReference Include="3rd_party\unRxLib\units\RxRichEd.pas"/>
         <DCCReference Include="3rd_party\unRxLib\units\RxPlacemnt.pas"/>
         <DCCReference Include="3rd_party\richprint\RichPrint.pas"/>
@@ -288,7 +287,6 @@
         <DCCReference Include="structure\kn_KntFolder_New.pas">
             <Form>Form_NewKntFolder</Form>
         </DCCReference>
-        <DCCReference Include="structure\kn_KntNote.pas"/>
         <DCCReference Include="structure\kn_NodeNum.pas">
             <Form>Form_NodeNum</Form>
         </DCCReference>
@@ -330,6 +328,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="model\knt.model.note.pas"/>
         <None Include="support\gf_base.inc">
             <ContainerId>File</ContainerId>
         </None>

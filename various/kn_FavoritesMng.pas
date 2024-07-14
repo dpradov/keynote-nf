@@ -49,7 +49,7 @@ uses
    gf_files,
    kn_Global,
    kn_Info,
-   kn_KntNote,
+   knt.model.note,
    kn_Main,
    kn_FavExtDlg,
    kn_LinksMng,
@@ -60,12 +60,12 @@ resourcestring
   STR_01 = 'Error loading Favorites: ';
   STR_02 = 'Rename favorite location';
   STR_03 = 'Enter new name:';
-  STR_04 = 'A location named "%s" already exists. Choose another name and try again.';
+  STR_04 = 'A favorite named "%s" already exists. Choose another name';
   STR_05 = 'Error renaming favorite location: ';
   STR_06 = 'Favorite KeyNote location';
   STR_07 = 'Enter location name:';
-  STR_08 = 'Location named "%s" already exists. Click OK to choose another name, or click Cancel to abort.';
-  STR_09 = 'Delete selected location "%s" from Favorites?';
+  STR_08 = ' or click Cancel to abort.';
+  STR_09 = 'Delete "%s" from Favorites?';
   STR_10 = 'Error deleting Favorite: ';
   STR_11 = 'Favorites list error: ';
 
@@ -82,15 +82,14 @@ end;
 procedure DisplayFavorites;
 var
   i, cnt, p : integer;
+  Loc: TLocation;
 begin
   cnt := Favorites_List.Count;
-  if ( cnt = 0 ) then
-  begin
+  if ( cnt = 0 ) then begin
     try
       LoadFavorites( FAV_FN );
     except
-      On E : Exception do
-      begin
+      On E : Exception do begin
         showmessage( STR_01 + E.Message );
         exit;
       end;
@@ -100,16 +99,13 @@ begin
       exit;
   end;
 
-  with Form_Main do
-  begin
+  with Form_Main do begin
     ListBox_ResFav.Items.BeginUpdate;
     try
-      for i := 0 to pred( cnt ) do
-      begin
-        p := ListBox_ResFav.AddItem(
-              Favorites_List[i],
-              cbUnchecked, GetFavoriteIconIndex( TLocation( Favorites_List.Objects[i] )));
-        TItemObject( ListBox_ResFav.Items.Objects[p] ).Data := Favorites_List.Objects[i];
+      for i := 0 to pred( cnt ) do begin
+         Loc:=  Favorites_List[i];
+         p := ListBox_ResFav.AddItem(Loc.Name, cbUnchecked, GetFavoriteIconIndex(Loc));
+         TItemObject( ListBox_ResFav.Items.Objects[p] ).Data := Favorites_List[i];
       end;
       if ( ListBox_ResFav.Items.Count > 0 ) then
         ListBox_ResFav.ItemIndex := 0;
@@ -118,6 +114,7 @@ begin
     end;
   end;
 end; // DisplayFavorites
+
 
 procedure JumpToFavorite;
 var
@@ -131,8 +128,7 @@ begin
   myFav := myFav.Clone;
   myFav.FileName:= AbsolutePath(myFav.FileName);
 
-  if myFav.ExternalDoc then
-  begin
+  if myFav.ExternalDoc then begin
     // .LNK shortcuts need special handling:
     if ( Comparetext( ExtractFileExt( myFav.FileName ), ext_Shortcut ) = 0 ) then
       exresult := ShellExecute( 0, nil, PChar( myFav.FileName ), PChar( myFav.Params ), nil, SW_NORMAL )
@@ -141,33 +137,27 @@ begin
 
     if ( exresult <= 32 ) then
        App.ErrorPopup(TranslateShellExecuteError(exresult));
-	  
+
     exit;
   end;
 
   if (( not Form_Main.HaveKntFolders( false, false )) or
-     ( CompareText( KntFile.FileName, myFav.FileName ) <> 0 )) then
-  begin
-    // Location to another file
-
-    if KeyOptions.ExtKNTLnkInNewInst or CtrlDown then begin
-       OpenLocationInOtherInstance(myFav);
-    end
-    else begin
-      // open a file in this instance (closing current knt file)
-      _Global_Location := myFav;
-      postmessage( Form_Main.Handle, WM_JumpToLocation, 0, 0 );
+     ( CompareText( ActiveFile.FileName, myFav.FileName ) <> 0 )) then begin
+                                                                        // Location to another file
+    if KeyOptions.ExtKNTLnkInNewInst or CtrlDown then
+       OpenLocationInOtherInstance(myFav)
+    else begin                                                          // open a file in this instance (closing current knt file)
+       _Global_Location := myFav;
+       PostMessage( Form_Main.Handle, WM_JumpToLocation, 0, 0 );
     end;
 
     exit;
   end
   else
-  begin
-    // location points to the file which is currently open
-    JumpToLocation( myFav );
-  end;
+    JumpToLocation( myFav );           // location points to the file which is currently open
 
-end; // JumpToFavorite
+end;
+
 
 procedure FavoriteEditProperties;
 var
@@ -187,12 +177,11 @@ begin
   case myFav.ExternalDoc of
     false : begin
 
-      if InputQuery( STR_02, STR_03, newname ) then
-      begin
+      if InputQuery( STR_02, STR_03, newname ) then begin
         newname := trim( newname );
         if (( newname = '' ) or ( AnsiCompareText( newname, myFav.Name ) = 0 )) then exit;
         if ( Form_Main.ListBox_ResFav.Items.IndexOf( newname ) >= 0 ) then begin
-		  App.ErrorPopup(Format(STR_04, [newname]));
+          App.ErrorPopup(Format(STR_04, [newname]));
           exit;
         end;
         myFav.Name := newname;
@@ -202,15 +191,13 @@ begin
     true : begin
       Form_FavExt := TForm_FavExt.Create( Form_Main );
       try
-        with Form_FavExt do
-        begin
+        with Form_FavExt do begin
           Edit_FN.Text := myFav.Filename;
           Edit_Params.Text := myFav.Params;
           Edit_Name.Text := myFav.Name;
         end;
 
-        if ( Form_FavExt.ShowModal = mrOK ) then
-        begin
+        if ( Form_FavExt.ShowModal = mrOK ) then begin
           myFav.Filename := NormalFN( Form_FavExt.Edit_FN.Text );
           if ( myFav.Filename = '' ) then exit;
           myFav.Params := Form_FavExt.Edit_Params.Text;
@@ -219,9 +206,8 @@ begin
             myFav.Name := ExtractFilename( myFav.Filename );
         end
         else
-        begin
           exit;
-        end;
+
       finally
         Form_FavExt.Free;
       end;
@@ -230,21 +216,15 @@ begin
 
   try
 
-      Favorites_List.Sorted := false;
-      try
-        Favorites_List[originalidx] := myFav.name;
-      finally
-        Favorites_List.Sorted := true;
-      end;
 
-      Form_Main.ListBox_ResFav.Items.Delete( originalidx );
-      originalidx := Form_Main.ListBox_ResFav.AddItem(
-              myFav.Name,
-              cbUnchecked, GetFavoriteIconIndex( myFav ));
-      TItemObject( Form_Main.ListBox_ResFav.Items.Objects[originalidx] ).Data := myFav;
-      Form_Main.ListBox_ResFav.ItemIndex := originalidx;
+     with Form_Main do begin
+       ListBox_ResFav.Items.Delete(originalidx);
+       originalidx := ListBox_ResFav.AddItem(myFav.Name, cbUnchecked, GetFavoriteIconIndex(myFav));
+       TItemObject(ListBox_ResFav.Items.Objects[originalidx]).Data := myFav;
+       ListBox_ResFav.ItemIndex := originalidx;
+     end;
 
-    SaveFavorites( FAV_FN );
+     SaveFavorites( FAV_FN );
 
   except
     on E : Exception do
@@ -256,102 +236,113 @@ begin
 end; // FavoriteEditProperties
 
 
+function GetIndexOfFavorite (Name: string): integer;
+var
+  i: integer;
+  F: TLocation;
+begin
+   for i := 0 to Favorites_List.Count-1 do begin
+      F:= Favorites_List[i];
+      if F.Name = Name then
+         exit(i);
+   end;
+   Result:= -1;
+end;
+
+
 procedure AddFavorite( const AsExternal : boolean );
 var
   i : integer;
   myFav : TLocation;
-  name : string;
-  myNote : TKntNote;
+  Name : string;
+  NNode : TNoteNode;
   Form_FavExt : TForm_FavExt;
-  extFilename, extParams : string;
-
+  ExternalFile, ExternalParams : string;
 
     function GetFavName( const AName : string ) : string;
     begin
       result := AName;
       if ( not InputQuery( STR_06, STR_07, result )) then
         result := '';
-    end; // GetFavName
+    end;
 
 begin
 
-  myNote := nil; // eliminate compiler warning
+  NNode := nil; // eliminate compiler warning
 
   if AsExternal then begin
 
     Form_FavExt := TForm_FavExt.Create( Form_Main );
     try
       if ( Form_FavExt.ShowModal = mrOK ) then begin
-        extFilename := NormalFN( Form_FavExt.Edit_FN.Text );
-        if ( extFilename = '' ) then exit;
-        extParams := Form_FavExt.Edit_Params.Text;
-        name := Form_FavExt.Edit_Name.Text;
-        if ( name = '' ) then
-          name := ExtractFilename( extFilename );
+         ExternalFile := NormalFN( Form_FavExt.Edit_FN.Text );
+         if ( ExternalFile = '' ) then exit;
+         ExternalParams := Form_FavExt.Edit_Params.Text;
+         Name := Form_FavExt.Edit_Name.Text;
+         if (Name = '') then
+            Name := ExtractFilename(ExternalFile);
       end
       else
         exit;
+
     finally
       Form_FavExt.Free;
     end;
-
   end
   else begin
     // adding a KNT location, so we must have an active note:
     if ( not Form_Main.HaveKntFolders( true, true )) then exit;
     if ( not assigned( ActiveFolder )) then exit;
 
-    myNote := ActiveNote;
-    if assigned( myNote ) then
-      name := myNote.Name
+    NNode := ActiveNNode;
+    if assigned( NNode ) then
+      Name := NNode.NoteName
     else
-      name := RemoveAccelChar( ActiveFolder.Name );
+      Name := RemoveAccelChar( ActiveFolder.Name );
 
     // confirm the name
-    name := GetFavName( name );
+    Name := GetFavName( Name );
   end;
 
   repeat
-    // check if the name already exists and prompt to re-enter
-    name := trim( name );
-    if ( name = '' ) then exit;
-    i := Favorites_List.IndexOf( name );
-    if ( i >= 0 ) then begin
-      case App.DoMessageBox(Format(STR_08, [name] ), mtError, [mbOK,mbCancel], 0 ) of
-        mrOK : name := GetFavName( name );
-        else
-          exit;
-      end;
-    end
-    else
-       break; // name is OK, so continue
+     // check if the name already exists and prompt to re-enter
+     Name := trim(Name);
+     if (Name = '') then exit;
+     i := GetIndexOfFavorite(Name);
+     if (i >= 0) then begin
+       case App.DoMessageBox(Format(STR_04 + STR_08, [Name] ), mtError, [mbOK,mbCancel], 0 ) of
+          mrOK : Name := GetFavName( Name );
+          else
+            exit;
+       end;
+     end
+     else
+        break; // name is OK, so continue
   until false;
 
 
   myFav := TLocation.Create;
   myFav.ExternalDoc := AsExternal;
 
-  myFav.Name := name;
+  myFav.Name := Name;
 
   if AsExternal then begin
-    myFav.FileName := extFilename;
-    myFav.Params := extParams;
+    myFav.FileName := ExternalFile;
+    myFav.Params := ExternalParams;
   end
   else begin
-    myFav.FileName := KntFile.FileName;
-    myFav.FolderName := RemoveAccelChar( ActiveFolder.Name );
+    myFav.FileName := ActiveFile.FileName;
     myFav.FolderID := ActiveFolder.ID;
-    if assigned( myNote ) then begin
-      myFav.NoteName := myNote.Name;
-      myFav.NoteID := myNote.ID;
+    myFav.FolderName := RemoveAccelChar( ActiveFolder.Name );
+    if assigned( NNode ) then begin
+       myFav.NNodeID := NNode.ID;
+       myFav.NoteName := NNode.NoteName;
     end;
     myFav.CaretPos := ActiveFolder.Editor.SelStart;
   end;
 
-  Favorites_List.AddObject( name, myFav );
-  i := Form_Main.ListBox_ResFav.AddItem(
-          name,
-          cbUnchecked, GetFavoriteIconIndex( myFav ));
+  Favorites_List.Add(myFav );
+  i := Form_Main.ListBox_ResFav.AddItem(Name, cbUnchecked, GetFavoriteIconIndex( myFav ));
   TItemObject( Form_Main.ListBox_ResFav.Items.Objects[i] ).Data := myFav;
 
   SaveFavorites( FAV_FN );
@@ -361,21 +352,30 @@ begin
   except
   end;
 
-end; // AddFavorite
+end;
+
 
 function GetFavoriteIconIndex( const myLocation : TLocation ) : integer;
 begin
   result := Form_Main.IMG_System.GetImageIndex( AbsolutePath(myLocation.Filename), true, true, [] );
-end; // GetFavoriteIconIndex
+end;
+
 
 function GetSelectedFavorite : TLocation;
+var
+  ItemIndex: integer;
+
 begin
   result := nil;
-  if ( not ( Form_Main.Pages_Res.Visible and Form_Main.ResTab_Favorites.TabVisible )) then exit;
-  if (( Form_Main.ListBox_ResFav.Items.Count = 0 ) or
-    ( Form_Main.ListBox_ResFav.ItemIndex < 0 )) then exit;
-  result := TLocation( TItemObject( Form_Main.ListBox_ResFav.Items.Objects[Form_Main.ListBox_ResFav.ItemIndex] ).Data );
-end; // GetSelectedFavorite
+  with Form_Main do begin
+     if not (Pages_Res.Visible and ResTab_Favorites.TabVisible) then exit;
+     ItemIndex:= ListBox_ResFav.ItemIndex;
+     if ((ListBox_ResFav.Items.Count = 0) or (ItemIndex < 0)) then exit;
+
+     result := TLocation(TItemObject(ListBox_ResFav.Items.Objects[ItemIndex]).Data);
+  end;
+end;
+
 
 procedure DeleteFavorite;
 var
@@ -391,31 +391,28 @@ begin
   if ( not assigned( myFav )) then exit;
   name := Form_Main.ListBox_ResFav.Items[i];
 
-  if ( messagedlg( Format(
-    STR_09,
-    [name] ), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
-  begin
+  if (messagedlg(Format(STR_09, [name] ), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK) then begin
     try
-      myFav.Free;
       Form_Main.ListBox_ResFav.Items.Delete( i );
-      if ( Form_Main.ListBox_ResFav.Items.Count > 0 ) then
-      begin
+      if ( Form_Main.ListBox_ResFav.Items.Count > 0 ) then begin
         if ( i > 0 ) then
           dec( i );
         Form_Main.ListBox_ResFav.ItemIndex := i;
       end;
-      i := Favorites_List.IndexOf( name );
-      if ( i >= 0 ) then
-      begin
-        Favorites_List.Delete( i );
+      i := GetIndexOfFavorite(name);
+      if ( i >= 0 ) then begin
+         Favorites_List.Delete( i );
+         myFav.Free;
       end;
       SaveFavorites( FAV_FN );
+
     except
       on E : Exception do
-	     App.ErrorPopup(E, STR_10);  
+	     App.ErrorPopup(E, STR_10);
     end;
   end;
-end; // DeleteFavorite
+end;
+
 
 procedure RefreshFavorites;
 begin
@@ -426,7 +423,7 @@ begin
       ClearLocationList( Favorites_List );
     except
       on E : Exception do begin
-	    App.ErrorPopup(E, STR_11);    
+   	    App.ErrorPopup(E, STR_11);
         exit;
       end;
     end;
@@ -434,6 +431,6 @@ begin
     Form_Main.ListBox_ResFav.Items.EndUpdate;
   end;
   DisplayFavorites;
-end; // RefreshFavorites
+end;
 
 end.

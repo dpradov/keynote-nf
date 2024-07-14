@@ -890,42 +890,6 @@ object Form_Main: TForm_Main
         AutomaticColor = clWindowText
         IsAutomatic = True
         OnClick = TB_ColorClick
-        Glyph.Data = {
-          42040000424D4204000000000000420000002800000020000000100000000100
-          1000030000000004000000000000000000000000000000000000007C0000E003
-          00001F000000F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EFF7FFF7FFF7FFF7FF75EF75EF75EFF7FFF7FFF7FFF7FFF7F
-          FF7FF75EF75E0F000F000F000F00F75EF75EF75E0F000F000F000F000F000F00
-          F75EF75EF75EEF3DEF3DEF3DEF3DF75EF75EF75EEF3DEF3DEF3DEF3DEF3DEF3D
-          F75EF75EF75EF75EEF3D0F00F75EF75EF75EF75EF75EEF3D0F000F00EF3DF75E
-          F75EF75EF75EF75EF75EEF3DFF7FFF7FF75EF75EF75EF75EEF3DEF3DFF7FF75E
-          F75EF75EF75EF75EF75E0F000F00F75EF75EF75EF75EEF3D0F000F00F75EF75E
-          F75EF75EF75EF75EF75EEF3DEF3DFF7FF75EF75EF75EF75EEF3DEF3DF75EF75E
-          F75EF75EF75EF75EF75EEF3D0F00F75EF75EF75EF75E0F000F00EF3DF75EF75E
-          F75EF75EF75EF75EF75EF75EEF3DFF7FFF7FFF7FFF7FEF3DEF3DFF7FF75EF75E
-          F75EF75EF75EF75EF75EF75E0F000F000F000F000F000F000F00F75EF75EF75E
-          F75EF75EF75EF75EF75EF75EEF3DEF3DEF3DEF3DEF3DEF3DEF3DF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EEF3D0F00F75EF75E0F000F00EF3DF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EEF3DFF7FFF7FEF3DEF3DFF7FF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75E0F000F00F75E0F000F00F75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EEF3DEF3DFF7FEF3DEF3DF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EEF3D0F000F000F00EF3DF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DEF3DFF7FF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75E0F000F000F00F75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DEF3DF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EEF3D0F00EF3DF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DFF7FF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75E0F00F75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EF75E
-          F75EF75EF75E}
         AutoBtnCaption = 'Default color'
         OtherBtnCaption = '&Other colors...'
         RegKey = 'General Frenetics\KeyNote\ColorBtn1'
@@ -947,42 +911,6 @@ object Form_Main: TForm_Main
         IsAutomatic = True
         OnClick = TB_HiliteClick
         GlyphType = gtBackground
-        Glyph.Data = {
-          42040000424D4204000000000000420000002800000020000000100000000100
-          1000030000000004000000000000000000000000000000000000007C0000E003
-          00001F000000F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75E0000F75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75E0000EF3D0000F75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EEF3DF75EFF7FF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75E0000EF3DEF3DEF3D0000F75EF75EF75E
-          EF3DF75EF75EF75EF75EF75EF75EF75EEF3DF75EF75EF75EEF3DF75EFF7FF75E
-          F75EFF7FF75EF75EF75EF75EF75E0000F75EF75EF75EEF3DEF3D0000F75EF75E
-          0F00EF3DF75EF75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EEF3DF75EFF7F
-          EF3DFF7FFF7FF75EF75EF75E0000FF7FF75EF75EF75EF75EEF3DEF3D0000F75E
-          0F000F00F75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EF75EF75EEF3DF75E
-          EF3DEF3DFF7FF75EF75E0000F75EFF7FFF7FF75EF75EF75EF75EEF3DEF3D0F00
-          0F000F00F75EF75EF75EEF3DF75EFF7FF75EF75EF75EF75EFF7FF75EF75EEF3D
-          EF3DEF3DFF7FF75EF75EF75E0000F75EFF7FFF7FF75E0000F75EF75EEF3D0F00
-          0F000F00F75EF75EF75EF75EEF3DF75EFF7FF75EF75EEF3DFF7FFF7FF75EEF3D
-          EF3DEF3DFF7FF75EF75EF75EF75E0000F75EFF7F00000F000000F75E0F000F00
-          0F000F00F75EF75EF75EF75EF75EEF3DF75EFF7FEF3DEF3DEF3DF75EEF3DEF3D
-          EF3DEF3DF75EF75EF75EF75EF75EF75E0000F75EFF7F0F00F75EEF3D0F000F00
-          0F00F75EF75EF75EF75EF75EF75EF75EEF3DFF7FFF7FEF3DFF7FF75EEF3DEF3D
-          EF3DF75EF75EF75EF75EF75EF75EF75E0F000000F75E0F00EF3D0000EF3DF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DF75EEF3DFF7FEF3DF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75E0F00F75E00000F000000EF3DF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EEF3DFF7FEF3DEF3DEF3DF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75E0F00F75EF75E0F00EF3DF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EFF7FEF3DF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EEF3D0F000F00EF3DF75EF75EF75EF75E
-          F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DF75EF75EF75EF75EF75E
-          F75EF75EF75E}
         AutoBtnCaption = 'No Highlight'
         OtherBtnCaption = '&Other colors...'
         RegKey = 'General Frenetics\KeyNote\ColorBtn2'
@@ -1047,7 +975,6 @@ object Form_Main: TForm_Main
     RemoveLastTab = True
     TabOrder = 1
     OnChange = PagesChange
-    OnDragDrop = PagesDragDrop
     OnDragOver = PagesDragOver
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
@@ -1106,7 +1033,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 24
         Height = 22
-        Hint = 'Apply or Remove Filter on folder'
         AllowAllUp = True
         GroupIndex = 2
         Glyph.Data = {00000000}
@@ -1414,8 +1340,6 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND'
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object FindAllResults: TRxRichEdit
             Left = 0
             Top = 0
@@ -1584,6 +1508,7 @@ object Form_Main: TForm_Main
             Font.Style = []
             ParentFont = False
             TabOrder = 5
+            OnClick = CB_ResFind_FilterClick
           end
         end
       end
@@ -1596,10 +1521,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object ResTab_Macro: TTab95Sheet
       HelpContext = 304
@@ -1608,10 +1529,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Dock_ResMacro: TDock97
         Left = 0
         Top = 0
@@ -1709,10 +1626,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ListBox_ResTpl: TGFXListBox
         Left = 0
         Top = 0
@@ -1743,10 +1656,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter_plugins: TSplitter
         Left = 0
         Top = 550
@@ -1853,11 +1762,13 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 9
-          Height = 13
+          Width = 296
+          Height = 47
           Align = alClient
           Caption = '...'
           WordWrap = True
+          ExplicitWidth = 9
+          ExplicitHeight = 13
         end
       end
     end
@@ -1868,10 +1779,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ListBox_ResFav: TGFXListBox
         Left = 0
         Top = 0
@@ -1906,6 +1813,11 @@ object Form_Main: TForm_Main
       Hint = 'Set or remove alarm on node'
       ImageIndex = 50
       OnExecute = actTVAlarmNodeExecute
+    end
+    object actTVAddNode_Parent: TAction
+      Caption = 'Add Parent'
+      Hint = 'Creates a node as parent of selected one and its next siblings'
+      OnExecute = actTVAddNode_ParentExecute
     end
     object actTVAddNode_Above: TAction
       Caption = 'Add &Above'
@@ -1967,13 +1879,13 @@ object Form_Main: TForm_Main
       Hint = 'Link a file on disk to selected node'
       OnExecute = actTVVirtualNodeExecute
     end
-    object actTVInsertMirrorNode: TAction
-      Caption = 'Insert &Mirror node'
+    object actTVInsertLinkedNode: TAction
+      Caption = 'Insert &Linked node'
       HelpContext = 383
       Hint = 
-        'Insert duplicate node as mirror node (virtual node linked to ano' +
-        'ther KeyNote node)'
-      OnExecute = actTVInsertMirrorNodeExecute
+        'Insert new node as linked node (share same note -content and nam' +
+        'e)'
+      OnExecute = actTVInsertLinkedNNodeExecute
     end
     object actTVMoveNodeUp: TAction
       Caption = '&Up'
@@ -2008,18 +1920,18 @@ object Form_Main: TForm_Main
       OnExecute = actTVCopySubtreeExecute
     end
     object actTVGraftSubtree: TAction
-      Caption = '&Paste Subtree Here'
+      Caption = '&Paste Subtree'
       Hint = 
         'Paste previously copied nodes at selected position (Ctrl+V, Shif' +
         't+Ins)'
       OnExecute = actTVPasteSubtreeExecute
     end
-    object actTVGraftSubtreeMirror: TAction
-      Caption = 'Paste Subtree Here as &Mirror'
+    object actTVGraftSubtreeLinked: TAction
+      Caption = 'Paste Subtree as &Linked nodes'
       Hint = 
-        'Paste previously copied nodes at selected position as mirror nod' +
+        'Paste previously copied nodes at selected position as linked nod' +
         'es'
-      OnExecute = actTVPasteSubtreeMirrorExecute
+      OnExecute = actTVPasteSubtreeLinkedExecute
     end
     object actTVEraseTreeMem: TAction
       Caption = '&Erase Memory'
@@ -2121,19 +2033,15 @@ object Form_Main: TForm_Main
       Hint = 'Refresh contents from original file on disk'
       OnExecute = actTVRefreshVirtualNodeExecute
     end
-    object actTVNavigateNonVirtualNote: TAction
-      Caption = 'Navigate to &Non Virtual'
+    object actTVNavigateNextLinkedNNode: TAction
+      Caption = 'Navigate to &Next Linked'
       HelpContext = 383
-      Hint = 
-        'Navigate to the non virtual node to wich this mirror node is lin' +
-        'ked'
-      OnExecute = actTVNavigateNonVirtualNoteExecute
+      Hint = 'Navigate to the next node linked to the same note'
+      OnExecute = actTVNavigateNextLinkedNNodeExecute
     end
     object actTVUnlinkVirtualNode: TAction
       Caption = '&Unlink Node'
-      Hint = 
-        'Unlink the virtual node from file on disk or non virtual node (m' +
-        'irror nodes)'
+      Hint = 'Unlink the virtual node from file on disk'
       OnExecute = actTVUnlinkVirtualNodeExecute
     end
     object actTVChildrenCheckbox: TAction
@@ -3315,6 +3223,9 @@ object Form_Main: TForm_Main
       Hint = 'Tree-related commands'
       object MMAddTreeNode_: TMenuItem
         Caption = '&Add Tree Node'
+        object AddParent1: TMenuItem
+          Action = actTVAddNode_Parent
+        end
         object MMTreeAddNode_Above: TMenuItem
           Action = actTVAddNode_Above
         end
@@ -8539,11 +8450,8 @@ object Form_Main: TForm_Main
     Images = IMG_Toolbar
     Left = 266
     Top = 130
-    object TVAlarmNode: TMenuItem
-      Action = actTVAlarmNode
-    end
-    object N114: TMenuItem
-      Caption = '-'
+    object TVAddParent: TMenuItem
+      Action = actTVAddNode_Parent
     end
     object TVInsertNode: TMenuItem
       Action = actTVAddNode_Above
@@ -8564,6 +8472,14 @@ object Form_Main: TForm_Main
     object N44: TMenuItem
       Caption = '-'
     end
+    object TVBoldNode: TMenuItem
+      Action = actTVBoldNode
+      ShortCut = 16450
+    end
+    object TVCheckNode: TMenuItem
+      Action = actTVCheckNode
+      ShortCut = 16576
+    end
     object TVChildrenCheckboxes_: TMenuItem
       Caption = 'Children Checkboxes'
       HelpContext = -2
@@ -8582,14 +8498,6 @@ object Form_Main: TForm_Main
       object TVShowNonFilteredChildren: TMenuItem
         Action = actTVShowNonFilteredChildren
       end
-    end
-    object TVCheckNode: TMenuItem
-      Action = actTVCheckNode
-      ShortCut = 16576
-    end
-    object TVBoldNode: TMenuItem
-      Action = actTVBoldNode
-      ShortCut = 16450
     end
     object TVNodeColor_: TMenuItem
       Caption = 'Co&lor / Reset'
@@ -8611,6 +8519,9 @@ object Form_Main: TForm_Main
     object TVSelectNodeImage: TMenuItem
       Action = actTVSelectNodeImage
     end
+    object TVAlarmNode: TMenuItem
+      Action = actTVAlarmNode
+    end
     object N80: TMenuItem
       Caption = '-'
     end
@@ -8624,20 +8535,20 @@ object Form_Main: TForm_Main
         Action = actTVRefreshVirtualNode
         ShortCut = 16466
       end
-      object N115: TMenuItem
-        Caption = '-'
-      end
-      object TVInsertMirrorNode: TMenuItem
-        Action = actTVInsertMirrorNode
-      end
-      object TVNavigateNonVirtualNote: TMenuItem
-        Action = actTVNavigateNonVirtualNote
-      end
       object N90: TMenuItem
         Caption = '-'
       end
       object TVUnlinkVirtualNode: TMenuItem
         Action = actTVUnlinkVirtualNode
+      end
+    end
+    object TVLinkedNode_: TMenuItem
+      Caption = 'Linked Node'
+      object TVInsertLinkedNode: TMenuItem
+        Action = actTVInsertLinkedNode
+      end
+      object TVNavigateNextLinkedNNode: TMenuItem
+        Action = actTVNavigateNextLinkedNNode
       end
     end
     object N30: TMenuItem
@@ -8679,8 +8590,9 @@ object Form_Main: TForm_Main
         Action = actTVGraftSubtree
         ShortCut = 16470
       end
-      object TVGraftSubtreeMirror: TMenuItem
-        Action = actTVGraftSubtreeMirror
+      object TVGraftSubtreeLinked: TMenuItem
+        Action = actTVGraftSubtreeLinked
+        ShortCut = 24662
       end
       object N56: TMenuItem
         Caption = '-'
@@ -8692,6 +8604,19 @@ object Form_Main: TForm_Main
     end
     object TVExport: TMenuItem
       Action = actTVExport
+    end
+    object TVSortNodes_: TMenuItem
+      Caption = '&Sort'
+      HelpContext = 313
+      Hint = 'Sort nodes'
+      object TVSortSubtree: TMenuItem
+        Action = actTVSortSubtree
+        ShortCut = 24661
+      end
+      object TVSortTree: TMenuItem
+        Action = actTVSortTree
+        ShortCut = 24659
+      end
     end
     object N40: TMenuItem
       Caption = '-'
@@ -8753,22 +8678,6 @@ object Form_Main: TForm_Main
       end
       object TVPasteNodeNameAsSel: TMenuItem
         Action = actTVPasteNodeNameAsSel
-      end
-    end
-    object N31: TMenuItem
-      Caption = '-'
-    end
-    object TVSortNodes_: TMenuItem
-      Caption = '&Sort'
-      HelpContext = 313
-      Hint = 'Sort nodes'
-      object TVSortSubtree: TMenuItem
-        Action = actTVSortSubtree
-        ShortCut = 24661
-      end
-      object TVSortTree: TMenuItem
-        Action = actTVSortTree
-        ShortCut = 24659
       end
     end
   end

@@ -34,12 +34,12 @@ uses
    Vcl.StdCtrls,
    Vcl.Clipbrd,
 
-   TreeNT,
+   VirtualTrees,
 
    kn_Info,
    kn_Const,
    kn_KntFolder,
-   kn_KntNote,
+   knt.model.note,
    kn_History,
    kn_LocationObj,
    knt.ui.editor
@@ -47,35 +47,35 @@ uses
 
 
    // Links related routines
-    procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; Simplified: Boolean= false; Note: TKntNote = nil);
+    procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; GetNames: Boolean= false; aNNode: TNoteNode = nil);
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean; Relative: boolean= false );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string; NumBookmark09: integer= 0);
-    function BuildKNTLocationText( const aLocation : TLocation) : string;
-    function BuildKNTLocationFromString( LocationStr : string ): TLocation;
+    function BuildKntURL( const aLocation : TLocation) : string;
+    function BuildLocationFromKntURL( KntURL : string): TLocation;
+    function GetTextURLFromKntLocation (Loc : TLocation; RelativePath: boolean = false): string;
     function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): AnsiString;
-    function BuildBookmark09FromString( LocationStr : AnsiString ): TLocation;
+    function BuildBookmark09FromString( KntURL : AnsiString ): TLocation;
     procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen; OpenInCurrentFile: boolean= false);
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
                               myURLAction: TURLAction = urlOpen;
                               OpenInCurrentFile: boolean= false;
                               ConsiderOffset: boolean = false ): boolean;
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
-    function SearchCaretPos (Editor: TKntRichEdit; myTreeNode: TTreeNTNode;
+    function SearchCaretPos (Editor: TKntRichEdit; myTreeNode: PVirtualNode;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true;
                              ContainsRegImages: boolean = true;
                              ConsiderOffset: boolean = false): integer;
-    function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+    function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: PVirtualNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
     procedure InsertURL(URLStr : string; TextURL : string; Editor: TKntRichEdit);
 
-    function PathOfKNTLink (myTreeNode: TTreeNTNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
+    function PathOfKntLink (myTreeNode: PVirtualNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                             forUseInFindResults: boolean = false): string;
-    procedure GetTreeNodeFromLocation (const Location: TLocation; var Folder: TKntFolder; var myTreeNode: TTreeNTNode; raiseExcept: boolean= true);
-
-    procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
+    procedure UpdateLocation (Loc: TLocation; RaiseExcept: boolean= true);
+    procedure UpdateLocationTarget (Loc: TLocation; RaiseExcept: boolean= true);
 
     // Navigation history
     procedure AddHistoryLocation( const aFolder : TKntFolder; const AddLocalMaintainingIndex: boolean;
@@ -86,7 +86,7 @@ uses
     function TypeURL (var URLText: string; var KNTlocation: boolean): TKntURL;
     function URLFileExists (var URL: string): boolean;
 
-    function DeleteBookmark09 (Location: TLocation): boolean;
+    function DeleteBookmark09 (Loc: TLocation): boolean;
 
 var
    _Executing_History_Jump : boolean;
@@ -120,7 +120,7 @@ resourcestring
   STR_01 = 'Folder ID not found: %d';
   STR_02 = 'Folder name not found: %s';
   STR_03 = 'Node ID not found: %d';
-  STR_03b = 'Note GID not found: %d';
+  STR_03b = 'Node GID not found: %d';
   STR_04 = 'Node name not found: %s';
   STR_05 = 'Select file to link to';
   STR_06 = 'Select file to insert';
@@ -174,7 +174,7 @@ procedure ClickOnURLImage(const URLstr: string; chrgURL: TCharRange; myURLAction
 //=========================================
 // PathOfKNTLink
 //=========================================
-function PathOfKNTLink (myTreeNode: TTreeNTNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
+function PathOfKntLink (myTreeNode: PVirtualNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                         forUseInFindResults: boolean = false): string;
 var
   path, pathInsertionPoint : string;
@@ -184,23 +184,23 @@ var
   PathTopToBottom: boolean;
 
 begin
-  PathTopToBottom:= TreeOptions.PathTopToBottom;
-  ShowFullPath:= TreeOptions.ShowFullPath;
+  PathTopToBottom:= KntTreeOptions.PathTopToBottom;
+  ShowFullPath:= KntTreeOptions.ShowFullPath;
   if forUseInFindResults then begin
-     ShowFullPath:= TreeOptions.ShowFullPathSearch;
+     ShowFullPath:= KntTreeOptions.ShowFullPathSearch;
      PathTopToBottom:= true;
   end;
 
-  if assigned(myTreeNode) then begin
+  if assigned(myTreeNode) and not (myTreeNode = myFolder.TV.RootNode) then begin
      if ShowFullPath then
-        path:= myFolder.TreeUI.GetNodePath( myTreeNode, TreeOptions.NodeDelimiter, PathTopToBottom ) // {N}
+        path:= myFolder.TreeUI.GetNodePath( myTreeNode, KntTreeOptions.NodeDelimiter, PathTopToBottom ) // {N}
      else
-        path:= myTreeNode.Text; // {N}
+        path:= myFolder.TreeUI.GetNNode(myTreeNode).NoteName; // {N}
 
      if PathTopToBottom then
-        path:= myFolder.Name + TreeOptions.NodeDelimiter + path
+        path:= myFolder.Name + KntTreeOptions.NodeDelimiter + path
      else
-        path:= path + TreeOptions.NodeDelimiter + myFolder.Name;
+        path:= path + KntTreeOptions.NodeDelimiter + myFolder.Name;
   end
   else
      path := myFolder.Name;
@@ -208,7 +208,7 @@ begin
 
   // Hide common part of the path (common ancestors), if RelativeKNTLink=True
   if RelativeKNTLink then begin
-     pathInsertionPoint:= PathOfKNTLink(GetCurrentTreeNode, ActiveFolder, -1, false, false);
+     pathInsertionPoint:= PathOfKntLink(GetCurrentTreeNode, ActiveFolder, -1, false, false);
 
      if path = pathInsertionPoint then
         path:= ''
@@ -217,14 +217,14 @@ begin
          n:= Length(path);
          m:= Length(pathInsertionPoint);
 
-         if TreeOptions.PathTopToBottom then begin
+         if KntTreeOptions.PathTopToBottom then begin
             pDelim:= 0;
             while (i < Min(n, m)) and (path[i] = pathInsertionPoint[i]) do begin
-               if path[i] = TreeOptions.NodeDelimiter then
+               if path[i] = KntTreeOptions.NodeDelimiter then
                   pDelim:= i;
                i:= i + 1;
             end;
-            if (i = m + 1) and (path[i] = TreeOptions.NodeDelimiter) then
+            if (i = m + 1) and (path[i] = KntTreeOptions.NodeDelimiter) then
                pDelim:= i;
             path:= Copy(path, pDelim+1, Length(path));
          end
@@ -233,12 +233,12 @@ begin
             j:= m;
             pDelim:= n+1;
             while (i >= 1) and (j >= 1) and (path[i] = pathInsertionPoint[j]) do begin
-               if path[i] = TreeOptions.NodeDelimiter then
+               if path[i] = KntTreeOptions.NodeDelimiter then
                   pDelim:= i;
                i:= i - 1;
                j:= j - 1;
             end;
-            if (j = 0) and (path[i] = TreeOptions.NodeDelimiter) then
+            if (j = 0) and (path[i] = KntTreeOptions.NodeDelimiter) then
                pDelim:= i;
             path:= Copy(path, 1, pDelim-1);
          end;
@@ -247,7 +247,7 @@ begin
   end;
 
 
-  if (position >= 0) and (ForceShowPosition or TreeOptions.CaretInKNTLinks or (path = '')) then begin
+  if (position >= 0) and (ForceShowPosition or KntTreeOptions.CaretInKNTLinks or (path = '')) then begin
      if path = '' then
         path:= 'Pos.'
      else
@@ -261,60 +261,91 @@ end; // PathOfKNTLink
 
 
 //=========================================
-// GetTreeNode
+// GetNNode
 //=========================================
-procedure GetTreeNodeFromLocation (const Location: TLocation; var Folder: TKntFolder; var myTreeNode: TTreeNTNode; RaiseExcept: boolean= true);
+
+procedure UpdateLocation (Loc: TLocation; RaiseExcept: boolean= true);
 var
-   Note: TKntNote;
-
+  Ok: boolean;
 begin
-   with Location do begin
-     // obtain FOLDER
-      Folder := nil;
-      myTreeNode := nil;
+   if not Loc.Calculated then
+      UpdateLocationTarget(Loc, RaiseExcept)
 
-      if NoteGID <> 0 then begin  // lfNew2 format
-         ActiveFile.GetNoteByGID(NoteGID, Note, Folder);
-         if (Note = nil) and RaiseExcept then
-            raise EInvalidLocation.Create(Format(STR_03b, [NoteGID]))
-      end
-      else
+   else begin
+      Ok:= false;
+
+      try
+         if assigned(Loc.NNode) then begin
+            if not ActiveFile.CheckNNode(Loc.NNode, Loc.Folder) then exit;
+            if not Loc.NNode.Note.IsValid (Loc.NEntry) then exit;
+         end
+         else begin
+            if not assigned(Loc.Folder) or not ActiveFile.IsValid(Loc.Folder) then exit;
+         end;
+         Ok:= True;
+
+      finally
+         if not Ok then
+            raise EInvalidLocation.Create(STR_11);
+      end;
+
+   end;
+
+end;
+
+
+procedure UpdateLocationTarget (Loc: TLocation; RaiseExcept: boolean= true);
+begin
+   with Loc do begin
+
+      Folder := nil;
+      NNode:= nil;
+      NEntry:= nil;
+      Calculated:= true;
+
+
+      if NNodeGID <> 0 then begin  // lfNew2 format
+         ActiveFile.GetNNodeByGID(NNodeGID, NNode, Folder);
+         if (NNode = nil) and RaiseExcept then
+            raise EInvalidLocation.Create(Format(STR_03b, [NNodeGID]))
+         else begin
+            NEntry:= NNode.Note.Entries[0];        // %%%
+            exit;
+         end;
+      end;
+
+
       if (FolderID <> 0) then begin // lfNew format
-         Folder := KntFile.GetFolderByID(FolderID);
+         Folder := ActiveFile.GetFolderByID(FolderID);
          if (Folder = nil) and RaiseExcept then
             raise EInvalidLocation.Create(Format(STR_01, [FolderID]));
       end
       else begin                    // lfOld format
-         Folder := KntFile.GetFolderByName( FolderName );
+         Folder := ActiveFile.GetFolderByName( FolderName );
          if (Folder = nil) and RaiseExcept then
             raise EInvalidLocation.Create(Format( STR_02, [FolderName] ));
       end;
 
-      if (Folder=nil) then exit;
+      if (Folder = nil) then exit;
 
+      // obtain NNODE
 
-      // obtain NODE
-
-      if NoteGID <> 0 then begin
-         myTreeNode := Folder.GetTreeNodeByGID(NoteGID);
-         if (myTreeNode = nil) and RaiseExcept  then
-            raise EInvalidLocation.Create(Format( STR_03b, [NoteGID] ));
-      end
-      else
-      if (NoteID > 0) or (NoteName <> '') then begin   // If NodeID <= 0 and NodeName = '' -> Node will be ignored
-         if (NoteID <> 0) then begin    // lfNew2 or lfNew format
-            myTreeNode := Folder.GetTreeNodeByID(NoteID);
-            if (myTreeNode = nil) and RaiseExcept then
-               raise EInvalidLocation.Create(Format( STR_03, [NoteID] ));
+      if (NNodeID > 0) or (NoteName <> '') then begin   // If NodeID <= 0 and NodeName = '' -> Node will be ignored
+         if (NNodeID <> 0) then begin    // lfNew2 or lfNew format
+            NNode:= Folder.GetNNodeByID(NNodeID);
+            if (NNode = nil) and RaiseExcept then
+               raise EInvalidLocation.Create(Format( STR_03, [NNodeID] ));
          end
          else begin
-            myTreeNode := Folder.TV.Items.FindNode( [ffText], NoteName, nil );
-            if (myTreeNode = nil) and RaiseExcept  then
+            NNode:= Folder.GetNNodeByNoteName(NoteName);
+            if (NNode = nil) and RaiseExcept  then
                raise EInvalidLocation.Create(Format( STR_04, [NoteName] ));
          end;
-       end;
+         NEntry:= NNode.Note.Entries[0];        // %%%
+      end;
    end;
 end;
+
 
 
 //----------------------------------------
@@ -512,7 +543,7 @@ end; // InsertFileOrLink
 //===============================================================
 // GetKNTLocation
 //===============================================================
-procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; Simplified: Boolean= false; Note: TKntNote = nil);
+procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; GetNames: Boolean= false; aNNode: TNoteNode = nil);
 begin
 {$IFDEF DEBUG_HISTORY}
    Simplified:= false;
@@ -523,28 +554,34 @@ begin
 
    if not assigned(aFolder) then exit;
 
-   if Note = nil then
-      Note:= aFolder.SelectedNote;
+   if aNNode = nil then
+      aNNode:= aFolder.FocusedNNode;
+
+   Location.NNode:= aNNode;
+   Location.Folder:= aFolder;
+
    with Location do begin
-      if not Simplified then begin
-         FileName := normalFN( TKntFile(aFolder.KntFile).FileName );
-         FolderName := aFolder.Name;
-      end;
       FolderID := aFolder.ID;
       NoteName := '';
-      NoteID := 0;
-      NoteGID:= 0;
-      if Note <> nil then begin
-         NoteID := Note.ID;
-         NoteGID:= Note.GID;
-         if not Simplified then
-            NoteName := Note.Name;
+      NNodeID := 0;
+      NNodeGID:= 0;
+      if aNNode <> nil then begin
+         NNodeID := NNode.ID;
+         NNodeGID:= NNode.GID;
+         NEntry:= aNNode.Note.Entries[0];       // %%%
       end;
       CaretPos := aFolder.Editor.SelStart;
       SelLength := aFolder.Editor.SelLength;
       Mark := 0;
-   end;
 
+      if GetNames then begin
+         FileName := normalFN( TKntFile(aFolder.KntFile).FileName );
+         FolderName := aFolder.Name;
+         if NNode <> nil then
+            NoteName := NNode.NoteName;
+      end;
+      Calculated:= true;
+   end;
 end;
 
 
@@ -643,7 +680,7 @@ end;
 procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean; TextURL: string; NumBookmark09: integer= 0);
 var
    Folder: TKntFolder;
-   TreeNode: TTreeNTNode;
+   TreeNode: PVirtualNode;
    TargetMarker: integer;
    str, strTargetMarker: string;
    RTFMarker: AnsiString;
@@ -701,34 +738,27 @@ begin
     if not App.CheckActiveEditorNotReadOnly then exit;
 
     if aLocation.Bookmark09 then exit;
-    if (aLocation.NoteGID = 0) and (aLocation.FolderID = 0) and (aLocation.FolderName = '') then begin
+    if (aLocation.NNodeGID = 0) and (aLocation.FolderID = 0) then begin
       showmessage( STR_08 );
       exit;
     end;
 
     if TextURL = '' then
-       if KntFile.FileName = aLocation.FileName then begin
-           GetTreeNodeFromLocation (aLocation, Folder, TreeNode);
-           TextURL:= PathOfKNTLink(TreeNode, Folder, aLocation.CaretPos, false, assigned(Editor.NoteObj) and TreeOptions.RelativeKNTLinks);
-       end
-       else
-          TextURL:= Format('%s: %s/%s %d', [ExtractFileName(aLocation.FileName),
-                                                aLocation.FolderName, aLocation.NoteName,
-                                                aLocation.CaretPos]);
+       TextURL:= GetTextURLFromKntLocation (aLocation, assigned(Editor.NNodeObj) and KntTreeOptions.RelativeKNTLinks);
 
-    InsertLink(BuildKNTLocationText(aLocation),  TextURL, false, Editor);
+    InsertLink(BuildKntURL(aLocation),  TextURL, false, Editor);
     if aLocation.Mark <> 0 then
        strTargetMarker:= Format(STR_31, [aLocation.Mark]);
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_09 + strTargetMarker;
   end
   else begin
     // mark caret position as TLocation
-    GetKNTLocation (ActiveFolder, aLocation);
+    GetKNTLocation (ActiveFolder, aLocation, true);
 
     // If we are pointing to the start of a node or a folder (CaretPos = 0), we will not create any new markers. We will always aim for that position 0.
     strTargetMarker:= '';
 
-    if (aLocation.CaretPos <> 0) and assigned(Editor) and (not Editor.PlainText) and (assigned(Editor.NoteObj)) then begin
+    if (aLocation.CaretPos <> 0) and assigned(Editor) and (not Editor.PlainText) and (assigned(Editor.NNodeObj)) then begin
         // Allow the mark (hidden) although Folder is ReadOnly
       if NumBookmark09 <= 0 then
          TargetMarker:= GetActualTargetMarker(Editor);             // If a marker already exists at that position, we will use it
@@ -760,38 +790,28 @@ end; // InsertOrMarkKNTLink
 
 
 //===============================================================
-// BuildKNTLocationText
+// BuildKNTURL
 //===============================================================
-function BuildKNTLocationText( const aLocation : TLocation) : string;
+function BuildKntURL( const aLocation : TLocation) : string;
 var
   LocationString : string;
   FolderID_WithSEP, NodeId, LocationMark: string;
 begin
-  if ( aLocation.FileName = normalFN( KntFile.FileName )) then
+  if ( aLocation.FileName = normalFN( ActiveFile.FileName )) then
      LocationString := ''
   else
      LocationString := FileNameToURL( aLocation.FileName );
 
-    // [x] this does not handle files on another computer, i.e.
-    // we cannot do file://computername/pathname/file.knt
-
-    if (RichEditVersion >= 4) then begin
-        if aLocation.NoteGID <> 0 then begin           // New created links will use newer format, with GIDs: file:///"NoteGID|...
-           LocationMark:= KNTLOCATION_MARK_NEW2;
-           NodeId:= IntToStr(aLocation.NoteGID);
-           FolderID_WithSEP:= '';
-        end
-        else begin
-           LocationMark:= KNTLOCATION_MARK_NEW;
-           FolderID_WithSEP:= IntToStr( aLocation.FolderID ) + KNTLINK_SEPARATOR;
-           NodeId:= IntToStr( aLocation.NoteID );
-        end;
-    end
-    else begin
-        LocationMark:= KNTLOCATION_MARK_OLD;
-        FolderID_WithSEP:= FileNameToURL( aLocation.FolderName )  + KNTLINK_SEPARATOR;
-        NodeId:= FileNameToURL( aLocation.NoteName );
-    end;
+     if aLocation.NNodeGID <> 0 then begin           // New created links will use newer format, with GIDs: file:///"NoteGID|...
+        LocationMark:= KNTLOCATION_MARK_NEW2;
+        NodeId:= IntToStr(aLocation.NNodeGID);
+        FolderID_WithSEP:= '';
+     end
+     else begin
+        LocationMark:= KNTLOCATION_MARK_NEW;
+        FolderID_WithSEP:= IntToStr( aLocation.FolderID ) + KNTLINK_SEPARATOR;
+        NodeId:= IntToStr( aLocation.NNodeID );
+     end;
 
     LocationString := 'file:///' + LocationString + LocationMark +
       FolderID_WithSEP +
@@ -803,23 +823,20 @@ begin
        LocationString := LocationString + KNTLINK_SEPARATOR + IntToStr( aLocation.Mark);
 
   result := LocationString;
-end; // BuildKNTLocationText
-
+end;
 
 
 //---------------------------------------------------------------
-// BuildKNTLocationFromString
+// BuildLocationFromKntURL
 //---------------------------------------------------------------
-function BuildKNTLocationFromString( LocationStr : string ): TLocation;
+
+function BuildLocationFromKntURL( KntURL : string): TLocation;
 var
-  p, pold, pnew, pnew2, pMin : integer;
-  Location : TLocation;
+  p, pMin: integer;
   FormatLink: TKntLinkFormat;
-  origLocationStr : string;
-  Folder: TKntFolder;
-  Note: TKntNote;
-  myTreeNode: TTreeNTNode;
+  Bak_KntURL : string;
   str: string;
+
 begin
 
   // Handles links that point to a "KNT location" rather than normal file:// URLs.
@@ -828,154 +845,126 @@ begin
   // the last recent style link:  file:///*filename.knt...
   // the newer style link:        file:///<filename.knt...
 
+  Result:= TLocation.Create;
+  with Result do begin
+
+    Calculated:= false;
+
     p := 0;
-    origLocationStr := LocationStr;
+    Bak_KntURL := KntURL;
 
-    Location := TLocation.Create;
+    KntURL := StripFileURLPrefix( KntURL );
 
-    LocationStr := StripFileURLPrefix( LocationStr );
-
-    // see which marker occurs FIRST
+     // see which marker occurs FIRST
     // (both markers may occur, because '?', '*' and '<' may occur within folder or node names
 
-    FormatLink:= lfNone;
-    pMin:= 99999;
-    p:= pos( KNTLOCATION_MARK_OLD, LocationStr );
-    if p > 0 then begin
-       pMin:= p;
-       FormatLink:= lfOld;
-    end;
-    p:= pos( KNTLOCATION_MARK_NEW, LocationStr );
-    if (p > 0) and (p < pMin) then begin
-       pMin:= p;
-       FormatLink:= lfNew;
-    end;
-    p:= pos( KNTLOCATION_MARK_NEW2, LocationStr );
-    if (p > 0) and (p < pMin) then begin
-       pMin:= p;
-       FormatLink:= lfNew2;
-    end;
+     FormatLink:= lfNone;
+     pMin:= 99999;
+     p:= pos( KNTLOCATION_MARK_OLD, KntURL );
+     if p > 0 then begin
+        pMin:= p;
+        FormatLink:= lfOld;
+     end;
+     p:= pos( KNTLOCATION_MARK_NEW, KntURL );
+     if (p > 0) and (p < pMin) then begin
+        pMin:= p;
+        FormatLink:= lfNew;
+     end;
+     p:= pos( KNTLOCATION_MARK_NEW2, KntURL );
+     if (p > 0) and (p < pMin) then begin
+        pMin:= p;
+        FormatLink:= lfNew2;
+     end;
 
-    // extract filename
-    case pMin of
-      0 : raise EInvalidLocation.Create( origLocationStr );
-      1 : Location.FileName := ''; // same file as current
-      else begin
-        Location.FileName := HTTPDecode( copy( LocationStr, 1, pMin-1));
-        if ( Location.FileName = KntFile.FileName ) then
-          Location.FileName := '';
-      end;
-    end;
-    delete( LocationStr, 1, pMin ); // delete filename and ?, * or < marker
+     // extract filename
+     case pMin of
+       0 : raise EInvalidLocation.Create( Bak_KntURL );
+       1 : FileName := ''; // same file as current
+       else begin
+         FileName := HTTPDecode( copy( KntURL, 1, pMin-1));
+         if (FileName = ActiveFile.FileName ) then
+           FileName := '';
+       end;
+     end;
+     delete( KntURL, 1, pMin ); // delete filename and ?, * or < marker
 
 
-    if FormatLink <> lfNew2 then begin
-       // extract folder name or ID
-       p := pos( KNTLINK_SEPARATOR, LocationStr );
-       if p= 1 then
-          raise EInvalidLocation.Create( origLocationStr );
-       if p= 0 then
+     if FormatLink <> lfNew2 then begin
+        // extract folder name or ID
+        p := pos( KNTLINK_SEPARATOR, KntURL );
+        if p= 1 then
+           raise EInvalidLocation.Create( Bak_KntURL );
+        if p= 0 then
           p:= 999;
 
-       str:= copy(LocationStr, 1, p-1);
-       if FormatLink = lfNew then
-          Location.FolderID := StrToUInt(str)
-       else
-          Location.FolderName := HTTPDecode(str);
-       delete( LocationStr, 1, p );
+        str:= copy(KntURL, 1, p-1);
+        if FormatLink = lfNew then
+           FolderID := StrToUInt(str)
+        else
+           FolderName := HTTPDecode(str);
+       delete( KntURL, 1, p );
 
-       if Location.FolderID <> 0 then
-          Folder := ActiveFile.GetFolderByID (Location.FolderID)
-       else
-          Folder := ActiveFile.GetFolderByName (Location.FolderName);
+        if FolderID <> 0 then
+           Folder := ActiveFile.GetFolderByID (FolderID)
+        else begin
+           Folder := ActiveFile.GetFolderByName (FolderName);
+           if assigned(Folder) then
+              FolderID:= Folder.ID;
+        end;
+     end;
 
-       if assigned(Folder) then begin
-          Location.FolderID:= Folder.ID;
-          Location.FolderName:= Folder.Name;
-       end;
-    end;
+     p := pos( KNTLINK_SEPARATOR, KntURL );
+     if p= 1 then begin
+        NNodeID := 0;
+        NNodeGID := 0;
+     end
+     else begin
+        if p= 0 then
+           p:= 999;
+        str:= copy(KntURL, 1, p-1);
+        case FormatLink of
+           lfOld:  NoteName := HTTPDecode(str);
+           lfNew:  NNodeID:=  StrToUIntDef(str, 0);
+           lfNew2: NNodeGID:= StrToUIntDef(str, 0);
+        end;
+     end;
+     delete(KntURL, 1, p);
 
-    p := pos( KNTLINK_SEPARATOR, LocationStr );
-    if p= 1 then begin
-       Location.NoteName := '';
-       Location.NoteID := 0;
-       Location.NoteGID := 0;
-    end
-    else begin
-       if p= 0 then
-          p:= 999;
-       str:= copy(LocationStr, 1, p-1);
-       case FormatLink of
-          lfOld:  Location.NoteName := HTTPDecode(str);
-          lfNew:  Location.NoteID:=  StrToUIntDef(str, 0);
-          lfNew2: Location.NoteGID:= StrToUIntDef(str, 0);
-       end;
-    end;
-    delete(LocationStr, 1, p);
-
-    myTreeNode:= nil;
-    if assigned(Folder) then begin
-       if (Location.NoteID > 0) then
-          myTreeNode := Folder.GetTreeNodeByID( Location.NoteID )
-       else if Location.NoteName <> '' then
-          myTreeNode:= Folder.TV.Items.FindNode( [ffText], Location.NoteName, nil );
-
-       if assigned(myTreeNode) then begin
-          Note:= TKntNote(myTreeNode.Data);
-          if assigned(Note) then begin
-             Location.NoteID:= Note.ID;
-             Location.NoteGID:= Note.GID;
-             Location.FolderName:= Note.Name;
-          end;
-       end;
-    end
-    else
-    if (Location.NoteGID > 0) then begin
-       ActiveFile.GetNoteByGID(Location.NoteGID, Note, Folder);
-       if Note <> nil then begin
-          Location.NoteID:= Note.ID;
-          Location.FolderName:= Folder.Name;
-       end;
-    end;
-
-
-    if (LocationStr <> '') then begin
-      p := pos( KNTLINK_SEPARATOR, LocationStr );
-      if p <= 0 then
+     if (KntURL <> '') then begin
+       p := pos( KNTLINK_SEPARATOR, KntURL );
+       if p <= 0 then
          p:= 99;
 
-      Location.CaretPos := StrToIntDef(copy(LocationStr, 1, p-1), 0);
-      delete( LocationStr, 1, p );
-    end;
+       CaretPos := StrToIntDef(copy(KntURL, 1, p-1), 0);
+       delete( KntURL, 1, p );
+     end;
 
-    if (LocationStr <> '') then begin
-      p := pos( KNTLINK_SEPARATOR, LocationStr );
-      Location.SelLength := 0;
-      if (p > 0) then begin                              // selLenght|mark
-         try
-           Location.SelLength := StrToInt(copy(LocationStr, 1, pred(p)));
-         except
-         end;
-         delete(LocationStr, 1, p);
-         if (LocationStr <> '') then
-            Location.Mark := StrToIntDef(LocationStr, 0);
-      end
-      else                                               // selLength
-         Location.SelLength := StrToIntDef(LocationStr, 0);
-    end;
+     if (KntURL <> '') then begin
+       p := pos( KNTLINK_SEPARATOR, KntURL );
+       SelLength := 0;
+       if (p > 0) then begin                              // selLenght|mark
+          try
+            SelLength := StrToInt(copy(KntURL, 1, pred(p)));
+          except
+          end;
+          delete(KntURL, 1, p);
+          if (KntURL <> '') then
+             Mark := StrToIntDef(KntURL, 0);
+       end
+       else                                               // selLength
+          SelLength := StrToIntDef(KntURL, 0);
+     end;
+  end;
 
-
-    Result:= Location;
-
-end; // BuildKNTLocationFromString
+end;
 
 
-function BuildBookmark09FromString( LocationStr : AnsiString ): TLocation;
+function BuildBookmark09FromString( KntURL : AnsiString ): TLocation;
 var
-  Strs: TStrings;
-  s: AnsiString;
-  Format: TKntLinkFormat;
-  L, i: integer;
+   Strs: TStrings;
+   s: AnsiString;
+   Format: TKntLinkFormat;
+   L, i: integer;
 begin
    // file:///*FolderID|NodeID|CursorPosition|SelectionLength|MarkID
    // Ex: file:///*8|2|4|0|1
@@ -985,14 +974,14 @@ begin
 
    Result:= nil;
    L:= Length('file:///');
-   if (Length(LocationStr) <= L + 2) or (Pos('file:///', LocationStr) <> 1) then exit;
+   if (Length(KntURL) <= L + 2) or (Pos('file:///', KntURL) <> 1) then exit;
 
    Format:= lfNone;
 
-   if LocationStr[L+1] = KNTLOCATION_MARK_NEW2 then
+   if KntURL[L+1] = KNTLOCATION_MARK_NEW2 then
       Format:= lfNew2
    else
-   if LocationStr[L+1] = KNTLOCATION_MARK_NEW then
+   if KntURL[L+1] = KNTLOCATION_MARK_NEW then
       Format:= lfNew
    else
       exit;
@@ -1000,23 +989,23 @@ begin
    Strs:= TStringList.Create;
    Result:= TLocation.Create;
    try
-      try
-         s:= Copy(LocationStr, L+2);
+     try
+        s:= Copy(KntURL, L+2);
          SplitString(Strs, s, '|', false);
          i:= 0;
          if Format = lfNew then begin
             Result.FolderID:= StrToUInt(Strs[0]);
-            Result.NoteID:= StrToUInt(Strs[1]);
+            Result.NNodeID:= StrToUInt(Strs[1]);
          end
          else begin
-            Result.NoteGID:= StrToUInt(Strs[0]);
+           Result.NNodeGID:= StrToUInt(Strs[0]);
             i:= 1;
          end;
 
          with Result do begin
              Bookmark09:= true;
              CaretPos:= StrToInt(Strs[2-i]);
-             SelLength:= StrToInt(Strs[3-i]);
+            SelLength:= StrToInt(Strs[3-i]);
              Mark:= StrToInt(Strs[4-i]);
          end;
 
@@ -1025,52 +1014,83 @@ begin
 
    finally
       Strs.Free;
+  end;
+
+end;
+
+
+function GetTextURLFromKntURL (KntURL : string; RelativePath: boolean = false): string;
+var
+  Loc: TLocation;
+
+begin
+  Loc:= BuildLocationFromKntURL(KntURL);
+  try
+    Result:= GetTextURLFromKntLocation (Loc, RelativePath);
+
+  finally
+    if Loc <> nil then
+       Loc.Free;
+  end;
+end;
+
+
+function GetTextURLFromKntLocation (Loc : TLocation; RelativePath: boolean = false): string;
+var
+  FN: string;
+
+begin
+   with Loc do begin
+
+       if (ActiveFile.FileName = FileName) or (FileName = '') then begin
+          UpdateLocation(Loc, false);
+          if NNode = nil then
+             Result:= UpperCase(STR_14)
+          else
+             Result:= PathOfKNTLink(NNode.TVNode, Folder, CaretPos, false, RelativePath);
+      end
+      else begin
+         FN:= ExtractFileName(FileName);
+         if NoteName <> '' then
+            Result:= Format('%s: ?%s/%s', [FN, FolderName, NoteName])
+         else begin
+            if NNodeGID > 0 then
+               Result:= Format('%s: <%d', [FN, NNodeGID])
+            else
+               Result:= Format('%s: *%d|%d', [FN, FolderID, NNodeID]);
+         end;
+
+         Result:= Result + Format('|%d|%d|%d', [CaretPos, SelLength, Mark]);
+      end;
+
    end;
 
 end;
 
-//===============================================================
-// NavigateToTreeNode
-//===============================================================
-procedure NavigateToTreeNode(myTreeNode: TTreeNTNode);
-var
-  myFolder: TKntFolder;
-begin
-    if assigned(myTreeNode) then begin
-        myFolder:= ActiveFile.GetFolderByTreeNode(myTreeNode);
-        if (myFolder <> ActiveFolder) then
-           App.ActivateFolder(myFolder);
 
-        if assigned( myTreeNode ) then begin
-           myTreeNode.MakeVisible;
-           myFolder.TV.Selected := myTreeNode;
-        end;
-    end;
-end;
-
-
-function GetPositionOffset (myFolder: TKntFolder; myTreeNode: TTreeNTNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function GetPositionOffset (myFolder: TKntFolder; myTreeNode: PVirtualNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
   Stream: TMemoryStream;
   imLinkTextPlain: String;
   Offset: integer;
-  RtfModified: boolean;
+  Modified: boolean;
+  NNode: TNoteNode;
+  NEntry: TNoteEntry;
 begin
    Offset:= 0;
    if (CaretPosition < 0) and (Pos_ImLinkTextPlain < 0) then exit(0);
 
    Stream:= nil;
 
-   if (ImageMng.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+   if myFolder.Editor.SupportsRegisteredImages then begin
      imLinkTextPlain:= '';
       if assigned(myTreeNode) then begin
-          if assigned( myTreeNode.Data ) then begin
-             Stream:= TKntNote( myTreeNode.Data ).Stream;
-             imLinkTextPlain := TKntNote( myTreeNode.Data ).NoteTextPlain;
-             RtfModified := TKntNote( myTreeNode.Data ).RTFModified;
-          end;
+          NNode:= myFolder.TreeUI.GetNNode(myTreeNode);
+          NEntry:= NNode.Note.Entries[0];                              // %%%
+          Stream:= NEntry.Stream;
+          imLinkTextPlain := NEntry.TextPlain;
+          Modified := NEntry.Modified;
       end;
-
    end;
 
    if Stream = nil then exit(0);
@@ -1090,16 +1110,16 @@ begin
    // See notes in ImagesManager.GetPositionOffset
 
    if CaretPosition >= 0 then
-      Offset:= ImageMng.GetPositionOffset_FromEditorTP (Stream, CaretPosition, imLinkTextPlain, RTFModified, ForceCalc)
+      Offset:= ImageMng.GetPositionOffset_FromEditorTP (Stream, CaretPosition, imLinkTextPlain, Modified, ForceCalc)
    else
-      Offset:= ImageMng.GetPositionOffset_FromImLinkTP (Stream, Pos_ImLinkTextPlain, imLinkTextPlain, RtfModified, ForceCalc);
+      Offset:= ImageMng.GetPositionOffset_FromImLinkTP (Stream, Pos_ImLinkTextPlain, imLinkTextPlain, Modified, ForceCalc);
 
 
    Result:= Offset;
 end;
 
 
-function SearchCaretPos (Editor: TKntRichEdit; myTreeNode: TTreeNTNode;
+function SearchCaretPos (Editor: TKntRichEdit; myTreeNode: PVirtualNode;
                          CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                          ScrollPosInEditor: TPoint;
                          AdjustVisiblePosition: boolean = true;
@@ -1146,7 +1166,7 @@ begin
   Result:= Offset;
 end;
 
-function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: TTreeNTNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: PVirtualNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
    Offset: integer;
 begin
@@ -1159,11 +1179,8 @@ end;
 // DeleteBookmark9
 //===============================================================
 
-function DeleteBookmark09 (Location: TLocation): boolean;
+function DeleteBookmark09 (Loc: TLocation): boolean;
 var
-  myFolder : TKntFolder;
-  myTreeNode : TTreeNTNode;
-  myNote: TKntNote;
   p, SS, SL, selLen: integer;
   TargetMark: string;
   EditorVisible: boolean;
@@ -1172,30 +1189,31 @@ var
   RTFBookmark: AnsiString;
   NBytes: integer;
   Str: AnsiString;
+  Editor: TKntRichEdit;
 
 begin
    Result:= false;
-   if not Location.Bookmark09 or (Location.Mark < 1) or (Location.Mark > 10) then exit;
+   if not Loc.Bookmark09 or (Loc.Mark < 1) or (Loc.Mark > 10) then exit;
 
-   GetTreeNodeFromLocation(Location, myFolder, myTreeNode);
+   UpdateLocation(Loc);
 
-   if not assigned( myFolder ) then exit;
+   if not assigned(Loc.NNode) then exit;
 
    // If not included in some of the visible Editors -> make the change directly in the folder or node stream
    // See comment to kn_EditorUtils.RemoveKNTHiddenCharactersInRTF
 
   EditorVisible:= false;
 
-  if not assigned( myTreeNode ) then exit;
-  if ActiveFolder.TV.Selected = myTreeNode then
+  if ActiveFolder.TreeUI.FocusedNode = Loc.NNode.TVNode then
      EditorVisible:= true;
 
   if EditorVisible then begin
-     SS:= myFolder.Editor.SelStart;
-     SL:= myFolder.Editor.SelLength;
+     Editor:= Loc.Folder.Editor;
+     SS:= Editor.SelStart;
+     SL:= Editor.SelLength;
 
-     TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_Bookmark09 + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
-     with myFolder.Editor do begin
+     TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_Bookmark09 + IntToStr(Loc.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
+     with Editor do begin
         p:= FindText(TargetMark, 0, -1, [stMatchCase]);
         if p > 0 then begin
           SelStart := p;
@@ -1203,7 +1221,7 @@ begin
           if SelLength > Length(TargetMark) then begin
              // If our hidden mark is next to others, it will select everything hidden. And if it is next to a HYPERLINK it will select it in its entirety
              Str:= RTFSelText;
-             Str:= StringReplace(Str, Format(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_Bookmark09 + '%d'+ KNT_RTF_HIDDEN_MARK_R, [Location.Mark]), '', []);
+             Str:= StringReplace(Str, Format(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_Bookmark09 + '%d'+ KNT_RTF_HIDDEN_MARK_R, [Loc.Mark]), '', []);
              SelText:= Str;
           end
           else
@@ -1211,25 +1229,24 @@ begin
 
           Result:= true;
           if SS < p then
-             myFolder.Editor.SelStart:= SS
+             SelStart:= SS
           else
-             myFolder.Editor.SelStart:= SS - Length(TargetMark);
+             SelStart:= SS - Length(TargetMark);
 
-          myFolder.Editor.SelLength:= SL;
+          SelLength:= SL;
         end;
      end;
 
   end
   else begin
-     myNote:= TKntNote(myTreeNode.Data);
-     Stream:= myNote.Stream;
+     Stream:= Loc.NEntry.Stream;
 
      RTFText:= PAnsiChar(Stream.Memory);
-     RTFBookmark:= Format(KNT_RTF_Bmk09_HIDDEN_MARK, [Location.Mark]);
+     RTFBookmark:= Format(KNT_RTF_Bmk09_HIDDEN_MARK, [Loc.Mark]);
 
      p:= PosPAnsiChar(PAnsiChar(RTFBookmark), RTFText, 1) -1;                        // See comment *2 in ImagesManager.ProcessImagesInRTF
      if p < 0 then begin
-        RTFBookmark:= Format(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_Bookmark09 + '%d'+ KNT_RTF_HIDDEN_MARK_R, [Location.Mark]);
+        RTFBookmark:= Format(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_Bookmark09 + '%d'+ KNT_RTF_HIDDEN_MARK_R, [Loc.Mark]);
         p:= PosPAnsiChar(PAnsiChar(RTFBookmark), RTFText, 1) -1;
      end;
 
@@ -1238,7 +1255,7 @@ begin
         NBytes:= Stream.Size - p - selLen;
         Move(RTFText[p+selLen], RTFText[p], NBytes);
         Stream.Size:= Stream.Size-selLen;
-        myNote.NoteTextPlain:= '';
+        Loc.NEntry.TextPlain:= '';
      end;
 
   end;
@@ -1258,14 +1275,14 @@ begin
                           ConsiderOffset: boolean = false): boolean;
  var
    myFolder : TKntFolder;
-   myTreeNode : TTreeNTNode;
+   myTreeNode : PVirtualNode;
    origLocationStr : string;
    LocBeforeJump: TLocation;
    FN: string;
    ResultOpen: integer;
 
    function SearchTargetMark (SearchBookmark09: boolean = false): boolean;
-  var
+   var
       p, selLen: integer;
       TargetMark: string;
       KeyBookmark: char;
@@ -1313,7 +1330,7 @@ begin
 
   try
       LocBeforeJump:= nil;
-      GetKntLocation (ActiveFolder, LocBeforeJump, true);
+      GetKntLocation (ActiveFolder, LocBeforeJump, false);
       LocBeforeJump.ScrollPosInEditor:= ActiveFolder.Editor.GetScrollPosInEditor;
 
       (*
@@ -1330,13 +1347,13 @@ begin
 
 
       // open file, if necessary
-      if ( Location.FileName <> '' ) and ( Location.FileName <> KntFile.FileName ) then begin
+      if ( Location.FileName <> '' ) and ( Location.FileName <> ActiveFile.FileName ) then begin
         if IgnoreOtherFiles then
            exit;
 
         FN:= GetAbsolutePath(ExtractFilePath(Application.ExeName), Location.FileName);
 
-        if FN.ToUpper <> KntFile.FileName.ToUpper then begin
+        if FN.ToUpper <> ActiveFile.FileName.ToUpper then begin
            if not Initializing and not OpenInCurrentFile and (KeyOptions.ExtKNTLnkInNewInst or (myURLAction = urlOpenNew)) then begin
               OpenLocationInOtherInstance (Location);
               exit;
@@ -1364,7 +1381,9 @@ begin
 
       end;
 
-      GetTreeNodeFromLocation(Location, myFolder, myTreeNode);
+      UpdateLocation(Location);
+      myFolder:= Location.Folder;
+      myTreeNode:= Location.Node;
 
       _Executing_JumpToKNTLocation_ToOtherNote:= false;
       try
@@ -1374,17 +1393,15 @@ begin
            App.ActivateFolder(myFolder);
          end;
 
-         // myFolder = ActiveFolder
-
          if assigned( myTreeNode ) then begin
             // select the node
-            if myFolder.TV.Selected <> myTreeNode then begin
-               myTreeNode.MakeVisible;     // It could be hidden
-               myFolder.TV.Selected := myTreeNode;
+            if myFolder.TreeUI.FocusedNode <> myTreeNode then begin
+               myFolder.TreeUI.MakePathVisible(myTreeNode);     // It could be hidden
+               myFolder.TreeUI.SelectAlone(myTreeNode);
             end;
          end
          else
-           myTreeNode:= myFolder.TV.Selected;
+           myTreeNode:= myFolder.TV.FocusedNode;
 
 
          result := true;
@@ -1402,11 +1419,11 @@ begin
 
       if _Executing_History_Jump then begin
          if (LocBeforeJump.FolderID <> Location.FolderID) then
-            myFolder.History.SyncWithLocation (Location, hdBack, true);
+            TKntHistory(myFolder.History).SyncWithLocation (Location, hdBack, true);
       end
       else
       if (LocBeforeJump <> nil) and
-         (LocBeforeJump.FolderID = myFolder.ID) and (myFolder.SelectedNote.ID = LocBeforeJump.NoteID) then begin
+         (LocBeforeJump.FolderID = myFolder.ID) and (myFolder.FocusedNNode.GID = LocBeforeJump.NNodeGID) then begin
           AddHistoryLocation (myFolder, false, LocBeforeJump);
           _LastMoveWasHistory:= false;
           UpdateHistoryCommands;
@@ -1432,7 +1449,7 @@ var
   exresult: integer;
 begin
    //-ignSI Ignore single instance option for this call (-> Ensure the file will open in another instance and not finally in this one..)
-   Args:= Format('-ignSI -jmp"%s "', [BuildKNTLocationText(aLocation)]);
+   Args:= Format('-ignSI -jmp"%s "', [BuildKNTURL(aLocation)]);
    exresult := ShellExecute( 0, 'open', PChar( Application.ExeName ), PChar( Args ), nil, SW_NORMAL );
    if ( exresult <= 32 ) then
       messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
@@ -1447,7 +1464,7 @@ var
   Location : TLocation;
 begin
   try
-    Location:= BuildKNTLocationFromString(LocationStr);
+    Location:= BuildLocationFromKntURL(LocationStr);
     try
        JumpToLocation(Location, false, true, myURLAction, OpenInCurrentFile);
     finally
@@ -1473,7 +1490,7 @@ function URLFileExists (var URL: string): boolean;
 var
    AbsolutePath: string;
 begin
-   AbsolutePath:= GetAbsolutePath(ExtractFilePath(KntFile.FileName), StripFileURLPrefix(URL));
+   AbsolutePath:= GetAbsolutePath(ExtractFilePath(ActiveFile.FileName), StripFileURLPrefix(URL));
    Result:= FileExists( AbsolutePath) or DirectoryExists( AbsolutePath );
 end;
 
@@ -1704,40 +1721,6 @@ var
        result := GetDefaultBrowserPath();
   end;
 
-  function KNTPathFromString (url: string): string;
-  var
-    Location: TLocation;
-    folder: TKntFolder;
-    treeNode: TTreeNTNode;
-    FN: string;
-  begin
-     Location:= BuildKNTLocationFromString(URL);
-     try
-       if (ActiveFile.FileName = Location.FileName) or (Location.FileName = '') then begin
-           GetTreeNodeFromLocation (Location, folder, treeNode, false);
-           if treeNode = nil then
-              Result:= UpperCase(STR_14)
-           else
-              Result:= PathOfKNTLink(treeNode, folder, Location.CaretPos, false, false);
-       end
-       else begin
-          FN:= ExtractFileName(Location.FileName);
-          if Location.NoteName <> '' then
-             Result:= Format('%s: ?%s/%s', [FN, Location.FolderName, Location.NoteName])
-          else begin
-             if Location.NoteGID > 0 then
-                Result:= Format('%s: <%d', [FN, Location.NoteGID])
-             else
-                Result:= Format('%s: *%d|%d', [FN, Location.FolderID, Location.NoteID]);
-          end;
-
-          Result:= Result + Format('|%d|%d|%d', [Location.CaretPos, Location.SelLength, Location.Mark]);
-       end;
-     finally
-       Location.Free;
-     end;
-  end;
-
 begin
 
   // this procedure must now support two methods of handling URLstr
@@ -1793,7 +1776,7 @@ begin
         Form_URLAction := TForm_URLAction.Create( Form_Main );
         try
            if KNTlocation then begin
-              path:= KNTPathFromString(myURL);
+              path:= GetTextURLFromKntURL(myURL);
               Form_URLAction.AllowURLModification:= false;
               Form_URLAction.Edit_URL.Text := path;
            end
@@ -1856,7 +1839,7 @@ begin
 
 
           if KNTLocation then begin
-             Location:= BuildKNTLocationFromString(myURL);
+             Location:= BuildLocationFromKntURL(myURL);
              InsertOrMarkKNTLink(Location, true, TextURL);
           end
           else
@@ -2181,16 +2164,16 @@ var
            i:= 1;
 
         Link:= Copy(RTF, pIni +i, PosLinkEnd-pIni-1 -i);
-        Location:= BuildKNTLocationFromString(Link);
-        if assigned(NoteGIDs) and (Location.NoteGID <> 0 ) then begin
-            Location.NoteGID:= NoteGIDs.GetNewGID(Location.NoteGID);
-            if Location.NoteGID = NoteGID_NotConverted then
+        Location:= BuildLocationFromKntURL(Link);
+        if assigned(NoteGIDs) and (Location.NNodeGID <> 0 ) then begin
+            Location.NNodeGID:= NoteGIDs.GetNewGID(Location.NNodeGID);
+            if Location.NNodeGID = NoteGID_NotConverted then
                inc(GIDsNotConverted);
         end;
 
         try
            if Location <> nil then begin
-              Result:= '"' + BuildKNTLocationText(Location) + '"}}';
+              Result:= '"' + BuildKNTURL(Location) + '"}}';
               Result:= Copy(RTF, 1+LinkOffset, pIni - LinkOffset-1) + Result;
            end;
         finally
@@ -2333,7 +2316,7 @@ begin
 
   try
     if aLocation = nil then begin
-       GetKNTLocation (aFolder, aLocation, true);                       // true: simplified (register only IDs)
+       GetKNTLocation (aFolder, aLocation, false);                       // false: simplified (register only IDs)
        aLocation.ScrollPosInEditor:= aFolder.Editor.GetScrollPosInEditor;
     end;
     aLocation.SelLength := 0;
@@ -2344,14 +2327,14 @@ begin
     end;
 
     if AddLocalMaintainingIndex  then
-       aFolder.History.AddLocationMaintainingIndex (aLocation)
+       TKntHistory(aFolder.History).AddLocationMaintainingIndex (aLocation)
     else
-       aFolder.History.AddLocation(aLocation);
+       TKntHistory(aFolder.History).AddLocation(aLocation);
 
 
   except
     Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_21;
-    aFolder.History.Clear;
+    TKntHistory(aFolder.History).Clear;
     History.Clear;
     if assigned(aLocation) then
         aLocation.Free;
@@ -2426,17 +2409,17 @@ begin
 {$ENDIF}
 
   LocBeforeNavigation:= nil;
-  GetKntLocation (ActiveFolder, LocBeforeNavigation, true);
+  GetKntLocation (ActiveFolder, LocBeforeNavigation, false);
 
 
   if CtrlDown then begin
-     masterHistory:= ActiveFolder.History;
+     masterHistory:= TKntHistory(ActiveFolder.History);
      slaveHistory := History;
      IterateAllOnSync:= false;
   end
   else begin
      masterHistory:= History;
-     slaveHistory := ActiveFolder.History;
+     slaveHistory := TKntHistory(ActiveFolder.History);
      IterateAllOnSync:= true;
   end;
 
@@ -2543,7 +2526,7 @@ begin
 
   lHistory:= nil;
   if assigned(ActiveFolder) then
-     lHistory:= ActiveFolder.History;
+     lHistory:= TKntHistory(ActiveFolder.History);
 
   with Form_Main do begin
     GoBackEnabled :=        assigned(ActiveFolder) and ( History.CanGoBack or ((lHistory <> nil) and lHistory.CanGoBack) );

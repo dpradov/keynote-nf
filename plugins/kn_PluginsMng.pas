@@ -440,7 +440,7 @@ begin
 
 
             try
-              with ActiveNote do
+              with ActiveNNode do
                  tmpstr := Name;
             except
                 tmpstr := FolderName
@@ -511,7 +511,7 @@ begin
                   if InsertPluginOutput then begin
                      NoteWasReadOnly := Editor.ReadOnly;
                      if NoteWasReadOnly then
-                        InsertPluginOutput:= (MessageDlg(Format(STR_20,[ActiveNote.Name]), mtWarning, [mbOK, mbCancel], 0 ) = mrOK);
+                        InsertPluginOutput:= (MessageDlg(Format(STR_20,[ActiveNNode.NoteName]), mtWarning, [mbOK, mbCancel], 0 ) = mrOK);
                   end;
 
                   if InsertPluginOutput then begin

@@ -25,7 +25,6 @@ uses
   ShellAPI,
   SysUtils,
   IniFiles,
-  TreeNT in '3rd_party\treent\TreeNT.pas',
   RxRichEd in '3rd_party\unRxLib\units\RxRichEd.pas',
   RxPlacemnt in '3rd_party\unRxLib\units\RxPlacemnt.pas',
   RichPrint in '3rd_party\richprint\RichPrint.pas',
@@ -117,7 +116,6 @@ uses
   kn_ImagePicker in 'structure\kn_ImagePicker.pas' {Form_ImgPick},
   kn_LocationObj in 'structure\kn_LocationObj.pas',
   kn_KntFolder_New in 'structure\kn_KntFolder_New.pas' {Form_NewKntFolder},
-  kn_KntNote in 'structure\kn_KntNote.pas',
   kn_NodeNum in 'structure\kn_NodeNum.pas' {Form_NodeNum},
   kn_NoteFileMng in 'structure\kn_NoteFileMng.pas',
   kn_KntFolder in 'structure\kn_KntFolder.pas',
@@ -138,7 +136,8 @@ uses
   kn_UpdateVersion in 'general\kn_UpdateVersion.pas' {UpdateVersion},
   kn_Main in 'kn_Main.pas' {Form_Main},
   knt.App in 'knt.App.pas',
-  knt.ui.tree in 'ui\knt.ui.tree.pas' {KntTreeUI: TFrame};
+  knt.ui.tree in 'ui\knt.ui.tree.pas' {KntTreeUI: TFrame},
+  knt.model.note in 'model\knt.model.note.pas';
 
 {$R *.RES}
 

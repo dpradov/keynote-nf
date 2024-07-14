@@ -1,19 +1,19 @@
 unit kn_VCLControlsMng;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.
- 
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
@@ -23,9 +23,11 @@ uses
    Winapi.RichEdit,
    Winapi.ShellAPI,
    Winapi.MMSystem,
+   Winapi.ActiveX,
    System.SysUtils,
    System.Classes,
    System.IniFiles,
+   System.Win.ComObj,
    Vcl.Controls,
    Vcl.ComCtrls,
    Vcl.Graphics,
@@ -37,7 +39,6 @@ uses
 
    ComCtrls95,
    TB97Ctls,
-   TreeNT,
 
    kn_KntFolder
 ;
@@ -46,11 +47,11 @@ uses
 
     // dynamically create and destroy controls (folder tabs, RichEdits, trees, etc)
     procedure SetUpVCLControls( aFolder : TKntFolder ); // sets up VCL controls for knt folder (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
-    procedure CreateVCLControls; // creates VCL controls for ALL folders in KntFile object
+    procedure CreateVCLControls; // creates VCL controls for ALL folders in ActiveFile object
     procedure CreateScratchEditor;
     procedure SetupAndShowVCLControls;
     procedure CreateVCLControlsForFolder( const aFolder : TKntFolder ); // creates VCL controls for specified folder
-    procedure DestroyVCLControls; // destroys VCL controls for ALL notes in KntFile object
+    procedure DestroyVCLControls; // destroys VCL controls for ALL notes in ActiveFile object
     procedure DestroyVCLControlsForFolder( const aFolder : TKntFolder; const KillTabSheet : boolean ); // destroys VCL contols for specified folder
 
     // VCL updates when config loaded or changed
@@ -82,6 +83,23 @@ uses
 
     procedure EnableCopyFormat(value: Boolean);
 
+
+type
+  TDropTarget = class(TInterfacedObject, IDropTarget)
+  private
+    FControl: TWinControl;
+  public
+    constructor Create(AControl: TWinControl);
+    function DragEnter(const dataObj: IDataObject; grfKeyState: Longint; pt: TPoint; var dwEffect: Longint): HResult; stdcall;
+    function DragOver(grfKeyState: Longint; pt: TPoint; var dwEffect: Longint): HResult; stdcall;
+    function DragLeave: HResult; stdcall;
+    function Drop(const dataObj: IDataObject; grfKeyState: Longint; pt: TPoint; var dwEffect: Longint): HResult; stdcall;
+  end;
+
+procedure UnregisterDropTarget(AControl: TWinControl); forward;
+procedure RegisterDropTarget(AControl: TWinControl); forward;
+
+
 var
   SBGlyph: TPicture;
 
@@ -98,7 +116,7 @@ uses
    kn_Main,
    kn_Info,
    kn_Const,
-   kn_KntNote,
+   knt.model.note,
    kn_Macro,
    kn_Chest,
    kn_EditorUtils,
@@ -167,10 +185,7 @@ begin
       if ( _LoadedRichEditVersion > 2 ) then
         SendMessage( aFolder.Editor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
 
-      with aFolder.TV do begin
-        OnFileDropped := Form_Main.OnFileDropped;
-        Perform(WM_HSCROLL, SB_TOP, 0);  // scroll to left border
-      end;
+      aFolder.TV.Perform(WM_HSCROLL, SB_TOP, 0);  // scroll to left border
 
       aFolder.Editor.SetZoom(DefaultEditorProperties.DefaultZoom, '' );
   end;
@@ -204,7 +219,7 @@ begin
      OnChangedSelection:= Form_Main.RxChangedSelection;
      OnFileDropped := Form_Main.OnFileDropped;
 
-     SetVinculatedObjs(nil, nil, nil);
+     SetVinculatedObjs(nil, nil, nil, nil);
 
      PlainText:= False;
      Chrome:= Knt.App.DefaultEditorChrome;
@@ -220,10 +235,10 @@ var
   myFolder : TKntFolder;
 begin
   with Form_Main do begin
-      if (( not assigned( KntFile )) or ( KntFile.Folders.Count = 0 )) then exit;
+      if (( not assigned( ActiveFile )) or ( ActiveFile.Folders.Count = 0 )) then exit;
 
-      for i := 0 to pred( KntFile.Folders.Count ) do begin
-         myFolder := KntFile.Folders[i];
+      for i := 0 to pred( ActiveFile.Folders.Count ) do begin
+         myFolder := ActiveFile.Folders[i];
          CreateVCLControlsForFolder( myFolder );
       end;
 
@@ -240,12 +255,12 @@ var
   i : integer;
   myFolder : TKntFolder;
 begin
-  if (( not assigned( KntFile )) or ( KntFile.Folders.Count = 0 )) then exit;
+  if (( not assigned( ActiveFile )) or ( ActiveFile.Folders.Count = 0 )) then exit;
 
   try
 
-    for i := 0 to pred( KntFile.Folders.Count ) do begin
-      myFolder := KntFile.Folders[i];
+    for i := 0 to pred( ActiveFile.Folders.Count ) do begin
+      myFolder := ActiveFile.Folders[i];
       myFolder.DataStreamToEditor;
       SetUpVCLControls( myFolder );
     end;
@@ -319,6 +334,11 @@ begin
             myTab := aFolder.TabSheet;
 
 
+          // TreeUI --------------
+          myTreeUI:= TKntTreeUI.Create(myTab);
+          myTreeUI.Parent:= myTab;
+          myTreeUI.PopupMenu := Form_Main.Menu_TV;
+
           // Splitter --------------
           mySplitter := TSplitter.Create( myTab );
           with mySplitter do begin
@@ -339,14 +359,9 @@ begin
             Hint := STR_00;
           end;
 
-          // TreeUI --------------
-          myTreeUI:= TKntTreeUI.Create(myTab);
-          myTreeUI.Parent:= myTab;
           myTreeUI.SplitterNote := mySplitter;
-          myTreeUI.PopupMenu := Form_Main.Menu_TV;
-
-          myFolder.TreeUI:= myTreeUI;
           myFolder.Splitter := mySplitter;
+          myFolder.TreeUI:= myTreeUI;
 
 
          {$IFDEF WITH_IE}
@@ -424,6 +439,7 @@ begin
             UpdateEditor (true); // do this BEFORE placing RTF text in editor
           end;
 
+          App.EditorAvailable(myEditor);
 
           myTreeUI.Folder:= myFolder;  // => PopulateTree...
 
@@ -447,8 +463,10 @@ begin
 
    _ALLOW_VCL_UPDATES := false;
    try
-     if assigned( aFolder.Editor ) then
+     if assigned( aFolder.Editor ) then begin
+       App.EditorUnavailable(aFolder.Editor);
        FreeAndNil(aFolder.Editor);
+     end;
 
      if assigned( aFolder.Splitter ) then
        FreeAndNil(aFolder.Splitter);
@@ -1167,8 +1185,8 @@ begin
       if IsRunningMacro then
          Index:= NODEIMG_MACRORUN
       else
-      if KntFile.ReadOnly then begin
-        case KntFile.FileFormat of
+      if ActiveFile.ReadOnly then begin
+        case ActiveFile.FileFormat of
           nffKeyNote :   Index:= NODEIMG_TKN_RO;
           nffKeyNoteZip: Index:= NODEIMG_TKNZIP_RO;
           nffEncrypted : Index:= NODEIMG_ENC_RO;
@@ -1178,7 +1196,7 @@ begin
         end;
       end
       else begin
-        case KntFile.FileFormat of
+        case ActiveFile.FileFormat of
           nffKeyNote :   Index:= NODEIMG_TKN;
           nffKeyNoteZip: Index:= NODEIMG_TKNZIP;
           nffEncrypted : Index:= NODEIMG_ENC;
@@ -1255,13 +1273,13 @@ var
   LoadSuccess : boolean;
 begin
   LoadSuccess := false;
-  if assigned( KntFile ) then begin
-     if (( _LOADED_ICON_FILE <> KntFile.TabIconsFN ) or ForceReload ) then begin
-       if ( KntFile.TabIconsFN = '' ) then // means: use KeyNote default
+  if assigned( ActiveFile ) then begin
+     if (( _LOADED_ICON_FILE <> ActiveFile.TabIconsFN ) or ForceReload ) then begin
+       if ( ActiveFile.TabIconsFN = '' ) then // means: use KeyNote default
          LoadSuccess := LoadCategoryBitmapsUser( ICN_FN )
        else begin
-         if ( KntFile.TabIconsFN <> _NF_Icons_BuiltIn ) then
-            LoadSuccess := LoadCategoryBitmapsUser( KntFile.TabIconsFN );
+         if ( ActiveFile.TabIconsFN <> _NF_Icons_BuiltIn ) then
+            LoadSuccess := LoadCategoryBitmapsUser( ActiveFile.TabIconsFN );
        end;
        if ( not LoadSuccess ) then
          LoadSuccess := LoadCategoryBitmapsBuiltIn;
@@ -1357,6 +1375,82 @@ begin
           Folders[i].Editor.Cursor:= myCursor;
        end;
 
+end;
+
+// ============================
+//     TDropTarget
+// ============================
+
+constructor TDropTarget.Create(AControl: TWinControl);
+begin
+  inherited Create;
+  FControl := AControl;
+end;
+
+function TDropTarget.DragEnter(const dataObj: IDataObject; grfKeyState: Longint; pt: TPoint; var dwEffect: Longint): HResult; stdcall;
+begin
+  Result := S_OK;
+end;
+
+function TDropTarget.DragOver(grfKeyState: Longint; pt: TPoint; var dwEffect: Longint): HResult; stdcall;
+var
+  i: integer;
+
+   function GetShiftState: TShiftState;
+   begin
+     Result := [];
+     if (GetKeyState(VK_SHIFT) < 0) then Include(Result, ssShift);
+     if (GetKeyState(VK_CONTROL) < 0) then Include(Result, ssCtrl);
+     if (GetKeyState(VK_MENU) < 0) then Include(Result, ssAlt);
+   end;
+
+  procedure DetermineEffect;      // Determine the drop effect to use if the source is a Virtual Treeview.
+  var
+    Shift: TShiftState;
+  begin
+    Shift:= GetShiftState;
+
+    if (Shift = [ssAlt]) or (Shift = [ssCtrl, ssAlt]) then
+      dwEffect := DROPEFFECT_LINK
+    else
+      if Shift = [ssCtrl] then
+        dwEffect := DROPEFFECT_COPY
+      else
+        dwEffect := DROPEFFECT_MOVE;
+  end;
+
+begin
+  Result := S_OK;
+  DetermineEffect;
+
+  pt:= Form_Main.Pages.ScreenToClient(pt);
+
+  i := Form_Main.Pages.GetTabAt(pt.X, pt.Y);
+  if i >= 0 then
+    App.ActivateFolder(i);
+end;
+
+function TDropTarget.DragLeave: HRESULT;
+begin
+//  Result := S_OK;
+end;
+
+function TDropTarget.Drop(const dataObj: IDataObject; grfKeyState: Longint; pt: TPoint; var dwEffect: Longint): HResult; stdcall;
+begin
+//  Result := S_OK;
+//  dwEffect := DROPEFFECT_COPY; // Sets the allowed drag effect
+end;
+
+procedure RegisterDropTarget(AControl: TWinControl);
+var
+  DropTarget: IDropTarget;
+begin
+  DropTarget := TDropTarget.Create(AControl);
+  OleCheck(RegisterDragDrop(AControl.Handle, DropTarget));
+end;
+procedure UnregisterDropTarget(AControl: TWinControl);
+begin
+  OleCheck(RevokeDragDrop(AControl.Handle));
 end;
 
 

@@ -1,0 +1,115 @@
+knt.ui.tree
+-------------
+* TKntTreeUI.VirtualNoteProc
+* TKntTreeUI.VirtualNoteUnlink
+
+
+{$IFDEF WITH_IE}
+function VirtualNoteGetMode( const aNote : TKntNote; var newMode : TVirtualMode; var newFN : string ) : boolean;
+var
+  Form_VNode : TForm_VNode;
+begin
+  result := false;
+  if ( not assigned( aNote )) then exit;
+  Form_VNode := TForm_VNode.Create( self );
+  try
+    Form_VNode.myVirtualMode := aNote.VirtualMode;
+    Form_VNode.myVirtualFN := aNote.VirtualFN;
+    Form_VNode.myNodeName := aNote.Name;
+    if ( Form_VNode.ShowModal = mrOK ) then begin
+      newMode := Form_VNode.myVirtualMode;
+      newFN := Form_VNode.myVirtualFN;
+      result := ( newFN <> '' );
+    end;
+
+  finally
+    Form_VNode.Free;
+  end;
+end; // VirtualNoteGetMode
+{$ENDIF}
+
+- - - - -
+vmIELocal :            ImageIndex := ICON_VIRTUALIELOCAL;
+vmIERemote :           ImageIndex := ICON_VIRTUALIEREMOTE;
+- - - - -
+
+
+kn_KntFolder
+-------------
+  STR_v10 = 'Node "%s" represents an Internet Explorer node and cannot be unlinked. Nodes of this type can only be deleted.';
+
+    {$IFDEF WITH_IE}
+    FMainPanel : TPanel;
+    FWebBrowser : TWebBrowser;
+    {$ENDIF}
+
+    {$IFDEF WITH_IE}
+    property MainPanel : TPanel read FMainPanel write FMainPanel;
+    property WebBrowser : TWebBrowser read FWebBrowser write FWebBrowser;
+    // property Grid : TStringAlignGrid read FGrid write FGrid;
+    // property GridSplitter : TSplitter read FGridSplitter write FGridSplitter;
+    {$ENDIF}
+
+
+Create:
+---
+  {$IFDEF WITH_IE}
+  FMainPanel := nil;
+  FWebBrowser := nil;
+  // FGrid := nil;
+  // FGridSplitter := nil;
+  {$ENDIF}
+
+
+DataStreamToEditor:
+  {$IFDEF WITH_IE}
+    ov : OleVariant;
+  {$ENDIF}
+
+    vmIELocal, vmIERemote : begin
+      {$IFDEF WITH_IE}
+      ov := 0;
+      FWebBrowser.Navigate( FSelectedNode.VirtualFN, ov, ov, ov, ov );
+      {$ENDIF}
+    end;
+
+NodeSelected:
+  {$IFDEF WITH_IE}
+  NodeControl : TNodeControl;
+  {$ENDIF}
+
+
+kn_NoteFileMng
+-----------------
+FileDropped:
+
+           {$IFDEF WITH_IE}
+           factMakeVirtualIENode :
+             begin
+               SendMessage( Editor.Handle, WM_SetRedraw, 0, 0 );
+               try
+                 for i := 0 to pred( FileList.Count ) do begin
+                   FName := FileList[i];
+                   if DirectoryExists( FName ) then begin
+                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                       exit
+                     else
+                       continue;
+                   end;
+                   myTreeNode := TreeNewNode( nil, tnAddLast, nil, '', true );
+                   VirtualNodeProc( vmIELocal, myTreeNode, FName );
+                 end;
+               finally
+                 SendMessage( Editor.Handle, WM_SetRedraw, 1, 0 ); // ok to draw now
+                 Editor.Invalidate; // in fact, I insist on it
+               end;
+             end;
+           {$ENDIF}
+
+
+kn_NoteFileMng.
+----------------
+PromptForFileAction:
+                 {$IFDEF WITH_IE}
+                 facts[factMakeVirtualIENode] := FileIsHTML;
+                 {$ENDIF}

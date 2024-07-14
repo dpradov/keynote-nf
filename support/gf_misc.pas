@@ -214,7 +214,10 @@ function GenerateRandomPassphrase(
     RndPassNonAlphW : integer
   ) : string;
 
-  function DomainFromHttpURL(const URL: string; const Title: string='') : string;
+function DomainFromHttpURL(const URL: string; const Title: string='') : string;
+
+function SetToInt(const aSet; const Size:integer):integer;
+procedure IntToSet(const Value:integer; var aSet; const Size:integer);
 
 
 type
@@ -1685,6 +1688,16 @@ begin
   end;
 end;
 
+function SetToInt(const aSet; const Size:integer):integer;
+begin
+  Result := 0;
+  Move(aSet, Result, Size);
+end;
+
+procedure IntToSet(const Value:integer; var aSet; const Size:integer);
+begin
+  Move(Value, aSet, Size);
+end;
 
 
 Initialization

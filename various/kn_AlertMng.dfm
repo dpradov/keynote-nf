@@ -29,7 +29,7 @@ object Form_Alarm: TForm_Alarm
     540)
   TextHeight = 13
   object lblFilter: TLabel
-    Left = 451
+    Left = 443
     Top = 8
     Width = 67
     Height = 13
@@ -46,7 +46,7 @@ object Form_Alarm: TForm_Alarm
     ExplicitLeft = 259
   end
   object Button_ClearFilter: TToolbarButton97
-    Left = 700
+    Left = 692
     Top = 6
     Width = 17
     Height = 21
@@ -78,7 +78,7 @@ object Form_Alarm: TForm_Alarm
     ParentFont = False
   end
   object Button_Sound: TToolbarButton97
-    Left = 756
+    Left = 748
     Top = 4
     Width = 25
     Height = 24
@@ -95,7 +95,7 @@ object Form_Alarm: TForm_Alarm
     ExplicitLeft = 869
   end
   object TB_ClipCap: TToolbarButton97
-    Left = 730
+    Left = 722
     Top = 4
     Width = 25
     Height = 24
@@ -112,27 +112,27 @@ object Form_Alarm: TForm_Alarm
   object Panel: TPanel
     Left = 1
     Top = 134
-    Width = 792
+    Width = 784
     Height = 405
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 3
     ExplicitTop = 133
-    ExplicitWidth = 788
+    ExplicitWidth = 780
     DesignSize = (
-      792
+      784
       405)
     object PanelAlarm: TPanel
       Left = 6
       Top = 39
-      Width = 578
+      Width = 570
       Height = 359
       Anchors = [akLeft, akRight, akBottom]
-      Constraints.MinWidth = 574
+      Constraints.MinWidth = 566
       TabOrder = 2
-      ExplicitWidth = 574
+      ExplicitWidth = 566
       DesignSize = (
-        578
+        570
         359)
       object lblExpiration: TLabel
         Left = 12
@@ -630,7 +630,7 @@ object Form_Alarm: TForm_Alarm
         OnClick = rb_FromNowClick
       end
       object Button_Apply: TButton
-        Left = 479
+        Left = 471
         Top = 172
         Width = 84
         Height = 25
@@ -644,10 +644,10 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 8
         OnClick = Button_ApplyClick
-        ExplicitLeft = 475
+        ExplicitLeft = 467
       end
       object chk_ApplyOnExitChange: TCheckBox
-        Left = 486
+        Left = 478
         Top = 202
         Width = 85
         Height = 27
@@ -662,12 +662,12 @@ object Form_Alarm: TForm_Alarm
         TabOrder = 9
         WordWrap = True
         OnClick = chk_ApplyOnExitChangeClick
-        ExplicitLeft = 482
+        ExplicitLeft = 474
       end
       object txtSubject: TMemo
         Left = 9
         Top = 40
-        Width = 554
+        Width = 546
         Height = 87
         TabStop = False
         Anchors = [akLeft, akTop, akRight]
@@ -681,12 +681,12 @@ object Form_Alarm: TForm_Alarm
         TabOrder = 10
         WantTabs = True
         OnChange = txtSubjectChange
-        ExplicitWidth = 550
+        ExplicitWidth = 542
       end
       object cIdentifier: TEdit
         Left = 10
         Top = 12
-        Width = 551
+        Width = 543
         Height = 22
         TabStop = False
         Anchors = [akLeft, akTop, akRight]
@@ -706,17 +706,17 @@ object Form_Alarm: TForm_Alarm
         ReadOnly = True
         TabOrder = 11
         Text = 'NODO'
-        ExplicitWidth = 547
+        ExplicitWidth = 539
       end
       object PanelFormat: TPanel
-        Left = 457
+        Left = 449
         Top = 128
         Width = 119
         Height = 23
         Anchors = [akTop, akRight]
         BevelOuter = bvNone
         TabOrder = 12
-        ExplicitLeft = 453
+        ExplicitLeft = 445
         object TB_Bold: TToolbarButton97
           Left = 0
           Top = 0
@@ -744,42 +744,6 @@ object Form_Alarm: TForm_Alarm
           AutomaticColor = clWindowText
           IsAutomatic = True
           OnClick = TB_ColorClick
-          Glyph.Data = {
-            42040000424D4204000000000000420000002800000020000000100000000100
-            1000030000000004000000000000000000000000000000000000007C0000E003
-            00001F000000F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EFF7FFF7FFF7FFF7FF75EF75EF75EFF7FFF7FFF7FFF7FFF7F
-            FF7FF75EF75E0F000F000F000F00F75EF75EF75E0F000F000F000F000F000F00
-            F75EF75EF75EEF3DEF3DEF3DEF3DF75EF75EF75EEF3DEF3DEF3DEF3DEF3DEF3D
-            F75EF75EF75EF75EEF3D0F00F75EF75EF75EF75EF75EEF3D0F000F00EF3DF75E
-            F75EF75EF75EF75EF75EEF3DFF7FFF7FF75EF75EF75EF75EEF3DEF3DFF7FF75E
-            F75EF75EF75EF75EF75E0F000F00F75EF75EF75EF75EEF3D0F000F00F75EF75E
-            F75EF75EF75EF75EF75EEF3DEF3DFF7FF75EF75EF75EF75EEF3DEF3DF75EF75E
-            F75EF75EF75EF75EF75EEF3D0F00F75EF75EF75EF75E0F000F00EF3DF75EF75E
-            F75EF75EF75EF75EF75EF75EEF3DFF7FFF7FFF7FFF7FEF3DEF3DFF7FF75EF75E
-            F75EF75EF75EF75EF75EF75E0F000F000F000F000F000F000F00F75EF75EF75E
-            F75EF75EF75EF75EF75EF75EEF3DEF3DEF3DEF3DEF3DEF3DEF3DF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EEF3D0F00F75EF75E0F000F00EF3DF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EEF3DFF7FFF7FEF3DEF3DFF7FF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75E0F000F00F75E0F000F00F75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EEF3DEF3DFF7FEF3DEF3DF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EEF3D0F000F000F00EF3DF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DEF3DFF7FF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75E0F000F000F00F75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DEF3DF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EEF3D0F00EF3DF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DFF7FF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75E0F00F75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EF75E
-            F75EF75EF75E}
           AutoBtnCaption = 'Default color'
           OtherBtnCaption = '&Other colors...'
           RegKey = 'General Frenetics\KeyNote\ColorBtn1'
@@ -799,42 +763,6 @@ object Form_Alarm: TForm_Alarm
           IsAutomatic = True
           OnClick = TB_HiliteClick
           GlyphType = gtBackground
-          Glyph.Data = {
-            42040000424D4204000000000000420000002800000020000000100000000100
-            1000030000000004000000000000000000000000000000000000007C0000E003
-            00001F000000F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75E0000F75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75E0000EF3D0000F75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EEF3DF75EFF7FF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75E0000EF3DEF3DEF3D0000F75EF75EF75E
-            EF3DF75EF75EF75EF75EF75EF75EF75EEF3DF75EF75EF75EEF3DF75EFF7FF75E
-            F75EFF7FF75EF75EF75EF75EF75E0000F75EF75EF75EEF3DEF3D0000F75EF75E
-            0F00EF3DF75EF75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EEF3DF75EFF7F
-            EF3DFF7FFF7FF75EF75EF75E0000FF7FF75EF75EF75EF75EEF3DEF3D0000F75E
-            0F000F00F75EF75EF75EF75EEF3DF75EF75EF75EF75EF75EF75EF75EEF3DF75E
-            EF3DEF3DFF7FF75EF75E0000F75EFF7FFF7FF75EF75EF75EF75EEF3DEF3D0F00
-            0F000F00F75EF75EF75EEF3DF75EFF7FF75EF75EF75EF75EFF7FF75EF75EEF3D
-            EF3DEF3DFF7FF75EF75EF75E0000F75EFF7FFF7FF75E0000F75EF75EEF3D0F00
-            0F000F00F75EF75EF75EF75EEF3DF75EFF7FF75EF75EEF3DFF7FFF7FF75EEF3D
-            EF3DEF3DFF7FF75EF75EF75EF75E0000F75EFF7F00000F000000F75E0F000F00
-            0F000F00F75EF75EF75EF75EF75EEF3DF75EFF7FEF3DEF3DEF3DF75EEF3DEF3D
-            EF3DEF3DF75EF75EF75EF75EF75EF75E0000F75EFF7F0F00F75EEF3D0F000F00
-            0F00F75EF75EF75EF75EF75EF75EF75EEF3DFF7FFF7FEF3DFF7FF75EEF3DEF3D
-            EF3DF75EF75EF75EF75EF75EF75EF75E0F000000F75E0F00EF3D0000EF3DF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DF75EEF3DFF7FEF3DF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75E0F00F75E00000F000000EF3DF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EEF3DFF7FEF3DEF3DEF3DF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75E0F00F75EF75E0F00EF3DF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EEF3DF75EFF7FEF3DF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EEF3D0F000F00EF3DF75EF75EF75EF75E
-            F75EF75EF75EF75EF75EF75EF75EF75EF75EEF3DEF3DF75EF75EF75EF75EF75E
-            F75EF75EF75E}
           AutoBtnCaption = 'No Highlight'
           OtherBtnCaption = '&Other colors...'
           RegKey = 'General Frenetics\KeyNote\ColorBtn2'
@@ -842,7 +770,7 @@ object Form_Alarm: TForm_Alarm
         end
       end
       object btnExpandWindow: TButton
-        Left = 530
+        Left = 522
         Top = 330
         Width = 33
         Height = 22
@@ -859,11 +787,11 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 13
         OnClick = btnExpandWindowClick
-        ExplicitLeft = 526
+        ExplicitLeft = 518
       end
     end
     object PanelCalendar: TPanel
-      Left = 595
+      Left = 587
       Top = 44
       Width = 195
       Height = 204
@@ -871,7 +799,7 @@ object Form_Alarm: TForm_Alarm
       BevelEdges = [beRight]
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 591
+      ExplicitLeft = 583
       object cCalendar: TMonthCalendar
         Left = -11
         Top = 37
@@ -905,17 +833,17 @@ object Form_Alarm: TForm_Alarm
     object pnlButtons: TPanel
       Left = 2
       Top = -1
-      Width = 783
+      Width = 775
       Height = 37
       Anchors = [akLeft, akTop, akRight]
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitWidth = 779
+      ExplicitWidth = 771
       DesignSize = (
-        783
+        775
         37)
       object Button_Remove: TButton
-        Left = 603
+        Left = 595
         Top = 2
         Width = 84
         Height = 25
@@ -930,10 +858,10 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 4
         OnClick = Button_RemoveClick
-        ExplicitLeft = 599
+        ExplicitLeft = 591
       end
       object Button_Restore: TButton
-        Left = 696
+        Left = 688
         Top = 2
         Width = 84
         Height = 25
@@ -948,7 +876,7 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
         TabOrder = 5
         OnClick = Button_RestoreClick
-        ExplicitLeft = 692
+        ExplicitLeft = 684
       end
       object Button_Show: TButton
         Left = 5
@@ -1036,7 +964,7 @@ object Form_Alarm: TForm_Alarm
   object Grid: TListView
     Left = 8
     Top = 31
-    Width = 776
+    Width = 768
     Height = 98
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -1093,7 +1021,7 @@ object Form_Alarm: TForm_Alarm
     OnSelectItem = GridSelectItem
   end
   object cFilter: TEdit
-    Left = 524
+    Left = 516
     Top = 5
     Width = 174
     Height = 21
@@ -1107,7 +1035,7 @@ object Form_Alarm: TForm_Alarm
     TabOrder = 1
     OnChange = cFilterChange
     OnExit = cFilterExit
-    ExplicitLeft = 520
+    ExplicitLeft = 512
   end
   object CB_ShowMode: TComboBox
     Left = 103

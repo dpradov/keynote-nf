@@ -166,7 +166,10 @@ begin
 
   if Visible then begin
      actionName := RG_Action.Items[RG_Action.ItemIndex];
-     chk_ImageLinkMode.Visible:= OfferImageLinkMode and (actionName = FactStrings[factInsertContent]);
+     chk_ImageLinkMode.Visible:= OfferImageLinkMode
+           and ((actionName = FactStrings[factInsertContent])
+               or (actionName = FactStrings[factImportAsNode])
+               or (actionName = FactStrings[factImportAsFolder]) );
      chk_Relative.Visible:= (actionName = FactStrings[factHyperlink]);
   end;
 end;

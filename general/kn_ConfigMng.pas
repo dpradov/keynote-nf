@@ -1,4 +1,4 @@
-unit kn_ConfigMng;
+﻿unit kn_ConfigMng;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -293,15 +293,16 @@ begin
      Strs.Free;
   end;
 
-  FN:= KntFile.FileName.ToUpper;
+  FN:= ActiveFile.FileName.ToUpper;
 
   if FromKntLauncher then begin
      if (KntFileToLoad <> '') and (KntFileToLoad.ToUpper = FN) then
          result:= true
      else if (JmpLocation <> '') then begin
-         Location:= BuildKNTLocationFromString(JmpLocation);
+         Location:= BuildLocationFromKntURL(JmpLocation);
          if (Location.FileName.ToUpper = FN) then
              Result:= true;
+         Location.Free;
      end;
   end
   else
@@ -329,7 +330,7 @@ begin
       FindOptions,
       EditorOptions,
       ClipOptions,
-      TreeOptions,
+      KntTreeOptions,
       ResPanelOptions
       );
   except
@@ -351,7 +352,7 @@ begin
     FindOptions,
     EditorOptions,
     ClipOptions,
-    TreeOptions,
+    KntTreeOptions,
     ResPanelOptions
     );
 end; // ReadOptions
@@ -724,22 +725,22 @@ begin
           myOpts := KeyOptions;
           myTabOpts := TabOptions;
           myClipOpts := ClipOptions;
-          myTreeOpts := TreeOptions;
+          myTreeOpts := KntTreeOptions;
           myEditorOptions := EditorOptions;
-          myTreeOptions := TreeOptions;
+          myTreeOptions := KntTreeOptions;
           myFindOpts := FindOptions;
           ShowHint := KeyOptions.ShowTooltips;
 
           Icons_Change_Disable :=
             ( App.opt_NoUserIcons or
-            ( assigned( KntFile ) and ( KntFile.TabIconsFN = _NF_Icons_BuiltIn )));
+            ( assigned( ActiveFile ) and ( ActiveFile.TabIconsFN = _NF_Icons_BuiltIn )));
 
           if ( not Icons_Change_Disable ) then begin
             tmpicnfn := extractfilename( ICN_FN );
-            if assigned( KntFile ) then begin
-              if (( KntFile.TabIconsFN <> _NF_Icons_BuiltIn ) and
-                 ( KntFile.TabIconsFN <> '' )) then
-                tmpicnfn := extractfilename( KntFile.TabIconsFN );
+            if assigned( ActiveFile ) then begin
+              if (( ActiveFile.TabIconsFN <> _NF_Icons_BuiltIn ) and
+                 ( ActiveFile.TabIconsFN <> '' )) then
+                tmpicnfn := extractfilename( ActiveFile.TabIconsFN );
             end;
             GroupBox_TabIcons.Caption := Format( STR_TabIcons, [tmpicnfn] );
           end;
@@ -753,9 +754,9 @@ begin
             KeyOptions := Form_Options.myOpts;
             TabOptions := Form_Options.myTabOpts;
             ClipOptions := Form_Options.myClipOpts;
-            TreeOptions := Form_Options.myTreeOpts;
+            KntTreeOptions := Form_Options.myTreeOpts;
             EditorOptions := Form_Options.myEditorOptions;
-            TreeOptions := Form_Options.myTreeOptions;
+            KntTreeOptions := Form_Options.myTreeOptions;
             FindOptions := Form_Options.myFindOpts;
 
             // update hotkey only if settings changed
@@ -767,11 +768,11 @@ begin
 
             if Form_Options.Icons_Changed then begin
               // icons were changed, save them
-              if assigned( KntFile ) then begin
-                if ( KntFile.TabIconsFN = '' ) then
+              if assigned( ActiveFile ) then begin
+                if ( ActiveFile.TabIconsFN = '' ) then
                   SaveCategoryBitmapsUser( ICN_FN )
                 else
-                  SaveCategoryBitmapsUser( KntFile.TabIconsFN );
+                  SaveCategoryBitmapsUser( ActiveFile.TabIconsFN );
               end
               else
                  SaveCategoryBitmapsUser( ICN_FN );

@@ -254,7 +254,7 @@ var
   tplText: string;
   IsRTF: boolean;
   RTFText: AnsiString;
-  Editor: TRxRichEdit;
+  Editor: TKntRichEdit;
 begin
   with Form_Main do begin
       if not assigned(ActiveFolder) and not assigned(ActiveEditor) then exit;
@@ -307,7 +307,7 @@ begin
 
       try
         try
-          if (ImageMng.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+          if (ImageMng.StorageMode <> smEmbRTF) and Editor.SupportsRegisteredImages then begin
              if Editor.SelLength > 0 then
                 TKntRichEdit(Editor).CheckToSelectLeftImageHiddenMark;
           end;
@@ -316,7 +316,7 @@ begin
           IsRTF:= tplText.StartsWith('{\rtf1');
 
           RTFText:= '';
-          if IsRTF and (ImageMng.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then
+          if IsRTF and Editor.SupportsRegisteredImages then
              RTFText:= ImageMng.ProcessImagesInRTF(tplText, ActiveFolder.Name, ImageMng.ImagesMode, 'Template');
 
           if RTFText <> '' then
@@ -332,7 +332,7 @@ begin
           end;
         end;
       finally
-        KntFile.Modified := true;
+        App.FileSetModified;
       end;
   end;
 

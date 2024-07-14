@@ -2,6 +2,8 @@
 KEYNOTE NF  1.9.3: File Format Specification
 Last updated: 28 Apr 2024
 
+** TODO: Update to format 3.0 (since version 1.9.6) **
+
 <dprado.keynote@gmail.com>
 
 New elements added are marked with [dpv]
@@ -420,7 +422,6 @@ position	type			meaning
 (other flags are unused)
 
 b) FOLDER FLAGS
-- flags for simple folders:
 
 position	type		meaning
 ----------  --------------  --------------
@@ -432,15 +433,11 @@ position	type		meaning
 5		boolean		if TRUE, use true TAB character in this note; 
 				if FALSE, insert spaces instead of TAB character when user presses the TAB key
 6		boolean		if TRUE, note has the "Plain text only" setting enabled (Note properties|Advanced). 				IMPORTANT: This affects how RTF data is stored, see below.
+7   boolean   if TRUE, filter folder is applied       (New in 1.9.6)
 
-
-- additional flags for tree-type folders:
-
-position	type		meaning
-----------  --------------  --------------
 13		integer		Tree icons selector: 0 = No icons; 1 = Standard (default) icons; 2 = Custom icons
 14		boolean		Automatic node numbering ON/OFF 
-				(if TRUE, node number is automatically added to node name when node is created)
+				(if TRUE, node number is automatically added to node name when node is created)  (UNUSED since version 1.9.6)
 15		boolean		Show checkboxes in tree ON/OFF
 16		boolean		TRUE = vertical tree layout; FALSE = horizontal tree layout
 17		boolean		TRUE = tree panel is hidden; FALSE = tree panel is visible

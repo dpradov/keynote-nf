@@ -46,14 +46,14 @@ type
   THistoryDirection = (hdBack, hdForward);
 
 
-  TkntHistory = class( TObject )
+  TKntHistory = class( TObject )
   private
-    FHistory : TStringList;
-    FIndex : integer;
-    FMaxNavHistory: Integer;
+    fHistory : TLocationList;
+    fIndex : integer;
+    fMaxNavHistory: Integer;
 
   public
-    property Index : integer read FIndex;
+    property Index : integer read fIndex;
 
     constructor Create (MaxNavHistory: Integer= _MAX_NAV_HISTORY);
     destructor Destroy; override;
@@ -86,52 +86,52 @@ implementation
 constructor TkntHistory.Create (MaxNavHistory: Integer= _MAX_NAV_HISTORY);
 begin
   inherited Create;
-  FIndex := -1;
-  FHistory := TStringList.Create;
-  FMaxNavHistory := MaxNavHistory;
+  fIndex := -1;
+  fHistory := TLocationList.Create;
+  fMaxNavHistory := MaxNavHistory;
 end; // CREATE
 
 destructor TkntHistory.Destroy;
 begin
   Clear;
-  FHistory.Free;
+  fHistory.Free;
   inherited Destroy;
 end; // DESTROY
 
 function TkntHistory.CanGoBack : boolean;
 begin
-  result := (( FIndex >= 0 ) and ( FHistory.Count > 0 ));
+  result := (( fIndex >= 0 ) and ( fHistory.Count > 0 ));
 end; // CanGoBack
 
 function TkntHistory.CanGoForward : boolean;
 begin
-  result := (( FHistory.Count > 0 ) and
-      ( FIndex < pred( pred( FHistory.Count ))));
+  result := (( fHistory.Count > 0 ) and
+      ( fIndex < pred( pred( fHistory.Count ))));
 end; // CanGoForward
 
 function TkntHistory.GoBack : TLocation;
 begin
   result := nil;
   if ( not CanGoBack ) then exit;
-  result := TLocation( FHistory.objects[FIndex] );
-  dec( FIndex );
+  result:= fHistory[fIndex];
+  dec( fIndex );
 end; // GoBack
 
 function TkntHistory.GoForward : TLocation;
 begin
   result := nil;
   if ( not CanGoForward ) then exit;
-  result := TLocation( FHistory.objects[FIndex+2] );
+  result := fHistory[fIndex+2];
 
-  inc( FIndex );
+  inc( fIndex );
 end; // GoForward
 
 
 function TkntHistory.PickCurrent: TLocation;
 begin
   result := nil;
-  if not ((FHistory.Count > 0) and (FIndex+1 <= FHistory.Count-1)) then exit;
-  result := TLocation( FHistory.objects[FIndex+1] );
+  if not ((fHistory.Count > 0) and (fIndex+1 <= fHistory.Count-1)) then exit;
+  result := fHistory[fIndex+1];
 end;
 
 
@@ -139,7 +139,7 @@ function TkntHistory.PickBack: TLocation;
 begin
   result := nil;
   if ( not CanGoBack ) then exit;
-  result := TLocation( FHistory.objects[FIndex] );
+  result := fHistory[fIndex];
 end;
 
 
@@ -147,7 +147,7 @@ function TkntHistory.PickForward : TLocation;
 begin
   result := nil;
   if ( not CanGoForward ) then exit;
-  result := TLocation( FHistory.objects[FIndex+2] );
+  result := fHistory[fIndex+2];
 end;
 
 
@@ -203,25 +203,25 @@ begin
     if not IterateAll then begin
        currentLoc:= PickCurrent;
        if (currentLoc = nil) or (currentLoc.FolderID <> LocationToSync.FolderID) then Exit;
-       if (currentLoc.NoteID = LocationToSync.NoteID) then Exit(currentLoc);
+       if (currentLoc.NNodeID = LocationToSync.NNodeID) then Exit(currentLoc);
     end
 
     else begin              // IterateAll
-        i:= FIndex;
+        i:= fIndex;
         sync:= false;
 
         if Direction = hdBack then begin
            dec(i);
            while not sync and (i >= 0) do begin
-              result := TLocation( FHistory.objects[i] );
+              result := fHistory[i];
               if Result.FolderID <> LocationToSync.FolderID then Exit(nil);
               sync:= LocationToSync.Equal(Result);
               dec(i);
            end;
            if not sync then begin
-              i:= FHistory.Count - 1;
-              while not sync and (i > FIndex) do begin
-                 result := TLocation( FHistory.objects[i] );
+              i:= fHistory.Count - 1;
+              while not sync and (i > fIndex) do begin
+                 result := fHistory[i];
                  if Result.FolderID <> LocationToSync.FolderID then Exit(nil);
                  sync:= LocationToSync.Equal(Result, false);                      // false: ignore caret
                  dec(i);
@@ -232,16 +232,16 @@ begin
         else begin   // Forward
            inc(i);
 
-           while not sync and (i < pred(pred(FHistory.Count))) do begin
-              result := TLocation( FHistory.objects[i+2] );
+           while not sync and (i < pred(pred(fHistory.Count))) do begin
+              result := fHistory[i+2];
               if Result.FolderID <> LocationToSync.FolderID then Exit(nil);
               sync:= LocationToSync.Equal(Result);
               inc(i);
            end;
            if not sync then begin
               i:= - 2;
-              while not sync and (i < FIndex+2) and (i < FHistory.Count-2) do begin
-                 result := TLocation( FHistory.objects[i+2] );
+              while not sync and (i < fIndex+2) and (i < fHistory.Count-2) do begin
+                 result := fHistory[i+2];
                  if Result.FolderID <> LocationToSync.FolderID then Exit(nil);
                  sync:= LocationToSync.Equal(Result, false);
                  inc(i);
@@ -251,7 +251,7 @@ begin
         end;
 
         if sync then
-           FIndex:= i
+           fIndex:= i
         else
            Result:= nil;
 
@@ -263,8 +263,8 @@ end;
 
 procedure TkntHistory.Clear;
 begin
-  FIndex := -1;
-  ClearLocationList( FHistory );
+  fIndex := -1;
+  ClearLocationList( fHistory );
 end; // Clear
 
 procedure TkntHistory.AddLocation( const aLocation : TLocation );
@@ -272,36 +272,32 @@ var
   i, cnt : integer;
 begin
   if ( not assigned( aLocation )) then exit;
-  inc( FIndex );
+  inc( fIndex );
 
-  if ( FIndex = FHistory.Count ) then
-{$IFDEF DEBUG_HISTORY}
-     FHistory.AddObject(aLocation.NoteName, aLocation)
-{$ELSE}
-     FHistory.AddObject('', aLocation )
-{$ENDIF}
+  if ( fIndex = fHistory.Count ) then
+     fHistory.Add(aLocation )
 
   else begin
-    FHistory.Objects[FIndex].Free; // remove existing
-    FHistory.Objects[FIndex] := ALocation; // store
+    fHistory[fIndex].Free; // remove existing
+    fHistory[fIndex] := ALocation; // store
 
     // remove locations beyond current index
-    if ( FIndex < pred( FHistory.Count )) then
-       for i := pred( FHistory.Count ) downto succ( FIndex ) do begin
-          FHistory.Objects[i].Free;
-          FHistory.Delete( i );
+    if ( fIndex < pred( fHistory.Count )) then
+       for i := pred( fHistory.Count ) downto succ( fIndex ) do begin
+          fHistory[i].Free;
+          fHistory.Delete(i);
        end;
   end;
 
-  cnt := FHistory.Count;
+  cnt := fHistory.Count;
   if ( cnt > FMaxNavHistory ) then begin
      i := 0;
      repeat
-       FHistory.Objects[i].Free;
-       FHistory.Delete( i );
+       fHistory[i].Free;
+       fHistory.Delete( i );
        inc( i );
-       dec( FIndex );
-     until ( FHistory.Count = FMaxNavHistory );
+       dec( fIndex );
+     until ( fHistory.Count = FMaxNavHistory );
   end;
 
 end; // AddLocation
@@ -311,21 +307,17 @@ var
   i, cnt : integer;
 begin
   if ( not assigned( aLocation )) then exit;
-  inc( FIndex );
+  inc( fIndex );
 
-  if ( FIndex = FHistory.Count ) then
-{$IFDEF DEBUG_HISTORY}
-     FHistory.AddObject(aLocation.NoteName, aLocation)
-{$ELSE}
-     FHistory.AddObject('', aLocation )
-{$ENDIF}
+  if ( fIndex = fHistory.Count ) then
+     fHistory.Add(aLocation )
 
   else begin
-    FHistory.Objects[FIndex].Free; // remove existing
-    FHistory.Objects[FIndex] := ALocation; // store
+    fHistory[fIndex].Free; // remove existing
+    fHistory[fIndex] := ALocation; // store
   end;
 
-  dec( FIndex );
+  dec( fIndex );
 
 end;
 
@@ -339,12 +331,12 @@ var
 begin
    SEP:= '';
    Result:= '';
-   for I := 0 to FHistory.Count -1 do begin
+   for I := 0 to fHistory.Count -1 do begin
       BackItem:= '';
-      if FIndex = i then
+      if fIndex = i then
          BackItem:= ' #';
 
-      Result:= Result + SEP + BackItem + TLocation(FHistory.Objects[i]).NoteName + '(' + TLocation(FHistory.Objects[i]).CaretPos.ToString  + ')';
+      Result:= Result + SEP + BackItem + fHistory[i].NoteName + '(' + fHistory[i].CaretPos.ToString  + ')';
       SEP:= ', ';
    end;
 

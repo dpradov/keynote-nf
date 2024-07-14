@@ -5,7 +5,7 @@ object Form_Defaults: TForm_Defaults
   BorderStyle = bsDialog
   Caption = 'Defaults'
   ClientHeight = 496
-  ClientWidth = 375
+  ClientWidth = 377
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -37,6 +37,36 @@ object Form_Defaults: TForm_Defaults
     Transparent = False
     StyleElements = [seClient, seBorder]
   end
+  object Label1: TLabel
+    Left = 6
+    Top = 33
+    Width = 74
+    Height = 13
+    AutoSize = False
+    Caption = '&Folder name:'
+    FocusControl = Edit_FolderName
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+  end
+  object Label4: TLabel
+    Left = 277
+    Top = 33
+    Width = 74
+    Height = 13
+    AutoSize = False
+    Caption = 'Folder &icon:'
+    FocusControl = Combo_Icons
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+  end
   object Button_OK: TButton
     Left = 15
     Top = 465
@@ -61,10 +91,10 @@ object Form_Defaults: TForm_Defaults
   end
   object Pages: TPage95Control
     Left = 3
-    Top = 28
+    Top = 84
     Width = 369
-    Height = 376
-    ActivePage = Tab_Tree
+    Height = 320
+    ActivePage = Tab_Main
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -81,16 +111,16 @@ object Form_Defaults: TForm_Defaults
     TabOrder = 2
     object Tab_Main: TTab95Sheet
       HelpContext = 254
-      Caption = 'Folder settings'
+      Caption = 'Editor settings'
       GripAlign = gaLeft
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
       object GBox_Note: TGroupBox
-        Left = 3
+        Left = 4
         Top = 3
         Width = 354
-        Height = 337
+        Height = 285
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -100,7 +130,7 @@ object Form_Defaults: TForm_Defaults
         TabOrder = 0
         object Label_TabSize: TLabel
           Left = 203
-          Top = 120
+          Top = 62
           Width = 77
           Height = 14
           Alignment = taRightJustify
@@ -114,39 +144,9 @@ object Form_Defaults: TForm_Defaults
           Font.Style = []
           ParentFont = False
         end
-        object Label1: TLabel
-          Left = 15
-          Top = 12
-          Width = 74
-          Height = 13
-          AutoSize = False
-          Caption = '&Folder name:'
-          FocusControl = Edit_FolderName
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label4: TLabel
-          Left = 260
-          Top = 12
-          Width = 74
-          Height = 13
-          AutoSize = False
-          Caption = 'Folder &icon:'
-          FocusControl = Combo_Icons
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
         object Label_EditorFonts: TLabel
           Left = 7
-          Top = 258
+          Top = 200
           Width = 244
           Height = 13
           Caption = 'Default font and background color (Editor): '
@@ -160,7 +160,7 @@ object Form_Defaults: TForm_Defaults
         end
         object Label14: TLabel
           Left = 30
-          Top = 175
+          Top = 117
           Width = 58
           Height = 18
           AutoSize = False
@@ -172,29 +172,14 @@ object Form_Defaults: TForm_Defaults
           Font.Style = []
           ParentFont = False
         end
-        object Label_EditorSettings: TLabel
-          Left = 7
-          Top = 72
-          Width = 116
-          Height = 13
-          Caption = 'RTF editor  settings: '
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          Transparent = False
-        end
         object LB_Zoom: TLabel
           Left = 167
-          Top = 95
+          Top = 37
           Width = 113
           Height = 13
           Alignment = taRightJustify
           AutoSize = False
           Caption = 'Default Zoom (%)'
-          FocusControl = Combo_Icons
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -204,7 +189,7 @@ object Form_Defaults: TForm_Defaults
         end
         object Label3: TLabel
           Left = 171
-          Top = 94
+          Top = 36
           Width = 17
           Height = 22
           Hint = 
@@ -219,32 +204,16 @@ object Form_Defaults: TForm_Defaults
           Font.Style = []
           ParentFont = False
         end
-        object Label6: TLabel
-          Left = 305
-          Top = 213
-          Width = 17
-          Height = 22
-          Hint = 'Save as plain text (Not used as defaults)'
-          AutoSize = False
-          Caption = '(*)'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
         object LB_PlainText: TLabel
-          Left = 33
-          Top = 214
-          Width = 265
+          Left = 34
+          Top = 155
+          Width = 304
           Height = 13
           Hint = 
-            'Normally, note contents are saved as Rich Text.'#13#10'If this option ' +
-            'is checked, contents of this folder will be saved as plain text ' +
-            '(all formatting will be removed).'#13#10#13#10'( Not used as defaults )'
+            'If checked, new notes (or new entries of existing notes) will de' +
+            'fault to plain text only, instead of Rich Text.'
           AutoSize = False
-          Caption = '&Plain text only'
+          Caption = 'Default &Plain text only (do not save formatting information)'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
           Font.Height = -11
@@ -253,11 +222,10 @@ object Form_Defaults: TForm_Defaults
           ParentFont = False
           Transparent = True
           StyleElements = [seClient, seBorder]
-          OnClick = LB_PlainTextClick
         end
         object CB_WordWrap: TCheckBox
           Left = 15
-          Top = 94
+          Top = 36
           Width = 152
           Height = 17
           Hint = 'Apply word-wrapping to long lines'
@@ -268,11 +236,11 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 0
         end
         object CB_URLDetect: TCheckBox
           Left = 15
-          Top = 143
+          Top = 85
           Width = 272
           Height = 17
           Hint = 'Highlight URLs in editor'
@@ -283,11 +251,11 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 4
         end
         object CB_UseTabChar: TCheckBox
           Left = 15
-          Top = 119
+          Top = 61
           Width = 203
           Height = 17
           Hint = 'Insert TAB character (#9) when Tab key pressed'
@@ -298,12 +266,12 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 4
+          TabOrder = 2
           OnClick = CB_UseTabCharClick
         end
         object Spin_TabSize: TSpinEdit
           Left = 286
-          Top = 117
+          Top = 59
           Width = 56
           Height = 22
           Hint = 'Number of spaces to insert when Tab key pressed'
@@ -316,43 +284,12 @@ object Form_Defaults: TForm_Defaults
           MaxValue = 32
           MinValue = 1
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 3
           Value = 4
-        end
-        object Edit_FolderName: TComboBox
-          Left = 17
-          Top = 30
-          Width = 234
-          Height = 21
-          Hint = 'Enter name for new folder'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 0
-          OnKeyPress = Edit_FolderNameKeyPress
-        end
-        object Combo_Icons: TGFXComboBox
-          Left = 261
-          Top = 30
-          Width = 79
-          Height = 22
-          Hint = 'Click to select icon for folder'
-          Extended = False
-          DropDownCount = 10
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 1
         end
         object Combo_DefEdLang: TLanguagesCombo
           Left = 94
-          Top = 172
+          Top = 114
           Width = 246
           Height = 22
           Language = 2048
@@ -367,11 +304,11 @@ object Form_Defaults: TForm_Defaults
           ParentShowHint = False
           ShowFlag = False
           ShowHint = True
-          TabOrder = 7
+          TabOrder = 5
         end
         object CB_Zoom: TComboBox
           Left = 286
-          Top = 90
+          Top = 32
           Width = 56
           Height = 21
           Hint = 'Allows to use a default value other than 100%'
@@ -381,7 +318,7 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 3
+          TabOrder = 1
           OnExit = CB_ZoomExit
           OnKeyPress = CB_ZoomKeyPress
           Items.Strings = (
@@ -397,7 +334,7 @@ object Form_Defaults: TForm_Defaults
         end
         object CB_PlainText: TCheckBox
           Left = 15
-          Top = 212
+          Top = 154
           Width = 17
           Height = 17
           Font.Charset = DEFAULT_CHARSET
@@ -406,35 +343,34 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 6
           StyleElements = [seClient, seBorder]
-          OnClick = CB_PlainTextClick
         end
         object BitBtn_FolderHelp: TBitBtn
-          Left = 129
-          Top = 67
+          Left = 315
+          Top = 1
           Width = 25
           Height = 25
           ImageIndex = 60
           Images = Form_Main.IMG_Toolbar
-          TabOrder = 9
+          TabOrder = 7
           TabStop = False
           OnClick = BitBtn_FolderHelpClick
         end
         object BitBtn_FolderChromeHelp: TBitBtn
           Left = 257
-          Top = 251
+          Top = 193
           Width = 25
           Height = 25
           ImageIndex = 60
           Images = Form_Main.IMG_Toolbar
-          TabOrder = 10
+          TabOrder = 8
           TabStop = False
           OnClick = BitBtn_FolderChromeHelpClick
         end
         object CB_InheritBGColor: TCheckBox
           Left = 131
-          Top = 312
+          Top = 256
           Width = 218
           Height = 17
           TabStop = False
@@ -446,7 +382,7 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 11
+          TabOrder = 9
         end
       end
     end
@@ -458,10 +394,10 @@ object Form_Defaults: TForm_Defaults
       StaticPageIndex = -1
       TabVisible = True
       object GBox_Tree: TGroupBox
-        Left = 2
+        Left = 4
         Top = 3
         Width = 349
-        Height = 337
+        Height = 285
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -471,7 +407,7 @@ object Form_Defaults: TForm_Defaults
         TabOrder = 0
         object Label5: TLabel
           Left = 17
-          Top = 27
+          Top = 19
           Width = 108
           Height = 26
           Caption = 'Default &Name for new tree nodes:'
@@ -484,23 +420,9 @@ object Form_Defaults: TForm_Defaults
           ParentFont = False
           WordWrap = True
         end
-        object Label_TreeSettings: TLabel
-          Left = 7
-          Top = 91
-          Width = 84
-          Height = 13
-          Caption = ' Tree settings: '
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          Transparent = False
-        end
         object Label2: TLabel
           Left = 18
-          Top = 196
+          Top = 158
           Width = 95
           Height = 13
           Caption = 'I&mage icons in tree:'
@@ -514,7 +436,7 @@ object Form_Defaults: TForm_Defaults
         end
         object Label8: TLabel
           Left = 7
-          Top = 258
+          Top = 200
           Width = 237
           Height = 13
           Caption = 'Default font and background color (Tree): '
@@ -528,7 +450,7 @@ object Form_Defaults: TForm_Defaults
         end
         object CB_TreeCheck: TCheckBox
           Left = 18
-          Top = 141
+          Top = 103
           Width = 277
           Height = 17
           Hint = 'Display or hide checkboxes in ALL nodes'
@@ -543,7 +465,7 @@ object Form_Defaults: TForm_Defaults
         end
         object Edit_NodeName: TComboBox
           Left = 132
-          Top = 25
+          Top = 17
           Width = 176
           Height = 21
           Hint = 'Enter default name for nodes added to tree'
@@ -557,7 +479,7 @@ object Form_Defaults: TForm_Defaults
         end
         object CB_AutoNumberNodes: TCheckBox
           Left = 144
-          Top = 53
+          Top = 45
           Width = 188
           Height = 17
           Hint = 'When adding a node, append sequential number to its name'
@@ -569,10 +491,11 @@ object Form_Defaults: TForm_Defaults
           Font.Style = []
           ParentFont = False
           TabOrder = 1
+          Visible = False
         end
         object BitBtn_TknHlp: TBitBtn
           Left = 315
-          Top = 23
+          Top = 15
           Width = 25
           Height = 25
           Hint = 'Help for auto-naming tree nodes'
@@ -583,7 +506,7 @@ object Form_Defaults: TForm_Defaults
         end
         object CB_Vertical: TCheckBox
           Left = 18
-          Top = 118
+          Top = 80
           Width = 277
           Height = 17
           Hint = 'Check to show tree ABOVE the editor'
@@ -598,7 +521,7 @@ object Form_Defaults: TForm_Defaults
         end
         object Combo_TreeImages: TComboBox
           Left = 132
-          Top = 193
+          Top = 155
           Width = 176
           Height = 21
           Style = csDropDownList
@@ -612,7 +535,7 @@ object Form_Defaults: TForm_Defaults
         end
         object CB_HideChecked: TCheckBox
           Left = 18
-          Top = 165
+          Top = 127
           Width = 277
           Height = 17
           Hint = 'Show or hide checked nodes'
@@ -627,7 +550,7 @@ object Form_Defaults: TForm_Defaults
         end
         object BitBtn_TreeChromeHelp: TBitBtn
           Left = 257
-          Top = 251
+          Top = 194
           Width = 25
           Height = 25
           ImageIndex = 60
@@ -638,12 +561,12 @@ object Form_Defaults: TForm_Defaults
         end
         object CB_TreeChrome_AllNotes: TCheckBox
           Left = 21
-          Top = 312
+          Top = 260
           Width = 180
           Height = 17
           Hint = 
-            'Font and BG color will be changed in the panels of ALL folders ' +
-            'in current file'
+            'Font and BG color will be changed in the panels of ALL folders i' +
+            'n current file'
           TabStop = False
           Caption = 'A&pply to ALL folders'
           Font.Charset = DEFAULT_CHARSET
@@ -751,6 +674,37 @@ object Form_Defaults: TForm_Defaults
       StyleElements = [seClient, seBorder]
       OnClick = CB_SaveAsDefClick
     end
+  end
+  object Edit_FolderName: TComboBox
+    Left = 8
+    Top = 51
+    Width = 247
+    Height = 21
+    Hint = 'Enter name for new folder'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 9
+    OnKeyPress = Edit_FolderNameKeyPress
+  end
+  object Combo_Icons: TGFXComboBox
+    Left = 278
+    Top = 51
+    Width = 79
+    Height = 22
+    Hint = 'Click to select icon for folder'
+    Extended = False
+    DropDownCount = 10
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 10
   end
   object ColorDlg: TColorDialog
     Options = [cdFullOpen, cdSolidColor, cdAnyColor]

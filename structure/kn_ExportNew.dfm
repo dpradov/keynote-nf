@@ -440,7 +440,6 @@ object Form_ExportNew: TForm_ExportNew
           HelpKeyword = '313-7'
           Caption = 'Tab'
           TabOrder = 8
-          OnClick = CB_IndentNodesClick
         end
       end
       object RG_NodeMode: TRadioGroup
@@ -496,7 +495,6 @@ object Form_ExportNew: TForm_ExportNew
           HelpKeyword = '313-11'
           Caption = 'Show hidden marks and IDs'
           TabOrder = 0
-          OnClick = CB_IndentNodesClick
         end
       end
     end

@@ -31,7 +31,7 @@ uses
    Vcl.Clipbrd,
    Vcl.Menus,
 
-   TreeNT,
+   VirtualTrees,
    RxRichEd,
    RxStrUtils,
 
@@ -105,7 +105,7 @@ uses
    gf_misc,
    kn_Global,
    kn_Main,
-   kn_KntNote,
+   knt.model.note,
    kn_DateTime,
    kn_LanguageSel,
    kn_Paragraph,
@@ -1569,7 +1569,7 @@ begin
   try
       case aCMD of
           ecCopy : begin
-            LastCopyFromScratchpad:= (Editor.NoteObj=nil);
+            LastCopyFromScratchpad:= (Editor.NNodeObj=nil);
             LastCopiedIDImage:= 0;
             if Editor.SupportsRegisteredImages then begin
                if Editor.SelLength = 1 then begin
@@ -1720,13 +1720,15 @@ var
   templist : TStringList;
   tempChrome : TChrome;
   ShiftWasDown : boolean;
-  myTreeNode : TTreeNTNode;
+  myTreeNode : PVirtualNode;
   myPara : TParaFormat2;
   maxIndent: integer;
   ErrNoTextSelected, ErrNotImplemented, Canceled: boolean;
   SelStartOrig, SelLengthOrig: integer;
   Editor: TKntRichEdit;
   Folder: TKntFolder;
+  TreeUI: TKntTreeUI;
+  NNode: TNoteNode;
 
     Procedure CmdNumbering(tipo : TRxNumbering);
     var
@@ -1758,6 +1760,7 @@ begin
   if not App.CheckActiveEditorNotReadOnly then exit;
 
   Editor:= ActiveEditor;
+  TreeUI:= ActiveTreeUI;
 
   Canceled:= False;
   ErrNoTextSelected:= False;
@@ -1785,7 +1788,7 @@ begin
                SetStrikeOut(not (fsStrikeout in Style));
 
           ecCut: begin
-              if (ImageMng.StorageMode <> smEmbRTF) and NoteSupportsRegisteredImages then begin
+              if Editor.SupportsRegisteredImages then begin
                  p:= -1;
                  if SelLength = 1 then begin
                     SelStartOrig:= -1;
@@ -1796,7 +1799,7 @@ begin
                     CheckToSelectLeftImageHiddenMark(SelStartOrig, SelLengthOrig);
                  end;
 
-                 kn_ClipUtils.CutToClipboard (ActiveEditor);
+                 kn_ClipUtils.CutToClipboard (Editor);
 
                  if p >= 0 then begin
                     // We have not copied (cut) the hidden label along with the image, and we must delete it from the initial point
@@ -1808,7 +1811,7 @@ begin
                     SetSelection(SelStartOrig, SelStartOrig + SelLengthOrig, true);
               end
               else
-                 kn_ClipUtils.CutToClipboard (ActiveEditor);
+                 kn_ClipUtils.CutToClipboard (Editor);
 
 
               LogRTFHandleInClipboard();
@@ -1858,7 +1861,7 @@ begin
 
           ecDelete : begin
             CheckToSelectImageHiddenMarkOnDelete;
-            ActiveEditor.Perform( WM_CLEAR, 0, 0 );
+            Editor.Perform( WM_CLEAR, 0, 0 );
           end;
 
           ecBullets :
@@ -2130,20 +2133,18 @@ begin
 
               if assigned(ActiveFolder) then begin
                  ActiveFolder.Modified:= true;
-                 if assigned(ActiveFolder.SelectedNote) then
-                    ActiveFolder.SelectedNote.RTFBGColor := tempChrome.BGColor;
-
-                 if ( not TreeOptions.InheritNodeBG ) then
-                    ActiveFolder.EditorChrome := tempChrome;
+                 NNode:= TreeUI.GetFocusedNNode;
+                 if assigned(NNode) then
+                    NNode.EditorBGColor := tempChrome.BGColor;
 
                  if ShiftWasDown then begin
                    if ( messagedlg( format(STR_55, [ActiveFolder.Name]),
                        mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
                      try
-                       myTreeNode := ActiveFolder.TV.Items.GetFirstNode;
-                       while assigned( myTreeNode ) do begin
-                         TKntNote( myTreeNode.Data ).RTFBGColor := tempChrome.BGColor;
-                         myTreeNode := myTreeNode.GetNext;
+                       myTreeNode := TreeUI.TV.GetFirst;
+                       while assigned(myTreeNode) do begin
+                          TreeUI.GetNNode(myTreeNode).EditorBGColor := tempChrome.BGColor;
+                          myTreeNode := TreeUI.TV.GetNext(myTreeNode);
                        end;
                      except
                         //aCmd := ecNone;
@@ -2159,22 +2160,22 @@ begin
 
           ecWordWrap : begin
              var wwActive: boolean;
-             var Note:= TKntNote(NoteObj);
-             if Note <> nil then begin
+             NNode:= TNoteNode(NNodeObj);
+             if NNode <> nil then begin
                 Folder:= TKntFolder(FolderObj);
-                case Note.WordWrap of
+                case NNode.WordWrap of
                    wwAsFolder :
                     if Folder.WordWrap then
-                       Note.WordWrap := wwNo
+                       NNode.WordWrap := wwNo
                     else
-                       Note.WordWrap := wwYes;
-                   wwYes : Note.WordWrap := wwNo;
-                   wwNo  : Note.WordWrap := wwYes;
+                       NNode.WordWrap := wwYes;
+                   wwYes : NNode.WordWrap := wwNo;
+                   wwNo  : NNode.WordWrap := wwYes;
                 end;
-                wwActive:= (Note.WordWrap = wwYes);
+                wwActive:= (NNode.WordWrap = wwYes);
              end
              else
-                wwActive:= not ActiveEditor.WordWrap;
+                wwActive:= not Editor.WordWrap;
 
              WordWrap := wwActive;
              if assigned(Folder) then begin
@@ -2473,8 +2474,8 @@ begin
       if ( aCmd <> ecNone ) then begin
         Editor.Change;
         Editor.ChangedSelection;
-        if (aCmd = ecWordWrap) and assigned(ActiveEditor.NoteObj) then
-           App.NoteModified(TKntNote(ActiveEditor.NoteObj), TKntFolder(ActiveEditor.FolderObj));
+        if (aCmd = ecWordWrap) and assigned(Editor.NNodeObj) then
+           App.ChangeInEditor(Editor);
 
         if (CopyFormatMode = cfEnabledMulti) and (aCmd = ecPasteFormat)  then
            EnableCopyFormat(True);
@@ -2737,31 +2738,24 @@ var
 begin
     executed:= False;
     if assigned(ActiveEditor) and ActiveEditor.Focused then begin
-       if not assigned(ActiveEditor.NoteObj) then begin
-          executed:= true;
-          ActiveEditor.PasteBestAvailableFormat('', true, true);
+       executed:= true;
+       if fromButton then begin
+           if CtrlDown then
+             PasteIntoNew( true )
+           else
+           if AltDown then
+             Form_Main.MMEditPasteSpecialClick( nil )
+           else
+           if ShiftDown or ActiveEditor.PlainText then
+             PerformCmd( ecPastePlain )
+           else
+             PerformCmd( ecPaste );
        end
        else
-       if ActiveEditor.Focused then begin
-          executed:= true;
-          if fromButton then begin
-              if CtrlDown then
-                PasteIntoNew( true )
-              else
-              if AltDown then
-                Form_Main.MMEditPasteSpecialClick( nil )
-              else
-              if ShiftDown or ActiveEditor.PlainText then
-                PerformCmd( ecPastePlain )
-              else
-                PerformCmd( ecPaste );
-          end
+          if ForcePlain or not ActiveEditor.SupportsImages then
+             PerformCmd( ecPastePlain )
           else
-             if ForcePlain or not ActiveEditor.SupportsImages then
-                PerformCmd( ecPastePlain )
-             else
-                PerformCmd( ecPaste );
-       end
+             PerformCmd( ecPaste );
     end
     else begin
         if not assigned(ActiveTreeUI) then exit;
@@ -2771,7 +2765,7 @@ begin
         end
         else if ActiveTreeUI.Focused then begin
            executed:= true;
-           ActiveTreeUI.PasteSubtree;
+           ActiveTreeUI.TreeTransferProc(ttPaste, KeyOptions.ConfirmTreePaste, ForcePlain);
         end;
     end;
 
@@ -2795,7 +2789,7 @@ begin
         end
         else if ActiveTreeUI.Focused then begin
            executed:= true;
-           ActiveFolder.TreeUI.TreeTransferProc(ttCopy, KeyOptions.ConfirmTreePaste, false, false );  // Lift Subtree
+           ActiveFolder.TreeUI.TreeTransferProc(ttCopy, KeyOptions.ConfirmTreePaste, false);  // Lift Subtree
         end;
     end;
     Result:= Executed;
@@ -2814,10 +2808,10 @@ begin
     else begin
         if not assigned(ActiveTreeUI) then exit;
         if ActiveTreeUI.IsEditing then begin
-           executed:= false;     // will be managed by the TreeNT component
+           executed:= false;     // will be managed by the Tree component
         end
         else if ActiveTreeUI.Focused then begin
-             ActiveTreeUI.TreeTransferProc(ttCopy, KeyOptions.ConfirmTreePaste, false, true );  // Copy Subtree for moving
+             ActiveTreeUI.TreeTransferProc(ttCut, KeyOptions.ConfirmTreePaste, false);  // Copy Subtree for moving
              executed:= true;
         end;
     end;

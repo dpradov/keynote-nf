@@ -60,7 +60,7 @@ procedure RegisterBookmark( const Number : integer; aLocation : TLocation);
 begin
   if aLocation = nil then exit;
 
-  KntFile.Bookmarks[Number]:= aLocation;
+  ActiveFile.Bookmarks[Number]:= aLocation;
 
   with BookmarkGetMenuItem( Number ) do begin
      Enabled := true;
@@ -89,7 +89,7 @@ procedure BookmarkInitializeAll;
 var
   i : integer;
 begin
-  if assigned( KntFile ) then  begin
+  if assigned( ActiveFile ) then  begin
     for i := 0 to MAX_BOOKMARKS do
         BookmarkClear(i, false);
   end;
@@ -101,11 +101,11 @@ procedure BookmarkClear( const Number : integer; DeleteBookmark: boolean= true )
 var
   aLocation : TLocation;
 begin
-  aLocation:= KntFile.Bookmarks[Number];
+  aLocation:= ActiveFile.Bookmarks[Number];
   if assigned(aLocation) then begin
      if DeleteBookmark then
         DeleteBookmark09(aLocation);
-     KntFile.Bookmarks[Number]:= nil;
+     ActiveFile.Bookmarks[Number]:= nil;
      aLocation.Free;
      with BookmarkGetMenuItem( Number ) do begin
         Enabled := false;
@@ -122,7 +122,7 @@ var
   aLocation: TLocation;
 
 begin
-  aLocation:= KntFile.Bookmarks[Number];
+  aLocation:= ActiveFile.Bookmarks[Number];
   if assigned(aLocation) then begin
      if JumpToLocation(aLocation) then
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Jumped, [Number] )
@@ -144,9 +144,9 @@ begin
     tf.WriteLine(_NF_Bookmarks);
 
     for i := 0 to MAX_BOOKMARKS do begin
-        aLocation:= KntFile.Bookmarks[i];
+        aLocation:= ActiveFile.Bookmarks[i];
         if assigned(aLocation) then begin
-           Str:= BuildKNTLocationText(aLocation);
+           Str:= BuildKntURL(aLocation);
            tf.WriteLine(Format(_NF_Bookmark + '=%d,%s', [i, Str]), false);
         end;
     end;

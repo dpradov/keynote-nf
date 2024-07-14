@@ -4,16 +4,16 @@ unit kn_filemgr;
  
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2024 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 
 interface
@@ -24,6 +24,7 @@ uses
    System.SysUtils,
    System.Classes,
    System.IniFiles,
+   System.Generics.Collections,
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
@@ -32,9 +33,9 @@ uses
    Vcl.ComCtrls,
    Vcl.ExtCtrls,
    RxPlacemnt,
-   TreeNT,
+   VirtualTrees, VirtualTrees.BaseTree, VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL,
    kn_Const,
-   kn_KntFile
+   kn_KntFile 
    ;
 
 
@@ -51,13 +52,15 @@ type
     Count : integer;
     Format: TKntFileFormat;
     Version : string;
+    ImageIndex: integer;
     constructor Create;
   end;
+  TKntFileInfoList = TList<TKntFileInfo>;
+
 
 type
   TForm_KntFileMgr = class(TForm)
     Panel_Btn: TPanel;
-    TVmgr: TTreeNT;
     Label1: TLabel;
     Label2: TLabel;
     Label4: TLabel;
@@ -77,23 +80,30 @@ type
     Button_Cancel: TButton;
     CheckBox_FullPaths: TCheckBox;
     FormPlacement: TFormPlacement;
+    TV: TVirtualStringTree;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure FormKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Button_OKClick(Sender: TObject);
     procedure Button_CancelClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure TVChange(Sender: TObject; Node: TTreeNTNode );
-    procedure TVmgrDblClick(Sender: TObject);
     procedure CheckBox_FullPathsClick(Sender: TObject);
-    function FormHelp(Command: Word; Data: NativeInt;
-      var CallHelp: Boolean): Boolean;
+    function FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
+    procedure TV_CompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+    procedure TVGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+                        TextType: TVSTTextType; var CellText: string);
+    procedure TVGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind;
+                             Column: TColumnIndex; var Ghosted: Boolean; var ImageIndex: TImageIndex);
+    procedure TVPaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas;
+                         Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
+    procedure TVSelectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure TVmgrDblClick(Sender: TObject);
+
   private
-    { Private declarations }
+    function GetFileInfo(Node: PVirtualNode): TKntFileInfo;
+
   public
-    { Public declarations }
     OK_Click : boolean;
     Initializing : boolean;
     MgrFileName : string;
@@ -102,11 +112,10 @@ type
     ShowFullPaths : boolean;
 
     procedure LoadFileList;
-    procedure RefreshFileList;
   end;
 
 var
-  FileManager : TStringList;
+  FileManager : TKntFileInfoList;
 
 function SaveFileManagerInfo( FN : string ) : boolean;
 function LoadFileManagerInfo( FN : string ) : boolean;
@@ -147,7 +156,7 @@ begin
   Version := NFILEVERSION_MAJOR + '.' + NFILEVERSION_MINOR;
   Count := 0;
   Format := low( TKntFileFormat );
-end; // TKntFileInfo.CREATE
+end;
 
 function SaveFileManagerInfo( FN : string ) : boolean;
 var
@@ -172,11 +181,9 @@ begin
   with IniFile do
   try
     try
-      for i := 0 to pred( FileManager.Count ) do
-      begin
-        Info := TKntFileInfo( FileManager.Objects[i] );
-        if ( assigned( Info ) and fileexists( Info.Name )) then
-        begin
+      for i := 0 to pred( FileManager.Count ) do begin
+        Info := FileManager[i];
+        if assigned(Info) and fileexists(Info.Name) then begin
           inc( cnt );
           section := inttostr( cnt );
           writestring( section, 'Name', '"' + Info.Name + '"' );
@@ -191,8 +198,7 @@ begin
       IniFile.UpdateFile;
 
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         messagedlg( E.Message, mtError, [mbOK], 0 );
         exit;
       end;
@@ -203,7 +209,8 @@ begin
 
   result := true;
 
-end; // SaveFileManagerInfo
+end;
+
 
 function LoadFileManagerInfo( FN : string ) : boolean;
 var
@@ -232,13 +239,11 @@ begin
   try
     try
       ReadSections( sections );
-      if ( sections.Count > 0 ) then
-      begin
-        for i := 0 to pred( sections.count ) do
-        begin
+      if ( sections.Count > 0 ) then begin
+        for i := 0 to pred( sections.count ) do begin
           section := sections[i];
           s := normalFN( readstring( section, 'Name', '' ));
-          if ( not FileExists( s )) then continue;
+          if ( not FileExists(s)) then continue;
 
           Info := TKntFileInfo.Create;
           Info.Name := s;
@@ -261,25 +266,38 @@ begin
             Info.Format := low( TKntFileFormat );
           end;
 
-          FileManager.AddObject( s, Info );
+          FileManager.Add(Info);
 
         end;
       end;
 
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         App.DoMessageBox( STR_01 + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
+
   finally
     IniFile.Free;
     sections.Free;
   end;
 
-  result := ( FileManager.Count > 0 );
-end; // LoadFileManagerInfo
+  result := (FileManager.Count > 0);
+end;
+
+
+function GetFileIndex(const FN : string): integer;
+var
+  i: integer;
+begin
+   for i:= 0 to FileManager.Count-1 do
+      if FileManager[i].Name = FN then
+         exit(i);
+
+   Result:= -1;
+end;
+
 
 function AddToFileManager( const FN : string; const aFile : TKntFile ) : boolean;
 var
@@ -287,28 +305,18 @@ var
   i : integer;
 begin
   result := false;
-  if (( not assigned( FileManager )) or
-      ( not assigned( aFile )) or
-      ( not FileExists( FN ))) then exit;
+  if not assigned(FileManager) or not assigned(aFile) or not FileExists(FN) then exit;
 
   Info := nil;
-  i := FileManager.IndexOf( FN );
+  i := GetFileIndex(FN);
 
   try
     if ( i >= 0 ) then
-    begin
-      // this file is already present in FileManager
-      // so just reference the existing storage object
-      Info := TKntFileInfo( FileManager.Objects[i] );
-    end
+      Info := FileManager[i]        // this file is already present in FileManager so just reference the existing storage object
     else
-    begin
-      // new file, create a new storage object
-      Info := TKntFileInfo.Create;
-    end;
+      Info := TKntFileInfo.Create;  // new file, create a new storage object
 
-    with Info do
-    begin
+    with Info do begin
       Name := FN;
       Comment := aFile.Comment;
       Description := aFile.Description;
@@ -321,15 +329,12 @@ begin
     end;
 
     if ( i < 0 ) then // new object, so add it
-    begin
-      FileManager.AddObject( FN, Info );
-    end;
+      FileManager.Add(Info);
 
     result := true;
 
   except
-    on E : Exception do
-    begin
+    on E : Exception do begin
       if ( i < 0 ) then // new object, discard it
       begin
         if assigned( Info ) then Info.Free;
@@ -338,14 +343,13 @@ begin
     end;
   end;
 
-end; // AddToFileManager
+end;
 
 
 procedure TForm_KntFileMgr.FormCreate(Sender: TObject);
 begin
   Initializing := true;
-  with FormPlacement do
-  begin
+  with FormPlacement do begin
     UseRegistry := _FORMPOS_USE_REGISTRY;
     IniFileName := _FORMPOS_INIFILENAME;
   end;
@@ -362,10 +366,10 @@ begin
   HaveErrors := 0;
   SelectedFileName := '';
   ShowFullPaths := false;
-  with TVmgr do
+  with TV do
     SetWindowLong( Handle,
       GWL_STYLE, GetWindowLong(Handle, GWL_STYLE) or $80 );
-end; // FORM_CREATE
+end;
 
 procedure TForm_KntFileMgr.FormActivate(Sender: TObject);
 begin
@@ -377,55 +381,53 @@ begin
   try
     try
       LoadFileList;
-      TVmgr.AlphaSort;
+      TV.SortTree(-1, sdAscending);
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         messagedlg( STR_02 + E.Message, mtError, [mbOK], 0 );
         ModalResult := mrCancel;
       end;
     end;
+
   finally
     screen.Cursor := crDefault;
-    if ( TVmgr.Items.Count > 0 ) then
-    begin
-      TVmgr.OnChange := TVChange;
-      CheckBox_FullPaths.OnClick := CheckBox_FullPathsClick;
-    end
+    if (TV.TotalCount > 0) then
+      CheckBox_FullPaths.OnClick := CheckBox_FullPathsClick
     else
-    begin
-      TVmgr.OnChange := nil;
       CheckBox_FullPaths.OnClick := nil;
-    end;
-    Caption := Format( STR_03, [TVmgr.Items.Count] );
-  end;
-end; // FORM_ACTIVATE
 
-procedure TForm_KntFileMgr.FormCloseQuery(Sender: TObject;
-  var CanClose: Boolean);
+    Caption := Format( STR_03, [TV.TotalCount] );
+  end;
+
+end;
+
+
+function TForm_KntFileMgr.GetFileInfo(Node: PVirtualNode): TKntFileInfo;
+begin
+  Result:= TV.GetNodeData<TKntFileInfo>(Node);
+end;
+
+
+
+procedure TForm_KntFileMgr.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 var
   Info : TKntFileInfo;
 begin
   SelectedFileName := '';
-  if OK_Click then
-  begin
-    if assigned( TVmgr.Selected ) then
-    begin
-      if ( TVmgr.Selected.ImageIndex = NODEIMG_INVALID ) then
-      begin
-        messagedlg( format(STR_04,[Program_Name]), mtInformation, [mbOK], 0 );
-        CanClose := false;
-      end
-      else
-      begin
-        Info := TKntFileInfo( TVmgr.Selected.Data );
-        if assigned ( Info ) then
+
+  if OK_Click then begin
+     if assigned(TV.FocusedNode) then begin
+        Info := GetFileInfo(TV.FocusedNode);
+        if (Info.ImageIndex = NODEIMG_INVALID ) then begin
+          messagedlg( format(STR_04,[Program_Name]), mtInformation, [mbOK], 0 );
+          CanClose := false;
+        end
+        else
           SelectedFileName := Info.Name;
-      end;
-    end;
+     end;
   end;
   OK_Click := false;
-end; // FORM_CLOSEQUERY
+end;
 
 procedure TForm_KntFileMgr.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -457,153 +459,101 @@ end;
 
 procedure TForm_KntFileMgr.FormDestroy(Sender: TObject);
 begin
-  TVmgr.OnChange := nil;
-end; function TForm_KntFileMgr.FormHelp(Command: Word; Data: NativeInt;
+  TV.OnChange := nil;
+end;
+
+function TForm_KntFileMgr.FormHelp(Command: Word; Data: NativeInt;
   var CallHelp: Boolean): Boolean;
 begin
    CallHelp:= False;
    ActiveKeyNoteHelp_FormHelp(Command, Data);
 end;
 
-// FORM_DESTROY
 
-procedure TForm_KntFileMgr.RefreshFileList;
+procedure TForm_KntFileMgr.TV_CompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
 var
-  Info : TKntFileInfo;
-  Node : TTreeNTNode;
+  F1, F2: TKntFileInfo;
 begin
+  F1:= GetFileInfo(Node1);
+  F2:= GetFileInfo(Node2);
+  Result := CompareText(F1.Name, F2.Name);
+end;
 
-  if ( TVmgr.Items.Count = 0 ) then exit;
-
-  screen.Cursor := crHourGlass;
-  TVmgr.Items.BeginUpdate;
-  Node := TVmgr.Items.GetFirstNode;
-  try
-    while assigned( Node ) do
-    begin
-      Info := TKntFileInfo( Node.Data );
-      if assigned( Info ) then
-      begin
-        if ShowFullPaths then
-        begin
-          Node.Text := Info.Name;
-        end
-        else
-        begin
-          Node.Text := ExtractFilename( Info.Name );
-        end;
-      end;
-      Node := Node.GetNext;
-    end;
-  finally
-    TVmgr.AlphaSort;
-    TVmgr.Items.EndUpdate;
-    screen.Cursor := crDefault;
-  end;
-
-  // Caption := inttostr( i ) + ' out of ' + inttostr( TVmgr.Items.Count ) + ' nodes (' + inttostr( u ) + ' nils)';
-
-end; // RefreshFileList
 
 procedure TForm_KntFileMgr.LoadFileList;
 var
   i : integer;
-  TVSelNode, Node : TTreeNTNode;
-  s : string;
+  TVSelNode, Node : PVirtualNode;
   Info : TKntFileInfo;
 begin
 
   Node := nil;
   TVSelNode := nil;
 
-  if ( FileManager.Count = 0 ) then
-  begin
+  if ( FileManager.Count = 0 ) then begin
     messagedlg( STR_05, mtInformation, [mbOK], 0 );
     PostMessage( Self.Handle, WM_CLOSE, 0, 0 );
     exit;
   end;
 
-  TVmgr.Items.BeginUpdate;
+  TV.BeginUpdate;
+
   try
     try
-      for i := 0 to pred( FileManager.Count ) do
-      begin
-        Info := TKntFileInfo( FileManager.Objects[i] );
-        try
-          if assigned( Info ) then
-          begin
-            if ShowFullPaths then
-              s := Info.Name
-            else
-              s := ExtractFilename( Info.Name );
-            Node := TVmgr.Items.Add( nil, s );
-            if ( SelectedFileName = Info.Name ) then
-              TVSelNode := Node;
-            if FileExists( Info.Name ) then
-            begin
+      for i := 0 to pred( FileManager.Count ) do begin
+          Info := FileManager[i];
+          if assigned(Info) then begin
+            Node := TV.AddChild(nil);
+            if (SelectedFileName = Info.Name) then
+                TVSelNode := Node;
+
+            if FileExists(Info.Name) then begin
               case Info.Format of
-                nffKeyNote :    Node.ImageIndex := NODEIMG_TKN;
-                nffKeyNoteZip : Node.ImageIndex := NODEIMG_TKNZIP;
-                nffEncrypted : Node.ImageIndex := NODEIMG_ENC;
-{$IFDEF WITH_DART}
-                nffDartNotes : Node.ImageIndex := NODEIMG_DART;
-{$ENDIF}
+                nffKeyNote :    Info.ImageIndex := NODEIMG_TKN;
+                nffKeyNoteZip : Info.ImageIndex := NODEIMG_TKNZIP;
+                nffEncrypted :  Info.ImageIndex := NODEIMG_ENC;
               end;
-              Node.Data := Info;
             end
-            else
-            begin
-              Node.ImageIndex := NODEIMG_INVALID;
-              Node.Data := nil;
+            else begin
+              Info.ImageIndex := NODEIMG_INVALID;
               HaveErrors := 0;
             end;
-            Node.SelectedIndex := Node.ImageIndex;
+
+            TV.SetNodeData<TKntFileInfo>(Node, Info);
           end;
-        except
-          if assigned( Node ) then Node.Free;
-          raise;
-        end;
       end;
+
     except
-      on E : Exception do
-      begin
+      on E : Exception do begin
         messagedlg( E.Message, mtInformation, [mbOK], 0 );
         exit;
       end;
     end;
+
   finally
-    TVmgr.Items.EndUpdate;
-    if ( TVmgr.Items.Count > 0 ) then
-    begin
-      if assigned( TVSelNode ) then
-      begin
-        TVmgr.Selected := TVSelNode;
-        TVmgr.Selected.Font.Style := [fsBold];
+    TV.EndUpdate;
+    if (TV.TotalCount > 0) then begin
+      if assigned(TVSelNode) then begin
+        TV.FocusedNode := TVSelNode;
       end
       else
-      begin
-        TVmgr.Selected := TVmgr.Items[0];
-      end;
+        TV.FocusedNode := TV.GetFirst;;
     end;
-    TVmgr.SetFocus;
+    TV.Selected[TV.FocusedNode]:= True;
+    TV.SetFocus;
   end;
-
-  TVChange( self, TVmgr.Selected );
-
 
 end;
 
-// LoadFileList;
 
-procedure TForm_KntFileMgr.TVChange(Sender: TObject; Node: TTreeNTNode);
+procedure TForm_KntFileMgr.TVSelectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
   Info : TKntFileInfo;
   ModDate : TDateTime;
 begin
   if ( not assigned( Node )) then exit;
-  Info := TKntFileInfo( Node.Data );
-  if assigned( Info ) then
-  begin
+  Info := GetFileInfo(Node);
+  if assigned( Info ) then begin
     L_Desc.Caption := Info.Description;
     L_Comment.Caption := Info.Comment;
     L_Path.Caption := ExtractFilepath( Info.Name );
@@ -616,40 +566,13 @@ begin
       L_Modified.Caption := FormatDateTime( FormatSettings.ShortDateFormat + #32 + FormatSettings.ShortTimeFormat, ModDate )
     else
       L_Modified.Caption := STR_06;
-
-    {
-    if ( Info.Version <> '' ) then
-      L_Version.Caption := Info.Version
-    else
-      L_Version.Caption := 'unknown';
-    }
-    {
-    if (( Info.Version <> '' ) and ( Info.Version[1] <> NFILEVERSION_MAJOR )) then
-    begin
-      L_Version.Font.Color := clWhite;
-      L_Version.Font.Style := [fsBold];
-      L_Version.Color := clRed;
-    end
-    else
-    begin
-      L_Version.ParentColor := true;
-      L_Version.ParentFont := true;
-      L_Version.Font.Color := clHighlight;
-    end;
-    }
-
   end
-  else
-  begin
+  else begin
     HaveErrors := 0;
-    case Node.ImageIndex of
-      NODEIMG_TKN, NODEIMG_DART, NODEIMG_ENC : begin
-        L_Desc.Caption := STR_07;
-      end;
+    case Info.ImageIndex of
+      NODEIMG_TKN, NODEIMG_DART, NODEIMG_ENC : L_Desc.Caption := STR_07;
       else
-      begin
         L_Desc.Caption := STR_08;
-      end;
     end;
 
     L_Comment.Caption := '';
@@ -659,7 +582,7 @@ begin
     L_Count.Caption := '';
     L_Modified.Caption := '';
   end;
-end; // TVCHange
+end;
 
 
 procedure TForm_KntFileMgr.TVmgrDblClick(Sender: TObject);
@@ -668,20 +591,55 @@ begin
   ModalResult := mrOK;
 end;
 
+procedure TForm_KntFileMgr.TVGetImageIndex(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
+  var Ghosted: Boolean; var ImageIndex: TImageIndex);
+var
+  Info: TKntFileInfo;
+begin
+  if not (Kind in [TVTImageKind.ikNormal, TVTImageKind.ikSelected]) then exit;
+  Info:= GetFileInfo(Node);
+  ImageIndex:= Info.ImageIndex;
+end;
+
+procedure TForm_KntFileMgr.TVGetText(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
+  var CellText: string);
+var
+  Info: TKntFileInfo;
+begin
+  Info:= GetFileInfo(Node);
+
+  if ShowFullPaths then
+    CellText := Info.Name
+  else
+    CellText := ExtractFilename(Info.Name);
+end;
+
+
+procedure TForm_KntFileMgr.TVPaintText(Sender: TBaseVirtualTree;
+  const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  TextType: TVSTTextType);
+var
+  Info: TKntFileInfo;
+begin
+  Info:= GetFileInfo(Node);
+
+  if (SelectedFileName = Info.Name) then
+     TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
+end;
+
 procedure ClearFileManager;
 var
   i : integer;
 begin
-  if assigned( FileManager ) then
-  begin
+  if assigned( FileManager ) then begin
     if ( FileManager.Count > 0 ) then
-    begin
       for i := 0 to pred( FileManager.Count ) do
-        FileManager.Objects[i].Free;
-    end;
-  FileManager.Clear;
+        FileManager[i].Free;
+    FileManager.Clear;
   end;
-end; // ClearFileManager
+end;
 
 procedure FreeFileManager;
 begin
@@ -693,16 +651,15 @@ end;
 procedure TForm_KntFileMgr.CheckBox_FullPathsClick(Sender: TObject);
 begin
   ShowFullPaths := CheckBox_FullPaths.Checked;
-  RefreshFileList;
+  TV.SortTree(-1, sdAscending);
+  TV.Invalidate;
 end;
 
 
 
 
 Initialization
-  FileManager := TStringList.Create;
-  FileManager.Sorted := true;
-  FileManager.Duplicates := dupIgnore;
+ FileManager := TKntFileInfoList.Create;
 
 Finalization
   FreeFileManager;

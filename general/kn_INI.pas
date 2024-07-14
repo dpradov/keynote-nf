@@ -38,7 +38,7 @@ procedure LoadKeyNoteOptions(
     var FindOptions : TFindOptions;
     var EditorOptions : TEditorOptions;
     var ClipOptions : TClipOptions;
-    var TreeOptions : TKNTTreeOptions;
+    var TreeOptions : TKntTreeOptions;
     var ResPanelOptions : TResPanelOptions
   );
 
@@ -49,7 +49,7 @@ procedure SaveKeyNoteOptions(
     const FindOptions : TFindOptions;
     const EditorOptions : TEditorOptions;
     const ClipOptions : TClipOptions;
-    const TreeOptions : TKNTTreeOptions;
+    const TreeOptions : TKntTreeOptions;
     const ResPanelOptions : TResPanelOptions
   );
 
@@ -229,7 +229,7 @@ procedure InitializeClipOptions( var Struct : TClipOptions );
 procedure InitializeEditorOptions( var Struct : TEditorOptions );
 procedure InitializeResPanelOptions( var Struct : TResPanelOptions );
 procedure InitializeExportOptions( var Struct : TExportOptions );
-procedure InitializeTreeOptions( var Struct : TKNTTreeOptions );
+procedure InitializeTreeOptions( var Struct : TKntTreeOptions );
 
 type
   TClipOptionsIniStr = packed record
@@ -373,7 +373,7 @@ type
     RichEditv3,
     RunAutoMacros,
     SafePrint,
-    SaveDARTWarn,
+    //SaveDARTWarn,
     SaveDefaultFormat,
     ShellExecuteShowAllErrors,
     ShowFonts,
@@ -550,7 +550,7 @@ const
     RichEditv3 : 'RichEditv3';
     RunAutoMacros : 'RunAutoMacros';
     SafePrint : 'SafePrint';
-    SaveDARTWarn : 'SaveDARTWarn';
+    //SaveDARTWarn : 'SaveDARTWarn';
     SaveDefaultFormat : 'SaveDefaultFormat';
     ShellExecuteShowAllErrors : 'ShellExecuteShowAllErrors';
     ShowFonts : 'ShowFonts';
@@ -1015,7 +1015,7 @@ begin
     DebugLogAppend := true;
     DisableAlarmPopup:= false;
     DisableFileMon := false;
-    DropNodesOnTabMove := false;
+    //DropNodesOnTabMove := false;
     DropNodesOnTabPrompt := true;
     DTLastDateFmt := '';
     DTLastTimeFmt := '';
@@ -1093,7 +1093,7 @@ begin
 
     RunAutoMacros := false;
     SafePrint := true;
-    SaveDARTWarn := true;
+    //SaveDARTWarn := true;
     SaveDefaultFormat := nffKeyNote;
     ShellExecuteShowAllErrors := true;
     ShowFonts := true;
@@ -1250,7 +1250,7 @@ begin
 end; // InitializeMailOptions
 
 
-procedure InitializeTreeOptions( var Struct : TKNTTreeOptions );
+procedure InitializeTreeOptions( var Struct : TKntTreeOptions );
 begin
   with Struct do
   begin
@@ -1285,7 +1285,7 @@ procedure SaveKeyNoteOptions(
     const FindOptions : TFindOptions;
     const EditorOptions : TEditorOptions;
     const ClipOptions : TClipOptions;
-    const TreeOptions : TKNTTreeOptions;
+    const TreeOptions : TKntTreeOptions;
     const ResPanelOptions : TResPanelOptions
   );
 var
@@ -1330,7 +1330,7 @@ begin
       writebool( section, KeyOptionsIniStr.DebugLogAppend, KeyOptions.DebugLogAppend );
       writebool( section, KeyOptionsIniStr.DisableAlarmPopup, KeyOptions.DisableAlarmPopup );
       writebool( section, KeyOptionsIniStr.DisableFileMon, KeyOptions.DisableFileMon );
-      writebool( section, KeyOptionsIniStr.DropNodesOnTabMove, KeyOptions.DropNodesOnTabMove );
+      //writebool( section, KeyOptionsIniStr.DropNodesOnTabMove, KeyOptions.DropNodesOnTabMove );
       writebool( section, KeyOptionsIniStr.DropNodesOnTabPrompt, KeyOptions.DropNodesOnTabPrompt );
       writestring( section, KeyOptionsIniStr.DTLastDateFmt, KeyOptions.DTLastDateFmt );
       writestring( section, KeyOptionsIniStr.DTLastTimeFmt, KeyOptions.DTLastTimeFmt );
@@ -1398,7 +1398,7 @@ begin
       writebool( section, KeyOptionsIniStr.RichEditv3, KeyOptions.RichEditv3 );
       writebool( section, KeyOptionsIniStr.RunAutoMacros, KeyOptions.RunAutoMacros );
       writebool( section, KeyOptionsIniStr.SafePrint, KeyOptions.SafePrint );
-      writebool( section, KeyOptionsIniStr.SaveDARTWarn, KeyOptions.SaveDARTWarn );
+      //writebool( section, KeyOptionsIniStr.SaveDARTWarn, KeyOptions.SaveDARTWarn );
       writeinteger( section, KeyOptionsIniStr.SaveDefaultFormat, ord( KeyOptions.SaveDefaultFormat ));
       writebool( section, KeyOptionsIniStr.ShellExecuteShowAllErrors, KeyOptions.ShellExecuteShowAllErrors );
       writebool( section, KeyOptionsIniStr.ShowFonts, KeyOptions.ShowFonts );
@@ -1608,7 +1608,7 @@ procedure LoadKeyNoteOptions(
     var FindOptions : TFindOptions;
     var EditorOptions : TEditorOptions;
     var ClipOptions : TClipOptions;
-    var TreeOptions : TKNTTreeOptions;
+    var TreeOptions : TKntTreeOptions;
     var ResPanelOptions : TResPanelOptions
   );
 var
@@ -1656,7 +1656,7 @@ begin
       KeyOptions.DebugLogAppend := readbool( section, KeyOptionsIniStr.DebugLogAppend, KeyOptions.DebugLogAppend );
       KeyOptions.DisableAlarmPopup := readbool( section, KeyOptionsIniStr.DisableAlarmPopup, KeyOptions.DisableAlarmPopup );
       KeyOptions.DisableFileMon := readbool( section, KeyOptionsIniStr.DisableFileMon, KeyOptions.DisableFileMon );
-      KeyOptions.DropNodesOnTabMove := readbool( section, KeyOptionsIniStr.DropNodesOnTabMove, KeyOptions.DropNodesOnTabMove );
+      //KeyOptions.DropNodesOnTabMove := readbool( section, KeyOptionsIniStr.DropNodesOnTabMove, KeyOptions.DropNodesOnTabMove );
       KeyOptions.DropNodesOnTabPrompt := readbool( section, KeyOptionsIniStr.DropNodesOnTabPrompt, KeyOptions.DropNodesOnTabPrompt );
       KeyOptions.DTLastDateFmt := readstring( section, KeyOptionsIniStr.DTLastDateFmt, KeyOptions.DTLastDateFmt );
       KeyOptions.DTLastTimeFmt := readstring( section, KeyOptionsIniStr.DTLastTimeFmt, KeyOptions.DTLastTimeFmt );
@@ -1740,7 +1740,7 @@ begin
 
       KeyOptions.RunAutoMacros := readbool( section, KeyOptionsIniStr.RunAutoMacros, KeyOptions.RunAutoMacros );
       KeyOptions.SafePrint := readbool( section, KeyOptionsIniStr.SafePrint, KeyOptions.SafePrint );
-      KeyOptions.SaveDARTWarn := readbool( section, KeyOptionsIniStr.SaveDARTWarn, KeyOptions.SaveDARTWarn );
+      //KeyOptions.SaveDARTWarn := readbool( section, KeyOptionsIniStr.SaveDARTWarn, KeyOptions.SaveDARTWarn );
       i := readinteger( section, KeyOptionsIniStr.SaveDefaultFormat, 0 );
       if (( i < 0 ) or ( i > ord( high( TKntFileFormat )))) then i := 0;
       KeyOptions.ShellExecuteShowAllErrors := readbool( section, KeyOptionsIniStr.ShellExecuteShowAllErrors, KeyOptions.ShellExecuteShowAllErrors );

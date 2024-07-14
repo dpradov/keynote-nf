@@ -26,7 +26,8 @@ uses
    Vcl.Dialogs,
    Vcl.Forms,
    Vcl.Controls,
-   TreeNT,
+   VirtualTrees,
+   knt.ui.tree,
    RxRichEd,
    kn_KntFolder,
    kn_FindReplace
@@ -44,7 +45,7 @@ var
 
     SearchNode_Text, SearchNode_TextPrev : string;
     StartFolder: TKntFolder;
-    StartNode: TTreeNTNode;
+    StartNode: PVirtualNode;
 
 
 procedure DoFindNext;
@@ -72,7 +73,7 @@ uses
    kn_Info,
    kn_Global,
    kn_Cmd,
-   kn_KntNote,
+   knt.model.note,
    kn_LocationObj,
    kn_EditorUtils,
    knt.ui.editor,
@@ -94,7 +95,7 @@ var
    FollowMatch: boolean;
    LastFindNextAt: TDateTime;
 
-   ReplacingLastNode: TTreeNTNode;                 // ReplaceLastSearchedNode ReplaceLastNode
+   ReplacingLastNode: PVirtualNode;                 // ReplaceLastSearchedNode ReplaceLastNode
    ReplacingLastNodeHasRegImg: Boolean;
    SearchingFolder: TKntFolder;
    SearchingInEditor: TKntRichEdit;
@@ -167,7 +168,7 @@ begin
         messagedlg( E.Message, mtError, [mbOK], 0 );
   end;
 
-end; // RunFindReplace
+end;
 
 
 procedure RunFinder;
@@ -186,7 +187,7 @@ begin
   if not App.CheckActiveEditorNotReadOnly then exit;
 
   ReplaceEventProc(false);
-end; // RunReplaceNext
+end;
 
 
 procedure FindResultsToEditor( const SelectedOnly : boolean );
@@ -208,17 +209,17 @@ begin
 
   Editor:= ActiveEditor;
 
-  CaretInKNTLinksBAK:= TreeOptions.CaretInKNTLinks;
-  TreeOptions.CaretInKNTLinks:= True;
+  CaretInKNTLinksBAK:= KntTreeOptions.CaretInKNTLinks;
+  KntTreeOptions.CaretInKNTLinks:= True;
   try
       if SelectedOnly then begin
         i := SelectedMatch;
-        aLocation:= TLocation( TLocation( Location_List.Objects[pred( i )] ));
+        aLocation:= Location_List[pred(i)];
         InsertOrMarkKNTLink(aLocation, true, '');
       end
       else begin
         for i := 1 to cnt do begin
-          aLocation:= TLocation( TLocation( Location_List.Objects[pred( i )] ));
+          aLocation:= Location_List[pred(i)];
           Editor.SelText := #13 + Format( '%d. ', [i] );
           Editor.SelStart:= Editor.SelStart + Editor.SelLength;
           InsertOrMarkKNTLink(aLocation, true, '');
@@ -227,10 +228,10 @@ begin
       Editor.SelLength := 0;
 
   finally
-    TreeOptions.CaretInKNTLinks:= CaretInKNTLinksBAK;
+    KntTreeOptions.CaretInKNTLinks:= CaretInKNTLinksBAK;
   end;
 
-end; // FindResultsToEditor
+end;
 
 
 
@@ -239,7 +240,7 @@ var
 { The search string could contain hidden text corresponding to a used marker (for now only this type of hidden marker)
   as internal KNT link target. This would make it impossible to locate the searched string (currently done with RxRichEdit.FindText)
   if it is not taken into account.
-  Assume * a hidden character of KNT and [ and ] delimiting the text to search for. We could find something like: 
+  Assume * a hidden character of KNT and [ and ] delimiting the text to search for. We could find something like:
 
    A: [          ]
    B: ***
@@ -552,8 +553,8 @@ var
   SearchOpts : TRichSearchTypes;
   noteidx, i, MatchCount, PatternPos, PatternPos1, PatternPosN, PatternLen, SearchOrigin : integer;
   myFolder : TKntFolder;
-  myTreeNode : TTreeNTNode;
-  myNote : TKntNote;
+  myTreeNode : PVirtualNode;
+  myNNode : TNoteNode;
   LastFolderID, lastNoteGID : Cardinal;
   lastTag : integer;
   numNodosNoLimpiables: integer;
@@ -564,9 +565,8 @@ var
   ApplyFilter: boolean;
   nodeToFilter: boolean;
   nodesSelected: boolean;
-  oldActiveFolder: TKntFolder;
   SearchModeToApply : TSearchMode;
-  TreeNodeToSearchIn : TTreeNTNode;
+  TreeNodeToSearchIn : PVirtualNode;
   TreeNodeToSearchIn_AncestorPathLen: integer;
   TextPlain, TextPlainBAK: string;               // TextPlain = TextPlainBAK, in uppercase if not MatchCase
   TextToFind, PatternInPos1, PatternInPosN: string;
@@ -574,6 +574,8 @@ var
   str, s, path, strLocationMatch, strNodeFontSize, strNumberingFontSize, strBgColor: string;
   widthTwips: integer;
   RTFAux : TAuxRichEdit;
+  TreeUI: TKntTreeUI;
+  TV: TVTree;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -586,15 +588,19 @@ type
          str, strExtract : string;
        begin
           Location := TLocation.Create;
-          //Location.FileName := KntFile.FileName;
-          //Location.FolderName := myFolder.Name;
           Location.FolderID := myFolder.ID;
+          Location.Folder:= myFolder;
 
           if assigned(myTreeNode) then begin
-             myNote := TKntNote(myTreeNode.Data);
-             //Location.NoteName := myNote.Name;
-             Location.NoteGID := myNote.GID;
+             myNNode:= TreeUI.GetNNode(myTreeNode);
+             Location.NNodeGID := myNNode.GID;
+             Location.NNode:= myNNode;
+
+             nodesSelected:= true;
+             nodeToFilter:= false;
           end;
+          Location.NEntry:= myNNode.Note.Entries[0];       // %%%
+          Location.Calculated:= True;
 
           if not SearchingInNodeName then begin
              str:= TextPlainBAK;                                                      // original text, without case change
@@ -602,56 +608,49 @@ type
              Location.SelLength := Length(FirstPattern) + SizeInternalHiddenTextInPos1;
           end
           else begin
-             str:= myNote.Name;
+             str:= myNNode.NoteName;
              Location.SelLength := 0;
              Location.CaretPos := -1     // means: text found in node name
           end;
 
-          if assigned( myTreeNode ) then begin
-            if ApplyFilter and (not nodesSelected) then     // Only once per note
-               myFolder.TreeUI.MarkAllFiltered;     // There will be at least one node in the selection
-
-            nodeToFilter:= false;
-            nodesSelected:= true;
-          end;
-
           strExtract:= GetFindedPatternExtract(str, FirstPattern, PatternPos, Result, wordList, LastPattern, LastPatternPos);
-          Location_List.AddObject(strExtract, Location);
+          Location.Params:= strExtract;
+          Location_List.Add(Location);
        end;
 
        procedure GetCurrentNode;
        var
           path: string;
        begin
-          myTreeNode := myFolder.TreeUI.SelectedNode;
+          myTreeNode := TreeUI.FocusedNode;
           TreeNodeToSearchIn:= myTreeNode;
 
-          if (TreeNodeToSearchIn <> nil) and TreeOptions.ShowFullPathSearch then begin
-             path:= myFolder.TreeUI.GetNodePath( TreeNodeToSearchIn, TreeOptions.NodeDelimiter, true );
-             TreeNodeToSearchIn_AncestorPathLen:= Length(path) + Length(myFolder.Name) + 1 - Length(TreeNodeToSearchIn.Text);
+          if (TreeNodeToSearchIn <> nil) and KntTreeOptions.ShowFullPathSearch then begin
+             path:= TreeUI.GetNodePath( TreeNodeToSearchIn, KntTreeOptions.NodeDelimiter, true );
+             TreeNodeToSearchIn_AncestorPathLen:= Length(path) + Length(myFolder.Name) + 1 - Length(TreeUI.GetNNode(TreeNodeToSearchIn).NoteName);
           end;
 
        end;
 
-       function EnsureCheckMode (myTreeNode: TTreeNTNode): TTreeNTNode;
+       function EnsureCheckMode (myTreeNode: PVirtualNode): PVirtualNode;
        begin
           if assigned( myTreeNode ) then begin
-             if (myTreeNode.CheckState = csChecked) and (FindOptions.CheckMode = scOnlyNonChecked) then
-                myTreeNode := myTreeNode.GetNextNonChecked (FindOptions.HiddenNodes)
+             if (myTreeNode.CheckState = csCheckedNormal) and (FindOptions.CheckMode = scOnlyNonChecked) then
+                myTreeNode := TV.GetNextNotChecked(myTreeNode, FindOptions.HiddenNodes)
              else
-             if (myTreeNode.CheckState = csUnchecked) and (FindOptions.CheckMode = scOnlyChecked) then
-                myTreeNode := myTreeNode.GetNextChecked (FindOptions.HiddenNodes);
+             if (myTreeNode.CheckState <> csCheckedNormal) and (FindOptions.CheckMode = scOnlyChecked) then
+                myTreeNode := TV.GetNextChecked(myTreeNode, FindOptions.HiddenNodes)
           end;
           Result:= myTreeNode;
        end;
 
        procedure GetFirstNode;
        begin
-          myTreeNode := myFolder.TreeUI.GetFirstNode;
+          myTreeNode := TV.GetFirst;
 
           if assigned( myTreeNode ) then begin
-             if myTreeNode.Hidden and (not FindOptions.HiddenNodes) then
-                myTreeNode := myTreeNode.GetNextNotHidden;
+             if not TV.IsVisible[myTreeNode] and (not FindOptions.HiddenNodes) then
+               myTreeNode := TV.GetNextNotHidden(myTreeNode);
 
              myTreeNode:= EnsureCheckMode(myTreeNode);
           end;
@@ -662,14 +661,14 @@ type
           if (not assigned(myTreeNode)) then exit;
 
           if FindOptions.HiddenNodes then     // [dpv]
-             myTreeNode := myTreeNode.GetNext
+             myTreeNode := TV.GetNext(myTreeNode)
           else
-             myTreeNode := myTreeNode.GetNextNotHidden;
+             myTreeNode := TV.GetNextNotHidden(myTreeNode);
 
           myTreeNode:= EnsureCheckMode(myTreeNode);
 
           if (TreeNodeToSearchIn <> nil) and (myTreeNode <> nil) and
-               (myTreeNode.Level <= TreeNodeToSearchIn.Level) then begin
+               (TV.GetNodeLevel(myTreeNode) <= TV.GetNodeLevel(TreeNodeToSearchIn)) then begin
 
               myTreeNode := nil;
               exit;
@@ -677,7 +676,7 @@ type
 
        end;
 
-       procedure GetNextNote;
+       procedure GetNextFolder;
        begin
           if FindOptions.AllTabs then begin
              inc( noteidx );
@@ -686,6 +685,9 @@ type
                 FindDone := true
              else begin
                 myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject);
+                TreeUI:= myFolder.TreeUI;
+                TV:= TreeUI.TV;
+
                 GetFirstNode;
              end;
           end
@@ -796,7 +798,6 @@ begin
 
   if ( Form_Main.Combo_ResFind.Text = '' ) then exit;
 
-  oldActiveFolder:= ActiveFolder; // [dpv] For use if ApplyFilter=true
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
 
@@ -834,7 +835,7 @@ begin
   SearchModeToApply := FindOptions.SearchMode;
 
   myTreeNode := nil;
-  myNote := nil;
+  myNNode := nil;
   TreeNodeToSearchIn:= nil;
   TreeNodeToSearchIn_AncestorPathLen:= 0;
 
@@ -896,30 +897,34 @@ begin
       else
          myFolder := ActiveFolder; // will exit after one loop
 
+      TreeUI:= myFolder.TreeUI;
+      TV:= TreeUI.TV;
+
       if FindOptions.CurrentNodeAndSubtree then
          GetCurrentNode
       else begin
          GetFirstNode;
          while (not FindDone) and (not assigned(myTreeNode)) do
-            GetNextNote();
+            GetNextFolder();
       end;
 
 
-      // Recorremos cada nota
+      // Go through each Folder
       repeat
-            nodesSelected:= false; // in this note, at the moment
+            nodesSelected:= false; // in this Folder, at the moment
+            TreeUI.ClearAllFindMatch;
 
-            // Recorremos cada nodo (si es ntTree) o el único texto (si <> ntTree)
+            // Go through each Note Node (NNode)
             repeat
                 nodeToFilter:= true;               // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
                 SearchOrigin := 0;                 // starting a new node
 
                 if assigned(myTreeNode) and (FindOptions.SearchScope <> ssOnlyContent) then begin
-                  myNote := TKntNote(myTreeNode.Data);
+                  myNNode := TreeUI.GetNNode(myTreeNode);
                   if FindOptions.MatchCase then
-                     TextPlain:= myNote.Name
+                     TextPlain:= myNNode.NoteName
                   else
-                     TextPlain:= AnsiUpperCase( myNote.Name);
+                     TextPlain:= AnsiUpperCase( myNNode.NoteName);
 
                   FindPatternInText(true);
                 end;
@@ -935,31 +940,26 @@ begin
                 end;
 
                 if ApplyFilter and (assigned(myTreeNode) and (not nodeToFilter)) then
-                   TKntNote(myTreeNode.Data).Filtered := false;
+                   myNNode.FindFilterMatch := True;
 
                 GetNextNode;
 
             until UserBreak or not assigned(myTreeNode);
 
 
-            if ApplyFilter and nodesSelected then begin
-               Form_Main.FilterApplied(myFolder);
+            if ApplyFilter then begin
+               TreeUI.FindFilterApplied:= true;
+               TreeUI.SetFilteredNodes;
+               myFolder.Filtered:= True;
+               Form_Main.ApplyFilterOnFolder;
+               TreeUI.ApplyFilters(true);
 
-               ActiveFolder:= nil;      // -> TreeNodeSelected will exit doing nothing    ToDO: Not use ActiveFolder for this...
-               myFolder.TreeUI.HideFilteredNodes;
-
-               myTreeNode:= myFolder.TreeUI.GetFirstNode;
-               if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;
-               myFolder.TreeUI.SelectedNode:= nil;
-               myFolder.TreeUI.SelectedNode:= myTreeNode;   // force to select -> Folder.NodeSelected
-               ActiveFolder:= myFolder;
-
-               KntFile.Modified := true;
+               App.FileSetModified;
                myTreeNode:= nil;
             end;
 
             while (not UserBreak) and ((not FindDone) and (not assigned(myTreeNode))) do
-               GetNextNote();
+               GetNextFolder();
 
       until FindDone or UserBreak;
 
@@ -982,24 +982,25 @@ begin
          lastNoteGID := 0;
 
          for i := 1 to MatchCount do begin
-           Location := TLocation( Location_List.Objects[pred( i )] );
-           if (( LastFolderID <> Location.FolderID ) or ( lastNoteGID <> Location.NoteGID )) then begin
+           Location := Location_List[pred(i)];
+           if (( LastFolderID <> Location.FolderID ) or ( lastNoteGID <> Location.NNodeGID )) then begin
                LastFolderID := Location.FolderID;
-               lastNoteGID := Location.NoteGID;
-               GetTreeNodeFromLocation(Location, myFolder, myTreeNode);
+               lastNoteGID := Location.NNodeGID;
+               myFolder:= Location.Folder;
+               myTreeNode:= Location.Node;
 
                Path:= '';
-               if myTreeNode = nil then
+               if Location.NNode = nil then
                   strLocationMatch:= myFolder.Name
                else
-                  strLocationMatch:= myTreeNode.Text;
+                  strLocationMatch:= Location.NNode.NoteName;
 
-               if (myTreeNode <> nil) and TreeOptions.ShowFullPathSearch then begin
-                  Path:= PathOfKNTLink(myTreeNode.Parent, myFolder, 0, false, false, true);
+               if (myTreeNode <> nil) and KntTreeOptions.ShowFullPathSearch then begin
+                  Path:= PathOfKntLink(myTreeNode.Parent, myFolder, 0, false, false, true);
                   if (TreeNodeToSearchIn_AncestorPathLen > 0) then
                      Delete(Path, 1, TreeNodeToSearchIn_AncestorPathLen);
                   if Path <> '' then
-                     Path:= Path + TreeOptions.NodeDelimiter;
+                     Path:= Path + KntTreeOptions.NodeDelimiter;
                end;
                s:= '160';
                if i = 1 then s:= '60';
@@ -1012,7 +1013,7 @@ begin
               strBgColor:= '\clcbpat4';
 
            str:= str + Format('\trowd\trgaph0%s%s \intbl{\v\''11%s }{\b\fs%s %s.  }%s\cell\row ',
-                 [strBgColor, LastResultCellWidth, s, strNumberingFontSize, s, Location_List[pred( i )]]);
+                 [strBgColor, LastResultCellWidth, s, strNumberingFontSize, s, Location_List[pred(i)].Params]);
          end;
 
          str:= str + '}';
@@ -1028,7 +1029,6 @@ begin
     end;
 
   finally
-    ActiveFolder:= oldActiveFolder;
     Form_Main.UpdateFolderDisplay;
 
     // restore previous FindOptions settings
@@ -1044,7 +1044,7 @@ begin
     Form_Main.FindAllResults.ReadOnly:= True;
   end;
 
-end; // RunFindAllEx
+end;
 
 
 procedure ClearFindAllResults;
@@ -1094,7 +1094,7 @@ procedure FindAllResults_FollowMatch(i: integer);
 var
   Location : TLocation;
 begin
-  Location := TLocation( Location_List.Objects[i-1] );
+  Location := Location_List[i-1];
   if ( not assigned( Location )) then exit;
 
   JumpToLocation( Location, true,true,urlOpen,false,  true );
@@ -1229,7 +1229,7 @@ function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 begin
    if ActiveEditor = nil then exit(false);
 
-   if ActiveEditor.NoteObj <> nil then
+   if ActiveEditor.NNodeObj <> nil then
       Result:= RunFindNextInNotes (Is_ReplacingAll)
    else
       Result:= RunFindNextInEditor (Is_ReplacingAll);
@@ -1240,7 +1240,7 @@ function RunFindNextInNotes (Is_ReplacingAll: Boolean= False): boolean;
 var
   myFolder : TKntFolder;
   Editor: TKntRichEdit;
-  myTreeNode : TTreeNTNode;
+  myTreeNode : PVirtualNode;
   FindDone, Found : boolean;
   PatternPos : integer;
   SearchOrigin : integer;
@@ -1251,6 +1251,8 @@ var
   SizeInternalHiddenText: integer;
   TextPlain: string;
   RTFAux: TAuxRichEdit;
+  TreeUI: TKntTreeUI;
+  TV: TVTree;
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -1273,8 +1275,8 @@ var
   procedure GetFirstNode();
   begin
       myTreeNode := myFolder.TreeUI.GetFirstNode;
-      if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindOptions.HiddenNodes) then
-         myTreeNode := myTreeNode.GetNextNotHidden;
+      if assigned(myTreeNode) and not TV.IsVisible[myTreeNode] and (not FindOptions.HiddenNodes) then
+         myTreeNode := TV.GetNextNotHidden(myTreeNode);
   end;
 
 
@@ -1296,9 +1298,9 @@ var
 
      if FindOptions.AllTabs_FindReplace or FindOptions.AllNodes then begin
          if FindOptions.HiddenNodes then
-            myTreeNode := myTreeNode.GetNext
+            myTreeNode := TV.GetNext(myTreeNode)
          else
-            myTreeNode := myTreeNode.GetNextNotHidden;
+            myTreeNode := TV.GetNextNotHidden(myTreeNode);
 
          if not assigned( myTreeNode) then
             if (Wrap or Is_ReplacingAll) and (not FindOptions.AllTabs_FindReplace) then  // Si AllTabs -> pasaremos a otra nota
@@ -1330,6 +1332,8 @@ var
              tabidx := 0;
 
           myFolder := TKntFolder(Form_Main.Pages.Pages[tabidx].PrimaryObject);
+          TreeUI:= myFolder.TreeUI;
+          TV:= TreeUI.TV;
 
           GetFirstNode;
 
@@ -1346,9 +1350,9 @@ var
       if (myFolder <> ActiveFolder) then
          App.ActivateFolder(myFolder);
 
-      if myFolder.TreeUI.SelectedNode <> myTreeNode then begin
-         myTreeNode.MakeVisible;  // Could be hidden
-         myFolder.TreeUI.SelectedNode := myTreeNode;
+      if myFolder.TreeUI.FocusedNode <> myTreeNode then begin
+         myFolder.TreeUI.MakePathVisible(myTreeNode);   // Could be hidden
+         myFolder.TreeUI.SelectAlone(myTreeNode);
       end;
 
       SearchCaretPos (myFolder.Editor, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1),
@@ -1407,8 +1411,11 @@ begin
       end;
       if not assigned(myFolder) then exit;
 
+      TreeUI:= myFolder.TreeUI;
+      TV:= TreeUI.TV;
+
       Editor:= myFolder.Editor;
-      myTreeNode := myFolder.TreeUI.SelectedNode;
+      myTreeNode := TreeUI.FocusedNode;
 
       UpdateReplacingLastNodeHasRegImg;
 
@@ -1512,7 +1519,7 @@ begin
       RTFAux.Free;
   end;
 
-end; // RunFindNext;
+end;
 
 
 function RunFindNextInEditor (Is_ReplacingAll: Boolean= False): boolean;
@@ -1650,7 +1657,7 @@ begin
       SearchInProgress := false;
   end;
 
-end; // RunFindNextInEditor;
+end;
 
 
 
@@ -1663,7 +1670,7 @@ begin
       FindOptions := Form_FindReplace.MyFindOptions;
       Text_To_Find := FindOptions.Pattern;
       autoClose:= FindOptions.AutoClose and not Form_FindReplace.ModeReplace;
-      if ActiveEditor.NoteObj <> nil then
+      if ActiveEditor.NNodeObj <> nil then
          ResultFind:= RunFindNext
       else
          ResultFind:= RunFindNextInEditor;
@@ -1703,7 +1710,7 @@ var
   begin
      AppliedBeginUpdate:= True;
 
-     if Editor.NoteObj = nil then begin
+     if Editor.NNodeObj = nil then begin
         Editor.BeginUpdate;
         exit;
      end;
@@ -1721,7 +1728,7 @@ var
   begin
      if not AppliedBeginUpdate then exit;
 
-     if Editor.NoteObj = nil then begin
+     if Editor.NNodeObj = nil then begin
         Editor.EndUpdate;
         exit;
      end;
@@ -1850,8 +1857,8 @@ begin
                 if GetReplacementConfirmation then begin
                    inc(ReplaceCnt);
                    Editor.AddText(FindOptions.ReplaceWith);
-                   if Editor.NoteObj <> nil then
-                      App.NoteModified(TKntNote(Editor.NoteObj), TKntFolder(Editor.FolderObj));
+                   if Editor.NNodeObj <> nil then
+                      App.ChangeInEditor(Editor);
                 end;
 
                 Application.ProcessMessages;
@@ -1895,7 +1902,7 @@ begin
          DoMessageBox(Format( STR_02, [Text_To_Find] ), STR_12, 0, handle);
       end;
 
-end; // ReplaceEventProc
+end;
 
 
 procedure Form_FindReplaceClosed( sender : TObject );
@@ -1916,7 +1923,7 @@ begin
     Form_FindReplace := nil;
     Form_Main.FindNotify( true );
   end;
-end; // Form_ReplaceClosed
+end;
 
 
 Initialization

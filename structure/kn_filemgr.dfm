@@ -6,7 +6,7 @@ object Form_KntFileMgr: TForm_KntFileMgr
   BorderIcons = [biSystemMenu]
   Caption = 'File manager'
   ClientHeight = 270
-  ClientWidth = 465
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -27,11 +27,13 @@ object Form_KntFileMgr: TForm_KntFileMgr
   object Panel_Btn: TPanel
     Left = 0
     Top = 115
-    Width = 465
+    Width = 480
     Height = 155
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 114
+    ExplicitWidth = 461
     object Label1: TLabel
       Left = 12
       Top = 6
@@ -290,32 +292,33 @@ object Form_KntFileMgr: TForm_KntFileMgr
       TabOrder = 2
     end
   end
-  object TVmgr: TTreeNT
+  object TV: TVirtualStringTree
     Left = 0
     Top = 0
-    Width = 465
+    Width = 480
     Height = 115
     Hint = 'Double-click a file to open it in KeyNote'
     Align = alClient
-    Ctl3D = True
+    DefaultNodeHeight = 25
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -14
+    Font.Height = -15
     Font.Name = 'Tahoma'
     Font.Style = []
+    Header.AutoSizeIndex = 0
+    Header.MainColumn = -1
     Images = Chest.MGRImages
-    Indent = 19
-    InsertMarkColor = clScrollBar
-    ItemHeight = 16
-    Options = [toAutoExpand, toAutoScroll, toEvenHeight, toReadOnly, toRightClickSelect, toShowButtons, toShowLines, toShowRoot]
-    ParentColor = False
-    ParentCtl3D = False
+    IncrementalSearch = isAll
     ParentFont = False
-    ParentShowHint = False
-    ShowHint = False
-    ScrollTime = 0
     TabOrder = 1
-    OnDblClick = TVmgrDblClick
+    TreeOptions.SelectionOptions = [toAlwaysSelectNode, toSelectNextNodeOnRemoval]
+    OnChange = TVSelectionChange
+    OnCompareNodes = TV_CompareNodes
+    OnGetText = TVGetText
+    OnPaintText = TVPaintText
+    OnGetImageIndex = TVGetImageIndex
+    ExplicitWidth = 481
+    Columns = <>
   end
   object FormPlacement: TFormPlacement
     IniSection = 'MgrDlg'

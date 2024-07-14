@@ -309,7 +309,7 @@ begin
     if (( myKntFile.TrayIconFN <> '' ) and fileexists( myKntFile.TrayIconFN )) then begin
       CB_TrayIcon.Checked := true;
       Edit_TrayIcon.Text := myKntFile.TrayIconFN;
-      Image_TrayIcon.Picture.LoadFromFile( GetAbsolutePath(KntFile.File_Path, myKntFile.TrayIconFN) );
+      Image_TrayIcon.Picture.LoadFromFile( GetAbsolutePath(ActiveFile.File_Path, myKntFile.TrayIconFN) );
     end
     else
       CB_TrayIcon.Checked := false;
@@ -364,12 +364,12 @@ begin
   end;
 
   btnRecalcNextID.Visible := not lblImgWarning.Visible;
-  btnRecalcNextID.Enabled := (ImageMng.StorageMode <> smEmbRTF) and not KntFile.Modified;
+  btnRecalcNextID.Enabled := (ImageMng.StorageMode <> smEmbRTF) and not ActiveFile.Modified;
 
   cbImgStorageMode.ItemIndex := Ord(ImageMng.StorageMode);
   cbImgExtStorageType.ItemIndex:= Ord(ImageMng.ExternalStorageType);
   txtExtStorageLocation.Text:= ImageMng.ExternalStorageLocation;
-  ExtStorageLocationFake:= (KntFile.FileName = '');
+  ExtStorageLocationFake:= (ActiveFile.FileName = '');
   cbImgStorageMode.Enabled:= not ImageMng.ChangingImagesStorage;
   CheckExternalStorageEnabled;
 
@@ -610,7 +610,7 @@ begin
   fn := normalfn( Form_Main.OpenDlg.Filename );
   Action := ( Action and Fileexists( fn ));
   if Action then begin
-    Edit_TrayIcon.Text:= ExtractRelativePath(KntFile.File_Path, fn);
+    Edit_TrayIcon.Text:= ExtractRelativePath(ActiveFile.File_Path, fn);
     Image_TrayIcon.Picture.LoadFromFile( fn );
   end;
   TB_OpenDlgTrayIcon.Down:= false;
@@ -652,7 +652,7 @@ end;
 procedure TForm_KntFileInfo.cbImgStorageModeChange(Sender: TObject);
 begin
    if not (TImagesStorageMode(cbImgStorageMode.ItemIndex) in [smExternal, smExternalAndEmbKNT]) then begin
-      ExtStorageLocationFake:= (KntFile.FileName = '');
+      ExtStorageLocationFake:= (ActiveFile.FileName = '');
       txtExtStorageLocation.Text:= '';
       rbImagesStChange.Checked:= false;
    end;
@@ -756,7 +756,7 @@ begin
       end
       else begin
        if Dir <> '' then
-          Dir:= KntFile.File_Path;
+          Dir:= ActiveFile.File_Path;
 
         with Form_Main.OpenDlg do begin
           Title := STR_14;

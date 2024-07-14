@@ -8,7 +8,7 @@ unit kn_Info;
 
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2024 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
@@ -26,7 +26,6 @@ uses
    System.SysUtils,
    System.Zip,
    Vcl.Graphics,
-   TreeNT,
    RxRichEd,
    SynGdiPlus,
    gf_misc,
@@ -392,7 +391,7 @@ type
 
 type
   // global options; NOT folder-specific
-  TKNTTreeOptions = packed record
+  TKntTreeOptions = packed record
     AutoNameVNodes : boolean;
     AutoScroll : boolean;
     ConfirmNodeDelete : boolean;
@@ -512,7 +511,7 @@ type
     //DefaultNoteType : TNoteType; // [*] remembers last type of note created
     DisableAlarmPopup: boolean;
     DisableFileMon : boolean; // disable file change monitoring
-    DropNodesOnTabMove : boolean; // when dropping nodes on another teb, MOVE them (if false, then COPY)
+    //DropNodesOnTabMove : boolean; // when dropping nodes on another teb, MOVE them (if false, then COPY)
     DropNodesOnTabPrompt : boolean; // prompt before copying nodes to another tab (folder)
     DTLastDateFmt : string;
     DTLastTimeFmt : string;
@@ -577,7 +576,7 @@ type
     RichEditv3 : boolean; // force version 3 of riched20.dll
     RunAutoMacros : boolean;
     SafePrint : boolean; // print straight from RxRichEdit, without using TRichPrinter
-    SaveDARTWarn : boolean; // [*] warn if saving to DartNOtes format, because some properties will be lost which DartNotes doesn't support
+    //SaveDARTWarn : boolean; // [*] warn if saving to DartNOtes format, because some properties will be lost which DartNotes doesn't support
     SaveDefaultFormat : TKntFileFormat; // [*]
     ShellExecuteShowAllErrors : boolean; // [*]
     ShowFonts : boolean ; // show real font styles in fton drop-down combo

@@ -34,8 +34,9 @@ uses
    ExtCtrls,
 
    RxRichEd,
+   VirtualTrees,
    kn_KntFolder,
-   kn_KntNote,
+   knt.model.note,
    knt.ui.editor
    ;
 
@@ -64,7 +65,7 @@ type
 
    protected
       FClipCapEditor : TKntRichEdit;
-      FClipCapNote: TKntNote;
+      FClipCapNNode: TNoteNode;
       FClipCapFolder: TKntFolder;
 
       procedure SetClipCapState( const IsOn : boolean );
@@ -84,7 +85,7 @@ type
       property ClipCapActive: boolean read GetClipCapActive;
       property ClipCapEditor : TKntRichEdit read FClipCapEditor write SetClipCapEditor;
       property ClipCapFolder : TKntFolder read FClipCapFolder;
-      property ClipCapNote : TKntNote read FClipCapNote;
+      property ClipCapNNode : TNoteNode read FClipCapNNode;
 
       constructor Create;
       destructor Destroy;
@@ -106,7 +107,6 @@ uses
    UWebBrowserWrapper,
    UAS,
    RichPrint,
-   TreeNT,
 
    gf_misc,
    gf_strings,
@@ -156,7 +156,7 @@ begin
    inherited Create;
 
    FClipCapEditor:= nil;
-   FClipCapNote:= nil;
+   FClipCapNNode:= nil;
    FClipCapFolder:= nil;
    ClipCapNextInChain := 0;
    _IS_CAPTURING_CLIPBOARD := false;
@@ -331,7 +331,7 @@ begin
          if (GetActiveWindow <> Form_Main.Handle ) or
               (not ClipOptions.IgnoreSelf and
                 (ClipCapEditor <> ActiveEditor) and
-                  ((ActiveEditor.NoteObj=nil) or (ActiveFolder=nil) or (ClipCapNote <> ActiveFolder.SelectedNote))
+                  ((ActiveEditor.NNodeObj=nil) or (ActiveFolder=nil) or (ClipCapNNode <> ActiveFolder.FocusedNNode))
               ) then begin
 
                ClpStr := Clipboard.TryAsText;
@@ -395,11 +395,11 @@ procedure TClipCapMng.SetClipCapEditor(value: TKntRichEdit);
 begin
     FClipCapEditor:= value;
     if assigned(value) then begin
-       FClipCapNote:= TKntNote(FClipCapEditor.NoteObj);
+       FClipCapNNode:= TNoteNode(FClipCapEditor.NNodeObj);
        FClipCapFolder:= TKntFolder(FClipCapEditor.FolderObj);
     end
     else begin
-       FClipCapNote:= nil;
+       FClipCapNNode:= nil;
        FClipCapFolder:= nil;
     end;
 
@@ -475,7 +475,7 @@ var
   i, j, len : integer;
   wavfn: string;
   myNodeName : string;
-  myTreeNode, myParentNode : TTreeNTNode;
+  myTreeNode, myParentNode : PVirtualNode;
   PasteOK, PasteOnlyURL : boolean;
   SourceURLStr : string;
   TitleURL : string;
@@ -625,8 +625,8 @@ begin
                  if (pos(CLIPDATECHAR, DividerString)=0) and (pos(CLIPTIMECHAR, DividerString)=0) and ((SourceURLStr = '') or (pos(CLIPSOURCE_Token, DividerString)=0)) then
                     DividerString:= '';   // Si no hay que separar de nada y el propia cadena de separación no incluye fecha, ni hora ni se va a mostrar el origen, ignorarla
 
-                 if ( ClipCapMng.ClipCapNote <> nil ) then
-                    myParentNode := Folder.TV.Items.FindNode( [ffData], '', ClipCapMng.ClipCapNote )
+                 if ( ClipCapMng.ClipCapNNode <> nil ) then
+                    myParentNode:= ClipCapMng.ClipCapNNode.TVNode
                  else
                     myParentNode := nil;
 
@@ -637,9 +637,9 @@ begin
                  end;
 
                  if assigned( myParentNode ) then
-                    myTreeNode := Folder.TreeUI.NewNode(tnAddChild, myParentNode, myNodeName, true )
+                    Folder.TreeUI.NewNode(tnAddChild, myParentNode, myNodeName, true )
                  else
-                    myTreeNode := Folder.TreeUI.NewNode(tnAddLast, nil, myNodeName, true );
+                    Folder.TreeUI.NewNode(tnAddLast, nil, myNodeName, true );
 
               end
           end;
@@ -841,7 +841,7 @@ var
   oldCNT : integer;
   CanPaste : boolean;
   myNodeName : string;
-  myTreeNode : TTreeNTNode;
+  NNode : TNoteNode;
 begin
   if ( not Form_Main.HaveKntFolders( true, false )) then exit;
 
@@ -861,8 +861,8 @@ begin
            clnDateTime :  myNodeName:= FormatDateTime(FormatSettings.ShortDateFormat + #32 + FormatSettings.ShortTimeFormat, now );
         end;
 
-        myTreeNode := ActiveFolder.TreeUI.NewNode(tnAddAfter, GetCurrentTreeNode, myNodeName, false );
-        CanPaste := assigned( myTreeNode );
+        NNode := ActiveFolder.TreeUI.NewNode(tnAddBelow, GetCurrentTreeNode, myNodeName, false );
+        CanPaste := assigned(NNode);
       end;
     end;
 
@@ -888,8 +888,12 @@ var
   PrintRE : TRichEdit;
   MS : TMemoryStream;
   PrintAllNodes : boolean;
-  myTreeNode : TTreeNTNode;
-  myNote : TKntNote;
+  Node : PVirtualNode;
+  NNode: TNoteNode;
+  NEntry: TNoteEntry;
+  TV: TVTree;
+  TreeUI: TKntTreeUI;
+
 begin
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveFolder )) then exit;
@@ -907,13 +911,15 @@ begin
   end;
   PrintAllNodes := false;
 
-  if (ActiveFolder.TV.Items.Count > 1 ) then
-  case messagedlg(STR_Print_01,
-      mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
-    mrYes : PrintAllNodes := true;
-    mrNo : PrintAllNodes := false;
-    else
-      exit;
+  TreeUI:= ActiveFolder.TreeUI;
+  TV:= TreeUI.TV;
+
+  if (TV.TotalCount > 1 ) then
+     case messagedlg(STR_Print_01, mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
+       mrYes : PrintAllNodes := true;
+       mrNo  : PrintAllNodes := false;
+       else
+         exit;
   end;
 
   if Form_Main.PrintDlg.Execute then begin
@@ -952,20 +958,18 @@ begin
           Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( ActiveFolder.Editor ), 1 );
       end
       else begin
-        myTreeNode := ActiveFolder.TV.Items.GetFirstNode;
-        if myTreeNode.Hidden then myTreeNode := myTreeNode.GetNextNotHidden;   // [dpv]
-        while assigned( myTreeNode ) do begin
-          myNote := TKntNote( myTreeNode.Data );
-          if assigned( myNote ) then begin
-            myNote.Stream.Position := 0;
-            PrintRE.Lines.LoadFromStream( myNote.Stream );
-            if KeyOptions.SafePrint then
+        Node := TV.GetFirst;
+        if not TV.IsVisible[Node] then Node := TV.GetNextNotHidden(Node);   // [dpv]
+        while assigned( Node ) do begin
+           NNode:= TreeUI.GetNNode(Node);
+           NEntry:= NNode.Note.Entries[0];            // %%%
+           NEntry.Stream.Position := 0;
+           PrintRE.Lines.LoadFromStream( NEntry.Stream );
+           if KeyOptions.SafePrint then
               PrintRE.Print( RemoveAccelChar( ActiveFolder.Name ))
-            else
+           else
               Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( PrintRE ), 1 );
-          end;
-          //myTreeNode := myTreeNode.GetNext;          // [dpv]
-          myTreeNode := myTreeNode.GetNextNotHidden;   // [dpv]
+           Node := TV.GetNextNotHidden(Node);
         end;
       end;
 

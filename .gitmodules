@@ -1,0 +1,3 @@
+[submodule "3rd_party/Virtual-TreeView"]
+	path = 3rd_party/Virtual-TreeView
+	url = https://github.com/JAM-Software/Virtual-TreeView.git

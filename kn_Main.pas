@@ -63,12 +63,13 @@ uses
    //RxGIF {, jpeg},
    TopWnd,
    ColorPicker,
-   TreeNT,
+   VirtualTrees,
    RichPrint,
 
    kn_Info,
    kn_Msgs,
    kn_KntFolder,
+   knt.model.note,
    knt.ui.tree
    ;
 
@@ -776,7 +777,6 @@ type
     //-------------- Menu_TV -----------
     Menu_TV: TPopupMenu;
     TVAlarmNode: TMenuItem;
-    N114: TMenuItem;
     TVInsertNode: TMenuItem;
     TVAddChildNode: TMenuItem;
     TVAddSibling: TMenuItem;
@@ -800,9 +800,8 @@ type
     TVVirtualNode_: TMenuItem;
     TVVirtualNode: TMenuItem;
     TVRefreshVirtualNode: TMenuItem;
-    N115: TMenuItem;
-    TVInsertMirrorNode: TMenuItem;
-    TVNavigateNonVirtualNote: TMenuItem;
+    TVInsertLinkedNode: TMenuItem;
+    TVNavigateNextLinkedNNode: TMenuItem;
     N90: TMenuItem;
     TVUnlinkVirtualNode: TMenuItem;
     N30: TMenuItem;
@@ -815,7 +814,7 @@ type
     TVCutSubtree: TMenuItem;
     TVCopySubtree: TMenuItem;
     TVGraftSubtree: TMenuItem;
-    TVGraftSubtreeMirror: TMenuItem;
+    TVGraftSubtreeLinked: TMenuItem;
     N56: TMenuItem;
     TVEraseTreeMem: TMenuItem;
     TVExport: TMenuItem;
@@ -837,13 +836,16 @@ type
     TVPasteNodeNameAsDateTime: TMenuItem;
     N104: TMenuItem;
     TVPasteNodeNameAsSel: TMenuItem;
-    N31: TMenuItem;
     TVSortNodes_: TMenuItem;
     TVSortSubtree: TMenuItem;
     TVSortTree: TMenuItem;
     actTVAlarmNode: TAction;
     actList_File: TActionList;
     actFileSave: TAction;
+    TVAddParent: TMenuItem;
+    actTVAddNode_Parent: TAction;
+    AddParent1: TMenuItem;
+    TVLinkedNode_: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -971,7 +973,7 @@ type
     procedure MMTreeFullCollapseClick(Sender: TObject);
     {
     procedure TVBeforeItemPaint(Sender: TObject;
-      Node: TTreeNTNode; ItemRect: TRect; NodeStates: TNodeStates;
+      Node: PVirtualNode; ItemRect: TRect; NodeStates: TNodeStates;
       var OwnerDraw: Boolean);
     }
     procedure MMViewNodeIconsClick(Sender: TObject);
@@ -1004,7 +1006,6 @@ type
     procedure TB_HiliteClick(Sender: TObject);
     procedure PagesDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
-    procedure PagesDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure MMInsertTermClick(Sender: TObject);
     procedure MMToolsGlosAddTermClick(Sender: TObject);
     procedure Toolbar_FormatClose(Sender: TObject);
@@ -1060,9 +1061,7 @@ type
     procedure MMNoteSpellClick(Sender: TObject);
     procedure Markaslink1Click(Sender: TObject);
     procedure Hiddentext1Click(Sender: TObject);
-    procedure MMInsHyperlinkClick(Sender: TObject);
-    procedure Combo_FontKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure Combo_FontKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MMViewResPanelClick(Sender: TObject);
     procedure Pages_ResChange(Sender: TObject);
     procedure ListBox_ResMacroDblClick(Sender: TObject);
@@ -1183,13 +1182,13 @@ type
     procedure actTVAlarmNodeExecute(Sender: TObject);
     procedure actTVVirtualNodeExecute(Sender: TObject);
     procedure actTVRefreshVirtualNodeExecute(Sender: TObject);
-    procedure actTVInsertMirrorNodeExecute(Sender: TObject);
-    procedure actTVNavigateNonVirtualNoteExecute(Sender: TObject);
+    procedure actTVInsertLinkedNNodeExecute(Sender: TObject);
+    procedure actTVNavigateNextLinkedNNodeExecute(Sender: TObject);
     procedure actTVUnlinkVirtualNodeExecute(Sender: TObject);
     procedure actTVCutSubtreeExecute(Sender: TObject);
     procedure actTVCopySubtreeExecute(Sender: TObject);
     procedure actTVPasteSubtreeExecute(Sender: TObject);
-    procedure actTVPasteSubtreeMirrorExecute(Sender: TObject);
+    procedure actTVPasteSubtreeLinkedExecute(Sender: TObject);
     procedure actTVExportExecute(Sender: TObject);
     procedure actTVSortSubtreeExecute(Sender: TObject);
     procedure actTVSortTreeExecute(Sender: TObject);
@@ -1231,6 +1230,9 @@ type
     procedure MMFileSaveAsClick(Sender: TObject);
     procedure actList_FileUpdate(Action: TBasicAction; var Handled: Boolean);
     procedure actList_TVsUpdate(Action: TBasicAction; var Handled: Boolean);
+    procedure actTVAddNode_ParentExecute(Sender: TObject);
+    procedure CB_ResFind_FilterClick(Sender: TObject);
+//    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
   private
@@ -1326,16 +1328,14 @@ type
     procedure AnotherInstance;
     procedure ShiftTab( const ShiftRight : boolean );
 
-    procedure NodesDropOnTabProc( const DropTab : TTab95Sheet );
-
     procedure HotKeyProc( const TurnOn : boolean );
 
     {$IFDEF WITH_IE}
     function SelectVisibleControlForNote( const aNote : TKntNote ) : TNodeControl;
     {$ENDIF}
 
-    procedure FilterApplied (Folder: TKntFolder);
-    procedure FilterRemoved (Folder: TKntFolder);
+    procedure ApplyFilterOnFolder;
+    procedure FilterApplied (Applied: boolean);
 
     procedure UpdateAlarmStatus;
     procedure SetAlarm (ConsiderNoteAlarm: Boolean);
@@ -1366,7 +1366,6 @@ uses
    kn_LinksMng,
    kn_Cmd,
    kn_Const,
-   kn_KntNote,
    kn_StyleObj,
    kn_ImageForm,
    kn_ImagesUtils,
@@ -1403,9 +1402,9 @@ resourcestring
   STR_03 = '&Restore (%s)';
   STR_04 = '&Restore';
   STR_05 = 'Function key assignment updated';
-  STR_06 = 'Revert to last saved version of' + #13 + '%s?';  ////
-  STR_07 = 'OK to quit %s?';   ///
-  STR_08 = 'Unexpected error:  %s' + #13#13 +      ///
+  STR_06 = 'Revert to last saved version of' + #13 + '%s?';
+  STR_07 = 'OK to quit %s?';
+  STR_08 = 'Unexpected error:  %s' + #13#13 +
     'This message may indicate a bug in KeyNote NF. If the problem persists, please submit a bug reports with the Issue Manager' +
     ' available in KeyNote NF website: %s' + #13#13 +
     'You can continue working or terminate KeyNote NF. ' + #13 +
@@ -1414,19 +1413,20 @@ resourcestring
   STR_11 = ' INS';
   STR_12 = ' OVR';
   STR_17 = 'You seem to have upgraded KeyNote from version %s to %s.' + #13 +
-    'Files "history.txt" and "%s" contain information about ' +
-    'the latest changes and additions.' + #13#13 +
+    'Files "history.txt" and "%s" contain information about the latest changes and additions.' + #13#13 +
     'Do you want to view the file "history.txt" now?';
   STR_18 = 'History file not found: "%s"';
   STR_19 = 'Custom date formats reloaded (%d)';
-  STR_20 = 'Cannot load custom date formats from %s. Check if the file exists.';
+  STR_20 = 'Cannot load custom %s formats from %s. Check if the file exists.';
+  STR_20a = 'date';
+  STR_20b = 'time';
   STR_21 = 'Custom time formats reloaded (%d)';
-  STR_22 = 'Cannot load custom time formats from %s. Check if the file exists.';
-  STR_23 = 'Remove Filter on folder''s tree';
-  STR_24 = 'Apply Filter on folder''s tree';
-  STR_25 = 'This operation cannot be performed because no file is open.';
-  STR_26 = 'This operation cannot be performed because the currently open file has no folders.';
-  STR_27 = ' Cannot perform operation: Folder is Read-Only';
+  STR_23 = 'Disable Filter on folder tree';
+  STR_24 = 'Apply Filter on folder tree';
+  STR_10 = 'Cannot perform operation: ';
+  STR_25 = 'no file is open';
+  STR_26 = 'currently open file has no folders';
+  STR_27 = 'Folder is Read-Only';
   STR_29 = ' Printing folder...';
   STR_30 = ' Finished printing folder.';
   STR_31 = ' Preparing to send folder via email...';
@@ -1450,14 +1450,6 @@ resourcestring
   STR_69= 'The Style toolbar must be visible to use this command. Show the Style toolbar now?';
   STR_70= 'No style available or none selected';
   STR_71= 'Error: StyleManager does not exist.';
-
-  STR_72= 'Tree nodes can only be dropped on the tree, or on another tab.';
-  STR_74= 'Cannot transfer nodes to "%s", because target note is Read-Only.';
-  STR_75= 'Move';
-  STR_76= 'Copy';
-  STR_77= '%s dragged nodes to tab "%s"?';
-  STR_78= 'Failed to acquire source nodes.';
-  STR_79= ' Tab %d: %s';
 
   STR_81= 'Could not open KeyNote file "%s"';
   STR_82= 'This command will start your browser and direct it to KeyNote NF website, where ' +
@@ -1576,6 +1568,9 @@ procedure TForm_Main.FormCreate(Sender: TObject);
 begin
   InitializeKeynote(Self);
   MMP_PlainDefaultPaste.Hint:= MMEditPlainDefaultPaste.Hint;
+
+  RegisterDropTarget(Form_Main.Pages);
+
 end; // CREATE
 
 procedure TForm_Main.FormActivate(Sender: TObject);
@@ -1829,75 +1824,6 @@ begin
 end; // WMCopyData
 
 
-(*    // Old WMCopyData
-
-procedure TForm_Main.WMCopyData(Var msg: TWMCopyData);
-var
-  kntmsg : TKeyNoteMsg;
-  ext : string;
-begin
-  ReplyMessage( 0 );
-
-  // StatusBar.Panels[PANEL_HINT].Text := ' Received message from other instance';
-
-  kntmsg := PKeyNoteMsg( msg.Copydatastruct^.lpData )^;
-
-  case msg.Copydatastruct^.dwData of
-    KNT_MSG_SHOW : begin
-      KntFileToLoad := '';
-      CmdLineFileName := '';
-    end;
-    KNT_MSG_SHOW_AND_LOAD_FILE : begin
-      if ( kntmsg.strData <> NO_FILENAME_TO_LOAD ) then
-        KntFileToLoad := normalFN( kntmsg.strData )
-      else
-        KntFileToLoad := '';
-      CmdLineFileName := '';
-    end;
-    KNT_MSG_SHOW_AND_EXECUTE_FILE : begin
-      // CmdLineFileName
-      KntFileToLoad := '';
-      CmdLineFileName := normalFN( kntmsg.strData );
-    end;
-    KNT_MSG_SHOW_LOCATION: begin
-       JumpToKNTLocation( kntmsg.strData);
-       exit;
-    end
-    else begin
-      ProcessControlMessage( msg.Copydatastruct^.dwData, kntmsg );
-      exit;
-    end;
-  end;
-
-  Application.Minimize;
-  Application.Restore;
-  Application.BringToFront;
-
-
-  if ( KntFileToLoad <> '' ) then begin
-     if HaveKntFolders( false, false ) then begin
-        if ( KntFileToLoad = KntFile.FileName ) then begin
-          if ( PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
-          KntFile.Modified := false; // to prevent automatic save if modified
-        end;
-     end;
-     KntFileOpen( KntFileToLoad );
-  end
-  else
-  if ( CmdLineFileName <> '' ) then begin
-     if HaveKntFolders( false, false ) then begin
-        ext := ansilowercase( extractfileext( CmdLineFileName ));
-        if ( ext = ext_Macro ) then
-           ExecuteMacro( CmdLineFileName, '' )
-        else
-        if ( ext = ext_Plugin ) then
-           ExecutePlugin( CmdLineFileName );
-     end;
-  end;
-
-end; // WMCopyData
-*)
-
 procedure TForm_Main.ExecuteCallArgs (fromKntLauncher: boolean);
 var
   Open: boolean;
@@ -1915,10 +1841,10 @@ begin
       //PopupMessage( Format('KntFileToLoad: %s', [KntFileToLoad]), mtConfirmation, [mbYes], 0 );
       Open:= true;
       if HaveKntFolders( false, false ) then begin
-         if ( KntFileToLoad.ToUpper = KntFile.FileName.ToUpper ) then begin
-           if ( App.PopupMessage( Format(STR_06, [KntFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+         if ( KntFileToLoad.ToUpper = ActiveFile.FileName.ToUpper ) then begin
+           if ( App.PopupMessage( Format(STR_06, [ActiveFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
               Open:= false;
-           KntFile.Modified := false; // to prevent automatic save if modified
+           ActiveFile.Modified := false; // to prevent automatic save if modified
          end;
       end;
       if Open then
@@ -2046,7 +1972,10 @@ end; // CLOSEQUERY
 
 procedure TForm_Main.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  HotKeyProc( false ); // unregister hotkey
+   HotKeyProc( false ); // unregister hotkey
+
+   UnRegisterDropTarget(Form_Main.Pages);
+
 end; // FORM CLOSE
 
 procedure TForm_Main.FormDestroy(Sender: TObject);
@@ -2077,9 +2006,8 @@ begin
 
   try
     try
-
-      if assigned( KntFile ) then KntFile.Free;
-      // DestroyVCLControls;
+      DestroyVCLControls;
+      if assigned( ActiveFile ) then ActiveFile.Free;
 
     except
       // at this stage, we can only swallow all exceptions (and pride)
@@ -2098,8 +2026,8 @@ begin
     {$ENDIF}
   end;
 
-end; // DESTROY
-
+end;
+// DESTROY
 
 
 
@@ -2292,14 +2220,14 @@ begin
     Timer_Tick := 0;
     if Form_Main.HaveKntFolders( false, false ) then
     begin
-      if (( not FileChangedOnDisk ) and KntFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then
+      if (( not FileChangedOnDisk ) and ActiveFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then
       begin
-        if (( KntFile.FileName <> '' ) and ( not KntFile.ReadOnly )) then begin
+        if (( ActiveFile.FileName <> '' ) and ( not ActiveFile.ReadOnly )) then begin
           // only if saved previously
          {$IFDEF KNT_DEBUG}
            Log.Add( '-- Saving on TIMER' );
          {$ENDIF}
-           KntFileSave( KntFile.FileName );
+           KntFileSave( ActiveFile.FileName );
         end;
       end;
     end;
@@ -2348,8 +2276,8 @@ begin
        if assigned(ActiveEditor) then
           ActiveEditor.UpdateWordCount;
 
-    if (KntFile <> nil) and (not KntFile.TextPlainVariablesInitialized) and (_MillisecondsIdle >= 450) then
-       KntFile.UpdateTextPlainVariables(150);
+    if (ActiveFile <> nil) and (not ActiveFile.TextPlainVariablesInitialized) and (_MillisecondsIdle >= 450) then
+       ActiveFile.UpdateTextPlainVariables(150);
 
 
   except
@@ -2373,14 +2301,14 @@ begin
   if (( not ( AppIsClosing or Initializing or FileIsBusy )) and
       ( HaveKntFolders( false, false ))) then
   begin
-    if ( KeyOptions.AutoSave and KeyOptions.AutoSaveOnFocus and KntFile.Modified ) then
+    if ( KeyOptions.AutoSave and KeyOptions.AutoSaveOnFocus and ActiveFile.Modified ) then
     begin
-      if (( KntFile.FileName <> '' ) and ( not KntFile.ReadOnly )) then begin
+      if (( ActiveFile.FileName <> '' ) and ( not ActiveFile.ReadOnly )) then begin
         // only if saved previously
         {$IFDEF KNT_DEBUG}
           Log.Add( '-- Saving on Application DEACTIVATE' );
         {$ENDIF}
-          KntFileSave( KntFile.FileName );
+          KntFileSave( ActiveFile.FileName );
       end;
     end;
   end;
@@ -2485,7 +2413,7 @@ begin
      KntFileSave('')
   else begin
     if HaveKntFolders(false, false) then
-       KntFileSave(KntFile.FileName)
+       KntFileSave(ActiveFile.FileName)
     else
        KntFileSave('');
   end;
@@ -2518,10 +2446,10 @@ end;
 
 procedure TForm_Main.UpdateTabAndTreeIconsShow;
 begin
-  if assigned( KntFile ) then
+  if assigned( ActiveFile ) then
   begin
-    MMViewTabIcons.Enabled := KntFile.ShowTabIcons;
-    if ( KntFile.ShowTabIcons and TabOptions.Images ) then
+    MMViewTabIcons.Enabled := ActiveFile.ShowTabIcons;
+    if ( ActiveFile.ShowTabIcons and TabOptions.Images ) then
       Pages.Images := Chest.IMG_Categories
     else
       Pages.Images := nil;
@@ -2908,7 +2836,7 @@ begin
     Tab.ImageIndex := Folder.ImageIndex;
     App.ActivateFolder(Folder);
 
-    KntFile.Modified := true;
+    App.FileSetModified;
  end;
 end; // TAB SHIFT
 
@@ -2944,7 +2872,7 @@ begin
     Tab.ImageIndex := Folder.ImageIndex;
     App.ActivateFolder(Folder);
 
-    KntFile.Modified := true;
+    App.FileSetModified;
  end;
 
 end; // ShiftTab
@@ -2992,7 +2920,7 @@ end;
 
 procedure TForm_Main.MMEditPasteAsTextClick(Sender: TObject);
 begin
-  PerformCmd( ecPastePlain );
+  cmdPaste(false, true);
 end;
 
 
@@ -3144,9 +3072,9 @@ procedure TForm_Main.MMFormatBoldClick(Sender: TObject);
 var
   BoldWasDown : boolean;
 begin
-  if (self.ActiveControl is TTreeNT) and (assigned(ActiveFolder.SelectedNote)) then begin
+  if (self.ActiveControl is TVTree) and (assigned(ActiveFolder.FocusedNNode)) then begin
      ActiveFolder.TreeUI.SetNodeBold(nil, ShiftDown);
-     TB_Bold.Down := ActiveNote.Bold;           // Change could be rejected and button .Down state has ALREADY changed
+     TB_Bold.Down := ActiveNNode.Bold;           // Change could be rejected and button .Down state has ALREADY changed
   end
   else
      PerformCmd( ecBold );
@@ -3245,7 +3173,7 @@ end;
 
 procedure TForm_Main.MMFormatTextColorClick(Sender: TObject);
 begin
-   if (self.ActiveControl is TTreeNT) then
+   if (self.ActiveControl is TVTree) then
       ActiveFolder.TreeUI.SetNodeColor(nil,  KeyOptions.UseOldColorDlg, true, false, ShiftDown  )
    else
      if KeyOptions.UseOldColorDlg then
@@ -3256,7 +3184,7 @@ end;
 
 procedure TForm_Main.MMFormatHighlightClick(Sender: TObject);
 begin
-   if (self.ActiveControl is TTreeNT) then
+   if (self.ActiveControl is TVTree) then
       ActiveFolder.TreeUI.SetNodeColor(nil, KeyOptions.UseOldColorDlg, false, false, ShiftDown)
    else
      if KeyOptions.UseOldColorDlg then
@@ -3312,7 +3240,7 @@ end;
 
 procedure TForm_Main.MMFormatNoHighlightClick(Sender: TObject);
 begin
-   if (self.ActiveControl is TTreeNT) then
+   if (self.ActiveControl is TVTree) then
       ActiveFolder.TreeUI.SetNodeColor(nil, false, false, true, ShiftDown  )
    else
       PerformCmd( ecNoHighlight );
@@ -3322,7 +3250,7 @@ procedure TForm_Main.TB_ColorClick(Sender: TObject);
 begin
   TB_Color.OnClick := nil;
   try
-    if (self.ActiveControl is TTreeNT) then
+    if (self.ActiveControl is TVTree) then
       ActiveFolder.TreeUI.SetNodeColor(nil, false, true, false, ShiftDown  )
     else
       PerformCmd( ecFontColorBtn );
@@ -3335,7 +3263,7 @@ procedure TForm_Main.TB_HiliteClick(Sender: TObject);
 begin
   TB_Hilite.OnClick := nil;
   try
-    if (self.ActiveControl is TTreeNT) then
+    if (self.ActiveControl is TVTree) then
       ActiveFolder.TreeUI.SetNodeColor(nil, false, false, false, ShiftDown )
     else
       PerformCmd( ecHighlightBtn );
@@ -3357,12 +3285,15 @@ end; // MRUMRUItemClick
 procedure TForm_Main.DebugMenuClick(Sender: TObject);
 var
   s : string;
+  KntFile: TKntFile;
   // i : integer;
 begin
 {$IFDEF KNT_DEBUG}
   if assigned( Log ) then Log.Flush( true );
 {$ENDIF}
   { [debug] }
+
+  KntFile:= ActiveFile;
 
   s := 'Win32Platform: ' + Win32Platform.ToString + #13 +
        'Win32MajorVersion: ' + Win32MajorVersion.ToString + #13 +
@@ -3392,10 +3323,10 @@ begin
       s := s +
          'Active note name: ' + ActiveFolder.Name +#13;
 
-      s := s + 'Number of Tree nodes: ' + inttostr( ActiveFolder.TV.Items.Count ) + #13 +
-        'Number of Folder notes: ' + inttostr( ActiveFolder.NoteCount ) + #13;
-      if assigned( ActiveFolder.selectedNote ) then
-        s := s + 'Selected note: ' + ActiveFolder.SelectedNote.Name +#13;
+      s := s + 'Number of Tree nodes: ' + inttostr( ActiveFolder.TV.TotalCount ) + #13 +
+        'Number of Folder notes: ' + inttostr( ActiveFolder.NNodes.Count ) + #13;
+      if assigned( ActiveFolder.FocusedNNode) then
+        s := s + 'Selected note: ' + ActiveFolder.FocusedNNode.NoteName +#13;
     end
     else
       s := s + 'ActiveFolder NOT assigned' + #13;
@@ -3522,7 +3453,7 @@ begin
     if LoadDateFormatsList then
       messagedlg( Format( STR_19, [DATE_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
     else
-      messagedlg( Format( STR_20, [_DateFormatsFile] ), mtError, [mbOK], 0 );
+      messagedlg( Format( STR_20, [STR_20a, _DateFormatsFile] ), mtError, [mbOK], 0 );
   end
   else
     PerformCmd( ecInsDate );
@@ -3535,7 +3466,7 @@ begin
     if LoadTimeFormatsList then
       messagedlg( Format( STR_21, [TIME_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
     else
-      messagedlg( Format( STR_22, [_TimeFormatsFile] ), mtError, [mbOK], 0 );
+      messagedlg( Format( STR_20, [STR_20b, _TimeFormatsFile] ), mtError, [mbOK], 0 );
   end
   else
     PerformCmd( ecInsTime );
@@ -3616,43 +3547,32 @@ begin
 end;
 
 procedure TForm_Main.TB_FilterTreeClick(Sender: TObject);
-var
-   Folder: TKntFolder;
 begin
     if not assigned (ActiveFolder) then exit;
 
-    Folder:= ActiveFolder;
-
-    if not Folder.Filtered then begin
-        ShowFindAllOptions;
-        CB_ResFind_Filter.Checked:= true;
-        TB_FilterTree.Down:= false;
-    end
-    else begin
-        Folder.TreeUI.RemoveFilter;
-        FilterRemoved(Folder);
-    end;
+    ActiveFolder.Filtered:= not ActiveFolder.Filtered;
+    ActiveTreeUI.ApplyFilters(ActiveFolder.Filtered);
+    FilterApplied(ActiveFolder.Filtered);
 end;
 
-procedure TForm_Main.FilterApplied (Folder: TKntFolder);   // [dpv]
+procedure TForm_Main.ApplyFilterOnFolder;   // [dpv]
 begin
-    Folder.Filtered:= true;
-    if Folder = ActiveFolder then begin
-      TB_FilterTree.Down:= true;
-      MMViewFilterTree.Checked:= true;
-      TB_FilterTree.Hint:= STR_23;
-    end;
+   assert(assigned(ActiveFolder));
+
+   ActiveTreeUI.ApplyFilters(ActiveFolder.Filtered);
+   FilterApplied(ActiveFolder.Filtered);
 end;
 
-procedure TForm_Main.FilterRemoved (Folder: TKntFolder);   // [dpv]
+procedure TForm_Main.FilterApplied (Applied: boolean);   // [dpv]
 begin
-    Folder.Filtered:= false;
-    if Folder = ActiveFolder then begin
-      TB_FilterTree.Down:= false;
-      MMViewFilterTree.Checked:= false;
+   TB_FilterTree.Down:= Applied;
+   MMViewFilterTree.Checked:= Applied;
+   if Applied then
+      TB_FilterTree.Hint:= STR_23
+   else
       TB_FilterTree.Hint:= STR_24;
-    end;
 end;
+
 
 procedure TForm_Main.MMSortClick(Sender: TObject);
 begin
@@ -3671,7 +3591,7 @@ end;
 
 procedure TForm_Main.FormatCopyClick(AlloMultiMode: Boolean);
 begin
-  if not assigned( KntFile ) then exit;
+  if not assigned( ActiveFile ) then exit;
 
   if CopyFormatMode= cfDisabled then begin
      if AlloMultiMode and (GetKeyState(VK_CONTROL) < 0) then
@@ -3749,16 +3669,16 @@ var
 begin
   result := true;
   msg := '';
-  if ( not assigned( KntFile )) then begin
+  if ( not assigned( ActiveFile )) then begin
     result := false;
     if Warn then
-      msg := STR_25;
+      msg := STR_10 + STR_25;
   end
   else begin
-    if ( CheckCount and (( KntFile.Folders.Count < 1 ) or ( Pages.PageCount < 1 ))) then begin
+    if ( CheckCount and (( ActiveFile.Folders.Count < 1 ) or ( Pages.PageCount < 1 ))) then begin
       result := false;
       if Warn then
-        msg := STR_26;
+        msg := STR_10 + STR_26;
     end;
   end;
 
@@ -3771,7 +3691,7 @@ function TForm_Main.FolderIsReadOnly( const aFolder : TKntFolder; const Warn : b
 begin
   result := assigned( aFolder ) and aFolder.ReadOnly;
   if ( result and Warn ) then
-    StatusBar.Panels[PANEL_HINT].Text := STR_27;
+    StatusBar.Panels[PANEL_HINT].Text := STR_10 + STR_27;
 end; // FolderIsReadOnly
 
 (*  Not used. Referenced by kn_Main.GetKeyStates, not used
@@ -3961,7 +3881,7 @@ begin
     with Form_Mail do begin
       ShowHint := KeyOptions.ShowTooltips;
       myKntFolder := ActiveFolder;
-      myKntFile := KntFile;
+      myKntFile := ActiveFile;
       myINI_FN := MailINI_FN;
     end;
     case Form_Mail.ShowModal of
@@ -3983,24 +3903,24 @@ end; // MMEmailnoteClick
 
 procedure TForm_Main.UpdateAlarmStatus;
 var
-   HasNoteAlarms, HasNodeAlarms: Boolean;
-   myNote: TKntNote;
+   HasFolderAlarms, HasNodeAlarms: Boolean;
+   NNode: TNoteNode;
 
 begin
   HasNodeAlarms:= false;
-  HasNoteAlarms:= false;
+  HasFolderAlarms:= false;
 
   if assigned(ActiveFolder) then begin
-     myNote:= ActiveFolder.GetSelectedNote;
-     if assigned(myNote) then begin
-        HasNodeAlarms:= myNote.HasAlarms(false);
+     NNode:= ActiveFolder.FocusedNNode;
+     if assigned(NNode) then begin
+        HasNodeAlarms:= AlarmMng.HasAlarms(nil, NNode, false);
         TVAlarmNode.Checked:= HasNodeAlarms;
      end;
-     HasNoteAlarms:= ActiveFolder.HasAlarms(false);
+     HasFolderAlarms:= AlarmMng.HasAlarms(ActiveFolder, nil, false);
   end;
 
-  TB_SetAlarm.Down:= HasNoteAlarms or HasNodeAlarms;
-  MMSetAlarm.Checked:= HasNoteAlarms or HasNodeAlarms;
+  TB_SetAlarm.Down:= HasFolderAlarms or HasNodeAlarms;
+  MMSetAlarm.Checked:= HasFolderAlarms or HasNodeAlarms;
 end;
 
 
@@ -4049,33 +3969,33 @@ end;
 
 procedure TForm_Main.SetAlarm(ConsiderNoteAlarm: Boolean);
 var
-    myNote: TKntNote;
+    NNode: TNoteNode;
     HasFolderAlarms, HasNodeAlarms: Boolean;
 
 begin
    if not assigned(ActiveFile) or (not assigned(ActiveFolder)) then exit;
 
-   HasFolderAlarms:= ActiveFolder.HasAlarms(false);
+   HasFolderAlarms:= AlarmMng.HasAlarms(ActiveFolder, nil, false);
    HasNodeAlarms:= false;
-   myNote:= ActiveFolder.GetSelectedNote;
-   if myNote <> nil then
-      HasNodeAlarms:= myNote.HasAlarms(false);
+   NNode:= ActiveFolder.FocusedNNode;
+   if NNode <> nil then
+      HasNodeAlarms:= AlarmMng.HasAlarms(nil, NNode, false);
 
    if ConsiderNoteAlarm and (ShiftDown or (HasFolderAlarms and not HasNodeAlarms)) then
-      myNote:= nil;
+      NNode:= nil;
 
-   AlarmMng.EditAlarms (myNote, ActiveFolder, (GetKeyState(VK_CONTROL) < 0));
+   AlarmMng.EditAlarms (NNode, ActiveFolder, (GetKeyState(VK_CONTROL) < 0));
    UpdateAlarmStatus;
 end;
 
 
 procedure TForm_Main.TB_SetAlarmMouseEnter(Sender: TObject);
 var
-    myNote: TKntNote;
+    NNode: TNoteNode;
     hint: string;
     sep: String;
     I, N: integer;
-    Alarms: TList;
+    Alarms: TAlarmList;
 
     procedure AddAlarmsToHint;
     begin
@@ -4094,14 +4014,14 @@ begin
     sep:= '';
     hint:= '';
     N:= 0;
-    myNote:= ActiveFolder.GetSelectedNote;
+    NNode:= ActiveFolder.FocusedNNode;
 
-    if assigned(myNote) and myNote.HasAlarms(false) then begin
-       Alarms:= myNote.getAlarms(false);
+    if assigned(NNode) and AlarmMng.HasAlarms(nil, NNode, false) then begin
+       Alarms:= AlarmMng.GetAlarms(nil, NNode, false);
        AddAlarmsToHint;
     end;
-    if ActiveFolder.HasAlarms(false) then begin
-       Alarms:= ActiveFolder.GetAlarms(false);
+    if AlarmMng.HasAlarms(ActiveFolder, nil, false) then begin
+       Alarms:= AlarmMng.GetAlarms(ActiveFolder, nil, false);
        AddAlarmsToHint;
     end;
 
@@ -4141,7 +4061,7 @@ end; // MMViewTabIconsClick
 
 procedure TForm_Main.OnFileDropped( Sender : TObject; FileList : TStringList );
 begin
-      FileDropped( Sender, FileList );
+    FileDropped( Sender, FileList );
 end;
 
 
@@ -4228,7 +4148,7 @@ begin
     else
       myFolder.IconKind := TNodeIconKind( mi.Tag );
 
-    myFolder.TreeUI.ShowOrHideIcons((myFolder.IconKind <> niNone));
+    myFolder.TreeUI.ShowOrHideIcons;
     UpdateFolderDisplay(true);
     ActiveFile.Modified := true;
   end;
@@ -4263,7 +4183,7 @@ end;
 
 procedure TForm_Main.RTFMRestoreProportionsClick(Sender: TObject);
 begin
-   if Assigned(ActiveEditor.NoteObj) then
+   if Assigned(ActiveEditor.NNodeObj) then
       ActiveFolder.ReconsiderImageDimensionGoalsOnEditor (true)
    else
       ActiveEditor.ReconsiderImageDimensionGoals(true, imImage);        // Scratchpad
@@ -4322,30 +4242,31 @@ end;
 
 procedure TForm_Main.FindTreeNode;
 var
-  myTreeNode : TTreeNTNode;
+  myTreeNode : PVirtualNode;
   found : boolean;
   myFolder : TKntFolder;
-  selectedNode : TTreeNTNode;
+  selectedNode : PVirtualNode;
   FindAllTabs: boolean;
   FindHiddenNodes: boolean;
+  TreeUI: TKntTreeUI;
+  TV: TVTree;
 
   procedure GetFirstNode;
   begin
-	  myTreeNode := TKntFolder(myFolder).TV.Items.GetFirstNode;
-	  if assigned( myTreeNode ) and myTreeNode.Hidden and (not FindHiddenNodes) then
-		 myTreeNode := myTreeNode.GetNextNotHidden;
+	  myTreeNode := TV.GetFirst;
+	  if assigned(myTreeNode) and not TV.IsVisible[myTreeNode] and (not FindHiddenNodes) then
+		  myTreeNode := TV.GetNextNotHidden(myTreeNode);
   end;
-  
+
   procedure GetNextNode();
   begin
 	 if FindHiddenNodes then
-		myTreeNode := myTreeNode.GetNext
+      myTreeNode := TV.GetNext(myTreeNode)
 	 else
-		myTreeNode := myTreeNode.GetNextNotHidden;
+  		myTreeNode := TV.GetNextNotHidden(myTreeNode);
   end;
 
-
-  procedure GetNextNote();
+  procedure GetNextFolder();
   var
      tabidx : integer;
   begin
@@ -4357,6 +4278,8 @@ var
              tabidx := 0;
 
           myFolder := TKntFolder(Form_Main.Pages.Pages[tabidx].PrimaryObject);
+          TreeUI:= TKntFolder(myFolder).TreeUI;
+          TV:= TreeUI.TV;
           GetFirstNode;
      end;
    end;
@@ -4385,9 +4308,12 @@ begin
   if ( SearchNode_Text = '' ) then exit;
 
   found := false;
+  myFolder := ActiveFolder;
+  TreeUI:= TKntFolder(myFolder).TreeUI;
+  TV:= TreeUI.TV;
+
   selectedNode:= myTreeNode;
   GetNextNode;
-  myFolder := ActiveFolder;
 
   FindAllTabs := CB_ResFind_AllNotes.Checked;
   FindHiddenNodes:= CB_ResFind_HiddenNodes.Checked;
@@ -4395,13 +4321,13 @@ begin
   repeat
      if assigned(myTreeNode) then
      	  repeat
-					if Pos(SearchNode_Text, AnsiLowercase(myTreeNode.Text)) > 0  then	begin
+					if Pos(SearchNode_Text, AnsiLowercase(TreeUI.GetNNode(myTreeNode).NoteName)) > 0  then	begin
 					  found := true;
             if (myFolder <> ActiveFolder) then
                App.ActivateFolder(myFolder);
-            if myFolder.TV.Selected <> myTreeNode then begin
-               myTreeNode.MakeVisible;  // Could be hidden
-               myFolder.TV.Selected := myTreeNode;
+            if TV.FocusedNode <> myTreeNode then begin
+               TreeUI.MakePathVisible(myTreeNode);     // Could be hidden
+               TreeUI.SelectAlone(myTreeNode);
             end;
 					  break;
 					end;
@@ -4409,7 +4335,7 @@ begin
 			  until not assigned(myTreeNode) or (myTreeNode = selectedNode);
 
 		 if not found and (myTreeNode <> selectedNode) then begin
-	 	    GetNextNote();
+	 	    GetNextFolder();
 		    GetFirstNode();
 		 end;
 
@@ -4431,6 +4357,25 @@ begin
     CB_ResFind_CurrentNodeAndSubtree.Enabled:= not AllNotes;
 end;
 
+
+procedure TForm_Main.CB_ResFind_FilterClick(Sender: TObject);
+begin
+   if ActiveFolder = nil then exit;
+
+   if not CB_ResFind_Filter.Checked and ActiveTreeUI.FindFilterApplied then begin
+      ActiveTreeUI.FindFilterApplied:= false;
+      ActiveTreeUI.ClearAllFindMatch;
+      ActiveTreeUI.SetFilteredNodes;
+
+      if not ActiveTreeUI.TreeFilterApplied then begin
+         ActiveFolder.Filtered:= False;
+         ApplyFilterOnFolder;      
+      end;
+      
+      ActiveTreeUI.TV.Invalidate;
+   end;
+   
+end;
 
 procedure TForm_Main.MMFormatLS1Click(Sender: TObject);
 begin
@@ -4527,81 +4472,15 @@ begin
 end;
 
 
-// Move Subtree by drag and drop over the Tabs ------------------------
-
-procedure TForm_Main.NodesDropOnTabProc( const DropTab : TTab95Sheet );
-var
-  s : string;
-  DoMoveNodes : boolean;
-  sFolder, tFolder : TKntFolder;   // Source and target folders
-  sTree, tTree: TKntTreeUI;        // Source and target trees
-begin
-  DoMoveNodes := ( ShiftDown or KeyOptions.DropNodesOnTabMove );
-
-  if ( DropTab = Pages.ActivePage ) then begin
-    showmessage( STR_72 );
-    exit;
-  end;
-
-  sFolder := ActiveFolder;
-  tFolder := TKntFolder( DropTab.PrimaryObject );
-
-  if tFolder.ReadOnly then begin
-    App.DoMessageBox( Format(STR_74, [tFolder.Name]), mtError, [mbOK], 0 );
-    exit;
-  end;
-
-  if KeyOptions.DropNodesOnTabPrompt then begin
-    if DoMoveNodes then
-      s := STR_75
-    else
-      s := STR_76;
-    if (App.DoMessageBox(Format(STR_77, [s, DropTab.Caption]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes) then
-       exit;
-  end;
-
-  try
-    sTree:= ActiveFolder.TreeUI;
-    tTree:= tFolder.TreeUI;
-    if sTree.TreeTransferProc( ttCopy, false, false, false ) then begin              // step 1 - copy
-       App.ActivateFolder(DropTab.TabIndex);
-       if tTree.TreeTransferProc( ttPaste, false, false, DoMoveNodes ) then begin    // step 2 - paste
-          if DoMoveNodes then                                      // MOVE instead of copy, so delete originals
-            sTree.DeleteNode(nil, false, false);                   // Do not ask for confirmation. Copied nodes have the same GIDs
-       end;
-    end
-    else
-       messagedlg( STR_78, mtError, [mbOK], 0 );
-
-  finally
-     TKntTreeUI.ClearTransferNodes;
-  end;
-
-end; // NodesDropOnTabProc
-
-procedure TForm_Main.PagesDragDrop(Sender, Source: TObject; X, Y: Integer);
-var
-  DropTabIdx : integer;
-
-begin
-  DropTabIdx := Pages.GetTabAt( X, Y );
-  if (( DropTabIdx >= 0 ) and ( DropTabIdx < Pages.PageCount )) then
-    NodesDropOnTabProc( Pages.Pages[DropTabIdx] );
-end; // PagesDragDrop
-
-
 procedure TForm_Main.PagesDragOver(Sender, Source: TObject; X, Y: Integer;
   State: TDragState; var Accept: Boolean);
 var
   i : integer;
-  myTab : TTab95Sheet;
 begin
-  Accept := ( Source is TTreeNT );
-  if Accept then begin
-    i := Pages.GetTabAt(X,Y);
-    myTab := Pages.Pages[i];
-    if assigned( myTab ) then
-      StatusBar.Panels[PANEL_HINT].Text := Format(STR_79, [i, myTab.Caption] );
+  if (Source is TBaseVirtualTree) then begin
+     i := Pages.GetTabAt(X,Y);
+     App.ActivateFolder(i);
+     exit;
   end;
 end;
 
@@ -4677,9 +4556,9 @@ begin
     TB_HideChecked.Down := Hide;
 
     if Hide then
-       myFolder.TreeUI.HideChildNodesUponCheckState (nil, csChecked)
+       myFolder.TreeUI.HideChildNodesUponCheckState (nil, true)
     else
-       myFolder.TreeUI.ShowCheckedNodes (nil);
+       myFolder.TreeUI.ShowNonFilteredNodes (nil);
   end;
 
 end;
@@ -5067,7 +4946,7 @@ begin
   try
     if SaveDlg.Execute then begin
       fn := normalFN( SaveDlg.Filename );
-      ActiveFolder.TV.SaveToFile( fn, false );
+      ActiveTreeUI.SaveToFile(fn);
     end;
   finally
     ShowHiddenMarkers:= false;
@@ -5148,13 +5027,6 @@ begin
   with ActiveEditor.SelAttributes do
     Hidden := ( not Hidden );
 end;
-
-
-procedure TForm_Main.MMInsHyperlinkClick(Sender: TObject);
-begin
-  // CreateHyperlink;
-end;
-
 
 
 
@@ -5758,7 +5630,7 @@ end; // Menu_StdEditPopup
 
 procedure TForm_Main.MMTreeMasterNodeClick(Sender: TObject);
 begin
-  ActiveTreeUI.CreateMasterNode;
+  ActiveTreeUI.CreateParentNode(nil);
 end;
 
 procedure TForm_Main.FAMCopytoEditorClick(Sender: TObject);
@@ -5817,37 +5689,33 @@ end;
 procedure TForm_Main.ListBox_ResFavClick(Sender: TObject);
 var
   myFav : TLocation;
-  fn, nn : string;
+  fn, fldn, nn : string;
 begin
   myFav := GetSelectedFavorite;
-  if ( not assigned( myFav )) then exit;
+  if not assigned(myFav) then exit;
 
-  if myFav.ExternalDoc then
-  begin
+  if myFav.ExternalDoc then begin
     StatusBar.Panels[PANEL_HINT].Text := Format(STR_89, [myFav.Filename] );
     exit;
   end;
 
-  if (( not HaveKntFolders( false, false )) or
-     ( AnsiCompareText( KntFile.FileName, myFav.FileName ) <> 0 )) then
-  begin
-    fn := STR_90 + ExtractFilename( myFav.Filename );
-  end
+  if (not HaveKntFolders( false, false )) or (AnsiCompareText(ActiveFile.FileName, myFav.FileName) <> 0 ) then
+     fn := STR_90 + ExtractFilename(myFav.Filename)
   else
-  begin
-    fn := '';
+     fn := '';
+
+  nn := '';
+  fldn := '';
+
+  if myFav.Folder <> nil then begin
+     fldn:= myFav.Folder.Name;
+     if (myFav.NNode <> nil) then
+        nn := STR_91 + myFav.NNode.NodeName(myFav.Folder)
+     else
+        nn := '';
   end;
 
-  if ( myFav.NoteID > 0 ) then
-  begin
-    nn := STR_91 + myFav.NoteName;
-  end
-  else
-  begin
-    nn := '';
-  end;
-
-  StatusBar.Panels[PANEL_HINT].Text := Format(STR_92, [fn, myFav.FolderName, nn]);
+  StatusBar.Panels[PANEL_HINT].Text := Format(STR_92, [fn, fldn, nn]);
 
 end; // ListBox_ResFavClick
 
@@ -6090,7 +5958,7 @@ var
   Enabled, Checked: boolean;
 begin
    Checked:= (ImageMng.ImagesMode = imImage);
-   Enabled:= (ImageMng.StorageMode <> smEmbRTF) and (NoteSupportsRegisteredImages);
+   Enabled:= (ActiveEditor <> nil) and ActiveEditor.SupportsRegisteredImages;
 
    MMShowImages.Checked:= Checked;
    MMShowImages.Enabled:= Enabled;
@@ -6138,7 +6006,7 @@ begin
      var str: string;
      var i: integer;
 
-     if KntFile <> nil then begin
+     if ActiveFile <> nil then begin
         str:=       ActiveFolder.NoteTextPlain    + #13 + '--------     ' + #13;
         str:= str + ActiveFolder.Editor.TextPlain + #13 + '--------     ' + #13;
         str:= str + ActiveFolder.Editor.RtfText   + #13 + '--------     ' + #13;
@@ -6625,9 +6493,15 @@ begin
    SetAlarm (false);
 end;
 
+
+procedure TForm_Main.actTVAddNode_ParentExecute(Sender: TObject);
+begin
+  ActiveTreeUI.CreateParentNode(ActiveTreeUI.FocusedNode);
+end;
+
 procedure TForm_Main.actTVAddNode_AboveExecute(Sender: TObject);
 begin
-  ActiveTreeUI.AddNode(tnInsertBefore);
+  ActiveTreeUI.AddNode(tnAddAbove);
 end;
 
 procedure TForm_Main.actTVAddNode_ChildExecute(Sender: TObject);
@@ -6637,7 +6511,7 @@ end;
 
 procedure TForm_Main.actTVAddNode_BelowExecute(Sender: TObject);
 begin
-  ActiveTreeUI.AddNode(tnAddAfter);
+  ActiveTreeUI.AddNode(tnAddBelow);
 end;
 
 procedure TForm_Main.actTVAddNode_LastExecute(Sender: TObject);
@@ -6647,12 +6521,14 @@ end;
 
 procedure TForm_Main.actTVCheckNodeExecute(Sender: TObject);
 begin
-  ActiveTreeUI.ToggleCheckNode(ActiveTreeUI.SelectedNode);
+  ActiveTreeUI.ToggleCheckNode(ActiveTreeUI.FocusedNode);
 end;
 
 procedure TForm_Main.actTVBoldNodeExecute(Sender: TObject);
 begin
   ActiveTreeUI.SetNodeBold(nil, ShiftDown );
+  if (ActiveControl is TVTree) and assigned(ActiveNNode) then
+     TB_Bold.Down := ActiveNNode.Bold;
 end;
 
 procedure TForm_Main.actTVNodeTextColorExecute(Sender: TObject);
@@ -6684,22 +6560,22 @@ end;
 
 procedure TForm_Main.actTVChildrenCheckboxExecute(Sender: TObject);    // [dpv]
 begin
-  ActiveTreeUI.ToggleChildrenCheckbox(ActiveTreeUI.SelectedNode);
+  ActiveTreeUI.ToggleChildrenCheckbox(ActiveTreeUI.FocusedNode);
 end;
 
 procedure TForm_Main.actTVHideCheckedChildrenExecute(Sender: TObject);
 begin
-   ActiveTreeUI.HideChildNodesUponCheckState (ActiveTreeUI.SelectedNode, csChecked);
+   ActiveTreeUI.HideChildNodesUponCheckState (ActiveTreeUI.FocusedNode, true);
 end;
 
 procedure TForm_Main.actTVHideUncheckedChildrenExecute(Sender: TObject);
 begin
-   ActiveTreeUI.HideChildNodesUponCheckState (ActiveTreeUI.SelectedNode, csUnchecked);
+   ActiveTreeUI.HideChildNodesUponCheckState (ActiveTreeUI.FocusedNode, false);
 end;
 
 procedure TForm_Main.actTVShowNonFilteredExecute(Sender: TObject);
 begin
-   ActiveTreeUI.ShowCheckedNodes (ActiveTreeUI.SelectedNode);
+   ActiveTreeUI.ShowNonFilteredNodes (ActiveTreeUI.FocusedNode);
 end;
 
 procedure TForm_Main.actTVDeleteNodeExecute(Sender: TObject);
@@ -6761,27 +6637,38 @@ end;
 
 procedure TForm_Main.actTVVirtualNodeExecute(Sender: TObject);
 begin
-  ActiveTreeUI.VirtualNoteProc( vmNone, nil, '' );
+  ActiveFolder.VirtualNoteProc(ActiveTreeUI.FocusedNode, '' );
 end;
 
 procedure TForm_Main.actTVRefreshVirtualNodeExecute(Sender: TObject);
 begin
-  ActiveTreeUI.VirtualNoteRefresh( TreeOptions.ConfirmNodeRefresh );
+  ActiveTreeUI.VirtualNoteRefresh( KntTreeOptions.ConfirmNodeRefresh );
 end;
 
-procedure TForm_Main.actTVInsertMirrorNodeExecute(Sender: TObject);
+procedure TForm_Main.actTVInsertLinkedNNodeExecute(Sender: TObject);
 begin
-  ActiveTreeUI.InsertMirrorNode(ActiveTreeUI.SelectedNode);
+  ActiveTreeUI.InsertLinkedNNode(ActiveTreeUI.FocusedNode);
 end;
 
-procedure TForm_Main.actTVNavigateNonVirtualNoteExecute(Sender: TObject);
+procedure TForm_Main.actTVNavigateNextLinkedNNodeExecute(Sender: TObject);
 var
-  myTreeNode: TTreeNTNode;
+  NNode: TNoteNode;
+  nnf: TNoteNodeInFolder;
+  i: integer;
 begin
-    myTreeNode:= ActiveTreeUI.SelectedNode;
-    if assigned(myTreeNode) and assigned(myTreeNode.Data) then begin
-        NavigateToTreeNode(TKntNote(myTreeNode.Data).MirrorNode);
-    end;
+  NNode:= ActiveFolder.FocusedNNode;
+  i:= NNode.Note.GetIndexOfNNodeInFolder(NNode);
+  if i = High(NNode.Note.NNodes) then
+     i:= 0
+  else
+     inc(i);
+
+  nnf:= NNode.Note.NNodes[i];
+  if nnf.Folder <> ActiveFolder then
+     App.ActivateFolder(TKntFolder(nnf.Folder));
+
+  TKntFolder(nnf.Folder).TreeUI.MakePathVisible(nnf.NNode.TVNode);
+  TKntFolder(nnf.Folder).TreeUI.SelectAlone(nnf.NNode.TVNode);
 end;
 
 procedure TForm_Main.actTVUnlinkVirtualNodeExecute(Sender: TObject);
@@ -6804,14 +6691,14 @@ begin
   CmdPaste (false, false);
 end;
 
-procedure TForm_Main.actTVPasteSubtreeMirrorExecute(Sender: TObject);
+procedure TForm_Main.actTVPasteSubtreeLinkedExecute(Sender: TObject);
 begin
-  ActiveTreeUI.TreeTransferProc(ttPaste, KeyOptions.ConfirmTreePaste, true, false );
+  ActiveTreeUI.TreeTransferProc(ttPaste, KeyOptions.ConfirmTreePaste, true);
 end;
 
 procedure TForm_Main.actTVEraseTreeMemExecute(Sender: TObject);
 begin
-  ActiveTreeUI.TreeTransferProc(ttClear, false, false, false );
+  ActiveTreeUI.TreeTransferProc(ttClear, false, false);
 end;
 
 procedure TForm_Main.actTVExportExecute(Sender: TObject);
@@ -6821,7 +6708,7 @@ end;
 
 procedure TForm_Main.actTVSortSubtreeExecute(Sender: TObject);
 begin
-  ActiveTreeUI.SortSubtree(ActiveTreeUI.SelectedNode);
+  ActiveTreeUI.SortSubtree(ActiveTreeUI.FocusedNode);
 end;
 
 
@@ -6991,10 +6878,10 @@ end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);
 begin
-    if assigned(ActiveNote) then begin
-      Combo_Font.FontName := TreeUI.GetNodeFontFace(TreeUI.SelectedNode);
+    if assigned(ActiveNNode) then begin
+      Combo_Font.FontName := TreeUI.GetNodeFontFace(TreeUI.FocusedNode);
       Combo_FontSize.Text := inttostr( ActiveFolder.TreeChrome.Font.Size);
-      TB_Bold.Down := ActiveNote.Bold;
+      TB_Bold.Down := ActiveNNode.Bold;
     end;
 end;
 
@@ -7045,38 +6932,42 @@ end;
 
 procedure TForm_Main.actList_TVsUpdate(Action: TBasicAction; var Handled: Boolean);
 var
-  SelNote : TKntNote;
-  SelTreeNode: TTreeNTNode;
+  Node: PVirtualNode;
+  NNode : TNoteNode;
+  Note: TNote;
   IsVirtual : boolean;
-  IsKNTVirtual: boolean;
+  HasSeveralNNodes: boolean;
 
 begin
    Handled:= true;
    if ActiveTreeUI = nil then exit;
-   SelTreeNode:= ActiveTreeUI.SelectedNode;
+   Node:= ActiveTreeUI.FocusedNode;
 
    IsVirtual := false;
-   if SelTreeNode <> nil then begin
-      SelNote := TKntNote(SelTreeNode.Data);
-      IsVirtual := (SelNote.VirtualMode <> vmNone);
-      IsKNTVirtual := (SelNote.VirtualMode = vmKNTNode);
-      TVCheckNode.Checked := SelNote.Checked;
-      TVChildrenCheckbox.Checked := SelNote.ChildrenCheckbox;
-      TVBoldNode.Checked := SelNote.Bold;
+   HasSeveralNNodes:= false;
+
+   if Node <> nil then begin
+      NNode:= ActiveTreeUI.GetNNode(Node);
+      Note:= NNode.Note;
+      IsVirtual:= Note.IsVirtual;
+      HasSeveralNNodes := Note.NumNNodes > 1;
+
+      TVCheckNode.Checked := Node.CheckState.IsChecked;
+      TVChildrenCheckbox.Checked := NNode.ChildrenCheckbox;
+      TVBoldNode.Checked := NNode.Bold;
    end
    else
       TVCheckNode.Checked := false;
 
-   TVVirtualNode.Checked := IsVirtual and not IsKNTVirtual;
-   TVRefreshVirtualNode.Enabled := IsVirtual and not IsKNTVirtual;
+   TVVirtualNode_.Checked:= IsVirtual;
+   TVVirtualNode.Checked := IsVirtual;
+   TVRefreshVirtualNode.Enabled := IsVirtual;
    TVUnlinkVirtualNode.Enabled := IsVirtual;
-   TVNavigateNonVirtualNote.Enabled := IsKNTVirtual;
+   TVNavigateNextLinkedNNode.Enabled := HasSeveralNNodes;
+   TVLinkedNode_.Checked:= HasSeveralNNodes;
 
    TVChildrenCheckbox.Enabled := not ActiveFolder.Checkboxes;
-   if ActiveFolder.Checkboxes or (assigned(SelTreeNode) and assigned(SelTreeNode.Parent) and (SelTreeNode.Parent.CheckType = ctCheckBox)) then
-      TVCheckNode.Enabled := true
-   else
-      TVCheckNode.Enabled := false;
+   TVCheckNode.Enabled:= assigned(Node) and (Node.CheckType <> ctNone);
 end;
 
 procedure TForm_Main.UpdateOpenFile;
@@ -7095,9 +6986,10 @@ begin
         StatusBar.Panels[PANEL_FILEICON].Text := '';
         SelectStatusBarGlyph(false);
         StatusBar.Hint := '';
+        actFileSave.Enabled:= false;
       end
       else begin
-         if (KntFile.FileName <> '') then
+         if (ActiveFile.FileName <> '') then
            FN := F.File_Name
          else
            FN := STR_fs0;
@@ -7128,9 +7020,9 @@ begin
    if not assigned(F) then exit;
 
    WasModif:= actFileSave.Enabled;
-   Modif:= KntFile.Modified;
+   Modif:= ActiveFile.Modified;
    actFileSave.Enabled:= Modif;
-   if WasModif and Modif then exit;
+   if WasModif = Modif then exit;
 
    if Modif then
       status:= STR_fs4      // MOD
@@ -7149,7 +7041,7 @@ var
   s : string;
   myFolder : TKntFolder;
   Editor: TKntRichEdit;
-  Node: TTreeNTNode;
+  Node: PVirtualNode;
 
 begin
   s := '';
@@ -7195,7 +7087,7 @@ begin
          UpdateShowImagesState;
          ShowInsMode;
 
-         if myFolder.Filtered then FilterApplied (myFolder) else FilterRemoved (myFolder);
+         FilterApplied (myFolder.Filtered);
          if MMAlternativeMargins.Checked then
             Editor.Refresh;
       end;
