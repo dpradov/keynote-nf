@@ -1,1 +1,2 @@
-"C:\Program Files (x86)\Borland\BDS\4.0\Bin\BRCC32.EXE" Resources.rc
+REM %1: RC File (ej: Resources.rc)
+"C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\BRCC32.EXE" %1

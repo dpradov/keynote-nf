@@ -305,6 +305,7 @@ uses
    ;
 
 {$R *.dfm}
+{$R resources\VTcheckLight.RES}
 
 resourcestring
   STR_01 = 'Error creating node: ';
@@ -402,33 +403,12 @@ begin
 
    fNumberingDepthLimit:= 2;
 
-
    with TV do begin
      DefaultText := DEFAULT_NEW_NOTE_NAME;
-
-     // static options that do not change:
-     {  %%%
-     SortType := TSortType(stNone); // MUST be stNone; sort by manually calling AlphaSort
-     TreeOptions := [
-                 //toMultiSelect,                // [dpv]  <<<<<<<<<< PROVISIONAL
-                 toRightClickSelect,
-                 toInfoTip,
-                 // toFullRowSelect,
-                 // toHideSelection,
-                 // toReadOnly,
-                 toToolTips,
-                 // toHotTrack, OPTION!
-                 toShowButtons,
-                 toShowLines,
-                 toShowRoot,
-                 toEvenHeight,
-                 toCheckSupport];
-     }
-
-
      HelpContext:= 284;  // Tree-type Notes [284]
    end;
 
+   CheckImages.ResInstLoad( HInstance, rtBitmap, 'VTCHECKIMGS',  clFuchsia );
 end;
 
 
