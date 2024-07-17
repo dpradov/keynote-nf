@@ -1,1 +1,5 @@
-CPFORMAT CURSOR "CopyFormat.cur"
+CPFORMAT       CURSOR "CopyFormat.cur"
+CATIMAGES      BITMAP catimages.bmp
+TOOLBAR_MAIN   BITMAP "ToolbarMain.bmp"
+TOOLBAR_FORMAT BITMAP "ToolbarFormat.bmp"
+TV_IMAGES      BITMAP "TV.bmp"

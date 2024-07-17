@@ -71,7 +71,8 @@ var
 
 implementation
 uses
-   kn_Const;
+   kn_Const,
+   knt.App;
 
 {$R *.DFM}
 
@@ -83,26 +84,42 @@ resourcestring
 
 procedure SaveDefaultBitmaps;
 var
+  IMGList: TImageList;
   b : TBitmap;
   i : integer;
+  BmpFN: String;
 begin
   b := TBitmap.Create;
+  {
+  IMGList:= Form_Main.IMG_Toolbar;
+  BmpFN:= 'ToolbarMain.bmp';
+
+  IMGList:= Form_Main.IMG_Format;
+  BmpFN:= 'ToolbarFormat.bmp';
+
+  IMGList:= Form_Main.IMG_TV;
+  BmpFN:= 'TV.bmp';
+  }
+
+  IMGList:= Chest.IMG_Categories;
+  BmpFN:= 'catimages.bmp';
+
 
   try
 
-    b.width := Chest.IMG_Categories.Width * Chest.IMG_Categories.Count;
-    b.Height := Chest.IMG_Categories.Height;
+    b.width := IMGList.Width * IMGList.Count;
+    b.Height := IMGList.Height;
     with b.canvas do begin
-      brush.color := clOlive;
+      brush.color := clFuchsia;
       brush.style := bsSolid;
       fillrect( cliprect );
     end;
 
-    if Chest.IMG_Categories.Count > 0 then
-      for i := 0 to pred( Chest.IMG_Categories.Count ) do
-         Chest.IMG_Categories.Draw( b.canvas, i*Chest.IMG_Categories.Width, 0, i );
+    if IMGList.Count > 0 then
+      for i := 0 to pred( IMGList.Count ) do
+         IMGList.Draw( b.canvas, i*IMGList.Width, 0, i );
 
-    b.SaveToFile( extractfilepath( application.exename ) + 'catimages.bmp' );
+    b.SaveToFile( extractfilepath( application.exename ) + BmpFN );
 
   finally
     b.free;

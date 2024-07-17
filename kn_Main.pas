@@ -1393,8 +1393,7 @@ uses
    ;
 
 {$R *.DFM}
-{$R .\resources\catimages}
-{$R .\resources\resources}
+{$R .\resources\resources.RES}
 
 resourcestring
   STR_01 = 'Unable to assign "%s" as activation hotkey.';
@@ -1571,7 +1570,15 @@ begin
 
   RegisterDropTarget(Form_Main.Pages);
 
-end; // CREATE
+  IMG_Toolbar.Clear;
+  IMG_Format.Clear;
+  IMG_TV.Clear;
+  LoadBitmapFromResource(IMG_Toolbar, 'TOOLBAR_MAIN',  clFuchsia);
+  LoadBitmapFromResource(IMG_Format, 'TOOLBAR_FORMAT',  clFuchsia);
+  LoadBitmapFromResource(IMG_TV, 'TV_IMAGES',  clFuchsia);
+end;
+// CREATE
+
 
 procedure TForm_Main.FormActivate(Sender: TObject);
 begin

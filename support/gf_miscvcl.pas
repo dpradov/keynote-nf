@@ -73,6 +73,8 @@ function DoMessageBox (const text: string; caption: string; uType: UINT= 0; hWnd
 function ScaleFromSmallFontsDimension(const X: Integer): Integer;
 function DotsToTwips(dots: Integer): integer; inline;
 
+procedure LoadBitmapFromResource(ImageList: TImageList; const ResourceName: string; TransparentColor: TColor);
+
 var
   _TahomaFontInstalled : boolean = false;
 
@@ -511,6 +513,21 @@ Begin
     Free;
   end;
 End; // DefMessageDlg
+
+
+procedure LoadBitmapFromResource(ImageList: TImageList; const ResourceName: string; TransparentColor: TColor);
+var
+  Bitmap: TBitmap;
+begin
+  //IMG_Toolbar.ResourceLoad(rtBitmap, 'TOOLBAR_MAIN',  clFuchsia);                    // Doesn't seem to be using 24 bit color
+  //IMG_Format.ResInstLoad( HInstance, rtBitmap, 'TOOLBAR_FORMAT',  clFuchsia );       // Idem
+
+  Bitmap := TBitmap.Create;
+  Bitmap.LoadFromResourceName(HInstance, ResourceName);
+  ImageList.AddMasked(Bitmap, TransparentColor);
+  Bitmap.Free;
+end;
+
 
 end.
 
