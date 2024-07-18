@@ -1576,6 +1576,13 @@ begin
   LoadBitmapFromResource(IMG_Toolbar, 'TOOLBAR_MAIN',  clFuchsia);
   LoadBitmapFromResource(IMG_Format, 'TOOLBAR_FORMAT',  clFuchsia);
   LoadBitmapFromResource(IMG_TV, 'TV_IMAGES',  clFuchsia);
+
+  { The name associated with the secondary icon as a resource must be after (alphabetically) the main one
+    (MAINICON) or else the secondary one will appear first in the resource file, and will be the one displayed
+    from the system (for example from Explorer).
+    OTHER_KNT_ICON => KNT_ALT_ICON ... (keynoteAlt.ico)
+   }
+  TrayIcon.Icons.LoadResource(HInstance, ['MAINICON', 'OTHER_KNT_ICON']);
 end;
 // CREATE
 

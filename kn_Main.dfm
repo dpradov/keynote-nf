@@ -99,8 +99,6 @@ object Form_Main: TForm_Main
         Height = 22
         Action = actFileSave
         DisplayMode = dmGlyphOnly
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         Images = IMG_Toolbar
       end
       object TB_FileNew: TToolbarButton97
@@ -108,8 +106,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 0
         Images = IMG_Toolbar
         NoBorder = True
@@ -124,8 +120,6 @@ object Form_Main: TForm_Main
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = MRUMenu
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 1
         Images = IMG_Toolbar
         OnClick = MMFileOpenClick
@@ -135,8 +129,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 3
         Images = IMG_Toolbar
         OnClick = MMEditCutClick
@@ -154,8 +146,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 6
         Images = IMG_Toolbar
         OnClick = MMEditUndoClick
@@ -165,8 +155,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 4
         Images = IMG_Toolbar
         OnClick = MMEditCopyClick
@@ -181,8 +169,6 @@ object Form_Main: TForm_Main
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = Menu_Paste
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 5
         Images = IMG_Toolbar
         OnClick = MMEditPasteClick
@@ -192,8 +178,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 24
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 9
         Images = IMG_Toolbar
         Visible = False
@@ -208,8 +192,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 22
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 7
         Images = IMG_Toolbar
         OnClick = MMFolderNewClick
@@ -219,8 +201,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 8
         Images = IMG_Toolbar
         OnClick = MMNotePropertiesClick
@@ -234,8 +214,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 22
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 10
         Images = IMG_Toolbar
         OnClick = MMToolsOptionsClick
@@ -249,8 +227,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 13
         Images = IMG_Toolbar
         OnClick = MMEditRedoClick
@@ -260,8 +236,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 24
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 12
         Images = IMG_Toolbar
         OnClick = MMFileManagerClick
@@ -275,8 +249,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 24
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 15
         Images = IMG_Toolbar
         OnClick = MMFindNextClick
@@ -286,8 +258,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 14
         Images = IMG_Toolbar
         OnClick = MMFindClick
@@ -301,8 +271,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 16
         Images = IMG_Toolbar
         OnClick = MMFilePropertiesClick
@@ -316,8 +284,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 17
         Images = IMG_Toolbar
         OnClick = MMNoteEmailClick
@@ -329,8 +295,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 10
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 18
         Images = IMG_Toolbar
         OnClick = TB_ClipCapClick
@@ -344,8 +308,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 24
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 24
         Images = IMG_Toolbar
         OnClick = RTFMWordWebClick
@@ -359,8 +321,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 40
         Images = IMG_Toolbar
         Visible = False
@@ -378,8 +338,6 @@ object Form_Main: TForm_Main
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = Menu_ResPanel
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 41
         Images = IMG_Toolbar
         OnClick = MMViewResPanelClick
@@ -389,8 +347,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 44
         Images = IMG_Toolbar
         Visible = False
@@ -401,8 +357,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 43
         Images = IMG_Toolbar
         Visible = False
@@ -413,8 +367,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 42
         Images = IMG_Toolbar
         OnClick = MMFindReplaceClick
@@ -426,8 +378,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 15
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 45
         Images = IMG_Toolbar
         Visible = False
@@ -440,8 +390,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 3
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 51
         Images = IMG_Toolbar
         RepeatInterval = 101
@@ -455,8 +403,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 17
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 50
         Images = IMG_Toolbar
         RepeatInterval = 101
@@ -473,8 +419,6 @@ object Form_Main: TForm_Main
           'econsider "Max.auto width")'
         AllowAllUp = True
         GroupIndex = 16
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 59
         Images = IMG_Toolbar
         OnClick = TB_ImagesClick
@@ -545,8 +489,6 @@ object Form_Main: TForm_Main
         Width = 24
         Height = 22
         GroupIndex = 2
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 4
         Images = IMG_Format
         OnClick = MMFormatAlignLeftClick
@@ -558,8 +500,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 5
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 0
         Images = IMG_Format
         RepeatInterval = 101
@@ -572,8 +512,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 6
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 1
         Images = IMG_Format
         OnClick = MMFormatItalicsClick
@@ -585,8 +523,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 7
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 2
         Images = IMG_Format
         OnClick = MMFormatUnderlineClick
@@ -602,8 +538,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 8
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 3
         Images = IMG_Format
         OnClick = MMFormatStrikeoutClick
@@ -615,8 +549,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 1
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 7
         Images = IMG_Format
         OnClick = MMFormatBulletsClick
@@ -627,8 +559,6 @@ object Form_Main: TForm_Main
         Width = 23
         Height = 22
         GroupIndex = 2
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 5
         Images = IMG_Format
         OnClick = MMFormatAlignCenterClick
@@ -643,8 +573,6 @@ object Form_Main: TForm_Main
         Width = 22
         Height = 22
         GroupIndex = 2
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 6
         Images = IMG_Format
         OnClick = MMFormatAlignRightClick
@@ -654,8 +582,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 9
         Images = IMG_Format
         OnClick = MMFormatLIndDecClick
@@ -665,8 +591,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 24
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 8
         Images = IMG_Format
         OnClick = MMFormatLIndIncClick
@@ -680,8 +604,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 22
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 11
         Images = IMG_Format
         OnClick = MMFormatFontClick
@@ -691,8 +613,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 24
         Height = 22
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 13
         Images = IMG_Format
         OnClick = MMFormatParagraphClick
@@ -707,8 +627,6 @@ object Form_Main: TForm_Main
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = Menu_Numbers
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 14
         Images = IMG_Format
         OnClick = MMFormatNumbersClick
@@ -724,8 +642,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 10
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 17
         Images = IMG_Format
         Visible = False
@@ -738,8 +654,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 10
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 15
         Images = IMG_Format
         Visible = False
@@ -752,8 +666,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 10
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 16
         Images = IMG_Format
         Visible = False
@@ -766,8 +678,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 3
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 18
         Images = IMG_Format
         OnClick = MMFormatWordWrapClick
@@ -783,8 +693,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 9
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 20
         Images = IMG_Format
         OnClick = MMFormatSubscriptClick
@@ -796,8 +704,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 9
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 19
         Images = IMG_Format
         OnClick = MMFormatSuperscriptClick
@@ -808,8 +714,6 @@ object Form_Main: TForm_Main
         Width = 24
         Height = 22
         GroupIndex = 2
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 21
         Images = IMG_Format
         OnClick = MMFormatAlignJustifyClick
@@ -824,8 +728,6 @@ object Form_Main: TForm_Main
           '+click for applying it several times)'
         AllowAllUp = True
         GroupIndex = 5
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 22
         Images = IMG_Format
         RepeatInterval = 101
@@ -838,8 +740,6 @@ object Form_Main: TForm_Main
         Height = 22
         HelpContext = 511
         Enabled = False
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 39
         Images = IMG_Toolbar
         OnClick = MMHistoryGoForwardClick
@@ -851,8 +751,6 @@ object Form_Main: TForm_Main
         Height = 22
         HelpContext = 511
         Enabled = False
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 53
         Images = IMG_Toolbar
         OnClick = MMHistoryGoBackClick
@@ -1021,8 +919,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 1
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 37
         Images = IMG_Toolbar
         RepeatInterval = 101
@@ -1035,8 +931,6 @@ object Form_Main: TForm_Main
         Height = 22
         AllowAllUp = True
         GroupIndex = 2
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 49
         Images = IMG_Toolbar
         RepeatInterval = 101
@@ -1066,8 +960,6 @@ object Form_Main: TForm_Main
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = Menu_Style
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 12
         Images = IMG_Format
         OnClick = BtnStyleApplyClick
@@ -1120,8 +1012,6 @@ object Form_Main: TForm_Main
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = Menu_Symbols
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 48
         Images = IMG_Toolbar
         OnClick = MMInsertCharacterClick
@@ -1138,8 +1028,6 @@ object Form_Main: TForm_Main
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = Menu_Date
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 46
         Images = IMG_Toolbar
         OnClick = MMInsertDateClick
@@ -1156,8 +1044,6 @@ object Form_Main: TForm_Main
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = Menu_Time
-        Glyph.Data = {00000000}
-        GlyphMask.Data = {00000000}
         ImageIndex = 47
         Images = IMG_Toolbar
         OnClick = MMInsertTimeClick
@@ -1249,8 +1135,6 @@ object Form_Main: TForm_Main
           Height = 19
           Hint = 'Previous match'
           Anchors = [akTop, akRight]
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 55
           Images = IMG_Toolbar
           Visible = False
@@ -1263,8 +1147,6 @@ object Form_Main: TForm_Main
           Height = 19
           Hint = 'Next match'
           Anchors = [akTop, akRight]
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 56
           Images = IMG_Toolbar
           Visible = False
@@ -1558,8 +1440,6 @@ object Form_Main: TForm_Main
             DropdownArrowWidth = 15
             DropdownCombo = True
             DropdownMenu = Menu_Macro
-            Glyph.Data = {00000000}
-            GlyphMask.Data = {00000000}
             ImageIndex = 29
             Images = IMG_Toolbar
             OnClick = TB_MacroClick
@@ -1572,8 +1452,6 @@ object Form_Main: TForm_Main
             Hint = 'Pause recording macro'
             AllowAllUp = True
             GroupIndex = 1
-            Glyph.Data = {00000000}
-            GlyphMask.Data = {00000000}
             ImageIndex = 30
             Images = IMG_Toolbar
             OnClick = TB_MacroPauseClick
@@ -1584,8 +1462,6 @@ object Form_Main: TForm_Main
             Width = 23
             Height = 22
             Hint = 'Record a new macro'
-            Glyph.Data = {00000000}
-            GlyphMask.Data = {00000000}
             ImageIndex = 31
             Images = IMG_Toolbar
             OnClick = TB_MacroRecordClick
@@ -1697,8 +1573,6 @@ object Form_Main: TForm_Main
             DropdownArrowWidth = 15
             DropdownCombo = True
             DropdownMenu = Menu_Plugins
-            Glyph.Data = {00000000}
-            GlyphMask.Data = {00000000}
             ImageIndex = 29
             Images = IMG_Toolbar
             OnClick = PLM_RunPluginClick
@@ -1710,8 +1584,6 @@ object Form_Main: TForm_Main
             Height = 22
             Hint = 'Configure selected plugin'
             AllowAllUp = True
-            Glyph.Data = {00000000}
-            GlyphMask.Data = {00000000}
             ImageIndex = 37
             Images = IMG_Toolbar
             OnClick = PLM_ConfigurePluginClick
@@ -3839,81 +3711,6 @@ object Form_Main: TForm_Main
   end
   object TrayIcon: TRxTrayIcon
     Active = False
-    Icon.Data = {
-      0000010001002020100000000000E80200001600000028000000200000004000
-      0000010004000000000000020000000000000000000000000000000000000000
-      0000000080000080000000808000800000008000800080800000C0C0C0008080
-      80000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF000000
-      0008888888888888888888888800000000087777777777777777777777000000
-      0888888888888888888888888780000008777777777777777777777778800000
-      888888888888888888888888788000008FFFFFFFFFFFFFFFFFFFFFF877800000
-      08FFFFFFFFFFFFFFFFFFFFFF8780000008FFFFFFFFFFFFFFFFFFFFFF87800000
-      08FFFF7777777F777777777F87800000008FFF7FFFF7FF777FF777FFF8800000
-      008FFF7FFFF7FF777FF777FFF8800000008FFF7777777F777FF777FFF8800000
-      008FFFFFFFF7FF77777777FFF8800000008888888FF7FF777FF777FFF8800000
-      0000000087777F777FF777FFF8800880000000008FF7FFFFFFF777FFF8808008
-      800777778FF7FFFF7FFFFFFFF88000000770000087777777777777FFF8800000
-      000000008FF7FFFF7FFFF7FFF8800000000000008FF7FFFF7FFFF7FFF8800008
-      8000000087777777777777FFF8800880077000008FF7FFFF7FFFF7FFF8800000
-      000777778FF7FFFF7FFFF7FFF88000000000000087777777777777FFF8800000
-      00000000FFFFFFFFFFFFFFFFF8800000008FFFFFFFFFFFFFFFFFFFFFF8800000
-      008F8F8F8F8F8F8F8F8F8F8F888000000037B7B7B7B7B7B7B7B7B7B7B3800000
-      003B7B7B7B7B7B7B7B7B7B7B73300000003FFFFFFFFFFFFFFFFFFFFFF3300000
-      003B7B7B7B7B7B7B7B7B7B7B7B3000000003333333333333333333333330FE00
-      0003FE000001F8000000F8000000F0000000F0000000F8000000F8000000F800
-      0000FC000000FC000000FC000000FC000000FC000000F8000000980000000000
-      0000600000007800000078000000600000000000000098000000F8000000F800
-      0000FC000000FC000000FC000000FC000000FC000000FC000000FE000000}
-    Icons.Icons = {
-      02000000FE0200000000010001002020100000000000E8020000160000002800
-      0000200000004000000001000400000000000002000000000000000000000000
-      0000000000000000000000008000008000000080800080000000800080008080
-      0000C0C0C000808080000000FF0000FF000000FFFF00FF000000FF00FF00FFFF
-      0000FFFFFF000000000888888888888888888888880000000008777777777777
-      7777777777000000088888888888888888888888878000000877777777777777
-      7777777778800000888888888888888888888888788000008FFFFFFFFFFFFFFF
-      FFFFFFF87780000008FFFFFFFFFFFFFFFFFFFFFF8780000008FFFFFFFFFFFFFF
-      FFFFFFFF8780000008FFFF7777777F777777777F87800000008FFF7FFFF7FF77
-      7FF777FFF8800000008FFF7FFFF7FF777FF777FFF8800000008FFF7777777F77
-      7FF777FFF8800000008FFFFFFFF7FF77777777FFF8800000008888888FF7FF77
-      7FF777FFF88000000000000087777F777FF777FFF8800880000000008FF7FFFF
-      FFF777FFF8808008800777778FF7FFFF7FFFFFFFF88000000770000087777777
-      777777FFF8800000000000008FF7FFFF7FFFF7FFF8800000000000008FF7FFFF
-      7FFFF7FFF88000088000000087777777777777FFF8800880077000008FF7FFFF
-      7FFFF7FFF8800000000777778FF7FFFF7FFFF7FFF88000000000000087777777
-      777777FFF880000000000000FFFFFFFFFFFFFFFFF8800000008FFFFFFFFFFFFF
-      FFFFFFFFF8800000008F8F8F8F8F8F8F8F8F8F8F888000000037B7B7B7B7B7B7
-      B7B7B7B7B3800000003B7B7B7B7B7B7B7B7B7B7B73300000003FFFFFFFFFFFFF
-      FFFFFFFFF3300000003B7B7B7B7B7B7B7B7B7B7B7B3000000003333333333333
-      333333333330FE000003FE000001F8000000F8000000F0000000F0000000F800
-      0000F8000000F8000000FC000000FC000000FC000000FC000000FC000000F800
-      0000980000000000000060000000780000007800000060000000000000009800
-      0000F8000000F8000000FC000000FC000000FC000000FC000000FC000000FC00
-      0000FE000000FE0200000000010001002020100001000400E802000016000000
-      2800000020000000400000000100040000000000800200000000000000000000
-      10000000000000000000FF000000800000800000008080008000000080008000
-      80800000C0C0C0008080800080FFFF0000FF000000FFFF00FF000000FF00FF00
-      FFFF0000FFFFFF00000000088888888888888888888888000000000877777777
-      7777777777777710000008888888888888888888888887810000087777777777
-      7777777777777881000088888888888888888888888878810000899999999999
-      9999999999987781000008999999999999999999999987810000089999999999
-      99999999999987810000089999777777797777777779878100000089997FFFF7
-      997779977799988100000089997FFFF799777997779998810000008999777777
-      7977799777999881000000899999999799777777779998810000008888888997
-      9977799777999881000001111111877779777997779998810880011111118FF7
-      99999997779998818118811777778FF799997999999998811001177000008777
-      77777777779998811000000000008FF7FFFF7FFFF79998811000000000008FF7
-      FFFF7FFFF7999881100880000000877777777777779998811881177000008FF7
-      FFFF7FFFF79998810110011777778FF7FFFF7FFFF79998810000011111118777
-      7777777777999881000001111111999999999999999998810000008999999999
-      99999999999998810000008989898989898989898989888100000037B7B7B7B7
-      B7B7B7B7B7B7B3810000003B7B7B7B7B7B7B7B7B7B7B73310000003FFFFFFFFF
-      FFFFFFFFFFFFF3310000003B7B7B7B7B7B7B7B7B7B7B7B310000000333333333
-      3333333333333331FE000003FE000001F8000000F8000000F0000000F0000000
-      F8000000F8000000F8000000FC000000FC000000FC000000FC000000FC000000
-      F800000098000000000000006000000078000000780000006000000000000000
-      98000000F8000000F8000000FC000000FC000000FC000000FC000000FC000000
-      FC000000FE000000}
     PopupMenu = Menu_Tray
     OnClick = TrayIconClick
     Left = 616
