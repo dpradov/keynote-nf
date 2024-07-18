@@ -21,15 +21,14 @@ uses
    System.Classes,
    System.SysUtils,
    System.StrUtils,
-   System.Generics.Collections,
    Vcl.Graphics,
    Vcl.ComCtrls,
    VirtualTrees,
    VirtualTrees.Types,
+   gf_misc,
    kn_Const,
    kn_Info
    ;
-
 
 
 type
@@ -38,12 +37,12 @@ type
  TNoteNode = class;
  TNoteTag = class;
 
- TNoteList = TList<TNote>;
- TNoteNodeList = TList<TNoteNode>;
- TNoteTagList= TList<TNoteTag>;
+ TNoteList = TSimpleObjList<TNote>;           // TList<TNote>;            >> System.Generics.Collections
+ TNoteNodeList = TSimpleObjList<TNoteNode>;   // TList<TNoteNode>;
+ TNoteTagList= TSimpleObjList<TNoteTag>;      // TList<TNoteTag>;
 
  TResource = TNote;                     // TODO: Define TResource as a structure with a note and a typology (at least)
- TResourceList = TList<TResource>;
+ TResourceList = TSimpleObjList<TResource>;
  TNoteEntryArray = TArray<TNoteEntry>;
  TAliasArray = TArray<string>;          // Consider also TStringList and System.IniFiles.THashedStringList (already used in TMemIniFIle...)
 
@@ -171,7 +170,7 @@ type
     function IsValid(Entry: TNoteEntry): Boolean;
 
 
-    property Resources: TNoteList read fResources;
+    property Resources: TResourceList read fResources;
     function AddResource(Resource: TNote): integer;
     function DeleteResource(Resource: TNote): integer;
 
@@ -429,7 +428,6 @@ type
 
 implementation
 uses
-   gf_misc,
    gf_files,
    gf_streams,
    kn_Global,

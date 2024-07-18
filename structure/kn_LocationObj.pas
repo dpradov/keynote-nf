@@ -21,17 +21,17 @@ uses
    System.Classes,
    System.SysUtils,
    System.IniFiles,
-   System.Generics.Collections,
 
    VirtualTrees.Types,
 
+   gf_misc,
    kn_KntFolder,
    knt.model.note;
 
 
 type
   TLocation = class;
-  TLocationList = TList<TLocation>;
+  TLocationList = TSimpleObjList<TLocation>;
 
 
   TLocation = class(TObject)

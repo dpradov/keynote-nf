@@ -26,8 +26,6 @@ uses
    System.Classes,
    System.DateUtils,
    System.AnsiStrings,
-   System.Generics.Defaults,
-   System.Generics.Collections,
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
@@ -42,6 +40,7 @@ uses
    ColorPicker,
 
    gf_streams,
+   gf_misc,
    kn_KntFolder,
    knt.model.note,
    kn_LocationObj
@@ -81,12 +80,8 @@ type
     constructor Create;
   end;
 
-  TAlarmList = TList<TAlarm>;
-
-  TAlarmComparer = class(TComparer<TAlarm>)
-  public
-    function Compare(const Alarm1, Alarm2: TAlarm): Integer; override;
-  end;
+  TAlarmList = TSimpleObjList<TAlarm>;
+  PAlarm = ^TAlarm;
 
 
   //---------------------------------------------------------------------
@@ -379,7 +374,6 @@ var
 
 implementation
 uses
-  gf_misc,
   gf_strings,
   kn_Global,
   kn_const,
@@ -691,15 +685,18 @@ begin
       Result:= -1;
 end;
 
-function TAlarmComparer.Compare(const Alarm1, Alarm2: TAlarm): Integer;
+function compareAlarms_selectedColumn(PAlarm1, PAlarm2: Pointer): Integer;
 var
    nodeName1, nodeName2: string;
    discarded1, discarded2: Boolean;
+   Alarm1, Alarm2: TAlarm;
 begin
+    Alarm1:= TAlarm(PAlarm1^);
+    Alarm2:= TAlarm(PAlarm2^);
     case SortedColumn of
         TColumnExpiration:
                if Alarm1.ExpirationDate = Alarm2.ExpirationDate  then
-                  Result:= compareAlarms_Reminder (Alarm1, Alarm2)
+                  Result:= compareAlarms_Reminder (@Alarm1, @Alarm2)
                else if Alarm1.ExpirationDate > Alarm2.ExpirationDate then
                   Result:= 1
                else
@@ -713,7 +710,7 @@ begin
                    nodeName2:= Alarm2.folder.Name + nodeName2;
 
                    if nodeName1  = nodeName2 then
-                      Result:= compareAlarms_Reminder (Alarm1, Alarm2)
+                      Result:= compareAlarms_Reminder (@Alarm1, @Alarm2)
                    else if nodeName1 > nodeName2 then
                       Result:= 1
                    else
@@ -722,7 +719,7 @@ begin
 
         TColumnAlarmNote:
                if Alarm1.AlarmNote  = Alarm2.AlarmNote then
-                  Result:= compareAlarms_Reminder (Alarm1, Alarm2)
+                  Result:= compareAlarms_Reminder (@Alarm1, @Alarm2)
                else if Alarm1.AlarmNote > Alarm2.AlarmNote then
                   Result:= 1
                else
@@ -820,7 +817,7 @@ begin
                 Application.BringToFront;
              end;
 
-             FSelectedAlarmList.AddRange(TriggeredAlarmList);
+             FSelectedAlarmList.Assign(TriggeredAlarmList);
              ShowFormAlarm (TShowReminders);
          end
          else begin    // ShowRemindersInModalWindow = False
@@ -1512,7 +1509,7 @@ begin
       Grid.Items.BeginUpdate;
       Grid.Items.Clear;
 
-      FFilteredAlarmList.Sort(TAlarmComparer.Create);
+      FFilteredAlarmList.Sort(compareAlarms_selectedColumn);
       iNewAlarm:= -1;
       for I := 0 to FNumberAlarms - 1 do
       begin
@@ -1934,8 +1931,8 @@ begin
        if modeEdit <> TShowAllWithDiscarded then
        begin
            case modeEdit of
-                TShowAll:       AlarmMng.UnfilteredAlarmList.AddRange(AlarmMng.AlarmList);
-                TShowDiscarded: AlarmMng.UnfilteredAlarmList.AddRange(AlarmMng.DiscardedAlarmList);
+                TShowAll:       AlarmMng.UnfilteredAlarmList.Assign(AlarmMng.AlarmList);
+                TShowDiscarded: AlarmMng.UnfilteredAlarmList.Assign(AlarmMng.DiscardedAlarmList);
                 TShowPending:
                      for I := 0 to AlarmMng.AlarmList.Count - 1 do begin
                         alarm:= AlarmMng.AlarmList[I];
@@ -1951,12 +1948,12 @@ begin
                      end;
 
                 else
-                    AlarmMng.UnfilteredAlarmList.AddRange(AlarmMng.SelectedAlarmList);
+                    AlarmMng.UnfilteredAlarmList.Assign(AlarmMng.SelectedAlarmList);
            end;
        end
        else
        begin
-           AlarmMng.UnfilteredAlarmList.AddRange(AlarmMng.AlarmList);
+           AlarmMng.UnfilteredAlarmList.Assign(AlarmMng.AlarmList);
            for I := 0 to AlarmMng.DiscardedAlarmList.Count - 1 do
               AlarmMng.UnfilteredAlarmList.Add( TAlarm (AlarmMng.DiscardedAlarmList[I]) );
        end;
@@ -2005,7 +2002,7 @@ begin
 
    end
    else
-       FFilteredAlarmList.AddRange(FAuxAlarmList);
+       FFilteredAlarmList.Assign(FAuxAlarmList);
 
    FNumberAlarms:= FFilteredAlarmList.Count;
    UpdateCaption;
@@ -2047,7 +2044,7 @@ begin
     alarm.Status:= TAlarmUnsaved;
 
     if modeEdit <> TShowNew then
-       AlarmMng.SelectedAlarmList.AddRange(Self.UnfilteredAlarmList);  // Make a copy over SelectedAlarmList
+       AlarmMng.SelectedAlarmList.Assign(Self.UnfilteredAlarmList);  // Make a copy over SelectedAlarmList
     AlarmMng.SelectedAlarmList.Add(alarm);
 
     // A change in modeEdit will trigger a change in CB_ShowMode, except with TShowNew:

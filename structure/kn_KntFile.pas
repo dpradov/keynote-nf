@@ -23,7 +23,6 @@ uses
    System.IniFiles,
    System.AnsiStrings,
    System.IOUtils,
-   System.Generics.Collections,
    Vcl.Graphics,
    Vcl.FileCtrl,
    Vcl.Controls,

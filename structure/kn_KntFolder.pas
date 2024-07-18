@@ -27,7 +27,6 @@ uses
    System.StrUtils,
    System.AnsiStrings,
    System.IniFiles,
-   System.Generics.Collections,
    Vcl.Graphics,
    Vcl.FileCtrl,
    Vcl.Controls,
@@ -41,6 +40,7 @@ uses
    RxRichEd,
 
    gf_streams,
+   gf_misc,
  {$IFDEF KNT_DEBUG}
    GFLog,
  {$ENDIF}
@@ -65,10 +65,8 @@ type
   TAfterEditorLoadedEvent  = procedure(Note: TNote) of object;
 
   TKntFolder = class;
-  TFolderList = TList<TKntFolder>;
+  TFolderList = TSimpleObjList<TKntFolder>;
   TKNTHistoryObj = TObject;            // To avoid circular references
-
-  TByteList = TList<Byte>;
 
 
   // [*] -> Folder properties saved to .knt
@@ -101,7 +99,7 @@ type
     { I don't use something like TBytes because I don't want to depend on the number of nodes token being incorrect,
       and this makes it easier to dynamically add the different elements. Additionally, it will also be used when
       loading old files, where that token was not used and I could not preset the capacity }
-    FLoadingLevels: TByteList;
+    FLoadingLevels: TIntegerList;
 
 
     // VCL controls
@@ -269,7 +267,7 @@ type
     function SaveToFile( var tf : TTextFile;  OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                          OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
-    property LoadingLevels: TByteList read FLoadingLevels;
+    property LoadingLevels: TIntegerList read FLoadingLevels;
   protected
     function PropertiesToFlagsString : TFlagsString;
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString );
@@ -295,7 +293,6 @@ type
 
 implementation
 uses
-   gf_misc,
    gf_strings,
    gf_miscvcl,
    gf_files,
@@ -857,7 +854,7 @@ begin
   InitializeChrome( FTreeChrome );
   FDefaultNoteName := DEFAULT_NEW_NOTE_NAME;
   fNNodes := TNoteNodeList.Create;
-  FLoadingLevels:= TByteList.Create;
+  FLoadingLevels:= TIntegerList.Create;
 
 end; // CREATE
 

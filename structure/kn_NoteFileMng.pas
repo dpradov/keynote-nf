@@ -1462,7 +1462,7 @@ begin
                 newFolder.HideCheckedNodes := HideCheckedNodes;
               end;
 
-              newFolder.LoadingLevels.AddRange(MergeFile.Folders[i].LoadingLevels);
+              newFolder.LoadingLevels.Assign(MergeFile.Folders[i].LoadingLevels);
               ActiveFile.AddFolder( newFolder );
 
               AlarmMng.AddProcessedAlarmsOfFolder(MergeFile.Folders[i], NewFolder);

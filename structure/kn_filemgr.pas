@@ -24,7 +24,6 @@ uses
    System.SysUtils,
    System.Classes,
    System.IniFiles,
-   System.Generics.Collections,
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
@@ -34,6 +33,7 @@ uses
    Vcl.ExtCtrls,
    RxPlacemnt,
    VirtualTrees, VirtualTrees.BaseTree, VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL,
+   gf_misc,
    kn_Const,
    kn_KntFile 
    ;
@@ -55,7 +55,7 @@ type
     ImageIndex: integer;
     constructor Create;
   end;
-  TKntFileInfoList = TList<TKntFileInfo>;
+  TKntFileInfoList = TSimpleObjList<TKntFileInfo>;
 
 
 type
@@ -124,7 +124,6 @@ procedure ClearFileManager;
 
 implementation
 uses
-   gf_misc,
    gf_files,  // Important. Needed to use TMemIniFileHelper (.ReadString, .WriteString)
    kn_info,
    kn_Global,

@@ -57,6 +57,65 @@ resourcestring
 
 
 type
+
+  // Generic class that encapsulates a classic TList and provides basic list management methods.
+  // It is a simple and generic (typed) way that aims to avoid excessive code duplication.
+
+  TSimpleObjList<T: class> = class (TObject)
+  private
+    FList: TList;
+
+  protected
+    function GetCapacity: Integer; inline;
+    procedure SetCapacity(Value: Integer); overload; inline;
+
+  public
+    constructor Create; overload;
+    constructor Create(const AList: TSimpleObjList<T>); overload;
+    property Capacity: Integer read GetCapacity write SetCapacity;
+    destructor Destroy; override;
+    function Add(const Value: T): integer; inline;
+    procedure Assign(const AList: TSimpleObjList<T>); inline;
+    function Remove(const Value: T): Integer; inline;
+    procedure Delete(Index: integer); inline;
+    procedure Clear; inline;
+    function IndexOf(const Value: T): Integer; inline;
+    function GetItem(Index: Integer): T; inline;
+    procedure SetItem(Index: Integer; const Value: T); inline;
+    property Items[Index: Integer]: T read GetItem write SetItem; default;
+    function Count: Integer; inline;
+    procedure Sort(Compare: TListSortCompare); inline;
+    procedure Free; inline;
+  end;
+
+
+  TIntegerList = class (TObject)
+  private
+    FList: TList;
+
+  protected
+    function GetCapacity: Integer; inline;
+    procedure SetCapacity(Value: Integer); overload; inline;
+
+  public
+    constructor Create; overload;
+    property Capacity: Integer read GetCapacity write SetCapacity;
+    destructor Destroy; override;
+    function Add(const Value: integer): integer; inline;
+    procedure Assign(const AList: TIntegerList); inline;
+    function Remove(const Value: integer): Integer; inline;
+    procedure Clear; inline;
+    function GetItem(Index: Integer): integer; inline;
+    procedure SetItem(Index: Integer; const Value: integer); inline;
+    property Items[Index: Integer]: integer read GetItem write SetItem; default;
+    function Count: Integer; inline;
+    procedure Free; inline;
+  end;
+
+
+
+
+type
   String255 = string[255];
   String127 = string[127];
   String50   = string[50];
@@ -1698,6 +1757,165 @@ procedure IntToSet(const Value:integer; var aSet; const Size:integer);
 begin
   Move(Value, aSet, Size);
 end;
+
+
+
+// =============================================
+//   TSimpleObjList<T>
+
+
+constructor TSimpleObjList<T>.Create;
+begin
+  inherited Create;
+  FList := TList.Create;
+end;
+
+constructor TSimpleObjList<T>.Create(const AList: TSimpleObjList<T>);
+begin
+  inherited Create;
+  FList := TList.Create;
+  FList.Assign(AList.FList);
+end;
+
+
+destructor TSimpleObjList<T>.Destroy;
+begin
+  FList.Free;
+  inherited Destroy;
+end;
+
+function TSimpleObjList<T>.GetCapacity: Integer;
+begin
+   Result:= FList.Capacity;
+end;
+
+procedure TSimpleObjList<T>.SetCapacity(Value: Integer);
+begin
+   FList.Capacity:= Value;
+end;
+
+function TSimpleObjList<T>.Add(const Value: T): integer;
+begin
+  Result:= FList.Add(Pointer(Value));
+end;
+
+procedure TSimpleObjList<T>.Assign(const AList: TSimpleObjList<T>);
+begin
+   FList.Assign(AList.FList);
+end;
+
+function TSimpleObjList<T>.Remove(const Value: T): Integer;
+begin
+  Result:= FList.Remove(Pointer(Value));
+end;
+
+procedure TSimpleObjList<T>.Delete(Index: integer);
+begin
+   FList.Delete(Index);
+end;
+
+procedure TSimpleObjList<T>.Clear;
+begin
+   FList.Clear;
+end;
+
+function TSimpleObjList<T>.IndexOf(const Value: T): Integer;
+begin
+   Result:= FList.IndexOf(Pointer(Value));
+end;
+
+function TSimpleObjList<T>.GetItem(Index: Integer): T;
+begin
+  Result := T(FList[Index]);
+end;
+
+procedure TSimpleObjList<T>.SetItem(Index: Integer; const Value: T);
+begin
+  FList[Index] := Pointer(Value);
+end;
+
+function TSimpleObjList<T>.Count: Integer;
+begin
+  Result := FList.Count;
+end;
+
+procedure TSimpleObjList<T>.Sort (Compare: TListSortCompare);
+begin
+   FList.Sort(Compare);
+end;
+
+procedure TSimpleObjList<T>.Free;
+begin
+    FList.Free;
+end;
+
+
+// =============================================
+// TIntegerList
+
+
+constructor TIntegerList.Create;
+begin
+  inherited Create;
+  FList := TList.Create;
+end;
+
+destructor TIntegerList.Destroy;
+begin
+  FList.Free;
+  inherited Destroy;
+end;
+
+function TIntegerList.GetCapacity: Integer;
+begin
+   Result:= FList.Capacity;
+end;
+
+procedure TIntegerList.SetCapacity(Value: Integer);
+begin
+   FList.Capacity:= Value;
+end;
+
+function TIntegerList.Add(const Value: integer): integer;
+begin
+  Result:= FList.Add(Pointer(Value));
+end;
+
+procedure TIntegerList.Assign(const AList: TIntegerList);
+begin
+   FList.Assign(AList.FList);
+end;
+
+function TIntegerList.Remove(const Value: integer): Integer;
+begin
+  Result:= FList.Remove(Pointer(Value));
+end;
+
+procedure TIntegerList.Clear;
+begin
+   FList.Clear;
+end;
+
+function TIntegerList.GetItem(Index: Integer): integer;
+begin
+  Result := Integer(FList[Index]);
+end;
+
+procedure TIntegerList.SetItem(Index: Integer; const Value: integer);
+begin
+  FList[Index] := Pointer(Value);
+end;
+
+function TIntegerList.Count: Integer;
+begin
+  Result := FList.Count;
+end;
+
+procedure TIntegerList.Free;
+begin
+    FList.Free;
+end;
+
 
 
 Initialization

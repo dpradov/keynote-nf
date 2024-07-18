@@ -27,7 +27,6 @@ uses
    System.StrUtils,
    System.AnsiStrings,
    System.IniFiles,
-   System.Generics.Collections,
    Vcl.Clipbrd,
    Vcl.Graphics,
    Vcl.FileCtrl,
@@ -39,6 +38,7 @@ uses
 
    VirtualTrees,
 
+   gf_misc,
    kn_ImagesMng,
    kn_AlertMng,
    kn_global,
@@ -66,7 +66,7 @@ type
    TNNodeSelectedEvent = procedure(NNode: TNoteNode) of object;
    TFolderSelectedEvent = procedure(Folder: TKntFolder) of object;
 
-   TKntRichEditList =  TList<TKntRichEdit>;
+   TKntRichEditList =  TSimpleObjList<TKntRichEdit>;
 
 
    TKntApp = class
@@ -220,7 +220,6 @@ var
 implementation
 uses
    GFTipDlg,
-   gf_misc,
    gf_miscvcl,
    kn_MacroMng,
    kn_VCLControlsMng,

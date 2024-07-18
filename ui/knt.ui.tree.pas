@@ -20,7 +20,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, Winapi.ActiveX,
   System.SysUtils, System.Variants, System.Classes,
-  System.Contnrs, System.Actions,  System.Generics.Collections,
+  System.Contnrs, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.Clipbrd,
   Vcl.ActnList, Vcl.StdCtrls,
 
@@ -29,6 +29,7 @@ uses
   VirtualTrees.BaseTree,
 
   RxRichEd,
+  gf_misc,
   kn_Info,
   kn_Const,
   knt.model.note,
@@ -51,7 +52,17 @@ type
   TTreeTransferAction = (ttCopy, ttCut, ttPaste, ttClear);
 
   TVTree = TVirtualStringTree;
-  TNodeList = TList<PVirtualNode>;
+
+  TNodeList = class (TObject)
+  private
+    FList: TList;
+  public
+    constructor Create; overload;
+    destructor Destroy; override;
+    function Add(const Node: PVirtualNode): integer; inline;
+    function IndexOf(const Node: PVirtualNode): Integer; inline;
+    procedure Clear; inline;
+  end;
 
 
   TKntTreeUI = class(TFrame)
@@ -284,7 +295,6 @@ uses
    gf_strings,
    gf_streams,
    gf_miscvcl,
-   gf_misc,
    gf_files,
    kn_Global,
    kn_EditorUtils,
@@ -3255,6 +3265,39 @@ end;
 
 
 {$ENDREGION}
+
+
+// =============================================
+// TNodeList
+// =============================================
+
+constructor TNodeList.Create;
+begin
+  inherited Create;
+  FList := TList.Create;
+end;
+
+destructor TNodeList.Destroy;
+begin
+  FList.Free;
+  inherited Destroy;
+end;
+
+function TNodeList.Add(const Node: PVirtualNode): integer;
+begin
+  Result:= FList.Add(Node);
+end;
+
+function TNodeList.IndexOf(const Node: PVirtualNode): Integer;
+begin
+   Result:= FList.IndexOf(Node);
+end;
+
+procedure TNodeList.Clear;
+begin
+   FList.Clear;
+end;
+
 
 initialization
 
