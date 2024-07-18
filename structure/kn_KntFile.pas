@@ -1414,7 +1414,7 @@ begin
                        raise EKeyKntFileError.Create('');
                     end;
 
-                    if ( VerID.Minor > NFILEVERSION_MINOR ) then begin
+                    if (VerID.Major = NFILEVERSION_MAJOR) and ( VerID.Minor > NFILEVERSION_MINOR ) then begin
                        case App.DoMessageBox( ExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
                          mrNo : begin
                            // nothing, just fall through
