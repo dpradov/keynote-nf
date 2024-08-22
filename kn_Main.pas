@@ -3087,7 +3087,7 @@ var
   BoldWasDown : boolean;
 begin
   if (self.ActiveControl is TVTree) and (assigned(ActiveFolder.FocusedNNode)) then begin
-     ActiveFolder.TreeUI.SetNodeBold(nil, ShiftDown);
+     ActiveFolder.TreeUI.SetNodeBold(ShiftDown);
      TB_Bold.Down := ActiveNNode.Bold;           // Change could be rejected and button .Down state has ALREADY changed
   end
   else
@@ -6540,7 +6540,7 @@ end;
 
 procedure TForm_Main.actTVBoldNodeExecute(Sender: TObject);
 begin
-  ActiveTreeUI.SetNodeBold(nil, ShiftDown );
+  ActiveTreeUI.SetNodeBold(ShiftDown );
   if (ActiveControl is TVTree) and assigned(ActiveNNode) then
      TB_Bold.Down := ActiveNNode.Bold;
 end;

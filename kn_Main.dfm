@@ -1728,7 +1728,7 @@ object Form_Main: TForm_Main
     end
     object actTVBoldNode: TAction
       Caption = '&Bold'
-      Hint = 'Make selected tree node bold'
+      Hint = 'Toggle bold in selected nodes (Shift: also in children, recursive)'
       OnExecute = actTVBoldNodeExecute
     end
     object actTVNodeTextColor: TAction
@@ -2925,7 +2925,7 @@ object Form_Main: TForm_Main
       end
       object MMFormatBGColor: TMenuItem
         Caption = '&Background Color'
-        Hint = 'Change background color'
+        Hint = 'Change background color in note (Shift: in all notes in active folder)'
         ShortCut = 16452
         OnClick = MMFormatBGColorClick
       end

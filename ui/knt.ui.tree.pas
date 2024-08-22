@@ -172,7 +172,8 @@ type
 
     procedure ShowOrHideIcons;
     procedure SetNodeColor(Node: PVirtualNode; const UseColorDlg, AsTextColor, ResetDefault, DoChildren : boolean);
-    procedure SetNodeBold(Node: PVirtualNode; const DoChildren : boolean);
+    procedure SetNodeBold(const DoChildren : boolean); overload;
+    procedure SetNodeBold(Node: PVirtualNode; Bold: boolean; const DoChildren : boolean); overload;
     procedure SetNodeCustomImage(Node: PVirtualNode);
     function GetNodeFontFace (Node: PVirtualNode): string;
     procedure SetNodeFontFace(Node: PVirtualNode; const ResetDefault, DoChildren: boolean);
@@ -1164,14 +1165,14 @@ begin
 end;
 
 
-procedure TKntTreeUI.SetNodeBold(Node: PVirtualNode; const DoChildren : boolean);
+procedure TKntTreeUI.SetNodeBold(Node: PVirtualNode; Bold: boolean; const DoChildren : boolean);
 
    procedure BoldNNode (Node: PVirtualNode);
    var
      NNode : TNoteNode;
    begin
      NNode:= GetNNode(Node);
-     NNode.Bold := (not NNode.Bold);
+     NNode.Bold := Bold;
      if DoChildren and (vsHasChildren in Node.States) then
          for Node in TV.ChildNodes(Node) do
             BoldNNode(Node);
@@ -1187,6 +1188,33 @@ begin
   if DoChildren then
     TV.InvalidateChildren(Node, true);
   TKntFolder(Folder).Modified:= true;
+end;
+
+
+procedure TKntTreeUI.SetNodeBold(const DoChildren : boolean);
+var
+  TVSelectedNodes: TNodeArray;
+  Node: PVirtualNode;
+  Bold: boolean;
+  i: integer;
+begin
+  Node:= TV.FocusedNode;
+  if Node = nil then exit;
+
+  Bold:= not GetNNode(Node).Bold;
+
+  if TV.SelectedCount = 0 then
+     SetNodeBold(Node, Bold, DoChildren)
+
+  else
+     if DoChildren then begin
+        TVSelectedNodes:= TV.GetSortedSelection(True);
+        for i := 0 to High(TVSelectedNodes) do
+           SetNodeBold(TVSelectedNodes[i], Bold, DoChildren)
+     end
+     else
+        for Node in TV.SelectedNodes() do
+           SetNodeBold(Node, Bold, DoChildren);
 end;
 
 
@@ -2372,7 +2400,7 @@ begin
            exit;
         end;
       end;
-   
+
       ttCopy, ttCut: begin
          if (TV.SelectedCount <= 0) then begin
            App.InfoPopup(STR_15);
