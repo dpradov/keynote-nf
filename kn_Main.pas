@@ -2973,7 +2973,7 @@ end; // DisplayHistoryFile
 procedure TForm_Main.Combo_FontChange(Sender: TObject);
 begin
   if assigned(ActiveFolder) and (ActiveFolder.FocusMemory = focTree) then
-     ActiveFolder.TreeUI.SetNodeFontFace(nil, false, ShiftDown )
+     ActiveFolder.TreeUI.SetNodeFontFace(false, ShiftDown )
   else
      PerformCmd( ecFontName );
 end; // Combo_FontChange
@@ -2992,7 +2992,7 @@ begin
          VK_RETURN, VK_ESCAPE : begin
            if (key = VK_RETURN) then begin
              if FocusTree then
-                ActiveFolder.TreeUI.SetNodeFontFace(nil, false, ShiftDown)
+                ActiveFolder.TreeUI.SetNodeFontFace(false, ShiftDown)
              else
                 PerformCmd(ecFontName);
            end;
@@ -6562,7 +6562,7 @@ begin
   ShiftWasDown := ShiftDown;
   ActiveTreeUI.SetNodeColor(nil, false, true, true, ShiftWasDown );
   ActiveTreeUI.SetNodeColor(nil, false, false, true, ShiftWasDown );
-  ActiveTreeUI.SetNodeFontFace(nil, true, ShiftWasDown );
+  ActiveTreeUI.SetNodeFontFace(true, ShiftWasDown );
   ShowNodeChromeState(ActiveTreeUI);
 end;
 

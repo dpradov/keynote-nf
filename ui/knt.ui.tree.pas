@@ -177,7 +177,8 @@ type
     procedure SetNodeCustomImage; overload;
     procedure SetNodeCustomImage(Node: PVirtualNode; NewIdx: Integer; DoChildren: Boolean); overload;
     function GetNodeFontFace (Node: PVirtualNode): string;
-    procedure SetNodeFontFace(Node: PVirtualNode; const ResetDefault, DoChildren: boolean);
+    procedure SetNodeFontFace(const ResetDefault, DoChildren : boolean); overload;
+    procedure SetNodeFontFace(Node: PVirtualNode; const FontFace : string; const DoChildren: boolean); overload;
   //procedure SetNodeFontSize(TreeNode: PVirtualNode; const ResetDefault, DoChildren : boolean);
 
   public
@@ -1304,9 +1305,8 @@ begin
 end;
 
 
-procedure TKntTreeUI.SetNodeFontFace(Node: PVirtualNode; const ResetDefault, DoChildren: boolean);
+procedure TKntTreeUI.SetNodeFontFace(Node: PVirtualNode; const FontFace : string; const DoChildren: boolean);
 var
-  myFontFace : string;
   SetFontInSubtree: TVTGetNodeProc;
 
 begin
@@ -1315,7 +1315,7 @@ begin
     procedure (Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean)
     begin
       Abort := not DoChildren;                           // Continue iteration?
-      GetNNode(Node).NodeFontFace:= myFontFace;
+      GetNNode(Node).NodeFontFace:= FontFace;
     end;
 
   if not Assigned(Node) then
@@ -1323,9 +1323,6 @@ begin
   if not Assigned(Node) or CheckReadOnly then exit;
 
   try
-    myFontFace:= '';
-    if not ResetDefault then
-        myFontFace := Form_Main.Combo_Font.FontName;
     TV.IterateSubtree(Node, SetFontInSubtree, nil);
     TV.InvalidateNode(Node);
     if DoChildren then
@@ -1337,6 +1334,35 @@ begin
 
 end; // SetNodeFontFace
 
+
+procedure TKntTreeUI.SetNodeFontFace(const ResetDefault, DoChildren : boolean);
+var
+  TVSelectedNodes: TNodeArray;
+  Node: PVirtualNode;
+  FontFace : string;
+  i: integer;
+begin
+  Node:= TV.FocusedNode;
+  if Node = nil then exit;
+
+  FontFace:= '';
+  if not ResetDefault then
+     FontFace := Form_Main.Combo_Font.FontName;
+
+
+  if TV.SelectedCount = 0 then
+     SetNodeFontFace(Node, FontFace, DoChildren)
+
+  else
+     if DoChildren then begin
+        TVSelectedNodes:= TV.GetSortedSelection(True);
+        for i := 0 to High(TVSelectedNodes) do
+           SetNodeFontFace(TVSelectedNodes[i], FontFace, DoChildren)
+     end
+     else
+        for Node in TV.SelectedNodes() do
+           SetNodeFontFace(Node, FontFace, DoChildren);
+end;
 
 //procedure TKntTreeUI.SetNodeFontSize(TreeNode: PVirtualNode; const ResetDefault, DoChildren : boolean);
 //var
