@@ -6568,7 +6568,7 @@ end;
 
 procedure TForm_Main.actTVSelectNodeImageExecute(Sender: TObject);
 begin
-  ActiveTreeUI.SetNodeCustomImage(nil);
+  ActiveTreeUI.SetNodeCustomImage;
 end;
 
 

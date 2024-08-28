@@ -174,7 +174,8 @@ type
     procedure SetNodeColor(Node: PVirtualNode; const UseColorDlg, AsTextColor, ResetDefault, DoChildren : boolean);
     procedure SetNodeBold(const DoChildren : boolean); overload;
     procedure SetNodeBold(Node: PVirtualNode; Bold: boolean; const DoChildren : boolean); overload;
-    procedure SetNodeCustomImage(Node: PVirtualNode);
+    procedure SetNodeCustomImage; overload;
+    procedure SetNodeCustomImage(Node: PVirtualNode; NewIdx: Integer; DoChildren: Boolean); overload;
     function GetNodeFontFace (Node: PVirtualNode): string;
     procedure SetNodeFontFace(Node: PVirtualNode; const ResetDefault, DoChildren: boolean);
   //procedure SetNodeFontSize(TreeNode: PVirtualNode; const ResetDefault, DoChildren : boolean);
@@ -1218,10 +1219,9 @@ begin
 end;
 
 
-procedure TKntTreeUI.SetNodeCustomImage(Node: PVirtualNode);
+procedure TKntTreeUI.SetNodeCustomImage(Node: PVirtualNode; NewIdx: Integer; DoChildren: Boolean);
 var
-  NewIdx, ImgIdx : integer;
-  DoChildren : boolean;
+  ImgIdx : integer;
   NNode : TNoteNode;
 
    procedure SetCustomImage (Node: PVirtualNode);
@@ -1238,18 +1238,53 @@ begin
      Node := TV.FocusedNode;
   if not Assigned(Node) or CheckReadOnly then exit;
 
-  DoChildren := Node.ChildCount > 0;
   NNode:= GetNNode(Node);
   ImgIdx := NNode.ImageIndex;
-  newIdx := PickImage(ImgIdx, DoChildren);
 
-  if (newIdx = -1) or ((newIdx = ImgIdx) and not DoChildren) then exit;
+  if NewIdx < 0 then begin
+     DoChildren := Node.ChildCount > 0;
+     NewIdx := PickImage(ImgIdx, DoChildren);
+  end;
+
+  if (NewIdx = -1) or ((NewIdx = ImgIdx) and not DoChildren) then exit;
 
   SetCustomImage(Node);
   TV.InvalidateNode(Node);
   if DoChildren then
     TV.InvalidateChildren(Node, true);
   TKntFolder(Folder).Modified:= true;
+end;
+
+
+procedure TKntTreeUI.SetNodeCustomImage;
+var
+  TVSelectedNodes: TNodeArray;
+  Node: PVirtualNode;
+  DoChildren: boolean;
+  NewIdx, ImgIdx: integer;
+  i: integer;
+begin
+  Node:= TV.FocusedNode;
+  if Node = nil then exit;
+
+  ImgIdx := GetNNode(Node).ImageIndex;
+  DoChildren := (Node.ChildCount > 0) or (TV.SelectedCount > 0);
+  NewIdx := PickImage(ImgIdx, DoChildren);
+  if (NewIdx = -1) then exit;
+
+
+  if TV.SelectedCount = 0 then
+     SetNodeCustomImage(Node, NewIdx, DoChildren)
+
+  else
+     if DoChildren then begin
+        TVSelectedNodes:= TV.GetSortedSelection(True);
+        for i := 0 to High(TVSelectedNodes) do
+           SetNodeCustomImage(TVSelectedNodes[i], NewIdx, DoChildren)
+     end
+     else
+        for Node in TV.SelectedNodes() do
+           SetNodeCustomImage(Node, NewIdx, DoChildren);
 end;
 
 
