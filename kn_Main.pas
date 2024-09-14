@@ -3188,7 +3188,7 @@ end;
 procedure TForm_Main.MMFormatTextColorClick(Sender: TObject);
 begin
    if (self.ActiveControl is TVTree) then
-      ActiveFolder.TreeUI.SetNodeColor(nil,  KeyOptions.UseOldColorDlg, true, false, ShiftDown  )
+      ActiveFolder.TreeUI.SetNodeColor(KeyOptions.UseOldColorDlg, true, false, ShiftDown  )
    else
      if KeyOptions.UseOldColorDlg then
        PerformCmd( ecFontColorDlg ) // bring up color dialog
@@ -3199,7 +3199,7 @@ end;
 procedure TForm_Main.MMFormatHighlightClick(Sender: TObject);
 begin
    if (self.ActiveControl is TVTree) then
-      ActiveFolder.TreeUI.SetNodeColor(nil, KeyOptions.UseOldColorDlg, false, false, ShiftDown)
+      ActiveFolder.TreeUI.SetNodeColor(KeyOptions.UseOldColorDlg, false, false, ShiftDown)
    else
      if KeyOptions.UseOldColorDlg then
        PerformCmd( ecHighlightDlg )
@@ -3255,7 +3255,7 @@ end;
 procedure TForm_Main.MMFormatNoHighlightClick(Sender: TObject);
 begin
    if (self.ActiveControl is TVTree) then
-      ActiveFolder.TreeUI.SetNodeColor(nil, false, false, true, ShiftDown  )
+      ActiveFolder.TreeUI.SetNodeColor(false, false, true, ShiftDown  )
    else
       PerformCmd( ecNoHighlight );
 end;
@@ -3265,7 +3265,7 @@ begin
   TB_Color.OnClick := nil;
   try
     if (self.ActiveControl is TVTree) then
-      ActiveFolder.TreeUI.SetNodeColor(nil, false, true, false, ShiftDown  )
+      ActiveFolder.TreeUI.SetNodeColor(false, true, false, ShiftDown  )
     else
       PerformCmd( ecFontColorBtn );
   finally
@@ -3278,7 +3278,7 @@ begin
   TB_Hilite.OnClick := nil;
   try
     if (self.ActiveControl is TVTree) then
-      ActiveFolder.TreeUI.SetNodeColor(nil, false, false, false, ShiftDown )
+      ActiveFolder.TreeUI.SetNodeColor(false, false, false, ShiftDown )
     else
       PerformCmd( ecHighlightBtn );
   finally
@@ -6547,12 +6547,12 @@ end;
 
 procedure TForm_Main.actTVNodeTextColorExecute(Sender: TObject);
 begin
-  ActiveTreeUI.SetNodeColor(nil, true, true, false, ShiftDown );
+  ActiveTreeUI.SetNodeColor(true, true, false, ShiftDown );
 end;
 
 procedure TForm_Main.actTVNodeBGColorExecute(Sender: TObject);
 begin
-  ActiveTreeUI.SetNodeColor(nil, true, false, false, ShiftDown );
+  ActiveTreeUI.SetNodeColor(true, false, false, ShiftDown );
 end;
 
 procedure TForm_Main.actTVDefaultNodeFontExecute(Sender: TObject);
@@ -6560,8 +6560,8 @@ var
   ShiftWasDown : boolean;
 begin
   ShiftWasDown := ShiftDown;
-  ActiveTreeUI.SetNodeColor(nil, false, true, true, ShiftWasDown );
-  ActiveTreeUI.SetNodeColor(nil, false, false, true, ShiftWasDown );
+  ActiveTreeUI.SetNodeColor(false, true, true, ShiftWasDown );
+  ActiveTreeUI.SetNodeColor(false, false, true, ShiftWasDown );
   ActiveTreeUI.SetNodeFontFace(true, ShiftWasDown );
   ShowNodeChromeState(ActiveTreeUI);
 end;

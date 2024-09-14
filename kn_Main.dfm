@@ -1923,7 +1923,7 @@ object Form_Main: TForm_Main
     end
     object actTVSelectNodeImage: TAction
       Caption = 'C&ustom icon...'
-      Hint = 'Choose custom icon for selected node'
+      Hint = 'Choose custom icon for selected nodes'
       OnExecute = actTVSelectNodeImageExecute
     end
   end
@@ -2925,7 +2925,8 @@ object Form_Main: TForm_Main
       end
       object MMFormatBGColor: TMenuItem
         Caption = '&Background Color'
-        Hint = 'Change background color in note (Shift: in all notes in active folder)'
+        Hint = 
+          'Change background color in note (Shift: all notes in active folder)'
         ShortCut = 16452
         OnClick = MMFormatBGColorClick
       end
@@ -4845,7 +4846,7 @@ object Form_Main: TForm_Main
     end
     object TVNodeColor_: TMenuItem
       Caption = 'Co&lor / Reset'
-      Hint = 'Choose color for selected tree node'
+      Hint = 'Choose color for selected nodes (Shift: also in children, recursive)'
       object TVNodeTextColor: TMenuItem
         Action = actTVNodeTextColor
       end

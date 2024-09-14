@@ -171,7 +171,8 @@ type
     property IconKind : TNodeIconKind read GetIconKind;
 
     procedure ShowOrHideIcons;
-    procedure SetNodeColor(Node: PVirtualNode; const UseColorDlg, AsTextColor, ResetDefault, DoChildren : boolean);
+    procedure SetNodeColor(Node: PVirtualNode; NodeColor: TColor; AsTextColor, DoChildren : boolean); overload;
+    procedure SetNodeColor(const UseColorDlg, AsTextColor, ResetDefault, DoChildren : boolean); overload;
     procedure SetNodeBold(const DoChildren : boolean); overload;
     procedure SetNodeBold(Node: PVirtualNode; Bold: boolean; const DoChildren : boolean); overload;
     procedure SetNodeCustomImage; overload;
@@ -1094,10 +1095,7 @@ begin
 end; // ShowOrHideIcons
 
 
-procedure TKntTreeUI.SetNodeColor(Node: PVirtualNode; const UseColorDlg, AsTextColor, ResetDefault, DoChildren : boolean);
-var
-  NodeColor, DefaultColor, NewColor: TColor;
-  NNode : TNoteNode;
+procedure TKntTreeUI.SetNodeColor(Node: PVirtualNode; NodeColor: TColor; AsTextColor, DoChildren : boolean);
 
    procedure SetColor(Node: PVirtualNode);
    var
@@ -1119,42 +1117,7 @@ begin
      Node := TV.FocusedNode;
   if not Assigned(Node) or CheckReadOnly then exit;
 
-
   try
-     NNode:= GetNNode(Node);
-
-     if AsTextColor then begin
-        NodeColor:= NNode.NodeColor;
-        DefaultColor:= TV.Font.Color;
-        NewColor:= Form_Main.TB_Color.ActiveColor;
-     end
-     else begin
-        NodeColor:= NNode.NodeBGColor;
-        DefaultColor:= TV.Color;
-        NewColor := Form_Main.TB_Hilite.ActiveColor;
-     end;
-
-     if UseColorDlg then begin
-       NodeColor:= NNode.NodeColor;
-       if NodeColor = clNone then
-          NodeColor := DefaultColor;
-
-       Form_Main.ColorDlg.Color:= NodeColor;
-       if Form_Main.ColorDlg.Execute then begin
-          NodeColor := Form_Main.ColorDlg.Color;
-          if ColorToRGB(NodeColor) = ColorToRGB(DefaultColor) then
-             NodeColor:= clNone;
-       end
-       else
-          exit;
-     end
-     else begin
-       if ResetDefault then
-          NodeColor := clNone
-       else
-          NodeColor := NewColor;
-     end;
-
      SetColor(Node);
      TV.InvalidateNode(Node);
      if DoChildren then
@@ -1165,6 +1128,67 @@ begin
   end;
 
 end;
+
+
+procedure TKntTreeUI.SetNodeColor(const UseColorDlg, AsTextColor, ResetDefault, DoChildren : boolean);
+var
+  TVSelectedNodes: TNodeArray;
+  Node: PVirtualNode;
+  NNode: TNoteNode;
+  NodeColor, DefaultColor, NewColor: TColor;
+  i: integer;
+begin
+  Node:= TV.FocusedNode;
+  if Node = nil then exit;
+
+  NNode:= GetNNode(Node);
+
+  if AsTextColor then begin
+     NodeColor:= NNode.NodeColor;
+     DefaultColor:= TV.Font.Color;
+     NewColor:= Form_Main.TB_Color.ActiveColor;
+  end
+  else begin
+     NodeColor:= NNode.NodeBGColor;
+     DefaultColor:= TV.Color;
+     NewColor := Form_Main.TB_Hilite.ActiveColor;
+  end;
+
+  if UseColorDlg then begin
+    NodeColor:= NNode.NodeColor;
+    if NodeColor = clNone then
+       NodeColor := DefaultColor;
+
+    Form_Main.ColorDlg.Color:= NodeColor;
+    if Form_Main.ColorDlg.Execute then begin
+       NodeColor := Form_Main.ColorDlg.Color;
+       if ColorToRGB(NodeColor) = ColorToRGB(DefaultColor) then
+          NodeColor:= clNone;
+    end
+    else
+       exit;
+  end
+  else begin
+    if ResetDefault then
+       NodeColor := clNone
+    else
+       NodeColor := NewColor;
+  end;
+
+  if TV.SelectedCount = 0 then
+     SetNodeColor(Node, NodeColor, AsTextColor, DoChildren)
+
+  else
+     if DoChildren then begin
+        TVSelectedNodes:= TV.GetSortedSelection(True);
+        for i := 0 to High(TVSelectedNodes) do
+           SetNodeColor(TVSelectedNodes[i], NodeColor, AsTextColor, DoChildren)
+     end
+     else
+        for Node in TV.SelectedNodes() do
+           SetNodeColor(Node, NodeColor, AsTextColor, DoChildren);
+end;
+
 
 
 procedure TKntTreeUI.SetNodeBold(Node: PVirtualNode; Bold: boolean; const DoChildren : boolean);
