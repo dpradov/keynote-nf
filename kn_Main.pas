@@ -6604,22 +6604,22 @@ end;
 
 procedure TForm_Main.actTVMoveNodeUpExecute(Sender: TObject);
 begin
-  ActiveTreeUI.MoveTreeNode( nil, dirUp );
+  ActiveTreeUI.MoveTreeNode( dirUp );
 end;
 
 procedure TForm_Main.actTVMoveNodeDownExecute(Sender: TObject);
 begin
-  ActiveTreeUI.MoveTreeNode( nil, dirDown );
+  ActiveTreeUI.MoveTreeNode( dirDown );
 end;
 
 procedure TForm_Main.actTVMoveNodeLeftExecute(Sender: TObject);
 begin
-  ActiveTreeUI.MoveTreeNode( nil, dirLeft );
+  ActiveTreeUI.MoveTreeNode( dirLeft );
 end;
 
 procedure TForm_Main.actTVMoveNodeRightExecute(Sender: TObject);
 begin
-  ActiveTreeUI.MoveTreeNode( nil, dirRight );
+  ActiveTreeUI.MoveTreeNode( dirRight );
 end;
 
 procedure TForm_Main.actTVPasteNodeNameExecute(Sender: TObject);

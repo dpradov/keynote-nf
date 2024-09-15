@@ -223,7 +223,8 @@ type
 
     // Move Nodes |  Delete nodes/subtrees  |  Cut/Copy/Paste Subtrees  | Drag and Drop
    public
-    procedure MoveTreeNode(MovingNode : PVirtualNode; const aDir : TDirection);
+    function MoveTreeNode(MovingNode : PVirtualNode; const aDir : TDirection): boolean; overload;
+    procedure MoveTreeNode(const aDir : TDirection); overload;
     procedure DeleteNode(myTreeNode: PVirtualNode; const DeleteOnlyChildren: boolean; const AskForConfirmation: boolean = true);
     procedure CopySubtrees (TargetNode: PVirtualNode; Prompt: boolean; PasteAsLinkedNNode: boolean; AttachMode: TVTNodeAttachMode= amAddChildLast);
     procedure MoveSubtrees (TargetNode: PVirtualNode; Prompt: boolean; AttachMode: TVTNodeAttachMode= amAddChildLast);
@@ -2174,7 +2175,7 @@ end;
 
 {$REGION Move Nodes |  Delete nodes/subtrees  |  Cut/Copy/Paste Subtrees}
 
-procedure TKntTreeUI.MoveTreeNode(MovingNode : PVirtualNode; const aDir : TDirection);
+function TKntTreeUI.MoveTreeNode(MovingNode : PVirtualNode; const aDir : TDirection): boolean;
 var
   t : string;
   PreviousParent, theSibling : PVirtualNode;
@@ -2185,6 +2186,7 @@ begin
   if not Assigned(MovingNode) or CheckReadOnly then exit;
 
   t := STR_05;
+  Result:= false;
 
   TV.BeginUpdate;
 
@@ -2234,6 +2236,7 @@ begin
 
       if (t = '') then begin // means node was successfully moved
         // update node icon
+        Result:= true;
         TV.Invalidate;
       end;
 
@@ -2249,6 +2252,50 @@ begin
   end;
 
 end; // MoveTreeNode
+
+
+procedure TKntTreeUI.MoveTreeNode(const aDir : TDirection);
+var
+  TVSelectedNodes: TNodeArray;
+  Node, LastNode: PVirtualNode;
+  LastMovedOk: boolean;
+  i: integer;
+begin
+  Node:= TV.FocusedNode;
+  if Node = nil then exit;
+
+  if TV.SelectedCount = 0 then
+     MoveTreeNode(Node, aDir)
+
+  else begin
+     LastMovedOk:= true;
+     TVSelectedNodes:= TV.GetSortedSelection(True);
+
+     if aDir in [dirDown, dirLeft] then
+        for i := High(TVSelectedNodes) downto 0 do begin
+           Node:= TVSelectedNodes[i];
+           if not LastMovedOk and (LastNode = Node.NextSibling) then begin
+              LastNode:= Node;
+              continue;
+           end;
+           LastNode:= Node;
+           LastMovedOk:= MoveTreeNode(Node, aDir);
+        end
+     else begin
+        for i := 0 to High(TVSelectedNodes) do begin
+           Node:= TVSelectedNodes[i];
+           if not LastMovedOk and (LastNode = Node.PrevSibling) then begin
+              LastNode:= Node;
+              continue;
+           end;
+           LastNode:= Node;
+           LastMovedOk:= MoveTreeNode(Node, aDir);
+        end;
+     end;
+  end;
+
+end;
+
 
 
 procedure TKntTreeUI.DeleteNode(myTreeNode: PVirtualNode; const DeleteOnlyChildren: boolean; const AskForConfirmation: boolean = true);

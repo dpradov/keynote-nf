@@ -3114,7 +3114,7 @@ object Form_Main: TForm_Main
       end
       object MMMovenode_: TMenuItem
         Caption = '&Move Node'
-        Hint = 'Move selected node in tree'
+        Hint = 'Move selected nodes in tree'
         object MMTreeMoveNodeUp_: TMenuItem
           Action = actTVMoveNodeUp
           Caption = 'Move Node &Up'
@@ -4901,7 +4901,7 @@ object Form_Main: TForm_Main
     end
     object TVMovenode_: TMenuItem
       Caption = '&Move Node'
-      Hint = 'Move selected node in tree'
+      Hint = 'Move selected nodes in tree'
       object TVMoveNodeUp: TMenuItem
         Action = actTVMoveNodeUp
         ShortCut = 8230
