@@ -1817,13 +1817,13 @@ object Form_Main: TForm_Main
       OnExecute = actTVExportExecute
     end
     object actTVDeleteNode: TAction
-      Caption = '&Delete Node'
-      Hint = 'Delete selected node'
+      Caption = '&Delete Node[s]'
+      Hint = 'Delete selected nodes'
       OnExecute = actTVDeleteNodeExecute
     end
     object actTVDeleteChildren: TAction
       Caption = 'Delete C&hildren'
-      Hint = 'Delete child nodes of selected node'
+      Hint = 'Delete child nodes of selected nodes'
       OnExecute = actTVDeleteChildrenExecute
     end
     object actTVRenameNode: TAction
@@ -3113,7 +3113,7 @@ object Form_Main: TForm_Main
         end
       end
       object MMMovenode_: TMenuItem
-        Caption = '&Move Node'
+        Caption = '&Move Node[s]'
         Hint = 'Move selected nodes in tree'
         object MMTreeMoveNodeUp_: TMenuItem
           Action = actTVMoveNodeUp
@@ -4900,7 +4900,7 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object TVMovenode_: TMenuItem
-      Caption = '&Move Node'
+      Caption = '&Move Node[s]'
       Hint = 'Move selected nodes in tree'
       object TVMoveNodeUp: TMenuItem
         Action = actTVMoveNodeUp

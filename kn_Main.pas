@@ -6594,12 +6594,12 @@ end;
 
 procedure TForm_Main.actTVDeleteNodeExecute(Sender: TObject);
 begin
-  ActiveTreeUI.DeleteNode(nil, false );
+  ActiveTreeUI.DeleteNode( false );
 end;
 
 procedure TForm_Main.actTVDeleteChildrenExecute(Sender: TObject);
 begin
-  ActiveTreeUI.DeleteNode(nil, true );
+  ActiveTreeUI.DeleteNode( true );
 end;
 
 procedure TForm_Main.actTVMoveNodeUpExecute(Sender: TObject);

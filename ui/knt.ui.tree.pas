@@ -225,7 +225,10 @@ type
    public
     function MoveTreeNode(MovingNode : PVirtualNode; const aDir : TDirection): boolean; overload;
     procedure MoveTreeNode(const aDir : TDirection); overload;
-    procedure DeleteNode(myTreeNode: PVirtualNode; const DeleteOnlyChildren: boolean; const AskForConfirmation: boolean = true);
+    function DeleteNode(myTreeNode: PVirtualNode; const DeleteOnlyChildren: boolean;
+                        const AskForConfirmation: boolean = true;
+                        const ConfirmationOnlyForChildren: boolean = false): boolean; overload;
+    procedure DeleteNode(const DeleteOnlyChildren: boolean; const AskForConfirmation: boolean = true); overload;
     procedure CopySubtrees (TargetNode: PVirtualNode; Prompt: boolean; PasteAsLinkedNNode: boolean; AttachMode: TVTNodeAttachMode= amAddChildLast);
     procedure MoveSubtrees (TargetNode: PVirtualNode; Prompt: boolean; AttachMode: TVTNodeAttachMode= amAddChildLast);
     function TreeTransferProc(XferAction: TTreeTransferAction; Prompt: boolean; PasteAsVirtualKNTNode: boolean) : boolean;
@@ -332,6 +335,7 @@ resourcestring
   STR_09 = 'Node "%s" has %d child nodes. Delete these child nodes too?';
   STR_10 = 'Warning';
   STR_11 = 'OK to delete node "%s"?';
+  STR_11b = 'OK to delete %sALL SELECTED nodes?'+ #13 +' (Confirmation will be requested for each node with children)' + #13;
   STR_12 = 'OK to delete %d CHILD NODES of node "%s"?';
   STR_13 = 'Selected node has no children.';
   STR_14 = 'Error deleting node: ';
@@ -2298,7 +2302,9 @@ end;
 
 
 
-procedure TKntTreeUI.DeleteNode(myTreeNode: PVirtualNode; const DeleteOnlyChildren: boolean; const AskForConfirmation: boolean = true);
+function TKntTreeUI.DeleteNode(myTreeNode: PVirtualNode; const DeleteOnlyChildren: boolean;
+                               const AskForConfirmation: boolean = true;
+                               const ConfirmationOnlyForChildren: boolean = false): boolean;
 var
   myTreeParent, myTreeChild, myNextChild : PVirtualNode;
   NNode: TNoteNode;
@@ -2308,6 +2314,7 @@ var
 begin
   with Form_Main do begin
       KeepChildNodes := false;
+      Result:= false;
 
       if CheckReadOnly then exit;
 
@@ -2319,16 +2326,23 @@ begin
       myTreeParent := myTreeNode.Parent;
       Folder:= TKntFolder(Self.Folder);
 
+      Result:= true;
+
       if AskForConfirmation then begin
 
          if DeleteOnlyChildren then begin
             // command was to delete CHILDREN of focused node
             if vsHasChildren in myTreeNode.States then begin
-              if (DoMessageBox(Format(STR_12, [myTreeNode.ChildCount, NNode.NodeName(Self)]) + STR_08, STR_10,
-                   MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES) then exit;
+              case DoMessageBox(Format(STR_12, [myTreeNode.ChildCount, NNode.NodeName(Self)]) + STR_08, STR_10,
+                   MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) of
+                ID_NO    : exit;
+                ID_CANCEL: exit(false);
+              end;
+
             end
             else begin
-              showmessage(STR_13);
+              if not ConfirmationOnlyForChildren then
+                 showmessage(STR_13);
               exit;
             end;
          end
@@ -2343,11 +2357,11 @@ begin
                 ID_YES : KeepChildNodes := false;
                 ID_NO  : KeepChildNodes := true;
                 else
-                  exit;
+                  exit (false);
               end;
             end
             else begin
-              if KntTreeOptions.ConfirmNodeDelete then begin
+              if not ConfirmationOnlyForChildren and KntTreeOptions.ConfirmNodeDelete then begin
                 if (App.DoMessageBox(Format(STR_11, [NNode.NodeName(Self)]) + STR_08, mtWarning, [mbYes,mbNo], 0) <> mrYes) then exit;
               end;
             end;
@@ -2397,6 +2411,32 @@ begin
   end;
 
 end; // DeleteNode
+
+
+procedure TKntTreeUI.DeleteNode(const DeleteOnlyChildren: boolean; const AskForConfirmation: boolean = true);
+var
+  TVSelectedNodes: TNodeArray;
+  Node: PVirtualNode;
+  OnlyChildren: string;
+  i: integer;
+begin
+  Node:= TV.FocusedNode;
+  if Node = nil then exit;
+
+  if TV.SelectedCount <= 1 then
+     DeleteNode(Node, DeleteOnlyChildren, AskForConfirmation)
+
+  else begin
+     if DeleteOnlyChildren then
+        OnlyChildren:= 'CHILD NODES of ';
+
+     if (App.DoMessageBox(Format(STR_11b, [OnlyChildren]) + STR_08, mtWarning, [mbYes,mbNo], 0) <> mrYes) then exit;
+
+     TVSelectedNodes:= TV.GetSortedSelection(True);
+     for i := 0 to High(TVSelectedNodes) do
+        if not (DeleteNode(TVSelectedNodes[i], DeleteOnlyChildren, True, True)) then exit;
+  end
+end;
 
 
 
