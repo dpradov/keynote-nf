@@ -964,7 +964,7 @@ begin
       until FindDone or UserBreak;
 
       MatchCount := Location_List.Count;
-      Form_Main.LblFindAllNumResults.Caption:= MatchCount.ToString + STR_13;
+      Form_Main.LblFindAllNumResults.Caption:= '  ' + MatchCount.ToString + STR_13;
       str:=
             '{\rtf1\ansi{\fonttbl{\f0\fnil\fcharset0 Calibri;}}' +
             '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;\red0\green125\blue125;\red255\green255\blue235;}' +
@@ -1085,7 +1085,7 @@ end;
 
 procedure FindAllResults_SelectedMatch (i: integer);
 begin
-  Form_Main.LblFindAllNumResults.Caption:= i.ToString + ' / ' + Location_List.Count.ToString + STR_13;
+  Form_Main.LblFindAllNumResults.Caption:= '  ' + i.ToString + ' / ' + Location_List.Count.ToString + STR_13;
   SelectedMatch:= i;
 end;
 

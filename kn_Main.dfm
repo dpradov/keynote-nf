@@ -1086,7 +1086,7 @@ object Form_Main: TForm_Main
         Left = 0
         Top = 0
         Width = 302
-        Height = 81
+        Height = 90
         Align = alTop
         BevelOuter = bvLowered
         Font.Charset = DEFAULT_CHARSET
@@ -1098,25 +1098,10 @@ object Form_Main: TForm_Main
         TabOrder = 0
         DesignSize = (
           302
-          81)
-        object LblFindAllNumResults: TLabel
-          Left = 185
-          Top = 57
-          Width = 66
-          Height = 13
-          Alignment = taRightJustify
-          Anchors = [akLeft, akTop, akRight]
-          AutoSize = False
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
+          90)
         object Label1: TLabel
           Left = 5
-          Top = 5
+          Top = 7
           Width = 47
           Height = 13
           Caption = '&Find text:'
@@ -1130,7 +1115,7 @@ object Form_Main: TForm_Main
         end
         object Btn_ResFind_Prev: TToolbarButton97
           Left = 262
-          Top = 55
+          Top = 5
           Width = 18
           Height = 19
           Hint = 'Previous match'
@@ -1142,7 +1127,7 @@ object Form_Main: TForm_Main
         end
         object Btn_ResFind_Next: TToolbarButton97
           Left = 281
-          Top = 55
+          Top = 5
           Width = 18
           Height = 19
           Hint = 'Next match'
@@ -1152,10 +1137,25 @@ object Form_Main: TForm_Main
           Visible = False
           OnClick = Btn_ResFind_NextClick
         end
+        object LblFindAllNumResults: TLabel
+          Left = 248
+          Top = 7
+          Width = 3
+          Height = 13
+          Alignment = taRightJustify
+          Anchors = [akTop, akRight]
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          Transparent = False
+        end
         object Combo_ResFind: TComboBox
           Left = 5
-          Top = 20
-          Width = 215
+          Top = 30
+          Width = 292
           Height = 22
           Hint = 'Type text to search for'
           Font.Charset = DEFAULT_CHARSET
@@ -1172,7 +1172,7 @@ object Form_Main: TForm_Main
         end
         object Btn_ResFind: TButton
           Left = 5
-          Top = 47
+          Top = 58
           Width = 84
           Height = 25
           Hint = 'Search for text and display all matches'
@@ -1188,7 +1188,7 @@ object Form_Main: TForm_Main
         end
         object Btn_ResFlip: TButton
           Left = 95
-          Top = 47
+          Top = 58
           Width = 84
           Height = 25
           Hint = 'Toggle options and search results display'
@@ -1205,9 +1205,9 @@ object Form_Main: TForm_Main
       end
       object Ntbk_ResFind: TNotebook
         Left = 0
-        Top = 81
+        Top = 90
         Width = 302
-        Height = 525
+        Height = 516
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -1217,16 +1217,18 @@ object Form_Main: TForm_Main
         PageIndex = 1
         ParentFont = False
         TabOrder = 1
-        ExplicitHeight = 524
+        ExplicitTop = 81
+        ExplicitHeight = 525
         object PAGE_RES_FIND: TPage
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND'
+          ExplicitHeight = 525
           object FindAllResults: TRxRichEdit
             Left = 0
             Top = 0
             Width = 302
-            Height = 525
+            Height = 516
             DrawEndPage = False
             Align = alClient
             AllowInPlace = False
@@ -1243,6 +1245,7 @@ object Form_Main: TForm_Main
             UndoLimit = 0
             WantTabs = True
             OnContextPopup = FindAllResultsContextPopup
+            ExplicitHeight = 525
           end
         end
         object PAGE_RES_FIND_OPT: TPage
