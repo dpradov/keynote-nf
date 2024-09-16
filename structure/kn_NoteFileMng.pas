@@ -374,8 +374,8 @@ begin
             Log_StoreTick('');
             Log_StoreTick( 'FileOpen (' + FN + ') - BEGIN', 0, +1);
 
-            result := KntFile.Load( FN, ImageMng, ClipCapIdx, true );
             ActiveFile:= KntFile;
+            result := KntFile.Load( FN, ImageMng, ClipCapIdx, true );
 
             Log_StoreTick( 'After parsed .knt file', 1 );
 
