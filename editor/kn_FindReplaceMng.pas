@@ -29,6 +29,7 @@ uses
    VirtualTrees,
    knt.ui.tree,
    RxRichEd,
+   kn_Info,
    kn_KntFolder,
    kn_FindReplace
    ;
@@ -51,7 +52,7 @@ var
 procedure DoFindNext;
 procedure RunFinder;
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
-procedure RunFindAllEx;
+function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean): boolean;
 procedure RunReplace;
 procedure RunReplaceNext;
 
@@ -70,7 +71,6 @@ uses
    gf_miscvcl,
    gf_strings,
    kn_const,
-   kn_Info,
    kn_Global,
    kn_Cmd,
    knt.model.note,
@@ -545,9 +545,8 @@ end;
    that are not visible within the previous excerpt.
 }
 
-procedure RunFindAllEx;
+function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean): boolean;
 var
-  oldAllNodes, oldEntireScope, oldWrap : boolean;
   FindDone : boolean;
   Location : TLocation;
   SearchOpts : TRichSearchTypes;
@@ -562,7 +561,6 @@ var
   wordList : TStringList;
   wordcnt : integer;
   MultiMatchOK : boolean;
-  ApplyFilter: boolean;
   nodeToFilter: boolean;
   nodesSelected: boolean;
   SearchModeToApply : TSearchMode;
@@ -635,11 +633,11 @@ type
        function EnsureCheckMode (myTreeNode: PVirtualNode): PVirtualNode;
        begin
           if assigned( myTreeNode ) then begin
-             if (myTreeNode.CheckState = csCheckedNormal) and (FindOptions.CheckMode = scOnlyNonChecked) then
-                myTreeNode := TV.GetNextNotChecked(myTreeNode, FindOptions.HiddenNodes)
+             if (myTreeNode.CheckState = csCheckedNormal) and (myFindOptions.CheckMode = scOnlyNonChecked) then
+                myTreeNode := TV.GetNextNotChecked(myTreeNode, myFindOptions.HiddenNodes)
              else
-             if (myTreeNode.CheckState <> csCheckedNormal) and (FindOptions.CheckMode = scOnlyChecked) then
-                myTreeNode := TV.GetNextChecked(myTreeNode, FindOptions.HiddenNodes)
+             if (myTreeNode.CheckState <> csCheckedNormal) and (myFindOptions.CheckMode = scOnlyChecked) then
+                myTreeNode := TV.GetNextChecked(myTreeNode, myFindOptions.HiddenNodes)
           end;
           Result:= myTreeNode;
        end;
@@ -649,8 +647,8 @@ type
           myTreeNode := TV.GetFirst;
 
           if assigned( myTreeNode ) then begin
-             if not TV.IsVisible[myTreeNode] and (not FindOptions.HiddenNodes) then
-               myTreeNode := TV.GetNextNotHidden(myTreeNode);
+             if not TV.IsVisible[myTreeNode] and (not myFindOptions.HiddenNodes) then
+               myTreeNode := TV.GetNextNotHidden(myTreeNode, TreeFilter);
 
              myTreeNode:= EnsureCheckMode(myTreeNode);
           end;
@@ -660,10 +658,10 @@ type
        begin
           if (not assigned(myTreeNode)) then exit;
 
-          if FindOptions.HiddenNodes then     // [dpv]
+          if myFindOptions.HiddenNodes then     // [dpv]
              myTreeNode := TV.GetNext(myTreeNode)
           else
-             myTreeNode := TV.GetNextNotHidden(myTreeNode);
+             myTreeNode := TV.GetNextNotHidden(myTreeNode, TreeFilter);
 
           myTreeNode:= EnsureCheckMode(myTreeNode);
 
@@ -678,7 +676,7 @@ type
 
        procedure GetNextFolder;
        begin
-          if FindOptions.AllTabs then begin
+          if myFindOptions.AllTabs then begin
              inc( noteidx );
 
              if ( noteidx >= ActiveFile.FolderCount ) then
@@ -706,7 +704,7 @@ type
                          PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1) -1;
                          {
                          PatternPos := EditControl.FindText(
-                           FindOptions.Pattern,
+                           myFindOptions.Pattern,
                            SearchOrigin, -1,
                            SearchOpts
                          );
@@ -786,75 +784,59 @@ type
 
                 end; // smAny, smAll
 
-          end; // case FindOptions.SearchMode
+          end; // case myFindOptions.SearchMode
 
        end;
 
 begin
-
+  Result:= false;
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveFolder )) then exit;
   if ( FileIsBusy or SearchInProgress ) then exit;
 
-  if ( Form_Main.Combo_ResFind.Text = '' ) then exit;
+  if ( myFindOptions.Pattern = '' ) then exit;
 
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
 
-  with Form_Main do
-  begin
-    // add search pattern to history
-    if ( Combo_ResFind.Items.IndexOf( Combo_ResFind.Text ) < 0 ) then
-      Combo_ResFind.Items.Insert( 0, Combo_ResFind.Text );
+  if not TreeFilter then begin
+     FindOptions.MatchCase:= myFindOptions.MatchCase;
+     FindOptions.WholeWordsOnly:= myFindOptions.WholeWordsOnly;
+     FindOptions.AllTabs:= myFindOptions.AllTabs;
+     FindOptions.CurrentNodeAndSubtree:= myFindOptions.CurrentNodeAndSubtree;
+     FindOptions.SearchScope:= myFindOptions.SearchScope;
+     FindOptions.SearchMode:= myFindOptions.SearchMode;
+     FindOptions.CheckMode:= myFindOptions.CheckMode;
+     FindOptions.HiddenNodes:= myFindOptions.HiddenNodes;
 
-    // transfer FindAll options to FindOptions
-    FindOptions.MatchCase := CB_ResFind_CaseSens.Checked;
-    FindOptions.WholeWordsOnly := CB_ResFind_WholeWords.Checked;
-    FindOptions.AllTabs := CB_ResFind_AllNotes.Checked;
-    FindOptions.CurrentNodeAndSubtree := CB_ResFind_CurrentNodeAndSubtree.Checked;
-    FindOptions.SearchScope := TSearchScope( RG_ResFind_Scope.ItemIndex );
-    FindOptions.SearchMode := TSearchMode( RG_ResFind_Type.ItemIndex );
-    FindOptions.CheckMode := TSearchCheckMode( RG_ResFind_ChkMode.ItemIndex );
-    FindOptions.HiddenNodes:= CB_ResFind_HiddenNodes.Checked;   // [dpv]
-
-    ApplyFilter:= CB_ResFind_Filter.Checked;   // [dpv]
+     FindOptions.FindAllMatches := false;
+     FindOptions.FindNew := true;
   end;
 
+  myFindOptions.Pattern := trim( myFindOptions.Pattern ); // leading and trailing blanks need to be stripped
 
-  // these FindOptions will be preserved and restored
-  oldAllNodes := FindOptions.AllNodes;
-  FindOptions.AllNodes := true;
-  oldEntireScope := FindOptions.EntireScope;
-  FindOptions.EntireScope := true;
-  oldWrap := FindOptions.Wrap;
-  FindOptions.Wrap := false;
-
-  FindOptions.FindNew := true;
-  FindOptions.Pattern := trim( Form_Main.Combo_ResFind.Text ); // leading and trailing blanks need to be stripped
-
-  SearchModeToApply := FindOptions.SearchMode;
+  SearchModeToApply := myFindOptions.SearchMode;
 
   myTreeNode := nil;
   myNNode := nil;
   TreeNodeToSearchIn:= nil;
   TreeNodeToSearchIn_AncestorPathLen:= 0;
 
-  FindOptions.FindAllMatches := true;
 
-  if FindOptions.WholeWordsOnly then
+  if myFindOptions.WholeWordsOnly then
     SearchOpts := [stWholeWord]
   else
     SearchOpts := [];
-  if FindOptions.MatchCase then
+  if myFindOptions.MatchCase then
     SearchOpts := SearchOpts + [stMatchCase];
 
-  if FindOptions.MatchCase then
-     TextToFind:= FindOptions.Pattern
+  if myFindOptions.MatchCase then
+     TextToFind:= myFindOptions.Pattern
   else
-     TextToFind:= AnsiUpperCase(FindOptions.Pattern);
+     TextToFind:= AnsiUpperCase(myFindOptions.Pattern);
 
   PatternPos := 0;
-  PatternLen := length( FindOptions.Pattern );
+  PatternLen := length( myFindOptions.Pattern );
   MatchCount := 0;
   FindDone := false;
   noteidx := 0;
@@ -892,7 +874,7 @@ begin
          exit;
       end;
 
-      if FindOptions.AllTabs then
+      if myFindOptions.AllTabs then
          myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject) // initially 0
       else
          myFolder := ActiveFolder; // will exit after one loop
@@ -900,7 +882,7 @@ begin
       TreeUI:= myFolder.TreeUI;
       TV:= TreeUI.TV;
 
-      if FindOptions.CurrentNodeAndSubtree then
+      if myFindOptions.CurrentNodeAndSubtree then
          GetCurrentNode
       else begin
          GetFirstNode;
@@ -912,16 +894,21 @@ begin
       // Go through each Folder
       repeat
             nodesSelected:= false; // in this Folder, at the moment
-            TreeUI.ClearAllFindMatch;
+            if ApplyFilter then begin
+               if TreeFilter then
+                  TreeUI.ClearAllTreeMatch
+               else
+                  TreeUI.ClearAllFindMatch;
+            end;
 
             // Go through each Note Node (NNode)
             repeat
                 nodeToFilter:= true;               // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
                 SearchOrigin := 0;                 // starting a new node
 
-                if assigned(myTreeNode) and (FindOptions.SearchScope <> ssOnlyContent) then begin
+                if assigned(myTreeNode) and (myFindOptions.SearchScope <> ssOnlyContent) then begin
                   myNNode := TreeUI.GetNNode(myTreeNode);
-                  if FindOptions.MatchCase then
+                  if myFindOptions.MatchCase then
                      TextPlain:= myNNode.NoteName
                   else
                      TextPlain:= AnsiUpperCase( myNNode.NoteName);
@@ -929,10 +916,10 @@ begin
                   FindPatternInText(true);
                 end;
 
-                if assigned(myTreeNode) and (FindOptions.SearchScope <> ssOnlyNodeName) then begin
+                if assigned(myTreeNode) and (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
                    TextPlainBAK:= myFolder.PrepareTextPlain(myTreeNode, RTFAux);
                    TextPlain:= TextPlainBAK;
-                   if not FindOptions.MatchCase then
+                   if not myFindOptions.MatchCase then
                       TextPlain:=  AnsiUpperCase(TextPlain);
 
                    SearchOrigin := 0;
@@ -940,7 +927,10 @@ begin
                 end;
 
                 if ApplyFilter and (assigned(myTreeNode) and (not nodeToFilter)) then
-                   myNNode.FindFilterMatch := True;
+                   if TreeFilter then
+                      myNNode.TreeFilterMatch := True
+                   else
+                      myNNode.FindFilterMatch := True;
 
                 GetNextNode;
 
@@ -948,13 +938,16 @@ begin
 
 
             if ApplyFilter then begin
-               TreeUI.FindFilterApplied:= true;
+               if TreeFilter then
+                  TreeUI.TreeFilterApplied:= true
+               else
+                  TreeUI.FindFilterApplied:= true;
                TreeUI.SetFilteredNodes;
                myFolder.Filtered:= True;
-               Form_Main.ApplyFilterOnFolder;
+               TreeUI.ApplyFilterOnFolder;
                TreeUI.ApplyFilters(true);
 
-               App.FileSetModified;
+               App.FileSetModified;                // ¿¿¿ También si la nota es de sólo lectura?
                myTreeNode:= nil;
             end;
 
@@ -963,65 +956,70 @@ begin
 
       until FindDone or UserBreak;
 
-      MatchCount := Location_List.Count;
-      Form_Main.LblFindAllNumResults.Caption:= '  ' + MatchCount.ToString + STR_13;
-      str:=
-            '{\rtf1\ansi{\fonttbl{\f0\fnil\fcharset0 Calibri;}}' +
-            '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;\red0\green125\blue125;\red255\green255\blue235;}' +
-            '\pard\fs4\par' +
-            '\pard\fs' + (2 * ResPanelOptions.FontSizeFindResults).ToString + ' ';
 
-      strNodeFontSize:= (2 * (ResPanelOptions.FontSizeFindResults + 2)).ToString + ' ';
-      strNumberingFontSize:= (2 * (ResPanelOptions.FontSizeFindResults - 3)).ToString + ' ';
+      if not TreeFilter  then begin
+         MatchCount := Location_List.Count;
+         Form_Main.LblFindAllNumResults.Caption:= '  ' + MatchCount.ToString + STR_13;
+         str:=
+               '{\rtf1\ansi{\fonttbl{\f0\fnil\fcharset0 Calibri;}}' +
+               '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;\red0\green125\blue125;\red255\green255\blue235;}' +
+               '\pard\fs4\par' +
+               '\pard\fs' + (2 * ResPanelOptions.FontSizeFindResults).ToString + ' ';
 
-      if ( MatchCount > 0 ) then begin
-         widthTwips := DotsToTwips(Form_Main.FindAllResults.Width) - 500;
-         LastResultCellWidth:= '\cellx' + widthTwips.ToString;
+         strNodeFontSize:= (2 * (ResPanelOptions.FontSizeFindResults + 2)).ToString + ' ';
+         strNumberingFontSize:= (2 * (ResPanelOptions.FontSizeFindResults - 3)).ToString + ' ';
 
-         LastFolderID := 0;
-         lastNoteGID := 0;
+         if ( MatchCount > 0 ) then begin
+            widthTwips := DotsToTwips(Form_Main.FindAllResults.Width) - 500;
+            LastResultCellWidth:= '\cellx' + widthTwips.ToString;
 
-         for i := 1 to MatchCount do begin
-           Location := Location_List[pred(i)];
-           if (( LastFolderID <> Location.FolderID ) or ( lastNoteGID <> Location.NNodeGID )) then begin
-               LastFolderID := Location.FolderID;
-               lastNoteGID := Location.NNodeGID;
-               myFolder:= Location.Folder;
-               myTreeNode:= Location.Node;
+            LastFolderID := 0;
+            lastNoteGID := 0;
 
-               Path:= '';
-               if Location.NNode = nil then
-                  strLocationMatch:= myFolder.Name
-               else
-                  strLocationMatch:= Location.NNode.NoteName;
+            for i := 1 to MatchCount do begin
+              Location := Location_List[pred(i)];
+              if (( LastFolderID <> Location.FolderID ) or ( lastNoteGID <> Location.NNodeGID )) then begin
+                  LastFolderID := Location.FolderID;
+                  lastNoteGID := Location.NNodeGID;
+                  myFolder:= Location.Folder;
+                  myTreeNode:= Location.Node;
 
-               if (myTreeNode <> nil) and KntTreeOptions.ShowFullPathSearch then begin
-                  Path:= PathOfKntLink(myTreeNode.Parent, myFolder, 0, false, false, true);
-                  if (TreeNodeToSearchIn_AncestorPathLen > 0) then
-                     Delete(Path, 1, TreeNodeToSearchIn_AncestorPathLen);
-                  if Path <> '' then
-                     Path:= Path + KntTreeOptions.NodeDelimiter;
-               end;
-               s:= '160';
-               if i = 1 then s:= '60';
-               str:= str + Format('\pard\li80\sa60\sb%s \trowd\trgaph0%s \intbl {\cf1\b %s{\cf3\fs%s%s }}\cell\row \pard\li120\sb60\sa60 ',
-                                 [s, LastResultCellWidth, Path, strNodeFontSize, strLocationMatch])
-           end;
-           s:= i.ToString;
-           strBgColor:= '';
-           if Location.CaretPos < 0 then   // text found in node name
-              strBgColor:= '\clcbpat4';
+                  Path:= '';
+                  if Location.NNode = nil then
+                     strLocationMatch:= myFolder.Name
+                  else
+                     strLocationMatch:= Location.NNode.NoteName;
 
-           str:= str + Format('\trowd\trgaph0%s%s \intbl{\v\''11%s }{\b\fs%s %s.  }%s\cell\row ',
-                 [strBgColor, LastResultCellWidth, s, strNumberingFontSize, s, Location_List[pred(i)].Params]);
+                  if (myTreeNode <> nil) and KntTreeOptions.ShowFullPathSearch then begin
+                     Path:= PathOfKntLink(myTreeNode.Parent, myFolder, 0, false, false, true);
+                     if (TreeNodeToSearchIn_AncestorPathLen > 0) then
+                        Delete(Path, 1, TreeNodeToSearchIn_AncestorPathLen);
+                     if Path <> '' then
+                        Path:= Path + KntTreeOptions.NodeDelimiter;
+                  end;
+                  s:= '160';
+                  if i = 1 then s:= '60';
+                  str:= str + Format('\pard\li80\sa60\sb%s \trowd\trgaph0%s \intbl {\cf1\b %s{\cf3\fs%s%s }}\cell\row \pard\li120\sb60\sa60 ',
+                                    [s, LastResultCellWidth, Path, strNodeFontSize, strLocationMatch])
+              end;
+              s:= i.ToString;
+              strBgColor:= '';
+              if Location.CaretPos < 0 then   // text found in node name
+                 strBgColor:= '\clcbpat4';
+
+              str:= str + Format('\trowd\trgaph0%s%s \intbl{\v\''11%s }{\b\fs%s %s.  }%s\cell\row ',
+                    [strBgColor, LastResultCellWidth, s, strNumberingFontSize, s, Location_List[pred(i)].Params]);
+            end;
+
+            str:= str + '}';
+            Form_Main.FindAllResults.PutRtfText(str, true, true);
+            Form_Main.FindAllResults.SelStart:= 0;
          end;
-
-         str:= str + '}';
-         Form_Main.FindAllResults.PutRtfText(str, true, true);
-         Form_Main.FindAllResults.SelStart:= 0;
+         Form_Main.Btn_ResFlip.Caption := STR_06;
+         Form_Main.Ntbk_ResFind.PageIndex := 0;
       end;
-      Form_Main.Btn_ResFlip.Caption := STR_06;
-      Form_Main.Ntbk_ResFind.PageIndex := 0;
+
+      Result:= true;
 
     except
       on E : Exception do
@@ -1031,11 +1029,6 @@ begin
   finally
     Form_Main.UpdateFolderDisplay;
 
-    // restore previous FindOptions settings
-    FindOptions.AllNodes := oldAllNodes;
-    FindOptions.EntireScope := oldEntireScope;
-    FindOptions.Wrap := oldWrap;
-    FindOptions.FindAllMatches := false;
     SearchInProgress := false;
     screen.Cursor := crDefault;
     wordList.Free;

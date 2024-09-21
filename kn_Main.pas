@@ -292,7 +292,6 @@ type
     N33: TMenuItem;
     MMTree_: TMenuItem;
     MMTreeAddNode_Last: TMenuItem;
-    Toolbar_Tree: TToolbar97;
     IMG_TV: TImageList;
     MMViewToolbars_: TMenuItem;
     MMViewTBTree: TMenuItem;
@@ -591,7 +590,6 @@ type
     N92: TMenuItem;
     MMHistoryGoBack: TMenuItem;
     MMHistoryGoForward: TMenuItem;
-    Sep9722: TToolbarSep97;
     TB_GoForward: TToolbarButton97;
     TB_GoBack: TToolbarButton97;
     TB_Numbers: TToolbarButton97;
@@ -724,10 +722,8 @@ type
     TMClipCap: TMenuItem;
     Img_System: TdfsSystemImageList;
     MMViewHideCheckedNodes: TMenuItem;
-    TB_HideChecked: TToolbarButton97;
     CB_ResFind_HiddenNodes: TCheckBox;
     CB_ResFind_Filter: TCheckBox;
-    TB_FilterTree: TToolbarButton97;
     MMViewFilterTree: TMenuItem;
     TB_SetAlarm: TToolbarButton97;
     TB_AlarmMode: TToolbarButton97;
@@ -856,10 +852,8 @@ type
     procedure TB_SetAlarmMouseEnter(Sender: TObject);
     procedure TB_SetAlarmClick(Sender: TObject);
     procedure MMViewFilterTreeClick(Sender: TObject);
-    procedure TB_FilterTreeClick(Sender: TObject);
     procedure PagesMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure TB_HideCheckedClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -1232,6 +1226,7 @@ type
     procedure actList_TVsUpdate(Action: TBasicAction; var Handled: Boolean);
     procedure actTVAddNode_ParentExecute(Sender: TObject);
     procedure CB_ResFind_FilterClick(Sender: TObject);
+    procedure MMViewHideCheckedNodesClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1334,9 +1329,6 @@ type
     function SelectVisibleControlForNote( const aNote : TKntNote ) : TNodeControl;
     {$ENDIF}
 
-    procedure ApplyFilterOnFolder;
-    procedure FilterApplied (Applied: boolean);
-
     procedure UpdateAlarmStatus;
     procedure SetAlarm (ConsiderNoteAlarm: Boolean);
   end;
@@ -1420,8 +1412,6 @@ resourcestring
   STR_20a = 'date';
   STR_20b = 'time';
   STR_21 = 'Custom time formats reloaded (%d)';
-  STR_23 = 'Disable Filter on folder tree';
-  STR_24 = 'Apply Filter on folder tree';
   STR_10 = 'Cannot perform operation: ';
   STR_25 = 'no file is open';
   STR_26 = 'currently open file has no folders';
@@ -2101,7 +2091,6 @@ begin
   TB_Macro.Hint := MMToolsMacroRun.Hint;
   // TB_MacroPause.Hint := .Hint;
   // TB_MacroRecord.Hint := .Hint;
-  TB_HideChecked.Hint := MMViewHideCheckedNodes.Hint;    // [dpv]
   TB_NoteDelete.Hint := MMFolderRemove.Hint;
   TB_NoteEdit.Hint := MMNoteProperties.Hint;
   TB_NoteNew.Hint := MMFolderNew.Hint;
@@ -3209,7 +3198,8 @@ end;
 
 procedure TForm_Main.MMViewFilterTreeClick(Sender: TObject);
 begin
-    TB_FilterTreeClick(nil);
+   if ActiveTreeUI <> nil then
+      ActiveTreeUI.TB_FilterTreeClick(nil);
 end;
 
 procedure TForm_Main.MMViewFormatNoneClick(Sender: TObject);
@@ -3229,6 +3219,12 @@ begin
     ( sender as TMenuItem ).Checked := true;
     CheckTrackStyleInfo(ActiveEditor);
   end;
+end;
+
+procedure TForm_Main.MMViewHideCheckedNodesClick(Sender: TObject);
+begin
+   if ActiveTreeUI <> nil then
+      ActiveTreeUI.TB_HideCheckedClick(Sender);
 end;
 
 procedure TForm_Main.CheckTrackStyleInfo (Editor: TKntRichEdit);
@@ -3450,7 +3446,8 @@ procedure TForm_Main.MMViewTBTreeClick(Sender: TObject);
 begin
   with KeyOptions do begin
     ToolbarTreeShow := ( not ToolbarTreeShow );
-    Toolbar_Tree.Visible := ( ToolbarTreeShow and assigned( ActiveFolder ));
+    if ActiveTreeUI <> nil then
+       ActiveTreeUI.PnlInf.Visible:= ( ToolbarTreeShow and assigned( ActiveFolder ));
     MMViewTBTree.Checked := ToolbarTreeShow;
   end;
 end;
@@ -3558,33 +3555,6 @@ end;
 procedure TForm_Main.TB_ExitClick(Sender: TObject);
 begin
   Close; // No "TerminateClick"!
-end;
-
-procedure TForm_Main.TB_FilterTreeClick(Sender: TObject);
-begin
-    if not assigned (ActiveFolder) then exit;
-
-    ActiveFolder.Filtered:= not ActiveFolder.Filtered;
-    ActiveTreeUI.ApplyFilters(ActiveFolder.Filtered);
-    FilterApplied(ActiveFolder.Filtered);
-end;
-
-procedure TForm_Main.ApplyFilterOnFolder;   // [dpv]
-begin
-   assert(assigned(ActiveFolder));
-
-   ActiveTreeUI.ApplyFilters(ActiveFolder.Filtered);
-   FilterApplied(ActiveFolder.Filtered);
-end;
-
-procedure TForm_Main.FilterApplied (Applied: boolean);   // [dpv]
-begin
-   TB_FilterTree.Down:= Applied;
-   MMViewFilterTree.Checked:= Applied;
-   if Applied then
-      TB_FilterTree.Hint:= STR_23
-   else
-      TB_FilterTree.Hint:= STR_24;
 end;
 
 
@@ -4373,6 +4343,8 @@ end;
 
 
 procedure TForm_Main.CB_ResFind_FilterClick(Sender: TObject);
+var
+   Node: PVirtualNode;
 begin
    if ActiveFolder = nil then exit;
 
@@ -4383,9 +4355,13 @@ begin
 
       if not ActiveTreeUI.TreeFilterApplied then begin
          ActiveFolder.Filtered:= False;
-         ApplyFilterOnFolder;      
+         ActiveTreeUI.ApplyFilterOnFolder;
       end;
-      
+
+      Node:= ActiveTreeUI.FocusedNode;
+      if Node <> nil then
+         ActiveTreeUI.SelectAlone(Node);
+
       ActiveTreeUI.TV.Invalidate;
    end;
    
@@ -4549,30 +4525,6 @@ begin
         MMViewTBInsert.Checked := false;
       end;
     end;
-  end;
-
-end;
-
-procedure TForm_Main.TB_HideCheckedClick(Sender: TObject);   // [dpv]
-var
-  myFolder : TKntFolder;
-  Hide: boolean;
-begin
-  myFolder := ActiveFolder;
-
-  if assigned(myFolder) then begin
-    Hide:= not myFolder.HideCheckedNodes;
-    if CtrlDown and Hide then
-       Hide:= False;
-
-    myFolder.HideCheckedNodes := Hide;
-    MMViewHideCheckedNodes.Checked:= Hide;
-    TB_HideChecked.Down := Hide;
-
-    if Hide then
-       myFolder.TreeUI.HideChildNodesUponCheckState (nil, true)
-    else
-       myFolder.TreeUI.ShowNonFilteredNodes (nil);
   end;
 
 end;
@@ -5396,10 +5348,31 @@ begin
 end;
 
 procedure TForm_Main.Btn_ResFindClick(Sender: TObject);
+var
+   myFindOptions: TFindOptions;
+   ApplyFilter: boolean;
+
 begin
   VisibilityControlsFindAllResults (true);
 
-  RunFindAllEx;
+  // transfer FindAll options to myFindOptions
+  myFindOptions.MatchCase := CB_ResFind_CaseSens.Checked;
+  myFindOptions.WholeWordsOnly := CB_ResFind_WholeWords.Checked;
+  myFindOptions.AllTabs := CB_ResFind_AllNotes.Checked;
+  myFindOptions.CurrentNodeAndSubtree := CB_ResFind_CurrentNodeAndSubtree.Checked;
+  myFindOptions.SearchScope := TSearchScope( RG_ResFind_Scope.ItemIndex );
+  myFindOptions.SearchMode := TSearchMode( RG_ResFind_Type.ItemIndex );
+  myFindOptions.CheckMode := TSearchCheckMode( RG_ResFind_ChkMode.ItemIndex );
+  myFindOptions.HiddenNodes:= CB_ResFind_HiddenNodes.Checked;
+  myFindOptions.Pattern := Combo_ResFind.Text;
+
+  ApplyFilter:= CB_ResFind_Filter.Checked;
+
+  if RunFindAllEx (myFindOptions, ApplyFilter, false) then
+     // add search pattern to history
+     if ( Combo_ResFind.Items.IndexOf( myFindOptions.Pattern ) < 0 ) then
+       Combo_ResFind.Items.Insert( 0, myFindOptions.Pattern );
+
 end;
 
 procedure TForm_Main.Btn_ResFind_PrevClick(Sender: TObject);
@@ -7073,7 +7046,7 @@ begin
       MMP_PasteAsNode.Visible := true;
       MMViewCheckboxesAllNodes.Checked := myFolder.Checkboxes;
 
-      Toolbar_Tree.Visible := KeyOptions.ToolbarTreeShow;
+      ActiveTreeUI.PnlInf.Visible:= KeyOptions.ToolbarTreeShow;
       MMViewNodeIcons.Enabled := MMViewTree.Checked;
       MMViewCustomIcons.Enabled := MMViewTree.Checked;
       MMViewCheckboxesAllNodes.Enabled := MMViewTree.Checked;
@@ -7081,10 +7054,10 @@ begin
       TVSelectNodeImage.Enabled := ( MMViewCustomIcons.Checked and MMViewCustomIcons.Enabled );
       MMViewHideCheckedNodes.Enabled := true;
       MMViewHideCheckedNodes.Checked:= myFolder.HideCheckedNodes;
-      TB_HideChecked.Down := MMViewHideCheckedNodes.Checked;
-      TB_FilterTree.Down:= myFolder.Filtered;
+      MMViewHideCheckedNodes.Checked:= myFolder.TreeUI.TB_HideChecked.Down;
       MMViewFilterTree.Enabled := true;
       MMViewFilterTree.Checked :=  myFolder.Filtered;
+      MMViewFilterTree.Enabled:= myFolder.TreeUI.TB_FilterTree.Enabled;
 
       if not OnlyActionsState then begin
          Editor:= myFolder.Editor;
@@ -7101,7 +7074,6 @@ begin
          UpdateShowImagesState;
          ShowInsMode;
 
-         FilterApplied (myFolder.Filtered);
          if MMAlternativeMargins.Checked then
             Editor.Refresh;
       end;
@@ -7123,7 +7095,6 @@ begin
     StatusBar.Panels[PANEL_INS].Text := '';
 
     MMTree_.Visible := false;
-    Toolbar_Tree.Visible := false;
   end;
 
   if not OnlyActionsState then

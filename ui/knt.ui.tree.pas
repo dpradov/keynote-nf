@@ -28,6 +28,7 @@ uses
   VirtualTrees.Types,
   VirtualTrees.BaseTree,
 
+  TB97Ctls,
   RxRichEd,
   gf_misc,
   kn_Info,
@@ -68,6 +69,11 @@ type
   TKntTreeUI = class(TFrame)
     TV: TVirtualStringTree;
     CheckImages: TImageList;
+    PnlInf: TPanel;
+    txtFilter: TEdit;
+    TB_FilterTree: TToolbarButton97;
+    TB_HideChecked: TToolbarButton97;
+
 
   private class var
     fSourceTVSelectedNodes: TNodeArray;
@@ -106,6 +112,7 @@ type
 
     fFindFilterApplied: boolean;
     fTreeFilterApplied: boolean;
+    fLastTreeSearch: string;
 
   protected
     // Create. Destroy
@@ -143,7 +150,7 @@ type
     procedure UpdateTreeOptions;
   protected
     procedure PopulateTV;
-    procedure SetupTVHandlers;
+    procedure SetupTreeHandlers;
 
   public
     procedure UpdateTreeChrome;
@@ -257,6 +264,7 @@ type
     procedure ToggleCheckNode(Node : PVirtualNode);
     procedure HideChildNodesUponCheckState (ParentNode: PVirtualNode; Checked: boolean);
     procedure ShowNonFilteredNodes (ParentNode: PVirtualNode);
+    procedure TB_HideCheckedClick(Sender: TObject);
   protected
     procedure ShowOrHideChildrenCheckBoxes(const NNode : TNoteNode);
     procedure ChangeCheckedState(Node: PVirtualNode; Checked: Boolean);
@@ -267,10 +275,15 @@ type
     procedure MakePathVisible (Node: PVirtualNode);
     procedure MakePathNonFiltered (Node: PVirtualNode);
     procedure ClearAllFindMatch;
+    procedure ClearAllTreeMatch;
     procedure SetFilteredNodes;
     procedure ApplyFilters (Apply: boolean);
     property FindFilterApplied: boolean read fFindFilterApplied write fFindFilterApplied;
     property TreeFilterApplied: boolean read fTreeFilterApplied write fTreeFilterApplied;
+    procedure FilterApplied (Applied: boolean);   // [dpv]
+    procedure ApplyFilterOnFolder;   // [dpv]
+    procedure txtFilterChange(Sender: TObject);
+    procedure TB_FilterTreeClick(Sender: TObject);
 
     // Tree width expansion
   public
@@ -319,6 +332,7 @@ uses
    kn_NoteFileMng,
    kn_KntFolder,
    kn_AlertMng,
+   kn_FindReplaceMng,
    Knt.App
    ;
 
@@ -365,6 +379,10 @@ resourcestring
   STR_52= ' Cannot perform operation: Tree is read-only';
   STR_53 = 'Edit node name';
   STR_54 = 'Enter new name:';
+
+  STR_55 = 'Disable Filter on folder tree';
+  STR_56 = 'Apply Filter on folder tree';
+
 
 
 const
@@ -427,6 +445,7 @@ begin
      HelpContext:= 284;  // Tree-type Notes [284]
    end;
 
+   TB_HideChecked.Hint := Form_Main.MMViewHideCheckedNodes.Hint;    // [dpv]
    CheckImages.ResInstLoad( HInstance, rtBitmap, 'VTCHECKIMGS',  clFuchsia );
 end;
 
@@ -491,7 +510,7 @@ begin
    UpdateTreeOptions;
 
    PopulateTV;
-   SetupTVHandlers;
+   SetupTreeHandlers;
 
    if Folder.TreeMaxWidth > Folder.TreeWidth then
       SplitterNote.Color:= clLtGray;
@@ -690,8 +709,12 @@ begin
 end;
 
 
-procedure TKntTreeUI.SetupTVHandlers;
+procedure TKntTreeUI.SetupTreeHandlers;
 begin
+   txtFilter.OnChange := txtFilterChange;
+   TB_HideChecked.OnClick:= TB_HideCheckedClick;
+   TB_FilterTree.OnClick:= TB_FilterTreeClick;
+
    with TV do begin
      OnGetText:= TV_GetText;
      OnPaintText:= TV_PaintText;
@@ -871,6 +894,11 @@ begin
   if CellPaintMode = cpmGetContentMargin then exit;
 
   NNode := Sender.GetNodeData(Node);
+
+  if fTreeFilterApplied and NNode.TreeFilterMatch then begin
+     TargetCanvas.Brush.Color := clWebLemonChiffon;
+     TargetCanvas.FillRect(ContentRect);
+  end;
 
   if NNode.NodeBGColor <> clNone then begin
      CellR:= ContentRect;
@@ -3049,6 +3077,35 @@ begin
     end;
 end;
 
+
+procedure TKntTreeUI.TB_HideCheckedClick(Sender: TObject);
+var
+  myFolder : TKntFolder;
+  Hide: boolean;
+begin
+  myFolder := ActiveFolder;
+
+  if assigned(myFolder) then begin
+    Hide:= not myFolder.HideCheckedNodes;
+    if CtrlDown and Hide then
+       Hide:= False;
+
+    myFolder.HideCheckedNodes := Hide;
+    Form_Main.MMViewHideCheckedNodes.Checked:= Hide;
+    TB_HideChecked.Down := Hide;
+
+    if Hide then
+       myFolder.TreeUI.HideChildNodesUponCheckState (nil, true)
+    else begin
+       myFolder.TreeUI.ShowNonFilteredNodes (nil);
+       fLastTreeSearch:= '';
+       txtFilterChange(nil);
+    end;
+  end;
+
+end;
+
+
 {$ENDREGION}
 
 
@@ -3090,6 +3147,15 @@ begin
        TKntFolder(Folder).NNodes[i].FindFilterMatch:= False;
 end;
 
+procedure TKntTreeUI.ClearAllTreeMatch;
+var
+  NNode: TNoteNode;
+  i: integer;
+begin
+   for i := 0 to TKntFolder(Folder).NNodes.Count-1 do
+       TKntFolder(Folder).NNodes[i].TreeFilterMatch:= False;
+end;
+
 
 procedure TKntTreeUI.ApplyFilters (Apply: boolean);
 begin
@@ -3103,23 +3169,146 @@ end;
 
 procedure TKntTreeUI.SetFilteredNodes;
 var
-  Node : PVirtualNode;
+  Node, NodeParent : PVirtualNode;
   NNode: TNoteNode;
+  InitialFiltered: boolean;
 begin
    TV.BeginUpdate;
 
-   for Node in TV.Nodes() do
-      TV.IsFiltered [Node]:= True;
+   InitialFiltered:= fTreeFilterApplied or fFindFilterApplied;
 
-   for Node in TV.Nodes() do begin
-      NNode:= GetNNode(Node);
-      if (not fFindFilterApplied or NNode.FindFilterMatch) and (not fTreeFilterApplied or NNode.TreeFilterMatch) then
-         MakePathNonFiltered(Node);
-   end;
+   for Node in TV.Nodes() do
+      TV.IsFiltered [Node]:= InitialFiltered;
+
+   if fFindFilterApplied then
+      for Node in TV.Nodes() do begin
+         NNode:= GetNNode(Node);
+         if NNode.FindFilterMatch then
+            MakePathNonFiltered(Node);
+      end;
+
+   if fTreeFilterApplied then
+      Node:= TV.GetFirst();
+      repeat
+         if not (fFindFilterApplied and TV.IsFiltered[Node]) then begin
+            NNode:= GetNNode(Node);
+            if not NNode.TreeFilterMatch then
+               TV.IsFiltered[Node]:= true
+
+            else begin
+               MakePathNonFiltered(Node);
+
+               if fFindFilterApplied then begin
+                  NodeParent:= Node.Parent;
+                  Node:= Node.NextSibling;
+                  if (Node = nil) and (NodeParent <> TV.RootNode) then
+                     Node:= NodeParent.NextSibling;
+                  continue;
+               end;
+            end;
+         end;
+         Node:= TV.GetNext(Node);
+      until Node = nil;
+
 
    TV.EndUpdate;
+
+   TB_FilterTree.Enabled := fFindFilterApplied or fTreeFilterApplied;
+   Form_Main.MMViewFilterTree.Enabled:= TB_FilterTree.Enabled;
 end;
 
+procedure TKntTreeUI.ApplyFilterOnFolder;   // [dpv]
+begin
+   assert(assigned(ActiveFolder));
+
+   ApplyFilters(ActiveFolder.Filtered);
+   FilterApplied(ActiveFolder.Filtered);
+end;
+
+
+procedure TKntTreeUI.txtFilterChange(Sender: TObject);
+var
+   myFindOptions: TFindOptions;
+   ApplyFilter: boolean;
+   Node: PVirtualNode;
+   str: string;
+
+begin
+  str:= trim(txtFilter.Text).ToUpper;
+
+  if Length(str) < 3 then begin
+     if TreeFilterApplied then begin
+        fLastTreeSearch:= '';
+        TreeFilterApplied:= false;
+        ClearAllTreeMatch;
+        SetFilteredNodes;
+
+        if not FindFilterApplied then begin
+           TKntFolder(Folder).Filtered:= False;
+           ApplyFilterOnFolder;
+        end;
+
+        Node:= TV.FocusedNode;
+        if Node <> nil then
+           SelectAlone(Node);
+
+        TV.Invalidate;
+     end;
+  end
+  else
+  if (str <> fLastTreeSearch) then begin
+     fLastTreeSearch:= str;
+     myFindOptions.MatchCase := false;
+     myFindOptions.WholeWordsOnly := false;
+     myFindOptions.AllTabs := false;
+     myFindOptions.CurrentNodeAndSubtree := false;
+     myFindOptions.SearchScope := ssOnlyNodeName;
+     myFindOptions.SearchMode := smAll;
+     myFindOptions.CheckMode := scAll;
+     myFindOptions.HiddenNodes:= false;
+     myFindOptions.Pattern := str;
+
+     RunFindAllEx (myFindOptions, true, true);
+
+     Node:= TV.FocusedNode;
+     if TV.IsEffectivelyFiltered[Node] then begin
+        Node := TV.GetNextNotHidden(Node);
+        if Node = nil then
+           Node := TV.GetPreviousNotHidden(TV.FocusedNode);
+        if Node <> nil then
+           SelectAlone(Node);
+     end;
+
+  end;
+
+end;
+
+
+procedure TKntTreeUI.TB_FilterTreeClick(Sender: TObject);
+var
+  Node: PVirtualNode;
+  Folder: TKntFolder;
+begin
+   Folder:= TKntFolder(Self.Folder);
+
+   Folder.Filtered:= not Folder.Filtered;
+   ApplyFilters(Folder.Filtered);
+   FilterApplied(Folder.Filtered);
+
+   Node:= TV.FocusedNode;
+   if Node <> nil then
+      SelectAlone(Node);
+end;
+
+procedure TKntTreeUI.FilterApplied (Applied: boolean);   // [dpv]
+begin
+   TB_FilterTree.Down:= Applied;
+   Form_Main.MMViewFilterTree.Checked:= Applied;
+   if Applied then
+      TB_FilterTree.Hint:= STR_55
+   else
+      TB_FilterTree.Hint:= STR_56;
+end;
 
 
 {$ENDREGION}

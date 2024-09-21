@@ -896,57 +896,16 @@ object Form_Main: TForm_Main
     Position = dpBottom
     ExplicitTop = 687
     ExplicitWidth = 1038
-    object Toolbar_Tree: TToolbar97
-      Tag = 4
-      Left = 247
-      Top = 0
-      HelpContext = 335
-      ActivateParent = False
-      Caption = 'Tree Toolbar'
-      DefaultDock = Dock_Top
-      DockPos = 247
-      DragHandleStyle = dhSingle
-      TabOrder = 0
-      OnClose = Toolbar_FormatClose
-      object Sep9722: TToolbarSep97
-        Left = 0
-        Top = 0
-      end
-      object TB_HideChecked: TToolbarButton97
-        Left = 6
-        Top = 0
-        Width = 24
-        Height = 22
-        AllowAllUp = True
-        GroupIndex = 1
-        ImageIndex = 37
-        Images = IMG_Toolbar
-        RepeatInterval = 101
-        OnClick = TB_HideCheckedClick
-      end
-      object TB_FilterTree: TToolbarButton97
-        Left = 30
-        Top = 0
-        Width = 24
-        Height = 22
-        AllowAllUp = True
-        GroupIndex = 2
-        ImageIndex = 49
-        Images = IMG_Toolbar
-        RepeatInterval = 101
-        OnClick = TB_FilterTreeClick
-      end
-    end
     object Toolbar_Style: TToolbar97
       Tag = 3
-      Left = 5
+      Left = 250
       Top = 0
       ActivateParent = False
       Caption = 'Style Toolbar'
       DefaultDock = Dock_Bottom
-      DockPos = 5
+      DockPos = 250
       DragHandleStyle = dhSingle
-      TabOrder = 1
+      TabOrder = 0
       OnClose = Toolbar_FormatClose
       OnRecreated = Toolbar_StyleRecreated
       OnRecreating = Toolbar_StyleRecreating
@@ -992,14 +951,14 @@ object Form_Main: TForm_Main
     end
     object Toolbar_Insert: TToolbar97
       Tag = 5
-      Left = 333
+      Left = 484
       Top = 0
       ActivateParent = False
       Caption = 'Insert Toolbar'
       DefaultDock = Dock_Bottom
-      DockPos = 333
+      DockPos = 484
       DragHandleStyle = dhSingle
-      TabOrder = 2
+      TabOrder = 1
       OnClose = Toolbar_FormatClose
       object ToolbarButton971: TToolbarButton97
         Left = 74
@@ -1217,13 +1176,11 @@ object Form_Main: TForm_Main
         PageIndex = 1
         ParentFont = False
         TabOrder = 1
-        ExplicitTop = 81
-        ExplicitHeight = 525
+        ExplicitHeight = 515
         object PAGE_RES_FIND: TPage
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND'
-          ExplicitHeight = 525
           object FindAllResults: TRxRichEdit
             Left = 0
             Top = 0
@@ -1245,14 +1202,13 @@ object Form_Main: TForm_Main
             UndoLimit = 0
             WantTabs = True
             OnContextPopup = FindAllResultsContextPopup
-            ExplicitHeight = 525
           end
         end
         object PAGE_RES_FIND_OPT: TPage
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
-          ExplicitHeight = 524
+          ExplicitHeight = 515
           object CB_ResFind_CaseSens: TCheckBox
             Left = 10
             Top = 15
@@ -1406,6 +1362,10 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object ResTab_Macro: TTab95Sheet
       HelpContext = 304
@@ -1637,13 +1597,11 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 296
-          Height = 47
+          Width = 9
+          Height = 13
           Align = alClient
           Caption = '...'
           WordWrap = True
-          ExplicitWidth = 9
-          ExplicitHeight = 13
         end
       end
     end
@@ -2445,7 +2403,7 @@ object Form_Main: TForm_Main
         Caption = '&Hide Checked Nodes'
         Hint = 'Keep checked nodes hidden / Show non filtered [Ctrl]'
         ImageIndex = 37
-        OnClick = TB_HideCheckedClick
+        OnClick = MMViewHideCheckedNodesClick
       end
       object MMViewFilterTree: TMenuItem
         Caption = 'Filter nodes'
