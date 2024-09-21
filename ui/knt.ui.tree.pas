@@ -2337,6 +2337,8 @@ begin
      end;
   end;
 
+  TV.ScrollIntoView(TV.FocusedNode, false);
+
 end;
 
 

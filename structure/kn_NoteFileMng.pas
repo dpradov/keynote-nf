@@ -49,7 +49,7 @@ uses
                             OnlyNotHiddenNodes: boolean= false;
                             OnlyCheckedNodes: boolean= false);
 
-    procedure EnsureCaretVisibleInEditors;
+    procedure EnsureNodeAndCaretVisibleInFolders;
 
     procedure MergeFromKNTFile( MergeFN : string );
 
@@ -441,7 +441,7 @@ begin
             end;
 
             SetupAndShowVCLControls;
-            EnsureCaretVisibleInEditors;                                // *1
+            EnsureNodeAndCaretVisibleInFolders;                                // *1
             Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
 
 
@@ -566,15 +566,18 @@ begin
 end; // KntFileOpen
 
 
-procedure EnsureCaretVisibleInEditors;
+procedure EnsureNodeAndCaretVisibleInFolders;
 var
    i: integer;
    Editor: TKntRichEdit;
+   Folder: TKntFolder;
 begin
    if not assigned( ActiveFile ) then exit;
 
    for i := 0 to ActiveFile.Folders.Count -1 do begin
-       Editor:= ActiveFile.Folders[i].Editor;
+       Folder:= ActiveFile.Folders[i];
+       Folder.TreeUI.TV.ScrollIntoView(Folder.TreeUI.FocusedNode, false);
+       Editor:= Folder.Editor;
        Editor.SetMargins;
        SendMessage(Editor.Handle, EM_SCROLLCARET, 0, 0);
    end;
@@ -1531,6 +1534,7 @@ begin
                 SetUpVCLControls( newFolder );
               finally
                 newFolder.TabSheet.TabVisible := true; // was created hidden
+                newFolder.TreeUI.TV.ScrollIntoView(newFolder.TreeUI.FocusedNode, false);
               end;
 
             end;

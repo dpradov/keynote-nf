@@ -1599,7 +1599,7 @@ begin
   if KeyOptions.AltMargins then
      MMAlternativeMargins.Checked:= true;
 
-  EnsureCaretVisibleInEditors;       // View comment in KntFileOpen
+  EnsureNodeAndCaretVisibleInFolders;       // View comment in KntFileOpen
 
   if _GLOBAL_URLText <> '' then
     JumpToKNTLocation( _GLOBAL_URLText );
@@ -5935,7 +5935,7 @@ begin
   KeyOptions.AltMargins:= MMAlternativeMargins.Checked;
 
   if assigned(ActiveFolder) then begin
-     EnsureCaretVisibleInEditors;
+     EnsureNodeAndCaretVisibleInFolders;
      ActiveFolder.Editor.Refresh;
   end;
 end;
