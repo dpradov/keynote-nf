@@ -282,6 +282,7 @@ type
     property TreeFilterApplied: boolean read fTreeFilterApplied write fTreeFilterApplied;
     procedure FilterApplied (Applied: boolean);   // [dpv]
     procedure ApplyFilterOnFolder;   // [dpv]
+    procedure ClearFindFilter;
     procedure txtFilterChange(Sender: TObject);
     procedure TB_FilterTreeClick(Sender: TObject);
 
@@ -380,8 +381,9 @@ resourcestring
   STR_53 = 'Edit node name';
   STR_54 = 'Enter new name:';
 
-  STR_55 = 'Disable Filter on folder tree';
-  STR_56 = 'Apply Filter on folder tree';
+  STR_55 = 'Disable Filter on tree';
+  STR_56 = 'Apply Filter on tree';
+  STR_57 = ' (Ctrl: Clear Find filter)';
 
 
 
@@ -3239,6 +3241,29 @@ begin
 end;
 
 
+procedure TKntTreeUI.ClearFindFilter;
+var
+   Node: PVirtualNode;
+begin
+   if not FindFilterApplied then exit;
+
+   FindFilterApplied:= false;
+   ClearAllFindMatch;
+   SetFilteredNodes;
+
+   if not TreeFilterApplied then begin
+      TKntFolder(Folder).Filtered:= False;
+      ApplyFilterOnFolder;
+   end;
+
+   Node:= FocusedNode;
+   if Node <> nil then
+      SelectAlone(Node);
+
+   TV.Invalidate;
+end;
+
+
 procedure TKntTreeUI.txtFilterChange(Sender: TObject);
 var
    myFindOptions: TFindOptions;
@@ -3302,6 +3327,9 @@ var
   Node: PVirtualNode;
   Folder: TKntFolder;
 begin
+   if CtrlDown then
+      ClearFindFilter;
+
    Folder:= TKntFolder(Self.Folder);
 
    Folder.Filtered:= not Folder.Filtered;
@@ -3314,13 +3342,20 @@ begin
 end;
 
 procedure TKntTreeUI.FilterApplied (Applied: boolean);   // [dpv]
+var
+   HintStr: string;
 begin
    TB_FilterTree.Down:= Applied;
    Form_Main.MMViewFilterTree.Checked:= Applied;
+
    if Applied then
-      TB_FilterTree.Hint:= STR_55
+      HintStr:= STR_55
    else
-      TB_FilterTree.Hint:= STR_56;
+      HintStr:= STR_56;
+
+   if FindFilterApplied then
+      HintStr:= HintStr + STR_57;
+   TB_FilterTree.Hint:= HintStr;
 end;
 
 

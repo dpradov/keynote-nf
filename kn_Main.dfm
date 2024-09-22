@@ -1349,7 +1349,6 @@ object Form_Main: TForm_Main
             Font.Style = []
             ParentFont = False
             TabOrder = 5
-            OnClick = CB_ResFind_FilterClick
           end
         end
       end
@@ -2407,7 +2406,6 @@ object Form_Main: TForm_Main
       end
       object MMViewFilterTree: TMenuItem
         Caption = 'Filter nodes'
-        Hint = 'Apply or Remove Filter on folder'
         ImageIndex = 49
         OnClick = MMViewFilterTreeClick
       end

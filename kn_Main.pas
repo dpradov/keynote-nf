@@ -1225,7 +1225,6 @@ type
     procedure actList_FileUpdate(Action: TBasicAction; var Handled: Boolean);
     procedure actList_TVsUpdate(Action: TBasicAction; var Handled: Boolean);
     procedure actTVAddNode_ParentExecute(Sender: TObject);
-    procedure CB_ResFind_FilterClick(Sender: TObject);
     procedure MMViewHideCheckedNodesClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
@@ -4341,32 +4340,6 @@ begin
     CB_ResFind_CurrentNodeAndSubtree.Enabled:= not AllNotes;
 end;
 
-
-procedure TForm_Main.CB_ResFind_FilterClick(Sender: TObject);
-var
-   Node: PVirtualNode;
-begin
-   if ActiveFolder = nil then exit;
-
-   if not CB_ResFind_Filter.Checked and ActiveTreeUI.FindFilterApplied then begin
-      ActiveTreeUI.FindFilterApplied:= false;
-      ActiveTreeUI.ClearAllFindMatch;
-      ActiveTreeUI.SetFilteredNodes;
-
-      if not ActiveTreeUI.TreeFilterApplied then begin
-         ActiveFolder.Filtered:= False;
-         ActiveTreeUI.ApplyFilterOnFolder;
-      end;
-
-      Node:= ActiveTreeUI.FocusedNode;
-      if Node <> nil then
-         ActiveTreeUI.SelectAlone(Node);
-
-      ActiveTreeUI.TV.Invalidate;
-   end;
-   
-end;
-
 procedure TForm_Main.MMFormatLS1Click(Sender: TObject);
 begin
   PerformCmd( ecSpace1 );
@@ -7058,6 +7031,7 @@ begin
       MMViewFilterTree.Enabled := true;
       MMViewFilterTree.Checked :=  myFolder.Filtered;
       MMViewFilterTree.Enabled:= myFolder.TreeUI.TB_FilterTree.Enabled;
+      MMViewFilterTree.Hint:= myFolder.TreeUI.TB_FilterTree.Hint;
 
       if not OnlyActionsState then begin
          Editor:= myFolder.Editor;
