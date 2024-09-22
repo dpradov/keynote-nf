@@ -377,7 +377,7 @@ resourcestring
   STR_49 = 'OK to sort the entire tree?';
   STR_50 = ' Node name cannot be blank!';
   STR_51= ' Node renamed.';
-  STR_52= ' Cannot perform operation: Tree is read-only';
+  STR_52= ' Cannot perform operation: ''%s'' folder is read-only';
   STR_53 = 'Edit node name';
   STR_54 = 'Enter new name:';
 
@@ -481,6 +481,8 @@ var
 begin
   fFolder:= aFolder;
   Folder:= TKntFolder(fFolder);
+
+  fReadOnly:= Folder.ReadOnly;
 
    if Folder.VerticalLayout then
      Align := alTop
@@ -788,7 +790,7 @@ begin
     Result:= False;
 
     if ReadOnly then begin
-       App.ShowInfoInStatusBar(STR_52);
+       App.ShowInfoInStatusBar(Format(STR_52, [TKntFolder(Self.Folder).Name]));
        Result:= True;
        exit;
     end;
@@ -1184,6 +1186,7 @@ var
   NodeColor, DefaultColor, NewColor: TColor;
   i: integer;
 begin
+  if CheckReadOnly then exit;
   Node:= TV.FocusedNode;
   if Node = nil then exit;
 
@@ -2463,6 +2466,8 @@ var
   OnlyChildren: string;
   i: integer;
 begin
+  if CheckReadOnly then exit;
+
   Node:= TV.FocusedNode;
   if Node = nil then exit;
 
@@ -2831,7 +2836,7 @@ procedure TKntTreeUI.TV_DragOver(Sender: TBaseVirtualTree; Source: TObject; Shif
   end;
 
 begin
-  Accept := true;
+  Accept := not fReadOnly;
   DetermineEffect;
 end;
 
@@ -2945,6 +2950,7 @@ end;
 
 procedure TKntTreeUI.TV_EndDrag(Sender, Target: TObject; X, Y: Integer);
 begin
+  CheckReadOnly;
 end;
 
 

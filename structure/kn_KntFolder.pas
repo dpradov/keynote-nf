@@ -1418,6 +1418,7 @@ var
 
 begin
   if (Node = nil) then exit;
+  if Form_Main.FolderIsReadOnly( Self, true ) then exit;
 
   NNode:= TreeUI.GetNNode(Node);
   Note:= NNode.Note;
