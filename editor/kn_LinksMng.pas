@@ -1395,9 +1395,12 @@ begin
 
          if assigned( myTreeNode ) then begin
             // select the node
-            if myFolder.TreeUI.FocusedNode <> myTreeNode then begin
-               myFolder.TreeUI.MakePathVisible(myTreeNode);     // It could be hidden
-               myFolder.TreeUI.SelectAlone(myTreeNode);
+            with myFolder.TreeUI do begin
+               if FocusedNode <> myTreeNode then begin
+                  MakePathVisible(myTreeNode);       // It could be hidden
+                  MakePathNonFiltered(myTreeNode);   // It also could be filtered
+                  SelectAlone(myTreeNode);
+               end;
             end;
          end
          else

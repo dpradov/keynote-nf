@@ -611,9 +611,10 @@ type
              Location.CaretPos := -1     // means: text found in node name
           end;
 
-          strExtract:= GetFindedPatternExtract(str, FirstPattern, PatternPos, Result, wordList, LastPattern, LastPatternPos);
+          strExtract:= GetFindedPatternExtract(str, FirstPattern, PatternPos, Result, wordList, LastPattern, LastPatternPos); // ** Result is set here
           Location.Params:= strExtract;
-          Location_List.Add(Location);
+          if not TreeFilter then
+             Location_List.Add(Location);
        end;
 
        procedure GetCurrentNode;
@@ -844,8 +845,10 @@ begin
   LastResultCellWidth:= '';
   SearchInProgress := true;
   screen.Cursor := crHourGlass;
-  Form_Main.FindAllResults.ReadOnly:= False;
-  Form_Main.FindAllResults.Clear;
+  if not TreeFilter  then begin
+     Form_Main.FindAllResults.ReadOnly:= False;
+     Form_Main.FindAllResults.Clear;
+  end;
   Application.ProcessMessages;
   Form_Main.FindAllResults.BeginUpdate;
 
@@ -855,7 +858,8 @@ begin
 
   try
     try
-      ClearLocationList( Location_List );
+      if not TreeFilter  then
+         ClearLocationList( Location_List );
 
       CSVTextToStrs( wordList, TextToFind, #32 );
       for i := wordList.count - 1 downto 0 do

@@ -3285,9 +3285,9 @@ begin
 
      Node:= TV.FocusedNode;
      if TV.IsEffectivelyFiltered[Node] then begin
-        Node := TV.GetNextNotHidden(Node);
+        Node := TV.GetNextNotHidden(Node);                     // By default, IncludeFiltered=False
         if Node = nil then
-           Node := TV.GetPreviousNotHidden(TV.FocusedNode);
+           Node := TV.GetPreviousNotHidden(TV.FocusedNode);    // ,,
         if Node <> nil then
            SelectAlone(Node);
      end;
