@@ -944,8 +944,10 @@ begin
             if ApplyFilter then begin
                if TreeFilter then
                   TreeUI.TreeFilterApplied:= true
-               else
+               else begin
                   TreeUI.FindFilterApplied:= true;
+                  Form_Main.ShowTBTree(true);
+               end;
                TreeUI.SetFilteredNodes;
                myFolder.Filtered:= True;
                TreeUI.ApplyFilterOnFolder;

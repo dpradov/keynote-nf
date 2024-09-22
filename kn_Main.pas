@@ -963,6 +963,7 @@ type
     procedure MMEditPasteEvalClick(Sender: TObject);
 
     procedure MMViewTBTreeClick(Sender: TObject);
+    procedure ShowTBTree(Show: boolean);
     procedure MMTreeFullExpandClick(Sender: TObject);
     procedure MMTreeFullCollapseClick(Sender: TObject);
     {
@@ -3443,13 +3444,17 @@ end;
 
 procedure TForm_Main.MMViewTBTreeClick(Sender: TObject);
 begin
-  with KeyOptions do begin
-    ToolbarTreeShow := ( not ToolbarTreeShow );
-    if ActiveTreeUI <> nil then
-       ActiveTreeUI.PnlInf.Visible:= ( ToolbarTreeShow and assigned( ActiveFolder ));
-    MMViewTBTree.Checked := ToolbarTreeShow;
-  end;
+  ShowTBTree (not KeyOptions.ToolbarTreeShow)
 end;
+
+procedure TForm_Main.ShowTBTree(Show: boolean);
+begin
+   KeyOptions.ToolbarTreeShow:= Show;
+   if ActiveTreeUI <> nil then
+      ActiveTreeUI.PnlInf.Visible:= ( Show and assigned( ActiveFolder ));
+   MMViewTBTree.Checked := Show;
+end;
+
 
 procedure TForm_Main.MMFileManagerClick(Sender: TObject);
 begin
