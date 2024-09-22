@@ -429,6 +429,7 @@ var
   i : integer;
 begin
   if FModified = AModified then exit;
+  if FileIsBusy and AModified then exit;
 
   FModified := AModified;
 
@@ -1685,7 +1686,7 @@ var
 
       else begin
          TransferNEntryText(List, NEntry.Stream, IsRTF);      // transfer Text data (RTF or plain text) from list to Note Entry
-         assert(IsRTF = RTFContent);
+         assert((IsRTF = RTFContent) or (NEntry.Stream.Size=0));
          NEntry.IsRTF:= RTFContent;
       end;
 

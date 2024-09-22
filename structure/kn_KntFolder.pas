@@ -2287,7 +2287,7 @@ var
      if NNode.ID <> 0 then
         tf.WriteLine( _NodeID + '=' + NNode.ID.ToString );
      if NNode.States <> [] then
-        tf.WriteLine(_NodeState + '=' + NNode.StatesToString(TV));
+        tf.WriteLine(_NodeState + '=' + NNode.StatesToString(TV, fReadOnly));
 
      Level:= TV.GetNodeLevel(Node);
      if Level <> LastSavedLevel then begin
@@ -2998,7 +2998,8 @@ begin
   result[4] := BOOLEANSTR[FURLDetect];
   result[5] := BOOLEANSTR[FUseTabChar];
   result[6] := BOOLEANSTR[FDefaultPlainText];
-  result[7] := BOOLEANSTR[FFiltered];
+  if not FReadonly then
+     result[7] := BOOLEANSTR[FFiltered];
 
 
   result[13] := AnsiChar(inttostr( ord( FIconKind ))[1]);

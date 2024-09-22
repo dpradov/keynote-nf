@@ -641,8 +641,14 @@ begin
 
           ShowOrHideIcons;
 
-          if myFolder.Filtered then
+          // If filtering was applied, keep the matches (and node highlighting), but keep the filter disabled by default
+          if myFolder.Filtered then begin
              SetFilteredNodes;
+             TB_FilterTree.Enabled := True;
+             Form_Main.MMViewFilterTree.Enabled:= True;
+             TB_FilterTreeClick(nil);
+          end;
+
           if myFolder.HideCheckedNodes then
              HideChildNodesUponCheckState (nil, true);
 

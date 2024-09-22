@@ -930,11 +930,15 @@ begin
                    FindPatternInText(false);
                 end;
 
-                if ApplyFilter and (assigned(myTreeNode) and (not nodeToFilter)) then
+                if ApplyFilter and (assigned(myTreeNode) and (not nodeToFilter)) then begin
                    if TreeFilter then
                       myNNode.TreeFilterMatch := True
                    else
                       myNNode.FindFilterMatch := True;
+
+                   if not myFolder.ReadOnly then
+                      myFolder.Modified:= True;    // Filter matches won't be saved in read only folders
+                end;
 
                 GetNextNode;
 
@@ -953,7 +957,6 @@ begin
                TreeUI.ApplyFilterOnFolder;
                TreeUI.ApplyFilters(true);
 
-               App.FileSetModified;                // ¿¿¿ También si la nota es de sólo lectura?
                myTreeNode:= nil;
             end;
 
