@@ -83,7 +83,7 @@ type
     fTVCopiedNodes: TNodeList;
     fVirtualNodesConvertedOnCopy: integer;
     fMovingToOtherTree: boolean;
-    fMovingToFolder: TFolderObj;
+    fTargetFolder: TFolderObj;
     fNNodesInSubtree: TNoteNodeArray;
     fDropTargetNode: PVirtualNode;
     fDropTargetNodeInsMode: TNodeInsertMode;
@@ -2544,6 +2544,7 @@ begin
    end;
 
    fCopyingAsLinked:= PasteAsLinkedNNode;
+   fTargetFolder:= Folder;
    TV.BeginUpdate;
 
    for i := 0 to High(fSourceTVSelectedNodes) do
@@ -2588,7 +2589,7 @@ begin
       exit;
 
   fMovingToOtherTree:= (SourceTV <> TV);
-  fMovingToFolder:= Folder;
+  fTargetFolder:= Folder;
 
   for i := 0 to High(fSourceTVSelectedNodes) do begin
      SourceTV.MoveTo(fSourceTVSelectedNodes[i], TargetNode, AttachMode, False);
@@ -2765,12 +2766,12 @@ begin
    repeat
       NNodeS:= GetNNode(NodeS);
       if fCopyingAsLinked or NNodeS.Note.IsVirtual then begin
-         NNodeC:= TKntFolder(Folder).AddNewNNode(NNodeS.Note, NNodeS);
+         NNodeC:= TKntFolder(fTargetFolder).AddNewNNode(NNodeS.Note, NNodeS);
          if not fCopyingAsLinked then
             inc(fVirtualNodesConvertedOnCopy);
       end
       else
-         NNodeC:= TKntFolder(Folder).AddNewNote(NodeS);
+         NNodeC:= TKntFolder(fTargetFolder).AddNewNote(NodeS);
 
       SetNNode(NodeC, NNodeC);
       NNodeC.TVNode:= NodeC;
@@ -2807,9 +2808,9 @@ begin
          SetNNode(Node, NNode);
          NNode.TVNode:= Node;
          SetNumberingMethod(Node);
-         NNode.Note.UpdateFolderInNNode(NNode, fMovingToFolder);
+         NNode.Note.UpdateFolderInNNode(NNode, fTargetFolder);
          TKntFolder(fFolder).RemoveNNode(NNode);
-         TKntFolder(fMovingToFolder).AddNNode(NNode);
+         TKntFolder(fTargetFolder).AddNNode(NNode);
          inc(i);
        end;
 
