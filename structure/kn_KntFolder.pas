@@ -953,7 +953,8 @@ begin
   if ( AReadOnly <> FReadOnly ) then
   begin
     FReadOnly := AReadOnly;
-    TreeUI.ReadOnly:= AReadOnly;
+    if TreeUI <> nil then
+       TreeUI.ReadOnly:= AReadOnly;
     Modified := true;
     if _ALLOW_VCL_UPDATES and assigned( FEditor ) then FEditor.ReadOnly := FReadOnly;
 
