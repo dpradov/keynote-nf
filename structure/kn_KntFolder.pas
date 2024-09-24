@@ -2286,8 +2286,10 @@ var
 
      if NNode.ID <> 0 then
         tf.WriteLine( _NodeID + '=' + NNode.ID.ToString );
+
+     NNode.UpdateStates(TV);
      if NNode.States <> [] then
-        tf.WriteLine(_NodeState + '=' + NNode.StatesToString(TV, fReadOnly));
+        tf.WriteLine(_NodeState + '=' + NNode.StatesToString(fReadOnly));
 
      Level:= TV.GetNodeLevel(Node);
      if Level <> LastSavedLevel then begin

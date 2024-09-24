@@ -419,7 +419,8 @@ type
     property ImageIndex : integer read fImageIndex write fImageIndex;
     procedure ResetChrome;
 
-    function StatesToString (TV: TBaseVirtualTree; IgnoreFilterMatch: boolean): string;
+    procedure UpdateStates(TV: TBaseVirtualTree);
+    function StatesToString (IgnoreFilterMatch: boolean): string;
     procedure StringToStates(HexStr: string);
   end;
 
@@ -1251,9 +1252,7 @@ begin
 end;
 
 
-function TNoteNode.StatesToString(TV: TBaseVirtualTree; IgnoreFilterMatch: boolean): String;
-var
-  StatesBak: TNoteNodeStates;
+procedure TNoteNode.UpdateStates(TV: TBaseVirtualTree);
 begin
   Exclude(States, nnsSaved_Expanded);
   Exclude(States, nnsSaved_Checked);
@@ -1267,8 +1266,13 @@ begin
 
   if not TV.IsVisible[TVNode] then
      Include(States, nnsSaved_Hidden);
+end;
 
 
+function TNoteNode.StatesToString(IgnoreFilterMatch: boolean): String;
+var
+  StatesBak: TNoteNodeStates;
+begin
   StatesBak:= States;
   if IgnoreFilterMatch then begin
      Exclude(States, nnsTreeFilterMatch);
@@ -1276,7 +1280,6 @@ begin
   end;
 
   Result:= IntToHex(SetToInt(States, SizeOf(TNoteNodeStates)), SizeOf(TNoteNodeStates)*2);
-
   States:= StatesBak
 end;
 
