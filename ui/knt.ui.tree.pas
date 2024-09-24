@@ -283,6 +283,7 @@ type
     procedure FilterApplied (Applied: boolean);   // [dpv]
     procedure ApplyFilterOnFolder;   // [dpv]
     procedure ClearFindFilter;
+    procedure CheckFocusedNode;
     procedure txtFilterChange(Sender: TObject);
     procedure TB_FilterTreeClick(Sender: TObject);
 
@@ -361,7 +362,7 @@ resourcestring
   STR_19 = 'Target node is included in one of the subtrees to move';
   STR_20 = ' nodes/subtrees registered for transfer';
   STR_21 = 'No data to paste. Select "Transfer|Copy/Cut Subtree" first.';
-  STR_22 = 'One or more nodes being transferred is a Virtual Node. They will be pasted as linked node' + #13#13 + 'Continue?';
+  STR_22 = #13#13 + '* One or more nodes being copied is a Virtual Node. They will be pasted as linked nodes' + #13#13 + 'Continue?';
 
   STR_23 = 'OK to PASTE %d nodes/subtrees%s below current node "%s"?' + #13#10 + '(Only not hidden nodes will be pasted)';
   STR_26 = ' as LINKED nodes';
@@ -2517,31 +2518,33 @@ end;
 procedure TKntTreeUI.CopySubtrees (TargetNode: PVirtualNode; Prompt: boolean; PasteAsLinkedNNode: boolean; AttachMode: TVTNodeAttachMode= amAddChildLast);
 var
   Node: PVirtualNode;
-  NNode: TNoteNode;
   SourceTV: TBaseVirtualTree;
   i: integer;
+  TargetDesc, Obs: string;
 
 begin
-   NNode:= GetNNode(TargetNode);
+   if TargetNode = nil then begin
+      TargetDesc:= '<ROOT>';
+      TargetNode:= TV.RootNode;
+   end
+   else
+      TargetDesc:= GetNNode(TargetNode).NodeName(Self);
 
    SourceTV:= TreeFromNode(fSourceTVSelectedNodes[0]);
    Prompt:= (Prompt or ((TV <> SourceTV) and KeyOptions.DropNodesOnTabPrompt));
 
    if PasteAsLinkedNNode then begin
-      if Prompt and (App.DoMessageBox(Format(STR_23, [Length(fSourceTVSelectedNodes), STR_26, NNode.NodeName(Self)]),
+      if Prompt and (App.DoMessageBox(Format(STR_23, [Length(fSourceTVSelectedNodes), STR_26, TargetDesc]),
                      mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then
             exit;
    end
    else begin
-       if HasVirtualNotesInSelectedSubtrees then begin
-         if Prompt and (App.DoMessageBox(STR_22, mtWarning, [mbYes,mbNo], 0) <> mrYes) then
-            exit;
-       end
-       else begin
-          if Prompt and (App.DoMessageBox(Format(STR_23, [Length(fSourceTVSelectedNodes), '', NNode.NodeName(Self)]),
-                            mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then // {N}
-            exit;
-       end;
+       if HasVirtualNotesInSelectedSubtrees then
+          Obs:= STR_22;
+
+       if Prompt and (App.DoMessageBox(Format(STR_23, [Length(fSourceTVSelectedNodes), '', TargetDesc]) + Obs,
+                         mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then // {N}
+          exit;
    end;
 
    fCopyingAsLinked:= PasteAsLinkedNNode;
@@ -2561,6 +2564,8 @@ begin
       App.InfoPopup(Format(STR_25,[fVirtualNodesConvertedOnCopy]));
 
   TKntFolder(Folder).Modified:= true;
+  if TargetNode = TV.RootNode then
+     CheckFocusedNode;
 end;
 
 
@@ -2571,12 +2576,20 @@ var
  SourceTreeUI: TKntTreeUI;
  SourceTV: TBaseVirtualTree;
  i: integer;
+ TargetDesc: string;
 
 begin
-  if IsIncludedInSelectedSubtrees(TargetNode) then begin
-     App.WarningPopup(STR_19);
-     exit;
-  end;
+   if TargetNode = nil then begin
+      TargetDesc:= '<ROOT>';
+      TargetNode:= TV.RootNode;
+   end
+   else begin
+      TargetDesc:= GetNNode(TargetNode).NodeName(Self);
+      if IsIncludedInSelectedSubtrees(TargetNode) then begin
+         App.WarningPopup(STR_19);
+         exit;
+      end;
+   end;
 
   SourceFolder:= ActiveFile.GetFolderByTreeNode(fSourceTVSelectedNodes[0]);
   Assert(assigned(SourceFolder));
@@ -2585,7 +2598,7 @@ begin
   SourceTV:= TreeFromNode(fSourceTVSelectedNodes[0]);
   Prompt:= (Prompt or ((TV <> SourceTV) and KeyOptions.DropNodesOnTabPrompt));
 
-  if Prompt and (App.DoMessageBox(Format(STR_16,  [Length(fSourceTVSelectedNodes), GetNNode(TargetNode).NodeName(Self)]),
+  if Prompt and (App.DoMessageBox(Format(STR_16,  [Length(fSourceTVSelectedNodes), TargetDesc]),
                        mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then
       exit;
 
@@ -2608,6 +2621,9 @@ begin
 
   SourceFolder.Modified:= true;
   TKntFolder(Folder).Modified:= true;
+
+  if TargetNode = TV.RootNode then
+     CheckFocusedNode;
 end;
 
 
@@ -2640,11 +2656,13 @@ begin
       end;
 
       ttPaste: begin
-         FocNode:= TV.FocusedNode;
-         if (FocNode = nil) or (fSourceTVSelectedNodes = nil) then begin
+         if (fSourceTVSelectedNodes = nil) then begin
             App.InfoPopup(STR_21);
             exit;
          end;
+         FocNode:= TV.FocusedNode;
+         if TV.IsEffectivelyFiltered[FocNode] then
+            FocNode := nil;
          if CheckReadOnly then exit;
 
          if fCutSubtrees then
@@ -2905,6 +2923,9 @@ begin
       // We can ignore the drop event entirely and use VT mechanisms (Regardless of whether it is VCL or OLE drag'n drop)
       DetermineEffect;
       GetSelectedSubtrees (TBaseVirtualTree(Source));
+      if Sender.DropTargetNode = nil then
+         AttachMode := amAddChildLast;
+
       if (Effect = DROPEFFECT_COPY) or (Effect = DROPEFFECT_LINK) then
          CopySubtrees (Sender.DropTargetNode, False, (Effect = DROPEFFECT_LINK), AttachMode)
       else
@@ -3202,6 +3223,8 @@ var
   NNode: TNoteNode;
   InitialFiltered: boolean;
 begin
+   if TV.TotalCount = 0 then exit;
+
    TV.BeginUpdate;
 
    InitialFiltered:= fTreeFilterApplied or fFindFilterApplied;
@@ -3270,9 +3293,7 @@ begin
       ApplyFilterOnFolder;
    end;
 
-   Node:= FocusedNode;
-   if Node <> nil then
-      SelectAlone(Node);
+   CheckFocusedNode;
 
    TV.Invalidate;
 end;
@@ -3300,10 +3321,7 @@ begin
            ApplyFilterOnFolder;
         end;
 
-        Node:= TV.FocusedNode;
-        if Node <> nil then
-           SelectAlone(Node);
-
+        CheckFocusedNode;
         TV.Invalidate;
      end;
   end
@@ -3322,17 +3340,32 @@ begin
 
      RunFindAllEx (myFindOptions, true, true);
 
+     CheckFocusedNode;
+  end;
+end;
+
+
+procedure TKntTreeUI.CheckFocusedNode;
+var
+  Node: PVirtualNode;
+begin
      Node:= TV.FocusedNode;
      if TV.IsEffectivelyFiltered[Node] then begin
         Node := TV.GetNextNotHidden(Node);                     // By default, IncludeFiltered=False
         if Node = nil then
            Node := TV.GetPreviousNotHidden(TV.FocusedNode);    // ,,
         if Node <> nil then
-           SelectAlone(Node);
+           SelectAlone(Node)
+        else begin
+           fLastNodeSelected:= nil;
+           TKntFolder(Folder).NoNodeInTree;
+           TV.TreeOptions.SelectionOptions:= TV.TreeOptions.SelectionOptions - [toAlwaysSelectNode];
+        end;
+     end
+     else begin
+        TV.TreeOptions.SelectionOptions:= TV.TreeOptions.SelectionOptions + [toAlwaysSelectNode];
+        TV_FocusChanged(TV, TV.FocusedNode, -1);
      end;
-
-  end;
-
 end;
 
 
@@ -3350,9 +3383,7 @@ begin
    ApplyFilters(Folder.Filtered);
    FilterApplied(Folder.Filtered);
 
-   Node:= TV.FocusedNode;
-   if Node <> nil then
-      SelectAlone(Node);
+   CheckFocusedNode;
 end;
 
 procedure TKntTreeUI.FilterApplied (Applied: boolean);   // [dpv]

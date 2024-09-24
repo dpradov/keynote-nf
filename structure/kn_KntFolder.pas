@@ -216,7 +216,7 @@ type
 
 
     procedure UpdateEditor (SetWordWrap: boolean= true);
-    procedure ConfigureEditor;
+    procedure ConfigureEditor(ForceNNodeNIL: boolean = false);
     procedure DataStreamToEditor;
     function EditorToDataStream  (Node: PVirtualNode= nil): TMemoryStream;
     procedure SetEditorProperties( const aProps : TFolderEditorProperties );
@@ -1162,7 +1162,7 @@ end;
 procedure TKntFolder.NoNodeInTree;
 begin
    Editor.Clear;
-   Editor.Enabled:= False;
+   ConfigureEditor (true);
 end;
 
 
@@ -1665,7 +1665,7 @@ end;
 
 {$REGION Editor <-> DataStream. Configure, Chrome, Properties, UpdateEditor, .. }
 
-procedure TKntFolder.ConfigureEditor;
+procedure TKntFolder.ConfigureEditor (ForceNNodeNIL: boolean = false);
 var
    plainTxt: boolean;
    NNode: TNoteNode;
@@ -1674,7 +1674,7 @@ begin
   if FEditor = nil then exit;
   NNode:= Self.FocusedNNode;
 
-  if NNode = nil then begin
+  if ForceNNodeNIL or (NNode = nil) then begin
      FEditor.SupportsRegisteredImages:= false;
      FEditor.SupportsImages:= false;
      FEditor.SetVinculatedObjs(nil, nil, nil, nil);
