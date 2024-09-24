@@ -642,6 +642,7 @@ begin
           ShowOrHideIcons;
 
           // If filtering was applied, keep the matches (and node highlighting), but keep the filter disabled by default
+          myFolder.Filtered:= FindFilterApplied or TreeFilterApplied;
           if myFolder.Filtered then begin
              SetFilteredNodes;
              TB_FilterTree.Enabled := True;
