@@ -1858,7 +1858,7 @@ var
          end;
       end
       else begin
-         if not TZipStorage.IsValidZip(Path) then begin
+         if not TZipStorage.IsValidZip(AbsolutePath) then begin
             App.DoMessageBox(Format(STR_12, [AbsolutePath]), mtWarning, [mbOk], 0);
             Result:= false;
          end;

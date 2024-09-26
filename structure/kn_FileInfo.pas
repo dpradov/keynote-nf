@@ -660,8 +660,21 @@ begin
 end;
 
 procedure TForm_KntFileInfo.cbImgExtStorageTypeChange(Sender: TObject);
+var
+  ExtLocation, Ext: string;
+
 begin
    CheckExternalStorageLocation;
+
+   ExtLocation:= txtExtStorageLocation.Text;
+   Ext:= ExtractFileExt(ExtLocation).ToUpper ;
+
+   case TImagesExternalStorage(cbImgExtStorageType.ItemIndex) of
+    issZip:    if Ext <> '.ZIP' then ExtLocation:= ExtLocation + '.zip';
+    issFolder: if Ext  = '.ZIP' then ExtLocation:= ChangeFileExt(ExtLocation, '');
+   end;
+   txtExtStorageLocation.Text:= ExtLocation;
+
 end;
 
 
@@ -700,8 +713,20 @@ begin
 end;
 
 procedure TForm_KntFileInfo.txtExtStorageLocationExit(Sender: TObject);
+var
+  Ext: string;
+  extStorageType: TImagesExternalStorage;
+
 begin
    CheckExternalStorageLocation;
+
+   Ext:= ExtractFileExt(txtExtStorageLocation.Text).ToUpper;
+   if Ext = '.ZIP' then
+      extStorageType:= issZip
+   else
+      extStorageType:= issFolder;
+
+   cbImgExtStorageType.ItemIndex:= Ord(extStorageType);
 end;
 
 procedure TForm_KntFileInfo.txtExtStorageLocationKeyDown(Sender: TObject;
