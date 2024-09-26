@@ -2873,7 +2873,7 @@ begin
 
    // fExtenalImagesManager <> nil : We are processing folder images from a file we are merging (see MergeFromKNTFile)
 
-   UseExtenalImagesManager:= (ImagesModeDest = imLink) and (fExternalImagesManager <> nil);
+   UseExtenalImagesManager:= ((ImagesModeDest = imLink) or (fStorageMode = smEmbRTF)) and (fExternalImagesManager <> nil);
    StreamNeeded:=  (ImagesModeDest = imImage) or (fExternalImagesManager <> nil);
 
 
