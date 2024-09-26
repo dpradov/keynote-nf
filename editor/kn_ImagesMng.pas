@@ -372,7 +372,7 @@ type
 
     property  ChangingImagesStorage: boolean read fChangingImagesStorage;
     procedure ConversionStorageMode_End;
-    function  PrepareImagesStorageToSave(KntFile: TObject; const FN: string): boolean;
+    function  PrepareImagesStorageToSave(const FN: string): boolean;
     procedure SetInitialImagesStorageMode (StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage);
     function  SetImagesStorage (StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage;
                                 Path: string;
@@ -382,7 +382,7 @@ type
     procedure AdaptPathFormatInImages (ZipPathFormat: boolean);
     function GetDefaultExternalLocation (ExtType: TImagesExternalStorage; FN: string= ''): string;
     property FileIsNew: boolean read fFileIsNew write fFileIsNew;
-
+    property KntFile: TObject read fKntFile write fKntFile;
 
     property Images: TList read fImages;
     property ImagesMode: TImagesMode read fImagesMode write fImagesMode;            // See TKntFolder.ImagesMode  ==> ImagesManager.ProcessImagesInRTF
@@ -464,7 +464,7 @@ type
     function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 
 
-    procedure LoadState (const KntFile: TObject; const tf: TTextFile; var FileExhausted: Boolean);
+    procedure LoadState (const tf: TTextFile; var FileExhausted: Boolean);
     procedure SaveState (const tf: TTextFile);
     procedure DeleteOrphanImages();
     procedure SerializeImagesDefinition  (const tf: TTextFile);
@@ -1238,7 +1238,6 @@ constructor TImageMng.Create;
 begin
   inherited Create;
 
-  fKntFile:= nil;
   fImages:= TList.Create;
   fExternalImagesManager:= nil;
   fImagesIDExported:= nil;
@@ -1278,6 +1277,7 @@ begin
    fExportingMode:= false;
    fChangingImagesStorage:= false;
    fFileIsNew:= true;
+   fKntFile:= nil;
    fIntendedExternalStorageType:= issFolder;
    fIntendedStorageLocationPath:= '';
    fReconsiderImageDimensionsGoal:= false;
@@ -1567,7 +1567,7 @@ end;
 //      OPEN KNT -> LOAD IMAGES AND STATE
 //-----------------------------------------
 
-procedure TImageMng.LoadState(const KntFile: TObject; const tf: TTextFile; var FileExhausted: Boolean);
+procedure TImageMng.LoadState(const tf: TTextFile; var FileExhausted: Boolean);
 var
   s, key : AnsiString;
   ws: String;
@@ -1592,7 +1592,6 @@ var
   MaxImageID: Integer;
 
 begin
-  fKntFile:= KntFile;
   section:= sStoragesDef;
   MaxImageID:= 0;
   FNextImageID:= -1;
@@ -1777,16 +1776,16 @@ end;
 procedure TImageMng.SetInitialImagesStorageMode(StorageMode: TImagesStorageMode; ExternalStorageType: TImagesExternalStorage);
 begin
   fStorageMode:= StorageMode;
+  fIntendedExternalStorageType:= ExternalStorageType;
 end;
 
 
-function TImageMng.PrepareImagesStorageToSave (KntFile: TObject; const FN: string): boolean;
+function TImageMng.PrepareImagesStorageToSave (const FN: string): boolean;
 var
   KntFilePath: string;
 begin
    if not fFileIsNew then exit (true);
 
-   fKntFile:= KntFile;
    KntFilePath:= ExtractFilePath(FN);
    fNotOwnedStorage:= TFolderStorage.Create('', KntFilePath);
    fNotOwnedStorage.fNotOwned:= True;

@@ -246,6 +246,7 @@ begin
             KntFile.PageCtrl := Pages;
             KntFile.PassphraseFunc := GetFilePassphrase;
             KntFile.FileFormat := KeyOptions.SaveDefaultFormat;
+            ImageMng.KntFile:= KntFile;
             ImageMng.SetInitialImagesStorageMode(KeyOptions.ImgDefaultStorageMode, KeyOptions.ImgDefaultExternalStorage);
 
             if ( KeyOptions.RunAutoMacros and fileexists( _MACRO_AUTORUN_NEW_FILE )) then begin
@@ -925,7 +926,7 @@ begin
          end;
 
          // Initialize ImagesManager to reflect the FN in case it is a new file
-         if not ImageMng.PrepareImagesStorageToSave(KntFile, FN) then
+         if not ImageMng.PrepareImagesStorageToSave(FN) then
             exit;
 
 

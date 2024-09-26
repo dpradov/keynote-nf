@@ -1293,6 +1293,8 @@ begin
   if (TFileAttribute.faReadOnly in Attrs) then
     FReadOnly := true;
 
+  ImgManager.KntFile:= Self;
+
   result := 1;
   Stream := TFileStream.Create( FN, ( fmOpenRead or fmShareDenyWrite ));
 
@@ -1570,7 +1572,7 @@ begin
                    LoadBookmarks(tf, FileExhausted, NextBlock)
 
                else if NextBlock = nbImages then
-                   ImgManager.LoadState(Self, tf, FileExhausted)
+                   ImgManager.LoadState(tf, FileExhausted)
 
                else if NextBlock = nbNotes then
                    LoadNotes(tf, FileExhausted, NextBlock)
