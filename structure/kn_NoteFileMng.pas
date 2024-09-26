@@ -274,12 +274,12 @@ begin
           TB_Repeat.ENabled := false;
 
           StatusBar.Panels[PANEL_HINT].Text := STR_02;
+          FileIsBusy := false;        // If FileIsBusy=true -> FileSetModified would be ignored
           App.FileSetModified;
           UpdateOpenFile;
         {$IFDEF KNT_DEBUG}
           Log.Add( 'KntFileNew result: ' + inttostr( result ));
         {$ENDIF}
-          FileIsBusy := false;
 
           if ( assigned( ActiveFolder ) and KeyOptions.RunAutoMacros ) then begin
              Application.ProcessMessages;

@@ -291,6 +291,7 @@ begin
   FShowTabIcons := true;
   FNoMultiBackup := false;
   FSavedWithRichEdit3 := false;
+  fNextNNodeGID:= 1;                // by default (for new files), next GID must be 1, not 0
   SetVersion;
 
   fFolders := TFolderList.Create;
@@ -485,7 +486,7 @@ var
   AllNotesInitialized: boolean;
   RTFAux: TAuxRichEdit;
 begin
-    if FileIsBusy then Exit;
+    if FileIsBusy or (FFolders = nil) then Exit;
     if FTextPlainVariablesInitialized then Exit;
 
     RTFAux:= CreateAuxRichEdit;
