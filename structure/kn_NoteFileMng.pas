@@ -488,6 +488,7 @@ begin
                  end;
                  KntFile.Free;
                  KntFile := nil;
+                 ActiveFile:= nil;
                end;
                result := 1;
              end;
