@@ -139,6 +139,7 @@ const
                        FILTER_TEXTFILES + '|' +
                        FILTER_HJTFILES + '|' +
                        'HTML files (*.htm*)|*.htm*;*.shtm*;*.asp;*.php;*.css|' +
+                       FILTER_NOTEFILES + '|' +
                        FILTER_ALLFILES;
   FILTER_EXPORT      = 'RTF files (*.rtf)|*.rtf|' +
                        'Text files (*.txt)|*.txt|' +
