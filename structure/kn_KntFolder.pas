@@ -381,8 +381,8 @@ begin
   with Form_Main do begin
     if ( not HaveKntFolders( true, false )) then exit;
     myFolder := nil;
-    FileWasBusy := FileIsBusy;
-    FileIsBusy := true;
+    FileWasBusy := ActiveFileIsBusy;
+    ActiveFile.IsBusy := true;
     StatusBar.Panels[PANEL_HINT].Text := '';
     TimerWasEnabled := Timer.Enabled;
     Timer.Enabled := false;
@@ -463,7 +463,7 @@ begin
 
   finally
     Form_Main.Timer.Enabled := TimerWasEnabled;
-    FileIsBusy := FileWasBusy;
+    ActiveFile.IsBusy := FileWasBusy;
     ActiveFile.Modified := true;
     result := assigned( myFolder );
    {$IFDEF KNT_DEBUG}
@@ -860,14 +860,32 @@ end; // CREATE
 
 
 destructor TKntFolder.Destroy;
+var
+  i: integer;
+  NNode: TNoteNode;
+  ClosingFile: boolean;
+
 begin
   AlarmMng.RemoveAlarmsOfFolder(Self, false);
 
   try
+    ClosingFile:= TKntFile(KntFile).IsBusy;
     FHistory.Free;
     if fNNodes <> nil then begin
-       // Before entering here, DestroyVCLControlsForFolder will have already been called and all nodes will have been eliminated from fTree...
-       assert(fNNodes.Count = 0);
+
+       for i := 0 to fNNodes.Count-1 do begin
+          NNode:= fNNodes[i];
+          if NNode = nil then continue;
+
+          if not ClosingFile then begin         // Closing the file -> IsBusy=True -> TKntTreeUI.Destroy -> TV.OnFreeNode:= nil
+             NNode.Note.RemoveNNode(NNode);
+             if NNode.Note.NumNNodes = 0 then
+                TKntFile(KntFile).DeleteNote(NNode.Note);
+          end;
+
+          NNode.Free;
+       end;
+
        fNNodes.Free;
     end;
 

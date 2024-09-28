@@ -2221,10 +2221,8 @@ begin
   if ( Timer_Tick >= KeyOptions.AutoSaveOnTimerInt * ( 60000 div _TIMER_INTERVAL ) ) then
   begin
     Timer_Tick := 0;
-    if Form_Main.HaveKntFolders( false, false ) then
-    begin
-      if (( not FileChangedOnDisk ) and ActiveFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then
-      begin
+    if Form_Main.HaveKntFolders( false, false ) then begin
+      if (( not ActiveFile.ChangedOnDisk ) and ActiveFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then begin
         if (( ActiveFile.FileName <> '' ) and ( not ActiveFile.ReadOnly )) then begin
           // only if saved previously
          {$IFDEF KNT_DEBUG}
@@ -2237,12 +2235,10 @@ begin
   end;
 
   try
-    if KeyOptions.TimerClose then
-    begin
+    if KeyOptions.TimerClose then begin
       Hrs := ( KeyOptions.TimerCloseInt DIV 60 );
       Mins := ( KeyOptions.TimerCloseInt MOD 60 );
-      if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then
-      begin
+      if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then begin
         Timer_Tick := 0;
         AutoCloseKntFile;
         // auto-closing minimizes too, so we exit here
@@ -2250,16 +2246,12 @@ begin
       end;
     end;
 
-    if KeyOptions.TimerMinimize then
-    begin
-      if ( not IsIconic( Application.Handle )) then
-      begin
+    if KeyOptions.TimerMinimize then begin
+      if ( not IsIconic( Application.Handle )) then begin
         Hrs := ( KeyOptions.TimerMinimizeInt DIV 60 );
         Mins := ( KeyOptions.TimerMinimizeInt MOD 60 );
         if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then
-        begin
           Application.Minimize;
-        end;
       end;
     end;
 
@@ -2300,12 +2292,11 @@ end;
 
 procedure TForm_Main.AppDeactivate( sender : TObject );
 begin
-  if FileChangedOnDisk then exit;
-  if (( not ( AppIsClosing or Initializing or FileIsBusy )) and
+  if (ActiveFile <> nil) and ActiveFile.ChangedOnDisk then exit;
+  if (( not ( AppIsClosing or Initializing or ActiveFileIsBusy )) and
       ( HaveKntFolders( false, false ))) then
   begin
-    if ( KeyOptions.AutoSave and KeyOptions.AutoSaveOnFocus and ActiveFile.Modified ) then
-    begin
+    if ( KeyOptions.AutoSave and KeyOptions.AutoSaveOnFocus and ActiveFile.Modified ) then begin
       if (( ActiveFile.FileName <> '' ) and ( not ActiveFile.ReadOnly )) then begin
         // only if saved previously
         {$IFDEF KNT_DEBUG}
@@ -2319,13 +2310,12 @@ end; // AppDeactivate
 
 procedure TForm_Main.WMActivate( Var msg: TWMActivate );
 begin
-  if ( msg.Active <> WA_INACTIVE ) then
-  begin
-    if FileChangedOnDisk then begin
+  if ( msg.Active <> WA_INACTIVE ) then begin
+    if (ActiveFile <> nil) and ActiveFile.ChangedOnDisk then begin
       {$IFDEF KNT_DEBUG}
         Log.Add( 'FileChangedOnDisk!' );
       {$ENDIF}
-        FileChangedOnDisk := false;
+        ActiveFile.ChangedOnDisk := false;
         SomeoneChangedOurFile;
     end;
     AppIsClosing := false;
@@ -3003,7 +2993,7 @@ end; // Combo_FontKeyDown
 
 procedure TForm_Main.Combo_FontSizeClick(Sender: TObject);
 begin
-  if (App.Kbd.RTFUpdating or FileIsBusy) then exit;
+  if (App.Kbd.RTFUpdating or ActiveFileIsBusy) then exit;
   if ((Sender = Combo_FontSize) and (Combo_FontSize.Text = '')) then exit;
 
   if (Sender = Combo_FontSize) then
@@ -3318,7 +3308,7 @@ begin
          'Notes modified: ' + BOOLARRAY[KntFile.Modified] +#13+
          'Folders count: ' + inttostr( KntFile.FolderCount ) +#13+
          'File Read-Only: ' + BOOLARRAY[KntFile.ReadOnly] +#13+
-         'File Busy: ' + BOOLARRAY[FileIsBusy] +#13+
+         'File Busy: ' + BOOLARRAY[ActiveFileIsBusy] +#13+
          'File format: ' + FILE_FORMAT_NAMES[KntFile.FileFormat] + #13#13+
          'FolderMon active: ' + BOOLARRAY[FolderMon.Active] +#13+
          'FolderMon folder: ' + FolderMon.FolderName + #13#13 +

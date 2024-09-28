@@ -1548,7 +1548,7 @@ begin
   // to ReadOnly.
   // (*1): Can be used when is set to ReadOnly, although the command ecReadOnly
   //       CAN modify the folder.
-  if ( App.Kbd.RTFUpdating or FileIsBusy ) then exit;
+  if ( App.Kbd.RTFUpdating or ActiveFileIsBusy ) then exit;
 
   if ( not assigned( ActiveEditor )) then begin
     if App.opt_Debug then begin
@@ -1756,7 +1756,7 @@ begin
   // Perform command on ActiveEditor
   // The command MODIFIES the folder if the ActiveEditor is vinculated to a folder,
   // hence cannot be executed when that folder is set to ReadOnly.
-  if ( App.Kbd.RTFUpdating or FileIsBusy ) then exit;
+  if ( App.Kbd.RTFUpdating or ActiveFileIsBusy ) then exit;
   if not App.CheckActiveEditorNotReadOnly then exit;
 
   Editor:= ActiveEditor;

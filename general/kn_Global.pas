@@ -131,9 +131,6 @@ var
     FirstTimeRun : boolean; // true if INI file not found; assume fresh install. (load "sample.knt", etc.)
 
     Initializing : boolean; // true from main form's CREATE up to exit from ACTIVATE. Certain things cannot be done during that time, such as focusing controls
-    FileIsBusy : boolean; // if TRUE, file is being saved or opened, so we can't mess with it
-    FileState : TFileState; // for file change notification (remembers previous file size, date and time)
-    FileChangedOnDisk : boolean; // for file change notification. If true, we will prompt to reload at nearest opportunity.
     LastImportFilter : integer; // just so we can set the OpenDlg filterindex property
     TerminateClick : boolean;  // true ONLY on File->Exit click and TrayIcon menu Exit click
     ClosedByWindows : boolean; // true on WM_QUERYENDSESSION message, windows is shutting down
@@ -357,9 +354,7 @@ begin
       FolderMon.Active := false;
       Ntbk_ResFind.PageIndex := 1;
 
-      FileIsBusy := false;
       LastEvalExprResult := '';
-      FileChangedOnDisk := false;
       TerminateClick := false;
       ClosedByWindows := false;
       AppIsClosing := false;

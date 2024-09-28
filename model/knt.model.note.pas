@@ -491,11 +491,8 @@ begin
   if fResources <> nil then
      fResources.Free;
 
-  if fNNodes <> nil then begin
-     for i:= 0 to High(fNNodes) do
-        fNNodes[i].NNode.Free;
-     fNNodes:= nil;
-  end;
+  // The responsibility of freeing the nodes falls on the folders
+  fNNodes:= nil;
 
   // TODO Report, through App so that those notes that include this as a resource, remove it
 
@@ -519,7 +516,6 @@ begin
       Delete(fName, TREENODE_NAME_LENGTH, 9999);
 
    SetModified;                                             // = Modified:= true;
-
    App.NoteNameModified(Self);
 end;
 
@@ -548,10 +544,10 @@ end;
 
 procedure TNote.SetModified;
 begin
-   Include(fStates, nsModified);
+   if ActiveFileIsBusy or AFileIsLoading then exit;
 
-   if not FileIsBusy then
-      fLastModified:= Now;
+   Include(fStates, nsModified);
+   fLastModified:= Now;
 end;
 
 

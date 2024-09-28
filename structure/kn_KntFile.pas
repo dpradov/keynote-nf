@@ -37,6 +37,7 @@ uses
    ZLibEx,
 
    gf_streams,
+   gf_files,
    kn_Const,
    kn_Info,
    kn_LocationObj,
@@ -91,6 +92,9 @@ type
     FBookmarks : TBookmarks;
     FTextPlainVariablesInitialized: boolean;
 
+    FIsBusy : boolean; // if TRUE, file is being saved, opened or closed, so we can't mess with it
+
+
     function GetFolderCount : integer;
     procedure SetVersion;
     procedure SetDescription( ADescription : TCommentStr );
@@ -106,7 +110,12 @@ type
     function GetFile_NameNoExt: string;
     function GetFile_Path: string;
 
+    procedure SetIsBusy(Value: boolean);
+
   public
+    State : TFileState;         // for file change notification (remembers previous file size, date and time)
+    ChangedOnDisk : boolean;    // for file change notification. If true, we will prompt to reload at nearest opportunity.
+
     property Version : TKntFileVersion read FVersion;
     property FileName : string read FFileName write SetFileName;
     property File_Name : string read GetFile_Name;
@@ -136,6 +145,7 @@ type
 
     property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
 
+    property IsBusy: boolean read FIsBusy write SetIsBusy;
 
     constructor Create;
     destructor Destroy; override;
@@ -220,7 +230,6 @@ uses
    IDEA,
 
    gf_strings,
-   gf_files,
    gf_misc,
 
    kn_RTFUtils,
@@ -300,24 +309,38 @@ begin
   for i:= 0 to MAX_BOOKMARKS do
      FBookmarks[i]:= nil;
 
+  FIsBusy := true;
 end; // CREATE
 
 
 destructor TKntFile.Destroy;
 var
    F: TKntFolder;
+   N: TNote;
    i: integer;
 begin
   if fFolders <> nil then begin
      for i := 0 to fFolders.Count-1 do begin
         f:= fFolders[i];
         if F <> nil then
-           F.Free;
+           F.Free;           // It will free all it's NNodes
      end;
 
     fFolders.Free;
     fFolders := nil;
   end;
+
+  if fNotes <> nil then begin
+     for i := 0 to fNotes.Count-1 do begin
+        N:= fNotes[i];
+        if N <> nil then
+           N.Free;          // Note.Free will not free it's associated NNodes (already freed by Folder.Free)
+     end;
+
+    fNotes.Free;
+    fNotes := nil;
+  end;
+
 
   inherited Destroy;
 end; // DESTROY
@@ -430,7 +453,7 @@ var
   i : integer;
 begin
   if FModified = AModified then exit;
-  if FileIsBusy and AModified then exit;
+  if FIsBusy and AModified then exit;
 
   FModified := AModified;
 
@@ -443,6 +466,13 @@ begin
   end;
 end;
 
+
+procedure TKntFile.SetIsBusy(Value: boolean);
+begin
+    FIsBusy:= Value;
+    if ActiveFile = Self then
+       ActiveFileIsBusy:= Value;
+end;
 
 procedure TKntFile.SetFilename( const Value : string );
 begin
@@ -486,7 +516,7 @@ var
   AllNotesInitialized: boolean;
   RTFAux: TAuxRichEdit;
 begin
-    if FileIsBusy or (FFolders = nil) then Exit;
+    if FIsBusy or (FFolders = nil) then Exit;
     if FTextPlainVariablesInitialized then Exit;
 
     RTFAux:= CreateAuxRichEdit;

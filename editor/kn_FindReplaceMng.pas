@@ -131,7 +131,7 @@ var
   Editor: TKntRichEdit;
 begin
   if not App.CheckActiveEditor then exit;
-  if ( FileIsBusy or SearchInProgress ) then exit;
+  if ( ActiveFileIsBusy or SearchInProgress ) then exit;
 
   Editor:= ActiveEditor;
 
@@ -793,7 +793,7 @@ begin
   Result:= false;
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveFolder )) then exit;
-  if ( FileIsBusy or SearchInProgress ) then exit;
+  if ( ActiveFileIsBusy or SearchInProgress ) then exit;
 
   if ( myFindOptions.Pattern = '' ) then exit;
 
@@ -1375,7 +1375,7 @@ var
 
 begin
   result := false;
-  if ( SearchInProgress or FileIsBusy or ( Text_To_Find = '' )) then exit;
+  if ( SearchInProgress or ActiveFileIsBusy or ( Text_To_Find = '' )) then exit;
 
 
   if assigned( Form_FindReplace ) then
@@ -1556,7 +1556,7 @@ begin
   result := false;
   if not App.CheckActiveEditor then exit;
 
-  if ( SearchInProgress or FileIsBusy or ( Text_To_Find = '' )) then exit;
+  if ( SearchInProgress or ActiveFileIsBusy or ( Text_To_Find = '' )) then exit;
 
   if assigned( Form_FindReplace ) then
       handle:= Form_FindReplace.Handle

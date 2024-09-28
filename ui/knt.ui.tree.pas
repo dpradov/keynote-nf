@@ -456,6 +456,8 @@ end;
 destructor TKntTreeUI.Destroy;
 begin
    TV.OnChange := nil;
+   // When removing a folder or closing the file, don't free each node and note guided by Virtual TreeView
+   TV.OnFreeNode:= nil;
    TV.Free;
 
    inherited;

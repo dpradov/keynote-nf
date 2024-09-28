@@ -224,13 +224,11 @@ begin
   with Form_Main do begin
         result := -1;
         _REOPEN_AUTOCLOSED_FILE := false;
-        if FileIsBusy then exit;
         App.Virtual_UnEncrypt_Warning_Done:= false;
         try
           try
             result := 0;
             FolderMon.Active := false;
-            FileIsBusy := true;
             Pages.MarkedPage := nil;
 
             if ( DEF_FN <> OrigDEF_FN ) then
@@ -274,7 +272,7 @@ begin
           TB_Repeat.ENabled := false;
 
           StatusBar.Panels[PANEL_HINT].Text := STR_02;
-          FileIsBusy := false;        // If FileIsBusy=true -> FileSetModified would be ignored
+          KntFile.IsBusy := false;        // If FileIsBusy=true -> FileSetModified would be ignored
           App.FileSetModified;
           UpdateOpenFile;
         {$IFDEF KNT_DEBUG}
@@ -327,7 +325,6 @@ begin
         opensuccess := false;
         linksModified:= false;
         App.Virtual_UnEncrypt_Warning_Done:= false;
-        if FileIsBusy then exit;
 
         try
           try
@@ -365,7 +362,6 @@ begin
 
             Timer.Enabled := false;
             screen.Cursor := crHourGlass;
-            FileIsBusy := true;
             result := 0;
             KntFile := TKntFile.Create;
             KntFile.PassphraseFunc := GetFilePassphrase;
@@ -375,7 +371,7 @@ begin
             Log_StoreTick('');
             Log_StoreTick( 'FileOpen (' + FN + ') - BEGIN', 0, +1);
 
-            ActiveFile:= KntFile;
+            App.FileOpening(KntFile);
             result := KntFile.Load( FN, ImageMng, ClipCapIdx, true );
 
             Log_StoreTick( 'After parsed .knt file', 1 );
@@ -488,7 +484,6 @@ begin
                  end;
                  KntFile.Free;
                  KntFile := nil;
-                 ActiveFile:= nil;
                end;
                result := 1;
              end;
@@ -496,7 +491,7 @@ begin
 
           try
             if opensuccess then begin
-              GetFileState( KntFile.FileName, FileState );
+              GetFileState( KntFile.FileName, KntFile.State );
               FPath := extractfilepath( KntFile.FileName );
               FolderMon.FolderName := copy( FPath, 1, pred( length( FPath )));
               // prevent folder monitor if file resides on a read-only medium,  diskette or network
@@ -531,8 +526,11 @@ begin
            and the below call to App.ActivateFolder will not ensure that the carets are visbile. For this reason there is also
            a call to these methods in Form_Main.Activate (they will run only the first time, when opening the app).
          }
+          App.FileOpen(KntFile);     // KntFile can be nil. It will set ActiveFile and ActiveFileIsBusy (False)
+
           if opensuccess then begin
             if assigned( KntFile ) then begin
+               KntFile.IsBusy := false;
                KntFile.ReadOnly := ( OpenReadOnly or KntFile.ReadOnly );
                KntFile.Modified := linksModified;
             end;
@@ -543,7 +541,6 @@ begin
 
           Log_StoreTick( 'After UpdateFolderDisplay, UpdateFileState', 1 );
           screen.Cursor := crDefault;
-          FileIsBusy := false;
           Timer.Enabled := true;
 
           if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then
@@ -847,7 +844,7 @@ begin
   with Form_Main do begin
      result := -1;
      if not HaveKntFolders(true, false) then Exit;
-     if FileIsBusy then Exit;
+     if KntFile.IsBusy then Exit;
 
      if (FN <> '') and KntFile.ReadOnly then begin
          App.WarningPopup(STR_77);
@@ -864,7 +861,7 @@ begin
      SUCCESS := LongBool(0);
      try
        try
-         FileIsBusy := true;
+         KntFile.IsBusy := true;
          FolderMon.Active := false;
          if not HaveKntFolders(true, false) then exit;
 
@@ -1028,7 +1025,7 @@ begin
 
        try // folder monitor
          if not KeyOptions.DisableFileMon then begin
-            GetFileState(KntFile.FileName, FileState);
+            GetFileState(KntFile.FileName, KntFile.State);
             FPath := ExtractFilePath( KntFile.FileName );
             if (Length(FPath) > 1) and (FPath[Length(FPath)] = '\') then
                Delete(FPath, Length(FPath), 1);
@@ -1045,7 +1042,7 @@ begin
 
      finally
        Screen.Cursor := crDefault;
-       FileIsBusy := False;
+       KntFile.IsBusy := False;
        UpdateOpenFile;
       {$IFDEF KNT_DEBUG}
        Log.Add( 'KntFileSave result: ' + IntToStr(Result));
@@ -1102,19 +1099,15 @@ begin
       end;
 
       if IsRunningMacro then
-      begin
-        MacroAbortRequest := true;
-      end
+        MacroAbortRequest := true
       else
       if IsRecordingMacro then
-      begin
         TB_MacroRecordClick( TB_MacroRecord );
-      end;
 
       screen.Cursor := crHourGlass;
 
       try
-        FileIsBusy := true;
+        KntFile.IsBusy := true;
         FolderMon.Active := false;
 
         Pages.MarkedPage := nil;
@@ -1128,7 +1121,7 @@ begin
         BookmarkInitializeAll;
         UpdateAlarmStatus;
 
-        if assigned( ActiveFile ) then begin
+        if assigned( KntFile ) then begin
           try
             DestroyVCLControls;
           except
@@ -1161,7 +1154,7 @@ begin
         ImageMng.Clear;
         TKntTreeUI.ClearGlobalData;
 
-        FileIsBusy := false;
+        KntFile.IsBusy := false;
         screen.Cursor := crDefault;
        {$IFDEF KNT_DEBUG}
         Log.Add( 'KntFileClose result: ' + BOOLARRAY[result] );
@@ -1328,7 +1321,7 @@ begin
   with Form_Main do begin
 
         if ( not HaveKntFolders( true, false )) then exit;
-        if FileIsBusy then exit;
+        if ActiveFileIsBusy then exit;
 
         if ( MergeFN = '' ) then begin
 
@@ -1363,6 +1356,7 @@ begin
         try
           try
             var ClipCapIdx: integer;
+            AFileIsLoading:= true;                  // -> MergeFile notes uploaded here will not be marked as modified (nor will their fLastModified field be overwritten)
             LoadResult := MergeFile.Load( MergeFN, ImgManagerMF, ClipCapIdx, false);
             if ( LoadResult <> 0 ) then begin
               messagedlg( STR_40, mtError, [mbOK], 0 );
@@ -1566,6 +1560,7 @@ begin
           end;
 
         finally
+          AFileIsLoading:= false;
           if assigned(NoteGIDs) then
              NoteGIDs.Free;
           if assigned(MergeNotesMultiNNodes) then begin
@@ -1597,7 +1592,7 @@ begin
   Application.BringToFront;
   Form_Main.FolderMon.Active := false;
   try
-    case App.DoMessageBox( Format(STR_49, [FileState.Name]), mtWarning, [mbYes,mbNo], 0 ) of
+    case App.DoMessageBox( Format(STR_49, [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo], 0 ) of
       mrYes : begin
         KntFileOpen( ActiveFile.FileName );
       end;
@@ -1656,40 +1651,35 @@ var
   Changed : boolean;
 begin
   with Form_Main do begin
-        if FileIsBusy then exit;
+        if ActiveFileIsBusy then exit;
         if ( not HaveKntFolders( false, false )) then exit;
-        if ( FileState.Name = '' ) then exit;
+        if ( ActiveFile.State.Name = '' ) then exit;
         Changed := false;
         s := '';
-        GetFileState( FileState.Name, NewState );
-        if ( NewState.Size < 0 ) then
-        begin
+        GetFileState( ActiveFile.State.Name, NewState );
+        if ( NewState.Size < 0 ) then begin
           // means file does not exist (deleted or renamed)
           App.FileSetModified;      // so that we save it
           exit;
         end;
-        if ( FileState.Time <> NewState.Time ) then
-        begin
+        if ( ActiveFile.State.Time <> NewState.Time ) then begin
           Changed := true;
           s := 'time stamp';
         end
-        else
-        begin
-          if ( FileState.Size <> NewState.Size ) then
-          begin
+        else begin
+          if ( ActiveFile.State.Size <> NewState.Size ) then begin
             Changed := true;
             s := 'file size';
           end;
         end;
 
-        if Changed then
-        begin
-          FileChangedOnDisk := true;
+        if Changed then begin
+          ActiveFile.ChangedOnDisk := true;
           StatusBar.Panels[PANEL_HINT].Text := STR_53;
          {$IFDEF KNT_DEBUG}
           Log.Add( 'FileChangedOnDisk: ' + s );
          {$ENDIF}
-          GetFileState( FileState.Name, FileState );
+          GetFileState( ActiveFile.State.Name, ActiveFile.State );
         end;
   end;
 
@@ -2744,7 +2734,7 @@ begin
 
   TKntTreeUI.ClearGlobalData;
 
-  if FileIsBusy then exit;
+  if ActiveFileIsBusy then exit;
   if ( not ( KeyOptions.TimerClose and
              Form_Main.HaveKntFolders( false, false ) and
              KeyOptions.AutoSave

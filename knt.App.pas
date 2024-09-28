@@ -145,6 +145,8 @@ type
       procedure FolderPropertiesModified (Folder: TKntFolder);
 
       procedure FileNew (aFile: TKntFile);
+      procedure FileOpening (aFile: TKntFile);
+      procedure FileOpen (aFile: TKntFile);
       procedure FileClosed (aFile: TKntFile);
 
       procedure ActivateFolder (Folder: TKntFolder); overload;
@@ -198,6 +200,9 @@ var
    ImageMng:   TImageMng;
    AlarmMng:   TAlarmMng;
    ClipCapMng: TClipCapMng;
+
+   ActiveFileIsBusy : boolean;
+   AFileIsLoading: boolean;
 
    //================================================ APPLICATION OPTIONS
    // these are declared in kn_Info.pas
@@ -282,6 +287,11 @@ begin
 
    fAvailableEditors:= TKntRichEditList.Create;
    fVirtualUnEncryptWarningDone:= false;
+
+   ActiveFile := nil;
+   ActiveEditor := nil;
+   ActiveFolder := nil;
+   ActiveFileIsBusy := false;
 end;
 
 
@@ -366,7 +376,7 @@ var
   nnf: TNoteNodeInFolder;
   Folder: TKntFolder;
 begin
-   if FileIsBusy then exit;
+   if ActiveFileIsBusy or AFileIsLoading then exit;
 
    for i:= 0 to High(Note.NNodes) do begin
        nnf:= Note.NNodes[i];
@@ -552,6 +562,7 @@ end;
 
 procedure TKntApp.NEntryModified(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
 begin
+  if ActiveFileIsBusy then exit;
   NEntry.Modified:= true;
   Note.Modified:= true;
   Folder.Modified := true;      // => KntFile.Modified := true;
@@ -661,6 +672,7 @@ begin
       ActiveNNode:= nil;
       ActiveFile:= nil;
       ActiveTreeUI:= nil;
+      ActiveFileIsBusy:= false;
       if assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then begin
          ActiveEditor:= nil;
          with Form_Main do
@@ -681,6 +693,20 @@ begin
    ActiveTreeUI:= nil;
    if assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then
       ActiveEditor:= nil;
+end;
+
+procedure TKntApp.FileOpening (aFile: TKntFile);
+begin
+   ActiveFile:= aFile;
+   ActiveFileIsBusy := true;
+   AFileIsLoading:= True;
+end;
+
+procedure TKntApp.FileOpen (aFile: TKntFile);   // aFile can be nil (file open failed)
+begin
+   ActiveFile:= aFile;
+   ActiveFileIsBusy := false;
+   AFileIsLoading:= false;
 end;
 
 

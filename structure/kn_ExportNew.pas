@@ -903,7 +903,7 @@ begin
   end;
 
   IsBusy := true;
-  FileIsBusy := true;             // To avoid that kn_Main.TimerTimer, at the beginning can interfere calling to KntFile.UpdateTextPlainVariables(); (it also uses the same RTFAux, with GetAuxEditorControl)
+  ActiveFile.IsBusy := true;             // To avoid that kn_Main.TimerTimer, at the beginning can interfere calling to KntFile.UpdateTextPlainVariables(); (it also uses the same RTFAux, with GetAuxEditorControl)
   Screen.Cursor := crHourGlass;
   DoAbort := false;
   ExportedFolders := 0;
@@ -1296,7 +1296,7 @@ begin
 
   finally
     FreeConvertLibrary;
-    FileIsBusy := false;
+    ActiveFile.IsBusy := false;
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
