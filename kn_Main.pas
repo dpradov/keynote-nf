@@ -1231,9 +1231,12 @@ type
 
 
   private
+    FRestoreFocusInEditor: integer;              // See *1 in ApplicationEventsIdle and AppRestore
+
     { Private declarations }
     procedure AppMessage( var Msg : TMsg; var Handled : boolean );
     procedure WMActivate( Var msg: TWMActivate ); message WM_ACTIVATE;
+    procedure ApplicationEventsIdle(Sender: TObject; var Done: Boolean);
     procedure WMHotkey( Var msg: TWMHotkey ); message WM_HOTKEY; // for Activation Hotkey
     procedure WMQueryEndSession (var Msg : TMessage); message WM_QUERYENDSESSION;
     procedure WndProc( var M : TMessage ); override;
@@ -1573,6 +1576,9 @@ begin
     OTHER_KNT_ICON => KNT_ALT_ICON ... (keynoteAlt.ico)
    }
   TrayIcon.Icons.LoadResource(HInstance, ['MAINICON', 'OTHER_KNT_ICON']);
+
+  FRestoreFocusInEditor:= 0;
+  Application.OnIdle := ApplicationEventsIdle;
 end;
 // CREATE
 
@@ -2151,14 +2157,97 @@ begin
     ShowWindow(Application.Handle, SW_HIDE);
 end; // AppMinimize;
 
+
+{ *1
+    I'm seeing a strange behavior of the RichEdit control when the application is restored
+    through a Hotkey of the form CTRL+SHIFT+...
+    The editor ends up receiving an EN_CHANGE message and the Change method of the control is called.
+    From the beginning of that method you can see how the Modified property of the editor is True (^), and
+    the position of the scrollbar has also been lost.
+
+    This behavior is perceived as the editor not respecting the position that the scrollbar had,
+    but in an apparently random way, since it seems to occur when returning to the application
+    from another one, but really (from what I'm observing) it only happens when it is done through that Hotkey.
+    With another type of Hotkey combination it doesn't happen (e.g. ALT+F7)
+    I understand that this is what is described here (save and restore caret position...not sure what it's
+    supposed to do #720 ) and certainly on some occasions I myself have noticed it.
+
+    From what I see, at least in W10, the position problem is in turn linked to the fact
+    that the editor perceives the press as a modification (^). In fact, if the file had not been modified yet
+    you can see how it changes to display "MOD" (in addition to not respecting the scrollbar position).
+
+    I also see that the mere fact of pressing CTRL+SHIFT (without any additional key) when the
+    editor has the focus causes the same effect (^). I have been able to easily solve the latter
+    from FormShortCut (See line marked with *1 in that method).
+
+      (^) At least it appears as modified when I run it from the virtual machine in W10. In Windows 11
+         the scrollbar position is altered but it is not being marked as modified. I don't know the reason.
+
+    To solve the problem when pressing the Hotkey:
+    In WMHotkey I needed to use SetForegroundWindow(..) instead of Application.BringToFront, and do it
+    only when the application does not need to be restored (it is not minimized) nor is it already
+    active (that is, doing nothing if the Hotkey is pressed with the application in focus).
+
+    In the case where the application was minimized and had to be restored, and after numerous tests, I needed to
+    ensure that the focus was not in the editor so that it did not receive the message associated with that click.
+    If the focus is not in the editor, there is no need to do anything, but if it is in the editor, I must
+    select another control (I have chosen self.Dock_Top, whose selection does not trigger any special action in
+    the application) before executing ShowWindow() and SetForegroundWindow(..), restoring the focus afterwards.
+    To restore the editor focus, it is not enough to apply 'pauses' with Sleep() and execute Application.ProcessMessages.
+    Although it is possible to make adjustments to make it work apparently well, it easily results in correct behavior
+    in W11 and incorrect behavior in W10 (at least from the virtual machine), and vice versa. The only robust solution
+    I have found is to use OnIdle, as I have prepared, in two steps (RestoreFocusInEditor = 1 and RestoreFocusInEditor = 2).
+
+    (Before arriving at this solution I have done numerous tests, including clearing keyboard messages in the queue,
+    handling WM_SYSCOMMAND or WM_WINDOWPOSCHANGED or WM_ACTIVATE events, using Sleep() and Application.ProcessMessages
+    at different points and with different values, etc. In some cases the solution has been valid in W10 and others
+    only in W11. It should be noted that the correctness of the behavior could only be verified from outside the IDE
+    or inside, but without using breakpoints. Any breakpoint added, even if it did not jump, altered the final behavior)
+}
+
+
+procedure TForm_Main.ApplicationEventsIdle(Sender: TObject; var Done: Boolean);           // *1
+begin
+  // *2 In the tests it doesn't seem necessary with the Host (W11) but it does with W10 (from virtual machine).
+  //    I keep it for safety and because nothing is noticeable, because of its short duration and because at that point
+  //    the window is already visible and the editor doesn't show changes (BeginUpdate)
+
+    if (FRestoreFocusInEditor = 2) then begin
+       FRestoreFocusInEditor:= 0;
+       ActiveEditor.Enabled:= true;
+       ActiveControl:= ActiveEditor;
+       ActiveEditor.EndUpdate;
+    end;
+
+    if (FRestoreFocusInEditor = 1) then begin
+       ActiveControl:= nil;
+       ActiveEditor.BeginUpdate;
+       ActiveEditor.Enabled:= False;
+       FRestoreFocusInEditor:= 2;
+       Sleep(25);                       // *2
+    end;
+
+  Done := True;
+end;
+
+
 procedure TForm_Main.AppRestore(Sender: TObject);
 begin
     TMRestore.Enabled := false;
     AppLastActiveTime := now;
     FormStorage.Options := [fpState,fpPosition];
+
+    FRestoreFocusInEditor:= 0;
+    if (ActiveEditor <> nil) and (ActiveControl = ActiveEditor) then begin        // *1
+       ActiveControl:= Self.Dock_Top;
+       FRestoreFocusInEditor:= 1;
+    end;
+
     ShowWindow( Application.Handle, SW_SHOW );
     WinOnTop.AlwaysOnTop := KeyOptions.AlwaysOnTop;
-    Application.BringToFront;
+    //Application.BringToFront;                                                  // *1
+    SetForegroundWindow(Application.Handle);
+
     if _REOPEN_AUTOCLOSED_FILE then
     begin
       _REOPEN_AUTOCLOSED_FILE := false;
@@ -2328,8 +2417,11 @@ begin
   if ( msg.hotkey = 1 ) then
   begin
     if IsIconic( Application.Handle ) then
-      Application.Restore;
-    Application.BringToFront;
+      Application.Restore
+    else
+      if not Active then
+        //Application.BringToFront;
+        SetForegroundWindow(Application.Handle);
   end;
 end; // WMHotkey
 
@@ -2675,6 +2767,11 @@ begin
 
    if (GetKeyState(VK_CONTROL) < 0) and not (GetKeyState(VK_MENU) < 0) then begin
       ShiftPressed:= (GetKeyState(VK_SHIFT) < 0);
+
+      if (ShiftPressed and ( Msg.CharCode in [16..18] )) then begin  // *1 See comment *1 in AppRestore
+         Handled:= true;
+         exit;
+      end;
 
       ShortCutItem:= nil;
       if ShiftPressed then begin
