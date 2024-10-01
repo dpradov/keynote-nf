@@ -1688,7 +1688,9 @@ object Form_Main: TForm_Main
     end
     object actTVBoldNode: TAction
       Caption = '&Bold'
-      Hint = 'Toggle bold in selected nodes (Shift: also in children, recursive)'
+      Hint = 
+        'Toggle bold in selected nodes (Shift: also in children, recursiv' +
+        'e)'
       OnExecute = actTVBoldNodeExecute
     end
     object actTVNodeTextColor: TAction
@@ -2885,7 +2887,8 @@ object Form_Main: TForm_Main
       object MMFormatBGColor: TMenuItem
         Caption = '&Background Color'
         Hint = 
-          'Change background color in note (Shift: all notes in active folder)'
+          'Change background color in note (Shift: all notes in active fold' +
+          'er)'
         ShortCut = 16452
         OnClick = MMFormatBGColorClick
       end
@@ -2971,10 +2974,10 @@ object Form_Main: TForm_Main
       Caption = '&Folder'
       SubMenuImages = IMG_Toolbar
       HelpContext = 179
-      Hint = 'Folder-related commands'
+      Hint = 'Folder (Tab) related commands'
       object MMFolderNew: TMenuItem
-        Caption = '&New Folder...'
-        Hint = 'Add a new folder'
+        Caption = '&New Folder (Tab) ...'
+        Hint = 'Add a new folder (tab)'
         ImageIndex = 7
         ShortCut = 16462
         OnClick = MMFolderNewClick
@@ -2987,7 +2990,7 @@ object Form_Main: TForm_Main
       end
       object MMNoteProperties: TMenuItem
         Caption = 'Folder &Properties...'
-        Hint = 'Edit current folder properties'
+        Hint = 'Edit current folder (tab) properties'
         ImageIndex = 8
         ShortCut = 115
         OnClick = MMNotePropertiesClick
@@ -3810,8 +3813,8 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object TAM_NewTab: TMenuItem
-      Caption = '&New Folder...'
-      Hint = 'Create a new folder'
+      Caption = '&New Folder (Tab) ...'
+      Hint = 'Create a new folder (Tab)'
       ImageIndex = 7
       OnClick = MMFolderNewClick
     end
@@ -4805,7 +4808,9 @@ object Form_Main: TForm_Main
     end
     object TVNodeColor_: TMenuItem
       Caption = 'Co&lor / Reset'
-      Hint = 'Choose color for selected nodes (Shift: also in children, recursive)'
+      Hint = 
+        'Choose color for selected nodes (Shift: also in children, recurs' +
+        'ive)'
       object TVNodeTextColor: TMenuItem
         Action = actTVNodeTextColor
       end

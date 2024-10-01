@@ -2164,7 +2164,6 @@ end; // AppMinimize;
     The editor ends up receiving an EN_CHANGE message and the Change method of the control is called.
     From the beginning of that method you can see how the Modified property of the editor is True (^), and
     the position of the scrollbar has also been lost.
-
     This behavior is perceived as the editor not respecting the position that the scrollbar had,
     but in an apparently random way, since it seems to occur when returning to the application
     from another one, but really (from what I'm observing) it only happens when it is done through that Hotkey.
@@ -2175,11 +2174,9 @@ end; // AppMinimize;
     From what I see, at least in W10, the position problem is in turn linked to the fact
     that the editor perceives the press as a modification (^). In fact, if the file had not been modified yet
     you can see how it changes to display "MOD" (in addition to not respecting the scrollbar position).
-
     I also see that the mere fact of pressing CTRL+SHIFT (without any additional key) when the
     editor has the focus causes the same effect (^). I have been able to easily solve the latter
     from FormShortCut (See line marked with *1 in that method).
-
       (^) At least it appears as modified when I run it from the virtual machine in W10. In Windows 11
          the scrollbar position is altered but it is not being marked as modified. I don't know the reason.
 
