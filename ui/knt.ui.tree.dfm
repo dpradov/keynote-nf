@@ -72,6 +72,7 @@ object KntTreeUI: TKntTreeUI
       Top = 2
       Width = 125
       Height = 23
+      TabStop = False
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
     end
