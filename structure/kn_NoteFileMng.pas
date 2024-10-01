@@ -2738,7 +2738,9 @@ begin
   if ( not ( KeyOptions.TimerClose and
              Form_Main.HaveKntFolders( false, false ) and
              KeyOptions.AutoSave
-           )) then exit;
+           )
+       or (ActiveFile.FileName = '')
+           ) then exit;
 
 
   // CloseNonModalDialogs;
