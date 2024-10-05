@@ -1,4 +1,4 @@
-unit kn_KntFile;
+﻿unit kn_KntFile;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -1096,8 +1096,8 @@ var
        if ToMode <> smEmbRTF then begin
           ImagesIDs:= myFolder.CheckSavingImagesOnMode (imLink, Stream, ExitIfAllImagesInSameModeDest);
           ImageMng.UpdateImagesCountReferences (nil, ImagesIDs);
-          if (SavedActiveFolderID = myFolder.ID) then
-             myFolder.ImagesReferenceCount:= ImagesIDs;
+//          if (SavedActiveFolderID = myFolder.ID) then
+//             myFolder.ImagesReferenceCount:= ImagesIDs;
        end
        else
           myFolder.CheckSavingImagesOnMode (imImage, Stream, ExitIfAllImagesInSameModeDest);
@@ -1113,7 +1113,7 @@ begin
       myFolder := FFolders[i];
       if (ApplyOnlyToFolder <> nil) and (myFolder <> ApplyOnlyToFolder) then continue;
 
-      myFolder.EditorToDataStream;
+      myFolder.SaveEditorToDataModel;
 
       for j := 0 to myFolder.NNodes.Count - 1 do  begin
          NNode:= myFolder.NNodes[j];
@@ -1129,7 +1129,7 @@ begin
                NEntry.TextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
 
             if NNode = myFolder.FocusedNNode  then
-               myFolder.DataStreamToEditor;
+               myFolder.LoadFocusedNNodeIntoEditor;
          end;
       end;
 
@@ -1160,7 +1160,7 @@ var
       end;
 
       if UpdateEditor then
-         myFolder.DataStreamToEditor;
+         myFolder.LoadFocusedNNodeIntoEditor;
   end;
 
 
@@ -1178,7 +1178,7 @@ begin
                EnsurePlainTextAndCheckRemoveImages (NNode = myFolder.FocusedNNode );
             end;
          end;
-         myFolder.ResetImagesReferenceCount;
+         myFolder.NoteUI.ResetImagesReferenceCount;
 
       finally
         RTFAux.Free;
@@ -1210,7 +1210,7 @@ begin
          end;
       end;
    end;
-   myFolder.ResetImagesReferenceCount;
+   myFolder.NoteUI.ResetImagesReferenceCount;
 end;
 
 
@@ -1477,16 +1477,6 @@ begin
 
           InHead := true;
 
-          OldShortDateFormat := FormatSettings.ShortDateFormat;
-          OldLongDateFormat := FormatSettings.LongDateFormat;
-          OldLongTimeFormat := FormatSettings.LongTimeFormat;
-          OldDateSeparator := FormatSettings.DateSeparator;
-          OldTimeSeparator := FormatSettings.TimeSeparator;
-          FormatSettings.DateSeparator := _DATESEPARATOR;
-          FormatSettings.TimeSeparator := _TIMESEPARATOR;
-          FormatSettings.ShortDateFormat := _SHORTDATEFMT;
-          FormatSettings.LongDateFormat := _LONGDATEFMT;
-          FormatSettings.LongTimeFormat := _LONGTIMEFMT;
           FileExhausted := false;
 
           tf:= TTextFile.Create();
@@ -1511,11 +1501,7 @@ begin
                           // [x] verify ID and version
                         end;
                         _NF_DCR : begin // Date Created
-                          try
-                            FDateCreated := strtodatetime( ds );
-                          except
-                            FDateCreated := now;
-                          end;
+                          FDateCreated := StrToDateTimeDef( ds, Now, LongDateToFileSettings);
                         end;
                         _NF_FCO : begin // File comment
                           FComment := TryUTF8ToUnicodeString(ds);
@@ -1633,11 +1619,6 @@ begin
 
 
           finally
-            FormatSettings.DateSeparator := OldDateSeparator;
-            FormatSettings.TimeSeparator := OldTimeSeparator;
-            FormatSettings.ShortDateFormat := OldShortDateFormat;
-            FormatSettings.LongDateFormat := OldLongDateFormat;
-            FormatSettings.LongTimeFormat := OldLongTimeFormat;
             tf.CloseFile;
             tf.Free;
             if assigned( MemStream ) then MemStream.Free;
@@ -1813,6 +1794,19 @@ begin
        delete(s, 1, 3);
 
 
+       if InNoteEntry then begin
+          if ( key = _NEntryID ) then
+              NEntryID := StrToUIntDef(s, 0)
+          else
+          if ( key = _NoteState ) then
+             NEntry.StringToStates(s)
+          else
+          if ( key = _DateCreated ) then
+             NEntry.Created:= StrToDate_Compact(s)
+
+           // ToDO:       fTags: TNoteTagList;
+       end;
+
        if InNote then begin
           if ( key = _NoteName ) then
             Note.Name:= TryUTF8ToUnicodeString(s)
@@ -1827,7 +1821,7 @@ begin
               Note.StringToStates(s)
           else
           if ( key = _LastModified ) then
-              fDateCreated := StrToDateTimeDef(s, 0)
+              Note.LastModified:= StrToDate_Compact(s)
           else
           if ( key = _VirtualFN ) then
             VirtualFN := TryUTF8ToUnicodeString(s)
@@ -1849,20 +1843,6 @@ begin
 
           continue;
        end; // if InNoteNode ...
-
-
-       if InNoteEntry then begin
-          if ( key = _NEntryID ) then
-              NEntryID := StrToUIntDef(s, 0)
-          else
-          if ( key = _NoteState ) then
-              Note.StringToStates(s)
-          else
-          if ( key = _DateCreated ) then
-              fDateCreated := StrToDateTimeDef(s, 0);
-
-           // ToDO:       fTags: TNoteTagList;
-       end;
 
 
     end; { while not eof( tf ) }
@@ -2028,7 +2008,7 @@ var
         tf.WriteLine(_NEntryID + '=' + NEntry.ID.ToString );
 
      if NEntry.Created <> 0 then
-       tf.WriteLine(_DateCreated + '=' + FormatDateTime(_DATETOFILE, NEntry.Created) );
+       tf.WriteLine(_DateCreated + '=' + FormatDateTime(_COMPACT_DATETIME_TOFILE, NEntry.Created) );
      if (NEntry.States <> []) and (NEntry.States <> [nesModified]) then
        tf.WriteLine(_NoteState + '=' + NEntry.StatesToString);
 
@@ -2049,7 +2029,7 @@ var
     if Note.Alias <> '' then
        tf.WriteLine(_NoteAlias + '=' + Note.Alias, True);
     if Note.LastModified <> 0 then
-       tf.WriteLine(_LastModified + '=' + FormatDateTime(_DATETOFILE, Note.LastModified) );
+       tf.WriteLine(_LastModified + '=' + FormatDateTime(_COMPACT_DATETIME_TOFILE, Note.LastModified) );
     if (Note.States <> []) and (Note.States <> [nsModified]) then
        tf.WriteLine(_NoteState + '=' + Note.StatesToString);
 
@@ -2199,7 +2179,7 @@ begin
          FSavedActiveFolderID := 0;
 
       if Assigned(ActiveFolder) then
-         ActiveFolder.EditorToDataStream;
+         ActiveFolder.SaveEditorToDataModel;
 
 
       case FFileFormat of

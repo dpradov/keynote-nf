@@ -920,7 +920,7 @@ begin
   fID := NumEntry;
   fStream := TMemoryStream.Create;
 
-  fDateCreated := 0;
+  fDateCreated := Now;
   fTags := nil;
   fTextPlain := '';
 

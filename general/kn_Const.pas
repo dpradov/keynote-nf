@@ -396,12 +396,24 @@ const
 
 
 const
-  _DATETOFILE    = 'ddMMyy';
   _SHORTDATEFMT  = 'dd-MM-yyyy'; // all these are only internal defaults
   _LONGDATEFMT   = 'd MMMM yyyy';
   _LONGTIMEFMT   = 'HH:mm:ss';
   _DATESEPARATOR = '-';
   _TIMESEPARATOR = ':';
+
+  {
+   Old Knt files have been using _LONG_DATETIME_TOFILE format when serializing creation date of file and folders
+   Will keep using that format for those objects, to maintain compatibility.
+   But for notes (last modified) and note entry (created) dates, new metadata added from format 3.0 of KNT,
+   will use a more compact format, as there will be much more objects serialized
+   Ex.  '05-10-2024 08:50:48'   => '0510240850'
+
+   The compact format will also be used with alarms dates serialized
+  }
+  _LONG_DATETIME_TOFILE    = _SHORTDATEFMT + ' ' + _LONGTIMEFMT;
+  _COMPACT_DATETIME_TOFILE = 'ddMMyyHHmm';
+
   _CRLF          = #13#10;
 
 

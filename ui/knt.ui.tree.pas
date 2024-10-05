@@ -295,9 +295,9 @@ type
     procedure SplitterNoteMoved(Sender: TObject);
     procedure CheckingTreeExpansion;
     procedure CheckExpandTreeWidth;
-    procedure RxRTFEnter(Sender: TObject);
-    procedure RTFMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-    procedure RTFMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure NoteUIEnter(Sender: TObject);
+    procedure NoteUIMouseMove(Sender: TObject);
+    procedure NoteUIMouseUp(Sender: TObject);
     procedure TV_Click(Sender: TObject);
     procedure TV_MouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
     procedure TV_GetHint(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
@@ -771,10 +771,10 @@ begin
 
    end;
 
-   with TKntFolder(Folder).Editor do begin
-     OnEnter:= RxRTFEnter;
-     OnMouseMove := RTFMouseMove;
-     OnMouseUp := RTFMouseUp;
+   with TKntFolder(Folder).NoteUI do begin
+     SetOnEnter(NoteUIEnter);
+     SetOnMouseMoveOnNote(NoteUIMouseMove);
+     SetOnMouseUpOnNote(NoteUIMouseUp);
    end;
 
 end;
@@ -1051,7 +1051,7 @@ begin
 
     220 : if ( Shift = [ssCtrl] ) then begin // backslash
       Key := 0;
-      TKntFolder(Folder).SetFocusOnEditor;
+      TKntFolder(Folder).SetFocusOnNoteEditor;
     end;
 
   end;
@@ -2182,7 +2182,7 @@ begin
       NEntry:= Note.Entries[0];                                      // %%%
       NEntry.Stream.Position := 0;
       NEntry.Stream.WriteBuffer(myRTFTExt[1], length(myRTFTExt));
-      TKntFolder(Folder).DataStreamToEditor;
+      TKntFolder(Folder).LoadFocusedNNodeIntoEditor;
 
       MakePathVisible(NNode.TVNode);
 
@@ -3555,14 +3555,14 @@ begin
 end;
 
 
-procedure TKntTreeUI.RxRTFEnter(Sender: TObject);
+procedure TKntTreeUI.NoteUIEnter(Sender: TObject);
 begin
    if not ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) then
       CheckRestoreTreeWidth;
 end;
 
 
-procedure TKntTreeUI.RTFMouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
+procedure TKntTreeUI.NoteUIMouseMove(Sender: TObject);
 begin
    if fTreeWidthExpanded then begin
       if ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) then exit;
@@ -3571,8 +3571,7 @@ begin
    fTreeWidth_N:= 0;
 end;
 
-
-procedure TKntTreeUI.RTFMouseUp(Sender: TObject; Button: TMouseButton; Shift:TShiftState; X,Y: integer);
+procedure TKntTreeUI.NoteUIMouseUp(Sender: TObject);
 begin
    if fTreeWidthExpanded then
       CheckRestoreTreeWidth;

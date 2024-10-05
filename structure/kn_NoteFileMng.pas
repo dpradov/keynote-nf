@@ -535,6 +535,8 @@ begin
                KntFile.Modified := linksModified;
             end;
             App.ActivateFolder(nil);                   // *1  Activate (and focus) current active folder
+            if ActiveEditor <> nil then
+               App.ShowCurrentZoom(ActiveEditor.ZoomCurrent);       // If we don't do this and Scratchpad was visible, it will be displayed at its zoom (100)
             Log_StoreTick( 'After GetFileState and activate KntFolder', 1 );
             UpdateOpenFile;
           end;
@@ -1519,13 +1521,13 @@ begin
                 CreateVCLControlsForFolder( newFolder );
                 if ( MergeFN.ToUpper = ActiveFile.FileName.ToUpper) then begin
                    ActiveFile.UpdateImagesCountReferences(newFolder);
-                   newFolder.DataStreamToEditor;
+                   newFolder.LoadFocusedNNodeIntoEditor;
                 end
                 else
                   { We have previously assigned "ImagesManager.ExtenalImagesManager:= ImgManagerMF", to search the Stream of the images
                     with the help of the ImageManager associated with the MergeFile file }
                   ActiveFile.UpdateImagesStorageModeInFile (ImageMng.StorageMode, newFolder, false);
-                  // newNNode.DataStreamToEditor;     // From UpdateImagesStorageModeInFile) the call to DataStreamToEditor is ensured
+                  // newNNode.LoadFocusedNNodeIntoEditor;     // From UpdateImagesStorageModeInFile) the call to LoadFocusedNNodeIntoEditor is ensured
 
                 SetUpVCLControls( newFolder );
               finally
@@ -1548,7 +1550,7 @@ begin
             for i := 0 to pred( MergeFile.FolderCount ) do
                 if FolderIDs[i].newFolder then begin
                    newFolder:= ActiveFile.GetFolderByID(FolderIDs[i].newID);
-                   newFolder.DataStreamToEditor;
+                   newFolder.LoadFocusedNNodeIntoEditor;
                 end;
 
 
@@ -1939,7 +1941,7 @@ begin
 
 
                   CreateVCLControlsForFolder( myFolder );
-                  myFolder.DataStreamToEditor;
+                  myFolder.LoadFocusedNNodeIntoEditor;
                   SetUpVCLControls( myFolder );
 
                   var Owned: boolean:= not ImgLinkMode;
@@ -2471,7 +2473,7 @@ begin
                      NNode.Note.Name := ExtractFilenameNoExt( FName );
 
                    if i = FileList.Count - 1 then begin
-                      ActiveFolder.DataStreamToEditor;
+                      ActiveFolder.LoadFocusedNNodeIntoEditor;
                       if not ExtIsImage( fExt ) then
                          Editor.Modified:= False;
                    end;

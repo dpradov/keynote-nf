@@ -204,6 +204,8 @@ var
    ActiveFileIsBusy : boolean;
    AFileIsLoading: boolean;
 
+   IgnoringEditorChanges: boolean;
+
    //================================================ APPLICATION OPTIONS
    // these are declared in kn_Info.pas
    KeyOptions : TKeyOptions; // general program config
@@ -220,6 +222,8 @@ var
    DefaultEditorChrome : TChrome;
    DefaultTreeChrome : TChrome;
    DefaultTreeProperties : TFolderTreeProperties;
+
+   LongDateToFileSettings: TFormatSettings;
 
 
 implementation
@@ -292,6 +296,18 @@ begin
    ActiveEditor := nil;
    ActiveFolder := nil;
    ActiveFileIsBusy := false;
+
+   IgnoringEditorChanges:= false;
+
+   LongDateToFileSettings:= TFormatSettings.Create;
+   with LongDateToFileSettings do begin
+      DateSeparator := _DATESEPARATOR;
+      TimeSeparator := _TIMESEPARATOR;
+      ShortDateFormat := _SHORTDATEFMT;
+      LongDateFormat := _LONG_DATETIME_TOFILE;
+      LongTimeFormat := _LONGTIMEFMT;
+   end;
+
 end;
 
 
@@ -381,9 +397,9 @@ begin
    for i:= 0 to High(Note.NNodes) do begin
        nnf:= Note.NNodes[i];
        Folder:= TKntFolder(nnf.Folder);
-       if nnf.NNode.TVNode <> nil then                         // Name may not have been assigned yet and is being modified
-          Folder.TV.InvalidateNode(nnf.NNode.TVNode);
+       TKntFolder(nnf.Folder).NoteNameModified(nnf.NNode);
    end;
+
 end;
 
 
@@ -422,12 +438,6 @@ procedure TKntApp.EditorReloaded (Editor: TKntRichEdit);
 begin
    if Editor = nil then exit;
 
-    if Editor.Focused then begin
-       UpdateEnabledActionsAndRTFState(Editor);
-       ShowCurrentZoom(Editor.GetZoom);
-       Editor.UpdateCursorPos;
-    end;
-
    EditorSelected(Editor, False);     // False: Will not set ActiveFolder.FocusMemory:= focRTF (but will not set := focTree either)
 end;
 
@@ -441,7 +451,7 @@ begin
 
     ActiveEditor:= Editor;
 
-    if Editor.Focused then begin
+    if Focused then begin
        UpdateEnabledActionsAndRTFState(Editor);
        ShowCurrentZoom(Editor.GetZoom);
        Editor.UpdateCursorPos;
@@ -505,10 +515,10 @@ begin
       if NNode = nil then continue;
       if NoteSelecEditor = NNode.Note then begin
          Folder:= TKntFolder(E.FolderObj);
-         Folder.EditorToDataStream;
+         Folder.SaveEditorToDataModel;
 
          Folder:= TKntFolder(Editor.FolderObj);
-         Folder.DataStreamToEditor;
+         Folder.LoadFocusedNNodeIntoEditor;
          exit;
       end;
    end;
@@ -539,7 +549,7 @@ end;
 procedure TKntApp.ChangeInEditor (Editor: TKntRichEdit);
 var
    NNode: TNoteNode;
-   NEntry: TNoteEntry;
+
 begin
   with Form_Main do begin
      TB_EditUndo.Enabled := Editor.CanUndo;
@@ -553,18 +563,16 @@ begin
   NNode:= TNoteNode(Editor.NNodeObj);
   if not assigned(NNode) then exit;           // Eg. Scratchpad
 
-  NEntry:= TNoteEntry(Editor.NEntryObj);
-
-  if not NEntry.Modified then
-     NEntryModified(NEntry, NNode.Note, TKntFolder(Editor.FolderObj));
+  NEntryModified (TNoteEntry(Editor.NEntryObj), NNode.Note, TKntFolder(Editor.FolderObj));
 end;
 
 
 procedure TKntApp.NEntryModified(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
 begin
   if ActiveFileIsBusy then exit;
+
   NEntry.Modified:= true;
-  Note.Modified:= true;
+  Note.Modified:= true;         // Will also update last modified in note
   Folder.Modified := true;      // => KntFile.Modified := true;
 end;
 

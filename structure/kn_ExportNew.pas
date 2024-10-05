@@ -990,7 +990,7 @@ begin
           case ExportOptions.TargetFormat of
             xfPlainText, xfRTF, xfHTML : begin                                // =============================    xfPlainText, xfRTF, xfHTML
 
-              myFolder.EditorToDataStream; // must flush contents of richedit to active node's internal stream
+              myFolder.SaveEditorToDataModel; // must flush contents of Note editor to active model object's internal stream
 
               if (( ExportOptions.ExportSource = expCurrentNote ) and
                   ( ExportOptions.TreeSelection in [tsNode, tsSubtree] )) then
@@ -1252,7 +1252,7 @@ begin
                 // export the whole note to the file.
                 // At this point we only need to check the kind of note
 
-                 myFolder.EditorToDataStream; // must flush contents of richedit to active node's internal stream
+                 myFolder.SaveEditorToDataModel;
                  myTreeNode := TreeUI.GetFirstNode;
 
                  while assigned( myTreeNode ) do begin
@@ -1656,7 +1656,7 @@ begin
     exit;
   end;
 
-  ActiveFolder.EditorToDataStream;
+  ActiveFolder.SaveEditorToDataModel;
 
   // {N}
   ExportFN := MakeValidFileName(NNode.NodeName(ActiveTreeUI), [' '], MAX_FILENAME_LENGTH );

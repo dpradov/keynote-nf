@@ -122,6 +122,7 @@ uses
    kn_EditorUtils,
    knt.ui.editor,
    knt.ui.tree,
+   knt.ui.note,
    kn_MacroMng,
    kn_PluginsMng,
    kn_FavoritesMng,
@@ -165,7 +166,6 @@ begin
       FindAllResults.AutoURLDetect:= False;
 
       if assigned( aFolder.Editor ) then begin
-        aFolder.ConfigureEditor;
         with aFolder.Editor do begin
           PopUpMenu := Menu_RTF;
           OnChangedSelection:= RxChangedSelection;
@@ -261,7 +261,7 @@ begin
 
     for i := 0 to pred( ActiveFile.Folders.Count ) do begin
       myFolder := ActiveFile.Folders[i];
-      myFolder.DataStreamToEditor;
+      myFolder.NoteUI.LoadFromNNode(myFolder.FocusedNNode, False);
       SetUpVCLControls( myFolder );
     end;
 
@@ -287,8 +287,8 @@ end; // SetupAndShowVCLControls
 procedure CreateVCLControlsForFolder( const aFolder : TKntFolder );
 var
   myTab : TTab95Sheet;
-  myEditor : TKntRichEdit;
   myTreeUI: TKntTreeUI;
+  myNoteUI: TKntNoteUI;
   mySplitter : TSplitter;
   myFolder : TKntFolder;
   {$IFDEF WITH_IE}
@@ -395,40 +395,11 @@ begin
 
 
           // Editor (KntRichEdit) ----------------------------
-          myEditor := TKntRichEdit.Create( myTab );
-          with myEditor do begin
-            {$IFDEF WITH_IE}
-            if assigned( myPanel ) then
-              Parent := myPanel
-            else
-              Parent := myTab;
-            {$ELSE}
-            Parent := myTab;
-            {$ENDIF}
 
-            Align := alClient;
-            HelpContext := 10;
-            MaxLength := 0; // unlimited text size
-            ParentFont := false;
-            WantTabs := true;
-            WantReturns := true;
-            AllowInPlace := true;
-            AllowObjects := true;
-            AutoVerbMenu := true;
-            HideSelection := false;
-            SelectionBar := true;
-            UndoLimit := EditorOptions.UndoLimit;
-            WordSelection := EditorOptions.WordSelect;
-            RecreateWndProtect := KeyOptions.RichEditv3;
-            LangOptions := [];
-            if EditorOptions.AutoKeyboard then
-              LangOptions := LangOptions + [rlAutoKeyboard];
-            if EditorOptions.AutoFont then
-              LangOptions := LangOptions + [rlAutoFont];
-            ScrollBars := ssBoth;
-          end;
+          myNoteUI:= TKntNoteUI.Create( myTab, aFolder );
+          myNoteUI.Parent:= myTab;
 
-          aFolder.Editor := myEditor;
+          aFolder.NoteUI := myNoteUI;
           with myTab do
              PrimaryObject := aFolder;
 
@@ -436,10 +407,8 @@ begin
 
           with aFolder do begin
             UpdateTabSheet;
-            UpdateEditor (true); // do this BEFORE placing RTF text in editor
+            UpdateEditor (myNoteUI, true); // do this BEFORE placing RTF text in editor
           end;
-
-          App.EditorAvailable(myEditor);
 
           myTreeUI.Folder:= myFolder;  // => PopulateTree...
 
@@ -463,9 +432,9 @@ begin
 
    _ALLOW_VCL_UPDATES := false;
    try
-     if assigned( aFolder.Editor ) then begin
-       App.EditorUnavailable(aFolder.Editor);
-       FreeAndNil(aFolder.Editor);
+     if assigned( aFolder.NoteUI ) then begin
+       aFolder.NoteUI.Free;
+       aFolder.NoteUI:= nil;
      end;
 
      if assigned( aFolder.Splitter ) then
@@ -1128,7 +1097,7 @@ end; // SortTabs
 procedure FocusActiveEditor;
 begin
    if not assigned(ActiveEditor) then exit;
-   ActiveFolder.SetFocusOnEditor;
+   ActiveFolder.SetFocusOnNoteEditor;
 end;
 
 procedure FocusActiveKntFolder;
@@ -1137,7 +1106,7 @@ begin
       if ActiveFolder.TreeUI.Visible and (ActiveFolder.FocusMemory = focTree) then
          ActiveFolder.SetFocusOnTree
       else
-         ActiveFolder.SetFocusOnEditor;
+         ActiveFolder.SetFocusOnNoteEditor;
    end;
 end; // FocusActiveKntFolder
 

@@ -61,13 +61,13 @@ uses
                               OpenInCurrentFile: boolean= false;
                               ConsiderOffset: boolean = false ): boolean;
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
-    function SearchCaretPos (Editor: TKntRichEdit; myTreeNode: PVirtualNode;
+    function SearchCaretPos (Editor: TKntRichEdit;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true;
                              ContainsRegImages: boolean = true;
                              ConsiderOffset: boolean = false): integer;
-    function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: PVirtualNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+    function PositionInImLinkTextPlain (myFolder: TKntFolder; NNode: TNoteNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
     procedure InsertURL(URLStr : string; TextURL : string; Editor: TKntRichEdit);
@@ -1068,13 +1068,12 @@ begin
 end;
 
 
-function GetPositionOffset (myFolder: TKntFolder; myTreeNode: PVirtualNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function GetPositionOffset (myFolder: TKntFolder; NNode: TNoteNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
   Stream: TMemoryStream;
   imLinkTextPlain: String;
   Offset: integer;
   Modified: boolean;
-  NNode: TNoteNode;
   NEntry: TNoteEntry;
 begin
    Offset:= 0;
@@ -1084,8 +1083,7 @@ begin
 
    if myFolder.Editor.SupportsRegisteredImages then begin
      imLinkTextPlain:= '';
-      if assigned(myTreeNode) then begin
-          NNode:= myFolder.TreeUI.GetNNode(myTreeNode);
+      if assigned(NNode) then begin
           NEntry:= NNode.Note.Entries[0];                              // %%%
           Stream:= NEntry.Stream;
           imLinkTextPlain := NEntry.TextPlain;
@@ -1099,7 +1097,7 @@ begin
       var RTFAux: TAuxRichEdit;
       RTFAux:= CreateAuxRichEdit;
       try
-         imLinkTextPlain:= myFolder.PrepareTextPlain(myTreeNode, RTFAux);
+         imLinkTextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux);
       finally
          RTFAux.Free;
       end;
@@ -1119,7 +1117,7 @@ begin
 end;
 
 
-function SearchCaretPos (Editor: TKntRichEdit; myTreeNode: PVirtualNode;
+function SearchCaretPos (Editor: TKntRichEdit;
                          CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                          ScrollPosInEditor: TPoint;
                          AdjustVisiblePosition: boolean = true;
@@ -1129,6 +1127,7 @@ var
   Offset: integer;
   Pos_ImLinkTextPlain: integer;
   myFolder : TKntFolder;
+  NNode: TNoteNode;
 begin
   // ContainsRegImages = True => We have not verified that there are no registered images
   // ConsiderOffset = True    => What we receive in CaretPosition is a position in imLinkTextPlain
@@ -1137,8 +1136,9 @@ begin
   if ConsiderOffset and Editor.SupportsRegisteredImages and ContainsRegImages then begin
      Pos_ImLinkTextPlain:= CaretPosition;
      myFolder:= TKntFolder(Editor.FolderObj);
+     NNode:= TNoteNode(Editor.NNodeObj);
      if (myFolder <> nil) then
-        Offset:= GetPositionOffset(myFolder, myTreeNode, Pos_ImLinkTextPlain, -1);
+        Offset:= GetPositionOffset(myFolder, NNode, Pos_ImLinkTextPlain, -1);
   end;
 
   if PlaceCaret then
@@ -1166,11 +1166,11 @@ begin
   Result:= Offset;
 end;
 
-function PositionInImLinkTextPlain (myFolder: TKntFolder; myTreeNode: PVirtualNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function PositionInImLinkTextPlain (myFolder: TKntFolder; NNode: TNoteNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 var
    Offset: integer;
 begin
-   Offset:= GetPositionOffset(myFolder, myTreeNode, -1, CaretPosition, ForceCalc);
+   Offset:= GetPositionOffset(myFolder, NNode, -1, CaretPosition, ForceCalc);
    Result:= CaretPosition + Offset;
 end;
 
@@ -1410,7 +1410,7 @@ begin
          result := true;
 
          if not SearchTargetMark (Location.Bookmark09) then
-            SearchCaretPos(myFolder.Editor, myTreeNode, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor,
+            SearchCaretPos(myFolder.Editor, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor,
                           AdjustVisiblePosition, true, ConsiderOffset);
 
          myFolder.Editor.SetFocus;

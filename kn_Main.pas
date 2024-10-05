@@ -4170,7 +4170,7 @@ begin
   if not assigned(ActiveFolder) then exit;
 
   if ActiveFolder.TV.Focused then
-     ActiveFolder.SetFocusOnEditor
+     ActiveFolder.SetFocusOnNoteEditor
   else
      MMTreeFocusTreeClick (nil);
 end;
@@ -4179,7 +4179,7 @@ procedure TForm_Main.MMTreeFocusEditorClick(Sender: TObject);
 begin
   if not assigned(ActiveFolder) then exit;
 
-  ActiveFolder.SetFocusOnEditor
+  ActiveFolder.SetFocusOnNoteEditor
 end;
 
 procedure TForm_Main.MMTreeFocusTreeClick(Sender: TObject);
@@ -5019,7 +5019,7 @@ begin
 
     if ( ActiveFolder.TreeHidden ) then
        if not ActiveEditor.Focused then     // Could be scratch editor
-          ActiveFolder.SetFocusOnEditor;
+          ActiveFolder.SetFocusOnNoteEditor;
     ActiveFolder.Editor.Invalidate;
 
     MMViewTree.Checked := TreeVisible;
@@ -6027,7 +6027,7 @@ begin
    try
       if CtrlDown then begin
          if ImageMng.ImagesMode = imImage then begin
-            ActiveFolder.ReloadImagesOnEditor;
+            ActiveFolder.NoteUI.ReloadImagesOnEditor;
             exit;
          end
          else begin
@@ -6077,7 +6077,7 @@ begin
 
       if CtrlDown then begin
          if ImageMng.ImagesMode = imImage then
-            ActiveFolder.ReloadImagesOnEditor
+            ActiveFolder.NoteUI.ReloadImagesOnEditor
          else
             ShowImages (False, True);
       end

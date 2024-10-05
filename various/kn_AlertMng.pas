@@ -1246,7 +1246,7 @@ begin
         alarm:= Alarms[i];
         s:= '';
         if alarm.ExpirationDate <> 0 then
-           s:= '/' + FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, alarm.ExpirationDate );
+           s:= '/' + FormatDateTime(_COMPACT_DATETIME_TOFILE, alarm.ExpirationDate );
 
         if alarm.Bold or (alarm.FontColor <> clWindowText) or (alarm.BackColor <> clWindow) then begin
            if alarm.Bold then BoldStr:= 'B' else BoldStr:= 'N';
@@ -1255,7 +1255,7 @@ begin
 
         if alarm.AlarmNote <> '' then
            s:= s + '|' + StringReplace(alarm.AlarmNote, #13#10, 'ªª', [rfReplaceAll]);
-        s:= FormatDateTime( _SHORTDATEFMT + #32 + _LONGTIMEFMT, alarm.AlarmReminder ) + s;
+        s:= FormatDateTime(_COMPACT_DATETIME_TOFILE, alarm.AlarmReminder ) + s;
         if alarm.Status = TAlarmDiscarded then
            s:= 'D' + s;
         tf.WriteLine( _NodeAlarm + '=' + s, True );
@@ -1297,14 +1297,21 @@ begin
 
       p := Pos( '/', s );
       if ( p > 0 ) then begin
-          alarm.ExpirationDate:= strtodatetime(copy(s, p+1, length(s)));
+          if ActiveFile.Version.Major < '3' then
+             alarm.ExpirationDate:= StrToDateTime(copy(s, p+1, length(s)), LongDateToFileSettings)
+          else
+             alarm.ExpirationDate:= StrToDate_Compact( copy(s, p+1, length(s)) );
           delete( s, p, length(s));
       end;
       if s[1] = 'D' then begin
          alarm.Status := TAlarmDiscarded;
          s:= Copy(s,2,MaxInt)
       end;
-      alarm.AlarmReminder:= strtodatetime(s);
+      if ActiveFile.Version.Major < '3' then
+         alarm.AlarmReminder:= StrToDateTime(s, LongDateToFileSettings)
+      else
+         alarm.AlarmReminder:= StrToDate_Compact(s);
+
       if p <= 0  then
          alarm.ExpirationDate:= 0;
 

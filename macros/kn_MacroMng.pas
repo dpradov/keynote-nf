@@ -2181,7 +2181,7 @@ begin
              if assigned(Folder) then begin
                Form_Main.UpdateFolderDisplay;
                if (Editor.PlainText) then
-                  Folder.UpdateEditor (false);
+                  Folder.UpdateEditor (Folder.NoteUI, false);
              end;
 
           end;

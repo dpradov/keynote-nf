@@ -750,7 +750,7 @@ begin
            end;
 
           if PasteAsNewNode then
-             Folder.EditorToDataStream;
+             Folder.SaveEditorToDataModel;
 
 
         finally

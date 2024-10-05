@@ -1113,7 +1113,6 @@ procedure TKntRichEdit.DoEnter;
 begin
   if FUpdating > 0 then exit;
 
-  App.EditorFocused(Self);
   ImageMng.DoNotRegisterNewImages:= (NNodeObj = nil);
 
   inherited;
@@ -1534,7 +1533,7 @@ begin
   if FUpdating > 0 then exit;
 
   if FUpdating = 0 then begin
-    if Modified then
+    if Modified and not IgnoringEditorChanges then
        App.ChangeInEditor(Self);
   end;
 

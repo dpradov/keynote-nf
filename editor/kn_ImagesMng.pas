@@ -1888,8 +1888,7 @@ var
       for i := 0 to TKntFile(fKntFile).Folders.Count -1 do begin
          myFolder := TKntFile(fKntFile).Folders[i];
          if not myFolder.Editor.PlainText then begin
-           myFolder.EditorToDataStream;
-           myFolder.DataStreamToEditor;
+           myFolder.LoadFocusedNNodeIntoEditor(True);   // If editor was modified it will be saved first
          end;
       end;
    end;
@@ -3846,7 +3845,7 @@ begin
       end
       else begin
          if ActiveEditor.NNodeObj <> nil then
-            ActiveFolder.EditorToDataStream;
+            ActiveFolder.SaveEditorToDataModel;
 
          UsingOpenViewer:= false;
 

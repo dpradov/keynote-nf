@@ -235,6 +235,7 @@ function DateTimeDiff(Start, Stop : TDateTime) : int64;
 function GetTimeIntervalStr(Start, Stop : TDateTime): string;
 function IncStrInterval (StartDate: TDateTime; const Interval: string; increment: boolean= true): TDateTime;
 function TimeRevised(time: string): string;
+function StrToDate_Compact(strDT: string): TDateTime;    // Str in format:  'ddMMyyHHmm'
 function NormalFN( const fn : string ) : string;
 function RelativeFN( FN : string ) : string;
 function ProperFolderName( folder : string ) : string;
@@ -1587,6 +1588,28 @@ begin
    except
         Result:= time;
    end;
+end;
+
+function StrToDate_Compact(strDT: string): TDateTime;    // Str:  'ddMMyyHHmm' or 'ddMMyy'   (for years >= 2000) (Se usará para guardar fechas creación/modificación)
+var
+  Year, Month, Day: Word;
+  Hour, Min: Word;
+begin
+  try
+     Day   := StrToInt(Copy(strDT, 1, 2));
+     Month := StrToInt(Copy(strDT, 3, 2));
+     Year  := StrToInt(Copy(strDT, 5, 2)) + 2000;
+     Hour:= 0;
+     Min:= 0;
+     if strDT.Length > 6 then begin
+        Hour  := StrToInt(Copy(strDT, 7, 2));
+        Min   := StrToInt(Copy(strDT, 9, 2));
+     end;
+     Result:= EncodeDateTime(Year, Month, Day, Hour, Min, 0,0);
+
+  except
+     Result:= 0;
+  end;
 end;
 
 { Returns the server associated with the URL as long as it is not already included in the title }

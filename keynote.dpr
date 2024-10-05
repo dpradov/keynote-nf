@@ -137,7 +137,9 @@ uses
   kn_Main in 'kn_Main.pas' {Form_Main},
   knt.App in 'knt.App.pas',
   knt.ui.tree in 'ui\knt.ui.tree.pas' {KntTreeUI: TFrame},
-  knt.model.note in 'model\knt.model.note.pas';
+  knt.model.note in 'model\knt.model.note.pas',
+  knt.ui.note in 'ui\knt.ui.note.pas' {KntNoteUI: TFrame},
+  knt.ui.info in 'ui\knt.ui.info.pas';
 
 {$R *.RES}
 

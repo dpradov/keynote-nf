@@ -910,8 +910,12 @@ begin
                 nodeToFilter:= true;               // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
                 SearchOrigin := 0;                 // starting a new node
 
-                if assigned(myTreeNode) and (myFindOptions.SearchScope <> ssOnlyContent) then begin
-                  myNNode := TreeUI.GetNNode(myTreeNode);
+                if assigned(myTreeNode) then
+                   myNNode := TreeUI.GetNNode(myTreeNode)
+                else
+                   break;
+
+                if (myFindOptions.SearchScope <> ssOnlyContent) then begin
                   if myFindOptions.MatchCase then
                      TextPlain:= myNNode.NoteName
                   else
@@ -920,8 +924,8 @@ begin
                   FindPatternInText(true);
                 end;
 
-                if assigned(myTreeNode) and (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
-                   TextPlainBAK:= myFolder.PrepareTextPlain(myTreeNode, RTFAux);
+                if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
+                   TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux);
                    TextPlain:= TextPlainBAK;
                    if not myFindOptions.MatchCase then
                       TextPlain:=  AnsiUpperCase(TextPlain);
@@ -930,7 +934,7 @@ begin
                    FindPatternInText(false);
                 end;
 
-                if ApplyFilter and (assigned(myTreeNode) and (not nodeToFilter)) then begin
+                if ApplyFilter and (not nodeToFilter) then begin
                    if TreeFilter then
                       myNNode.TreeFilterMatch := True
                    else
@@ -1255,6 +1259,7 @@ var
   RTFAux: TAuxRichEdit;
   TreeUI: TKntTreeUI;
   TV: TVTree;
+  NNode: TNoteNode;
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -1357,7 +1362,7 @@ var
          myFolder.TreeUI.SelectAlone(myTreeNode);
       end;
 
-      SearchCaretPos (myFolder.Editor, myTreeNode, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1),
+      SearchCaretPos (myFolder.Editor, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1),
                       false, ReplacingLastNodeHasRegImg, true);
   end;
 
@@ -1418,6 +1423,7 @@ begin
 
       Editor:= myFolder.Editor;
       myTreeNode := TreeUI.FocusedNode;
+      NNode:= TreeUI.GetNNode(myTreeNode);
 
       UpdateReplacingLastNodeHasRegImg;
 
@@ -1428,7 +1434,7 @@ begin
       else begin
           SearchOrigin := Editor.SelStart;
           if ReplacingLastNodeHasRegImg then
-             SearchOrigin:= PositionInImLinkTextPlain (myFolder, myTreeNode, SearchOrigin);
+             SearchOrigin:= PositionInImLinkTextPlain (myFolder, NNode, SearchOrigin);
 
           l1:= length(Editor.SelVisibleText);
           if l1 = length( Text_To_Find)  then begin
@@ -1456,9 +1462,9 @@ begin
             UpdateReplacingLastNodeHasRegImg;
 
             if ReplacingLastNodeHasRegImg then
-               TextPlain:= myFolder.PrepareTextPlain(myTreeNode, RTFAux)
+               TextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux)
             else
-               TextPlain:= myFolder.GetTextPlainFromNode(myTreeNode, RTFAux);
+               TextPlain:= myFolder.GetTextPlainFromNode(NNode, RTFAux);
 
             if FindOptions.MatchCase then
                PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
@@ -1548,7 +1554,7 @@ var
 
   procedure SelectPatternFound();
   begin
-     SearchCaretPos (Editor, nil, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1), false);
+     SearchCaretPos (Editor, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1), false);
   end;
 
 
