@@ -518,6 +518,8 @@ begin
    PopulateTV;
    SetupTreeHandlers;
 
+   TB_HideChecked.Down:= Folder.HideCheckedNodes;
+
    if Folder.TreeMaxWidth > Folder.TreeWidth then
       SplitterNote.Color:= clLtGray;
 end;

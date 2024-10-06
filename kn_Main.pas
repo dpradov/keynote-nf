@@ -7111,11 +7111,9 @@ begin
       MMViewCustomIcons.Enabled := MMViewTree.Checked;
       TVSelectNodeImage.Enabled := ( MMViewCustomIcons.Checked and MMViewCustomIcons.Enabled );
       MMViewHideCheckedNodes.Enabled := true;
-      MMViewHideCheckedNodes.Checked:= myFolder.HideCheckedNodes;
       MMViewHideCheckedNodes.Checked:= myFolder.TreeUI.TB_HideChecked.Down;
-      MMViewFilterTree.Enabled := true;
-      MMViewFilterTree.Checked :=  myFolder.Filtered;
       MMViewFilterTree.Enabled:= myFolder.TreeUI.TB_FilterTree.Enabled;
+      MMViewFilterTree.Checked :=  myFolder.Filtered;
       MMViewFilterTree.Hint:= myFolder.TreeUI.TB_FilterTree.Hint;
 
       if not OnlyActionsState then begin
