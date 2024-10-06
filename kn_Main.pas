@@ -5009,28 +5009,12 @@ end;
 
 
 procedure TForm_Main.MMViewTreeClick(Sender: TObject);
-var
-   TreeVisible: boolean;
 begin
   if assigned( ActiveFolder) then begin
     ActiveFolder.TreeHidden := ( not ActiveFolder.TreeHidden );
-    TreeVisible:= not ActiveFolder.TreeHidden;
     UpdateTreeVisible( ActiveFolder);
-
-    if ( ActiveFolder.TreeHidden ) then
-       if not ActiveEditor.Focused then     // Could be scratch editor
-          ActiveFolder.SetFocusOnNoteEditor;
-    ActiveFolder.Editor.Invalidate;
-
-    MMViewTree.Checked := TreeVisible;
-    MMViewNodeIcons.Enabled := TreeVisible;
-    MMViewCustomIcons.Enabled := TreeVisible;
-    MMViewCheckboxesAllNodes.Enabled := TreeVisible;
-    MMViewHideCheckedNodes.Enabled := TreeVisible;
   end;
-end; // MMViewTreeClick
-
-
+end;
 
 
 procedure TForm_Main.MMFormatLanguageClick(Sender: TObject);
@@ -6437,14 +6421,26 @@ end;
 procedure TForm_Main.UpdateTreeVisible( const AFolder : TKntFolder );
 var
    Inc: Integer;
+   TreeVisible: boolean;
 begin
-  with AFolder do begin
-    TreeUI.Visible := ( not TreeHidden );
+    TreeVisible:= not AFolder.TreeHidden;
+    AFolder.TreeUI.Visible := TreeVisible;
+
+    if ( AFolder.TreeHidden ) then
+       if not AFolder.Editor.Focused then
+          AFolder.SetFocusOnNoteEditor;
+    AFolder.Editor.Invalidate;
+
+    MMViewTree.Checked := TreeVisible;
+    MMViewNodeIcons.Enabled := TreeVisible;
+    MMViewCustomIcons.Enabled := TreeVisible;
+    MMViewCheckboxesAllNodes.Enabled := TreeVisible;
+    MMViewHideCheckedNodes.Enabled := TreeVisible;
 
     if KeyOptions.UseCtrlHideTreePanel then
-        if TreeHidden then begin
+        if AFolder.TreeHidden then begin
            if CtrlDown then begin
-              _WindowWidthIncToRestore:= TreeUI.Width;
+              _WindowWidthIncToRestore:= AFolder.TreeUI.Width;
               Inc:= _WindowWidthIncToRestore;
               With Form_Main do
                 SetBounds(Left + Inc, Top, Width - Inc, Height );
@@ -6452,7 +6448,7 @@ begin
         end
         else
            CheckRestoreAppWindowWidth;
-  end;
+
 end; // UpdateTreeVisible
 
 
@@ -6686,7 +6682,7 @@ end;
 
 procedure TForm_Main.actTVVirtualNodeExecute(Sender: TObject);
 begin
-  ActiveFolder.VirtualNoteProc(ActiveTreeUI.FocusedNode, '' );
+  ActiveFolder.VirtualNoteProc('');
 end;
 
 procedure TForm_Main.actTVRefreshVirtualNodeExecute(Sender: TObject);

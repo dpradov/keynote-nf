@@ -519,7 +519,7 @@ begin
          SP:= E.GetScrollPosInEditor;
          SS := E.SelStart;
          SL := E.SelLength;
-         TKntFolder(E.FolderObj).LoadFocusedNNodeIntoEditor;
+         TKntFolder(E.FolderObj).ReloadEditorFromDataModel(false);
          E.SelStart:= SS;
          E.SelLength:= SL;
          E.SetScrollPosInEditor(SP);

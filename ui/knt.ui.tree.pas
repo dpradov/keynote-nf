@@ -2170,7 +2170,7 @@ begin
   myNodeName:= FirstLineFromString(TrimLeft(ActiveEditor.SelText), TREENODE_NAME_LENGTH_CAPTURE);
   myRTFText := ActiveEditor.RtfSelText;
 
-  NNode := NewNode(tnAddBelow, nil, '', true);
+  NNode := NewNode(tnAddBelow, nil, '', true);        // => New node will be focused -> Folder.NodeSelected
   if assigned(NNode) then begin
     try
       Note:= NNode.Note;
@@ -2182,7 +2182,7 @@ begin
       NEntry:= Note.Entries[0];                                      // %%%
       NEntry.Stream.Position := 0;
       NEntry.Stream.WriteBuffer(myRTFTExt[1], length(myRTFTExt));
-      TKntFolder(Folder).LoadFocusedNNodeIntoEditor;
+      TKntFolder(Folder).ReloadEditorFromDataModel;
 
       MakePathVisible(NNode.TVNode);
 
@@ -3641,11 +3641,8 @@ end;
 {$REGION Virtual nodes}
 
 procedure TKntTreeUI.VirtualNoteUnlink;
-var
-  Folder: TKntFolder;
 begin
-  Folder:= TKntFolder(Self.Folder);
-  Folder.VirtualNoteUnlink(TV.FocusedNode);
+  TKntFolder(Self.Folder).VirtualNoteUnlink;
 end;
 
 
@@ -3654,7 +3651,7 @@ var
   Folder: TKntFolder;
 begin
   Folder:= TKntFolder(Self.Folder);
-  Folder.VirtualNoteRefresh(TV.FocusedNode, DoPrompt);
+  Folder.VirtualNoteRefresh(DoPrompt);
 end;
 
 

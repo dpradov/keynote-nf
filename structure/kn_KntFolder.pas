@@ -215,8 +215,9 @@ type
 
 
     procedure UpdateEditor (NoteUI: INoteUI; SetWordWrap: boolean= true);
-    procedure LoadFocusedNNodeIntoEditor(SavePreviousContent: boolean= true);
-    function SaveEditorToDataModel: TMemoryStream;
+    procedure LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
+    procedure ReloadEditorFromDataModel(SavePreviousContent: boolean= true);
+    function  SaveEditorToDataModel: TMemoryStream;
     procedure SetEditorProperties( const aProps : TFolderEditorProperties );
     procedure GetEditorProperties( var aProps : TFolderEditorProperties );
     procedure SetFocusOnNoteEditor;
@@ -267,9 +268,9 @@ type
 
   public
     function CheckVirtualNote (Node: PVirtualNode): boolean;
-    procedure VirtualNoteRefresh(Node: PVirtualNode; const DoPrompt : boolean);
-    procedure VirtualNoteUnlink (Node: PVirtualNode);
-    procedure VirtualNoteProc( Node : PVirtualNode; VirtFN : string );
+    procedure VirtualNoteRefresh(const DoPrompt : boolean);
+    procedure VirtualNoteUnlink;
+    procedure VirtualNoteProc(VirtFN : string );
 
 
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit ): boolean;
@@ -769,10 +770,9 @@ begin
           myFolder.TreeWidth := 0;
           myFolder.SaveEditorToDataModel;
           myFolder.Editor.Clear;
-          myFolder.Editor.ClearUndo;
           DestroyVCLControlsForFolder( myFolder, false );
           CreateVCLControlsForFolder( myFolder );
-          myFolder.LoadFocusedNNodeIntoEditor;
+          myFolder.LoadEditorFromNNode(myFolder.FocusedNNode, False);
           SetUpVCLControls( myFolder );
           FocusActiveKntFolder;
         finally
@@ -968,7 +968,8 @@ begin
     end;
 
     App.FolderPropertiesModified(Self);
-    App.EditorPropertiesModified(NoteUI.Editor);
+    if NoteUI <> nil then
+       App.EditorPropertiesModified(NoteUI.Editor);
   end;
 end;
 
@@ -980,7 +981,8 @@ begin
     Modified := true;
 
     App.FolderPropertiesModified(Self);
-    App.EditorPropertiesModified(NoteUI.Editor);
+    if NoteUI <> nil then
+       App.EditorPropertiesModified(NoteUI.Editor);
   end;
 end;
 
@@ -1184,66 +1186,28 @@ var
   NNode : TNoteNode;
   LocBeforeSelChanged: TLocation;
   LastNNodeFocused: TNoteNode;
-  HintStatusBar: string;
 
 begin
+   if (not assigned(Node)) then exit;
 
-  with Form_Main do begin
-      if (not assigned(Node)) then exit;
+   NNode:= TreeUI.GetNNode(Node);
 
-      NNode:= TreeUI.GetNNode(Node);
+   LastNNodeFocused:= nil;
+   if LastNodeSelected <> nil then
+      LastNNodeFocused:= TreeUI.GetNNode(LastNodeSelected);
 
-      LastNNodeFocused:= nil;
-      if LastNodeSelected <> nil then
-         LastNNodeFocused:= TreeUI.GetNNode(LastNodeSelected);
+   if (not _Executing_History_Jump) and (not _Executing_JumpToKNTLocation_ToOtherNote) then begin
+       if LastNNodeFocused <> nil then begin
+          // Add to history the location of previous node, before new selection. Editor (and so caret position) has not been changed yet (It is done in this method)
+          LocBeforeSelChanged:= nil;
+          GetKntLocation (ActiveFolder, LocBeforeSelChanged, false, LastNNodeFocused);
+          AddHistoryLocation(Self, false, LocBeforeSelChanged);
+       end;
+      _LastMoveWasHistory := false;
+      UpdateHistoryCommands;
+   end;
 
-      if (not _Executing_History_Jump) and (not _Executing_JumpToKNTLocation_ToOtherNote) then begin
-          if LastNNodeFocused <> nil then begin
-             // Add to history the location of previous node, before new selection. Editor (and so caret position) has not been changed yet (It is done in this method)
-             LocBeforeSelChanged:= nil;
-             GetKntLocation (ActiveFolder, LocBeforeSelChanged, false, LastNNodeFocused);
-             AddHistoryLocation(Self, false, LocBeforeSelChanged);
-          end;
-         _LastMoveWasHistory := false;
-         UpdateHistoryCommands;
-      end;
-
-
-      try
-        NoteUI.LoadFromNNode(NNode, True);
-
-        if assigned(NNode) then begin
-             if not NNode.IsVirtual then begin
-                if (not EditorOptions.TrackStyle) then begin
-                  if KntTreeOptions.ShowFullPath then
-                    HintStatusBar := TreeUI.GetNodePath(Node, KntTreeOptions.NodeDelimiter, KntTreeOptions.PathTopToBottom)
-                  else
-                    HintStatusBar := NNode.NodeName(TreeUI);
-                end;
-             end
-             else begin
-               if (not EditorOptions.TrackStyle) then
-                 HintStatusBar := STR_01 + NNode.Note.VirtualFN;
-             end;
-             TVCheckNode.Checked := Node.CheckState.IsChecked;
-             TVBoldNode.Checked :=  NNode.Bold;
-             TVChildrenCheckbox.Checked:= NNode.ChildrenCheckbox;
-
-             UpdateAlarmStatus;
-             UpdateShowImagesState;
-        end
-        else
-            HintStatusBar:= '';
-
-        App.ShowInfoInStatusBar(HintStatusBar);
-
-      except
-        On E : Exception do begin
-          messagedlg(E.Message, mtError, [mbOK], 0);
-          exit;
-        end;
-      end;
-  end;
+  LoadEditorFromNNode(NNode, true);
 
 end; // NodeSelected
 
@@ -1279,17 +1243,18 @@ begin
 end;
 
 
-procedure TKntFolder.VirtualNoteRefresh (Node: PVirtualNode; const DoPrompt : boolean);
+procedure TKntFolder.VirtualNoteRefresh (const DoPrompt : boolean);
 var
+  Node: PVirtualNode;
   Note : TNote;
-  NEntry: TNoteEntry;
 
 begin
+  Node:= TV.FocusedNode;
   if not CheckVirtualNote (Node) then exit;
 
   Note:= TreeUI.GetNNode(Node).Note;
 
-  if NEntry.Modified then begin
+  if Note.Modified then begin
     if ( App.DoMessageBox(Format(STR_v12 + STR_v10, [Note.Name, ExtractFilename( Note.VirtualFN )] ),
                            mtWarning, [mbOK,mbCancel], 0 ) <> mrOK ) then
     exit;
@@ -1312,7 +1277,7 @@ begin
     end;
 
     try
-      NoteUI.ReloadIgnoringChanges;
+      NoteUI.ReloadFromDataModel;          // Changes in editor will be ignored
       App.ShowInfoInStatusBar(STR_v15);
     except
       App.ShowInfoInStatusBar(STR_v16);
@@ -1325,12 +1290,14 @@ begin
 end;
 
 
-procedure TKntFolder.VirtualNoteUnlink (Node: PVirtualNode);
+procedure TKntFolder.VirtualNoteUnlink;
 var
+  Node: PVirtualNode;
   Note, NewNote : TNote;
   NNode, NewNNode: TNoteNode;
 
 begin
+  Node:= TV.FocusedNode;
   if not CheckVirtualNote (Node) then exit;
 
   NNode:= TreeUI.GetNNode(Node);
@@ -1358,8 +1325,9 @@ begin
 end;
 
 
-procedure TKntFolder.VirtualNoteProc( Node : PVirtualNode; VirtFN : string );
+procedure TKntFolder.VirtualNoteProc(VirtFN : string );
 var
+  Node : PVirtualNode;
   Note : TNote;
   NNode: TNoteNode;
   oldDlgFilter : string;
@@ -1367,6 +1335,7 @@ var
   IsVNError, IsFlushingData, IsChangingFile : boolean;
 
 begin
+  Node:= TV.FocusedNode;
   if (Node = nil) then exit;
   if Form_Main.FolderIsReadOnly( Self, true ) then exit;
 
@@ -1513,7 +1482,7 @@ begin
           end
           else begin
             Note.LoadVirtualFile;
-            NoteUI.LoadFromDataModel;
+            NoteUI.ReloadFromDataModel;
           end;
 
           if ( KntTreeOptions.AutoNameVNodes and ( not IsFlushingData )) then begin
@@ -1618,22 +1587,66 @@ end;
 // TODO: We will have to manage the possible multiple entries of a note.
 // FOR THE MOMENT we will work with what we will assume is the only entry
 
-// Previously: DataStreamToEditor
+procedure TKntFolder.LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
+var
+  Node: PVirtualNode;
+  HintStatusBar: string;
 
-procedure TKntFolder.LoadFocusedNNodeIntoEditor(SavePreviousContent: boolean= true);
+begin
+  if NNode = nil then exit;
+
+  with Form_Main do begin
+      try
+        NoteUI.LoadFromNNode(NNode, SavePreviousContent);
+
+        if assigned(NNode) then begin
+             Node:= NNode.TVNode;
+             if not NNode.IsVirtual then begin
+                if (not EditorOptions.TrackStyle) then begin
+                  if KntTreeOptions.ShowFullPath then
+                    HintStatusBar := TreeUI.GetNodePath(Node, KntTreeOptions.NodeDelimiter, KntTreeOptions.PathTopToBottom)
+                  else
+                    HintStatusBar := NNode.NodeName(TreeUI);
+                end;
+             end
+             else begin
+               if (not EditorOptions.TrackStyle) then
+                 HintStatusBar := STR_01 + NNode.Note.VirtualFN;
+             end;
+             TVCheckNode.Checked := Node.CheckState.IsChecked;
+             TVBoldNode.Checked :=  NNode.Bold;
+             TVChildrenCheckbox.Checked:= NNode.ChildrenCheckbox;
+
+             UpdateAlarmStatus;
+             UpdateShowImagesState;
+        end
+        else
+            HintStatusBar:= '';
+
+        App.ShowInfoInStatusBar(HintStatusBar);
+
+      except
+        On E : Exception do begin
+          messagedlg(E.Message, mtError, [mbOK], 0);
+          exit;
+        end;
+      end;
+  end;
+
+end;
+
+
+procedure TKntFolder.ReloadEditorFromDataModel(SavePreviousContent: boolean= true);
 begin
    if SavePreviousContent then
       NoteUI.SaveToDataModel;
-   NoteUI.LoadFromDataModel;
+   NoteUI.ReloadFromDataModel;
 end;
 
 
 {
   If Editor was modified then it will return the Stream associated to the node that will be updated
 }
-
-// Previously: EditorToDataStream
-
 function TKntFolder.SaveEditorToDataModel: TMemoryStream;
 begin
   Result:= NoteUI.SaveToDataModel;

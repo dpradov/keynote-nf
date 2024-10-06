@@ -87,9 +87,8 @@ type
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean);
-    procedure LoadFromDataModel;
+    procedure ReloadFromDataModel;
     function  SaveToDataModel: TMemoryStream;
-    procedure ReloadIgnoringChanges;
     procedure ReloadNoteName;
     procedure ConfigureEditor;
   protected
@@ -369,7 +368,7 @@ begin
             wwno :  Editor.WordWrap := false;
           end;
 
-          LoadFromDataModel;
+          ReloadFromDataModel;
 
           { The normal thing is to set Editor.Modified = False at the end of the LoadFocusedNNodeIntoEditor method
             But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified,
@@ -400,8 +399,7 @@ end;
 // TODO: We will have to manage the possible multiple entries of a note.
 // FOR THE MOMENT we will work with what we will assume is the only entry
 
-// Old: DataStreamToEditor
-procedure TKntNoteUI.LoadFromDataModel;
+procedure TKntNoteUI.ReloadFromDataModel;
 var
   ReadOnlyBAK: boolean;
 
@@ -594,21 +592,6 @@ begin
   end;
 end;
 
-
-procedure TKntNoteUI.ReloadIgnoringChanges;
-begin
-  Editor.BeginUpdate;
-  try
-    Editor.Clear;
-    Editor.ClearUndo;
-    LoadFromDataModel;
-
-  finally
-    Editor.EndUpdate;
-  end;
-end;
-
-
 procedure TKntNoteUI.ReloadNoteName;
 begin
    txtName.Text:= FNote.Name;
@@ -716,7 +699,7 @@ begin
    ImageMng.ReloadImages(ImgeIDs);
 
    SaveToDataModel;
-   LoadFromDataModel;
+   ReloadFromDataModel;
 end;
 
 
@@ -736,7 +719,7 @@ begin
        try
           SS:= Editor.SelStart;
           SaveToDataModel;
-          LoadFromDataModel;
+          ReloadFromDataModel;
           FEditor.SelStart:= SS;
 
        finally

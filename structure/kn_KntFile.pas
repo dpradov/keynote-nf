@@ -1129,7 +1129,7 @@ begin
                NEntry.TextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
 
             if NNode = myFolder.FocusedNNode  then
-               myFolder.LoadFocusedNNodeIntoEditor;
+               myFolder.ReloadEditorFromDataModel (false);
          end;
       end;
 
@@ -1160,7 +1160,7 @@ var
       end;
 
       if UpdateEditor then
-         myFolder.LoadFocusedNNodeIntoEditor;
+         myFolder.ReloadEditorFromDataModel (false);
   end;
 
 

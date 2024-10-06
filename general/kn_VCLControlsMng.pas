@@ -261,7 +261,7 @@ begin
 
     for i := 0 to pred( ActiveFile.Folders.Count ) do begin
       myFolder := ActiveFile.Folders[i];
-      myFolder.NoteUI.LoadFromNNode(myFolder.FocusedNNode, False);
+      myFolder.LoadEditorFromNNode(myFolder.FocusedNNode, False);
       SetUpVCLControls( myFolder );
     end;
 

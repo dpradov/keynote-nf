@@ -1519,16 +1519,14 @@ begin
 
               try
                 CreateVCLControlsForFolder( newFolder );
-                if ( MergeFN.ToUpper = ActiveFile.FileName.ToUpper) then begin
-                   ActiveFile.UpdateImagesCountReferences(newFolder);
-                   newFolder.LoadFocusedNNodeIntoEditor;
-                end
+                if ( MergeFN.ToUpper = ActiveFile.FileName.ToUpper) then
+                   ActiveFile.UpdateImagesCountReferences(newFolder)
                 else
                   { We have previously assigned "ImagesManager.ExtenalImagesManager:= ImgManagerMF", to search the Stream of the images
                     with the help of the ImageManager associated with the MergeFile file }
                   ActiveFile.UpdateImagesStorageModeInFile (ImageMng.StorageMode, newFolder, false);
-                  // newNNode.LoadFocusedNNodeIntoEditor;     // From UpdateImagesStorageModeInFile) the call to LoadFocusedNNodeIntoEditor is ensured
 
+                newFolder.LoadEditorFromNNode(newFolder.FocusedNNode, False);
                 SetUpVCLControls( newFolder );
               finally
                 newFolder.TabSheet.TabVisible := true; // was created hidden
@@ -1550,7 +1548,7 @@ begin
             for i := 0 to pred( MergeFile.FolderCount ) do
                 if FolderIDs[i].newFolder then begin
                    newFolder:= ActiveFile.GetFolderByID(FolderIDs[i].newID);
-                   newFolder.LoadFocusedNNodeIntoEditor;
+                   newFolder.ReloadEditorFromDataModel;
                 end;
 
 
@@ -1909,10 +1907,11 @@ begin
                 ActiveFile.AddFolder( myFolder );
 
                 try
+                  CreateVCLControlsForFolder( myFolder );
+
                   NNode:= nil;
                   if ImportFileType <> itTreePad then begin
-                     NNode:= ActiveFile.AddNewNote(myFolder);
-                     NNode.Note.Name:= s;
+                     NNode:= myFolder.TreeUI.NewNode(tnTop, nil, s, true );
                      NEntry:= NNode.Note.Entries[0];        //%%%
                      myFolder.TreeHidden:= true;
                   end;
@@ -1939,10 +1938,9 @@ begin
                       end;
                     end;
 
-
-                  CreateVCLControlsForFolder( myFolder );
-                  myFolder.LoadFocusedNNodeIntoEditor;
+                  myFolder.ReloadEditorFromDataModel(False);
                   SetUpVCLControls( myFolder );
+                  UpdateTreeVisible( ActiveFolder );
 
                   var Owned: boolean:= not ImgLinkMode;
                   if ImportFileType = itImage then
@@ -2473,7 +2471,7 @@ begin
                      NNode.Note.Name := ExtractFilenameNoExt( FName );
 
                    if i = FileList.Count - 1 then begin
-                      ActiveFolder.LoadFocusedNNodeIntoEditor;
+                      ActiveFolder.LoadEditorFromNNode(NNode, False);
                       if not ExtIsImage( fExt ) then
                          Editor.Modified:= False;
                    end;
@@ -2555,8 +2553,8 @@ begin
                      else
                        continue;
                    end;
-                   NNode := ActiveTreeUI.NewNode(tnAddLast, nil, '', true );
-                   ActiveFolder.VirtualNoteProc(NNode.TVNode, FName );
+                   NNode := ActiveTreeUI.NewNode(tnAddLast, nil, '', true );  // => New node will be focused -> Folder.NodeSelected
+                   ActiveFolder.VirtualNoteProc(FName );
                  end;
 
                finally
