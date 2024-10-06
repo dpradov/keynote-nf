@@ -225,8 +225,7 @@ type
                       const aDefaultNode: boolean) : TNoteNode;
     procedure CreateParentNode(Node: PVirtualNode);
     procedure CreateNodefromSelection;
-    procedure SetupNewTreeNode(const Node : PVirtualNode);
-    procedure SetupLoadedTreeNode(const Node : PVirtualNode);
+    procedure SetupNewTreeNode(const Node : PVirtualNode; Loaded: boolean = false);
 
     // Move Nodes |  Delete nodes/subtrees  |  Cut/Copy/Paste Subtrees  | Drag and Drop
    public
@@ -632,7 +631,7 @@ begin
               LastNodeLevel := NodeLevel;
 
               SetNNode(myTreeNode, NNode);
-              SetupLoadedTreeNode(myTreeNode);
+              SetupNewTreeNode(myTreeNode, True);
               NNode.TVNode:= myTreeNode;
            end;
 
@@ -2194,36 +2193,36 @@ begin
 end; // CreateNodefromSelection
 
 
-procedure TKntTreeUI.SetupNewTreeNode(const Node : PVirtualNode);
+procedure TKntTreeUI.SetupNewTreeNode(const Node : PVirtualNode; Loaded: boolean = false);
 var
-  NNode : TNoteNode;
-begin
-   NNode:= GetNNode(Node);
+  NNode, ParentNNode: TNoteNode;
+  ParentNode : PVirtualNode;
 
-   if NNode.ChildrenCheckbox or ShowAllCheckboxes then       // sets the check type for this node's children and changes the children's check image
+begin
+   if ShowAllCheckboxes then
       Node.CheckType  := ctCheckBox
-   else
-      Node.CheckType  := ctNone;
+
+   else begin
+      ParentNNode:= nil;
+      ParentNode:= Node.Parent;
+      if ParentNode <> TV.RootNode then
+         ParentNNode:= GetNNode(ParentNode);
+
+      if (ParentNNode <> nil) and ParentNNode.ChildrenCheckbox then
+         Node.CheckType  := ctCheckBox
+      else
+         Node.CheckType  := ctNone;
+   end;
+
+   if Loaded and (Node.CheckType = ctCheckBox) then begin
+      NNode:= GetNNode(Node);
+      if nnsSaved_Checked in NNode.States then
+         Node.CheckState := csCheckedNormal
+      else
+         Node.CheckState := csUncheckedNormal;
+   end;
 end;
 
-
-procedure TKntTreeUI.SetupLoadedTreeNode(const Node : PVirtualNode);
-var
-  NNode : TNoteNode;
-begin
-   NNode:= GetNNode(Node);
-
-   if NNode.ChildrenCheckbox or ShowAllCheckboxes then       // sets the check type for this node's children and changes the children's check image
-      Node.CheckType  := ctCheckBox
-   else
-      Node.CheckType  := ctNone;
-
-   if nnsSaved_Checked in NNode.States then
-      Node.CheckState := csCheckedNormal
-   else
-      Node.CheckState := csUncheckedNormal;
-
-end;
 
 
 {$ENDREGION}
@@ -3010,11 +3009,16 @@ var
   Node : PVirtualNode;
 begin
    TV.BeginUpdate;
-   for Node in TV.Nodes do
-      if ShowAllCheckboxes then
-         Node.CheckType:= ctCheckBox
-      else
-         ShowOrHideChildrenCheckBoxes(GetNNode(Node));
+
+   if ShowAllCheckboxes then begin
+      for Node in TV.Nodes do
+         Node.CheckType:= ctCheckBox;
+   end
+   else
+     for Node in TV.ChildNodes(nil) do begin
+        Node.CheckType:= ctNone;
+        ShowOrHideChildrenCheckBoxes(GetNNode(Node));
+     end;
 
    TV.EndUpdate;
 end;
@@ -3031,8 +3035,10 @@ begin
       ChkType:= ctCheckBox;
 
    TV.BeginUpdate;
-   for Node in TV.ChildNodes(NNode.TVNode) do
+   for Node in TV.ChildNodes(NNode.TVNode) do begin
       Node.CheckType:= ChkType;
+      ShowOrHideChildrenCheckBoxes(GetNNode(Node));
+   end;
    TV.EndUpdate;
 end;
 
