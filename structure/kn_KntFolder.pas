@@ -1622,7 +1622,9 @@ end;
 
 procedure TKntFolder.LoadFocusedNNodeIntoEditor(SavePreviousContent: boolean= true);
 begin
-   NoteUI.LoadFromDataModel(SavePreviousContent);
+   if SavePreviousContent then
+      NoteUI.SaveToDataModel;
+   NoteUI.LoadFromDataModel;
 end;
 
 

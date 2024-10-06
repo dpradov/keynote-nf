@@ -87,7 +87,7 @@ type
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean);
-    procedure LoadFromDataModel(SavePreviousContent: boolean= true);
+    procedure LoadFromDataModel;
     function  SaveToDataModel: TMemoryStream;
     procedure ReloadIgnoringChanges;
     procedure ReloadNoteName;
@@ -392,25 +392,7 @@ begin
      end;
 
    finally
-     Editor.RestoreZoomGoal;
-
-     // TODO We should act on the corresponding entry. And it should be made from NoteUI
-     //NEntry:= NNode.Note.SelEntry;
-     if assigned(NNode) and (NNode.Note.ScrollPosInEditor.Y > 0) then
-        Editor.SetScrollPosInEditor(NNode.Note.ScrollPosInEditor);
-
-
      Editor.EndUpdate;
-
-     Editor.CheckWordCount(true);
-
-     if not KeepModified then
-        Editor.Modified := false;
-     Editor.ChangedSelection;
-     Editor.Change;
-
-     if not ClipCapMng.IsBusy then
-        App.EditorReloaded(Editor);
    end;
 end;
 
@@ -419,7 +401,7 @@ end;
 // FOR THE MOMENT we will work with what we will assume is the only entry
 
 // Old: DataStreamToEditor
-procedure TKntNoteUI.LoadFromDataModel(SavePreviousContent: boolean= true);
+procedure TKntNoteUI.LoadFromDataModel;
 var
   ReadOnlyBAK: boolean;
 
@@ -433,18 +415,18 @@ var
  ContainsImages: boolean;
 
  OnEnterBak: TNotifyEvent;
- Entry: TNoteEntry;
+ NEntry: TNoteEntry;
 
 begin
-  if not assigned(NNode) then exit;
+   if not assigned(NNode) then exit;
 
-  Entry:= Note.Entries[0];       // %%%%
-  txtName.Text:= FNote.Name;
-  txtCreationDate.Text:= FormatDateTime(KeyOptions.DateFmt + #32 + KeyOptions.TimeFmt, Entry.Created);
+   NEntry:= Note.Entries[0];       // %%%%
+   txtName.Text:= FNote.Name;
+   txtCreationDate.Text:= FormatDateTime(KeyOptions.DateFmt + #32 + KeyOptions.TimeFmt, NEntry.Created);
 
-  BeforeEditorLoaded(Note);     //%%% ¿Informar tb. del posible cambio de NEntry?
+   BeforeEditorLoaded(Note);     //%%% ¿Informar tb. del posible cambio de NEntry?
 
-  ConfigureEditor;
+   ConfigureEditor;
 
    FEditor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
@@ -454,18 +436,18 @@ begin
      FEditor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
      FEditor.Clear;
 
-     Entry.Stream.Position := 0;
+     NEntry.Stream.Position := 0;
      strRTF:= '';
 
-     if not Entry.IsRTF then
+     if not NEntry.IsRTF then
         FKntFolder.UpdateEditor (Self, False);
 
      fImagesReferenceCount:= nil;
-     if NodeStreamIsRTF (Entry.Stream) then begin
+     if NodeStreamIsRTF (NEntry.Stream) then begin
         FEditor.StreamFormat:= sfRichText;
         if FEditor.SupportsRegisteredImages then begin
-           GetImagesIDInstances (Entry.Stream, Entry.TextPlain);
-           strRTF:= ImageMng.ProcessImagesInRTF(Entry.Stream.Memory, Entry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
+           GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
+           strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
         end;
      end
      else
@@ -474,8 +456,8 @@ begin
      Log_StoreTick('TKntNoteUI.LoadFromDataModel - BEGIN', 4, +1);
     {$IFDEF KNT_DEBUG}
      if log.Active and  (log.MaxDbgLevel >= 4) then begin
-        dataSize:= Entry.Stream.Size;
-        str:= Copy(String(PAnsiChar(Entry.Stream.Memory)), 1, 250);
+        dataSize:= NEntry.Stream.Size;
+        str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 250);
         Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
      end;
     {$ENDIF}
@@ -485,7 +467,7 @@ begin
         FEditor.ClearUndo;
      end
      else
-        FEditor.Lines.LoadFromStream( Entry.Stream );
+        FEditor.Lines.LoadFromStream( NEntry.Stream );
 
      Log_StoreTick('TKntNoteUI.LoadFromDataModel - END', 4, -1);
 
@@ -493,15 +475,31 @@ begin
      FEditor.SelStart := Note.SelStart;
      FEditor.SelLength := Note.SelLength;
 
-     if Entry.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
+     if NEntry.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
         FKntFolder.UpdateEditor (Self, false);
 
    finally
      FEditor.ReadOnly:= ReadOnlyBAK;
+
+     Editor.RestoreZoomGoal;
+
+     // TODO We should act on the corresponding entry.
+     //NEntry:= NNode.Note.SelEntry;
+     if assigned(NNode) and (NNode.Note.ScrollPosInEditor.Y > 0) then
+        Editor.SetScrollPosInEditor(NNode.Note.ScrollPosInEditor);
+
      FEditor.EndUpdate;
 
      if not ContainsImgIDsRemoved then
         FEditor.Modified := false;
+
+     Editor.CheckWordCount(true);
+
+     Editor.ChangedSelection;
+     Editor.Change;
+
+     if not ClipCapMng.IsBusy then
+        App.EditorReloaded(Editor);
    end;
 
 
@@ -586,6 +584,7 @@ begin
 
         finally
           FEditor.EndUpdate;
+          App.EditorSaved(FEditor);
         end;
      end
      else

@@ -132,7 +132,8 @@ type
       procedure EditorAvailable (Editor: TKntRichEdit);
       procedure EditorUnavailable (Editor: TKntRichEdit);
       procedure EditorFocused (Editor: TKntRichEdit);
-      procedure EditorReloaded (Editor: TKntRichEdit); overload;
+      procedure EditorReloaded (Editor: TKntRichEdit);
+      procedure EditorSaved (Editor: TKntRichEdit);
       procedure ChangeInEditor (Editor: TKntRichEdit);
       procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
@@ -490,12 +491,49 @@ begin
    fAvailableEditors.Remove(Editor);
 end;
 
+procedure TKntApp.EditorSaved (Editor: TKntRichEdit);
+var
+   NNodeSavedEditor, NNode: TNoteNode;
+   NoteSavedEditor: TNote;
+   E: TKntRichEdit;
+   i: integer;
+   SP: TPoint;
+   SS,SL: integer;
+
+begin
+   if Editor = nil then exit;
+
+   NNodeSavedEditor:= TNoteNode(Editor.NNodeObj);
+   if NNodeSavedEditor = nil then exit;
+   NoteSavedEditor:= NNodeSavedEditor.Note;
+
+   if NoteSavedEditor.NumNNodes <= 1 then exit;
+
+   for i:= 0 to fAvailableEditors.Count-1 do begin
+      E:= fAvailableEditors[i];
+      if (E = Editor) then continue;
+
+      NNode:= TNoteNode(E.NNodeObj);
+      if NNode = nil then continue;
+      if NoteSavedEditor = NNode.Note then begin
+         SP:= E.GetScrollPosInEditor;
+         SS := E.SelStart;
+         SL := E.SelLength;
+         TKntFolder(E.FolderObj).LoadFocusedNNodeIntoEditor;
+         E.SelStart:= SS;
+         E.SelLength:= SL;
+         E.SetScrollPosInEditor(SP);
+      end;
+   end;
+
+end;
+
+
 procedure TKntApp.EnsureContentEditorUpdated (Editor: TKntRichEdit);
 var
    NNodeSelecEditor, NNode: TNoteNode;
    NoteSelecEditor: TNote;
    E: TKntRichEdit;
-   Folder: TKntFolder;
    i: integer;
 begin
    if Editor = nil then exit;
@@ -508,17 +546,12 @@ begin
 
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];
-
       if (E = Editor) or (not E.Modified) then continue;
 
       NNode:= TNoteNode(E.NNodeObj);
       if NNode = nil then continue;
       if NoteSelecEditor = NNode.Note then begin
-         Folder:= TKntFolder(E.FolderObj);
-         Folder.SaveEditorToDataModel;
-
-         Folder:= TKntFolder(Editor.FolderObj);
-         Folder.LoadFocusedNNodeIntoEditor;
+         TKntFolder(E.FolderObj).SaveEditorToDataModel;   // Will force reload from any Editor with the same (linked) NNode open => App.EditorSaved()
          exit;
       end;
    end;
