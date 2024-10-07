@@ -47,6 +47,7 @@ type
      function GetNextChecked(Node: PVirtualNode; ConsiderHiddenNodes: boolean= true): PVirtualNode;
      function GetNextNotChecked(Node: PVirtualNode; ConsiderHiddenNodes: boolean= true): PVirtualNode;
      function GetNextVisibleNotChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+     function GetNextNotChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
    end;
 
 
@@ -363,7 +364,7 @@ resourcestring
   STR_21 = 'No data to paste. Select "Transfer|Copy/Cut Subtree" first.';
   STR_22 = #13#13 + '* One or more nodes being copied is a Virtual Node. They will be pasted as linked nodes' + #13#13 + 'Continue?';
 
-  STR_23 = 'OK to PASTE %d nodes/subtrees%s below current node "%s"?' + #13#10 + '(Only not hidden nodes will be pasted)';
+  STR_23 = 'OK to PASTE %d nodes/subtrees%s below current node "%s"?' + #13#10 + '(Hidden nodes will ALSO be pasted)';
   STR_26 = ' as LINKED nodes';
 
   STR_24 = ' Pasted %d nodes/subtrees';
@@ -2786,6 +2787,16 @@ var
    TargetFolder: TKntFolder;
 
 begin
+   // *2 When copying subtrees, hidden nodes will be included.
+   //   So the use of TV.GetNext(NodeS) and TV.GetNextNotChild(NodeS, true) instead of TV.GetNextNotHidden(NodeS)
+   //   and NodeS:= TV.GetNextVisibleNotChild(NodeS)
+   //   To include hidden nodes is because the subtree is copied using SourceTV.CopyTo(..), a method supported
+   //   by VirtualTreeView.
+   //   Here we manage each created [tree] node, associating to it a Note Node, configured correctly. The method
+   //   CopyTo(..) makes a copy of each node of the subtree, hidden or not. If in this method we ignore the hidden
+   //   nodes, we simply will get an exception when the tree needs to paint or access the hidden node.
+   //   Anyway with this tree control is now very easy to delete several nodes at once, if necessary.
+
    SrcNode:= fSourceTVSelectedNodes[fiNextSourceTVNode];
    inc(fiNextSourceTVNode);
    fTVCopiedNodes.Add(Node);
@@ -2807,11 +2818,11 @@ begin
       NNodeC.TVNode:= NodeC;
       TargetFolder.TreeUI.SetNumberingMethod(NodeC);
       TargetFolder.TreeUI.SetupNewTreeNode(NodeC);
-      NodeS:= TV.GetNextNotHidden(NodeS);           // *1 See remark on GetNextNotHidden on why to use it instead of GetNextVisible
-      if fTVCopiedNodes.IndexOf(NodeS) >= 0 then    // It is being pasted within the same tree it was copied from
-         NodeS:= TV.GetNextVisibleNotChild(NodeS);
+      NodeS:= TV.GetNext(NodeS);                      // *2
+      if fTVCopiedNodes.IndexOf(NodeS) >= 0 then      // It is being pasted within the same tree it was copied from
+         NodeS:= TV.GetNextNotChild(NodeS, true);     // True: include filtered
 
-      NodeC:= TV.GetNextNotHidden(NodeC);
+      NodeC:= TV.GetNext(NodeC);                     // *2
    until (NodeS = nil) or not TV.HasAsParent(NodeS, SrcNode);
 end;
 
@@ -3693,6 +3704,18 @@ begin
   until not Assigned(Result) or
      ((vsVisible in Result.States) and (IncludeFiltered or not IsEffectivelyFiltered[Result])
        and not HasAsParent(Result, Node)
+     );
+end;
+
+function TVirtualStringTreeHelper.GetNextNotChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+begin
+  Assert(Assigned(Node) and (Node <> RootNode), 'Invalid parameter.');
+
+  Result := Node;
+  repeat
+    Result := GetNext(Result);
+  until not Assigned(Result) or
+     ((IncludeFiltered or not IsEffectivelyFiltered[Result]) and not HasAsParent(Result, Node)
      );
 end;
 
