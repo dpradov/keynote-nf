@@ -2135,7 +2135,7 @@ begin
          TV.MoveTo(Node, NewParentNode, TVTNodeAttachMode.amAddChildLast, False);
          Node:= NextNode;
        end;
-       
+
      finally       
        TV.EndUpdate;
        TV.SetFocus;
@@ -2277,6 +2277,7 @@ begin
             // becomes its parent's sibling
             TV.MoveTo(MovingNode, MovingNode.Parent, TVTNodeAttachMode.amInsertAfter, False);
             SetNumberingMethod(MovingNode);
+            SetupNewTreeNode(MovingNode);
             t := '';
           end;
         end;
@@ -2286,6 +2287,7 @@ begin
             // becomes the last child of its previous sibling
             TV.MoveTo(MovingNode, theSibling, TVTNodeAttachMode.amAddChildLast, False);
             SetNumberingMethod(MovingNode);
+            SetupNewTreeNode(MovingNode);
             TV.Expanded[theSibling]:= true;
             t := '';
           end;
@@ -2578,6 +2580,7 @@ var
  SourceFolder: TKntFolder;
  SourceTreeUI: TKntTreeUI;
  SourceTV: TBaseVirtualTree;
+ SourceNode: PVirtualNode;
  i: integer;
  TargetDesc: string;
 
@@ -2609,9 +2612,12 @@ begin
   fTargetFolder:= Folder;
 
   for i := 0 to High(fSourceTVSelectedNodes) do begin
-     SourceTV.MoveTo(fSourceTVSelectedNodes[i], TargetNode, AttachMode, False);
-     if not fMovingToOtherTree then
-        SetNumberingMethod(fSourceTVSelectedNodes[i]);
+     SourceNode:= fSourceTVSelectedNodes[i];
+     SourceTV.MoveTo(SourceNode, TargetNode, AttachMode, False);
+     if not fMovingToOtherTree then begin
+        SetNumberingMethod(SourceNode);
+        SetupNewTreeNode(SourceNode);
+     end;
   end;
 
   SelectAlone(TargetNode);
@@ -2777,6 +2783,7 @@ procedure TKntTreeUI.TV_NodeCopying(Sender: TBaseVirtualTree; Node, Target: PVir
 var
    NNodeS, NNodeC: TNoteNode;
    NodeS, NodeC, SrcNode: PVirtualNode;
+   TargetFolder: TKntFolder;
 
 begin
    SrcNode:= fSourceTVSelectedNodes[fiNextSourceTVNode];
@@ -2785,19 +2792,21 @@ begin
 
    NodeS:= SrcNode;
    NodeC:= Node;
+   TargetFolder:= TKntFolder(fTargetFolder);
    repeat
       NNodeS:= GetNNode(NodeS);
       if fCopyingAsLinked or NNodeS.Note.IsVirtual then begin
-         NNodeC:= TKntFolder(fTargetFolder).AddNewNNode(NNodeS.Note, NNodeS);
+         NNodeC:= TargetFolder.AddNewNNode(NNodeS.Note, NNodeS);
          if not fCopyingAsLinked then
             inc(fVirtualNodesConvertedOnCopy);
       end
       else
-         NNodeC:= TKntFolder(fTargetFolder).AddNewNote(NodeS);
+         NNodeC:= TargetFolder.AddNewNote(NNodeS);
 
       SetNNode(NodeC, NNodeC);
       NNodeC.TVNode:= NodeC;
-      SetNumberingMethod(NodeC);
+      TargetFolder.TreeUI.SetNumberingMethod(NodeC);
+      TargetFolder.TreeUI.SetupNewTreeNode(NodeC);
       NodeS:= TV.GetNextNotHidden(NodeS);           // *1 See remark on GetNextNotHidden on why to use it instead of GetNextVisible
       if fTVCopiedNodes.IndexOf(NodeS) >= 0 then    // It is being pasted within the same tree it was copied from
          NodeS:= TV.GetNextVisibleNotChild(NodeS);
@@ -2829,7 +2838,8 @@ begin
          NNode:= fNNodesInSubtree[i];
          SetNNode(Node, NNode);
          NNode.TVNode:= Node;
-         SetNumberingMethod(Node);
+         TKntFolder(fTargetFolder).TreeUI.SetNumberingMethod(Node);
+         TKntFolder(fTargetFolder).TreeUI.SetupNewTreeNode(Node);
          NNode.Note.UpdateFolderInNNode(NNode, fTargetFolder);
          TKntFolder(fFolder).RemoveNNode(NNode);
          TKntFolder(fTargetFolder).AddNNode(NNode);
