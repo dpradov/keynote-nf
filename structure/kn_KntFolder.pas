@@ -236,7 +236,7 @@ type
     function GetNNodeByID(const aID : Word): TNoteNode;
     function GetNNodeByNoteName(const aName : string): TNoteNode;
     function AddNNode(NNode: TNoteNode): integer;
-    function AddNewNote(CopyFromNode: PVirtualNode = nil; InheritFromNode: PVirtualNode = nil): TNoteNode;
+    function AddNewNote(CopyFromNNode: TNoteNode = nil; InheritFromNode: PVirtualNode = nil): TNoteNode;
     function AddNewNNode(Note: TNote; CopyFromNNode: TNoteNode = nil): TNoteNode;
     function DeleteNNode(NNode: TNoteNode): integer;
     function RemoveNNode(NNode: TNoteNode): integer;
@@ -1123,18 +1123,13 @@ end;
 
 
 
-function TKntFolder.AddNewNote(CopyFromNode: PVirtualNode = nil; InheritFromNode: PVirtualNode = nil): TNoteNode;
+function TKntFolder.AddNewNote(CopyFromNNode: TNoteNode = nil; InheritFromNode: PVirtualNode = nil): TNoteNode;
 var
-  SourceNNode: TNoteNode;
-  NNode, InheritFromNNode: TNoteNode;
+   NNode, InheritFromNNode: TNoteNode;
 begin
-   SourceNNode:= nil;
-   if CopyFromNode <> nil then
-      SourceNNode:= TreeUI.GetNNode(CopyFromNode);
+   NNode:= TKntFile(KntFile).AddNewNote(Self, CopyFromNNode);
 
-   NNode:= TKntFile(KntFile).AddNewNote(Self, SourceNNode);
-
-   if (CopyFromNode = nil) and (KntTreeOptions.InheritNodeProperties) and (InheritFromNode <> nil) then begin
+   if (CopyFromNNode = nil) and (KntTreeOptions.InheritNodeProperties) and (InheritFromNode <> nil) then begin
       InheritFromNNode := TreeUI.GetNNode(InheritFromNode);
 
       NNode.Bold :=          InheritFromNNode.Bold;
