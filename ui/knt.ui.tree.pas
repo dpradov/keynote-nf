@@ -667,12 +667,32 @@ begin
         // OUTSIDE the beginupdate..endupdate range
 
         tNode:= nil;
+
+        // *1
+        // Solution for a posible bug in Virtual Tree View detected when importing folders (merging) from
+        // a certain knt file. The file could be opened normally but a Range Check Error exception was generated when
+        // that particular file whas merged in any other file.
+        // With all other files (small and big ones), merging folders worked totally ok.
+        // After many tests on the problematic file I detected that the exception was not raised if all the nodes where
+        // added to the root of the Tree, or all of them where created as child of the precedent.. ¿? It only
+        // happened if the folder included more than certain number of nodes, etc.
+        // Finally, after *many hours* looking for a reason to this strange behaviour I founded that when merging,
+        // the folder kept SavedSelectedIndex unitialized (-1) (it is also the value saved if TV.FocusedNode was nil).
+        // When setting SavedSelectedIndex=0 before calling this method all worked ok.
+        // The clear difference was that the line *1 was executed. But that was not the problem!. When
+        // SavedSelectedIndex=-1 the condition 'myFolder.SavedSelectedIndex < TV.TotalCount' was not verified and
+        // so TV.TotalCount was not executed. It seems that TV.TotalCount do some kind of necessary initialization,
+        // (that I suppose that it will be done also in other situations). Even with SavedSelectedIndex=-1, if
+        // TV.TotalCount is first executed, all works ok.
+
+        i:= TV.TotalCount;
+
         if TV.VisibleCount > 0 then begin
           if (( KntTreeOptions.ExpandMode <> txmFullCollapse ) and // SaveActiveNode and
              ( myFolder.SavedSelectedIndex >= 0 ) and
              ( myFolder.SavedSelectedIndex < TV.TotalCount )) then
             // restore the node which was selected when file was saved
-            tNode:= myFolder.NNodes[myFolder.SavedSelectedIndex].TVNode;
+            tNode:= myFolder.NNodes[myFolder.SavedSelectedIndex].TVNode;    // *1
 
           if (tNode = nil) or (not TV.IsVisible[tNode]) then begin
             tNode := GetFirst;

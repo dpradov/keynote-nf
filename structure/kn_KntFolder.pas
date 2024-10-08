@@ -192,7 +192,7 @@ type
     property TreeMaxWidth : integer read FTreeMaxWidth write FTreeMaxWidth;
     property HideCheckedNodes: Boolean read FHideCheckedNodes write FHideCheckedNodes;
     property Filtered: Boolean read FFiltered write FFiltered;
-    property SavedSelectedIndex : integer read FSavedSelectedIndex;
+    property SavedSelectedIndex : integer read FSavedSelectedIndex write FSavedSelectedIndex;
     property Checkboxes : boolean read FCheckboxes write FCheckboxes;
     property TreeChrome : TChrome read FTreeChrome write SetTreeChrome;
     property DefaultNoteName : string read FDefaultNoteName write FDefaultNoteName;

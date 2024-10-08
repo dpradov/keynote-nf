@@ -1461,6 +1461,10 @@ begin
                 //newFolder.AutoNumberNodes := AutoNumberNodes;
                 newFolder.VerticalLayout := VerticalLayout;
                 newFolder.HideCheckedNodes := HideCheckedNodes;
+
+                // See comment *1 in PopulateTree (knt.ui.tree)
+                // SavedSelectedIndex := -1 could be very problematic if TV.TotalCount is not called ...
+                newFolder.SavedSelectedIndex := 0;
               end;
 
               newFolder.LoadingLevels.Assign(MergeFile.Folders[i].LoadingLevels);
