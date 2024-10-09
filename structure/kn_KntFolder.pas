@@ -1301,15 +1301,7 @@ begin
   if (App.DoMessageBox( Format(STR_v11, [Note.Name, Note.VirtualFN]),
        mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then begin
 
-     if Note.NumNNodes > 1 then begin
-        NewNNode:= TKntFile(KntFile).AddNewNote(Self, NNode);
-        NewNNode.TVNode:= Node;
-        TreeUI.SetNNode(Node, NewNNode);
-        DeleteNNode(NNode);
-     end
-     else
-       Note.VirtualFN := '';
-
+     Note.VirtualFN := '';
      Modified := true;
 
      NoteUI.ConfigureEditor;
