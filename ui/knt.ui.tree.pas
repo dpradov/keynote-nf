@@ -291,6 +291,7 @@ type
   public
     function CheckRestoreTreeWidth: boolean;
   protected
+    procedure OnTreeExpanded(Expanded: boolean);
     procedure OnAfterChangesOnTreeWidth;
     procedure SplitterNoteMoved(Sender: TObject);
     procedure CheckingTreeExpansion;
@@ -300,6 +301,7 @@ type
     procedure NoteUIMouseUp(Sender: TObject);
     procedure TV_Click(Sender: TObject);
     procedure TV_MouseMove(Sender: TObject; Shift:TShiftState; X,Y: integer);
+    procedure TV_MouseLeave(Sender: TObject);
     procedure TV_GetHint(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
     procedure DoEnter; override;
 
@@ -789,16 +791,12 @@ begin
      OnStartDrag := TV_StartDrag;
      OnGetHint := TV_GetHint;
      OnMouseMove:= TV_MouseMove;
+     OnMouseLeave:= TV_MouseLeave;
      OnCompareNodes:= TV_CompareNodes;
 
    end;
 
-   with TKntFolder(Folder).NoteUI do begin
-     SetOnEnter(NoteUIEnter);
-     SetOnMouseMoveOnNote(NoteUIMouseMove);
-     SetOnMouseUpOnNote(NoteUIMouseUp);
-   end;
-
+   TKntFolder(fFolder).NoteUI.SetOnEnter(NoteUIEnter);
 end;
 
 {$ENDREGION}
@@ -3458,10 +3456,25 @@ end;
 {$ENDREGION}
 
 
-// Tree witdh expansion ======================
+// Tree width expansion ======================
 
-{$REGION Tree witdh expansion }
+{$REGION Tree width expansion }
 
+
+procedure TKntTreeUI.OnTreeExpanded(Expanded: boolean);
+begin
+   fTreeWidthExpanded:= Expanded;
+   if Expanded then begin
+      TKntFolder(Folder).NoteUI.SetOnMouseMoveOnNote(NoteUIMouseMove);
+      TKntFolder(Folder).NoteUI.SetOnMouseUpOnNote(NoteUIMouseUp)
+   end
+   else begin
+      TKntFolder(Folder).NoteUI.SetOnMouseMoveOnNote(nil);
+      TKntFolder(Folder).NoteUI.SetOnMouseUpOnNote(nil);
+   end;
+
+   fTreeWidth_N:= 0
+end;
 
 procedure TKntTreeUI.OnAfterChangesOnTreeWidth;
 var
@@ -3511,7 +3524,7 @@ begin
    else begin
       if CtrlDown then begin
          Folder.TreeMaxWidth:= W;                           // Change MaxWidth
-         fTreeWidthExpanded:= True;
+         OnTreeExpanded(True);
       end
       else begin                                            // Change normal width (MaxWidth not modified)
          Folder.TreeWidth:= W;
@@ -3569,7 +3582,7 @@ begin
          Folder.Editor.Refresh;
 
       TV.Refresh;
-      fTreeWidthExpanded:= True;
+      OnTreeExpanded(True);
    end;
 end;
 
@@ -3595,8 +3608,7 @@ begin
           else
              Width:= Folder.TreeWidth;
 
-          fTreeWidthExpanded:= false;
-          fTreeWidth_N:= 0;
+          OnTreeExpanded(false);
           Result:= true;
       end;
    end;
@@ -3608,6 +3620,7 @@ procedure TKntTreeUI.NoteUIEnter(Sender: TObject);
 begin
    if not ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) then
       CheckRestoreTreeWidth;
+   fTreeWidth_N:= 0;
 end;
 
 
@@ -3624,6 +3637,7 @@ procedure TKntTreeUI.NoteUIMouseUp(Sender: TObject);
 begin
    if fTreeWidthExpanded then
       CheckRestoreTreeWidth;
+   fTreeWidth_N:= 0;
 end;
 
 
@@ -3632,8 +3646,10 @@ var
    Folder: TKntFolder;
 begin
   Folder:= TKntFolder(Self.Folder);
-  if AltDown then
-     Folder.TreeMaxWidth:= -Folder.TreeMaxWidth        // Toggle fixed state
+  if AltDown then begin
+     Folder.TreeMaxWidth:= -Folder.TreeMaxWidth;        // Toggle fixed state
+     OnTreeExpanded(Folder.TreeMaxWidth > 0);
+  end
   else
   if CtrlDown then begin
      CheckRestoreTreeWidth;
@@ -3652,6 +3668,11 @@ begin
       fTreeWidth_N:= Cardinal.MaxValue - TREE_WIDTH_MOUSE_TIMEOUT;
 end;
 
+procedure TKntTreeUI.TV_MouseLeave(Sender: TObject);
+begin
+   fTreeWidthNodeTouched:= False;
+   fTreeWidth_N:= 0;
+end;
 
 procedure TKntTreeUI.TV_GetHint(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
 begin
@@ -3673,6 +3694,7 @@ end;
 
 procedure TKntTreeUI.DoEnter;
 begin
+   TKntFolder(Folder).NoteUI.SetOnMouseMoveOnNote(nil);
    App.TreeFocused(Self);
    if not ( (CtrlDown or AltDown) and ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) ) then
       CheckExpandTreeWidth;
