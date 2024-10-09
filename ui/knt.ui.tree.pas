@@ -285,6 +285,7 @@ type
     procedure ClearFindFilter;
     procedure CheckFocusedNode;
     procedure txtFilterChange(Sender: TObject);
+    procedure ActivateFilter;
     procedure TB_FilterTreeClick(Sender: TObject);
 
     // Tree width expansion
@@ -3405,7 +3406,7 @@ begin
 
      RunFindAllEx (myFindOptions, true, true);
 
-     CheckFocusedNode;
+     //CheckFocusedNode;      // RunFindAllEx (from here, and from normal Find All -with Apply Filter) will call ActivateFilter ( -> CheckFocusedNode)
   end;
 end;
 
@@ -3431,8 +3432,21 @@ begin
         TV.TreeOptions.SelectionOptions:= TV.TreeOptions.SelectionOptions + [toAlwaysSelectNode];
         TV_FocusChanged(TV, TV.FocusedNode, -1);
      end;
+
+     if Node <> nil then
+        TV.ScrollIntoView(Node, true);
 end;
 
+
+procedure TKntTreeUI.ActivateFilter;
+begin
+  SetFilteredNodes;
+  TKntFolder(Self.Folder).Filtered:= True;
+  ApplyFilterOnFolder;
+  ApplyFilters(true);
+
+  CheckFocusedNode;
+end;
 
 procedure TKntTreeUI.TB_FilterTreeClick(Sender: TObject);
 var

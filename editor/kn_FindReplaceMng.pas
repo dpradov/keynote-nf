@@ -956,10 +956,7 @@ begin
                   TreeUI.FindFilterApplied:= true;
                   Form_Main.ShowTBTree(true);
                end;
-               TreeUI.SetFilteredNodes;
-               myFolder.Filtered:= True;
-               TreeUI.ApplyFilterOnFolder;
-               TreeUI.ApplyFilters(true);
+               TreeUI.ActivateFilter;
 
                myTreeNode:= nil;
             end;
