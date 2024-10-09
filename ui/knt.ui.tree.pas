@@ -226,7 +226,7 @@ type
                       const aDefaultNode: boolean) : TNoteNode;
     procedure CreateParentNode(Node: PVirtualNode);
     procedure CreateNodefromSelection;
-    procedure SetupNewTreeNode(const Node : PVirtualNode; Loaded: boolean = false);
+    procedure SetupNewTreeNode(const Node : PVirtualNode; Loaded: boolean = false; RemoveFiltered: boolean = false);
 
     // Move Nodes |  Delete nodes/subtrees  |  Cut/Copy/Paste Subtrees  | Drag and Drop
    public
@@ -2214,7 +2214,7 @@ begin
 end; // CreateNodefromSelection
 
 
-procedure TKntTreeUI.SetupNewTreeNode(const Node : PVirtualNode; Loaded: boolean = false);
+procedure TKntTreeUI.SetupNewTreeNode(const Node : PVirtualNode; Loaded: boolean = false; RemoveFiltered: boolean = false);
 var
   NNode, ParentNNode: TNoteNode;
   ParentNode : PVirtualNode;
@@ -2235,13 +2235,26 @@ begin
          Node.CheckType  := ctNone;
    end;
 
-   if Loaded and (Node.CheckType = ctCheckBox) then begin
-      NNode:= GetNNode(Node);
-      if nnsSaved_Checked in NNode.States then
-         Node.CheckState := csCheckedNormal
-      else
-         Node.CheckState := csUncheckedNormal;
+   if Loaded then begin
+      if (Node.CheckType = ctCheckBox) then begin
+         NNode:= GetNNode(Node);
+         if nnsSaved_Checked in NNode.States then
+            Node.CheckState := csCheckedNormal
+         else
+            Node.CheckState := csUncheckedNormal;
+      end;
+   end
+   else begin
+      // This NNode can be the result of a copy or move operation from other tree. The source node could be filtered.
+      // It is convenient that it is visible after operation
+      if RemoveFiltered then begin
+         NNode:= GetNNode(Node);
+         TV.IsFiltered[Node]:= False;
+         NNode.FindFilterMatch:= False;
+         NNode.TreeFilterMatch:= False;
+      end;
    end;
+
 end;
 
 
@@ -2803,6 +2816,7 @@ var
    NNodeS, NNodeC: TNoteNode;
    NodeS, NodeC, SrcNode: PVirtualNode;
    TargetFolder: TKntFolder;
+   CopyingToOtherTree: boolean;
 
 begin
    // *2 When copying subtrees, hidden nodes will be included.
@@ -2822,6 +2836,8 @@ begin
    NodeS:= SrcNode;
    NodeC:= Node;
    TargetFolder:= TKntFolder(fTargetFolder);
+   CopyingToOtherTree:= (TargetFolder.TreeUI <> Self);
+
    repeat
       NNodeS:= GetNNode(NodeS);
       if fCopyingAsLinked or NNodeS.Note.IsVirtual then begin
@@ -2835,7 +2851,7 @@ begin
       SetNNode(NodeC, NNodeC);
       NNodeC.TVNode:= NodeC;
       TargetFolder.TreeUI.SetNumberingMethod(NodeC);
-      TargetFolder.TreeUI.SetupNewTreeNode(NodeC);
+      TargetFolder.TreeUI.SetupNewTreeNode(NodeC, false, CopyingToOtherTree);
       NodeS:= TV.GetNext(NodeS);                      // *2
       if fTVCopiedNodes.IndexOf(NodeS) >= 0 then      // It is being pasted within the same tree it was copied from
          NodeS:= TV.GetNextNotChild(NodeS, true);     // True: include filtered
@@ -2868,7 +2884,7 @@ begin
          SetNNode(Node, NNode);
          NNode.TVNode:= Node;
          TKntFolder(fTargetFolder).TreeUI.SetNumberingMethod(Node);
-         TKntFolder(fTargetFolder).TreeUI.SetupNewTreeNode(Node);
+         TKntFolder(fTargetFolder).TreeUI.SetupNewTreeNode(Node, false, true);
          NNode.Note.UpdateFolderInNNode(NNode, fTargetFolder);
          TKntFolder(fFolder).RemoveNNode(NNode);
          TKntFolder(fTargetFolder).AddNNode(NNode);
