@@ -375,6 +375,7 @@ var
 implementation
 uses
   gf_strings,
+  gf_miscvcl,
   kn_Global,
   kn_const,
   kn_Info,
@@ -1861,7 +1862,7 @@ begin
 
        msgResult:= mrYes;
        if (ask) then
-          MsgResult:= App.DoMessageBox( STR_ConfirmApplyPendingChanges, mtConfirmation, Buttons, 0, Handle );
+          MsgResult:= App.DoMessageBox( STR_ConfirmApplyPendingChanges, mtConfirmation, Buttons, def1, 0, Handle );
 
        if MsgResult <> mrCancel then begin
          if MsgResult = mrYes then
@@ -2111,7 +2112,7 @@ begin
 
     if (FProposedReminder >= 0) and (FProposedReminder < Now) then begin
        CB_ProposedIntervalReminder.SetFocus;
-       App.DoMessageBox( STR_ReminderorDateINC, mtError, [mbOK], 0, Handle );
+       App.DoMessageBox( STR_ReminderorDateINC, mtError, [mbOK], def1, 0, Handle );
        exit;
     end;
 
@@ -2158,7 +2159,7 @@ var
   i: integer;
 begin
   if Grid.SelCount > 1 then
-     if ( App.DoMessageBox( Format( STR_ConfirmDiscardALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+     if ( App.DoMessageBox( Format( STR_ConfirmDiscardALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;
@@ -2206,7 +2207,7 @@ var
   i: integer;
 begin
    if Grid.SelCount > 1 then
-      if ( App.DoMessageBox( Format( STR_ConfirmRestoreALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+      if ( App.DoMessageBox( Format( STR_ConfirmRestoreALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;
@@ -2248,7 +2249,7 @@ begin
   else
      strConfirm := STR_ConfirmRemove;
 
-  if ( App.DoMessageBox( Format( strConfirm, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], 0, Handle ) <> mrYes ) then exit;
+  if ( App.DoMessageBox( Format( strConfirm, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;

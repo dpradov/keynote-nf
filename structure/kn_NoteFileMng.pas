@@ -83,6 +83,7 @@ uses
    ZLibEx,
    RxRichEd,
    gf_misc,
+   gf_miscvcl,
    gf_files,
    gf_FileAssoc,
    gf_streams,
@@ -260,7 +261,7 @@ begin
              {$IFDEF KNT_DEBUG}
               Log.Add( 'Exception in KntFileNew: ' + E.Message );
              {$ENDIF}
-              App.Popupmessage( STR_01 + E.Message, mtError, [mbOK], 0 );
+              App.Popupmessage( STR_01 + E.Message, mtError, [mbOK] );
               result := 1;
               exit;
             end;
@@ -288,7 +289,7 @@ begin
 
         if ( KeyOptions.AutoSave and ( not KeyOptions.SkipNewFilePrompt )) then
         begin
-          if ( App.PopupMessage( STR_04, mtConfirmation, [mbYes,mbNo], 0 ) = mrYes ) then
+          if ( App.PopupMessage( STR_04, mtConfirmation, [mbYes,mbNo] ) = mrYes ) then
             KntFileSave( KntFile.FileName );
         end;
   end;
@@ -416,7 +417,7 @@ begin
             if ( NastyDriveType <> '' ) then begin
               KntFile.ReadOnly := true;
               if KeyOptions.OpenReadOnlyWarn then
-                App.PopupMessage(Format(STR_13, [ExtractFilename(KntFile.FileName), NastyDriveType, ExtractFileDrive(KntFile.FileName)]), mtInformation, [mbOK], 0);
+                App.PopupMessage(Format(STR_13, [ExtractFilename(KntFile.FileName), NastyDriveType, ExtractFileDrive(KntFile.FileName)]), mtInformation, [mbOK]);
             end;
 
             LastEditCmd := ecNone;
@@ -476,7 +477,7 @@ begin
                Log.Add( 'Error while opening file: ' + E.Message );
               {$ENDIF}
                if E.Message <> '' then
-                  App.PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
+                  App.PopupMessage( E.Message, mtError, [mbOK,mbHelp], def1,_HLP_KNTFILES );
                if assigned( KntFile ) then begin
                  try
                    DestroyVCLControls;
@@ -502,7 +503,7 @@ begin
              {$IFDEF KNT_DEBUG}
                Log.Add( 'Folder monitor error: ' + E.Message );
              {$ENDIF}
-               App.PopupMessage( STR_16 + E.Message, mtError, [mbOK], 0 );
+               App.PopupMessage( STR_16 + E.Message, mtError, [mbOK] );
             end;
           end;
 
@@ -1038,7 +1039,7 @@ begin
          on E: Exception do
          begin
            FolderMon.Active := False;
-           App.PopupMessage(STR_29 + E.Message, mtError, [mbOK], 0);
+           App.PopupMessage(STR_29 + E.Message, mtError, [mbOK]);
          end;
        end;
 
@@ -1189,7 +1190,7 @@ begin
 
         currentFN := KntFile.FileName;
         if (FN = '') and (currentFN = '') then begin
-           App.PopupMessage( STR_82, mtError, [mbOK], 0 );
+           App.PopupMessage( STR_82, mtError, [mbOK] );
            exit;
         end;
 
@@ -1211,7 +1212,7 @@ begin
                 if ( not DirDlg.Execute ) then exit;
                 if ( properfoldername( extractfilepath( currentFN )) = properfoldername( DirDlg.Selection )) then
                 begin
-                  App.PopupMessage( STR_33, mtError, [mbOK], 0 );
+                  App.PopupMessage( STR_33, mtError, [mbOK]);
                   exit;
                 end;
 
@@ -1219,7 +1220,7 @@ begin
 
                 newFN := KeyOptions.LastCopyPath + ExtractFilename( currentFN );
                 if FileExists( newFN ) then
-                   if ( App.Popupmessage( Format(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+                   if ( App.Popupmessage( Format(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then exit;
 
           end
           else
@@ -1241,10 +1242,10 @@ begin
 
               if ( cr = 0 ) then begin
                 StatusBar.Panels[PANEL_HINT].Text := STR_36;
-                App.PopUpMessage( STR_37 +#13 + NewFN, mtInformation, [mbOK], 0 );
+                App.PopUpMessage( STR_37 +#13 + NewFN, mtInformation, [mbOK] );
               end
               else begin
-                App.Popupmessage( STR_38 + inttostr( cr ) + ')', mtError, [mbOK], 0 );
+                App.Popupmessage( STR_38 + inttostr( cr ) + ')', mtError, [mbOK] );
                {$IFDEF KNT_DEBUG}
                 Log.Add( 'Copying failed (' + inttostr( cr ) + ')' );
                {$ENDIF}
@@ -1256,7 +1257,7 @@ begin
                {$IFDEF KNT_DEBUG}
                 Log.Add( 'Exception in KntFileCopy: ' + E.Message );
                {$ENDIF}
-                App.PopupMessage( E.Message, mtError, [mbOK], 0 );
+                App.PopupMessage( E.Message, mtError, [mbOK] );
               end;
             end;
 
@@ -1596,7 +1597,7 @@ begin
   Application.BringToFront;
   Form_Main.FolderMon.Active := false;
   try
-    case App.DoMessageBox( Format(STR_49, [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo], 0 ) of
+    case App.DoMessageBox( Format(STR_49, [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo] ) of
       mrYes : begin
         KntFileOpen( ActiveFile.FileName );
       end;
@@ -1628,7 +1629,7 @@ begin
   end;
 
   if Prompt then begin
-    if App.DoMessageBox( Format(STR_50 + STR_51, [name,folder]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then
+    if App.DoMessageBox( Format(STR_50 + STR_51, [name,folder]), mtConfirmation, [mbYes,mbNo] ) <> mrYes then
       exit;
   end;
 
@@ -1843,7 +1844,7 @@ begin
              Result:= False;
           end
           else
-            case App.DoMessageBox( Format(STR_58, [ExtractFilename( FN )]), mtWarning, [mbYes,mbNo], 0 ) of
+            case App.DoMessageBox( Format(STR_58, [ExtractFilename( FN )]), mtWarning, [mbYes,mbNo] ) of
               mrYes : ImportFileType := itText;
             else
               Result:= False;
@@ -2439,7 +2440,7 @@ begin
                    FileIsHTML := ExtIsHTML( fExt );
 
                    if DirectoryExists( FName ) then begin
-                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort] ) = mrAbort ) then
                        exit
                      else
                        continue;
@@ -2552,7 +2553,7 @@ begin
                  for i := 0 to pred( FileList.Count ) do begin
                    FName := FileList[i];
                    if DirectoryExists( FName ) then begin
-                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort], 0 ) = mrAbort ) then
+                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort] ) = mrAbort ) then
                        exit
                      else
                        continue;

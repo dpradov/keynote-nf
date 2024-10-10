@@ -312,7 +312,6 @@ resourcestring
   STR_01 = ' Virtual: ';
   STR_05 = 'Problem while saving folder "%s": Note count mismatch (Folder: %d  Internal: %d) ' +
       'The note may not be saved correctly. Continue?';
-  STR_06 = 'Warning: "%s"';
   STR_07 = 'Node count mismatch.';
 
   STR_09 = 'Folder contains %d notes, but only %d were saved.';
@@ -320,8 +319,7 @@ resourcestring
   STR_11 = 'Failed to open TreePad file ';
 
   STR_21 = ' New folder.';
-  STR_22 = 'Are you sure you want to delete folder "%s"?' + #13 + 'This operation cannot be undone.';
-  STR_23 = 'Confirm deleting folder';
+  STR_22 = 'Are you sure you want to DELETE FOLDER "%s"?' + #13 + 'This operation cannot be undone.';
   STR_24 = ' Folder deleted.';
   STR_25 = ' Folder renamed.';
 
@@ -478,8 +476,8 @@ begin
       if FolderIsReadOnly( Folder, true ) then exit;
 
       if KeyOptions.ConfirmTabDelete then begin
-        if (DoMessageBox(Format(STR_22, [RemoveAccelChar( Folder.Name )]), STR_23,
-            MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) <> ID_YES ) then exit;
+	       if (App.DoMessageBox( Format(STR_22, [RemoveAccelChar( Folder.Name )]), mtWarning, [mbYes, mbNo], def2 ) <> mrYes ) then
+            exit;
       end;
 
       try
@@ -1251,13 +1249,13 @@ begin
 
   if Note.Modified then begin
     if ( App.DoMessageBox(Format(STR_v12 + STR_v10, [Note.Name, ExtractFilename( Note.VirtualFN )] ),
-                           mtWarning, [mbOK,mbCancel], 0 ) <> mrOK ) then
+                           mtWarning, [mbOK,mbCancel] ) <> mrOK ) then
     exit;
   end
   else
   if DoPrompt then begin
     if (App.DoMessageBox( Format(STR_v13 + STR_v10, [Note.Name, ExtractFilename( Note.VirtualFN )] ),
-                          mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then
+                          mtConfirmation, [mbOK,mbCancel] ) <> mrOK ) then
     exit;
   end;
 
@@ -1301,7 +1299,7 @@ begin
   Note:= NNode.Note;
 
   if (App.DoMessageBox( Format(STR_v11, [Note.Name, Note.VirtualFN]),
-       mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then begin
+       mtConfirmation, [mbOK, mbCancel] ) = mrOK ) then begin
 
      Note.VirtualFN := '';
      Modified := true;
@@ -1344,7 +1342,7 @@ begin
       IsVNError := true;
     end
     else begin
-      if (App.DoMessageBox(Format(STR_v01, [Note.Name, Note.VirtualFN]), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK) then
+      if (App.DoMessageBox(Format(STR_v01, [Note.Name, Note.VirtualFN]), mtConfirmation, [mbOK, mbCancel] ) = mrOK) then
          IsChangingFile := true;
     end;
 
@@ -1354,7 +1352,7 @@ begin
   else begin
     // not a virtual node. If it has text, we have to have an additional prompt
     if ( Editor.Lines.Count > 0 ) then begin
-      if (App.DoMessageBox(Format(STR_v02, [Note.Name]), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK) then
+      if (App.DoMessageBox(Format(STR_v02, [Note.Name]), mtConfirmation, [mbOK,mbCancel] ) <> mrOK) then
          exit;
       IsFlushingData := true; // needs a SaveDlg, not an OpenDlg
     end;
@@ -1970,9 +1968,9 @@ begin
 
   wasmismatch := TV.TotalCount <> fNNodes.Count;
   if wasmismatch then begin
-     if ( DoMessageBox(Format(STR_05, [FName,FTV.TotalCount, fNNodes.Count]),
-                       Format(STR_06, [FName]), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON1+MB_APPLMODAL ) <> ID_YES ) then
-        raise EKntFolderError.Create(STR_07);
+	   if (App.DoMessageBox( Format(STR_05, [FName,FTV.TotalCount, fNNodes.Count]), mtWarning, [mbYes, mbNo], def1 ) <> mrYes ) then
+         raise EKntFolderError.Create(STR_07);
+
   end;
 
 

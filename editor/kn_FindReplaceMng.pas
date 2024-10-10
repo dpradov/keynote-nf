@@ -1498,7 +1498,7 @@ begin
 
     except
       on E: Exception do begin
-          App.PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK], 0 );
+          App.PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK] );
           exit;
       end;
     end;
@@ -1513,7 +1513,7 @@ begin
       else begin
           Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_10;
           if not (UserBreak or Is_Replacing) then
-             DoMessageBox(Format( STR_02, [Text_To_Find] ), STR_12, 0, handle);
+             App.InfoPopup(Format( STR_02, [Text_To_Find] ));
       end;
 
       SearchingFolder:= myFolder;
@@ -1640,7 +1640,7 @@ begin
 
     except
       on E: Exception do begin
-          App.PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK], 0 );
+          App.PopupMessage( STR_08 +#13+ E.Message, mtError, [mbOK] );
           exit;
       end;
     end;

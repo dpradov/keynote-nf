@@ -169,6 +169,7 @@ implementation
 uses
    ZLibEx,
    gf_misc,
+   gf_miscvcl,
    gf_files,
    kn_main,
    kn_Global,
@@ -531,7 +532,7 @@ procedure TForm_KntFileInfo.CheckBox_AsReadOnlyClick(Sender: TObject);
 begin
   if assigned( myKntFile ) then begin
     if (( not CB_AsReadOnly.Checked ) and myKntFile.ReadOnly ) then begin
-      if ( App.DoMessageBox( Format(STR_12,[ExtractFilename( myKntFile.FileName )]), mtWarning, [mbYes,mbNo], 0, Self.Handle ) = mrYes ) then
+      if ( App.DoMessageBox( Format(STR_12,[ExtractFilename( myKntFile.FileName )]), mtWarning, [mbYes,mbNo], def1, 0, Self.Handle ) = mrYes ) then
         CB_AsReadOnly.OnClick := nil
       else
         CB_AsReadOnly.Checked := true;
@@ -796,7 +797,7 @@ begin
   except
     on E : Exception do begin
      if E.Message <> '' then
-        App.PopupMessage( E.Message, mtError, [mbOK,mbHelp], _HLP_KNTFILES );
+        App.PopupMessage( E.Message, mtError, [mbOK,mbHelp], def1, _HLP_KNTFILES );
     end;
   end;
 

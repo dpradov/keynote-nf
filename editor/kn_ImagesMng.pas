@@ -1818,20 +1818,20 @@ var
 
       if not fFileIsNew then begin
         if (fExternalStorageToRead <> nil) and not fExternalStorageToRead.IsValid then begin
-           App.DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk], 0);
+           App.DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk]);
            exit;
         end;
       end;
 
       if ExternalStorageType = issFolder then begin
          if (TDirectory.Exists(AbsolutePath) and not TDirectory.IsEmpty(AbsolutePath)) or FileExists(AbsolutePath) then begin
-            App.DoMessageBox(Format(STR_07, [AbsolutePath]), mtWarning, [mbOk], 0);
+            App.DoMessageBox(Format(STR_07, [AbsolutePath]), mtWarning, [mbOk]);
             exit;
          end;
       end
       else begin
          if TFile.Exists(AbsolutePath) then begin
-            App.DoMessageBox(Format(STR_08, [AbsolutePath]), mtWarning, [mbOk], 0);
+            App.DoMessageBox(Format(STR_08, [AbsolutePath]), mtWarning, [mbOk]);
             exit;
          end;
       end;
@@ -1853,13 +1853,13 @@ var
 
       if ExternalStorageType = issFolder then begin
          if not TDirectory.Exists(AbsolutePath) or TDirectory.IsEmpty(AbsolutePath) then begin
-            App.DoMessageBox(Format(STR_11, [AbsolutePath]), mtWarning, [mbOk], 0);
+            App.DoMessageBox(Format(STR_11, [AbsolutePath]), mtWarning, [mbOk]);
             Result:= false;
          end;
       end
       else begin
          if not TZipStorage.IsValidZip(AbsolutePath) then begin
-            App.DoMessageBox(Format(STR_12, [AbsolutePath]), mtWarning, [mbOk], 0);
+            App.DoMessageBox(Format(STR_12, [AbsolutePath]), mtWarning, [mbOk]);
             Result:= false;
          end;
       end;
@@ -1937,7 +1937,7 @@ begin
                smEmbRTF, smEmbKNT: begin
                   ModifyPathFormat:= (fStorageMode in [smExternal, smExternalAndEmbKNT]) and (fExternalStorageToRead.StorageType = stZip);
                   if (not (fStorageMode in [smEmbKNT, smExternalAndEmbKNT])) and ExternalStorageIsMissing then begin
-                     App.DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk], 0);
+                     App.DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk]);
                      exit;
                   end;
                end;
@@ -1947,7 +1947,7 @@ begin
                       ((StorageMode = smExternalAndEmbKNT) and (fStorageMode = smExternal)) then begin
                       // It was External + [EmbKNT] and it is still External + [EmbKNT]. Has incorporated or removed the use of embKNT
                       if ExternalStorageIsMissing then begin
-                         App.DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk], 0);
+                         App.DoMessageBox(Format(STR_14, [AbsolutePath]), mtWarning, [mbOk]);
                          exit;
                       end;
                       ModifyPathFormat:= ((ExternalStoreTypeChanged) or (ExternalStorageType = issZip));
@@ -1996,7 +1996,7 @@ begin
       end;
 
       if not ok then exit;
-      if (not fFileIsNew) and not OnlyRelocated and (App.DoMessageBox(STR_13, mtConfirmation, [mbOK,mbCancel], 0) <> mrOK) then
+      if (not fFileIsNew) and not OnlyRelocated and (App.DoMessageBox(STR_13, mtConfirmation, [mbOK,mbCancel]) <> mrOK) then
          exit;
 
 

@@ -792,12 +792,12 @@ function TForm_ExportNew.Validate : boolean;
 begin
   result := false;
   if ( ExportOptions.ExportPath = '' ) then begin
-    App.DoMessageBox( STR_02, mtError, [mbOK], 0 );
+    App.DoMessageBox( STR_02, mtError, [mbOK] );
     exit;
   end;
 
   if ( not System.SysUtils.DirectoryExists( ExportOptions.ExportPath )) then begin
-    App.DoMessageBox( STR_03, mtError, [mbOK], 0 );
+    App.DoMessageBox( STR_03, mtError, [mbOK] );
     exit;
   end;
 

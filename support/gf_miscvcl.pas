@@ -56,16 +56,25 @@ function CheckDir( const aDir : string; const AutoCreate : boolean ) : boolean;
 procedure SleepWell( const TenthsOfSecond : cardinal );
 function VerdanaInstalled : boolean;
 function TahomaInstalled : boolean;
-function PopUpMessage(const mStr : string; const caption: string; const mType : TMsgDlgType; const mButtons : TMsgDlgButtons; const mHelpCtx : integer) : word; overload;
+
+type
+  TMsgDlgDefBtn = (def1, def2, def3, def4);
+
+
+function PopUpMessage(const mStr : string; const caption: string; const mType : TMsgDlgType;
+                      const mButtons : TMsgDlgButtons; const DefButton: TMsgDlgDefBtn = def1;
+                      const mHelpCtx : integer= 0) : word; overload;
+{
 Function DefMessageDlg(const aCaption: String;
                        const Msg: string;
                        DlgType: TMsgDlgType;
                        Buttons: TMsgDlgButtons;
                        DefButton: Integer;
                        HelpCtx: Longint): Integer;
+}
 
 function DoMessageBox (const text: string; caption: string;
-                       DlgType: TMsgDlgType; Buttons: TMsgDlgButtons;
+                       DlgType: TMsgDlgType; Buttons: TMsgDlgButtons; DefButton: TMsgDlgDefBtn= def1;
                        HelpCtx: Longint = 0; hWnd: HWND= 0): integer; overload;
 function DoMessageBox (const text: string; caption: string; uType: UINT= 0; hWnd: HWND= 0): integer; overload;
 
@@ -431,7 +440,7 @@ end;
 
 //http://msdn.microsoft.com/en-us/library/ms645505%28VS.85%29.aspx
 function DoMessageBox (const text: string; caption: string;
-                       DlgType: TMsgDlgType; Buttons: TMsgDlgButtons;
+                       DlgType: TMsgDlgType; Buttons: TMsgDlgButtons; DefButton: TMsgDlgDefBtn = def1;
                        HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
 var
    uType: UINT;
@@ -456,6 +465,12 @@ begin
     else
        uType:= uType or MB_OK;
 
+    case DefButton of
+       def2: uType:= uType or MB_DEFBUTTON2;
+       def3: uType:= uType or MB_DEFBUTTON3;
+       def4: uType:= uType or MB_DEFBUTTON4;
+    end;
+
     if hWnd = 0 then
        hWnd:= Application.MainFormHandle;
     Result:= MessageBox(hWnd, PChar(text), PChar(caption), uType);
@@ -470,7 +485,9 @@ end;
 
 
 function PopUpMessage(const mStr: string; const caption: string; const mType: TMsgDlgType;
-                      const mButtons: TMsgDlgButtons; const mHelpCtx: integer) : word;
+                      const mButtons: TMsgDlgButtons;
+                      const DefButton: TMsgDlgDefBtn = def1;
+                      const mHelpCtx: integer = 0) : word;
 
 // Like MessageDlg, but brings application window to front before
 // displaying the message, and minimizes application if it was
@@ -482,12 +499,12 @@ begin
   if WasIconic then
     Application.Restore;
   Application.BringToFront;
-  result := DoMessageBox( mStr, caption, mType, mButtons, mHelpCtx );
+  result := DoMessageBox( mStr, caption, mType, mButtons, DefButton, mHelpCtx );
   if WasIconic then
     Application.Minimize;
 end; // PopUpMessage
 
-
+(*
 Function DefMessageDlg(const aCaption: String; const Msg: string;
                        DlgType: TMsgDlgType; Buttons: TMsgDlgButtons;
                        DefButton: Integer;   HelpCtx: Longint): Integer;
@@ -513,7 +530,7 @@ Begin
     Free;
   end;
 End; // DefMessageDlg
-
+*)
 
 procedure LoadBitmapFromResource(ImageList: TImageList; const ResourceName: string; TransparentColor: TColor);
 var

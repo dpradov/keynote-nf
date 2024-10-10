@@ -538,7 +538,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           App.PopupMessage( Format(STR_02, [e.Message]), mtInformation, [mbOK], 0 );
+           App.PopupMessage( Format(STR_02, [e.Message]), mtInformation, [mbOK] );
         end;
       end;
 
@@ -914,7 +914,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           App.PopupMessage(Format(STR_02, [e.Message]), mtInformation, [mbOK], 0 );
+           App.PopupMessage(Format(STR_02, [e.Message]), mtInformation, [mbOK] );
         end;
       end;
 

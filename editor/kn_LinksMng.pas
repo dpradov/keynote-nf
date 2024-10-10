@@ -1947,7 +1947,7 @@ begin
             if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
               App.PopupMessage( Format(
                 STR_20,
-                [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK], 0 );
+                [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK] );
           end
           else begin
             if KeyOptions.MinimizeOnURL then

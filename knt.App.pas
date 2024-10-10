@@ -39,6 +39,7 @@ uses
    VirtualTrees,
 
    gf_misc,
+   gf_miscvcl,
    kn_ImagesMng,
    kn_AlertMng,
    kn_global,
@@ -167,9 +168,13 @@ type
       procedure WarnNoTextSelected;
 
       function DoMessageBox(const Str: string; DlgType: TMsgDlgType;
-                            const Buttons: TMsgDlgButtons; HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
+                            const Buttons: TMsgDlgButtons;
+                            DefButton: TMsgDlgDefBtn = def1;
+                            HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
       function PopUpMessage(const Str: string; const mType: TMsgDlgType;
-                            const Buttons: TMsgDlgButtons; const HelpCtx: integer): word;
+                            const Buttons: TMsgDlgButtons;
+                            const DefButton: TMsgDlgDefBtn = def1;
+                            const HelpCtx: integer= 0): word;
       procedure InfoPopup(const aStr: string);
       procedure WarningPopup(const aStr: string);
       procedure ErrorPopup(const aStr: string); overload;
@@ -230,7 +235,6 @@ var
 implementation
 uses
    GFTipDlg,
-   gf_miscvcl,
    kn_MacroMng,
    kn_VCLControlsMng,
    kn_LinksMng,
@@ -805,17 +809,17 @@ end;
 
 procedure TKntApp.InfoPopup(const aStr: string);
 begin
-  PopupMessage(aStr, TMsgDlgType.mtInformation, [mbOK], 0);
+  PopupMessage(aStr, TMsgDlgType.mtInformation, [mbOK]);
 end;
 
 procedure TKntApp.WarningPopup(const aStr: string);
 begin
-  PopupMessage(aStr, TMsgDlgType.mtWarning, [mbOK], 0);
+  PopupMessage(aStr, TMsgDlgType.mtWarning, [mbOK]);
 end;
 
 procedure TKntApp.ErrorPopup(const aStr: string);
 begin
-  PopupMessage(aStr, TMsgDlgType.mtError, [mbOK], 0);
+  PopupMessage(aStr, TMsgDlgType.mtError, [mbOK]);
 end;
 
 
@@ -894,7 +898,7 @@ var
   wasiconic : boolean;
 begin
   if ( not fileexists( TIP_FN )) then begin
-    PopupMessage( Format(STR_Tip_01, [extractfilename( TIP_FN )] ), mtInformation, [mbOK], 0 );
+    PopupMessage( Format(STR_Tip_01, [extractfilename( TIP_FN )] ), mtInformation, [mbOK] );
     // turn tips off, so that we don't get this error message
     // every time KeyNote starts. (e.g. if user deleted the .tip file)
     KeyOptions.TipOfTheDay := false;
@@ -938,15 +942,19 @@ begin
 end;
 
 function TKntApp.DoMessageBox (const Str: string; DlgType: TMsgDlgType;
-                               const Buttons: TMsgDlgButtons; HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
+                               const Buttons: TMsgDlgButtons;
+                               DefButton: TMsgDlgDefBtn = def1;
+                               HelpCtx: Longint = 0; hWnd: HWND= 0): integer;
 begin
-   Result:= gf_miscvcl.DoMessageBox(Str, GetCaptionMessage, DlgType, Buttons,0, hWnd);
+   Result:= gf_miscvcl.DoMessageBox(Str, GetCaptionMessage, DlgType, Buttons,DefButton, HelpCtx, hWnd);
 end;
 
 function TKntApp.PopUpMessage( const Str: string; const mType: TMsgDlgType;
-                               const Buttons: TMsgDlgButtons; const HelpCtx: integer): word;
+                               const Buttons: TMsgDlgButtons;
+                               const DefButton: TMsgDlgDefBtn = def1;
+                               const HelpCtx: integer= 0): word;
 begin
-   Result:= gf_miscvcl.PopUpMessage(Str, GetCaptionMessage, mType, Buttons, HelpCtx);
+   Result:= gf_miscvcl.PopUpMessage(Str, GetCaptionMessage, mType, Buttons, DefButton, HelpCtx);
 end;
 
 function GetCurrentTreeNode : PVirtualNode;

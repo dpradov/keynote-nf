@@ -272,7 +272,7 @@ begin
 
     except
       on E : Exception do begin
-        App.DoMessageBox( STR_01 + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
+        App.DoMessageBox( STR_01 + FN + '"' + #13#13 + E.Message, mtError, [mbOK] );
         exit;
       end;
     end;

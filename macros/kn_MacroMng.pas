@@ -603,7 +603,7 @@ begin
 
   wasreadonly := Form_Main.FolderIsReadOnly(ActiveFolder, false);
   if wasreadonly then begin
-    if ( App.DoMessageBox( Format(STR_17,[ActiveFolder.Name]), mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then
+    if ( App.DoMessageBox( Format(STR_17,[ActiveFolder.Name]), mtWarning, [mbYes,mbNo] ) <> mrYes ) then
        exit;
     ActiveFolder.ReadOnly := false;
   end;
@@ -781,7 +781,7 @@ begin
   Macro := GetCurrentMacro( true, index );
   if ( macro = nil ) then exit;
 
-  if ( App.DoMessageBox( Format(STR_26, [Macro.Name]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+  if ( App.DoMessageBox( Format(STR_26, [Macro.Name]), mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then
      exit;
 
   DeleteSuccess := false;
@@ -1555,7 +1555,7 @@ begin
       {$IFDEF KNT_DEBUG}
        Log.Add( 'ActiveEditor not assigned in PerformCmd (' + inttostr( ord( aCmd )) + ')' );
       {$ENDIF}
-       App.PopupMessage( Format( STR_44, [ord( aCmd )] ), mtError, [mbOK], 0 );
+       App.PopupMessage( Format( STR_44, [ord( aCmd )] ), mtError, [mbOK] );
     end;
     exit;
   end;
@@ -1690,7 +1690,7 @@ begin
          if NotImplemented then
             App.WarnCommandNotImplemented( EDITCMD_NAMES[aCMD] )
          else if errorStr <> '' then
-            App.PopupMessage( errorStr, mtError, [mbOK], 0 );
+            App.PopupMessage( errorStr, mtError, [mbOK] );
          aCmd := ecNone;
       end
       else begin
@@ -1701,7 +1701,7 @@ begin
 
   except
       on E : Exception do begin
-        App.PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
+        App.PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK] );
        {$IFDEF KNT_DEBUG}
         Log.Add( 'Exception in PerformCmdEx (' + inttostr( ord( aCMD )) + '): ' + E.Message );
        {$ENDIF}
@@ -1936,13 +1936,13 @@ begin
             if FontFormatToCopy.szFaceName <> '' then
                ApplyTextAttributes(FontFormatToCopy )
             else
-               App.PopupMessage( STR_52, mtError, [mbOK], 0 );
+               App.PopupMessage( STR_52, mtError, [mbOK] );
 
           ecParaFormatPaste :
             if ParaFormatToCopy.dySpaceBefore >= 0 then   // if negative, user has not yet COPIED para format
                ApplyParagraphAttributes(ParaFormatToCopy)
             else
-               App.PopupMessage( STR_53, mtError, [mbOK], 0 );
+               App.PopupMessage( STR_53, mtError, [mbOK] );
 
           ecPasteFormat : begin
              if (ParaFormatToCopy.dySpaceBefore >= 0) and         // paragraph formatting was saved
@@ -2461,7 +2461,7 @@ begin
 
       except
         on E : Exception do begin
-          App.PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK], 0 );
+          App.PopupMessage( STR_51 + #13 + E.Message, mtError, [mbOK] );
          {$IFDEF KNT_DEBUG}
           Log.Add( 'Exception in PerformCmd (' + inttostr( ord( aCMD )) + '): ' + E.Message );
          {$ENDIF}

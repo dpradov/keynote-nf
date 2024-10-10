@@ -1848,11 +1848,11 @@ begin
 
 
    if not fromKntLauncher and ( KntFileToLoad <> '' ) then begin
-      //PopupMessage( Format('KntFileToLoad: %s', [KntFileToLoad]), mtConfirmation, [mbYes], 0 );
+      //PopupMessage( Format('KntFileToLoad: %s', [KntFileToLoad]), mtConfirmation, [mbYes] );
       Open:= true;
       if HaveKntFolders( false, false ) then begin
          if ( KntFileToLoad.ToUpper = ActiveFile.FileName.ToUpper ) then begin
-           if ( App.PopupMessage( Format(STR_06, [ActiveFile.Filename]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+           if ( App.PopupMessage( Format(STR_06, [ActiveFile.Filename]), mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then
               Open:= false;
            ActiveFile.Modified := false; // to prevent automatic save if modified
          end;
@@ -1863,7 +1863,7 @@ begin
 
 
    if _GLOBAL_URLText <> '' then begin
-     //PopupMessage( Format('JUMP: %s', [_GLOBAL_URLText]), mtConfirmation, [mbYes], 0 );
+     //PopupMessage( Format('JUMP: %s', [_GLOBAL_URLText]), mtConfirmation, [mbYes] );
      JumpToKNTLocation( _GLOBAL_URLText, urlOpen, true);      // OpenInCurrentFile
    end;
 
@@ -1916,7 +1916,7 @@ begin
 
   if CanClose then
     if ( KeyOptions.ConfirmExit and ( not ClosedByWindows )) then
-      CanClose := ( App.PopupMessage( format(STR_07, [Program_Name]), mtConfirmation, [mbYes,mbNo], 0 ) = mrYes );
+      CanClose := ( App.PopupMessage( format(STR_07, [Program_Name]), mtConfirmation, [mbYes,mbNo] ) = mrYes );
   { note: if windows is closing, we do not honor the "Confirm exit" config option }
 
   try
@@ -3442,7 +3442,7 @@ begin
   s := s + #13 + '(Log enabled)';
 {$ENDIF}
 
-  if App.DoMessageBox( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel then exit;
+  if App.DoMessageBox( s, mtInformation, [mbOK,mbCancel] ) = mrCancel then exit;
 
 end; // DEBUG MENU CLICK
 
@@ -3755,7 +3755,7 @@ begin
   end;
 
   if (( not result ) and Warn ) then
-    App.PopupMessage( msg, mtInformation, [mbOK], 0 );
+    App.PopupMessage( msg, mtInformation, [mbOK] );
 
 end; // HaveKntFolders
 
@@ -4704,7 +4704,7 @@ begin
        if ( _Global_Location.FileName <> '' ) then begin
           if (( not FileExists( _Global_Location.Filename )) or
              ( KntFileOpen( _Global_Location.Filename ) <> 0 )) then begin
-            App.DoMessageBox( Format(STR_81,[_Global_Location.Filename] ), mtError, [mbOK], 0 );
+            App.DoMessageBox( Format(STR_81,[_Global_Location.Filename] ), mtError, [mbOK] );
             exit;
           end;
        end;

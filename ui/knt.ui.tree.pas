@@ -352,7 +352,6 @@ resourcestring
   STR_07 = 'Node "%s" %smoved %s';
   STR_08 = #13#10 + 'This operation cannot be undone.';
   STR_09 = 'Node "%s" has %d child nodes. Delete these child nodes too?';
-  STR_10 = 'Warning';
   STR_11 = 'OK to delete node "%s"?';
   STR_11b = 'OK to delete %sALL SELECTED nodes?'+ #13 +' (Confirmation will be requested for each node with children)' + #13;
   STR_12 = 'OK to delete %d CHILD NODES of node "%s"?';
@@ -2425,12 +2424,11 @@ begin
          if DeleteOnlyChildren then begin
             // command was to delete CHILDREN of focused node
             if vsHasChildren in myTreeNode.States then begin
-              case DoMessageBox(Format(STR_12, [myTreeNode.ChildCount, NNode.NodeName(Self)]) + STR_08, STR_10,
-                   MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) of
-                ID_NO    : exit;
-                ID_CANCEL: exit(false);
+              case App.DoMessageBox(Format(STR_12, [myTreeNode.ChildCount, NNode.NodeName(Self)]) + STR_08,
+                   mtWarning, [mbYes, mbNo, mbCancel], def2 ) of
+                  mrNo: exit;
+                  mrCancel: exit(false);
               end;
-
             end
             else begin
               if not ConfirmationOnlyForChildren then
@@ -2443,18 +2441,18 @@ begin
 
             if vsHasChildren in myTreeNode.States then begin
               // ALWAYS warn if node has children (except if we are moving to another location)
-              case DoMessageBox(
-                Format(STR_09, [NNode.NodeName(Self), myTreeNode.ChildCount]) + STR_08, STR_10,
-                    MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON3+MB_APPLMODAL) of
-                ID_YES : KeepChildNodes := false;
-                ID_NO  : KeepChildNodes := true;
+
+              case App.DoMessageBox(Format(STR_09, [NNode.NodeName(Self), myTreeNode.ChildCount]) + STR_08,
+                   mtWarning, [mbYes, mbNo, mbCancel], def3 ) of
+                mrYes : KeepChildNodes := false;
+                mrNo  : KeepChildNodes := true;
                 else
                   exit (false);
               end;
             end
             else begin
               if not ConfirmationOnlyForChildren and KntTreeOptions.ConfirmNodeDelete then begin
-                if (App.DoMessageBox(Format(STR_11, [NNode.NodeName(Self)]) + STR_08, mtWarning, [mbYes,mbNo], 0) <> mrYes) then exit;
+                if (App.DoMessageBox(Format(STR_11, [NNode.NodeName(Self)]) + STR_08, mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
               end;
             end;
          end;
@@ -2524,7 +2522,7 @@ begin
      if DeleteOnlyChildren then
         OnlyChildren:= 'CHILD NODES of ';
 
-     if (App.DoMessageBox(Format(STR_11b, [OnlyChildren]) + STR_08, mtWarning, [mbYes,mbNo], 0) <> mrYes) then exit;
+     if (App.DoMessageBox(Format(STR_11b, [OnlyChildren]) + STR_08, mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
 
      TVSelectedNodes:= TV.GetSortedSelection(True);
      for i := 0 to High(TVSelectedNodes) do
@@ -2573,7 +2571,7 @@ begin
 
    if PasteAsLinkedNNode then begin
       if Prompt and (App.DoMessageBox(Format(STR_23, [Length(fSourceTVSelectedNodes), STR_26, TargetDesc]),
-                     mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then
+                     mtConfirmation, [mbYes,mbNo]) <> mrYes) then
             exit;
    end
    else begin
@@ -2581,7 +2579,7 @@ begin
           Obs:= STR_22;
 
        if Prompt and (App.DoMessageBox(Format(STR_23, [Length(fSourceTVSelectedNodes), '', TargetDesc]) + Obs,
-                         mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then // {N}
+                         mtConfirmation, [mbYes,mbNo]) <> mrYes) then // {N}
           exit;
    end;
 
@@ -2638,7 +2636,7 @@ begin
   Prompt:= (Prompt or ((TV <> SourceTV) and KeyOptions.DropNodesOnTabPrompt));
 
   if Prompt and (App.DoMessageBox(Format(STR_16,  [Length(fSourceTVSelectedNodes), TargetDesc]),
-                       mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then
+                       mtConfirmation, [mbYes,mbNo]) <> mrYes) then
       exit;
 
   fMovingToOtherTree:= (SourceTV <> TV);

@@ -310,7 +310,7 @@ begin
      if (Name = '') then exit;
      i := GetIndexOfFavorite(Name);
      if (i >= 0) then begin
-       case App.DoMessageBox(Format(STR_04 + STR_08, [Name] ), mtError, [mbOK,mbCancel], 0 ) of
+       case App.DoMessageBox(Format(STR_04 + STR_08, [Name] ), mtError, [mbOK,mbCancel] ) of
           mrOK : Name := GetFavName( Name );
           else
             exit;

@@ -104,7 +104,7 @@ begin
         s := STR_04 + '"' + Style.Name + '"' + #13 +
              STR_05 + STYLE_RANGES[Style.Range] + #13#13 + s;
       end;
-      App.DoMessageBox( s, mtInformation, [mbOK], 0 );
+      App.DoMessageBox( s, mtInformation, [mbOK] );
   end;
 end; // StyleDescribe
 
@@ -135,7 +135,7 @@ begin
 
   if ( ExistingStyle <> nil ) then begin
     if (App.DoMessageBox(Format(STR_09, [STYLE_RANGES[ExistingStyle.Range],ExistingStyle.Name]),
-           mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+           mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then exit;
   end;
 
   if ( ExistingStyle = nil ) then begin
@@ -219,7 +219,7 @@ begin
         else
           myStyle := TStyle( StyleManager.Objects[StyleManager.IndexOf( aName )] );
       except
-        App.DoMessageBox( Format(STR_12, [aName]), mtError, [mbOK], 0 );
+        App.DoMessageBox( Format(STR_12, [aName]), mtError, [mbOK] );
         exit;
       end;
 
@@ -352,7 +352,7 @@ begin
       name := Form_Main.Combo_Style.Items[idx];
 
       if (App.DoMessageBox( Format(STR_17,  [STYLE_RANGES[TStyle( StyleManager.Objects[idx] ).Range],name] ),
-                            mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+                            mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then exit;
 
       try
 

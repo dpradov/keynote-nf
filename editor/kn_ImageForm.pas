@@ -289,7 +289,7 @@ begin
   if not ok then begin
      btnAlwaysVisible.Down:= false;
      btnAlwaysVisibleClick(nil);
-     App.DoMessageBox(STR_01, mtWarning, [mbOK], 0);
+     App.DoMessageBox(STR_01, mtWarning, [mbOK]);
   end;
 end;
 

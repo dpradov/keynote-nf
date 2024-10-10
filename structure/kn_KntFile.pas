@@ -231,6 +231,7 @@ uses
 
    gf_strings,
    gf_misc,
+   gf_miscvcl,
 
    kn_RTFUtils,
    kn_Global,
@@ -1312,7 +1313,7 @@ begin
      FFileName := FN;
 
   if ( not FileExists( FN )) then begin
-     App.DoMessageBox(Format( STR_01, [FN] ), mtError, [mbOK], 0);
+     App.DoMessageBox(Format( STR_01, [FN] ), mtError, [mbOK]);
      raise Exception.Create('');
   end;
 
@@ -1362,7 +1363,7 @@ begin
       VerID.ID := NFHDR_ID_ENCRYPTED;
     end
     else begin
-      App.DoMessageBox(Format( STR_02, [FN] ), mtError, [mbOK], 0);
+      App.DoMessageBox(Format( STR_02, [FN] ), mtError, [mbOK]);
       raise Exception.Create('');
       exit;
     end;
@@ -1444,12 +1445,12 @@ begin
 
                  if (( VerID.Major in ['0'..'9'] ) and ( VerID.Minor in ['0'..'9'] )) then begin
                     if ( VerID.Major > NFILEVERSION_MAJOR ) then begin
-                       App.DoMessageBox(Format( STR_05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK], 0);
+                       App.DoMessageBox(Format( STR_05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK]);
                        raise EKeyKntFileError.Create('');
                     end;
 
                     if (VerID.Major = NFILEVERSION_MAJOR) and ( VerID.Minor > NFILEVERSION_MINOR ) then begin
-                       case App.DoMessageBox( ExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], _HLP_KNTFILES ) of
+                       case App.DoMessageBox( ExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], def1, _HLP_KNTFILES ) of
                          mrNo : begin
                            // nothing, just fall through
                          end;
@@ -1471,7 +1472,7 @@ begin
             FileIDTestFailed := false;
 
           if FileIDTestFailed then begin
-            App.DoMessageBox(Format( STR_07, [ExtractFilename( FN )] ), mtError, [mbOK], 0);
+            App.DoMessageBox(Format( STR_07, [ExtractFilename( FN )] ), mtError, [mbOK]);
             raise EKeyKntFileError.Create('');
           end;
 
@@ -2052,7 +2053,7 @@ var
           except
             on E : Exception do
               // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages
-              App.DoMessageBox(Format(STR_20 + #13#13+ '%s', [Note.Name, Note.VirtualFN, E.Message]), mtError, [mbOK], 0 );
+              App.DoMessageBox(Format(STR_20 + #13#13+ '%s', [Note.Name, Note.VirtualFN, E.Message]), mtError, [mbOK] );
           end;
     end;
 
@@ -2074,7 +2075,7 @@ var
       except
         on E : Exception do begin
             result := 3;
-            App.DoMessageBox( Format(STR_13, [myFolder.Name, E.Message]), mtError, [mbOK], 0 );
+            App.DoMessageBox( Format(STR_13, [myFolder.Name, E.Message]), mtError, [mbOK] );
             exit;
         end;
       end;
