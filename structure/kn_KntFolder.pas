@@ -1264,6 +1264,7 @@ begin
   try
     try
       Note.LoadVirtualFile;
+      Note.Modified:= false;
     except
       on E : Exception do begin
         App.ErrorPopup(E, STR_v14);
@@ -1273,6 +1274,7 @@ begin
 
     try
       NoteUI.ReloadFromDataModel;          // Changes in editor will be ignored
+      App.EditorSaved(NoteUI.Editor);      // To ensure synchronization on open linked nodes (if any)
       App.ShowInfoInStatusBar(STR_v15);
     except
       App.ShowInfoInStatusBar(STR_v16);
@@ -1469,8 +1471,10 @@ begin
           end
           else begin
             Note.LoadVirtualFile;
+            App.EditorSaved(NoteUI.Editor);  // To ensure synchronization on open linked nodes (if any)
             NoteUI.ReloadFromDataModel;
           end;
+          Note.Modified:= false;     // To warn if user edit this editor from this moment
 
           if ( KntTreeOptions.AutoNameVNodes and ( not IsFlushingData )) then begin
             Note.Name := ExtractFilename( Note.VirtualFN );
