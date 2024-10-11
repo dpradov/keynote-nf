@@ -2541,7 +2541,7 @@ begin
                     UpdateTreeVisible( ActiveFolder );
                  end;
 
-                 App.EditorReloaded(Editor);
+                 App.EditorReloaded(Editor, Editor.Focused);
                end;
 
              end;

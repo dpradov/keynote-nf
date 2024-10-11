@@ -842,6 +842,7 @@ type
     actTVAddNode_Parent: TAction;
     AddParent1: TMenuItem;
     TVLinkedNode_: TMenuItem;
+    RTFMPlainText: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1227,6 +1228,7 @@ type
     procedure actList_TVsUpdate(Action: TBasicAction; var Handled: Boolean);
     procedure actTVAddNode_ParentExecute(Sender: TObject);
     procedure MMViewHideCheckedNodesClick(Sender: TObject);
+    procedure RTFMPlainTextClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -4253,6 +4255,13 @@ begin
   // MergeToKNTFile;
 end;
 
+procedure TForm_Main.RTFMPlainTextClick(Sender: TObject);
+begin
+   if not Assigned(ActiveEditor.NNodeObj) then exit;
+
+   ActiveFile.TogglePlainText_RTF(ActiveFolder.NoteUI);
+end;
+
 procedure TForm_Main.RTFMRestoreProportionsClick(Sender: TObject);
 begin
    if Assigned(ActiveEditor.NNodeObj) then
@@ -6909,6 +6918,8 @@ begin
     MMInsertPicture.Enabled:= SupportsRTF;
     MMInsertObject.Enabled:= SupportsRTF;
 
+    RTFMPlainText.Checked:= not SupportsRTF;
+
 end;
 
 procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean);
@@ -6919,6 +6930,8 @@ begin
     RTFMRestoreProportions.Enabled:= SupportsImages;
     MMShowImages.Enabled:= SupportsRegImages and VinculatedToNote;
     TB_Images.Enabled:=  SupportsRegImages and VinculatedToNote;
+
+    RTFMPlainText.Enabled:= VinculatedToNote;
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);

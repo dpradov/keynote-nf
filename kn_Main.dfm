@@ -3773,6 +3773,11 @@ object Form_Main: TForm_Main
       Hint = 'Edit folder properties'
       OnClick = MMNotePropertiesClick
     end
+    object RTFMPlainText: TMenuItem
+      Caption = 'Plain Text'
+      Hint = 'Convert to plain text or rich text format (RTF)'
+      OnClick = RTFMPlainTextClick
+    end
     object N19: TMenuItem
       Caption = '-'
     end

@@ -214,7 +214,6 @@ type
     destructor Destroy; override;
 
 
-    procedure UpdateEditor (NoteUI: INoteUI; SetWordWrap: boolean= true);
     procedure LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
     procedure ReloadEditorFromDataModel(SavePreviousContent: boolean= true);
     function  SaveEditorToDataModel: TMemoryStream;
@@ -343,15 +342,6 @@ resourcestring
   STR_v17 = 'Selected node "%s" is not a virtual node.';
 
   procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TAuxRichEdit); forward;
-
-
-function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
-begin
-   if Color <> clNone then
-      Result:= Color
-   else
-      Result:= ColorIfNone;
-end;
 
 
 
@@ -671,7 +661,7 @@ begin
                 myFolder.EditorChrome := myEditorChrome;
 
                 // reflect changes in controls
-                myFolder.UpdateEditor (myFolder.NoteUI, true);
+                UpdateEditor (myFolder.Editor, myFolder, true);
                 myFolder.UpdateTabSheet;
 
 
@@ -1648,77 +1638,6 @@ begin
   try
      NoteUI.SetFocus;
   except
-  end;
-end;
-
-
-
-procedure TKntFolder.UpdateEditor (NoteUI: INoteUI; SetWordWrap: boolean= true);
-var
-//  tabstopcnt : integer;
-  TextLen: integer;
-  SS, SL: integer;
-  FocNNode: TNoteNode;
-  Editor: TKntRichEdit;
-
-begin
-  if not assigned(NoteUI) then exit;
-
-  Editor:= NoteUI.Editor;
-
-  // Note: Currently WordWrap is set in Editor in CreateVCLControlsForFolder and EditKntFolderProperties (calling here with SetWordWrap=true)
-  //       and in TreeNodeSelected
-
-  Editor.BeginUpdate;
-  try
-       if SetWordWrap then                         // Setting Editor.WordWrap => calling CMRecreateWnd
-          Editor.WordWrap := FWordWrap;
-       Editor.TabSize := FTabSize;
-       Editor.AutoURLDetect := FURLDetect;
-
-       Editor.Color := FEditorChrome.BGColor;
-       TextLen:= Editor.TextLength;
-       if (TextLen = 0) or Editor.PlainText then begin          // Solves the problem indicated in EditProperties...*1
-          with Editor.DefAttributes do begin
-            Charset := FEditorChrome.Font.Charset;
-            Name := FEditorChrome.Font.Name;
-            Size := FEditorChrome.Font.Size;
-            Style := FEditorChrome.Font.Style;
-            Color := FEditorChrome.Font.Color;
-            Language := FEditorChrome.Language;
-          end;
-       end;
-
-       if Editor.PlainText and (TextLen > 0) then begin       // Related to *1. If PlainText then we do want it to always change the font format
-          SS:= Editor.SelStart;
-          SL:= Editor.SelLength;
-          Editor.SelectAll;
-          Editor.SelAttributes.Assign( Editor.DefAttributes );
-         {
-         Editor.Paragraph.TabCount := 8; // max is 32, but what the hell
-         for tabstopcnt := 0 to 7 do
-           Editor.Paragraph.Tab[tabstopcnt] := (tabstopcnt+1) * (2*FTabSize); // [x] very rough!
-         }
-         Editor.SetSelection(SS, SS+SL, True);
-       end;
-       Editor.UseTabChar := FUseTabChar;
-       NoteUI.SetReadOnly(FReadOnly);
-
-       FocNNode:= FocusedNNode;
-
-       if assigned(FocNNode) then begin
-          if SetWordWrap then
-             case FocNNode.WordWrap of
-              wwYes: Editor.WordWrap := true;
-              wwNo:  Editor.WordWrap := false;
-              else   Editor.WordWrap := FWordWrap;     // As Folder
-             end;
-
-          Editor.Color:= GetColor(FocNNode.EditorBGColor, EditorChrome.BGColor);
-       end;
-
-  finally
-     Editor.EndUpdate;
   end;
 end;
 

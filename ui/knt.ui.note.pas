@@ -75,6 +75,7 @@ type
 
     function GetEditor: TKntRichEdit;
     function GetNNode: TNoteNode;
+    function GetFolder: TObject;
 
 
   public
@@ -127,7 +128,6 @@ type
 
   end;
 
-  function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
 
 
 implementation
@@ -135,7 +135,8 @@ implementation
 {$R *.dfm}
 
 uses
-  kn_LinksMng;
+  kn_LinksMng,
+  kn_EditorUtils;
 
 resourcestring
   STR_01 = 'Entry created: %s  (Note last modified: %s)';
@@ -187,6 +188,10 @@ begin
    FColorTxts:= RGB(248,248,248);
    txtName.Color:= FColorTxts;
    txtCreationDate.Color:= FColorTxts;
+
+   SetReadOnly(KntFolder.ReadOnly);
+
+   UpdateEditor (FEditor, KntFolder, true); // do this BEFORE placing RTF text in editor
 
    App.EditorAvailable(FEditor);
 end;
@@ -337,6 +342,10 @@ begin
    Result:= FNNode;
 end;
 
+function TKntNoteUI.GetFolder: TObject;
+begin
+   Result:= FKntFolder;
+end;
 
 procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
 var
@@ -438,7 +447,7 @@ begin
      strRTF:= '';
 
      if not NEntry.IsRTF then
-        FKntFolder.UpdateEditor (Self, False);
+        UpdateEditor (FEditor, FKntFolder, False);
 
      fImagesReferenceCount:= nil;
      if NodeStreamIsRTF (NEntry.Stream) then begin
@@ -474,7 +483,7 @@ begin
      FEditor.SelLength := Note.SelLength;
 
      if NEntry.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
-        FKntFolder.UpdateEditor (Self, false);
+        UpdateEditor (FEditor, FKntFolder, false);
 
    finally
      FEditor.ReadOnly:= ReadOnlyBAK;
@@ -497,7 +506,7 @@ begin
      Editor.Change;
 
      if not ClipCapMng.IsBusy then
-        App.EditorReloaded(Editor);
+        App.EditorReloaded(Editor, Editor.Focused);
    end;
 
 
@@ -622,7 +631,7 @@ begin
      plainTxt:= NEntry.IsPlainTXT;
      FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, NNode, NEntry);
      FEditor.PlainText:= plainTxt;
-     FEditor.Chrome:= FKntFolder.EditorChrome;                       //     %%%  ¿NO basta en Create?
+     FEditor.Chrome:= FKntFolder.EditorChrome;
 
      FEditor.SupportsRegisteredImages:= (ImageMng.StorageMode <> smEmbRTF) and not plainTxt and not NNode.IsVirtual;
      FEditor.SupportsImages:= not plainTxt;
@@ -650,15 +659,6 @@ end;
 procedure TKntNoteUI.AfterEditorLoaded(Note: TNote);
 begin
    if assigned(FOnAfterEditorLoaded) then OnAfterEditorLoaded(Note);
-end;
-
-
-function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
-begin
-   if Color <> clNone then
-      Result:= Color
-   else
-      Result:= ColorIfNone;
 end;
 
 

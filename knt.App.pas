@@ -130,10 +130,12 @@ type
       property OnNNodeSelected: TNNodeSelectedEvent read FNNodeSelected write FNNodeSelected;
       property OnFolderSelected: TFolderSelectedEvent read FFolderSelected write FFolderSelected;
 
+      procedure ScratchpadFocused(Sender: TObject);
+
       procedure EditorAvailable (Editor: TKntRichEdit);
       procedure EditorUnavailable (Editor: TKntRichEdit);
       procedure EditorFocused (Editor: TKntRichEdit);
-      procedure EditorReloaded (Editor: TKntRichEdit);
+      procedure EditorReloaded (Editor: TKntRichEdit; Focused: boolean);
       procedure EditorSaved (Editor: TKntRichEdit);
       procedure ChangeInEditor (Editor: TKntRichEdit);
       procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
@@ -434,16 +436,22 @@ begin
 end;
 
 
+procedure TKntApp.ScratchpadFocused(Sender: TObject);
+begin
+  EditorFocused(TKntRichEdit(Sender));
+end;
+
+
 procedure TKntApp.EditorFocused (Editor: TKntRichEdit);
 begin
    EditorSelected(Editor, true);
 end;
 
-procedure TKntApp.EditorReloaded (Editor: TKntRichEdit);
+procedure TKntApp.EditorReloaded (Editor: TKntRichEdit; Focused: boolean);
 begin
    if Editor = nil then exit;
 
-   EditorSelected(Editor, False);     // False: Will not set ActiveFolder.FocusMemory:= focRTF (but will not set := focTree either)
+   EditorSelected(Editor, Focused);     // Focused=False: Will not set ActiveFolder.FocusMemory:= focRTF (but will not set := focTree either)
 end;
 
 

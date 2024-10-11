@@ -35,6 +35,7 @@ uses
 
    RxRichEd,
    VirtualTrees,
+   kn_info,
    kn_KntFolder,
    knt.model.note,
    knt.ui.editor
@@ -45,7 +46,9 @@ procedure PasteIntoNew (const AsNewFolder: boolean);
 procedure PrintRTFNote;
 procedure EnableOrDisableUAS;
 procedure ConfigureUAS;
-procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit);
+procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
+procedure UpdateEditor (AEditor: TRxRichEdit; KntFolder: TKntFolder; SetWordWrap: boolean; KeepNotVisible: boolean = false);
+function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
 
 type
    TClipCapMng = class
@@ -115,7 +118,6 @@ uses
    kn_Main,
    kn_const,
    kn_Cmd,
-   kn_Info,
    kn_ClipUtils,
    kn_LinksMng,
    knt.ui.tree,
@@ -1067,13 +1069,15 @@ end; // ConfigureUAS
 
 //=======================================================
 
-procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit);
+procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
 var
   Encoding: TEncoding;
 begin
    Encoding:= nil;
    RTFAux.Clear;
    RTFAux.StreamMode := [];
+
+   UpdateEditor(RTFAux, KntFolder, True, True);
 
    RTFAux.StreamFormat:= FromFormat;
    RTFAux.Lines.LoadFromStream(Stream);
@@ -1084,6 +1088,87 @@ begin
 
    Stream.Clear;
    RTFAux.Lines.SaveToStream(Stream, Encoding);
+end;
+
+
+procedure UpdateEditor (AEditor: TRxRichEdit; KntFolder: TKntFolder; SetWordWrap: boolean; KeepNotVisible: boolean = false);
+var
+//  tabstopcnt : integer;
+  TextLen: integer;
+  SS, SL: integer;
+  FocNNode: TNoteNode;
+
+begin
+  if not assigned(AEditor) then exit;
+
+  // Note: Currently WordWrap is set in Editor in CreateVCLControlsForFolder and EditKntFolderProperties (calling here with SetWordWrap=true)
+  //       and in TreeNodeSelected
+
+  AEditor.BeginUpdate;
+  try
+    with KntFolder do begin
+       if SetWordWrap then                         // Setting AEditor.WordWrap => calling CMRecreateWnd
+          AEditor.WordWrap := WordWrap;
+
+       AEditor.AutoURLDetect := URLDetect;
+
+       AEditor.Color := EditorChrome.BGColor;
+       TextLen:= AEditor.TextLength;
+       if (TextLen = 0) or AEditor.PlainText then begin          // Solves the problem indicated in EditProperties...*1
+          with AEditor.DefAttributes do begin
+            Charset := EditorChrome.Font.Charset;
+            Name := EditorChrome.Font.Name;
+            Size := EditorChrome.Font.Size;
+            Style := EditorChrome.Font.Style;
+            Color := EditorChrome.Font.Color;
+            Language := EditorChrome.Language;
+          end;
+       end;
+
+       if AEditor.PlainText and (TextLen > 0) then begin       // Related to *1. If PlainText then we do want it to always change the font format
+          SS:= AEditor.SelStart;
+          SL:= AEditor.SelLength;
+          AEditor.SelectAll;
+          AEditor.SelAttributes.Assign( AEditor.DefAttributes );
+         {
+         AEditor.Paragraph.TabCount := 8; // max is 32, but what the hell
+         for tabstopcnt := 0 to 7 do
+           AEditor.Paragraph.Tab[tabstopcnt] := (tabstopcnt+1) * (2*FTabSize); // [x] very rough!
+         }
+         AEditor.SetSelection(SS, SS+SL, True);
+       end;
+
+       if AEditor is TKntRichEdit then begin
+          TKntRichEdit(AEditor).TabSize := TabSize;
+          TKntRichEdit(AEditor).UseTabChar := UseTabChar;
+       end;
+
+       FocNNode:= FocusedNNode;
+
+       if assigned(FocNNode) then begin
+          if SetWordWrap then
+             case FocNNode.WordWrap of
+              wwYes: AEditor.WordWrap := true;
+              wwNo:  AEditor.WordWrap := false;
+              else   AEditor.WordWrap := WordWrap;     // As Folder
+             end;
+
+          AEditor.Color:= GetColor(FocNNode.EditorBGColor, EditorChrome.BGColor);
+       end;
+    end;
+
+  finally
+     if not KeepNotVisible then           // We are working with a RTFAux... EndUpdate would make it visible, although AEditor.Visible=False
+        AEditor.EndUpdate;
+  end;
+end;
+
+function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
+begin
+   if Color <> clNone then
+      Result:= Color
+   else
+      Result:= ColorIfNone;
 end;
 
 

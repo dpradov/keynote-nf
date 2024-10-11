@@ -43,6 +43,7 @@ uses
    kn_LocationObj,
    kn_KntFolder,
    knt.model.note,
+   knt.ui.info,
    kn_ImagesMng,
    kn_LinksMng
    ;
@@ -188,7 +189,7 @@ type
     procedure UpdateTextPlainVariables (nMax: integer);
 
     procedure UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToFolder: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
-    function  EnsurePlainTextAndRemoveImages (myFolder: TKntFolder): boolean;
+    function  TogglePlainText_RTF (NoteUI: INoteUI): boolean;
     procedure RemoveImagesCountReferences (myFolder: TKntFolder); overload;
     procedure RemoveImagesCountReferences (Note: TNote); overload;
     procedure UpdateImagesCountReferences (myFolder: TKntFolder); overload;
@@ -264,6 +265,7 @@ resourcestring
   STR_17 = 'Stream size error: Encrypted file is invalid or corrupt.';
   STR_18 = 'Invalid passphrase: Cannot open encrypted file.';
   STR_19 = 'Exception trying to ensure plain text and removing of images: ';
+  STR_19b = 'OK to convert to PLAIN TEXT current note?'+ #13#13 +'ALL IMAGES and FORMATTING will be REMOVED !!';
 
   STR_20 = 'Virtual note "%s" cannot write file ';
 
@@ -1139,47 +1141,60 @@ begin
 end;
 
 
-function TKntFile.EnsurePlainTextAndRemoveImages (myFolder: TKntFolder): boolean;
+function TKntFile.TogglePlainText_RTF (NoteUI: INoteUI): boolean;
 var
-  i: integer;
   NNode: TNoteNode;
   NEntry: TNoteEntry;
   Stream: TMemoryStream;
   RTFAux : TRxRichEdit;
-
-  procedure EnsurePlainTextAndCheckRemoveImages (UpdateEditor: boolean);
-  var
-     ImagesIDs: TImageIDs;
-  begin
-      ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
-      if Length(ImagesIDs) > 0 then
-         ImageMng.RemoveImagesReferences (ImagesIDs);
-
-      if NodeStreamIsRTF (Stream) then begin
-         Stream.Position:= 0;
-         ConvertStreamContent(Stream, sfRichText, sfPlainText, RTFAux);
-      end;
-
-      if UpdateEditor then
-         myFolder.ReloadEditorFromDataModel (false);
-  end;
-
+  ImagesIDs: TImageIDs;
+  SourceFormat, TargetFormat: TRichStreamFormat;
 
 begin
+   assert(NoteUI<>nil);
+
+   if not NoteUI.Editor.PlainText and (NoteUI.Editor.TextLength > 0) then
+      if (App.DoMessageBox(STR_19b, mtWarning, [mbYes,mbNo,mbCancel], def3) <> mrYes) then exit;
+
+   if NoteUI.Editor.PlainText then begin
+      SourceFormat:= sfPlainText;
+      TargetFormat:= sfRichText;
+   end
+   else begin
+      SourceFormat:= sfRichText;
+      TargetFormat:= sfPlainText;
+   end;
+
+   NoteUI.SaveToDataModel;
+   NNode:= NoteUI.NNode;
+
    Result:= true;
 
    try
       RTFAux:= CreateAuxRichEdit;
       try
-         for i := 0 to myFolder.NNodes.Count - 1 do  begin
-            NNode:= myFolder.NNodes[i];
-            if not NNode.IsVirtual then begin
-               NEntry:= NNode.Note.Entries[0];
-               Stream:= nEntry.Stream;
-               EnsurePlainTextAndCheckRemoveImages (NNode = myFolder.FocusedNNode );
-            end;
+         NEntry:= NNode.Note.Entries[0];         // %%%%
+         Stream:= nEntry.Stream;
+
+         if TargetFormat = sfPlainText then begin
+            ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
+            if Length(ImagesIDs) > 0 then
+               ImageMng.RemoveImagesReferences (ImagesIDs);
          end;
-         myFolder.NoteUI.ResetImagesReferenceCount;
+
+         Stream.Position:= 0;
+         ConvertStreamContent(Stream, SourceFormat, TargetFormat, RTFAux, TKntFolder(NoteUI.GetFolder));
+
+         if TargetFormat = sfPlainText then
+            NoteUI.ResetImagesReferenceCount;
+
+         NEntry.IsPlainTXT:= (TargetFormat = sfPlainText);
+         NoteUI.ReloadFromDataModel;
+         NNode.Note.Modified:= True;
+         TKntFolder(NoteUI.GetFolder).Modified:= True;
+         App.EditorSaved(NoteUI.Editor);    // To ensure synchronization on open linked nodes (if any)
+
+         App.EditorFocused(NoteUI.Editor);  // To update UI
 
       finally
         RTFAux.Free;
@@ -1190,7 +1205,6 @@ begin
      Result:= false;
      end
    end;
-
 
 end;
 

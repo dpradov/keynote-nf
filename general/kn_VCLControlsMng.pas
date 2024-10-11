@@ -218,6 +218,7 @@ begin
      WantTabs := True;
      OnChangedSelection:= Form_Main.RxChangedSelection;
      OnFileDropped := Form_Main.OnFileDropped;
+     OnEnter:= App.ScratchpadFocused;
 
      SetVinculatedObjs(nil, nil, nil, nil);
 
@@ -400,16 +401,11 @@ begin
           myNoteUI.Parent:= myTab;
 
           aFolder.NoteUI := myNoteUI;
-          with myTab do
-             PrimaryObject := aFolder;
+          myTab.PrimaryObject := aFolder;
 
-          Log_StoreTick( 'After Created TKntRichEdit', 3 );
+          Log_StoreTick( 'After Created TKntNoteUI', 3 );
 
-          with aFolder do begin
-            UpdateTabSheet;
-            UpdateEditor (myNoteUI, true); // do this BEFORE placing RTF text in editor
-          end;
-
+          aFolder.UpdateTabSheet;
           myTreeUI.Folder:= myFolder;  // => PopulateTree...
 
 
