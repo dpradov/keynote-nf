@@ -322,6 +322,8 @@ var
    N: TNote;
    i: integer;
 begin
+  IsBusy:= True;
+
   if fFolders <> nil then begin
      for i := 0 to fFolders.Count-1 do begin
         f:= fFolders[i];
