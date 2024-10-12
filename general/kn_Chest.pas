@@ -131,7 +131,7 @@ function LoadCategoryBitmapsBuiltIn : boolean;
 begin
   result := false;
   Chest.IMG_Categories.Clear;
-  if ( Chest.IMG_Categories.ResInstLoad( HInstance, rtBitmap, 'CATIMAGES',  clOlive )) then begin
+  if ( Chest.IMG_Categories.ResInstLoad( HInstance, rtBitmap, 'CATIMAGES',  clFuchsia )) then begin
     result := true;
     _LOADED_ICON_FILE := _NF_Icons_BuiltIn; // means: DEFAULT icons loaded from resource
   end
