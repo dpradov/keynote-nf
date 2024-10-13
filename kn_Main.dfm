@@ -1686,6 +1686,11 @@ object Form_Main: TForm_Main
       Hint = 'Show hidden children of selected node, non filtered by search'
       OnExecute = actTVShowNonFilteredExecute
     end
+    object actTVFlaggedNode: TAction
+      Caption = '&Flagged'
+      Hint = 'Toggle Flag in selected nodes'
+      OnExecute = actTVFlaggedNodeExecute
+    end
     object actTVBoldNode: TAction
       Caption = '&Bold'
       Hint = 
@@ -4835,6 +4840,9 @@ object Form_Main: TForm_Main
     end
     object TVAlarmNode: TMenuItem
       Action = actTVAlarmNode
+    end
+    object TVFlaggedNode: TMenuItem
+      Action = actTVFlaggedNode
     end
     object N80: TMenuItem
       Caption = '-'

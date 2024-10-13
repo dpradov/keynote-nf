@@ -13,7 +13,7 @@ unit kn_Defaults;
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
    
- *****************************************************************************) 
+ *****************************************************************************)
 
 
 interface
@@ -95,6 +95,9 @@ type
     Label1: TLabel;
     Label4: TLabel;
     Combo_Icons: TGFXComboBox;
+    gbCols: TGroupBox;
+    CB_ShowDateCol: TCheckBox;
+    CB_ShowFlagCol: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -538,6 +541,18 @@ begin
     VerticalLayout := CB_Vertical.Checked;
     AutoNumberNodes := CB_AutoNumberNodes.Checked;
     HideChecked:= CB_HideChecked.Checked;
+
+    if not CB_ShowFlagCol.Checked then
+       PosFlaggedCol:= 0
+    else
+    if (PosFlaggedCol = 0) then
+       PosFlaggedCol:= 1;
+
+    if not CB_ShowDateCol.Checked then
+       PosDateCol:= 0
+    else
+    if (PosDateCol = 0) then
+       PosDateCol:= 3;
   end;
 
   with myEditorChrome do
@@ -576,7 +591,9 @@ begin
     CB_TreeCheck.Checked := Checkboxes;
     CB_Vertical.Checked := VerticalLayout;
     CB_AutoNumberNodes.Checked := AutoNumberNodes;
-    CB_HideChecked.Checked := HideChecked;          // [dpv]
+    CB_HideChecked.Checked := HideChecked;
+    CB_ShowDateCol.Checked:= PosDateCol > 0;
+    CB_ShowFlagCol.Checked:= PosFlaggedCol > 0;
   end;
 
   with myEditorChrome do

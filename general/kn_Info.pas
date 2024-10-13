@@ -387,7 +387,9 @@ type
     CheckBoxes : boolean;
     IconKind : TNodeIconKind;
     VerticalLayout : boolean;
-    HideChecked: boolean;       // [dpv]
+    HideChecked: boolean;
+    PosDateCol: integer;
+    PosFlaggedCol: integer;
   end;
 
 type

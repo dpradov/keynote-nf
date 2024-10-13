@@ -130,6 +130,7 @@ type
     function GetSelEntry : TNoteEntry;
     function GetNumEntries: integer; inline;
     function GetNextNumEntry: Byte;
+    function GetDateCreated: TDateTime;
 
     function GetNumNNodes: integer; inline;
 
@@ -145,6 +146,7 @@ type
     property Modified: boolean read GetModified write SetModified_;
     property States: TNoteStates read fStates;
     property LastModified: TDateTime read fLastModified write fLastModified;
+    property DateCreated: TDateTime read GetDateCreated;
 
     property SelEntry : TNoteEntry read GetSelEntry write fSelEntry;
     property SelStart : Cardinal read fSelStart write fSelStart;
@@ -377,6 +379,7 @@ type
     procedure SetTVNode (value: PVirtualNode);
 
     function GetNodeBold: boolean; inline;
+    function GetFlagged: boolean; inline;
     function GetTreeFilterMatch: boolean; inline;
     function GetFindFilterMatch: boolean; inline;
     function GetChildrenCheckbox: boolean; inline;
@@ -385,6 +388,7 @@ type
     function GetCustomNumberingSubtree: boolean;
     function GetWordWrap: TNodeWordWrap;
     procedure SetNodeBold(value: boolean);
+    procedure SetFlagged(value: boolean);
     procedure SetTreeFilterMatch(value: boolean);
     procedure SetFindFilterMatch(value: boolean);
     procedure SetChildrenCheckbox(value: boolean);
@@ -410,6 +414,7 @@ type
     function IsVirtual: boolean; inline;
 
     property Bold : boolean read GetNodeBold write SetNodeBold;
+    property Flagged : boolean read GetFlagged write SetFlagged;
     property TreeFilterMatch : boolean read GetTreeFilterMatch write SetTreeFilterMatch;
     property FindFilterMatch : boolean read GetFindFilterMatch write SetFindFilterMatch;
     property ChildrenCheckbox: boolean read GetChildrenCheckbox write SetChildrenCheckbox;
@@ -577,6 +582,12 @@ begin
    Result:= Length(fEntries);
 end;
 
+
+function TNote.GetDateCreated: TDateTime;
+begin
+   if fEntries <> nil then
+      Result:= fEntries[0].fDateCreated;
+end;
 
 function TNote.GetNextNumEntry: Byte;
 var
@@ -1155,6 +1166,20 @@ begin
    else
       Exclude(States, nnsBold);
 end;
+
+function TNoteNode.GetFlagged: boolean;
+begin
+   Result:= (nnsFlagged in States);
+end;
+
+procedure TNoteNode.SetFlagged(value: boolean);
+begin
+   if Value then
+      Include(States, nnsFlagged)
+   else
+      Exclude(States, nnsFlagged);
+end;
+
 
 function TNoteNode.GetTreeFilterMatch: boolean;
 begin

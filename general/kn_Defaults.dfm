@@ -94,7 +94,7 @@ object Form_Defaults: TForm_Defaults
     Top = 84
     Width = 369
     Height = 320
-    ActivePage = Tab_Main
+    ActivePage = Tab_Tree
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -109,6 +109,237 @@ object Form_Defaults: TForm_Defaults
     TabInactiveFont.Style = []
     ParentFont = False
     TabOrder = 2
+    object Tab_Tree: TTab95Sheet
+      HelpContext = 255
+      Caption = 'Tree settings'
+      GripAlign = gaLeft
+      ImageIndex = -1
+      StaticPageIndex = -1
+      TabVisible = True
+      object GBox_Tree: TGroupBox
+        Left = 4
+        Top = 3
+        Width = 349
+        Height = 285
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        object Label5: TLabel
+          Left = 17
+          Top = 19
+          Width = 108
+          Height = 26
+          Caption = 'Default &Name for new tree nodes:'
+          FocusControl = Edit_NodeName
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          WordWrap = True
+        end
+        object Label2: TLabel
+          Left = 18
+          Top = 158
+          Width = 95
+          Height = 13
+          Caption = 'I&mage icons in tree:'
+          FocusControl = Combo_TreeImages
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object Label8: TLabel
+          Left = 7
+          Top = 200
+          Width = 237
+          Height = 13
+          Caption = 'Default font and background color (Tree): '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          Transparent = False
+        end
+        object CB_TreeCheck: TCheckBox
+          Left = 18
+          Top = 89
+          Width = 182
+          Height = 17
+          Hint = 'Display or hide checkboxes in ALL nodes'
+          Caption = '&Show checkboxes in all nodes'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+        end
+        object Edit_NodeName: TComboBox
+          Left = 132
+          Top = 17
+          Width = 176
+          Height = 21
+          Hint = 'Enter default name for nodes added to tree'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+        end
+        object CB_AutoNumberNodes: TCheckBox
+          Left = 158
+          Top = 18
+          Width = 188
+          Height = 17
+          Hint = 'When adding a node, append sequential number to its name'
+          Caption = '&Append sequential number'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          Visible = False
+        end
+        object BitBtn_TknHlp: TBitBtn
+          Left = 315
+          Top = 15
+          Width = 25
+          Height = 25
+          Hint = 'Help for auto-naming tree nodes'
+          ImageIndex = 60
+          Images = Form_Main.IMG_Toolbar
+          TabOrder = 7
+          TabStop = False
+        end
+        object CB_Vertical: TCheckBox
+          Left = 18
+          Top = 66
+          Width = 199
+          Height = 17
+          Hint = 'Check to show tree ABOVE the editor'
+          Caption = '&Vertical layout (tree on top)'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+        end
+        object Combo_TreeImages: TComboBox
+          Left = 132
+          Top = 155
+          Width = 176
+          Height = 21
+          Style = csDropDownList
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 6
+        end
+        object CB_HideChecked: TCheckBox
+          Left = 18
+          Top = 113
+          Width = 182
+          Height = 17
+          Hint = 'Show or hide checked nodes'
+          Caption = '&Hide checked nodes'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+        end
+        object BitBtn_TreeChromeHelp: TBitBtn
+          Left = 257
+          Top = 194
+          Width = 25
+          Height = 25
+          ImageIndex = 60
+          Images = Form_Main.IMG_Toolbar
+          TabOrder = 8
+          TabStop = False
+          OnClick = BitBtn_TreeChromeHelpClick
+        end
+        object CB_TreeChrome_AllNotes: TCheckBox
+          Left = 21
+          Top = 260
+          Width = 180
+          Height = 17
+          Hint = 
+            'Font and BG color will be changed in the panels of ALL folders i' +
+            'n current file'
+          TabStop = False
+          Caption = 'A&pply to ALL folders'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 9
+        end
+        object gbCols: TGroupBox
+          Left = 206
+          Top = 56
+          Width = 133
+          Height = 85
+          Caption = ' Additional Columns '
+          TabOrder = 5
+          object CB_ShowDateCol: TCheckBox
+            Left = 17
+            Top = 25
+            Width = 98
+            Height = 17
+            Hint = 'Note creation date'
+            Caption = 'Date'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+          end
+          object CB_ShowFlagCol: TCheckBox
+            Left = 17
+            Top = 48
+            Width = 98
+            Height = 17
+            Hint = 'Note creation date'
+            Caption = 'Flagged'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+          end
+        end
+      end
+    end
     object Tab_Main: TTab95Sheet
       HelpContext = 254
       Caption = 'Editor settings'
@@ -383,199 +614,6 @@ object Form_Defaults: TForm_Defaults
           Font.Style = []
           ParentFont = False
           TabOrder = 9
-        end
-      end
-    end
-    object Tab_Tree: TTab95Sheet
-      HelpContext = 255
-      Caption = 'Tree settings'
-      GripAlign = gaLeft
-      ImageIndex = -1
-      StaticPageIndex = -1
-      TabVisible = True
-      object GBox_Tree: TGroupBox
-        Left = 4
-        Top = 3
-        Width = 349
-        Height = 285
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentFont = False
-        TabOrder = 0
-        object Label5: TLabel
-          Left = 17
-          Top = 19
-          Width = 108
-          Height = 26
-          Caption = 'Default &Name for new tree nodes:'
-          FocusControl = Edit_NodeName
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          WordWrap = True
-        end
-        object Label2: TLabel
-          Left = 18
-          Top = 158
-          Width = 95
-          Height = 13
-          Caption = 'I&mage icons in tree:'
-          FocusControl = Combo_TreeImages
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label8: TLabel
-          Left = 7
-          Top = 200
-          Width = 237
-          Height = 13
-          Caption = 'Default font and background color (Tree): '
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          Transparent = False
-        end
-        object CB_TreeCheck: TCheckBox
-          Left = 18
-          Top = 103
-          Width = 277
-          Height = 17
-          Hint = 'Display or hide checkboxes in ALL nodes'
-          Caption = '&Show checkboxes in all nodes'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 3
-        end
-        object Edit_NodeName: TComboBox
-          Left = 132
-          Top = 17
-          Width = 176
-          Height = 21
-          Hint = 'Enter default name for nodes added to tree'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 0
-        end
-        object CB_AutoNumberNodes: TCheckBox
-          Left = 144
-          Top = 45
-          Width = 188
-          Height = 17
-          Hint = 'When adding a node, append sequential number to its name'
-          Caption = '&Append sequential number'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 1
-          Visible = False
-        end
-        object BitBtn_TknHlp: TBitBtn
-          Left = 315
-          Top = 15
-          Width = 25
-          Height = 25
-          Hint = 'Help for auto-naming tree nodes'
-          ImageIndex = 60
-          Images = Form_Main.IMG_Toolbar
-          TabOrder = 6
-          TabStop = False
-        end
-        object CB_Vertical: TCheckBox
-          Left = 18
-          Top = 80
-          Width = 277
-          Height = 17
-          Hint = 'Check to show tree ABOVE the editor'
-          Caption = '&Vertical layout (tree on top)'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 2
-        end
-        object Combo_TreeImages: TComboBox
-          Left = 132
-          Top = 155
-          Width = 176
-          Height = 21
-          Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 5
-        end
-        object CB_HideChecked: TCheckBox
-          Left = 18
-          Top = 127
-          Width = 277
-          Height = 17
-          Hint = 'Show or hide checked nodes'
-          Caption = '&Hide checked nodes'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 4
-        end
-        object BitBtn_TreeChromeHelp: TBitBtn
-          Left = 257
-          Top = 194
-          Width = 25
-          Height = 25
-          ImageIndex = 60
-          Images = Form_Main.IMG_Toolbar
-          TabOrder = 7
-          TabStop = False
-          OnClick = BitBtn_TreeChromeHelpClick
-        end
-        object CB_TreeChrome_AllNotes: TCheckBox
-          Left = 21
-          Top = 260
-          Width = 180
-          Height = 17
-          Hint = 
-            'Font and BG color will be changed in the panels of ALL folders i' +
-            'n current file'
-          TabStop = False
-          Caption = 'A&pply to ALL folders'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 8
         end
       end
     end

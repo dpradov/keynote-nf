@@ -843,6 +843,8 @@ type
     AddParent1: TMenuItem;
     TVLinkedNode_: TMenuItem;
     RTFMPlainText: TMenuItem;
+    actTVFlaggedNode: TAction;
+    TVFlaggedNode: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1229,6 +1231,7 @@ type
     procedure actTVAddNode_ParentExecute(Sender: TObject);
     procedure MMViewHideCheckedNodesClick(Sender: TObject);
     procedure RTFMPlainTextClick(Sender: TObject);
+    procedure actTVFlaggedNodeExecute(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1560,10 +1563,6 @@ end; // HotKeyProc
 
 procedure TForm_Main.FormCreate(Sender: TObject);
 begin
-  InitializeKeynote(Self);
-  MMP_PlainDefaultPaste.Hint:= MMEditPlainDefaultPaste.Hint;
-
-  RegisterDropTarget(Form_Main.Pages);
 
   IMG_Toolbar.Clear;
   IMG_Format.Clear;
@@ -1578,6 +1577,11 @@ begin
     OTHER_KNT_ICON => KNT_ALT_ICON ... (keynoteAlt.ico)
    }
   TrayIcon.Icons.LoadResource(HInstance, ['MAINICON', 'OTHER_KNT_ICON']);
+
+  InitializeKeynote(Self);
+  MMP_PlainDefaultPaste.Hint:= MMEditPlainDefaultPaste.Hint;
+
+  RegisterDropTarget(Form_Main.Pages);
 
   FRestoreFocusInEditor:= 0;
   Application.OnIdle := ApplicationEventsIdle;
@@ -6578,6 +6582,12 @@ begin
   ActiveTreeUI.ToggleCheckNode(ActiveTreeUI.FocusedNode);
 end;
 
+procedure TForm_Main.actTVFlaggedNodeExecute(Sender: TObject);
+begin
+   ActiveTreeUI.ToggleNodeFlagged(nil);
+end;
+
+
 procedure TForm_Main.actTVBoldNodeExecute(Sender: TObject);
 begin
   ActiveTreeUI.SetNodeBold(ShiftDown );
@@ -7013,6 +7023,7 @@ begin
       TVCheckNode.Checked := Node.CheckState.IsChecked;
       TVChildrenCheckbox.Checked := NNode.ChildrenCheckbox;
       TVBoldNode.Checked := NNode.Bold;
+      TVFlaggedNode.Checked := NNode.Flagged;
    end
    else
       TVCheckNode.Checked := false;

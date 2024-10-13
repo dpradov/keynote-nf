@@ -19,23 +19,22 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, Winapi.ActiveX,
-  System.SysUtils, System.Variants, System.Classes,
-  System.Contnrs, System.Actions,
+  System.SysUtils, System.Variants, System.Classes, System.Math,
+  System.Contnrs, System.Actions, System.ImageList,
   Vcl.Graphics, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.Clipbrd,
-  Vcl.ActnList, Vcl.StdCtrls,
+  Vcl.ActnList, Vcl.StdCtrls, Vcl.ImgList,
 
   VirtualTrees,
   VirtualTrees.Types,
   VirtualTrees.BaseTree,
+  VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL,
 
   TB97Ctls,
   RxRichEd,
   gf_misc,
   kn_Info,
   kn_Const,
-  knt.model.note,
-  VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL, System.ImageList,
-  Vcl.ImgList
+  knt.model.note
   ;
 
 
@@ -106,6 +105,7 @@ type
     fFolder: TObject;
     fSplitterNote : TSplitter;
     fPopupMenu : TPopupMenu;
+    FDateColor: TColor;
 
     fReadOnly: boolean;
     fLastNodeSelected : PVirtualNode;
@@ -138,6 +138,13 @@ type
     procedure TV_CompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
     //procedure TV_SavingTree(Sender: TObject; Node: PVirtualNode; var S: string);
 
+    procedure TV_HeaderCustomDrawTreeHeaderDrawQueryElements(
+                                    Sender: TVTHeader; var PaintInfo: THeaderPaintInfo; var Elements: THeaderPaintElements);
+    procedure TV_AdvancedHeaderDraw(Sender: TVTHeader; var PaintInfo: THeaderPaintInfo; const Elements: THeaderPaintElements);
+
+    procedure TV_HeaderDragged(Sender: TVTHeader; Column: TColumnIndex; OldPosition: Integer);
+    procedure TV_NodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
+
     function GetFocused: boolean;
     function GetIconKind : TNodeIconKind;
     function GetShowAllCheckboxes: boolean;
@@ -155,6 +162,7 @@ type
 
   public
     procedure UpdateTreeChrome;
+    procedure UpdateTreeColumns;
 
     function GetNNode(Node: PVirtualNode): TNoteNode; inline;
     procedure SetNNode(Node: PVirtualNode; NNode: TNoteNode); inline;
@@ -181,6 +189,7 @@ type
     procedure ShowOrHideIcons;
     procedure SetNodeColor(Node: PVirtualNode; NodeColor: TColor; AsTextColor, DoChildren : boolean); overload;
     procedure SetNodeColor(const UseColorDlg, AsTextColor, ResetDefault, DoChildren : boolean); overload;
+    procedure ToggleNodeFlagged(Node: PVirtualNode);
     procedure SetNodeBold(const DoChildren : boolean); overload;
     procedure SetNodeBold(Node: PVirtualNode; Bold: boolean; const DoChildren : boolean); overload;
     procedure SetNodeCustomImage; overload;
@@ -452,6 +461,34 @@ begin
 
    TB_HideChecked.Hint := Form_Main.MMViewHideCheckedNodes.Hint;    // [dpv]
    CheckImages.ResInstLoad( HInstance, rtBitmap, 'VTCHECKIMGS',  clFuchsia );
+
+   with TV.Header do begin
+       Height := 18;
+       Options:= [hoAutoResize, hoColumnResize,hoDblClickResize,hoDrag,hoShowHint, hoOwnerDraw];
+       AutoSize := False;
+       with Columns.Add do begin
+           Text:='Name';
+           Hint:= 'Note name';
+           Position:= 1;
+           Style:= vsOwnerDraw;
+       end;
+       with Columns.Add do begin
+           Text:='Date';
+           Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor];
+           Hint:= 'Note creation date';
+           Position:= 2;
+           Style:= vsOwnerDraw;
+       end;
+       with Columns.Add do begin
+           Hint:='Note flagged';
+           Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor];
+           Width:= 18;
+           Position:= 0;
+           Style:= vsOwnerDraw;
+       end;
+       MainColumn:= 0;
+   end;
+
 end;
 
 
@@ -517,6 +554,7 @@ begin
    end;
 
    UpdateTreeOptions;
+   UpdateTreeChrome;
 
    PopulateTV;
    SetupTreeHandlers;
@@ -525,6 +563,8 @@ begin
 
    if Folder.TreeMaxWidth > Folder.TreeWidth then
       SplitterNote.Color:= clLtGray;
+
+   UpdateTreeColumns;
 end;
 
 
@@ -793,7 +833,11 @@ begin
      OnMouseMove:= TV_MouseMove;
      OnMouseLeave:= TV_MouseLeave;
      OnCompareNodes:= TV_CompareNodes;
+     OnNodeClick:= TV_NodeClick;
 
+     OnHeaderDrawQueryElements:= TV_HeaderCustomDrawTreeHeaderDrawQueryElements;
+     OnAdvancedHeaderDraw:= TV_AdvancedHeaderDraw;
+     OnHeaderDragged:= TV_HeaderDragged;
    end;
 
    TKntFolder(fFolder).NoteUI.SetOnEnter(NoteUIEnter);
@@ -806,12 +850,91 @@ end;
 procedure TKntTreeUI.UpdateTreeChrome;
 var
   Folder: TKntFolder;
+  FontColor: TColor;
 begin
    Folder:= TKntFolder(Self.Folder);
 
    TV.Color := Folder.TreeChrome.BGColor;
    FontInfoToFont(Folder.TreeChrome.Font, TV.Font);
+   TV.Header.Font:= TV.Font;
+   TV.Header.Font.Style:= [];
+
+   FontColor:= DarkenColor(TV.Color, 90);
+   if FontColor = TV.Color then
+      FontColor:= LightenColor(Color, 90);
+   TV.Header.Font.Color:= FontColor;
+
+   TV.Colors.HotColor:= GetHotColorFor(TV.Color, TV.Font.Color);
+
+   FDateColor:= LightenColor(TV.Color, 160);
+   if FDateColor = clWhite then
+      FDateColor:= DarkenColor(TV.Color, 160);
+
    TV.Invalidate;
+end;
+
+
+procedure TKntTreeUI.UpdateTreeColumns;
+var
+  Folder: TKntFolder;
+  NamePos: integer;
+
+  function GetSizeOfColDate: integer;
+  var
+     oldFont: TFont;
+  begin
+     OldFont := TFont.Create();
+     try
+       OldFont.Assign(TV.Canvas.Font);
+       with TV.Canvas.Font do begin
+          Name:= 'Tahoma';
+          Style:= [];
+       end;
+       Result:= TV.Canvas.TextWidth(FormatDateTime(FormatSettings.ShortDateFormat, EncodeDate(2024, 06, 06))) + 15;
+       TV.Canvas.Font.Assign(OldFont);
+     finally
+       OldFont.Free();
+     end;
+
+  end;
+
+begin
+   Folder:= TKntFolder(Self.Folder);
+
+   NamePos:= 0;
+   with TV.Header do begin
+      With Columns[2] do begin                         // Flagged
+         if Folder.PosFlaggedCol >= 1 then begin
+            Options:= Options + [coVisible];
+            Position:= Folder.PosFlaggedCol - 1;
+
+            if Position = 0 then
+               NamePos:= 1;
+         end
+         else
+            Options:= Options - [coVisible]
+      end;
+
+      With Columns[1] do begin                        // Date
+         if Folder.PosDateCol >= 1 then begin
+            Options:= Options + [coVisible];
+            Width:= GetSizeOfColDate;
+            Position:= Folder.PosDateCol - 1;
+            if Position = NamePos then
+               NamePos:= Position + 1;
+         end
+         else
+            Options:= Options - [coVisible]
+      end;
+
+      Columns[0].Position:= NamePos;
+
+      if (Folder.PosDateCol >= 1) or (Folder.PosFlaggedCol >= 1) then
+         Options:= Options + [hoVisible]
+      else
+         Options:= Options - [hoVisible];
+
+   end;
 end;
 
 
@@ -919,13 +1042,97 @@ end;
 
 {$REGION TreeView Handlers}
 
+procedure TKntTreeUI.TV_HeaderDragged(Sender: TVTHeader; Column: TColumnIndex; OldPosition: Integer);
+begin
+   TKntFolder(FFolder).Modified:= True;
+end;
+
 
 procedure TKntTreeUI.TV_GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: string);
+var
+  Date: TDateTime;
 begin
   // Column: main column: -1 if columns are hidden, 0 if they are shown
 
-  CellText:= GetNodeCaption(Node);
+  case Column of
+     -1, 0: CellText:= GetNodeCaption(Node);          // Name column (main)
+         1: begin                                     // Date column
+            Date:= GetNNode(Node).Note.DateCreated;
+            if Date = 0 then
+               CellText:= ''
+            else
+               CellText:= FormatDateTime( FormatSettings.ShortDateFormat, Date);
+         end;
+         2: CellText:= '';                           // Flagged column
+  end;
+
+end;
+
+
+procedure TKntTreeUI.TV_NodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
+var
+   NNode: TNoteNode;
+begin
+   with HitInfo do begin
+       if HitColumn = 2 then
+          ToggleNodeFlagged(HitNode);
+   end;
+end;
+
+
+procedure TKntTreeUI.TV_AdvancedHeaderDraw(Sender: TVTHeader; var PaintInfo: THeaderPaintInfo;
+  const Elements: THeaderPaintElements);
+var
+  Color: TColor;
+begin
+  with PaintInfo do begin
+    // First check the column member. If it is NoColumn then it's about the header background.
+    if Column = nil then begin
+//      if hpeBackground in Elements then begin
+//        TargetCanvas.Brush.Color := TV.Color;// clBackground;
+//        TargetCanvas.FillRect(PaintRectangle);
+//      end;
+    end
+    else begin
+        Color:=     DarkenColor(TV.Color, 10);
+        if Color = TV.Color then
+           Color:= LightenColor(Color, 15);
+        TargetCanvas.Brush.Color := Color;
+        TargetCanvas.FillRect(PaintRectangle);
+    end;
+  end;
+
+end;
+
+
+procedure TKntTreeUI.TV_HeaderCustomDrawTreeHeaderDrawQueryElements(Sender: TVTHeader;
+                                                                    var PaintInfo: THeaderPaintInfo;
+                                                                    var Elements: THeaderPaintElements);
+// This event tells the tree which part we want to draw ourselves. Don't forget to enable custom drawing in the header
+// options and switch the Style property of every column, which we handle here to vsOwnerDraw.
+begin
+
+  with PaintInfo do begin
+    if Column = nil then
+      // Elements := [hpeBackground] // No other flag is recognized for the header background.
+    else begin
+      Elements := [hpeBackground{, hpeText, hpeDropMark, hpeHeaderGlyph, hpeSortGlyph}];
+      // Using the index here ensures a column, regardless of its position, always has the same draw style.
+      // By using the Position member, we could make a certain column place stand out, regardless of the column order.
+      // Don't forget to change the AdvancedHeaderDraw event body accordingly after you changed the indicator here.
+      (*
+      case Column.Index of
+        0: // Default drawing.       - Name
+          ;
+        1: // Full customization (well, quite).  - Date
+          Elements := [hpeBackground, hpeText{, hpeDropMark, hpeHeaderGlyph, hpeSortGlyph}];
+        2: // Background only customization.     - Flagged
+          Include(Elements, hpeBackground);
+      end;
+      *)
+    end;
+  end;
 end;
 
 
@@ -935,10 +1142,15 @@ var
   NNode: PNoteNode;
   CellR: TRect;
 begin
+  NNode := Sender.GetNodeData(Node);
+
+  if (Column = 2) and (NNode.Flagged) then begin
+     Form_Main.IMG_TV.Draw(TargetCanvas, CellRect.Left, 0, 10);
+     exit;
+  end;
+
   if vsSelected in Node.States then exit;
   if CellPaintMode = cpmGetContentMargin then exit;
-
-  NNode := Sender.GetNodeData(Node);
 
   if fTreeFilterApplied and NNode.TreeFilterMatch then begin
      TargetCanvas.Brush.Color := clWebLemonChiffon;
@@ -979,6 +1191,11 @@ begin
   if NNode.NodeFontFace <> '' then
      TargetCanvas.Font.Name := NNode.NodeFontFace;
 
+  if Column = 1 then begin                          // Date column
+     TargetCanvas.Font.Name:= 'Tahoma';
+     TargetCanvas.Font.Style:= [];
+     TargetCanvas.Font.Color := FDateColor;
+  end;
 end;
 
 
@@ -988,6 +1205,8 @@ procedure TKntTreeUI.TV_GetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNo
 var
    NNode: TNoteNode;
 begin
+  if Column > 0 then exit;
+
   if not (Kind in [TVTImageKind.ikNormal, TVTImageKind.ikSelected]) then exit;
 
   NNode:= GetNNode(Node);
@@ -1268,6 +1487,38 @@ begin
            SetNodeColor(Node, NodeColor, AsTextColor, DoChildren);
 end;
 
+
+procedure TKntTreeUI.ToggleNodeFlagged(Node: PVirtualNode);
+var
+  Flagged: boolean;
+  OnlyNodeIn: boolean;
+  NNode: TNoteNode;
+
+   procedure SetNodeFlagged;
+   begin
+     NNode:= GetNNode(Node);
+     NNode.Flagged:= Flagged;
+     TV.InvalidateNode(Node);
+   end;
+
+begin
+  if CheckReadOnly then exit;
+
+  OnlyNodeIn:= (Node <> nil);
+  if Node = nil then
+     Node:= TV.FocusedNode;
+
+  if Node = nil then exit;
+
+  Flagged:= not GetNNode(Node).Flagged;
+  if OnlyNodeIn or (TV.SelectedCount = 0) then
+     SetNodeFlagged
+  else
+     for Node in TV.SelectedNodes() do
+        SetNodeFlagged;
+
+  TKntFolder(Folder).Modified:= true;
+end;
 
 
 procedure TKntTreeUI.SetNodeBold(Node: PVirtualNode; Bold: boolean; const DoChildren : boolean);
@@ -1623,7 +1874,7 @@ begin
      EditInPlace:= false;
 
   if EditInPlace then
-     TV.EditNode(Node, -1)
+     TV.EditNode(Node, TV.Header.MainColumn )
 
   else begin
      myNote := NNode.Note;

@@ -1,19 +1,19 @@
 unit gf_miscvcl;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 {$I gf_base.inc}
 
@@ -28,6 +28,7 @@ uses
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Dialogs,
+   Vcl.ImgList,
    Vcl.StdCtrls;
 
 
@@ -83,6 +84,10 @@ function ScaleFromSmallFontsDimension(const X: Integer): Integer;
 function DotsToTwips(dots: Integer): integer; inline;
 
 procedure LoadBitmapFromResource(ImageList: TImageList; const ResourceName: string; TransparentColor: TColor);
+function DarkenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
+function LightenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
+function GetHotColorFor(BackColor, FontColor: TColor): TColor;
+function InvertColor(Color: TColor): TColor;
 
 var
   _TahomaFontInstalled : boolean = false;
@@ -543,6 +548,87 @@ begin
   Bitmap.LoadFromResourceName(HInstance, ResourceName);
   ImageList.AddMasked(Bitmap, TransparentColor);
   Bitmap.Free;
+end;
+
+
+function DarkenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
+var
+  RGBColor: Cardinal;
+  R, G, B: Integer;
+begin
+  RGBColor:= GetRGBFromColor(Color);
+  R := GetRValue(RGBColor);
+  G := GetGValue(RGBColor);
+  B := GetBValue(RGBColor);
+  R := R - Amount;
+  G := G - Amount;
+  B := B - Amount + BInc;
+
+  if R < 0 then R:= 0;
+  if G < 0 then G:= 0;
+  if B < 0 then B:= 0;
+  if B > 255 then B:= 255;
+
+  Result := RGB(R,G,B);
+end;
+
+
+function LightenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
+var
+  RGBColor: Cardinal;
+  R, G, B: Integer;
+begin
+  RGBColor:= GetRGBFromColor(Color);
+  R := GetRValue(RGBColor);
+  G := GetGValue(RGBColor);
+  B := GetBValue(RGBColor);
+  R := R + Amount;
+  G := G + Amount;
+  B := B + Amount + BInc;
+
+  if R > 255 then R:= 255;
+  if G > 255 then G:= 255;
+  if B > 255 then B:= 255;
+
+  Result := RGB(R,G,B);
+end;
+
+function InvertColor(Color: TColor): TColor;
+var
+  RGBColor: Cardinal;
+  R, G, B: Integer;
+begin
+  RGBColor:= GetRGBFromColor(Color);
+  R := GetRValue(RGBColor);
+  G := GetGValue(RGBColor);
+  B := GetBValue(RGBColor);
+  R := 255 - R;
+  G := 255 - G;
+  B := 255 - B;
+
+  Result := RGB(R,G,B);
+end;
+
+
+function GetColorLuminosity(Color: TColor): Double;
+var
+  Red, Green, Blue: Byte;
+  RGBColor: Longint;
+begin
+  RGBColor := ColorToRGB(Color);
+  Red   := GetRValue(RGBColor);
+  Green := GetGValue(RGBColor);
+  Blue  := GetBValue(RGBColor);
+
+  Result := 0.299 * Red + 0.587 * Green + 0.114 * Blue;
+end;
+
+function GetHotColorFor(BackColor, FontColor: TColor): TColor;
+begin
+   if GetColorLuminosity(BackColor) > GetColorLuminosity(FontColor) then
+      Result:= LightenColor(FontColor, 0, 190)
+   else
+      Result:= DarkenColor(FontColor, 150, 190);
 end;
 
 

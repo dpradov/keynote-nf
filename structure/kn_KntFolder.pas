@@ -119,6 +119,8 @@ type
     FTreeHidden : boolean;             // [*]
     FHideCheckedNodes: boolean;        // [*]
     FFiltered: boolean;                // [*]
+    FPosDateCol: integer;              // [*]
+    FPosFlaggedCol: integer;           // [*]
 
     FSavedSelectedIndex : integer;     // [*]
     FSavedTabIndex : integer;          // [*]
@@ -191,6 +193,8 @@ type
     property TreeWidth : integer read FTreeWidth write FTreeWidth;
     property TreeMaxWidth : integer read FTreeMaxWidth write FTreeMaxWidth;
     property HideCheckedNodes: Boolean read FHideCheckedNodes write FHideCheckedNodes;
+    property PosDateCol: integer read FPosDateCol write FPosDateCol;
+    property PosFlaggedCol: integer read FPosFlaggedCol write FPosFlaggedCol;
     property Filtered: Boolean read FFiltered write FFiltered;
     property SavedSelectedIndex : integer read FSavedSelectedIndex write FSavedSelectedIndex;
     property Checkboxes : boolean read FCheckboxes write FCheckboxes;
@@ -691,6 +695,7 @@ begin
                       TreeUI.ShowNonFilteredNodes(nil);
 
                 TreeUI.UpdateTreeChrome;
+                TreeUI.UpdateTreeColumns;
 
 
             end;
@@ -703,6 +708,7 @@ begin
                    F.Modified:= True;
                    F.TreeChrome := myTreeChrome;
                    F.TreeUI.UpdateTreeChrome;
+                   F.TreeUI.UpdateTreeColumns;
                 end;
             end;
 
@@ -821,6 +827,8 @@ begin
   FCheckboxes := false;
   FTreeHidden := false;
   FHideCheckedNodes:= false;
+  FPosDateCol:= -1;
+  FPosFlaggedCol:= -1;
   FFocusMemory := focTree; // initially focus tree
   FSavedSelectedIndex := -1;
   //FAutoNumberNotes := false;
@@ -1520,6 +1528,8 @@ begin
      FTreeMaxWidth:= -Abs(FTreeMaxWidth);
   FVerticalLayout := aProps.VerticalLayout;
   FHideCheckedNodes := aProps.HideChecked;
+  FPosDateCol := aProps.PosDateCol;
+  FPosFlaggedCol := aProps.PosFlaggedCol;
 end;
 
 
@@ -1531,6 +1541,8 @@ begin
   //aProps.AutoNumberNodes := FAutoNumberNotes;
   aProps.VerticalLayout := FVerticalLayout;
   aProps.HideChecked:= FHideCheckedNodes;
+  aProps.PosDateCol := FPosDateCol;
+  aProps.PosFlaggedCol := FPosFlaggedCol;
 end;
 
 
@@ -2582,6 +2594,14 @@ begin
   // added in 1.7.0:          // [dpv]
   result[19] := BOOLEANSTR[FHideCheckedNodes];
 
+
+  if FPosDateCol > 0 then
+     FPosDateCol:= TV.Header.Columns[1].Position+1;
+  if FPosFlaggedCol > 0 then
+     FPosFlaggedCol:= TV.Header.Columns[2].Position+1;
+  result[20] := AnsiChar(IntToStr(FPosDateCol)[1]);
+  result[21] := AnsiChar(IntToStr(FPosFlaggedCol)[1]);
+
 end;
 
 
@@ -2612,6 +2632,9 @@ begin
     FFocusMemory := focRTF;
 
   FHideCheckedNodes      := FlagsStr[19] = BOOLEANSTR[true];
+
+  FPosDateCol:= Ord(FlagsStr[20])-Ord('0');
+  FPosFlaggedCol:= Ord(FlagsStr[21])-Ord('0');
 end;
 
 {$ENDREGION }

@@ -204,7 +204,9 @@ type
     ShowCheckBoxes,
     IconKind,
     VerticalLayout,
-    HideChecked : string;     // [dpv]
+    HideChecked,
+    PosDateCol,
+    PosFlaggedCol : string;
   end;
 
 const
@@ -216,6 +218,8 @@ const
     IconKind : 'IconKind';
     VerticalLayout : 'VerticalLayout';
     HideChecked : 'HideChecked';        // [dpv]
+    PosDateCol: 'PosDateCol';
+    PosFlaggedCol: 'PosFlaggedCol';
   );
 
 procedure SaveMailOptions( const INI_FN : string; const MailOptions : TMailOptions );
@@ -2095,7 +2099,11 @@ begin
       writeinteger( section, NoteTreePropertiesIniStr.IconKind, ord( DefaultTreeProperties.IconKind ));
       writebool( section, NoteTreePropertiesIniStr.AutoNumberNodes, DefaultTreeProperties.AutoNumberNodes );
       writebool( section, NoteTreePropertiesIniStr.VerticalLayout, DefaultTreeProperties.VerticalLayout );
-      writebool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );       // [dpv]
+      writebool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );
+      writebool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );
+      writeinteger( section, NoteTreePropertiesIniStr.PosDateCol, DefaultTreeProperties.PosDateCol );
+      writeinteger( section, NoteTreePropertiesIniStr.PosFlaggedCol, DefaultTreeProperties.PosFlaggedCol );
+
 
       section := 'TreeChrome';
       writestring( section, ChromeIniStr.BGColor, ColorToString( DefaultTreeChrome.BGColor ));
@@ -2197,7 +2205,9 @@ begin
       DefaultTreeProperties.AutoNumberNodes := readbool( section, NoteTreePropertiesIniStr.AutoNumberNodes, DefaultTreeProperties.AutoNumberNodes );
       DefaultTreeProperties.IconKind := TNodeIconKind( readinteger( section, NoteTreePropertiesIniStr.IconKind, ord( DefaultTreeProperties.IconKind )));
       DefaultTreeProperties.VerticalLayout := readbool( section, NoteTreePropertiesIniStr.VerticalLayout, DefaultTreeProperties.VerticalLayout );
-      DefaultTreeProperties.HideChecked := readbool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );   // [dpv]
+      DefaultTreeProperties.HideChecked := readbool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );
+      DefaultTreeProperties.PosDateCol := readinteger( section, NoteTreePropertiesIniStr.PosDateCol, DefaultTreeProperties.PosDateCol );
+      DefaultTreeProperties.PosFlaggedCol := readinteger( section, NoteTreePropertiesIniStr.PosFlaggedCol, DefaultTreeProperties.PosFlaggedCol );
 
     end;
   finally

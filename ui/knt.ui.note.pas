@@ -139,7 +139,7 @@ uses
   kn_EditorUtils;
 
 resourcestring
-  STR_01 = 'Entry created: %s  (Note last modified: %s)';
+  STR_01 = 'Entry created: %s  ##  Note last modified: %s';
 
 
 // Create  / Destroy =========================================
@@ -301,7 +301,7 @@ var
   s: string;
 begin
   if NNode <> nil then begin
-     s:= Format(STR_01, [txtCreationDate.Text, FormatDateTime(KeyOptions.DateFmt + #32 + KeyOptions.TimeFmt, FNote.LastModified)]);
+     s:= Format(STR_01, [txtCreationDate.Text, FormatDateTime(FormatSettings.ShortDateFormat + ' - ' + FormatSettings.ShortTimeFormat, FNote.LastModified)]);
   end;
   txtCreationDate.Hint:= s;
 end;
@@ -429,7 +429,7 @@ begin
 
    NEntry:= Note.Entries[0];       // %%%%
    txtName.Text:= FNote.Name;
-   txtCreationDate.Text:= FormatDateTime(KeyOptions.DateFmt + #32 + KeyOptions.TimeFmt, NEntry.Created);
+   txtCreationDate.Text:= FormatDateTime(FormatSettings.ShortDateFormat + ' - ' + FormatSettings.ShortTimeFormat, NEntry.Created);
 
    BeforeEditorLoaded(Note);     //%%% ¿Informar tb. del posible cambio de NEntry?
 

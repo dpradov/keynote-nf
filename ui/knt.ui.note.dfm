@@ -36,9 +36,9 @@ object KntNoteUI: TKntNoteUI
       578
       24)
     object txtCreationDate: TEdit
-      Left = 463
+      Left = 458
       Top = 0
-      Width = 115
+      Width = 120
       Height = 22
       TabStop = False
       Alignment = taCenter
@@ -53,7 +53,7 @@ object KntNoteUI: TKntNoteUI
     object txtName: TEdit
       Left = 1
       Top = 0
-      Width = 461
+      Width = 456
       Height = 22
       TabStop = False
       Alignment = taCenter
