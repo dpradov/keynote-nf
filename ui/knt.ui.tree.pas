@@ -163,6 +163,9 @@ type
   public
     procedure UpdateTreeChrome;
     procedure UpdateTreeColumns;
+    procedure ShowAdditionalColumns (Show: boolean);
+    function AdditionalColumnsAreVisible: boolean;
+    function GetSizeOfColDate: integer;
 
     function GetNNode(Node: PVirtualNode): TNoteNode; inline;
     procedure SetNNode(Node: PVirtualNode; NNode: TNoteNode); inline;
@@ -480,7 +483,7 @@ begin
            Style:= vsOwnerDraw;
        end;
        with Columns.Add do begin
-           Hint:='Note flagged';
+           Hint:='Flagged';
            Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor];
            Width:= 18;
            Position:= 0;
@@ -874,29 +877,29 @@ begin
 end;
 
 
+function TKntTreeUI.GetSizeOfColDate: integer;
+var
+  oldFont: TFont;
+begin
+  OldFont := TFont.Create();
+  try
+    OldFont.Assign(TV.Canvas.Font);
+    with TV.Canvas.Font do begin
+       Name:= 'Tahoma';
+       Style:= [];
+    end;
+    Result:= TV.Canvas.TextWidth(FormatDateTime(FormatSettings.ShortDateFormat, EncodeDate(2024, 06, 06))) + 15;
+    TV.Canvas.Font.Assign(OldFont);
+  finally
+    OldFont.Free();
+  end;
+
+end;
+
 procedure TKntTreeUI.UpdateTreeColumns;
 var
   Folder: TKntFolder;
   NamePos: integer;
-
-  function GetSizeOfColDate: integer;
-  var
-     oldFont: TFont;
-  begin
-     OldFont := TFont.Create();
-     try
-       OldFont.Assign(TV.Canvas.Font);
-       with TV.Canvas.Font do begin
-          Name:= 'Tahoma';
-          Style:= [];
-       end;
-       Result:= TV.Canvas.TextWidth(FormatDateTime(FormatSettings.ShortDateFormat, EncodeDate(2024, 06, 06))) + 15;
-       TV.Canvas.Font.Assign(OldFont);
-     finally
-       OldFont.Free();
-     end;
-
-  end;
 
 begin
    Folder:= TKntFolder(Self.Folder);
@@ -935,6 +938,61 @@ begin
          Options:= Options - [hoVisible];
 
    end;
+end;
+
+
+function TKntTreeUI.AdditionalColumnsAreVisible: boolean;
+begin
+   Result:= (coVisible in TV.Header.Columns[1].Options) or (coVisible in TV.Header.Columns[2].Options);
+end;
+
+
+
+// This action will not be saved. To configure if any of the additional columns must be shown by default
+// -> Folder properties..
+procedure TKntTreeUI.ShowAdditionalColumns (Show: boolean);
+var
+   Folder: TKntFolder;
+   CurrentlyConfigAsVisible: boolean;
+   incWidth: integer;
+   i: integer;
+   PosCol: array [1..2] of integer;
+
+begin
+   Folder:= TKntFolder(Self.Folder);
+
+   incWidth:= 0;
+   PosCol[1]:= Folder.PosDateCol;
+   PosCol[2]:= Folder.PosFlaggedCol;
+
+   CurrentlyConfigAsVisible:= (PosCol[1] > 0) or (PosCol[2] > 0);
+
+   for i:= 1 to 2 do begin
+      if Show then begin
+         if not CurrentlyConfigAsVisible or (PosCol[i] > 0) then begin
+            if i = 1 then
+               TV.Header.Columns[i].Width:= GetSizeOfColDate;
+            inc(incWidth, TV.Header.Columns[i].Width);
+            TV.Header.Columns[i].Options:= TV.Header.Columns[i].Options + [coVisible];
+         end;
+      end
+      else begin
+         if coVisible in TV.Header.Columns[i].Options then begin
+            dec(incWidth, TV.Header.Columns[i].Width);
+            TV.Header.Columns[i].Options:= TV.Header.Columns[i].Options - [coVisible];
+         end;
+      end;
+   end;
+
+   if not CurrentlyConfigAsVisible then
+      TV.Header.Columns[2].Position:= 0;
+
+   if Show then
+      TV.Header.Options:= TV.Header.Options + [hoVisible]
+   else
+      TV.Header.Options:= TV.Header.Options - [hoVisible];
+
+   Self.Width:= Self.Width + IncWidth;
 end;
 
 

@@ -1857,6 +1857,11 @@ object Form_Main: TForm_Main
       Hint = 'Sort all nodes in tree'
       OnExecute = actTVSortTreeExecute
     end
+    object actTVViewAdditColumns: TAction
+      Caption = 'Show columns'
+      Hint = 'Show additional columns (Flagged and/or Date)'
+      OnExecute = actTVViewAdditColumnsExecute
+    end
   end
   object actList_TVs: TActionList
     OnUpdate = actList_TVsUpdate
@@ -4938,6 +4943,15 @@ object Form_Main: TForm_Main
       object TVSortTree: TMenuItem
         Action = actTVSortTree
         ShortCut = 24659
+      end
+    end
+    object N31: TMenuItem
+      Caption = '-'
+    end
+    object TVView_Filter: TMenuItem
+      Caption = 'View / Filter'
+      object TVViewAdditColumns: TMenuItem
+        Action = actTVViewAdditColumns
       end
     end
     object N40: TMenuItem

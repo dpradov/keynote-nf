@@ -845,6 +845,10 @@ type
     RTFMPlainText: TMenuItem;
     actTVFlaggedNode: TAction;
     TVFlaggedNode: TMenuItem;
+    N31: TMenuItem;
+    TVView_Filter: TMenuItem;
+    TVViewAdditColumns: TMenuItem;
+    actTVViewAdditColumns: TAction;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1232,6 +1236,7 @@ type
     procedure MMViewHideCheckedNodesClick(Sender: TObject);
     procedure RTFMPlainTextClick(Sender: TObject);
     procedure actTVFlaggedNodeExecute(Sender: TObject);
+    procedure actTVViewAdditColumnsExecute(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -6786,6 +6791,15 @@ begin
    ActiveTreeUI.RenameFocusedNode;
 end;
 
+
+procedure TForm_Main.actTVViewAdditColumnsExecute(Sender: TObject);
+begin
+   ActiveTreeUI.ShowAdditionalColumns(not ActiveTreeUI.AdditionalColumnsAreVisible);
+end;
+
+
+
+
 {$ENDREGION}   //  'Tree commands' ==================================
 
 
@@ -7037,6 +7051,8 @@ begin
 
    TVChildrenCheckbox.Enabled := not ActiveFolder.Checkboxes;
    TVCheckNode.Enabled:= assigned(Node) and (Node.CheckType <> ctNone);
+
+   TVViewAdditColumns.Checked:= ActiveTreeUI.AdditionalColumnsAreVisible;
 end;
 
 procedure TForm_Main.UpdateOpenFile;
