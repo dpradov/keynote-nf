@@ -1141,11 +1141,15 @@ procedure TKntTreeUI.TV_BeforeCellPaint(Sender: TBaseVirtualTree; TargetCanvas: 
 var
   NNode: PNoteNode;
   CellR: TRect;
+  T: integer;
 begin
   NNode := Sender.GetNodeData(Node);
 
-  if (Column = 2) and (NNode.Flagged) then begin
-     Form_Main.IMG_TV.Draw(TargetCanvas, CellRect.Left, 0, 10);
+  if (Column = 2) then begin
+     if NNode.Flagged then begin
+        T:= (CellRect.Height - Form_Main.IMG_TV.Height) div 2;         // Center vertically
+        Form_Main.IMG_TV.Draw(TargetCanvas, CellRect.Left, T, 10);
+     end;
      exit;
   end;
 
