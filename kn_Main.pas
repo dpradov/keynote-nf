@@ -849,6 +849,8 @@ type
     TVView_Filter: TMenuItem;
     TVViewAdditColumns: TMenuItem;
     actTVViewAdditColumns: TAction;
+    actTVFilterOutUnflagged: TAction;
+    TVFilterOutUnflagged: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1237,6 +1239,7 @@ type
     procedure RTFMPlainTextClick(Sender: TObject);
     procedure actTVFlaggedNodeExecute(Sender: TObject);
     procedure actTVViewAdditColumnsExecute(Sender: TObject);
+    procedure actTVFilterOutUnflaggedExecute(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -6798,6 +6801,11 @@ begin
 end;
 
 
+procedure TForm_Main.actTVFilterOutUnflaggedExecute(Sender: TObject);
+begin
+  ActiveTreeUI.FilterOutUnflagged (not ActiveTreeUI.FilterOutUnflaggedApplied);
+end;
+
 
 
 {$ENDREGION}   //  'Tree commands' ==================================
@@ -7053,6 +7061,7 @@ begin
    TVCheckNode.Enabled:= assigned(Node) and (Node.CheckType <> ctNone);
 
    TVViewAdditColumns.Checked:= ActiveTreeUI.AdditionalColumnsAreVisible;
+   TVFilterOutUnflagged.Checked:= ActiveTreeUI.FilterOutUnflaggedApplied;
 end;
 
 procedure TForm_Main.UpdateOpenFile;

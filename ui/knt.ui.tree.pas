@@ -113,6 +113,8 @@ type
 
     fFindFilterApplied: boolean;
     fTreeFilterApplied: boolean;
+    fFilterOutUnflaggedApplied: boolean;
+    fChangesInFlagged: boolean;
     fLastTreeSearch: string;
 
   protected
@@ -292,11 +294,14 @@ type
     procedure ApplyFilters (Apply: boolean);
     property FindFilterApplied: boolean read fFindFilterApplied write fFindFilterApplied;
     property TreeFilterApplied: boolean read fTreeFilterApplied write fTreeFilterApplied;
+    property FilterOutUnflaggedApplied: boolean read fFilterOutUnflaggedApplied write fFilterOutUnflaggedApplied;
+
     procedure FilterApplied (Applied: boolean);   // [dpv]
     procedure ApplyFilterOnFolder;   // [dpv]
     procedure ClearFindFilter;
     procedure CheckFocusedNode;
     procedure txtFilterChange(Sender: TObject);
+    procedure FilterOutUnflagged (Apply: boolean);
     procedure ActivateFilter;
     procedure TB_FilterTreeClick(Sender: TObject);
 
@@ -452,8 +457,9 @@ begin
 
    fLastNodeSelected := nil;
    fFindFilterApplied:= false;
-
    fTreeFilterApplied:= false;
+   fFilterOutUnflaggedApplied:= false;
+   fChangesInFlagged:= false;
 
    fNumberingDepthLimit:= 2;
 
@@ -1580,6 +1586,15 @@ begin
         SetNodeFlagged;
 
   TKntFolder(Folder).Modified:= true;
+
+   fChangesInFlagged:= true;
+   if CtrlDown then begin
+      if Flagged then begin
+         fTreeFilterApplied:= false;
+         txtFilter.Text:= '';
+      end;
+      FilterOutUnflagged(Flagged);
+   end;
 end;
 
 
@@ -3604,7 +3619,7 @@ begin
 
    TV.BeginUpdate;
 
-   InitialFiltered:= fTreeFilterApplied or fFindFilterApplied;
+   InitialFiltered:= fTreeFilterApplied or fFindFilterApplied or fFilterOutUnflaggedApplied;
 
    for Node in TV.Nodes() do
       TV.IsFiltered [Node]:= InitialFiltered;
@@ -3616,12 +3631,12 @@ begin
             MakePathNonFiltered(Node);
       end;
 
-   if fTreeFilterApplied then
+   if fTreeFilterApplied or fFilterOutUnflaggedApplied then
       Node:= TV.GetFirst();
       repeat
          if not (fFindFilterApplied and TV.IsFiltered[Node]) then begin
             NNode:= GetNNode(Node);
-            if not NNode.TreeFilterMatch then
+            if not ( (NNode.TreeFilterMatch or not fTreeFilterApplied) and (NNode.Flagged or not fFilterOutUnflaggedApplied) ) then
                TV.IsFiltered[Node]:= true
 
             else begin
@@ -3642,7 +3657,9 @@ begin
 
    TV.EndUpdate;
 
-   TB_FilterTree.Enabled := fFindFilterApplied or fTreeFilterApplied;
+   fChangesInFlagged:= false;
+
+   TB_FilterTree.Enabled := fFindFilterApplied or fTreeFilterApplied or fFilterOutUnflaggedApplied;
    Form_Main.MMViewFilterTree.Enabled:= TB_FilterTree.Enabled;
 end;
 
@@ -3656,8 +3673,6 @@ end;
 
 
 procedure TKntTreeUI.ClearFindFilter;
-var
-   Node: PVirtualNode;
 begin
    if not FindFilterApplied then exit;
 
@@ -3665,7 +3680,7 @@ begin
    ClearAllFindMatch;
    SetFilteredNodes;
 
-   if not TreeFilterApplied then begin
+   if not (TreeFilterApplied or FilterOutUnflaggedApplied) then begin
       TKntFolder(Folder).Filtered:= False;
       ApplyFilterOnFolder;
    end;
@@ -3693,7 +3708,7 @@ begin
         ClearAllTreeMatch;
         SetFilteredNodes;
 
-        if not FindFilterApplied then begin
+        if not (FindFilterApplied or FilterOutUnflaggedApplied) then begin
            TKntFolder(Folder).Filtered:= False;
            ApplyFilterOnFolder;
         end;
@@ -3719,6 +3734,25 @@ begin
 
      //CheckFocusedNode;      // RunFindAllEx (from here, and from normal Find All -with Apply Filter) will call ActivateFilter ( -> CheckFocusedNode)
   end;
+end;
+
+procedure TKntTreeUI.FilterOutUnflagged (Apply: boolean);
+begin
+   FilterOutUnflaggedApplied:= Apply;
+   if Apply then
+      ActivateFilter
+
+   else begin
+      SetFilteredNodes;
+
+      if not (TreeFilterApplied or FindFilterApplied) then begin
+         TKntFolder(Folder).Filtered:= False;
+         ApplyFilterOnFolder;
+      end;
+
+      CheckFocusedNode;
+      TV.Invalidate;
+   end;
 end;
 
 
@@ -3770,6 +3804,8 @@ begin
    Folder:= TKntFolder(Self.Folder);
 
    Folder.Filtered:= not Folder.Filtered;
+   if fChangesInFlagged then
+      SetFilteredNodes;
    ApplyFilters(Folder.Filtered);
    FilterApplied(Folder.Filtered);
 

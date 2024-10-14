@@ -1688,7 +1688,9 @@ object Form_Main: TForm_Main
     end
     object actTVFlaggedNode: TAction
       Caption = '&Flagged'
-      Hint = 'Toggle Flag in selected nodes'
+      Hint = 
+        'Toggle Flag in selected nodes (Ctrl:Also toggle on/off '#39'Filter un' +
+        'flagged'#39' )'
       OnExecute = actTVFlaggedNodeExecute
     end
     object actTVBoldNode: TAction
@@ -1861,6 +1863,11 @@ object Form_Main: TForm_Main
       Caption = 'Show columns'
       Hint = 'Show additional columns (Flagged and/or Date)'
       OnExecute = actTVViewAdditColumnsExecute
+    end
+    object actTVFilterOutUnflagged: TAction
+      Caption = 'Filter out unflagged'
+      Hint = 'Hide unflagged nodes'
+      OnExecute = actTVFilterOutUnflaggedExecute
     end
   end
   object actList_TVs: TActionList
@@ -4952,6 +4959,9 @@ object Form_Main: TForm_Main
       Caption = 'View / Filter'
       object TVViewAdditColumns: TMenuItem
         Action = actTVViewAdditColumns
+      end
+      object TVFilterOutUnflagged: TMenuItem
+        Action = actTVFilterOutUnflagged
       end
     end
     object N40: TMenuItem
