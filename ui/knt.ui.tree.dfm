@@ -74,7 +74,7 @@ object KntTreeUI: TKntTreeUI
       Height = 22
       AllowAllUp = True
       Anchors = [akTop, akRight]
-      GroupIndex = 2
+      GroupIndex = 3
       Enabled = False
       RepeatInterval = 101
     end
