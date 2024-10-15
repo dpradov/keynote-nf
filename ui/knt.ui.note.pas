@@ -298,10 +298,12 @@ end;
 
 procedure TKntNoteUI.txtCreationDateMouseEnter(Sender: TObject);
 var
-  s: string;
+  s, lm: string;
 begin
   if NNode <> nil then begin
-     s:= Format(STR_01, [txtCreationDate.Text, FormatDateTime(FormatSettings.ShortDateFormat + ' - ' + FormatSettings.ShortTimeFormat, FNote.LastModified)]);
+     if FNote.LastModified <> 0 then
+        lm:= FormatDateTime(FormatSettings.ShortDateFormat + ' - ' + FormatSettings.ShortTimeFormat, FNote.LastModified);
+     s:= Format(STR_01, [txtCreationDate.Text, lm]);
   end;
   txtCreationDate.Hint:= s;
 end;
@@ -429,7 +431,10 @@ begin
 
    NEntry:= Note.Entries[0];       // %%%%
    txtName.Text:= FNote.Name;
-   txtCreationDate.Text:= FormatDateTime(FormatSettings.ShortDateFormat + ' - ' + FormatSettings.ShortTimeFormat, NEntry.Created);
+   if NEntry.Created <> 0  then
+      txtCreationDate.Text:= FormatDateTime(FormatSettings.ShortDateFormat + ' - ' + FormatSettings.ShortTimeFormat, NEntry.Created)
+   else
+      txtCreationDate.Text:= '';
 
    BeforeEditorLoaded(Note);     //%%% ¿Informar tb. del posible cambio de NEntry?
 

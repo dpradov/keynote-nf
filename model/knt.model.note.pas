@@ -931,7 +931,10 @@ begin
   fID := NumEntry;
   fStream := TMemoryStream.Create;
 
-  fDateCreated := Now;
+  fDateCreated := 0;
+  if not AFileIsLoading then
+     fDateCreated := Now;
+
   fTags := nil;
   fTextPlain := '';
 
