@@ -843,14 +843,21 @@ type
     AddParent1: TMenuItem;
     TVLinkedNode_: TMenuItem;
     RTFMPlainText: TMenuItem;
-    actTVFlaggedNode: TAction;
     TVFlaggedNode: TMenuItem;
     N31: TMenuItem;
     TVView_Filter: TMenuItem;
     TVViewAdditColumns: TMenuItem;
+    TVFilterOutUnflagged: TMenuItem;
     actTVViewAdditColumns: TAction;
     actTVFilterOutUnflagged: TAction;
-    TVFilterOutUnflagged: TMenuItem;
+    actTVFlaggedNode: TAction;
+    actTVBoldNode: TAction;
+    actTVCheckNode: TAction;
+    actTVChildrenCheckbox: TAction;
+    actTVUnlinkVirtualNode: TAction;
+    actTVNavigateNextLinkedNNode: TAction;
+    actTVRefreshVirtualNode: TAction;
+    actTVVirtualNode: TAction;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -7042,26 +7049,27 @@ begin
       IsVirtual:= Note.IsVirtual;
       HasSeveralNNodes := Note.NumNNodes > 1;
 
-      TVCheckNode.Checked := Node.CheckState.IsChecked;
-      TVChildrenCheckbox.Checked := NNode.ChildrenCheckbox;
-      TVBoldNode.Checked := NNode.Bold;
-      TVFlaggedNode.Checked := NNode.Flagged;
+      actTVCheckNode.Checked := Node.CheckState.IsChecked;
+      actTVChildrenCheckbox.Checked := NNode.ChildrenCheckbox;
+      actTVBoldNode.Checked := NNode.Bold;
+      actTVFlaggedNode.Checked := NNode.Flagged;
    end
    else
-      TVCheckNode.Checked := false;
+      actTVCheckNode.Checked := false;
 
    TVVirtualNode_.Checked:= IsVirtual;
-   TVVirtualNode.Checked := IsVirtual;
-   TVRefreshVirtualNode.Enabled := IsVirtual;
-   TVUnlinkVirtualNode.Enabled := IsVirtual;
-   TVNavigateNextLinkedNNode.Enabled := HasSeveralNNodes;
+   actTVVirtualNode.Checked := IsVirtual;
+   actTVRefreshVirtualNode.Enabled := IsVirtual;
+   actTVUnlinkVirtualNode.Enabled := IsVirtual;
+   actTVNavigateNextLinkedNNode.Enabled := HasSeveralNNodes;
    TVLinkedNode_.Checked:= HasSeveralNNodes;
 
-   TVChildrenCheckbox.Enabled := not ActiveFolder.Checkboxes;
-   TVCheckNode.Enabled:= assigned(Node) and (Node.CheckType <> ctNone);
+   actTVChildrenCheckbox.Enabled := not ActiveFolder.Checkboxes;
+   actTVCheckNode.Enabled:= assigned(Node) and (Node.CheckType <> ctNone);
 
-   TVViewAdditColumns.Checked:= ActiveTreeUI.AdditionalColumnsAreVisible;
-   TVFilterOutUnflagged.Checked:= ActiveTreeUI.FilterOutUnflaggedApplied;
+   actTVViewAdditColumns.Checked:= ActiveTreeUI.AdditionalColumnsAreVisible;
+   actTVFilterOutUnflagged.Checked:= ActiveTreeUI.FilterOutUnflaggedApplied;
+   actTVFilterOutUnflagged.Enabled:= ActiveTreeUI.NNodesFlagged;
 end;
 
 procedure TForm_Main.UpdateOpenFile;

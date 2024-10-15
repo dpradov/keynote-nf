@@ -73,6 +73,7 @@ type
     txtFilter: TEdit;
     TB_FilterTree: TToolbarButton97;
     TB_HideChecked: TToolbarButton97;
+    TB_FilterUnflagged: TToolbarButton97;
 
 
   private class var
@@ -115,6 +116,7 @@ type
     fTreeFilterApplied: boolean;
     fFilterOutUnflaggedApplied: boolean;
     fChangesInFlagged: boolean;
+    fNNodesFlagged: boolean;
     fLastTreeSearch: string;
 
   protected
@@ -294,7 +296,8 @@ type
     procedure ApplyFilters (Apply: boolean);
     property FindFilterApplied: boolean read fFindFilterApplied write fFindFilterApplied;
     property TreeFilterApplied: boolean read fTreeFilterApplied write fTreeFilterApplied;
-    property FilterOutUnflaggedApplied: boolean read fFilterOutUnflaggedApplied write fFilterOutUnflaggedApplied;
+    property FilterOutUnflaggedApplied: boolean read fFilterOutUnflaggedApplied;
+    property NNodesFlagged: boolean read fNNodesFlagged;
 
     procedure FilterApplied (Applied: boolean);   // [dpv]
     procedure ApplyFilterOnFolder;   // [dpv]
@@ -562,6 +565,10 @@ begin
      Folder.TreeWidth := Width; // store corrected value
    end;
 
+   TB_FilterUnflagged.Images:= Form_Main.IMG_TV;
+   TB_FilterUnflagged.Action:= Form_Main.actTVFilterOutUnflagged;
+   TB_FilterUnflagged.Caption:= '';
+
    UpdateTreeOptions;
    UpdateTreeChrome;
 
@@ -653,6 +660,8 @@ begin
                  FindFilterApplied:= True;
               if NNode.TreeFilterMatch then
                  TreeFilterApplied:= True;
+              if NNode.Flagged then
+                 fNNodesFlagged:= True;
 
               NodeLevel:= myFolder.LoadingLevels[i];
               case NodeLevel of
@@ -1561,6 +1570,7 @@ var
   Flagged: boolean;
   OnlyNodeIn: boolean;
   NNode: TNoteNode;
+  i: integer;
 
    procedure SetNodeFlagged;
    begin
@@ -1588,6 +1598,21 @@ begin
   TKntFolder(Folder).Modified:= true;
 
    fChangesInFlagged:= true;
+   fNNodesFlagged:= False;
+
+   if Flagged then
+      fNNodesFlagged:= True
+
+   else begin
+      for i := 0 to TKntFolder(Folder).NNodes.Count-1 do begin
+         if TKntFolder(Folder).NNodes[i].Flagged then begin
+            fNNodesFlagged:= True;
+            break;
+         end;
+      end;
+   end;
+
+
    if CtrlDown then begin
       if Flagged then begin
          fTreeFilterApplied:= false;
@@ -3738,7 +3763,7 @@ end;
 
 procedure TKntTreeUI.FilterOutUnflagged (Apply: boolean);
 begin
-   FilterOutUnflaggedApplied:= Apply;
+   fFilterOutUnflaggedApplied:= Apply;
    if Apply then
       ActivateFilter
 

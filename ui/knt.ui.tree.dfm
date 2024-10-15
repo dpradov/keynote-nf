@@ -67,10 +67,21 @@ object KntTreeUI: TKntTreeUI
       Images = Form_Main.IMG_Toolbar
       RepeatInterval = 101
     end
+    object TB_FilterUnflagged: TToolbarButton97
+      Left = 126
+      Top = 1
+      Width = 24
+      Height = 22
+      AllowAllUp = True
+      Anchors = [akTop, akRight]
+      GroupIndex = 2
+      Enabled = False
+      RepeatInterval = 101
+    end
     object txtFilter: TEdit
       Left = 24
       Top = 2
-      Width = 125
+      Width = 100
       Height = 23
       TabStop = False
       Anchors = [akLeft, akTop, akRight]

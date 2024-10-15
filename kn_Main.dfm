@@ -1636,14 +1636,13 @@ object Form_Main: TForm_Main
     end
   end
   object actList_TV: TActionList
-    Images = IMG_Toolbar
+    Images = IMG_TV
     Left = 448
     Top = 464
     object actTVAlarmNode: TAction
       Caption = 'Set alarm on node...'
       HelpContext = 567
       Hint = 'Set or remove alarm on node'
-      ImageIndex = 50
       OnExecute = actTVAlarmNodeExecute
     end
     object actTVAddNode_Parent: TAction
@@ -1686,20 +1685,6 @@ object Form_Main: TForm_Main
       Hint = 'Show hidden children of selected node, non filtered by search'
       OnExecute = actTVShowNonFilteredExecute
     end
-    object actTVFlaggedNode: TAction
-      Caption = '&Flagged'
-      Hint = 
-        'Toggle Flag in selected nodes (Ctrl:Also toggle on/off '#39'Filter un' +
-        'flagged'#39' )'
-      OnExecute = actTVFlaggedNodeExecute
-    end
-    object actTVBoldNode: TAction
-      Caption = '&Bold'
-      Hint = 
-        'Toggle bold in selected nodes (Shift: also in children, recursiv' +
-        'e)'
-      OnExecute = actTVBoldNodeExecute
-    end
     object actTVNodeTextColor: TAction
       Caption = 'Tree &node Text...'
       Hint = 'Select custom color for tree node text'
@@ -1715,17 +1700,13 @@ object Form_Main: TForm_Main
       Hint = 'Reset node color and font face to default'
       OnExecute = actTVDefaultNodeFontExecute
     end
-    object actTVVirtualNode: TAction
-      Caption = 'Make &Virtual'
-      Hint = 'Link a file on disk to selected node'
-      OnExecute = actTVVirtualNodeExecute
-    end
     object actTVInsertLinkedNode: TAction
       Caption = 'Insert &Linked node'
       HelpContext = 383
       Hint = 
         'Insert new node as linked node (share same note -content and nam' +
         'e)'
+      ImageIndex = 8
       OnExecute = actTVInsertLinkedNNodeExecute
     end
     object actTVMoveNodeUp: TAction
@@ -1859,18 +1840,9 @@ object Form_Main: TForm_Main
       Hint = 'Sort all nodes in tree'
       OnExecute = actTVSortTreeExecute
     end
-    object actTVViewAdditColumns: TAction
-      Caption = 'Show columns'
-      Hint = 'Show additional columns (Flagged and/or Date)'
-      OnExecute = actTVViewAdditColumnsExecute
-    end
-    object actTVFilterOutUnflagged: TAction
-      Caption = 'Filter out unflagged'
-      Hint = 'Hide unflagged nodes'
-      OnExecute = actTVFilterOutUnflaggedExecute
-    end
   end
   object actList_TVs: TActionList
+    Images = IMG_TV
     OnUpdate = actList_TVsUpdate
     Left = 512
     Top = 464
@@ -1904,6 +1876,37 @@ object Form_Main: TForm_Main
       Caption = 'C&ustom icon...'
       Hint = 'Choose custom icon for selected nodes'
       OnExecute = actTVSelectNodeImageExecute
+    end
+    object actTVViewAdditColumns: TAction
+      Caption = 'Show columns'
+      Hint = 'Show additional columns (Flagged and/or Date)'
+      OnExecute = actTVViewAdditColumnsExecute
+    end
+    object actTVFilterOutUnflagged: TAction
+      Caption = 'Filter out unflagged'
+      Hint = 'Hide unflagged nodes'
+      ImageIndex = 10
+      OnExecute = actTVFilterOutUnflaggedExecute
+    end
+    object actTVFlaggedNode: TAction
+      Caption = '&Flagged'
+      Hint = 
+        'Toggle Flag in selected nodes (Ctrl:Also toggle on/off '#39'Filter u' +
+        'nflagged'#39' )'
+      OnExecute = actTVFlaggedNodeExecute
+    end
+    object actTVBoldNode: TAction
+      Caption = '&Bold'
+      Hint = 
+        'Toggle bold in selected nodes (Shift: also in children, recursiv' +
+        'e)'
+      OnExecute = actTVBoldNodeExecute
+    end
+    object actTVVirtualNode: TAction
+      Caption = 'Make &Virtual'
+      Hint = 'Link a file on disk to selected node'
+      ImageIndex = 6
+      OnExecute = actTVVirtualNodeExecute
     end
   end
   object Menu_Main: TMainMenu
@@ -4776,7 +4779,7 @@ object Form_Main: TForm_Main
   end
   object Menu_TV: TPopupMenu
     HelpContext = 284
-    Images = IMG_Toolbar
+    Images = IMG_TV
     Left = 266
     Top = 130
     object TVAddParent: TMenuItem
@@ -4864,6 +4867,7 @@ object Form_Main: TForm_Main
       HelpContext = 285
       object TVVirtualNode: TMenuItem
         Action = actTVVirtualNode
+        ImageName = '6'
       end
       object TVRefreshVirtualNode: TMenuItem
         Action = actTVRefreshVirtualNode
