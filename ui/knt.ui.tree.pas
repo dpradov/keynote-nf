@@ -407,6 +407,7 @@ resourcestring
   STR_55 = 'Disable Filter on tree';
   STR_56 = 'Apply Filter on tree';
   STR_57 = ' (Ctrl: Clear Find filter)';
+  STR_59 = 'OK to remove all Flags in folder?';
 
 
 
@@ -1588,6 +1589,14 @@ begin
 
   if Node = nil then exit;
 
+  if ShiftDown and (App.DoMessageBox (STR_59, mtWarning, [mbYes,mbNo]) = mrYes) then begin
+     fNNodesFlagged:= False;
+     for i := 0 to TKntFolder(Folder).NNodes.Count-1 do
+        TKntFolder(Folder).NNodes[i].Flagged:= False;
+     exit;
+  end;
+
+
   Flagged:= not GetNNode(Node).Flagged;
   if OnlyNodeIn or (TV.SelectedCount = 0) then
      SetNodeFlagged
@@ -1620,6 +1629,7 @@ begin
       end;
       FilterOutUnflagged(Flagged);
    end;
+
 end;
 
 

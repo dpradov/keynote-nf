@@ -1892,7 +1892,7 @@ object Form_Main: TForm_Main
       Caption = '&Flagged'
       Hint = 
         'Toggle Flag in selected nodes (Ctrl:Also toggle on/off '#39'Filter u' +
-        'nflagged'#39' )'
+        'nflagged'#39' -- Shift: Clear ALL flags)'
       OnExecute = actTVFlaggedNodeExecute
     end
     object actTVBoldNode: TAction
