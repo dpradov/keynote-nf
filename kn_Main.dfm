@@ -3,8 +3,8 @@ object Form_Main: TForm_Main
   Top = 178
   HelpContext = 2
   Caption = 'KeyNote'
-  ClientHeight = 733
-  ClientWidth = 1042
+  ClientHeight = 751
+  ClientWidth = 1005
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -26,9 +26,9 @@ object Form_Main: TForm_Main
   OnShortCut = FormShortCut
   TextHeight = 13
   object Splitter_Res: TSplitter
-    Left = 729
+    Left = 752
     Top = 54
-    Height = 634
+    Height = 652
     Hint = 'Click and drag to resize panels'
     Align = alRight
     Color = clBtnFace
@@ -40,8 +40,8 @@ object Form_Main: TForm_Main
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 714
-    Width = 1042
+    Top = 732
+    Width = 1005
     Height = 19
     Panels = <
       item
@@ -68,17 +68,17 @@ object Form_Main: TForm_Main
       end>
     OnDblClick = StatusBarDblClick
     OnDrawPanel = StatusBarDrawPanel
-    ExplicitTop = 713
-    ExplicitWidth = 1038
+    ExplicitTop = 703
+    ExplicitWidth = 1001
   end
   object Dock_Top: TDock97
     Left = 0
     Top = 0
-    Width = 1042
+    Width = 1005
     Height = 54
     BoundLines = [blTop, blBottom]
     FixAlign = True
-    ExplicitWidth = 1038
+    ExplicitWidth = 1001
     object Toolbar_Main: TToolbar97
       Tag = 1
       Left = 0
@@ -851,8 +851,8 @@ object Form_Main: TForm_Main
   object Pages: TPage95Control
     Left = 9
     Top = 54
-    Width = 720
-    Height = 634
+    Width = 743
+    Height = 652
     HelpContext = 282
     AllowTabShifting = True
     Align = alClient
@@ -876,26 +876,26 @@ object Form_Main: TForm_Main
     OnDragOver = PagesDragOver
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
-    ExplicitWidth = 716
-    ExplicitHeight = 633
+    ExplicitWidth = 739
+    ExplicitHeight = 623
   end
   object Dock_Left: TDock97
     Left = 0
     Top = 54
     Width = 9
-    Height = 634
+    Height = 652
     LimitToOneRow = True
     Position = dpLeft
-    ExplicitHeight = 633
+    ExplicitHeight = 623
   end
   object Dock_Bottom: TDock97
     Left = 0
-    Top = 688
-    Width = 1042
+    Top = 706
+    Width = 1005
     Height = 26
     Position = dpBottom
-    ExplicitTop = 687
-    ExplicitWidth = 1038
+    ExplicitTop = 677
+    ExplicitWidth = 1001
     object Toolbar_Style: TToolbar97
       Tag = 3
       Left = 250
@@ -1010,10 +1010,10 @@ object Form_Main: TForm_Main
     end
   end
   object Pages_Res: TPage95Control
-    Left = 732
+    Left = 755
     Top = 54
-    Width = 310
-    Height = 634
+    Width = 250
+    Height = 652
     Hint = 'Right-click for resource panel options'
     ActivePage = ResTab_Find
     Align = alRight
@@ -1030,8 +1030,8 @@ object Form_Main: TForm_Main
     RemoveLastTab = True
     TabOrder = 2
     OnChange = Pages_ResChange
-    ExplicitLeft = 728
-    ExplicitHeight = 633
+    ExplicitLeft = 751
+    ExplicitHeight = 623
     object ResTab_Find: TTab95Sheet
       HelpType = htKeyword
       HelpKeyword = '479-5'
@@ -1040,11 +1040,11 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 605
+      ExplicitHeight = 577
       object Panel_ResFind: TPanel
         Left = 0
         Top = 0
-        Width = 302
+        Width = 242
         Height = 90
         Align = alTop
         BevelOuter = bvLowered
@@ -1056,7 +1056,7 @@ object Form_Main: TForm_Main
         ParentFont = False
         TabOrder = 0
         DesignSize = (
-          302
+          242
           90)
         object Label1: TLabel
           Left = 5
@@ -1073,7 +1073,7 @@ object Form_Main: TForm_Main
           ParentFont = False
         end
         object Btn_ResFind_Prev: TToolbarButton97
-          Left = 262
+          Left = 202
           Top = 5
           Width = 18
           Height = 19
@@ -1083,9 +1083,10 @@ object Form_Main: TForm_Main
           Images = IMG_Toolbar
           Visible = False
           OnClick = Btn_ResFind_PrevClick
+          ExplicitLeft = 262
         end
         object Btn_ResFind_Next: TToolbarButton97
-          Left = 281
+          Left = 221
           Top = 5
           Width = 18
           Height = 19
@@ -1095,9 +1096,10 @@ object Form_Main: TForm_Main
           Images = IMG_Toolbar
           Visible = False
           OnClick = Btn_ResFind_NextClick
+          ExplicitLeft = 281
         end
         object LblFindAllNumResults: TLabel
-          Left = 248
+          Left = 188
           Top = 7
           Width = 3
           Height = 13
@@ -1110,11 +1112,12 @@ object Form_Main: TForm_Main
           Font.Style = []
           ParentFont = False
           Transparent = False
+          ExplicitLeft = 248
         end
         object Combo_ResFind: TComboBox
           Left = 5
           Top = 30
-          Width = 292
+          Width = 230
           Height = 22
           Hint = 'Type text to search for'
           Font.Charset = DEFAULT_CHARSET
@@ -1165,7 +1168,7 @@ object Form_Main: TForm_Main
       object Ntbk_ResFind: TNotebook
         Left = 0
         Top = 90
-        Width = 302
+        Width = 242
         Height = 516
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -1176,15 +1179,16 @@ object Form_Main: TForm_Main
         PageIndex = 1
         ParentFont = False
         TabOrder = 1
-        ExplicitHeight = 515
+        ExplicitHeight = 487
         object PAGE_RES_FIND: TPage
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND'
+          ExplicitHeight = 488
           object FindAllResults: TRxRichEdit
             Left = 0
             Top = 0
-            Width = 302
+            Width = 242
             Height = 516
             DrawEndPage = False
             Align = alClient
@@ -1202,20 +1206,20 @@ object Form_Main: TForm_Main
             UndoLimit = 0
             WantTabs = True
             OnContextPopup = FindAllResultsContextPopup
+            ExplicitHeight = 488
           end
         end
         object PAGE_RES_FIND_OPT: TPage
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
-          ExplicitHeight = 515
-          object CB_ResFind_CaseSens: TCheckBox
-            Left = 10
-            Top = 15
-            Width = 213
-            Height = 17
-            Hint = 'Distinguish between lowercase and uppercase letters'
-            Caption = 'Match case'
+          ExplicitHeight = 487
+          object Pnl: TPanel
+            Left = 0
+            Top = 0
+            Width = 242
+            Height = 516
+            Align = alClient
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
@@ -1223,132 +1227,216 @@ object Form_Main: TForm_Main
             Font.Style = []
             ParentFont = False
             TabOrder = 0
-          end
-          object CB_ResFind_WholeWords: TCheckBox
-            Left = 10
-            Top = 35
-            Width = 210
-            Height = 17
-            Hint = 'Find only complete words'
-            Caption = 'Whole words only'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-            TabOrder = 8
-          end
-          object CB_ResFind_AllNotes: TCheckBox
-            Left = 10
-            Top = 62
-            Width = 213
-            Height = 17
-            Hint = 'Search through all folders in current file'
-            Caption = 'Search all folders'
-            Checked = True
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-            State = cbChecked
-            TabOrder = 2
-            OnClick = CB_ResFind_AllNotesClick
-          end
-          object CB_ResFind_CurrentNodeAndSubtree: TCheckBox
-            Left = 10
-            Top = 82
-            Width = 213
-            Height = 17
-            Hint = 'Search through current node and subtree in active folder'
-            Caption = 'Current node and subtree'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-            TabOrder = 3
-          end
-          object RG_ResFind_Type: TRadioGroup
-            Left = 5
-            Top = 170
-            Width = 215
-            Height = 76
-            Hint = 'Select type of search to perform'
-            Caption = ' Search Type '
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-            TabOrder = 6
-            OnClick = RG_ResFind_TypeClick
-          end
-          object RG_ResFind_Scope: TRadioGroup
-            Left = 5
-            Top = 256
-            Width = 215
-            Height = 76
-            Hint = 'Select scope of search to perform'
-            Caption = ' Search Scope '
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-            TabOrder = 7
-          end
-          object RG_ResFind_ChkMode: TRadioGroup
-            Left = 5
-            Top = 341
-            Width = 215
-            Height = 76
-            Hint = 'Select whether to consider nodes based on checked status'
-            Caption = 'Checked Status'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-            TabOrder = 1
-          end
-          object CB_ResFind_HiddenNodes: TCheckBox
-            Left = 10
-            Top = 102
-            Width = 210
-            Height = 17
-            Hint = 'Consider hidden nodes'
-            Caption = 'Search hidden nodes'
-            Checked = True
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-            State = cbChecked
-            TabOrder = 4
-          end
-          object CB_ResFind_Filter: TCheckBox
-            Left = 10
-            Top = 133
-            Width = 213
-            Height = 17
-            Hint = 'Show or hide nodes based on search conditions'
-            Caption = 'Filter folder'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-            TabOrder = 5
+            ExplicitLeft = -1
+            ExplicitTop = -32
+            object Label2: TLabel
+              Left = 9
+              Top = 199
+              Width = 80
+              Height = 13
+              Caption = 'Last modification'
+              FocusControl = Combo_ResFind
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              ParentFont = False
+            end
+            object Label3: TLabel
+              Left = 9
+              Top = 272
+              Width = 66
+              Height = 13
+              Caption = 'Creation date'
+              FocusControl = Combo_ResFind
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              ParentFont = False
+            end
+            object CB_ResFind_CaseSens: TCheckBox
+              Left = 10
+              Top = 9
+              Width = 213
+              Height = 17
+              Hint = 'Distinguish between lowercase and uppercase letters'
+              Caption = 'Match case'
+              TabOrder = 0
+            end
+            object CB_ResFind_WholeWords: TCheckBox
+              Left = 10
+              Top = 29
+              Width = 210
+              Height = 17
+              Hint = 'Find only complete words'
+              Caption = 'Whole words only'
+              TabOrder = 1
+            end
+            object CB_ResFind_AllNotes: TCheckBox
+              Left = 10
+              Top = 56
+              Width = 213
+              Height = 17
+              Hint = 'Search through all folders in current file'
+              Caption = 'Search all folders'
+              Checked = True
+              State = cbChecked
+              TabOrder = 2
+              OnClick = CB_ResFind_AllNotesClick
+            end
+            object CB_ResFind_CurrentNodeAndSubtree: TCheckBox
+              Left = 10
+              Top = 76
+              Width = 213
+              Height = 17
+              Hint = 'Search through current node and subtree in active folder'
+              Caption = 'Current node and subtree'
+              TabOrder = 3
+            end
+            object RG_ResFind_Type: TRadioGroup
+              Left = 6
+              Top = 122
+              Width = 215
+              Height = 66
+              Hint = 'Select type of search to perform'
+              DefaultHeaderFont = False
+              HeaderFont.Charset = DEFAULT_CHARSET
+              HeaderFont.Color = clWindowText
+              HeaderFont.Height = -5
+              HeaderFont.Name = 'Tahoma'
+              HeaderFont.Style = []
+              TabOrder = 5
+              OnClick = RG_ResFind_TypeClick
+            end
+            object RG_ResFind_Scope: TRadioGroup
+              Left = 7
+              Top = 349
+              Width = 215
+              Height = 66
+              Hint = 'Select scope of search to perform'
+              DefaultHeaderFont = False
+              HeaderFont.Charset = DEFAULT_CHARSET
+              HeaderFont.Color = clWindowText
+              HeaderFont.Height = -5
+              HeaderFont.Name = 'Tahoma'
+              HeaderFont.Style = []
+              TabOrder = 14
+            end
+            object RG_ResFind_ChkMode: TRadioGroup
+              Left = 7
+              Top = 422
+              Width = 215
+              Height = 66
+              Hint = 'Select whether to consider nodes based on checked status'
+              DefaultHeaderFont = False
+              HeaderFont.Charset = DEFAULT_CHARSET
+              HeaderFont.Color = clWindowText
+              HeaderFont.Height = -5
+              HeaderFont.Name = 'Tahoma'
+              HeaderFont.Style = []
+              TabOrder = 15
+            end
+            object CB_ResFind_HiddenNodes: TCheckBox
+              Left = 10
+              Top = 96
+              Width = 210
+              Height = 17
+              Hint = 'Consider hidden nodes'
+              Caption = 'Search hidden nodes'
+              Checked = True
+              State = cbChecked
+              TabOrder = 4
+            end
+            object chk_LastModifFrom: TCheckBox
+              Left = 15
+              Top = 220
+              Width = 17
+              Height = 17
+              TabOrder = 6
+              OnClick = chk_LastModifFromClick
+            end
+            object CB_LastModifFrom: TDateTimePicker
+              Left = 37
+              Top = 219
+              Width = 80
+              Height = 21
+              Hint = 'From'
+              Date = 45580.000000000000000000
+              Time = 0.875318587961373900
+              Checked = False
+              Enabled = False
+              TabOrder = 7
+            end
+            object chk_LastModifUntil: TCheckBox
+              Left = 15
+              Top = 245
+              Width = 17
+              Height = 17
+              TabOrder = 8
+              OnClick = chk_LastModifUntilClick
+            end
+            object CB_LastModifUntil: TDateTimePicker
+              Left = 37
+              Top = 245
+              Width = 80
+              Height = 21
+              Hint = 'Until'
+              Date = 45580.000000000000000000
+              Time = 0.875318587961373900
+              Enabled = False
+              TabOrder = 9
+            end
+            object chk_CreatedFrom: TCheckBox
+              Left = 15
+              Top = 291
+              Width = 17
+              Height = 17
+              TabOrder = 10
+              OnClick = chk_CreatedFromClick
+            end
+            object CB_CreatedFrom: TDateTimePicker
+              Left = 37
+              Top = 290
+              Width = 80
+              Height = 21
+              Hint = 'From'
+              Date = 45580.000000000000000000
+              Time = 0.875318587961373900
+              Checked = False
+              Enabled = False
+              TabOrder = 11
+            end
+            object chk_CreatedUntil: TCheckBox
+              Left = 15
+              Top = 316
+              Width = 17
+              Height = 17
+              TabOrder = 12
+              OnClick = chk_CreatedUntilClick
+            end
+            object CB_CreatedUntil: TDateTimePicker
+              Left = 37
+              Top = 316
+              Width = 80
+              Height = 21
+              Hint = 'Until'
+              Date = 45580.000000000000000000
+              Time = 0.875318587961373900
+              Enabled = False
+              TabOrder = 13
+            end
+            object CB_ResFind_Filter: TCheckBox
+              Left = 13
+              Top = 498
+              Width = 204
+              Height = 17
+              Hint = 'Show or hide nodes based on search conditions'
+              Caption = 'Filter folder[s]'
+              TabOrder = 16
+            end
           end
         end
       end
@@ -1361,10 +1449,7 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 578
     end
     object ResTab_Macro: TTab95Sheet
       HelpContext = 304
@@ -1373,10 +1458,11 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitHeight = 578
       object Dock_ResMacro: TDock97
         Left = 0
         Top = 0
-        Width = 302
+        Width = 242
         Height = 26
         object Toolbar_Macro: TToolbar97
           Left = 0
@@ -1437,7 +1523,7 @@ object Form_Main: TForm_Main
       object ListBox_ResMacro: TGFXListBox
         Left = 0
         Top = 26
-        Width = 302
+        Width = 242
         Height = 580
         Hint = 'Double-click to run macro; right-click for menu'
         ImageList = IMG_Toolbar
@@ -1467,7 +1553,7 @@ object Form_Main: TForm_Main
       object ListBox_ResTpl: TGFXListBox
         Left = 0
         Top = 0
-        Width = 302
+        Width = 242
         Height = 606
         Hint = 'Double-click to insert template; right-click for menu'
         ImageList = IMG_Toolbar
@@ -1497,7 +1583,7 @@ object Form_Main: TForm_Main
       object Splitter_plugins: TSplitter
         Left = 0
         Top = 550
-        Width = 302
+        Width = 242
         Height = 3
         Cursor = crVSplit
         Hint = 'Click and drag to resize panels'
@@ -1508,7 +1594,7 @@ object Form_Main: TForm_Main
       object Dock_ResPlugins: TDock97
         Left = 0
         Top = 0
-        Width = 302
+        Width = 242
         Height = 26
         LimitToOneRow = True
         object Toolbar_Plugins: TToolbar97
@@ -1559,7 +1645,7 @@ object Form_Main: TForm_Main
       object ListBox_ResPlugins: TGFXListBox
         Left = 0
         Top = 26
-        Width = 302
+        Width = 242
         Height = 524
         Hint = 'Double-click to run plugin; right-click for menu'
         ImageList = IMG_Toolbar
@@ -1581,7 +1667,7 @@ object Form_Main: TForm_Main
       object Panel_ResPlugins: TPanel
         Left = 0
         Top = 553
-        Width = 302
+        Width = 242
         Height = 53
         Align = alBottom
         BevelOuter = bvLowered
@@ -1596,8 +1682,8 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 9
-          Height = 13
+          Width = 236
+          Height = 47
           Align = alClient
           Caption = '...'
           WordWrap = True
@@ -1614,7 +1700,7 @@ object Form_Main: TForm_Main
       object ListBox_ResFav: TGFXListBox
         Left = 0
         Top = 0
-        Width = 302
+        Width = 242
         Height = 606
         Hint = 'Double-click to jump; right-click for menu'
         ImageList = Img_System

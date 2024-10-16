@@ -768,6 +768,10 @@ type
     SelectionStart: integer;  // Beginning of selection, where to limit replacement if 'Selected Text' is checked
     SelectionEnd: integer;    // End of selection, where to limit replacement if 'Selected Text' is checked
     ResetNextAftN: integer;   // Reset find next after N seconds (0 no reset). If reset, Find Next (F3) will ask for a new pattern
+    LastModifFrom: TDate;     // for "Find all" (resource panel) ONLY
+    LastModifUntil: TDate;    // ,,
+    CreatedFrom: TDate;     // for "Find all" (resource panel) ONLY
+    CreatedUntil: TDate;     // ,,
   end;
 
 const

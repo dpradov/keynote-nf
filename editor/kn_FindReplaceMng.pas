@@ -915,33 +915,41 @@ begin
                 else
                    break;
 
-                if (myFindOptions.SearchScope <> ssOnlyContent) then begin
-                  if myFindOptions.MatchCase then
-                     TextPlain:= myNNode.NoteName
-                  else
-                     TextPlain:= AnsiUpperCase( myNNode.NoteName);
+                // TODO: Consider the dates of the Entries of the note
+                if (myNNode.Note.LastModified.GetDate  >= myFindOptions.LastModifFrom) and
+                   ((myFindOptions.LastModifUntil = 0) or (myNNode.Note.LastModified.GetDate <= myFindOptions.LastModifUntil)) and
+                   (myNNode.Note.DateCreated.GetDate  >= myFindOptions.CreatedFrom) and
+                   ((myFindOptions.CreatedUntil = 0) or (myNNode.Note.DateCreated.GetDate <= myFindOptions.CreatedUntil))
+                then begin
 
-                  FindPatternInText(true);
-                end;
+                   if (myFindOptions.SearchScope <> ssOnlyContent) then begin
+                     if myFindOptions.MatchCase then
+                        TextPlain:= myNNode.NoteName
+                     else
+                        TextPlain:= AnsiUpperCase( myNNode.NoteName);
 
-                if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
-                   TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux);
-                   TextPlain:= TextPlainBAK;
-                   if not myFindOptions.MatchCase then
-                      TextPlain:=  AnsiUpperCase(TextPlain);
+                     FindPatternInText(true);
+                   end;
 
-                   SearchOrigin := 0;
-                   FindPatternInText(false);
-                end;
+                   if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
+                      TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux);
+                      TextPlain:= TextPlainBAK;
+                      if not myFindOptions.MatchCase then
+                         TextPlain:=  AnsiUpperCase(TextPlain);
 
-                if ApplyFilter and (not nodeToFilter) then begin
-                   if TreeFilter then
-                      myNNode.TreeFilterMatch := True
-                   else
-                      myNNode.FindFilterMatch := True;
+                      SearchOrigin := 0;
+                      FindPatternInText(false);
+                   end;
 
-                   if not myFolder.ReadOnly then
-                      myFolder.Modified:= True;    // Filter matches won't be saved in read only folders
+                   if ApplyFilter and (not nodeToFilter) then begin
+                      if TreeFilter then
+                         myNNode.TreeFilterMatch := True
+                      else
+                         myNNode.FindFilterMatch := True;
+
+                      if not myFolder.ReadOnly then
+                         myFolder.Modified:= True;    // Filter matches won't be saved in read only folders
+                   end;
                 end;
 
                 GetNextNode;

@@ -517,6 +517,10 @@ type
     CB_ResFind_CaseSens: TCheckBox;
     CB_ResFind_WholeWords: TCheckBox;
     CB_ResFind_AllNotes: TCheckBox;
+    chk_LastModifFrom: TCheckBox;
+    chk_LastModifUntil: TCheckBox;
+    CB_LastModifFrom: TDateTimePicker;
+    CB_LastModifUntil: TDateTimePicker;
     MMEditSelectWord: TMenuItem;
     ResTab_Plugins: TTab95Sheet;
     Dock_ResPlugins: TDock97;
@@ -723,7 +727,6 @@ type
     Img_System: TdfsSystemImageList;
     MMViewHideCheckedNodes: TMenuItem;
     CB_ResFind_HiddenNodes: TCheckBox;
-    CB_ResFind_Filter: TCheckBox;
     MMViewFilterTree: TMenuItem;
     TB_SetAlarm: TToolbarButton97;
     TB_AlarmMode: TToolbarButton97;
@@ -858,6 +861,13 @@ type
     actTVNavigateNextLinkedNNode: TAction;
     actTVRefreshVirtualNode: TAction;
     actTVVirtualNode: TAction;
+    Label2: TLabel;
+    Label3: TLabel;
+    chk_CreatedFrom: TCheckBox;
+    CB_CreatedFrom: TDateTimePicker;
+    chk_CreatedUntil: TCheckBox;
+    CB_CreatedUntil: TDateTimePicker;
+    CB_ResFind_Filter: TCheckBox;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1247,6 +1257,10 @@ type
     procedure actTVFlaggedNodeExecute(Sender: TObject);
     procedure actTVViewAdditColumnsExecute(Sender: TObject);
     procedure actTVFilterOutUnflaggedExecute(Sender: TObject);
+    procedure chk_LastModifUntilClick(Sender: TObject);
+    procedure chk_LastModifFromClick(Sender: TObject);
+    procedure chk_CreatedFromClick(Sender: TObject);
+    procedure chk_CreatedUntilClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -5126,9 +5140,9 @@ end;
 procedure TForm_Main.Splitter_ResMoved(Sender: TObject);
 begin
   Combo_ResFind.Width := ResTab_Find.Width - 15;
-  RG_ResFind_Type.Width:= Combo_ResFind.Width;
-  RG_ResFind_Scope.Width:= Combo_ResFind.Width;
-  RG_ResFind_ChkMode.Width:= Combo_ResFind.Width;
+  RG_ResFind_Type.Width:= Combo_ResFind.Width - 5;
+  RG_ResFind_Scope.Width:= RG_ResFind_Type.Width;
+  RG_ResFind_ChkMode.Width:= RG_ResFind_Type.Width;
   UpdateFindAllResultsWidth;
 
   if assigned(Res_RTF) and (Pages_Res.ActivePage = ResTab_RTF) then
@@ -5440,6 +5454,20 @@ begin
   myFindOptions.HiddenNodes:= CB_ResFind_HiddenNodes.Checked;
   myFindOptions.Pattern := Combo_ResFind.Text;
 
+  myFindOptions.LastModifFrom := 0;
+  myFindOptions.LastModifUntil := 0;
+  if CB_LastModifFrom.Enabled then
+     myFindOptions.LastModifFrom := CB_LastModifFrom.Date;
+  if CB_LastModifUntil.Enabled then
+     myFindOptions.LastModifUntil := CB_LastModifUntil.Date;
+
+  myFindOptions.CreatedFrom := 0;
+  myFindOptions.CreatedUntil := 0;
+  if CB_CreatedFrom.Enabled then
+     myFindOptions.CreatedFrom := CB_CreatedFrom.Date;
+  if CB_CreatedUntil.Enabled then
+     myFindOptions.CreatedUntil := CB_CreatedUntil.Date;
+
   ApplyFilter:= CB_ResFind_Filter.Checked;
 
   if RunFindAllEx (myFindOptions, ApplyFilter, false) then
@@ -5479,6 +5507,27 @@ procedure TForm_Main.RxFindAllResultsSelectionChange(Sender: TObject);
 begin
   FindAllResults_OnSelectionChange (sender as TRxRichEdit);
 end;
+
+procedure TForm_Main.chk_CreatedFromClick(Sender: TObject);
+begin
+  CB_CreatedFrom.Enabled:= chk_CreatedFrom.Checked;
+end;
+
+procedure TForm_Main.chk_CreatedUntilClick(Sender: TObject);
+begin
+  CB_CreatedUntil.Enabled:= chk_CreatedUntil.Checked;
+end;
+
+procedure TForm_Main.chk_LastModifFromClick(Sender: TObject);
+begin
+  CB_LastModifFrom.Enabled:= chk_LastModifFrom.Checked;
+end;
+
+procedure TForm_Main.chk_LastModifUntilClick(Sender: TObject);
+begin
+  CB_LastModifUntil.Enabled:= chk_LastModifUntil.Checked;
+end;
+
 
 
 procedure TForm_Main.Combo_FontSizeKeyDown(Sender: TObject; var Key: Word;
