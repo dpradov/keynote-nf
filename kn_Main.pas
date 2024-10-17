@@ -1261,6 +1261,7 @@ type
     procedure chk_LastModifFromClick(Sender: TObject);
     procedure chk_CreatedFromClick(Sender: TObject);
     procedure chk_CreatedUntilClick(Sender: TObject);
+    procedure CheckFindAllEnabled;
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -5432,7 +5433,7 @@ end;
 
 procedure TForm_Main.Combo_ResFindChange(Sender: TObject);
 begin
-  Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
+  CheckFindAllEnabled;
 end;
 
 procedure TForm_Main.Btn_ResFindClick(Sender: TObject);
@@ -5508,24 +5509,36 @@ begin
   FindAllResults_OnSelectionChange (sender as TRxRichEdit);
 end;
 
+procedure TForm_Main.CheckFindAllEnabled;
+begin
+   if CB_LastModifFrom.Enabled or CB_LastModifUntil.Enabled or CB_CreatedFrom.Enabled or CB_CreatedUntil.Enabled then
+      Btn_ResFind.Enabled := true
+   else
+      Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
+end;
+
 procedure TForm_Main.chk_CreatedFromClick(Sender: TObject);
 begin
   CB_CreatedFrom.Enabled:= chk_CreatedFrom.Checked;
+  CheckFindAllEnabled;
 end;
 
 procedure TForm_Main.chk_CreatedUntilClick(Sender: TObject);
 begin
   CB_CreatedUntil.Enabled:= chk_CreatedUntil.Checked;
+  CheckFindAllEnabled;
 end;
 
 procedure TForm_Main.chk_LastModifFromClick(Sender: TObject);
 begin
   CB_LastModifFrom.Enabled:= chk_LastModifFrom.Checked;
+  CheckFindAllEnabled;
 end;
 
 procedure TForm_Main.chk_LastModifUntilClick(Sender: TObject);
 begin
   CB_LastModifUntil.Enabled:= chk_LastModifUntil.Checked;
+  CheckFindAllEnabled;
 end;
 
 

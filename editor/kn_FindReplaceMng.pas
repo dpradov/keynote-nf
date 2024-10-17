@@ -53,6 +53,7 @@ procedure DoFindNext;
 procedure RunFinder;
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean): boolean;
+procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
 procedure RunReplace;
 procedure RunReplaceNext;
 
@@ -525,6 +526,30 @@ end;
 
 
 
+procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
+var
+  pF: integer;
+  NumDaysBack: integer;
+begin
+  // Trying to identify '-<number>'  in the beginning Eg: '-3' '-7 search term'
+  // If current day is '15/10/2024' then:
+  //   '-2' is equivalent to [LastModified] >= '13/10/2024'
+  //   '-0' is equivalent to [LastModified] >= '15/10/2024'  (modified on current day)
+  // If enclosed in "" it will managed as a normal text pattern:
+  //  '"-2"'
+
+  if (myFindOptions.Pattern.Length < 2) or (myFindOptions.Pattern[1] <> '-') then exit;
+
+  pF:= Pos(' ', myFindOptions.Pattern, 2);
+  if pF <= 0 then pF:= 9999;
+
+  NumDaysBack:= StrToIntDef(Copy(myFindOptions.Pattern, 2, pF-2), -1);
+  if NumDaysBack >= 0 then begin
+      myFindOptions.LastModifFrom := Today() -NumDaysBack;
+      Delete(myFindOptions.Pattern, 1, pF-1);
+      myFindOptions.Pattern:= trim(myFindOptions.Pattern);
+  end;
+end;
 
 {
   New in 1.8.0:
@@ -574,6 +599,7 @@ var
   RTFAux : TAuxRichEdit;
   TreeUI: TKntTreeUI;
   TV: TVTree;
+  SearchingByDates: boolean;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -795,7 +821,13 @@ begin
   if ( not assigned( ActiveFolder )) then exit;
   if ( ActiveFileIsBusy or SearchInProgress ) then exit;
 
-  if ( myFindOptions.Pattern = '' ) then exit;
+  myFindOptions.Pattern := trim( myFindOptions.Pattern ); // leading and trailing blanks need to be stripped
+  PreprocessTextPattern(myFindOptions);
+
+  with myFindOptions do
+     SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil = 0);
+
+  if (myFindOptions.Pattern = '') and not SearchingByDates then exit;
 
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
@@ -814,7 +846,6 @@ begin
      FindOptions.FindNew := true;
   end;
 
-  myFindOptions.Pattern := trim( myFindOptions.Pattern ); // leading and trailing blanks need to be stripped
 
   SearchModeToApply := myFindOptions.SearchMode;
 
@@ -872,7 +903,7 @@ begin
          TextToFind:= wordList[0];         // '"Windows 10"' --> 'Windows 10'
       end;
 
-      if wordcnt = 0 then begin
+      if (wordcnt = 0) and not SearchingByDates then begin
          Form_Main.Combo_ResFind.Text:= '';
          Form_Main.Btn_ResFind.Enabled:= False;
          exit;
@@ -922,23 +953,29 @@ begin
                    ((myFindOptions.CreatedUntil = 0) or (myNNode.Note.DateCreated.GetDate <= myFindOptions.CreatedUntil))
                 then begin
 
-                   if (myFindOptions.SearchScope <> ssOnlyContent) then begin
-                     if myFindOptions.MatchCase then
-                        TextPlain:= myNNode.NoteName
-                     else
-                        TextPlain:= AnsiUpperCase( myNNode.NoteName);
+                   if TextToFind = '' then
+                      AddLocation(true, lsNormal, TextToFind, 0)      // => nodeToFilter = False
 
-                     FindPatternInText(true);
-                   end;
+                   else begin
 
-                   if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
-                      TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux);
-                      TextPlain:= TextPlainBAK;
-                      if not myFindOptions.MatchCase then
-                         TextPlain:=  AnsiUpperCase(TextPlain);
+                      if (myFindOptions.SearchScope <> ssOnlyContent) then begin
+                        if myFindOptions.MatchCase then
+                           TextPlain:= myNNode.NoteName
+                        else
+                           TextPlain:= AnsiUpperCase( myNNode.NoteName);
 
-                      SearchOrigin := 0;
-                      FindPatternInText(false);
+                        FindPatternInText(true);
+                      end;
+
+                      if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
+                         TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux);
+                         TextPlain:= TextPlainBAK;
+                         if not myFindOptions.MatchCase then
+                            TextPlain:=  AnsiUpperCase(TextPlain);
+
+                         SearchOrigin := 0;
+                         FindPatternInText(false);
+                      end;
                    end;
 
                    if ApplyFilter and (not nodeToFilter) then begin
@@ -950,6 +987,7 @@ begin
                       if not myFolder.ReadOnly then
                          myFolder.Modified:= True;    // Filter matches won't be saved in read only folders
                    end;
+
                 end;
 
                 GetNextNode;

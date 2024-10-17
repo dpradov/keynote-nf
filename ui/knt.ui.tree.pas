@@ -409,6 +409,8 @@ resourcestring
   STR_57 = ' (Ctrl: Clear Find filter)';
   STR_59 = 'OK to remove all Flags in folder?';
 
+  STR_60 = 'Last modified >= "%s"';
+
 
 
 const
@@ -3735,13 +3737,17 @@ var
 
 begin
   str:= trim(txtFilter.Text).ToUpper;
+  myFindOptions.Pattern:= str;
+  myFindOptions.LastModifFrom:= 0;
+  PreprocessTextPattern(myFindOptions);     // Can modify Pattern and set .LastModifFrom
 
-  if Length(str) < 3 then begin
+  if (Length(str) < 3) and (myFindOptions.LastModifFrom = 0) then begin
      if TreeFilterApplied then begin
         fLastTreeSearch:= '';
         TreeFilterApplied:= false;
         ClearAllTreeMatch;
         SetFilteredNodes;
+        txtFilter.Hint:= '';
 
         if not (FindFilterApplied or FilterOutUnflaggedApplied) then begin
            TKntFolder(Folder).Filtered:= False;
@@ -3755,6 +3761,9 @@ begin
   else
   if (str <> fLastTreeSearch) then begin
      fLastTreeSearch:= str;
+     myFindOptions.LastModifUntil:= 0;
+     myFindOptions.CreatedFrom:= 0;
+     myFindOptions.CreatedUntil:= 0;
      myFindOptions.MatchCase := false;
      myFindOptions.WholeWordsOnly := false;
      myFindOptions.AllTabs := false;
@@ -3763,7 +3772,11 @@ begin
      myFindOptions.SearchMode := smAll;
      myFindOptions.CheckMode := scAll;
      myFindOptions.HiddenNodes:= false;
-     myFindOptions.Pattern := str;
+     str:= str.ToUpper;
+     if myFindOptions.LastModifFrom <> 0 then
+        txtFilter.Hint:= Format(STR_60, [FormatDateTime(FormatSettings.ShortDateFormat, myFindOptions.LastModifFrom)])
+     else
+        txtFilter.Hint:= '';
 
      RunFindAllEx (myFindOptions, true, true);
 
