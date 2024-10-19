@@ -770,9 +770,20 @@ var
   hiGID : Cardinal;
   F : TKntFolder;
   NNode: TNoteNode;
-
+  N: TNote;
 begin
   hiGID:= 0;
+
+  // NNode.GID and Note.GID take its value from fNextNNodeGID
+  // Normally a note has one entry. The first NoteNode of a note shares the GID with the note
+
+  for i := 0 to Notes.Count-1 do begin
+     N:= Notes[i];
+     if N.GID > hiGID then begin
+        N.GID := fNextNNodeGID;
+          hiGID := N.GID;
+     end;
+  end;
 
   for i := 0 to FFolders.Count-1 do begin
      F := FFolders[i];
