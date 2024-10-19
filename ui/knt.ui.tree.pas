@@ -3688,6 +3688,21 @@ var
     end;
   end;
 
+  function AnyParentIsFlagged (Node: PVirtualNode): boolean;
+  var
+    ParentNode: PVirtualNode;
+  begin
+     Result:= false;
+     ParentNode:= Node.Parent;
+
+     if ParentNode <> TV.RootNode then begin
+        if GetNNode(ParentNode).Flagged then
+           Result:= true
+        else
+           Result:= AnyParentIsFlagged(ParentNode);
+     end;
+  end;
+
 begin
    if TV.TotalCount = 0 then exit;
 
@@ -3710,7 +3725,9 @@ begin
       repeat
          if not (fFindFilterApplied and TV.IsFiltered[Node]) then begin
             NNode:= GetNNode(Node);
-            if not ( (NNode.TreeFilterMatch or not fTreeFilterApplied) and (NNode.Flagged or not fFilterOutUnflaggedApplied) ) then
+            if not ( (NNode.TreeFilterMatch or not fTreeFilterApplied) and
+                     (not fFilterOutUnflaggedApplied or (NNode.Flagged or (FindOptions.ShowChildren and AnyParentIsFlagged(Node) ) ))
+                    ) then
                TV.IsFiltered[Node]:= true
 
             else begin
