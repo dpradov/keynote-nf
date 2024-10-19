@@ -293,6 +293,7 @@ type
     procedure ClearAllFindMatch;
     procedure ClearAllTreeMatch;
     procedure SetFilteredNodes;
+    procedure ReapplyFilter;
     procedure ApplyFilters (Apply: boolean);
     property FindFilterApplied: boolean read fFindFilterApplied write fFindFilterApplied;
     property TreeFilterApplied: boolean read fTreeFilterApplied write fTreeFilterApplied;
@@ -303,6 +304,7 @@ type
     procedure ApplyFilterOnFolder;   // [dpv]
     procedure ClearFindFilter;
     procedure CheckFocusedNode;
+    procedure ExecuteTreeFiltering(ForceReapplying: boolean= True);
     procedure txtFilterChange(Sender: TObject);
     procedure FilterOutUnflagged (Apply: boolean);
     procedure ActivateFilter;
@@ -3649,12 +3651,43 @@ begin
 
 end;
 
+procedure TKntTreeUI.ReapplyFilter;
+begin
+   if TKntFolder(Folder).Filtered then
+      SetFilteredNodes;
+end;
+
 
 procedure TKntTreeUI.SetFilteredNodes;
 var
-  Node, NodeParent : PVirtualNode;
+  Node, NodeParent: PVirtualNode;
   NNode: TNoteNode;
   InitialFiltered: boolean;
+
+  function IsFilterMatch(NNode: TNoteNode): boolean;
+  begin
+     Result:= (fFindFilterApplied and NNode.FindFilterMatch) or
+              (fTreeFilterApplied and NNode.TreeFilterMatch ) or
+              (fFilterOutUnflaggedApplied and NNode.Flagged );
+  end;
+
+  procedure CheckShowChildsOfNode (Node: PVirtualNode);
+  var
+    ChildNode : PVirtualNode;
+    ChildNNode: TNoteNode;
+
+  begin
+    ChildNode:= Node.FirstChild;
+    while ChildNode <> nil do begin
+       ChildNNode:= GetNNode(ChildNode);
+       if TV.IsFiltered[ChildNode] and not IsFilterMatch(ChildNNode) then begin      // IsFilterMatch... It will processed in main loop
+          TV.IsFiltered[ChildNode]:= false;
+          CheckShowChildsOfNode(ChildNode);             // Recursive
+       end;
+       ChildNode:= ChildNode.NextSibling;
+    end;
+  end;
+
 begin
    if TV.TotalCount = 0 then exit;
 
@@ -3696,6 +3729,19 @@ begin
       until Node = nil;
 
 
+   if FindOptions.ShowChildren then begin    // show children of matching nodes
+      Node:= TV.GetFirst();
+      repeat
+         if not TV.IsFiltered[Node] then begin
+            NNode:= GetNNode(Node);
+            if IsFilterMatch(NNode) then
+               CheckShowChildsOfNode(Node);
+         end;
+         Node:= TV.GetNext(Node);
+      until Node = nil;
+   end;
+
+
    TV.EndUpdate;
 
    fChangesInFlagged:= false;
@@ -3732,7 +3778,7 @@ begin
 end;
 
 
-procedure TKntTreeUI.txtFilterChange(Sender: TObject);
+procedure TKntTreeUI.ExecuteTreeFiltering (ForceReapplying: boolean= True);
 var
    myFindOptions: TFindOptions;
    ApplyFilter: boolean;
@@ -3763,7 +3809,7 @@ begin
      end;
   end
   else
-  if (str <> fLastTreeSearch) then begin
+  if (str <> fLastTreeSearch) or ForceReapplying then begin
      fLastTreeSearch:= str;
      myFindOptions.LastModifUntil:= 0;
      myFindOptions.CreatedFrom:= 0;
@@ -3788,6 +3834,13 @@ begin
      //CheckFocusedNode;      // RunFindAllEx (from here, and from normal Find All -with Apply Filter) will call ActivateFilter ( -> CheckFocusedNode)
   end;
 end;
+
+
+procedure TKntTreeUI.txtFilterChange(Sender: TObject);
+begin
+  ExecuteTreeFiltering (false);
+end;
+
 
 procedure TKntTreeUI.FilterOutUnflagged (Apply: boolean);
 begin

@@ -869,6 +869,9 @@ type
     CB_CreatedUntil: TDateTimePicker;
     CB_ResFind_Filter: TCheckBox;
     CB_ResFind_PathInNames: TCheckBox;
+    N37: TMenuItem;
+    TVFilterUsePath: TMenuItem;
+    TVFilterShowChildren: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1264,6 +1267,9 @@ type
     procedure chk_CreatedUntilClick(Sender: TObject);
     procedure CheckFindAllEnabled;
     procedure RG_ResFind_ScopeClick(Sender: TObject);
+    procedure CB_ResFind_PathInNamesClick(Sender: TObject);
+    procedure TVFilterUsePathClick(Sender: TObject);
+    procedure TVFilterShowChildrenClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -4474,6 +4480,14 @@ begin
     CB_ResFind_CurrentNodeAndSubtree.Enabled:= not AllNotes;
 end;
 
+procedure TForm_Main.CB_ResFind_PathInNamesClick(Sender: TObject);
+begin
+  FindOptions.SearchPathInNodeNames:= CB_ResFind_PathInNames.Checked;
+  TVFilterUsePath.Checked:= FindOptions.SearchPathInNodeNames;
+  if ActiveTreeUI <> nil then
+     ActiveTreeUI.ReapplyFilter;
+end;
+
 procedure TForm_Main.MMFormatLS1Click(Sender: TObject);
 begin
   PerformCmd( ecSpace1 );
@@ -6883,6 +6897,20 @@ begin
   ActiveTreeUI.FilterOutUnflagged (not ActiveTreeUI.FilterOutUnflaggedApplied);
 end;
 
+procedure TForm_Main.TVFilterUsePathClick(Sender: TObject);
+begin
+  FindOptions.SearchPathInNodeNames:= not FindOptions.SearchPathInNodeNames;
+  TVFilterUsePath.Checked:= FindOptions.SearchPathInNodeNames;
+  CB_ResFind_PathInNames.Checked:= FindOptions.SearchPathInNodeNames;
+  ActiveTreeUI.ExecuteTreeFiltering;
+end;
+
+procedure TForm_Main.TVFilterShowChildrenClick(Sender: TObject);
+begin
+  FindOptions.ShowChildren:= not FindOptions.ShowChildren;
+  TVFilterShowChildren.Checked:= FindOptions.ShowChildren;
+  ActiveTreeUI.ReapplyFilter;
+end;
 
 
 {$ENDREGION}   //  'Tree commands' ==================================

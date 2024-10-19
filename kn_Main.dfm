@@ -1584,6 +1584,7 @@ object Form_Main: TForm_Main
               Hint = 'Search in whole path of nodes'
               Caption = 'Use path of node'
               TabOrder = 17
+              OnClick = CB_ResFind_PathInNamesClick
             end
           end
         end
@@ -5219,6 +5220,19 @@ object Form_Main: TForm_Main
       Caption = 'View / Filter'
       object TVViewAdditColumns: TMenuItem
         Action = actTVViewAdditColumns
+      end
+      object N37: TMenuItem
+        Caption = '-'
+      end
+      object TVFilterUsePath: TMenuItem
+        Caption = 'Use path of nodes'
+        Hint = 'Search on whole path of nodes'
+        OnClick = TVFilterUsePathClick
+      end
+      object TVFilterShowChildren: TMenuItem
+        Caption = 'Show children'
+        Hint = 'Filtering: show children of matching nodes'
+        OnClick = TVFilterShowChildrenClick
       end
       object TVFilterOutUnflagged: TMenuItem
         Action = actTVFilterOutUnflagged

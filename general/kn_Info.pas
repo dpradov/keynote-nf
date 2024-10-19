@@ -773,6 +773,7 @@ type
     CreatedFrom: TDate;     // for "Find all" (resource panel) ONLY
     CreatedUntil: TDate;     // ,,
     SearchPathInNodeNames: boolean;      // ,,
+    ShowChildren: boolean;   // show children of matching nodes
   end;
 
 const
