@@ -1396,7 +1396,9 @@ begin
          if assigned( myTreeNode ) then begin
             // select the node
             with myFolder.TreeUI do begin
-               if FocusedNode <> myTreeNode then begin
+               if (FocusedNode <> myTreeNode) or not TV.IsEffectivelyVisible[myTreeNode] then begin
+                  if FocusedNode = myTreeNode then
+                     myFolder.NodeSelected(myTreeNode, nil);
                   MakePathVisible(myTreeNode);       // It could be hidden
                   MakePathNonFiltered(myTreeNode);   // It also could be filtered
                   SelectAlone(myTreeNode);
