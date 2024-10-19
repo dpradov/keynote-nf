@@ -3772,6 +3772,7 @@ begin
      myFindOptions.SearchMode := smAll;
      myFindOptions.CheckMode := scAll;
      myFindOptions.HiddenNodes:= false;
+     myFindOptions.SearchPathInNodeNames := FindOptions.SearchPathInNodeNames;
      str:= str.ToUpper;
      if myFindOptions.LastModifFrom <> 0 then
         txtFilter.Hint:= Format(STR_60, [FormatDateTime(FormatSettings.ShortDateFormat, myFindOptions.LastModifFrom)])

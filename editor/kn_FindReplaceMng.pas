@@ -595,6 +595,7 @@ var
   TextToFind, PatternInPos1, PatternInPosN: string;
   SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
   str, s, path, strLocationMatch, strNodeFontSize, strNumberingFontSize, strBgColor: string;
+  NodeNameInSearch: string;
   widthTwips: integer;
   RTFAux : TAuxRichEdit;
   TreeUI: TKntTreeUI;
@@ -632,7 +633,8 @@ type
              Location.SelLength := Length(FirstPattern) + SizeInternalHiddenTextInPos1;
           end
           else begin
-             str:= myNNode.NoteName;
+             //str:= myNNode.NoteName;
+             str:= NodeNameInSearch;
              Location.SelLength := 0;
              Location.CaretPos := -1     // means: text found in node name
           end;
@@ -841,6 +843,7 @@ begin
      FindOptions.SearchMode:= myFindOptions.SearchMode;
      FindOptions.CheckMode:= myFindOptions.CheckMode;
      FindOptions.HiddenNodes:= myFindOptions.HiddenNodes;
+     FindOptions.SearchPathInNodeNames:= myFindOptions.SearchPathInNodeNames;
 
      FindOptions.FindAllMatches := false;
      FindOptions.FindNew := true;
@@ -959,10 +962,14 @@ begin
                    else begin
 
                       if (myFindOptions.SearchScope <> ssOnlyContent) then begin
-                        if myFindOptions.MatchCase then
-                           TextPlain:= myNNode.NoteName
+                        if myFindOptions.SearchPathInNodeNames then
+                           TextPlain:= myFolder.TreeUI.GetNodePath( myTreeNode, KntTreeOptions.NodeDelimiter, true )
                         else
-                           TextPlain:= AnsiUpperCase( myNNode.NoteName);
+                           TextPlain:= myNNode.NoteName;
+
+                        NodeNameInSearch:= TextPlain;
+                        if not myFindOptions.MatchCase then
+                           TextPlain:= AnsiUpperCase( TextPlain);
 
                         FindPatternInText(true);
                       end;

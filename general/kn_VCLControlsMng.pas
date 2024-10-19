@@ -607,8 +607,8 @@ begin
      RG_ResFind_Scope.ItemIndex := ord( FindOptions.SearchScope );
      RG_ResFind_Type.ItemIndex := ord( FindOptions.SearchMode );
      RG_ResFind_ChkMode.ItemIndex := ord( FindOptions.CheckMode );
-
-     PlainDefaultPaste_Toggled;
+     CB_ResFind_PathInNames.Checked := FindOptions.SearchPathInNodeNames;
+     CB_ResFind_PathInNames.Enabled:= ( TSearchScope( RG_ResFind_Scope.ItemIndex ) <> ssOnlyContent );
   end;
 
 

@@ -786,7 +786,8 @@ type
     WordAtCursor,
     WordCharacters,
     Wrap,
-    ResetNextAftN: string;
+    ResetNextAftN,
+    SearchPathInNodeNames: string;
   end;
 
 const
@@ -819,6 +820,7 @@ const
     WordCharacters : 'WordCharacters';
     Wrap : 'Wrap';
     ResetNextAftN: 'ResetNextAftN';
+    SearchPathInNodeNames: 'SearchPathInNodeNames';
   );
 
 type
@@ -1223,6 +1225,7 @@ begin
     ReplaceWith := '';
     SearchMode := low( SearchMode );
     SearchScope := ssContentsAndNodeName;
+    SearchPathInNodeNames := false;
     CheckMode := scAll;    // [dpv]
     WholeWordsOnly := false;
     ResetNextAftN := 0;
@@ -1582,6 +1585,7 @@ begin
       writeinteger( section, FindOptionsIniStr.SearchScope, ord( FindOptions.SearchScope ));
       writeinteger( section, FindOptionsIniStr.CheckMode, ord( FindOptions.CheckMode ));
       writeinteger( section, FindOptionsIniStr.ResetNextAftN, FindOptions.ResetNextAftN);
+      writebool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
 
       section := ResPanelOptionsIniStr.section;
       //writebool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
@@ -1971,6 +1975,7 @@ begin
       FindOptions.SearchScope := TSearchScope( readinteger( section, FindOptionsIniStr.SearchScope, ord( FindOptions.SearchScope )));
       FindOptions.CheckMode := TSearchCheckMode( readinteger( section, FindOptionsIniStr.CheckMode, ord( FindOptions.CheckMode )));
       FindOptions.ResetNextAftN := readinteger( section, FindOptionsIniStr.ResetNextAftN, FindOptions.ResetNextAftN );
+      FindOptions.SearchPathInNodeNames := readbool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
 
       section := ResPanelOptionsIniStr.section;
       {

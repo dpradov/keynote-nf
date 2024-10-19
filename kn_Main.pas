@@ -868,6 +868,7 @@ type
     chk_CreatedUntil: TCheckBox;
     CB_CreatedUntil: TDateTimePicker;
     CB_ResFind_Filter: TCheckBox;
+    CB_ResFind_PathInNames: TCheckBox;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1262,6 +1263,7 @@ type
     procedure chk_CreatedFromClick(Sender: TObject);
     procedure chk_CreatedUntilClick(Sender: TObject);
     procedure CheckFindAllEnabled;
+    procedure RG_ResFind_ScopeClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -5140,7 +5142,7 @@ end;
 
 procedure TForm_Main.Splitter_ResMoved(Sender: TObject);
 begin
-  Combo_ResFind.Width := ResTab_Find.Width - 15;
+  Combo_ResFind.Width := ResTab_Find.Width - 10;
   RG_ResFind_Type.Width:= Combo_ResFind.Width - 5;
   RG_ResFind_Scope.Width:= RG_ResFind_Type.Width;
   RG_ResFind_ChkMode.Width:= RG_ResFind_Type.Width;
@@ -5453,6 +5455,7 @@ begin
   myFindOptions.SearchMode := TSearchMode( RG_ResFind_Type.ItemIndex );
   myFindOptions.CheckMode := TSearchCheckMode( RG_ResFind_ChkMode.ItemIndex );
   myFindOptions.HiddenNodes:= CB_ResFind_HiddenNodes.Checked;
+  myFindOptions.SearchPathInNodeNames:= CB_ResFind_PathInNames.Checked;
   myFindOptions.Pattern := Combo_ResFind.Text;
 
   myFindOptions.LastModifFrom := 0;
@@ -5764,6 +5767,11 @@ end;
 procedure TForm_Main.FAMCopyAlltoEditorClick(Sender: TObject);
 begin
   FindResultsToEditor( false );
+end;
+
+procedure TForm_Main.RG_ResFind_ScopeClick(Sender: TObject);
+begin
+  CB_ResFind_PathInNames.Enabled:= ( TSearchScope( RG_ResFind_Scope.ItemIndex ) <> ssOnlyContent );
 end;
 
 procedure TForm_Main.RG_ResFind_TypeClick(Sender: TObject);

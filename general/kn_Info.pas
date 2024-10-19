@@ -772,6 +772,7 @@ type
     LastModifUntil: TDate;    // ,,
     CreatedFrom: TDate;     // for "Find all" (resource panel) ONLY
     CreatedUntil: TDate;     // ,,
+    SearchPathInNodeNames: boolean;      // ,,
   end;
 
 const

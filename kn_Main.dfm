@@ -3,7 +3,7 @@ object Form_Main: TForm_Main
   Top = 178
   HelpContext = 2
   Caption = 'KeyNote'
-  ClientHeight = 751
+  ClientHeight = 794
   ClientWidth = 1005
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -26,9 +26,9 @@ object Form_Main: TForm_Main
   OnShortCut = FormShortCut
   TextHeight = 13
   object Splitter_Res: TSplitter
-    Left = 752
+    Left = 792
     Top = 54
-    Height = 652
+    Height = 695
     Hint = 'Click and drag to resize panels'
     Align = alRight
     Color = clBtnFace
@@ -40,7 +40,7 @@ object Form_Main: TForm_Main
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 732
+    Top = 775
     Width = 1005
     Height = 19
     Panels = <
@@ -985,8 +985,8 @@ object Form_Main: TForm_Main
   object Pages: TPage95Control
     Left = 9
     Top = 54
-    Width = 743
-    Height = 652
+    Width = 783
+    Height = 695
     HelpContext = 282
     AllowTabShifting = True
     Align = alClient
@@ -1017,14 +1017,14 @@ object Form_Main: TForm_Main
     Left = 0
     Top = 54
     Width = 9
-    Height = 652
+    Height = 695
     LimitToOneRow = True
     Position = dpLeft
     ExplicitHeight = 651
   end
   object Dock_Bottom: TDock97
     Left = 0
-    Top = 706
+    Top = 749
     Width = 1005
     Height = 26
     Position = dpBottom
@@ -1144,10 +1144,10 @@ object Form_Main: TForm_Main
     end
   end
   object Pages_Res: TPage95Control
-    Left = 755
+    Left = 795
     Top = 54
-    Width = 250
-    Height = 652
+    Width = 210
+    Height = 695
     Hint = 'Right-click for resource panel options'
     ActivePage = ResTab_Find
     Align = alRight
@@ -1164,8 +1164,6 @@ object Form_Main: TForm_Main
     RemoveLastTab = True
     TabOrder = 2
     OnChange = Pages_ResChange
-    ExplicitLeft = 751
-    ExplicitHeight = 651
     object ResTab_Find: TTab95Sheet
       HelpType = htKeyword
       HelpKeyword = '479-5'
@@ -1174,11 +1172,12 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitWidth = 242
       ExplicitHeight = 605
       object Panel_ResFind: TPanel
         Left = 0
         Top = 0
-        Width = 242
+        Width = 202
         Height = 90
         Align = alTop
         BevelOuter = bvLowered
@@ -1189,8 +1188,9 @@ object Form_Main: TForm_Main
         Font.Style = []
         ParentFont = False
         TabOrder = 0
+        ExplicitWidth = 242
         DesignSize = (
-          242
+          202
           90)
         object Label1: TLabel
           Left = 5
@@ -1207,7 +1207,7 @@ object Form_Main: TForm_Main
           ParentFont = False
         end
         object Btn_ResFind_Prev: TToolbarButton97
-          Left = 202
+          Left = 162
           Top = 5
           Width = 18
           Height = 19
@@ -1220,7 +1220,7 @@ object Form_Main: TForm_Main
           ExplicitLeft = 262
         end
         object Btn_ResFind_Next: TToolbarButton97
-          Left = 221
+          Left = 181
           Top = 5
           Width = 18
           Height = 19
@@ -1233,7 +1233,7 @@ object Form_Main: TForm_Main
           ExplicitLeft = 281
         end
         object LblFindAllNumResults: TLabel
-          Left = 188
+          Left = 148
           Top = 7
           Width = 3
           Height = 13
@@ -1251,7 +1251,7 @@ object Form_Main: TForm_Main
         object Combo_ResFind: TComboBox
           Left = 5
           Top = 30
-          Width = 230
+          Width = 175
           Height = 22
           Hint = 'Type text to search for'
           Font.Charset = DEFAULT_CHARSET
@@ -1302,8 +1302,8 @@ object Form_Main: TForm_Main
       object Ntbk_ResFind: TNotebook
         Left = 0
         Top = 90
-        Width = 242
-        Height = 516
+        Width = 202
+        Height = 559
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -1313,17 +1313,19 @@ object Form_Main: TForm_Main
         PageIndex = 1
         ParentFont = False
         TabOrder = 1
+        ExplicitWidth = 242
         ExplicitHeight = 515
         object PAGE_RES_FIND: TPage
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND'
-          ExplicitHeight = 517
+          ExplicitWidth = 242
+          ExplicitHeight = 516
           object FindAllResults: TRxRichEdit
             Left = 0
             Top = 0
-            Width = 242
-            Height = 517
+            Width = 202
+            Height = 559
             DrawEndPage = False
             Align = alClient
             AllowInPlace = False
@@ -1340,18 +1342,21 @@ object Form_Main: TForm_Main
             UndoLimit = 0
             WantTabs = True
             OnContextPopup = FindAllResultsContextPopup
+            ExplicitWidth = 242
+            ExplicitHeight = 516
           end
         end
         object PAGE_RES_FIND_OPT: TPage
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
+          ExplicitWidth = 242
           ExplicitHeight = 515
           object Pnl: TPanel
             Left = 0
             Top = 0
-            Width = 242
-            Height = 516
+            Width = 202
+            Height = 559
             Align = alClient
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -1360,6 +1365,7 @@ object Form_Main: TForm_Main
             Font.Style = []
             ParentFont = False
             TabOrder = 0
+            ExplicitWidth = 242
             ExplicitHeight = 515
             object Label2: TLabel
               Left = 9
@@ -1431,7 +1437,7 @@ object Form_Main: TForm_Main
             object RG_ResFind_Type: TRadioGroup
               Left = 6
               Top = 122
-              Width = 215
+              Width = 187
               Height = 66
               Hint = 'Select type of search to perform'
               DefaultHeaderFont = False
@@ -1446,7 +1452,7 @@ object Form_Main: TForm_Main
             object RG_ResFind_Scope: TRadioGroup
               Left = 7
               Top = 349
-              Width = 215
+              Width = 187
               Height = 66
               Hint = 'Select scope of search to perform'
               DefaultHeaderFont = False
@@ -1456,11 +1462,12 @@ object Form_Main: TForm_Main
               HeaderFont.Name = 'Tahoma'
               HeaderFont.Style = []
               TabOrder = 14
+              OnClick = RG_ResFind_ScopeClick
             end
             object RG_ResFind_ChkMode: TRadioGroup
               Left = 7
-              Top = 422
-              Width = 215
+              Top = 443
+              Width = 187
               Height = 66
               Hint = 'Select whether to consider nodes based on checked status'
               DefaultHeaderFont = False
@@ -1561,13 +1568,22 @@ object Form_Main: TForm_Main
               TabOrder = 13
             end
             object CB_ResFind_Filter: TCheckBox
-              Left = 13
-              Top = 498
+              Left = 10
+              Top = 524
               Width = 204
               Height = 17
               Hint = 'Show or hide nodes based on search conditions'
               Caption = 'Filter folder[s]'
               TabOrder = 16
+            end
+            object CB_ResFind_PathInNames: TCheckBox
+              Left = 32
+              Top = 418
+              Width = 186
+              Height = 17
+              Hint = 'Search in whole path of nodes'
+              Caption = 'Use path of node'
+              TabOrder = 17
             end
           end
         end
@@ -1581,10 +1597,8 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 578
+      ExplicitWidth = 242
+      ExplicitHeight = 606
     end
     object ResTab_Macro: TTab95Sheet
       HelpContext = 304
@@ -1593,12 +1607,14 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 607
+      ExplicitWidth = 242
+      ExplicitHeight = 606
       object Dock_ResMacro: TDock97
         Left = 0
         Top = 0
-        Width = 242
+        Width = 202
         Height = 26
+        ExplicitWidth = 242
         object Toolbar_Macro: TToolbar97
           Left = 0
           Top = 0
@@ -1658,8 +1674,8 @@ object Form_Main: TForm_Main
       object ListBox_ResMacro: TGFXListBox
         Left = 0
         Top = 26
-        Width = 242
-        Height = 581
+        Width = 202
+        Height = 623
         Hint = 'Double-click to run macro; right-click for menu'
         ImageList = IMG_Toolbar
         CheckBoxes = False
@@ -1676,6 +1692,8 @@ object Form_Main: TForm_Main
         TabOrder = 1
         OnClick = Combo_MacroClick
         OnDblClick = ListBox_ResMacroDblClick
+        ExplicitWidth = 242
+        ExplicitHeight = 580
       end
     end
     object ResTab_Template: TTab95Sheet
@@ -1685,12 +1703,13 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 607
+      ExplicitWidth = 242
+      ExplicitHeight = 606
       object ListBox_ResTpl: TGFXListBox
         Left = 0
         Top = 0
-        Width = 242
-        Height = 607
+        Width = 202
+        Height = 649
         Hint = 'Double-click to insert template; right-click for menu'
         ImageList = IMG_Toolbar
         CheckBoxes = False
@@ -1707,6 +1726,8 @@ object Form_Main: TForm_Main
         TabOrder = 0
         OnClick = ListBox_ResTplClick
         OnDblClick = ListBox_ResTplDblClick
+        ExplicitWidth = 242
+        ExplicitHeight = 606
       end
     end
     object ResTab_Plugins: TTab95Sheet
@@ -1716,11 +1737,12 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 607
+      ExplicitWidth = 242
+      ExplicitHeight = 606
       object Splitter_plugins: TSplitter
         Left = 0
-        Top = 551
-        Width = 242
+        Top = 593
+        Width = 202
         Height = 3
         Cursor = crVSplit
         Hint = 'Click and drag to resize panels'
@@ -1731,9 +1753,10 @@ object Form_Main: TForm_Main
       object Dock_ResPlugins: TDock97
         Left = 0
         Top = 0
-        Width = 242
+        Width = 202
         Height = 26
         LimitToOneRow = True
+        ExplicitWidth = 242
         object Toolbar_Plugins: TToolbar97
           Left = 0
           Top = 0
@@ -1782,8 +1805,8 @@ object Form_Main: TForm_Main
       object ListBox_ResPlugins: TGFXListBox
         Left = 0
         Top = 26
-        Width = 242
-        Height = 525
+        Width = 202
+        Height = 567
         Hint = 'Double-click to run plugin; right-click for menu'
         ImageList = IMG_Toolbar
         CheckBoxes = False
@@ -1800,11 +1823,13 @@ object Form_Main: TForm_Main
         TabOrder = 1
         OnClick = ListBox_ResPluginsClick
         OnDblClick = PLM_RunPluginClick
+        ExplicitWidth = 242
+        ExplicitHeight = 524
       end
       object Panel_ResPlugins: TPanel
         Left = 0
-        Top = 553
-        Width = 242
+        Top = 596
+        Width = 202
         Height = 53
         Align = alBottom
         BevelOuter = bvLowered
@@ -1816,14 +1841,18 @@ object Form_Main: TForm_Main
         Font.Style = []
         ParentFont = False
         TabOrder = 2
+        ExplicitTop = 553
+        ExplicitWidth = 242
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 9
-          Height = 13
+          Width = 196
+          Height = 47
           Align = alClient
           Caption = '...'
           WordWrap = True
+          ExplicitWidth = 9
+          ExplicitHeight = 13
         end
       end
     end
@@ -1834,12 +1863,13 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 607
+      ExplicitWidth = 242
+      ExplicitHeight = 606
       object ListBox_ResFav: TGFXListBox
         Left = 0
         Top = 0
-        Width = 242
-        Height = 607
+        Width = 202
+        Height = 649
         Hint = 'Double-click to jump; right-click for menu'
         ImageList = Img_System
         CheckBoxes = False
@@ -1856,6 +1886,8 @@ object Form_Main: TForm_Main
         TabOrder = 0
         OnClick = ListBox_ResFavClick
         OnDblClick = FavMJumpClick
+        ExplicitWidth = 242
+        ExplicitHeight = 606
       end
     end
   end
