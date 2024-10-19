@@ -1592,11 +1592,14 @@ begin
 
   if Node = nil then exit;
 
-  if ShiftDown and (App.DoMessageBox (STR_59, mtWarning, [mbYes,mbNo]) = mrYes) then begin
-     fNNodesFlagged:= False;
-     for i := 0 to TKntFolder(Folder).NNodes.Count-1 do
-        TKntFolder(Folder).NNodes[i].Flagged:= False;
-     exit;
+  if ShiftDown then begin
+      TV.ClearSelection;
+      if App.DoMessageBox (STR_59, mtWarning, [mbYes,mbNo]) = mrYes then begin
+        fNNodesFlagged:= False;
+        for i := 0 to TKntFolder(Folder).NNodes.Count-1 do
+           TKntFolder(Folder).NNodes[i].Flagged:= False;
+      end;
+      exit;
   end;
 
 
