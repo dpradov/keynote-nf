@@ -1229,7 +1229,6 @@ begin
      exit;
   end;
 
-  if vsSelected in Node.States then exit;
   if CellPaintMode = cpmGetContentMargin then exit;
 
   if fTreeFilterApplied and NNode.TreeFilterMatch then begin
@@ -1237,7 +1236,9 @@ begin
      TargetCanvas.FillRect(ContentRect);
   end;
 
-  if NNode.NodeBGColor <> clNone then begin
+  if vsSelected in Node.States then exit;
+
+  if (NNode.NodeBGColor <> clNone) and (Column <= 0) then begin
      CellR:= ContentRect;
      CellR.Width:= Sender.GetDisplayRect(Node,Column,True,   True).Width;
      TargetCanvas.Brush.Color := NNode.NodeBGColor;
