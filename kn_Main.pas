@@ -2021,6 +2021,7 @@ begin
   finally
     if CanClose then
     begin
+       App.FileClosed(ActiveFile);
      {$IFDEF KNT_DEBUG}
        Log.Flush( true );
        Log.Add( 'CloseQuery result: ' + BOOLARRAY[CanClose] );
