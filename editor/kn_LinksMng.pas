@@ -341,7 +341,8 @@ begin
             if (NNode = nil) and RaiseExcept  then
                raise EInvalidLocation.Create(Format( STR_04, [NoteName] ));
          end;
-         NEntry:= NNode.Note.Entries[0];        // %%%
+         if NNode <> nil then
+            NEntry:= NNode.Note.Entries[0];        // %%%
       end;
    end;
 end;
