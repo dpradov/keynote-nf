@@ -872,6 +872,8 @@ type
     N37: TMenuItem;
     TVFilterUsePath: TMenuItem;
     TVFilterShowChildren: TMenuItem;
+    MMToolsDeduceDates: TMenuItem;
+    MMToolsRemoveDates: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1270,6 +1272,8 @@ type
     procedure CB_ResFind_PathInNamesClick(Sender: TObject);
     procedure TVFilterUsePathClick(Sender: TObject);
     procedure TVFilterShowChildrenClick(Sender: TObject);
+    procedure MMToolsDeduceDatesClick(Sender: TObject);
+    procedure MMToolsRemoveDatesClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1346,7 +1350,7 @@ type
     procedure ShowImages(Show: boolean; ForceMode: boolean);
 
     // config file management
-    procedure SetupToolbarButtons;
+    procedure SetupUIHints;
     procedure ResolveToolbarRTFv3Dependencies;
 
     // VCL updates when config loaded or changed
@@ -1511,6 +1515,10 @@ resourcestring
   STR_fs3 = ' Auto';
   STR_fs4 = ' MOD';
   STR_fs5 = ' Saved';
+
+  STR_d01 = 'Search and register note dates: creation and last modified';
+  STR_d02 = 'Remove date prefixes from node names';
+  STR_d03 = ' (Ctrl: Reconsider dates)';
 
 const
   _TIMER_INTERVAL = 2000; // 2 seconds
@@ -2104,7 +2112,7 @@ begin
 end; // ResolveToolbarRTFv3Dependencies
 
 
-procedure TForm_Main.SetupToolbarButtons;
+procedure TForm_Main.SetupUIHints;
 begin
   TB_AlignCenter.Hint := MMFormatAlignCenter.Hint;
   TB_AlignLeft.Hint := MMFormatAlignLeft.Hint;
@@ -2166,6 +2174,10 @@ begin
   TB_Underline.Hint := MMFormatUnderline.Hint;
   TB_WordWeb.Hint := MMInsertWordWeb.Hint;
   TB_WordWrap.Hint := MMFormatWordWrap.Hint;
+
+  MMToolsDeduceDates.Hint:= STR_d01 + STR_d03;
+  MMToolsRemoveDates.Hint:= STR_d02 + STR_d03;
+
 end; // SetupToolbarButtons
 
 
@@ -4011,6 +4023,19 @@ begin
   end;
 {$ENDIF}
 end; // MMEmailnoteClick
+
+
+procedure TForm_Main.MMToolsDeduceDatesClick(Sender: TObject);
+begin
+   ActiveFile.TryToDeduceDates(false);
+end;
+
+procedure TForm_Main.MMToolsRemoveDatesClick(Sender: TObject);
+begin
+   if ActiveFile <> nil then
+      ActiveFile.TryToDeduceDates(true);
+end;
+
 
 
 //  Alarm related actions ==================================

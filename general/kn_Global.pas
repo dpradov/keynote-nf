@@ -542,7 +542,7 @@ begin
         end;
       end;
 
-      SetupToolbarButtons;
+      SetupUIHints;
       ResolveToolbarRTFv3Dependencies;
 
       MMArabicNumbers.Tag := ord( nsArabicNumbers );

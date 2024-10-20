@@ -3846,6 +3846,14 @@ object Form_Main: TForm_Main
       object N63: TMenuItem
         Caption = '-'
       end
+      object MMToolsDeduceDates: TMenuItem
+        Caption = 'Deduce [missing] date information'
+        OnClick = MMToolsDeduceDatesClick
+      end
+      object MMToolsRemoveDates: TMenuItem
+        Caption = 'Remove date prefixes'
+        OnClick = MMToolsRemoveDatesClick
+      end
       object MMToolsStatistics: TMenuItem
         Caption = '&Text Statistics'
         Hint = 'Display folder statistics'

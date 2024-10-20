@@ -23,6 +23,7 @@ uses
    System.IniFiles,
    System.AnsiStrings,
    System.IOUtils,
+   System.Character,
    Vcl.Graphics,
    Vcl.FileCtrl,
    Vcl.Controls,
@@ -44,6 +45,7 @@ uses
    kn_KntFolder,
    knt.model.note,
    knt.ui.info,
+   knt.ui.editor,
    kn_ImagesMng,
    kn_LinksMng
    ;
@@ -215,6 +217,8 @@ type
     function GetVirtualNoteByFileName( const aNote : TNote; FN : string ): TNote;
     procedure ConvertOldMirrorNodesToNNodes;
 
+    procedure TryToDeduceDates(RemoveDateFromName: boolean);
+
   end;
 
   procedure TransferNEntryText(ListTextStr : TStringList; StreamText: TMemoryStream; var IsRTF: boolean);
@@ -239,7 +243,6 @@ uses
    kn_Main,
    kn_EditorUtils,
    knt.ui.tree,
-   knt.ui.editor,
    kn_AlertMng,
    kn_BookmarksMng,
    knt.App
@@ -268,7 +271,11 @@ resourcestring
   STR_19b = 'OK to convert to PLAIN TEXT current note?'+ #13#13 +'ALL IMAGES and FORMATTING will be REMOVED !!';
 
   STR_20 = 'Virtual note "%s" cannot write file ';
-
+  
+  STR_21 = 'OK to deduce the missing date information?'+ #13;
+  STR_22 = 'OK to remove date from note name?'+ #13;
+  STR_23 = 'All (or selected) nodes will be considered';
+  STR_24 = #13#13 + 'Please read the help file before proceeding. Search for "Deduce Dates"';
 
 
 //=======================================================================
@@ -835,6 +842,329 @@ begin
   end;
 
 end;
+
+
+{
+  * Deduce missing date information
+    ---------------------------------
+    KeyNote can search and register missing note dates: creation and last modified
+    If one note already has creation date registered, it will be ignored (except if command executed with Ctrl)
+   
+    It will act on notes of active folder:
+    
+    + It will search in node name, according to defined 'Default Name for New nodes', if includes '%D' token
+      It will try to identify the date using the format defined in configuration options (Advanced/Formats/Date format).
+    
+       Ex: If Default Name for New nodes = '(%D) - ' and Date format = 'dd MMM yy'
+         "(05 oct. 16) - Node A"   => Creation date: 05/10/16
+
+
+        * You should ensure the correct values for folder config ('Default Name for New nodes') and 
+          Advanced/Formats (Date format).
+
+       
+        - Besides trying with the date format configured in Configuration Options, KeyNote will also automatically try
+          with default regional short date (usually 'dd/mm/yy' or 'mm/dd/yy') and even some long formats, like:
+
+            "domingo, 20 de octubre de 2022"
+            "monday, february 1, 2021"
+            "domingo, 20 de octubre de 2022 - 21:12"
+      
+         - It will also attempt to automatically handle short month names that include "." and without it.
+           "(05 oct 16) ..." 
+           "(05 oct. 16) ..."
+
+       
+    + It will search for dates also in the note's content, looking for lines that include only date (and optionally time).
+      If several matches founded, the oldest date will be used as creation date and the most recent date as the last modification
+      date
+    
+          Line 1, bla, bla, ... 07/09/16 ...
+          ...
+          05 oct. 16 - 20:15
+          ------------------
+          ...
+          31/12/18 15:00
+
+       => Creation date:     05/10/16 20:15
+       => Last modification: 31/12/18 15:00
+      
+      - Note: Date found in note name will have priority as Creation date over dates found in note content.
+      
+      
+  * Remove date prefixes from node names
+    -----------------------------------
+    Optionally, KeyNote can attempt to remove dates used as prefixes in note names.
+    Eg.  "(05 oct. 16) - Node A"  (and '(%D) - ')  => New name: "Node A"
+
+    This command will also previously identify (and register) any missing dates
+
+      
+  ** If there are nodes selected (1 or more) when you execute any of this commands, it will be applied only to those node. 
+     Otherwise all the notes in the folder will be considered.
+
+} 
+
+procedure TKntFile.TryToDeduceDates (RemoveDateFromName: boolean);
+var
+  F: TKntFolder;
+  N: TNote;
+  NN: TNoteNode;
+  i: integer;
+  pI, pF: integer;
+  CreationDate, LastModif, DateFound, DateFoundInName: TDateTime;
+  str, msg: string;
+  Ch: Char;
+  NodesSelected, OnlyActiveFolder, ForceReconsidere: boolean;
+  TextPlain: string;
+  posCR, posLastCR: integer;
+  MinLen, MaxLen: integer;
+  RegionalSettings: TFormatSettings;
+  DateFormatSts: array of TFormatSettings;
+  RTFAux : TAuxRichEdit;
+  UseLongFormatAdapted: boolean;
+  LongDateSeparator: string;
+  
+  procedure PrepareDateFormatSettings;
+  var
+     DFSt: TFormatSettings;
+     iDFs, pI, pF: integer;
+     
+     function RemoveDotInShortMonthNames: boolean;
+     var
+       i: Integer;
+     begin
+       if DFSt.ShortMonthNames[1][Length(DFSt.ShortMonthNames[1])-1] <> '.' then result:= false;
+       
+       for i := 1 to 12 do
+         DFSt.ShortMonthNames[i] := Copy(DFSt.ShortMonthNames[i], 1, DFSt.ShortMonthNames[i].Length-1);
+         
+       Result:= true;
+     end;
+
+     function LongerDayName: integer;
+     var
+       i, L: Integer;
+     begin
+       Result:= 0;
+       for i := 1 to 7 do begin
+          L:= Length(DFSt.LongDayNames[i]);
+          if L > Result then
+             Result:= L;
+       end;
+     end;
+
+     function LongerMonthName: integer;
+     var
+       i, L: Integer;
+     begin
+       Result:= 0;
+       for i := 1 to 12 do begin
+          L:= Length(DFSt.LongMonthNames[i]);
+          if L > Result then
+             Result:= L;
+       end;
+     end;
+     
+     
+  begin
+    
+     DateFormatSts:= nil;
+     SetLength(DateFormatSts, 4);
+     iDFs:= 0;
+
+     DFSt:= FormatSettings;
+     DFSt.ShortTimeFormat := KeyOptions.TimeFmt;
+     DFSt.ShortDateFormat := KeyOptions.DateFmt;      // It seems that LongDateFormat is not used for parse and it is ignored by StrToDateTime
+     DateFormatSts[iDFs]:= DFSt;
+     inc(iDFs);
+    
+     if RemoveDotInShortMonthNames then begin
+        DateFormatSts[iDFs]:= DFSt;
+        inc(iDFs);
+     end;
+
+     RegionalSettings:= FormatSettings;                      // Use default regional ShortDateFormat
+     /// RegionalSettings:= TFormatSettings.Create('en-US');
+     DateFormatSts[iDFs]:= RegionalSettings;
+     inc(iDFs);
+
+     
+     // Try also with long regional format
+     //   Eg: 'dddd, d'' de ''mmmm'' de ''yyyy'  --> 'd mmmm yyyy'
+     
+     UseLongFormatAdapted:= false;
+     str:= RegionalSettings.LongDateFormat;
+     str:= StringReplace(str, 'dddd,','', []);
+     pI:= pos('mmmm', str);
+     pF:= pos('yyyy', str);
+     if (pI > 0) and (pF > 0) then begin
+        if pI < pF then
+           LongDateSeparator := Copy(str, pI+4, pF-pI-4)
+        else
+           LongDateSeparator := Copy(str, pF+4, pI-pF-4);
+
+        if pos(',', LongDateSeparator) = 0 then begin
+           str := StringReplace(str, LongDateSeparator,' ', [rfReplaceAll]);
+           LongDateSeparator:= StringReplace(LongDateSeparator, '''','', [rfReplaceAll]);
+        end
+        else
+            LongDateSeparator:= '';
+            
+        DFSt:= RegionalSettings;    
+        DFSt.ShortDateFormat := Trim(str);
+        DateFormatSts[iDFs]:= DFSt;
+        inc(iDFs);
+        UseLongFormatAdapted:= true;
+     end;
+     
+     SetLength(DateFormatSts, iDFs);
+
+     // Longer: like: 'dddd, dd de mmmm de yyyy - HH:mm'
+     // Min: d/mm/yy  : 7
+     MinLen:= 7;
+     MaxLen:= Length(FormatSettings.LongDateFormat) + LongerMonthName + LongerDayName  // -8:dddd mmmm  +8: ' - HH:mm'
+  end;
+  
+  
+  function ParseDate(str: string): TDateTime;
+  var
+     DFSt: TFormatSettings; 
+     i: integer;
+     Inc: integer;
+     Digits: boolean;
+  begin
+     Result:= 0;
+     try
+         str:= trim(str);
+         if Length(str) < MinLen then exit;
+
+         for i := 1 to Length(str) do
+            if IsDigit(str[i]) then begin
+               Digits:= true;
+               break;
+            end;
+         
+         if not Digits then 
+            exit;
+
+         Inc:= 0;   
+         if UseLongFormatAdapted then
+            Inc:= -1;
+      
+         for i:= 0 to High(DateFormatSts) + Inc do begin
+             Result:= StrToDateTimeDef(str, 0, DateFormatSts[i]);
+             if Result <> 0 then exit;
+         end;
+
+         if UseLongFormatAdapted then begin
+            i:= Pos(',', str);
+            if i > 0 then
+               str:= Copy(str, i+1);
+            str:= StringReplace(str, LongDateSeparator,' ', [rfReplaceAll]);
+            Result:= StrToDateTimeDef(str, 0, DateFormatSts[High(DateFormatSts)]);
+         end;
+      
+     except
+     end;
+  end;
+
+  
+begin
+  if ActiveFolder = nil then exit;
+  
+  F:= ActiveFolder;
+  
+  ForceReconsidere:= CtrlDown;              // Ctrl  -> Force reconsider dates
+  
+  if RemoveDateFromName then
+     msg:= STR_22
+  else
+     msg:= STR_21;
+      
+  if App.DoMessageBox (msg + STR_23 + STR_24, mtWarning, [mbYes, mbNo, mbCancel]) <> mrYes then exit;
+
+  
+  PrepareDateFormatSettings;
+  RTFAux:= CreateAuxRichEdit;
+  
+  try
+            
+     NodesSelected:= (F.TreeUI.TV.SelectedCount >=  1);
+     pI:= Pos(NODEINSDATE, F.DefaultNoteName);                                              //  NODEINSDATE  = '%D'; // expands to current date
+     if pI <= 0 then exit;
+     
+     Ch:= F.DefaultNoteName[pI+2];
+     
+     for i := 0 to F.NNodes.Count-1 do begin
+        NN:= F.NNodes[i];
+        N:= NN.Note;
+        
+        if NodesSelected and not F.TreeUI.TV.Selected[NN.TVNode] then
+           continue;
+        
+        LastModif:= 0;
+        
+        if (N.DateCreated = 0) or RemoveDateFromName or ForceReconsidere then begin
+           
+           if (N.DateCreated = 0) or ForceReconsidere then begin     // Search in note content
+              TextPlain:= F.PrepareTextPlain(NN, RTFAux);
+              posLastCR:= 0;
+              repeat
+                 posCR:= Pos(#13, TextPlain, posLastCR+1);
+                 if posCR > 0 then begin
+                    if ((posCR - posLastCR) >= MinLen) and ((posCR - posLastCR) <= MaxLen)  then begin
+                       str:= Trim(Copy(TextPlain, posLastCR+1, posCR - posLastCR));
+                       DateFound:= ParseDate(str);
+                       if DateFound <> 0 then begin
+                          if DateFound > LastModif then
+                             LastModif := DateFound;
+                          if (DateFound < CreationDate) or (CreationDate = 0) then   
+                             CreationDate := DateFound;
+                       end;
+                    end;
+                    posLastCR:= posCR;
+                 end;
+              until posCR = 0;
+           end;
+
+           // Date found in note name has priority as Creation date :
+           pF:= -1;
+           if Ch <> ' ' then
+              pF:= Pos(Ch, N.Name, pI);
+           if pF <= 0 then
+              pF:= Length(KeyOptions.DateFmt) + pI;    // Suppose KeyOptions.DateFmt used in note name
+           str:= Copy(N.Name, pI, pF-pI);
+           DateFoundInName:= ParseDate(str);
+           if DateFoundInName <> 0 then
+              CreationDate := DateFoundInName;
+              
+           
+           if CreationDate <> 0 then begin
+              if (N.DateCreated = 0) or ForceReconsidere then begin
+                 N.Entries[0].Created:= CreationDate;
+                 N.LastModified:= LastModif;
+              end;
+              if RemoveDateFromName and (DateFoundInName <> 0) then begin
+                 LastModif:= N.LastModified;
+                 N.Name:= Trim(Copy(N.Name, pF + (F.DefaultNoteName.Length-pI)));
+                 N.LastModified:= LastModif;
+              end;
+           end;
+        end;       
+     end;
+
+     F.NoteUI.ReloadDatesFromDataModel;
+     F.TreeUI.ShowAdditionalColumns(true);
+
+     F.Modified:= True;
+     
+  finally
+     RTFAux.Free;
+  end;
+
+end;
+
 
 
 function TKntFile.AddLoadedNote(Folder: TKntFolder): TNoteNode;

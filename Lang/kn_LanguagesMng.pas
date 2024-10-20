@@ -171,7 +171,7 @@ begin
                     DefineConst;
                     AddSearchModes;
                     if assigned (Form_Main) then
-                       Form_Main.SetupToolbarButtons;
+                       Form_Main.SetupUIHints;
                  end;
                  result:= True;
              end;

@@ -311,8 +311,8 @@ begin
       DateSeparator := _DATESEPARATOR;
       TimeSeparator := _TIMESEPARATOR;
       ShortDateFormat := _SHORTDATEFMT;
-      LongDateFormat := _LONG_DATETIME_TOFILE;
-      LongTimeFormat := _LONGTIMEFMT;
+      LongDateFormat := _LONG_DATETIME_TOFILE;    // I don't thik this field is used to parse a string..
+      LongTimeFormat := _LONGTIMEFMT;             // Idem..
    end;
 
 end;

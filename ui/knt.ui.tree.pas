@@ -979,6 +979,8 @@ var
    PosCol: array [1..2] of integer;
 
 begin
+   if Show = AdditionalColumnsAreVisible then exit;
+
    Folder:= TKntFolder(Self.Folder);
 
    incWidth:= 0;

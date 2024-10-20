@@ -89,6 +89,7 @@ type
     property NNode: TNoteNode read GetNNode;
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean);
     procedure ReloadFromDataModel;
+    function ReloadDatesFromDataModel: TNoteEntry;
     function  SaveToDataModel: TMemoryStream;
     procedure ReloadNoteName;
     procedure ConfigureEditor;
@@ -135,11 +136,13 @@ implementation
 {$R *.dfm}
 
 uses
+  System.DateUtils,
   kn_LinksMng,
   kn_EditorUtils;
 
 resourcestring
-  STR_01 = 'Entry created: %s  ##  Note last modified: %s';
+  //STR_01 = 'Entry created: %s  ##  Note last modified: %s';     // TODO.. Entries
+  STR_01 = 'Created: %s  ==  Last modified: %s';
 
 
 // Create  / Destroy =========================================
@@ -301,8 +304,11 @@ var
   s, lm: string;
 begin
   if NNode <> nil then begin
-     if FNote.LastModified <> 0 then
-        lm:= FormatDateTime(FormatSettings.ShortDateFormat + ' - ' + FormatSettings.ShortTimeFormat, FNote.LastModified);
+     if FNote.LastModified <> 0 then begin
+        if (FNote.LastModified).GetTime <> 0 then
+            S:= ' - ' + FormatSettings.ShortTimeFormat;
+        lm:= FormatDateTime(FormatSettings.ShortDateFormat + S, FNote.LastModified);
+     end;
      s:= Format(STR_01, [txtCreationDate.Text, lm]);
   end;
   txtCreationDate.Hint:= s;
@@ -410,6 +416,26 @@ end;
 // TODO: We will have to manage the possible multiple entries of a note.
 // FOR THE MOMENT we will work with what we will assume is the only entry
 
+function TKntNoteUI.ReloadDatesFromDataModel: TNoteEntry;
+var
+  S: string;
+begin
+   Result:= nil;
+   if not assigned(NNode) then exit;
+
+   Result:= Note.Entries[0];       // %%%%
+   txtName.Text:= FNote.Name;
+   if Result.Created <> 0  then begin
+      if (Result.Created).GetTime <> 0 then
+            S:= ' - ' + FormatSettings.ShortTimeFormat;
+      txtCreationDate.Text:= FormatDateTime(FormatSettings.ShortDateFormat + S, Result.Created);
+   end
+   else
+      txtCreationDate.Text:= '';
+
+end;
+
+
 procedure TKntNoteUI.ReloadFromDataModel;
 var
   ReadOnlyBAK: boolean;
@@ -427,14 +453,8 @@ var
  NEntry: TNoteEntry;
 
 begin
-   if not assigned(NNode) then exit;
-
-   NEntry:= Note.Entries[0];       // %%%%
-   txtName.Text:= FNote.Name;
-   if NEntry.Created <> 0  then
-      txtCreationDate.Text:= FormatDateTime(FormatSettings.ShortDateFormat + ' - ' + FormatSettings.ShortTimeFormat, NEntry.Created)
-   else
-      txtCreationDate.Text:= '';
+   NEntry:= ReloadDatesFromDataModel;
+   if NEntry = nil then exit;
 
    BeforeEditorLoaded(Note);     //%%% ¿Informar tb. del posible cambio de NEntry?
 
