@@ -827,7 +827,7 @@ begin
   PreprocessTextPattern(myFindOptions);
 
   with myFindOptions do
-     SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil = 0);
+     SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil <> 0);
 
   if (myFindOptions.Pattern = '') and not SearchingByDates then exit;
 
@@ -950,7 +950,8 @@ begin
                    break;
 
                 // TODO: Consider the dates of the Entries of the note
-                if (myNNode.Note.LastModified.GetDate  >= myFindOptions.LastModifFrom) and
+                if (not SearchingByDates or (myNNode.Note.LastModified <> 0) ) and
+                   (myNNode.Note.LastModified.GetDate  >= myFindOptions.LastModifFrom) and
                    ((myFindOptions.LastModifUntil = 0) or (myNNode.Note.LastModified.GetDate <= myFindOptions.LastModifUntil)) and
                    (myNNode.Note.DateCreated.GetDate  >= myFindOptions.CreatedFrom) and
                    ((myFindOptions.CreatedUntil = 0) or (myNNode.Note.DateCreated.GetDate <= myFindOptions.CreatedUntil))
