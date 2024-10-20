@@ -262,6 +262,11 @@ type
     procedure LoadFromTreePadFile( const FN : string );
     function SaveToFile( var tf : TTextFile;  OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                          OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
+    procedure GetNotesToBeSaved(NoteList: TNoteList;
+                                OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
+                                OnlyNotHiddenNodes: boolean= false;
+                                OnlyCheckedNodes: boolean= false );
+
     property LoadingLevels: TIntegerList read FLoadingLevels;
   protected
     function PropertiesToFlagsString : TFlagsString;
@@ -1986,6 +1991,42 @@ begin
   end;
 
 end; // SaveToFile
+
+
+procedure TKntFolder.GetNotesToBeSaved(NoteList: TNoteList;
+                                      OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
+                                      OnlyNotHiddenNodes: boolean= false;
+                                      OnlyCheckedNodes: boolean= false );
+var
+  Node : PVirtualNode;
+  NNode: TNoteNode;
+
+begin
+
+  // obtain first node
+  if OnlyCurrentNodeAndSubtree <> nil then
+     Node := OnlyCurrentNodeAndSubtree
+  else
+     Node := TV.GetFirst;
+
+  while assigned(Node) do begin
+    if not ( (OnlyCheckedNodes   and (Node.CheckState <> csCheckedNormal)) or
+             (OnlyNotHiddenNodes and not TV.IsVisible[Node])
+              )  then begin
+        NNode:= TreeUI.GetNNode(Node);
+        if NoteList.IndexOf(NNode.Note) < 0 then
+           NoteList.Add(NNode.Note);
+    end;
+
+    // obtain next node, or bail out if NIL
+    Node := TV.GetNext(Node);
+    if OnlyCurrentNodeAndSubtree <> nil then begin
+        if (OnlyCurrentNodeAndSubtree.NextSibling = Node) then
+           Node := nil;
+    end;
+  end;
+
+end; // GetNotesToBeSaved
 
 
 

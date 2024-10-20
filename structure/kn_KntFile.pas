@@ -2357,6 +2357,7 @@ var
   ds : AnsiString;
   tf : TTextFile;
   AuxStream : TMemoryStream;
+  NotesToSave: TNoteList;
 
 
   procedure WriteNEntry (NEntry: TNoteEntry; Note: TNote);
@@ -2423,7 +2424,7 @@ var
   begin
       try
         if assigned( myFolder ) then begin
-          if ExportingMode and not (myFolder.Info > 0) then     // Notes to be exported are marked with Info=1
+          if ExportingMode and not (myFolder.Info > 0) then     // Folders to be exported are marked with Info=1
              Exit;
 
           SavedNodes:= SavedNodes + myFolder.SaveToFile( tf, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
@@ -2472,10 +2473,25 @@ var
        end;
     end;
 
-    // Save Notes (TNote) with its Entries (TNoteEntry)
-    tf.WriteLine(_NumNotes + '=' + FNotes.Count.ToString);
-    for i := 0 to FNotes.Count -1 do
-       WriteNote(FNotes[i]);
+   
+    if ExportingMode then begin
+       NotesToSave:= TNoteList.Create;
+       for i := 0 to FFolders.Count -1 do
+          if myFolder.Info > 0 then          // Folders to be exported are marked with Info=1
+             FFolders[i].GetNotesToBeSaved(NotesToSave, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+
+       // Save Notes (TNote) with its Entries (TNoteEntry)
+       tf.WriteLine(_NumNotes + '=' + NotesToSave.Count.ToString);
+       for i := 0 to NotesToSave.Count -1 do
+          WriteNote(NotesToSave[i]);             
+    end
+    else begin
+       // Save Notes (TNote) with its Entries (TNoteEntry)
+       tf.WriteLine(_NumNotes + '=' + FNotes.Count.ToString);
+       for i := 0 to FNotes.Count -1 do
+          WriteNote(FNotes[i]); 
+    end;
+   
 
 
     if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then begin
@@ -2517,6 +2533,8 @@ begin
 
   SavedFolders:= 0;
   SavedNodes:= 0;
+  NotesToSave:= nil;
+
 
   if ( FN = '' ) then
     raise EKeyKntFileError.Create( STR_12 );
@@ -2634,6 +2652,8 @@ begin
   finally
       if assigned(tf) then
          tf.Free;
+      if assigned(NotesToSave) then
+         NotesToSave.Free;
 
       ImageMng.ConversionStorageMode_End;
   end;
