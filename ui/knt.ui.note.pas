@@ -419,20 +419,28 @@ end;
 function TKntNoteUI.ReloadDatesFromDataModel: TNoteEntry;
 var
   S: string;
+  ActiveFileIsBusyBAK: boolean;
 begin
    Result:= nil;
    if not assigned(NNode) then exit;
 
-   Result:= Note.Entries[0];       // %%%%
-   txtName.Text:= FNote.Name;
-   if Result.Created <> 0  then begin
-      if (Result.Created).GetTime <> 0 then
-            S:= ' - ' + FormatSettings.ShortTimeFormat;
-      txtCreationDate.Text:= FormatDateTime(FormatSettings.ShortDateFormat + S, Result.Created);
-   end
-   else
-      txtCreationDate.Text:= '';
+   ActiveFileIsBusyBAK:= ActiveFileIsBusy;
+   ActiveFileIsBusy:= True;                   // To avoid txtNameChange => Modified:True
+   try
+      Result:= Note.Entries[0];       // %%%%
+      txtName.Text:= FNote.Name;
 
+      if Result.Created <> 0  then begin
+         if (Result.Created).GetTime <> 0 then
+               S:= ' - ' + FormatSettings.ShortTimeFormat;
+         txtCreationDate.Text:= FormatDateTime(FormatSettings.ShortDateFormat + S, Result.Created);
+      end
+      else
+         txtCreationDate.Text:= '';
+
+   finally
+      ActiveFileIsBusy:= ActiveFileIsBusyBAK;
+   end;
 end;
 
 
