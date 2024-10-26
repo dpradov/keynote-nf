@@ -1653,7 +1653,7 @@ end;
 procedure TKntFolder.SetFocusOnNoteEditor;
 begin
   try
-     NoteUI.SetFocus;
+     NoteUI.SetFocusOnEditor;
   except
   end;
 end;

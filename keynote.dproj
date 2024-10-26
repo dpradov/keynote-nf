@@ -3,7 +3,7 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -150,7 +150,6 @@
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <VerInfo_Build>1</VerInfo_Build>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <Debugger_RunParams>&quot;E:\Output\bin\Help\KeyNoteNF_Help.knt&quot; &quot;E:\Output\bin\Profiles\Help\keynote.ini&quot; -jmp&quot;file:///*8|282&quot; -title&quot;KeyNote NF Topics&quot;</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
