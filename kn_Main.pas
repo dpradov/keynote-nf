@@ -5153,7 +5153,8 @@ begin
   else
     FocusActiveKntFolder;
 
-  ActiveTreeUI.CheckRestoreTreeWidth;
+  if ActiveTreeUI <> nil then
+     ActiveTreeUI.CheckRestoreTreeWidth;
 end; // MMViewResPanelClick
 
 
