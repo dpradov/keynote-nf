@@ -721,18 +721,24 @@ end;
 procedure TKntApp.FileClosed (aFile: TKntFile);
 begin
    if aFile = ActiveFile then begin
-      ActiveFolder:= nil;
-      ActiveNNode:= nil;
-      ActiveFile:= nil;
-      ActiveTreeUI:= nil;
-      ActiveFileIsBusy:= false;
-      if assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then begin
-         ActiveEditor:= nil;
-         with Form_Main do
-            if (Pages_Res.ActivePage = ResTab_RTF) and (ResTab_RTF.Visible) then
-               Res_RTF.SetFocus
-            else
-               UpdateEnabledActionsAndRTFState(TKntRichEdit(nil));
+      try
+         ActiveFolder:= nil;
+         ActiveNNode:= nil;
+         ActiveFile:= nil;
+         ActiveTreeUI:= nil;
+         ActiveFileIsBusy:= false;
+
+         if AppIsClosing then exit;
+
+         if assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then begin
+            ActiveEditor:= nil;
+            with Form_Main do
+               if (Pages_Res.ActivePage = ResTab_RTF) and (ResTab_RTF.Visible) then
+                  Res_RTF.SetFocus
+               else
+                  UpdateEnabledActionsAndRTFState(TKntRichEdit(nil));
+         end;
+      except
       end;
    end;
 end;

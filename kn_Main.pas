@@ -2021,13 +2021,13 @@ begin
   finally
     if CanClose then
     begin
-       App.FileClosed(ActiveFile);
      {$IFDEF KNT_DEBUG}
        Log.Flush( true );
        Log.Add( 'CloseQuery result: ' + BOOLARRAY[CanClose] );
      {$ENDIF}
+       AppIsClosing := true;
     end;
-    AppIsClosing := true;
+
     ClosedByWindows := false;
     TerminateClick := false;
   end;
@@ -2036,6 +2036,7 @@ end; // CLOSEQUERY
 procedure TForm_Main.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
    HotKeyProc( false ); // unregister hotkey
+   App.FileClosed(ActiveFile);
 
    UnRegisterDropTarget(Form_Main.Pages);
 
