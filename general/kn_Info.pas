@@ -545,7 +545,7 @@ type
     LastCopyPath : string;
     LastExportPath : string;
     LastExportFormat : TExportFmt;
-    LastExportAsk : boolean;
+    //LastExportAsk : boolean;          // unused
     LastFile : string;
     LastImportPath : string;
     LastNumbering : TRxNumbering;

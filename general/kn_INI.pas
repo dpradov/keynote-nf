@@ -344,7 +344,7 @@ type
     LastCopyPath,
     LastExportPath,
     LastExportFormat,
-    LastExportAsk,
+    //LastExportAsk,           // Not used
     LastFile,
     LastImportPath,
     LastNumbering,
@@ -521,7 +521,7 @@ const
     LastCopyPath : 'LastCopyPath';
     LastExportPath : 'LastExportPath';
     LastExportFormat : 'LastExportFormat';
-    LastExportAsk : 'LastExportAsk';
+    //LastExportAsk : 'LastExportAsk';
     LastFile : 'LastFile';
     LastImportPath : 'LastImportPath';
     LastNumbering : 'LastNumbering';
@@ -1060,7 +1060,7 @@ begin
     LastCopyPath := '';
     LastExportPath := '';
     LastExportFormat := low( TExportFmt );
-    LastExportAsk := false;
+    //LastExportAsk := false;
     LastFile := '';
     LastImportPath := '';
     LastNumbering := nsArabicNumbers;
@@ -1372,7 +1372,7 @@ begin
       writestring( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );
       writestring( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
       writeinteger( section, KeyOptionsIniStr.LastExportFormat, ord( KeyOptions.LastExportFormat ));
-      writebool( section, KeyOptionsIniStr.LastExportAsk, KeyOptions.LastExportAsk );
+      //writebool( section, KeyOptionsIniStr.LastExportAsk, KeyOptions.LastExportAsk );
       writestring( section, KeyOptionsIniStr.LastFile, ExtractRelativePath(Application.ExeName, KeyOptions.LastFile) );
       writestring( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
       writeinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering ));
@@ -1709,7 +1709,7 @@ begin
       KeyOptions.LastCopyPath := readstring( section, KeyOptionsIniStr.LastCopyPath, KeyOptions.LastCopyPath );
 
       KeyOptions.LastExportPath := readstring( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
-      KeyOptions.LastExportAsk := readbool( section, KeyOptionsIniStr.LastExportAsk, KeyOptions.LastExportAsk );
+      //KeyOptions.LastExportAsk := readbool( section, KeyOptionsIniStr.LastExportAsk, KeyOptions.LastExportAsk );
 
       i := readinteger( section, KeyOptionsIniStr.LastExportFormat, ord( KeyOptions.LastExportFormat ));
       if (( i < 0 ) or ( i > ord( high( TExportFmt )))) then
