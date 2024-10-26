@@ -97,6 +97,7 @@ type
     CB_UseTab: TCheckBox;
     GB_Additional: TGroupBox;
     CB_ShowHiddenMarkers: TCheckBox;
+    CB_SaveImgDefWP: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -127,7 +128,6 @@ type
     IsBusy : boolean;
     DoAbort : boolean;
 
-    procedure ReadConfig;
     procedure WriteConfig;
     procedure PerformExport;
     procedure FormToOptions;
@@ -151,7 +151,7 @@ function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : string ) : st
 
 procedure ExportNotesEx;
 procedure ExportTreeNode;
-
+procedure ReadConfig (var ExportOptions: TExportOptions; const myINIFN: string);
 
 var
   Form_ExportNew: TForm_ExportNew;
@@ -461,7 +461,7 @@ procedure TForm_ExportNew.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
 
-  ReadConfig;
+  ReadConfig (ExportOptions, myINIFN);
   OptionsToForm;
 
   RB_SelNotesClick( RB_CurrentNote );
@@ -542,7 +542,9 @@ begin
      Tab_Options.TabVisible := (format <> xfTreePad);
      RG_NodeMode.Enabled :=    (format <> xfTreePad);
      RG_HTML.Visible := (format = xfHTML);
-     GB_Additional.Visible := (format = xfPlainText);
+     GB_Additional.Visible := (format in [xfPlainText, xfRTF]);
+     CB_ShowHiddenMarkers.Visible := (format = xfPlainText);
+     CB_SaveImgDefWP.Visible := (format = xfRTF);
      CB_UseTab.Enabled:= (format = xfPlainText) and (CB_IndentNodes.Checked);
      if TExportFmt(Combo_Format.ItemIndex) <> xfPlainText then
          CB_ShowHiddenMarkers.Checked:= False;
@@ -550,7 +552,7 @@ begin
 end;
 
 
-procedure TForm_ExportNew.ReadConfig;
+procedure ReadConfig (var ExportOptions: TExportOptions; const myINIFN: string);
 var
   IniFile : TMemIniFile;
   section : string;
@@ -590,6 +592,7 @@ begin
       ExportOptions.TreePadForceMaster := readbool( section, ExportOptionsIniStr.TreePadForceMaster, ExportOptions.TreePadForceMaster );
       ExportOptions.TreePadSingleFile := readbool( section, ExportOptionsIniStr.TreePadSingleFile, ExportOptions.TreePadSingleFile );
       ExportOptions.TreeSelection := TTreeSelection( readinteger( section, ExportOptionsIniStr.TreeSelection, ord( ExportOptions.TreeSelection )));
+      ExportOptions.RTFImgsWordPad := readbool( section, ExportOptionsIniStr.RTFImgsWordPad, ExportOptions.RTFImgsWordPad );
     end;
     
   finally
@@ -655,8 +658,9 @@ begin
       writebool( section, ExportOptionsIniStr.TreePadRTF, ExportOptions.TreePadRTF );
       writebool( section, ExportOptionsIniStr.TreePadSingleFile, ExportOptions.TreePadSingleFile );
       writeinteger( section, ExportOptionsIniStr.TreeSelection, ord( ExportOptions.TreeSelection ));
+      writebool( section, ExportOptionsIniStr.RTFImgsWordPad, ExportOptions.RTFImgsWordPad );
     end;
-    
+
     IniFile.UpdateFile;
 
   finally
@@ -701,6 +705,8 @@ begin
     IndentNestedNodes := CB_IndentNodes.Checked;
     IndentValue := Spin_Indent.Value;
     IndentUsingTabs := CB_UseTab.Checked;
+
+    RTFImgsWordPad := CB_SaveImgDefWP.Checked;
 
     NodeHeading := Edit_NodeHead.Text;
     if ( NodeHeading = '' ) then
@@ -756,6 +762,8 @@ begin
 
     CB_IndentNodesClick(nil);
     CB_IncNodeHeadingClick(nil);
+
+    CB_SaveImgDefWP.Checked:= RTFImgsWordPad;
 
     if TreePadRTF then
       RG_TreePadVersion.ItemIndex := 1
@@ -838,6 +846,7 @@ var
   RTFwithImages: AnsiString;
   FSize, SS, SL: integer;
   SSNode: integer;
+  ImgFormatInsideRTF_BAK: TImageFormatToRTF;
 
   procedure LoadNodeLevelTemplates;
   var
@@ -930,6 +939,12 @@ begin
   SaveDlg.InitialDir := ExportOptions.ExportPath;
 
   try
+    ImgFormatInsideRTF_BAK:= KeyOptions.ImgFormatInsideRTF;
+    if ExportOptions.RTFImgsWordPad then
+       KeyOptions.ImgFormatInsideRTF:= ifWmetafile8
+    else
+       KeyOptions.ImgFormatInsideRTF:= ifAccordingImage;
+
 
     try
 
@@ -1296,6 +1311,7 @@ begin
     end;
 
   finally
+    KeyOptions.ImgFormatInsideRTF:= ImgFormatInsideRTF_BAK;
     FreeConvertLibrary;
     ActiveFile.IsBusy := false;
     IsBusy := false;
@@ -1643,6 +1659,9 @@ var
   ExportSelectionOnly : boolean;
   RTFAux : TAuxRichEdit;
   Editor: TKntRichEdit;
+  ImgFormatInsideRTF_BAK: TImageFormatToRTF;
+  RTFwithImages: string;
+  ExportOptions : TExportOptions;
 
 begin
   NNode:= ActiveTreeUI.GetFocusedNNode;
@@ -1659,6 +1678,9 @@ begin
 
   ActiveFolder.SaveEditorToDataModel;
 
+  NEntry:= NNode.Note.Entries[0];          //%%%
+  NEntry.Stream.Position := 0;
+
   // {N}
   ExportFN := MakeValidFileName(NNode.NodeName(ActiveTreeUI), [' '], MAX_FILENAME_LENGTH );
 
@@ -1668,6 +1690,9 @@ begin
       oldFilter := Filter;
       Filter := FILTER_EXPORT;
       FilterIndex := KeyOptions.LastExportFormat;
+      if NEntry.IsPlainTXT then
+         FilterIndex := 2;  // Plain text
+
       if ( KeyOptions.LastExportPath <> '' ) then
         InitialDir := KeyOptions.LastExportPath
       else
@@ -1714,16 +1739,13 @@ begin
     end;
   end;
 
-  NEntry:= NNode.Note.Entries[0];          //%%%
-  NEntry.Stream.Position := 0;
-
   RTFAux:= nil;
  try
   try
     ExportSelectionOnly := ( Editor.SelLength > 0 );
 
     if exportformat in [xfRTF, xfHTML] then begin
-       if Editor.PlainText then begin
+       if NEntry.IsPlainTXT then begin
           RTFAux:= CreateAuxRichEdit;
           RTFAux.PrepareEditorforPlainText(Editor.Chrome);
           if ExportSelectionOnly then
@@ -1733,11 +1755,28 @@ begin
           RTFAux.PutRtfText(Txt, True, False);
           RTFText:= RTFAux.RtfText;
        end
-       else
+       else begin
           if ExportSelectionOnly then
              RTFText:= Editor.RtfSelText
           else
              RTFText:= Editor.RtfText;
+
+          ReadConfig (ExportOptions, INI_FN);
+          ImgFormatInsideRTF_BAK:= KeyOptions.ImgFormatInsideRTF;
+          try
+             if ExportOptions.RTFImgsWordPad then
+                KeyOptions.ImgFormatInsideRTF:= ifWmetafile8
+             else
+                KeyOptions.ImgFormatInsideRTF:= ifAccordingImage;
+
+             RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFText, '', imLink, '', 0, false);
+             RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFwithImages, '', imImage, '', 0, false);
+             if RTFwithImages <> ''  then
+                RTFText:= RTFwithImages;
+          finally
+             KeyOptions.ImgFormatInsideRTF:= ImgFormatInsideRTF_BAK;
+          end;
+       end;
 
        RTFText:= RemoveKNTHiddenCharactersInRTF(RTFText, hmAll);
     end

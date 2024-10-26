@@ -443,7 +443,8 @@ type
     TreePadRTF : boolean;
     TreePadSingleFile : boolean;
     TreeSelection : TTreeSelection;
-    ExcludeHiddenNodes: boolean;    // [dpv]
+    ExcludeHiddenNodes: boolean;
+    RTFImgsWordPad: boolean;          // 1: Save images in default, not optmized, WordPad format (ifWmetafile8)
   end;
 
 type

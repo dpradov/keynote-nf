@@ -1886,7 +1886,7 @@ object Form_Main: TForm_Main
     object actTVExport: TAction
       Caption = 'E&xport...'
       HelpContext = 313
-      Hint = 'Export node contents to file'
+      Hint = 'Export node contents (or selection) to file'
       OnExecute = actTVExportExecute
     end
     object actTVDeleteNode: TAction

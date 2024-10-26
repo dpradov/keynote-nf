@@ -886,7 +886,8 @@ type
     TreePadRTF,
     TreePadSingleFile,
     TreeSelection,
-    ExcludeHiddenNodes: string;     // [dpv]
+    ExcludeHiddenNodes,
+    RTFImgsWordPad: string;
   end;
 
 const
@@ -2279,7 +2280,8 @@ begin
     TreePadRTF := false;
     TreePadSingleFile := true;
     TreeSelection := low( TTreeSelection );
-    ExcludeHiddenNodes:= false;              // [dpv]
+    ExcludeHiddenNodes:= false;
+    RTFImgsWordPad:= false;
   end;
   ShowHiddenMarkers:= false;         // Global
 

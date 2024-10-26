@@ -173,8 +173,6 @@ object Form_ExportNew: TForm_ExportNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -234,10 +232,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 3
         Top = 5
@@ -495,6 +489,21 @@ object Form_ExportNew: TForm_ExportNew
           HelpKeyword = '313-11'
           Caption = 'Show hidden marks and IDs'
           TabOrder = 0
+          Visible = False
+        end
+        object CB_SaveImgDefWP: TCheckBox
+          Left = 12
+          Top = 24
+          Width = 253
+          Height = 17
+          Hint = 
+            'If *not* checked, use optimized formats; WordPad will prompt you' +
+            ' to unblock to display images. Word will not'#13#10'(More in Help, F1)'
+          HelpType = htKeyword
+          HelpKeyword = '576-4'
+          Caption = 'Save images in default WordPad format'
+          TabOrder = 1
+          Visible = False
         end
       end
     end
@@ -506,10 +515,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object RG_TreePadVersion: TRadioGroup
         Left = 5
         Top = 5
