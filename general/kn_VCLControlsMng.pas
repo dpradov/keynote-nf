@@ -220,6 +220,7 @@ begin
      OnFileDropped := Form_Main.OnFileDropped;
      OnEnter:= App.ScratchpadFocused;
      OnKeyPress:= Form_Main.RxResTabRTFKeyPress;
+     OnKeyDown:= Form_Main.RxResTabRTFKeyDown;
 
      SetVinculatedObjs(nil, nil, nil, nil);
 

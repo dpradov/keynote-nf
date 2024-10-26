@@ -1251,6 +1251,7 @@ type
 
     procedure RxChangedSelection(Sender: TKntRichEdit; ConsiderAllOnPlainText: boolean = false);
     procedure RxRTFKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure RxResTabRTFKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure RxRTFKeyPress(Sender: TObject; var Key: Char);
     procedure RxResTabRTFKeyPress(Sender: TObject; var Key: Char);
     procedure actTVEraseTreeMemExecute(Sender: TObject);
@@ -6659,6 +6660,14 @@ begin
   end;
 
 end; // RxRTFKeyDown
+
+procedure TForm_Main.RxResTabRTFKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+   if ( Shift = [ssCtrl] ) and (key = 220) then begin   { backslash }
+     Key := 0;
+     MMTreeFocusEditorClick (nil);
+   end;
+end;
 
 procedure TForm_Main.RxRTFKeyPress(Sender: TObject; var Key: Char);
 begin
