@@ -1252,6 +1252,7 @@ type
     procedure RxChangedSelection(Sender: TKntRichEdit; ConsiderAllOnPlainText: boolean = false);
     procedure RxRTFKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure RxRTFKeyPress(Sender: TObject; var Key: Char);
+    procedure RxResTabRTFKeyPress(Sender: TObject; var Key: Char);
     procedure actTVEraseTreeMemExecute(Sender: TObject);
     procedure actFileSaveExecute(Sender: TObject);
     procedure MMFileSaveAsClick(Sender: TObject);
@@ -6666,6 +6667,15 @@ begin
       MMTreeFocusTreeClick (nil);
    end
 end;
+
+procedure TForm_Main.RxResTabRTFKeyPress(Sender: TObject; var Key: Char);
+begin
+   if (Key = #9) and ShiftDown then begin
+      Key := #0;
+      MMTreeFocusEditorClick (nil);
+   end
+end;
+
 
 
 // Tree panel context menu commands ===========================================
