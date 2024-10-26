@@ -114,7 +114,6 @@ var
     HelpINI_FN : string;  // INI file to use with Help file (.knt)
     Launcher_FN: string;  // kntLauncher.exe
 
-    LastExportFilterIndex : integer;
     ShowHiddenMarkers: boolean;
 
     //================================================== COMMAND LINE
@@ -473,7 +472,6 @@ begin
       LAST_CASE_CYCLE := low( LAST_CASE_CYCLE );
 
       LastFileModifiedFlag := false;
-      LastExportFilterIndex := 1;
 
       AppLastActiveTime := now;
 

@@ -544,7 +544,8 @@ type
     LanguageUI : string;    // Language of ther user interface. Must be in keynote.lan
     LastCopyPath : string;
     LastExportPath : string;
-    LastExportFormat : TExportFmt;
+    //LastExportFormat : TExportFmt;
+    LastExportFormat : integer;
     //LastExportAsk : boolean;          // unused
     LastFile : string;
     LastImportPath : string;

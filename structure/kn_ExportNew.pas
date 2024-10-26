@@ -609,6 +609,7 @@ procedure TForm_ExportNew.TB_OpenDlgDirClick(Sender: TObject);
 var
   Dir: string;
 begin
+  Dir:= ExportOptions.ExportPath;
   if SelectDirectory('','', Dir) then
      Edit_Folder.Text:= Dir;
 
@@ -1666,7 +1667,7 @@ begin
       Title:= STR_00;
       oldFilter := Filter;
       Filter := FILTER_EXPORT;
-      FilterIndex := LastExportFilterIndex;
+      FilterIndex := KeyOptions.LastExportFormat;
       if ( KeyOptions.LastExportPath <> '' ) then
         InitialDir := KeyOptions.LastExportPath
       else
@@ -1682,7 +1683,7 @@ begin
       end;
       }
       if ( not execute ) then exit;
-      LastExportFilterIndex := FilterIndex;
+      KeyOptions.LastExportFormat := FilterIndex;
 
     finally
       Filter := oldFilter;
@@ -1693,7 +1694,7 @@ begin
   KeyOptions.LastExportPath := extractfilepath( ExportFN );
   ext := extractfileext( ExportFN );
 
-  case LastExportFilterIndex of
+  case KeyOptions.LastExportFormat of
     1 : begin
       exportformat := xfRTF;
       if ( ext = '' ) then

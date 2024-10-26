@@ -1059,7 +1059,7 @@ begin
     LanguageUI := LANGUAGE_DEFAULT;   // Default (English Internal)
     LastCopyPath := '';
     LastExportPath := '';
-    LastExportFormat := low( TExportFmt );
+    LastExportFormat := 1; // RTF;   // low( TExportFmt );
     //LastExportAsk := false;
     LastFile := '';
     LastImportPath := '';
@@ -1711,11 +1711,16 @@ begin
       KeyOptions.LastExportPath := readstring( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
       //KeyOptions.LastExportAsk := readbool( section, KeyOptionsIniStr.LastExportAsk, KeyOptions.LastExportAsk );
 
-      i := readinteger( section, KeyOptionsIniStr.LastExportFormat, ord( KeyOptions.LastExportFormat ));
-      if (( i < 0 ) or ( i > ord( high( TExportFmt )))) then
-        KeyOptions.LastExportFormat := low( TExportFmt )
-      else
-        KeyOptions.LastExportFormat := TExportFmt( i );
+//      i := readinteger( section, KeyOptionsIniStr.LastExportFormat, ord( KeyOptions.LastExportFormat ));
+//      if (( i < 0 ) or ( i > ord( high( TExportFmt )))) then
+//        KeyOptions.LastExportFormat := xfRTF // low( TExportFmt )
+//      else
+//        KeyOptions.LastExportFormat := TExportFmt( i );
+
+      KeyOptions.LastExportFormat := readinteger( section, KeyOptionsIniStr.LastExportFormat, KeyOptions.LastExportFormat);
+      if (i < 1 ) or ( i > 3) then
+        KeyOptions.LastExportFormat := 1; // RTF
+
 
       KeyOptions.LastFile := NormalFN( readstring( section, KeyOptionsIniStr.LastFile, KeyOptions.LastFile ));
       KeyOptions.LastImportPath := readstring( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
