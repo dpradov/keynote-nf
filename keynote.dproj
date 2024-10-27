@@ -3,7 +3,7 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -337,6 +337,7 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="ui\knt.ui.info.pas"/>
+        <DCCReference Include="ui\VirtualTrees.Accessibility_MOD.pas"/>
         <None Include="support\gf_base.inc">
             <ContainerId>File</ContainerId>
         </None>

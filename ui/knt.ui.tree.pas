@@ -27,7 +27,8 @@ uses
   VirtualTrees,
   VirtualTrees.Types,
   VirtualTrees.BaseTree,
-  VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL,
+  VirtualTrees.BaseAncestorVCL,
+  VirtualTrees.AncestorVCL,
 
   TB97Ctls,
   RxRichEd,
@@ -340,6 +341,7 @@ type
 
 implementation
 uses
+   VirtualTrees.Accessibility_MOD,
    gf_strings,
    gf_streams,
    gf_miscvcl,
