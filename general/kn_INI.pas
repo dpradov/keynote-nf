@@ -437,6 +437,7 @@ type
     MarginAltRight,
     AltMargins,                 // Saves the state of View|Alternative margins
     ModifiedOnTreeResized,
+    HintsAccesible,
     ImgDefaultStorageMode,
     ImgDefaultExternalStorage,
     ImgDefaultCompression,
@@ -614,6 +615,7 @@ const
     MarginAltRight: 'MarginAltRight';
     AltMargins: 'AltMargins';
     ModifiedOnTreeResized : 'ModifiedOnTreeResized';
+    HintsAccesible : 'HintsAccesible';
     ImgDefaultStorageMode: 'ImgDefaultStorageMode';
     ImgDefaultExternalStorage: 'ImgDefaultExternalStorage';
     ImgDefaultCompression: 'ImgDefaultCompression';
@@ -1159,6 +1161,7 @@ begin
     MarginAltLeft := 80;
     MarginAltRight:= 80;
     ModifiedOnTreeResized:= False;
+    HintsAccesible:= False;
 
     ImgDefaultStorageMode := smEmbKNT;
     ImgDefaultExternalStorage := issFolder;
@@ -1830,6 +1833,8 @@ begin
       KeyOptions.MarginAltRight := readinteger( section, KeyOptionsIniStr.MarginAltRight, KeyOptions.MarginAltRight );
       KeyOptions.AltMargins:= readbool( section, KeyOptionsIniStr.AltMargins, false );
       KeyOptions.ModifiedOnTreeResized := readbool( section, KeyOptionsIniStr.ModifiedOnTreeResized, KeyOptions.ModifiedOnTreeResized );
+      KeyOptions.HintsAccesible := readbool( section, KeyOptionsIniStr.HintsAccesible, KeyOptions.HintsAccesible );
+
 
       KeyOptions.ImgDefaultStorageMode := TImagesStorageMode( readinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode )));
       KeyOptions.ImgDefaultExternalStorage := TImagesExternalStorage( readinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage )));

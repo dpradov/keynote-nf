@@ -2313,9 +2313,25 @@ begin
 end; // AppRestore;
 
 procedure TForm_Main.DisplayAppHint( sender: TObject );
+var
+   i: integer;
 begin
-  if KeyOptions.StatBarShow then
-    StatusBar.Panels[PANEL_HINT].Text := GetShortHint( Application.Hint );
+  if KeyOptions.StatBarShow then begin
+     StatusBar.Panels[PANEL_HINT].Text := GetShortHint( Application.Hint );
+
+     if KeyOptions.HintsAccesible then begin   // When hints are shown in status bar, other text panels will be shown blank
+        if Application.Hint <> '' then begin
+           for i:= 0 to 5 do
+              StatusBar.Panels[I].Style:= psOwnerDraw;
+        end
+        else begin
+           for i:= 0 to 5 do
+             StatusBar.Panels[I].Style:= psText;
+           StatusBar.Panels[PANEL_FILEICON].Style:= psOwnerDraw;
+        end;
+     end;
+  end;
+
 end; // DisplayAppHint
 
 
