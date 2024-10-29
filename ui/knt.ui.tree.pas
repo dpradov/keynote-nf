@@ -138,6 +138,9 @@ type
                            Column: TColumnIndex; TextType: TVSTTextType);
     procedure TV_GetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
                                var Ghosted: Boolean; var ImageIndex: TImageIndex);
+    procedure TV_GetImageText(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
+                               var ImageText: string);
+
     procedure TV_BeforeCellPaint(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
                                 Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect; var ContentRect: TRect);
     procedure TV_CompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
@@ -415,6 +418,12 @@ resourcestring
 
   STR_60 = 'Last modified >= "%s"';
 
+  STR_62= 'Name';
+  STR_63= 'Note name';
+  STR_64= 'Date';
+  STR_65= 'Note creation date';
+  STR_66= 'Flagged';
+
 
 
 const
@@ -486,20 +495,20 @@ begin
        Options:= [hoAutoResize, hoColumnResize,hoDblClickResize,hoDrag,hoShowHint, hoOwnerDraw];
        AutoSize := False;
        with Columns.Add do begin
-           Text:='Name';
-           Hint:= 'Note name';
+           Text:= STR_62;       // Name
+           Hint:= STR_63;       // Note name
            Position:= 1;
            Style:= vsOwnerDraw;
        end;
        with Columns.Add do begin
-           Text:='Date';
+           Text:= STR_64;      // Date
            Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor];
-           Hint:= 'Note creation date';
+           Hint:= STR_65;      // Note creation date
            Position:= 2;
            Style:= vsOwnerDraw;
        end;
        with Columns.Add do begin
-           Hint:='Flagged';
+           Hint:= STR_66;  // Flagged
            Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor];
            Width:= 18;
            Position:= 0;
@@ -1153,8 +1162,6 @@ end;
 
 
 procedure TKntTreeUI.TV_NodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
-var
-   NNode: TNoteNode;
 begin
    with HitInfo do begin
        if HitColumn = 2 then
@@ -1330,6 +1337,19 @@ begin
     end;
   end;
 
+end;
+
+
+procedure TKntTreeUI.TV_GetImageText(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind;
+  Column: TColumnIndex; var ImageText: string);
+var
+   NNode: TNoteNode;
+begin
+  if Column = 2 then begin
+     NNode:= GetNNode(Node);
+     if NNode.Flagged then
+        ImageText:= STR_66;  // "Flagged"
+  end;
 end;
 
 
