@@ -633,8 +633,10 @@ begin
       if KntTreeOptions.HotTrack then
         TreeOptions.PaintOptions := TreeOptions.PaintOptions + [toHotTrack];
 
-     if KntTreeOptions.FullRowSelect then
+      if KntTreeOptions.FullRowSelect then
         TreeOptions.SelectionOptions := TreeOptions.SelectionOptions + [toFullRowSelect];
+
+      IncrementalSearch:= isVisibleOnly;
 
       CheckImageKind:= ckCustom;
       HintMode:= hmTooltip;
