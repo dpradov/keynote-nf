@@ -54,6 +54,8 @@ type
      procedure ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
      procedure ReloadImagesOnEditor;
 
+     procedure SetInfoPanelHidden(value: boolean);
+
      procedure SetReadOnly( AReadOnly : boolean );
      procedure NNodeDeleted;
 

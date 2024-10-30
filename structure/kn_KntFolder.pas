@@ -117,6 +117,7 @@ type
     FIconKind : TNodeIconKind;         // [*]
     FTreeChrome : TChrome;             // [*]
     FTreeHidden : boolean;             // [*]
+    FEditorInfoPanelHidden: boolean;   // [*]
     FHideCheckedNodes: boolean;        // [*]
     FFiltered: boolean;                // [*]
     FPosDateCol: integer;              // [*]
@@ -147,6 +148,7 @@ type
     procedure SetImageIndex( AImgIdx : integer );
     procedure SetEditorChrome( AChrome : TChrome );
     procedure SetTabSheet( ATabSheet : TTab95Sheet );
+    procedure SetEditorInfoPanelHidden(value: boolean);
 
     procedure SetWordWrap( AWordWrap : boolean );
     procedure SetURLDetect( AURLDetect : boolean );
@@ -203,6 +205,7 @@ type
     //property AutoNumberNodes : boolean read FAutoNumberNotes write FAutoNumberNotes;
     property VerticalLayout : boolean read FVerticalLayout write FVerticalLayout;
     property TreeHidden : boolean read FTreeHidden write FTreeHidden;
+    property EditorInfoPanelHidden : boolean read FEditorInfoPanelHidden write SetEditorInfoPanelHidden;
 
     property Editor : TKntRichEdit read GetEditor;
 
@@ -411,6 +414,8 @@ begin
               SetTreeProperties( Form_NewNote.myTreeProperties );
               TreeChrome := Form_NewNote.myTreeChrome;
             end;
+            if ActiveFolder <> nil then
+               myFolder.FEditorInfoPanelHidden:= ActiveFolder.FEditorInfoPanelHidden;
           end;
         finally
           Form_NewNote.Free;
@@ -842,6 +847,7 @@ begin
   FDefaultNoteName := DEFAULT_NEW_NOTE_NAME;
   fNNodes := TNoteNodeList.Create;
   FLoadingLevels:= TIntegerList.Create;
+  FEditorInfoPanelHidden:= false;
 
 end; // CREATE
 
@@ -928,6 +934,7 @@ end;
 procedure TKntFolder.SetNoteUI( ANoteUI : INoteUI );
 begin
    fNoteUI:= ANoteUI;
+   fNoteUI.SetInfoPanelHidden(FEditorInfoPanelHidden);
 end;
 
 procedure TKntFolder.SetTreeUI(tree: TKntTreeUI);
@@ -1057,6 +1064,14 @@ begin
   if _ALLOW_VCL_UPDATES and assigned( NoteUI ) then
     NoteUI.Editor.TabSize := FTabSize;
 end;
+
+procedure TKntFolder.SetEditorInfoPanelHidden(value: boolean);
+begin
+   FEditorInfoPanelHidden:= value;
+   NoteUI.SetInfoPanelHidden(value);
+   Form_Main.MMViewEditorInfoPanel.Checked:= not FEditorInfoPanelHidden;
+end;
+
 
 {$ENDREGION}
 
@@ -2643,6 +2658,7 @@ begin
   result[20] := AnsiChar(IntToStr(FPosDateCol)[1]);
   result[21] := AnsiChar(IntToStr(FPosFlaggedCol)[1]);
 
+  result[22] := BOOLEANSTR[FEditorInfoPanelHidden];
 end;
 
 
@@ -2676,6 +2692,8 @@ begin
 
   FPosDateCol:= Ord(FlagsStr[20])-Ord('0');
   FPosFlaggedCol:= Ord(FlagsStr[21])-Ord('0');
+
+  FEditorInfoPanelHidden := FlagsStr[22] = BOOLEANSTR[true];
 end;
 
 {$ENDREGION }

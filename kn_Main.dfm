@@ -2505,6 +2505,11 @@ object Form_Main: TForm_Main
         ShortCut = 8314
         OnClick = MMViewTreeClick
       end
+      object MMViewEditorInfoPanel: TMenuItem
+        Caption = 'Editor Info'
+        Hint = 'Show or hide the editor information panel'
+        OnClick = MMViewEditorInfoPanelClick
+      end
       object MMViewHistory: TMenuItem
         Caption = 'History'
         SubMenuImages = IMG_Toolbar

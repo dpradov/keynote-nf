@@ -64,6 +64,7 @@ type
     FKntFolder: TKntFolder;
     FEditor: TKntRichEdit;
 
+    FInfoPanelHidden: boolean;
     FNNodeDeleted: boolean;
     fImagesReferenceCount: TImageIDs;
 
@@ -95,6 +96,11 @@ type
     procedure ConfigureEditor;
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
+
+  protected
+    procedure SetInfoPanelHidden(value: boolean);
+  public
+    property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
 
   protected
     function GetReadOnly: boolean;
@@ -272,6 +278,12 @@ procedure TKntNoteUI.EditorMouseMove(Sender: TObject; Shift: TShiftState; X, Y: 
 begin
   if Assigned(FOnMouseMoveOnNote) then
     FOnMouseMoveOnNote(Self);
+end;
+
+procedure TKntNoteUI.SetInfoPanelHidden(value: boolean);
+begin
+   FInfoPanelHidden:= value;
+   pnlIdentif.Visible := not value;
 end;
 
 

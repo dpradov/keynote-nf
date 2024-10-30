@@ -874,6 +874,7 @@ type
     TVFilterShowChildren: TMenuItem;
     MMToolsDeduceDates: TMenuItem;
     MMToolsRemoveDates: TMenuItem;
+    MMViewEditorInfoPanel: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1276,6 +1277,7 @@ type
     procedure TVFilterShowChildrenClick(Sender: TObject);
     procedure MMToolsDeduceDatesClick(Sender: TObject);
     procedure MMToolsRemoveDatesClick(Sender: TObject);
+    procedure MMViewEditorInfoPanelClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -5120,6 +5122,13 @@ begin
   end;
 end;
 
+procedure TForm_Main.MMViewEditorInfoPanelClick(Sender: TObject);
+begin
+  if assigned( ActiveFolder) then begin
+     ActiveFolder.EditorInfoPanelHidden := ( not ActiveFolder.EditorInfoPanelHidden );
+  end;
+end;
+
 
 procedure TForm_Main.MMFormatLanguageClick(Sender: TObject);
 begin
@@ -7316,6 +7325,7 @@ begin
       MMNoteReadOnly.Checked := myFolder.ReadOnly;
       MMViewTree.Enabled := true;
       MMViewTree.Checked := myFolder.TreeUI.Visible;
+      MMViewEditorInfoPanel.Checked:= not myFolder.EditorInfoPanelHidden;
       MMViewNodeIcons.Checked := myFolder.IconKind = niStandard;
       MMViewCustomIcons.Checked := myFolder.IconKind = niCustom;
       MMEditPasteAsNewNode.Visible := true;
