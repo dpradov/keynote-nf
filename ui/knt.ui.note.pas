@@ -197,6 +197,11 @@ begin
    FColorTxts:= RGB(248,248,248);
    txtName.Color:= FColorTxts;
    txtCreationDate.Color:= FColorTxts;
+   if KeyOptions.EditorInfoPanelTop then begin
+      txtName.Top:= 0;
+      txtCreationDate.Top:= 0;
+      pnlIdentif.Align:= alTop;
+   end;
 
    SetReadOnly(KntFolder.ReadOnly);
 

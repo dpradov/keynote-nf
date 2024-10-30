@@ -13,7 +13,7 @@ object KntNoteUI: TKntNoteUI
   TabOrder = 0
   object pnlEntries: TPanel
     Left = 0
-    Top = 24
+    Top = 0
     Width = 578
     Height = 456
     Align = alClient
@@ -27,7 +27,7 @@ object KntNoteUI: TKntNoteUI
     Top = 0
     Width = 578
     Height = 24
-    Align = alTop
+    Align = alBottom
     BevelOuter = bvNone
     Ctl3D = False
     ParentCtl3D = False
@@ -37,7 +37,7 @@ object KntNoteUI: TKntNoteUI
       24)
     object txtCreationDate: TEdit
       Left = 458
-      Top = 0
+      Top = 2
       Width = 120
       Height = 22
       TabStop = False
@@ -52,7 +52,7 @@ object KntNoteUI: TKntNoteUI
     end
     object txtName: TEdit
       Left = 1
-      Top = 0
+      Top = 2
       Width = 456
       Height = 22
       TabStop = False

@@ -641,6 +641,7 @@ type
     AltMargins: boolean;  // [*] Saves the state of View|Alternative margins
     ModifiedOnTreeResized: boolean;  // [*]
     HintsAccesible: boolean;  // [*] 1 => When hints are shown in status bar, other text panels will be shown blank
+    EditorInfoPanelTop: boolean;   // [*] 1 => Top  0 => Bottom
 
     ImgDefaultStorageMode:     TImagesStorageMode;
     ImgDefaultExternalStorage: TImagesExternalStorage;
