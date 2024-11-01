@@ -1329,7 +1329,13 @@ begin
     exit;
   end;
 
-  if CheckReadOnly then exit;
+  if CheckReadOnly then begin
+     if (key = #9) and (GetKeyState( VK_SHIFT ) < 0 ) then begin
+        App.ShowInfoInStatusBar('');
+        inherited;
+     end;
+     exit;
+  end;
 
   posBegin:= 0;     // To avoid compiler warning on SelStart:= posBegin (but really no necessary)
 
