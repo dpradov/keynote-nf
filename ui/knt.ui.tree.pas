@@ -127,7 +127,7 @@ type
     procedure SetPopupMenu(value: TPopupMenu);
 
     // TreeView Handlers
-    procedure TV_SelectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    //procedure TV_SelectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure TV_FocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
     procedure TV_Checked(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure TV_KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -167,6 +167,7 @@ type
   protected
     procedure PopulateTV;
     procedure SetupTreeHandlers;
+    procedure CheckNotifyAccesibleFocusedItem (event: CARDINAL);
 
   public
     procedure UpdateTreeChrome;
@@ -844,12 +845,13 @@ begin
      OnGetText:= TV_GetText;
      OnPaintText:= TV_PaintText;
      OnGetImageIndex := TV_GetImageIndex;
+     OnGetImageText:= TV_GetImageText;
      OnBeforeCellPaint:= TV_BeforeCellPaint;
 
 
      OnKeyDown := TV_KeyDown;
      OnKeyPress := TV_KeyPress;
-     OnChange := TV_SelectionChange;          // selection change
+     //OnChange := TV_SelectionChange;          // selection change
      OnFocusChanged:= TV_FocusChanged;        // called when the focus goes to a new node and/or column
 
      OnChecked := TV_Checked;
@@ -1368,9 +1370,9 @@ begin
 end;
 
 
-procedure TKntTreeUI.TV_SelectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
-begin
-end;
+//procedure TKntTreeUI.TV_SelectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
+//begin
+//end;
 
 
 procedure TKntTreeUI.TV_Checked(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -2348,6 +2350,8 @@ begin
      Perform(WM_KEYDOWN, VKey, 0);
      Perform(WM_KEYUP, VKey, 0);
    end;
+
+   CheckNotifyAccesibleFocusedItem (EVENT_OBJECT_NAMECHANGE);
 
 end; // Navigate
 
@@ -4220,12 +4224,22 @@ end;
 
 procedure TKntTreeUI.DoEnter;
 begin
+   CheckNotifyAccesibleFocusedItem (EVENT_OBJECT_FOCUS);
+
    TKntFolder(Folder).NoteUI.SetOnMouseMoveOnNote(nil);
    App.TreeFocused(Self);
    if not ( (CtrlDown or AltDown) and ((GetKeyState(VK_LBUTTON) < 0) or (GetKeyState(VK_RBUTTON) < 0)) ) then
       CheckExpandTreeWidth;
 
   inherited;
+end;
+
+procedure TKntTreeUI.CheckNotifyAccesibleFocusedItem (event: CARDINAL);
+begin
+    if TV.Accessible <> nil then begin
+       TVirtualTreeAccessibility(TV.Accessible).IgnoreHoverNode;
+       NotifyWinEvent(event, TV.Handle, OBJID_CLIENT, CHILDID_SELF);
+    end;
 end;
 
 

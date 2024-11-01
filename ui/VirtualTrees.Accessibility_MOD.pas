@@ -20,6 +20,8 @@ type
   private
     FVirtualTree: TVirtualStringTree;
     FHoverNode: PVirtualNode;                                                    // [dpv]
+    FIgnoreHoverNode: boolean;                                                   // [dpv]
+
   public
     constructor Create(AVirtualTree: TVirtualStringTree);
     /// Register the default accessible provider of Virtual TreeView
@@ -58,6 +60,8 @@ type
     function Invoke(DispID: Integer; const IID: TGUID; LocaleID: Integer;
       Flags: Word; var Params; VarResult: Pointer; ExcepInfo: Pointer;
       ArgErr: Pointer): HRESULT; stdcall;
+
+    procedure IgnoreHoverNode;                             // [dpv]
   end;
 
   TVirtualTreeItemAccessibility = class(TVirtualTreeAccessibility, IAccessible)
@@ -123,6 +127,12 @@ begin
   FVirtualTree := AVirtualTree;
 end;
 
+procedure TVirtualTreeAccessibility.IgnoreHoverNode;                                  // [dpv]
+begin
+   FHoverNode:= nil;
+   FIgnoreHoverNode:= True;
+end;
+
 //----------------------------------------------------------------------------------------------------------------------
 
 function TVirtualTreeAccessibility.accDoDefaultAction(varChild: OleVariant): HResult;
@@ -152,6 +162,9 @@ begin
        FHoverNode:= HitInfo.HitNode;
        pvarChild := CHILDID_SELF;
        Result := S_OK;
+       if FHoverNode <> fVirtualTree.FocusedNode then         // [dpv]
+          FIgnoreHoverNode:= False;
+
        exit;
     end;
 
@@ -375,10 +388,9 @@ begin
   begin
     if FVirtualTree <> nil then
     begin
-      if FHoverNode <> nil then begin                                                      // [dpv]
-        pszName := FVirtualTree.Text[FHoverNode, FVirtualTree.Header.MainColumn];          // [dpv]
-        result := S_OK;
-      end;
+      if (FHoverNode <> nil) and not FIgnoreHoverNode then                               // [dpv]
+        pszName := FVirtualTree.Text[FHoverNode, FVirtualTree.Header.MainColumn];        // [dpv]
+      result := S_OK;
     end;
   end
   else if varType(varChild) = VT_I4 then
@@ -714,6 +726,9 @@ begin
   begin
     if FVirtualTree <> nil then
     begin
+      if not (FVirtualTree.Focused) then       // [dpv]
+         exit;
+
       pvarState := STATE_SYSTEM_FOCUSED or STATE_SYSTEM_FOCUSABLE or STATE_SYSTEM_HOTTRACKED;
       pvarState := pvarState or IsVisible[FVirtualTree.Visible];
       pvarState := pvarState or IsEnabled[FVirtualTree.Enabled];
