@@ -1312,6 +1312,7 @@ type
   public
     Res_RTF: TKntRichEdit;
     RichPrinter: TRichPrinter;
+    ShortcutAltDownMenuItem: TMenuItem;
 
     procedure UpdateOpenFile;
     procedure UpdateFileModifiedState;
@@ -1635,6 +1636,7 @@ begin
 
   FRestoreFocusInEditor:= 0;
   Application.OnIdle := ApplicationEventsIdle;
+  ShortcutAltDownMenuItem:= nil;
 end;
 // CREATE
 
@@ -2915,6 +2917,21 @@ begin
           end;
       end;
 
+   end
+   else begin
+      if (Msg.CharCode = VK_DOWN) and (GetKeyState(VK_MENU) < 0) then begin
+         { The Alt+Down shortcut (usually assigned to Navigate Down in KeyNote [MMTreeNavDown] ) will only be enabled
+           when the tree or editor (including scratchpad) has focus.
+           This way, it can be used to expand drop-down controls like Text to Find, Zoom, or Styles, when they are focused }
+         ShortcutAltDownMenuItem := Menu.FindItem(ShortCut, fkShortCut);
+         if ShortcutAltDownMenuItem <> nil then
+            if ((ActiveEditor <> nil) and (ActiveEditor.Focused)) or
+               ((ActiveTreeUI <> nil) and (ActiveTreeUI.Focused)) or Form_Main.Res_RTF.Focused
+             then
+                ShortcutAltDownMenuItem.Enabled:= True
+             else
+                ShortcutAltDownMenuItem.Enabled:= False;
+      end;
    end;
 end;
 

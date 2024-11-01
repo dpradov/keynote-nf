@@ -445,6 +445,8 @@ end;
 procedure TKntApp.EditorFocused (Editor: TKntRichEdit);
 begin
    EditorSelected(Editor, true);
+   if Form_Main.ShortcutAltDownMenuItem <> nil then
+      Form_Main.ShortcutAltDownMenuItem.Enabled:= True;
 end;
 
 procedure TKntApp.EditorReloaded (Editor: TKntRichEdit; Focused: boolean);
@@ -659,6 +661,8 @@ begin
   if ActiveFolder.FocusMemory = focTree then
      Form_Main.EnableActionsForTree(Tree, ActiveFolder.ReadOnly);
 
+  if Form_Main.ShortcutAltDownMenuItem <> nil then
+     Form_Main.ShortcutAltDownMenuItem.Enabled:= True;
 end;
 
 
