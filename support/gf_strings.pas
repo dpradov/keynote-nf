@@ -74,7 +74,7 @@ function ConvertToUnicodeString(LBuffer: TBytes): string;
 function BytesToRawByteString(const bytes: TBytes): RawByteString;
 
 function FirstLineFromString(const str: string; const MaxLen : integer) : string;
-function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1): integer;
+function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1; StartAtPos: integer=-1): integer;
 
 function ConvertHTMLAsciiCharacters(const S: string): string;
 function DecodeURLWebUTF8Characters(const S: string): string;
@@ -768,13 +768,16 @@ end; // FirstLineFromString
 
 { Returns the position of the nth occurrence of the character in the string, counting from the end of the string }
 
-function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1): integer;
+function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1; StartAtPos: integer=-1): integer;
 var
   i, n: Integer;
 begin
   n:= 0;
   result := 0;
-  for i := length(S) downto 1 do
+  if StartAtPos < 0 then
+     StartAtPos:= length(S);
+
+  for i := StartAtPos downto 1 do
     if S[i] = Chr then begin
        inc(n);
        if n= nthOccurrence then

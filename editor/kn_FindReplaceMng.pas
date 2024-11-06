@@ -69,6 +69,7 @@ procedure FindAllResults_RightClick (CharIndex: integer);
 implementation
 uses
    System.DateUtils,
+   gf_misc,
    gf_miscvcl,
    gf_strings,
    kn_const,
@@ -124,6 +125,30 @@ function RunFindNextInEditor (Is_ReplacingAll: Boolean= False): boolean; forward
 procedure FindEventProc( sender : TObject ); forward;
 procedure ReplaceEventProc( ReplaceAll : boolean ); forward;
 procedure Form_FindReplaceClosed( sender : TObject ); forward;
+
+type
+  CharacterSet = set of char;
+
+type
+   TDistanceScope = (dsAll, dsSentence, dsParagraph);
+
+type
+   TSearchWord = class
+      word: string;
+      RightSep: char;
+      Scope: TDistanceScope;
+      BeginDScope: boolean;
+      EndDScope: boolean;
+   end;
+
+  TSearchWordList= TSimpleObjList<TSearchWord>;      // TList<TSearchWord>;
+
+const
+   CHR_SEP_SENTENCE  = Chr(17);       // 17 ($11): DC1 (Device Control 1)    <==>  '..'
+   CHR_SEP_PARAGRAPH = Chr(18);       // 18 ($12): DC2 (Device Control 2)    <==>  '...'
+   FIND_SENTENCE_SCOPE_SEP = '..';
+   FIND_PARAGRAPH_SCOPE_SEP = '...';
+
 
 
 
@@ -389,7 +414,7 @@ begin
                    Dif:= True;
                 end
              end
-             else begin            
+             else begin
                 SizeInternalHiddenText:= 0;
                 if (posIT >= pH) then
                     posIT:= pHf + 1
@@ -415,32 +440,49 @@ function GetFindedPatternExtract (const Str: string;
                                   const Pattern: string;
                                   pPos: integer;          // zero-based
                                   var lastPos: integer;
-                                  wordList : TStringList = nil;
+                                  var pL_Extract, pR_Extract: integer;
+                                  wordList : TSearchWordList = nil;
                                   const LastPattern: string = ''; LastPatternPos: integer= -1; SecondPart: boolean= false): string;
 var
   pL, pR, p, pGap, pStart, pMin: integer;
-  extR: integer;
+  extL, extR: integer;
   len, i, iMin, gap: integer;
   bakFirstChar: char;
-  strSearch: string;
+  strSearch, strExtract: string;
   Word, scapeFirstChar: string;
 
 begin
     if (Str='') then Exit('');
+
+    // pL_Extract, pR_Extract: If they are > 0, they indicate the extremes to try to consider, as far as possible, of the extract to be used.
+
 
     inc(pPos);
 
     bakFirstChar:= Str[pPos];
 
     // Looking for line break to the left
-    for pL := pPos downto Max(1, pPos-50) do
+    extL:= pPos-50;
+    if (pL_Extract >= 0) then
+       if (pPos-pL_Extract < 100) then
+          extL:= pL_Extract
+       else
+          extL:= pPos-75;
+
+    for pL := pPos downto Max(1, extL) do
       if Str[pL] = #13 then
          break;
-    if pL = 0 then pL:= 1;
+    inc(pL);
     if Str[pL] = #13 then inc(pL);
 
     // Looking for line break to the right
     extR:= 50;
+    if (pR_Extract >= 0) then
+       if (pR_Extract-pPos < 100) then
+          extR:= pR_Extract
+       else
+          extR:= 75
+    else
     if not SecondPart and (wordlist <> nil) then
        extR:= 75;
 
@@ -449,7 +491,7 @@ begin
        pR := Length(Str);
     pR:= Min(pR, pPos + extR);
 
-    // *1  Mark the first appearance to highlight, there may be others before it, as a consequence 
+    // *1  Mark the first appearance to highlight, there may be others before it, as a consequence
     //     of the context recovered by the left ( #26; SUB Substitute )
     Result:= Copy(Str, pL, pR-pL+1);
     Result[pPos-pL+1]:= #26;                           // *1
@@ -490,7 +532,7 @@ begin
             pMin:= integer.MaxValue;
 
             for i := 0 to wordlist.Count-1 do begin
-               Word:= ScapeSpecialRTFCharacters(wordlist[i]);
+               Word:= ScapeSpecialRTFCharacters(wordlist[i].word);
                p:= Pos(Word, StrSearch, pStart);
                if (p > 0) and (p < pMin)  then begin
                   if FindOptions.WholeWordsOnly then begin
@@ -507,7 +549,7 @@ begin
                if SecondPart and (pMin > pPos) then break;
 
                pGap:= pMin + gap;
-               len:= length(ScapeSpecialRTFCharacters(wordlist[iMin]));
+               len:= length(ScapeSpecialRTFCharacters(wordlist[iMin].word));
                insert('{\b\cf2 ', Result, pGap);
                insert('}', Result, pGap + Len + 8);
                pStart:= pMin + len;
@@ -517,13 +559,237 @@ begin
         until pMin = integer.MaxValue;
     end;
 
-    if pR < LastPatternPos then                    // => only in smAll
-       Result:= Result + '{\b\cf2  . . //. . }' +
-                GetFindedPatternExtract(Str, LastPattern, LastPatternPos, lastPos, wordList, '',-1, true);
+    if pR < (LastPatternPos + LastPattern.Length) then begin       // => only in smAll  (or smAny with distance scope <> dsALL)
+       if pR >= LastPatternPos then
+          pR := LastPatternPos - 1;
+       pL_Extract:= pR+1;       // So that the second part of the extract does not start from a previous position
 
-    lastPos:= pR;   // To use with smAny
+       strExtract:= GetFindedPatternExtract(Str, LastPattern, LastPatternPos, lastPos, pL_Extract, pR_Extract, wordList, '',-1, true);
+       if pL_Extract > pR+1 then
+          Result:= Result + '{\b\cf2  . . //. . }';
+       Result:= Result + strExtract;
+       lastPos:= LastPatternPos + LastPattern.Length;
+    end
+    else
+       lastPos:= pR;   // To use with smAny
+
+    pL_Extract:= pL;
 end;
 
+
+{
+  Convert a search pattern into a list of words tagged according to whether they can be located anywhere in
+  the content of a note or, on the contrary, whether they must be found in the same paragraph or the same sentence.
+
+  - By default, separating words with spaces means that they can be found anywhere, there is no restriction
+    on the distance between them (dsAll)
+  - If two or more words are separated by "...", they must all be located in the same paragraph to be recognized as a match.
+  - If two or more words are separated by "..", they must all be located in the same sentence to be recognized as a match.
+     Sentences are understood to be separated by a period and at least one space or by a period and a tabulation sign,
+     or by a line break or a column separator in a table.
+
+
+  - If there are more than two words joined with ".." or "..." only the first separator will be considered.
+    The rest should be the same, and if they are not, they are forced.
+    For example, searching for something like [w1..w2...w3 w4] will be equivalent to [w1..w2..w3 w4]
+
+   - The order in which the words are joined is not important. Searching for [w1..w2] is the same as searching for [w2..w1]
+
+   - If you need to search for the separator characters themselves, they should be enclosed in quotes and will be treated
+     as normal text to search for. Ex: "w1..w2"
+
+   - This restriction on distance or separation between words can be used with both the 'All' method (All the words)
+     and the 'Any' method (Any of the words).
+     Even if it is the 'Any' method, all words linked by distance (.. or ...) must be found to be considered a match.
+
+  Example:
+
+  w1...w2..w3 w4..w5 w6
+     w1, w2 and w3 must be located within the same paragraph; w4 and w5 must be found within the same sentence, which
+     may or may not be within the same paragraph in which w1, w2 and w3 were found; w6 must be found in the note
+     but anywhere in it.
+
+  	 -> If the method is All: all combinations will be displayed for which the presence of ALL words can be counted:
+   	    w1, w2 and w3 must be located together in the same paragraph, w4 and w5 in the same sentence and w6, anywhere.
+
+     -> If the method is ANY: all matches will be displayed, independently, for [w1, w2 and w3] (treated as a unit,
+        that is, all three must be found in the same paragraph to be considered a match), [w4 and w5] (both in the
+        same sentence, also as a unit) and w6.
+}
+
+procedure SearchPatternToSearchWords(WordList : TSearchWordList; const SearchPattern : string; const SearchMode: TSearchMode );
+var
+  aStr, s : string;
+  InQuotes : boolean;
+  p, L : integer;
+  ch, prevch : char;
+  i: integer;
+  SW: TSearchWord;
+  Delims : CharacterSet;
+  InDScope: boolean;
+
+  procedure AddWord;
+  begin
+     SW:= TSearchWord.Create;
+     SW.word:= s;
+     SW.RightSep:= ch;
+     SW.EndDScope:= false;
+     WordList.Add(SW);
+  end;
+
+begin
+
+  if ( SearchPattern = '' ) then exit;
+  s := '';
+  p := 0;
+  prevch := #0;
+  InQuotes := false;
+
+  Delims:= [#32, CHR_SEP_SENTENCE, CHR_SEP_PARAGRAPH];
+  aStr:= SearchPattern;
+
+  aStr:= StringReplace(aStr, FIND_PARAGRAPH_SCOPE_SEP, CHR_SEP_PARAGRAPH, [rfReplaceAll]);
+  aStr:= StringReplace(aStr, FIND_SENTENCE_SCOPE_SEP,  CHR_SEP_SENTENCE, [rfReplaceAll]);
+  L := length( aStr );
+
+  try
+    while ( p < L ) do begin
+      inc( p );
+      ch := aStr[p];
+      if ( ch in Delims) then begin
+         if ( InQuotes and ( prevch <> '"' )) then
+            s := s + ch
+         else begin
+            AddWord;
+            s := '';
+            InQuotes := false;
+         end;
+      end
+      else
+      if ( ch = '"' ) then begin
+         if ( prevch = '"' ) then begin   // dooubled quotes are "escaped", i.e. they're real quote characters rather than group words
+           s := s + '"';
+           ch := #0;
+         end
+         else begin
+            if ( InQuotes or ( s <> '' )) then begin
+               if InQuotes then begin     // nothing; we will see what to do when we get the next char
+                  if ( p = L ) then
+                     Ch := #32;           // otherwise we'll lose the last field if it is a blank string
+               end
+               else
+                 // IMPOSSIBLE: the string was not quoted, so it can't contain embedded quote characters
+                 //raise EConvertError.Create( 'Unmatched double quote in string at pos ' + inttostr( p ));
+                 exit;
+            end
+            else begin
+               InQuotes := true;
+               ch := #0;
+            end;
+         end;
+
+      end
+      else
+         s := s + ch;
+
+      prevch := ch;
+    end;
+
+    if (s <> '') or (prevch in Delims) then begin
+       ch:= ' ';
+       AddWord;
+    end;
+
+  finally
+
+     for i := wordList.count - 1 downto 0 do begin
+        if wordList[i].word = '' then
+           wordList.delete(i)
+        else begin
+           wordList[i].word := StringReplace(wordList[i].word,  CHR_SEP_PARAGRAPH, FIND_PARAGRAPH_SCOPE_SEP, [rfReplaceAll]);
+           wordList[i].word := StringReplace(wordList[i].word , CHR_SEP_SENTENCE,  FIND_SENTENCE_SCOPE_SEP,  [rfReplaceAll]);
+        end;
+     end;
+
+
+     InDScope:= false;
+      for i := 0 to wordList.count - 2 do begin
+         ch:= wordList[i].RightSep;
+         case ch of
+            CHR_SEP_PARAGRAPH, CHR_SEP_SENTENCE: begin
+                wordList[i].BeginDScope:= not InDScope;
+                InDScope:= true;
+
+                if ch = CHR_SEP_PARAGRAPH then
+                    wordList[i].Scope:= dsParagraph
+                else
+                    wordList[i].Scope:= dsSentence;
+                wordList[i+1].Scope:= wordList[i].Scope;
+                if wordList[i+1].RightSep <> ' ' then
+                   wordList[i+1].RightSep:= ch;
+            end
+            else begin
+               InDScope:= false;
+               wordList[i].EndDScope:= true;
+            end;
+         end;
+      end;
+
+      for i := 0 to wordList.count - 1 do begin
+          if wordList[i].Scope = dsAll then begin
+             wordList[i].BeginDScope:= true;
+             wordList[i].EndDScope:= true;
+          end
+      end;
+      wordList[wordList.count - 1].EndDScope:= true;
+
+  end;
+
+end; // SearchPatternToSearchWords
+
+
+function GetTextScope(const Text: string; Scope: TDistanceScope; PosInsideScope: integer; var pL_Scope, pR_Scope: integer; pLmin: integer): string;
+var
+  p, i: integer;
+begin
+  { We have a position (PosInsideScope) located within a sentence or paragraph (according to Scope). We have to locate
+    the beginning and end of it and return it
+    .... [ ......  X ....... ] ....
+
+     #9: TAB   #7:column separator in Tables
+  }
+
+  if Scope = dsAll then exit(Text);
+
+  pR_Scope:= Pos(#13, Text, PosInsideScope);
+  if pR_Scope <= 0 then
+     pR_Scope:= Text.Length;
+
+  if Scope = dsSentence then begin
+     for p := PosInsideScope + 1 to pR_Scope-1 do
+       if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
+          break;
+     if p < pR_Scope then
+        pR_Scope:= p;
+  end;
+
+
+  pL_Scope := NFromLastCharPos(Text, #13, 1, PosInsideScope);
+  if pL_Scope <= 0 then
+     pL_Scope:= 1;
+  if pL_Scope < pLmin then
+     pL_Scope:= pLmin;
+
+  if Scope = dsSentence then begin
+     for p := PosInsideScope-1 downto pL_Scope do
+       if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
+          break;
+     if (p > pL_Scope) then
+        pL_Scope := p;
+  end;
+
+  Result:= Copy(Text, pL_Scope, pR_Scope - pL_Scope + 1);
+end;
 
 
 procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
@@ -531,12 +797,14 @@ var
   pF: integer;
   NumDaysBack: integer;
 begin
-  // Trying to identify '-<number>'  in the beginning Eg: '-3' '-7 search term'
-  // If current day is '15/10/2024' then:
-  //   '-2' is equivalent to [LastModified] >= '13/10/2024'
-  //   '-0' is equivalent to [LastModified] >= '15/10/2024'  (modified on current day)
-  // If enclosed in "" it will managed as a normal text pattern:
-  //  '"-2"'
+  {
+   Trying to identify '-<number>'  in the beginning Eg: '-3' '-7 search term'
+   If current day is '15/10/2024' then:
+     '-2' is equivalent to [LastModified] >= '13/10/2024'
+     '-0' is equivalent to [LastModified] >= '15/10/2024'  (modified on current day)
+   If enclosed in "" it will managed as a normal text pattern:
+    '"-2"'
+ }
 
   if (myFindOptions.Pattern.Length < 2) or (myFindOptions.Pattern[1] <> '-') then exit;
 
@@ -568,6 +836,12 @@ end;
    - 'Any of the words': Results are created that include, and highlight, all occurrences
    of each of the words in the search term. New results are only added for those words
    that are not visible within the previous excerpt.
+
+
+  New in 2.0.0:
+  - Possible to use as a criterion the date of creation or modification of the notes
+  - It is possible to indicate whether some of the words to be searched for must be in the same paragraph or sentence.
+    See more detailed description in the comment at the beginning of the SearchPatternToSearchWords procedure
 }
 
 function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean): boolean;
@@ -583,7 +857,7 @@ var
   lastTag : integer;
   numNodosNoLimpiables: integer;
   thisWord : string;
-  wordList : TStringList;
+  wordList : TSearchWordList;
   wordcnt : integer;
   MultiMatchOK : boolean;
   nodeToFilter: boolean;
@@ -607,10 +881,12 @@ type
 
        function AddLocation (SearchingInNodeName: boolean; LocationType: TLocationType;
                              const FirstPattern: string; PatternPos: integer;
-                             wordList : TStringList = nil;
+                             wordList : TSearchWordList = nil;
+                             pL_Extract: integer= -1; pR_Extract: integer= -1;
                              const LastPattern: string = ''; LastPatternPos: integer= -1): integer;
        var
          str, strExtract : string;
+
        begin
           Location := TLocation.Create;
           Location.FolderID := myFolder.ID;
@@ -639,7 +915,7 @@ type
              Location.CaretPos := -1     // means: text found in node name
           end;
 
-          strExtract:= GetFindedPatternExtract(str, FirstPattern, PatternPos, Result, wordList, LastPattern, LastPatternPos); // ** Result is set here
+          strExtract:= GetFindedPatternExtract(str, FirstPattern, PatternPos, Result, pL_Extract, pR_Extract, wordList, LastPattern, LastPatternPos); // ** Result is set here
           Location.Params:= strExtract;
           if not TreeFilter then
              Location_List.Add(Location);
@@ -731,14 +1007,7 @@ type
                   begin
                       repeat
                          PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1) -1;
-                         {
-                         PatternPos := EditControl.FindText(
-                           myFindOptions.Pattern,
-                           SearchOrigin, -1,
-                           SearchOpts
-                         );
-                         }
-
+                         { PatternPos := EditControl.FindText(myFindOptions.Pattern, SearchOrigin, -1, SearchOpts ); }
                          if ( PatternPos >= 0 ) then begin
                              SearchOrigin := PatternPos + PatternLen; // move forward in text
                              AddLocation(SearchingInNodeName, lsNormal, TextToFind, PatternPos);
@@ -749,45 +1018,162 @@ type
 
               smAny, smAll :
                 begin
+                   var SearchIn: string;
+                   var LastDScope, CurrentDScope: TDistanceScope;
+                   var pL_DScope, pR_DScope: integer;       // start and end position, within TextPlain, of a sentence or paragraph
+                   var widxBeginDScope, PosFirstWordDScope, SearchOriginDScope: integer;
+                   var pL_DScopeToConsider, pR_DScopeToConsider: integer;
+                   var PatternPos1_DScope, PatternPosN_DScope: integer;
+                   var PatternInPos1_DScope, PatternInPosN_DScope: string;
+                   var SizeInternalHiddenTextInPos1_DScope: integer;
+                   var IsBeginInDScope: boolean;
+                   var NewDScope: boolean;
+                   var RetryDScope: boolean;
+
                    repeat
+                       LastDScope:= dsAll;
+                       widxBeginDScope:= -1;
+                       pL_DScopeToConsider:= -1;
+                       pR_DScopeToConsider:= -1;
+                       NewDScope:= True;
+                       RetryDScope:= False;
+                       wordidx:= 0;
+
                        PatternPos1:= Integer.MaxValue;
                        PatternPosN:= -1;
-
+                       PatternInPos1:= '';
+                       PatternInPosN:= '';
                        MultiMatchOK := false;
-                       for wordidx := 0 to wordcnt -1 do begin
-                          thisWord := wordList[ wordidx ];
 
-                          PatternPos:= FindPattern(thisWord, TextPlain, SearchOrigin + 1, SizeInternalHiddenText) -1;
-                          {
-                          PatternPos := EditControl.FindText(
-                            thisWord,
-                            0, -1,
-                            SearchOpts
-                          );
-                          }
+                       repeat
+                          thisWord := wordList[wordidx].word;
+                          CurrentDScope:= wordList[wordidx].Scope;
+                          IsBeginInDScope:= wordList[wordidx].BeginDScope;
 
-                          if ( PatternPos >= 0 ) then begin
-                             MultiMatchOK := true; // assume success
-                             if PatternPos < PatternPos1 then begin
-                                PatternPos1:= PatternPos;
-                                PatternInPos1:= thisWord;
-                                SizeInternalHiddenTextInPos1:= SizeInternalHiddenText;
+                          if IsBeginInDScope and (widxBeginDScope <> wordidx) then
+                             NewDScope:= true;
+
+                          if NewDScope then begin
+                             PosFirstWordDScope:= 0;
+                             widxBeginDScope:= wordidx;
+                          end;
+                          if NewDScope or RetryDScope then begin
+                             PatternPos1_DScope:= Integer.MaxValue;
+                             PatternPosN_DScope:= -1;
+                             pL_DScope:= -1;
+                             pR_DScope:= -1;
+                          end;
+                          NewDScope:= false;
+                          RetryDScope:= false;
+
+                          if IsBeginInDScope then begin     // (All words where Scope = dsAll => IsBeginInDScope=True)
+                             SearchIn:= TextPlain;
+                             SearchOriginDScope:= SearchOrigin + 1 + PosFirstWordDScope;
+                          end
+                          else begin
+                             SearchIn:= GetTextScope(TextPlain, CurrentDScope, PosFirstWordDScope + 1, pL_DScope, pR_DScope, SearchOrigin+1);
+                             SearchOriginDScope:= 1;
+                          end;
+                          LastDScope:= CurrentDScope;
+
+                          PatternPos:= FindPattern(thisWord, SearchIn, SearchOriginDScope, SizeInternalHiddenText) -1;
+                          { PatternPos := EditControl.FindText(thisWord, 0, -1, SearchOpts); }
+
+                          if (CurrentDScope <> dsAll) then begin
+                             if IsBeginInDScope then
+                                PosFirstWordDScope:= PatternPos
+                             else
+                             if (PatternPos < 0) then begin
+                                MultiMatchOK := false;
+                                wordidx:= widxBeginDScope;   // Search again, from de last found position (PosFirstWordScope)
+                                RetryDScope:= true;
+                                inc(PosFirstWordDScope);
+                                continue;
                              end;
                           end;
 
-                          case SearchModeToApply of
-                              smAll:
-                                  if ( PatternPos >= 0 ) then begin
-                                     if PatternPos > PatternPosN then begin
-                                        PatternPosN:= PatternPos;
-                                        PatternInPosN:= thisWord;
-                                     end;
-                                  end
-                                  else begin
-                                     MultiMatchOK := false;
-                                     break; // note must have ALL words
-                                  end;
-                           end;
+                          if ( PatternPos >= 0 ) then begin          // ----------- PatternPos >= 0
+                             if (CurrentDScope <> dsAll) then begin
+                                if not IsBeginInDScope then
+                                    inc(PatternPos, pL_DScope-1);       // It is a relative search, within the sentence or paragraph
+                                if PatternPos < PatternPos1_DScope then begin
+                                   PatternPos1_DScope:= PatternPos;
+                                   PatternInPos1_DScope:= thisWord;
+                                   SizeInternalHiddenTextInPos1_DScope:= SizeInternalHiddenText;
+                                end;
+                                if PatternPos > PatternPosN_DScope then begin
+                                   PatternPosN_DScope:= PatternPos;
+                                   PatternInPosN_DScope:= thisWord;
+                                end;
+                             end
+                             else    // ---- dsAll
+                                if (PatternPos < PatternPos1) then begin
+                                   PatternPos1:= PatternPos;
+                                   PatternInPos1:= thisWord;
+                                   SizeInternalHiddenTextInPos1:= SizeInternalHiddenText;
+                                end;
+
+                             if SearchModeToApply = smAll then begin
+                                 if PatternPos > PatternPosN then begin
+                                    PatternPosN:= PatternPos;
+                                    PatternInPosN:= thisWord;
+                                 end;
+                             end;
+
+                             if wordList[wordidx].EndDScope then begin       // (All dsAll => EndScope =True)
+                                MultiMatchOK := true; // assume success
+                                if (PatternPos1_DScope < PatternPos1) and (CurrentDScope <> dsAll) then begin
+                                   PatternPos1:= PatternPos1_DScope;
+                                   PatternInPos1:= PatternInPos1_DScope;
+                                   SizeInternalHiddenTextInPos1:= SizeInternalHiddenTextInPos1_DScope;
+
+                                   if SearchModeToApply = smAny then begin
+                                      PatternPosN:= PatternPosN_DScope;
+                                      PatternInPosN:= PatternInPosN_DScope;
+                                   end
+                                   else
+                                   if SearchModeToApply = smAll then
+                                      pL_DScopeToConsider:= pL_DScope;
+                                end;
+                                if (SearchModeToApply = smAll) and (pR_DScope > PatternPosN) then
+                                   pR_DScopeToConsider:= pR_DScope;
+                             end;
+
+                          end
+                          else          // --------------------------     PatternPos < 0
+                             case SearchModeToApply of
+                                 smAll: begin
+                                        MultiMatchOK := false;
+                                        break; // note must have ALL words
+                                 end;
+                                 smAny:
+                                    if (CurrentDScope <> dsAll) then begin
+                                        // If we search for something like w1..w2..w3 w4, and no match is found
+                                        // for w1 or w2 or w3, we have to continue to w4.
+                                        // Using .. (or ...) causes those words to be treated as a block that must
+                                        // be located as a whole to be considered a match.
+                                        // We will jump to the next DScope (which can be dsAll) and PosFirstWordDScope <= 0
+                                        // so w4 will be searched from the beginning (from SearchOrigin)
+                                        while (wordidx+1 <= wordcnt -1)
+                                               and (not wordList[wordidx+1].BeginDScope)  do
+                                           inc(wordidx);
+
+                                        // If the word we haven't found is the first one in the DScope set (w1 in the ex.)
+                                        // and there is no other word to search for (like w4 in the example) then, after the
+                                        // inc(wordidx) before the until, we will exit the iteration and since MultiMatchOK=False,
+                                        // we will stop searching in this note. It would be correct.
+                                        // But if the one we haven't found is not the first one (w1) over another one in the set
+                                        // (w2 or w3) then we should not exit the iteration, but do another search
+                                        // starting with the first word. We should continue beyond where we have searched
+
+                                        if not IsBeginInDScope and (wordidx = wordcnt -1) then begin
+                                           wordidx:= -1;                              // tras inc(wordidx) -> = 0
+                                           SearchOrigin := PatternPos1_DScope + 1;    // move forward in text
+                                        end;
+                                        NewDScope:= True;
+                                    end;
+                              end;
+
 
                           Application.ProcessMessages;
                           if UserBreak then begin
@@ -795,15 +1181,19 @@ type
                              break;
                           end;
 
-                       end; // for wordidx
+                         inc(wordidx);
+                       until wordidx > wordcnt -1;
+
 
                        if MultiMatchOK then begin
                           if SearchModeToApply = smAll then begin
-                             AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, PatternInPosN, PatternPosN);
-                             SearchOrigin := PatternPosN + 1; // move forward in text
+                             if pL_DScopeToConsider > PatternPos1 then pL_DScopeToConsider:= -1;
+                             if pR_DScopeToConsider < PatternPosN then pR_DScopeToConsider:= -1;
+                             AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, pL_DScopeToConsider, pR_DScopeToConsider, PatternInPosN, PatternPosN);
+                             SearchOrigin := PatternPosN + 1;   // move forward in text
                           end
                           else
-                             SearchOrigin:= 1 + AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList);
+                             SearchOrigin:= 1 + AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, -1, -1, PatternInPosN, PatternPosN);
                        end;
 
                        Application.ProcessMessages;
@@ -886,7 +1276,7 @@ begin
   Application.ProcessMessages;
   Form_Main.FindAllResults.BeginUpdate;
 
-  wordList := TStringList.Create;
+  wordList := TSearchWordList.Create;
   RTFAux:= CreateAuxRichEdit;
 
 
@@ -895,15 +1285,13 @@ begin
       if not TreeFilter  then
          ClearLocationList( Location_List );
 
-      CSVTextToStrs( wordList, TextToFind, #32 );
-      for i := wordList.count - 1 downto 0 do
-         if wordList[i] = '' then wordList.delete(i);
+      SearchPatternToSearchWords (wordList, TextToFind, myFindOptions.SearchMode);
 
       wordcnt := wordList.count;
 
       if wordcnt = 1 then begin
          SearchModeToApply := smPhrase;    // If not used smPhrase then the line number will not be shown, and will be confusing
-         TextToFind:= wordList[0];         // '"Windows 10"' --> 'Windows 10'
+         TextToFind:= wordList[0].word;         // '"Windows 10"' --> 'Windows 10'
       end;
 
       if (wordcnt = 0) and not SearchingByDates then begin
