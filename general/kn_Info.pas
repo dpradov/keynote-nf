@@ -744,6 +744,9 @@ type
   end;
 
 type
+  TEmphasizedSerch = (esNone, esParagraph, esWords);
+
+type
   TFindOptions = packed record
     HiddenNodes: boolean;  // consider hidden nodes [dpv]
     AllNodes : boolean; // search all nodes in tree
@@ -774,10 +777,11 @@ type
     ResetNextAftN: integer;   // Reset find next after N seconds (0 no reset). If reset, Find Next (F3) will ask for a new pattern
     LastModifFrom: TDate;     // for "Find all" (resource panel) ONLY
     LastModifUntil: TDate;    // ,,
-    CreatedFrom: TDate;     // for "Find all" (resource panel) ONLY
-    CreatedUntil: TDate;     // ,,
+    CreatedFrom: TDate;       // for "Find all" (resource panel) ONLY
+    CreatedUntil: TDate;      // ,,
     SearchPathInNodeNames: boolean;      // ,,
-    ShowChildren: boolean;   // show children of matching nodes
+    ShowChildren: boolean;      // show children of matching nodes
+    EmphasizedSearch: TEmphasizedSerch;  // for "Find all" (resource panel) ONLY
   end;
 
 const

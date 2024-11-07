@@ -5558,6 +5558,8 @@ begin
   if CB_CreatedUntil.Enabled then
      myFindOptions.CreatedUntil := CB_CreatedUntil.Date;
 
+  myFindOptions.EmphasizedSearch:= esNone;
+
   ApplyFilter:= CB_ResFind_Filter.Checked;
 
   if RunFindAllEx (myFindOptions, ApplyFilter, false) then

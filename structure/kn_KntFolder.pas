@@ -291,6 +291,7 @@ type
 
   end; // TKntFolder
 
+  procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TAuxRichEdit); forward;
 
 implementation
 uses
@@ -353,7 +354,6 @@ resourcestring
   STR_v16 = ' Error refreshing node';
   STR_v17 = 'Selected node "%s" is not a virtual node.';
 
-  procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TAuxRichEdit); forward;
 
 
 

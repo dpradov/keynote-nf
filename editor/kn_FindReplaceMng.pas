@@ -26,6 +26,7 @@ uses
    Vcl.Dialogs,
    Vcl.Forms,
    Vcl.Controls,
+   Vcl.Graphics,
    VirtualTrees,
    knt.ui.tree,
    RxRichEd,
@@ -148,6 +149,8 @@ const
    CHR_SEP_PARAGRAPH = Chr(18);       // 18 ($12): DC2 (Device Control 2)    <==>  '...'
    FIND_SENTENCE_SCOPE_SEP = '..';
    FIND_PARAGRAPH_SCOPE_SEP = '...';
+   FIND_EMPHASIZED_SEARCH_WORDS_CHR = '*';
+   FIND_EMPHASIZED_SEARCH_PARAGRAPH_CHR = '**';
 
 
 
@@ -578,9 +581,10 @@ end;
 
 
 {
-  Convert a search pattern into a list of words tagged according to whether they can be located anywhere in
-  the content of a note or, on the contrary, whether they must be found in the same paragraph or the same sentence.
+   Convert a search pattern into a list of words tagged according to:
 
+ * Whether they can be located anywhere in the content of a note or, on the contrary, if they must be found
+   in the same paragraph or the same sentence.
   - By default, separating words with spaces means that they can be found anywhere, there is no restriction
     on the distance between them (dsAll)
   - If two or more words are separated by "...", they must all be located in the same paragraph to be recognized as a match.
@@ -588,36 +592,54 @@ end;
      Sentences are understood to be separated by a period and at least one space or by a period and a tabulation sign,
      or by a line break or a column separator in a table.
 
-
   - If there are more than two words joined with ".." or "..." only the first separator will be considered.
     The rest should be the same, and if they are not, they are forced.
     For example, searching for something like [w1..w2...w3 w4] will be equivalent to [w1..w2..w3 w4]
-
    - The order in which the words are joined is not important. Searching for [w1..w2] is the same as searching for [w2..w1]
-
    - If you need to search for the separator characters themselves, they should be enclosed in quotes and will be treated
      as normal text to search for. Ex: "w1..w2"
 
    - This restriction on distance or separation between words can be used with both the 'All' method (All the words)
      and the 'Any' method (Any of the words).
      Even if it is the 'Any' method, all words linked by distance (.. or ...) must be found to be considered a match.
-
   Example:
 
   w1...w2..w3 w4..w5 w6
      w1, w2 and w3 must be located within the same paragraph; w4 and w5 must be found within the same sentence, which
      may or may not be within the same paragraph in which w1, w2 and w3 were found; w6 must be found in the note
      but anywhere in it.
-
   	 -> If the method is All: all combinations will be displayed for which the presence of ALL words can be counted:
    	    w1, w2 and w3 must be located together in the same paragraph, w4 and w5 in the same sentence and w6, anywhere.
 
      -> If the method is ANY: all matches will be displayed, independently, for [w1, w2 and w3] (treated as a unit,
         that is, all three must be found in the same paragraph to be considered a match), [w4 and w5] (both in the
         same sentence, also as a unit) and w6.
+
+ * If the '*' character is found individually, it will mean that the words to be searched for must be emphasized:
+   bold, underlined or highlighted.
+
+      Example: [* text plain]
+
+ * If the modifier '**' is found, all words must be located in the same paragraph or in the name of a note.
+   In addition, all words in that paragraph must be emphasized: in bold, underlined or highlighted,
+   or with a font size larger than the words in the following paragraph (the first characters after the line break will
+   be ignored in case any additional line break was added with the same font size).
+   - All this will be checked at least on the first and last word searched as well as the beginning and end of the paragraph,
+   - Note: words underlined as a result of containing hyperlinks won't be not considered emphasized.
+   - Note: when this modifier is found, search scope used will be ssContentsAndNodeName (ignoring the current selection
+     of this group box)
+   - If a note/node name could be matched, and the same paragraph is used at the beginning of the note content,
+     also as a match, then only the latter will be included in the results list.
+
+   The idea is to use this modifier to locate the headings or sections in which the concepts or topics we are interested in
+   can be defined. These will normally be in a single sentence, but paragraph mode is used because sometimes small sentences
+   can be used together, e.g.: "Options in Exporting. Examples"
+
+      Examples: [** images] [** keyboard short]
 }
 
-procedure SearchPatternToSearchWords(WordList : TSearchWordList; const SearchPattern : string; const SearchMode: TSearchMode );
+procedure SearchPatternToSearchWords(WordList : TSearchWordList; const SearchPattern : string;
+                                     var myFindOptions: TFindOptions );
 var
   aStr, s : string;
   InQuotes : boolean;
@@ -627,6 +649,7 @@ var
   SW: TSearchWord;
   Delims : CharacterSet;
   InDScope: boolean;
+  SearchMode: TSearchMode;
 
   procedure AddWord;
   begin
@@ -640,10 +663,13 @@ var
 begin
 
   if ( SearchPattern = '' ) then exit;
+
   s := '';
   p := 0;
   prevch := #0;
   InQuotes := false;
+
+  SearchMode:= myFindOptions.SearchMode;
 
   Delims:= [#32, CHR_SEP_SENTENCE, CHR_SEP_PARAGRAPH];
   aStr:= SearchPattern;
@@ -705,6 +731,17 @@ begin
      for i := wordList.count - 1 downto 0 do begin
         if wordList[i].word = '' then
            wordList.delete(i)
+        else
+        if wordList[i].word = FIND_EMPHASIZED_SEARCH_PARAGRAPH_CHR then begin        // **
+           myFindOptions.EmphasizedSearch:= esParagraph;
+           myFindOptions.SearchScope:= ssContentsAndNodeName;
+           wordList.delete(i);
+        end
+        else
+        if wordList[i].word = FIND_EMPHASIZED_SEARCH_WORDS_CHR then begin            // *
+           myFindOptions.EmphasizedSearch:= esWords;
+           wordList.delete(i);
+        end
         else begin
            wordList[i].word := StringReplace(wordList[i].word,  CHR_SEP_PARAGRAPH, FIND_PARAGRAPH_SCOPE_SEP, [rfReplaceAll]);
            wordList[i].word := StringReplace(wordList[i].word , CHR_SEP_SENTENCE,  FIND_SENTENCE_SCOPE_SEP,  [rfReplaceAll]);
@@ -712,36 +749,46 @@ begin
      end;
 
 
-     InDScope:= false;
-      for i := 0 to wordList.count - 2 do begin
-         ch:= wordList[i].RightSep;
-         case ch of
-            CHR_SEP_PARAGRAPH, CHR_SEP_SENTENCE: begin
-                wordList[i].BeginDScope:= not InDScope;
-                InDScope:= true;
+     if myFindOptions.EmphasizedSearch = esParagraph then
+        for i := 0 to wordList.count - 1 do begin
+           wordList[i].Scope:= dsParagraph;
+           wordList[i].BeginDScope:= (i=0);
+           wordList[i].EndDScope:= (i<>0);
+        end
 
-                if ch = CHR_SEP_PARAGRAPH then
-                    wordList[i].Scope:= dsParagraph
-                else
-                    wordList[i].Scope:= dsSentence;
-                wordList[i+1].Scope:= wordList[i].Scope;
-                if wordList[i+1].RightSep <> ' ' then
-                   wordList[i+1].RightSep:= ch;
-            end
-            else begin
-               InDScope:= false;
-               wordList[i].EndDScope:= true;
+     else begin
+         InDScope:= false;
+         for i := 0 to wordList.count - 2 do begin
+            ch:= wordList[i].RightSep;
+            case ch of
+               CHR_SEP_PARAGRAPH, CHR_SEP_SENTENCE: begin
+                   wordList[i].BeginDScope:= not InDScope;
+                   InDScope:= true;
+
+                   if ch = CHR_SEP_PARAGRAPH then
+                       wordList[i].Scope:= dsParagraph
+                   else
+                       wordList[i].Scope:= dsSentence;
+                   wordList[i+1].Scope:= wordList[i].Scope;
+                   if wordList[i+1].RightSep <> ' ' then
+                      wordList[i+1].RightSep:= ch;
+               end
+               else begin
+                  InDScope:= false;
+                  wordList[i].EndDScope:= true;
+               end;
             end;
          end;
-      end;
 
-      for i := 0 to wordList.count - 1 do begin
-          if wordList[i].Scope = dsAll then begin
-             wordList[i].BeginDScope:= true;
-             wordList[i].EndDScope:= true;
-          end
-      end;
-      wordList[wordList.count - 1].EndDScope:= true;
+         for i := 0 to wordList.count - 1 do begin
+             if wordList[i].Scope = dsAll then begin
+                wordList[i].BeginDScope:= true;
+                wordList[i].EndDScope:= true;
+             end
+         end;
+         wordList[wordList.count - 1].EndDScope:= true;
+     end;
+
 
   end;
 
@@ -841,6 +888,9 @@ end;
   New in 2.0.0:
   - Possible to use as a criterion the date of creation or modification of the notes
   - It is possible to indicate whether some of the words to be searched for must be in the same paragraph or sentence.
+  - It is possible to indicate if the words to be searched must be emphasized, or also inside a same
+    paragraph
+
     See more detailed description in the comment at the beginning of the SearchPatternToSearchWords procedure
 }
 
@@ -875,6 +925,8 @@ var
   TreeUI: TKntTreeUI;
   TV: TVTree;
   SearchingByDates: boolean;
+  LastLocationAdded_Str: String;
+  LastLocationAdded_NodeName: boolean;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -883,7 +935,8 @@ type
                              const FirstPattern: string; PatternPos: integer;
                              wordList : TSearchWordList = nil;
                              pL_Extract: integer= -1; pR_Extract: integer= -1;
-                             const LastPattern: string = ''; LastPatternPos: integer= -1): integer;
+                             const LastPattern: string = ''; LastPatternPos: integer= -1;
+                             Paragraph: string = ''): integer;
        var
          str, strExtract : string;
 
@@ -915,10 +968,21 @@ type
              Location.CaretPos := -1     // means: text found in node name
           end;
 
+          if (myFindOptions.EmphasizedSearch = esParagraph) and LastLocationAdded_NodeName then begin
+              Paragraph:= StringReplace(Paragraph, #13,'', [rfReplaceAll]);
+              if LastLocationAdded_Str.ToUpper.Trim = Paragraph.ToUpper.Trim then
+                 Location_List.Delete(Location_List.Count-1);
+          end;
+
           strExtract:= GetFindedPatternExtract(str, FirstPattern, PatternPos, Result, pL_Extract, pR_Extract, wordList, LastPattern, LastPatternPos); // ** Result is set here
           Location.Params:= strExtract;
           if not TreeFilter then
              Location_List.Add(Location);
+
+          if myFindOptions.EmphasizedSearch = esParagraph then begin
+             LastLocationAdded_Str:= Paragraph;
+             LastLocationAdded_NodeName:= SearchingInNodeName;
+          end;
        end;
 
        procedure GetCurrentNode;
@@ -998,6 +1062,66 @@ type
             FindDone := true;
        end;
 
+       function CheckEmphasized(EmphasizedSearch: TEmphasizedSerch;
+                                const PatternText1: string; PatternPos1: integer;
+                                const PatternTextN: string= ''; PatternPosN: integer = -1;
+                                pL_Parag: integer = -1;
+                                pR_Parag: integer = -1): boolean;
+       var
+         FontStyles: TFontStyles;
+         NEntry: TNoteEntry;
+         FontSizeNextParag: integer;
+
+         function CheckPattern(PatternPos: integer): boolean;
+         begin
+            Result:= False;
+            with RTFAux do begin
+               SelStart:= PatternPos + 1;
+               FontStyles:= SelAttributes.Style;
+               if not SelAttributes.Link and
+                  ( (fsBold in FontStyles) or
+                    (fsUnderline in FontStyles) or
+                    (SelAttributes.BackColor <> clWindow) or
+                    (SelAttributes.Size > FontSizeNextParag)
+                   ) then
+                    Result:= True;
+            end;
+
+         end;
+
+       begin
+           if (EmphasizedSearch = esNone) or (PatternText1 = '') then exit(true);
+
+           Result:= False;
+
+           with RTFAux do begin
+               if RTFAux.TextLength = 0 then begin
+                  NEntry:= myNNode.Note.Entries[0];         // %%%
+                  LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+               end;
+
+               FontSizeNextParag:= 9999;
+               if (EmphasizedSearch = esParagraph) then begin
+                  SelStart:= pR_Parag + 2;
+                  FontSizeNextParag:= SelAttributes.Size;
+               end;
+
+               if not CheckPattern(PatternPos1) then
+                  exit;
+               if (PatternTextN <> '') and not CheckPattern(PatternPosN) then
+                  exit;
+
+               if (EmphasizedSearch = esParagraph) then begin
+                  if (pL_Parag <> -1) and not CheckPattern(pL_Parag) then
+                     exit;
+                  if (pR_Parag <> -1) and not CheckPattern(pR_Parag - 3) then
+                     exit;
+               end;
+
+               Result:= True;
+           end;
+       end;
+
        procedure FindPatternInText (SearchingInNodeName: boolean);
        var
           wordidx : integer;
@@ -1005,12 +1129,17 @@ type
           case SearchModeToApply of
               smPhrase :
                   begin
+                      var pL_DScope, pR_DScope: integer;       // start and end position, within TextPlain, of a paragraph
+                      var Paragraph: string;
                       repeat
                          PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1) -1;
                          { PatternPos := EditControl.FindText(myFindOptions.Pattern, SearchOrigin, -1, SearchOpts ); }
                          if ( PatternPos >= 0 ) then begin
                              SearchOrigin := PatternPos + PatternLen; // move forward in text
-                             AddLocation(SearchingInNodeName, lsNormal, TextToFind, PatternPos);
+                             if myFindOptions.EmphasizedSearch = esParagraph then
+                                Paragraph:= GetTextScope(TextPlain, dsParagraph, PatternPos + 1, pL_DScope, pR_DScope, 1);
+                             if CheckEmphasized(myFindOptions.EmphasizedSearch, TextToFind, PatternPos,'',-1, pL_DScope, pR_DScope) then
+                                AddLocation(SearchingInNodeName, lsNormal, TextToFind, PatternPos,nil,-1,-1,'',-1,Paragraph);
                          end;
                          Application.ProcessMessages;
                       until UserBreak or (PatternPos < 0);
@@ -1186,14 +1315,25 @@ type
 
 
                        if MultiMatchOK then begin
+                          // if myFindOptions.EmphasizedSearch = esParapraph => All words must necessarily belong to the same paragraph
+                          // -> pL_DScope, pR_DScope will be used
+
+                          if not CheckEmphasized(myFindOptions.EmphasizedSearch, PatternInPos1, PatternPos1, PatternInPosN, PatternPosN, pL_DScope, pR_DScope) then begin
+                             if PatternInPosN <> '' then
+                                SearchOrigin := PatternPosN + 1
+                             else
+                                SearchOrigin := PatternPos1 + 1;
+                             continue;
+                          end;
+
                           if SearchModeToApply = smAll then begin
                              if pL_DScopeToConsider > PatternPos1 then pL_DScopeToConsider:= -1;
                              if pR_DScopeToConsider < PatternPosN then pR_DScopeToConsider:= -1;
-                             AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, pL_DScopeToConsider, pR_DScopeToConsider, PatternInPosN, PatternPosN);
+                             AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, pL_DScopeToConsider, pR_DScopeToConsider, PatternInPosN, PatternPosN, SearchIn);
                              SearchOrigin := PatternPosN + 1;   // move forward in text
                           end
                           else
-                             SearchOrigin:= 1 + AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, -1, -1, PatternInPosN, PatternPosN);
+                             SearchOrigin:= 1 + AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, -1, -1, PatternInPosN, PatternPosN, SearchIn);
                        end;
 
                        Application.ProcessMessages;
@@ -1285,7 +1425,10 @@ begin
       if not TreeFilter  then
          ClearLocationList( Location_List );
 
-      SearchPatternToSearchWords (wordList, TextToFind, myFindOptions.SearchMode);
+      SearchPatternToSearchWords (wordList, TextToFind, myFindOptions);
+      if TreeFilter then
+         myFindOptions.EmphasizedSearch:= esNone;
+
 
       wordcnt := wordList.count;
 
@@ -1331,6 +1474,8 @@ begin
             repeat
                 nodeToFilter:= true;               // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
                 SearchOrigin := 0;                 // starting a new node
+                RTFAux.Clear;                      // Let's make sure it's empty before calling PrepareTextPlain, just in case it wasn't necessary to use it.
+                                                   // and we are interested in having the RTF content of the node (in case the Emphasized option is used)
 
                 if assigned(myTreeNode) then
                    myNNode := TreeUI.GetNNode(myTreeNode)
