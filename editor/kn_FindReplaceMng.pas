@@ -140,6 +140,7 @@ type
       Scope: TDistanceScope;
       BeginDScope: boolean;
       EndDScope: boolean;
+      WordPos: integer;
    end;
 
   TSearchWordList= TSimpleObjList<TSearchWord>;      // TList<TSearchWord>;
@@ -453,18 +454,32 @@ var
   bakFirstChar: char;
   strSearch, strExtract: string;
   Word, scapeFirstChar: string;
+  p2Pos, ip2: integer;
 
 begin
     if (Str='') then Exit('');
 
     // pL_Extract, pR_Extract: If they are > 0, they indicate the extremes to try to consider, as far as possible, of the extract to be used.
 
+    p2Pos:= integer.MaxValue;
+    if (LastPattern <> '') and (wordlist.count > 2) then begin
+       for i := 0 to wordList.Count - 1 do begin
+          p:= wordList[i].WordPos;
+          if (p >= 0) and (p < p2Pos) and (p <> pPos) and (p <> LastPatternPos) then begin
+             p2Pos:= p;
+             ip2:= i;
+          end;
+       end;
+       if p2Pos < integer.MaxValue then
+          inc(p2Pos, wordList[ip2].word.Length);
+    end;
+
 
     inc(pPos);
 
     bakFirstChar:= Str[pPos];
 
-    // Looking for line break to the left
+    // Searching for left limit of extract
     extL:= pPos-50;
     if (pL_Extract >= 0) then
        if (pPos-pL_Extract < 100) then
@@ -478,7 +493,7 @@ begin
     inc(pL);
     if Str[pL] = #13 then inc(pL);
 
-    // Looking for line break to the right
+    // Searching for right limit of extract
     extR:= 50;
     if (pR_Extract >= 0) then
        if (pR_Extract-pPos < 100) then
@@ -486,8 +501,12 @@ begin
        else
           extR:= 75
     else
-    if not SecondPart and (wordlist <> nil) then
-       extR:= 75;
+    if not SecondPart then
+       if (p2Pos <> integer.MaxValue) and (p2Pos-pPos < 100) then
+          extR:= p2Pos
+       else
+       if (wordlist <> nil) then
+          extR:= 75;
 
     pR:= Pos(#13, Str, pPos)-1;
     if pR < 0 then
@@ -931,7 +950,7 @@ var
   SearchIn: string;
   LastDScope, CurrentDScope: TDistanceScope;
   pL_DScope, pR_DScope: integer;       // start and end position, within TextPlain, of a sentence or paragraph
-  widxBeginDScope, PosFirstWordDScope, SearchOriginDScope: integer;
+  widxBeginDScope, PosFirstWordDScope, SearchOriginDScope, AbsSearchOrigin: integer;
   pL_DScopeToConsider, pR_DScopeToConsider: integer;
   PatternPos1_DScope, PatternPosN_DScope: integer;
   PatternInPos1_DScope, PatternInPosN_DScope: string;
@@ -939,7 +958,9 @@ var
   IsBeginInDScope: boolean;
   NewDScope: boolean;
   RetryDScope: boolean;
+  ReusedWordPos: boolean;
   Paragraph: string;
+  PositionsLastLocationAdded: array of integer;
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -1086,16 +1107,19 @@ type
          FontSizeNextParag: integer;
 
          function CheckPattern(PatternPos: integer): boolean;
+         var
+           FSize: integer;
          begin
             Result:= False;
             with RTFAux do begin
                SelStart:= PatternPos + 1;
                FontStyles:= SelAttributes.Style;
+               FSize:= SelAttributes.Size;
                if not SelAttributes.Link and
                   ( (fsBold in FontStyles) or
                     (fsUnderline in FontStyles) or
                     (SelAttributes.BackColor <> clWindow) or
-                    (SelAttributes.Size > FontSizeNextParag)
+                    ((FSize > 10) and (FSize > FontSizeNextParag))
                    ) then
                     Result:= True;
             end;
@@ -1135,6 +1159,25 @@ type
            end;
        end;
 
+       function RememberLastPositionsFound: boolean;
+       var
+          i: integer;
+       begin
+          for i:= 0 to wordlist.count-1 do
+             PositionsLastLocationAdded[i]:= wordlist[i].WordPos;
+       end;
+
+       function CheckNewPositionsFound: boolean;
+       var
+          i: integer;
+       begin
+          Result:= false;
+          for i:= 0 to wordlist.count-1 do
+             if wordlist[i].WordPos > PositionsLastLocationAdded[i] then
+                exit(true);
+       end;
+
+
        procedure FindPatternInText (SearchingInNodeName: boolean);
        var
           wordidx : integer;
@@ -1158,6 +1201,8 @@ type
 
               smAny, smAll :
                 begin
+                   var i: integer;
+                   for i := 0 to wordList.Count-1 do wordList[i].WordPos:= -1;
                    repeat
                        LastDScope:= dsAll;
                        widxBeginDScope:= -1;
@@ -1200,14 +1245,22 @@ type
                                 SearchOriginDScope:= PosFirstWordDScope + 1
                              else
                                 SearchOriginDScope:= SearchOrigin + 1;
+                             AbsSearchOrigin:= SearchOriginDScope;
                           end
                           else begin
                              SearchIn:= GetTextScope(TextPlain, CurrentDScope, PosFirstWordDScope + 1, pL_DScope, pR_DScope, SearchOrigin+1);
                              SearchOriginDScope:= 1;
+                             AbsSearchOrigin:= pL_DScope;
                           end;
                           LastDScope:= CurrentDScope;
 
-                          PatternPos:= FindPattern(thisWord, SearchIn, SearchOriginDScope, SizeInternalHiddenText) -1;
+                          ReusedWordPos:= false;
+                          if wordList[wordidx].WordPos > AbsSearchOrigin then begin
+                             PatternPos:= wordList[wordidx].WordPos;
+                             ReusedWordPos:= true;
+                          end
+                          else
+                             PatternPos:= FindPattern(thisWord, SearchIn, SearchOriginDScope, SizeInternalHiddenText) -1;
                           { PatternPos := EditControl.FindText(thisWord, 0, -1, SearchOpts); }
 
                           if (CurrentDScope <> dsAll) then begin
@@ -1225,7 +1278,7 @@ type
 
                           if ( PatternPos >= 0 ) then begin          // ----------- PatternPos >= 0
                              if (CurrentDScope <> dsAll) then begin
-                                if not IsBeginInDScope then
+                                if not IsBeginInDScope and not ReusedWordPos then
                                     inc(PatternPos, pL_DScope-1);       // It is a relative search, within the sentence or paragraph
                                 if PatternPos < PatternPos1_DScope then begin
                                    PatternPos1_DScope:= PatternPos;
@@ -1243,6 +1296,8 @@ type
                                    PatternInPos1:= thisWord;
                                    SizeInternalHiddenTextInPos1:= SizeInternalHiddenText;
                                 end;
+
+                             wordList[wordidx].WordPos:= PatternPos;
 
                              if SearchModeToApply = smAll then begin
                                  if PatternPos > PatternPosN then begin
@@ -1320,19 +1375,51 @@ type
                           // if myFindOptions.EmphasizedSearch = esParapraph => All words must necessarily belong to the same paragraph
                           // -> pL_DScope, pR_DScope will be used
 
-                          if not CheckEmphasized(myFindOptions.EmphasizedSearch, PatternInPos1, PatternPos1, PatternInPosN, PatternPosN, pL_DScope, pR_DScope) then begin
-                             if PatternInPosN <> '' then
-                                SearchOrigin := PatternPosN + 1
-                             else
-                                SearchOrigin := PatternPos1 + 1;
+                          if not CheckNewPositionsFound or
+                             not CheckEmphasized(myFindOptions.EmphasizedSearch, PatternInPos1, PatternPos1, PatternInPosN, PatternPosN, pL_DScope, pR_DScope) then begin
+                             SearchOrigin := PatternPos1 + 1;
                              continue;
                           end;
+
+                          RememberLastPositionsFound;
+
+                          { *1
+                           Within the search in a note (NNode) we will change to smAny mode from smAll after
+                           the first match to allow locating and offering more useful results.
+                           Let's suppose that we search for something like: [w1..w2 w3] (or simply [w1 w2 w3]
+                           and we do it in a note with a text of the form:
+                               ... w2 ... w1
+                               ....... w3 ...
+                               ...
+                               ... w1 ... w2 ...
+
+                           So far we have only been returning as a match the one that includes from the first w2
+                           to w3. Since there are no more w3, the final terms, w1 and w2 are ignored because from the
+                           final position of the last match (w3) we cannot find all the terms again.
+                           But why are the first ones (w2 .. w1) going to be more significant than the second ones (w1 .. w2)?
+                           We will surely be interested in knowing about the latter as well.
+                           * The nature of the smAll method is maintained in the sense that we are offering all these
+                           matches within this note because all the searched terms are found in it
+                           From that moment on, and once verified, we are interested in showing all the terms in the same
+                           way as we do with smAny, including several terms together in the same match if
+                           they are close and can be offered in the same extract.
+
+                           If the text were as follows, we will still return the two pairs w1, w2.
+                           The number of results may vary slightly depending on whether or not the word w3
+                           has been displayed in any previous result.
+
+                               ... w2 ... w1
+                               ...
+                               ... w1 ... w2 ..
+                               .... w3 ...
+                          }
 
                           if SearchModeToApply = smAll then begin
                              if pL_DScopeToConsider > PatternPos1 then pL_DScopeToConsider:= -1;
                              if pR_DScopeToConsider < PatternPosN then pR_DScopeToConsider:= -1;
                              AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, pL_DScopeToConsider, pR_DScopeToConsider, PatternInPosN, PatternPosN, SearchIn);
-                             SearchOrigin := PatternPosN + PatternInPosN.Length;   // move forward in text
+                             SearchOrigin := PatternPos1 + PatternInPos1.Length;   // move forward in text
+                             SearchModeToApply := smAny;                           // *1
                           end
                           else
                              SearchOrigin:= 1 + AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, -1, -1, PatternInPosN, PatternPosN, SearchIn);
@@ -1382,8 +1469,6 @@ begin
   end;
 
 
-  SearchModeToApply := myFindOptions.SearchMode;
-
   myTreeNode := nil;
   myNNode := nil;
   TreeNodeToSearchIn:= nil;
@@ -1428,6 +1513,7 @@ begin
          ClearLocationList( Location_List );
 
       SearchPatternToSearchWords (wordList, TextToFind, myFindOptions);
+      SetLength(PositionsLastLocationAdded, wordList.Count);
       if TreeFilter then
          myFindOptions.EmphasizedSearch:= esNone;
 
@@ -1435,8 +1521,8 @@ begin
       wordcnt := wordList.count;
 
       if wordcnt = 1 then begin
-         SearchModeToApply := smPhrase;    // If not used smPhrase then the line number will not be shown, and will be confusing
-         TextToFind:= wordList[0].word;         // '"Windows 10"' --> 'Windows 10'
+         myFindOptions.SearchMode := smPhrase;    // If not used smPhrase then the line number will not be shown, and will be confusing
+         TextToFind:= wordList[0].word;           // '"Windows 10"' --> 'Windows 10'
       end;
 
       if (wordcnt = 0) and not SearchingByDates then begin
@@ -1444,6 +1530,7 @@ begin
          Form_Main.Btn_ResFind.Enabled:= False;
          exit;
       end;
+      SearchModeToApply := myFindOptions.SearchMode;
 
       if myFindOptions.AllTabs then
          myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject) // initially 0
@@ -1474,10 +1561,11 @@ begin
 
             // Go through each Note Node (NNode)
             repeat
-                nodeToFilter:= true;               // Supongo que no se encontrará el patrón, con lo que se filtrará el nodo (si ApplyFilter=True)
+                nodeToFilter:= true;               // I assume the pattern will not be found, so the node will be filtered (if ApplyFilter=True)
                 SearchOrigin := 0;                 // starting a new node
                 RTFAux.Clear;                      // Let's make sure it's empty before calling PrepareTextPlain, just in case it wasn't necessary to use it.
                                                    // and we are interested in having the RTF content of the node (in case the Emphasized option is used)
+                SearchModeToApply := myFindOptions.SearchMode;    // Within each NNode we can temporarily switch from smAll to smAny
 
                 if assigned(myTreeNode) then
                    myNNode := TreeUI.GetNNode(myTreeNode)
