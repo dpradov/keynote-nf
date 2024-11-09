@@ -928,6 +928,19 @@ var
   LastLocationAdded_Str: String;
   LastLocationAdded_NodeName: boolean;
 
+  SearchIn: string;
+  LastDScope, CurrentDScope: TDistanceScope;
+  pL_DScope, pR_DScope: integer;       // start and end position, within TextPlain, of a sentence or paragraph
+  widxBeginDScope, PosFirstWordDScope, SearchOriginDScope: integer;
+  pL_DScopeToConsider, pR_DScopeToConsider: integer;
+  PatternPos1_DScope, PatternPosN_DScope: integer;
+  PatternInPos1_DScope, PatternInPosN_DScope: string;
+  SizeInternalHiddenTextInPos1_DScope: integer;
+  IsBeginInDScope: boolean;
+  NewDScope: boolean;
+  RetryDScope: boolean;
+  Paragraph: string;
+
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
 
@@ -1129,8 +1142,6 @@ type
           case SearchModeToApply of
               smPhrase :
                   begin
-                      var pL_DScope, pR_DScope: integer;       // start and end position, within TextPlain, of a paragraph
-                      var Paragraph: string;
                       repeat
                          PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1) -1;
                          { PatternPos := EditControl.FindText(myFindOptions.Pattern, SearchOrigin, -1, SearchOpts ); }
@@ -1147,18 +1158,6 @@ type
 
               smAny, smAll :
                 begin
-                   var SearchIn: string;
-                   var LastDScope, CurrentDScope: TDistanceScope;
-                   var pL_DScope, pR_DScope: integer;       // start and end position, within TextPlain, of a sentence or paragraph
-                   var widxBeginDScope, PosFirstWordDScope, SearchOriginDScope: integer;
-                   var pL_DScopeToConsider, pR_DScopeToConsider: integer;
-                   var PatternPos1_DScope, PatternPosN_DScope: integer;
-                   var PatternInPos1_DScope, PatternInPosN_DScope: string;
-                   var SizeInternalHiddenTextInPos1_DScope: integer;
-                   var IsBeginInDScope: boolean;
-                   var NewDScope: boolean;
-                   var RetryDScope: boolean;
-
                    repeat
                        LastDScope:= dsAll;
                        widxBeginDScope:= -1;
@@ -1197,7 +1196,10 @@ type
 
                           if IsBeginInDScope then begin     // (All words where Scope = dsAll => IsBeginInDScope=True)
                              SearchIn:= TextPlain;
-                             SearchOriginDScope:= SearchOrigin + 1 + PosFirstWordDScope;
+                             if PosFirstWordDScope > 0 then
+                                SearchOriginDScope:= PosFirstWordDScope + 1
+                             else
+                                SearchOriginDScope:= SearchOrigin + 1;
                           end
                           else begin
                              SearchIn:= GetTextScope(TextPlain, CurrentDScope, PosFirstWordDScope + 1, pL_DScope, pR_DScope, SearchOrigin+1);
@@ -1214,7 +1216,7 @@ type
                              else
                              if (PatternPos < 0) then begin
                                 MultiMatchOK := false;
-                                wordidx:= widxBeginDScope;   // Search again, from de last found position (PosFirstWordScope)
+                                wordidx:= widxBeginDScope;   // Search again the first word, from the last found position (PosFirstWordScope)
                                 RetryDScope:= true;
                                 inc(PosFirstWordDScope);
                                 continue;
@@ -1330,7 +1332,7 @@ type
                              if pL_DScopeToConsider > PatternPos1 then pL_DScopeToConsider:= -1;
                              if pR_DScopeToConsider < PatternPosN then pR_DScopeToConsider:= -1;
                              AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, pL_DScopeToConsider, pR_DScopeToConsider, PatternInPosN, PatternPosN, SearchIn);
-                             SearchOrigin := PatternPosN + 1;   // move forward in text
+                             SearchOrigin := PatternPosN + PatternInPosN.Length;   // move forward in text
                           end
                           else
                              SearchOrigin:= 1 + AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, -1, -1, PatternInPosN, PatternPosN, SearchIn);
