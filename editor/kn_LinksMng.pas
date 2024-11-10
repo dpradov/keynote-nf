@@ -42,6 +42,7 @@ uses
    knt.model.note,
    kn_History,
    kn_LocationObj,
+   kn_FindReplaceMng,
    knt.ui.editor
    ;
 
@@ -59,7 +60,8 @@ uses
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
                               myURLAction: TURLAction = urlOpen;
                               OpenInCurrentFile: boolean= false;
-                              ConsiderOffset: boolean = false ): boolean;
+                              ConsiderOffset: boolean = false;
+                              WordInRS: TWordInResultSearch = nil ): boolean;
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
     function SearchCaretPos (Editor: TKntRichEdit;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
@@ -107,7 +109,6 @@ uses
    kn_URL,
    kn_EditorUtils,
    kn_RTFUtils,
-   kn_FindReplaceMng,
    kn_ImagesMng,
    kn_ImageForm,
    kn_NoteFileMng,
@@ -1273,7 +1274,8 @@ begin
  function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
                           myURLAction: TURLAction = urlOpen;
                           OpenInCurrentFile: boolean= false;
-                          ConsiderOffset: boolean = false): boolean;
+                          ConsiderOffset: boolean = false;
+                          WordInRS: TWordInResultSearch = nil): boolean;
  var
    myFolder : TKntFolder;
    myTreeNode : PVirtualNode;
@@ -1412,9 +1414,16 @@ begin
 
          result := true;
 
-         if not SearchTargetMark (Location.Bookmark09) then
-            SearchCaretPos(myFolder.Editor, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor,
-                          AdjustVisiblePosition, true, ConsiderOffset);
+         if not SearchTargetMark (Location.Bookmark09) then begin
+            if WordInRS <> nil then begin                             // Jump to a word in a serch result
+               if WordInRS.BeginOfParagraph >= 0 then
+                  SearchCaretPos(myFolder.Editor, WordInRS.BeginOfParagraph, 0, True, Location.ScrollPosInEditor, true, true, true);
+               SearchCaretPos(myFolder.Editor, WordInRS.WordPos, WordInRS.WordSel, True, Location.ScrollPosInEditor, false, true, true);
+            end
+            else
+               SearchCaretPos(myFolder.Editor, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor,
+                             AdjustVisiblePosition, true, ConsiderOffset);
+         end;
 
          myFolder.Editor.SetFocus;
 

@@ -28,6 +28,7 @@ uses
    Vcl.Controls,
    Vcl.Graphics,
    VirtualTrees,
+   gf_misc,
    knt.ui.tree,
    RxRichEd,
    kn_Info,
@@ -48,6 +49,23 @@ var
     SearchNode_Text, SearchNode_TextPrev : string;
     StartFolder: TKntFolder;
     StartNode: PVirtualNode;
+
+type
+   TResultSearch = class
+      BeginOfParagraph: integer;
+      WordsPos: array of integer;
+      WordsSel: array of integer;
+   end;
+   TResultsSearch= TSimpleObjList<TResultSearch>;      // TList<TResultSearch>;
+
+   TWordInResultSearch = class
+      BeginOfParagraph: integer;
+      WordPos: integer;
+      WordSel: integer;
+   end;
+
+var
+   ResultsSearch: TResultsSearch;
 
 
 procedure DoFindNext;
@@ -70,7 +88,6 @@ procedure FindAllResults_RightClick (CharIndex: integer);
 implementation
 uses
    System.DateUtils,
-   gf_misc,
    gf_miscvcl,
    gf_strings,
    kn_const,
@@ -103,6 +120,34 @@ var
    SearchingFolder: TKntFolder;
    SearchingInEditor: TKntRichEdit;
 
+type
+  CharacterSet = set of char;
+
+type
+   TDistanceScope = (dsAll, dsSentence, dsParagraph);
+
+type
+   TSearchWord = class
+      word: string;
+      RightSep: char;
+      Scope: TDistanceScope;
+      BeginDScope: boolean;
+      EndDScope: boolean;
+      WordPos: integer;
+      SizeInternalHiddenText: integer;
+   end;
+
+  TSearchWordList= TSimpleObjList<TSearchWord>;      // TList<TSearchWord>;
+
+  TLastWordFollowed = record
+      iResults: integer;
+      iWord: integer;
+  end;
+
+var
+  LastWordFollowed: TLastWordFollowed;
+  WordInResultSearch: TWordInResultSearch;
+
 
 resourcestring
   STR_01 = 'Replace this occurrence?';
@@ -127,24 +172,6 @@ procedure FindEventProc( sender : TObject ); forward;
 procedure ReplaceEventProc( ReplaceAll : boolean ); forward;
 procedure Form_FindReplaceClosed( sender : TObject ); forward;
 
-type
-  CharacterSet = set of char;
-
-type
-   TDistanceScope = (dsAll, dsSentence, dsParagraph);
-
-type
-   TSearchWord = class
-      word: string;
-      RightSep: char;
-      Scope: TDistanceScope;
-      BeginDScope: boolean;
-      EndDScope: boolean;
-      WordPos: integer;
-      SizeInternalHiddenText: integer;
-   end;
-
-  TSearchWordList= TSimpleObjList<TSearchWord>;      // TList<TSearchWord>;
 
 const
    CHR_SEP_SENTENCE  = Chr(17);       // 17 ($11): DC1 (Device Control 1)    <==>  '..'
@@ -488,7 +515,7 @@ begin
        else
           extL:= pPos-75;
 
-    pL:= pPos;
+    pL:= pPos+1;
     repeat
        dec(pL);
     until (pL = 1) or (Str[pL] = #13) or ((pL < extL) and (Str[pL] in [#32,#9,#7]));
@@ -596,7 +623,9 @@ begin
     else
        lastPos:= pR;   // To use with smAny
 
-    pL_Extract:= pL;
+    pL_Extract:= pL -1;
+    if lastPos > pR_Extract then
+       pR_Extract:= lastPos;
 end;
 
 
@@ -966,6 +995,69 @@ var
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
 
+
+       procedure AddResultSearch(wordList : TSearchWordList; pL_Extract: integer = 0; pR_Extract: integer = 0);
+       var
+          ResultSearch: TResultSearch;
+          i, j, p, N, M: integer;
+          pMin, iMin: integer;
+       begin
+          ResultSearch:= nil;
+
+          if wordList <> nil then begin
+             ResultSearch:= TResultSearch.Create;
+             with ResultSearch do begin
+                 BeginOfParagraph:= NFromLastCharPos(TextPlainBAK, #13, 1, pL_Extract);
+                 N:= wordList.Count;
+                 SetLength(WordsPos, 2 * N);
+                 SetLength(WordsSel, 2 * N);
+
+                 for i := 0 to N - 1 do begin
+                    p:= wordList[i].wordPos;
+                    WordsPos[i]:= -1;
+                    if (p >= pL_Extract) and ((p <= pR_Extract)) then begin
+                       WordsPos[i+N]:= p;
+                       WordsSel[i+N]:= wordList[i].word.Length + wordList[i].SizeInternalHiddenText;
+                    end;
+                 end;
+
+                 M:= 0;
+                 for j := 0 to N - 1 do begin
+                    iMin:= -1;
+                    pMin:= integer.MaxValue;
+                    for i := 0 to N - 1 do begin
+                       if (WordsPos[i+N] < pMin) and (WordsPos[i+N] >=0) then begin
+                          pMin:= WordsPos[i+N];
+                          iMin:= i;
+                       end;
+                    end;
+                    if iMin >= 0 then begin
+                       WordsPos[j]:= WordsPos[iMin+N];
+                       WordsSel[j]:= WordsSel[iMin+N];
+                       WordsPos[iMin+N]:= -1;
+                       inc(M);
+                    end;
+                 end;
+                 SetLength(WordsPos, M);
+                 SetLength(WordsSel, M);
+             end;
+          end;
+
+          ResultsSearch.Add(ResultSearch);
+       end;
+
+
+       procedure ClearResultsSearch;
+       var
+         i: integer;
+       begin
+          if ResultsSearch <> nil then begin
+             for i := 0 to ResultsSearch.Count-1 do
+                 ResultsSearch[i].Free;
+             ResultsSearch.Clear;
+          end;
+       end;
+
        function AddLocation (SearchingInNodeName: boolean; LocationType: TLocationType;
                              const FirstPattern: string; PatternPos: integer;
                              wordList : TSearchWordList = nil;
@@ -974,6 +1066,7 @@ type
                              Paragraph: string = ''): integer;
        var
          str, strExtract : string;
+         iLast: integer;
 
        begin
           Location := TLocation.Create;
@@ -1000,19 +1093,27 @@ type
              //str:= myNNode.NoteName;
              str:= NodeNameInSearch;
              Location.SelLength := 0;
-             Location.CaretPos := -1     // means: text found in node name
+             Location.CaretPos := -1;     // means: text found in node name
           end;
 
           if (myFindOptions.EmphasizedSearch = esParagraph) and LastLocationAdded_NodeName then begin
               Paragraph:= StringReplace(Paragraph, #13,'', [rfReplaceAll]);
-              if LastLocationAdded_Str.ToUpper.Trim = Paragraph.ToUpper.Trim then
-                 Location_List.Delete(Location_List.Count-1);
+              if LastLocationAdded_Str.ToUpper.Trim = Paragraph.ToUpper.Trim then begin
+                 iLast:= Location_List.Count-1;
+                 Location_List.Delete(iLast);
+                 ResultsSearch.Delete(iLast);
+              end;
           end;
 
           strExtract:= GetFindedPatternExtract(str, FirstPattern, PatternPos, Result, pL_Extract, pR_Extract, wordList, LastPattern, LastPatternPos); // ** Result is set here
           Location.Params:= strExtract;
           if not TreeFilter then
              Location_List.Add(Location);
+
+          if not SearchingInNodeName then
+             AddResultSearch(wordList, pL_Extract, pR_Extract)
+          else
+             AddResultSearch(nil);
 
           if myFindOptions.EmphasizedSearch = esParagraph then begin
              LastLocationAdded_Str:= Paragraph;
@@ -1098,6 +1199,7 @@ type
        end;
 
        function CheckEmphasized(EmphasizedSearch: TEmphasizedSerch;
+                                SearchingInNodeName: boolean;
                                 const PatternText1: string; PatternPos1: integer;
                                 const PatternTextN: string= ''; PatternPosN: integer = -1;
                                 pL_Parag: integer = -1;
@@ -1110,16 +1212,18 @@ type
          function CheckPattern(PatternPos: integer): boolean;
          var
            FSize: integer;
+           SelColor: TColor;
          begin
             Result:= False;
             with RTFAux do begin
                SelStart:= PatternPos + 1;
                FontStyles:= SelAttributes.Style;
                FSize:= SelAttributes.Size;
+               SelColor:= SelAttributes.BackColor;
                if not SelAttributes.Link and
                   ( (fsBold in FontStyles) or
                     (fsUnderline in FontStyles) or
-                    (SelAttributes.BackColor <> clWindow) or
+                    ((SelColor <> clWindow) and not ((SelColor = clWhite) and ((RTFAux.Color = clWhite) or (RTFAux.Color = clWindow))) ) or
                     ((FSize > 10) and (FSize > FontSizeNextParag))
                    ) then
                     Result:= True;
@@ -1128,7 +1232,7 @@ type
          end;
 
        begin
-           if (EmphasizedSearch = esNone) or (PatternText1 = '') then exit(true);
+           if SearchingInNodeName or (EmphasizedSearch = esNone) or (PatternText1 = '') then exit(true);
 
            Result:= False;
 
@@ -1160,24 +1264,39 @@ type
            end;
        end;
 
-       function RememberLastPositionsFound: boolean;
+       function RememberLastPositionsFound (PatternPos1, PatternPosN: integer): boolean;
        var
-          i: integer;
+          i, p: integer;
        begin
-          for i:= 0 to wordlist.count-1 do
-             PositionsLastLocationAdded[i]:= wordlist[i].WordPos;
+          for i:= 0 to wordlist.count-1 do begin
+             p:= wordlist[i].WordPos;
+             if ((p = PatternPos1) or (p <= PatternPosN)) then
+                PositionsLastLocationAdded[i]:= p
+             else
+                PositionsLastLocationAdded[i]:= -1;
+          end;
        end;
 
-       function CheckNewPositionsFound: boolean;
+       function CheckNewPositionsFound(PatternPos1, PatternPosN: integer): boolean;
        var
-          i: integer;
+          i, p: integer;
        begin
           Result:= false;
-          for i:= 0 to wordlist.count-1 do
-             if wordlist[i].WordPos > PositionsLastLocationAdded[i] then
+          for i:= 0 to wordlist.count-1 do begin
+             p:= wordlist[i].WordPos;
+             if not ((p = PatternPos1) or (p <= PatternPosN)) then continue;
+             if (p > PositionsLastLocationAdded[i]) then
                 exit(true);
+          end;
        end;
 
+       function ClearLastPositionsFound: boolean;
+       var
+          i: integer;
+       begin
+          for i:= 0 to wordlist.count-1 do
+             PositionsLastLocationAdded[i]:= -1;
+       end;
 
        procedure FindPatternInText (SearchingInNodeName: boolean);
        var
@@ -1193,7 +1312,7 @@ type
                              SearchOrigin := PatternPos + PatternLen; // move forward in text
                              if myFindOptions.EmphasizedSearch = esParagraph then
                                 Paragraph:= GetTextScope(TextPlain, dsParagraph, PatternPos + 1, pL_DScope, pR_DScope, 1);
-                             if CheckEmphasized(myFindOptions.EmphasizedSearch, TextToFind, PatternPos,'',-1, pL_DScope, pR_DScope) then
+                             if CheckEmphasized(myFindOptions.EmphasizedSearch, SearchingInNodeName, TextToFind, PatternPos,'',-1, pL_DScope, pR_DScope) then
                                 AddLocation(SearchingInNodeName, lsNormal, TextToFind, PatternPos,nil,-1,-1,'',-1,Paragraph);
                          end;
                          Application.ProcessMessages;
@@ -1204,6 +1323,7 @@ type
                 begin
                    var i: integer;
                    for i := 0 to wordList.Count-1 do wordList[i].WordPos:= -1;
+                   ClearLastPositionsFound;
                    repeat
                        LastDScope:= dsAll;
                        widxBeginDScope:= -1;
@@ -1378,13 +1498,13 @@ type
                           // if myFindOptions.EmphasizedSearch = esParapraph => All words must necessarily belong to the same paragraph
                           // -> pL_DScope, pR_DScope will be used
 
-                          if not CheckNewPositionsFound or
-                             not CheckEmphasized(myFindOptions.EmphasizedSearch, PatternInPos1, PatternPos1, PatternInPosN, PatternPosN, pL_DScope, pR_DScope) then begin
-                             SearchOrigin := PatternPos1 + 1;
+                          if not CheckNewPositionsFound(PatternPos1, PatternPosN) or
+                             not CheckEmphasized(myFindOptions.EmphasizedSearch, SearchingInNodeName, PatternInPos1, PatternPos1, PatternInPosN, PatternPosN, pL_DScope, pR_DScope) then begin
+                             SearchOrigin := PatternPos1 + PatternInPos1.Length;
                              continue;
                           end;
 
-                          RememberLastPositionsFound;
+                          RememberLastPositionsFound (PatternPos1, PatternPosN);
 
                           { *1
                            Within the search in a note (NNode) we will change to smAny mode from smAll after
@@ -1512,8 +1632,10 @@ begin
 
   try
     try
-      if not TreeFilter  then
+      if not TreeFilter  then begin
          ClearLocationList( Location_List );
+         ClearResultsSearch;
+      end;
 
       SearchPatternToSearchWords (wordList, TextToFind, myFindOptions);
       SetLength(PositionsLastLocationAdded, wordList.Count);
@@ -1776,11 +1898,42 @@ end;
 procedure FindAllResults_FollowMatch(i: integer);
 var
   Location : TLocation;
+  iWord: integer;
+  WordInRS: TWordInResultSearch;
 begin
   Location := Location_List[i-1];
   if ( not assigned( Location )) then exit;
 
-  JumpToLocation( Location, true,true,urlOpen,false,  true );
+  { It is not trivial to know if the current position in the editor matches any of the words found
+    in the match, since FindAll searches over TextPlain (CaretPosition is a position in imLinkTextPlain)
+    and since there may be images, it is possible that the real position of the cursor is displaced with an offset.
+    Therefore, the simplest thing is that from here, we force JumpToLocation to select a specific word,
+    different from the one saved in Location, if necessary, helping us with LastWordFollowed
+  }
+  iWord:= -1;
+  WordInRS:= nil;
+
+  if ResultsSearch[i-1] <> nil then begin
+     WordInRS:= WordInResultSearch;
+     if LastWordFollowed.iResults = i-1 then begin
+        iWord:= LastWordFollowed.iWord;
+        WordInRS.BeginOfParagraph:= -1;
+     end
+     else
+        WordInRS.BeginOfParagraph:= ResultsSearch[i-1].BeginOfParagraph;
+
+     inc(iWord);
+     if iWord >= Length(ResultsSearch[i-1].WordsPos) then
+        iWord:= 0;
+
+     WordInRS.WordPos:= ResultsSearch[i-1].WordsPos[iWord];
+     WordInRS.WordSel:= ResultsSearch[i-1].WordsSel[iWord];
+  end;
+
+  LastWordFollowed.iResults := i-1;
+  LastWordFollowed.iWord := iWord;
+
+  JumpToLocation( Location, true,true,urlOpen,false,  true, WordInRS);
 end;
 
 
@@ -2621,5 +2774,8 @@ Initialization
     FollowMatch:= true;
     SelectedMatch:= 0;
     LastFindNextAt := 0;
+    ResultsSearch:= TSimpleObjList<TResultSearch>.Create;
+    WordInResultSearch:= TWordInResultSearch.Create;
+    LastWordFollowed.iResults:= -1;
 
 end.
