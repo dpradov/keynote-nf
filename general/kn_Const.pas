@@ -119,9 +119,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.0.0 Beta 4';
-  Program_Version_Number  = '2.0.0.4';
-  Program_Version_Date    = '01/11/2024';
+  Program_Version  = '2.0.0 Beta 5';
+  Program_Version_Number  = '2.0.0.5';
+  Program_Version_Date    = '10/11/2024';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -373,7 +373,8 @@ const
   // Used on files with NFILEVERSION_MAJOR >= 3
   _NumNotes = 'N:';       // Number of notes
   _NF_Note = '%*';        // TNote begins
-  _NF_NEntry = '%·';      // TNoteEntry begins
+  _NF_NEntry = '%.';      // TNoteEntry begins
+  _NF_NEntry_Beta = '%·';      // · is not an adequate character (see https://github.com/dpradov/keynote-nf/discussions/739#discussioncomment-11140153)
   _NF_Folder = '%+';      // TKntFolder begins
   _NF_TxtContent  = '%>'; // end of TNoteEntry header; Plain Text data follows
   _NF_RTFContent  = '%:'; // end of TNoteEntry header; RTF data follows

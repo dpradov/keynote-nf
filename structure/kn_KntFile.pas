@@ -2108,7 +2108,7 @@ begin
          NEntry:= nil;
          continue;
        end;
-       if ( s = _NF_NEntry) then begin
+       if ( s = _NF_NEntry) or (s = _NF_NEntry_Beta) then begin
          // new TNoteEntry begins
          if ( InEntryContent ) then AddTextToNewNEntry (false);
          InNoteEntry := true;
