@@ -141,6 +141,7 @@ type
       BeginDScope: boolean;
       EndDScope: boolean;
       WordPos: integer;
+      SizeInternalHiddenText: integer;
    end;
 
   TSearchWordList= TSimpleObjList<TSearchWord>;      // TList<TSearchWord>;
@@ -487,10 +488,10 @@ begin
        else
           extL:= pPos-75;
 
-    for pL := pPos downto Max(1, extL) do
-      if Str[pL] = #13 then
-         break;
-    inc(pL);
+    pL:= pPos;
+    repeat
+       dec(pL);
+    until (pL = 1) or (Str[pL] = #13) or ((pL < extL) and (Str[pL] in [#32,#9,#7]));
     if Str[pL] = #13 then inc(pL);
 
     // Searching for right limit of extract
@@ -1242,7 +1243,7 @@ type
                           if IsBeginInDScope then begin     // (All words where Scope = dsAll => IsBeginInDScope=True)
                              SearchIn:= TextPlain;
                              if PosFirstWordDScope > 0 then
-                                SearchOriginDScope:= PosFirstWordDScope + 1
+                                SearchOriginDScope:= PosFirstWordDScope + wordList[widxBeginDScope].word.Length + wordList[widxBeginDScope].SizeInternalHiddenText
                              else
                                 SearchOriginDScope:= SearchOrigin + 1;
                              AbsSearchOrigin:= SearchOriginDScope;
@@ -1257,6 +1258,7 @@ type
                           ReusedWordPos:= false;
                           if wordList[wordidx].WordPos > AbsSearchOrigin then begin
                              PatternPos:= wordList[wordidx].WordPos;
+                             SizeInternalHiddenText:= wordList[wordidx].SizeInternalHiddenText;
                              ReusedWordPos:= true;
                           end
                           else
@@ -1277,6 +1279,7 @@ type
                           end;
 
                           if ( PatternPos >= 0 ) then begin          // ----------- PatternPos >= 0
+                             wordList[wordidx].SizeInternalHiddenText:= SizeInternalHiddenText;
                              if (CurrentDScope <> dsAll) then begin
                                 if not IsBeginInDScope and not ReusedWordPos then
                                     inc(PatternPos, pL_DScope-1);       // It is a relative search, within the sentence or paragraph
