@@ -5228,10 +5228,6 @@ end;
 
 procedure TForm_Main.Splitter_ResMoved(Sender: TObject);
 begin
-  Combo_ResFind.Width := ResTab_Find.Width - 10;
-  RG_ResFind_Type.Width:= Combo_ResFind.Width - 5;
-  RG_ResFind_Scope.Width:= RG_ResFind_Type.Width;
-  RG_ResFind_ChkMode.Width:= RG_ResFind_Type.Width;
   UpdateFindAllResultsWidth;
 
   if assigned(Res_RTF) and (Pages_Res.ActivePage = ResTab_RTF) then

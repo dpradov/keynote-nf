@@ -1117,9 +1117,10 @@ object Form_Main: TForm_Main
         object Combo_ResFind: TComboBox
           Left = 5
           Top = 30
-          Width = 175
+          Width = 190
           Height = 22
           Hint = 'Type text to search for'
+          Anchors = [akLeft, akTop, akRight]
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -12
@@ -1306,6 +1307,7 @@ object Form_Main: TForm_Main
               Width = 187
               Height = 66
               Hint = 'Select type of search to perform'
+              Anchors = [akLeft, akTop, akRight]
               DefaultHeaderFont = False
               HeaderFont.Charset = DEFAULT_CHARSET
               HeaderFont.Color = clWindowText
@@ -1321,6 +1323,7 @@ object Form_Main: TForm_Main
               Width = 187
               Height = 66
               Hint = 'Select scope of search to perform'
+              Anchors = [akLeft, akTop, akRight]
               DefaultHeaderFont = False
               HeaderFont.Charset = DEFAULT_CHARSET
               HeaderFont.Color = clWindowText
@@ -1336,6 +1339,7 @@ object Form_Main: TForm_Main
               Width = 187
               Height = 66
               Hint = 'Select whether to consider nodes based on checked status'
+              Anchors = [akLeft, akTop, akRight]
               DefaultHeaderFont = False
               HeaderFont.Charset = DEFAULT_CHARSET
               HeaderFont.Color = clWindowText
