@@ -934,7 +934,8 @@ end;
 procedure TKntFolder.SetNoteUI( ANoteUI : INoteUI );
 begin
    fNoteUI:= ANoteUI;
-   fNoteUI.SetInfoPanelHidden(FEditorInfoPanelHidden);
+   if fNoteUI <> nil then
+      fNoteUI.SetInfoPanelHidden(FEditorInfoPanelHidden);
 end;
 
 procedure TKntFolder.SetTreeUI(tree: TKntTreeUI);
