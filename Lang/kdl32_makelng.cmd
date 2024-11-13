@@ -8,7 +8,7 @@ echo *  - In Delphi Environment open menu Project / Options / Linker and set MAP
 
 rem Update main language file from .exe and .drc
 
-"..\..\src\3rd_party\kdl32_Kryvich's Delphi Localizer\kdlscan.exe" Keynote.exe
+"..\..\src\3rd_party\Kryvich Delphi Localizer\kdlscan.exe" Keynote.exe
 
 echo ***************
 
