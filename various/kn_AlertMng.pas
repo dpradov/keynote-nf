@@ -384,52 +384,12 @@ uses
   kn_LinksMng,
   kn_VCLControlsMng,
   kn_Main,
-  knt.App
+  knt.App,
+  knt.RS
   ;
 
 
 {$R *.DFM}
-
-resourcestring
-  STR_NumberSelected = '%d alarms selected';
-  STR_Apply = '&Apply';
-  STR_CaptionSet = 'Set Alarm';
-  STR_CaptionReminders = '%d Reminders';
-  STR_CaptionAll = 'All Alarms/Events (%d)';
-  STR_CaptionOverdue = 'Overdue Events (%d)';
-  STR_CaptionPending = 'Pending Reminders (%d)';
-  STR_CaptionDiscarded = 'Discarded Events (%d)';
-  STR_Triggered = 'ALARM [%s] :  %s';
-  STR_SoundOn = '[Sound ON]';
-  STR_SoundOff = '[Sound OFF]';
-  STR_PendingAndOverdue = '%d pending reminders, %d overdue ';
-  STR_PopupOn = '[Popup ON]';
-  STR_PopupOff = '[Popup OFF]';
-  STR_ReminderorDateINC = 'Expiration/Start time and/or Reminder interval are not valid.'+ #13+ 'Please, correct it';
-  STR_ConfirmDiscardALL = 'OK to discard all this %d alarms?';
-  STR_ConfirmRemoveALL = 'OK to remove all this %d alarms?';
-  STR_ConfirmRestoreALL = 'OK to restore all this %d alarms?';
-  STR_ConfirmRemove = 'OK to remove this alarm?';
-  STR_ConfirmApplyPendingChanges = 'OK to apply pending changes?';
-  STR_Today = 'Today';
-  STR_Tomorrow = 'Tomorrow';
-  STR_All = 'All';
-  STR_Overdue = 'Overdue';
-  STR_Pending = 'Pending';
-  STR_Discarded = 'Discarded';
-  STR_AllWithDiscarded = 'All (with discarded)';
-  STR_Hint_Pending = 'Show all pending reminders (triggered and ignored, not postponed nor discarded)';
-  STR_Hint_Overdue = 'Show all overdue events';
-  STR_Hint_All = 'Show all set alarms (not discarded)';
-  STR_Hint_All_With_Discarded = 'Show all set alarms, including discarded';
-  STR_SelectAllDates = 'Show All Dates';
-  STR_SelectDays = 'Filter on selected Days';
-  STR_SelectWeek = 'Filter on selected Week';
-  STR_SelectMonth = 'Filter on selected Month';
-  STR_FilterApplied = '(Filter applied)';
-  STR_IntervalOverdue = '(%s overdue)';
-  STR_IntervalLeft = '(%s left)';
-  STR_IntervalBefore = '(%s before)';
 
   //const COLUMN_AlarmNote = 0;         // item
   const COLUMN_ReminderDate = 0;        // subitems
@@ -656,9 +616,9 @@ begin
        Result:= ''
     else
         if IsToday(instant) then
-           Result:= STR_Today
+           Result:= sAlrt20
         else if IsToday(IncDay(instant,-1)) then
-           Result:= STR_Tomorrow
+           Result:= sAlrt21
         else
            Result:= FormatDateTime( 'dd/MMM/yyyy', instant );
 end;
@@ -669,9 +629,9 @@ begin
        Result:= ''
     else
         if IsToday(instant) then
-           Result:= STR_Today + ' ' + FormatDateTime( 'HH:mm', instant )
+           Result:= sAlrt20 + ' ' + FormatDateTime( 'HH:mm', instant )
         else if IsToday(IncDay(instant,-1)) then
-           Result:= STR_Tomorrow + ' ' + FormatDateTime( 'HH:mm', instant )
+           Result:= sAlrt21 + ' ' + FormatDateTime( 'HH:mm', instant )
         else
            Result:= FormatDateTime( 'dd MMM yyyy - HH:mm', instant );
 end;
@@ -1153,7 +1113,7 @@ begin
       idAlarm:= alarm.NNode.GetNodeName(alarm.folder)
    else
       idAlarm:= alarm.folder.Name;
-   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Triggered, [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]);
+   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(sAlrt08, [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]);
 end;
 
 procedure TAlarmMng.TimerTimer(Sender: TObject);
@@ -1178,16 +1138,16 @@ var
   soundState, popupState: string;
 begin
    if KeyOptions.PlaySoundOnAlarm then
-      soundState:= STR_SoundOn
+      soundState:= sAlrt09
    else
-      soundState:= STR_SoundOff;
+      soundState:= sAlrt10;
 
    if KeyOptions.DisableAlarmPopup then
-      popupState:= STR_PopupOff
+      popupState:= sAlrt13
    else
-      popupState:= STR_PopupOn;
+      popupState:= sAlrt12;
 
-   Result:= Format(STR_PendingAndOverdue, [NumberPendingAlarms, NumberOverdueAlarms, popupState, soundState]);
+   Result:= Format(sAlrt11, [NumberPendingAlarms, NumberOverdueAlarms, popupState, soundState]);
 end;
 
 
@@ -1439,19 +1399,19 @@ begin
   CB_ExpirationTime.Text := '';
 
   with CB_ShowMode.Items do begin
-      Add(STR_All);
-      Add(STR_Pending);
-      Add(STR_Overdue);
-      Add(STR_Discarded);
-      Add(STR_AllWithDiscarded);
+      Add(sAlrt22);
+      Add(sAlrt24);
+      Add(sAlrt23);
+      Add(sAlrt25);
+      Add(sAlrt26);
   end;
   CB_ShowMode.ItemIndex:= -1;
 
   with CB_FilterDates.Items do begin
-      Add(STR_SelectAllDates);
-      Add(STR_SelectDays);
-      Add(STR_SelectWeek);
-      Add(STR_SelectMonth);
+      Add(sAlrt31);
+      Add(sAlrt32);
+      Add(sAlrt33);
+      Add(sAlrt34);
   end;
   CB_FilterDates.ItemIndex:= 0;
 
@@ -1509,7 +1469,7 @@ begin
    Button_Sound.Down:= KeyOptions.PlaySoundOnAlarm;
    if (FFilteredAlarmList.Count = 0) then begin
        Grid.Items.Clear;
-       cIdentifier.Text := Format( STR_NumberSelected, [0] );
+       cIdentifier.Text := Format( sAlrt01, [0] );
        EnableControls (false);
    end
    else begin
@@ -1557,16 +1517,16 @@ var
   n: integer;
 begin
     case FModeEdit of
-        TShowReminders:         str:= STR_CaptionReminders;
-        TShowSet, TShowNew:     str:= STR_CaptionSet;
-        TShowAll:               str:= STR_CaptionAll;
-        TShowOverdue:           str:= STR_CaptionOverdue;
-        TShowPending:           str:= STR_CaptionPending;
-        TShowDiscarded:         str:= STR_CaptionDiscarded;
-        TShowAllWithDiscarded:  str:= STR_CaptionAll;
+        TShowReminders:         str:= sAlrt03;
+        TShowSet, TShowNew:     str:= sAlrt02;
+        TShowAll:               str:= sAlrt04;
+        TShowOverdue:           str:= sAlrt05;
+        TShowPending:           str:= sAlrt06;
+        TShowDiscarded:         str:= sAlrt07;
+        TShowAllWithDiscarded:  str:= sAlrt04;
     end;
     if (cFilter.Text <> '') or (CB_FilterDates.ItemIndex <> 0) then
-       str:= str + STR_FilterApplied;
+       str:= str + sAlrt35;
 
     Caption:= Format(str, [FNumberAlarms]);
 end;
@@ -1795,15 +1755,15 @@ begin
           TShowReminders: str:= '';
           TShowSet:       str:= '';
           TShowAll:       begin
-                          str:= STR_Hint_All;
+                          str:= sAlrt29;
                           i:= 0;
                           end;
           TShowPending:   begin
-                          str:= STR_Hint_Pending;
+                          str:= sAlrt27;
                           i:= 1;
                           end;
           TShowOverdue:   begin
-                          str:= STR_Hint_Overdue;
+                          str:= sAlrt28;
                           i:= 2;
                           end;
           TShowDiscarded: begin
@@ -1812,7 +1772,7 @@ begin
                           end;
           TShowAllWithDiscarded:
                           begin
-                          str:= STR_Hint_All_With_Discarded;
+                          str:= sAlrt30;
                           i:= 4;
                           end;
 
@@ -1862,7 +1822,7 @@ begin
 
        msgResult:= mrYes;
        if (ask) then
-          MsgResult:= App.DoMessageBox( STR_ConfirmApplyPendingChanges, mtConfirmation, Buttons, def1, 0, Handle );
+          MsgResult:= App.DoMessageBox( sAlrt19, mtConfirmation, Buttons, def1, 0, Handle );
 
        if MsgResult <> mrCancel then begin
          if MsgResult = mrYes then
@@ -2112,7 +2072,7 @@ begin
 
     if (FProposedReminder >= 0) and (FProposedReminder < Now) then begin
        CB_ProposedIntervalReminder.SetFocus;
-       App.DoMessageBox( STR_ReminderorDateINC, mtError, [mbOK], def1, 0, Handle );
+       App.DoMessageBox( sAlrt14, mtError, [mbOK], def1, 0, Handle );
        exit;
     end;
 
@@ -2159,7 +2119,7 @@ var
   i: integer;
 begin
   if Grid.SelCount > 1 then
-     if ( App.DoMessageBox( Format( STR_ConfirmDiscardALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
+     if ( App.DoMessageBox( Format( sAlrt15, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;
@@ -2207,7 +2167,7 @@ var
   i: integer;
 begin
    if Grid.SelCount > 1 then
-      if ( App.DoMessageBox( Format( STR_ConfirmRestoreALL, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
+      if ( App.DoMessageBox( Format( sAlrt17, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;
@@ -2245,9 +2205,9 @@ var
   strConfirm: string;
 begin
   if Grid.SelCount > 1 then
-     strConfirm := STR_ConfirmRemoveALL
+     strConfirm := sAlrt16
   else
-     strConfirm := STR_ConfirmRemove;
+     strConfirm := sAlrt18;
 
   if ( App.DoMessageBox( Format( strConfirm, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
 
@@ -2428,11 +2388,11 @@ begin
      else begin
          IntervalStr:= GetTimeIntervalStr(Instant, Now);
          if Instant < now then begin
-            FormatStr:= STR_IntervalOverdue;
+            FormatStr:= sAlrt36;
             lblExpirationStatus.Font.Color:= clRed;
             end
          else begin
-            FormatStr:= STR_IntervalLeft;
+            FormatStr:= sAlrt37;
             lblExpirationStatus.Font.Color:= clGray;
          end;
 
@@ -2470,17 +2430,17 @@ begin
 
          if Instant < now then begin
             IntervalStr:= GetTimeIntervalStr(Instant, Now);
-            lblReminderStatus.Caption:= Format(STR_IntervalOverdue, [IntervalStr]);
+            lblReminderStatus.Caption:= Format(sAlrt36, [IntervalStr]);
             lblReminderStatus.Font.Color:= clRed;
             end
          else begin
             if (NewExpirationDate = 0) or (Instant > NewExpirationDate) or (Abs(Instant - now) <= Abs(Instant - NewExpirationDate)) then begin
                 IntervalStr:= GetTimeIntervalStr(Instant, Now);
-                lblReminderStatus.Caption:= Format(STR_IntervalLeft, [IntervalStr]);
+                lblReminderStatus.Caption:= Format(sAlrt37, [IntervalStr]);
             end
             else begin
                 IntervalStr:= GetTimeIntervalStr(Instant, NewExpirationDate);
-                lblReminderStatus.Caption:= Format(STR_IntervalBefore, [IntervalStr]);
+                lblReminderStatus.Caption:= Format(sAlrt38, [IntervalStr]);
             end;
             if (NewExpirationDate <> 0) and (NewExpirationDate > Now) and (Instant > NewExpirationDate) then
                lblReminderStatus.Font.Color:= clRed
@@ -2934,7 +2894,7 @@ begin
 
     alarm:= AlarmSelected;
     if not assigned(alarm) then begin
-       cIdentifier.Text := Format( STR_NumberSelected, [0] );
+       cIdentifier.Text := Format( sAlrt01, [0] );
        EnableControls (false);
        if not Selected then
           modeEdit:= TShowAll;
@@ -2945,7 +2905,7 @@ begin
          EnableControls (true);
          
          if Grid.SelCount > 1 then begin                   // Several alarms selected
-             cIdentifier.Text:= Format( STR_NumberSelected, [Grid.SelCount] );
+             cIdentifier.Text:= Format( sAlrt01, [Grid.SelCount] );
              ShowCommonProperties();
              FReminder:= 0;
              ShowReminderDate(0);

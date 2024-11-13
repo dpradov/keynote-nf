@@ -62,12 +62,10 @@ uses
    kn_Global,
    kn_main,
    kn_FavoritesMng,
-   knt.App;
+   knt.App,
+   knt.RS;
 
 {$R *.DFM}
-
-resourcestring
-  STR_01 = 'The specified file does not exist. Do you want to use the filename anyway?';
 
 
 
@@ -94,7 +92,7 @@ begin
   if ( ModalResult = mrOK ) then
   begin
     if ( not FileExists( NormalFN( AbsolutePath(Edit_FN.Text) ))) then
-      CanClose := ( messagedlg( STR_01, mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
+      CanClose := ( messagedlg( sFavDlg01, mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
   end;
 end;
 

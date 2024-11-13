@@ -24,104 +24,17 @@ uses
    System.Zip,
    Vcl.Graphics,
    ZLibEx,
-   SynGdiPlus;
+   SynGdiPlus,
+   knt.RS;
 
-
-resourcestring
-  FILTER_ALLFILES    = 'All files (*.*)|*.*';
-  FILTER_EXECUTABLES = 'Programs|*.exe;*.com';
-  LANGUAGE_DEFAULT = 'English (Internal)';
-
-  STR_01_Defaults = 'New folder';
-  STR_02_Defaults = 'New node';
-  STR_03_Formats = 'Keynote native';
-  STR_04_Formats = 'Keynote encrypted';
-  STR_06_Formats = 'Keynote compressed';
-  STR_05_Formats = 'Dart Notes';
-  STR_08_SearchMode = 'Exact phrase';
-  STR_09_SearchMode = 'All the words';
-  STR_10_SearchMode = 'Any of the words';
-
-  STR_SearchScope1 = 'Only node names';
-  STR_SearchScope2 = 'Only note contents';
-  STR_SearchScope3 = 'All';
-
-  STR_SearchChkMode1 = 'Only non checked nodes';
-  STR_SearchChkMode2 = 'Only checked nodes';
-  STR_SearchChkMode3 = 'All';
-
-  STR_11_TreeSelection = 'Current node';
-  STR_12_TreeSelection = 'Current node and subtree';
-  STR_13_TreeSelection = 'Checked nodes';
-  STR_14_TreeSelection = 'Full tree';
-  STR_15_ExportFormat = 'Plain text';
-  STR_16_ExportFormat = 'Rich text (RTF)';
-  STR_62_ExportFormat = 'KeyNote File (knt)';
-  STR_17_IconKind = 'None';
-  STR_18_IconKind = 'Standard icons';
-  STR_19_IconKind = 'Custom icons';
-  STR_20_LinkType = 'Internet address';
-  STR_21_LinkType = 'Email address';
-  STR_22_LinkType = 'File or folder';
-  STR_23_LinkType = 'KeyNote location';
-  STR_24_ExpandMode = 'Show tree fully collapsed';
-  STR_25_ExpandMode = 'Expand only last active node';
-  STR_26_ExpandMode = 'Expand only top level nodes';
-  STR_27_ExpandMode = 'Restore expanded state of all nodes';
-  STR_28_ExpandMode = 'Show tree fully expanded';
-  STR_29_ClipNodeNaming = 'Default node name';
-  STR_30_ClipNodeNaming = 'Use clipboard text';
-  STR_31_ClipNodeNaming = 'Use current date and time';
-  STR_32_FactStr = 'Open file in KeyNote';
-  STR_33_FactStr = 'Execute (macro or plugin)';
-  STR_34_FactStr = 'Merge folders into current file';
-  STR_35_FactStr = 'Import as a new folder';
-  STR_36_FactStr = 'Create hyperlink to file';
-  STR_37_FactStr = 'Import as tree nodes';
-  STR_38_FactStr = 'Import as virtual tree nodes';
-  STR_39_FactStr = 'Import as Internet Explorer virtual node';
-  STR_40_FactStr = 'Insert content at caret position';
-  STR_40_ImportHTML = 'No conversion (HTML source)';
-  STR_41_ImportHTML = 'Use Shared HTML Text Converter (html32.cnv + msconv97.dll)';  // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Shared Tools\Text Converters
-  STR_42_ImportHTML = 'Use MS Word Converter';
-  STR_43_ImportHTML = 'Use Internet Explorer';
-  STR_58_ImportHTML = 'Use Microsoft HTML Converter (html.iec)';
-  STR_44_Symb = 'Euro';
-  STR_45_Symb = 'Copyright';
-  STR_46_Symb = 'Registered trademark';
-  STR_47_Symb = 'Trademark';
-  STR_48_Symb = 'Paragraph';
-  STR_49_Symb = 'Degree';
-  STR_50_Symb = 'Plus/minus';
-  STR_51_Symb = 'Dots';
-  STR_52_Symb = 'French parenthesis (left)';
-  STR_53_Symb = 'French parenthesis (right)';
-  STR_54_Compression = 'None';
-  STR_55_Compression = 'Fastest';
-  STR_56_Compression = 'Default';
-  STR_57_Compression = 'Max';
-  STR_58_ClipPlainTextMode = 'Plain (without any formatting)';
-  STR_59_ClipPlainTextMode = 'Only hyperlinks (without other formatting)';
-  STR_60_ClipPlainTextMode = 'Only font style (bold, italic, ...)';
-  STR_61_ClipPlainTextMode = 'Only font (without paragraph formatting)';
-  STR_ImagesSM_1 = 'Embedded RTF';
-  STR_ImagesSM_2 = 'Embedded KNT';
-  STR_ImagesSM_3 = 'External (Folder or Zip)';
-  STR_ImagesSM_4 = 'External + Embedded KNT';
-  STR_ImagesSM_5 = 'No export images';
-  STR_ImagesExtSt_1 = 'Folder';
-  STR_ImagesExtSt_2 = 'ZIP';
-  STR_CtrlUD_1 = 'Moves cursor to prev or next paragraph';
-  STR_CtrlUD_2 = 'Shift view one line up or down';
-  STR_CtrlUD_3 = 'Smoothly moves scroll bar vertically';
 
 procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.0.0 Beta 5';
-  Program_Version_Number  = '2.0.0.5';
-  Program_Version_Date    = '10/11/2024';
+  Program_Version  = '2.0.0 Beta 6';
+  Program_Version_Number  = '2.0.0.6';
+  Program_Version_Date    = '11/11/2024';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -252,8 +165,8 @@ const
   MAX_FILENAME_LENGTH   = 127;
   MAX_BOOKMARKS         = 9; // ZERO-based!
   DEFAULT_CAPACITY      = 255; // default capacity for RTF Lines property (to speed up loading)
-  DEFAULT_NEW_FOLDER_NAME : string = STR_01_Defaults; // default name for new folders
-  DEFAULT_NEW_NOTE_NAME : string = STR_02_Defaults; // default name for new tree nodes
+  DEFAULT_NEW_FOLDER_NAME : string = sINFDefaults1; // default name for new folders
+  DEFAULT_NEW_NOTE_NAME : string = sINFDefaults2; // default name for new tree nodes
   DEFAULT_NODE_IMGINDEX : integer = 0;
   TRRENODE_SELIDX       = 4;
   MIN_PASS_LEN          = 5; // minimum length of file access passphrase
@@ -547,7 +460,7 @@ type
 
 const
   TREE_SELECTION_NAMES : array[TTreeSelection] of string = (
-    STR_11_TreeSelection, STR_12_TreeSelection, STR_13_TreeSelection, STR_14_TreeSelection
+    sINFTreeSel1, sINFTreeSel2, sINFTreeSel3, sINFTreeSel4
   );
 
 type
@@ -559,10 +472,10 @@ type
 
 const
   EXPORT_FORMAT_NAMES : array[TExportFmt] of string = (
-    STR_15_ExportFormat,
-    STR_16_ExportFormat,
+    sINFExptFrmt1,
+    sINFExptFrmt2,
     'HTML',
-    STR_62_ExportFormat,
+    sINFExptFrmt3,
     'TreePad'
   );
 
@@ -578,7 +491,7 @@ type
 
 const
   NODE_ICON_KINDS : array[TNodeIconKind] of string = (
-    STR_17_IconKind, STR_18_IconKind, STR_19_IconKind
+    sINFIconKind1, sINFIconKind2, sINFIconKind3
   );
 
 {
@@ -596,10 +509,10 @@ type
 
 const
   LINK_TYPES : array[TLinkType] of string = (
-    STR_20_LinkType,
-    STR_21_LinkType,
-    STR_22_LinkType,
-    STR_23_LinkType
+    sINFLinkType1,
+    sINFLinkType2,
+    sINFLinkType3,
+    sINFLinkType4
   );
 
 
@@ -748,11 +661,11 @@ type
 
 const
   TREE_EXPAND_MODES : array[TTreeExpandMode] of string = (
-    STR_24_ExpandMode,
-    STR_25_ExpandMode,
-    STR_26_ExpandMode,
-    STR_27_ExpandMode,
-    STR_28_ExpandMode
+    sINFExpnd1,
+    sINFExpnd2,
+    sINFExpnd3,
+    sINFExpnd4,
+    sINFExpnd5
   );
 
 
@@ -762,10 +675,10 @@ type
 
 const
   IMAGES_STORAGE_MODE : array[TImagesStorageMode] of string = (
-     STR_ImagesSM_1,
-     STR_ImagesSM_2,
-     STR_ImagesSM_3,
-     STR_ImagesSM_4
+     sINFImgSM1,
+     sINFImgSM2,
+     sINFImgSM3,
+     sINFImgSM4
   );
 
 
@@ -774,8 +687,8 @@ type
 
 const
    EXTERNAL_STORAGE_TYPE : array[TImagesExternalStorage] of string = (
-     STR_ImagesExtSt_1,
-     STR_ImagesExtSt_2
+     sINFImgExtSt1,
+     sINFImgExtSt2
    );
 
 type
@@ -783,9 +696,9 @@ type
 
 const
   IMAGES_STORAGE_MODE_ON_EXPORT : array[TImagesStorageModeOnExport] of string = (
-     STR_ImagesSM_1,
-     STR_ImagesSM_2,
-     STR_ImagesSM_5
+     sINFImgSM1,
+     sINFImgSM2,
+     sINFImgSM5
   );
 
 
@@ -873,9 +786,9 @@ type
 
 const
   CTRL_UP_DOWN_MODE : array[TCtrlUpDownMode] of string = (
-     STR_CtrlUD_1,
-     STR_CtrlUD_2,
-     STR_CtrlUD_3
+     sINFCtrlUD1,
+     sINFCtrlUD2,
+     sINFCtrlUD3
   );
 
 
@@ -886,9 +799,9 @@ type
 
 const
   CLIP_NODE_NAMINGS : array[TClipNodeNaming] of string = (
-    STR_29_ClipNodeNaming,
-    STR_30_ClipNodeNaming,
-    STR_31_ClipNodeNaming
+    sINFClipNdNam1,
+    sINFClipNdNam2,
+    sINFClipNdNam3
   );
 
 
@@ -902,10 +815,10 @@ type
 
 const
   CLIP_PLAIN_TEXT_MODE : array[TClipPlainTextMode] of string = (
-    STR_58_ClipPlainTextMode,
-    STR_59_ClipPlainTextMode,
-    STR_60_ClipPlainTextMode,
-    STR_61_ClipPlainTextMode
+    sINFClipPlainTxt1,
+    sINFClipPlainTxt2,
+    sINFClipPlainTxt3,
+    sINFClipPlainTxt4
   );
 
 
@@ -951,17 +864,17 @@ type
 const
   FactStrings : array[TDropFileAction] of string = (
     '',
-    STR_32_FactStr,
-    STR_33_FactStr,
-    STR_34_FactStr,
-    STR_36_FactStr,
-    STR_35_FactStr,
-    STR_37_FactStr,
-    STR_38_FactStr,
-    STR_40_FactStr
+    sINFDrop1,
+    sINFDrop2,
+    sINFDrop3,
+    sINFDrop5,
+    sINFDrop4,
+    sINFDrop6,
+    sINFDrop7,
+    sINFDrop9
     {$IFDEF WITH_IE}
     ,
-    STR_39_FactStr
+    sINFDrop8
     {$ENDIF}
 
   );
@@ -1174,48 +1087,48 @@ implementation
 
 procedure DefineConst;
 begin
-  FILE_FORMAT_NAMES[nffKeyNote]:=  STR_03_Formats;
-  FILE_FORMAT_NAMES[nffKeyNoteZip]:=   STR_06_Formats;
-  FILE_FORMAT_NAMES[nffEncrypted]:=    STR_04_Formats;
+  FILE_FORMAT_NAMES[nffKeyNote]:=  sINFFormats1;
+  FILE_FORMAT_NAMES[nffKeyNoteZip]:=   sINFFormats3;
+  FILE_FORMAT_NAMES[nffEncrypted]:=    sINFFormats2;
 {$IFDEF WITH_DART}
-  FILE_FORMAT_NAMES[nffDartNotes]:=    STR_05_Formats;
+  FILE_FORMAT_NAMES[nffDartNotes]:=    sINFFormats4;
 {$ENDIF}
-  FILE_COMPRESSION_LEVEL[zcNone]:= STR_54_Compression;
-  FILE_COMPRESSION_LEVEL[zcFastest]:= STR_55_Compression;
-  FILE_COMPRESSION_LEVEL[zcDefault]:= STR_56_Compression;
-  FILE_COMPRESSION_LEVEL[zcMax]:= STR_57_Compression;
+  FILE_COMPRESSION_LEVEL[zcNone]:= sINFCompres1;
+  FILE_COMPRESSION_LEVEL[zcFastest]:= sINFCompres2;
+  FILE_COMPRESSION_LEVEL[zcDefault]:= sINFCompres3;
+  FILE_COMPRESSION_LEVEL[zcMax]:= sINFCompres4;
 
 
-  SEARCH_MODES[smPhrase] := STR_08_SearchMode;
-  SEARCH_MODES[smAll] := STR_09_SearchMode;
-  SEARCH_MODES[smAny] := STR_10_SearchMode;
+  SEARCH_MODES[smPhrase] := sINFSrchMode1;
+  SEARCH_MODES[smAll] := sINFSrchMode2;
+  SEARCH_MODES[smAny] := sINFSrchMode3;
 
-  SEARCH_SCOPES[ssOnlyNodeName ]:= STR_SearchScope1;
-  SEARCH_SCOPES[ssOnlyContent] := STR_SearchScope2;
-  SEARCH_SCOPES[ssContentsAndNodeName] := STR_SearchScope3;
+  SEARCH_SCOPES[ssOnlyNodeName ]:= sINFSrchScope1;
+  SEARCH_SCOPES[ssOnlyContent] := sINFSrchScope2;
+  SEARCH_SCOPES[ssContentsAndNodeName] := sINFSrchScope3;
 
-  SEARCH_CHKMODES[scOnlyNonChecked]:= STR_SearchChkMode1;
-  SEARCH_CHKMODES[scOnlyChecked]:= STR_SearchChkMode2;
-  SEARCH_CHKMODES[scAll]:= STR_SearchChkMode3;
+  SEARCH_CHKMODES[scOnlyNonChecked]:= sINFSrchChk1;
+  SEARCH_CHKMODES[scOnlyChecked]:= sINFSrchChk2;
+  SEARCH_CHKMODES[scAll]:= sINFSrchChk3;
 
-  SYMBOL_NAME_LIST[1]:=   STR_44_Symb;
-  SYMBOL_NAME_LIST[2]:=   STR_45_Symb;
-  SYMBOL_NAME_LIST[3]:=   STR_46_Symb;
-  SYMBOL_NAME_LIST[4]:=   STR_47_Symb;
-  SYMBOL_NAME_LIST[5]:=   STR_48_Symb;
-  SYMBOL_NAME_LIST[6]:=   STR_49_Symb;
-  SYMBOL_NAME_LIST[7]:=   STR_50_Symb;
-  SYMBOL_NAME_LIST[8]:=   STR_51_Symb;
-  SYMBOL_NAME_LIST[9]:=   STR_52_Symb;
-  SYMBOL_NAME_LIST[10]:=  STR_53_Symb;
+  SYMBOL_NAME_LIST[1]:=   sINFSymb0;
+  SYMBOL_NAME_LIST[2]:=   sINFSymb1;
+  SYMBOL_NAME_LIST[3]:=   sINFSymb2;
+  SYMBOL_NAME_LIST[4]:=   sINFSymb3;
+  SYMBOL_NAME_LIST[5]:=   sINFSymb4;
+  SYMBOL_NAME_LIST[6]:=   sINFSymb5;
+  SYMBOL_NAME_LIST[7]:=   sINFSymb6;
+  SYMBOL_NAME_LIST[8]:=   sINFSymb7;
+  SYMBOL_NAME_LIST[9]:=   sINFSymb8;
+  SYMBOL_NAME_LIST[10]:=  sINFSymb9;
 
-  HTMLImportMethods[htmlSource]:=         STR_40_ImportHTML;
-  HTMLImportMethods[htmlSharedTextConv]:= STR_41_ImportHTML;
-  HTMLImportMethods[htmlMSWord]:=         STR_42_ImportHTML;
-  HTMLImportMethods[htmlIE]:=             STR_43_ImportHTML;
+  HTMLImportMethods[htmlSource]:=         sINFImpHTML1;
+  HTMLImportMethods[htmlSharedTextConv]:= sINFImpHTML2;
+  HTMLImportMethods[htmlMSWord]:=         sINFImpHTML3;
+  HTMLImportMethods[htmlIE]:=             sINFImpHTML4;
 
-  HTMLExportMethods[htmlExpMicrosoftHTMLConverter]:= STR_58_ImportHTML;
-  HTMLExportMethods[htmlExpMSWord]:=                 STR_42_ImportHTML;
+  HTMLExportMethods[htmlExpMicrosoftHTMLConverter]:= sINFImpHTML5;
+  HTMLExportMethods[htmlExpMSWord]:=                 sINFImpHTML3;
 end;
 
 Initialization

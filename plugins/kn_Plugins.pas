@@ -61,11 +61,8 @@ var
 
 implementation
 uses
-   gf_Bits;
-
-
-resourcestring
-  STR_01 = 'Unexpected error from DLL: ';
+   gf_Bits,
+   knt.RS;
 
 
 function GetPluginInfo(
@@ -134,7 +131,7 @@ begin
 
     except
       On E : Exception do begin
-        messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( sPlg14 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -167,7 +164,7 @@ begin
 
     except
       On E : Exception do  begin
-        messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( sPlg14 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -200,7 +197,7 @@ begin
 
     except
       On E : Exception do begin
-        messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( sPlg14 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;

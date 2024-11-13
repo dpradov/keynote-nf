@@ -936,12 +936,8 @@ uses
   kn_KntFolder,
   kn_Const,
   kn_Main,
-  knt.ui.editor;
-
-
-
-resourcestring
-  STR_INIMail_01 = 'Attached file: %F';
+  knt.ui.editor,
+  knt.RS;
 
 
 
@@ -1251,7 +1247,9 @@ begin
     AddrBook := '';
     AsPlainText := true;
     CCAddr := '';
-    FirstLine := STR_INIMail_01;
+  {$IFNDEF EXCLUDEEMAIL}
+    FirstLine := sINIMail;
+  {$ENDIF }
     FromAddr := '';
     History := '';
     KeepLog := true;

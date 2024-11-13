@@ -77,12 +77,9 @@ uses
    kn_global,
    kn_ExportImport,
    kn_RTFUtils,
-   knt.App
+   knt.App,
+   knt.RS
    ;
-
-
-resourcestring
-  STR_28 = 'CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message: ';
 
 
 type
@@ -312,7 +309,7 @@ begin
         CalculateCRC32( addr(ClpStr[1]), length(ClpStr) * SizeOf(Char), thisClipCRC32 );
       except
         on E : Exception do begin
-          messagedlg( STR_28 + E.Message, mtError, [mbOK], 0 );
+          messagedlg( sClp01 + E.Message, mtError, [mbOK], 0 );
           ClipOptions.TestDupClips := false;
           exit;
         end;

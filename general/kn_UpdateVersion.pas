@@ -80,13 +80,10 @@ uses
    gf_strings,
    kn_const,
    kn_Global,
-   knt.App
+   knt.App,
+   knt.RS
    ;
 
-resourcestring
-  STR_01 = 'You already have the latest version installed';
-  STR_02 = 'There is a new version !';
-  STR_03 = 'No Internet access';
 
 {$R *.DFM}
 
@@ -257,14 +254,14 @@ begin
         UV.lblCurrentVersion.Caption:= CurrentVersion;
         UV.txtChanges.Text:= Changes;
         if WithoutInternetAccess then
-           UV.lblStatus.Caption:= STR_03
+           UV.lblStatus.Caption:= sUpd03
         else begin
            if IsLaterVersion(Program_Version_Number, CurrentVersion) then begin
-              UV.lblStatus.Caption:= STR_02;
+              UV.lblStatus.Caption:= sUpd02;
               UV.lblStatus.Font.Color:= clRed;
            end
            else
-              UV.lblStatus.Caption:= STR_01;
+              UV.lblStatus.Caption:= sUpd01;
         end;
 
         UV.ShowModal;

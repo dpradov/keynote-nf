@@ -30,32 +30,6 @@ uses
    Vcl.Graphics;
 
 
-
-resourcestring
-  STR_minute = 'minute';
-  STR_minutes = 'minutes';
-  STR_hour = 'hour';
-  STR_hours = 'hours';
-  STR_day = 'day';
-  STR_days = 'days';
-  STR_week = 'week';
-  STR_weeks = 'weeks';
-  STR_ERR_OUTOFRESOURCES = 'The operating system is out of memory or resources.';
-  STR_ERROR_FILE_NOT_FOUND = 'The specified file was not found.';
-  STR_ERROR_PATH_NOT_FOUND = 'The specified path was not found.';
-  STR_ERROR_BAD_FORMAT = 'The .EXE file is invalid (non-Win32 .EXE or error in .EXE image).';
-  STR_SE_ERR_ACCESSDENIED = 'The operating system denied access to the specified URL.';
-  STR_SE_ERR_ASSOCINCOMPLETE = 'The filename association is incomplete or invalid.';
-  STR_SE_ERR_DDEBUSY = 'The DDE transaction could not be completed because other DDE transactions were being processed.';
-  STR_SE_ERR_DDEFAIL = 'The DDE transaction failed.';
-  STR_SE_ERR_DDETIMEOUT = 'The DDE transaction could not be completed because the request timed out.';
-  STR_SE_ERR_DLLNOTFOUND = 'The specified dynamic-link library was not found.';
-  STR_SE_ERR_NOASSOC = 'There is no application associated with the given filename extension.';
-  STR_SE_ERR_OOM = 'There was not enough memory to complete the operation.';
-  STR_SE_ERR_SHARE = 'A sharing violation occurred';
-  STR_UNKNOWN_ERROR = 'Unknown error.';
-
-
 type
 
   // Generic class that encapsulates a classic TList and provides basic list management methods.
@@ -299,7 +273,8 @@ var
 implementation
 uses
    SynGdiPlus,
-   gf_strings;
+   gf_strings,
+   knt.RS;
 
 const
   TIME_ZONE_ID_UNKNOWN  = 0;

@@ -231,14 +231,9 @@ uses
    kn_MacroMng,
    kn_VCLControlsMng,
    kn_LinksMng,
-   knt.App
+   knt.App,
+   knt.RS
    ;
-
-
-
-resourcestring
-  STR_01 = 'KeyNote NF have been configured to allow only one instance at a time' + #13 + 'Closing this instance...';
-  STR_02 = 'There was a non-fatal error while loading program configuration: ' + #13 + '%s' + #13#13 + 'Some options may have been reset to factory default values. The application will now continue.';
 
 
 //-----------------
@@ -536,7 +531,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           App.PopupMessage( Format(STR_02, [e.Message]), mtInformation, [mbOK] );
+           App.PopupMessage( Format(sMain14, [e.Message]), mtInformation, [mbOK] );
         end;
       end;
 
@@ -579,7 +574,7 @@ begin
       // check other instance, and do the job is necessary
       if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) then begin
         if KeyOptions.WarnSingleInstance then
-           Messagedlg(STR_01, mtWarning, [mbOK], 0 );
+           Messagedlg(sMain13, mtWarning, [mbOK], 0 );
         ClosedOnPreviousInstance := true;
         Application.ShowMainForm := false;
         try
@@ -912,7 +907,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           App.PopupMessage(Format(STR_02, [e.Message]), mtInformation, [mbOK] );
+           App.PopupMessage(Format(sMain14, [e.Message]), mtInformation, [mbOK] );
         end;
       end;
 

@@ -114,13 +114,11 @@ uses
   kn_ClipUtils,
   kn_KntFolder,
   kn_Global,
-  knt.App;
+  knt.App,
+  knt.RS;
 
 {$R *.DFM}
 
-resourcestring
-  STR_01 = ' Edit';
-  STR_02 = ' Done';
 
 
 var
@@ -334,11 +332,11 @@ var
  Enable: boolean;
 begin
   if not EditorAux.Visible then begin
-     btnEditTable.Caption:= STR_02;
+     btnEditTable.Caption:= sChrs02;
      EditorAux.Visible:= True;
   end
   else begin
-     btnEditTable.Caption:= STR_01;
+     btnEditTable.Caption:= sChrs01;
      LoadCustomCharacters;
      SelectChar(1);
   end;

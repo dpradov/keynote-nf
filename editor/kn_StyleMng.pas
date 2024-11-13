@@ -53,28 +53,10 @@ uses
    kn_NoteFileMng,
    kn_MacroMng,
    knt.ui.editor,
-   knt.App
+   knt.App,
+   knt.RS
    ;
 
-resourcestring
-  STR_01 = 'Style in active note: ';
-  STR_02 = 'Font: ';
-  STR_03 = 'Paragraph: ';
-  STR_04 = 'Named style: ';
-  STR_05 = 'Range: ';
-  STR_06 = 'Error: StyleManager does not exist.';
-  STR_07 = 'Create "%s" style';
-  STR_08 = 'Enter name for new style:';
-  STR_09 = '%s style "%s" already exists. ' + #13 + 'Redefine the existing style with new properties?';
-  STR_10 = ' Style "%s" created (%s)';
-  STR_11 = 'Error creating style: ';
-  STR_12 = 'Error: Cannot access style information for "%s"';
-  STR_13 = 'Rename style';
-  STR_14 = 'Enter new name for style:';
-  STR_15 = 'Cannot rename: a style by that name already exists.';
-  STR_16 = 'Error renaming style';
-  STR_17 = 'OK to delete %s style "%s"?';
-  STR_18 = 'Error deleting style';
 
 procedure StyleDescribe( const FromEditor, LongDesc : boolean );
 var
@@ -89,7 +71,7 @@ begin
       if FromEditor then begin
         if not App.CheckActiveEditor then exit;
         Editor:= ActiveEditor;
-        s := STR_01 + #13#13 + STR_02 + Editor.FontInfoString + #13#13 + STR_03 + Editor.ParaInfoString;
+        s := sStyM01 + #13#13 + sStyM02 + Editor.FontInfoString + #13#13 + sStyM03 + Editor.ParaInfoString;
       end
       else begin
         if ( Combo_Style.ItemIndex < 0 ) or
@@ -101,8 +83,8 @@ begin
           srParagraph : s := Style.ParaInfoToStr( false );
           srBoth : s := Style.FontInfoToStr( false ) + #13#13 + Style.ParaInfoToStr( false );
         end;
-        s := STR_04 + '"' + Style.Name + '"' + #13 +
-             STR_05 + STYLE_RANGES[Style.Range] + #13#13 + s;
+        s := sStyM04 + '"' + Style.Name + '"' + #13 +
+             sStyM05 + STYLE_RANGES[Style.Range] + #13#13 + s;
       end;
       App.DoMessageBox( s, mtInformation, [mbOK] );
   end;
@@ -119,12 +101,12 @@ begin
   if not App.CheckActiveEditor then exit;
 
   if ( not assigned( StyleManager )) then begin
-    showmessage( STR_06 );
+    showmessage( sStyM06 );
     exit;
   end;
 
   if ( ExistingStyle = nil ) then begin
-    if ( not InputQuery(Format( STR_07, [STYLE_RANGES[aRange]] ), STR_08, name )) then exit;
+    if ( not InputQuery(Format( sStyM07, [STYLE_RANGES[aRange]] ), sStyM08, name )) then exit;
     if ( name = '' ) then exit;
     idx := StyleManager.IndexOf( name );
     if ( idx >= 0 ) then
@@ -134,7 +116,7 @@ begin
     name := ExistingStyle.Name;
 
   if ( ExistingStyle <> nil ) then begin
-    if (App.DoMessageBox(Format(STR_09, [STYLE_RANGES[ExistingStyle.Range],ExistingStyle.Name]),
+    if (App.DoMessageBox(Format(sStyM09, [STYLE_RANGES[ExistingStyle.Range],ExistingStyle.Name]),
            mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then exit;
   end;
 
@@ -192,13 +174,13 @@ begin
       idx := AddToStyleManager( Style );
       StyleManagerToCombo;
       Form_Main.Combo_Style.ItemIndex := idx;
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_10, [Name,STYLE_RANGES[aRange]] );
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sStyM10, [Name,STYLE_RANGES[aRange]] );
 
       CheckSaveStyleManagerInfo;
 
     except
       on E : Exception do begin
-        messagedlg( STR_11 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( sStyM11 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -219,7 +201,7 @@ begin
         else
           myStyle := TStyle( StyleManager.Objects[StyleManager.IndexOf( aName )] );
       except
-        App.DoMessageBox( Format(STR_12, [aName]), mtError, [mbOK] );
+        App.DoMessageBox( Format(sStyM12, [aName]), mtError, [mbOK] );
         exit;
       end;
 
@@ -310,7 +292,7 @@ begin
   name := Form_Main.Combo_Style.Items[Form_Main.Combo_Style.ItemIndex];
 
   if ( not InputQuery(
-    STR_13, STR_14, name )) then exit;
+    sStyM13, sStyM14, name )) then exit;
   if ( name = '' ) then exit;
 
   if ( name = Form_Main.Combo_Style.Items[Form_Main.Combo_Style.ItemIndex] ) then exit;
@@ -319,7 +301,7 @@ begin
     for i := 0 to pred( StyleManager.Count ) do
       if (( i <> idx ) and ( StyleManager[i] = name )) then
       begin
-        showmessage( STR_15 );
+        showmessage( sStyM15 );
         exit;
       end;
 
@@ -338,7 +320,7 @@ begin
     CheckSaveStyleManagerInfo;
 
   except
-    showmessage( STR_16 );
+    showmessage( sStyM16 );
   end;
 
 end; // StyleRename
@@ -351,7 +333,7 @@ begin
       idx := Form_Main.Combo_Style.ItemIndex;
       name := Form_Main.Combo_Style.Items[idx];
 
-      if (App.DoMessageBox( Format(STR_17,  [STYLE_RANGES[TStyle( StyleManager.Objects[idx] ).Range],name] ),
+      if (App.DoMessageBox( Format(sStyM17,  [STYLE_RANGES[TStyle( StyleManager.Objects[idx] ).Range],name] ),
                             mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then exit;
 
       try
@@ -367,7 +349,7 @@ begin
         CheckSaveStyleManagerInfo;
 
       except
-        showmessage( STR_18 );
+        showmessage( sStyM18 );
       end;
 
 end; // StyleDelete

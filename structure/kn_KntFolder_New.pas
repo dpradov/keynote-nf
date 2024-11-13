@@ -91,14 +91,9 @@ uses
    kn_INI,
    kn_Chest,
    kn_Main,
-   knt.App;
+   knt.App,
+   knt.RS;
 
-
-resourcestring
-  STR_01 = '<no icon>';
-  STR_02 = 'Rename folder';
-  STR_03 = 'Folder name cannot be blank. Please enter a name.';
-  STR_04 = 'Folder name cannot contain the "%s" character';
 
 procedure TForm_NewKntFolder.FormCreate(Sender: TObject);
 var
@@ -123,7 +118,7 @@ begin
   Combo_TabName.MaxLength := TABNOTE_NAME_LENGTH;
 
   Combo_Icons.ImageList := Chest.IMG_Categories;
-  Combo_Icons.AddItem( STR_01, -1 );
+  Combo_Icons.AddItem( sFldN01, -1 );
   for i := 0 to pred( Chest.IMG_Categories.Count ) do
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
@@ -143,7 +138,7 @@ begin
   Initializing := false;
   if ( not TAB_CHANGEABLE ) then
   begin
-    Caption := STR_02;
+    Caption := sFldN02;
   end;
 
   Combo_TabName.Items.BeginUpdate;
@@ -172,14 +167,14 @@ begin
   result := false;
   if ( trim( Combo_TabName.Text ) = '' ) then
   begin
-    messagedlg( STR_03, mtError, [mbOK], 0 );
+    messagedlg( sFldN03, mtError, [mbOK], 0 );
     Combo_TabName.SetFocus;
     exit;
   end;
 
   if ( pos( KNTLINK_SEPARATOR, Combo_TabName.Text ) > 0 ) then
   begin
-    messagedlg( Format(STR_04,[KNTLINK_SEPARATOR]), mtError, [mbOK], 0 );
+    messagedlg( Format(sFldN04,[KNTLINK_SEPARATOR]), mtError, [mbOK], 0 );
     Combo_TabName.SetFocus;
     exit;
   end;

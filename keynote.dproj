@@ -3,7 +3,7 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -150,6 +150,7 @@
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <VerInfo_Build>5</VerInfo_Build>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <DCC_MapFile>3</DCC_MapFile>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -338,6 +339,7 @@
         </DCCReference>
         <DCCReference Include="ui\knt.ui.info.pas"/>
         <DCCReference Include="ui\VirtualTrees.Accessibility_MOD.pas"/>
+        <DCCReference Include="Lang\knt.RS.pas"/>
         <None Include="support\gf_base.inc">
             <ContainerId>File</ContainerId>
         </None>

@@ -144,11 +144,8 @@ implementation
 uses
   System.DateUtils,
   kn_LinksMng,
-  kn_EditorUtils;
-
-resourcestring
-  //STR_01 = 'Entry created: %s  ##  Note last modified: %s';     // TODO.. Entries
-  STR_01 = 'Created: %s  ==  Last modified: %s';
+  kn_EditorUtils,
+  knt.RS;
 
 
 // Create  / Destroy =========================================
@@ -326,7 +323,7 @@ begin
             S:= ' - ' + FormatSettings.ShortTimeFormat;
         lm:= FormatDateTime(FormatSettings.ShortDateFormat + S, FNote.LastModified);
      end;
-     s:= Format(STR_01, [txtCreationDate.Text, lm]);
+     s:= Format(sUInote01, [txtCreationDate.Text, lm]);
   end;
   txtCreationDate.Hint:= s;
 end;

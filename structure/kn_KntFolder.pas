@@ -316,44 +316,9 @@ uses
    kn_FileMgr,
    kn_History,
    kn_KntFile,
-   knt.App
+   knt.App,
+   knt.RS
    ;
-
-
-resourcestring
-  STR_01 = ' Virtual: ';
-  STR_05 = 'Problem while saving folder "%s": Note count mismatch (Folder: %d  Internal: %d) ' +
-      'The note may not be saved correctly. Continue?';
-  STR_07 = 'Node count mismatch.';
-
-  STR_09 = 'Folder contains %d notes, but only %d were saved.';
-  STR_10 = 'Could not load Virtual Node file:';
-  STR_11 = 'Failed to open TreePad file ';
-
-  STR_21 = ' New folder.';
-  STR_22 = 'Are you sure you want to DELETE FOLDER "%s"?' + #13 + 'This operation cannot be undone.';
-  STR_24 = ' Folder deleted.';
-  STR_25 = ' Folder renamed.';
-
-  STR_v01 = 'Virtual node "%s" is currently linked to file "%s". Do you want to link the node to a different file?';
-  STR_v02 = 'Node "%s" contains text. Do you want to flush this text to a file and make the node virtual?';
-  STR_v03 = 'This KeyNote file is encrypted, but disk files linked to virtual nodes will NOT be encrypted.' + #13#13 + 'Continue?';
-  STR_v04 = 'Select file for virtual node';
-  STR_v05 = 'Only RTF, Text and HTML files can be linked to virtual nodes.';
-  STR_v06 = 'Cannot link virtual node to a file on removable drive %s:\ ';
-  STR_v07 = 'You are creating a virtual node linked to file on removable drive %s\. The file may not be available at a later time. Continue anyway?';
-  STR_v08 = 'Selected file is already linked to a virtual node' + #13 + '(Note: You can create a linked node to it)';
-  STR_v09 = 'Virtual node error: ';
-
-  STR_v10 = 'OK to reload the node from file %s?';
-  STR_v11 = 'Unlink virtual node "%s"? The contents of the node will be retained, but the link with the file on disk (%s) will be removed.';
-  STR_v12 = 'Virtual node %s HAS BEEN modified within KeyNote. If the node is refreshed, the changes will be lost' + #13;
-  STR_v13 = 'Virtual node %s has NOT been modified within KeyNote' + #13;
-  STR_v14 = 'Error refreshing virtual node: ';
-  STR_v15 = ' Virtual node refreshed.';
-  STR_v16 = ' Error refreshing node';
-  STR_v17 = 'Selected node "%s" is not a virtual node.';
-
 
 
 
@@ -424,7 +389,7 @@ begin
 
       if assigned( myFolder ) then begin
         ActiveFile.AddFolder( myFolder );
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_21;
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sFld21;
         try
           with Form_Main do begin
              CreateVCLControlsForFolder( myFolder );
@@ -480,7 +445,7 @@ begin
       if FolderIsReadOnly( Folder, true ) then exit;
 
       if KeyOptions.ConfirmTabDelete then begin
-	       if (App.DoMessageBox( Format(STR_22, [RemoveAccelChar( Folder.Name )]), mtWarning, [mbYes, mbNo], def2 ) <> mrYes ) then
+	       if (App.DoMessageBox( Format(sFld22, [RemoveAccelChar( Folder.Name )]), mtWarning, [mbYes, mbNo], def2 ) <> mrYes ) then
             exit;
       end;
 
@@ -492,7 +457,7 @@ begin
 
       finally
           App.FolderDeleted(Folder, TabIdx);
-          App.ShowInfoInStatusBar(STR_24);
+          App.ShowInfoInStatusBar(sFld24);
       end;
   end;
 end; // DeleteKntFolder
@@ -536,7 +501,7 @@ begin
           ActiveFile.Modified := true;
           ActiveFolder.Name := Form_NewNote.myTabProperties.Name;
           ActiveFolder.ImageIndex := Form_NewNote.myTabProperties.ImageIndex;
-          StatusBar.Panels[PANEL_HINT].Text := STR_25;
+          StatusBar.Panels[PANEL_HINT].Text := sFld25;
         end;
 
       finally
@@ -1251,7 +1216,7 @@ begin
   Note:= TreeUI.GetNNode(Node).Note;
   Result:= Note.IsVirtual;
   if not Result then
-     App.ErrorPopup(Format(STR_v17, [Note.Name]));
+     App.ErrorPopup(Format(sFld47, [Note.Name]));
 end;
 
 
@@ -1267,13 +1232,13 @@ begin
   Note:= TreeUI.GetNNode(Node).Note;
 
   if Note.Modified then begin
-    if ( App.DoMessageBox(Format(STR_v12 + STR_v10, [Note.Name, ExtractFilename( Note.VirtualFN )] ),
+    if ( App.DoMessageBox(Format(sFld42 + sFld40, [Note.Name, ExtractFilename( Note.VirtualFN )] ),
                            mtWarning, [mbOK,mbCancel] ) <> mrOK ) then
     exit;
   end
   else
   if DoPrompt then begin
-    if (App.DoMessageBox( Format(STR_v13 + STR_v10, [Note.Name, ExtractFilename( Note.VirtualFN )] ),
+    if (App.DoMessageBox( Format(sFld43 + sFld40, [Note.Name, ExtractFilename( Note.VirtualFN )] ),
                           mtConfirmation, [mbOK,mbCancel] ) <> mrOK ) then
     exit;
   end;
@@ -1284,7 +1249,7 @@ begin
       Note.Modified:= false;
     except
       on E : Exception do begin
-        App.ErrorPopup(E, STR_v14);
+        App.ErrorPopup(E, sFld44);
         exit;
       end;
     end;
@@ -1292,9 +1257,9 @@ begin
     try
       NoteUI.ReloadFromDataModel;          // Changes in editor will be ignored
       App.EditorSaved(NoteUI.Editor);      // To ensure synchronization on open linked nodes (if any)
-      App.ShowInfoInStatusBar(STR_v15);
+      App.ShowInfoInStatusBar(sFld45);
     except
-      App.ShowInfoInStatusBar(STR_v16);
+      App.ShowInfoInStatusBar(sFld46);
     end;
 
   finally
@@ -1317,7 +1282,7 @@ begin
   NNode:= TreeUI.GetNNode(Node);
   Note:= NNode.Note;
 
-  if (App.DoMessageBox( Format(STR_v11, [Note.Name, Note.VirtualFN]),
+  if (App.DoMessageBox( Format(sFld41, [Note.Name, Note.VirtualFN]),
        mtConfirmation, [mbOK, mbCancel] ) = mrOK ) then begin
 
      Note.VirtualFN := '';
@@ -1361,7 +1326,7 @@ begin
       IsVNError := true;
     end
     else begin
-      if (App.DoMessageBox(Format(STR_v01, [Note.Name, Note.VirtualFN]), mtConfirmation, [mbOK, mbCancel] ) = mrOK) then
+      if (App.DoMessageBox(Format(sFld31, [Note.Name, Note.VirtualFN]), mtConfirmation, [mbOK, mbCancel] ) = mrOK) then
          IsChangingFile := true;
     end;
 
@@ -1371,7 +1336,7 @@ begin
   else begin
     // not a virtual node. If it has text, we have to have an additional prompt
     if ( Editor.Lines.Count > 0 ) then begin
-      if (App.DoMessageBox(Format(STR_v02, [Note.Name]), mtConfirmation, [mbOK,mbCancel] ) <> mrOK) then
+      if (App.DoMessageBox(Format(sFld32, [Note.Name]), mtConfirmation, [mbOK,mbCancel] ) <> mrOK) then
          exit;
       IsFlushingData := true; // needs a SaveDlg, not an OpenDlg
     end;
@@ -1380,7 +1345,7 @@ begin
 
   with Form_Main do begin
       if (( ActiveFile.FileFormat = nffEncrypted ) and ( not App.Virtual_UnEncrypt_Warning_Done )) then begin
-        if ( messagedlg(STR_v03, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+        if ( messagedlg(sFld33, mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
         App.Virtual_UnEncrypt_Warning_Done := true;
       end;
 
@@ -1390,7 +1355,7 @@ begin
            // use SaveDlg
            oldDlgFilter := SaveDlg.Filter;
            SaveDlg.Filter := FILTER_RTFFILES + '|' + FILTER_TEXTFILES + '|' + FILTER_HTMLFILES + '|' + FILTER_ALLFILES;
-           SaveDlg.Title := STR_v04;
+           SaveDlg.Title := sFld34;
            SaveDlg.Filename := Note.Name;
 
            try
@@ -1406,7 +1371,7 @@ begin
            // use OpenDlg
            oldDlgFilter := OpenDlg.Filter;
            OpenDlg.Filter := FILTER_RTFFILES + '|' + FILTER_TEXTFILES + '|' + FILTER_HTMLFILES + '|' + FILTER_ALLFILES;
-           OpenDlg.Title := STR_v04;
+           OpenDlg.Title := sFld34;
            if IsVNError then
              OpenDlg.Filename := copy( Note.VirtualFN, 2, length( Note.VirtualFN ))
            else
@@ -1433,7 +1398,7 @@ begin
 
       ext := ExtractFileExt( VirtFN );
       if not ( ExtIsRTF(ext) or ExtIsText(ext) or ExtIsHTML(ext)) then begin
-         messagedlg( STR_v05, mtError, [mbOK], 0 );
+         messagedlg( sFld35, mtError, [mbOK], 0 );
          exit;
       end;
 
@@ -1442,11 +1407,11 @@ begin
       if IsDriveRemovable(VirtFN) then begin
         case KntTreeOptions.RemovableMediaVNodes of
           _REMOVABLE_MEDIA_VNODES_DENY : begin
-            MessageDlg( Format(STR_v06,[Extractfiledrive( VirtFN )] ), mtError, [mbOK], 0 );
+            MessageDlg( Format(sFld36,[Extractfiledrive( VirtFN )] ), mtError, [mbOK], 0 );
             exit;
           end;
           _REMOVABLE_MEDIA_VNODES_WARN : begin
-            if ( messagedlg( Format(STR_v07,
+            if ( messagedlg( Format(sFld37,
               [Extractfiledrive( VirtFN )] ), mtWarning, [mbOK,mbCancel], 0 ) <> mrOK ) then
                 exit;
           end;
@@ -1459,7 +1424,7 @@ begin
       // exists as a virtual node in the currently open KNT file.
       // Sí es posible crear uno o varios nodos enlazados a ese nodo virtual
       if ActiveFile.GetVirtualNoteByFileName( Note, VirtFN ) <> nil then begin
-        App.ErrorPopup(STR_v08);
+        App.ErrorPopup(sFld38);
         exit;
       end;
 
@@ -1506,7 +1471,7 @@ begin
         except
           on E : Exception do begin
             Note.VirtualFN := '';
-            App.ErrorPopup(E, STR_v09);
+            App.ErrorPopup(E, sFld39);
           end;
         end;
 
@@ -1623,7 +1588,7 @@ begin
              end
              else begin
                if (not EditorOptions.TrackStyle) then
-                 HintStatusBar := STR_01 + NNode.Note.VirtualFN;
+                 HintStatusBar := sFld01 + NNode.Note.VirtualFN;
              end;
              TVCheckNode.Checked := Node.CheckState.IsChecked;
              TVBoldNode.Checked :=  NNode.Bold;
@@ -1920,8 +1885,8 @@ begin
 
   wasmismatch := TV.TotalCount <> fNNodes.Count;
   if wasmismatch then begin
-	   if (App.DoMessageBox( Format(STR_05, [FName,FTV.TotalCount, fNNodes.Count]), mtWarning, [mbYes, mbNo], def1 ) <> mrYes ) then
-         raise EKntFolderError.Create(STR_07);
+	   if (App.DoMessageBox( Format(sFld05, [FName,FTV.TotalCount, fNNodes.Count]), mtWarning, [mbYes, mbNo], def1 ) <> mrYes ) then
+         raise EKntFolderError.Create(sFld07);
 
   end;
 
@@ -2001,7 +1966,7 @@ begin
   finally
     if (OnlyCurrentNodeAndSubtree = nil) and not OnlyCheckedNodes and not OnlyNotHiddenNodes
        and ( nodessaved <> FNNodes.Count ) then
-        raise EKntFolderError.CreateFmt(STR_09, [FNNodes.Count, nodessaved]);
+        raise EKntFolderError.CreateFmt(sFld09, [FNNodes.Count, nodessaved]);
 
     Result:= nodesSaved;
   end;
@@ -2554,7 +2519,7 @@ begin
   try
     tf.Reset;
   except
-    messagedlg( STR_11 + FN, mtError, [mbOK], 0 );
+    messagedlg( sFld11 + FN, mtError, [mbOK], 0 );
     exit;
   end;
 

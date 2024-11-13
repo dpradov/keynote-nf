@@ -81,17 +81,11 @@ uses
    kn_global,
    kn_ExpTermDef,
    kn_main,
-   knt.App;
+   knt.App,
+   knt.RS;
 
 {$R *.DFM}
 
-resourcestring
-  STR_10 = 'No item selected.';
-  STR_11 = 'Shortcut term and its expanded definition cannot be blank.';
-  STR_12 = 'Glossary term already exists: "%s" -> "%s". OK to redefine term as "%s"?';
-  STR_13 = 'Error saving Glossary list: ';
-  STR_14 = 'Glossary terms: %d';
-  STR_15 = 'Error loading Glossary list: ';
 
 const
    NAME_VALUE_SEPARATOR = Chr(18);       // 18 ($12): DC2 (Device Control 2)
@@ -120,7 +114,7 @@ begin
 
     except
       On E : Exception do begin
-        ShowMessage( STR_15 + E.Message );
+        ShowMessage( sGlss05 + E.Message );
       end;
     end;
 
@@ -206,7 +200,7 @@ begin
 
     if ((not assigned( item )) or
         (LV.Items.Count = 0 )) then begin
-       messagedlg( STR_10, mtInformation, [mbOK], 0 );
+       messagedlg( sGlss00, mtInformation, [mbOK], 0 );
        exit;
     end;
 
@@ -229,7 +223,7 @@ begin
       end;
 
       if (( namestr = '' ) or ( valuestr = '' )) then begin
-         messagedlg( STR_11, mtError, [mbOK], 0 );
+         messagedlg( sGlss01, mtError, [mbOK], 0 );
          exit;
       end;
 
@@ -246,7 +240,7 @@ begin
           end;
 
           if assigned( dupItem ) then begin
-             if ( App.DoMessageBox( Format(STR_12, [namestr,dupItem.subitems[0] ,valuestr] ),
+             if ( App.DoMessageBox( Format(sGlss02, [namestr,dupItem.subitems[0] ,valuestr] ),
                                  mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then
                  exit;
              item := dupItem;
@@ -285,7 +279,7 @@ begin
 
   if ( not assigned( item )) then
   begin
-    messagedlg( STR_10, mtInformation, [mbOK], 0 );
+    messagedlg( sGlss00, mtInformation, [mbOK], 0 );
     exit;
   end;
 
@@ -343,7 +337,7 @@ begin
 
     except
       on E : Exception do
-         messagedlg( STR_13 + E.Message, mtError, [mbOK], 0 );
+         messagedlg( sGlss03 + E.Message, mtError, [mbOK], 0 );
     end;
 
   end;
@@ -357,7 +351,7 @@ end;
 
 procedure TForm_Glossary.UpdateCount;
 begin
-  Caption := Format( STR_14, [LV.Items.Count] );
+  Caption := Format( sGlss04, [LV.Items.Count] );
 end; // UpdateCount
 
 

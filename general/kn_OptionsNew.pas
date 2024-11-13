@@ -422,64 +422,11 @@ uses
     kn_LanguagesMng,
     kn_global,
     kn_Main,
-    knt.App
+    knt.App,
+    knt.RS
     ;
 
 {$R *.DFM}
-
-resourcestring
-  STR_01 = ' Custom icons are DISABLED ';
-  STR_02 = 'Maximum size for clipboard capture text is not a valid integer value.';
-  STR_03 = '(invalid date format)';
-  STR_04 = '(invalid time format)';
-  STR_05 = 'OK to reset tab fonts and colors to default state?';
-  STR_06 = ' icon %d ';
-  STR_07 = 'Icons: %d';
-  STR_08 = 'Failed to get icon from ';
-  STR_09 = 'Failed to get bitmap from "%s"';
-//'Failed to get icon from ';
-  STR_10 = 'Cannot delete this icon: List must contain at least 1 icon.';
-  STR_11 = 'OK to delete the selected icon?';
-  STR_12 = 'Failed to delete icon: ';
-  STR_13 = 'OK to restore factory default icons?';
-  STR_14 = 'Divider string can contain the following tokens:' +#13+
-    '(CASE SENSITIVE)' +#13#13+
-     '%s = current date' +#13+
-     '%s = current time' +#13+
-     '%s = replaced with one line break' +#13+
-     '%s = encloses what to show only if source is included' +#13+
-     '%s = source URL (with title)' +#13+
-     '%s = source URL (with title, limited waiting time (*))' +#13+
-     '%s = source URL (without title)'  +#13+
-     '%s = source server/domain (e.g.: "[YouTube]")'  +#13+
-     '%s = delimits divider for 2nd+ (same URL)'  +#13#13+
-
-     'Remember: Source tokens will be ignored if source is not shown. Also, with %%|' +
-     ' you can vary the effective divider depending on whether source URL is shown or not'
-     ;
-
-{     '(*) If title is not figured out in less that 2 seconds (normally will be much faster) only URL will be used' +#13+
-     '    A small cache will be used for titles, so even certain delays will only apply to the first capture on a URL.' }
-
-  STR_15 = 'The Auto-Close function will work ONLY if Auto-Save is turned ON, and if no dialog box is open at the time KeyNote tries to automatically close the file. (Auto-Save is currently DISABLED.)';
-  STR_16 = 'Error in TVChange: PageIndex %d  Node.AbsIdx %d';
-
-   S00 = 'General Settings';
-   S01 = 'Rich Text Editor';
-   S02 = 'Images';
-   S03 = 'Tree Panel';
-   S04 = 'KeyNote Files';
-   S05 = 'File Options';
-   S06 = 'Backup Options';
-   S07 = 'Actions';
-   S08 = 'Confirmations';
-   S09 = 'Chrome';
-   S10 = 'Tab Icons';
-   S11 = 'Advanced';
-   S12 = 'Formats';
-   S13 = 'Clipboard';
-   S14 = 'File Types';
-   S15 = 'Other';
 
 
 const
@@ -661,22 +608,22 @@ begin
   TV.TreeOptions.MiscOptions:= [];
   TV.BeginUpdate;
 
-  fOptions[0].Caption:= S00;
-  fOptions[1].Caption:= S01;
-  fOptions[2].Caption:= S02;
-  fOptions[3].Caption:= S03;
-  fOptions[4].Caption:= S04;
-  fOptions[5].Caption:= S05;
-  fOptions[6].Caption:= S06;
-  fOptions[7].Caption:= S07;
-  fOptions[8].Caption:= S08;
-  fOptions[9].Caption:= S09;
-  fOptions[10].Caption:= S10;
-  fOptions[11].Caption:= S11;
-  fOptions[12].Caption:= S12;
-  fOptions[13].Caption:= S13;
-  fOptions[14].Caption:= S14;
-  fOptions[15].Caption:= S15;
+  fOptions[0].Caption:= sOptS00;
+  fOptions[1].Caption:= sOptS01;
+  fOptions[2].Caption:= sOptS02;
+  fOptions[3].Caption:= sOptS03;
+  fOptions[4].Caption:= sOptS04;
+  fOptions[5].Caption:= sOptS05;
+  fOptions[6].Caption:= sOptS06;
+  fOptions[7].Caption:= sOptS07;
+  fOptions[8].Caption:= sOptS08;
+  fOptions[9].Caption:= sOptS09;
+  fOptions[10].Caption:= sOptS10;
+  fOptions[11].Caption:= sOptS11;
+  fOptions[12].Caption:= sOptS12;
+  fOptions[13].Caption:= sOptS13;
+  fOptions[14].Caption:= sOptS14;
+  fOptions[15].Caption:= sOptS15;
 
   fOptions[0].Parent:= True;
   fOptions[4].Parent:= True;
@@ -710,7 +657,7 @@ begin
 
   if Icons_Change_Disable then
   begin
-    GroupBox_TabIcons.Caption := STR_01;
+    GroupBox_TabIcons.Caption := sOpt01;
     GroupBox_TabIcons.Enabled := false;
     List_ICN.Enabled := false;
     Label_ICN.Enabled := false;
@@ -852,7 +799,7 @@ begin
       myClipOpts.MaxSize := strtoint( Combo_Size.Text );
     except
       Combo_Size.SetFocus;
-      messagedlg( STR_02, mtError, [mbOK], 0 );
+      messagedlg( sOpt02, mtError, [mbOK], 0 );
       result := false;
     end;
 end; // FormToClipCap
@@ -1469,7 +1416,7 @@ begin
   try
     Label_SampleDate.Caption := GetDateTimeFormatted( Edit_DateFormat.Text, now );
   except
-    Label_SampleDate.Caption := STR_03;
+    Label_SampleDate.Caption := sOpt03;
   end;
 end; // UpdateDateFmt
 
@@ -1478,7 +1425,7 @@ begin
   try
     Label_SampleTime.Caption := GetDateTimeFormatted( Edit_TimeFormat.Text, now );
   except
-    Label_SampleTime.Caption := STR_04;
+    Label_SampleTime.Caption := sOpt04;
   end;
 end; // UpdateTimeFmt
 
@@ -1504,7 +1451,7 @@ end;
 
 procedure TForm_OptionsNew.ResetChromeDefaults;
 begin
-  if ( messagedlg( STR_05, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( messagedlg( sOpt05, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
   with myTabOpts.Font do
   begin
@@ -1606,13 +1553,13 @@ begin
     for i := 0 to pred( Chest.IMG_Categories.Count ) do
     begin
       // List_ICN.AddItem( Format( ' icon %d ', [succ( i )]), i );
-      List_ICN.AddItem( Format( STR_06, [succ( i )]), cbUnchecked, i );
+      List_ICN.AddItem( Format( sOpt06, [succ( i )]), cbUnchecked, i );
     end;
   finally
     List_ICN.Items.EndUpdate;
   end;
 
-  Label_ICN.Caption := Format( STR_07, [Chest.IMG_Categories.Count] );
+  Label_ICN.Caption := Format( sOpt07, [Chest.IMG_Categories.Count] );
 
 end; // LoadIcons
 
@@ -1659,7 +1606,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( STR_08 + fn + #13 + E.Message, mtError, [mbOK], 0 );
+            messagedlg( sOpt08 + fn + #13 + E.Message, mtError, [mbOK], 0 );
             exit;
           end;
         end;
@@ -1689,7 +1636,7 @@ begin
           on E : Exception do
           begin
             messagedlg( Format(
-              STR_09 + #13 + E.Message,
+              sOpt09 + #13 + E.Message,
               [fn] ), mtError, [mbOK], 0 );
             exit;
           end;
@@ -1720,7 +1667,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( STR_08 + fn + #13 + E.Message, mtError, [mbOK], 0 );
+            messagedlg( sOpt08 + fn + #13 + E.Message, mtError, [mbOK], 0 );
             exit;
           end;
         end;
@@ -1751,11 +1698,11 @@ begin
 
   if ( Chest.IMG_Categories.Count < 2 ) then
   begin
-    showmessage( STR_10 );
+    showmessage( sOpt10 );
     exit;
   end;
 
-  if ( messagedlg( STR_11, mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( messagedlg( sOpt11, mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
   try
     i := List_ICN.ItemIndex;
@@ -1764,7 +1711,7 @@ begin
   except
     on E : Exception do
     begin
-      messagedlg( STR_11 + #13#13 + E.Message, mtError, [mbOK], 0 );
+      messagedlg( sOpt11 + #13#13 + E.Message, mtError, [mbOK], 0 );
       exit;
     end;
   end;
@@ -1783,7 +1730,7 @@ procedure TForm_OptionsNew.ResetIcons;
 var
   i : integer;
 begin
-  if ( messagedlg( STR_13, mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( messagedlg( sOpt13, mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
   Icons_RefList.Clear;
   LoadCategoryBitmapsBuiltIn;
@@ -1811,7 +1758,7 @@ end;
 
 procedure TForm_OptionsNew.BitBtn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg( format(STR_14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR,
+  messagedlg( format(sOpt14, [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR,
                               CLIPSOURCEDELIMITER, CLIPSOURCE, CLIPSOURCE_LIMITED, CLIPSOURCE_ONLY_URL, CLIPSOURCE_DOMAIN,
                               CLIPSECONDDIV]),
     mtInformation, [mbOK], 0
@@ -1857,7 +1804,7 @@ begin
     if (( not Checkbox_AutoSave.Checked ) and ( not AutoCloseWarned )) then
     begin
       AutoCloseWarned := true;
-      messagedlg( STR_15, mtWarning, [mbOK], 0 );
+      messagedlg( sOpt15, mtWarning, [mbOK], 0 );
     end;
   end;
 end;
@@ -1978,7 +1925,7 @@ begin
     self.HelpContext := HC;
 
   except
-    messagedlg( Format( STR_16, [Pages.PageIndex, Idx]), mtError, [mbOK], 0 );
+    messagedlg( Format( sOpt16, [Pages.PageIndex, Idx]), mtError, [mbOK], 0 );
   end;
 end;
 

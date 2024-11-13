@@ -59,13 +59,10 @@ type
 
 implementation
 uses
-  kn_Global;
+  kn_Global,
+  knt.RS;
 
 {$R *.DFM}
-
-resourcestring
-  STR_01 = 'Passphrase cannot be blank.';
-  STR_02 = 'File "%s" is encrypted';
 
 procedure TForm_Password.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -116,7 +113,7 @@ begin
   if ( not result ) then
   begin
     Edit_Pass.SetFocus;
-    messagedlg( STR_01, mtError, [mbOK], 0 );
+    messagedlg( sPass01, mtError, [mbOK], 0 );
   end;
 end; // VerifyPass
 
@@ -124,7 +121,7 @@ procedure TForm_Password.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   Label_FileName.Caption := myFileName;
-  Caption:= Format(STR_02, [ExtractFilename( myFileName )]);
+  Caption:= Format(sPass02, [ExtractFilename( myFileName )]);
 
   // when auto-reopening previously auto-closed encrypted files,
   // (see TForm_Main.AutoCloseKntFile) the password window does not

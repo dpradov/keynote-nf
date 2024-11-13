@@ -63,40 +63,9 @@ implementation
 
 uses
    gf_misc,
-   kn_INI
+   kn_INI,
+   knt.RS
    ;
-
-
-
-resourcestring
-  STR_01 = 'Face: %s' + #13 +
-            'Size: %s'  + #13 +
-            'Style: %s' + #13 +
-            'Color: %s' + #13 +
-            'Other: %s';
-  STR_02 = ' %s, %s space, %s, L:%d F:%d R:%d, Bef:%d Aft:%d';
-  STR_03 = 'Alignment: %s'    + #13 +
-            'Line spacing: %s' + #13 +
-            'Numbering: %s'    + #13 +
-            'Left indent: %s'  + #13 +
-            'First indent: %s' + #13 +
-            'Right indent: %s' + #13 +
-            'Space before: %s' + #13 +
-            'Space after: %s';
-  STR_04_LineSpac = 'Single';
-  STR_05_LineSpac = 'Double';
-  STR_06 = 'other';
-  STR_07_Numb = 'Bullets';
-  STR_08_Alig = 'Left';
-  STR_09_Alig = 'Right';
-  STR_10_Alig = 'Center';
-  STR_11_Alig = 'Justify';
-  STR_12_Subsc = 'superscript';
-  STR_13_Subsc = 'subscript';
-  STR_14_TextInfo = 'Subscript ';
-  STR_15_TextInfo = 'Supercript ';
-  STR_16_TextInfo = 'Disabled ';
-  STR_17_TextInfo = 'Highlighted ';
 
 
 function TStyle.FontInfoToStr( const short : boolean ) : string;
@@ -115,7 +84,7 @@ begin
   end
   else
   begin
-    result:= format(STR_01,
+    result:= format(sSty01,
                 [Font.Name, inttostr( Font.Size ), FontStyleToStr( Font.Style ),
                  ColorToString( Font.Color ), TextInfoToStr( Text )]);
   end;
@@ -126,7 +95,7 @@ begin
   if short then
   begin
   result := Format(
-  STR_02,
+  sSty02,
   [
     AlignmentToStr( Para.Alignment ),
     LineSpacingRuleToStr( Para.SpacingRule ),
@@ -140,7 +109,7 @@ begin
   end
   else
   begin
-    result:= format(STR_03,
+    result:= format(sSty03,
                         [AlignmentToStr( Para.Alignment ), LineSpacingRuleToStr( Para.SpacingRule ),
                          NumberingToStr( Para.Numbering ), inttostr( Para.LIndent ),
                          inttostr( Para.FIndent ), inttostr( Para.RIndent ),
@@ -386,11 +355,11 @@ end; // AddToStyleManager
 function LineSpacingToStr( const spc : integer ) : string;
 begin
   case spc of
-    0 : result := STR_04_LineSpac;
+    0 : result := sSty04;
     1 : result := '1.5';
-    2 : result := STR_05_LineSpac;
+    2 : result := sSty05;
     else
-      result := STR_06;
+      result := sSty06;
   end;
 end; // LineSpacingToStr
 
@@ -412,12 +381,12 @@ end; // LineSpacingRuleToStr
 function NumberingToStr( const num : TRxNumbering ) : string;
 begin
   case num of
-    nsBullet : result := STR_07_Numb;
+    nsBullet : result := sSty07;
     nsArabicNumbers,
     nsLoCaseLetter,
     nsUpCaseLetter,
     nsLoCaseRoman,
-    nsUpCaseRoman : result := STR_06;
+    nsUpCaseRoman : result := sSty06;
     else
       result := '';
   end;
@@ -426,20 +395,20 @@ end; // NumberingToStr
 function AlignmentToStr( const al : TParaAlignment ) : string;
 begin
   case al of
-    paLeftJustify : result := STR_08_Alig;
-    paRightJustify : result := STR_09_Alig;
-    paCenter : result := STR_10_Alig;
-    paJustify : result := STR_11_Alig;
+    paLeftJustify : result := sSty08;
+    paRightJustify : result := sSty09;
+    paCenter : result := sSty10;
+    paJustify : result := sSty11;
     else
-      result := STR_06;
+      result := sSty06;
   end;
 end; // AlignmentToStr
 
 function SubscriptStyleToStr( const ssStyle : TSubscriptStyle ) : string;
 begin
   case ssStyle of
-    ssSuperscript : result := STR_12_Subsc;
-    ssSubscript : result := STR_13_Subsc;
+    ssSuperscript : result := sSty12;
+    ssSubscript : result := sSty13;
     else
       result := '';
   end;
@@ -451,14 +420,14 @@ begin
   with ti do
   begin
     case SubscriptStyle of
-      ssSubscript : result := STR_14_TextInfo;
-      ssSuperscript : result := STR_15_TextInfo;
+      ssSubscript : result := sSty14;
+      ssSuperscript : result := sSty15;
     end;
 
     if Disabled then
-      result := result + STR_16_TextInfo;
+      result := result + sSty16;
     if HasHighlight then
-      result := result + STR_17_TextInfo;
+      result := result + sSty17;
 
   end;
 

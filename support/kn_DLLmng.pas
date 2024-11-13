@@ -32,11 +32,8 @@ implementation
 uses
    kn_Info,
    kn_Const,
-   kn_DLLInterface;
-
-resourcestring
-  STR_01 = 'Error while attempting to load runtime library "%s". Please reinstall KeyNote.';
-  STR_02 = 'Procedure "%s" not found in runtime library "%s". Please reinstall KeyNote.';
+   kn_DLLInterface,
+   knt.RS;
 
 
 function ObtainDLLHandle : THandle;
@@ -46,7 +43,7 @@ begin
   begin
     Application.MessageBox(
       PChar( Format(
-        STR_01, [extractfilename( _KNTUtilsDLL_FN )] )),
+        sDll01, [extractfilename( _KNTUtilsDLL_FN )] )),
         'Failed to load library', MB_OK+MB_ICONHAND+MB_DEFBUTTON1+MB_APPLMODAL);
     exit;
   end;
@@ -56,7 +53,7 @@ procedure DllProcNotFoundMsg( const ProcName : string );
 begin
   Application.MessageBox(
     PChar( Format(
-      STR_02, [ProcName, extractfilename( _KNTUtilsDLL_FN )] )),
+      sDll02, [ProcName, extractfilename( _KNTUtilsDLL_FN )] )),
       'Procedure not in library', MB_OK+MB_ICONHAND+MB_DEFBUTTON1+MB_APPLMODAL);
 end; // DllProcNotFoundMsg
 

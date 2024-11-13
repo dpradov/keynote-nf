@@ -35,7 +35,7 @@ uses
    VirtualTrees, VirtualTrees.BaseTree, VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL,
    gf_misc,
    kn_Const,
-   kn_KntFile 
+   kn_KntFile
    ;
 
 
@@ -128,19 +128,11 @@ uses
    kn_info,
    kn_Global,
    kn_Chest,
-   knt.App;
+   knt.App,
+   knt.RS
+   ;
 
 {$R *.DFM}
-
-resourcestring
-  STR_01 = 'Loading file manager from "';
-  STR_02 = 'Error initializing FileManager: ';
-  STR_03 = 'Notes file manager: %d file(s)';
-  STR_04 = 'This file cannot be selected because it does not exist or contains data in a format that %s does not support. Please select another file.';
-  STR_05 = 'FileManager list is empty. This dialog box will now close.';
-  STR_06 = 'never';
-  STR_07 = 'No information is available about this file.';
-  STR_08 = 'This file does not exist or cannot be accessed.';
 
 
 constructor TKntFileInfo.Create;
@@ -272,7 +264,7 @@ begin
 
     except
       on E : Exception do begin
-        App.DoMessageBox( STR_01 + FN + '"' + #13#13 + E.Message, mtError, [mbOK] );
+        App.DoMessageBox( sFmg01 + FN + '"' + #13#13 + E.Message, mtError, [mbOK] );
         exit;
       end;
     end;
@@ -383,7 +375,7 @@ begin
       TV.SortTree(-1, sdAscending);
     except
       on E : Exception do begin
-        messagedlg( STR_02 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( sFmg02 + E.Message, mtError, [mbOK], 0 );
         ModalResult := mrCancel;
       end;
     end;
@@ -395,7 +387,7 @@ begin
     else
       CheckBox_FullPaths.OnClick := nil;
 
-    Caption := Format( STR_03, [TV.TotalCount] );
+    Caption := Format( sFmg03, [TV.TotalCount] );
   end;
 
 end;
@@ -418,7 +410,7 @@ begin
      if assigned(TV.FocusedNode) then begin
         Info := GetFileInfo(TV.FocusedNode);
         if (Info.ImageIndex = NODEIMG_INVALID ) then begin
-          messagedlg( format(STR_04,[Program_Name]), mtInformation, [mbOK], 0 );
+          messagedlg( format(sFmg04,[Program_Name]), mtInformation, [mbOK], 0 );
           CanClose := false;
         end
         else
@@ -490,7 +482,7 @@ begin
   TVSelNode := nil;
 
   if ( FileManager.Count = 0 ) then begin
-    messagedlg( STR_05, mtInformation, [mbOK], 0 );
+    messagedlg( sFmg05, mtInformation, [mbOK], 0 );
     PostMessage( Self.Handle, WM_CLOSE, 0, 0 );
     exit;
   end;
@@ -564,14 +556,14 @@ begin
     if ( ModDate <> 0 ) then
       L_Modified.Caption := FormatDateTime( FormatSettings.ShortDateFormat + #32 + FormatSettings.ShortTimeFormat, ModDate )
     else
-      L_Modified.Caption := STR_06;
+      L_Modified.Caption := sFmg06;
   end
   else begin
     HaveErrors := 0;
     case Info.ImageIndex of
-      NODEIMG_TKN, NODEIMG_DART, NODEIMG_ENC : L_Desc.Caption := STR_07;
+      NODEIMG_TKN, NODEIMG_DART, NODEIMG_ENC : L_Desc.Caption := sFmg07;
       else
-        L_Desc.Caption := STR_08;
+        L_Desc.Caption := sFmg08;
     end;
 
     L_Comment.Caption := '';

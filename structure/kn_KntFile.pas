@@ -245,37 +245,9 @@ uses
    knt.ui.tree,
    kn_AlertMng,
    kn_BookmarksMng,
-   knt.App
+   knt.App,
+   knt.RS
    ;
-
-
-resourcestring
-  STR_01 = 'Cannot open "%s": File not found';
-  STR_02 = 'Invalid file header in "%s" (not a KeyNote file)';
-  STR_03 = 'Access passphrase not specified: cannot open encrypted file.';
-  STR_04 = 'The passphrase is invalid. Try again?';
-  STR_05 = '%s: This file was created with a version of KeyNote later than the version you are using. ' +
-                'Expected version ID: "%s.%s" This file version ID: "%s.%s"  You need the latest version of KeyNote to open this file.';
-  STR_06 = ': This file was created with a version of KeyNote newer than the version you are using. ' +
-                'The file can be opened, but some information can be lost or misinterpreted. As a safety measure, the file should be opened in Read-Only mode. ' +
-                'Would you like to open the file as Read-Only?';
-  STR_07 = '%s: Invalid file header or version, or corrupt file.';
-  STR_08 = 'Error loading folder ';
-  STR_10 = 'This file contains notes which are not compatible with %s format. Only %s notes can be saved in this format.';
-  STR_12 = 'Error: Filename not specified.';
-  STR_13 = 'Error while saving folder "%s": %s';
-  STR_14 = 'Cannot save: Passphrase not set';
-  STR_17 = 'Stream size error: Encrypted file is invalid or corrupt.';
-  STR_18 = 'Invalid passphrase: Cannot open encrypted file.';
-  STR_19 = 'Exception trying to ensure plain text and removing of images: ';
-  STR_19b = 'OK to convert to PLAIN TEXT current note?'+ #13#13 +'ALL IMAGES and FORMATTING will be REMOVED !!';
-
-  STR_20 = 'Virtual note "%s" cannot write file ';
-  
-  STR_21 = 'OK to deduce the missing date information?'+ #13;
-  STR_22 = 'OK to remove date from note name?'+ #13;
-  STR_23 = 'All (or selected) nodes will be considered';
-  STR_24 = #13#13 + 'Please read the help file before proceeding. Search for "Deduce Dates"';
 
 
 //=======================================================================
@@ -1078,11 +1050,11 @@ begin
   ForceReconsidere:= CtrlDown;              // Ctrl  -> Force reconsider dates
   
   if RemoveDateFromName then
-     msg:= STR_22
+     msg:= sFile22
   else
-     msg:= STR_21;
+     msg:= sFile21;
       
-  if App.DoMessageBox (msg + STR_23 + STR_24, mtWarning, [mbYes, mbNo, mbCancel]) <> mrYes then exit;
+  if App.DoMessageBox (msg + sFile23 + sFile24, mtWarning, [mbYes, mbNo, mbCancel]) <> mrYes then exit;
 
   
   PrepareDateFormatSettings;
@@ -1497,7 +1469,7 @@ begin
    assert(NoteUI<>nil);
 
    if not NoteUI.Editor.PlainText and (NoteUI.Editor.TextLength > 0) then
-      if (App.DoMessageBox(STR_19b, mtWarning, [mbYes,mbNo,mbCancel], def3) <> mrYes) then exit;
+      if (App.DoMessageBox(sFile18, mtWarning, [mbYes,mbNo,mbCancel], def3) <> mrYes) then exit;
 
    if NoteUI.Editor.PlainText then begin
       SourceFormat:= sfPlainText;
@@ -1544,7 +1516,7 @@ begin
       end;
 
    except on E: Exception do begin
-     MessageDlg( STR_19 + E.Message, mtError, [mbOK], 0 );
+     MessageDlg( sFile19 + E.Message, mtError, [mbOK], 0 );
      Result:= false;
      end
    end;
@@ -1670,7 +1642,7 @@ begin
      FFileName := FN;
 
   if ( not FileExists( FN )) then begin
-     App.DoMessageBox(Format( STR_01, [FN] ), mtError, [mbOK]);
+     App.DoMessageBox(Format( sFile01, [FN] ), mtError, [mbOK]);
      raise Exception.Create('');
   end;
 
@@ -1720,7 +1692,7 @@ begin
       VerID.ID := NFHDR_ID_ENCRYPTED;
     end
     else begin
-      App.DoMessageBox(Format( STR_02, [FN] ), mtError, [mbOK]);
+      App.DoMessageBox(Format( sFile02, [FN] ), mtError, [mbOK]);
       raise Exception.Create('');
       exit;
     end;
@@ -1741,7 +1713,7 @@ begin
 
         repeat // repeatedly prompt for passphrase, unless other action chosen
             if ( not GetPassphrase( FN )) then
-              raise EKeyKntFileError.Create( STR_03 );
+              raise EKeyKntFileError.Create( sFile03 );
 
             try
               DecryptFileToStream( FN, MemStream );
@@ -1749,7 +1721,7 @@ begin
             except
               On e : EPassphraseError do begin
                 HasLoadError := false;
-                if ( messagedlg(STR_04, mtError, [mbYes,mbNo], 0  ) <> mrYes ) then raise;
+                if ( messagedlg(sFile04, mtError, [mbYes,mbNo], 0  ) <> mrYes ) then raise;
               end;
             end;
 
@@ -1795,19 +1767,19 @@ begin
         nffKeyNote, nffKeyNoteZip, nffEncrypted : begin
           if _TEST_KEYNOTE_FILE_VERSION then begin  // global var, allows to bypass testing
               p := pos( VerID.ID, TestString );
-              delete( TestString, 1, p+ID_STR_LENGTH );
+              delete( TestString, 1, p + ID_STR_LENGTH );
               if ( length( TestString ) > 2 ) then begin
                  VerID.Major := TestString[1];
                  VerId.Minor := TestString[3];
 
                  if (( VerID.Major in ['0'..'9'] ) and ( VerID.Minor in ['0'..'9'] )) then begin
                     if ( VerID.Major > NFILEVERSION_MAJOR ) then begin
-                       App.DoMessageBox(Format( STR_05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK]);
+                       App.DoMessageBox(Format( sFile05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK]);
                        raise EKeyKntFileError.Create('');
                     end;
 
                     if (VerID.Major = NFILEVERSION_MAJOR) and ( VerID.Minor > NFILEVERSION_MINOR ) then begin
-                       case App.DoMessageBox( ExtractFilename( FN ) + STR_06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], def1, _HLP_KNTFILES ) of
+                       case App.DoMessageBox( ExtractFilename( FN ) + sFile06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], def1, _HLP_KNTFILES ) of
                          mrNo : begin
                            // nothing, just fall through
                          end;
@@ -1829,7 +1801,7 @@ begin
             FileIDTestFailed := false;
 
           if FileIDTestFailed then begin
-            App.DoMessageBox(Format( STR_07, [ExtractFilename( FN )] ), mtError, [mbOK]);
+            App.DoMessageBox(Format( sFile07, [ExtractFilename( FN )] ), mtError, [mbOK]);
             raise EKeyKntFileError.Create('');
           end;
 
@@ -1967,7 +1939,7 @@ begin
                    except
                      On E : Exception do begin
                        HasLoadError := true;
-                       messagedlg( STR_08 + Folder.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                       messagedlg( sFile08 + Folder.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
                        Folder.Free;
                        // raise;
                      end;
@@ -2020,7 +1992,7 @@ begin
      Note.LoadVirtualFile;
    except
      on E : Exception do begin
-       List.Add( STR_10 );
+       List.Add( sFile10 );
        List.Add( Note.VirtualFN );
        List.Add( E.Message );
        Note.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + Note.VirtualFN;
@@ -2411,7 +2383,7 @@ var
           except
             on E : Exception do
               // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages
-              App.DoMessageBox(Format(STR_20 + #13#13+ '%s', [Note.Name, Note.VirtualFN, E.Message]), mtError, [mbOK] );
+              App.DoMessageBox(Format(sFile20 + #13#13+ '%s', [Note.Name, Note.VirtualFN, E.Message]), mtError, [mbOK] );
           end;
     end;
 
@@ -2433,7 +2405,7 @@ var
       except
         on E : Exception do begin
             result := 3;
-            App.DoMessageBox( Format(STR_13, [myFolder.Name, E.Message]), mtError, [mbOK] );
+            App.DoMessageBox( Format(sFile13, [myFolder.Name, E.Message]), mtError, [mbOK] );
             exit;
         end;
       end;
@@ -2537,7 +2509,7 @@ begin
 
 
   if ( FN = '' ) then
-    raise EKeyKntFileError.Create( STR_12 );
+    raise EKeyKntFileError.Create( sFile12 );
 
   {
   if ( not assigned( FPageCtrl )) then
@@ -2620,7 +2592,7 @@ begin
         nffEncrypted : begin
 
           if ( FPassphrase = '' ) then
-            raise EKeyKntFileError.Create( STR_14 );
+            raise EKeyKntFileError.Create( sFile14 );
 
           AuxStream := TMemoryStream.Create;
           try
@@ -2838,7 +2810,7 @@ end;
 
 procedure RaiseStreamReadError;
 begin
-  raise EKeyKntFileError.Create( STR_17 );
+  raise EKeyKntFileError.Create( sFile15 );
 end;
 
 
@@ -2899,7 +2871,7 @@ begin
       if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
       if ( not CompareMem( @HashRead, @HashDigest, Sizeof( HashRead ))) then
-        raise EPassphraseError.Create( STR_18 );
+        raise EPassphraseError.Create( sFile16 );
 
       getmem( dataptr, Info.DataSize );
 

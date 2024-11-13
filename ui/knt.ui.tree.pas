@@ -366,72 +366,18 @@ uses
    kn_KntFolder,
    kn_AlertMng,
    kn_FindReplaceMng,
-   Knt.App
+   Knt.App,
+   knt.RS
    ;
 
 {$R *.dfm}
 {$R resources\VTcheckLight.RES}
-
-resourcestring
-  STR_01 = 'Error creating node: ';
-  STR_04 = 'Initial node not assigned - select a node and retry.';
-  STR_05 = 'cannot be ';
-  STR_06 = 'Error moving node: ';
-  STR_07 = 'Node "%s" %smoved %s';
-  STR_08 = #13#10 + 'This operation cannot be undone.';
-  STR_09 = 'Node "%s" has %d child nodes. Delete these child nodes too?';
-  STR_11 = 'OK to delete node "%s"?';
-  STR_11b = 'OK to delete %sALL SELECTED nodes?'+ #13 +' (Confirmation will be requested for each node with children)' + #13;
-  STR_12 = 'OK to delete %d CHILD NODES of node "%s"?';
-  STR_13 = 'Selected node has no children.';
-  STR_14 = 'Error deleting node: ';
-  STR_15 = 'No nodes available for copying or pasting data.';
-  STR_16 = 'OK to MOVE %d nodes/subtrees to current node "%s"?';
-  STR_17 = ' No node is selected';
-  STR_18 = 'OK to forget %s?';
-  STR_19 = 'Target node is included in one of the subtrees to move';
-  STR_20 = ' nodes/subtrees registered for transfer';
-  STR_21 = 'No data to paste. Select "Transfer|Copy/Cut Subtree" first.';
-  STR_22 = #13#13 + '* One or more nodes being copied is a Virtual Node. They will be pasted as linked nodes' + #13#13 + 'Continue?';
-
-  STR_23 = 'OK to PASTE %d nodes/subtrees%s below current node "%s"?' + #13#10 + '(Hidden nodes will ALSO be pasted)';
-  STR_26 = ' as LINKED nodes';
-
-  STR_24 = ' Pasted %d nodes/subtrees';
-  STR_25 = '%d virtual nodes have been copied as linked nodes';
-  STR_27 = 'Node not found (Folder ID/Node ID): %d/%d';
-
-  STR_30 = 'Copy';
-  STR_31 = 'Move';
-  STR_32 = 'Link';
-
-  STR_49 = 'OK to sort the entire tree?';
-  STR_50 = ' Node name cannot be blank!';
-  STR_51= ' Node renamed.';
-  STR_52= ' Cannot perform operation: ''%s'' folder is read-only';
-  STR_53 = 'Edit node name';
-  STR_54 = 'Enter new name:';
-
-  STR_55 = 'Disable Filter on tree';
-  STR_56 = 'Apply Filter on tree';
-  STR_57 = ' (Ctrl: Clear Find filter)';
-  STR_59 = 'OK to remove all Flags in folder?';
-
-  STR_60 = 'Last modified >= "%s"';
-
-  STR_62= 'Name';
-  STR_63= 'Note name';
-  STR_64= 'Date';
-  STR_65= 'Note creation date';
-  STR_66= 'Flagged';
 
 
 
 const
   TREE_DEFAULT_WIDTH = 200;
   TREE_WIDTH_MOUSE_TIMEOUT = 2500;
-
-
 
 
 
@@ -496,20 +442,20 @@ begin
        Options:= [hoAutoResize, hoColumnResize,hoDblClickResize,hoDrag,hoShowHint, hoOwnerDraw];
        AutoSize := False;
        with Columns.Add do begin
-           Text:= STR_62;       // Name
-           Hint:= STR_63;       // Note name
+           Text:= sTree62;       // Name
+           Hint:= sTree63;       // Note name
            Position:= 1;
            Style:= vsOwnerDraw;
        end;
        with Columns.Add do begin
-           Text:= STR_64;      // Date
+           Text:= sTree64;      // Date
            Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor];
-           Hint:= STR_65;      // Note creation date
+           Hint:= sTree65;      // Note creation date
            Position:= 2;
            Style:= vsOwnerDraw;
        end;
        with Columns.Add do begin
-           Hint:= STR_66;  // Flagged
+           Hint:= sTree66;  // Flagged
            Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor];
            Width:= 18;
            Position:= 0;
@@ -1038,7 +984,7 @@ begin
     Result:= False;
 
     if ReadOnly then begin
-       App.ShowInfoInStatusBar(Format(STR_52, [TKntFolder(Self.Folder).Name]));
+       App.ShowInfoInStatusBar(Format(sTree52, [TKntFolder(Self.Folder).Name]));
        Result:= True;
        exit;
     end;
@@ -1352,7 +1298,7 @@ begin
   if Column = 2 then begin
      NNode:= GetNNode(Node);
      if NNode.Flagged then
-        ImageText:= STR_66;  // "Flagged"
+        ImageText:= sTree66;  // "Flagged"
   end;
 end;
 
@@ -1624,7 +1570,7 @@ begin
 
   if ShiftDown then begin
       TV.ClearSelection;
-      if App.DoMessageBox (STR_59, mtWarning, [mbYes,mbNo]) = mrYes then begin
+      if App.DoMessageBox (sTree59, mtWarning, [mbYes,mbNo]) = mrYes then begin
         fNNodesFlagged:= False;
         for i := 0 to TKntFolder(Folder).NNodes.Count-1 do
            TKntFolder(Folder).NNodes[i].Flagged:= False;
@@ -2027,7 +1973,7 @@ begin
   else begin
      myNote := NNode.Note;
      myName := myNote.Name;
-     if InputQuery( STR_53, STR_54, myName ) then begin
+     if InputQuery( sTree53, sTree54, myName ) then begin
         myName := trim( myName );
         if (myName <> '') then begin
            myNote.Name := myName;
@@ -2035,7 +1981,7 @@ begin
            TKntFolder(Folder).Modified := true;
         end
         else
-           App.ErrorPopup(STR_50);
+           App.ErrorPopup(sTree50);
      end;
   end;
 
@@ -2075,14 +2021,14 @@ begin
   NewText := Trim(copy(NewText, 1, TREENODE_NAME_LENGTH));
 
   if (NewText = '' ) then begin
-    App.ShowInfoInStatusBar(STR_50);
+    App.ShowInfoInStatusBar(sTree50);
     exit;
   end;
 
   _ALLOW_VCL_UPDATES := false;
   try
     GetNNode(Node).Note.Name:= NewText;        // {N} must add outline numbering, if any
-    App.ShowInfoInStatusBar(STR_51);
+    App.ShowInfoInStatusBar(sTree51);
     TKntFolder(Folder).Modified := true;
   finally
     _ALLOW_VCL_UPDATES := true;
@@ -2230,7 +2176,7 @@ begin
       end;
 
       if (SubtreeOnly and not assigned(StartNode)) then begin
-        messagedlg(STR_04, mtError, [mbOK], 0);
+        messagedlg(sTree04, mtError, [mbOK], 0);
         exit;
       end;
 
@@ -2278,7 +2224,7 @@ procedure TKntTreeUI.SortTree;
 begin
   if CheckReadOnly then exit;
 
-  if (MessageDlg(STR_49, mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then exit;
+  if (MessageDlg(sTree49, mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then exit;
 
   TV.SortTree(-1, sdAscending);
   TKntFolder(Folder).Modified:= true;
@@ -2513,7 +2459,7 @@ begin
 
     except
       on E : Exception do begin
-        messagedlg(STR_01 + E.Message, mtError, [mbOK], 0);
+        messagedlg(sTree01 + E.Message, mtError, [mbOK], 0);
         // if assigned(myTreeNode) then myTreeNode.Free;
         // if assigned(myNote) then myNote.Free;
       end;
@@ -2584,7 +2530,7 @@ begin
    end;
 
   if not assigned(TV.FocusedNode) then begin
-    App.ShowInfoInStatusBar(STR_17);
+    App.ShowInfoInStatusBar(sTree17);
     exit;
   end;
 
@@ -2677,7 +2623,7 @@ begin
      MovingNode := TV.FocusedNode;
   if not Assigned(MovingNode) or CheckReadOnly then exit;
 
-  t := STR_05;
+  t := sTree05;
   Result:= false;
 
   TV.BeginUpdate;
@@ -2736,13 +2682,13 @@ begin
 
     except
       on E : Exception do
-        App.ErrorPopup(E, STR_06);
+        App.ErrorPopup(E, sTree06);
     end;
   finally
     TKntFolder(Folder).Modified:= true;
     TV.EndUpdate;
 
-    App.ShowInfoInStatusBar(Format(STR_07, [GetNNode(MovingNode).NoteName, t, DIRECTION_NAMES[aDir]]));
+    App.ShowInfoInStatusBar(Format(sTree07, [GetNNode(MovingNode).NoteName, t, DIRECTION_NAMES[aDir]]));
   end;
 
 end; // MoveTreeNode
@@ -2825,7 +2771,7 @@ begin
          if DeleteOnlyChildren then begin
             // command was to delete CHILDREN of focused node
             if vsHasChildren in myTreeNode.States then begin
-              case App.DoMessageBox(Format(STR_12, [myTreeNode.ChildCount, NNode.NodeName(Self)]) + STR_08,
+              case App.DoMessageBox(Format(sTree12, [myTreeNode.ChildCount, NNode.NodeName(Self)]) + sTree08,
                    mtWarning, [mbYes, mbNo, mbCancel], def2 ) of
                   mrNo: exit;
                   mrCancel: exit(false);
@@ -2833,7 +2779,7 @@ begin
             end
             else begin
               if not ConfirmationOnlyForChildren then
-                 showmessage(STR_13);
+                 showmessage(sTree13);
               exit;
             end;
          end
@@ -2843,7 +2789,7 @@ begin
             if vsHasChildren in myTreeNode.States then begin
               // ALWAYS warn if node has children (except if we are moving to another location)
 
-              case App.DoMessageBox(Format(STR_09, [NNode.NodeName(Self), myTreeNode.ChildCount]) + STR_08,
+              case App.DoMessageBox(Format(sTree09, [NNode.NodeName(Self), myTreeNode.ChildCount]) + sTree08,
                    mtWarning, [mbYes, mbNo, mbCancel], def3 ) of
                 mrYes : KeepChildNodes := false;
                 mrNo  : KeepChildNodes := true;
@@ -2853,7 +2799,7 @@ begin
             end
             else begin
               if not ConfirmationOnlyForChildren and KntTreeOptions.ConfirmNodeDelete then begin
-                if (App.DoMessageBox(Format(STR_11, [NNode.NodeName(Self)]) + STR_08, mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+                if (App.DoMessageBox(Format(sTree10, [NNode.NodeName(Self)]) + sTree08, mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
               end;
             end;
          end;
@@ -2879,7 +2825,7 @@ begin
 
         except
           on E : Exception do
-            App.ErrorPopup(E, STR_14);
+            App.ErrorPopup(E, sTree14);
         end;
 
       finally
@@ -2923,7 +2869,7 @@ begin
      if DeleteOnlyChildren then
         OnlyChildren:= 'CHILD NODES of ';
 
-     if (App.DoMessageBox(Format(STR_11b, [OnlyChildren]) + STR_08, mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+     if (App.DoMessageBox(Format(sTree11, [OnlyChildren]) + sTree08, mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
 
      TVSelectedNodes:= TV.GetSortedSelection(True);
      for i := 0 to High(TVSelectedNodes) do
@@ -2971,15 +2917,15 @@ begin
    Prompt:= (Prompt or ((TV <> SourceTV) and KeyOptions.DropNodesOnTabPrompt));
 
    if PasteAsLinkedNNode then begin
-      if Prompt and (App.DoMessageBox(Format(STR_23, [Length(fSourceTVSelectedNodes), STR_26, TargetDesc]),
+      if Prompt and (App.DoMessageBox(Format(sTree23, [Length(fSourceTVSelectedNodes), sTree26, TargetDesc]),
                      mtConfirmation, [mbYes,mbNo]) <> mrYes) then
             exit;
    end
    else begin
        if HasVirtualNotesInSelectedSubtrees then
-          Obs:= STR_22;
+          Obs:= sTree22;
 
-       if Prompt and (App.DoMessageBox(Format(STR_23, [Length(fSourceTVSelectedNodes), '', TargetDesc]) + Obs,
+       if Prompt and (App.DoMessageBox(Format(sTree23, [Length(fSourceTVSelectedNodes), '', TargetDesc]) + Obs,
                          mtConfirmation, [mbYes,mbNo]) <> mrYes) then // {N}
           exit;
    end;
@@ -2996,9 +2942,9 @@ begin
    TV.EndUpdate;
    fiNextSourceTVNode:= 0;
    fTVCopiedNodes.Clear;
-   App.ShowInfoInStatusBar(Format(STR_24, [Length(fSourceTVSelectedNodes)]));
+   App.ShowInfoInStatusBar(Format(sTree24, [Length(fSourceTVSelectedNodes)]));
    if (fVirtualNodesConvertedOnCopy > 0) then
-      App.InfoPopup(Format(STR_25,[fVirtualNodesConvertedOnCopy]));
+      App.InfoPopup(Format(sTree25,[fVirtualNodesConvertedOnCopy]));
 
   TKntFolder(Folder).Modified:= true;
   if TargetNode = TV.RootNode then
@@ -3024,7 +2970,7 @@ begin
    else begin
       TargetDesc:= GetNNode(TargetNode).NodeName(Self);
       if IsIncludedInSelectedSubtrees(TargetNode) then begin
-         App.WarningPopup(STR_19);
+         App.WarningPopup(sTree19);
          exit;
       end;
    end;
@@ -3036,7 +2982,7 @@ begin
   SourceTV:= TreeFromNode(fSourceTVSelectedNodes[0]);
   Prompt:= (Prompt or ((TV <> SourceTV) and KeyOptions.DropNodesOnTabPrompt));
 
-  if Prompt and (App.DoMessageBox(Format(STR_16,  [Length(fSourceTVSelectedNodes), TargetDesc]),
+  if Prompt and (App.DoMessageBox(Format(sTree16,  [Length(fSourceTVSelectedNodes), TargetDesc]),
                        mtConfirmation, [mbYes,mbNo]) <> mrYes) then
       exit;
 
@@ -3077,7 +3023,7 @@ begin
    case XferAction of
       ttClear: begin
         result := true;
-        if (messagedlg(Format(STR_18, [STR_20]), mtConfirmation, [mbYes,mbNo], 0) = mrYes) then begin
+        if (messagedlg(Format(sTree18, [sTree20]), mtConfirmation, [mbYes,mbNo], 0) = mrYes) then begin
            fSourceTVSelectedNodes:= nil;
            fTVCopiedNodes.Clear;
            fiNextSourceTVNode:= 0;
@@ -3088,17 +3034,17 @@ begin
 
       ttCopy, ttCut: begin
          if (TV.SelectedCount <= 0) then begin
-           App.InfoPopup(STR_15);
+           App.InfoPopup(sTree15);
            exit;
          end;
          GetSelectedSubtrees (TV);
-         App.ShowInfoInStatusBar(Length(fSourceTVSelectedNodes).ToString + STR_20);
+         App.ShowInfoInStatusBar(Length(fSourceTVSelectedNodes).ToString + sTree20);
          fCutSubtrees:= (XferAction = ttCut);
       end;
 
       ttPaste: begin
          if (fSourceTVSelectedNodes = nil) then begin
-            App.InfoPopup(STR_21);
+            App.InfoPopup(sTree21);
             exit;
          end;
          FocNode:= TV.FocusedNode;
@@ -3872,7 +3818,7 @@ begin
      myFindOptions.SearchPathInNodeNames := FindOptions.SearchPathInNodeNames;
      str:= str.ToUpper;
      if myFindOptions.LastModifFrom <> 0 then
-        txtFilter.Hint:= Format(STR_60, [FormatDateTime(FormatSettings.ShortDateFormat, myFindOptions.LastModifFrom)])
+        txtFilter.Hint:= Format(sTree60, [FormatDateTime(FormatSettings.ShortDateFormat, myFindOptions.LastModifFrom)])
      else
         txtFilter.Hint:= '';
 
@@ -3973,12 +3919,12 @@ begin
    Form_Main.MMViewFilterTree.Checked:= Applied;
 
    if Applied then
-      HintStr:= STR_55
+      HintStr:= sTree55
    else
-      HintStr:= STR_56;
+      HintStr:= sTree56;
 
    if FindFilterApplied then
-      HintStr:= HintStr + STR_57;
+      HintStr:= HintStr + sTree57;
    TB_FilterTree.Hint:= HintStr;
 end;
 

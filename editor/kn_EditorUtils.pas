@@ -123,28 +123,9 @@ uses
    knt.ui.tree,
    kn_VCLControlsMng,
    kn_MacroMng,
-   knt.App
+   knt.App,
+   knt.RS
    ;
-
-
-
-resourcestring
-  STR_UAS_01 = 'UAS path';
-  STR_UAS_02 = 'Please specify full path to uas.exe';
-  STR_UAS_03 = 'KeyNote cannot find the location of uas.exe. UltimaShell Autocompletion Server will not be loaded.';
-  STR_UAS_04 = ' UltimaShell Autocompletion Server loaded.';
-  STR_UAS_05 = 'Cannot load UltimaShell Autocompletion Server. It may not be installed. Would you like to go to the UAS website and download the application?';
-  STR_UAS_06 = ' UltimaShell Autocompletion Server unloaded.';
-  STR_UAS_07 = ' UltimaShell Autocompletion Server is not loaded.';
-  STR_ClipCap_01 = 'A Read-Only folder cannot be used for clipboard capture.';
-  STR_ClipCap_02 = 'a new node';
-  STR_ClipCap_03 = 'whichever node is currently selected';
-  STR_ClipCap_04 = 'Each copied item will be pasted into %s in the tree. Continue?';
-  STR_ClipCap_05 = ' Clipboard capture is now ';
-  STR_ClipCap_06 = ' Capturing text from clipboard';
-  STR_ClipCap_09 = ' Clipboard capture done';
-  STR_Print_01 = 'Current folder contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.';
-
 
 
 
@@ -204,17 +185,17 @@ begin
 
             if Editor.ReadOnly then begin
                TB_ClipCap.Down := false;
-               App.InfoPopup(STR_ClipCap_01);
+               App.InfoPopup(sEdUt11);
                exit;
             end;
 
             if not ( Initializing or ( not ClipOptions.TreeClipConfirm ) or not assigned(Folder) or Folder.TreeHidden ) then begin
               if ClipOptions.PasteAsNewNode then
-                nodeMode := STR_ClipCap_02
+                nodeMode := sEdUt12
               else
-                nodeMode := STR_ClipCap_03;
+                nodeMode := sEdUt13;
 
-              if MessageDlg( Format(STR_ClipCap_04, [nodeMode] ), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK then begin
+              if MessageDlg( Format(sEdUt14, [nodeMode] ), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK then begin
                 TB_ClipCap.Down := false;
                 exit;
               end;
@@ -293,7 +274,7 @@ begin
      if Initial then begin
         Pages.Invalidate; // force redraw to update "MarkedPage" tab color
         Pages_Res.Invalidate;
-        App.ShowInfoInStatusBar(STR_ClipCap_05 + TOGGLEARRAY[ClipCapActive]);
+        App.ShowInfoInStatusBar(sEdUt15 + TOGGLEARRAY[ClipCapActive]);
      end;
   end;
 
@@ -608,7 +589,7 @@ begin
         PasteOK := true;
 
         try
-          StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_06;
+          StatusBar.Panels[PANEL_HINT].Text := sEdUt16;
           PasteOnlyURL:= false;
           if ClipOptions.URLOnly and (SourceURLStr <> '') then begin
              AuxStr:= copy(ClpStr,1,30);
@@ -757,7 +738,7 @@ begin
 
         finally
           if PasteOK then begin
-            StatusBar.Panels[PANEL_HINT].Text := STR_ClipCap_09;
+            StatusBar.Panels[PANEL_HINT].Text := sEdUt19;
             wavfn := ExtractFilePath( application.exename ) + 'clip.wav';
             if ( ClipOptions.PlaySound and FileExists( wavfn )) then
                sndplaysound( PChar( wavfn ), SND_FILENAME or SND_ASYNC or SND_NOWAIT );
@@ -917,7 +898,7 @@ begin
   TV:= TreeUI.TV;
 
   if (TV.TotalCount > 1 ) then
-     case messagedlg(STR_Print_01, mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
+     case messagedlg(sEdUt20, mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
        mrYes : PrintAllNodes := true;
        mrNo  : PrintAllNodes := false;
        else
@@ -1003,12 +984,12 @@ begin
 
         if ( not fileexists( UASPath )) then begin
           // ...we don't so ask user and check answer
-          if ( InputQuery( STR_UAS_01, STR_UAS_02, UASPath ) and
+          if ( InputQuery( sEdUt01, sEdUt02, UASPath ) and
                fileexists( UASPath )) then
             KeyOptions.UASPath := UASPath // found it, so store it for later
           else begin
             // user canceled or entered invalid path, so bail out
-            messagedlg( STR_UAS_03, mtError, [mbOK], 0 );
+            messagedlg( sEdUt03, mtError, [mbOK], 0 );
             KeyOptions.UASEnable := false;
             exit;
           end;
@@ -1025,18 +1006,18 @@ begin
 
       if KeyOptions.UASEnable then
         // success
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_04
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sEdUt04
       else begin
         // something went wrong
         KeyOptions.UASEnable := false;
-        if ( messagedlg( STR_UAS_05, mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
+        if ( messagedlg( sEdUt05, mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
           GoDownloadUAS;
       end;
     end
     else begin
       if ( UAS_Window_Handle <> 0 ) then begin
         SendMessage(GetUASWnd,WM_CLOSE,0,0);
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_06;
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sEdUt06;
       end;
     end;
 
@@ -1056,7 +1037,7 @@ var
   ptCursor : TPoint;
 begin
   if ( UAS_Window_Handle = 0 ) then begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := STR_UAS_07;
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sEdUt07;
     exit;
   end;
 

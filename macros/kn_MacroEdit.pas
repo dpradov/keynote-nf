@@ -77,14 +77,10 @@ type
 implementation
 uses
   kn_global,
-  kn_Macro;
+  kn_Macro,
+  knt.RS;
 
 {$R *.DFM}
-
-resourcestring
-  STR_01 = 'New macro';
-  STR_02 = 'Macro name cannot be blank.';
-  STR_03 = 'Another macro with this name already exists. Macro names must be unique.';
 
 
 procedure TForm_Macro.FormCreate(Sender: TObject);
@@ -111,7 +107,7 @@ procedure TForm_Macro.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   if myNewMacro then
-    Caption := STR_01;
+    Caption := sMacE01;
   Edit_Name.Text := MName;
   OriginalName := MName;
   Edit_Desc.text := MDesc;
@@ -177,7 +173,7 @@ begin
     MProfile := chkProfile.Checked;
 
     if ( MName = '' ) then begin
-      messagedlg( STR_02, mtError, [mbOK], 0 );
+      messagedlg( sMacE02, mtError, [mbOK], 0 );
       Edit_Name.SetFocus;
       CanClose := false;
       exit;
@@ -192,7 +188,7 @@ begin
                   ( Macro_List.IndexOf( OriginalName ) = i ));
 
     if ( not CanClose ) then begin
-      messagedlg( STR_03, mtError, [mbOK], 0 );
+      messagedlg( sMacE03, mtError, [mbOK], 0 );
       Edit_Name.SetFocus;
       exit;
     end;

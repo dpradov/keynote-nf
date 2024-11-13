@@ -53,14 +53,9 @@ uses
    kn_Const,
    kn_global,
    kn_Main,
-   knt.App;
+   knt.App,
+   knt.RS;
 
-
-resourcestring
-  STR_01 = 'Internal Language (English) will be established next time you start KeyNote NF';
-  STR_02 = 'Language file not found: ';
-  STR_03 = 'Tip file not found: ';
-  STR_04 = 'Applying Language file  "';
 
 function LoadLanguagesAvailable( FN : string ): boolean;
 var
@@ -148,7 +143,7 @@ begin
 
       if (LanguageUI = LANGUAGE_DEFAULT) or (LanguageUI = '') then begin
          if FreeLocalizer.LanguageFile <> '' then
-            messagedlg( STR_01, mtInformation, [mbOK], 0 );
+            messagedlg( sLng01, mtInformation, [mbOK], 0 );
          result:= True;
       end
       else begin
@@ -164,7 +159,7 @@ begin
 
           if FN <> '' then begin
              if not fileexists( path + FN ) then
-                messagedlg( STR_02 + path + FN, mtError, [mbOK], 0 )
+                messagedlg( sLng02 + path + FN, mtError, [mbOK], 0 )
              else begin
                  if FreeLocalizer.LanguageFile <> path + FN then begin
                     FreeLocalizer.LanguageFile:= path + FN;
@@ -178,7 +173,7 @@ begin
           end;
           if TipFile <> '' then begin
              if not fileexists( path + TipFile ) then
-                App.DoMessageBox( STR_03 + path + TipFile, mtError, [mbOK] )
+                App.DoMessageBox( sLng03 + path + TipFile, mtError, [mbOK] )
              else
                 TIP_FN := path + TipFile;
           end;
@@ -190,7 +185,7 @@ begin
   except
     on E : Exception do
     begin
-      App.DoMessageBox( STR_04 + path + FN + '"' + #13#13 + E.Message, mtError, [mbOK]);
+      App.DoMessageBox( sLng04 + path + FN + '"' + #13#13 + E.Message, mtError, [mbOK]);
       exit;
     end;
   end;

@@ -132,15 +132,9 @@ uses  System.DateUtils,
       gf_strings,
       kn_info,
       kn_Global,
-      knt.App
+      knt.App,
+      knt.RS
       ;
-
-resourcestring
-  STR_01 = 'Error creating RTF for image insertion on editor: ';
-  STR_02 = 'Error processing RTF visible image (\pict) : ';
-  STR_03 = 'Error processing RTF hidden image (hyperlink) : ';
-  STR_04 = 'Error converting image format: ';
-
 
 
 
@@ -883,7 +877,7 @@ begin
 
   except
      on E : Exception do begin
-        App.ErrorPopup(E, STR_01);
+        App.ErrorPopup(E, sImgU01);
         Result:= '';
         exit;
      end;
@@ -1015,7 +1009,7 @@ begin
 
  except
      on E : Exception do begin
-        App.ErrorPopup(E, STR_02);
+        App.ErrorPopup(E, sImgU02);
         Result:= false;
      end;
  end;
@@ -1072,7 +1066,7 @@ begin
 
  except
      on E : Exception do begin
-        App.ErrorPopup(E, STR_03);
+        App.ErrorPopup(E, sImgU03);
         Result:= false;
      end;
  end;
@@ -1272,7 +1266,7 @@ begin
 
   except
      on E : Exception do begin
-        App.ErrorPopup(E, STR_04);
+        App.ErrorPopup(E, sImgU04);
      end;
   end;
 

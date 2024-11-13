@@ -176,43 +176,11 @@ uses
    kn_Info,
    kn_Const,
    kn_NoteFileMng,
-   Knt.App
+   Knt.App,
+   knt.RS
    ;
 
 {$R *.DFM}
-
-resourcestring
-  STR_01 = ' file';
-  STR_02 = 'File properties: ';
-  STR_03 = ' bytes';
-  STR_04 = '(file not saved)';
-  STR_05 = 'never';
-  STR_06 = 'Open "%s" as &Read-Only';
-  STR_07 = '(none)';
-  STR_08 = 'You chose to save the file using DartNotes format. However, this file contains tree-type notes, which are incompatible with DartNotes.' + #13#13+
-                     'If you click OK, the file will revert to using KeyNote format. Continue?';
-  STR_09 = 'The passphrase you entered is too short: Minimum passphrase length is %d characters';
-  STR_10 = 'The passphrases you entered do not match. Please enter the exact same passphrase twice.';
-  STR_11 = 'You chose to encrypt a file that contains virtual nodes. ' +
-                     'Note that the disk files linked to virtual nodes and images saves in external storage (Zip or Folder) ' +
-                     'will NOT be encrypted.' + #13#13 + 'Continue?';
-  STR_12 = 'File "%s" was open in READ-ONLY mode. If you uncheck this box, the read-only mode will be turned OFF. Continue?';
-  STR_13 = 'Open images storage folder';
-  STR_14 = 'Open images storage file';
-  STR_15 = 'Set';
-  STR_16 = 'Must save KNT before change images storage again';
-  STR_17 = '(*) Missing current external storage';
-  STR_18 = 'New images will be saved provisionally [only] as Embedded KNT' + #13 +
-           'Deletions will be effective when it is available'+ #13#13 +
-           '(It may be totally fine if you temporarily lose access to image storage)';
-
-  STR_19 = 'Current Next ID (%d) cannot be reduced' + #13 + '(Max ID in image list is %d)';
-  STR_20 = 'Max ID in image list is %d and Next ID is %d' + #13#13 +
-           'Do you want the NEXT image to be saved with ID = %d ' + #13#13 +
-           '* YOU MUST MAKE SURE there are no images with larger IDs on the external storage, perhaps referenced by other knt files ' +
-           '(New images could override existing files)'  + #13#13 +
-           'CONTINUE?';
-  STR_21 = 'Next ID was changed ok';
 
 
 procedure TForm_KntFileInfo.FormCreate(Sender: TObject);
@@ -248,7 +216,7 @@ begin
     Combo_Method.Items.Add( CRYPT_METHOD_NAMES[cm] );
   Combo_Method.ItemIndex := ord( low( TCryptMethod ));
   for ff := low( TKntFileFormat ) to high( TKntFileFormat ) do
-    Combo_Format.Items.Add( FILE_FORMAT_NAMES[ff] + STR_01 );
+    Combo_Format.Items.Add( FILE_FORMAT_NAMES[ff] + sFInf01 );
   Combo_Format.ItemIndex := 0;
   for cl := low( TZCompressionLevel ) to high( TZCompressionLevel ) do
     Combo_CompressLevel.Items.Add( FILE_COMPRESSION_LEVEL[cl] );
@@ -275,7 +243,7 @@ begin
   if assigned( myKntFile ) then
   begin
     // TAB_MAIN
-    Caption := STR_02 + ExtractFilename( myKntFile.FileName );
+    Caption := sFInf02 + ExtractFilename( myKntFile.FileName );
     Edit_FileName.Text := myKntFile.FileName;
     Label_Count.Caption := inttostr( myKntFile.FolderCount );
     Edit_Comment.Text := myKntFile.Comment;
@@ -285,7 +253,7 @@ begin
     if Fileexists( myKntFile.FileName ) then begin
       fs := GetFileSize( myKntFile.FileName );
       if ( fs < 1025 ) then
-        Label_FileSize.Caption := inttostr( fs ) + STR_03
+        Label_FileSize.Caption := inttostr( fs ) + sFInf03
       else
         Label_FileSize.Caption := inttostr( fs DIV 1024 ) + ' Kb';
       label_Modified.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, GetFileDateStamp( myKntFile.FileName ));
@@ -295,13 +263,13 @@ begin
       end;
     end
     else begin
-      Label_FileSize.Caption := STR_04;
+      Label_FileSize.Caption := sFInf04;
       Edit_FileName.Visible := false;
       Label_FileNotFound.Visible := true;
-      label_Modified.Caption := STR_05;
-      rbImagesStChange.Caption := STR_15;
+      label_Modified.Caption := sFInf05;
+      rbImagesStChange.Caption := sFInf15;
     end;
-    CB_AsReadOnly.Caption := Format( STR_06, [ExtractFilename( myKntFile.FileName )] );
+    CB_AsReadOnly.Caption := Format( sFInf06, [ExtractFilename( myKntFile.FileName )] );
     CB_AsReadOnly.Checked := ( myKntFile.OpenAsReadOnly or myKntFile.ReadOnly );
     Label_IsReadOnly.Visible := myKntFile.ReadOnly;
     CB_NoMultiBackup.Checked := myKntFile.NoMultiBackup;
@@ -339,12 +307,12 @@ begin
     CB_ShowTabIcons.OnClick := CheckBox_ShowTabIconsClick;
   end
   else begin
-    Edit_FileName.Text := STR_07;
+    Edit_FileName.Text := sFInf07;
     Label_Count.Caption := '0';
     Edit_Comment.Text := '';
     Edit_Description.Text := '';
-    label_Created.Caption := STR_05;
-    label_Modified.Caption := STR_05;
+    label_Created.Caption := sFInf05;
+    label_Modified.Caption := sFInf05;
     Label_FileSize.Caption := '';
     Label_IsReadOnly.Visible := false;
 
@@ -354,14 +322,14 @@ begin
   lblImgWarning.Visible := false;
   if ImageMng.ChangingImagesStorage then begin
      lblImgWarning.Visible := true;
-     lblImgWarning.Caption:= STR_16;
+     lblImgWarning.Caption:= sFInf16;
      lblImgWarning.Hint:= '';
   end
   else
   if ImageMng.ExternalStorageIsMissing then begin
      lblImgWarning.Visible := true;
-     lblImgWarning.Caption:= STR_17;
-     lblImgWarning.Hint:= STR_18;
+     lblImgWarning.Caption:= sFInf17;
+     lblImgWarning.Hint:= sFInf18;
   end;
 
   btnRecalcNextID.Visible := not lblImgWarning.Visible;
@@ -412,7 +380,7 @@ begin
 {$IFDEF WITH_DART}
   if (( Combo_Format.ItemIndex = ord( nffDartNotes )) and myKntFile.HasExtendedNotes ) then
   begin
-    case messagedlg(STR_08, mtWarning, [mbOK,mbCancel], 0 ) of
+    case messagedlg(sFInf08, mtWarning, [mbOK,mbCancel], 0 ) of
       mrOK : Combo_Format.ItemIndex := ord( nffKeyNote );
       mrCancel : begin
         result := false;
@@ -428,13 +396,13 @@ begin
   s := '';
 
   if length( Edit_Pass.Text ) < MinPassLen then begin
-    s := Format( STR_09, [MinPassLen] );
+    s := Format( sFInf09, [MinPassLen] );
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
   end
   else
   if ( Edit_Pass.Text <> Edit_Confirm.Text ) then begin
-    s := STR_10;
+    s := sFInf10;
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
   end;
@@ -447,7 +415,7 @@ begin
   end;
 
   if myKntFile.HasVirtualNotes then begin
-    result := ( messagedlg(STR_11, mtWarning, [mbYes,mbNo], 0 ) = mrYes );
+    result := ( messagedlg(sFInf11, mtWarning, [mbYes,mbNo], 0 ) = mrYes );
   end;
 
 
@@ -532,7 +500,7 @@ procedure TForm_KntFileInfo.CheckBox_AsReadOnlyClick(Sender: TObject);
 begin
   if assigned( myKntFile ) then begin
     if (( not CB_AsReadOnly.Checked ) and myKntFile.ReadOnly ) then begin
-      if ( App.DoMessageBox( Format(STR_12,[ExtractFilename( myKntFile.FileName )]), mtWarning, [mbYes,mbNo], def1, 0, Self.Handle ) = mrYes ) then
+      if ( App.DoMessageBox( Format(sFInf12,[ExtractFilename( myKntFile.FileName )]), mtWarning, [mbYes,mbNo], def1, 0, Self.Handle ) = mrYes ) then
         CB_AsReadOnly.OnClick := nil
       else
         CB_AsReadOnly.Checked := true;
@@ -754,13 +722,13 @@ begin
   MaxSavedID:= ImageMng.GetMaxSavedImageID;
 
   if MaxSavedID+1 = ImageMng.NextImageID then
-     MessageDlg( Format(STR_19, [MaxSavedID+1, MaxSavedID]), mtInformation, [mbOK], 0 )
+     MessageDlg( Format(sFInf19, [MaxSavedID+1, MaxSavedID]), mtInformation, [mbOK], 0 )
 
   else
-    if (MessageDlg( Format(STR_20, [MaxSavedID, ImageMng.NextImageID, MaxSavedID+1]),
+    if (MessageDlg( Format(sFInf20, [MaxSavedID, ImageMng.NextImageID, MaxSavedID+1]),
        mtInformation, [mbYes,mbNo,mbCancel], 0 ) = mrYes ) then begin
        if ImageMng.RecalcNextID then
-          App.InfoPopup(STR_21);
+          App.InfoPopup(sFInf21);
     end;
 end;
 
@@ -775,7 +743,7 @@ begin
       btnOpenDlgExternalPath.Down:= False;
       Dir:= ExtractFilePath( txtExtStorageLocation.Text);
       if TImagesExternalStorage(cbImgExtStorageType.ItemIndex) = issFolder then begin
-         if SelectDirectory(STR_13,'', Dir) then begin
+         if SelectDirectory(sFInf13,'', Dir) then begin
             txtExtStorageLocation.Text:= Dir;
             ExtStorageLocationFake:= false;
          end;
@@ -785,7 +753,7 @@ begin
           Dir:= ActiveFile.File_Path;
 
         with Form_Main.OpenDlg do begin
-          Title := STR_14;
+          Title := sFInf14;
           Filter := FILTER_ZIP;
           InitialDir:= Dir;
         end;

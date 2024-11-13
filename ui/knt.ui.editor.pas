@@ -272,58 +272,10 @@ uses
    kn_CharsNew,
    kn_Glossary,
    kn_ExpTermDef,
-   knt.App
+   knt.App,
+   knt.RS
   ;
 
-
-resourcestring
-
-  STR_Zoom_01 = 'Invalid zoom ratio: ';
-
-  STR_10 = ' L %d / %d  C %d';
-  STR_11 = ' Sel: %d  W: %d';
-  STR_13 = ' Overwrite mode disabled through INI file';
-
-  STR_ConvDec_01 = 'Convert decimal to Roman';
-  STR_ConvDec_02 = 'Enter a decimal number:';
-  STR_ConvDec_03 = '%s is not a valid number';
-  STR_ConvRoman_01 = 'Convert Roman to decimal';
-  STR_ConvRoman_02 = 'Enter a Roman number:';
-  STR_ConvRoman_03 = '%s is not a valid Roman number';
-  STR_Bracket_01 = ' No valid bracket at cursor position ';
-  STR_Bracket_02 = ' Matching bracket FOUND';
-  STR_Bracket_03 = ' Matching bracket NOT FOUND';
-  STR_Trim_01 = 'OK to trim white space characters in whole note?';
-  STR_Compress_01 = 'OK to compress white space characters in whole note?';
-  STR_Eval_01 = ' Result: ';
-  STR_Eval_02 = 'Paste last eval result: ';
-  STR_Eval_03 = 'Expression %s evaluates to: %s' + #13#13 + 'Result was copied to clipboard. Click OK to insert.';
-  STR_Img_01 = 'Select image to insert';
-  STR_Img_02 = 'All image files';
-  STR_Gloss_01 = ' Function not available';
-  STR_Gloss_02 = ' No word at cursor';
-  STR_Gloss_03 = ' Word not in glossary. Use Shift+F7 to add.';
-  STR_Gloss_04 = 'Term expansion glossary "%s" is not loaded.';
-  STR_Gloss_05 = 'Glossary term already exists: "%s" -> "%s". OK to redefine term as "%s"?';
-  STR_Gloss_06 = ' Added to glossary: "%s" -> "%s"';
-  STR_SpellChk_02 = 'Replace editor contents with result from spellchecker?';
-
-  STR_Stat_01 = ' Calculating statistics... Please wait';
-  STR_Stat_02 = 'Selected text';
-  STR_Stat_03 = 'Folder text';
-  STR_Stat_04 = '%s statistics' + #13#13 +
-       'Characters: %s' + #13 +
-       'Alphabetic: %s' + #13 +
-       'Whitespace: %s' + #13#13 +
-       'Words: %s' + #13 +
-       'Lines: %s';
-
-  STR_WordWeb_01 = 'Lookup in WordWeb';
-  STR_WordWeb_02 = 'Enter word to look up:';
-  STR_WordWeb_03 = 'Error loading WordWeb. The program may not be installed ' +
-            'on your computer. See file "wordweb.txt" for more information.' +
-            #13#13 +
-            'Error message: ';
 
 
 const
@@ -1204,7 +1156,7 @@ begin
       VK_INSERT : begin
         if EditorOptions.DisableINSKey then begin
           key := 0;
-          App.ShowInfoInStatusBar(STR_13);
+          App.ShowInfoInStatusBar(sEdt04);
         end
         else
           PerformCmdEx( ecInsOvrToggle );
@@ -2195,7 +2147,7 @@ begin
         NewZoom := strtoint( ZoomString );
       except
         on E : Exception do begin
-          App.ErrorPopup(E, STR_Zoom_01);
+          App.ErrorPopup(E, sEdt01);
           NewZoom := CurrentZoom;
         end;
       end;
@@ -2420,12 +2372,12 @@ begin
           LastPx:= p.X;
           LastPy:= p.Y;
           LastX:= X;
-          App.WordCountInfoInStatusBar:= Format( STR_10, [succ( p.y ), Lines.Count, succ(X)] );
+          App.WordCountInfoInStatusBar:= Format( sEdt02, [succ( p.y ), Lines.Count, succ(X)] );
        end
        else begin
           LastPy:= -1;
           Str:= SelVisibleText;
-          App.WordCountInfoInStatusBar:= Format( STR_11, [Length(Str), GetWordCount(Str)] );
+          App.WordCountInfoInStatusBar:= Format( sEdt03, [Length(Str), GetWordCount(Str)] );
        end;
     end
     else begin
@@ -2518,18 +2470,18 @@ var
 
 begin
 
-  App.ShowInfoInStatusBar(STR_Stat_01);
+  App.ShowInfoInStatusBar(sEdt28);
   screen.Cursor := crHourGlass;
   lista := TStringList.Create;
 
   try
      if (SelLength > 0) then begin
        lista.Text := SelText;
-       title := STR_Stat_02;
+       title := sEdt29;
      end
      else begin
        lista.Text := Lines.Text;
-       title := STR_Stat_03;
+       title := sEdt30;
      end;
 
      numLines := lista.count;
@@ -2570,7 +2522,7 @@ begin
     screen.Cursor := crDefault;
   end;
 
-  s := format(STR_Stat_04,
+  s := format(sEdt31,
                [Title, inttostr(numChars), inttostr(numAlpChars),
                 inttostr(numSpaces), inttostr(numWords), inttostr(numLines)]);
 
@@ -2991,7 +2943,7 @@ begin
 
   s := SelText;
   if (s = '') then
-    InputQuery(STR_ConvDec_01, STR_ConvDec_02, s)
+    InputQuery(sEdt05, sEdt06, s)
   else
      s:= KeepOnlyLeadingKNTHiddenCharacters(s);
 
@@ -3002,7 +2954,7 @@ begin
     i := strtoint( s );
     s := DecToRoman( i );
   except
-    App.ErrorPopup(Format(STR_ConvDec_03, [s]));
+    App.ErrorPopup(Format(sEdt07, [s]));
     exit;
   end;
 
@@ -3021,7 +2973,7 @@ begin
 
   s := SelText;
   if ( s = '' ) then
-     InputQuery( STR_ConvRoman_01, STR_ConvRoman_02, s )
+     InputQuery( sEdt08, sEdt09, s )
   else
      s:= KeepOnlyLeadingKNTHiddenCharacters(s);
 
@@ -3031,7 +2983,7 @@ begin
     s := AnsiUpperCase(trim(s));
     i := RomanToDec(s);
   except
-    App.ErrorPopup(Format(STR_ConvRoman_03, [s]));
+    App.ErrorPopup(Format(sEdt10, [s]));
     exit;
   end;
 
@@ -3081,7 +3033,7 @@ begin
       dir := dirBack;
     end
     else begin
-      App.ShowInfoInStatusBar(STR_Bracket_01);
+      App.ShowInfoInStatusBar(sEdt11);
       exit;
     end;
   end;
@@ -3150,14 +3102,14 @@ begin
   end;
 
   if Found then begin
-    App.ShowInfoInStatusBar(STR_Bracket_02);
+    App.ShowInfoInStatusBar(sEdt12);
     SelStart := Perform( EM_LINEINDEX, p.y, 0 );
     SelStart := SelStart + pred( p.x );
     Perform( EM_SCROLLCARET, 0, 0 );
     SelLength := 1;
   end
   else
-    App.ShowInfoInStatusBar(STR_Bracket_03);
+    App.ShowInfoInStatusBar(sEdt13);
 
 end; // MatchBracket
 
@@ -3191,7 +3143,7 @@ begin
   wholeNote:= false;
   if ( SelLength = 0 ) then begin
     wholeNote:= true;
-    if messagedlg(STR_Trim_01, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then exit;
+    if messagedlg(sEdt14, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then exit;
   end;
 
   BeginUpdate;
@@ -3250,7 +3202,7 @@ begin
   if ( Lines.Count < 1 ) then exit;
 
   if ( SelLength = 0 ) then begin
-     if ( messagedlg(STR_Compress_01, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+     if ( messagedlg(sEdt15, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
          exit;
   end;
 
@@ -3366,15 +3318,15 @@ begin
      if ( not MathParser.ParseError ) then begin
        LastEvalExprResult := FloatToStrF(MathParser.ParseValue, ffGeneral, 15, 2);
        Clipboard.SetTextBuf(PChar(LastEvalExprResult));
-       App.ShowInfoInStatusBar(STR_Eval_01 + LastEvalExprResult);
-       Form_Main.MMEditPasteEval.Hint := STR_Eval_02 + LastEvalExprResult;
+       App.ShowInfoInStatusBar(sEdt16 + LastEvalExprResult);
+       Form_Main.MMEditPasteEval.Hint := sEdt17 + LastEvalExprResult;
 
        if KeyOptions.AutoPasteEval and ( not Self.ReadOnly) then begin
           SelStart := SelStart + SelLength;
           SelText := #32 + LastEvalExprResult;
        end
        else
-          if ( messagedlg( Format( STR_Eval_03, [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
+          if ( messagedlg( Format( sEdt18, [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
              if not CheckReadOnly then begin
                SelStart := SelStart + SelLength;
                SelText := #32 + LastEvalExprResult;
@@ -3410,8 +3362,8 @@ begin
     if AsPicture then
        with OpenPictureDlg do begin
           Options := [ofHideReadOnly,ofPathMustExist,ofFileMustExist];
-          Title:= STR_Img_01;
-          Filter:= STR_Img_02 + FILTER_IMAGES;
+          Title:= sEdt19;
+          Filter:= sEdt20 + FILTER_IMAGES;
 
           if Execute then begin
              if SupportsRegisteredImages then begin
@@ -3609,7 +3561,7 @@ var
 begin
 
     if not assigned(GlossaryList) then begin
-      App.ShowInfoInStatusBar(STR_Gloss_01);
+      App.ShowInfoInStatusBar(sEdt21);
       exit;
     end;
 
@@ -3629,7 +3581,7 @@ begin
       w := SelText;
 
     if ( length( w ) = 0 ) then begin
-      App.ShowInfoInStatusBar(STR_Gloss_02);
+      App.ShowInfoInStatusBar(sEdt22);
       exit;
     end;
 
@@ -3643,7 +3595,7 @@ begin
 
 
     if ( replw = '' ) then begin
-      App.ShowInfoInStatusBar(STR_Gloss_03);
+      App.ShowInfoInStatusBar(sEdt23);
       exit;
     end;
 
@@ -3665,7 +3617,7 @@ var
 
 begin
   if (not assigned( GlossaryList)) then begin
-    showmessage( Format(STR_Gloss_04, [Glossary_FN] ));
+    showmessage( Format(sEdt24, [Glossary_FN] ));
     exit;
   end;
 
@@ -3694,7 +3646,7 @@ begin
         if (( nstr <> '' ) and ( vstr <> '' ) and ( nstr <> vstr )) then begin
 
           if ( GlossaryList.IndexOfName( nstr ) >= 0 ) then begin
-            if ( messagedlg( Format(STR_Gloss_05,
+            if ( messagedlg( Format(sEdt25,
               [nstr,GlossaryList.Values[nstr],vstr] ),
               mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
           end;
@@ -3707,7 +3659,7 @@ begin
               GlossaryList.Sorted := true;
             end;
             GlossaryList.SaveToFile( Glossary_FN, TEncoding.UTF8);
-            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_Gloss_06, [nstr,vstr] );
+            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(sEdt26, [nstr,vstr] );
 
           except
             on E : Exception do
@@ -3754,7 +3706,7 @@ begin
       SelectAll;
       CopyToClipboard;
       if AJBSpell.CheckClipboardSpell then begin
-        if ( messagedlg( STR_SpellChk_02, mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
+        if ( messagedlg( sEdt27, mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
             PasteFromClipboard;
       end;
 
@@ -3790,7 +3742,7 @@ begin
   end;
 
   if (myWord = '') then begin
-    if (not InputQuery( STR_WordWeb_01, STR_WordWeb_02, myWord )) then
+    if (not InputQuery( sEdt32, sEdt33, myWord )) then
        exit;
   end;
 
@@ -3799,7 +3751,7 @@ begin
     WordWeb := TFreeWordWeb.Create(Form_Main);
   except
     On E : Exception do begin
-      App.ErrorPopup(E, STR_WordWeb_03);
+      App.ErrorPopup(E, sEdt34);
       exit;
     end;
   end;
@@ -3823,7 +3775,7 @@ begin
       On E : Exception do begin
         Form_Main.RTFMWordWeb.Enabled := false;
         Form_Main.TB_WordWeb.Enabled := false;
-        App.ErrorPopup(E, STR_WordWeb_03);
+        App.ErrorPopup(E, sEdt34);
         exit;
       end;
     end;
@@ -3840,3 +3792,4 @@ Initialization
    ShowingSelectionInformation:= false;
 
 end.
+

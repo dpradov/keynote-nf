@@ -95,10 +95,12 @@ uses
    kn_const,
    kn_Info,
    kn_Global,
-   kn_KntFolder;
+   kn_KntFolder,
+   knt.RS;
 
 
 {$R *.DFM}
+
 
 var
   TahomaFontInstalled : boolean;
@@ -135,7 +137,7 @@ begin
 
 
   GetDLLProductVersion(pathDLL, VersionDLL, VersionRichEdit);
-  
+
   nameDLL := ' (' + ExtractFileName(pathDLL) + ')';
 
   LB_RichEditVer.Font.Style := [fsBold];
@@ -145,7 +147,7 @@ begin
   );
   LB_RichEditVer.Hint:= pathDLL;
 
-  Caption := 'About - ' + Program_Name;
+  Caption := sAB00 + Program_Name;
   Label_Name.Caption := Program_Name;
   Label_Desc.Caption := Program_Desc;
 
@@ -155,7 +157,12 @@ begin
   Label_Credit2.Caption := Program_Credit2;
   Label_Mailto2.Caption := Program_Email1;
   Label_Mailto.Caption := Program_Email2;
+  Label_Mailto.Hint:=  sAB01;
+  Label_Mailto2.Hint:= sAB01;
   Label_URL.Caption :=  Program_URL;
+  Label_URL.Hint := sAB02;
+  Label_Dart.Caption := sAB03;
+  Label_KeyNoteNF.Caption := sAB04;
 
   Label_Version.Caption:= 'v.' + Program_Version;
   Label_Version.Left:= Label_Name.Left + Label_Name.Width + 10;

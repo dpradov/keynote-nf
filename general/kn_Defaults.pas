@@ -172,44 +172,13 @@ uses
    kn_global,
    kn_Chest,
    kn_Ini,
-   knt.App
+   knt.App,
+   knt.RS
   ;
 
 {$R *.DFM}
 
-resourcestring
-  STR_Ok = 'OK';
-  STR_Ok_Hint = 'Accept changes and close dialog box';
-  STR_01 = 'Folder Properties: %s';
-  STR_02 = 'Close';
-  STR_03 = 'Folder is Read-Only: cannot change properties';
-  STR_04 = ' [RO]';
-  STR_05 = ' View properties for current folder ';
-  STR_06 = 'Change properties for current folder';
-  STR_07 = '&Save as default for "%s"';
-  STR_08 = 'Defaults for ';
-  STR_09 = 'Change Defaults for NEW folders in THIS FILE';
-  STR_10 = 'Defaults for all files';
-  STR_11 = 'Change default properties for all NEW folders';
-  STR_12 = 'Folder name cannot be blank. Please enter a name.';
-  STR_13 = 'Folder name cannot contain the "%s" character';
-  STR_14 = 'Node name cannot contain the "%s" character';
-  STR_15 = 'OK to reset Editor font and color settings to default values?';
-  STR_16 = 'OK to reset Tree font and color settings to default values?';
-  STR_17 = 'Tokens for autonaming tree nodes:';
-  STR_18 = '(must be UPPERCASE)';
-  STR_19 = ' = current date';
-  STR_20 = ' = current time';
-  STR_21 = ' = total number of nodes';
-  STR_22 = ' = new node''s level';
-  STR_23 = ' = new node''s index';
-  STR_24 = ' = new node''s absolute index';
-  STR_25 = ' = parent node''s name';
-  STR_26 = ' = name of active folder';
-  STR_27 = ' = name of currently open file';
-  STR_28 = '<no icon>';
-  STR_29 = 'Invalid zoom ratio: ';
-  STR_30 = ' (and apply to "%s" folder)';
+
 
 procedure TForm_Defaults.FormCreate(Sender: TObject);
 var
@@ -256,7 +225,7 @@ begin
   Combo_TreeImages.ItemIndex := 1;
 
   Combo_Icons.ImageList := Chest.IMG_Categories;
-  Combo_Icons.AddItem( STR_28, -1 );
+  Combo_Icons.AddItem( sDef28, -1 );
   for i := 0 to pred( Chest.IMG_Categories.Count ) do
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
@@ -288,31 +257,31 @@ begin
     if SaveDefaults then begin
        Action:= propDefaults;
        if CB_SaveAsDef.Checked then
-          LB_Scope.Caption := STR_09
+          LB_Scope.Caption := sDef09
        else
-          LB_Scope.Caption := STR_11;
+          LB_Scope.Caption := sDef11;
 
     end
     else begin
        Action:= propThisFolder;
        if myNoteIsReadOnly then
-          LB_Scope.Caption := STR_05
+          LB_Scope.Caption := sDef05
        else
-          LB_Scope.Caption := STR_06;
+          LB_Scope.Caption := sDef06;
     end;
 
 
-    Button_OK.Hint := STR_Ok_Hint;
+    Button_OK.Hint := sDef0B;
 
     if (fOriginalAction = propThisFolder) and (myNoteIsReadOnly) then begin
        if Action = propThisFolder then begin
           Button_OK.ModalResult := mrCancel;
-          Button_OK.Caption := STR_02;
-          Button_OK.Hint := STR_03;
+          Button_OK.Caption := sDef02;
+          Button_OK.Hint := sDef03;
        end
        else begin
           Button_OK.ModalResult := mrOk;
-          Button_OK.Caption := STR_Ok;
+          Button_OK.Caption := sDef00;
        end;
        Button_Cancel.Visible := not (Action = propThisFolder);
     end;
@@ -341,7 +310,7 @@ begin
   try
 
     if myCurrentFileName <> '' then
-       CB_SaveAsDef.Caption := Format( STR_07, [myCurrentFileName] );
+       CB_SaveAsDef.Caption := Format( sDef07, [myCurrentFileName] );
 
     case Action of
       propThisFolder : begin
@@ -351,11 +320,11 @@ begin
 
         tabName:= RemoveAccelChar( myTabProperties.Name );
 
-        Caption := Format( STR_01, [tabName] );
+        Caption := Format( sDef01, [tabName] );
         if myNoteIsReadOnly then
-           Caption := Caption + STR_04
+           Caption := Caption + sDef04
         else
-           CB_SaveDefaults.Caption := CB_SaveDefaults.Caption + Format( STR_30, [tabName] );
+           CB_SaveDefaults.Caption := CB_SaveDefaults.Caption + Format( sDef30, [tabName] );
       end;
 
       propDefaults : begin
@@ -364,9 +333,9 @@ begin
         CB_SaveAsDef.Checked := mySaveFileDefaults;
 
        if mySaveFileDefaults then
-          Caption := STR_08 + myCurrentFileName
+          Caption := sDef08 + myCurrentFileName
        else
-          Caption := STR_10;
+          Caption := sDef10;
 
       end;
     end;
@@ -436,7 +405,7 @@ begin
     if ( Edit_FolderName.Text = '' ) then
     begin
       CanClose := false;
-      messagedlg( STR_12, mtError, [mbOK], 0 );
+      messagedlg( sDef12, mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Main;
       Edit_FolderName.SetFocus;
       exit;
@@ -446,7 +415,7 @@ begin
     begin
       CanClose := false;
       messagedlg( Format(
-        STR_13,
+        sDef13,
         [KNTLINK_SEPARATOR]
       ), mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Main;
@@ -458,7 +427,7 @@ begin
     begin
       CanClose := false;
       messagedlg( Format(
-        STR_14,
+        sDef14,
         [KNTLINK_SEPARATOR]
       ), mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Tree;
@@ -670,7 +639,7 @@ begin
   ShiftWasDown := ShiftDown;
   if ( Pages.ActivePage = Tab_Main ) then
   begin
-    if ( messagedlg( STR_15, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+    if ( messagedlg( sDef15, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
     InitializeChrome( myEditorChrome );
 
@@ -692,7 +661,7 @@ begin
   end
   else
   begin
-    if ( messagedlg( STR_16, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+    if ( messagedlg( sDef16, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
     InitializeChrome( myTreeChrome );
     InitializeChrome( tmpChrome );
 
@@ -724,17 +693,17 @@ end;
 procedure TForm_Defaults.BitBtn_TknHlpClick(Sender: TObject);
 begin
   messagedlg(
-    STR_17 +#13+
-    STR_18 +#13#13+
-     NODEINSDATE  + STR_19 +#13+
-     NODEINSTIME  + STR_20 +#13+
-     NODECOUNT    + STR_21 +#13+
-     NODELEVEL    + STR_22 +#13+
-     NODEINDEX    + STR_23 +#13+
-     NODEABSINDEX + STR_24 +#13+
-     NODEPARENT   + STR_25 +#13+
-     NODENOTENAME + STR_26 +#13+
-     NODEFILENAME + STR_27,
+    sDef17 +#13+
+    sDef18 +#13#13+
+     NODEINSDATE  + sDef19 +#13+
+     NODEINSTIME  + sDef20 +#13+
+     NODECOUNT    + sDef21 +#13+
+     NODELEVEL    + sDef22 +#13+
+     NODEINDEX    + sDef23 +#13+
+     NODEABSINDEX + sDef24 +#13+
+     NODEPARENT   + sDef25 +#13+
+     NODENOTENAME + sDef26 +#13+
+     NODEFILENAME + sDef27,
 
     mtInformation, [mbOK], 0
   );
@@ -783,7 +752,7 @@ begin
 
     except
       on E : Exception do begin
-        messagedlg( STR_29 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( sDef29 + E.Message, mtError, [mbOK], 0 );
         fDefaultZoom := 100;
         CB_Zoom.Text:= '100';
       end;

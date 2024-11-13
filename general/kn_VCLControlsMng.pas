@@ -130,27 +130,8 @@ uses
    kn_FindReplaceMng,
    kn_NoteFileMng,
    kn_KntFile,
-   knt.App;
-
-
-
-resourcestring
-  STR_00 = 'Click and drag to resize panels (Ctrl: tree max width / Alt: Toggle fixed)';
-  STR_01 = 'Error destroying tabsheet ';
-  STR_02 = 'Select text color';
-  STR_03 = 'Select &Highlight...';
-  STR_04 = 'Select highlight color';
-  STR_05 = 'Apply current font color to text';
-  STR_06 = 'Apply &Highlight';
-  STR_07 = 'Apply current highlight color to text';
-  STR_08 = 'Minimize application';
-  STR_09 = 'Exit application';
-  STR_12 = 'Hide &Resource Panel';
-  STR_13 = 'Show &Resource Panel';
-  STR_14 = 'The Resource panel must be visible to use this command. Show the Resource panel now?';
-  STR_15 = 'Use the mouse to apply the %s to another text or press Esc to cancel';
-  STR_16 = 'paragraph formatting';
-  STR_17 = 'font formatting';
+   knt.App,
+   knt.RS;
 
 
 
@@ -359,7 +340,7 @@ begin
               Cursor := crHSplit;
               Width := 4;
             end;
-            Hint := STR_00;
+            Hint := sVCL00;
           end;
 
           myTreeUI.SplitterNote := mySplitter;
@@ -466,7 +447,7 @@ begin
              pages.pages[i].Free;
            except
              on E : Exception do
-                App.ErrorPopup(E, STR_01 + s);
+                App.ErrorPopup(E, sVCL01 + s);
            end;
        end;
      end;
@@ -536,14 +517,14 @@ begin
          MMViewFormatNone.Checked := true;
 
        if UseOldColorDlg then begin
-         MMFormatTextColor.Hint := STR_02;
-         MMFormatHighlight.Caption := STR_03;
-         MMFormatHighlight.Hint := STR_04;
+         MMFormatTextColor.Hint := sVCL02;
+         MMFormatHighlight.Caption := sVCL03;
+         MMFormatHighlight.Hint := sVCL04;
        end
        else begin
-         MMFormatTextColor.Hint := STR_05;
-         MMFormatHighlight.Caption := STR_06;
-         MMFormatHighlight.Hint := STR_07;
+         MMFormatTextColor.Hint := sVCL05;
+         MMFormatHighlight.Caption := sVCL06;
+         MMFormatHighlight.Hint := sVCL07;
        end;
 
        AppLastActiveTime := now;
@@ -575,9 +556,9 @@ begin
 
        { // Removed TB_Exit button
        if MinimizeOnClose then
-         TB_Exit.Hint := STR_08
+         TB_Exit.Hint := sVCL08
        else
-         TB_Exit.Hint := STR_09;
+         TB_Exit.Hint := sVCL09;
        }
 
      end;
@@ -817,9 +798,9 @@ begin
 
         MMViewResPanel.Checked := KeyOptions.ResPanelShow;
         if KeyOptions.ResPanelShow then
-          ResMHidepanel.Caption := STR_12
+          ResMHidepanel.Caption := sVCL12
         else
-          ResMHidepanel.Caption := STR_13;
+          ResMHidepanel.Caption := sVCL13;
         TB_ResPanel.Down := MMViewResPanel.Checked;
   end;
 
@@ -1007,7 +988,7 @@ begin
   result := Form_Main.Pages_Res.Visible;
   if ( not result ) then begin
     if DoWarn then  begin
-      case messagedlg(STR_14, mtConfirmation, [mbYes,mbNo], 0 ) of
+      case messagedlg(sVCL14, mtConfirmation, [mbYes,mbNo], 0 ) of
         mrYes : begin
           Form_Main.MMViewResPanelClick( Form_Main.MMViewResPanel );
         end;
@@ -1324,10 +1305,10 @@ begin
     if value then begin
        Screen.Cursors[crCopyFormat] := LoadCursor(hInstance,'CPFORMAT');
        if (ParaFormatToCopy.dySpaceBefore >= 0) then
-          Str:= STR_16
+          Str:= sVCL16
        else
-          Str:= STR_17;
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(STR_15, [Str]);
+          Str:= sVCL17;
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(sVCL15, [Str]);
     end
     else begin
        CopyFormatMode:= cfDisabled;

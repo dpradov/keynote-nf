@@ -53,22 +53,8 @@ uses
    kn_Main,
    kn_FavExtDlg,
    kn_LinksMng,
-   knt.App;
-
-
-resourcestring
-  STR_01 = 'Error loading Favorites: ';
-  STR_02 = 'Rename favorite location';
-  STR_03 = 'Enter new name:';
-  STR_04 = 'A favorite named "%s" already exists. Choose another name';
-  STR_05 = 'Error renaming favorite location: ';
-  STR_06 = 'Favorite KeyNote location';
-  STR_07 = 'Enter location name:';
-  STR_08 = ' or click Cancel to abort.';
-  STR_09 = 'Delete "%s" from Favorites?';
-  STR_10 = 'Error deleting Favorite: ';
-  STR_11 = 'Favorites list error: ';
-
+   knt.App,
+   knt.RS;
 
 
 
@@ -90,7 +76,7 @@ begin
       LoadFavorites( FAV_FN );
     except
       On E : Exception do begin
-        showmessage( STR_01 + E.Message );
+        showmessage( sFav01 + E.Message );
         exit;
       end;
     end;
@@ -177,11 +163,11 @@ begin
   case myFav.ExternalDoc of
     false : begin
 
-      if InputQuery( STR_02, STR_03, newname ) then begin
+      if InputQuery( sFav02, sFav03, newname ) then begin
         newname := trim( newname );
         if (( newname = '' ) or ( AnsiCompareText( newname, myFav.Name ) = 0 )) then exit;
         if ( Form_Main.ListBox_ResFav.Items.IndexOf( newname ) >= 0 ) then begin
-          App.ErrorPopup(Format(STR_04, [newname]));
+          App.ErrorPopup(Format(sFav04, [newname]));
           exit;
         end;
         myFav.Name := newname;
@@ -228,7 +214,7 @@ begin
 
   except
     on E : Exception do
-	  App.ErrorPopup(E, STR_05);
+	  App.ErrorPopup(E, sFav05);
   end;
 
 
@@ -262,7 +248,7 @@ var
     function GetFavName( const AName : string ) : string;
     begin
       result := AName;
-      if ( not InputQuery( STR_06, STR_07, result )) then
+      if ( not InputQuery( sFav06, sFav07, result )) then
         result := '';
     end;
 
@@ -310,7 +296,7 @@ begin
      if (Name = '') then exit;
      i := GetIndexOfFavorite(Name);
      if (i >= 0) then begin
-       case App.DoMessageBox(Format(STR_04 + STR_08, [Name] ), mtError, [mbOK,mbCancel] ) of
+       case App.DoMessageBox(Format(sFav04 + sFav08, [Name] ), mtError, [mbOK,mbCancel] ) of
           mrOK : Name := GetFavName( Name );
           else
             exit;
@@ -391,7 +377,7 @@ begin
   if ( not assigned( myFav )) then exit;
   name := Form_Main.ListBox_ResFav.Items[i];
 
-  if (messagedlg(Format(STR_09, [name] ), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK) then begin
+  if (messagedlg(Format(sFav09, [name] ), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK) then begin
     try
       Form_Main.ListBox_ResFav.Items.Delete( i );
       if ( Form_Main.ListBox_ResFav.Items.Count > 0 ) then begin
@@ -408,7 +394,7 @@ begin
 
     except
       on E : Exception do
-	     App.ErrorPopup(E, STR_10);
+	     App.ErrorPopup(E, sFav10);
     end;
   end;
 end;
@@ -423,7 +409,7 @@ begin
       ClearLocationList( Favorites_List );
     except
       on E : Exception do begin
-   	    App.ErrorPopup(E, STR_11);
+   	    App.ErrorPopup(E, sFav11);
         exit;
       end;
     end;

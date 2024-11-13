@@ -110,96 +110,10 @@ uses
    kn_ImagesMng,
    kn_FindReplaceMng,
    knt.ui.tree,
-   knt.App
+   knt.App,
+   knt.RS
    ;
 
-
-
-resourcestring
-  STR_01 = 'Cannot create a new file: ';
-  STR_02 = ' New KNT file created.';
-  STR_04 = 'A new KNT file has been created. Would you like to save the new file now?' +#13#13+ '(The Auto Save function will not work until the file is named and saved first.)';
-  STR_05 = 'Open Keynote file';
-  STR_06 = ' Opening ';
-  STR_07 = 'One or more errors occurred while loading the file. The file may not have loaded completely. To minimize the risk of data loss, ' +
-                          'the file was opened in Read-Only mode. Use the "Save As..." command to save the file.';
-  STR_08 = ' <unknown> ';
-  STR_09 = ' diskette ';
-  STR_10 = ' network ';
-  STR_11 = ' CD-ROM ';
-  STR_12 = ' RAM ';
-  STR_13 = 'File "%s" was opened in Read-Only mode, because it resides on a %s drive "%s".';
-  STR_14 = ' File opened.';
-  STR_15 = ' Error.';
-  STR_16 = 'Folder monitor error: ';
-  STR_17 = ' ERROR %d opening file';
-  STR_18 = 'This file will be saved as a %s file. This format does not support some features which are unique to %s.' + #13#13 +
-                                     'OK to save the file in Dart Notes format? If you answer NO, the file will be saved as a %s file.';
-  STR_19 = ' Saving ';
-  STR_20 = 'Specified backup directory "%s" does not exist. Backup files will be created in the original file''s directory.';
-  STR_21 = 'Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?'+ #13#13 +' (Note: File was temporary saved in %s)';
-  STR_22 = ' File saved (%d folders, %d notes)';
-  STR_23 = ' Error %d while saving file.';
-
-  STR_InfSaving = '* NOTE:' +  #13 +
-                  '  - The .knt file in disk must not have been modified from last correct save.'  + #13 +
-                  '  - You should have multiple backup files in the folder %s, specially if you selected the option "Backup at regular intervals" (highly recommended)';
-  STR_24 = 'Error %d occurred while saving to a temporal folder (%s). The contents of the file in memory are perhaps partially corrupted.'  + #13#13 +
-            '-> Please, retry, and if you can''nt save to a .knt file, try to recover the nodes/notes with unsaved changes using, for example, File -> Export...'  + #13#13#13;
-  STR_25 = 'Failed to create output file "%s" (Error: %d)' + #13 + 'File was temporary saved in %s' + #13#13#13 ;
-  STR_26 = 'The Auto-Save option was turned OFF, to prevent KeyNote from automatically saving the (perhaps) damaged file.';
-
-  STR_27 = ' ERROR saving file';
-  STR_28 = 'Saving "';
-  STR_29 = 'Folder monitoring has been disabled due to the following error: ';
-  STR_30 = ' File closed.';
-  STR_31 = 'Revert to last saved version of' + #13 + '%s?';
-  STR_32 = 'Select backup folder';
-  STR_33 = 'Cannot copy file to its own directory.';
-  STR_34 = 'The file %s already exists. OK to overwrite existing file?';
-  STR_35 = ' Copying file...';
-  STR_36 = ' File copied.';
-  STR_37 = 'Successfully copied KNT file to';
-  STR_38 = 'Copying failed (';
-  STR_39 = 'Select file to merge folders from';
-  STR_40 = 'There was an error while loading merge file.';
-  STR_41 = 'The file you selected does not contain any folders.';
-  STR_42 = 'Error while loading merge file: ';
-  STR_43 = 'Folders in %s';
-  STR_44 = 'You did not select any folder: nothing to merge.';
-  STR_45 = ' Merging folders...';
-  STR_46 = 'Error while adding folders: ';
-  STR_47 = 'Merged %d folders from "%s"';
-  STR_48 = 'No folders were merged';
-  STR_83 = '%d Links or Mirror nodes couldn''t be adapted'+#13+'Links can be found searching for "file///<%d"';
-  STR_49 = 'Another application has modified the knt file %s. Reload the file from disk?';
-  STR_50 = '%s folder "%s" does not exist';
-  STR_51 = '. Create the folder now?';
-  STR_52 = 'Could not create folder: %s';
-  STR_53 = ' File modified by external application.';
-  STR_54 = 'Folders were modified. Save file before continuing?' +#13+ 'If you answer No, you will lose all changes made since last save.';
-  STR_55 = 'Current file has not been saved. If you continue, changes will be lost.'+ #13 + 'Proceed anyway?';
-  STR_56 = 'Warning!';
-  STR_57 = 'Select files for importing';
-  STR_58 = 'The file "%s" does not appear to be a text file (nor image). The result of importing it may be unpredictable.' + #13#13 +
-                'Import as a plain text file, anyway?';
-  STR_59 = ' Importing ';
-  STR_60 = 'Failed to convert HTML file "%s" to RTF';
-  STR_61 = 'Error importing ';
-  STR_62 = ' Finished importing.';
-  STR_63 = 'Cannot select methods for handling files.';
-  STR_65 = 'Cannot import a directory "%s"';
-  STR_67 = 'Unknown or unexpected file action (%d)';
-  STR_68 = 'Error while importing files: ';
-
-  STR_75 = 'Successfully created %s registry entries';
-  STR_76 = 'There was an error while creating file type associations: ';
-  STR_77 = 'This file is Read-Only. Use "Save As" command to save it with a new name.';
-  STR_78 = 'Backup at %s before any modification in "%s"';
-  STR_79 = 'File is not modified. Nothing to save';
-  STR_80 = #13#13 + 'Option "Autoregister file type" will be unchecked';
-  STR_81 = 'Cannot insert images in a plain text folder';
-  STR_82 = 'The file must first be saved (with Save or Save As)';
 
 const
   IntervalBAKDay = '_BAK_Day';
@@ -261,7 +175,7 @@ begin
              {$IFDEF KNT_DEBUG}
               Log.Add( 'Exception in KntFileNew: ' + E.Message );
              {$ENDIF}
-              App.Popupmessage( STR_01 + E.Message, mtError, [mbOK] );
+              App.Popupmessage( sFileM01 + E.Message, mtError, [mbOK] );
               result := 1;
               exit;
             end;
@@ -272,7 +186,7 @@ begin
           RTFMRepeatCmd.Enabled := false;
           TB_Repeat.ENabled := false;
 
-          StatusBar.Panels[PANEL_HINT].Text := STR_02;
+          StatusBar.Panels[PANEL_HINT].Text := sFileM02;
           KntFile.IsBusy := false;        // If FileIsBusy=true -> FileSetModified would be ignored
           App.FileSetModified;
           UpdateOpenFile;
@@ -289,7 +203,7 @@ begin
 
         if ( KeyOptions.AutoSave and ( not KeyOptions.SkipNewFilePrompt )) then
         begin
-          if ( App.PopupMessage( STR_04, mtConfirmation, [mbYes,mbNo] ) = mrYes ) then
+          if ( App.PopupMessage( sFileM04, mtConfirmation, [mbYes,mbNo] ) = mrYes ) then
             KntFileSave( KntFile.FileName );
         end;
   end;
@@ -332,7 +246,7 @@ begin
             FolderMon.Active := false;
             if ( FN = '' ) then begin
               with OpenDlg do begin
-                Title := STR_05;
+                Title := sFileM05;
                 Filter := FILTER_NOTEFILES {$IFDEF WITH_DART} + '|' + FILTER_DARTFILES {$ENDIF} + '|' + FILTER_ALLFILES;
                 Options := Options - [ofHideReadOnly];
                 Options := Options - [ofAllowMultiSelect];
@@ -359,7 +273,7 @@ begin
             if ( ExtractFileExt( FN ) = '' ) then
               FN := FN + ext_KeyNote;
 
-            StatusBar.Panels[PANEL_HINT].Text := STR_06 + FN;
+            StatusBar.Panels[PANEL_HINT].Text := sFileM06 + FN;
 
             Timer.Enabled := false;
             screen.Cursor := crHourGlass;
@@ -384,7 +298,7 @@ begin
             if ( result <> 0 ) then begin
               KntFile.ReadOnly := true;
               result := 0;
-              messagedlg( STR_07, mtWarning, [mbOK] , 0 );
+              messagedlg( sFileM07, mtWarning, [mbOK] , 0 );
             end;
 
             if FileExists( KntFile.FileName + ext_DEFAULTS ) then
@@ -396,28 +310,28 @@ begin
             NastyDriveType := '';
             case GetDriveType( PChar( ExtractFileDrive( KntFile.FileName ) + '\' )) of
               0, 1 : begin
-                NastyDriveType := STR_08;
+                NastyDriveType := sFileM08;
               end;
               DRIVE_REMOVABLE : begin
                 if KeyOptions.OpenFloppyReadOnly then
-                  NastyDriveType := STR_09;
+                  NastyDriveType := sFileM09;
               end;
               DRIVE_REMOTE : begin
                 if KeyOptions.OpenNetworkReadOnly then
-                  NastyDriveType := STR_10;
+                  NastyDriveType := sFileM10;
               end;
               DRIVE_CDROM : begin
-                NastyDriveType := STR_11;
+                NastyDriveType := sFileM11;
               end;
               DRIVE_RAMDISK : begin
-                NastyDriveType := STR_12;
+                NastyDriveType := sFileM12;
               end;
             end;
 
             if ( NastyDriveType <> '' ) then begin
               KntFile.ReadOnly := true;
               if KeyOptions.OpenReadOnlyWarn then
-                App.PopupMessage(Format(STR_13, [ExtractFilename(KntFile.FileName), NastyDriveType, ExtractFileDrive(KntFile.FileName)]), mtInformation, [mbOK]);
+                App.PopupMessage(Format(sFileM13, [ExtractFilename(KntFile.FileName), NastyDriveType, ExtractFileDrive(KntFile.FileName)]), mtInformation, [mbOK]);
             end;
 
             LastEditCmd := ecNone;
@@ -445,7 +359,7 @@ begin
 
             opensuccess := true;
 
-            StatusBar.Panels[PANEL_HINT].Text := STR_14;
+            StatusBar.Panels[PANEL_HINT].Text := sFileM14;
 
             try
               with ClipCapMng do begin
@@ -472,7 +386,7 @@ begin
           except
              on E : Exception do begin
                opensuccess := false;
-               StatusBar.Panels[PANEL_HINT].Text := STR_15;
+               StatusBar.Panels[PANEL_HINT].Text := sFileM15;
               {$IFDEF KNT_DEBUG}
                Log.Add( 'Error while opening file: ' + E.Message );
               {$ENDIF}
@@ -503,7 +417,7 @@ begin
              {$IFDEF KNT_DEBUG}
                Log.Add( 'Folder monitor error: ' + E.Message );
              {$ENDIF}
-               App.PopupMessage( STR_16 + E.Message, mtError, [mbOK] );
+               App.PopupMessage( sFileM16 + E.Message, mtError, [mbOK] );
             end;
           end;
 
@@ -559,7 +473,7 @@ begin
           AddToFileManager( FN, KntFile );
         end
         else
-          StatusBar.Panels[PANEL_HINT].Text := Format( STR_17, [result] );
+          StatusBar.Panels[PANEL_HINT].Text := Format( sFileM17, [result] );
 
         Log_StoreTick( 'FileOpen - END', 0, -1 );
         Log_Flush;
@@ -670,7 +584,7 @@ begin
       // Check if alternate backup directory exists
       if KeyOptions.BackupDir <> '' then begin
         if not DirectoryExists(KeyOptions.BackupDir) then begin
-          App.WarningPopup(Format(STR_20, [KeyOptions.BackupDir]));
+          App.WarningPopup(Format(sFileM20, [KeyOptions.BackupDir]));
           KeyOptions.BackupDir := '';
         end;
       end;
@@ -713,7 +627,7 @@ begin
       SUCCESS:= True;
       if KeyOptions.BackupRegularIntervals and FirstSaveInDay then begin
          DeleteFile(PChar(DayBakFN));
-         TFile.WriteAllText(DayBakFN_Txt, Format(STR_78, [DateToStr(Date), BakFN]));
+         TFile.WriteAllText(DayBakFN_Txt, Format(sFileM78, [DateToStr(Date), BakFN]));
       end;
       Exit;                      // EXIT
    end;
@@ -755,7 +669,7 @@ begin
 
 
    if KeyOptions.BackupRegularIntervals and FirstSaveInDay then
-      TFile.WriteAllText(DayBakFN_Txt, Format(STR_78, [DateToStr(Date), BakFN]));
+      TFile.WriteAllText(DayBakFN_Txt, Format(sFileM78, [DateToStr(Date), BakFN]));
 
    if not SUCCESS then begin
       bakFN:= '';
@@ -835,7 +749,7 @@ var
      Str: string;
   begin
      if not MoveFileExW_n (tempFN, FN, 5) then begin
-        Str:= STR_25 + STR_InfSaving;
+        Str:= sFileM25 + sFileMInfSaving;
         raise EKeyKntFileError.CreateFmt(Str, [FN, GetLastError, tempFN, KeyOptions.BackupDir]);
      end;
   end;
@@ -850,12 +764,12 @@ begin
      if KntFile.IsBusy then Exit;
 
      if (FN <> '') and KntFile.ReadOnly then begin
-         App.WarningPopup(STR_77);
+         App.WarningPopup(sFileM77);
          Exit;
      end;
 
      if (FN <> '') and not KntFile.Modified then begin
-         StatusBar.Panels[PANEL_HINT].Text := STR_79;
+         StatusBar.Panels[PANEL_HINT].Text := sFileM79;
          Exit;
      end;
 
@@ -932,7 +846,7 @@ begin
 
 
          Screen.Cursor := crHourGlass;
-         StatusBar.Panels[PANEL_HINT].text := STR_19 + FN;
+         StatusBar.Panels[PANEL_HINT].text := sFileM19 + FN;
 
 
          {
@@ -981,7 +895,7 @@ begin
             // BACKUP (using previous file, before this saving) of the file
             if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
                if not SUCCESS then begin
-                  if MessageDlg(Format(STR_21, [LastError, SysErrorMessage(LastError), tempFN]), mtWarning, [mbYes,mbNo], 0) <> mrYes then begin
+                  if MessageDlg(Format(sFileM21, [LastError, SysErrorMessage(LastError), tempFN]), mtWarning, [mbYes,mbNo], 0) <> mrYes then begin
                     Result := -2;
                     Exit;
                   end;
@@ -993,7 +907,7 @@ begin
             KntFile.FileName := FN;
             KntFile.Modified:= False;      // Must be done here, not in TNotFile.Save, and of course, never before RenameTempFile
 
-            StatusBar.Panels[PANEL_HINT].Text := Format(STR_22, [SavedFolders, SavedNotes]);
+            StatusBar.Panels[PANEL_HINT].Text := Format(sFileM22, [SavedFolders, SavedNotes]);
             KntFile.ReadOnly := False;    // We can do SaveAs from a Read-Only file (*)
                  { (*) In Windows XP is possible to select (with SaveDlg) the same file
                     as destination. In W10 it isn't }
@@ -1004,12 +918,12 @@ begin
          end
          else begin
             // ERROR on save
-            StatusBar.Panels[PANEL_HINT].Text := Format(STR_23, [Result] );
-            ErrStr := Format(STR_24 + STR_InfSaving, [Result, tempDirectory, KeyOptions.BackupDir] );
+            StatusBar.Panels[PANEL_HINT].Text := Format(sFileM23, [Result] );
+            ErrStr := Format(sFileM24 + sFileMInfSaving, [Result, tempDirectory, KeyOptions.BackupDir] );
 
             if KeyOptions.AutoSave then begin
                KeyOptions.AutoSave := False;
-               ErrStr := ErrStr + STR_26;
+               ErrStr := ErrStr + sFileM26;
             end;
 
             App.ErrorPopup(ErrStr);
@@ -1020,8 +934,8 @@ begin
            {$IFDEF KNT_DEBUG}
            Log.Add('Exception in KntFileSave: ' + E.Message);
            {$ENDIF}
-           StatusBar.Panels[PANEL_HINT].Text := STR_27;
-           App.ErrorPopup(E, STR_28 + ExtractFileName(FN));
+           StatusBar.Panels[PANEL_HINT].Text := sFileM27;
+           App.ErrorPopup(E, sFileM28 + ExtractFileName(FN));
            Result := 1;
          end;
        end;
@@ -1039,7 +953,7 @@ begin
          on E: Exception do
          begin
            FolderMon.Active := False;
-           App.PopupMessage(STR_29 + E.Message, mtError, [mbOK]);
+           App.PopupMessage(sFileM29 + E.Message, mtError, [mbOK]);
          end;
        end;
 
@@ -1148,7 +1062,7 @@ begin
 
         TAM_ActiveName.Caption := '';
         UpdateOpenFile;
-        StatusBar.Panels[PANEL_HINT].Text := STR_30;
+        StatusBar.Panels[PANEL_HINT].Text := sFileM30;
       finally
         if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then
            Res_RTF.RemoveKNTHiddenCharacters(false);
@@ -1190,7 +1104,7 @@ begin
 
         currentFN := KntFile.FileName;
         if (FN = '') and (currentFN = '') then begin
-           App.PopupMessage( STR_82, mtError, [mbOK] );
+           App.PopupMessage( sFileM82, mtError, [mbOK] );
            exit;
         end;
 
@@ -1201,7 +1115,7 @@ begin
           if FN = '' then begin
               DirDlg.Root := idDesktop;
               DirDlg.ShowSelectionInStatus := true;
-              DirDlg.Title := STR_32;
+              DirDlg.Title := sFileM32;
               DirDlg.Center := true;
 
               if ( KeyOptions.LastCopyPath <> '' ) then
@@ -1212,7 +1126,7 @@ begin
                 if ( not DirDlg.Execute ) then exit;
                 if ( properfoldername( extractfilepath( currentFN )) = properfoldername( DirDlg.Selection )) then
                 begin
-                  App.PopupMessage( STR_33, mtError, [mbOK]);
+                  App.PopupMessage( sFileM33, mtError, [mbOK]);
                   exit;
                 end;
 
@@ -1220,13 +1134,13 @@ begin
 
                 newFN := KeyOptions.LastCopyPath + ExtractFilename( currentFN );
                 if FileExists( newFN ) then
-                   if ( App.Popupmessage( Format(STR_34, [newFN]), mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then exit;
+                   if ( App.Popupmessage( Format(sFileM34, [newFN]), mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then exit;
 
           end
           else
              newFN:= FN;
 
-          StatusBar.Panels[PANEL_HINT].Text := STR_35;
+          StatusBar.Panels[PANEL_HINT].Text := sFileM35;
 
 
           oldModified := KntFile.Modified;
@@ -1241,11 +1155,11 @@ begin
               end;
 
               if ( cr = 0 ) then begin
-                StatusBar.Panels[PANEL_HINT].Text := STR_36;
-                App.PopUpMessage( STR_37 +#13 + NewFN, mtInformation, [mbOK] );
+                StatusBar.Panels[PANEL_HINT].Text := sFileM36;
+                App.PopUpMessage( sFileM37 +#13 + NewFN, mtInformation, [mbOK] );
               end
               else begin
-                App.Popupmessage( STR_38 + inttostr( cr ) + ')', mtError, [mbOK] );
+                App.Popupmessage( sFileM38 + inttostr( cr ) + ')', mtError, [mbOK] );
                {$IFDEF KNT_DEBUG}
                 Log.Add( 'Copying failed (' + inttostr( cr ) + ')' );
                {$ENDIF}
@@ -1253,7 +1167,7 @@ begin
 
             except
               on E : Exception do begin
-                StatusBar.Panels[PANEL_HINT].Text := STR_15;
+                StatusBar.Panels[PANEL_HINT].Text := sFileM15;
                {$IFDEF KNT_DEBUG}
                 Log.Add( 'Exception in KntFileCopy: ' + E.Message );
                {$ENDIF}
@@ -1330,7 +1244,7 @@ begin
 
           if ( KeyOptions.LastExportPath <> '' ) then
             OpenDlg.InitialDir := KeyOptions.LastExportPath;
-          OpenDlg.Title := STR_39;
+          OpenDlg.Title := sFileM39;
 
           if ( not OpenDlg.Execute ) then exit;
           MergeFN := OpenDlg.FileName;
@@ -1362,12 +1276,12 @@ begin
             AFileIsLoading:= true;                  // -> MergeFile notes uploaded here will not be marked as modified (nor will their fLastModified field be overwritten)
             LoadResult := MergeFile.Load( MergeFN, ImgManagerMF, ClipCapIdx, false);
             if ( LoadResult <> 0 ) then begin
-              messagedlg( STR_40, mtError, [mbOK], 0 );
+              messagedlg( sFileM40, mtError, [mbOK], 0 );
               exit;
             end;
 
             if ( MergeFile.FolderCount = 0 ) then begin
-              messagedlg( STR_41, mtInformation, [mbOK], 0 );
+              messagedlg( sFileM41, mtInformation, [mbOK], 0 );
               exit;
             end;
 
@@ -1378,7 +1292,7 @@ begin
 
           except
             on E : Exception do begin
-              messagedlg( STR_42 + E.Message, mtError, [mbOK], 0 );
+              messagedlg( sFileM42 + E.Message, mtError, [mbOK], 0 );
               exit;
             end;
           end;
@@ -1386,7 +1300,7 @@ begin
           TabSelector := TForm_SelectTab.Create( Form_Main );
           try
             TabSelector.myKntFile := MergeFile;
-            TabSelector.Caption := Format( STR_43, [ExtractFilename( MergeFile.FileName )] );
+            TabSelector.Caption := Format( sFileM43, [ExtractFilename( MergeFile.FileName )] );
             if ( not ( TabSelector.ShowModal = mrOK )) then exit;
           finally
             TabSelector.Free;
@@ -1403,7 +1317,7 @@ begin
           end;
 
           if ( mergecnt = 0 ) then begin
-            messagedlg( STR_44, mtInformation, [mbOK], 0 );
+            messagedlg( sFileM44, mtInformation, [mbOK], 0 );
             exit;
           end;
 
@@ -1414,7 +1328,7 @@ begin
           MergeNotesMultiNNodes:= TNoteList.Create;
           NewNotesMultiMergeNNodes:= TNoteList.Create;
 
-          StatusBar.Panels[PANEL_HINT].Text := STR_45;
+          StatusBar.Panels[PANEL_HINT].Text := sFileM45;
 
           screen.Cursor := crHourGlass;
 
@@ -1548,7 +1462,7 @@ begin
 
             ActiveFile.ConvertKNTLinksToNewFormatInNotes(NoteGIDs, GIDsNotConverted);      // only on selected folders (with .Info=1)
             if GIDsNotConverted > 0 then
-               messagedlg( Format(STR_83, [GIDsNotConverted, NoteGID_NotConverted]), mtWarning, [mbOK], 0 );
+               messagedlg( Format(sFileM83, [GIDsNotConverted, NoteGID_NotConverted]), mtWarning, [mbOK], 0 );
 
             for i := 0 to pred( MergeFile.FolderCount ) do
                 if FolderIDs[i].newFolder then begin
@@ -1559,7 +1473,7 @@ begin
 
           except
             On E : Exception do begin
-              messagedlg( STR_46 + E.Message, mtError, [mbOK], 0 );
+              messagedlg( sFileM46 + E.Message, mtError, [mbOK], 0 );
               exit;
             end;
           end;
@@ -1580,9 +1494,9 @@ begin
           screen.Cursor := crDefault;
           App.FileSetModified;
           if ( mergecnt > 0 ) then
-            StatusBar.Panels[PANEL_HINT].Text := Format( STR_47, [mergecnt, ExtractFilename( MergeFN )] )
+            StatusBar.Panels[PANEL_HINT].Text := Format( sFileM47, [mergecnt, ExtractFilename( MergeFN )] )
           else
-            StatusBar.Panels[PANEL_HINT].Text := STR_48;
+            StatusBar.Panels[PANEL_HINT].Text := sFileM48;
         end;
   end;
 
@@ -1597,7 +1511,7 @@ begin
   Application.BringToFront;
   Form_Main.FolderMon.Active := false;
   try
-    case App.DoMessageBox( Format(STR_49, [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo] ) of
+    case App.DoMessageBox( Format(sFileM49, [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo] ) of
       mrYes : begin
         KntFileOpen( ActiveFile.FileName );
       end;
@@ -1624,12 +1538,12 @@ begin
   end;
   if ( not AttemptCreate ) then begin
     if Prompt then
-      App.ErrorPopup(Format(STR_50, [name,folder]));
+      App.ErrorPopup(Format(sFileM50, [name,folder]));
     exit;
   end;
 
   if Prompt then begin
-    if App.DoMessageBox( Format(STR_50 + STR_51, [name,folder]), mtConfirmation, [mbYes,mbNo] ) <> mrYes then
+    if App.DoMessageBox( Format(sFileM50 + sFileM51, [name,folder]), mtConfirmation, [mbYes,mbNo] ) <> mrYes then
       exit;
   end;
 
@@ -1640,7 +1554,7 @@ begin
     on e : exception do begin
       result := false;
       if Prompt then
-        messagedlg( Format(STR_52, [E.Message] ), mtError, [mbOK], 0 );
+        messagedlg( Format(sFileM52, [E.Message] ), mtError, [mbOK], 0 );
     end;
   end;
 
@@ -1680,7 +1594,7 @@ begin
 
         if Changed then begin
           ActiveFile.ChangedOnDisk := true;
-          StatusBar.Panels[PANEL_HINT].Text := STR_53;
+          StatusBar.Panels[PANEL_HINT].Text := sFileM53;
          {$IFDEF KNT_DEBUG}
           Log.Add( 'FileChangedOnDisk: ' + s );
          {$ENDIF}
@@ -1709,7 +1623,7 @@ begin
        {$ENDIF}
         if ( not ActiveFile.Modified ) then exit;
         if Warn then begin
-          case messagedlg( STR_54, mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
+          case messagedlg( sFileM54, mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
             mrYes : begin
               // fall through and save file
             end;
@@ -1735,7 +1649,7 @@ begin
         if ( KntFileSave(ActiveFile.FileName) = 0 ) then
           result := true
         else
-          result := ( Application.MessageBox( PChar(STR_55), PChar(STR_56), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) = ID_YES );
+          result := ( Application.MessageBox( PChar(sFileM55), PChar(sFileM56), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) = ID_YES );
 
         if closing and not wasMinimized then begin
            Application.Restore;
@@ -1771,7 +1685,7 @@ begin
           oldFilter := Filter;
           Filter := FILTER_IMPORT;
           FilterIndex := LastImportFilter;
-          Title := STR_57;
+          Title := sFileM57;
           Options := Options + [ofAllowMultiSelect];
           OpenDlg.FileName := '';
           if ( KeyOptions.LastImportPath <> '' ) then
@@ -1840,11 +1754,11 @@ begin
 
       else begin
           if DirectoryExists( FN ) then begin
-             App.WarningPopup(Format(STR_65, [FN]));
+             App.WarningPopup(Format(sFileM65, [FN]));
              Result:= False;
           end
           else
-            case App.DoMessageBox( Format(STR_58, [ExtractFilename( FN )]), mtWarning, [mbYes,mbNo] ) of
+            case App.DoMessageBox( Format(sFileM58, [ExtractFilename( FN )]), mtWarning, [mbYes,mbNo] ) of
               mrYes : ImportFileType := itText;
             else
               Result:= False;
@@ -1889,12 +1803,12 @@ begin
 
             try
 
-              StatusBar.Panels[PANEL_HINT].Text := STR_59 + ExtractFilename( FN );
+              StatusBar.Panels[PANEL_HINT].Text := sFileM59 + ExtractFilename( FN );
 
               if ( ImportFileType = itHTML ) then   // first see if we can do the conversion, before we create a new folder for the file
               begin
                 if not ConvertHTMLToRTF( FN, OutStream) then begin
-                   App.WarningPopup(Format(STR_60, [FN]));
+                   App.WarningPopup(Format(sFileM60, [FN]));
                    exit;
                 end;
               end;
@@ -1963,7 +1877,7 @@ begin
 
               except
                 on E : Exception do begin
-                  App.ErrorPopup(E, STR_61 + FN);
+                  App.ErrorPopup(E, sFileM61 + FN);
                   exit;
                 end;
               end;
@@ -1973,7 +1887,7 @@ begin
               AddToFileManager( ActiveFile.FileName, ActiveFile ); // update manager (number of notes has changed)
               if assigned(myFolder) then
                  App.ActivateFolder(myFolder);
-              StatusBar.Panels[PANEL_HINT].text := STR_62;
+              StatusBar.Panels[PANEL_HINT].text := sFileM62;
               App.FileSetModified;
             end;
           end;
@@ -2034,7 +1948,7 @@ begin
             screen.Cursor := crHourGlass;
 
             try
-              App.ShowInfoInStatusBar(STR_59 + ExtractFilename( FN ));
+              App.ShowInfoInStatusBar(sFileM59 + ExtractFilename( FN ));
 
               try
                 if ImportFileType <> itImage then begin
@@ -2051,7 +1965,7 @@ begin
                   itHTML : begin
                    {$IFDEF KNT_DEBUG}Log.Add('Insert content (HTML)  FN:' + FN,  1 ); {$ENDIF}
                      if not ConvertHTMLToRTF( FN, Stream) then begin
-                       App.WarningPopup(Format(STR_60, [FN]));
+                       App.WarningPopup(Format(sFileM60, [FN]));
                        exit;
                      end
                      else begin
@@ -2071,7 +1985,7 @@ begin
                         ImageMng.InsertImage(FN, Editor, Owned, NameProposed)
                      else begin
                          if not InformedImgInPlain then begin
-                            App.WarningPopup(Format(STR_81, [FN]));
+                            App.WarningPopup(Format(sFileM81, [FN]));
                             InformedImgInPlain:= True;
                          end;
                          continue;
@@ -2088,14 +2002,14 @@ begin
 
               except
                 on E : Exception do begin
-                  App.ErrorPopup(E, STR_61 + FN);
+                  App.ErrorPopup(E, sFileM61 + FN);
                   exit;
                 end;
               end;
 
             finally
               screen.Cursor := crDefault;
-              App.ShowInfoInStatusBar(STR_62);
+              App.ShowInfoInStatusBar(sFileM62);
               Editor.Change;
             end;
 
@@ -2269,7 +2183,7 @@ begin
            end;
          end
          else begin
-           messagedlg( STR_63, mtError, [mbOK], 0 );
+           messagedlg( sFileM63, mtError, [mbOK], 0 );
            exit;
          end;
 
@@ -2380,7 +2294,7 @@ begin
        if ( myAction = factUnknown ) then begin
 
          if ( not ConsistentFileType( FileList )) then begin
-           //Messagedlg( STR_64, mtError, [mbOK], 0 );
+           //Messagedlg( sFileM64, mtError, [mbOK], 0 );
            //exit;
            fExt:= '.*';
          end;
@@ -2440,7 +2354,7 @@ begin
                    FileIsHTML := ExtIsHTML( fExt );
 
                    if DirectoryExists( FName ) then begin
-                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort] ) = mrAbort ) then
+                     if ( App.DoMessageBox( Format( sFileM65, [FName] ), mtWarning, [mbOK,mbAbort] ) = mrAbort ) then
                        exit
                      else
                        continue;
@@ -2451,7 +2365,7 @@ begin
                    // first see if we can do the conversion, before we create a new folder for the file
                    if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
                      if not ConvertHTMLToRTF( FName, OutStream) then begin
-                        App.WarningPopup(Format(STR_60, [FName]));
+                        App.WarningPopup(Format(sFileM60, [FName]));
                         exit;
                      end;
                    end;
@@ -2553,7 +2467,7 @@ begin
                  for i := 0 to pred( FileList.Count ) do begin
                    FName := FileList[i];
                    if DirectoryExists( FName ) then begin
-                     if ( App.DoMessageBox( Format( STR_65, [FName] ), mtWarning, [mbOK,mbAbort] ) = mrAbort ) then
+                     if ( App.DoMessageBox( Format( sFileM65, [FName] ), mtWarning, [mbOK,mbAbort] ) = mrAbort ) then
                        exit
                      else
                        continue;
@@ -2576,7 +2490,7 @@ begin
              end;
 
            else begin
-             messagedlg( Format( STR_67, [ord( myAction )] ), mtError, [mbOK], 0 );
+             messagedlg( Format( sFileM67, [ord( myAction )] ), mtError, [mbOK], 0 );
              exit;
            end;
 
@@ -2584,7 +2498,7 @@ begin
 
        except
          on E : Exception do begin
-           messagedlg( STR_68 + E.Message, mtError, [mbOK], 0 );
+           messagedlg( sFileM68 + E.Message, mtError, [mbOK], 0 );
            exit;
          end;
        end;
@@ -2895,11 +2809,11 @@ begin
       RegisterFiletype( ext_Macro,     _KNL_FILETYPE, _KNL_FILETYPE, 'open', ParamStr( 0 ));
 
       if KeyOptions.AutoRegisterPrompt then
-         messagedlg( Format( STR_75, [ext_KeyNote] ), mtInformation, [mbOK], 0 );
+         messagedlg( Format( sFileM75, [ext_KeyNote] ), mtInformation, [mbOK], 0 );
 
     except
       on E : Exception do begin
-        MessageDlg( STR_76 + e.Message + STR_80, mtWarning, [mbOK], 0 );
+        MessageDlg( sFileM76 + e.Message + sFileM80, mtWarning, [mbOK], 0 );
         KeyOptions.AutoRegisterFileType:= False;
       end;
     end;

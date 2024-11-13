@@ -69,18 +69,11 @@ uses
   kn_NoteFileMng,
   kn_Const,
   kn_Global,
-  knt.App;
+  knt.App,
+  knt.RS;
 
 {$R *.DFM}
 
-resourcestring
-  STR_01 = 'file';
-  STR_02 = 'files';
-  STR_03 = 'Select import method (%d *%s %s)';
-  STR_04 = '&General options';
-  STR_05 = '&Virtual node...';
-  STR_06 = '&HTML options';
-  STR_07 = 'Some files will be renamed';
 
 procedure TForm_DropFile.FormCreate(Sender: TObject);
 var
@@ -111,11 +104,11 @@ var
 begin
   OnActivate := nil;
   if ( NumberOfFiles < 2 ) then
-    s := STR_01
+    s := sFDrp01
   else
-    s := STR_02;
+    s := sFDrp02;
 
-  Caption := Format(STR_03, [NumberOfFiles, FileExt, s] );
+  Caption := Format(sFDrp03, [NumberOfFiles, FileExt, s] );
 
   try
     OfferImageLinkMode:= chk_ImageLinkMode.Visible;
@@ -131,7 +124,7 @@ begin
     else
     if ShowWarningRenamedNames then begin
        lblRenamed.Visible:= true;
-       lblRenamed.Caption:= STR_07;
+       lblRenamed.Caption:= sFDrp07;
     end;
 
   except
@@ -144,12 +137,12 @@ procedure TForm_DropFile.Btn_HTMLClick(Sender: TObject);
 begin
   case PagesImp.PageIndex of
     0 : begin
-      Btn_HTML.Caption := STR_04;
+      Btn_HTML.Caption := sFDrp04;
       PagesImp.PageIndex := 1;
     end;
     1 : begin
       PagesImp.PageIndex := 0;
-      Btn_HTML.Caption := STR_06
+      Btn_HTML.Caption := sFDrp06
     end;
   end;
 end;
@@ -161,7 +154,7 @@ var
 begin
   if Btn_HTML.Visible then begin
     Btn_HTML.Enabled := true;
-    Btn_HTML.Caption := STR_06;
+    Btn_HTML.Caption := sFDrp06;
   end;
 
   if Visible then begin

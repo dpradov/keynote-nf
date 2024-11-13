@@ -48,11 +48,8 @@ uses
    kn_DLLmng,
    kn_ClipUtils,
    kn_Main,
-   knt.App;
-
-resourcestring
-  STR_01 = 'Error while importing HTML text: ';
-  STR_02 = 'Error while exporting to HTML (method= ';
+   knt.App,
+   knt.RS;
 
 
 function ConvertHTMLToRTF(const inFilename : string; var OutStream: TMemoryStream) : boolean;
@@ -112,7 +109,7 @@ begin
 
   except
     on E : Exception do
-        messagedlg( STR_01 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( sExp01 + E.Message, mtError, [mbOK], 0 );
   end;
 end; // ConvertHTMLToRTF
 
@@ -145,7 +142,7 @@ begin
 
   except
     on E : Exception do
-        MessageDlg(STR_02 + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message, mtError, [mbOK], 0 );
+        MessageDlg(sExp02 + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message, mtError, [mbOK], 0 );
   end;
 end; // ConvertRTFToHTML
 

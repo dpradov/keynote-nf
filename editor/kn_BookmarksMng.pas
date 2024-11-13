@@ -45,14 +45,9 @@ uses
   kn_Main,
   kn_LocationObj,
   kn_LinksMng,
-  knt.App
+  knt.App,
+  knt.RS
   ;
-
-resourcestring
-  STR_Assigned = ' Bookmark %d assigned.';
-  STR_NotAssigned = ' Bookmark %d not assigned!';
-  STR_CannotAccess = ' Cannot access bookmark %d - Cleared';
-  STR_Jumped = ' Jumped to bookmark %d';
 
 
 
@@ -81,7 +76,7 @@ begin
   InsertOrMarkKNTLink( aLocation, false, '', Number + 1 );            // Bookmark0-9 -> [1-10]
   RegisterBookmark(Number, aLocation);
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Assigned, [Number] );
+  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sBmk01, [Number] );
 end;
 
 
@@ -125,14 +120,14 @@ begin
   aLocation:= ActiveFile.Bookmarks[Number];
   if assigned(aLocation) then begin
      if JumpToLocation(aLocation) then
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_Jumped, [Number] )
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sBmk04, [Number] )
      else begin
         BookmarkClear (Number, false);
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_CannotAccess, [Number] );
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sBmk03, [Number] );
      end;
   end
   else
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( STR_NotAssigned, [Number] );
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sBmk02, [Number] );
 end;
 
 procedure SerializeBookmarks(const tf: TTextFile);

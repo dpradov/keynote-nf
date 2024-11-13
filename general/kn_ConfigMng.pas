@@ -71,17 +71,9 @@ uses
    kn_PluginsMng,
    kn_LinksMng,
    kn_Main,
-   knt.App
+   knt.App,
+   knt.RS
    ;
-
-
-resourcestring
-  STR_KeybdError = 'Error in keyboard customization procedure: ';
-  STR_TabIcons = ' Customize Tab icons (%s) ';
-  STR_InvalidCLA = 'Invalid command line arguments:';
-  STR_ErrorLoading = 'Error while loading custom keyboard configuration from %s: "%s"';
-  STR_ErrorNonFatal  = 'There was a non-fatal error while loading defaults: ' + #13 +
-                        '%s' + #13#13 +  'Some settings may have been reset to defaults.';
 
 
 procedure ReadCmdLine;
@@ -223,7 +215,7 @@ begin
   end;
 
   if (errstr <> '' ) then
-      MessageDlg( STR_InvalidCLA + #13 + errstr, mtWarning, [mbOK], 0 );
+      MessageDlg( sCfg03 + #13 + errstr, mtWarning, [mbOK], 0 );
 
 end; // ReadCmdLine
 
@@ -391,7 +383,7 @@ begin
   except
     on E : Exception do
     begin
-      showmessage( Format(STR_ErrorNonFatal , [E.Message]) );
+      showmessage( Format(sCfg05 , [E.Message]) );
     end;
   end;
 end; // LoadDefaults
@@ -595,7 +587,7 @@ begin
 
     except
       on E : Exception do
-        MessageDlg(Format(STR_ErrorLoading, [Keyboard_FN, E.Message] ), mtError, [mbOK], 0 );
+        MessageDlg(Format(sCfg04, [Keyboard_FN, E.Message] ), mtError, [mbOK], 0 );
     end;
 
   finally
@@ -700,7 +692,7 @@ begin
 
     except
       on E : Exception do
-        messagedlg( STR_KeybdError + E.Message, mtError, [mbOK], 0 );
+        messagedlg( sCfg01 + E.Message, mtError, [mbOK], 0 );
     end;
 
   finally
@@ -742,7 +734,7 @@ begin
                  ( ActiveFile.TabIconsFN <> '' )) then
                 tmpicnfn := extractfilename( ActiveFile.TabIconsFN );
             end;
-            GroupBox_TabIcons.Caption := Format( STR_TabIcons, [tmpicnfn] );
+            GroupBox_TabIcons.Caption := Format( sCfg02, [tmpicnfn] );
           end;
 
         if ( Form_Options.ShowModal = mrOK ) then begin

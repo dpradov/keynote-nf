@@ -29,26 +29,10 @@ uses
    RxRichEd,
    SynGdiPlus,
    gf_misc,
-   kn_Const
+   kn_Const,
+   knt.RS
    ;
 
-resourcestring
-  Program_Desc     = 'Tabbed notebook for Windows';
-  URLAct1 = 'Open';
-  URLAct2 = 'Open in new window';
-  URLAct3 = 'Copy to clipboard';
-  URLAct4 = 'Both (open and copy)';
-  URLAct5 = 'Prompt';
-  URLAct6 = 'Do nothing';
-  URLAct7 = 'Create or Modify';
-  DIR1 = 'Up';
-  DIR2 = 'Down';
-  DIR3 = 'Left';
-  DIR4 = 'Right';
-  POS1 = 'Top';
-  POS2 = 'Bottom';
-  POS3 = 'Left';
-  POS4 = 'Right';
 
 const
   ext_KeyNote    = '.knt'; // KeyNote data file
@@ -363,7 +347,7 @@ type
 
 const
   URL_ACTIONS : array[TURLAction] of string = (
-    URLAct1, URLAct2, URLAct3, URLAct4, URLAct5, URLAct6, URLAct7
+    sINFUrlAct1, sINFUrlAct2, sINFUrlAct3, sINFUrlAct4, sINFUrlAct5, sINFUrlAct6, sINFUrlAct7
   );
 
 (*
@@ -454,7 +438,7 @@ type
 
 const
   DIRECTION_NAMES : array[TDirection] of string = (
-    DIR1, DIR2, DIR3, DIR4
+    sINFDIR1, sINFDIR2, sINFDIR3, sINFDIR4
   );
 
 type
@@ -711,7 +695,7 @@ type
 
 const
   TAB_POSITIONS : array[TTabOrientation] of string = (
-     POS1, POS2, POS3, POS4
+     sINFPOS1, sINFPOS2, sINFPOS3, sINFPOS4
   );
 
 type

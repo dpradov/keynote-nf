@@ -241,21 +241,8 @@ uses
    kn_VCLControlsMng,
    kn_LinksMng,
    kn_FindReplaceMng,
-   kn_NoteFileMng;
-
-resourcestring
-  STR_01 = ' Cannot perform operation: Editor is Read-Only';
-  STR_02 = 'There is no active editor';
-  STR_10 = 'Function not implemented. ';
-  STR_15 = '(none)';
-  STR_16 = ' Select some text before issuing this command.';
-  STR_50 = 'Unexpected or not implemented command: ';
-  STR_80 = 'Unexpected error. ';
-  STR_Stat_05 = #13#13+'Number of nodes (notes) in tree: %d';
-  STR_Stat_06 = 'Chars: %d  Alph: %d  Words: %d';
-  STR_Stat_07 = #13#13+'Clik OK to copy information to clipboard.';
-  STR_Tip_01 = 'Cannot display Tip of the Day: file "%s" not found.';
-  STR_Tip_02 = ': Tip of the Day';
+   kn_NoteFileMng,
+   knt.RS;
 
 
 
@@ -322,7 +309,7 @@ function TKntApp.CheckActiveEditor: boolean;
 begin
     Result:= False;
     if not assigned(ActiveEditor) then begin
-       ShowInfoInStatusBar(STR_02);
+       ShowInfoInStatusBar(sApp02);
        exit;
     end;
 
@@ -333,7 +320,7 @@ function TKntApp.CheckActiveEditorNotReadOnly: boolean;
 begin
     Result:= False;
     if not assigned(ActiveEditor) then begin
-       ShowInfoInStatusBar(STR_02);
+       ShowInfoInStatusBar(sApp02);
        exit;
     end;
 
@@ -690,7 +677,7 @@ begin
       end
       else begin
          Form_Main.TB_Color.AutomaticColor := clWindowText;
-         Form_Main.TAM_ActiveName.Caption := STR_15;
+         Form_Main.TAM_ActiveName.Caption := sApp04;
       end;
 
    finally
@@ -816,12 +803,12 @@ end;
 
 procedure TKntApp.WarnEditorIsReadOnly;
 begin
-   ShowInfoInStatusBar(STR_01);
+   ShowInfoInStatusBar(sApp01);
 end;
 
 procedure TKntApp.WarnNoTextSelected;
 begin
-  ShowInfoInStatusBar(STR_16);
+  ShowInfoInStatusBar(sApp05);
 end;
 
 
@@ -843,7 +830,7 @@ end;
 
 procedure TKntApp.WarnFunctionNotImplemented(const aStr: string);
 begin
-  WarningPopup(STR_10 + aStr);
+  WarningPopup(sApp03 + aStr);
 {$IFDEF KNT_DEBUG}
   Log.Add( 'Not implemented call: ' + aStr );
 {$ENDIF}
@@ -854,7 +841,7 @@ var
   msg: string;
 begin
   if Str = '' then
-     msg:= STR_80
+     msg:= sApp07
   else
      msg:= Str;
 
@@ -866,7 +853,7 @@ end;
 
 procedure TKntApp.WarnCommandNotImplemented(const aStr: string);
 begin
-  WarningPopup(STR_50 + aStr);
+  WarningPopup(sApp06 + aStr);
 {$IFDEF KNT_DEBUG}
   Log.Add( 'Not implemented call: ' + aStr );
 {$ENDIF}
@@ -899,12 +886,12 @@ begin
 
   if assigned(ActiveFolder) then begin
      numNodes := ActiveFolder.TV.TotalCount;
-     s := s + Format( STR_Stat_05,  [numNodes] );
+     s := s + Format( sApp08,  [numNodes] );
   end;
 
-  App.ShowInfoInStatusBar(Format(STR_Stat_06, [numChars, numAlpChars, numWords] ));
+  App.ShowInfoInStatusBar(Format(sApp09, [numChars, numAlpChars, numWords] ));
 
-  if ( MessageDlg( s + STR_Stat_07, mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
+  if ( MessageDlg( s + sApp10, mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
       Clipboard.SetTextBuf( Pchar( s ));
 
 end;
@@ -916,7 +903,7 @@ var
   wasiconic : boolean;
 begin
   if ( not fileexists( TIP_FN )) then begin
-    PopupMessage( Format(STR_Tip_01, [extractfilename( TIP_FN )] ), mtInformation, [mbOK] );
+    PopupMessage( Format(sApp11, [extractfilename( TIP_FN )] ), mtInformation, [mbOK] );
     // turn tips off, so that we don't get this error message
     // every time KeyNote starts. (e.g. if user deleted the .tip file)
     KeyOptions.TipOfTheDay := false;
@@ -932,7 +919,7 @@ begin
     with TipDlg do begin
       ShowAtStartup := KeyOptions.TipOfTheDay;
       TipFile := TIP_FN;
-      DlgCaption := Program_Name + STR_Tip_02;
+      DlgCaption := Program_Name + sApp12;
       PanelColor := _GF_CLWINDOW;
       TipFont.Size := 10;
       TipTitleFont.Size := 12;

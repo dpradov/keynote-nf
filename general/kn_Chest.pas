@@ -72,14 +72,10 @@ var
 implementation
 uses
    kn_Const,
-   knt.App;
+   knt.App,
+   knt.RS;
 
 {$R *.DFM}
-
-resourcestring
-  STR_FailedLoadBuiltin = 'Failed to load built-in category images from resource.';
-  STR_FailedLoad = 'Failed to load category images from ';
-  STR_FailedSave  = 'Failed to save category images to ';
 
 
 procedure SaveDefaultBitmaps;
@@ -137,7 +133,7 @@ begin
   end
   else begin
     _LOADED_ICON_FILE := '';
-    Messagedlg( STR_FailedLoadBuiltin, mtError, [mbOK], 0 );
+    Messagedlg( sChest01, mtError, [mbOK], 0 );
   end;
 end; // LoadCategoryBitmapsBuiltIn
 
@@ -159,7 +155,7 @@ begin
       on E : Exception do begin
         _LOADED_ICON_FILE := '';
         result := false;
-        Messagedlg( STR_FailedLoad + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
+        Messagedlg( sChest02 + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end
@@ -182,7 +178,7 @@ begin
       s.WriteComponent( Chest.IMG_Categories );
     except
       on E : Exception do begin
-        Messagedlg( STR_FailedSave + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
+        Messagedlg( sChest03 + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;

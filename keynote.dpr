@@ -140,7 +140,8 @@ uses
   knt.model.note in 'model\knt.model.note.pas',
   knt.ui.note in 'ui\knt.ui.note.pas' {KntNoteUI: TFrame},
   knt.ui.info in 'ui\knt.ui.info.pas',
-  VirtualTrees.Accessibility_MOD in 'ui\VirtualTrees.Accessibility_MOD.pas';
+  VirtualTrees.Accessibility_MOD in 'ui\VirtualTrees.Accessibility_MOD.pas',
+  knt.RS in 'Lang\knt.RS.pas';
 
 {$R *.RES}
 

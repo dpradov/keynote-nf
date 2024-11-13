@@ -160,16 +160,11 @@ uses
   kn_NoteFileMng,
   kn_global,
   kn_info,
-  knt.App
+  knt.App,
+  knt.RS
   ;
 
 {$R *.DFM}
-
-resourcestring
-  STR_01 = 'Image no available. Change in caption will not saved';
-  STR_Img_01 = 'Save image file as';
-  STR_Img_02 = 'All image files';
-  STR_02 = 'Open image file  (Ctrl -> open file location)';
 
 
 var
@@ -289,7 +284,7 @@ begin
   if not ok then begin
      btnAlwaysVisible.Down:= false;
      btnAlwaysVisibleClick(nil);
-     App.DoMessageBox(STR_01, mtWarning, [mbOK]);
+     App.DoMessageBox(sImgF01, mtWarning, [mbOK]);
   end;
 end;
 
@@ -356,7 +351,7 @@ begin
    fImagePath:= ImageMng.GetImagePath(Image);
    if RegisteredImg and (fImagePath <> '') then begin
       btnOpenFolder.Enabled:= true;
-      btnOpenFolder.Hint:= STR_02 + '   ' + fImagePath;
+      btnOpenFolder.Hint:= sImgF04 + '   ' + fImagePath;
    end
    else begin
       btnOpenFolder.Enabled:= false;
@@ -608,8 +603,8 @@ begin
   with Form_Main.SaveDlg do begin
     try
       oldFilter := Filter;
-      Title:= STR_Img_01;
-      Filter:= STR_Img_02 + FILTER_IMAGES;
+      Title:= sImgF02;
+      Filter:= sImgF03 + FILTER_IMAGES;
       if ( KeyOptions.LastExportPath <> '' ) then
         InitialDir := KeyOptions.LastExportPath
       else

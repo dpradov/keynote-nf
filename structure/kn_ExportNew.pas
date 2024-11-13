@@ -172,7 +172,8 @@ uses
    kn_Main,
    kn_NoteFileMng,
    kn_EditorUtils,
-   knt.App
+   knt.App,
+   knt.RS
    ;
 
 var
@@ -180,33 +181,6 @@ var
   FontSizes_Max, FontSizes_Inc, FontSizes_Min: integer;
 
 {$R *.DFM}
-
-resourcestring
-  STR_00 = 'Export node content';
-  STR_01 = 'Exporting is underway. OK to abort?';
-  STR_02 = 'Please select a valid directory for exported files.';
-  STR_03 = 'Specified output directory does not not exit. Please select a valid directory.';
-  STR_04 = 'You did not select any foldersnotes for exporting.';
-  STR_11 = 'Error while exporting folders: ';
-  STR_12 = 'Exported  %d folders (%d notes).';
-  STR_13 = 'Exporting was aborted due to an error.';
-  STR_14 = 'Exporting was aborted at user request.';
-  STR_15 = 'The following token can be used in headings:' + #13#13 +
-                  '%s%s - Filename'  + #13 +
-                  '%s%s - Folder name' + #13 +
-                  '%s%s - Node name' + #13 +
-                  '%s%s - Node level' + #13 +
-                  '%s%s - Node index'  + #13 +
-                  '%s%s - Line break'  + #13 +
-                  '%s%s - Symbols, increasing'  + #13 +
-                  '%s%s - Symbols, decreasing' + #13#13 +
-                  'F1 => More INFO and usage examples';
-
-  STR_16 = 'No active tree node: select a node first.';
-  STR_17 = 'Current node has no text: nothing to export.';
-  STR_18 = ' Node exported to ';
-  STR_19 = 'Error exporting node: ';
-  STR_20 = '''Current node'' will be managed as ''Current node and subtree'' for KeyNote format'+ #13 +' Continue?';
 
 
 procedure PrepareExportOptions (SymbolsRepetition, FontSizesInHeading: string);
@@ -477,7 +451,7 @@ end; // ACTIVATE
 
 function TForm_ExportNew.ConfirmAbort : boolean;
 begin
-  result := ( messagedlg( STR_01, mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK );
+  result := ( messagedlg( sExpFrm01, mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK );
   DoAbort := result;
 end; // ConfirmAbort
 
@@ -801,12 +775,12 @@ function TForm_ExportNew.Validate : boolean;
 begin
   result := false;
   if ( ExportOptions.ExportPath = '' ) then begin
-    App.DoMessageBox( STR_02, mtError, [mbOK] );
+    App.DoMessageBox( sExpFrm02, mtError, [mbOK] );
     exit;
   end;
 
   if ( not System.SysUtils.DirectoryExists( ExportOptions.ExportPath )) then begin
-    App.DoMessageBox( STR_03, mtError, [mbOK] );
+    App.DoMessageBox( sExpFrm03, mtError, [mbOK] );
     exit;
   end;
 
@@ -879,7 +853,7 @@ begin
   WriteConfig;
 
   if (ExportOptions.TargetFormat= xfKeyNote) and (ExportOptions.TreeSelection = tsNode) and (Combo_TreeSelection.Enabled) then
-      if ( messagedlg( STR_20, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
+      if ( messagedlg( sExpFrm20, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
          Exit;
 
   cnt := 0;
@@ -908,7 +882,7 @@ begin
   end;
   
   if ( cnt = 0 ) then begin
-    messagedlg( STR_04, mtError, [mbOK], 0 );
+    messagedlg( sExpFrm04, mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -1306,7 +1280,7 @@ begin
     except
       on E : Exception do begin
          WasError := true;
-         App.ErrorPopup(E, STR_11);
+         App.ErrorPopup(E, sExpFrm11);
       end;
     end;
 
@@ -1317,12 +1291,12 @@ begin
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
-    ExitMessage := Format(STR_12, [ExportedFolders, ExportedNotes] );
+    ExitMessage := Format(sExpFrm12, [ExportedFolders, ExportedNotes] );
     if WasError then
-       ExitMessage := ExitMessage + #13 + STR_13
+       ExitMessage := ExitMessage + #13 + sExpFrm13
     else
     if DoAbort then
-       ExitMessage := ExitMessage + #13 + STR_14;
+       ExitMessage := ExitMessage + #13 + sExpFrm14;
 
     if ( messagedlg( ExitMessage, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
         ModalResult := mrCancel; // close dialog box is Cancel clicked
@@ -1629,7 +1603,7 @@ end; // BUTTON SELECT CLICK
 
 procedure TForm_ExportNew.Btn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg(format(STR_15,[_TokenChar,EXP_FILENAME,
+  messagedlg(format(sExpFrm15,[_TokenChar,EXP_FILENAME,
                                    _TokenChar,EXP_FOLDERNAME,
                                    _TokenChar,EXP_NODENAME,
                                    _TokenChar,EXP_NODELEVEL,
@@ -1666,13 +1640,13 @@ var
 begin
   NNode:= ActiveTreeUI.GetFocusedNNode;
   if not assigned(NNode) then begin
-    showmessage( STR_16 );
+    showmessage( sExpFrm16 );
     exit;
   end;
 
   Editor:= ActiveFolder.Editor;
   if ( Editor.Lines.Count = 0 ) then begin
-    showmessage( STR_17 );
+    showmessage( sExpFrm17 );
     exit;
   end;
 
@@ -1686,7 +1660,7 @@ begin
 
   with Form_Main.SaveDlg do begin
     try
-      Title:= STR_00;
+      Title:= sExpFrm00;
       oldFilter := Filter;
       Filter := FILTER_EXPORT;
       FilterIndex := KeyOptions.LastExportFormat;
@@ -1810,11 +1784,11 @@ begin
       end;
     end;
 
-    Form_Main.Statusbar.Panels[PANEL_HINT].Text := STR_18 + ExtractFilename( ExportFN );
+    Form_Main.Statusbar.Panels[PANEL_HINT].Text := sExpFrm18 + ExtractFilename( ExportFN );
 
   except
     on E : Exception do
-       messagedlg( STR_19 + E.Message, mtError, [mbOK], 0 );
+       messagedlg( sExpFrm19 + E.Message, mtError, [mbOK], 0 );
   end;
  finally
    if RTFAux <> nil then

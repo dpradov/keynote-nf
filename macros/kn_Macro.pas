@@ -102,13 +102,9 @@ uses
   kn_Global,
   kn_Const,
   kn_MacroCmd,
-  kn_MacroMng;
+  kn_MacroMng,
+  knt.RS;
 
-resourcestring
-  STR_Macro_01 = 'Invalid macro header';
-  STR_Macro_02 = 'Invalid macro version information';
-  STR_Macro_03 = 'Error while loading macro "%s": %s' + #13#13 + 'Continue loading macros?';
-  STR_Macro_04 = 'Unexpected error while loading macro "%s": %s';
 
 constructor TMacro.Create;
 begin
@@ -265,7 +261,7 @@ begin
   ;Version|Macro Name|Description|Date modified
   }
 
-  ErrStr := STR_Macro_01;
+  ErrStr := sMac01;
   if ( infostr = '' ) then exit;
   if ( infostr[1] <> _MACRO_COMMENT_CHAR ) then exit;
 
@@ -277,7 +273,7 @@ begin
   delete( infostr, 1, p );
 
   // validate version string
-  ErrStr := STR_Macro_02;
+  ErrStr := sMac02;
   if ( length( s ) < 3 ) then exit;
 
   q := pos( '.', s );
@@ -376,7 +372,7 @@ begin
             Macro_List.AddObject( Macro.Name, Macro );
          end
          else begin
-           if DoWarn and ( messagedlg( Format(STR_Macro_03,[DirInfo.Name, Macro.LastError]), mtWarning, [mbYes, mbNo], 0 ) <> mrYes ) then
+           if DoWarn and ( messagedlg( Format(sMac03,[DirInfo.Name, Macro.LastError]), mtWarning, [mbYes, mbNo], 0 ) <> mrYes ) then
                FindResult := -1; // will abort loop
            Macro.Free;
          end;
@@ -386,7 +382,7 @@ begin
     except
       On E : Exception do
         if DoWarn then
-           messagedlg( Format(STR_Macro_04, [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
+           messagedlg( Format(sMac04, [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
     end;
 
   finally

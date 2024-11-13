@@ -77,17 +77,12 @@ uses
    kn_const,
    kn_Global,
    kn_LinksMng,
-   knt.App
+   knt.App,
+   knt.RS
    ;
 
 
 {$R *.DFM}
-
-resourcestring
-  STR_01 = 'OK';
-  STR_02 = 'Create Hyperlink';
-  STR_03 = 'Modify';
-  STR_04 = 'Choose Action for Hyperlink';
 
 
 function FileNameToURL( fn : string ) : string;
@@ -246,17 +241,17 @@ begin
         Button_Copy.Visible := false;
         Button_Open.Visible := false;
         Button_OpenNew.Visible := false;
-        Button_Modify.Caption := STR_01;
+        Button_Modify.Caption := sURL01;
         Button_Modify.Default := true;
-        Caption:= STR_02;
+        Caption:= sURL02;
      end
      else begin
         Button_Copy.Visible := true;
         Button_Open.Visible := true;
         Button_OpenNew.Visible := true;
-        Button_Modify.Caption := STR_03;
+        Button_Modify.Caption := sURL03;
         Button_Open.Default := true;
-        Caption:= STR_04;
+        Caption:= sURL04;
      end;
 
       if AllowURLModification then begin
