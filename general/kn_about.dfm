@@ -82,9 +82,9 @@ object AboutBox: TAboutBox
     object Label_Desc: TLabel
       Left = 69
       Top = 43
-      Width = 225
+      Width = 36
       Height = 18
-      Caption = 'Tabbed notebook for Windows'
+      Caption = 'Desc'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -15
@@ -98,9 +98,9 @@ object AboutBox: TAboutBox
     object Label_License: TLabel
       Left = 71
       Top = 72
-      Width = 285
+      Width = 44
       Height = 15
-      Caption = 'Free software, Open Source (Mozilla Public License)'
+      Caption = 'License'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -12
@@ -138,11 +138,10 @@ object AboutBox: TAboutBox
     object Label_URL: TLabel
       Left = 125
       Top = 177
-      Width = 191
+      Width = 4
       Height = 13
       Cursor = crHandPoint
-      Hint = 'Double-click to visit home page; Right-click to copy'
-      Caption = 'https://github.com/dpradov/keynote-nf'
+      Caption = '-'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -157,13 +156,10 @@ object AboutBox: TAboutBox
     object Label_MAILTO: TLabel
       Left = 125
       Top = 162
-      Width = 162
+      Width = 4
       Height = 13
       Cursor = crHandPoint
-      Hint = 
-        'Double-click to send email; Right-click to copy'#13#10'(No HTML-format' +
-        'ted email, PLEASE!)'
-      Caption = 'marekjed@users.sourceforge.net'
+      Caption = '-'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -178,11 +174,9 @@ object AboutBox: TAboutBox
     object Label_Dart: TLabel
       Left = 66
       Top = 211
-      Width = 307
-      Height = 26
-      Caption = 
-        'Keynote was inspired by a fantastic freeware prog: DaRT Notes'#13#10'b' +
-        'y Andre v.d. Merwe (See "dart.txt" for information)'
+      Width = 29
+      Height = 13
+      Caption = 'Dart..'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -411,9 +405,9 @@ object AboutBox: TAboutBox
     object Label_Credit2: TLabel
       Left = 71
       Top = 123
-      Width = 180
+      Width = 55
       Height = 13
-      Caption = 'Copyright '#169' 2000-05  Marek Jedlinski'
+      Caption = 'Copyright..'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -425,9 +419,9 @@ object AboutBox: TAboutBox
     object Label_Credit1: TLabel
       Left = 71
       Top = 104
-      Width = 278
+      Width = 55
       Height = 13
-      Caption = 'Copyright '#169' 2007-15  Daniel Prado Velasco   (since 1.7.0)'
+      Caption = 'Copyright..'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -439,13 +433,10 @@ object AboutBox: TAboutBox
     object Label_MAILTO2: TLabel
       Left = 125
       Top = 147
-      Width = 134
+      Width = 4
       Height = 13
       Cursor = crHandPoint
-      Hint = 
-        'Double-click to send email; Right-click to copy'#13#10'(No HTML-format' +
-        'ted email, PLEASE!)'
-      Caption = 'dprado.keynote@gmail.com'
+      Caption = '-'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -473,9 +464,9 @@ object AboutBox: TAboutBox
     object Label_Version: TLabel
       Left = 193
       Top = 20
-      Width = 83
+      Width = 44
       Height = 14
-      Caption = 'v1.8.0 Beta 1'
+      Caption = 'version'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -12
@@ -493,9 +484,9 @@ object AboutBox: TAboutBox
     object Label_Version_Date: TLabel
       Left = 282
       Top = 21
-      Width = 64
+      Width = 16
       Height = 13
-      Caption = '(01/07/2023)'
+      Caption = '(..)'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -506,9 +497,9 @@ object AboutBox: TAboutBox
     object Label_KeynoteNF: TLabel
       Left = 66
       Top = 243
-      Width = 241
+      Width = 43
       Height = 13
-      Caption = 'KeyNote NF is an evolution of KeyNote (by Marek)'
+      Caption = 'KNT NF..'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
