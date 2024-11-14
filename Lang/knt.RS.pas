@@ -691,27 +691,8 @@ resourcestring
   sLnk33 = 'Action canceled';
 
 
-  // kn_EditorUtils.pas ======================================================================
-  sEdUt_ = 'kn_EditorUtils.pas';
-  sEdUt01 = 'UAS path';
-  sEdUt02 = 'Please specify full path to uas.exe';
-  sEdUt03 = 'KeyNote cannot find the location of uas.exe. UltimaShell Autocompletion Server will not be loaded.';
-  sEdUt04 = ' UltimaShell Autocompletion Server loaded.';
-  sEdUt05 = 'Cannot load UltimaShell Autocompletion Server. It may not be installed. Would you like to go to the UAS website and download the application?';
-  sEdUt06 = ' UltimaShell Autocompletion Server unloaded.';
-  sEdUt07 = ' UltimaShell Autocompletion Server is not loaded.';
-  sEdUt11 = 'A Read-Only folder cannot be used for clipboard capture.';
-  sEdUt12 = 'a new node';
-  sEdUt13 = 'whichever node is currently selected';
-  sEdUt14 = 'Each copied item will be pasted into %s in the tree. Continue?';
-  sEdUt15 = ' Clipboard capture is now ';
-  sEdUt16 = ' Capturing text from clipboard';
-  sEdUt19 = ' Clipboard capture done';
-  sEdUt20 = 'Current folder contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.';
-
-
-  // knt.ui.editor.pas ======================================================================
-  sEdt_ = 'knt.ui.editor.pas';
+  // knt.ui.editor.pas  ======================================================================
+  sEdt_ = 'knt.ui.editor.pas / kn_EditorUtils';
   sEdt01 = 'Invalid zoom ratio: ';
   sEdt02 = ' L %d / %d  C %d';
   sEdt03 = ' Sel: %d  W: %d';
@@ -755,6 +736,25 @@ resourcestring
             #13#13 +
             'Error message: ';
 
+            // kn_EditorUtils.pas ---------
+  sEdt35 = 'UAS path';
+  sEdt36 = 'Please specify full path to uas.exe';
+  sEdt37 = 'KeyNote cannot find the location of uas.exe. UltimaShell Autocompletion Server will not be loaded.';
+  sEdt38 = ' UltimaShell Autocompletion Server loaded.';
+  sEdt39 = 'Cannot load UltimaShell Autocompletion Server. It may not be installed. Would you like to go to the UAS website and download the application?';
+  sEdt40 = ' UltimaShell Autocompletion Server unloaded.';
+  sEdt41 = ' UltimaShell Autocompletion Server is not loaded.';
+  sEdt42 = 'A Read-Only folder cannot be used for clipboard capture.';
+  sEdt43 = 'a new node';
+  sEdt44 = 'whichever node is currently selected';
+  sEdt45 = 'Each copied item will be pasted into %s in the tree. Continue?';
+  sEdt46 = ' Clipboard capture is now ';
+  sEdt47 = ' Capturing text from clipboard';
+  sEdt48 = ' Clipboard capture done';
+  sEdt49 = 'Current folder contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.';
+
+            // kn_ClipUtils.pas
+  sEdt50 = 'CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message: ';
 
   // kn_CharsNew.pas ======================================================================
   sChrs_ = 'kn_CharsNew.pas';
@@ -766,9 +766,6 @@ resourcestring
   sChest01 = 'Failed to load built-in category images from resource.';
   sChest02 = 'Failed to load category images from ';
   sChest03 = 'Failed to save category images to ';
-
-  // kn_ClipUtils.pas ======================================================================
-  sClp01 = 'CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message: ';
 
 
   // knt.App.pas ========================================================================

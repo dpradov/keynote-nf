@@ -815,92 +815,80 @@ Panel1.Label2.Caption=Label2
 [TRichPrntProgDlg]
 
 [ResourceStrings]
-64450_kn_INI_STR_INIMail_01=Fichero adjunto: %F
-64464_kn_LinksMng_STR_18= Acción sobre URL cancelada
-64465_kn_LinksMng_STR_19= URL copiada al portapapeles
-64494_kn_LinksMng_STR_16= Mantenga pulsado SHIFT mientras hace clic sobre la URL:  
-64544_kn_URL_STR_02=Crear Hipervínculo
-64545_kn_URL_STR_03=Modificar
-64546_kn_URL_STR_04=Seleccionar Acción sobre el Hipervínculo
-64551_kn_FileInfo_STR_04=(fichero sin salvar)
-64552_kn_FileInfo_STR_05=nunca
-64553_kn_FileInfo_STR_06=Abrir "%s" como &Sólo Lectura
-64559_kn_FileInfo_STR_12=El fichero "%s" fue abierto en modo de SÓLO LECTURA. Si desmarca esta casilla, el modo de sólo lectura se cancelará. ¿Desea continuar?
-64572_kn_filemgr_STR_06=nunca
-64706_kn_FindReplaceMng_STR_06=Opciones
-64707_kn_FindReplaceMng_STR_07= Buscando - pulse ESC para abortar.
-64712_kn_FindReplaceMng_STR_12=Información
-64713_kn_ConfigFileMng_STR_KeybdError=Error in keyboard customization procedure: 
-64714_kn_ConfigFileMng_STR_TabIcons= Customize Tab icons (%s) 
-64715_kn_AlertMng_STR_Num=%d Alarms
-64716_kn_AlertMng_STR_NoSelected=0 alarms selected
-64717_kn_AlertMng_STR_Apply=&Apply
-64718_kn_AlertMng_STR_Postpone=&Postpone
-64719_kn_AlertMng_STR_CaptionSet=Set Alarm  (%d Alarms created)
-64727_kn_EditorUtils_STR_Tip_02=: Sugerencia del Día
-64728_kn_NoteMng_STR_01= Nueva nota.
-64729_kn_NoteMng_STR_02=¿Está seguro de que desea borrar el nodo "%s"?\^Esta operación no se puede deshacer.
-64730_kn_NoteMng_STR_03=Confirm deleting note
-64731_kn_NoteMng_STR_04= Nota borrada.
-64769_GFTipDlg_STR_01=Sugerencia del día
-64770_GFTipDlg_STR_02=¿Sabía que...?
-64771_GFTipDlg_STR_03=(Sugerencias no encontradas.)
-64786_kn_MacroMng_STR_48=Ir a la línea
-64787_kn_MacroMng_STR_49=Introduzca número de la línea o incremento (+-):
-64866_kn_StyleMng_STR_02=Fuente: 
-64867_kn_StyleMng_STR_03=Párrafo: 
-64869_kn_StyleMng_STR_05=Rango: 
-64874_kn_StyleMng_STR_10= Estilo %s creado (%s)
-64875_kn_StyleMng_STR_11=Error creando estilo: 
-64898_kn_NoteFileMng_STR_45= Fusionando notas...
-65010_kn_OptionsNew_STR_03=(formato de fecha incorrecto)
-65011_kn_OptionsNew_STR_04=(formato de hora incorrecto)
-65013_kn_OptionsNew_STR_06= icono %d 
-65014_kn_OptionsNew_STR_07=Iconos: %d
-65023_kn_NewNote_STR_01=<no icon>
-65078_kn_pass_STR_01=La contraseña no puede dejarse en blanco.
-65079_kn_pass_STR_02=El fichero "%s" está encriptado
-65080_kn_MacroEdit_STR_01=Nueva macro
-65105_kn_Defaults_STR_26= = nombre de la nota activa
-65106_kn_Defaults_STR_27= = nombre del archivo abierto
-65120_kn_Defaults_STR_09= Valores por defecto para notas de 
-65121_kn_Defaults_STR_10=Valores por defecto para todos los archivos
-65122_kn_Defaults_STR_11= Cambiar propiedades por defecto para todas las nuevas notas 
-65130_kn_Defaults_STR_19= = fecha actual
-65131_kn_Defaults_STR_20= = hora actual
-65132_kn_Defaults_STR_21= = número total de nodos
-65133_kn_Defaults_STR_22= = nivel del nuevo nodo
-65134_kn_Defaults_STR_23= = índice del nuevo nodo
-65135_kn_Defaults_STR_24= = índice absoluto del nuevo nodo
-65136_kn_StyleObj_STR_13_Subsc=subíndice
-65145_kn_Defaults_STR_02=Cerrar
-65146_kn_Defaults_STR_03=La nota es de Sólo Lectura: no se pueden modificar sus propiedades
-65148_kn_Defaults_STR_05= Ver propiedades de la nota actual 
-65149_kn_Defaults_STR_06= Cambiar propiedades de la nota actual 
-65150_kn_Defaults_STR_07=&Guardar como valores por defecto para "%s"
-65151_kn_Defaults_STR_08=Valores por defecto para 
-65152_kn_Const_STR_55_Compression=Rápido
-65153_kn_Const_STR_56_Compression=Por defecto
-65154_kn_Const_STR_57_Compression=Máximo
-65159_kn_StyleObj_STR_04_LineSpac=Sencillo
-65160_kn_StyleObj_STR_05_LineSpac=Doble
-65161_kn_StyleObj_STR_06=other
-65163_kn_StyleObj_STR_08_Alig=Izquierda
-65164_kn_StyleObj_STR_09_Alig=Derecha
-65165_kn_StyleObj_STR_10_Alig=Centrada
-65166_kn_StyleObj_STR_11_Alig=Justificada
-65167_kn_StyleObj_STR_12_Subsc=superíndice
-65183_kn_Const_STR_54_Compression=Ninguno
-65198_kn_Const_STR_36_FactStr=Crear hipervínculo a fichero
-65200_kn_Const_STR_06_TabnoteKind=Editor estándar de Texto enriquecido
-65201_kn_Const_STR_07_TabnoteKind=Árbol Multi-nivel
-65202_kn_Const_STR_08_SearchMode=Cadena exacta
-65203_kn_Const_STR_09_SearchMode=Todas las palabras
-65204_kn_Const_STR_10_SearchMode=Cualquier palabra
-65226_kn_Const_STR_01_Defaults=Nueva nota
-65227_kn_Const_STR_02_Defaults=Nuevo nodo
-65228_kn_Const_STR_03_Formats=Archivo Keynote nativo
-65229_kn_Const_STR_04_Formats=Archivo Keynote encriptado
-65230_kn_Const_STR_06_Formats=Archivo Keynote comprimido
-
-
+64260_knt_RS_sFld21= Nueva nota.
+64261_knt_RS_sFld22=¿Está seguro de que desea borrar el nodo "%s"?\^Esta operación no se puede deshacer.
+64262_knt_RS_sFld24= Nota borrada.
+64283_knt_RS_sFldN01=<no icon>
+64331_knt_RS_sFileM45= Fusionando notas...
+64356_knt_RS_sFileM05= Ver propiedades de la nota actual 
+64405_knt_RS_sFInf04=(fichero sin salvar)
+64406_knt_RS_sFInf05=nunca
+64407_knt_RS_sFInf06=Abrir "%s" como &Sólo Lectura
+64412_knt_RS_sFInf12=El fichero "%s" fue abierto en modo de SÓLO LECTURA. Si desmarca esta casilla, el modo de sólo lectura se cancelará. ¿Desea continuar?
+64431_knt_RS_sFmg06=nunca
+64505_knt_RS_sApp12=: Sugerencia del Día
+64545_knt_RS_sEdt45=Centrada
+64545_knt_RS_sEdt45=Derecha
+64545_knt_RS_sEdt45=Izquierda
+64573_knt_RS_sEdt41=Doble
+64573_knt_RS_sEdt41=Sencillo
+64583_knt_RS_sLnk18= Acción sobre URL cancelada
+64584_knt_RS_sLnk19= URL copiada al portapapeles
+64624_knt_RS_sAlrt01=0 alarms selected
+64625_knt_RS_sAlrt02=Set Alarm  (%d Alarms created)
+64658_knt_RS_sFnd06=Opciones
+64659_knt_RS_sFnd07= Buscando - pulse ESC para abortar.
+64664_knt_RS_sFnd12=Información
+64704_knt_RS_sStyM10= Estilo %s creado (%s)
+64705_knt_RS_sStyM11=Error creando estilo: 
+64717_knt_RS_sCfg01=Error in keyboard customization procedure: 
+64718_knt_RS_sCfg02= Customize Tab icons (%s) 
+64720_knt_RS_sSty11=Justificada
+64721_knt_RS_sSty12=superíndice
+64722_knt_RS_sSty13=subíndice
+64728_knt_RS_sStyM02=Fuente: 
+64729_knt_RS_sStyM03=Párrafo: 
+64731_knt_RS_sStyM05=Rango: 
+64764_knt_RS_sMacM48=Ir a la línea
+64765_knt_RS_sMacM49=Introduzca número de la línea o incremento (+-):
+64845_knt_RS_sMacE01=Nueva macro
+64853_knt_RS_sPlgM05=Máximo
+64853_knt_RS_sPlgM05=Ninguno
+64853_knt_RS_sPlgM05=Por defecto
+64853_knt_RS_sPlgM05=Rápido
+64864_knt_RS_sURL04=Seleccionar Acción sobre el Hipervínculo
+64865_knt_RS_sPass01=La contraseña no puede dejarse en blanco.
+64866_knt_RS_sPass02=El fichero "%s" está encriptado
+64888_knt_RS_sTip01=Sugerencia del día
+64889_knt_RS_sTip02=¿Sabía que...?
+64890_knt_RS_sTip03=(Sugerencias no encontradas.)
+64891_knt_RS_sDll01=Archivo Keynote comprimido
+64891_knt_RS_sDll01=Archivo Keynote encriptado
+64891_knt_RS_sDll01=Archivo Keynote nativo
+64894_knt_RS_sURL02=Crear Hipervínculo
+64895_knt_RS_sURL03=Modificar
+64907_knt_RS_sOpt03=(formato de fecha incorrecto)
+64908_knt_RS_sOpt04=(formato de hora incorrecto)
+64910_knt_RS_sOpt06= icono %d 
+64911_knt_RS_sOpt07=Iconos: %d
+64912_knt_RS_sDef26= = nombre de la nota activa
+64913_knt_RS_sDef27= = nombre del archivo abierto
+64928_knt_RS_sDef10=Valores por defecto para todos los archivos
+64929_knt_RS_sDef11= Cambiar propiedades por defecto para todas las nuevas notas 
+64937_knt_RS_sDef19= = fecha actual
+64938_knt_RS_sDef20= = hora actual
+64939_knt_RS_sDef21= = número total de nodos
+64940_knt_RS_sDef22= = nivel del nuevo nodo
+64941_knt_RS_sDef23= = índice del nuevo nodo
+64942_knt_RS_sDef24= = índice absoluto del nuevo nodo
+64952_knt_RS_sDef02=Cerrar
+64956_knt_RS_sDef06= Cambiar propiedades de la nota actual 
+64957_knt_RS_sDef07=&Guardar como valores por defecto para "%s"
+64958_knt_RS_sDef08=Valores por defecto para 
+64959_knt_RS_sDef09= Valores por defecto para notas de 
+64976_knt_RS_sINFDrop5=Crear hipervínculo a fichero
+65032_knt_RS_sINFDefaults1=Nueva nota
+65033_knt_RS_sINFDefaults2=Nuevo nodo
+65037_knt_RS_sINFSrchMode1=Cadena exacta
+65038_knt_RS_sINFSrchMode2=Todas las palabras
+65039_knt_RS_sINFSrchMode3=Cualquier palabra

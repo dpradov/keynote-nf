@@ -185,17 +185,17 @@ begin
 
             if Editor.ReadOnly then begin
                TB_ClipCap.Down := false;
-               App.InfoPopup(sEdUt11);
+               App.InfoPopup(sEdt42);
                exit;
             end;
 
             if not ( Initializing or ( not ClipOptions.TreeClipConfirm ) or not assigned(Folder) or Folder.TreeHidden ) then begin
               if ClipOptions.PasteAsNewNode then
-                nodeMode := sEdUt12
+                nodeMode := sEdt43
               else
-                nodeMode := sEdUt13;
+                nodeMode := sEdt44;
 
-              if MessageDlg( Format(sEdUt14, [nodeMode] ), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK then begin
+              if MessageDlg( Format(sEdt45, [nodeMode] ), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK then begin
                 TB_ClipCap.Down := false;
                 exit;
               end;
@@ -274,7 +274,7 @@ begin
      if Initial then begin
         Pages.Invalidate; // force redraw to update "MarkedPage" tab color
         Pages_Res.Invalidate;
-        App.ShowInfoInStatusBar(sEdUt15 + TOGGLEARRAY[ClipCapActive]);
+        App.ShowInfoInStatusBar(sEdt46 + TOGGLEARRAY[ClipCapActive]);
      end;
   end;
 
@@ -589,7 +589,7 @@ begin
         PasteOK := true;
 
         try
-          StatusBar.Panels[PANEL_HINT].Text := sEdUt16;
+          StatusBar.Panels[PANEL_HINT].Text := sEdt47;
           PasteOnlyURL:= false;
           if ClipOptions.URLOnly and (SourceURLStr <> '') then begin
              AuxStr:= copy(ClpStr,1,30);
@@ -738,7 +738,7 @@ begin
 
         finally
           if PasteOK then begin
-            StatusBar.Panels[PANEL_HINT].Text := sEdUt19;
+            StatusBar.Panels[PANEL_HINT].Text := sEdt48;
             wavfn := ExtractFilePath( application.exename ) + 'clip.wav';
             if ( ClipOptions.PlaySound and FileExists( wavfn )) then
                sndplaysound( PChar( wavfn ), SND_FILENAME or SND_ASYNC or SND_NOWAIT );
@@ -898,7 +898,7 @@ begin
   TV:= TreeUI.TV;
 
   if (TV.TotalCount > 1 ) then
-     case messagedlg(sEdUt20, mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
+     case messagedlg(sEdt49, mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
        mrYes : PrintAllNodes := true;
        mrNo  : PrintAllNodes := false;
        else
@@ -984,12 +984,12 @@ begin
 
         if ( not fileexists( UASPath )) then begin
           // ...we don't so ask user and check answer
-          if ( InputQuery( sEdUt01, sEdUt02, UASPath ) and
+          if ( InputQuery( sEdt35, sEdt36, UASPath ) and
                fileexists( UASPath )) then
             KeyOptions.UASPath := UASPath // found it, so store it for later
           else begin
             // user canceled or entered invalid path, so bail out
-            messagedlg( sEdUt03, mtError, [mbOK], 0 );
+            messagedlg( sEdt37, mtError, [mbOK], 0 );
             KeyOptions.UASEnable := false;
             exit;
           end;
@@ -1006,18 +1006,18 @@ begin
 
       if KeyOptions.UASEnable then
         // success
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sEdUt04
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sEdt38
       else begin
         // something went wrong
         KeyOptions.UASEnable := false;
-        if ( messagedlg( sEdUt05, mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
+        if ( messagedlg( sEdt39, mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
           GoDownloadUAS;
       end;
     end
     else begin
       if ( UAS_Window_Handle <> 0 ) then begin
         SendMessage(GetUASWnd,WM_CLOSE,0,0);
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sEdUt06;
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sEdt40;
       end;
     end;
 
@@ -1037,7 +1037,7 @@ var
   ptCursor : TPoint;
 begin
   if ( UAS_Window_Handle = 0 ) then begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sEdUt07;
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sEdt41;
     exit;
   end;
 

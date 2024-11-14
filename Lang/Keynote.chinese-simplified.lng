@@ -575,19 +575,14 @@ Button_Prev.Caption=前一条(&P)
 [TRichPrntProgDlg]
 
 [ResourceStrings]
-64549_kn_FileInfo_STR_02=文件属性:
-64561_kn_VCLControlsMng_STR_09=退出程序
-64590_kn_VCLControlsMng_STR_06=应用高亮(&H)
-64650_kn_Main_STR_34=提醒时间:
-64651_kn_Main_STR_35=设定提醒...
-64714_kn_ConfigFileMng_STR_TabIcons= 个性化页签图标 (%s) 
-64715_kn_AlertMng_STR_Num=%d 项提醒
-64716_kn_AlertMng_STR_NoSelected=0 项提醒已选择
-64717_kn_AlertMng_STR_Apply=应用(&A)
-64719_kn_AlertMng_STR_CaptionSet=设定提醒  (%d 项提醒已创建)
-65014_kn_OptionsNew_STR_07=图标: %d
-65155_kn_Info_Program_Desc=多页签树状笔记本，适用于 Windows 95/98/NT/2000/XP
-65202_kn_Const_STR_08_SearchMode=精确匹配
-65203_kn_Const_STR_09_SearchMode=全部单词
-65204_kn_Const_STR_10_SearchMode=任一单词
-
+64403_knt_RS_sFInf02=文件属性:
+64418_knt_RS_sVCL06=应用高亮(&H)
+64466_knt_RS_sMain34=设定提醒...
+64624_knt_RS_sAlrt01=0 项提醒已选择
+64625_knt_RS_sAlrt02=设定提醒  (%d 项提醒已创建)
+64718_knt_RS_sCfg02= 个性化页签图标 (%s) 
+64911_knt_RS_sOpt07=图标: %d
+65037_knt_RS_sINFSrchMode1=精确匹配
+65038_knt_RS_sINFSrchMode2=全部单词
+65039_knt_RS_sINFSrchMode3=任一单词
+65043_knt_RS_Program_Desc=多页签树状笔记本，适用于 Windows 95/98/NT/2000/XP
