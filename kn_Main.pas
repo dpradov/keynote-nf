@@ -1934,7 +1934,7 @@ begin
           CheckSaveStyleManagerInfo;
           SaveFavorites( FAV_FN );
           if App.opt_NoRegistry then
-            IniSaveToolbarPositions( Self, changefileext( INI_FN, ext_MRU ), 'TB97a' )
+            IniSaveToolbarPositions( Self, MRU_FN, 'TB97a' )
           else
             RegSaveToolbarPositions( Self, 'Software\General Frenetics\Keynote\FormPos\TB97a' );
         end;

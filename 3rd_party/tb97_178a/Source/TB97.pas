@@ -37,6 +37,15 @@ unit TB97;
   your code window if you have something like a breakpoint that's set inside
   the dragging routines }
 
+(* -------------------------------------------------------------------------------
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf
+ --------------------------------------------------------------------------------- *)
+
+
 {$I TB97Ver.inc}
 
 interface
@@ -1852,10 +1861,19 @@ begin
       end;
 end;
 
+{*1 [dpv]
+    Using TIniFile was giving problems: the position data saved for the first Toolbar was
+    ignored from IniLoadToolbarPositions. Strangely, if the first section (corresponding to that
+    first toolbar) was not preceded by at least one previous line, it was not recognized. But even when
+    manually adding a blank line, that line was removed after CustomSaveToolbarPositions
+    None of this happens using TMemIniFile
+}
+
 type
   PIniReadWriteData = ^TIniReadWriteData;
   TIniReadWriteData = record
-    IniFile: TIniFile;
+    //IniFile: TIniFile;            // [dpv] *1
+    IniFile: TMemIniFile;           // [dpv] *1
     SectionNamePrefix: String;
   end;
 
@@ -1889,7 +1907,7 @@ procedure IniLoadToolbarPositions (const Form: {$IFDEF TB97D3} TCustomForm {$ELS
 var
   Data: TIniReadWriteData;
 begin
-  Data.IniFile := TIniFile.Create(Filename);
+  Data.IniFile := TMemIniFile.Create(Filename);          // [dpv] *1
   try
     Data.SectionNamePrefix := SectionNamePrefix;
     CustomLoadToolbarPositions (Form, IniReadInt, IniReadString, @Data);
@@ -1903,11 +1921,12 @@ procedure IniSaveToolbarPositions (const Form: {$IFDEF TB97D3} TCustomForm {$ELS
 var
   Data: TIniReadWriteData;
 begin
-  Data.IniFile := TIniFile.Create(Filename);
+  Data.IniFile := TMemIniFile.Create(Filename);          // [dpv] *1
   try
     Data.SectionNamePrefix := SectionNamePrefix;
     CustomSaveToolbarPositions (Form, IniWriteInt, IniWriteString, @Data);
   finally
+    Data.IniFile.UpdateFile;                            // [dpv] *1
     Data.IniFile.Free;
   end;
 end;
