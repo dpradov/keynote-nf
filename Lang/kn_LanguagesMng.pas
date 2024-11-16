@@ -75,12 +75,14 @@ begin
   Info.Name := LANGUAGE_DEFAULT;
   LanguagesAvailables.AddObject( LANGUAGE_DEFAULT, Info );
 
+  path:= ExtractFilePath( Application.ExeName ) + _LANGUAGE_FOLDER;
+
   if ( FN = '' ) then
-      FN := changefileext( application.exename, ext_LAN );
+      FN:= path + changefileext( ExtractFileName(Application.ExeName), ext_LAN );
   FN := normalFN( FN );
   if ( not fileexists( FN )) then exit;
 
-  path:= ExtractFilePath( Application.ExeName ) + _LANGUAGE_FOLDER;
+
 
   IniFile := TMemIniFile.Create( fn );
   sections := TStringList.Create;
