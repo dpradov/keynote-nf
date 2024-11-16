@@ -4,7 +4,6 @@ object AboutBox: TAboutBox
   HelpContext = 2
   BorderIcons = []
   BorderStyle = bsToolWindow
-  Caption = 'About - KeyNote NF'
   ClientHeight = 367
   ClientWidth = 416
   Color = clBtnFace

@@ -3,7 +3,6 @@ object Form_Alarm: TForm_Alarm
   Top = 208
   HelpContext = 567
   Margins.Left = 0
-  Caption = 'p'
   ClientHeight = 540
   ClientWidth = 804
   Color = clBtnFace

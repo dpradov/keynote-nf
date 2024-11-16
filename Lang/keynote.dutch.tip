@@ -1,9 +1,17 @@
-Sinds versis 1.7.5 kan KeyNote NF worden weergegeven in meerdere talen. Als voorbeeld vindt u een gedeeltelijke vertaling naar het Spaans (Castiliaans). Met de hulp van de community zullen er aan de officiële versie nieuwe talen worden toegevoegd.
+KNT file can be configured to save the images internally, in RTF Ascii/Hex or in image's binary format, or externally in independent image files (zip or folder) (File | Properties ) (See doc\Images_Readme.txt)
+It is strongly recommended to conserve backups of .knt files, specially before upgrading to a new version. Consider the use of the option 'Backup at regular intervals' (See https://github.com/dpradov/keynote-nf/issues/544)
+You can insert GIF, PNG, JPG, TIF, BMP, WMF, EMF and ICO images into the note text: select "Picture" from the "Insert" menu, or drag and drop the file into the editor
+The application allows you to change the storage mode of images of a given file, as well as change from an external Zip storage to another Folder and vice versa, or point to a new storage location.
+When exporting to KNT format, depending configuration options, the file will: include images in 'classic' mode (embedded in RTF), inclue in binary (Embedded KNT mode) or not include images
+Keynote allows you to change the visibility of the images in the file. If the option to hide the images is selected, the application hides their content and instead offers a link.
+You can use keyboard shortcuts for zoom and scrolling in the internal image viewer: consult the help button available on the viewer.
+You can export parts of knt file, with different options, to a new keynote file: Added 'KeyNote' as target format in File | Export
+Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!
+You can reduce the size of KeyNote files using the compressed format (in File | Properties). See also 'Comments on KNT file formats.txt.'
 U kunt mirror(kopieën)knopen aanmaken zodat deze dezelfde inhoud, alarmen en status delen. Op deze manier kunt u uw gegevens tegelijkertijd op verschillende manieren organiseren (Zie kwestie 57 in https://github.com/dpradov/keynote-nf/issues)
 Met mirror-knopen kunt u taken spreiden over meerdere tabbladen en deze tegelijkertijd insluiten in een ander tabblad. Hiermee verkrijgt u een algemeen overzicht over de zaken die nog te doen zijn, de rangorde en structuur van een vrije boom-hiërarchie, onafhankelijk van de echte hiërarchie van de 'echte' knopen.
 Van de KeyNote NF website (https://github.com/dpradov/keynote-nf), kunt u o.a. de laatste versie van het programma downloaden, fouten rapporteren of feature aanvragen.
-Via de KeyNote NF website vindt u ook toegang tot de discussie-maillijst waarin u vragen kunt stellen en kunt discussieren over het programma.
-U vindt meer informatie (FAQ, bijv.) over het programma op de website van de originele versie (1.6.5): http://keynote.prv.pl
+Sinds versis 1.7.5 kan KeyNote NF worden weergegeven in meerdere talen. Als voorbeeld vindt u een gedeeltelijke vertaling naar het Spaans (Castiliaans). Met de hulp van de community zullen er aan de officiële versie nieuwe talen worden toegevoegd.
 U kunt op twee manieren met verborgen knopen werken: aangevinkte knopen automatisch verbergen, een of alle notities filteren op bepaalde zoekvoorwaardes.
 Het is mogelijk om selectievakjes weer te geven voor alle knopen (Beeld/Alle koopselectievakjes) en alleen op kinderen van de geselecteerde knopen: (Kinderselectievakje)
 U kunt knopen en zijknopen kopiëren, knippen en plakken d.m.v. de normale klembord-sneltoetsen (Ctrl-C, CTRL-V, Ctrl-X of Ctrl-Ins, Shift-Ins, Shift-Supr).
@@ -12,7 +20,6 @@ U kunt alarms instellen, gekoppeld aan knopen. Soortgelijk aan de functie die Ou
 Activering van modus met automatisch verbergen van aangekruisde knopen (Verberg geselecteerde knopen) kan handig zijn wanneer u gaat stoeien met taken.
 Filteren van knopen gebaseerd op een zoekcriterium (Filter boom-notitie) zijn handig bij het werken met subset van informatie. Bijvoorbeeld het taggen van sommige knopen met tekst als [MILESTONE:1.7.4]
 U kunt de tekst aanpassen dat wordt weergegeven bij een link (intern of niet): met de Shift ingedrukt op een URL klikken geeft meer opties.
-Bekijk het bestand "bugs.txt" (in "doc" submap). Het bevat een recente lijst met bekende problemen en beperkingen. De FAQ wordt ook bijgehouden op de website.
 U kunt de sneltoetscombinaties aanpassen die gebruikt worden voor de diverse KeyNote functies: Zie het "Configuring keyboard shortcuts" Help-onderwerp.
 U kunt de werkbalken configureren: Zie het "Configuring toolbars" Help-onderwerp.
 De "Print" opdracht vindt u onder het Notitiemenu (niet onder "Bestand"), omdat u een notitie gaat printen en geen bestand.
@@ -47,7 +54,6 @@ KeyNote heeft een "Vervangen" commando. U vindt deze in het "Zoek" Menu (of door
 In het bestandseigenschappen-dialoogvenster, kunt u een eigen icoon voor het huidige bestand in het systeemvak specificeren. Dit is handig als u meerdere instanties van KeyNote tegelijkertijd uitvoert.
 U kunt aangeven dat het bestand alleen de ingebouwde iconen gebruikt. Dit is handig wanneer u het bestand geeft die een andere, eigen set iconen zou gebruiken.
 U kunt snelkoppelingen invoegen om snel naar een andere plek in uw KeyNote bestand wilt gaan (een notitie of een boomknoop). Zie het Hyperlinks onderwerp in het Help bestand voor details.
-U kunt .BMP en .GIF afbeeldingen invoegen in de notitietekst: selecteer "Afbeelding" in het "Invoegen" menu.
 U kunt URL-stijl links aanmaken naar bestanden op uw locale schijf: selecteer "Koppeling naar bestand invoegen" in het "Invoegen" menu. Klikken op deze koppeling zal het document of programma openen.
 Om alle alinea-eigenschappen in een keer te specificeren, drukt u op Ctrl+P om het Alinea-dialoogvenster te openen.
 In een boomtype notitie kunt u het boompaneel verbergen. Druk op Shift+F11 om de boom te verbergen of weer te geven.
@@ -85,20 +91,16 @@ Het programma is uitgebreid instelbaar. Druk op F5 om het Opties dialoogvenster 
 Om een nieuwe notitie aan te maken, drukt u op Ctrl+N. Om een nieuw KeyNote bestand aan te maken, drukt u op Shift+Ctrl+N.
 Om de eigenschappen aan te passen van de geselecteerde notitie, drukt u op F4. Om een notitie snel te hernoemen, drukt u op F2.
 Door met de rechtermuisknop op de verschillende gebieden van het hoofdvenster te klikken worden er extra menu-commando's weergegeven.
-Wanneer u hiervoor een soortgelijk programma gebruikt heeft genaamd DaRT Notes, KeyNote kan de bestanden gemaakt met dat programma openen en opslaan. Zie het bestand "DART.TXT' voor details.
 Kijkt u a.u.b. regelmatig op de website van het programma in de FAQ (veel gestelde vragen), daar vindt u een lijst met bekende onderwerpen en upgrade informatie. Zie Help->Info over KeyNote.
 Wanneer het programma is geminimaliseerd of verborgen achter andere vensters, kan het naar voren worden gebracht door op Shift+Ctrl+F12 te drukken. (de sneltoetscombinatie is aan te passen)
-Keynote is en zal altijd gratis blijven. Indien u er veel plezier aan beleeft, overweeg dan dat een kleine donatie aan een dierenopvanghuis in uw buurt. Dank u wel!
 U kunt notities exporteren uit KeyNote en platte tekst of RTF bestanden importeren naar KeyNote. Zie de Extra->Importeren en Extra->Exporteren menu-items.
 U kunt standaard kenmerken instellen die dan worden toegewezen aan iedere nieuwe aan te maken notitie (lettertype, kleuren, iconen en andere). Zie Extra->Standaard instellingen.
 De meeste bewerkingsfuncties hebben sneltoetscombinaties. U kunt deze bekijken in het hoofdmenu.
 Het bestand SAMPLE.KNT dat met het programma wordt meegeleverd bevat vele extra hints en tips.
 U kunt de werkbalken verplaatsen door erop te klikken en te verslepen naar een andere locatie. Werkbalken onthouden hun nieuwe positie.
 Wanneer de notitie-tabbladen te veel ruimte in beslag nemen en niet allemaal op een regel passen, kunt u deze kleiner maken door de iconen uit te schakelen. Zie Opties (F5), "Chrome" tab.
-Op dit moment is er nog geen helpbestand beschikbaar. (Sorry.) Maar u heeft nog wel de statusbalk-hints!
 Dit programma zal altijd beschikbaar blijven als Freeware. Indien u ervoor betaald heeft, bent u bedrogen.
 Het is de stellige overtuiging van de auteur dat met reclame gesponserde programma's NIET gratis zijn. Dit programma zal daarom nooit iets dergelijks gaan gebruiken.
-U kunt een email verzenden direct vanuit Keynote: kies "Email notitie" in het "Notitie" menu.
 U kunt de standaard iconen die naast de notitie-namen worden weergegeven aanpassen: Zie Opties -> Icons tab.
 U kunt tussen notities wisselen met u eigen sneltoetsen! Voeg het "&" teken in voor een letter in een notitie-naam; druk daarna op ALT+letter om te wisselen naar die notitie.
 Wanneer een bestand dat is toegevoegd aan een virtuele knoop wordt bewerkt in een andere applicatie, rechtsklikt u dan op de knoop en selecteer "Vernieuwen" om de inhoud van de knoop te updaten.
