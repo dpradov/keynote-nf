@@ -161,6 +161,7 @@ type
     procedure SetTreeUI(tree: TKntTreeUI);
     procedure SetTreeChrome( AChrome : TChrome );
 
+    procedure UpdateLoadingLevels;
 
   public
     class function NewKntFolder(const DefaultFolder, CanFocus : boolean) : boolean;
@@ -739,6 +740,7 @@ begin
           myFolder.TreeWidth := 0;
           myFolder.SaveEditorToDataModel;
           myFolder.Editor.Clear;
+          myFolder.UpdateLoadingLevels;
           DestroyVCLControlsForFolder( myFolder, false );
           CreateVCLControlsForFolder( myFolder );
           myFolder.LoadEditorFromNNode(myFolder.FocusedNNode, False);
@@ -1036,6 +1038,22 @@ begin
    FEditorInfoPanelHidden:= value;
    NoteUI.SetInfoPanelHidden(value);
    Form_Main.MMViewEditorInfoPanel.Checked:= not FEditorInfoPanelHidden;
+end;
+
+
+procedure TKntFolder.UpdateLoadingLevels;
+var
+   Node: PVirtualNode;
+   Level: integer;
+begin
+   LoadingLevels.Capacity:= NNodes.Count;
+
+   Node := TV.GetFirst;
+   while assigned(Node) do begin
+      Level:= TV.GetNodeLevel(Node);
+      LoadingLevels.Add(Level);
+      Node := TV.GetNext(Node);
+   end;
 end;
 
 
@@ -1857,7 +1875,7 @@ var
 
      Level:= TV.GetNodeLevel(Node);
      if Level <> LastSavedLevel then begin
-        tf.WriteLine( _NodeLevel + '=' + TV.GetNodeLevel(Node).ToString );
+        tf.WriteLine( _NodeLevel + '=' + Level.ToString );
         LastSavedLevel := Level;
      end;
 
