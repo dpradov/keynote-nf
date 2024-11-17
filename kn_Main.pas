@@ -1537,9 +1537,9 @@ begin
   IMG_Toolbar.Clear;
   IMG_Format.Clear;
   IMG_TV.Clear;
-  LoadBitmapFromResource(IMG_Toolbar, 'TOOLBAR_MAIN',  clFuchsia);
-  LoadBitmapFromResource(IMG_Format, 'TOOLBAR_FORMAT',  clFuchsia);
-  LoadBitmapFromResource(IMG_TV, 'TV_IMAGES',  clFuchsia);
+  LoadGifFromResource(IMG_Toolbar, 'TOOLBAR_MAIN');   //,  clFuchsia);
+  LoadGifFromResource(IMG_Format, 'TOOLBAR_FORMAT');  //    ,,
+  LoadGifFromResource(IMG_TV, 'TV_IMAGES');           //    ,,
 
   { The name associated with the secondary icon as a resource must be after (alphabetically) the main one
     (MAINICON) or else the secondary one will appear first in the resource file, and will be the one displayed

@@ -27,10 +27,11 @@ uses
    Vcl.Forms,
    Vcl.Graphics,
    Vcl.Controls,
+   Vcl.ExtCtrls,
    Vcl.Dialogs,
    Vcl.ImgList,
-   Vcl.StdCtrls;
-
+   Vcl.StdCtrls,
+   SynGdiPlus;
 
 
 const
@@ -84,6 +85,8 @@ function ScaleFromSmallFontsDimension(const X: Integer): Integer;
 function DotsToTwips(dots: Integer): integer; inline;
 
 procedure LoadBitmapFromResource(ImageList: TImageList; const ResourceName: string; TransparentColor: TColor);
+procedure LoadGifFromResource(ImageList: TImageList; const ResName: string); overload;
+procedure LoadGifFromResource(Image: TImage; const ResName: string); overload;
 function DarkenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function LightenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function GetHotColorFor(BackColor, FontColor: TColor): TColor;
@@ -547,6 +550,43 @@ begin
   Bitmap := TBitmap.Create;
   Bitmap.LoadFromResourceName(HInstance, ResourceName);
   ImageList.AddMasked(Bitmap, TransparentColor);
+  Bitmap.Free;
+end;
+
+
+procedure LoadGifFromResource(Image: TImage; const ResName: string);
+var
+  ResStream: TResourceStream;
+  GIFImage: TGifImage;
+begin
+  ResStream := TResourceStream.Create(HInstance, ResName, RT_RCDATA);
+  GIFImage := TGifImage.Create;
+  GIFImage.LoadFromStream(ResStream);
+  Image.Picture.Assign(GifImage);
+  GIFImage.Free;
+  ResStream.Free;
+end;
+
+procedure LoadGifFromResource(ImageList: TImageList; const ResName: string);
+var
+  ResStream: TResourceStream;
+  GIFImage: TGifImage;
+  Bitmap: TBitmap;
+  TransparentColor: TColor;
+begin
+  ResStream := TResourceStream.Create(HInstance, ResName, RT_RCDATA);
+  GIFImage := TGifImage.Create;
+  GIFImage.LoadFromStream(ResStream);
+  Bitmap:= GifImage.ToBitmap;
+
+  // When converting to GIF from BMP, the background color that was set to clFuchsia (RGB=255,0,255)
+  // may no longer be so. I notice that when converting to GIF it becomes (RGB=252,2,252).
+  // In case it might change for some other reason, instead of setting it as a parameter I will use the color
+  // of the lower left corner of the image.
+  TransparentColor:= Bitmap.Canvas.Pixels[0, Bitmap.Height - 1];
+  ImageList.AddMasked(Bitmap, TransparentColor);
+  GIFImage.Free;
+  ResStream.Free;
   Bitmap.Free;
 end;
 

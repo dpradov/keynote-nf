@@ -91,6 +91,7 @@ type
 implementation
 uses
    RxRichEd,
+   gf_miscvcl,
    kn_Main,
    kn_const,
    kn_Info,
@@ -177,6 +178,8 @@ begin
   finally
     Icon.Free;
   end;
+
+  LoadGifFromResource(Image1, 'LOGO_DELPHI');
 end;
 
 function TAboutBox.FormHelp(Command: Word; Data: NativeInt;
