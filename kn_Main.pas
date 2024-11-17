@@ -2647,7 +2647,7 @@ begin
              ( activecontrol = Combo_Font ) or
              ( activecontrol = FindAllResults ) or (activecontrol = Btn_ResFind) or (activecontrol = Btn_ResFlip) or
              (( activecontrol = combo_ResFind ) and (combo_resfind.Text = '')) or
-             ( activecontrol = Res_RTF ) or
+             (( activecontrol = Res_RTF ) and (KeyOptions.EscAction <> ESC_MINIMIZE)) or    // See "Pressing ESC in Scratchpad editor" #744
              ( activecontrol = ListBox_ResMacro ) or
              ( activecontrol = ListBox_ResTpl ) or
              ( activecontrol = ListBox_ResPlugins ) or
