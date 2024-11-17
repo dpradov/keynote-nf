@@ -48,6 +48,8 @@ type
      function GetNextNotChecked(Node: PVirtualNode; ConsiderHiddenNodes: boolean= true): PVirtualNode;
      function GetNextVisibleNotChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
      function GetNextNotChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+
+     function IsVerticalScrollBarVisible: boolean;
    end;
 
 
@@ -125,6 +127,8 @@ type
     procedure SetFolder(aFolder: TObject);
     procedure SetSplitterNote(aSplitter: TSplitter);
     procedure SetPopupMenu(value: TPopupMenu);
+
+    procedure FrameResize(Sender: TObject);
 
     // TreeView Handlers
     //procedure TV_SelectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -379,6 +383,9 @@ const
   TREE_DEFAULT_WIDTH = 200;
   TREE_WIDTH_MOUSE_TIMEOUT = 2500;
 
+  FILTER_PANEL_WIDTH = 175;
+  FILTER_PANEL_MAX_WIDTH_ALIGNBOTTOM = 420;
+
 
 
 
@@ -528,6 +535,8 @@ begin
      Folder.TreeWidth := Width; // store corrected value
    end;
 
+   FrameResize(nil);
+
    TB_FilterUnflagged.Images:= Form_Main.IMG_TV;
    TB_FilterUnflagged.Action:= Form_Main.actTVFilterOutUnflagged;
    TB_FilterUnflagged.Caption:= '';
@@ -544,6 +553,35 @@ begin
       SplitterNote.Color:= clLtGray;
 
    UpdateTreeColumns;
+end;
+
+
+procedure TKntTreeUI.FrameResize(Sender: TObject);
+var
+   Folder: TKntFolder;
+   LeftShift: integer;
+   VerticalScrollBarWidth: integer;
+begin
+   if Folder = nil then exit;
+
+   Folder:= TKntFolder(Self.Folder);
+   if Folder.VerticalLayout then begin
+     if Self.Width <= FILTER_PANEL_MAX_WIDTH_ALIGNBOTTOM then
+        PnlInf.Align:= alBottom
+
+     else begin
+        PnlInf.Align:= alNone;
+        PnlInf.Width:= FILTER_PANEL_WIDTH;
+        PnlInf.Left:= Width - FILTER_PANEL_WIDTH;
+        PnlInf.Top:= Height - PnlInf.Height - Folder.Splitter.Height + 2;
+        LeftShift:= 2;
+        if TV.IsVerticalScrollBarVisible  then begin
+           VerticalScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL);
+           LeftShift:= VerticalScrollBarWidth + 3;
+        end;
+        PnlInf.Left:= PnlInf.Left - LeftShift;
+     end;
+   end;
 end;
 
 
@@ -786,6 +824,7 @@ begin
    txtFilter.OnChange := txtFilterChange;
    TB_HideChecked.OnClick:= TB_HideCheckedClick;
    TB_FilterTree.OnClick:= TB_FilterTreeClick;
+   OnResize := FrameResize;
 
    with TV do begin
      OnGetText:= TV_GetText;
@@ -3625,6 +3664,7 @@ begin
    else
       TV.TreeOptions.PaintOptions := TV.TreeOptions.PaintOptions + [TVTPaintOption.toShowFilteredNodes];
 
+   FrameResize(nil);
 end;
 
 procedure TKntTreeUI.ReapplyFilter;
@@ -3736,6 +3776,7 @@ begin
 
 
    TV.EndUpdate;
+   FrameResize(nil);
 
    fChangesInFlagged:= false;
 
@@ -3799,6 +3840,7 @@ begin
 
         CheckFocusedNode;
         TV.Invalidate;
+        FrameResize(nil);
      end;
   end
   else
@@ -4311,6 +4353,11 @@ begin
   until not Assigned(Result) or ((vsVisible in Result.States) and not IsEffectivelyFiltered[Result]);
 end;
 
+
+function TVirtualStringTreeHelper.IsVerticalScrollBarVisible: boolean;
+begin
+   Result:= inherited RangeY > ClientHeight;
+end;
 
 
 {$ENDREGION}
