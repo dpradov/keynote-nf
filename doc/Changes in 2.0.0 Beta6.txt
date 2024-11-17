@@ -25,4 +25,4 @@ Changes in 2.0.0 Beta 6  (17 nov 2024)
   You can indicate whether you think this change is correct or not in the poll provided.
 
 * Language files (.lng) ready to be translated/updated. They reflect changes since last version.
-  See https://github.com/dpradov/keynote-nf/blob/master/Lang/README.md for instructions.
+  See https://github.com/dpradov/keynote-nf/discussions/752 (Translating KeyNote NF)
