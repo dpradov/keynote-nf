@@ -1,0 +1,28 @@
+Changes in 2.0.0 Beta 6  (17 nov 2024)
+=======================
+
+* Fixed bug introduced in Beta 3: exception trying to remove a folder
+
+* Fixed exception when trying to change the tree layout (vertical vs horizontal) in the folder properties dialogue
+
+* Fixed: Main toolbar position was ignored when opening application
+  Problem was related to the use of TIniFile by the control Toolbar97. Changing to TMemIniFile solves the problem
+
+* Fixed dynamic resize of combo control in Find All
+
+- - - -
+
+* Tree filter position is adapted to tree panel layout
+  If the tree layout is vertical, the tree filter panel is located on the right, not taking up the entire width 
+  of the tree (except if the width of the tree panel is less than a certain value).
+
+* Change in behavior of ESC in the Scratch window
+  Pressing ESC in Scratchpad editor will minimize the application and not return focus to note editor,
+  *if* [Configuration Options|General settings|Program hotkey | On Escape key = Minimize Main Window].
+  If 'On Escape' is not configured in that way, pressing ESC will focus the note editor, as before.
+
+  See the reasons in discussion "Pressing ESC in Scratchpad editor" (#744)
+  You can indicate whether you think this change is correct or not in the poll provided.
+
+* Language files (.lng) ready to be translated/updated. They reflect changes since last version.
+  See https://github.com/dpradov/keynote-nf/blob/master/Lang/README.md for instructions.
