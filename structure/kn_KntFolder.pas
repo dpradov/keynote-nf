@@ -643,6 +643,7 @@ begin
                 // reflect changes in controls
                 UpdateEditor (myFolder.Editor, myFolder, true);
                 myFolder.UpdateTabSheet;
+                Form_Main.TB_Color.AutomaticColor := myEditorChrome.Font.Color;      // 'Default' color in Color picker control
 
 
                 with myFolder do begin
