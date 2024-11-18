@@ -442,7 +442,7 @@ begin
    end;
 
    TB_HideChecked.Hint := Form_Main.MMViewHideCheckedNodes.Hint;    // [dpv]
-   CheckImages.ResInstLoad( HInstance, rtBitmap, 'VTCHECKIMGS',  clFuchsia );
+   LoadGifFromResource(CheckImages, 'VTCHECKIMGS');
 
    with TV.Header do begin
        Height := 18;

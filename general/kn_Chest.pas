@@ -71,6 +71,7 @@ var
 
 implementation
 uses
+   gf_miscvcl,
    kn_Const,
    knt.App,
    knt.RS;
@@ -125,17 +126,21 @@ end; // SaveDefaultBitmaps
 
 function LoadCategoryBitmapsBuiltIn : boolean;
 begin
+  if _LOADED_ICON_FILE = _NF_Icons_BuiltIn then exit(true);
+
   result := false;
   Chest.IMG_Categories.Clear;
-  if ( Chest.IMG_Categories.ResInstLoad( HInstance, rtBitmap, 'CATIMAGES',  clFuchsia )) then begin
-    result := true;
-    _LOADED_ICON_FILE := _NF_Icons_BuiltIn; // means: DEFAULT icons loaded from resource
-  end
-  else begin
+  try
+     LoadGifFromResource(Chest.IMG_Categories,  'CATIMAGES');
+     result := true;
+     _LOADED_ICON_FILE := _NF_Icons_BuiltIn; // means: DEFAULT icons loaded from resource
+
+  except
     _LOADED_ICON_FILE := '';
     Messagedlg( sChest01, mtError, [mbOK], 0 );
   end;
 end; // LoadCategoryBitmapsBuiltIn
+
 
 function LoadCategoryBitmapsUser( const FN : string ) : boolean;
 var
