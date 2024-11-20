@@ -91,6 +91,7 @@ function DarkenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function LightenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function GetHotColorFor(BackColor, FontColor: TColor): TColor;
 function InvertColor(Color: TColor): TColor;
+function ColorInformation(Color: TColor): string;
 
 var
   _TahomaFontInstalled : boolean = false;
@@ -669,6 +670,24 @@ begin
       Result:= LightenColor(FontColor, 0, 190)
    else
       Result:= DarkenColor(FontColor, 150, 190);
+end;
+
+function ColorInformation(Color: TColor): string;
+var
+  RGBColor: Cardinal;
+  R, G, B: Integer;
+begin
+  Result:= ColorToString(Color);
+  if Copy(Result,1,2) = 'cl' then
+     Result:= Copy(Result,3)
+  else begin
+     RGBColor:= GetRGBFromColor(Color);
+     R := GetRValue(RGBColor);
+     G := GetGValue(RGBColor);
+     B := GetBValue(RGBColor);
+     Result:= Format('RGB=%d,%d,%d', [R,G,B]);
+  end;
+
 end;
 
 

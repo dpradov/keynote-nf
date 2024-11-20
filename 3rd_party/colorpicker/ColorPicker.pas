@@ -12,7 +12,7 @@
   *1:
    When converting the project from Delphi 2006 to Delphi CE 11.3, this control has started to have a strange visual behavior when setting Flat=True (property 
    that in this control should be set in this way, because False does not look good)
-   When hovering the cursor on the button (main or auxiliary with the arrow), it was highlighted in blue, but not temporarily while the cursor is over 
+   When hovering the cursor on the button (main or auxiliary with the arrow), it was highlighted in blue, but not temporarily while the cursor is over
    (which would be normal). This color was not removed, but 'added', until it was left with an intense blue. It was as to paint with a blue brush on top
    of the bottoms. The same happened with the buttons associated with each individual color, in the grid that is offered when clicking on the auxiliary button with
     the down arrow.
@@ -28,7 +28,7 @@
     I have verified that the TSpeedButton controls work normally, also when added to a Panel control (I have tried to add a panel to a TToolbarPanel control and to
     the panel a TSpeedButton configured as Flat= True, and the behavior has been normal). The same also happens when the button is added to a panel located anywhere.
 
-    I have done many tests, and the only thing that has worked for me has been to assign as parent of Btn1 and Btn2 buttons the Parent of the control itself 
+    I have done many tests, and the only thing that has worked for me has been to assign as parent of Btn1 and Btn2 buttons the Parent of the control itself
     (Self.Parent). And something similar I have done with the buttons of the grid. I have had to adjust the limits of the buttons accordingly. I have also kept the
     PanelForm itself hidden. In the case of TColorBtn (not TColorPicker) I have needed to offer the initial behavior in case the control is in design mode, or else
     the IDE would give an error (if it did not have the Parent property set), or it would not allow it to be selected (if we keep it a width equal to zero).
@@ -37,7 +37,7 @@
     Another problem I've run into was that, also with Flat=True, inside the Paint method, and after the call to Inherited, the colors set for the Pen and Brush seemed
     to be ignored: it was painting unfilled rectangles with black borders.
     That happened only after hovering over the TSpeedButton. The first time he painted it did it correctly. The solution in this case has been to call
-    Canvas.Refresh after the call to Inherited.     
+    Canvas.Refresh after the call to Inherited.
 }
 
 
@@ -57,6 +57,20 @@ uses
    Vcl.ExtCtrls,
    Vcl.Buttons;
 
+const
+  BtnDim=17;
+
+  COLORS_NUM_ROWS = 7;
+  COLORS_NUM_COLS = 11;
+  TOP_PREDEF_COLORS = BtnDim + 7;
+  TOP_CUSTOM_COLORS = TOP_PREDEF_COLORS + COLORS_NUM_ROWS*BtnDim + BtnDim;
+  TOP_SEPARATOR =     TOP_CUSTOM_COLORS - (BtnDim div 2);
+  TOP_OTHER_BUTTOM =  TOP_CUSTOM_COLORS + BtnDim + 10;
+  MARGIN = 5;
+
+type
+  TNumColors = 0..(COLORS_NUM_COLS*COLORS_NUM_ROWS)-1;
+  TNumCustomColors = 0..(COLORS_NUM_COLS)-1;
 
 type
 
@@ -90,8 +104,8 @@ type
   public
     AutoBtn,
     OtherColBtn:TColBtn;
-    ColBtns: array[0..39] of TColBtn;
-    CustColBtns: array[0..15] of TColBtn;
+    ColBtns: array[TNumColors] of TColBtn;
+    CustColBtns: array[TNumCustomColors] of TColBtn;
     OtherBtn:TSpeedButton;
     DDSelColor : TColor;
     constructor Create(AOwner: TComponent); override;
@@ -188,23 +202,60 @@ procedure Register;
 implementation
 
 uses
-   System.Win.Registry;
+   System.Win.Registry,
+   gf_miscvcl;
 
 resourcestring
   STR_01 = 'Right-click to set custom colors';
 
 {$R *.Res}
 const
-     BtnDim=20;
      AutoOffSet=BtnDim+2;
-     BtnColors:array[0..39] of TColor
+     BtnColors:array[TNumColors] of TColor
+{
      =($1FFFFFFF,$808080,$000040,$004040,$004000,$404000,$400000,$400040,
          $000000,$909090,$000080,$008080,$008000,$808000,$800000,$800080,
          $202020,$B0B0B0,$0000FF,$00FFFF,$00FF00,$FFFF00,$FF0000,$FF00FF,
          $404040,$D0D0D0,$8080FF,$80FFFF,$80FF80,$FFFF80,$FF8080,$FF80FF,
          $606060,$FFFFFF,$C0C0FF,$C0FFFF,$C0FFC0,$FFFFC0,$FFC0C0,$FFC0FF);
+}
+       =(
+        $000000,$400000,$402000,$404000,$204000,$004000,$004040,$002040,$000040,$200040,$400040,
+        $303030,$800000,$804000,$808000,$408000,$008000,$008080,$004080,$000080,$400080,$800080,
+        $606060,$CD0000,$CD6600,$CDCD00,$66CD00,$00CD00,$00CDCD,$0066CD,$0000CD,$6600CD,$CD00CD,
+        $808080,$FF0000,$FF8000,$FFFF00,$80FF00,$00FF00,$00FFFF,$0080FF,$0000FF,$7F00FF,$FF00FF,
+        $C0C0C0,$FF4D4D,$FFA64D,$FFFF4D,$A6FF4D,$4DFF4D,$4DFFFF,$4DA6FF,$4D4DFF,$A64DFF,$FF4DFF,
+        $DEDEDE,$FF8080,$FFC080,$FFFF80,$C0FF80,$80FF80,$80FFFF,$80C0FF,$8080FF,$C080FF,$FF80FF,
+        $FFFFFF,$FFB3B3,$FFD8B3,$FFFFB3,$DAFFB3,$B3FFB3,$B3FFFF,$B3DAFF,$B3B3FF,$DAB3FF,$FFB3FF
+       );
+
+{
+   // Created with the help of https://www.rapidtables.com/web/color/RGB_Color.html
+
+       =(
+V
+20
+25        000000,400000,402000,404000,204000,004000,004040,002040,000040,200040,400040,
+50        333333,800000,804000,808000,408000,008000,008080,004080,000080,400080,800080,
+75        666666,C00000,C06000,C0C000,60C000,00C000,00C0C0,0060C0,0000C0,6000C0,C000C0,
+80        6A6A6A,CD0000,CD6600,CDCD00,66CD00,00CD00,00CDCD,0066CD,0000CD,6600CD,CD00CD,
+85        777777,DA0000,DA6D00,DADA00,6DDA00,00DA00,00DADA,006DDA,0000DA,6D00DA,DA00DA,
+S
+100       808080,FF0000,FF8000,FFFF00,80FF00,00FF00,00FFFF,0080FF,0000FF,7F00FF,FF00FF,
+80        A0A0A0,FF3333,FF9933,FFFF33,99FF33,33FF33,33FFFF,3399FF,3333FF,9933FF,FF33FF,
+70        B0B0B0,FF4D4D,FFA64D,FFFF4D,A6FF4D,4DFF4D,4DFFFF,4DA6FF,4D4DFF,A64DFF,FF4DFF,
+60		    C0C0C0,FF6666,FFB266,FFFF66,B2FF66,66FF66,66FFFF,66B2FF,6666FF,B266FF,FF66FF,
+50        D0D0D0,FF8080,FFC080,FFFF80,C0FF80,80FF80,80FFFF,80C0FF,8080FF,C080FF,FF80FF,
+40
+35        DADADA,FFA6A6,FFD3A6,FFFFA6,D3FFA6,A6FFA6,A6FFFF,A6D3FF,A6A6FF,D3A6FF,FFA6FF,
+30		    FFFFFF,FFB3B3,FFD8B3,FFFFB3,DAFFB3,B3FFB3,B3FFFF,B3DAFF,B3B3FF,DAB3FF,FFB3FF
+20
+         );
+
+}
+
 var
-     CustBtnColors:array[0..15] of TColor;
+     CustBtnColors:array[TNumCustomColors] of TColor;
 
 procedure Register;
 begin
@@ -214,12 +265,17 @@ end;
 procedure TColBtn.Paint;
 var B,X,Y:integer;
     FColor:TColor;
+    PaintRect: TRect;
+    P: TPoint;
+    FMouseInControl: boolean;
+
 begin
 
      if Enabled
      then FColor:=Color
      else FColor:=clGray;
-     B:=Height div 5;
+     //B:=Height div 5;
+     B:= 1;
      Inherited;
 
      Canvas.Refresh;                              // [dpv] *2
@@ -238,6 +294,15 @@ begin
      if Caption=''
      then
         begin
+         GetCursorPos(P);
+         FMouseInControl := (FindDragTarget(P, True) = Self);
+         if FMouseInControl then
+            Brush.Color := clBlack
+         else
+            Brush.Color := clBtnFace;
+         PaintRect := ClientRect;
+         FillRect(PaintRect);
+
          Pen.color:=clgray;
          Brush.Color:=FColor;
          Brush.Style:=bsSolid;
@@ -245,6 +310,7 @@ begin
         end
      else
         begin
+         B:= 2;
          Pen.color:=clgray;
          Brush.Style:=bsClear;
          Polygon([Point(B-1,B-1),
@@ -254,7 +320,7 @@ begin
          Pen.color:=clgray;
          Brush.Color:=FColor;
          Brush.Style:=bsSolid;
-         Rectangle(B+1,B+1,Height,Height-B);
+         Rectangle(B+1,B+1,Height + 3,Height-B);
         end;
 end;
 
@@ -263,13 +329,13 @@ begin
   inherited Create(AOwner);
   ControlStyle := ControlStyle - [csAcceptsControls, csSetCaption] + [csOpaque];
   if not NewStyleControls then ControlStyle := ControlStyle + [csFramed];
-  Width := 170;
-  Height :=210;
+  Width := (COLORS_NUM_COLS * BtnDim) + 5*2;
+  Height :=TOP_OTHER_BUTTOM + BtnDim + 5;
   FColorDlg:=TColorDialog.Create(self);
   FColorDlg.Options:=[cdFullOpen];
   FSeparator := TBevel.Create(self);
   //FSeparator.Parent:=self;                          // [dpv]
-  FSeparator.SetBounds(5,135,width-10,2);
+  FSeparator.SetBounds(5,TOP_SEPARATOR,width-10,2);
   InitButtons;
   FDDIsAuto:=true;
   FDDFlat:=true;
@@ -289,11 +355,12 @@ begin
   Btn.Tag:=100;
   Btn.Color:=ClDefault;
   Btn.GroupIndex:=1;
-  Btn.SetBounds(5,4,Width-10,BtnDim);
+  Btn.SetBounds(MARGIN,4,Width-MARGIN*2,BtnDim);
+  Btn.Hint:= ColorInformation(Btn.Color);
   Btn.OnClick:=BtnClick;
   AutoBtn:=Btn;
 
-  for I := 0 to 39 do
+  for I := 0 to High(TNumColors) do
   begin
     Btn := TColBtn.Create (Self);
     //Btn.Parent := Self;                           // [dpv]
@@ -301,13 +368,14 @@ begin
     Btn.Color:=BtnColors[I];
     Btn.GroupIndex:=1;
     Btn.OnClick:=BtnClick;
-    X := 5 + (I  mod 8 ) * BtnDim;
-    Y := BtnDim + 10 + BtnDim*(I div 8);
+    Btn.Hint:= ColorInformation(BtnColors[I]);
+    X := MARGIN + (I  mod COLORS_NUM_COLS ) * BtnDim;
+    Y := TOP_PREDEF_COLORS + BtnDim*(I div COLORS_NUM_COLS);
     Btn.SetBounds (X, Y , BtnDim,BtnDim);
     ColBtns[I] := Btn;
   end;
 
-  for I := 0 to 15 do
+  for I := 0 to High(TNumCustomColors) do
   begin
     Btn := TColBtn.Create (Self);
     //Btn.Parent := Self;                            // [dpv]
@@ -316,9 +384,13 @@ begin
     Btn.GroupIndex:=1;
     Btn.Tag:=I;
     Btn.OnClick:=BtnClick;
+    if CustBtnColors[I]= $FFFFFF then
+       Btn.Hint:= STR_01
+    else
+       Btn.Hint:= ColorInformation(CustBtnColors[I]);
     Btn.OnMouseDown:=BtnRClick;
-    X := 5 + (I mod 8 ) * BtnDim;
-    Y := BtnDim + 120 + BtnDim * (I div 8);
+    X := MARGIN + (I mod COLORS_NUM_COLS ) * BtnDim;
+    Y := TOP_CUSTOM_COLORS + BtnDim * (I div COLORS_NUM_COLS);
     Btn.SetBounds (X, Y , BtnDim,BtnDim);
     CustColBtns[I] := Btn;
   end;
@@ -326,15 +398,16 @@ begin
   //Btn.Parent := Self;                               // [dpv]
   Btn.Flat:=true;
   Btn.Color:=FColorDlg.Color;
-  Btn.SetBounds(5,BtnDim*8+25,BtnDim,BtnDim);
+  Btn.SetBounds(MARGIN,TOP_OTHER_BUTTOM,BtnDim,BtnDim);
   Btn.GroupIndex:=1;
   Btn.OnClick:=BtnClick;
+  Btn.Hint:= ColorInformation(Btn.Color);
   OtherColBtn:=Btn;
 
   ABtn:=TSpeedButton.Create(Self);
   //ABtn.Parent := Self;                              // [dpv]
   ABtn.Flat:=true;
-  ABtn.SetBounds(5+BtnDim,BtnDim*8+25,Width-10-BtnDim,BtnDim);
+  ABtn.SetBounds(MARGIN+BtnDim+4,TOP_OTHER_BUTTOM,Width-MARGIN*2-4-BtnDim,BtnDim);
   OtherBtn:=ABtn;
   OtherBtn.OnClick:=OtherBtnClick;
 end;
@@ -345,12 +418,12 @@ begin
      //inherited;        // Commented: The panel will not hide the buttons, to which we have assigned as parent the own parent of TColorPicker (panel)
 
      AutoBtn.Parent:= AParent;
-     for I:=0 to 39 do
+     for I:=0 to High(TNumColors) do
        ColBtns[I].Parent:= AParent;
 
      FSeparator.Parent:= AParent;
 
-     for I:=0 to 15 do
+     for I:=0 to High(TNumCustomColors) do
        CustColBtns[I].Parent:= AParent;
 
      OtherColBtn.Parent:= AParent;
@@ -362,10 +435,10 @@ procedure TColorPicker.UpdateButtons;
 var I : integer;
 begin
      Height:=Height-AutoOffSet;
-     for I:=0 to 39
+     for I:=0 to High(TNumColors)
      do ColBtns[I].Top:=ColBtns[I].Top-AutoOffSet;
      FSeparator.Top:=FSeparator.Top-AutoOffSet;
-     for I:=0 to 15
+     for I:=0 to High(TNumCustomColors)
      do CustColBtns[I].Top:=CustColBtns[I].Top-AutoOffSet;
      OtherColBtn.Top:=OtherColBtn.Top-AutoOffSet;
      OtherBtn.Top:=OtherBtn.Top-AutoOffSet;
@@ -448,8 +521,8 @@ begin
      then
      try
         FDDFlat:=Value;
-        for i:=0 to 39 do ColBtns[i].Flat:=Value;
-        for i:=0 to 15 do CustColBtns[i].Flat:=Value;
+        for i:=0 to High(TNumColors) do ColBtns[i].Flat:=Value;
+        for i:=0 to High(TNumCustomColors) do CustColBtns[i].Flat:=Value;
         AutoBtn.Flat:=Value;
         OtherBtn.Flat:=Value;
         OtherColBtn.Flat:=Value;
@@ -487,7 +560,7 @@ begin
      CloseOk:=false;
      CustColorsModified:= false;                       // [dpv]
      ok:=false;
-     for i:=0 to 39 do
+     for i:=0 to High(TNumColors) do
      begin
           if BtnColors[i]=SelectedColor
           then
@@ -497,7 +570,7 @@ begin
               end;
      end;
      if not Ok then
-     for i:=0 to 15 do
+     for i:=0 to High(TNumCustomColors) do
      begin
           if CustBtnColors[i]=SelectedColor
           then
@@ -602,7 +675,7 @@ begin
      if OpenKey('SoftWare',false) and
         OpenKey(FRegKey,false)
      then
-     for I:=0 to 15 do
+     for I:=0 to High(TNumCustomColors) do
      try
      CustBtnColors[I]:=StrToInt('$'+ReadString('Color'+Char(65+I)));
      except
@@ -610,7 +683,7 @@ begin
      end
 
      else
-     for I:=0 to 15 do
+     for I:=0 to High(TNumCustomColors) do
      CustBtnColors[I]:=$FFFFFF;
      finally
      ECIni.Free;
@@ -627,7 +700,7 @@ begin
      if OpenKey('SoftWare',true) and
         OpenKey(FRegKey,true)
      then
-     for I:=0 to 15 do
+     for I:=0 to High(TNumCustomColors) do
      WriteString('Color'+Char(65+I),IntToHex(CustBtnColors[I],6));
      finally ECIni.Free; end;
 end;
@@ -679,7 +752,7 @@ begin
           Left:=P.X;                      // [dpv] Movido desde el ppio del bloque begin
           Top:=P.Y;                       // [dpv]  Idem
           Drop(TColorBtn(self));
-          ColPick.OtherBtn.Hint:= STR_01;  // [dpv]
+          //ColPick.OtherBtn.Hint:= STR_01;  // [dpv]
           ShowHint:= true;
      end;
 end;
