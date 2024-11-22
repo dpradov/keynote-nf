@@ -7094,11 +7094,9 @@ begin
     for i := 0 to Toolbar_Format.ControlCount - 1 do begin
        with Toolbar_Format.Controls[i] do begin
           if (Copy(Name,1,5) = 'TB_Go') then continue;
-          if ReadOnly or (Name <> '') then
+          if ReadOnly then
              Enabled:= false
-          else
-             Enabled:= true;          // Vinculated to TB_Color and TB_Hilite
-          end;
+       end;
     end;
 
     for i := 0 to Toolbar_Style.ControlCount - 1 do
@@ -7115,6 +7113,8 @@ begin
     if not ReadOnly then begin
        Combo_Font.Enabled:= true;
        TB_Bold.Enabled:= true;
+       TB_Color.Enabled:= true;
+       TB_Hilite.Enabled:= true;
        MMFormatTextColor.Enabled:= true;
        MMFormatHighlight.Enabled:= true;
        MMFormatNoHighlight.Enabled:= true;

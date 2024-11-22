@@ -38,6 +38,12 @@
     to be ignored: it was painting unfilled rectangles with black borders.
     That happened only after hovering over the TSpeedButton. The first time he painted it did it correctly. The solution in this case has been to call
     Canvas.Refresh after the call to Inherited.
+
+  22/11/24: I undo several of the changes made according to *1 and *2 because after them the control did not allow to be placed
+   in the desired position in the toolbar (yes, only in design mode...). It was always displayed in the last position.
+   Finally I was forced to completely manage the Paint event because the problem described with the blue highlight color continued to occur after undoing many of
+   those changes.
+
 }
 
 
@@ -130,6 +136,8 @@ type
   public
     SelectedColor:TColor;
     procedure Drop(Sender:TControl);
+  protected
+    procedure Paint; override;
   end;
 
 
@@ -162,9 +170,9 @@ type
     procedure SetRegKey(Value:string);
   protected
     Btn1:TColBtn;
-    Btn2:TSpeedButton;
+    Btn2:TColBtn;
     procedure Loaded; override;                                    // [dpv]
-    procedure SetEnabled(Value:boolean);
+    procedure SetEnabled(Value:boolean); override;
     procedure WriteReg;
     procedure ReadReg;
   public
@@ -256,18 +264,67 @@ S
 
 var
      CustBtnColors:array[TNumCustomColors] of TColor;
+     OtherColor: TColor;
+
 
 procedure Register;
 begin
   RegisterComponents('SoftCos', [TColorBtn]);
 end;
 
+
+procedure PaintTransparentBitmap(Canvas: TCanvas; DestRect: TRect; Glyph: TBitmap; Enabled: Boolean; TranspColor: TColor;
+                                 Half: Boolean);
+var
+  W, X, Y: Integer;
+  SrcRect: TRect;
+  TmpBmp: TBitmap;
+
+begin
+  if Half then
+     W := Glyph.Width div 2
+  else
+     W := Glyph.Width;
+
+  if Enabled or not Half then
+    SrcRect := Rect(0, 0, W, Glyph.Height)
+  else
+    SrcRect := Rect(W, 0, Glyph.Width, Glyph.Height);
+
+  TmpBmp := TBitmap.Create;
+  try
+    TmpBmp.Width  := SrcRect.Width;
+    TmpBmp.Height := SrcRect.Height;
+    TmpBmp.Canvas.CopyRect(Rect(0, 0, TmpBmp.Width, TmpBmp.Height), Glyph.Canvas, SrcRect);
+    TmpBmp.Transparent := True;
+    TmpBmp.TransparentColor := TranspColor;
+
+    X:= 1 + (DestRect.Width-W) div 2;
+    Y:= (DestRect.Height - Glyph.Height) div 2;
+    Canvas.Draw(X,Y, TmpBmp);
+
+  finally
+    TmpBmp.Free;
+  end;
+end;
+
+
+procedure DrawHighlightButton(Canvas: TCanvas; Rect: TRect);
+begin
+  Canvas.Pen.Color := clWhite;
+  Canvas.MoveTo(Rect.Right-1, Rect.Top);
+  Canvas.LineTo(Rect.Left, Rect.Top);
+  Canvas.LineTo(Rect.Left, Rect.Bottom - 1);
+  Canvas.Pen.Color := clGray;
+  Canvas.LineTo(Rect.Right-1, Rect.Bottom - 1);
+  Canvas.LineTo(Rect.Right-1, Rect.Top);
+end;
+
 procedure TColBtn.Paint;
-var B,X,Y:integer;
+var B,X,Y, TW: integer;
     FColor:TColor;
-    PaintRect: TRect;
     P: TPoint;
-    FMouseInControl: boolean;
+    FMouseInControl, Half: boolean;
 
 begin
 
@@ -276,41 +333,60 @@ begin
      else FColor:=clGray;
      //B:=Height div 5;
      B:= 1;
-     Inherited;
+//   Inherited;
 
-     Canvas.Refresh;                              // [dpv] *2
+     GetCursorPos(P);
+     FMouseInControl := (FindDragTarget(P, True) = Self);
+
+     //Canvas.Refresh;                              // [dpv] *2
 
      with Canvas do
-     if Glyph.Handle<>0
-     then
-        begin
-         X:=(Width div 2) - 9 + Integer(FState in [bsDown]);
-         Y:=(Height div 2)+ 4 + Integer(FState in [bsDown]);
-         Pen.color:=FColor;
-         Brush.Color:=FColor;
-         Rectangle(X,Y,X+17,Y+4);
-        end
+     if Glyph.Handle<>0 then begin
+        Brush.Color := clBtnFace;
+        FillRect(ClientRect);
+
+        X:=(Width div 2) - 9 + Integer(FState in [bsDown]);
+        Y:=(Height div 2)+ 4 + Integer(FState in [bsDown]);
+        Pen.color:=FColor;
+        Brush.Color:=FColor;
+        Half:= False;
+        if Width >= 16 then begin
+           Rectangle(X,Y,X+17,Y+4);
+           Half:= True;
+        end;
+        PaintTransparentBitmap(Canvas, ClientRect, Glyph, Enabled, clLtGray, Half);
+
+        if FMouseInControl then
+           DrawHighlightButton(Canvas, ClientRect);
+     end
      else
-     if Caption=''
-     then
-        begin
-         GetCursorPos(P);
-         FMouseInControl := (FindDragTarget(P, True) = Self);
+     if Caption='' then begin
          if FMouseInControl then
             Brush.Color := clBlack
          else
-            Brush.Color := clBtnFace;
-         PaintRect := ClientRect;
-         FillRect(PaintRect);
+            if Down then
+               Brush.Color := $FF8000
+            else
+               Brush.Color := clBtnFace;
+         FillRect(ClientRect);
 
          Pen.color:=clgray;
          Brush.Color:=FColor;
          Brush.Style:=bsSolid;
          Rectangle(B,B,Width-B,Height-B);
-        end
-     else
-        begin
+     end
+     else begin
          B:= 2;
+         if FMouseInControl then begin
+            Brush.Color:=$F2E6D8;
+            FillRect(ClientRect);
+         end
+         else
+            Brush.Color:= clBtnFace;
+         Pen.color:=clBlack;
+         TW:= TextWidth(Caption);
+         TextOut((Width-TW) div 2, 2, Caption);
+
          Pen.color:=clgray;
          Brush.Style:=bsClear;
          Polygon([Point(B-1,B-1),
@@ -321,7 +397,7 @@ begin
          Brush.Color:=FColor;
          Brush.Style:=bsSolid;
          Rectangle(B+1,B+1,Height + 3,Height-B);
-        end;
+     end;
 end;
 
 constructor TColorPicker.Create(AOwner: TComponent);
@@ -335,7 +411,7 @@ begin
   FColorDlg.Options:=[cdFullOpen];
   FSeparator := TBevel.Create(self);
   //FSeparator.Parent:=self;                          // [dpv]
-  FSeparator.SetBounds(5,TOP_SEPARATOR,width-10,2);
+  FSeparator.SetBounds(MARGIN,TOP_SEPARATOR,width-10,2);
   InitButtons;
   FDDIsAuto:=true;
   FDDFlat:=true;
@@ -356,7 +432,6 @@ begin
   Btn.Color:=ClDefault;
   Btn.GroupIndex:=1;
   Btn.SetBounds(MARGIN,4,Width-MARGIN*2,BtnDim);
-  Btn.Hint:= ColorInformation(Btn.Color);
   Btn.OnClick:=BtnClick;
   AutoBtn:=Btn;
 
@@ -397,7 +472,8 @@ begin
   Btn:=TColBtn.Create(Self);
   //Btn.Parent := Self;                               // [dpv]
   Btn.Flat:=true;
-  Btn.Color:=FColorDlg.Color;
+  //Btn.Color:=FColorDlg.Color;
+  Btn.Color:= OtherColor;
   Btn.SetBounds(MARGIN,TOP_OTHER_BUTTOM,BtnDim,BtnDim);
   Btn.GroupIndex:=1;
   Btn.OnClick:=BtnClick;
@@ -452,8 +528,11 @@ begin
      FColorDlg.Color:=OtherColBtn.Color;
      TColPickDlg(Owner).OtherOk:=true;
      ExecuteOk:= FColorDlg.Execute;
-     if ExecuteOk then
+     if ExecuteOk then begin
         OtherColBtn.Color:=FColorDlg.Color;
+        OtherColor:= OtherColBtn.Color;
+        TColPickDlg(Owner).CustColorsModified:= true;
+     end;
 
      TColPickDlg(Owner).OtherOk:=false;
      SendMessage(TColPickDlg(Owner).Handle,WM_SETFOCUS,0,0);
@@ -476,49 +555,40 @@ end;
 procedure TColorPicker.BtnRClick(Sender: TObject;
                        Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-     if Button= mbRight
-     then
-         begin
-              FColorDlg.Color:=TColorBtn(Sender).Color;
-              TColPickDlg(Owner).OtherOk:=true;
-              if FColorDlg.Execute
-              then
-              begin
-                   TColorBtn(Sender).Color:=FColorDlg.Color;
-                   CustBtnColors[TColorBtn(Sender).Tag]:=FColorDlg.Color;
-                   TColPickDlg(Owner).CustColorsModified:= true;             // [dpv]
-              end;
-              TColPickDlg(Owner).OtherOk:=false;
-              SendMessage(TColPickDlg(Owner).Handle,WM_SETFOCUS,0,0);
-         end;
+     if Button= mbRight then begin
+        FColorDlg.Color:=TColorBtn(Sender).Color;
+        TColPickDlg(Owner).OtherOk:=true;
+        if FColorDlg.Execute then begin
+           TColorBtn(Sender).Color:=FColorDlg.Color;
+           CustBtnColors[TColorBtn(Sender).Tag]:=FColorDlg.Color;
+           TColPickDlg(Owner).CustColorsModified:= true;             // [dpv]
+        end;
+        TColPickDlg(Owner).OtherOk:=false;
+        SendMessage(TColPickDlg(Owner).Handle,WM_SETFOCUS,0,0);
+     end;
 end;
 
 procedure TColorPicker.SetDDAutoColor(Value:TColor);
 begin
-     if Value<>FDDAutoColor
-     then
-     begin
-          FDDAutoColor:=Value;
-          AutoBtn.Color:=Value;
+     if Value<>FDDAutoColor then begin
+        FDDAutoColor:=Value;
+        AutoBtn.Color:=Value;
      end;
 end;
 procedure TColorPicker.SetDDIsAuto(Value:boolean);
 begin
-     if Value<>FDDIsAuto
-     then
-     begin
-          FDDIsAuto:=Value;
-          AutoBtn.visible:=Value;
+     if Value<>FDDIsAuto then begin
+        FDDIsAuto:=Value;
+        AutoBtn.visible:=Value;
      end;
      if not FDDIsAuto
-     then UpdateButtons;
+       then UpdateButtons;
 end;
 
 procedure TColorPicker.SetDDFlat(Value:boolean);
 var i:integer;
 begin
-     if Value<>FDDFlat
-     then
+  if Value<>FDDFlat then
      try
         FDDFlat:=Value;
         for i:=0 to High(TNumColors) do ColBtns[i].Flat:=Value;
@@ -543,13 +613,14 @@ end;
 procedure TColPickDlg.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-     if Key=vk_escape then Close;
-     if Key=vk_return then
-                         begin
-                           SelectedColor:=ColPick.DDSelColor;
-                           CloseOk:=true;
-                           Close;
-                         end;
+     if Key=vk_escape then
+        Close;
+
+     if Key=vk_return then begin
+        SelectedColor:=ColPick.DDSelColor;
+        CloseOk:=true;
+        Close;
+     end;
      Key:=0;
 end;
 
@@ -560,32 +631,38 @@ begin
      CloseOk:=false;
      CustColorsModified:= false;                       // [dpv]
      ok:=false;
-     for i:=0 to High(TNumColors) do
-     begin
-          if BtnColors[i]=SelectedColor
-          then
-              begin
-                ColPick.ColBtns[i].down:=true;
-                Ok:=true;
-              end;
+     for i:=0 to High(TNumColors) do begin
+          if BtnColors[i]=SelectedColor then begin
+             ColPick.ColBtns[i].down:=true;
+             Ok:=true;
+          end;
      end;
      if not Ok then
-     for i:=0 to High(TNumCustomColors) do
-     begin
-          if CustBtnColors[i]=SelectedColor
-          then
-              begin
+        for i:=0 to High(TNumCustomColors) do begin
+             if CustBtnColors[i]=SelectedColor then begin
                 ColPick.CustColBtns[i].down:=true;
                 Ok:=true;
-              end;
-     end;
-     if not Ok
-     then
-        begin
-             ColPick.OtherColBtn.Color:=SelectedColor;
-             ColPick.OtherColBtn.Down:=true;
+             end;
         end;
+
+     if not Ok then begin
+        if ColPick.OtherColBtn.Color= SelectedColor then
+           ColPick.OtherColBtn.Down:=true;
+     end;
 end;
+
+procedure TColPickDlg.Paint;
+begin
+  inherited;
+  Canvas.Brush.Style := bsClear;
+  Canvas.Pen.Color := clGray;
+  Canvas.Pen.Width := 1;
+  Canvas.MoveTo(0, 0);                // Left border
+  Canvas.LineTo(0, Height-1);
+  Canvas.LineTo(Width-1, Height-1);   // Bottom
+  Canvas.LineTo(Width-1, 0);          // Right
+end;
+
 
 procedure TColPickDlg.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -636,21 +713,15 @@ procedure TColorBtn.InitButtons;
 
 begin
   Btn1:=TColBtn.Create(Self);
-  //Btn1.Parent := Self;                                  // [dpv]
+  Btn1.Parent := Self;
   Btn1.Color:=FActiveColor;
   Btn1.OnClick:=Btn1Click;
   Btn1.Glyph.Handle:= LoadBitmap(HInstance,'FRCOLOR');
 
-  Btn2:=TSpeedButton.Create(Self);
-  //Btn2.Parent := Self;                                  // [dpv]
+  Btn2:=TColBtn.Create(Self);
+  Btn2.Parent := Self;
   Btn2.Glyph.Handle:= LoadBitmap(HInstance,'DROPDOWN');
   Btn2.OnClick:=Btn2Click;
-
-   if (csDesigning in ComponentState) then begin          // [dpv]
-      Btn1.Parent := Self;
-      Btn2.Parent := Self;
-   end;
-
 end;
 
 
@@ -669,40 +740,39 @@ procedure TColorBtn.ReadReg;
 var ECIni:TRegistry;
     I : Integer;
 begin
-     ECIni := TRegistry.Create;
-     try
+   ECIni := TRegistry.Create;
+   try
      with ECIni do
-     if OpenKey('SoftWare',false) and
-        OpenKey(FRegKey,false)
-     then
-     for I:=0 to High(TNumCustomColors) do
-     try
-     CustBtnColors[I]:=StrToInt('$'+ReadString('Color'+Char(65+I)));
-     except
-           CustBtnColors[I]:=$FFFFFF;
+     if OpenKey('SoftWare',false) and OpenKey(FRegKey,false) then begin
+       for I:=0 to High(TNumCustomColors) do
+           CustBtnColors[I]:=StrToIntDef('$'+ReadString('Color'+Char(65+I)), $FFFFFF);
+       OtherColor:=StrToIntDef('$'+ReadString('ColorOther'), 0);
      end
-
      else
-     for I:=0 to High(TNumCustomColors) do
-     CustBtnColors[I]:=$FFFFFF;
-     finally
+       for I:=0 to High(TNumCustomColors) do
+          CustBtnColors[I]:=$FFFFFF;
+
+   finally
      ECIni.Free;
-     end;
+   end;
 end;
 
 procedure TColorBtn.WriteReg;
 var ECIni:TRegistry;
     I:integer;
 begin
-     ECIni := TRegistry.Create;
-     try
+   ECIni := TRegistry.Create;
+   try
      with ECIni do
-     if OpenKey('SoftWare',true) and
-        OpenKey(FRegKey,true)
-     then
-     for I:=0 to High(TNumCustomColors) do
-     WriteString('Color'+Char(65+I),IntToHex(CustBtnColors[I],6));
-     finally ECIni.Free; end;
+     if OpenKey('SoftWare',true) and OpenKey(FRegKey,true) then begin
+       for I:=0 to High(TNumCustomColors) do
+          WriteString('Color'+Char(65+I),IntToHex(CustBtnColors[I],6));
+       WriteString('ColorOther',IntToHex(OtherColor,6));
+     end;
+
+   finally
+      ECIni.Free;
+   end;
 end;
 
 procedure TColorBtn.Btn1Click(Sender:TObject);
@@ -715,11 +785,10 @@ procedure TColorBtn.Btn2Click(Sender:TObject);
 var P:TPoint;
     Dlg:TColPickDlg;
 begin
-     if not (csDesigning in ComponentState) and
-             Assigned(FBeforeDropDown)
-     then FBeforeDropDown(Self);
-     if not (csDesigning in ComponentState)
-     then ReadReg;
+     if not (csDesigning in ComponentState) and Assigned(FBeforeDropDown) then
+        FBeforeDropDown(Self);
+     if not (csDesigning in ComponentState) then
+        ReadReg;
 {                                                                   // [dpv]  *1
      P.X:=TControl(Sender).Left-TControl(Sender).Parent.height;
      P.Y:=TControl(Sender).Top+TControl(Sender).Parent.height;
@@ -729,9 +798,7 @@ begin
      P.Y:= TControl(Sender).height;
      P:= Btn1.ClientToScreen(P);
      Dlg:= TColPickDlg.CreateNew(Application);
-
-     with Dlg do
-     begin
+     with Dlg do begin
           BorderIcons := [];
           BorderStyle := bsNone;
           ColPick:=TColorPicker.Create(Dlg);
@@ -775,17 +842,11 @@ begin
    if (csLoading in ComponentState) then Exit;
    if Btn1 = nil then Exit;
    W:= H + FDDArrowWidth;
-// Btn1.SetBounds(0,0,H,H);                                     // [dpv]    
+// Btn1.SetBounds(0,0,H,H);                                     // [dpv]
 // Btn2.SetBounds(H,0,FDDArrowWidth,H);
 
    L:= 0;
-   if not (csDesigning in ComponentState) then begin            // [dpv]
-      L:= Left;
-      if Btn1.Parent = nil then begin
-         Btn1.Parent:= Self.Parent;
-         Btn2.Parent:= Self.Parent;
-      end;
-   end;
+
    Btn1.SetBounds(L,0,H,H);
    Btn2.SetBounds(L+H,0,FDDArrowWidth,H);
 end;
@@ -798,7 +859,6 @@ begin
   H := AHeight;
   AdjustSize (W, H);
 
-  if not (csDesigning in ComponentState) then  W:= 0;          // [dpv] -> Panel will not hide btn1 nor btn2
   inherited SetBounds (ALeft, ATop, W, H);
 end;
 
@@ -811,42 +871,37 @@ begin
   H := Height;
   AdjustSize (W, H);
 
-//if (W <> Width) or (H <> Height) then                                         // [dpv]
-  if (csDesigning in ComponentState) and ((W <> Width) or (H <> Height)) then
-      inherited SetBounds(Left, Top, W, H);
+  if (W <> Width) or (H <> Height) then
+    inherited SetBounds(Left, Top, W, H);
 
   message.Result := 0;
 end;
 
 procedure TColorBtn.SetActiveColor(Value:TColor);
 begin
-     if Value<>FActiveColor
-     then
-         begin
-              FActiveColor:=Value;
-              Btn1.Color:=Value;
-         end;
+     if Value<>FActiveColor then begin
+        FActiveColor:=Value;
+        Btn1.Color:=Value;
+     end;
 end;
 
 procedure TColorBtn.SetGlyphType(Value:TGlyphType);
 begin
-     if Value<>FGlyphType
-     then
-       begin
-            FGlyphType:=Value;
-            case FGlyphType of
-            gtForeground:
-            Btn1.Glyph.Handle:=LoadBitmap(HInstance,'FRCOLOR');
-            gtBackground:
-            Btn1.Glyph.Handle:=LoadBitmap(HInstance,'BKCOLOR');
-            gtLines:
-            Btn1.Glyph.Handle:=LoadBitmap(HInstance,'LNCOLOR');
-            gtCustom:
-            Btn1.Glyph:=nil;
-            end;
-            if Btn1.Glyph<>nil then Btn1.NumGlyphs:=2;
-            Btn1.Invalidate;
-       end;
+     if Value<>FGlyphType then begin
+        FGlyphType:=Value;
+        case FGlyphType of
+        gtForeground:
+        Btn1.Glyph.Handle:=LoadBitmap(HInstance,'FRCOLOR');
+        gtBackground:
+        Btn1.Glyph.Handle:=LoadBitmap(HInstance,'BKCOLOR');
+        gtLines:
+        Btn1.Glyph.Handle:=LoadBitmap(HInstance,'LNCOLOR');
+        gtCustom:
+        Btn1.Glyph:=nil;
+        end;
+        if Btn1.Glyph<>nil then Btn1.NumGlyphs:=2;
+        Btn1.Invalidate;
+     end;
 end;
 
 procedure TColorBtn.SetGlyph(Value:TBitMap);
@@ -891,9 +946,9 @@ end;
 
 procedure TColorBtn.SetEnabled(Value:boolean);
 begin
-     Btn1.Enabled:=Value;
-     Btn2.Enabled:=Value;
-     // inherited;
+     Btn1.Enabled:= Value;
+     Btn2.Enabled:= Value;
+     Invalidate;
 end;
 
 end.

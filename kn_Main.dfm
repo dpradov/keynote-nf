@@ -480,7 +480,7 @@ object Form_Main: TForm_Main
         Top = 0
       end
       object sf2: TToolbarSep97
-        Left = 274
+        Left = 144
         Top = 0
       end
       object TB_AlignLeft: TToolbarButton97
@@ -756,7 +756,7 @@ object Form_Main: TForm_Main
         OnClick = MMHistoryGoBackClick
       end
       object ToolbarSep971: TToolbarSep97
-        Left = 217
+        Left = 291
         Top = 0
       end
       object ToolbarSep972: TToolbarSep97
@@ -764,7 +764,7 @@ object Form_Main: TForm_Main
         Top = 0
       end
       object Combo_Font: TFontComboBox
-        Left = 76
+        Left = 150
         Top = 1
         Width = 141
         Height = 20
@@ -774,7 +774,7 @@ object Form_Main: TForm_Main
         OnKeyDown = Combo_FontKeyDown
       end
       object TB_Color: TColorBtn
-        Left = 280
+        Left = 76
         Top = 0
         Width = 34
         Height = 22
@@ -794,7 +794,7 @@ object Form_Main: TForm_Main
         DDArrowWidth = 12
       end
       object TB_Hilite: TColorBtn
-        Left = 314
+        Left = 110
         Top = 0
         Width = 34
         Height = 22
@@ -815,7 +815,7 @@ object Form_Main: TForm_Main
         DDArrowWidth = 12
       end
       object Combo_FontSize: TComboBox
-        Left = 223
+        Left = 297
         Top = 0
         Width = 51
         Height = 21
