@@ -61,7 +61,8 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.ExtCtrls,
-   Vcl.Buttons;
+   Vcl.Buttons,
+   TopWnd;
 
 const
   BtnDim=17;
@@ -132,6 +133,7 @@ type
     CloseOk:boolean;
     OtherOk:boolean;
     CustColorsModified: boolean;
+    WinOnTop: TTopMostWindow;
     procedure WMKILLFOCUS(var message: TWMKILLFOCUS); message WM_KILLFOCUS;
   public
     SelectedColor:TColor;
@@ -799,6 +801,8 @@ begin
      P:= Btn1.ClientToScreen(P);
      Dlg:= TColPickDlg.CreateNew(Application);
      with Dlg do begin
+          WinOnTop:= TTopMostWindow.Create(Dlg);
+          WinOnTop.AlwaysOnTop:= true;
           BorderIcons := [];
           BorderStyle := bsNone;
           ColPick:=TColorPicker.Create(Dlg);
