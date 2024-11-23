@@ -32,8 +32,8 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.0.0 Beta 7';
-  Program_Version_Number  = '2.0.0.7';
+  Program_Version  = '2.0.0 Beta 8';
+  Program_Version_Number  = '2.0.0.8';
   Program_Version_Date    = '23/11/2024';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 

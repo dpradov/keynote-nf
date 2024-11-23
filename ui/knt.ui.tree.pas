@@ -2775,7 +2775,7 @@ begin
   end;
 
   TV.ScrollIntoView(TV.FocusedNode, false);
-
+  TV.PopupMenu := PopupMenu;     // See comment *1 in CopySubtrees
 end;
 
 
@@ -2914,7 +2914,9 @@ begin
      TVSelectedNodes:= TV.GetSortedSelection(True);
      for i := 0 to High(TVSelectedNodes) do
         if not (DeleteNode(TVSelectedNodes[i], DeleteOnlyChildren, True, True)) then exit;
-  end
+  end;
+
+  TV.PopupMenu := PopupMenu;     // See comment *1 in CopySubtrees
 end;
 
 
@@ -2989,6 +2991,10 @@ begin
   TKntFolder(Folder).Modified:= true;
   if TargetNode = TV.RootNode then
      CheckFocusedNode;
+
+  // *1 For safety, in case TV_Edited is not called after TV_Editing has been called
+  //   (See https://github.com/dpradov/keynote-nf/discussions/739#discussioncomment-11359035)
+  TV.PopupMenu := PopupMenu;     // *1
 end;
 
 
@@ -3051,6 +3057,8 @@ begin
 
   if TargetNode = TV.RootNode then
      CheckFocusedNode;
+
+  TV.PopupMenu := PopupMenu;     // See comment *1 in CopySubtrees
 end;
 
 
