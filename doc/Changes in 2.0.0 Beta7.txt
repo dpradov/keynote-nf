@@ -17,3 +17,6 @@ Changes in 2.0.0 Beta 7  (23 nov 2024)
            is set to 'Always on Top'
   - Fixed: 'Default' text color was reflected in toolbar button when selecting folder
             but not after changing it in folder properties
+
+* Fixed: Tree panel: Removed [toThemeAware] option. In W10, borders were displayed fine, 
+         but none were displayed in W11.
