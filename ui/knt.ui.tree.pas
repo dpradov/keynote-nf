@@ -605,7 +605,8 @@ begin
       // EditOptions:= toDefaultEdit
       // ExportMode:= emAll
 
-      TreeOptions.PaintOptions:= TreeOptions.PaintOptions - [TVTPaintOption.toUseBlendedImages];
+      // - [toUseBlendedImages, toThemeAware];
+      TreeOptions.PaintOptions:= [toShowButtons,toShowDropmark,toShowRoot,toShowTreeLines];
 
 //    TreeOptions.AutoOptions := TreeOptions.AutoOptions + [toAutoExpand];
 
