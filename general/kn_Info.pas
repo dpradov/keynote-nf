@@ -863,14 +863,14 @@ begin
     HiColor := clHighlight;
     with Font do begin
       Name := 'Tahoma';
-      Size := 8;
+      Size := 10;
       Style := [];
       Charset := DEFAULT_CHARSET;
       Color := clWindowText;
     end;
     with HiFont do begin
       Name := 'Tahoma';
-      Size := 8;
+      Size := 10;
       Style := [];
       Charset := DEFAULT_CHARSET;
       Color := clHighlightText;

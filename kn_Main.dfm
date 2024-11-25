@@ -9,7 +9,7 @@ object Form_Main: TForm_Main
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
   Menu = Menu_Main
@@ -1021,7 +1021,7 @@ object Form_Main: TForm_Main
     TabInactiveFont.Charset = DEFAULT_CHARSET
     TabInactiveFont.Color = clWindowText
     TabInactiveFont.Height = -11
-    TabInactiveFont.Name = 'MS Sans Serif'
+    TabInactiveFont.Name = 'Tahoma'
     TabInactiveFont.Style = []
     MultiLine = True
     PopupMenu = Menu_ResPanel
@@ -1050,7 +1050,7 @@ object Form_Main: TForm_Main
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
-        Font.Name = 'MS Sans Serif'
+        Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
@@ -1175,7 +1175,7 @@ object Form_Main: TForm_Main
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
-        Font.Name = 'MS Sans Serif'
+        Font.Name = 'Tahoma'
         Font.Style = []
         PageIndex = 1
         ParentFont = False
@@ -1689,7 +1689,7 @@ object Form_Main: TForm_Main
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
-        Font.Name = 'MS Sans Serif'
+        Font.Name = 'Tahoma'
         Font.Style = []
         ItemHeight = 20
         ParentFont = False
@@ -1710,7 +1710,7 @@ object Form_Main: TForm_Main
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
-        Font.Name = 'MS Sans Serif'
+        Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
         TabOrder = 2
@@ -4030,7 +4030,7 @@ object Form_Main: TForm_Main
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'MS Sans Serif'
+    Font.Name = 'Tahoma'
     Font.Style = []
     Options = [fdEffects, fdForceFontExist]
     Left = 28
