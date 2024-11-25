@@ -5,7 +5,7 @@ object Form_Defaults: TForm_Defaults
   BorderStyle = bsDialog
   Caption = 'Defaults'
   ClientHeight = 496
-  ClientWidth = 377
+  ClientWidth = 383
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,7 +22,7 @@ object Form_Defaults: TForm_Defaults
   TextHeight = 13
   object LB_Scope: TLabel
     Left = 8
-    Top = 4
+    Top = 8
     Width = 354
     Height = 18
     Alignment = taRightJustify
@@ -38,9 +38,9 @@ object Form_Defaults: TForm_Defaults
     StyleElements = [seClient, seBorder]
   end
   object Label1: TLabel
-    Left = 6
+    Left = 14
     Top = 33
-    Width = 74
+    Width = 129
     Height = 13
     AutoSize = False
     Caption = '&Folder name:'
@@ -53,9 +53,9 @@ object Form_Defaults: TForm_Defaults
     ParentFont = False
   end
   object Label4: TLabel
-    Left = 277
+    Left = 290
     Top = 33
-    Width = 74
+    Width = 89
     Height = 13
     AutoSize = False
     Caption = 'Folder &icon:'
@@ -90,7 +90,7 @@ object Form_Defaults: TForm_Defaults
     OnClick = Button_CancelClick
   end
   object Pages: TPage95Control
-    Left = 3
+    Left = 8
     Top = 84
     Width = 369
     Height = 320
@@ -119,7 +119,7 @@ object Form_Defaults: TForm_Defaults
       object GBox_Tree: TGroupBox
         Left = 4
         Top = 3
-        Width = 349
+        Width = 354
         Height = 285
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -144,7 +144,7 @@ object Form_Defaults: TForm_Defaults
           WordWrap = True
         end
         object Label2: TLabel
-          Left = 18
+          Left = 25
           Top = 158
           Width = 95
           Height = 13
@@ -174,7 +174,7 @@ object Form_Defaults: TForm_Defaults
         object CB_TreeCheck: TCheckBox
           Left = 18
           Top = 89
-          Width = 182
+          Width = 210
           Height = 17
           Hint = 'Display or hide checkboxes in ALL nodes'
           Caption = '&Show checkboxes in all nodes'
@@ -217,7 +217,7 @@ object Form_Defaults: TForm_Defaults
           Visible = False
         end
         object BitBtn_TknHlp: TBitBtn
-          Left = 315
+          Left = 321
           Top = 15
           Width = 25
           Height = 25
@@ -230,7 +230,7 @@ object Form_Defaults: TForm_Defaults
         object CB_Vertical: TCheckBox
           Left = 18
           Top = 66
-          Width = 199
+          Width = 210
           Height = 17
           Hint = 'Check to show tree ABOVE the editor'
           Caption = '&Vertical layout (tree on top)'
@@ -243,7 +243,7 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 2
         end
         object Combo_TreeImages: TComboBox
-          Left = 132
+          Left = 156
           Top = 155
           Width = 176
           Height = 21
@@ -259,7 +259,7 @@ object Form_Defaults: TForm_Defaults
         object CB_HideChecked: TCheckBox
           Left = 18
           Top = 113
-          Width = 182
+          Width = 210
           Height = 17
           Hint = 'Show or hide checked nodes'
           Caption = '&Hide checked nodes'
@@ -285,7 +285,7 @@ object Form_Defaults: TForm_Defaults
         object CB_TreeChrome_AllNotes: TCheckBox
           Left = 21
           Top = 260
-          Width = 180
+          Width = 317
           Height = 17
           Hint = 
             'Font and BG color will be changed in the panels of ALL folders i' +
@@ -301,16 +301,16 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 9
         end
         object gbCols: TGroupBox
-          Left = 206
+          Left = 232
           Top = 56
-          Width = 133
+          Width = 115
           Height = 85
           Caption = ' Additional Columns '
           TabOrder = 5
           object CB_ShowDateCol: TCheckBox
-            Left = 17
+            Left = 7
             Top = 25
-            Width = 98
+            Width = 100
             Height = 17
             Hint = 'Note creation date'
             Caption = 'Date'
@@ -323,9 +323,9 @@ object Form_Defaults: TForm_Defaults
             TabOrder = 0
           end
           object CB_ShowFlagCol: TCheckBox
-            Left = 17
+            Left = 7
             Top = 48
-            Width = 98
+            Width = 100
             Height = 17
             Hint = 'Note creation date'
             Caption = 'Flagged'
@@ -438,7 +438,7 @@ object Form_Defaults: TForm_Defaults
         object LB_PlainText: TLabel
           Left = 34
           Top = 155
-          Width = 304
+          Width = 315
           Height = 13
           Hint = 
             'If checked, new notes (or new entries of existing notes) will de' +
@@ -472,7 +472,7 @@ object Form_Defaults: TForm_Defaults
         object CB_URLDetect: TCheckBox
           Left = 15
           Top = 85
-          Width = 272
+          Width = 323
           Height = 17
           Hint = 'Highlight URLs in editor'
           Caption = 'Detect and highlight &URLs in editor'
@@ -487,7 +487,7 @@ object Form_Defaults: TForm_Defaults
         object CB_UseTabChar: TCheckBox
           Left = 15
           Top = 61
-          Width = 203
+          Width = 210
           Height = 17
           Hint = 'Insert TAB character (#9) when Tab key pressed'
           Caption = 'Use &Tab character'
@@ -662,7 +662,7 @@ object Form_Defaults: TForm_Defaults
     TabOrder = 7
   end
   object Button_Help: TButton
-    Left = 287
+    Left = 298
     Top = 465
     Width = 75
     Height = 25
@@ -673,13 +673,13 @@ object Form_Defaults: TForm_Defaults
   object GB_Defaults: TGroupBox
     Left = 5
     Top = 406
-    Width = 367
+    Width = 370
     Height = 53
     TabOrder = 6
     object CB_SaveDefaults: TCheckBox
       Left = 10
       Top = 7
-      Width = 344
+      Width = 355
       Height = 17
       Caption = 'Save as Defaults'
       Font.Charset = DEFAULT_CHARSET
@@ -695,7 +695,7 @@ object Form_Defaults: TForm_Defaults
     object CB_SaveAsDef: TCheckBox
       Left = 44
       Top = 28
-      Width = 303
+      Width = 320
       Height = 17
       Hint = 
         'Normally, properties are saved as defaults for all new folders y' +
@@ -714,14 +714,14 @@ object Form_Defaults: TForm_Defaults
     end
   end
   object Edit_FolderName: TComboBox
-    Left = 8
+    Left = 12
     Top = 51
-    Width = 247
-    Height = 21
+    Width = 248
+    Height = 22
     Hint = 'Enter name for new folder'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -12
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
@@ -729,7 +729,7 @@ object Form_Defaults: TForm_Defaults
     OnKeyPress = Edit_FolderNameKeyPress
   end
   object Combo_Icons: TGFXComboBox
-    Left = 278
+    Left = 289
     Top = 51
     Width = 79
     Height = 22
