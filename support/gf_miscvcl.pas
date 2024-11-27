@@ -1,4 +1,4 @@
-unit gf_miscvcl;
+Ôªøunit gf_miscvcl;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -24,6 +24,7 @@ uses
    Winapi.Messages,
    System.Classes,
    System.SysUtils,
+   System.DateUtils,
    Vcl.Forms,
    Vcl.Graphics,
    Vcl.Controls,
@@ -31,6 +32,7 @@ uses
    Vcl.Dialogs,
    Vcl.ImgList,
    Vcl.StdCtrls,
+   Vcl.ComCtrls,
    SynGdiPlus;
 
 
@@ -92,6 +94,9 @@ function LightenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function GetHotColorFor(BackColor, FontColor: TColor): TColor;
 function InvertColor(Color: TColor): TColor;
 function ColorInformation(Color: TColor): string;
+
+function CheckCalendarInTDateTimePicker(AOwner: TWinControl): boolean;
+function PrepareTDateTimePicker(Control: TDateTimePicker): boolean;
 
 var
   _TahomaFontInstalled : boolean = false;
@@ -396,13 +401,13 @@ end;
 There is a known issue with TFontDialog in Delphi when using scaling settings other than 100%.
 This issue can cause the selected font to appear larger than expected.
 The problem lies in how TFontDialog (and, in fact, the underlying Win32 ChooseFont API) handles DPI awareness.
-In particular, TFontDialog does not fully support ìPer Monitor V2î DPI awareness.
-As a workaround, it seems that we can temporarily switch to ìSystem awareî DPI awareness while the dialog
+In particular, TFontDialog does not fully support ‚ÄúPer Monitor V2‚Äù DPI awareness.
+As a workaround, it seems that we can temporarily switch to ‚ÄúSystem aware‚Äù DPI awareness while the dialog
 is displayed and switch back afterwards.
 
 https://stackoverflow.com/questions/59679860/delphi-tfontdialog-how-to-scale-for-high-dpi
 
-However, in Alexandria 11.3, it is working ok with ìPer Monitor V2î, but not with "GDI Scaling"
+However, in Alexandria 11.3, it is working ok with ‚ÄúPer Monitor V2‚Äù, but not with "GDI Scaling"
 and the solution indicated it is not working
 
 We will use the real DPI calling to GetSystemPixelsPerInch (above), to get the correct font size
@@ -690,6 +695,48 @@ begin
 
 end;
 
+
+// There is a bug in Delphi, and it does not handle certain calendars correctly, such as the Um-Al-Qura Calendar
+// used in Saudi Arabia.
+// This error appears in previous versions of KeyNote, such as 1.9.5.2, when opening the alarms window,
+// but since TDateTimePicker controls have been incorporated into the search panel, the error can directly
+// prevent the application from opening.
+// I find that I cannot even insert the control at design time or open it if it is already inserted.
+// The exception ECommonCalendarError: Failed to set calendar min/max range is generated.
+// I have tested that by setting certain controlled values MinDate and MaxDate the control seems to work
+// Therefore, to avoid the error, I will initially set these fields to Visible=False and will only make them
+// visible in a controlled manner, with the help of this method.
+
+function CheckCalendarInTDateTimePicker(AOwner: TWinControl): boolean;
+var
+  Control: TDateTimePicker;
+begin
+   Result:= False;
+   Control:= TDateTimePicker.Create(AOwner);
+   try
+      try
+        Control.Parent:= AOwner;
+        Result:= True;
+      except
+      end;
+   finally
+      Control.Free;
+   end;
+end;
+
+
+function PrepareTDateTimePicker(Control: TDateTimePicker): boolean;
+begin
+   Result:= False;
+   try
+     Control.MinDate:= EncodeDate(2000, 1, 1);
+     Control.MaxDate:= EncodeDate(2075, 12, 31);
+     Control.Date:= Today();
+     Control.Visible := True;
+     Result:= true;
+   except
+   end;
+end;
 
 end.
 

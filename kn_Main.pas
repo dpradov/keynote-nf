@@ -875,6 +875,7 @@ type
     MMToolsDeduceDates: TMenuItem;
     MMToolsRemoveDates: TMenuItem;
     MMViewEditorInfoPanel: TMenuItem;
+    lblCalNotSup: TLabel;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -889,6 +890,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -1322,6 +1324,7 @@ type
     procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean); overload;
     procedure EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
     procedure ShowNodeChromeState(TreeUI: TKntTreeUI);
+    procedure EnsureCalendarSupported;
 
 (*
     {$IFDEF WITH_TIMER}
@@ -1559,6 +1562,36 @@ begin
 end;
 // CREATE
 
+procedure TForm_Main.EnsureCalendarSupported;
+var
+   MadeVisible: boolean;
+begin
+  if CB_CreatedFrom.Visible then exit;
+
+  if not CheckCalendarInTDateTimePicker(Self) then begin
+     MadeVisible:= PrepareTDateTimePicker(CB_CreatedFrom);
+     PrepareTDateTimePicker(CB_CreatedUntil);
+     PrepareTDateTimePicker(CB_LastModifFrom);
+     PrepareTDateTimePicker(CB_LastModifUntil);
+     if not MadeVisible then
+       lblCalNotSup.Visible:= True;
+  end
+  else begin
+     try
+       CB_CreatedFrom.Visible := true;
+       CB_CreatedUntil.Visible := true;
+       CB_LastModifFrom.Visible := true;
+       CB_LastModifUntil.Visible := true;
+     except
+       lblCalNotSup.Visible:= True;
+     end;
+  end;
+end;
+
+procedure TForm_Main.FormShow(Sender: TObject);
+begin
+   EnsureCalendarSupported;
+end;
 
 procedure TForm_Main.FormActivate(Sender: TObject);
 begin

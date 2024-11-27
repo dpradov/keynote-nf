@@ -232,10 +232,12 @@ type
     TB_Hilite: TColorBtn;
     btnExpandWindow: TButton;
     btnShowHideDetails: TButton;
+    lblCalNotSup: TLabel;
 
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
+    procedure EnsureCalendarSupported;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
     procedure Today_5minClick(Sender: TObject);
@@ -1448,6 +1450,32 @@ end;
 //----------------------------------
 
 
+procedure TForm_Alarm.EnsureCalendarSupported;
+begin
+  if CB_ExpirationDate.Visible then exit;
+
+  if not CheckCalendarInTDateTimePicker(Form_Main) then begin
+     if not PrepareTDateTimePicker(CB_ExpirationDate) then
+        lblCalNotSup.Visible:= True;
+     try
+        cCalendar.MinDate:= EncodeDate(2000, 1, 1);
+        cCalendar.MaxDate:= EncodeDate(2075, 12, 31);
+        cCalendar.Date:= Today();
+        cCalendar.Visible := True;
+     except
+     end;
+  end
+  else begin
+     try
+       CB_ExpirationDate.Visible := true;
+       cCalendar.Visible := true;
+     except
+       lblCalNotSup.Visible:= True;
+     end;
+  end;
+end;
+
+
 procedure TForm_Alarm.FormShow(Sender: TObject);
 var
   alarm, alarm_selected: TAlarm;
@@ -1464,6 +1492,7 @@ var
   end;
 
 begin
+   EnsureCalendarSupported;
    ResetModifiedState();
    AlarmMng.CancelReminders(false);
    Button_Sound.Down:= KeyOptions.PlaySoundOnAlarm;

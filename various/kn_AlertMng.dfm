@@ -86,8 +86,6 @@ object Form_Alarm: TForm_Alarm
     Anchors = [akTop, akRight]
     GroupIndex = 1
     Flat = False
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 50
     Images = Form_Main.IMG_Toolbar
     OnClick = Button_SoundClick
@@ -101,8 +99,6 @@ object Form_Alarm: TForm_Alarm
     Hint = 'Copy selected alarms to the clipboard'
     Anchors = [akTop, akRight]
     Flat = False
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 18
     Images = Form_Main.IMG_Toolbar
     OnClick = TB_ClipCapClick
@@ -121,6 +117,22 @@ object Form_Alarm: TForm_Alarm
     DesignSize = (
       784
       405)
+    object lblCalNotSup: TLabel
+      Left = 583
+      Top = 254
+      Width = 173
+      Height = 14
+      Caption = 'System Calendar not supported'
+      Color = clRed
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+      Visible = False
+    end
     object PanelAlarm: TPanel
       Left = 6
       Top = 39
@@ -554,8 +566,6 @@ object Form_Alarm: TForm_Alarm
         Top = 170
         Width = 218
         Height = 21
-        Date = 39404.000000000000000000
-        Time = 39404.000000000000000000
         Checked = False
         DateFormat = dfLong
         Font.Charset = DEFAULT_CHARSET
@@ -565,6 +575,7 @@ object Form_Alarm: TForm_Alarm
         Font.Style = []
         ParentFont = False
         TabOrder = 2
+        Visible = False
         OnChange = CB_ExpirationDateChange
       end
       object chk_Expiration: TCheckBox
@@ -723,8 +734,6 @@ object Form_Alarm: TForm_Alarm
           Height = 22
           AllowAllUp = True
           GroupIndex = 5
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 0
           Images = Form_Main.IMG_Format
           RepeatInterval = 101
@@ -805,9 +814,8 @@ object Form_Alarm: TForm_Alarm
         Width = 215
         Height = 160
         MultiSelect = True
-        Date = 40429.000000000000000000
-        EndDate = 40429.000000000000000000
         TabOrder = 0
+        Visible = False
         OnClick = cCalendarClick
         OnExit = cCalendarExit
         OnGetMonthInfo = cCalendarGetMonthInfo

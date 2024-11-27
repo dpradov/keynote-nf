@@ -24,6 +24,7 @@ object Form_Main: TForm_Main
   OnKeyUp = FormKeyUp
   OnResize = TntFormResize
   OnShortCut = FormShortCut
+  OnShow = FormShow
   TextHeight = 13
   object Splitter_Res: TSplitter
     Left = 792
@@ -1262,6 +1263,21 @@ object Form_Main: TForm_Main
               Font.Style = []
               ParentFont = False
             end
+            object lblCalNotSup: TLabel
+              Left = 50
+              Top = 256
+              Width = 114
+              Height = 13
+              Caption = 'Calendar not supported'
+              FocusControl = Combo_ResFind
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              ParentFont = False
+              Visible = False
+            end
             object CB_ResFind_CaseSens: TCheckBox
               Left = 10
               Top = 9
@@ -1373,11 +1389,10 @@ object Form_Main: TForm_Main
               Width = 80
               Height = 21
               Hint = 'From'
-              Date = 45580.000000000000000000
-              Time = 0.875318587961373900
               Checked = False
               Enabled = False
               TabOrder = 7
+              Visible = False
             end
             object chk_LastModifUntil: TCheckBox
               Left = 15
@@ -1393,10 +1408,9 @@ object Form_Main: TForm_Main
               Width = 80
               Height = 21
               Hint = 'Until'
-              Date = 45580.000000000000000000
-              Time = 0.875318587961373900
               Enabled = False
               TabOrder = 9
+              Visible = False
             end
             object chk_CreatedFrom: TCheckBox
               Left = 15
@@ -1412,11 +1426,10 @@ object Form_Main: TForm_Main
               Width = 80
               Height = 21
               Hint = 'From'
-              Date = 45580.000000000000000000
-              Time = 0.875318587961373900
               Checked = False
               Enabled = False
               TabOrder = 11
+              Visible = False
             end
             object chk_CreatedUntil: TCheckBox
               Left = 15
@@ -1432,10 +1445,9 @@ object Form_Main: TForm_Main
               Width = 80
               Height = 21
               Hint = 'Until'
-              Date = 45580.000000000000000000
-              Time = 0.875318587961373900
               Enabled = False
               TabOrder = 13
+              Visible = False
             end
             object CB_ResFind_Filter: TCheckBox
               Left = 10
