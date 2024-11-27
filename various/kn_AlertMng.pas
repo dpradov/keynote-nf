@@ -238,6 +238,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure EnsureCalendarSupported;
+    procedure EnsureCalendarSize;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
     procedure Today_5minClick(Sender: TObject);
@@ -407,7 +408,7 @@ uses
   const IMG_INDEX_NO_OVERDUE_NOR_PENDING = 51;
   const IMG_INDEX_OVERDUE_OR_PENDING = 52;
 
-  const FORM_WIDTH = 955;
+  const FORM_WIDTH = 966;
 
 
 
@@ -1475,6 +1476,23 @@ begin
   end;
 end;
 
+procedure TForm_Alarm.EnsureCalendarSize;
+var
+  Dif: integer;
+  MinRect: TRect;
+
+begin
+  SendMessage(cCalendar.Handle, MCM_GETMINREQRECT, 0, LPARAM(@MinRect));  // Minimum size required
+  cCalendar.Width:= MinRect.Right - MinRect.Left;
+  cCalendar.Height := MinRect.Bottom - MinRect.Top;
+
+  if cCalendar.Width > PanelCalendar.Width then begin
+     Dif:= cCalendar.Width - PanelCalendar.Width;
+     PanelAlarm.Width := PanelAlarm.Width - Dif;
+     PanelCalendar.Left:= PanelCalendar.Left - Dif;
+     PanelCalendar.Width:= cCalendar.Width;
+  end;
+end;
 
 procedure TForm_Alarm.FormShow(Sender: TObject);
 var
@@ -1493,6 +1511,8 @@ var
 
 begin
    EnsureCalendarSupported;
+   EnsureCalendarSize;
+
    ResetModifiedState();
    AlarmMng.CancelReminders(false);
    Button_Sound.Down:= KeyOptions.PlaySoundOnAlarm;
