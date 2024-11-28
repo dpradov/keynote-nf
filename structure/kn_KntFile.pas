@@ -2023,6 +2023,12 @@ var
       NSelEntry: TNoteEntry;
     begin
       InEntryContent := false;
+
+      // *1 See reason described in the notes of the commit ca19e28bfe:
+      //  (Fixed: Internally, the ID associated with each note entry is not being 0, as it should be.)
+      if not ((Version.Major > '3') or ((Version.Major = '3') and (Version.Minor > '0'))) then
+         NEntryID:= 0;           // *1
+
       Note.AddEntry(NEntry, NEntryID);
 
       if (VirtualFN <> '') or (RelativeVirtualFN <> '') then
