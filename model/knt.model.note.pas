@@ -129,7 +129,7 @@ type
 
     function GetSelEntry : TNoteEntry;
     function GetNumEntries: integer; inline;
-    function GetNextNumEntry: Byte;
+    function GetNextNumEntry: Word;
     function GetDateCreated: TDateTime;
 
     function GetNumNNodes: integer; inline;
@@ -139,7 +139,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    property GID : Cardinal read fGID write SetGID;           // Global ID. Unique note number within the .knt file. Coincide con el GID de una de sus TNoteNode
+    property GID : Cardinal read fGID write SetGID;           // Global ID. Unique note number within the .knt file. Matches the GID of one of its TNoteNode
     property Name : string read fName write SetName;
     property Alias : string read fAlias write SetAlias;
     procedure SetModified; inline;
@@ -292,7 +292,7 @@ type
     procedure SetIsHTML(value: boolean);
 
   public
-    constructor Create (NumEntry: Byte = 0);
+    constructor Create (NumEntry: Word = 0);
     destructor Destroy; override;
     procedure Assign(Source : TNoteEntry);
 
@@ -402,7 +402,7 @@ type
     procedure Assign(Source : TNoteNode);
 
     property ID : Word read fID write SetID;              // [Old] Unique within the folder in which it was created
-    property GID : Cardinal read fGID write SetGID;       // Global ID. Unique note number within the .knt file. Coincide con el GID de una de sus TNoteNode
+    property GID : Cardinal read fGID write SetGID;       // Global ID. Unique note Node number within the .knt file
     procedure ForceID(ID : Word);
 
     property TVNode: PVirtualNode read fTVNode write SetTVNode;
@@ -589,19 +589,16 @@ begin
       Result:= fEntries[0].fDateCreated;
 end;
 
-function TNote.GetNextNumEntry: Byte;
+function TNote.GetNextNumEntry: Word;
 var
-   NextNum: Byte;
-   i: integer;
+  i: integer;
 begin
-   NextNum:= 0;
+   Result:= 0;
    if (fEntries = nil) then exit;
 
    for i:= 0 to High(fEntries) do
-      if fEntries[i].fID >= NextNum then
-         inc(NextNum);
-
-   Result:= NextNum;
+      if fEntries[i].fID >= Result then
+         inc(Result);
 end;
 
 
@@ -924,7 +921,7 @@ end;
 
 {$REGION TNoteEntry }
 
-constructor TNoteEntry.Create (NumEntry: Byte = 0);
+constructor TNoteEntry.Create (NumEntry: Word = 0);
 begin
   inherited Create;
 
