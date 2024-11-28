@@ -220,7 +220,10 @@ contained in the Lang folder.
     To get .exe and .drc (Delphi Resource String File): 
      - In Delphi Environment open menu Project | Options | Linker and set MAP file to Detailed.
      - Build the project. EXE and DRC files will be created.
-- Execute "kdl32_updatelng.cmd" 
+- Execute "kdl32_updatelng.cmd"
+
+* **Remember**: .exe and .drc must be generated in **release mode**. The generated codes for the Resourcestring section are different if generated in debug mode.
+
 
 Because of optional switch "-!" set in the .cmd file, untranslated (new & modified) strings 
 will be marked with "(!)". This way it is easy to find out the new strings in a language file. 
