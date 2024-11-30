@@ -84,7 +84,7 @@ begin
 
 
 
-  IniFile := TMemIniFile.Create( fn );
+  IniFile := TMemIniFile.Create( fn, TEncoding.UTF8 );
   sections := TStringList.Create;
 
 
