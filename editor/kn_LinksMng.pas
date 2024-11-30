@@ -1483,7 +1483,7 @@ var
    URLPos, MinURLPos: integer; // position at which the actual URL starts in URLText
    URLTextLower: string;
    URLaux, URLaux2: string;
-   pParams, p1, p2, p3: integer;
+   pParams, p, p1, p2, p3: integer;
 begin
   // determine where URL address starts in URLText
   URLType := urlUndefined;
@@ -1494,6 +1494,7 @@ begin
 
 
   // *1  Consider the following case: "https://web.archive.org/web/20171103002946/http://www.s3graphics.com/en/"
+  // *2  Consider this case: "D:\@Developers\Path\file.txt"
 
   MinURLPos:= Integer.MaxValue;
   URLTextLower:= AnsiLowerCase(URLText);
@@ -1514,20 +1515,23 @@ begin
     URLText := copy( URLText, MinURLPos, length( URLText ))
 
   else
-      if ( pos( '@', URLText ) > 0 ) then begin
-          URLText := 'mailto:' + trim(URLText);
-          URLType := urlMailto;
-      end
-      else if ( pos( 'WWW.', AnsiUpperCase(URLText) ) > 0 ) then begin
+      if ( pos( 'WWW.', AnsiUpperCase(URLText) ) > 0 ) then begin
           URLText := 'http://' + trim(URLText);
           URLType := urlHttp;
       end;
 
   KNTlocation:= False;   // By default
 
-  if (URLType = urlUndefined) then
-      if pos( ':', URLText ) <= 2 then
+  if (URLType = urlUndefined) then begin
+      p:= pos( ':', URLText );
+      if ( pos( '@', URLText ) > 0 ) and (p <= 0) then begin       // *2
+          URLText := 'mailto:' + trim(URLText);
+          URLType := urlMailto;
+      end
+      else
+      if p <= 2 then
          URLType := urlFile;
+  end;
 
 
   if (URLType = urlFile) then begin
