@@ -200,7 +200,6 @@ resourcestring
   sDef29 = 'Invalid zoom ratio: ';
   sDef30 = ' (and apply to "%s" folder)';
 
-
   // kn_LanguagesMng.pas ========================================================================
   sLng01 = 'Internal Language (English) will be established next time you start KeyNote NF';
   sLng02 = 'Language file not found: ';
@@ -1179,6 +1178,39 @@ resourcestring
   sUInote_ = 'knt.ui.note.pas';
   //sUInote01 = 'Entry created: %s  ##  Note last modified: %s';     // TODO.. Entries
   sUInote01 = 'Created: %s  ==  Last modified: %s';
+
+
+  // kn_Defaults.pas -------------------
+  sDef31 =  'REMEMBER:' + #13#13 +
+            '- Folder settings apply only to NEW notes, except:' + #13 +
+            '   - ''Plain note only'': modifies ALL the notes' + #13 +
+            '   - ''WordWrap'': affects ALL the notes' + #13 +
+            '       (not explicitly set WordWrap previously)' + #13#13 +
+            '>> More info in Help File (F1)'
+            ;
+  sDef32 =  'REMEMBER:' + #13#13 +
+            '- Font change affect only to NEW nodes (all if Plain note)' + #13 +
+            '- BG Color depends on ''Inherit BG color from active node'':' + #13 +
+            '   - If set, background color of selected node is shown' + #13 +
+            '     (=> BG color of its new child nodes)' + #13 +
+            '   - If not set, default BG color for all NEW nodes is shown' + #13 +
+            '   * To edit this option -> F5 | General settings| Rich Text editor' + #13#13 +
+            '- BG Color can be changed for ALL nodes in a Folder:' + #13 +
+            '    [Shift] + "Format | Background color"' + #13#13 +
+            '>> More info in Help File (F1)'
+            ;
+  sDef33 =  'REMEMBER:' + #13#13 +
+            '- BG Color sets backgroud color for the Tree Panel and' + #13 +
+            '  default BG color of tree nodes' + #13 +
+            '- Previous changes to individual nodes won''t be affected' + #13 +
+            '- ''Inherit properties from active node'' option is' + #13 +
+            '  considered in NEW nodes' + #13 +
+            '- Font and BG color can be changed for ALL tree panels at once:' + #13 +
+            '    "Apply to ALL folders"' + #13#13 +
+            '- Note: ''Inherit BG color from active node'' option does NOT' + #13 +
+            '  affect (refers to Editor) ' + #13#13 +
+            '>> More info in Help File (F1)'
+            ;
 
 
 

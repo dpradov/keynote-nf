@@ -12,25 +12,25 @@ rem Update main language file from .exe and .drc
 
 rem Update translation files from keynote.lng and old keynote.<language>.lng
 
-del Keynote.spanish.lng.bak
-copy Keynote.spanish.lng   Keynote.spanish.lng.bak
-"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.spanish.lng  Keynote.lng -! -x
+del Keynote.spanish_WRK.lng.bak
+copy Keynote.spanish_WRK.lng   Keynote.spanish_WRK.lng.bak
+"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.spanish_WRK.lng  Keynote.lng -! -x
 
-del Keynote.dutch.lng.bak
-copy Keynote.dutch.lng   Keynote.dutch.lng.bak
-"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.dutch.lng  Keynote.lng -! -x
+del Keynote.dutch_WRK.lng.bak
+copy Keynote.dutch_WRK.lng   Keynote.dutch_WRK.lng.bak
+"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.dutch_WRK.lng  Keynote.lng -! -x
 
-del Keynote.german.lng.bak
-copy Keynote.german.lng   Keynote.german.lng.bak
-"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.german.lng  Keynote.lng -! -x
+del Keynote.german_WRK.lng.bak
+copy Keynote.german_WRK.lng   Keynote.german_WRK.lng.bak
+"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.german_WRK.lng  Keynote.lng -! -x
 
-del Keynote.chinese-simplified.lng.bak
+del Keynote.chinese-simplified_WRK.lng.bak
 copy Keynote.chinese-simplified.lng   Keynote.chinese-simplified.lng.bak
-"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.chinese-simplified.lng  Keynote.lng -! -x
+"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.chinese-simplified_WRK.lng  Keynote.lng -! -x
 
-del Keynote.french.lng.bak
-copy Keynote.french.lng   Keynote.french.lng.bak
-"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.french.lng  Keynote.lng -! -x
+del Keynote.french_WRK.lng.bak
+copy Keynote.french_WRK.lng   Keynote.french_WRK.lng.bak
+"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.french_WRK.lng  Keynote.lng -! -x
 
 
 echo ****************** 
