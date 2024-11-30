@@ -435,25 +435,6 @@ object Form_Defaults: TForm_Defaults
           Font.Style = []
           ParentFont = False
         end
-        object LB_PlainText: TLabel
-          Left = 34
-          Top = 155
-          Width = 315
-          Height = 13
-          Hint = 
-            'If checked, new notes (or new entries of existing notes) will de' +
-            'fault to plain text only, instead of Rich Text.'
-          AutoSize = False
-          Caption = 'Default &Plain text only (do not save formatting information)'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          Transparent = True
-          StyleElements = [seClient, seBorder]
-        end
         object CB_WordWrap: TCheckBox
           Left = 15
           Top = 36
@@ -566,8 +547,12 @@ object Form_Defaults: TForm_Defaults
         object CB_PlainText: TCheckBox
           Left = 15
           Top = 154
-          Width = 17
+		  Width = 323
           Height = 17
+          Hint = 
+            'If checked, new notes (or new entries of existing notes) will de' +
+            'fault to plain text only, instead of Rich Text.'
+          Caption = 'Default &Plain text only (do not save formatting information)'		  
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clRed
           Font.Height = -11
