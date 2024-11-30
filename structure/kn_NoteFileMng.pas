@@ -1576,8 +1576,10 @@ begin
         Changed := false;
         s := '';
         GetFileState( ActiveFile.State.Name, NewState );
-        if ( NewState.Size < 0 ) then begin
+        if ( NewState.Size = -1 ) then begin
           // means file does not exist (deleted or renamed)
+          // If Size = -99: an exception in GetFileStateCannot was raised, that could probably be:
+          // <<Cannot open file "...". The process cannot access the file because it is being used by another process" -> Exception "The process cannot access the file because it is being used by another process>>
           App.FileSetModified;      // so that we save it
           exit;
         end;

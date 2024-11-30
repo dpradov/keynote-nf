@@ -536,8 +536,9 @@ begin
       FileState.Size := -1;
     end;
   except
+     // Possible exception: "Cannot open file "...". The process cannot access the file because it is being used by another process"
       FileState.Time := 0;
-      FileState.Size := -1;
+      FileState.Size := -99;
   end;
 end; // GetFileState
 
