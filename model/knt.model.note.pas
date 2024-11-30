@@ -41,18 +41,23 @@ type
  TNoteNodeList = TSimpleObjList<TNoteNode>;   // TList<TNoteNode>;
  TNoteTagList= TSimpleObjList<TNoteTag>;      // TList<TNoteTag>;
 
- TResource = TNote;                     // TODO: Define TResource as a structure with a note and a typology (at least)
+ TResource = TNote;                           // TODO: Define TResource as a structure with a note and a typology (at least)
  TResourceList = TSimpleObjList<TResource>;
  TNoteEntryArray = TArray<TNoteEntry>;
  TAliasArray = TArray<string>;          // Consider also TStringList and System.IniFiles.THashedStringList (already used in TMemIniFIle...)
 
 
  TNoteState = (
-   nsReadOnly,          // TODO: Allow marking individual notes as read-only (apart from being able to do so at higher levels as well: Folder, File)
-   nsArchived,          // TODO: Archived notes -> way to mark them as material that we do not want to appear by default in searches or complicate the viewing of notes
-   nsShowEmbedded,      // TODO: Show as embedded note when viewing the parent note (Ref: pg.72)
-   nsNoEmbeddable,
-   // will not be serialized to file:
+  // TODO ------------ : 
+   nsReadOnly,      // Individual note marked as read-only
+   nsArchived,      // Individual note marked as archived. 
+                    // Its a way to mark a note as material that we do not want to appear by default in searches
+   nsShowEmbedded,  // Show as embedded note when viewing the parent note (Ref: "pg.72")
+   nsNoEmbeddable,  // Do not embed, if it is used a presentation mode that represents as embedded notes all or a selection
+                    // (according to some criteria) of its child notes.
+
+                    
+   // will not be serialized to .knt file:
    nsModified,
    nsLoading_OldMirror
   );
@@ -203,20 +208,28 @@ type
 
   TNoteEntryState = (
     nesModified,
-    nesPlainTXT,       // If no existe => es RTF
-    nesHTML,
-
-    // TODO: 
-    nesReadOnly,
-    nesEncrypted,
+    nesPlainTXT,       // If assigned => content is Plain TXT | If not assigned => content is RTF
+    nesHTML,           // If assigned => content is HTML
+    
+ // TODO ------------ : 
+ 
+    nesReadOnly,       // Entry marked as read-only
+  //--  
+    nesEncrypted,      // Entry marked as encrypted
     nesArchived,       // Entry that we do not want to appear by default in searches or complicate the display of notes
-    nesEntryAndNote,   // It allows to point out that an entry also constitutes a note in itself (it is the 'first' entry of that one, or its MainEntry, and that it may have other Entries)
-    nesFixed,
-
-    nesIsMain,      // Main entry in a note, which identifies the note, usually the first. Its tags will apply globally to the entire note
-    nesIsSummary,   // Only one entry can be used as Summary in a note
+    nesEntryAndNote,   // It allows to point out that an entry also constitutes a note in itself 
+                       // (it is the 'first' entry of that one, or its Main entry, and that it may have other Entries)
+    nesFixed,          // When viewing the note, pin to the top. Can also be used as a search criterion 
+  //--  
+  
+    // Internal and basic way of categorizing the entries of a note. Can also be used as a search criterion	
+    // (and complemented with the use of custom tags):
+  
+    nesIsMain,         // Main entry in a note, which identifies the note, usually the first. Its tags will apply globally to the entire note
+    nesIsSummary,      // Only one entry can be used as Summary in a note
     nesIsStarred,
     nesIsDoc,
+  //-- 
     nesIsToDO,
     nesIsRequirements
   );
@@ -326,19 +339,22 @@ type
     previously persisted (and serialized) on our TNoteNode. Other (eg. level) will be temporarily saved in Folder }
 
   TNoteNodeState = (
-    nnsBold,
+    nnsBold,                     // The title node (note name) is shown in bold
     nnsTreeFilterMatch,          // Fulfills the tree filtering condition (if it exists)
     nnsFindFilterMatch,          // ,,                  ,,        de Find All  ,,
-    nnsChildrenCheckbox,
-    nnsShowOutlineNumberAndName,
-    nnsShowOutlineOnlyNumber,
-    nnsCustomNumberingSubtree,
-    nnsWordWrap,                 // WordWrap -> apply / NoWordWarp -> do not apply. If neither nsWordWrap nor nsNoWordWrap is indicated -> default value
-    nnsNoWordWrap,
-    nnsFlagged,                  // TODO
-    nnsSaved_Expanded,
-    nnsSaved_Checked,
-    nnsSaved_Hidden
+    nnsChildrenCheckbox,         // Show checkboxes in children of node
+    
+    nnsShowOutlineNumberAndName, // Outline node numbering configured as number and name
+    nnsShowOutlineOnlyNumber,    // ,,                                   only number
+    nnsCustomNumberingSubtree,   // Node configured as start of numbering subtree
+    nnsWordWrap,                 // Apply WordWrap in the node
+    
+    nnsNoWordWrap,               // Do not apply WordWrap in the node (If neither WordWrap nor NoWordWrap => default value in folder)
+    nnsFlagged,                  // Node is flagged
+    nnsSaved_Expanded,           // Node is expanded in the folder tree (only updates when saving)
+    nnsSaved_Checked,            // Node is checked (only updates when saving)
+    
+    nnsSaved_Hidden              // Node is hidden in the folder tree
   );
 
   TNoteNodeStates = set of TNoteNodeState;

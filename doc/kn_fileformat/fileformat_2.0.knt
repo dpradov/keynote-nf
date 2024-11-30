@@ -1,0 +1,97 @@
+#!GFKNT 2.0
+# This is an automatically generated file. Do not edit.
+#/This is the optional description
+#?This is the optional comment
+#$1
+#C21-05-2003 15:24:50
+#^111100000000000000000000
+#Fc:\delphi\projects\keynote\keynote.icn
+%
+NN=Simple note
+ID=2
+II=7
+DC=21-05-2003 15:25:25
+TI=0
+TS=4
+CX=67
+CY=0
+BG=$00DADADA
+CH=0
+FC=clWindowText
+FN=Courier New
+FS=12
+LN=1033
+ST=bold
+FL=101110000000000000000000
+LC=5
+%:
+{\rtf1\ansi\ansicpg1250\deff0\deflang1045{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}
+\viewkind4\uc1\pard\f0\fs24 This is the text of the simple note.\par
+This is another line of text.\par
+\par
+}
+%+
+NN=Tree note
+ID=1
+II=7
+DC=21-05-2003 15:24:50
+TI=1
+TS=4
+CX=44
+CY=0
+BG=$00DADADA
+CH=0
+FC=clWindowText
+FN=Courier New
+FS=12
+LN=1033
+ST=
+FL=101110000000210000000000
+SN=1
+TW=187
+EN=New node
+TB=clWindow
+TH=238
+TC=clWindowText
+TN=Verdana
+TZ=9
+TY=
+%-
+LV=0
+ND=This is a node
+DI=1
+NF=000000100000000000000000
+BC=$00DADADA
+IX=0
+SS=60
+%:
+{\rtf1\ansi\ansicpg1250\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f1\fnil\fcharset0 Courier New;}}
+\viewkind4\uc1\pard\lang1045\f0\fs24 This is the text of the node.\par
+This is another line of text.\par
+\lang1033\f1\par
+}
+%-
+LV=1
+ND=Child node
+DI=2
+NF=001000111000000000000000
+BC=$00DADADA
+IX=0
+HC=$00C0FFFF
+HB=clRed
+SS=44
+%:
+{\rtf1\ansi\ansicpg1250\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}{\f1\fnil\fcharset0 Courier New;}}
+\viewkind4\uc1\pard\lang1045\f0\fs24 This is a \b child node\b0  text.\par
+Another line of text!\lang1033\f1\par
+}
+%-
+LV=1
+ND=todo.txt
+DI=3
+NF=000001000000000000000000
+BC=$00DADADA
+IX=0
+SS=131
+VF=c:\delphi\projects\keynote\doc\todo.txt
+%%
